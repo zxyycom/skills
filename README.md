@@ -11,6 +11,7 @@
 ## 目录结构
 
 - `.gitmodules`: 子仓库入口和远端 URL。
+- `.codex/rules/`: 本仓库常用命令的 Codex 审批规则。
 - `.github/workflows/`: 主仓库统一 CI，用于校验、打包并发布全部 skill 制品。
 - `AGENTS.md`: Codex agent 维护本仓库时的项目级指令。
 - `docs/`: 主仓库维护文档和决策记录。
