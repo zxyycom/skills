@@ -27,11 +27,12 @@
 
 1. `decision-records`: 决策记录体系自身的结构、目的、命名、门槛和维护方式。
 2. `project-tooling`: 本地脚本、打包方式、CI 和交付制品的长期契约。
-3. `skill-references`: skill 引用文件的 owner 分工、结构拆分和跨文件关系。
+3. `prompt-optimize-references`: `prompt-optimize` skill 引用文件的 owner 分工、结构拆分和跨文件关系。
 
 可能出现的影响面示例:
 
-1. `skill-behavior`: skill 触发条件、执行流程、输出边界或完成检查。
+1. `skill-behavior`: 多个 skill 共享的触发条件、执行流程、输出边界或完成检查。
+2. `<skill-name>-references`: 单个 skill 的引用结构、规则归属和跨文件关系。
 
 ## 决策清单
 
@@ -46,7 +47,7 @@
 
 1. [active: 2026-06-30 - 使用 latest release 自动发布 skill 制品](project-tooling/260630-active-publish-skill-package-as-latest-release.md)
 
-`skill-references`:
+`prompt-optimize-references`:
 
-1. [active: 2026-06-30 - 将核心流程合并回入口](skill-references/260630-active-merge-core-flow-into-entry.md)
-2. [superseded: 2026-06-30 - 将改写规则重组为管线](skill-references/260630-superseded-reorganize-rewrite-rules-as-pipeline.md)
+1. [active: 2026-06-30 - 将 prompt-optimize 核心流程合并回入口](prompt-optimize-references/260630-active-merge-prompt-optimize-core-flow-into-entry.md)
+2. [superseded: 2026-06-30 - 将 prompt-optimize 改写规则重组为管线](prompt-optimize-references/260630-superseded-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md)

@@ -1,15 +1,17 @@
-# 2026-06-30 - 将改写规则重组为管线
+# 2026-06-30 - 将 prompt-optimize 改写规则重组为管线
 
 ## 状态
 - 当前状态: superseded
-- 导致状态变化的决策: [2026-06-30 - 将核心流程合并回入口](260630-active-merge-core-flow-into-entry.md)
-- 状态说明: 保留用于回放上一阶段把改写规则拆到引用文件的原因; 当前默认执行路径以后续决策为准。
+- 导致状态变化的决策: [2026-06-30 - 将 prompt-optimize 核心流程合并回入口](260630-active-merge-prompt-optimize-core-flow-into-entry.md)
+- 状态说明: 保留用于回放 `prompt-optimize` 上一阶段把改写规则拆到引用文件的原因; 当前默认执行路径以后续决策为准。
 
 ## 问题
 - `prompt-optimize` skill 的规则内容持续膨胀, 入口和引用文件之间开始出现职责重复。
 - 虽然原则文件已经整理出“原理或思考 -> 行为”的表达, 但具体规则仍按原主题堆放, 使用时容易逐条套规则, 而不是先判断任务出口和文档骨架。
 
 ## 背景与约束
+- 本记录从 `prompt-optimize` 原单 skill 仓库迁入主仓库决策目录, 只适用于 `prompt-optimize` 的引用结构。
+- 当前主仓库通过 submodule 维护多个 skill 子仓库; `prompt-optimize` skill 本体位于 `prompt-optimize/skill/prompt-optimize/`。
 - `SKILL.md` 应保持为入口、读取策略、最小执行协议和完成检查, 不承接完整规则解释。
 - `workflows.md` 负责做事顺序, `rewrite-rules.md` 负责具体判断方法, `principles.md` 负责长期理由, `agent-tasks.md` 负责协作任务结构。
 - 用户明确指出规则不能只是原有结构的轻度整理, 需要合理拆分和重组, 原理说明也要体现“什么原理或思考带来什么行为”。
@@ -22,21 +24,22 @@
 5. 同步调整 `workflows.md` 和 `SKILL.md`, 让入口和流程文件只引用管线摘要, 具体判断留在 `rewrite-rules.md`。
 
 ## 决定
-- 采用: `rewrite-rules.md` 作为改写判断 owner, 按管线组织规则, 每一步的产物决定下一步处理方式。
-- 采用: `workflows.md` 只写任务流程顺序, 不重复展开具体改写判断。
-- 采用: `principles.md` 只解释规则背后的原理、取舍和长期维护理由, 每节按“原理或思考 -> 行为”说明。
-- 采用: `SKILL.md` 只保留导航、最小协议和完成检查, 不把引用文件里的完整规则搬回入口。
+- 采用: 在 `prompt-optimize` 中, `rewrite-rules.md` 作为改写判断 owner, 按管线组织规则, 每一步的产物决定下一步处理方式。
+- 采用: 在 `prompt-optimize` 中, `workflows.md` 只写任务流程顺序, 不重复展开具体改写判断。
+- 采用: 在 `prompt-optimize` 中, `principles.md` 只解释规则背后的原理、取舍和长期维护理由, 每节按“原理或思考 -> 行为”说明。
+- 采用: 在 `prompt-optimize` 中, `SKILL.md` 只保留导航、最小协议和完成检查, 不把引用文件里的完整规则搬回入口。
 - 不采用: 继续按“用途错配、负向描述、模糊表达、信息结构”等主题并列堆放规则。
 - 不采用: 为每个规则主题继续拆出更多引用文件; 当前规模下会增加读取跳转成本。
-- 触发条件: 后续新增改写规则时, 先判断它属于管线中的哪一步以及哪个文件是 owner; 不能直接在多个位置重复补充同一判断。
+- 触发条件: 后续维护 `prompt-optimize` 的改写规则时, 先判断它属于管线中的哪一步以及哪个文件是 owner; 不能直接在多个位置重复补充同一判断。
 
 ## 影响
 - 后续维护 `prompt-optimize` 时, 新规则优先进入现有管线步骤, 而不是新增并列主题段落。
 - 入口文件和工作流文件只保留摘要和读取路径, 降低 skill 触发后的初始上下文压力。
 - 审阅 skill 引用结构时, 优先检查各文件是否仍遵守“入口导航、流程顺序、规则判断、原则理由、协作结构”的 owner 分工。
+- 该记录只回放 `prompt-optimize` 的旧结构, 不作为其他 skill 的引用文件拆分模板。
 
 ## 验证
-- `SKILL.md` 已把最小执行协议改为按改写管线处理。
-- `workflows.md` 的“改写已有文本”已同步为八步管线。
-- `rewrite-rules.md` 已按八步管线重组。
-- `principles.md` 已按“原理或思考 -> 行为”组织。
+- `prompt-optimize/skill/prompt-optimize/SKILL.md` 已把最小执行协议改为按改写管线处理。
+- `prompt-optimize/skill/prompt-optimize/references/workflows.md` 的“改写已有文本”已同步为八步管线。
+- `prompt-optimize/skill/prompt-optimize/references/rewrite-rules.md` 已按八步管线重组。
+- `prompt-optimize/skill/prompt-optimize/references/principles.md` 已按“原理或思考 -> 行为”组织。
