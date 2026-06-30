@@ -1,18 +1,33 @@
 # Skills
 
-这个仓库是 Codex skills 的主仓库，用 Git submodule 组织多个可独立维护的 skill 仓库。
+这个仓库是 Codex skills 的主仓库，用 Git submodule 组织多个 skill 子仓库，并在主仓库集中维护共享脚本、CI、维护文档和发布流程。
 
 ## 项目定位
 
-`skills` 不直接维护 skill 本体内容。它负责固定本地工作区布局、记录子仓库入口，并让多个 skill 仓库可以一起拉取、检查和更新。
+`skills` 保留多仓库结构：每个子仓库是独立 skill owner，主仓库通过 `.gitmodules` 固定它们的入口和版本指针。
 
-主仓库只提交项目级说明、agent 指令、workspace 配置和 submodule 指针。具体 skill 行为、打包脚本、CI 和发布流程在对应子仓库内维护。
+同时，重复的项目级能力不再分散在每个子仓库中。共享校验、打包、发布、工具链说明和长期维护文档由主仓库承接；子仓库尽量只保留 `skill/` 下的 skill 本体和随 skill 分发的文件。
 
-## 子仓库
+## 目录结构
 
-- `prompt-optimize/`: 结构化文本优化 skill，来源于 `zxyycom/prompt-optimize`。
-- `git-commit-organizer/`: Git 提交整理 skill。
-- `openspec-skills/`: OpenSpec propose、apply、archive、explore 四个 workflow skill 的集合仓库。
+- `.gitmodules`: 子仓库入口和远端 URL。
+- `.github/workflows/`: 主仓库统一 CI，用于校验、打包并发布全部 skill 制品。
+- `AGENTS.md`: Codex agent 维护本仓库时的项目级指令。
+- `docs/`: 主仓库维护文档和决策记录。
+- `package.json`: 本地校验、打包和交付准备脚本入口。
+- `scripts/`: 主仓库共享自动化脚本。
+- `prompt-optimize/`: `prompt-optimize` skill 子仓库。
+- `git-commit-organizer/`: `git-commit-organizer` skill 子仓库。
+- `openspec-skills/`: OpenSpec workflow skills 集合子仓库。
+
+## 当前 Skills
+
+- `prompt-optimize/skill/prompt-optimize/`: 结构化文本优化 skill。
+- `git-commit-organizer/skill/git-commit-organizer/`: Git 提交整理 skill。
+- `openspec-skills/skill/openspec-propose/`: 创建 OpenSpec change artifacts。
+- `openspec-skills/skill/openspec-apply-change/`: 根据 OpenSpec change 推进实现。
+- `openspec-skills/skill/openspec-archive-change/`: 归档已完成的 OpenSpec change。
+- `openspec-skills/skill/openspec-explore/`: 围绕 OpenSpec change 调查事实、澄清问题和比较方案。
 
 ## 使用方式
 
@@ -22,21 +37,35 @@
 git submodule update --init --recursive
 ```
 
-更新全部子仓库到主仓库记录的版本：
+安装主仓库共享工具依赖：
 
 ```bash
-git submodule update --recursive
+pnpm install
 ```
 
-查看子仓库状态：
+校验全部 skill 和主仓库维护文档：
 
 ```bash
-git submodule foreach git status --short
+bun run validate
 ```
+
+打包全部 skill：
+
+```bash
+bun run pack:skills
+```
+
+完整检查：
+
+```bash
+bun run check
+```
+
+打包产物输出到 `dist/<skill-name>.zip`，不提交到仓库。
 
 ## 维护约定
 
-1. 主仓库只提交 `.gitmodules`、workspace 配置、项目级说明和 submodule 指针。
-2. skill 内容、打包脚本、CI 和 release 逻辑在对应子仓库中维护。
-3. 更新子仓库内容时，先在子仓库提交并推送，再回到主仓库提交对应 submodule 指针。
-4. 不在主仓库复制子仓库文件，避免同一份 skill 内容出现两个 owner。
+1. 子仓库保存 skill 本体；共享脚本、CI、依赖、发布流程和维护文档放在主仓库。
+2. 新增 skill 子仓库时，先更新 `.gitmodules`，再确认 `scripts/validate.ts` 和 `scripts/pack-skills.ts` 能发现对应 `skill/<skill-name>/SKILL.md`。
+3. 更新子仓库内容时，先在子仓库提交并推送，再回到主仓库提交 submodule 指针。
+4. 不在每个子仓库重复维护同一套 `package.json`、`scripts/`、`.github/` 或项目级工具链说明。
