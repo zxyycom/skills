@@ -2,8 +2,8 @@
 
 ## 状态
 - 当前状态: amended
-- 导致状态变化的决策: [2026-07-01 - 使用 skill hash 门禁 latest release 发布](260701-amended-gate-latest-release-by-skill-hash.md), [2026-07-01 - 给子仓库增加独立 release workflow](260701-amended-add-submodule-release-workflows.md), [2026-07-01 - 不用脚本校验 workflow 结构](260701-active-avoid-workflow-structure-validation.md)
-- 状态说明: 固定 `skills-latest` release 和主仓库统一打包仍然生效；发布触发条件已改为当前 skill hash 与最近已发布 hash 不一致。同时, 子仓库不再完全排除 release workflow, 可保留自身最小发布流程；workflow 结构不再由校验脚本强制检查。
+- 导致状态变化的决策: [2026-07-01 - 使用 skill hash 门禁 latest release 发布](260701-amended-gate-latest-release-by-skill-hash.md), [2026-07-01 - 给子仓库增加独立 release workflow](260701-amended-add-submodule-release-workflows.md), [2026-07-01 - 不用脚本校验 workflow 结构](260701-active-avoid-workflow-structure-validation.md), [2026-07-01 - 用 Git hook 更新 package hash](260701-active-update-package-hash-with-git-hooks.md)
+- 状态说明: 固定 `skills-latest` release 和主仓库统一打包仍然生效；发布触发条件已改为当前 skill hash 与上一提交 hash 不一致，hash 文件由提交前 hook 维护并由 CI 校验。同时, 子仓库不再完全排除 release workflow, 可保留自身最小发布流程；workflow 结构不再由校验脚本强制检查。
 
 ## 问题
 - 多个 skill 子仓库有重复的校验、打包和发布脚本，继续分散维护会让同一套工具链在多个仓库漂移。

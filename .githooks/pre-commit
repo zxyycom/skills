@@ -1,0 +1,28 @@
+#!/bin/sh
+set -eu
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+if ! command -v bun >/dev/null 2>&1; then
+  echo "bun is required to update skill-package.hash before commit." >&2
+  exit 1
+fi
+
+if ! git submodule foreach --quiet 'git diff --quiet && git diff --cached --quiet' >/dev/null; then
+  echo "Submodule working trees must be clean before committing the root package hash." >&2
+  echo "Commit submodule changes inside the submodule first, then stage the root submodule pointer." >&2
+  exit 1
+fi
+
+submodule_paths="$(git config --file .gitmodules --get-regexp path | awk '{print $2}')"
+for submodule_path in $submodule_paths; do
+  if ! git diff --quiet -- "$submodule_path"; then
+    echo "Submodule pointer is not staged: $submodule_path" >&2
+    echo "Run: git add $submodule_path" >&2
+    exit 1
+  fi
+done
+
+bun scripts/hash-skills.ts --write
+git add skill-package.hash

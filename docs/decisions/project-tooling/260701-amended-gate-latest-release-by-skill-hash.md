@@ -2,8 +2,8 @@
 
 ## 状态
 - 当前状态: amended
-- 导致状态变化的决策: [2026-07-01 - 不用脚本校验 workflow 结构](260701-active-avoid-workflow-structure-validation.md)
-- 状态说明: Hash 门禁规则仍然生效；原记录中由校验脚本检查 CI hash 门禁的做法已取消。
+- 导致状态变化的决策: [2026-07-01 - 不用脚本校验 workflow 结构](260701-active-avoid-workflow-structure-validation.md), [2026-07-01 - 用 Git hook 更新 package hash](260701-active-update-package-hash-with-git-hooks.md)
+- 状态说明: Hash 门禁规则仍然生效；原记录中由校验脚本检查 CI hash 门禁的做法已取消，发布后由 CI 写回 hash 的做法也改为提交前 hook 更新仓库内 hash。
 
 ## 问题
 - 主仓库维护文档、脚本、CI 或子仓库 `skill/` 外文件变化时，旧 CI 也会覆盖 `skills-latest` release，但这些变化不一定改变可安装 skill 包。

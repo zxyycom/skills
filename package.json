@@ -13,6 +13,7 @@
     "validate:decisions": "bun scripts/validate-decisions.ts",
     "hash:skills": "bun scripts/hash-skills.ts",
     "pack:skills": "bun scripts/pack-skills.ts",
+    "setup-hooks": "bun scripts/setup-git-hooks.ts",
     "sync:skill-updaters": "bun scripts/sync-skill-updaters.ts --write",
     "check:skill-updaters": "bun scripts/sync-skill-updaters.ts --check",
     "deploy:package": "bun run check",

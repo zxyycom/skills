@@ -2,8 +2,8 @@
 
 ## 状态
 - 当前状态: amended
-- 导致状态变化的决策: [2026-07-01 - 不用脚本校验 workflow 结构](260701-active-avoid-workflow-structure-validation.md)
-- 状态说明: 子仓库保留自身发布流程的规则仍然生效；原记录中由主仓库校验脚本检查子仓库发布 workflow 的做法已取消。
+- 导致状态变化的决策: [2026-07-01 - 不用脚本校验 workflow 结构](260701-active-avoid-workflow-structure-validation.md), [2026-07-01 - 用 Git hook 更新 package hash](260701-active-update-package-hash-with-git-hooks.md)
+- 状态说明: 子仓库保留自身发布流程的规则仍然生效；原记录中由主仓库校验脚本检查子仓库发布 workflow 的做法已取消，子仓库发布 hash 也改为提交前 hook 更新、CI 校验。
 
 ## 问题
 - 只有主仓库发布 `skills-latest` 时, 使用者必须从聚合 release 获取单个 skill 或 skill 集合, 子仓库本身没有独立交付入口。

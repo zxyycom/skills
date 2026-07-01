@@ -13,6 +13,7 @@ const requiredPackageScripts = [
   "validate:decisions",
   "hash:skills",
   "pack:skills",
+  "setup-hooks",
   "sync:skill-updaters",
   "check:skill-updaters",
   "check",
@@ -26,7 +27,9 @@ const requiredProjectFiles = [
   "AGENTS.md",
   "pnpm-workspace.yaml",
   "tsconfig.json",
+  "scripts/setup-git-hooks.ts",
   "docs/tooling.md",
+  ".githooks/pre-commit",
   ".github/workflows/package-skills.yml"
 ] as const;
 

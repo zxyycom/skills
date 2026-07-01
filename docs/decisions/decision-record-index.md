@@ -45,13 +45,14 @@
 
 `project-tooling`:
 
-1. [active: 2026-07-01 - 使用 tsgo 作为默认类型检查入口](project-tooling/260701-active-use-tsgo-for-typecheck.md)
-2. [active: 2026-07-01 - 本地脚本的常见行为优先使用成熟库](project-tooling/260701-active-use-libraries-for-common-script-behavior.md)
-3. [active: 2026-07-01 - 不用脚本校验 workflow 结构](project-tooling/260701-active-avoid-workflow-structure-validation.md)
-4. [active: 2026-07-01 - 在 skill 包内分发自更新脚本](project-tooling/260701-active-embed-self-update-script-in-skill-packages.md)
-5. [amended: 2026-07-01 - 使用 skill hash 门禁 latest release 发布](project-tooling/260701-amended-gate-latest-release-by-skill-hash.md)
-6. [amended: 2026-07-01 - 给子仓库增加独立 release workflow](project-tooling/260701-amended-add-submodule-release-workflows.md)
-7. [amended: 2026-06-30 - 使用 latest release 自动发布 skill 制品](project-tooling/260630-amended-publish-skill-package-as-latest-release.md)
+1. [active: 2026-07-01 - 用 Git hook 更新 package hash](project-tooling/260701-active-update-package-hash-with-git-hooks.md)
+2. [active: 2026-07-01 - 使用 tsgo 作为默认类型检查入口](project-tooling/260701-active-use-tsgo-for-typecheck.md)
+3. [active: 2026-07-01 - 本地脚本的常见行为优先使用成熟库](project-tooling/260701-active-use-libraries-for-common-script-behavior.md)
+4. [active: 2026-07-01 - 不用脚本校验 workflow 结构](project-tooling/260701-active-avoid-workflow-structure-validation.md)
+5. [active: 2026-07-01 - 在 skill 包内分发自更新脚本](project-tooling/260701-active-embed-self-update-script-in-skill-packages.md)
+6. [amended: 2026-07-01 - 使用 skill hash 门禁 latest release 发布](project-tooling/260701-amended-gate-latest-release-by-skill-hash.md)
+7. [amended: 2026-07-01 - 给子仓库增加独立 release workflow](project-tooling/260701-amended-add-submodule-release-workflows.md)
+8. [amended: 2026-06-30 - 使用 latest release 自动发布 skill 制品](project-tooling/260630-amended-publish-skill-package-as-latest-release.md)
 
 `prompt-optimize-references`:
 
