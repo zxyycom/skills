@@ -55,7 +55,7 @@
 10. Markdown 链接提取使用 `mdast-util-from-markdown` 解析 Markdown AST；脚本负责仓库路径、状态来源和项目约束校验。
 11. Markdown 内部链接目标必须是仓库内路径且目标存在；`#anchor` 必须匹配目标 Markdown 文件中的标题锚点。
 12. 决策记录校验保留为独立入口，总校验复用同一 validator 规则。
-13. Skill 发布 hash 只覆盖会进入 skill zip 的文件路径和文件内容；子仓库中 `skill/` 外的 README、元数据或普通维护文件变化不触发 release 发布。
+13. Skill 发布 hash 只覆盖会进入 skill zip 的文件路径和 Git blob 内容；子仓库中 `skill/` 外的 README、元数据或普通维护文件变化不触发 release 发布。Hash 计算读取 Git `HEAD` tree/blob，避免 Windows 与 Linux 工作区换行差异导致本地 hook 和 CI 结果不一致。
 14. 校验脚本不解析 workflow 结构, 也不通过正则检查 workflow 内部步骤; workflow 逻辑由文档约定、代码审查和 GitHub Actions 实际运行结果验证。
 15. Skill 自更新脚本的通用逻辑由主仓库 `scripts/templates/update-skill.ts` 承接；各 skill 包内只保留打包生成的 `scripts/update-skill.cjs`。
 

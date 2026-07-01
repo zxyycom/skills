@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import {
-  collectSkillFiles,
   rootDir,
   toPosix,
   type SkillPackage
@@ -14,17 +14,53 @@ export function getSkillPackageHashFilePath(workspaceRoot: string = rootDir): st
   return path.join(workspaceRoot, skillPackageHashFileName);
 }
 
+type GitSkillTree = {
+  repoRoot: string;
+  treePath: string;
+};
+
+function readGitOutput(args: string[], cwd: string): string {
+  return execFileSync("git", args, {
+    cwd,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "inherit"]
+  }).trim();
+}
+
+function readGitBlob(args: string[], cwd: string): Buffer {
+  return execFileSync("git", args, {
+    cwd,
+    stdio: ["ignore", "pipe", "inherit"]
+  });
+}
+
+function resolveGitSkillTree(skill: SkillPackage): GitSkillTree {
+  const repoRoot = readGitOutput(["rev-parse", "--show-toplevel"], skill.directory);
+  const treePath = toPosix(path.relative(repoRoot, skill.directory));
+  return { repoRoot, treePath };
+}
+
+function collectGitSkillFiles(tree: GitSkillTree): string[] {
+  const output = readGitOutput(["ls-tree", "-r", "--name-only", `HEAD:${tree.treePath}`], tree.repoRoot);
+  return output.length === 0 ? [] : output.split(/\r?\n/).sort((a, b) => a.localeCompare(b));
+}
+
+function readGitSkillFile(tree: GitSkillTree, relativePath: string): Buffer {
+  return readGitBlob(["show", `HEAD:${tree.treePath}/${relativePath}`], tree.repoRoot);
+}
+
 export async function calculateSkillPackageHash(skills: SkillPackage[]): Promise<string> {
   const hash = createHash("sha256");
   hash.update("skills-package-v1\0");
 
   for (const skill of skills) {
     hash.update(`skill\0${skill.name}\0`);
-    const files = await collectSkillFiles(skill.directory);
+    const tree = resolveGitSkillTree(skill);
+    const files = collectGitSkillFiles(tree);
 
     for (const relativePath of files) {
       const packagePath = `${skill.name}/${toPosix(relativePath)}`;
-      const data = await fs.readFile(path.join(skill.directory, relativePath));
+      const data = readGitSkillFile(tree, relativePath);
       hash.update(`file\0${packagePath}\0${data.byteLength}\0`);
       hash.update(data);
       hash.update("\0");

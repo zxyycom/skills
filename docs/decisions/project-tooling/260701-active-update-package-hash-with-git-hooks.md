@@ -18,6 +18,7 @@
 - 采用: 主仓库和每个子仓库都继续保留 `skill-package.hash` 源文件。
 - 采用: 通过提交前 Git hook 更新并 stage `skill-package.hash`，让 hash 和 skill 内容进入同一个提交。
 - 采用: CI 校验 `skill-package.hash` 是否匹配当前提交内的 skill 打包输入；不匹配时让 workflow 失败，不再尝试自动提交修复。
+- 采用: Hash 计算读取 Git `HEAD` tree/blob，而不是工作区文件字节，避免不同平台的换行转换导致本地 hook 与 CI 结果不一致。
 - 采用: 发布 job 只上传 zip assets；是否发布由当前 `skill-package.hash` 与上一提交中的 `skill-package.hash` 是否不同决定，`workflow_dispatch` 保留手动重发能力。
 - 采用: 主仓库提供 `bun run setup-hooks`，为主仓库和已配置 hook 的 submodule 设置 `core.hooksPath`。
 - 不采用: 继续由 GitHub Actions 向 `main` 提交发布 hash；CI 不能把修改合入原提交，只会制造额外提交。
