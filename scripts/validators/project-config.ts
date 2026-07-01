@@ -11,6 +11,7 @@ const requiredPackageScripts = [
   "typecheck",
   "validate",
   "validate:decisions",
+  "hash:skills",
   "pack:skills",
   "check",
   "deploy:package"
@@ -18,6 +19,7 @@ const requiredPackageScripts = [
 
 const requiredProjectFiles = [
   ".gitmodules",
+  "skill-package.hash",
   "README.md",
   "AGENTS.md",
   "pnpm-workspace.yaml",
@@ -25,19 +27,6 @@ const requiredProjectFiles = [
   "docs/tooling.md",
   ".github/workflows/package-skills.yml"
 ] as const;
-
-const requiredWorkflowPatterns: Array<{ label: string; pattern: RegExp }> = [
-  { label: "package job", pattern: /^\s*package:\s*$/m },
-  { label: "publish job", pattern: /^\s*publish:\s*$/m },
-  { label: "artifact upload", pattern: /actions\/upload-artifact@v4/ },
-  { label: "artifact download", pattern: /actions\/download-artifact@v4/ },
-  { label: "main branch publish guard", pattern: /github\.ref == 'refs\/heads\/main'/ },
-  { label: "release write permission", pattern: /contents:\s*write/ },
-  { label: "latest release tag", pattern: /RELEASE_TAG:\s*skills-latest/ },
-  { label: "release creation", pattern: /gh release create/ },
-  { label: "release asset upload", pattern: /gh release upload/ },
-  { label: "all skill zips", pattern: /dist\/\*\.zip/ }
-];
 
 export async function validatePackageScripts(
   report: ReportValidationError,
@@ -66,21 +55,12 @@ export async function validateRequiredProjectFiles(
       report(`${relativePath} is required`);
     }
   }
-}
 
-export async function validateCiWorkflow(
-  report: ReportValidationError,
-  workspaceRoot: string = rootDir
-): Promise<void> {
-  const workflowPath = path.join(workspaceRoot, ".github", "workflows", "package-skills.yml");
-  if (!await pathExists(workflowPath)) {
-    return;
-  }
-
-  const workflow = await fs.readFile(workflowPath, "utf8");
-  for (const { label, pattern } of requiredWorkflowPatterns) {
-    if (!pattern.test(workflow)) {
-      report(`CI workflow is missing ${label}`);
+  const hashFilePath = path.join(workspaceRoot, "skill-package.hash");
+  if (await pathExists(hashFilePath)) {
+    const hash = (await fs.readFile(hashFilePath, "utf8")).trim();
+    if (!/^[a-f0-9]{64}$/.test(hash)) {
+      report("skill-package.hash must contain one lowercase SHA-256 hash");
     }
   }
 }

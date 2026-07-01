@@ -11,6 +11,7 @@
 3. `scripts/` 下共享自动化脚本的基础标准。
 4. 本地校验、打包和可交付制品规则。
 5. GitHub CI 如何复用本地入口并发布全部 skill 制品。
+6. 子仓库自身 release workflow 的最小职责。
 
 本文件不负责 skill 行为、引用内容、决策记录格式或 agent 项目级协作规则。
 
@@ -30,9 +31,10 @@
 1. `bun run typecheck`: 使用 `tsgo --noEmit` 和根目录 `tsconfig.json` 检查 `scripts/**/*.ts`，不输出编译产物。
 2. `bun run validate`: 校验全部 submodule skill 入口、内部链接、决策记录结构和主仓库项目配置。
 3. `bun run validate:decisions`: 单独校验 `docs/decisions/` 的目录、文件结构、索引链接和状态来源链接目标。
-4. `bun run pack:skills`: 将各子仓库 `skill/*/` 下每个 skill 分别打包为 `dist/<skill-name>.zip`。
-5. `bun run check`: 先类型检查，再校验，最后打包全部 skill。
-6. `bun run deploy:package`: 复用 `check` 生成本地可交付 zip 制品，不写入仓库外目录；CI 发布由 workflow 负责。
+4. `bun run hash:skills`: 计算当前所有 skill 打包输入的 SHA-256 hash，并与根目录 `skill-package.hash` 中最近已发布 hash 对比。
+5. `bun run pack:skills`: 将各子仓库 `skill/*/` 下每个 skill 分别打包为 `dist/<skill-name>.zip`。
+6. `bun run check`: 先类型检查，再校验，最后打包全部 skill。
+7. `bun run deploy:package`: 复用 `check` 生成本地可交付 zip 制品，不写入仓库外目录；CI 发布由 workflow 负责。
 
 需要直接排查脚本问题时，可以用 `bun scripts/<script>.ts` 运行单个脚本。
 
@@ -50,6 +52,8 @@
 10. Markdown 链接提取使用 `mdast-util-from-markdown` 解析 Markdown AST；脚本负责仓库路径、状态来源和项目约束校验。
 11. Markdown 内部链接目标必须是仓库内路径且目标存在；`#anchor` 必须匹配目标 Markdown 文件中的标题锚点。
 12. 决策记录校验保留为独立入口，总校验复用同一 validator 规则。
+13. Skill 发布 hash 只覆盖会进入 skill zip 的文件路径和文件内容；子仓库中 `skill/` 外的 README、元数据或普通维护文件变化不触发 release 发布。
+14. 校验脚本不解析 workflow 结构, 也不通过正则检查 workflow 内部步骤; workflow 逻辑由文档约定、代码审查和 GitHub Actions 实际运行结果验证。
 
 ## CI 标准
 
@@ -59,7 +63,24 @@ GitHub CI 复用本地入口：
 2. 安装 pnpm，用于依赖安装。
 3. 运行 `pnpm install --frozen-lockfile`。
 4. 运行 `bun run check`。
-5. 上传 `dist/*.zip` 作为 workflow artifact，方便从单次运行中排查制品。
-6. 对 `main` 分支的 `push` 和 `workflow_dispatch`，发布或更新 GitHub Release `skills-latest`，并上传全部 `dist/*.zip`。
+5. 运行 `bun scripts/hash-skills.ts --github-output`，把当前 skill hash、已记录 hash 和是否变化写入 job outputs；非 `github-actions[bot]` 的 `main` push 事件优先使用 `github.event.before` 中的旧 `skill-package.hash` 作为比较基线，避免同一提交提前改 hash 文件导致发布被跳过。
+6. 上传 `dist/*.zip` 作为 workflow artifact，方便从单次运行中排查制品。
+7. 对 `main` 分支的 `push` 和 `workflow_dispatch`，仅当当前 hash 与 `skill-package.hash` 不一致时发布或更新 GitHub Release `skills-latest`，并上传全部 `dist/*.zip`。
+8. Release 更新成功后，CI 将本次 hash 写回 `skill-package.hash` 并提交到 `main`，作为下一次发布判断的基线。
 
-CI 发布使用固定 release tag `skills-latest`。该 tag 指向最新发布提交，release asset 始终覆盖为当前全部 skill zip。PR 只运行校验、打包和 artifact 上传，不发布 release。
+CI 发布使用固定 release tag `skills-latest`。该 tag 指向最新发布提交，release asset 始终覆盖为当前全部 skill zip。PR 只运行校验、打包、hash 计算和 artifact 上传，不发布 release。只改主仓库文档、脚本、CI 或子仓库 `skill/` 外文件时，hash 不变，CI 不覆盖 latest release。
+
+## 子仓库发布
+
+每个 skill 子仓库保留 `.github/workflows/publish-skill-package.yml` 和 `skill-package.hash`，用于该子仓库自身的独立 release。
+
+子仓库发布规则：
+
+1. 触发范围只覆盖 `main` 的 `skill/**` 变化、workflow 自身变化和手动触发。
+2. 使用 `git rev-parse HEAD:skill` 计算当前 `skill/` tree hash，并与子仓库根目录 `skill-package.hash` 对比。
+3. Hash 不一致时，将该子仓库 `skill/*/` 下每个 skill 分别打包为 `dist/<skill-name>.zip`。
+4. 发布或更新子仓库自己的 latest release，tag 使用 `<repo-name>-latest`，assets 覆盖为当前 `dist/*.zip`。
+5. 发布成功后，workflow 将本次 `skill/` tree hash 写回 `skill-package.hash` 并提交到该子仓库 `main`。
+6. 子仓库 workflow 不安装主仓库 Bun/pnpm 工具链，不复制主仓库 TypeScript 脚本；它只承接该子仓库独立交付所需的最小打包和发布步骤。
+
+子仓库独立 release 与主仓库聚合 release 并存：子仓库 release 方便单独安装某个 skill 集合，主仓库 `skills-latest` 继续提供全部 skill 的统一入口。维护时通过 review 确认子仓库发布入口和 hash 基线是否需要同步调整。

@@ -1,9 +1,9 @@
 # 2026-06-30 - 使用 latest release 自动发布 skill 制品
 
 ## 状态
-- 当前状态: active
-- 导致状态变化的决策: 无
-- 状态说明: 作为当前多 skill 制品发布方式使用。
+- 当前状态: amended
+- 导致状态变化的决策: [2026-07-01 - 使用 skill hash 门禁 latest release 发布](260701-amended-gate-latest-release-by-skill-hash.md), [2026-07-01 - 给子仓库增加独立 release workflow](260701-amended-add-submodule-release-workflows.md), [2026-07-01 - 不用脚本校验 workflow 结构](260701-active-avoid-workflow-structure-validation.md)
+- 状态说明: 固定 `skills-latest` release 和主仓库统一打包仍然生效；发布触发条件已改为当前 skill hash 与最近已发布 hash 不一致。同时, 子仓库不再完全排除 release workflow, 可保留自身最小发布流程；workflow 结构不再由校验脚本强制检查。
 
 ## 问题
 - 多个 skill 子仓库有重复的校验、打包和发布脚本，继续分散维护会让同一套工具链在多个仓库漂移。
@@ -25,7 +25,6 @@
 - 采用: 主仓库 CI 在所有触发场景运行校验、打包和 workflow artifact 上传。
 - 采用: `main` 分支的 `push` 和 `workflow_dispatch` 额外发布或更新 GitHub Release `skills-latest`。
 - 采用: release tag 指向最新发布提交，release assets 覆盖为当前 `dist/*.zip`。
-- 采用: 校验脚本检查 workflow 中的发布契约关键点，避免配置退化成只上传 artifact。
 - 不采用: 为每个 skill 子仓库保留重复 CI 和打包脚本；共享工具链变化时会造成多处同步成本。
 - 不采用: 为每次提交创建新的 release；当前仓库没有版本命名和变更说明机制，会把交付入口变成流水账。
 - 触发条件: 后续只要仍以统一最新 skill 包集合为交付目标，沿用 fixed latest release；当需要多版本安装或回滚策略时再引入版本化 release。
@@ -38,4 +37,4 @@
 ## 验证
 - `.github/workflows/package-skills.yml` 包含 `publish` job，只在 `main` 分支的 `push` 和 `workflow_dispatch` 发布。
 - `docs/tooling.md` 记录 artifact 与 latest release 的职责。
-- `bun run validate` 检查 CI 发布契约关键点。
+- 发布契约由 `.github/workflows/package-skills.yml`、`docs/tooling.md` 和后续 review 共同确认。

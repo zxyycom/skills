@@ -8,7 +8,6 @@ import { ValidationReporter } from "./lib/validation.ts";
 import { validateDecisionRecords } from "./validators/decision-records.ts";
 import { validateMarkdownLinks } from "./validators/markdown-links.ts";
 import {
-  validateCiWorkflow,
   validatePackageScripts,
   validateRequiredProjectFiles
 } from "./validators/project-config.ts";
@@ -35,7 +34,6 @@ reporter.addAll(decisionValidation.errors);
 
 await validatePackageScripts(reporter.report, rootDir);
 await validateRequiredProjectFiles(reporter.report, rootDir);
-await validateCiWorkflow(reporter.report, rootDir);
 
 if (reporter.hasErrors()) {
   console.error("Validation failed:");
