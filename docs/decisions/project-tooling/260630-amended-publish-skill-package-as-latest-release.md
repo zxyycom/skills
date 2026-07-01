@@ -2,8 +2,8 @@
 
 ## 状态
 - 当前状态: amended
-- 导致状态变化的决策: [2026-07-01 - 使用 skill hash 门禁 latest release 发布](260701-amended-gate-latest-release-by-skill-hash.md), [2026-07-01 - 给子仓库增加独立 release workflow](260701-amended-add-submodule-release-workflows.md), [2026-07-01 - 不用脚本校验 workflow 结构](260701-active-avoid-workflow-structure-validation.md), [2026-07-01 - 用 Git hook 更新 package hash](260701-active-update-package-hash-with-git-hooks.md)
-- 状态说明: 固定 `skills-latest` release 和主仓库统一打包仍然生效；发布触发条件已改为当前 skill hash 与上一提交 hash 不一致，hash 文件由提交前 hook 维护并由 CI 校验。同时, 子仓库不再完全排除 release workflow, 可保留自身最小发布流程；workflow 结构不再由校验脚本强制检查。
+- 导致状态变化的决策: [2026-07-01 - 使用 skill hash 门禁 latest release 发布](260701-amended-gate-latest-release-by-skill-hash.md), [2026-07-01 - 给子仓库增加独立 release workflow](260701-amended-add-submodule-release-workflows.md), [2026-07-01 - 不用脚本校验 workflow 结构](260701-active-avoid-workflow-structure-validation.md), [2026-07-01 - 用 Git hook 更新 package hash](260701-active-update-package-hash-with-git-hooks.md), [2026-07-01 - 使用版本化 release 发布 skill 制品](260701-active-publish-versioned-skill-releases.md)
+- 状态说明: 主仓库统一打包仍然生效；发布触发条件已改为当前 skill hash 与上一提交 hash 不一致，hash 文件由提交前 hook 维护并由 CI 校验。同时, 子仓库不再完全排除 release workflow, 可保留自身最小发布流程；workflow 结构不再由校验脚本强制检查。固定 `skills-latest` 不再是唯一发布记录，只作为兼容下载入口保留。
 
 ## 问题
 - 多个 skill 子仓库有重复的校验、打包和发布脚本，继续分散维护会让同一套工具链在多个仓库漂移。
@@ -27,7 +27,7 @@
 - 采用: release tag 指向最新发布提交，release assets 覆盖为当前 `dist/*.zip`。
 - 不采用: 为每个 skill 子仓库保留重复 CI 和打包脚本；共享工具链变化时会造成多处同步成本。
 - 不采用: 为每次提交创建新的 release；当前仓库没有版本命名和变更说明机制，会把交付入口变成流水账。
-- 触发条件: 后续只要仍以统一最新 skill 包集合为交付目标，沿用 fixed latest release；当需要多版本安装或回滚策略时再引入版本化 release。
+- 触发条件: 后续只要仍以统一最新 skill 包集合为交付目标，保留 latest 兼容入口；版本化 release 已由后续决策引入。
 
 ## 影响
 - 使用者可以从固定 release 获取最新全部 skill zip，不需要进入每个子仓库或单次 workflow run 查找 artifact。

@@ -2,8 +2,8 @@
 
 ## 状态
 - 当前状态: amended
-- 导致状态变化的决策: [2026-07-01 - 不用脚本校验 workflow 结构](260701-active-avoid-workflow-structure-validation.md), [2026-07-01 - 用 Git hook 更新 package hash](260701-active-update-package-hash-with-git-hooks.md)
-- 状态说明: Hash 门禁规则仍然生效；原记录中由校验脚本检查 CI hash 门禁的做法已取消，发布后由 CI 写回 hash 的做法也改为提交前 hook 更新仓库内 hash。
+- 导致状态变化的决策: [2026-07-01 - 不用脚本校验 workflow 结构](260701-active-avoid-workflow-structure-validation.md), [2026-07-01 - 用 Git hook 更新 package hash](260701-active-update-package-hash-with-git-hooks.md), [2026-07-01 - 使用版本化 release 发布 skill 制品](260701-active-publish-versioned-skill-releases.md)
+- 状态说明: Hash 门禁规则仍然生效；原记录中由校验脚本检查 CI hash 门禁的做法已取消，发布后由 CI 写回 hash 的做法也改为提交前 hook 更新仓库内 hash。发布目标从只更新 `skills-latest` 扩展为创建版本化 release 并同步维护 latest 兼容入口。
 
 ## 问题
 - 主仓库维护文档、脚本、CI 或子仓库 `skill/` 外文件变化时，旧 CI 也会覆盖 `skills-latest` release，但这些变化不一定改变可安装 skill 包。
@@ -11,7 +11,7 @@
 
 ## 背景与约束
 - 主仓库仍是跨 skill 聚合打包和 `skills-latest` release 发布的 owner。
-- 当前交付目标仍是固定 `skills-latest` release，而不是版本化 release。
+- 当前交付目标已由后续决策扩展为版本化 release；本记录保留 hash 门禁的原因和边界。
 - Hash 判断应覆盖实际进入 skill zip 的文件路径和内容，避免 README、仓库元数据或主仓库维护文件误触发发布。
 
 ## 决定
@@ -20,7 +20,7 @@
 - 采用: CI 在校验打包后计算当前 hash，只有当前 hash 与最近已发布 hash 不一致时才更新 `skills-latest` release；非 `github-actions[bot]` 的 `main` push 事件优先从 `github.event.before` 读取旧 `skill-package.hash` 作为比较基线。
 - 采用: Release 更新成功后由 CI 写回并提交 `skill-package.hash`，把本次发布设为下一次判断基线。
 - 不采用: 继续在每次 `main` push 或手动触发时无条件覆盖 release；这会让非 skill 变更也改写交付入口。
-- 触发条件: 后续只要 latest release 表示“当前可安装 skill 内容”，发布判断就以 skill hash 是否变化为准；当引入版本化 release 或外部发布系统时再重新决策。
+- 触发条件: 后续只要 release 表示“当前可安装 skill 内容”，发布判断就以 skill hash 是否变化为准；当引入外部发布系统时再重新决策。
 
 ## 影响
 - 只改主仓库工具链、文档或子仓库 `skill/` 外内容时，CI 仍会校验和上传 workflow artifact，但不会覆盖 release。

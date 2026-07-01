@@ -2,8 +2,8 @@
 
 ## 状态
 - 当前状态: amended
-- 导致状态变化的决策: [2026-07-01 - 不用脚本校验 workflow 结构](260701-active-avoid-workflow-structure-validation.md), [2026-07-01 - 用 Git hook 更新 package hash](260701-active-update-package-hash-with-git-hooks.md)
-- 状态说明: 子仓库保留自身发布流程的规则仍然生效；原记录中由主仓库校验脚本检查子仓库发布 workflow 的做法已取消，子仓库发布 hash 也改为提交前 hook 更新、CI 校验。
+- 导致状态变化的决策: [2026-07-01 - 不用脚本校验 workflow 结构](260701-active-avoid-workflow-structure-validation.md), [2026-07-01 - 用 Git hook 更新 package hash](260701-active-update-package-hash-with-git-hooks.md), [2026-07-01 - 使用版本化 release 发布 skill 制品](260701-active-publish-versioned-skill-releases.md)
+- 状态说明: 子仓库保留自身发布流程的规则仍然生效；原记录中由主仓库校验脚本检查子仓库发布 workflow 的做法已取消，子仓库发布 hash 也改为提交前 hook 更新、CI 校验。子仓库 release tag 从只维护 `<repo-name>-latest` 扩展为发布 `<repo-name>-<hash12>` 并同步维护 latest 兼容入口。
 
 ## 问题
 - 只有主仓库发布 `skills-latest` 时, 使用者必须从聚合 release 获取单个 skill 或 skill 集合, 子仓库本身没有独立交付入口。
@@ -14,7 +14,7 @@
 - 采用: 每个子仓库保留 `.github/workflows/publish-skill-package.yml`, 只负责该子仓库 `skill/` 内容的校验、打包、latest release 发布和 hash 写回。
 - 采用: 子仓库根目录保留 `skill-package.hash`, 记录最近一次成功发布的 `skill/` tree hash。
 - 采用: 子仓库 workflow 用 `git rev-parse HEAD:skill` 计算发布 hash, 不复制主仓库 TypeScript 脚本, 不安装 Bun/pnpm 工具链。
-- 采用: 子仓库 release tag 使用 `<repo-name>-latest`; 多 skill 子仓库发布该仓库内全部 `skill/*` zip。
+- 采用: 子仓库保留独立 release 入口；当前 tag 规则已由后续决策修订为 `<repo-name>-<hash12>` 版本化 release 加 `<repo-name>-latest` 兼容入口。
 - 采用: 主仓库仍保留聚合发布; 子仓库独立发布入口由文档约定、review 和 GitHub Actions 运行结果维护。
 - 不采用: 只依赖主仓库聚合 release; 这不能满足按子仓库独立获取发布包的需求。
 - 不采用: 在子仓库复制主仓库共享脚本和依赖工具链; 这会重新引入多处脚本维护成本。
