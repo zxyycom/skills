@@ -1,6 +1,5 @@
 node_modules/
 dist/
-.agents/
 .DS_Store
 Thumbs.db
 *.log

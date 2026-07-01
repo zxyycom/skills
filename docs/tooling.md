@@ -40,15 +40,16 @@
 
 1. 脚本使用 TypeScript 编写，放在主仓库 `scripts/`。
 2. 根目录 `tsconfig.json` 是脚本 IDE 类型提示和 `tsgo` 的统一配置；脚本依赖 Node 类型，运行仍由 Bun 负责。
-3. 脚本优先覆盖所有 skill 的共同规则；确实存在 skill 专属规则时，在脚本中集中声明。
-4. 脚本处理常见行为时优先使用高质量、高热度、维护活跃且有类型支持的库；只有规则属于本仓库领域约束时才在脚本中直接实现。
-5. 脚本默认只读写主仓库内路径；需要生成产物时输出到主仓库 `dist/`。
-6. 文件发现使用 `fast-glob`，避免在多个脚本中维护递归目录遍历。
-7. Skill frontmatter 使用 `yaml` 解析，避免手写 YAML 字符串解析。
-8. 打包脚本使用 `fflate` 生成 zip，只打包子仓库 `skill/<skill-name>/`，不把项目文档、CI、脚本或仓库元数据放进 skill zip。
-9. Markdown 链接提取使用 `mdast-util-from-markdown` 解析 Markdown AST；脚本负责仓库路径、状态来源和项目约束校验。
-10. Markdown 内部链接目标必须是仓库内路径且目标存在；`#anchor` 必须匹配目标 Markdown 文件中的标题锚点。
-11. 决策记录校验保留为独立脚本，总校验复用同一规则。
+3. 顶层脚本只保留命令编排和输出；跨脚本共享能力放在 `scripts/lib/`，具体校验项放在 `scripts/validators/`。
+4. 脚本优先覆盖所有 skill 的共同规则；确实存在 skill 专属规则时，在脚本中集中声明。
+5. 脚本处理常见行为时优先使用高质量、高热度、维护活跃且有类型支持的库；只有规则属于本仓库领域约束时才在脚本中直接实现。
+6. 脚本默认只读写主仓库内路径；需要生成产物时输出到主仓库 `dist/`。
+7. 文件发现使用 `fast-glob`，避免在多个脚本中维护递归目录遍历。
+8. Skill frontmatter 使用 `yaml` 解析，避免手写 YAML 字符串解析。
+9. 打包脚本使用 `fflate` 生成 zip，只打包子仓库 `skill/<skill-name>/`，不把项目文档、CI、脚本或仓库元数据放进 skill zip；每次打包前清空 `dist/`，避免残留旧 skill 制品。
+10. Markdown 链接提取使用 `mdast-util-from-markdown` 解析 Markdown AST；脚本负责仓库路径、状态来源和项目约束校验。
+11. Markdown 内部链接目标必须是仓库内路径且目标存在；`#anchor` 必须匹配目标 Markdown 文件中的标题锚点。
+12. 决策记录校验保留为独立入口，总校验复用同一 validator 规则。
 
 ## CI 标准
 

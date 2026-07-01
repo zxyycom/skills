@@ -2,15 +2,6 @@
   "folders": [
     {
       "path": "."
-    },
-    {
-      "path": "prompt-optimize"
-    },
-    {
-      "path": "git-commit-organizer"
-    },
-    {
-      "path": "openspec-skills"
     }
   ]
 }
