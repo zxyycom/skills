@@ -13,8 +13,10 @@
     "validate:decisions": "bun scripts/validate-decisions.ts",
     "hash:skills": "bun scripts/hash-skills.ts",
     "pack:skills": "bun scripts/pack-skills.ts",
+    "sync:skill-updaters": "bun scripts/sync-skill-updaters.ts --write",
+    "check:skill-updaters": "bun scripts/sync-skill-updaters.ts --check",
     "deploy:package": "bun run check",
-    "check": "bun run typecheck && bun scripts/validate.ts && bun scripts/pack-skills.ts"
+    "check": "bun run typecheck && bun scripts/sync-skill-updaters.ts --check && bun scripts/validate.ts && bun scripts/pack-skills.ts"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",

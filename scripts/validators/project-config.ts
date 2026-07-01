@@ -13,6 +13,8 @@ const requiredPackageScripts = [
   "validate:decisions",
   "hash:skills",
   "pack:skills",
+  "sync:skill-updaters",
+  "check:skill-updaters",
   "check",
   "deploy:package"
 ] as const;

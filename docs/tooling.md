@@ -33,8 +33,10 @@
 3. `bun run validate:decisions`: 单独校验 `docs/decisions/` 的目录、文件结构、索引链接和状态来源链接目标。
 4. `bun run hash:skills`: 计算当前所有 skill 打包输入的 SHA-256 hash，并与根目录 `skill-package.hash` 中最近已发布 hash 对比。
 5. `bun run pack:skills`: 将各子仓库 `skill/*/` 下每个 skill 分别打包为 `dist/<skill-name>.zip`。
-6. `bun run check`: 先类型检查，再校验，最后打包全部 skill。
-7. `bun run deploy:package`: 复用 `check` 生成本地可交付 zip 制品，不写入仓库外目录；CI 发布由 workflow 负责。
+6. `bun run sync:skill-updaters`: 按主仓库模板和子仓库配置生成各 skill 内的 `scripts/update-skill.cjs`。
+7. `bun run check:skill-updaters`: 检查各 skill 内的 `scripts/update-skill.cjs` 是否由当前主仓库模板生成。
+8. `bun run check`: 先类型检查，再检查 skill updater 生成状态，再校验并打包全部 skill。
+9. `bun run deploy:package`: 复用 `check` 生成本地可交付 zip 制品，不写入仓库外目录；CI 发布由 workflow 负责。
 
 需要直接排查脚本问题时，可以用 `bun scripts/<script>.ts` 运行单个脚本。
 
@@ -54,6 +56,30 @@
 12. 决策记录校验保留为独立入口，总校验复用同一 validator 规则。
 13. Skill 发布 hash 只覆盖会进入 skill zip 的文件路径和文件内容；子仓库中 `skill/` 外的 README、元数据或普通维护文件变化不触发 release 发布。
 14. 校验脚本不解析 workflow 结构, 也不通过正则检查 workflow 内部步骤; workflow 逻辑由文档约定、代码审查和 GitHub Actions 实际运行结果验证。
+15. Skill 自更新脚本的通用逻辑由主仓库 `scripts/templates/update-skill.ts` 承接；各 skill 包内只保留打包生成的 `scripts/update-skill.cjs`。
+
+## Skill 自更新脚本
+
+每个 skill 包内包含 `scripts/update-skill.cjs`。该脚本用于已安装 skill 的自检和可选更新：它读取脚本内的配置项，从对应 GitHub 子仓库下载 zip，使用 `fflate` 解压出 `skill/<skill-name>/` 路径，计算远端指纹并与当前本地 skill 目录比较；发现不一致时，默认询问是否覆盖更新，传入 `--yes` 时直接更新。
+
+自更新脚本源码使用 TypeScript 和项目依赖，分发时由 Bun 默认 `--minify` 打包成压缩后的单文件 CommonJS，不支持多种压缩方案或额外压缩配置。已安装 skill 运行生成后的 `update-skill.cjs` 时，不依赖主仓库 Bun/pnpm 工具链，也不读取主仓库脚本。需要访问私有仓库或提高 GitHub API 限额时，可通过 `GITHUB_TOKEN` 或 `GH_TOKEN` 提供 token。
+
+生成后的 `update-skill.cjs` 主体不要求保持源码可读性；顶部必须保留生成说明，写明主仓库 TypeScript 模板的 GitHub raw 链接和该 skill 的 GitHub 源目录。`--help` 和正常运行输出也要显示同样的维护入口，方便使用者在脚本报错时定位应修改的源文件，而不是直接修改打包后的 CJS 产物。
+
+维护方式：
+
+1. 通用源码只改 `scripts/templates/update-skill.ts`。
+2. 运行 `bun run sync:skill-updaters` 将模板按各 skill 的 repo、ref 和 source path 渲染后打包到子仓库 `skill/<skill-name>/scripts/update-skill.cjs`。
+3. `bun run check` 会执行 `check:skill-updaters`，避免已分发脚本与主仓库模板漂移。
+4. 生成脚本进入 skill zip，因此会改变 skill package hash；`skill-package.hash` 仍只由发布成功后的 CI 写回。
+
+已安装 skill 可在对应 skill 目录内运行：
+
+```bash
+node scripts/update-skill.cjs --check
+node scripts/update-skill.cjs
+node scripts/update-skill.cjs --yes
+```
 
 ## CI 标准
 
