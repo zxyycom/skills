@@ -8,15 +8,21 @@
     "pnpm": ">=11"
   },
   "scripts": {
+    "typecheck": "tsgo --noEmit",
     "validate": "bun scripts/validate.ts",
     "validate:decisions": "bun scripts/validate-decisions.ts",
     "pack:skills": "bun scripts/pack-skills.ts",
-    "deploy:package": "bun scripts/validate.ts && bun scripts/pack-skills.ts",
-    "check": "bun scripts/validate.ts && bun scripts/pack-skills.ts"
+    "deploy:package": "bun run check",
+    "check": "bun run typecheck && bun scripts/validate.ts && bun scripts/pack-skills.ts"
   },
   "devDependencies": {
+    "@types/node": "^26.0.1",
+    "@typescript/native-preview": "7.0.0-dev.20260630.1",
+    "fast-glob": "^3.3.3",
+    "fflate": "^0.8.3",
     "github-slugger": "^2.0.0",
     "mdast-util-from-markdown": "^2.0.3",
-    "mdast-util-to-string": "^4.0.0"
+    "mdast-util-to-string": "^4.0.0",
+    "yaml": "^2.9.0"
   }
 }

@@ -1,6 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import fg from "fast-glob";
+import { parse as parseYaml } from "yaml";
 import { extractMarkdownHeadingAnchors, extractMarkdownLinks } from "./markdown-links.ts";
 import { validateDecisionRecords } from "./validate-decisions.ts";
 
@@ -10,9 +12,15 @@ type SkillPackage = {
   submodulePath: string;
 };
 
+type Frontmatter = {
+  error: string | null;
+  keys: string[];
+  values: Record<string, unknown>;
+};
+
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const errors: string[] = [];
-const ignoredDirectoryNames = new Set([".git", "node_modules", "dist"]);
+const ignoredDirectoryNames = new Set([".git", ".agents", "node_modules", "dist"]);
 
 function report(message: string): void {
   errors.push(message);
@@ -31,6 +39,10 @@ function toPosix(relativePath: string): string {
   return relativePath.split(path.sep).join("/");
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 async function readSubmodulePaths(): Promise<string[]> {
   const gitmodulesPath = path.join(rootDir, ".gitmodules");
   if (!await exists(gitmodulesPath)) {
@@ -42,11 +54,11 @@ async function readSubmodulePaths(): Promise<string[]> {
   return [...gitmodules.matchAll(/^\s*path\s*=\s*(.+?)\s*$/gm)].map((match) => match[1]);
 }
 
-async function discoverSkills(): Promise<SkillPackage[]> {
+async function discoverSkills(submodulePaths: string[]): Promise<SkillPackage[]> {
   const skills: SkillPackage[] = [];
   const seenNames = new Set<string>();
 
-  for (const submodulePath of await readSubmodulePaths()) {
+  for (const submodulePath of submodulePaths) {
     const submoduleDir = path.join(rootDir, submodulePath);
     const skillRoot = path.join(submoduleDir, "skill");
 
@@ -86,73 +98,48 @@ async function discoverSkills(): Promise<SkillPackage[]> {
 }
 
 async function collectFiles(directory: string): Promise<string[]> {
-  const files: string[] = [];
-  const entries = await fs.readdir(directory, { withFileTypes: true });
+  const files = await fg("**/*", {
+    cwd: directory,
+    dot: true,
+    ignore: [...ignoredDirectoryNames].map((directoryName) => `${directoryName}/**`),
+    onlyFiles: true
+  });
 
-  for (const entry of entries) {
-    if (ignoredDirectoryNames.has(entry.name)) {
-      continue;
-    }
-
-    const entryPath = path.join(directory, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...await collectFiles(entryPath));
-      continue;
-    }
-
-    if (entry.isFile() && entry.name !== ".git") {
-      files.push(entryPath);
-    }
-  }
-
-  return files;
+  return files.sort((a, b) => a.localeCompare(b)).map((filePath) => path.join(directory, filePath));
 }
 
 async function collectMainMarkdownFiles(submodulePaths: string[]): Promise<string[]> {
-  const markdownFiles: string[] = [];
-  const topLevelEntries = await fs.readdir(rootDir, { withFileTypes: true });
-  const excludedTopLevelDirectories = new Set([...submodulePaths, ".git", "node_modules", "dist"]);
+  const ignoredPaths = [
+    ...submodulePaths.map((submodulePath) => `${toPosix(submodulePath)}/**`),
+    ...[...ignoredDirectoryNames].map((directoryName) => `${directoryName}/**`)
+  ];
+  const markdownFiles = await fg(["*.md", "**/*.md"], {
+    cwd: rootDir,
+    dot: true,
+    ignore: ignoredPaths,
+    onlyFiles: true
+  });
 
-  for (const entry of topLevelEntries) {
-    const entryPath = path.join(rootDir, entry.name);
-    if (entry.isDirectory()) {
-      if (excludedTopLevelDirectories.has(entry.name)) {
-        continue;
-      }
-
-      const files = await collectFiles(entryPath);
-      markdownFiles.push(...files.filter((filePath) => filePath.endsWith(".md")));
-      continue;
-    }
-
-    if (entry.isFile() && entry.name.endsWith(".md")) {
-      markdownFiles.push(entryPath);
-    }
-  }
-
-  return markdownFiles;
+  return markdownFiles.sort((a, b) => a.localeCompare(b)).map((filePath) => path.join(rootDir, filePath));
 }
 
-function parseFrontmatter(markdown: string): { keys: string[]; values: Map<string, string> } | null {
+function parseFrontmatter(markdown: string): Frontmatter | null {
   const match = markdown.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
   if (!match) {
     return null;
   }
 
-  const keys: string[] = [];
-  const values = new Map<string, string>();
-
-  for (const line of match[1].split(/\r?\n/)) {
-    const keyMatch = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
-    if (!keyMatch) {
-      continue;
+  try {
+    const values = parseYaml(match[1]) as unknown;
+    if (!isRecord(values)) {
+      return { error: "must be a YAML mapping", keys: [], values: {} };
     }
 
-    keys.push(keyMatch[1]);
-    values.set(keyMatch[1], keyMatch[2].trim().replace(/^["']|["']$/g, ""));
+    return { error: null, keys: Object.keys(values), values };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "invalid YAML";
+    return { error: message, keys: [], values: {} };
   }
-
-  return { keys, values };
 }
 
 async function validateSkillFrontmatter(skill: SkillPackage): Promise<void> {
@@ -163,6 +150,11 @@ async function validateSkillFrontmatter(skill: SkillPackage): Promise<void> {
 
   if (!frontmatter) {
     report(`${relativeSkillMdPath} must start with YAML frontmatter`);
+    return;
+  }
+
+  if (frontmatter.error) {
+    report(`${relativeSkillMdPath} frontmatter ${frontmatter.error}`);
     return;
   }
 
@@ -178,12 +170,12 @@ async function validateSkillFrontmatter(skill: SkillPackage): Promise<void> {
     }
   }
 
-  const name = frontmatter.values.get("name");
+  const name = frontmatter.values.name;
   if (name !== skill.name) {
     report(`${relativeSkillMdPath} name must be ${skill.name}`);
   }
 
-  if (!/^[a-z0-9-]+$/.test(name ?? "")) {
+  if (typeof name !== "string" || !/^[a-z0-9-]+$/.test(name)) {
     report(`${relativeSkillMdPath} name must use lowercase letters, digits, and hyphens`);
   }
 }
@@ -298,7 +290,14 @@ async function validatePackageScripts(): Promise<void> {
   }
 
   const packageJson = JSON.parse(await fs.readFile(packageJsonPath, "utf8"));
-  for (const scriptName of ["validate", "validate:decisions", "pack:skills", "check", "deploy:package"]) {
+  for (const scriptName of [
+    "typecheck",
+    "validate",
+    "validate:decisions",
+    "pack:skills",
+    "check",
+    "deploy:package"
+  ]) {
     if (!packageJson.scripts?.[scriptName]) {
       report(`package.json is missing script ${scriptName}`);
     }
@@ -310,6 +309,8 @@ async function validateRequiredProjectFiles(): Promise<void> {
     ".gitmodules",
     "README.md",
     "AGENTS.md",
+    "pnpm-workspace.yaml",
+    "tsconfig.json",
     "docs/tooling.md",
     ".github/workflows/package-skills.yml"
   ]) {
@@ -347,7 +348,7 @@ async function validateCiWorkflow(): Promise<void> {
 }
 
 const submodulePaths = await readSubmodulePaths();
-const skills = await discoverSkills();
+const skills = await discoverSkills(submodulePaths);
 for (const skill of skills) {
   await validateSkillFrontmatter(skill);
 }

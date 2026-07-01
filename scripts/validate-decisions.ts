@@ -322,7 +322,12 @@ export async function validateDecisionRecords(workspaceRoot: string = rootDir): 
   return { areaCount, decisionCount, errors };
 }
 
-if (import.meta.main) {
+function isMainModule(): boolean {
+  const entryPoint = process.argv[1];
+  return entryPoint !== undefined && path.resolve(entryPoint) === fileURLToPath(import.meta.url);
+}
+
+if (isMainModule()) {
   const result = await validateDecisionRecords();
 
   if (result.errors.length > 0) {
