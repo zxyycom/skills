@@ -3,7 +3,7 @@
 ## 状态
 - 当前状态: active
 - 导致状态变化的决策: 无
-- 状态说明: 当前主仓库聚合发布和子仓库独立发布都按内容 hash 创建版本化 release，并同步维护 latest 兼容入口。
+- 状态说明: 当前主仓库聚合发布和子仓库独立发布都按 UTC 时间戳和内容 hash 创建版本化 release，并同步维护 latest 兼容入口。
 
 ## 问题
 - 固定 `*-latest` release 被更新后，GitHub 页面仍显示 release 最初的 `published_at`，容易让使用者误以为包没有更新。
@@ -11,8 +11,8 @@
 - 仓库没有人工维护的语义版本号，不能把版本发布依赖到手写 changelog 或手动 bump。
 
 ## 决定
-- 采用: 主仓库聚合发布使用 `skills-<hash12>` 作为版本化 release tag，`<hash12>` 来自根目录 `skill-package.hash` 的前 12 位。
-- 采用: 子仓库独立发布使用 `<repo-name>-<hash12>` 作为版本化 release tag，`<hash12>` 来自该子仓库 `skill/` tree hash 的前 12 位。
+- 采用: 主仓库聚合发布和子仓库独立发布都使用 `<timestamp>-<hash12>` 作为版本化 release tag，时间戳使用 UTC `YYYYMMDDTHHMMSSZ` 格式。
+- 采用: 主仓库 `<hash12>` 来自根目录 `skill-package.hash` 的前 12 位；子仓库 `<hash12>` 来自该子仓库 `skill/` tree hash 的前 12 位。
 - 采用: 版本化 release 是 GitHub Releases 列表里的真实发布记录，并显式标记为 Latest。
 - 采用: 继续同步维护 `skills-latest` 和 `<repo-name>-latest` release，作为已有安装脚本和固定下载链接的兼容入口。
 - 采用: 是否发布仍由当前 hash 与上一提交中的 `skill-package.hash` 是否不同决定；`workflow_dispatch` 保留手动重发能力。
@@ -22,10 +22,10 @@
 ## 影响
 - 新的 skill 内容会产生新的 release 页面和准确的发布时间。
 - `*-latest` 页面可能继续显示旧的 `published_at`，它只表示稳定下载入口，不表示最新发布时间。
-- 相同 skill 内容在不同提交中不会产生多个内容版本 tag。
+- 相同 skill 内容在不同发布时间可以产生不同版本化 tag，但 tag 尾部 hash 保持可识别的内容指纹。
 - 后续需要从 GitHub Releases 判断最新发布时间时，应查看被标记为 Latest 的版本化 release，而不是固定 `*-latest` release。
 
 ## 验证
-- `.github/workflows/package-skills.yml` 在发布 job 中创建或更新 `skills-<hash12>`，并同步维护 `skills-latest`。
-- 三个 submodule 的 `.github/workflows/publish-skill-package.yml` 在发布 job 中创建或更新 `<repo-name>-<hash12>`，并同步维护 `<repo-name>-latest`。
+- `.github/workflows/package-skills.yml` 在发布 job 中创建或更新 `<timestamp>-<hash12>`，并同步维护 `skills-latest`。
+- 三个 submodule 的 `.github/workflows/publish-skill-package.yml` 在发布 job 中创建或更新 `<timestamp>-<hash12>`，并同步维护 `<repo-name>-latest`。
 - `docs/tooling.md` 记录版本化 tag、latest 兼容入口和 hash 门禁关系。
