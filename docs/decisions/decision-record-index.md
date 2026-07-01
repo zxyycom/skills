@@ -55,5 +55,6 @@
 
 `prompt-optimize-references`:
 
-1. [active: 2026-06-30 - 将 prompt-optimize 核心流程合并回入口](prompt-optimize-references/260630-active-merge-prompt-optimize-core-flow-into-entry.md)
-2. [superseded: 2026-06-30 - 将 prompt-optimize 改写规则重组为管线](prompt-optimize-references/260630-superseded-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md)
+1. [active: 2026-07-01 - 给 prompt-optimize 增加文档主承诺检查](prompt-optimize-references/260701-active-add-document-main-promise-check.md)
+2. [active: 2026-06-30 - 将 prompt-optimize 核心流程合并回入口](prompt-optimize-references/260630-active-merge-prompt-optimize-core-flow-into-entry.md)
+3. [superseded: 2026-06-30 - 将 prompt-optimize 改写规则重组为管线](prompt-optimize-references/260630-superseded-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md)
