@@ -26,8 +26,9 @@
 当前影响面:
 
 1. `decision-records`: 决策记录体系自身的结构、目的、命名、门槛和维护方式。
-2. `project-tooling`: 本地脚本、打包方式、CI 和交付制品的长期契约。
-3. `prompt-optimize-references`: `prompt-optimize` skill 引用文件的 owner 分工、结构拆分和跨文件关系。
+2. `git-commit-organizer-behavior`: `git-commit-organizer` skill 的提交粒度、类型选择和提交组织行为。
+3. `project-tooling`: 本地脚本、打包方式、CI 和交付制品的长期契约。
+4. `prompt-optimize-references`: `prompt-optimize` skill 引用文件的 owner 分工、结构拆分和跨文件关系。
 
 可能出现的影响面示例:
 
@@ -42,6 +43,10 @@
 2. [active: 2026-06-30 - 使用短日期命名并允许短决策结构](decision-records/260630-active-use-compact-decision-records.md)
 3. [amended: 2026-06-30 - 给决策记录增加状态和关系](decision-records/260630-amended-track-decision-status-and-relations.md)
 4. [amended: 2026-06-27 - 建立决策记录策略](decision-records/260627-amended-establish-decision-record-policy.md)
+
+`git-commit-organizer-behavior`:
+
+1. [active: 2026-07-02 - 调整 git-commit-organizer 的提交粒度、类型和创建命令](git-commit-organizer-behavior/260702-active-refine-commit-granularity-types-and-command.md)
 
 `project-tooling`:
 
