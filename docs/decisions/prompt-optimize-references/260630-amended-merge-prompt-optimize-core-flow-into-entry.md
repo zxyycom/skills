@@ -2,9 +2,9 @@
 
 ## 状态
 
-- 当前状态: active
-- 导致状态变化的决策: 无
-- 状态说明: 作为当前 `prompt-optimize` skill 的默认执行路径和主动引用策略使用; 不作为其他 skill 的引用结构规则。
+- 当前状态: amended
+- 导致状态变化的决策: [2026-07-01 - 压缩 prompt-optimize 入口并归档迁移副本](260701-active-compact-entry-and-archive-migration-copies.md)
+- 状态说明: `SKILL.md` 作为默认执行路径 owner 的判断仍生效; 入口细则展开程度和迁移副本位置已被后续决策修订。
 
 ## 问题
 

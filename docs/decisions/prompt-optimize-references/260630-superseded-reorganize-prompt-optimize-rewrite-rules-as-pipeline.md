@@ -2,7 +2,7 @@
 
 ## 状态
 - 当前状态: superseded
-- 导致状态变化的决策: [2026-06-30 - 将 prompt-optimize 核心流程合并回入口](260630-active-merge-prompt-optimize-core-flow-into-entry.md)
+- 导致状态变化的决策: [2026-06-30 - 将 prompt-optimize 核心流程合并回入口](260630-amended-merge-prompt-optimize-core-flow-into-entry.md)
 - 状态说明: 保留用于回放 `prompt-optimize` 上一阶段把改写规则拆到引用文件的原因; 当前默认执行路径以后续决策为准。
 
 ## 问题
