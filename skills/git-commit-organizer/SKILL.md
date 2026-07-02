@@ -1,20 +1,13 @@
 ---
 name: git-commit-organizer
-description: 整理并创建 Git 提交。Use before preparing any commit, including when Codex is about to inspect a diff, decide commit scope, choose a commit type, write a `type：title` message with bullet details, stage files, or run `git commit`.
+description: 整理并创建语义清楚、范围准确、信息可追踪的 Git 提交。Use when the task is to organize current Git changes into one or more well-scoped commits.
 ---
 
 # Git Commit Organizer
 
 ## 目标
 
-审计当前 Git 改动，选择能表达语义影响的提交类型，stage 相关文件，并按固定中文格式创建提交：
-
-```text
-<type>：<提交标题>
-
-- 修改内容1
-- 修改内容2
-```
+把当前 Git 改动整理成语义单一、范围清楚、类型准确、提交信息可追踪的提交，并避免把无关改动、未确认改动或未运行验证写进提交历史。
 
 ## 范围判断
 
@@ -22,6 +15,46 @@ description: 整理并创建 Git 提交。Use before preparing any commit, inclu
 2. 用户指定文件、目录或 change 名称时，只处理该范围。
 3. 已 staged 内容存在时，先判断是否属于本次请求；属于则纳入提交，不属于则保留并说明。
 4. 工作区包含明显无关改动时，只 stage 本次相关文件，并在最终回复中列出保留的无关改动。
+
+## 提交粒度
+
+1. 一个提交只表达一个可独立理解、审查和回滚的语义单元。
+2. 工作区包含多个互不依赖的语义单元时，按单元拆分提交；每个提交分别选择类型、标题和正文。
+3. 同一功能、修复或规格调整所必需的代码、测试、文档和示例可以放在同一提交中，不为了文件类型机械拆分。
+4. 若同一批改动同时包含用户可见行为、规格契约、AI 配置、CI 或构建流程等不同影响面，优先拆成多个提交；无法判断拆分边界时先向用户确认。
+5. 若用户明确要求一次性提交全部改动，仍需在提交前说明存在的多语义单元风险。
+
+## 提交类型
+
+类型只表达本次提交的主语义，不承接提交粒度、stage 范围或正文写法。
+
+合法类型：
+
+1. `feat`：新增用户可见能力、正式行为、产品能力或对外可感知流程。
+2. `fix`：修复错误、冲突、不一致、回归、兼容性问题或错误的既有行为。
+3. `plan`：整理规划、方案、OpenSpec change、proposal、design、tasks、实现路线或审计结论。
+4. `spec`：调整协议、schema、契约、示例语义、验收标准或其他可验证规格。
+5. `test`：新增或调整测试、fixture、测试数据、验证脚本或测试策略本身。
+6. `docs`：只调整说明性文档，且不改变产品契约、规格能力、实现行为或验证规则。
+7. `ai`：只调整 AI/agent 配置，例如模型、工具、MCP/app 连接、权限、运行参数或配置化 prompt。
+8. `refactor`：调整代码结构、命名、拆分或内部组织方式，且不改变外部行为。
+9. `chore`：通用维护、依赖、元数据、仓库整理或非 AI 专属配置。
+10. `build`：调整构建、打包、发布产物生成或发行流程。
+11. `ci`：调整持续集成、workflow、自动化门禁或检查任务。
+
+选择规则：
+
+1. 当多个类型都可能适用时，选择后续阅读提交历史时最需要追踪的语义影响。
+2. 只影响 AI/agent 配置时，使用 `ai`，不归入 `chore`。
+3. Skill 说明、agent 协作规则、OpenSpec、schema、示例和测试策略不因服务 AI 而使用 `ai`；按实际语义选择 `plan`、`spec`、`docs` 或 `test`。
+4. 在 AI 主导或规格先行项目中，`docs/`、OpenSpec、schema、示例和测试策略可能是项目计划或产品契约本身；优先使用 `plan` 或 `spec` 表达语义，不默认使用 `docs`。
+
+## 提交创建方式
+
+1. 优先使用 `git commit -m "type：标题" -m "正文"` 通过命令参数传入提交信息。
+2. 正文包含多条 bullet 时，在第二个 `-m` 的正文参数中保留换行。
+3. 只有命令参数无法可靠表达多行正文时，才使用临时提交信息文件配合 `git commit -F <file>`。
+4. 不默认用 stdin 传入提交信息。
 
 ## 工作流
 
@@ -36,17 +69,8 @@ description: 整理并创建 Git 提交。Use before preparing any commit, inclu
    - 若 staged 内容和当前请求冲突，先说明冲突并等待用户决定。
 
 3. 选择提交类型：
-   - `feat`：新增或调整用户可见能力、规格能力或正式行为。
-   - `fix`：修复错误、冲突、不一致或回归。
-   - `plan`：规划、方案、OpenSpec change、proposal、design、tasks、实现路线或审计结论整理。
-   - `spec`：协议、schema、契约、示例语义或可验证规格的正式调整。
-   - `test`：测试、fixture、验证脚本。
-   - `docs`：不改变产品契约、规格能力、实现行为或验证规则的说明性文档。
-   - `refactor`：不改变行为的代码结构调整。
-   - `chore`：维护、依赖、配置、仓库整理。
-   - `build`：构建、打包、发布产物流程。
-   - `ci`：持续集成或自动化门禁。
-   - 在 AI 主导或规格先行项目中，`docs/`、OpenSpec、schema、示例和测试策略可能是项目计划或产品契约本身；优先使用 `plan` 或 `spec` 表达语义，不默认使用 `docs`。
+   - 按“提交类型”选择本次提交的类型。
+   - 若影响面可以独立拆分，先按“提交粒度”拆分提交，再分别选择类型。
 
 4. 编写提交信息：
    - 使用中文全角冒号：`type：标题`。
@@ -61,7 +85,7 @@ description: 整理并创建 Git 提交。Use before preparing any commit, inclu
    - 确认 staged 文件和提交正文一致。
 
 6. 创建提交：
-   - 使用 `git commit -F -` 从 stdin 传入多行提交信息。
+   - 按“提交创建方式”创建提交。
    - 提交成功后运行 `git status --short`。
    - 最终回复提交 hash、提交标题、验证情况和是否有未提交残留。
 
