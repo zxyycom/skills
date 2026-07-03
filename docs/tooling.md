@@ -61,11 +61,11 @@
 
 ## Skill 自更新脚本
 
-每个 skill 包内包含 `scripts/update-skill.cjs`。该脚本用于已安装 skill 的自检和可选更新：它读取脚本内的配置项，从 `zxyycom/skills` 下载 GitHub zip，使用 `fflate` 解压出 `skills/<skill-name>/` 路径，计算远端指纹并与当前本地 skill 目录比较；发现不一致时，默认询问是否覆盖更新，传入 `--yes` 时直接更新。
+每个 skill 包内包含 `scripts/update-skill.cjs`。该脚本用于已安装 skill 的自检和可选更新：它读取脚本内的配置项，从 `zxyycom/skills` 的 GitHub latest release 下载对应 `<skill-name>.zip` asset，使用 `fflate` 解压出包内 `<skill-name>/` 目录，计算远端指纹并与当前本地 skill 目录比较；发现不一致时，默认询问是否覆盖更新，传入 `--yes` 时直接更新。
 
 自更新脚本源码使用主仓库 TypeScript 工具链和依赖，但分发产物应能脱离主仓库运行，不能要求已安装 skill 的使用者具备主仓库 Bun、pnpm 或 TypeScript 工具链。需要访问私有仓库或提高 GitHub API 限额时，可通过 `GITHUB_TOKEN` 或 `GH_TOKEN` 提供 token。
 
-生成后的 `update-skill.cjs` 主体不要求保持源码可读性；顶部必须保留生成说明，写明主仓库 TypeScript 模板的 GitHub raw 链接和该 skill 在主仓库中的源目录。`--help` 和正常运行输出也要显示同样的维护入口，方便使用者在脚本报错时定位应修改的源文件，而不是直接修改打包后的 CJS 产物。
+生成后的 `update-skill.cjs` 主体不要求保持源码可读性；顶部必须保留生成说明，写明主仓库 TypeScript 模板的 GitHub raw 链接、该 skill 在主仓库中的源目录和默认 release asset。`--help` 和正常运行输出也要显示同样的维护入口，方便使用者在脚本报错时定位应修改的源文件，而不是直接修改打包后的 CJS 产物。
 
 维护方式：
 
@@ -80,6 +80,7 @@
 node scripts/update-skill.cjs --check
 node scripts/update-skill.cjs
 node scripts/update-skill.cjs --yes
+node scripts/update-skill.cjs --release-tag 20260701T085839Z-33304575c8da --check
 ```
 
 ## Git hooks

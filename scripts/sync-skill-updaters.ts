@@ -12,7 +12,7 @@ import {
 type Mode = "check" | "write";
 
 type UpdaterConfig = {
-  ref: string;
+  releaseAssetName: string;
   repo: string;
   skillName: string;
   sourcePath: string;
@@ -24,7 +24,6 @@ const legacyUpdaterRelativePath = path.join("scripts", "update-skill.js");
 const configPlaceholder = "__SKILL_UPDATE_CONFIG_JSON__";
 const updaterSourceUrl = "https://raw.githubusercontent.com/zxyycom/skills/main/scripts/templates/update-skill.ts";
 const sourceRepo = "zxyycom/skills";
-const defaultRef = "main";
 
 function parseArgs(argv: string[]): Mode {
   let mode: Mode | null = null;
@@ -48,7 +47,7 @@ function parseArgs(argv: string[]): Mode {
 
 function buildConfig(skill: SkillPackage): UpdaterConfig {
   return {
-    ref: defaultRef,
+    releaseAssetName: `${skill.name}.zip`,
     repo: sourceRepo,
     skillName: skill.name,
     sourcePath: toPosix(path.relative(rootDir, skill.directory))
@@ -73,7 +72,8 @@ function addGeneratedHeader(script: string, config: UpdaterConfig): string {
     "/*",
     " * Generated skill self-updater. Do not edit this bundled file directly.",
     ` * Source template: ${updaterSourceUrl}`,
-    ` * Skill source directory: https://github.com/${config.repo}/tree/${config.ref}/${config.sourcePath}`,
+    ` * Skill source directory: https://github.com/${config.repo}/tree/main/${config.sourcePath}`,
+    ` * Release asset: https://github.com/${config.repo}/releases/latest/download/${config.releaseAssetName}`,
     " */",
     ""
   ].join("\n");

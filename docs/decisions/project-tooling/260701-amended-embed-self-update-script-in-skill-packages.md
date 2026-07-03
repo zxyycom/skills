@@ -2,8 +2,8 @@
 
 ## 状态
 - 当前状态: amended
-- 导致状态变化的决策: [2026-07-02 - 迁移为 skills 单仓库布局](260702-active-use-monorepo-skills-directory.md)
-- 状态说明: 在 skill 包内分发自更新脚本的判断仍然生效；配置来源已从 `.gitmodules` 和子仓库 source path 修订为主仓库 `skills/<skill-name>/`。
+- 导致状态变化的决策: [2026-07-02 - 迁移为 skills 单仓库布局](260702-active-use-monorepo-skills-directory.md), [2026-07-03 - 自更新脚本跟随 latest release 制品](260703-active-follow-latest-release-for-skill-updater.md)
+- 状态说明: 在 skill 包内分发自更新脚本的判断仍然生效；目录来源已从 `.gitmodules` 和子仓库 source path 修订为主仓库 `skills/<skill-name>/`, 远端更新输入已从源码 zip 修订为 latest release asset。
 
 ## 问题
 - 仅依赖外部安装器时，已有 skill 目录的覆盖更新、内容一致性检查和多客户端目录适配都缺少稳定 owner。
@@ -13,13 +13,13 @@
 ## 背景与约束
 - 主仓库仍是跨 skill 共享校验、打包和聚合发布的 owner。
 - 子仓库 skill zip 只包含 `skill/<skill-name>/` 内文件，因此要让更新入口随 skill 分发，脚本必须进入每个 skill 目录。
-- 各 skill 的更新逻辑相同，差异只在 GitHub repo、ref 和 source path。
+- 各 skill 的更新逻辑相同，差异只在 GitHub repo、release asset 和 source path。
 - 自更新脚本源码可以使用主仓库 TypeScript 工具链和依赖，但分发产物应能脱离主仓库运行，不能要求已安装 skill 的使用者具备主仓库 Bun、pnpm 或 TypeScript 工具链。
 
 ## 决定
 - 采用: 主仓库维护通用 TypeScript 模板 `scripts/templates/update-skill.ts`，模板使用 `fflate` 解压 GitHub zip，并实现远端指纹检查、交互确认和覆盖更新。
-- 采用: 主仓库维护 `scripts/sync-skill-updaters.ts`，根据 `.gitmodules` 和 skill 发现结果渲染配置，并通过 Bun 默认 `--minify` 打包生成各 skill 包内压缩后的 `scripts/update-skill.cjs`，不支持多种压缩方案。
-- 采用: 生成脚本内只固化 `skillName`、`repo`、`ref` 和 `sourcePath` 配置项；主体逻辑由模板统一维护。
+- 采用: 主仓库维护 `scripts/sync-skill-updaters.ts`，根据 skill 发现结果渲染配置，并通过 Bun 默认 `--minify` 打包生成各 skill 包内压缩后的 `scripts/update-skill.cjs`，不支持多种压缩方案。
+- 采用: 生成脚本内只固化 `skillName`、`repo`、`releaseAssetName` 和 `sourcePath` 配置项；主体逻辑由模板统一维护。
 - 采用: 生成脚本顶部和 `--help` 输出写明主仓库 TypeScript 模板的 GitHub raw 链接，以及该 skill 对应的 GitHub 源目录，避免使用者在排查脚本问题时误改打包产物。
 - 采用: `bun run check` 增加 updater 生成状态检查，避免各 skill 包内副本与模板漂移。
 - 不采用: 继续维护一个主仓库本机目录同步脚本直接操作 `.codex/skills`、`.claude/skills` 或 `.cc-switch/skills`；这会扩大主仓库对用户本机目录的 owner。
@@ -28,8 +28,8 @@
 
 ## 影响
 - 每个 skill zip 会多包含一个 `scripts/update-skill.cjs`，skill package hash 会随之变化。
-- 修改 updater 逻辑时，需要先改主仓库 TypeScript 模板，再同步打包生成到子仓库 skill 目录。
-- 已安装 skill 可以通过本地运行 `node scripts/update-skill.cjs --check` 检查是否与远端 source path 一致，并自行决定是否更新。
+- 修改 updater 逻辑时，需要先改主仓库 TypeScript 模板，再同步打包生成到各 skill 目录。
+- 已安装 skill 可以通过本地运行 `node scripts/update-skill.cjs --check` 检查是否与 latest release asset 一致，并自行决定是否更新。
 
 ## 验证
 - `package.json` 暴露 `sync:skill-updaters` 和 `check:skill-updaters`。

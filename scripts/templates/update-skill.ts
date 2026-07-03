@@ -8,7 +8,7 @@ import { parseArgs } from "node:util";
 import { unzipSync } from "fflate";
 
 type UpdaterConfig = {
-  ref: string;
+  releaseAssetName: string;
   repo: string;
   skillName: string;
   sourcePath: string;
@@ -16,9 +16,18 @@ type UpdaterConfig = {
 
 type CliOptions = {
   check: boolean;
-  ref: string;
+  releaseTag: string | null;
   targetDir: string;
   yes: boolean;
+};
+
+type GitHubRelease = {
+  assets: Array<{
+    name: string;
+    url: string;
+  }>;
+  html_url: string;
+  tag_name: string;
 };
 
 type SkillFile = {
@@ -34,21 +43,26 @@ function skillSourceDirectoryUrl(ref: string): string {
   return `https://github.com/${UPDATE_CONFIG.repo}/tree/${ref}/${UPDATE_CONFIG.sourcePath}`;
 }
 
+function latestReleaseUrl(): string {
+  return `https://github.com/${UPDATE_CONFIG.repo}/releases/latest`;
+}
+
 function printHelp(): void {
   console.log([
-    `Usage: node ${path.basename(currentScriptPath())} [--check] [--yes] [--target-dir <dir>] [--ref <ref>]`,
+    `Usage: node ${path.basename(currentScriptPath())} [--check] [--yes] [--target-dir <dir>] [--release-tag <tag>]`,
     "",
-    `Checks and updates ${UPDATE_CONFIG.skillName} from ${UPDATE_CONFIG.repo}/${UPDATE_CONFIG.sourcePath}.`,
+    `Checks and updates ${UPDATE_CONFIG.skillName} from ${UPDATE_CONFIG.repo} release asset ${UPDATE_CONFIG.releaseAssetName}.`,
     "",
     "Maintenance:",
     `  Updater source: ${updaterSourceUrl}`,
-    `  Skill source directory: ${skillSourceDirectoryUrl(UPDATE_CONFIG.ref)}`,
+    `  Skill source directory: ${skillSourceDirectoryUrl("main")}`,
+    `  Default release: ${latestReleaseUrl()}`,
     "",
     "Options:",
     "  --check             Check whether the target differs from the remote source, without updating.",
     "  --yes, -y           Update without prompting.",
     "  --target-dir <dir>  Skill directory to check or update. Defaults to this script's parent skill directory.",
-    "  --ref <ref>         Git ref to read from. Defaults to the configured ref.",
+    "  --release-tag <tag> GitHub release tag to read from. Defaults to the latest release.",
     "  --help, -h          Show this help."
   ].join("\n"));
 }
@@ -72,7 +86,7 @@ function parseCliOptions(argv: string[]): CliOptions {
     options: {
       check: { type: "boolean" },
       help: { short: "h", type: "boolean" },
-      ref: { type: "string" },
+      "release-tag": { type: "string" },
       "target-dir": { type: "string" },
       yes: { short: "y", type: "boolean" }
     },
@@ -86,7 +100,7 @@ function parseCliOptions(argv: string[]): CliOptions {
 
   return {
     check: parsed.values.check ?? false,
-    ref: parsed.values.ref ?? UPDATE_CONFIG.ref,
+    releaseTag: parsed.values["release-tag"] ?? null,
     targetDir: path.resolve(parsed.values["target-dir"] ?? defaultTargetDir()),
     yes: parsed.values.yes ?? false
   };
@@ -118,39 +132,60 @@ function safeJoin(root: string, relativePath: string): string {
   return fullPath;
 }
 
-function encodeRef(ref: string): string {
-  return ref.split("/").map(encodeURIComponent).join("/");
-}
-
-async function fetchRepoZip(ref: string): Promise<Uint8Array> {
+function githubHeaders(accept: string): Record<string, string> {
   const headers: Record<string, string> = {
-    "User-Agent": "skill-self-updater"
+    Accept: accept,
+    "User-Agent": "skill-self-updater",
+    "X-GitHub-Api-Version": "2022-11-28"
   };
   const token = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`https://codeload.github.com/${UPDATE_CONFIG.repo}/zip/${encodeRef(ref)}`, { headers });
+  return headers;
+}
+
+async function fetchGitHubRelease(releaseTag: string | null): Promise<GitHubRelease> {
+  const encodedRepo = UPDATE_CONFIG.repo.split("/").map(encodeURIComponent).join("/");
+  const encodedTag = releaseTag === null ? null : encodeURIComponent(releaseTag);
+  const releaseApiUrl = encodedTag === null
+    ? `https://api.github.com/repos/${encodedRepo}/releases/latest`
+    : `https://api.github.com/repos/${encodedRepo}/releases/tags/${encodedTag}`;
+  const response = await fetch(releaseApiUrl, {
+    headers: githubHeaders("application/vnd.github+json")
+  });
+
   if (!response.ok) {
-    throw new Error(`GitHub download failed (${response.status}): ${await response.text()}`);
+    throw new Error(`GitHub release lookup failed (${response.status}): ${await response.text()}`);
+  }
+
+  return await response.json() as GitHubRelease;
+}
+
+async function fetchReleaseAssetZip(release: GitHubRelease): Promise<Uint8Array> {
+  const asset = release.assets.find((candidate) => candidate.name === UPDATE_CONFIG.releaseAssetName);
+  if (!asset) {
+    const availableAssets = release.assets.map((candidate) => candidate.name).join(", ") || "(none)";
+    throw new Error(`Release ${release.tag_name} does not contain ${UPDATE_CONFIG.releaseAssetName}. Available assets: ${availableAssets}`);
+  }
+
+  const response = await fetch(asset.url, {
+    headers: githubHeaders("application/octet-stream")
+  });
+
+  if (!response.ok) {
+    throw new Error(`GitHub release asset download failed (${response.status}): ${await response.text()}`);
   }
 
   return new Uint8Array(await response.arrayBuffer());
 }
 
-function extractSkillFiles(zipData: Uint8Array): SkillFile[] {
-  const sourcePath = normalizeRepoPath(UPDATE_CONFIG.sourcePath);
+function extractSkillFilesFromReleaseAsset(zipData: Uint8Array): SkillFile[] {
+  const sourcePath = normalizeRepoPath(UPDATE_CONFIG.skillName);
   const files = unzipSync(zipData);
   const entries = Object.entries(files).sort(([left], [right]) => left.localeCompare(right));
-  const topLevelDirectories = new Set(entries.map(([entryPath]) => entryPath.split("/")[0]).filter(Boolean));
-
-  if (topLevelDirectories.size !== 1) {
-    throw new Error("Unexpected GitHub zip layout");
-  }
-
-  const topLevelDirectory = [...topLevelDirectories][0];
-  const sourcePrefix = `${topLevelDirectory}/${sourcePath}/`;
+  const sourcePrefix = `${sourcePath}/`;
   const skillFiles = entries
     .filter(([entryPath]) => entryPath.startsWith(sourcePrefix))
     .filter(([entryPath]) => !entryPath.endsWith("/"))
@@ -162,7 +197,7 @@ function extractSkillFiles(zipData: Uint8Array): SkillFile[] {
     .sort((left, right) => left.path.localeCompare(right.path));
 
   if (!skillFiles.some((file) => file.path === "SKILL.md")) {
-    throw new Error(`Remote source does not contain ${sourcePath}/SKILL.md`);
+    throw new Error(`Remote release asset does not contain ${sourcePath}/SKILL.md`);
   }
 
   return skillFiles;
@@ -313,10 +348,15 @@ async function main(): Promise<void> {
 
   console.log(`Skill: ${UPDATE_CONFIG.skillName}`);
   console.log(`Updater source: ${updaterSourceUrl}`);
-  console.log(`Skill source directory: ${skillSourceDirectoryUrl(options.ref)}`);
+  console.log(`Skill source directory: ${skillSourceDirectoryUrl("main")}`);
+  console.log(`Release: ${options.releaseTag ?? "latest"}`);
+  console.log(`Release asset: ${UPDATE_CONFIG.releaseAssetName}`);
   console.log(`Target: ${targetDir}`);
 
-  const remoteFiles = extractSkillFiles(await fetchRepoZip(options.ref));
+  const release = await fetchGitHubRelease(options.releaseTag);
+  console.log(`Resolved release: ${release.tag_name} (${release.html_url})`);
+
+  const remoteFiles = extractSkillFilesFromReleaseAsset(await fetchReleaseAssetZip(release));
   const remoteHash = packageFingerprint(remoteFiles);
   const currentHash = await localFingerprint(targetDir);
 
