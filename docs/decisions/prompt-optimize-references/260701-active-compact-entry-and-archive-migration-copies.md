@@ -8,7 +8,7 @@
 
 ## 问题
 
-- `prompt-optimize/skill/prompt-optimize/SKILL.md` 在承接默认执行路径后, 同时保留了过多细则展开, 使用时需要关注的点过多。
+- `skills/prompt-optimize/SKILL.md` 在承接默认执行路径后, 同时保留了过多细则展开, 使用时需要关注的点过多。
 - `workflows.md` 和 `rewrite-rules.md` 已不参与主动读取, 继续放在 `references/` 根目录会让维护者误以为它们仍是普通引用文件。
 
 ## 背景与约束
@@ -19,7 +19,7 @@
 ## 决定
 
 - 采用: `SKILL.md` 继续作为默认执行路径 owner, 但主执行流程只保留压缩后的八步判断链, 细节解释由 `principles.md` 和具体任务上下文承接。
-- 采用: `workflows.md` 和 `rewrite-rules.md` 移入 `prompt-optimize/skill/prompt-optimize/references/archive/`, 作为迁移前旧结构留存。
+- 采用: `workflows.md` 和 `rewrite-rules.md` 移入 `skills/prompt-optimize/references/archive/`, 作为迁移前旧结构留存。
 - 采用: `references/archive/` 只作为文件保留位置, 不写入入口主动引用清单。
 - 不采用: 删除迁移副本。原因是用户要求保留, 且旧结构仍有回溯价值。
 - 触发条件: 后续维护 `prompt-optimize` 时, 如果旧结构只用于回溯且不参与执行路径, 放入 `references/archive/`; 只有会直接影响当前执行质量的引用才留在 `references/` 根目录。
@@ -32,6 +32,6 @@
 
 ## 验证
 
-- `prompt-optimize/skill/prompt-optimize/SKILL.md` 已压缩主执行流程, 主动引用清单不包含 `references/archive/`。
-- `prompt-optimize/skill/prompt-optimize/references/archive/rewrite-rules.md` 和 `prompt-optimize/skill/prompt-optimize/references/archive/workflows.md` 已保留迁移前旧结构。
+- `skills/prompt-optimize/SKILL.md` 已压缩主执行流程, 主动引用清单不包含 `references/archive/`。
+- `skills/prompt-optimize/references/archive/rewrite-rules.md` 和 `skills/prompt-optimize/references/archive/workflows.md` 已保留迁移前旧结构。
 - 主仓库校验应能通过链接和 Markdown 检查。

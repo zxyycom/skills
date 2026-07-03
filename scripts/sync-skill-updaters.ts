@@ -11,11 +11,6 @@ import {
 
 type Mode = "check" | "write";
 
-type Gitmodule = {
-  path: string;
-  url: string;
-};
-
 type UpdaterConfig = {
   ref: string;
   repo: string;
@@ -28,6 +23,7 @@ const updaterRelativePath = path.join("scripts", "update-skill.cjs");
 const legacyUpdaterRelativePath = path.join("scripts", "update-skill.js");
 const configPlaceholder = "__SKILL_UPDATE_CONFIG_JSON__";
 const updaterSourceUrl = "https://raw.githubusercontent.com/zxyycom/skills/main/scripts/templates/update-skill.ts";
+const sourceRepo = "zxyycom/skills";
 const defaultRef = "main";
 
 function parseArgs(argv: string[]): Mode {
@@ -50,67 +46,12 @@ function parseArgs(argv: string[]): Mode {
   return mode ?? "check";
 }
 
-async function readGitmodules(): Promise<Gitmodule[]> {
-  const gitmodules = await fs.readFile(path.join(rootDir, ".gitmodules"), "utf8");
-  const modules: Gitmodule[] = [];
-  let current: Partial<Gitmodule> = {};
-
-  for (const line of gitmodules.split(/\r?\n/)) {
-    if (/^\s*\[submodule\s+"/.test(line)) {
-      if (current.path && current.url) {
-        modules.push({ path: current.path, url: current.url });
-      }
-
-      current = {};
-      continue;
-    }
-
-    const match = line.match(/^\s*(path|url)\s*=\s*(.+?)\s*$/);
-    if (!match) {
-      continue;
-    }
-
-    current[match[1] as keyof Gitmodule] = match[2];
-  }
-
-  if (current.path && current.url) {
-    modules.push({ path: current.path, url: current.url });
-  }
-
-  return modules;
-}
-
-function githubRepoFromUrl(url: string): string {
-  const httpsMatch = url.match(/^https:\/\/github\.com\/([^/]+\/[^/.]+)(?:\.git)?$/);
-  if (httpsMatch) {
-    return httpsMatch[1];
-  }
-
-  const sshMatch = url.match(/^git@github\.com:([^/]+\/[^/.]+)(?:\.git)?$/);
-  if (sshMatch) {
-    return sshMatch[1];
-  }
-
-  const sshUrlMatch = url.match(/^ssh:\/\/git@github\.com\/([^/]+\/[^/.]+)(?:\.git)?$/);
-  if (sshUrlMatch) {
-    return sshUrlMatch[1];
-  }
-
-  throw new Error(`Cannot derive GitHub repo from submodule URL: ${url}`);
-}
-
-async function buildConfig(skill: SkillPackage, modulesByPath: Map<string, Gitmodule>): Promise<UpdaterConfig> {
-  const gitmodule = modulesByPath.get(skill.submodulePath);
-  if (!gitmodule) {
-    throw new Error(`No .gitmodules entry found for ${skill.submodulePath}`);
-  }
-
-  const submoduleDir = path.join(rootDir, skill.submodulePath);
+function buildConfig(skill: SkillPackage): UpdaterConfig {
   return {
     ref: defaultRef,
-    repo: githubRepoFromUrl(gitmodule.url),
+    repo: sourceRepo,
     skillName: skill.name,
-    sourcePath: toPosix(path.relative(submoduleDir, skill.directory))
+    sourcePath: toPosix(path.relative(rootDir, skill.directory))
   };
 }
 
@@ -239,12 +180,11 @@ if (discovery.errors.length > 0) {
   throw new Error(`Cannot sync skill updaters:\n- ${discovery.errors.join("\n- ")}`);
 }
 
-const modulesByPath = new Map((await readGitmodules()).map((gitmodule) => [gitmodule.path, gitmodule]));
 const bundledTemplate = await buildBundledTemplate();
 let changed = false;
 
 for (const skill of discovery.skills) {
-  const config = await buildConfig(skill, modulesByPath);
+  const config = buildConfig(skill);
   const expected = renderUpdater(bundledTemplate, config);
   changed = await syncSkillUpdater(skill, expected, mode) || changed;
 }

@@ -1,9 +1,9 @@
 # 2026-07-01 - 在 skill 包内分发自更新脚本
 
 ## 状态
-- 当前状态: active
-- 导致状态变化的决策: 无
-- 状态说明: 作为当前 skill 自检和可选更新脚本的维护依据。
+- 当前状态: amended
+- 导致状态变化的决策: [2026-07-02 - 迁移为 skills 单仓库布局](260702-active-use-monorepo-skills-directory.md)
+- 状态说明: 在 skill 包内分发自更新脚本的判断仍然生效；配置来源已从 `.gitmodules` 和子仓库 source path 修订为主仓库 `skills/<skill-name>/`。
 
 ## 问题
 - 仅依赖外部安装器时，已有 skill 目录的覆盖更新、内容一致性检查和多客户端目录适配都缺少稳定 owner。

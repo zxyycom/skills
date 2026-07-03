@@ -11,7 +11,7 @@
 3. `scripts/` 下共享自动化脚本的基础标准。
 4. 本地校验、打包和可交付制品规则。
 5. GitHub CI 如何复用本地入口并发布全部 skill 制品。
-6. 子仓库自身 release workflow 的最小职责。
+6. `skills/` 单仓库布局下的 hash、hook 和自更新脚本规则。
 
 本文件不负责 skill 行为、引用内容、决策记录格式或 agent 项目级协作规则。
 
@@ -29,12 +29,12 @@
 当前脚本入口：
 
 1. `bun run typecheck`: 使用 `tsgo --noEmit` 和根目录 `tsconfig.json` 检查 `scripts/**/*.ts`，不输出编译产物。
-2. `bun run validate`: 校验全部 submodule skill 入口、内部链接、决策记录结构和主仓库项目配置。
+2. `bun run validate`: 校验 `skills/` 下全部 skill 入口、内部链接、决策记录结构和主仓库项目配置。
 3. `bun run validate:decisions`: 单独校验 `docs/decisions/` 的目录、文件结构、索引链接和状态来源链接目标。
-4. `bun run hash:skills`: 计算当前所有 skill 打包输入的 SHA-256 hash，并与根目录 `skill-package.hash` 对比；传入 `--write` 时写回当前 hash，传入 `--check` 时不一致则失败。
-5. `bun run pack:skills`: 将各子仓库 `skill/*/` 下每个 skill 分别打包为 `dist/<skill-name>.zip`。
-6. `bun run setup-hooks`: 将主仓库和已配置 hook 的 submodule 的 `core.hooksPath` 设置为 `.githooks`。
-7. `bun run sync:skill-updaters`: 按主仓库模板和子仓库配置生成各 skill 内的 `scripts/update-skill.cjs`。
+4. `bun run hash:skills`: 计算当前 Git index 中所有 skill 打包输入的 SHA-256 hash，并与根目录 `skill-package.hash` 对比；传入 `--write` 时写回当前 hash，传入 `--check` 时不一致则失败。
+5. `bun run pack:skills`: 将 `skills/<skill-name>/` 下每个 skill 分别打包为 `dist/<skill-name>.zip`。
+6. `bun run setup-hooks`: 将主仓库 `core.hooksPath` 设置为 `.githooks`。
+7. `bun run sync:skill-updaters`: 按主仓库模板和 `skills/` 发现结果生成各 skill 内的 `scripts/update-skill.cjs`。
 8. `bun run check:skill-updaters`: 检查各 skill 内的 `scripts/update-skill.cjs` 是否由当前主仓库模板生成。
 9. `bun run check`: 先类型检查，再检查 skill updater 生成状态，再校验并打包全部 skill。
 10. `bun run deploy:package`: 复用 `check` 生成本地可交付 zip 制品，不写入仓库外目录；CI 发布由 workflow 负责。
@@ -51,26 +51,26 @@
 6. 脚本默认只读写主仓库内路径；需要生成产物时输出到主仓库 `dist/`。
 7. 文件发现使用 `fast-glob`，避免在多个脚本中维护递归目录遍历。
 8. Skill frontmatter 使用 `yaml` 解析，避免手写 YAML 字符串解析。
-9. 打包脚本使用 `fflate` 生成 zip，只打包子仓库 `skill/<skill-name>/`，不把项目文档、CI、脚本或仓库元数据放进 skill zip；每次打包前清空 `dist/`，避免残留旧 skill 制品。
+9. 打包脚本使用 `fflate` 生成 zip，只打包 `skills/<skill-name>/` 内文件，不把项目文档、CI、脚本或仓库元数据放进 skill zip；每次打包前清空 `dist/`，避免残留旧 skill 制品。
 10. Markdown 链接提取使用 `mdast-util-from-markdown` 解析 Markdown AST；脚本负责仓库路径、状态来源和项目约束校验。
 11. Markdown 内部链接目标必须是仓库内路径且目标存在；`#anchor` 必须匹配目标 Markdown 文件中的标题锚点。
 12. 决策记录校验保留为独立入口，总校验复用同一 validator 规则。
-13. Skill 发布 hash 只覆盖会进入 skill zip 的文件路径和 Git blob 内容；子仓库中 `skill/` 外的 README、元数据或普通维护文件变化不触发 release 发布。Hash 计算读取 Git `HEAD` tree/blob，避免 Windows 与 Linux 工作区换行差异导致本地 hook 和 CI 结果不一致。
+13. Skill 发布 hash 只覆盖会进入 skill zip 的文件路径和 Git blob 内容；`docs/skills/` 介绍页、项目文档、脚本和 CI 变化不直接触发 skill release。Hash 计算读取 Git index 中的 blob，避免 Windows 与 Linux 工作区换行差异导致本地 hook 和 CI 结果不一致。
 14. 校验脚本不解析 workflow 结构, 也不通过正则检查 workflow 内部步骤; workflow 逻辑由文档约定、代码审查和 GitHub Actions 实际运行结果验证。
 15. Skill 自更新脚本的通用逻辑由主仓库 `scripts/templates/update-skill.ts` 承接；各 skill 包内只保留打包生成的 `scripts/update-skill.cjs`。
 
 ## Skill 自更新脚本
 
-每个 skill 包内包含 `scripts/update-skill.cjs`。该脚本用于已安装 skill 的自检和可选更新：它读取脚本内的配置项，从对应 GitHub 子仓库下载 zip，使用 `fflate` 解压出 `skill/<skill-name>/` 路径，计算远端指纹并与当前本地 skill 目录比较；发现不一致时，默认询问是否覆盖更新，传入 `--yes` 时直接更新。
+每个 skill 包内包含 `scripts/update-skill.cjs`。该脚本用于已安装 skill 的自检和可选更新：它读取脚本内的配置项，从 `zxyycom/skills` 下载 GitHub zip，使用 `fflate` 解压出 `skills/<skill-name>/` 路径，计算远端指纹并与当前本地 skill 目录比较；发现不一致时，默认询问是否覆盖更新，传入 `--yes` 时直接更新。
 
-自更新脚本源码使用 TypeScript 和项目依赖，分发时由 Bun 默认 `--minify` 打包成压缩后的单文件 CommonJS，不支持多种压缩方案或额外压缩配置。已安装 skill 运行生成后的 `update-skill.cjs` 时，不依赖主仓库 Bun/pnpm 工具链，也不读取主仓库脚本。需要访问私有仓库或提高 GitHub API 限额时，可通过 `GITHUB_TOKEN` 或 `GH_TOKEN` 提供 token。
+自更新脚本源码使用主仓库 TypeScript 工具链和依赖，但分发产物应能脱离主仓库运行，不能要求已安装 skill 的使用者具备主仓库 Bun、pnpm 或 TypeScript 工具链。需要访问私有仓库或提高 GitHub API 限额时，可通过 `GITHUB_TOKEN` 或 `GH_TOKEN` 提供 token。
 
-生成后的 `update-skill.cjs` 主体不要求保持源码可读性；顶部必须保留生成说明，写明主仓库 TypeScript 模板的 GitHub raw 链接和该 skill 的 GitHub 源目录。`--help` 和正常运行输出也要显示同样的维护入口，方便使用者在脚本报错时定位应修改的源文件，而不是直接修改打包后的 CJS 产物。
+生成后的 `update-skill.cjs` 主体不要求保持源码可读性；顶部必须保留生成说明，写明主仓库 TypeScript 模板的 GitHub raw 链接和该 skill 在主仓库中的源目录。`--help` 和正常运行输出也要显示同样的维护入口，方便使用者在脚本报错时定位应修改的源文件，而不是直接修改打包后的 CJS 产物。
 
 维护方式：
 
 1. 通用源码只改 `scripts/templates/update-skill.ts`。
-2. 运行 `bun run sync:skill-updaters` 将模板按各 skill 的 repo、ref 和 source path 渲染后打包到子仓库 `skill/<skill-name>/scripts/update-skill.cjs`。
+2. 运行 `bun run sync:skill-updaters` 将模板按各 skill 的 repo、ref 和 source path 渲染后打包到 `skills/<skill-name>/scripts/update-skill.cjs`。
 3. `bun run check` 会执行 `check:skill-updaters`，避免已分发脚本与主仓库模板漂移。
 4. 生成脚本进入 skill zip，因此会改变 skill package hash；提交前 hook 会更新并 stage `skill-package.hash`。
 
@@ -84,19 +84,12 @@ node scripts/update-skill.cjs --yes
 
 ## Git hooks
 
-主仓库和每个子仓库都保留 `.githooks/pre-commit`。新 clone 或 hooksPath 丢失时，在主仓库运行 `bun run setup-hooks`，它会设置主仓库和已配置 hook 的 submodule 的 `core.hooksPath`，并把 pre-commit hook 文件设为可执行。
+主仓库保留 `.githooks/pre-commit`。新 clone 或 hooksPath 丢失时，在主仓库运行 `bun run setup-hooks`，它会设置主仓库 `core.hooksPath`，并把 pre-commit hook 文件设为可执行。
 
 主仓库 pre-commit hook 负责：
 
-1. 检查 submodule 工作区和 index 是否干净，避免把子仓库未提交内容算进主仓库聚合 hash。
-2. 检查 submodule 指针变化是否已在主仓库 staged。
-3. 运行 `bun scripts/hash-skills.ts --write` 写回根目录 `skill-package.hash`。
-4. 自动 `git add skill-package.hash`，让 hash 和 submodule 指针进入同一个提交。
-
-子仓库 pre-commit hook 负责：
-
-1. 使用 `git write-tree --prefix=skill/` 计算将要提交的 `skill/` staged tree hash。
-2. 写回并 stage 子仓库根目录 `skill-package.hash`。
+1. 运行 `bun scripts/hash-skills.ts --write` 写回根目录 `skill-package.hash`。
+2. 自动 `git add skill-package.hash`，让 hash 和当前 staged 的 skill 内容进入同一个提交。
 
 GitHub Actions 运行在提交之后，不能取消或修改已经 push 的提交。CI 只能在 hash 不一致时失败；如果需要阻止错误提交进入 `main`，应通过 GitHub branch protection 或 ruleset 要求相关 check 通过，并限制直接 push。
 
@@ -114,19 +107,4 @@ GitHub CI 复用本地入口：
 8. 对 `main` 分支的 `push`，仅当当前 hash 与上一提交 hash 不一致时发布 GitHub Release `<timestamp>-<hash12>`，并同步更新 `skills-latest`；`workflow_dispatch` 作为手动重发入口。
 9. Release 更新成功后，CI 只上传全部 `dist/*.zip`，不向 `main` 写回发布状态提交。
 
-CI 发布使用 UTC 时间戳和内容 hash 生成版本化 release tag：格式为 `<timestamp>-<hash12>`，例如 `20260701T085839Z-33304575c8da`；`<hash12>` 是当前 `skill-package.hash` 的前 12 位。该版本化 release 是 GitHub Releases 列表里的真实发布记录，并显式标记为 Latest。固定 `skills-latest` release 只作为兼容下载入口继续维护，tag 指向最新发布提交，assets 覆盖为当前全部 skill zip，但不作为发布时间语义来源。PR 只运行校验、打包、hash 校验和 artifact 上传，不发布 release。只改主仓库文档、脚本、CI 或子仓库 `skill/` 外文件时，hash 不变，CI 不发布新的版本化 release，也不覆盖 latest release。
-
-## 子仓库发布
-
-每个 skill 子仓库保留 `.github/workflows/publish-skill-package.yml` 和 `skill-package.hash`，用于该子仓库自身的独立 release。
-
-子仓库发布规则：
-
-1. 触发范围只覆盖 `main` 的 `skill/**` 变化、workflow 自身变化和手动触发。
-2. 使用 `git rev-parse HEAD:skill` 计算当前 `skill/` tree hash，并与子仓库根目录 `skill-package.hash` 对比；不一致时 CI 失败。
-3. 当前 hash 与上一提交的 `skill-package.hash` 不同时，将该子仓库 `skill/*/` 下每个 skill 分别打包为 `dist/<skill-name>.zip`。
-4. 发布子仓库自己的版本化 release，tag 同样使用 `<timestamp>-<hash12>`；同时更新 `<repo-name>-latest` 兼容入口，assets 覆盖为当前 `dist/*.zip`。
-5. 发布成功后，workflow 不向该子仓库 `main` 写回发布状态提交。
-6. 子仓库 workflow 不安装主仓库 Bun/pnpm 工具链，不复制主仓库 TypeScript 脚本；它只承接该子仓库独立交付所需的最小打包和发布步骤。
-
-子仓库独立 release 与主仓库聚合 release 并存：子仓库版本化 release 方便单独安装某个 skill 集合并保留可回溯发布时间，主仓库版本化 release 提供全部 skill 的统一版本化入口。`*-latest` release 只作为稳定下载链接保留。维护时通过 review 确认子仓库发布入口和 hash 基线是否需要同步调整。
+CI 发布使用 UTC 时间戳和内容 hash 生成版本化 release tag：格式为 `<timestamp>-<hash12>`，例如 `20260701T085839Z-33304575c8da`；`<hash12>` 是当前 `skill-package.hash` 的前 12 位。该版本化 release 是 GitHub Releases 列表里的真实发布记录，并显式标记为 Latest。固定 `skills-latest` release 只作为兼容下载入口继续维护，tag 指向最新发布提交，assets 覆盖为当前全部 skill zip，但不作为发布时间语义来源。PR 只运行校验、打包、hash 校验和 artifact 上传，不发布 release。只改 `docs/skills/`、主仓库维护文档、脚本或 CI 时，hash 不变，CI 不发布新的版本化 release，也不覆盖 latest release。

@@ -11,7 +11,7 @@
 
 ## 背景与约束
 - 本记录从 `prompt-optimize` 原单 skill 仓库迁入主仓库决策目录, 只适用于 `prompt-optimize` 的引用结构。
-- 当前主仓库通过 submodule 维护多个 skill 子仓库; `prompt-optimize` skill 本体位于 `prompt-optimize/skill/prompt-optimize/`。
+- 该记录创建时主仓库通过 submodule 维护多个 skill 子仓库; 当前 `prompt-optimize` skill 本体位于 `skills/prompt-optimize/`。
 - `SKILL.md` 应保持为入口、读取策略、最小执行协议和完成检查, 不承接完整规则解释。
 - `workflows.md` 负责做事顺序, `rewrite-rules.md` 负责具体判断方法, `principles.md` 负责长期理由, `agent-tasks.md` 负责协作任务结构。
 - 用户明确指出规则不能只是原有结构的轻度整理, 需要合理拆分和重组, 原理说明也要体现“什么原理或思考带来什么行为”。
@@ -39,7 +39,7 @@
 - 该记录只回放 `prompt-optimize` 的旧结构, 不作为其他 skill 的引用文件拆分模板。
 
 ## 验证
-- `prompt-optimize/skill/prompt-optimize/SKILL.md` 已把最小执行协议改为按改写管线处理。
-- `prompt-optimize/skill/prompt-optimize/references/workflows.md` 的“改写已有文本”已同步为八步管线。
-- `prompt-optimize/skill/prompt-optimize/references/rewrite-rules.md` 已按八步管线重组。
-- `prompt-optimize/skill/prompt-optimize/references/principles.md` 已按“原理或思考 -> 行为”组织。
+- `skills/prompt-optimize/SKILL.md` 已把最小执行协议改为按改写管线处理。
+- `skills/prompt-optimize/references/workflows.md` 的“改写已有文本”已同步为八步管线。
+- `skills/prompt-optimize/references/rewrite-rules.md` 已按八步管线重组。
+- `skills/prompt-optimize/references/principles.md` 已按“原理或思考 -> 行为”组织。

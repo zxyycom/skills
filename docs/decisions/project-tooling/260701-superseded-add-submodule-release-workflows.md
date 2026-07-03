@@ -1,9 +1,9 @@
 # 2026-07-01 - 给子仓库增加独立 release workflow
 
 ## 状态
-- 当前状态: amended
-- 导致状态变化的决策: [2026-07-01 - 不用脚本校验 workflow 结构](260701-active-avoid-workflow-structure-validation.md), [2026-07-01 - 用 Git hook 更新 package hash](260701-active-update-package-hash-with-git-hooks.md), [2026-07-01 - 使用版本化 release 发布 skill 制品](260701-active-publish-versioned-skill-releases.md)
-- 状态说明: 子仓库保留自身发布流程的规则仍然生效；原记录中由主仓库校验脚本检查子仓库发布 workflow 的做法已取消，子仓库发布 hash 也改为提交前 hook 更新、CI 校验。子仓库 release tag 从只维护 `<repo-name>-latest` 扩展为发布 `<timestamp>-<hash12>` 并同步维护 latest 兼容入口。
+- 当前状态: superseded
+- 导致状态变化的决策: [2026-07-02 - 迁移为 skills 单仓库布局](260702-active-use-monorepo-skills-directory.md)
+- 状态说明: 子仓库独立 release 入口已不再作为当前交付契约；本记录只用于回放曾经保留子仓库 workflow 的原因。
 
 ## 问题
 - 只有主仓库发布 `skills-latest` 时, 使用者必须从聚合 release 获取单个 skill 或 skill 集合, 子仓库本身没有独立交付入口。

@@ -17,7 +17,7 @@
 
 ## 影响
 - `scripts/validators/project-config.ts` 不再包含 workflow 结构正则或 YAML 解析检查。
-- 子仓库独立发布入口是否正确, 不通过主仓库 validator 强制判断。
+- 主仓库发布入口是否正确, 不通过 validator 复制 workflow 结构来判断。
 - `AGENTS.md` 保留稳定边界, 不写 workflow 文件名、hash 文件或具体发布步骤这类工具链细节。
 
 ## 验证

@@ -19,6 +19,11 @@ type GitSkillTree = {
   treePath: string;
 };
 
+type GitIndexFile = {
+  objectId: string;
+  relativePath: string;
+};
+
 function readGitOutput(args: string[], cwd: string): string {
   return execFileSync("git", args, {
     cwd,
@@ -40,13 +45,32 @@ function resolveGitSkillTree(skill: SkillPackage): GitSkillTree {
   return { repoRoot, treePath };
 }
 
-function collectGitSkillFiles(tree: GitSkillTree): string[] {
-  const output = readGitOutput(["ls-tree", "-r", "--name-only", `HEAD:${tree.treePath}`], tree.repoRoot);
-  return output.length === 0 ? [] : output.split(/\r?\n/).sort((a, b) => a.localeCompare(b));
+function collectGitIndexSkillFiles(tree: GitSkillTree): GitIndexFile[] {
+  const output = readGitBlob(["ls-files", "-s", "-z", "--", tree.treePath], tree.repoRoot).toString("utf8");
+  if (output.length === 0) {
+    return [];
+  }
+
+  return output
+    .split("\0")
+    .filter((line) => line.length > 0)
+    .map((line) => {
+      const match = line.match(/^\d+\s+([a-f0-9]{40,64})\s+\d+\t(.+)$/);
+      if (!match) {
+        throw new Error(`Unexpected git ls-files output: ${line}`);
+      }
+
+      const repoPath = match[2];
+      return {
+        objectId: match[1],
+        relativePath: repoPath.slice(`${tree.treePath}/`.length)
+      };
+    })
+    .sort((left, right) => left.relativePath.localeCompare(right.relativePath));
 }
 
-function readGitSkillFile(tree: GitSkillTree, relativePath: string): Buffer {
-  return readGitBlob(["show", `HEAD:${tree.treePath}/${relativePath}`], tree.repoRoot);
+function readGitIndexFile(tree: GitSkillTree, file: GitIndexFile): Buffer {
+  return readGitBlob(["cat-file", "blob", file.objectId], tree.repoRoot);
 }
 
 export async function calculateSkillPackageHash(skills: SkillPackage[]): Promise<string> {
@@ -56,11 +80,11 @@ export async function calculateSkillPackageHash(skills: SkillPackage[]): Promise
   for (const skill of skills) {
     hash.update(`skill\0${skill.name}\0`);
     const tree = resolveGitSkillTree(skill);
-    const files = collectGitSkillFiles(tree);
+    const files = collectGitIndexSkillFiles(tree);
 
-    for (const relativePath of files) {
-      const packagePath = `${skill.name}/${toPosix(relativePath)}`;
-      const data = readGitSkillFile(tree, relativePath);
+    for (const file of files) {
+      const packagePath = `${skill.name}/${toPosix(file.relativePath)}`;
+      const data = readGitIndexFile(tree, file);
       hash.update(`file\0${packagePath}\0${data.byteLength}\0`);
       hash.update(data);
       hash.update("\0");

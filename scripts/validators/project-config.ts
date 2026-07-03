@@ -21,14 +21,15 @@ const requiredPackageScripts = [
 ] as const;
 
 const requiredProjectFiles = [
-  ".gitmodules",
   "skill-package.hash",
+  "skills",
   "README.md",
   "AGENTS.md",
   "pnpm-workspace.yaml",
   "tsconfig.json",
   "scripts/setup-git-hooks.ts",
   "docs/tooling.md",
+  "docs/skills",
   ".githooks/pre-commit",
   ".github/workflows/package-skills.yml"
 ] as const;

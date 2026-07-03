@@ -21,7 +21,7 @@ for (const skill of discovery.skills) {
   await validateSkillFrontmatter(skill, reporter.report, rootDir);
 }
 
-const mainMarkdownFiles = await collectMainMarkdownFiles(discovery.submodulePaths, rootDir);
+const mainMarkdownFiles = await collectMainMarkdownFiles(rootDir);
 const skillMarkdownFiles = (await Promise.all(discovery.skills.map((skill) => collectFiles(skill.directory))))
   .flat()
   .filter((filePath) => filePath.endsWith(".md"));

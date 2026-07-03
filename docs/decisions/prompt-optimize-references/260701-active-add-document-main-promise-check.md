@@ -10,7 +10,7 @@
 - 用户反馈指出, 仅看标题、部分序言或其他入口信号就能推断文档基调时, 后续正文重心却落到其他主题, 应被视为明显偏离; SOP、runbook、API、字段说明和规则索引同样可能被背景、例外、历史或实现细节带偏。
 
 ## 背景与约束
-- 当前 `prompt-optimize/skill/prompt-optimize/SKILL.md` 是该 skill 默认执行路径的完整 owner。
+- 当前 `skills/prompt-optimize/SKILL.md` 是该 skill 默认执行路径的完整 owner。
 - `principles.md` 负责解释长期理由; `workflows.md` 和 `rewrite-rules.md` 是迁移期保留副本, 不参与默认读取。
 
 ## 决策过程
@@ -33,6 +33,6 @@
 - 后续维护该 skill 时, 与文档重心相关的执行流程优先更新入口文件; 原理解释更新 `principles.md`; 迁移期保留副本不因普通规则增强而重新成为默认 owner。
 
 ## 验证
-- `prompt-optimize/skill/prompt-optimize/SKILL.md` 已包含主承诺步骤、重心偏移审计和完成检查。
-- `prompt-optimize/skill/prompt-optimize/references/principles.md` 已包含文档主承诺原则。
+- `skills/prompt-optimize/SKILL.md` 已包含主承诺步骤、重心偏移审计和完成检查。
+- `skills/prompt-optimize/references/principles.md` 已包含文档主承诺原则。
 - 主仓库校验确认决策记录和 skill 入口结构有效。

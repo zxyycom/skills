@@ -1,9 +1,9 @@
 # 2026-07-01 - 用 Git hook 更新 package hash
 
 ## 状态
-- 当前状态: active
-- 导致状态变化的决策: 无
-- 状态说明: 当前主仓库聚合 release 和子仓库独立 release 都按该规则维护 `skill-package.hash`。
+- 当前状态: amended
+- 导致状态变化的决策: [2026-07-02 - 迁移为 skills 单仓库布局](260702-active-use-monorepo-skills-directory.md)
+- 状态说明: 提交前 hook 维护 `skill-package.hash`、CI 校验 hash 和 release 门禁的规则仍然生效；子仓库独立 hash 和 submodule 指针相关规则已被单仓库布局修订。
 
 ## 问题
 - GitHub Actions 在 release 成功后写回 `skill-package.hash` 会产生额外 bot 提交，干扰本地同步、提交历史阅读和 submodule 指针维护。

@@ -24,4 +24,4 @@
 - `git-commit-organizer` 后续会优先拆分多个互不依赖的语义单元, 在只影响 AI/agent 配置时选择 `ai` 类型而不是泛化为 `chore`, 并优先用命令参数创建提交。
 
 ## 验证
-- 检查 `git-commit-organizer/skill/git-commit-organizer/SKILL.md` 包含“提交粒度”、“提交类型”、“提交创建方式”、收窄到 AI/agent 配置的 `ai` 类型规则和 `git commit -m` 提交创建规则。
+- 检查 `skills/git-commit-organizer/SKILL.md` 包含“提交粒度”、“提交类型”、“提交创建方式”、收窄到 AI/agent 配置的 `ai` 类型规则和 `git commit -m` 提交创建规则。

@@ -1,9 +1,9 @@
 # 2026-07-01 - 使用版本化 release 发布 skill 制品
 
 ## 状态
-- 当前状态: active
-- 导致状态变化的决策: 无
-- 状态说明: 当前主仓库聚合发布和子仓库独立发布都按 UTC 时间戳和内容 hash 创建版本化 release，并同步维护 latest 兼容入口。
+- 当前状态: amended
+- 导致状态变化的决策: [2026-07-02 - 迁移为 skills 单仓库布局](260702-active-use-monorepo-skills-directory.md)
+- 状态说明: 主仓库聚合发布仍按 UTC 时间戳和内容 hash 创建版本化 release，并同步维护 `skills-latest` 兼容入口；子仓库独立版本化 release 已不再作为当前契约。
 
 ## 问题
 - 固定 `*-latest` release 被更新后，GitHub 页面仍显示 release 最初的 `published_at`，容易让使用者误以为包没有更新。

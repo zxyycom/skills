@@ -23,7 +23,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -94,7 +93,6 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.sha }}
-          submodules: recursive
 
       - name: Download skill zips
         uses: actions/download-artifact@v4

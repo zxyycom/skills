@@ -1,9 +1,0 @@
-[submodule "prompt-optimize"]
-	path = prompt-optimize
-	url = https://github.com/zxyycom/prompt-optimize.git
-[submodule "git-commit-organizer"]
-	path = git-commit-organizer
-	url = https://github.com/zxyycom/git-commit-organizer.git
-[submodule "openspec-skills"]
-	path = openspec-skills
-	url = https://github.com/zxyycom/openspec-skills.git

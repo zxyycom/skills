@@ -14,7 +14,7 @@
 ## 背景与约束
 
 - 本记录从 `prompt-optimize` 原单 skill 仓库迁入主仓库决策目录, 只解释 `prompt-optimize` 的引用结构演进。
-- 当前主仓库通过 submodule 维护多个 skill 子仓库; `prompt-optimize` skill 本体位于 `prompt-optimize/skill/prompt-optimize/`。
+- 该记录创建时主仓库通过 submodule 维护多个 skill 子仓库; 当前 `prompt-optimize` skill 本体位于 `skills/prompt-optimize/`。
 - 入口文件应承接触发条件、主动引用策略、主执行流程、冲突处理、交付格式和完成检查。
 - 大型迁移需要稳妥推进: 原拆分文件先作为迁移期保留副本留在引用目录, 文件开头说明保留原因和原作用, 稳定后再判断是否删除。
 - 保留副本不再作为主动读取入口, 当前运行路径不再直接引用它们。
@@ -37,14 +37,14 @@
 
 ## 影响
 
-- `prompt-optimize/skill/prompt-optimize/SKILL.md` 成为该 skill 默认执行路径的唯一完整 owner。
+- `skills/prompt-optimize/SKILL.md` 成为该 skill 默认执行路径的唯一完整 owner。
 - `prompt-optimize` 的主动引用策略收敛为原理解释和子 agent 任务两个低频分支。
 - `prompt-optimize` 的迁移期保留副本不参与默认读取, 稳定后可以根据使用情况删除或继续保留。
 - 该记录不约束 `git-commit-organizer`、`openspec-skills` 等其他 skill; 其他 skill 的入口与引用结构按各自 owner 决定。
 
 ## 验证
 
-- `prompt-optimize/skill/prompt-optimize/SKILL.md` 已包含原工作流和改写规则的主干判断。
+- `skills/prompt-optimize/SKILL.md` 已包含原工作流和改写规则的主干判断。
 - `prompt-optimize` 当前运行路径不再主动引用迁移期保留副本。
-- `prompt-optimize/skill/prompt-optimize/references/` 下的迁移期保留副本已在文件开头写明保留原因、原作用和当前状态。
+- `skills/prompt-optimize/references/` 下的迁移期保留副本已在文件开头写明保留原因、原作用和当前状态。
 - `prompt-optimize` 的直接编辑模式已收窄为读取目标文件、当前主动引用文件和确有必要的相邻文件, 避免迁移期保留副本被默认拉回执行路径。
