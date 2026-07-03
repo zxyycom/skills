@@ -35,7 +35,7 @@ type GitIndexFile = {
   relativePath: string;
 };
 
-type SkillFile = {
+export type SkillPackageFile = {
   data: Buffer;
   path: string;
 };
@@ -89,7 +89,15 @@ function readGitIndexFile(tree: GitSkillTree, file: GitIndexFile): Buffer {
   return readGitBlob(["cat-file", "blob", file.objectId], tree.repoRoot);
 }
 
-function calculateSingleSkillPackageHash(skillName: string, files: SkillFile[]): string {
+export async function collectSkillPackageFiles(skill: SkillPackage): Promise<SkillPackageFile[]> {
+  const tree = resolveGitSkillTree(skill);
+  return collectGitIndexSkillFiles(tree).map((file) => ({
+    data: readGitIndexFile(tree, file),
+    path: toPosix(file.relativePath)
+  }));
+}
+
+function calculateSingleSkillPackageHash(skillName: string, files: SkillPackageFile[]): string {
   const hash = createHash("sha256");
   hash.update(`skill-self-update-v1\0${skillName}\0`);
 
@@ -109,11 +117,7 @@ export async function calculateSkillPackageHashes(skills: SkillPackage[]): Promi
 
   for (const skill of skills) {
     aggregate.update(`skill\0${skill.name}\0`);
-    const tree = resolveGitSkillTree(skill);
-    const files = collectGitIndexSkillFiles(tree).map((file) => ({
-      data: readGitIndexFile(tree, file),
-      path: toPosix(file.relativePath)
-    }));
+    const files = await collectSkillPackageFiles(skill);
 
     for (const file of files) {
       const packagePath = `${skill.name}/${file.path}`;

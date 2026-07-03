@@ -2,11 +2,11 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { type Zippable, zipSync } from "fflate";
 import {
+  collectSkillPackageFiles,
   getSkillPackageLockFilePath,
   skillPackageLockFileName
 } from "./lib/skill-package-hash.ts";
 import {
-  collectSkillFiles,
   discoverSkillPackages,
   rootDir,
   type SkillPackage
@@ -16,13 +16,12 @@ const distDir = path.join(rootDir, "dist");
 const zipEntryOptions = { level: 9 as const, mtime: new Date(1980, 0, 1) };
 
 async function buildZip(skill: SkillPackage): Promise<Buffer> {
-  const files = await collectSkillFiles(skill.directory);
+  const files = await collectSkillPackageFiles(skill);
   const entries = Object.fromEntries(
-    await Promise.all(files.map(async (relativePath) => {
-      const zipPath = `${skill.name}/${relativePath}`;
-      const data = await fs.readFile(path.join(skill.directory, relativePath));
-      return [zipPath, [data, zipEntryOptions]];
-    }))
+    files.map((file) => [
+      `${skill.name}/${file.path}`,
+      [file.data, zipEntryOptions]
+    ])
   ) as Zippable;
 
   return Buffer.from(zipSync(entries, zipEntryOptions));
