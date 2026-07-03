@@ -2,6 +2,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { type Zippable, zipSync } from "fflate";
 import {
+  getSkillPackageLockFilePath,
+  skillPackageLockFileName
+} from "./lib/skill-package-hash.ts";
+import {
   collectSkillFiles,
   discoverSkillPackages,
   rootDir,
@@ -38,3 +42,7 @@ for (const skill of discovery.skills) {
   await fs.writeFile(outputPath, archive);
   console.log(`Packed ${skill.name} -> ${path.relative(rootDir, outputPath)} (${archive.length} bytes).`);
 }
+
+const lockOutputPath = path.join(distDir, skillPackageLockFileName);
+await fs.copyFile(getSkillPackageLockFilePath(rootDir), lockOutputPath);
+console.log(`Copied ${skillPackageLockFileName} -> ${path.relative(rootDir, lockOutputPath)}.`);

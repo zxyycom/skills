@@ -21,7 +21,7 @@ const requiredPackageScripts = [
 ] as const;
 
 const requiredProjectFiles = [
-  "skill-package.hash",
+  "skill-package-lock.json",
   "skills",
   "README.md",
   "AGENTS.md",
@@ -33,6 +33,10 @@ const requiredProjectFiles = [
   ".githooks/pre-commit",
   ".github/workflows/package-skills.yml"
 ] as const;
+
+function isSha256(value: unknown): value is string {
+  return typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
+}
 
 export async function validatePackageScripts(
   report: ReportValidationError,
@@ -62,11 +66,43 @@ export async function validateRequiredProjectFiles(
     }
   }
 
-  const hashFilePath = path.join(workspaceRoot, "skill-package.hash");
-  if (await pathExists(hashFilePath)) {
-    const hash = (await fs.readFile(hashFilePath, "utf8")).trim();
-    if (!/^[a-f0-9]{64}$/.test(hash)) {
-      report("skill-package.hash must contain one lowercase SHA-256 hash");
+  if (await pathExists(path.join(workspaceRoot, "skill-package.hash"))) {
+    report("skill-package.hash must not exist; use skill-package-lock.json as the package state file");
+  }
+
+  const lockFilePath = path.join(workspaceRoot, "skill-package-lock.json");
+  if (await pathExists(lockFilePath)) {
+    try {
+      const lock = JSON.parse(await fs.readFile(lockFilePath, "utf8")) as {
+        aggregateHash?: unknown;
+        schemaVersion?: unknown;
+        skills?: unknown;
+      };
+
+      if (lock.schemaVersion !== 1) {
+        report("skill-package-lock.json schemaVersion must be 1");
+      }
+
+      if (!isSha256(lock.aggregateHash)) {
+        report("skill-package-lock.json aggregateHash must be a lowercase SHA-256 hash");
+      }
+
+      if (typeof lock.skills !== "object" || lock.skills === null || Array.isArray(lock.skills)) {
+        report("skill-package-lock.json skills must be an object");
+      } else {
+        const skills = Object.entries(lock.skills as Record<string, unknown>);
+        if (skills.length === 0) {
+          report("skill-package-lock.json skills must not be empty");
+        }
+
+        for (const [skillName, hash] of skills) {
+          if (!isSha256(hash)) {
+            report(`skill-package-lock.json skills.${skillName} must be a lowercase SHA-256 hash`);
+          }
+        }
+      }
+    } catch {
+      report("skill-package-lock.json must contain valid JSON");
     }
   }
 }

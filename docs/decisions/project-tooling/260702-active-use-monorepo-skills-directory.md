@@ -25,7 +25,7 @@
 - 采用: 用 `docs/skills/` 承接原子仓库 README 和后续面向人类的 skill 介绍页。
 - 采用: 删除 `.gitmodules`、submodule 指针、子仓库独立 release workflow、子仓库 hook 和子仓库 hash 基线。
 - 采用: 主仓库脚本直接扫描 `skills/` 发现 skill, updater source path 指向 `zxyycom/skills` 的 `skills/<skill-name>/`。
-- 采用: `skill-package.hash` 继续作为聚合 release 门禁, 但 hash 计算读取主仓库 Git index 中 `skills/` 下的 blob。
+- 采用: `skill-package-lock.json` 作为聚合 release 门禁和单 skill hash manifest, 但 hash 计算读取主仓库 Git index 中 `skills/` 下的 blob。
 - 采用: 只保留主仓库聚合版本化 release 和 `skills-latest` 兼容入口。
 - 不采用: 保留 `子仓库/skill/<skill-name>/` 的二级仓库形态; 这会把 submodule 迁移成普通目录, 但仍留下旧 owner 边界。
 - 不采用: 把 skill 直接平铺在项目根目录; 这会让 skill 本体和项目级维护文件混在一起。

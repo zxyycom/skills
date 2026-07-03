@@ -8,10 +8,12 @@ import {
   toPosix,
   type SkillPackage
 } from "./lib/project.ts";
+import { skillPackageLockFileName } from "./lib/skill-package-hash.ts";
 
 type Mode = "check" | "write";
 
 type UpdaterConfig = {
+  packageLockAssetName: string;
   releaseAssetName: string;
   repo: string;
   skillName: string;
@@ -47,6 +49,7 @@ function parseArgs(argv: string[]): Mode {
 
 function buildConfig(skill: SkillPackage): UpdaterConfig {
   return {
+    packageLockAssetName: skillPackageLockFileName,
     releaseAssetName: `${skill.name}.zip`,
     repo: sourceRepo,
     skillName: skill.name,
@@ -73,6 +76,7 @@ function addGeneratedHeader(script: string, config: UpdaterConfig): string {
     " * Generated skill self-updater. Do not edit this bundled file directly.",
     ` * Source template: ${updaterSourceUrl}`,
     ` * Skill source directory: https://github.com/${config.repo}/tree/main/${config.sourcePath}`,
+    ` * Package lock asset: https://github.com/${config.repo}/releases/latest/download/${config.packageLockAssetName}`,
     ` * Release asset: https://github.com/${config.repo}/releases/latest/download/${config.releaseAssetName}`,
     " */",
     ""

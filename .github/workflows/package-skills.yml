@@ -44,14 +44,14 @@ jobs:
         id: skill_hash
         run: bun scripts/hash-skills.ts --check --github-output
 
-      - name: Read previous package hash
+      - name: Read previous package lock
         id: previous_hash
         if: ${{ github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000' }}
         run: |
           set -euo pipefail
 
-          if git cat-file -e "${{ github.event.before }}:skill-package.hash" 2>/dev/null; then
-            hash="$(git show "${{ github.event.before }}:skill-package.hash" | tr -d '\r\n')"
+          if git cat-file -e "${{ github.event.before }}:skill-package-lock.json" 2>/dev/null; then
+            hash="$(git show "${{ github.event.before }}:skill-package-lock.json" | node -e "let input = ''; process.stdin.on('data', chunk => input += chunk); process.stdin.on('end', () => console.log(JSON.parse(input).aggregateHash));")"
             echo "hash=$hash" >> "$GITHUB_OUTPUT"
           fi
 
@@ -73,11 +73,11 @@ jobs:
           echo "Release hash changed: $changed"
           echo "changed=$changed" >> "$GITHUB_OUTPUT"
 
-      - name: Upload skill zips
+      - name: Upload skill assets
         uses: actions/upload-artifact@v4
         with:
           name: skills
-          path: dist/*.zip
+          path: dist/*
           if-no-files-found: error
 
   publish:
@@ -94,7 +94,7 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.sha }}
 
-      - name: Download skill zips
+      - name: Download skill assets
         uses: actions/download-artifact@v4
         with:
           name: skills
@@ -124,10 +124,10 @@ jobs:
               --title "$version_name" \
               --notes "$release_notes" \
               --latest
-            gh release upload "$version_tag" dist/*.zip --clobber
+            gh release upload "$version_tag" dist/* --clobber
           else
             gh release create "$version_tag" \
-              dist/*.zip \
+              dist/* \
               --target "$GITHUB_SHA" \
               --title "$version_name" \
               --notes "$release_notes" \
@@ -142,10 +142,10 @@ jobs:
               --target "$GITHUB_SHA" \
               --title "$LATEST_NAME" \
               --notes "$release_notes"
-            gh release upload "$LATEST_TAG" dist/*.zip --clobber
+            gh release upload "$LATEST_TAG" dist/* --clobber
           else
             gh release create "$LATEST_TAG" \
-              dist/*.zip \
+              dist/* \
               --target "$GITHUB_SHA" \
               --title "$LATEST_NAME" \
               --notes "$release_notes" \

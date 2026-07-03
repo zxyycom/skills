@@ -1,9 +1,12 @@
 import fs from "node:fs/promises";
 import {
-  calculateSkillPackageHash,
-  readRecordedSkillPackageHash,
-  skillPackageHashFileName,
-  writeRecordedSkillPackageHash
+  buildSkillPackageLock,
+  calculateSkillPackageHashes,
+  readRecordedSkillPackageLock,
+  readRecordedSkillPackageLockText,
+  skillPackageLockFileName,
+  stringifySkillPackageLock,
+  writeRecordedSkillPackageLock
 } from "./lib/skill-package-hash.ts";
 import {
   discoverSkillPackages,
@@ -24,22 +27,23 @@ if (discovery.errors.length > 0) {
   throw new Error(`Cannot hash skills:\n- ${discovery.errors.join("\n- ")}`);
 }
 
-function readRecordedHashOverride(): string | null {
-  const hash = process.env.RECORDED_SKILL_HASH?.trim();
-  return hash && hash.length > 0 ? hash : null;
-}
-
-const currentHash = await calculateSkillPackageHash(discovery.skills);
-const recordedHash = readRecordedHashOverride() ?? await readRecordedSkillPackageHash(rootDir);
-const changed = recordedHash !== currentHash;
+const currentHashes = await calculateSkillPackageHashes(discovery.skills);
+const currentHash = currentHashes.aggregateHash;
+const currentLock = buildSkillPackageLock(currentHashes);
+const currentLockText = stringifySkillPackageLock(currentLock);
+const recordedLock = await readRecordedSkillPackageLock(rootDir);
+const recordedLockText = await readRecordedSkillPackageLockText(rootDir);
+const changed = recordedLock?.aggregateHash !== currentHash;
+const lockChanged = recordedLockText !== currentLockText;
 
 console.log(`Current skill package hash: ${currentHash}`);
-console.log(`Recorded skill package hash: ${recordedHash ?? "(none)"}`);
+console.log(`Recorded skill package hash: ${recordedLock?.aggregateHash ?? "(none)"}`);
 console.log(`Skill package hash changed: ${changed ? "yes" : "no"}`);
+console.log(`Skill package lock changed: ${lockChanged ? "yes" : "no"}`);
 
 if (args.has("--write")) {
-  await writeRecordedSkillPackageHash(currentHash, rootDir);
-  console.log(`Wrote ${skillPackageHashFileName}.`);
+  await writeRecordedSkillPackageLock(currentLock, rootDir);
+  console.log(`Wrote ${skillPackageLockFileName}.`);
 }
 
 if (args.has("--github-output")) {
@@ -52,14 +56,17 @@ if (args.has("--github-output")) {
     outputPath,
     [
       `current_hash=${currentHash}`,
-      `recorded_hash=${recordedHash ?? ""}`,
+      `recorded_hash=${recordedLock?.aggregateHash ?? ""}`,
       `changed=${changed ? "true" : "false"}`
     ].join("\n") + "\n",
     "utf8"
   );
 }
 
-if (args.has("--check") && changed) {
-  console.error(`${skillPackageHashFileName} does not match the current skill package hash.`);
+if (args.has("--check") && (changed || lockChanged)) {
+  if (lockChanged) {
+    console.error(`${skillPackageLockFileName} does not match the current skill package hashes.`);
+  }
+
   process.exitCode = 1;
 }

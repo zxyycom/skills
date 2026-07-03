@@ -8,10 +8,21 @@ import {
   type SkillPackage
 } from "./project.ts";
 
-export const skillPackageHashFileName = "skill-package.hash";
+export const skillPackageLockFileName = "skill-package-lock.json";
 
-export function getSkillPackageHashFilePath(workspaceRoot: string = rootDir): string {
-  return path.join(workspaceRoot, skillPackageHashFileName);
+export type SkillPackageHashes = {
+  aggregateHash: string;
+  skills: Record<string, string>;
+};
+
+export type SkillPackageLock = {
+  aggregateHash: string;
+  schemaVersion: 1;
+  skills: Record<string, string>;
+};
+
+export function getSkillPackageLockFilePath(workspaceRoot: string = rootDir): string {
+  return path.join(workspaceRoot, skillPackageLockFileName);
 }
 
 type GitSkillTree = {
@@ -22,6 +33,11 @@ type GitSkillTree = {
 type GitIndexFile = {
   objectId: string;
   relativePath: string;
+};
+
+type SkillFile = {
+  data: Buffer;
+  path: string;
 };
 
 function readGitOutput(args: string[], cwd: string): string {
@@ -73,32 +89,65 @@ function readGitIndexFile(tree: GitSkillTree, file: GitIndexFile): Buffer {
   return readGitBlob(["cat-file", "blob", file.objectId], tree.repoRoot);
 }
 
-export async function calculateSkillPackageHash(skills: SkillPackage[]): Promise<string> {
+function calculateSingleSkillPackageHash(skillName: string, files: SkillFile[]): string {
   const hash = createHash("sha256");
-  hash.update("skills-package-v1\0");
+  hash.update(`skill-self-update-v1\0${skillName}\0`);
 
-  for (const skill of skills) {
-    hash.update(`skill\0${skill.name}\0`);
-    const tree = resolveGitSkillTree(skill);
-    const files = collectGitIndexSkillFiles(tree);
-
-    for (const file of files) {
-      const packagePath = `${skill.name}/${toPosix(file.relativePath)}`;
-      const data = readGitIndexFile(tree, file);
-      hash.update(`file\0${packagePath}\0${data.byteLength}\0`);
-      hash.update(data);
-      hash.update("\0");
-    }
+  for (const file of files) {
+    hash.update(`file\0${file.path}\0${file.data.byteLength}\0`);
+    hash.update(file.data);
+    hash.update("\0");
   }
 
   return hash.digest("hex");
 }
 
-export async function readRecordedSkillPackageHash(workspaceRoot: string = rootDir): Promise<string | null> {
+export async function calculateSkillPackageHashes(skills: SkillPackage[]): Promise<SkillPackageHashes> {
+  const aggregate = createHash("sha256");
+  aggregate.update("skills-package-v1\0");
+  const skillHashes: Record<string, string> = {};
+
+  for (const skill of skills) {
+    aggregate.update(`skill\0${skill.name}\0`);
+    const tree = resolveGitSkillTree(skill);
+    const files = collectGitIndexSkillFiles(tree).map((file) => ({
+      data: readGitIndexFile(tree, file),
+      path: toPosix(file.relativePath)
+    }));
+
+    for (const file of files) {
+      const packagePath = `${skill.name}/${file.path}`;
+      aggregate.update(`file\0${packagePath}\0${file.data.byteLength}\0`);
+      aggregate.update(file.data);
+      aggregate.update("\0");
+    }
+
+    skillHashes[skill.name] = calculateSingleSkillPackageHash(skill.name, files);
+  }
+
+  return {
+    aggregateHash: aggregate.digest("hex"),
+    skills: skillHashes
+  };
+}
+
+export function buildSkillPackageLock(hashes: SkillPackageHashes): SkillPackageLock {
+  return {
+    aggregateHash: hashes.aggregateHash,
+    schemaVersion: 1,
+    skills: Object.fromEntries(
+      Object.entries(hashes.skills).sort(([left], [right]) => left.localeCompare(right))
+    )
+  };
+}
+
+export function stringifySkillPackageLock(lock: SkillPackageLock): string {
+  return `${JSON.stringify(buildSkillPackageLock(lock), null, 2)}\n`;
+}
+
+export async function readRecordedSkillPackageLockText(workspaceRoot: string = rootDir): Promise<string | null> {
   try {
-    const content = await fs.readFile(getSkillPackageHashFilePath(workspaceRoot), "utf8");
-    const trimmed = content.trim();
-    return trimmed.length > 0 ? trimmed : null;
+    return await fs.readFile(getSkillPackageLockFilePath(workspaceRoot), "utf8");
   } catch (error) {
     if (error instanceof Error && "code" in error && error.code === "ENOENT") {
       return null;
@@ -108,9 +157,18 @@ export async function readRecordedSkillPackageHash(workspaceRoot: string = rootD
   }
 }
 
-export async function writeRecordedSkillPackageHash(
-  hash: string,
+export async function readRecordedSkillPackageLock(workspaceRoot: string = rootDir): Promise<SkillPackageLock | null> {
+  const text = await readRecordedSkillPackageLockText(workspaceRoot);
+  if (text === null) {
+    return null;
+  }
+
+  return JSON.parse(text) as SkillPackageLock;
+}
+
+export async function writeRecordedSkillPackageLock(
+  lock: SkillPackageLock,
   workspaceRoot: string = rootDir
 ): Promise<void> {
-  await fs.writeFile(getSkillPackageHashFilePath(workspaceRoot), `${hash}\n`, "utf8");
+  await fs.writeFile(getSkillPackageLockFilePath(workspaceRoot), stringifySkillPackageLock(lock), "utf8");
 }

@@ -2,8 +2,8 @@
 
 ## 状态
 - 当前状态: amended
-- 导致状态变化的决策: [2026-07-01 - 不用脚本校验 workflow 结构](260701-active-avoid-workflow-structure-validation.md), [2026-07-01 - 用 Git hook 更新 package hash](260701-amended-update-package-hash-with-git-hooks.md), [2026-07-01 - 使用版本化 release 发布 skill 制品](260701-amended-publish-versioned-skill-releases.md), [2026-07-02 - 迁移为 skills 单仓库布局](260702-active-use-monorepo-skills-directory.md)
-- 状态说明: Hash 门禁规则仍然生效；原记录中由校验脚本检查 CI hash 门禁的做法已取消，发布后由 CI 写回 hash 的做法改为提交前 hook 更新仓库内 hash。发布目标从只更新 `skills-latest` 扩展为创建版本化 release 并同步维护 latest 兼容入口；skill 来源已由 submodule `skill/` 改为主仓库 `skills/`。
+- 导致状态变化的决策: [2026-07-01 - 不用脚本校验 workflow 结构](260701-active-avoid-workflow-structure-validation.md), [2026-07-01 - 用 Git hook 更新 package hash](260701-amended-update-package-hash-with-git-hooks.md), [2026-07-01 - 使用版本化 release 发布 skill 制品](260701-amended-publish-versioned-skill-releases.md), [2026-07-02 - 迁移为 skills 单仓库布局](260702-active-use-monorepo-skills-directory.md), [2026-07-03 - 用 skill package lock 承接发布和自更新](260703-active-use-per-skill-hash-lock-for-updater.md)
+- 状态说明: Hash 门禁规则仍然生效；原记录中由校验脚本检查 CI hash 门禁的做法已取消，发布后由 CI 写回 hash 的做法改为提交前 hook 更新仓库内 hash。发布目标从只更新 `skills-latest` 扩展为创建版本化 release 并同步维护 latest 兼容入口；skill 来源已由 submodule `skill/` 改为主仓库 `skills/`；独立 `skill-package.hash` 文件已被 `skill-package-lock.json` 的 `aggregateHash` 替代。
 
 ## 问题
 - 主仓库维护文档、脚本、CI 或子仓库 `skill/` 外文件变化时，旧 CI 也会覆盖 `skills-latest` release，但这些变化不一定改变可安装 skill 包。

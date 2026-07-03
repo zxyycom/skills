@@ -8,6 +8,7 @@ import { parseArgs } from "node:util";
 import { unzipSync } from "fflate";
 
 type UpdaterConfig = {
+  packageLockAssetName: string;
   releaseAssetName: string;
   repo: string;
   skillName: string;
@@ -30,6 +31,12 @@ type GitHubRelease = {
   tag_name: string;
 };
 
+type SkillPackageLock = {
+  aggregateHash: string;
+  schemaVersion: number;
+  skills: Record<string, string>;
+};
+
 type SkillFile = {
   data: Buffer;
   path: string;
@@ -47,16 +54,22 @@ function latestReleaseUrl(): string {
   return `https://github.com/${UPDATE_CONFIG.repo}/releases/latest`;
 }
 
+function latestReleaseAssetUrl(assetName: string): string {
+  return `https://github.com/${UPDATE_CONFIG.repo}/releases/latest/download/${assetName}`;
+}
+
 function printHelp(): void {
   console.log([
     `Usage: node ${path.basename(currentScriptPath())} [--check] [--yes] [--target-dir <dir>] [--release-tag <tag>]`,
     "",
-    `Checks and updates ${UPDATE_CONFIG.skillName} from ${UPDATE_CONFIG.repo} release asset ${UPDATE_CONFIG.releaseAssetName}.`,
+    `Checks and updates ${UPDATE_CONFIG.skillName} from ${UPDATE_CONFIG.repo} release assets.`,
     "",
     "Maintenance:",
     `  Updater source: ${updaterSourceUrl}`,
     `  Skill source directory: ${skillSourceDirectoryUrl("main")}`,
     `  Default release: ${latestReleaseUrl()}`,
+    `  Package lock asset: ${latestReleaseAssetUrl(UPDATE_CONFIG.packageLockAssetName)}`,
+    `  Skill zip asset: ${latestReleaseAssetUrl(UPDATE_CONFIG.releaseAssetName)}`,
     "",
     "Options:",
     "  --check             Check whether the target differs from the remote source, without updating.",
@@ -163,11 +176,15 @@ async function fetchGitHubRelease(releaseTag: string | null): Promise<GitHubRele
   return await response.json() as GitHubRelease;
 }
 
-async function fetchReleaseAssetZip(release: GitHubRelease): Promise<Uint8Array> {
-  const asset = release.assets.find((candidate) => candidate.name === UPDATE_CONFIG.releaseAssetName);
+function findReleaseAsset(release: GitHubRelease, assetName: string): GitHubRelease["assets"][number] | null {
+  return release.assets.find((candidate) => candidate.name === assetName) ?? null;
+}
+
+async function fetchReleaseAsset(release: GitHubRelease, assetName: string): Promise<Uint8Array> {
+  const asset = findReleaseAsset(release, assetName);
   if (!asset) {
     const availableAssets = release.assets.map((candidate) => candidate.name).join(", ") || "(none)";
-    throw new Error(`Release ${release.tag_name} does not contain ${UPDATE_CONFIG.releaseAssetName}. Available assets: ${availableAssets}`);
+    throw new Error(`Release ${release.tag_name} does not contain ${assetName}. Available assets: ${availableAssets}`);
   }
 
   const response = await fetch(asset.url, {
@@ -179,6 +196,40 @@ async function fetchReleaseAssetZip(release: GitHubRelease): Promise<Uint8Array>
   }
 
   return new Uint8Array(await response.arrayBuffer());
+}
+
+function isSha256(value: unknown): value is string {
+  return typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
+}
+
+async function fetchReleasePackageLock(release: GitHubRelease): Promise<SkillPackageLock | null> {
+  if (!findReleaseAsset(release, UPDATE_CONFIG.packageLockAssetName)) {
+    return null;
+  }
+
+  const data = await fetchReleaseAsset(release, UPDATE_CONFIG.packageLockAssetName);
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(Buffer.from(data).toString("utf8"));
+  } catch {
+    throw new Error(`Release ${release.tag_name} contains invalid ${UPDATE_CONFIG.packageLockAssetName} JSON`);
+  }
+
+  const lock = parsed as Partial<SkillPackageLock>;
+  if (lock.schemaVersion !== 1 || !isSha256(lock.aggregateHash) || typeof lock.skills !== "object" || lock.skills === null) {
+    throw new Error(`Release ${release.tag_name} contains invalid ${UPDATE_CONFIG.packageLockAssetName}`);
+  }
+
+  const skillHash = lock.skills[UPDATE_CONFIG.skillName];
+  if (!isSha256(skillHash)) {
+    throw new Error(`${UPDATE_CONFIG.packageLockAssetName} does not contain a valid hash for ${UPDATE_CONFIG.skillName}`);
+  }
+
+  return lock as SkillPackageLock;
+}
+
+async function fetchReleaseAssetZip(release: GitHubRelease): Promise<Uint8Array> {
+  return await fetchReleaseAsset(release, UPDATE_CONFIG.releaseAssetName);
 }
 
 function extractSkillFilesFromReleaseAsset(zipData: Uint8Array): SkillFile[] {
@@ -350,14 +401,26 @@ async function main(): Promise<void> {
   console.log(`Updater source: ${updaterSourceUrl}`);
   console.log(`Skill source directory: ${skillSourceDirectoryUrl("main")}`);
   console.log(`Release: ${options.releaseTag ?? "latest"}`);
+  console.log(`Package lock asset: ${UPDATE_CONFIG.packageLockAssetName}`);
   console.log(`Release asset: ${UPDATE_CONFIG.releaseAssetName}`);
   console.log(`Target: ${targetDir}`);
 
   const release = await fetchGitHubRelease(options.releaseTag);
   console.log(`Resolved release: ${release.tag_name} (${release.html_url})`);
 
-  const remoteFiles = extractSkillFilesFromReleaseAsset(await fetchReleaseAssetZip(release));
-  const remoteHash = packageFingerprint(remoteFiles);
+  const packageLock = await fetchReleasePackageLock(release);
+  let remoteFiles: SkillFile[] | null = null;
+  let remoteHash = packageLock?.skills[UPDATE_CONFIG.skillName] ?? null;
+
+  if (packageLock) {
+    console.log(`Package lock asset: ${UPDATE_CONFIG.packageLockAssetName}`);
+    console.log(`Package aggregate fingerprint: ${packageLock.aggregateHash}`);
+  } else {
+    console.log(`Package lock asset: ${UPDATE_CONFIG.packageLockAssetName} (missing; falling back to zip fingerprint)`);
+    remoteFiles = extractSkillFilesFromReleaseAsset(await fetchReleaseAssetZip(release));
+    remoteHash = packageFingerprint(remoteFiles);
+  }
+
   const currentHash = await localFingerprint(targetDir);
 
   console.log(`Remote fingerprint: ${remoteHash}`);
@@ -378,6 +441,14 @@ async function main(): Promise<void> {
   if (!await confirmUpdate(options)) {
     process.exitCode = 1;
     return;
+  }
+
+  if (remoteFiles === null) {
+    remoteFiles = extractSkillFilesFromReleaseAsset(await fetchReleaseAssetZip(release));
+    const zipHash = packageFingerprint(remoteFiles);
+    if (zipHash !== remoteHash) {
+      throw new Error(`Release asset ${UPDATE_CONFIG.releaseAssetName} fingerprint ${zipHash} does not match ${UPDATE_CONFIG.packageLockAssetName} hash ${remoteHash}`);
+    }
   }
 
   const parentDir = path.dirname(targetDir);
