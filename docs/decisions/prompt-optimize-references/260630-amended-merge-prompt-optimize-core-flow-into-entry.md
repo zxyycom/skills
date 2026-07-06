@@ -3,8 +3,8 @@
 ## 状态
 
 - 当前状态: amended
-- 导致状态变化的决策: [2026-07-01 - 压缩 prompt-optimize 入口并归档迁移副本](260701-active-compact-entry-and-archive-migration-copies.md)
-- 状态说明: `SKILL.md` 作为默认执行路径 owner 的判断仍生效; 入口细则展开程度和迁移副本位置已被后续决策修订。
+- 导致状态变化的决策: [2026-07-01 - 压缩 prompt-optimize 入口并归档迁移副本](260701-active-compact-entry-and-archive-migration-copies.md), [2026-07-06 - 将子代理任务说明移出 prompt-optimize](260706-active-move-subagent-guidance-to-dedicated-skill.md)
+- 状态说明: `SKILL.md` 作为默认执行路径 owner 的判断仍生效; 入口细则展开程度、迁移副本位置和子代理任务引用 owner 已被后续决策修订。
 
 ## 问题
 
@@ -39,6 +39,7 @@
 
 - `skills/prompt-optimize/SKILL.md` 成为该 skill 默认执行路径的唯一完整 owner。
 - `prompt-optimize` 的主动引用策略收敛为原理解释和子 agent 任务两个低频分支。
+- 子 agent 任务引用分支已由 2026-07-06 决策移交给 `subagent-orchestration`; 本条仅保留旧结构回放价值。
 - `prompt-optimize` 的迁移期保留副本不参与默认读取, 稳定后可以根据使用情况删除或继续保留。
 - 该记录不约束 `git-commit-organizer`、`openspec-skills` 等其他 skill; 其他 skill 的入口与引用结构按各自 owner 决定。
 

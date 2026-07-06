@@ -19,8 +19,7 @@ description: >-
 先读本文件。按当前任务只加载必要引用:
 
 1. 用户要求解释原理、争议取舍、内容所有权或长期维护理由时, 读取 [principles.md](references/principles.md)。
-2. 需要写 worker、explorer、并行 agent 或子 agent 任务时, 读取 [agent-tasks.md](references/agent-tasks.md)。
-3. 需要整体审阅 skill 或判断引用一致性时, 读取入口文件和必要引用文件。
+2. 需要整体审阅 skill 或判断引用一致性时, 读取入口文件和必要引用文件。
 
 ## 主执行流程
 

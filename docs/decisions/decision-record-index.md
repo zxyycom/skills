@@ -67,5 +67,6 @@
 
 1. [active: 2026-07-01 - 压缩 prompt-optimize 入口并归档迁移副本](prompt-optimize-references/260701-active-compact-entry-and-archive-migration-copies.md)
 2. [active: 2026-07-01 - 给 prompt-optimize 增加文档主承诺检查](prompt-optimize-references/260701-active-add-document-main-promise-check.md)
-3. [amended: 2026-06-30 - 将 prompt-optimize 核心流程合并回入口](prompt-optimize-references/260630-amended-merge-prompt-optimize-core-flow-into-entry.md)
-4. [superseded: 2026-06-30 - 将 prompt-optimize 改写规则重组为管线](prompt-optimize-references/260630-superseded-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md)
+3. [active: 2026-07-06 - 将子代理任务说明移出 prompt-optimize](prompt-optimize-references/260706-active-move-subagent-guidance-to-dedicated-skill.md)
+4. [amended: 2026-06-30 - 将 prompt-optimize 核心流程合并回入口](prompt-optimize-references/260630-amended-merge-prompt-optimize-core-flow-into-entry.md)
+5. [superseded: 2026-06-30 - 将 prompt-optimize 改写规则重组为管线](prompt-optimize-references/260630-superseded-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md)
