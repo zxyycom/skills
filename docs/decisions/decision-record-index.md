@@ -28,7 +28,8 @@
 1. `decision-records`: 决策记录体系自身的结构、目的、命名、门槛和维护方式。
 2. `git-commit-organizer-behavior`: `git-commit-organizer` skill 的提交粒度、类型选择和提交组织行为。
 3. `project-tooling`: 本地脚本、打包方式、CI 和交付制品的长期契约。
-4. `prompt-optimize-references`: `prompt-optimize` skill 引用文件的 owner 分工、结构拆分和跨文件关系。
+4. `openspec-skills`: OpenSpec skills 的 change 语义、阶段门禁、CLI 协作和原始参考兜底策略。
+5. `prompt-optimize-references`: `prompt-optimize` skill 引用文件的 owner 分工、结构拆分和跨文件关系。
 
 可能出现的影响面示例:
 
@@ -62,6 +63,10 @@
 10. [amended: 2026-07-01 - 使用 skill hash 门禁 latest release 发布](project-tooling/260701-amended-gate-latest-release-by-skill-hash.md)
 11. [superseded: 2026-07-01 - 给子仓库增加独立 release workflow](project-tooling/260701-superseded-add-submodule-release-workflows.md)
 12. [amended: 2026-06-30 - 使用 latest release 自动发布 skill 制品](project-tooling/260630-amended-publish-skill-package-as-latest-release.md)
+
+`openspec-skills`:
+
+1. [active: 2026-07-06 - 将 OpenSpec change 作为临时计划并设置实现门禁](openspec-skills/260706-active-gate-temporary-change-plans.md)
 
 `prompt-optimize-references`:
 
