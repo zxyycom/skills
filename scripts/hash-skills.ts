@@ -13,7 +13,7 @@ import {
   rootDir
 } from "./lib/project.ts";
 
-const allowedArgs = new Set(["--check", "--github-output", "--write"]);
+const allowedArgs = new Set(["--check", "--github-output", "--quiet", "--write"]);
 const args = new Set(process.argv.slice(2));
 
 for (const arg of args) {
@@ -35,15 +35,21 @@ const recordedLock = await readRecordedSkillPackageLock(rootDir);
 const recordedLockText = await readRecordedSkillPackageLockText(rootDir);
 const changed = recordedLock?.aggregateHash !== currentHash;
 const lockChanged = recordedLockText !== currentLockText;
+const quiet = args.has("--quiet");
+const shouldPrintSummary = !quiet || changed || lockChanged;
 
-console.log(`Current skill package hash: ${currentHash}`);
-console.log(`Recorded skill package hash: ${recordedLock?.aggregateHash ?? "(none)"}`);
-console.log(`Skill package hash changed: ${changed ? "yes" : "no"}`);
-console.log(`Skill package lock changed: ${lockChanged ? "yes" : "no"}`);
+if (shouldPrintSummary) {
+  console.log(`Current skill package hash: ${currentHash}`);
+  console.log(`Recorded skill package hash: ${recordedLock?.aggregateHash ?? "(none)"}`);
+  console.log(`Skill package hash changed: ${changed ? "yes" : "no"}`);
+  console.log(`Skill package lock changed: ${lockChanged ? "yes" : "no"}`);
+}
 
 if (args.has("--write")) {
-  await writeRecordedSkillPackageLock(currentLock, rootDir);
-  console.log(`Wrote ${skillPackageLockFileName}.`);
+  if (lockChanged) {
+    await writeRecordedSkillPackageLock(currentLock, rootDir);
+    console.log(`Wrote ${skillPackageLockFileName}.`);
+  }
 }
 
 if (args.has("--github-output")) {

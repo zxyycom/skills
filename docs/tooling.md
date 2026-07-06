@@ -31,7 +31,7 @@
 1. `bun run typecheck`: 使用 `tsgo --noEmit` 和根目录 `tsconfig.json` 检查 `scripts/**/*.ts`，不输出编译产物。
 2. `bun run validate`: 校验 `skills/` 下全部 skill 入口、内部链接、决策记录结构和主仓库项目配置。
 3. `bun run validate:decisions`: 单独校验 `docs/decisions/` 的目录、文件结构、索引链接和状态来源链接目标。
-4. `bun run hash:skills`: 计算当前 Git index 中所有 skill 打包输入的聚合 SHA-256 hash 和单 skill hash，并与根目录 `skill-package-lock.json` 对比；传入 `--write` 时写回当前状态，传入 `--check` 时不一致则失败。
+4. `bun run hash:skills`: 计算当前 Git index 中所有 skill 打包输入的聚合 SHA-256 hash 和单 skill hash，并与根目录 `skill-package-lock.json` 对比；传入 `--write` 时写回当前状态，传入 `--check` 时不一致则失败，传入 `--quiet` 时只在 hash 或 lock 内容变化时输出。
 5. `bun run pack:skills`: 读取 Git index 中 `skills/<skill-name>/` 的 blob，将每个 skill 分别打包为 `dist/<skill-name>.zip`，并把 `skill-package-lock.json` 复制为 release manifest asset。
 6. `bun run setup-hooks`: 将主仓库 `core.hooksPath` 设置为 `.githooks`。
 7. `bun run sync:skill-updaters`: 按主仓库模板和 `skills/` 发现结果生成各 skill 内的 `scripts/update-skill.cjs`。
@@ -89,8 +89,8 @@ node scripts/update-skill.cjs --release-tag 20260701T085839Z-33304575c8da --chec
 
 主仓库 pre-commit hook 负责：
 
-1. 运行 `bun scripts/hash-skills.ts --write` 写回根目录 `skill-package-lock.json`。
-2. 自动 `git add skill-package-lock.json`，让 hash manifest 和当前 staged 的 skill 内容进入同一个提交。
+1. 运行 `bun scripts/hash-skills.ts --write --quiet` 写回根目录 `skill-package-lock.json`；没有 hash 或 lock 内容变化时保持静默。
+2. 仅当 `skill-package-lock.json` 相对 Git index 有变化时自动 stage，让 hash manifest 和当前 staged 的 skill 内容进入同一个提交。
 
 GitHub Actions 运行在提交之后，不能取消或修改已经 push 的提交。CI 只能在 hash 不一致时失败；如果需要阻止错误提交进入 `main`，应通过 GitHub branch protection 或 ruleset 要求相关 check 通过，并限制直接 push。
 
