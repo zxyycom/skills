@@ -11,7 +11,7 @@ metadata:
 
 # OpenSpec Propose
 
-核心：新增 change 只在 `openspec/changes/<name>/` 内生成中文、未审核的临时 artifacts，用一句话锚定目标，并以阻塞级审计任务作为实现前置门禁。
+核心：新增 change 只在 `openspec/changes/<name>/` 内生成临时 artifacts，用一句话锚定目标，并以阻塞级审计任务作为实现前置门禁。
 
 ## 目标
 
@@ -22,7 +22,7 @@ metadata:
 用户可以提供以下任一形式：
 
 1. 明确的 kebab-case change name，例如 `add-user-auth`。
-2. 自然语言需求描述，例如“给文档导航增加 Markdown 章节搜索”。
+2. 自然语言需求描述，例如“给用户设置增加导出功能”。
 
 当用户只提供需求描述时，从描述中派生简短、稳定、语义明确的 kebab-case 名称。名称应使用英文小写、数字和连字符，并表达 change 的核心行为。
 
@@ -52,8 +52,8 @@ metadata:
 
 OpenSpec change name 和 capability ID 是不同概念：
 
-1. Change name 表达本次要完成的变化，可以是动词短语，例如 `implement-docnav-adapter-management`。
-2. Capability ID 表达长期主 spec 所有权，必须是稳定名词短语，例如 `adapter-management`。
+1. Change name 表达本次要完成的变化，可以是动词短语，例如 `add-settings-export`。
+2. Capability ID 表达长期主 spec 所有权，必须是稳定名词短语，例如 `settings-export`。
 3. Delta spec 的目录名就是归档目标：`openspec/changes/<change>/specs/<capability>/spec.md` 会合并到 `openspec/specs/<capability>/spec.md`。
 
 写 proposal 的 Capabilities 前必须选择 capability ID：
@@ -68,15 +68,15 @@ OpenSpec change name 和 capability ID 是不同概念：
 
 1. 使用 kebab-case，小写英文、数字和连字符。
 2. 使用名词或名词短语，表达长期能力或稳定责任边界。
-3. 优先按产品/接口/制品所有权命名，例如 `core-cli`、`adapter-routing`、`readable-output`、`adapter-management`、`markdown-navigation`。
+3. 优先按产品、接口、制品或能力所有权命名，例如 `account-management`、`settings-export`、`access-control`。
 4. 不默认复用 change name。
 5. 不包含 `implement`、`implementation`、`change`、`task`、日期或一次性迁移阶段。
 6. 不用 `v0`、`v1` 等版本阶段表达长期能力；版本范围写入 requirement、design 或 tasks。
 
 示例：
 
-1. `replace-text-with-readable-view` -> capability `readable-output`。
-2. `implement-docnav-adapter-management` -> capability `adapter-management`。
+1. `add-settings-export` -> capability `settings-export`。
+2. `revise-admin-permissions` -> capability `access-control`。
 
 ## 决策记录
 
@@ -156,7 +156,7 @@ OpenSpec change name 和 capability ID 是不同概念：
    - artifact 内容应服务于用户需求和 change 目标，避免把平台说明、内部流程、上下文块或规则块写成正文。
    - 生成或更新 design 时，按“决策记录”维护 `## Decisions` 和 `## Open Questions`。
    - 生成 tasks artifact 时，必须在实现任务前加入阻塞级审计任务，写清“审计未完成前不得执行任何实现任务”。
-   - 阻塞级审计任务必须检查：proposal、design、specs 和 tasks 是否围绕开头核心句；capability ID 是否符合命名规则；当前 change 是否只包含未审核临时 artifacts；是否没有修改或影响现有其它文档；`## Open Questions` 是否没有未回答问题或已收敛歧义。
+   - 阻塞级审计任务必须检查：proposal、design、specs 和 tasks 是否围绕开头核心句；capability ID 是否符合命名规则；当前 change 是否没有把临时 artifacts 表述为已批准或可直接实现；是否没有越过 change 目录修改现有长期文档或其它 change；`## Open Questions` 是否没有未回答问题或已收敛歧义。
    - 如果某个 artifact 的关键决策无法从用户需求、依赖 artifact 或 instructions 中确定，直接向用户提一个具体问题；得到答案后继续生成。
 
 5. 每个 artifact 写完后验证
@@ -194,9 +194,9 @@ OpenSpec change name 和 capability ID 是不同概念：
 5. 内容应具体到可执行和可验收：proposal 写清 what 与 why，design 写清关键方案和取舍，tasks 写成可逐项完成的实现步骤。
 6. 对不影响范围、协议、架构边界或验收标准的细节，选择与项目现有规范一致的默认；对会改变这些边界的缺口，先问用户。
 7. 需要读取现有 specs 时，优先使用 CLI 使用策略中的主 spec 命令；CLI 输出不足时再读取 `openspec/specs/<spec>/spec.md`。
-8. 除用户明确要求其它语言外，artifact 正文使用中文。
+8. Artifact 正文优先沿用用户输入语言或项目既有语言约定；用户明确指定语言时按用户要求。
 9. 每个 artifact 文件正文开头必须写一句核心句，说明本 change 的目标和当前文档性质，防止后续内容偏离范围。
-10. 每个 artifact 必须标注：当前 change 只在 `openspec/changes/<name>/` 下形成未审核临时文档，不影响现有其它文档或主规范。
+10. Artifact 不得表达该 change 已批准、已审计或可直接实现；需要说明状态时，按模板或项目约定表述为临时 change artifact。
 11. tasks artifact 必须把阻塞级审计任务放在所有实现任务之前；后续实现任务必须以该审计完成为前置条件。
 
 ## 完成标准
