@@ -17,6 +17,10 @@ export const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url))
 export const skillsRootName = "skills";
 export const ignoredDirectoryNames = [".git", "node_modules", "dist"] as const;
 
+function shouldIgnoreDirectoryName(name: string): boolean {
+  return name.startsWith(".") || (ignoredDirectoryNames as readonly string[]).includes(name);
+}
+
 export async function pathExists(targetPath: string): Promise<boolean> {
   try {
     await fs.access(targetPath);
@@ -46,6 +50,10 @@ export async function discoverSkillPackages(workspaceRoot: string = rootDir): Pr
   const entries = await fs.readdir(skillsRoot, { withFileTypes: true });
   for (const entry of entries) {
     if (!entry.isDirectory()) {
+      continue;
+    }
+
+    if (shouldIgnoreDirectoryName(entry.name)) {
       continue;
     }
 
