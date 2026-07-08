@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shell 使用与权限"
+  short_description: "shell 失败、命令组合和权限 rules 文档"
+  default_prompt: "shell 工具失败或权限 rules 相关问题时使用 $codex-shell-permissions，查看其中关于失败场景、命令组合、提权边界、rules 维护和过往尝试记录的文档。"

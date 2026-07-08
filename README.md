@@ -8,11 +8,12 @@
 
 `skills` 不是一个随手收集 prompt 的仓库。它更像一组面向 agent 协作的基础能力实验：把高频、可复用、会影响长期工作质量的协作方式，整理成能独立演进的 skill。
 
-当前的三个方向分别对应 agent 协作中的三个关键环节：
+当前方向覆盖 agent 协作中的几个关键环节：
 
 1. 文档如何引导 agent 理解和行动。
 2. 变更如何通过提交历史被后来的人和 agent 理解。
 3. 流程型规范如何被改写成 agent 能稳定推进的工作流。
+4. Shell 失败后如何让 agent 选择下一步命令动作，并在用户要求时维护 Codex 权限 rules。
 
 因此这个项目不会把所有内容合成一个大而全的 skill。每个 skill 都应该有自己的问题意识、语义边界和演进方向；它们放在同一组项目里，是为了共同服务于更好的 agent 协作。
 
@@ -23,6 +24,8 @@
 [Git Commit Organizer](docs/skills/git-commit-organizer.md) 关注提交信息质量。它希望统一提交风格，让每一次提交都能更准确地表达变更意图，降低后续阅读、审查、追踪和管理成本。实际 skill 位于 [`skills/git-commit-organizer/`](skills/git-commit-organizer/)。
 
 [OpenSpec Skills](docs/skills/openspec-skills.md) 关注 OpenSpec skills 的二次开发。它的起点是原有 OpenSpec skill 文本还不够适合实际 agent 协作，需要重新梳理阶段边界、指令质量和执行脉络。实际 skill 位于 [`skills/openspec-explore/`](skills/openspec-explore/)、[`skills/openspec-propose/`](skills/openspec-propose/)、[`skills/openspec-apply-change/`](skills/openspec-apply-change/) 和 [`skills/openspec-archive-change/`](skills/openspec-archive-change/)。
+
+[Codex Shell Permissions](docs/skills/codex-shell-permissions.md) 关注 Codex shell 失败后的下一步执行选择。它让 agent 判断应改用简单命令、申请必要提权、确认高风险范围，还是回到真实程序错误处理；当用户主动要求时，再进入 `execpolicy` 和 `allow/prompt/block` 的权限规则维护流程。实际 skill 位于 [`skills/codex-shell-permissions/`](skills/codex-shell-permissions/)。
 
 ## 发展方向
 
