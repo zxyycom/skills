@@ -1,17 +1,20 @@
+# Allowed Bun repository maintenance commands.
 prefix_rule(pattern=["bun", "run", "typecheck"], decision="allow")
 prefix_rule(pattern=["bun", "run", "validate"], decision="allow")
 prefix_rule(pattern=["bun", "run", "validate:decisions"], decision="allow")
 prefix_rule(pattern=["bun", "run", "pack:skills"], decision="allow")
 prefix_rule(pattern=["bun", "run", "check:skill-updaters"], decision="allow")
 prefix_rule(pattern=["bun", "run", "check"], decision="allow")
+prefix_rule(pattern=["bun", "run", "hash:skills"], decision="allow")
 prefix_rule(pattern=["bun", "scripts/validate.ts"], decision="allow")
 prefix_rule(pattern=["bun", "scripts/validate-decisions.ts"], decision="allow")
 prefix_rule(pattern=["bun", "scripts/pack-skills.ts"], decision="allow")
 prefix_rule(pattern=["bun", "scripts/sync-skill-updaters.ts", "--check"], decision="allow")
+prefix_rule(pattern=["bun", "scripts/hash-skills.ts"], decision="allow")
+
+# Approval-required Bun commands.
 prefix_rule(pattern=["bun", "run", "deploy:package"], decision="prompt")
-prefix_rule(pattern=["bun", "run", "hash:skills"], decision="prompt")
 prefix_rule(pattern=["bun", "run", "setup-hooks"], decision="prompt")
 prefix_rule(pattern=["bun", "run", "sync:skill-updaters"], decision="prompt")
-prefix_rule(pattern=["bun", "scripts/hash-skills.ts"], decision="prompt")
 prefix_rule(pattern=["bun", "scripts/setup-git-hooks.ts"], decision="prompt")
 prefix_rule(pattern=["bun", "scripts/sync-skill-updaters.ts"], decision="prompt")
