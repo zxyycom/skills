@@ -22,6 +22,14 @@
 6. 如果 check 符合预期但真实 runner 不符合，检查当前会话是否热加载了最新 rules。
 7. 修改后用同一命令 token 重新跑 `execpolicy check`，再决定是否真实执行。
 
+## rule 文件注释
+
+rule 文件可以使用空行、整行 `#` 注释和行尾 `#` 注释。整理较长 rule 文件时，可以用 `#` 分段说明规则组来源或用途。
+
+不要使用 `//` 注释或 `/* ... */` 块注释；当前 `execpolicy check` 会把这些形态当成解析错误。
+
+调整注释后仍要用 `codex execpolicy check --pretty --rules <rule-file> <command tokens...>` 跑一个代表性命令，确认注释没有影响 rule 文件解析。
+
 ## allow / prompt / block 边界
 
 1. `allow`：只给无副作用、只读、参数边界稳定的命令。
