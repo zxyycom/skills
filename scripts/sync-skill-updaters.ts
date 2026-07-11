@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { spawn } from "node:child_process";
+import { addGeneratedFileHeader } from "./lib/generated-file.ts";
 import {
   discoverSkillPackages,
   pathExists,
@@ -24,8 +25,9 @@ const templateRelativePath = "scripts/templates/update-skill.ts";
 const updaterRelativePath = path.join("scripts", "update-skill.cjs");
 const legacyUpdaterRelativePath = path.join("scripts", "update-skill.js");
 const configPlaceholder = "__SKILL_UPDATE_CONFIG_JSON__";
-const updaterSourceUrl = "https://raw.githubusercontent.com/zxyycom/skills/main/scripts/templates/update-skill.ts";
 const sourceRepo = "zxyycom/skills";
+const sourceRepositoryUrl = `https://github.com/${sourceRepo}`;
+const updaterSourceUrl = `${sourceRepositoryUrl}/blob/main/${templateRelativePath}`;
 
 function parseArgs(argv: string[]): Mode {
   let mode: Mode | null = null;
@@ -64,34 +66,21 @@ function renderUpdater(bundledTemplate: string, config: UpdaterConfig): string {
   }
 
   const configJsonForStringLiteral = JSON.stringify(config).replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
-  return addGeneratedHeader(
+  return addGeneratedFileHeader(
     bundledTemplate.replace(configPlaceholder, configJsonForStringLiteral),
-    config
+    {
+      additionalLines: [
+        `Package lock asset: https://github.com/${config.repo}/releases/latest/download/${config.packageLockAssetName}`,
+        `Release asset: https://github.com/${config.repo}/releases/latest/download/${config.releaseAssetName}`
+      ],
+      artifactName: "skill self-updater",
+      rebuildCommand: "bun run sync:skill-updaters",
+      repositoryUrl: `https://github.com/${config.repo}`,
+      skillSourceUrl: `https://github.com/${config.repo}/tree/main/${config.sourcePath}`,
+      sourcePath: templateRelativePath,
+      sourceUrl: updaterSourceUrl
+    }
   );
-}
-
-function addGeneratedHeader(script: string, config: UpdaterConfig): string {
-  const header = [
-    "/*",
-    " * Generated skill self-updater. Do not edit this bundled file directly.",
-    ` * Source template: ${updaterSourceUrl}`,
-    ` * Skill source directory: https://github.com/${config.repo}/tree/main/${config.sourcePath}`,
-    ` * Package lock asset: https://github.com/${config.repo}/releases/latest/download/${config.packageLockAssetName}`,
-    ` * Release asset: https://github.com/${config.repo}/releases/latest/download/${config.releaseAssetName}`,
-    " */",
-    ""
-  ].join("\n");
-
-  if (!script.startsWith("#!")) {
-    return `${header}${script}`;
-  }
-
-  const firstLineEnd = script.indexOf("\n");
-  if (firstLineEnd === -1) {
-    return `${script}\n${header}`;
-  }
-
-  return `${script.slice(0, firstLineEnd + 1)}${header}${script.slice(firstLineEnd + 1)}`;
 }
 
 function runBunBuild(entryPath: string, outputPath: string): Promise<void> {

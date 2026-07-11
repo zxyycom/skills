@@ -43,7 +43,8 @@ type SkillFile = {
 };
 
 const UPDATE_CONFIG = JSON.parse("__SKILL_UPDATE_CONFIG_JSON__") as UpdaterConfig;
-const updaterSourceUrl = "https://raw.githubusercontent.com/zxyycom/skills/main/scripts/templates/update-skill.ts";
+const sourceRepositoryUrl = `https://github.com/${UPDATE_CONFIG.repo}`;
+const updaterSourceUrl = `${sourceRepositoryUrl}/blob/main/scripts/templates/update-skill.ts`;
 const ignoredDirectoryNames = new Set([".git", "node_modules"]);
 
 function skillSourceDirectoryUrl(ref: string): string {
@@ -65,6 +66,7 @@ function printHelp(): void {
     `Checks and updates ${UPDATE_CONFIG.skillName} from ${UPDATE_CONFIG.repo} release assets.`,
     "",
     "Maintenance:",
+    `  Repository: ${sourceRepositoryUrl}`,
     `  Updater source: ${updaterSourceUrl}`,
     `  Skill source directory: ${skillSourceDirectoryUrl("main")}`,
     `  Default release: ${latestReleaseUrl()}`,
@@ -398,6 +400,7 @@ async function main(): Promise<void> {
   const targetDir = path.resolve(options.targetDir);
 
   console.log(`Skill: ${UPDATE_CONFIG.skillName}`);
+  console.log(`Repository: ${sourceRepositoryUrl}`);
   console.log(`Updater source: ${updaterSourceUrl}`);
   console.log(`Skill source directory: ${skillSourceDirectoryUrl("main")}`);
   console.log(`Release: ${options.releaseTag ?? "latest"}`);

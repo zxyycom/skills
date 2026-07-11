@@ -59,12 +59,13 @@
 
 `project-tooling`：
 
-1. [active: 2026-07-03 - 自更新脚本跟随 latest release 制品](project-tooling/260703-active-follow-latest-release-for-skill-updater.md)
-2. [active: 2026-07-03 - 用 skill package lock 承接发布和自更新](project-tooling/260703-active-use-per-skill-hash-lock-for-updater.md)
-3. [active: 2026-07-02 - 迁移为 skills 单仓库布局](project-tooling/260702-active-use-monorepo-skills-directory.md)
-4. [active: 2026-07-01 - 不用脚本校验 workflow 结构](project-tooling/260701-active-avoid-workflow-structure-validation.md)
-5. [active: 2026-07-01 - 本地脚本的常见行为优先使用成熟库](project-tooling/260701-active-use-libraries-for-common-script-behavior.md)
-6. [active: 2026-07-01 - 使用 tsgo 作为默认类型检查入口](project-tooling/260701-active-use-tsgo-for-typecheck.md)
+1. [active: 2026-07-11 - 分离 skill 分发脚本源码与生成产物](project-tooling/260711-active-separate-skill-script-source-and-generated-artifacts.md)
+2. [active: 2026-07-03 - 自更新脚本跟随 latest release 制品](project-tooling/260703-active-follow-latest-release-for-skill-updater.md)
+3. [active: 2026-07-03 - 用 skill package lock 承接发布和自更新](project-tooling/260703-active-use-per-skill-hash-lock-for-updater.md)
+4. [active: 2026-07-02 - 迁移为 skills 单仓库布局](project-tooling/260702-active-use-monorepo-skills-directory.md)
+5. [active: 2026-07-01 - 不用脚本校验 workflow 结构](project-tooling/260701-active-avoid-workflow-structure-validation.md)
+6. [active: 2026-07-01 - 本地脚本的常见行为优先使用成熟库](project-tooling/260701-active-use-libraries-for-common-script-behavior.md)
+7. [active: 2026-07-01 - 使用 tsgo 作为默认类型检查入口](project-tooling/260701-active-use-tsgo-for-typecheck.md)
 
 `prompt-optimize-references`：
 

@@ -18,7 +18,7 @@
 
 1. [`skills/decision-records/SKILL.md`](../../skills/decision-records/SKILL.md) 负责判断和维护流程，包括何时记录、怎样写、怎样更新旧决策以及何时读取历史。
 2. [`references/decision-record-rules.md`](../../skills/decision-records/references/decision-record-rules.md) 负责跨项目复用的固定格式契约。
-3. `skills/decision-records/scripts/decision-records.mjs` 提供 `check`、`list` 和 `sync-index`。
+3. `scripts/decision-records/` 承接 CLI 的 TypeScript 源码、测试和构建入口；生成后的 `skills/decision-records/scripts/decision-records.mjs` 提供 `check`、`list` 和 `sync-index`。
 4. 各目标项目自己的 `docs/decisions/` 保存实际决策，是长期记忆的数据 owner。
 
 CLI 不会评价决策是否正确、是否值得记录或是否真的来自用户确认；这些语义判断由 skill 和用户完成。默认列表和索引只显示 `active`，其他状态继续保留并可显式查询；`invalidated` 进入专用归档目录。

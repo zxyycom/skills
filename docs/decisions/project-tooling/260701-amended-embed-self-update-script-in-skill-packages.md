@@ -2,8 +2,8 @@
 
 ## 状态
 - 当前状态: amended
-- 导致状态变化的决策: [2026-07-02 - 迁移为 skills 单仓库布局](260702-active-use-monorepo-skills-directory.md), [2026-07-03 - 自更新脚本跟随 latest release 制品](260703-active-follow-latest-release-for-skill-updater.md)
-- 状态说明: 在 skill 包内分发自更新脚本的判断仍然生效；目录来源已从 `.gitmodules` 和子仓库 source path 修订为主仓库 `skills/<skill-name>/`, 远端更新输入已从源码 zip 修订为 latest release asset。
+- 导致状态变化的决策: [2026-07-02 - 迁移为 skills 单仓库布局](260702-active-use-monorepo-skills-directory.md), [2026-07-03 - 自更新脚本跟随 latest release 制品](260703-active-follow-latest-release-for-skill-updater.md), [2026-07-11 - 分离 skill 分发脚本源码与生成产物](260711-active-separate-skill-script-source-and-generated-artifacts.md)
+- 状态说明: 在 skill 包内分发自更新脚本的判断仍然生效；目录来源、远端更新输入和生成文件追溯头已由后续决策修订。
 
 ## 问题
 - 仅依赖外部安装器时，已有 skill 目录的覆盖更新、内容一致性检查和多客户端目录适配都缺少稳定 owner。
