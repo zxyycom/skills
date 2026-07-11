@@ -1,11 +1,12 @@
 import { parseSections } from "./markdown.ts";
 import { scanDecisionRecords } from "./scan.ts";
-import type {
-  DecisionRecord,
-  DecisionScan,
-  DecisionScanOptions,
-  DecisionValidationResult,
-  ExpectedIndex
+import {
+  compareDecisionRecords,
+  type DecisionRecord,
+  type DecisionScan,
+  type DecisionScanOptions,
+  type DecisionValidationResult,
+  type ExpectedIndex
 } from "./types.ts";
 
 const managedIndexHeadings = new Set([
@@ -33,10 +34,7 @@ function renderActiveSection(records: DecisionRecord[]): string {
   const blocks: string[] = [];
   for (const areaId of [...groups.keys()].sort()) {
     const areaRecords = groups.get(areaId) ?? [];
-    areaRecords.sort((left, right) => {
-      const dateOrder = right.datePrefix.localeCompare(left.datePrefix);
-      return dateOrder !== 0 ? dateOrder : left.fileName.localeCompare(right.fileName);
-    });
+    areaRecords.sort(compareDecisionRecords);
 
     const lines = [backtick + areaId + backtick + "：", ""];
     for (let index = 0; index < areaRecords.length; index += 1) {
@@ -53,7 +51,8 @@ function renderActiveSection(records: DecisionRecord[]): string {
 
 export function expectedIndex(scan: DecisionScan): ExpectedIndex {
   const index = scan.index.replace(/\r\n/g, "\n");
-  const headings = parseSections(index).filter(
+  const sections = parseSections(index);
+  const headings = sections.filter(
     (section) => managedIndexHeadings.has(section.heading)
   );
   const errors: string[] = [];
@@ -68,7 +67,7 @@ export function expectedIndex(scan: DecisionScan): ExpectedIndex {
     prefix = index.trimEnd();
   } else {
     const managed = headings[0];
-    const laterHeadings = parseSections(index).filter(
+    const laterHeadings = sections.filter(
       (section) => section.index > managed.index
     );
     if (laterHeadings.length > 0) {

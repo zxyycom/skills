@@ -1,28 +1,4 @@
-import type { MarkdownLink, MarkdownSection } from "./types.ts";
-
-export function extractInlineLinks(markdown: string): MarkdownLink[] {
-  const links: MarkdownLink[] = [];
-  const pattern = /\[([^\]\r\n]+)\]\(([^)\r\n]+)\)/g;
-
-  for (const match of markdown.matchAll(pattern)) {
-    const matchIndex = match.index ?? 0;
-    if (matchIndex > 0 && markdown[matchIndex - 1] === "!") {
-      continue;
-    }
-
-    let target = match[2].trim();
-    if (target.startsWith("<") && target.endsWith(">")) {
-      target = target.slice(1, -1).trim();
-    }
-
-    links.push({
-      label: match[1].trim(),
-      target
-    });
-  }
-
-  return links;
-}
+import type { MarkdownSection } from "./types.ts";
 
 export function stripLinkSuffix(target: string): string {
   const hashIndex = target.indexOf("#");

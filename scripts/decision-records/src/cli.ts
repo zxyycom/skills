@@ -4,15 +4,23 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { pathToFileURL } from "node:url";
+import { parseArgs as parseNodeArgs } from "node:util";
 import { expectedIndex, validateDecisionRecords } from "./index.ts";
 import { scanDecisionRecords } from "./scan.ts";
 import {
+  compareDecisionRecords,
   decisionStatuses,
-  decisionStatusSet,
+  isDecisionStatus,
   type DecisionStatus
 } from "./types.ts";
 
 type Command = "check" | "list" | "sync-index";
+
+const commandSet: ReadonlySet<string> = new Set<Command>([
+  "check",
+  "list",
+  "sync-index"
+]);
 
 type CliArgs = {
   all: boolean;
@@ -49,60 +57,33 @@ function usage(): string {
 }
 
 function parseArgs(argv: string[]): CliArgs {
-  const remaining = [...argv];
-  let command: Command = "check";
-  let workspaceRoot = process.cwd();
-  let decisionsDir = "docs/decisions";
-  let statusText: string | null = null;
-  let all = false;
-  let write = false;
-  let help = false;
+  const { positionals, values } = parseNodeArgs({
+    allowPositionals: true,
+    args: argv,
+    options: {
+      all: { type: "boolean" },
+      "decisions-dir": { type: "string" },
+      help: { short: "h", type: "boolean" },
+      root: { type: "string" },
+      status: { type: "string" },
+      write: { type: "boolean" }
+    },
+    strict: true
+  });
 
-  if (remaining[0] && !remaining[0].startsWith("-")) {
-    const candidate = remaining.shift();
-    if (!candidate || !new Set<Command>(["check", "list", "sync-index"]).has(candidate as Command)) {
-      throw new Error("Unsupported command: " + candidate);
-    }
-    command = candidate as Command;
+  if (positionals.length > 1) {
+    throw new Error("Unsupported argument: " + positionals[1]);
   }
 
-  for (let index = 0; index < remaining.length; index += 1) {
-    const arg = remaining[index];
-
-    if (arg === "-h" || arg === "--help") {
-      help = true;
-      continue;
-    }
-
-    if (arg === "--all") {
-      all = true;
-      continue;
-    }
-
-    if (arg === "--write") {
-      write = true;
-      continue;
-    }
-
-    if (arg === "--root" || arg === "--decisions-dir" || arg === "--status") {
-      const value = remaining[index + 1];
-      if (!value || value.startsWith("--")) {
-        throw new Error(arg + " requires a value");
-      }
-
-      if (arg === "--root") {
-        workspaceRoot = value;
-      } else if (arg === "--decisions-dir") {
-        decisionsDir = value;
-      } else {
-        statusText = value;
-      }
-      index += 1;
-      continue;
-    }
-
-    throw new Error("Unsupported argument: " + arg);
+  const candidate = positionals[0] ?? "check";
+  if (!commandSet.has(candidate)) {
+    throw new Error("Unsupported command: " + candidate);
   }
+
+  const command = candidate as Command;
+  const all = values.all ?? false;
+  const statusText = values.status ?? null;
+  const write = values.write ?? false;
 
   if (command !== "list" && (all || statusText !== null)) {
     throw new Error("--all and --status are only valid with list");
@@ -119,10 +100,10 @@ function parseArgs(argv: string[]): CliArgs {
   return {
     all,
     command,
-    decisionsDir,
-    help,
+    decisionsDir: values["decisions-dir"] ?? "docs/decisions",
+    help: values.help ?? false,
     statusText,
-    workspaceRoot,
+    workspaceRoot: values.root ?? process.cwd(),
     write
   };
 }
@@ -145,13 +126,15 @@ function selectedStatuses(args: CliArgs): Set<DecisionStatus> {
     throw new Error("--status must include at least one status");
   }
 
+  const selected = new Set<DecisionStatus>();
   for (const status of statuses) {
-    if (!decisionStatusSet.has(status)) {
+    if (!isDecisionStatus(status)) {
       throw new Error("Unsupported decision status: " + status);
     }
+    selected.add(status);
   }
 
-  return new Set(statuses as DecisionStatus[]);
+  return selected;
 }
 
 function printErrors(errors: string[]): void {
@@ -198,16 +181,12 @@ async function runList(args: CliArgs): Promise<number> {
 
   const statuses = selectedStatuses(args);
   const records = scan.records
-    .filter((record) => record.fileStatus !== undefined && statuses.has(record.fileStatus as DecisionStatus))
-    .sort((left, right) => {
-      const areaOrder = left.areaId.localeCompare(right.areaId);
-      if (areaOrder !== 0) {
-        return areaOrder;
-      }
-
-      const dateOrder = right.datePrefix.localeCompare(left.datePrefix);
-      return dateOrder !== 0 ? dateOrder : left.fileName.localeCompare(right.fileName);
-    });
+    .filter(
+      (record) => record.fileStatus !== undefined
+        && isDecisionStatus(record.fileStatus)
+        && statuses.has(record.fileStatus)
+    )
+    .sort(compareDecisionRecords);
 
   if (records.length === 0) {
     console.log("No decisions matched the selected statuses.");

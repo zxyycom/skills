@@ -9,6 +9,10 @@ export type DecisionStatus = typeof decisionStatuses[number];
 
 export const decisionStatusSet: ReadonlySet<string> = new Set(decisionStatuses);
 
+export function isDecisionStatus(value: string): value is DecisionStatus {
+  return decisionStatusSet.has(value);
+}
+
 export type DecisionRecord = {
   archived: boolean;
   areaId: string;
@@ -21,6 +25,16 @@ export type DecisionRecord = {
   relativePath: string;
   title: string;
 };
+
+export function compareDecisionRecords(left: DecisionRecord, right: DecisionRecord): number {
+  const areaOrder = left.areaId.localeCompare(right.areaId);
+  if (areaOrder !== 0) {
+    return areaOrder;
+  }
+
+  const dateOrder = right.datePrefix.localeCompare(left.datePrefix);
+  return dateOrder !== 0 ? dateOrder : left.fileName.localeCompare(right.fileName);
+}
 
 export type DecisionScanOptions = {
   decisionsDir?: string;
@@ -50,11 +64,6 @@ export type DecisionValidationResult = {
 export type ExpectedIndex = {
   errors: string[];
   text: string | null;
-};
-
-export type MarkdownLink = {
-  label: string;
-  target: string;
 };
 
 export type MarkdownSection = {

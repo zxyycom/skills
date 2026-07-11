@@ -1,17 +1,21 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { spawn } from "node:child_process";
-import { addGeneratedFileHeader } from "./lib/generated-file.ts";
+import {
+  addGeneratedFileHeader,
+  bundleWithBun,
+  parseGeneratedFileMode,
+  syncGeneratedFile,
+  type GeneratedFileMode
+} from "./lib/generated-file.ts";
 import {
   discoverSkillPackages,
+  githubRepository,
   pathExists,
   rootDir,
   toPosix,
   type SkillPackage
 } from "./lib/project.ts";
 import { skillPackageLockFileName } from "./lib/skill-package-hash.ts";
-
-type Mode = "check" | "write";
 
 type UpdaterConfig = {
   packageLockAssetName: string;
@@ -25,35 +29,12 @@ const templateRelativePath = "scripts/templates/update-skill.ts";
 const updaterRelativePath = path.join("scripts", "update-skill.cjs");
 const legacyUpdaterRelativePath = path.join("scripts", "update-skill.js");
 const configPlaceholder = "__SKILL_UPDATE_CONFIG_JSON__";
-const sourceRepo = "zxyycom/skills";
-const sourceRepositoryUrl = `https://github.com/${sourceRepo}`;
-const updaterSourceUrl = `${sourceRepositoryUrl}/blob/main/${templateRelativePath}`;
-
-function parseArgs(argv: string[]): Mode {
-  let mode: Mode | null = null;
-
-  for (const arg of argv) {
-    if (arg === "--check" || arg === "--write") {
-      const nextMode = arg === "--write" ? "write" : "check";
-      if (mode !== null && mode !== nextMode) {
-        throw new Error("--check and --write cannot be used together");
-      }
-
-      mode = nextMode;
-      continue;
-    }
-
-    throw new Error(`Unknown argument: ${arg}`);
-  }
-
-  return mode ?? "check";
-}
 
 function buildConfig(skill: SkillPackage): UpdaterConfig {
   return {
     packageLockAssetName: skillPackageLockFileName,
     releaseAssetName: `${skill.name}.zip`,
-    repo: sourceRepo,
+    repo: githubRepository,
     skillName: skill.name,
     sourcePath: toPosix(path.relative(rootDir, skill.directory))
   };
@@ -75,68 +56,27 @@ function renderUpdater(bundledTemplate: string, config: UpdaterConfig): string {
       ],
       artifactName: "skill self-updater",
       rebuildCommand: "bun run sync:skill-updaters",
-      repositoryUrl: `https://github.com/${config.repo}`,
-      skillSourceUrl: `https://github.com/${config.repo}/tree/main/${config.sourcePath}`,
-      sourcePath: templateRelativePath,
-      sourceUrl: updaterSourceUrl
+      repository: config.repo,
+      skillSourcePath: config.sourcePath,
+      sourcePath: templateRelativePath
     }
   );
 }
 
-function runBunBuild(entryPath: string, outputPath: string): Promise<void> {
-  const args = [
-    "build",
-    entryPath,
-    "--target=node",
-    "--format=cjs",
-    "--minify",
-    "--packages=bundle",
-    `--outfile=${outputPath}`
-  ];
-
-  return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, args, {
-      cwd: rootDir,
-      stdio: ["ignore", "pipe", "pipe"]
-    });
-
-    const stdout: Buffer[] = [];
-    const stderr: Buffer[] = [];
-    child.stdout.on("data", (chunk: Buffer) => stdout.push(chunk));
-    child.stderr.on("data", (chunk: Buffer) => stderr.push(chunk));
-    child.on("error", reject);
-    child.on("close", (code) => {
-      if (code === 0) {
-        resolve();
-        return;
-      }
-
-      const output = Buffer.concat([...stdout, ...stderr]).toString("utf8").trim();
-      reject(new Error(output || `bun build exited with code ${code}`));
-    });
+async function buildBundledTemplate(): Promise<string> {
+  return await bundleWithBun({
+    cwd: rootDir,
+    entryPath: path.join(rootDir, templateRelativePath),
+    format: "cjs",
+    minify: true
   });
 }
 
-async function buildBundledTemplate(): Promise<string> {
-  const tempDir = path.join(rootDir, ".skill-updater-build");
-  const outputPath = path.join(tempDir, "update-skill.cjs");
-
-  try {
-    await fs.rm(tempDir, { force: true, recursive: true });
-    await fs.mkdir(tempDir, { recursive: true });
-    await runBunBuild(path.join(rootDir, templateRelativePath), outputPath);
-    const bundled = await fs.readFile(outputPath, "utf8");
-    return bundled.startsWith("#!") ? bundled : `#!/usr/bin/env node\n${bundled}`;
-  } finally {
-    await fs.rm(tempDir, { force: true, recursive: true });
-  }
-}
-
-async function isSameFileContent(filePath: string, expected: string): Promise<boolean> {
-  return await pathExists(filePath) && await fs.readFile(filePath, "utf8") === expected;
-}
-
-async function syncSkillUpdater(skill: SkillPackage, expected: string, mode: Mode): Promise<boolean> {
+async function syncSkillUpdater(
+  skill: SkillPackage,
+  expected: string,
+  mode: GeneratedFileMode
+): Promise<boolean> {
   const outputPath = path.join(skill.directory, updaterRelativePath);
   const legacyOutputPath = path.join(skill.directory, legacyUpdaterRelativePath);
   let changed = false;
@@ -152,22 +92,21 @@ async function syncSkillUpdater(skill: SkillPackage, expected: string, mode: Mod
     }
   }
 
-  if (await isSameFileContent(outputPath, expected)) {
+  const result = await syncGeneratedFile(outputPath, expected, mode);
+  if (result === "current") {
     return changed;
   }
 
-  if (mode === "check") {
+  if (result === "stale") {
     console.error(`${toPosix(path.relative(rootDir, outputPath))} is missing or not generated from ${templateRelativePath}`);
     return true;
   }
 
-  await fs.mkdir(path.dirname(outputPath), { recursive: true });
-  await fs.writeFile(outputPath, expected, "utf8");
   console.log(`Wrote ${toPosix(path.relative(rootDir, outputPath))}`);
   return true;
 }
 
-const mode = parseArgs(process.argv.slice(2));
+const mode = parseGeneratedFileMode(process.argv.slice(2));
 const discovery = await discoverSkillPackages(rootDir);
 if (discovery.errors.length > 0) {
   throw new Error(`Cannot sync skill updaters:\n- ${discovery.errors.join("\n- ")}`);

@@ -5,7 +5,7 @@ import {
   rootDir
 } from "./lib/project.ts";
 import { ValidationReporter } from "./lib/validation.ts";
-import { validateDecisionRecords } from "./validators/decision-records.ts";
+import { validateDecisionRecords } from "./decision-records/src/index.ts";
 import { validateMarkdownLinks } from "./validators/markdown-links.ts";
 import {
   validatePackageScripts,
@@ -29,7 +29,7 @@ const markdownFiles = [...mainMarkdownFiles, ...skillMarkdownFiles];
 
 await validateMarkdownLinks(markdownFiles, reporter.report, rootDir);
 
-const decisionValidation = await validateDecisionRecords(rootDir);
+const decisionValidation = await validateDecisionRecords({ workspaceRoot: rootDir });
 reporter.addAll(decisionValidation.errors);
 
 await validatePackageScripts(reporter.report, rootDir);

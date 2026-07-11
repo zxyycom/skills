@@ -6,6 +6,12 @@ import process from "node:process";
 import { createInterface } from "node:readline/promises";
 import { parseArgs } from "node:util";
 import { unzipSync } from "fflate";
+import {
+  isFileSystemError,
+  isPathWithinDirectory,
+  pathExists,
+  toPosix
+} from "../lib/filesystem.ts";
 
 type UpdaterConfig = {
   packageLockAssetName: string;
@@ -121,26 +127,13 @@ function parseCliOptions(argv: string[]): CliOptions {
   };
 }
 
-function toPosix(filePath: string): string {
-  return filePath.split(path.sep).join("/");
-}
-
-function isFileSystemError(error: unknown, code: string): error is NodeJS.ErrnoException {
-  return error instanceof Error && "code" in error && error.code === code;
-}
-
 function normalizeRepoPath(repoPath: string): string {
   return repoPath.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
 }
 
-function isInsideDirectory(candidate: string, directory: string): boolean {
-  const relativePath = path.relative(path.resolve(directory), path.resolve(candidate));
-  return relativePath === "" || (!relativePath.startsWith("..") && !path.isAbsolute(relativePath));
-}
-
 function safeJoin(root: string, relativePath: string): string {
   const fullPath = path.resolve(root, relativePath);
-  if (!isInsideDirectory(fullPath, root)) {
+  if (!isPathWithinDirectory(fullPath, root)) {
     throw new Error(`Refusing to write outside target directory: ${relativePath}`);
   }
 
@@ -256,19 +249,6 @@ function extractSkillFilesFromReleaseAsset(zipData: Uint8Array): SkillFile[] {
   return skillFiles;
 }
 
-async function pathExists(targetPath: string): Promise<boolean> {
-  try {
-    await fs.access(targetPath);
-    return true;
-  } catch (error) {
-    if (isFileSystemError(error, "ENOENT")) {
-      return false;
-    }
-
-    throw error;
-  }
-}
-
 async function collectLocalFiles(directory: string, baseDirectory = directory): Promise<string[]> {
   let entries;
   try {
@@ -349,7 +329,7 @@ async function replaceDirectory(targetDir: string, tempDir: string): Promise<voi
   const backupDir = path.join(parentDir, `.${baseName}.backup-${process.pid}-${Date.now()}`);
   const targetExists = await pathExists(targetDir);
 
-  if (isInsideDirectory(process.cwd(), targetDir)) {
+  if (isPathWithinDirectory(process.cwd(), targetDir)) {
     process.chdir(os.tmpdir());
   }
 

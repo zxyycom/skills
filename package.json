@@ -10,7 +10,7 @@
   "scripts": {
     "typecheck": "tsgo --noEmit",
     "validate": "bun scripts/validate.ts",
-    "validate:decisions": "bun scripts/validate-decisions.ts",
+    "validate:decisions": "bun scripts/decision-records/src/cli.ts check",
     "test:decision-records-cli": "bun scripts/decision-records/tests/run.ts",
     "hash:skills": "bun scripts/hash-skills.ts",
     "pack:skills": "bun scripts/pack-skills.ts",

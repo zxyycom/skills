@@ -57,7 +57,7 @@
 9. 打包脚本使用 `fflate` 生成 zip，只打包 `skills/<skill-name>/` 内文件，不把项目文档、CI、脚本或仓库元数据放进 skill zip；每次打包前清空 `dist/`，避免残留旧 skill 制品。
 10. Markdown 链接提取使用 `mdast-util-from-markdown` 解析 Markdown AST；脚本负责仓库路径、状态来源和项目约束校验。
 11. Markdown 内部链接目标必须是仓库内路径且目标存在；`#anchor` 必须匹配目标 Markdown 文件中的标题锚点。
-12. 决策记录校验保留为独立入口，总校验通过薄适配器复用 `skills/decision-records/scripts/decision-records.mjs`，避免项目校验与已分发 CLI 漂移。
+12. 决策记录的独立入口和总校验直接复用 `scripts/decision-records/src/` 的同一套源码；分发 CLI 由逐字节生成检查和 Node 集成测试覆盖，避免仓库校验依赖生成文件或形成第二套规则。
 13. Skill 发布 hash 和 skill zip 都只覆盖会进入 skill zip 的文件路径和 Git blob 内容；`docs/skills/` 介绍页、项目文档、脚本和 CI 变化不直接触发 skill release。仓库脚本源码变化需要先同步为 skill 内生成产物，只有分发产物发生变化时才改变对应 hash。Hash 计算和打包都读取 Git index 中的 blob，避免 Windows 与 Linux 工作区换行差异导致本地 hook、CI 和 release asset 结果不一致。根目录 `skill-package-lock.json` 是唯一发布状态文件，记录聚合 hash 和每个 skill 的独立 hash。
 14. 校验脚本不解析 workflow 结构, 也不通过正则检查 workflow 内部步骤; workflow 逻辑由文档约定、代码审查和 GitHub Actions 实际运行结果验证。
 15. Skill 自更新脚本的通用逻辑由主仓库 `scripts/templates/update-skill.ts` 承接；各 skill 包内只保留打包生成的 `scripts/update-skill.cjs`。
@@ -70,7 +70,7 @@
 1. TypeScript 源码、测试、夹具和构建入口放在主仓库 `scripts/<tool-name>/`。
 2. 构建后的单文件 JavaScript 放在 `skills/<skill-name>/scripts/`，提交到 Git 并进入 skill hash。
 3. `sync:*` 显式写入生成产物；`check:*` 在临时目录重建并逐字节比较，不在检查期间修改产物。
-4. 分发产物只能依赖目标运行时和已打包内容，不能要求使用者安装主仓库 Bun、pnpm、TypeScript 或源码依赖。
+4. 分发产物只能依赖目标运行时和已打包内容，不能要求使用者安装主仓库 Bun、pnpm、TypeScript 或源码依赖；产物主体可以压缩，维护和调试以文件头指向的源码为准。
 5. `pack:skills` 只收集已经通过生成状态检查的 skill 目录 Git blob，不在打包阶段临时构建未提交脚本。
 
 `decision-records` CLI 的维护入口：

@@ -1,7 +1,12 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import {
-  extractInlineLinks,
+  isPathWithinDirectory,
+  pathExists,
+  toPosix
+} from "../../lib/filesystem.ts";
+import { extractMarkdownLinks } from "../../lib/markdown-links.ts";
+import {
   parseSections,
   requireNonEmptyField,
   requireSingleField,
@@ -39,19 +44,6 @@ const impactAreaPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const decisionFilePattern = /^(\d{6})-([a-z]+)-([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/;
 const decisionRelativePathPattern = /^(?:archive\/)?[a-z0-9]+(?:-[a-z0-9]+)*\/\d{6}-[a-z]+-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 
-async function pathExists(targetPath: string): Promise<boolean> {
-  try {
-    await fs.access(targetPath);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-export function toPosix(targetPath: string): string {
-  return targetPath.split(path.sep).join("/");
-}
-
 function displayPath(workspaceRoot: string, targetPath: string): string {
   const relativePath = path.relative(workspaceRoot, targetPath);
   if (relativePath === "") {
@@ -65,14 +57,6 @@ function displayPath(workspaceRoot: string, targetPath: string): string {
   }
 
   return toPosix(relativePath);
-}
-
-function isInsideDirectory(parentPath: string, targetPath: string): boolean {
-  const relativePath = path.relative(parentPath, targetPath);
-  return relativePath !== ""
-    && relativePath !== ".."
-    && !relativePath.startsWith(".." + path.sep)
-    && !path.isAbsolute(relativePath);
 }
 
 function fullDateFromCompactPrefix(dateText: string): string | null {
@@ -144,7 +128,7 @@ async function validateDecisionLink(options: {
   }
 
   const resolvedTarget = path.resolve(baseDirectory, target);
-  if (!isInsideDirectory(decisionsDirectory, resolvedTarget)) {
+  if (!isPathWithinDirectory(resolvedTarget, decisionsDirectory)) {
     errors.push(relativeSourcePath + " decision link points outside the decision directory: " + rawTarget);
     return null;
   }
@@ -286,7 +270,9 @@ async function validateDecisionBody(options: {
       if (cause === "无") {
         errors.push(relativePath + " non-active decisions must link to the later decision");
       } else {
-        const causeLinks = extractInlineLinks(cause);
+        const causeLinks = extractMarkdownLinks(cause).targets.filter(
+          (target) => target.kind === "link"
+        );
         if (causeLinks.length === 0) {
           errors.push(relativePath + " non-active status cause must use an inline Markdown decision link");
         }

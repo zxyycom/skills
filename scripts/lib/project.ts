@@ -2,6 +2,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fg from "fast-glob";
+import { pathExists, toPosix } from "./filesystem.ts";
+
+export { pathExists, toPosix } from "./filesystem.ts";
 
 export type SkillPackage = {
   name: string;
@@ -14,24 +17,12 @@ export type SkillDiscoveryResult = {
 };
 
 export const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+export const githubRepository = "zxyycom/skills";
 export const skillsRootName = "skills";
 export const ignoredDirectoryNames = [".git", "node_modules", "dist"] as const;
 
 function shouldIgnoreDirectoryName(name: string): boolean {
   return name.startsWith(".") || (ignoredDirectoryNames as readonly string[]).includes(name);
-}
-
-export async function pathExists(targetPath: string): Promise<boolean> {
-  try {
-    await fs.access(targetPath);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-export function toPosix(relativePath: string): string {
-  return relativePath.split(path.sep).join("/");
 }
 
 export async function discoverSkillPackages(workspaceRoot: string = rootDir): Promise<SkillDiscoveryResult> {
