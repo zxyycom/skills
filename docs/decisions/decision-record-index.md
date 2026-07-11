@@ -42,12 +42,14 @@
 
 `decision-records`：
 
-1. [active: 2026-06-30 - 用 owner 命名决策记录根文档](decision-records/260630-active-name-decision-root-docs-by-owner.md)
-2. [active: 2026-06-30 - 使用短日期命名并允许短决策结构](decision-records/260630-active-use-compact-decision-records.md)
+1. [active: 2026-07-11 - 用直接关系和归并决策限制历史读取](decision-records/260711-active-bound-history-with-direct-relations.md)
+2. [active: 2026-06-30 - 用 owner 命名决策记录根文档](decision-records/260630-active-name-decision-root-docs-by-owner.md)
+3. [active: 2026-06-30 - 使用短日期命名并允许短决策结构](decision-records/260630-active-use-compact-decision-records.md)
 
 `decision-records-skill`：
 
-1. [active: 2026-07-10 - 使用 CLI 维护活动索引并归档失效决策](decision-records-skill/260710-active-use-cli-active-index-and-invalidated-archive.md)
+1. [active: 2026-07-11 - 将非标准决策材料修复为唯一契约](decision-records-skill/260711-active-repair-noncanonical-decision-formats.md)
+2. [active: 2026-07-10 - 使用 CLI 维护活动索引并归档失效决策](decision-records-skill/260710-active-use-cli-active-index-and-invalidated-archive.md)
 
 `git-commit-organizer-behavior`：
 
