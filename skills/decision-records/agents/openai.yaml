@@ -1,0 +1,4 @@
+interface:
+  display_name: "决策记录"
+  short_description: "用统一 Markdown 方案和 CLI 编写、维护并校验显式决策记录"
+  default_prompt: "Use $decision-records to maintain auditable decision records, list active decisions, and synchronize the active index with the bundled CLI."

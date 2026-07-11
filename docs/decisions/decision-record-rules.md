@@ -21,10 +21,13 @@
 
 ```text
 docs/decisions/
-decision-record-index.md
-decision-record-rules.md
-<impact-area-id>/
-YYMMDD-<status>-short-title.md
+├── decision-record-index.md
+├── decision-record-rules.md
+├── <impact-area-id>/
+│   └── YYMMDD-<status>-short-title.md
+└── archive/
+    └── <impact-area-id>/
+        └── YYMMDD-invalidated-short-title.md
 ```
 
 ## 影响面 ID
@@ -45,6 +48,7 @@ YYMMDD-<status>-short-title.md
 2. 同时影响多个边界时, 选择后续最可能查找该决策的主要影响面。
 3. 单个 skill 专属决策优先使用包含 skill 名的影响面, 例如 `prompt-optimize-references`; 只有跨多个 skill 生效时才使用 `skill-*` 这类共享影响面。
 4. 找不到合适影响面时再新增目录; 新增后同步更新 `decision-record-index.md` 的影响面说明。
+5. `archive` 是失效记录容器, 不是影响面 ID; 归档下继续按原影响面组织。
 
 ## 决策状态
 
@@ -64,8 +68,16 @@ YYMMDD-<status>-short-title.md
 3. 状态来源链接使用相对当前决策文件的 Markdown 链接, 目标必须解析到 `docs/decisions/<impact-area-id>/` 下已存在的决策文件。
 4. 有多个后续决策共同说明当前状态时, 在同一字段中保留多个链接。
 5. 状态变化由造成变化的后续决策承接, 不为单纯改状态再新增一条决策。
-6. 旧记录仍能解释当前设计为什么曾经存在时保留并标状态; 低于当前门槛且没有独立回放价值时可以删除。
+6. 所有已形成的决策默认保留; 后续价值和有效性变化通过状态、关系和归档位置表达, 不通过删除抹去历史。
 7. `superseded` 用于正常演进后的替代; `invalidated` 只用于后续明确判断旧结论与当前契约冲突、前提错误或不应再沿用。
+8. `active`、`amended` 和 `superseded` 保留在原影响面; `invalidated` 移入 `archive/<impact-area-id>/`。
+
+## 索引
+
+1. `decision-record-index.md` 的阅读方式、状态速查和影响面说明由维护者编写。
+2. 文档最后使用 `## 活动决策`, 只列出当前 `active` 记录。
+3. 活动决策区由 `skills/decision-records/scripts/decision-records.mjs sync-index --write` 生成, 不手工维护。
+4. `amended`、`superseded` 和 `invalidated` 通过 CLI 的 `list --all`、`list --status`、文件树和状态来源关系访问。
 
 ## 记录门槛
 
@@ -86,7 +98,7 @@ skill 相关决策可以稍细。以下情况通常需要记录:
 
 项目级决策门槛更高。只有改变长期维护契约、目录边界、自动化交付方式或跨文件 owner 的决定才记录。脚本内部实现步骤、CI 单步调整、普通文案修正、格式调整、链接修复和一次性执行细节不记录。
 
-决策目录可以被整理。低于当前门槛、没有独立判断价值的旧记录可以合并或删除; 如果旧记录仍能解释当前设计为什么存在, 保留并在新记录中说明替代关系。
+决策目录可以整理, 但所有已形成的决策默认保留。后续判断改变其有效性时更新状态; 完全不应再作为依据时标为 `invalidated` 并移入归档目录。
 
 ## 决策文件
 
@@ -168,13 +180,16 @@ YYMMDD-<status>-short-title.md
 6. `## 决策过程` 用来回放“先提出问题, 再通过多轮对话逐步确定细节”的过程; 没有关键备选或多轮收敛时省略。
 7. 单个 skill 专属决策要能从标题、影响面或正文看出适用 skill 和当前 `skills/<skill-name>/` 路径。
 8. 省略可选小节时不要留下空标题。
-9. 校验脚本只强制最小结构、状态关系、状态来源链接目标、文件命名和索引链接; 完整结构由记录价值决定。
+9. CLI 只强制最小结构、状态关系、状态来源链接目标、文件命名、归档位置和活动索引; 完整结构由记录价值决定。
 
 ## 更新流程
 
 1. 新增决策文件, 放入对应影响面目录。
 2. 文件名写入 6 位日期和当前状态, 正文 `## 状态` 写清状态关系。
-3. 在 `decision-record-index.md` 的决策清单中追加链接。
+3. 在 `decision-record-index.md` 中说明新增影响面。
 4. 如果新增影响面目录, 同步更新 `decision-record-index.md` 的“影响面”。
-5. 新决策替代、修订或判定旧决策无效时, 更新旧决策文件名、`## 状态` 和索引链接。
-6. 新决策替代旧决策时, 先判断旧记录是否仍有回放价值; 有价值则保留并说明替代关系, 无独立判断价值则合并或删除。
+5. 新决策替代、修订或判定旧决策无效时, 更新旧决策文件名和 `## 状态`; `invalidated` 同步移入归档影响面目录。
+6. 重命名或移动后搜索并修复全部相对链接。
+7. 新决策替代旧决策时保留旧记录并说明状态关系; 完全不应再作为依据时标为 `invalidated` 并归档。
+8. 运行 `node skills/decision-records/scripts/decision-records.mjs sync-index --write`。
+9. 运行 `bun run validate:decisions`。

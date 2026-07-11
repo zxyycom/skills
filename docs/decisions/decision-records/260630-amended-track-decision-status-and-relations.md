@@ -2,8 +2,8 @@
 
 ## 状态
 - 当前状态: amended
-- 导致状态变化的决策: [2026-06-30 - 使用短日期命名并允许短决策结构](260630-active-use-compact-decision-records.md)
-- 状态说明: 状态值、状态关系和影响面目录规则仍有效; 文件日期前缀和正文结构以后续决策为准。
+- 导致状态变化的决策: [2026-06-30 - 使用短日期命名并允许短决策结构](260630-active-use-compact-decision-records.md), [2026-07-10 - 使用 CLI 维护活动索引并归档失效决策](../decision-records-skill/260710-active-use-cli-active-index-and-invalidated-archive.md)
+- 状态说明: 状态值、状态关系和影响面目录规则仍有效; 文件日期前缀、正文结构、历史保留和 invalidated 归档规则以后续决策为准。
 
 ## 问题
 - 决策记录会随项目演进过期、被替代或被判定与后续规则冲突。

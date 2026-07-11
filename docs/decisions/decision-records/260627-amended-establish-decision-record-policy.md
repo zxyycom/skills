@@ -2,8 +2,8 @@
 
 ## 状态
 - 当前状态: amended
-- 导致状态变化的决策: [2026-06-30 - 给决策记录增加状态和关系](260630-amended-track-decision-status-and-relations.md), [2026-06-30 - 用 owner 命名决策记录根文档](260630-active-name-decision-root-docs-by-owner.md)
-- 状态说明: 记录门槛和影响面目录仍有回放价值; 文件命名、正文状态、替代关系和根说明文件 owner 以后续决策为准。
+- 导致状态变化的决策: [2026-06-30 - 给决策记录增加状态和关系](260630-amended-track-decision-status-and-relations.md), [2026-06-30 - 用 owner 命名决策记录根文档](260630-active-name-decision-root-docs-by-owner.md), [2026-07-10 - 使用 CLI 维护活动索引并归档失效决策](../decision-records-skill/260710-active-use-cli-active-index-and-invalidated-archive.md)
+- 状态说明: 记录门槛和影响面目录仍有回放价值; 文件命名、正文状态、替代关系、历史保留、归档方式和根说明文件 owner 以后续决策为准。
 
 ## 问题
 - 决策记录需要帮助后续维护者回放重要设计原因, 但过多项目级记录会把真正重要的判断淹没。
