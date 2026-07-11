@@ -1,4 +1,4 @@
 interface:
   display_name: "决策记录"
-  short_description: "建立、修复并维护统一的 Markdown 决策记录"
-  default_prompt: "使用 $decision-records 判断本次工作是否需要记录长期决策；读取当前有效记录，按统一契约新增、修订或修复，并验证索引与状态关系。"
+  short_description: "恢复、确认并维护可回放的 Markdown 决策记录"
+  default_prompt: "使用 $decision-records 恢复已生效决策，并在重要长期取舍形成时先给出概览，确认后记录。"

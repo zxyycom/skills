@@ -20,9 +20,8 @@ import {
   type MarkdownSection
 } from "./types.ts";
 
-const requiredRootFiles = new Set([
-  "decision-record-index.md",
-  "decision-record-rules.md"
+const allowedRootFiles = new Set([
+  "decision-record-index.md"
 ]);
 const sectionOrder = [
   "## 状态",
@@ -435,7 +434,6 @@ export async function scanDecisionRecords(options: DecisionScanOptions = {}): Pr
   const areaIds = new Set<string>();
   const decisionsLabel = displayPath(workspaceRoot, decisionsDirectory);
   const indexPath = path.join(decisionsDirectory, "decision-record-index.md");
-  const rulesPath = path.join(decisionsDirectory, "decision-record-rules.md");
   const indexRelativePath = displayPath(workspaceRoot, indexPath);
 
   if (!await pathExists(decisionsDirectory)) {
@@ -469,10 +467,6 @@ export async function scanDecisionRecords(options: DecisionScanOptions = {}): Pr
     errors.push(indexRelativePath + " is required");
   }
 
-  if (!await pathExists(rulesPath)) {
-    errors.push(displayPath(workspaceRoot, rulesPath) + " is required");
-  }
-
   const index = await pathExists(indexPath) ? await fs.readFile(indexPath, "utf8") : "";
   const rootEntries = await fs.readdir(decisionsDirectory, { withFileTypes: true });
   rootEntries.sort((left, right) => left.name.localeCompare(right.name));
@@ -481,7 +475,7 @@ export async function scanDecisionRecords(options: DecisionScanOptions = {}): Pr
     const entryPath = path.join(decisionsDirectory, entry.name);
 
     if (entry.isFile()) {
-      if (!requiredRootFiles.has(entry.name)) {
+      if (!allowedRootFiles.has(entry.name)) {
         errors.push(decisionsLabel + " root contains unsupported file " + entry.name);
       }
       continue;

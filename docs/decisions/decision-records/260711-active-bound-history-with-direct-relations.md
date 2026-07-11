@@ -30,6 +30,5 @@
 - 文件名状态继续承担目录浏览时的快速判断, 不依赖活动索引或关系小节才能识别有效性。
 
 ## 验证
-- `docs/decisions/decision-record-rules.md` 定义可选的 `### 关系`、直接前序、自洽活动记录和归并读取边界。
-- `skills/decision-records/references/decision-record-rules.md` 使用相同的固定契约。
+- `skills/decision-records/references/decision-record-rules.md` 定义可选的 `### 关系`、直接前序、自洽活动记录和归并读取边界。
 - `skills/decision-records/SKILL.md` 在读取和修订流程中要求直接关系与归并终点。

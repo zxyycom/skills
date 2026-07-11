@@ -1,11 +1,11 @@
 # 决策记录清单
 
-本文件是 `docs/decisions/` 的导航 owner, 负责列出影响面、状态速查和当前活动决策。记录门槛、文件命名、状态关系、正文结构和更新流程由 [decision-record-rules.md](decision-record-rules.md) 承接。
+本文件只承接本仓库决策的阅读方式、状态速查、影响面和当前活动决策。固定契约见随包 [decision-record-rules.md](../../skills/decision-records/references/decision-record-rules.md)，本仓库的更高记录门槛见根目录 `AGENTS.md`。
 
 ## 阅读方式
 
 1. 先按“影响面”确定要查的长期责任边界。
-2. 在“活动决策”中查看当前有效记录。
+2. 在“活动决策”中查看已经确认并成为后续工作依据的已生效记录。
 3. 需要历史时, 运行 `node skills/decision-records/scripts/decision-records.mjs list --all` 或按状态筛选。
 4. 非 `active` 决策的替代、修订或失效来源, 以决策文件 `## 状态` 中的后续决策链接为准。
 
@@ -15,7 +15,7 @@
 
 状态值:
 
-1. `active`: 当前仍完整生效。
+1. `active`: 已经确认并成为后续工作依据的已生效决策, 不是进行中的任务状态。
 2. `amended`: 仍有回放价值, 但部分规则、命名或适用方式已被后续决策修订。
 3. `superseded`: 已被后续决策替代, 不再作为当前规则执行。
 4. `invalidated`: 因后续发现冲突、前提错误或无效结论而不再作为依据。
@@ -26,29 +26,24 @@
 
 当前影响面:
 
-1. `decision-records`: 决策记录体系自身的结构、目的、命名、门槛和维护方式。
-2. `decision-records-skill`: `decision-records` skill 的主承诺、数据 owner、固定格式、维护流程和校验器边界。
+1. `decision-records`: 决策记录体系自身的目的、固定契约、owner 和演进方式。
+2. `decision-records-skill`: `decision-records` skill 的触发、确认、读取、写入、数据 owner 和 CLI 边界。
 3. `git-commit-organizer-behavior`: `git-commit-organizer` skill 的提交粒度、类型选择和提交组织行为。
 4. `project-tooling`: 本地脚本、打包方式、CI 和交付制品的长期契约。
 5. `openspec-skills`: OpenSpec skills 的 change 语义、阶段门禁、CLI 协作和原始参考兜底策略。
 6. `prompt-optimize-references`: `prompt-optimize` skill 引用文件的 owner 分工、结构拆分和跨文件关系。
-
-可能出现的影响面示例:
-
-1. `skill-behavior`: 多个 skill 共享的触发条件、执行流程、输出边界或完成检查。
-2. `<skill-name>-references`: 单个 skill 的引用结构、规则归属和跨文件关系。
 
 ## 活动决策
 
 `decision-records`：
 
 1. [active: 2026-07-11 - 用直接关系和归并决策限制历史读取](decision-records/260711-active-bound-history-with-direct-relations.md)
-2. [active: 2026-06-30 - 用 owner 命名决策记录根文档](decision-records/260630-active-name-decision-root-docs-by-owner.md)
+2. [active: 2026-07-11 - 使用随包 reference 作为唯一固定契约](decision-records/260711-active-use-bundled-contract-owner.md)
 3. [active: 2026-06-30 - 使用短日期命名并允许短决策结构](decision-records/260630-active-use-compact-decision-records.md)
 
 `decision-records-skill`：
 
-1. [active: 2026-07-11 - 将非标准决策材料修复为唯一契约](decision-records-skill/260711-active-repair-noncanonical-decision-formats.md)
+1. [active: 2026-07-11 - 使用显式确认控制决策写入](decision-records-skill/260711-active-require-confirmed-decision-writes.md)
 2. [active: 2026-07-10 - 使用 CLI 维护活动索引并归档失效决策](decision-records-skill/260710-active-use-cli-active-index-and-invalidated-archive.md)
 
 `git-commit-organizer-behavior`：

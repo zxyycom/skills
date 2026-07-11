@@ -30,7 +30,7 @@
 
 1. `bun run typecheck`: 使用 `tsgo --noEmit` 和根目录 `tsconfig.json` 检查 `scripts/**/*.ts`，不输出编译产物。
 2. `bun run validate`: 校验 `skills/` 下全部 skill 入口、内部链接、决策记录结构和主仓库项目配置。
-3. `bun run validate:decisions`: 通过 `decision-records` skill 的 CLI 单独校验 `docs/decisions/` 的目录、文件结构、正文状态、活动索引、归档位置和状态来源链接目标。
+3. `bun run validate:decisions`: 通过 `decision-records` skill 的 CLI 单独校验 `docs/decisions/` 的目录、文件结构、正文状态、已生效决策索引、归档位置和状态来源链接目标。
 4. `bun run hash:skills`: 计算当前 Git index 中所有 skill 打包输入的聚合 SHA-256 hash 和单 skill hash，并与根目录 `skill-package-lock.json` 对比；传入 `--write` 时写回当前状态，传入 `--check` 时不一致则失败，传入 `--quiet` 时只在 hash 或 lock 内容变化时输出。
 5. `bun run pack:skills`: 读取 Git index 中 `skills/<skill-name>/` 的 blob，将每个 skill 分别打包为 `dist/<skill-name>.zip`，并把 `skill-package-lock.json` 复制为 release manifest asset。
 6. `bun run setup-hooks`: 将主仓库 `core.hooksPath` 设置为 `.githooks`。

@@ -52,6 +52,19 @@ assert.match(updaterSource, /Rebuild: bun run sync:skill-updaters/);
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "decision-records-test-"));
 try {
   await fs.cp(fixtureRoot, tempRoot, { recursive: true });
+  const copiedContractPath = path.join(
+    tempRoot,
+    "docs",
+    "decisions",
+    "decision-record-rules.md"
+  );
+  await fs.writeFile(copiedContractPath, "# Copied contract\n", "utf8");
+  const withCopiedContract = await validateDecisionRecords({ workspaceRoot: tempRoot });
+  assert.ok(withCopiedContract.errors.some(
+    (error) => error.includes("root contains unsupported file decision-record-rules.md")
+  ));
+  await fs.rm(copiedContractPath);
+
   const indexPath = path.join(tempRoot, "docs", "decisions", "decision-record-index.md");
   const index = await fs.readFile(indexPath, "utf8");
   await fs.writeFile(indexPath, index.replace("[active:", "[stale:"), "utf8");

@@ -15,7 +15,7 @@
 2. `docs/skills/<skill-name>.md` 或集合说明文档承接面向人类阅读的 skill 介绍、项目起点和发展方向; 这些内容不进入 skill zip, 也不作为 agent 执行时必须读取的 skill 本体。
 3. 主仓库承接跨 skill 共享的校验、打包、聚合发布、依赖入口、CI 和自动化。
 4. `docs/tooling.md` 承接脚本、安装、校验、打包、CI 和发布细节; `README.md` 只保留项目入口说明。
-5. `docs/decisions/decision-record-rules.md` 承接决策记录格式、门槛、状态关系和更新流程; `docs/decisions/decision-record-index.md` 承接决策清单和影响面导航。
+5. `skills/decision-records/references/decision-record-rules.md` 是决策记录格式、状态关系和维护事务的唯一固定契约; `docs/decisions/decision-record-index.md` 承接本仓库决策清单和影响面导航, 项目专属记录门槛由本文件承接。
 6. `AGENTS.md` 只承接项目级 agent 协作约定; skill 专属规则、工具链细节和单条决策原因应写入各自 owner。
 7. 同一判断只在最稳定的 owner 位置完整解释; 非 owner 位置只保留摘要、触发条件或引用。
 

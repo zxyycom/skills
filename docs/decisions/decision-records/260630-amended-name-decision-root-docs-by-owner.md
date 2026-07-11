@@ -1,9 +1,9 @@
 # 2026-06-30 - 用 owner 命名决策记录根文档
 
 ## 状态
-- 当前状态: active
-- 导致状态变化的决策: 无
-- 状态说明: 作为当前决策记录根文档命名、owner 分工和状态来源链接校验规则使用。
+- 当前状态: amended
+- 导致状态变化的决策: [2026-07-11 - 使用随包 reference 作为唯一固定契约](260711-active-use-bundled-contract-owner.md)
+- 状态说明: `decision-record-index.md` 的导航 owner 和状态来源链接校验仍有效；目标项目维护第二份规则 owner 的做法已被随包唯一契约取代。
 
 ## 问题
 - `docs/decisions/README.md` 和 `docs/decisions/maintenance.md` 的文件名不能直接说明实际职责, 需要打开文件才能知道哪个负责清单、哪个负责规则。
