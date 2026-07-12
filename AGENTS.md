@@ -9,6 +9,20 @@
 5. 长期文档只沉淀当前仓库内可维护、可复用、当前有效的信息; 仓库外路径、临时来源、迁移过程和一次性调查上下文不进入长期文档。
 6. 改动范围以用户请求为准; 不为整理风格、统一措辞或顺手清理而重写无关文件。
 
+## Skill 指代与概览
+
+1. 在本仓库的对话、任务和维护说明中, 只提到 `skill`、skill 名称或某类 skill, 且未直接给出路径时, 默认指 `skills/` 下由本仓库维护的 skill。
+2. 对话中直接给出路径时, 按该路径定位 skill; 不因本仓库存在同名目录而改写其来源。
+3. 解析到仓库内 skill 后, 以对应的 `skills/<skill-name>/SKILL.md` 为行为入口, 并按该文件的读取策略加载必要引用。
+4. 当前仓库主要维护以下能力:
+   - `prompt-optimize`: 优化 prompt、agent 指令、规则、任务、需求、模板和工作流等结构化文本。
+   - `git-commit-organizer`: 整理当前 Git 改动并创建范围清楚、信息可追踪的提交。
+   - `openspec-explore`、`openspec-propose`、`openspec-apply-change`、`openspec-archive-change`: 覆盖 OpenSpec change 的探索、提案、实施和归档流程。
+   - `codex-shell-permissions`: 指导 shell 失败后的下一步命令选择, 并在用户要求时维护 Codex 权限 rules。
+   - `decision-records`: 发现、审阅和维护可回放的决策记录、状态关系与索引。
+   - `subagent-orchestration`: 编排边界清楚的子代理任务, 并控制主线程上下文和并行协作范围。
+5. 仓库内 skill 的实际清单以 `skills/*/SKILL.md` 为准; 新增、重命名或移除 skill 时同步更新本节概览。
+
 ## 内容 Owner
 
 1. `skills/<skill-name>/` 承接对应 skill 的行为、触发条件、读取策略、执行流程、引用文件、边界和验收标准。
