@@ -1,0 +1,4 @@
+interface:
+  display_name: "Code Review"
+  short_description: "从产品与开发双视角审查代码变更、设计与系统性工程问题"
+  default_prompt: "使用 $code-review 审查当前变更，先给出简洁决策摘要，需要时将完整证据写入临时报告。"

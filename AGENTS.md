@@ -15,6 +15,7 @@
 2. 对话中直接给出路径时, 按该路径定位 skill; 不因本仓库存在同名目录而改写其来源。
 3. 解析到仓库内 skill 后, 以对应的 `skills/<skill-name>/SKILL.md` 为行为入口, 并按该文件的读取策略加载必要引用。
 4. 当前仓库主要维护以下能力:
+   - `code-review`: 从产品与开发双视角审查代码、设计文档、实现差异和系统性工程问题。
    - `prompt-optimize`: 优化 prompt、agent 指令、规则、任务、需求、模板和工作流等结构化文本。
    - `git-commit-organizer`: 整理当前 Git 改动并创建范围清楚、信息可追踪的提交。
    - `openspec-explore`、`openspec-propose`、`openspec-apply-change`、`openspec-archive-change`: 覆盖 OpenSpec change 的探索、提案、实施和归档流程。
