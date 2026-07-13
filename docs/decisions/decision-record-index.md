@@ -32,6 +32,7 @@
 4. `project-tooling`: 本地脚本、打包方式、CI 和交付制品的长期契约。
 5. `openspec-skills`: OpenSpec skills 的 change 语义、阶段门禁、CLI 协作和原始参考兜底策略。
 6. `prompt-optimize-references`: `prompt-optimize` skill 引用文件的 owner 分工、结构拆分和跨文件关系。
+7. `subagent-orchestration-behavior`: `subagent-orchestration` skill 的并行权限、范围所有权和结果审计行为。
 
 ## 活动决策
 
@@ -69,3 +70,7 @@
 1. [active: 2026-07-06 - 将子代理任务说明移出 prompt-optimize](prompt-optimize-references/260706-active-move-subagent-guidance-to-dedicated-skill.md)
 2. [active: 2026-07-01 - 给 prompt-optimize 增加文档主承诺检查](prompt-optimize-references/260701-active-add-document-main-promise-check.md)
 3. [active: 2026-07-01 - 压缩 prompt-optimize 入口并归档迁移副本](prompt-optimize-references/260701-active-compact-entry-and-archive-migration-copies.md)
+
+`subagent-orchestration-behavior`：
+
+1. [active: 2026-07-12 - 区分并行写入所有权与只读调查范围](subagent-orchestration-behavior/260712-active-separate-write-ownership-from-read-scope.md)
