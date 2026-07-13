@@ -13,10 +13,14 @@ import {
   stripLinkSuffix
 } from "./markdown.ts";
 import {
+  decisionRelationTypes,
   decisionStatusSet,
+  type DecisionRelation,
   type DecisionRecord,
+  type DecisionRelationType,
   type DecisionScan,
   type DecisionScanOptions,
+  type DecisionStatus,
   type MarkdownSection
 } from "./types.ts";
 
@@ -42,6 +46,13 @@ const requiredSections = new Set([
 const impactAreaPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const decisionFilePattern = /^(\d{6})-([a-z]+)-([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/;
 const decisionRelativePathPattern = /^(?:archive\/)?[a-z0-9]+(?:-[a-z0-9]+)*\/\d{6}-[a-z]+-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
+const decisionRelationTypeSet: ReadonlySet<string> = new Set(decisionRelationTypes);
+const relationExpectedStatus: Record<DecisionRelationType, DecisionStatus> = {
+  "修订": "amended",
+  "替代": "superseded",
+  "判定无效": "invalidated",
+  "归并": "superseded"
+};
 
 function displayPath(workspaceRoot: string, targetPath: string): string {
   const relativePath = path.relative(workspaceRoot, targetPath);
@@ -146,6 +157,133 @@ async function validateDecisionLink(options: {
   return relativeTarget;
 }
 
+async function validateDecisionRelations(options: {
+  decisionPath: string;
+  decisionsDirectory: string;
+  errors: string[];
+  relativePath: string;
+  statusSection: string;
+}): Promise<DecisionRelation[]> {
+  const {
+    decisionPath,
+    decisionsDirectory,
+    errors,
+    relativePath,
+    statusSection
+  } = options;
+  const subheadings = [...statusSection.matchAll(/^### ([^\n]+)$/gm)];
+  const relationHeadings = subheadings.filter((match) => match[1].trim() === "关系");
+
+  for (const heading of subheadings) {
+    if (heading[1].trim() !== "关系") {
+      errors.push(relativePath + " has unsupported status subsection ### " + heading[1].trim());
+    }
+  }
+
+  if (relationHeadings.length > 1) {
+    errors.push(relativePath + " contains status subsection ### 关系 more than once");
+  }
+
+  const heading = relationHeadings[0];
+  if (!heading) {
+    return [];
+  }
+
+  const headingIndex = heading.index ?? 0;
+  const lineEnd = statusSection.indexOf("\n", headingIndex);
+  const contentStart = lineEnd >= 0 ? lineEnd + 1 : statusSection.length;
+  const nextHeading = subheadings.find((candidate) => (candidate.index ?? 0) > headingIndex);
+  const contentEnd = nextHeading?.index ?? statusSection.length;
+  const relationContent = statusSection.slice(contentStart, contentEnd).trim();
+  if (relationContent.length === 0) {
+    errors.push(relativePath + " status subsection ### 关系 must not be empty");
+    return [];
+  }
+
+  const relations: DecisionRelation[] = [];
+  const relationKeys = new Set<string>();
+  for (const line of relationContent.split("\n").map((value) => value.trim()).filter(Boolean)) {
+    const match = line.match(/^- ([^:]+):\s*(.*?)\s*$/);
+    const relationType = match?.[1].trim();
+    if (!match || !relationType || !decisionRelationTypeSet.has(relationType)) {
+      errors.push(relativePath + " has unsupported relationship entry: " + line);
+      continue;
+    }
+
+    const links = extractMarkdownLinks(match[2]).targets.filter(
+      (target) => target.kind === "link"
+    );
+    if (links.length === 0) {
+      errors.push(relativePath + " relationship " + relationType + " must use an inline Markdown decision link");
+      continue;
+    }
+
+    for (const link of links) {
+      const target = await validateDecisionLink({
+        baseDirectory: path.dirname(decisionPath),
+        decisionsDirectory,
+        errors,
+        rawTarget: link.target,
+        relativeSourcePath: relativePath
+      });
+      if (!target) {
+        continue;
+      }
+
+      if (target === relativePath) {
+        errors.push(relativePath + " must not relate to itself");
+        continue;
+      }
+
+      const relationKey = relationType + "\u0000" + target;
+      if (relationKeys.has(relationKey)) {
+        errors.push(relativePath + " repeats relationship " + relationType + " target " + target);
+        continue;
+      }
+
+      relationKeys.add(relationKey);
+      relations.push({
+        target,
+        type: relationType as DecisionRelationType
+      });
+    }
+  }
+
+  return relations;
+}
+
+function validateDecisionRelationConsistency(records: DecisionRecord[], errors: string[]): void {
+  const recordByPath = new Map(records.map((record) => [record.relativePath, record]));
+
+  for (const record of records) {
+    for (const relation of record.relations) {
+      const target = recordByPath.get(relation.target);
+      if (!target) {
+        errors.push(record.relativePath + " relationship target is not a scanned decision: " + relation.target);
+        continue;
+      }
+
+      const expectedStatus = relationExpectedStatus[relation.type];
+      if (target.fileStatus !== expectedStatus) {
+        errors.push(
+          record.relativePath
+          + " relationship " + relation.type
+          + " target must have status " + expectedStatus
+          + ": " + relation.target
+        );
+      }
+
+      if (!target.statusCauseTargets.includes(record.relativePath)) {
+        errors.push(
+          record.relativePath
+          + " relationship " + relation.type
+          + " target must link back through 导致状态变化的决策: " + relation.target
+        );
+      }
+    }
+  }
+}
+
 async function validateDecisionBody(options: {
   archived: boolean;
   body: string;
@@ -247,6 +385,8 @@ async function validateDecisionBody(options: {
   }
 
   let bodyStatus: string | null = null;
+  let relations: DecisionRelation[] = [];
+  const statusCauseTargets: string[] = [];
   const statusSection = sectionMap.get("## 状态")?.[0]?.content;
   if (statusSection) {
     bodyStatus = requireSingleField(relativePath, statusSection, "当前状态", errors);
@@ -288,9 +428,21 @@ async function validateDecisionBody(options: {
           if (target === relativePath) {
             errors.push(relativePath + " must not use itself as a status cause");
           }
+
+          if (target) {
+            statusCauseTargets.push(target);
+          }
         }
       }
     }
+
+    relations = await validateDecisionRelations({
+      decisionPath,
+      decisionsDirectory,
+      errors,
+      relativePath,
+      statusSection
+    });
   }
 
   const decisionSection = sectionMap.get("## 决定")?.[0]?.content;
@@ -304,6 +456,8 @@ async function validateDecisionBody(options: {
     datePrefix,
     fileStatus,
     fullDate,
+    relations,
+    statusCauseTargets,
     title
   };
 }
@@ -519,6 +673,8 @@ export async function scanDecisionRecords(options: DecisionScanOptions = {}): Pr
       errors.push(indexRelativePath + " must describe impact area " + areaId);
     }
   }
+
+  validateDecisionRelationConsistency(records, errors);
 
   return {
     areaIds,

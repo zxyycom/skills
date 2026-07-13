@@ -44,8 +44,9 @@
 
 `decision-records-skill`：
 
-1. [active: 2026-07-11 - 使用显式确认控制决策写入](decision-records-skill/260711-active-require-confirmed-decision-writes.md)
-2. [active: 2026-07-10 - 使用 CLI 维护活动索引并归档失效决策](decision-records-skill/260710-active-use-cli-active-index-and-invalidated-archive.md)
+1. [active: 2026-07-13 - 在长期行为变更前恢复决策并显式处理偏离](decision-records-skill/260713-active-recall-before-long-lived-changes.md)
+2. [active: 2026-07-11 - 使用显式确认控制决策写入](decision-records-skill/260711-active-require-confirmed-decision-writes.md)
+3. [active: 2026-07-10 - 使用 CLI 维护活动索引并归档失效决策](decision-records-skill/260710-active-use-cli-active-index-and-invalidated-archive.md)
 
 `git-commit-organizer-behavior`：
 

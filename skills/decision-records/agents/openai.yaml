@@ -1,4 +1,4 @@
 interface:
-  display_name: "决策记录"
-  short_description: "恢复、确认并维护可回放的 Markdown 决策记录"
-  default_prompt: "使用 $decision-records 恢复已生效决策，并在重要长期取舍形成时先给出概览，确认后记录。"
+  display_name: "长期决策记忆"
+  short_description: "恢复并维护可审计、可演进的长期决策记忆"
+  default_prompt: "使用 $decision-records 在长期行为变更前恢复相关 active 决策；发现偏离时区分一次性例外、长期修订或一致性问题，新取舍确认后再记录。"

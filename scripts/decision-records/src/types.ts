@@ -13,6 +13,20 @@ export function isDecisionStatus(value: string): value is DecisionStatus {
   return decisionStatusSet.has(value);
 }
 
+export const decisionRelationTypes = [
+  "修订",
+  "替代",
+  "判定无效",
+  "归并"
+] as const;
+
+export type DecisionRelationType = typeof decisionRelationTypes[number];
+
+export type DecisionRelation = {
+  target: string;
+  type: DecisionRelationType;
+};
+
 export type DecisionRecord = {
   archived: boolean;
   areaId: string;
@@ -22,7 +36,9 @@ export type DecisionRecord = {
   fileName: string;
   fileStatus: string | undefined;
   fullDate: string | null;
+  relations: DecisionRelation[];
   relativePath: string;
+  statusCauseTargets: string[];
   title: string;
 };
 

@@ -27,7 +27,7 @@ const generatedUpdaterPath = path.join(
 const validation = await validateDecisionRecords({ workspaceRoot: fixtureRoot });
 assert.deepEqual(validation.errors, []);
 assert.equal(validation.areaCount, 1);
-assert.equal(validation.decisionCount, 1);
+assert.equal(validation.decisionCount, 2);
 assert.equal(validation.activeCount, 1);
 
 const cliOutput = execFileSync(
@@ -35,7 +35,7 @@ const cliOutput = execFileSync(
   [generatedCliPath, "check", "--root", fixtureRoot],
   { encoding: "utf8" }
 );
-assert.match(cliOutput, /Decision records check passed \(1 areas, 1 decisions, 1 active, 0 archived\)\./);
+assert.match(cliOutput, /Decision records check passed \(1 areas, 2 decisions, 1 active, 0 archived\)\./);
 
 const cliSource = await fs.readFile(generatedCliPath, "utf8");
 assert.match(cliSource, /Repository: https:\/\/github\.com\/zxyycom\/skills/);
@@ -64,6 +64,47 @@ try {
     (error) => error.includes("root contains unsupported file decision-record-rules.md")
   ));
   await fs.rm(copiedContractPath);
+
+  const activeDecisionPath = path.join(
+    tempRoot,
+    "docs",
+    "decisions",
+    "tooling",
+    "260711-active-use-generated-cli.md"
+  );
+  const activeDecision = await fs.readFile(activeDecisionPath, "utf8");
+  await fs.writeFile(
+    activeDecisionPath,
+    activeDecision.replace("- 修订:", "- 替代:"),
+    "utf8"
+  );
+  const withWrongRelationStatus = await validateDecisionRecords({ workspaceRoot: tempRoot });
+  assert.ok(withWrongRelationStatus.errors.some(
+    (error) => error.includes("relationship 替代 target must have status superseded")
+  ));
+  await fs.writeFile(activeDecisionPath, activeDecision, "utf8");
+
+  const amendedDecisionPath = path.join(
+    tempRoot,
+    "docs",
+    "decisions",
+    "tooling",
+    "260710-amended-use-source-cli.md"
+  );
+  const amendedDecision = await fs.readFile(amendedDecisionPath, "utf8");
+  await fs.writeFile(
+    amendedDecisionPath,
+    amendedDecision.replace(
+      "[2026-07-11 - 使用生成 CLI](260711-active-use-generated-cli.md)",
+      "无"
+    ),
+    "utf8"
+  );
+  const withoutRelationBacklink = await validateDecisionRecords({ workspaceRoot: tempRoot });
+  assert.ok(withoutRelationBacklink.errors.some(
+    (error) => error.includes("target must link back through 导致状态变化的决策")
+  ));
+  await fs.writeFile(amendedDecisionPath, amendedDecision, "utf8");
 
   const indexPath = path.join(tempRoot, "docs", "decisions", "decision-record-index.md");
   const index = await fs.readFile(indexPath, "utf8");
