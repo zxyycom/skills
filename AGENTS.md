@@ -20,7 +20,7 @@
    - `git-commit-organizer`: 整理当前 Git 改动并创建范围清楚、信息可追踪的提交。
    - `openspec-explore`、`openspec-propose`、`openspec-apply-change`、`openspec-archive-change`: 覆盖 OpenSpec change 的探索、提案、实施和归档流程。
    - `codex-shell-permissions`: 指导 shell 失败后的下一步命令选择, 并在用户要求时维护 Codex 权限 rules。
-   - `decision-records`: 发现、审阅和维护可回放的决策记录、状态关系与索引。
+   - `decision-records`: 恢复、审阅和维护可回放的长期决策、JSON 当前索引与历史关系。
    - `subagent-orchestration`: 编排边界清楚的子代理任务, 并控制主线程上下文和并行协作范围。
 5. 仓库内 skill 的实际清单以 `skills/*/SKILL.md` 为准; 新增、重命名或移除 skill 时同步更新本节概览。
 
@@ -30,7 +30,7 @@
 2. `docs/skills/<skill-name>.md` 或集合说明文档承接面向人类阅读的 skill 介绍、项目起点和发展方向; 这些内容不进入 skill zip, 也不作为 agent 执行时必须读取的 skill 本体。
 3. 主仓库承接跨 skill 共享的校验、打包、聚合发布、依赖入口、CI 和自动化。
 4. `docs/tooling.md` 承接脚本、安装、校验、打包、CI 和发布细节; `README.md` 只保留项目入口说明。
-5. `skills/decision-records/references/decision-record-rules.md` 是决策记录格式、状态关系和维护事务的唯一固定契约; `docs/decisions/decision-record-index.md` 承接本仓库决策清单和影响面导航, 项目专属记录门槛由本文件承接。
+5. `skills/decision-records/references/decision-record-rules.md` 是决策记录格式、当前成员、历史关系和维护事务的唯一固定契约; `docs/decisions/decision-index.json` 承接本仓库当前决策索引, 项目专属记录门槛由本文件承接。
 6. `AGENTS.md` 只承接项目级 agent 协作约定; skill 专属规则、工具链细节和单条决策原因应写入各自 owner。
 7. 同一判断只在最稳定的 owner 位置完整解释; 非 owner 位置只保留摘要、触发条件或引用。
 

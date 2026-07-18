@@ -7,27 +7,27 @@ import { pathToFileURL } from "node:url";
 import { parseArgs as parseNodeArgs } from "node:util";
 import { expectedIndex, validateDecisionRecords } from "./index.ts";
 import { scanDecisionRecords } from "./scan.ts";
-import {
-  compareDecisionRecords,
-  decisionStatuses,
-  isDecisionStatus,
-  type DecisionStatus
-} from "./types.ts";
+import { compareDecisionRecords, type DecisionScan } from "./types.ts";
 
-type Command = "check" | "list" | "sync-index";
+type Command = "activate" | "archive" | "check" | "list" | "sync-index" | "trace";
 
 const commandSet: ReadonlySet<string> = new Set<Command>([
+  "activate",
+  "archive",
   "check",
   "list",
-  "sync-index"
+  "sync-index",
+  "trace"
 ]);
 
 type CliArgs = {
   all: boolean;
+  archived: boolean;
+  byPath: string | null;
   command: Command;
   decisionsDir: string;
   help: boolean;
-  statusText: string | null;
+  recordPaths: string[];
   workspaceRoot: string;
   write: boolean;
 };
@@ -36,22 +36,30 @@ function usage(): string {
   return [
     "Usage:",
     "  node decision-records.mjs [check] [options]",
-    "  node decision-records.mjs list [--all | --status <statuses>] [options]",
+    "  node decision-records.mjs list [--archived | --all] [options]",
+    "  node decision-records.mjs trace <decision-path> [options]",
     "  node decision-records.mjs sync-index [--write] [options]",
+    "  node decision-records.mjs activate <decision-path> [options]",
+    "  node decision-records.mjs archive <decision-path...> [--by <decision-path>] [options]",
     "",
     "Commands:",
-    "  check       Validate directories, files, statuses, links, and the active index.",
-    "  list        List active decisions by default. Use --all or --status for history.",
-    "  sync-index  Check the generated active section. Use --write to update the index.",
+    "  check       Validate path format, Markdown records, relations, and the JSON index.",
+    "  list        List current decisions by default. Use --archived or --all for history.",
+    "  trace       Trace direct and transitive relations in both directions.",
+    "  sync-index  Refresh generated title, background, decision, and sorting without changing membership.",
+    "  activate    Add an existing decision file to the current index.",
+    "  archive     Remove a decision from the current index, optionally activating its successor.",
     "",
     "Options:",
     "  --root <path>           Workspace root. Defaults to the current directory.",
     "  --decisions-dir <path>  Decision directory. Defaults to docs/decisions under --root.",
-    "  --all                   Include all statuses with list.",
-    "  --status <statuses>     Comma-separated statuses for list.",
-    "  --write                 Apply sync-index changes to decision-record-index.md.",
+    "  --archived              List only logically archived decisions.",
+    "  --all                   List current and logically archived decisions.",
+    "  --by <decision-path>    Successor to activate in the same validated membership update.",
+    "  --write                 Apply sync-index metadata changes.",
     "  -h, --help              Show this help text.",
     "",
+    "Decision paths are relative to the decision directory, for example topic/260713-title.md.",
     "Exit codes: 0 success, 1 validation or index drift, 2 invalid arguments."
   ].join("\n");
 }
@@ -62,18 +70,15 @@ function parseArgs(argv: string[]): CliArgs {
     args: argv,
     options: {
       all: { type: "boolean" },
+      archived: { type: "boolean" },
+      by: { type: "string" },
       "decisions-dir": { type: "string" },
       help: { short: "h", type: "boolean" },
       root: { type: "string" },
-      status: { type: "string" },
       write: { type: "boolean" }
     },
     strict: true
   });
-
-  if (positionals.length > 1) {
-    throw new Error("Unsupported argument: " + positionals[1]);
-  }
 
   const candidate = positionals[0] ?? "check";
   if (!commandSet.has(candidate)) {
@@ -81,60 +86,54 @@ function parseArgs(argv: string[]): CliArgs {
   }
 
   const command = candidate as Command;
+  const recordPaths = positionals.slice(1);
+
   const all = values.all ?? false;
-  const statusText = values.status ?? null;
+  const archived = values.archived ?? false;
+  const byPath = values.by ?? null;
   const write = values.write ?? false;
 
-  if (command !== "list" && (all || statusText !== null)) {
-    throw new Error("--all and --status are only valid with list");
+  if (command !== "list" && (all || archived)) {
+    throw new Error("--all and --archived are only valid with list");
   }
-
+  if (all && archived) {
+    throw new Error("Use either --all or --archived, not both");
+  }
   if (command !== "sync-index" && write) {
     throw new Error("--write is only valid with sync-index");
   }
-
-  if (all && statusText !== null) {
-    throw new Error("Use either --all or --status, not both");
+  if (command !== "archive" && byPath !== null) {
+    throw new Error("--by is only valid with archive");
+  }
+  if ((command === "activate" || command === "archive" || command === "trace")
+    && recordPaths.length === 0) {
+    throw new Error(command + " requires a decision path");
+  }
+  if ((command === "activate" || command === "trace") && recordPaths.length > 1) {
+    throw new Error(command + " accepts exactly one decision path");
+  }
+  if (command !== "activate"
+    && command !== "archive"
+    && command !== "trace"
+    && recordPaths.length > 0) {
+    throw new Error(command + " does not accept a decision path");
   }
 
   return {
     all,
+    archived,
+    byPath,
     command,
     decisionsDir: values["decisions-dir"] ?? "docs/decisions",
     help: values.help ?? false,
-    statusText,
+    recordPaths,
     workspaceRoot: values.root ?? process.cwd(),
     write
   };
 }
 
-function selectedStatuses(args: CliArgs): Set<DecisionStatus> {
-  if (args.all) {
-    return new Set(decisionStatuses);
-  }
-
-  if (args.statusText === null) {
-    return new Set(["active"]);
-  }
-
-  const statuses = args.statusText
-    .split(",")
-    .map((status) => status.trim())
-    .filter((status) => status.length > 0);
-
-  if (statuses.length === 0) {
-    throw new Error("--status must include at least one status");
-  }
-
-  const selected = new Set<DecisionStatus>();
-  for (const status of statuses) {
-    if (!isDecisionStatus(status)) {
-      throw new Error("Unsupported decision status: " + status);
-    }
-    selected.add(status);
-  }
-
-  return selected;
+function normalizeDecisionPath(value: string): string {
+  return value.replace(/\\/g, "/").replace(/^\.\//, "");
 }
 
 function printErrors(errors: string[]): void {
@@ -161,8 +160,8 @@ async function runCheck(args: CliArgs): Promise<number> {
     + " areas, "
     + result.decisionCount
     + " decisions, "
-    + result.activeCount
-    + " active, "
+    + result.currentCount
+    + " current, "
     + result.archivedCount
     + " archived)."
   );
@@ -170,32 +169,27 @@ async function runCheck(args: CliArgs): Promise<number> {
 }
 
 async function runList(args: CliArgs): Promise<number> {
-  const scan = await scanDecisionRecords({
+  const result = await validateDecisionRecords({
     decisionsDir: args.decisionsDir,
     workspaceRoot: args.workspaceRoot
   });
-  if (scan.errors.length > 0) {
-    printErrors(scan.errors);
+  if (result.errors.length > 0) {
+    printErrors(result.errors);
     return 1;
   }
 
-  const statuses = selectedStatuses(args);
-  const records = scan.records
-    .filter(
-      (record) => record.fileStatus !== undefined
-        && isDecisionStatus(record.fileStatus)
-        && statuses.has(record.fileStatus)
-    )
+  const records = result.scan.records
+    .filter((record) => args.all || (args.archived ? record.archived : record.current))
     .sort(compareDecisionRecords);
 
   if (records.length === 0) {
-    console.log("No decisions matched the selected statuses.");
+    console.log("No decisions matched the selected lifecycle.");
     return 0;
   }
 
   for (const record of records) {
     console.log(
-      (record.fileStatus ?? "").padEnd(11)
+      (record.current ? "current" : "archived").padEnd(8)
       + " "
       + record.fullDate
       + " "
@@ -207,11 +201,93 @@ async function runList(args: CliArgs): Promise<number> {
   return 0;
 }
 
+async function runTrace(args: CliArgs): Promise<number> {
+  const result = await validateDecisionRecords({
+    decisionsDir: args.decisionsDir,
+    workspaceRoot: args.workspaceRoot
+  });
+  if (result.errors.length > 0) {
+    printErrors(result.errors);
+    return 1;
+  }
+
+  const recordPath = args.recordPaths[0];
+  const start = recordPath === undefined ? null : findRecord(result.scan, recordPath);
+  if (!start) {
+    console.error("Decision does not exist: " + recordPath);
+    return 1;
+  }
+
+  const edges = result.scan.records.flatMap((record) =>
+    record.relations.map((relation) => ({
+      source: record.relativePath,
+      target: relation.target,
+      type: relation.type
+    }))
+  );
+  const edgesByPath = new Map<string, typeof edges>();
+  for (const edge of edges) {
+    for (const recordPath of [edge.source, edge.target]) {
+      const entries = edgesByPath.get(recordPath) ?? [];
+      entries.push(edge);
+      edgesByPath.set(recordPath, entries);
+    }
+  }
+
+  const tracedPaths = new Set<string>();
+  const pendingPaths = [start.relativePath];
+  while (pendingPaths.length > 0) {
+    const currentPath = pendingPaths.shift();
+    if (currentPath === undefined || tracedPaths.has(currentPath)) {
+      continue;
+    }
+    tracedPaths.add(currentPath);
+    for (const edge of edgesByPath.get(currentPath) ?? []) {
+      pendingPaths.push(edge.source, edge.target);
+    }
+  }
+
+  console.log("Decisions:");
+  for (const record of result.scan.records
+    .filter((candidate) => tracedPaths.has(candidate.relativePath))
+    .sort(compareDecisionRecords)) {
+    console.log(
+      "- "
+      + (record.current ? "current" : "archived")
+      + " "
+      + record.relativePath
+      + " - "
+      + record.title
+    );
+  }
+
+  const tracedEdges = edges
+    .filter((edge) => tracedPaths.has(edge.source) && tracedPaths.has(edge.target))
+    .sort((left, right) =>
+      left.source.localeCompare(right.source)
+      || left.type.localeCompare(right.type)
+      || left.target.localeCompare(right.target)
+    );
+  console.log("Relations:");
+  if (tracedEdges.length === 0) {
+    console.log("- none");
+  } else {
+    for (const edge of tracedEdges) {
+      console.log("- " + edge.source + " --" + edge.type + "--> " + edge.target);
+    }
+  }
+  return 0;
+}
+
 async function runSyncIndex(args: CliArgs): Promise<number> {
   const scan = await scanDecisionRecords({
     decisionsDir: args.decisionsDir,
     workspaceRoot: args.workspaceRoot
   });
+  if (scan.index === null) {
+    printErrors(scan.errors);
+    return 1;
+  }
   if (scan.errors.length > 0) {
     printErrors(scan.errors);
     return 1;
@@ -223,21 +299,148 @@ async function runSyncIndex(args: CliArgs): Promise<number> {
     return 1;
   }
 
-  const current = scan.index.replace(/\r\n/g, "\n");
+  const current = scan.indexText.replace(/\r\n/g, "\n");
   if (current === generated.text) {
-    console.log("Active decision index is current.");
+    console.log("Current decision index is up to date.");
     return 0;
   }
 
   if (!args.write) {
-    console.error("Active decision index is out of sync.");
+    console.error("Current decision index is out of sync.");
     console.error("Run sync-index --write to update " + scan.indexRelativePath + ".");
     return 1;
   }
 
   await fs.writeFile(scan.indexPath, generated.text, "utf8");
-  console.log("Updated " + scan.indexRelativePath + " with active decisions.");
+  const validation = await validateDecisionRecords({
+    decisionsDir: args.decisionsDir,
+    workspaceRoot: args.workspaceRoot
+  });
+  if (validation.errors.length > 0) {
+    await fs.writeFile(scan.indexPath, scan.indexText, "utf8");
+    printErrors(validation.errors);
+    return 1;
+  }
+
+  console.log("Updated " + scan.indexRelativePath + " metadata without changing membership.");
   return 0;
+}
+
+function findRecord(scan: DecisionScan, value: string) {
+  const recordPath = normalizeDecisionPath(value);
+  return scan.records.find((record) => record.relativePath === recordPath) ?? null;
+}
+
+async function applyMembership(
+  args: CliArgs,
+  scan: DecisionScan,
+  currentPaths: Set<string>,
+  successMessage: string
+): Promise<number> {
+  const generated = expectedIndex(scan, currentPaths);
+  if (generated.errors.length > 0 || generated.text === null) {
+    printErrors(generated.errors);
+    return 1;
+  }
+
+  await fs.writeFile(scan.indexPath, generated.text, "utf8");
+  const validation = await validateDecisionRecords({
+    decisionsDir: args.decisionsDir,
+    workspaceRoot: args.workspaceRoot
+  });
+  if (validation.errors.length > 0) {
+    await fs.writeFile(scan.indexPath, scan.indexText, "utf8");
+    printErrors(validation.errors);
+    return 1;
+  }
+
+  console.log(successMessage);
+  return 0;
+}
+
+async function runActivate(args: CliArgs): Promise<number> {
+  const scan = await scanDecisionRecords({
+    decisionsDir: args.decisionsDir,
+    workspaceRoot: args.workspaceRoot
+  });
+  const recordPath = args.recordPaths[0];
+  if (scan.index === null || recordPath === undefined) {
+    printErrors(scan.errors);
+    return 1;
+  }
+
+  const record = findRecord(scan, recordPath);
+  if (!record) {
+    console.error("Decision does not exist: " + recordPath);
+    return 1;
+  }
+  if (scan.currentPaths.has(record.relativePath)) {
+    console.log("Decision is already current: " + record.relativePath);
+    return 0;
+  }
+
+  const currentPaths = new Set(scan.currentPaths);
+  currentPaths.add(record.relativePath);
+  return await applyMembership(
+    args,
+    scan,
+    currentPaths,
+    "Activated " + record.relativePath + "."
+  );
+}
+
+async function runArchive(args: CliArgs): Promise<number> {
+  const scan = await scanDecisionRecords({
+    decisionsDir: args.decisionsDir,
+    workspaceRoot: args.workspaceRoot
+  });
+  if (scan.index === null || args.recordPaths.length === 0) {
+    printErrors(scan.errors);
+    return 1;
+  }
+
+  const currentPaths = new Set(scan.currentPaths);
+  const records = [];
+  const seenRecordPaths = new Set<string>();
+  for (const recordPath of args.recordPaths) {
+    const record = findRecord(scan, recordPath);
+    if (!record) {
+      console.error("Decision does not exist: " + recordPath);
+      return 1;
+    }
+    if (!scan.currentPaths.has(record.relativePath)) {
+      console.error("Decision is already archived: " + record.relativePath);
+      return 1;
+    }
+    if (seenRecordPaths.has(record.relativePath)) {
+      console.error("Decision path is repeated: " + record.relativePath);
+      return 1;
+    }
+    seenRecordPaths.add(record.relativePath);
+    records.push(record);
+    currentPaths.delete(record.relativePath);
+  }
+  let successorMessage = "";
+  if (args.byPath !== null) {
+    const successor = findRecord(scan, args.byPath);
+    if (!successor) {
+      console.error("Successor decision does not exist: " + args.byPath);
+      return 1;
+    }
+    if (seenRecordPaths.has(successor.relativePath)) {
+      console.error("Successor must not also be archived: " + successor.relativePath);
+      return 1;
+    }
+    currentPaths.add(successor.relativePath);
+    successorMessage = " and activated " + successor.relativePath;
+  }
+
+  return await applyMembership(
+    args,
+    scan,
+    currentPaths,
+    "Archived " + records.map((record) => record.relativePath).join(", ") + successorMessage + "."
+  );
 }
 
 function isMainModule(): boolean {
@@ -259,8 +462,14 @@ async function main(): Promise<void> {
       exitCode = await runCheck(args);
     } else if (args.command === "list") {
       exitCode = await runList(args);
-    } else {
+    } else if (args.command === "trace") {
+      exitCode = await runTrace(args);
+    } else if (args.command === "sync-index") {
       exitCode = await runSyncIndex(args);
+    } else if (args.command === "activate") {
+      exitCode = await runActivate(args);
+    } else {
+      exitCode = await runArchive(args);
     }
     process.exit(exitCode);
   } catch (error) {

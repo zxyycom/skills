@@ -1,4 +1,4 @@
 interface:
   display_name: "长期决策记忆"
   short_description: "恢复并维护可审计、可演进的长期决策记忆"
-  default_prompt: "使用 $decision-records 在长期行为变更前恢复相关 active 决策；发现偏离时区分一次性例外、长期修订或一致性问题，新取舍确认后再记录。"
+  default_prompt: "使用 $decision-records 从 JSON 当前索引恢复相关长期决策；发现偏离时分类处理，确认新方向后用稳定 Markdown 路径和直接关系更新当前集合。"

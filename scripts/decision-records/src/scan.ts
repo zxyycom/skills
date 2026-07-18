@@ -14,45 +14,34 @@ import {
 } from "./markdown.ts";
 import {
   decisionRelationTypes,
-  decisionStatusSet,
-  type DecisionRelation,
+  type DecisionIndex,
+  type DecisionIndexEntry,
   type DecisionRecord,
+  type DecisionRelation,
   type DecisionRelationType,
   type DecisionScan,
   type DecisionScanOptions,
-  type DecisionStatus,
   type MarkdownSection
 } from "./types.ts";
 
-const allowedRootFiles = new Set([
-  "decision-record-index.md"
-]);
+const indexFileName = "decision-index.json";
+const allowedRootFiles = new Set([indexFileName]);
 const sectionOrder = [
-  "## 状态",
-  "## 问题",
-  "## 背景与约束",
-  "## 决策过程",
+  "## 索引摘要",
+  "## 背景",
   "## 决定",
-  "## 影响",
-  "## 验证"
+  "## 关系"
 ];
 const requiredSections = new Set([
-  "## 状态",
-  "## 问题",
-  "## 决定",
-  "## 影响",
-  "## 验证"
+  "## 索引摘要",
+  "## 背景",
+  "## 决定"
 ]);
 const impactAreaPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const decisionFilePattern = /^(\d{6})-([a-z]+)-([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/;
-const decisionRelativePathPattern = /^(?:archive\/)?[a-z0-9]+(?:-[a-z0-9]+)*\/\d{6}-[a-z]+-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
+const decisionFilePattern = /^(\d{6})-([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/;
+const decisionRelativePathPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*\/\d{6}-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 const decisionRelationTypeSet: ReadonlySet<string> = new Set(decisionRelationTypes);
-const relationExpectedStatus: Record<DecisionRelationType, DecisionStatus> = {
-  "修订": "amended",
-  "替代": "superseded",
-  "判定无效": "invalidated",
-  "归并": "superseded"
-};
+const allowedRelationLabels = new Set<string>(decisionRelationTypes);
 
 function displayPath(workspaceRoot: string, targetPath: string): string {
   const relativePath = path.relative(workspaceRoot, targetPath);
@@ -91,7 +80,6 @@ function fullDateFromCompactPrefix(dateText: string): string | null {
 
 function parseDecisionFileName(fileName: string): {
   datePrefix: string;
-  status: string;
   titleSlug: string;
 } | null {
   const match = fileName.match(decisionFilePattern);
@@ -101,9 +89,92 @@ function parseDecisionFileName(fileName: string): {
 
   return {
     datePrefix: match[1],
-    status: match[2],
-    titleSlug: match[3]
+    titleSlug: match[2]
   };
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function parseIndex(indexText: string, indexRelativePath: string, errors: string[]): DecisionIndex | null {
+  const initialErrorCount = errors.length;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(indexText);
+  } catch (error) {
+    errors.push(
+      indexRelativePath
+      + " must contain valid JSON: "
+      + (error instanceof Error ? error.message : String(error))
+    );
+    return null;
+  }
+
+  if (!isObject(parsed)) {
+    errors.push(indexRelativePath + " must contain a JSON object");
+    return null;
+  }
+
+  const rootKeys = Object.keys(parsed).sort();
+  if (rootKeys.join(",") !== "current,schemaVersion") {
+    errors.push(indexRelativePath + " must contain only schemaVersion and current");
+  }
+
+  if (parsed.schemaVersion !== 1) {
+    errors.push(indexRelativePath + " schemaVersion must be 1");
+  }
+
+  if (!Array.isArray(parsed.current)) {
+    errors.push(indexRelativePath + " current must be an array");
+    return null;
+  }
+
+  const current: DecisionIndexEntry[] = [];
+  const seenPaths = new Set<string>();
+  for (let index = 0; index < parsed.current.length; index += 1) {
+    const value: unknown = parsed.current[index];
+    const label = indexRelativePath + " current[" + index + "]";
+    if (!isObject(value)) {
+      errors.push(label + " must be an object");
+      continue;
+    }
+
+    const keys = Object.keys(value).sort();
+    if (keys.join(",") !== "background,decision,path,title") {
+      errors.push(label + " must contain only path, title, background, and decision");
+    }
+
+    const recordPath = value.path;
+    const title = value.title;
+    const background = value.background;
+    const decision = value.decision;
+    if (typeof background !== "string" || background.trim().length === 0) {
+      errors.push(label + " background must be a non-empty string");
+      continue;
+    }
+    if (typeof decision !== "string" || decision.trim().length === 0) {
+      errors.push(label + " decision must be a non-empty string");
+      continue;
+    }
+    if (typeof recordPath !== "string" || !decisionRelativePathPattern.test(recordPath)) {
+      errors.push(label + " path must be a relative decision path");
+      continue;
+    }
+    if (typeof title !== "string" || title.trim().length === 0) {
+      errors.push(label + " title must be a non-empty string");
+      continue;
+    }
+    if (seenPaths.has(recordPath)) {
+      errors.push(indexRelativePath + " repeats current decision " + recordPath);
+      continue;
+    }
+
+    seenPaths.add(recordPath);
+    current.push({ background, decision, path: recordPath, title });
+  }
+
+  return errors.length === initialErrorCount ? { current, schemaVersion: 1 } : null;
 }
 
 async function validateDecisionLink(options: {
@@ -161,51 +232,23 @@ async function validateDecisionRelations(options: {
   decisionPath: string;
   decisionsDirectory: string;
   errors: string[];
+  relationSection: string;
   relativePath: string;
-  statusSection: string;
 }): Promise<DecisionRelation[]> {
   const {
     decisionPath,
     decisionsDirectory,
     errors,
-    relativePath,
-    statusSection
+    relationSection,
+    relativePath
   } = options;
-  const subheadings = [...statusSection.matchAll(/^### ([^\n]+)$/gm)];
-  const relationHeadings = subheadings.filter((match) => match[1].trim() === "关系");
-
-  for (const heading of subheadings) {
-    if (heading[1].trim() !== "关系") {
-      errors.push(relativePath + " has unsupported status subsection ### " + heading[1].trim());
-    }
-  }
-
-  if (relationHeadings.length > 1) {
-    errors.push(relativePath + " contains status subsection ### 关系 more than once");
-  }
-
-  const heading = relationHeadings[0];
-  if (!heading) {
-    return [];
-  }
-
-  const headingIndex = heading.index ?? 0;
-  const lineEnd = statusSection.indexOf("\n", headingIndex);
-  const contentStart = lineEnd >= 0 ? lineEnd + 1 : statusSection.length;
-  const nextHeading = subheadings.find((candidate) => (candidate.index ?? 0) > headingIndex);
-  const contentEnd = nextHeading?.index ?? statusSection.length;
-  const relationContent = statusSection.slice(contentStart, contentEnd).trim();
-  if (relationContent.length === 0) {
-    errors.push(relativePath + " status subsection ### 关系 must not be empty");
-    return [];
-  }
-
   const relations: DecisionRelation[] = [];
   const relationKeys = new Set<string>();
-  for (const line of relationContent.split("\n").map((value) => value.trim()).filter(Boolean)) {
+
+  for (const line of relationSection.split("\n").map((value) => value.trim()).filter(Boolean)) {
     const match = line.match(/^- ([^:]+):\s*(.*?)\s*$/);
-    const relationType = match?.[1].trim();
-    if (!match || !relationType || !decisionRelationTypeSet.has(relationType)) {
+    const label = match?.[1].trim();
+    if (!match || !label || !allowedRelationLabels.has(label)) {
       errors.push(relativePath + " has unsupported relationship entry: " + line);
       continue;
     }
@@ -214,7 +257,7 @@ async function validateDecisionRelations(options: {
       (target) => target.kind === "link"
     );
     if (links.length === 0) {
-      errors.push(relativePath + " relationship " + relationType + " must use an inline Markdown decision link");
+      errors.push(relativePath + " relationship " + label + " must use an inline Markdown decision link");
       continue;
     }
 
@@ -229,72 +272,36 @@ async function validateDecisionRelations(options: {
       if (!target) {
         continue;
       }
-
       if (target === relativePath) {
         errors.push(relativePath + " must not relate to itself");
         continue;
       }
 
-      const relationKey = relationType + "\u0000" + target;
+      const relationKey = label + "\u0000" + target;
       if (relationKeys.has(relationKey)) {
-        errors.push(relativePath + " repeats relationship " + relationType + " target " + target);
+        errors.push(relativePath + " repeats relationship " + label + " target " + target);
         continue;
       }
-
       relationKeys.add(relationKey);
-      relations.push({
-        target,
-        type: relationType as DecisionRelationType
-      });
+
+      if (decisionRelationTypeSet.has(label)) {
+        relations.push({ target, type: label as DecisionRelationType });
+      }
     }
   }
 
   return relations;
 }
 
-function validateDecisionRelationConsistency(records: DecisionRecord[], errors: string[]): void {
-  const recordByPath = new Map(records.map((record) => [record.relativePath, record]));
-
-  for (const record of records) {
-    for (const relation of record.relations) {
-      const target = recordByPath.get(relation.target);
-      if (!target) {
-        errors.push(record.relativePath + " relationship target is not a scanned decision: " + relation.target);
-        continue;
-      }
-
-      const expectedStatus = relationExpectedStatus[relation.type];
-      if (target.fileStatus !== expectedStatus) {
-        errors.push(
-          record.relativePath
-          + " relationship " + relation.type
-          + " target must have status " + expectedStatus
-          + ": " + relation.target
-        );
-      }
-
-      if (!target.statusCauseTargets.includes(record.relativePath)) {
-        errors.push(
-          record.relativePath
-          + " relationship " + relation.type
-          + " target must link back through 导致状态变化的决策: " + relation.target
-        );
-      }
-    }
-  }
-}
-
 async function validateDecisionBody(options: {
-  archived: boolean;
   body: string;
   decisionPath: string;
   decisionsDirectory: string;
   errors: string[];
   fileName: string;
   relativePath: string;
-}): Promise<Omit<DecisionRecord, "archived" | "areaId" | "decisionPath" | "fileName" | "relativePath">> {
+}): Promise<Omit<DecisionRecord, "archived" | "areaId" | "current" | "decisionPath" | "fileName" | "relativePath">> {
   const {
-    archived,
     body: rawBody,
     decisionPath,
     decisionsDirectory,
@@ -305,7 +312,6 @@ async function validateDecisionBody(options: {
   const body = rawBody.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
   const parsedFileName = parseDecisionFileName(fileName);
   const datePrefix = parsedFileName?.datePrefix ?? fileName.slice(0, 6);
-  const fileStatus = parsedFileName?.status;
   const fullDate = fullDateFromCompactPrefix(datePrefix);
   const expectedTitlePrefix = "# " + (fullDate ?? "YYYY-MM-DD") + " - ";
   const firstLine = body.split("\n", 1)[0];
@@ -314,27 +320,13 @@ async function validateDecisionBody(options: {
     : "";
 
   if (!parsedFileName) {
-    errors.push(relativePath + " must use file name format YYMMDD-<status>-short-title.md");
+    errors.push(relativePath + " must use stable file name format YYMMDD-short-title.md");
   }
-
   if (!fullDate) {
     errors.push(relativePath + " has an invalid date prefix");
   }
-
-  if (fileStatus && !decisionStatusSet.has(fileStatus)) {
-    errors.push(relativePath + " has unsupported status " + fileStatus);
-  }
-
   if (title.length === 0) {
     errors.push(relativePath + " must start with \"" + expectedTitlePrefix + "<标题>\"");
-  }
-
-  if (fileStatus === "invalidated" && !archived) {
-    errors.push(relativePath + " invalidated decisions must be stored under archive/<impact-area>/");
-  }
-
-  if (archived && fileStatus && fileStatus !== "invalidated") {
-    errors.push(relativePath + " archive may contain only invalidated decisions");
   }
 
   const sections = parseSections(body);
@@ -362,7 +354,6 @@ async function validateDecisionBody(options: {
     if (entries.length > 1) {
       errors.push(relativePath + " contains section " + sectionHeading + " more than once");
     }
-
     for (const entry of entries) {
       if (entry.content.length === 0) {
         errors.push(relativePath + " section " + sectionHeading + " must not be empty");
@@ -376,7 +367,6 @@ async function validateDecisionBody(options: {
     if (currentOrder < 0) {
       continue;
     }
-
     if (currentOrder < previousOrder) {
       errors.push(relativePath + " has sections out of order");
       break;
@@ -384,96 +374,63 @@ async function validateDecisionBody(options: {
     previousOrder = currentOrder;
   }
 
-  let bodyStatus: string | null = null;
-  let relations: DecisionRelation[] = [];
-  const statusCauseTargets: string[] = [];
-  const statusSection = sectionMap.get("## 状态")?.[0]?.content;
-  if (statusSection) {
-    bodyStatus = requireSingleField(relativePath, statusSection, "当前状态", errors);
-    const cause = requireSingleField(relativePath, statusSection, "导致状态变化的决策", errors);
-    requireSingleField(relativePath, statusSection, "状态说明", errors);
-
-    if (bodyStatus && fileStatus && bodyStatus !== fileStatus) {
-      errors.push(relativePath + " body status " + bodyStatus + " does not match file status " + fileStatus);
-    }
-
-    if (bodyStatus && !decisionStatusSet.has(bodyStatus)) {
-      errors.push(relativePath + " body has unsupported status " + bodyStatus);
-    }
-
-    if (cause && fileStatus === "active" && cause !== "无") {
-      errors.push(relativePath + " active decisions must use \"无\" as status cause");
-    }
-
-    if (cause && fileStatus && fileStatus !== "active") {
-      if (cause === "无") {
-        errors.push(relativePath + " non-active decisions must link to the later decision");
-      } else {
-        const causeLinks = extractMarkdownLinks(cause).targets.filter(
-          (target) => target.kind === "link"
-        );
-        if (causeLinks.length === 0) {
-          errors.push(relativePath + " non-active status cause must use an inline Markdown decision link");
-        }
-
-        for (const link of causeLinks) {
-          const target = await validateDecisionLink({
-            baseDirectory: path.dirname(decisionPath),
-            decisionsDirectory,
-            errors,
-            rawTarget: link.target,
-            relativeSourcePath: relativePath
-          });
-
-          if (target === relativePath) {
-            errors.push(relativePath + " must not use itself as a status cause");
-          }
-
-          if (target) {
-            statusCauseTargets.push(target);
-          }
-        }
-      }
-    }
-
-    relations = await validateDecisionRelations({
-      decisionPath,
-      decisionsDirectory,
-      errors,
+  let background = "";
+  let decision = "";
+  const summarySection = sectionMap.get("## 索引摘要")?.[0]?.content;
+  if (summarySection) {
+    background = requireSingleField(
       relativePath,
-      statusSection
-    });
+      summarySection,
+      "背景",
+      errors
+    ) ?? "";
+    decision = requireSingleField(
+      relativePath,
+      summarySection,
+      "决策",
+      errors
+    ) ?? "";
   }
 
   const decisionSection = sectionMap.get("## 决定")?.[0]?.content;
   if (decisionSection) {
     requireNonEmptyField(relativePath, decisionSection, "采用", errors);
-    requireNonEmptyField(relativePath, decisionSection, "触发条件", errors);
+  }
+
+  let relations: DecisionRelation[] = [];
+  const relationSection = sectionMap.get("## 关系")?.[0]?.content;
+  if (relationSection) {
+    relations = await validateDecisionRelations({
+      decisionPath,
+      decisionsDirectory,
+      errors,
+      relationSection,
+      relativePath
+    });
   }
 
   return {
-    bodyStatus,
+    background,
     datePrefix,
-    fileStatus,
+    decision,
     fullDate,
     relations,
-    statusCauseTargets,
     title
   };
 }
 
 async function scanArea(options: {
-  archived: boolean;
   areaId: string;
   areaPath: string;
+  currentPaths: Set<string>;
   decisionsDirectory: string;
   errors: string[];
   records: DecisionRecord[];
 }): Promise<void> {
   const {
-    archived,
     areaId,
     areaPath,
+    currentPaths,
     decisionsDirectory,
     errors,
     records
@@ -485,11 +442,7 @@ async function scanArea(options: {
   );
 
   if (markdownFiles.length === 0) {
-    errors.push(
-      (archived ? "Archived decision area" : "Decision impact area")
-      + " must contain at least one decision file: "
-      + areaId
-    );
+    errors.push("Decision area must contain at least one decision file: " + areaId);
   }
 
   for (const entry of areaEntries) {
@@ -502,12 +455,10 @@ async function scanArea(options: {
       errors.push("Decision area must not contain nested directories: " + relativePath);
       continue;
     }
-
     if (!entry.isFile()) {
       errors.push("Decision area contains unsupported entry: " + relativePath);
       continue;
     }
-
     if (!entry.name.endsWith(".md")) {
       errors.push("Decision area must contain only Markdown files: " + relativePath);
       continue;
@@ -516,7 +467,6 @@ async function scanArea(options: {
     const decisionPath = path.join(areaPath, entry.name);
     const body = await fs.readFile(decisionPath, "utf8");
     const metadata = await validateDecisionBody({
-      archived,
       body,
       decisionPath,
       decisionsDirectory,
@@ -524,10 +474,12 @@ async function scanArea(options: {
       fileName: entry.name,
       relativePath
     });
+    const current = currentPaths.has(relativePath);
 
     records.push({
-      archived,
+      archived: !current,
       areaId,
+      current,
       decisionPath,
       fileName: entry.name,
       relativePath,
@@ -536,44 +488,54 @@ async function scanArea(options: {
   }
 }
 
-async function scanArchive(options: {
-  archivePath: string;
-  areaIds: Set<string>;
-  decisionsDirectory: string;
-  errors: string[];
-  records: DecisionRecord[];
-}): Promise<void> {
-  const {
-    archivePath,
-    areaIds,
-    decisionsDirectory,
-    errors,
-    records
-  } = options;
-  const archiveEntries = await fs.readdir(archivePath, { withFileTypes: true });
-  archiveEntries.sort((left, right) => left.name.localeCompare(right.name));
+function validateIndexEntries(
+  index: DecisionIndex | null,
+  records: DecisionRecord[],
+  indexRelativePath: string,
+  errors: string[]
+): void {
+  if (!index) {
+    return;
+  }
 
-  for (const entry of archiveEntries) {
-    const entryPath = path.join(archivePath, entry.name);
-    if (!entry.isDirectory()) {
-      errors.push("docs/decisions/archive may contain only impact-area directories: " + entry.name);
-      continue;
+  const recordByPath = new Map(records.map((record) => [record.relativePath, record]));
+  for (const entry of index.current) {
+    const record = recordByPath.get(entry.path);
+    if (!record) {
+      errors.push(indexRelativePath + " references missing decision " + entry.path);
     }
+  }
+}
 
-    const areaId = entry.name;
-    areaIds.add(areaId);
-    if (!impactAreaPattern.test(areaId)) {
-      errors.push("Archived decision impact area must use kebab-case: " + areaId);
+function validateDecisionRelationConsistency(records: DecisionRecord[], errors: string[]): void {
+  const recordByPath = new Map(records.map((record) => [record.relativePath, record]));
+  const referencedTargets = new Set<string>();
+
+  for (const record of records) {
+    for (const relation of record.relations) {
+      const target = recordByPath.get(relation.target);
+      if (!target) {
+        errors.push(record.relativePath + " relationship target is not a scanned decision: " + relation.target);
+        continue;
+      }
+      referencedTargets.add(relation.target);
+      if (target.current) {
+        errors.push(
+          record.relativePath
+          + " relationship " + relation.type
+          + " target must be archived: " + relation.target
+        );
+      }
     }
+  }
 
-    await scanArea({
-      archived: true,
-      areaId,
-      areaPath: entryPath,
-      decisionsDirectory,
-      errors,
-      records
-    });
+  for (const record of records) {
+    if (record.archived && !referencedTargets.has(record.relativePath)) {
+      errors.push(
+        record.relativePath
+        + " archived decisions must be referenced by a decision relation"
+      );
+    }
   }
 }
 
@@ -587,17 +549,19 @@ export async function scanDecisionRecords(options: DecisionScanOptions = {}): Pr
   const records: DecisionRecord[] = [];
   const areaIds = new Set<string>();
   const decisionsLabel = displayPath(workspaceRoot, decisionsDirectory);
-  const indexPath = path.join(decisionsDirectory, "decision-record-index.md");
+  const indexPath = path.join(decisionsDirectory, indexFileName);
   const indexRelativePath = displayPath(workspaceRoot, indexPath);
 
   if (!await pathExists(decisionsDirectory)) {
     return {
       areaIds,
+      currentPaths: new Set(),
       decisionsDirectory,
       errors: [decisionsLabel + " is required"],
-      index: "",
+      index: null,
       indexPath,
       indexRelativePath,
+      indexText: "",
       records,
       workspaceRoot
     };
@@ -607,11 +571,13 @@ export async function scanDecisionRecords(options: DecisionScanOptions = {}): Pr
   if (!decisionsStat.isDirectory()) {
     return {
       areaIds,
+      currentPaths: new Set(),
       decisionsDirectory,
       errors: [decisionsLabel + " must be a directory"],
-      index: "",
+      index: null,
       indexPath,
       indexRelativePath,
+      indexText: "",
       records,
       workspaceRoot
     };
@@ -620,69 +586,52 @@ export async function scanDecisionRecords(options: DecisionScanOptions = {}): Pr
   if (!await pathExists(indexPath)) {
     errors.push(indexRelativePath + " is required");
   }
-
-  const index = await pathExists(indexPath) ? await fs.readFile(indexPath, "utf8") : "";
+  const indexText = await pathExists(indexPath) ? await fs.readFile(indexPath, "utf8") : "";
+  const index = indexText.length > 0 ? parseIndex(indexText, indexRelativePath, errors) : null;
+  const currentPaths = new Set(index?.current.map((entry) => entry.path) ?? []);
   const rootEntries = await fs.readdir(decisionsDirectory, { withFileTypes: true });
   rootEntries.sort((left, right) => left.name.localeCompare(right.name));
 
   for (const entry of rootEntries) {
     const entryPath = path.join(decisionsDirectory, entry.name);
-
     if (entry.isFile()) {
       if (!allowedRootFiles.has(entry.name)) {
         errors.push(decisionsLabel + " root contains unsupported file " + entry.name);
       }
       continue;
     }
-
     if (!entry.isDirectory()) {
       errors.push(decisionsLabel + " contains unsupported entry " + entry.name);
-      continue;
-    }
-
-    if (entry.name === "archive") {
-      await scanArchive({
-        archivePath: entryPath,
-        areaIds,
-        decisionsDirectory,
-        errors,
-        records
-      });
       continue;
     }
 
     const areaId = entry.name;
     areaIds.add(areaId);
     if (!impactAreaPattern.test(areaId)) {
-      errors.push("Decision impact area must use kebab-case: " + areaId);
+      errors.push("Decision area must use kebab-case: " + areaId);
     }
-
     await scanArea({
-      archived: false,
       areaId,
       areaPath: entryPath,
+      currentPaths,
       decisionsDirectory,
       errors,
       records
     });
   }
 
-  const backtick = String.fromCharCode(96);
-  for (const areaId of [...areaIds].sort()) {
-    if (!index.includes(backtick + areaId + backtick)) {
-      errors.push(indexRelativePath + " must describe impact area " + areaId);
-    }
-  }
-
+  validateIndexEntries(index, records, indexRelativePath, errors);
   validateDecisionRelationConsistency(records, errors);
 
   return {
     areaIds,
+    currentPaths,
     decisionsDirectory,
     errors,
     index,
     indexPath,
     indexRelativePath,
+    indexText,
     records,
     workspaceRoot
   };

@@ -30,7 +30,7 @@
 
 1. `bun run typecheck`: 使用 `tsgo --noEmit` 和根目录 `tsconfig.json` 检查 `scripts/**/*.ts`，不输出编译产物。
 2. `bun run validate`: 校验 `skills/` 下全部 skill 入口、内部链接、决策记录结构和主仓库项目配置。
-3. `bun run validate:decisions`: 通过 `decision-records` skill 的 CLI 单独校验 `docs/decisions/` 的目录、文件结构、正文状态、已生效决策索引、归档位置和状态来源链接目标。
+3. `bun run validate:decisions`: 通过 `decision-records` skill 的 CLI 单独校验 `docs/decisions/` 的目录、稳定文件名、正文结构、JSON 当前索引、逻辑归档和直接关系链接。
 4. `bun run hash:skills`: 计算当前 Git index 中所有 skill 打包输入的聚合 SHA-256 hash 和单 skill hash，并与根目录 `skill-package-lock.json` 对比；传入 `--write` 时写回当前状态，传入 `--check` 时不一致则失败，传入 `--quiet` 时只在 hash 或 lock 内容变化时输出。
 5. `bun run pack:skills`: 读取 Git index 中 `skills/<skill-name>/` 的 blob，将每个 skill 分别打包为 `dist/<skill-name>.zip`，并把 `skill-package-lock.json` 复制为 release manifest asset。
 6. `bun run setup-hooks`: 将主仓库 `core.hooksPath` 设置为 `.githooks`。
@@ -55,7 +55,7 @@
 7. 文件发现使用 `fast-glob`，避免在多个脚本中维护递归目录遍历。
 8. Skill frontmatter 使用 `yaml` 解析，避免手写 YAML 字符串解析。
 9. 打包脚本使用 `fflate` 生成 zip，只打包 `skills/<skill-name>/` 内文件，不把项目文档、CI、脚本或仓库元数据放进 skill zip；每次打包前清空 `dist/`，避免残留旧 skill 制品。
-10. Markdown 链接提取使用 `mdast-util-from-markdown` 解析 Markdown AST；脚本负责仓库路径、状态来源和项目约束校验。
+10. Markdown 链接提取使用 `mdast-util-from-markdown` 解析 Markdown AST；脚本负责仓库路径、决策关系和项目约束校验。
 11. Markdown 内部链接目标必须是仓库内路径且目标存在；`#anchor` 必须匹配目标 Markdown 文件中的标题锚点。
 12. 决策记录的独立入口和总校验直接复用 `scripts/decision-records/src/` 的同一套源码；分发 CLI 由逐字节生成检查和 Node 集成测试覆盖，避免仓库校验依赖生成文件或形成第二套规则。
 13. Skill 发布 hash 和 skill zip 都只覆盖会进入 skill zip 的文件路径和 Git blob 内容；`docs/skills/` 介绍页、项目文档、脚本和 CI 变化不直接触发 skill release。仓库脚本源码变化需要先同步为 skill 内生成产物，只有分发产物发生变化时才改变对应 hash。Hash 计算和打包都读取 Git index 中的 blob，避免 Windows 与 Linux 工作区换行差异导致本地 hook、CI 和 release asset 结果不一致。根目录 `skill-package-lock.json` 是唯一发布状态文件，记录聚合 hash 和每个 skill 的独立 hash。

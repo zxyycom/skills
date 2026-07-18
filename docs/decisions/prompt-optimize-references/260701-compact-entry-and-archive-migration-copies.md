@@ -1,0 +1,21 @@
+# 2026-07-01 - 压缩 prompt-optimize 入口并归档迁移副本
+
+## 索引摘要
+- 背景: `skills/prompt-optimize/SKILL.md` 在承接默认执行路径后, 同时保留了过多细则展开, 使用时需要关注的点过多。
+- 决策: `SKILL.md` 继续作为默认执行路径 owner, 但主执行流程只保留压缩后的八步判断链, 细节解释由 `principles.md` 和具体任务上下文承接。
+
+## 背景
+- `skills/prompt-optimize/SKILL.md` 在承接默认执行路径后, 同时保留了过多细则展开, 使用时需要关注的点过多。
+- `workflows.md` 和 `rewrite-rules.md` 已不参与主动读取, 继续放在 `references/` 根目录会让维护者误以为它们仍是普通引用文件。
+
+- 用户明确要求先尝试压缩入口, 且不要删除迁移保留文件, 而是移到 `references/archive/`。
+- 入口仍需要保留默认执行路径, 不能退回到必须读取旧 `workflows.md` 或 `rewrite-rules.md` 才能完成主流程。
+
+## 决定
+- 采用: `SKILL.md` 继续作为默认执行路径 owner, 但主执行流程只保留压缩后的八步判断链, 细节解释由 `principles.md` 和具体任务上下文承接。
+- 采用: `workflows.md` 和 `rewrite-rules.md` 移入 `skills/prompt-optimize/references/archive/`, 作为迁移前旧结构留存。
+- 采用: `references/archive/` 只作为文件保留位置, 不写入入口主动引用清单。
+- 不采用: 删除迁移副本。原因是用户要求保留, 且旧结构仍有回溯价值。
+
+## 关系
+- 修订: [将 prompt-optimize 核心流程合并回入口](260630-merge-prompt-optimize-core-flow-into-entry.md)

@@ -1,18 +1,3 @@
-export const decisionStatuses = [
-  "active",
-  "amended",
-  "superseded",
-  "invalidated"
-] as const;
-
-export type DecisionStatus = typeof decisionStatuses[number];
-
-export const decisionStatusSet: ReadonlySet<string> = new Set(decisionStatuses);
-
-export function isDecisionStatus(value: string): value is DecisionStatus {
-  return decisionStatusSet.has(value);
-}
-
 export const decisionRelationTypes = [
   "修订",
   "替代",
@@ -27,18 +12,30 @@ export type DecisionRelation = {
   type: DecisionRelationType;
 };
 
+export type DecisionIndexEntry = {
+  path: string;
+  title: string;
+  background: string;
+  decision: string;
+};
+
+export type DecisionIndex = {
+  current: DecisionIndexEntry[];
+  schemaVersion: 1;
+};
+
 export type DecisionRecord = {
   archived: boolean;
   areaId: string;
-  bodyStatus: string | null;
+  background: string;
+  current: boolean;
   datePrefix: string;
+  decision: string;
   decisionPath: string;
   fileName: string;
-  fileStatus: string | undefined;
   fullDate: string | null;
   relations: DecisionRelation[];
   relativePath: string;
-  statusCauseTargets: string[];
   title: string;
 };
 
@@ -59,19 +56,21 @@ export type DecisionScanOptions = {
 
 export type DecisionScan = {
   areaIds: Set<string>;
+  currentPaths: Set<string>;
   decisionsDirectory: string;
   errors: string[];
-  index: string;
+  index: DecisionIndex | null;
   indexPath: string;
   indexRelativePath: string;
+  indexText: string;
   records: DecisionRecord[];
   workspaceRoot: string;
 };
 
 export type DecisionValidationResult = {
-  activeCount: number;
   archivedCount: number;
   areaCount: number;
+  currentCount: number;
   decisionCount: number;
   errors: string[];
   scan: DecisionScan;
