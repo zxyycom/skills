@@ -104,6 +104,12 @@
       "decision": "派发前按当前工具能力确定最小充分的历史范围; 可控时显式配置, 默认不继承主线程对话, 必要时只继承最小有限范围, 仅在完整对话本身是不可替代输入时主动选择全量继承, 具体字段和值由工具接口承接。"
     },
     {
+      "path": "subagent-orchestration-behavior/260718-focus-description-on-trigger-context.md",
+      "title": "让子代理 skill 描述聚焦触发条件",
+      "background": "`skills/subagent-orchestration/SKILL.md` 的 `description` 同时枚举触发场景和历史、所有权、依赖、等待、审计等执行规则, 削弱了入口的触发信号并与正文重复。",
+      "decision": "`subagent-orchestration` 的 `description` 只承接一句大致定位和何时加载该 skill 的条件; 用户明确要求子代理, 或任务特征适合委派时触发, 具体执行规则留在正文。"
+    },
+    {
       "path": "subagent-orchestration-behavior/260712-separate-write-ownership-from-read-scope.md",
       "title": "区分并行写入所有权与只读调查范围",
       "background": "`skills/subagent-orchestration/SKILL.md` 原先要求子代理工作范围、文件范围和决策范围保持互斥, 没有区分写入所有权与只读证据范围。",
