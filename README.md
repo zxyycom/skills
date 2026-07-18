@@ -29,7 +29,7 @@
 
 [Codex Shell Permissions](docs/skills/codex-shell-permissions.md) 关注 Codex shell 失败后的下一步执行选择。它让 agent 判断应改用简单命令、申请必要提权、确认高风险范围，还是回到真实程序错误处理；当用户主动要求时，再进入 `execpolicy` 和 `allow/prompt/block` 的权限规则维护流程。实际 skill 位于 [`skills/codex-shell-permissions/`](skills/codex-shell-permissions/)。
 
-[Decision Records](docs/skills/decision-records.md) 提供一套跨项目复用的长期决策记忆方案和配套 CLI。它用稳定 Markdown 文件保存显式摘要、完整背景、决策和演进关系，用 JSON 索引保存当前判断的精简背景与决策，并支持结构检查、逻辑归档、关系链查询和校验式成员更新；实际 skill 位于 [`skills/decision-records/`](skills/decision-records/)。
+[Decision Records](docs/skills/decision-records.md) 提供一套跨项目复用的长期决策记忆方案和配套 CLI。它用稳定 Markdown 文件保存显式摘要、完整背景、决策和按需声明的演进关系，用 JSON 索引保存当前判断的精简背景与决策，并支持结构检查、独立逻辑归档、关系链查询和校验式成员更新；实际 skill 位于 [`skills/decision-records/`](skills/decision-records/)。
 
 ## 发展方向
 

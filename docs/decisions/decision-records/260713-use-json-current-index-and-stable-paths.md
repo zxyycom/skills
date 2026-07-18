@@ -2,7 +2,7 @@
 
 ## 索引摘要
 - 背景: 当前索引既要明确成员，也要用经确认且与正文一致的精简背景和决策支持低成本判断；主题分类已经包含在路径中。
-- 决策: 使用 `docs/decisions/decision-index.json` 作为当前成员关系的唯一 owner；每个当前条目只保存由 Markdown 显式摘要派生的 `path`、`title`、精简 `background` 和 `decision`，确认后的候选概览直接形成摘要，正文变化时同步复核摘要。
+- 决策: 使用 `docs/decisions/decision-index.json` 作为当前成员关系的唯一 owner，并保存由 Markdown 显式摘要派生的 `path`、`title`、精简 `background` 和 `decision`；决策文件使用稳定路径，逻辑归档只退出当前集合，历史演进由新记录单向链接直接前序并由 CLI 反查。
 
 ## 背景
 - 当前索引既要明确成员，也要用精简背景和决策支持低成本判断；主题分类已经包含在路径中，不需要重复字段。

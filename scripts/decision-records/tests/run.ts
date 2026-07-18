@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -148,16 +148,47 @@ try {
   await fs.writeFile(
     currentDecisionPath,
     currentDecision.replace(
+      "- 决策: 使用固定结构的测试夹具。",
+      "- 决策: 使用固定结构的测试夹具。\n- area: tooling"
+    ),
+    "utf8"
+  );
+  const withExtraSummaryField = await validateDecisionRecords({ workspaceRoot: tempRoot });
+  assert.ok(withExtraSummaryField.errors.some(
+    (error) => error.includes("section ## 索引摘要 must contain only")
+  ));
+  await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
+
+  await fs.writeFile(
+    currentDecisionPath,
+    currentDecision.replace(
       "\n## 关系\n- 修订: [2026-07-10 - 使用源码 CLI](260710-use-source-cli.md)\n",
       "\n"
     ),
     "utf8"
   );
   const withoutIncomingRelation = await validateDecisionRecords({ workspaceRoot: tempRoot });
-  assert.ok(withoutIncomingRelation.errors.some(
-    (error) => error.includes("archived decisions must be referenced by a decision relation")
-  ));
+  assert.deepEqual(withoutIncomingRelation.errors, []);
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
+
+  const archivedDecisionPath = path.join(
+    decisionsDirectory,
+    "tooling",
+    "260710-use-source-cli.md"
+  );
+  const archivedDecision = await fs.readFile(archivedDecisionPath, "utf8");
+  await fs.writeFile(
+    archivedDecisionPath,
+    archivedDecision.trimEnd()
+      + "\n\n## 关系\n"
+      + "- 修订: [2026-07-11 - 使用生成 CLI](260711-use-generated-cli.md)\n",
+    "utf8"
+  );
+  const withRelationCycle = await validateDecisionRecords({ workspaceRoot: tempRoot });
+  assert.ok(withRelationCycle.errors.some(
+    (error) => error.includes("Decision relations must not form a cycle")
+  ));
+  await fs.writeFile(archivedDecisionPath, archivedDecision, "utf8");
 
   await fs.writeFile(
     indexPath,
@@ -172,6 +203,17 @@ try {
     { encoding: "utf8" }
   );
   assert.deepEqual((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors, []);
+
+  execFileSync(
+    "node",
+    [generatedCliPath, "archive", currentRelativePath, "--root", tempRoot],
+    { encoding: "utf8" }
+  );
+  const independentlyArchived = await validateDecisionRecords({ workspaceRoot: tempRoot });
+  assert.deepEqual(independentlyArchived.errors, []);
+  assert.equal(independentlyArchived.currentCount, 0);
+  assert.equal(independentlyArchived.archivedCount, 2);
+  await fs.writeFile(indexPath, originalIndex, "utf8");
 
   const successorRelativePath = "tooling/260712-use-bundled-cli.md";
   const successorPath = path.join(decisionsDirectory, successorRelativePath);
@@ -197,6 +239,25 @@ try {
     "node",
     [generatedCliPath, "activate", successorRelativePath, "--root", tempRoot],
     { encoding: "utf8" }
+  );
+
+  const unrelatedSwitch = spawnSync(
+    "node",
+    [
+      generatedCliPath,
+      "archive",
+      currentRelativePath,
+      "--by",
+      successorRelativePath,
+      "--root",
+      tempRoot
+    ],
+    { encoding: "utf8" }
+  );
+  assert.equal(unrelatedSwitch.status, 1);
+  assert.match(
+    unrelatedSwitch.stderr,
+    /must directly relate to every archived decision/
   );
 
   const successor = await fs.readFile(successorPath, "utf8");

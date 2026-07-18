@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "current": [
     {
-      "path": "decision-records/260713-use-json-current-index-and-stable-paths.md",
-      "title": "使用 JSON 当前索引和稳定决策路径",
-      "background": "当前索引既要明确成员，也要用经确认且与正文一致的精简背景和决策支持低成本判断；主题分类已经包含在路径中。",
-      "decision": "使用 `docs/decisions/decision-index.json` 作为当前成员关系的唯一 owner；每个当前条目只保存由 Markdown 显式摘要派生的 `path`、`title`、精简 `background` 和 `decision`，确认后的候选概览直接形成摘要，正文变化时同步复核摘要。"
+      "path": "decision-records/260718-separate-logical-archive-from-relations.md",
+      "title": "分离逻辑归档与决策关系",
+      "background": "强制每条逻辑归档记录都被后续记录引用，会把没有后续判断的普通退役误建模为决策演进；现有校验只要求任意入链，也不能证明 `archive --by` 指定的后续记录真实承接全部前序。",
+      "decision": "继续由 JSON 当前索引维护当前成员及 Markdown 派生摘要，决策文件使用稳定路径；逻辑归档可以独立退出当前集合，只有真实演进才声明单向直接关系，`archive --by` 必须验证指定后续记录直接引用全部前序，CLI 拒绝关系环并负责反查。"
     },
     {
       "path": "decision-records/260711-use-bundled-contract-owner.md",
@@ -14,10 +14,10 @@
       "decision": "`skills/decision-records/references/decision-record-rules.md` 独立承接目录、稳定命名、当前成员、关系、正文结构、索引和维护事务，因为它随 skill 分发且是所有项目共同使用的固定入口。"
     },
     {
-      "path": "decision-records-skill/260713-recall-before-long-lived-changes.md",
-      "title": "在长期行为变更前恢复决策并显式处理偏离",
-      "background": "只在用户显式要求回放或记录时读取决策，不能保证普通维护任务在改变长期行为前看见已有方向。",
-      "decision": "任务可能改变长期行为、owner、边界、兼容性、风险处理或验收方式时，在实质改动前从 JSON 当前索引读取相关记录，因为只有在决策点前恢复上下文才能实际防止方向静默漂移。"
+      "path": "decision-records-skill/260718-trigger-on-long-term-decision-points.md",
+      "title": "让长期决策形成和冲突成为核心触发",
+      "background": "以“任务可能改变长期行为”作为触发条件会把普通执行也纳入范围，而逐项枚举维护操作会削弱真正需要主动恢复上下文的决策时刻。",
+      "decision": "`decision-records` 用于长期决策管理；当用户正在形成可能产生长期影响的决定，或拟议决定与既有决定冲突时调用，触发后恢复相关当前决策并处理偏离，入口不枚举记录、查询或归档等自然操作。"
     },
     {
       "path": "decision-records-skill/260711-require-confirmed-decision-writes.md",

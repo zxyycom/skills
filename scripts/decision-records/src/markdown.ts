@@ -33,6 +33,30 @@ function fieldValues(sectionContent: string, label: string): string[] {
   return [...sectionContent.matchAll(pattern)].map((match) => match[1].trim());
 }
 
+export function requireOnlyFields(
+  relativePath: string,
+  sectionContent: string,
+  sectionHeading: string,
+  labels: readonly string[],
+  errors: string[]
+): void {
+  const allowedLabels = new Set(labels);
+  const expectedFields = labels.map((label) => "\"- " + label + ":\"").join(" and ");
+
+  for (const line of sectionContent.split("\n").map((value) => value.trim()).filter(Boolean)) {
+    const match = line.match(/^- ([^:]+):\s*(.*?)\s*$/);
+    const label = match?.[1].trim();
+    if (!match || !label || !allowedLabels.has(label)) {
+      errors.push(
+        relativePath
+        + " section " + sectionHeading
+        + " must contain only " + expectedFields
+        + " fields: " + line
+      );
+    }
+  }
+}
+
 export function requireSingleField(
   relativePath: string,
   sectionContent: string,

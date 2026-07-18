@@ -7,7 +7,11 @@ import { pathToFileURL } from "node:url";
 import { parseArgs as parseNodeArgs } from "node:util";
 import { expectedIndex, validateDecisionRecords } from "./index.ts";
 import { scanDecisionRecords } from "./scan.ts";
-import { compareDecisionRecords, type DecisionScan } from "./types.ts";
+import {
+  compareDecisionRecords,
+  type DecisionRecord,
+  type DecisionScan
+} from "./types.ts";
 
 type Command = "activate" | "archive" | "check" | "list" | "sync-index" | "trace";
 
@@ -48,14 +52,14 @@ function usage(): string {
     "  trace       Trace direct and transitive relations in both directions.",
     "  sync-index  Refresh generated title, background, decision, and sorting without changing membership.",
     "  activate    Add an existing decision file to the current index.",
-    "  archive     Remove a decision from the current index, optionally activating its successor.",
+    "  archive     Remove decisions from the current index. With --by, validate and activate their successor.",
     "",
     "Options:",
     "  --root <path>           Workspace root. Defaults to the current directory.",
     "  --decisions-dir <path>  Decision directory. Defaults to docs/decisions under --root.",
     "  --archived              List only logically archived decisions.",
     "  --all                   List current and logically archived decisions.",
-    "  --by <decision-path>    Successor to activate in the same validated membership update.",
+    "  --by <decision-path>    Successor that directly relates to every archived decision.",
     "  --write                 Apply sync-index metadata changes.",
     "  -h, --help              Show this help text.",
     "",
@@ -400,7 +404,7 @@ async function runArchive(args: CliArgs): Promise<number> {
   }
 
   const currentPaths = new Set(scan.currentPaths);
-  const records = [];
+  const records: DecisionRecord[] = [];
   const seenRecordPaths = new Set<string>();
   for (const recordPath of args.recordPaths) {
     const record = findRecord(scan, recordPath);
@@ -429,6 +433,18 @@ async function runArchive(args: CliArgs): Promise<number> {
     }
     if (seenRecordPaths.has(successor.relativePath)) {
       console.error("Successor must not also be archived: " + successor.relativePath);
+      return 1;
+    }
+    const directTargets = new Set(successor.relations.map((relation) => relation.target));
+    const missingTargets = records
+      .map((record) => record.relativePath)
+      .filter((recordPath) => !directTargets.has(recordPath));
+    if (missingTargets.length > 0) {
+      console.error(
+        "Successor " + successor.relativePath
+        + " must directly relate to every archived decision: "
+        + missingTargets.join(", ")
+      );
       return 1;
     }
     currentPaths.add(successor.relativePath);

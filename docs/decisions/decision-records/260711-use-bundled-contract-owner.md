@@ -15,7 +15,7 @@
 ## 决定
 - 采用: `skills/decision-records/references/decision-record-rules.md` 独立承接目录、稳定命名、当前成员、关系、正文结构、索引和维护事务，因为它随 skill 分发且是所有项目共同使用的固定入口。
 - 采用: 目标项目的 `docs/decisions/` 根目录只保留 `decision-index.json`；主题分类目录承接实际决策数据，逻辑归档不改变文件位置。
-- 采用: `decision-index.json` 只承接当前仍作为后续工作依据的决策及其定位字段，不复制固定契约和决策理由。
+- 采用: `decision-index.json` 只承接当前成员和由 Markdown 显式摘要派生的定位、精简背景与决策字段，不复制固定契约或完整决策理由。
 - 采用: 项目专属的更高记录门槛写入 `AGENTS.md` 或相关行为 owner，不改变随包契约的固定字段和维护语义。
 - 采用: 校验入口检查索引、主题分类和实际记录，不要求或接受目标项目中的契约副本。
 - 不采用: 在每个目标项目复制 `decision-record-rules.md`。原因是重复 owner 会增加导航层级和长期漂移风险。

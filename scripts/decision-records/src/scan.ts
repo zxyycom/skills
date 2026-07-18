@@ -9,6 +9,7 @@ import { extractMarkdownLinks } from "../../lib/markdown-links.ts";
 import {
   parseSections,
   requireNonEmptyField,
+  requireOnlyFields,
   requireSingleField,
   stripLinkSuffix
 } from "./markdown.ts";
@@ -378,6 +379,13 @@ async function validateDecisionBody(options: {
   let decision = "";
   const summarySection = sectionMap.get("## 索引摘要")?.[0]?.content;
   if (summarySection) {
+    requireOnlyFields(
+      relativePath,
+      summarySection,
+      "## 索引摘要",
+      ["背景", "决策"],
+      errors
+    );
     background = requireSingleField(
       relativePath,
       summarySection,
@@ -509,7 +517,6 @@ function validateIndexEntries(
 
 function validateDecisionRelationConsistency(records: DecisionRecord[], errors: string[]): void {
   const recordByPath = new Map(records.map((record) => [record.relativePath, record]));
-  const referencedTargets = new Set<string>();
 
   for (const record of records) {
     for (const relation of record.relations) {
@@ -518,7 +525,6 @@ function validateDecisionRelationConsistency(records: DecisionRecord[], errors: 
         errors.push(record.relativePath + " relationship target is not a scanned decision: " + relation.target);
         continue;
       }
-      referencedTargets.add(relation.target);
       if (target.current) {
         errors.push(
           record.relativePath
@@ -529,12 +535,37 @@ function validateDecisionRelationConsistency(records: DecisionRecord[], errors: 
     }
   }
 
-  for (const record of records) {
-    if (record.archived && !referencedTargets.has(record.relativePath)) {
-      errors.push(
-        record.relativePath
-        + " archived decisions must be referenced by a decision relation"
-      );
+  const visitState = new Map<string, "visiting" | "visited">();
+  const pathStack: string[] = [];
+
+  function visit(recordPath: string): void {
+    visitState.set(recordPath, "visiting");
+    pathStack.push(recordPath);
+
+    const record = recordByPath.get(recordPath);
+    const targets = [...new Set(record?.relations.map((relation) => relation.target) ?? [])]
+      .filter((target) => recordByPath.has(target))
+      .sort();
+    for (const target of targets) {
+      const targetState = visitState.get(target);
+      if (targetState === "visiting") {
+        const cycleStart = pathStack.indexOf(target);
+        const cycle = [...pathStack.slice(cycleStart), target];
+        errors.push("Decision relations must not form a cycle: " + cycle.join(" -> "));
+        continue;
+      }
+      if (targetState !== "visited") {
+        visit(target);
+      }
+    }
+
+    pathStack.pop();
+    visitState.set(recordPath, "visited");
+  }
+
+  for (const recordPath of [...recordByPath.keys()].sort()) {
+    if (!visitState.has(recordPath)) {
+      visit(recordPath);
     }
   }
 }
