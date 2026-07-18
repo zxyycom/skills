@@ -29,20 +29,21 @@
 1. `skills/<skill-name>/` 承接对应 skill 的行为、触发条件、读取策略、执行流程、引用文件、边界和验收标准。
 2. `docs/skills/<skill-name>.md` 或集合说明文档承接面向人类阅读的 skill 介绍、项目起点和发展方向; 这些内容不进入 skill zip, 也不作为 agent 执行时必须读取的 skill 本体。
 3. 主仓库承接跨 skill 共享的校验、打包、聚合发布、依赖入口、CI 和自动化。
-4. `docs/tooling.md` 承接脚本、安装、校验、打包、CI 和发布细节; `README.md` 只保留项目入口说明。
+4. `docs/coding-style.md` 承接实现代码的通用质量规则; `docs/tooling.md` 承接脚本、安装、校验、打包、CI 和发布细节; `README.md` 只保留项目入口说明。
 5. `skills/decision-records/references/decision-record-rules.md` 是决策记录格式、当前成员、历史关系和维护事务的唯一固定契约; `docs/decisions/decision-index.json` 承接本仓库当前决策索引, 项目专属记录门槛由本文件承接。
-6. `AGENTS.md` 只承接项目级 agent 协作约定; skill 专属规则、工具链细节和单条决策原因应写入各自 owner。
+6. `AGENTS.md` 只承接项目级 agent 协作约定; skill 专属规则、编码细则、工具链细节和单条决策原因应写入各自 owner。
 7. 同一判断只在最稳定的 owner 位置完整解释; 非 owner 位置只保留摘要、触发条件或引用。
 
 ## 工作流程
 
 1. 修改前先检查主仓库状态, 识别已有未提交改动。
 2. 编辑前先判断内容 owner; 只在当前文件适合承接该信息时修改当前文件。
-3. 修改 skill 本体时进入 `skills/<skill-name>/`; 只修改项目级文档、脚本、CI 或配置时, 不顺手改 skill 本体。
-4. 同时修改 skill 本体和共享工具链时, 先确认 owner 分工, 再让脚本、文档和验证入口保持一致。
-5. 新增 skill 时, 在 `skills/<skill-name>/` 放置本体并包含 `SKILL.md`, 按需在 `docs/skills/` 增加人类介绍, 再确认聚合打包和自更新脚本覆盖该 skill。
-6. 新增或调整共享脚本时优先做成跨 skill 通用能力; skill 专属规则应留在对应 skill 目录。
-7. 打包产物、依赖目录和 workflow 运行产物不作为长期源文件提交。
+3. 修改 `scripts/` 下的实现代码时, 先读取 `docs/coding-style.md`, 再按任务读取相关行为 owner 和 `docs/tooling.md`。
+4. 修改 skill 本体时进入 `skills/<skill-name>/`; 只修改项目级文档、脚本、CI 或配置时, 不顺手改 skill 本体。
+5. 同时修改 skill 本体和共享工具链时, 先确认 owner 分工, 再让脚本、文档和验证入口保持一致。
+6. 新增 skill 时, 在 `skills/<skill-name>/` 放置本体并包含 `SKILL.md`, 按需在 `docs/skills/` 增加人类介绍, 再确认聚合打包和自更新脚本覆盖该 skill。
+7. 新增或调整共享脚本时优先做成跨 skill 通用能力; skill 专属规则应留在对应 skill 目录。
+8. 打包产物、依赖目录和 workflow 运行产物不作为长期源文件提交。
 
 ## 写作约定
 

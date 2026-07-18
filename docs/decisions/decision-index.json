@@ -44,6 +44,12 @@
       "decision": "在 OpenSpec skills 中把 active change 视为可以先存在的临时计划; 创建 change 只表示想法被结构化到 `openspec/changes/<name>/`, 不表示方案已经审计完毕或可以立即实现。"
     },
     {
+      "path": "project-tooling/260718-use-project-coding-style-owner.md",
+      "title": "采用项目级编码规范 owner",
+      "background": "`AGENTS.md` 已承接项目协作约定，`docs/tooling.md` 已承接脚本工具链，但实现代码的归属、边界、类型、组织和风险验证缺少独立 owner。",
+      "decision": "使用 `docs/coding-style.md` 承接 `scripts/` 实现代码的通用质量规则，由 `AGENTS.md` 提供读取入口；行为契约和工具链细节继续留在各自 owner。"
+    },
+    {
       "path": "project-tooling/260711-separate-skill-script-source-and-generated-artifacts.md",
       "title": "分离 skill 分发脚本源码与生成产物",
       "background": "已安装 skill 需要携带能由目标运行时直接执行的 JavaScript，但直接在 `skills/<skill-name>/scripts/` 维护打包代码会失去正常的 TypeScript 模块结构、类型检查和测试入口。",
