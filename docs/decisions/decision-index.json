@@ -9,18 +9,18 @@
       "decision": "保持关系由新记录单向指向直接前序，给 `trace` 增加前序、后续、双向和最大深度选项；默认行为保持双向完整查询，使用现有邻接表和广度优先遍历实现，不引入图库。"
     },
     {
+      "path": "decision-records/260718-separate-behavior-entry-from-storage-contract.md",
+      "title": "分离行为入口与精确存储契约",
+      "purpose": "让日常决策恢复只加载必要语义，同时让精确维护继续遵循唯一、完整且可校验的固定契约。",
+      "background": "目的、背景和决策已经足以理解当前判断；若在 skill 入口再次概括正文结构、关系和事务规则，会形成契约的压缩副本，而 CLI 又必须同时服务只读恢复和写入维护。",
+      "decision": "`SKILL.md` 承接触发、语义恢复、偏离判断、候选确认、CLI 编排和交付，并只保留目的、背景、决策的阅读语义；随包 reference 作为唯一精确存储契约，在写入、集合变更、修复或结构审阅前完整读取。"
+    },
+    {
       "path": "decision-records/260718-use-purpose-background-decision-structure.md",
       "title": "使用目的、背景和决策的三层投影",
       "purpose": "让当前决策显式回答希望达成什么、为何需要选择以及最终选择什么，同时保持低成本检索和可靠回放。",
       "background": "只在摘要增加目的会让摘要承载正文未显式出现的语义；继续由背景隐含目的又要求未来维护者自行推断，而完整目的本身可能需要展开。",
       "decision": "Markdown 使用索引摘要、目的、背景和决策四个必需章节，摘要只压缩对应完整章节；JSON 索引升级为 schema v2，保存由摘要派生的 `path`、`title`、`purpose`、`background` 和 `decision`。当前成员、稳定路径、逻辑归档与单向直接关系继续由既有 CLI 事务维护。"
-    },
-    {
-      "path": "decision-records/260711-use-bundled-contract-owner.md",
-      "title": "使用随包 reference 作为唯一固定契约",
-      "purpose": "为不同项目提供唯一随包固定契约，避免项目副本长期漂移。",
-      "background": "随包 reference 与目标项目的 `decision-record-rules.md` 同时解释固定格式时，会形成两份需要同步的契约和二次导航。",
-      "decision": "`skills/decision-records/references/decision-record-rules.md` 独立承接目录、稳定命名、当前成员、关系、正文结构、索引和维护事务，因为它随 skill 分发且是所有项目共同使用的固定入口。"
     },
     {
       "path": "decision-records-skill/260718-notify-before-decision-writes.md",

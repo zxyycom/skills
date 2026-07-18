@@ -12,6 +12,8 @@
 
 后续维护先从 JSON 索引读取当前判断，需要审计演进时再沿 Markdown 直接关系查看历史。不在索引中的记录属于逻辑归档，但保留原路径并可通过 CLI 查询；没有后续判断的普通退役不强制建立关系。
 
+只读恢复、偏离分类和未确认候选由 skill 入口、CLI、JSON 索引与命中的 Markdown 完成。入口直接使用目的、背景和决策理解一项记录；创建、修订、归档、修复或结构审阅时才加载固定契约中的精确格式和维护约束。
+
 已有材料不符合固定契约时，skill 先报告差异、可保留语义和修复范围。格式迁移需要独立确认，完成后只维护一种格式。
 
 ## 设计边界
@@ -26,8 +28,8 @@
 
 ## Owner 分工
 
-1. [`SKILL.md`](../../skills/decision-records/SKILL.md) 承接 agent 的发现、确认、读取、写入和交付流程。
-2. [`decision-record-rules.md`](../../skills/decision-records/references/decision-record-rules.md) 是目录、索引、稳定身份、正文、关系和维护事务的唯一固定契约。
+1. [`SKILL.md`](../../skills/decision-records/SKILL.md) 承接 agent 的发现、语义恢复、偏离判断、候选确认、CLI 编排和交付流程。
+2. [`decision-record-rules.md`](../../skills/decision-records/references/decision-record-rules.md) 是目录、索引 schema、稳定身份、正文格式、关系、生命周期、维护事务和结构校验语义的唯一固定契约。
 3. `scripts/decision-records/` 承接 CLI 源码、测试和构建；随 skill 分发的 CLI 提供结构检查、当前与归档查询、关系链反查、派生字段同步和校验式成员更新。
 4. 每条 Markdown 的完整章节承接完整语义，同文件的索引摘要承接作者确认的压缩表达；`docs/decisions/decision-index.json` 只承接当前成员并镜像摘要派生字段。
 
