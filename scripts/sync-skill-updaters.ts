@@ -1,10 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import {
-  addGeneratedFileHeader,
+  buildGeneratedFileHeader,
   bundleWithBun,
   parseGeneratedFileMode,
-  syncGeneratedFile,
+  syncGeneratedArtifacts,
+  type BunBundleResult,
   type GeneratedFileMode
 } from "./lib/generated-file.ts";
 import {
@@ -21,7 +22,6 @@ import type { UpdaterConfig } from "./templates/update-skill/types.ts";
 const templateRelativePath = "scripts/templates/update-skill.ts";
 const updaterRelativePath = path.join("scripts", "update-skill.cjs");
 const legacyUpdaterRelativePath = path.join("scripts", "update-skill.js");
-const configPlaceholder = "__SKILL_UPDATE_CONFIG_JSON__";
 
 function buildConfig(skill: SkillPackage): UpdaterConfig {
   return {
@@ -33,41 +33,34 @@ function buildConfig(skill: SkillPackage): UpdaterConfig {
   };
 }
 
-function renderUpdater(bundledTemplate: string, config: UpdaterConfig): string {
-  const matches = bundledTemplate.match(new RegExp(configPlaceholder, "g")) ?? [];
-  if (matches.length !== 1) {
-    throw new Error(`Bundled ${templateRelativePath} must contain exactly one ${configPlaceholder} placeholder`);
-  }
-
-  const configJsonForStringLiteral = JSON.stringify(config).replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
-  return addGeneratedFileHeader(
-    bundledTemplate.replace(configPlaceholder, configJsonForStringLiteral),
-    {
-      additionalLines: [
-        `Package lock asset: https://github.com/${config.repo}/releases/latest/download/${config.packageLockAssetName}`,
-        `Release asset: https://github.com/${config.repo}/releases/latest/download/${config.releaseAssetName}`
-      ],
-      artifactName: "skill self-updater",
-      rebuildCommand: "bun run sync:skill-updaters",
-      repository: config.repo,
-      skillSourcePath: config.sourcePath,
-      sourcePath: templateRelativePath
-    }
-  );
-}
-
-async function buildBundledTemplate(): Promise<string> {
+async function buildUpdater(skill: SkillPackage, config: UpdaterConfig): Promise<BunBundleResult> {
+  const header = buildGeneratedFileHeader({
+    additionalLines: [
+      `Package lock asset: https://github.com/${config.repo}/releases/latest/download/${config.packageLockAssetName}`,
+      `Release asset: https://github.com/${config.repo}/releases/latest/download/${config.releaseAssetName}`
+    ],
+    artifactName: "skill self-updater",
+    rebuildCommand: "bun run sync:skill-updaters",
+    repository: config.repo,
+    skillSourcePath: config.sourcePath,
+    sourcePath: templateRelativePath
+  });
   return await bundleWithBun({
+    banner: `${header}\nvar __SKILL_UPDATE_CONFIG__=${JSON.stringify(config)};`,
     cwd: rootDir,
     entryPath: path.join(rootDir, templateRelativePath),
     format: "cjs",
-    minify: true
+    keepNames: true,
+    minify: true,
+    outputFileName: path.basename(updaterRelativePath),
+    sourceMapBaseDirectory: path.dirname(path.join(skill.directory, updaterRelativePath)),
+    sourceMap: true
   });
 }
 
 async function syncSkillUpdater(
   skill: SkillPackage,
-  expected: string,
+  expected: BunBundleResult,
   mode: GeneratedFileMode
 ): Promise<boolean> {
   const outputPath = path.join(skill.directory, updaterRelativePath);
@@ -85,18 +78,19 @@ async function syncSkillUpdater(
     }
   }
 
-  const result = await syncGeneratedFile(outputPath, expected, mode);
-  if (result === "current") {
-    return changed;
+  if (expected.sourceMap === null) {
+    throw new Error(`Bundled ${templateRelativePath} must include a source map`);
   }
 
-  if (result === "stale") {
-    console.error(`${toPosix(path.relative(rootDir, outputPath))} is missing or not generated from ${templateRelativePath}`);
-    return true;
-  }
-
-  console.log(`Wrote ${toPosix(path.relative(rootDir, outputPath))}`);
-  return true;
+  return await syncGeneratedArtifacts(
+    [
+      { content: expected.code, path: outputPath },
+      { content: expected.sourceMap, path: `${outputPath}.map` }
+    ],
+    mode,
+    rootDir,
+    templateRelativePath
+  ) || changed;
 }
 
 const mode = parseGeneratedFileMode(process.argv.slice(2));
@@ -105,12 +99,11 @@ if (discovery.errors.length > 0) {
   throw new Error(`Cannot sync skill updaters:\n- ${discovery.errors.join("\n- ")}`);
 }
 
-const bundledTemplate = await buildBundledTemplate();
 let changed = false;
 
 for (const skill of discovery.skills) {
   const config = buildConfig(skill);
-  const expected = renderUpdater(bundledTemplate, config);
+  const expected = await buildUpdater(skill, config);
   changed = await syncSkillUpdater(skill, expected, mode) || changed;
 }
 

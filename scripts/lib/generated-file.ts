@@ -8,10 +8,25 @@ import { pathExists } from "./filesystem.ts";
 export type GeneratedFileMode = "check" | "write";
 
 export type BunBundleOptions = {
+  banner?: string;
   cwd: string;
   entryPath: string;
   format: "cjs" | "esm";
+  keepNames?: boolean;
   minify?: boolean;
+  outputFileName: string;
+  sourceMapBaseDirectory?: string;
+  sourceMap?: boolean;
+};
+
+export type BunBundleResult = {
+  code: string;
+  sourceMap: string | null;
+};
+
+export type GeneratedArtifact = {
+  content: string;
+  path: string;
 };
 
 export type GeneratedFileHeaderOptions = {
@@ -41,9 +56,48 @@ export function parseGeneratedFileMode(argv: string[]): GeneratedFileMode {
   return values.write ? "write" : "check";
 }
 
-export async function bundleWithBun(options: BunBundleOptions): Promise<string> {
+function normalizeSourceMap(
+  text: string,
+  workspaceRoot: string,
+  sourceMapBaseDirectory: string
+): string {
+  const parsed: unknown = JSON.parse(text);
+  if (
+    parsed === null
+    || typeof parsed !== "object"
+    || !("sources" in parsed)
+    || !Array.isArray(parsed.sources)
+    || !parsed.sources.every((source) => typeof source === "string")
+  ) {
+    throw new Error("Bun source map must contain a string sources array");
+  }
+
+  return `${JSON.stringify({
+    ...parsed,
+    sources: parsed.sources.map((source) => {
+      if (!path.isAbsolute(source)) {
+        return source.replace(/\\/g, "/");
+      }
+
+      const relativePath = path.relative(workspaceRoot, source);
+      if (relativePath === ".." || relativePath.startsWith(`..${path.sep}`)) {
+        throw new Error(`Bun source map contains a source outside the workspace: ${source}`);
+      }
+      return relativePath.replace(/\\/g, "/");
+    }),
+    sourceRoot: `${path.relative(sourceMapBaseDirectory, workspaceRoot).replace(/\\/g, "/")}/`
+  })}\n`;
+}
+
+export async function bundleWithBun(options: BunBundleOptions): Promise<BunBundleResult> {
+  const sourceMapBaseDirectory = options.sourceMapBaseDirectory;
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "skills-bundle-"));
-  const outputPath = path.join(tempDir, `bundle.${options.format === "cjs" ? "cjs" : "mjs"}`);
+  const outputPath = path.join(tempDir, options.outputFileName);
+  const entryHasShebang = (await fs.readFile(options.entryPath, "utf8")).startsWith("#!");
+  const banner = [
+    ...(entryHasShebang ? [] : ["#!/usr/bin/env node"]),
+    ...(options.banner === undefined ? [] : [options.banner])
+  ].join("\n");
   const args = [
     "build",
     options.entryPath,
@@ -51,13 +105,36 @@ export async function bundleWithBun(options: BunBundleOptions): Promise<string> 
     `--format=${options.format}`,
     "--packages=bundle",
     ...(options.minify ? ["--minify"] : []),
-    `--outfile=${outputPath}`
+    ...(options.keepNames ? ["--keep-names"] : []),
+    ...(options.sourceMap ? ["--sourcemap=linked"] : []),
+    ...(banner.length === 0 ? [] : [`--banner=${banner}`]),
+    `--outdir=${tempDir.replace(/\\/g, "/")}`,
+    `--entry-naming=${options.outputFileName}`
   ];
 
   try {
     await execFileAsync(process.execPath, args, { cwd: options.cwd });
-    const bundled = await fs.readFile(outputPath, "utf8");
-    return bundled.startsWith("#!") ? bundled : `#!/usr/bin/env node\n${bundled}`;
+    const code = await fs.readFile(outputPath, "utf8");
+    if (!code.startsWith("#!")) {
+      throw new Error(`Bundled executable ${options.outputFileName} must start with a shebang`);
+    }
+
+    let sourceMap: string | null = null;
+    if (options.sourceMap) {
+      if (sourceMapBaseDirectory === undefined) {
+        throw new Error("sourceMapBaseDirectory is required when sourceMap is enabled");
+      }
+      sourceMap = normalizeSourceMap(
+        await fs.readFile(`${outputPath}.map`, "utf8"),
+        options.cwd,
+        sourceMapBaseDirectory
+      );
+    }
+
+    return {
+      code,
+      sourceMap
+    };
   } finally {
     await fs.rm(tempDir, { force: true, recursive: true });
   }
@@ -81,10 +158,31 @@ export async function syncGeneratedFile(
   return "written";
 }
 
-export function addGeneratedFileHeader(
-  content: string,
-  options: GeneratedFileHeaderOptions
-): string {
+export async function syncGeneratedArtifacts(
+  artifacts: readonly GeneratedArtifact[],
+  mode: GeneratedFileMode,
+  workspaceRoot: string,
+  sourcePath: string
+): Promise<boolean> {
+  let changed = false;
+  for (const artifact of artifacts) {
+    const result = await syncGeneratedFile(artifact.path, artifact.content, mode);
+    if (result === "current") {
+      continue;
+    }
+
+    changed = true;
+    const relativePath = path.relative(workspaceRoot, artifact.path).replace(/\\/g, "/");
+    if (result === "stale") {
+      console.error(`${relativePath} is missing or not generated from ${sourcePath}`);
+    } else {
+      console.log(`Wrote ${relativePath}`);
+    }
+  }
+  return changed;
+}
+
+export function buildGeneratedFileHeader(options: GeneratedFileHeaderOptions): string {
   const repositoryUrl = `https://github.com/${options.repository}`;
   const headerLines = [
     "/*",
@@ -97,19 +195,7 @@ export function addGeneratedFileHeader(
       : [` * Skill source directory: ${repositoryUrl}/tree/main/${options.skillSourcePath}`]),
     ` * Rebuild: ${options.rebuildCommand}`,
     ...(options.additionalLines ?? []).map((line) => ` * ${line}`),
-    " */",
-    ""
+    " */"
   ];
-  const header = headerLines.join("\n");
-
-  if (!content.startsWith("#!")) {
-    return `${header}${content}`;
-  }
-
-  const firstLineEnd = content.indexOf("\n");
-  if (firstLineEnd === -1) {
-    return `${content}\n${header}`;
-  }
-
-  return `${content.slice(0, firstLineEnd + 1)}${header}${content.slice(firstLineEnd + 1)}`;
+  return headerLines.join("\n");
 }

@@ -125,11 +125,27 @@ assert.match(cliSource, /Maintained source: https:\/\/github\.com\/zxyycom\/skil
 assert.match(cliSource, /Source path: scripts\/decision-records\/src\/cli\.ts/);
 assert.match(cliSource, /Skill source directory: https:\/\/github\.com\/zxyycom\/skills\/tree\/main\/skills\/decision-records/);
 assert.match(cliSource, /Rebuild: bun run sync:decision-records-cli/);
+assert.match(cliSource, /sourceMappingURL=decision-records\.mjs\.map/);
+const cliSourceMap = JSON.parse(await fs.readFile(`${generatedCliPath}.map`, "utf8")) as {
+  sourceRoot: string;
+  sources: string[];
+};
+assert.equal(cliSourceMap.sourceRoot, "../../../");
+assert.ok(cliSourceMap.sources.includes("scripts/decision-records/src/cli.ts"));
+assert.ok(cliSourceMap.sources.every((source) => !path.isAbsolute(source) && !source.includes("\\")));
 
 const updaterSource = await fs.readFile(generatedUpdaterPath, "utf8");
 assert.match(updaterSource, /Repository: https:\/\/github\.com\/zxyycom\/skills/);
 assert.match(updaterSource, /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/scripts\/templates\/update-skill\.ts/);
 assert.match(updaterSource, /Rebuild: bun run sync:skill-updaters/);
+assert.match(updaterSource, /sourceMappingURL=update-skill\.cjs\.map/);
+const updaterSourceMap = JSON.parse(await fs.readFile(`${generatedUpdaterPath}.map`, "utf8")) as {
+  sourceRoot: string;
+  sources: string[];
+};
+assert.equal(updaterSourceMap.sourceRoot, "../../../");
+assert.ok(updaterSourceMap.sources.includes("scripts/templates/update-skill.ts"));
+assert.ok(updaterSourceMap.sources.every((source) => !path.isAbsolute(source) && !source.includes("\\")));
 
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "decision-records-test-"));
 try {

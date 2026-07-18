@@ -15,7 +15,9 @@ import {
 } from "./update-skill/release.ts";
 import type { UpdaterConfig } from "./update-skill/types.ts";
 
-const UPDATE_CONFIG = JSON.parse("__SKILL_UPDATE_CONFIG_JSON__") as UpdaterConfig;
+declare const __SKILL_UPDATE_CONFIG__: UpdaterConfig;
+
+const UPDATE_CONFIG = __SKILL_UPDATE_CONFIG__;
 
 async function main(): Promise<void> {
   const options = parseCliOptions(UPDATE_CONFIG, process.argv.slice(2));

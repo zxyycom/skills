@@ -71,8 +71,8 @@
 需要编译后随 skill 分发的脚本采用源码与产物分离：
 
 1. TypeScript 源码、测试、夹具和构建入口放在主仓库 `scripts/<tool-name>/`。
-2. 构建后的单文件 JavaScript 放在 `skills/<skill-name>/scripts/`，提交到 Git 并进入 skill hash。
-3. `sync:*` 显式写入生成产物；`check:*` 在临时目录重建并逐字节比较，不在检查期间修改产物。
+2. 构建后的单文件 JavaScript 及同名 linked source map 放在 `skills/<skill-name>/scripts/`，提交到 Git 并进入 skill hash；map 内源码路径统一为仓库相对 POSIX 路径。
+3. `sync:*` 显式写入 JavaScript 和 source map；`check:*` 在临时目录重建并逐字节比较，不在检查期间修改产物。
 4. 分发产物只能依赖目标运行时和已打包内容，不能要求使用者安装主仓库 Bun、pnpm、TypeScript 或源码依赖；产物主体可以压缩，维护和调试以文件头指向的源码为准。
 5. `pack:skills` 只收集已经通过生成状态检查的 skill 目录 Git blob，不在打包阶段临时构建未提交脚本。
 
@@ -81,14 +81,14 @@
 1. 源码：`scripts/decision-records/src/`。
 2. 测试和夹具：`scripts/decision-records/tests/`。
 3. 构建入口：`scripts/decision-records/build.ts`。
-4. 分发产物：`skills/decision-records/scripts/decision-records.mjs`。
+4. 分发产物：`skills/decision-records/scripts/decision-records.mjs` 及 `decision-records.mjs.map`。
 5. 同步：`bun run sync:decision-records-cli`。
 6. 检查：`bun run check:decision-records-cli`。
 7. 测试：`bun run test:decision-records-cli`。
 
 ## Skill 自更新脚本
 
-每个 skill 包内包含 `scripts/update-skill.cjs`。该脚本用于已安装 skill 的自检和可选更新：它读取脚本内的配置项，从 `zxyycom/skills` 的 GitHub latest release 下载 `skill-package-lock.json`，用其中当前 skill 的独立 hash 与本地目录指纹比较；只有发现不一致并确认更新时，才下载对应 `<skill-name>.zip` asset，使用 `fflate` 解压出包内 `<skill-name>/` 目录并覆盖更新。指定旧 release tag 且该 release 没有 lock asset 时，脚本回退为下载 zip 并计算远端指纹。
+每个 skill 包内包含 `scripts/update-skill.cjs` 及 `update-skill.cjs.map`。该脚本用于已安装 skill 的自检和可选更新：它读取脚本内的配置项，从 `zxyycom/skills` 的 GitHub latest release 下载 `skill-package-lock.json`，用其中当前 skill 的独立 hash 与本地目录指纹比较；只有发现不一致并确认更新时，才下载对应 `<skill-name>.zip` asset，使用 `fflate` 解压出包内 `<skill-name>/` 目录并覆盖更新。指定旧 release tag 且该 release 没有 lock asset 时，脚本回退为下载 zip 并计算远端指纹。
 
 自更新脚本源码使用主仓库 TypeScript 工具链和依赖，但分发产物应能脱离主仓库运行，不能要求已安装 skill 的使用者具备主仓库 Bun、pnpm 或 TypeScript 工具链。需要访问私有仓库或提高 GitHub API 限额时，可通过 `GITHUB_TOKEN` 或 `GH_TOKEN` 提供 token。
 
