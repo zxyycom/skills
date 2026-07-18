@@ -98,6 +98,12 @@
       "decision": "`SKILL.md` 继续作为默认执行路径 owner, 但主执行流程只保留压缩后的八步判断链, 细节解释由 `principles.md` 和具体任务上下文承接。"
     },
     {
+      "path": "subagent-orchestration-behavior/260718-default-to-minimal-subagent-history.md",
+      "title": "默认以最小历史派发子代理",
+      "background": "`skills/subagent-orchestration/SKILL.md` 要求只传递最小上下文, 但没有形成可映射到不同子代理工具的历史选择规则; 依赖各工具默认行为可能引入无关历史, 绑定单一字段又会失去复用性。",
+      "decision": "派发前按当前工具能力确定最小充分的历史范围; 可控时显式配置, 默认不继承主线程对话, 必要时只继承最小有限范围, 仅在完整对话本身是不可替代输入时主动选择全量继承, 具体字段和值由工具接口承接。"
+    },
+    {
       "path": "subagent-orchestration-behavior/260712-separate-write-ownership-from-read-scope.md",
       "title": "区分并行写入所有权与只读调查范围",
       "background": "`skills/subagent-orchestration/SKILL.md` 原先要求子代理工作范围、文件范围和决策范围保持互斥, 没有区分写入所有权与只读证据范围。",
