@@ -19,7 +19,7 @@
     "check:decision-records-cli": "bun scripts/decision-records/build.ts --check",
     "sync:skill-updaters": "bun scripts/sync-skill-updaters.ts --write",
     "check:skill-updaters": "bun scripts/sync-skill-updaters.ts --check",
-    "deploy:package": "bun run check",
+    "deploy:package": "bun scripts/hash-skills.ts --check && bun run check",
     "check": "bun run typecheck && bun run check:decision-records-cli && bun run check:skill-updaters && bun run test:decision-records-cli && bun scripts/validate.ts && bun scripts/pack-skills.ts"
   },
   "devDependencies": {

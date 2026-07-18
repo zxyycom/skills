@@ -40,7 +40,7 @@
 10. `bun run sync:skill-updaters`: 按主仓库模板和 `skills/` 发现结果生成各 skill 内的 `scripts/update-skill.cjs`。
 11. `bun run check:skill-updaters`: 检查各 skill 内的 `scripts/update-skill.cjs` 是否由当前主仓库模板生成。
 12. `bun run check`: 依次运行类型检查、生成产物检查、CLI 测试、项目校验和全部 skill 打包。
-13. `bun run deploy:package`: 复用 `check` 生成本地可交付 zip 制品，不写入仓库外目录；CI 发布由 workflow 负责。
+13. `bun run deploy:package`: 先校验当前 Git index 与 `skill-package-lock.json` 一致，再复用 `check` 生成本地可交付 zip 制品；不写入仓库外目录，CI 发布由 workflow 负责。
 
 需要直接排查脚本问题时，可以用 `bun scripts/<script>.ts` 运行单个脚本。
 
