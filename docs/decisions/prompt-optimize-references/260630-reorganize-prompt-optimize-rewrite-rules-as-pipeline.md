@@ -1,8 +1,12 @@
 # 2026-06-30 - 将 prompt-optimize 改写规则重组为管线
 
 ## 索引摘要
+- 目的: 让 prompt-optimize 改写规则拥有单一 owner 和稳定的执行顺序。
 - 背景: `prompt-optimize` skill 的规则内容持续膨胀, 入口和引用文件之间开始出现职责重复。
 - 决策: 在 `prompt-optimize` 中, `rewrite-rules.md` 作为改写判断 owner, 按管线组织规则, 每一步的产物决定下一步处理方式。
+
+## 目的
+- 让 prompt-optimize 改写规则拥有单一 owner 和稳定的执行顺序。
 
 ## 背景
 - `prompt-optimize` skill 的规则内容持续膨胀, 入口和引用文件之间开始出现职责重复。
@@ -20,7 +24,7 @@
 4. 因此把 `rewrite-rules.md` 重组为八步改写管线: 任务出口、文档骨架、行为审计、内容 owner、规则关系、负向描述、表达格式和沉淀判断。
 5. 同步调整 `workflows.md` 和 `SKILL.md`, 让入口和流程文件只引用管线摘要, 具体判断留在 `rewrite-rules.md`。
 
-## 决定
+## 决策
 - 采用: 在 `prompt-optimize` 中, `rewrite-rules.md` 作为改写判断 owner, 按管线组织规则, 每一步的产物决定下一步处理方式。
 - 采用: 在 `prompt-optimize` 中, `workflows.md` 只写任务流程顺序, 不重复展开具体改写判断。
 - 采用: 在 `prompt-optimize` 中, `principles.md` 只解释规则背后的原理、取舍和长期维护理由, 每节按“原理或思考 -> 行为”说明。

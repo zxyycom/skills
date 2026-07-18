@@ -1,8 +1,12 @@
 # 2026-07-03 - 用 skill package lock 承接发布和自更新
 
 ## 索引摘要
+- 目的: 让聚合发布中的每个 skill 能按自身内容准确判断是否需要更新。
 - 背景: 主仓库采用聚合 release，只要任一 skill 的打包输入变化，就会发布一次包含全部 skill zip 的 release。
 - 决策: 根目录只保留 `skill-package-lock.json`，记录聚合 hash 和每个 skill 的独立包内容 hash。
+
+## 目的
+- 让聚合发布中的每个 skill 能按自身内容准确判断是否需要更新。
 
 ## 背景
 - 主仓库采用聚合 release，只要任一 skill 的打包输入变化，就会发布一次包含全部 skill zip 的 release。
@@ -10,7 +14,7 @@
 - 单独保留 `skill-package.hash` 会和 `skill-package-lock.json` 中的聚合 hash 重复，增加同步和解释成本。
 - 需要在保留聚合发布入口的同时，让一个状态文件同时支持聚合发布门禁和单 skill 更新判断。
 
-## 决定
+## 决策
 - 采用: 根目录只保留 `skill-package-lock.json`，记录聚合 hash 和每个 skill 的独立包内容 hash。
 - 采用: 删除 `skill-package.hash`；CI 发布门禁、版本化 tag hash 和本地提交前 hook 都读取或写回 `skill-package-lock.json`。
 - 采用: `scripts/pack-skills.ts` 将 `skill-package-lock.json` 复制到 `dist/`，CI 将它和全部 skill zip 一起作为 release asset 发布。

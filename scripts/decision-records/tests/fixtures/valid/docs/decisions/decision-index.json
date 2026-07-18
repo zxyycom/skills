@@ -1,9 +1,10 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "current": [
     {
       "path": "tooling/260711-use-generated-cli.md",
       "title": "使用生成 CLI",
+      "purpose": "确保生成后的 CLI 能在独立运行环境中读取并校验决策记录。",
       "background": "需要验证生成后的 CLI 能读取一套最小决策目录。",
       "decision": "使用固定结构的测试夹具。"
     }

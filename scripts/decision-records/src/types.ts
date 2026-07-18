@@ -28,6 +28,7 @@ export type DecisionRecord = {
   decisionPath: string;
   fileName: string;
   fullDate: string | null;
+  purpose: string;
   relations: DecisionRelation[];
   relativePath: string;
   title: string;

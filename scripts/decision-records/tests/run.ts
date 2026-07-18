@@ -155,6 +155,7 @@ try {
       background: string;
       decision: string;
       path: string;
+      purpose: string;
       title: string;
     }>;
     schemaVersion: number;
@@ -171,10 +172,22 @@ try {
   ));
   await fs.writeFile(indexPath, originalIndex, "utf8");
 
+  await fs.writeFile(
+    indexPath,
+    JSON.stringify({ ...index, schemaVersion: 1 }, null, 2) + "\n",
+    "utf8"
+  );
+  const withLegacySchemaVersion = await validateDecisionRecords({ workspaceRoot: tempRoot });
+  assert.ok(withLegacySchemaVersion.errors.some(
+    (error) => error.includes("schemaVersion must be 2")
+  ));
+  await fs.writeFile(indexPath, originalIndex, "utf8");
+
   index.current.push({
     background: "需要为直接关系校验提供一条可追溯的前序决定。",
     decision: "使用源码 CLI 作为测试夹具的初始做法。",
     path: "tooling/260710-use-source-cli.md",
+    purpose: "为 CLI 关系和生命周期测试保留可追溯的前序判断。",
     title: "使用源码 CLI"
   });
   await fs.writeFile(indexPath, JSON.stringify(index, null, 2) + "\n", "utf8");
@@ -195,6 +208,7 @@ try {
     currentDecisionPath,
     currentDecision.replace(
       "\n## 索引摘要\n"
+      + "- 目的: 确保生成后的 CLI 能在独立运行环境中读取并校验决策记录。\n"
       + "- 背景: 需要验证生成后的 CLI 能读取一套最小决策目录。\n"
       + "- 决策: 使用固定结构的测试夹具。\n",
       "\n"
@@ -204,6 +218,35 @@ try {
   const withoutExplicitSummary = await validateDecisionRecords({ workspaceRoot: tempRoot });
   assert.ok(withoutExplicitSummary.errors.some(
     (error) => error.includes("is missing section ## 索引摘要")
+  ));
+  await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
+
+  await fs.writeFile(
+    currentDecisionPath,
+    currentDecision.replace(
+      "\n## 目的\n"
+      + "- 确保生成后的 CLI 能在独立运行环境中读取并校验决策记录。\n",
+      "\n"
+    ),
+    "utf8"
+  );
+  const withoutPurposeSection = await validateDecisionRecords({ workspaceRoot: tempRoot });
+  assert.ok(withoutPurposeSection.errors.some(
+    (error) => error.includes("is missing section ## 目的")
+  ));
+  await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
+
+  await fs.writeFile(
+    currentDecisionPath,
+    currentDecision.replace(
+      "- 目的: 确保生成后的 CLI 能在独立运行环境中读取并校验决策记录。\n",
+      ""
+    ),
+    "utf8"
+  );
+  const withoutSummaryPurpose = await validateDecisionRecords({ workspaceRoot: tempRoot });
+  assert.ok(withoutSummaryPurpose.errors.some(
+    (error) => error.includes("must include field \"- 目的: <value>\"")
   ));
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
 
@@ -285,13 +328,17 @@ try {
       "# 2026-07-12 - 使用打包 CLI",
       "",
       "## 索引摘要",
+      "- 目的: 验证 CLI 能以校验式事务切换当前决策。",
       "- 背景: 需要验证 JSON 当前索引的校验式成员更新。",
       "- 决策: 使用打包 CLI 作为新的当前决定。",
+      "",
+      "## 目的",
+      "- 验证 CLI 能以校验式事务切换当前决策。",
       "",
       "## 背景",
       "- 需要验证 JSON 当前索引的校验式成员更新。",
       "",
-      "## 决定",
+      "## 决策",
       "- 采用: 使用打包 CLI 作为新的当前决定。",
       ""
     ].join("\n"),

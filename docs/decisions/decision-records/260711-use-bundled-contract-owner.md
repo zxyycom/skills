@@ -1,8 +1,12 @@
 # 2026-07-11 - 使用随包 reference 作为唯一固定契约
 
 ## 索引摘要
+- 目的: 为不同项目提供唯一随包固定契约，避免项目副本长期漂移。
 - 背景: 随包 reference 与目标项目的 `decision-record-rules.md` 同时解释固定格式时，会形成两份需要同步的契约和二次导航。
 - 决策: `skills/decision-records/references/decision-record-rules.md` 独立承接目录、稳定命名、当前成员、关系、正文结构、索引和维护事务，因为它随 skill 分发且是所有项目共同使用的固定入口。
+
+## 目的
+- 为不同项目提供唯一随包固定契约，避免项目副本长期漂移。
 
 ## 背景
 - 随包 reference 与目标项目的 `decision-record-rules.md` 同时解释固定格式时，会形成两份需要同步的契约和二次导航。
@@ -12,7 +16,7 @@
 - 用户明确确认随包 `skills/decision-records/references/decision-record-rules.md` 是唯一固定契约，不在目标项目建立第二份规则导航。
 - 项目仍可能需要比通用契约更严格的记录门槛，但这些约束属于项目协作或具体行为 owner。
 
-## 决定
+## 决策
 - 采用: `skills/decision-records/references/decision-record-rules.md` 独立承接目录、稳定命名、当前成员、关系、正文结构、索引和维护事务，因为它随 skill 分发且是所有项目共同使用的固定入口。
 - 采用: 目标项目的 `docs/decisions/` 根目录只保留 `decision-index.json`；主题分类目录承接实际决策数据，逻辑归档不改变文件位置。
 - 采用: `decision-index.json` 只承接当前成员和由 Markdown 显式摘要派生的定位、精简背景与决策字段，不复制固定契约或完整决策理由。

@@ -1,8 +1,12 @@
 # 2026-07-11 - 分离 skill 分发脚本源码与生成产物
 
 ## 索引摘要
+- 目的: 兼顾分发脚本的独立可执行性与主仓库 TypeScript 源码的可维护性。
 - 背景: 已安装 skill 需要携带能由目标运行时直接执行的 JavaScript，但直接在 `skills/<skill-name>/scripts/` 维护打包代码会失去正常的 TypeScript 模块结构、类型检查和测试入口。
 - 决策: 在主仓库 `scripts/` 下按工具建立源码目录，承接 TypeScript 模块、测试、夹具和构建入口；skill 目录只承接实际分发所需的生成 JavaScript。
+
+## 目的
+- 兼顾分发脚本的独立可执行性与主仓库 TypeScript 源码的可维护性。
 
 ## 背景
 - 已安装 skill 需要携带能由目标运行时直接执行的 JavaScript，但直接在 `skills/<skill-name>/scripts/` 维护打包代码会失去正常的 TypeScript 模块结构、类型检查和测试入口。
@@ -13,7 +17,7 @@
 - 分发产物必须脱离主仓库的 Bun、pnpm、TypeScript 和源码目录运行。
 - 生成结果会进入 skill package hash；构建头不能包含时间戳、本机绝对路径或其他非确定性内容。
 
-## 决定
+## 决策
 - 采用: 在主仓库 `scripts/` 下按工具建立源码目录，承接 TypeScript 模块、测试、夹具和构建入口；skill 目录只承接实际分发所需的生成 JavaScript。
 - 采用: 生成产物提交到 `skills/<skill-name>/scripts/`，由 `sync:*` 显式写入，由 `check:*` 在临时目录重建并比较，打包阶段只收集已经通过同步检查的稳定产物。
 - 采用: 可嵌入注释的生成脚本顶部统一写明禁止直接编辑、仓库链接、线上可维护源码链接、仓库内源码路径、对应 skill 源目录和重建命令；按产物用途补充 release asset 等必要入口。

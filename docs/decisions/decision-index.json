@@ -1,129 +1,150 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "current": [
     {
       "path": "decision-records/260718-add-direction-and-depth-to-trace.md",
       "title": "为 trace 增加定向和限深查询",
+      "purpose": "让使用者按回放需要低成本查询前序、后续或有限深度的关系链。",
       "background": "`trace` 只能把关系当作双向图返回完整连通分量，无法只看前序、只反查后续或限制追溯深度；现有实现已经具备边集合和遍历逻辑。",
       "decision": "保持关系由新记录单向指向直接前序，给 `trace` 增加前序、后续、双向和最大深度选项；默认行为保持双向完整查询，使用现有邻接表和广度优先遍历实现，不引入图库。"
     },
     {
-      "path": "decision-records/260718-separate-logical-archive-from-relations.md",
-      "title": "分离逻辑归档与决策关系",
-      "background": "强制每条逻辑归档记录都被后续记录引用，会把没有后续判断的普通退役误建模为决策演进；现有校验只要求任意入链，也不能证明 `archive --by` 指定的后续记录真实承接全部前序。",
-      "decision": "继续由 JSON 当前索引维护当前成员及 Markdown 派生摘要，决策文件使用稳定路径；逻辑归档可以独立退出当前集合，只有真实演进才声明单向直接关系，`archive --by` 必须验证指定后续记录直接引用全部前序，CLI 拒绝关系环并负责反查。"
+      "path": "decision-records/260718-use-purpose-background-decision-structure.md",
+      "title": "使用目的、背景和决策的三层投影",
+      "purpose": "让当前决策显式回答希望达成什么、为何需要选择以及最终选择什么，同时保持低成本检索和可靠回放。",
+      "background": "只在摘要增加目的会让摘要承载正文未显式出现的语义；继续由背景隐含目的又要求未来维护者自行推断，而完整目的本身可能需要展开。",
+      "decision": "Markdown 使用索引摘要、目的、背景和决策四个必需章节，摘要只压缩对应完整章节；JSON 索引升级为 schema v2，保存由摘要派生的 `path`、`title`、`purpose`、`background` 和 `decision`。当前成员、稳定路径、逻辑归档与单向直接关系继续由既有 CLI 事务维护。"
     },
     {
       "path": "decision-records/260711-use-bundled-contract-owner.md",
       "title": "使用随包 reference 作为唯一固定契约",
+      "purpose": "为不同项目提供唯一随包固定契约，避免项目副本长期漂移。",
       "background": "随包 reference 与目标项目的 `decision-record-rules.md` 同时解释固定格式时，会形成两份需要同步的契约和二次导航。",
       "decision": "`skills/decision-records/references/decision-record-rules.md` 独立承接目录、稳定命名、当前成员、关系、正文结构、索引和维护事务，因为它随 skill 分发且是所有项目共同使用的固定入口。"
     },
     {
       "path": "decision-records-skill/260718-notify-before-decision-writes.md",
       "title": "在决策写入前明确通知用户",
+      "purpose": "在不增加重复授权成本的前提下，让用户感知长期决策集合的变化。",
       "background": "为每项决策维护操作重复询问授权会增加交互成本，但静默新增或调整长期决策又会让用户失去对长期记忆变化的感知。",
       "decision": "当前指令足以表达决策维护意图时不重复询问操作授权；新增、调整或退出当前集合前明确告知用户将写入或改变的判断及集合变化，长期含义或范围不清时再请求判断。"
     },
     {
       "path": "decision-records-skill/260718-trigger-on-long-term-decision-points.md",
       "title": "让长期决策形成和冲突成为核心触发",
+      "purpose": "在真正形成长期判断或发生冲突时恢复决策上下文，避免普通执行误触发。",
       "background": "以“任务可能改变长期行为”作为触发条件会把普通执行也纳入范围，而逐项枚举维护操作会削弱真正需要主动恢复上下文的决策时刻。",
       "decision": "`decision-records` 用于长期决策管理；当用户正在形成可能产生长期影响的决定，或拟议决定与既有决定冲突时调用，触发后恢复相关当前决策并处理偏离，入口不枚举记录、查询或归档等自然操作。"
     },
     {
       "path": "git-commit-organizer-behavior/260702-refine-commit-granularity-types-and-command.md",
       "title": "调整 git-commit-organizer 的提交粒度、类型和创建命令",
+      "purpose": "让每个提交形成可独立理解、审查和回滚的语义单元，并准确表达 agent 配置改动。",
       "background": "`git-commit-organizer` 已经规定提交格式和基础类型, 但没有明确要求按语义单元拆分提交, 也没有区分只影响 AI/agent 配置的改动。",
       "decision": "在 `git-commit-organizer` 的 skill 本体中增加“提交粒度”规则, 要求一个提交只表达一个可独立理解、审查和回滚的语义单元。"
     },
     {
       "path": "openspec-skills/260706-gate-temporary-change-plans.md",
       "title": "将 OpenSpec change 作为临时计划并设置实现门禁",
+      "purpose": "允许先保存尚未完成审计的 change 计划，同时阻止它被误当成可直接实施的方案。",
       "background": "OpenSpec change 可以作为临时计划存在, 类似 issue 或 PR, 通常从用户想法、探索结论、代码事实或已有规范中引申出来。",
       "decision": "在 OpenSpec skills 中把 active change 视为可以先存在的临时计划; 创建 change 只表示想法被结构化到 `openspec/changes/<name>/`, 不表示方案已经审计完毕或可以立即实现。"
     },
     {
       "path": "project-tooling/260718-use-project-coding-style-owner.md",
       "title": "采用项目级编码规范 owner",
+      "purpose": "为脚本实现的归属、边界、类型、组织和风险验证提供单一长期 owner。",
       "background": "`AGENTS.md` 已承接项目协作约定，`docs/tooling.md` 已承接脚本工具链，但实现代码的归属、边界、类型、组织和风险验证缺少独立 owner。",
       "decision": "使用 `docs/coding-style.md` 承接 `scripts/` 实现代码的通用质量规则，由 `AGENTS.md` 提供读取入口；行为契约和工具链细节继续留在各自 owner。"
     },
     {
       "path": "project-tooling/260711-separate-skill-script-source-and-generated-artifacts.md",
       "title": "分离 skill 分发脚本源码与生成产物",
+      "purpose": "兼顾分发脚本的独立可执行性与主仓库 TypeScript 源码的可维护性。",
       "background": "已安装 skill 需要携带能由目标运行时直接执行的 JavaScript，但直接在 `skills/<skill-name>/scripts/` 维护打包代码会失去正常的 TypeScript 模块结构、类型检查和测试入口。",
       "decision": "在主仓库 `scripts/` 下按工具建立源码目录，承接 TypeScript 模块、测试、夹具和构建入口；skill 目录只承接实际分发所需的生成 JavaScript。"
     },
     {
       "path": "project-tooling/260703-follow-latest-release-for-skill-updater.md",
       "title": "自更新脚本跟随 latest release 制品",
+      "purpose": "让 skill 自更新使用正式发布制品，而不是开发分支快照。",
       "background": "自更新脚本原来默认从主仓库 `main` 分支下载源码 zip 并截取 `skills/<skill-name>/` 目录。",
       "decision": "`scripts/update-skill.cjs` 默认通过 GitHub Releases API 读取 `zxyycom/skills` 的 latest release，并以该 release 中的正式 asset 作为远端更新输入。"
     },
     {
       "path": "project-tooling/260703-use-per-skill-hash-lock-for-updater.md",
       "title": "用 skill package lock 承接发布和自更新",
+      "purpose": "让聚合发布中的每个 skill 能按自身内容准确判断是否需要更新。",
       "background": "主仓库采用聚合 release，只要任一 skill 的打包输入变化，就会发布一次包含全部 skill zip 的 release。",
       "decision": "根目录只保留 `skill-package-lock.json`，记录聚合 hash 和每个 skill 的独立包内容 hash。"
     },
     {
       "path": "project-tooling/260702-use-monorepo-skills-directory.md",
       "title": "迁移为 skills 单仓库布局",
+      "purpose": "简化个人维护的多 skill 仓库结构，并统一共享工具链和交付。",
       "background": "仓库原来通过 Git submodule 组织多个 skill 子仓库, 但当前项目是个人自用和个人维护, 没有外部使用者依赖子仓库的独立 release 入口。",
       "decision": "用 `skills/<skill-name>/` 直接承接所有实际可打包 skill, 每个一级目录必须包含 `SKILL.md`。"
     },
     {
       "path": "project-tooling/260701-avoid-workflow-structure-validation.md",
       "title": "不用脚本校验 workflow 结构",
+      "purpose": "避免在校验脚本中复制 workflow 结构，让检查聚焦稳定的项目约束。",
       "background": "用 TypeScript validator 解析或正则匹配 GitHub Actions workflow, 会把 workflow 结构重复表达在脚本里。",
       "decision": "校验脚本只检查仓库长期源文件、skill 入口、Markdown 链接、决策记录和 package script 等项目约束。"
     },
     {
       "path": "project-tooling/260701-use-libraries-for-common-script-behavior.md",
       "title": "本地脚本的常见行为优先使用成熟库",
+      "purpose": "降低通用底层能力的自研维护成本和缺陷风险。",
       "background": "为了减少依赖而手写 ZIP 结构、CRC、压缩头等通用底层逻辑，会让本地开发辅助脚本变得难读且难维护。",
       "decision": "常见格式、协议、解析、压缩和归档能力优先使用成熟库，不因为是辅助脚本就手写底层实现。"
     },
     {
       "path": "project-tooling/260701-use-tsgo-for-typecheck.md",
       "title": "使用 tsgo 作为默认类型检查入口",
+      "purpose": "为主仓库脚本提供更快、更稳定的 TypeScript 类型检查入口。",
       "background": "主仓库脚本需要更好的 TypeScript 开发体验和更快的本地类型检查入口。",
       "decision": "安装 `@typescript/native-preview`，并让 `bun run typecheck` 执行 `tsgo --noEmit`。"
     },
     {
       "path": "prompt-optimize-references/260706-move-subagent-guidance-to-dedicated-skill.md",
       "title": "将子代理任务说明移出 prompt-optimize",
+      "purpose": "让 prompt-optimize 聚焦结构化文本优化，并为子代理编排建立独立 owner。",
       "background": "`prompt-optimize` 的 `agent-tasks.md` 曾负责 worker、explorer、并行 agent 和子 agent 任务结构。",
       "decision": "删除 `skills/prompt-optimize/references/agent-tasks.md`, 由 `skills/subagent-orchestration/SKILL.md` 承接子代理编排和子任务派发规则。"
     },
     {
       "path": "prompt-optimize-references/260701-add-document-main-promise-check.md",
       "title": "给 prompt-optimize 增加文档主承诺检查",
+      "purpose": "让文档正文兑现入口建立的预期，并能识别整体重心偏移。",
       "background": "`prompt-optimize` 已经要求判断用途、阅读脉络和内容 owner, 但 owner 主要解决内容完整解释放在哪里, 不足以稳定识别整篇文档的重心是否偏离入口信号建立的预期。",
       "decision": "在 `prompt-optimize` 主执行流程中新增“建立文档主承诺”, 从标题、副标题、序言、开头段、一级标题、触发条件、前置条件、资源名、字段集合、适用范围或输入输出描述推断核心问题、中心对象、预期展开方向和读者期待的结论或操作结果。"
     },
     {
       "path": "prompt-optimize-references/260701-compact-entry-and-archive-migration-copies.md",
       "title": "压缩 prompt-optimize 入口并归档迁移副本",
+      "purpose": "降低 prompt-optimize 的默认加载和判断成本，同时保留必要细节的可访问性。",
       "background": "`skills/prompt-optimize/SKILL.md` 在承接默认执行路径后, 同时保留了过多细则展开, 使用时需要关注的点过多。",
       "decision": "`SKILL.md` 继续作为默认执行路径 owner, 但主执行流程只保留压缩后的八步判断链, 细节解释由 `principles.md` 和具体任务上下文承接。"
     },
     {
       "path": "subagent-orchestration-behavior/260718-default-to-minimal-subagent-history.md",
       "title": "默认以最小历史派发子代理",
+      "purpose": "让子代理只获得完成任务所需的上下文，降低无关历史干扰并保持工具无关。",
       "background": "`skills/subagent-orchestration/SKILL.md` 要求只传递最小上下文, 但没有形成可映射到不同子代理工具的历史选择规则; 依赖各工具默认行为可能引入无关历史, 绑定单一字段又会失去复用性。",
       "decision": "派发前按当前工具能力确定最小充分的历史范围; 可控时显式配置, 默认不继承主线程对话, 必要时只继承最小有限范围, 仅在完整对话本身是不可替代输入时主动选择全量继承, 具体字段和值由工具接口承接。"
     },
     {
       "path": "subagent-orchestration-behavior/260718-focus-description-on-trigger-context.md",
       "title": "让子代理 skill 描述聚焦触发条件",
+      "purpose": "让 skill 的触发入口清楚表达何时调用，避免执行细节稀释触发信号。",
       "background": "`skills/subagent-orchestration/SKILL.md` 的 `description` 同时枚举触发场景和历史、所有权、依赖、等待、审计等执行规则, 削弱了入口的触发信号并与正文重复。",
       "decision": "`subagent-orchestration` 的 `description` 只承接一句大致定位和何时加载该 skill 的条件; 用户明确要求子代理, 或任务特征适合委派时触发, 具体执行规则留在正文。"
     },
     {
       "path": "subagent-orchestration-behavior/260712-separate-write-ownership-from-read-scope.md",
       "title": "区分并行写入所有权与只读调查范围",
+      "purpose": "在避免并行写入冲突的同时，保留子代理读取必要证据的能力。",
       "background": "`skills/subagent-orchestration/SKILL.md` 原先要求子代理工作范围、文件范围和决策范围保持互斥, 没有区分写入所有权与只读证据范围。",
       "decision": "只要求并行子代理的写入范围互斥, 并按实际可能修改的文件、配置、生成产物或外部状态划分所有权; 原因是冲突来自共享状态变更, 不是共享证据读取。"
     }

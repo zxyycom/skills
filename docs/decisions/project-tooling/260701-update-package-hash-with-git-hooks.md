@@ -1,8 +1,12 @@
 # 2026-07-01 - 用 Git hook 更新 package hash
 
 ## 索引摘要
+- 目的: 让发布 hash 与提交内容同步，同时避免 CI 写回产生额外提交。
 - 背景: GitHub Actions 在 release 成功后写回 `skill-package.hash` 会产生额外 bot 提交，干扰本地同步、提交历史阅读和 submodule 指针维护。
 - 决策: 主仓库和每个子仓库都继续保留 `skill-package.hash` 源文件。
+
+## 目的
+- 让发布 hash 与提交内容同步，同时避免 CI 写回产生额外提交。
 
 ## 背景
 - GitHub Actions 在 release 成功后写回 `skill-package.hash` 会产生额外 bot 提交，干扰本地同步、提交历史阅读和 submodule 指针维护。
@@ -12,7 +16,7 @@
 - 本仓库仍希望保留 hash 门禁，避免没有改变可安装 skill 包时重复覆盖 latest release。
 - Hash 文件应表示当前提交内的可打包 skill 内容，而不是一次外部发布任务的临时运行状态。
 
-## 决定
+## 决策
 - 采用: 主仓库和每个子仓库都继续保留 `skill-package.hash` 源文件。
 - 采用: 通过提交前 Git hook 更新并 stage `skill-package.hash`，让 hash 和 skill 内容进入同一个提交。
 - 采用: CI 校验 `skill-package.hash` 是否匹配当前提交内的 skill 打包输入；不匹配时让 workflow 失败，不再尝试自动提交修复。

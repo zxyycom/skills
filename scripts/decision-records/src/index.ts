@@ -32,10 +32,11 @@ export function expectedIndex(
 
   records.sort(compareDecisionRecords);
   const index: DecisionIndex = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     current: records.map((record) => ({
       path: record.relativePath,
       title: record.title,
+      purpose: record.purpose,
       background: record.background,
       decision: record.decision
     }))

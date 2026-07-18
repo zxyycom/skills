@@ -23,14 +23,16 @@ import {
 
 const sectionOrder = [
   "## 索引摘要",
+  "## 目的",
   "## 背景",
-  "## 决定",
+  "## 决策",
   "## 关系"
 ];
 const requiredSections = new Set([
   "## 索引摘要",
+  "## 目的",
   "## 背景",
-  "## 决定"
+  "## 决策"
 ]);
 const decisionFilePattern = /^(\d{6})-([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/;
 const decisionRelationTypeSet: ReadonlySet<string> = new Set(decisionRelationTypes);
@@ -269,20 +271,22 @@ export async function validateDecisionBody(options: {
 
   let background = "";
   let decision = "";
+  let purpose = "";
   const summarySection = sectionMap.get("## 索引摘要")?.[0]?.content;
   if (summarySection) {
     requireOnlyFields(
       relativePath,
       summarySection,
       "## 索引摘要",
-      ["背景", "决策"],
+      ["目的", "背景", "决策"],
       errors
     );
+    purpose = requireSingleField(relativePath, summarySection, "目的", errors) ?? "";
     background = requireSingleField(relativePath, summarySection, "背景", errors) ?? "";
     decision = requireSingleField(relativePath, summarySection, "决策", errors) ?? "";
   }
 
-  const decisionSection = sectionMap.get("## 决定")?.[0]?.content;
+  const decisionSection = sectionMap.get("## 决策")?.[0]?.content;
   if (decisionSection) {
     requireNonEmptyField(relativePath, decisionSection, "采用", errors);
   }
@@ -303,6 +307,7 @@ export async function validateDecisionBody(options: {
     datePrefix,
     decision,
     fullDate,
+    purpose,
     relations,
     title
   };

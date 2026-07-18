@@ -1,8 +1,12 @@
 # 2026-07-02 - 迁移为 skills 单仓库布局
 
 ## 索引摘要
+- 目的: 简化个人维护的多 skill 仓库结构，并统一共享工具链和交付。
 - 背景: 仓库原来通过 Git submodule 组织多个 skill 子仓库, 但当前项目是个人自用和个人维护, 没有外部使用者依赖子仓库的独立 release 入口。
 - 决策: 用 `skills/<skill-name>/` 直接承接所有实际可打包 skill, 每个一级目录必须包含 `SKILL.md`。
+
+## 目的
+- 简化个人维护的多 skill 仓库结构，并统一共享工具链和交付。
 
 ## 背景
 - 仓库原来通过 Git submodule 组织多个 skill 子仓库, 但当前项目是个人自用和个人维护, 没有外部使用者依赖子仓库的独立 release 入口。
@@ -17,7 +21,7 @@
 2. 再判断单仓库形态: 不采用根目录直接平铺 skill, 而是在项目根目录下新增 `skills/` 集中承接实际 skill。
 3. 最后处理 README 和历史: README 作为人类介绍页迁入 `docs/skills/`, 子仓库历史通过 subtree 导入后再移动到最终路径, 让最终结构干净且可用 `git log --follow` 追溯。
 
-## 决定
+## 决策
 - 采用: 用 `skills/<skill-name>/` 直接承接所有实际可打包 skill, 每个一级目录必须包含 `SKILL.md`。
 - 采用: 用 `docs/skills/` 承接原子仓库 README 和后续面向人类的 skill 介绍页。
 - 采用: 删除 `.gitmodules`、submodule 指针、子仓库独立 release workflow、子仓库 hook 和子仓库 hash 基线。

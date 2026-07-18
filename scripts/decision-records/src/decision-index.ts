@@ -14,13 +14,14 @@ const decisionIndexEntrySchema = v.strictObject(
     background: nonEmptyStringSchema,
     decision: nonEmptyStringSchema,
     path: decisionPathSchema,
+    purpose: nonEmptyStringSchema,
     title: nonEmptyStringSchema
   }
 );
 export const decisionIndexSchema = v.strictObject(
   {
     current: v.array(decisionIndexEntrySchema, "must be an array"),
-    schemaVersion: v.literal(1, "must be 1")
+    schemaVersion: v.literal(2, "must be 2")
   }
 );
 
@@ -34,7 +35,7 @@ function formatIssue(issue: v.InferIssue<typeof decisionIndexSchema>): {
   const rawPath = v.getDotPath(issue);
   const message = issue.type === "strict_object" && issue.expected === "never"
     ? rawPath?.startsWith("current.")
-      ? "must contain only path, title, background, and decision"
+      ? "must contain only path, title, purpose, background, and decision"
       : "must contain only schemaVersion and current"
     : issue.message;
   return {

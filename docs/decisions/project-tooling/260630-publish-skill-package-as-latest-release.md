@@ -1,8 +1,12 @@
 # 2026-06-30 - 使用 latest release 自动发布 skill 制品
 
 ## 索引摘要
+- 目的: 集中重复的 skill 校验与打包工具链，并提供统一的聚合发布入口。
 - 背景: 多个 skill 子仓库有重复的校验、打包和发布脚本，继续分散维护会让同一套工具链在多个仓库漂移。
 - 决策: 主仓库 CI 在所有触发场景运行校验、打包和 workflow artifact 上传。
+
+## 目的
+- 集中重复的 skill 校验与打包工具链，并提供统一的聚合发布入口。
 
 ## 背景
 - 多个 skill 子仓库有重复的校验、打包和发布脚本，继续分散维护会让同一套工具链在多个仓库漂移。
@@ -18,7 +22,7 @@
 3. 发布入口选择固定 `skills-latest` release，让每次 `main` 发布覆盖同名 assets。
 4. 为避免 PR 获得不必要发布权限，将打包 job 和发布 job 分离，只有发布 job 使用写权限。
 
-## 决定
+## 决策
 - 采用: 主仓库 CI 在所有触发场景运行校验、打包和 workflow artifact 上传。
 - 采用: `main` 分支的 `push` 和 `workflow_dispatch` 额外发布或更新 GitHub Release `skills-latest`。
 - 采用: release tag 指向最新发布提交，release assets 覆盖为当前 `dist/*.zip`。

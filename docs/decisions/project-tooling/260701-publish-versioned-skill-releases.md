@@ -1,15 +1,19 @@
 # 2026-07-01 - 使用版本化 release 发布 skill 制品
 
 ## 索引摘要
+- 目的: 让每次实际发布都具有可识别的时间和内容版本。
 - 背景: 固定 `*-latest` release 被更新后，GitHub 页面仍显示 release 最初的 `published_at`，容易让使用者误以为包没有更新。
 - 决策: 主仓库聚合发布和子仓库独立发布都使用 `<timestamp>-<hash12>` 作为版本化 release tag，时间戳使用 UTC `YYYYMMDDTHHMMSSZ` 格式。
+
+## 目的
+- 让每次实际发布都具有可识别的时间和内容版本。
 
 ## 背景
 - 固定 `*-latest` release 被更新后，GitHub 页面仍显示 release 最初的 `published_at`，容易让使用者误以为包没有更新。
 - 只覆盖 latest assets 缺少稳定的历史版本入口，不利于回滚、比对和确认某个包内容的发布时间。
 - 仓库没有人工维护的语义版本号，不能把版本发布依赖到手写 changelog 或手动 bump。
 
-## 决定
+## 决策
 - 采用: 主仓库聚合发布和子仓库独立发布都使用 `<timestamp>-<hash12>` 作为版本化 release tag，时间戳使用 UTC `YYYYMMDDTHHMMSSZ` 格式。
 - 采用: 主仓库 `<hash12>` 来自根目录 `skill-package-lock.json` 中 `aggregateHash` 的前 12 位；子仓库 `<hash12>` 来自该子仓库 `skill/` tree hash 的前 12 位。
 - 采用: 版本化 release 是 GitHub Releases 列表里的真实发布记录，并显式标记为 Latest。

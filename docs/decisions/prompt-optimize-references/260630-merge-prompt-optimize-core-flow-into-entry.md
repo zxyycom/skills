@@ -1,8 +1,12 @@
 # 2026-06-30 - 将 prompt-optimize 核心流程合并回入口
 
 ## 索引摘要
+- 目的: 让 prompt-optimize 触发后直接获得默认流程，减少重复读取和职责分散。
 - 背景: `workflows.md` 和 `rewrite-rules.md` 在实际使用中读取概率过高, 基本成为 `prompt-optimize` 的默认执行路径。
 - 决策: 在 `prompt-optimize` 中, `SKILL.md` 直接承接定位目标、任务出口、文档骨架、行为审计、内容 owner、规则关系、负向描述、表达格式、沉淀判断、模式分流、冲突处理、交付格式和完成检查。
+
+## 目的
+- 让 prompt-optimize 触发后直接获得默认流程，减少重复读取和职责分散。
 
 ## 背景
 - `workflows.md` 和 `rewrite-rules.md` 在实际使用中读取概率过高, 基本成为 `prompt-optimize` 的默认执行路径。
@@ -20,7 +24,7 @@
 3. 因此把两者的主干合并为入口文件中的线性执行协议, 避免入口、工作流和改写规则三套相似流程并存。
 4. 同时保留原文件作为迁移期副本, 便于回溯旧结构和降低一次性删除的风险。
 
-## 决定
+## 决策
 - 采用: 在 `prompt-optimize` 中, `SKILL.md` 直接承接定位目标、任务出口、文档骨架、行为审计、内容 owner、规则关系、负向描述、表达格式、沉淀判断、模式分流、冲突处理、交付格式和完成检查。
 - 采用: 在 `prompt-optimize` 中, `principles.md` 和 `agent-tasks.md` 继续作为主动引用文件, 分别承接原理解释和子 agent 任务结构。
 - 采用: 在 `prompt-optimize` 中, `workflows.md` 和 `rewrite-rules.md` 作为迁移期保留副本静默留存, 文件开头说明保留原因、原作用和当前状态。
