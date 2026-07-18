@@ -34,7 +34,7 @@ description: >-
 ### 1. 区分任务意图
 
 1. 恢复、解释、检查或审阅保持只读。
-2. 用户明确要求记录或修订一项内容完整、将持续作为后续工作依据的决策时，将本次要求作为写入确认。
+2. 当前指令已经表达决策维护意图时，直接执行而不重复询问；新增、调整或退出当前集合前，先告知将写入或改变的判断及集合变化。
 3. 用户要求修复非标准格式时，只将已经说明的修复范围视为授权。
 4. 普通工作中需要形成可能产生长期影响的决定时，先恢复相关决策；形成新的重要取舍后，在自然更新或交付阶段提出候选，只有必须先确定该取舍才能继续时才即时提出。
 
@@ -50,8 +50,9 @@ description: >-
    - 明确的一次性例外：按当前指令完成本次任务，说明例外范围，并明确当前索引和历史未改变。
    - 长期修订：形成候选概览；当前指令已经明确要求长期记录或修订时复用该确认，否则等待确认后再写入。
    - 一致性问题：当前记录互相冲突、记录与行为 owner 冲突，或偏离性质不清且会影响实质改动时，报告冲突并请求判断。
-5. 当前事实与记录背景已经明显不同时，说明变化、受影响判断和需要确认的新取舍，不机械沿用旧背景。
-6. 没有当前指令或既有记录提供确认依据时，不自行选择冲突方向，也不静默改变长期行为。
+5. 当前指令只改变本次任务的执行方式时，归为一次性例外；只有用户已经决定改变后续工作的默认依据时，才归为长期修订。
+6. 当前事实与记录背景已经明显不同时，说明变化、受影响判断和需要确认的新取舍，不机械沿用旧背景。
+7. 没有当前指令或既有记录提供确认依据时，不自行选择冲突方向，也不静默改变长期行为。
 
 ### 3. 提出候选决策
 
@@ -99,17 +100,18 @@ node scripts/decision-records.mjs list --root <workspace-root>
 node scripts/decision-records.mjs list --archived --root <workspace-root>
 node scripts/decision-records.mjs list --all --root <workspace-root>
 node scripts/decision-records.mjs trace <topic/file.md> --root <workspace-root>
+node scripts/decision-records.mjs trace <topic/file.md> --direction predecessors --depth 1 --root <workspace-root>
 node scripts/decision-records.mjs sync-index --write --root <workspace-root>
 node scripts/decision-records.mjs activate <topic/file.md> --root <workspace-root>
 node scripts/decision-records.mjs archive <old.md...> --root <workspace-root>
 node scripts/decision-records.mjs archive <old.md...> --by <new.md> --root <workspace-root>
 ```
 
-不写命令时默认执行只读 `check`。使用 `--decisions-dir <path>` 指定非默认目录。`sync-index --write` 只刷新标题、精简背景、决策和排序，不改变当前成员。
+不写命令时默认执行只读 `check`。使用 `--decisions-dir <path>` 指定非默认目录。`trace` 默认双向查询完整关系链，使用 `--direction predecessors|successors|both` 选择方向，使用 `--depth <n>` 限制关系跳数。`sync-index --write` 只刷新标题、精简背景、决策和排序，不改变当前成员。
 
 ## 完成标准
 
-1. 只有明确确认的长期取舍进入当前索引。
+1. 只有明确确认的长期取舍进入当前索引；新增、调整或退出当前集合前已经告知用户将写入或改变的判断及集合变化。
 2. 形成可能产生长期影响的决定前，或拟议决定与既有决定冲突时，已读取相关当前记录，并结合背景、当前事实和行为 owner 判断是否沿用。
 3. JSON 索引包含每条当前判断的 `path`、`title`、精简 `background` 和 `decision`；摘要由 Markdown 显式提供，不重复路径中的分类，也不包含逻辑归档记录。
 4. 当前任务的偏离已经归类，没有未说明的一次性例外或静默长期修订。

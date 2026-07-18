@@ -14,6 +14,7 @@ import {
 } from "./types.ts";
 
 type Command = "activate" | "archive" | "check" | "list" | "sync-index" | "trace";
+type TraceDirection = "both" | "predecessors" | "successors";
 
 const commandSet: ReadonlySet<string> = new Set<Command>([
   "activate",
@@ -22,6 +23,11 @@ const commandSet: ReadonlySet<string> = new Set<Command>([
   "list",
   "sync-index",
   "trace"
+]);
+const traceDirectionSet: ReadonlySet<string> = new Set<TraceDirection>([
+  "both",
+  "predecessors",
+  "successors"
 ]);
 
 type CliArgs = {
@@ -32,6 +38,8 @@ type CliArgs = {
   decisionsDir: string;
   help: boolean;
   recordPaths: string[];
+  traceDepth: number | null;
+  traceDirection: TraceDirection;
   workspaceRoot: string;
   write: boolean;
 };
@@ -41,7 +49,7 @@ function usage(): string {
     "Usage:",
     "  node decision-records.mjs [check] [options]",
     "  node decision-records.mjs list [--archived | --all] [options]",
-    "  node decision-records.mjs trace <decision-path> [options]",
+    "  node decision-records.mjs trace <decision-path> [--direction <value>] [--depth <n>] [options]",
     "  node decision-records.mjs sync-index [--write] [options]",
     "  node decision-records.mjs activate <decision-path> [options]",
     "  node decision-records.mjs archive <decision-path...> [--by <decision-path>] [options]",
@@ -49,7 +57,7 @@ function usage(): string {
     "Commands:",
     "  check       Validate path format, Markdown records, relations, and the JSON index.",
     "  list        List current decisions by default. Use --archived or --all for history.",
-    "  trace       Trace direct and transitive relations in both directions.",
+    "  trace       Trace predecessors, successors, or both, with an optional maximum depth.",
     "  sync-index  Refresh generated title, background, decision, and sorting without changing membership.",
     "  activate    Add an existing decision file to the current index.",
     "  archive     Remove decisions from the current index. With --by, validate and activate their successor.",
@@ -60,6 +68,8 @@ function usage(): string {
     "  --archived              List only logically archived decisions.",
     "  --all                   List current and logically archived decisions.",
     "  --by <decision-path>    Successor that directly relates to every archived decision.",
+    "  --direction <value>     Trace predecessors, successors, or both. Defaults to both.",
+    "  --depth <n>             Maximum relation hops for trace. Defaults to unlimited.",
     "  --write                 Apply sync-index metadata changes.",
     "  -h, --help              Show this help text.",
     "",
@@ -76,7 +86,9 @@ function parseArgs(argv: string[]): CliArgs {
       all: { type: "boolean" },
       archived: { type: "boolean" },
       by: { type: "string" },
+      depth: { type: "string" },
       "decisions-dir": { type: "string" },
+      direction: { type: "string" },
       help: { short: "h", type: "boolean" },
       root: { type: "string" },
       write: { type: "boolean" }
@@ -95,6 +107,8 @@ function parseArgs(argv: string[]): CliArgs {
   const all = values.all ?? false;
   const archived = values.archived ?? false;
   const byPath = values.by ?? null;
+  const directionValue = values.direction ?? "both";
+  const depthValue = values.depth ?? null;
   const write = values.write ?? false;
 
   if (command !== "list" && (all || archived)) {
@@ -108,6 +122,21 @@ function parseArgs(argv: string[]): CliArgs {
   }
   if (command !== "archive" && byPath !== null) {
     throw new Error("--by is only valid with archive");
+  }
+  if (command !== "trace" && (values.direction !== undefined || depthValue !== null)) {
+    throw new Error("--direction and --depth are only valid with trace");
+  }
+  if (!traceDirectionSet.has(directionValue)) {
+    throw new Error(
+      "--direction must be predecessors, successors, or both"
+    );
+  }
+  if (depthValue !== null && !/^(0|[1-9]\d*)$/.test(depthValue)) {
+    throw new Error("--depth must be a non-negative integer");
+  }
+  const traceDepth = depthValue === null ? null : Number(depthValue);
+  if (traceDepth !== null && !Number.isSafeInteger(traceDepth)) {
+    throw new Error("--depth must be a safe non-negative integer");
   }
   if ((command === "activate" || command === "archive" || command === "trace")
     && recordPaths.length === 0) {
@@ -131,6 +160,8 @@ function parseArgs(argv: string[]): CliArgs {
     decisionsDir: values["decisions-dir"] ?? "docs/decisions",
     help: values.help ?? false,
     recordPaths,
+    traceDepth,
+    traceDirection: directionValue as TraceDirection,
     workspaceRoot: values.root ?? process.cwd(),
     write
   };
@@ -229,25 +260,41 @@ async function runTrace(args: CliArgs): Promise<number> {
       type: relation.type
     }))
   );
-  const edgesByPath = new Map<string, typeof edges>();
+  const predecessorEdgesByPath = new Map<string, typeof edges>();
+  const successorEdgesByPath = new Map<string, typeof edges>();
   for (const edge of edges) {
-    for (const recordPath of [edge.source, edge.target]) {
-      const entries = edgesByPath.get(recordPath) ?? [];
-      entries.push(edge);
-      edgesByPath.set(recordPath, entries);
-    }
+    const predecessorEdges = predecessorEdgesByPath.get(edge.source) ?? [];
+    predecessorEdges.push(edge);
+    predecessorEdgesByPath.set(edge.source, predecessorEdges);
+
+    const successorEdges = successorEdgesByPath.get(edge.target) ?? [];
+    successorEdges.push(edge);
+    successorEdgesByPath.set(edge.target, successorEdges);
   }
 
   const tracedPaths = new Set<string>();
-  const pendingPaths = [start.relativePath];
-  while (pendingPaths.length > 0) {
-    const currentPath = pendingPaths.shift();
-    if (currentPath === undefined || tracedPaths.has(currentPath)) {
+  const pendingPaths = [{ depth: 0, path: start.relativePath }];
+  let pendingIndex = 0;
+  while (pendingIndex < pendingPaths.length) {
+    const pending = pendingPaths[pendingIndex];
+    pendingIndex += 1;
+    if (pending === undefined || tracedPaths.has(pending.path)) {
       continue;
     }
-    tracedPaths.add(currentPath);
-    for (const edge of edgesByPath.get(currentPath) ?? []) {
-      pendingPaths.push(edge.source, edge.target);
+    tracedPaths.add(pending.path);
+    if (args.traceDepth !== null && pending.depth >= args.traceDepth) {
+      continue;
+    }
+
+    if (args.traceDirection !== "successors") {
+      for (const edge of predecessorEdgesByPath.get(pending.path) ?? []) {
+        pendingPaths.push({ depth: pending.depth + 1, path: edge.target });
+      }
+    }
+    if (args.traceDirection !== "predecessors") {
+      for (const edge of successorEdgesByPath.get(pending.path) ?? []) {
+        pendingPaths.push({ depth: pending.depth + 1, path: edge.source });
+      }
     }
   }
 

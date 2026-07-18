@@ -2,6 +2,12 @@
   "schemaVersion": 1,
   "current": [
     {
+      "path": "decision-records/260718-add-direction-and-depth-to-trace.md",
+      "title": "为 trace 增加定向和限深查询",
+      "background": "`trace` 只能把关系当作双向图返回完整连通分量，无法只看前序、只反查后续或限制追溯深度；现有实现已经具备边集合和遍历逻辑。",
+      "decision": "保持关系由新记录单向指向直接前序，给 `trace` 增加前序、后续、双向和最大深度选项；默认行为保持双向完整查询，使用现有邻接表和广度优先遍历实现，不引入图库。"
+    },
+    {
       "path": "decision-records/260718-separate-logical-archive-from-relations.md",
       "title": "分离逻辑归档与决策关系",
       "background": "强制每条逻辑归档记录都被后续记录引用，会把没有后续判断的普通退役误建模为决策演进；现有校验只要求任意入链，也不能证明 `archive --by` 指定的后续记录真实承接全部前序。",
@@ -14,16 +20,16 @@
       "decision": "`skills/decision-records/references/decision-record-rules.md` 独立承接目录、稳定命名、当前成员、关系、正文结构、索引和维护事务，因为它随 skill 分发且是所有项目共同使用的固定入口。"
     },
     {
+      "path": "decision-records-skill/260718-notify-before-decision-writes.md",
+      "title": "在决策写入前明确通知用户",
+      "background": "为每项决策维护操作重复询问授权会增加交互成本，但静默新增或调整长期决策又会让用户失去对长期记忆变化的感知。",
+      "decision": "当前指令足以表达决策维护意图时不重复询问操作授权；新增、调整或退出当前集合前明确告知用户将写入或改变的判断及集合变化，长期含义或范围不清时再请求判断。"
+    },
+    {
       "path": "decision-records-skill/260718-trigger-on-long-term-decision-points.md",
       "title": "让长期决策形成和冲突成为核心触发",
       "background": "以“任务可能改变长期行为”作为触发条件会把普通执行也纳入范围，而逐项枚举维护操作会削弱真正需要主动恢复上下文的决策时刻。",
       "decision": "`decision-records` 用于长期决策管理；当用户正在形成可能产生长期影响的决定，或拟议决定与既有决定冲突时调用，触发后恢复相关当前决策并处理偏离，入口不枚举记录、查询或归档等自然操作。"
-    },
-    {
-      "path": "decision-records-skill/260711-require-confirmed-decision-writes.md",
-      "title": "使用显式确认控制决策写入",
-      "background": "如果 agent 对工作中的每个选择都询问是否记录，长期记忆判断会频繁打断原任务。",
-      "decision": "agent 只在自然阶段发现会持续改变行为、owner、边界、兼容性、风险处理或验收方式的重要取舍时主动提出记录，从而保留高价值决策而不逐项打断工作。"
     },
     {
       "path": "git-commit-organizer-behavior/260702-refine-commit-granularity-types-and-command.md",

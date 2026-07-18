@@ -24,6 +24,25 @@ const generatedUpdaterPath = path.join(
   "update-skill.cjs"
 );
 
+function traceDecision(
+  decisionPath: string,
+  options: string[] = [],
+  workspaceRoot = fixtureRoot
+): string {
+  return execFileSync(
+    "node",
+    [
+      generatedCliPath,
+      "trace",
+      decisionPath,
+      ...options,
+      "--root",
+      workspaceRoot
+    ],
+    { encoding: "utf8" }
+  );
+}
+
 const validation = await validateDecisionRecords({ workspaceRoot: fixtureRoot });
 assert.deepEqual(validation.errors, []);
 assert.equal(validation.areaCount, 1);
@@ -53,21 +72,29 @@ const archivedList = execFileSync(
 );
 assert.match(archivedList, /archived\s+2026-07-10 tooling\/260710-use-source-cli\.md/);
 
-const relationTrace = execFileSync(
-  "node",
-  [
-    generatedCliPath,
-    "trace",
-    "tooling/260710-use-source-cli.md",
-    "--root",
-    fixtureRoot
-  ],
-  { encoding: "utf8" }
-);
+const relationTrace = traceDecision("tooling/260710-use-source-cli.md");
 assert.match(
   relationTrace,
   /tooling\/260711-use-generated-cli\.md --修订--> tooling\/260710-use-source-cli\.md/
 );
+
+const predecessorTrace = traceDecision(
+  "tooling/260711-use-generated-cli.md",
+  ["--direction", "predecessors"]
+);
+assert.match(predecessorTrace, /tooling\/260710-use-source-cli\.md/);
+
+const noPredecessorTrace = traceDecision(
+  "tooling/260710-use-source-cli.md",
+  ["--direction", "predecessors"]
+);
+assert.doesNotMatch(noPredecessorTrace, /260711-use-generated-cli/);
+
+const successorTrace = traceDecision(
+  "tooling/260710-use-source-cli.md",
+  ["--direction", "successors"]
+);
+assert.match(successorTrace, /tooling\/260711-use-generated-cli\.md/);
 
 const cliSource = await fs.readFile(generatedCliPath, "utf8");
 assert.match(cliSource, /Repository: https:\/\/github\.com\/zxyycom\/skills/);
@@ -285,6 +312,21 @@ try {
   assert.deepEqual(switched.errors, []);
   assert.equal(switched.currentCount, 1);
   assert.equal(switched.archivedCount, 2);
+
+  const directPredecessorTrace = traceDecision(
+    successorRelativePath,
+    ["--direction", "predecessors", "--depth", "1"],
+    tempRoot
+  );
+  assert.match(directPredecessorTrace, /260711-use-generated-cli/);
+  assert.doesNotMatch(directPredecessorTrace, /260710-use-source-cli/);
+
+  const fullPredecessorTrace = traceDecision(
+    successorRelativePath,
+    ["--direction", "predecessors", "--depth", "2"],
+    tempRoot
+  );
+  assert.match(fullPredecessorTrace, /260710-use-source-cli/);
 } finally {
   await fs.rm(tempRoot, { force: true, recursive: true });
 }
