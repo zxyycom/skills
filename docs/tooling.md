@@ -35,12 +35,13 @@
 5. `bun run pack:skills`: 读取 Git index 中 `skills/<skill-name>/` 的 blob，将每个 skill 分别打包为 `dist/<skill-name>.zip`，并把 `skill-package-lock.json` 复制为 release manifest asset。
 6. `bun run setup-hooks`: 将主仓库 `core.hooksPath` 设置为 `.githooks`。
 7. `bun run test:decision-records-cli`: 使用独立夹具测试 `decision-records` TypeScript 源码、Node 分发产物和生成头追溯字段。
-8. `bun run sync:decision-records-cli`: 从 `scripts/decision-records/` 构建并写入 skill 内的 `scripts/decision-records.mjs`。
-9. `bun run check:decision-records-cli`: 在临时目录构建 CLI，并检查 skill 内分发产物是否与当前源码一致。
-10. `bun run sync:skill-updaters`: 按主仓库模板和 `skills/` 发现结果生成各 skill 内的 `scripts/update-skill.cjs`。
-11. `bun run check:skill-updaters`: 检查各 skill 内的 `scripts/update-skill.cjs` 是否由当前主仓库模板生成。
-12. `bun run check`: 依次运行类型检查、生成产物检查、CLI 测试、项目校验和全部 skill 打包。
-13. `bun run deploy:package`: 先校验当前 Git index 与 `skill-package-lock.json` 一致，再复用 `check` 生成本地可交付 zip 制品；不写入仓库外目录，CI 发布由 workflow 负责。
+8. `bun run test:skill-updater`: 使用本地假 GitHub 响应和临时目录测试 Node 分发 updater 的 lock、zip 指纹、更新替换和失败诊断。
+9. `bun run sync:decision-records-cli`: 从 `scripts/decision-records/` 构建并写入 skill 内的 `scripts/decision-records.mjs`。
+10. `bun run check:decision-records-cli`: 在临时目录构建 CLI，并检查 skill 内分发产物是否与当前源码一致。
+11. `bun run sync:skill-updaters`: 按主仓库模板和 `skills/` 发现结果生成各 skill 内的 `scripts/update-skill.cjs`。
+12. `bun run check:skill-updaters`: 检查各 skill 内的 `scripts/update-skill.cjs` 是否由当前主仓库模板生成。
+13. `bun run check`: 依次运行类型检查、生成产物检查、CLI 与 updater 集成测试、项目校验和全部 skill 打包。
+14. `bun run deploy:package`: 先校验当前 Git index 与 `skill-package-lock.json` 一致，再复用 `check` 生成本地可交付 zip 制品；不写入仓库外目录，CI 发布由 workflow 负责。
 
 需要直接排查脚本问题时，可以用 `bun scripts/<script>.ts` 运行单个脚本。
 
@@ -52,16 +53,18 @@
 4. 脚本优先覆盖所有 skill 的共同规则；确实存在 skill 专属规则时，在脚本中集中声明。
 5. 脚本处理常见行为时优先使用高质量、高热度、维护活跃且有类型支持的库；只有规则属于本仓库领域约束时才在脚本中直接实现。
 6. 脚本默认只读写主仓库内路径；临时打包产物输出到 `dist/`，需要随 skill 分发的生成脚本通过显式 `sync:*` 写入对应 skill，并由配套 `check:*` 检查漂移。
-7. 文件发现使用 `fast-glob`，避免在多个脚本中维护递归目录遍历。
-8. Skill frontmatter 使用 `yaml` 解析，避免手写 YAML 字符串解析。
-9. 打包脚本使用 `fflate` 生成 zip，只打包 `skills/<skill-name>/` 内文件，不把项目文档、CI、脚本或仓库元数据放进 skill zip；每次打包前清空 `dist/`，避免残留旧 skill 制品。
-10. Markdown 链接提取使用 `mdast-util-from-markdown` 解析 Markdown AST；脚本负责仓库路径、决策关系和项目约束校验。
-11. Markdown 内部链接目标必须是仓库内路径且目标存在；`#anchor` 必须匹配目标 Markdown 文件中的标题锚点。
-12. 决策记录的独立入口和总校验直接复用 `scripts/decision-records/src/` 的同一套源码；分发 CLI 由逐字节生成检查和 Node 集成测试覆盖，避免仓库校验依赖生成文件或形成第二套规则。
-13. Skill 发布 hash 和 skill zip 都只覆盖会进入 skill zip 的文件路径和 Git blob 内容；`docs/skills/` 介绍页、项目文档、脚本和 CI 变化不直接触发 skill release。仓库脚本源码变化需要先同步为 skill 内生成产物，只有分发产物发生变化时才改变对应 hash。Hash 计算和打包都读取 Git index 中的 blob，避免 Windows 与 Linux 工作区换行差异导致本地 hook、CI 和 release asset 结果不一致。根目录 `skill-package-lock.json` 是唯一发布状态文件，记录聚合 hash 和每个 skill 的独立 hash。
-14. 校验脚本不解析 workflow 结构, 也不通过正则检查 workflow 内部步骤; workflow 逻辑由文档约定、代码审查和 GitHub Actions 实际运行结果验证。
-15. Skill 自更新脚本的通用逻辑由主仓库 `scripts/templates/update-skill.ts` 承接；各 skill 包内只保留打包生成的 `scripts/update-skill.cjs`。
-16. 可嵌入注释的生成脚本顶部必须写明禁止直接编辑、仓库链接、线上可维护源码链接、仓库内源码路径、对应 skill 源目录和重建命令；按产物用途补充 release asset 等必要入口。生成头不写时间戳、本机绝对路径或其他非确定性状态。不能嵌入注释的 JSON 等机器制品由稳定生成入口和本文件承接追溯关系。
+7. 外部 JSON 在边界完成运行时收窄；同一结构由多个入口消费或需要稳定字段诊断时，由 `valibot` schema 同时承接结构和类型。单一内部生成值沿用其构造类型。
+8. `decision-records` 的命令、参数、帮助和非法参数诊断由 `commander` 承接；短小的单命令脚本使用 Node 标准参数解析能力。
+9. 文件发现使用 `fast-glob`，避免在多个脚本中维护递归目录遍历。
+10. Skill frontmatter 使用 `yaml` 解析，避免手写 YAML 字符串解析。
+11. 打包脚本使用 `fflate` 生成 zip，只打包 `skills/<skill-name>/` 内文件，不把项目文档、CI、脚本或仓库元数据放进 skill zip；每次打包前清空 `dist/`，避免残留旧 skill 制品。
+12. Markdown 链接提取使用 `mdast-util-from-markdown` 解析 Markdown AST；脚本负责仓库路径、决策关系和项目约束校验。
+13. Markdown 内部链接目标必须是仓库内路径且目标存在；`#anchor` 必须匹配目标 Markdown 文件中的标题锚点。
+14. 决策记录的独立入口和总校验直接复用 `scripts/decision-records/src/` 的同一套源码；分发 CLI 由逐字节生成检查和 Node 集成测试覆盖，避免仓库校验依赖生成文件或形成第二套规则。
+15. Skill 发布 hash 和 skill zip 都只覆盖会进入 skill zip 的文件路径和 Git blob 内容；`docs/skills/` 介绍页、项目文档、脚本和 CI 变化不直接触发 skill release。仓库脚本源码变化需要先同步为 skill 内生成产物，只有分发产物发生变化时才改变对应 hash。Hash 计算和打包都读取 Git index 中的 blob，避免 Windows 与 Linux 工作区换行差异导致本地 hook、CI 和 release asset 结果不一致。根目录 `skill-package-lock.json` 是唯一发布状态文件，记录聚合 hash 和每个 skill 的独立 hash。
+16. 校验脚本不解析 workflow 结构, 也不通过正则检查 workflow 内部步骤; workflow 逻辑由文档约定、代码审查和 GitHub Actions 实际运行结果验证。
+17. Skill 自更新脚本的通用逻辑由主仓库 `scripts/templates/update-skill.ts` 入口及 `scripts/templates/update-skill/` 模块承接；各 skill 包内只保留打包生成的 `scripts/update-skill.cjs`。
+18. 可嵌入注释的生成脚本顶部必须写明禁止直接编辑、仓库链接、线上可维护源码链接、仓库内源码路径、对应 skill 源目录和重建命令；按产物用途补充 release asset 等必要入口。生成头不写时间戳、本机绝对路径或其他非确定性状态。不能嵌入注释的 JSON 等机器制品由稳定生成入口和本文件承接追溯关系。
 
 ## Skill 分发脚本
 
@@ -93,10 +96,11 @@
 
 维护方式：
 
-1. 通用源码只改 `scripts/templates/update-skill.ts`。
+1. 通用源码只改 `scripts/templates/update-skill.ts` 入口及 `scripts/templates/update-skill/` 下的职责模块。
 2. 运行 `bun run sync:skill-updaters` 将模板按各 skill 的 repo、ref 和 source path 渲染后打包到 `skills/<skill-name>/scripts/update-skill.cjs`。
-3. `bun run check` 会执行 `check:skill-updaters`，避免已分发脚本与主仓库模板漂移。
-4. 生成脚本进入 skill zip，因此会改变对应 skill hash 和聚合 hash；提交前 hook 会更新并 stage `skill-package-lock.json`。
+3. `scripts/templates/update-skill/tests/` 使用本地假响应和临时目录验证 Node 分发产物；运行入口是 `bun run test:skill-updater`。
+4. `bun run check` 会执行生成漂移检查和 updater 集成测试。
+5. 生成脚本进入 skill zip，因此会改变对应 skill hash 和聚合 hash；提交前 hook 会更新并 stage `skill-package-lock.json`。
 
 已安装 skill 可在对应 skill 目录内运行：
 

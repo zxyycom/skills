@@ -7,17 +7,20 @@ import {
   toPosix,
   type SkillPackage
 } from "./project.ts";
+import { calculateSkillPackageFingerprint } from "./skill-package-fingerprint.ts";
+import {
+  skillPackageLockFileName,
+  validateSkillPackageLock,
+  type SkillPackageLock
+} from "./skill-package-lock.ts";
 
-export const skillPackageLockFileName = "skill-package-lock.json";
+export {
+  skillPackageLockFileName,
+  type SkillPackageLock
+} from "./skill-package-lock.ts";
 
 export type SkillPackageHashes = {
   aggregateHash: string;
-  skills: Record<string, string>;
-};
-
-export type SkillPackageLock = {
-  aggregateHash: string;
-  schemaVersion: 1;
   skills: Record<string, string>;
 };
 
@@ -97,19 +100,6 @@ export async function collectSkillPackageFiles(skill: SkillPackage): Promise<Ski
   }));
 }
 
-function calculateSingleSkillPackageHash(skillName: string, files: SkillPackageFile[]): string {
-  const hash = createHash("sha256");
-  hash.update(`skill-self-update-v1\0${skillName}\0`);
-
-  for (const file of files) {
-    hash.update(`file\0${file.path}\0${file.data.byteLength}\0`);
-    hash.update(file.data);
-    hash.update("\0");
-  }
-
-  return hash.digest("hex");
-}
-
 export async function calculateSkillPackageHashes(skills: SkillPackage[]): Promise<SkillPackageHashes> {
   const aggregate = createHash("sha256");
   aggregate.update("skills-package-v1\0");
@@ -126,7 +116,7 @@ export async function calculateSkillPackageHashes(skills: SkillPackage[]): Promi
       aggregate.update("\0");
     }
 
-    skillHashes[skill.name] = calculateSingleSkillPackageHash(skill.name, files);
+    skillHashes[skill.name] = calculateSkillPackageFingerprint(skill.name, files);
   }
 
   return {
@@ -167,7 +157,24 @@ export async function readRecordedSkillPackageLock(workspaceRoot: string = rootD
     return null;
   }
 
-  return JSON.parse(text) as SkillPackageLock;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch (error) {
+    throw new Error(
+      `${skillPackageLockFileName} must contain valid JSON: `
+      + (error instanceof Error ? error.message : String(error))
+    );
+  }
+
+  const validation = validateSkillPackageLock(parsed);
+  if (!validation.success) {
+    throw new Error(
+      `${skillPackageLockFileName} is invalid:\n- ${validation.issues.join("\n- ")}`
+    );
+  }
+
+  return validation.output;
 }
 
 export async function writeRecordedSkillPackageLock(

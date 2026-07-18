@@ -15,15 +15,8 @@ import {
   toPosix,
   type SkillPackage
 } from "./lib/project.ts";
-import { skillPackageLockFileName } from "./lib/skill-package-hash.ts";
-
-type UpdaterConfig = {
-  packageLockAssetName: string;
-  releaseAssetName: string;
-  repo: string;
-  skillName: string;
-  sourcePath: string;
-};
+import { skillPackageLockFileName } from "./lib/skill-package-lock.ts";
+import type { UpdaterConfig } from "./templates/update-skill/types.ts";
 
 const templateRelativePath = "scripts/templates/update-skill.ts";
 const updaterRelativePath = path.join("scripts", "update-skill.cjs");

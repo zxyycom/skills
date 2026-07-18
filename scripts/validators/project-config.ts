@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { pathExists, rootDir } from "../lib/project.ts";
+import { validateSkillPackageLock } from "../lib/skill-package-lock.ts";
 import type { ReportValidationError } from "../lib/validation.ts";
 
 type PackageJson = {
@@ -11,6 +12,7 @@ const requiredPackageScripts = [
   "typecheck",
   "validate",
   "validate:decisions",
+  "test:skill-updater",
   "hash:skills",
   "pack:skills",
   "setup-hooks",
@@ -33,10 +35,6 @@ const requiredProjectFiles = [
   ".githooks/pre-commit",
   ".github/workflows/package-skills.yml"
 ] as const;
-
-function isSha256(value: unknown): value is string {
-  return typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
-}
 
 export async function validatePackageScripts(
   report: ReportValidationError,
@@ -73,32 +71,12 @@ export async function validateRequiredProjectFiles(
   const lockFilePath = path.join(workspaceRoot, "skill-package-lock.json");
   if (await pathExists(lockFilePath)) {
     try {
-      const lock = JSON.parse(await fs.readFile(lockFilePath, "utf8")) as {
-        aggregateHash?: unknown;
-        schemaVersion?: unknown;
-        skills?: unknown;
-      };
-
-      if (lock.schemaVersion !== 1) {
-        report("skill-package-lock.json schemaVersion must be 1");
-      }
-
-      if (!isSha256(lock.aggregateHash)) {
-        report("skill-package-lock.json aggregateHash must be a lowercase SHA-256 hash");
-      }
-
-      if (typeof lock.skills !== "object" || lock.skills === null || Array.isArray(lock.skills)) {
-        report("skill-package-lock.json skills must be an object");
-      } else {
-        const skills = Object.entries(lock.skills as Record<string, unknown>);
-        if (skills.length === 0) {
-          report("skill-package-lock.json skills must not be empty");
-        }
-
-        for (const [skillName, hash] of skills) {
-          if (!isSha256(hash)) {
-            report(`skill-package-lock.json skills.${skillName} must be a lowercase SHA-256 hash`);
-          }
+      const validation = validateSkillPackageLock(
+        JSON.parse(await fs.readFile(lockFilePath, "utf8"))
+      );
+      if (!validation.success) {
+        for (const issue of validation.issues) {
+          report(`skill-package-lock.json ${issue}`);
         }
       }
     } catch {
