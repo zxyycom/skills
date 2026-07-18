@@ -57,6 +57,13 @@ const cliOutput = execFileSync(
 );
 assert.match(cliOutput, /Decision records check passed \(1 areas, 2 decisions, 1 current, 1 archived\)\./);
 
+const defaultCliOutput = execFileSync(
+  "node",
+  [generatedCliPath, "--root", fixtureRoot],
+  { encoding: "utf8" }
+);
+assert.match(defaultCliOutput, /Decision records check passed/);
+
 const currentList = execFileSync(
   "node",
   [generatedCliPath, "list", "--root", fixtureRoot],
@@ -95,6 +102,22 @@ const successorTrace = traceDecision(
   ["--direction", "successors"]
 );
 assert.match(successorTrace, /tooling\/260711-use-generated-cli\.md/);
+
+const invalidDepth = spawnSync(
+  "node",
+  [
+    generatedCliPath,
+    "trace",
+    "tooling/260710-use-source-cli.md",
+    "--depth",
+    "-1",
+    "--root",
+    fixtureRoot
+  ],
+  { encoding: "utf8" }
+);
+assert.equal(invalidDepth.status, 2);
+assert.match(invalidDepth.stderr, /must be a non-negative integer/);
 
 const cliSource = await fs.readFile(generatedCliPath, "utf8");
 assert.match(cliSource, /Repository: https:\/\/github\.com\/zxyycom\/skills/);
@@ -136,6 +159,18 @@ try {
     }>;
     schemaVersion: number;
   };
+
+  await fs.writeFile(
+    indexPath,
+    JSON.stringify({ ...index, unsupported: true }, null, 2) + "\n",
+    "utf8"
+  );
+  const withUnsupportedIndexField = await validateDecisionRecords({ workspaceRoot: tempRoot });
+  assert.ok(withUnsupportedIndexField.errors.some(
+    (error) => error.includes("must contain only schemaVersion and current")
+  ));
+  await fs.writeFile(indexPath, originalIndex, "utf8");
+
   index.current.push({
     background: "需要为直接关系校验提供一条可追溯的前序决定。",
     decision: "使用源码 CLI 作为测试夹具的初始做法。",

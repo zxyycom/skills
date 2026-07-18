@@ -1,3 +1,5 @@
+import type { DecisionIndex } from "./decision-index.ts";
+
 export const decisionRelationTypes = [
   "修订",
   "替代",
@@ -7,22 +9,14 @@ export const decisionRelationTypes = [
 
 export type DecisionRelationType = typeof decisionRelationTypes[number];
 
+export type DecisionTraceDirection = "both" | "predecessors" | "successors";
+
 export type DecisionRelation = {
   target: string;
   type: DecisionRelationType;
 };
 
-export type DecisionIndexEntry = {
-  path: string;
-  title: string;
-  background: string;
-  decision: string;
-};
-
-export type DecisionIndex = {
-  current: DecisionIndexEntry[];
-  schemaVersion: 1;
-};
+export type { DecisionIndex, DecisionIndexEntry } from "./decision-index.ts";
 
 export type DecisionRecord = {
   archived: boolean;
