@@ -184,7 +184,18 @@ try {
       "Code: `src/missing.test.ts`",
       "",
       "Proves:",
-      "- A stable behavior still requires one canonical test entry."
+      "- A stable behavior still requires one canonical test entry.",
+      "",
+      "### WB-MERMAID-ONLY-001 Automated case without proof-point items",
+      "Status: active",
+      "Verification: automated",
+      "Code: `src/mermaid-only.test.ts`",
+      "",
+      "Proves:",
+      "```mermaid",
+      "flowchart LR",
+      "  input --> result",
+      "```"
     ].join("\n")
   );
   await writeFile(
@@ -256,6 +267,15 @@ try {
   );
   await writeFile(
     invalidRoot,
+    "src/mermaid-only.test.ts",
+    [
+      "// @test-evidence main WB-MERMAID-ONLY-001",
+      "",
+      "test(\"mermaid-only evidence\", () => {});"
+    ].join("\n")
+  );
+  await writeFile(
+    invalidRoot,
     "src/duplicate-main.test.js",
     [
       "// @test-evidence main WB-CALC-ADD-001",
@@ -295,6 +315,7 @@ try {
     "EX-MISSING-MARKER-001 is missing @test-evidence exempt",
     "WB-BAD-CODE-001 active automated case must declare exactly one valid Code path",
     "WB-MISSING-MAIN-001 is missing @test-evidence main",
+    "WB-MERMAID-ONLY-001 must include exactly one non-empty Proves list",
     "duplicate @test-evidence main marker: WB-CALC-ADD-001",
     "must not mark WB-CALC-ADD-001 as both main and derived",
     "must not repeat @test-evidence derived WB-CALC-ADD-001",
@@ -360,7 +381,21 @@ async function writeWorkspace(
       "Code: `src/calc.test.ts`",
       "",
       "Proves:",
-      "- Public addition returns the sum of two accepted operands.",
+      "- Positive operands return their sum.",
+      "- Zero operands preserve the additive identity.",
+      "",
+      "```mermaid",
+      "flowchart LR",
+      "  base[\"Shared calculator fixture\"] --> kind{\"Operand branch\"}",
+      "",
+      "  subgraph outcomes[\"Leaf assertions\"]",
+      "    positive[\"Returns the sum\"]",
+      "    zero[\"Returns zero\"]",
+      "  end",
+      "",
+      "  kind -->|\"positive\"| positive",
+      "  kind -->|\"zero\"| zero",
+      "```",
       "",
       "### WB-CALC-FUTURE-001 Future behavior",
       "Status: planned",

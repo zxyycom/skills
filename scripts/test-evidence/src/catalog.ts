@@ -10,7 +10,6 @@ export type CatalogSectionName = "proves" | "reason" | "review" | "risk" | "scop
 
 export type CatalogSection = {
   declarations: number;
-  hasContent: boolean;
   items: string[];
 };
 
@@ -138,10 +137,7 @@ export function collectCatalogCases(
     }
     const listItem = trimmed.match(/^(?:[-*]|\d+\.)\s+(\S.*)$/u);
     if (listItem !== null) {
-      current.sections[collectingSection].hasContent = true;
       current.sections[collectingSection].items.push(listItem[1] ?? "");
-    } else if (trimmed === "```mermaid") {
-      current.sections[collectingSection].hasContent = true;
     }
   }
 
@@ -158,10 +154,10 @@ function parseVerification(value: string): VerificationMode | null {
 
 function createSections(): Record<CatalogSectionName, CatalogSection> {
   return {
-    proves: { declarations: 0, hasContent: false, items: [] },
-    reason: { declarations: 0, hasContent: false, items: [] },
-    review: { declarations: 0, hasContent: false, items: [] },
-    risk: { declarations: 0, hasContent: false, items: [] },
-    scope: { declarations: 0, hasContent: false, items: [] }
+    proves: { declarations: 0, items: [] },
+    reason: { declarations: 0, items: [] },
+    review: { declarations: 0, items: [] },
+    risk: { declarations: 0, items: [] },
+    scope: { declarations: 0, items: [] }
   };
 }

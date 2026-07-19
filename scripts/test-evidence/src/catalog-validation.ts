@@ -97,7 +97,7 @@ function validateCatalogCase(
   }
 
   if (entry.status === "planned") {
-    requireContentSection(entry, "proves", catalogPath, errors);
+    requireListSections(entry, ["proves"], catalogPath, errors);
     forbidCode(entry, "planned automated cases", catalogPath, errors);
     forbidSections(
       entry,
@@ -113,7 +113,7 @@ function validateCatalogCase(
 
   if (entry.verification === "automated") {
     const codePath = requireCode(entry, catalogPath, errors);
-    requireContentSection(entry, "proves", catalogPath, errors);
+    requireListSections(entry, ["proves"], catalogPath, errors);
     forbidSections(
       entry,
       ["scope", "risk", "reason", "review"],
@@ -178,21 +178,6 @@ function requireCode(
     return null;
   }
   return entry.codePath;
-}
-
-function requireContentSection(
-  entry: ParsedCatalogCase,
-  name: CatalogSectionName,
-  catalogPath: string,
-  errors: string[]
-): void {
-  const section = entry.sections[name];
-  if (section.declarations !== 1 || !section.hasContent) {
-    errors.push(
-      `${catalogPath}:${entry.line} ${entry.id} must include exactly one non-empty `
-      + `${sectionLabels[name]} section`
-    );
-  }
 }
 
 function requireListSections(
