@@ -4,7 +4,7 @@ import { validateTestEvidence } from "./validation.ts";
 
 const helpText = `Usage: test-evidence [check] [options]
 
-Review a test evidence ledger, source markers, and unregistered test files.
+Review verification obligations, source roles, and unregistered test files.
 
 Options:
   --root <path>     Target workspace root (default: current directory)
@@ -64,7 +64,9 @@ async function main(): Promise<void> {
     const summary = report.summary;
     console.log(
       `Test evidence check ${report.errors.length === 0 ? "passed" : "failed"}: `
-      + `${summary.implementedCases} implemented, ${summary.plannedCases} planned, `
+      + `${summary.activeAutomatedCases} automated, `
+      + `${summary.reviewCases} review, ${summary.exemptCases} exempt, `
+      + `${summary.plannedAutomatedCases} planned, `
       + `${summary.discoveredTestFiles} discovered test file(s), `
       + `${summary.unregisteredTestFiles} unregistered.`
     );

@@ -1,50 +1,85 @@
-export type CaseStatus = "implemented" | "planned";
+import {
+  caseStatuses,
+  type CaseStatus,
+  type VerificationMode,
+  verificationModes
+} from "./types.ts";
+import { normalizeWorkspaceRelative } from "./workspace-path.ts";
 
-export type CatalogCase = {
+export type CatalogSectionName = "proves" | "reason" | "review" | "risk" | "scope";
+
+export type CatalogSection = {
+  declarations: number;
+  hasContent: boolean;
+  items: string[];
+};
+
+export type ParsedCatalogCase = {
+  caseIdIsValid: boolean;
   codeDeclarations: number;
   codePath: string | null;
   id: string;
   invalidCode: boolean;
   line: number;
-  provesContent: boolean;
-  provesDeclarations: number;
+  sections: Record<CatalogSectionName, CatalogSection>;
   status: CaseStatus | null;
+  statusDeclarations: number;
+  verification: VerificationMode | null;
+  verificationDeclarations: number;
 };
 
-const headingPattern = /^#{2,6}\s+(\S+)/u;
+const headingPattern = /^(#{2,6})\s+(\S+)/u;
 const statusPattern = /^Status:\s+(\S+)\s*$/u;
+const statusPrefixPattern = /^Status:/u;
+const verificationPattern = /^Verification:\s+(\S+)\s*$/u;
+const verificationPrefixPattern = /^Verification:/u;
 const codePattern = /^Code:\s+`([^`]+)`\s*$/u;
 const codePrefixPattern = /^Code:/u;
-const provesPattern = /^Proves:\s*$/u;
+const sectionPattern = /^(Proves|Scope|Risk|Reason|Review):\s*$/u;
 
-export function collectCatalogCases(text: string, caseIdPattern: RegExp): CatalogCase[] {
-  const entries: CatalogCase[] = [];
+const sectionNames: Record<string, CatalogSectionName> = {
+  Proves: "proves",
+  Reason: "reason",
+  Review: "review",
+  Risk: "risk",
+  Scope: "scope"
+};
+
+export function collectCatalogCases(
+  text: string,
+  caseIdPattern: RegExp
+): ParsedCatalogCase[] {
+  const entries: ParsedCatalogCase[] = [];
   const lines = text.split(/\r?\n/u);
-  let current: CatalogCase | null = null;
-  let collectingProves = false;
+  let current: ParsedCatalogCase | null = null;
+  let collectingSection: CatalogSectionName | null = null;
 
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index] ?? "";
     const heading = line.match(headingPattern);
     if (heading !== null) {
-      const candidateId = heading[1] ?? "";
-      if (!caseIdPattern.test(candidateId)) {
+      const headingLevel = (heading[1] ?? "").length;
+      if (headingLevel < 3) {
         current = null;
-        collectingProves = false;
+        collectingSection = null;
         continue;
       }
+      const candidateId = heading[2] ?? "";
 
       current = {
+        caseIdIsValid: caseIdPattern.test(candidateId),
         codeDeclarations: 0,
         codePath: null,
         id: candidateId,
         invalidCode: false,
         line: index + 1,
-        provesContent: false,
-        provesDeclarations: 0,
-        status: null
+        sections: createSections(),
+        status: null,
+        statusDeclarations: 0,
+        verification: null,
+        verificationDeclarations: 0
       };
-      collectingProves = false;
+      collectingSection = null;
       entries.push(current);
       continue;
     }
@@ -53,10 +88,21 @@ export function collectCatalogCases(text: string, caseIdPattern: RegExp): Catalo
       continue;
     }
 
-    const status = line.match(statusPattern);
-    if (status !== null) {
-      current.status = parseStatus(status[1] ?? "");
-      collectingProves = false;
+    if (statusPrefixPattern.test(line)) {
+      current.statusDeclarations += 1;
+      const status = line.match(statusPattern);
+      current.status = status === null ? null : parseStatus(status[1] ?? "");
+      collectingSection = null;
+      continue;
+    }
+
+    if (verificationPrefixPattern.test(line)) {
+      current.verificationDeclarations += 1;
+      const verification = line.match(verificationPattern);
+      current.verification = verification === null
+        ? null
+        : parseVerification(verification[1] ?? "");
+      collectingSection = null;
       continue;
     }
 
@@ -65,51 +111,57 @@ export function collectCatalogCases(text: string, caseIdPattern: RegExp): Catalo
       const code = line.match(codePattern);
       if (code === null) {
         current.invalidCode = true;
-      } else if (current.codePath === null) {
-        current.codePath = normalizePath(code[1] ?? "");
+      } else {
+        const codePath = normalizeWorkspaceRelative(code[1] ?? "");
+        if (codePath === null) {
+          current.invalidCode = true;
+        } else if (current.codePath === null) {
+          current.codePath = codePath;
+        }
       }
-      collectingProves = false;
+      collectingSection = null;
       continue;
     }
 
-    if (provesPattern.test(line)) {
-      current.provesDeclarations += 1;
-      collectingProves = true;
+    const section = line.match(sectionPattern);
+    if (section !== null) {
+      collectingSection = sectionNames[section[1] ?? ""] ?? null;
+      if (collectingSection !== null) {
+        current.sections[collectingSection].declarations += 1;
+      }
       continue;
     }
 
     const trimmed = line.trim();
-    if (
-      collectingProves
-      && (
-        /^[-*]\s+\S/u.test(trimmed)
-        || /^\d+\.\s+\S/u.test(trimmed)
-        || trimmed === "```mermaid"
-      )
-    ) {
-      current.provesContent = true;
+    if (collectingSection === null) {
+      continue;
+    }
+    const listItem = trimmed.match(/^(?:[-*]|\d+\.)\s+(\S.*)$/u);
+    if (listItem !== null) {
+      current.sections[collectingSection].hasContent = true;
+      current.sections[collectingSection].items.push(listItem[1] ?? "");
+    } else if (trimmed === "```mermaid") {
+      current.sections[collectingSection].hasContent = true;
     }
   }
 
   return entries;
 }
 
-export function duplicateValues(values: readonly string[]): string[] {
-  const seen = new Set<string>();
-  const duplicates = new Set<string>();
-  for (const value of values) {
-    if (seen.has(value)) {
-      duplicates.add(value);
-    }
-    seen.add(value);
-  }
-  return [...duplicates].sort();
-}
-
-export function normalizePath(value: string): string {
-  return value.replaceAll("\\", "/");
-}
-
 function parseStatus(value: string): CaseStatus | null {
-  return value === "implemented" || value === "planned" ? value : null;
+  return caseStatuses.find((status) => status === value) ?? null;
+}
+
+function parseVerification(value: string): VerificationMode | null {
+  return verificationModes.find((verification) => verification === value) ?? null;
+}
+
+function createSections(): Record<CatalogSectionName, CatalogSection> {
+  return {
+    proves: { declarations: 0, hasContent: false, items: [] },
+    reason: { declarations: 0, hasContent: false, items: [] },
+    review: { declarations: 0, hasContent: false, items: [] },
+    risk: { declarations: 0, hasContent: false, items: [] },
+    scope: { declarations: 0, hasContent: false, items: [] }
+  };
 }

@@ -9,9 +9,15 @@ export const supportedLanguages = [
 ] as const;
 
 export const unregisteredPolicies = ["ignore", "warn", "error"] as const;
+export const caseStatuses = ["active", "planned"] as const;
+export const verificationModes = ["automated", "review", "exempt"] as const;
+export const sourceMarkerRoles = ["main", "derived", "exempt"] as const;
 
 export type SupportedLanguage = (typeof supportedLanguages)[number];
 export type UnregisteredPolicy = (typeof unregisteredPolicies)[number];
+export type CaseStatus = (typeof caseStatuses)[number];
+export type VerificationMode = (typeof verificationModes)[number];
+export type SourceMarkerRole = (typeof sourceMarkerRoles)[number];
 
 export type TestEvidenceConfig = {
   caseIdPattern: string;
@@ -23,14 +29,11 @@ export type TestEvidenceConfig = {
   unregisteredTestFiles: UnregisteredPolicy;
 };
 
-export type SourceMarkerKind = "case" | "supports" | "test-exempt";
-
 export type SourceMarker = {
-  id: string | null;
-  kind: SourceMarkerKind;
+  id: string;
   line: number;
-  reason: string | null;
   relativePath: string;
+  role: SourceMarkerRole;
 };
 
 export type SourceFile = {
@@ -40,13 +43,16 @@ export type SourceFile = {
 };
 
 export type TestEvidenceSummary = {
+  activeAutomatedCases: number;
   catalogCases: number;
+  derivedMarkers: number;
   discoveredTestFiles: number;
+  exemptCases: number;
+  exemptMarkers: number;
   exemptTestFiles: number;
-  implementedCases: number;
-  plannedCases: number;
-  primaryMarkers: number;
-  supportingMarkers: number;
+  mainMarkers: number;
+  plannedAutomatedCases: number;
+  reviewCases: number;
   unregisteredTestFiles: number;
 };
 

@@ -1,9 +1,22 @@
-import type { SourceMarker, SourceMarkerKind } from "./types.ts";
+import {
+  sourceMarkerRoles,
+  type SourceMarker,
+  type SourceMarkerRole
+} from "./types.ts";
 
 const markerLinePattern =
-  /^\s*(?:(?:\/\/)|#|--|;|\/\*+|\*|<!--)\s*@(case|supports|test-exempt)\b(.*?)(?:\*\/|-->)?\s*$/u;
+  /^\s*(?:(?:\/\/)|#|--|;|\/\*+|\*|<!--)\s*@test-evidence\b(.*?)\s*$/u;
 
-export function collectSourceMarkers(text: string, relativePath: string): SourceMarker[] {
+export type SourceMarkerCollection = {
+  errors: string[];
+  markers: SourceMarker[];
+};
+
+export function collectSourceMarkers(
+  text: string,
+  relativePath: string
+): SourceMarkerCollection {
+  const errors: string[] = [];
   const markers: SourceMarker[] = [];
   for (const [index, line] of text.split(/\r?\n/u).entries()) {
     const match = line.match(markerLinePattern);
@@ -11,31 +24,32 @@ export function collectSourceMarkers(text: string, relativePath: string): Source
       continue;
     }
 
-    const kind = match[1] as SourceMarkerKind;
-    const value = (match[2] ?? "").trim();
-    if (kind === "test-exempt") {
-      markers.push({
-        id: null,
-        kind,
-        line: index + 1,
-        reason: stripMarkerSuffix(value),
-        relativePath
-      });
+    const value = stripMarkerSuffix(match[1] ?? "");
+    const tokens = value.split(/\s+/u).filter((token) => token.length > 0);
+    const role = tokens[0];
+    const id = tokens[1];
+    if (tokens.length !== 2 || !isSourceMarkerRole(role) || id === undefined) {
+      errors.push(
+        `${relativePath}:${index + 1} @test-evidence must use exactly: `
+        + "@test-evidence <main|derived|exempt> <CASE-ID>"
+      );
       continue;
     }
 
-    const id = stripMarkerSuffix(value).split(/\s+/u)[0] ?? "";
     markers.push({
       id,
-      kind,
       line: index + 1,
-      reason: null,
-      relativePath
+      relativePath,
+      role
     });
   }
-  return markers;
+  return { errors, markers };
 }
 
 function stripMarkerSuffix(value: string): string {
   return value.replace(/\s*(?:\*\/|-->)\s*$/u, "").trim();
+}
+
+function isSourceMarkerRole(value: string | undefined): value is SourceMarkerRole {
+  return sourceMarkerRoles.some((role) => role === value);
 }

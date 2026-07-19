@@ -6,6 +6,7 @@ import {
   type TestEvidenceConfig,
   unregisteredPolicies
 } from "./types.ts";
+import { normalizeWorkspaceRelative } from "./workspace-path.ts";
 
 const defaultConfigPath = ".test-evidence.json";
 const defaultCaseIdPattern = "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$";
@@ -136,13 +137,8 @@ function parseConfigText(text: string, relativePath: string, errors: string[]): 
 
 function normalizeGlobs(values: readonly string[], field: string, errors: string[]): string[] {
   return [...new Set(values.flatMap((value) => {
-    const normalized = value.replaceAll("\\", "/").trim();
-    if (
-      normalized.length === 0
-      || path.posix.isAbsolute(normalized)
-      || path.win32.isAbsolute(normalized)
-      || normalized.split("/").includes("..")
-    ) {
+    const normalized = normalizeWorkspaceRelative(value);
+    if (normalized === null) {
       errors.push(`${field} must contain only workspace-relative glob patterns: ${value}`);
       return [];
     }
@@ -155,13 +151,8 @@ function normalizeRelativePath(
   field: string,
   errors: string[]
 ): string | null {
-  const normalized = value.replaceAll("\\", "/").trim();
-  if (
-    normalized.length === 0
-    || path.posix.isAbsolute(normalized)
-    || path.win32.isAbsolute(normalized)
-    || normalized.split("/").includes("..")
-  ) {
+  const normalized = normalizeWorkspaceRelative(value);
+  if (normalized === null) {
     errors.push(`${field} must be a workspace-relative path: ${value}`);
     return null;
   }

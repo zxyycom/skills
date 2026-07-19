@@ -84,9 +84,11 @@ export async function discoverSourceFiles(
       continue;
     }
 
+    const collectedMarkers = collectSourceMarkers(text, normalizedPath);
+    errors.push(...collectedMarkers.errors);
     files.push({
       detectedLanguages: detectTestLanguages(normalizedPath, text, config.languages),
-      markers: collectSourceMarkers(text, normalizedPath),
+      markers: collectedMarkers.markers,
       relativePath: normalizedPath
     });
   }
