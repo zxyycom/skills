@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Evidence Review"
+  short_description: "执行测试证据准入，识别重复与实现耦合，并维护账本映射一致性"
+  default_prompt: "使用 $test-evidence-review 对当前测试变更执行证据准入，决定处置，同步账本与源码标记，并运行机械对账。"

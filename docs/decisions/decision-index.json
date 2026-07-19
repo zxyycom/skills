@@ -147,6 +147,13 @@
       "purpose": "在避免并行写入冲突的同时，保留子代理读取必要证据的能力。",
       "background": "`skills/subagent-orchestration/SKILL.md` 原先要求子代理工作范围、文件范围和决策范围保持互斥, 没有区分写入所有权与只读证据范围。",
       "decision": "只要求并行子代理的写入范围互斥, 并按实际可能修改的文件、配置、生成产物或外部状态划分所有权; 原因是冲突来自共享状态变更, 不是共享证据读取。"
+    },
+    {
+      "path": "test-evidence-review-behavior/260719-separate-test-value-from-ledger-validation.md",
+      "title": "分离测试价值审查与账本机械校验",
+      "purpose": "抑制无意义、重复和实现耦合的测试增长，同时让测试证明目标与实现保持可审计映射。",
+      "background": "只维护测试账本会增加同步成本，单靠测试执行又无法阻止 AI 以 TDD、防回归或覆盖率为由持续新增低价值测试；调用 skill 后再判断是否启用账本还会造成流程分叉和漏登记。",
+      "decision": "使用 `test-evidence-review` 对自动化测试执行证据准入，并默认以账本保存通过准入的稳定证明目标，再用可配置的跨语言 CLI 校验主要入口、辅助归属、豁免和未登记测试文件。"
     }
   ]
 }
