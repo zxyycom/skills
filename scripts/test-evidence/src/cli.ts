@@ -2,6 +2,7 @@ import path from "node:path";
 import process from "node:process";
 import { parseArgs } from "node:util";
 import { isMainModule } from "../../lib/main-module.ts";
+import { formatTestEvidenceCliOutput } from "./cli-output.ts";
 import { validateTestEvidence } from "./validation.ts";
 
 const helpText = `Usage: test-evidence [check] [options]
@@ -58,25 +59,15 @@ export async function runTestEvidenceCli(
     workspaceRoot: path.resolve(requestedRoot)
   });
 
-  if (parsed.values.json === true) {
-    process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
-  } else {
-    for (const warning of report.warnings) {
-      console.error(`warning: ${warning}`);
-    }
-    for (const error of report.errors) {
-      console.error(`error: ${error}`);
-    }
-    const summary = report.summary;
-    console.log(
-      `Test evidence check ${report.errors.length === 0 ? "passed" : "failed"}: `
-      + `${summary.activeAutomatedCases} automated, `
-      + `${summary.reviewCases} review, ${summary.exemptCases} exempt, `
-      + `${summary.plannedAutomatedCases} planned, `
-      + `${summary.discoveredTestEntries} discovered test entry(s), `
-      + `${summary.unregisteredTestEntries} unregistered, `
-      + `${summary.reviewTriggers} review trigger(s).`
-    );
+  const output = formatTestEvidenceCliOutput(
+    report,
+    parsed.values.json === true
+  );
+  if (output.stderr.length > 0) {
+    process.stderr.write(output.stderr);
+  }
+  if (output.stdout.length > 0) {
+    process.stdout.write(output.stdout);
   }
 
   return report.errors.length > 0 ? 1 : 0;

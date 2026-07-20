@@ -1,15 +1,18 @@
 import assert from "node:assert/strict";
-import { execFileSync, spawnSync } from "node:child_process";
+import { execFile, execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import {
   runTestEvidenceCli,
   validateTestEvidence as validateBundledTestEvidence
 } from "../../../skills/test-evidence-review/scripts/test-evidence.mjs";
+import { formatTestEvidenceCliOutput } from "../src/cli-output.ts";
 import { validateTestEvidence } from "../src/validation.ts";
 
+const execFileAsync = promisify(execFile);
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(testsDirectory, "../../..");
 const generatedCliPath = path.join(
@@ -26,99 +29,132 @@ const generatedDeclarationPath = path.join(
   "scripts",
   "test-evidence.d.mts"
 );
+const fixtureBundlePath = path.join(
+  testsDirectory,
+  "fixtures",
+  "reviewed-workspace.bundle"
+);
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "test-evidence-"));
 
 try {
-  const workspaceRoot = path.join(tempRoot, "valid");
-  await writeWorkspace(workspaceRoot);
-
-  const valid = await validateTestEvidence({ workspaceRoot });
-  assert.deepEqual(valid.errors, []);
-  assert.deepEqual(valid.warnings, []);
-  assert.deepEqual(valid.reviewTriggers, []);
-  assert.deepEqual(valid.summary, {
-    activeAutomatedCases: 1,
-    catalogCases: 4,
-    derivedMarkers: 2,
-    discoveredTestEntries: 4,
-    discoveredTestFiles: 3,
-    exemptCases: 1,
-    exemptMarkers: 1,
-    exemptTestEntries: 1,
-    mainMarkers: 1,
-    plannedAutomatedCases: 1,
-    reviewCases: 1,
-    reviewTriggers: 0,
-    unregisteredTestEntries: 0
-  });
-  assert.deepEqual(
-    await validateBundledTestEvidence({ workspaceRoot }),
-    valid
+  const fixtureRepositoryPath = initializeFixtureRepository();
+  // Keep shared-repository writes serialized, then release isolated read checks together.
+  const validationGate = Promise.withResolvers<void>();
+  const validationTasks: Promise<void>[] = [];
+  const workspaceRoot = materializeWorkspace(
+    fixtureRepositoryPath,
+    "valid"
   );
-  assert.equal(typeof runTestEvidenceCli, "function");
 
-  const absoluteConfigPath = await validateTestEvidence({
-    configPath: "C:\\outside.json",
-    workspaceRoot
-  });
-  assert.ok(absoluteConfigPath.errors.some((error) =>
-    error.includes("config path must be a workspace-relative path")
-  ));
+  validationTasks.push(validationGate.promise.then(async () => {
+    const nodeCliPromise = execFileAsync(
+      "node",
+      [generatedCliPath, "check", "--root", workspaceRoot, "--json"],
+      {
+        encoding: "utf8",
+        windowsHide: true
+      }
+    );
+    const valid = await validateBundledTestEvidence({ workspaceRoot });
+    assert.deepEqual(valid.errors, []);
+    assert.deepEqual(valid.warnings, []);
+    assert.deepEqual(valid.reviewTriggers, []);
+    assert.deepEqual(valid.summary, {
+      activeAutomatedCases: 1,
+      catalogCases: 4,
+      derivedMarkers: 2,
+      discoveredTestEntries: 4,
+      discoveredTestFiles: 3,
+      exemptCases: 1,
+      exemptMarkers: 1,
+      exemptTestEntries: 1,
+      mainMarkers: 1,
+      plannedAutomatedCases: 1,
+      reviewCases: 1,
+      reviewTriggers: 0,
+      unregisteredTestEntries: 0
+    });
+    assert.equal(typeof runTestEvidenceCli, "function");
 
-  const cliReport = JSON.parse(execFileSync(
-    "node",
-    [generatedCliPath, "check", "--root", workspaceRoot, "--json"],
-    { encoding: "utf8" }
-  )) as {
-    errors: string[];
-    reviewTriggers: unknown[];
-    warnings: string[];
-  };
-  assert.deepEqual(cliReport.errors, []);
-  assert.deepEqual(cliReport.warnings, []);
-  assert.deepEqual(cliReport.reviewTriggers, []);
+    const absoluteConfigPath = await validateTestEvidence({
+      configPath: "C:\\outside.json",
+      workspaceRoot
+    });
+    assert.ok(absoluteConfigPath.errors.some((error) =>
+      error.includes("config path must be a workspace-relative path")
+    ));
 
-  const humanCli = spawnSync(
-    "node",
-    [generatedCliPath, "check", "--root", workspaceRoot],
-    { encoding: "utf8" }
+    const nodeCli = await nodeCliPromise;
+    assert.equal(nodeCli.stderr, "");
+    const cliReport = JSON.parse(nodeCli.stdout) as {
+      errors: string[];
+      reviewTriggers: unknown[];
+      warnings: string[];
+    };
+    assert.deepEqual(cliReport.errors, []);
+    assert.deepEqual(cliReport.warnings, []);
+    assert.deepEqual(cliReport.reviewTriggers, []);
+
+    const humanOutput = formatTestEvidenceCliOutput(valid, false);
+    assert.equal(humanOutput.stderr, "");
+    assert.match(
+      humanOutput.stdout,
+      /4 discovered test entry\(s\), 0 unregistered/
+    );
+  }));
+
+  const dirtyReviewRoot = materializeWorkspace(
+    fixtureRepositoryPath,
+    "dirty-review"
   );
-  assert.equal(humanCli.status, 0);
-  assert.equal(humanCli.stderr, "");
-  assert.match(humanCli.stdout, /4 discovered test entry\(s\), 0 unregistered/);
-
   await fs.appendFile(
-    path.join(workspaceRoot, "src/process/worker.ts"),
+    path.join(dirtyReviewRoot, "src/process/worker.ts"),
     "\nexport const dirty = true;\n",
     "utf8"
   );
-  const dirtyReview = await validateTestEvidence({ workspaceRoot });
-  assert.equal(dirtyReview.reviewTriggers.length, 1);
-  assert.equal(dirtyReview.reviewTriggers[0]?.caseId, "RV-PROCESS-CLEANUP-001");
-  assert.deepEqual(dirtyReview.reviewTriggers[0]?.paths, ["src/process/worker.ts"]);
-  assert.ok(dirtyReview.errors.some((error) =>
-    error.includes("RV-PROCESS-CLEANUP-001 requires review")
-    && error.includes("dirty worktree paths match Scope")
-  ));
+  validationTasks.push(validationGate.promise.then(async () => {
+    const dirtyReview = await validateTestEvidence({
+      workspaceRoot: dirtyReviewRoot
+    });
+    assert.equal(dirtyReview.reviewTriggers.length, 1);
+    assert.equal(
+      dirtyReview.reviewTriggers[0]?.caseId,
+      "RV-PROCESS-CLEANUP-001"
+    );
+    assert.deepEqual(
+      dirtyReview.reviewTriggers[0]?.paths,
+      ["src/process/worker.ts"]
+    );
+    assert.ok(dirtyReview.errors.some((error) =>
+      error.includes("RV-PROCESS-CLEANUP-001 requires review")
+      && error.includes("dirty worktree paths match Scope")
+    ));
+  }));
 
-  const committedReviewRoot = path.join(tempRoot, "committed-review");
-  await writeWorkspace(committedReviewRoot);
+  const committedReviewRoot = materializeWorkspace(
+    fixtureRepositoryPath,
+    "committed-review"
+  );
   await fs.appendFile(
     path.join(committedReviewRoot, "src/process/worker.ts"),
     "\nexport const committedChange = true;\n",
     "utf8"
   );
   commitAll(committedReviewRoot, "change reviewed scope");
-  const committedReview = await validateTestEvidence({
-    workspaceRoot: committedReviewRoot
-  });
-  assert.equal(committedReview.reviewTriggers.length, 1);
-  assert.ok(committedReview.reviewTriggers[0]?.reasons.includes(
-    "committed paths changed after Reviewed-Commit"
-  ));
+  validationTasks.push(validationGate.promise.then(async () => {
+    const committedReview = await validateTestEvidence({
+      workspaceRoot: committedReviewRoot
+    });
+    assert.equal(committedReview.reviewTriggers.length, 1);
+    assert.ok(committedReview.reviewTriggers[0]?.reasons.includes(
+      "committed paths changed after Reviewed-Commit"
+    ));
+  }));
 
-  const overdueReviewRoot = path.join(tempRoot, "overdue-review");
-  await writeWorkspace(overdueReviewRoot);
+  const overdueReviewRoot = materializeWorkspace(
+    fixtureRepositoryPath,
+    "overdue-review"
+  );
   await writeFile(
     overdueReviewRoot,
     ".test-evidence.json",
@@ -142,15 +178,19 @@ try {
     ),
     "utf8"
   );
-  const overdueReview = await validateTestEvidence({
-    workspaceRoot: overdueReviewRoot
-  });
-  assert.ok(overdueReview.warnings.some((warning) =>
-    warning.includes("exceeding reviewMaxAgeDays 30")
-  ));
+  validationTasks.push(validationGate.promise.then(async () => {
+    const overdueReview = await validateTestEvidence({
+      workspaceRoot: overdueReviewRoot
+    });
+    assert.ok(overdueReview.warnings.some((warning) =>
+      warning.includes("exceeding reviewMaxAgeDays 30")
+    ));
+  }));
 
-  const unavailableBaselineRoot = path.join(tempRoot, "unavailable-baseline");
-  await writeWorkspace(unavailableBaselineRoot);
+  const unavailableBaselineRoot = materializeWorkspace(
+    fixtureRepositoryPath,
+    "unavailable-baseline"
+  );
   await writeFile(
     unavailableBaselineRoot,
     ".test-evidence.json",
@@ -173,23 +213,38 @@ try {
     ),
     "utf8"
   );
-  const unavailableBaseline = await validateTestEvidence({
-    workspaceRoot: unavailableBaselineRoot
-  });
-  assert.deepEqual(unavailableBaseline.errors, []);
-  assert.equal(unavailableBaseline.reviewTriggers.length, 1);
-  assert.ok(unavailableBaseline.warnings.some((warning) =>
-    warning.includes(`Reviewed-Commit ${"0".repeat(40)} is unavailable`)
-  ));
+  validationTasks.push(validationGate.promise.then(async () => {
+    const unavailableBaseline = await validateTestEvidence({
+      workspaceRoot: unavailableBaselineRoot
+    });
+    assert.deepEqual(unavailableBaseline.errors, []);
+    assert.equal(unavailableBaseline.reviewTriggers.length, 1);
+    assert.ok(unavailableBaseline.warnings.some((warning) =>
+      warning.includes(`Reviewed-Commit ${"0".repeat(40)} is unavailable`)
+    ));
+  }));
 
-  execGit(workspaceRoot, ["checkout", "--", "src/process/worker.ts"]);
-  await writeFile(workspaceRoot, "README.md", "Unrelated dirty documentation.\n");
-  const unrelatedDirty = await validateTestEvidence({ workspaceRoot });
-  assert.deepEqual(unrelatedDirty.errors, []);
-  assert.deepEqual(unrelatedDirty.reviewTriggers, []);
+  const unrelatedDirtyRoot = materializeWorkspace(
+    fixtureRepositoryPath,
+    "unrelated-dirty"
+  );
+  await writeFile(
+    unrelatedDirtyRoot,
+    "README.md",
+    "Unrelated dirty documentation.\n"
+  );
+  validationTasks.push(validationGate.promise.then(async () => {
+    const unrelatedDirty = await validateTestEvidence({
+      workspaceRoot: unrelatedDirtyRoot
+    });
+    assert.deepEqual(unrelatedDirty.errors, []);
+    assert.deepEqual(unrelatedDirty.reviewTriggers, []);
+  }));
 
-  const entryInvalidRoot = path.join(tempRoot, "entry-invalid");
-  await writeWorkspace(entryInvalidRoot);
+  const entryInvalidRoot = materializeWorkspace(
+    fixtureRepositoryPath,
+    "entry-invalid"
+  );
   await writeFile(
     entryInvalidRoot,
     "src/calc.test.ts",
@@ -217,15 +272,21 @@ try {
       "const setup = true;"
     ].join("\n")
   );
-  const entryInvalid = await validateTestEvidence({ workspaceRoot: entryInvalidRoot });
-  assertIncludesAll(entryInvalid.errors, [
-    "src/calc.test.ts:4:1 contains a typescript test entry",
-    "every entry must have exactly one @test-evidence marker",
-    "does not directly precede a discovered test entry"
-  ]);
+  validationTasks.push(validationGate.promise.then(async () => {
+    const entryInvalid = await validateTestEvidence({
+      workspaceRoot: entryInvalidRoot
+    });
+    assertIncludesAll(entryInvalid.errors, [
+      "src/calc.test.ts:4:1 contains a typescript test entry",
+      "every entry must have exactly one @test-evidence marker",
+      "does not directly precede a discovered test entry"
+    ]);
+  }));
 
-  const catalogInvalidRoot = path.join(tempRoot, "catalog-invalid");
-  await writeWorkspace(catalogInvalidRoot);
+  const catalogInvalidRoot = materializeWorkspace(
+    fixtureRepositoryPath,
+    "catalog-invalid"
+  );
   await appendCatalog(
     catalogInvalidRoot,
     [
@@ -312,22 +373,27 @@ try {
       "test(\"missing contract\", () => {});"
     ].join("\n")
   );
-  const catalogInvalid = await validateTestEvidence({
-    workspaceRoot: catalogInvalidRoot
-  });
-  assertIncludesAll(catalogInvalid.errors, [
-    "case heading must use exactly: ### Case <CASE-ID>: <title>",
-    "WB-MISSING-CONTRACT-001 must include exactly one non-empty Contract list",
-    "RV-BAD-GLOB-001 Scope pattern is invalid",
-    "RV-NO-GIT-MATCH-001 Scope pattern src/does-not-exist/** does not match any Git-visible path"
-  ]);
-  assert.equal(
-    catalogInvalid.errors.filter((error) =>
-      error.includes("case heading must use exactly")
-    ).length,
-    2
-  );
-  assert.equal(catalogInvalid.summary.catalogCases, 9);
+  validationTasks.push(validationGate.promise.then(async () => {
+    const catalogInvalid = await validateTestEvidence({
+      workspaceRoot: catalogInvalidRoot
+    });
+    assertIncludesAll(catalogInvalid.errors, [
+      "case heading must use exactly: ### Case <CASE-ID>: <title>",
+      "WB-MISSING-CONTRACT-001 must include exactly one non-empty Contract list",
+      "RV-BAD-GLOB-001 Scope pattern is invalid",
+      "RV-NO-GIT-MATCH-001 Scope pattern src/does-not-exist/** does not match any Git-visible path"
+    ]);
+    assert.equal(
+      catalogInvalid.errors.filter((error) =>
+        error.includes("case heading must use exactly")
+      ).length,
+      2
+    );
+    assert.equal(catalogInvalid.summary.catalogCases, 9);
+  }));
+
+  validationGate.resolve();
+  await Promise.all(validationTasks);
 
   const invalidUsage = spawnSync("node", [generatedCliPath, "unknown"], {
     encoding: "utf8"
@@ -358,161 +424,64 @@ try {
 
 console.log("Test evidence CLI tests passed.");
 
-async function writeWorkspace(workspaceRoot: string): Promise<void> {
-  await writeFile(
-    workspaceRoot,
-    ".test-evidence.json",
-    `${JSON.stringify({
-      reviewTriggers: "error",
-      schemaVersion: 2,
-      unregisteredTestEntries: "error"
-    }, null, 2)}\n`
+function initializeFixtureRepository(): string {
+  const fixtureRepositoryPath = path.join(tempRoot, "fixture.git");
+  execFileSync(
+    "git",
+    ["clone", "--bare", "--quiet", fixtureBundlePath, fixtureRepositoryPath],
+    { windowsHide: true }
   );
-  await writeFile(
-    workspaceRoot,
-    "docs/testing/cases.md",
-    createCatalog()
-  );
-  await writeFile(
-    workspaceRoot,
-    "src/calc.test.ts",
+  execFileSync(
+    "git",
     [
-      "// @test-evidence main WB-CALC-ADD-001",
-      "test(\"positive operands\", async () => {",
-      "  await test.step(\"calculate\", async () => {});",
-      "});",
-      "",
-      "test.describe(\"calculator\", () => {});",
-      "test.beforeEach(() => {});",
-      "",
-      "// @test-evidence derived WB-CALC-ADD-001",
-      "test.each([[0, 0]])(\"zero operands\", () => {});"
-    ].join("\n")
+      "--git-dir",
+      fixtureRepositoryPath,
+      "config",
+      "core.autocrlf",
+      "false"
+    ],
+    { windowsHide: true }
   );
-  await writeFile(
-    workspaceRoot,
-    "tests/test_calc.py",
-    [
-      "# @test-evidence derived WB-CALC-ADD-001",
-      "def test_addition_boundary():",
-      "    assert True"
-    ].join("\n")
-  );
-  await writeFile(
-    workspaceRoot,
-    "tests/generated_test.go",
-    [
-      "// @test-evidence exempt EX-GENERATED-FIXTURE-001",
-      "func TestGeneratedCompatibility(t *testing.T) {}"
-    ].join("\n")
-  );
-  await writeFile(
-    workspaceRoot,
-    "src/process/worker.ts",
-    "export function stopChild(): void {}\n"
-  );
-
-  initializeGit(workspaceRoot);
-  const reviewedCommit = commitAll(workspaceRoot, "initial evidence");
-  await writeFile(
-    workspaceRoot,
-    "docs/testing/cases.md",
-    createCatalog(reviewedCommit)
-  );
-  commitAll(workspaceRoot, "record completed review");
+  return fixtureRepositoryPath;
 }
 
-function createCatalog(reviewedCommit?: string): string {
-  const reviewState = reviewedCommit === undefined
-    ? []
-    : [
-        "Review-Result: pass",
-        "Reviewed-At: 2026-07-20T10:30:00+08:00",
-        `Reviewed-Commit: ${reviewedCommit}`,
-        ""
-      ];
-  return [
-    "# Test cases",
-    "",
-    "### Case WB-CALC-ADD-001: Addition remains observable",
-    "Status: active",
-    "Verification: automated",
-    "Code: `src/calc.test.ts`",
-    "",
-    "Contract:",
-    "- Addition returns the mathematical sum and preserves the additive identity.",
-    "",
-    "Proves:",
-    "- Positive operands return their sum.",
-    "- Zero operands preserve the additive identity.",
-    "",
-    "```mermaid",
-    "flowchart LR",
-    "  base[\"Shared calculator fixture\"] --> kind{\"Operand branch\"}",
-    "  kind -->|\"positive\"| positive[\"Returns the sum\"]",
-    "  kind -->|\"zero\"| zero[\"Returns zero\"]",
-    "```",
-    "",
-    "### Case WB-CALC-FUTURE-001: Future behavior remains explicit",
-    "Status: planned",
-    "Verification: automated",
-    "",
-    "Contract:",
-    "- A future public calculation rule requires an explicit proof target.",
-    "",
-    "Proves:",
-    "- The future result remains observable.",
-    "",
-    "### Case RV-PROCESS-CLEANUP-001: Child process cleanup remains safe",
-    "Status: active",
-    "Verification: review",
-    "",
-    "Contract:",
-    "- Every process exit path releases the child process and temporary resources.",
-    "",
-    "Scope:",
-    "- `src/process/**`",
-    "",
-    "Risk:",
-    "- Abnormal termination may leave a child process running.",
-    "",
-    "Reason:",
-    "- Reliable automation requires disproportionate operating-system fault injection.",
-    "",
-    "Review:",
-    "- Confirm every failure path terminates the child process.",
-    "",
-    ...reviewState,
-    "### Case EX-GENERATED-FIXTURE-001: Generated fixture is not project evidence",
-    "Status: active",
-    "Verification: exempt",
-    "",
-    "Scope:",
-    "- `tests/generated_test.go`",
-    "",
-    "Reason:",
-    "- The file is read as fixture data and never executed as a project test.",
-    ""
-  ].join("\n");
+function materializeWorkspace(
+  fixtureRepositoryPath: string,
+  fixtureName: string
+): string {
+  const workspaceRoot = path.join(tempRoot, fixtureName);
+  execFileSync(
+    "git",
+    [
+      "--git-dir",
+      fixtureRepositoryPath,
+      "worktree",
+      "add",
+      "--detach",
+      "--quiet",
+      workspaceRoot,
+      "refs/heads/main"
+    ],
+    { windowsHide: true }
+  );
+  return workspaceRoot;
 }
 
-function initializeGit(workspaceRoot: string): void {
-  execGit(workspaceRoot, ["init", "-q"]);
-  execGit(workspaceRoot, ["config", "core.autocrlf", "false"]);
-}
-
-function commitAll(workspaceRoot: string, message: string): string {
+function commitAll(workspaceRoot: string, message: string): void {
   execGit(workspaceRoot, ["add", "."]);
   execGit(workspaceRoot, [
+    "-c",
+    "core.hooksPath=.git/no-hooks",
     "-c",
     "user.email=test-evidence@example.invalid",
     "-c",
     "user.name=Test Evidence",
     "commit",
+    "--no-gpg-sign",
+    "--no-verify",
     "-qm",
     message
   ]);
-  return execGit(workspaceRoot, ["rev-parse", "HEAD"]).trim();
 }
 
 function execGit(workspaceRoot: string, args: readonly string[]): string {

@@ -37,7 +37,7 @@
 7. `bun run test:generated-file`: 测试生成文件共享能力，覆盖 Bun source map 的临时目录解析、仓库相对路径归一化和越界拒绝。
 8. `bun run test:decision-records-cli`: 使用独立夹具测试 `decision-records` TypeScript 源码、包内 MJS 导入、Node CLI、类型声明和生成头追溯字段。
 9. `bun run test:skill-validator`: 使用临时 skill 目录测试结构校验源码、包内 MJS 导入、Node CLI、类型声明、失败诊断和生成头。
-10. `bun run test:test-evidence-cli`: 使用临时 Git 多语言工作区测试自动化、人工审查和发现豁免账本状态，测试入口角色、Scope trigger、未登记入口策略、包内 MJS 导入和 Node CLI。
+10. `bun run test:test-evidence-cli`: 从预构建 Git fixture 物化隔离 worktree，测试自动化、人工审查和发现豁免账本状态，测试入口角色、Scope trigger、未登记入口策略、包内 MJS 导入和 Node CLI。
 11. `bun run test:skill-updater`: 使用本地假 GitHub 响应和临时目录测试 updater 的包内 MJS 导入、Node CLI、lock、zip 指纹、更新替换和失败诊断。
 12. `bun run sync:decision-records-cli`: 从 `scripts/decision-records/` 构建并写入 skill 内的 `scripts/decision-records.mjs`、类型声明和 source map。
 13. `bun run check:decision-records-cli`: 在临时目录构建 CLI，并检查 skill 内分发产物是否与当前源码一致。
@@ -45,10 +45,12 @@
 15. `bun run check:skill-validator`: 在临时目录构建结构验证器，并检查 skill 内分发产物是否与当前源码一致。
 16. `bun run sync:test-evidence-cli`: 从 `scripts/test-evidence/` 构建并写入 `test-evidence-review` skill 内的 `scripts/test-evidence.mjs`、类型声明和 source map。
 17. `bun run check:test-evidence-cli`: 在临时目录构建测试证据 CLI，并检查 skill 内分发产物是否与当前源码一致。
-18. `bun run sync:skill-updaters`: 按主仓库模板和 `skills/` 发现结果生成各 skill 内的 `scripts/update-skill.mjs`、类型声明和 source map。
-19. `bun run check:skill-updaters`: 检查各 skill 内的 updater MJS、类型声明和 source map 是否由当前主仓库模板生成。
-20. `bun run check`: 依次运行类型检查、生成产物检查、共享生成逻辑、CLI 与 updater 集成测试、项目校验和全部 skill 打包。
-21. `bun run deploy:package`: 先校验当前 Git index 与 `skill-package-lock.json` 一致，再复用 `check` 生成本地可交付 zip 制品；不写入仓库外目录，CI 发布由 workflow 负责。
+18. `bun run sync:test-evidence-fixture`: 从可审查的 fixture 源生成包含固定提交历史的 Git bundle。
+19. `bun run check:test-evidence-fixture`: 重建 fixture 的确定性提交历史，并检查 bundle 暴露的 head 是否仍与源一致。
+20. `bun run sync:skill-updaters`: 按主仓库模板和 `skills/` 发现结果生成各 skill 内的 `scripts/update-skill.mjs`、类型声明和 source map。
+21. `bun run check:skill-updaters`: 检查各 skill 内的 updater MJS、类型声明和 source map 是否由当前主仓库模板生成。
+22. `bun run check`: 依次运行类型检查、生成产物检查、共享生成逻辑、CLI 与 updater 集成测试、项目校验和全部 skill 打包。
+23. `bun run deploy:package`: 先校验当前 Git index 与 `skill-package-lock.json` 一致，再复用 `check` 生成本地可交付 zip 制品；不写入仓库外目录，CI 发布由 workflow 负责。
 
 需要直接排查脚本问题时，可以用 `bun scripts/<script>.ts` 运行单个脚本。
 
@@ -100,11 +102,15 @@
 1. 源码：`scripts/test-evidence/src/`。
 2. 声明源：`scripts/test-evidence/test-evidence.d.mts`。
 3. 测试：`scripts/test-evidence/tests/`。
-4. 构建入口：`scripts/test-evidence/build.ts`。
-5. 分发产物：`skills/test-evidence-review/scripts/test-evidence.mjs`、`test-evidence.d.mts` 及 `test-evidence.mjs.map`。
-6. 同步：`bun run sync:test-evidence-cli`。
-7. 检查：`bun run check:test-evidence-cli`。
-8. 测试：`bun run test:test-evidence-cli`。
+4. Git fixture 源：`scripts/test-evidence/tests/fixture-source.ts`。
+5. Git fixture 产物：`scripts/test-evidence/tests/fixtures/reviewed-workspace.bundle`。
+6. Git fixture 构建入口：`scripts/test-evidence/tests/build-fixture.ts`。
+7. CLI 构建入口：`scripts/test-evidence/build.ts`。
+8. 分发产物：`skills/test-evidence-review/scripts/test-evidence.mjs`、`test-evidence.d.mts` 及 `test-evidence.mjs.map`。
+9. CLI 同步：`bun run sync:test-evidence-cli`。
+10. CLI 检查：`bun run check:test-evidence-cli`。
+11. Fixture 同步与检查：`bun run sync:test-evidence-fixture`、`bun run check:test-evidence-fixture`。
+12. 测试：`bun run test:test-evidence-cli`。
 
 `skill-maintainer` 结构验证器的维护入口：
 
