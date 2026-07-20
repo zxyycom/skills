@@ -128,6 +128,27 @@
       "decision": "安装 `@typescript/native-preview`，并让 `bun run typecheck` 执行 `tsgo --noEmit`。"
     },
     {
+      "path": "prompt-optimize-references/260720-remove-migration-copies.md",
+      "title": "删除 prompt-optimize 迁移副本",
+      "purpose": "让 prompt-optimize 的分发内容只保留当前执行和解释需要的入口与引用。",
+      "background": "`workflows.md` 和 `rewrite-rules.md` 已长期不参与主动读取, 核心流程已由 `SKILL.md` 稳定承接, 决策记录和 Git 历史足以回放旧结构。",
+      "decision": "保持 `SKILL.md` 作为压缩后的默认流程 owner, 保留 `principles.md` 解释长期理由, 删除两份迁移副本并停止随包分发。"
+    },
+    {
+      "path": "prompt-optimize-references/260720-treat-negative-options-as-solution-anchors.md",
+      "title": "将负向方案视为解空间锚点",
+      "purpose": "让 agent 从目标、约束和结果建立解题路径, 避免替代方案被排除对象限定在局部框架中。",
+      "background": "模型可以理解“不使用 X”, 但 X 的常见用法、修正路径和反例仍进入上下文, 生成替代方案时可能继续围绕 X 搜索。",
+      "decision": "先建立正向目标框架, 再分类负向方案; 只有容易回落、重要边界或明确契约需要时才点名 X, 并避免围绕 X 反复展开。"
+    },
+    {
+      "path": "prompt-optimize-references/260720-use-controlled-mermaid-flowcharts.md",
+      "title": "使用受控 Mermaid flowchart 表达复杂关系",
+      "purpose": "在保持结构稳定和关系显式的前提下, 提高层级、分支和跨节点内容的可读性。",
+      "background": "有序列表、JSON 和简单表格适合作为默认格式, 但复杂关系强行线性化会降低理解效率; Mermaid flowchart 能用代码显式声明节点、边、方向和分组。",
+      "decision": "先遵循目标已有格式契约, 否则保留稳定默认格式; 图示确有收益且环境支持时, 使用 `flowchart LR` 或 `flowchart TD` 配合 `subgraph`, 并显式标注关系。"
+    },
+    {
       "path": "prompt-optimize-references/260706-move-subagent-guidance-to-dedicated-skill.md",
       "title": "将子代理任务说明移出 prompt-optimize",
       "purpose": "让 prompt-optimize 聚焦结构化文本优化，并为子代理编排建立独立 owner。",
@@ -140,13 +161,6 @@
       "purpose": "让文档正文兑现入口建立的预期，并能识别整体重心偏移。",
       "background": "`prompt-optimize` 已经要求判断用途、阅读脉络和内容 owner, 但 owner 主要解决内容完整解释放在哪里, 不足以稳定识别整篇文档的重心是否偏离入口信号建立的预期。",
       "decision": "在 `prompt-optimize` 主执行流程中新增“建立文档主承诺”, 从标题、副标题、序言、开头段、一级标题、触发条件、前置条件、资源名、字段集合、适用范围或输入输出描述推断核心问题、中心对象、预期展开方向和读者期待的结论或操作结果。"
-    },
-    {
-      "path": "prompt-optimize-references/260701-compact-entry-and-archive-migration-copies.md",
-      "title": "压缩 prompt-optimize 入口并归档迁移副本",
-      "purpose": "降低 prompt-optimize 的默认加载和判断成本，同时保留必要细节的可访问性。",
-      "background": "`skills/prompt-optimize/SKILL.md` 在承接默认执行路径后, 同时保留了过多细则展开, 使用时需要关注的点过多。",
-      "decision": "`SKILL.md` 继续作为默认执行路径 owner, 但主执行流程只保留压缩后的八步判断链, 细节解释由 `principles.md` 和具体任务上下文承接。"
     },
     {
       "path": "skill-maintainer-behavior/260719-own-project-aware-skill-lifecycle.md",
