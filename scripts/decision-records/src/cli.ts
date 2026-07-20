@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 
 import fs from "node:fs/promises";
-import path from "node:path";
 import process from "node:process";
-import { pathToFileURL } from "node:url";
 import { CommanderError } from "commander";
+import { isMainModule } from "../../lib/main-module.ts";
 import {
   createCliProgram,
   type CliArgs,
@@ -362,32 +361,41 @@ const commandHandlers: Record<Command, CommandHandler> = {
   trace: runTrace
 };
 
-function isMainModule(): boolean {
-  const entryPoint = process.argv[1];
-  return entryPoint !== undefined
-    && pathToFileURL(path.resolve(entryPoint)).href === import.meta.url;
-}
-
-async function main(): Promise<void> {
+export async function runDecisionRecordsCli(
+  argv: readonly string[] = process.argv.slice(2)
+): Promise<number> {
+  let exitCode = 0;
   const program = createCliProgram(
-    async (args) => await commandHandlers[args.command](args)
+    async (args) => await commandHandlers[args.command](args),
+    (value) => {
+      exitCode = value;
+    }
   );
 
   try {
-    await program.parseAsync(process.argv);
+    await program.parseAsync(["node", "decision-records.mjs", ...argv]);
   } catch (error) {
     if (error instanceof CommanderError) {
-      process.exitCode = error.exitCode === 0 ? 0 : 2;
-      return;
+      return error.exitCode === 0 ? 0 : 2;
     }
 
     throw error;
   }
+  return exitCode;
 }
 
 export { scanDecisionRecords, validateDecisionRecords };
-export type { DecisionValidationResult } from "./types.ts";
+export type {
+  DecisionIndex,
+  DecisionIndexEntry,
+  DecisionRecord,
+  DecisionRelation,
+  DecisionRelationType,
+  DecisionScan,
+  DecisionScanOptions,
+  DecisionValidationResult
+} from "./types.ts";
 
-if (isMainModule()) {
-  await main();
+if (isMainModule(import.meta.url)) {
+  process.exitCode = await runDecisionRecordsCli();
 }

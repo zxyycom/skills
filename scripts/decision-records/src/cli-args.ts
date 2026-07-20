@@ -33,6 +33,7 @@ type ParsedOptions = {
 };
 
 type RunCommand = (args: CliArgs) => Promise<number>;
+type SetExitCode = (exitCode: number) => void;
 
 function parseTraceDepth(value: string): number {
   if (!/^(0|[1-9]\d*)$/.test(value)) {
@@ -80,7 +81,10 @@ function createSubcommand(
     .exitOverride();
 }
 
-export function createCliProgram(run: RunCommand): CommanderCommand {
+export function createCliProgram(
+  run: RunCommand,
+  setExitCode: SetExitCode
+): CommanderCommand {
   const program = new CommanderCommand()
     .name("decision-records")
     .description("Validate and maintain repository decision records.")
@@ -106,7 +110,7 @@ export function createCliProgram(run: RunCommand): CommanderCommand {
     commanderCommand: CommanderCommand,
     recordPaths: string[] = []
   ): Promise<void> {
-    process.exitCode = await run(commandArgs(command, commanderCommand, recordPaths));
+    setExitCode(await run(commandArgs(command, commanderCommand, recordPaths)));
   }
 
   const check = createSubcommand(

@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
+import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { normalizeSourceMap } from "./generated-file.ts";
+import {
+  buildGeneratedDeclaration,
+  normalizeSourceMap
+} from "./generated-file.ts";
 
 type ParsedSourceMap = {
   sourceRoot: string;
@@ -61,5 +65,30 @@ assert.throws(
   ),
   /Bun source map contains a source outside the workspace/
 );
+
+const declarationTempRoot = await fs.mkdtemp(
+  path.join(os.tmpdir(), "generated-declaration-test-")
+);
+try {
+  const declarationPath = path.join(declarationTempRoot, "tool.d.mts");
+  await fs.writeFile(
+    declarationPath,
+    "export declare function run(): Promise<number>;\r\n",
+    "utf8"
+  );
+  assert.equal(
+    await buildGeneratedDeclaration({
+      banner: "/* Generated declaration. */",
+      sourcePath: declarationPath
+    }),
+    [
+      "/* Generated declaration. */",
+      "export declare function run(): Promise<number>;",
+      ""
+    ].join("\n")
+  );
+} finally {
+  await fs.rm(declarationTempRoot, { force: true, recursive: true });
+}
 
 console.log("Generated file tests passed.");

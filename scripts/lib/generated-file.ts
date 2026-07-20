@@ -27,6 +27,12 @@ export type BunBundleResult = {
 export type GeneratedArtifact = {
   content: string;
   path: string;
+  sourcePath?: string;
+};
+
+export type GeneratedDeclarationOptions = {
+  banner: string;
+  sourcePath: string;
 };
 
 export type GeneratedFileHeaderOptions = {
@@ -174,6 +180,14 @@ export async function bundleWithBun(options: BunBundleOptions): Promise<BunBundl
   }
 }
 
+export async function buildGeneratedDeclaration(
+  options: GeneratedDeclarationOptions
+): Promise<string> {
+  const declaration = (await fs.readFile(options.sourcePath, "utf8"))
+    .replace(/\r\n?/g, "\n");
+  return `${options.banner}\n${declaration.endsWith("\n") ? declaration : `${declaration}\n`}`;
+}
+
 export async function syncGeneratedFile(
   outputPath: string,
   expected: string,
@@ -207,8 +221,9 @@ export async function syncGeneratedArtifacts(
 
     changed = true;
     const relativePath = path.relative(workspaceRoot, artifact.path).replace(/\\/g, "/");
+    const artifactSourcePath = artifact.sourcePath ?? sourcePath;
     if (result === "stale") {
-      console.error(`${relativePath} is missing or not generated from ${sourcePath}`);
+      console.error(`${relativePath} is missing or not generated from ${artifactSourcePath}`);
     } else {
       console.log(`Wrote ${relativePath}`);
     }

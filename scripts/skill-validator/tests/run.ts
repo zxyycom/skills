@@ -4,6 +4,10 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  runSkillValidatorCli,
+  validateSkillDirectory as validateBundledSkillDirectory
+} from "../../../skills/skill-maintainer/scripts/validate-skill.mjs";
 import { validateSkillDirectory } from "../src/validation.ts";
 
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -14,6 +18,13 @@ const generatedValidatorPath = path.join(
   "skill-maintainer",
   "scripts",
   "validate-skill.mjs"
+);
+const generatedDeclarationPath = path.join(
+  rootDir,
+  "skills",
+  "skill-maintainer",
+  "scripts",
+  "validate-skill.d.mts"
 );
 
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "skill-validator-test-"));
@@ -44,6 +55,8 @@ try {
   const valid = await validateSkillDirectory(validSkillPath);
   assert.deepEqual(valid.errors, []);
   assert.equal(valid.markdownFileCount, 2);
+  assert.deepEqual(await validateBundledSkillDirectory(validSkillPath), valid);
+  assert.equal(typeof runSkillValidatorCli, "function");
 
   const cliSuccess = spawnSync("node", [generatedValidatorPath, validSkillPath], {
     encoding: "utf8"
@@ -136,6 +149,13 @@ try {
   );
   assert.match(validatorSource, /Rebuild: bun run sync:skill-validator/);
   assert.match(validatorSource, /sourceMappingURL=validate-skill\.mjs\.map/);
+  const declarationSource = await fs.readFile(generatedDeclarationPath, "utf8");
+  assert.match(
+    declarationSource,
+    /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/scripts\/skill-validator\/validate-skill\.d\.mts/
+  );
+  assert.match(declarationSource, /validateSkillDirectory/);
+  assert.match(declarationSource, /runSkillValidatorCli/);
 
   const sourceMap = JSON.parse(await fs.readFile(`${generatedValidatorPath}.map`, "utf8")) as {
     sourceRoot: string;

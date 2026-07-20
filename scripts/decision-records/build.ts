@@ -1,5 +1,6 @@
 import path from "node:path";
 import {
+  buildGeneratedDeclaration,
   buildGeneratedFileHeader,
   bundleWithBun,
   parseGeneratedFileMode,
@@ -9,7 +10,11 @@ import {
 import { githubRepository, rootDir } from "../lib/project.ts";
 
 const sourceRelativePath = "scripts/decision-records/src/cli.ts";
+const declarationSourceRelativePath =
+  "scripts/decision-records/decision-records.d.mts";
 const outputRelativePath = "skills/decision-records/scripts/decision-records.mjs";
+const declarationOutputRelativePath =
+  "skills/decision-records/scripts/decision-records.d.mts";
 
 async function buildArtifact(): Promise<BunBundleResult> {
   return await bundleWithBun({
@@ -35,6 +40,16 @@ async function main(): Promise<void> {
   const mode = parseGeneratedFileMode(process.argv.slice(2));
   const outputPath = path.join(rootDir, outputRelativePath);
   const expected = await buildArtifact();
+  const expectedDeclaration = await buildGeneratedDeclaration({
+    banner: buildGeneratedFileHeader({
+      artifactName: "decision-records TypeScript declarations",
+      rebuildCommand: "bun run sync:decision-records-cli",
+      repository: githubRepository,
+      skillSourcePath: "skills/decision-records",
+      sourcePath: declarationSourceRelativePath
+    }),
+    sourcePath: path.join(rootDir, declarationSourceRelativePath)
+  });
   if (expected.sourceMap === null) {
     throw new Error("Decision records CLI bundle must include a source map");
   }
@@ -42,7 +57,12 @@ async function main(): Promise<void> {
   const changed = await syncGeneratedArtifacts(
     [
       { content: expected.code, path: outputPath },
-      { content: expected.sourceMap, path: `${outputPath}.map` }
+      { content: expected.sourceMap, path: `${outputPath}.map` },
+      {
+        content: expectedDeclaration,
+        path: path.join(rootDir, declarationOutputRelativePath),
+        sourcePath: declarationSourceRelativePath
+      }
     ],
     mode,
     rootDir,

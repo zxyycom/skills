@@ -4,6 +4,10 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  runTestEvidenceCli,
+  validateTestEvidence as validateBundledTestEvidence
+} from "../../../skills/test-evidence-review/scripts/test-evidence.mjs";
 import { validateTestEvidence } from "../src/validation.ts";
 
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -14,6 +18,13 @@ const generatedCliPath = path.join(
   "test-evidence-review",
   "scripts",
   "test-evidence.mjs"
+);
+const generatedDeclarationPath = path.join(
+  rootDir,
+  "skills",
+  "test-evidence-review",
+  "scripts",
+  "test-evidence.d.mts"
 );
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "test-evidence-"));
 
@@ -40,6 +51,11 @@ try {
     reviewTriggers: 0,
     unregisteredTestEntries: 0
   });
+  assert.deepEqual(
+    await validateBundledTestEvidence({ workspaceRoot }),
+    valid
+  );
+  assert.equal(typeof runTestEvidenceCli, "function");
 
   const absoluteConfigPath = await validateTestEvidence({
     configPath: "C:\\outside.json",
@@ -323,6 +339,13 @@ try {
   assert.match(generatedCli, /Generated test-evidence CLI/);
   assert.match(generatedCli, /Rebuild: bun run sync:test-evidence-cli/);
   assert.match(generatedCli, /sourceMappingURL=test-evidence\.mjs\.map/);
+  const declarationSource = await fs.readFile(generatedDeclarationPath, "utf8");
+  assert.match(
+    declarationSource,
+    /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/scripts\/test-evidence\/test-evidence\.d\.mts/
+  );
+  assert.match(declarationSource, /validateTestEvidence/);
+  assert.match(declarationSource, /runTestEvidenceCli/);
   const sourceMap = JSON.parse(
     await fs.readFile(`${generatedCliPath}.map`, "utf8")
   ) as { sourceRoot: string; sources: string[] };
@@ -476,13 +499,19 @@ function createCatalog(reviewedCommit?: string): string {
 function initializeGit(workspaceRoot: string): void {
   execGit(workspaceRoot, ["init", "-q"]);
   execGit(workspaceRoot, ["config", "core.autocrlf", "false"]);
-  execGit(workspaceRoot, ["config", "user.email", "test-evidence@example.invalid"]);
-  execGit(workspaceRoot, ["config", "user.name", "Test Evidence"]);
 }
 
 function commitAll(workspaceRoot: string, message: string): string {
   execGit(workspaceRoot, ["add", "."]);
-  execGit(workspaceRoot, ["commit", "-qm", message]);
+  execGit(workspaceRoot, [
+    "-c",
+    "user.email=test-evidence@example.invalid",
+    "-c",
+    "user.name=Test Evidence",
+    "commit",
+    "-qm",
+    message
+  ]);
   return execGit(workspaceRoot, ["rev-parse", "HEAD"]).trim();
 }
 

@@ -13,12 +13,8 @@ export type UpdaterLinks = {
   updaterSourceUrl: string;
 };
 
-function currentScriptPath(): string {
-  return path.resolve(process.argv[1] ?? process.cwd());
-}
-
-function defaultTargetDir(): string {
-  const scriptDir = path.dirname(currentScriptPath());
+function defaultTargetDir(scriptPath: string): string {
+  const scriptDir = path.dirname(scriptPath);
   return path.basename(scriptDir) === "scripts"
     ? path.dirname(scriptDir)
     : process.cwd();
@@ -38,10 +34,10 @@ export function getUpdaterLinks(config: UpdaterConfig): UpdaterLinks {
   };
 }
 
-function printHelp(config: UpdaterConfig): void {
+export function printHelp(config: UpdaterConfig, scriptPath: string): void {
   const links = getUpdaterLinks(config);
   console.log([
-    `Usage: node ${path.basename(currentScriptPath())} [--check] [--yes] [--target-dir <dir>] [--release-tag <tag>]`,
+    `Usage: node ${path.basename(scriptPath)} [--check] [--yes] [--target-dir <dir>] [--release-tag <tag>]`,
     "",
     `Checks and updates ${config.skillName} from ${config.repo} release assets.`,
     "",
@@ -62,9 +58,13 @@ function printHelp(config: UpdaterConfig): void {
   ].join("\n"));
 }
 
-export function parseCliOptions(config: UpdaterConfig, argv: string[]): CliOptions {
+export function parseCliOptions(
+  config: UpdaterConfig,
+  argv: readonly string[],
+  scriptPath: string
+): CliOptions {
   const { values } = parseArgs({
-    args: argv,
+    args: [...argv],
     options: {
       check: { type: "boolean" },
       help: { short: "h", type: "boolean" },
@@ -75,15 +75,11 @@ export function parseCliOptions(config: UpdaterConfig, argv: string[]): CliOptio
     strict: true
   });
 
-  if (values.help) {
-    printHelp(config);
-    process.exit(0);
-  }
-
   return {
     check: values.check ?? false,
+    help: values.help ?? false,
     releaseTag: values["release-tag"] ?? null,
-    targetDir: path.resolve(values["target-dir"] ?? defaultTargetDir()),
+    targetDir: path.resolve(values["target-dir"] ?? defaultTargetDir(scriptPath)),
     yes: values.yes ?? false
   };
 }

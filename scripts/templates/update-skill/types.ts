@@ -8,6 +8,7 @@ export type UpdaterConfig = {
 
 export type CliOptions = {
   check: boolean;
+  help: boolean;
   releaseTag: string | null;
   targetDir: string;
   yes: boolean;

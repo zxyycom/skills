@@ -95,6 +95,8 @@ TDD、防回归、覆盖率和历史 bug 只提供调查动机。以下测试通
 node scripts/test-evidence.mjs check --root <workspace-root>
 ```
 
+需要在现有 ESM 进程中复用时，从本 skill 的实际安装路径直接导入同一个 `scripts/test-evidence.mjs`。模块导入不会执行 CLI，导出 `validateTestEvidence` 和返回退出码的 `runTestEvidenceCli(argv)`；相邻的 `test-evidence.d.mts` 提供 TypeScript 声明。
+
 需要机器报告时添加 `--json`。CLI 使用 Git 可见路径校验 `Scope:`，并返回 `errors`、`warnings`、`reviewTriggers` 和汇总。分别处理结构错误、入口映射、review 动作和仍待持久化的状态；机械结果不代替语义结论。
 
 ## 周期巡检

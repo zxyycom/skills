@@ -93,6 +93,13 @@
       "decision": "删除两个旧 skill, 新建独立分发的 `product-architecture-judgment`, 将问题重构作为内部动作, 统一使用产品价值与架构责任选择最小工程方案。"
     },
     {
+      "path": "project-tooling/260720-expose-importable-skill-modules.md",
+      "title": "让 skill 分发脚本同时提供可导入模块",
+      "purpose": "让已安装 skill 的自包含代码既能作为 CLI 运行，也能在现有 ESM 进程中直接导入复用。",
+      "background": "现有单文件 JavaScript 主要按 Node 子进程入口交付，不同脚本的导入副作用、公共 exports 和 TypeScript 类型支持并不一致。",
+      "decision": "主仓库从同一份 TypeScript 源码生成 import-safe 的自包含 `.mjs`、同名 `.d.mts` 和 linked source map，并让同一 MJS 通过主模块判断兼容 CLI。"
+    },
+    {
       "path": "project-tooling/260720-use-prebuilt-git-test-fixtures.md",
       "title": "用预构建 Git fixture 加速 test-evidence 测试",
       "purpose": "在保留真实 Git 语义和 Node 分发兼容验证的前提下，减少 `test:test-evidence-cli` 的重复仓库初始化与子进程启动。",
@@ -107,18 +114,11 @@
       "decision": "使用 `docs/coding-style.md` 承接 `scripts/` 实现代码的通用质量规则，由 `AGENTS.md` 提供读取入口；行为契约和工具链细节继续留在各自 owner。"
     },
     {
-      "path": "project-tooling/260711-separate-skill-script-source-and-generated-artifacts.md",
-      "title": "分离 skill 分发脚本源码与生成产物",
-      "purpose": "兼顾分发脚本的独立可执行性与主仓库 TypeScript 源码的可维护性。",
-      "background": "已安装 skill 需要携带能由目标运行时直接执行的 JavaScript，但直接在 `skills/<skill-name>/scripts/` 维护打包代码会失去正常的 TypeScript 模块结构、类型检查和测试入口。",
-      "decision": "在主仓库 `scripts/` 下按工具建立源码目录，承接 TypeScript 模块、测试、夹具和构建入口；skill 目录只承接实际分发所需的生成 JavaScript。"
-    },
-    {
       "path": "project-tooling/260703-follow-latest-release-for-skill-updater.md",
       "title": "自更新脚本跟随 latest release 制品",
       "purpose": "让 skill 自更新使用正式发布制品，而不是开发分支快照。",
       "background": "自更新脚本原来默认从主仓库 `main` 分支下载源码 zip 并截取 `skills/<skill-name>/` 目录。",
-      "decision": "`scripts/update-skill.cjs` 默认通过 GitHub Releases API 读取 `zxyycom/skills` 的 latest release，并以该 release 中的正式 asset 作为远端更新输入。"
+      "decision": "自更新模块 `scripts/update-skill.mjs` 默认通过 GitHub Releases API 读取 `zxyycom/skills` 的 latest release，并以该 release 中的正式 asset 作为远端更新输入。"
     },
     {
       "path": "project-tooling/260703-use-per-skill-hash-lock-for-updater.md",

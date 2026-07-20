@@ -22,18 +22,19 @@ export async function loadGitWorkspace(
 ): Promise<GitWorkspaceResult> {
   const errors: string[] = [];
   try {
-    const inside = (await runGit(
+    const metadata = (await runGit(
       workspaceRoot,
-      ["rev-parse", "--is-inside-work-tree"]
-    )).trim();
+      ["rev-parse", "--is-inside-work-tree", "--show-toplevel", "HEAD"]
+    )).trim().split(/\r?\n/u);
+    const [inside, gitRoot, headCommit] = metadata;
     if (inside !== "true") {
       errors.push(`${workspaceRoot} is not inside a Git worktree`);
       return { errors, workspace: null };
     }
-    const gitRoot = (await runGit(
-      workspaceRoot,
-      ["rev-parse", "--show-toplevel"]
-    )).trim();
+    if (gitRoot === undefined || headCommit === undefined || metadata.length !== 3) {
+      errors.push(`${workspaceRoot} Git metadata could not be resolved`);
+      return { errors, workspace: null };
+    }
     if (!pathsEqual(gitRoot, workspaceRoot)) {
       errors.push(
         `workspace root must be the Git worktree root: expected ${gitRoot}, `
@@ -42,8 +43,7 @@ export async function loadGitWorkspace(
       return { errors, workspace: null };
     }
 
-    const [headCommit, files, unstaged, staged, untracked] = await Promise.all([
-      runGit(workspaceRoot, ["rev-parse", "HEAD"]),
+    const [files, status] = await Promise.all([
       runGit(workspaceRoot, [
         "ls-files",
         "--cached",
@@ -51,15 +51,13 @@ export async function loadGitWorkspace(
         "--exclude-standard",
         "-z"
       ]),
-      runGit(workspaceRoot, ["diff", "--name-only", "--no-renames", "-z"]),
       runGit(workspaceRoot, [
-        "diff",
-        "--cached",
-        "--name-only",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all",
         "--no-renames",
         "-z"
-      ]),
-      runGit(workspaceRoot, ["ls-files", "--others", "--exclude-standard", "-z"])
+      ])
     ]);
 
     return {
@@ -69,13 +67,9 @@ export async function loadGitWorkspace(
           workspaceRoot,
           commit
         ),
-        dirtyPaths: uniquePaths([
-          ...parseNullSeparatedPaths(unstaged),
-          ...parseNullSeparatedPaths(staged),
-          ...parseNullSeparatedPaths(untracked)
-        ]),
+        dirtyPaths: uniquePaths(parsePorcelainStatusPaths(status)),
         files: uniquePaths(parseNullSeparatedPaths(files)),
-        headCommit: headCommit.trim()
+        headCommit
       }
     };
   } catch (error) {
@@ -92,10 +86,9 @@ async function loadChangedPathsSince(
   workspaceRoot: string,
   commit: string
 ): Promise<string[]> {
-  await runGit(workspaceRoot, ["cat-file", "-e", `${commit}^{commit}`]);
   return parseNullSeparatedPaths(await runGit(
     workspaceRoot,
-    ["diff", "--name-only", "--no-renames", "-z", commit, "HEAD"]
+    ["diff", "--name-only", "--no-renames", "-z", `${commit}^{commit}`, "HEAD"]
   ));
 }
 
@@ -110,6 +103,22 @@ async function runGit(workspaceRoot: string, args: readonly string[]): Promise<s
     }
   );
   return result.stdout;
+}
+
+function parsePorcelainStatusPaths(value: string): string[] {
+  return value
+    .split("\0")
+    .flatMap((entry) => {
+      if (entry.length === 0) {
+        return [];
+      }
+      if (entry.length < 4 || entry[2] !== " ") {
+        throw new Error(`Unexpected git status output: ${entry}`);
+      }
+
+      const normalized = normalizeWorkspaceRelative(entry.slice(3));
+      return normalized === null ? [] : [normalized];
+    });
 }
 
 function parseNullSeparatedPaths(value: string): string[] {

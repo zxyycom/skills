@@ -35,18 +35,18 @@
 5. `bun run pack:skills`: 读取 Git index 中 `skills/<skill-name>/` 的 blob，将每个 skill 分别打包为 `dist/<skill-name>.zip`，并把 `skill-package-lock.json` 复制为 release manifest asset。
 6. `bun run setup-hooks`: 将主仓库 `core.hooksPath` 设置为 `.githooks`。
 7. `bun run test:generated-file`: 测试生成文件共享能力，覆盖 Bun source map 的临时目录解析、仓库相对路径归一化和越界拒绝。
-8. `bun run test:decision-records-cli`: 使用独立夹具测试 `decision-records` TypeScript 源码、Node 分发产物和生成头追溯字段。
-9. `bun run test:skill-validator`: 使用临时 skill 目录测试结构校验源码、Node 分发产物、失败诊断和生成头。
-10. `bun run test:test-evidence-cli`: 使用临时 Git 多语言工作区测试自动化、人工审查和发现豁免账本状态，测试入口角色、Scope trigger、未登记入口策略和 Node 分发产物。
-11. `bun run test:skill-updater`: 使用本地假 GitHub 响应和临时目录测试 Node 分发 updater 的 lock、zip 指纹、更新替换和失败诊断。
-12. `bun run sync:decision-records-cli`: 从 `scripts/decision-records/` 构建并写入 skill 内的 `scripts/decision-records.mjs`。
+8. `bun run test:decision-records-cli`: 使用独立夹具测试 `decision-records` TypeScript 源码、包内 MJS 导入、Node CLI、类型声明和生成头追溯字段。
+9. `bun run test:skill-validator`: 使用临时 skill 目录测试结构校验源码、包内 MJS 导入、Node CLI、类型声明、失败诊断和生成头。
+10. `bun run test:test-evidence-cli`: 使用临时 Git 多语言工作区测试自动化、人工审查和发现豁免账本状态，测试入口角色、Scope trigger、未登记入口策略、包内 MJS 导入和 Node CLI。
+11. `bun run test:skill-updater`: 使用本地假 GitHub 响应和临时目录测试 updater 的包内 MJS 导入、Node CLI、lock、zip 指纹、更新替换和失败诊断。
+12. `bun run sync:decision-records-cli`: 从 `scripts/decision-records/` 构建并写入 skill 内的 `scripts/decision-records.mjs`、类型声明和 source map。
 13. `bun run check:decision-records-cli`: 在临时目录构建 CLI，并检查 skill 内分发产物是否与当前源码一致。
-14. `bun run sync:skill-validator`: 从 `scripts/skill-validator/` 构建并写入 `skill-maintainer` 内的 `scripts/validate-skill.mjs`。
+14. `bun run sync:skill-validator`: 从 `scripts/skill-validator/` 构建并写入 `skill-maintainer` 内的 `scripts/validate-skill.mjs`、类型声明和 source map。
 15. `bun run check:skill-validator`: 在临时目录构建结构验证器，并检查 skill 内分发产物是否与当前源码一致。
-16. `bun run sync:test-evidence-cli`: 从 `scripts/test-evidence/` 构建并写入 `test-evidence-review` skill 内的 `scripts/test-evidence.mjs`。
+16. `bun run sync:test-evidence-cli`: 从 `scripts/test-evidence/` 构建并写入 `test-evidence-review` skill 内的 `scripts/test-evidence.mjs`、类型声明和 source map。
 17. `bun run check:test-evidence-cli`: 在临时目录构建测试证据 CLI，并检查 skill 内分发产物是否与当前源码一致。
-18. `bun run sync:skill-updaters`: 按主仓库模板和 `skills/` 发现结果生成各 skill 内的 `scripts/update-skill.cjs`。
-19. `bun run check:skill-updaters`: 检查各 skill 内的 `scripts/update-skill.cjs` 是否由当前主仓库模板生成。
+18. `bun run sync:skill-updaters`: 按主仓库模板和 `skills/` 发现结果生成各 skill 内的 `scripts/update-skill.mjs`、类型声明和 source map。
+19. `bun run check:skill-updaters`: 检查各 skill 内的 updater MJS、类型声明和 source map 是否由当前主仓库模板生成。
 20. `bun run check`: 依次运行类型检查、生成产物检查、共享生成逻辑、CLI 与 updater 集成测试、项目校验和全部 skill 打包。
 21. `bun run deploy:package`: 先校验当前 Git index 与 `skill-package-lock.json` 一致，再复用 `check` 生成本地可交付 zip 制品；不写入仓库外目录，CI 发布由 workflow 负责。
 
@@ -67,51 +67,55 @@
 11. 打包脚本使用 `fflate` 生成 zip，只打包 `skills/<skill-name>/` 内文件，不把项目文档、CI、脚本或仓库元数据放进 skill zip；每次打包前清空 `dist/`，避免残留旧 skill 制品。
 12. Markdown 链接提取使用 `mdast-util-from-markdown` 解析 Markdown AST；脚本负责仓库路径、决策关系和项目约束校验。
 13. Markdown 内部链接目标必须是仓库内路径且目标存在；`#anchor` 必须匹配目标 Markdown 文件中的标题锚点。
-14. 决策记录的独立入口和总校验直接复用 `scripts/decision-records/src/` 的同一套源码；skill 结构总校验和分发验证器直接复用 `scripts/skill-validator/src/`。分发 CLI 由逐字节生成检查和 Node 集成测试覆盖，避免仓库校验依赖生成文件或形成第二套规则。
+14. 决策记录的独立入口和总校验直接复用 `scripts/decision-records/src/` 的同一套源码；skill 结构总校验和分发验证器直接复用 `scripts/skill-validator/src/`。分发模块由逐字节生成检查、包内导入测试和 Node CLI 集成测试覆盖，避免仓库校验依赖生成文件或形成第二套规则。
 15. Skill 发布 hash 和 skill zip 都只覆盖会进入 skill zip 的文件路径和 Git blob 内容；`docs/skills/` 介绍页、项目文档、脚本和 CI 变化不直接触发 skill release。仓库脚本源码变化需要先同步为 skill 内生成产物，只有分发产物发生变化时才改变对应 hash。Hash 计算和打包都读取 Git index 中的 blob，避免 Windows 与 Linux 工作区换行差异导致本地 hook、CI 和 release asset 结果不一致。根目录 `skill-package-lock.json` 是唯一发布状态文件，记录聚合 hash 和每个 skill 的独立 hash。
 16. 校验脚本不解析 workflow 结构, 也不通过正则检查 workflow 内部步骤; workflow 逻辑由文档约定、代码审查和 GitHub Actions 实际运行结果验证。
-17. Skill 自更新脚本的通用逻辑由主仓库 `scripts/templates/update-skill.ts` 入口及 `scripts/templates/update-skill/` 模块承接；各 skill 包内只保留打包生成的 `scripts/update-skill.cjs`。
-18. 可嵌入注释的生成脚本顶部必须写明禁止直接编辑、仓库链接、线上可维护源码链接、仓库内源码路径、对应 skill 源目录和重建命令；按产物用途补充 release asset 等必要入口。生成头不写时间戳、本机绝对路径或其他非确定性状态。不能嵌入注释的 JSON 等机器制品由稳定生成入口和本文件承接追溯关系。
+17. Skill 自更新脚本的通用逻辑由主仓库 `scripts/templates/update-skill.ts` 入口及 `scripts/templates/update-skill/` 模块承接；各 skill 包内只保留打包生成的 `scripts/update-skill.mjs`、`update-skill.d.mts` 和 source map。
+18. 可嵌入注释的生成模块和声明顶部必须写明禁止直接编辑、仓库链接、线上可维护源码链接、仓库内源码或声明源路径、对应 skill 源目录和重建命令；按产物用途补充 release asset 等必要入口。生成头不写时间戳、本机绝对路径或其他非确定性状态。不能嵌入注释的 JSON 等机器制品由稳定生成入口和本文件承接追溯关系。
 
 ## Skill 分发脚本
 
 需要编译后随 skill 分发的脚本采用源码与产物分离：
 
-1. TypeScript 源码、测试、夹具和构建入口放在主仓库 `scripts/<tool-name>/`。
-2. 构建后的单文件 JavaScript 及同名 linked source map 放在 `skills/<skill-name>/scripts/`，提交到 Git 并进入 skill hash；map 内源码路径统一为仓库相对 POSIX 路径。
-3. `sync:*` 显式写入 JavaScript 和 source map；`check:*` 在临时目录重建并逐字节比较，不在检查期间修改产物。
-4. 分发产物只能依赖目标运行时和已打包内容，不能要求使用者安装主仓库 Bun、pnpm、TypeScript 或源码依赖；产物主体可以压缩，维护和调试以文件头指向的源码为准。
-5. `pack:skills` 只收集已经通过生成状态检查的 skill 目录 Git blob，不在打包阶段临时构建未提交脚本。
+1. TypeScript 源码、公共声明源、测试、夹具和构建入口放在主仓库 `scripts/<tool-name>/`。
+2. 构建后的自包含单文件 ESM 使用 `.mjs`，与同名 `.d.mts` 和 linked source map 一起放在 `skills/<skill-name>/scripts/`，提交到 Git 并进入 skill hash；map 内源码路径统一为仓库相对 POSIX 路径。
+3. `.mjs` 导入时不得执行 CLI、修改退出状态或触发文件和网络操作；只有作为主模块运行时才进入 CLI。公共核心函数返回结构化结果，`run*Cli(argv)` 返回退出码并保留 CLI 输出语义。
+4. `.d.mts` 描述对应 `.mjs` 的稳定公共 exports；声明源随 TypeScript 源码接受类型检查，`sync:*` 显式写入 MJS、声明和 source map，`check:*` 重建并逐字节比较。
+5. 分发产物只能依赖目标运行时和已打包内容，不能要求使用者安装主仓库 Bun、pnpm、TypeScript 或源码依赖；产物主体可以压缩，维护和调试以文件头指向的源码和声明源为准。
+6. `pack:skills` 只收集已经通过生成状态检查的 skill 目录 Git blob，不在打包阶段临时构建未提交脚本。
 
 `decision-records` CLI 的维护入口：
 
 1. 源码：`scripts/decision-records/src/`。
-2. 测试和夹具：`scripts/decision-records/tests/`。
-3. 构建入口：`scripts/decision-records/build.ts`。
-4. 分发产物：`skills/decision-records/scripts/decision-records.mjs` 及 `decision-records.mjs.map`。
-5. 同步：`bun run sync:decision-records-cli`。
-6. 检查：`bun run check:decision-records-cli`。
-7. 测试：`bun run test:decision-records-cli`。
+2. 声明源：`scripts/decision-records/decision-records.d.mts`。
+3. 测试和夹具：`scripts/decision-records/tests/`。
+4. 构建入口：`scripts/decision-records/build.ts`。
+5. 分发产物：`skills/decision-records/scripts/decision-records.mjs`、`decision-records.d.mts` 及 `decision-records.mjs.map`。
+6. 同步：`bun run sync:decision-records-cli`。
+7. 检查：`bun run check:decision-records-cli`。
+8. 测试：`bun run test:decision-records-cli`。
 
 `test-evidence-review` CLI 的维护入口：
 
 1. 源码：`scripts/test-evidence/src/`。
-2. 测试：`scripts/test-evidence/tests/`。
-3. 构建入口：`scripts/test-evidence/build.ts`。
-4. 分发产物：`skills/test-evidence-review/scripts/test-evidence.mjs` 及 `test-evidence.mjs.map`。
-5. 同步：`bun run sync:test-evidence-cli`。
-6. 检查：`bun run check:test-evidence-cli`。
-7. 测试：`bun run test:test-evidence-cli`。
+2. 声明源：`scripts/test-evidence/test-evidence.d.mts`。
+3. 测试：`scripts/test-evidence/tests/`。
+4. 构建入口：`scripts/test-evidence/build.ts`。
+5. 分发产物：`skills/test-evidence-review/scripts/test-evidence.mjs`、`test-evidence.d.mts` 及 `test-evidence.mjs.map`。
+6. 同步：`bun run sync:test-evidence-cli`。
+7. 检查：`bun run check:test-evidence-cli`。
+8. 测试：`bun run test:test-evidence-cli`。
 
 `skill-maintainer` 结构验证器的维护入口：
 
 1. 源码：`scripts/skill-validator/src/`。
-2. 测试：`scripts/skill-validator/tests/`。
-3. 构建入口：`scripts/skill-validator/build.ts`。
-4. 分发产物：`skills/skill-maintainer/scripts/validate-skill.mjs` 及 `validate-skill.mjs.map`。
-5. 同步：`bun run sync:skill-validator`。
-6. 检查：`bun run check:skill-validator`。
-7. 测试：`bun run test:skill-validator`。
+2. 声明源：`scripts/skill-validator/validate-skill.d.mts`。
+3. 测试：`scripts/skill-validator/tests/`。
+4. 构建入口：`scripts/skill-validator/build.ts`。
+5. 分发产物：`skills/skill-maintainer/scripts/validate-skill.mjs`、`validate-skill.d.mts` 及 `validate-skill.mjs.map`。
+6. 同步：`bun run sync:skill-validator`。
+7. 检查：`bun run check:skill-validator`。
+8. 测试：`bun run test:skill-validator`。
 
 已安装的 `skill-maintainer` 可在自身目录内运行，或使用脚本绝对路径验证其他 skill：
 
@@ -119,29 +123,31 @@
 node scripts/validate-skill.mjs <skill-directory>
 ```
 
+需要在现有 ESM 进程中复用时，直接从已安装 skill 的实际路径导入同一个 `validate-skill.mjs`；导入不会执行 CLI。模块导出 `validateSkillDirectory` 和 `runSkillValidatorCli`，相邻的 `validate-skill.d.mts` 提供 TypeScript 类型。
+
 ## Skill 自更新脚本
 
-每个 skill 包内包含 `scripts/update-skill.cjs` 及 `update-skill.cjs.map`。该脚本用于已安装 skill 的自检和可选更新：它读取脚本内的配置项，从 `zxyycom/skills` 的 GitHub latest release 下载 `skill-package-lock.json`，用其中当前 skill 的独立 hash 与本地目录指纹比较；只有发现不一致并确认更新时，才下载对应 `<skill-name>.zip` asset，使用 `fflate` 解压出包内 `<skill-name>/` 目录并覆盖更新。指定旧 release tag 且该 release 没有 lock asset 时，脚本回退为下载 zip 并计算远端指纹。
+每个 skill 包内包含 `scripts/update-skill.mjs`、`update-skill.d.mts` 及 `update-skill.mjs.map`。该模块用于已安装 skill 的自检和可选更新：它读取模块内的配置项，从 `zxyycom/skills` 的 GitHub latest release 下载 `skill-package-lock.json`，用其中当前 skill 的独立 hash 与本地目录指纹比较；只有发现不一致并确认更新时，才下载对应 `<skill-name>.zip` asset，使用 `fflate` 解压出包内 `<skill-name>/` 目录并覆盖更新。指定旧 release tag 且该 release 没有 lock asset 时，模块回退为下载 zip 并计算远端指纹。
 
 自更新脚本源码使用主仓库 TypeScript 工具链和依赖，但分发产物应能脱离主仓库运行，不能要求已安装 skill 的使用者具备主仓库 Bun、pnpm 或 TypeScript 工具链。需要访问私有仓库或提高 GitHub API 限额时，可通过 `GITHUB_TOKEN` 或 `GH_TOKEN` 提供 token。
 
-生成后的 `update-skill.cjs` 主体不要求保持源码可读性；顶部必须遵循统一生成头契约，并补充默认 package lock asset 和默认 release asset。`--help` 和正常运行输出也要显示仓库、可维护源码、skill 源目录和 release 输入，方便使用者在脚本报错时定位应修改的源文件，而不是直接修改打包后的 CJS 产物。
+生成后的 `update-skill.mjs` 主体不要求保持源码可读性；顶部必须遵循统一生成头契约，并补充默认 package lock asset 和默认 release asset。导入模块不会自动检查或更新，公共 exports 为 `skillUpdaterConfig` 和返回退出码的 `runSkillUpdaterCli(argv)`；默认目标目录按模块自身的 `import.meta.url` 定位，不受导入方入口影响。`--help` 和正常运行输出也要显示仓库、可维护源码、skill 源目录和 release 输入，方便使用者在模块报错时定位应修改的源文件，而不是直接修改打包产物。
 
 维护方式：
 
 1. 通用源码只改 `scripts/templates/update-skill.ts` 入口及 `scripts/templates/update-skill/` 下的职责模块。
-2. 运行 `bun run sync:skill-updaters` 将模板按各 skill 的 repo、ref 和 source path 渲染后打包到 `skills/<skill-name>/scripts/update-skill.cjs`。
-3. `scripts/templates/update-skill/tests/` 使用本地假响应和临时目录验证 Node 分发产物；运行入口是 `bun run test:skill-updater`。
+2. 运行 `bun run sync:skill-updaters` 将模板按各 skill 的 repo、ref 和 source path 渲染后打包到 `skills/<skill-name>/scripts/update-skill.mjs`，并同步 `update-skill.d.mts` 和 source map。
+3. `scripts/templates/update-skill/tests/` 使用包内直接导入、本地假响应和临时目录验证 MJS 与 Node CLI；运行入口是 `bun run test:skill-updater`。
 4. `bun run check` 会执行生成漂移检查和 updater 集成测试。
 5. 生成脚本进入 skill zip，因此会改变对应 skill hash 和聚合 hash；提交前 hook 会更新并 stage `skill-package-lock.json`。
 
 已安装 skill 可在对应 skill 目录内运行：
 
 ```bash
-node scripts/update-skill.cjs --check
-node scripts/update-skill.cjs
-node scripts/update-skill.cjs --yes
-node scripts/update-skill.cjs --release-tag 20260701T085839Z-33304575c8da --check
+node scripts/update-skill.mjs --check
+node scripts/update-skill.mjs
+node scripts/update-skill.mjs --yes
+node scripts/update-skill.mjs --release-tag 20260701T085839Z-33304575c8da --check
 ```
 
 ## Git hooks

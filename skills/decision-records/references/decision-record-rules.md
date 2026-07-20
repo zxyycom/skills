@@ -171,6 +171,8 @@
 5. `activate <path>`：把已有 Markdown 记录加入当前集合；索引尚不存在且其余结构有效时，同时完成首次初始化。
 6. `archive <path...> [--by <path>]`：把一条或多条记录移出当前集合；指定 `--by` 时，后续记录必须直接引用全部前序，并在同一次校验式更新中进入当前集合。
 
+同一 MJS 可以从已安装 skill 的实际路径直接导入；导入不会执行命令。模块导出 `scanDecisionRecords`、`validateDecisionRecords` 和 `runDecisionRecordsCli(argv)`，其中前两者返回结构化结果，后者复用本节 CLI 输出语义并返回退出码；相邻的 `decision-records.d.mts` 是这些 exports 的 TypeScript 声明。
+
 CLI 先生成完整候选索引，写入后重新运行完整校验，校验失败时恢复原索引。这属于校验式更新，不提供进程或系统中断级的原子保证；Git 历史承接异常恢复。
 
 `check`、`sync-index`、`activate` 和 `archive` 保持严格校验并在结构或索引错误时失败。`list` 和 `trace` 是非阻断查询：中央索引缺失或无法解析、查询起点不存在时失败；其他校验问题通过 stderr warning 暴露，查询本身成功时退出码为 `0`。成功退出只证明 CLI 返回了当前可恢复结果，不证明结果完整或目录符合契约；写入或迁移完成前仍以 `check` 退出码为准。

@@ -18,7 +18,7 @@
 - 采用: 根目录只保留 `skill-package-lock.json`，记录聚合 hash 和每个 skill 的独立包内容 hash。
 - 采用: 删除 `skill-package.hash`；CI 发布门禁、版本化 tag hash 和本地提交前 hook 都读取或写回 `skill-package-lock.json`。
 - 采用: `scripts/pack-skills.ts` 将 `skill-package-lock.json` 复制到 `dist/`，CI 将它和全部 skill zip 一起作为 release asset 发布。
-- 采用: `scripts/update-skill.cjs` 默认先读取 release 中的 `skill-package-lock.json`，只比较当前 skill 的 hash；hash 不一致且确认更新时再下载对应 `<skill-name>.zip`。
+- 采用: 自更新模块 `scripts/update-skill.mjs` 默认先读取 release 中的 `skill-package-lock.json`，只比较当前 skill 的 hash；hash 不一致且确认更新时再下载对应 `<skill-name>.zip`。
 - 采用: 指定旧 release tag 且该 release 没有 `skill-package-lock.json` 时，自更新脚本回退为下载 zip 并计算远端指纹，保留排查旧版本的能力。
 - 不采用: 为每个 skill 建独立 release；当前仍以主仓库聚合 release 作为交付入口，避免重新引入多仓库或多 release 的维护成本。
 - 不采用: 同时保留 `skill-package.hash` 和 `skill-package-lock.json`；两者会重复记录聚合 hash，且 lock 已能承接全部当前用途。

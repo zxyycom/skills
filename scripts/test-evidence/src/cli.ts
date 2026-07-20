@@ -1,5 +1,7 @@
 import path from "node:path";
+import process from "node:process";
 import { parseArgs } from "node:util";
+import { isMainModule } from "../../lib/main-module.ts";
 import { validateTestEvidence } from "./validation.ts";
 
 const helpText = `Usage: test-evidence [check] [options]
@@ -13,12 +15,14 @@ Options:
   -h, --help        Show this help
 `;
 
-async function main(): Promise<void> {
+export async function runTestEvidenceCli(
+  argv: readonly string[] = process.argv.slice(2)
+): Promise<number> {
   let parsed: ReturnType<typeof parseArgs>;
   try {
     parsed = parseArgs({
       allowPositionals: true,
-      args: process.argv.slice(2),
+      args: [...argv],
       options: {
         config: { type: "string" },
         help: { short: "h", type: "boolean" },
@@ -28,17 +32,19 @@ async function main(): Promise<void> {
       strict: true
     });
   } catch (error) {
-    failUsage(error instanceof Error ? error.message : String(error));
+    return failUsage(error instanceof Error ? error.message : String(error));
   }
 
   if (parsed.values.help === true) {
     process.stdout.write(helpText);
-    return;
+    return 0;
   }
 
   const command = parsed.positionals[0] ?? "check";
   if (command !== "check" || parsed.positionals.length > 1) {
-    failUsage(`unsupported command or positional arguments: ${parsed.positionals.join(" ")}`);
+    return failUsage(
+      `unsupported command or positional arguments: ${parsed.positionals.join(" ")}`
+    );
   }
 
   const configPath = typeof parsed.values.config === "string"
@@ -73,15 +79,28 @@ async function main(): Promise<void> {
     );
   }
 
-  if (report.errors.length > 0) {
+  return report.errors.length > 0 ? 1 : 0;
+}
+
+function failUsage(message: string): number {
+  console.error(`test-evidence: ${message}`);
+  console.error(helpText.trimEnd());
+  return 2;
+}
+
+export { validateTestEvidence };
+export type { ValidateTestEvidenceOptions } from "./validation.ts";
+export type {
+  ReviewTrigger,
+  TestEvidenceReport,
+  TestEvidenceSummary
+} from "./types.ts";
+
+if (isMainModule(import.meta.url)) {
+  try {
+    process.exitCode = await runTestEvidenceCli();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
     process.exitCode = 1;
   }
 }
-
-function failUsage(message: string): never {
-  console.error(`test-evidence: ${message}`);
-  console.error(helpText.trimEnd());
-  process.exit(2);
-}
-
-await main();

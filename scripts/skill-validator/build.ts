@@ -1,5 +1,6 @@
 import path from "node:path";
 import {
+  buildGeneratedDeclaration,
   buildGeneratedFileHeader,
   bundleWithBun,
   parseGeneratedFileMode,
@@ -9,7 +10,10 @@ import {
 import { githubRepository, rootDir } from "../lib/project.ts";
 
 const sourceRelativePath = "scripts/skill-validator/src/cli.ts";
+const declarationSourceRelativePath = "scripts/skill-validator/validate-skill.d.mts";
 const outputRelativePath = "skills/skill-maintainer/scripts/validate-skill.mjs";
+const declarationOutputRelativePath =
+  "skills/skill-maintainer/scripts/validate-skill.d.mts";
 
 async function buildArtifact(): Promise<BunBundleResult> {
   return await bundleWithBun({
@@ -35,6 +39,16 @@ async function main(): Promise<void> {
   const mode = parseGeneratedFileMode(process.argv.slice(2));
   const outputPath = path.join(rootDir, outputRelativePath);
   const expected = await buildArtifact();
+  const expectedDeclaration = await buildGeneratedDeclaration({
+    banner: buildGeneratedFileHeader({
+      artifactName: "skill structure validator TypeScript declarations",
+      rebuildCommand: "bun run sync:skill-validator",
+      repository: githubRepository,
+      skillSourcePath: "skills/skill-maintainer",
+      sourcePath: declarationSourceRelativePath
+    }),
+    sourcePath: path.join(rootDir, declarationSourceRelativePath)
+  });
   if (expected.sourceMap === null) {
     throw new Error("Skill structure validator bundle must include a source map");
   }
@@ -42,7 +56,12 @@ async function main(): Promise<void> {
   const changed = await syncGeneratedArtifacts(
     [
       { content: expected.code, path: outputPath },
-      { content: expected.sourceMap, path: `${outputPath}.map` }
+      { content: expected.sourceMap, path: `${outputPath}.map` },
+      {
+        content: expectedDeclaration,
+        path: path.join(rootDir, declarationOutputRelativePath),
+        sourcePath: declarationSourceRelativePath
+      }
     ],
     mode,
     rootDir,

@@ -102,6 +102,8 @@ node scripts/decision-records.mjs activate <topic/file.md> --root <workspace-roo
 node scripts/decision-records.mjs archive <old.md...> [--by <new.md>] --root <workspace-root>
 ```
 
+需要在现有 ESM 进程中复用时，从本 skill 的实际安装路径直接导入同一个 `scripts/decision-records.mjs`。模块导入不会执行 CLI，导出 `scanDecisionRecords`、`validateDecisionRecords` 和返回退出码的 `runDecisionRecordsCli(argv)`；相邻的 `decision-records.d.mts` 提供 TypeScript 声明。
+
 用 `list` 和 `trace` 恢复决策，用 `check` 严格检查结构；读取固定契约后再使用写命令。`--decisions-dir <path>` 可以选择工作区内的非默认决策根目录。命令参数、合法值、初始化、warning、成员变更和失败恢复的精确语义以固定契约与 `--help` 为准。
 
 ## 完成标准

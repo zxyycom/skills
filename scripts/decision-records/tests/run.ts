@@ -4,6 +4,10 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  runDecisionRecordsCli,
+  validateDecisionRecords as validateBundledDecisionRecords
+} from "../../../skills/decision-records/scripts/decision-records.mjs";
 import { validateDecisionRecords } from "../src/index.ts";
 
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -16,12 +20,19 @@ const generatedCliPath = path.join(
   "scripts",
   "decision-records.mjs"
 );
+const generatedDeclarationPath = path.join(
+  rootDir,
+  "skills",
+  "decision-records",
+  "scripts",
+  "decision-records.d.mts"
+);
 const generatedUpdaterPath = path.join(
   rootDir,
   "skills",
   "decision-records",
   "scripts",
-  "update-skill.cjs"
+  "update-skill.mjs"
 );
 
 function traceDecision(
@@ -49,6 +60,11 @@ assert.equal(validation.areaCount, 1);
 assert.equal(validation.decisionCount, 2);
 assert.equal(validation.currentCount, 1);
 assert.equal(validation.archivedCount, 1);
+assert.deepEqual(
+  await validateBundledDecisionRecords({ workspaceRoot: fixtureRoot }),
+  validation
+);
+assert.equal(typeof runDecisionRecordsCli, "function");
 
 const cliOutput = execFileSync(
   "node",
@@ -126,6 +142,13 @@ assert.match(cliSource, /Source path: scripts\/decision-records\/src\/cli\.ts/);
 assert.match(cliSource, /Skill source directory: https:\/\/github\.com\/zxyycom\/skills\/tree\/main\/skills\/decision-records/);
 assert.match(cliSource, /Rebuild: bun run sync:decision-records-cli/);
 assert.match(cliSource, /sourceMappingURL=decision-records\.mjs\.map/);
+const declarationSource = await fs.readFile(generatedDeclarationPath, "utf8");
+assert.match(
+  declarationSource,
+  /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/scripts\/decision-records\/decision-records\.d\.mts/
+);
+assert.match(declarationSource, /validateDecisionRecords/);
+assert.match(declarationSource, /runDecisionRecordsCli/);
 const cliSourceMap = JSON.parse(await fs.readFile(`${generatedCliPath}.map`, "utf8")) as {
   sourceRoot: string;
   sources: string[];
@@ -138,7 +161,7 @@ const updaterSource = await fs.readFile(generatedUpdaterPath, "utf8");
 assert.match(updaterSource, /Repository: https:\/\/github\.com\/zxyycom\/skills/);
 assert.match(updaterSource, /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/scripts\/templates\/update-skill\.ts/);
 assert.match(updaterSource, /Rebuild: bun run sync:skill-updaters/);
-assert.match(updaterSource, /sourceMappingURL=update-skill\.cjs\.map/);
+assert.match(updaterSource, /sourceMappingURL=update-skill\.mjs\.map/);
 const updaterSourceMap = JSON.parse(await fs.readFile(`${generatedUpdaterPath}.map`, "utf8")) as {
   sourceRoot: string;
   sources: string[];

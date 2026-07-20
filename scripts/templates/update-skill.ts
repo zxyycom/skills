@@ -1,8 +1,11 @@
 import process from "node:process";
+import { fileURLToPath } from "node:url";
+import { isMainModule } from "../lib/main-module.ts";
 import {
   confirmUpdate,
   getUpdaterLinks,
-  parseCliOptions
+  parseCliOptions,
+  printHelp
 } from "./update-skill/cli.ts";
 import {
   installSkillFiles,
@@ -18,36 +21,47 @@ import type { UpdaterConfig } from "./update-skill/types.ts";
 declare const __SKILL_UPDATE_CONFIG__: UpdaterConfig;
 
 const UPDATE_CONFIG = __SKILL_UPDATE_CONFIG__;
+const updaterScriptPath = fileURLToPath(import.meta.url);
 
-async function main(): Promise<void> {
-  const options = parseCliOptions(UPDATE_CONFIG, process.argv.slice(2));
-  const links = getUpdaterLinks(UPDATE_CONFIG);
+export const skillUpdaterConfig: Readonly<UpdaterConfig> = Object.freeze({
+  ...UPDATE_CONFIG
+});
 
-  console.log(`Skill: ${UPDATE_CONFIG.skillName}`);
+export async function runSkillUpdaterCli(
+  argv: readonly string[] = process.argv.slice(2)
+): Promise<number> {
+  const options = parseCliOptions(skillUpdaterConfig, argv, updaterScriptPath);
+  if (options.help) {
+    printHelp(skillUpdaterConfig, updaterScriptPath);
+    return 0;
+  }
+  const links = getUpdaterLinks(skillUpdaterConfig);
+
+  console.log(`Skill: ${skillUpdaterConfig.skillName}`);
   console.log(`Repository: ${links.sourceRepositoryUrl}`);
   console.log(`Updater source: ${links.updaterSourceUrl}`);
   console.log(`Skill source directory: ${links.skillSourceDirectoryUrl}`);
   console.log(`Release: ${options.releaseTag ?? "latest"}`);
-  console.log(`Package lock asset: ${UPDATE_CONFIG.packageLockAssetName}`);
-  console.log(`Release asset: ${UPDATE_CONFIG.releaseAssetName}`);
+  console.log(`Package lock asset: ${skillUpdaterConfig.packageLockAssetName}`);
+  console.log(`Release asset: ${skillUpdaterConfig.releaseAssetName}`);
   console.log(`Target: ${options.targetDir}`);
 
-  const release = await fetchGitHubRelease(UPDATE_CONFIG, options.releaseTag);
+  const release = await fetchGitHubRelease(skillUpdaterConfig, options.releaseTag);
   console.log(`Resolved release: ${release.tag_name} (${release.html_url})`);
 
-  const remotePackage = await resolveRemoteSkillPackage(UPDATE_CONFIG, release);
+  const remotePackage = await resolveRemoteSkillPackage(skillUpdaterConfig, release);
   if (remotePackage.source === "package-lock") {
-    console.log(`Package lock asset: ${UPDATE_CONFIG.packageLockAssetName}`);
+    console.log(`Package lock asset: ${skillUpdaterConfig.packageLockAssetName}`);
     console.log(`Package aggregate fingerprint: ${remotePackage.aggregateHash}`);
   } else {
     console.log(
-      `Package lock asset: ${UPDATE_CONFIG.packageLockAssetName}`
+      `Package lock asset: ${skillUpdaterConfig.packageLockAssetName}`
       + " (missing; falling back to zip fingerprint)"
     );
   }
 
   const currentFingerprint = await localSkillFingerprint(
-    UPDATE_CONFIG,
+    skillUpdaterConfig,
     options.targetDir
   );
   console.log(`Remote fingerprint: ${remotePackage.fingerprint}`);
@@ -55,30 +69,33 @@ async function main(): Promise<void> {
 
   if (currentFingerprint === remotePackage.fingerprint) {
     console.log("Status: current");
-    return;
+    return 0;
   }
 
   console.log(currentFingerprint ? "Status: update available" : "Status: target missing");
   if (options.check) {
-    process.exitCode = 1;
-    return;
+    return 1;
   }
 
   if (!await confirmUpdate(options)) {
-    process.exitCode = 1;
-    return;
+    return 1;
   }
 
   const remoteFiles = await loadRemoteSkillFiles(
-    UPDATE_CONFIG,
+    skillUpdaterConfig,
     release,
     remotePackage
   );
   await installSkillFiles(remoteFiles, options.targetDir);
   console.log("Updated skill successfully.");
+  return 0;
 }
 
-main().catch((error: unknown) => {
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exit(1);
-});
+if (isMainModule(import.meta.url)) {
+  try {
+    process.exitCode = await runSkillUpdaterCli();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  }
+}

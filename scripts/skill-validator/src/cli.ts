@@ -1,6 +1,7 @@
 import path from "node:path";
 import process from "node:process";
 import { parseArgs } from "node:util";
+import { isMainModule } from "../../lib/main-module.ts";
 import { validateSkillDirectory } from "./validation.ts";
 
 function printHelp(): void {
@@ -15,12 +16,14 @@ function printHelp(): void {
   ].join("\n"));
 }
 
-async function main(): Promise<void> {
+export async function runSkillValidatorCli(
+  argv: readonly string[] = process.argv.slice(2)
+): Promise<number> {
   let parsed: ReturnType<typeof parseArgs>;
   try {
     parsed = parseArgs({
       allowPositionals: true,
-      args: process.argv.slice(2),
+      args: [...argv],
       options: {
         help: { short: "h", type: "boolean" }
       },
@@ -28,18 +31,16 @@ async function main(): Promise<void> {
     });
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
-    process.exitCode = 2;
-    return;
+    return 2;
   }
 
   if (parsed.values.help) {
     printHelp();
-    return;
+    return 0;
   }
   if (parsed.positionals.length > 1) {
     console.error("Expected at most one skill-directory argument.");
-    process.exitCode = 2;
-    return;
+    return 2;
   }
 
   const skillDirectory = path.resolve(parsed.positionals[0] ?? ".");
@@ -49,19 +50,27 @@ async function main(): Promise<void> {
     for (const error of result.errors) {
       console.error(`- ${error}`);
     }
-    process.exitCode = 1;
-    return;
+    return 1;
   }
 
   console.log(
     `Skill structure validation passed: ${result.skillDirectory} `
     + `(${result.markdownFileCount} markdown files checked).`
   );
+  return 0;
 }
 
-try {
-  await main();
-} catch (error) {
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exitCode = 1;
+export { validateSkillDirectory };
+export type {
+  SkillStructureValidationOptions,
+  SkillStructureValidationResult
+} from "./validation.ts";
+
+if (isMainModule(import.meta.url)) {
+  try {
+    process.exitCode = await runSkillValidatorCli();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  }
 }

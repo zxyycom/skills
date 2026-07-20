@@ -5,6 +5,10 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { zipSync } from "fflate";
+import {
+  runSkillUpdaterCli,
+  skillUpdaterConfig
+} from "../../../../skills/prompt-optimize/scripts/update-skill.mjs";
 import { pathExists } from "../../../lib/filesystem.ts";
 import { calculateSkillPackageFingerprint } from "../../../lib/skill-package-fingerprint.ts";
 
@@ -16,7 +20,14 @@ const generatedUpdaterPath = path.join(
   "skills",
   skillName,
   "scripts",
-  "update-skill.cjs"
+  "update-skill.mjs"
+);
+const generatedDeclarationPath = path.join(
+  rootDir,
+  "skills",
+  skillName,
+  "scripts",
+  "update-skill.d.mts"
 );
 const lockAssetUrl = "https://example.test/skill-package-lock.json";
 const zipAssetUrl = `https://example.test/${skillName}.zip`;
@@ -28,6 +39,28 @@ const validRelease = {
   html_url: "https://example.test/releases/review",
   tag_name: "review"
 };
+
+assert.equal(skillUpdaterConfig.skillName, skillName);
+assert.equal(typeof runSkillUpdaterCli, "function");
+const helpOutput: string[] = [];
+const originalConsoleLog = console.log;
+console.log = (...values: unknown[]) => {
+  helpOutput.push(values.map(String).join(" "));
+};
+try {
+  assert.equal(await runSkillUpdaterCli(["--help"]), 0);
+} finally {
+  console.log = originalConsoleLog;
+}
+assert.match(helpOutput.join("\n"), /Usage: node update-skill\.mjs/);
+
+const generatedDeclaration = await fs.readFile(generatedDeclarationPath, "utf8");
+assert.match(
+  generatedDeclaration,
+  /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/scripts\/templates\/update-skill\.d\.mts/
+);
+assert.match(generatedDeclaration, /runSkillUpdaterCli/);
+assert.match(generatedDeclaration, /skillUpdaterConfig/);
 
 type UpdaterRunOptions = {
   args: string[];
