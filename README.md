@@ -20,6 +20,8 @@
 
 ## 当前方向
 
+[Problem Reframing](docs/skills/problem-reframing.md) 在局部解法持续增加复杂度, 或目标、前提、问题边界与抽象层本身可疑时, 让 agent 暂停当前解法, 重新框定真正需要解决的问题, 再把选定框架交回当前任务。实际 skill 位于 [`skills/problem-reframing/`](skills/problem-reframing/)。
+
 [Product & Architecture Thinking](docs/skills/product-architecture-thinking.md) 让 agent 在工程任务中先向上确认产品结果, 再向外定位架构责任, 最后回到技术实现。它适用于需求、设计、实现、排障、重构和审查, 但不为这些任务增加固定报告流程。实际 skill 位于 [`skills/product-architecture-thinking/`](skills/product-architecture-thinking/)。
 
 [Test Evidence Review](docs/skills/test-evidence-review.md) 评估测试固定的契约和证明价值，把当前无法经济自动化的稳定风险登记为人工 CR，并把测试发现误报登记为可巡检豁免；账本、测试入口角色、Git Scope 和跨语言 CLI 共同维护归属与检查漂移。实际 skill 位于 [`skills/test-evidence-review/`](skills/test-evidence-review/)。

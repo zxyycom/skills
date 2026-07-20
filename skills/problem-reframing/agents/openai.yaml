@@ -1,0 +1,4 @@
+interface:
+  display_name: "Problem Reframing"
+  short_description: "跳出局部，重新确认真正需要解决的问题"
+  default_prompt: "使用 $problem-reframing 处理当前任务：暂停优化现有解法，检查目标、前提、边界和抽象层，再决定保留、缩小、改写、上移或放弃当前问题。"
