@@ -41,6 +41,13 @@ function printErrors(errors: string[]): void {
   }
 }
 
+function printWarnings(errors: string[]): void {
+  console.error("Decision records query completed with warnings:");
+  for (const error of errors) {
+    console.error("- " + error);
+  }
+}
+
 async function validatedResult(
   args: CliArgs
 ): Promise<DecisionValidationResult | null> {
@@ -50,6 +57,24 @@ async function validatedResult(
     return null;
   }
   return result;
+}
+
+async function queryResult(
+  args: CliArgs
+): Promise<DecisionValidationResult | null> {
+  const result = await validateDecisionRecords(decisionScanOptions(args));
+  if (result.scan.index === null) {
+    printErrors(result.errors);
+    return null;
+  }
+  if (result.errors.length > 0) {
+    printWarnings(result.errors);
+  }
+  return result;
+}
+
+function invalidRecordSuffix(record: DecisionRecord): string {
+  return record.bodyValid ? "" : " [invalid]";
 }
 
 async function runCheck(args: CliArgs): Promise<number> {
@@ -73,7 +98,7 @@ async function runCheck(args: CliArgs): Promise<number> {
 }
 
 async function runList(args: CliArgs): Promise<number> {
-  const result = await validatedResult(args);
+  const result = await queryResult(args);
   if (!result) {
     return 1;
   }
@@ -95,13 +120,14 @@ async function runList(args: CliArgs): Promise<number> {
       + record.relativePath
       + " - "
       + record.title
+      + invalidRecordSuffix(record)
     );
   }
   return 0;
 }
 
 async function runTrace(args: CliArgs): Promise<number> {
-  const result = await validatedResult(args);
+  const result = await queryResult(args);
   if (!result) {
     return 1;
   }
@@ -133,6 +159,7 @@ async function runTrace(args: CliArgs): Promise<number> {
       + record.relativePath
       + " - "
       + record.title
+      + invalidRecordSuffix(record)
     );
   }
 
@@ -156,7 +183,11 @@ async function writeValidatedIndex(
   await fs.writeFile(scan.indexPath, text, "utf8");
   const validation = await validateDecisionRecords(decisionScanOptions(args));
   if (validation.errors.length > 0) {
-    await fs.writeFile(scan.indexPath, scan.indexText, "utf8");
+    if (scan.indexExists) {
+      await fs.writeFile(scan.indexPath, scan.indexText, "utf8");
+    } else {
+      await fs.rm(scan.indexPath, { force: true });
+    }
     printErrors(validation.errors);
     return 1;
   }
@@ -215,10 +246,18 @@ async function applyMembership(
   return await writeValidatedIndex(args, scan, generated.text, successMessage);
 }
 
+function canInitializeIndex(scan: DecisionScan): boolean {
+  return scan.decisionsDirectoryAvailable
+    && !scan.indexExists
+    && scan.index === null
+    && scan.errors.length === 1;
+}
+
 async function runActivate(args: CliArgs): Promise<number> {
   const scan = await scanDecisionRecords(decisionScanOptions(args));
   const recordPath = args.recordPaths[0];
-  if (scan.index === null || recordPath === undefined) {
+  const initializesIndex = canInitializeIndex(scan);
+  if ((scan.index === null && !initializesIndex) || recordPath === undefined) {
     printErrors(scan.errors);
     return 1;
   }
@@ -239,7 +278,10 @@ async function runActivate(args: CliArgs): Promise<number> {
     args,
     scan,
     currentPaths,
-    "Activated " + record.relativePath + "."
+    initializesIndex
+      ? "Initialized " + scan.indexRelativePath
+        + " and activated " + record.relativePath + "."
+      : "Activated " + record.relativePath + "."
   );
 }
 

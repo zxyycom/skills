@@ -194,7 +194,13 @@ export async function validateDecisionBody(options: {
   relativePath: string;
 }): Promise<Omit<
   DecisionRecord,
-  "archived" | "areaId" | "current" | "decisionPath" | "fileName" | "relativePath"
+  | "archived"
+  | "areaId"
+  | "bodyValid"
+  | "current"
+  | "decisionPath"
+  | "fileName"
+  | "relativePath"
 >> {
   const {
     body: rawBody,

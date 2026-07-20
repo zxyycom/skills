@@ -197,6 +197,13 @@ try {
   assert.ok(withLegacySchemaVersion.errors.some(
     (error) => error.includes("schemaVersion must be 2")
   ));
+  const listWithInvalidIndex = spawnSync(
+    "node",
+    [generatedCliPath, "list", "--root", tempRoot],
+    { encoding: "utf8" }
+  );
+  assert.equal(listWithInvalidIndex.status, 1);
+  assert.match(listWithInvalidIndex.stderr, /Decision records command failed/);
   await fs.writeFile(indexPath, originalIndex, "utf8");
 
   index.current.push({
@@ -250,6 +257,34 @@ try {
   assert.ok(withoutPurposeSection.errors.some(
     (error) => error.includes("is missing section ## 目的")
   ));
+  const listWithInvalidRecord = spawnSync(
+    "node",
+    [generatedCliPath, "list", "--root", tempRoot],
+    { encoding: "utf8" }
+  );
+  assert.equal(listWithInvalidRecord.status, 0);
+  assert.match(
+    listWithInvalidRecord.stdout,
+    /tooling\/260711-use-generated-cli\.md - 使用生成 CLI \[invalid\]/
+  );
+  assert.match(
+    listWithInvalidRecord.stderr,
+    /Decision records query completed with warnings/
+  );
+  assert.match(listWithInvalidRecord.stderr, /is missing section ## 目的/);
+
+  const traceWithInvalidRecord = spawnSync(
+    "node",
+    [generatedCliPath, "trace", currentRelativePath, "--root", tempRoot],
+    { encoding: "utf8" }
+  );
+  assert.equal(traceWithInvalidRecord.status, 0);
+  assert.match(
+    traceWithInvalidRecord.stdout,
+    /tooling\/260711-use-generated-cli\.md - 使用生成 CLI \[invalid\]/
+  );
+  assert.match(traceWithInvalidRecord.stdout, /tooling\/260710-use-source-cli\.md/);
+  assert.match(traceWithInvalidRecord.stderr, /is missing section ## 目的/);
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
 
   await fs.writeFile(
@@ -311,6 +346,55 @@ try {
   ));
   await fs.writeFile(archivedDecisionPath, archivedDecision, "utf8");
 
+  const activateCurrentRelationTarget = spawnSync(
+    "node",
+    [
+      generatedCliPath,
+      "activate",
+      "tooling/260710-use-source-cli.md",
+      "--root",
+      tempRoot
+    ],
+    { encoding: "utf8" }
+  );
+  assert.equal(activateCurrentRelationTarget.status, 1);
+  assert.match(
+    activateCurrentRelationTarget.stderr,
+    /relationship 修订 target must be archived/
+  );
+  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndex);
+
+  await fs.rm(indexPath);
+  const failedFirstActivation = spawnSync(
+    "node",
+    [
+      generatedCliPath,
+      "activate",
+      "tooling/260710-use-source-cli.md",
+      "--root",
+      tempRoot
+    ],
+    { encoding: "utf8" }
+  );
+  assert.equal(failedFirstActivation.status, 1);
+  assert.match(
+    failedFirstActivation.stderr,
+    /relationship 修订 target must be archived/
+  );
+  await assert.rejects(fs.access(indexPath));
+
+  const firstActivation = spawnSync(
+    "node",
+    [generatedCliPath, "activate", currentRelativePath, "--root", tempRoot],
+    { encoding: "utf8" }
+  );
+  assert.equal(firstActivation.status, 0);
+  assert.match(
+    firstActivation.stdout,
+    /Initialized docs\/decisions\/decision-index\.json and activated/
+  );
+  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndex);
+
   await fs.writeFile(
     indexPath,
     originalIndex.replace("需要验证生成后的 CLI 能读取一套最小决策目录。", "过期背景"),
@@ -318,6 +402,14 @@ try {
   );
   const drifted = await validateDecisionRecords({ workspaceRoot: tempRoot });
   assert.ok(drifted.errors.some((error) => error.includes("is out of sync")));
+  const listWithIndexDrift = spawnSync(
+    "node",
+    [generatedCliPath, "list", "--root", tempRoot],
+    { encoding: "utf8" }
+  );
+  assert.equal(listWithIndexDrift.status, 0);
+  assert.match(listWithIndexDrift.stdout, /tooling\/260711-use-generated-cli\.md/);
+  assert.match(listWithIndexDrift.stderr, /is out of sync/);
   execFileSync(
     "node",
     [generatedCliPath, "sync-index", "--write", "--root", tempRoot],

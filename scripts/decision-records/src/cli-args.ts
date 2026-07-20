@@ -96,7 +96,8 @@ export function createCliProgram(run: RunCommand): CommanderCommand {
       "afterAll",
       "\nDecision paths are relative to the decision directory, for example "
       + "topic/260713-title.md.\n"
-      + "Exit codes: 0 success, 1 validation or index drift, 2 invalid arguments."
+      + "Exit codes: 0 success (queries may report warnings), "
+      + "1 blocking validation or index failure, 2 invalid arguments."
     )
     .exitOverride();
 
@@ -119,7 +120,7 @@ export function createCliProgram(run: RunCommand): CommanderCommand {
   const list = createSubcommand(
     program,
     "list",
-    "List current decisions by default, or select archived history."
+    "List available current decisions by default, or select archived history."
   )
     .addOption(
       new Option("--archived", "List only logically archived decisions.")
@@ -131,7 +132,7 @@ export function createCliProgram(run: RunCommand): CommanderCommand {
   const trace = createSubcommand(
     program,
     "trace <decision-path>",
-    "Trace predecessors, successors, or both."
+    "Trace available predecessors, successors, or both."
   )
     .addOption(
       new Option("--direction <value>", "Relation direction.")
@@ -155,7 +156,7 @@ export function createCliProgram(run: RunCommand): CommanderCommand {
   const activate = createSubcommand(
     program,
     "activate <decision-path>",
-    "Add an existing decision file to the current index."
+    "Add an existing decision file, initializing a missing index when valid."
   );
   activate.action((recordPath: string) => execute("activate", activate, [recordPath]));
 

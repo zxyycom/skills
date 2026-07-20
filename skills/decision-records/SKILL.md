@@ -17,7 +17,7 @@ description: >-
 
 1. 本文件承接发现、语义恢复、偏离判断、候选确认、CLI 编排和交付流程。
 2. [decision-record-rules.md](references/decision-record-rules.md) 是唯一固定契约，承接目录、索引 schema、稳定身份、正文格式、关系、生命周期、维护事务和结构校验语义。
-3. `scripts/decision-records.mjs` 是查询、关系追溯、当前成员变更、派生字段同步和结构检查的确定性接口。
+3. `scripts/decision-records.mjs` 是带诊断查询、关系追溯、首次激活初始化、当前成员变更、派生字段同步和结构检查的确定性接口。
 4. 目标项目的 `docs/decisions/decision-index.json` 承接当前成员和精简语义；各主题目录中的 Markdown 承接完整决策和按需声明的历史关系。
 5. 项目专属的更高记录门槛写入 `AGENTS.md` 或相关行为 owner。
 
@@ -77,9 +77,11 @@ description: >-
 ### 4. 写入或修复
 
 1. 完整读取固定契约，并据此确定决策目录和维护事务。
-2. 按固定契约准备 Markdown、关系和行为 owner，再使用 `activate`、`archive` 或 `archive --by` 更新当前集合；使用 `sync-index --write` 同步派生字段，不直接维护 JSON 生成字段。
-3. 目录不符合契约时，先报告差异、可保留语义、修复范围和不确定项；得到显式修复确认前保持只读。
-4. 修复中的不确定项会改变决策含义、当前成员、关系或 owner 时，请用户判断。
+2. 先区分编辑性修正与决策演进：错别字、格式、链接和不改变语义的表述澄清可以原地修改；目的、适用范围、关键背景前提、采用方向、核心理由或关系语义变化时创建新记录并按真实关系切换当前成员。无法判断时按决策演进处理。
+3. 按固定契约准备 Markdown、关系和行为 owner，再使用 `activate`、`archive` 或 `archive --by` 更新当前集合；使用 `sync-index --write` 同步派生字段，不直接维护 JSON 生成字段。
+4. 首次写入先创建已确认的 Markdown，再运行 `activate`；索引尚不存在且其余结构有效时，CLI 自动创建索引并激活目标记录。
+5. 目录不符合契约时，先报告差异、可保留语义、修复范围和不确定项；得到显式修复确认前保持只读。
+6. 修复中的不确定项会改变决策含义、当前成员、关系或 owner 时，请用户判断。
 
 ### 5. 验证与交付
 
@@ -106,7 +108,7 @@ node scripts/decision-records.mjs archive <old.md...> --root <workspace-root>
 node scripts/decision-records.mjs archive <old.md...> --by <new.md> --root <workspace-root>
 ```
 
-只读恢复可以直接使用 `list`、`trace` 和 `check`；执行 `sync-index --write`、`activate` 或 `archive` 前先读取固定契约。不写命令时默认执行只读 `check`。使用 `--decisions-dir <path>` 指定非默认目录。`trace` 默认双向查询完整关系链，使用 `--direction predecessors|successors|both` 选择方向，使用 `--depth <n>` 限制关系跳数。`sync-index --write` 只刷新派生字段和排序，不改变当前成员。
+只读恢复可以直接使用 `list`、`trace` 和 `check`；执行 `sync-index --write`、`activate` 或 `archive` 前先读取固定契约。不写命令时默认执行只读 `check`。使用 `--decisions-dir <path>` 指定非默认目录。`list` 和 `trace` 在中央索引可解析时默认返回能够恢复的结果，并把其他结构、关系或派生字段问题输出为 warning；局部无效记录会标记为 `invalid`，warning 不替代交付前的严格 `check`。`trace` 默认双向查询完整关系链，使用 `--direction predecessors|successors|both` 选择方向，使用 `--depth <n>` 限制关系跳数。`sync-index --write` 只刷新派生字段和排序，不改变当前成员；首次 `activate` 可以创建缺失的索引。
 
 ## 完成标准
 
@@ -114,6 +116,7 @@ node scripts/decision-records.mjs archive <old.md...> --by <new.md> --root <work
 2. 形成可能产生长期影响的决定前，或拟议决定与既有决定冲突时，已通过当前索引和必要的 Markdown 恢复相关判断，并结合目的、背景、当前事实和行为 owner 判断是否沿用。
 3. 当前任务的偏离已经归类，没有未说明的一次性例外或静默长期修订。
 4. 精确维护或结构审阅前已经读取固定契约，关系查询、结构检查和集合变更通过 CLI 完成。
-5. 当前集合、决策内容、按需关系和行为 owner 保持一致，没有未解释的当前决策冲突。
-6. 非标准格式在未获授权时只形成修复报告，获授权后收敛到唯一固定契约。
-7. CLI 检查通过，交付包含实际语义检查、集合变化和校验结果。
+5. 原地修改没有改变决策语义；语义变化已经通过新记录、真实关系和当前成员切换保留演进历史。
+6. 当前集合、决策内容、按需关系和行为 owner 保持一致，没有未解释的当前决策冲突。
+7. 非标准格式在未获授权时只形成修复报告，获授权后收敛到唯一固定契约。
+8. CLI 检查通过，交付包含实际语义检查、集合变化和校验结果。

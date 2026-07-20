@@ -22,6 +22,7 @@ export type DecisionRecord = {
   archived: boolean;
   areaId: string;
   background: string;
+  bodyValid: boolean;
   current: boolean;
   datePrefix: string;
   decision: string;
@@ -52,9 +53,11 @@ export type DecisionScanOptions = {
 export type DecisionScan = {
   areaIds: Set<string>;
   currentPaths: Set<string>;
+  decisionsDirectoryAvailable: boolean;
   decisionsDirectory: string;
   errors: string[];
   index: DecisionIndex | null;
+  indexExists: boolean;
   indexPath: string;
   indexRelativePath: string;
   indexText: string;

@@ -69,18 +69,21 @@ async function scanArea(options: {
       continue;
     }
 
+    const recordErrors: string[] = [];
     const metadata = await validateDecisionBody({
       body: await fs.readFile(decisionPath, "utf8"),
       decisionPath,
       decisionsDirectory,
-      errors,
+      errors: recordErrors,
       fileName: entry.name,
       relativePath
     });
+    errors.push(...recordErrors);
     const current = currentPaths.has(relativePath);
     records.push({
       archived: !current,
       areaId,
+      bodyValid: recordErrors.length === 0,
       current,
       decisionPath,
       fileName: entry.name,
@@ -125,9 +128,11 @@ export async function scanDecisionRecords(
   const unavailableScan = (error: string): DecisionScan => ({
     areaIds,
     currentPaths: new Set(),
+    decisionsDirectoryAvailable: false,
     decisionsDirectory,
     errors: [error],
     index: null,
+    indexExists: false,
     indexPath,
     indexRelativePath,
     indexText: "",
@@ -187,9 +192,11 @@ export async function scanDecisionRecords(
   return {
     areaIds,
     currentPaths,
+    decisionsDirectoryAvailable: true,
     decisionsDirectory,
     errors,
     index,
+    indexExists,
     indexPath,
     indexRelativePath,
     indexText,

@@ -2,6 +2,27 @@
   "schemaVersion": 2,
   "current": [
     {
+      "path": "decision-records/260720-auto-initialize-index-on-first-activation.md",
+      "title": "在首次激活时自动初始化当前索引",
+      "purpose": "让首条已确认决策无需独立的空索引初始化步骤即可进入当前集合。",
+      "background": "`activate` 已经明确表达目标记录和当前成员意图，但索引缺失时仍会失败；单独初始化空索引会增加一个没有独立语义的维护步骤。",
+      "decision": "`activate` 在索引缺失、决策目录和已有 Markdown 均符合契约且目标记录存在时，创建 schema v2 索引并激活目标；已存在但无效的索引不被覆盖，首次写入校验失败时删除新建索引，其他写命令继续要求有效索引。"
+    },
+    {
+      "path": "decision-records/260720-return-query-results-with-warnings.md",
+      "title": "让决策查询带警告返回可用结果",
+      "purpose": "让局部记录或关系损坏不阻断其他长期判断的恢复，同时保留严格结构检查入口。",
+      "background": "`list` 和 `trace` 与 `check` 共用全库严格校验门禁，任一无关记录、关系或派生字段漂移都会让全部只读查询失败。",
+      "decision": "`list` 和 `trace` 在中央索引可解析且查询目标存在时，默认返回能够扫描和追溯的结果，把全部校验问题输出为 warning 并标记局部无效记录；`check` 与写事务继续严格失败，中央索引缺失或无效以及查询目标不存在仍阻断查询。"
+    },
+    {
+      "path": "decision-records/260720-separate-editorial-edits-from-evolution.md",
+      "title": "区分编辑性修正与决策演进",
+      "purpose": "在允许维护决策记录表述的同时，防止原地改写长期判断而丢失演进历史。",
+      "background": "固定契约同时允许修改记录并要求长期修订创建后续记录，但没有明确哪些变化可以原地完成。",
+      "decision": "只允许不改变目的、适用范围、关键背景前提、采用方向、核心理由或关系语义的编辑性修正原地完成；任一决策语义变化都创建新记录并按真实关系切换当前成员，无法判断时按决策演进处理。"
+    },
+    {
       "path": "decision-records/260718-add-direction-and-depth-to-trace.md",
       "title": "为 trace 增加定向和限深查询",
       "purpose": "让使用者按回放需要低成本查询前序、后续或有限深度的关系链。",
