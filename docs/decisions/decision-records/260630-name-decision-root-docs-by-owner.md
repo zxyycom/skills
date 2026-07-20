@@ -2,7 +2,7 @@
 
 ## 索引摘要
 - 目的: 让决策清单和维护规则的 owner 能从文件名直接识别。
-- 背景: `docs/decisions/README.md` 和 `docs/decisions/maintenance.md` 的文件名不能直接说明实际职责, 需要打开文件才能知道哪个负责清单、哪个负责规则。
+- 背景: 通用的 `README.md` 与 `maintenance.md` 无法从文件名区分决策清单和维护规则的职责。
 - 决策: `decision-record-index.md` 作为决策清单和影响面导航 owner, 只负责状态速查、影响面说明和决策链接。
 
 ## 目的

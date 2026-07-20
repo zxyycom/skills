@@ -3,7 +3,7 @@
 ## 索引摘要
 - 目的: 让 skill 自更新使用正式发布制品，而不是开发分支快照。
 - 背景: 自更新脚本原来默认从主仓库 `main` 分支下载源码 zip 并截取 `skills/<skill-name>/` 目录。
-- 决策: 自更新模块 `scripts/update-skill.mjs` 默认通过 GitHub Releases API 读取 `zxyycom/skills` 的 latest release，并以该 release 中的正式 asset 作为远端更新输入。
+- 决策: skill updater 默认读取主仓库 latest release，并以正式 package lock 和 skill zip 作为远端更新输入。
 
 ## 目的
 - 让 skill 自更新使用正式发布制品，而不是开发分支快照。

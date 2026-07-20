@@ -12,10 +12,15 @@ import {
   requireSingleField,
   stripLinkSuffix
 } from "./markdown.ts";
-import { isDecisionRelativePath } from "./decision-path.ts";
+import {
+  isDecisionFileName,
+  isDecisionRelativePath,
+  legacyDecisionDatePrefix
+} from "./decision-path.ts";
+import { projectionTextIssue } from "./projection.ts";
 import {
   decisionRelationTypes,
-  type DecisionRecord,
+  type DecisionDocument,
   type DecisionRelation,
   type DecisionRelationType,
   type MarkdownSection
@@ -34,7 +39,6 @@ const requiredSections = new Set([
   "## 背景",
   "## 决策"
 ]);
-const decisionFilePattern = /^(\d{6})-([a-z0-9]+(?:-[a-z0-9]+)*)\.md$/;
 const decisionRelationTypeSet: ReadonlySet<string> = new Set(decisionRelationTypes);
 
 function fullDateFromCompactPrefix(dateText: string): string | null {
@@ -54,11 +58,6 @@ function fullDateFromCompactPrefix(dateText: string): string | null {
   }
 
   return `${year}-${match[2]}-${match[3]}`;
-}
-
-function decisionDatePrefix(fileName: string): string | null {
-  const match = fileName.match(decisionFilePattern);
-  return match?.[1] ?? null;
 }
 
 function isDecisionRelationType(value: string): value is DecisionRelationType {
@@ -178,7 +177,7 @@ async function validateDecisionRelations(options: {
         continue;
       }
       relationKeys.add(relationKey);
-      relations.push({ target, type: label });
+      relations.push({ type: label, target });
     }
   }
 
@@ -192,16 +191,7 @@ export async function validateDecisionBody(options: {
   errors: string[];
   fileName: string;
   relativePath: string;
-}): Promise<Omit<
-  DecisionRecord,
-  | "archived"
-  | "areaId"
-  | "bodyValid"
-  | "current"
-  | "decisionPath"
-  | "fileName"
-  | "relativePath"
->> {
+}): Promise<DecisionDocument> {
   const {
     body: rawBody,
     decisionPath,
@@ -211,23 +201,34 @@ export async function validateDecisionBody(options: {
     errors
   } = options;
   const body = rawBody.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
-  const parsedDatePrefix = decisionDatePrefix(fileName);
-  const datePrefix = parsedDatePrefix ?? fileName.slice(0, 6);
-  const fullDate = fullDateFromCompactPrefix(datePrefix);
-  const expectedTitlePrefix = "# " + (fullDate ?? "YYYY-MM-DD") + " - ";
+  const legacyDatePrefix = legacyDecisionDatePrefix(fileName);
+  const legacyFullDate = legacyDatePrefix
+    ? fullDateFromCompactPrefix(legacyDatePrefix)
+    : null;
+  const expectedTitlePrefix = legacyDatePrefix
+    ? "# " + (legacyFullDate ?? "YYYY-MM-DD") + " - "
+    : "# ";
   const firstLine = body.split("\n", 1)[0];
   const title = firstLine.startsWith(expectedTitlePrefix)
     ? firstLine.slice(expectedTitlePrefix.length).trim()
     : "";
 
-  if (!parsedDatePrefix) {
-    errors.push(relativePath + " must use stable file name format YYMMDD-short-title.md");
+  if (!isDecisionFileName(fileName)) {
+    errors.push(relativePath + " must use semantic file name format short-title.md");
   }
-  if (!fullDate) {
+  if (legacyDatePrefix && !legacyFullDate) {
     errors.push(relativePath + " has an invalid date prefix");
   }
   if (title.length === 0) {
     errors.push(relativePath + " must start with \"" + expectedTitlePrefix + "<标题>\"");
+  } else {
+    const titleIssue = projectionTextIssue(title);
+    if (titleIssue) {
+      errors.push(relativePath + " title " + titleIssue);
+    }
+    if (!legacyDatePrefix && /^\d{4}-\d{2}-\d{2}\s+-\s+/.test(title)) {
+      errors.push(relativePath + " semantic decision title must not include a date prefix");
+    }
   }
 
   const sections = parseSections(body);
@@ -290,6 +291,19 @@ export async function validateDecisionBody(options: {
     purpose = requireSingleField(relativePath, summarySection, "目的", errors) ?? "";
     background = requireSingleField(relativePath, summarySection, "背景", errors) ?? "";
     decision = requireSingleField(relativePath, summarySection, "决策", errors) ?? "";
+    for (const [field, value] of [
+      ["purpose", purpose],
+      ["background", background],
+      ["decision", decision]
+    ] as const) {
+      if (value.length === 0) {
+        continue;
+      }
+      const issue = projectionTextIssue(value);
+      if (issue) {
+        errors.push(relativePath + " " + field + " projection " + issue);
+      }
+    }
   }
 
   const decisionSection = sectionMap.get("## 决策")?.[0]?.content;
@@ -310,9 +324,7 @@ export async function validateDecisionBody(options: {
 
   return {
     background,
-    datePrefix,
     decision,
-    fullDate,
     purpose,
     relations,
     title

@@ -3,7 +3,7 @@
 ## 索引摘要
 - 目的: 让 prompt-optimize 触发后直接获得默认流程，减少重复读取和职责分散。
 - 背景: `workflows.md` 和 `rewrite-rules.md` 在实际使用中读取概率过高, 基本成为 `prompt-optimize` 的默认执行路径。
-- 决策: 在 `prompt-optimize` 中, `SKILL.md` 直接承接定位目标、任务出口、文档骨架、行为审计、内容 owner、规则关系、负向描述、表达格式、沉淀判断、模式分流、冲突处理、交付格式和完成检查。
+- 决策: 由 `prompt-optimize` 的 `SKILL.md` 直接承接定位、出口、骨架、审计、owner、规则收敛、表达、冲突、交付和完成检查。
 
 ## 目的
 - 让 prompt-optimize 触发后直接获得默认流程，减少重复读取和职责分散。

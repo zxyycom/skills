@@ -3,7 +3,7 @@
 ## 索引摘要
 - 目的: 让 prompt-optimize 聚焦结构化文本优化，并为子代理编排建立独立 owner。
 - 背景: `prompt-optimize` 的 `agent-tasks.md` 曾负责 worker、explorer、并行 agent 和子 agent 任务结构。
-- 决策: 删除 `skills/prompt-optimize/references/agent-tasks.md`, 由 `skills/subagent-orchestration/SKILL.md` 承接子代理编排和子任务派发规则。
+- 决策: 删除 `prompt-optimize` 的 `agent-tasks.md`，由 `subagent-orchestration` 唯一承接子代理编排和任务派发。
 
 ## 目的
 - 让 prompt-optimize 聚焦结构化文本优化，并为子代理编排建立独立 owner。

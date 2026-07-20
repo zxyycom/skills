@@ -11,6 +11,11 @@ export type DecisionRelationType = typeof decisionRelationTypes[number];
 
 export type DecisionTraceDirection = "both" | "predecessors" | "successors";
 
+export const decisionStatuses = ["active", "archived"] as const;
+
+export type DecisionStatus = typeof decisionStatuses[number];
+export type DecisionListStatus = DecisionStatus | "all";
+
 export type DecisionRelation = {
   target: string;
   type: DecisionRelationType;
@@ -18,31 +23,32 @@ export type DecisionRelation = {
 
 export type { DecisionIndex, DecisionIndexEntry } from "./decision-index.ts";
 
-export type DecisionRecord = {
-  archived: boolean;
-  areaId: string;
+export type DecisionProjection = {
   background: string;
-  bodyValid: boolean;
-  current: boolean;
-  datePrefix: string;
   decision: string;
-  decisionPath: string;
-  fileName: string;
-  fullDate: string | null;
   purpose: string;
   relations: DecisionRelation[];
-  relativePath: string;
   title: string;
 };
 
-export function compareDecisionRecords(left: DecisionRecord, right: DecisionRecord): number {
-  const areaOrder = left.areaId.localeCompare(right.areaId);
-  if (areaOrder !== 0) {
-    return areaOrder;
-  }
+export type DecisionDocument = DecisionProjection;
 
-  const dateOrder = right.datePrefix.localeCompare(left.datePrefix);
-  return dateOrder !== 0 ? dateOrder : left.fileName.localeCompare(right.fileName);
+export type DecisionRecord = {
+  areaId: string;
+  bodyValid: boolean;
+  createdAt: string | null;
+  decisionPath: string;
+  document: DecisionDocument | null;
+  fileName: string;
+  indexed: boolean;
+  markdownExists: boolean;
+  projection: DecisionProjection;
+  relativePath: string;
+  status: DecisionStatus | null;
+};
+
+export function compareDecisionRecords(left: DecisionRecord, right: DecisionRecord): number {
+  return left.relativePath.localeCompare(right.relativePath);
 }
 
 export type DecisionScanOptions = {
@@ -52,7 +58,6 @@ export type DecisionScanOptions = {
 
 export type DecisionScan = {
   areaIds: Set<string>;
-  currentPaths: Set<string>;
   decisionsDirectoryAvailable: boolean;
   decisionsDirectory: string;
   errors: string[];
@@ -62,13 +67,14 @@ export type DecisionScan = {
   indexRelativePath: string;
   indexText: string;
   records: DecisionRecord[];
+  unindexedPaths: Set<string>;
   workspaceRoot: string;
 };
 
 export type DecisionValidationResult = {
+  activeCount: number;
   archivedCount: number;
   areaCount: number;
-  currentCount: number;
   decisionCount: number;
   errors: string[];
   scan: DecisionScan;

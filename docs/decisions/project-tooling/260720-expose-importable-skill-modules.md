@@ -3,7 +3,7 @@
 ## 索引摘要
 - 目的: 让已安装 skill 的自包含代码既能作为 CLI 运行，也能在现有 ESM 进程中直接导入复用。
 - 背景: 现有单文件 JavaScript 主要按 Node 子进程入口交付，不同脚本的导入副作用、公共 exports 和 TypeScript 类型支持并不一致。
-- 决策: 主仓库从同一份 TypeScript 源码生成 import-safe 的自包含 `.mjs`、同名 `.d.mts` 和 linked source map，并让同一 MJS 通过主模块判断兼容 CLI。
+- 决策: 从同一 TypeScript 源生成 import-safe 的自包含 MJS、声明和 source map；主模块判断负责兼容 CLI。
 
 ## 目的
 - 让已安装 skill 自身携带可以直接导入的稳定代码接口，不要求调用方连接主仓库源码、安装源码依赖或启动额外的 Node 子进程。

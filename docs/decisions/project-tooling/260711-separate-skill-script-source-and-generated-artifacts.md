@@ -2,7 +2,7 @@
 
 ## 索引摘要
 - 目的: 兼顾分发脚本的独立可执行性与主仓库 TypeScript 源码的可维护性。
-- 背景: 已安装 skill 需要携带能由目标运行时直接执行的 JavaScript，但直接在 `skills/<skill-name>/scripts/` 维护打包代码会失去正常的 TypeScript 模块结构、类型检查和测试入口。
+- 背景: 已安装 skill 需要可直接执行的 JavaScript，而在 skill 目录维护打包代码会失去 TypeScript 模块、类型检查和测试入口。
 - 决策: 在主仓库 `scripts/` 下按工具建立源码目录，承接 TypeScript 模块、测试、夹具和构建入口；skill 目录只承接实际分发所需的生成 JavaScript。
 
 ## 目的

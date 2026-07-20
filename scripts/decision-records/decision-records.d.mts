@@ -1,38 +1,47 @@
 export type DecisionRelationType = "修订" | "替代" | "判定无效" | "归并";
 
+export type DecisionStatus = "active" | "archived";
+
+export type DecisionListStatus = DecisionStatus | "all";
+
 export type DecisionRelation = {
   target: string;
   type: DecisionRelationType;
 };
 
-export type DecisionIndexEntry = {
+export type DecisionProjection = {
   background: string;
   decision: string;
-  path: string;
   purpose: string;
+  relations: DecisionRelation[];
   title: string;
+};
+
+export type DecisionDocument = DecisionProjection;
+
+export type DecisionIndexEntry = DecisionProjection & {
+  createdAt: string;
+  path: string;
+  status: DecisionStatus;
 };
 
 export type DecisionIndex = {
-  current: DecisionIndexEntry[];
-  schemaVersion: 2;
+  records: DecisionIndexEntry[];
+  schemaVersion: 3;
 };
 
 export type DecisionRecord = {
-  archived: boolean;
   areaId: string;
-  background: string;
   bodyValid: boolean;
-  current: boolean;
-  datePrefix: string;
-  decision: string;
+  createdAt: string | null;
   decisionPath: string;
+  document: DecisionDocument | null;
   fileName: string;
-  fullDate: string | null;
-  purpose: string;
-  relations: DecisionRelation[];
+  indexed: boolean;
+  markdownExists: boolean;
+  projection: DecisionProjection;
   relativePath: string;
-  title: string;
+  status: DecisionStatus | null;
 };
 
 export type DecisionScanOptions = {
@@ -42,7 +51,6 @@ export type DecisionScanOptions = {
 
 export type DecisionScan = {
   areaIds: Set<string>;
-  currentPaths: Set<string>;
   decisionsDirectoryAvailable: boolean;
   decisionsDirectory: string;
   errors: string[];
@@ -52,13 +60,14 @@ export type DecisionScan = {
   indexRelativePath: string;
   indexText: string;
   records: DecisionRecord[];
+  unindexedPaths: Set<string>;
   workspaceRoot: string;
 };
 
 export type DecisionValidationResult = {
+  activeCount: number;
   archivedCount: number;
   areaCount: number;
-  currentCount: number;
   decisionCount: number;
   errors: string[];
   scan: DecisionScan;

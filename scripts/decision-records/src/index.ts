@@ -1,8 +1,7 @@
 import { scanDecisionRecords } from "./scan.ts";
 import {
-  compareDecisionRecords,
   type DecisionIndex,
-  type DecisionRecord,
+  type DecisionIndexEntry,
   type DecisionScan,
   type DecisionScanOptions,
   type DecisionValidationResult,
@@ -11,35 +10,39 @@ import {
 
 export function expectedIndex(
   scan: DecisionScan,
-  currentPaths: ReadonlySet<string> = scan.currentPaths
+  sourceEntries: readonly DecisionIndexEntry[] = scan.index?.records ?? []
 ): ExpectedIndex {
   const errors: string[] = [];
   const recordByPath = new Map(scan.records.map((record) => [record.relativePath, record]));
-  const records: DecisionRecord[] = [];
+  const entries: DecisionIndexEntry[] = [];
 
-  for (const currentPath of currentPaths) {
-    const record = recordByPath.get(currentPath);
-    if (!record) {
-      errors.push(scan.indexRelativePath + " references missing decision " + currentPath);
+  for (const sourceEntry of sourceEntries) {
+    const record = recordByPath.get(sourceEntry.path);
+    if (!record?.document) {
+      errors.push(scan.indexRelativePath + " references missing decision " + sourceEntry.path);
       continue;
     }
-    records.push(record);
+
+    entries.push({
+      path: record.relativePath,
+      status: sourceEntry.status,
+      createdAt: sourceEntry.createdAt,
+      title: record.document.title,
+      purpose: record.document.purpose,
+      background: record.document.background,
+      decision: record.document.decision,
+      relations: record.document.relations
+    });
   }
 
   if (errors.length > 0) {
     return { errors, text: null };
   }
 
-  records.sort(compareDecisionRecords);
+  entries.sort((left, right) => left.path.localeCompare(right.path));
   const index: DecisionIndex = {
-    schemaVersion: 2,
-    current: records.map((record) => ({
-      path: record.relativePath,
-      title: record.title,
-      purpose: record.purpose,
-      background: record.background,
-      decision: record.decision
-    }))
+    schemaVersion: 3,
+    records: entries
   };
 
   return {
@@ -65,9 +68,9 @@ export async function validateDecisionRecords(
   }
 
   return {
-    archivedCount: scan.records.filter((record) => record.archived).length,
+    activeCount: scan.records.filter((record) => record.status === "active").length,
+    archivedCount: scan.records.filter((record) => record.status === "archived").length,
     areaCount: scan.areaIds.size,
-    currentCount: scan.records.filter((record) => record.current).length,
     decisionCount: scan.records.length,
     errors,
     scan

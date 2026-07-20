@@ -11,12 +11,17 @@ import {
 } from "./cli-args.ts";
 import { expectedIndex, validateDecisionRecords } from "./index.ts";
 import { traceDecisionRelations } from "./relation-graph.ts";
-import { scanDecisionRecords } from "./scan.ts";
+import {
+  scanDecisionRecords,
+  unindexedDecisionError
+} from "./scan.ts";
 import {
   compareDecisionRecords,
+  type DecisionIndexEntry,
   type DecisionRecord,
   type DecisionScan,
   type DecisionScanOptions,
+  type DecisionStatus,
   type DecisionValidationResult
 } from "./types.ts";
 
@@ -73,7 +78,15 @@ async function queryResult(
 }
 
 function invalidRecordSuffix(record: DecisionRecord): string {
-  return record.bodyValid ? "" : " [invalid]";
+  return record.markdownExists && record.bodyValid ? "" : " [invalid]";
+}
+
+function indexedRecords(scan: DecisionScan): DecisionRecord[] {
+  return scan.records.filter((record) => record.indexed);
+}
+
+function currentCreatedAt(): string {
+  return new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 }
 
 async function runCheck(args: CliArgs): Promise<number> {
@@ -88,8 +101,8 @@ async function runCheck(args: CliArgs): Promise<number> {
     + " areas, "
     + result.decisionCount
     + " decisions, "
-    + result.currentCount
-    + " current, "
+    + result.activeCount
+    + " active, "
     + result.archivedCount
     + " archived)."
   );
@@ -102,26 +115,62 @@ async function runList(args: CliArgs): Promise<number> {
     return 1;
   }
 
-  const records = result.scan.records
-    .filter((record) => args.all || (args.archived ? record.archived : record.current))
+  const records = indexedRecords(result.scan)
+    .filter((record) => args.status === "all" || record.status === args.status)
+    .filter((record) => args.topic === null || record.areaId === args.topic)
     .sort(compareDecisionRecords);
   if (records.length === 0) {
-    console.log("No decisions matched the selected lifecycle.");
+    console.log(
+      "No decisions matched status "
+      + args.status
+      + (args.topic === null ? "" : " and topic " + args.topic)
+      + "."
+    );
     return 0;
   }
 
   for (const record of records) {
+    const timestamp = record.createdAt ?? "unknown";
     console.log(
-      (record.current ? "current" : "archived").padEnd(8)
+      record.status
       + " "
-      + record.fullDate
+      + (args.fullTime ? timestamp : timestamp.slice(0, 10))
       + " "
       + record.relativePath
-      + " - "
-      + record.title
       + invalidRecordSuffix(record)
     );
+    console.log("  title: " + record.projection.title);
+    console.log("  purpose: " + record.projection.purpose);
+    console.log("  background: " + record.projection.background);
+    console.log("  decision: " + record.projection.decision);
   }
+  return 0;
+}
+
+async function runShow(args: CliArgs): Promise<number> {
+  const result = await queryResult(args);
+  if (!result) {
+    return 1;
+  }
+
+  const recordPath = args.recordPaths[0];
+  const record = recordPath === undefined
+    ? null
+    : findIndexedRecord(result.scan, recordPath);
+  if (!record) {
+    console.error("Indexed decision does not exist: " + recordPath);
+    return 1;
+  }
+  if (!record.markdownExists) {
+    console.error("Decision body does not exist: " + record.relativePath);
+    return 1;
+  }
+
+  console.log("path: " + record.relativePath);
+  console.log("status: " + record.status);
+  console.log("createdAt: " + record.createdAt);
+  console.log("");
+  console.log((await fs.readFile(record.decisionPath, "utf8")).trimEnd());
   return 0;
 }
 
@@ -132,14 +181,17 @@ async function runTrace(args: CliArgs): Promise<number> {
   }
 
   const recordPath = args.recordPaths[0];
-  const start = recordPath === undefined ? null : findRecord(result.scan, recordPath);
+  const start = recordPath === undefined
+    ? null
+    : findIndexedRecord(result.scan, recordPath);
   if (!start) {
-    console.error("Decision does not exist: " + recordPath);
+    console.error("Indexed decision does not exist: " + recordPath);
     return 1;
   }
 
+  const records = indexedRecords(result.scan);
   const trace = traceDecisionRelations(
-    result.scan.records,
+    records,
     start.relativePath,
     {
       direction: args.traceDirection,
@@ -148,16 +200,16 @@ async function runTrace(args: CliArgs): Promise<number> {
   );
 
   console.log("Decisions:");
-  for (const record of result.scan.records
+  for (const record of records
     .filter((candidate) => trace.paths.has(candidate.relativePath))
     .sort(compareDecisionRecords)) {
     console.log(
       "- "
-      + (record.current ? "current" : "archived")
+      + record.status
       + " "
       + record.relativePath
       + " - "
-      + record.title
+      + record.projection.title
       + invalidRecordSuffix(record)
     );
   }
@@ -209,11 +261,11 @@ async function runSyncIndex(args: CliArgs): Promise<number> {
   }
 
   if (scan.indexText.replace(/\r\n/g, "\n") === generated.text) {
-    console.log("Current decision index is up to date.");
+    console.log("Decision index is up to date.");
     return 0;
   }
   if (!args.write) {
-    console.error("Current decision index is out of sync.");
+    console.error("Decision index is out of sync.");
     console.error("Run sync-index --write to update " + scan.indexRelativePath + ".");
     return 1;
   }
@@ -222,7 +274,8 @@ async function runSyncIndex(args: CliArgs): Promise<number> {
     args,
     scan,
     generated.text,
-    "Updated " + scan.indexRelativePath + " metadata without changing membership."
+    "Updated " + scan.indexRelativePath
+      + " projections and relations without changing status or createdAt."
   );
 }
 
@@ -231,13 +284,18 @@ function findRecord(scan: DecisionScan, value: string): DecisionRecord | null {
   return scan.records.find((record) => record.relativePath === recordPath) ?? null;
 }
 
-async function applyMembership(
+function findIndexedRecord(scan: DecisionScan, value: string): DecisionRecord | null {
+  const record = findRecord(scan, value);
+  return record?.indexed ? record : null;
+}
+
+async function applyIndexEntries(
   args: CliArgs,
   scan: DecisionScan,
-  currentPaths: Set<string>,
+  entries: readonly DecisionIndexEntry[],
   successMessage: string
 ): Promise<number> {
-  const generated = expectedIndex(scan, currentPaths);
+  const generated = expectedIndex(scan, entries);
   if (generated.errors.length > 0 || generated.text === null) {
     printErrors(generated.errors);
     return 1;
@@ -249,14 +307,35 @@ function canInitializeIndex(scan: DecisionScan): boolean {
   return scan.decisionsDirectoryAvailable
     && !scan.indexExists
     && scan.index === null
-    && scan.errors.length === 1;
+    && scan.records.length === 1
+    && scan.errors.length === 1
+    && scan.errors[0] === scan.indexRelativePath + " is required";
+}
+
+function entryFromRecord(
+  record: DecisionRecord,
+  status: DecisionStatus,
+  createdAt: string
+): DecisionIndexEntry | null {
+  if (!record.document) {
+    return null;
+  }
+  return {
+    path: record.relativePath,
+    status,
+    createdAt,
+    title: record.document.title,
+    purpose: record.document.purpose,
+    background: record.document.background,
+    decision: record.document.decision,
+    relations: record.document.relations
+  };
 }
 
 async function runActivate(args: CliArgs): Promise<number> {
   const scan = await scanDecisionRecords(decisionScanOptions(args));
   const recordPath = args.recordPaths[0];
-  const initializesIndex = canInitializeIndex(scan);
-  if ((scan.index === null && !initializesIndex) || recordPath === undefined) {
+  if (recordPath === undefined) {
     printErrors(scan.errors);
     return 1;
   }
@@ -266,89 +345,98 @@ async function runActivate(args: CliArgs): Promise<number> {
     console.error("Decision does not exist: " + recordPath);
     return 1;
   }
-  if (scan.currentPaths.has(record.relativePath)) {
-    console.log("Decision is already current: " + record.relativePath);
-    return 0;
+
+  if (record.indexed) {
+    if (scan.index === null || scan.errors.length > 0) {
+      printErrors(scan.errors);
+      return 1;
+    }
+    if (record.status === "active") {
+      console.log("Decision is already active: " + record.relativePath);
+      return 0;
+    }
+
+    const entries = scan.index.records.map((entry) => (
+      entry.path === record.relativePath
+        ? { ...entry, status: "active" as const }
+        : entry
+    ));
+    return await applyIndexEntries(
+      args,
+      scan,
+      entries,
+      "Activated " + record.relativePath + "."
+    );
   }
 
-  const currentPaths = new Set(scan.currentPaths);
-  currentPaths.add(record.relativePath);
-  return await applyMembership(
+  const initializesIndex = canInitializeIndex(scan);
+  const permittedUnindexedError = unindexedDecisionError(
+    scan.indexRelativePath,
+    record.relativePath
+  );
+  const blockingErrors = initializesIndex
+    ? []
+    : scan.errors.filter((error) => error !== permittedUnindexedError);
+  if ((!initializesIndex && scan.index === null)
+    || blockingErrors.length > 0
+    || !record.bodyValid
+    || !record.markdownExists) {
+    printErrors(blockingErrors.length > 0 ? blockingErrors : scan.errors);
+    return 1;
+  }
+
+  const entry = entryFromRecord(record, "active", currentCreatedAt());
+  if (!entry) {
+    console.error("Decision body is unavailable: " + record.relativePath);
+    return 1;
+  }
+  const entries = [...(scan.index?.records ?? []), entry];
+  return await applyIndexEntries(
     args,
     scan,
-    currentPaths,
+    entries,
     initializesIndex
       ? "Initialized " + scan.indexRelativePath
         + " and activated " + record.relativePath + "."
-      : "Activated " + record.relativePath + "."
+      : "Registered and activated " + record.relativePath + "."
   );
 }
 
 async function runArchive(args: CliArgs): Promise<number> {
   const scan = await scanDecisionRecords(decisionScanOptions(args));
-  if (scan.index === null || args.recordPaths.length === 0) {
+  if (scan.index === null || scan.errors.length > 0 || args.recordPaths.length === 0) {
     printErrors(scan.errors);
     return 1;
   }
 
-  const currentPaths = new Set(scan.currentPaths);
-  const records: DecisionRecord[] = [];
-  const seenRecordPaths = new Set<string>();
+  const archivedPaths = new Set<string>();
   for (const recordPath of args.recordPaths) {
-    const record = findRecord(scan, recordPath);
+    const record = findIndexedRecord(scan, recordPath);
     if (!record) {
-      console.error("Decision does not exist: " + recordPath);
+      console.error("Indexed decision does not exist: " + recordPath);
       return 1;
     }
-    if (!scan.currentPaths.has(record.relativePath)) {
+    if (record.status === "archived") {
       console.error("Decision is already archived: " + record.relativePath);
       return 1;
     }
-    if (seenRecordPaths.has(record.relativePath)) {
+    if (archivedPaths.has(record.relativePath)) {
       console.error("Decision path is repeated: " + record.relativePath);
       return 1;
     }
-
-    seenRecordPaths.add(record.relativePath);
-    records.push(record);
-    currentPaths.delete(record.relativePath);
+    archivedPaths.add(record.relativePath);
   }
 
-  let successorMessage = "";
-  if (args.byPath !== null) {
-    const successor = findRecord(scan, args.byPath);
-    if (!successor) {
-      console.error("Successor decision does not exist: " + args.byPath);
-      return 1;
-    }
-    if (seenRecordPaths.has(successor.relativePath)) {
-      console.error("Successor must not also be archived: " + successor.relativePath);
-      return 1;
-    }
-
-    const directTargets = new Set(successor.relations.map((relation) => relation.target));
-    const missingTargets = records
-      .map((record) => record.relativePath)
-      .filter((archivedPath) => !directTargets.has(archivedPath));
-    if (missingTargets.length > 0) {
-      console.error(
-        "Successor " + successor.relativePath
-        + " must directly relate to every archived decision: "
-        + missingTargets.join(", ")
-      );
-      return 1;
-    }
-
-    currentPaths.add(successor.relativePath);
-    successorMessage = " and activated " + successor.relativePath;
-  }
-
-  return await applyMembership(
+  const entries = scan.index.records.map((entry) => (
+    archivedPaths.has(entry.path)
+      ? { ...entry, status: "archived" as const }
+      : entry
+  ));
+  return await applyIndexEntries(
     args,
     scan,
-    currentPaths,
-    "Archived " + records.map((record) => record.relativePath).join(", ")
-      + successorMessage + "."
+    entries,
+    "Archived " + [...archivedPaths].join(", ") + "."
   );
 }
 
@@ -357,6 +445,7 @@ const commandHandlers: Record<Command, CommandHandler> = {
   archive: runArchive,
   check: runCheck,
   list: runList,
+  show: runShow,
   "sync-index": runSyncIndex,
   trace: runTrace
 };
@@ -386,13 +475,17 @@ export async function runDecisionRecordsCli(
 
 export { scanDecisionRecords, validateDecisionRecords };
 export type {
+  DecisionDocument,
   DecisionIndex,
   DecisionIndexEntry,
+  DecisionListStatus,
+  DecisionProjection,
   DecisionRecord,
   DecisionRelation,
   DecisionRelationType,
   DecisionScan,
   DecisionScanOptions,
+  DecisionStatus,
   DecisionValidationResult
 } from "./types.ts";
 

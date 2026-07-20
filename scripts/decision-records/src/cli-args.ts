@@ -4,17 +4,29 @@ import {
   InvalidArgumentError,
   Option
 } from "commander";
-import type { DecisionTraceDirection } from "./types.ts";
+import {
+  decisionStatuses,
+  type DecisionListStatus,
+  type DecisionTraceDirection
+} from "./types.ts";
+import { isDecisionTopicId } from "./decision-path.ts";
 
-export type Command = "activate" | "archive" | "check" | "list" | "sync-index" | "trace";
+export type Command =
+  | "activate"
+  | "archive"
+  | "check"
+  | "list"
+  | "show"
+  | "sync-index"
+  | "trace";
 
 export type CliArgs = {
-  all: boolean;
-  archived: boolean;
-  byPath: string | null;
   command: Command;
   decisionsDir: string;
+  fullTime: boolean;
   recordPaths: string[];
+  status: DecisionListStatus;
+  topic: string | null;
   traceDepth: number | null;
   traceDirection: DecisionTraceDirection;
   workspaceRoot: string;
@@ -22,13 +34,13 @@ export type CliArgs = {
 };
 
 type ParsedOptions = {
-  all?: boolean;
-  archived?: boolean;
-  by?: string;
   decisionsDir?: string;
   depth?: number;
   direction?: DecisionTraceDirection;
+  fullTime?: boolean;
   root?: string;
+  status?: DecisionListStatus;
+  topic?: string;
   write?: boolean;
 };
 
@@ -48,6 +60,14 @@ function parseTraceDepth(value: string): number {
   return depth;
 }
 
+function parseTopicId(value: string): string {
+  if (!isDecisionTopicId(value)) {
+    throw new InvalidArgumentError("must be a kebab-case topic id");
+  }
+
+  return value;
+}
+
 function commandArgs(
   command: Command,
   commanderCommand: CommanderCommand,
@@ -55,12 +75,12 @@ function commandArgs(
 ): CliArgs {
   const options = commanderCommand.optsWithGlobals<ParsedOptions>();
   return {
-    all: options.all ?? false,
-    archived: options.archived ?? false,
-    byPath: options.by ?? null,
     command,
     decisionsDir: options.decisionsDir ?? "docs/decisions",
+    fullTime: options.fullTime ?? false,
     recordPaths,
+    status: options.status ?? "active",
+    topic: options.topic ?? null,
     traceDepth: options.depth ?? null,
     traceDirection: options.direction ?? "both",
     workspaceRoot: options.root ?? process.cwd(),
@@ -99,7 +119,7 @@ export function createCliProgram(
     .addHelpText(
       "afterAll",
       "\nDecision paths are relative to the decision directory, for example "
-      + "topic/260713-title.md.\n"
+      + "topic/use-semantic-title.md. Existing dated paths remain readable.\n"
       + "Exit codes: 0 success (queries may report warnings), "
       + "1 blocking validation or index failure, 2 invalid arguments."
     )
@@ -124,14 +144,26 @@ export function createCliProgram(
   const list = createSubcommand(
     program,
     "list",
-    "List available current decisions by default, or select archived history."
+    "List active decisions by default, or filter by topic and lifecycle status."
   )
     .addOption(
-      new Option("--archived", "List only logically archived decisions.")
-        .conflicts("all")
+      new Option("--status <value>", "Lifecycle status filter.")
+        .choices([...decisionStatuses, "all"])
+        .default("active")
     )
-    .option("--all", "List current and logically archived decisions.");
+    .addOption(
+      new Option("--topic <topic-id>", "Filter by a kebab-case topic id.")
+        .argParser(parseTopicId)
+    )
+    .option("--full-time", "Show the full createdAt timestamp instead of its date.");
   list.action(() => execute("list", list));
+
+  const show = createSubcommand(
+    program,
+    "show <decision-path>",
+    "Show index-owned metadata followed by the original Markdown body."
+  );
+  show.action((recordPath: string) => execute("show", show, [recordPath]));
 
   const trace = createSubcommand(
     program,
@@ -152,7 +184,7 @@ export function createCliProgram(
   const syncIndex = createSubcommand(
     program,
     "sync-index",
-    "Refresh generated index metadata without changing membership."
+    "Refresh generated projections and relations without changing status or createdAt."
   )
     .option("--write", "Apply index metadata changes.");
   syncIndex.action(() => execute("sync-index", syncIndex));
@@ -160,19 +192,15 @@ export function createCliProgram(
   const activate = createSubcommand(
     program,
     "activate <decision-path>",
-    "Add an existing decision file, initializing a missing index when valid."
+    "Register an existing decision when needed and set its status to active."
   );
   activate.action((recordPath: string) => execute("activate", activate, [recordPath]));
 
   const archive = createSubcommand(
     program,
     "archive <decision-path...>",
-    "Remove decisions from the current index."
-  )
-    .option(
-      "--by <decision-path>",
-      "Validate and activate a successor that relates to every archived decision."
-    );
+    "Set active decisions to archived without changing related decisions."
+  );
   archive.action((recordPaths: string[]) => execute("archive", archive, recordPaths));
 
   return program;

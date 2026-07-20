@@ -1,12 +1,30 @@
 {
-  "schemaVersion": 2,
-  "current": [
+  "schemaVersion": 3,
+  "records": [
     {
-      "path": "tooling/260711-use-generated-cli.md",
+      "path": "tooling/260710-use-source-cli.md",
+      "status": "archived",
+      "createdAt": "2026-07-10T09:10:11+08:00",
+      "title": "使用源码 CLI",
+      "purpose": "为 CLI 关系和生命周期测试保留可追溯的前序判断。",
+      "background": "需要为直接关系校验提供一条可追溯的前序决定。",
+      "decision": "使用源码 CLI 作为测试夹具的初始做法。",
+      "relations": []
+    },
+    {
+      "path": "tooling/use-generated-cli.md",
+      "status": "active",
+      "createdAt": "2026-07-11T14:15:16+08:00",
       "title": "使用生成 CLI",
       "purpose": "确保生成后的 CLI 能在独立运行环境中读取并校验决策记录。",
       "background": "需要验证生成后的 CLI 能读取一套最小决策目录。",
-      "decision": "使用固定结构的测试夹具。"
+      "decision": "使用固定结构的测试夹具。",
+      "relations": [
+        {
+          "type": "修订",
+          "target": "tooling/260710-use-source-cli.md"
+        }
+      ]
     }
   ]
 }

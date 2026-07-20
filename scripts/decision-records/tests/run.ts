@@ -1,209 +1,38 @@
 import assert from "node:assert/strict";
-import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import {
-  runDecisionRecordsCli,
-  validateDecisionRecords as validateBundledDecisionRecords
-} from "../../../skills/decision-records/scripts/decision-records.mjs";
 import { validateDecisionRecords } from "../src/index.ts";
-
-const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
-const rootDir = path.resolve(testsDirectory, "../../..");
-const fixtureRoot = path.join(testsDirectory, "fixtures", "valid");
-const generatedCliPath = path.join(
-  rootDir,
-  "skills",
-  "decision-records",
-  "scripts",
-  "decision-records.mjs"
-);
-const generatedDeclarationPath = path.join(
-  rootDir,
-  "skills",
-  "decision-records",
-  "scripts",
-  "decision-records.d.mts"
-);
-const generatedUpdaterPath = path.join(
-  rootDir,
-  "skills",
-  "decision-records",
-  "scripts",
-  "update-skill.mjs"
-);
-
-type CliExecution = {
-  exitCode: number;
-  stderr: string;
-  stdout: string;
-};
-
-async function runBundledCli(args: readonly string[]): Promise<CliExecution> {
-  const stdout: string[] = [];
-  const stderr: string[] = [];
-  const originalLog = console.log;
-  const originalError = console.error;
-  console.log = (...values: unknown[]) => {
-    stdout.push(`${values.map(String).join(" ")}\n`);
-  };
-  console.error = (...values: unknown[]) => {
-    stderr.push(`${values.map(String).join(" ")}\n`);
-  };
-
-  try {
-    return {
-      exitCode: await runDecisionRecordsCli(args),
-      stderr: stderr.join(""),
-      stdout: stdout.join("")
-    };
-  } finally {
-    console.log = originalLog;
-    console.error = originalError;
-  }
-}
-
-async function runSuccessfulCli(args: readonly string[]): Promise<string> {
-  const result = await runBundledCli(args);
-  assert.equal(result.exitCode, 0);
-  assert.equal(result.stderr, "");
-  return result.stdout;
-}
-
-async function traceDecision(
-  decisionPath: string,
-  options: string[] = [],
-  workspaceRoot = fixtureRoot
-): Promise<string> {
-  return await runSuccessfulCli([
-    "trace",
-    decisionPath,
-    ...options,
-    "--root",
-    workspaceRoot
-  ]);
-}
-
-const validation = await validateDecisionRecords({ workspaceRoot: fixtureRoot });
-assert.deepEqual(validation.errors, []);
-assert.equal(validation.areaCount, 1);
-assert.equal(validation.decisionCount, 2);
-assert.equal(validation.currentCount, 1);
-assert.equal(validation.archivedCount, 1);
-assert.deepEqual(
-  await validateBundledDecisionRecords({ workspaceRoot: fixtureRoot }),
-  validation
-);
-assert.equal(typeof runDecisionRecordsCli, "function");
-
-// Keep one real Node success smoke; detailed CLI behavior runs through the same bundled export.
-const cliOutput = execFileSync(
-  "node",
-  [generatedCliPath, "check", "--root", fixtureRoot],
-  { encoding: "utf8" }
-);
-assert.match(cliOutput, /Decision records check passed \(1 areas, 2 decisions, 1 current, 1 archived\)\./);
-
-const defaultCliOutput = await runSuccessfulCli(["--root", fixtureRoot]);
-assert.match(defaultCliOutput, /Decision records check passed/);
-
-const currentList = await runSuccessfulCli(["list", "--root", fixtureRoot]);
-assert.match(currentList, /current\s+2026-07-11 tooling\/260711-use-generated-cli\.md/);
-assert.doesNotMatch(currentList, /260710-use-source-cli/);
-
-const archivedList = await runSuccessfulCli([
-  "list",
-  "--archived",
-  "--root",
-  fixtureRoot
-]);
-assert.match(archivedList, /archived\s+2026-07-10 tooling\/260710-use-source-cli\.md/);
-
-const relationTrace = await traceDecision("tooling/260710-use-source-cli.md");
-assert.match(
-  relationTrace,
-  /tooling\/260711-use-generated-cli\.md --修订--> tooling\/260710-use-source-cli\.md/
-);
-
-const predecessorTrace = await traceDecision(
-  "tooling/260711-use-generated-cli.md",
-  ["--direction", "predecessors"]
-);
-assert.match(predecessorTrace, /tooling\/260710-use-source-cli\.md/);
-
-const noPredecessorTrace = await traceDecision(
-  "tooling/260710-use-source-cli.md",
-  ["--direction", "predecessors"]
-);
-assert.doesNotMatch(noPredecessorTrace, /260711-use-generated-cli/);
-
-const successorTrace = await traceDecision(
-  "tooling/260710-use-source-cli.md",
-  ["--direction", "successors"]
-);
-assert.match(successorTrace, /tooling\/260711-use-generated-cli\.md/);
-
-// Keep one real Node failure smoke to prove argument diagnostics and the non-zero exit boundary.
-const invalidDepth = spawnSync(
-  "node",
-  [
-    generatedCliPath,
-    "trace",
-    "tooling/260710-use-source-cli.md",
-    "--depth",
-    "-1",
-    "--root",
-    fixtureRoot
-  ],
-  { encoding: "utf8" }
-);
-assert.equal(invalidDepth.status, 2);
-assert.match(invalidDepth.stderr, /must be a non-negative integer/);
-
-const cliSource = await fs.readFile(generatedCliPath, "utf8");
-assert.match(cliSource, /Repository: https:\/\/github\.com\/zxyycom\/skills/);
-assert.match(cliSource, /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/scripts\/decision-records\/src\/cli\.ts/);
-assert.match(cliSource, /Source path: scripts\/decision-records\/src\/cli\.ts/);
-assert.match(cliSource, /Skill source directory: https:\/\/github\.com\/zxyycom\/skills\/tree\/main\/skills\/decision-records/);
-assert.match(cliSource, /Rebuild: bun run sync:decision-records-cli/);
-assert.match(cliSource, /sourceMappingURL=decision-records\.mjs\.map/);
-const declarationSource = await fs.readFile(generatedDeclarationPath, "utf8");
-assert.match(
-  declarationSource,
-  /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/scripts\/decision-records\/decision-records\.d\.mts/
-);
-assert.match(declarationSource, /validateDecisionRecords/);
-assert.match(declarationSource, /runDecisionRecordsCli/);
-const cliSourceMap = JSON.parse(await fs.readFile(`${generatedCliPath}.map`, "utf8")) as {
-  sourceRoot: string;
-  sources: string[];
-};
-assert.equal(cliSourceMap.sourceRoot, "../../../");
-assert.ok(cliSourceMap.sources.includes("scripts/decision-records/src/cli.ts"));
-assert.ok(cliSourceMap.sources.every((source) => !path.isAbsolute(source) && !source.includes("\\")));
-
-const updaterSource = await fs.readFile(generatedUpdaterPath, "utf8");
-assert.match(updaterSource, /Repository: https:\/\/github\.com\/zxyycom\/skills/);
-assert.match(updaterSource, /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/scripts\/templates\/update-skill\.ts/);
-assert.match(updaterSource, /Rebuild: bun run sync:skill-updaters/);
-assert.match(updaterSource, /sourceMappingURL=update-skill\.mjs\.map/);
-const updaterSourceMap = JSON.parse(await fs.readFile(`${generatedUpdaterPath}.map`, "utf8")) as {
-  sourceRoot: string;
-  sources: string[];
-};
-assert.equal(updaterSourceMap.sourceRoot, "../../../");
-assert.ok(updaterSourceMap.sources.includes("scripts/templates/update-skill.ts"));
-assert.ok(updaterSourceMap.sources.every((source) => !path.isAbsolute(source) && !source.includes("\\")));
+import {
+  archivedRelativePath,
+  currentRelativePath,
+  findIndexEntry,
+  fixtureRoot,
+  readIndex,
+  runBundledCli,
+  runSuccessfulCli,
+  traceDecision,
+  writeIndex
+} from "./support.ts";
+import "./generated-artifacts.test.ts";
+import "./queries.test.ts";
 
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "decision-records-test-"));
 try {
   await fs.cp(fixtureRoot, tempRoot, { recursive: true });
+  const decisionsDirectory = path.join(tempRoot, "docs", "decisions");
+  const indexPath = path.join(decisionsDirectory, "decision-index.json");
+  const originalIndexText = await fs.readFile(indexPath, "utf8");
+  const originalIndex = await readIndex(indexPath);
+  const currentDecisionPath = path.join(
+    decisionsDirectory,
+    "tooling",
+    "use-generated-cli.md"
+  );
+  const currentDecision = await fs.readFile(currentDecisionPath, "utf8");
+
   const copiedContractPath = path.join(
-    tempRoot,
-    "docs",
-    "decisions",
+    decisionsDirectory,
     "decision-record-rules.md"
   );
   await fs.writeFile(copiedContractPath, "# Copied contract\n", "utf8");
@@ -213,39 +42,28 @@ try {
   ));
   await fs.rm(copiedContractPath);
 
-  const decisionsDirectory = path.join(tempRoot, "docs", "decisions");
-  const indexPath = path.join(decisionsDirectory, "decision-index.json");
-  const originalIndex = await fs.readFile(indexPath, "utf8");
-  const index = JSON.parse(originalIndex) as {
-    current: Array<{
-      background: string;
-      decision: string;
-      path: string;
-      purpose: string;
-      title: string;
-    }>;
-    schemaVersion: number;
-  };
-
   await fs.writeFile(
     indexPath,
-    JSON.stringify({ ...index, unsupported: true }, null, 2) + "\n",
+    JSON.stringify({ ...originalIndex, unsupported: true }, null, 2) + "\n",
     "utf8"
   );
-  const withUnsupportedIndexField = await validateDecisionRecords({ workspaceRoot: tempRoot });
+  const withUnsupportedIndexField = await validateDecisionRecords({
+    workspaceRoot: tempRoot
+  });
   assert.ok(withUnsupportedIndexField.errors.some(
-    (error) => error.includes("must contain only schemaVersion and current")
+    (error) => error.includes("must contain only schemaVersion and records")
   ));
-  await fs.writeFile(indexPath, originalIndex, "utf8");
 
   await fs.writeFile(
     indexPath,
-    JSON.stringify({ ...index, schemaVersion: 1 }, null, 2) + "\n",
+    JSON.stringify({ schemaVersion: 2, current: [] }, null, 2) + "\n",
     "utf8"
   );
-  const withLegacySchemaVersion = await validateDecisionRecords({ workspaceRoot: tempRoot });
+  const withLegacySchemaVersion = await validateDecisionRecords({
+    workspaceRoot: tempRoot
+  });
   assert.ok(withLegacySchemaVersion.errors.some(
-    (error) => error.includes("schemaVersion must be 2")
+    (error) => error.includes("schemaVersion must be 3")
   ));
   const listWithInvalidIndex = await runBundledCli([
     "list",
@@ -254,29 +72,44 @@ try {
   ]);
   assert.equal(listWithInvalidIndex.exitCode, 1);
   assert.match(listWithInvalidIndex.stderr, /Decision records command failed/);
-  await fs.writeFile(indexPath, originalIndex, "utf8");
 
-  index.current.push({
-    background: "需要为直接关系校验提供一条可追溯的前序决定。",
-    decision: "使用源码 CLI 作为测试夹具的初始做法。",
-    path: "tooling/260710-use-source-cli.md",
-    purpose: "为 CLI 关系和生命周期测试保留可追溯的前序判断。",
-    title: "使用源码 CLI"
-  });
-  await fs.writeFile(indexPath, JSON.stringify(index, null, 2) + "\n", "utf8");
-  const withCurrentRelationTarget = await validateDecisionRecords({ workspaceRoot: tempRoot });
-  assert.ok(withCurrentRelationTarget.errors.some(
+  const invalidTimestampIndex = structuredClone(originalIndex);
+  invalidTimestampIndex.records[0]!.createdAt = "2026-07-10";
+  await writeIndex(indexPath, invalidTimestampIndex);
+  assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
+    (error) => error.includes("createdAt must be an RFC 3339 timestamp")
+  ));
+
+  const fractionalTimestampIndex = structuredClone(originalIndex);
+  fractionalTimestampIndex.records[0]!.createdAt =
+    "2026-07-10T09:10:11.123+08:00";
+  await writeIndex(indexPath, fractionalTimestampIndex);
+  assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
+    (error) => error.includes("precise to seconds")
+  ));
+
+  const shortProjectionIndex = structuredClone(originalIndex);
+  shortProjectionIndex.records[0]!.title = "短";
+  await writeIndex(indexPath, shortProjectionIndex);
+  assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
+    (error) => error.includes("actual 1")
+  ));
+
+  const longProjectionIndex = structuredClone(originalIndex);
+  longProjectionIndex.records[0]!.purpose = "长".repeat(101);
+  await writeIndex(indexPath, longProjectionIndex);
+  assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
+    (error) => error.includes("actual 101")
+  ));
+
+  const withActiveRelationTargetIndex = structuredClone(originalIndex);
+  findIndexEntry(withActiveRelationTargetIndex, archivedRelativePath).status = "active";
+  await writeIndex(indexPath, withActiveRelationTargetIndex);
+  assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
     (error) => error.includes("relationship 修订 target must be archived")
   ));
-  await fs.writeFile(indexPath, originalIndex, "utf8");
+  await fs.writeFile(indexPath, originalIndexText, "utf8");
 
-  const currentRelativePath = "tooling/260711-use-generated-cli.md";
-  const currentDecisionPath = path.join(
-    decisionsDirectory,
-    "tooling",
-    "260711-use-generated-cli.md"
-  );
-  const currentDecision = await fs.readFile(currentDecisionPath, "utf8");
   await fs.writeFile(
     currentDecisionPath,
     currentDecision.replace(
@@ -288,8 +121,7 @@ try {
     ),
     "utf8"
   );
-  const withoutExplicitSummary = await validateDecisionRecords({ workspaceRoot: tempRoot });
-  assert.ok(withoutExplicitSummary.errors.some(
+  assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
     (error) => error.includes("is missing section ## 索引摘要")
   ));
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
@@ -303,10 +135,6 @@ try {
     ),
     "utf8"
   );
-  const withoutPurposeSection = await validateDecisionRecords({ workspaceRoot: tempRoot });
-  assert.ok(withoutPurposeSection.errors.some(
-    (error) => error.includes("is missing section ## 目的")
-  ));
   const listWithInvalidRecord = await runBundledCli([
     "list",
     "--root",
@@ -315,14 +143,9 @@ try {
   assert.equal(listWithInvalidRecord.exitCode, 0);
   assert.match(
     listWithInvalidRecord.stdout,
-    /tooling\/260711-use-generated-cli\.md - 使用生成 CLI \[invalid\]/
-  );
-  assert.match(
-    listWithInvalidRecord.stderr,
-    /Decision records query completed with warnings/
+    /tooling\/use-generated-cli\.md \[invalid\]/
   );
   assert.match(listWithInvalidRecord.stderr, /is missing section ## 目的/);
-
   const traceWithInvalidRecord = await runBundledCli([
     "trace",
     currentRelativePath,
@@ -330,135 +153,183 @@ try {
     tempRoot
   ]);
   assert.equal(traceWithInvalidRecord.exitCode, 0);
-  assert.match(
-    traceWithInvalidRecord.stdout,
-    /tooling\/260711-use-generated-cli\.md - 使用生成 CLI \[invalid\]/
-  );
   assert.match(traceWithInvalidRecord.stdout, /tooling\/260710-use-source-cli\.md/);
   assert.match(traceWithInvalidRecord.stderr, /is missing section ## 目的/);
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
 
   await fs.writeFile(
     currentDecisionPath,
-    currentDecision.replace(
-      "- 目的: 确保生成后的 CLI 能在独立运行环境中读取并校验决策记录。\n",
-      ""
-    ),
+    currentDecision.replace("# 使用生成 CLI", "# 很短"),
     "utf8"
   );
-  const withoutSummaryPurpose = await validateDecisionRecords({ workspaceRoot: tempRoot });
-  assert.ok(withoutSummaryPurpose.errors.some(
-    (error) => error.includes("must include field \"- 目的: <value>\"")
+  assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
+    (error) => error.includes("title must contain 4 to 100")
+      && error.includes("actual 2")
   ));
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
 
   await fs.writeFile(
     currentDecisionPath,
     currentDecision.replace(
-      "- 决策: 使用固定结构的测试夹具。",
-      "- 决策: 使用固定结构的测试夹具。\n- area: tooling"
-    ),
-    "utf8"
-  );
-  const withExtraSummaryField = await validateDecisionRecords({ workspaceRoot: tempRoot });
-  assert.ok(withExtraSummaryField.errors.some(
-    (error) => error.includes("section ## 索引摘要 must contain only")
-  ));
-  await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
-
-  await fs.writeFile(
-    currentDecisionPath,
-    currentDecision.replace(
-      "\n## 关系\n- 修订: [2026-07-10 - 使用源码 CLI](260710-use-source-cli.md)\n",
+      "\n## 关系\n- 修订: [使用源码 CLI](260710-use-source-cli.md)\n",
       "\n"
     ),
     "utf8"
   );
-  const withoutIncomingRelation = await validateDecisionRecords({ workspaceRoot: tempRoot });
-  assert.deepEqual(withoutIncomingRelation.errors, []);
+  const traceWithRelationDrift = await runBundledCli([
+    "trace",
+    archivedRelativePath,
+    "--root",
+    tempRoot
+  ]);
+  assert.equal(traceWithRelationDrift.exitCode, 0);
+  assert.match(
+    traceWithRelationDrift.stdout,
+    /tooling\/use-generated-cli\.md --修订--> tooling\/260710-use-source-cli\.md/
+  );
+  assert.match(traceWithRelationDrift.stderr, /is out of sync/);
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
 
-  const archivedDecisionPath = path.join(
-    decisionsDirectory,
-    "tooling",
-    "260710-use-source-cli.md"
-  );
-  const archivedDecision = await fs.readFile(archivedDecisionPath, "utf8");
-  await fs.writeFile(
-    archivedDecisionPath,
-    archivedDecision.trimEnd()
-      + "\n\n## 关系\n"
-      + "- 修订: [2026-07-11 - 使用生成 CLI](260711-use-generated-cli.md)\n",
-    "utf8"
-  );
-  const withRelationCycle = await validateDecisionRecords({ workspaceRoot: tempRoot });
-  assert.ok(withRelationCycle.errors.some(
+  const cycleIndex = structuredClone(originalIndex);
+  findIndexEntry(cycleIndex, archivedRelativePath).relations = [{
+    target: currentRelativePath,
+    type: "修订"
+  }];
+  await writeIndex(indexPath, cycleIndex);
+  assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
     (error) => error.includes("Decision relations must not form a cycle")
   ));
-  await fs.writeFile(archivedDecisionPath, archivedDecision, "utf8");
+  await fs.writeFile(indexPath, originalIndexText, "utf8");
 
-  const activateCurrentRelationTarget = await runBundledCli([
+  const activateRelationTarget = await runBundledCli([
     "activate",
-    "tooling/260710-use-source-cli.md",
+    archivedRelativePath,
     "--root",
     tempRoot
   ]);
-  assert.equal(activateCurrentRelationTarget.exitCode, 1);
+  assert.equal(activateRelationTarget.exitCode, 1);
   assert.match(
-    activateCurrentRelationTarget.stderr,
+    activateRelationTarget.stderr,
     /relationship 修订 target must be archived/
   );
-  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndex);
+  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
 
-  await fs.rm(indexPath);
-  const failedFirstActivation = await runBundledCli([
+  const unindexedBody = [
+    "# 验证未登记成员",
+    "",
+    "## 索引摘要",
+    "- 目的: 验证严格登记事务只允许一个明确目标。",
+    "- 背景: 其他未登记记录必须继续阻断索引更新。",
+    "- 决策: 多个未登记记录存在时保持原索引不变。",
+    "",
+    "## 目的",
+    "- 验证严格登记事务只允许一个明确目标。",
+    "",
+    "## 背景",
+    "- 其他未登记记录必须继续阻断索引更新。",
+    "",
+    "## 决策",
+    "- 采用: 多个未登记记录存在时保持原索引不变。",
+    ""
+  ].join("\n");
+  const firstUnindexedRelativePath = "tooling/use-first-unindexed.md";
+  const secondUnindexedRelativePath = "tooling/use-second-unindexed.md";
+  const firstUnindexedPath = path.join(
+    decisionsDirectory,
+    firstUnindexedRelativePath
+  );
+  const secondUnindexedPath = path.join(
+    decisionsDirectory,
+    secondUnindexedRelativePath
+  );
+  await fs.writeFile(firstUnindexedPath, unindexedBody, "utf8");
+  await fs.writeFile(secondUnindexedPath, unindexedBody, "utf8");
+  const multipleUnindexedActivation = await runBundledCli([
     "activate",
-    "tooling/260710-use-source-cli.md",
+    firstUnindexedRelativePath,
     "--root",
     tempRoot
   ]);
-  assert.equal(failedFirstActivation.exitCode, 1);
+  assert.equal(multipleUnindexedActivation.exitCode, 1);
   assert.match(
-    failedFirstActivation.stderr,
-    /relationship 修订 target must be archived/
+    multipleUnindexedActivation.stderr,
+    /does not include decision tooling\/use-second-unindexed\.md/
   );
-  await assert.rejects(fs.access(indexPath));
+  assert.doesNotMatch(
+    multipleUnindexedActivation.stderr,
+    /does not include decision tooling\/use-first-unindexed\.md/
+  );
+  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
+  await fs.rm(firstUnindexedPath);
+  await fs.rm(secondUnindexedPath);
 
-  const firstActivation = await runBundledCli([
-    "activate",
-    currentRelativePath,
-    "--root",
-    tempRoot
-  ]);
-  assert.equal(firstActivation.exitCode, 0);
-  assert.match(
-    firstActivation.stdout,
-    /Initialized docs\/decisions\/decision-index\.json and activated/
+  const driftedDecision = currentDecision.replaceAll(
+    "需要验证生成后的 CLI 能读取一套最小决策目录。",
+    "需要验证索引同步会刷新全部记录的摘要投影。"
   );
-  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndex);
-
-  await fs.writeFile(
-    indexPath,
-    originalIndex.replace("需要验证生成后的 CLI 能读取一套最小决策目录。", "过期背景"),
-    "utf8"
-  );
-  const drifted = await validateDecisionRecords({ workspaceRoot: tempRoot });
-  assert.ok(drifted.errors.some((error) => error.includes("is out of sync")));
-  const listWithIndexDrift = await runBundledCli([
-    "list",
-    "--root",
-    tempRoot
-  ]);
-  assert.equal(listWithIndexDrift.exitCode, 0);
-  assert.match(listWithIndexDrift.stdout, /tooling\/260711-use-generated-cli\.md/);
-  assert.match(listWithIndexDrift.stderr, /is out of sync/);
+  await fs.writeFile(currentDecisionPath, driftedDecision, "utf8");
+  const driftedList = await runBundledCli(["list", "--root", tempRoot]);
+  assert.equal(driftedList.exitCode, 0);
+  assert.match(driftedList.stderr, /is out of sync/);
+  assert.match(driftedList.stdout, /需要验证生成后的 CLI 能读取一套最小决策目录/);
   await runSuccessfulCli([
     "sync-index",
     "--write",
     "--root",
     tempRoot
   ]);
-  assert.deepEqual((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors, []);
+  const synchronizedIndex = await readIndex(indexPath);
+  const synchronizedEntry = findIndexEntry(synchronizedIndex, currentRelativePath);
+  assert.equal(
+    synchronizedEntry.background,
+    "需要验证索引同步会刷新全部记录的摘要投影。"
+  );
+  assert.equal(synchronizedEntry.status, "active");
+  assert.equal(
+    synchronizedEntry.createdAt,
+    "2026-07-11T14:15:16+08:00"
+  );
+  await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
+  await fs.writeFile(indexPath, originalIndexText, "utf8");
+
+  const successorRelativePath = "tooling/use-bundled-cli.md";
+  const successorPath = path.join(decisionsDirectory, successorRelativePath);
+  const successorBody = [
+    "# 使用打包 CLI",
+    "",
+    "## 索引摘要",
+    "- 目的: 验证显式生命周期命令能够完成决策演进。",
+    "- 背景: 状态变化与关系已经拆分为彼此独立的操作。",
+    "- 决策: 分别归档前序并激活新的打包 CLI 决策。",
+    "",
+    "## 目的",
+    "- 验证显式生命周期命令能够完成决策演进。",
+    "",
+    "## 背景",
+    "- 状态变化与关系已经拆分为彼此独立的操作。",
+    "",
+    "## 决策",
+    "- 采用: 分别归档前序并激活新的打包 CLI 决策。",
+    "",
+    "## 关系",
+    "- 替代: [使用生成 CLI](use-generated-cli.md)",
+    ""
+  ].join("\n");
+
+  await fs.writeFile(successorPath, successorBody, "utf8");
+  const hiddenSwitchAttempt = await runBundledCli([
+    "activate",
+    successorRelativePath,
+    "--root",
+    tempRoot
+  ]);
+  assert.equal(hiddenSwitchAttempt.exitCode, 1);
+  assert.match(
+    hiddenSwitchAttempt.stderr,
+    /relationship 替代 target must be archived/
+  );
+  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
+  await fs.rm(successorPath);
 
   await runSuccessfulCli([
     "archive",
@@ -466,84 +337,35 @@ try {
     "--root",
     tempRoot
   ]);
-  const independentlyArchived = await validateDecisionRecords({ workspaceRoot: tempRoot });
-  assert.deepEqual(independentlyArchived.errors, []);
-  assert.equal(independentlyArchived.currentCount, 0);
-  assert.equal(independentlyArchived.archivedCount, 2);
-  await fs.writeFile(indexPath, originalIndex, "utf8");
+  const archivedIndex = await readIndex(indexPath);
+  assert.equal(findIndexEntry(archivedIndex, currentRelativePath).status, "archived");
+  assert.equal(findIndexEntry(archivedIndex, archivedRelativePath).status, "archived");
 
-  const successorRelativePath = "tooling/260712-use-bundled-cli.md";
-  const successorPath = path.join(decisionsDirectory, successorRelativePath);
-  await fs.writeFile(
-    successorPath,
-    [
-      "# 2026-07-12 - 使用打包 CLI",
-      "",
-      "## 索引摘要",
-      "- 目的: 验证 CLI 能以校验式事务切换当前决策。",
-      "- 背景: 需要验证 JSON 当前索引的校验式成员更新。",
-      "- 决策: 使用打包 CLI 作为新的当前决定。",
-      "",
-      "## 目的",
-      "- 验证 CLI 能以校验式事务切换当前决策。",
-      "",
-      "## 背景",
-      "- 需要验证 JSON 当前索引的校验式成员更新。",
-      "",
-      "## 决策",
-      "- 采用: 使用打包 CLI 作为新的当前决定。",
-      ""
-    ].join("\n"),
-    "utf8"
-  );
+  await fs.writeFile(successorPath, successorBody, "utf8");
   await runSuccessfulCli([
     "activate",
     successorRelativePath,
     "--root",
     tempRoot
   ]);
-
-  const unrelatedSwitch = await runBundledCli([
-    "archive",
-    currentRelativePath,
-    "--by",
-    successorRelativePath,
-    "--root",
-    tempRoot
-  ]);
-  assert.equal(unrelatedSwitch.exitCode, 1);
-  assert.match(
-    unrelatedSwitch.stderr,
-    /must directly relate to every archived decision/
-  );
-
-  const successor = await fs.readFile(successorPath, "utf8");
-  await fs.writeFile(
-    successorPath,
-    successor.trimEnd()
-      + "\n\n## 关系\n"
-      + "- 替代: [2026-07-11 - 使用生成 CLI](260711-use-generated-cli.md)\n",
-    "utf8"
-  );
-  await runSuccessfulCli([
-    "archive",
-    currentRelativePath,
-    "--by",
-    successorRelativePath,
-    "--root",
-    tempRoot
-  ]);
   const switched = await validateDecisionRecords({ workspaceRoot: tempRoot });
   assert.deepEqual(switched.errors, []);
-  assert.equal(switched.currentCount, 1);
+  assert.equal(switched.activeCount, 1);
   assert.equal(switched.archivedCount, 2);
+  const switchedIndex = await readIndex(indexPath);
+  const successorEntry = findIndexEntry(switchedIndex, successorRelativePath);
+  assert.equal(successorEntry.status, "active");
+  assert.match(
+    successorEntry.createdAt,
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
+  );
 
   const directPredecessorTrace = await traceDecision(
     successorRelativePath,
     ["--direction", "predecessors", "--depth", "1"],
     tempRoot
   );
-  assert.match(directPredecessorTrace, /260711-use-generated-cli/);
+  assert.match(directPredecessorTrace, /tooling\/use-generated-cli\.md/);
   assert.doesNotMatch(directPredecessorTrace, /260710-use-source-cli/);
 
   const fullPredecessorTrace = await traceDecision(
@@ -554,6 +376,67 @@ try {
   assert.match(fullPredecessorTrace, /260710-use-source-cli/);
 } finally {
   await fs.rm(tempRoot, { force: true, recursive: true });
+}
+
+const firstActivationRoot = await fs.mkdtemp(
+  path.join(os.tmpdir(), "decision-records-first-")
+);
+try {
+  const firstDecisionsDirectory = path.join(
+    firstActivationRoot,
+    "docs",
+    "decisions"
+  );
+  const firstAreaDirectory = path.join(firstDecisionsDirectory, "tooling");
+  await fs.mkdir(firstAreaDirectory, { recursive: true });
+  const firstRelativePath = "tooling/use-first-index.md";
+  await fs.writeFile(
+    path.join(firstDecisionsDirectory, firstRelativePath),
+    [
+      "# 使用首条索引",
+      "",
+      "## 索引摘要",
+      "- 目的: 验证首次激活能够建立全生命周期索引。",
+      "- 背景: 决策根目录中只有一条已经确认的记录。",
+      "- 决策: 激活该记录并保存秒级创建时间。",
+      "",
+      "## 目的",
+      "- 验证首次激活能够建立全生命周期索引。",
+      "",
+      "## 背景",
+      "- 决策根目录中只有一条已经确认的记录。",
+      "",
+      "## 决策",
+      "- 采用: 激活该记录并保存秒级创建时间。",
+      ""
+    ].join("\n"),
+    "utf8"
+  );
+
+  const firstActivation = await runBundledCli([
+    "activate",
+    firstRelativePath,
+    "--root",
+    firstActivationRoot
+  ]);
+  assert.equal(firstActivation.exitCode, 0);
+  assert.match(firstActivation.stdout, /Initialized .* and activated/);
+  const firstIndex = await readIndex(
+    path.join(firstDecisionsDirectory, "decision-index.json")
+  );
+  assert.equal(firstIndex.schemaVersion, 3);
+  assert.equal(firstIndex.records.length, 1);
+  assert.equal(firstIndex.records[0]!.status, "active");
+  assert.match(
+    firstIndex.records[0]!.createdAt,
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
+  );
+  assert.deepEqual(
+    (await validateDecisionRecords({ workspaceRoot: firstActivationRoot })).errors,
+    []
+  );
+} finally {
+  await fs.rm(firstActivationRoot, { force: true, recursive: true });
 }
 
 console.log("Decision records CLI tests passed.");

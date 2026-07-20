@@ -43,7 +43,7 @@ export function collectDecisionRelationEdges(
   records: readonly DecisionRecord[]
 ): DecisionRelationEdge[] {
   return records.flatMap((record) =>
-    record.relations.map((relation) => ({
+    record.projection.relations.map((relation) => ({
       source: record.relativePath,
       target: relation.target,
       type: relation.type
@@ -129,7 +129,7 @@ export function decisionRelationConsistencyErrors(
       errors.push(
         edge.source + " relationship target is not a scanned decision: " + edge.target
       );
-    } else if (target.current) {
+    } else if (target.status === "active") {
       errors.push(
         edge.source
         + " relationship " + edge.type

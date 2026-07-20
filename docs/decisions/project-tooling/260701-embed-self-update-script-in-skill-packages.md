@@ -3,7 +3,7 @@
 ## 索引摘要
 - 目的: 让已安装 skill 能自行检查版本并通过统一实现完成安全更新。
 - 背景: 仅依赖外部安装器时，已有 skill 目录的覆盖更新、内容一致性检查和多客户端目录适配都缺少稳定 owner。
-- 决策: 主仓库维护通用 TypeScript 模板 `scripts/templates/update-skill.ts`，模板使用 `fflate` 解压 GitHub zip，并实现远端指纹检查、交互确认和覆盖更新。
+- 决策: 主仓库维护统一 TypeScript updater 模板，用 `fflate` 解压 release zip，并提供远端指纹检查、确认和覆盖更新。
 
 ## 目的
 - 让已安装 skill 能自行检查版本并通过统一实现完成安全更新。

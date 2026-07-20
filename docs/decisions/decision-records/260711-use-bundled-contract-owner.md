@@ -3,7 +3,7 @@
 ## 索引摘要
 - 目的: 为不同项目提供唯一随包固定契约，避免项目副本长期漂移。
 - 背景: 随包 reference 与目标项目的 `decision-record-rules.md` 同时解释固定格式时，会形成两份需要同步的契约和二次导航。
-- 决策: `skills/decision-records/references/decision-record-rules.md` 独立承接目录、稳定命名、当前成员、关系、正文结构、索引和维护事务，因为它随 skill 分发且是所有项目共同使用的固定入口。
+- 决策: 由随包 `decision-record-rules.md` 唯一承接目录、命名、当前成员、关系、正文、索引和维护事务。
 
 ## 目的
 - 为不同项目提供唯一随包固定契约，避免项目副本长期漂移。

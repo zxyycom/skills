@@ -3,7 +3,7 @@
 ## 索引摘要
 - 目的: 抑制低价值测试增长，同时让自动化证明、人工审查风险和测试发现豁免都能被持续追踪与审计。
 - 背景: 只登记自动化证明无法承接当前架构下不适合机械测试的真实风险，自由文本源码豁免又会脱离账本；测试发现仍需要区分真实主入口、归属于主 case 的衍生源码和误报。
-- 决策: `test-evidence-review` 继续分离语义准入与机械校验，并把账本 case 定义为 automated、review 或 exempt 验证义务；源码统一使用 `@test-evidence main|derived|exempt CASE-ID`，CLI 以测试文件为最小归属单元校验状态、角色、Scope 格式和未登记结果。
+- 决策: 账本 case 采用 automated、review 或 exempt 验证义务；源码使用 main、derived、exempt 角色，CLI 按测试文件校验映射与发现结果。
 
 ## 目的
 - 抑制重复、无效、实现耦合或维护成本不成比例的自动化测试增长。
