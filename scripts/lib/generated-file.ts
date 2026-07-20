@@ -38,7 +38,20 @@ export type GeneratedFileHeaderOptions = {
   sourcePath: string;
 };
 
+export type SourceMapNormalizationOptions = {
+  generatedSourceMapDirectory: string;
+  publishedSourceMapDirectory: string;
+  workspaceRoot: string;
+};
+
 const execFileAsync = promisify(execFile);
+
+function isSourceContentArray(value: unknown): value is Array<string | null> {
+  return Array.isArray(value)
+    && value.every(
+      (sourceContent) => sourceContent === null || typeof sourceContent === "string"
+    );
+}
 
 export function parseGeneratedFileMode(argv: string[]): GeneratedFileMode {
   const { values } = parseArgs({
@@ -56,11 +69,15 @@ export function parseGeneratedFileMode(argv: string[]): GeneratedFileMode {
   return values.write ? "write" : "check";
 }
 
-function normalizeSourceMap(
+export function normalizeSourceMap(
   text: string,
-  workspaceRoot: string,
-  sourceMapBaseDirectory: string
+  options: SourceMapNormalizationOptions
 ): string {
+  const {
+    generatedSourceMapDirectory,
+    publishedSourceMapDirectory,
+    workspaceRoot
+  } = options;
   const parsed: unknown = JSON.parse(text);
   if (
     parsed === null
@@ -71,21 +88,35 @@ function normalizeSourceMap(
   ) {
     throw new Error("Bun source map must contain a string sources array");
   }
+  let normalizedSourcesContent: Array<string | null> | undefined;
+  if ("sourcesContent" in parsed) {
+    if (
+      !isSourceContentArray(parsed.sourcesContent)
+      || parsed.sourcesContent.length !== parsed.sources.length
+    ) {
+      throw new Error(
+        "Bun source map sourcesContent must align with sources and contain strings or null"
+      );
+    }
+    normalizedSourcesContent = parsed.sourcesContent.map((sourceContent) => (
+      sourceContent === null ? null : sourceContent.replace(/\r\n?/g, "\n")
+    ));
+  }
 
   return `${JSON.stringify({
     ...parsed,
     sources: parsed.sources.map((source) => {
-      if (!path.isAbsolute(source)) {
-        return source.replace(/\\/g, "/");
-      }
-
-      const relativePath = path.relative(workspaceRoot, source);
+      const absoluteSourcePath = path.resolve(generatedSourceMapDirectory, source);
+      const relativePath = path.relative(workspaceRoot, absoluteSourcePath);
       if (relativePath === ".." || relativePath.startsWith(`..${path.sep}`)) {
         throw new Error(`Bun source map contains a source outside the workspace: ${source}`);
       }
       return relativePath.replace(/\\/g, "/");
     }),
-    sourceRoot: `${path.relative(sourceMapBaseDirectory, workspaceRoot).replace(/\\/g, "/")}/`
+    ...(normalizedSourcesContent === undefined
+      ? {}
+      : { sourcesContent: normalizedSourcesContent }),
+    sourceRoot: `${path.relative(publishedSourceMapDirectory, workspaceRoot).replace(/\\/g, "/")}/`
   })}\n`;
 }
 
@@ -126,8 +157,11 @@ export async function bundleWithBun(options: BunBundleOptions): Promise<BunBundl
       }
       sourceMap = normalizeSourceMap(
         await fs.readFile(`${outputPath}.map`, "utf8"),
-        options.cwd,
-        sourceMapBaseDirectory
+        {
+          generatedSourceMapDirectory: path.dirname(outputPath),
+          publishedSourceMapDirectory: sourceMapBaseDirectory,
+          workspaceRoot: options.cwd
+        }
       );
     }
 

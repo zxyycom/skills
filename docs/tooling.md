@@ -34,20 +34,21 @@
 4. `bun run hash:skills`: 计算当前 Git index 中所有 skill 打包输入的聚合 SHA-256 hash 和单 skill hash，并与根目录 `skill-package-lock.json` 对比；传入 `--write` 时写回当前状态，传入 `--check` 时不一致则失败，传入 `--quiet` 时只在 hash 或 lock 内容变化时输出。
 5. `bun run pack:skills`: 读取 Git index 中 `skills/<skill-name>/` 的 blob，将每个 skill 分别打包为 `dist/<skill-name>.zip`，并把 `skill-package-lock.json` 复制为 release manifest asset。
 6. `bun run setup-hooks`: 将主仓库 `core.hooksPath` 设置为 `.githooks`。
-7. `bun run test:decision-records-cli`: 使用独立夹具测试 `decision-records` TypeScript 源码、Node 分发产物和生成头追溯字段。
-8. `bun run test:skill-validator`: 使用临时 skill 目录测试结构校验源码、Node 分发产物、失败诊断和生成头。
-9. `bun run test:test-evidence-cli`: 使用临时多语言工作区测试自动化、人工审查和发现豁免账本状态，源码角色、未登记文件策略和 Node 分发产物。
-10. `bun run test:skill-updater`: 使用本地假 GitHub 响应和临时目录测试 Node 分发 updater 的 lock、zip 指纹、更新替换和失败诊断。
-11. `bun run sync:decision-records-cli`: 从 `scripts/decision-records/` 构建并写入 skill 内的 `scripts/decision-records.mjs`。
-12. `bun run check:decision-records-cli`: 在临时目录构建 CLI，并检查 skill 内分发产物是否与当前源码一致。
-13. `bun run sync:skill-validator`: 从 `scripts/skill-validator/` 构建并写入 `skill-maintainer` 内的 `scripts/validate-skill.mjs`。
-14. `bun run check:skill-validator`: 在临时目录构建结构验证器，并检查 skill 内分发产物是否与当前源码一致。
-15. `bun run sync:test-evidence-cli`: 从 `scripts/test-evidence/` 构建并写入 `test-evidence-review` skill 内的 `scripts/test-evidence.mjs`。
-16. `bun run check:test-evidence-cli`: 在临时目录构建测试证据 CLI，并检查 skill 内分发产物是否与当前源码一致。
-17. `bun run sync:skill-updaters`: 按主仓库模板和 `skills/` 发现结果生成各 skill 内的 `scripts/update-skill.cjs`。
-18. `bun run check:skill-updaters`: 检查各 skill 内的 `scripts/update-skill.cjs` 是否由当前主仓库模板生成。
-19. `bun run check`: 依次运行类型检查、生成产物检查、CLI 与 updater 集成测试、项目校验和全部 skill 打包。
-20. `bun run deploy:package`: 先校验当前 Git index 与 `skill-package-lock.json` 一致，再复用 `check` 生成本地可交付 zip 制品；不写入仓库外目录，CI 发布由 workflow 负责。
+7. `bun run test:generated-file`: 测试生成文件共享能力，覆盖 Bun source map 的临时目录解析、仓库相对路径归一化和越界拒绝。
+8. `bun run test:decision-records-cli`: 使用独立夹具测试 `decision-records` TypeScript 源码、Node 分发产物和生成头追溯字段。
+9. `bun run test:skill-validator`: 使用临时 skill 目录测试结构校验源码、Node 分发产物、失败诊断和生成头。
+10. `bun run test:test-evidence-cli`: 使用临时多语言工作区测试自动化、人工审查和发现豁免账本状态，源码角色、未登记文件策略和 Node 分发产物。
+11. `bun run test:skill-updater`: 使用本地假 GitHub 响应和临时目录测试 Node 分发 updater 的 lock、zip 指纹、更新替换和失败诊断。
+12. `bun run sync:decision-records-cli`: 从 `scripts/decision-records/` 构建并写入 skill 内的 `scripts/decision-records.mjs`。
+13. `bun run check:decision-records-cli`: 在临时目录构建 CLI，并检查 skill 内分发产物是否与当前源码一致。
+14. `bun run sync:skill-validator`: 从 `scripts/skill-validator/` 构建并写入 `skill-maintainer` 内的 `scripts/validate-skill.mjs`。
+15. `bun run check:skill-validator`: 在临时目录构建结构验证器，并检查 skill 内分发产物是否与当前源码一致。
+16. `bun run sync:test-evidence-cli`: 从 `scripts/test-evidence/` 构建并写入 `test-evidence-review` skill 内的 `scripts/test-evidence.mjs`。
+17. `bun run check:test-evidence-cli`: 在临时目录构建测试证据 CLI，并检查 skill 内分发产物是否与当前源码一致。
+18. `bun run sync:skill-updaters`: 按主仓库模板和 `skills/` 发现结果生成各 skill 内的 `scripts/update-skill.cjs`。
+19. `bun run check:skill-updaters`: 检查各 skill 内的 `scripts/update-skill.cjs` 是否由当前主仓库模板生成。
+20. `bun run check`: 依次运行类型检查、生成产物检查、共享生成逻辑、CLI 与 updater 集成测试、项目校验和全部 skill 打包。
+21. `bun run deploy:package`: 先校验当前 Git index 与 `skill-package-lock.json` 一致，再复用 `check` 生成本地可交付 zip 制品；不写入仓库外目录，CI 发布由 workflow 负责。
 
 需要直接排查脚本问题时，可以用 `bun scripts/<script>.ts` 运行单个脚本。
 
