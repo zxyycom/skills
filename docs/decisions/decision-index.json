@@ -93,6 +93,13 @@
       "decision": "删除两个旧 skill, 新建独立分发的 `product-architecture-judgment`, 将问题重构作为内部动作, 统一使用产品价值与架构责任选择最小工程方案。"
     },
     {
+      "path": "project-tooling/260720-use-prebuilt-git-test-fixtures.md",
+      "title": "用预构建 Git fixture 加速 test-evidence 测试",
+      "purpose": "在保留真实 Git 语义和 Node 分发兼容验证的前提下，减少 `test:test-evidence-cli` 的重复仓库初始化与子进程启动。",
+      "background": "`scripts/test-evidence/tests/` 为多个稳定场景反复创建仓库和提交相同基线，主要耗时来自 Git 与 Node 进程而非领域计算。",
+      "decision": "使用多个预构建的逻辑 Git fixture 承接稳定历史，按场景物化隔离工作区；纯逻辑和可导入 CLI 测试在 Bun 进程内运行，只保留最小真实 Git 与 Node smoke。"
+    },
+    {
       "path": "project-tooling/260718-use-project-coding-style-owner.md",
       "title": "采用项目级编码规范 owner",
       "purpose": "为脚本实现的归属、边界、类型、组织和风险验证提供单一长期 owner。",
