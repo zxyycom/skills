@@ -1,0 +1,4 @@
+interface:
+  display_name: "Product & Architecture Thinking"
+  short_description: "从产品结果与架构责任校准技术判断"
+  default_prompt: "使用 $product-architecture-thinking 处理当前工程任务：先确认产品结果和架构责任，再完成与两者一致的分析、设计或实现。"

@@ -86,6 +86,13 @@
       "decision": "在 OpenSpec skills 中把 active change 视为可以先存在的临时计划; 创建 change 只表示想法被结构化到 `openspec/changes/<name>/`, 不表示方案已经审计完毕或可以立即实现。"
     },
     {
+      "path": "product-architecture-thinking-behavior/260720-use-product-and-architecture-lenses.md",
+      "title": "以产品与架构视角校准技术判断",
+      "purpose": "让 agent 在工程任务中先确认产品结果和架构责任, 再选择技术实现, 避免局部技术视角主导目标与方案。",
+      "background": "这项能力原先被表达为代码审查流程, 使 review 的 finding、分类和报告机制遮蔽了可复用于分析、设计、实现、排障与重构的核心思维。",
+      "decision": "使用 `product-architecture-thinking` 承接产品与架构思维, 将 review 降为一个触发场景, 并让输出继续服从当前任务的行为 owner 与交付契约。"
+    },
+    {
       "path": "project-tooling/260718-use-project-coding-style-owner.md",
       "title": "采用项目级编码规范 owner",
       "purpose": "为脚本实现的归属、边界、类型、组织和风险验证提供单一长期 owner。",

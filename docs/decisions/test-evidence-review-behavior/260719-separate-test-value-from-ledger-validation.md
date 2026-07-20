@@ -20,4 +20,4 @@
 - 采用: 每次调用 skill 都启用账本契约；账本不存在时，修改类任务按默认路径初始化并登记当前范围，只读任务输出拟登记映射而不越过写入授权。
 - 采用: 让账本保存稳定证明目标，而不是枚举全部测试函数；每个 implemented case 使用唯一主要 `@case`，辅助测试使用可重复的 `@supports`，发现豁免使用带具体原因的 `@test-exempt`。
 - 采用: 从 Docnav case catalog validator 提取 Markdown 解析和双向映射逻辑，并扩展为可配置的 Node CLI；以文件为首个强制归属单元，发现 Rust、TypeScript、JavaScript、Python、Go、Java 和 C# 常见测试入口，并允许项目在 ignore、warn 和 error 之间选择未登记策略。
-- 采用: 让测试框架和 CI 继续负责测试执行，让项目测试策略继续拥有测试层级和覆盖要求；`code-review` 可以消费测试证据结论，但不成为测试账本或测试价值规则的新 owner。
+- 采用: 让测试框架和 CI 继续负责测试执行，让项目测试策略继续拥有测试层级和覆盖要求；`product-architecture-thinking` 可以在相关工程判断中消费测试证据结论，但不成为测试账本或测试价值规则的新 owner。
