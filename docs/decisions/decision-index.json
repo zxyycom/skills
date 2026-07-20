@@ -65,6 +65,13 @@
       "decision": "`decision-records` 用于长期决策管理；当用户正在形成可能产生长期影响的决定，或拟议决定与既有决定冲突时调用，触发后恢复相关当前决策并处理偏离，入口不枚举记录、查询或归档等自然操作。"
     },
     {
+      "path": "git-commit-organizer-behavior/260720-treat-commit-format-as-project-style.md",
+      "title": "将提交格式定位为项目级风格",
+      "purpose": "让 git-commit-organizer 在跨项目复用时保持稳定、有明确偏好的提交表达。",
+      "background": "使用者会在理解影响后主动安装或调用该 skill，固定类型、中文格式和提交粒度是其核心价值。",
+      "decision": "将 git-commit-organizer 定位为可跨项目复用的项目级提交风格，默认执行自身风格，并只补足影响提交正确性的必要门禁。"
+    },
+    {
       "path": "git-commit-organizer-behavior/260702-refine-commit-granularity-types-and-command.md",
       "title": "调整 git-commit-organizer 的提交粒度、类型和创建命令",
       "purpose": "让每个提交形成可独立理解、审查和回滚的语义单元，并准确表达 agent 配置改动。",

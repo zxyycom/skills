@@ -1,4 +1,4 @@
 interface:
   display_name: "Git 提交整理"
-  short_description: "按固定格式审计差异并整理创建 Git 提交信息"
-  default_prompt: "Use $git-commit-organizer to review the current diff, choose the commit type, stage relevant files, and create the commit."
+  short_description: "按既定项目风格审计差异并创建清晰的 Git 提交"
+  default_prompt: "Use $git-commit-organizer to apply its project-level commit style, review the current diff, preserve unrelated changes, stage the intended scope, and create the commit."
