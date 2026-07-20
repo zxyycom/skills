@@ -35,23 +35,55 @@ const generatedUpdaterPath = path.join(
   "update-skill.mjs"
 );
 
-function traceDecision(
+type CliExecution = {
+  exitCode: number;
+  stderr: string;
+  stdout: string;
+};
+
+async function runBundledCli(args: readonly string[]): Promise<CliExecution> {
+  const stdout: string[] = [];
+  const stderr: string[] = [];
+  const originalLog = console.log;
+  const originalError = console.error;
+  console.log = (...values: unknown[]) => {
+    stdout.push(`${values.map(String).join(" ")}\n`);
+  };
+  console.error = (...values: unknown[]) => {
+    stderr.push(`${values.map(String).join(" ")}\n`);
+  };
+
+  try {
+    return {
+      exitCode: await runDecisionRecordsCli(args),
+      stderr: stderr.join(""),
+      stdout: stdout.join("")
+    };
+  } finally {
+    console.log = originalLog;
+    console.error = originalError;
+  }
+}
+
+async function runSuccessfulCli(args: readonly string[]): Promise<string> {
+  const result = await runBundledCli(args);
+  assert.equal(result.exitCode, 0);
+  assert.equal(result.stderr, "");
+  return result.stdout;
+}
+
+async function traceDecision(
   decisionPath: string,
   options: string[] = [],
   workspaceRoot = fixtureRoot
-): string {
-  return execFileSync(
-    "node",
-    [
-      generatedCliPath,
-      "trace",
-      decisionPath,
-      ...options,
-      "--root",
-      workspaceRoot
-    ],
-    { encoding: "utf8" }
-  );
+): Promise<string> {
+  return await runSuccessfulCli([
+    "trace",
+    decisionPath,
+    ...options,
+    "--root",
+    workspaceRoot
+  ]);
 }
 
 const validation = await validateDecisionRecords({ workspaceRoot: fixtureRoot });
@@ -66,6 +98,7 @@ assert.deepEqual(
 );
 assert.equal(typeof runDecisionRecordsCli, "function");
 
+// Keep one real Node success smoke; detailed CLI behavior runs through the same bundled export.
 const cliOutput = execFileSync(
   "node",
   [generatedCliPath, "check", "--root", fixtureRoot],
@@ -73,52 +106,46 @@ const cliOutput = execFileSync(
 );
 assert.match(cliOutput, /Decision records check passed \(1 areas, 2 decisions, 1 current, 1 archived\)\./);
 
-const defaultCliOutput = execFileSync(
-  "node",
-  [generatedCliPath, "--root", fixtureRoot],
-  { encoding: "utf8" }
-);
+const defaultCliOutput = await runSuccessfulCli(["--root", fixtureRoot]);
 assert.match(defaultCliOutput, /Decision records check passed/);
 
-const currentList = execFileSync(
-  "node",
-  [generatedCliPath, "list", "--root", fixtureRoot],
-  { encoding: "utf8" }
-);
+const currentList = await runSuccessfulCli(["list", "--root", fixtureRoot]);
 assert.match(currentList, /current\s+2026-07-11 tooling\/260711-use-generated-cli\.md/);
 assert.doesNotMatch(currentList, /260710-use-source-cli/);
 
-const archivedList = execFileSync(
-  "node",
-  [generatedCliPath, "list", "--archived", "--root", fixtureRoot],
-  { encoding: "utf8" }
-);
+const archivedList = await runSuccessfulCli([
+  "list",
+  "--archived",
+  "--root",
+  fixtureRoot
+]);
 assert.match(archivedList, /archived\s+2026-07-10 tooling\/260710-use-source-cli\.md/);
 
-const relationTrace = traceDecision("tooling/260710-use-source-cli.md");
+const relationTrace = await traceDecision("tooling/260710-use-source-cli.md");
 assert.match(
   relationTrace,
   /tooling\/260711-use-generated-cli\.md --修订--> tooling\/260710-use-source-cli\.md/
 );
 
-const predecessorTrace = traceDecision(
+const predecessorTrace = await traceDecision(
   "tooling/260711-use-generated-cli.md",
   ["--direction", "predecessors"]
 );
 assert.match(predecessorTrace, /tooling\/260710-use-source-cli\.md/);
 
-const noPredecessorTrace = traceDecision(
+const noPredecessorTrace = await traceDecision(
   "tooling/260710-use-source-cli.md",
   ["--direction", "predecessors"]
 );
 assert.doesNotMatch(noPredecessorTrace, /260711-use-generated-cli/);
 
-const successorTrace = traceDecision(
+const successorTrace = await traceDecision(
   "tooling/260710-use-source-cli.md",
   ["--direction", "successors"]
 );
 assert.match(successorTrace, /tooling\/260711-use-generated-cli\.md/);
 
+// Keep one real Node failure smoke to prove argument diagnostics and the non-zero exit boundary.
 const invalidDepth = spawnSync(
   "node",
   [
@@ -220,12 +247,12 @@ try {
   assert.ok(withLegacySchemaVersion.errors.some(
     (error) => error.includes("schemaVersion must be 2")
   ));
-  const listWithInvalidIndex = spawnSync(
-    "node",
-    [generatedCliPath, "list", "--root", tempRoot],
-    { encoding: "utf8" }
-  );
-  assert.equal(listWithInvalidIndex.status, 1);
+  const listWithInvalidIndex = await runBundledCli([
+    "list",
+    "--root",
+    tempRoot
+  ]);
+  assert.equal(listWithInvalidIndex.exitCode, 1);
   assert.match(listWithInvalidIndex.stderr, /Decision records command failed/);
   await fs.writeFile(indexPath, originalIndex, "utf8");
 
@@ -280,12 +307,12 @@ try {
   assert.ok(withoutPurposeSection.errors.some(
     (error) => error.includes("is missing section ## 目的")
   ));
-  const listWithInvalidRecord = spawnSync(
-    "node",
-    [generatedCliPath, "list", "--root", tempRoot],
-    { encoding: "utf8" }
-  );
-  assert.equal(listWithInvalidRecord.status, 0);
+  const listWithInvalidRecord = await runBundledCli([
+    "list",
+    "--root",
+    tempRoot
+  ]);
+  assert.equal(listWithInvalidRecord.exitCode, 0);
   assert.match(
     listWithInvalidRecord.stdout,
     /tooling\/260711-use-generated-cli\.md - 使用生成 CLI \[invalid\]/
@@ -296,12 +323,13 @@ try {
   );
   assert.match(listWithInvalidRecord.stderr, /is missing section ## 目的/);
 
-  const traceWithInvalidRecord = spawnSync(
-    "node",
-    [generatedCliPath, "trace", currentRelativePath, "--root", tempRoot],
-    { encoding: "utf8" }
-  );
-  assert.equal(traceWithInvalidRecord.status, 0);
+  const traceWithInvalidRecord = await runBundledCli([
+    "trace",
+    currentRelativePath,
+    "--root",
+    tempRoot
+  ]);
+  assert.equal(traceWithInvalidRecord.exitCode, 0);
   assert.match(
     traceWithInvalidRecord.stdout,
     /tooling\/260711-use-generated-cli\.md - 使用生成 CLI \[invalid\]/
@@ -369,18 +397,13 @@ try {
   ));
   await fs.writeFile(archivedDecisionPath, archivedDecision, "utf8");
 
-  const activateCurrentRelationTarget = spawnSync(
-    "node",
-    [
-      generatedCliPath,
-      "activate",
-      "tooling/260710-use-source-cli.md",
-      "--root",
-      tempRoot
-    ],
-    { encoding: "utf8" }
-  );
-  assert.equal(activateCurrentRelationTarget.status, 1);
+  const activateCurrentRelationTarget = await runBundledCli([
+    "activate",
+    "tooling/260710-use-source-cli.md",
+    "--root",
+    tempRoot
+  ]);
+  assert.equal(activateCurrentRelationTarget.exitCode, 1);
   assert.match(
     activateCurrentRelationTarget.stderr,
     /relationship 修订 target must be archived/
@@ -388,30 +411,26 @@ try {
   assert.equal(await fs.readFile(indexPath, "utf8"), originalIndex);
 
   await fs.rm(indexPath);
-  const failedFirstActivation = spawnSync(
-    "node",
-    [
-      generatedCliPath,
-      "activate",
-      "tooling/260710-use-source-cli.md",
-      "--root",
-      tempRoot
-    ],
-    { encoding: "utf8" }
-  );
-  assert.equal(failedFirstActivation.status, 1);
+  const failedFirstActivation = await runBundledCli([
+    "activate",
+    "tooling/260710-use-source-cli.md",
+    "--root",
+    tempRoot
+  ]);
+  assert.equal(failedFirstActivation.exitCode, 1);
   assert.match(
     failedFirstActivation.stderr,
     /relationship 修订 target must be archived/
   );
   await assert.rejects(fs.access(indexPath));
 
-  const firstActivation = spawnSync(
-    "node",
-    [generatedCliPath, "activate", currentRelativePath, "--root", tempRoot],
-    { encoding: "utf8" }
-  );
-  assert.equal(firstActivation.status, 0);
+  const firstActivation = await runBundledCli([
+    "activate",
+    currentRelativePath,
+    "--root",
+    tempRoot
+  ]);
+  assert.equal(firstActivation.exitCode, 0);
   assert.match(
     firstActivation.stdout,
     /Initialized docs\/decisions\/decision-index\.json and activated/
@@ -425,26 +444,28 @@ try {
   );
   const drifted = await validateDecisionRecords({ workspaceRoot: tempRoot });
   assert.ok(drifted.errors.some((error) => error.includes("is out of sync")));
-  const listWithIndexDrift = spawnSync(
-    "node",
-    [generatedCliPath, "list", "--root", tempRoot],
-    { encoding: "utf8" }
-  );
-  assert.equal(listWithIndexDrift.status, 0);
+  const listWithIndexDrift = await runBundledCli([
+    "list",
+    "--root",
+    tempRoot
+  ]);
+  assert.equal(listWithIndexDrift.exitCode, 0);
   assert.match(listWithIndexDrift.stdout, /tooling\/260711-use-generated-cli\.md/);
   assert.match(listWithIndexDrift.stderr, /is out of sync/);
-  execFileSync(
-    "node",
-    [generatedCliPath, "sync-index", "--write", "--root", tempRoot],
-    { encoding: "utf8" }
-  );
+  await runSuccessfulCli([
+    "sync-index",
+    "--write",
+    "--root",
+    tempRoot
+  ]);
   assert.deepEqual((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors, []);
 
-  execFileSync(
-    "node",
-    [generatedCliPath, "archive", currentRelativePath, "--root", tempRoot],
-    { encoding: "utf8" }
-  );
+  await runSuccessfulCli([
+    "archive",
+    currentRelativePath,
+    "--root",
+    tempRoot
+  ]);
   const independentlyArchived = await validateDecisionRecords({ workspaceRoot: tempRoot });
   assert.deepEqual(independentlyArchived.errors, []);
   assert.equal(independentlyArchived.currentCount, 0);
@@ -475,26 +496,22 @@ try {
     ].join("\n"),
     "utf8"
   );
-  execFileSync(
-    "node",
-    [generatedCliPath, "activate", successorRelativePath, "--root", tempRoot],
-    { encoding: "utf8" }
-  );
+  await runSuccessfulCli([
+    "activate",
+    successorRelativePath,
+    "--root",
+    tempRoot
+  ]);
 
-  const unrelatedSwitch = spawnSync(
-    "node",
-    [
-      generatedCliPath,
-      "archive",
-      currentRelativePath,
-      "--by",
-      successorRelativePath,
-      "--root",
-      tempRoot
-    ],
-    { encoding: "utf8" }
-  );
-  assert.equal(unrelatedSwitch.status, 1);
+  const unrelatedSwitch = await runBundledCli([
+    "archive",
+    currentRelativePath,
+    "--by",
+    successorRelativePath,
+    "--root",
+    tempRoot
+  ]);
+  assert.equal(unrelatedSwitch.exitCode, 1);
   assert.match(
     unrelatedSwitch.stderr,
     /must directly relate to every archived decision/
@@ -508,25 +525,20 @@ try {
       + "- 替代: [2026-07-11 - 使用生成 CLI](260711-use-generated-cli.md)\n",
     "utf8"
   );
-  execFileSync(
-    "node",
-    [
-      generatedCliPath,
-      "archive",
-      currentRelativePath,
-      "--by",
-      successorRelativePath,
-      "--root",
-      tempRoot
-    ],
-    { encoding: "utf8" }
-  );
+  await runSuccessfulCli([
+    "archive",
+    currentRelativePath,
+    "--by",
+    successorRelativePath,
+    "--root",
+    tempRoot
+  ]);
   const switched = await validateDecisionRecords({ workspaceRoot: tempRoot });
   assert.deepEqual(switched.errors, []);
   assert.equal(switched.currentCount, 1);
   assert.equal(switched.archivedCount, 2);
 
-  const directPredecessorTrace = traceDecision(
+  const directPredecessorTrace = await traceDecision(
     successorRelativePath,
     ["--direction", "predecessors", "--depth", "1"],
     tempRoot
@@ -534,7 +546,7 @@ try {
   assert.match(directPredecessorTrace, /260711-use-generated-cli/);
   assert.doesNotMatch(directPredecessorTrace, /260710-use-source-cli/);
 
-  const fullPredecessorTrace = traceDecision(
+  const fullPredecessorTrace = await traceDecision(
     successorRelativePath,
     ["--direction", "predecessors", "--depth", "2"],
     tempRoot

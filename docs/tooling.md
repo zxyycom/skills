@@ -34,7 +34,7 @@
 4. `bun run pack:skills`: 读取 Git index 中 `skills/<skill-name>/` 的 blob，将每个 skill 分别打包为 `dist/<skill-name>.zip`，并把 `skill-package-lock.json` 复制为 release manifest asset。
 5. `bun run setup-hooks`: 将主仓库 `core.hooksPath` 设置为 `.githooks`。
 6. `bun run test:generated-file`: 测试生成文件共享能力，覆盖 Bun source map 的临时目录解析、仓库相对路径归一化和越界拒绝。
-7. `bun run test:decision-records-cli`: 使用独立夹具测试 `decision-records` TypeScript 源码、包内 MJS 导入、Node CLI、类型声明和生成头追溯字段。
+7. `bun run test:decision-records-cli`: 使用独立夹具测试 `decision-records` TypeScript 源码和包内 MJS；CLI 场景默认直接调用分发模块，只用 Node 子进程证明成功与失败入口。
 8. `bun run test:skill-validator`: 使用临时 skill 目录测试结构校验源码、包内 MJS 导入、Node CLI、类型声明、失败诊断和生成头。
 9. `bun run test:test-evidence-cli`: 从预构建 Git fixture 物化隔离 worktree，测试自动化、人工审查和发现豁免账本状态，测试入口角色、Scope trigger、未登记入口策略、包内 MJS 导入和 Node CLI。
 10. `bun run test:skill-updater`: 使用本地假 GitHub 响应和临时目录测试 updater 的包内 MJS 导入、Node CLI、lock、zip 指纹、更新替换和失败诊断。
