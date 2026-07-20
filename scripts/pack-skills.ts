@@ -2,9 +2,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { type Zippable, zipSync } from "fflate";
 import {
-  collectSkillPackageFiles,
+  collectSkillPackageFileSets,
   getSkillPackageLockFilePath,
-  skillPackageLockFileName
+  skillPackageLockFileName,
+  type SkillPackageFile
 } from "./lib/skill-package-hash.ts";
 import {
   discoverSkillPackages,
@@ -15,8 +16,10 @@ import {
 const distDir = path.join(rootDir, "dist");
 const zipEntryOptions = { level: 9 as const, mtime: new Date(1980, 0, 1) };
 
-async function buildZip(skill: SkillPackage): Promise<Buffer> {
-  const files = await collectSkillPackageFiles(skill);
+function buildZip(
+  skill: SkillPackage,
+  files: readonly SkillPackageFile[]
+): Buffer {
   const entries = Object.fromEntries(
     files.map((file) => [
       `${skill.name}/${file.path}`,
@@ -35,8 +38,9 @@ if (discovery.errors.length > 0) {
 await fs.rm(distDir, { force: true, recursive: true });
 await fs.mkdir(distDir, { recursive: true });
 
+const filesBySkill = await collectSkillPackageFileSets(discovery.skills);
 for (const skill of discovery.skills) {
-  const archive = await buildZip(skill);
+  const archive = buildZip(skill, filesBySkill.get(skill.name) ?? []);
   const outputPath = path.join(distDir, `${skill.name}.zip`);
   await fs.writeFile(outputPath, archive);
   console.log(`Packed ${skill.name} -> ${path.relative(rootDir, outputPath)} (${archive.length} bytes).`);
