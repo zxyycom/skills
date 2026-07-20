@@ -10,7 +10,6 @@
   "scripts": {
     "typecheck": "tsgo --noEmit",
     "validate": "bun scripts/validate.ts",
-    "validate:decisions": "bun scripts/decision-records/src/cli.ts check",
     "test:decision-records-cli": "bun scripts/decision-records/tests/run.ts",
     "test:generated-file": "bun scripts/lib/generated-file.test.ts",
     "test:skill-validator": "bun scripts/skill-validator/tests/run.ts",
@@ -29,8 +28,7 @@
     "check:test-evidence-fixture": "bun scripts/test-evidence/tests/build-fixture.ts --check",
     "sync:skill-updaters": "bun scripts/sync-skill-updaters.ts --write",
     "check:skill-updaters": "bun scripts/sync-skill-updaters.ts --check",
-    "deploy:package": "bun scripts/hash-skills.ts --check && bun run check",
-    "check": "bun run typecheck && bun run check:decision-records-cli && bun run check:skill-validator && bun run check:test-evidence-cli && bun run check:test-evidence-fixture && bun run check:skill-updaters && bun run test:generated-file && bun run test:decision-records-cli && bun run test:skill-validator && bun run test:test-evidence-cli && bun run test:skill-updater && bun scripts/validate.ts && bun scripts/pack-skills.ts"
+    "check": "bun scripts/check.ts"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",

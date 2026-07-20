@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { checkPackageScripts } from "../check.ts";
 import { pathExists, rootDir } from "../lib/project.ts";
 import { validateSkillPackageLock } from "../lib/skill-package-lock.ts";
 import type { ReportValidationError } from "../lib/validation.ts";
@@ -9,20 +10,15 @@ type PackageJson = {
 };
 
 const requiredPackageScripts = [
-  "typecheck",
-  "validate",
-  "validate:decisions",
-  "test:skill-validator",
-  "test:skill-updater",
+  ...checkPackageScripts,
   "hash:skills",
-  "pack:skills",
   "setup-hooks",
   "sync:skill-updaters",
-  "check:skill-updaters",
   "sync:skill-validator",
-  "check:skill-validator",
-  "check",
-  "deploy:package"
+  "sync:decision-records-cli",
+  "sync:test-evidence-cli",
+  "sync:test-evidence-fixture",
+  "check"
 ] as const;
 
 const requiredProjectFiles = [
@@ -32,6 +28,7 @@ const requiredProjectFiles = [
   "AGENTS.md",
   "pnpm-workspace.yaml",
   "tsconfig.json",
+  "scripts/check.ts",
   "scripts/setup-git-hooks.ts",
   "docs/tooling.md",
   "docs/skills",
