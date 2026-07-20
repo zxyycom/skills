@@ -100,6 +100,13 @@
       "decision": "主仓库从同一份 TypeScript 源码生成 import-safe 的自包含 `.mjs`、同名 `.d.mts` 和 linked source map，并让同一 MJS 通过主模块判断兼容 CLI。"
     },
     {
+      "path": "project-tooling/260720-orchestrate-checks-with-conservative-concurrency.md",
+      "title": "用保守顶层并发编排完整检查",
+      "purpose": "缩短完整检查的反馈时间，同时让不同开发机和 CI 的资源使用与打包前置条件保持可预期。",
+      "background": "串行执行会浪费彼此独立的只读检查等待时间，而固定较高或无界的顶层并发会叠加各任务内部的 Git 与 Node 子进程负载。",
+      "decision": "由 `scripts/check.ts` 统一编排完整检查，默认最多并发两个顶层任务并允许显式覆盖；失败后停止领取新任务、等待已启动任务，且仅在全部前置检查通过后打包。"
+    },
+    {
       "path": "project-tooling/260720-use-prebuilt-git-test-fixtures.md",
       "title": "用预构建 Git fixture 加速 test-evidence 测试",
       "purpose": "在保留真实 Git 语义和 Node 分发兼容验证的前提下，减少 `test:test-evidence-cli` 的重复仓库初始化与子进程启动。",

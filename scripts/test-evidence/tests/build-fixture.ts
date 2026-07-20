@@ -72,7 +72,13 @@ function parseMode(args: readonly string[]): "check" | "write" {
 }
 
 function initializeGit(repositoryRoot: string): void {
-  runGit(repositoryRoot, ["init", "-q", "-b", fixtureBranch]);
+  runGit(repositoryRoot, [
+    "init",
+    "-q",
+    "--object-format=sha1",
+    "-b",
+    fixtureBranch
+  ]);
   runGit(repositoryRoot, ["config", "core.autocrlf", "false"]);
 }
 

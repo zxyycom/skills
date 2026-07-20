@@ -36,7 +36,7 @@
 6. `bun run test:generated-file`: 测试生成文件共享能力，覆盖 Bun source map 的临时目录解析、仓库相对路径归一化和越界拒绝。
 7. `bun run test:decision-records-cli`: 使用独立夹具测试 `decision-records` TypeScript 源码和包内 MJS；CLI 场景默认直接调用分发模块，只用 Node 子进程证明成功与失败入口。
 8. `bun run test:skill-validator`: 使用临时 skill 目录测试结构校验源码、包内 MJS 导入、Node CLI、类型声明、失败诊断和生成头。
-9. `bun run test:test-evidence-cli`: 从预构建 Git fixture 物化隔离 worktree，测试自动化、人工审查和发现豁免账本状态，测试入口角色、Scope trigger、未登记入口策略、包内 MJS 导入和 Node CLI。
+9. `bun run test:test-evidence-cli`: 从预构建 Git fixture 物化隔离 worktree，在进程内测试校验和可导入 CLI，只用 Node 子进程证明成功与失败入口。
 10. `bun run test:skill-updater`: 使用本地假 GitHub 响应和临时目录测试 updater 的包内 MJS 导入、Node CLI、lock、zip 指纹、更新替换和失败诊断。
 11. `bun run sync:decision-records-cli`: 从 `scripts/decision-records/` 构建并写入 skill 内的 `scripts/decision-records.mjs`、类型声明和 source map。
 12. `bun run check:decision-records-cli`: 在临时目录构建 CLI，并检查 skill 内分发产物是否与当前源码一致。
@@ -44,11 +44,12 @@
 14. `bun run check:skill-validator`: 在临时目录构建结构验证器，并检查 skill 内分发产物是否与当前源码一致。
 15. `bun run sync:test-evidence-cli`: 从 `scripts/test-evidence/` 构建并写入 `test-evidence-review` skill 内的 `scripts/test-evidence.mjs`、类型声明和 source map。
 16. `bun run check:test-evidence-cli`: 在临时目录构建测试证据 CLI，并检查 skill 内分发产物是否与当前源码一致。
-17. `bun run sync:test-evidence-fixture`: 从可审查的 fixture 源生成包含固定提交历史的 Git bundle。
+17. `bun run sync:test-evidence-fixture`: 从可审查的 fixture 源生成包含固定 SHA-1 提交历史的 Git bundle。
 18. `bun run check:test-evidence-fixture`: 重建 fixture 的确定性提交历史，并检查 bundle 暴露的 head 是否仍与源一致。
 19. `bun run sync:skill-updaters`: 按主仓库模板和 `skills/` 发现结果生成各 skill 内的 `scripts/update-skill.mjs`、类型声明和 source map。
 20. `bun run check:skill-updaters`: 检查各 skill 内的 updater MJS、类型声明和 source map 是否由当前主仓库模板生成。
-21. `bun run check`: 通过 `scripts/check.ts` 以不超过两个并发进程运行类型、生成漂移、行为和项目校验，通过后再串行打包全部 skill；`CHECK_CONCURRENCY=<正整数>` 可以显式覆盖并发上限。
+21. `bun run test:check`: 在进程内测试完整检查的并发解析、失败停止和已启动任务等待。
+22. `bun run check`: 通过 `scripts/check.ts` 运行全部前置检查，成功后打包全部 skill。
 
 需要直接排查脚本问题时，可以用 `bun scripts/<script>.ts` 运行单个脚本。
 
@@ -57,7 +58,7 @@
 1. 脚本使用 TypeScript 编写，放在主仓库 `scripts/`。
 2. 根目录 `tsconfig.json` 是脚本 IDE 类型提示和 `tsgo` 的统一配置；脚本依赖 Node 类型，运行仍由 Bun 负责。
 3. 顶层脚本只保留命令编排和输出；跨脚本共享能力放在 `scripts/lib/`，具体校验项放在 `scripts/validators/`。
-4. `scripts/check.ts` 是完整检查的编排 owner；默认并发数取逻辑可用处理器数量与 2 的较小值，避免把开发机资源假设带到较弱环境。并发任务只读取仓库并写入各自临时目录，`pack:skills` 在它们全部成功后单独执行。
+4. `scripts/check.ts` 是完整检查的编排 owner；默认最多并发两个顶层任务，可通过 `CHECK_CONCURRENCY=<正整数>` 覆盖。前置任务失败后停止领取新任务并等待已启动任务；`pack:skills` 只在全部前置任务成功后执行。
 5. 脚本优先覆盖所有 skill 的共同规则；确实存在 skill 专属规则时，在脚本中集中声明。
 6. 脚本处理常见行为时优先使用高质量、高热度、维护活跃且有类型支持的库；只有规则属于本仓库领域约束时才在脚本中直接实现。
 7. 脚本默认只读写主仓库内路径；临时打包产物输出到 `dist/`，需要随 skill 分发的生成脚本通过显式 `sync:*` 写入对应 skill，并由配套 `check:*` 检查漂移。

@@ -47,14 +47,6 @@ try {
   );
 
   validationTasks.push(validationGate.promise.then(async () => {
-    const nodeCliPromise = execFileAsync(
-      "node",
-      [generatedCliPath, "check", "--root", workspaceRoot, "--json"],
-      {
-        encoding: "utf8",
-        windowsHide: true
-      }
-    );
     const valid = await validateBundledTestEvidence({ workspaceRoot });
     assert.deepEqual(valid.errors, []);
     assert.deepEqual(valid.warnings, []);
@@ -74,7 +66,6 @@ try {
       reviewTriggers: 0,
       unregisteredTestEntries: 0
     });
-    assert.equal(typeof runTestEvidenceCli, "function");
 
     const absoluteConfigPath = await validateTestEvidence({
       configPath: "C:\\outside.json",
@@ -84,7 +75,22 @@ try {
       error.includes("config path must be a workspace-relative path")
     ));
 
-    const nodeCli = await nodeCliPromise;
+    const humanOutput = formatTestEvidenceCliOutput(valid, false);
+    assert.equal(humanOutput.stderr, "");
+    assert.match(
+      humanOutput.stdout,
+      /4 discovered test entry\(s\), 0 unregistered/
+    );
+  }));
+  validationTasks.push(validationGate.promise.then(async () => {
+    const nodeCli = await execFileAsync(
+      "node",
+      [generatedCliPath, "check", "--root", workspaceRoot, "--json"],
+      {
+        encoding: "utf8",
+        windowsHide: true
+      }
+    );
     assert.equal(nodeCli.stderr, "");
     const cliReport = JSON.parse(nodeCli.stdout) as {
       errors: string[];
@@ -94,13 +100,6 @@ try {
     assert.deepEqual(cliReport.errors, []);
     assert.deepEqual(cliReport.warnings, []);
     assert.deepEqual(cliReport.reviewTriggers, []);
-
-    const humanOutput = formatTestEvidenceCliOutput(valid, false);
-    assert.equal(humanOutput.stderr, "");
-    assert.match(
-      humanOutput.stdout,
-      /4 discovered test entry\(s\), 0 unregistered/
-    );
   }));
 
   const dirtyReviewRoot = materializeWorkspace(
@@ -392,8 +391,9 @@ try {
     assert.equal(catalogInvalid.summary.catalogCases, 9);
   }));
 
+  await assertDirectCliFailure();
   validationGate.resolve();
-  await Promise.all(validationTasks);
+  await waitForAll(validationTasks);
 
   const invalidUsage = spawnSync("node", [generatedCliPath, "unknown"], {
     encoding: "utf8"
@@ -504,6 +504,30 @@ function assertIncludesAll(values: readonly string[], fragments: readonly string
       values.some((value) => value.includes(fragment)),
       `expected one diagnostic to include: ${fragment}\n${values.join("\n")}`
     );
+  }
+}
+
+async function assertDirectCliFailure(): Promise<void> {
+  const stderr: string[] = [];
+  const originalConsoleError = console.error;
+  console.error = (...values: unknown[]) => {
+    stderr.push(values.map(String).join(" "));
+  };
+  try {
+    assert.equal(await runTestEvidenceCli(["unknown"]), 2);
+  } finally {
+    console.error = originalConsoleError;
+  }
+  assert.match(stderr.join("\n"), /unsupported command/);
+}
+
+async function waitForAll(tasks: readonly Promise<void>[]): Promise<void> {
+  const results = await Promise.allSettled(tasks);
+  const failures = results.flatMap((result) =>
+    result.status === "rejected" ? [result.reason] : []
+  );
+  if (failures.length > 0) {
+    throw new AggregateError(failures, "Test-evidence validation tasks failed.");
   }
 }
 

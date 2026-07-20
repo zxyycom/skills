@@ -17,6 +17,7 @@ const preflightScripts = [
   "check:decision-records-cli",
   "typecheck",
   "check:skill-updaters",
+  "test:check",
   "test:generated-file"
 ] as const;
 const packageScript = "pack:skills";
@@ -33,10 +34,18 @@ type ScriptResult = {
   stdout: string;
 };
 
-function resolveConcurrency(taskCount: number): number {
-  const configured = process.env.CHECK_CONCURRENCY;
+type ResolveConcurrencyOptions = {
+  availableParallelism: number;
+  configured: string | undefined;
+  taskCount: number;
+};
+
+export function resolveConcurrency(
+  options: ResolveConcurrencyOptions
+): number {
+  const { availableParallelism, configured, taskCount } = options;
   if (configured === undefined) {
-    return Math.min(defaultConcurrencyLimit, os.availableParallelism(), taskCount);
+    return Math.min(defaultConcurrencyLimit, availableParallelism, taskCount);
   }
   if (!/^[1-9]\d*$/u.test(configured)) {
     throw new Error("CHECK_CONCURRENCY must be a positive integer");
@@ -107,26 +116,23 @@ function reportResult(result: ScriptResult): void {
   console.log(`[check] ${result.script} ${status} in ${durationSeconds}s.`);
 }
 
-async function runPreflightChecks(): Promise<boolean> {
-  const concurrency = resolveConcurrency(preflightScripts.length);
-  console.log(
-    `[check] Running ${preflightScripts.length} preflight checks `
-    + `with concurrency ${concurrency}.`
-  );
-
-  let nextTaskIndex = 0;
+export async function runPreflightScripts(
+  scripts: readonly string[],
+  concurrency: number,
+  runScript: (script: string) => Promise<ScriptResult>,
+  report: (result: ScriptResult) => void
+): Promise<boolean> {
+  const scriptIterator = scripts.values();
   let failed = false;
   async function runWorker(): Promise<void> {
     while (!failed) {
-      const taskIndex = nextTaskIndex;
-      nextTaskIndex += 1;
-      const script = preflightScripts[taskIndex];
-      if (script === undefined) {
+      const nextScript = scriptIterator.next();
+      if (nextScript.done) {
         return;
       }
 
-      const result = await runPackageScript(script);
-      reportResult(result);
+      const result = await runScript(nextScript.value);
+      report(result);
       if (result.exitCode !== 0) {
         failed = true;
       }
@@ -134,13 +140,31 @@ async function runPreflightChecks(): Promise<boolean> {
   }
 
   await Promise.all(
-    Array.from({ length: concurrency }, async () => await runWorker())
+    Array.from(
+      { length: Math.min(concurrency, scripts.length) },
+      () => runWorker()
+    )
   );
   return !failed;
 }
 
 async function main(): Promise<number> {
-  if (!await runPreflightChecks()) {
+  const concurrency = resolveConcurrency({
+    availableParallelism: os.availableParallelism(),
+    configured: process.env.CHECK_CONCURRENCY,
+    taskCount: preflightScripts.length
+  });
+  console.log(
+    `[check] Running ${preflightScripts.length} preflight checks `
+    + `with concurrency ${concurrency}.`
+  );
+
+  if (!await runPreflightScripts(
+    preflightScripts,
+    concurrency,
+    runPackageScript,
+    reportResult
+  )) {
     console.error("[check] Preflight checks failed; packaging was skipped.");
     return 1;
   }

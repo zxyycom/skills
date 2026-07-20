@@ -11,6 +11,7 @@
     "typecheck": "tsgo --noEmit",
     "validate": "bun scripts/validate.ts",
     "test:decision-records-cli": "bun scripts/decision-records/tests/run.ts",
+    "test:check": "bun scripts/check.test.ts",
     "test:generated-file": "bun scripts/lib/generated-file.test.ts",
     "test:skill-validator": "bun scripts/skill-validator/tests/run.ts",
     "test:test-evidence-cli": "bun scripts/test-evidence/tests/run.ts",
