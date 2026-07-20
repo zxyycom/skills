@@ -1,0 +1,4 @@
+interface:
+  display_name: "Product & Architecture Judgment"
+  short_description: "从产品价值与架构责任选择工程动作"
+  default_prompt: "使用 $product-architecture-judgment 处理当前工程任务：先区分目标结果、当前问题和已有解法，再从产品价值与架构责任判断是否该做、做到什么程度、由谁在哪一层实现，并完成有证据支持的最小动作。"

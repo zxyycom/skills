@@ -86,18 +86,11 @@
       "decision": "在 OpenSpec skills 中把 active change 视为可以先存在的临时计划; 创建 change 只表示想法被结构化到 `openspec/changes/<name>/`, 不表示方案已经审计完毕或可以立即实现。"
     },
     {
-      "path": "problem-reframing-behavior/260720-keep-problem-reframing-self-contained.md",
-      "title": "让问题重构保持自包含",
-      "purpose": "让 agent 在局部优化掩盖真实目标时, 通过独立的问题重构流程形成可执行的问题框架。",
-      "background": "当前解法容易反向定义问题, 使复杂度持续增加却没有改善真实结果, 而问题重构需要适用于多个领域并避免无边界扩张。",
-      "decision": "使用 `problem-reframing` 按框架风险触发, 恢复目标、事实、约束、前提与边界, 选择有证据支持的最小问题框架并交回当前任务。"
-    },
-    {
-      "path": "product-architecture-thinking-behavior/260720-use-product-and-architecture-lenses.md",
-      "title": "以产品与架构视角校准技术判断",
-      "purpose": "让 agent 在工程任务中先确认产品结果和架构责任, 再选择技术实现, 避免局部技术视角主导目标与方案。",
-      "background": "这项能力原先被表达为代码审查流程, 使 review 的 finding、分类和报告机制遮蔽了可复用于分析、设计、实现、排障与重构的核心思维。",
-      "decision": "使用 `product-architecture-thinking` 承接产品与架构思维, 将 review 降为一个触发场景, 并让输出继续服从当前任务的行为 owner 与交付契约。"
+      "path": "product-architecture-judgment-behavior/260720-unify-product-and-architecture-judgment.md",
+      "title": "归并为产品与架构判断",
+      "purpose": "让 agent 通过一个工程判断流程决定事情是否该做、该做到什么程度, 以及应由谁在哪一层实现, 避免在相似能力之间路由。",
+      "background": "问题重构与产品架构思维共享局部优化风险、消费者、结果、边界、抽象和取舍, 并会产生相同工程动作, 无法形成稳定的独立触发与验收。",
+      "decision": "删除两个旧 skill, 新建独立分发的 `product-architecture-judgment`, 将问题重构作为内部动作, 统一使用产品价值与架构责任选择最小工程方案。"
     },
     {
       "path": "project-tooling/260718-use-project-coding-style-owner.md",
