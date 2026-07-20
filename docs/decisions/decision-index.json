@@ -163,11 +163,11 @@
       "decision": "在 `prompt-optimize` 主执行流程中新增“建立文档主承诺”, 从标题、副标题、序言、开头段、一级标题、触发条件、前置条件、资源名、字段集合、适用范围或输入输出描述推断核心问题、中心对象、预期展开方向和读者期待的结论或操作结果。"
     },
     {
-      "path": "skill-maintainer-behavior/260719-own-project-aware-skill-lifecycle.md",
-      "title": "让 skill-maintainer 承接环境自适应的 skill 生命周期",
-      "purpose": "让可复用的 agent 能力由新 skill、既有 skill 或其他 owner 清楚承接，并让选定的 skill 在简约或完整的维护环境中都能交付。",
-      "background": "Skill 可能位于成熟仓库、独立目录或安装位置；把项目级 owner、校验器和发布工具链作为默认前提会限制其可移植性。",
-      "decision": "使用 `skill-maintainer` 承接 skill 模型、能力归属和行为契约，采用“自包含最小基线加环境适配”的交付方式，并随包提供独立结构验证器。"
+      "path": "skill-maintainer-behavior/260720-use-distribution-unit-boundaries.md",
+      "title": "以分发单元定义 skill 的独立交付边界",
+      "purpose": "让单个 skill 和成套 skills 都能按真实安装与使用方式维护, 同时阻止跨分发单元的隐含依赖。",
+      "background": "Skill 是行为入口, 分发单元才是安装、更新和交付边界; `prompt-optimize` 独立成单元, 四个 OpenSpec skills 则共同成单元, 把每个 skill 都要求为独立交付会破坏合法的单元内依赖。",
+      "decision": "`skill-maintainer` 区分 skill 行为单元与 distribution unit 交付单元, 允许同一单元内显式依赖和交接, 并要求跨单元依赖声明前置条件及缺失路径。"
     },
     {
       "path": "subagent-orchestration-behavior/260718-default-to-minimal-subagent-history.md",

@@ -17,10 +17,10 @@
 4. 当前仓库主要维护以下能力:
    - `code-review`: 从产品与开发双视角审查代码、设计文档、实现差异和系统性工程问题。
    - `test-evidence-review`: 对测试与验证义务执行准入，识别重复与实现耦合，默认登记自动化证明、人工审查风险和发现豁免，并检查源码角色与未登记测试文件。
-   - `prompt-optimize`: 优化 prompt、agent 指令、规则、任务、需求、模板和工作流等结构化文本。
-   - `skill-maintainer`: 分析 skill 的组成与主要类型，判断能力归属，以自包含基线和环境适配完成交付，并随包提供机械结构验证。
+   - `prompt-optimize`: 独立组成一个分发单元, 优化 prompt、agent 指令、规则、任务、需求、模板和工作流等结构化文本。
+   - `skill-maintainer`: 分析 skill 与分发单元的组成、主要类型、能力归属和依赖边界, 以单元级自包含基线和环境适配完成交付, 并随包提供单 skill 机械结构验证。
    - `git-commit-organizer`: 整理当前 Git 改动并创建范围清楚、信息可追踪的提交。
-   - `openspec-explore`、`openspec-propose`、`openspec-apply-change`、`openspec-archive-change`: 覆盖 OpenSpec change 的探索、提案、实施和归档流程。
+   - `openspec-explore`、`openspec-propose`、`openspec-apply-change`、`openspec-archive-change`: 四者共同组成一个分发单元, 覆盖 OpenSpec change 的探索、提案、实施和归档流程。
    - `codex-shell-permissions`: 指导 shell 失败后的下一步命令选择, 并在用户要求时维护 Codex 权限 rules。
    - `decision-records`: 恢复、审阅和维护可回放的长期决策、JSON 当前索引与历史关系。
    - `subagent-orchestration`: 编排边界清楚的子代理任务, 并控制主线程上下文和并行协作范围。
