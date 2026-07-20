@@ -2,11 +2,19 @@ import type {
   CatalogSectionName,
   ParsedCatalogCase
 } from "./catalog.ts";
+import { compileScopePattern } from "./scope.ts";
+import type { ReviewResult } from "./types.ts";
 import { normalizeWorkspaceRelative } from "./workspace-path.ts";
 
 type LedgerCaseBase = {
   id: string;
   line: number;
+};
+
+export type LastReview = {
+  at: string;
+  commit: string;
+  result: ReviewResult;
 };
 
 export type LedgerCase =
@@ -19,6 +27,7 @@ export type LedgerCase =
   })
   | (LedgerCaseBase & {
     kind: "active-review";
+    lastReview: LastReview | null;
     scopePatterns: string[];
   })
   | (LedgerCaseBase & {
@@ -33,12 +42,17 @@ export type CatalogValidationResult = {
 };
 
 const sectionLabels: Record<CatalogSectionName, string> = {
+  contract: "Contract",
   proves: "Proves",
   reason: "Reason",
   review: "Review",
   risk: "Risk",
   scope: "Scope"
 };
+
+const isoDateTimePattern =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/u;
+const gitCommitPattern = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/u;
 
 export function validateCatalogCases(
   entries: readonly ParsedCatalogCase[],
@@ -62,7 +76,9 @@ export function validateCatalogCases(
   return {
     cases,
     documentedCaseIds: new Set(
-      entries.filter((entry) => entry.caseIdIsValid).map((entry) => entry.id)
+      entries
+        .filter((entry) => entry.headingFormatIsValid && entry.caseIdIsValid)
+        .map((entry) => entry.id)
     ),
     errors
   };
@@ -75,8 +91,15 @@ function validateCatalogCase(
 ): LedgerCase | null {
   const initialErrorCount = errors.length;
   const location = `${catalogPath}:${entry.line} ${entry.id}`;
+  if (!entry.headingFormatIsValid) {
+    errors.push(
+      `${catalogPath}:${entry.line} case heading must use exactly: `
+      + "### Case <CASE-ID>: <title>"
+    );
+    return null;
+  }
   if (!entry.caseIdIsValid) {
-    errors.push(`${location} heading must start with a valid case ID`);
+    errors.push(`${location} must include a valid case ID`);
     return null;
   }
   if (entry.statusDeclarations !== 1 || entry.status === null) {
@@ -97,7 +120,7 @@ function validateCatalogCase(
   }
 
   if (entry.status === "planned") {
-    requireListSections(entry, ["proves"], catalogPath, errors);
+    requireListSections(entry, ["contract", "proves"], catalogPath, errors);
     forbidCode(entry, "planned automated cases", catalogPath, errors);
     forbidSections(
       entry,
@@ -106,6 +129,7 @@ function validateCatalogCase(
       catalogPath,
       errors
     );
+    forbidReviewState(entry, "planned automated cases", catalogPath, errors);
     return errors.length === initialErrorCount
       ? { id: entry.id, kind: "planned-automated", line: entry.line }
       : null;
@@ -113,7 +137,7 @@ function validateCatalogCase(
 
   if (entry.verification === "automated") {
     const codePath = requireCode(entry, catalogPath, errors);
-    requireListSections(entry, ["proves"], catalogPath, errors);
+    requireListSections(entry, ["contract", "proves"], catalogPath, errors);
     forbidSections(
       entry,
       ["scope", "risk", "reason", "review"],
@@ -121,6 +145,7 @@ function validateCatalogCase(
       catalogPath,
       errors
     );
+    forbidReviewState(entry, "active automated cases", catalogPath, errors);
     return errors.length === initialErrorCount && codePath !== null
       ? { codePath, id: entry.id, kind: "active-automated", line: entry.line }
       : null;
@@ -128,13 +153,20 @@ function validateCatalogCase(
 
   if (entry.verification === "review") {
     const scopePatterns = requireScopeSection(entry, catalogPath, errors);
-    requireListSections(entry, ["risk", "reason", "review"], catalogPath, errors);
+    const lastReview = validateLastReview(entry, catalogPath, errors);
+    requireListSections(
+      entry,
+      ["contract", "risk", "reason", "review"],
+      catalogPath,
+      errors
+    );
     forbidCode(entry, "active review cases", catalogPath, errors);
     forbidSections(entry, ["proves"], "active review cases", catalogPath, errors);
     return errors.length === initialErrorCount
       ? {
           id: entry.id,
           kind: "active-review",
+          lastReview,
           line: entry.line,
           scopePatterns
         }
@@ -146,11 +178,12 @@ function validateCatalogCase(
   forbidCode(entry, "active exempt cases", catalogPath, errors);
   forbidSections(
     entry,
-    ["proves", "risk", "review"],
+    ["contract", "proves", "risk", "review"],
     "active exempt cases",
     catalogPath,
     errors
   );
+  forbidReviewState(entry, "active exempt cases", catalogPath, errors);
   return errors.length === initialErrorCount
     ? {
         id: entry.id,
@@ -216,9 +249,68 @@ function requireScopeSection(
       );
       continue;
     }
+    try {
+      compileScopePattern(normalized);
+    } catch (error) {
+      errors.push(
+        `${catalogPath}:${entry.line} ${entry.id} Scope pattern is invalid: `
+        + `${normalized} (${error instanceof Error ? error.message : String(error)})`
+      );
+      continue;
+    }
     scopePatterns.push(normalized);
   }
   return [...new Set(scopePatterns)];
+}
+
+function validateLastReview(
+  entry: ParsedCatalogCase,
+  catalogPath: string,
+  errors: string[]
+): LastReview | null {
+  const location = `${catalogPath}:${entry.line} ${entry.id}`;
+  const declarations = [
+    entry.reviewResultDeclarations,
+    entry.reviewedAtDeclarations,
+    entry.reviewedCommitDeclarations
+  ];
+  if (declarations.every((count) => count === 0)) {
+    return null;
+  }
+  if (declarations.some((count) => count !== 1)) {
+    errors.push(
+      `${location} must declare Review-Result, Reviewed-At, and Reviewed-Commit together`
+    );
+    return null;
+  }
+  if (entry.reviewResult === null) {
+    errors.push(`${location} Review-Result must be pass, findings, or blocked`);
+  }
+  if (
+    entry.reviewedAt === null
+    || !isoDateTimePattern.test(entry.reviewedAt)
+    || Number.isNaN(Date.parse(entry.reviewedAt))
+  ) {
+    errors.push(`${location} Reviewed-At must be an ISO 8601 date-time with timezone`);
+  }
+  if (
+    entry.reviewedCommit === null
+    || !gitCommitPattern.test(entry.reviewedCommit)
+  ) {
+    errors.push(`${location} Reviewed-Commit must be one full Git commit hash`);
+  }
+  if (
+    entry.reviewResult === null
+    || entry.reviewedAt === null
+    || entry.reviewedCommit === null
+  ) {
+    return null;
+  }
+  return {
+    at: entry.reviewedAt,
+    commit: entry.reviewedCommit,
+    result: entry.reviewResult
+  };
 }
 
 function forbidSections(
@@ -246,6 +338,24 @@ function forbidCode(
 ): void {
   if (entry.codeDeclarations > 0) {
     errors.push(`${catalogPath}:${entry.line} ${entry.id} ${subject} must not declare Code`);
+  }
+}
+
+function forbidReviewState(
+  entry: ParsedCatalogCase,
+  subject: string,
+  catalogPath: string,
+  errors: string[]
+): void {
+  if (
+    entry.reviewResultDeclarations > 0
+    || entry.reviewedAtDeclarations > 0
+    || entry.reviewedCommitDeclarations > 0
+  ) {
+    errors.push(
+      `${catalogPath}:${entry.line} ${entry.id} ${subject} must not declare `
+      + "Review-Result, Reviewed-At, or Reviewed-Commit"
+    );
   }
 }
 

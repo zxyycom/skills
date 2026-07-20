@@ -4,7 +4,7 @@ import { validateTestEvidence } from "./validation.ts";
 
 const helpText = `Usage: test-evidence [check] [options]
 
-Review verification obligations, source roles, and unregistered test files.
+Review verification obligations, test-entry roles, scoped reviews, and unregistered entries.
 
 Options:
   --root <path>     Target workspace root (default: current directory)
@@ -67,8 +67,9 @@ async function main(): Promise<void> {
       + `${summary.activeAutomatedCases} automated, `
       + `${summary.reviewCases} review, ${summary.exemptCases} exempt, `
       + `${summary.plannedAutomatedCases} planned, `
-      + `${summary.discoveredTestFiles} discovered test file(s), `
-      + `${summary.unregisteredTestFiles} unregistered.`
+      + `${summary.discoveredTestEntries} discovered test entry(s), `
+      + `${summary.unregisteredTestEntries} unregistered, `
+      + `${summary.reviewTriggers} review trigger(s).`
     );
   }
 

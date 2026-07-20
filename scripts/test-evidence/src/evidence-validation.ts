@@ -1,4 +1,8 @@
 import type { LedgerCase } from "./catalog-validation.ts";
+import {
+  compileScopePattern,
+  matchesAnyScope
+} from "./scope.ts";
 import type {
   SourceFile,
   SourceMarker,
@@ -13,7 +17,7 @@ export type EvidenceValidationOptions = {
   catalogPath: string;
   documentedCaseIds: ReadonlySet<string>;
   files: readonly SourceFile[];
-  unregisteredTestFiles: UnregisteredPolicy;
+  unregisteredTestEntries: UnregisteredPolicy;
 };
 
 export type EvidenceValidationResult = {
@@ -37,36 +41,51 @@ export function validateEvidenceState(
   const exemptCases = options.cases.filter((entry) => entry.kind === "active-exempt");
 
   const markers = options.files.flatMap((file) => file.markers);
-  const mainMarkers = markers.filter((marker) => marker.role === "main");
-  const derivedMarkers = markers.filter((marker) => marker.role === "derived");
-  const exemptMarkers = markers.filter((marker) => marker.role === "exempt");
-  const validMainMarkers = validIdMarkers(mainMarkers, options.caseIdPattern, errors);
-  const validDerivedMarkers = validIdMarkers(
-    derivedMarkers,
-    options.caseIdPattern,
-    errors
-  );
-  const validExemptMarkers = validIdMarkers(
-    exemptMarkers,
-    options.caseIdPattern,
-    errors
-  );
+  for (const marker of markers) {
+    if (marker.attachedEntryOffset === null) {
+      errors.push(
+        `${marker.relativePath}:${marker.line} @test-evidence ${marker.role} `
+        + `${marker.id} does not directly precede a discovered test entry`
+      );
+    }
+  }
 
-  for (const id of duplicateValues(validMainMarkers.map((marker) => marker.id))) {
+  const attachedMarkers = markers.filter(
+    (marker): marker is SourceMarker & { attachedEntryOffset: number } =>
+      marker.attachedEntryOffset !== null
+  );
+  const markersByEntry = groupMarkersByEntry(attachedMarkers);
+  for (const entryMarkers of markersByEntry.values()) {
+    if (entryMarkers.length > 1) {
+      const first = entryMarkers[0];
+      if (first !== undefined) {
+        errors.push(
+          `${first.relativePath}:${first.line} multiple markers target one discovered `
+          + "test entry; every entry must have exactly one @test-evidence marker"
+        );
+      }
+    }
+  }
+
+  const validMarkers = validIdMarkers(
+    attachedMarkers,
+    options.caseIdPattern,
+    errors
+  );
+  const mainMarkers = validMarkers.filter((marker) => marker.role === "main");
+  const derivedMarkers = validMarkers.filter((marker) => marker.role === "derived");
+  const exemptMarkers = validMarkers.filter((marker) => marker.role === "exempt");
+
+  for (const id of duplicateValues(mainMarkers.map((marker) => marker.id))) {
     errors.push(
       `duplicate @test-evidence main marker: ${id} in `
-      + markerLocations(validMainMarkers, id)
+      + markerLocations(mainMarkers, id)
     );
   }
 
   const documentedById = new Map(options.cases.map((entry) => [entry.id, entry]));
-  const mainById = groupMarkers(validMainMarkers);
-  const exemptById = groupMarkers(validExemptMarkers);
-  const allValidMarkers = [
-    ...validMainMarkers,
-    ...validDerivedMarkers,
-    ...validExemptMarkers
-  ];
+  const mainById = groupMarkersById(mainMarkers);
+  const exemptById = groupMarkersById(exemptMarkers);
 
   for (const entry of activeAutomatedCases) {
     const caseMarkers = mainById.get(entry.id) ?? [];
@@ -96,7 +115,7 @@ export function validateEvidenceState(
     }
   }
 
-  for (const marker of allValidMarkers) {
+  for (const marker of validMarkers) {
     const documented = documentedById.get(marker.id);
     if (documented === undefined) {
       const markerLocation =
@@ -115,71 +134,76 @@ export function validateEvidenceState(
         + "must reference an active automated case"
       );
     }
-    if (marker.role === "exempt" && documented.kind !== "active-exempt") {
-      errors.push(
-        `${marker.relativePath}:${marker.line} @test-evidence exempt ${marker.id} `
-        + "must reference an active exempt case"
-      );
+    if (marker.role === "exempt") {
+      if (documented.kind !== "active-exempt") {
+        errors.push(
+          `${marker.relativePath}:${marker.line} @test-evidence exempt ${marker.id} `
+          + "must reference an active exempt case"
+        );
+      } else {
+        const matchers = documented.scopePatterns.map(compileScopePattern);
+        if (!matchesAnyScope(marker.relativePath, matchers)) {
+          errors.push(
+            `${marker.relativePath}:${marker.line} @test-evidence exempt ${marker.id} `
+            + "must be covered by the case Scope"
+          );
+        }
+      }
     }
   }
 
-  const testFiles = options.files.filter((file) => file.detectedLanguages.length > 0);
-  const testFilePaths = new Set(testFiles.map((file) => file.relativePath));
-  for (const marker of allValidMarkers) {
-    if (!testFilePaths.has(marker.relativePath)) {
-      errors.push(
-        `${marker.relativePath}:${marker.line} @test-evidence ${marker.role} ${marker.id} `
-        + "is not in a discovered test file"
-      );
-    }
-  }
-
-  for (const file of testFiles) {
-    validateFileMarkerRoles(file, errors);
-  }
-
-  const registeredPaths = new Set(
-    [...validMainMarkers, ...validDerivedMarkers].map((marker) => marker.relativePath)
+  const testEntries = options.files.flatMap((file) =>
+    file.testEntries.map((entry) => ({ entry, relativePath: file.relativePath }))
   );
-  const exemptPaths = new Set(validExemptMarkers.map((marker) => marker.relativePath));
-  const exemptTestFiles = testFiles.filter((file) => exemptPaths.has(file.relativePath));
-  const unregistered = testFiles.filter((file) =>
-    !registeredPaths.has(file.relativePath) && !exemptPaths.has(file.relativePath)
+  const validMarkersByEntry = groupMarkersByEntry(validMarkers);
+  const unregistered = testEntries.filter(({ entry, relativePath }) =>
+    (validMarkersByEntry.get(entryKey(relativePath, entry.offset)) ?? []).length === 0
   );
-  const unregisteredMessages = unregistered.map((file) =>
-    `${file.relativePath} contains ${file.detectedLanguages.join("/")} test entries but has no `
-    + "@test-evidence main, derived, or exempt marker"
+  const unregisteredMessages = unregistered.map(({ entry, relativePath }) =>
+    `${relativePath}:${entry.line}:${entry.column} contains a ${entry.language} test entry `
+    + "but has no attached @test-evidence main, derived, or exempt marker"
   );
-  if (options.unregisteredTestFiles === "error") {
+  if (options.unregisteredTestEntries === "error") {
     errors.push(...unregisteredMessages);
-  } else if (options.unregisteredTestFiles === "warn") {
+  } else if (options.unregisteredTestEntries === "warn") {
     warnings.push(...unregisteredMessages);
   }
+
+  const exemptEntryKeys = new Set(
+    exemptMarkers.map((marker) =>
+      entryKey(marker.relativePath, marker.attachedEntryOffset)
+    )
+  );
+  const discoveredTestFiles = new Set(
+    testEntries.map(({ relativePath }) => relativePath)
+  );
 
   return {
     errors,
     summary: {
       activeAutomatedCases: activeAutomatedCases.length,
       catalogCases: options.catalogCaseCount,
-      derivedMarkers: validDerivedMarkers.length,
-      discoveredTestFiles: testFiles.length,
+      derivedMarkers: derivedMarkers.length,
+      discoveredTestEntries: testEntries.length,
+      discoveredTestFiles: discoveredTestFiles.size,
       exemptCases: exemptCases.length,
-      exemptMarkers: validExemptMarkers.length,
-      exemptTestFiles: exemptTestFiles.length,
-      mainMarkers: validMainMarkers.length,
+      exemptMarkers: exemptMarkers.length,
+      exemptTestEntries: exemptEntryKeys.size,
+      mainMarkers: mainMarkers.length,
       plannedAutomatedCases: plannedAutomatedCases.length,
       reviewCases: reviewCases.length,
-      unregisteredTestFiles: unregistered.length
+      reviewTriggers: 0,
+      unregisteredTestEntries: unregistered.length
     },
     warnings
   };
 }
 
-function validIdMarkers(
-  markers: readonly SourceMarker[],
+function validIdMarkers<T extends SourceMarker>(
+  markers: readonly T[],
   caseIdPattern: RegExp,
   errors: string[]
-): SourceMarker[] {
+): T[] {
   return markers.filter((marker) => {
     if (caseIdPattern.test(marker.id)) {
       return true;
@@ -192,12 +216,27 @@ function validIdMarkers(
   });
 }
 
-function groupMarkers(markers: readonly SourceMarker[]): Map<string, SourceMarker[]> {
-  const grouped = new Map<string, SourceMarker[]>();
+function groupMarkersById<T extends SourceMarker>(
+  markers: readonly T[]
+): Map<string, T[]> {
+  const grouped = new Map<string, T[]>();
   for (const marker of markers) {
     const entries = grouped.get(marker.id) ?? [];
     entries.push(marker);
     grouped.set(marker.id, entries);
+  }
+  return grouped;
+}
+
+function groupMarkersByEntry<T extends SourceMarker & {
+  attachedEntryOffset: number;
+}>(markers: readonly T[]): Map<string, T[]> {
+  const grouped = new Map<string, T[]>();
+  for (const marker of markers) {
+    const key = entryKey(marker.relativePath, marker.attachedEntryOffset);
+    const entries = grouped.get(key) ?? [];
+    entries.push(marker);
+    grouped.set(key, entries);
   }
   return grouped;
 }
@@ -221,31 +260,6 @@ function markerLocations(markers: readonly SourceMarker[], id: string): string {
     .join(", ");
 }
 
-function validateFileMarkerRoles(file: SourceFile, errors: string[]): void {
-  const markersById = groupMarkers(file.markers);
-  for (const [id, markers] of markersById) {
-    const roles = new Set(markers.map((marker) => marker.role));
-    if (roles.has("main") && roles.has("derived")) {
-      errors.push(
-        `${file.relativePath} must not mark ${id} as both main and derived`
-      );
-    }
-    if (markers.filter((marker) => marker.role === "derived").length > 1) {
-      errors.push(
-        `${file.relativePath} must not repeat @test-evidence derived ${id}`
-      );
-    }
-  }
-
-  const roles = new Set(file.markers.map((marker) => marker.role));
-  if (roles.has("exempt") && (roles.has("main") || roles.has("derived"))) {
-    errors.push(
-      `${file.relativePath} must not mix @test-evidence exempt with main or derived`
-    );
-  }
-  if (file.markers.filter((marker) => marker.role === "exempt").length > 1) {
-    errors.push(
-      `${file.relativePath} must declare exactly one @test-evidence exempt marker`
-    );
-  }
+function entryKey(relativePath: string, offset: number): string {
+  return `${relativePath}\0${offset}`;
 }

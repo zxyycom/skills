@@ -37,7 +37,7 @@
 7. `bun run test:generated-file`: 测试生成文件共享能力，覆盖 Bun source map 的临时目录解析、仓库相对路径归一化和越界拒绝。
 8. `bun run test:decision-records-cli`: 使用独立夹具测试 `decision-records` TypeScript 源码、Node 分发产物和生成头追溯字段。
 9. `bun run test:skill-validator`: 使用临时 skill 目录测试结构校验源码、Node 分发产物、失败诊断和生成头。
-10. `bun run test:test-evidence-cli`: 使用临时多语言工作区测试自动化、人工审查和发现豁免账本状态，源码角色、未登记文件策略和 Node 分发产物。
+10. `bun run test:test-evidence-cli`: 使用临时 Git 多语言工作区测试自动化、人工审查和发现豁免账本状态，测试入口角色、Scope trigger、未登记入口策略和 Node 分发产物。
 11. `bun run test:skill-updater`: 使用本地假 GitHub 响应和临时目录测试 Node 分发 updater 的 lock、zip 指纹、更新替换和失败诊断。
 12. `bun run sync:decision-records-cli`: 从 `scripts/decision-records/` 构建并写入 skill 内的 `scripts/decision-records.mjs`。
 13. `bun run check:decision-records-cli`: 在临时目录构建 CLI，并检查 skill 内分发产物是否与当前源码一致。

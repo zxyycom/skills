@@ -4,46 +4,68 @@ import fg from "fast-glob";
 import { collectSourceMarkers } from "./markers.ts";
 import type {
   SourceFile,
+  SourceMarker,
   SupportedLanguage,
+  TestEntry,
   TestEvidenceConfig
 } from "./types.ts";
 
+type EntryPattern = {
+  expression: RegExp;
+  offsetGroup?: number;
+};
+
 type LanguageDefinition = {
   extensions: string[];
-  patterns: RegExp[];
+  patterns: EntryPattern[];
 };
 
 const definitions: Record<SupportedLanguage, LanguageDefinition> = {
   rust: {
     extensions: [".rs"],
-    patterns: [/#\s*\[\s*(?:(?:[A-Za-z_]\w*)::)*test(?:\s*\([^]*?\))?\s*\]/u]
+    patterns: [{
+      expression: /#\s*\[\s*(?:(?:[A-Za-z_]\w*)::)*test(?:\s*\([^]*?\))?\s*\]/gu
+    }]
   },
   typescript: {
-    extensions: [".ts", ".tsx"],
-    patterns: [/(?:^|[^\w$.])(?:describe|it|test)(?:\.\w+)*\s*(?:<[^>\n]+>)?\s*\(/mu]
+    extensions: [".cts", ".mts", ".ts", ".tsx"],
+    patterns: [{
+      expression:
+        /(?:^|[^\w$.])((?:it|test)(?:\.(?:concurrent|each|fail|failing|fails|fixme|for|only|runIf|sequential|skip|skipIf|todo))*\s*(?:<[^>\n]+>)?\s*\()/gmu,
+      offsetGroup: 1
+    }]
   },
   javascript: {
     extensions: [".cjs", ".js", ".jsx", ".mjs"],
-    patterns: [/(?:^|[^\w$.])(?:describe|it|test)(?:\.\w+)*\s*\(/mu]
+    patterns: [{
+      expression:
+        /(?:^|[^\w$.])((?:it|test)(?:\.(?:concurrent|each|fail|failing|fails|fixme|for|only|runIf|sequential|skip|skipIf|todo))*\s*\()/gmu,
+      offsetGroup: 1
+    }]
   },
   python: {
     extensions: [".py"],
-    patterns: [
-      /^(?:async\s+)?def\s+test_[A-Za-z0-9_]*\s*\(/mu,
-      /^class\s+Test[A-Za-z0-9_]*(?:\s*\([^)]*\))?\s*:/mu
-    ]
+    patterns: [{
+      expression: /^[ \t]*(?:async\s+)?def\s+test_[A-Za-z0-9_]*\s*\(/gmu
+    }]
   },
   go: {
     extensions: [".go"],
-    patterns: [/^func\s+(?:Test|Benchmark|Fuzz)[A-Z0-9_][A-Za-z0-9_]*\s*\(/mu]
+    patterns: [{
+      expression: /^func\s+(?:Test|Benchmark|Fuzz)[A-Z0-9_][A-Za-z0-9_]*\s*\(/gmu
+    }]
   },
   java: {
     extensions: [".java"],
-    patterns: [/@(?:Test|ParameterizedTest|RepeatedTest|TestFactory)\b/u]
+    patterns: [{
+      expression: /@(?:Test|ParameterizedTest|RepeatedTest|TestFactory)\b/gu
+    }]
   },
   csharp: {
     extensions: [".cs"],
-    patterns: [/\[(?:Fact|Theory|Test|TestCase|TestMethod)(?:Attribute)?(?:\([^]*?\))?\]/u]
+    patterns: [{
+      expression: /\[(?:Fact|Theory|Test|TestCase|TestMethod)(?:Attribute)?(?:\([^]*?\))?\]/gu
+    }]
   }
 };
 
@@ -85,11 +107,12 @@ export async function discoverSourceFiles(
     }
 
     const collectedMarkers = collectSourceMarkers(text, normalizedPath);
+    const testEntries = detectTestEntries(normalizedPath, text, config.languages);
     errors.push(...collectedMarkers.errors);
     files.push({
-      detectedLanguages: detectTestLanguages(normalizedPath, text, config.languages),
-      markers: collectedMarkers.markers,
-      relativePath: normalizedPath
+      markers: attachMarkersToEntries(text, collectedMarkers.markers, testEntries),
+      relativePath: normalizedPath,
+      testEntries
     });
   }
 
@@ -102,15 +125,142 @@ function defaultSourceGlobs(languages: readonly SupportedLanguage[]): string[] {
   ))].sort();
 }
 
-function detectTestLanguages(
+function detectTestEntries(
   relativePath: string,
   text: string,
   languages: readonly SupportedLanguage[]
-): SupportedLanguage[] {
+): TestEntry[] {
   const extension = path.extname(relativePath).toLowerCase();
-  return languages.filter((language) => {
+  const lineOffsets = collectLineOffsets(text);
+  const entries = languages.flatMap((language) => {
     const definition = definitions[language];
-    return definition.extensions.includes(extension)
-      && definition.patterns.some((pattern) => pattern.test(text));
+    if (!definition.extensions.includes(extension)) {
+      return [];
+    }
+    return definition.patterns.flatMap((pattern) =>
+      collectPatternEntries(text, language, pattern, lineOffsets)
+    );
   });
+
+  const unique = new Map<string, TestEntry>();
+  for (const entry of entries) {
+    unique.set(`${entry.language}:${entry.offset}`, entry);
+  }
+  return [...unique.values()].sort((left, right) => left.offset - right.offset);
+}
+
+function collectPatternEntries(
+  text: string,
+  language: SupportedLanguage,
+  pattern: EntryPattern,
+  lineOffsets: readonly number[]
+): TestEntry[] {
+  const entries: TestEntry[] = [];
+  for (const match of text.matchAll(pattern.expression)) {
+    if (match.index === undefined) {
+      continue;
+    }
+    const capturedPrefix = pattern.offsetGroup === undefined
+      ? ""
+      : match[0].slice(0, match[0].indexOf(match[pattern.offsetGroup] ?? ""));
+    const offset = match.index + capturedPrefix.length;
+    const location = locateOffset(offset, lineOffsets);
+    entries.push({
+      column: location.column,
+      language,
+      line: location.line,
+      offset
+    });
+  }
+  return entries;
+}
+
+function attachMarkersToEntries(
+  text: string,
+  markers: readonly SourceMarker[],
+  entries: readonly TestEntry[]
+): SourceMarker[] {
+  const lines = text.split(/\r?\n/u);
+  return markers.map((marker) => {
+    const entry = entries.find((candidate) =>
+      candidate.offset > marker.offset
+      && hasAttachableGap(
+        lines,
+        marker.line,
+        candidate.line,
+        candidate.language
+      )
+    );
+    return {
+      ...marker,
+      attachedEntryOffset: entry?.offset ?? null
+    };
+  });
+}
+
+function hasAttachableGap(
+  lines: readonly string[],
+  markerLine: number,
+  entryLine: number,
+  language: SupportedLanguage
+): boolean {
+  for (let lineNumber = markerLine + 1; lineNumber < entryLine; lineNumber += 1) {
+    const line = (lines[lineNumber - 1] ?? "").trim();
+    if (
+      line.length > 0
+      && !isCommentLine(line)
+      && !isLanguageAttachmentLine(line, language)
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function isCommentLine(line: string): boolean {
+  return /^(?:\/\/|#|--|;|\/\*|\*|\*\/|<!--|-->)/u.test(line);
+}
+
+function isLanguageAttachmentLine(
+  line: string,
+  language: SupportedLanguage
+): boolean {
+  if (language === "python" || language === "java") {
+    return line.startsWith("@");
+  }
+  if (language === "csharp") {
+    return line.startsWith("[");
+  }
+  return false;
+}
+
+function collectLineOffsets(text: string): number[] {
+  const offsets = [0];
+  for (let index = 0; index < text.length; index += 1) {
+    if (text[index] === "\n") {
+      offsets.push(index + 1);
+    }
+  }
+  return offsets;
+}
+
+function locateOffset(
+  offset: number,
+  lineOffsets: readonly number[]
+): { column: number; line: number } {
+  let low = 0;
+  let high = lineOffsets.length - 1;
+  while (low <= high) {
+    const middle = Math.floor((low + high) / 2);
+    const lineOffset = lineOffsets[middle] ?? 0;
+    const nextOffset = lineOffsets[middle + 1] ?? Number.POSITIVE_INFINITY;
+    if (offset < lineOffset) {
+      high = middle - 1;
+    } else if (offset >= nextOffset) {
+      low = middle + 1;
+    } else {
+      return { column: offset - lineOffset + 1, line: middle + 1 };
+    }
+  }
+  return { column: 1, line: 1 };
 }

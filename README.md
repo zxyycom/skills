@@ -22,7 +22,7 @@
 
 [Code Review](docs/skills/code-review.md) 关注代码和设计审查中的判断质量。它从产品与开发两条价值轴确认问题, 再区分局部缺口与系统性症状; 对话保留简洁结论, 完整证据和分析卡按需写入临时 Markdown 报告。实际 skill 位于 [`skills/code-review/`](skills/code-review/)。
 
-[Test Evidence Review](docs/skills/test-evidence-review.md) 对测试与相关验证义务执行准入。它审查自动化证明的价值，把当前无法经济自动化的稳定风险登记为人工 CR，并把测试发现误报登记为可巡检豁免；账本、源码角色和跨语言 CLI 共同维护归属与检查漂移。实际 skill 位于 [`skills/test-evidence-review/`](skills/test-evidence-review/)。
+[Test Evidence Review](docs/skills/test-evidence-review.md) 评估测试固定的契约和证明价值，把当前无法经济自动化的稳定风险登记为人工 CR，并把测试发现误报登记为可巡检豁免；账本、测试入口角色、Git Scope 和跨语言 CLI 共同维护归属与检查漂移。实际 skill 位于 [`skills/test-evidence-review/`](skills/test-evidence-review/)。
 
 [Prompt Optimize](docs/skills/prompt-optimize.md) 关注文档优化。它的核心不是润色文字，而是改善文档对 agent 的引导效果，让文档成为人类和 agent 之间更可靠的协作接口。实际 skill 位于 [`skills/prompt-optimize/`](skills/prompt-optimize/)。
 

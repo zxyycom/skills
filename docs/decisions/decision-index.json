@@ -205,18 +205,18 @@
       "decision": "只要求并行子代理的写入范围互斥, 并按实际可能修改的文件、配置、生成产物或外部状态划分所有权; 原因是冲突来自共享状态变更, 不是共享证据读取。"
     },
     {
-      "path": "test-evidence-review-behavior/260719-model-verification-obligations-and-source-roles.md",
-      "title": "将账本扩展为验证义务并统一源码角色",
-      "purpose": "抑制低价值测试增长，同时让自动化证明、人工审查风险和测试发现豁免都能被持续追踪与审计。",
-      "background": "只登记自动化证明无法承接当前架构下不适合机械测试的真实风险，自由文本源码豁免又会脱离账本；测试发现仍需要区分真实主入口、归属于主 case 的衍生源码和误报。",
-      "decision": "`test-evidence-review` 继续分离语义准入与机械校验，并把账本 case 定义为 automated、review 或 exempt 验证义务；源码统一使用 `@test-evidence main|derived|exempt CASE-ID`，CLI 以测试文件为最小归属单元校验状态、角色、Scope 格式和未登记结果。"
+      "path": "test-evidence-review-behavior/260720-map-test-entries-and-trigger-scoped-reviews.md",
+      "title": "按测试入口映射证据并触发范围审查",
+      "purpose": "让每个被发现器识别的测试入口都能回到明确契约和 case，消除文件级标记造成的遮蔽，并让人工审查范围在 Git 变化后可确定地重新触发。",
+      "background": "文件级最小归属会让一个 marker 覆盖同文件内未评估的其他测试；case 缺少契约背景，普通三级标题会被误判；Scope 只校验路径外形，无法发现失效范围或命中变更。",
+      "decision": "case 使用固定标题和文字 `Contract:`；main、derived、exempt 与发现器识别的测试入口一一绑定但允许多个入口归入同一 case；Scope 使用严格 glob 和 Git 可见路径校验，并依据工作区变化、最近 CR 结果与提交基线返回 review trigger。"
     },
     {
-      "path": "test-evidence-review-behavior/260719-organize-multi-branch-proofs-by-shared-base.md",
-      "title": "按共享测试基座组织多分支证明点",
-      "purpose": "在保持证明点简短可审计的同时，避免多分支测试因机械拆分而重复 fixture、增加执行成本或造成共享数据底座漂移。",
-      "background": "一条测试链路可以复用初始状态、基础数据和执行上下文，并在条件节点后形成多个可观察分支；按叶子结果逐项拆分会增加准备、同步和审计成本。",
-      "decision": "automated case 可以聚合共享测试基座或连续行为链路上的多个分支；`Proves:` 使用原子结果列表，多分支用 `flowchart LR|TD` 和 `subgraph` 显式表达主干与叶子，只在独立边界且拆分降低总成本时拆成新 case。"
+      "path": "test-evidence-review-behavior/260720-organize-proofs-by-shared-execution-chain.md",
+      "title": "按共享执行链路组织分支与线性证明点",
+      "purpose": "让 automated case 同时表达分支结果和线性 happy path 或失败链路上的多个可观察检查点，避免按证明点数量机械拆分 case。",
+      "background": "既有规则把 `Proves:` 主要描述为分支叶子，但一条没有分支的连续执行链路也可能依次固定多个状态迁移、输出、副作用或清理不变量。",
+      "decision": "automated case 按共同文字契约、共享测试基座或连续执行链路组织；`Proves:` 可以记录分支结果或线性检查点，数量不与测试入口绑定，Mermaid 按需要表达分支或顺序关系，只在证明形成独立契约或拆分降低总成本时建立新 case。"
     }
   ]
 }

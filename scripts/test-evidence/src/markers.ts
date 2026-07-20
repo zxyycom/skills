@@ -18,7 +18,9 @@ export function collectSourceMarkers(
 ): SourceMarkerCollection {
   const errors: string[] = [];
   const markers: SourceMarker[] = [];
-  for (const [index, line] of text.split(/\r?\n/u).entries()) {
+  const lines = text.split(/\r?\n/u);
+  const lineOffsets = collectLineOffsets(text);
+  for (const [index, line] of lines.entries()) {
     const match = line.match(markerLinePattern);
     if (match === null) {
       continue;
@@ -37,8 +39,10 @@ export function collectSourceMarkers(
     }
 
     markers.push({
+      attachedEntryOffset: null,
       id,
       line: index + 1,
+      offset: lineOffsets[index] ?? 0,
       relativePath,
       role
     });
@@ -52,4 +56,14 @@ function stripMarkerSuffix(value: string): string {
 
 function isSourceMarkerRole(value: string | undefined): value is SourceMarkerRole {
   return sourceMarkerRoles.some((role) => role === value);
+}
+
+function collectLineOffsets(text: string): number[] {
+  const offsets = [0];
+  for (let index = 0; index < text.length; index += 1) {
+    if (text[index] === "\n") {
+      offsets.push(index + 1);
+    }
+  }
+  return offsets;
 }

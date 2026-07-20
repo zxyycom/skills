@@ -19,23 +19,26 @@ const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "test-evidence-"));
 
 try {
   const workspaceRoot = path.join(tempRoot, "valid");
-  await writeWorkspace(workspaceRoot, "error");
+  await writeWorkspace(workspaceRoot);
 
   const valid = await validateTestEvidence({ workspaceRoot });
   assert.deepEqual(valid.errors, []);
   assert.deepEqual(valid.warnings, []);
+  assert.deepEqual(valid.reviewTriggers, []);
   assert.deepEqual(valid.summary, {
     activeAutomatedCases: 1,
     catalogCases: 4,
-    derivedMarkers: 1,
+    derivedMarkers: 2,
+    discoveredTestEntries: 4,
     discoveredTestFiles: 3,
     exemptCases: 1,
     exemptMarkers: 1,
-    exemptTestFiles: 1,
+    exemptTestEntries: 1,
     mainMarkers: 1,
     plannedAutomatedCases: 1,
     reviewCases: 1,
-    unregisteredTestFiles: 0
+    reviewTriggers: 0,
+    unregisteredTestEntries: 0
   });
 
   const absoluteConfigPath = await validateTestEvidence({
@@ -46,21 +49,18 @@ try {
     error.includes("config path must be a workspace-relative path")
   ));
 
-  const driveRelativeConfigPath = await validateTestEvidence({
-    configPath: "C:outside.json",
-    workspaceRoot
-  });
-  assert.ok(driveRelativeConfigPath.errors.some((error) =>
-    error.includes("config path must be a workspace-relative path")
-  ));
-
   const cliReport = JSON.parse(execFileSync(
     "node",
     [generatedCliPath, "check", "--root", workspaceRoot, "--json"],
     { encoding: "utf8" }
-  )) as { errors: string[]; warnings: string[] };
+  )) as {
+    errors: string[];
+    reviewTriggers: unknown[];
+    warnings: string[];
+  };
   assert.deepEqual(cliReport.errors, []);
   assert.deepEqual(cliReport.warnings, []);
+  assert.deepEqual(cliReport.reviewTriggers, []);
 
   const humanCli = spawnSync(
     "node",
@@ -69,271 +69,249 @@ try {
   );
   assert.equal(humanCli.status, 0);
   assert.equal(humanCli.stderr, "");
-  assert.match(
-    humanCli.stdout,
-    /1 automated, 1 review, 1 exempt, 1 planned/
-  );
+  assert.match(humanCli.stdout, /4 discovered test entry\(s\), 0 unregistered/);
 
-  const warningRoot = path.join(tempRoot, "warning");
-  await writeWorkspace(warningRoot, "warn");
-  await writeFile(
-    warningRoot,
-    "src/unregistered.rs",
-    ["#[test]", "fn unregistered_test() {}"].join("\n")
+  await fs.appendFile(
+    path.join(workspaceRoot, "src/process/worker.ts"),
+    "\nexport const dirty = true;\n",
+    "utf8"
   );
-  const warningReport = await validateTestEvidence({ workspaceRoot: warningRoot });
-  assert.deepEqual(warningReport.errors, []);
-  assert.ok(warningReport.warnings.some((warning) =>
-    warning.includes("src/unregistered.rs contains rust test entries")
+  const dirtyReview = await validateTestEvidence({ workspaceRoot });
+  assert.equal(dirtyReview.reviewTriggers.length, 1);
+  assert.equal(dirtyReview.reviewTriggers[0]?.caseId, "RV-PROCESS-CLEANUP-001");
+  assert.deepEqual(dirtyReview.reviewTriggers[0]?.paths, ["src/process/worker.ts"]);
+  assert.ok(dirtyReview.errors.some((error) =>
+    error.includes("RV-PROCESS-CLEANUP-001 requires review")
+    && error.includes("dirty worktree paths match Scope")
   ));
 
-  const invalidRoot = path.join(tempRoot, "invalid");
-  await writeWorkspace(invalidRoot, "error");
-  await appendCatalog(
-    invalidRoot,
-    [
-      "",
-      "### RV-MISSING-REASON-001 Review case without a reason",
-      "Status: active",
-      "Verification: review",
-      "",
-      "Scope:",
-      "- `src/process/**`",
-      "",
-      "Risk:",
-      "- A process may remain alive.",
-      "",
-      "Review:",
-      "- Confirm every failure path terminates the process.",
-      "",
-      "### invalid-case-id Ledger heading with an invalid case ID",
-      "Status: active",
-      "Verification: automated",
-      "Code: `src/invalid-id.test.ts`",
-      "",
-      "Proves:",
-      "- Invalid IDs receive a direct catalog diagnostic.",
-      "",
-      "### RV-BAD-SCOPE-001 Review case with an invalid scope",
-      "Status: active",
-      "Verification: review",
-      "",
-      "Scope:",
-      "- src/process/**",
-      "- `../src/process/**`",
-      "",
-      "Risk:",
-      "- A process may remain alive.",
-      "",
-      "Reason:",
-      "- Reliable automation requires disproportionate fault injection.",
-      "",
-      "Review:",
-      "- Confirm every failure path terminates the process.",
-      "",
-      "### RV-PLANNED-REVIEW-001 Planned review is not a legal state",
-      "Status: planned",
-      "Verification: review",
-      "",
-      "Scope:",
-      "- `src/process/**`",
-      "",
-      "Risk:",
-      "- A process may remain alive.",
-      "",
-      "Reason:",
-      "- Reliable automation requires disproportionate fault injection.",
-      "",
-      "Review:",
-      "- Confirm every failure path terminates the process.",
-      "",
-      "### EX-BAD-SHAPE-001 Exemption with evidence fields",
-      "Status: active",
-      "Verification: exempt",
-      "",
-      "Scope:",
-      "- `tests/bad_exempt.py`",
-      "",
-      "Reason:",
-      "- The detector intentionally treats this fixture as a test.",
-      "",
-      "Proves:",
-      "- This field is not valid for an exemption.",
-      "",
-      "### EX-MISSING-MARKER-001 Exemption without a source marker",
-      "Status: active",
-      "Verification: exempt",
-      "",
-      "Scope:",
-      "- `tests/missing_exempt.py`",
-      "",
-      "Reason:",
-      "- The detector recognizes syntax that is not project evidence.",
-      "",
-      "### WB-BAD-CODE-001 Automated case with a drive-relative Code path",
-      "Status: active",
-      "Verification: automated",
-      "Code: `C:bad.test.ts`",
-      "",
-      "Proves:",
-      "- Code paths remain inside the workspace.",
-      "",
-      "### WB-MISSING-MAIN-001 Automated case without a main entry",
-      "Status: active",
-      "Verification: automated",
-      "Code: `src/missing.test.ts`",
-      "",
-      "Proves:",
-      "- A stable behavior still requires one canonical test entry.",
-      "",
-      "### WB-MERMAID-ONLY-001 Automated case without proof-point items",
-      "Status: active",
-      "Verification: automated",
-      "Code: `src/mermaid-only.test.ts`",
-      "",
-      "Proves:",
-      "```mermaid",
-      "flowchart LR",
-      "  input --> result",
-      "```"
-    ].join("\n")
+  const committedReviewRoot = path.join(tempRoot, "committed-review");
+  await writeWorkspace(committedReviewRoot);
+  await fs.appendFile(
+    path.join(committedReviewRoot, "src/process/worker.ts"),
+    "\nexport const committedChange = true;\n",
+    "utf8"
   );
+  commitAll(committedReviewRoot, "change reviewed scope");
+  const committedReview = await validateTestEvidence({
+    workspaceRoot: committedReviewRoot
+  });
+  assert.equal(committedReview.reviewTriggers.length, 1);
+  assert.ok(committedReview.reviewTriggers[0]?.reasons.includes(
+    "committed paths changed after Reviewed-Commit"
+  ));
+
+  const overdueReviewRoot = path.join(tempRoot, "overdue-review");
+  await writeWorkspace(overdueReviewRoot);
   await writeFile(
-    invalidRoot,
-    "src/unregistered.rs",
-    ["#[test]", "fn unregistered_test() {}"].join("\n")
+    overdueReviewRoot,
+    ".test-evidence.json",
+    `${JSON.stringify({
+      reviewMaxAgeDays: 30,
+      reviewTriggers: "error",
+      schemaVersion: 2,
+      unregisteredTestEntries: "error"
+    }, null, 2)}\n`
   );
-  await writeFile(
-    invalidRoot,
-    "tests/future_test.py",
-    [
-      "# @test-evidence main WB-CALC-FUTURE-001",
-      "",
-      "def test_future():",
-      "    assert True"
-    ].join("\n")
+  const overdueCatalogPath = path.join(
+    overdueReviewRoot,
+    "docs/testing/cases.md"
   );
-  await writeFile(
-    invalidRoot,
-    "tests/invalid_marker_test.go",
-    [
-      "// @test-evidence derived not-a-case",
-      "",
-      "func TestInvalidMarker(t *testing.T) {}"
-    ].join("\n")
+  const overdueCatalog = await fs.readFile(overdueCatalogPath, "utf8");
+  await fs.writeFile(
+    overdueCatalogPath,
+    overdueCatalog.replace(
+      "Reviewed-At: 2026-07-20T10:30:00+08:00",
+      "Reviewed-At: 2020-01-01T00:00:00Z"
+    ),
+    "utf8"
   );
+  const overdueReview = await validateTestEvidence({
+    workspaceRoot: overdueReviewRoot
+  });
+  assert.ok(overdueReview.warnings.some((warning) =>
+    warning.includes("exceeding reviewMaxAgeDays 30")
+  ));
+
+  const unavailableBaselineRoot = path.join(tempRoot, "unavailable-baseline");
+  await writeWorkspace(unavailableBaselineRoot);
   await writeFile(
-    invalidRoot,
-    "tests/malformed_marker.test.ts",
-    [
-      "// @test-evidence derived WB-CALC-ADD-001 trailing",
-      "",
-      "test(\"malformed marker\", () => {});"
-    ].join("\n")
+    unavailableBaselineRoot,
+    ".test-evidence.json",
+    `${JSON.stringify({
+      reviewTriggers: "warn",
+      schemaVersion: 2,
+      unregisteredTestEntries: "error"
+    }, null, 2)}\n`
   );
-  await writeFile(
-    invalidRoot,
-    "tests/mixed.test.js",
-    [
-      "// @test-evidence derived WB-CALC-ADD-001",
-      "// @test-evidence exempt EX-GENERATED-FIXTURE-001",
-      "",
-      "test(\"mixed roles\", () => {});"
-    ].join("\n")
+  const unavailableCatalogPath = path.join(
+    unavailableBaselineRoot,
+    "docs/testing/cases.md"
   );
-  await writeFile(
-    invalidRoot,
-    "src/orphan.ts",
-    "// @test-evidence derived WB-CALC-ADD-001"
+  const unavailableCatalog = await fs.readFile(unavailableCatalogPath, "utf8");
+  await fs.writeFile(
+    unavailableCatalogPath,
+    unavailableCatalog.replace(
+      /Reviewed-Commit: [0-9a-f]{40}/u,
+      `Reviewed-Commit: ${"0".repeat(40)}`
+    ),
+    "utf8"
   );
+  const unavailableBaseline = await validateTestEvidence({
+    workspaceRoot: unavailableBaselineRoot
+  });
+  assert.deepEqual(unavailableBaseline.errors, []);
+  assert.equal(unavailableBaseline.reviewTriggers.length, 1);
+  assert.ok(unavailableBaseline.warnings.some((warning) =>
+    warning.includes(`Reviewed-Commit ${"0".repeat(40)} is unavailable`)
+  ));
+
+  execGit(workspaceRoot, ["checkout", "--", "src/process/worker.ts"]);
+  await writeFile(workspaceRoot, "README.md", "Unrelated dirty documentation.\n");
+  const unrelatedDirty = await validateTestEvidence({ workspaceRoot });
+  assert.deepEqual(unrelatedDirty.errors, []);
+  assert.deepEqual(unrelatedDirty.reviewTriggers, []);
+
+  const entryInvalidRoot = path.join(tempRoot, "entry-invalid");
+  await writeWorkspace(entryInvalidRoot);
   await writeFile(
-    invalidRoot,
-    "tests/bad_exempt.py",
-    [
-      "# @test-evidence exempt EX-BAD-SHAPE-001",
-      "",
-      "def test_bad_exemption():",
-      "    assert True"
-    ].join("\n")
-  );
-  await writeFile(
-    invalidRoot,
-    "src/missing.test.ts",
-    [
-      "// @test-evidence derived WB-MISSING-MAIN-001",
-      "",
-      "test(\"missing main\", () => {});"
-    ].join("\n")
-  );
-  await writeFile(
-    invalidRoot,
-    "src/mermaid-only.test.ts",
-    [
-      "// @test-evidence main WB-MERMAID-ONLY-001",
-      "",
-      "test(\"mermaid-only evidence\", () => {});"
-    ].join("\n")
-  );
-  await writeFile(
-    invalidRoot,
-    "src/duplicate-main.test.js",
+    entryInvalidRoot,
+    "src/calc.test.ts",
     [
       "// @test-evidence main WB-CALC-ADD-001",
-      "// @test-evidence derived WB-CALC-ADD-001",
-      "// @test-evidence derived WB-CALC-ADD-001",
+      "test(\"positive operands\", () => {});",
       "",
-      "test(\"duplicate main\", () => {});"
+      "test(\"unregistered zero branch\", () => {});"
     ].join("\n")
   );
   await writeFile(
-    invalidRoot,
-    "tests/duplicate_exempt.py",
+    entryInvalidRoot,
+    "tests/multiple-marker.test.js",
     [
-      "# @test-evidence exempt EX-GENERATED-FIXTURE-001",
-      "# @test-evidence exempt EX-GENERATED-FIXTURE-001",
-      "",
-      "def test_fixture_syntax():",
-      "    assert True"
+      "// @test-evidence derived WB-CALC-ADD-001",
+      "// @test-evidence derived WB-CALC-ADD-001",
+      "test(\"one entry cannot have two markers\", () => {});"
     ].join("\n")
   );
-
-  const invalid = await validateTestEvidence({ workspaceRoot: invalidRoot });
-  assertIncludesAll(invalid.errors, [
-    "src/unregistered.rs contains rust test entries",
-    "main WB-CALC-FUTURE-001 must reference an active automated case",
-    "derived must include a valid case ID",
-    "@test-evidence must use exactly",
-    "must not mix @test-evidence exempt",
-    "is not in a discovered test file",
-    "RV-MISSING-REASON-001 must include exactly one non-empty Reason list",
-    "invalid-case-id heading must start with a valid case ID",
-    "RV-BAD-SCOPE-001 Scope item must be one backticked",
-    "path or glob: `../src/process/**`",
-    "RV-PLANNED-REVIEW-001 Status: planned only supports Verification: automated",
-    "EX-BAD-SHAPE-001 active exempt cases must not declare Proves",
-    "exempt EX-BAD-SHAPE-001 references a structurally invalid case",
-    "EX-MISSING-MARKER-001 is missing @test-evidence exempt",
-    "WB-BAD-CODE-001 active automated case must declare exactly one valid Code path",
-    "WB-MISSING-MAIN-001 is missing @test-evidence main",
-    "WB-MERMAID-ONLY-001 must include exactly one non-empty Proves list",
-    "duplicate @test-evidence main marker: WB-CALC-ADD-001",
-    "must not mark WB-CALC-ADD-001 as both main and derived",
-    "must not repeat @test-evidence derived WB-CALC-ADD-001",
-    "must declare exactly one @test-evidence exempt marker"
-  ]);
-
-  const invalidCli = spawnSync(
-    "node",
-    [generatedCliPath, "check", "--root", invalidRoot, "--json"],
-    { encoding: "utf8" }
+  await writeFile(
+    entryInvalidRoot,
+    "tests/orphan.test.js",
+    [
+      "// @test-evidence derived WB-CALC-ADD-001",
+      "const setup = true;"
+    ].join("\n")
   );
-  assert.equal(invalidCli.status, 1);
-  assert.equal(invalidCli.stderr, "");
-  const invalidCliReport = JSON.parse(invalidCli.stdout) as { errors: string[] };
-  assertIncludesAll(invalidCliReport.errors, [
-    "invalid-case-id heading must start with a valid case ID",
-    "WB-BAD-CODE-001 active automated case must declare exactly one valid Code path"
+  const entryInvalid = await validateTestEvidence({ workspaceRoot: entryInvalidRoot });
+  assertIncludesAll(entryInvalid.errors, [
+    "src/calc.test.ts:4:1 contains a typescript test entry",
+    "every entry must have exactly one @test-evidence marker",
+    "does not directly precede a discovered test entry"
   ]);
+
+  const catalogInvalidRoot = path.join(tempRoot, "catalog-invalid");
+  await writeWorkspace(catalogInvalidRoot);
+  await appendCatalog(
+    catalogInvalidRoot,
+    [
+      "",
+      "### Notes",
+      "This ordinary level-three heading is not a case.",
+      "",
+      "```markdown",
+      "### Case WB-FENCED-EXAMPLE-001: This example is ignored",
+      "Status: active",
+      "Verification: automated",
+      "```",
+      "",
+      "  ### Case WB-INDENTED-CASE-001: Indented syntax is not the fixed form",
+      "Status: planned",
+      "Verification: automated",
+      "",
+      "Contract:",
+      "- A fixed heading syntax keeps IDs unambiguous.",
+      "",
+      "Proves:",
+      "- The heading starts at column one.",
+      "",
+      "### Case WB-BAD ID: The ID and title delimiter is malformed",
+      "Status: active",
+      "Verification: automated",
+      "",
+      "### Case WB-MISSING-CONTRACT-001: Automated case without a contract",
+      "Status: active",
+      "Verification: automated",
+      "Code: `src/missing-contract.test.ts`",
+      "",
+      "Contract:",
+      "This paragraph does not satisfy the required list.",
+      "- This later list must not be absorbed into Contract.",
+      "",
+      "Proves:",
+      "- A result exists.",
+      "",
+      "### Case RV-BAD-GLOB-001: Review case with an invalid glob",
+      "Status: active",
+      "Verification: review",
+      "",
+      "Contract:",
+      "- Cleanup must release process resources on every failure path.",
+      "",
+      "Scope:",
+      "- `src/process/[`",
+      "",
+      "Risk:",
+      "- A child process may remain alive.",
+      "",
+      "Reason:",
+      "- Fault injection remains disproportionate.",
+      "",
+      "Review:",
+      "- Confirm every failure path terminates the child process.",
+      "",
+      "### Case RV-NO-GIT-MATCH-001: Review scope must match Git-visible paths",
+      "Status: active",
+      "Verification: review",
+      "",
+      "Contract:",
+      "- Cleanup review obligations apply to the process implementation.",
+      "",
+      "Scope:",
+      "- `src/does-not-exist/**`",
+      "",
+      "Risk:",
+      "- A hidden path may bypass review.",
+      "",
+      "Reason:",
+      "- The risk requires direct code review.",
+      "",
+      "Review:",
+      "- Inspect every matched path."
+    ].join("\n")
+  );
+  await writeFile(
+    catalogInvalidRoot,
+    "src/missing-contract.test.ts",
+    [
+      "// @test-evidence main WB-MISSING-CONTRACT-001",
+      "test(\"missing contract\", () => {});"
+    ].join("\n")
+  );
+  const catalogInvalid = await validateTestEvidence({
+    workspaceRoot: catalogInvalidRoot
+  });
+  assertIncludesAll(catalogInvalid.errors, [
+    "case heading must use exactly: ### Case <CASE-ID>: <title>",
+    "WB-MISSING-CONTRACT-001 must include exactly one non-empty Contract list",
+    "RV-BAD-GLOB-001 Scope pattern is invalid",
+    "RV-NO-GIT-MATCH-001 Scope pattern src/does-not-exist/** does not match any Git-visible path"
+  ]);
+  assert.equal(
+    catalogInvalid.errors.filter((error) =>
+      error.includes("case heading must use exactly")
+    ).length,
+    2
+  );
+  assert.equal(catalogInvalid.summary.catalogCases, 9);
 
   const invalidUsage = spawnSync("node", [generatedCliPath, "unknown"], {
     encoding: "utf8"
@@ -357,89 +335,35 @@ try {
 
 console.log("Test evidence CLI tests passed.");
 
-async function writeWorkspace(
-  workspaceRoot: string,
-  unregisteredTestFiles: "error" | "warn"
-): Promise<void> {
+async function writeWorkspace(workspaceRoot: string): Promise<void> {
   await writeFile(
     workspaceRoot,
     ".test-evidence.json",
     `${JSON.stringify({
-      schemaVersion: 1,
-      unregisteredTestFiles
+      reviewTriggers: "error",
+      schemaVersion: 2,
+      unregisteredTestEntries: "error"
     }, null, 2)}\n`
   );
   await writeFile(
     workspaceRoot,
     "docs/testing/cases.md",
-    [
-      "# Test cases",
-      "",
-      "### WB-CALC-ADD-001 Addition remains observable",
-      "Status: active",
-      "Verification: automated",
-      "Code: `src/calc.test.ts`",
-      "",
-      "Proves:",
-      "- Positive operands return their sum.",
-      "- Zero operands preserve the additive identity.",
-      "",
-      "```mermaid",
-      "flowchart LR",
-      "  base[\"Shared calculator fixture\"] --> kind{\"Operand branch\"}",
-      "",
-      "  subgraph outcomes[\"Leaf assertions\"]",
-      "    positive[\"Returns the sum\"]",
-      "    zero[\"Returns zero\"]",
-      "  end",
-      "",
-      "  kind -->|\"positive\"| positive",
-      "  kind -->|\"zero\"| zero",
-      "```",
-      "",
-      "### WB-CALC-FUTURE-001 Future behavior",
-      "Status: planned",
-      "Verification: automated",
-      "",
-      "Proves:",
-      "- A future public behavior has an explicit proof target.",
-      "",
-      "### RV-PROCESS-CLEANUP-001 Child process cleanup remains safe",
-      "Status: active",
-      "Verification: review",
-      "",
-      "Scope:",
-      "- `src/process/**`",
-      "",
-      "Risk:",
-      "- Abnormal termination may leave a child process running.",
-      "",
-      "Reason:",
-      "- Reliable automation requires disproportionate operating-system fault injection.",
-      "",
-      "Review:",
-      "- Confirm every failure path terminates the child process.",
-      "",
-      "### EX-GENERATED-FIXTURE-001 Generated fixture is not project evidence",
-      "Status: active",
-      "Verification: exempt",
-      "",
-      "Scope:",
-      "- `tests/generated_test.go`",
-      "",
-      "Reason:",
-      "- The file is read as fixture data and never executed as a project test."
-    ].join("\n")
+    createCatalog()
   );
   await writeFile(
     workspaceRoot,
     "src/calc.test.ts",
     [
       "// @test-evidence main WB-CALC-ADD-001",
+      "test(\"positive operands\", async () => {",
+      "  await test.step(\"calculate\", async () => {});",
+      "});",
       "",
-      "test(\"adds\", () => {",
-      "  assert.equal(add(1, 2), 3);",
-      "});"
+      "test.describe(\"calculator\", () => {});",
+      "test.beforeEach(() => {});",
+      "",
+      "// @test-evidence derived WB-CALC-ADD-001",
+      "test.each([[0, 0]])(\"zero operands\", () => {});"
     ].join("\n")
   );
   await writeFile(
@@ -447,9 +371,8 @@ async function writeWorkspace(
     "tests/test_calc.py",
     [
       "# @test-evidence derived WB-CALC-ADD-001",
-      "",
       "def test_addition_boundary():",
-      "    assert add(0, 0) == 0"
+      "    assert True"
     ].join("\n")
   );
   await writeFile(
@@ -457,15 +380,116 @@ async function writeWorkspace(
     "tests/generated_test.go",
     [
       "// @test-evidence exempt EX-GENERATED-FIXTURE-001",
-      "",
       "func TestGeneratedCompatibility(t *testing.T) {}"
     ].join("\n")
   );
   await writeFile(
     workspaceRoot,
-    ".tmp/ignored.rs",
-    ["#[test]", "fn ignored_temporary_test() {}"].join("\n")
+    "src/process/worker.ts",
+    "export function stopChild(): void {}\n"
   );
+
+  initializeGit(workspaceRoot);
+  const reviewedCommit = commitAll(workspaceRoot, "initial evidence");
+  await writeFile(
+    workspaceRoot,
+    "docs/testing/cases.md",
+    createCatalog(reviewedCommit)
+  );
+  commitAll(workspaceRoot, "record completed review");
+}
+
+function createCatalog(reviewedCommit?: string): string {
+  const reviewState = reviewedCommit === undefined
+    ? []
+    : [
+        "Review-Result: pass",
+        "Reviewed-At: 2026-07-20T10:30:00+08:00",
+        `Reviewed-Commit: ${reviewedCommit}`,
+        ""
+      ];
+  return [
+    "# Test cases",
+    "",
+    "### Case WB-CALC-ADD-001: Addition remains observable",
+    "Status: active",
+    "Verification: automated",
+    "Code: `src/calc.test.ts`",
+    "",
+    "Contract:",
+    "- Addition returns the mathematical sum and preserves the additive identity.",
+    "",
+    "Proves:",
+    "- Positive operands return their sum.",
+    "- Zero operands preserve the additive identity.",
+    "",
+    "```mermaid",
+    "flowchart LR",
+    "  base[\"Shared calculator fixture\"] --> kind{\"Operand branch\"}",
+    "  kind -->|\"positive\"| positive[\"Returns the sum\"]",
+    "  kind -->|\"zero\"| zero[\"Returns zero\"]",
+    "```",
+    "",
+    "### Case WB-CALC-FUTURE-001: Future behavior remains explicit",
+    "Status: planned",
+    "Verification: automated",
+    "",
+    "Contract:",
+    "- A future public calculation rule requires an explicit proof target.",
+    "",
+    "Proves:",
+    "- The future result remains observable.",
+    "",
+    "### Case RV-PROCESS-CLEANUP-001: Child process cleanup remains safe",
+    "Status: active",
+    "Verification: review",
+    "",
+    "Contract:",
+    "- Every process exit path releases the child process and temporary resources.",
+    "",
+    "Scope:",
+    "- `src/process/**`",
+    "",
+    "Risk:",
+    "- Abnormal termination may leave a child process running.",
+    "",
+    "Reason:",
+    "- Reliable automation requires disproportionate operating-system fault injection.",
+    "",
+    "Review:",
+    "- Confirm every failure path terminates the child process.",
+    "",
+    ...reviewState,
+    "### Case EX-GENERATED-FIXTURE-001: Generated fixture is not project evidence",
+    "Status: active",
+    "Verification: exempt",
+    "",
+    "Scope:",
+    "- `tests/generated_test.go`",
+    "",
+    "Reason:",
+    "- The file is read as fixture data and never executed as a project test.",
+    ""
+  ].join("\n");
+}
+
+function initializeGit(workspaceRoot: string): void {
+  execGit(workspaceRoot, ["init", "-q"]);
+  execGit(workspaceRoot, ["config", "core.autocrlf", "false"]);
+  execGit(workspaceRoot, ["config", "user.email", "test-evidence@example.invalid"]);
+  execGit(workspaceRoot, ["config", "user.name", "Test Evidence"]);
+}
+
+function commitAll(workspaceRoot: string, message: string): string {
+  execGit(workspaceRoot, ["add", "."]);
+  execGit(workspaceRoot, ["commit", "-qm", message]);
+  return execGit(workspaceRoot, ["rev-parse", "HEAD"]).trim();
+}
+
+function execGit(workspaceRoot: string, args: readonly string[]): string {
+  return execFileSync("git", ["-C", workspaceRoot, ...args], {
+    encoding: "utf8"
+  });
 }
 
 async function appendCatalog(workspaceRoot: string, content: string): Promise<void> {

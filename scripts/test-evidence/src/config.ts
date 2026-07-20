@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import * as v from "valibot";
 import {
+  reviewTriggerPolicies,
   supportedLanguages,
   type TestEvidenceConfig,
   unregisteredPolicies
@@ -31,8 +32,14 @@ const configSchema = v.strictObject({
   ignoreGlobs: v.optional(v.array(nonEmptyStringSchema)),
   includeGlobs: v.optional(v.array(nonEmptyStringSchema)),
   languages: v.optional(v.array(v.picklist(supportedLanguages))),
-  schemaVersion: v.literal(1, "must be 1"),
-  unregisteredTestFiles: v.optional(v.picklist(unregisteredPolicies))
+  reviewMaxAgeDays: v.optional(v.pipe(
+    v.number("must be a number"),
+    v.integer("must be an integer"),
+    v.minValue(1, "must be at least 1")
+  )),
+  reviewTriggers: v.optional(v.picklist(reviewTriggerPolicies)),
+  schemaVersion: v.literal(2, "must be 2"),
+  unregisteredTestEntries: v.optional(v.picklist(unregisteredPolicies))
 });
 
 type ParsedConfig = v.InferOutput<typeof configSchema>;
@@ -58,7 +65,7 @@ export async function loadTestEvidenceConfig(
   }
 
   const configPath = path.join(workspaceRoot, configRelativePath);
-  let parsed: ParsedConfig = { schemaVersion: 1 };
+  let parsed: ParsedConfig = { schemaVersion: 2 };
   try {
     parsed = parseConfigText(await fs.readFile(configPath, "utf8"), configRelativePath, errors);
   } catch (error) {
@@ -102,8 +109,10 @@ export async function loadTestEvidenceConfig(
       ignoreGlobs,
       includeGlobs,
       languages: [...new Set(parsed.languages ?? supportedLanguages)],
-      schemaVersion: 1,
-      unregisteredTestFiles: parsed.unregisteredTestFiles ?? "warn"
+      reviewMaxAgeDays: parsed.reviewMaxAgeDays,
+      reviewTriggers: parsed.reviewTriggers ?? "warn",
+      schemaVersion: 2,
+      unregisteredTestEntries: parsed.unregisteredTestEntries ?? "warn"
     },
     configRelativePath,
     errors
@@ -120,7 +129,7 @@ function parseConfigText(text: string, relativePath: string, errors: string[]): 
         error instanceof Error ? error.message : String(error)
       }`
     );
-    return { schemaVersion: 1 };
+    return { schemaVersion: 2 };
   }
 
   const result = v.safeParse(configSchema, value);
@@ -130,7 +139,7 @@ function parseConfigText(text: string, relativePath: string, errors: string[]): 
       const prefix = issuePath === null ? relativePath : `${relativePath} ${issuePath}`;
       return `${prefix} ${issue.message}`;
     }));
-    return { schemaVersion: 1 };
+    return { schemaVersion: 2 };
   }
   return result.output;
 }

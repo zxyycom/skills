@@ -5,6 +5,7 @@ import { validateCatalogCases } from "./catalog-validation.ts";
 import { loadTestEvidenceConfig } from "./config.ts";
 import { discoverSourceFiles } from "./discovery.ts";
 import { validateEvidenceState } from "./evidence-validation.ts";
+import { validateGitState } from "./git-validation.ts";
 import type {
   TestEvidenceReport,
   TestEvidenceSummary
@@ -19,14 +20,16 @@ const emptySummary: TestEvidenceSummary = {
   activeAutomatedCases: 0,
   catalogCases: 0,
   derivedMarkers: 0,
+  discoveredTestEntries: 0,
   discoveredTestFiles: 0,
   exemptCases: 0,
   exemptMarkers: 0,
-  exemptTestFiles: 0,
+  exemptTestEntries: 0,
   mainMarkers: 0,
   plannedAutomatedCases: 0,
   reviewCases: 0,
-  unregisteredTestFiles: 0
+  reviewTriggers: 0,
+  unregisteredTestEntries: 0
 };
 
 export async function validateTestEvidence(
@@ -37,7 +40,12 @@ export async function validateTestEvidence(
   const loaded = await loadTestEvidenceConfig(workspaceRoot, options.configPath);
   errors.push(...loaded.errors);
   if (loaded.config === null) {
-    return { errors: uniqueSorted(errors), summary: { ...emptySummary }, warnings: [] };
+    return {
+      errors: uniqueSorted(errors),
+      reviewTriggers: [],
+      summary: { ...emptySummary },
+      warnings: []
+    };
   }
   const config = loaded.config;
 
@@ -63,7 +71,15 @@ export async function validateTestEvidence(
     catalogPath: config.catalogPath,
     documentedCaseIds: catalog.documentedCaseIds,
     files: discovery.files,
-    unregisteredTestFiles: config.unregisteredTestFiles
+    unregisteredTestEntries: config.unregisteredTestEntries
+  });
+  const git = await validateGitState({
+    catalogPath: config.catalogPath,
+    configPath: loaded.configRelativePath,
+    reviewMaxAgeDays: config.reviewMaxAgeDays,
+    reviewTriggerPolicy: config.reviewTriggers,
+    scopedCases: catalog.cases,
+    workspaceRoot
   });
 
   return {
@@ -71,10 +87,15 @@ export async function validateTestEvidence(
       ...errors,
       ...catalog.errors,
       ...discovery.errors,
-      ...evidence.errors
+      ...evidence.errors,
+      ...git.errors
     ]),
-    summary: evidence.summary,
-    warnings: uniqueSorted(evidence.warnings)
+    reviewTriggers: git.reviewTriggers,
+    summary: {
+      ...evidence.summary,
+      reviewTriggers: git.reviewTriggers.length
+    },
+    warnings: uniqueSorted([...evidence.warnings, ...git.warnings])
   };
 }
 
