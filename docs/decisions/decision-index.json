@@ -128,6 +128,13 @@
       "decision": "`SKILL.md` 继续作为默认执行路径 owner, 但主执行流程只保留压缩后的八步判断链, 细节解释由 `principles.md` 和具体任务上下文承接。"
     },
     {
+      "path": "skill-maintainer-behavior/260719-own-project-aware-skill-lifecycle.md",
+      "title": "让 skill-maintainer 承接环境自适应的 skill 生命周期",
+      "purpose": "让可复用的 agent 能力由新 skill、既有 skill 或其他 owner 清楚承接，并让选定的 skill 在简约或完整的维护环境中都能交付。",
+      "background": "Skill 可能位于成熟仓库、独立目录或安装位置；把项目级 owner、校验器和发布工具链作为默认前提会限制其可移植性。",
+      "decision": "使用 `skill-maintainer` 承接 skill 模型、能力归属和行为契约，采用“自包含最小基线加环境适配”的交付方式，并随包提供独立结构验证器。"
+    },
+    {
       "path": "subagent-orchestration-behavior/260718-default-to-minimal-subagent-history.md",
       "title": "默认以最小历史派发子代理",
       "purpose": "让子代理只获得完成任务所需的上下文，降低无关历史干扰并保持工具无关。",

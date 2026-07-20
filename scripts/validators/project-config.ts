@@ -12,12 +12,15 @@ const requiredPackageScripts = [
   "typecheck",
   "validate",
   "validate:decisions",
+  "test:skill-validator",
   "test:skill-updater",
   "hash:skills",
   "pack:skills",
   "setup-hooks",
   "sync:skill-updaters",
   "check:skill-updaters",
+  "sync:skill-validator",
+  "check:skill-validator",
   "check",
   "deploy:package"
 ] as const;

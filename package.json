@@ -12,6 +12,7 @@
     "validate": "bun scripts/validate.ts",
     "validate:decisions": "bun scripts/decision-records/src/cli.ts check",
     "test:decision-records-cli": "bun scripts/decision-records/tests/run.ts",
+    "test:skill-validator": "bun scripts/skill-validator/tests/run.ts",
     "test:test-evidence-cli": "bun scripts/test-evidence/tests/run.ts",
     "test:skill-updater": "bun scripts/templates/update-skill/tests/run.ts",
     "hash:skills": "bun scripts/hash-skills.ts",
@@ -19,12 +20,14 @@
     "setup-hooks": "bun scripts/setup-git-hooks.ts",
     "sync:decision-records-cli": "bun scripts/decision-records/build.ts --write",
     "check:decision-records-cli": "bun scripts/decision-records/build.ts --check",
+    "sync:skill-validator": "bun scripts/skill-validator/build.ts --write",
+    "check:skill-validator": "bun scripts/skill-validator/build.ts --check",
     "sync:test-evidence-cli": "bun scripts/test-evidence/build.ts --write",
     "check:test-evidence-cli": "bun scripts/test-evidence/build.ts --check",
     "sync:skill-updaters": "bun scripts/sync-skill-updaters.ts --write",
     "check:skill-updaters": "bun scripts/sync-skill-updaters.ts --check",
     "deploy:package": "bun scripts/hash-skills.ts --check && bun run check",
-    "check": "bun run typecheck && bun run check:decision-records-cli && bun run check:test-evidence-cli && bun run check:skill-updaters && bun run test:decision-records-cli && bun run test:test-evidence-cli && bun run test:skill-updater && bun scripts/validate.ts && bun scripts/pack-skills.ts"
+    "check": "bun run typecheck && bun run check:decision-records-cli && bun run check:skill-validator && bun run check:test-evidence-cli && bun run check:skill-updaters && bun run test:decision-records-cli && bun run test:skill-validator && bun run test:test-evidence-cli && bun run test:skill-updater && bun scripts/validate.ts && bun scripts/pack-skills.ts"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",

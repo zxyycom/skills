@@ -26,6 +26,8 @@
 
 [Prompt Optimize](docs/skills/prompt-optimize.md) 关注文档优化。它的核心不是润色文字，而是改善文档对 agent 的引导效果，让文档成为人类和 agent 之间更可靠的协作接口。实际 skill 位于 [`skills/prompt-optimize/`](skills/prompt-optimize/)。
 
+[Skill Maintainer](docs/skills/skill-maintainer.md) 说明 skill 的组成与主要类型，判断能力归属，以自包含基线和环境适配完成交付，并随包提供机械结构验证器。实际 skill 位于 [`skills/skill-maintainer/`](skills/skill-maintainer/)。
+
 [Git Commit Organizer](docs/skills/git-commit-organizer.md) 关注提交信息质量。它希望统一提交风格，让每一次提交都能更准确地表达变更意图，降低后续阅读、审查、追踪和管理成本。实际 skill 位于 [`skills/git-commit-organizer/`](skills/git-commit-organizer/)。
 
 [OpenSpec Skills](docs/skills/openspec-skills.md) 关注 OpenSpec skills 的二次开发。它的起点是原有 OpenSpec skill 文本还不够适合实际 agent 协作，需要重新梳理阶段边界、指令质量和执行脉络。实际 skill 位于 [`skills/openspec-explore/`](skills/openspec-explore/)、[`skills/openspec-propose/`](skills/openspec-propose/)、[`skills/openspec-apply-change/`](skills/openspec-apply-change/) 和 [`skills/openspec-archive-change/`](skills/openspec-archive-change/)。

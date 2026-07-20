@@ -78,7 +78,7 @@ export async function validateMarkdownLinks(
         : filePath;
       const relativeToRoot = path.relative(workspaceRoot, resolved);
       if (relativeToRoot.startsWith("..") || path.isAbsolute(relativeToRoot)) {
-        report(`${relativeFilePath} links outside the repository: ${target}`);
+        report(`${relativeFilePath} links outside the validation root: ${target}`);
         continue;
       }
 

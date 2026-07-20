@@ -1,33 +1,33 @@
 import {
-  collectFiles,
   collectMainMarkdownFiles,
   discoverSkillPackages,
   rootDir
 } from "./lib/project.ts";
 import { ValidationReporter } from "./lib/validation.ts";
 import { validateDecisionRecords } from "./decision-records/src/index.ts";
+import { validateSkillDirectory } from "./skill-validator/src/validation.ts";
 import { validateMarkdownLinks } from "./validators/markdown-links.ts";
 import {
   validatePackageScripts,
   validateRequiredProjectFiles
 } from "./validators/project-config.ts";
-import { validateSkillFrontmatter } from "./validators/skill-frontmatter.ts";
 
 const reporter = new ValidationReporter();
 const discovery = await discoverSkillPackages(rootDir);
 reporter.addAll(discovery.errors);
 
+const allowedFrontmatterKeys = ["name", "description", "license", "compatibility", "metadata"];
+let skillMarkdownFileCount = 0;
 for (const skill of discovery.skills) {
-  await validateSkillFrontmatter(skill, reporter.report, rootDir);
+  const result = await validateSkillDirectory(skill.directory, { allowedFrontmatterKeys });
+  skillMarkdownFileCount += result.markdownFileCount;
+  for (const error of result.errors) {
+    reporter.report(`skills/${skill.name}/${error}`);
+  }
 }
 
 const mainMarkdownFiles = await collectMainMarkdownFiles(rootDir);
-const skillMarkdownFiles = (await Promise.all(discovery.skills.map((skill) => collectFiles(skill.directory))))
-  .flat()
-  .filter((filePath) => filePath.endsWith(".md"));
-const markdownFiles = [...mainMarkdownFiles, ...skillMarkdownFiles];
-
-await validateMarkdownLinks(markdownFiles, reporter.report, rootDir);
+await validateMarkdownLinks(mainMarkdownFiles, reporter.report, rootDir);
 
 const decisionValidation = await validateDecisionRecords({ workspaceRoot: rootDir });
 reporter.addAll(decisionValidation.errors);
@@ -43,4 +43,7 @@ if (reporter.hasErrors()) {
   process.exit(1);
 }
 
-console.log(`Validation passed (${discovery.skills.length} skills, ${markdownFiles.length} markdown files checked).`);
+console.log(
+  `Validation passed (${discovery.skills.length} skills, `
+  + `${mainMarkdownFiles.length + skillMarkdownFileCount} markdown files checked).`
+);

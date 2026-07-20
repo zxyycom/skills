@@ -43,10 +43,13 @@ export type SkillPackageFile = {
   path: string;
 };
 
+const gitOutputMaxBuffer = 16 * 1024 * 1024;
+
 function readGitOutput(args: string[], cwd: string): string {
   return execFileSync("git", args, {
     cwd,
     encoding: "utf8",
+    maxBuffer: gitOutputMaxBuffer,
     stdio: ["ignore", "pipe", "inherit"]
   }).trim();
 }
@@ -54,6 +57,7 @@ function readGitOutput(args: string[], cwd: string): string {
 function readGitBlob(args: string[], cwd: string): Buffer {
   return execFileSync("git", args, {
     cwd,
+    maxBuffer: gitOutputMaxBuffer,
     stdio: ["ignore", "pipe", "inherit"]
   });
 }
