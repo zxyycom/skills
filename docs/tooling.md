@@ -167,6 +167,6 @@ GitHub CI 复用本地入口：
 6. 从 `github.event.before` 读取上一提交的 `skill-package-lock.json` 中的 `aggregateHash`；当前聚合 hash 与上一提交聚合 hash 不同时，认为需要发布新的版本化 release 并更新 latest 兼容入口。
 7. 上传 `dist/*` 作为 workflow artifact，包含全部 skill zip 和 `skill-package-lock.json`，方便从单次运行中排查制品与单 skill hash。
 8. 对 `main` 分支的 `push`，仅当当前 hash 与上一提交 hash 不一致时发布 GitHub Release `<timestamp>-<hash12>`，并同步更新 `skills-latest`；`workflow_dispatch` 作为手动重发入口。
-9. Release 更新成功后，CI 上传全部 `dist/*`，不向 `main` 写回发布状态提交。
+9. Release 更新成功后，CI 上传全部 `dist/*`；更新固定 `skills-latest` 时先删除其中已有 assets，再上传当前完整资产集，避免已移除或重命名的 skill zip 残留；CI 不向 `main` 写回发布状态提交。
 
 CI 发布使用 UTC 时间戳和内容 hash 生成版本化 release tag：格式为 `<timestamp>-<hash12>`，例如 `20260701T085839Z-33304575c8da`；`<hash12>` 是当前 `skill-package-lock.json` 中 `aggregateHash` 的前 12 位。该版本化 release 是 GitHub Releases 列表里的真实发布记录，并显式标记为 Latest。固定 `skills-latest` release 只作为兼容下载入口继续维护，tag 指向最新发布提交，assets 覆盖为当前全部 skill zip 和 `skill-package-lock.json`，但不作为发布时间语义来源。PR 只运行校验、打包、hash 校验和 artifact 上传，不发布 release。只改 `docs/skills/`、主仓库维护文档、脚本或 CI 时，hash 不变，CI 不发布新的版本化 release，也不覆盖 latest release。

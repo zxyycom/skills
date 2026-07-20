@@ -142,7 +142,15 @@ jobs:
               --target "$GITHUB_SHA" \
               --title "$LATEST_NAME" \
               --notes "$release_notes"
-            gh release upload "$LATEST_TAG" dist/* --clobber
+
+            existing_assets="$(gh release view "$LATEST_TAG" --json assets --jq '.assets[].name')"
+            while IFS= read -r asset_name; do
+              if [ -n "$asset_name" ]; then
+                gh release delete-asset "$LATEST_TAG" "$asset_name" --yes
+              fi
+            done <<< "$existing_assets"
+
+            gh release upload "$LATEST_TAG" dist/*
           else
             gh release create "$LATEST_TAG" \
               dist/* \
