@@ -392,8 +392,33 @@
       ]
     },
     {
-      "path": "decision-records/use-error-recovery-reference.md",
+      "path": "decision-records/package-index-json-schema.md",
       "status": "active",
+      "createdAt": "2026-07-21T01:29:45Z",
+      "title": "随包分发索引 JSON Schema",
+      "purpose": "让工具损坏时可以直接取得机器可读的索引结构并恢复必要操作。",
+      "background": "固定契约足以解释格式，但临时工具仍需要重新提取字段、枚举和基础约束。",
+      "decision": "从 CLI 共享常量生成索引 JSON Schema，并作为 decision-records 资源随包分发。",
+      "relations": []
+    },
+    {
+      "path": "decision-records/support-degraded-decision-maintenance.md",
+      "status": "active",
+      "createdAt": "2026-07-21T01:04:44Z",
+      "title": "支持故障时的降级决策维护",
+      "purpose": "让 CLI 或运行时损坏时仍能恢复工具或继续完成可追踪的决策维护。",
+      "background": "既有手册只能描述命令效果，缺少替代运行时、重新取得工具和手工维护路径。",
+      "decision": "维护恢复手册仅在异常时读取，并提供 CLI 下载、源码重建、最小复现和直接索引维护路径。",
+      "relations": [
+        {
+          "type": "修订",
+          "target": "decision-records/use-error-recovery-reference.md"
+        }
+      ]
+    },
+    {
+      "path": "decision-records/use-error-recovery-reference.md",
+      "status": "archived",
       "createdAt": "2026-07-20T13:18:28Z",
       "title": "使用按需维护恢复手册",
       "purpose": "让旧项目冷启动、索引损坏或运行时故障能够按固定顺序恢复到可校验状态。",

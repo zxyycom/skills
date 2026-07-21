@@ -1,7 +1,8 @@
 const decisionFileNamePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 const decisionTopicIdPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const decisionRelativePathPattern =
-  /^[a-z0-9]+(?:-[a-z0-9]+)*\/[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
+export const decisionRelativePathPatternSource =
+  "^[a-z0-9]+(?:-[a-z0-9]+)*/[a-z0-9]+(?:-[a-z0-9]+)*\\.md$";
+const decisionRelativePathPattern = new RegExp(decisionRelativePathPatternSource);
 const legacyDecisionFileNamePattern =
   /^(\d{6})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 

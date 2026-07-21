@@ -8,6 +8,7 @@ import {
   type BunBundleResult
 } from "../lib/generated-file.ts";
 import { githubRepository, rootDir } from "../lib/project.ts";
+import { decisionIndexJsonSchema } from "./src/decision-index-json-schema.ts";
 
 const sourceRelativePath = "scripts/decision-records/src/cli.ts";
 const declarationSourceRelativePath =
@@ -15,6 +16,10 @@ const declarationSourceRelativePath =
 const outputRelativePath = "skills/decision-records/scripts/decision-records.mjs";
 const declarationOutputRelativePath =
   "skills/decision-records/scripts/decision-records.d.mts";
+const schemaSourceRelativePath =
+  "scripts/decision-records/src/decision-index-json-schema.ts";
+const schemaOutputRelativePath =
+  "skills/decision-records/references/decision-index.schema.json";
 
 async function buildArtifact(): Promise<BunBundleResult> {
   return await bundleWithBun({
@@ -50,6 +55,7 @@ async function main(): Promise<void> {
     }),
     sourcePath: path.join(rootDir, declarationSourceRelativePath)
   });
+  const expectedSchema = `${JSON.stringify(decisionIndexJsonSchema, null, 2)}\n`;
   if (expected.sourceMap === null) {
     throw new Error("Decision records CLI bundle must include a source map");
   }
@@ -62,6 +68,11 @@ async function main(): Promise<void> {
         content: expectedDeclaration,
         path: path.join(rootDir, declarationOutputRelativePath),
         sourcePath: declarationSourceRelativePath
+      },
+      {
+        content: expectedSchema,
+        path: path.join(rootDir, schemaOutputRelativePath),
+        sourcePath: schemaSourceRelativePath
       }
     ],
     mode,

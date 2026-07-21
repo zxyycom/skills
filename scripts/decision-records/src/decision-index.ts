@@ -1,4 +1,5 @@
 import * as v from "valibot";
+import { decisionTimestampPatternSource } from "./decision-index-json-schema.ts";
 import { isDecisionRelativePath } from "./decision-path.ts";
 import { projectionTextIssue } from "./projection.ts";
 import {
@@ -40,8 +41,7 @@ export const decisionIndexSchema = v.strictObject(
 export type DecisionIndex = v.InferOutput<typeof decisionIndexSchema>;
 export type DecisionIndexEntry = DecisionIndex["records"][number];
 
-const rfc3339TimestampPattern =
-  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(Z|[+-](\d{2}):(\d{2}))$/;
+const rfc3339TimestampPattern = new RegExp(decisionTimestampPatternSource);
 
 function isRfc3339Timestamp(value: string): boolean {
   const match = value.match(rfc3339TimestampPattern);

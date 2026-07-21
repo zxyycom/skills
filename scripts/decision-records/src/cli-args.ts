@@ -119,7 +119,7 @@ export function createCliProgram(
     .addHelpText(
       "afterAll",
       "\nDecision paths are relative to the decision directory, for example "
-      + "topic/use-semantic-title.md. Existing dated paths remain readable.\n"
+      + "topic/use-semantic-title.md.\n"
       + "Exit codes: 0 success (queries may report warnings), "
       + "1 blocking validation or index failure, 2 invalid arguments."
     )

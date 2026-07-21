@@ -38,7 +38,7 @@
 8. `bun run test:skill-validator`: 使用临时 skill 目录测试结构校验源码、包内 MJS 导入、Node CLI、类型声明、失败诊断和生成头。
 9. `bun run test:test-evidence-cli`: 从预构建 Git fixture 物化隔离 worktree，在进程内测试校验和可导入 CLI，只用 Node 子进程证明成功与失败入口。
 10. `bun run test:skill-updater`: 使用本地假 GitHub 响应和临时目录测试 updater 的包内 MJS 导入、Node CLI、lock、zip 指纹、更新替换和失败诊断。
-11. `bun run sync:decision-records-cli`: 从 `scripts/decision-records/` 构建并写入 skill 内的 `scripts/decision-records.mjs`、类型声明和 source map。
+11. `bun run sync:decision-records-cli`: 从 `scripts/decision-records/` 构建并写入 skill 内的 `scripts/decision-records.mjs`、类型声明、source map 和索引 JSON Schema。
 12. `bun run check:decision-records-cli`: 在临时目录构建 CLI，并检查 skill 内分发产物是否与当前源码一致。
 13. `bun run sync:skill-validator`: 从 `scripts/skill-validator/` 构建并写入 `skill-maintainer` 内的 `scripts/validate-skill.mjs`、类型声明和 source map。
 14. `bun run check:skill-validator`: 在临时目录构建结构验证器，并检查 skill 内分发产物是否与当前源码一致。
@@ -92,7 +92,7 @@
 2. 声明源：`scripts/decision-records/decision-records.d.mts`。
 3. 测试和夹具：`scripts/decision-records/tests/`。
 4. 构建入口：`scripts/decision-records/build.ts`。
-5. 分发产物：`skills/decision-records/scripts/decision-records.mjs`、`decision-records.d.mts` 及 `decision-records.mjs.map`。
+5. 分发产物：`skills/decision-records/scripts/decision-records.mjs`、`decision-records.d.mts`、`decision-records.mjs.map` 及 `skills/decision-records/references/decision-index.schema.json`。
 6. 同步：`bun run sync:decision-records-cli`。
 7. 检查：`bun run check:decision-records-cli`。
 8. 测试：`bun run test:decision-records-cli`。

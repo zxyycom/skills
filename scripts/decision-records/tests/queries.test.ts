@@ -136,14 +136,13 @@ const successorTrace = await traceDecision(
 );
 assert.match(successorTrace, /tooling\/use-generated-cli\.md/);
 
-// Keep real Node failures to prove removed aliases and invalid-argument exit codes.
+// Keep real Node failures to prove invalid-option exit codes.
 for (const invalidArguments of [
-  ["list", "--archived", "--root", fixtureRoot],
+  ["list", "--unknown-option", "--root", fixtureRoot],
   [
     "archive",
     currentRelativePath,
-    "--by",
-    archivedRelativePath,
+    "--unknown-option",
     "--root",
     fixtureRoot
   ]

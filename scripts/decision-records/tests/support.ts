@@ -25,6 +25,13 @@ export const generatedDeclarationPath = path.join(
   "scripts",
   "decision-records.d.mts"
 );
+export const generatedSchemaPath = path.join(
+  rootDirectory,
+  "skills",
+  "decision-records",
+  "references",
+  "decision-index.schema.json"
+);
 export const generatedUpdaterPath = path.join(
   rootDirectory,
   "skills",

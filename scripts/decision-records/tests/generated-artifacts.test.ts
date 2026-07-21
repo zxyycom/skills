@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { decisionIndexJsonSchema } from "../src/decision-index-json-schema.ts";
 import {
   generatedCliPath,
   generatedDeclarationPath,
+  generatedSchemaPath,
   generatedUpdaterPath
 } from "./support.ts";
 
@@ -30,6 +32,28 @@ assert.match(declarationSource, /validateDecisionRecords/);
 assert.match(declarationSource, /runDecisionRecordsCli/);
 assert.match(declarationSource, /DecisionProjection/);
 assert.match(declarationSource, /schemaVersion: 3/);
+
+const distributedSchema: unknown = JSON.parse(
+  await fs.readFile(generatedSchemaPath, "utf8")
+);
+assert.deepEqual(distributedSchema, decisionIndexJsonSchema);
+assert.equal(
+  decisionIndexJsonSchema.$schema,
+  "https://json-schema.org/draft/2020-12/schema"
+);
+assert.deepEqual(
+  decisionIndexJsonSchema.$defs.record.required,
+  [
+    "path",
+    "status",
+    "createdAt",
+    "title",
+    "purpose",
+    "background",
+    "decision",
+    "relations"
+  ]
+);
 
 const cliSourceMap = JSON.parse(
   await fs.readFile(`${generatedCliPath}.map`, "utf8")

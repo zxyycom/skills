@@ -56,13 +56,13 @@ try {
 
   await fs.writeFile(
     indexPath,
-    JSON.stringify({ schemaVersion: 2, current: [] }, null, 2) + "\n",
+    JSON.stringify({ schemaVersion: 4, records: [] }, null, 2) + "\n",
     "utf8"
   );
-  const withLegacySchemaVersion = await validateDecisionRecords({
+  const withUnsupportedSchemaVersion = await validateDecisionRecords({
     workspaceRoot: tempRoot
   });
-  assert.ok(withLegacySchemaVersion.errors.some(
+  assert.ok(withUnsupportedSchemaVersion.errors.some(
     (error) => error.includes("schemaVersion must be 3")
   ));
   const listWithInvalidIndex = await runBundledCli([

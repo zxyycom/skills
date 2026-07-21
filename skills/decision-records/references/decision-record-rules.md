@@ -58,9 +58,10 @@
 5. `title`、`purpose`、`background` 和 `decision` 去除首尾空白后必须分别包含 4 至 100 个 Unicode 码点，且为单行文本；CLI 报告实际长度，不截断、补齐或改写内容。
 6. 关系项保存 `type` 和直接前序的 `target` 路径；后续关系由 CLI 反向推导，不重复写入。
 7. `records` 固定按 POSIX `path` 升序排列，不按状态或时间重排；JSON 使用 UTF-8、两空格缩进和文件末尾换行。
-8. 通过 CLI 改变状态、登记记录或刷新派生字段；不直接维护生成字段和关系投影。
-9. 索引足以在 CLI 或 Node 环境不可用时直接恢复全部记录的大致状态、时间、摘要和直接关系；正常维护和严谨校验仍以 CLI 为准，冷启动、升级和错误恢复顺序见 `maintenance-recovery.md`。
-10. 删除或损坏索引会丢失生命周期、创建时间和关系投影，因此 CLI 必须校验 schema、路径、重复项、状态、时间和派生字段一致性；Git 历史承接异常恢复依据。
+8. 正常维护通过 CLI 改变状态、登记记录或刷新派生字段，不直接维护生成字段和关系投影。CLI 或运行时不可用且任务必须继续时，按 `maintenance-recovery.md` 构建候选索引，并在工具恢复后运行 `check`。
+9. 索引足以在 CLI 或 Node 环境不可用时恢复全部记录的大致状态、时间、摘要和直接关系，也为降级构建和更新提供依据；随包的 `decision-index.schema.json` 提供可直接交给 JSON Schema 工具的结构定义。
+10. JSON Schema 校验字段、类型、枚举、路径和基础格式；记录路径唯一性、路径排序、Markdown 投影一致性和关系图等集合约束由 CLI `check` 校验。
+11. 删除或损坏索引会丢失生命周期、创建时间和关系投影，因此 CLI 必须校验 schema、路径、重复项、状态、时间和派生字段一致性；Git 历史承接异常恢复依据。
 
 ## 正文结构
 
@@ -132,7 +133,7 @@
 
 ## 维护事务
 
-所有写入事务都检查当前行为 owner、关系和 JSON 索引，先生成完整候选索引，写入后重新运行完整校验，失败时恢复原索引。
+正常写入事务都检查当前行为 owner、关系和 JSON 索引，先生成完整候选索引，写入后重新运行完整校验，失败时恢复原索引。CLI 或运行时不可用时，恢复手册提供取得或复现 CLI、构建同一目标文件状态和完成最小手工检查的路径。
 
 ### 首次初始化或新增
 
@@ -184,7 +185,7 @@
 6. `activate <path>`：把已登记记录设为 `active`，或登记唯一目标并激活；满足首次初始化条件时创建 schema v3 索引。
 7. `archive <path...>`：只把指定活动记录设为 `archived`，不接受后续关系参数，也不激活其他记录。
 
-同一 MJS 可以从已安装 skill 的实际路径直接导入；导入不会执行命令。模块导出 `scanDecisionRecords`、`validateDecisionRecords` 和 `runDecisionRecordsCli(argv)`，其中前两者返回结构化结果，后者复用本节 CLI 输出语义并返回退出码；相邻的 `decision-records.d.mts` 是这些 exports 的 TypeScript 声明。
+同一 MJS 可以从已安装 skill 的实际路径直接导入；公开导出和类型以相邻的 `decision-records.d.mts` 为准。
 
 CLI 写命令属于校验式更新，不提供进程或系统中断级的原子保证；Git 历史承接异常恢复。`check`、`sync-index`、`activate` 和 `archive` 保持严格校验并在结构或索引错误时失败。
 
