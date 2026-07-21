@@ -15,6 +15,7 @@ const requiredPackageScripts = [
   "setup-hooks",
   "sync:skill-updaters",
   "sync:skill-validator",
+  "sync:investigation-report-check",
   "sync:decision-records-cli",
   "sync:test-evidence-cli",
   "sync:test-evidence-fixture",
