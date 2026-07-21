@@ -13,3 +13,10 @@
   - 核心问题: 本项目应选择哪种 TypeScript Git 库，候选的 API 适配、结果正确性、真实性能和社区可持续性能否共同支持采用？
   - 状态: 调查中
   - 最新报告时间: 2026-07-21T16:31:25+08:00
+
+## prompt-optimize
+
+- [Prompt Optimize 名称与触发对齐调查](prompt-optimize/name-and-trigger-alignment.md)
+  - 核心问题: `prompt-optimize` 的名称应如何表达其真实能力，并同时支持人类显式调用与 agent 主动触发？
+  - 状态: 暂停
+  - 最新报告时间: 2026-07-21T18:10:32+08:00
