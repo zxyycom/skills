@@ -40,12 +40,15 @@ export function formatTestEvidenceCliOutput(
 
 export function formatTestEvidenceCaseListOutput(
   result: TestEvidenceQueryResult,
-  json: boolean
+  json: boolean,
+  catalogPath: string
 ): TestEvidenceCliOutput {
   if (json) {
     return jsonQueryOutput(result);
   }
-  const lines = result.cases.flatMap(formatCaseListItem);
+  const lines = result.cases.flatMap((entry) =>
+    formatCaseListItem(entry, catalogPath)
+  );
   return {
     stderr: formatQueryDiagnostics(result),
     stdout: lines.length === 0
@@ -56,7 +59,8 @@ export function formatTestEvidenceCaseListOutput(
 
 export function formatTestEvidenceCaseShowOutput(
   result: TestEvidenceQueryResult,
-  json: boolean
+  json: boolean,
+  catalogPath: string
 ): TestEvidenceCliOutput {
   if (json) {
     return jsonQueryOutput(result);
@@ -64,7 +68,22 @@ export function formatTestEvidenceCaseShowOutput(
   const entry = result.cases[0];
   return {
     stderr: formatQueryDiagnostics(result),
-    stdout: entry === undefined ? "" : `${formatCaseDetails(entry).join("\n")}\n`
+    stdout: entry === undefined
+      ? ""
+      : `${formatCaseDetails(entry, catalogPath).join("\n")}\n`
+  };
+}
+
+export function formatTestEvidenceQueryFailureOutput(
+  result: TestEvidenceQueryResult,
+  json: boolean
+): TestEvidenceCliOutput {
+  if (json) {
+    return jsonQueryOutput(result);
+  }
+  return {
+    stderr: formatQueryDiagnostics(result),
+    stdout: ""
   };
 }
 
@@ -87,38 +106,52 @@ function formatDiagnostic(diagnostic: TestEvidenceDiagnostic): string {
     + `${diagnostic.severity} [${diagnostic.code}]: ${diagnostic.message}`;
 }
 
-function formatCaseListItem(entry: TestEvidenceCaseView): string[] {
-  const lines = [caseHeading(entry)];
+function formatCaseListItem(
+  entry: TestEvidenceCaseView,
+  catalogPath: string
+): string[] {
+  const lines = [
+    caseHeading(entry),
+    `  Catalog: ${catalogPath}:${entry.line}`
+  ];
   const contract = entry.contract[0];
   if (contract !== undefined) {
-    lines.push(`  contract: ${contract}`);
+    lines.push(`  Contract: ${contract}`);
   }
   if (entry.codePath !== null) {
-    lines.push(`  code: ${entry.codePath}`);
+    lines.push(`  Code: ${entry.codePath}`);
   } else if (entry.scope.length > 0) {
-    lines.push(`  scope: ${entry.scope.join(", ")}`);
+    lines.push(`  Scope: ${entry.scope.join(", ")}`);
   }
   if (entry.sourceMarkers.length > 0) {
-    lines.push(
-      "  entries: "
-      + entry.sourceMarkers.map((marker) =>
-        `${marker.role} ${marker.path}:${marker.entryLine ?? marker.markerLine}`
-      ).join(", ")
-    );
+    for (const marker of entry.sourceMarkers) {
+      lines.push(
+        `  Source: ${marker.role} ${marker.path}:`
+        + `${marker.entryLine ?? marker.markerLine}`
+      );
+    }
   }
   if (entry.trigger !== null) {
-    lines.push(`  trigger: ${entry.trigger.reasons.join("; ")}`);
+    for (const reason of entry.trigger.reasons) {
+      lines.push(`  Trigger reason: ${reason}`);
+    }
+    for (const triggerPath of entry.trigger.paths) {
+      lines.push(`  Trigger path: ${triggerPath}`);
+    }
   }
   return lines;
 }
 
-function formatCaseDetails(entry: TestEvidenceCaseView): string[] {
+function formatCaseDetails(
+  entry: TestEvidenceCaseView,
+  catalogPath: string
+): string[] {
   const lines = [
     caseHeading(entry),
-    `catalog-line: ${entry.line}`
+    `Catalog: ${catalogPath}:${entry.line}`
   ];
   if (entry.codePath !== null) {
-    lines.push(`code: ${entry.codePath}`);
+    lines.push(`Code: ${entry.codePath}`);
   }
   appendList(lines, "Contract", entry.contract);
   appendList(lines, "Proves", entry.proves);
@@ -144,20 +177,30 @@ function formatCaseDetails(entry: TestEvidenceCaseView): string[] {
     }
   }
   if (entry.trigger !== null) {
-    lines.push("Review trigger:");
+    lines.push("Review trigger reasons:");
     for (const reason of entry.trigger.reasons) {
       lines.push(`- ${reason}`);
     }
-    for (const path of entry.trigger.paths) {
-      lines.push(`- path: ${path}`);
+    if (entry.trigger.paths.length > 0) {
+      lines.push("Review trigger paths:");
+      for (const triggerPath of entry.trigger.paths) {
+        lines.push(`- ${triggerPath}`);
+      }
     }
   }
   return lines;
 }
 
 function caseHeading(entry: TestEvidenceCaseView): string {
-  return `${entry.status ?? "invalid"} ${entry.verification ?? "invalid"} `
-    + `${entry.id}${entry.valid ? "" : " [invalid]"} - ${entry.title || "<untitled>"}`;
+  const attributes = [
+    entry.status ?? "status?",
+    entry.verification ?? "verification?"
+  ];
+  if (!entry.valid) {
+    attributes.push("invalid");
+  }
+  return `${entry.id || "<missing-id>"} [${attributes.join(", ")}] `
+    + (entry.title || "<untitled>");
 }
 
 function appendList(lines: string[], label: string, values: readonly string[]): void {

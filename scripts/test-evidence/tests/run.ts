@@ -337,6 +337,8 @@ try {
       }
     );
     assert.equal(shown.stderr, "");
+    assert.match(shown.stdout, /RV-PROCESS-CLEANUP-001 \[active, review\]/u);
+    assert.match(shown.stdout, /Catalog: docs\/testing\/cases\.md:\d+/u);
     assert.match(shown.stdout, /Review:/u);
     assert.match(shown.stdout, /Confirm every failure path terminates the child process/u);
   }));
@@ -748,10 +750,20 @@ try {
         windowsHide: true
       }
     );
-    assert.match(query.stdout, /WB-MISSING-CONTRACT-001 \[invalid\]/u);
+    assert.match(
+      query.stdout,
+      /WB-MISSING-CONTRACT-001 \[active, automated, invalid\]/u
+    );
+    assert.match(query.stdout, /  Catalog: docs\/testing\/cases\.md:\d+/u);
+    assert.match(
+      query.stdout,
+      /  Source: main src\/missing-contract\.test\.ts:2/u
+    );
     assert.match(query.stderr, /non-blocking error \[catalog\.invalid\]/u);
   }));
 
+  await assertDirectCliHelp();
+  await assertDirectMissingCase(validInventoryPath, workspaceRoot);
   await assertDirectCliFailure();
   validationGate.resolve();
   await waitForAll(validationTasks);
@@ -984,22 +996,73 @@ function diagnosticMessages(
 }
 
 async function assertDirectCliFailure(): Promise<void> {
+  const result = await captureDirectCliOutput([
+    "unknown",
+    "--inventory",
+    "unused.json"
+  ]);
+  assert.equal(result.exitCode, 2);
+  assert.match(result.stderr, /too many arguments|unknown command/);
+}
+
+async function assertDirectCliHelp(): Promise<void> {
+  const result = await captureDirectCliOutput(["--help"]);
+  assert.equal(result.exitCode, 0);
+  assert.equal(result.stderr, "");
+  assert.match(result.stdout, /default: current directory/u);
+  assert.match(result.stdout, /default when omitted/u);
+  assert.match(result.stdout, /Exit codes:\s+0\s+Success/u);
+  assert.match(result.stdout, /1\s+Blocking validation diagnostic/u);
+  assert.equal(result.stdout.includes(process.cwd()), false);
+}
+
+async function assertDirectMissingCase(
+  inventoryPath: string,
+  workspaceRoot: string
+): Promise<void> {
+  const result = await captureDirectCliOutput([
+    "show",
+    "MISSING-CASE-001",
+    "--inventory",
+    inventoryPath,
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(result.exitCode, 1);
+  assert.equal(result.stdout, "");
+  assert.match(
+    result.stderr,
+    /blocking error \[catalog\.case-missing\]: Test evidence case does not exist/u
+  );
+}
+
+async function captureDirectCliOutput(
+  argv: readonly string[]
+): Promise<{ exitCode: number; stderr: string; stdout: string }> {
   const stderr: string[] = [];
-  const originalWrite = process.stderr.write;
+  const stdout: string[] = [];
+  const originalStderrWrite = process.stderr.write;
+  const originalStdoutWrite = process.stdout.write;
   process.stderr.write = ((chunk: string | Uint8Array) => {
     stderr.push(String(chunk));
     return true;
   }) as typeof process.stderr.write;
+  process.stdout.write = ((chunk: string | Uint8Array) => {
+    stdout.push(String(chunk));
+    return true;
+  }) as typeof process.stdout.write;
+  let exitCode: number;
   try {
-    assert.equal(await runTestEvidenceLedgerCli([
-      "unknown",
-      "--inventory",
-      "unused.json"
-    ]), 2);
+    exitCode = await runTestEvidenceLedgerCli(argv);
   } finally {
-    process.stderr.write = originalWrite;
+    process.stderr.write = originalStderrWrite;
+    process.stdout.write = originalStdoutWrite;
   }
-  assert.match(stderr.join("\n"), /too many arguments|unknown command/);
+  return {
+    exitCode,
+    stderr: stderr.join(""),
+    stdout: stdout.join("")
+  };
 }
 
 type CollectedTestEvidenceOptions = {

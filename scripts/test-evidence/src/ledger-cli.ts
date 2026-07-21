@@ -7,6 +7,7 @@ import {
   formatTestEvidenceCaseListOutput,
   formatTestEvidenceCaseShowOutput,
   formatTestEvidenceCliOutput,
+  formatTestEvidenceQueryFailureOutput,
   type TestEvidenceCliOutput
 } from "./cli-output.ts";
 import { createDiagnostic, hasBlockingDiagnostics } from "./diagnostics.ts";
@@ -40,7 +41,7 @@ type ParsedOptions = {
   config?: string;
   inventory: string;
   json?: boolean;
-  root: string;
+  root?: string;
   status?: CaseStatus | "all";
   triggered?: boolean;
   verification?: VerificationMode | "all";
@@ -67,7 +68,10 @@ export async function runTestEvidenceLedgerCli(
   const program = new Command()
     .name("test-evidence-ledger")
     .description("Validate and query a test-evidence ledger from a standard inventory.")
-    .option("--root <path>", "Target workspace root.", process.cwd())
+    .option(
+      "--root <path>",
+      "Target workspace root (default: current directory)."
+    )
     .option(
       "--config <path>",
       "Workspace-relative ledger config (default: .test-evidence.json)."
@@ -81,8 +85,10 @@ export async function runTestEvidenceLedgerCli(
     .showHelpAfterError()
     .addHelpText(
       "afterAll",
-      "\nExit codes: 0 success (queries may include non-blocking diagnostics), "
-        + "1 blocking validation or input failure, 2 invalid arguments."
+      "\nExit codes:\n"
+        + "  0  Success; queries may include non-blocking diagnostics.\n"
+        + "  1  Blocking validation diagnostic, query failure, or execution failure.\n"
+        + "  2  Invalid arguments."
     )
     .exitOverride();
 
@@ -100,7 +106,8 @@ export async function runTestEvidenceLedgerCli(
   const check = subcommand(
     program,
     "check",
-    "Strictly validate the ledger against the supplied inventory.",
+    "Strictly validate the ledger against the supplied inventory "
+      + "(default when omitted).",
     true
   );
   check.action(() => execute("check", check));
@@ -172,7 +179,8 @@ async function runLedgerCommand(args: LedgerCliArgs): Promise<number> {
     );
     writeOutput(formatTestEvidenceCaseListOutput(
       createQueryResult(inspection, cases),
-      args.json
+      args.json,
+      inspection.catalogPath
     ));
     return 0;
   }
@@ -189,16 +197,13 @@ async function runLedgerCommand(args: LedgerCliArgs): Promise<number> {
       message,
       severity: "error"
     })]);
-    if (args.json) {
-      writeOutput(formatTestEvidenceCaseShowOutput(result, true));
-    } else {
-      console.error(message);
-    }
+    writeOutput(formatTestEvidenceQueryFailureOutput(result, args.json));
     return 1;
   }
   writeOutput(formatTestEvidenceCaseShowOutput(
     createQueryResult(inspection, matches),
-    args.json
+    args.json,
+    inspection.catalogPath
   ));
   return 0;
 }
@@ -218,7 +223,7 @@ function commandArgs(
     status: options.status ?? "all",
     triggered: options.triggered ?? false,
     verification: options.verification ?? "all",
-    workspaceRoot: options.root
+    workspaceRoot: options.root ?? process.cwd()
   };
 }
 
@@ -294,17 +299,7 @@ function writeQueryFailure(
   json: boolean
 ): number {
   const result = createQueryFailureResult(diagnostics);
-  if (json) {
-    writeOutput(formatTestEvidenceCaseListOutput(
-      result,
-      true
-    ));
-  } else {
-    console.error("Test evidence query failed:");
-    for (const diagnostic of result.diagnostics) {
-      console.error(`- [${diagnostic.code}] ${diagnostic.message}`);
-    }
-  }
+  writeOutput(formatTestEvidenceQueryFailureOutput(result, json));
   return 1;
 }
 
