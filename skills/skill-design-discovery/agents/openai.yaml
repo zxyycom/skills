@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill Design Discovery"
+  short_description: "恢复 Skill 的潜藏决策、约束与验证义务"
+  default_prompt: "使用 $skill-design-discovery 在实现前从案例、现有材料和行为证据恢复目标 Skill 的端到端流程、潜藏判断、约束、人机权限与验证义务，形成可交接的设计契约。"

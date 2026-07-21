@@ -905,6 +905,16 @@
       "relations": []
     },
     {
+      "path": "skill-design-discovery-behavior/separate-design-discovery-from-lifecycle-maintenance.md",
+      "status": "active",
+      "createdAt": "2026-07-21T02:44:23Z",
+      "title": "将 Skill 深度设计发现设为独立行为",
+      "purpose": "让隐性工作流、潜藏决策和约束在 Skill 实现前成为可验证设计，同时保持生命周期维护职责聚焦。",
+      "background": "现有维护能力覆盖归属、结构、分发和交付，但创建只是其中一条路径，无法稳定承接复杂领域能力的深度发现。",
+      "decision": "新增独立 `skill-design-discovery`，以轻量或深度发现形成证据化设计契约，再交由当前环境的实现入口落地。",
+      "relations": []
+    },
+    {
       "path": "skill-maintainer-behavior/260719-own-project-aware-skill-lifecycle.md",
       "status": "archived",
       "createdAt": "2026-07-20T08:35:03+08:00",
