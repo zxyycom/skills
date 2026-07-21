@@ -560,6 +560,16 @@
       "relations": []
     },
     {
+      "path": "project-documentation/use-document-navigation-owner.md",
+      "status": "active",
+      "createdAt": "2026-07-21T07:48:36Z",
+      "title": "使用文档导航作为任务路由 owner",
+      "purpose": "让维护者和 agent 按任务快速定位文档 owner，避免重复搜索和规则归属漂移。",
+      "background": "项目已有多类稳定文档和 owner，但读取入口分散在 README、AGENTS、docs 与 skill 目录中。",
+      "decision": "使用 docs/navigation.md 统一维护任务到 owner 的路由，其他入口只保留摘要和链接。",
+      "relations": []
+    },
+    {
       "path": "project-tooling/260630-publish-skill-package-as-latest-release.md",
       "status": "archived",
       "createdAt": "2026-07-18T11:43:07+08:00",

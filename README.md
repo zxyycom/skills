@@ -10,6 +10,8 @@
 
 这些 skills 集中在同一仓库，以复用维护工具链并提供统一的分发入口。使用者按需选择自己大致了解的 skill，不需要整套安装；聚合 release 和随包 updater 只提供获取与更新便利。完整边界见 [仓库模型](docs/repository-model.md)。
 
+维护或查找项目文档时，从 [文档导航](docs/navigation.md) 按任务进入对应 owner。
+
 当前方向覆盖 agent 协作中的几个关键环节：
 
 1. 文档如何引导 agent 理解和行动。

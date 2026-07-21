@@ -30,7 +30,8 @@
 
 ## 相邻 Owner
 
-1. `AGENTS.md` 和 `README.md` 分别提供 agent 与人类入口，只保留摘要和本文件链接。
-2. `docs/tooling.md` 承接脚本、校验、打包、聚合发布、hash、CI 和 updater 的具体实现契约。
-3. `skills/<skill-name>/` 与 `docs/skills/` 分别承接单个 skill 的行为本体和人类介绍。
-4. `docs/decisions/` 保存需要长期回放原因的取舍，不替代当前 owner。
+1. `docs/navigation.md` 按任务提供文档读取路径，不重复定义各 owner 的规则。
+2. `AGENTS.md` 和 `README.md` 分别提供 agent 与人类入口，只保留摘要和 owner 链接。
+3. `docs/tooling.md` 承接脚本、校验、打包、聚合发布、hash、CI 和 updater 的具体实现契约。
+4. `skills/<skill-name>/` 与 `docs/skills/` 分别承接单个 skill 的行为本体和人类介绍。
+5. `docs/decisions/` 保存需要长期回放原因的取舍，不替代当前 owner。
