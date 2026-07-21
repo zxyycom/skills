@@ -10,9 +10,9 @@ import {
 import {
   investigationReportStatuses,
   type InvestigationIndexEntry,
-  type InvestigationRecordProjection,
   type InvestigationReportCheckOptions,
   type InvestigationReportCheckResult,
+  type InvestigationReportEntryProjection,
   type InvestigationReportProjection,
   type ScopedInvestigationError
 } from "./types.ts";
@@ -171,11 +171,10 @@ function timestampMilliseconds(value: string): number | null {
   return Number.isNaN(milliseconds) ? null : milliseconds;
 }
 
-function validateStatusAndTimestamps(
+function validateStatusAndLatestReportTime(
   source: string,
   status: string | null,
-  firstFormedAt: string | null,
-  updatedAt: string | null,
+  latestReportAt: string | null,
   errors: string[]
 ): void {
   if (
@@ -184,79 +183,49 @@ function validateStatusAndTimestamps(
   ) {
     errors.push(`${source} status must be one of: ${investigationReportStatuses.join(", ")}`);
   }
-  const firstFormedMilliseconds = firstFormedAt === null
-    ? null
-    : timestampMilliseconds(firstFormedAt);
-  const updatedMilliseconds = updatedAt === null ? null : timestampMilliseconds(updatedAt);
-  if (firstFormedAt !== null && firstFormedMilliseconds === null) {
+  if (latestReportAt !== null && timestampMilliseconds(latestReportAt) === null) {
     errors.push(
-      `${source} first formation time must use an RFC 3339 timestamp with timezone and second precision`
+      `${source} latest report time must use an RFC 3339 timestamp with timezone and second precision`
     );
-  }
-  if (updatedAt !== null && updatedMilliseconds === null) {
-    errors.push(
-      `${source} updated time must use an RFC 3339 timestamp with timezone and second precision`
-    );
-  }
-  if (
-    firstFormedMilliseconds !== null
-    && updatedMilliseconds !== null
-    && updatedMilliseconds < firstFormedMilliseconds
-  ) {
-    errors.push(`${source} updated time must not be earlier than first formation time`);
   }
 }
 
-function validateRecordTimestamps(
+function validateReportEntryTimestamps(
   source: string,
-  records: readonly InvestigationRecordProjection[],
-  firstFormedAt: string | null,
-  updatedAt: string | null,
+  reports: readonly InvestigationReportEntryProjection[],
+  latestReportAt: string | null,
   errors: string[]
 ): void {
-  const firstFormedMilliseconds = firstFormedAt === null
-    ? null
-    : timestampMilliseconds(firstFormedAt);
-  const updatedMilliseconds = updatedAt === null
-    ? null
-    : timestampMilliseconds(updatedAt);
   let previousFormedMilliseconds: number | null = null;
-  for (const record of records) {
-    if (record.formedAt === null) {
+  for (const report of reports) {
+    if (report.formedAt === null) {
       continue;
     }
-    const formedMilliseconds = timestampMilliseconds(record.formedAt);
+    const formedMilliseconds = timestampMilliseconds(report.formedAt);
     if (formedMilliseconds === null) {
       errors.push(
-        `${source}:${record.line} investigation record formed time must use an RFC 3339 timestamp with timezone and second precision`
+        `${source}:${report.line} report formed time must use an RFC 3339 timestamp with timezone and second precision`
       );
       continue;
-    }
-    if (
-      firstFormedMilliseconds !== null
-      && formedMilliseconds < firstFormedMilliseconds
-    ) {
-      errors.push(
-        `${source}:${record.line} investigation record formed time must not be earlier than report first formation time`
-      );
-    }
-    if (
-      updatedMilliseconds !== null
-      && formedMilliseconds > updatedMilliseconds
-    ) {
-      errors.push(
-        `${source}:${record.line} investigation record formed time must not be later than report updated time`
-      );
     }
     if (
       previousFormedMilliseconds !== null
       && formedMilliseconds < previousFormedMilliseconds
     ) {
       errors.push(
-        `${source}:${record.line} investigation record formed time must not be earlier than the previous investigation record`
+        `${source}:${report.line} report formed time must not be earlier than the previous report`
       );
     }
     previousFormedMilliseconds = formedMilliseconds;
+  }
+  const lastReport = reports.at(-1);
+  if (
+    latestReportAt !== null
+    && lastReport?.formedAt !== null
+    && lastReport?.formedAt !== undefined
+    && latestReportAt !== lastReport.formedAt
+  ) {
+    errors.push(`${source} latest report time must exactly match the last report formed time`);
   }
 }
 
@@ -270,7 +239,7 @@ function compareProjection(
     ["title", report.title, entry.title],
     ["核心问题", report.question, entry.question],
     ["状态", report.status, entry.status],
-    ["最近更新时间", report.updatedAt, entry.updatedAt]
+    ["最新报告时间", report.latestReportAt, entry.latestReportAt]
   ] as const;
   for (const [label, reportValue, indexValue] of comparisons) {
     if (reportValue !== null && indexValue !== null && reportValue !== indexValue) {
@@ -297,11 +266,10 @@ function validateIndexEntry(
       `investigation-index.md:${entry.line} topic ${entry.topic} does not match ${relativePath}`
     );
   }
-  validateStatusAndTimestamps(
+  validateStatusAndLatestReportTime(
     `investigation-index.md:${entry.line}`,
     entry.status,
-    null,
-    entry.updatedAt,
+    entry.latestReportAt,
     errors
   );
 }
@@ -407,7 +375,7 @@ export async function validateInvestigationReports(
     .sort((left, right) => left.localeCompare(right));
 
   if (selection.active && selectedPaths.length === 0) {
-    errors.push("no investigation reports matched the requested filters");
+    errors.push("no investigation topic files matched the requested filters");
   }
 
   const entriesByPath = new Map<string, InvestigationIndexEntry[]>();
@@ -434,7 +402,7 @@ export async function validateInvestigationReports(
     }
 
     if (!fileSet.has(relativePath)) {
-      errors.push(`${relativePath} report file does not exist`);
+      errors.push(`${relativePath} topic file does not exist`);
       continue;
     }
     const reportPath = path.join(investigationRoot, ...relativePath.split("/"));
@@ -443,18 +411,16 @@ export async function validateInvestigationReports(
       relativePath
     );
     errors.push(...report.errors);
-    validateStatusAndTimestamps(
+    validateStatusAndLatestReportTime(
       relativePath,
       report.projection.status,
-      report.projection.firstFormedAt,
-      report.projection.updatedAt,
+      report.projection.latestReportAt,
       errors
     );
-    validateRecordTimestamps(
+    validateReportEntryTimestamps(
       relativePath,
-      report.records,
-      report.projection.firstFormedAt,
-      report.projection.updatedAt,
+      report.reports,
+      report.projection.latestReportAt,
       errors
     );
     if (entries.length === 1) {

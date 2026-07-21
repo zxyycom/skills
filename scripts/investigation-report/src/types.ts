@@ -18,17 +18,13 @@ export type InvestigationReportCheckResult = {
 };
 
 export type InvestigationReportProjection = {
-  currentUnderstanding: string | null;
-  firstFormedAt: string | null;
-  origin: string | null;
+  latestReportAt: string | null;
   question: string | null;
-  scope: string | null;
   status: string | null;
   title: string | null;
-  updatedAt: string | null;
 };
 
-export type InvestigationRecordProjection = {
+export type InvestigationReportEntryProjection = {
   formedAt: string | null;
   line: number;
   title: string;
@@ -41,7 +37,7 @@ export type InvestigationIndexEntry = {
   status: string | null;
   title: string | null;
   topic: string | null;
-  updatedAt: string | null;
+  latestReportAt: string | null;
 };
 
 export type ScopedInvestigationError =
@@ -57,5 +53,5 @@ export type ParsedInvestigationIndex = {
 export type ParsedInvestigationReport = {
   errors: string[];
   projection: InvestigationReportProjection;
-  records: InvestigationRecordProjection[];
+  reports: InvestigationReportEntryProjection[];
 };

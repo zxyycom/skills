@@ -2,7 +2,7 @@ import { fromMarkdown } from "mdast-util-from-markdown";
 import { toString } from "mdast-util-to-string";
 import type {
   InvestigationIndexEntry,
-  InvestigationRecordProjection,
+  InvestigationReportEntryProjection,
   InvestigationReportProjection,
   ParsedInvestigationIndex,
   ParsedInvestigationReport,
@@ -29,17 +29,9 @@ type IndexEntryDraft = {
   topic: string | null;
 };
 
-const overviewFieldLabels = [
-  "起因",
-  "核心问题",
-  "调查范围",
-  "当前认识",
-  "状态",
-  "首次形成时间",
-  "最近更新时间"
-] as const;
-
-const indexFieldLabels = ["核心问题", "状态", "最近更新时间"] as const;
+const reportInfoFieldLabels = ["核心问题", "状态", "最新报告时间"] as const;
+const indexFieldLabels = ["核心问题", "状态", "最新报告时间"] as const;
+const requiredReportSectionTitles = ["背景", "起因", "调查结果"] as const;
 
 function normalizeNewlines(markdown: string): string {
   return markdown.replace(/\r\n?/g, "\n");
@@ -47,6 +39,12 @@ function normalizeNewlines(markdown: string): string {
 
 function plainMarkdownText(markdown: string): string {
   return toString(fromMarkdown(markdown)).trim().replace(/\s+/gu, " ");
+}
+
+function hasSemanticContent(markdown: string): boolean {
+  return fromMarkdown(markdown).children.some((node) => (
+    node.type !== "heading" && toString(node).trim().length > 0
+  ));
 }
 
 function rootHeadings(markdown: string): RootHeading[] {
@@ -146,39 +144,39 @@ function fieldMap(
   return values;
 }
 
-function parseInvestigationRecords(
+function parseInvestigationReportEntries(
   lines: readonly string[],
   headings: readonly RootHeading[],
   section: RootHeading,
   relativePath: string,
   errors: string[]
-): InvestigationRecordProjection[] {
+): InvestigationReportEntryProjection[] {
   const nextH2 = headings.find((heading) => (
     heading.depth === 2 && heading.lineIndex > section.lineIndex
   ));
   const sectionEnd = nextH2?.lineIndex ?? lines.length;
-  const recordHeadings = headings.filter((heading) => (
+  const reportHeadings = headings.filter((heading) => (
     heading.depth === 3
     && heading.lineIndex > section.lineIndex
     && heading.lineIndex < sectionEnd
   ));
-  if (recordHeadings.length === 0) {
-    errors.push(`${relativePath} "## 调查记录" must contain at least one H3 record`);
+  if (reportHeadings.length === 0) {
+    errors.push(`${relativePath} "## 调查报告" must contain at least one H3 report`);
   }
 
-  return recordHeadings.map((heading) => {
+  return reportHeadings.map((heading) => {
     if (heading.title.length === 0) {
-      errors.push(`${relativePath}:${heading.lineIndex + 1} investigation record title must not be empty`);
+      errors.push(`${relativePath}:${heading.lineIndex + 1} report title must not be empty`);
     }
     const nextBoundary = headings.find((candidate) => (
       candidate.lineIndex > heading.lineIndex
       && candidate.lineIndex < sectionEnd
       && candidate.depth <= 3
     ));
-    const recordEnd = nextBoundary?.lineIndex ?? sectionEnd;
+    const reportEnd = nextBoundary?.lineIndex ?? sectionEnd;
     let firstContentLine = heading.lineIndex + 1;
     while (
-      firstContentLine < recordEnd
+      firstContentLine < reportEnd
       && lines[firstContentLine].trim().length === 0
     ) {
       firstContentLine += 1;
@@ -188,9 +186,57 @@ function parseInvestigationRecords(
     const match = line?.match(/^- 形成时间:\s*(.*?)\s*$/u) ?? null;
     if (match === null || match[1].trim().length === 0) {
       errors.push(
-        `${relativePath}:${heading.lineIndex + 1} investigation record must start with a non-empty "- 形成时间: <timestamp>" field`
+        `${relativePath}:${heading.lineIndex + 1} report must start with a non-empty "- 形成时间: <timestamp>" field`
       );
     }
+
+    const reportSections = headings.filter((candidate) => (
+      candidate.depth === 4
+      && candidate.lineIndex > heading.lineIndex
+      && candidate.lineIndex < reportEnd
+    ));
+    for (const reportSection of reportSections) {
+      if (reportSection.title.length === 0) {
+        errors.push(
+          `${relativePath}:${reportSection.lineIndex + 1} report section title must not be empty`
+        );
+      }
+    }
+    for (const requiredTitle of requiredReportSectionTitles) {
+      const matches = reportSections.filter((candidate) => candidate.title === requiredTitle);
+      if (matches.length === 0) {
+        errors.push(
+          `${relativePath}:${heading.lineIndex + 1} report is missing "#### ${requiredTitle}"`
+        );
+        continue;
+      }
+      if (matches.length > 1) {
+        errors.push(
+          `${relativePath}:${heading.lineIndex + 1} report must contain exactly one "#### ${requiredTitle}"`
+        );
+      }
+      const requiredSection = matches[0];
+      const nextSection = headings.find((candidate) => (
+        candidate.lineIndex > requiredSection.lineIndex
+        && candidate.lineIndex < reportEnd
+        && candidate.depth <= 4
+      ));
+      const contentEnd = nextSection?.lineIndex ?? reportEnd;
+      if (!hasSemanticContent(lines.slice(requiredSection.lineIndex + 1, contentEnd).join("\n"))) {
+        errors.push(
+          `${relativePath}:${requiredSection.lineIndex + 1} report section "${requiredTitle}" must not be empty`
+        );
+      }
+    }
+    if (
+      reportSections.length < requiredReportSectionTitles.length
+      || requiredReportSectionTitles.some((title, index) => reportSections[index]?.title !== title)
+    ) {
+      errors.push(
+        `${relativePath}:${heading.lineIndex + 1} report H4 sections must start with: ${requiredReportSectionTitles.join(", ")}`
+      );
+    }
+
     return {
       formedAt: match === null || match[1].trim().length === 0
         ? null
@@ -205,10 +251,11 @@ export function parseInvestigationReport(
   markdown: string,
   relativePath: string
 ): ParsedInvestigationReport {
-  const lines = normalizeNewlines(markdown).split("\n");
+  const normalized = normalizeNewlines(markdown);
+  const lines = normalized.split("\n");
   const errors: string[] = [];
   const firstNonEmptyLine = lines.findIndex((line) => line.trim().length > 0);
-  const headings = rootHeadings(markdown);
+  const headings = rootHeadings(normalized);
   const h1 = headings.filter((heading) => heading.depth === 1);
   if (firstNonEmptyLine < 0 || h1[0]?.lineIndex !== firstNonEmptyLine) {
     errors.push(`${relativePath}:1 first non-empty line must be the report H1`);
@@ -218,27 +265,27 @@ export function parseInvestigationReport(
   }
 
   const h2 = headings.filter((heading) => heading.depth === 2);
-  if (h2.length === 0 || h2[0].title !== "调查概述") {
-    errors.push(`${relativePath} first H2 must be "调查概述"`);
+  if (h2.length === 0 || h2[0].title !== "调查信息") {
+    errors.push(`${relativePath} first H2 must be "调查信息"`);
   }
-  const overviewSections = h2.filter((section) => section.title === "调查概述");
-  if (overviewSections.length !== 1) {
-    errors.push(`${relativePath} must contain exactly one "## 调查概述" section`);
+  const infoSections = h2.filter((section) => section.title === "调查信息");
+  if (infoSections.length !== 1) {
+    errors.push(`${relativePath} must contain exactly one "## 调查信息" section`);
   }
-  if (h2.length < 2 || h2[1].title !== "调查记录") {
-    errors.push(`${relativePath} second H2 must be "调查记录"`);
+  if (h2.length < 2 || h2[1].title !== "调查报告") {
+    errors.push(`${relativePath} second H2 must be "调查报告"`);
   }
-  const recordSections = h2.filter((section) => section.title === "调查记录");
-  if (recordSections.length !== 1) {
-    errors.push(`${relativePath} must contain exactly one "## 调查记录" section`);
+  const reportSections = h2.filter((section) => section.title === "调查报告");
+  if (reportSections.length !== 1) {
+    errors.push(`${relativePath} must contain exactly one "## 调查报告" section`);
   }
 
   const fields: Array<{ label: string; line: number; value: string }> = [];
-  const overview = overviewSections[0];
-  if (overview !== undefined) {
-    const nextH2 = h2.find((section) => section.lineIndex > overview.lineIndex);
+  const info = infoSections[0];
+  if (info !== undefined) {
+    const nextH2 = h2.find((section) => section.lineIndex > info.lineIndex);
     const contentEnd = nextH2?.lineIndex ?? lines.length;
-    for (let index = overview.lineIndex + 1; index < contentEnd; index += 1) {
+    for (let index = info.lineIndex + 1; index < contentEnd; index += 1) {
       const line = lines[index];
       if (line.trim().length === 0) {
         continue;
@@ -246,7 +293,7 @@ export function parseInvestigationReport(
       const match = line.match(/^- ([^:]+):\s*(.*?)\s*$/u);
       if (match === null) {
         errors.push(
-          `${relativePath}:${index + 1} investigation overview must contain only single-line fields`
+          `${relativePath}:${index + 1} investigation info must contain only single-line fields`
         );
         continue;
       }
@@ -254,39 +301,36 @@ export function parseInvestigationReport(
     }
   }
 
-  const values = fieldMap(fields, overviewFieldLabels, relativePath, errors);
-  const records = recordSections[0] === undefined
+  const values = fieldMap(fields, reportInfoFieldLabels, relativePath, errors);
+  const reports = reportSections[0] === undefined
     ? []
-    : parseInvestigationRecords(
+    : parseInvestigationReportEntries(
       lines,
       headings,
-      recordSections[0],
+      reportSections[0],
       relativePath,
       errors
     );
   const projection: InvestigationReportProjection = {
-    currentUnderstanding: values.get("当前认识") ?? null,
-    firstFormedAt: values.get("首次形成时间") ?? null,
-    origin: values.get("起因") ?? null,
+    latestReportAt: values.get("最新报告时间") ?? null,
     question: values.get("核心问题") ?? null,
-    scope: values.get("调查范围") ?? null,
     status: values.get("状态") ?? null,
-    title: h1[0]?.title ?? null,
-    updatedAt: values.get("最近更新时间") ?? null
+    title: h1[0]?.title ?? null
   };
 
-  return { errors, projection, records };
+  return { errors, projection, reports };
 }
 
 export function parseInvestigationIndex(
   markdown: string,
   relativePath: string
 ): ParsedInvestigationIndex {
-  const lines = normalizeNewlines(markdown).split("\n");
+  const normalized = normalizeNewlines(markdown);
+  const lines = normalized.split("\n");
   const errors: ScopedInvestigationError[] = [];
   const entries: InvestigationIndexEntry[] = [];
   const firstNonEmptyLine = lines.findIndex((line) => line.trim().length > 0);
-  const headings = rootHeadings(markdown);
+  const headings = rootHeadings(normalized);
   const headingsByLine = new Map(headings.map((heading) => [heading.lineIndex, heading]));
   const h1Lines = headings.filter((heading) => heading.depth === 1);
   if (
@@ -338,13 +382,13 @@ export function parseInvestigationIndex(
       scopedError(message, currentEntry);
     }
     entries.push({
+      latestReportAt: values.get("最新报告时间") ?? null,
       line: currentEntry.line,
       path: currentEntry.path,
       question: values.get("核心问题") ?? null,
       status: values.get("状态") ?? null,
       title: currentEntry.title,
-      topic: currentEntry.topic,
-      updatedAt: values.get("最近更新时间") ?? null
+      topic: currentEntry.topic
     });
     currentEntry = null;
   }
@@ -386,7 +430,7 @@ export function parseInvestigationIndex(
         topic: currentTopic
       };
       if (currentTopic === null) {
-        scopedError(`${relativePath}:${index + 1} report entry must be inside a topic section`);
+        scopedError(`${relativePath}:${index + 1} index entry must be inside a topic section`);
       }
       if (parsed.error !== null) {
         scopedError(`${relativePath}:${index + 1} ${parsed.error}`);
@@ -396,7 +440,7 @@ export function parseInvestigationIndex(
 
     if (line.startsWith("  - ")) {
       if (currentEntry === null) {
-        scopedError(`${relativePath}:${index + 1} index field has no report entry`);
+        scopedError(`${relativePath}:${index + 1} index field has no topic file entry`);
         continue;
       }
       const match = line.match(/^  - ([^:]+):\s*(.*?)\s*$/u);

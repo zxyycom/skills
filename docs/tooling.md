@@ -58,7 +58,7 @@
 20. `bun run check:skill-updaters`: 检查各 skill 内的 updater MJS、类型声明和 source map 是否由当前主仓库模板生成。
 21. `bun run test:check`: 在进程内测试完整检查的并发解析、失败停止和已启动任务等待。
 22. `bun run check`: 通过 `scripts/check.ts` 运行全部前置检查，成功后打包全部 skill。
-23. `bun run test:investigation-report-check`: 使用临时调查集合测试默认全量检查、主题与报告筛选、Markdown AST 标题、根目录额外 Markdown、首次形成时间与调查段形成时间、索引路径与投影、失败诊断、包内导入和 Node CLI。
+23. `bun run test:investigation-report-check`: 使用临时调查集合测试默认全量检查、主题与文件筛选、Markdown AST 标题、根目录额外 Markdown、完整报告核心章节与形成时间、追加顺序、最新报告时间、索引路径与投影、失败诊断、包内导入和 Node CLI。
 24. `bun run sync:investigation-report-check`: 从 `scripts/investigation-report/` 构建并写入 `investigation-report` skill 内的 `check-investigations.mjs`、类型声明和 source map。
 25. `bun run check:investigation-report-check`: 在临时目录重建调查报告检查器，并检查 skill 内分发产物是否与当前源码一致。
 
@@ -146,7 +146,7 @@
 7. 检查：`bun run check:investigation-report-check`。
 8. 测试：`bun run test:investigation-report-check`。
 
-检查器默认校验调查根目录中的全部索引条目和报告；除索引外的 Markdown 文件都按报告检查。`--topic` 与 `--report` 只收窄本次结构检查，不改变报告、索引或调查状态。
+检查器默认校验调查根目录中的全部索引条目和主题文件；除索引外的 Markdown 文件都按主题文件检查。`--topic` 与 `--report` 只收窄本次结构检查，不改变主题文件、索引或调查状态。
 
 已安装的 `skill-maintainer` 可在自身目录内运行，或使用脚本绝对路径验证其他 skill：
 

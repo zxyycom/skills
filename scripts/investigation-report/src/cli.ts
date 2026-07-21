@@ -10,15 +10,15 @@ function printHelp(): void {
   console.log([
     "Usage: check-investigations.mjs [options]",
     "",
-    "Check investigation report paths, fixed overviews, investigation records, and index projections.",
-    "Without filters, every indexed report and report file is checked.",
+    "Check investigation topic files, self-contained reports, timestamps, and index projections.",
+    "Without filters, every index entry and topic file is checked.",
     "",
     "Options:",
     "  --root <workspace-root>       Workspace root (default: current directory)",
     "  --investigations-dir <path>  Investigation root relative to workspace",
     "                               (default: docs/investigations)",
     "  --topic <topic-id>           Check one topic; repeatable",
-    "  --report <relative-path>     Check one report path; repeatable",
+    "  --report <relative-path>     Check one topic file path; repeatable",
     "  -h, --help                   Show this help"
   ].join("\n"));
 }
@@ -80,7 +80,7 @@ export async function runInvestigationReportCheckCli(
     + result.selectedReportCount
     + " of "
     + result.availableReportCount
-    + " reports checked across "
+    + " topic files checked across "
     + result.topicCount
     + " topics)."
   );

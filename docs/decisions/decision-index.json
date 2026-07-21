@@ -496,8 +496,23 @@
       "relations": []
     },
     {
-      "path": "investigation-report-behavior/use-report-oriented-investigation-rounds.md",
+      "path": "investigation-report-behavior/append-self-contained-investigation-reports.md",
       "status": "active",
+      "createdAt": "2026-07-21T09:00:15Z",
+      "title": "以完整独立报告演进调查主题",
+      "purpose": "让每次调查都具备正确背景并能独立汇报，同时保留同一问题的认识演进。",
+      "background": "顶部概述加增量调查段会让后续结论依赖旧上下文，缺失当前背景时容易产生错误推断。",
+      "decision": "同一核心问题使用稳定主题文件，每次实质更新追加包含背景、起因和调查结果的完整报告。",
+      "relations": [
+        {
+          "type": "替代",
+          "target": "investigation-report-behavior/use-report-oriented-investigation-rounds.md"
+        }
+      ]
+    },
+    {
+      "path": "investigation-report-behavior/use-report-oriented-investigation-rounds.md",
+      "status": "archived",
       "createdAt": "2026-07-21T07:30:35Z",
       "title": "以可接续调查段形成调查报告",
       "purpose": "让 agent 稳定产出可快速汇报、降低上手门槛并支持接续探索的调查报告。",
