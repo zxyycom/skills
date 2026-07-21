@@ -1037,6 +1037,70 @@
           "target": "test-evidence-review-behavior/260719-organize-multi-branch-proofs-by-shared-base.md"
         }
       ]
+    },
+    {
+      "path": "test-evidence-review-behavior/260721-separate-test-entry-collection-from-ledger.md",
+      "status": "archived",
+      "createdAt": "2026-07-21T02:59:31Z",
+      "title": "分离测试入口采集与账本维护",
+      "purpose": "让复杂项目能够替换入口收集方式，同时让账本维护只依赖稳定、可校验的数据契约。",
+      "background": "账本 CLI 同时拥有文件选择、跨语言正则和账本校验，按语言屏蔽非代码上下文仍会漏掉有效入口，也让自定义发现规则必须进入账本实现。",
+      "decision": "以 Schema 为结构真源，把工具拆成输出标准清单的可替换采集层和只消费清单的账本层，并保留组合兼容入口。",
+      "relations": [
+        {
+          "type": "替代",
+          "target": "test-evidence-review-behavior/mask-non-code-test-syntax.md"
+        },
+        {
+          "type": "修订",
+          "target": "test-evidence-review-behavior/query-ledger-with-structured-inspection.md"
+        }
+      ]
+    },
+    {
+      "path": "test-evidence-review-behavior/mask-non-code-test-syntax.md",
+      "status": "archived",
+      "createdAt": "2026-07-21T01:52:14Z",
+      "title": "在测试入口发现前屏蔽明显非代码上下文",
+      "purpose": "降低注释、字符串、模板和正则样本造成的测试入口误报，让 exempt 保留给真正需要持续审计的发现边界。",
+      "background": "全文正则会把发现器源码、测试 fixture 和生成代码中的测试语法样本识别为入口，增加无意义 marker 与账本库存。",
+      "decision": "发现前按语言屏蔽常见非代码上下文并保留原始位置，再运行既有入口模式；不把轻量屏蔽扩展为完整解析器。",
+      "relations": []
+    },
+    {
+      "path": "test-evidence-review-behavior/publish-only-layered-test-evidence-interfaces.md",
+      "status": "active",
+      "createdAt": "2026-07-21T03:26:09Z",
+      "title": "仅发布分层测试证据接口",
+      "purpose": "让测试入口采集可独立替换，并让账本维护只依赖稳定、严格校验的数据契约。",
+      "background": "组合兼容入口会把旧配置、旧输出和默认采集器继续带入账本工具边界，削弱两层接口的独立性。",
+      "decision": "以 Schema 为结构真源，只发布采集层和账本层两套接口，旧版升级仅由独立文档承接。",
+      "relations": [
+        {
+          "type": "修订",
+          "target": "test-evidence-review-behavior/260721-separate-test-entry-collection-from-ledger.md"
+        }
+      ]
+    },
+    {
+      "path": "test-evidence-review-behavior/query-ledger-with-structured-inspection.md",
+      "status": "archived",
+      "createdAt": "2026-07-21T01:51:47Z",
+      "title": "为测试账本提供可恢复查询与结构化诊断",
+      "purpose": "让 agent 在严格校验之外直接恢复 case、入口映射和 review trigger，并稳定消费机器诊断。",
+      "background": "CLI 只有严格 check，成功结果只给汇总，普通错误仍是字符串，语义审查需要重复解析账本和源码。",
+      "decision": "保留严格 check，新增非阻断 list/show、可导入 inspection 和带版本的结构化 diagnostics。",
+      "relations": []
+    },
+    {
+      "path": "test-evidence-review-behavior/read-ledger-contract-on-demand.md",
+      "status": "active",
+      "createdAt": "2026-07-21T01:52:41Z",
+      "title": "按任务出口渐进读取测试账本契约",
+      "purpose": "让测试价值审查先恢复相关契约和证据，只在精确维护需要时加载完整账本格式，降低无关上下文成本。",
+      "background": "固定契约包含大量字段、配置和 CLI 细节，纯语义审查每次完整读取会挤占实现、测试和行为 owner 的有效上下文。",
+      "decision": "所有任务继续受账本契约约束，但仅在写入、结构审阅、修复或精确诊断时完整读取；日常恢复先用 list/show/check。",
+      "relations": []
     }
   ]
 }

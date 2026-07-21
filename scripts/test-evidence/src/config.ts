@@ -1,173 +1,129 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import * as v from "valibot";
+import { createDiagnostic } from "./diagnostics.ts";
 import {
-  reviewTriggerPolicies,
-  supportedLanguages,
-  type TestEvidenceConfig,
-  unregisteredPolicies
+  testEvidenceLedgerConfigSchema,
+  testEvidenceLedgerConfigSchemaVersion
+} from "./schemas.ts";
+import type {
+  TestEvidenceDiagnostic,
+  TestEvidenceLedgerConfig
 } from "./types.ts";
 import { normalizeWorkspaceRelative } from "./workspace-path.ts";
 
-const defaultConfigPath = ".test-evidence.json";
-const defaultCaseIdPattern = "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$";
-const defaultIgnoreGlobs = [
-  "**/.*/**",
-  "**/.git/**",
-  "**/.venv/**",
-  "**/build/**",
-  "**/dist/**",
-  "**/node_modules/**",
-  "**/target/**",
-  "**/vendor/**"
-];
+const defaultTestEvidenceLedgerConfigPath = ".test-evidence.json";
 
-const nonEmptyStringSchema = v.pipe(
-  v.string("must be a string"),
-  v.check((value) => value.trim().length > 0, "must be a non-empty string")
-);
-const configSchema = v.strictObject({
-  caseIdPattern: v.optional(nonEmptyStringSchema),
-  catalogPath: v.optional(nonEmptyStringSchema),
-  ignoreGlobs: v.optional(v.array(nonEmptyStringSchema)),
-  includeGlobs: v.optional(v.array(nonEmptyStringSchema)),
-  languages: v.optional(v.array(v.picklist(supportedLanguages))),
-  reviewMaxAgeDays: v.optional(v.pipe(
-    v.number("must be a number"),
-    v.integer("must be an integer"),
-    v.minValue(1, "must be at least 1")
-  )),
-  reviewTriggers: v.optional(v.picklist(reviewTriggerPolicies)),
-  schemaVersion: v.literal(2, "must be 2"),
-  unregisteredTestEntries: v.optional(v.picklist(unregisteredPolicies))
-});
-
-type ParsedConfig = v.InferOutput<typeof configSchema>;
-
-export type LoadedTestEvidenceConfig = {
-  config: TestEvidenceConfig | null;
+export type LoadedTestEvidenceLedgerConfig = {
+  config: TestEvidenceLedgerConfig | null;
   configRelativePath: string;
-  errors: string[];
+  diagnostics: TestEvidenceDiagnostic[];
 };
 
-export async function loadTestEvidenceConfig(
+export async function loadTestEvidenceLedgerConfig(
   workspaceRoot: string,
-  requestedConfigPath?: string
-): Promise<LoadedTestEvidenceConfig> {
-  const errors: string[] = [];
+  requestedConfigPath?: string,
+  providedConfig?: unknown
+): Promise<LoadedTestEvidenceLedgerConfig> {
+  const diagnostics: TestEvidenceDiagnostic[] = [];
+  const requestedPath = requestedConfigPath ?? defaultTestEvidenceLedgerConfigPath;
   const configRelativePath = normalizeRelativePath(
-    requestedConfigPath ?? defaultConfigPath,
+    requestedPath,
     "config path",
-    errors
+    diagnostics
   );
   if (configRelativePath === null) {
-    return { config: null, configRelativePath: requestedConfigPath ?? defaultConfigPath, errors };
+    return { config: null, configRelativePath: requestedPath, diagnostics };
   }
 
-  const configPath = path.join(workspaceRoot, configRelativePath);
-  let parsed: ParsedConfig = { schemaVersion: 2 };
-  try {
-    parsed = parseConfigText(await fs.readFile(configPath, "utf8"), configRelativePath, errors);
-  } catch (error) {
-    if (!isMissingFileError(error) || requestedConfigPath !== undefined) {
-      errors.push(
-        `${configRelativePath} could not be read: ${error instanceof Error ? error.message : String(error)}`
-      );
+  let value = providedConfig;
+  if (value === undefined) {
+    try {
+      value = JSON.parse(
+        await fs.readFile(path.join(workspaceRoot, configRelativePath), "utf8")
+      ) as unknown;
+    } catch (error) {
+      if (isMissingFileError(error) && requestedConfigPath === undefined) {
+        value = { schemaVersion: testEvidenceLedgerConfigSchemaVersion };
+      } else {
+        diagnostics.push(createDiagnostic({
+          category: "config",
+          code: isMissingFileError(error) ? "config.not-found" : "config.read-failed",
+          message: `${configRelativePath} could not be read: ${errorMessage(error)}`,
+          path: configRelativePath,
+          severity: "error"
+        }));
+        return { config: null, configRelativePath, diagnostics };
+      }
     }
+  }
+
+  const parsed = v.safeParse(testEvidenceLedgerConfigSchema, value);
+  if (!parsed.success) {
+    diagnostics.push(...parsed.issues.map((issue) => {
+      const issuePath = v.getDotPath(issue);
+      return createDiagnostic({
+        category: "config",
+        code: "config.schema-invalid",
+        message: `${configRelativePath}${issuePath === null ? "" : ` ${issuePath}`} ${issue.message}`,
+        path: configRelativePath,
+        severity: "error"
+      });
+    }));
+    return { config: null, configRelativePath, diagnostics };
   }
 
   const catalogPath = normalizeRelativePath(
-    parsed.catalogPath ?? "docs/testing/cases.md",
+    parsed.output.catalogPath,
     "catalogPath",
-    errors
+    diagnostics,
+    configRelativePath
   );
-  const includeGlobs = normalizeGlobs(parsed.includeGlobs ?? [], "includeGlobs", errors);
-  const ignoreGlobs = normalizeGlobs(
-    [...defaultIgnoreGlobs, ...(parsed.ignoreGlobs ?? [])],
-    "ignoreGlobs",
-    errors
-  );
-  const caseIdPattern = parsed.caseIdPattern ?? defaultCaseIdPattern;
   try {
-    new RegExp(caseIdPattern, "u");
+    new RegExp(parsed.output.caseIdPattern, "u");
   } catch (error) {
-    errors.push(
-      `caseIdPattern must be a valid regular expression: ${
-        error instanceof Error ? error.message : String(error)
-      }`
-    );
-  }
-
-  if (catalogPath === null || errors.length > 0) {
-    return { config: null, configRelativePath, errors };
-  }
-
-  return {
-    config: {
-      caseIdPattern,
-      catalogPath,
-      ignoreGlobs,
-      includeGlobs,
-      languages: [...new Set(parsed.languages ?? supportedLanguages)],
-      reviewMaxAgeDays: parsed.reviewMaxAgeDays,
-      reviewTriggers: parsed.reviewTriggers ?? "warn",
-      schemaVersion: 2,
-      unregisteredTestEntries: parsed.unregisteredTestEntries ?? "warn"
-    },
-    configRelativePath,
-    errors
-  };
-}
-
-function parseConfigText(text: string, relativePath: string, errors: string[]): ParsedConfig {
-  let value: unknown;
-  try {
-    value = JSON.parse(text);
-  } catch (error) {
-    errors.push(
-      `${relativePath} must contain valid JSON: ${
-        error instanceof Error ? error.message : String(error)
-      }`
-    );
-    return { schemaVersion: 2 };
-  }
-
-  const result = v.safeParse(configSchema, value);
-  if (!result.success) {
-    errors.push(...result.issues.map((issue) => {
-      const issuePath = v.getDotPath(issue);
-      const prefix = issuePath === null ? relativePath : `${relativePath} ${issuePath}`;
-      return `${prefix} ${issue.message}`;
+    diagnostics.push(createDiagnostic({
+      category: "config",
+      code: "config.case-id-pattern-invalid",
+      message: `caseIdPattern must be a valid regular expression: ${errorMessage(error)}`,
+      path: configRelativePath,
+      severity: "error"
     }));
-    return { schemaVersion: 2 };
   }
-  return result.output;
-}
 
-function normalizeGlobs(values: readonly string[], field: string, errors: string[]): string[] {
-  return [...new Set(values.flatMap((value) => {
-    const normalized = normalizeWorkspaceRelative(value);
-    if (normalized === null) {
-      errors.push(`${field} must contain only workspace-relative glob patterns: ${value}`);
-      return [];
-    }
-    return [normalized];
-  }))];
+  if (catalogPath === null || diagnostics.length > 0) {
+    return { config: null, configRelativePath, diagnostics };
+  }
+  return {
+    config: { ...parsed.output, catalogPath },
+    configRelativePath,
+    diagnostics
+  };
 }
 
 function normalizeRelativePath(
   value: string,
   field: string,
-  errors: string[]
+  diagnostics: TestEvidenceDiagnostic[],
+  diagnosticPath?: string
 ): string | null {
   const normalized = normalizeWorkspaceRelative(value);
   if (normalized === null) {
-    errors.push(`${field} must be a workspace-relative path: ${value}`);
-    return null;
+    diagnostics.push(createDiagnostic({
+      category: "config",
+      code: "config.path-invalid",
+      message: `${field} must be a workspace-relative path: ${value}`,
+      path: diagnosticPath,
+      severity: "error"
+    }));
   }
   return normalized;
 }
 
 function isMissingFileError(error: unknown): boolean {
   return error instanceof Error && "code" in error && error.code === "ENOENT";
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }

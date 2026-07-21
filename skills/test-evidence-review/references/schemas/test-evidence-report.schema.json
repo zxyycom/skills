@@ -1,0 +1,189 @@
+{
+  "type": "object",
+  "properties": {
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "blocking": {
+            "type": "boolean"
+          },
+          "caseId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "enum": [
+              "catalog",
+              "config",
+              "discovery",
+              "git",
+              "inventory",
+              "mapping",
+              "review"
+            ],
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "column": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "detectorId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "enum": [
+              "error",
+              "warning"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "blocking",
+          "category",
+          "code",
+          "message",
+          "severity"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "reviewTriggers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "caseId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "paths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "caseId",
+          "paths",
+          "reasons"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "schemaVersion": {
+      "const": 2
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "activeAutomatedCases": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "catalogCases": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "derivedMarkers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "discoveredTestEntries": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "discoveredTestFiles": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "exemptCases": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "exemptMarkers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "exemptTestEntries": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "mainMarkers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "plannedAutomatedCases": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "reviewCases": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "reviewTriggers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unregisteredTestEntries": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "activeAutomatedCases",
+        "catalogCases",
+        "derivedMarkers",
+        "discoveredTestEntries",
+        "discoveredTestFiles",
+        "exemptCases",
+        "exemptMarkers",
+        "exemptTestEntries",
+        "mainMarkers",
+        "plannedAutomatedCases",
+        "reviewCases",
+        "reviewTriggers",
+        "unregisteredTestEntries"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "diagnostics",
+    "reviewTriggers",
+    "schemaVersion",
+    "summary"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/zxyycom/skills/main/skills/test-evidence-review/references/schemas/test-evidence-report.schema.json",
+  "title": "TestEvidenceReport"
+}

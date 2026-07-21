@@ -1,6 +1,8 @@
+import { createDiagnostic } from "./diagnostics.ts";
 import {
   sourceMarkerRoles,
-  type SourceMarker,
+  type TestEntryMarker,
+  type TestEvidenceDiagnostic,
   type SourceMarkerRole
 } from "./types.ts";
 
@@ -8,16 +10,16 @@ const markerLinePattern =
   /^\s*(?:(?:\/\/)|#|--|;|\/\*+|\*|<!--)\s*@test-evidence\b(.*?)\s*$/u;
 
 export type SourceMarkerCollection = {
-  errors: string[];
-  markers: SourceMarker[];
+  diagnostics: TestEvidenceDiagnostic[];
+  markers: TestEntryMarker[];
 };
 
 export function collectSourceMarkers(
   text: string,
   relativePath: string
 ): SourceMarkerCollection {
-  const errors: string[] = [];
-  const markers: SourceMarker[] = [];
+  const diagnostics: TestEvidenceDiagnostic[] = [];
+  const markers: TestEntryMarker[] = [];
   const lines = text.split(/\r?\n/u);
   const lineOffsets = collectLineOffsets(text);
   for (const [index, line] of lines.entries()) {
@@ -29,25 +31,30 @@ export function collectSourceMarkers(
     const value = stripMarkerSuffix(match[1] ?? "");
     const tokens = value.split(/\s+/u).filter((token) => token.length > 0);
     const role = tokens[0];
-    const id = tokens[1];
-    if (tokens.length !== 2 || !isSourceMarkerRole(role) || id === undefined) {
-      errors.push(
-        `${relativePath}:${index + 1} @test-evidence must use exactly: `
-        + "@test-evidence <main|derived|exempt> <CASE-ID>"
-      );
+    const caseId = tokens[1];
+    if (tokens.length !== 2 || !isSourceMarkerRole(role) || caseId === undefined) {
+      diagnostics.push(createDiagnostic({
+        category: "discovery",
+        code: "discovery.marker-invalid",
+        line: index + 1,
+        message: `${relativePath}:${index + 1} @test-evidence must use exactly: `
+          + "@test-evidence <main|derived|exempt> <CASE-ID>",
+        path: relativePath,
+        severity: "error"
+      }));
       continue;
     }
 
     markers.push({
-      attachedEntryOffset: null,
-      id,
+      caseId,
       line: index + 1,
       offset: lineOffsets[index] ?? 0,
-      relativePath,
-      role
+      path: relativePath,
+      role,
+      targetEntryId: null
     });
   }
-  return { errors, markers };
+  return { diagnostics, markers };
 }
 
 function stripMarkerSuffix(value: string): string {

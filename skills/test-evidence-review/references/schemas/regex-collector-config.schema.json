@@ -1,0 +1,117 @@
+{
+  "type": "object",
+  "properties": {
+    "builtinDetectors": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "rust",
+          "typescript",
+          "javascript",
+          "python",
+          "go",
+          "java",
+          "csharp"
+        ],
+        "type": "string"
+      },
+      "default": [
+        "rust",
+        "typescript",
+        "javascript",
+        "python",
+        "go",
+        "java",
+        "csharp"
+      ]
+    },
+    "excludeGlobs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "default": [
+        "**/.*/**",
+        "**/.git/**",
+        "**/.venv/**",
+        "**/build/**",
+        "**/dist/**",
+        "**/node_modules/**",
+        "**/target/**",
+        "**/vendor/**"
+      ]
+    },
+    "includeGlobs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "default": []
+    },
+    "patterns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "excludeGlobs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "default": []
+          },
+          "flags": {
+            "type": "string",
+            "pattern": "^(?!.*(.).*\\1)[imsu]*$",
+            "default": "mu"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "includeGlobs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "language": {
+            "type": "string",
+            "minLength": 1
+          },
+          "offsetGroup": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "pattern": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "includeGlobs",
+          "language",
+          "pattern"
+        ],
+        "additionalProperties": false
+      },
+      "default": []
+    },
+    "schemaVersion": {
+      "const": 1
+    }
+  },
+  "required": [
+    "schemaVersion"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/zxyycom/skills/main/skills/test-evidence-review/references/schemas/regex-collector-config.schema.json",
+  "title": "RegexCollectorConfig"
+}

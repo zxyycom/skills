@@ -1,8 +1,6 @@
 import type { LedgerCase } from "./catalog-validation.ts";
-import {
-  loadGitWorkspace,
-  type GitWorkspace
-} from "./git.ts";
+import { createDiagnostic } from "./diagnostics.ts";
+import { loadGitWorkspace, type GitWorkspace } from "./git.ts";
 import {
   compileScopePattern,
   matchesAnyScope,
@@ -10,7 +8,8 @@ import {
 } from "./scope.ts";
 import type {
   ReviewTrigger,
-  ReviewTriggerPolicy
+  ReviewTriggerPolicy,
+  TestEvidenceDiagnostic
 } from "./types.ts";
 
 export type GitValidationOptions = {
@@ -23,9 +22,8 @@ export type GitValidationOptions = {
 };
 
 export type GitValidationResult = {
-  errors: string[];
+  diagnostics: TestEvidenceDiagnostic[];
   reviewTriggers: ReviewTrigger[];
-  warnings: string[];
 };
 
 export async function validateGitState(
@@ -35,20 +33,30 @@ export async function validateGitState(
     (entry) => entry.kind === "active-review" || entry.kind === "active-exempt"
   );
   if (scopedCases.length === 0) {
-    return { errors: [], reviewTriggers: [], warnings: [] };
+    return { diagnostics: [], reviewTriggers: [] };
   }
 
   const loaded = await loadGitWorkspace(options.workspaceRoot);
   if (loaded.workspace === null) {
     return {
-      errors: loaded.errors,
-      reviewTriggers: [],
-      warnings: []
+      diagnostics: loaded.errors.map((message) => createDiagnostic({
+        category: "git",
+        code: "git.workspace-invalid",
+        message,
+        severity: "error"
+      })),
+      reviewTriggers: []
     };
   }
 
-  const errors = [...loaded.errors];
-  const warnings: string[] = [];
+  const diagnostics: TestEvidenceDiagnostic[] = loaded.errors.map((message) =>
+    createDiagnostic({
+      category: "git",
+      code: "git.workspace-invalid",
+      message,
+      severity: "error"
+    })
+  );
   const reviewTriggers: ReviewTrigger[] = [];
   const ignoredStatePaths = new Set([options.catalogPath, options.configPath]);
 
@@ -56,10 +64,16 @@ export async function validateGitState(
     const matchers = entry.scopePatterns.map(compileScopePattern);
     for (const matcher of matchers) {
       if (!loaded.workspace.files.some((file) => matcher.matches(file))) {
-        errors.push(
-          `${options.catalogPath}:${entry.line} ${entry.id} Scope pattern `
-          + `${matcher.pattern} does not match any Git-visible path`
-        );
+        diagnostics.push(createDiagnostic({
+          caseId: entry.id,
+          category: "git",
+          code: "git.scope-unmatched",
+          line: entry.line,
+          message: `${options.catalogPath}:${entry.line} ${entry.id} Scope pattern `
+            + `${matcher.pattern} does not match any Git-visible path`,
+          path: options.catalogPath,
+          severity: "error"
+        }));
       }
     }
 
@@ -75,14 +89,19 @@ export async function validateGitState(
     );
     if (trigger !== null) {
       reviewTriggers.push(trigger);
-      const message = `${entry.id} requires review: ${trigger.reasons.join("; ")}${
-        trigger.paths.length === 0 ? "" : ` (${trigger.paths.join(", ")})`
-      }`;
-      if (options.reviewTriggerPolicy === "error") {
-        errors.push(message);
-      } else {
-        warnings.push(message);
-      }
+      const severity = options.reviewTriggerPolicy === "error" ? "error" : "warning";
+      diagnostics.push(createDiagnostic({
+        blocking: severity === "error",
+        caseId: entry.id,
+        category: "review",
+        code: "review.trigger",
+        line: entry.line,
+        message: `${entry.id} requires review: ${trigger.reasons.join("; ")}${
+          trigger.paths.length === 0 ? "" : ` (${trigger.paths.join(", ")})`
+        }`,
+        path: options.catalogPath,
+        severity
+      }));
     }
 
     if (
@@ -94,15 +113,22 @@ export async function validateGitState(
         (Date.now() - Date.parse(entry.lastReview.at)) / 86_400_000
       );
       if (elapsedDays > options.reviewMaxAgeDays) {
-        warnings.push(
-          `${entry.id} was last reviewed ${elapsedDays} day(s) ago, exceeding `
-          + `reviewMaxAgeDays ${options.reviewMaxAgeDays}`
-        );
+        diagnostics.push(createDiagnostic({
+          blocking: false,
+          caseId: entry.id,
+          category: "review",
+          code: "review.overdue",
+          line: entry.line,
+          message: `${entry.id} was last reviewed ${elapsedDays} day(s) ago, exceeding `
+            + `reviewMaxAgeDays ${options.reviewMaxAgeDays}`,
+          path: options.catalogPath,
+          severity: "warning"
+        }));
       }
     }
   }
 
-  return { errors, reviewTriggers, warnings };
+  return { diagnostics, reviewTriggers };
 }
 
 async function inspectReviewTrigger(
@@ -129,32 +155,21 @@ async function inspectReviewTrigger(
     }
     try {
       const changedPaths = await workspace.changedPathsSince(entry.lastReview.commit);
-      for (const candidate of changedPaths) {
-        if (
-          !ignoredStatePaths.has(candidate)
-          && matchesAnyScope(candidate, matchers)
-        ) {
-          paths.add(candidate);
-        }
-      }
-      if (changedPaths.some((candidate) =>
+      const matchedPaths = changedPaths.filter((candidate) =>
         !ignoredStatePaths.has(candidate) && matchesAnyScope(candidate, matchers)
-      )) {
+      );
+      for (const candidate of matchedPaths) {
+        paths.add(candidate);
+      }
+      if (matchedPaths.length > 0) {
         reasons.push("committed paths changed after Reviewed-Commit");
       }
     } catch {
-      reasons.push(
-        `Reviewed-Commit ${entry.lastReview.commit} is unavailable`
-      );
+      reasons.push(`Reviewed-Commit ${entry.lastReview.commit} is unavailable`);
     }
   }
 
-  if (reasons.length === 0) {
-    return null;
-  }
-  return {
-    caseId: entry.id,
-    paths: [...paths].sort(),
-    reasons
-  };
+  return reasons.length === 0
+    ? null
+    : { caseId: entry.id, paths: [...paths].sort(), reasons };
 }

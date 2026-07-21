@@ -1,0 +1,186 @@
+{
+  "type": "object",
+  "properties": {
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "blocking": {
+            "type": "boolean"
+          },
+          "caseId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "enum": [
+              "catalog",
+              "config",
+              "discovery",
+              "git",
+              "inventory",
+              "mapping",
+              "review"
+            ],
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "column": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "detectorId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "enum": [
+              "error",
+              "warning"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "blocking",
+          "category",
+          "code",
+          "message",
+          "severity"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "column": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "detectorIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "language": {
+            "type": "string",
+            "minLength": 1
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "column",
+          "detectorIds",
+          "id",
+          "language",
+          "line",
+          "offset",
+          "path"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "markers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "caseId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "role": {
+            "enum": [
+              "main",
+              "derived",
+              "exempt"
+            ],
+            "type": "string"
+          },
+          "targetEntryId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "caseId",
+          "line",
+          "offset",
+          "path",
+          "role",
+          "targetEntryId"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "schemaVersion": {
+      "const": 1
+    }
+  },
+  "required": [
+    "diagnostics",
+    "entries",
+    "markers",
+    "schemaVersion"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/zxyycom/skills/main/skills/test-evidence-review/references/schemas/test-entry-inventory.schema.json",
+  "title": "TestEntryInventory"
+}

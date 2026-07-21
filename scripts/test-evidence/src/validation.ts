@@ -2,17 +2,28 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { collectCatalogCases } from "./catalog.ts";
 import { validateCatalogCases } from "./catalog-validation.ts";
-import { loadTestEvidenceConfig } from "./config.ts";
-import { discoverSourceFiles } from "./discovery.ts";
+import { loadTestEvidenceLedgerConfig } from "./config.ts";
+import {
+  createDiagnostic,
+  sortUniqueDiagnostics
+} from "./diagnostics.ts";
 import { validateEvidenceState } from "./evidence-validation.ts";
 import { validateGitState } from "./git-validation.ts";
-import type {
-  TestEvidenceReport,
-  TestEvidenceSummary
+import { buildInspectionViews } from "./inspection.ts";
+import { parseTestEntryInventory } from "./inventory.ts";
+import {
+  testEvidenceReportSchemaVersion,
+  type TestEvidenceDiagnostic,
+  type TestEvidenceInspection,
+  type TestEvidenceReport,
+  type TestEvidenceSummary
 } from "./types.ts";
 
-export type ValidateTestEvidenceOptions = {
+export type ValidateTestEvidenceLedgerOptions = {
+  config?: unknown;
   configPath?: string;
+  inventory: unknown;
+  inventorySource?: string;
   workspaceRoot: string;
 };
 
@@ -32,73 +43,155 @@ const emptySummary: TestEvidenceSummary = {
   unregisteredTestEntries: 0
 };
 
-export async function validateTestEvidence(
-  options: ValidateTestEvidenceOptions
+export async function validateTestEvidenceLedger(
+  options: ValidateTestEvidenceLedgerOptions
 ): Promise<TestEvidenceReport> {
-  const workspaceRoot = path.resolve(options.workspaceRoot);
-  const errors: string[] = [];
-  const loaded = await loadTestEvidenceConfig(workspaceRoot, options.configPath);
-  errors.push(...loaded.errors);
-  if (loaded.config === null) {
-    return {
-      errors: uniqueSorted(errors),
-      reviewTriggers: [],
-      summary: { ...emptySummary },
-      warnings: []
-    };
-  }
-  const config = loaded.config;
+  return (await inspectTestEvidenceLedger(options)).report;
+}
 
+export async function inspectTestEvidenceLedger(
+  options: ValidateTestEvidenceLedgerOptions
+): Promise<TestEvidenceInspection> {
+  const workspaceRoot = path.resolve(options.workspaceRoot);
+  const [loadedConfig, parsedInventory] = await Promise.all([
+    loadTestEvidenceLedgerConfig(workspaceRoot, options.configPath, options.config),
+    Promise.resolve(parseTestEntryInventory(
+      options.inventory,
+      options.inventorySource ?? "test entry inventory"
+    ))
+  ]);
+  const initialDiagnostics = [
+    ...loadedConfig.diagnostics,
+    ...parsedInventory.diagnostics,
+    ...(parsedInventory.inventory?.diagnostics ?? [])
+  ];
+
+  if (loadedConfig.config === null || parsedInventory.inventory === null) {
+    const diagnostics = sortUniqueDiagnostics(initialDiagnostics);
+    return emptyInspection({
+      catalogPath: loadedConfig.config?.catalogPath ?? "docs/testing/cases.md",
+      configPath: loadedConfig.configRelativePath,
+      configurationValid: loadedConfig.config !== null,
+      diagnostics,
+      inventoryAvailable: parsedInventory.inventory !== null
+    });
+  }
+  const config = loadedConfig.config;
+  const inventory = parsedInventory.inventory;
+
+  const catalogDiagnostics: TestEvidenceDiagnostic[] = [];
+  let catalogAvailable = true;
   let catalogText = "";
   try {
-    catalogText = await fs.readFile(path.join(workspaceRoot, config.catalogPath), "utf8");
-  } catch (error) {
-    errors.push(
-      `${config.catalogPath} could not be read: ${
-        error instanceof Error ? error.message : String(error)
-      }`
+    catalogText = await fs.readFile(
+      path.join(workspaceRoot, config.catalogPath),
+      "utf8"
     );
+  } catch (error) {
+    catalogAvailable = false;
+    catalogDiagnostics.push(createDiagnostic({
+      category: "catalog",
+      code: "catalog.read-failed",
+      message: `${config.catalogPath} could not be read: ${errorMessage(error)}`,
+      path: config.catalogPath,
+      severity: "error"
+    }));
   }
 
-  const caseIdPattern = new RegExp(config.caseIdPattern, "u");
-  const parsedCatalogCases = collectCatalogCases(catalogText, caseIdPattern);
+  const parsedCatalogCases = collectCatalogCases(
+    catalogText,
+    new RegExp(config.caseIdPattern, "u")
+  );
   const catalog = validateCatalogCases(parsedCatalogCases, config.catalogPath);
-  const discovery = await discoverSourceFiles(workspaceRoot, config);
+  catalogDiagnostics.push(...catalog.errors.map((message) => createDiagnostic({
+    category: "catalog",
+    code: "catalog.invalid",
+    message,
+    path: config.catalogPath,
+    severity: "error"
+  })));
+
   const evidence = validateEvidenceState({
-    caseIdPattern,
+    caseIdPattern: new RegExp(config.caseIdPattern, "u"),
     cases: catalog.cases,
     catalogCaseCount: parsedCatalogCases.length,
     catalogPath: config.catalogPath,
     documentedCaseIds: catalog.documentedCaseIds,
-    files: discovery.files,
+    inventory,
     unregisteredTestEntries: config.unregisteredTestEntries
   });
   const git = await validateGitState({
     catalogPath: config.catalogPath,
-    configPath: loaded.configRelativePath,
+    configPath: loadedConfig.configRelativePath,
     reviewMaxAgeDays: config.reviewMaxAgeDays,
     reviewTriggerPolicy: config.reviewTriggers,
     scopedCases: catalog.cases,
     workspaceRoot
   });
 
-  return {
-    errors: uniqueSorted([
-      ...errors,
-      ...catalog.errors,
-      ...discovery.errors,
-      ...evidence.errors,
-      ...git.errors
-    ]),
+  const diagnostics = sortUniqueDiagnostics([
+    ...initialDiagnostics,
+    ...catalogDiagnostics,
+    ...evidence.diagnostics,
+    ...git.diagnostics
+  ]);
+  const report = createTestEvidenceReport(
+    diagnostics,
+    { ...evidence.summary, reviewTriggers: git.reviewTriggers.length },
+    git.reviewTriggers
+  );
+  const views = buildInspectionViews({
+    inventory,
+    parsedCases: parsedCatalogCases,
     reviewTriggers: git.reviewTriggers,
-    summary: {
-      ...evidence.summary,
-      reviewTriggers: git.reviewTriggers.length
-    },
-    warnings: uniqueSorted([...evidence.warnings, ...git.warnings])
+    validCases: catalog.cases
+  });
+  return {
+    cases: views.cases,
+    catalogAvailable,
+    catalogPath: config.catalogPath,
+    configPath: loadedConfig.configRelativePath,
+    configurationValid: true,
+    inventoryAvailable: true,
+    report,
+    schemaVersion: testEvidenceReportSchemaVersion,
+    sourceEntries: views.sourceEntries
   };
 }
 
-function uniqueSorted(values: readonly string[]): string[] {
-  return [...new Set(values)].sort();
+function emptyInspection(options: {
+  catalogPath: string;
+  configPath: string;
+  configurationValid: boolean;
+  diagnostics: readonly TestEvidenceDiagnostic[];
+  inventoryAvailable: boolean;
+}): TestEvidenceInspection {
+  return {
+    cases: [],
+    catalogAvailable: false,
+    catalogPath: options.catalogPath,
+    configPath: options.configPath,
+    configurationValid: options.configurationValid,
+    inventoryAvailable: options.inventoryAvailable,
+    report: createTestEvidenceReport(options.diagnostics),
+    schemaVersion: testEvidenceReportSchemaVersion,
+    sourceEntries: []
+  };
+}
+
+export function createTestEvidenceReport(
+  diagnostics: readonly TestEvidenceDiagnostic[],
+  summary: TestEvidenceSummary = emptySummary,
+  reviewTriggers: TestEvidenceReport["reviewTriggers"] = []
+): TestEvidenceReport {
+  return {
+    diagnostics: [...diagnostics],
+    reviewTriggers: [...reviewTriggers],
+    schemaVersion: testEvidenceReportSchemaVersion,
+    summary: { ...summary }
+  };
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }

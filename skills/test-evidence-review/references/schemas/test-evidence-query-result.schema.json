@@ -1,0 +1,371 @@
+{
+  "type": "object",
+  "properties": {
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "codePath": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "contract": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lastReview": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "at": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "commit": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "result": {
+                    "enum": [
+                      "pass",
+                      "findings",
+                      "blocked"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "at",
+                  "commit",
+                  "result"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "proves": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "reason": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "review": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "risk": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "scope": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "sourceMarkers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "attached": {
+                  "type": "boolean"
+                },
+                "entryColumn": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "entryLine": {
+                  "anyOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "markerLine": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "role": {
+                  "enum": [
+                    "main",
+                    "derived",
+                    "exempt"
+                  ],
+                  "type": "string"
+                }
+              },
+              "required": [
+                "attached",
+                "entryColumn",
+                "entryLine",
+                "markerLine",
+                "path",
+                "role"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "active",
+                  "planned"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "trigger": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "caseId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "paths": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "reasons": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                "required": [
+                  "caseId",
+                  "paths",
+                  "reasons"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "valid": {
+            "type": "boolean"
+          },
+          "verification": {
+            "anyOf": [
+              {
+                "enum": [
+                  "automated",
+                  "review",
+                  "exempt"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "codePath",
+          "contract",
+          "id",
+          "lastReview",
+          "line",
+          "proves",
+          "reason",
+          "review",
+          "risk",
+          "scope",
+          "sourceMarkers",
+          "status",
+          "title",
+          "trigger",
+          "valid",
+          "verification"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "blocking": {
+            "type": "boolean"
+          },
+          "caseId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "enum": [
+              "catalog",
+              "config",
+              "discovery",
+              "git",
+              "inventory",
+              "mapping",
+              "review"
+            ],
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "column": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "detectorId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "enum": [
+              "error",
+              "warning"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "blocking",
+          "category",
+          "code",
+          "message",
+          "severity"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "incomplete": {
+      "type": "boolean"
+    },
+    "reviewTriggers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "caseId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "paths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "caseId",
+          "paths",
+          "reasons"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "schemaVersion": {
+      "const": 2
+    }
+  },
+  "required": [
+    "cases",
+    "diagnostics",
+    "incomplete",
+    "reviewTriggers",
+    "schemaVersion"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/zxyycom/skills/main/skills/test-evidence-review/references/schemas/test-evidence-query-result.schema.json",
+  "title": "TestEvidenceQueryResult"
+}

@@ -1,0 +1,46 @@
+{
+  "type": "object",
+  "properties": {
+    "caseIdPattern": {
+      "type": "string",
+      "minLength": 1,
+      "default": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
+    },
+    "catalogPath": {
+      "type": "string",
+      "minLength": 1,
+      "default": "docs/testing/cases.md"
+    },
+    "reviewMaxAgeDays": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "reviewTriggers": {
+      "enum": [
+        "warn",
+        "error"
+      ],
+      "type": "string",
+      "default": "warn"
+    },
+    "schemaVersion": {
+      "const": 3
+    },
+    "unregisteredTestEntries": {
+      "enum": [
+        "ignore",
+        "warn",
+        "error"
+      ],
+      "type": "string",
+      "default": "warn"
+    }
+  },
+  "required": [
+    "schemaVersion"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/zxyycom/skills/main/skills/test-evidence-review/references/schemas/test-evidence-ledger-config.schema.json",
+  "title": "TestEvidenceLedgerConfig"
+}

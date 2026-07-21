@@ -206,38 +206,94 @@ Reason:
 
 `reviewMaxAgeDays` 只产生长期未复核提醒；没有代码变更时，时间阈值本身不把最近结果判定为失效。
 
-## 项目配置
+## 标准测试入口清单
+
+账本维护层只接受 `TestEntryInventory`，不读取源码、不选择文件，也不知道入口由正则、AST、测试框架清单或其他工具产生。清单固定使用 `schemaVersion: 1`，包含：
+
+1. `entries`：入口在当前清单内唯一的 `id`、工作区相对 `path`、`language`、行列、offset 和产生它的 `detectorIds`；同一路径与 offset 只能有一个入口。
+2. `markers`：源码 marker 的 case ID、角色、位置和 `targetEntryId`；无法绑定入口时目标为 `null`。
+3. `diagnostics`：上游采集诊断，账本会原样纳入严格报告。
+
+账本入口先按 [test-entry-inventory.schema.json](schemas/test-entry-inventory.schema.json) 收窄，再检查路径归一化、入口 ID 唯一性和 marker 引用完整性。复杂项目可以完全跳过内置正则采集器，只要自定义工具输出符合该 Schema 的清单即可接入账本维护层。
+
+## 配置
+
+### 账本配置
+
+默认路径 `.test-evidence.json`，固定使用 `schemaVersion: 3`：
 
 ```json
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "catalogPath": "docs/testing/cases.md",
   "caseIdPattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$",
-  "languages": ["rust", "typescript", "python", "go"],
-  "includeGlobs": ["src/**/*", "tests/**/*", "scripts/**/*"],
-  "ignoreGlobs": ["**/build/**", "**/vendor/**"],
   "unregisteredTestEntries": "error",
   "reviewTriggers": "error",
   "reviewMaxAgeDays": 90
 }
 ```
 
-`unregisteredTestEntries` 支持 `ignore | warn | error`；默认是 `warn`。`reviewTriggers` 支持 `warn | error`；默认是 `warn`。`reviewMaxAgeDays` 是可选正整数。
+`unregisteredTestEntries` 支持 `ignore | warn | error`，默认 `warn`；`reviewTriggers` 支持 `warn | error`，默认 `warn`；`reviewMaxAgeDays` 是可选正整数。该配置不包含文件发现、语言或正则字段，精确结构以 [test-evidence-ledger-config.schema.json](schemas/test-evidence-ledger-config.schema.json) 为准。
 
-`includeGlobs` 省略或为空时，CLI 按启用语言的扩展名扫描。所有配置路径和 glob 必须保持工作区相对且不能包含 `..`。`ignoreGlobs` 只用于不进入项目审计范围的构建、依赖或 vendor 目录；项目拥有的发现误报使用 entry-level exempt。
+### 正则采集配置
 
-## CLI 与发现边界
+内置采集器默认读取可选的 `.test-entry-regex.json`。没有定制需求时不创建该文件；缺省配置会检查 Rust、TypeScript、JavaScript、Python、Go、Java 和 C# 的常见测试入口，并排除常见依赖与构建目录。
 
-```text
-node scripts/test-evidence.mjs check --root <workspace-root> [--config <relative-config-path>] [--json]
+需要限制文件或增加项目模式时使用 `schemaVersion: 1`：
+
+```json
+{
+  "schemaVersion": 1,
+  "builtinDetectors": ["typescript", "python"],
+  "includeGlobs": ["src/**/*", "tests/**/*"],
+  "excludeGlobs": ["**/fixtures/**"],
+  "patterns": [
+    {
+      "id": "project:scenario",
+      "language": "scenario",
+      "includeGlobs": ["**/*.spec"],
+      "excludeGlobs": [],
+      "pattern": "^CASE\\s+",
+      "flags": "mu"
+    }
+  ]
+}
 ```
 
-退出状态：`0` 表示没有结构或一致性错误，但仍可能包含 warn 报告和 warn 级 review trigger；`1` 表示账本、入口映射、Scope、严格未登记检查或 error 级 review trigger 失败；`2` 表示参数错误。
+全局 `includeGlobs` 限定候选文件；`excludeGlobs` 追加到内置的依赖、构建和隐藏目录排除项；每个自定义 detector 再用自己的 include/exclude 决定是否运行。`pattern` 是 JavaScript 正则源码，采集器自动增加全局匹配标志；`flags` 只接受不重复的 `i | m | s | u`。正则通过捕获组定位入口时用正整数 `offsetGroup` 指向目标组。自定义 ID 不得使用保留的 `builtin:` 前缀。所有 glob 必须是工作区相对 POSIX 形式且不能越界，精确结构以 [regex-collector-config.schema.json](schemas/regex-collector-config.schema.json) 为准。
 
-JSON 报告包含 `errors`、`warnings`、`reviewTriggers` 和 summary。每个 trigger 返回 case ID、原因和命中路径，供 agent 继续执行相应 `Review:`。
+内置 detector 识别 Rust `#[test]` 与常见 namespaced test attribute、TypeScript/JavaScript `test` 和 `it` 的注册调用及常见 modifier、Python `test_*` 函数或方法、Go `Test*`/`Benchmark*`/`Fuzz*` 函数、常见 JUnit test annotation，以及 xUnit、NUnit 和 MSTest test attribute。容器或控制调用如 `describe`、`test.describe`、hook 和 `test.step` 不作为内置入口。
 
-发现器识别 Rust 的 `#[test]` 和常见 namespaced test attribute，TypeScript/JavaScript 的 `test` 与 `it` 注册调用及常见注册 modifier，Python 的 `test_*` 函数或方法，Go 的 `Test*`、`Benchmark*`、`Fuzz*` 函数，常见 JUnit test annotation，以及 xUnit、NUnit、MSTest test attribute。`describe`、`test.describe`、hook 和 `test.step` 等容器或控制调用不作为测试入口。
+正则采集器按全文匹配，不猜测注释、字符串、fixture 或生成代码是否可执行。内置规则只提供常见入口基线，可能产生漏报或误报；项目可以调整文件范围或正则，要求语法级精度时应使用 AST 等自定义采集器输出标准清单。仅当一个已收集入口经过审计仍需要长期保留为非测试结果时，才使用 entry-level exempt；不要让账本维护层反向承担发现规则。
 
-宏、别名、自定义框架、动态注册、注释和语法样本可能产生漏报或误报。先用 `warn` 建立入口级基线，确认发现稳定后再使用 `error`；需要保留审计价值的误报逐入口登记为 exempt。
+## CLI 与导入接口
+
+正则采集层与账本层分别调用：
+
+```text
+node scripts/test-entry-regex.mjs --root <workspace-root> [--config <collector-config>] > inventory.json
+node scripts/test-evidence-ledger.mjs check --inventory inventory.json --root <workspace-root> [--config <ledger-config>] [--json]
+node scripts/test-evidence-ledger.mjs list --inventory inventory.json --root <workspace-root> [--json]
+node scripts/test-evidence-ledger.mjs show <case-id> --inventory inventory.json --root <workspace-root> [--json]
+```
+
+`--inventory -` 从 stdin 读取。`test-entry-regex.mjs` 只输出清单；`test-evidence-ledger.mjs` 不导入采集器。标准清单固定使用 v1，账本配置固定使用 v3，可选正则采集配置固定使用 v1，各入口按对应 Schema 严格校验。
+
+`check` 是严格校验；`list` 和 `show` 是恢复查询。查询在配置、清单和账本可读取时返回仍可恢复的 case、入口映射和 review trigger，并把严格诊断复制为 `blocking: false` 的非阻断诊断；原始 `severity` 不变。配置、清单或账本不可读取，或者 `show` 目标缺失或不唯一时查询失败。
+
+退出状态：`0` 表示严格检查没有 blocking diagnostic，或查询已返回可恢复结果；`1` 表示存在阻断诊断或查询缺少必要输入/唯一目标；`2` 表示参数错误。
+
+指定 `--json` 时，配置、清单文件或 JSON、账本和查询目标等可预期输入失败仍向 stdout 写出当前命令对应 Schema 的结构化结果，并保持 stderr 为空；参数语法错误继续由 CLI 帮助和退出状态 `2` 承接。
+
+严格报告固定使用 `schemaVersion: 2`。每项 diagnostic 至少包含 `blocking`、稳定 `code`、`category`、`severity` 和 `message`，按可用信息增加 `path`、`line`、`column`、`caseId` 或 `detectorId`。调用方使用 `diagnostics[].blocking` 判断命令完成状态，按 `severity` 区分问题级别；报告、inspection 和 query 的精确结构分别由 `references/schemas/` 中对应 JSON Schema 定义。
+
+两个 MJS 都可安全导入且不会执行 CLI：
+
+1. `test-entry-regex.mjs` 导出 `collectRegexTestEntries(options)`、采集相关 Valibot Schema 和 `runRegexCollectorCli(argv)`。
+2. `test-evidence-ledger.mjs` 导出 `parseTestEntryInventory(value)`、`inspectTestEvidenceLedger(options)`、`validateTestEvidenceLedger(options)`、账本相关 Valibot Schema 和 `runTestEvidenceLedgerCli(argv)`。
+
+相邻 `.d.mts` 提供函数声明；数据类型由同一 Valibot Schema 先生成 JSON Schema，再生成 `*.types.d.mts`，不维护反向生成 Schema 的第二套类型定义。
+
+旧版组合配置、命令、导入和机器报告的替换方式见 [upgrade-from-v2.md](upgrade-from-v2.md)。当前模块只接受本契约定义的版本，不执行运行时迁移。
 
 CLI 不执行测试、不判断 `Contract:` 或 `Proves:` 的价值、不判断 Mermaid 分组语义，也不代替 `Review:` 动作。

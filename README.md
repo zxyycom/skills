@@ -22,7 +22,7 @@
 
 [Product & Architecture Judgment](docs/skills/product-architecture-judgment.md) 在工程任务深入局部实现前, 让 agent 区分目标结果、当前问题和已有解法, 再从产品价值与架构责任判断事情是否该做、该做到什么程度, 以及应由谁在哪一层实现。它从不做、简化、改写、重定责任、提炼抽象或局部实现中选择有证据支持的最小动作。实际 skill 位于 [`skills/product-architecture-judgment/`](skills/product-architecture-judgment/)。
 
-[Test Evidence Review](docs/skills/test-evidence-review.md) 评估测试固定的契约和证明价值，把当前无法经济自动化的稳定风险登记为人工 CR，并把测试发现误报登记为可巡检豁免；账本、测试入口角色、Git Scope 和跨语言 CLI 共同维护归属与检查漂移。实际 skill 位于 [`skills/test-evidence-review/`](skills/test-evidence-review/)。
+[Test Evidence Review](docs/skills/test-evidence-review.md) 评估测试固定的契约和证明价值，把当前无法经济自动化的稳定风险登记为人工 CR，并把测试发现误报登记为可巡检豁免；可替换入口采集层与账本维护层通过标准清单连接，共同检查入口角色、Git Scope 和归属漂移。实际 skill 位于 [`skills/test-evidence-review/`](skills/test-evidence-review/)。
 
 [Prompt Optimize](docs/skills/prompt-optimize.md) 关注文档优化。它的核心不是润色文字，而是改善文档对 agent 的引导效果，让文档成为人类和 agent 之间更可靠的协作接口。实际 skill 位于 [`skills/prompt-optimize/`](skills/prompt-optimize/)。
 
