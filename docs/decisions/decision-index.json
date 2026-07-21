@@ -920,6 +920,16 @@
       "relations": []
     },
     {
+      "path": "repository-model/centralize-maintenance-and-keep-distribution-lightweight.md",
+      "status": "active",
+      "createdAt": "2026-07-21T06:39:06Z",
+      "title": "集中维护 skill 并保持轻量分发",
+      "purpose": "降低多个 skill 的长期维护与发布成本，同时保持使用者按需选择和单 skill 独立交付。",
+      "background": "单 skill 独立建仓会重复工具链和发布维护；同仓、聚合 release 与 updater 便利不代表共同安装或完整更新系统。",
+      "decision": "以单仓库集中维护并按 skill 独立打包，使用者知情选择所需能力，聚合发布和 updater 只承接轻量分发便利。",
+      "relations": []
+    },
+    {
       "path": "skill-design-discovery-behavior/separate-design-discovery-from-lifecycle-maintenance.md",
       "status": "active",
       "createdAt": "2026-07-21T02:44:23Z",

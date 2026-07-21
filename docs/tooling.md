@@ -15,6 +15,14 @@
 
 本文件不负责 skill 行为、引用内容、决策记录格式、实现代码的通用质量规则或 agent 项目级协作规则。
 
+## 分发定位
+
+仓库为何集中维护、使用者如何选择 skill，以及轻量分发的产品边界由 [仓库模型](repository-model.md) 承接。本文件只定义对应机制：
+
+1. 共享脚本统一发现和处理 `skills/` 下的内容，但每个 skill 仍分别形成 zip、独立内容 hash 和 updater 配置。
+2. 聚合 release 从同一入口发布全部当前 skill 制品。
+3. updater 由使用者显式运行，只检查和可选替换当前 skill。
+
 ## 工具分工
 
 1. pnpm 管安装：`packageManager` 使用 pnpm，锁文件使用 `pnpm-lock.yaml`，CI 安装依赖使用 `pnpm install --frozen-lockfile`。

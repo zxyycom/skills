@@ -4,10 +4,11 @@
 
 1. 本文件约束 agent 在本仓库内的协作方式、改动边界和交付检查。
 2. 本仓库是 Codex skills 单仓库, 集中维护多个 skill 本体、共享工具链、决策记录、聚合打包发布和项目级维护说明。
-3. `skills/` 是 skill 本体根目录; 每个一级目录代表一个可打包分发的 skill, 且必须包含 `SKILL.md`。
-4. 根目录维护跨 skill 的共享能力, 包括仓库说明、维护约定、决策记录、工具链、自动化、CI 和聚合发布。
-5. 长期文档只沉淀当前仓库内可维护、可复用、当前有效的信息; 仓库外路径、临时来源、迁移过程和一次性调查上下文不进入长期文档。
-6. 改动范围以用户请求为准; 不为整理风格、统一措辞或顺手清理而重写无关文件。
+3. 评估仓库目标、skill 选择方式或分发边界时, 先读取 `docs/repository-model.md`。
+4. `skills/` 是 skill 本体根目录; 每个一级目录代表一个可打包分发的 skill, 且必须包含 `SKILL.md`。
+5. 根目录维护跨 skill 的共享能力, 包括仓库说明、维护约定、决策记录、工具链、自动化、CI 和聚合发布。
+6. 长期文档只沉淀当前仓库内可维护、可复用、当前有效的信息; 仓库外路径、临时来源、迁移过程和一次性调查上下文不进入长期文档。
+7. 改动范围以用户请求为准; 不为整理风格、统一措辞或顺手清理而重写无关文件。
 
 ## Skill 指代与概览
 
@@ -31,11 +32,12 @@
 
 1. `skills/<skill-name>/` 承接对应 skill 的行为、触发条件、读取策略、执行流程、引用文件、边界和验收标准。
 2. `docs/skills/<skill-name>.md` 或集合说明文档承接面向人类阅读的 skill 介绍、项目起点和发展方向; 这些内容不进入 skill zip, 也不作为 agent 执行时必须读取的 skill 本体。
-3. 主仓库承接跨 skill 共享的校验、打包、聚合发布、依赖入口、CI 和自动化。
-4. `docs/coding-style.md` 承接实现代码的通用质量规则; `docs/tooling.md` 承接脚本、安装、校验、打包、CI 和发布细节; `README.md` 只保留项目入口说明。
-5. `skills/decision-records/references/decision-record-rules.md` 是决策记录格式、生命周期、历史关系和维护事务的唯一固定契约; `docs/decisions/decision-index.json` 承接本仓库全生命周期决策索引, 项目专属记录门槛由本文件承接。
-6. `AGENTS.md` 只承接项目级 agent 协作约定; skill 专属规则、编码细则、工具链细节和单条决策原因应写入各自 owner。
-7. 同一判断只在最稳定的 owner 位置完整解释; 非 owner 位置只保留摘要、触发条件或引用。
+3. `docs/repository-model.md` 承接仓库目标、使用者假设、skill 选择安装边界、集中维护边界和轻量分发边界。
+4. 主仓库承接跨 skill 共享的校验、打包、聚合发布、依赖入口、CI 和自动化。
+5. `docs/coding-style.md` 承接实现代码的通用质量规则; `docs/tooling.md` 承接脚本、安装、校验、打包、CI 和发布细节; `README.md` 只保留项目入口说明。
+6. `skills/decision-records/references/decision-record-rules.md` 是决策记录格式、生命周期、历史关系和维护事务的唯一固定契约; `docs/decisions/decision-index.json` 承接本仓库全生命周期决策索引, 项目专属记录门槛由本文件承接。
+7. `AGENTS.md` 只承接项目级 agent 协作约定; skill 专属规则、编码细则、工具链细节和单条决策原因应写入各自 owner。
+8. 同一判断只在最稳定的 owner 位置完整解释; 非 owner 位置只保留摘要、触发条件或引用。
 
 ## 工作流程
 
