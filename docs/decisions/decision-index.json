@@ -497,7 +497,7 @@
     },
     {
       "path": "investigation-report-behavior/append-self-contained-investigation-reports.md",
-      "status": "active",
+      "status": "archived",
       "createdAt": "2026-07-21T09:00:15Z",
       "title": "以完整独立报告演进调查主题",
       "purpose": "让每次调查都具备正确背景并能独立汇报，同时保留同一问题的认识演进。",
@@ -507,6 +507,21 @@
         {
           "type": "替代",
           "target": "investigation-report-behavior/use-report-oriented-investigation-rounds.md"
+        }
+      ]
+    },
+    {
+      "path": "investigation-report-behavior/preserve-comparable-investigation-inputs.md",
+      "status": "active",
+      "createdAt": "2026-07-21T11:20:39Z",
+      "title": "以形成时调查输入保存可比较的认识快照",
+      "purpose": "让每份调查报告保存形成结果时的完整判断输入，并支持跨背景比较同一问题的认识。",
+      "background": "现有完整报告保留当前背景，却未固定每轮目标，也未明确相同结果在不同背景下的比较价值。",
+      "decision": "每份报告固定记录背景、调查动因、调查目标和调查结果；判断输入实质变化时追加完整报告。",
+      "relations": [
+        {
+          "type": "修订",
+          "target": "investigation-report-behavior/append-self-contained-investigation-reports.md"
         }
       ]
     },
