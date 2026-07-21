@@ -36,6 +36,26 @@ type ScriptResult = {
   stdout: string;
 };
 
+type CheckResultOutput = {
+  stderr: string;
+  stdout: string;
+  summary: string;
+};
+
+type CheckStatus = "failed" | "passed";
+
+type CheckWorkflowOptions = {
+  concurrency: number;
+  packageScript: string;
+  preflightScripts: readonly string[];
+  report: (result: ScriptResult) => void;
+  runScript: (script: string) => Promise<ScriptResult>;
+};
+
+type CheckWorkflowResult =
+  | { exitCode: 1; packagingSkipped: true }
+  | { exitCode: 0 | 1; packagingSkipped: false };
+
 type ResolveConcurrencyOptions = {
   availableParallelism: number;
   configured: string | undefined;
@@ -110,12 +130,29 @@ function writeCapturedOutput(output: string, stream: NodeJS.WriteStream): void {
   }
 }
 
+export function formatCheckResult(result: ScriptResult): CheckResultOutput {
+  const status = result.exitCode === 0 ? "passed" : "failed";
+  return {
+    stderr: result.stderr,
+    stdout: result.exitCode === 0 ? "" : result.stdout,
+    summary: formatTimedStatus(result.script, status, result.durationMilliseconds)
+  };
+}
+
+export function formatTimedStatus(
+  label: string,
+  status: CheckStatus,
+  durationMilliseconds: number
+): string {
+  const durationSeconds = (durationMilliseconds / 1_000).toFixed(2);
+  return `${label} [${status}][${durationSeconds}s]`;
+}
+
 function reportResult(result: ScriptResult): void {
-  writeCapturedOutput(result.stdout, process.stdout);
-  writeCapturedOutput(result.stderr, process.stderr);
-  const durationSeconds = (result.durationMilliseconds / 1_000).toFixed(2);
-  const status = result.exitCode === 0 ? "passed" : `failed (${result.exitCode})`;
-  console.log(`[check] ${result.script} ${status} in ${durationSeconds}s.`);
+  const output = formatCheckResult(result);
+  writeCapturedOutput(output.stdout, process.stdout);
+  writeCapturedOutput(output.stderr, process.stderr);
+  console.log(output.summary);
 }
 
 export async function runPreflightScripts(
@@ -150,40 +187,77 @@ export async function runPreflightScripts(
   return !failed;
 }
 
-async function main(): Promise<number> {
-  const concurrency = resolveConcurrency({
-    availableParallelism: os.availableParallelism(),
-    configured: process.env.CHECK_CONCURRENCY,
-    taskCount: preflightScripts.length
-  });
-  console.log(
-    `[check] Running ${preflightScripts.length} preflight checks `
-    + `with concurrency ${concurrency}.`
-  );
-
+export async function runCheckWorkflow(
+  options: CheckWorkflowOptions
+): Promise<CheckWorkflowResult> {
+  const {
+    concurrency,
+    packageScript,
+    preflightScripts,
+    report,
+    runScript
+  } = options;
   if (!await runPreflightScripts(
     preflightScripts,
     concurrency,
-    runPackageScript,
-    reportResult
+    runScript,
+    report
   )) {
-    console.error("[check] Preflight checks failed; packaging was skipped.");
-    return 1;
+    return { exitCode: 1, packagingSkipped: true };
   }
 
-  console.log("[check] Preflight checks passed; packaging skills.");
-  const packageResult = await runPackageScript(packageScript);
-  reportResult(packageResult);
-  return packageResult.exitCode === 0 ? 0 : 1;
+  const packageResult = await runScript(packageScript);
+  report(packageResult);
+  return {
+    exitCode: packageResult.exitCode === 0 ? 0 : 1,
+    packagingSkipped: false
+  };
+}
+
+async function main(): Promise<number> {
+  const startedAt = performance.now();
+  try {
+    const concurrency = resolveConcurrency({
+      availableParallelism: os.availableParallelism(),
+      configured: process.env.CHECK_CONCURRENCY,
+      taskCount: preflightScripts.length
+    });
+    console.log(
+      `${preflightScripts.length} preflight checks `
+      + `[running][concurrency:${concurrency}]`
+    );
+    const result = await runCheckWorkflow({
+      concurrency,
+      packageScript,
+      preflightScripts,
+      report: reportResult,
+      runScript: runPackageScript
+    });
+    if (result.packagingSkipped) {
+      console.error(`${packageScript} [skipped]`);
+    }
+    const summary = formatTimedStatus(
+      `All ${preflightScripts.length} preflight checks and packaging`,
+      result.exitCode === 0 ? "passed" : "failed",
+      performance.now() - startedAt
+    );
+    if (result.exitCode === 0) {
+      console.log(summary);
+    } else {
+      console.error(summary);
+    }
+    return result.exitCode;
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    console.error(formatTimedStatus(
+      `All ${preflightScripts.length} preflight checks and packaging`,
+      "failed",
+      performance.now() - startedAt
+    ));
+    return 1;
+  }
 }
 
 if (isMainModule(import.meta.url)) {
-  try {
-    process.exitCode = await main();
-  } catch (error) {
-    console.error(
-      `[check] ${error instanceof Error ? error.message : String(error)}`
-    );
-    process.exitCode = 1;
-  }
+  process.exitCode = await main();
 }
