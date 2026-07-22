@@ -4,7 +4,6 @@ import {
   rootDir
 } from "./lib/project.ts";
 import { ValidationReporter } from "./lib/validation.ts";
-import { validateDecisionRecords } from "../tools/decision-records/src/index.ts";
 import { validateMarkdownLinks } from "../tools/shared/src/markdown/links.ts";
 import { validateSkillDirectory } from "../tools/skill-validator/src/validation.ts";
 import {
@@ -28,9 +27,6 @@ for (const skill of discovery.skills) {
 
 const mainMarkdownFiles = await collectMainMarkdownFiles(rootDir);
 await validateMarkdownLinks(mainMarkdownFiles, reporter.report, rootDir);
-
-const decisionValidation = await validateDecisionRecords({ workspaceRoot: rootDir });
-reporter.addAll(decisionValidation.errors);
 
 await validatePackageScripts(reporter.report, rootDir);
 await validateRequiredProjectFiles(reporter.report, rootDir);

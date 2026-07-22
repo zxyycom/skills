@@ -1173,8 +1173,8 @@
     },
     {
       "path": "project-tooling/260720-orchestrate-checks-with-conservative-concurrency.md",
-      "status": "active",
-      "alignment": "aligned",
+      "status": "archived",
+      "alignment": null,
       "createdAt": "2026-07-20T18:59:56+08:00",
       "title": "用保守顶层并发编排完整检查",
       "purpose": "缩短完整检查的反馈时间，同时让不同开发机和 CI 的资源使用与打包前置条件保持可预期。",
@@ -1192,6 +1192,22 @@
       "background": "`scripts/test-evidence/tests/` 为多个稳定场景反复创建仓库和提交相同基线，主要耗时来自 Git 与 Node 进程而非领域计算。",
       "decision": "使用多个预构建的逻辑 Git fixture 承接稳定历史，按场景物化隔离工作区；纯逻辑和可导入 CLI 测试在 Bun 进程内运行，只保留最小真实 Git 与 Node smoke。",
       "relations": []
+    },
+    {
+      "path": "project-tooling/default-checks-to-warnings.md",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-07-22T13:49:32Z",
+      "title": "让完整检查默认报告警告并显式启用阻断",
+      "purpose": "让并行修改中的工作区完成全部检查，同时为 CI 和真实依赖保留明确门禁。",
+      "background": "新增检查若必须逐项声明为非阻断，会增加维护负担，临时损坏也会过早终止其余诊断。",
+      "decision": "前置检查默认以 warning 继续；任务可显式声明 blocking，`--strict` 将全部失败升级为阻断。",
+      "relations": [
+        {
+          "type": "修订",
+          "target": "project-tooling/260720-orchestrate-checks-with-conservative-concurrency.md"
+        }
+      ]
     },
     {
       "path": "project-tooling/separate-distributable-tool-source-from-repository-automation.md",

@@ -27,6 +27,7 @@
     "sync:investigation-report-check": "bun scripts/build/investigation-report.ts --write",
     "check:investigation-report-check": "bun scripts/build/investigation-report.ts --check",
     "check:investigations": "bun tools/investigation-report/src/cli.ts --root .",
+    "check:decisions": "bun tools/decision-records/src/cli.ts check --root .",
     "sync:test-evidence-cli": "bun scripts/build/test-evidence.ts --write",
     "check:test-evidence-cli": "bun scripts/build/test-evidence.ts --check",
     "sync:test-evidence-fixture": "bun tools/test-evidence/tests/build-fixture.ts --write",

@@ -1,17 +1,24 @@
 import { spawn } from "node:child_process";
 import os from "node:os";
 import process from "node:process";
+import { parseArgs } from "node:util";
 import { isMainModule } from "../tools/shared/src/node/main-module.ts";
 import { rootDir } from "./lib/project.ts";
 
 const defaultConcurrencyLimit = 2;
-const preflightScripts = [
+
+type CheckTask =
+  | string
+  | { blocking: true; script: string };
+
+const preflightTasks = [
   "test:test-evidence-cli",
   "test:decision-records-cli",
   "check:test-evidence-fixture",
   "test:skill-validator",
   "test:investigation-report-check",
   "check:investigations",
+  "check:decisions",
   "validate",
   "test:skill-updater",
   "check:test-evidence-cli",
@@ -22,12 +29,12 @@ const preflightScripts = [
   "check:skill-updaters",
   "test:check",
   "test:generated-file"
-] as const;
+] as const satisfies readonly CheckTask[];
 const packageScript = "pack:skills";
 export const checkPackageScripts = [
-  ...preflightScripts,
+  ...preflightTasks.map(checkTaskScript),
   packageScript
-] as const;
+];
 
 type ScriptResult = {
   durationMilliseconds: number;
@@ -43,19 +50,39 @@ type CheckResultOutput = {
   summary: string;
 };
 
-type CheckStatus = "failed" | "passed";
+type CheckMode = "strict" | "warnings";
+type CheckStatus = "failed" | "passed" | "warning";
 
 type CheckWorkflowOptions = {
   concurrency: number;
+  mode: CheckMode;
   packageScript: string;
-  preflightScripts: readonly string[];
-  report: (result: ScriptResult) => void;
+  preflightTasks: readonly CheckTask[];
+  report: (result: ScriptResult, status: CheckStatus) => void;
   runScript: (script: string) => Promise<ScriptResult>;
 };
 
 type CheckWorkflowResult =
-  | { exitCode: 1; packagingSkipped: true }
-  | { exitCode: 0 | 1; packagingSkipped: false };
+  | {
+    exitCode: 1;
+    packagingSkipped: true;
+    status: "failed";
+  }
+  | {
+    exitCode: 0;
+    packagingSkipped: false;
+    status: "passed" | "warning";
+  }
+  | {
+    exitCode: 1;
+    packagingSkipped: false;
+    status: "failed";
+  };
+
+type PreflightResult = {
+  blockingFailure: boolean;
+  hasWarnings: boolean;
+};
 
 type ResolveConcurrencyOptions = {
   availableParallelism: number;
@@ -79,6 +106,36 @@ export function resolveConcurrency(
     throw new Error("CHECK_CONCURRENCY must be a safe positive integer");
   }
   return Math.min(concurrency, taskCount);
+}
+
+export function resolveCheckMode(argv: readonly string[]): CheckMode {
+  const parsed = parseArgs({
+    allowPositionals: false,
+    args: [...argv],
+    options: {
+      strict: { type: "boolean" }
+    },
+    strict: true
+  });
+  return parsed.values.strict === true ? "strict" : "warnings";
+}
+
+function checkTaskScript(task: CheckTask): string {
+  return typeof task === "string" ? task : task.script;
+}
+
+export function resolveCheckStatus(
+  task: CheckTask,
+  mode: CheckMode,
+  exitCode: number
+): CheckStatus {
+  if (exitCode === 0) {
+    return "passed";
+  }
+  if (mode === "strict" || (typeof task !== "string" && task.blocking)) {
+    return "failed";
+  }
+  return "warning";
 }
 
 async function runPackageScript(script: string): Promise<ScriptResult> {
@@ -131,11 +188,13 @@ function writeCapturedOutput(output: string, stream: NodeJS.WriteStream): void {
   }
 }
 
-export function formatCheckResult(result: ScriptResult): CheckResultOutput {
-  const status = result.exitCode === 0 ? "passed" : "failed";
+export function formatCheckResult(
+  result: ScriptResult,
+  status: CheckStatus
+): CheckResultOutput {
   return {
     stderr: result.stderr,
-    stdout: result.exitCode === 0 ? "" : result.stdout,
+    stdout: status === "passed" ? "" : result.stdout,
     summary: formatTimedStatus(result.script, status, result.durationMilliseconds)
   };
 }
@@ -149,43 +208,49 @@ export function formatTimedStatus(
   return `${label} [${status}][${durationSeconds}s]`;
 }
 
-function reportResult(result: ScriptResult): void {
-  const output = formatCheckResult(result);
+function reportResult(result: ScriptResult, status: CheckStatus): void {
+  const output = formatCheckResult(result, status);
   writeCapturedOutput(output.stdout, process.stdout);
   writeCapturedOutput(output.stderr, process.stderr);
   console.log(output.summary);
 }
 
-export async function runPreflightScripts(
-  scripts: readonly string[],
+export async function runPreflightTasks(
+  tasks: readonly CheckTask[],
+  mode: CheckMode,
   concurrency: number,
   runScript: (script: string) => Promise<ScriptResult>,
-  report: (result: ScriptResult) => void
-): Promise<boolean> {
-  const scriptIterator = scripts.values();
-  let failed = false;
+  report: (result: ScriptResult, status: CheckStatus) => void
+): Promise<PreflightResult> {
+  const taskIterator = tasks.values();
+  let blockingFailure = false;
+  let hasWarnings = false;
   async function runWorker(): Promise<void> {
-    while (!failed) {
-      const nextScript = scriptIterator.next();
-      if (nextScript.done) {
+    while (!blockingFailure) {
+      const nextTask = taskIterator.next();
+      if (nextTask.done) {
         return;
       }
 
-      const result = await runScript(nextScript.value);
-      report(result);
-      if (result.exitCode !== 0) {
-        failed = true;
+      const task = nextTask.value;
+      const result = await runScript(checkTaskScript(task));
+      const status = resolveCheckStatus(task, mode, result.exitCode);
+      report(result, status);
+      if (status === "failed") {
+        blockingFailure = true;
+      } else if (status === "warning") {
+        hasWarnings = true;
       }
     }
   }
 
   await Promise.all(
     Array.from(
-      { length: Math.min(concurrency, scripts.length) },
+      { length: Math.min(concurrency, tasks.length) },
       () => runWorker()
     )
   );
-  return !failed;
+  return { blockingFailure, hasWarnings };
 }
 
 export async function runCheckWorkflow(
@@ -193,44 +258,62 @@ export async function runCheckWorkflow(
 ): Promise<CheckWorkflowResult> {
   const {
     concurrency,
+    mode,
     packageScript,
-    preflightScripts,
+    preflightTasks,
     report,
     runScript
   } = options;
-  if (!await runPreflightScripts(
-    preflightScripts,
+  const preflightResult = await runPreflightTasks(
+    preflightTasks,
+    mode,
     concurrency,
     runScript,
     report
-  )) {
-    return { exitCode: 1, packagingSkipped: true };
+  );
+  if (preflightResult.blockingFailure) {
+    return {
+      exitCode: 1,
+      packagingSkipped: true,
+      status: "failed"
+    };
   }
 
   const packageResult = await runScript(packageScript);
-  report(packageResult);
+  const packageStatus = packageResult.exitCode === 0 ? "passed" : "failed";
+  report(packageResult, packageStatus);
+  if (packageStatus === "failed") {
+    return {
+      exitCode: 1,
+      packagingSkipped: false,
+      status: "failed"
+    };
+  }
   return {
-    exitCode: packageResult.exitCode === 0 ? 0 : 1,
-    packagingSkipped: false
+    exitCode: 0,
+    packagingSkipped: false,
+    status: preflightResult.hasWarnings ? "warning" : "passed"
   };
 }
 
 async function main(): Promise<number> {
   const startedAt = performance.now();
   try {
+    const mode = resolveCheckMode(process.argv.slice(2));
     const concurrency = resolveConcurrency({
       availableParallelism: os.availableParallelism(),
       configured: process.env.CHECK_CONCURRENCY,
-      taskCount: preflightScripts.length
+      taskCount: preflightTasks.length
     });
     console.log(
-      `${preflightScripts.length} preflight checks `
-      + `[running][concurrency:${concurrency}]`
+      `${preflightTasks.length} preflight checks `
+      + `[running][mode:${mode}][concurrency:${concurrency}]`
     );
     const result = await runCheckWorkflow({
       concurrency,
+      mode,
       packageScript,
-      preflightScripts,
+      preflightTasks,
       report: reportResult,
       runScript: runPackageScript
     });
@@ -238,8 +321,8 @@ async function main(): Promise<number> {
       console.error(`${packageScript} [skipped]`);
     }
     const summary = formatTimedStatus(
-      `All ${preflightScripts.length} preflight checks and packaging`,
-      result.exitCode === 0 ? "passed" : "failed",
+      `All ${preflightTasks.length} preflight checks and packaging`,
+      result.status,
       performance.now() - startedAt
     );
     if (result.exitCode === 0) {
@@ -251,7 +334,7 @@ async function main(): Promise<number> {
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     console.error(formatTimedStatus(
-      `All ${preflightScripts.length} preflight checks and packaging`,
+      `All ${preflightTasks.length} preflight checks and packaging`,
       "failed",
       performance.now() - startedAt
     ));
