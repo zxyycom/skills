@@ -53,7 +53,7 @@ export const decisionIndexJsonSchema = {
       ],
       properties: {
         alignment: {
-          description: "活动决策与当前实现的对齐关系；归档决策固定为 null。",
+          description: "活动决策目标是否已核对并建立为单向基线；归档决策固定为 null。",
           enum: [...decisionAlignments, null],
           type: ["string", "null"]
         },

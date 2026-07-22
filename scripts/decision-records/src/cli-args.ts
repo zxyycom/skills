@@ -217,7 +217,7 @@ export function createCliProgram(
     program,
     "mark-aligned <decision-path>",
     "Mark an active unaligned decision as aligned after verifying current facts "
-      + "and behavior owners satisfy the decision."
+      + "and behavior owners satisfy the decision, establishing it as the current baseline."
   );
   markAligned.action((recordPath: string) => (
     execute("mark-aligned", markAligned, [recordPath])

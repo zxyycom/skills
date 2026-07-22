@@ -1,4 +1,4 @@
 interface:
   display_name: "长期决策记录"
   short_description: "主动恢复、审阅并维护可回放、可审计且可演进的长期决策"
-  default_prompt: "使用 $decision-records 在形成长期决定或处理冲突前恢复相关判断和对齐状态；活动记录激活即生效，alignment 只表示决策与当前事实的关系并由索引投影；新增记录或改变状态前告知用户变化，再按固定契约维护自包含 Markdown、派生 JSON 索引和必要关系。"
+  default_prompt: "使用 $decision-records 在形成长期决定或处理冲突前恢复相关判断和对齐状态；活动记录激活即生效，alignment 表示决策目标是否已核对并建立为单向基线并由索引投影；新增记录或改变状态前告知用户变化，再按固定契约维护自包含 Markdown、派生 JSON 索引和必要关系。"
