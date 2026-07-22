@@ -1,4 +1,10 @@
-# 2026-07-11 - 分离 skill 分发脚本源码与生成产物
+---
+status: archived
+alignment: null
+createdAt: 2026-07-11T11:04:33+08:00
+---
+
+# 分离 skill 分发脚本源码与生成产物
 
 ## 索引摘要
 - 目的: 兼顾分发脚本的独立可执行性与主仓库 TypeScript 源码的可维护性。

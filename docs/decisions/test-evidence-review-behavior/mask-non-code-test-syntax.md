@@ -1,3 +1,9 @@
+---
+status: archived
+alignment: null
+createdAt: 2026-07-21T01:52:14Z
+---
+
 # 在测试入口发现前屏蔽明显非代码上下文
 
 ## 索引摘要

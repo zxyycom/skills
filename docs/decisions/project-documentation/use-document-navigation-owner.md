@@ -1,3 +1,9 @@
+---
+status: active
+alignment: aligned
+createdAt: 2026-07-21T07:48:36Z
+---
+
 # 使用文档导航作为任务路由 owner
 
 ## 索引摘要

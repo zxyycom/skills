@@ -1,3 +1,9 @@
+---
+status: archived
+alignment: null
+createdAt: 2026-07-22T07:10:38Z
+---
+
 # 为决策表达对齐状态
 
 ## 索引摘要

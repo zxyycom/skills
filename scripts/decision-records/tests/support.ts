@@ -6,6 +6,9 @@ import { fileURLToPath } from "node:url";
 import {
   runDecisionRecordsCli
 } from "../../../skills/decision-records/scripts/decision-records.mjs";
+import {
+  runDecisionRecordsCli as runSourceDecisionRecordsCli
+} from "../src/cli.ts";
 import type { DecisionIndex } from "../src/types.ts";
 
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -84,7 +87,8 @@ export function initializeGitRepository(
   }
 }
 
-export async function runBundledCli(
+async function captureCliExecution(
+  runner: (args: readonly string[]) => Promise<number>,
   args: readonly string[]
 ): Promise<CliExecution> {
   const stdout: string[] = [];
@@ -100,7 +104,7 @@ export async function runBundledCli(
 
   try {
     return {
-      exitCode: await runDecisionRecordsCli(args),
+      exitCode: await runner(args),
       stderr: stderr.join(""),
       stdout: stdout.join("")
     };
@@ -110,10 +114,31 @@ export async function runBundledCli(
   }
 }
 
+export async function runBundledCli(
+  args: readonly string[]
+): Promise<CliExecution> {
+  return await captureCliExecution(runDecisionRecordsCli, args);
+}
+
+export async function runSourceCli(
+  args: readonly string[]
+): Promise<CliExecution> {
+  return await captureCliExecution(runSourceDecisionRecordsCli, args);
+}
+
 export async function runSuccessfulCli(
   args: readonly string[]
 ): Promise<string> {
   const result = await runBundledCli(args);
+  assert.equal(result.exitCode, 0);
+  assert.equal(result.stderr, "");
+  return result.stdout;
+}
+
+export async function runSuccessfulSourceCli(
+  args: readonly string[]
+): Promise<string> {
+  const result = await runSourceCli(args);
   assert.equal(result.exitCode, 0);
   assert.equal(result.stderr, "");
   return result.stdout;

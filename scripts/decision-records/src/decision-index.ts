@@ -1,11 +1,16 @@
 import * as v from "valibot";
-import { decisionTimestampPatternSource } from "./decision-index-json-schema.ts";
+import { isDecisionTimestamp } from "./decision-timestamp.ts";
 import { isDecisionRelativePath } from "./decision-path.ts";
 import { projectionTextIssue } from "./projection.ts";
 import {
+  decisionAlignments,
   decisionRelationTypes,
-  decisionStatuses
+  decisionStatuses,
+  type DecisionIndex,
+  type DecisionIndexEntry
 } from "./types.ts";
+
+export type { DecisionIndex, DecisionIndexEntry } from "./types.ts";
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a non-empty string"),
@@ -21,6 +26,10 @@ const decisionRelationSchema = v.strictObject({
 });
 const decisionIndexEntrySchema = v.strictObject(
   {
+    alignment: v.union([
+      v.picklist(decisionAlignments, "must be aligned or unaligned"),
+      v.null("must be aligned, unaligned, or null")
+    ]),
     background: nonEmptyStringSchema,
     createdAt: nonEmptyStringSchema,
     decision: nonEmptyStringSchema,
@@ -34,40 +43,9 @@ const decisionIndexEntrySchema = v.strictObject(
 export const decisionIndexSchema = v.strictObject(
   {
     records: v.array(decisionIndexEntrySchema, "must be an array"),
-    schemaVersion: v.literal(3, "must be 3")
+    schemaVersion: v.literal(4, "must be 4")
   }
 );
-
-export type DecisionIndex = v.InferOutput<typeof decisionIndexSchema>;
-export type DecisionIndexEntry = DecisionIndex["records"][number];
-
-const rfc3339TimestampPattern = new RegExp(decisionTimestampPatternSource);
-
-function isRfc3339Timestamp(value: string): boolean {
-  const match = value.match(rfc3339TimestampPattern);
-  if (!match) {
-    return false;
-  }
-
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const hour = Number(match[4]);
-  const minute = Number(match[5]);
-  const second = Number(match[6]);
-  const offsetHour = match[8] === undefined ? 0 : Number(match[8]);
-  const offsetMinute = match[9] === undefined ? 0 : Number(match[9]);
-  const date = new Date(Date.UTC(year, month - 1, day));
-
-  return date.getUTCFullYear() === year
-    && date.getUTCMonth() === month - 1
-    && date.getUTCDate() === day
-    && hour <= 23
-    && minute <= 59
-    && second <= 59
-    && offsetHour <= 23
-    && offsetMinute <= 59;
-}
 
 function formatIssue(issue: v.InferIssue<typeof decisionIndexSchema>): {
   message: string;
@@ -79,7 +57,7 @@ function formatIssue(issue: v.InferIssue<typeof decisionIndexSchema>): {
     if (rawPath?.match(/^records\.\d+\.relations\.\d+\./)) {
       message = "must contain only type and target";
     } else if (rawPath?.startsWith("records.")) {
-      message = "must contain only path, status, createdAt, title, purpose, "
+      message = "must contain only path, status, alignment, createdAt, title, purpose, "
         + "background, decision, and relations";
     } else {
       message = "must contain only schemaVersion and records";
@@ -123,6 +101,7 @@ export function parseDecisionIndex(
   }
 
   const validationErrors: string[] = [];
+  const records: DecisionIndexEntry[] = [];
   const seenPaths = new Set<string>();
   for (const [index, entry] of result.output.records.entries()) {
     if (seenPaths.has(entry.path)) {
@@ -130,12 +109,31 @@ export function parseDecisionIndex(
     }
     seenPaths.add(entry.path);
 
-    if (!isRfc3339Timestamp(entry.createdAt)) {
+    if (!isDecisionTimestamp(entry.createdAt)) {
       validationErrors.push(
         indexRelativePath
         + " records[" + index + "].createdAt must be an RFC 3339 timestamp "
         + "precise to seconds with an explicit timezone"
       );
+    }
+
+    if (entry.status === "active") {
+      if (entry.alignment === null) {
+        validationErrors.push(
+          indexRelativePath
+          + " records[" + index
+          + "].alignment must be aligned or unaligned when status is active"
+        );
+      } else {
+        records.push({ ...entry, alignment: entry.alignment, status: "active" });
+      }
+    } else if (entry.alignment !== null) {
+      validationErrors.push(
+        indexRelativePath
+        + " records[" + index + "].alignment must be null when status is archived"
+      );
+    } else {
+      records.push({ ...entry, alignment: null, status: "archived" });
     }
 
     for (const field of ["title", "purpose", "background", "decision"] as const) {
@@ -165,5 +163,8 @@ export function parseDecisionIndex(
     errors.push(...validationErrors);
     return null;
   }
-  return result.output;
+  return {
+    records,
+    schemaVersion: 4
+  };
 }

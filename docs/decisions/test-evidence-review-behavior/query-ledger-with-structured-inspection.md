@@ -1,3 +1,9 @@
+---
+status: archived
+alignment: null
+createdAt: 2026-07-21T01:51:47Z
+---
+
 # 为测试账本提供可恢复查询与结构化诊断
 
 ## 索引摘要

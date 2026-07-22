@@ -1,3 +1,9 @@
+---
+status: active
+alignment: aligned
+createdAt: 2026-07-21T01:52:41Z
+---
+
 # 按任务出口渐进读取测试账本契约
 
 ## 索引摘要

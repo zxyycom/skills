@@ -1,3 +1,9 @@
+---
+status: archived
+alignment: null
+createdAt: 2026-07-21T07:33:17Z
+---
+
 # 在稳定基线前原地收敛决策记录
 
 ## 索引摘要

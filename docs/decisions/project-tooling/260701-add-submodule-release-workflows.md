@@ -1,4 +1,10 @@
-# 2026-07-01 - 给子仓库增加独立 release workflow
+---
+status: archived
+alignment: null
+createdAt: 2026-07-18T11:43:07+08:00
+---
+
+# 给子仓库增加独立 release workflow
 
 ## 索引摘要
 - 目的: 让每个 skill 子仓库拥有独立的校验、打包和发布入口。

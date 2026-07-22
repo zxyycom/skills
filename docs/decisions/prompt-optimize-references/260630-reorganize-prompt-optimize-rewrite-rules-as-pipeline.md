@@ -1,4 +1,10 @@
-# 2026-06-30 - 将 prompt-optimize 改写规则重组为管线
+---
+status: archived
+alignment: null
+createdAt: 2026-06-30T15:02:20+08:00
+---
+
+# 将 prompt-optimize 改写规则重组为管线
 
 ## 索引摘要
 - 目的: 让 prompt-optimize 改写规则拥有单一 owner 和稳定的执行顺序。

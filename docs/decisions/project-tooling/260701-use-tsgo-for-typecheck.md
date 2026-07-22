@@ -1,4 +1,10 @@
-# 2026-07-01 - 使用 tsgo 作为默认类型检查入口
+---
+status: active
+alignment: aligned
+createdAt: 2026-07-18T11:43:07+08:00
+---
+
+# 使用 tsgo 作为默认类型检查入口
 
 ## 索引摘要
 - 目的: 为主仓库脚本提供更快、更稳定的 TypeScript 类型检查入口。

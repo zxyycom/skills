@@ -1,4 +1,10 @@
-# 2026-07-01 - 使用版本化 release 发布 skill 制品
+---
+status: archived
+alignment: null
+createdAt: 2026-07-18T11:43:07+08:00
+---
+
+# 使用版本化 release 发布 skill 制品
 
 ## 索引摘要
 - 目的: 让每次实际发布都具有可识别的时间和内容版本。

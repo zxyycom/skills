@@ -1,4 +1,10 @@
-# 2026-07-01 - 给 prompt-optimize 增加文档主承诺检查
+---
+status: active
+alignment: aligned
+createdAt: 2026-07-01T14:55:35+08:00
+---
+
+# 给 prompt-optimize 增加文档主承诺检查
 
 ## 索引摘要
 - 目的: 让文档正文兑现入口建立的预期，并能识别整体重心偏移。

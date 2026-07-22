@@ -1,9 +1,10 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "records": [
     {
       "path": "tooling/260710-use-source-cli.md",
       "status": "archived",
+      "alignment": null,
       "createdAt": "2026-07-10T09:10:11+08:00",
       "title": "使用源码 CLI",
       "purpose": "为 CLI 关系和生命周期测试保留可追溯的前序判断。",
@@ -14,6 +15,7 @@
     {
       "path": "tooling/use-generated-cli.md",
       "status": "active",
+      "alignment": "aligned",
       "createdAt": "2026-07-11T14:15:16+08:00",
       "title": "使用生成 CLI",
       "purpose": "确保生成后的 CLI 能在独立运行环境中读取并校验决策记录。",

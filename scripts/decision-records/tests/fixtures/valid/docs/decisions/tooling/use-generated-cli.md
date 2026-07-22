@@ -1,3 +1,9 @@
+---
+status: active
+alignment: aligned
+createdAt: 2026-07-11T14:15:16+08:00
+---
+
 # 使用生成 CLI
 
 ## 索引摘要

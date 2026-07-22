@@ -31,7 +31,8 @@ assert.match(
 assert.match(declarationSource, /validateDecisionRecords/);
 assert.match(declarationSource, /runDecisionRecordsCli/);
 assert.match(declarationSource, /DecisionProjection/);
-assert.match(declarationSource, /schemaVersion: 3/);
+assert.match(declarationSource, /DecisionAlignment/);
+assert.match(declarationSource, /schemaVersion: 4/);
 
 const distributedSchema: unknown = JSON.parse(
   await fs.readFile(generatedSchemaPath, "utf8")
@@ -46,6 +47,7 @@ assert.deepEqual(
   [
     "path",
     "status",
+    "alignment",
     "createdAt",
     "title",
     "purpose",

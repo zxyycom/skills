@@ -1,3 +1,9 @@
+---
+status: archived
+alignment: null
+createdAt: 2026-07-22T06:03:46Z
+---
+
 # 从 HEAD 路径临时识别待提交决策
 
 ## 索引摘要

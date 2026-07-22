@@ -1,4 +1,10 @@
-# 2026-07-20 - 用预构建 Git fixture 加速 test-evidence 测试
+---
+status: active
+alignment: aligned
+createdAt: 2026-07-20T16:49:56+08:00
+---
+
+# 用预构建 Git fixture 加速 test-evidence 测试
 
 ## 索引摘要
 - 目的: 在保留真实 Git 语义和 Node 分发兼容验证的前提下，减少 `test:test-evidence-cli` 的重复仓库初始化与子进程启动。

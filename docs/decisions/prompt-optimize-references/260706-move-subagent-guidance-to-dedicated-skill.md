@@ -1,4 +1,10 @@
-# 2026-07-06 - 将子代理任务说明移出 prompt-optimize
+---
+status: active
+alignment: aligned
+createdAt: 2026-07-18T11:43:07+08:00
+---
+
+# 将子代理任务说明移出 prompt-optimize
 
 ## 索引摘要
 - 目的: 让 prompt-optimize 聚焦结构化文本优化，并为子代理编排建立独立 owner。

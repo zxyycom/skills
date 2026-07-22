@@ -15,7 +15,62 @@
     },
     "record": {
       "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "active"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "alignment": {
+                "enum": [
+                  "aligned",
+                  "unaligned"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "archived"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "alignment": {
+                "const": null
+              }
+            }
+          }
+        }
+      ],
       "properties": {
+        "alignment": {
+          "description": "活动决策与当前实现的对齐关系；归档决策固定为 null。",
+          "enum": [
+            "aligned",
+            "unaligned",
+            null
+          ],
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "background": {
           "$ref": "#/$defs/projectionText"
         },
@@ -54,6 +109,7 @@
       "required": [
         "path",
         "status",
+        "alignment",
         "createdAt",
         "title",
         "purpose",
@@ -88,7 +144,7 @@
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "decision-records schema v3 全生命周期索引。",
+  "description": "由自包含决策 Markdown 生成的 decision-records schema v4 全生命周期索引。",
   "properties": {
     "records": {
       "items": {
@@ -97,7 +153,7 @@
       "type": "array"
     },
     "schemaVersion": {
-      "const": 3
+      "const": 4
     }
   },
   "required": [

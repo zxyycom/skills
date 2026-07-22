@@ -1,4 +1,10 @@
-# 2026-07-03 - 用 skill package lock 承接发布和自更新
+---
+status: active
+alignment: aligned
+createdAt: 2026-07-03T10:58:54+08:00
+---
+
+# 用 skill package lock 承接发布和自更新
 
 ## 索引摘要
 - 目的: 让聚合发布中的每个 skill 能按自身内容准确判断是否需要更新。

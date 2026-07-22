@@ -1,4 +1,10 @@
-# 2026-07-03 - 自更新脚本跟随 latest release 制品
+---
+status: active
+alignment: aligned
+createdAt: 2026-07-03T10:31:47+08:00
+---
+
+# 自更新脚本跟随 latest release 制品
 
 ## 索引摘要
 - 目的: 让 skill 自更新使用正式发布制品，而不是开发分支快照。

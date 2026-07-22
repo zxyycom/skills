@@ -1,4 +1,10 @@
-# 2026-07-01 - 不用脚本校验 workflow 结构
+---
+status: active
+alignment: aligned
+createdAt: 2026-07-18T11:43:07+08:00
+---
+
+# 不用脚本校验 workflow 结构
 
 ## 索引摘要
 - 目的: 避免在校验脚本中复制 workflow 结构，让检查聚焦稳定的项目约束。

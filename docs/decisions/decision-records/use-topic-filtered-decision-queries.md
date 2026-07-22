@@ -1,3 +1,9 @@
+---
+status: archived
+alignment: null
+createdAt: 2026-07-20T13:17:47Z
+---
+
 # 使用主题与状态筛选决策查询
 
 ## 索引摘要

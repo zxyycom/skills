@@ -1,3 +1,9 @@
+---
+status: archived
+alignment: null
+createdAt: 2026-07-22T07:38:16Z
+---
+
 # 使用对齐感知的决策命令
 
 ## 索引摘要

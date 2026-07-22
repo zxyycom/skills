@@ -1,4 +1,10 @@
-# 2026-06-30 - 将 prompt-optimize 核心流程合并回入口
+---
+status: archived
+alignment: null
+createdAt: 2026-06-30T17:17:43+08:00
+---
+
+# 将 prompt-optimize 核心流程合并回入口
 
 ## 索引摘要
 - 目的: 让 prompt-optimize 触发后直接获得默认流程，减少重复读取和职责分散。

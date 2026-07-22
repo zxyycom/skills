@@ -1,4 +1,10 @@
-# 2026-06-30 - 用 owner 命名决策记录根文档
+---
+status: archived
+alignment: null
+createdAt: 2026-06-30T16:44:06+08:00
+---
+
+# 用 owner 命名决策记录根文档
 
 ## 索引摘要
 - 目的: 让决策清单和维护规则的 owner 能从文件名直接识别。

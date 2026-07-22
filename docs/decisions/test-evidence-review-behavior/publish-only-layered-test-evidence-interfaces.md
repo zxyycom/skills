@@ -1,3 +1,9 @@
+---
+status: active
+alignment: aligned
+createdAt: 2026-07-21T03:26:09Z
+---
+
 # 仅发布分层测试证据接口
 
 ## 索引摘要

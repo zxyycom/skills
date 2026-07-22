@@ -4,12 +4,11 @@ import {
   projectionMinimumLength
 } from "./projection.ts";
 import {
+  decisionAlignments,
   decisionRelationTypes,
   decisionStatuses
 } from "./types.ts";
-
-export const decisionTimestampPatternSource =
-  String.raw`^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(Z|[+-](\d{2}):(\d{2}))$`;
+import { decisionTimestampPatternSource } from "./decision-timestamp.ts";
 
 export const decisionIndexJsonSchema = {
   $comment: "集合级路径唯一性、路径排序、Markdown 投影一致性和关系图约束由 CLI check 检查。",
@@ -28,7 +27,36 @@ export const decisionIndexJsonSchema = {
     },
     record: {
       additionalProperties: false,
+      allOf: [
+        {
+          if: {
+            properties: { status: { const: "active" } },
+            required: ["status"]
+          },
+          then: {
+            properties: {
+              alignment: { enum: decisionAlignments }
+            }
+          }
+        },
+        {
+          if: {
+            properties: { status: { const: "archived" } },
+            required: ["status"]
+          },
+          then: {
+            properties: {
+              alignment: { const: null }
+            }
+          }
+        }
+      ],
       properties: {
+        alignment: {
+          description: "活动决策与当前实现的对齐关系；归档决策固定为 null。",
+          enum: [...decisionAlignments, null],
+          type: ["string", "null"]
+        },
         background: { $ref: "#/$defs/projectionText" },
         createdAt: {
           description: "精确到秒且带显式时区的 RFC 3339 时间。",
@@ -52,6 +80,7 @@ export const decisionIndexJsonSchema = {
       required: [
         "path",
         "status",
+        "alignment",
         "createdAt",
         "title",
         "purpose",
@@ -76,13 +105,13 @@ export const decisionIndexJsonSchema = {
   },
   $schema: "https://json-schema.org/draft/2020-12/schema",
   additionalProperties: false,
-  description: "decision-records schema v3 全生命周期索引。",
+  description: "由自包含决策 Markdown 生成的 decision-records schema v4 全生命周期索引。",
   properties: {
     records: {
       items: { $ref: "#/$defs/record" },
       type: "array"
     },
-    schemaVersion: { const: 3 }
+    schemaVersion: { const: 4 }
   },
   required: ["schemaVersion", "records"],
   title: "Decision Records Index",

@@ -15,8 +15,11 @@ import {
   traceDecision,
   writeIndex
 } from "./support.ts";
-import "./generated-artifacts.test.ts";
-import "./queries.test.ts";
+
+await import("./generated-artifacts.test.ts");
+await import("./queries.test.ts");
+await import("./type-path-invariants.test.ts");
+await import("./configured-decision-directory.test.ts");
 
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "decision-records-test-"));
 try {
@@ -32,6 +35,28 @@ try {
     "use-generated-cli.md"
   );
   const currentDecision = await fs.readFile(currentDecisionPath, "utf8");
+  const archivedDecisionPath = path.join(
+    decisionsDirectory,
+    "tooling",
+    "260710-use-source-cli.md"
+  );
+  const archivedDecision = await fs.readFile(archivedDecisionPath, "utf8");
+
+  const rejectedAlignmentRollback = await runBundledCli([
+    "activate",
+    currentRelativePath,
+    "--alignment",
+    "unaligned",
+    "--root",
+    tempRoot
+  ]);
+  assert.equal(rejectedAlignmentRollback.exitCode, 1);
+  assert.match(
+    rejectedAlignmentRollback.stderr,
+    /cannot be changed back to unaligned/
+  );
+  assert.equal(await fs.readFile(currentDecisionPath, "utf8"), currentDecision);
+  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
 
   const copiedContractPath = path.join(
     decisionsDirectory,
@@ -58,14 +83,14 @@ try {
 
   await fs.writeFile(
     indexPath,
-    JSON.stringify({ schemaVersion: 4, records: [] }, null, 2) + "\n",
+    JSON.stringify({ schemaVersion: 3, records: [] }, null, 2) + "\n",
     "utf8"
   );
   const withUnsupportedSchemaVersion = await validateDecisionRecords({
     workspaceRoot: tempRoot
   });
   assert.ok(withUnsupportedSchemaVersion.errors.some(
-    (error) => error.includes("schemaVersion must be 3")
+    (error) => error.includes("schemaVersion must be 4")
   ));
   const listWithInvalidIndex = await runBundledCli([
     "list",
@@ -90,6 +115,13 @@ try {
     (error) => error.includes("precise to seconds")
   ));
 
+  const invalidAlignmentIndex = structuredClone(originalIndex);
+  findIndexEntry(invalidAlignmentIndex, currentRelativePath).alignment = null;
+  await writeIndex(indexPath, invalidAlignmentIndex);
+  assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
+    (error) => error.includes("alignment must be aligned or unaligned when status is active")
+  ));
+
   const shortProjectionIndex = structuredClone(originalIndex);
   shortProjectionIndex.records[0]!.title = "短";
   await writeIndex(indexPath, shortProjectionIndex);
@@ -104,13 +136,34 @@ try {
     (error) => error.includes("actual 101")
   ));
 
-  const withActiveRelationTargetIndex = structuredClone(originalIndex);
-  findIndexEntry(withActiveRelationTargetIndex, archivedRelativePath).status = "active";
-  await writeIndex(indexPath, withActiveRelationTargetIndex);
+  await fs.writeFile(
+    archivedDecisionPath,
+    archivedDecision
+      .replace("status: archived", "status: active")
+      .replace("alignment: null", "alignment: aligned"),
+    "utf8"
+  );
   assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
     (error) => error.includes("relationship 修订 target must be archived")
   ));
+  await fs.writeFile(archivedDecisionPath, archivedDecision, "utf8");
   await fs.writeFile(indexPath, originalIndexText, "utf8");
+
+  await fs.rm(indexPath);
+  assert.match(
+    await runSuccessfulCli([
+      "sync-index",
+      "--write",
+      "--root",
+      tempRoot
+    ]),
+    /Rebuilt .*decision-index\.json from decision Markdown files/
+  );
+  assert.equal((await readIndex(indexPath)).schemaVersion, 4);
+  assert.deepEqual(
+    (await validateDecisionRecords({ workspaceRoot: tempRoot })).errors,
+    []
+  );
 
   await fs.writeFile(
     currentDecisionPath,
@@ -125,6 +178,34 @@ try {
   );
   assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
     (error) => error.includes("is missing section ## 索引摘要")
+  ));
+  await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
+
+  const ordinaryUnalignedDecision = currentDecision.replace(
+    "alignment: aligned",
+    "alignment: unaligned"
+  );
+  const ordinaryUnalignedIndex = structuredClone(originalIndex);
+  findIndexEntry(
+    ordinaryUnalignedIndex,
+    currentRelativePath
+  ).alignment = "unaligned";
+  await fs.writeFile(currentDecisionPath, ordinaryUnalignedDecision, "utf8");
+  await writeIndex(indexPath, ordinaryUnalignedIndex);
+  assert.deepEqual(
+    (await validateDecisionRecords({ workspaceRoot: tempRoot })).errors,
+    []
+  );
+  await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
+  await fs.writeFile(indexPath, originalIndexText, "utf8");
+
+  await fs.writeFile(
+    currentDecisionPath,
+    currentDecision.replace("createdAt: 2026-07-11T14:15:16+08:00", "createdAt: null"),
+    "utf8"
+  );
+  assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
+    (error) => error.includes("frontmatter createdAt must not be null")
   ));
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
 
@@ -192,20 +273,22 @@ try {
   assert.match(traceWithRelationDrift.stderr, /is out of sync/);
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
 
-  const cycleIndex = structuredClone(originalIndex);
-  findIndexEntry(cycleIndex, archivedRelativePath).relations = [{
-    target: currentRelativePath,
-    type: "修订"
-  }];
-  await writeIndex(indexPath, cycleIndex);
+  await fs.writeFile(
+    archivedDecisionPath,
+    archivedDecision.trimEnd()
+      + "\n\n## 关系\n- 修订: [使用生成 CLI](use-generated-cli.md)\n",
+    "utf8"
+  );
   assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
     (error) => error.includes("Decision relations must not form a cycle")
   ));
-  await fs.writeFile(indexPath, originalIndexText, "utf8");
+  await fs.writeFile(archivedDecisionPath, archivedDecision, "utf8");
 
   const activateRelationTarget = await runBundledCli([
     "activate",
     archivedRelativePath,
+    "--alignment",
+    "aligned",
     "--root",
     tempRoot
   ]);
@@ -215,8 +298,15 @@ try {
     /relationship 修订 target must be archived/
   );
   assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
+  assert.equal(await fs.readFile(archivedDecisionPath, "utf8"), archivedDecision);
 
   const unindexedBody = [
+    "---",
+    "status: active",
+    "alignment: aligned",
+    "createdAt: null",
+    "---",
+    "",
     "# 验证未登记成员",
     "",
     "## 索引摘要",
@@ -249,17 +339,19 @@ try {
   const multipleUnindexedActivation = await runBundledCli([
     "activate",
     firstUnindexedRelativePath,
+    "--alignment",
+    "aligned",
     "--root",
     tempRoot
   ]);
   assert.equal(multipleUnindexedActivation.exitCode, 1);
   assert.match(
     multipleUnindexedActivation.stderr,
-    /does not include decision tooling\/use-second-unindexed\.md/
+    /tooling\/use-second-unindexed\.md frontmatter createdAt must not be null/
   );
   assert.doesNotMatch(
     multipleUnindexedActivation.stderr,
-    /does not include decision tooling\/use-first-unindexed\.md/
+    /tooling\/use-first-unindexed\.md frontmatter createdAt must not be null/
   );
   assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
   await fs.rm(firstUnindexedPath);
@@ -287,6 +379,7 @@ try {
     "需要验证索引同步会刷新全部记录的摘要投影。"
   );
   assert.equal(synchronizedEntry.status, "active");
+  assert.equal(synchronizedEntry.alignment, "aligned");
   assert.equal(
     synchronizedEntry.createdAt,
     "2026-07-11T14:15:16+08:00"
@@ -297,6 +390,12 @@ try {
   const successorRelativePath = "tooling/use-bundled-cli.md";
   const successorPath = path.join(decisionsDirectory, successorRelativePath);
   const successorBody = [
+    "---",
+    "status: active",
+    "alignment: aligned",
+    "createdAt: null",
+    "---",
+    "",
     "# 使用打包 CLI",
     "",
     "## 索引摘要",
@@ -322,6 +421,8 @@ try {
   const hiddenSwitchAttempt = await runBundledCli([
     "activate",
     successorRelativePath,
+    "--alignment",
+    "aligned",
     "--root",
     tempRoot
   ]);
@@ -341,12 +442,15 @@ try {
   ]);
   const archivedIndex = await readIndex(indexPath);
   assert.equal(findIndexEntry(archivedIndex, currentRelativePath).status, "archived");
+  assert.equal(findIndexEntry(archivedIndex, currentRelativePath).alignment, null);
   assert.equal(findIndexEntry(archivedIndex, archivedRelativePath).status, "archived");
 
   await fs.writeFile(successorPath, successorBody, "utf8");
   await runSuccessfulCli([
     "activate",
     successorRelativePath,
+    "--alignment",
+    "aligned",
     "--root",
     tempRoot
   ]);
@@ -357,6 +461,7 @@ try {
   const switchedIndex = await readIndex(indexPath);
   const successorEntry = findIndexEntry(switchedIndex, successorRelativePath);
   assert.equal(successorEntry.status, "active");
+  assert.equal(successorEntry.alignment, "aligned");
   assert.match(
     successorEntry.createdAt,
     /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
@@ -396,6 +501,12 @@ try {
   await fs.writeFile(
     path.join(firstDecisionsDirectory, firstRelativePath),
     [
+      "---",
+      "status: active",
+      "alignment: aligned",
+      "createdAt: null",
+      "---",
+      "",
       "# 使用首条索引",
       "",
       "## 索引摘要",
@@ -419,17 +530,20 @@ try {
   const firstActivation = await runBundledCli([
     "activate",
     firstRelativePath,
+    "--alignment",
+    "aligned",
     "--root",
     firstActivationRoot
   ]);
   assert.equal(firstActivation.exitCode, 0);
-  assert.match(firstActivation.stdout, /Initialized .* and activated/);
+  assert.match(firstActivation.stdout, /Activated new decision as aligned/);
   const firstIndex = await readIndex(
     path.join(firstDecisionsDirectory, "decision-index.json")
   );
-  assert.equal(firstIndex.schemaVersion, 3);
+  assert.equal(firstIndex.schemaVersion, 4);
   assert.equal(firstIndex.records.length, 1);
   assert.equal(firstIndex.records[0]!.status, "active");
+  assert.equal(firstIndex.records[0]!.alignment, "aligned");
   assert.match(
     firstIndex.records[0]!.createdAt,
     /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/

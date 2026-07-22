@@ -19,6 +19,8 @@ assert.deepEqual(validation.errors, []);
 assert.equal(validation.areaCount, 1);
 assert.equal(validation.decisionCount, 2);
 assert.equal(validation.activeCount, 1);
+assert.equal(validation.alignedCount, 1);
+assert.equal(validation.unalignedCount, 0);
 assert.equal(validation.archivedCount, 1);
 assert.deepEqual(
   await validateBundledDecisionRecords({ workspaceRoot: fixtureRoot }),
@@ -34,14 +36,14 @@ const cliOutput = execFileSync(
 );
 assert.match(
   cliOutput,
-  /Decision records check passed \(1 areas, 2 decisions, 1 active, 1 archived, 0 pending\)\./
+  /Decision records check passed \(1 areas, 2 decisions, 1 active, 1 aligned, 0 unaligned, 1 archived, 0 pending\)\./
 );
 
 const defaultCliOutput = await runSuccessfulCli(["--root", fixtureRoot]);
 assert.match(defaultCliOutput, /Decision records check passed/);
 
 const activeList = await runSuccessfulCli(["list", "--root", fixtureRoot]);
-assert.match(activeList, /active 2026-07-11 tooling\/use-generated-cli\.md/);
+assert.match(activeList, /active aligned 2026-07-11 tooling\/use-generated-cli\.md/);
 assert.match(activeList, /title: 使用生成 CLI/);
 assert.match(activeList, /purpose: 确保生成后的 CLI/);
 assert.match(activeList, /background: 需要验证生成后的 CLI/);
@@ -58,7 +60,7 @@ const archivedList = await runSuccessfulCli([
 ]);
 assert.match(
   archivedList,
-  /archived 2026-07-10 tooling\/260710-use-source-cli\.md/
+  /archived null 2026-07-10 tooling\/260710-use-source-cli\.md/
 );
 assert.doesNotMatch(archivedList, /tooling\/use-generated-cli\.md/);
 
@@ -94,7 +96,19 @@ const emptyTopicList = await runSuccessfulCli([
 ]);
 assert.equal(
   emptyTopicList,
-  "No decisions matched status active and topic unrelated-topic.\n"
+  "No decisions matched status active and alignment all and topic unrelated-topic.\n"
+);
+
+const unalignedList = await runSuccessfulCli([
+  "list",
+  "--alignment",
+  "unaligned",
+  "--root",
+  fixtureRoot
+]);
+assert.equal(
+  unalignedList,
+  "No decisions matched status active and alignment unaligned.\n"
 );
 
 const shownDecision = await runSuccessfulCli([
@@ -105,6 +119,7 @@ const shownDecision = await runSuccessfulCli([
 ]);
 assert.match(shownDecision, /^path: tooling\/use-generated-cli\.md/m);
 assert.match(shownDecision, /^status: active$/m);
+assert.match(shownDecision, /^alignment: aligned$/m);
 assert.match(shownDecision, /^pending: false$/m);
 assert.match(
   shownDecision,
@@ -185,3 +200,17 @@ const invalidTopic = spawnSync(
 );
 assert.equal(invalidTopic.status, 2);
 assert.match(invalidTopic.stderr, /must be a kebab-case topic id/);
+
+const missingActivationAlignment = spawnSync(
+  "node",
+  [
+    generatedCliPath,
+    "activate",
+    currentRelativePath,
+    "--root",
+    fixtureRoot
+  ],
+  { encoding: "utf8" }
+);
+assert.equal(missingActivationAlignment.status, 2);
+assert.match(missingActivationAlignment.stderr, /required option '--alignment <value>'/);

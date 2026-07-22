@@ -12,6 +12,10 @@ export type DecisionStatus = "active" | "archived";
 
 export type DecisionListStatus = DecisionStatus | "all";
 
+export type DecisionAlignment = "aligned" | "unaligned";
+
+export type DecisionListAlignment = DecisionAlignment | "all";
+
 export type DecisionRelation = {
   target: string;
   type: DecisionRelationType;
@@ -25,20 +29,36 @@ export type DecisionProjection = {
   title: string;
 };
 
-export type DecisionDocument = DecisionProjection;
+export type DecisionMetadata =
+  | {
+    alignment: "aligned";
+    createdAt: string;
+    status: "active";
+  }
+  | {
+    alignment: "unaligned";
+    createdAt: string;
+    status: "active";
+  }
+  | {
+    alignment: null;
+    createdAt: string;
+    status: "archived";
+  };
 
-export type DecisionIndexEntry = DecisionProjection & {
-  createdAt: string;
+export type DecisionDocument = DecisionProjection & DecisionMetadata;
+
+export type DecisionIndexEntry = DecisionProjection & DecisionMetadata & {
   path: string;
-  status: DecisionStatus;
 };
 
 export type DecisionIndex = {
   records: DecisionIndexEntry[];
-  schemaVersion: 3;
+  schemaVersion: 4;
 };
 
 export type DecisionRecord = {
+  alignment: DecisionAlignment | null;
   areaId: string;
   bodyValid: boolean;
   createdAt: string | null;
@@ -57,40 +77,31 @@ export type DecisionScanOptions = {
   workspaceRoot?: string;
 };
 
-export type DecisionIndexMembershipIssue =
-  | {
-    kind: "missing-index";
-    message: string;
-  }
-  | {
-    kind: "unindexed-decision";
-    message: string;
-    path: string;
-  };
-
 export type DecisionScan = {
   areaIds: Set<string>;
   decisionsDirectoryAvailable: boolean;
   decisionsDirectory: string;
   errors: string[];
   index: DecisionIndex | null;
+  indexErrors: string[];
   indexExists: boolean;
-  indexMembershipIssues: DecisionIndexMembershipIssue[];
   indexPath: string;
   indexRelativePath: string;
   indexText: string;
   records: DecisionRecord[];
-  unindexedPaths: Set<string>;
+  sourceErrors: string[];
   workspaceRoot: string;
 };
 
 export type DecisionValidationResult = {
   activeCount: number;
+  alignedCount: number;
   archivedCount: number;
   areaCount: number;
   decisionCount: number;
   errors: string[];
   scan: DecisionScan;
+  unalignedCount: number;
 };
 
 export declare function runDecisionRecordsCli(

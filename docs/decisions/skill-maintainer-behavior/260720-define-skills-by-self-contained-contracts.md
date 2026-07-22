@@ -1,4 +1,10 @@
-# 2026-07-20 - 让分发 skill 以自身契约定义边界
+---
+status: archived
+alignment: null
+createdAt: 2026-07-20T10:15:58+08:00
+---
+
+# 让分发 skill 以自身契约定义边界
 
 ## 索引摘要
 - 目的: 让每个分发后的 skill 在没有其他 skill 配合时也能被发现、理解和执行。

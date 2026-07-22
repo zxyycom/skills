@@ -1,4 +1,10 @@
-# 2026-07-01 - 压缩 prompt-optimize 入口并归档迁移副本
+---
+status: archived
+alignment: null
+createdAt: 2026-07-18T11:43:07+08:00
+---
+
+# 压缩 prompt-optimize 入口并归档迁移副本
 
 ## 索引摘要
 - 目的: 降低 prompt-optimize 的默认加载和判断成本，同时保留必要细节的可访问性。

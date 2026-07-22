@@ -1,4 +1,10 @@
-# 2026-07-02 - 迁移为 skills 单仓库布局
+---
+status: active
+alignment: aligned
+createdAt: 2026-07-03T10:58:54+08:00
+---
+
+# 迁移为 skills 单仓库布局
 
 ## 索引摘要
 - 目的: 简化个人维护的多 skill 仓库结构，并统一共享工具链和交付。

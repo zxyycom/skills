@@ -9,7 +9,15 @@ import {
   type CliArgs,
   type Command
 } from "./cli-args.ts";
-import { discardDecision } from "./discard-decision.ts";
+import {
+  parseDecisionMarkdown,
+  replaceDecisionMetadata
+} from "./decision-metadata.ts";
+import {
+  applyDecisionChanges,
+  type DecisionFileChange
+} from "./decision-transaction.ts";
+import { isNewDecisionIdentityPath } from "./decision-path.ts";
 import { type HeadDecisionPathsResult } from "./head-decision-paths.ts";
 import {
   expectedIndex,
@@ -23,11 +31,10 @@ import { traceDecisionRelations } from "./relation-graph.ts";
 import { scanDecisionRecords } from "./scan.ts";
 import {
   compareDecisionRecords,
-  type DecisionIndexEntry,
+  type DecisionAlignment,
   type DecisionRecord,
   type DecisionScan,
-  type DecisionScanOptions,
-  type DecisionStatus
+  type DecisionScanOptions
 } from "./types.ts";
 
 type CommandHandler = (args: CliArgs) => Promise<number>;
@@ -145,6 +152,10 @@ async function runCheck(args: CliArgs): Promise<number> {
     + " decisions, "
     + result.activeCount
     + " active, "
+    + result.alignedCount
+    + " aligned, "
+    + result.unalignedCount
+    + " unaligned, "
     + result.archivedCount
     + " archived, "
     + pendingCount
@@ -163,12 +174,17 @@ async function runList(args: CliArgs): Promise<number> {
 
   const records = indexedRecords(result.scan)
     .filter((record) => args.status === "all" || record.status === args.status)
+    .filter((record) => (
+      args.alignment === "all" || record.alignment === args.alignment
+    ))
     .filter((record) => args.topic === null || record.areaId === args.topic)
     .sort(compareDecisionRecords);
   if (records.length === 0) {
     console.log(
       "No decisions matched status "
       + args.status
+      + " and alignment "
+      + args.alignment
       + (args.topic === null ? "" : " and topic " + args.topic)
       + "."
     );
@@ -179,6 +195,8 @@ async function runList(args: CliArgs): Promise<number> {
     const timestamp = record.createdAt ?? "unknown";
     console.log(
       record.status
+      + " "
+      + (record.alignment ?? "null")
       + " "
       + (args.fullTime ? timestamp : timestamp.slice(0, 10))
       + " "
@@ -215,6 +233,7 @@ async function runShow(args: CliArgs): Promise<number> {
 
   console.log("path: " + record.relativePath);
   console.log("status: " + record.status);
+  console.log("alignment: " + record.alignment);
   console.log("createdAt: " + record.createdAt);
   console.log(
     "pending: "
@@ -259,6 +278,8 @@ async function runTrace(args: CliArgs): Promise<number> {
       "- "
       + record.status
       + " "
+      + (record.alignment ?? "null")
+      + " "
       + record.relativePath
       + " - "
       + record.projection.title
@@ -284,29 +305,57 @@ async function writeValidatedIndex(
   text: string,
   successMessage: string
 ): Promise<number> {
-  await fs.writeFile(scan.indexPath, text, "utf8");
-  const validationScan = await scanDecisionRecords(decisionScanOptions(args));
-  const validation = validateDecisionScan(validationScan, headDecisionPaths);
-  if (validation.errors.length > 0) {
+  try {
+    await fs.writeFile(scan.indexPath, text, "utf8");
+    const validationScan = await scanDecisionRecords(decisionScanOptions(args));
+    const validation = validateDecisionScan(validationScan, headDecisionPaths);
+    if (validation.errors.length === 0) {
+      console.log(successMessage);
+      return 0;
+    }
+
+    const restoreErrors = await restoreIndex(scan);
+    printErrors([...validation.errors, ...restoreErrors]);
+    return 1;
+  } catch (error) {
+    const restoreErrors = await restoreIndex(scan);
+    printErrors([
+      "Failed to write and validate decision index: "
+        + (error instanceof Error ? error.message : String(error)),
+      ...restoreErrors
+    ]);
+    return 1;
+  }
+}
+
+async function restoreIndex(scan: DecisionScan): Promise<string[]> {
+  try {
     if (scan.indexExists) {
       await fs.writeFile(scan.indexPath, scan.indexText, "utf8");
     } else {
       await fs.rm(scan.indexPath, { force: true });
     }
-    printErrors(validation.errors);
-    return 1;
+    return [];
+  } catch (error) {
+    return [
+      "Failed to restore decision index "
+      + scan.indexRelativePath
+      + ": "
+      + (error instanceof Error ? error.message : String(error))
+    ];
   }
-
-  console.log(successMessage);
-  return 0;
 }
 
 async function runSyncIndex(args: CliArgs): Promise<number> {
   const context = await loadCommandContext(args, { checkIndexText: false });
   const { headDecisionPaths, result } = context;
   const { scan } = result;
-  if (result.errors.length > 0 || scan.index === null) {
-    printErrors(result.errors);
+  const sourceValidation = validateDecisionScan(scan, headDecisionPaths, {
+    checkIndexText: false,
+    scanErrorPolicy: "source-only"
+  });
+  if (sourceValidation.errors.length > 0) {
+    printErrors(sourceValidation.errors);
     return 1;
   }
 
@@ -331,8 +380,7 @@ async function runSyncIndex(args: CliArgs): Promise<number> {
     scan,
     headDecisionPaths,
     generated.text,
-    "Updated " + scan.indexRelativePath
-      + " projections and relations without changing status or createdAt."
+    "Rebuilt " + scan.indexRelativePath + " from decision Markdown files."
   );
 }
 
@@ -346,83 +394,24 @@ function findIndexedRecord(scan: DecisionScan, value: string): DecisionRecord | 
   return record?.indexed ? record : null;
 }
 
-async function applyIndexEntries(
+async function applySourceChanges(
   args: CliArgs,
-  scan: DecisionScan,
-  headDecisionPaths: HeadDecisionPathsResult,
-  entries: readonly DecisionIndexEntry[],
+  context: DecisionValidationContext,
+  changes: readonly DecisionFileChange[],
   successMessage: string
 ): Promise<number> {
-  const generated = expectedIndex(scan, entries);
-  if (generated.errors.length > 0 || generated.text === null) {
-    printErrors(generated.errors);
+  const errors = await applyDecisionChanges({
+    changes,
+    headDecisionPaths: context.headDecisionPaths,
+    originalScan: context.result.scan,
+    scanOptions: decisionScanOptions(args)
+  });
+  if (errors.length > 0) {
+    printErrors(errors);
     return 1;
   }
-  return await writeValidatedIndex(
-    args,
-    scan,
-    headDecisionPaths,
-    generated.text,
-    successMessage
-  );
-}
-
-function canInitializeIndex(scan: DecisionScan): boolean {
-  return scan.decisionsDirectoryAvailable
-    && !scan.indexExists
-    && scan.index === null
-    && scan.records.length === 1
-    && scan.unindexedPaths.size === 0
-    && scan.indexMembershipIssues.some(
-      (issue) => issue.kind === "missing-index"
-    );
-}
-
-function canRegisterUnindexedRecord(
-  scan: DecisionScan,
-  record: DecisionRecord
-): boolean {
-  return scan.index !== null
-    && scan.unindexedPaths.has(record.relativePath)
-    && scan.indexMembershipIssues.some((issue) => (
-      issue.kind === "unindexed-decision"
-        && issue.path === record.relativePath
-    ));
-}
-
-function permittedActivationScanErrors(
-  scan: DecisionScan,
-  record: DecisionRecord,
-  initializesIndex: boolean
-): Set<string> {
-  return new Set(
-    scan.indexMembershipIssues
-      .filter((issue) => initializesIndex
-        ? issue.kind === "missing-index"
-        : issue.kind === "unindexed-decision"
-          && issue.path === record.relativePath)
-      .map((issue) => issue.message)
-  );
-}
-
-function entryFromRecord(
-  record: DecisionRecord,
-  status: DecisionStatus,
-  createdAt: string
-): DecisionIndexEntry | null {
-  if (!record.document) {
-    return null;
-  }
-  return {
-    path: record.relativePath,
-    status,
-    createdAt,
-    title: record.document.title,
-    purpose: record.document.purpose,
-    background: record.document.background,
-    decision: record.document.decision,
-    relations: record.document.relations
-  };
+  console.log(successMessage);
+  return 0;
 }
 
 async function runActivate(args: CliArgs): Promise<number> {
@@ -431,6 +420,13 @@ async function runActivate(args: CliArgs): Promise<number> {
   const { scan } = result;
   if (headDecisionPaths.errors.length > 0) {
     printErrors(headDecisionPaths.errors);
+    return 1;
+  }
+  const requestedAlignment: DecisionAlignment | null = args.alignment === "all"
+    ? null
+    : args.alignment;
+  if (requestedAlignment === null) {
+    console.error("activate requires --alignment aligned or unaligned.");
     return 1;
   }
   const recordPath = args.recordPaths[0];
@@ -445,87 +441,98 @@ async function runActivate(args: CliArgs): Promise<number> {
     return 1;
   }
 
+  if (!record.markdownExists) {
+    console.error("Decision body does not exist: " + record.relativePath);
+    return 1;
+  }
+
+  const currentText = await fs.readFile(record.decisionPath, "utf8");
+  const metadataErrors: string[] = [];
+  const parsed = parseDecisionMarkdown({
+    allowNullCreatedAt: true,
+    errors: metadataErrors,
+    markdown: currentText,
+    relativePath: record.relativePath
+  });
+  if (!parsed || metadataErrors.length > 0) {
+    printErrors(metadataErrors);
+    return 1;
+  }
+
+  let createdAt: string;
+  let prefix: string;
   if (record.indexed) {
-    if (scan.index === null || result.errors.length > 0) {
+    if (scan.index === null || result.errors.length > 0 || !record.document) {
       printErrors(result.errors);
       return 1;
     }
     if (record.status === "active") {
+      if (record.alignment !== requestedAlignment) {
+        console.error(
+          record.alignment === "unaligned"
+            ? "Use mark-aligned to change an active decision from unaligned to aligned."
+            : "An aligned active decision cannot be changed back to unaligned."
+        );
+        return 1;
+      }
       console.log(
-        "Decision is already active: "
+        "Decision is already active and " + requestedAlignment + ": "
         + record.relativePath
         + pendingRecordSuffix(record, headDecisionPaths.paths)
       );
       return 0;
     }
-
-    const entries = scan.index.records.map((entry) => (
-      entry.path === record.relativePath
-        ? { ...entry, status: "active" as const }
-        : entry
-    ));
-    return await applyIndexEntries(
-      args,
-      scan,
-      headDecisionPaths,
-      entries,
-      activationMessage(
-        headDecisionPaths.paths,
-        record.relativePath,
-        "Activated"
-      )
-    );
-  }
-
-  const initializesIndex = canInitializeIndex(scan);
-  const canRegisterTarget = initializesIndex
-    || canRegisterUnindexedRecord(scan, record);
-  const permittedScanErrors = permittedActivationScanErrors(
-    scan,
-    record,
-    initializesIndex
-  );
-  const activationValidation = validateDecisionScan(
-    scan,
-    headDecisionPaths,
-    {
-      checkIndexText: false,
-      scanErrorPolicy: "omit"
+    if (parsed.metadata.createdAt === null) {
+      console.error("Indexed decision createdAt must not be null: " + record.relativePath);
+      return 1;
     }
-  );
-  const blockingErrors = [
-    ...scan.errors.filter((error) => !permittedScanErrors.has(error)),
-    ...activationValidation.errors
-  ];
-  if (!canRegisterTarget
-    || blockingErrors.length > 0
-    || !record.bodyValid
-    || !record.markdownExists) {
-    printErrors(
-      blockingErrors.length > 0
-        ? blockingErrors
-        : activationValidation.errors
-    );
-    return 1;
+    createdAt = parsed.metadata.createdAt;
+    prefix = "Activated";
+  } else {
+    if (!headDecisionPaths.paths.has(record.relativePath)
+      && !isNewDecisionIdentityPath(record.relativePath)) {
+      printErrors([
+        "New decision identity path must use kebab-case semantic slugs "
+          + "without date tokens: "
+          + record.relativePath
+      ]);
+      return 1;
+    }
+    if (parsed.metadata.status !== "active"
+      || parsed.metadata.alignment !== requestedAlignment
+      || parsed.metadata.createdAt !== null) {
+      printErrors([
+        "New decision activation candidate must declare status: active, alignment: "
+          + requestedAlignment
+          + ", and createdAt: null: "
+          + record.relativePath
+      ]);
+      return 1;
+    }
+    createdAt = currentCreatedAt();
+    prefix = "Activated new decision";
   }
 
-  const entry = entryFromRecord(record, "active", currentCreatedAt());
-  if (!entry) {
-    console.error("Decision body is unavailable: " + record.relativePath);
+  const nextText = replaceDecisionMetadata(currentText, {
+    alignment: requestedAlignment,
+    createdAt,
+    status: "active"
+  });
+  if (nextText === null) {
+    console.error("Decision frontmatter is unavailable: " + record.relativePath);
     return 1;
   }
-  const entries = [...(scan.index?.records ?? []), entry];
-  return await applyIndexEntries(
+  return await applySourceChanges(
     args,
-    scan,
-    headDecisionPaths,
-    entries,
+    context,
+    [{
+      decisionPath: record.decisionPath,
+      nextText
+    }],
     activationMessage(
       headDecisionPaths.paths,
       record.relativePath,
-      initializesIndex
-        ? "Initialized " + scan.indexRelativePath + " and activated"
-        : "Registered and activated"
+      prefix + " as " + requestedAlignment
     )
   );
 }
@@ -541,6 +548,51 @@ function activationMessage(
     + (headPaths.has(relativePath) ? "." : " [pending].");
 }
 
+async function runMarkAligned(args: CliArgs): Promise<number> {
+  const context = await validatedResult(args);
+  if (!context) {
+    return 1;
+  }
+  const { headDecisionPaths, result } = context;
+  const recordPath = args.recordPaths[0];
+  const record = recordPath === undefined
+    ? null
+    : findIndexedRecord(result.scan, recordPath);
+  if (!record || !record.markdownExists || record.createdAt === null) {
+    console.error("Indexed decision does not exist: " + recordPath);
+    return 1;
+  }
+  if (record.status !== "active" || record.alignment !== "unaligned") {
+    console.error(
+      "mark-aligned requires an active unaligned decision: " + record.relativePath
+    );
+    return 1;
+  }
+
+  const currentText = await fs.readFile(record.decisionPath, "utf8");
+  const nextText = replaceDecisionMetadata(currentText, {
+    alignment: "aligned",
+    createdAt: record.createdAt,
+    status: "active"
+  });
+  if (nextText === null) {
+    console.error("Decision frontmatter is unavailable: " + record.relativePath);
+    return 1;
+  }
+  return await applySourceChanges(
+    args,
+    context,
+    [{
+      decisionPath: record.decisionPath,
+      nextText
+    }],
+    "Marked aligned "
+      + record.relativePath
+      + pendingRecordSuffix(record, headDecisionPaths.paths)
+      + "."
+  );
+}
+
 async function runArchive(args: CliArgs): Promise<number> {
   const context = await validatedResult(args);
   if (!context) {
@@ -554,6 +606,7 @@ async function runArchive(args: CliArgs): Promise<number> {
   }
 
   const archivedPaths = new Set<string>();
+  const changes: DecisionFileChange[] = [];
   for (const recordPath of args.recordPaths) {
     const record = findIndexedRecord(scan, recordPath);
     if (!record) {
@@ -578,40 +631,49 @@ async function runArchive(args: CliArgs): Promise<number> {
       return 1;
     }
     archivedPaths.add(record.relativePath);
+    if (record.createdAt === null) {
+      console.error("Decision createdAt is unavailable: " + record.relativePath);
+      return 1;
+    }
+    const currentText = await fs.readFile(record.decisionPath, "utf8");
+    const nextText = replaceDecisionMetadata(currentText, {
+      alignment: null,
+      createdAt: record.createdAt,
+      status: "archived"
+    });
+    if (nextText === null) {
+      console.error("Decision frontmatter is unavailable: " + record.relativePath);
+      return 1;
+    }
+    changes.push({
+      decisionPath: record.decisionPath,
+      nextText
+    });
   }
 
-  const entries = scan.index.records.map((entry) => (
-    archivedPaths.has(entry.path)
-      ? { ...entry, status: "archived" as const }
-      : entry
-  ));
-  return await applyIndexEntries(
+  return await applySourceChanges(
     args,
-    scan,
-    headDecisionPaths,
-    entries,
+    context,
+    changes,
     "Archived " + [...archivedPaths].join(", ") + "."
   );
 }
 
 async function runDiscard(args: CliArgs): Promise<number> {
-  const context = await validatedResult(args);
-  if (!context) {
-    return 1;
-  }
+  const context = await loadCommandContext(args, { checkIndexText: false });
   const { headDecisionPaths, result } = context;
   const { scan } = result;
-  if (scan.index === null) {
-    printErrors(result.errors);
+  if (headDecisionPaths.errors.length > 0) {
+    printErrors(headDecisionPaths.errors);
     return 1;
   }
 
   const recordPath = args.recordPaths[0];
   const record = recordPath === undefined
     ? null
-    : findIndexedRecord(scan, recordPath);
+    : findRecord(scan, recordPath);
   if (!record || !record.markdownExists) {
-    console.error("Indexed decision does not exist: " + recordPath);
+    console.error("Decision does not exist: " + recordPath);
     return 1;
   }
   if (headDecisionPaths.paths.has(record.relativePath)) {
@@ -623,36 +685,36 @@ async function runDiscard(args: CliArgs): Promise<number> {
     return 1;
   }
 
-  const entries = scan.index.records.filter((entry) => (
-    entry.path !== record.relativePath
-  ));
-  const generated = expectedIndex(scan, entries);
-  if (generated.errors.length > 0 || generated.text === null) {
-    printErrors(generated.errors);
+  const referencingPaths = scan.records
+    .filter((candidate) => candidate.relativePath !== record.relativePath)
+    .filter((candidate) => candidate.document?.relations.some(
+      (relation) => relation.target === record.relativePath
+    ) === true)
+    .map((candidate) => candidate.relativePath);
+  if (referencingPaths.length > 0) {
+    printErrors([
+      "Cannot discard decision file while it is still referenced: "
+        + record.relativePath,
+      "Remove references from: " + referencingPaths.join(", ")
+    ]);
     return 1;
   }
 
-  const discardErrors = await discardDecision({
-    indexText: generated.text,
-    record,
-    scan,
-    validate: async () => validateDecisionScan(
-      await scanDecisionRecords(decisionScanOptions(args)),
-      headDecisionPaths
-    ).errors
-  });
-  if (discardErrors.length > 0) {
-    printErrors(discardErrors);
-    return 1;
-  }
-
-  console.log(
+  return await applySourceChanges(
+    args,
+    context,
+    [{
+      decisionPath: record.decisionPath,
+      nextText: null
+    }],
     "Discarded pending decision "
     + record.relativePath
-    + " and removed its index entry. Restage decision files before committing "
+    + (record.indexed
+      ? " and removed its index entry."
+      : " before it entered the decision index.")
+    + " Restage decision files before committing "
     + "if they were already staged."
   );
-  return 0;
 }
 
 const commandHandlers: Record<Command, CommandHandler> = {
@@ -661,6 +723,7 @@ const commandHandlers: Record<Command, CommandHandler> = {
   check: runCheck,
   discard: runDiscard,
   list: runList,
+  "mark-aligned": runMarkAligned,
   show: runShow,
   "sync-index": runSyncIndex,
   trace: runTrace
@@ -691,11 +754,13 @@ export async function runDecisionRecordsCli(
 
 export { scanDecisionRecords, validateDecisionRecords };
 export type {
+  DecisionAlignment,
   DecisionDocument,
   DecisionIndex,
   DecisionIndexEntry,
-  DecisionIndexMembershipIssue,
+  DecisionListAlignment,
   DecisionListStatus,
+  DecisionMetadata,
   DecisionProjection,
   DecisionRecord,
   DecisionRelation,

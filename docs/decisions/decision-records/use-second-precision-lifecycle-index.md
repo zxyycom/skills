@@ -1,3 +1,9 @@
+---
+status: archived
+alignment: null
+createdAt: 2026-07-20T13:18:05Z
+---
+
 # 使用秒级全生命周期索引
 
 ## 索引摘要

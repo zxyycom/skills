@@ -1,3 +1,9 @@
+---
+status: active
+alignment: aligned
+createdAt: 2026-07-21T15:15:57Z
+---
+
 # 使用固定调查记录核心并按场景补充正文
 
 ## 索引摘要

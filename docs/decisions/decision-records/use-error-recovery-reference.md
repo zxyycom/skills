@@ -1,3 +1,9 @@
+---
+status: archived
+alignment: null
+createdAt: 2026-07-20T13:18:28Z
+---
+
 # 使用按需维护恢复手册
 
 ## 索引摘要

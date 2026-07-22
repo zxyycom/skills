@@ -1,3 +1,9 @@
+---
+status: archived
+alignment: null
+createdAt: 2026-07-21T11:20:39Z
+---
+
 # 以形成时调查输入保存可比较的认识快照
 
 ## 索引摘要

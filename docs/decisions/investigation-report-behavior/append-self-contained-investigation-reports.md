@@ -1,3 +1,9 @@
+---
+status: archived
+alignment: null
+createdAt: 2026-07-21T09:00:15Z
+---
+
 # 以完整独立报告演进调查主题
 
 ## 索引摘要

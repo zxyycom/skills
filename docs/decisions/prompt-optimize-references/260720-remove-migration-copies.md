@@ -1,4 +1,10 @@
-# 2026-07-20 - 删除 prompt-optimize 迁移副本
+---
+status: active
+alignment: aligned
+createdAt: 2026-07-20T10:15:36+08:00
+---
+
+# 删除 prompt-optimize 迁移副本
 
 ## 索引摘要
 - 目的: 让 prompt-optimize 的分发内容只保留当前执行和解释需要的入口与引用。

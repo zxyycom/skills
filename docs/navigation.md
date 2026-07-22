@@ -31,7 +31,7 @@
 | Skill 人类介绍 | `docs/skills/<skill-name>.md` | 面向人类的定位、项目起点和发展方向；不作为 agent 执行入口，也不进入 skill zip |
 | Skill 本体 | `skills/<skill-name>/SKILL.md` 及其相邻材料 | 单个 skill 的触发、行为、读取策略、执行流程、边界、验收和分发内容 |
 | 调查报告 | `docs/investigations/investigation-index.md`、`docs/investigations/<topic-id>/<semantic-slug>.md` | 可快速汇报、降低上手门槛并支持接续探索的问题链、证据、推断、未知和阶段性认识 |
-| 长期决策 | `docs/decisions/decision-index.json`、`docs/decisions/<topic-id>/*.md` | 决策生命周期与检索投影，以及需要长期回放的目的、背景、采用方向和关系 |
+| 长期决策 | `docs/decisions/<topic-id>/*.md`、`docs/decisions/decision-index.json` | 自包含决策的生命周期、对齐状态、目的、背景、采用方向和关系，以及由其生成的检索投影 |
 
 ## 维护规则
 

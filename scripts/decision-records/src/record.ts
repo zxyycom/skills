@@ -13,9 +13,12 @@ import {
   stripLinkSuffix
 } from "./markdown.ts";
 import {
+  decisionMetadataFromCandidate,
+  parseDecisionMarkdown
+} from "./decision-metadata.ts";
+import {
   isDecisionFileName,
-  isDecisionRelativePath,
-  legacyDecisionDatePrefix
+  isDecisionRelativePath
 } from "./decision-path.ts";
 import { projectionTextIssue } from "./projection.ts";
 import {
@@ -40,25 +43,6 @@ const requiredSections = new Set([
   "## 决策"
 ]);
 const decisionRelationTypeSet: ReadonlySet<string> = new Set(decisionRelationTypes);
-
-function fullDateFromCompactPrefix(dateText: string): string | null {
-  const match = dateText.match(/^(\d{2})(\d{2})(\d{2})$/);
-  if (!match) {
-    return null;
-  }
-
-  const year = 2000 + Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const date = new Date(Date.UTC(year, month - 1, day));
-  if (date.getUTCFullYear() !== year
-    || date.getUTCMonth() !== month - 1
-    || date.getUTCDate() !== day) {
-    return null;
-  }
-
-  return `${year}-${match[2]}-${match[3]}`;
-}
 
 function isDecisionRelationType(value: string): value is DecisionRelationType {
   return decisionRelationTypeSet.has(value);
@@ -191,7 +175,7 @@ export async function validateDecisionBody(options: {
   errors: string[];
   fileName: string;
   relativePath: string;
-}): Promise<DecisionDocument> {
+}): Promise<DecisionDocument | null> {
   const {
     body: rawBody,
     decisionPath,
@@ -200,14 +184,17 @@ export async function validateDecisionBody(options: {
     relativePath,
     errors
   } = options;
-  const body = rawBody.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
-  const legacyDatePrefix = legacyDecisionDatePrefix(fileName);
-  const legacyFullDate = legacyDatePrefix
-    ? fullDateFromCompactPrefix(legacyDatePrefix)
+  const errorCountBeforeValidation = errors.length;
+  const parsedMarkdown = parseDecisionMarkdown({
+    errors,
+    markdown: rawBody,
+    relativePath
+  });
+  const body = parsedMarkdown?.body ?? "";
+  const metadata = parsedMarkdown
+    ? decisionMetadataFromCandidate(parsedMarkdown.metadata)
     : null;
-  const expectedTitlePrefix = legacyDatePrefix
-    ? "# " + (legacyFullDate ?? "YYYY-MM-DD") + " - "
-    : "# ";
+  const expectedTitlePrefix = "# ";
   const firstLine = body.split("\n", 1)[0];
   const title = firstLine.startsWith(expectedTitlePrefix)
     ? firstLine.slice(expectedTitlePrefix.length).trim()
@@ -216,9 +203,6 @@ export async function validateDecisionBody(options: {
   if (!isDecisionFileName(fileName)) {
     errors.push(relativePath + " must use semantic file name format short-title.md");
   }
-  if (legacyDatePrefix && !legacyFullDate) {
-    errors.push(relativePath + " has an invalid date prefix");
-  }
   if (title.length === 0) {
     errors.push(relativePath + " must start with \"" + expectedTitlePrefix + "<标题>\"");
   } else {
@@ -226,7 +210,7 @@ export async function validateDecisionBody(options: {
     if (titleIssue) {
       errors.push(relativePath + " title " + titleIssue);
     }
-    if (!legacyDatePrefix && /^\d{4}-\d{2}-\d{2}\s+-\s+/.test(title)) {
+    if (/^\d{4}-\d{2}-\d{2}\s+-\s+/.test(title)) {
       errors.push(relativePath + " semantic decision title must not include a date prefix");
     }
   }
@@ -322,11 +306,16 @@ export async function validateDecisionBody(options: {
       })
     : [];
 
-  return {
+  if (!metadata || errors.length > errorCountBeforeValidation) {
+    return null;
+  }
+
+  const projection = {
     background,
     decision,
     purpose,
     relations,
     title
   };
+  return { ...projection, ...metadata };
 }

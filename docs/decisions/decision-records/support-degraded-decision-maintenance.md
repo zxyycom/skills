@@ -1,3 +1,9 @@
+---
+status: archived
+alignment: null
+createdAt: 2026-07-21T01:04:44Z
+---
+
 # 支持故障时的降级决策维护
 
 ## 索引摘要

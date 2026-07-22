@@ -18,35 +18,50 @@ export type DecisionValidationContext = {
 };
 
 export type DecisionValidationOptions = {
+  allowEmptyDecisionSet?: boolean;
   checkIndexText?: boolean;
-  scanErrorPolicy?: "include" | "omit";
+  scanErrorPolicy?: "include" | "omit" | "source-only";
 };
 
 export function expectedIndex(
-  scan: DecisionScan,
-  sourceEntries: readonly DecisionIndexEntry[] = scan.index?.records ?? []
+  scan: DecisionScan
 ): ExpectedIndex {
   const errors: string[] = [];
-  const recordByPath = new Map(scan.records.map((record) => [record.relativePath, record]));
   const entries: DecisionIndexEntry[] = [];
 
-  for (const sourceEntry of sourceEntries) {
-    const record = recordByPath.get(sourceEntry.path);
-    if (!record?.document) {
-      errors.push(scan.indexRelativePath + " references missing decision " + sourceEntry.path);
+  for (const record of scan.records.filter((candidate) => candidate.markdownExists)) {
+    if (!record.document) {
+      errors.push("Cannot generate index from invalid decision " + record.relativePath);
       continue;
     }
 
-    entries.push({
-      path: record.relativePath,
-      status: sourceEntry.status,
-      createdAt: sourceEntry.createdAt,
+    const { alignment, createdAt, status } = record.document;
+    const projection = {
       title: record.document.title,
       purpose: record.document.purpose,
       background: record.document.background,
       decision: record.document.decision,
       relations: record.document.relations
-    });
+    };
+    entries.push(status === "active"
+      ? {
+          path: record.relativePath,
+          status: "active",
+          alignment,
+          createdAt,
+          ...projection
+        }
+      : {
+          path: record.relativePath,
+          status: "archived",
+          alignment: null,
+          createdAt,
+          ...projection
+        });
+  }
+
+  if (entries.length === 0) {
+    errors.push("Cannot generate an empty decision index");
   }
 
   if (errors.length > 0) {
@@ -55,7 +70,7 @@ export function expectedIndex(
 
   entries.sort((left, right) => left.path.localeCompare(right.path));
   const index: DecisionIndex = {
-    schemaVersion: 3,
+    schemaVersion: 4,
     records: entries
   };
 
@@ -92,12 +107,21 @@ export function validateDecisionScan(
 ): DecisionValidationResult {
   const errors = options.scanErrorPolicy === "omit"
     ? []
-    : [...scan.errors];
+    : options.scanErrorPolicy === "source-only"
+      ? [...scan.sourceErrors]
+      : [...scan.errors];
   errors.push(...headDecisionPaths.errors);
   if (headDecisionPaths.errors.length === 0) {
-    errors.push(...headPathConsistencyErrors(scan, headDecisionPaths.paths));
+    errors.push(...headPathConsistencyErrors(
+      scan,
+      headDecisionPaths.paths,
+      options.scanErrorPolicy === "source-only"
+    ));
   }
-  const generated = expectedIndex(scan);
+  const hasDecisionMarkdown = scan.records.some((record) => record.markdownExists);
+  const generated = options.allowEmptyDecisionSet && !hasDecisionMarkdown
+    ? { errors: [], text: null }
+    : expectedIndex(scan);
   errors.push(...generated.errors);
 
   if (options.checkIndexText !== false
@@ -111,17 +135,24 @@ export function validateDecisionScan(
 
   return {
     activeCount: scan.records.filter((record) => record.status === "active").length,
+    alignedCount: scan.records.filter((record) => (
+      record.status === "active" && record.alignment === "aligned"
+    )).length,
     archivedCount: scan.records.filter((record) => record.status === "archived").length,
     areaCount: scan.areaIds.size,
     decisionCount: scan.records.length,
     errors,
-    scan
+    scan,
+    unalignedCount: scan.records.filter((record) => (
+      record.status === "active" && record.alignment === "unaligned"
+    )).length
   };
 }
 
 function headPathConsistencyErrors(
   scan: DecisionScan,
-  headPaths: ReadonlySet<string>
+  headPaths: ReadonlySet<string>,
+  sourceOnly = false
 ): string[] {
   const errors: string[] = [];
   const workingPaths = new Set(
@@ -139,8 +170,11 @@ function headPathConsistencyErrors(
     }
   }
 
-  for (const record of scan.records.filter((candidate) => candidate.indexed)) {
-    for (const relation of record.projection.relations) {
+  for (const record of scan.records.filter((candidate) => sourceOnly
+    ? candidate.document !== null
+    : candidate.document !== null || candidate.indexed)) {
+    const relations = record.document?.relations ?? record.projection.relations;
+    for (const relation of relations) {
       if (!headPaths.has(relation.target)) {
         errors.push(
           record.relativePath

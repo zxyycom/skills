@@ -1,4 +1,10 @@
-# 2026-06-30 - 使用 latest release 自动发布 skill 制品
+---
+status: archived
+alignment: null
+createdAt: 2026-07-18T11:43:07+08:00
+---
+
+# 使用 latest release 自动发布 skill 制品
 
 ## 索引摘要
 - 目的: 集中重复的 skill 校验与打包工具链，并提供统一的聚合发布入口。

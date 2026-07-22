@@ -1,3 +1,9 @@
+---
+status: archived
+alignment: null
+createdAt: 2026-07-21T07:30:35Z
+---
+
 # 以可接续调查段形成调查报告
 
 ## 索引摘要

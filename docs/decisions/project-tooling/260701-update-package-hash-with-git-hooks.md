@@ -1,4 +1,10 @@
-# 2026-07-01 - 用 Git hook 更新 package hash
+---
+status: archived
+alignment: null
+createdAt: 2026-07-03T10:58:54+08:00
+---
+
+# 用 Git hook 更新 package hash
 
 ## 索引摘要
 - 目的: 让发布 hash 与提交内容同步，同时避免 CI 写回产生额外提交。

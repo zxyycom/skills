@@ -1,4 +1,10 @@
-# 2026-07-10 - 使用源码 CLI
+---
+status: archived
+alignment: null
+createdAt: 2026-07-10T09:10:11+08:00
+---
+
+# 使用源码 CLI
 
 ## 索引摘要
 - 目的: 为 CLI 关系和生命周期测试保留可追溯的前序判断。

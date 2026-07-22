@@ -1,3 +1,9 @@
+---
+status: active
+alignment: aligned
+createdAt: 2026-07-21T02:44:23Z
+---
+
 # 将 Skill 深度设计发现设为独立行为
 
 ## 索引摘要

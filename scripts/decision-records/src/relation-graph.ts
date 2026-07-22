@@ -120,7 +120,11 @@ export function traceDecisionRelations(
 export function decisionRelationConsistencyErrors(
   records: readonly DecisionRecord[]
 ): string[] {
-  const graph = buildDecisionRelationGraph(records);
+  const graph = buildDecisionRelationGraph(records.map((record) => ({
+    ...record,
+    projection: record.document ?? record.projection,
+    status: record.document?.status ?? record.status
+  })));
   const errors: string[] = [];
 
   for (const edge of graph.edges) {

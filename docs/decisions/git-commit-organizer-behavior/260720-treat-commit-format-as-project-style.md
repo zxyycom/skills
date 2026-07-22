@@ -1,4 +1,10 @@
-# 2026-07-20 - 将提交格式定位为项目级风格
+---
+status: active
+alignment: aligned
+createdAt: 2026-07-20T11:01:45+08:00
+---
+
+# 将提交格式定位为项目级风格
 
 ## 索引摘要
 - 目的: 让 git-commit-organizer 在跨项目复用时保持稳定、有明确偏好的提交表达。

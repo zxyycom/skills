@@ -12,7 +12,6 @@ import { validateDecisionBody } from "./record.ts";
 import {
   compareDecisionRecords,
   type DecisionDocument,
-  type DecisionIndexMembershipIssue,
   type DecisionIndex,
   type DecisionProjection,
   type DecisionRecord,
@@ -64,6 +63,7 @@ function recordFromIndexEntry(options: {
   const pathParts = entry.path.split("/");
   const fileName = pathParts.at(-1) ?? entry.path;
   return {
+    alignment: entry.alignment,
     areaId: pathParts[0] ?? "",
     bodyValid: false,
     createdAt: entry.createdAt,
@@ -82,44 +82,42 @@ async function scanArea(options: {
   areaId: string;
   areaPath: string;
   decisionsDirectory: string;
-  errors: string[];
+  indexErrors: string[];
   indexEntryByPath: ReadonlyMap<string, DecisionIndexEntry> | null;
-  indexMembershipIssues: DecisionIndexMembershipIssue[];
   indexRelativePath: string;
   records: DecisionRecord[];
-  unindexedPaths: Set<string>;
+  sourceErrors: string[];
 }): Promise<void> {
   const {
     areaId,
     areaPath,
     decisionsDirectory,
-    errors,
+    indexErrors,
     indexEntryByPath,
-    indexMembershipIssues,
     indexRelativePath,
     records,
-    unindexedPaths
+    sourceErrors
   } = options;
   const areaEntries = await fs.readdir(areaPath, { withFileTypes: true });
   areaEntries.sort((left, right) => left.name.localeCompare(right.name));
 
   if (!areaEntries.some((entry) => entry.isFile() && entry.name.endsWith(".md"))) {
-    errors.push("Decision area must contain at least one decision file: " + areaId);
+    sourceErrors.push("Decision area must contain at least one decision file: " + areaId);
   }
 
   for (const entry of areaEntries) {
     const decisionPath = path.join(areaPath, entry.name);
     const relativePath = toPosix(path.relative(decisionsDirectory, decisionPath));
     if (entry.isDirectory()) {
-      errors.push("Decision area must not contain nested directories: " + relativePath);
+      sourceErrors.push("Decision area must not contain nested directories: " + relativePath);
       continue;
     }
     if (!entry.isFile()) {
-      errors.push("Decision area contains unsupported entry: " + relativePath);
+      sourceErrors.push("Decision area contains unsupported entry: " + relativePath);
       continue;
     }
     if (!entry.name.endsWith(".md")) {
-      errors.push("Decision area must contain only Markdown files: " + relativePath);
+      sourceErrors.push("Decision area must contain only Markdown files: " + relativePath);
       continue;
     }
 
@@ -132,46 +130,51 @@ async function scanArea(options: {
       fileName: entry.name,
       relativePath
     });
-    errors.push(...recordErrors);
+    sourceErrors.push(...recordErrors);
 
     const indexEntry = indexEntryByPath?.get(relativePath) ?? null;
     if (indexEntryByPath && !indexEntry) {
-      unindexedPaths.add(relativePath);
       const message = unindexedDecisionError(indexRelativePath, relativePath);
-      errors.push(message);
-      indexMembershipIssues.push({
-        kind: "unindexed-decision",
-        message,
-        path: relativePath
-      });
+      indexErrors.push(message);
     }
 
     records.push({
+      alignment: indexEntry?.alignment ?? document?.alignment ?? null,
       areaId,
       bodyValid: recordErrors.length === 0,
-      createdAt: indexEntry?.createdAt ?? null,
+      createdAt: indexEntry?.createdAt ?? document?.createdAt ?? null,
       decisionPath,
       document,
       fileName: entry.name,
       indexed: indexEntry !== null,
       markdownExists: true,
-      projection: selectProjection(indexEntry ?? document),
+      projection: indexEntry
+        ? selectProjection(indexEntry)
+        : document
+          ? selectProjection(document)
+          : {
+              background: "",
+              decision: "",
+              purpose: "",
+              relations: [],
+              title: ""
+            },
       relativePath,
-      status: indexEntry?.status ?? null
+      status: indexEntry?.status ?? document?.status ?? null
     });
   }
 }
 
 function addMissingIndexRecords(options: {
   decisionsDirectory: string;
-  errors: string[];
+  indexErrors: string[];
   index: DecisionIndex | null;
   indexRelativePath: string;
   records: DecisionRecord[];
 }): void {
   const {
     decisionsDirectory,
-    errors,
+    indexErrors,
     index,
     indexRelativePath,
     records
@@ -185,7 +188,7 @@ function addMissingIndexRecords(options: {
     if (recordPaths.has(entry.path)) {
       continue;
     }
-    errors.push(indexRelativePath + " references missing decision " + entry.path);
+    indexErrors.push(indexRelativePath + " references missing decision " + entry.path);
     records.push(recordFromIndexEntry({ decisionsDirectory, entry }));
   }
 }
@@ -198,11 +201,10 @@ export async function scanDecisionRecords(
   const decisionsDirectory = path.isAbsolute(configuredDecisionDirectory)
     ? path.resolve(configuredDecisionDirectory)
     : path.resolve(workspaceRoot, configuredDecisionDirectory);
-  const errors: string[] = [];
+  const indexErrors: string[] = [];
+  const sourceErrors: string[] = [];
   const records: DecisionRecord[] = [];
   const areaIds = new Set<string>();
-  const indexMembershipIssues: DecisionIndexMembershipIssue[] = [];
-  const unindexedPaths = new Set<string>();
   const decisionsLabel = displayPath(workspaceRoot, decisionsDirectory);
   const indexPath = path.join(decisionsDirectory, indexFileName);
   const indexRelativePath = displayPath(workspaceRoot, indexPath);
@@ -211,14 +213,14 @@ export async function scanDecisionRecords(
     decisionsDirectoryAvailable: false,
     decisionsDirectory,
     errors: [error],
+    indexErrors,
     index: null,
     indexExists: false,
-    indexMembershipIssues,
     indexPath,
     indexRelativePath,
     indexText: "",
     records,
-    unindexedPaths,
+    sourceErrors: [error],
     workspaceRoot
   });
 
@@ -232,12 +234,11 @@ export async function scanDecisionRecords(
   const indexExists = await pathExists(indexPath);
   if (!indexExists) {
     const message = indexRelativePath + " is required";
-    errors.push(message);
-    indexMembershipIssues.push({ kind: "missing-index", message });
+    indexErrors.push(message);
   }
   const indexText = indexExists ? await fs.readFile(indexPath, "utf8") : "";
   const index = indexText.length > 0
-    ? parseDecisionIndex(indexText, indexRelativePath, errors)
+    ? parseDecisionIndex(indexText, indexRelativePath, indexErrors)
     : null;
   const indexEntryByPath = index
     ? new Map(index.records.map((entry) => [entry.path, entry]))
@@ -249,57 +250,58 @@ export async function scanDecisionRecords(
     const entryPath = path.join(decisionsDirectory, entry.name);
     if (entry.isFile()) {
       if (!allowedRootFiles.has(entry.name)) {
-        errors.push(decisionsLabel + " root contains unsupported file " + entry.name);
+        sourceErrors.push(decisionsLabel + " root contains unsupported file " + entry.name);
       }
       continue;
     }
     if (!entry.isDirectory()) {
-      errors.push(decisionsLabel + " contains unsupported entry " + entry.name);
+      sourceErrors.push(decisionsLabel + " contains unsupported entry " + entry.name);
       continue;
     }
 
     areaIds.add(entry.name);
     if (!isDecisionTopicId(entry.name)) {
-      errors.push("Decision area must use kebab-case: " + entry.name);
+      sourceErrors.push("Decision area must use kebab-case: " + entry.name);
     }
     await scanArea({
       areaId: entry.name,
       areaPath: entryPath,
       decisionsDirectory,
-      errors,
+      indexErrors,
       indexEntryByPath,
-      indexMembershipIssues,
       indexRelativePath,
       records,
-      unindexedPaths
+      sourceErrors
     });
   }
 
   addMissingIndexRecords({
     decisionsDirectory,
-    errors,
+    indexErrors,
     index,
     indexRelativePath,
     records
   });
   records.sort(compareDecisionRecords);
-  errors.push(...decisionRelationConsistencyErrors(
-    records.filter((record) => record.indexed)
+  sourceErrors.push(...decisionRelationConsistencyErrors(
+    records.filter((record) => record.document !== null)
   ));
+
+  const errors = [...sourceErrors, ...indexErrors];
 
   return {
     areaIds,
     decisionsDirectoryAvailable: true,
     decisionsDirectory,
     errors,
+    indexErrors,
     index,
     indexExists,
-    indexMembershipIssues,
     indexPath,
     indexRelativePath,
     indexText,
     records,
-    unindexedPaths,
+    sourceErrors,
     workspaceRoot
   };
 }

@@ -1,4 +1,10 @@
-# 2026-07-01 - 使用 skill hash 门禁 latest release 发布
+---
+status: archived
+alignment: null
+createdAt: 2026-07-18T11:43:07+08:00
+---
+
+# 使用 skill hash 门禁 latest release 发布
 
 ## 索引摘要
 - 目的: 只在可安装 skill 包内容变化时更新 latest release，避免产生虚假更新信号。

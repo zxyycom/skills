@@ -9,9 +9,10 @@ export function stripLinkSuffix(target: string): string {
 }
 
 export function parseSections(body: string): MarkdownSection[] {
-  const matches = [...body.matchAll(/^## ([^\n]+)$/gm)];
+  const marker = "##";
+  const matches = [...body.matchAll(new RegExp("^" + marker + " ([^\\n]+)$", "gm"))];
   return matches.map((match, index) => {
-    const heading = "## " + match[1].trim();
+    const heading = marker + " " + match[1].trim();
     const headingIndex = match.index ?? 0;
     const lineEnd = body.indexOf("\n", headingIndex);
     const contentStart = lineEnd >= 0 ? lineEnd + 1 : body.length;

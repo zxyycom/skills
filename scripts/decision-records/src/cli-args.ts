@@ -5,7 +5,9 @@ import {
   Option
 } from "commander";
 import {
+  decisionAlignments,
   decisionStatuses,
+  type DecisionListAlignment,
   type DecisionListStatus,
   type DecisionTraceDirection
 } from "./types.ts";
@@ -17,11 +19,13 @@ export type Command =
   | "check"
   | "discard"
   | "list"
+  | "mark-aligned"
   | "show"
   | "sync-index"
   | "trace";
 
 export type CliArgs = {
+  alignment: DecisionListAlignment;
   command: Command;
   decisionsDir: string;
   fullTime: boolean;
@@ -35,6 +39,7 @@ export type CliArgs = {
 };
 
 type ParsedOptions = {
+  alignment?: DecisionListAlignment;
   decisionsDir?: string;
   depth?: number;
   direction?: DecisionTraceDirection;
@@ -76,6 +81,7 @@ function commandArgs(
 ): CliArgs {
   const options = commanderCommand.optsWithGlobals<ParsedOptions>();
   return {
+    alignment: options.alignment ?? "all",
     command,
     decisionsDir: options.decisionsDir ?? "docs/decisions",
     fullTime: options.fullTime ?? false,
@@ -113,7 +119,7 @@ export function createCliProgram(
     .option("--root <path>", "Workspace root.", process.cwd())
     .option(
       "--decisions-dir <path>",
-      "Decision directory under --root.",
+      "Decision directory. Relative paths resolve from --root.",
       "docs/decisions"
     )
     .showHelpAfterError()
@@ -138,7 +144,7 @@ export function createCliProgram(
   const check = createSubcommand(
     program,
     "check",
-    "Validate paths, Markdown records, relations, the JSON index, and Git HEAD membership.",
+    "Validate Markdown metadata, alignment, relations, the JSON index, and Git HEAD membership.",
     { isDefault: true }
   );
   check.action(() => execute("check", check));
@@ -146,8 +152,13 @@ export function createCliProgram(
   const list = createSubcommand(
     program,
     "list",
-    "List active decisions by default, or filter by topic and lifecycle status."
+    "List active decisions by default, or filter by topic, lifecycle, and alignment."
   )
+    .addOption(
+      new Option("--alignment <value>", "Alignment filter for active decisions.")
+        .choices([...decisionAlignments, "all"])
+        .default("all")
+    )
     .addOption(
       new Option("--status <value>", "Lifecycle status filter.")
         .choices([...decisionStatuses, "all"])
@@ -163,7 +174,7 @@ export function createCliProgram(
   const show = createSubcommand(
     program,
     "show <decision-path>",
-    "Show index-owned metadata followed by the original Markdown body."
+    "Show decision metadata followed by the original Markdown body."
   );
   show.action((recordPath: string) => execute("show", show, [recordPath]));
 
@@ -186,29 +197,43 @@ export function createCliProgram(
   const syncIndex = createSubcommand(
     program,
     "sync-index",
-    "Refresh generated projections and relations without changing status or createdAt."
+    "Rebuild the complete JSON index from decision Markdown files."
   )
-    .option("--write", "Apply index metadata changes.");
+    .option("--write", "Write the index rebuilt from decision Markdown files.");
   syncIndex.action(() => execute("sync-index", syncIndex));
 
   const activate = createSubcommand(
     program,
     "activate <decision-path>",
-    "Register an existing decision when needed and set its status to active."
+    "Activate a decision with an explicit alignment state."
+  ).addOption(
+    new Option("--alignment <value>", "Alignment state for the active decision.")
+      .choices(decisionAlignments)
+      .makeOptionMandatory()
   );
   activate.action((recordPath: string) => execute("activate", activate, [recordPath]));
+
+  const markAligned = createSubcommand(
+    program,
+    "mark-aligned <decision-path>",
+    "Mark an active unaligned decision as aligned after verifying current facts "
+      + "and behavior owners satisfy the decision."
+  );
+  markAligned.action((recordPath: string) => (
+    execute("mark-aligned", markAligned, [recordPath])
+  ));
 
   const archive = createSubcommand(
     program,
     "archive <decision-path...>",
-    "Set active decisions to archived without changing related decisions."
+    "Set active decisions to archived with null alignment without changing relations."
   );
   archive.action((recordPaths: string[]) => execute("archive", archive, recordPaths));
 
   const discard = createSubcommand(
     program,
     "discard <decision-path>",
-    "Delete a decision file that is not yet present in Git HEAD and remove its index entry."
+    "Delete a decision file not yet present in Git HEAD and rebuild the index."
   );
   discard.action((recordPath: string) => execute("discard", discard, [recordPath]));
 

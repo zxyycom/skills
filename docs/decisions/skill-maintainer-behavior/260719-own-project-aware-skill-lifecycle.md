@@ -1,4 +1,10 @@
-# 2026-07-19 - 让 skill-maintainer 承接环境自适应的 skill 生命周期
+---
+status: archived
+alignment: null
+createdAt: 2026-07-20T08:35:03+08:00
+---
+
+# 让 skill-maintainer 承接环境自适应的 skill 生命周期
 
 ## 索引摘要
 - 目的: 让可复用的 agent 能力由新 skill、既有 skill 或其他 owner 清楚承接，并让选定的 skill 在简约或完整的维护环境中都能交付。

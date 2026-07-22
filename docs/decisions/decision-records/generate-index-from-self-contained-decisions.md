@@ -1,3 +1,9 @@
+---
+status: active
+alignment: aligned
+createdAt: 2026-07-22T07:37:46Z
+---
+
 # 从自包含决策文件生成完整索引
 
 ## 索引摘要

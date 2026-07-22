@@ -1,3 +1,9 @@
+---
+status: archived
+alignment: null
+createdAt: 2026-07-21T01:29:45Z
+---
+
 # 随包分发索引 JSON Schema
 
 ## 索引摘要

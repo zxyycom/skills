@@ -1,3 +1,9 @@
+---
+status: archived
+alignment: null
+createdAt: 2026-07-22T07:37:13Z
+---
+
 # 定义决策对齐状态与未对齐语义
 
 ## 索引摘要
