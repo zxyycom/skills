@@ -63,6 +63,7 @@
 25. `bun run check:investigations`: 使用 `tools/investigation-report/src/` 的当前实现严格检查本仓库调查索引和全部主题文件；由完整检查编排时再按运行模式决定是否阻断。
 26. `bun run sync:investigation-report-check`: 从 `tools/investigation-report/` 构建并写入 `investigation-report` skill 内的 `check-investigations.mjs`、类型声明和 source map。
 27. `bun run check:investigation-report-check`: 在临时目录重建调查报告检查器，并检查 skill 内分发产物是否与当前源码一致。
+28. `bun run test:version-control`: 使用隔离 Git 仓库验证版本管理中间层的提交快照、待提交快照、工作区路径、提交差异、未出生与损坏 `HEAD`、冲突 index、错误映射和 linked worktree 行为。
 
 需要直接排查实现时，可以用 `bun scripts/<script>.ts` 运行项目脚本，或用 `bun tools/<tool-name>/src/<entry>.ts` 运行工具源码入口。
 
@@ -97,6 +98,14 @@
 4. 具体工具的 `src/` 只能依赖自身源码、`tools/shared/src/`、`tools/skill-package/src/`、目标运行时和显式外部依赖；不能依赖 `scripts/`、`skills/`、`dist/` 或另一个具体工具。
 5. `tools/shared/` 不依赖其他工具；`tools/skill-package/` 只依赖自身和 `tools/shared/`。
 6. 源码共享不改变分发单元边界。构建器把被消费的共享源码内联进目标自包含 MJS，因此不同 skill 可以共享一份维护源码而不产生跨 skill 运行时前置条件。
+
+### 版本管理中间层
+
+1. `tools/shared/src/version-control/` 是项目内版本管理责任的集中 owner；其公共接口以仓库、修订、快照、文件和路径变化等项目语义表达版本状态，不暴露第三方 Git 对象或命令输出。
+2. 默认实现使用 Git，并把具体 TypeScript Git 库限制在该目录内部；这个边界用于隔离实现变化，不承诺当前契约已经兼容 SVN 或其他版本管理系统。
+3. `revision` 快照表示已经提交的不可变版本，`pending` 快照表示准备进入下一版本的内容；Git 实现把后者映射到 index，两种语义不得互相替代。
+4. 工作区文件和工作区变化不是版本快照，通过独立查询暴露；调用方需要“上一版本是否存在某文件”时，先解析当前修订及其主父修订，再查询对应 `revision` 快照，Git 实现选择 first parent。
+5. 新增公共操作必须来自项目内现实消费者，并保持路径校验、错误映射和结果排序在中间层内完成；不为假想后端预建 provider 注册、能力协商或降级框架。
 
 ## Skill 分发脚本
 

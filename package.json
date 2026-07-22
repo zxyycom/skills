@@ -13,6 +13,7 @@
     "test:decision-records-cli": "bun tools/decision-records/tests/run.ts",
     "test:check": "bun scripts/check.test.ts",
     "test:generated-file": "bun scripts/lib/generated-file.test.ts",
+    "test:version-control": "bun tools/shared/tests/version-control.test.ts",
     "test:investigation-report-check": "bun tools/investigation-report/tests/run.ts",
     "test:skill-validator": "bun tools/skill-validator/tests/run.ts",
     "test:test-evidence-cli": "bun tools/test-evidence/tests/run.ts",
@@ -49,6 +50,7 @@
     "mdast-util-from-markdown": "^2.0.3",
     "mdast-util-to-string": "^4.0.0",
     "picomatch": "4.0.5",
+    "simple-git": "3.36.0",
     "valibot": "^1.4.2",
     "yaml": "^2.9.0"
   }

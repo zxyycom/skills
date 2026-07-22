@@ -1572,6 +1572,17 @@
       "background": "固定契约包含大量字段、配置和 CLI 细节，纯语义审查每次完整读取会挤占实现、测试和行为 owner 的有效上下文。",
       "decision": "所有任务继续受账本契约约束，但仅在写入、结构审阅、修复或精确诊断时完整读取；日常恢复先用 list/show/check。",
       "relations": []
+    },
+    {
+      "path": "version-control/centralize-version-control-responsibility.md",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-07-22T15:01:02Z",
+      "title": "集中版本管理责任但不承诺跨系统兼容",
+      "purpose": "让项目只通过一个稳定 owner 查询版本状态，使后续替换实现或接入其他系统时不再追查分散调用。",
+      "background": "项目同时需要提交树、待提交内容和工作区变化，直接依赖 Git 命令与 index 语义会把解析和替换成本散入多个模块。",
+      "decision": "建立项目自有版本管理中间层，默认采用 Git 并允许 Git 倾向语义，但不提前承诺多版本系统兼容或建设 provider 框架。",
+      "relations": []
     }
   ]
 }
