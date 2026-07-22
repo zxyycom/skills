@@ -11,6 +11,7 @@ const preflightScripts = [
   "check:test-evidence-fixture",
   "test:skill-validator",
   "test:investigation-report-check",
+  "check:investigations",
   "validate",
   "test:skill-updater",
   "check:test-evidence-cli",

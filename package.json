@@ -26,6 +26,7 @@
     "check:skill-validator": "bun scripts/skill-validator/build.ts --check",
     "sync:investigation-report-check": "bun scripts/investigation-report/build.ts --write",
     "check:investigation-report-check": "bun scripts/investigation-report/build.ts --check",
+    "check:investigations": "bun scripts/investigation-report/src/cli.ts --root .",
     "sync:test-evidence-cli": "bun scripts/test-evidence/build.ts --write",
     "check:test-evidence-cli": "bun scripts/test-evidence/build.ts --check",
     "sync:test-evidence-fixture": "bun scripts/test-evidence/tests/build-fixture.ts --write",
