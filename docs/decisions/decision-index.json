@@ -512,7 +512,7 @@
     },
     {
       "path": "investigation-report-behavior/preserve-comparable-investigation-inputs.md",
-      "status": "active",
+      "status": "archived",
       "createdAt": "2026-07-21T11:20:39Z",
       "title": "以形成时调查输入保存可比较的认识快照",
       "purpose": "让每份调查报告保存形成结果时的完整判断输入，并支持跨背景比较同一问题的认识。",
@@ -522,6 +522,21 @@
         {
           "type": "修订",
           "target": "investigation-report-behavior/append-self-contained-investigation-reports.md"
+        }
+      ]
+    },
+    {
+      "path": "investigation-report-behavior/use-fixed-investigation-record-core.md",
+      "status": "active",
+      "createdAt": "2026-07-21T15:15:57Z",
+      "title": "使用固定调查记录核心并按场景补充正文",
+      "purpose": "让每轮调查完整保存可比较的形成时输入、证据基础和结果边界，同时避免按报告规模或既有形态分配格式。",
+      "background": "真实报告标题各异，但共同保留形成时背景、调查目的、调查范围与依据以及结果边界；互斥格式不能承接混合场景。",
+      "decision": "每份报告固定使用形成时背景、调查目的、调查范围与依据、调查结果与边界四段；场景支撑先写入对应核心，需要独立组织时再在其后展开。",
+      "relations": [
+        {
+          "type": "修订",
+          "target": "investigation-report-behavior/preserve-comparable-investigation-inputs.md"
         }
       ]
     },

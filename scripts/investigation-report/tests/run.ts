@@ -19,8 +19,9 @@ type ReportEntryInput = {
   background?: string;
   extraSections?: readonly ExtraSection[];
   formedAt?: string;
-  origin?: string;
-  result?: string;
+  purpose?: string;
+  resultAndBoundary?: string;
+  scopeAndBasis?: string;
   title: string;
 };
 
@@ -33,6 +34,33 @@ type ReportInput = {
   status?: string;
   title: string;
 };
+
+type CoreSectionCase = ExtraSection & {
+  slug: string;
+};
+
+const coreSectionCases: readonly CoreSectionCase[] = [
+  {
+    body: "当前对象的状态、触发观察和既有认识足以界定本轮结果。",
+    slug: "formed-background",
+    title: "形成时背景"
+  },
+  {
+    body: "查清当前状态并支持后续判断。",
+    slug: "purpose",
+    title: "调查目的"
+  },
+  {
+    body: "检查当前对象和一手来源，并记录未覆盖范围。",
+    slug: "scope-and-basis",
+    title: "调查范围与依据"
+  },
+  {
+    body: "已形成能够回答问题的结果，并保留适用边界和复核条件。",
+    slug: "result-and-boundary",
+    title: "调查结果与边界"
+  }
+];
 
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(testsDirectory, "../../..");
@@ -56,14 +84,17 @@ function reportEntryMarkdown(input: ReportEntryInput): string {
     `### ${input.title}`,
     `- 形成时间: ${input.formedAt ?? "2026-07-21T09:00:00+08:00"}`,
     "",
-    "#### 背景",
-    input.background ?? "当前对象的状态与既有认识足以界定本次结果。",
+    "#### 形成时背景",
+    input.background ?? coreSectionCases[0].body,
     "",
-    "#### 起因",
-    input.origin ?? "需要了解当前状态并形成可独立阅读的报告。",
+    "#### 调查目的",
+    input.purpose ?? coreSectionCases[1].body,
     "",
-    "#### 调查结果",
-    input.result ?? "已取得能够直接回答核心问题的事实，并保留适用边界。"
+    "#### 调查范围与依据",
+    input.scopeAndBasis ?? coreSectionCases[2].body,
+    "",
+    "#### 调查结果与边界",
+    input.resultAndBoundary ?? coreSectionCases[3].body
   ];
   for (const section of input.extraSections ?? []) {
     lines.push("", `#### ${section.title}`, section.body);
@@ -121,12 +152,7 @@ function indexMarkdown(inputs: readonly ReportInput[]): string {
     byTopic.set(topic, topicReports);
   }
 
-  const lines = [
-    "# 调查索引",
-    "",
-    "本索引只用于定位调查。",
-    ""
-  ];
+  const lines = ["# 调查索引", "", "本索引只用于定位调查。", ""];
   for (const [topic, reports] of [...byTopic].sort(([left], [right]) => (
     left.localeCompare(right)
   ))) {
@@ -175,7 +201,8 @@ try {
       reports: [
         {
           formedAt: "2026-07-20T09:00:00+08:00",
-          result: "初步确认注册入口没有产生可用工具。",
+          purpose: "确认注册入口是否工作，并查清当前可用工具状态。",
+          resultAndBoundary: "初步确认注册入口没有产生可用工具，尚未验证启动环境。",
           title: "恢复注册入口"
         },
         {
@@ -185,14 +212,15 @@ try {
               "# 围栏中的示例标题",
               "## 调查信息",
               "### 围栏中的报告",
-              "#### 背景",
+              "#### 形成时背景",
               "~~~"
             ].join("\n"),
             title: "证据"
           }],
           formedAt: "2026-07-21T09:00:00+08:00",
-          origin: "距上次调查已经过了一段时间，需要重新了解现状。",
-          result: "当前注册链已经恢复，但仍受启动环境约束。",
+          purpose: "重新确认注册链状态和启动环境边界。",
+          resultAndBoundary: "当前注册链已经恢复，但结论仍受启动环境约束。",
+          scopeAndBasis: "复查注册入口与当前工具列表；未覆盖其他启动方式。",
           title: "复查当前注册状态"
         }
       ],
@@ -267,10 +295,10 @@ try {
     title: "日期语义边界调查"
   };
   await writeCollection(dateSemanticRoot, [dateSemanticReport]);
-  const dateSemantic = await validateInvestigationReports({
-    workspaceRoot: dateSemanticRoot
-  });
-  assert.deepEqual(dateSemantic.errors, []);
+  assert.deepEqual(
+    (await validateInvestigationReports({ workspaceRoot: dateSemanticRoot })).errors,
+    []
+  );
 
   const rootLevelMarkdownRoot = path.join(tempRoot, "root-level-markdown");
   await writeCollection(rootLevelMarkdownRoot, [dateSemanticReport]);
@@ -336,12 +364,8 @@ try {
 
   const invalid = await validateInvestigationReports({ workspaceRoot: invalidRoot });
   assert.ok(invalid.errors.some((error) => error.includes("status must be one of")));
-  assert.ok(invalid.errors.some((error) => (
-    error.includes("latest report time must use an RFC 3339")
-  )));
-  assert.ok(invalid.errors.some((error) => (
-    error.includes("report formed time must use an RFC 3339")
-  )));
+  assert.ok(invalid.errors.some((error) => error.includes("latest report time must use an RFC 3339")));
+  assert.ok(invalid.errors.some((error) => error.includes("report formed time must use an RFC 3339")));
   assert.ok(invalid.errors.some((error) => error.includes("does not match investigation-index")));
   assert.ok(invalid.errors.some((error) => error.includes("missing-report.md")));
   assert.ok(invalid.errors.some((error) => error.includes("unindexed-report.md")));
@@ -365,126 +389,75 @@ try {
       "",
       "### 缺少形成时间",
       "",
-      "#### 背景",
-      "已有必要背景。",
-      "",
-      "#### 起因",
-      "需要了解现状。",
-      "",
-      "#### 调查结果",
-      "形成了结果。"
+      ...coreSectionCases.flatMap((section, index) => [
+        `#### ${section.title}`,
+        section.body,
+        ...(index === coreSectionCases.length - 1 ? [] : [""])
+      ])
     ].join("\n"),
     path: "runtime/missing-report-time.md",
     question: "每份报告是否记录形成时间？",
     title: "缺少报告时间"
   };
-  const emptyBackground: ReportInput = {
-    path: "runtime/empty-background.md",
-    question: "背景是否为完整报告的必需内容？",
-    reports: [{ background: "", title: "检查背景" }],
-    title: "空背景调查"
-  };
-  const emptyOrigin: ReportInput = {
-    path: "runtime/empty-origin.md",
-    question: "起因是否为完整报告的必需内容？",
-    reports: [{ origin: "", title: "检查起因" }],
-    title: "空起因调查"
-  };
-  const emptyResult: ReportInput = {
-    path: "runtime/empty-result.md",
-    question: "调查结果是否为完整报告的必需内容？",
-    reports: [{ result: "", title: "检查调查结果" }],
-    title: "空调查结果"
-  };
-  const missingBackground: ReportInput = {
-    body: reportBodyWithSections("缺少背景", [
-      { body: "需要了解现状。", title: "起因" },
+
+  const emptyCoreReports: ReportInput[] = coreSectionCases.map((section) => ({
+    path: `runtime/empty-${section.slug}.md`,
+    question: `${section.title}是否为完整报告的必需内容？`,
+    reports: [{
+      background: section.title === "形成时背景" ? "" : undefined,
+      purpose: section.title === "调查目的" ? "" : undefined,
+      resultAndBoundary: section.title === "调查结果与边界" ? "" : undefined,
+      scopeAndBasis: section.title === "调查范围与依据" ? "" : undefined,
+      title: `检查${section.title}`
+    }],
+    title: `空${section.title}调查`
+  }));
+  const missingCoreReports: ReportInput[] = coreSectionCases.map((section) => ({
+    body: reportBodyWithSections(
+      `缺少${section.title}`,
+      coreSectionCases.filter((candidate) => candidate.title !== section.title)
+    ),
+    path: `runtime/missing-${section.slug}.md`,
+    question: `完整报告是否必须包含${section.title}？`,
+    title: `缺少${section.title}调查`
+  }));
+  const duplicateCoreReports: ReportInput[] = coreSectionCases.map((section) => ({
+    body: reportBodyWithSections(
+      `重复${section.title}`,
+      [...coreSectionCases, { body: `重复的${section.title}。`, title: section.title }]
+    ),
+    path: `runtime/duplicate-${section.slug}.md`,
+    question: `${section.title}是否只能出现一次？`,
+    title: `重复${section.title}调查`
+  }));
+  const legacyCore: ReportInput = {
+    body: reportBodyWithSections("旧三段标题", [
+      { body: "已有必要背景。", title: "背景" },
+      { body: "需要调查并形成结果。", title: "起因" },
       { body: "形成了结果。", title: "调查结果" }
     ]),
-    path: "runtime/missing-background.md",
-    question: "完整报告是否必须包含背景章节？",
-    title: "缺少背景调查"
-  };
-  const missingOrigin: ReportInput = {
-    body: reportBodyWithSections("缺少起因", [
-      { body: "已有必要背景。", title: "背景" },
-      { body: "形成了结果。", title: "调查结果" }
-    ]),
-    path: "runtime/missing-origin.md",
-    question: "完整报告是否必须包含起因章节？",
-    title: "缺少起因调查"
-  };
-  const missingResult: ReportInput = {
-    body: reportBodyWithSections("缺少调查结果", [
-      { body: "已有必要背景。", title: "背景" },
-      { body: "需要了解现状。", title: "起因" }
-    ]),
-    path: "runtime/missing-result.md",
-    question: "完整报告是否必须包含调查结果章节？",
-    title: "缺少调查结果调查"
-  };
-  const duplicateBackground: ReportInput = {
-    body: reportBodyWithSections("重复背景", [
-      { body: "已有必要背景。", title: "背景" },
-      { body: "需要了解现状。", title: "起因" },
-      { body: "形成了结果。", title: "调查结果" },
-      { body: "重复的背景。", title: "背景" }
-    ]),
-    path: "runtime/duplicate-background.md",
-    question: "背景章节是否只能出现一次？",
-    title: "重复背景调查"
-  };
-  const duplicateOrigin: ReportInput = {
-    body: reportBodyWithSections("重复起因", [
-      { body: "已有必要背景。", title: "背景" },
-      { body: "需要了解现状。", title: "起因" },
-      { body: "形成了结果。", title: "调查结果" },
-      { body: "重复的起因。", title: "起因" }
-    ]),
-    path: "runtime/duplicate-origin.md",
-    question: "起因章节是否只能出现一次？",
-    title: "重复起因调查"
-  };
-  const duplicateResult: ReportInput = {
-    body: reportBodyWithSections("重复调查结果", [
-      { body: "已有必要背景。", title: "背景" },
-      { body: "需要了解现状。", title: "起因" },
-      { body: "形成了结果。", title: "调查结果" },
-      { body: "重复的结果。", title: "调查结果" }
-    ]),
-    path: "runtime/duplicate-result.md",
-    question: "调查结果章节是否只能出现一次？",
-    title: "重复调查结果调查"
+    path: "runtime/legacy-three-sections.md",
+    question: "旧三段标题是否会被当作固定核心接受？",
+    title: "旧三段标题调查"
   };
   const optionalSectionInsideCore: ReportInput = {
     body: reportBodyWithSections("支撑章节插入核心章节", [
-      { body: "已有必要背景。", title: "背景" },
+      coreSectionCases[0],
       { body: "过早出现的证据。", title: "证据" },
-      { body: "需要了解现状。", title: "起因" },
-      { body: "形成了结果。", title: "调查结果" }
+      ...coreSectionCases.slice(1)
     ]),
     path: "runtime/optional-section-inside-core.md",
-    question: "可选章节是否只能位于三个核心章节之后？",
+    question: "可选章节是否只能位于固定核心之后？",
     title: "可选章节位置调查"
   };
   const wrongSectionOrder: ReportInput = {
-    body: [
-      "## 调查报告",
-      "",
-      "### 顺序错误",
-      "- 形成时间: 2026-07-21T09:00:00+08:00",
-      "",
-      "#### 起因",
-      "需要了解现状。",
-      "",
-      "#### 背景",
-      "已有必要背景。",
-      "",
-      "#### 调查结果",
-      "形成了结果。"
-    ].join("\n"),
+    body: reportBodyWithSections("顺序错误", [
+      coreSectionCases[1],
+      coreSectionCases[0],
+      ...coreSectionCases.slice(2)
+    ]),
     path: "runtime/wrong-section-order.md",
-    question: "三个核心章节是否使用固定顺序？",
+    question: "四个核心章节是否使用固定顺序？",
     title: "章节顺序调查"
   };
   const reversedReportTimes: ReportInput = {
@@ -507,15 +480,10 @@ try {
     missingReportSection,
     emptyReportSection,
     missingReportTime,
-    emptyBackground,
-    emptyOrigin,
-    emptyResult,
-    missingBackground,
-    missingOrigin,
-    missingResult,
-    duplicateBackground,
-    duplicateOrigin,
-    duplicateResult,
+    ...emptyCoreReports,
+    ...missingCoreReports,
+    ...duplicateCoreReports,
+    legacyCore,
     optionalSectionInsideCore,
     wrongSectionOrder,
     reversedReportTimes,
@@ -524,55 +492,35 @@ try {
   const invalidReports = await validateInvestigationReports({
     workspaceRoot: invalidReportsRoot
   });
+  assert.ok(invalidReports.errors.some((error) => error.includes("second H2 must be \"调查报告\"")));
+  assert.ok(invalidReports.errors.some((error) => error.includes("must contain at least one H3 report")));
+  assert.ok(invalidReports.errors.some((error) => error.includes("report must start with")));
+  for (const section of coreSectionCases) {
+    assert.ok(invalidReports.errors.some((error) => (
+      error.includes(`empty-${section.slug}.md`)
+      && error.includes(`report section \"${section.title}\" must not be empty`)
+    )));
+    assert.ok(invalidReports.errors.some((error) => (
+      error.includes(`missing-${section.slug}.md`)
+      && error.includes(`report is missing \"#### ${section.title}\"`)
+    )));
+    assert.ok(invalidReports.errors.some((error) => (
+      error.includes(`duplicate-${section.slug}.md`)
+      && error.includes(`must contain exactly one \"#### ${section.title}\"`)
+    )));
+  }
   assert.ok(invalidReports.errors.some((error) => (
-    error.includes("second H2 must be \"调查报告\"")
+    error.includes(legacyCore.path)
+    && error.includes("report is missing \"#### 形成时背景\"")
   )));
-  assert.ok(invalidReports.errors.some((error) => (
-    error.includes("must contain at least one H3 report")
-  )));
-  assert.ok(invalidReports.errors.some((error) => (
-    error.includes("report must start with")
-  )));
-  assert.ok(invalidReports.errors.some((error) => (
-    error.includes("report section \"背景\" must not be empty")
-  )));
-  assert.ok(invalidReports.errors.some((error) => (
-    error.includes("report section \"起因\" must not be empty")
-  )));
-  assert.ok(invalidReports.errors.some((error) => (
-    error.includes("report section \"调查结果\" must not be empty")
-  )));
-  assert.ok(invalidReports.errors.some((error) => (
-    error.includes(missingBackground.path)
-    && error.includes("report is missing \"#### 背景\"")
-  )));
-  assert.ok(invalidReports.errors.some((error) => (
-    error.includes(missingOrigin.path)
-    && error.includes("report is missing \"#### 起因\"")
-  )));
-  assert.ok(invalidReports.errors.some((error) => (
-    error.includes(missingResult.path)
-    && error.includes("report is missing \"#### 调查结果\"")
-  )));
-  assert.ok(invalidReports.errors.some((error) => (
-    error.includes(duplicateBackground.path)
-    && error.includes("must contain exactly one \"#### 背景\"")
-  )));
-  assert.ok(invalidReports.errors.some((error) => (
-    error.includes(duplicateOrigin.path)
-    && error.includes("must contain exactly one \"#### 起因\"")
-  )));
-  assert.ok(invalidReports.errors.some((error) => (
-    error.includes(duplicateResult.path)
-    && error.includes("must contain exactly one \"#### 调查结果\"")
-  )));
+  const requiredOrder = coreSectionCases.map((section) => section.title).join(", ");
   assert.ok(invalidReports.errors.some((error) => (
     error.includes(optionalSectionInsideCore.path)
-    && error.includes("report H4 sections must start with: 背景, 起因, 调查结果")
+    && error.includes(`report H4 sections must start with: ${requiredOrder}`)
   )));
   assert.ok(invalidReports.errors.some((error) => (
     error.includes(wrongSectionOrder.path)
-    && error.includes("report H4 sections must start with: 背景, 起因, 调查结果")
+    && error.includes(`report H4 sections must start with: ${requiredOrder}`)
   )));
   assert.ok(invalidReports.errors.some((error) => (
     error.includes("report formed time must not be earlier than the previous report")

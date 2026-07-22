@@ -1,4 +1,4 @@
 interface:
   display_name: "调查报告"
-  short_description: "形成可快速汇报并支持接续探索的调查报告"
-  default_prompt: "使用 $investigation-report 围绕一个核心问题创建、持续更新或审阅调查报告。同一主题的后续调查追加为新的完整独立报告；每份报告以形成时间开头，依次写清背景、起因和调查结果，再按需补充方法、证据、推断、结论和未知，使未参与原对话的读者无需拼接旧报告也能理解并接续探索。"
+  short_description: "保存可独立复核和比较的形成时调查快照"
+  default_prompt: "使用 $investigation-report 围绕一个核心问题创建、更新或审阅可独立复核并与历史比较的调查报告。"

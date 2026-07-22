@@ -31,7 +31,12 @@ type IndexEntryDraft = {
 
 const reportInfoFieldLabels = ["核心问题", "状态", "最新报告时间"] as const;
 const indexFieldLabels = ["核心问题", "状态", "最新报告时间"] as const;
-const requiredReportSectionTitles = ["背景", "起因", "调查结果"] as const;
+const requiredReportSectionTitles = [
+  "形成时背景",
+  "调查目的",
+  "调查范围与依据",
+  "调查结果与边界"
+] as const;
 
 function normalizeNewlines(markdown: string): string {
   return markdown.replace(/\r\n?/g, "\n");
