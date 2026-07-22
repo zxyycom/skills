@@ -33,24 +33,26 @@
 ## 内容 Owner
 
 1. `skills/<skill-name>/` 承接对应 skill 的行为、触发条件、读取策略、执行流程、引用文件、边界和验收标准。
-2. `docs/skills/<skill-name>.md` 或集合说明文档承接面向人类阅读的 skill 介绍、项目起点和发展方向; 这些内容不进入 skill zip, 也不作为 agent 执行时必须读取的 skill 本体。
-3. `docs/navigation.md` 承接任务到 owner 的文档读取路径和稳定文档类型的位置。
-4. `docs/repository-model.md` 承接仓库目标、使用者假设、skill 选择安装边界、集中维护边界和轻量分发边界。
-5. 主仓库承接跨 skill 共享的校验、打包、聚合发布、依赖入口、CI 和自动化。
-6. `docs/coding-style.md` 承接实现代码的通用质量规则; `docs/tooling.md` 承接脚本、安装、校验、打包、CI 和发布细节; `README.md` 只保留项目入口说明。
-7. `skills/decision-records/references/decision-record-rules.md` 是决策记录格式、生命周期、历史关系和维护事务的唯一固定契约; `docs/decisions/decision-index.json` 承接本仓库全生命周期决策索引, 项目专属记录门槛由本文件承接。
-8. `AGENTS.md` 只承接项目级 agent 协作约定; skill 专属规则、编码细则、工具链细节和单条决策原因应写入各自 owner。
-9. 同一判断只在最稳定的 owner 位置完整解释; 非 owner 位置只保留摘要、触发条件或引用。
+2. `tools/<tool-name>/` 承接需要构建后随 skill 分发的工具源码、公共声明源、测试和 fixture; `tools/shared/` 承接真实跨工具运行时不变量, `tools/skill-package/` 承接发布端与 updater 共用的分发协议。
+3. 根目录 `scripts/` 承接主仓库命令编排、生成适配、校验、打包、Git 和 CI 自动化; 不承接随 skill 分发工具的运行时源码。
+4. `docs/skills/<skill-name>.md` 或集合说明文档承接面向人类阅读的 skill 介绍、项目起点和发展方向; 这些内容不进入 skill zip, 也不作为 agent 执行时必须读取的 skill 本体。
+5. `docs/navigation.md` 承接任务到 owner 的文档读取路径和稳定文档类型的位置。
+6. `docs/repository-model.md` 承接仓库目标、使用者假设、skill 选择安装边界、集中维护边界和轻量分发边界。
+7. 主仓库承接跨 skill 共享的校验、打包、聚合发布、依赖入口、CI 和自动化。
+8. `docs/coding-style.md` 承接 `scripts/` 与 `tools/` 实现代码的通用质量规则; `docs/tooling.md` 承接源码层级、脚本、安装、校验、打包、CI 和发布细节; `README.md` 只保留项目入口说明。
+9. `skills/decision-records/references/decision-record-rules.md` 是决策记录格式、生命周期、历史关系和维护事务的唯一固定契约; `docs/decisions/decision-index.json` 承接本仓库全生命周期决策索引, 项目专属记录门槛由本文件承接。
+10. `AGENTS.md` 只承接项目级 agent 协作约定; skill 专属规则、编码细则、工具链细节和单条决策原因应写入各自 owner。
+11. 同一判断只在最稳定的 owner 位置完整解释; 非 owner 位置只保留摘要、触发条件或引用。
 
 ## 工作流程
 
 1. 修改前先检查主仓库状态, 识别已有未提交改动。
 2. 编辑前先通过 `docs/navigation.md` 判断内容 owner; 只在当前文件适合承接该信息时修改当前文件。
-3. 修改 `scripts/` 下的实现代码时, 先读取 `docs/coding-style.md`, 再按任务读取相关行为 owner 和 `docs/tooling.md`。
+3. 修改 `scripts/` 或 `tools/` 下的实现代码时, 先读取 `docs/coding-style.md`, 再按任务读取相关行为 owner 和 `docs/tooling.md`。
 4. 修改 skill 本体时进入 `skills/<skill-name>/`; 只修改项目级文档、脚本、CI 或配置时, 不顺手改 skill 本体。
-5. 同时修改 skill 本体和共享工具链时, 先确认 owner 分工, 再让脚本、文档和验证入口保持一致。
+5. 同时修改 skill 本体和可分发工具源码时, 先确认 `tools/` 源码、`scripts/` 构建适配和 `skills/` 生成产物的 owner 分工, 再让文档和验证入口保持一致。
 6. 新增 skill 时, 在 `skills/<skill-name>/` 放置本体并包含 `SKILL.md`, 按需在 `docs/skills/` 增加人类介绍, 再确认聚合打包和自更新脚本覆盖该 skill。
-7. 新增或调整共享脚本时优先做成跨 skill 通用能力; skill 专属规则应留在对应 skill 目录。
+7. 新增或调整主仓库自动化时放在 `scripts/`; 新增需要随 skill 分发的工具实现时放在 `tools/`, 真实跨工具运行时能力再进入 `tools/shared/` 或独立协议 owner; skill 专属规则仍留在对应 skill 目录。
 8. 打包产物、依赖目录和 workflow 运行产物不作为长期源文件提交。
 
 ## 写作约定
@@ -70,6 +72,6 @@
 
 ## 验证与交付
 
-1. 修改主仓库维护文档、脚本、CI、配置或 `skills/` 目录结构后, 优先运行 `bun run check`。
+1. 修改主仓库维护文档、`scripts/`、`tools/`、CI、配置或 `skills/` 目录结构后, 优先运行 `bun run check`。
 2. 只改某个 skill 本体时, 根据该 skill 内容选择最小验证; 涉及打包输入、hash 或 updater 时同步运行主仓库相关检查。
 3. 提交或汇报前说明实际运行过的验证; 未运行验证时直接说明原因。

@@ -12,7 +12,7 @@
 
 #### 形成时背景
 
-本仓库主要由 Bun 执行 TypeScript 脚本，[`package.json`](../../../package.json)要求 Bun `>=1.3`。当前 Git 读取集中在两类场景：[skill package hash](../../../scripts/lib/skill-package-hash.ts)读取 index 条目和 staged blob，[test-evidence Git 入口](../../../scripts/test-evidence/src/git.ts)恢复仓库、dirty paths 和提交间路径差异，[相关测试](../../../scripts/test-evidence/tests/run.ts)还覆盖 bare repository 与 linked worktree。
+本仓库主要由 Bun 执行 TypeScript 脚本，[调查时的 `package.json`](https://github.com/zxyycom/skills/blob/dcf9f5f1a43a1ca1b6635be8ded2d055b8c38938/package.json)要求 Bun `>=1.3`。当时 Git 读取集中在两类场景：[skill package hash](https://github.com/zxyycom/skills/blob/dcf9f5f1a43a1ca1b6635be8ded2d055b8c38938/scripts/lib/skill-package-hash.ts)读取 index 条目和 staged blob，[test-evidence Git 入口](https://github.com/zxyycom/skills/blob/dcf9f5f1a43a1ca1b6635be8ded2d055b8c38938/scripts/test-evidence/src/git.ts)恢复仓库、dirty paths 和提交间路径差异，[相关测试](https://github.com/zxyycom/skills/blob/dcf9f5f1a43a1ca1b6635be8ded2d055b8c38938/scripts/test-evidence/tests/run.ts)还覆盖 bare repository 与 linked worktree。
 
 用户明确，“TypeScript 直接操作 Git”指项目代码通过带类型的库 API 表达操作，不要求库内部禁止 Git CLI 子进程。因此 Git CLI wrapper、纯 JavaScript 实现和原生绑定都可以比较；项目仍需保留仓库范围、路径、排序、冲突策略、字节内容和错误语义等业务校验。
 

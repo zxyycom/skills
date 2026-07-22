@@ -2,9 +2,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fg from "fast-glob";
-import { pathExists, toPosix } from "./filesystem.ts";
-
-export { pathExists, toPosix } from "./filesystem.ts";
+import {
+  pathExists,
+  toPosix
+} from "../../tools/shared/src/node/filesystem.ts";
 
 export type SkillPackage = {
   name: string;

@@ -11,7 +11,7 @@
 | 创建、显著扩展或大幅重构 skill | [Skill Maintainer](../skills/skill-maintainer/SKILL.md)、已有目标 skill 的 `SKILL.md` | 真实流程、关键判断、约束或验收仍隐含或冲突时读 [Skill Design Discovery](../skills/skill-design-discovery/SKILL.md)；涉及通用分发边界时读 [仓库模型](repository-model.md) |
 | 调整仓库定位、skill 选择方式或通用分发边界 | [仓库模型](repository-model.md) | 涉及具体打包、发布或 updater 机制时读 [项目工具链](tooling.md)；只影响特定 skill 时读其行为 owner |
 | 修改项目级 agent 协作约定 | [AGENTS](../AGENTS.md) | 改变文档路由或 owner 时读本文；需要结构化改写时读 [Prompt Optimize](../skills/prompt-optimize/SKILL.md) |
-| 修改共享脚本、校验、打包、CI 或 updater | [项目工具链](tooling.md) | 修改 `scripts/` 实现代码时读 [编码规范](coding-style.md)；按需补读对应 skill 的行为 owner 或 [仓库模型](repository-model.md) |
+| 修改工具源码、项目脚本、校验、打包、CI 或 updater | [项目工具链](tooling.md)、[编码规范](coding-style.md) | 修改 `tools/<tool-name>/` 时按需补读对应 skill 的行为 owner；改变通用分发边界时读 [仓库模型](repository-model.md) |
 | 恢复、审阅或维护长期决策 | [决策索引](decisions/decision-index.json)、[Decision Records](../skills/decision-records/SKILL.md) | 相关决策 Markdown；写入或结构审阅前按 skill 读取固定契约 |
 | 创建、更新或审阅调查报告 | [调查索引](investigations/investigation-index.md)、[Investigation Report](../skills/investigation-report/SKILL.md) | 相关调查报告；创建、更新、拆分或结构审阅前按 skill 读取固定契约 |
 | 整理并创建 Git 提交 | [Git Commit Organizer](../skills/git-commit-organizer/SKILL.md) | 当前 Git 状态、diff 和目标改动的验证结果 |
@@ -27,7 +27,7 @@
 | 文档导航 | `docs/navigation.md` | 任务到 owner 的读取路径，以及稳定文档类型的位置 |
 | 仓库模型 | `docs/repository-model.md` | 仓库目标、使用者假设、skill 选择方式、集中维护和轻量分发边界 |
 | 项目工具链 | `docs/tooling.md` | 脚本入口、依赖、校验、打包、发布、CI 和 updater 机制 |
-| 编码规范 | `docs/coding-style.md` | `scripts/` 实现代码的归属、边界、类型、组织和风险验证规则 |
+| 编码规范 | `docs/coding-style.md` | `scripts/` 与 `tools/` 实现代码的归属、边界、类型、组织和风险验证规则 |
 | Skill 人类介绍 | `docs/skills/<skill-name>.md` | 面向人类的定位、项目起点和发展方向；不作为 agent 执行入口，也不进入 skill zip |
 | Skill 本体 | `skills/<skill-name>/SKILL.md` 及其相邻材料 | 单个 skill 的触发、行为、读取策略、执行流程、边界、验收和分发内容 |
 | 调查报告 | `docs/investigations/investigation-index.md`、`docs/investigations/<topic-id>/<semantic-slug>.md` | 可快速汇报、降低上手门槛并支持接续探索的问题链、证据、推断、未知和阶段性认识 |

@@ -4,20 +4,20 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import {
   rootDir,
-  toPosix,
   type SkillPackage
 } from "./project.ts";
-import { calculateSkillPackageFingerprint } from "./skill-package-fingerprint.ts";
+import { toPosix } from "../../tools/shared/src/node/filesystem.ts";
+import { calculateSkillPackageFingerprint } from "../../tools/skill-package/src/fingerprint.ts";
 import {
   skillPackageLockFileName,
   validateSkillPackageLock,
   type SkillPackageLock
-} from "./skill-package-lock.ts";
+} from "../../tools/skill-package/src/lock.ts";
 
 export {
   skillPackageLockFileName,
   type SkillPackageLock
-} from "./skill-package-lock.ts";
+} from "../../tools/skill-package/src/lock.ts";
 
 export type SkillPackageHashes = {
   aggregateHash: string;

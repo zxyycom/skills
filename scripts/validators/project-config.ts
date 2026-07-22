@@ -1,9 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { checkPackageScripts } from "../check.ts";
-import { pathExists, rootDir } from "../lib/project.ts";
-import { validateSkillPackageLock } from "../lib/skill-package-lock.ts";
+import { rootDir } from "../lib/project.ts";
 import type { ReportValidationError } from "../lib/validation.ts";
+import { pathExists } from "../../tools/shared/src/node/filesystem.ts";
+import { validateSkillPackageLock } from "../../tools/skill-package/src/lock.ts";
 
 type PackageJson = {
   scripts?: Record<string, unknown>;

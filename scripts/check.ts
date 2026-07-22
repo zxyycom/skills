@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 import os from "node:os";
 import process from "node:process";
-import { isMainModule } from "./lib/main-module.ts";
+import { isMainModule } from "../tools/shared/src/node/main-module.ts";
 import { rootDir } from "./lib/project.ts";
 
 const defaultConcurrencyLimit = 2;

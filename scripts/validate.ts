@@ -4,9 +4,9 @@ import {
   rootDir
 } from "./lib/project.ts";
 import { ValidationReporter } from "./lib/validation.ts";
-import { validateDecisionRecords } from "./decision-records/src/index.ts";
-import { validateSkillDirectory } from "./skill-validator/src/validation.ts";
-import { validateMarkdownLinks } from "./validators/markdown-links.ts";
+import { validateDecisionRecords } from "../tools/decision-records/src/index.ts";
+import { validateMarkdownLinks } from "../tools/shared/src/markdown/links.ts";
+import { validateSkillDirectory } from "../tools/skill-validator/src/validation.ts";
 import {
   validatePackageScripts,
   validateRequiredProjectFiles

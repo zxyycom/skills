@@ -1157,8 +1157,8 @@
     },
     {
       "path": "project-tooling/260720-expose-importable-skill-modules.md",
-      "status": "active",
-      "alignment": "aligned",
+      "status": "archived",
+      "alignment": null,
       "createdAt": "2026-07-20T17:04:27+08:00",
       "title": "让 skill 分发脚本同时提供可导入模块",
       "purpose": "让已安装 skill 的自包含代码既能作为 CLI 运行，也能在现有 ESM 进程中直接导入复用。",
@@ -1184,14 +1184,34 @@
     },
     {
       "path": "project-tooling/260720-use-prebuilt-git-test-fixtures.md",
-      "status": "active",
-      "alignment": "aligned",
+      "status": "archived",
+      "alignment": null,
       "createdAt": "2026-07-20T16:49:56+08:00",
       "title": "用预构建 Git fixture 加速 test-evidence 测试",
       "purpose": "在保留真实 Git 语义和 Node 分发兼容验证的前提下，减少 `test:test-evidence-cli` 的重复仓库初始化与子进程启动。",
       "background": "`scripts/test-evidence/tests/` 为多个稳定场景反复创建仓库和提交相同基线，主要耗时来自 Git 与 Node 进程而非领域计算。",
       "decision": "使用多个预构建的逻辑 Git fixture 承接稳定历史，按场景物化隔离工作区；纯逻辑和可导入 CLI 测试在 Bun 进程内运行，只保留最小真实 Git 与 Node smoke。",
       "relations": []
+    },
+    {
+      "path": "project-tooling/separate-distributable-tool-source-from-repository-automation.md",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-07-22T10:50:45Z",
+      "title": "分离可分发工具源码与仓库自动化",
+      "purpose": "让可分发工具源码、主仓库自动化和 skill 分发内容拥有清晰、单向的 owner 边界。",
+      "background": "项目脚本与可分发工具源码混在 `scripts/`，工具运行时还反向依赖仓库 helper 和 validator。",
+      "decision": "使用 `tools/` 维护可分发源码及共享协议，`scripts/` 只承接项目自动化，再生成自包含 skill 产物。",
+      "relations": [
+        {
+          "type": "修订",
+          "target": "project-tooling/260720-expose-importable-skill-modules.md"
+        },
+        {
+          "type": "修订",
+          "target": "project-tooling/260720-use-prebuilt-git-test-fixtures.md"
+        }
+      ]
     },
     {
       "path": "prompt-optimize-references/260630-merge-prompt-optimize-core-flow-into-entry.md",

@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { parseArgs, promisify } from "node:util";
-import { pathExists } from "./filesystem.ts";
+import { pathExists } from "../../tools/shared/src/node/filesystem.ts";
 
 export type GeneratedFileMode = "check" | "write";
 

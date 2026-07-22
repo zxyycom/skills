@@ -8,8 +8,8 @@
     "noEmit": true,
     "strict": true,
     "verbatimModuleSyntax": true,
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "types": ["node"]
   },
-  "include": ["scripts/**/*.ts"]
+  "include": ["scripts/**/*.ts", "tools/**/*.ts", "tools/**/*.mts"]
 }

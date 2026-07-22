@@ -1,6 +1,6 @@
 ---
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-20T17:04:27+08:00
 ---
 
