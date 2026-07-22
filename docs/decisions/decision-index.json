@@ -344,7 +344,7 @@
     },
     {
       "path": "decision-records/260720-separate-status-commands-from-relations.md",
-      "status": "active",
+      "status": "archived",
       "createdAt": "2026-07-20T19:47:38+08:00",
       "title": "分离生命周期命令与演进关系",
       "purpose": "让 CLI 状态变化与决策演进关系各自显式，避免归档命令产生隐藏激活副作用。",
@@ -417,6 +417,21 @@
       ]
     },
     {
+      "path": "decision-records/define-decision-alignment-semantics.md",
+      "status": "active",
+      "createdAt": "2026-07-22T07:37:13Z",
+      "title": "定义决策对齐状态与未对齐语义",
+      "purpose": "让已经生效但尚未落实的决策保持约束力，并准确表达当前实现与目标状态之间的差距。",
+      "background": "生命周期只能说明决策是否仍有效，不能说明当前实现是否已经推进到决策要求的状态。",
+      "decision": "活动决策使用 aligned 或 unaligned 表达对齐关系；unaligned 表示决策已生效但当前实现尚未达到目标，不默认产生开放空间。",
+      "relations": [
+        {
+          "type": "修订",
+          "target": "decision-records/express-decision-alignment-state.md"
+        }
+      ]
+    },
+    {
       "path": "decision-records/derive-pending-from-head-path.md",
       "status": "active",
       "createdAt": "2026-07-22T06:03:46Z",
@@ -433,13 +448,28 @@
     },
     {
       "path": "decision-records/express-decision-alignment-state.md",
-      "status": "active",
+      "status": "archived",
       "createdAt": "2026-07-22T07:10:38Z",
       "title": "为决策表达对齐状态",
       "purpose": "区分必须完全遵守的当前基线与方向已确定但仍保留过渡空间的有效决策。",
       "background": "生命周期状态只能说明决策是否仍有效，不能说明当前事实和行为是否已经与其对齐。",
       "decision": "后续决策格式必须表达独立于生命周期的对齐状态；具体形式不固定，索引投影是便于筛选与校验的自然延伸。",
       "relations": []
+    },
+    {
+      "path": "decision-records/generate-index-from-self-contained-decisions.md",
+      "status": "active",
+      "createdAt": "2026-07-22T07:37:46Z",
+      "title": "从自包含决策文件生成完整索引",
+      "purpose": "让每条决策自包含全部权威状态，并使集中索引成为可以随时无损重建的查询投影。",
+      "background": "由集中索引独占生命周期和创建时间会形成第二真相源，索引损坏后无法仅凭决策文件恢复完整集合。",
+      "decision": "决策文件保存 status、alignment 和 createdAt 等权威元数据；集中 JSON 索引完全由 Markdown 生成，不拥有独立事实。",
+      "relations": [
+        {
+          "type": "修订",
+          "target": "decision-records/use-second-precision-lifecycle-index.md"
+        }
+      ]
     },
     {
       "path": "decision-records/package-index-json-schema.md",
@@ -467,6 +497,21 @@
       ]
     },
     {
+      "path": "decision-records/use-alignment-aware-decision-commands.md",
+      "status": "active",
+      "createdAt": "2026-07-22T07:38:16Z",
+      "title": "使用对齐感知的决策命令",
+      "purpose": "让查询和状态命令准确区分决策是否活动、当前实现是否已经与决策对齐，并保持状态变化显式可校验。",
+      "background": "只维护 active 和 archived 会把尚未落实的有效决策与已经完全对齐的当前基线混为一类。",
+      "decision": "activate 显式设置对齐状态，mark-aligned 只完成 unaligned 到 aligned，list 支持对齐筛选；关系不隐式改变状态。",
+      "relations": [
+        {
+          "type": "修订",
+          "target": "decision-records/260720-separate-status-commands-from-relations.md"
+        }
+      ]
+    },
+    {
       "path": "decision-records/use-error-recovery-reference.md",
       "status": "archived",
       "createdAt": "2026-07-20T13:18:28Z",
@@ -478,7 +523,7 @@
     },
     {
       "path": "decision-records/use-second-precision-lifecycle-index.md",
-      "status": "active",
+      "status": "archived",
       "createdAt": "2026-07-20T13:18:05Z",
       "title": "使用秒级全生命周期索引",
       "purpose": "让语义路径和单一索引稳定恢复全部记录，并用秒级时间区分同日先后。",
