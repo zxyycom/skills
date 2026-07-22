@@ -12,6 +12,7 @@ import { validateDecisionBody } from "./record.ts";
 import {
   compareDecisionRecords,
   type DecisionDocument,
+  type DecisionIndexMembershipIssue,
   type DecisionIndex,
   type DecisionProjection,
   type DecisionRecord,
@@ -36,7 +37,7 @@ function displayPath(workspaceRoot: string, targetPath: string): string {
   return toPosix(relativePath);
 }
 
-export function unindexedDecisionError(
+function unindexedDecisionError(
   indexRelativePath: string,
   relativePath: string
 ): string {
@@ -83,6 +84,7 @@ async function scanArea(options: {
   decisionsDirectory: string;
   errors: string[];
   indexEntryByPath: ReadonlyMap<string, DecisionIndexEntry> | null;
+  indexMembershipIssues: DecisionIndexMembershipIssue[];
   indexRelativePath: string;
   records: DecisionRecord[];
   unindexedPaths: Set<string>;
@@ -93,6 +95,7 @@ async function scanArea(options: {
     decisionsDirectory,
     errors,
     indexEntryByPath,
+    indexMembershipIssues,
     indexRelativePath,
     records,
     unindexedPaths
@@ -134,7 +137,13 @@ async function scanArea(options: {
     const indexEntry = indexEntryByPath?.get(relativePath) ?? null;
     if (indexEntryByPath && !indexEntry) {
       unindexedPaths.add(relativePath);
-      errors.push(unindexedDecisionError(indexRelativePath, relativePath));
+      const message = unindexedDecisionError(indexRelativePath, relativePath);
+      errors.push(message);
+      indexMembershipIssues.push({
+        kind: "unindexed-decision",
+        message,
+        path: relativePath
+      });
     }
 
     records.push({
@@ -192,6 +201,7 @@ export async function scanDecisionRecords(
   const errors: string[] = [];
   const records: DecisionRecord[] = [];
   const areaIds = new Set<string>();
+  const indexMembershipIssues: DecisionIndexMembershipIssue[] = [];
   const unindexedPaths = new Set<string>();
   const decisionsLabel = displayPath(workspaceRoot, decisionsDirectory);
   const indexPath = path.join(decisionsDirectory, indexFileName);
@@ -203,6 +213,7 @@ export async function scanDecisionRecords(
     errors: [error],
     index: null,
     indexExists: false,
+    indexMembershipIssues,
     indexPath,
     indexRelativePath,
     indexText: "",
@@ -220,7 +231,9 @@ export async function scanDecisionRecords(
 
   const indexExists = await pathExists(indexPath);
   if (!indexExists) {
-    errors.push(indexRelativePath + " is required");
+    const message = indexRelativePath + " is required";
+    errors.push(message);
+    indexMembershipIssues.push({ kind: "missing-index", message });
   }
   const indexText = indexExists ? await fs.readFile(indexPath, "utf8") : "";
   const index = indexText.length > 0
@@ -255,6 +268,7 @@ export async function scanDecisionRecords(
       decisionsDirectory,
       errors,
       indexEntryByPath,
+      indexMembershipIssues,
       indexRelativePath,
       records,
       unindexedPaths
@@ -280,6 +294,7 @@ export async function scanDecisionRecords(
     errors,
     index,
     indexExists,
+    indexMembershipIssues,
     indexPath,
     indexRelativePath,
     indexText,

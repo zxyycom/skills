@@ -1,3 +1,7 @@
+import {
+  loadHeadDecisionPaths,
+  type HeadDecisionPathsResult
+} from "./head-decision-paths.ts";
 import { scanDecisionRecords } from "./scan.ts";
 import {
   type DecisionIndex,
@@ -7,6 +11,16 @@ import {
   type DecisionValidationResult,
   type ExpectedIndex
 } from "./types.ts";
+
+export type DecisionValidationContext = {
+  headDecisionPaths: HeadDecisionPathsResult;
+  result: DecisionValidationResult;
+};
+
+export type DecisionValidationOptions = {
+  checkIndexText?: boolean;
+  scanErrorPolicy?: "include" | "omit";
+};
 
 export function expectedIndex(
   scan: DecisionScan,
@@ -54,12 +68,40 @@ export function expectedIndex(
 export async function validateDecisionRecords(
   options: DecisionScanOptions = {}
 ): Promise<DecisionValidationResult> {
+  return (await loadDecisionValidationContext(options)).result;
+}
+
+export async function loadDecisionValidationContext(
+  options: DecisionScanOptions = {},
+  validationOptions: DecisionValidationOptions = {}
+): Promise<DecisionValidationContext> {
   const scan = await scanDecisionRecords(options);
-  const errors = [...scan.errors];
+  const headDecisionPaths = scan.decisionsDirectoryAvailable
+    ? await loadHeadDecisionPaths(scan.decisionsDirectory)
+    : { errors: [], paths: new Set<string>() };
+  return {
+    headDecisionPaths,
+    result: validateDecisionScan(scan, headDecisionPaths, validationOptions)
+  };
+}
+
+export function validateDecisionScan(
+  scan: DecisionScan,
+  headDecisionPaths: HeadDecisionPathsResult,
+  options: DecisionValidationOptions = {}
+): DecisionValidationResult {
+  const errors = options.scanErrorPolicy === "omit"
+    ? []
+    : [...scan.errors];
+  errors.push(...headDecisionPaths.errors);
+  if (headDecisionPaths.errors.length === 0) {
+    errors.push(...headPathConsistencyErrors(scan, headDecisionPaths.paths));
+  }
   const generated = expectedIndex(scan);
   errors.push(...generated.errors);
 
-  if (generated.text !== null
+  if (options.checkIndexText !== false
+    && generated.text !== null
     && scan.indexText.replace(/\r\n/g, "\n") !== generated.text) {
     errors.push(
       scan.indexRelativePath
@@ -75,4 +117,40 @@ export async function validateDecisionRecords(
     errors,
     scan
   };
+}
+
+function headPathConsistencyErrors(
+  scan: DecisionScan,
+  headPaths: ReadonlySet<string>
+): string[] {
+  const errors: string[] = [];
+  const workingPaths = new Set(
+    scan.records
+      .filter((record) => record.markdownExists)
+      .map((record) => record.relativePath)
+  );
+  for (const headPath of headPaths) {
+    if (!workingPaths.has(headPath)) {
+      errors.push(
+        "Decision file present in Git HEAD is missing from the working tree: "
+        + headPath
+        + "; established decision paths must not be deleted or renamed"
+      );
+    }
+  }
+
+  for (const record of scan.records.filter((candidate) => candidate.indexed)) {
+    for (const relation of record.projection.relations) {
+      if (!headPaths.has(relation.target)) {
+        errors.push(
+          record.relativePath
+          + " relationship "
+          + relation.type
+          + " target is not present in Git HEAD: "
+          + relation.target
+        );
+      }
+    }
+  }
+  return errors;
 }

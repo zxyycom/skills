@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -48,6 +49,40 @@ export type CliExecution = {
   stderr: string;
   stdout: string;
 };
+
+export function runGit(
+  workspaceRoot: string,
+  args: readonly string[]
+): string {
+  return execFileSync(
+    "git",
+    ["-C", workspaceRoot, ...args],
+    { encoding: "utf8", windowsHide: true }
+  );
+}
+
+export function initializeGitRepository(
+  workspaceRoot: string,
+  options: { commit?: boolean } = {}
+): void {
+  runGit(workspaceRoot, ["init", "--quiet"]);
+  runGit(workspaceRoot, ["config", "user.name", "Decision Records Tests"]);
+  runGit(workspaceRoot, ["config", "user.email", "decision-records@example.invalid"]);
+  runGit(workspaceRoot, ["config", "commit.gpgSign", "false"]);
+  runGit(workspaceRoot, ["config", "core.autocrlf", "false"]);
+  runGit(workspaceRoot, ["config", "core.safecrlf", "false"]);
+  runGit(workspaceRoot, ["config", "core.hooksPath", ".git/no-hooks"]);
+  if (options.commit !== false) {
+    runGit(workspaceRoot, ["add", "."]);
+    runGit(workspaceRoot, [
+      "commit",
+      "--quiet",
+      "--no-gpg-sign",
+      "-m",
+      "Create decision fixture"
+    ]);
+  }
+}
 
 export async function runBundledCli(
   args: readonly string[]

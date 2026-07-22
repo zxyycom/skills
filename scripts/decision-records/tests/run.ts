@@ -8,6 +8,7 @@ import {
   currentRelativePath,
   findIndexEntry,
   fixtureRoot,
+  initializeGitRepository,
   readIndex,
   runBundledCli,
   runSuccessfulCli,
@@ -20,6 +21,7 @@ import "./queries.test.ts";
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "decision-records-test-"));
 try {
   await fs.cp(fixtureRoot, tempRoot, { recursive: true });
+  initializeGitRepository(tempRoot);
   const decisionsDirectory = path.join(tempRoot, "docs", "decisions");
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
   const originalIndexText = await fs.readFile(indexPath, "utf8");
@@ -382,6 +384,7 @@ const firstActivationRoot = await fs.mkdtemp(
   path.join(os.tmpdir(), "decision-records-first-")
 );
 try {
+  initializeGitRepository(firstActivationRoot, { commit: false });
   const firstDecisionsDirectory = path.join(
     firstActivationRoot,
     "docs",
@@ -438,5 +441,7 @@ try {
 } finally {
   await fs.rm(firstActivationRoot, { force: true, recursive: true });
 }
+
+await import("./head-presence.test.ts");
 
 console.log("Decision records CLI tests passed.");

@@ -403,7 +403,7 @@
     },
     {
       "path": "decision-records/converge-records-before-stable-baseline.md",
-      "status": "active",
+      "status": "archived",
       "createdAt": "2026-07-21T07:33:17Z",
       "title": "在稳定基线前原地收敛决策记录",
       "purpose": "避免同一未提交变更事务的方案收敛被误记为多次正式决策演进。",
@@ -413,6 +413,21 @@
         {
           "type": "修订",
           "target": "decision-records/260720-separate-editorial-edits-from-evolution.md"
+        }
+      ]
+    },
+    {
+      "path": "decision-records/derive-pending-from-head-path.md",
+      "status": "active",
+      "createdAt": "2026-07-22T06:03:46Z",
+      "title": "从 HEAD 路径临时识别待提交决策",
+      "purpose": "让提交前反复收敛的决策保持可见，同时避免形成虚假的正式演进历史。",
+      "background": "持久化草稿状态或查询历史基线都会为简单的提交前判断增加额外维护成本。",
+      "decision": "始终查询当前记录，并按 Markdown 路径是否存在于 HEAD 临时标记 pending。",
+      "relations": [
+        {
+          "type": "修订",
+          "target": "decision-records/converge-records-before-stable-baseline.md"
         }
       ]
     },

@@ -15,6 +15,7 @@ export type Command =
   | "activate"
   | "archive"
   | "check"
+  | "discard"
   | "list"
   | "show"
   | "sync-index"
@@ -107,7 +108,7 @@ export function createCliProgram(
 ): CommanderCommand {
   const program = new CommanderCommand()
     .name("decision-records")
-    .description("Validate and maintain repository decision records.")
+    .description("Validate and maintain decision records in a Git worktree.")
     .configureHelp({ showGlobalOptions: true })
     .option("--root <path>", "Workspace root.", process.cwd())
     .option(
@@ -120,6 +121,7 @@ export function createCliProgram(
       "afterAll",
       "\nDecision paths are relative to the decision directory, for example "
       + "topic/use-semantic-title.md.\n"
+      + "Pending is derived from Markdown path absence in Git HEAD and is never stored.\n"
       + "Exit codes: 0 success (queries may report warnings), "
       + "1 blocking validation or index failure, 2 invalid arguments."
     )
@@ -136,7 +138,7 @@ export function createCliProgram(
   const check = createSubcommand(
     program,
     "check",
-    "Validate paths, Markdown records, relations, and the JSON index.",
+    "Validate paths, Markdown records, relations, the JSON index, and Git HEAD membership.",
     { isDefault: true }
   );
   check.action(() => execute("check", check));
@@ -202,6 +204,13 @@ export function createCliProgram(
     "Set active decisions to archived without changing related decisions."
   );
   archive.action((recordPaths: string[]) => execute("archive", archive, recordPaths));
+
+  const discard = createSubcommand(
+    program,
+    "discard <decision-path>",
+    "Delete a decision file that is not yet present in Git HEAD and remove its index entry."
+  );
+  discard.action((recordPath: string) => execute("discard", discard, [recordPath]));
 
   return program;
 }

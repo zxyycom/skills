@@ -56,6 +56,17 @@ export type DecisionScanOptions = {
   workspaceRoot?: string;
 };
 
+export type DecisionIndexMembershipIssue =
+  | {
+    kind: "missing-index";
+    message: string;
+  }
+  | {
+    kind: "unindexed-decision";
+    message: string;
+    path: string;
+  };
+
 export type DecisionScan = {
   areaIds: Set<string>;
   decisionsDirectoryAvailable: boolean;
@@ -63,6 +74,7 @@ export type DecisionScan = {
   errors: string[];
   index: DecisionIndex | null;
   indexExists: boolean;
+  indexMembershipIssues: DecisionIndexMembershipIssue[];
   indexPath: string;
   indexRelativePath: string;
   indexText: string;

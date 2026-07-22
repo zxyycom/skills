@@ -34,7 +34,7 @@ const cliOutput = execFileSync(
 );
 assert.match(
   cliOutput,
-  /Decision records check passed \(1 areas, 2 decisions, 1 active, 1 archived\)\./
+  /Decision records check passed \(1 areas, 2 decisions, 1 active, 1 archived, 0 pending\)\./
 );
 
 const defaultCliOutput = await runSuccessfulCli(["--root", fixtureRoot]);
@@ -105,6 +105,7 @@ const shownDecision = await runSuccessfulCli([
 ]);
 assert.match(shownDecision, /^path: tooling\/use-generated-cli\.md/m);
 assert.match(shownDecision, /^status: active$/m);
+assert.match(shownDecision, /^pending: false$/m);
 assert.match(
   shownDecision,
   /^createdAt: 2026-07-11T14:15:16\+08:00$/m
