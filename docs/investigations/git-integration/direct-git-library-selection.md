@@ -10,17 +10,23 @@
 ### 当前 Git 调用与候选库的适配性
 - 形成时间: 2026-07-21T16:11:32+08:00
 
-#### 背景
+#### 形成时背景
 
 本仓库集中维护多个可独立分发的 skill，主要脚本由 Bun 执行，`package.json` 要求 Bun `>=1.3`。与本次调查直接相关的 TypeScript 实现通过 `node:child_process` 调用 Git CLI：skill package hash 需要读取 index 条目和 staged blob，test-evidence 需要恢复仓库、状态和提交间路径差异，测试还会建立 linked worktree。项目因此不仅依赖 Git 命令能执行，还依赖 `ls-files -z`、`cat-file --batch`、porcelain status 和 name-only diff 等输出语义。
 
 仓库证据取自 `main@dcf9f5f1a43a1ca1b6635be8ded2d055b8c38938`。本报告引用的 `package.json` 和 Git 操作脚本与该提交一致；当时工作区的其他未提交变化集中在项目文档和 investigation-report 维护内容，不改变被调查的 Git 调用。候选资料按 2026-07-21 的公开文档与发布状态观察，尚未安装候选库，也未运行兼容性或性能实验。
 
-#### 起因
+#### 调查目的
 
 用户发现项目存在多处直接 Git 操作，希望调查能够由 TypeScript 直接调用的 Git 库，减少业务代码自行创建进程、提取输出和维护格式校验。本轮形成时把这个目标理解为“候选库本身也不能创建 Git CLI 子进程”，因此先按纯 JavaScript 或原生绑定路线筛选候选。
 
-#### 调查结果
+本轮要回答的是：在“不创建 Git CLI 子进程”的预定边界下，哪些候选最接近本项目的真实 Git 调用面，以及下一步最值得验证什么。调查只形成候选优先级和兼容性实验入口，不选择依赖，也不实施迁移。
+
+#### 调查范围与依据
+
+本轮以仓库提交 `dcf9f5f1a43a1ca1b6635be8ded2d055b8c38938` 中的 `package.json`、skill package hash、test-evidence Git 入口、相关测试、hook 和 workflow 为项目需求依据，并按 2026-07-21 可访问的官方文档与发布信息比较 `es-git@0.7.0`、`isomorphic-git`、`@napi-rs/simple-git`、`simple-git` 和 `nodegit`。没有安装候选库，没有运行 Bun、Windows、CI、linked worktree、结果等价或性能实验，因此公开 API 与发布说明只能支持待验证的适配判断。
+
+#### 调查结果与边界
 
 在“不创建 Git CLI 子进程”这一当时的筛选条件下，公开 API 显示 `es-git@0.7.0` 对 index、object、status、diff 和 worktree 的覆盖最接近项目调用面，最值得先做小范围兼容性验证。`isomorphic-git` 可作为纯 JavaScript 备选，`@napi-rs/simple-git` 的 index 枚举与 tree-to-tree diff 接口仍有缺口，`simple-git` 因内部继续调用 Git CLI 被排除，`nodegit` 因维护与现代运行时风险不进入验证。
 
@@ -91,7 +97,7 @@
 ### TypeScript 调用目标与统一选型证据链
 - 形成时间: 2026-07-21T16:31:25+08:00
 
-#### 背景
+#### 形成时背景
 
 本仓库集中维护多个可独立分发的 skill，主要脚本由 Bun 执行，[`package.json`](../../../package.json) 要求 Bun `>=1.3`。当前 TypeScript Git 调用集中在两类读取场景：[skill package hash](../../../scripts/lib/skill-package-hash.ts) 通过 index 条目和 staged blob 计算确定性结果；[test-evidence Git 入口](../../../scripts/test-evidence/src/git.ts)恢复仓库、文件集合、dirty paths 和提交间路径差异，[相关测试](../../../scripts/test-evidence/tests/run.ts)还覆盖 bare repository 与 linked worktree。[hook 配置](../../../scripts/setup-git-hooks.ts)和[打包 workflow](../../../.github/workflows/package-skills.yml)也调用 Git，但没有在 TypeScript 业务代码中承担复杂输出解析，因此不属于第一阶段重点。
 
@@ -99,11 +105,17 @@
 
 仓库证据取自 `main@dcf9f5f1a43a1ca1b6635be8ded2d055b8c38938`，本报告引用的 `package.json` 与 Git 操作脚本和该提交一致；当时未提交变化不影响这些实现。候选资料和社区数据按 2026-07-21 的公开页面观察，范围包括 `simple-git`、`isomorphic-git`、`es-git`、`@napi-rs/simple-git` 和作为历史参照的 `nodegit`。本轮没有安装候选库、编写 adapter 原型或执行项目性能基准。
 
-#### 起因
+#### 调查目的
 
 用户进一步校正了调查目标：核心是 TypeScript 能否直接调用，而不是候选库内部能否使用子进程；同时要求把 TypeScript 库能力、性能探查和社区热度放在同一份调查报告中。此前按“无子进程”筛选候选的排序因此需要修订，并需要明确三类证据如何共同支持同一个选型问题。
 
-#### 调查结果
+本轮要重新建立统一的选型口径：先判断 TypeScript API 与结果正确性，再比较项目真实性能，最后结合社区可持续性形成取舍。预定产出是候选分组、证据顺序和下一步验证规则，不在缺少项目实测时形成采用决定。
+
+#### 调查范围与依据
+
+本轮以仓库提交 `dcf9f5f1a43a1ca1b6635be8ded2d055b8c38938` 的 Git 调用实现和测试为项目需求基线，按 2026-07-21 的官方 API、发布页面、GitHub 仓库及 npm 页面观察 `simple-git`、`isomorphic-git`、`es-git`、`@napi-rs/simple-git` 和 `nodegit`，并把 API 覆盖、待建性能基准和社区快照放入同一证据链。没有安装候选库、实现 adapter、运行结果等价或性能实验；社区数字是当日可定位但不可复现的 UI 快照，也没有完成贡献者和响应时间序列分析。
+
+#### 调查结果与边界
 
 本轮确认，API 适配与结果正确性、项目真实性能、社区可持续性不是三个独立选题，而是同一次 Git 库选型的连续证据层，应由一个主题文件统一承接。`simple-git` 因提供 TypeScript API 而重新进入主候选，并作为成熟 Git CLI wrapper 和采用规模基线；`isomorphic-git` 代表纯 JavaScript 路线，`es-git` 代表结构化 API 较完整的 Node-API 路线，`@napi-rs/simple-git` 在关键接口足够时进入比较，`nodegit` 只作历史参照。
 
