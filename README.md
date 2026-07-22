@@ -20,12 +20,15 @@
 4. Shell 失败后如何让 agent 选择下一步命令动作，并在用户要求时维护 Codex 权限 rules。
 5. 自动化测试、人工审查风险和发现豁免如何通过统一账本保持可追溯。
 6. 隐性专业工作如何在 Skill 实现前恢复为可执行的决策、约束、权限和验证义务。
+7. 多个格式、需求、数据模型或代码实现如何识别可共同依赖的契约, 并决定公约数的数量、变体与责任层。
 
 因此这个项目不会把所有内容合成一个大而全的 skill。每个 skill 都应该有自己的问题意识、语义边界和演进方向；它们放在同一组项目里，是为了共同服务于更好的 agent 协作。
 
 ## 当前方向
 
 [Product & Architecture Judgment](docs/skills/product-architecture-judgment.md) 在工程任务深入局部实现前, 让 agent 区分目标结果、当前问题和已有解法, 再从产品价值与架构责任判断事情是否该做、该做到什么程度, 以及应由谁在哪一层实现。它从不做、简化、改写、重定责任、提炼抽象或局部实现中选择有证据支持的最小动作。实际 skill 位于 [`skills/product-architecture-judgment/`](skills/product-architecture-judgment/)。
+
+[Common Denominator Design](docs/skills/common-denominator-design.md) 在统一格式、需求、数据模型、接口、流程或代码实现前, 让 agent 按现实场景识别可共同依赖的契约边界。它决定应使用一个公约数、共享核心加变体、多个场景公约数还是保持局部, 并允许存储与使用按责任层形成不同但可映射的公约数。实际 skill 位于 [`skills/common-denominator-design/`](skills/common-denominator-design/)。
 
 [Skill Design Discovery](docs/skills/skill-design-discovery.md) 用于创建、显著扩展或大幅重构 skill 前的深度设计发现。它从现实案例、现有材料和行为证据中恢复目标、端到端流程、潜藏决策、约束来源、人机权限与验证义务，形成可交给实现入口的设计契约。实际 skill 位于 [`skills/skill-design-discovery/`](skills/skill-design-discovery/)。
 

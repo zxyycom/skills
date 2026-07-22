@@ -1,0 +1,4 @@
+interface:
+  display_name: "Common Denominator Design"
+  short_description: "按场景识别真实公约数及其数量与分层"
+  default_prompt: "使用 $common-denominator-design 按场景义务和消费者共同依赖检验候选共享契约，决定公约数的数量、变体和分层；区分候选不成立与证据不足，并明确必要的映射和事实源。"

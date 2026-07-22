@@ -2,6 +2,16 @@
   "schemaVersion": 3,
   "records": [
     {
+      "path": "common-denominator-design-behavior/design-by-scenario-denominators.md",
+      "status": "active",
+      "createdAt": "2026-07-22T02:06:52Z",
+      "title": "以场景公约数设计跨场景统一契约",
+      "purpose": "让跨场景统一先识别可共同依赖的真实契约, 再决定公约数数量、变体和责任层。",
+      "background": "单一抽象、沿用现有形态或把证据不足误作没有公约数, 都会掩盖真实的共享边界。",
+      "decision": "新增独立 `common-denominator-design`, 以共同依赖测试和场景义务设计公约数; 最小性仅用于边界收敛。",
+      "relations": []
+    },
+    {
       "path": "decision-records-skill/260710-use-cli-active-index-and-invalidated-archive.md",
       "status": "archived",
       "createdAt": "2026-07-11T10:26:44+08:00",
