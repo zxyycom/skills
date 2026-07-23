@@ -49,12 +49,13 @@
 
 1. 修改前先检查主仓库状态, 识别已有未提交改动。
 2. 编辑前先通过 `docs/navigation.md` 判断内容 owner; 只在当前文件适合承接该信息时修改当前文件。
-3. 修改 `scripts/` 或 `tools/` 下的实现代码时, 先读取 `docs/coding-style.md`, 再按任务读取相关行为 owner 和 `docs/tooling.md`。
-4. 修改 skill 本体时进入 `skills/<skill-name>/`; 只修改项目级文档、脚本、CI 或配置时, 不顺手改 skill 本体。
-5. 同时修改 skill 本体和可分发工具源码时, 先确认 `tools/` 源码、`scripts/` 构建适配和 `skills/` 生成产物的 owner 分工, 再让文档和验证入口保持一致。
-6. 新增 skill 时, 在 `skills/<skill-name>/` 放置本体并包含 `SKILL.md`, 按需在 `docs/skills/` 增加人类介绍, 再确认聚合打包和自更新脚本覆盖该 skill。
-7. 新增或调整主仓库自动化时放在 `scripts/`; 新增需要随 skill 分发的工具实现时放在 `tools/`, 真实跨工具运行时能力再进入 `tools/shared/` 或独立协议 owner; skill 专属规则仍留在对应 skill 目录。
-8. 打包产物、依赖目录和 workflow 运行产物不作为长期源文件提交。
+3. 理解实现代码结构、符号调用关系或改动影响时, 优先使用当前可用的 CodeGraph 工具; 结果不精确、索引陈旧或工具不可用时, 再用带路径过滤的 `rg` / `rg --files` 补充。CodeGraph 的环境、索引与 MCP 边界见 `docs/tooling.md#环境自举`。
+4. 修改 `scripts/` 或 `tools/` 下的实现代码时, 先读取 `docs/coding-style.md`, 再按任务读取相关行为 owner 和 `docs/tooling.md`。
+5. 修改 skill 本体时进入 `skills/<skill-name>/`; 只修改项目级文档、脚本、CI 或配置时, 不顺手改 skill 本体。
+6. 同时修改 skill 本体和可分发工具源码时, 先确认 `tools/` 源码、`scripts/` 构建适配和 `skills/` 生成产物的 owner 分工, 再让文档和验证入口保持一致。
+7. 新增 skill 时, 在 `skills/<skill-name>/` 放置本体并包含 `SKILL.md`, 按需在 `docs/skills/` 增加人类介绍, 再确认聚合打包和自更新脚本覆盖该 skill。
+8. 新增或调整主仓库自动化时放在 `scripts/`; 新增需要随 skill 分发的工具实现时放在 `tools/`, 真实跨工具运行时能力再进入 `tools/shared/` 或独立协议 owner; skill 专属规则仍留在对应 skill 目录。
+9. 打包产物、依赖目录和 workflow 运行产物不作为长期源文件提交。
 
 ## 写作约定
 
