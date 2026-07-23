@@ -1,0 +1,116 @@
+{
+  "definitionVersion": 2,
+  "entries": [
+    {
+      "id": "context-management/unified-context-management.md",
+      "keys": {
+        "category": [
+          "context-management"
+        ],
+        "latest-report-at": [
+          1784627415000
+        ],
+        "status": [
+          "暂停"
+        ],
+        "text": [
+          "现有上下文管理 skills 与统一上下文管理系统的差距调查",
+          "现有上下文管理 skills 组合起来，距离一套统一的上下文管理系统还差什么，Docnav 已经实践了其中哪些能力？",
+          "现有组合的主要差距位于路由与协作层"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-07-21T17:50:15+08:00",
+        "path": "context-management/unified-context-management.md",
+        "question": "现有上下文管理 skills 组合起来，距离一套统一的上下文管理系统还差什么，Docnav 已经实践了其中哪些能力？",
+        "reportCount": 1,
+        "reportTitles": [
+          "现有组合的主要差距位于路由与协作层"
+        ],
+        "status": "暂停",
+        "title": "现有上下文管理 skills 与统一上下文管理系统的差距调查"
+      }
+    },
+    {
+      "id": "git-integration/direct-git-library-selection.md",
+      "keys": {
+        "category": [
+          "git-integration"
+        ],
+        "latest-report-at": [
+          1784622685000
+        ],
+        "status": [
+          "调查中"
+        ],
+        "text": [
+          "TypeScript Git 库选型调查",
+          "本项目应选择哪种 TypeScript Git 库，候选的 API 适配、结果正确性、真实性能和社区可持续性能否共同支持采用？",
+          "统一选型需要正确性、性能与维护证据"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-07-21T16:31:25+08:00",
+        "path": "git-integration/direct-git-library-selection.md",
+        "question": "本项目应选择哪种 TypeScript Git 库，候选的 API 适配、结果正确性、真实性能和社区可持续性能否共同支持采用？",
+        "reportCount": 1,
+        "reportTitles": [
+          "统一选型需要正确性、性能与维护证据"
+        ],
+        "status": "调查中",
+        "title": "TypeScript Git 库选型调查"
+      }
+    },
+    {
+      "id": "prompt-optimize/name-and-trigger-alignment.md",
+      "keys": {
+        "category": [
+          "prompt-optimize"
+        ],
+        "latest-report-at": [
+          1784628632000
+        ],
+        "status": [
+          "暂停"
+        ],
+        "text": [
+          "Prompt Optimize 名称与触发对齐调查",
+          "prompt-optimize 的名称应如何表达其真实能力，并同时支持人类显式调用与 agent 主动触发？",
+          "现名未完整表达能力，并暴露双向触发约束"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-07-21T18:10:32+08:00",
+        "path": "prompt-optimize/name-and-trigger-alignment.md",
+        "question": "prompt-optimize 的名称应如何表达其真实能力，并同时支持人类显式调用与 agent 主动触发？",
+        "reportCount": 1,
+        "reportTitles": [
+          "现名未完整表达能力，并暴露双向触发约束"
+        ],
+        "status": "暂停",
+        "title": "Prompt Optimize 名称与触发对齐调查"
+      }
+    }
+  ],
+  "keyDefinitions": [
+    {
+      "mode": "exact",
+      "name": "category"
+    },
+    {
+      "mode": "range",
+      "name": "latest-report-at"
+    },
+    {
+      "mode": "exact",
+      "name": "status"
+    },
+    {
+      "mode": "text",
+      "name": "text"
+    }
+  ],
+  "namespace": "investigations",
+  "schemaVersion": 1,
+  "sourceRevision": "sha256:039f487bb7e49a7a48aba683dd35d6ed4954eecb30d1c9b9becda10d3ae52da0"
+}

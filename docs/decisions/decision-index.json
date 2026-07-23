@@ -1606,6 +1606,31 @@
       }
     },
     {
+      "id": "investigation-report-index/generate-query-index-from-topic-files.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "investigation-report-index"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "主题承接核心问题与生命周期，报告只是主题内的时点认识；手写索引既双写元数据又没有明确索引粒度。",
+        "createdAt": "2026-07-23T07:43:07Z",
+        "decision": "每个主题 Markdown 生成一个通用 JSON 索引项，报告元数据聚合进主题 state；索引按完整快照同步且可删除重建。",
+        "path": "investigation-report-index/generate-query-index-from-topic-files.md",
+        "purpose": "让调查主题可低成本发现、续接和查询，同时只维护一份权威事实。",
+        "relations": [],
+        "status": "active",
+        "title": "以调查主题作为通用索引单位"
+      }
+    },
+    {
       "id": "openspec-skills/260706-gate-temporary-change-plans.md",
       "keys": {
         "alignment": [
@@ -3026,5 +3051,5 @@
   ],
   "namespace": "decisions",
   "schemaVersion": 1,
-  "sourceRevision": "sha256:a9aef9347e435d4b26d4dfe6091e63ae9579af1197eac81b637ec7a093d36b4f"
+  "sourceRevision": "sha256:fa8d3bcce7f0bc82843dfa8697fbde199f9167e30732176244cb2c407bb1ab38"
 }

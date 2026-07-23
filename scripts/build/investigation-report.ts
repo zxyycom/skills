@@ -8,6 +8,9 @@ import {
   type BunBundleResult
 } from "../lib/generated-file.ts";
 import { githubRepository, rootDir } from "../lib/project.ts";
+import {
+  investigationIndexJsonSchema
+} from "../../tools/investigation-report/src/investigation-index-json-schema.ts";
 
 const sourceRelativePath = "tools/investigation-report/src/cli.ts";
 const declarationSourceRelativePath =
@@ -16,11 +19,15 @@ const outputRelativePath =
   "skills/investigation-report/scripts/check-investigations.mjs";
 const declarationOutputRelativePath =
   "skills/investigation-report/scripts/check-investigations.d.mts";
+const schemaSourceRelativePath =
+  "tools/investigation-report/src/investigation-index-json-schema.ts";
+const schemaOutputRelativePath =
+  "skills/investigation-report/references/investigation-index.schema.json";
 
 async function buildArtifact(): Promise<BunBundleResult> {
   return await bundleWithBun({
     banner: buildGeneratedFileHeader({
-      artifactName: "investigation report structure checker",
+      artifactName: "investigation report checker and index synchronizer",
       rebuildCommand: "bun run sync:investigation-report-check",
       repository: githubRepository,
       skillSourcePath: "skills/investigation-report",
@@ -51,6 +58,7 @@ async function main(): Promise<void> {
     }),
     sourcePath: path.join(rootDir, declarationSourceRelativePath)
   });
+  const expectedSchema = `${JSON.stringify(investigationIndexJsonSchema, null, 2)}\n`;
   if (expected.sourceMap === null) {
     throw new Error("Investigation report checker bundle must include a source map");
   }
@@ -63,6 +71,11 @@ async function main(): Promise<void> {
         content: expectedDeclaration,
         path: path.join(rootDir, declarationOutputRelativePath),
         sourcePath: declarationSourceRelativePath
+      },
+      {
+        content: expectedSchema,
+        path: path.join(rootDir, schemaOutputRelativePath),
+        sourcePath: schemaSourceRelativePath
       }
     ],
     mode,

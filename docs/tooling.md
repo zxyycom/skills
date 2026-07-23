@@ -90,10 +90,10 @@ Codex 工作区在 `.codex/environments/` 提供两个并列环境：
 21. `bun run check:skill-updaters`: 检查各 skill 内的 updater MJS、类型声明和 source map 是否由当前主仓库模板生成。
 22. `bun run test:check`: 在进程内测试完整检查的默认 warning、显式 blocking、严格模式、并发停止、已启动任务等待和打包条件。
 23. `bun run check`: 通过 `scripts/check.ts` 运行全部前置检查并汇总 warning；没有阻断失败时继续打包全部 skill。传入 `--strict` 时全部前置失败都阻断。
-24. `bun run test:investigation-report-check`: 使用临时调查集合测试默认全量检查、主题与文件筛选、Markdown AST 标题、根目录额外 Markdown、完整报告核心章节与形成时间、追加顺序、最新报告时间、索引路径与投影、失败诊断、包内导入和 Node CLI。
-25. `bun run check:investigations`: 使用 `tools/investigation-report/src/` 的当前实现严格检查本仓库调查索引和全部主题文件；由完整检查编排时再按运行模式决定是否阻断。
-26. `bun run sync:investigation-report-check`: 从 `tools/investigation-report/` 构建并写入 `investigation-report` skill 内的 `check-investigations.mjs`、类型声明和 source map。
-27. `bun run check:investigation-report-check`: 在临时目录重建调查报告检查器，并检查 skill 内分发产物是否与当前源码一致。
+24. `bun run test:investigation-report-check`: 使用临时调查集合测试默认全量检查、局部结构筛选、Markdown AST 标题、完整报告核心与时间、主题级通用 JSON 索引同步、新鲜度、领域查询与 keys、Schema、失败诊断、包内导入、Node CLI 及一千个主题的端到端读取。
+25. `bun run check:investigations`: 使用 `tools/investigation-report/src/` 的当前实现严格检查本仓库全部主题文件和派生索引新鲜度；由完整检查编排时再按运行模式决定是否阻断。
+26. `bun run sync:investigation-report-check`: 从 `tools/investigation-report/` 构建并写入 `investigation-report` skill 内的 `check-investigations.mjs`、类型声明、source map 和索引 JSON Schema。
+27. `bun run check:investigation-report-check`: 在临时目录重建调查报告 CLI 和 Schema，并检查 skill 内分发产物是否与当前源码一致。
 28. `bun run test:index-runtime`: 使用决策、调查和测试证据的隔离 state fixture，验证唯一 id、多 key 策略、revision、新鲜度、运行时 state、查询、确定性文件同步和一千条及五千条规模；不读取或改写现有三个领域的索引与入口。
 29. `bun run test:version-control`: 使用隔离 Git 仓库验证版本管理中间层的提交快照、待提交快照、工作区路径、提交差异、未出生与损坏 `HEAD`、冲突 index、错误映射和 linked worktree 行为。
 30. `bun run test:change-plan-cli`: 使用临时 change 目录测试三文件结构、标题顺序、非空章节、任务语法、唯一 ID、包内导入、Node CLI、机器输出和生成追溯。
@@ -130,7 +130,7 @@ Codex 工作区在 `.codex/environments/` 提供两个并列环境：
 1. `tools/<tool-name>/src/` 承接运行时源码，`api/` 承接稳定公共声明源，`tests/` 承接源码、分发模块和 fixture 验证；构建后真正进入 skill 的文件仍只位于 `skills/<skill-name>/`。
 2. `tools/shared/src/` 只承接多个工具真实共享的运行时原语；仅有相似调用位置、短实现或未来可能复用，不足以进入共享层。
 3. `tools/skill-package/src/` 承接发布端和 updater 必须共同遵守的指纹与 package lock 协议，避免协议实现被任一消费方私有化。
-4. 具体领域工具的 `src/` 只能依赖自身源码、`tools/shared/src/`、`tools/skill-package/src/`、已经明确建立为跨领域协议 owner 的工具、目标运行时和显式外部依赖；不能依赖 `scripts/`、`skills/`、`dist/` 或另一个领域工具。当前唯一的跨领域工具依赖是 `decision-records` 对 `tools/index-runtime/src/` 的接入。
+4. 具体领域工具的 `src/` 只能依赖自身源码、`tools/shared/src/`、`tools/skill-package/src/`、已经明确建立为跨领域协议 owner 的工具、目标运行时和显式外部依赖；不能依赖 `scripts/`、`skills/`、`dist/` 或另一个领域工具。当前跨领域工具依赖是 `decision-records` 和 `investigation-report` 分别接入 `tools/index-runtime/src/`。
 5. `tools/shared/` 不依赖其他工具；`tools/skill-package/` 只依赖自身和 `tools/shared/`；独立协议 owner 不反向依赖领域工具。
 6. 源码共享不改变分发单元边界。构建器把被消费的共享源码内联进目标自包含 MJS，因此不同 skill 可以共享一份维护源码而不产生跨 skill 运行时前置条件。
 
@@ -145,7 +145,7 @@ Codex 工作区在 `.codex/environments/` 提供两个并列环境：
 7. 写入：`syncStateIndex` 从完整 state 快照检查或确定性重建 JSON，写入前再次核对 revision，在仓库根目录边界内原子替换并读回验证，不写领域源。领域 writer 完成事实写入后调用完整同步，并负责避免源写入与同步事务互相穿插。索引只提供完整同步；增量协议必须由接入后的领域证据和独立长期决策触发。
 8. 动态 state：查询可以接收使用同一定义产生的完整 runtime state；同 id 临时替换静态条目，新 id 临时追加，磁盘索引保持不变。
 9. 确定性：索引不保存生成时间；对象键、key 定义、key 值和条目使用与区域设置无关的固定全序，领域 state 中数组保持原顺序。序列化固定产生 LF，检查时把 Git checkout 可能产生的 CRLF 视为等价。
-10. 测试与接入：`tools/index-runtime/tests/run.ts` 覆盖三个领域外形、parser 边界、revision 一致性、运行时 state、查询和确定性同步，并保留 Node/Bun 下的一千条及五千条规模证据；这些测量不定义持续性能 SLO，领域 reader 的端到端成本在各自接入时验证。`decision-records` 是当前首个领域消费者；其他领域在完成自身 state、revision、key 和端到端成本设计前不因该先例自动接入。构建器把被消费的通用源码内联进目标 skill 的自包含分发脚本。
+10. 测试与接入：`tools/index-runtime/tests/run.ts` 覆盖三个领域外形、parser 边界、revision 一致性、运行时 state、查询和确定性同步，并保留 Node/Bun 下的一千条及五千条规模证据；这些测量不定义持续性能 SLO，领域 reader 的端到端成本在各自接入时验证。`decision-records` 和 `investigation-report` 是当前领域消费者；其他领域在完成自身 state、revision、key 和端到端成本设计前不因这些先例自动接入。构建器把被消费的通用源码内联进目标 skill 的自包含分发脚本。
 
 ### 版本管理中间层
 
@@ -205,19 +205,20 @@ Codex 工作区在 `.codex/environments/` 提供两个并列环境：
 7. 检查：`bun run check:skill-validator`。
 8. 测试：`bun run test:skill-validator`。
 
-`investigation-report` 检查器的维护入口：
+`investigation-report` CLI 的维护入口：
 
 1. 源码：`tools/investigation-report/src/`。
-2. 声明源：`tools/investigation-report/api/check-investigations.d.mts`。
-3. 测试：`tools/investigation-report/tests/`。
-4. 构建入口：`scripts/build/investigation-report.ts`。
-5. 分发产物：`skills/investigation-report/scripts/check-investigations.mjs`、`check-investigations.d.mts` 及 `check-investigations.mjs.map`。
-6. 同步：`bun run sync:investigation-report-check`。
-7. 检查：`bun run check:investigation-report-check`。
-8. 测试：`bun run test:investigation-report-check`。
-9. 仓库调查集合：`bun run check:investigations`；`bun run check` 组合本入口与生成检查，使仓库内容按当前源码验证且分发产物保持一致。
+2. 领域索引适配：`tools/investigation-report/src/investigation-state-index.ts` 承接主题文件发现、主题 state 解析、相对路径 id、`category|latest-report-at|status|text` 派生 keys 和 source revision；每个主题只产生一个 state，报告数量与标题序列进入该 state。通用解析、查询、新鲜度与原子同步复用 `tools/index-runtime/src/`。
+3. 声明源：`tools/investigation-report/api/check-investigations.d.mts`。
+4. 测试：`tools/investigation-report/tests/`。
+5. 构建入口：`scripts/build/investigation-report.ts`，把调查源码及使用到的通用索引源码内联为自包含分发模块。
+6. 分发产物：`skills/investigation-report/scripts/check-investigations.mjs`、`check-investigations.d.mts`、`check-investigations.mjs.map` 及 `skills/investigation-report/references/investigation-index.schema.json`。
+7. 同步：`bun run sync:investigation-report-check`。
+8. 检查：`bun run check:investigation-report-check`。
+9. 测试：`bun run test:investigation-report-check`。
+10. 仓库调查集合：`bun run check:investigations`；`bun run check` 组合本入口与生成检查，使仓库内容按当前源码验证且分发产物保持一致。
 
-检查器默认校验调查根目录中的全部索引条目和主题文件；除索引外的 Markdown 文件都按主题文件检查。`--topic` 与 `--report` 只收窄本次结构检查，不改变主题文件、索引或调查状态。
+CLI 默认全量检查调查根目录中的全部主题 Markdown 和 JSON 索引新鲜度；`sync-index` 在全部主题有效后完整重建派生索引；`list` 核对当前 source revision 后通过通用运行时按主题路径、category、状态、最新报告时间与主题/报告标题文本查询持久化主题 state，不重新解析报告正文。`check` 的 `--category` 与 `--path` 只收窄只读主题结构检查并跳过全局索引新鲜度，不改变主题文件、索引或调查状态。
 
 `change-plan` 检查器的维护入口：
 

@@ -5,10 +5,26 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  queryInvestigationIndex as queryBundledInvestigationIndex,
   runInvestigationReportCheckCli,
+  synchronizeInvestigationIndex as synchronizeBundledInvestigationIndex,
   validateInvestigationReports as validateBundledInvestigationReports
 } from "../../../skills/investigation-report/scripts/check-investigations.mjs";
-import { validateInvestigationReports } from "../src/validation.ts";
+import {
+  queryStateIndex,
+  type StateIndex,
+  type StateIndexResult
+} from "../../index-runtime/src/index.ts";
+import {
+  createInvestigationStateIndexDefinition,
+  investigationIndexFileName,
+  loadCurrentInvestigationIndex
+} from "../src/investigation-state-index.ts";
+import { queryInvestigationIndex } from "../src/query.ts";
+import {
+  synchronizeInvestigationIndex,
+  validateInvestigationReports
+} from "../src/validation.ts";
 
 type ExtraSection = {
   body: string;
@@ -78,6 +94,13 @@ const generatedDeclarationPath = path.join(
   "scripts",
   "check-investigations.d.mts"
 );
+const generatedSchemaPath = path.join(
+  rootDir,
+  "skills",
+  "investigation-report",
+  "references",
+  "investigation-index.schema.json"
+);
 
 function reportEntryMarkdown(input: ReportEntryInput): string {
   const lines = [
@@ -143,52 +166,33 @@ function reportMarkdown(input: ReportInput): string {
   ].join("\n");
 }
 
-function indexMarkdown(inputs: readonly ReportInput[]): string {
-  const byTopic = new Map<string, ReportInput[]>();
-  for (const input of inputs) {
-    const topic = input.path.split("/")[0];
-    const topicReports = byTopic.get(topic) ?? [];
-    topicReports.push(input);
-    byTopic.set(topic, topicReports);
-  }
-
-  const lines = ["# 调查索引", "", "本索引只用于定位调查。", ""];
-  for (const [topic, reports] of [...byTopic].sort(([left], [right]) => (
-    left.localeCompare(right)
-  ))) {
-    lines.push(`## ${topic}`, "");
-    for (const report of reports) {
-      const lastFormedAt = report.reports?.at(-1)?.formedAt
-        ?? "2026-07-21T09:00:00+08:00";
-      lines.push(
-        `- [${report.title}](${report.path})`,
-        `  - 核心问题: ${report.question}`,
-        `  - 状态: ${report.status ?? "调查中"}`,
-        `  - 最新报告时间: ${report.latestReportAt ?? lastFormedAt}`,
-        ""
-      );
-    }
-  }
-  return lines.join("\n");
-}
-
 async function writeCollection(
   workspaceRoot: string,
   inputs: readonly ReportInput[],
-  indexInputs: readonly ReportInput[] = inputs
+  syncIndex = true
 ): Promise<void> {
   const investigationRoot = path.join(workspaceRoot, "docs", "investigations");
   await fs.mkdir(investigationRoot, { recursive: true });
-  await fs.writeFile(
-    path.join(investigationRoot, "investigation-index.md"),
-    indexMarkdown(indexInputs),
-    "utf8"
-  );
   for (const input of inputs) {
     const reportPath = path.join(investigationRoot, ...input.path.split("/"));
     await fs.mkdir(path.dirname(reportPath), { recursive: true });
     await fs.writeFile(reportPath, reportMarkdown(input), "utf8");
   }
+  if (syncIndex) {
+    const synchronized = await synchronizeInvestigationIndex({
+      workspaceRoot
+    });
+    assert.deepEqual(synchronized.errors, []);
+  }
+}
+
+function resultValue<Value>(result: StateIndexResult<Value>): Value {
+  assert.equal(
+    result.status,
+    "ok",
+    result.diagnostics.map((entry) => entry.message).join("; ")
+  );
+  return result.value as Value;
 }
 
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "investigation-report-test-"));
@@ -229,6 +233,10 @@ try {
     {
       path: "runtime/process-churn.md",
       question: "哪些运行阶段会形成进程抖动？",
+      reports: [{
+        formedAt: "2026-07-19T09:00:00+08:00",
+        title: "定位进程抖动阶段"
+      }],
       status: "暂停",
       title: "运行时进程抖动调查"
     }
@@ -237,41 +245,181 @@ try {
 
   const valid = await validateInvestigationReports({ workspaceRoot: validRoot });
   assert.deepEqual(valid.errors, []);
-  assert.equal(valid.availableReportCount, 2);
-  assert.equal(valid.selectedReportCount, 2);
-  assert.equal(valid.topicCount, 2);
+  assert.equal(valid.indexChecked, true);
+  assert.equal(valid.availableTopicCount, 2);
+  assert.equal(valid.selectedTopicCount, 2);
+  assert.equal(valid.categoryCount, 2);
   assert.deepEqual(await validateBundledInvestigationReports({ workspaceRoot: validRoot }), valid);
   assert.equal(typeof runInvestigationReportCheckCli, "function");
+  assert.equal(typeof queryBundledInvestigationIndex, "function");
+  assert.equal(typeof synchronizeBundledInvestigationIndex, "function");
 
-  const topicFiltered = await validateInvestigationReports({
-    topics: ["codex"],
+  const validInvestigationRoot = path.join(
+    validRoot,
+    "docs",
+    "investigations"
+  );
+  const validIndex = JSON.parse(await fs.readFile(
+    path.join(validInvestigationRoot, investigationIndexFileName),
+    "utf8"
+  )) as StateIndex;
+  assert.equal(validIndex.namespace, "investigations");
+  assert.equal(validIndex.definitionVersion, 2);
+  assert.match(validIndex.sourceRevision, /^sha256:[0-9a-f]{64}$/u);
+  assert.deepEqual(
+    validIndex.entries.map((entry) => entry.id),
+    [
+      "codex/project-shell-registration.md",
+      "runtime/process-churn.md"
+    ]
+  );
+  const codexEntry = validIndex.entries[0];
+  assert.deepEqual(codexEntry.state, {
+    latestReportAt: "2026-07-21T09:00:00+08:00",
+    path: "codex/project-shell-registration.md",
+    question: "为什么项目 Shell 没有进入可用工具列表？",
+    reportCount: 2,
+    reportTitles: ["恢复注册入口", "复查当前注册状态"],
+    status: "调查中",
+    title: "项目 Shell 注册调查"
+  });
+  assert.deepEqual(codexEntry.keys.category, ["codex"]);
+  assert.deepEqual(codexEntry.keys.status, ["调查中"]);
+  assert.deepEqual(codexEntry.keys.text, [
+    "为什么项目 Shell 没有进入可用工具列表？",
+    "复查当前注册状态",
+    "恢复注册入口",
+    "项目 Shell 注册调查"
+  ]);
+  assert.deepEqual(codexEntry.keys["latest-report-at"], [
+    Date.parse("2026-07-21T09:00:00+08:00")
+  ]);
+
+  const loadedIndex = resultValue(await loadCurrentInvestigationIndex({
+    investigationsDirectory: validInvestigationRoot
+  }));
+  const queriedIndex = resultValue(queryStateIndex({
+    definition: createInvestigationStateIndexDefinition(),
+    index: loadedIndex,
+    query: {
+      filters: [
+        {
+          key: "status",
+          kind: "exact",
+          operator: "all",
+          values: ["暂停"]
+        },
+        {
+          key: "text",
+          kind: "text",
+          operator: "all",
+          text: "进程 抖动"
+        }
+      ]
+    }
+  }));
+  assert.deepEqual(
+    queriedIndex.entries.map((entry) => entry.id),
+    ["runtime/process-churn.md"]
+  );
+  const domainQuery = await queryInvestigationIndex({
+    statuses: ["暂停"],
+    text: "进程 抖动",
     workspaceRoot: validRoot
   });
-  assert.deepEqual(topicFiltered.errors, []);
-  assert.equal(topicFiltered.selectedReportCount, 1);
-  assert.equal(topicFiltered.topicCount, 1);
-
-  const reportFiltered = await validateInvestigationReports({
-    reports: ["runtime\\process-churn.md"],
+  assert.deepEqual(domainQuery.errors, []);
+  assert.equal(domainQuery.total, 1);
+  assert.deepEqual(
+    domainQuery.entries.map((entry) => entry.path),
+    ["runtime/process-churn.md"]
+  );
+  const historicalReportTitleQuery = await queryInvestigationIndex({
+    text: "恢复 注册",
     workspaceRoot: validRoot
   });
-  assert.deepEqual(reportFiltered.errors, []);
-  assert.equal(reportFiltered.selectedReportCount, 1);
+  assert.deepEqual(historicalReportTitleQuery.errors, []);
+  assert.deepEqual(
+    historicalReportTitleQuery.entries.map((entry) => entry.path),
+    ["codex/project-shell-registration.md"]
+  );
+  assert.deepEqual(
+    await queryBundledInvestigationIndex({
+      categories: ["codex"],
+      latestReportAtFrom: "2026-07-20T00:00:00+08:00",
+      paths: ["codex/project-shell-registration.md"],
+      workspaceRoot: validRoot
+    }),
+    {
+      entries: [{
+        latestReportAt: "2026-07-21T09:00:00+08:00",
+        path: "codex/project-shell-registration.md",
+        question: "为什么项目 Shell 没有进入可用工具列表？",
+        reportCount: 2,
+        reportTitles: ["恢复注册入口", "复查当前注册状态"],
+        status: "调查中",
+        title: "项目 Shell 注册调查"
+      }],
+      errors: [],
+      indexPath: path.join(
+        validRoot,
+        "docs",
+        "investigations",
+        investigationIndexFileName
+      ),
+      limit: 50,
+      offset: 0,
+      total: 1
+    }
+  );
+  const secondPage = await queryInvestigationIndex({
+    limit: 1,
+    offset: 1,
+    workspaceRoot: validRoot
+  });
+  assert.deepEqual(secondPage.errors, []);
+  assert.equal(secondPage.total, 2);
+  assert.deepEqual(
+    secondPage.entries.map((entry) => entry.path),
+    ["runtime/process-churn.md"]
+  );
+
+  const unchanged = await synchronizeBundledInvestigationIndex({
+    workspaceRoot: validRoot
+  });
+  assert.deepEqual(unchanged.errors, []);
+  assert.equal(unchanged.changed, false);
+
+  const categoryFiltered = await validateInvestigationReports({
+    categories: ["codex"],
+    workspaceRoot: validRoot
+  });
+  assert.deepEqual(categoryFiltered.errors, []);
+  assert.equal(categoryFiltered.indexChecked, false);
+  assert.equal(categoryFiltered.selectedTopicCount, 1);
+  assert.equal(categoryFiltered.categoryCount, 1);
+
+  const pathFiltered = await validateInvestigationReports({
+    paths: ["runtime\\process-churn.md"],
+    workspaceRoot: validRoot
+  });
+  assert.deepEqual(pathFiltered.errors, []);
+  assert.equal(pathFiltered.indexChecked, false);
+  assert.equal(pathFiltered.selectedTopicCount, 1);
 
   const noIntersection = await validateInvestigationReports({
-    reports: ["runtime/process-churn.md"],
-    topics: ["codex"],
+    categories: ["codex"],
+    paths: ["runtime/process-churn.md"],
     workspaceRoot: validRoot
   });
   assert.ok(noIntersection.errors.includes(
-    "no investigation topic files matched the requested filters"
+    "no investigation topics matched the requested filters"
   ));
 
   const cliSuccess = spawnSync("node", [generatedCheckerPath, "--root", validRoot], {
     encoding: "utf8"
   });
   assert.equal(cliSuccess.status, 0, cliSuccess.stderr);
-  assert.match(cliSuccess.stdout, /2 of 2 topic files checked across 2 topics/);
+  assert.match(cliSuccess.stdout, /2 of 2 topics checked across 2 categories/);
 
   const cliFiltered = spawnSync(
     "node",
@@ -279,13 +427,53 @@ try {
       generatedCheckerPath,
       "--root",
       validRoot,
-      "--report",
+      "--path",
       "codex/project-shell-registration.md"
     ],
     { encoding: "utf8" }
   );
   assert.equal(cliFiltered.status, 0, cliFiltered.stderr);
-  assert.match(cliFiltered.stdout, /1 of 2 topic files checked across 1 topics/);
+  assert.match(cliFiltered.stdout, /1 of 2 topics checked across 1 categories/);
+  assert.match(cliFiltered.stdout, /index not checked/);
+
+  const cliList = spawnSync(
+    "node",
+    [
+      generatedCheckerPath,
+      "list",
+      "--root",
+      validRoot,
+      "--status",
+      "暂停",
+      "--text",
+      "进程 抖动"
+    ],
+    { encoding: "utf8" }
+  );
+  assert.equal(cliList.status, 0, cliList.stderr);
+  assert.match(cliList.stdout, /Investigation topics/);
+  assert.match(cliList.stdout, /reports: 1; latest: 定位进程抖动阶段/);
+  assert.match(cliList.stdout, /runtime\/process-churn\.md/);
+  assert.doesNotMatch(cliList.stdout, /codex\/project-shell-registration\.md/);
+
+  const cliSyncRoot = path.join(tempRoot, "cli-sync");
+  await writeCollection(cliSyncRoot, [validReports[0]], false);
+  const cliSync = spawnSync(
+    "node",
+    [generatedCheckerPath, "sync-index", "--root", cliSyncRoot],
+    { encoding: "utf8" }
+  );
+  assert.equal(cliSync.status, 0, cliSync.stderr);
+  assert.match(cliSync.stdout, /Investigation index synchronized/);
+  assert.equal(
+    await fs.stat(path.join(
+      cliSyncRoot,
+      "docs",
+      "investigations",
+      investigationIndexFileName
+    )).then((entry) => entry.isFile()),
+    true
+  );
 
   const dateSemanticRoot = path.join(tempRoot, "date-semantic-path");
   const dateSemanticReport: ReportInput = {
@@ -315,7 +503,7 @@ try {
     workspaceRoot: rootLevelMarkdownRoot
   });
   assert.ok(rootLevelMarkdown.errors.some((error) => (
-    error.includes("scratch.md must use <topic-id>/<semantic-slug>.md")
+    error.includes("scratch.md must use <category-id>/<semantic-slug>.md")
   )));
 
   const invalidRoot = path.join(tempRoot, "invalid");
@@ -337,38 +525,26 @@ try {
     reports: [{ formedAt: "2026-07-20", title: "检查时间格式" }],
     title: "无效时间调查"
   };
-  const missingReport: ReportInput = {
-    path: "ghost/missing-report.md",
-    question: "缺失文件是否会被识别？",
-    title: "缺失调查"
+  const emptySemanticQuestion: ReportInput = {
+    path: "runtime/empty-semantic-question.md",
+    question: "** **",
+    title: "空语义问题调查"
   };
-  await writeCollection(invalidRoot, [goodReport, invalidReport, invalidTimestampReport], [
-    goodReport,
-    { ...invalidReport, question: "索引中的不同问题。" },
-    invalidTimestampReport,
-    missingReport
-  ]);
-  const unindexed: ReportInput = {
-    path: "other/unindexed-report.md",
-    question: "未索引文件是否会被识别？",
-    title: "未索引调查"
-  };
-  const unindexedPath = path.join(
+  await writeCollection(
     invalidRoot,
-    "docs",
-    "investigations",
-    ...unindexed.path.split("/")
+    [goodReport, invalidReport, invalidTimestampReport, emptySemanticQuestion],
+    false
   );
-  await fs.mkdir(path.dirname(unindexedPath), { recursive: true });
-  await fs.writeFile(unindexedPath, reportMarkdown(unindexed), "utf8");
 
   const invalid = await validateInvestigationReports({ workspaceRoot: invalidRoot });
   assert.ok(invalid.errors.some((error) => error.includes("status must be one of")));
   assert.ok(invalid.errors.some((error) => error.includes("latest report time must use an RFC 3339")));
   assert.ok(invalid.errors.some((error) => error.includes("report formed time must use an RFC 3339")));
-  assert.ok(invalid.errors.some((error) => error.includes("does not match investigation-index")));
-  assert.ok(invalid.errors.some((error) => error.includes("missing-report.md")));
-  assert.ok(invalid.errors.some((error) => error.includes("unindexed-report.md")));
+  assert.ok(invalid.errors.some((error) => (
+    error.includes(emptySemanticQuestion.path)
+    && error.includes("field \"核心问题\" must not be empty")
+  )));
+  assert.equal(invalid.indexChecked, false);
 
   const invalidReportsRoot = path.join(tempRoot, "invalid-reports");
   const missingReportSection: ReportInput = {
@@ -488,7 +664,7 @@ try {
     wrongSectionOrder,
     reversedReportTimes,
     mismatchedLatestTime
-  ]);
+  ], false);
   const invalidReports = await validateInvestigationReports({
     workspaceRoot: invalidReportsRoot
   });
@@ -530,68 +706,186 @@ try {
   )));
 
   const scopedValid = await validateInvestigationReports({
-    reports: [goodReport.path],
+    paths: [goodReport.path],
     workspaceRoot: invalidRoot
   });
   assert.deepEqual(scopedValid.errors, []);
 
-  const sameTopicRoot = path.join(tempRoot, "same-topic-filter");
-  const sameTopicReport: ReportInput = {
-    path: "runtime/good-report.md",
-    question: "单报告筛选能否隔离无关条目？",
-    title: "单报告筛选调查"
+  const staleRoot = path.join(tempRoot, "stale-index");
+  const firstStaleReport: ReportInput = {
+    path: "runtime/first-report.md",
+    question: "新增主题文件是否会使派生索引失效？",
+    title: "首个索引成员调查"
   };
-  await writeCollection(sameTopicRoot, [sameTopicReport]);
-  await fs.writeFile(
-    path.join(sameTopicRoot, "docs", "investigations", "investigation-index.md"),
-    [
-      "# 调查索引",
-      "",
-      "## runtime",
-      "",
-      "- 这不是链接",
-      "  - 核心问题: 无关坏条目是否会污染筛选？",
-      "  - 状态: 调查中",
-      "  - 最新报告时间: 2026-07-21T09:00:00+08:00",
-      "",
-      `- [${sameTopicReport.title}](${sameTopicReport.path})`,
-      `  - 核心问题: ${sameTopicReport.question}`,
-      "  - 状态: 调查中",
-      "  - 最新报告时间: 2026-07-21T09:00:00+08:00",
-      ""
-    ].join("\n"),
-    "utf8"
-  );
-  const isolatedReport = await validateInvestigationReports({
-    reports: [sameTopicReport.path],
-    workspaceRoot: sameTopicRoot
-  });
-  assert.deepEqual(isolatedReport.errors, []);
-
-  const nonPosixRoot = path.join(tempRoot, "non-posix-index");
-  const nonPosixReport: ReportInput = {
-    path: "runtime/non-posix-link.md",
-    question: "索引链接是否必须使用 POSIX 路径？",
-    title: "索引路径调查"
+  const addedStaleReport: ReportInput = {
+    path: "runtime/added-report.md",
+    question: "新增文件是否会由同步自动吸收？",
+    title: "新增索引成员调查"
   };
-  await writeCollection(nonPosixRoot, [nonPosixReport]);
-  const nonPosixIndexPath = path.join(
-    nonPosixRoot,
+  await writeCollection(staleRoot, [firstStaleReport]);
+  const addedStalePath = path.join(
+    staleRoot,
     "docs",
     "investigations",
-    "investigation-index.md"
+    ...addedStaleReport.path.split("/")
   );
-  const nonPosixIndex = (await fs.readFile(nonPosixIndexPath, "utf8"))
-    .replace("runtime/non-posix-link.md", "runtime\\non-posix-link.md");
-  await fs.writeFile(nonPosixIndexPath, nonPosixIndex, "utf8");
-  const nonPosix = await validateInvestigationReports({ workspaceRoot: nonPosixRoot });
-  assert.ok(nonPosix.errors.some((error) => error.includes("<topic-id>/<semantic-slug>.md")));
+  await fs.writeFile(
+    addedStalePath,
+    reportMarkdown(addedStaleReport),
+    "utf8"
+  );
+  const stale = await validateInvestigationReports({
+    workspaceRoot: staleRoot
+  });
+  assert.equal(stale.indexChecked, true);
+  assert.ok(stale.errors.some((error) => (
+    error.includes(investigationIndexFileName)
+    && error.includes("does not match the current state projection")
+  )));
+  const staleQuery = await queryInvestigationIndex({
+    workspaceRoot: staleRoot
+  });
+  assert.ok(staleQuery.errors.some((error) => (
+    error.includes(investigationIndexFileName)
+    && error.includes("does not match source revision")
+  )));
+  assert.deepEqual(staleQuery.entries, []);
+  const isolatedAddedReport = await validateInvestigationReports({
+    paths: [addedStaleReport.path],
+    workspaceRoot: staleRoot
+  });
+  assert.deepEqual(isolatedAddedReport.errors, []);
+  assert.equal(isolatedAddedReport.indexChecked, false);
+
+  const resynchronized = await synchronizeInvestigationIndex({
+    workspaceRoot: staleRoot
+  });
+  assert.deepEqual(resynchronized.errors, []);
+  assert.equal(resynchronized.changed, true);
+  assert.deepEqual(
+    (await validateInvestigationReports({ workspaceRoot: staleRoot })).errors,
+    []
+  );
+  const resynchronizedIndex = resultValue(await loadCurrentInvestigationIndex({
+    investigationsDirectory: path.join(
+      staleRoot,
+      "docs",
+      "investigations"
+    )
+  }));
+  assert.deepEqual(
+    resynchronizedIndex.entries.map((entry) => entry.id),
+    ["runtime/added-report.md", "runtime/first-report.md"]
+  );
+
+  const tamperedIndexPath = path.join(
+    staleRoot,
+    "docs",
+    "investigations",
+    investigationIndexFileName
+  );
+  const tamperedIndex = await fs.readFile(tamperedIndexPath, "utf8");
+  await fs.writeFile(
+    tamperedIndexPath,
+    tamperedIndex.replace("新增索引成员调查", "被篡改的索引标题"),
+    "utf8"
+  );
+  const tampered = await validateInvestigationReports({
+    workspaceRoot: staleRoot
+  });
+  assert.ok(tampered.errors.some((error) => (
+    error.includes(investigationIndexFileName)
+    && error.includes("does not match the current state projection")
+  )));
+  assert.equal(
+    (await synchronizeInvestigationIndex({ workspaceRoot: staleRoot })).changed,
+    true
+  );
+  const invalidCountIndex = await fs.readFile(tamperedIndexPath, "utf8");
+  await fs.writeFile(
+    tamperedIndexPath,
+    invalidCountIndex.replace('"reportCount": 1', '"reportCount": 2'),
+    "utf8"
+  );
+  const invalidCount = await queryInvestigationIndex({
+    workspaceRoot: staleRoot
+  });
+  assert.ok(
+    invalidCount.errors.some((error) => (
+      error.includes(
+        "reportCount must equal the number of reportTitles"
+      )
+    )),
+    invalidCount.errors.join("; ")
+  );
+  assert.equal(
+    (await synchronizeInvestigationIndex({ workspaceRoot: staleRoot })).changed,
+    true
+  );
+
+  const scaleRoot = path.join(tempRoot, "scale");
+  const scaleInvestigationRoot = path.join(
+    scaleRoot,
+    "docs",
+    "investigations"
+  );
+  const scaleTopicRoot = path.join(scaleInvestigationRoot, "scale");
+  await fs.mkdir(scaleTopicRoot, { recursive: true });
+  const scaleCount = 1_000;
+  for (let offset = 0; offset < scaleCount; offset += 64) {
+    await Promise.all(
+      Array.from(
+        { length: Math.min(64, scaleCount - offset) },
+        async (_, index) => {
+          const number = String(offset + index).padStart(4, "0");
+          const input: ReportInput = {
+            path: `scale/report-${number}.md`,
+            question: `第 ${number} 份调查能否进入通用索引？`,
+            title: `规模调查 ${number}`
+          };
+          await fs.writeFile(
+            path.join(scaleTopicRoot, `report-${number}.md`),
+            reportMarkdown(input),
+            "utf8"
+          );
+        }
+      )
+    );
+  }
+  const scaleSyncStartedAt = performance.now();
+  const scaleSynchronized = await synchronizeInvestigationIndex({
+    workspaceRoot: scaleRoot
+  });
+  const scaleSyncMilliseconds = performance.now() - scaleSyncStartedAt;
+  assert.deepEqual(scaleSynchronized.errors, []);
+  assert.equal(scaleSynchronized.topicCount, scaleCount);
+  const scaleReadStartedAt = performance.now();
+  const scaleIndex = resultValue(await loadCurrentInvestigationIndex({
+    investigationsDirectory: scaleInvestigationRoot
+  }));
+  const scaleReadMilliseconds = performance.now() - scaleReadStartedAt;
+  assert.equal(scaleIndex.entries.length, scaleCount);
+  const scaleQueryStartedAt = performance.now();
+  const scaleQuery = await queryInvestigationIndex({
+    limit: 10,
+    text: "规模 调查",
+    workspaceRoot: scaleRoot
+  });
+  const scaleQueryMilliseconds = performance.now() - scaleQueryStartedAt;
+  assert.deepEqual(scaleQuery.errors, []);
+  assert.equal(scaleQuery.total, scaleCount);
+  assert.equal(scaleQuery.entries.length, 10);
+  console.log(
+    "Investigation index scale evidence: "
+    + `${scaleCount} topics synchronized in ${scaleSyncMilliseconds.toFixed(1)} ms, `
+    + `freshness-read in ${scaleReadMilliseconds.toFixed(1)} ms, `
+    + `freshness-query in ${scaleQueryMilliseconds.toFixed(1)} ms.`
+  );
 
   const missingFilter = await validateInvestigationReports({
-    reports: ["codex/not-present.md"],
+    paths: ["codex/not-present.md"],
     workspaceRoot: validRoot
   });
-  assert.ok(missingFilter.errors.some((error) => error.includes("must appear exactly once")));
   assert.ok(missingFilter.errors.some((error) => error.includes("topic file does not exist")));
 
   const cliFailure = spawnSync("node", [generatedCheckerPath, "--root", invalidRoot], {
@@ -604,7 +898,9 @@ try {
   assert.equal(help.status, 0, help.stderr);
   assert.match(help.stdout, /Usage: check-investigations\.mjs/);
   assert.match(help.stdout, /self-contained reports/);
-  assert.match(help.stdout, /every index entry and topic file/);
+  assert.match(help.stdout, /full-index freshness/);
+  assert.match(help.stdout, /sync-index validates every topic/);
+  assert.match(help.stdout, /list checks index freshness/);
 
   const invalidArgument = spawnSync(
     "node",
@@ -612,6 +908,28 @@ try {
     { encoding: "utf8" }
   );
   assert.equal(invalidArgument.status, 2);
+
+  const invalidLimit = spawnSync(
+    "node",
+    [generatedCheckerPath, "list", "--root", validRoot, "--limit", "nope"],
+    { encoding: "utf8" }
+  );
+  assert.equal(invalidLimit.status, 2);
+  assert.match(invalidLimit.stderr, /limit must be an integer/);
+
+  const invalidSyncFilter = spawnSync(
+    "node",
+    [
+      generatedCheckerPath,
+      "sync-index",
+      "--root",
+      validRoot,
+      "--category",
+      "codex"
+    ],
+    { encoding: "utf8" }
+  );
+  assert.equal(invalidSyncFilter.status, 2);
 
   const checkerSource = await fs.readFile(generatedCheckerPath, "utf8");
   assert.match(checkerSource, /Repository: https:\/\/github\.com\/zxyycom\/skills/);
@@ -624,7 +942,20 @@ try {
 
   const declarationSource = await fs.readFile(generatedDeclarationPath, "utf8");
   assert.match(declarationSource, /validateInvestigationReports/);
+  assert.match(declarationSource, /synchronizeInvestigationIndex/);
+  assert.match(declarationSource, /queryInvestigationIndex/);
   assert.match(declarationSource, /runInvestigationReportCheckCli/);
+
+  const generatedSchema = JSON.parse(
+    await fs.readFile(generatedSchemaPath, "utf8")
+  ) as {
+    properties: {
+      definitionVersion: { const: number };
+      namespace: { const: string };
+    };
+  };
+  assert.equal(generatedSchema.properties.definitionVersion.const, 2);
+  assert.equal(generatedSchema.properties.namespace.const, "investigations");
 
   const sourceMap = JSON.parse(await fs.readFile(`${generatedCheckerPath}.map`, "utf8")) as {
     sourceRoot: string;
@@ -632,6 +963,11 @@ try {
   };
   assert.equal(sourceMap.sourceRoot, "../../../");
   assert.ok(sourceMap.sources.includes("tools/investigation-report/src/cli.ts"));
+  assert.ok(sourceMap.sources.includes(
+    "tools/investigation-report/src/investigation-state-index.ts"
+  ));
+  assert.ok(sourceMap.sources.includes("tools/investigation-report/src/query.ts"));
+  assert.ok(sourceMap.sources.includes("tools/index-runtime/src/storage.ts"));
   assert.ok(sourceMap.sources.every((source) => !path.isAbsolute(source) && !source.includes("\\")));
 } finally {
   await fs.rm(tempRoot, { force: true, recursive: true });

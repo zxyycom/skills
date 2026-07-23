@@ -1,19 +1,10 @@
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { toString } from "mdast-util-to-string";
 import type {
-  InvestigationIndexEntry,
   InvestigationReportEntryProjection,
   InvestigationReportProjection,
-  ParsedInvestigationIndex,
-  ParsedInvestigationReport,
-  ScopedInvestigationError
+  ParsedInvestigationReport
 } from "./types.ts";
-
-type LinkedIndexItem = {
-  error: string | null;
-  path: string | null;
-  title: string | null;
-};
 
 type RootHeading = {
   depth: number;
@@ -21,16 +12,7 @@ type RootHeading = {
   title: string;
 };
 
-type IndexEntryDraft = {
-  fields: Array<{ label: string; line: number; value: string }>;
-  line: number;
-  path: string | null;
-  title: string | null;
-  topic: string | null;
-};
-
 const reportInfoFieldLabels = ["核心问题", "状态", "最新报告时间"] as const;
-const indexFieldLabels = ["核心问题", "状态", "最新报告时间"] as const;
 const requiredReportSectionTitles = [
   "形成时背景",
   "调查目的",
@@ -65,43 +47,6 @@ function rootHeadings(markdown: string): RootHeading[] {
   });
 }
 
-function parseLinkedIndexItem(line: string): LinkedIndexItem {
-  const tree = fromMarkdown(line);
-  const invalidItem = (): LinkedIndexItem => ({
-    error: "must contain exactly one markdown link as a top-level list item",
-    path: null,
-    title: null
-  });
-  const list = tree.children[0];
-  if (
-    tree.children.length !== 1
-    || list?.type !== "list"
-    || list.ordered !== false
-    || list.children.length !== 1
-  ) {
-    return invalidItem();
-  }
-  const listItem = list.children[0];
-  if (listItem.type !== "listItem" || listItem.children.length !== 1) {
-    return invalidItem();
-  }
-  const paragraph = listItem.children[0];
-  if (paragraph.type !== "paragraph" || paragraph.children.length !== 1) {
-    return invalidItem();
-  }
-  const link = paragraph.children[0];
-  if (link.type !== "link") {
-    return invalidItem();
-  }
-
-  const title = toString(link).trim().replace(/\s+/gu, " ");
-  if (title.length === 0) {
-    return { error: "link text must not be empty", path: link.url, title: null };
-  }
-
-  return { error: null, path: link.url.trim(), title };
-}
-
 function fieldMap(
   fields: Array<{ label: string; line: number; value: string }>,
   labels: readonly string[],
@@ -126,12 +71,13 @@ function fieldMap(
       );
       continue;
     }
-    if (field.value.trim().length === 0) {
+    const value = plainMarkdownText(field.value);
+    if (value.length === 0) {
       errors.push(`${relativePath}:${field.line} field "${field.label}" must not be empty`);
       values.set(field.label, "");
       continue;
     }
-    values.set(field.label, plainMarkdownText(field.value));
+    values.set(field.label, value);
   }
 
   for (const label of labels) {
@@ -268,6 +214,9 @@ export function parseInvestigationReport(
   if (h1.length !== 1) {
     errors.push(`${relativePath} must contain exactly one H1`);
   }
+  if (h1[0]?.title.length === 0) {
+    errors.push(`${relativePath}:${h1[0].lineIndex + 1} report H1 must not be empty`);
+  }
 
   const h2 = headings.filter((heading) => heading.depth === 2);
   if (h2.length === 0 || h2[0].title !== "调查信息") {
@@ -324,152 +273,4 @@ export function parseInvestigationReport(
   };
 
   return { errors, projection, reports };
-}
-
-export function parseInvestigationIndex(
-  markdown: string,
-  relativePath: string
-): ParsedInvestigationIndex {
-  const normalized = normalizeNewlines(markdown);
-  const lines = normalized.split("\n");
-  const errors: ScopedInvestigationError[] = [];
-  const entries: InvestigationIndexEntry[] = [];
-  const firstNonEmptyLine = lines.findIndex((line) => line.trim().length > 0);
-  const headings = rootHeadings(normalized);
-  const headingsByLine = new Map(headings.map((heading) => [heading.lineIndex, heading]));
-  const h1Lines = headings.filter((heading) => heading.depth === 1);
-  if (
-    firstNonEmptyLine < 0
-    || h1Lines[0]?.lineIndex !== firstNonEmptyLine
-    || h1Lines[0]?.title !== "调查索引"
-  ) {
-    errors.push({
-      message: `${relativePath}:1 first non-empty line must be "# 调查索引"`,
-      scope: "global"
-    });
-  }
-  if (h1Lines.length !== 1) {
-    errors.push({
-      message: `${relativePath} must contain exactly one H1`,
-      scope: "global"
-    });
-  }
-
-  let currentTopic: string | null = null;
-  let currentEntry: IndexEntryDraft | null = null;
-  const seenTopics = new Set<string>();
-
-  function scopedError(message: string, entry: IndexEntryDraft | null = currentEntry): void {
-    const topic = entry?.topic ?? currentTopic;
-    if (entry?.path !== null && entry?.path !== undefined && topic !== null) {
-      errors.push({ message, path: entry.path, scope: "report" });
-      return;
-    }
-    if (topic !== null) {
-      errors.push({ message, scope: "topic", topic });
-      return;
-    }
-    errors.push({ message, scope: "global" });
-  }
-
-  function flushEntry(): void {
-    if (currentEntry === null) {
-      return;
-    }
-    const entryErrors: string[] = [];
-    const values = fieldMap(
-      currentEntry.fields,
-      indexFieldLabels,
-      `${relativePath}:${currentEntry.line}`,
-      entryErrors
-    );
-    for (const message of entryErrors) {
-      scopedError(message, currentEntry);
-    }
-    entries.push({
-      latestReportAt: values.get("最新报告时间") ?? null,
-      line: currentEntry.line,
-      path: currentEntry.path,
-      question: values.get("核心问题") ?? null,
-      status: values.get("状态") ?? null,
-      title: currentEntry.title,
-      topic: currentEntry.topic
-    });
-    currentEntry = null;
-  }
-
-  for (let index = 0; index < lines.length; index += 1) {
-    const line = lines[index];
-    const heading = headingsByLine.get(index);
-    if (heading?.depth === 2) {
-      flushEntry();
-      currentTopic = heading.title;
-      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(currentTopic)) {
-        scopedError(`${relativePath}:${index + 1} topic heading must use kebab-case`);
-      }
-      if (seenTopics.has(currentTopic)) {
-        scopedError(`${relativePath}:${index + 1} topic heading must appear only once`);
-      }
-      seenTopics.add(currentTopic);
-      continue;
-    }
-
-    if (heading !== undefined && heading.depth >= 3) {
-      const entry = currentEntry;
-      flushEntry();
-      scopedError(
-        `${relativePath}:${index + 1} topic sections may not use nested headings`,
-        entry
-      );
-      continue;
-    }
-
-    if (line.startsWith("- ")) {
-      flushEntry();
-      const parsed = parseLinkedIndexItem(line);
-      currentEntry = {
-        fields: [],
-        line: index + 1,
-        path: parsed.path,
-        title: parsed.title,
-        topic: currentTopic
-      };
-      if (currentTopic === null) {
-        scopedError(`${relativePath}:${index + 1} index entry must be inside a topic section`);
-      }
-      if (parsed.error !== null) {
-        scopedError(`${relativePath}:${index + 1} ${parsed.error}`);
-      }
-      continue;
-    }
-
-    if (line.startsWith("  - ")) {
-      if (currentEntry === null) {
-        scopedError(`${relativePath}:${index + 1} index field has no topic file entry`);
-        continue;
-      }
-      const match = line.match(/^  - ([^:]+):\s*(.*?)\s*$/u);
-      if (match === null) {
-        scopedError(`${relativePath}:${index + 1} has invalid index field syntax`);
-        continue;
-      }
-      currentEntry.fields.push({
-        label: match[1].trim(),
-        line: index + 1,
-        value: match[2]
-      });
-      continue;
-    }
-
-    if (line.trim().length === 0 || heading?.depth === 1) {
-      continue;
-    }
-    if (currentTopic === null) {
-      continue;
-    }
-    scopedError(`${relativePath}:${index + 1} has content outside the fixed index entry structure`);
-  }
-  flushEntry();
-
-  return { entries, errors };
 }
