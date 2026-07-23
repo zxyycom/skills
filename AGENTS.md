@@ -42,8 +42,9 @@
 7. 主仓库承接跨 skill 共享的校验、打包、聚合发布、依赖入口、CI 和自动化。
 8. `docs/coding-style.md` 承接 `scripts/` 与 `tools/` 实现代码的通用质量规则; `docs/tooling.md` 承接源码层级、脚本、安装、校验、打包、CI 和发布细节; `README.md` 只保留项目入口说明。
 9. `skills/decision-records/references/decision-record-rules.md` 是决策记录格式、生命周期、历史关系和维护事务的唯一固定契约; `docs/decisions/decision-index.json` 承接本仓库全生命周期决策索引, 项目专属记录门槛由本文件承接。
-10. `AGENTS.md` 只承接项目级 agent 协作约定; skill 专属规则、编码细则、工具链细节和单条决策原因应写入各自 owner。
-11. 同一判断只在最稳定的 owner 位置完整解释; 非 owner 位置只保留摘要、触发条件或引用。
+10. `skills/investigation-report/references/investigation-report-contract.md` 是调查落盘结构和维护事务的唯一固定契约; `docs/investigations/investigation-index.json` 是由主题 Markdown 生成的通用索引投影。
+11. `AGENTS.md` 只承接项目级 agent 协作约定; skill 专属规则、编码细则、工具链细节和单条决策原因应写入各自 owner。
+12. 同一判断只在最稳定的 owner 位置完整解释; 非 owner 位置只保留摘要、触发条件或引用。
 
 ## 工作流程
 

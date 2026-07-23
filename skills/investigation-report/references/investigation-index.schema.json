@@ -1,0 +1,188 @@
+{
+  "$comment": "id、state.path、派生 keys、sourceRevision 与调查 Markdown 投影的一致性由调查报告 CLI 检查。",
+  "$defs": {
+    "keyValues": {
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "items": {
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "type": "string"
+          },
+          "maxItems": 1,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "latest-report-at": {
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 1,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "items": {
+            "enum": [
+              "调查中",
+              "暂停",
+              "已结束"
+            ],
+            "type": "string"
+          },
+          "maxItems": 1,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "text": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!\\s)(?:[^\\u0000-\\u001f\\u007f]*\\S)?$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "category",
+        "latest-report-at",
+        "status",
+        "text"
+      ],
+      "type": "object"
+    },
+    "topicPath": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*/[a-z0-9]+(?:-[a-z0-9]+)*\\.md$",
+      "type": "string"
+    },
+    "state": {
+      "additionalProperties": false,
+      "properties": {
+        "latestReportAt": {
+          "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})(Z|[+-]\\d{2}:\\d{2})$",
+          "type": "string"
+        },
+        "path": {
+          "$ref": "#/$defs/topicPath"
+        },
+        "question": {
+          "minLength": 1,
+          "pattern": "^(?!\\s)(?:[^\\u0000-\\u001f\\u007f]*\\S)?$",
+          "type": "string"
+        },
+        "reportCount": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "reportTitles": {
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!\\s)(?:[^\\u0000-\\u001f\\u007f]*\\S)?$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "status": {
+          "enum": [
+            "调查中",
+            "暂停",
+            "已结束"
+          ],
+          "type": "string"
+        },
+        "title": {
+          "minLength": 1,
+          "pattern": "^(?!\\s)(?:[^\\u0000-\\u001f\\u007f]*\\S)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "latestReportAt",
+        "path",
+        "question",
+        "reportCount",
+        "reportTitles",
+        "status",
+        "title"
+      ],
+      "type": "object"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "由调查主题 Markdown 生成的领域状态通用索引。",
+  "properties": {
+    "definitionVersion": {
+      "const": 2
+    },
+    "entries": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/topicPath"
+          },
+          "keys": {
+            "$ref": "#/$defs/keyValues"
+          },
+          "state": {
+            "$ref": "#/$defs/state"
+          }
+        },
+        "required": [
+          "id",
+          "keys",
+          "state"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "keyDefinitions": {
+      "const": [
+        {
+          "mode": "exact",
+          "name": "category"
+        },
+        {
+          "mode": "range",
+          "name": "latest-report-at"
+        },
+        {
+          "mode": "exact",
+          "name": "status"
+        },
+        {
+          "mode": "text",
+          "name": "text"
+        }
+      ]
+    },
+    "namespace": {
+      "const": "investigations"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "sourceRevision": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "definitionVersion",
+    "entries",
+    "keyDefinitions",
+    "namespace",
+    "schemaVersion",
+    "sourceRevision"
+  ],
+  "title": "Investigation Topic State Index",
+  "type": "object"
+}

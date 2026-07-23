@@ -127,7 +127,7 @@ export async function testQueries(): Promise<void> {
   });
   assert.deepEqual(
     resultValue(investigation).entries.map((entry) => entry.id),
-    ["topic:index-cost"]
+    ["index-cost/lookup-cost.md"]
   );
 
   const originalTestStates = await testEvidenceStates();

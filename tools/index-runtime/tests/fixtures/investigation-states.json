@@ -1,0 +1,27 @@
+{
+  "states": [
+    {
+      "latestReportAt": "2026-07-22T09:00:00Z",
+      "path": "index-cost/lookup-cost.md",
+      "question": "怎样降低索引快速定位成本？",
+      "reportCount": 2,
+      "reportTitles": [
+        "建立主题入口",
+        "复查主题定位成本"
+      ],
+      "status": "调查中",
+      "title": "索引定位成本调查"
+    },
+    {
+      "latestReportAt": "2026-07-19T09:00:00Z",
+      "path": "shared-id/identity-ambiguity.md",
+      "question": "精确定位是否会产生歧义？",
+      "reportCount": 1,
+      "reportTitles": [
+        "检查主题身份"
+      ],
+      "status": "暂停",
+      "title": "共享身份调查"
+    }
+  ]
+}

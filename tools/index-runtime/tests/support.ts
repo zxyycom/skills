@@ -34,13 +34,13 @@ const decisionStateSchema = v.strictObject({
   title: v.string()
 });
 const investigationStateSchema = v.strictObject({
-  id: v.string(),
-  latestAt: v.string(),
+  latestReportAt: v.string(),
   path: v.string(),
   question: v.string(),
-  status: v.string(),
-  title: v.string(),
-  topic: v.string()
+  reportCount: v.pipe(v.number(), v.integer(), v.minValue(1)),
+  reportTitles: v.pipe(v.array(v.string()), v.minLength(1)),
+  status: v.picklist(["调查中", "暂停", "已结束"]),
+  title: v.string()
 });
 const testEvidenceStateSchema = v.strictObject({
   caseId: v.string(),
@@ -67,6 +67,9 @@ const decisionFixtureSchema = v.strictObject({
   records: v.array(decisionStateSchema),
   schemaVersion: v.literal(4)
 });
+const investigationFixtureSchema = v.strictObject({
+  states: v.array(investigationStateSchema)
+});
 const testEvidenceFixtureSchema = v.strictObject({
   cases: v.array(v.strictObject({
     codePath: v.string(),
@@ -90,21 +93,13 @@ export async function decisionStates(): Promise<DecisionState[]> {
 }
 
 export async function investigationStates(): Promise<InvestigationState[]> {
-  const text = await fs.readFile(`${fixtureRoot}investigation-index.md`, "utf8");
-  const pattern = /^## ([^\r\n]+)\r?\n\r?\n- \[([^\]]+)\]\(([^)]+)\)\r?\n  - 核心问题: ([^\r\n]+)\r?\n  - 状态: ([^\r\n]+)\r?\n  - 最新报告时间: ([^\r\n]+)/gmu;
-  return [...text.matchAll(pattern)].map((match) => {
-    const [, topic, title, relativePath, question, status, latestAt] = match;
-    assert.ok(topic && title && relativePath && question && status && latestAt);
-    return {
-      id: `topic:${topic}`,
-      latestAt,
-      path: `docs/investigations/${relativePath}`,
-      question,
-      status,
-      title,
-      topic
-    };
-  });
+  return v.parse(
+    investigationFixtureSchema,
+    JSON.parse(await fs.readFile(
+      `${fixtureRoot}investigation-states.json`,
+      "utf8"
+    ))
+  ).states;
 }
 
 export async function testEvidenceStates(): Promise<TestEvidenceState[]> {
@@ -162,19 +157,26 @@ export function investigationDefinition(
   source: MemoryStateSource<InvestigationState>
 ): StateIndexDefinition<InvestigationState> {
   return defineStateIndexDefinition({
-    definitionVersion: 1,
-    identify: (state) => state.id,
+    definitionVersion: 2,
+    identify: (state) => state.path,
     keyStrategies: [
-      { derive: (state) => state.status, mode: "exact", name: "status" },
-      { derive: (state) => state.topic, mode: "exact", name: "topic" },
       {
-        derive: (state) => timestampRangeKey(state.latestAt),
-        mode: "range",
-        name: "latest-at"
+        derive: (state) => state.path.split("/", 1)[0],
+        mode: "exact",
+        name: "category"
       },
-      { derive: (state) => state.path, mode: "exact", name: "path" },
+      { derive: (state) => state.status, mode: "exact", name: "status" },
       {
-        derive: (state) => [state.title, state.question],
+        derive: (state) => timestampRangeKey(state.latestReportAt),
+        mode: "range",
+        name: "latest-report-at"
+      },
+      {
+        derive: (state) => [
+          state.title,
+          state.question,
+          ...state.reportTitles
+        ],
         mode: "text",
         name: "text"
       }
