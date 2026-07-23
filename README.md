@@ -12,6 +12,8 @@
 
 维护或查找项目文档时，从 [文档导航](docs/navigation.md) 按任务进入对应 owner。
 
+开发环境可以先运行 `node scripts/env.js check`；需要补齐工具或项目依赖时改用 `node scripts/env.js install`。完整边界见 [项目工具链](docs/tooling.md#环境自举)。
+
 当前方向覆盖 agent 协作中的几个关键环节：
 
 1. 文档如何引导 agent 理解和行动。
