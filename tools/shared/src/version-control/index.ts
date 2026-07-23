@@ -10,8 +10,7 @@ export type {
   ListVersionControlFilesOptions,
   RevisionId,
   VersionControlFile,
-  VersionControlRepository,
-  VersionControlSnapshot
+  VersionControlRepository
 } from "./types.ts";
 
 export async function openVersionControl(

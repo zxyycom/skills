@@ -69,8 +69,8 @@ Codex 工作区在 `.codex/environments/` 提供两个并列环境：
 
 1. `bun run typecheck`: 使用 `tsgo --noEmit` 和根目录 `tsconfig.json` 检查 `scripts/` 与 `tools/` 下的 TypeScript 源码和声明源，不输出编译产物。
 2. `bun run validate`: 校验 `skills/` 下全部 skill 入口、内部链接和主仓库项目配置。
-3. `bun run hash:skills`: 计算当前 Git index 中所有 skill 打包输入的聚合 SHA-256 hash 和单 skill hash，并与根目录 `skill-package-lock.json` 对比；传入 `--write` 时写回当前状态，传入 `--check` 时不一致则失败，传入 `--quiet` 时只在 hash 或 lock 内容变化时输出。
-4. `bun run pack:skills`: 读取 Git index 中 `skills/<skill-name>/` 的 blob，将每个 skill 分别打包为 `dist/<skill-name>.zip`，并把 `skill-package-lock.json` 复制为 release manifest asset。
+3. `bun run hash:skills`: 计算当前版本管理 `pending` 快照中所有 skill 打包输入的聚合 SHA-256 hash 和单 skill hash；默认 Git 实现把该快照映射到 index。命令与根目录 `skill-package-lock.json` 对比，传入 `--write` 时写回当前状态，传入 `--check` 时不一致则失败，传入 `--quiet` 时只在 hash 或 lock 内容变化时输出。
+4. `bun run pack:skills`: 读取版本管理 `pending` 快照中 `skills/<skill-name>/` 的文件内容，将每个 skill 分别打包为 `dist/<skill-name>.zip`，并把 `skill-package-lock.json` 复制为 release manifest asset。
 5. `bun run setup-hooks`: 将主仓库 `core.hooksPath` 设置为 `.githooks`。
 6. `bun run test:generated-file`: 测试生成文件共享能力，覆盖 Bun source map 的临时目录解析、仓库相对路径归一化和越界拒绝。
 7. `bun run test:decision-records-cli`: 使用独立夹具测试 `decision-records` TypeScript 源码和包内 MJS；CLI 场景默认直接调用分发模块，只用 Node 子进程证明成功与失败入口。
@@ -95,10 +95,11 @@ Codex 工作区在 `.codex/environments/` 提供两个并列环境：
 26. `bun run sync:investigation-report-check`: 从 `tools/investigation-report/` 构建并写入 `investigation-report` skill 内的 `check-investigations.mjs`、类型声明、source map 和索引 JSON Schema。
 27. `bun run check:investigation-report-check`: 在临时目录重建调查报告 CLI 和 Schema，并检查 skill 内分发产物是否与当前源码一致。
 28. `bun run test:index-runtime`: 使用决策、调查和测试证据的隔离 state fixture，验证唯一 id、多 key 策略、revision、新鲜度、运行时 state、查询、确定性文件同步和一千条及五千条规模；不读取或改写现有三个领域的索引与入口。
-29. `bun run test:version-control`: 使用隔离 Git 仓库验证版本管理中间层的提交快照、待提交快照、工作区路径、提交差异、未出生与损坏 `HEAD`、冲突 index、错误映射和 linked worktree 行为。
-30. `bun run test:change-plan-cli`: 使用临时 change 目录测试三文件结构、标题顺序、非空章节、任务语法、唯一 ID、包内导入、Node CLI、机器输出和生成追溯。
-31. `bun run sync:change-plan-cli`: 从 `tools/change-plan/` 构建并写入 `change-plan` skill 内的 `change-plan.mjs`、类型声明和 source map。
-32. `bun run check:change-plan-cli`: 在临时目录重建 change plan 检查器，并检查 skill 内分发产物是否与当前源码一致。
+29. `bun run test:version-control`: 使用隔离 Git 仓库验证版本管理中间层的修订文件、待提交文件、工作区路径、提交差异、未出生与损坏 `HEAD`、冲突 index、错误映射和 linked worktree 行为。
+30. `bun run test:skill-package-hash`: 使用隔离 Git 仓库验证 skill 发布输入来自版本管理 `pending` 快照，保持暂存文本、二进制字节、多 skill 分组和稳定排序，并排除工作区覆盖、暂存删除与未跟踪文件。
+31. `bun run test:change-plan-cli`: 使用临时 change 目录测试三文件结构、标题顺序、非空章节、任务语法、唯一 ID、包内导入、Node CLI、机器输出和生成追溯。
+32. `bun run sync:change-plan-cli`: 从 `tools/change-plan/` 构建并写入 `change-plan` skill 内的 `change-plan.mjs`、类型声明和 source map。
+33. `bun run check:change-plan-cli`: 在临时目录重建 change plan 检查器，并检查 skill 内分发产物是否与当前源码一致。
 
 需要直接排查实现时，可以用 `bun scripts/<script>.ts` 运行项目脚本，或用 `bun tools/<tool-name>/src/<entry>.ts` 运行工具源码入口。
 
@@ -120,7 +121,7 @@ Codex 工作区在 `.codex/environments/` 提供两个并列环境：
 14. Markdown 链接提取使用 `mdast-util-from-markdown` 解析 Markdown AST；脚本负责仓库路径、决策关系和项目约束校验。
 15. Markdown 内部链接目标必须是仓库内路径且目标存在；`#anchor` 必须匹配目标 Markdown 文件中的标题锚点。
 16. 决策记录的仓库内容入口直接复用 `tools/decision-records/src/`；skill 结构总校验和分发验证器直接复用 `tools/skill-validator/src/`。分发模块由逐字节生成检查、包内导入测试和 Node CLI 集成测试覆盖，避免仓库校验依赖生成文件或形成第二套规则。
-17. Skill 发布 hash 和 skill zip 都只覆盖会进入 skill zip 的文件路径和 Git blob 内容；`docs/skills/` 介绍页、项目文档、`tools/` 源码、项目脚本和 CI 变化不直接触发 skill release。工具源码变化需要先同步为 skill 内生成产物，只有分发产物发生变化时才改变对应 hash。Hash 计算和打包都读取 Git index 中的 blob，避免 Windows 与 Linux 工作区换行差异导致本地 hook、CI 和 release asset 结果不一致。根目录 `skill-package-lock.json` 是唯一发布状态文件，记录聚合 hash 和每个 skill 的独立 hash。
+17. Skill 发布 hash 和 skill zip 都只覆盖会进入 skill zip 的文件路径和版本管理 `pending` 快照内容；`docs/skills/` 介绍页、项目文档、`tools/` 源码、项目脚本和 CI 变化不直接触发 skill release。工具源码变化需要先同步为 skill 内生成产物，只有分发产物发生变化时才改变对应 hash。默认 Git 实现从 index blob 读取该快照，避免 Windows 与 Linux 工作区换行差异导致本地 hook、CI 和 release asset 结果不一致。根目录 `skill-package-lock.json` 是唯一发布状态文件，记录聚合 hash 和每个 skill 的独立 hash。
 18. 校验脚本不解析 workflow 结构, 也不通过正则检查 workflow 内部步骤; workflow 逻辑由文档约定、代码审查和 GitHub Actions 实际运行结果验证。
 19. Skill 自更新脚本的通用逻辑由 `tools/skill-updater/` 承接；`scripts/build/skill-updaters.ts` 负责按 skill 注入配置并同步产物，各 skill 包内只保留生成的 `scripts/update-skill.mjs`、`update-skill.d.mts` 和 source map。
 20. 可嵌入注释的生成模块和声明顶部必须写明禁止直接编辑、仓库链接、线上可维护源码链接、仓库内源码或声明源路径、对应 skill 源目录和重建命令；按产物用途补充 release asset 等必要入口。生成头不写时间戳、本机绝对路径或其他非确定性状态。不能嵌入注释的 JSON 等机器制品由稳定生成入口和本文件承接追溯关系。
@@ -150,10 +151,10 @@ Codex 工作区在 `.codex/environments/` 提供两个并列环境：
 
 ### 版本管理中间层
 
-1. `tools/shared/src/version-control/` 是项目内版本管理责任的集中 owner；其公共接口以仓库、修订、快照、文件和路径变化等项目语义表达版本状态，不暴露第三方 Git 对象或命令输出。
+1. `tools/shared/src/version-control/` 是项目内版本管理责任的集中 owner；其公共接口只覆盖当前消费者需要的仓库、修订文件、待提交文件和路径变化语义，不暴露第三方 Git 对象或命令输出。
 2. 默认实现使用 Git，并把具体 TypeScript Git 库限制在该目录内部；这个边界用于隔离实现变化，不承诺当前契约已经兼容 SVN 或其他版本管理系统。
 3. `revision` 快照表示已经提交的不可变版本，`pending` 快照表示准备进入下一版本的内容；Git 实现把后者映射到 index，两种语义不得互相替代。
-4. 工作区文件和工作区变化不是版本快照，通过独立查询暴露；调用方需要“上一版本是否存在某文件”时，先解析当前修订及其主父修订，再查询对应 `revision` 快照，Git 实现选择 first parent。
+4. 工作区文件和工作区变化不是版本快照，通过独立查询暴露；父修订、单文件读取等没有当前消费者的能力不进入公共契约，需要时再按真实场景补充。
 5. 新增公共操作必须来自项目内现实消费者，并保持路径校验、错误映射和结果排序在中间层内完成；不为假想后端预建 provider 注册、能力协商或降级框架。
 
 ## Skill 分发脚本

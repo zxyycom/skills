@@ -5,8 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import {
   openVersionControl,
-  VersionControlError,
-  type VersionControlSnapshot
+  VersionControlError
 } from "../src/version-control/index.ts";
 
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "version-control-test-"));
@@ -59,43 +58,27 @@ try {
   const repository = await openVersionControl(path.join(repositoryRoot, "nested"));
   assert.equal(repository.rootDirectory, path.resolve(repositoryRoot));
   assert.equal(await repository.getCurrentRevision(), currentRevision);
-  assert.equal(await repository.resolveRevision("HEAD"), currentRevision);
-  assert.equal(await repository.getParentRevision(currentRevision), baseRevision);
-  assert.equal(await repository.getParentRevision(baseRevision), null);
-
-  const baseSnapshot: VersionControlSnapshot = {
-    kind: "revision",
-    revision: baseRevision
-  };
-  const currentSnapshot: VersionControlSnapshot = {
-    kind: "revision",
-    revision: currentRevision
-  };
-  const pendingSnapshot: VersionControlSnapshot = { kind: "pending" };
-
-  assert.equal(await repository.fileExists(baseSnapshot, "docs/base-only.md"), true);
-  assert.equal(await repository.fileExists(baseSnapshot, "docs/current-only.md"), false);
-  assert.equal(
-    Buffer.from((await repository.readFile(baseSnapshot, "docs/tracked.md")) ?? [])
-      .toString("utf8"),
-    "base\n"
-  );
-  assert.equal(
-    Buffer.from((await repository.readFile(currentSnapshot, "docs/tracked.md")) ?? [])
-      .toString("utf8"),
-    "current\n"
-  );
-  assert.equal(
-    Buffer.from((await repository.readFile(pendingSnapshot, "docs/tracked.md")) ?? [])
-      .toString("utf8"),
-    "staged\n"
+  assert.deepEqual(
+    await repository.listRevisionFiles(baseRevision, { pathScopes: ["docs"] }),
+    ["docs/base-only.md", "docs/tracked.md"]
   );
   assert.deepEqual(
-    Buffer.from((await repository.readFile(pendingSnapshot, "docs/staged.bin")) ?? []),
-    stagedBinary
+    await repository.listRevisionFiles("HEAD", {
+      pathScopes: ["docs/current-only.md"]
+    }),
+    ["docs/current-only.md"]
   );
   assert.deepEqual(
-    (await repository.readFiles(pendingSnapshot, {
+    (await repository.readPendingFiles({
+      pathScopes: ["docs/tracked.md"]
+    })).map((file) => ({
+      data: Buffer.from(file.data).toString("utf8"),
+      path: file.path
+    })),
+    [{ data: "staged\n", path: "docs/tracked.md" }]
+  );
+  assert.deepEqual(
+    (await repository.readPendingFiles({
       pathScopes: ["docs/staged.bin", "docs/staged-copy.bin"]
     })).map((file) => ({
       data: Buffer.from(file.data),
@@ -112,14 +95,9 @@ try {
       }
     ]
   );
-  assert.equal(await repository.readFile(pendingSnapshot, "docs/missing.md"), null);
-
   assert.deepEqual(
-    await repository.listFiles(baseSnapshot, { pathScopes: ["docs"] }),
-    ["docs/base-only.md", "docs/tracked.md"]
-  );
-  assert.deepEqual(
-    await repository.listFiles(pendingSnapshot, { pathScopes: ["docs"] }),
+    (await repository.readPendingFiles({ pathScopes: ["docs"] }))
+      .map((file) => file.path),
     [
       "docs/base-only.md",
       "docs/current-only.md",
@@ -153,11 +131,13 @@ try {
   }), []);
 
   await assert.rejects(
-    repository.fileExists(currentSnapshot, "../outside.md"),
+    repository.listRevisionFiles(currentRevision, {
+      pathScopes: ["../outside.md"]
+    }),
     (error: unknown) => hasVersionControlCode(error, "invalid-path")
   );
   await assert.rejects(
-    repository.resolveRevision("missing-revision"),
+    repository.listRevisionFiles("missing-revision"),
     (error: unknown) => hasVersionControlCode(error, "revision-not-found")
   );
 
@@ -173,10 +153,11 @@ try {
   const linked = await openVersionControl(path.join(linkedWorktreeRoot, "nested"));
   assert.equal(linked.rootDirectory, path.resolve(linkedWorktreeRoot));
   assert.equal(await linked.getCurrentRevision(), currentRevision);
-  assert.equal(
-    Buffer.from((await linked.readFile(currentSnapshot, "docs/tracked.md")) ?? [])
-      .toString("utf8"),
-    "current\n"
+  assert.deepEqual(
+    await linked.listRevisionFiles(currentRevision, {
+      pathScopes: ["docs/tracked.md"]
+    }),
+    ["docs/tracked.md"]
   );
 
   const unbornRoot = path.join(tempRoot, "unborn");
@@ -214,7 +195,7 @@ try {
   assert.throws(() => runGit(conflictRoot, ["merge", "--quiet", "conflict-side"]));
   const conflictedRepository = await openVersionControl(conflictRoot);
   await assert.rejects(
-    conflictedRepository.readFiles({ kind: "pending" }),
+    conflictedRepository.readPendingFiles(),
     (error: unknown) => error instanceof VersionControlError
       && error.code === "operation-failed"
       && error.message.includes("resolve pending content conflicts")

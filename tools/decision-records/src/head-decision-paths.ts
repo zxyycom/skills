@@ -1,7 +1,6 @@
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
-
-const execFileAsync = promisify(execFile);
+import path from "node:path";
+import { toPosix } from "../../shared/src/node/filesystem.ts";
+import { openVersionControl } from "../../shared/src/version-control/index.ts";
 
 export type HeadDecisionPathsResult = {
   errors: string[];
@@ -12,22 +11,27 @@ export async function loadHeadDecisionPaths(
   decisionsDirectory: string
 ): Promise<HeadDecisionPathsResult> {
   try {
-    return {
-      errors: [],
-      paths: parseDecisionPaths(await runGit(decisionsDirectory, [
-        "ls-tree",
-        "-r",
-        "-z",
-        "--name-only",
-        "HEAD",
-        "--",
-        "."
-      ]))
-    };
-  } catch (error) {
-    if (await hasUnbornHead(decisionsDirectory)) {
+    const repository = await openVersionControl(decisionsDirectory);
+    const revision = await repository.getCurrentRevision();
+    if (revision === null) {
       return { errors: [], paths: new Set() };
     }
+
+    const repositoryScope = toPosix(path.relative(
+      repository.rootDirectory,
+      path.resolve(decisionsDirectory)
+    ));
+    const repositoryPaths = await repository.listRevisionFiles(
+      revision,
+      repositoryScope.length === 0
+        ? {}
+        : { pathScopes: [repositoryScope] }
+    );
+    return {
+      errors: [],
+      paths: collectDecisionPaths(repositoryPaths, repositoryScope)
+    };
+  } catch (error) {
     return {
       errors: [
         "Git HEAD decision paths are unavailable for "
@@ -40,70 +44,20 @@ export async function loadHeadDecisionPaths(
   }
 }
 
-async function hasUnbornHead(decisionsDirectory: string): Promise<boolean> {
-  try {
-    const symbolicHead = await runGit(decisionsDirectory, [
-      "symbolic-ref",
-      "-q",
-      "HEAD"
-    ]);
-    if (symbolicHead.trim().length === 0) {
-      return false;
-    }
-  } catch {
-    return false;
-  }
-
-  try {
-    await runGit(decisionsDirectory, [
-      "rev-parse",
-      "--verify",
-      "--quiet",
-      "HEAD"
-    ]);
-    return false;
-  } catch (error) {
-    return isMissingRevision(error);
-  }
-}
-
-function isMissingRevision(error: unknown): boolean {
-  if (!(error instanceof Error)) {
-    return false;
-  }
-  const processError = error as Error & {
-    code?: unknown;
-    stderr?: unknown;
-  };
-  return processError.code === 1
-    && typeof processError.stderr === "string"
-    && processError.stderr.trim().length === 0;
-}
-
-function parseDecisionPaths(output: string): Set<string> {
-  return new Set(
-    output
-      .split("\0")
-      .filter((candidate) => candidate.endsWith(".md"))
-  );
+function collectDecisionPaths(
+  repositoryPaths: readonly string[],
+  repositoryScope: string
+): Set<string> {
+  const pathPrefix = repositoryScope.length === 0
+    ? ""
+    : `${repositoryScope}/`;
+  return new Set(repositoryPaths.flatMap((candidate) => (
+    candidate.startsWith(pathPrefix) && candidate.endsWith(".md")
+      ? [candidate.slice(pathPrefix.length)]
+      : []
+  )));
 }
 
 function errorText(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
-}
-
-async function runGit(
-  workingDirectory: string,
-  args: readonly string[]
-): Promise<string> {
-  const result = await execFileAsync(
-    "git",
-    ["-C", workingDirectory, ...args],
-    {
-      encoding: "utf8",
-      maxBuffer: 16 * 1024 * 1024,
-      windowsHide: true
-    }
-  );
-  return result.stdout;
 }

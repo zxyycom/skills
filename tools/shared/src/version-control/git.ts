@@ -15,8 +15,7 @@ import type {
   ListVersionControlFilesOptions,
   RevisionId,
   VersionControlFile,
-  VersionControlRepository,
-  VersionControlSnapshot
+  VersionControlRepository
 } from "./types.ts";
 
 const gitMaxConcurrentProcesses = 4;
@@ -106,7 +105,7 @@ class GitVersionControlRepository implements VersionControlRepository {
     }
   }
 
-  async resolveRevision(revision: string): Promise<RevisionId> {
+  async #resolveRevision(revision: string): Promise<RevisionId> {
     assertRevisionInput(revision);
     try {
       return parseObjectId(await this.#git.revparse([
@@ -125,90 +124,38 @@ class GitVersionControlRepository implements VersionControlRepository {
     }
   }
 
-  async getParentRevision(revision: RevisionId): Promise<RevisionId | null> {
-    const resolved = await this.resolveRevision(revision);
-    let output: string;
-    try {
-      output = await this.#git.raw([
-        "rev-list",
-        "--parents",
-        "--max-count=1",
-        resolved
-      ]);
-    } catch {
-      throw operationError(`resolve the parent of revision ${resolved}`);
-    }
-
-    const objectIds = output.trim().split(/\s+/u);
-    if (objectIds[0] !== resolved || objectIds.some((value) => !objectIdPattern.test(value))) {
-      throw operationError(
-        `resolve the parent of revision ${resolved}`
-      );
-    }
-    return objectIds[1] ?? null;
-  }
-
-  async listFiles(
-    snapshot: VersionControlSnapshot,
+  async listRevisionFiles(
+    revision: RevisionId,
     options: ListVersionControlFilesOptions = {}
   ): Promise<string[]> {
     const pathScopes = normalizePathScopes(options.pathScopes ?? []);
-    if (snapshot.kind === "pending") {
-      return (await this.#listPendingIndexEntries(pathScopes))
-        .map((entry) => entry.path);
-    }
-
-    const revision = await this.resolveRevision(snapshot.revision);
-    return await this.#listRevisionFiles(revision, pathScopes);
-  }
-
-  async fileExists(
-    snapshot: VersionControlSnapshot,
-    repositoryPath: string
-  ): Promise<boolean> {
-    const normalizedPath = normalizeRepositoryPath(repositoryPath);
-    return (await this.listFiles(snapshot, { pathScopes: [normalizedPath] }))
-      .includes(normalizedPath);
-  }
-
-  async readFile(
-    snapshot: VersionControlSnapshot,
-    repositoryPath: string
-  ): Promise<Uint8Array | null> {
-    const normalizedPath = normalizeRepositoryPath(repositoryPath);
-    if (snapshot.kind === "pending") {
-      const entry = (await this.#listPendingIndexEntries([normalizedPath]))
-        .find((candidate) => candidate.path === normalizedPath);
-      if (entry === undefined) {
-        return null;
+    const resolvedRevision = await this.#resolveRevision(revision);
+    const pathspecs = pathScopes.map((scope) => `:(literal)${scope}`);
+    try {
+      return parseNullSeparatedPaths(await this.#git.raw([
+        "ls-tree",
+        "-r",
+        "-z",
+        "--name-only",
+        resolvedRevision,
+        "--",
+        ...pathspecs
+      ]));
+    } catch (cause) {
+      if (cause instanceof VersionControlError) {
+        throw cause;
       }
-      return (await this.#readPendingIndexEntries([entry]))[0]?.data ?? null;
+      throw operationError("list files in the revision snapshot");
     }
-
-    const revision = await this.resolveRevision(snapshot.revision);
-    if (!(await this.#listRevisionFiles(revision, [normalizedPath])).includes(normalizedPath)) {
-      return null;
-    }
-    return await this.#readRevisionFile(revision, normalizedPath);
   }
 
-  async readFiles(
-    snapshot: VersionControlSnapshot,
+  async readPendingFiles(
     options: ListVersionControlFilesOptions = {}
   ): Promise<VersionControlFile[]> {
     const pathScopes = normalizePathScopes(options.pathScopes ?? []);
-    if (snapshot.kind === "pending") {
-      return await this.#readPendingIndexEntries(
-        await this.#listPendingIndexEntries(pathScopes)
-      );
-    }
-
-    const revision = await this.resolveRevision(snapshot.revision);
-    const paths = await this.#listRevisionFiles(revision, pathScopes);
-    return await Promise.all(paths.map(async (repositoryPath) => ({
-      data: await this.#readRevisionFile(revision, repositoryPath),
-      path: repositoryPath
-    })));
+    return await this.#readPendingIndexEntries(
+      await this.#listPendingIndexEntries(pathScopes)
+    );
   }
 
   async #listPendingIndexEntries(
@@ -228,29 +175,6 @@ class GitVersionControlRepository implements VersionControlRepository {
         throw cause;
       }
       throw operationError("list files in the pending snapshot");
-    }
-  }
-
-  async #listRevisionFiles(
-    revision: RevisionId,
-    pathScopes: readonly string[]
-  ): Promise<string[]> {
-    const pathspecs = pathScopes.map((scope) => `:(literal)${scope}`);
-    try {
-      return parseNullSeparatedPaths(await this.#git.raw([
-        "ls-tree",
-        "-r",
-        "-z",
-        "--name-only",
-        revision,
-        "--",
-        ...pathspecs
-      ]));
-    } catch (cause) {
-      if (cause instanceof VersionControlError) {
-        throw cause;
-      }
-      throw operationError("list files in the revision snapshot");
     }
   }
 
@@ -286,17 +210,6 @@ class GitVersionControlRepository implements VersionControlRepository {
     });
   }
 
-  async #readRevisionFile(
-    revision: RevisionId,
-    repositoryPath: string
-  ): Promise<Uint8Array> {
-    try {
-      return await this.#git.showBuffer([`${revision}:${repositoryPath}`]);
-    } catch {
-      throw operationError(`read ${repositoryPath} from the revision snapshot`);
-    }
-  }
-
   async listWorkspaceFiles(): Promise<string[]> {
     try {
       return parseNullSeparatedPaths(await this.#git.raw([
@@ -324,10 +237,10 @@ class GitVersionControlRepository implements VersionControlRepository {
   }
 
   async listChangedPaths(options: ListChangedPathsOptions): Promise<string[]> {
-    const from = await this.resolveRevision(options.from);
+    const from = await this.#resolveRevision(options.from);
     const to = options.to === undefined
       ? await this.getCurrentRevision()
-      : await this.resolveRevision(options.to);
+      : await this.#resolveRevision(options.to);
     if (to === null) {
       throw new VersionControlError(
         "revision-not-found",
