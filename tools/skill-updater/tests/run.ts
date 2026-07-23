@@ -8,13 +8,13 @@ import { zipSync } from "fflate";
 import {
   runSkillUpdaterCli,
   skillUpdaterConfig
-} from "../../../skills/prompt-optimize/scripts/update-skill.mjs";
+} from "../../../skills/ai-ready-docs/scripts/update-skill.mjs";
 import { pathExists } from "../../shared/src/node/filesystem.ts";
 import { calculateSkillPackageFingerprint } from "../../skill-package/src/fingerprint.ts";
 
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(testsDirectory, "../../..");
-const skillName = "prompt-optimize";
+const skillName = "ai-ready-docs";
 const generatedUpdaterPath = path.join(
   rootDir,
   "skills",
@@ -131,7 +131,7 @@ try {
 
   const remoteFiles = [
     {
-      data: Buffer.from("# Updated prompt optimizer\n", "utf8"),
+      data: Buffer.from("# Updated AI-ready docs\n", "utf8"),
       path: "SKILL.md"
     },
     {
@@ -167,7 +167,7 @@ try {
   assert.match(success.stdout, /Updated skill successfully\./);
   assert.equal(
     await fs.readFile(path.join(successTarget, "SKILL.md"), "utf8"),
-    "# Updated prompt optimizer\n"
+    "# Updated AI-ready docs\n"
   );
   assert.equal(await pathExists(path.join(successTarget, "stale.md")), false);
 

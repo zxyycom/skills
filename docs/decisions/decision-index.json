@@ -2,6 +2,31 @@
   "definitionVersion": 1,
   "entries": [
     {
+      "id": "ai-ready-docs-behavior/use-ai-ready-docs-identity.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "ai-ready-docs-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "prompt-optimize 缩窄了处理对象，而对称的人机共读定位又弱化了 AI 阅读优化这一核心。",
+        "createdAt": "2026-07-23T07:37:02Z",
+        "decision": "将既有 skill 重命名为 ai-ready-docs，以 AI 的准确阅读、理解和使用为主目标，人类可维护性作为次级约束。",
+        "path": "ai-ready-docs-behavior/use-ai-ready-docs-identity.md",
+        "purpose": "让 skill 的稳定身份和入口承诺准确表达把文档优化到 AI-ready 状态的能力。",
+        "relations": [],
+        "status": "active",
+        "title": "使用 ai-ready-docs 作为文档 AI 阅读优化能力的稳定身份"
+      }
+    },
+    {
       "id": "change-plan-behavior/use-independent-change-plans.md",
       "keys": {
         "alignment": [
@@ -3026,5 +3051,5 @@
   ],
   "namespace": "decisions",
   "schemaVersion": 1,
-  "sourceRevision": "sha256:a9aef9347e435d4b26d4dfe6091e63ae9579af1197eac81b637ec7a093d36b4f"
+  "sourceRevision": "sha256:fd3690f7fa420f39bc877506cdb4fb998de62075b7f730c6afbaa669a2f05792"
 }

@@ -26,7 +26,7 @@
 
 #### 调查范围与依据
 
-本轮检查了当时的 [`skills/prompt-optimize/SKILL.md`](../../../skills/prompt-optimize/SKILL.md)、[`docs/skills/prompt-optimize.md`](../../skills/prompt-optimize.md)、[`skills/skill-maintainer/SKILL.md`](../../../skills/skill-maintainer/SKILL.md) 和 [`docs/repository-model.md`](../../repository-model.md)，并结合使用者提供的显式调用与 agent 主动触发场景比较候选名称。调查依据限于这些仓库材料和使用经验，没有收集系统化正反触发样本，也没有验证候选名称的实际发现率或迁移成本；形成时未记录对应仓库 commit 或工作区 diff，本报告本身不能确定精确材料快照。
+本轮检查了当时的 [`skills/prompt-optimize/SKILL.md`](../../../skills/ai-ready-docs/SKILL.md)、[`docs/skills/prompt-optimize.md`](../../skills/ai-ready-docs.md)、[`skills/skill-maintainer/SKILL.md`](../../../skills/skill-maintainer/SKILL.md) 和 [`docs/repository-model.md`](../../repository-model.md)，并结合使用者提供的显式调用与 agent 主动触发场景比较候选名称。调查依据限于这些仓库材料和使用经验，没有收集系统化正反触发样本，也没有验证候选名称的实际发现率或迁移成本；形成时未记录对应仓库 commit 或工作区 diff，本报告本身不能确定精确材料快照。
 
 #### 调查结果与边界
 
@@ -51,8 +51,8 @@
 
 #### 证据
 
-1. [`skills/prompt-optimize/SKILL.md`](../../../skills/prompt-optimize/SKILL.md) 直接列出 prompt、规则、任务、需求、模板、工作流、技能说明和 agent 指令，并将生成前规划、改写、审阅和方案设计纳入同一执行流程。这证明实际能力不能只按狭义 prompt 优化理解。
-2. [`docs/skills/prompt-optimize.md`](../../skills/prompt-optimize.md) 将该能力解释为面向 agent 协作的文档优化方法，并明确文档同时服务人类理解与 agent 执行。这支持以共享工作文档或协作接口理解最终产物。
+1. [`skills/prompt-optimize/SKILL.md`](../../../skills/ai-ready-docs/SKILL.md) 直接列出 prompt、规则、任务、需求、模板、工作流、技能说明和 agent 指令，并将生成前规划、改写、审阅和方案设计纳入同一执行流程。这证明实际能力不能只按狭义 prompt 优化理解。
+2. [`docs/skills/prompt-optimize.md`](../../skills/ai-ready-docs.md) 将该能力解释为面向 agent 协作的文档优化方法，并明确文档同时服务人类理解与 agent 执行。这支持以共享工作文档或协作接口理解最终产物。
 3. [`skills/skill-maintainer/SKILL.md`](../../../skills/skill-maintainer/SKILL.md) 区分了 `name` 的稳定身份责任和 `description` 的能力与使用时机责任。这支持将人类记忆与 agent 语义触发分别设计，而不是要求名称独自承担所有触发条件。
 4. [`docs/repository-model.md`](../../repository-model.md) 说明每个 skill 独立生成制品并拥有自更新路径。这证明重命名不仅是展示文字变化，还需要考虑分发身份与既有安装的迁移。
 5. 本次使用者场景说明提供了当前最关键的行为证据：人类显式调用更频繁，但 agent 主动触发不能放弃；agent 通常从正在处理的对象和发现的问题出发，不会先把文档识别成“引导自己行动的文本”。该证据来自实际使用经验，目前尚未通过系统化样本回归验证。
