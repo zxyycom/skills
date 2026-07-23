@@ -10,7 +10,7 @@
 | 使用或审阅某个 skill | `skills/<skill-name>/SKILL.md` | 该入口按读取策略指向的 `references/`、`scripts/` 或其他材料；对应 `docs/skills/<skill-name>.md` |
 | 创建、显著扩展或大幅重构 skill | [Skill Maintainer](../skills/skill-maintainer/SKILL.md)、已有目标 skill 的 `SKILL.md` | 真实流程、关键判断、约束或验收仍隐含或冲突时读 [Skill Design Discovery](../skills/skill-design-discovery/SKILL.md)；涉及通用分发边界时读 [仓库模型](repository-model.md) |
 | 调整仓库定位、skill 选择方式或通用分发边界 | [仓库模型](repository-model.md) | 涉及具体打包、发布或 updater 机制时读 [项目工具链](tooling.md)；只影响特定 skill 时读其行为 owner |
-| 修改项目级 agent 协作约定 | [AGENTS](../AGENTS.md) | 改变文档路由或 owner 时读本文；需要结构化改写时读 [Prompt Optimize](../skills/prompt-optimize/SKILL.md) |
+| 修改项目级 agent 协作约定 | [AGENTS](../AGENTS.md) | 改变文档路由或 owner 时读本文；需要让文档更适合 AI 阅读和使用时读 [AI-Ready Docs](../skills/ai-ready-docs/SKILL.md) |
 | 修改工具源码、项目脚本、校验、打包、CI 或 updater | [项目工具链](tooling.md)、[编码规范](coding-style.md) | 修改 `tools/<tool-name>/` 时按需补读对应 skill 的行为 owner；改变通用分发边界时读 [仓库模型](repository-model.md) |
 | 恢复、审阅或维护长期决策 | [决策索引](decisions/decision-index.json)、[Decision Records](../skills/decision-records/SKILL.md) | 相关决策 Markdown；写入或结构审阅前按 skill 读取固定契约 |
 | 创建、更新或审阅调查报告 | [调查索引](investigations/investigation-index.json)、[Investigation Report](../skills/investigation-report/SKILL.md) | 相关调查报告；创建、更新、拆分或结构审阅前按 skill 读取固定契约 |

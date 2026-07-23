@@ -3,7 +3,7 @@
  * Repository: https://github.com/zxyycom/skills
  * Maintained source: https://github.com/zxyycom/skills/blob/main/tools/skill-updater/api/update-skill.d.mts
  * Source path: tools/skill-updater/api/update-skill.d.mts
- * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/prompt-optimize
+ * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/ai-ready-docs
  * Rebuild: bun run sync:skill-updaters
  */
 export type UpdaterConfig = {

@@ -21,6 +21,6 @@
 
 它与 `product-architecture-judgment` 的出口不同：后者判断事情是否值得做、应做到什么程度、由谁在哪一层实现；本 skill 在跨场景统一已经成为具体设计任务时, 深入形成共享契约和变体边界。两者不构成安装依赖。
 
-它也不接管 skill 或提示词维护：`skill-design-discovery` 恢复待设计 skill 的真实工作流与验证义务, `skill-maintainer` 判断能力 owner 和分发边界, `prompt-optimize` 优化结构化文本。上述任务内部遇到“多个场景是否真正共享一个契约”时可以采用本方法, 但四项能力保持各自独立, 不形成安装依赖。
+它也不接管 skill 设计或文档 AI 阅读优化：`skill-design-discovery` 恢复待设计 skill 的真实工作流与验证义务, `skill-maintainer` 判断能力 owner 和分发边界, `ai-ready-docs` 将文档优化到适合 AI 阅读、理解和使用的状态, 并保持人类可维护性。上述任务内部遇到“多个场景是否真正共享一个契约”时可以采用本方法, 但四项能力保持各自独立, 不形成安装依赖。
 
 实际 skill 位于 [`skills/common-denominator-design/`](../../skills/common-denominator-design/)。
