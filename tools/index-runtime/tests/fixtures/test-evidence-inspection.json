@@ -1,0 +1,30 @@
+{
+  "cases": [
+    {
+      "id": "state-query",
+      "title": "State index query contract",
+      "status": "active",
+      "verification": "automated",
+      "contract": ["state key queries return deterministic results"],
+      "proves": ["filters pagination and snippets"],
+      "line": 42,
+      "codePath": "docs/testing/cases.md",
+      "trigger": {
+        "caseId": "state-query",
+        "paths": ["tools/index-runtime/src/query.ts"],
+        "reasons": ["query implementation changed"]
+      }
+    },
+    {
+      "id": "read-error",
+      "title": "State source read failure",
+      "status": "active",
+      "verification": "review",
+      "contract": ["state source failures remain actionable"],
+      "proves": ["state collection may fail before index synchronization"],
+      "line": 70,
+      "codePath": "docs/testing/cases.md",
+      "trigger": null
+    }
+  ]
+}

@@ -14,6 +14,7 @@
     "test:decision-records-cli": "bun tools/decision-records/tests/run.ts",
     "test:check": "bun scripts/check.test.ts",
     "test:generated-file": "bun scripts/lib/generated-file.test.ts",
+    "test:index-runtime": "bun tools/index-runtime/tests/run.ts",
     "test:version-control": "bun tools/shared/tests/version-control.test.ts",
     "test:investigation-report-check": "bun tools/investigation-report/tests/run.ts",
     "test:skill-validator": "bun tools/skill-validator/tests/run.ts",

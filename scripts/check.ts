@@ -15,6 +15,7 @@ const preflightTasks = [
   "test:test-evidence-cli",
   "test:change-plan-cli",
   "test:decision-records-cli",
+  "test:index-runtime",
   "check:test-evidence-fixture",
   "test:skill-validator",
   "test:investigation-report-check",

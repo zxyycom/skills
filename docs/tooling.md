@@ -63,10 +63,11 @@
 25. `bun run check:investigations`: 使用 `tools/investigation-report/src/` 的当前实现严格检查本仓库调查索引和全部主题文件；由完整检查编排时再按运行模式决定是否阻断。
 26. `bun run sync:investigation-report-check`: 从 `tools/investigation-report/` 构建并写入 `investigation-report` skill 内的 `check-investigations.mjs`、类型声明和 source map。
 27. `bun run check:investigation-report-check`: 在临时目录重建调查报告检查器，并检查 skill 内分发产物是否与当前源码一致。
-28. `bun run test:version-control`: 使用隔离 Git 仓库验证版本管理中间层的提交快照、待提交快照、工作区路径、提交差异、未出生与损坏 `HEAD`、冲突 index、错误映射和 linked worktree 行为。
-29. `bun run test:change-plan-cli`: 使用临时 change 目录测试三文件结构、标题顺序、非空章节、任务语法、唯一 ID、包内导入、Node CLI、机器输出和生成追溯。
-30. `bun run sync:change-plan-cli`: 从 `tools/change-plan/` 构建并写入 `change-plan` skill 内的 `change-plan.mjs`、类型声明和 source map。
-31. `bun run check:change-plan-cli`: 在临时目录重建 change plan 检查器，并检查 skill 内分发产物是否与当前源码一致。
+28. `bun run test:index-runtime`: 使用决策、调查和测试证据的隔离 state fixture，验证唯一 id、多 key 策略、revision、新鲜度、运行时 state、查询、确定性文件同步和一千条及五千条规模；不读取或改写现有三个领域的索引与入口。
+29. `bun run test:version-control`: 使用隔离 Git 仓库验证版本管理中间层的提交快照、待提交快照、工作区路径、提交差异、未出生与损坏 `HEAD`、冲突 index、错误映射和 linked worktree 行为。
+30. `bun run test:change-plan-cli`: 使用临时 change 目录测试三文件结构、标题顺序、非空章节、任务语法、唯一 ID、包内导入、Node CLI、机器输出和生成追溯。
+31. `bun run sync:change-plan-cli`: 从 `tools/change-plan/` 构建并写入 `change-plan` skill 内的 `change-plan.mjs`、类型声明和 source map。
+32. `bun run check:change-plan-cli`: 在临时目录重建 change plan 检查器，并检查 skill 内分发产物是否与当前源码一致。
 
 需要直接排查实现时，可以用 `bun scripts/<script>.ts` 运行项目脚本，或用 `bun tools/<tool-name>/src/<entry>.ts` 运行工具源码入口。
 
@@ -101,6 +102,19 @@
 4. 具体工具的 `src/` 只能依赖自身源码、`tools/shared/src/`、`tools/skill-package/src/`、目标运行时和显式外部依赖；不能依赖 `scripts/`、`skills/`、`dist/` 或另一个具体工具。
 5. `tools/shared/` 不依赖其他工具；`tools/skill-package/` 只依赖自身和 `tools/shared/`。
 6. 源码共享不改变分发单元边界。构建器把被消费的共享源码内联进目标自包含 MJS，因此不同 skill 可以共享一份维护源码而不产生跨 skill 运行时前置条件。
+
+`index-runtime` 的维护入口：
+
+1. 源码：`tools/index-runtime/src/`。
+2. 公共入口：`tools/index-runtime/src/index.ts`；Valibot Schema 是索引文件、原始 state 条目、key 定义和查询输入的结构真源。
+3. 领域定义：领域提供 `namespace`、`definitionVersion`、同步 `parseState`、state 与 revision 读取、稳定唯一 id 和 `exact|range|text` key 策略。`parseState` 复用领域已有 parser，并拥有领域字段与元数据校验；它必须确定性地接受自身输出，id 和 key 策略也只对解析后的 state 执行确定性纯计算。parser 产出或 id、key 的名称、模式和含义变化时提升 `definitionVersion`，不改变投影的实现重构和普通源内容变化不提升该版本。
+4. 索引条目：通用层只保存 `id`、JSON `state` 和派生 `keys`。id 必须唯一；key 可以重复或一对多。无领域定义的底层加载和查询返回原始 JSON state；传入定义或使用领域 runtime 时，通用层重新解析 state、核对 id 与 keys，并返回对应领域 state 类型。
+5. 查询：filter 只使用 id 或已声明 key，支持 exact all/any/none、range 比较、text all/any、存在性、多字段排序和带上限的 offset/limit。`range` 数值按数值顺序比较，字符串按固定字典序比较；时间等具有领域顺序的值先由 key 策略转换为 epoch 数值或其他保持真实顺序的标量。参与排序的 key 在每条命中 state 上最多有一个值。
+6. 新鲜度：`read` 返回同一时点的完整 `{ revision, states }`，`readRevision` 返回当前 revision；同一 `definitionVersion` 下，revision 相等必须保证重新读取会产生相同的完整 state 投影。任何可能改变索引成员、state、id 或 keys 的源变化都必须改变 revision，不影响投影的变化也可以保守地产生新 revision。具体低成本算法仍由领域 owner 负责，通用层不推断 Git 或文件状态。
+7. 写入：`syncStateIndex` 从完整 state 快照检查或确定性重建 JSON，写入前再次核对 revision，在仓库根目录边界内原子替换并读回验证，不写领域源。领域 writer 完成事实写入后调用完整同步，并负责避免源写入与同步事务互相穿插。索引只提供完整同步；增量协议必须由接入后的领域证据和独立长期决策触发。
+8. 动态 state：查询可以接收使用同一定义产生的完整 runtime state；同 id 临时替换静态条目，新 id 临时追加，磁盘索引保持不变。
+9. 确定性：索引不保存生成时间；对象键、key 定义、key 值和条目使用与区域设置无关的固定全序，领域 state 中数组保持原顺序。
+10. 测试与接入：`tools/index-runtime/tests/run.ts` 覆盖三个领域外形、parser 边界、revision 一致性、运行时 state、查询和确定性同步，并保留 Node/Bun 下的一千条及五千条规模证据；这些测量不定义持续性能 SLO，领域 reader 的端到端成本在各自接入时验证。该工具在接入前不是其他具体工具的允许依赖；后续构建器必须把共享源码内联进目标 skill 的自包含分发脚本。
 
 ### 版本管理中间层
 

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 4,
+  "records": [
+    {
+      "path": "architecture/use-shared-cache.md",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-07-20T10:00:00Z",
+      "title": "采用共享缓存策略",
+      "purpose": "降低索引查询成本并保持事实源权威。",
+      "background": "多个调用方重复扫描长期决策。",
+      "decision": "使用可重建投影承担低成本查询。",
+      "relations": []
+    },
+    {
+      "path": "architecture/shared-id.md",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-07-21T10:00:00Z",
+      "title": "共享身份决策",
+      "purpose": "验证重复查询 key 不会破坏唯一 state id。",
+      "background": "不同 state 可能产生相同的领域查询值。",
+      "decision": "把稳定唯一 id 与可重复的查询 key 分开。",
+      "relations": []
+    }
+  ]
+}
