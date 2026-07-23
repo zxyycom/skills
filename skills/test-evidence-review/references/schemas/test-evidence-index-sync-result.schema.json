@@ -1,0 +1,129 @@
+{
+  "type": "object",
+  "properties": {
+    "catalogPath": {
+      "type": "string",
+      "minLength": 1
+    },
+    "changed": {
+      "type": "boolean"
+    },
+    "diagnostics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "blocking": {
+            "type": "boolean"
+          },
+          "caseId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "enum": [
+              "catalog",
+              "config",
+              "discovery",
+              "git",
+              "index",
+              "inventory",
+              "mapping",
+              "review"
+            ],
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "column": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "detectorId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "enum": [
+              "error",
+              "warning"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "blocking",
+          "category",
+          "code",
+          "message",
+          "severity"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "indexPath": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "enum": [
+        "check",
+        "write"
+      ],
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": 3
+    },
+    "state": {
+      "enum": [
+        "current",
+        "unchanged",
+        "written",
+        "index-invalid",
+        "index-missing",
+        "index-path-invalid",
+        "index-read-failed",
+        "index-stale",
+        "index-write-failed",
+        "source-invalid"
+      ],
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "ok",
+        "error"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "catalogPath",
+    "changed",
+    "diagnostics",
+    "indexPath",
+    "mode",
+    "schemaVersion",
+    "state",
+    "status"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/zxyycom/skills/main/skills/test-evidence-review/references/schemas/test-evidence-index-sync-result.schema.json",
+  "title": "TestEvidenceIndexSyncResult"
+}

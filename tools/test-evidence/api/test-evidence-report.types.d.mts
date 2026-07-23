@@ -10,7 +10,14 @@ export interface TestEvidenceReport {
     blocking: boolean;
     caseId?: string;
     category:
-      "catalog" | "config" | "discovery" | "git" | "inventory" | "mapping" | "review";
+      | "catalog"
+      | "config"
+      | "discovery"
+      | "git"
+      | "index"
+      | "inventory"
+      | "mapping"
+      | "review";
     code: string;
     column?: number;
     detectorId?: string;
@@ -24,7 +31,7 @@ export interface TestEvidenceReport {
     paths: string[];
     reasons: string[];
   }[];
-  schemaVersion: 2;
+  schemaVersion: 3;
   summary: {
     activeAutomatedCases: number;
     catalogCases: number;

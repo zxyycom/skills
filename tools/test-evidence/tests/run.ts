@@ -11,13 +11,17 @@ import {
 } from "../../../skills/test-evidence-review/scripts/test-entry-regex.mjs";
 import {
   inspectTestEvidenceLedger as inspectBundledTestEvidenceLedger,
+  queryTestEvidenceLedger as queryBundledTestEvidenceLedger,
+  showTestEvidenceCase as showBundledTestEvidenceCase,
+  syncTestEvidenceIndex as syncBundledTestEvidenceIndex,
   runTestEvidenceLedgerCli,
   validateTestEvidenceLedger as validateBundledTestEvidenceLedger
 } from "../../../skills/test-evidence-review/scripts/test-evidence-ledger.mjs";
 import { formatTestEvidenceCliOutput } from "../src/cli-output.ts";
 import {
   testEvidenceQueryResultSchema,
-  testEvidenceReportSchema
+  testEvidenceReportSchema,
+  testEvidenceStateIndexSchema
 } from "../src/schemas.ts";
 import { runRegexCollectorTests } from "./discovery.test.ts";
 
@@ -67,7 +71,7 @@ try {
 
   validationTasks.push(validationGate.promise.then(async () => {
     const valid = await validateCollectedTestEvidence({ workspaceRoot });
-    assert.equal(valid.schemaVersion, 2);
+    assert.equal(valid.schemaVersion, 3);
     assert.deepEqual(valid.diagnostics, []);
     assert.equal("errors" in valid, false);
     assert.equal("warnings" in valid, false);
@@ -89,8 +93,21 @@ try {
     });
 
     const inspection = await inspectCollectedTestEvidence({ workspaceRoot });
-    assert.equal(inspection.schemaVersion, 2);
+    assert.equal(inspection.schemaVersion, 3);
     assert.equal(inspection.catalogAvailable, true);
+    assert.equal(inspection.indexCurrent, true);
+    assert.equal(
+      inspection.indexPath,
+      "docs/testing/test-evidence-index.json"
+    );
+    const persistedIndex = JSON.parse(await fs.readFile(
+      path.join(workspaceRoot, ...inspection.indexPath.split("/")),
+      "utf8"
+    ));
+    assert.equal(
+      v.safeParse(testEvidenceStateIndexSchema, persistedIndex).success,
+      true
+    );
     assert.equal(inspection.cases.length, 4);
     assert.equal(inspection.sourceEntries.length, 4);
     const automated = inspection.cases.find(
@@ -134,6 +151,42 @@ try {
     });
     assert.deepEqual(direct.diagnostics, []);
     assert.equal(direct.summary.discoveredTestEntries, 4);
+
+    const queried = await queryBundledTestEvidenceLedger({
+      limit: 1,
+      offset: 1,
+      workspaceRoot
+    });
+    assert.equal(queried.total, 4);
+    assert.equal(queried.cases.length, 1);
+    assert.equal("contract" in queried.cases[0]!, false);
+    const searched = await queryBundledTestEvidenceLedger({
+      query: "calc identity",
+      workspaceRoot
+    });
+    assert.deepEqual(
+      searched.cases.map((entry) => entry.id),
+      ["WB-CALC-ADD-001"]
+    );
+    const invalidQuery = await queryBundledTestEvidenceLedger({
+      query: "   ",
+      workspaceRoot
+    });
+    assert.equal(invalidQuery.incomplete, true);
+    assert.ok(invalidQuery.diagnostics.some((diagnostic) => (
+      diagnostic.code === "query.text-invalid" && diagnostic.blocking
+    )));
+
+    const shown = await showBundledTestEvidenceCase({
+      caseId: "WB-CALC-ADD-001",
+      workspaceRoot
+    });
+    assert.equal(shown.case?.id, "WB-CALC-ADD-001");
+    assert.match(shown.markdown ?? "", /Proves:/u);
+    assert.equal(
+      shown.markdown?.includes("WB-CALC-FUTURE-001") ?? true,
+      false
+    );
 
     const malformed = await validateBundledTestEvidenceLedger({
       inventory: { schemaVersion: 1 },
@@ -189,7 +242,7 @@ try {
       diagnostics: unknown[];
       schemaVersion: number;
     };
-    assert.equal(report.schemaVersion, 2);
+    assert.equal(report.schemaVersion, 3);
     assert.deepEqual(report.diagnostics, []);
 
     const stdinChecked = spawnSync(
@@ -235,7 +288,7 @@ try {
     });
     assert.ok(report.diagnostics.some((diagnostic) =>
       diagnostic.code === "config.schema-invalid"
-      && diagnostic.message.includes("Expected 3 but received 2")
+      && diagnostic.message.includes("Expected 4 but received 2")
       && diagnostic.blocking
     ));
     const inventoryPath = await writeCollectedInventory(v2ConfigRoot, "v2-config");
@@ -284,7 +337,7 @@ try {
       reviewTriggers: unknown[];
       schemaVersion: number;
     };
-    assert.equal(cliReport.schemaVersion, 2);
+    assert.equal(cliReport.schemaVersion, 3);
     assert.deepEqual(cliReport.diagnostics, []);
     assert.deepEqual(cliReport.reviewTriggers, []);
   }));
@@ -294,8 +347,6 @@ try {
       [
         generatedLedgerPath,
         "list",
-        "--inventory",
-        validInventoryPath,
         "--root",
         workspaceRoot,
         "--json"
@@ -306,19 +357,99 @@ try {
       }
     );
     assert.equal(listed.stderr, "");
-    const listResult = JSON.parse(listed.stdout) as {
-      cases: Array<{ id: string; sourceMarkers: unknown[] }>;
-      incomplete: boolean;
-      schemaVersion: number;
-    };
-    assert.equal(listResult.schemaVersion, 2);
+    const listResult = v.parse(
+      testEvidenceQueryResultSchema,
+      JSON.parse(listed.stdout)
+    );
+    assert.equal(listResult.schemaVersion, 3);
+    assert.equal(listResult.catalogPath, "docs/testing/cases.md");
+    assert.equal(
+      listResult.indexPath,
+      "docs/testing/test-evidence-index.json"
+    );
     assert.equal(listResult.incomplete, false);
     assert.equal(listResult.cases.length, 4);
-    assert.equal(
-      listResult.cases.find((entry) => entry.id === "WB-CALC-ADD-001")
-        ?.sourceMarkers.length,
-      3
+    assert.equal(listResult.total, 4);
+    assert.equal(listResult.offset, 0);
+    assert.equal(listResult.limit, 20);
+    const indexedAutomated = listResult.cases.find(
+      (entry) => entry.id === "WB-CALC-ADD-001"
     );
+    assert.equal(
+      indexedAutomated?.summary,
+      "Addition returns the mathematical sum and preserves the additive identity."
+    );
+    assert.equal(indexedAutomated !== undefined && "contract" in indexedAutomated, false);
+    assert.equal(indexedAutomated !== undefined && "proves" in indexedAutomated, false);
+    assert.equal(indexedAutomated !== undefined && "sourceMarkers" in indexedAutomated, false);
+
+    const searched = await execFileAsync(
+      "node",
+      [
+        generatedLedgerPath,
+        "list",
+        "--query",
+        "child cleanup",
+        "--root",
+        workspaceRoot,
+        "--json"
+      ],
+      { encoding: "utf8", windowsHide: true }
+    );
+    assert.deepEqual(
+      (JSON.parse(searched.stdout) as {
+        cases: Array<{ id: string }>;
+      }).cases.map((entry) => entry.id),
+      ["RV-PROCESS-CLEANUP-001"]
+    );
+
+    const filtered = await execFileAsync(
+      "node",
+      [
+        generatedLedgerPath,
+        "list",
+        "--status",
+        "planned",
+        "--verification",
+        "automated",
+        "--root",
+        workspaceRoot,
+        "--json"
+      ],
+      { encoding: "utf8", windowsHide: true }
+    );
+    assert.deepEqual(
+      (JSON.parse(filtered.stdout) as {
+        cases: Array<{ id: string }>;
+      }).cases.map((entry) => entry.id),
+      ["WB-CALC-FUTURE-001"]
+    );
+
+    const paged = await execFileAsync(
+      "node",
+      [
+        generatedLedgerPath,
+        "list",
+        "--limit",
+        "2",
+        "--offset",
+        "1",
+        "--root",
+        workspaceRoot,
+        "--json"
+      ],
+      { encoding: "utf8", windowsHide: true }
+    );
+    const page = JSON.parse(paged.stdout) as {
+      cases: Array<{ id: string }>;
+      limit: number;
+      offset: number;
+      total: number;
+    };
+    assert.equal(page.limit, 2);
+    assert.equal(page.offset, 1);
+    assert.equal(page.total, 4);
+    assert.equal(page.cases.length, 2);
 
     const shown = await execFileAsync(
       "node",
@@ -326,8 +457,6 @@ try {
         generatedLedgerPath,
         "show",
         "RV-PROCESS-CLEANUP-001",
-        "--inventory",
-        validInventoryPath,
         "--root",
         workspaceRoot
       ],
@@ -341,6 +470,86 @@ try {
     assert.match(shown.stdout, /Catalog: docs\/testing\/cases\.md:\d+/u);
     assert.match(shown.stdout, /Review:/u);
     assert.match(shown.stdout, /Confirm every failure path terminates the child process/u);
+    assert.equal(shown.stdout.includes("EX-GENERATED-FIXTURE-001"), false);
+  }));
+
+  const staleIndexRoot = materializeWorkspace(
+    fixtureRepositoryPath,
+    "stale-index"
+  );
+  const staleCatalogPath = path.join(
+    staleIndexRoot,
+    "docs/testing/cases.md"
+  );
+  await fs.writeFile(
+    staleCatalogPath,
+    (await fs.readFile(staleCatalogPath, "utf8")).replace(
+      "Addition remains observable",
+      "Addition remains observably indexed"
+    ),
+    "utf8"
+  );
+  validationTasks.push(validationGate.promise.then(async () => {
+    const staleQuery = spawnSync(
+      "node",
+      [
+        generatedLedgerPath,
+        "list",
+        "--root",
+        staleIndexRoot,
+        "--json"
+      ],
+      { encoding: "utf8", windowsHide: true }
+    );
+    assert.equal(staleQuery.status, 1);
+    assert.ok(
+      (JSON.parse(staleQuery.stdout) as {
+        diagnostics: Array<{ code: string }>;
+      }).diagnostics.some((entry) => entry.code === "state-index.index-stale")
+    );
+
+    const syncCheck = spawnSync(
+      "node",
+      [generatedLedgerPath, "sync-index", "--root", staleIndexRoot, "--json"],
+      { encoding: "utf8", windowsHide: true }
+    );
+    assert.equal(syncCheck.status, 1);
+    assert.equal(
+      (JSON.parse(syncCheck.stdout) as { state: string }).state,
+      "index-stale"
+    );
+
+    const synchronized = await execFileAsync(
+      "node",
+      [
+        generatedLedgerPath,
+        "sync-index",
+        "--write",
+        "--root",
+        staleIndexRoot,
+        "--json"
+      ],
+      { encoding: "utf8", windowsHide: true }
+    );
+    const syncResult = JSON.parse(synchronized.stdout) as {
+      schemaVersion: number;
+      state: string;
+    };
+    assert.equal(syncResult.schemaVersion, 3);
+    assert.equal(syncResult.state, "written");
+
+    const refreshed = await execFileAsync(
+      "node",
+      [
+        generatedLedgerPath,
+        "show",
+        "WB-CALC-ADD-001",
+        "--root",
+        staleIndexRoot
+      ],
+      { encoding: "utf8", windowsHide: true }
+    );
+    assert.match(refreshed.stdout, /Addition remains observably indexed/u);
   }));
 
   const dirtyReviewRoot = materializeWorkspace(
@@ -376,17 +585,11 @@ try {
     assert.equal(reviewDiagnostic?.caseId, "RV-PROCESS-CLEANUP-001");
   }));
   validationTasks.push(validationGate.promise.then(async () => {
-    const inventoryPath = await writeCollectedInventory(
-      dirtyReviewRoot,
-      "dirty-review"
-    );
     const triggered = await execFileAsync(
       "node",
       [
         generatedLedgerPath,
         "list",
-        "--inventory",
-        inventoryPath,
         "--triggered",
         "--root",
         dirtyReviewRoot,
@@ -399,17 +602,41 @@ try {
     );
     assert.equal(triggered.stderr, "");
     const result = JSON.parse(triggered.stdout) as {
-      cases: Array<{ id: string }>;
+      cases: Array<{
+        id: string;
+        trigger: { paths: string[]; reasons: string[] } | null;
+      }>;
+      diagnostics: unknown[];
       incomplete: boolean;
-      reviewTriggers: Array<{ caseId: string }>;
     };
-    assert.equal(result.incomplete, true);
+    assert.equal(result.incomplete, false);
+    assert.deepEqual(result.diagnostics, []);
     assert.deepEqual(result.cases.map((entry) => entry.id), [
       "RV-PROCESS-CLEANUP-001"
     ]);
-    assert.deepEqual(result.reviewTriggers.map((entry) => entry.caseId), [
-      "RV-PROCESS-CLEANUP-001"
-    ]);
+    assert.deepEqual(result.cases[0]?.trigger, {
+      caseId: "RV-PROCESS-CLEANUP-001",
+      paths: ["src/process/worker.ts"],
+      reasons: ["dirty worktree paths match Scope"]
+    });
+
+    const humanTriggered = await execFileAsync(
+      "node",
+      [
+        generatedLedgerPath,
+        "list",
+        "--triggered",
+        "--root",
+        dirtyReviewRoot
+      ],
+      { encoding: "utf8", windowsHide: true }
+    );
+    assert.equal(humanTriggered.stderr, "");
+    assert.match(
+      humanTriggered.stdout,
+      /Trigger path: src\/process\/worker\.ts/u
+    );
+    assert.equal(humanTriggered.stdout.includes("review.trigger"), false);
   }));
 
   const committedReviewRoot = materializeWorkspace(
@@ -442,7 +669,7 @@ try {
     `${JSON.stringify({
       reviewMaxAgeDays: 30,
       reviewTriggers: "error",
-      schemaVersion: 3,
+      schemaVersion: 4,
       unregisteredTestEntries: "error"
     }, null, 2)}\n`
   );
@@ -459,6 +686,7 @@ try {
     ),
     "utf8"
   );
+  await syncWorkspaceIndex(overdueReviewRoot);
   validationTasks.push(validationGate.promise.then(async () => {
     const overdueReview = await validateCollectedTestEvidence({
       workspaceRoot: overdueReviewRoot
@@ -478,7 +706,7 @@ try {
     ".test-evidence.json",
     `${JSON.stringify({
       reviewTriggers: "warn",
-      schemaVersion: 3,
+      schemaVersion: 4,
       unregisteredTestEntries: "error"
     }, null, 2)}\n`
   );
@@ -495,6 +723,7 @@ try {
     ),
     "utf8"
   );
+  await syncWorkspaceIndex(unavailableBaselineRoot);
   validationTasks.push(validationGate.promise.then(async () => {
     const unavailableBaseline = await validateCollectedTestEvidence({
       workspaceRoot: unavailableBaselineRoot
@@ -547,8 +776,6 @@ try {
       [
         generatedLedgerPath,
         "list",
-        "--inventory",
-        validInventoryPath,
         "--root",
         missingCatalogRoot,
         "--json"
@@ -560,7 +787,7 @@ try {
       diagnostics: Array<{ blocking: boolean; code: string }>;
     };
     assert.ok(queryResult.diagnostics.some((entry) =>
-      entry.code === "catalog.read-failed" && entry.blocking
+      entry.code === "state-index.revision-read-failed" && entry.blocking
     ));
   }));
 
@@ -731,39 +958,24 @@ try {
     ));
   }));
   validationTasks.push(validationGate.promise.then(async () => {
-    const inventoryPath = await writeCollectedInventory(
-      catalogInvalidRoot,
-      "catalog-invalid"
-    );
-    const query = await execFileAsync(
+    const query = spawnSync(
       "node",
       [
         generatedLedgerPath,
         "list",
-        "--inventory",
-        inventoryPath,
         "--root",
         catalogInvalidRoot
       ],
-      {
-        encoding: "utf8",
-        windowsHide: true
-      }
+      { encoding: "utf8", windowsHide: true }
     );
-    assert.match(
-      query.stdout,
-      /WB-MISSING-CONTRACT-001 \[active, automated, invalid\]/u
-    );
-    assert.match(query.stdout, /  Catalog: docs\/testing\/cases\.md:\d+/u);
-    assert.match(
-      query.stdout,
-      /  Source: main src\/missing-contract\.test\.ts:2/u
-    );
-    assert.match(query.stderr, /non-blocking error \[catalog\.invalid\]/u);
+    assert.equal(query.status, 1);
+    assert.equal(query.stdout, "");
+    assert.match(query.stderr, /blocking error \[state-index\.index-stale\]/u);
+    assert.match(query.stderr, /sync-index --write/u);
   }));
 
   await assertDirectCliHelp();
-  await assertDirectMissingCase(validInventoryPath, workspaceRoot);
+  await assertDirectMissingCase(workspaceRoot);
   await assertDirectCliFailure();
   validationGate.resolve();
   await waitForAll(validationTasks);
@@ -787,7 +999,7 @@ try {
     testEvidenceReportSchema,
     JSON.parse(missingInventory.stdout)
   );
-  assert.equal(missingInventoryReport.schemaVersion, 2);
+  assert.equal(missingInventoryReport.schemaVersion, 3);
   assert.ok(missingInventoryReport.diagnostics.some((diagnostic) => (
     diagnostic.code === "inventory.not-found" && diagnostic.blocking
   )));
@@ -801,7 +1013,7 @@ try {
     "node",
     [
       generatedLedgerPath,
-      "list",
+      "check",
       "--inventory",
       malformedInventoryPath,
       "--root",
@@ -813,15 +1025,24 @@ try {
   assert.equal(malformedInventoryQuery.status, 1);
   assert.equal(malformedInventoryQuery.stderr, "");
   const malformedInventoryResult = v.parse(
-    testEvidenceQueryResultSchema,
+    testEvidenceReportSchema,
     JSON.parse(malformedInventoryQuery.stdout)
   );
-  assert.equal(malformedInventoryResult.schemaVersion, 2);
-  assert.equal(malformedInventoryResult.incomplete, true);
-  assert.deepEqual(malformedInventoryResult.cases, []);
+  assert.equal(malformedInventoryResult.schemaVersion, 3);
   assert.ok(malformedInventoryResult.diagnostics.some((diagnostic) => (
     diagnostic.code === "inventory.json-invalid" && diagnostic.blocking
   )));
+
+  const invalidQuery = spawnSync(
+    "node",
+    [generatedLedgerPath, "list", "--query", "   ", "--root", workspaceRoot],
+    { encoding: "utf8", windowsHide: true }
+  );
+  assert.equal(invalidQuery.status, 2);
+  assert.match(
+    invalidQuery.stderr,
+    /must contain a non-whitespace character/u
+  );
 
   const invalidUsage = spawnSync(
     "node",
@@ -848,6 +1069,8 @@ try {
   );
   assert.match(declarationSource, /validateTestEvidenceLedger/);
   assert.match(declarationSource, /inspectTestEvidenceLedger/);
+  assert.match(declarationSource, /queryTestEvidenceLedger/);
+  assert.match(declarationSource, /syncTestEvidenceIndex/);
   assert.match(declarationSource, /runTestEvidenceLedgerCli/);
   const collectorSourceMap = JSON.parse(
     await fs.readFile(`${generatedCollectorPath}.map`, "utf8")
@@ -864,6 +1087,12 @@ try {
   assert.equal(ledgerSourceMap.sourceRoot, "../../../");
   assert.ok(ledgerSourceMap.sources.includes(
     "tools/test-evidence/src/validation.ts"
+  ));
+  assert.ok(ledgerSourceMap.sources.includes(
+    "tools/test-evidence/src/state-index.ts"
+  ));
+  assert.ok(ledgerSourceMap.sources.includes(
+    "tools/index-runtime/src/storage.ts"
   ));
   assert.ok(!ledgerSourceMap.sources.includes(
     "tools/test-evidence/src/regex-collector.ts"
@@ -887,6 +1116,8 @@ try {
     "test-evidence-ledger-config.schema.json",
     "test-evidence-report.schema.json",
     "test-evidence-inspection.schema.json",
+    "test-evidence-index-sync-result.schema.json",
+    "test-evidence-state-index.schema.json",
     "test-evidence-query-result.schema.json"
   ]) {
     const schema = JSON.parse(await fs.readFile(path.join(
@@ -1016,15 +1247,10 @@ async function assertDirectCliHelp(): Promise<void> {
   assert.equal(result.stdout.includes(process.cwd()), false);
 }
 
-async function assertDirectMissingCase(
-  inventoryPath: string,
-  workspaceRoot: string
-): Promise<void> {
+async function assertDirectMissingCase(workspaceRoot: string): Promise<void> {
   const result = await captureDirectCliOutput([
     "show",
     "MISSING-CASE-001",
-    "--inventory",
-    inventoryPath,
     "--root",
     workspaceRoot
   ]);
@@ -1113,6 +1339,18 @@ async function writeCollectedInventory(
     "utf8"
   );
   return inventoryPath;
+}
+
+async function syncWorkspaceIndex(workspaceRoot: string): Promise<void> {
+  const result = await syncBundledTestEvidenceIndex({
+    mode: "write",
+    workspaceRoot
+  });
+  assert.equal(
+    result.status,
+    "ok",
+    JSON.stringify(result.diagnostics, null, 2)
+  );
 }
 
 async function waitForAll(tasks: readonly Promise<void>[]): Promise<void> {

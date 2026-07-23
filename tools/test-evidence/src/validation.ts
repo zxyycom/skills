@@ -12,12 +12,15 @@ import { validateGitState } from "./git-validation.ts";
 import { buildInspectionViews } from "./inspection.ts";
 import { parseTestEntryInventory } from "./inventory.ts";
 import {
+  defaultTestEvidenceCatalogPath,
+  defaultTestEvidenceIndexPath,
   testEvidenceReportSchemaVersion,
   type TestEvidenceDiagnostic,
   type TestEvidenceInspection,
   type TestEvidenceReport,
   type TestEvidenceSummary
 } from "./types.ts";
+import { syncTestEvidenceIndex } from "./state-index.ts";
 
 export type ValidateTestEvidenceLedgerOptions = {
   config?: unknown;
@@ -69,10 +72,13 @@ export async function inspectTestEvidenceLedger(
   if (loadedConfig.config === null || parsedInventory.inventory === null) {
     const diagnostics = sortUniqueDiagnostics(initialDiagnostics);
     return emptyInspection({
-      catalogPath: loadedConfig.config?.catalogPath ?? "docs/testing/cases.md",
+      catalogPath: loadedConfig.config?.catalogPath
+        ?? defaultTestEvidenceCatalogPath,
       configPath: loadedConfig.configRelativePath,
       configurationValid: loadedConfig.config !== null,
       diagnostics,
+      indexPath: loadedConfig.config?.indexPath
+        ?? defaultTestEvidenceIndexPath,
       inventoryAvailable: parsedInventory.inventory !== null
     });
   }
@@ -123,17 +129,27 @@ export async function inspectTestEvidenceLedger(
   const git = await validateGitState({
     catalogPath: config.catalogPath,
     configPath: loadedConfig.configRelativePath,
+    indexPath: config.indexPath,
     reviewMaxAgeDays: config.reviewMaxAgeDays,
     reviewTriggerPolicy: config.reviewTriggers,
     scopedCases: catalog.cases,
     workspaceRoot
   });
 
+  const synchronized = catalogAvailable && catalog.errors.length === 0
+    ? await syncTestEvidenceIndex({
+      config,
+      configPath: options.configPath,
+      mode: "check",
+      workspaceRoot
+    })
+    : null;
   const diagnostics = sortUniqueDiagnostics([
     ...initialDiagnostics,
     ...catalogDiagnostics,
     ...evidence.diagnostics,
-    ...git.diagnostics
+    ...git.diagnostics,
+    ...(synchronized?.diagnostics ?? [])
   ]);
   const report = createTestEvidenceReport(
     diagnostics,
@@ -152,6 +168,8 @@ export async function inspectTestEvidenceLedger(
     catalogPath: config.catalogPath,
     configPath: loadedConfig.configRelativePath,
     configurationValid: true,
+    indexCurrent: synchronized?.status === "ok",
+    indexPath: config.indexPath,
     inventoryAvailable: true,
     report,
     schemaVersion: testEvidenceReportSchemaVersion,
@@ -164,6 +182,7 @@ function emptyInspection(options: {
   configPath: string;
   configurationValid: boolean;
   diagnostics: readonly TestEvidenceDiagnostic[];
+  indexPath: string;
   inventoryAvailable: boolean;
 }): TestEvidenceInspection {
   return {
@@ -172,6 +191,8 @@ function emptyInspection(options: {
     catalogPath: options.catalogPath,
     configPath: options.configPath,
     configurationValid: options.configurationValid,
+    indexCurrent: false,
+    indexPath: options.indexPath,
     inventoryAvailable: options.inventoryAvailable,
     report: createTestEvidenceReport(options.diagnostics),
     schemaVersion: testEvidenceReportSchemaVersion,

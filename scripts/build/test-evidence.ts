@@ -14,10 +14,13 @@ import { githubRepository, rootDir } from "../lib/project.ts";
 import {
   regexCollectorConfigSchema,
   testEntryInventorySchema,
+  testEvidenceCaseShowResultSchema,
   testEvidenceInspectionSchema,
+  testEvidenceIndexSyncResultSchema,
   testEvidenceLedgerConfigSchema,
   testEvidenceQueryResultSchema,
-  testEvidenceReportSchema
+  testEvidenceReportSchema,
+  testEvidenceStateIndexSchema
 } from "../../tools/test-evidence/src/schemas.ts";
 
 const rebuildCommand = "bun run sync:test-evidence-cli";
@@ -70,6 +73,13 @@ const schemaSpecs = [
     typesFileName: "test-evidence-ledger-config.types.d.mts"
   },
   {
+    fileName: "test-evidence-case-show-result.schema.json",
+    mode: "output" as const,
+    schema: testEvidenceCaseShowResultSchema,
+    typeName: "TestEvidenceCaseShowResult",
+    typesFileName: "test-evidence-case-show-result.types.d.mts"
+  },
+  {
     fileName: "test-evidence-report.schema.json",
     mode: "output" as const,
     schema: testEvidenceReportSchema,
@@ -82,6 +92,20 @@ const schemaSpecs = [
     schema: testEvidenceInspectionSchema,
     typeName: "TestEvidenceInspection",
     typesFileName: "test-evidence-inspection.types.d.mts"
+  },
+  {
+    fileName: "test-evidence-index-sync-result.schema.json",
+    mode: "output" as const,
+    schema: testEvidenceIndexSyncResultSchema,
+    typeName: "TestEvidenceIndexSyncResult",
+    typesFileName: "test-evidence-index-sync-result.types.d.mts"
+  },
+  {
+    fileName: "test-evidence-state-index.schema.json",
+    mode: "output" as const,
+    schema: testEvidenceStateIndexSchema,
+    typeName: "TestEvidenceStateIndex",
+    typesFileName: "test-evidence-state-index.types.d.mts"
   },
   {
     fileName: "test-evidence-query-result.schema.json",

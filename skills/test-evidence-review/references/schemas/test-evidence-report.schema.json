@@ -19,6 +19,7 @@
               "config",
               "discovery",
               "git",
+              "index",
               "inventory",
               "mapping",
               "review"
@@ -100,7 +101,7 @@
       }
     },
     "schemaVersion": {
-      "const": 2
+      "const": 3
     },
     "summary": {
       "type": "object",

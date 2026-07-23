@@ -9,8 +9,9 @@
 export interface TestEvidenceLedgerConfig {
   caseIdPattern?: string;
   catalogPath?: string;
+  indexPath?: string;
   reviewMaxAgeDays?: number;
   reviewTriggers?: "warn" | "error";
-  schemaVersion: 3;
+  schemaVersion: 4;
   unregisteredTestEntries?: "ignore" | "warn" | "error";
 }

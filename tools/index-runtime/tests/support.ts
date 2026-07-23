@@ -190,23 +190,26 @@ export function testEvidenceDefinition(
   source: MemoryStateSource<TestEvidenceState>
 ): StateIndexDefinition<TestEvidenceState> {
   return defineStateIndexDefinition({
-    definitionVersion: 1,
-    identify: (state) => `${state.caseId}@${state.line}`,
+    definitionVersion: 2,
+    identify: (state) => state.caseId,
     keyStrategies: [
-      { derive: (state) => state.caseId, mode: "exact", name: "case-id" },
-      { derive: (state) => state.status, mode: "exact", name: "status" },
-      { derive: (state) => state.verification, mode: "exact", name: "verification" },
       {
         derive: (state) => state.trigger === null ? undefined : true,
         mode: "exact",
         name: "review-triggered"
       },
-      { derive: (state) => state.line, mode: "range", name: "line" },
       {
-        derive: (state) => [state.title, ...state.contract, ...state.proves],
+        derive: (state) => [
+          state.caseId,
+          state.title,
+          ...state.contract,
+          state.codePath
+        ].join(" "),
         mode: "text",
-        name: "text"
-      }
+        name: "search"
+      },
+      { derive: (state) => state.status, mode: "exact", name: "status" },
+      { derive: (state) => state.verification, mode: "exact", name: "verification" }
     ],
     namespace: "test-evidence",
     parseState: (state) => v.parse(testEvidenceStateSchema, state),

@@ -1,4 +1,9 @@
 import * as v from "valibot";
+import {
+  createStateIndexSchema,
+  stateIndexSchemaVersion,
+  stateIndexTextSchema
+} from "../../index-runtime/src/index.ts";
 
 export const supportedLanguages = [
   "rust",
@@ -21,6 +26,7 @@ export const testEvidenceDiagnosticCategories = [
   "config",
   "discovery",
   "git",
+  "index",
   "inventory",
   "mapping",
   "review"
@@ -29,8 +35,15 @@ export const testEvidenceDiagnosticSeverities = ["error", "warning"] as const;
 
 export const testEntryInventorySchemaVersion = 1 as const;
 export const regexCollectorConfigSchemaVersion = 1 as const;
-export const testEvidenceLedgerConfigSchemaVersion = 3 as const;
-export const testEvidenceReportSchemaVersion = 2 as const;
+export const testEvidenceLedgerConfigSchemaVersion = 4 as const;
+export const testEvidenceReportSchemaVersion = 3 as const;
+export const testEvidenceIndexSchemaVersion = stateIndexSchemaVersion;
+export const testEvidenceIndexDefinitionVersion = 2 as const;
+export const testEvidenceIndexNamespace = "test-evidence" as const;
+export const defaultTestEvidenceLedgerConfigPath = ".test-evidence.json";
+export const defaultTestEvidenceCatalogPath = "docs/testing/cases.md";
+export const defaultTestEvidenceIndexPath =
+  "docs/testing/test-evidence-index.json";
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
@@ -133,7 +146,11 @@ export const testEvidenceLedgerConfigSchema = v.strictObject({
     nonEmptyStringSchema,
     "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
   ),
-  catalogPath: v.optional(nonEmptyStringSchema, "docs/testing/cases.md"),
+  catalogPath: v.optional(nonEmptyStringSchema, defaultTestEvidenceCatalogPath),
+  indexPath: v.optional(
+    nonEmptyStringSchema,
+    defaultTestEvidenceIndexPath
+  ),
   reviewMaxAgeDays: v.optional(positiveIntegerSchema),
   reviewTriggers: v.optional(v.picklist(reviewTriggerPolicies), "warn"),
   schemaVersion: v.literal(testEvidenceLedgerConfigSchemaVersion),
@@ -217,12 +234,37 @@ export const testEvidenceCaseViewSchema = v.strictObject({
   verification: v.nullable(v.picklist(verificationModes))
 });
 
+const testEvidenceCaseStateFields = {
+  codePath: v.nullable(nonEmptyStringSchema),
+  endLine: positiveIntegerSchema,
+  id: nonEmptyStringSchema,
+  lastReview: v.nullable(testEvidenceLastReviewViewSchema),
+  line: positiveIntegerSchema,
+  scope: v.array(nonEmptyStringSchema),
+  status: v.picklist(caseStatuses),
+  summary: nonEmptyStringSchema,
+  title: nonEmptyStringSchema,
+  verification: v.picklist(verificationModes)
+};
+
+export const testEvidenceCaseStateSchema = v.strictObject({
+  ...testEvidenceCaseStateFields,
+  trigger: v.nullable(reviewTriggerSchema)
+});
+
+const testEvidencePersistedCaseStateSchema = v.strictObject({
+  ...testEvidenceCaseStateFields,
+  trigger: v.null()
+});
+
 export const testEvidenceInspectionSchema = v.strictObject({
   cases: v.array(testEvidenceCaseViewSchema),
   catalogAvailable: v.boolean(),
   catalogPath: nonEmptyStringSchema,
   configPath: nonEmptyStringSchema,
   configurationValid: v.boolean(),
+  indexCurrent: v.boolean(),
+  indexPath: nonEmptyStringSchema,
   inventoryAvailable: v.boolean(),
   report: testEvidenceReportSchema,
   schemaVersion: v.literal(testEvidenceReportSchemaVersion),
@@ -230,11 +272,87 @@ export const testEvidenceInspectionSchema = v.strictObject({
 });
 
 export const testEvidenceQueryResultSchema = v.strictObject({
-  cases: v.array(testEvidenceCaseViewSchema),
+  cases: v.array(testEvidenceCaseStateSchema),
+  catalogPath: nonEmptyStringSchema,
   diagnostics: v.array(testEvidenceDiagnosticSchema),
   incomplete: v.boolean(),
-  reviewTriggers: v.array(reviewTriggerSchema),
+  indexPath: nonEmptyStringSchema,
+  limit: positiveIntegerSchema,
+  offset: nonNegativeIntegerSchema,
+  schemaVersion: v.literal(testEvidenceReportSchemaVersion),
+  total: nonNegativeIntegerSchema
+});
+
+export const testEvidenceCaseShowResultSchema = v.strictObject({
+  case: v.nullable(testEvidenceCaseStateSchema),
+  catalogPath: nonEmptyStringSchema,
+  diagnostics: v.array(testEvidenceDiagnosticSchema),
+  indexPath: nonEmptyStringSchema,
+  markdown: v.nullable(v.string()),
   schemaVersion: v.literal(testEvidenceReportSchemaVersion)
+});
+
+const testEvidenceIndexSyncStates = [
+  "current",
+  "unchanged",
+  "written",
+  "index-invalid",
+  "index-missing",
+  "index-path-invalid",
+  "index-read-failed",
+  "index-stale",
+  "index-write-failed",
+  "source-invalid"
+] as const;
+
+export const testEvidenceIndexSyncResultSchema = v.strictObject({
+  catalogPath: nonEmptyStringSchema,
+  changed: v.boolean(),
+  diagnostics: v.array(testEvidenceDiagnosticSchema),
+  indexPath: nonEmptyStringSchema,
+  mode: v.picklist(["check", "write"]),
+  schemaVersion: v.literal(testEvidenceReportSchemaVersion),
+  state: v.picklist(testEvidenceIndexSyncStates),
+  status: v.picklist(["ok", "error"])
+});
+
+const testEvidenceIndexKeysSchema = v.strictObject({
+  "review-triggered": v.optional(v.tuple([v.literal(true)])),
+  search: v.tuple([stateIndexTextSchema]),
+  status: v.tuple([v.picklist(caseStatuses)]),
+  verification: v.tuple([v.picklist(verificationModes)])
+});
+
+export const testEvidenceStateIndexSchema = createStateIndexSchema({
+  definitionVersion: testEvidenceIndexDefinitionVersion,
+  keys: testEvidenceIndexKeysSchema,
+  keyDefinitions: v.tuple([
+    v.strictObject({
+      mode: v.literal("exact"),
+      name: v.literal("review-triggered")
+    }),
+    v.strictObject({
+      mode: v.literal("text"),
+      name: v.literal("search")
+    }),
+    v.strictObject({
+      mode: v.literal("exact"),
+      name: v.literal("status")
+    }),
+    v.strictObject({
+      mode: v.literal("exact"),
+      name: v.literal("verification")
+    })
+  ]),
+  namespace: testEvidenceIndexNamespace,
+  sourceRevision: v.pipe(
+    v.string("must be a string"),
+    v.regex(
+      /^sha256:[0-9a-f]{64}$/,
+      "must be a sha256 test-evidence source revision"
+    )
+  ),
+  state: testEvidencePersistedCaseStateSchema
 });
 
 export type SupportedLanguage = (typeof supportedLanguages)[number];
@@ -278,9 +396,21 @@ export type TestEvidenceLastReviewView = v.InferOutput<
 export type TestEvidenceCaseView = v.InferOutput<
   typeof testEvidenceCaseViewSchema
 >;
+export type TestEvidenceCaseState = v.InferOutput<
+  typeof testEvidenceCaseStateSchema
+>;
+export type TestEvidenceCaseShowResult = v.InferOutput<
+  typeof testEvidenceCaseShowResultSchema
+>;
 export type TestEvidenceInspection = v.InferOutput<
   typeof testEvidenceInspectionSchema
 >;
 export type TestEvidenceQueryResult = v.InferOutput<
   typeof testEvidenceQueryResultSchema
+>;
+export type TestEvidenceIndexSyncResult = v.InferOutput<
+  typeof testEvidenceIndexSyncResultSchema
+>;
+export type TestEvidenceStateIndex = v.InferOutput<
+  typeof testEvidenceStateIndexSchema
 >;

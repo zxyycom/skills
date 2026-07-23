@@ -2886,6 +2886,31 @@
       }
     },
     {
+      "id": "test-evidence-review-behavior/index-ledger-by-stable-case-state.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "test-evidence-review-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "账本登记本身已有成本；如果每次维护和查询还依赖加载完整正文或专用查询逻辑，账本增长会继续放大用户与 agent 的上下文、定位和写入成本。",
+        "createdAt": "2026-07-23T08:04:36Z",
+        "decision": "测试领域只提供以 case ID 为身份的紧凑 state、revision、keys 和动态状态，通用层统一拥有索引外壳、新鲜度、同步以及 `query|get|all`。",
+        "path": "test-evidence-review-behavior/index-ledger-by-stable-case-state.md",
+        "purpose": "让测试账本直接获得通用索引的统一同步、筛选、分页和按 ID 展开能力。",
+        "relations": [],
+        "status": "active",
+        "title": "测试账本以领域适配接入通用状态索引"
+      }
+    },
+    {
       "id": "test-evidence-review-behavior/mask-non-code-test-syntax.md",
       "keys": {
         "status": [
@@ -3026,5 +3051,5 @@
   ],
   "namespace": "decisions",
   "schemaVersion": 1,
-  "sourceRevision": "sha256:a9aef9347e435d4b26d4dfe6091e63ae9579af1197eac81b637ec7a093d36b4f"
+  "sourceRevision": "sha256:f7f214ffac984ad1afc1efcc1fe5797993a2a1d484545bb64a4d24c7fb3b68a6"
 }

@@ -11,7 +11,14 @@ export interface TestEntryInventory {
     blocking: boolean;
     caseId?: string;
     category:
-      "catalog" | "config" | "discovery" | "git" | "inventory" | "mapping" | "review";
+      | "catalog"
+      | "config"
+      | "discovery"
+      | "git"
+      | "index"
+      | "inventory"
+      | "mapping"
+      | "review";
     code: string;
     column?: number;
     detectorId?: string;

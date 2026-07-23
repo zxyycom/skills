@@ -44,13 +44,22 @@ export interface TestEvidenceInspection {
   catalogPath: string;
   configPath: string;
   configurationValid: boolean;
+  indexCurrent: boolean;
+  indexPath: string;
   inventoryAvailable: boolean;
   report: {
     diagnostics: {
       blocking: boolean;
       caseId?: string;
       category:
-        "catalog" | "config" | "discovery" | "git" | "inventory" | "mapping" | "review";
+        | "catalog"
+        | "config"
+        | "discovery"
+        | "git"
+        | "index"
+        | "inventory"
+        | "mapping"
+        | "review";
       code: string;
       column?: number;
       detectorId?: string;
@@ -64,7 +73,7 @@ export interface TestEvidenceInspection {
       paths: string[];
       reasons: string[];
     }[];
-    schemaVersion: 2;
+    schemaVersion: 3;
     summary: {
       activeAutomatedCases: number;
       catalogCases: number;
@@ -81,7 +90,7 @@ export interface TestEvidenceInspection {
       unregisteredTestEntries: number;
     };
   };
-  schemaVersion: 2;
+  schemaVersion: 3;
   sourceEntries: {
     column: number;
     detectorIds: string[];

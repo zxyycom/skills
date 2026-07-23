@@ -32,6 +32,7 @@ export type ParsedCatalogCase = {
   caseIdIsValid: boolean;
   codeDeclarations: number;
   codePath: string | null;
+  endLine: number;
   headingFormatIsValid: boolean;
   id: string;
   invalidCode: boolean;
@@ -98,18 +99,20 @@ export function collectCatalogCases(
     const headingLine = lines[(heading.position?.start.line ?? 1) - 1] ?? "";
     const match = headingLine.match(caseHeadingPattern);
     const candidateId = match?.[1] ?? headingText.split(/\s+/u)[1] ?? "<invalid>";
+    const line = heading.position?.start.line ?? 1;
+    const nextHeading = headings.slice(index + 1).find((candidate) =>
+      (candidate.position?.start.line ?? Number.POSITIVE_INFINITY) > line
+    );
+    const endLine = (nextHeading?.position?.start.line ?? lines.length + 1) - 1;
     const entry = createCase({
       caseIdIsValid: match !== null && caseIdPattern.test(candidateId),
+      endLine,
       headingFormatIsValid: match !== null,
       id: candidateId,
-      line: heading.position?.start.line ?? 1,
+      line,
       title: match?.[2] ?? ""
     });
     const startLine = (heading.position?.end.line ?? entry.line) + 1;
-    const nextHeading = headings.slice(index + 1).find((candidate) =>
-      (candidate.position?.start.line ?? Number.POSITIVE_INFINITY) > entry.line
-    );
-    const endLine = (nextHeading?.position?.start.line ?? lines.length + 1) - 1;
     parseCaseBody(entry, lines, startLine, endLine, ignoredLines);
     entries.push(entry);
   }
@@ -216,6 +219,7 @@ function parseCaseBody(
 
 function createCase(input: {
   caseIdIsValid: boolean;
+  endLine: number;
   headingFormatIsValid: boolean;
   id: string;
   line: number;

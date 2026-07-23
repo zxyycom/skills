@@ -11,7 +11,7 @@ export async function writeInitialFixtureWorkspace(
     ".test-evidence.json",
     `${JSON.stringify({
       reviewTriggers: "error",
-      schemaVersion: 3,
+      schemaVersion: 4,
       unregisteredTestEntries: "error"
     }, null, 2)}\n`
   );

@@ -3,6 +3,7 @@ import path from "node:path";
 import * as v from "valibot";
 import { createDiagnostic } from "./diagnostics.ts";
 import {
+  defaultTestEvidenceLedgerConfigPath,
   testEvidenceLedgerConfigSchema,
   testEvidenceLedgerConfigSchemaVersion
 } from "./schemas.ts";
@@ -11,8 +12,6 @@ import type {
   TestEvidenceLedgerConfig
 } from "./types.ts";
 import { normalizeWorkspaceRelative } from "./workspace-path.ts";
-
-const defaultTestEvidenceLedgerConfigPath = ".test-evidence.json";
 
 export type LoadedTestEvidenceLedgerConfig = {
   config: TestEvidenceLedgerConfig | null;
@@ -79,6 +78,12 @@ export async function loadTestEvidenceLedgerConfig(
     diagnostics,
     configRelativePath
   );
+  const indexPath = normalizeRelativePath(
+    parsed.output.indexPath,
+    "indexPath",
+    diagnostics,
+    configRelativePath
+  );
   try {
     new RegExp(parsed.output.caseIdPattern, "u");
   } catch (error) {
@@ -91,11 +96,25 @@ export async function loadTestEvidenceLedgerConfig(
     }));
   }
 
-  if (catalogPath === null || diagnostics.length > 0) {
+  if (
+    catalogPath !== null
+    && indexPath !== null
+    && (indexPath === catalogPath || indexPath === configRelativePath)
+  ) {
+    diagnostics.push(createDiagnostic({
+      category: "config",
+      code: "config.index-path-conflict",
+      message: "indexPath must differ from catalogPath and the ledger config path",
+      path: configRelativePath,
+      severity: "error"
+    }));
+  }
+
+  if (catalogPath === null || indexPath === null || diagnostics.length > 0) {
     return { config: null, configRelativePath, diagnostics };
   }
   return {
-    config: { ...parsed.output, catalogPath },
+    config: { ...parsed.output, catalogPath, indexPath },
     configRelativePath,
     diagnostics
   };

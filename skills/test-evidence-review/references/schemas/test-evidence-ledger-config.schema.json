@@ -11,6 +11,11 @@
       "minLength": 1,
       "default": "docs/testing/cases.md"
     },
+    "indexPath": {
+      "type": "string",
+      "minLength": 1,
+      "default": "docs/testing/test-evidence-index.json"
+    },
     "reviewMaxAgeDays": {
       "type": "integer",
       "minimum": 1
@@ -24,7 +29,7 @@
       "default": "warn"
     },
     "schemaVersion": {
-      "const": 3
+      "const": 4
     },
     "unregisteredTestEntries": {
       "enum": [

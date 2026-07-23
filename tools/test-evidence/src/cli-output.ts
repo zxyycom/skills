@@ -1,6 +1,8 @@
 import type {
-  TestEvidenceCaseView,
+  TestEvidenceCaseShowResult,
+  TestEvidenceCaseState,
   TestEvidenceDiagnostic,
+  TestEvidenceIndexSyncResult,
   TestEvidenceQueryResult,
   TestEvidenceReport
 } from "./types.ts";
@@ -40,37 +42,68 @@ export function formatTestEvidenceCliOutput(
 
 export function formatTestEvidenceCaseListOutput(
   result: TestEvidenceQueryResult,
-  json: boolean,
-  catalogPath: string
+  json: boolean
 ): TestEvidenceCliOutput {
   if (json) {
     return jsonQueryOutput(result);
   }
   const lines = result.cases.flatMap((entry) =>
-    formatCaseListItem(entry, catalogPath)
+    formatCaseListItem(entry, result.catalogPath)
   );
+  const page = `Showing ${result.cases.length} of ${result.total} case(s) `
+    + `from offset ${result.offset}.`;
   return {
     stderr: formatQueryDiagnostics(result),
     stdout: lines.length === 0
-      ? "No test evidence cases matched.\n"
-      : `${lines.join("\n")}\n`
+      ? `No test evidence cases matched. ${page}\n`
+      : `${lines.join("\n")}\n${page}\n`
   };
 }
 
 export function formatTestEvidenceCaseShowOutput(
-  result: TestEvidenceQueryResult,
-  json: boolean,
-  catalogPath: string
+  result: TestEvidenceCaseShowResult,
+  json: boolean
 ): TestEvidenceCliOutput {
   if (json) {
-    return jsonQueryOutput(result);
+    return {
+      stderr: "",
+      stdout: `${JSON.stringify(result, null, 2)}\n`
+    };
   }
-  const entry = result.cases[0];
+  const entry = result.case;
   return {
-    stderr: formatQueryDiagnostics(result),
-    stdout: entry === undefined
+    stderr: formatDiagnostics(result.diagnostics),
+    stdout: entry === null || result.markdown === null
       ? ""
-      : `${formatCaseDetails(entry, catalogPath).join("\n")}\n`
+      : [
+        caseHeading(entry),
+        `Catalog: ${result.catalogPath}:${entry.line}`,
+        `Summary: ${entry.summary}`,
+        "",
+        result.markdown
+      ].join("\n") + "\n"
+  };
+}
+
+export function formatTestEvidenceIndexSyncOutput(
+  result: TestEvidenceIndexSyncResult,
+  json: boolean
+): TestEvidenceCliOutput {
+  if (json) {
+    return {
+      stderr: "",
+      stdout: `${JSON.stringify(result, null, 2)}\n`
+    };
+  }
+  return {
+    stderr: result.diagnostics.length === 0
+      ? ""
+      : `${result.diagnostics.map(formatDiagnostic).join("\n")}\n`,
+    stdout: result.status === "error"
+      ? ""
+      : result.state === "written"
+        ? `Rebuilt ${result.indexPath} from ${result.catalogPath}.\n`
+        : `Test evidence index is up to date: ${result.indexPath}.\n`
   };
 }
 
@@ -95,10 +128,16 @@ function jsonQueryOutput(result: TestEvidenceQueryResult): TestEvidenceCliOutput
 }
 
 function formatQueryDiagnostics(result: TestEvidenceQueryResult): string {
-  if (result.diagnostics.length === 0) {
+  return formatDiagnostics(result.diagnostics);
+}
+
+function formatDiagnostics(
+  diagnostics: readonly TestEvidenceDiagnostic[]
+): string {
+  if (diagnostics.length === 0) {
     return "";
   }
-  return `${result.diagnostics.map(formatDiagnostic).join("\n")}\n`;
+  return `${diagnostics.map(formatDiagnostic).join("\n")}\n`;
 }
 
 function formatDiagnostic(diagnostic: TestEvidenceDiagnostic): string {
@@ -107,29 +146,18 @@ function formatDiagnostic(diagnostic: TestEvidenceDiagnostic): string {
 }
 
 function formatCaseListItem(
-  entry: TestEvidenceCaseView,
+  entry: TestEvidenceCaseState,
   catalogPath: string
 ): string[] {
   const lines = [
     caseHeading(entry),
-    `  Catalog: ${catalogPath}:${entry.line}`
+    `  Catalog: ${catalogPath}:${entry.line}`,
+    `  Summary: ${entry.summary}`
   ];
-  const contract = entry.contract[0];
-  if (contract !== undefined) {
-    lines.push(`  Contract: ${contract}`);
-  }
   if (entry.codePath !== null) {
     lines.push(`  Code: ${entry.codePath}`);
   } else if (entry.scope.length > 0) {
     lines.push(`  Scope: ${entry.scope.join(", ")}`);
-  }
-  if (entry.sourceMarkers.length > 0) {
-    for (const marker of entry.sourceMarkers) {
-      lines.push(
-        `  Source: ${marker.role} ${marker.path}:`
-        + `${marker.entryLine ?? marker.markerLine}`
-      );
-    }
   }
   if (entry.trigger !== null) {
     for (const reason of entry.trigger.reasons) {
@@ -142,73 +170,8 @@ function formatCaseListItem(
   return lines;
 }
 
-function formatCaseDetails(
-  entry: TestEvidenceCaseView,
-  catalogPath: string
-): string[] {
-  const lines = [
-    caseHeading(entry),
-    `Catalog: ${catalogPath}:${entry.line}`
-  ];
-  if (entry.codePath !== null) {
-    lines.push(`Code: ${entry.codePath}`);
-  }
-  appendList(lines, "Contract", entry.contract);
-  appendList(lines, "Proves", entry.proves);
-  appendList(lines, "Scope", entry.scope);
-  appendList(lines, "Risk", entry.risk);
-  appendList(lines, "Reason", entry.reason);
-  appendList(lines, "Review", entry.review);
-  if (entry.lastReview !== null) {
-    lines.push("Last review:");
-    lines.push(`- result: ${entry.lastReview.result}`);
-    lines.push(`- at: ${entry.lastReview.at}`);
-    lines.push(`- commit: ${entry.lastReview.commit}`);
-  }
-  if (entry.sourceMarkers.length > 0) {
-    lines.push("Source mappings:");
-    for (const marker of entry.sourceMarkers) {
-      lines.push(
-        `- ${marker.role} ${marker.path}:${marker.markerLine}`
-        + (marker.attached
-          ? ` -> entry ${marker.entryLine}:${marker.entryColumn}`
-          : " -> unattached")
-      );
-    }
-  }
-  if (entry.trigger !== null) {
-    lines.push("Review trigger reasons:");
-    for (const reason of entry.trigger.reasons) {
-      lines.push(`- ${reason}`);
-    }
-    if (entry.trigger.paths.length > 0) {
-      lines.push("Review trigger paths:");
-      for (const triggerPath of entry.trigger.paths) {
-        lines.push(`- ${triggerPath}`);
-      }
-    }
-  }
-  return lines;
-}
-
-function caseHeading(entry: TestEvidenceCaseView): string {
-  const attributes = [
-    entry.status ?? "status?",
-    entry.verification ?? "verification?"
-  ];
-  if (!entry.valid) {
-    attributes.push("invalid");
-  }
+function caseHeading(entry: TestEvidenceCaseState): string {
+  const attributes = [entry.status, entry.verification];
   return `${entry.id || "<missing-id>"} [${attributes.join(", ")}] `
     + (entry.title || "<untitled>");
-}
-
-function appendList(lines: string[], label: string, values: readonly string[]): void {
-  if (values.length === 0) {
-    return;
-  }
-  lines.push(`${label}:`);
-  for (const value of values) {
-    lines.push(`- ${value}`);
-  }
 }

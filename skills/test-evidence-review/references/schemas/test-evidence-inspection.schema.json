@@ -266,6 +266,13 @@
     "configurationValid": {
       "type": "boolean"
     },
+    "indexCurrent": {
+      "type": "boolean"
+    },
+    "indexPath": {
+      "type": "string",
+      "minLength": 1
+    },
     "inventoryAvailable": {
       "type": "boolean"
     },
@@ -290,6 +297,7 @@
                   "config",
                   "discovery",
                   "git",
+                  "index",
                   "inventory",
                   "mapping",
                   "review"
@@ -371,7 +379,7 @@
           }
         },
         "schemaVersion": {
-          "const": 2
+          "const": 3
         },
         "summary": {
           "type": "object",
@@ -456,7 +464,7 @@
       "additionalProperties": false
     },
     "schemaVersion": {
-      "const": 2
+      "const": 3
     },
     "sourceEntries": {
       "type": "array",
@@ -540,6 +548,8 @@
     "catalogPath",
     "configPath",
     "configurationValid",
+    "indexCurrent",
+    "indexPath",
     "inventoryAvailable",
     "report",
     "schemaVersion",

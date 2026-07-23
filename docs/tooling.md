@@ -75,14 +75,14 @@ Codex 工作区在 `.codex/environments/` 提供两个并列环境：
 6. `bun run test:generated-file`: 测试生成文件共享能力，覆盖 Bun source map 的临时目录解析、仓库相对路径归一化和越界拒绝。
 7. `bun run test:decision-records-cli`: 使用独立夹具测试 `decision-records` TypeScript 源码和包内 MJS；CLI 场景默认直接调用分发模块，只用 Node 子进程证明成功与失败入口。
 8. `bun run test:skill-validator`: 使用临时 skill 目录测试结构校验源码、包内 MJS 导入、Node CLI、类型声明、失败诊断和生成头。
-9. `bun run test:test-evidence-cli`: 从预构建 Git fixture 物化隔离 worktree，测试正则采集、外部清单接入、纯账本 API 与两层组合，并用 Node 子进程证明两套 CLI 的成功与失败入口。
+9. `bun run test:test-evidence-cli`: 从预构建 Git fixture 物化隔离 worktree，测试正则采集、外部清单接入、紧凑账本索引同步、分页摘要、单 case 原文、显式动态 trigger、纯账本 API 与两层组合，并用 Node 子进程证明两套 CLI 的成功与失败入口。
 10. `bun run test:skill-updater`: 使用本地假 GitHub 响应和临时目录测试 updater 的包内 MJS 导入、Node CLI、lock、zip 指纹、更新替换和失败诊断。
 11. `bun run sync:decision-records-cli`: 从 `tools/decision-records/` 构建并写入 skill 内的 `scripts/decision-records.mjs`、类型声明、source map 和索引 JSON Schema。
 12. `bun run check:decision-records-cli`: 在临时目录构建 CLI，并检查 skill 内分发产物是否与当前源码一致。
 13. `bun run check:decisions`: 使用 `tools/decision-records/src/` 的当前实现严格检查本仓库决策记录；由完整检查编排时再按运行模式决定是否阻断。
 14. `bun run sync:skill-validator`: 从 `tools/skill-validator/` 构建并写入 `skill-maintainer` 内的 `scripts/validate-skill.mjs`、类型声明和 source map。
 15. `bun run check:skill-validator`: 在临时目录构建结构验证器，并检查 skill 内分发产物是否与当前源码一致。
-16. `bun run sync:test-evidence-cli`: 从 `tools/test-evidence/` 构建并写入 `test-evidence-review` skill 内的正则采集与纯账本 CLI、source map、JSON Schema 与 Schema 派生类型声明。
+16. `bun run sync:test-evidence-cli`: 从 `tools/test-evidence/` 构建并写入 `test-evidence-review` skill 内的正则采集与纯账本 CLI、内联通用索引运行时、source map、JSON Schema 与 Schema 派生类型声明。
 17. `bun run check:test-evidence-cli`: 在临时目录重建测试证据两套 CLI 和全部 Schema 派生产物，并检查分发内容是否与当前源码一致。
 18. `bun run sync:test-evidence-fixture`: 从可审查的 fixture 源生成包含固定 SHA-1 提交历史的 Git bundle。
 19. `bun run check:test-evidence-fixture`: 重建 fixture 的确定性提交历史，并检查 bundle 暴露的 head 是否仍与源一致。
@@ -130,22 +130,23 @@ Codex 工作区在 `.codex/environments/` 提供两个并列环境：
 1. `tools/<tool-name>/src/` 承接运行时源码，`api/` 承接稳定公共声明源，`tests/` 承接源码、分发模块和 fixture 验证；构建后真正进入 skill 的文件仍只位于 `skills/<skill-name>/`。
 2. `tools/shared/src/` 只承接多个工具真实共享的运行时原语；仅有相似调用位置、短实现或未来可能复用，不足以进入共享层。
 3. `tools/skill-package/src/` 承接发布端和 updater 必须共同遵守的指纹与 package lock 协议，避免协议实现被任一消费方私有化。
-4. 具体领域工具的 `src/` 只能依赖自身源码、`tools/shared/src/`、`tools/skill-package/src/`、已经明确建立为跨领域协议 owner 的工具、目标运行时和显式外部依赖；不能依赖 `scripts/`、`skills/`、`dist/` 或另一个领域工具。当前唯一的跨领域工具依赖是 `decision-records` 对 `tools/index-runtime/src/` 的接入。
+4. 具体领域工具的 `src/` 只能依赖自身源码、`tools/shared/src/`、`tools/skill-package/src/`、已经明确建立为跨领域协议 owner 的工具、目标运行时和显式外部依赖；不能依赖 `scripts/`、`skills/`、`dist/` 或另一个领域工具。当前跨领域工具依赖是 `decision-records` 与 `test-evidence` 对 `tools/index-runtime/src/` 的接入。
 5. `tools/shared/` 不依赖其他工具；`tools/skill-package/` 只依赖自身和 `tools/shared/`；独立协议 owner 不反向依赖领域工具。
 6. 源码共享不改变分发单元边界。构建器把被消费的共享源码内联进目标自包含 MJS，因此不同 skill 可以共享一份维护源码而不产生跨 skill 运行时前置条件。
 
 `index-runtime` 的维护入口：
 
 1. 源码：`tools/index-runtime/src/`。
-2. 公共入口：`tools/index-runtime/src/index.ts`；Valibot Schema 是索引文件、原始 state 条目、key 定义和查询输入的结构真源。
+2. 公共入口：`tools/index-runtime/src/index.ts`；Valibot Schema 是索引文件、原始 state 条目、key 定义和查询输入的结构真源，`createStateIndexSchema` 用领域 state、keys、key definitions 和 revision Schema 组合出具体索引文件 Schema，领域不得手写通用外壳。
 3. 领域定义：领域提供 `namespace`、`definitionVersion`、同步 `parseState`、state 与 revision 读取、稳定唯一 id 和 `exact|range|text` key 策略。`parseState` 复用领域已有 parser，并拥有领域字段与元数据校验；它必须确定性地接受自身输出，id 和 key 策略也只对解析后的 state 执行确定性纯计算。parser 产出或 id、key 的名称、模式和含义变化时提升 `definitionVersion`，不改变投影的实现重构和普通源内容变化不提升该版本。
 4. 索引条目：通用层只保存 `id`、JSON `state` 和派生 `keys`。id 必须唯一；key 可以重复或一对多。无领域定义的底层加载和查询返回原始 JSON state；传入定义或使用领域 runtime 时，通用层重新解析 state、核对 id 与 keys，并返回对应领域 state 类型。
-5. 查询：filter 只使用 id 或已声明 key，支持 exact all/any/none、range 比较、text all/any、存在性、多字段排序和带上限的 offset/limit。`range` 数值按数值顺序比较，字符串按固定字典序比较；时间等具有领域顺序的值先由 key 策略转换为 epoch 数值或其他保持真实顺序的标量。参与排序的 key 在每条命中 state 上最多有一个值。
-6. 新鲜度：`read` 返回同一时点的完整 `{ revision, states }`，`readRevision` 返回当前 revision；同一 `definitionVersion` 下，revision 相等必须保证重新读取会产生相同的完整 state 投影。任何可能改变索引成员、state、id 或 keys 的源变化都必须改变 revision，不影响投影的变化也可以保守地产生新 revision。具体低成本算法仍由领域 owner 负责，通用层不推断 Git 或文件状态。
-7. 写入：`syncStateIndex` 从完整 state 快照检查或确定性重建 JSON，写入前再次核对 revision，在仓库根目录边界内原子替换并读回验证，不写领域源。领域 writer 完成事实写入后调用完整同步，并负责避免源写入与同步事务互相穿插。索引只提供完整同步；增量协议必须由接入后的领域证据和独立长期决策触发。
-8. 动态 state：查询可以接收使用同一定义产生的完整 runtime state；同 id 临时替换静态条目，新 id 临时追加，磁盘索引保持不变。
-9. 确定性：索引不保存生成时间；对象键、key 定义、key 值和条目使用与区域设置无关的固定全序，领域 state 中数组保持原顺序。序列化固定产生 LF，检查时把 Git checkout 可能产生的 CRLF 视为等价。
-10. 测试与接入：`tools/index-runtime/tests/run.ts` 覆盖三个领域外形、parser 边界、revision 一致性、运行时 state、查询和确定性同步，并保留 Node/Bun 下的一千条及五千条规模证据；这些测量不定义持续性能 SLO，领域 reader 的端到端成本在各自接入时验证。`decision-records` 是当前首个领域消费者；其他领域在完成自身 state、revision、key 和端到端成本设计前不因该先例自动接入。构建器把被消费的通用源码内联进目标 skill 的自包含分发脚本。
+5. Reader：`createStateIndexRuntime(...).open()` 校验一次当前 revision 并返回绑定该索引快照的不可变 reader；reader 统一提供 `query`、按保留 `id` 的 `get` 和自行遍历分页的 `all`。同一 reader 上的多次读取不重复校验 revision；需要观察新的源状态时重新 `open`。领域接口映射这些能力，不用特殊 filter 模拟 get，也不复制全量分页循环。
+6. 查询：filter 只使用 id 或已声明 key，支持 exact all/any/none、range 比较、text all/any、存在性、多字段排序和带上限的 offset/limit。`range` 数值按数值顺序比较，字符串按固定字典序比较；时间等具有领域顺序的值先由 key 策略转换为 epoch 数值或其他保持真实顺序的标量。参与排序的 key 在每条命中 state 上最多有一个值。
+7. 新鲜度：`read` 返回同一时点的完整 `{ revision, states }`，`readRevision` 返回当前 revision；同一 `definitionVersion` 下，revision 相等必须保证重新读取会产生相同的完整 state 投影。任何可能改变索引成员、state、id 或 keys 的源变化都必须改变 revision，不影响投影的变化也可以保守地产生新 revision。具体低成本算法仍由领域 owner 负责，通用层不推断 Git 或文件状态。
+8. 写入：`syncStateIndex` 从完整 state 快照检查或确定性重建 JSON，写入前再次核对 revision，在仓库根目录边界内原子替换并读回验证，不写领域源。领域 writer 完成事实写入后调用完整同步，并负责避免源写入与同步事务互相穿插。索引只提供完整同步；增量协议必须由接入后的领域证据和独立长期决策触发。
+9. 动态 state：查询可以接收使用同一定义产生的完整 runtime state；同 id 临时替换静态条目，新 id 临时追加，磁盘索引保持不变。
+10. 确定性：索引不保存生成时间；对象键、key 定义、key 值和条目使用与区域设置无关的固定全序，领域 state 中数组保持原顺序。序列化固定产生 LF，检查时把 Git checkout 可能产生的 CRLF 视为等价。
+11. 测试与接入：`tools/index-runtime/tests/run.ts` 覆盖三个领域外形、parser 边界、revision 一致性、reader 快照、运行时 state、查询和确定性同步，并保留 Node/Bun 下的一千条及五千条规模证据；这些测量不定义持续性能 SLO，领域 reader 的端到端成本在各自接入时验证。`decision-records` 与 `test-evidence` 是当前领域消费者；其他领域在完成自身 state、revision、key 和端到端成本设计前不因先例自动接入。构建器把被消费的通用源码内联进目标 skill 的自包含分发脚本。
 
 ### 版本管理中间层
 
@@ -181,18 +182,19 @@ Codex 工作区在 `.codex/environments/` 提供两个并列环境：
 `test-evidence-review` CLI 的维护入口：
 
 1. 源码：`tools/test-evidence/src/`。
-2. 函数声明源：`tools/test-evidence/api/test-entry-regex.d.mts`、`test-evidence-ledger.d.mts`；数据声明由 `src/schemas.ts` 单向生成到同目录的 `*.types.d.mts`，供声明引用解析和根类型检查。
-3. 测试：`tools/test-evidence/tests/`。
-4. Git fixture 源：`tools/test-evidence/tests/fixture-source.ts`。
-5. Git fixture 产物：`tools/test-evidence/tests/fixtures/reviewed-workspace.bundle`。
-6. Git fixture 构建入口：`tools/test-evidence/tests/build-fixture.ts`。
-7. CLI 构建入口：`scripts/build/test-evidence.ts`。
-8. 分发 CLI：`skills/test-evidence-review/scripts/test-entry-regex.mjs`、`test-evidence-ledger.mjs`，以及各自 `.d.mts` 和 source map。
-9. 分发数据契约：`skills/test-evidence-review/references/schemas/*.schema.json` 和 `scripts/*.types.d.mts`；二者都由 `src/schemas.ts` 生成。
-10. CLI 同步：`bun run sync:test-evidence-cli`。
-11. CLI 检查：`bun run check:test-evidence-cli`。
-12. Fixture 同步与检查：`bun run sync:test-evidence-fixture`、`bun run check:test-evidence-fixture`。
-13. 测试：`bun run test:test-evidence-cli`。
+2. 领域索引适配：`tools/test-evidence/src/state-index.ts` 承接合法账本 case 的紧凑摘要、源范围、查询所需 Code/Scope/review 基线、case ID 身份、`search|status|verification|review-triggered` key、账本 source revision 和同步结果映射；完整 case 正文保持在 Markdown，`query.ts` 通过通用 reader query/all 组合普通与动态查询，`case-show.ts` 通过 reader get 按索引范围定点展开。入口 marker 只由严格检查和 inspection 消费，review trigger 仅在显式动态查询时作为 runtime state 叠加；索引外壳、解析、新鲜度、查询、分页遍历、revision 核对与原子同步复用 `tools/index-runtime/src/`。
+3. 函数声明源：`tools/test-evidence/api/test-entry-regex.d.mts`、`test-evidence-ledger.d.mts`；数据声明由 `src/schemas.ts` 单向生成到同目录的 `*.types.d.mts`，供声明引用解析和根类型检查。
+4. 测试：`tools/test-evidence/tests/`。
+5. Git fixture 源：`tools/test-evidence/tests/fixture-source.ts`。
+6. Git fixture 产物：`tools/test-evidence/tests/fixtures/reviewed-workspace.bundle`。
+7. Git fixture 构建入口：`tools/test-evidence/tests/build-fixture.ts`。
+8. CLI 构建入口：`scripts/build/test-evidence.ts`，把测试证据源码及使用到的通用索引源码内联为自包含分发模块。
+9. 分发 CLI：`skills/test-evidence-review/scripts/test-entry-regex.mjs`、`test-evidence-ledger.mjs`，以及各自 `.d.mts` 和 source map。
+10. 分发数据契约：`skills/test-evidence-review/references/schemas/*.schema.json` 和 `scripts/*.types.d.mts`，包含索引文件与同步结果；二者都由 `src/schemas.ts` 生成。
+11. CLI 同步：`bun run sync:test-evidence-cli`。
+12. CLI 检查：`bun run check:test-evidence-cli`。
+13. Fixture 同步与检查：`bun run sync:test-evidence-fixture`、`bun run check:test-evidence-fixture`。
+14. 测试：`bun run test:test-evidence-cli`。
 
 `skill-maintainer` 结构验证器的维护入口：
 

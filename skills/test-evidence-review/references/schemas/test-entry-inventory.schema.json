@@ -19,6 +19,7 @@
               "config",
               "discovery",
               "git",
+              "index",
               "inventory",
               "mapping",
               "review"

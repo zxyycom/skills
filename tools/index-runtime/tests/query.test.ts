@@ -131,39 +131,51 @@ export async function testQueries(): Promise<void> {
   );
 
   const originalTestStates = await testEvidenceStates();
-  const duplicateReference: TestEvidenceState = {
-    ...originalTestStates[0]!,
-    line: 100,
-    title: "Second occurrence of the same case id",
-    trigger: null
-  };
   const staticStates = originalTestStates.map((state) => ({
     ...state,
     trigger: null
   }));
   const testSource: MemoryStateSource<TestEvidenceState> = {
     revision: "test-revision-1",
-    states: [...staticStates, duplicateReference]
+    states: staticStates
   };
   const testDefinition = testEvidenceDefinition(testSource);
   const testIndex = resultValue(await buildStateIndex(testDefinition, { root: "." }));
 
-  const duplicateKey = queryStateIndex({
+  assert.deepEqual(
+    testIndex.entries.map((entry) => entry.id),
+    ["read-error", "state-query"]
+  );
+  const searchedTestEvidence = queryStateIndex({
     index: testIndex,
     query: {
       filters: [{
-        key: "case-id",
-        kind: "exact",
+        key: "search",
+        kind: "text",
         operator: "all",
-        values: ["state-query"]
-      }],
-      sort: [{ direction: "asc", key: "line" }]
+        text: "state query"
+      }]
     }
   });
   assert.deepEqual(
-    resultValue(duplicateKey).entries.map((entry) => entry.id),
-    ["state-query@42", "state-query@100"]
+    resultValue(searchedTestEvidence).entries.map((entry) => entry.id),
+    ["state-query"]
   );
+
+  const duplicateCaseId = await buildStateIndex(
+    testEvidenceDefinition({
+      revision: "test-revision-duplicate",
+      states: [
+        ...staticStates,
+        { ...staticStates[0]!, title: "Duplicate stable case identity" }
+      ]
+    }),
+    { root: "." }
+  );
+  assert.equal(duplicateCaseId.status, "error");
+  assert.ok(duplicateCaseId.diagnostics.some((entry) => (
+    entry.code === "state-index.id-duplicate"
+  )));
 
   const runtimeState: TestEvidenceState = {
     ...staticStates[0]!,
@@ -184,10 +196,10 @@ export async function testQueries(): Promise<void> {
   });
   assert.deepEqual(
     resultValue(dynamic).entries.map((entry) => entry.id),
-    ["state-query@42"]
+    ["state-query"]
   );
   assert.equal(testIndex.entries.find((entry) => (
-    entry.id === "state-query@42"
+    entry.id === "state-query"
   ))?.keys["review-triggered"], undefined);
 
   const paged = queryStateIndex({
@@ -195,11 +207,11 @@ export async function testQueries(): Promise<void> {
     query: {
       limit: 1,
       offset: 1,
-      sort: [{ direction: "desc", key: "line" }]
+      sort: [{ direction: "desc", key: "id" }]
     }
   });
   assert.equal(resultValue(paged).entries.length, 1);
-  assert.equal(resultValue(paged).total, 3);
+  assert.equal(resultValue(paged).total, 2);
 
   const wrongMode = queryStateIndex({
     index: decisionIndex,

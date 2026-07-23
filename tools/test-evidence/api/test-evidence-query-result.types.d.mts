@@ -8,7 +8,7 @@
 export interface TestEvidenceQueryResult {
   cases: {
     codePath: string | null;
-    contract: string[];
+    endLine: number;
     id: string;
     lastReview: {
       at: string;
@@ -16,34 +16,30 @@ export interface TestEvidenceQueryResult {
       result: "pass" | "findings" | "blocked";
     } | null;
     line: number;
-    proves: string[];
-    reason: string[];
-    review: string[];
-    risk: string[];
     scope: string[];
-    sourceMarkers: {
-      attached: boolean;
-      entryColumn: number | null;
-      entryLine: number | null;
-      markerLine: number;
-      path: string;
-      role: "main" | "derived" | "exempt";
-    }[];
-    status: ("active" | "planned") | null;
+    status: "active" | "planned";
+    summary: string;
     title: string;
+    verification: "automated" | "review" | "exempt";
     trigger: {
       caseId: string;
       paths: string[];
       reasons: string[];
     } | null;
-    valid: boolean;
-    verification: ("automated" | "review" | "exempt") | null;
   }[];
+  catalogPath: string;
   diagnostics: {
     blocking: boolean;
     caseId?: string;
     category:
-      "catalog" | "config" | "discovery" | "git" | "inventory" | "mapping" | "review";
+      | "catalog"
+      | "config"
+      | "discovery"
+      | "git"
+      | "index"
+      | "inventory"
+      | "mapping"
+      | "review";
     code: string;
     column?: number;
     detectorId?: string;
@@ -53,10 +49,9 @@ export interface TestEvidenceQueryResult {
     severity: "error" | "warning";
   }[];
   incomplete: boolean;
-  reviewTriggers: {
-    caseId: string;
-    paths: string[];
-    reasons: string[];
-  }[];
-  schemaVersion: 2;
+  indexPath: string;
+  limit: number;
+  offset: number;
+  schemaVersion: 3;
+  total: number;
 }

@@ -1,0 +1,286 @@
+{
+  "type": "object",
+  "properties": {
+    "definitionVersion": {
+      "const": 2
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f])\\S(?:[\\s\\S]*\\S)?$"
+          },
+          "keys": {
+            "type": "object",
+            "properties": {
+              "review-triggered": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "const": true
+                  }
+                ],
+                "minItems": 1
+              },
+              "search": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f])\\S(?:[\\s\\S]*\\S)?$"
+                  }
+                ],
+                "minItems": 1
+              },
+              "status": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "enum": [
+                      "active",
+                      "planned"
+                    ],
+                    "type": "string"
+                  }
+                ],
+                "minItems": 1
+              },
+              "verification": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "enum": [
+                      "automated",
+                      "review",
+                      "exempt"
+                    ],
+                    "type": "string"
+                  }
+                ],
+                "minItems": 1
+              }
+            },
+            "required": [
+              "search",
+              "status",
+              "verification"
+            ],
+            "additionalProperties": false
+          },
+          "state": {
+            "type": "object",
+            "properties": {
+              "codePath": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "endLine": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "lastReview": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "at": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "commit": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "result": {
+                        "enum": [
+                          "pass",
+                          "findings",
+                          "blocked"
+                        ],
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "at",
+                      "commit",
+                      "result"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "line": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "scope": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "status": {
+                "enum": [
+                  "active",
+                  "planned"
+                ],
+                "type": "string"
+              },
+              "summary": {
+                "type": "string",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "verification": {
+                "enum": [
+                  "automated",
+                  "review",
+                  "exempt"
+                ],
+                "type": "string"
+              },
+              "trigger": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "codePath",
+              "endLine",
+              "id",
+              "lastReview",
+              "line",
+              "scope",
+              "status",
+              "summary",
+              "title",
+              "verification",
+              "trigger"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "keys",
+          "state"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "keyDefinitions": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "const": "exact"
+            },
+            "name": {
+              "const": "review-triggered"
+            }
+          },
+          "required": [
+            "mode",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "const": "text"
+            },
+            "name": {
+              "const": "search"
+            }
+          },
+          "required": [
+            "mode",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "const": "exact"
+            },
+            "name": {
+              "const": "status"
+            }
+          },
+          "required": [
+            "mode",
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "const": "exact"
+            },
+            "name": {
+              "const": "verification"
+            }
+          },
+          "required": [
+            "mode",
+            "name"
+          ],
+          "additionalProperties": false
+        }
+      ],
+      "minItems": 4
+    },
+    "namespace": {
+      "const": "test-evidence"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "sourceRevision": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  },
+  "required": [
+    "definitionVersion",
+    "entries",
+    "keyDefinitions",
+    "namespace",
+    "schemaVersion",
+    "sourceRevision"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/zxyycom/skills/main/skills/test-evidence-review/references/schemas/test-evidence-state-index.schema.json",
+  "title": "TestEvidenceStateIndex"
+}

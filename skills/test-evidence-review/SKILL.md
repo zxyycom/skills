@@ -4,7 +4,7 @@ description: >-
   在新增、修改、删除或审查测试时使用，包括 TDD、回归补测、覆盖率补测、测试重构
   与精简；当风险难以自动化、实现变更命中人工审查范围、测试发现器产生误报，CLI
   返回未登记入口、映射错误或 review trigger，需要定制入口采集，或需要巡检测试账本
-  和 CI 对账时也使用。
+  、按条件恢复或定点展开 case，以及和 CI 对账时也使用。
   它会评估测试固定的文字契约、独立证明点和维护成本，并同步可审计的 case、测试入口
   映射与人工审查状态。
 ---
@@ -13,7 +13,7 @@ description: >-
 
 ## 目标与边界
 
-对测试和难以自动化的稳定风险给出语义处置，并让保留的验证义务具有可回查的背景、实现入口或人工审查状态。记录服务于当前评估和后续巡检，不把“已有账本”“测试通过”或“CLI 通过”当成测试价值或项目测试正确性的证明。
+对测试和难以自动化的稳定风险给出语义处置，并让保留的验证义务具有可回查的背景、实现入口或人工审查状态。测试账本以紧凑 case 投影接入通用索引，先恢复有界摘要，再按 ID 展开单条账本原文，避免日常查询把完整账本或入口清单带入 agent 上下文。记录服务于当前评估和后续巡检，不把“已有账本”“测试通过”或“CLI 通过”当成测试价值或项目测试正确性的证明。
 
 测试框架负责执行测试；项目测试策略拥有测试层级、覆盖要求和正常验证入口。本 skill 不替代它们，也不因环境暂时不可运行就把风险降级为低价值或人工审查。
 
@@ -22,8 +22,8 @@ description: >-
 ## 内容 owner
 
 1. 本文件承接测试价值判断、任务范围、处置流程、写入授权、review trigger 的执行选择和按任务出口交付。
-2. [ledger-contract.md](references/ledger-contract.md) 是账本字段、测试入口角色、配置、Git Scope、CLI 精确语义和机器接口的固定契约。
-3. `scripts/test-entry-regex.mjs` 承接可配置的常见入口采集，`scripts/test-evidence-ledger.mjs` 只消费标准清单并承接账本校验与查询。两者都不执行测试、不判断断言或证明点质量，也不代替人工检查动作。
+2. [ledger-contract.md](references/ledger-contract.md) 是账本字段、接入通用索引的领域投影、测试入口角色、配置、Git Scope、CLI 精确语义和机器接口的固定契约。
+3. `scripts/test-entry-regex.mjs` 承接手动调用后自动完成的常见入口采集；`scripts/test-evidence-ledger.mjs` 使用标准清单完成严格对账，并通过通用索引 reader 承接不需要清单的同步、摘要查询和单 case 展开。通用索引源码已内联进后一个脚本，不形成跨 skill 运行时依赖；两者都不执行测试、不在后台运行、不自动写账本、不判断断言或证明点质量，也不代替人工检查动作。
 4. [upgrade-from-v2.md](references/upgrade-from-v2.md) 只承接旧版组合 CLI、配置和机器接口的升级路径；当前运行时不读取或迁移旧格式。
 5. `references/schemas/` 中的 JSON Schema 是跨语言数据契约，由源码 Valibot Schema 单向生成；相邻 TypeScript 数据声明继续由这些 Schema 生成，不另设手写类型 owner。
 6. 项目行为 owner 承接需要长期保持的产品、接口、schema、安全或工程契约；`Contract:` 只压缩当前 case 必须保持的行为背景，不记录 owner、代码路径或历史事故。
@@ -31,10 +31,10 @@ description: >-
 ## 读取与范围
 
 1. 先读取项目指令、测试策略、当前 diff、相关行为 owner、实现、测试和覆盖说明，再定位配置、账本与 Git 工作区；项目规则优先。
-2. 已有账本时先取得标准入口清单，再用账本层的 `list` 恢复 case 概览；主题明确时用 `show` 展开相关 case，最后运行 `check` 取得结构、入口映射和 review trigger 的严格诊断。查询中的非阻断 diagnostic 限定结果完整性，不等同于严格校验通过。
+2. 已有账本时先用账本层的 `list --query <text>` 按 case ID、标题、摘要、Code 或 Scope 定位相关 case；主题尚不明确时再用无查询的 `list` 恢复有界概览，然后用 `show` 只展开目标 case。需要入口归属、完整巡检或准备修改时，再显式运行入口采集并把标准清单交给 `check`，取得账本、索引、入口映射和 review trigger 的严格诊断。只有显式使用 `list --triggered` 时才为查询叠加当前 Git review trigger；正常 trigger 直接作为匹配 case 的查询数据，其他非阻断 diagnostic 才说明动态结果的提醒或完整性边界，不等同于严格校验通过。
 3. 纯语义审查先使用本文件和可恢复查询结果；只有准备初始化或写入账本、修复映射或结构、审阅账本契约，或者诊断需要精确字段语义时，才完整读取固定契约。
 4. 遇到旧 `schemaVersion: 2` 组合配置、`test-evidence.mjs`、`validateTestEvidence` 或只含 `errors`、`warnings` 的机器报告时读取升级文档；修改任务按当前两层接口升级调用方，只读任务只报告待升级位置和替换方式。
-5. 账本不存在时记录接入缺口；修改任务在完成语义评估后初始化并登记当前范围，只读任务只给出拟记录和映射，不创建文件。
+5. 账本不存在时记录接入缺口；修改任务在完成语义评估后初始化并登记当前范围，再用 `sync-index --write` 生成派生索引；只读任务只给出拟记录和映射，不创建文件。
 6. CLI 或 Node 暂时不可用时，直接读取现有账本和相关源码完成能够证明的语义审查，明确哪些映射、Scope 或 trigger 未机械验证；依赖 Git 状态且无法恢复的人工 review 返回 blocked 和具体缺口。
 7. 默认评估本次新增、修改或删除的测试与实现、它们所属的 case、命中当前 Git 变化的 review Scope 和必要相邻证据。只有用户要求、项目约定或发现跨边界风险时才扩大语义评估。
 8. 与当前变化无关的存量未登记入口按配置报告，不要求借当前任务顺手清零；本次新增或修改的入口必须完成语义处置和必要映射。
@@ -78,7 +78,8 @@ TDD、防回归、覆盖率和历史 bug 只提供调查动机。只更换字面
    - **人工审查**：存在稳定风险，自动化成本不成比例，且能写出只读、具体、可执行的检查动作；使用 active review。
    - **发现豁免**：采集器把非测试语法识别为测试入口；先判断是否应收紧项目采集配置或改用更精确的自定义采集器，仍需把该入口作为长期已审计结果保留时使用 active exempt；不用它承接低价值测试或难测风险。
 4. **按授权实施**：修改任务使用最小输入和断言完成处置，并同步必要的行为 owner、账本和入口角色。契约与测试不一致且无法从现有 owner 判断时，只确认应改变哪一方。
-5. **验证结果**：运行最小相关测试、命中的人工检查动作和最终严格 `check`；按项目要求补充类型检查、lint、构建或更大范围测试。
+5. **同步读模型**：账本 case 的稳定内容变化后运行 `sync-index --write`；索引是可重建副本，不手工编辑，也不把入口清单或 review trigger 写入索引。
+6. **验证结果**：运行最小相关测试、命中的人工检查动作和最终严格 `check`；按项目要求补充类型检查、lint、构建或更大范围测试。
 
 ## 账本与 review trigger
 
@@ -93,17 +94,17 @@ TDD、防回归、覆盖率和历史 bug 只提供调查动机。只更换字面
 从 skill 目录运行，或使用脚本绝对路径：
 
 ```text
-node scripts/test-entry-regex.mjs --root <workspace-root> > inventory.json
-node scripts/test-evidence-ledger.mjs list --inventory inventory.json --root <workspace-root>
-node scripts/test-evidence-ledger.mjs show <case-id> --inventory inventory.json --root <workspace-root>
-node scripts/test-evidence-ledger.mjs check --inventory inventory.json --root <workspace-root>
+node scripts/test-evidence-ledger.mjs sync-index --write --root <workspace-root>
+node scripts/test-evidence-ledger.mjs list --query "<behavior or path>" --root <workspace-root>
+node scripts/test-evidence-ledger.mjs show <case-id> --root <workspace-root>
+node scripts/test-entry-regex.mjs --root <workspace-root> | node scripts/test-evidence-ledger.mjs check --inventory - --root <workspace-root>
 ```
 
-`list` 和 `show` 用于恢复可读 case、入口映射和 trigger；它们可以在无关条目存在诊断时返回可恢复结果，并用非阻断 diagnostic 标明不完整性。`check` 是严格校验。需要机器输出时增加 `--json`；精确筛选、输出 Schema、合法参数和退出状态以固定契约与 `--help` 为准。
+`sync-index` 检查派生索引，增加 `--write` 才会从合法账本原子重建；它不需要入口清单。`list` 默认最多返回 20 条紧凑摘要，可组合文本、状态和验证方式筛选；`show` 在相同新鲜度检查后按索引定位读取一个 case 的原始 Markdown；两者不运行入口采集，也不要求清单。`list --triggered` 是显式的 Git 动态查询，正常 trigger 只叠加到匹配 case，不写索引、不重复输出为查询错误。索引缺失或陈旧时先报告，修改任务才运行 `sync-index --write`。`check` 才是需要标准清单的严格对账入口，并检查索引、入口映射、Scope 和 trigger。默认用 stdin 管道传递一次性清单；只有调试或复用同一清单时才落盘。需要机器输出时增加 `--json`；精确筛选、分页、输出 Schema、合法参数和退出状态以固定契约与 `--help` 为准。
 
 默认采集层使用内置常见正则。只有项目需要改变文件范围或入口模式时才创建 `.test-entry-regex.json`；要求 AST、框架注册表或其他语法级收集时，让项目工具输出标准 `TestEntryInventory`，再调用 `test-evidence-ledger.mjs --inventory`，不要把采集规则写回账本配置。清单是两层之间的调用数据，不是账本的一部分，是否落盘及其临时路径由调用方决定。
 
-两个 MJS 都可以安全导入：正则层导出 `collectRegexTestEntries`，账本层导出 `parseTestEntryInventory`、`inspectTestEvidenceLedger` 与 `validateTestEvidenceLedger`。调用方显式把前者返回的清单传给后者；精确配置、Schema、命令和导入签名以固定契约为准。
+两个 MJS 都可以安全导入：正则层导出 `collectRegexTestEntries`，账本层导出 `parseTestEntryInventory`、`inspectTestEvidenceLedger`、`queryTestEvidenceLedger`、`showTestEvidenceCase`、`syncTestEvidenceIndex` 与 `validateTestEvidenceLedger`。调用方只把前者返回的清单传给 inspection 和严格校验函数；索引查询与单条展开不接收清单。精确配置、Schema、命令和导入签名以固定契约为准。
 
 ## 周期巡检
 
@@ -120,7 +121,7 @@ node scripts/test-evidence-ledger.mjs check --inventory inventory.json --root <w
 
 1. 本次新增或修改的 automated case 具有可独立理解的 `Contract:` 和可观察 `Proves:`；测试入口各自映射合法角色和 case。
 2. review case 具有稳定契约、有效 Scope、成本原因和只读检查动作；exempt case 对应真实发现误报。
-3. 已运行最小相关测试和严格 `check`，或明确报告无法运行的边界及其残余风险。
+3. 派生索引已经从当前合法账本同步；已运行最小相关测试和严格 `check`，或明确报告无法运行的边界及其残余风险。
 
 ### 命中人工检查
 

@@ -15,6 +15,7 @@ import type {
 export type GitValidationOptions = {
   catalogPath: string;
   configPath: string;
+  indexPath: string;
   reviewMaxAgeDays?: number;
   reviewTriggerPolicy: ReviewTriggerPolicy;
   scopedCases: readonly LedgerCase[];
@@ -58,7 +59,11 @@ export async function validateGitState(
     })
   );
   const reviewTriggers: ReviewTrigger[] = [];
-  const ignoredStatePaths = new Set([options.catalogPath, options.configPath]);
+  const ignoredStatePaths = new Set([
+    options.catalogPath,
+    options.configPath,
+    options.indexPath
+  ]);
 
   for (const entry of scopedCases) {
     const matchers = entry.scopePatterns.map(compileScopePattern);

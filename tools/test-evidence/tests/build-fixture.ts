@@ -8,6 +8,7 @@ import {
   writeInitialFixtureWorkspace,
   writeReviewedFixtureCatalog
 } from "./fixture-source.ts";
+import { syncTestEvidenceIndex } from "../src/state-index.ts";
 
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const fixturePath = path.join(
@@ -23,12 +24,14 @@ try {
   await fs.mkdir(repositoryRoot, { recursive: true });
   initializeGit(repositoryRoot);
   await writeInitialFixtureWorkspace(repositoryRoot);
+  await syncFixtureIndex(repositoryRoot);
   const reviewedCommit = commitAll(
     repositoryRoot,
     "initial evidence",
     "2026-07-20T00:00:00Z"
   );
   await writeReviewedFixtureCatalog(repositoryRoot, reviewedCommit);
+  await syncFixtureIndex(repositoryRoot);
   const fixtureHead = commitAll(
     repositoryRoot,
     "record completed review",
@@ -59,6 +62,18 @@ try {
   }
 } finally {
   await fs.rm(tempRoot, { force: true, recursive: true });
+}
+
+async function syncFixtureIndex(repositoryRoot: string): Promise<void> {
+  const result = await syncTestEvidenceIndex({
+    mode: "write",
+    workspaceRoot: repositoryRoot
+  });
+  if (result.status === "error") {
+    throw new Error(
+      `Could not build fixture test-evidence index: ${JSON.stringify(result.diagnostics)}`
+    );
+  }
 }
 
 function parseMode(args: readonly string[]): "check" | "write" {

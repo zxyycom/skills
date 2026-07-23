@@ -1,8 +1,11 @@
 import type { TestEntryInventory } from "./test-entry-inventory.types.mjs";
+import type { TestEvidenceCaseShowResult } from "./test-evidence-case-show-result.types.mjs";
 import type { TestEvidenceInspection } from "./test-evidence-inspection.types.mjs";
+import type { TestEvidenceIndexSyncResult } from "./test-evidence-index-sync-result.types.mjs";
 import type { TestEvidenceLedgerConfig } from "./test-evidence-ledger-config.types.mjs";
 import type { TestEvidenceQueryResult } from "./test-evidence-query-result.types.mjs";
 import type { TestEvidenceReport } from "./test-evidence-report.types.mjs";
+import type { TestEvidenceStateIndex } from "./test-evidence-state-index.types.mjs";
 
 export type StandardOutputSchema<T> = {
   readonly "~standard": {
@@ -24,23 +27,58 @@ export type ParsedTestEntryInventory = {
   inventory: TestEntryInventory | null;
 };
 
-export type TestEvidenceCaseView = TestEvidenceInspection["cases"][number];
+export type QueryTestEvidenceLedgerOptions = {
+  config?: unknown;
+  configPath?: string;
+  limit?: number;
+  offset?: number;
+  query?: string;
+  status?: "active" | "planned" | "all";
+  triggered?: boolean;
+  verification?: "automated" | "review" | "exempt" | "all";
+  workspaceRoot: string;
+};
+
+export type ShowTestEvidenceCaseOptions = {
+  caseId: string;
+  config?: unknown;
+  configPath?: string;
+  workspaceRoot: string;
+};
+
+export type SyncTestEvidenceIndexOptions = {
+  config?: unknown;
+  configPath?: string;
+  mode: "check" | "write";
+  workspaceRoot: string;
+};
+
+export type TestEvidenceCaseView = TestEvidenceQueryResult["cases"][number];
 export type TestEvidenceDiagnostic = TestEvidenceReport["diagnostics"][number];
 export type TestEvidenceSummary = TestEvidenceReport["summary"];
 
 export type {
   TestEntryInventory,
+  TestEvidenceCaseShowResult,
   TestEvidenceInspection,
+  TestEvidenceIndexSyncResult,
   TestEvidenceLedgerConfig,
   TestEvidenceQueryResult,
-  TestEvidenceReport
+  TestEvidenceReport,
+  TestEvidenceStateIndex
 };
 
 export declare const testEntryInventorySchema: StandardOutputSchema<TestEntryInventory>;
+export declare const testEvidenceCaseShowResultSchema:
+  StandardOutputSchema<TestEvidenceCaseShowResult>;
 export declare const testEvidenceInspectionSchema: StandardOutputSchema<TestEvidenceInspection>;
+export declare const testEvidenceIndexSyncResultSchema:
+  StandardOutputSchema<TestEvidenceIndexSyncResult>;
 export declare const testEvidenceLedgerConfigSchema: StandardOutputSchema<unknown>;
 export declare const testEvidenceQueryResultSchema: StandardOutputSchema<TestEvidenceQueryResult>;
 export declare const testEvidenceReportSchema: StandardOutputSchema<TestEvidenceReport>;
+export declare const testEvidenceStateIndexSchema:
+  StandardOutputSchema<TestEvidenceStateIndex>;
 
 export declare function parseTestEntryInventory(
   value: unknown,
@@ -50,6 +88,18 @@ export declare function parseTestEntryInventory(
 export declare function inspectTestEvidenceLedger(
   options: ValidateTestEvidenceLedgerOptions
 ): Promise<TestEvidenceInspection>;
+
+export declare function queryTestEvidenceLedger(
+  options: QueryTestEvidenceLedgerOptions
+): Promise<TestEvidenceQueryResult>;
+
+export declare function showTestEvidenceCase(
+  options: ShowTestEvidenceCaseOptions
+): Promise<TestEvidenceCaseShowResult>;
+
+export declare function syncTestEvidenceIndex(
+  options: SyncTestEvidenceIndexOptions
+): Promise<TestEvidenceIndexSyncResult>;
 
 export declare function validateTestEvidenceLedger(
   options: ValidateTestEvidenceLedgerOptions

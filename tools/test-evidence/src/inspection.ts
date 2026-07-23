@@ -4,6 +4,7 @@ import type {
   ReviewTrigger,
   TestEntryInventory,
   TestEntryMarker,
+  TestEvidenceCaseState,
   TestEvidenceCaseView,
   TestEvidenceSourceEntryView,
   TestEvidenceSourceMarkerView
@@ -20,6 +21,19 @@ export type InspectionViews = {
   cases: TestEvidenceCaseView[];
   sourceEntries: TestEvidenceSourceEntryView[];
 };
+
+export function buildIndexedCaseStates(options: {
+  reviewTriggers: readonly ReviewTrigger[];
+  states: readonly TestEvidenceCaseState[];
+}): TestEvidenceCaseState[] {
+  const triggers = new Map(
+    options.reviewTriggers.map((trigger) => [trigger.caseId, trigger])
+  );
+  return options.states.map((state) => ({
+    ...state,
+    trigger: triggers.get(state.id) ?? null
+  }));
+}
 
 export function buildInspectionViews(
   options: BuildInspectionViewsOptions

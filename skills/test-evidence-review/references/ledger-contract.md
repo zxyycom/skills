@@ -1,10 +1,10 @@
 # 测试证据账本契约
 
-本引用定义 `test-evidence-review` 的账本字段、测试入口角色、Git Scope、配置和 CLI 一致性约束。执行顺序、写入授权和语义评估由 [SKILL.md](../SKILL.md) 承接。
+本引用定义 `test-evidence-review` 的账本字段、通用索引领域适配、测试入口角色、Git Scope、配置和 CLI 一致性约束。执行顺序、写入授权和语义评估由 [SKILL.md](../SKILL.md) 承接。
 
 ## 通用模型
 
-默认账本路径是 `docs/testing/cases.md`，默认配置路径是 `.test-evidence.json`。账本保存当前验证义务和评估所需的稳定背景，源码标记把被发现的测试入口映射到 case，CLI 校验结构、入口角色、Git Scope、review trigger 和未登记入口。
+默认账本路径是 `docs/testing/cases.md`，默认派生索引路径是 `docs/testing/test-evidence-index.json`，默认配置路径是 `.test-evidence.json`。Markdown 账本保存当前验证义务和评估所需的权威稳定背景；索引只保存可删除重建的紧凑 case 投影、源定位与查询 key；源码标记把被发现的测试入口映射到 case。CLI 用索引提供低上下文查询，并在显式严格检查时校验账本与索引同步状态、入口角色、Git Scope、review trigger 和未登记入口。
 
 case 标题固定使用：
 
@@ -22,6 +22,35 @@ case 标题固定使用：
 4. `active + exempt`：被发现的测试语法已审计为误报。
 
 review 和 exempt 不使用 planned。验证方式变化时保留稳定 case ID，并替换字段和入口映射。所有路径和 glob 使用工作区相对 POSIX 形式。
+
+## 派生状态索引
+
+测试账本是通用状态索引的领域消费者，不维护独立的索引协议或查询引擎。通用层拥有索引外壳及其 Schema 组合、新鲜度校验、确定性同步和只读 `query|get|all`；测试领域适配只提供 Markdown 到 state 的投影、稳定 case ID、source revision、查询 key 和按需 Git runtime state，并把通用结果映射为账本诊断与 CLI 输出。
+
+索引固定为 `schemaVersion: 1`、`namespace: test-evidence`、`definitionVersion: 2`。Markdown 账本始终是权威源；索引只保存能够从合法账本完整重建的副本，不拥有 case 写入或修复。
+
+每个合法 case 产生一个紧凑 state，只保存日常定位、筛选和动态 review 查询需要的投影：
+
+1. case ID、标题、状态和验证方式。
+2. case 在当前账本中的起止行，用于 `show` 定点读取原始 Markdown；行号只属于源定位，不参与身份。
+3. 单行 `summary`：automated 和 review 取第一个 `Contract:` 项，exempt 取第一个 `Reason:` 项。它是现有权威字段的确定性摘要，不要求作者维护第二份文字。
+4. automated 的 `Code:`，review 或 exempt 的规范化 `Scope:`，以及 review 最近一次可持久化基线。
+5. 持久 state 的 `trigger` 固定为 `null`；只有显式动态查询可以用同一 ID 临时替换为带 trigger 的 runtime state。
+
+完整 `Contract:`、`Proves:`、`Risk:`、`Reason:`、`Review:`、Mermaid 和其他 case 正文不进入索引，也不进入 `list` 的机器结果；需要这些内容时使用 `show`。稳定身份直接使用 case ID。重复 case ID、非法字段组合、无效源范围或其他账本结构错误会阻止索引同步，不用 `caseId@line` 等替代身份把错误收进索引。
+
+索引只声明当前领域查询需要的 key：
+
+1. 保留的通用 `id` 查询直接使用 case ID。
+2. `search` 是单值 text key，由 case ID、标题、单行摘要、Code 或 Scope 确定性拼接，用于按行为词、标识或路径查找既有 case；它不额外引入作者维护的正文。
+3. `status` 和 `verification` 是持久化 state 的单值 exact key。
+4. `review-triggered` 是查询时动态 state 的单值 exact key；只有当前 trigger 存在时派生 `true`。
+
+入口清单及其 `sourceMarkers` 不进入索引查询 state；入口归属只由显式调用的 `check` 或 inspection 恢复。普通 `list` 和 `show` 不运行采集器、不读取清单，也不扫描入口映射。只有 `list --triggered` 或导入查询的 `triggered: true` 会读取当前 Git 状态，并用同一 case ID 临时叠加 review trigger；索引文件因此不随测试入口采集、脏工作区或时间变化而改写。
+
+`sourceRevision` 是对规范化账本文本、`catalogPath` 和 `caseIdPattern` 的 SHA-256 投影。上述任一输入可能改变成员、state、身份或 key 时 revision 必须变化；入口清单、Git 工作区、诊断策略和 index 文件路径不参与 revision。索引 state、身份或 key 契约变化时提升 `definitionVersion`。
+
+`sync-index` 默认只检查，`sync-index --write` 才通过通用同步从完整合法账本原子替换索引。`check` 也执行同步检查但不写入；`list`、`show`、`queryTestEvidenceLedger` 和 `showTestEvidenceCase` 只在索引格式、领域定义和 source revision 当前时打开通用 reader。`list` 映射为 reader query，默认最多返回 20 条，接受 `query`、`status`、`verification`、`limit` 和 `offset` 并始终返回当前筛选的 `total`；非空文本查询按空白拆词，所有词都必须在同一 case 的 `search` key 中出现。`show` 使用 reader get 按保留 `id` 定位，再按已校验源范围只输出该 case 的原始 Markdown；领域层不以隐藏筛选模拟 get，也不重复实现全量分页。索引缺失、损坏或陈旧时明确失败并提示重建，不回退为每次重新解析整份账本，也不静默使用旧 state。精确文件结构由 [test-evidence-state-index.schema.json](schemas/test-evidence-state-index.schema.json) 定义；不得手工构造或局部修补索引。
 
 ## 账本格式
 
@@ -202,7 +231,7 @@ Reason:
 4. 最近结果是 findings 或 blocked。
 5. `Reviewed-Commit` 无法在当前 Git 历史中读取。
 
-账本和配置文件是 review 状态载体，不因自身状态更新触发 Scope CR。CLI 只返回 trigger 和命中路径，不执行 `Review:`；调用 skill 的 agent 按任务范围执行动作并报告结果。上述五类 trigger 都由 `reviewTriggers` 决定 warning 或 error，不把“提交基线不可读取”额外升级为不受配置控制的结构错误。存在稳定提交基线时再更新最近 CR 字段。
+账本、配置和派生索引是 review 状态载体，不因自身状态更新触发 Scope CR。CLI 只返回 trigger 和命中路径，不执行 `Review:`；调用 skill 的 agent 按任务范围执行动作并报告结果。上述五类 trigger 都由 `reviewTriggers` 决定 warning 或 error，不把“提交基线不可读取”额外升级为不受配置控制的结构错误。存在稳定提交基线时再更新最近 CR 字段。
 
 `reviewMaxAgeDays` 只产生长期未复核提醒；没有代码变更时，时间阈值本身不把最近结果判定为失效。
 
@@ -220,12 +249,13 @@ Reason:
 
 ### 账本配置
 
-默认路径 `.test-evidence.json`，固定使用 `schemaVersion: 3`：
+默认路径 `.test-evidence.json`，固定使用 `schemaVersion: 4`：
 
 ```json
 {
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "catalogPath": "docs/testing/cases.md",
+  "indexPath": "docs/testing/test-evidence-index.json",
   "caseIdPattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$",
   "unregisteredTestEntries": "error",
   "reviewTriggers": "error",
@@ -233,7 +263,7 @@ Reason:
 }
 ```
 
-`unregisteredTestEntries` 支持 `ignore | warn | error`，默认 `warn`；`reviewTriggers` 支持 `warn | error`，默认 `warn`；`reviewMaxAgeDays` 是可选正整数。该配置不包含文件发现、语言或正则字段，精确结构以 [test-evidence-ledger-config.schema.json](schemas/test-evidence-ledger-config.schema.json) 为准。
+`unregisteredTestEntries` 支持 `ignore | warn | error`，默认 `warn`；`reviewTriggers` 支持 `warn | error`，默认 `warn`；`reviewMaxAgeDays` 是可选正整数。`catalogPath`、`indexPath` 和配置文件自身必须是互不相同的工作区相对路径，防止同步覆盖权威源或配置。该配置不包含文件发现、语言或正则字段，精确结构以 [test-evidence-ledger-config.schema.json](schemas/test-evidence-ledger-config.schema.json) 为准。
 
 ### 正则采集配置
 
@@ -271,26 +301,27 @@ Reason:
 正则采集层与账本层分别调用：
 
 ```text
-node scripts/test-entry-regex.mjs --root <workspace-root> [--config <collector-config>] > inventory.json
+node scripts/test-entry-regex.mjs --root <workspace-root> [--config <collector-config>] | node scripts/test-evidence-ledger.mjs check --inventory - --root <workspace-root> [--config <ledger-config>] [--json]
+node scripts/test-evidence-ledger.mjs sync-index [--write] --root <workspace-root> [--config <ledger-config>] [--json]
 node scripts/test-evidence-ledger.mjs check --inventory inventory.json --root <workspace-root> [--config <ledger-config>] [--json]
-node scripts/test-evidence-ledger.mjs list --inventory inventory.json --root <workspace-root> [--json]
-node scripts/test-evidence-ledger.mjs show <case-id> --inventory inventory.json --root <workspace-root> [--json]
+node scripts/test-evidence-ledger.mjs list --root <workspace-root> [--query <text>] [--status <value>] [--verification <value>] [--triggered] [--limit <n>] [--offset <n>] [--json]
+node scripts/test-evidence-ledger.mjs show <case-id> --root <workspace-root> [--json]
 ```
 
-`--inventory -` 从 stdin 读取。`test-entry-regex.mjs` 只输出清单；`test-evidence-ledger.mjs` 不导入采集器。标准清单固定使用 v1，账本配置固定使用 v3，可选正则采集配置固定使用 v1，各入口按对应 Schema 严格校验。
+`--inventory -` 从 stdin 读取，也是单次严格检查的默认组合；只有需要调试或重复使用同一清单时才保存 `inventory.json`。只有 `check` 必须显式接收清单；`sync-index`、`list` 和 `show` 不接收清单。`test-entry-regex.mjs` 只在调用方显式运行后自动生成清单，不后台运行、不调用账本命令，也不写入账本；`test-evidence-ledger.mjs` 不导入采集器。标准清单固定使用 v1，账本配置固定使用 v4，可选正则采集配置固定使用 v1，各入口按对应 Schema 严格校验。
 
-`check` 是严格校验；`list` 和 `show` 是恢复查询。查询在配置、清单和账本可读取时返回仍可恢复的 case、入口映射和 review trigger，并把严格诊断复制为 `blocking: false` 的非阻断诊断；原始 `severity` 不变。配置、清单或账本不可读取，或者 `show` 目标缺失或不唯一时查询失败。
+`sync-index` 默认只检查索引，`--write` 才重建。`check` 是严格校验，并把索引缺失、损坏或陈旧作为 blocking diagnostic。普通 `list` 只从当前索引筛选紧凑 state；`--query` 接受至少一个非空白字符并与状态、验证方式和 trigger 条件组合，`--limit` 是 1 至 1000 的整数，默认 20，`--offset` 是非负整数。`list --triggered` 才从紧凑 state 恢复 review Scope 和最近基线、查询 Git 并叠加 runtime trigger；正常 trigger，包括基线提交不可读取这一触发原因，都由匹配 case 的 `trigger` 字段承接，不产生查询 diagnostic，也不令 `incomplete` 为 true。Git 工作区或 Scope 校验本身无法完整完成时才用非阻断 diagnostic 和 `incomplete: true` 表达；长期未复核提醒可以保留 diagnostic，但不表示查询不完整。`show` 从索引定位一个 case 并返回该范围的原始 Markdown，不返回其他 case 或入口映射。配置、账本 revision 或索引不可用，或者 `show` 目标缺失时查询失败。case ID 是唯一索引身份，不存在“同一 ID 多个查询结果”的合法状态。
 
-退出状态：`0` 表示严格检查没有 blocking diagnostic，或查询已返回可恢复结果；`1` 表示存在阻断诊断或查询缺少必要输入/唯一目标；`2` 表示参数错误。
+退出状态：`0` 表示同步检查当前、写同步成功、严格检查没有 blocking diagnostic，或查询已返回可恢复结果；`1` 表示索引未同步、存在阻断诊断或查询缺少必要输入/目标；`2` 表示参数错误。
 
 指定 `--json` 时，配置、清单文件或 JSON、账本和查询目标等可预期输入失败仍向 stdout 写出当前命令对应 Schema 的结构化结果，并保持 stderr 为空；参数语法错误继续由 CLI 帮助和退出状态 `2` 承接。
 
-严格报告固定使用 `schemaVersion: 2`。每项 diagnostic 至少包含 `blocking`、稳定 `code`、`category`、`severity` 和 `message`，按可用信息增加 `path`、`line`、`column`、`caseId` 或 `detectorId`。调用方使用 `diagnostics[].blocking` 判断命令完成状态，按 `severity` 区分问题级别；报告、inspection 和 query 的精确结构分别由 `references/schemas/` 中对应 JSON Schema 定义。
+严格报告、inspection、query、单 case show 和索引同步结果固定使用 `schemaVersion: 3`。query 结果包含紧凑 `cases`、`total`、`limit` 与 `offset`；动态 trigger 只出现在相应 `cases[].trigger`，不再复制一份顶层集合。show 结果包含一个紧凑 `case` 和对应 `markdown`。每项 diagnostic 至少包含 `blocking`、稳定 `code`、`category`、`severity` 和 `message`，按可用信息增加 `path`、`line`、`column`、`caseId` 或 `detectorId`；索引问题使用 `category: index` 和通用层稳定的 `state-index.*` code。调用方使用 `diagnostics[].blocking` 判断命令完成状态，按 `severity` 区分问题级别。精确结构由 `references/schemas/` 中对应 JSON Schema 定义。
 
 两个 MJS 都可安全导入且不会执行 CLI：
 
 1. `test-entry-regex.mjs` 导出 `collectRegexTestEntries(options)`、采集相关 Valibot Schema 和 `runRegexCollectorCli(argv)`。
-2. `test-evidence-ledger.mjs` 导出 `parseTestEntryInventory(value)`、`inspectTestEvidenceLedger(options)`、`validateTestEvidenceLedger(options)`、账本相关 Valibot Schema 和 `runTestEvidenceLedgerCli(argv)`。
+2. `test-evidence-ledger.mjs` 导出 `parseTestEntryInventory(value)`、`inspectTestEvidenceLedger(options)`、`queryTestEvidenceLedger(options)`、`showTestEvidenceCase(options)`、`syncTestEvidenceIndex(options)`、`validateTestEvidenceLedger(options)`、账本与索引相关 Valibot Schema 和 `runTestEvidenceLedgerCli(argv)`。只有 inspection 与 validate options 接收标准清单；query 和 show options 不接收。
 
 相邻 `.d.mts` 提供函数声明；数据类型由同一 Valibot Schema 先生成 JSON Schema，再生成 `*.types.d.mts`，不维护反向生成 Schema 的第二套类型定义。
 
