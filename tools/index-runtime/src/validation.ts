@@ -1,8 +1,7 @@
 import * as v from "valibot";
 import {
   isJsonObject,
-  isJsonValue,
-  type JsonObject
+  isJsonValue
 } from "./json.ts";
 import {
   isStateIndexKeyName,
@@ -35,7 +34,7 @@ export {
   stateIndexSchemaVersion
 };
 
-export function validateStateIndexDefinition<State extends JsonObject>(
+export function validateStateIndexDefinition<State extends object>(
   definition: StateIndexDefinition<State>
 ): string[] {
   const errors: string[] = [];

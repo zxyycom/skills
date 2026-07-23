@@ -58,7 +58,7 @@ export type DecisionState = v.InferOutput<typeof decisionStateSchema>;
 export type InvestigationState = v.InferOutput<typeof investigationStateSchema>;
 export type TestEvidenceState = v.InferOutput<typeof testEvidenceStateSchema>;
 
-export type MemoryStateSource<State extends JsonObject> = {
+export type MemoryStateSource<State extends object> = {
   revision: string;
   states: State[];
 };

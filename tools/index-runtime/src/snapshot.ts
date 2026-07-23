@@ -22,7 +22,7 @@ import {
   validateStateIndexValue
 } from "./validation.ts";
 
-export function defineStateIndexDefinition<State extends JsonObject>(
+export function defineStateIndexDefinition<State extends object>(
   definition: StateIndexDefinition<State>
 ): StateIndexDefinition<State> {
   const errors = validateStateIndexDefinition(definition);
@@ -38,7 +38,7 @@ export function defineStateIndexDefinition<State extends JsonObject>(
   return Object.freeze({ ...definition, keyStrategies });
 }
 
-export async function buildStateIndex<State extends JsonObject>(
+export async function buildStateIndex<State extends object>(
   definition: StateIndexDefinition<State>,
   context: StateIndexContext
 ): Promise<StateIndexResult<StateIndex>> {
@@ -76,7 +76,7 @@ export async function buildStateIndex<State extends JsonObject>(
     return { diagnostics, status: "error", value: null };
   }
 
-  const rawIndex: StateIndex = {
+  const rawIndex: unknown = {
     definitionVersion: definition.definitionVersion,
     entries,
     keyDefinitions: definition.keyStrategies.map(({ mode, name }) => ({ mode, name })),
@@ -95,7 +95,7 @@ export async function buildStateIndex<State extends JsonObject>(
   };
 }
 
-export function projectStateIndexEntry<State extends JsonObject>(
+export function projectStateIndexEntry<State extends object>(
   definition: StateIndexDefinition<State>,
   input: unknown
 ): StateIndexResult<StateIndexEntry<State>> {
@@ -222,7 +222,7 @@ export function canonicalizeStateIndex(index: StateIndex): StateIndex {
   };
 }
 
-export function expectationOf<State extends JsonObject>(
+export function expectationOf<State extends object>(
   definition: StateIndexDefinition<State>
 ): StateIndexExpectation {
   return {
@@ -231,7 +231,7 @@ export function expectationOf<State extends JsonObject>(
   };
 }
 
-export function keyDefinitionsOf<State extends JsonObject>(
+export function keyDefinitionsOf<State extends object>(
   definition: StateIndexDefinition<State>
 ): StateIndexKeyDefinition[] {
   return definition.keyStrategies

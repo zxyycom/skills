@@ -105,6 +105,22 @@ export async function testMaterialization(): Promise<void> {
       mode: "check"
     });
     assert.equal(current.state, "current");
+    const resolvedIndexPath = path.join(
+      tempRoot,
+      ...indexPath.split("/")
+    );
+    await fs.writeFile(
+      resolvedIndexPath,
+      (await fs.readFile(resolvedIndexPath, "utf8")).replace(/\n/g, "\r\n"),
+      "utf8"
+    );
+    const currentWithCrLf = await syncStateIndex({
+      context: { root: tempRoot },
+      definition,
+      indexPath,
+      mode: "check"
+    });
+    assert.equal(currentWithCrLf.state, "current");
 
     const loaded = await loadStateIndex({
       context: { root: tempRoot },

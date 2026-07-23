@@ -5,7 +5,6 @@ import {
   projectStateIndexEntry
 } from "./snapshot.ts";
 import type {
-  JsonObject,
   StateIndex,
   StateIndexDefinition,
   StateIndexEntry,
@@ -26,7 +25,7 @@ import {
   validateStateIndexValue
 } from "./validation.ts";
 
-export function queryStateIndex<State extends JsonObject>(options: {
+export function queryStateIndex<State extends object>(options: {
   definition: StateIndexDefinition<State>;
   index: StateIndex;
   query?: StateIndexQuery;
@@ -38,12 +37,12 @@ export function queryStateIndex(options: {
   query?: StateIndexQuery;
   runtimeStates?: undefined;
 }): StateIndexResult<StateIndexQueryOutput>;
-export function queryStateIndex<State extends JsonObject>(options: {
+export function queryStateIndex<State extends object>(options: {
   definition?: StateIndexDefinition<State>;
   index: StateIndex;
   query?: StateIndexQuery;
   runtimeStates?: readonly State[];
-}): StateIndexResult<StateIndexQueryOutput> {
+}): StateIndexResult<StateIndexQueryOutput<object>> {
   const validatedIndex = validateStateIndexValue(options.index, null, "<memory>");
   if (validatedIndex.index === null) {
     return {
@@ -126,8 +125,8 @@ export function findStateIndexEntry(
 
 function rawEntries(
   index: StateIndex,
-  runtimeStates: readonly JsonObject[] | undefined
-): StateIndexResult<StateIndexEntry[]> {
+  runtimeStates: readonly object[] | undefined
+): StateIndexResult<StateIndexEntry<object>[]> {
   if (runtimeStates !== undefined && runtimeStates.length > 0) {
     return failure(
       "state-index.runtime-definition-required",
@@ -137,7 +136,7 @@ function rawEntries(
   return { diagnostics: [], status: "ok", value: [...index.entries] };
 }
 
-function effectiveEntries<State extends JsonObject>(options: {
+function effectiveEntries<State extends object>(options: {
   definition: StateIndexDefinition<State>;
   index: StateIndex;
   runtimeStates: readonly State[] | undefined;
@@ -277,7 +276,10 @@ function normalizeQuery(query: StateIndexQueryValue): StateIndexQueryValue {
   };
 }
 
-function matchesFilter(entry: StateIndexEntry, filter: StateIndexFilter): boolean {
+function matchesFilter(
+  entry: StateIndexEntry<object>,
+  filter: StateIndexFilter
+): boolean {
   const actual = filter.key === "id" ? [entry.id] : (entry.keys[filter.key] ?? []);
   if (filter.kind === "exists") {
     return (actual.length > 0) === filter.value;
@@ -332,7 +334,7 @@ function effectiveSort(query: StateIndexQueryValue): StateIndexSort[] {
 }
 
 function validateSortCardinality(
-  entries: readonly StateIndexEntry[],
+  entries: readonly StateIndexEntry<object>[],
   sorts: readonly StateIndexSort[]
 ): ReturnType<typeof diagnostic>[] {
   for (const sort of sorts) {
@@ -352,8 +354,8 @@ function validateSortCardinality(
 }
 
 function compareEntries(
-  left: StateIndexEntry,
-  right: StateIndexEntry,
+  left: StateIndexEntry<object>,
+  right: StateIndexEntry<object>,
   sorts: readonly StateIndexSort[]
 ): number {
   for (const sort of sorts) {

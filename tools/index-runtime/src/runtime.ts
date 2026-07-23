@@ -5,7 +5,6 @@ import {
   syncStateIndex
 } from "./storage.ts";
 import type {
-  JsonObject,
   StateIndexContext,
   StateIndexDefinition,
   StateIndexEntry,
@@ -17,7 +16,7 @@ import type {
 } from "./types.ts";
 import { validateStateIndexDefinition } from "./validation.ts";
 
-export type StateIndexRuntime<State extends JsonObject> = {
+export type StateIndexRuntime<State extends object> = {
   get: (
     stateId: string,
     options?: { runtimeStates?: readonly State[] }
@@ -29,7 +28,7 @@ export type StateIndexRuntime<State extends JsonObject> = {
   sync: (mode: StateIndexSyncMode) => Promise<StateIndexSyncResult>;
 };
 
-export function createStateIndexRuntime<State extends JsonObject>(options: {
+export function createStateIndexRuntime<State extends object>(options: {
   definition: StateIndexDefinition<State>;
   indexPath: string;
   root: string;

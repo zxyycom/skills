@@ -26,7 +26,7 @@ export type {
 } from "./schemas.ts";
 
 export type StateIndexEntry<
-  State extends JsonObject = JsonObject
+  State extends object = JsonObject
 > = Omit<StateIndexEntryValue, "state"> & {
   state: State;
 };
@@ -43,7 +43,7 @@ export type StateIndexContext = {
   signal?: AbortSignal;
 };
 
-export type StateSnapshot<State extends JsonObject> = {
+export type StateSnapshot<State extends object> = {
   revision: string;
   states: readonly State[];
 };
@@ -53,13 +53,13 @@ export type StateKeyInput =
   | readonly StateIndexKeyScalar[]
   | undefined;
 
-export type StateKeyStrategy<State extends JsonObject> = {
+export type StateKeyStrategy<State extends object> = {
   derive: (state: State) => StateKeyInput;
   mode: StateIndexKeyMode;
   name: string;
 };
 
-export type StateIndexDefinition<State extends JsonObject = JsonObject> = {
+export type StateIndexDefinition<State extends object = JsonObject> = {
   definitionVersion: number;
   identify: (state: State) => string;
   keyStrategies: readonly StateKeyStrategy<State>[];
@@ -87,7 +87,7 @@ export type StateIndexResult<Value> =
   };
 
 export type StateIndexQueryOutput<
-  State extends JsonObject = JsonObject
+  State extends object = JsonObject
 > = {
   entries: StateIndexEntry<State>[];
   limit: number;

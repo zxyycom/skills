@@ -13,7 +13,6 @@ import {
   serializeStateIndex
 } from "./snapshot.ts";
 import type {
-  JsonObject,
   StateIndex,
   StateIndexContext,
   StateIndexDefinition,
@@ -58,7 +57,7 @@ export async function loadStateIndex(options: {
   });
 }
 
-export async function loadCurrentStateIndex<State extends JsonObject>(options: {
+export async function loadCurrentStateIndex<State extends object>(options: {
   context: StateIndexContext;
   definition: StateIndexDefinition<State>;
   indexPath: string;
@@ -109,7 +108,7 @@ export async function loadCurrentStateIndex<State extends JsonObject>(options: {
   return loaded;
 }
 
-export async function syncStateIndex<State extends JsonObject>(options: {
+export async function syncStateIndex<State extends object>(options: {
   context: StateIndexContext;
   definition: StateIndexDefinition<State>;
   indexPath: string;
@@ -166,7 +165,10 @@ export async function syncStateIndex<State extends JsonObject>(options: {
     }
   }
 
-  if (currentText === expectedText) {
+  if (
+    currentText !== null
+    && normalizeIndexLineEndings(currentText) === expectedText
+  ) {
     return {
       changed: false,
       diagnostics: [],
@@ -218,6 +220,10 @@ export async function syncStateIndex<State extends JsonObject>(options: {
       path: indexPath
     })]);
   }
+}
+
+function normalizeIndexLineEndings(value: string): string {
+  return value.replace(/\r\n/g, "\n");
 }
 
 function resolveIndexPath(
@@ -274,7 +280,7 @@ async function verifyWrittenText(targetPath: string, expected: string): Promise<
   }
 }
 
-async function readSourceRevision<State extends JsonObject>(
+async function readSourceRevision<State extends object>(
   definition: StateIndexDefinition<State>,
   context: StateIndexContext,
   indexPath: string
@@ -319,7 +325,7 @@ function isStateIndexSyncMode(value: unknown): value is StateIndexSyncMode {
   return value === "check" || value === "write";
 }
 
-function failedSync<State extends JsonObject>(
+function failedSync<State extends object>(
   options: {
     definition: StateIndexDefinition<State>;
     indexPath: string;
