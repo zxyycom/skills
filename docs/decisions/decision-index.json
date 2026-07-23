@@ -1656,6 +1656,31 @@
       }
     },
     {
+      "id": "minimal-implementation-behavior/choose-smallest-correct-maintenance-surface.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "minimal-implementation-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "相邻 skills 已拥有产品架构、共享契约和测试证据判断，依赖、配置与预防性机制仍缺少实现取舍 owner。",
+        "createdAt": "2026-07-23T07:45:41Z",
+        "decision": "新增独立 minimal-implementation，以单一、有界流程识别决定性维护面并按授权选择、实施或报告，不依赖相邻 skill 安装。",
+        "path": "minimal-implementation-behavior/choose-smallest-correct-maintenance-surface.md",
+        "purpose": "让目标与责任已明确的工程任务在正确候选之间选择更小维护面，并能独立审计过度工程。",
+        "relations": [],
+        "status": "active",
+        "title": "以有界候选比较选择最小实现维护面"
+      }
+    },
+    {
       "id": "openspec-skills/260706-gate-temporary-change-plans.md",
       "keys": {
         "alignment": [
@@ -3101,5 +3126,5 @@
   ],
   "namespace": "decisions",
   "schemaVersion": 1,
-  "sourceRevision": "sha256:153c6bfe6c1b71ce1a029b48f9b238754b9db1550dfa63b8754856d9d8b469bf"
+  "sourceRevision": "sha256:8faa1a0ea8f584b47ec019f7976fc265650fc14694a9180fd64b831235716217"
 }

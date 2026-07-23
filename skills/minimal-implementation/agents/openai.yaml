@@ -1,0 +1,4 @@
+interface:
+  display_name: "Minimal Implementation"
+  short_description: "选择总维护面更小且正确的方案"
+  default_prompt: "使用 $minimal-implementation 在已确认目标、contract 和 owner 内比较正确候选的总维护面，进行有界搜索，并按当前授权选择、实施或报告更小方案。"
