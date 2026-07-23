@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import {
   accessSync,
@@ -10,6 +9,7 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { lockfileFingerprint } from "./lib/environment-lockfile.js";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const manifestPath = path.join(repoRoot, "package.json");
@@ -288,10 +288,6 @@ function getToolStatus(requirement) {
   };
 }
 
-function fileHash(filePath) {
-  return createHash("sha256").update(readFileSync(filePath)).digest("hex");
-}
-
 function getDependencyStatus(config, toolStatuses) {
   const pnpmStatus = toolStatuses.find(({ name }) => name === "pnpm");
   if (pnpmStatus?.state !== "ready") {
@@ -317,7 +313,10 @@ function getDependencyStatus(config, toolStatuses) {
       state: "stale"
     };
   }
-  if (fileHash(lockfilePath) !== fileHash(installedLockfilePath)) {
+  if (
+    lockfileFingerprint(lockfilePath)
+    !== lockfileFingerprint(installedLockfilePath)
+  ) {
     return {
       detail: "node_modules was installed from a different pnpm-lock.yaml",
       state: "stale"
