@@ -34,7 +34,7 @@
 
 ## 环境自举
 
-跨平台本地环境使用 `scripts/env.js` 作为项目工具链之前的独立入口。它只使用 Node.js 标准库，不通过 Bun、pnpm、项目包、`bun run check` 或 CI 启动，也不接入现有校验编排。
+跨平台本地环境使用 `scripts/env.js` 作为项目工具链之前的独立入口。它只使用 Node.js 标准库，不通过 Bun、pnpm、项目包、`bun run check` 或 CI 启动，也不接入现有校验编排。项目直接使用 PATH 中的全局 CodeGraph，不声明项目依赖，也不负责安装或升级该命令。
 
 只读检查当前环境：
 
@@ -50,11 +50,18 @@ node scripts/env.js install
 
 脚本边界：
 
-1. Node.js 是唯一启动前置；Git 是仓库操作前置。两者缺失时无法由同一个跨平台 JavaScript 入口安全自举，`install` 会给出诊断并停止。
-2. `check` 从 `package.json` 读取 Bun 最低版本和固定 pnpm 版本，检查 Git、Node.js、Bun、pnpm，并用 `node_modules` 内的 pnpm lock 快照和只读依赖清单确认本地安装对应当前 `pnpm-lock.yaml`；它不执行安装脚本、不下载内容，也不修改环境。
-3. `install` 才允许产生外部副作用。Bun 不满足要求时通过 Node.js 附带的 npm 安装；pnpm 不匹配时优先使用 Corepack 安装 `package.json` 固定的版本，Corepack 不存在时回退到 npm；最后运行 `pnpm install --frozen-lockfile`。
+1. Node.js 是脚本启动前置，Git 是仓库操作前置，全局 `codegraph` 是代码图能力前置。Git、Node.js 或 CodeGraph 缺失时不会由同一个入口安装；脚本给出诊断并停止。
+2. `check` 从 `package.json` 读取 Bun 最低版本和固定 pnpm 版本，检查 Git、Node.js、Bun、pnpm、全局 CodeGraph 版本输出及仓库索引状态，并用 `node_modules` 内的 pnpm lock 快照和只读依赖清单确认本地安装对应当前 `pnpm-lock.yaml`；它不执行安装脚本、不下载内容，也不修改环境。
+3. `install` 才允许产生外部副作用。Bun 不满足要求时通过 Node.js 附带的 npm 安装；pnpm 不匹配时优先使用 Corepack 安装 `package.json` 固定的版本，Corepack 不存在时回退到 npm；随后运行 `pnpm install --frozen-lockfile`，再用全局 CodeGraph 执行 `init` 和 `sync`。该入口不安装或升级 CodeGraph，并在自举子进程中关闭 CodeGraph 遥测，避免环境准备依赖外网。
 4. 脚本不调用 winget、Homebrew、apt 或其他平台包管理器；同一份 JavaScript 在 Windows、macOS 和 Linux 上使用。全局 npm/Corepack 目录不可写时，不提升权限，而是保留原始失败供调用者按本机策略处理。
 5. 该入口用于快速准备开发环境，不替代类型检查、测试、生成漂移检查或完整仓库检查，也不由这些入口反向调用。
+
+Codex 工作区在 `.codex/environments/` 提供两个并列环境：
+
+1. `skills` 直接进入 `$CODEX_WORKTREE_PATH` 并运行 `node scripts/env.js install`，保留已有工作区内容。
+2. `clear` 先用 `git restore --staged --worktree .` 和 `git clean -fd` 丢弃已跟踪改动及未跟踪文件，再运行同一个环境安装入口；该环境只用于明确需要干净工作区的任务。
+
+`.codex/config.toml` 直接以全局 `codegraph serve --mcp` 启动 MCP 服务，只开放探索、搜索、节点、调用关系、影响、文件和状态工具。`.codegraph/` 只保留用于维持忽略规则的 `.gitignore`，索引数据库和其他机器本地状态不进入版本控制。
 
 ## 脚本入口
 

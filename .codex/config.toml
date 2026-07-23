@@ -1,0 +1,20 @@
+[mcp_servers.codegraph]
+command = "codegraph"
+args = [
+    "serve",
+    "--mcp",
+]
+enabled_tools = [
+    "codegraph_explore",
+    "codegraph_search",
+    "codegraph_node",
+    "codegraph_callers",
+    "codegraph_callees",
+    "codegraph_impact",
+    "codegraph_files",
+    "codegraph_status",
+]
+default_tools_approval_mode = "approve"
+
+[mcp_servers.codegraph.env]
+CODEGRAPH_MCP_TOOLS = "explore,search,node,callers,callees,impact,files,status"

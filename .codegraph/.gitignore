@@ -1,0 +1,4 @@
+# CodeGraph 数据只属于当前机器，不进入版本控制。
+# 除本文件外忽略 .codegraph/ 中的数据库、进程信息、socket 和日志等临时内容。
+*
+!.gitignore

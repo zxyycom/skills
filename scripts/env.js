@@ -19,6 +19,7 @@ const plainTextEnvironment = {
   ...process.env,
   CLICOLOR: "0",
   CLICOLOR_FORCE: "0",
+  CODEGRAPH_TELEMETRY: "0",
   FORCE_COLOR: "0",
   NO_COLOR: "1",
   PNPM_CONFIG_COLOR: "false",
@@ -370,12 +371,68 @@ function getDependencyStatus(config, toolStatuses) {
   };
 }
 
+function getCodeGraphIndexStatus(toolStatuses) {
+  const toolStatus = toolStatuses.find(({ name }) => name === "codegraph");
+  if (toolStatus?.state !== "ready") {
+    return {
+      detail: "the global codegraph command must be ready before its index can be checked",
+      state: "blocked"
+    };
+  }
+
+  const result = runCommand("codegraph", ["status", "--json", "."]);
+  if (result.resolutionError || result.exitCode !== 0) {
+    return {
+      detail: `codegraph status failed: ${
+        result.resolutionError ?? result.output
+      }`,
+      state: "error"
+    };
+  }
+
+  let status;
+  try {
+    status = JSON.parse(result.stdout);
+  } catch (error) {
+    return {
+      detail: `codegraph status returned invalid JSON: ${errorMessage(error)}`,
+      state: "error"
+    };
+  }
+  if (
+    typeof status !== "object"
+    || status === null
+    || typeof status.initialized !== "boolean"
+  ) {
+    return {
+      detail: "codegraph status returned no initialized state",
+      state: "error"
+    };
+  }
+  if (!status.initialized) {
+    return {
+      detail: "the repository has not been initialized",
+      state: "missing"
+    };
+  }
+
+  const lastIndexed = typeof status.lastIndexed === "string"
+    && status.lastIndexed.length > 0
+    ? `; last indexed ${status.lastIndexed}`
+    : "";
+  return {
+    detail: `repository index is initialized${lastIndexed}`,
+    state: "ready"
+  };
+}
+
 function getToolStatuses(config) {
   const requirements = [
     { name: "git" },
     { name: "node" },
     { minimumVersion: config.bunMinimum, name: "bun" },
-    { exactVersion: config.pnpmVersion, name: "pnpm" }
+    { exactVersion: config.pnpmVersion, name: "pnpm" },
+    { name: "codegraph" }
   ];
   return requirements.map(getToolStatus);
 }
@@ -383,10 +440,13 @@ function getToolStatuses(config) {
 function getEnvironmentStatus(config) {
   const tools = getToolStatuses(config);
   const dependencies = getDependencyStatus(config, tools);
+  const codegraphIndex = getCodeGraphIndexStatus(tools);
   return {
+    codegraphIndex,
     dependencies,
     ready: tools.every(({ state }) => state === "ready")
-      && dependencies.state === "ready",
+      && dependencies.state === "ready"
+      && codegraphIndex.state === "ready",
     tools
   };
 }
@@ -414,10 +474,33 @@ function printEnvironmentStatus(status) {
     );
   }
 
+  if (status.codegraphIndex.state === "ready") {
+    console.log(
+      `[ok]       codegraph index - ${status.codegraphIndex.detail}`
+    );
+  } else {
+    console.log(
+      `[${status.codegraphIndex.state}] codegraph index - ${status.codegraphIndex.detail}`
+    );
+  }
+
   if (status.ready) {
     console.log("Environment is ready.");
   } else {
-    console.log("Environment is not ready. Run: node scripts/env.js install");
+    const codegraphTool = status.tools.find(
+      ({ name }) => name === "codegraph"
+    );
+    if (codegraphTool?.state !== "ready") {
+      console.log(
+        "CodeGraph is a global prerequisite and is not installed by this script."
+      );
+      console.log(
+        "Environment is not ready. Make codegraph available on PATH, "
+          + "then run: node scripts/env.js install"
+      );
+    } else {
+      console.log("Environment is not ready. Run: node scripts/env.js install");
+    }
   }
 }
 
@@ -478,9 +561,12 @@ function installEnvironment(config) {
   }
 
   const unreadyTools = toolStatuses.filter(({ state }) => state !== "ready");
-  if (unreadyTools.length > 0) {
+  const unreadyManagedTools = unreadyTools.filter(
+    ({ name }) => name !== "codegraph"
+  );
+  if (unreadyManagedTools.length > 0) {
     throw new Error(
-      `tool installation did not produce a ready environment: ${unreadyTools
+      `tool installation did not produce a ready environment: ${unreadyManagedTools
         .map(({ detail, name }) => `${name} (${detail})`)
         .join(", ")}`
     );
@@ -488,6 +574,21 @@ function installEnvironment(config) {
 
   console.log("Installing project dependencies from pnpm-lock.yaml...");
   requireSuccessfulCommand("pnpm", ["install", "--frozen-lockfile"]);
+
+  const codegraphStatus = toolStatuses.find(
+    ({ name }) => name === "codegraph"
+  );
+  if (codegraphStatus?.state !== "ready") {
+    throw new Error(
+      `the global codegraph command is required and is not installed by this script: ${
+        codegraphStatus?.detail ?? "unknown status"
+      }`
+    );
+  }
+
+  console.log("Initializing and synchronizing the CodeGraph index...");
+  requireSuccessfulCommand("codegraph", ["init", "."]);
+  requireSuccessfulCommand("codegraph", ["sync", "--quiet", "."]);
 
   const finalStatus = getEnvironmentStatus(config);
   printEnvironmentStatus(finalStatus);
