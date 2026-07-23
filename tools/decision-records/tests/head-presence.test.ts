@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { readDecisionSourceRevision } from "../src/decision-state-index.ts";
 import { validateDecisionRecords } from "../src/index.ts";
 import {
   currentRelativePath,
@@ -202,8 +203,8 @@ try {
   assert.equal(await fileExists(pendingPath), false);
   assert.equal(await fileExists(path.dirname(pendingPath)), false);
   assert.equal(
-    (await readIndex(indexPath)).records.some(
-      (entry) => entry.path === pendingRelativePath
+    (await readIndex(indexPath)).entries.some(
+      (entry) => entry.id === pendingRelativePath
     ),
     false
   );
@@ -315,12 +316,17 @@ try {
     path.join(decisionsDirectory, renamedRelativePath)
   );
   const renamedIndex = await readIndex(indexPath);
-  const renamedEntry = renamedIndex.records.find(
-    (entry) => entry.path === currentRelativePath
+  const renamedEntry = renamedIndex.entries.find(
+    (entry) => entry.id === currentRelativePath
   );
   assert.ok(renamedEntry);
-  renamedEntry.path = renamedRelativePath;
-  renamedIndex.records.sort((left, right) => left.path.localeCompare(right.path));
+  renamedEntry.id = renamedRelativePath;
+  renamedEntry.state.path = renamedRelativePath;
+  renamedIndex.entries.sort((left, right) => left.id.localeCompare(right.id));
+  renamedIndex.sourceRevision = await readDecisionSourceRevision(
+    decisionsDirectory,
+    renamedIndex.entries.map((entry) => entry.id)
+  );
   await fs.writeFile(
     indexPath,
     JSON.stringify(renamedIndex, null, 2) + "\n",

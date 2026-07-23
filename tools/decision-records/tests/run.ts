@@ -19,6 +19,7 @@ import {
 await import("./generated-artifacts.test.ts");
 await import("./queries.test.ts");
 await import("./type-path-invariants.test.ts");
+await import("./state-snapshot.test.ts");
 await import("./configured-decision-directory.test.ts");
 
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "decision-records-test-"));
@@ -78,7 +79,9 @@ try {
     workspaceRoot: tempRoot
   });
   assert.ok(withUnsupportedIndexField.errors.some(
-    (error) => error.includes("must contain only schemaVersion and records")
+    (error) => error.includes(
+      'unsupported Invalid key: Expected never but received "unsupported"'
+    )
   ));
 
   await fs.writeFile(
@@ -90,7 +93,7 @@ try {
     workspaceRoot: tempRoot
   });
   assert.ok(withUnsupportedSchemaVersion.errors.some(
-    (error) => error.includes("schemaVersion must be 4")
+    (error) => error.includes("schemaVersion must be 1")
   ));
   const listWithInvalidIndex = await runBundledCli([
     "list",
@@ -101,14 +104,14 @@ try {
   assert.match(listWithInvalidIndex.stderr, /Decision records command failed/);
 
   const invalidTimestampIndex = structuredClone(originalIndex);
-  invalidTimestampIndex.records[0]!.createdAt = "2026-07-10";
+  invalidTimestampIndex.entries[0]!.state.createdAt = "2026-07-10";
   await writeIndex(indexPath, invalidTimestampIndex);
   assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
     (error) => error.includes("createdAt must be an RFC 3339 timestamp")
   ));
 
   const fractionalTimestampIndex = structuredClone(originalIndex);
-  fractionalTimestampIndex.records[0]!.createdAt =
+  fractionalTimestampIndex.entries[0]!.state.createdAt =
     "2026-07-10T09:10:11.123+08:00";
   await writeIndex(indexPath, fractionalTimestampIndex);
   assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
@@ -123,14 +126,14 @@ try {
   ));
 
   const shortProjectionIndex = structuredClone(originalIndex);
-  shortProjectionIndex.records[0]!.title = "短";
+  shortProjectionIndex.entries[0]!.state.title = "短";
   await writeIndex(indexPath, shortProjectionIndex);
   assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
     (error) => error.includes("actual 1")
   ));
 
   const longProjectionIndex = structuredClone(originalIndex);
-  longProjectionIndex.records[0]!.purpose = "长".repeat(101);
+  longProjectionIndex.entries[0]!.state.purpose = "长".repeat(101);
   await writeIndex(indexPath, longProjectionIndex);
   assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
     (error) => error.includes("actual 101")
@@ -159,7 +162,7 @@ try {
     ]),
     /Rebuilt .*decision-index\.json from decision Markdown files/
   );
-  assert.equal((await readIndex(indexPath)).schemaVersion, 4);
+  assert.equal((await readIndex(indexPath)).schemaVersion, 1);
   assert.deepEqual(
     (await validateDecisionRecords({ workspaceRoot: tempRoot })).errors,
     []
@@ -185,13 +188,13 @@ try {
     "alignment: aligned",
     "alignment: unaligned"
   );
-  const ordinaryUnalignedIndex = structuredClone(originalIndex);
-  findIndexEntry(
-    ordinaryUnalignedIndex,
-    currentRelativePath
-  ).alignment = "unaligned";
   await fs.writeFile(currentDecisionPath, ordinaryUnalignedDecision, "utf8");
-  await writeIndex(indexPath, ordinaryUnalignedIndex);
+  await runSuccessfulCli([
+    "sync-index",
+    "--write",
+    "--root",
+    tempRoot
+  ]);
   assert.deepEqual(
     (await validateDecisionRecords({ workspaceRoot: tempRoot })).errors,
     []
@@ -223,21 +226,18 @@ try {
     "--root",
     tempRoot
   ]);
-  assert.equal(listWithInvalidRecord.exitCode, 0);
-  assert.match(
-    listWithInvalidRecord.stdout,
-    /tooling\/use-generated-cli\.md \[invalid\]/
-  );
-  assert.match(listWithInvalidRecord.stderr, /is missing section ## 目的/);
+  assert.equal(listWithInvalidRecord.exitCode, 1);
+  assert.equal(listWithInvalidRecord.stdout, "");
+  assert.match(listWithInvalidRecord.stderr, /does not match source revision/);
   const traceWithInvalidRecord = await runBundledCli([
     "trace",
     currentRelativePath,
     "--root",
     tempRoot
   ]);
-  assert.equal(traceWithInvalidRecord.exitCode, 0);
-  assert.match(traceWithInvalidRecord.stdout, /tooling\/260710-use-source-cli\.md/);
-  assert.match(traceWithInvalidRecord.stderr, /is missing section ## 目的/);
+  assert.equal(traceWithInvalidRecord.exitCode, 1);
+  assert.equal(traceWithInvalidRecord.stdout, "");
+  assert.match(traceWithInvalidRecord.stderr, /does not match source revision/);
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
 
   await fs.writeFile(
@@ -265,12 +265,9 @@ try {
     "--root",
     tempRoot
   ]);
-  assert.equal(traceWithRelationDrift.exitCode, 0);
-  assert.match(
-    traceWithRelationDrift.stdout,
-    /tooling\/use-generated-cli\.md --修订--> tooling\/260710-use-source-cli\.md/
-  );
-  assert.match(traceWithRelationDrift.stderr, /is out of sync/);
+  assert.equal(traceWithRelationDrift.exitCode, 1);
+  assert.equal(traceWithRelationDrift.stdout, "");
+  assert.match(traceWithRelationDrift.stderr, /does not match source revision/);
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
 
   await fs.writeFile(
@@ -360,8 +357,8 @@ try {
   const firstActivationIndex = await readIndex(indexPath);
   findIndexEntry(firstActivationIndex, firstUnindexedRelativePath);
   assert.equal(
-    firstActivationIndex.records.some(
-      (record) => record.path === secondUnindexedRelativePath
+    firstActivationIndex.entries.some(
+      (record) => record.id === secondUnindexedRelativePath
     ),
     false
   );
@@ -465,9 +462,9 @@ try {
   );
   await fs.writeFile(currentDecisionPath, driftedDecision, "utf8");
   const driftedList = await runBundledCli(["list", "--root", tempRoot]);
-  assert.equal(driftedList.exitCode, 0);
-  assert.match(driftedList.stderr, /is out of sync/);
-  assert.match(driftedList.stdout, /需要验证生成后的 CLI 能读取一套最小决策目录/);
+  assert.equal(driftedList.exitCode, 1);
+  assert.equal(driftedList.stdout, "");
+  assert.match(driftedList.stderr, /does not match source revision/);
   await runSuccessfulCli([
     "sync-index",
     "--write",
@@ -653,12 +650,14 @@ try {
   const firstIndex = await readIndex(
     path.join(firstDecisionsDirectory, "decision-index.json")
   );
-  assert.equal(firstIndex.schemaVersion, 4);
-  assert.equal(firstIndex.records.length, 1);
-  assert.equal(firstIndex.records[0]!.status, "active");
-  assert.equal(firstIndex.records[0]!.alignment, "aligned");
+  assert.equal(firstIndex.schemaVersion, 1);
+  assert.equal(firstIndex.namespace, "decisions");
+  assert.equal(firstIndex.definitionVersion, 1);
+  assert.equal(firstIndex.entries.length, 1);
+  assert.equal(firstIndex.entries[0]!.state.status, "active");
+  assert.equal(firstIndex.entries[0]!.state.alignment, "aligned");
   assert.match(
-    firstIndex.records[0]!.createdAt,
+    firstIndex.entries[0]!.state.createdAt,
     /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
   );
   const firstActivationValidation = await validateDecisionRecords({
@@ -680,7 +679,7 @@ try {
   const completedFirstIndex = await readIndex(
     path.join(firstDecisionsDirectory, "decision-index.json")
   );
-  assert.equal(completedFirstIndex.records.length, 2);
+  assert.equal(completedFirstIndex.entries.length, 2);
   assert.deepEqual(
     (await validateDecisionRecords({ workspaceRoot: firstActivationRoot })).errors,
     []

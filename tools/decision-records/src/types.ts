@@ -1,3 +1,8 @@
+import type {
+  StateIndex,
+  StateIndexEntry
+} from "../../index-runtime/src/index.ts";
+
 export const decisionRelationTypes = [
   "修订",
   "替代",
@@ -51,13 +56,19 @@ export type DecisionMetadata =
 
 export type DecisionDocument = DecisionProjection & DecisionMetadata;
 
-export type DecisionIndexEntry = DecisionProjection & DecisionMetadata & {
+export type DecisionIndexState = DecisionDocument & {
   path: string;
 };
 
-export type DecisionIndex = {
-  records: DecisionIndexEntry[];
-  schemaVersion: 4;
+export type DecisionIndexEntry = StateIndexEntry<DecisionIndexState>;
+
+export type DecisionIndex = Omit<
+  StateIndex,
+  "definitionVersion" | "entries" | "namespace"
+> & {
+  definitionVersion: 1;
+  entries: DecisionIndexEntry[];
+  namespace: "decisions";
 };
 
 export type DecisionRecord = {
@@ -112,11 +123,6 @@ export type DecisionValidationResult = {
   errors: string[];
   scan: DecisionScan;
   unalignedCount: number;
-};
-
-export type ExpectedIndex = {
-  errors: string[];
-  text: string | null;
 };
 
 export type MarkdownSection = {

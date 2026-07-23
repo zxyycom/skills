@@ -40,13 +40,26 @@ export type DecisionMetadata =
 
 export type DecisionDocument = DecisionProjection & DecisionMetadata;
 
-export type DecisionIndexEntry = DecisionProjection & DecisionMetadata & {
+export type DecisionIndexState = DecisionDocument & {
   path: string;
 };
 
+export type DecisionIndexEntry = {
+  id: string;
+  keys: Record<string, Array<boolean | number | string>>;
+  state: DecisionIndexState;
+};
+
 export type DecisionIndex = {
-  records: DecisionIndexEntry[];
-  schemaVersion: 4;
+  definitionVersion: 1;
+  entries: DecisionIndexEntry[];
+  keyDefinitions: Array<{
+    mode: "exact" | "range" | "text";
+    name: string;
+  }>;
+  namespace: "decisions";
+  schemaVersion: 1;
+  sourceRevision: string;
 };
 
 export type DecisionRecord = {

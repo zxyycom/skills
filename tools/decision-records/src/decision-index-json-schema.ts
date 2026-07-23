@@ -1,5 +1,9 @@
 import { decisionRelativePathPatternSource } from "./decision-path.ts";
 import {
+  decisionIndexDefinitionVersion,
+  decisionIndexNamespace
+} from "./decision-state-index.ts";
+import {
   projectionMaximumLength,
   projectionMinimumLength
 } from "./projection.ts";
@@ -10,22 +14,62 @@ import {
 } from "./types.ts";
 import { decisionTimestampPatternSource } from "./decision-timestamp.ts";
 
+const projectionText = {
+  maxLength: projectionMaximumLength,
+  minLength: projectionMinimumLength,
+  pattern: "^[^\\r\\n]+$",
+  type: "string"
+} as const;
+const decisionPath = {
+  pattern: decisionRelativePathPatternSource,
+  type: "string"
+} as const;
+
 export const decisionIndexJsonSchema = {
-  $comment: "集合级路径唯一性、路径排序、Markdown 投影一致性和关系图约束由 CLI check 检查。",
+  $comment: "id、state.path、派生 keys、sourceRevision 与 Markdown 投影的一致性由 CLI check 检查。",
   $defs: {
-    decisionPath: {
-      description: "主题目录下的稳定决策 Markdown 相对路径。",
-      pattern: decisionRelativePathPatternSource,
-      type: "string"
+    decisionPath,
+    keyValues: {
+      additionalProperties: false,
+      properties: {
+        alignment: {
+          items: { enum: decisionAlignments, type: "string" },
+          maxItems: 1,
+          minItems: 1,
+          type: "array",
+          uniqueItems: true
+        },
+        status: {
+          items: { enum: decisionStatuses, type: "string" },
+          maxItems: 1,
+          minItems: 1,
+          type: "array",
+          uniqueItems: true
+        },
+        topic: {
+          items: {
+            pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            type: "string"
+          },
+          maxItems: 1,
+          minItems: 1,
+          type: "array",
+          uniqueItems: true
+        }
+      },
+      required: ["status", "topic"],
+      type: "object"
     },
-    projectionText: {
-      description: "单行索引投影文本。",
-      maxLength: projectionMaximumLength,
-      minLength: projectionMinimumLength,
-      pattern: "^[^\\r\\n]+$",
-      type: "string"
+    relation: {
+      additionalProperties: false,
+      properties: {
+        target: { $ref: "#/$defs/decisionPath" },
+        type: { enum: decisionRelationTypes, type: "string" }
+      },
+      required: ["type", "target"],
+      type: "object"
     },
-    record: {
+    state: {
       additionalProperties: false,
       allOf: [
         {
@@ -34,9 +78,7 @@ export const decisionIndexJsonSchema = {
             required: ["status"]
           },
           then: {
-            properties: {
-              alignment: { enum: decisionAlignments }
-            }
+            properties: { alignment: { enum: decisionAlignments } }
           }
         },
         {
@@ -45,75 +87,85 @@ export const decisionIndexJsonSchema = {
             required: ["status"]
           },
           then: {
-            properties: {
-              alignment: { const: null }
-            }
+            properties: { alignment: { const: null } }
           }
         }
       ],
       properties: {
         alignment: {
-          description: "活动决策目标是否已核对并建立为单向基线；归档决策固定为 null。",
           enum: [...decisionAlignments, null],
           type: ["string", "null"]
         },
-        background: { $ref: "#/$defs/projectionText" },
+        background: projectionText,
         createdAt: {
-          description: "精确到秒且带显式时区的 RFC 3339 时间。",
           pattern: decisionTimestampPatternSource,
           type: "string"
         },
-        decision: { $ref: "#/$defs/projectionText" },
+        decision: projectionText,
         path: { $ref: "#/$defs/decisionPath" },
-        purpose: { $ref: "#/$defs/projectionText" },
+        purpose: projectionText,
         relations: {
           items: { $ref: "#/$defs/relation" },
           type: "array",
           uniqueItems: true
         },
-        status: {
-          enum: decisionStatuses,
-          type: "string"
-        },
-        title: { $ref: "#/$defs/projectionText" }
+        status: { enum: decisionStatuses, type: "string" },
+        title: projectionText
       },
       required: [
-        "path",
-        "status",
         "alignment",
-        "createdAt",
-        "title",
-        "purpose",
         "background",
+        "createdAt",
         "decision",
-        "relations"
+        "path",
+        "purpose",
+        "relations",
+        "status",
+        "title"
       ],
-      type: "object"
-    },
-    relation: {
-      additionalProperties: false,
-      properties: {
-        target: { $ref: "#/$defs/decisionPath" },
-        type: {
-          enum: decisionRelationTypes,
-          type: "string"
-        }
-      },
-      required: ["type", "target"],
       type: "object"
     }
   },
   $schema: "https://json-schema.org/draft/2020-12/schema",
   additionalProperties: false,
-  description: "由自包含决策 Markdown 生成的 decision-records schema v4 全生命周期索引。",
+  description: "由决策 Markdown 生成的领域状态通用索引。",
   properties: {
-    records: {
-      items: { $ref: "#/$defs/record" },
+    definitionVersion: { const: decisionIndexDefinitionVersion },
+    entries: {
+      items: {
+        additionalProperties: false,
+        properties: {
+          id: { $ref: "#/$defs/decisionPath" },
+          keys: { $ref: "#/$defs/keyValues" },
+          state: { $ref: "#/$defs/state" }
+        },
+        required: ["id", "keys", "state"],
+        type: "object"
+      },
       type: "array"
     },
-    schemaVersion: { const: 4 }
+    keyDefinitions: {
+      const: [
+        { mode: "exact", name: "alignment" },
+        { mode: "exact", name: "status" },
+        { mode: "exact", name: "topic" }
+      ]
+    },
+    namespace: { const: decisionIndexNamespace },
+    schemaVersion: { const: 1 },
+    sourceRevision: {
+      pattern: "^sha256:[0-9a-f]{64}$",
+      type: "string"
+    }
   },
-  required: ["schemaVersion", "records"],
-  title: "Decision Records Index",
+  required: [
+    "definitionVersion",
+    "entries",
+    "keyDefinitions",
+    "namespace",
+    "schemaVersion",
+    "sourceRevision"
+  ],
+  title: "Decision Records State Index",
   type: "object"
 } as const;

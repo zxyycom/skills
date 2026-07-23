@@ -2,7 +2,7 @@
 
 本文件是 `decision-records` 的唯一固定契约，只承接精确存储、状态语义、维护事务和 CLI 行为。触发、语义恢复、偏离判断、候选确认和按任务出口交付由 `SKILL.md` 承接。本文将保存索引和 Markdown 的目录称为“决策根目录”。未传 `--decisions-dir` 时使用 `<root>/docs/decisions`；显式传入时，绝对路径直接作为目标，非绝对路径只相对 `--root` 解析。目标可以位于 `--root` 外部。
 
-CLI 只接受本契约定义的当前 Markdown 格式和 `schemaVersion: 4` 索引，不推断缺失元数据，也不提供非 Git 降级语义。Git 命令不可用、决策根目录不在 Git 仓库内或无法读取 `HEAD` 路径时，查询和维护直接失败。只有 `HEAD` 仍是有效符号引用且尚不能解析到任何版本时，才把仓库解释为尚无首个提交，并把 `HEAD` 路径集合视为空。
+CLI 只接受本契约定义的当前 Markdown 格式，以及 `schemaVersion: 1`、`namespace: decisions`、`definitionVersion: 1` 的当前通用索引，不推断缺失元数据，也不提供非 Git 降级语义。Git 命令不可用、决策根目录不在 Git 仓库内或无法读取 `HEAD` 路径时，查询和维护直接失败。只有 `HEAD` 仍是有效符号引用且尚不能解析到任何版本时，才把仓库解释为尚无首个提交，并把 `HEAD` 路径集合视为空。
 
 ## Owner 与内容边界
 
@@ -105,29 +105,48 @@ createdAt: 2026-07-22T10:20:30+08:00
 
 ```json
 {
-  "schemaVersion": 4,
-  "records": [
+  "definitionVersion": 1,
+  "entries": [
     {
-      "path": "workflow-policy/use-explicit-approval-gate.md",
-      "status": "active",
-      "alignment": "unaligned",
-      "createdAt": "2026-07-22T10:20:30+08:00",
-      "title": "采用显式审批门禁",
-      "purpose": "让高风险操作在执行前经过一致、可审计的确认。",
-      "background": "审批边界分散在多个入口，后续维护容易产生不一致。",
-      "decision": "使用统一的显式审批门禁，并显式记录尚未覆盖的入口。",
-      "relations": []
+      "id": "workflow-policy/use-explicit-approval-gate.md",
+      "keys": {
+        "alignment": ["unaligned"],
+        "status": ["active"],
+        "topic": ["workflow-policy"]
+      },
+      "state": {
+        "alignment": "unaligned",
+        "background": "审批边界分散在多个入口，后续维护容易产生不一致。",
+        "createdAt": "2026-07-22T10:20:30+08:00",
+        "decision": "使用统一的显式审批门禁，并显式记录尚未覆盖的入口。",
+        "path": "workflow-policy/use-explicit-approval-gate.md",
+        "purpose": "让高风险操作在执行前经过一致、可审计的确认。",
+        "relations": [],
+        "status": "active",
+        "title": "采用显式审批门禁"
+      }
     }
-  ]
+  ],
+  "keyDefinitions": [
+    { "mode": "exact", "name": "alignment" },
+    { "mode": "exact", "name": "status" },
+    { "mode": "exact", "name": "topic" }
+  ],
+  "namespace": "decisions",
+  "schemaVersion": 1,
+  "sourceRevision": "sha256:<64 lowercase hexadecimal characters>"
 }
 ```
 
-1. `records` 投影全部已建立的活动和归档 Markdown；每个字段都从对应文件生成，索引与已建立 Markdown 必须一一对应。未激活候选不进入索引。
-2. `path` 来自文件位置，状态元数据来自 frontmatter，标题和三项摘要来自正文，`relations` 来自关系章节；其中 `alignment` 只原样投影 Markdown 字段，不由索引计算或拥有。
-3. 关系只保存直接前序的 `type` 和 `target`；后续关系由 CLI 反向推导。
-4. 记录按 POSIX `path` 升序排列；JSON 使用 UTF-8、两空格缩进和文件末尾换行。
-5. 正常维护不直接编辑索引。索引有效时，`sync-index --write` 只同步已有成员的完整投影，不自动吸收带非空 `createdAt` 的未登记 Markdown；索引缺失或损坏时，才从全部非候选且有效的当前格式 Markdown 恢复完整索引。未激活候选始终保持在索引外并通过 warning 列出。
-6. 随包 `decision-index.schema.json` 校验字段、类型、枚举、路径和基础格式；一一对应、排序、投影一致性和关系图由 CLI `check` 校验。
+1. `entries` 投影全部已建立的活动和归档 Markdown；索引与已建立 Markdown 必须一一对应。未激活候选不进入索引。
+2. 每条 `state` 是领域完整投影：`path` 来自文件位置，状态元数据来自 frontmatter，标题和三项摘要来自正文，`relations` 来自关系章节。Markdown 仍是唯一事实源；索引不拥有或补写时间、生命周期、对齐状态及正文元数据。
+3. `id` 由 `state.path` 产生。`keys` 只由 state 确定性派生：`status`、`alignment` 和 `topic` 用于当前列表筛选；归档记录没有 alignment key。只有实际命令或公共 API 需要新的查询能力时才增加 key，并同步调整领域定义版本、Schema、固定契约和测试。
+4. CLI 读取索引时重新校验领域 state，包含字段集合、路径、秒级时间、生命周期与对齐组合、摘要长度和重复关系；随后从已校验 state 重新产生 id 与全部 keys，并与索引保存值核对。领域结构或 key 契约变化时提升 `definitionVersion`。
+5. 领域读取器从同一批已登记 Markdown 文本同时产生完整 state 与 `sourceRevision`；通用同步在写入前再次读取 revision，源在两次读取之间变化时拒绝写入。`sourceRevision` 对 POSIX 路径和完整 UTF-8 文本进行稳定 framing 后计算 SHA-256，计算前只把 CRLF 规范化为 LF，避免 Git 跨平台 checkout 产生虚假漂移。除此之外，任何已登记文件内容变化、缺失或路径变化都会使查询拒绝陈旧索引；它不是生命周期时间，也不进入领域 state。
+6. 条目、key 定义、key 名和 key 值按固定全序输出；state 对象键确定性排序，关系数组保持正文顺序。JSON 使用 UTF-8、两空格缩进和文件末尾换行；同步检查把 Git checkout 可能产生的 CRLF 与规范 LF 视为等价。
+7. 正常维护不直接编辑索引。索引有效时，`sync-index --write` 只同步已有成员的完整 state、派生 keys 和 revision，不自动吸收带非空 `createdAt` 的未登记 Markdown；索引缺失或损坏时，才从全部非候选且有效的当前格式 Markdown 恢复完整索引。未激活候选始终保持在索引外并通过 warning 列出。
+8. 随包 `decision-index.schema.json` 校验通用外壳、领域 state、key 定义、枚举、路径和基础格式；state 与 Markdown 一一对应、revision、新旧投影、id、keys、排序和关系图由 CLI `check` 校验。
+9. `list` 和 `trace` 发现目录成员后读取索引、校验领域 state 与派生键，并读取已登记文件的原文计算当前 revision；revision 一致时直接查询 keys 和 state，不重新解析每份 Markdown。`show` 在相同新鲜度检查通过后只读取目标原文。严格 `check`、同步和写事务仍完整解析领域 Markdown。
 
 ## 关系
 
@@ -197,14 +216,14 @@ createdAt: 2026-07-22T10:20:30+08:00
 8. `archive <path...>`：归档指定活动记录并清空对齐状态。
 9. `discard <path>`：丢弃尚未进入 `HEAD` 的记录。
 
-查询命令只在索引能够按当前 schema 解析时返回索引中的可恢复结果。未激活候选不在查询结果中，并和局部 Markdown、投影或关系问题一样通过 stderr warning 暴露；已登记结果按需附加 `[invalid]` 或 `[pending]`。查询或作用域维护带 warning 时退出码可以是 `0`，不代表严格集合有效。索引缺失、无法解析、目标未登记、Git 不可用、`HEAD` 查询失败或候选豁免以外的维护错误使对应命令退出 `1`。非法参数退出码为 `2`。
+查询命令只在索引能够按当前通用 schema 与决策领域定义解析，且 `sourceRevision` 与全部已登记 Markdown 当前原文一致时返回结果。已登记原文发生任何变化时查询退出 `1`，不会返回可能陈旧的 state 或关系；先审阅变化并运行严格检查或 `sync-index --write`。未激活候选和其他未登记 Markdown 不进入查询结果，通过 stderr warning 暴露；已登记但尚未进入 `HEAD` 的结果附加 `[pending]`。查询或作用域维护带 warning 时退出码可以是 `0`，不代表严格集合有效。索引缺失、无法解析、revision 失配、目标未登记、Git 不可用、`HEAD` 查询失败或候选豁免以外的维护错误使对应命令退出 `1`。非法参数退出码为 `2`。
 
 严格 `check` 验证：
 
 1. 决策根目录、根文件、主题目录和文件路径。
 2. frontmatter 字段、类型、状态组合与秒级时间。
 3. 标题、摘要、完整章节、章节顺序和投影长度。
-4. schema v4、路径唯一性与排序、已建立 Markdown 和索引一一对应、全部字段投影一致性，以及未激活候选保持在索引外。
+4. 通用 schema v1、决策定义版本、revision、路径唯一性与排序、已建立 Markdown 和索引一一对应、state 与派生 keys 一致性，以及未激活候选保持在索引外。
 5. 关系链接、归档目标、`HEAD` 成员、重复、自环和环路。
 6. 已建立路径没有从工作区消失，pending 只作为临时查询标记，未激活候选尚未进入 `HEAD`。
 7. 未激活候选已经全部激活或丢弃；候选存在本身就是严格失败，不因作用域维护曾经成功而降级。

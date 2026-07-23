@@ -32,7 +32,8 @@ assert.match(declarationSource, /validateDecisionRecords/);
 assert.match(declarationSource, /runDecisionRecordsCli/);
 assert.match(declarationSource, /DecisionProjection/);
 assert.match(declarationSource, /DecisionAlignment/);
-assert.match(declarationSource, /schemaVersion: 4/);
+assert.match(declarationSource, /namespace: "decisions"/);
+assert.match(declarationSource, /schemaVersion: 1/);
 
 const distributedSchema: unknown = JSON.parse(
   await fs.readFile(generatedSchemaPath, "utf8")
@@ -43,18 +44,30 @@ assert.equal(
   "https://json-schema.org/draft/2020-12/schema"
 );
 assert.deepEqual(
-  decisionIndexJsonSchema.$defs.record.required,
+  decisionIndexJsonSchema.$defs.state.required,
   [
-    "path",
-    "status",
     "alignment",
-    "createdAt",
-    "title",
-    "purpose",
     "background",
+    "createdAt",
     "decision",
-    "relations"
+    "path",
+    "purpose",
+    "relations",
+    "status",
+    "title"
   ]
+);
+assert.deepEqual(
+  decisionIndexJsonSchema.properties.keyDefinitions.const,
+  [
+    { mode: "exact", name: "alignment" },
+    { mode: "exact", name: "status" },
+    { mode: "exact", name: "topic" }
+  ]
+);
+assert.deepEqual(
+  Object.keys(decisionIndexJsonSchema.$defs.keyValues.properties),
+  ["alignment", "status", "topic"]
 );
 
 const cliSourceMap = JSON.parse(
@@ -65,6 +78,11 @@ const cliSourceMap = JSON.parse(
 };
 assert.equal(cliSourceMap.sourceRoot, "../../../");
 assert.ok(cliSourceMap.sources.includes("tools/decision-records/src/cli.ts"));
+assert.ok(cliSourceMap.sources.includes(
+  "tools/decision-records/src/decision-state-index.ts"
+));
+assert.ok(cliSourceMap.sources.includes("tools/index-runtime/src/query.ts"));
+assert.ok(cliSourceMap.sources.includes("tools/index-runtime/src/storage.ts"));
 assert.ok(cliSourceMap.sources.every(
   (source) => !path.isAbsolute(source) && !source.includes("\\")
 ));

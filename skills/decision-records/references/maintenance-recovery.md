@@ -4,7 +4,7 @@
 
 ## 恢复目标
 
-保留全部当前格式 Markdown 及其权威 `status`、`alignment`、`createdAt`、正文和关系，恢复可运行的当前 CLI，并从 Markdown 重建 `schemaVersion: 4` 索引，让严格 `check` 返回 `0`。不要从损坏索引反向覆盖有效 Markdown，不要为消除错误删除无法解释的记录。
+保留全部当前格式 Markdown 及其权威 `status`、`alignment`、`createdAt`、正文和关系，恢复可运行的当前 CLI，并从 Markdown 重建 `schemaVersion: 1`、`namespace: decisions`、`definitionVersion: 1` 的当前通用索引，让严格 `check` 返回 `0`。不要从损坏索引反向覆盖有效 Markdown，不要为消除错误删除无法解释的记录。
 
 ## 先判断故障类型
 
@@ -44,7 +44,7 @@
 ## 重建索引
 
 1. 先保留当前索引副本或确认 Git 中存在可回退版本。
-2. 完整校验每条 Markdown 的 frontmatter、正文和关系。状态、对齐与创建时间只取对应 Markdown；`alignment` 只由索引投影，不从索引、文件名、关系、正文或文件时间推断。
+2. 完整校验每条 Markdown 的 frontmatter、正文和关系。状态、对齐与创建时间只取对应 Markdown；索引对 `alignment` 只做投影，不拥有该状态，也不从文件名、关系、正文或文件时间推断它。
 3. 运行：
 
    ```text
@@ -52,7 +52,7 @@
    node scripts/decision-records.mjs check --root <resolution-root>
    ```
 
-4. `sync-index --write` 从全部有效 Markdown 生成完整 schema v4 候选，固定按路径排序并覆盖索引。Markdown 无效或 Git 边界不满足时命令失败且保留原索引。
+4. `sync-index --write` 从全部有效 Markdown 生成完整领域 state、派生 keys 和 source revision，通过通用索引同步原子替换文件。Markdown 无效或 Git 边界不满足时命令失败且保留原索引。
 5. 如果某条 Markdown 缺少权威状态或时间，不构造默认值；从 Git 中最后一个可信的当前格式版本恢复该文件，无法恢复时请求用户判断。
 
 ## 恢复写入中断
@@ -62,27 +62,16 @@
 3. 不根据部分更新的索引反向修改 Markdown，也不把关系存在解释为生命周期或对齐状态已经变化。
 4. 恢复后运行严格 `check`，再核对受影响记录的 `show` 和必要的 `trace`。
 
-## CLI 暂时不可用时
+## 工具恢复前停止索引维护
 
-只有运行时无法及时恢复且当前任务必须继续时，才直接构建当前 schema 索引；这不是另一种长期维护方式。
-
-1. 完整读取固定契约并枚举决策根目录中的全部 Markdown。
-2. 从每条文件提取路径、frontmatter、标题、三项摘要和直接关系，生成 `schemaVersion: 4` 的全部 `records`。
-3. 保持字段顺序、POSIX 路径升序、UTF-8、两空格缩进和末尾换行；不加入 `pending`、进度或临时诊断字段。
-4. 使用随包 `decision-index.schema.json` 校验 JSON，再人工确认一一对应、状态组合、正文结构、关系目标和 Git `HEAD` 边界。
-5. 在交付中说明尚未运行正式 CLI；工具恢复后立即执行 `sync-index --write` 和 `check`。
-
-如果需要临时复现命令，只实现当前任务所需的最小当前契约：
-
-1. `check` 解析严格 frontmatter 和正文，生成期望索引并比较，再验证关系和 `HEAD`。
-2. `sync-index` 从 Markdown 全量生成索引，不读取索引中的独立状态。
-3. 状态命令同时写 Markdown 和完整索引，失败时恢复两者。
-4. `list`、`show` 和 `trace` 只在 schema v4 索引可解析时查询，并同时显示生命周期与对齐状态。
+1. 当前 CLI 和兼容运行时都无法执行时，保留 Markdown 与现有索引，不直接构造、修补或替换通用索引，也不运行会改变生命周期、对齐状态或关系的维护事务。
+2. 可以只读审阅 Markdown 和 Git 中最后可信版本以定位故障；不得把未通过当前 CLI 校验的手工 JSON 作为可查询索引或交付结果。
+3. 先按“恢复可用工具”恢复当前分发单元，再运行 `sync-index --write` 和严格 `check`。工具仍无法恢复且任务要求改变决策集合时，报告阻断并请求新的处理条件。
 
 ## 完成检查
 
 1. 全部权威 Markdown 保持完整，没有从索引或默认值反向制造状态。
-2. 索引能够从 Markdown 确定性重建，且只包含 schema v4 字段。
+2. 索引能够从 Markdown 确定性重建，且只包含当前通用外壳、决策 state 和派生 keys。
 3. `check` 返回 `0`；`list --status all --alignment all` 能看到预期全部成员。
 4. Git diff 没有丢失记录、意外改变 `createdAt`、把当前事实写入决策正文、移除必须遵守的决策约束或删除无法解释的关系。
 5. 仍无法确定的决策语义、状态、时间或关系已明确请求用户判断。

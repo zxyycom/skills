@@ -9,7 +9,7 @@ description: >-
 
 ## 目标
 
-用自包含 Markdown 保存已经生效的长期决策、生命周期、对齐状态、形成背景、完整采用方向和历史关系，并从这些文件确定性生成 JSON 全生命周期查询索引。让人类和 agent 能区分未激活候选、已经生效的活动决策，以及决策目标是否已经核对并建立为当前基线：`active` 决策立即生效，`alignment` 表达完整目标是否已通过实际行为 owner 和事实核对并建立为必须保持的单向基线，并由索引原样投影。需要约束后续工作的限制、允许范围或例外直接写入决策正文；当前差距由完整决策与实际行为 owner 和事实比较得出。
+用自包含 Markdown 保存已经生效的长期决策、生命周期、对齐状态、形成背景、完整采用方向和历史关系，并从这些文件确定性生成领域 state、派生查询 key 和 source revision 组成的通用 JSON 索引。让人类和 agent 能区分未激活候选、已经生效的活动决策，以及决策目标是否已经核对并建立为当前基线：`active` 决策立即生效，`alignment` 表达完整目标是否已通过实际行为 owner 和事实核对并建立为必须保持的单向基线，并由索引原样投影。需要约束后续工作的限制、允许范围或例外直接写入决策正文；当前差距由完整决策与实际行为 owner 和事实比较得出。
 
 决策记录不承接通用记忆、任务日志、进度清单或当前实现事实；代码、配置、规范和项目文档继续承接当前事实与行为。本文中的行为 owner 指权威承接这些事实或规则的文件。
 
@@ -18,7 +18,7 @@ description: >-
 1. 本文件承接发现、语义恢复、对齐判断、偏离分类、候选确认、调用方式选择和按任务出口交付。
 2. [decision-record-rules.md](references/decision-record-rules.md) 是唯一固定契约，承接目录、Markdown、frontmatter、索引 schema、状态语义、关系、维护事务和 CLI 精确行为。
 3. [maintenance-recovery.md](references/maintenance-recovery.md) 只在 CLI/Node 不可用、索引缺失或损坏、写入中断或严格检查失败且普通诊断不足时读取。
-4. [decision-index.schema.json](references/decision-index.schema.json) 是随包分发的当前索引 JSON Schema。
+4. [decision-index.schema.json](references/decision-index.schema.json) 是随包分发的通用索引外壳与决策 state、keys 的当前 JSON Schema。
 5. `scripts/decision-records.mjs` 是查询、展开、追溯、维护和检查决策记录的确定性接口。
 
 ## 主动读取
@@ -54,7 +54,7 @@ description: >-
    - 长期修订：形成新的完整候选和真实直接关系。
    - 一致性问题：活动记录互相冲突、已对齐记录与行为 owner 偏离，或当前动作违反活动决策正文中的明确约束。
 7. 已对齐记录发生事实偏离时不改回 `unaligned`；报告一致性问题。新的未来目标通过新决策表达。
-8. 查询出现 warning 时，不根据缺失正文、关系或结果断言它们不存在；说明不完整性并按需检查原文件或运行严格 `check`。
+8. 查询出现 warning 时，不根据未登记文件或结果断言它们不存在；说明不完整性并按需运行严格 `check`。查询因 source revision 失配而失败时，不使用陈旧 state 推断当前状态，先审阅原文变化并同步索引。
 
 ### 3. 提出候选决策
 
@@ -74,7 +74,7 @@ description: >-
 3. 按目标对齐状态选择 `activate` 参数：完整决策已经核对满足并应建立为当前基线时使用 `aligned`，否则使用 `unaligned`。每次命令只激活显式目标，命令成功后该活动记录立即生效；其他候选仍未生效并由 CLI 逐条 warning。路径进入 `HEAD` 前仍可在原地收敛或使用 `discard` 放弃。
 4. 将完整决策与实际实现、行为 owner 和事实逐项比较，确认已经满足并应建立为当前基线后运行 `mark-aligned <path>`；状态写入不代替实施与核对。
 5. 独立退役使用 `archive`；决策演进先归档直接前序，再创建能够独立表达当前结论的新活动记录和真实关系。
-6. 编辑性修正后运行 `sync-index --write`；索引缺失或损坏时同一命令从全部已建立的当前格式 Markdown 完整重建。未激活候选保持在索引外并显示 warning。
+6. 编辑性修正后运行 `sync-index --write`；索引缺失或损坏时同一命令从全部已建立的当前格式 Markdown 完整重建领域 state、派生 keys 和 source revision。未激活候选保持在索引外并显示 warning。
 7. 所有状态命令都修改 Markdown 并重建索引；关系不隐式改变生命周期或对齐状态。
 8. 不确定项会改变决策含义、状态、关系、创建时间或 owner 时，请用户判断。结束维护前必须激活或丢弃全部未激活候选，不能把作用域命令的 warning 当作最终通过。
 
@@ -93,7 +93,7 @@ description: >-
 node scripts/decision-records.mjs <command> [options] --root <resolution-root>
 ```
 
-日常恢复使用 `list`，单条展开使用 `show`，关系追溯使用 `trace`，结构验证使用 `check`。`sync-index`、`activate`、`mark-aligned`、`archive` 和 `discard` 是写命令，完整读取固定契约后再使用。查询和作用域写命令都可能在退出码为 `0` 时 warning 未激活候选；所有参数、失败语义和输出以固定契约与 `--help` 为准。
+日常恢复使用 `list`，单条展开使用 `show`，关系追溯使用 `trace`，结构验证使用 `check`。`sync-index`、`activate`、`mark-aligned`、`archive` 和 `discard` 是写命令，完整读取固定契约后再使用。查询只在通用索引与已登记 Markdown 的 source revision 一致时返回 state；查询和作用域写命令仍可能在退出码为 `0` 时 warning 未激活候选。所有参数、失败语义和输出以固定契约与 `--help` 为准。
 
 需要在现有 ESM 进程中复用时，从已安装 skill 的实际路径导入 `scripts/decision-records.mjs`；公开导出和类型见相邻 `decision-records.d.mts`。
 

@@ -10,7 +10,10 @@ import {
 import {
   runDecisionRecordsCli as runSourceDecisionRecordsCli
 } from "../src/cli.ts";
-import type { DecisionIndex } from "../src/types.ts";
+import type {
+  DecisionIndex,
+  DecisionIndexState
+} from "../src/types.ts";
 
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const rootDirectory = path.resolve(testsDirectory, "../../..");
@@ -185,8 +188,8 @@ export async function writeIndex(
 export function findIndexEntry(
   index: DecisionIndex,
   decisionPath: string
-): DecisionIndex["records"][number] {
-  const entry = index.records.find((candidate) => candidate.path === decisionPath);
+): DecisionIndexState {
+  const entry = index.entries.find((candidate) => candidate.id === decisionPath);
   assert.ok(entry, "Expected indexed decision " + decisionPath);
-  return entry;
+  return entry.state;
 }

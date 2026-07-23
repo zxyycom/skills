@@ -4,6 +4,7 @@ import {
   isDecisionRelativePath,
   isNewDecisionIdentityPath
 } from "../src/decision-path.ts";
+import { decisionSourceRevision } from "../src/decision-state-index.ts";
 import { validateDecisionBody } from "../src/record.ts";
 import type {
   DecisionDocument,
@@ -37,6 +38,30 @@ assert.equal(
 assert.equal(
   isDecisionRelativePath("decision-records/260722-use-semantic-paths.md"),
   true
+);
+
+const revisionSources = [
+  { path: "security/2fa-policy.md", text: "line one\nline two\n" },
+  { path: "workflow/use-approval.md", text: "approval\n" }
+];
+const sourceRevision = decisionSourceRevision(revisionSources);
+assert.equal(
+  decisionSourceRevision([...revisionSources].reverse()),
+  sourceRevision
+);
+assert.equal(
+  decisionSourceRevision([
+    { path: "security/2fa-policy.md", text: "line one\r\nline two\r\n" },
+    { path: "workflow/use-approval.md", text: "approval\r\n" }
+  ]),
+  sourceRevision
+);
+assert.notEqual(
+  decisionSourceRevision([
+    { path: "security/2fa-policy.md", text: "line one\nchanged\n" },
+    revisionSources[1]!
+  ]),
+  sourceRevision
 );
 
 const projection: DecisionProjection = {

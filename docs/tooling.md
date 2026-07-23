@@ -123,8 +123,8 @@ node scripts/env.js install
 1. `tools/<tool-name>/src/` 承接运行时源码，`api/` 承接稳定公共声明源，`tests/` 承接源码、分发模块和 fixture 验证；构建后真正进入 skill 的文件仍只位于 `skills/<skill-name>/`。
 2. `tools/shared/src/` 只承接多个工具真实共享的运行时原语；仅有相似调用位置、短实现或未来可能复用，不足以进入共享层。
 3. `tools/skill-package/src/` 承接发布端和 updater 必须共同遵守的指纹与 package lock 协议，避免协议实现被任一消费方私有化。
-4. 具体工具的 `src/` 只能依赖自身源码、`tools/shared/src/`、`tools/skill-package/src/`、目标运行时和显式外部依赖；不能依赖 `scripts/`、`skills/`、`dist/` 或另一个具体工具。
-5. `tools/shared/` 不依赖其他工具；`tools/skill-package/` 只依赖自身和 `tools/shared/`。
+4. 具体领域工具的 `src/` 只能依赖自身源码、`tools/shared/src/`、`tools/skill-package/src/`、已经明确建立为跨领域协议 owner 的工具、目标运行时和显式外部依赖；不能依赖 `scripts/`、`skills/`、`dist/` 或另一个领域工具。当前唯一的跨领域工具依赖是 `decision-records` 对 `tools/index-runtime/src/` 的接入。
+5. `tools/shared/` 不依赖其他工具；`tools/skill-package/` 只依赖自身和 `tools/shared/`；独立协议 owner 不反向依赖领域工具。
 6. 源码共享不改变分发单元边界。构建器把被消费的共享源码内联进目标自包含 MJS，因此不同 skill 可以共享一份维护源码而不产生跨 skill 运行时前置条件。
 
 `index-runtime` 的维护入口：
@@ -137,8 +137,8 @@ node scripts/env.js install
 6. 新鲜度：`read` 返回同一时点的完整 `{ revision, states }`，`readRevision` 返回当前 revision；同一 `definitionVersion` 下，revision 相等必须保证重新读取会产生相同的完整 state 投影。任何可能改变索引成员、state、id 或 keys 的源变化都必须改变 revision，不影响投影的变化也可以保守地产生新 revision。具体低成本算法仍由领域 owner 负责，通用层不推断 Git 或文件状态。
 7. 写入：`syncStateIndex` 从完整 state 快照检查或确定性重建 JSON，写入前再次核对 revision，在仓库根目录边界内原子替换并读回验证，不写领域源。领域 writer 完成事实写入后调用完整同步，并负责避免源写入与同步事务互相穿插。索引只提供完整同步；增量协议必须由接入后的领域证据和独立长期决策触发。
 8. 动态 state：查询可以接收使用同一定义产生的完整 runtime state；同 id 临时替换静态条目，新 id 临时追加，磁盘索引保持不变。
-9. 确定性：索引不保存生成时间；对象键、key 定义、key 值和条目使用与区域设置无关的固定全序，领域 state 中数组保持原顺序。
-10. 测试与接入：`tools/index-runtime/tests/run.ts` 覆盖三个领域外形、parser 边界、revision 一致性、运行时 state、查询和确定性同步，并保留 Node/Bun 下的一千条及五千条规模证据；这些测量不定义持续性能 SLO，领域 reader 的端到端成本在各自接入时验证。该工具在接入前不是其他具体工具的允许依赖；后续构建器必须把共享源码内联进目标 skill 的自包含分发脚本。
+9. 确定性：索引不保存生成时间；对象键、key 定义、key 值和条目使用与区域设置无关的固定全序，领域 state 中数组保持原顺序。序列化固定产生 LF，检查时把 Git checkout 可能产生的 CRLF 视为等价。
+10. 测试与接入：`tools/index-runtime/tests/run.ts` 覆盖三个领域外形、parser 边界、revision 一致性、运行时 state、查询和确定性同步，并保留 Node/Bun 下的一千条及五千条规模证据；这些测量不定义持续性能 SLO，领域 reader 的端到端成本在各自接入时验证。`decision-records` 是当前首个领域消费者；其他领域在完成自身 state、revision、key 和端到端成本设计前不因该先例自动接入。构建器把被消费的通用源码内联进目标 skill 的自包含分发脚本。
 
 ### 版本管理中间层
 
@@ -162,13 +162,14 @@ node scripts/env.js install
 `decision-records` CLI 的维护入口：
 
 1. 源码：`tools/decision-records/src/`。
-2. 声明源：`tools/decision-records/api/decision-records.d.mts`。
-3. 测试和夹具：`tools/decision-records/tests/`。
-4. 构建入口：`scripts/build/decision-records.ts`。
-5. 分发产物：`skills/decision-records/scripts/decision-records.mjs`、`decision-records.d.mts`、`decision-records.mjs.map` 及 `skills/decision-records/references/decision-index.schema.json`。
-6. 同步：`bun run sync:decision-records-cli`。
-7. 检查：`bun run check:decision-records-cli`。
-8. 测试：`bun run test:decision-records-cli`。
+2. 领域索引适配：`tools/decision-records/src/decision-state-index.ts` 承接决策源读取、state 解析、唯一 id、`alignment|status|topic` 派生 keys 和 source revision；同一次源读取产生完整 state 与对应 revision，通用解析、查询、二次 revision 核对与原子同步复用 `tools/index-runtime/src/`。
+3. 声明源：`tools/decision-records/api/decision-records.d.mts`。
+4. 测试和夹具：`tools/decision-records/tests/`。
+5. 构建入口：`scripts/build/decision-records.ts`，把决策源码及使用到的通用索引源码内联为自包含分发模块。
+6. 分发产物：`skills/decision-records/scripts/decision-records.mjs`、`decision-records.d.mts`、`decision-records.mjs.map` 及 `skills/decision-records/references/decision-index.schema.json`。
+7. 同步：`bun run sync:decision-records-cli`。
+8. 检查：`bun run check:decision-records-cli`。
+9. 测试：`bun run test:decision-records-cli`。
 
 `test-evidence-review` CLI 的维护入口：
 

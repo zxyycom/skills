@@ -1,32 +1,74 @@
 {
-  "schemaVersion": 4,
-  "records": [
+  "definitionVersion": 1,
+  "entries": [
     {
-      "path": "tooling/260710-use-source-cli.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-10T09:10:11+08:00",
-      "title": "使用源码 CLI",
-      "purpose": "为 CLI 关系和生命周期测试保留可追溯的前序判断。",
-      "background": "需要为直接关系校验提供一条可追溯的前序决定。",
-      "decision": "使用源码 CLI 作为测试夹具的初始做法。",
-      "relations": []
+      "id": "tooling/260710-use-source-cli.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "tooling"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "需要为直接关系校验提供一条可追溯的前序决定。",
+        "createdAt": "2026-07-10T09:10:11+08:00",
+        "decision": "使用源码 CLI 作为测试夹具的初始做法。",
+        "path": "tooling/260710-use-source-cli.md",
+        "purpose": "为 CLI 关系和生命周期测试保留可追溯的前序判断。",
+        "relations": [],
+        "status": "archived",
+        "title": "使用源码 CLI"
+      }
     },
     {
-      "path": "tooling/use-generated-cli.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-11T14:15:16+08:00",
-      "title": "使用生成 CLI",
-      "purpose": "确保生成后的 CLI 能在独立运行环境中读取并校验决策记录。",
-      "background": "需要验证生成后的 CLI 能读取一套最小决策目录。",
-      "decision": "使用固定结构的测试夹具。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "tooling/260710-use-source-cli.md"
-        }
-      ]
+      "id": "tooling/use-generated-cli.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "tooling"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "需要验证生成后的 CLI 能读取一套最小决策目录。",
+        "createdAt": "2026-07-11T14:15:16+08:00",
+        "decision": "使用固定结构的测试夹具。",
+        "path": "tooling/use-generated-cli.md",
+        "purpose": "确保生成后的 CLI 能在独立运行环境中读取并校验决策记录。",
+        "relations": [
+          {
+            "target": "tooling/260710-use-source-cli.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "使用生成 CLI"
+      }
     }
-  ]
+  ],
+  "keyDefinitions": [
+    {
+      "mode": "exact",
+      "name": "alignment"
+    },
+    {
+      "mode": "exact",
+      "name": "status"
+    },
+    {
+      "mode": "exact",
+      "name": "topic"
+    }
+  ],
+  "namespace": "decisions",
+  "schemaVersion": 1,
+  "sourceRevision": "sha256:e488abb59afc4a7dd1f5b779d918f27ad19ffe54e0a54b4466d853db5d9e50ac"
 }

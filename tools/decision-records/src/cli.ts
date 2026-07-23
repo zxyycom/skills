@@ -3,6 +3,12 @@
 import fs from "node:fs/promises";
 import process from "node:process";
 import { CommanderError } from "commander";
+import {
+  queryStateIndex,
+  stateIndexQueryMaximumLimit,
+  type StateIndexFilter,
+  type StateIndexResult
+} from "../../index-runtime/src/index.ts";
 import { isMainModule } from "../../shared/src/node/main-module.ts";
 import {
   createCliProgram,
@@ -17,11 +23,18 @@ import {
   applyDecisionChanges,
   type DecisionFileChange
 } from "./decision-transaction.ts";
-import { isNewDecisionIdentityPath } from "./decision-path.ts";
-import { type HeadDecisionPathsResult } from "./head-decision-paths.ts";
 import {
-  expectedIndex,
+  createDecisionStateIndexDefinition,
+  decisionIndexDiagnosticMessages,
+  loadCurrentDecisionIndex,
+  syncDecisionIndex
+} from "./decision-state-index.ts";
+import { isNewDecisionIdentityPath } from "./decision-path.ts";
+import { loadHeadDecisionPaths } from "./head-decision-paths.ts";
+import {
+  headPathConsistencyErrors,
   loadDecisionValidationContext,
+  selectDecisionIndexSourcePaths,
   validateDecisionRecords,
   validateDecisionScan,
   type DecisionValidationContext,
@@ -32,12 +45,20 @@ import { scanDecisionRecords } from "./scan.ts";
 import {
   compareDecisionRecords,
   type DecisionAlignment,
+  type DecisionIndex,
+  type DecisionIndexEntry,
   type DecisionRecord,
   type DecisionScan,
   type DecisionScanOptions
 } from "./types.ts";
 
 type CommandHandler = (args: CliArgs) => Promise<number>;
+
+type DecisionQueryContext = {
+  headDecisionPaths: Awaited<ReturnType<typeof loadHeadDecisionPaths>>;
+  index: DecisionIndex;
+  scan: DecisionScan;
+};
 
 function decisionScanOptions(args: CliArgs): DecisionScanOptions {
   return {
@@ -125,21 +146,59 @@ async function validatedMaintenanceResult(
 
 async function queryResult(
   args: CliArgs
-): Promise<DecisionValidationContext | null> {
-  const context = await loadCommandContext(args);
-  const { result } = context;
-  if (context.headDecisionPaths.errors.length > 0) {
-    printErrors(context.headDecisionPaths.errors);
+): Promise<DecisionQueryContext | null> {
+  const scan = await scanDecisionRecords({
+    ...decisionScanOptions(args),
+    sourceMode: "index-first"
+  });
+  if (scan.index === null) {
+    printErrors(scan.errors);
     return null;
   }
-  if (result.scan.index === null) {
-    printErrors(result.errors);
+  const [headDecisionPaths, currentIndex] = await Promise.all([
+    loadHeadDecisionPaths(scan.decisionsDirectory),
+    loadCurrentDecisionIndex({
+      decisionsDirectory: scan.decisionsDirectory
+    })
+  ]);
+  if (headDecisionPaths.errors.length > 0) {
+    printErrors(headDecisionPaths.errors);
     return null;
   }
-  if (result.errors.length > 0) {
-    printWarnings(result.errors);
+  if (currentIndex.status === "error") {
+    printErrors(decisionIndexDiagnosticMessages(
+      currentIndex.diagnostics,
+      scan.indexRelativePath
+    ));
+    return null;
   }
-  return context;
+  if (!sameDecisionIndexSnapshot(scan.index, currentIndex.value)) {
+    printErrors([
+      scan.indexRelativePath + " changed while preparing the query; retry"
+    ]);
+    return null;
+  }
+  const warnings = [
+    ...scan.errors,
+    ...headPathConsistencyErrors(scan, headDecisionPaths.paths)
+  ];
+  if (warnings.length > 0) {
+    printWarnings([...new Set(warnings)]);
+  }
+  return {
+    headDecisionPaths,
+    index: currentIndex.value,
+    scan
+  };
+}
+
+function sameDecisionIndexSnapshot(
+  left: DecisionIndex,
+  right: DecisionIndex
+): boolean {
+  return left.sourceRevision === right.sourceRevision
+    && left.entries.length === right.entries.length
+    && left.entries.every((entry, index) => entry.id === right.entries[index]?.id);
 }
 
 function invalidRecordSuffix(record: DecisionRecord): string {
@@ -164,6 +223,61 @@ function recordSuffix(
 
 function indexedRecords(scan: DecisionScan): DecisionRecord[] {
   return scan.records.filter((record) => record.indexed);
+}
+
+function queryDecisionEntry(
+  index: DecisionIndex,
+  stateId: string
+): StateIndexResult<DecisionIndexEntry | null> {
+  const queried = queryStateIndex({
+    definition: createDecisionStateIndexDefinition(),
+    index,
+    query: {
+      filters: [{
+        key: "id",
+        kind: "exact",
+        operator: "all",
+        values: [stateId]
+      }],
+      limit: 1
+    }
+  });
+  if (queried.status === "error") {
+    return queried;
+  }
+  return {
+    diagnostics: [],
+    status: "ok",
+    value: queried.value.entries[0] ?? null
+  };
+}
+
+function queryAllDecisionEntries(
+  index: DecisionIndex,
+  filters: readonly StateIndexFilter[]
+): StateIndexResult<DecisionIndexEntry[]> {
+  const entries: DecisionIndexEntry[] = [];
+  let offset = 0;
+  while (true) {
+    const queried = queryStateIndex({
+      definition: createDecisionStateIndexDefinition(),
+      index,
+      query: {
+        filters: [...filters],
+        limit: stateIndexQueryMaximumLimit,
+        offset,
+        sort: [{ direction: "asc", key: "id" }]
+      }
+    });
+    if (queried.status === "error") {
+      return queried;
+    }
+    entries.push(...queried.value.entries);
+    offset += queried.value.entries.length;
+    if (offset >= queried.value.total || queried.value.entries.length === 0) {
+      return { diagnostics: [], status: "ok", value: entries };
+    }
+  }
 }
 
 function currentCreatedAt(): string {
@@ -206,16 +320,46 @@ async function runList(args: CliArgs): Promise<number> {
   if (!context) {
     return 1;
   }
-  const { result } = context;
   const headPaths = context.headDecisionPaths.paths;
-
-  const records = indexedRecords(result.scan)
-    .filter((record) => args.status === "all" || record.status === args.status)
-    .filter((record) => (
-      args.alignment === "all" || record.alignment === args.alignment
-    ))
-    .filter((record) => args.topic === null || record.areaId === args.topic)
-    .sort(compareDecisionRecords);
+  const filters: StateIndexFilter[] = [];
+  if (args.status !== "all") {
+    filters.push({
+      key: "status",
+      kind: "exact",
+      operator: "all",
+      values: [args.status]
+    });
+  }
+  if (args.alignment !== "all") {
+    filters.push({
+      key: "alignment",
+      kind: "exact",
+      operator: "all",
+      values: [args.alignment]
+    });
+  }
+  if (args.topic !== null) {
+    filters.push({
+      key: "topic",
+      kind: "exact",
+      operator: "all",
+      values: [args.topic]
+    });
+  }
+  const queried = queryAllDecisionEntries(context.index, filters);
+  if (queried.status === "error") {
+    printErrors(decisionIndexDiagnosticMessages(
+      queried.diagnostics,
+      context.scan.indexRelativePath
+    ));
+    return 1;
+  }
+  const recordsByPath = new Map(
+    indexedRecords(context.scan).map((record) => [record.relativePath, record])
+  );
+  const records = queried.value
+    .map((entry) => recordsByPath.get(entry.id))
+    .filter((record): record is DecisionRecord => record !== undefined);
   if (records.length === 0) {
     console.log(
       "No decisions matched status "
@@ -253,12 +397,20 @@ async function runShow(args: CliArgs): Promise<number> {
   if (!context) {
     return 1;
   }
-  const { result } = context;
-
   const recordPath = args.recordPaths[0];
-  const record = recordPath === undefined
+  const matched = recordPath === undefined
     ? null
-    : findIndexedRecord(result.scan, recordPath);
+    : queryDecisionEntry(context.index, normalizeDecisionPath(recordPath));
+  if (matched?.status === "error") {
+    printErrors(decisionIndexDiagnosticMessages(
+      matched.diagnostics,
+      context.scan.indexRelativePath
+    ));
+    return 1;
+  }
+  const record = matched?.status === "ok" && matched.value !== null
+    ? findIndexedRecord(context.scan, matched.value.id)
+    : null;
   if (!record) {
     console.error("Indexed decision does not exist: " + recordPath);
     return 1;
@@ -286,18 +438,29 @@ async function runTrace(args: CliArgs): Promise<number> {
   if (!context) {
     return 1;
   }
-  const { result } = context;
-
   const recordPath = args.recordPaths[0];
   const start = recordPath === undefined
     ? null
-    : findIndexedRecord(result.scan, recordPath);
+    : findIndexedRecord(context.scan, recordPath);
   if (!start) {
     console.error("Indexed decision does not exist: " + recordPath);
     return 1;
   }
 
-  const records = indexedRecords(result.scan);
+  const queried = queryAllDecisionEntries(context.index, []);
+  if (queried.status === "error") {
+    printErrors(decisionIndexDiagnosticMessages(
+      queried.diagnostics,
+      context.scan.indexRelativePath
+    ));
+    return 1;
+  }
+  const recordsByPath = new Map(
+    indexedRecords(context.scan).map((record) => [record.relativePath, record])
+  );
+  const records = queried.value
+    .map((entry) => recordsByPath.get(entry.id))
+    .filter((record): record is DecisionRecord => record !== undefined);
   const trace = traceDecisionRelations(
     records,
     start.relativePath,
@@ -335,62 +498,11 @@ async function runTrace(args: CliArgs): Promise<number> {
   return 0;
 }
 
-async function writeValidatedIndex(
-  args: CliArgs,
-  scan: DecisionScan,
-  headDecisionPaths: HeadDecisionPathsResult,
-  text: string,
-  successMessage: string
-): Promise<number> {
-  try {
-    await fs.writeFile(scan.indexPath, text, "utf8");
-    const validationScan = await scanDecisionRecords(decisionScanOptions(args));
-    const validation = validateDecisionScan(validationScan, headDecisionPaths, {
-      scanErrorPolicy: "allow-activation-candidates"
-    });
-    if (validation.errors.length === 0) {
-      console.log(successMessage);
-      printActivationCandidateWarnings(validationScan);
-      return 0;
-    }
-
-    const restoreErrors = await restoreIndex(scan);
-    printErrors([...validation.errors, ...restoreErrors]);
-    return 1;
-  } catch (error) {
-    const restoreErrors = await restoreIndex(scan);
-    printErrors([
-      "Failed to write and validate decision index: "
-        + (error instanceof Error ? error.message : String(error)),
-      ...restoreErrors
-    ]);
-    return 1;
-  }
-}
-
-async function restoreIndex(scan: DecisionScan): Promise<string[]> {
-  try {
-    if (scan.indexExists) {
-      await fs.writeFile(scan.indexPath, scan.indexText, "utf8");
-    } else {
-      await fs.rm(scan.indexPath, { force: true });
-    }
-    return [];
-  } catch (error) {
-    return [
-      "Failed to restore decision index "
-      + scan.indexRelativePath
-      + ": "
-      + (error instanceof Error ? error.message : String(error))
-    ];
-  }
-}
-
 async function runSyncIndex(args: CliArgs): Promise<number> {
   const context = await loadCommandContext(args, { checkIndexText: false });
   const { headDecisionPaths, result } = context;
   const { scan } = result;
-  const sourceValidation = validateDecisionScan(scan, headDecisionPaths, {
+  const sourceValidation = await validateDecisionScan(scan, headDecisionPaths, {
     checkIndexText: false,
     scanErrorPolicy: "source-only"
   });
@@ -409,30 +521,41 @@ async function runSyncIndex(args: CliArgs): Promise<number> {
     }
   }
 
-  const generated = expectedIndex(scan);
-  if (generated.errors.length > 0 || generated.text === null) {
-    printErrors(generated.errors);
+  const selection = selectDecisionIndexSourcePaths(scan);
+  if (selection.errors.length > 0) {
+    printErrors(selection.errors);
     return 1;
   }
 
-  if (scan.indexText.replace(/\r\n/g, "\n") === generated.text) {
-    console.log("Decision index is up to date.");
-    printActivationCandidateWarnings(scan);
-    return 0;
-  }
-  if (!args.write) {
-    console.error("Decision index is out of sync.");
-    console.error("Run sync-index --write to update " + scan.indexRelativePath + ".");
+  const synchronized = await syncDecisionIndex({
+    decisionsDirectory: scan.decisionsDirectory,
+    mode: args.write ? "write" : "check",
+    relativePaths: selection.relativePaths
+  });
+  if (synchronized.status === "error") {
+    if (!args.write && (
+      synchronized.state === "index-invalid"
+      || synchronized.state === "index-missing"
+      || synchronized.state === "index-stale"
+    )) {
+      console.error("Decision index is out of sync.");
+      console.error("Run sync-index --write to update " + scan.indexRelativePath + ".");
+      return 1;
+    }
+    printErrors(decisionIndexDiagnosticMessages(
+      synchronized.diagnostics,
+      scan.indexRelativePath
+    ));
     return 1;
   }
 
-  return await writeValidatedIndex(
-    args,
-    scan,
-    headDecisionPaths,
-    generated.text,
-    "Rebuilt " + scan.indexRelativePath + " from decision Markdown files."
+  console.log(
+    synchronized.state === "written"
+      ? "Rebuilt " + scan.indexRelativePath + " from decision Markdown files."
+      : "Decision index is up to date."
   );
+  printActivationCandidateWarnings(scan);
+  return 0;
 }
 
 function findRecord(scan: DecisionScan, value: string): DecisionRecord | null {
@@ -835,6 +958,7 @@ export type {
   DecisionDocument,
   DecisionIndex,
   DecisionIndexEntry,
+  DecisionIndexState,
   DecisionListAlignment,
   DecisionListStatus,
   DecisionMetadata,

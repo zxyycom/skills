@@ -1,15 +1,16 @@
 import {
+  decisionIndexDiagnosticMessages,
+  syncDecisionIndex
+} from "./decision-state-index.ts";
+import {
   loadHeadDecisionPaths,
   type HeadDecisionPathsResult
 } from "./head-decision-paths.ts";
 import { scanDecisionRecords } from "./scan.ts";
 import {
-  type DecisionIndex,
-  type DecisionIndexEntry,
   type DecisionScan,
   type DecisionScanOptions,
-  type DecisionValidationResult,
-  type ExpectedIndex
+  type DecisionValidationResult
 } from "./types.ts";
 
 export type DecisionValidationContext = {
@@ -27,16 +28,21 @@ export type DecisionValidationOptions = {
     | "source-only";
 };
 
-export type ExpectedIndexOptions = {
+export type DecisionIndexSourceSelectionOptions = {
   includeUnindexedPaths?: ReadonlySet<string>;
 };
 
-export function expectedIndex(
+export type DecisionIndexSourceSelection = {
+  errors: string[];
+  relativePaths: string[];
+};
+
+export function selectDecisionIndexSourcePaths(
   scan: DecisionScan,
-  options: ExpectedIndexOptions = {}
-): ExpectedIndex {
+  options: DecisionIndexSourceSelectionOptions = {}
+): DecisionIndexSourceSelection {
   const errors: string[] = [];
-  const entries: DecisionIndexEntry[] = [];
+  const relativePaths: string[] = [];
   const { includeUnindexedPaths } = options;
 
   for (const record of scan.records.filter((candidate) => (
@@ -46,54 +52,14 @@ export function expectedIndex(
       || candidate.indexed
       || includeUnindexedPaths.has(candidate.relativePath))
   ))) {
-    if (!record.document) {
-      errors.push("Cannot generate index from invalid decision " + record.relativePath);
-      continue;
-    }
-
-    const { alignment, createdAt, status } = record.document;
-    const projection = {
-      title: record.document.title,
-      purpose: record.document.purpose,
-      background: record.document.background,
-      decision: record.document.decision,
-      relations: record.document.relations
-    };
-    entries.push(status === "active"
-      ? {
-          path: record.relativePath,
-          status: "active",
-          alignment,
-          createdAt,
-          ...projection
-        }
-      : {
-          path: record.relativePath,
-          status: "archived",
-          alignment: null,
-          createdAt,
-          ...projection
-        });
+    relativePaths.push(record.relativePath);
   }
 
-  if (entries.length === 0) {
+  if (relativePaths.length === 0) {
     errors.push("Cannot generate an empty decision index");
   }
 
-  if (errors.length > 0) {
-    return { errors, text: null };
-  }
-
-  entries.sort((left, right) => left.path.localeCompare(right.path));
-  const index: DecisionIndex = {
-    schemaVersion: 4,
-    records: entries
-  };
-
-  return {
-    errors,
-    text: JSON.stringify(index, null, 2) + "\n"
-  };
+  return { errors, relativePaths };
 }
 
 export async function validateDecisionRecords(
@@ -112,15 +78,15 @@ export async function loadDecisionValidationContext(
     : { errors: [], paths: new Set<string>() };
   return {
     headDecisionPaths,
-    result: validateDecisionScan(scan, headDecisionPaths, validationOptions)
+    result: await validateDecisionScan(scan, headDecisionPaths, validationOptions)
   };
 }
 
-export function validateDecisionScan(
+export async function validateDecisionScan(
   scan: DecisionScan,
   headDecisionPaths: HeadDecisionPathsResult,
   options: DecisionValidationOptions = {}
-): DecisionValidationResult {
+): Promise<DecisionValidationResult> {
   const candidateErrorSet = new Set(scan.activationCandidateErrors);
   const errors = options.scanErrorPolicy === "omit"
     ? []
@@ -138,18 +104,38 @@ export function validateDecisionScan(
     ));
   }
   const hasDecisionMarkdown = scan.records.some((record) => record.markdownExists);
-  const generated = options.allowEmptyDecisionSet && !hasDecisionMarkdown
-    ? { errors: [], text: null }
-    : expectedIndex(scan);
-  errors.push(...generated.errors);
+  const selection = options.allowEmptyDecisionSet && !hasDecisionMarkdown
+    ? { errors: [], relativePaths: [] }
+    : selectDecisionIndexSourcePaths(scan);
+  errors.push(...selection.errors);
 
-  if (options.checkIndexText !== false
-    && generated.text !== null
-    && scan.indexText.replace(/\r\n/g, "\n") !== generated.text) {
-    errors.push(
-      scan.indexRelativePath
-      + " is out of sync; run sync-index --write"
-    );
+  if (
+    options.checkIndexText !== false
+    && selection.relativePaths.length > 0
+    && scan.sourceErrors.length === 0
+  ) {
+    const checked = await syncDecisionIndex({
+      decisionsDirectory: scan.decisionsDirectory,
+      mode: "check",
+      relativePaths: selection.relativePaths
+    });
+    if (checked.status === "error") {
+      if (
+        checked.state === "index-invalid"
+        || checked.state === "index-missing"
+        || checked.state === "index-stale"
+      ) {
+        errors.push(
+          scan.indexRelativePath
+          + " is out of sync; run sync-index --write"
+        );
+      } else {
+        errors.push(...decisionIndexDiagnosticMessages(
+          checked.diagnostics,
+          scan.indexRelativePath
+        ));
+      }
+    }
   }
 
   const establishedRecords = scan.records.filter(
@@ -175,7 +161,7 @@ export function validateDecisionScan(
   };
 }
 
-function headPathConsistencyErrors(
+export function headPathConsistencyErrors(
   scan: DecisionScan,
   headPaths: ReadonlySet<string>,
   sourceOnly = false

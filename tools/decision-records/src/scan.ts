@@ -7,23 +7,24 @@ import {
   isNewDecisionIdentityPath
 } from "./decision-path.ts";
 import {
-  parseDecisionIndex,
-  type DecisionIndexEntry
-} from "./decision-index.ts";
+  decisionIndexDiagnosticMessages,
+  decisionIndexFileName,
+  parseDecisionIndex
+} from "./decision-state-index.ts";
 import { decisionRelationConsistencyErrors } from "./relation-graph.ts";
 import { validateDecisionBody } from "./record.ts";
 import { decisionMetadataFromCandidate } from "./decision-metadata.ts";
 import {
   compareDecisionRecords,
   type DecisionIndex,
+  type DecisionIndexEntry,
   type DecisionProjection,
   type DecisionRecord,
   type DecisionScan,
   type DecisionScanOptions
 } from "./types.ts";
 
-const indexFileName = "decision-index.json";
-const allowedRootFiles = new Set([indexFileName]);
+const allowedRootFiles = new Set([decisionIndexFileName]);
 
 function displayPath(workspaceRoot: string, targetPath: string): string {
   const relativePath = path.relative(workspaceRoot, targetPath);
@@ -78,22 +79,23 @@ function recordFromIndexEntry(options: {
   entry: DecisionIndexEntry;
 }): DecisionRecord {
   const { decisionsDirectory, entry } = options;
-  const pathParts = entry.path.split("/");
-  const fileName = pathParts.at(-1) ?? entry.path;
+  const state = entry.state;
+  const pathParts = state.path.split("/");
+  const fileName = pathParts.at(-1) ?? state.path;
   return {
     activationCandidate: false,
-    alignment: entry.alignment,
+    alignment: state.alignment,
     areaId: pathParts[0] ?? "",
     bodyValid: false,
-    createdAt: entry.createdAt,
+    createdAt: state.createdAt,
     decisionPath: path.join(decisionsDirectory, ...pathParts),
     document: null,
     fileName,
     indexed: true,
     markdownExists: false,
-    projection: selectProjection(entry),
-    relativePath: entry.path,
-    status: entry.status
+    projection: selectProjection(state),
+    relativePath: state.path,
+    status: state.status
   };
 }
 
@@ -106,6 +108,7 @@ async function scanArea(options: {
   indexEntryByPath: ReadonlyMap<string, DecisionIndexEntry> | null;
   indexRelativePath: string;
   records: DecisionRecord[];
+  sourceMode: "full" | "index-first";
   sourceErrors: string[];
 }): Promise<void> {
   const {
@@ -117,6 +120,7 @@ async function scanArea(options: {
     indexEntryByPath,
     indexRelativePath,
     records,
+    sourceMode,
     sourceErrors
   } = options;
   const areaEntries = await fs.readdir(areaPath, { withFileTypes: true });
@@ -143,10 +147,31 @@ async function scanArea(options: {
     }
 
     const indexEntry = indexEntryByPath?.get(relativePath) ?? null;
+    if (indexEntry !== null && sourceMode === "index-first") {
+      const state = indexEntry.state;
+      records.push({
+        activationCandidate: false,
+        alignment: state.alignment,
+        areaId,
+        bodyValid: true,
+        createdAt: state.createdAt,
+        decisionPath,
+        document: state,
+        fileName: entry.name,
+        indexed: true,
+        markdownExists: true,
+        projection: selectProjection(state),
+        relativePath,
+        status: state.status
+      });
+      continue;
+    }
+
     const recordErrors: string[] = [];
+    const sourceText = await fs.readFile(decisionPath, "utf8");
     const sourceDocument = await validateDecisionBody({
       allowNullCreatedAt: indexEntry === null,
-      body: await fs.readFile(decisionPath, "utf8"),
+      body: sourceText,
       decisionPath,
       decisionsDirectory,
       errors: recordErrors,
@@ -185,17 +210,17 @@ async function scanArea(options: {
 
     records.push({
       activationCandidate,
-      alignment: indexEntry?.alignment ?? sourceDocument?.alignment ?? null,
+      alignment: indexEntry?.state.alignment ?? sourceDocument?.alignment ?? null,
       areaId,
       bodyValid: recordErrors.length === 0,
-      createdAt: indexEntry?.createdAt ?? sourceDocument?.createdAt ?? null,
+      createdAt: indexEntry?.state.createdAt ?? sourceDocument?.createdAt ?? null,
       decisionPath,
       document,
       fileName: entry.name,
       indexed: indexEntry !== null,
       markdownExists: true,
       projection: indexEntry
-        ? selectProjection(indexEntry)
+        ? selectProjection(indexEntry.state)
         : sourceDocument
           ? selectProjection(sourceDocument)
           : {
@@ -204,9 +229,9 @@ async function scanArea(options: {
               purpose: "",
               relations: [],
               title: ""
-            },
+      },
       relativePath,
-      status: indexEntry?.status ?? sourceDocument?.status ?? null
+      status: indexEntry?.state.status ?? sourceDocument?.status ?? null
     });
   }
 }
@@ -230,20 +255,23 @@ function addMissingIndexRecords(options: {
   }
 
   const recordPaths = new Set(records.map((record) => record.relativePath));
-  for (const entry of index.records) {
-    if (recordPaths.has(entry.path)) {
+  for (const entry of index.entries) {
+    if (recordPaths.has(entry.id)) {
       continue;
     }
-    indexErrors.push(missingIndexedDecisionError(indexRelativePath, entry.path));
+    indexErrors.push(missingIndexedDecisionError(indexRelativePath, entry.id));
     records.push(recordFromIndexEntry({ decisionsDirectory, entry }));
   }
 }
 
 export async function scanDecisionRecords(
-  options: DecisionScanOptions = {}
+  options: DecisionScanOptions & {
+    sourceMode?: "full" | "index-first";
+  } = {}
 ): Promise<DecisionScan> {
   const workspaceRoot = path.resolve(options.workspaceRoot ?? process.cwd());
   const configuredDecisionDirectory = options.decisionsDir ?? "docs/decisions";
+  const sourceMode = options.sourceMode ?? "full";
   const decisionsDirectory = path.isAbsolute(configuredDecisionDirectory)
     ? path.resolve(configuredDecisionDirectory)
     : path.resolve(workspaceRoot, configuredDecisionDirectory);
@@ -253,7 +281,7 @@ export async function scanDecisionRecords(
   const records: DecisionRecord[] = [];
   const areaIds = new Set<string>();
   const decisionsLabel = displayPath(workspaceRoot, decisionsDirectory);
-  const indexPath = path.join(decisionsDirectory, indexFileName);
+  const indexPath = path.join(decisionsDirectory, decisionIndexFileName);
   const indexRelativePath = displayPath(workspaceRoot, indexPath);
   const unavailableScan = (error: string): DecisionScan => ({
     activationCandidateErrors,
@@ -285,11 +313,18 @@ export async function scanDecisionRecords(
     indexErrors.push(message);
   }
   const indexText = indexExists ? await fs.readFile(indexPath, "utf8") : "";
-  const index = indexText.length > 0
-    ? parseDecisionIndex(indexText, indexRelativePath, indexErrors)
+  const parsedIndex = indexText.length > 0
+    ? parseDecisionIndex(indexText, indexRelativePath)
     : null;
+  if (parsedIndex?.status === "error") {
+    indexErrors.push(...decisionIndexDiagnosticMessages(
+      parsedIndex.diagnostics,
+      indexRelativePath
+    ));
+  }
+  const index = parsedIndex?.status === "ok" ? parsedIndex.value : null;
   const indexEntryByPath = index
-    ? new Map(index.records.map((entry) => [entry.path, entry]))
+    ? new Map(index.entries.map((entry) => [entry.id, entry]))
     : null;
   const rootEntries = await fs.readdir(decisionsDirectory, { withFileTypes: true });
   rootEntries.sort((left, right) => left.name.localeCompare(right.name));
@@ -320,6 +355,7 @@ export async function scanDecisionRecords(
       indexEntryByPath,
       indexRelativePath,
       records,
+      sourceMode,
       sourceErrors
     });
   }

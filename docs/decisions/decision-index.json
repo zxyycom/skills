@@ -1,1621 +1,3030 @@
 {
-  "schemaVersion": 4,
-  "records": [
-    {
-      "path": "change-plan-behavior/use-independent-change-plans.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-23T03:24:48Z",
-      "title": "使用独立 Change Plan 承接临时变更计划",
-      "purpose": "让项目在不采用完整 specification 生命周期时也能保存可审阅、可交接并带实施门禁的 change 计划。",
-      "background": "稳定文档和长期决策已有各自 owner，而 OpenSpec 的 proposal、design 与 tasks 仍提供有价值的 change 级规划结构。",
-      "decision": "新增独立 `change-plan`，以三文件临时计划和只读结构检查器承接规划，不拥有稳定事实、长期决策或实施许可。",
-      "relations": []
-    },
-    {
-      "path": "common-denominator-design-behavior/design-by-scenario-denominators.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-22T02:06:52Z",
-      "title": "以场景公约数设计跨场景统一契约",
-      "purpose": "让跨场景统一先识别可共同依赖的真实契约, 再决定公约数数量、变体和责任层。",
-      "background": "单一抽象、沿用现有形态或把证据不足误作没有公约数, 都会掩盖真实的共享边界。",
-      "decision": "新增独立 `common-denominator-design`, 以共同依赖测试和场景义务设计公约数; 最小性仅用于边界收敛。",
-      "relations": []
-    },
-    {
-      "path": "decision-records-skill/260710-use-cli-active-index-and-invalidated-archive.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-11T10:26:44+08:00",
-      "title": "使用 CLI 维护活动索引并归档失效决策",
-      "purpose": "用可预期的 CLI 维护当前决策可见性和索引一致性，同时保留历史。",
-      "background": "只做结构校验不能帮助维护者在文件重命名或状态变化后同步索引，重复手工编辑容易产生旧路径和状态漂移。",
-      "decision": "`decision-records.mjs check` 作为默认只读命令，检查目录、文件名、正文状态、链接、归档位置和活动索引。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records-skill/260710-use-explicit-portable-decision-memory.md"
-        },
-        {
-          "type": "修订",
-          "target": "decision-records/260627-establish-decision-record-policy.md"
-        },
-        {
-          "type": "修订",
-          "target": "decision-records/260630-track-decision-status-and-relations.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records-skill/260710-use-explicit-portable-decision-memory.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-11T10:26:44+08:00",
-      "title": "使用显式可移植的决策记录形成长期记忆",
-      "purpose": "建立公开、可审阅、可版本化且能跨项目复用的长期决策记忆。",
-      "background": "用户希望把重要决定沉淀为长期记忆，但这种记忆需要能够被查看、审核和持续优化，不能隐藏在模型状态或工具内部。",
-      "decision": "使用固定的 `docs/decisions/` Markdown 方案在不同项目中保存决策，包括规则 owner、索引 owner、稳定影响面、文件名状态和正文关系。",
-      "relations": []
-    },
-    {
-      "path": "decision-records-skill/260711-repair-noncanonical-decision-formats.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-11T13:40:17+08:00",
-      "title": "将非标准决策材料修复为唯一契约",
-      "purpose": "将已有决策材料收敛到唯一可维护契约，同时保留能够确认的历史语义。",
-      "background": "如果 skill 为任意已有格式长期维护兼容分支或独立迁移模式, agent 需要同时理解多套目录、模板、状态和索引语义, 容易让同一项目继续产生并行记录。",
-      "decision": "将 bundled reference 定义的目录、文件名、状态、正文结构和索引关系作为唯一目标格式。",
-      "relations": []
-    },
-    {
-      "path": "decision-records-skill/260711-require-confirmed-decision-writes.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-11T14:55:56+08:00",
-      "title": "使用显式确认控制决策写入",
-      "purpose": "只沉淀经确认且具有长期价值的判断，同时避免频繁打断日常工作。",
-      "background": "如果 agent 对工作中的每个选择都询问是否记录，长期记忆判断会频繁打断原任务。",
-      "decision": "agent 只在自然阶段发现会持续改变行为、owner、边界、兼容性、风险处理或验收方式的重要取舍时主动提出记录，从而保留高价值决策而不逐项打断工作。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records-skill/260711-repair-noncanonical-decision-formats.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records-skill/260713-recall-before-long-lived-changes.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-18T11:43:07+08:00",
-      "title": "在长期行为变更前恢复决策并显式处理偏离",
-      "purpose": "在长期行为改变前恢复既有方向，防止后续维护静默偏离。",
-      "background": "只在用户显式要求回放或记录时读取决策，不能保证普通维护任务在改变长期行为前看见已有方向。",
-      "decision": "任务可能改变长期行为、owner、边界、兼容性、风险处理或验收方式时，在实质改动前从 JSON 当前索引读取相关记录，因为只有在决策点前恢复上下文才能实际防止方向静默漂移。",
-      "relations": []
-    },
-    {
-      "path": "decision-records-skill/260718-notify-before-decision-writes.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-18T14:44:37+08:00",
-      "title": "在决策写入前明确通知用户",
-      "purpose": "在不增加重复授权成本的前提下，让用户感知长期决策集合的变化。",
-      "background": "为每项决策维护操作重复询问授权会增加交互成本，但静默新增或调整长期决策又会让用户失去对长期记忆变化的感知。",
-      "decision": "当前指令足以表达决策维护意图时不重复询问操作授权；新增、调整或退出当前集合前明确告知用户将写入或改变的判断及集合变化，长期含义或范围不清时再请求判断。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records-skill/260711-require-confirmed-decision-writes.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records-skill/260718-trigger-on-long-term-decision-points.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-18T14:11:24+08:00",
-      "title": "让长期决策形成和冲突成为核心触发",
-      "purpose": "在真正形成长期判断或发生冲突时恢复决策上下文，避免普通执行误触发。",
-      "background": "以“任务可能改变长期行为”作为触发条件会把普通执行也纳入范围，而逐项枚举维护操作会削弱真正需要主动恢复上下文的决策时刻。",
-      "decision": "`decision-records` 用于长期决策管理；当用户正在形成可能产生长期影响的决定，或拟议决定与既有决定冲突时调用，触发后恢复相关当前决策并处理偏离，入口不枚举记录、查询或归档等自然操作。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records-skill/260713-recall-before-long-lived-changes.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records-skill/260720-complete-by-task-outcome.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T10:34:37+08:00",
-      "title": "按任务出口验收决策记录工作",
-      "purpose": "让查询、候选、维护和迁移按各自结果验收，并安全使用带 warning 返回的降级查询。",
-      "background": "非阻断查询已经能够返回可恢复结果，但统一要求严格检查通过会扩大查询范围，而仅报告 warning 又不足以约束对缺失记录和关系的推断。",
-      "decision": "分别按恢复或审阅、候选、维护或迁移验收；warning 限定查询结论，严格 `check` 只作为写入和迁移门禁。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/260720-return-query-results-with-warnings.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records-skill/complete-current-decision-work-by-task-outcome.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-22T08:41:48Z",
-      "title": "按当前任务出口验收决策记录工作",
-      "purpose": "让恢复或审阅、候选和维护分别按实际结果验收，并安全使用带 warning 返回的查询结果。",
-      "background": "只读查询可能在局部材料有误时返回可恢复结果，统一要求严格检查会扩大任务范围，而维护写入仍需要完整一致性门禁。",
-      "decision": "按恢复或审阅、候选和维护三类出口验收；warning 限定查询结论，严格 check 作为维护写入的最终门禁。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records-skill/260720-complete-by-task-outcome.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records-skill/notify-before-current-decision-writes.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-22T08:41:27Z",
-      "title": "在当前决策写入前明确通知用户",
-      "purpose": "在不重复索取操作授权的前提下，让用户感知长期决策集合和状态的变化。",
-      "background": "当前指令可能已经明确授权维护，但静默新增记录或改变状态会让后续默认依据在用户无感知时变化。",
-      "decision": "当前指令足以表达维护意图时直接执行；新增记录或改变状态前告知判断与集合变化，长期含义或范围不清时再请求判断。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records-skill/260718-notify-before-decision-writes.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/260627-establish-decision-record-policy.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-06-27T22:56:30+08:00",
-      "title": "建立决策记录策略",
-      "purpose": "只沉淀值得长期回放的重要判断，并让索引与维护规则各有明确 owner。",
-      "background": "决策记录需要帮助后续维护者回放重要设计原因, 但过多项目级记录会把真正重要的判断淹没。",
-      "decision": "按影响面目录组织决策，分别由清单索引和维护规则承接导航与契约；文件命名由后续状态规则确定。",
-      "relations": []
-    },
-    {
-      "path": "decision-records/260630-name-decision-root-docs-by-owner.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-06-30T16:44:06+08:00",
-      "title": "用 owner 命名决策记录根文档",
-      "purpose": "让决策清单和维护规则的 owner 能从文件名直接识别。",
-      "background": "通用的 `README.md` 与 `maintenance.md` 无法从文件名区分决策清单和维护规则的职责。",
-      "decision": "`decision-record-index.md` 作为决策清单和影响面导航 owner, 只负责状态速查、影响面说明和决策链接。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/260627-establish-decision-record-policy.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/260630-track-decision-status-and-relations.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-06-30T16:11:49+08:00",
-      "title": "给决策记录增加状态和关系",
-      "purpose": "区分当前与历史判断，并保留决策演进的可追溯关系。",
-      "background": "决策记录会随项目演进过期、被替代或被判定与后续规则冲突。",
-      "decision": "决策文件名包含状态段, 状态值为 `active`、`amended`、`superseded` 或 `invalidated`。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/260627-establish-decision-record-policy.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/260630-use-compact-decision-records.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-18T11:43:07+08:00",
-      "title": "使用短日期命名并允许短决策结构",
-      "purpose": "缩短决策文件名，同时允许简单判断保持精简、可读。",
-      "background": "决策文件名前缀使用完整日期时目录较长, 用户希望改成 `260627` 这类短日期。",
-      "decision": "决策文件名使用 `YYMMDD-<status>-short-title.md`, 正文标题继续使用完整日期。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/260630-track-decision-status-and-relations.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/260711-bound-history-with-direct-relations.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-11T13:40:17+08:00",
-      "title": "用直接关系和归并决策限制历史读取",
-      "purpose": "让当前判断能够直接回看前序，并限制日常回放无限展开历史。",
-      "background": "旧记录只链接导致状态变化的新决定时, 从当前 `active` 记录不容易回看本次修订了什么。",
-      "decision": "新 `active` 记录改变已有判断时, 在 `## 状态` 内使用可选的 `### 关系`, 按修订、替代、判定无效或归并链接本次直接作用的前序记录。",
-      "relations": []
-    },
-    {
-      "path": "decision-records/260711-use-bundled-contract-owner.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-18T11:43:07+08:00",
-      "title": "使用随包 reference 作为唯一固定契约",
-      "purpose": "为不同项目提供唯一随包固定契约，避免项目副本长期漂移。",
-      "background": "随包 reference 与目标项目的 `decision-record-rules.md` 同时解释固定格式时，会形成两份需要同步的契约和二次导航。",
-      "decision": "由随包 `decision-record-rules.md` 唯一承接目录、命名、当前成员、关系、正文、索引和维护事务。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/260630-name-decision-root-docs-by-owner.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/260713-use-json-current-index-and-stable-paths.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-18T11:43:07+08:00",
-      "title": "使用 JSON 当前索引和稳定决策路径",
-      "purpose": "让当前决策集合可机器维护、低成本检索，并为历史记录保留稳定身份。",
-      "background": "当前索引既要明确成员，也要用经确认且与正文一致的精简背景和决策支持低成本判断；主题分类已经包含在路径中。",
-      "decision": "以 `decision-index.json` 维护当前成员及 Markdown 摘要；路径保持稳定，归档只退出当前集合，关系由新记录单向指向直接前序。",
-      "relations": [
-        {
-          "type": "归并",
-          "target": "decision-records/260630-use-compact-decision-records.md"
-        },
-        {
-          "type": "归并",
-          "target": "decision-records-skill/260710-use-cli-active-index-and-invalidated-archive.md"
-        },
-        {
-          "type": "归并",
-          "target": "decision-records/260711-bound-history-with-direct-relations.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/260718-add-direction-and-depth-to-trace.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-18T14:44:37+08:00",
-      "title": "为 trace 增加定向和限深查询",
-      "purpose": "让使用者按回放需要低成本查询前序、后续或有限深度的关系链。",
-      "background": "`trace` 只能把关系当作双向图返回完整连通分量，无法只看前序、只反查后续或限制追溯深度；现有实现已经具备边集合和遍历逻辑。",
-      "decision": "保持关系由新记录单向指向直接前序，给 `trace` 增加前序、后续、双向和最大深度选项；默认行为保持双向完整查询，使用现有邻接表和广度优先遍历实现，不引入图库。",
-      "relations": []
-    },
-    {
-      "path": "decision-records/260718-separate-behavior-entry-from-storage-contract.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-18T20:57:58+08:00",
-      "title": "分离行为入口与精确存储契约",
-      "purpose": "让日常决策恢复只加载必要语义，同时让精确维护继续遵循唯一、完整且可校验的固定契约。",
-      "background": "目的、背景和决策已经足以理解当前判断；若在 skill 入口再次概括正文结构、关系和事务规则，会形成契约的压缩副本，而 CLI 又必须同时服务只读恢复和写入维护。",
-      "decision": "`SKILL.md` 承接触发、恢复、偏离判断、候选、CLI 编排和交付；随包 reference 唯一承接精确存储契约。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/260711-use-bundled-contract-owner.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/260718-separate-logical-archive-from-relations.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-18T14:11:24+08:00",
-      "title": "分离逻辑归档与决策关系",
-      "purpose": "准确区分普通退出与真实决策演进，并保持当前集合和关系链可验证。",
-      "background": "强制每条逻辑归档记录都被后续记录引用，会把没有后续判断的普通退役误建模为决策演进；现有校验只要求任意入链，也不能证明 `archive --by` 指定的后续记录真实承接全部前序。",
-      "decision": "JSON 索引维护当前成员；记录可独立归档，真实演进才建直接关系；`archive --by` 校验后续承接全部前序，CLI 拒绝关系环。",
-      "relations": [
-        {
-          "type": "替代",
-          "target": "decision-records/260713-use-json-current-index-and-stable-paths.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/260718-use-purpose-background-decision-structure.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-18T20:24:02+08:00",
-      "title": "使用目的、背景和决策的三层投影",
-      "purpose": "让当前决策显式回答希望达成什么、为何需要选择以及最终选择什么，同时保持低成本检索和可靠回放。",
-      "background": "只在摘要增加目的会让摘要承载正文未显式出现的语义；继续由背景隐含目的又要求未来维护者自行推断，而完整目的本身可能需要展开。",
-      "decision": "Markdown 使用索引摘要、目的、背景和决策四个必需章节；schema v2 索引保存摘要投影，既有生命周期与关系事务保持不变。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/260718-separate-logical-archive-from-relations.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/260720-auto-initialize-index-on-first-activation.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T09:40:51+08:00",
-      "title": "在首次激活时自动初始化当前索引",
-      "purpose": "让首条已确认决策无需独立的空索引初始化步骤即可进入当前集合。",
-      "background": "`activate` 已经明确表达目标记录和当前成员意图，但索引缺失时仍会失败；单独初始化空索引会增加一个没有独立语义的维护步骤。",
-      "decision": "索引缺失且目录有效时，`activate` 创建 schema v2 索引并激活目标；无效索引不覆盖，首次校验失败则删除新索引。",
-      "relations": []
-    },
-    {
-      "path": "decision-records/260720-bound-index-projection-lengths.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-20T19:47:38+08:00",
-      "title": "限制索引投影字段长度",
-      "purpose": "让索引摘要保持可检索、可展示，并具备最低限度的独立表达能力。",
-      "background": "无长度上限会让索引退化为正文副本，内容过短又不能稳定表达决策含义。",
-      "decision": "`title`、`purpose`、`background` 和 `decision` 必须是 4 至 100 个 Unicode 字符的单行文本；CLI 不截断或补齐，完整正文不受限制。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/260718-use-purpose-background-decision-structure.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/260720-focus-entry-on-behavior-routing.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-20T10:34:37+08:00",
-      "title": "让行为入口聚焦任务路由",
-      "purpose": "让频繁触发的 skill 入口只加载恢复和决策所需行为，同时保持精确维护遵循唯一固定契约。",
-      "background": "行为入口已经与存储契约分离，但仍重复自动初始化条件、编辑边界、CLI 参数和事务细节，形成了容易漂移的压缩契约。",
-      "decision": "`SKILL.md` 只承接内容 owner、主动读取、任务出口、恢复、候选、命令选择和分出口验收；目录、字段、关系、维护事务与 CLI 精确语义继续只由固定契约完整承接，入口在精确维护前加载该契约。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/260718-separate-behavior-entry-from-storage-contract.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/260720-return-query-results-with-warnings.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T09:40:51+08:00",
-      "title": "让决策查询带警告返回可用结果",
-      "purpose": "让局部记录或关系损坏不阻断其他长期判断的恢复，同时保留严格结构检查入口。",
-      "background": "`list` 和 `trace` 与 `check` 共用全库严格校验门禁，任一无关记录、关系或派生字段漂移都会让全部只读查询失败。",
-      "decision": "中央索引可解析且目标存在时，`list` 与 `trace` 返回可恢复结果并以 warning 暴露错误；检查和写事务仍严格失败。",
-      "relations": []
-    },
-    {
-      "path": "decision-records/260720-separate-editorial-edits-from-evolution.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T09:40:51+08:00",
-      "title": "区分编辑性修正与决策演进",
-      "purpose": "在允许维护决策记录表述的同时，防止原地改写长期判断而丢失演进历史。",
-      "background": "固定契约同时允许修改记录并要求长期修订创建后续记录，但没有明确哪些变化可以原地完成。",
-      "decision": "只允许不改变目的、适用范围、关键背景前提、采用方向、核心理由或关系语义的编辑性修正原地完成；任一决策语义变化都创建新记录并按真实关系切换当前成员，无法判断时按决策演进处理。",
-      "relations": []
-    },
-    {
-      "path": "decision-records/260720-separate-status-commands-from-relations.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T19:47:38+08:00",
-      "title": "分离生命周期命令与演进关系",
-      "purpose": "让 CLI 状态变化与决策演进关系各自显式，避免归档命令产生隐藏激活副作用。",
-      "background": "`archive --by` 会在归档前序时同时激活后续记录，但命令名称没有表达这一状态变化。",
-      "decision": "`activate` 只把记录设为 active，`archive` 只设为 archived；关系不改变状态，不再由 archive 隐式激活后续记录。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/260718-use-purpose-background-decision-structure.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/260720-use-configurable-decision-root.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T10:34:37+08:00",
-      "title": "使用可配置的决策根目录",
-      "purpose": "让默认目录和 CLI 目录覆盖共享同一套稳定身份与存储契约。",
-      "background": "CLI 支持 `--decisions-dir`，但固定契约把 `docs/decisions` 写成唯一绝对位置，非默认目录的索引 owner、相对路径和初始化语义不明确。",
-      "decision": "以可配置的决策根目录承载索引和 Markdown；默认 `docs/decisions`，身份、布局和 owner 均相对同一根目录解释。",
-      "relations": []
-    },
-    {
-      "path": "decision-records/260720-use-filtered-decision-queries.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T19:47:38+08:00",
-      "title": "使用筛选式决策查询",
-      "purpose": "让日常恢复只查看活动决策，同时按需读取完整索引元数据、正文和关系历史。",
-      "background": "把归档和全部记录与默认 list 并列会诱导先查完整历史，现有 list 也没有完整展示索引投影。",
-      "decision": "`list` 以单一状态参数筛选并默认 active，输出除关系外的基础索引元数据；`show` 展开正文，`trace` 按方向和深度查询索引关系。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/260718-use-purpose-background-decision-structure.md"
-        },
-        {
-          "type": "替代",
-          "target": "decision-records/260718-add-direction-and-depth-to-trace.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/260720-use-lifecycle-index-and-semantic-paths.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T19:47:38+08:00",
-      "title": "采用全生命周期索引与语义路径",
-      "purpose": "让决策按语义稳定定位，并从单一索引恢复全部记录的状态、时间、摘要和直接关系。",
-      "background": "日期前缀混合了身份与时间，当前索引只保存活动成员，归档后不能直接恢复完整索引元数据。",
-      "decision": "使用不含日期的主题语义路径；索引登记全部记录并保存状态、精确创建时间、摘要投影和直接关系，按路径稳定排序。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/260718-use-purpose-background-decision-structure.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/allow-sequential-activation-of-prewritten-candidates.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-23T01:52:08Z",
-      "title": "允许逐条激活预写决策候选",
-      "purpose": "允许一次准备多条已确认决策并逐条激活，同时保持遗漏候选能够被明确发现。",
-      "background": "单条 activate 的完整集合校验会让其他预写候选阻断目标激活，迫使维护者交替写入和激活文件。",
-      "decision": "识别未进入 HEAD 的完整未激活候选；作用域维护可在逐条提醒后继续，索引排除候选，严格 check 继续阻断遗漏。",
-      "relations": []
-    },
-    {
-      "path": "decision-records/converge-records-before-stable-baseline.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-21T07:33:17Z",
-      "title": "在稳定基线前原地收敛决策记录",
-      "purpose": "避免同一未提交变更事务的方案收敛被误记为多次正式决策演进。",
-      "background": "既有契约把任何语义变化都视为演进，没有区分已建立判断与当前事务中新建的记录。",
-      "decision": "已建立记录继续通过后序保留演进；未进入稳定基线且未被依赖的新记录在原路径收敛。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/260720-separate-editorial-edits-from-evolution.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/define-decision-alignment-semantics.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-22T07:37:13Z",
-      "title": "定义决策对齐状态与未对齐语义",
-      "purpose": "让已经生效但尚未落实的决策保持约束力，并准确表达当前实现与目标状态之间的差距。",
-      "background": "生命周期只能说明决策是否仍有效，不能说明当前实现是否已经推进到决策要求的状态。",
-      "decision": "活动决策使用 aligned 或 unaligned 表达对齐关系；unaligned 表示决策已生效但当前实现尚未达到目标，不默认产生开放空间。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/express-decision-alignment-state.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/derive-pending-from-head-path.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-22T06:03:46Z",
-      "title": "从 HEAD 路径临时识别待提交决策",
-      "purpose": "让提交前反复收敛的决策保持可见，同时避免形成虚假的正式演进历史。",
-      "background": "持久化草稿状态或查询历史基线都会为简单的提交前判断增加额外维护成本。",
-      "decision": "始终查询当前记录，并按 Markdown 路径是否存在于 HEAD 临时标记 pending。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/converge-records-before-stable-baseline.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/express-alignment-as-field-relation.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-22T09:43:47Z",
-      "title": "仅用字段表达决策对齐关系",
-      "purpose": "让对齐状态准确表达当前事实与有效决策的关系，而不建立第二份决策内容或事实副本。",
-      "background": "为未对齐状态保存专门差距结构会重复决策约束和当前 owner 事实，并随实现变化产生漂移。",
-      "decision": "active 即生效；alignment 只在 frontmatter 表达离散关系，索引仅投影该值，实际差距通过决策与 owner 比较得出。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/define-decision-alignment-semantics.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/express-decision-alignment-state.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-22T07:10:38Z",
-      "title": "为决策表达对齐状态",
-      "purpose": "区分必须完全遵守的当前基线与方向已确定但仍保留过渡空间的有效决策。",
-      "background": "生命周期状态只能说明决策是否仍有效，不能说明当前事实和行为是否已经与其对齐。",
-      "decision": "后续决策格式必须表达独立于生命周期的对齐状态；具体形式不固定，索引投影是便于筛选与校验的自然延伸。",
-      "relations": []
-    },
-    {
-      "path": "decision-records/generate-index-from-self-contained-decisions.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-22T07:37:46Z",
-      "title": "从自包含决策文件生成完整索引",
-      "purpose": "让每条决策自包含全部权威状态，并使集中索引成为可以随时无损重建的查询投影。",
-      "background": "由集中索引独占生命周期和创建时间会形成第二真相源，索引损坏后无法仅凭决策文件恢复完整集合。",
-      "decision": "决策文件保存 status、alignment 和 createdAt 等权威元数据；集中 JSON 索引完全由 Markdown 生成，不拥有独立事实。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/use-second-precision-lifecycle-index.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/package-current-index-json-schema.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-22T09:44:48Z",
-      "title": "随包分发当前索引 JSON Schema",
-      "purpose": "让编辑器和恢复工具直接取得机器可读的当前索引结构，并让分发产物与 CLI 保持一致。",
-      "background": "当前格式版本会演进，长期决策若固定具体版本会把实现事实误写成稳定方向。",
-      "decision": "从 CLI 共享常量生成当前索引 JSON Schema，随 decision-records 分发并用生成检查防止漂移。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/package-index-json-schema.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/package-index-json-schema.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-21T01:29:45Z",
-      "title": "随包分发索引 JSON Schema",
-      "purpose": "让工具损坏时可以直接取得机器可读的索引结构并恢复必要操作。",
-      "background": "固定契约足以解释格式，但临时工具仍需要重新提取字段、枚举和基础约束。",
-      "decision": "从 CLI 共享常量生成索引 JSON Schema，并作为 decision-records 资源随包分发。",
-      "relations": []
-    },
-    {
-      "path": "decision-records/query-projected-decision-metadata.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-22T09:44:30Z",
-      "title": "查询 Markdown 投影的决策元数据",
-      "purpose": "让日常恢复按主题、生命周期和对齐关系筛选，同时保持 Markdown 是全部状态元数据的唯一事实源。",
-      "background": "查询需要集中索引，但把状态和时间描述为索引独有元数据会与索引可重建契约冲突。",
-      "decision": "list、show 和 trace 查询 JSON 投影；状态、alignment 与创建时间均来自 Markdown，索引不拥有独立值。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/use-topic-filtered-decision-queries.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/recover-current-format-tools-and-index.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-22T08:42:44Z",
-      "title": "只恢复当前格式工具与派生索引",
-      "purpose": "让工具、索引或写入故障恢复到当前自包含 Markdown 与 schema v4 的单一可校验状态。",
-      "background": "Markdown 已拥有全部权威状态，继续维护旧 schema 映射或独立索引状态会重新引入并行事实源和兼容路径。",
-      "decision": "恢复手册只处理当前格式；优先恢复当前 CLI，再从 Markdown 重建 schema v4 索引，不读取、迁移或推断其他 schema。",
-      "relations": [
-        {
-          "type": "替代",
-          "target": "decision-records/support-degraded-decision-maintenance.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/separate-activation-effect-from-head-pending.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-22T08:48:05Z",
-      "title": "分离决策激活生效与 HEAD pending 标记",
-      "purpose": "让活动决策从激活时起立即约束后续工作，同时只用 HEAD 区分路径是否进入正式历史。",
-      "background": "把生效绑定到 HEAD 会让已激活记录在提交前失去约束力，也会把临时查询标记误解为持久生命周期。",
-      "decision": "活动记录激活即生效，HEAD 只决定路径是否临时显示 pending；pending 不改变确认、生命周期、对齐或生效状态。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/derive-pending-from-head-path.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/support-degraded-decision-maintenance.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-21T01:04:44Z",
-      "title": "支持故障时的降级决策维护",
-      "purpose": "让 CLI 或运行时损坏时仍能恢复工具或继续完成可追踪的决策维护。",
-      "background": "既有手册只能描述命令效果，缺少替代运行时、重新取得工具和手工维护路径。",
-      "decision": "维护恢复手册仅在异常时读取，并提供 CLI 下载、源码重建、最小复现和直接索引维护路径。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/use-error-recovery-reference.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/use-alignment-aware-decision-commands.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-22T07:38:16Z",
-      "title": "使用对齐感知的决策命令",
-      "purpose": "让查询和状态命令准确区分决策是否活动、当前实现是否已经与决策对齐，并保持状态变化显式可校验。",
-      "background": "只维护 active 和 archived 会把尚未落实的有效决策与已经完全对齐的当前基线混为一类。",
-      "decision": "activate 显式设置对齐状态，mark-aligned 只完成 unaligned 到 aligned，list 支持对齐筛选；关系不隐式改变状态。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/260720-separate-status-commands-from-relations.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/use-configurable-self-contained-decision-root.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-22T08:42:12Z",
-      "title": "使用可配置且自包含的决策根目录",
-      "purpose": "让默认位置和显式目标路径共享稳定身份，并保持 Markdown 事实源与派生索引的自包含契约。",
-      "background": "决策目录既可以使用默认位置，也可以指向 root 外部；若混淆目标选择与路径解析，会让同一参数落到不同集合。",
-      "decision": "默认使用 root/docs/decisions；显式 decisions-dir 直接选择目标，绝对路径可在 root 外，非绝对路径只相对 root 解析。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/260720-use-configurable-decision-root.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/use-error-recovery-reference.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T13:18:28Z",
-      "title": "使用按需维护恢复手册",
-      "purpose": "让旧项目冷启动、索引损坏或运行时故障能够按固定顺序恢复到可校验状态。",
-      "background": "恢复步骤若混入日常 skill 入口会增加上下文；完全缺少说明又会让错误现场依赖临时猜测。",
-      "decision": "提供仅在冷启动、升级或错误时读取的恢复手册，优先保留 Git 证据并以 check 返回 0 为出口。",
-      "relations": []
-    },
-    {
-      "path": "decision-records/use-field-alignment-commands.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-22T09:44:09Z",
-      "title": "使用字段化对齐状态命令",
-      "purpose": "让查询和状态命令显式维护对齐字段，并用决策与实际 owner 的比较验证状态变化。",
-      "background": "对齐关系属于 Markdown 元数据；让命令依赖专门正文结构会把事实比较误写成存储契约。",
-      "decision": "activate 显式设置 alignment，mark-aligned 只更新字段，check 校验结构与投影；正文不随对齐状态分叉。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/use-alignment-aware-decision-commands.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/use-monotonic-alignment-baseline.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-22T10:07:23Z",
-      "title": "将对齐状态定义为单向基线",
-      "purpose": "让 alignment 与只允许从 unaligned 进入 aligned 的状态机保持同一语义。",
-      "background": "把 alignment 称为实时事实关系，会与已对齐后不允许回退的基线约束产生歧义。",
-      "decision": "active 即生效；alignment 表示目标是否已核对并建立为单向基线，偏离按一致性问题处理。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/express-alignment-as-field-relation.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/use-second-precision-lifecycle-index.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T13:18:05Z",
-      "title": "使用秒级全生命周期索引",
-      "purpose": "让语义路径和单一索引稳定恢复全部记录，并用秒级时间区分同日先后。",
-      "background": "日期不应进入稳定身份；既有索引曾使用统一导入时刻，Git 历史能恢复更早的记录时间。",
-      "decision": "使用语义路径和 schema v3 全生命周期索引；createdAt 固定秒级，新记录取激活时间，既有记录优先取最早 Git 作者时间。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/260720-use-lifecycle-index-and-semantic-paths.md"
-        },
-        {
-          "type": "修订",
-          "target": "decision-records/260720-auto-initialize-index-on-first-activation.md"
-        }
-      ]
-    },
-    {
-      "path": "decision-records/use-topic-filtered-decision-queries.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T13:17:47Z",
-      "title": "使用主题与状态筛选决策查询",
-      "purpose": "让日常恢复默认聚焦活动决策，并按需组合主题、状态筛选和时间显示。",
-      "background": "全量历史会给日常判断引入噪声；主题路径可以在结果较多时直接收窄范围。",
-      "decision": "`list` 默认 active 并支持 `--topic` 与状态组合；输出基础元数据，`show` 展开正文，`trace` 回放关系。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "decision-records/260720-use-filtered-decision-queries.md"
-        }
-      ]
-    },
-    {
-      "path": "git-commit-organizer-behavior/260702-refine-commit-granularity-types-and-command.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-02T17:35:51+08:00",
-      "title": "调整 git-commit-organizer 的提交粒度、类型和创建命令",
-      "purpose": "让每个提交形成可独立理解、审查和回滚的语义单元，并准确表达 agent 配置改动。",
-      "background": "`git-commit-organizer` 已经规定提交格式和基础类型, 但没有明确要求按语义单元拆分提交, 也没有区分只影响 AI/agent 配置的改动。",
-      "decision": "在 `git-commit-organizer` 的 skill 本体中增加“提交粒度”规则, 要求一个提交只表达一个可独立理解、审查和回滚的语义单元。",
-      "relations": []
-    },
-    {
-      "path": "git-commit-organizer-behavior/260720-treat-commit-format-as-project-style.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-20T11:01:45+08:00",
-      "title": "将提交格式定位为项目级风格",
-      "purpose": "让 git-commit-organizer 在跨项目复用时保持稳定、有明确偏好的提交表达。",
-      "background": "使用者会在理解影响后主动安装或调用该 skill，固定类型、中文格式和提交粒度是其核心价值。",
-      "decision": "将 git-commit-organizer 定位为可跨项目复用的项目级提交风格，默认执行自身风格，并只补足影响提交正确性的必要门禁。",
-      "relations": []
-    },
-    {
-      "path": "index-runtime/use-independent-read-side-index-runtime.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-22T15:09:24Z",
-      "title": "采用领域状态驱动的极简通用索引",
-      "purpose": "让多个领域以低接入和维护成本获得稳定的状态查询与索引同步能力。",
-      "background": "决策、调查和测试证据都需要索引，但领域事实、写入和动态状态语义并不相同。",
-      "decision": "领域提供 state、唯一 id、revision 和多 key 策略，通用层只管理派生副本、查询与确定性文件同步。",
-      "relations": []
-    },
-    {
-      "path": "investigation-report-behavior/append-self-contained-investigation-reports.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-21T09:00:15Z",
-      "title": "以完整独立报告演进调查主题",
-      "purpose": "让每次调查都具备正确背景并能独立汇报，同时保留同一问题的认识演进。",
-      "background": "顶部概述加增量调查段会让后续结论依赖旧上下文，缺失当前背景时容易产生错误推断。",
-      "decision": "同一核心问题使用稳定主题文件，每次实质更新追加包含背景、起因和调查结果的完整报告。",
-      "relations": [
-        {
-          "type": "替代",
-          "target": "investigation-report-behavior/use-report-oriented-investigation-rounds.md"
-        }
-      ]
-    },
-    {
-      "path": "investigation-report-behavior/preserve-comparable-investigation-inputs.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-21T11:20:39Z",
-      "title": "以形成时调查输入保存可比较的认识快照",
-      "purpose": "让每份调查报告保存形成结果时的完整判断输入，并支持跨背景比较同一问题的认识。",
-      "background": "现有完整报告保留当前背景，却未固定每轮目标，也未明确相同结果在不同背景下的比较价值。",
-      "decision": "每份报告固定记录背景、调查动因、调查目标和调查结果；判断输入实质变化时追加完整报告。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "investigation-report-behavior/append-self-contained-investigation-reports.md"
-        }
-      ]
-    },
-    {
-      "path": "investigation-report-behavior/use-fixed-investigation-record-core.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-21T15:15:57Z",
-      "title": "使用固定调查记录核心并按场景补充正文",
-      "purpose": "让每轮调查完整保存可比较的形成时输入、证据基础和结果边界，同时避免按报告规模或既有形态分配格式。",
-      "background": "真实报告标题各异，但共同保留形成时背景、调查目的、调查范围与依据以及结果边界；互斥格式不能承接混合场景。",
-      "decision": "每份报告固定使用形成时背景、调查目的、调查范围与依据、调查结果与边界四段；场景支撑先写入对应核心，需要独立组织时再在其后展开。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "investigation-report-behavior/preserve-comparable-investigation-inputs.md"
-        }
-      ]
-    },
-    {
-      "path": "investigation-report-behavior/use-report-oriented-investigation-rounds.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-21T07:30:35Z",
-      "title": "以可接续调查段形成调查报告",
-      "purpose": "让 agent 稳定产出可快速汇报、降低上手门槛并支持接续探索的调查报告。",
-      "background": "主动建议范围过宽，事后成文也无法保留多轮调查各自形成认识时的背景和时间。",
-      "decision": "仅在明确沉淀请求下使用报告导向流程，并把每轮调查形成带时间的可接续调查段。",
-      "relations": []
-    },
-    {
-      "path": "openspec-skills/260706-gate-temporary-change-plans.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-06T16:51:26+08:00",
-      "title": "将 OpenSpec change 作为临时计划并设置实现门禁",
-      "purpose": "允许先保存尚未完成审计的 change 计划，同时阻止它被误当成可直接实施的方案。",
-      "background": "OpenSpec change 可以作为临时计划存在, 类似 issue 或 PR, 通常从用户想法、探索结论、代码事实或已有规范中引申出来。",
-      "decision": "将 active change 视为可暂存的临时计划；创建 change 只表示完成结构化，不代表已经审计或获得实施许可。",
-      "relations": []
-    },
-    {
-      "path": "problem-reframing-behavior/260720-keep-problem-reframing-self-contained.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T14:55:55+08:00",
-      "title": "让问题重构保持自包含",
-      "purpose": "让 agent 在局部优化掩盖真实目标时, 通过独立的问题重构流程形成可执行的问题框架。",
-      "background": "当前解法容易反向定义问题, 使复杂度持续增加却没有改善真实结果, 而问题重构需要适用于多个领域并避免无边界扩张。",
-      "decision": "使用 `problem-reframing` 按框架风险触发, 恢复目标、事实、约束、前提与边界, 选择有证据支持的最小问题框架并交回当前任务。",
-      "relations": []
-    },
-    {
-      "path": "product-architecture-judgment-behavior/260720-unify-product-and-architecture-judgment.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-20T15:59:38+08:00",
-      "title": "归并为产品与架构判断",
-      "purpose": "让 agent 通过一个工程判断流程决定事情是否该做、该做到什么程度, 以及应由谁在哪一层实现, 避免在相似能力之间路由。",
-      "background": "问题重构与产品架构思维共享局部优化风险、消费者、结果、边界、抽象和取舍, 并会产生相同工程动作, 无法形成稳定的独立触发与验收。",
-      "decision": "删除两个旧 skill, 新建独立分发的 `product-architecture-judgment`, 将问题重构作为内部动作, 统一使用产品价值与架构责任选择最小工程方案。",
-      "relations": [
-        {
-          "type": "归并",
-          "target": "problem-reframing-behavior/260720-keep-problem-reframing-self-contained.md"
-        },
-        {
-          "type": "归并",
-          "target": "product-architecture-thinking-behavior/260720-separate-framing-from-engineering-landing.md"
-        }
-      ]
-    },
-    {
-      "path": "product-architecture-thinking-behavior/260720-separate-framing-from-engineering-landing.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T15:59:38+08:00",
-      "title": "区分问题重构与工程落地",
-      "purpose": "让 `product-architecture-thinking` 从已确认目标推导正确的工程责任与实现层级, 而不把当前技术问题当作既定边界, 并与问题框架取舍保持清楚分工。",
-      "background": "产品与架构思维既不能重复决定目标是否值得追求, 也不能因要求工程问题预先成立而失去重定局部任务和技术抽象的核心作用。",
-      "decision": "保留独立分发的产品与架构思维 skill, 只把目标结果基本明确作为前置条件; 当前工程问题和已有解法均可被重新定位, 只有需要改变目标或重新选择问题时才形成不依赖其他 skill 的最小交接。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "product-architecture-thinking-behavior/260720-use-product-and-architecture-lenses.md"
-        }
-      ]
-    },
-    {
-      "path": "product-architecture-thinking-behavior/260720-use-product-and-architecture-lenses.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T14:13:42+08:00",
-      "title": "以产品与架构视角校准技术判断",
-      "purpose": "让 agent 在工程任务中先确认产品结果和架构责任, 再选择技术实现, 避免局部技术视角主导目标与方案。",
-      "background": "这项能力原先被表达为代码审查流程, 使 review 的 finding、分类和报告机制遮蔽了可复用于分析、设计、实现、排障与重构的核心思维。",
-      "decision": "使用 `product-architecture-thinking` 承接产品与架构思维, 将 review 降为一个触发场景, 并让输出继续服从当前任务的行为 owner 与交付契约。",
-      "relations": []
-    },
-    {
-      "path": "project-documentation/use-document-navigation-owner.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-21T07:48:36Z",
-      "title": "使用文档导航作为任务路由 owner",
-      "purpose": "让维护者和 agent 按任务快速定位文档 owner，避免重复搜索和规则归属漂移。",
-      "background": "项目已有多类稳定文档和 owner，但读取入口分散在 README、AGENTS、docs 与 skill 目录中。",
-      "decision": "使用 docs/navigation.md 统一维护任务到 owner 的路由，其他入口只保留摘要和链接。",
-      "relations": []
-    },
-    {
-      "path": "project-tooling/260630-publish-skill-package-as-latest-release.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-18T11:43:07+08:00",
-      "title": "使用 latest release 自动发布 skill 制品",
-      "purpose": "集中重复的 skill 校验与打包工具链，并提供统一的聚合发布入口。",
-      "background": "多个 skill 子仓库有重复的校验、打包和发布脚本，继续分散维护会让同一套工具链在多个仓库漂移。",
-      "decision": "主仓库 CI 在所有触发场景运行校验、打包和 workflow artifact 上传。",
-      "relations": []
-    },
-    {
-      "path": "project-tooling/260701-add-submodule-release-workflows.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-18T11:43:07+08:00",
-      "title": "给子仓库增加独立 release workflow",
-      "purpose": "让每个 skill 子仓库拥有独立的校验、打包和发布入口。",
-      "background": "只有主仓库发布 `skills-latest` 时, 使用者必须从聚合 release 获取单个 skill 或 skill 集合, 子仓库本身没有独立交付入口。",
-      "decision": "每个子仓库保留独立 workflow，只负责 `skill/` 内容的校验、打包、release 发布和发布 hash 维护。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "project-tooling/260630-publish-skill-package-as-latest-release.md"
-        }
-      ]
-    },
-    {
-      "path": "project-tooling/260701-avoid-workflow-structure-validation.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-18T11:43:07+08:00",
-      "title": "不用脚本校验 workflow 结构",
-      "purpose": "避免在校验脚本中复制 workflow 结构，让检查聚焦稳定的项目约束。",
-      "background": "用 TypeScript validator 解析或正则匹配 GitHub Actions workflow, 会把 workflow 结构重复表达在脚本里。",
-      "decision": "校验脚本只检查仓库长期源文件、skill 入口、Markdown 链接、决策记录和 package script 等项目约束。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "project-tooling/260630-publish-skill-package-as-latest-release.md"
-        },
-        {
-          "type": "修订",
-          "target": "project-tooling/260701-gate-latest-release-by-skill-hash.md"
-        }
-      ]
-    },
-    {
-      "path": "project-tooling/260701-embed-self-update-script-in-skill-packages.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-03T10:31:47+08:00",
-      "title": "在 skill 包内分发自更新脚本",
-      "purpose": "让已安装 skill 能自行检查版本并通过统一实现完成安全更新。",
-      "background": "仅依赖外部安装器时，已有 skill 目录的覆盖更新、内容一致性检查和多客户端目录适配都缺少稳定 owner。",
-      "decision": "主仓库维护统一 TypeScript updater 模板，用 `fflate` 解压 release zip，并提供远端指纹检查、确认和覆盖更新。",
-      "relations": []
-    },
-    {
-      "path": "project-tooling/260701-gate-latest-release-by-skill-hash.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-18T11:43:07+08:00",
-      "title": "使用 skill hash 门禁 latest release 发布",
-      "purpose": "只在可安装 skill 包内容变化时更新 latest release，避免产生虚假更新信号。",
-      "background": "主仓库维护文档、脚本、CI 或子仓库 `skill/` 外文件变化时，旧 CI 也会覆盖 `skills-latest` release，但这些变化不一定改变可安装 skill 包。",
-      "decision": "根目录保留 `skill-package.hash`，记录最近一次成功发布的全部 skill 打包输入 hash。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "project-tooling/260630-publish-skill-package-as-latest-release.md"
-        }
-      ]
-    },
-    {
-      "path": "project-tooling/260701-publish-versioned-skill-releases.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-18T11:43:07+08:00",
-      "title": "使用版本化 release 发布 skill 制品",
-      "purpose": "让每次实际发布都具有可识别的时间和内容版本。",
-      "background": "固定 `*-latest` release 被更新后，GitHub 页面仍显示 release 最初的 `published_at`，容易让使用者误以为包没有更新。",
-      "decision": "主仓库聚合发布和子仓库独立发布都使用 `<timestamp>-<hash12>` 作为版本化 release tag，时间戳使用 UTC `YYYYMMDDTHHMMSSZ` 格式。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "project-tooling/260630-publish-skill-package-as-latest-release.md"
-        },
-        {
-          "type": "修订",
-          "target": "project-tooling/260701-gate-latest-release-by-skill-hash.md"
-        }
-      ]
-    },
-    {
-      "path": "project-tooling/260701-update-package-hash-with-git-hooks.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-03T10:58:54+08:00",
-      "title": "用 Git hook 更新 package hash",
-      "purpose": "让发布 hash 与提交内容同步，同时避免 CI 写回产生额外提交。",
-      "background": "GitHub Actions 在 release 成功后写回 `skill-package.hash` 会产生额外 bot 提交，干扰本地同步、提交历史阅读和 submodule 指针维护。",
-      "decision": "主仓库和每个子仓库都继续保留 `skill-package.hash` 源文件。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "project-tooling/260630-publish-skill-package-as-latest-release.md"
-        },
-        {
-          "type": "修订",
-          "target": "project-tooling/260701-gate-latest-release-by-skill-hash.md"
-        }
-      ]
-    },
-    {
-      "path": "project-tooling/260701-use-libraries-for-common-script-behavior.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-01T10:02:50+08:00",
-      "title": "本地脚本的常见行为优先使用成熟库",
-      "purpose": "降低通用底层能力的自研维护成本和缺陷风险。",
-      "background": "为了减少依赖而手写 ZIP 结构、CRC、压缩头等通用底层逻辑，会让本地开发辅助脚本变得难读且难维护。",
-      "decision": "常见格式、协议、解析、压缩和归档能力优先使用成熟库，不因为是辅助脚本就手写底层实现。",
-      "relations": []
-    },
-    {
-      "path": "project-tooling/260701-use-tsgo-for-typecheck.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-18T11:43:07+08:00",
-      "title": "使用 tsgo 作为默认类型检查入口",
-      "purpose": "为主仓库脚本提供更快、更稳定的 TypeScript 类型检查入口。",
-      "background": "主仓库脚本需要更好的 TypeScript 开发体验和更快的本地类型检查入口。",
-      "decision": "安装 `@typescript/native-preview`，并让 `bun run typecheck` 执行 `tsgo --noEmit`。",
-      "relations": []
-    },
-    {
-      "path": "project-tooling/260702-use-monorepo-skills-directory.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-03T10:58:54+08:00",
-      "title": "迁移为 skills 单仓库布局",
-      "purpose": "简化个人维护的多 skill 仓库结构，并统一共享工具链和交付。",
-      "background": "仓库原来通过 Git submodule 组织多个 skill 子仓库, 但当前项目是个人自用和个人维护, 没有外部使用者依赖子仓库的独立 release 入口。",
-      "decision": "用 `skills/<skill-name>/` 直接承接所有实际可打包 skill, 每个一级目录必须包含 `SKILL.md`。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "project-tooling/260630-publish-skill-package-as-latest-release.md"
-        },
-        {
-          "type": "修订",
-          "target": "project-tooling/260701-gate-latest-release-by-skill-hash.md"
-        },
-        {
-          "type": "修订",
-          "target": "project-tooling/260701-publish-versioned-skill-releases.md"
-        },
-        {
-          "type": "修订",
-          "target": "project-tooling/260701-embed-self-update-script-in-skill-packages.md"
-        },
-        {
-          "type": "修订",
-          "target": "project-tooling/260701-update-package-hash-with-git-hooks.md"
-        },
-        {
-          "type": "替代",
-          "target": "project-tooling/260701-add-submodule-release-workflows.md"
-        }
-      ]
-    },
-    {
-      "path": "project-tooling/260703-follow-latest-release-for-skill-updater.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-03T10:31:47+08:00",
-      "title": "自更新脚本跟随 latest release 制品",
-      "purpose": "让 skill 自更新使用正式发布制品，而不是开发分支快照。",
-      "background": "自更新脚本原来默认从主仓库 `main` 分支下载源码 zip 并截取 `skills/<skill-name>/` 目录。",
-      "decision": "skill updater 默认读取主仓库 latest release，并以正式 package lock 和 skill zip 作为远端更新输入。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "project-tooling/260701-embed-self-update-script-in-skill-packages.md"
-        }
-      ]
-    },
-    {
-      "path": "project-tooling/260703-use-per-skill-hash-lock-for-updater.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-03T10:58:54+08:00",
-      "title": "用 skill package lock 承接发布和自更新",
-      "purpose": "让聚合发布中的每个 skill 能按自身内容准确判断是否需要更新。",
-      "background": "主仓库采用聚合 release，只要任一 skill 的打包输入变化，就会发布一次包含全部 skill zip 的 release。",
-      "decision": "根目录只保留 `skill-package-lock.json`，记录聚合 hash 和每个 skill 的独立包内容 hash。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "project-tooling/260701-gate-latest-release-by-skill-hash.md"
-        },
-        {
-          "type": "修订",
-          "target": "project-tooling/260701-publish-versioned-skill-releases.md"
-        },
-        {
-          "type": "修订",
-          "target": "project-tooling/260701-update-package-hash-with-git-hooks.md"
-        }
-      ]
-    },
-    {
-      "path": "project-tooling/260711-separate-skill-script-source-and-generated-artifacts.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-11T11:04:33+08:00",
-      "title": "分离 skill 分发脚本源码与生成产物",
-      "purpose": "兼顾分发脚本的独立可执行性与主仓库 TypeScript 源码的可维护性。",
-      "background": "已安装 skill 需要可直接执行的 JavaScript，而在 skill 目录维护打包代码会失去 TypeScript 模块、类型检查和测试入口。",
-      "decision": "在主仓库 `scripts/` 下按工具建立源码目录，承接 TypeScript 模块、测试、夹具和构建入口；skill 目录只承接实际分发所需的生成 JavaScript。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "project-tooling/260701-embed-self-update-script-in-skill-packages.md"
-        }
-      ]
-    },
-    {
-      "path": "project-tooling/260718-use-project-coding-style-owner.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-18T16:23:28+08:00",
-      "title": "采用项目级编码规范 owner",
-      "purpose": "为脚本实现的归属、边界、类型、组织和风险验证提供单一长期 owner。",
-      "background": "`AGENTS.md` 已承接项目协作约定，`docs/tooling.md` 已承接脚本工具链，但实现代码的归属、边界、类型、组织和风险验证缺少独立 owner。",
-      "decision": "使用 `docs/coding-style.md` 承接 `scripts/` 实现代码的通用质量规则，由 `AGENTS.md` 提供读取入口；行为契约和工具链细节继续留在各自 owner。",
-      "relations": []
-    },
-    {
-      "path": "project-tooling/260720-expose-importable-skill-modules.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T17:04:27+08:00",
-      "title": "让 skill 分发脚本同时提供可导入模块",
-      "purpose": "让已安装 skill 的自包含代码既能作为 CLI 运行，也能在现有 ESM 进程中直接导入复用。",
-      "background": "现有单文件 JavaScript 主要按 Node 子进程入口交付，不同脚本的导入副作用、公共 exports 和 TypeScript 类型支持并不一致。",
-      "decision": "从同一 TypeScript 源生成 import-safe 的自包含 MJS、声明和 source map；主模块判断负责兼容 CLI。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "project-tooling/260711-separate-skill-script-source-and-generated-artifacts.md"
-        }
-      ]
-    },
-    {
-      "path": "project-tooling/260720-orchestrate-checks-with-conservative-concurrency.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T18:59:56+08:00",
-      "title": "用保守顶层并发编排完整检查",
-      "purpose": "缩短完整检查的反馈时间，同时让不同开发机和 CI 的资源使用与打包前置条件保持可预期。",
-      "background": "串行执行会浪费彼此独立的只读检查等待时间，而固定较高或无界的顶层并发会叠加各任务内部的 Git 与 Node 子进程负载。",
-      "decision": "由 `scripts/check.ts` 统一编排完整检查，默认最多并发两个顶层任务并允许显式覆盖；失败后停止领取新任务、等待已启动任务，且仅在全部前置检查通过后打包。",
-      "relations": []
-    },
-    {
-      "path": "project-tooling/260720-use-prebuilt-git-test-fixtures.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T16:49:56+08:00",
-      "title": "用预构建 Git fixture 加速 test-evidence 测试",
-      "purpose": "在保留真实 Git 语义和 Node 分发兼容验证的前提下，减少 `test:test-evidence-cli` 的重复仓库初始化与子进程启动。",
-      "background": "`scripts/test-evidence/tests/` 为多个稳定场景反复创建仓库和提交相同基线，主要耗时来自 Git 与 Node 进程而非领域计算。",
-      "decision": "使用多个预构建的逻辑 Git fixture 承接稳定历史，按场景物化隔离工作区；纯逻辑和可导入 CLI 测试在 Bun 进程内运行，只保留最小真实 Git 与 Node smoke。",
-      "relations": []
-    },
-    {
-      "path": "project-tooling/default-checks-to-warnings.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-22T13:49:32Z",
-      "title": "让完整检查默认报告警告并显式启用阻断",
-      "purpose": "让并行修改中的工作区完成全部检查，同时为 CI 和真实依赖保留明确门禁。",
-      "background": "新增检查若必须逐项声明为非阻断，会增加维护负担，临时损坏也会过早终止其余诊断。",
-      "decision": "前置检查默认以 warning 继续；任务可显式声明 blocking，`--strict` 将全部失败升级为阻断。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "project-tooling/260720-orchestrate-checks-with-conservative-concurrency.md"
-        }
-      ]
-    },
-    {
-      "path": "project-tooling/separate-distributable-tool-source-from-repository-automation.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-22T10:50:45Z",
-      "title": "分离可分发工具源码与仓库自动化",
-      "purpose": "让可分发工具源码、主仓库自动化和 skill 分发内容拥有清晰、单向的 owner 边界。",
-      "background": "项目脚本与可分发工具源码混在 `scripts/`，工具运行时还反向依赖仓库 helper 和 validator。",
-      "decision": "使用 `tools/` 维护可分发源码及共享协议，`scripts/` 只承接项目自动化，再生成自包含 skill 产物。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "project-tooling/260720-expose-importable-skill-modules.md"
-        },
-        {
-          "type": "修订",
-          "target": "project-tooling/260720-use-prebuilt-git-test-fixtures.md"
-        }
-      ]
-    },
-    {
-      "path": "prompt-optimize-references/260630-merge-prompt-optimize-core-flow-into-entry.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-06-30T17:17:43+08:00",
-      "title": "将 prompt-optimize 核心流程合并回入口",
-      "purpose": "让 prompt-optimize 触发后直接获得默认流程，减少重复读取和职责分散。",
-      "background": "`workflows.md` 和 `rewrite-rules.md` 在实际使用中读取概率过高, 基本成为 `prompt-optimize` 的默认执行路径。",
-      "decision": "由 `prompt-optimize` 的 `SKILL.md` 直接承接定位、出口、骨架、审计、owner、规则收敛、表达、冲突、交付和完成检查。",
-      "relations": [
-        {
-          "type": "替代",
-          "target": "prompt-optimize-references/260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md"
-        }
-      ]
-    },
-    {
-      "path": "prompt-optimize-references/260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-06-30T15:02:20+08:00",
-      "title": "将 prompt-optimize 改写规则重组为管线",
-      "purpose": "让 prompt-optimize 改写规则拥有单一 owner 和稳定的执行顺序。",
-      "background": "`prompt-optimize` skill 的规则内容持续膨胀, 入口和引用文件之间开始出现职责重复。",
-      "decision": "在 `prompt-optimize` 中, `rewrite-rules.md` 作为改写判断 owner, 按管线组织规则, 每一步的产物决定下一步处理方式。",
-      "relations": []
-    },
-    {
-      "path": "prompt-optimize-references/260701-add-document-main-promise-check.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-01T14:55:35+08:00",
-      "title": "给 prompt-optimize 增加文档主承诺检查",
-      "purpose": "让文档正文兑现入口建立的预期，并能识别整体重心偏移。",
-      "background": "`prompt-optimize` 已经要求判断用途、阅读脉络和内容 owner, 但 owner 主要解决内容完整解释放在哪里, 不足以稳定识别整篇文档的重心是否偏离入口信号建立的预期。",
-      "decision": "从标题、序言、触发条件、资源名、字段和输入输出等入口信号建立文档主承诺，并据此检查正文重心。",
-      "relations": []
-    },
-    {
-      "path": "prompt-optimize-references/260701-compact-entry-and-archive-migration-copies.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-18T11:43:07+08:00",
-      "title": "压缩 prompt-optimize 入口并归档迁移副本",
-      "purpose": "降低 prompt-optimize 的默认加载和判断成本，同时保留必要细节的可访问性。",
-      "background": "`skills/prompt-optimize/SKILL.md` 在承接默认执行路径后, 同时保留了过多细则展开, 使用时需要关注的点过多。",
-      "decision": "`SKILL.md` 继续作为默认执行路径 owner, 但主执行流程只保留压缩后的八步判断链, 细节解释由 `principles.md` 和具体任务上下文承接。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "prompt-optimize-references/260630-merge-prompt-optimize-core-flow-into-entry.md"
-        }
-      ]
-    },
-    {
-      "path": "prompt-optimize-references/260706-move-subagent-guidance-to-dedicated-skill.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-18T11:43:07+08:00",
-      "title": "将子代理任务说明移出 prompt-optimize",
-      "purpose": "让 prompt-optimize 聚焦结构化文本优化，并为子代理编排建立独立 owner。",
-      "background": "`prompt-optimize` 的 `agent-tasks.md` 曾负责 worker、explorer、并行 agent 和子 agent 任务结构。",
-      "decision": "删除 `prompt-optimize` 的 `agent-tasks.md`，由 `subagent-orchestration` 唯一承接子代理编排和任务派发。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "prompt-optimize-references/260630-merge-prompt-optimize-core-flow-into-entry.md"
-        }
-      ]
-    },
-    {
-      "path": "prompt-optimize-references/260720-remove-migration-copies.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-20T10:15:36+08:00",
-      "title": "删除 prompt-optimize 迁移副本",
-      "purpose": "让 prompt-optimize 的分发内容只保留当前执行和解释需要的入口与引用。",
-      "background": "`workflows.md` 和 `rewrite-rules.md` 已长期不参与主动读取, 核心流程已由 `SKILL.md` 稳定承接, 决策记录和 Git 历史足以回放旧结构。",
-      "decision": "保持 `SKILL.md` 作为压缩后的默认流程 owner, 保留 `principles.md` 解释长期理由, 删除两份迁移副本并停止随包分发。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "prompt-optimize-references/260701-compact-entry-and-archive-migration-copies.md"
-        }
-      ]
-    },
-    {
-      "path": "prompt-optimize-references/260720-treat-negative-options-as-solution-anchors.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-20T10:15:36+08:00",
-      "title": "将负向方案视为解空间锚点",
-      "purpose": "让 agent 从目标、约束和结果建立解题路径, 避免替代方案被排除对象限定在局部框架中。",
-      "background": "模型可以理解“不使用 X”, 但 X 的常见用法、修正路径和反例仍进入上下文, 生成替代方案时可能继续围绕 X 搜索。",
-      "decision": "先建立正向目标框架, 再分类负向方案; 只有容易回落、重要边界或明确契约需要时才点名 X, 并避免围绕 X 反复展开。",
-      "relations": []
-    },
-    {
-      "path": "prompt-optimize-references/260720-use-controlled-mermaid-flowcharts.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-20T10:15:36+08:00",
-      "title": "使用受控 Mermaid flowchart 表达复杂关系",
-      "purpose": "在保持结构稳定和关系显式的前提下, 提高层级、分支和跨节点内容的可读性。",
-      "background": "有序列表、JSON 和简单表格适合作为默认格式, 但复杂关系强行线性化会降低理解效率; Mermaid flowchart 能用代码显式声明节点、边、方向和分组。",
-      "decision": "先遵循目标已有格式契约, 否则保留稳定默认格式; 图示确有收益且环境支持时, 使用 `flowchart LR` 或 `flowchart TD` 配合 `subgraph`, 并显式标注关系。",
-      "relations": []
-    },
-    {
-      "path": "repository-model/centralize-maintenance-and-keep-distribution-lightweight.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-21T06:39:06Z",
-      "title": "集中维护 skill 并保持轻量分发",
-      "purpose": "降低多个 skill 的长期维护与发布成本，同时保持使用者按需选择和单 skill 独立交付。",
-      "background": "单 skill 独立建仓会重复工具链和发布维护；同仓、聚合 release 与 updater 便利不代表共同安装或完整更新系统。",
-      "decision": "以单仓库集中维护并按 skill 独立打包，使用者知情选择所需能力，聚合发布和 updater 只承接轻量分发便利。",
-      "relations": []
-    },
-    {
-      "path": "skill-design-discovery-behavior/separate-design-discovery-from-lifecycle-maintenance.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-21T02:44:23Z",
-      "title": "将 Skill 深度设计发现设为独立行为",
-      "purpose": "让隐性工作流、潜藏决策和约束在 Skill 实现前成为可验证设计，同时保持生命周期维护职责聚焦。",
-      "background": "现有维护能力覆盖归属、结构、分发和交付，但创建只是其中一条路径，无法稳定承接复杂领域能力的深度发现。",
-      "decision": "新增独立 `skill-design-discovery`，以轻量或深度发现形成证据化设计契约，再交由当前环境的实现入口落地。",
-      "relations": []
-    },
-    {
-      "path": "skill-maintainer-behavior/260719-own-project-aware-skill-lifecycle.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T08:35:03+08:00",
-      "title": "让 skill-maintainer 承接环境自适应的 skill 生命周期",
-      "purpose": "让可复用的 agent 能力由新 skill、既有 skill 或其他 owner 清楚承接，并让选定的 skill 在简约或完整的维护环境中都能交付。",
-      "background": "Skill 可能位于成熟仓库、独立目录或安装位置；把项目级 owner、校验器和发布工具链作为默认前提会限制其可移植性。",
-      "decision": "使用 `skill-maintainer` 承接 skill 模型、能力归属和行为契约，采用“自包含最小基线加环境适配”的交付方式，并随包提供独立结构验证器。",
-      "relations": []
-    },
-    {
-      "path": "skill-maintainer-behavior/260720-define-skills-by-self-contained-contracts.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-20T10:15:58+08:00",
-      "title": "让分发 skill 以自身契约定义边界",
-      "purpose": "让每个分发后的 skill 在没有其他 skill 配合时也能被发现、理解和执行。",
-      "background": "仓库维护时可以比较多个能力, 但安装环境中的 skill 组合并不固定; 用相邻能力的差异解释触发或边界会把其他 skill 变成隐含前提。",
-      "decision": "维护时可以比较可访问能力以判断 owner, 但分发入口和行为正文只用自身输入、目标结果、判断、步骤、边界和验收定义能力, 不假定其他 skill 存在。",
-      "relations": []
-    },
-    {
-      "path": "skill-maintainer-behavior/260720-use-distribution-unit-boundaries.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-20T10:15:58+08:00",
-      "title": "以分发单元定义 skill 的独立交付边界",
-      "purpose": "让单个 skill 和成套 skills 都能按真实安装与使用方式维护, 同时阻止跨分发单元的隐含依赖。",
-      "background": "Skill 是行为入口，分发单元才是安装和交付边界；要求每个 skill 单独交付会破坏合法的单元内依赖。",
-      "decision": "`skill-maintainer` 区分 skill 行为单元与 distribution unit 交付单元, 允许同一单元内显式依赖和交接, 并要求跨单元依赖声明前置条件及缺失路径。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "skill-maintainer-behavior/260719-own-project-aware-skill-lifecycle.md"
-        },
-        {
-          "type": "判定无效",
-          "target": "skill-maintainer-behavior/260720-define-skills-by-self-contained-contracts.md"
-        }
-      ]
-    },
-    {
-      "path": "subagent-orchestration-behavior/260712-separate-write-ownership-from-read-scope.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-18T11:43:07+08:00",
-      "title": "区分并行写入所有权与只读调查范围",
-      "purpose": "在避免并行写入冲突的同时，保留子代理读取必要证据的能力。",
-      "background": "`skills/subagent-orchestration/SKILL.md` 原先要求子代理工作范围、文件范围和决策范围保持互斥, 没有区分写入所有权与只读证据范围。",
-      "decision": "只要求并行子代理的写入范围互斥, 并按实际可能修改的文件、配置、生成产物或外部状态划分所有权; 原因是冲突来自共享状态变更, 不是共享证据读取。",
-      "relations": []
-    },
-    {
-      "path": "subagent-orchestration-behavior/260718-default-to-minimal-subagent-history.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-18T12:20:25+08:00",
-      "title": "默认以最小历史派发子代理",
-      "purpose": "让子代理只获得完成任务所需的上下文，降低无关历史干扰并保持工具无关。",
-      "background": "入口要求最小上下文，但缺少可映射到不同工具的历史选择规则；依赖默认值会引入噪音，绑定字段又降低复用性。",
-      "decision": "派发前按当前工具能力确定最小充分的历史范围; 可控时显式配置, 默认不继承主线程对话, 必要时只继承最小有限范围, 仅在完整对话本身是不可替代输入时主动选择全量继承, 具体字段和值由工具接口承接。",
-      "relations": []
-    },
-    {
-      "path": "subagent-orchestration-behavior/260718-focus-description-on-trigger-context.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-18T12:27:40+08:00",
-      "title": "让子代理 skill 描述聚焦触发条件",
-      "purpose": "让 skill 的触发入口清楚表达何时调用，避免执行细节稀释触发信号。",
-      "background": "`description` 同时枚举触发场景和历史、所有权、等待、审计等执行规则，削弱触发信号并重复正文。",
-      "decision": "`description` 只说明子代理编排定位和触发条件；用户显式要求或任务适合委派时加载，执行规则留在正文。",
-      "relations": []
-    },
-    {
-      "path": "test-evidence-review-behavior/260719-model-verification-obligations-and-source-roles.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-19T18:44:38+08:00",
-      "title": "将账本扩展为验证义务并统一源码角色",
-      "purpose": "抑制低价值测试增长，同时让自动化证明、人工审查风险和测试发现豁免都能被持续追踪与审计。",
-      "background": "只登记自动化证明无法承接当前架构下不适合机械测试的真实风险，自由文本源码豁免又会脱离账本；测试发现仍需要区分真实主入口、归属于主 case 的衍生源码和误报。",
-      "decision": "账本 case 采用 automated、review 或 exempt 验证义务；源码使用 main、derived、exempt 角色，CLI 按测试文件校验映射与发现结果。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "test-evidence-review-behavior/260719-separate-test-value-from-ledger-validation.md"
-        }
-      ]
-    },
-    {
-      "path": "test-evidence-review-behavior/260719-organize-multi-branch-proofs-by-shared-base.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-19T19:50:10+08:00",
-      "title": "按共享测试基座组织多分支证明点",
-      "purpose": "在保持证明点简短可审计的同时，避免多分支测试因机械拆分而重复 fixture、增加执行成本或造成共享数据底座漂移。",
-      "background": "一条测试链路可以复用初始状态、基础数据和执行上下文，并在条件节点后形成多个可观察分支；按叶子结果逐项拆分会增加准备、同步和审计成本。",
-      "decision": "automated case 可按共享基座或连续链路聚合分支；`Proves:` 使用原子结果列表，复杂分支用 Mermaid，只有独立边界才拆分。",
-      "relations": []
-    },
-    {
-      "path": "test-evidence-review-behavior/260719-separate-test-value-from-ledger-validation.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-19T17:05:10+08:00",
-      "title": "分离测试价值审查与账本机械校验",
-      "purpose": "抑制无意义、重复和实现耦合的测试增长，同时让测试证明目标与实现保持可审计映射。",
-      "background": "只维护测试账本会增加同步成本，单靠测试执行又无法阻止 AI 以 TDD、防回归或覆盖率为由持续新增低价值测试；调用 skill 后再判断是否启用账本还会造成流程分叉和漏登记。",
-      "decision": "使用 `test-evidence-review` 对自动化测试执行证据准入，并默认以账本保存通过准入的稳定证明目标，再用可配置的跨语言 CLI 校验主要入口、辅助归属、豁免和未登记测试文件。",
-      "relations": []
-    },
-    {
-      "path": "test-evidence-review-behavior/260720-map-test-entries-and-trigger-scoped-reviews.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-20T13:48:52+08:00",
-      "title": "按测试入口映射证据并触发范围审查",
-      "purpose": "让每个被发现器识别的测试入口都能回到明确契约和 case，消除文件级标记造成的遮蔽，并让人工审查范围在 Git 变化后可确定地重新触发。",
-      "background": "文件级最小归属会让一个 marker 覆盖同文件内未评估的其他测试；case 缺少契约背景，普通三级标题会被误判；Scope 只校验路径外形，无法发现失效范围或命中变更。",
-      "decision": "case 使用固定标题和 `Contract:`；源码角色逐测试入口映射；Scope 用严格 glob 与 Git 路径校验，并按变化和 CR 基线触发 review。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "test-evidence-review-behavior/260719-model-verification-obligations-and-source-roles.md"
-        }
-      ]
-    },
-    {
-      "path": "test-evidence-review-behavior/260720-organize-proofs-by-shared-execution-chain.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-20T13:48:52+08:00",
-      "title": "按共享执行链路组织分支与线性证明点",
-      "purpose": "让 automated case 同时表达分支结果和线性 happy path 或失败链路上的多个可观察检查点，避免按证明点数量机械拆分 case。",
-      "background": "既有规则把 `Proves:` 主要描述为分支叶子，但一条没有分支的连续执行链路也可能依次固定多个状态迁移、输出、副作用或清理不变量。",
-      "decision": "automated case 按共同契约、共享基座或连续链路组织；`Proves:` 可写分支或线性检查点，Mermaid 按需表达，仅独立契约才拆分。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "test-evidence-review-behavior/260719-organize-multi-branch-proofs-by-shared-base.md"
-        }
-      ]
-    },
-    {
-      "path": "test-evidence-review-behavior/260721-separate-test-entry-collection-from-ledger.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-21T02:59:31Z",
-      "title": "分离测试入口采集与账本维护",
-      "purpose": "让复杂项目能够替换入口收集方式，同时让账本维护只依赖稳定、可校验的数据契约。",
-      "background": "账本 CLI 同时拥有文件选择、跨语言正则和账本校验，按语言屏蔽非代码上下文仍会漏掉有效入口，也让自定义发现规则必须进入账本实现。",
-      "decision": "以 Schema 为结构真源，把工具拆成输出标准清单的可替换采集层和只消费清单的账本层，并保留组合兼容入口。",
-      "relations": [
-        {
-          "type": "替代",
-          "target": "test-evidence-review-behavior/mask-non-code-test-syntax.md"
-        },
-        {
-          "type": "修订",
-          "target": "test-evidence-review-behavior/query-ledger-with-structured-inspection.md"
-        }
-      ]
-    },
-    {
-      "path": "test-evidence-review-behavior/mask-non-code-test-syntax.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-21T01:52:14Z",
-      "title": "在测试入口发现前屏蔽明显非代码上下文",
-      "purpose": "降低注释、字符串、模板和正则样本造成的测试入口误报，让 exempt 保留给真正需要持续审计的发现边界。",
-      "background": "全文正则会把发现器源码、测试 fixture 和生成代码中的测试语法样本识别为入口，增加无意义 marker 与账本库存。",
-      "decision": "发现前按语言屏蔽常见非代码上下文并保留原始位置，再运行既有入口模式；不把轻量屏蔽扩展为完整解析器。",
-      "relations": []
-    },
-    {
-      "path": "test-evidence-review-behavior/publish-only-layered-test-evidence-interfaces.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-21T03:26:09Z",
-      "title": "仅发布分层测试证据接口",
-      "purpose": "让测试入口采集可独立替换，并让账本维护只依赖稳定、严格校验的数据契约。",
-      "background": "组合兼容入口会把旧配置、旧输出和默认采集器继续带入账本工具边界，削弱两层接口的独立性。",
-      "decision": "以 Schema 为结构真源，只发布采集层和账本层两套接口，旧版升级仅由独立文档承接。",
-      "relations": [
-        {
-          "type": "修订",
-          "target": "test-evidence-review-behavior/260721-separate-test-entry-collection-from-ledger.md"
-        }
-      ]
-    },
-    {
-      "path": "test-evidence-review-behavior/query-ledger-with-structured-inspection.md",
-      "status": "archived",
-      "alignment": null,
-      "createdAt": "2026-07-21T01:51:47Z",
-      "title": "为测试账本提供可恢复查询与结构化诊断",
-      "purpose": "让 agent 在严格校验之外直接恢复 case、入口映射和 review trigger，并稳定消费机器诊断。",
-      "background": "CLI 只有严格 check，成功结果只给汇总，普通错误仍是字符串，语义审查需要重复解析账本和源码。",
-      "decision": "保留严格 check，新增非阻断 list/show、可导入 inspection 和带版本的结构化 diagnostics。",
-      "relations": []
-    },
-    {
-      "path": "test-evidence-review-behavior/read-ledger-contract-on-demand.md",
-      "status": "active",
-      "alignment": "aligned",
-      "createdAt": "2026-07-21T01:52:41Z",
-      "title": "按任务出口渐进读取测试账本契约",
-      "purpose": "让测试价值审查先恢复相关契约和证据，只在精确维护需要时加载完整账本格式，降低无关上下文成本。",
-      "background": "固定契约包含大量字段、配置和 CLI 细节，纯语义审查每次完整读取会挤占实现、测试和行为 owner 的有效上下文。",
-      "decision": "所有任务继续受账本契约约束，但仅在写入、结构审阅、修复或精确诊断时完整读取；日常恢复先用 list/show/check。",
-      "relations": []
-    },
-    {
-      "path": "version-control/centralize-version-control-responsibility.md",
-      "status": "active",
-      "alignment": "unaligned",
-      "createdAt": "2026-07-22T15:01:02Z",
-      "title": "集中版本管理责任但不承诺跨系统兼容",
-      "purpose": "让项目只通过一个稳定 owner 查询版本状态，使后续替换实现或接入其他系统时不再追查分散调用。",
-      "background": "项目同时需要提交树、待提交内容和工作区变化，直接依赖 Git 命令与 index 语义会把解析和替换成本散入多个模块。",
-      "decision": "建立项目自有版本管理中间层，默认采用 Git 并允许 Git 倾向语义，但不提前承诺多版本系统兼容或建设 provider 框架。",
-      "relations": []
+  "definitionVersion": 1,
+  "entries": [
+    {
+      "id": "change-plan-behavior/use-independent-change-plans.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "change-plan-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "稳定文档和长期决策已有各自 owner，而 OpenSpec 的 proposal、design 与 tasks 仍提供有价值的 change 级规划结构。",
+        "createdAt": "2026-07-23T03:24:48Z",
+        "decision": "新增独立 `change-plan`，以三文件临时计划和只读结构检查器承接规划，不拥有稳定事实、长期决策或实施许可。",
+        "path": "change-plan-behavior/use-independent-change-plans.md",
+        "purpose": "让项目在不采用完整 specification 生命周期时也能保存可审阅、可交接并带实施门禁的 change 计划。",
+        "relations": [],
+        "status": "active",
+        "title": "使用独立 Change Plan 承接临时变更计划"
+      }
+    },
+    {
+      "id": "common-denominator-design-behavior/design-by-scenario-denominators.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "common-denominator-design-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "单一抽象、沿用现有形态或把证据不足误作没有公约数, 都会掩盖真实的共享边界。",
+        "createdAt": "2026-07-22T02:06:52Z",
+        "decision": "新增独立 `common-denominator-design`, 以共同依赖测试和场景义务设计公约数; 最小性仅用于边界收敛。",
+        "path": "common-denominator-design-behavior/design-by-scenario-denominators.md",
+        "purpose": "让跨场景统一先识别可共同依赖的真实契约, 再决定公约数数量、变体和责任层。",
+        "relations": [],
+        "status": "active",
+        "title": "以场景公约数设计跨场景统一契约"
+      }
+    },
+    {
+      "id": "decision-records-skill/260710-use-cli-active-index-and-invalidated-archive.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records-skill"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "只做结构校验不能帮助维护者在文件重命名或状态变化后同步索引，重复手工编辑容易产生旧路径和状态漂移。",
+        "createdAt": "2026-07-11T10:26:44+08:00",
+        "decision": "`decision-records.mjs check` 作为默认只读命令，检查目录、文件名、正文状态、链接、归档位置和活动索引。",
+        "path": "decision-records-skill/260710-use-cli-active-index-and-invalidated-archive.md",
+        "purpose": "用可预期的 CLI 维护当前决策可见性和索引一致性，同时保留历史。",
+        "relations": [
+          {
+            "target": "decision-records-skill/260710-use-explicit-portable-decision-memory.md",
+            "type": "修订"
+          },
+          {
+            "target": "decision-records/260627-establish-decision-record-policy.md",
+            "type": "修订"
+          },
+          {
+            "target": "decision-records/260630-track-decision-status-and-relations.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "使用 CLI 维护活动索引并归档失效决策"
+      }
+    },
+    {
+      "id": "decision-records-skill/260710-use-explicit-portable-decision-memory.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records-skill"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "用户希望把重要决定沉淀为长期记忆，但这种记忆需要能够被查看、审核和持续优化，不能隐藏在模型状态或工具内部。",
+        "createdAt": "2026-07-11T10:26:44+08:00",
+        "decision": "使用固定的 `docs/decisions/` Markdown 方案在不同项目中保存决策，包括规则 owner、索引 owner、稳定影响面、文件名状态和正文关系。",
+        "path": "decision-records-skill/260710-use-explicit-portable-decision-memory.md",
+        "purpose": "建立公开、可审阅、可版本化且能跨项目复用的长期决策记忆。",
+        "relations": [],
+        "status": "archived",
+        "title": "使用显式可移植的决策记录形成长期记忆"
+      }
+    },
+    {
+      "id": "decision-records-skill/260711-repair-noncanonical-decision-formats.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records-skill"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "如果 skill 为任意已有格式长期维护兼容分支或独立迁移模式, agent 需要同时理解多套目录、模板、状态和索引语义, 容易让同一项目继续产生并行记录。",
+        "createdAt": "2026-07-11T13:40:17+08:00",
+        "decision": "将 bundled reference 定义的目录、文件名、状态、正文结构和索引关系作为唯一目标格式。",
+        "path": "decision-records-skill/260711-repair-noncanonical-decision-formats.md",
+        "purpose": "将已有决策材料收敛到唯一可维护契约，同时保留能够确认的历史语义。",
+        "relations": [],
+        "status": "archived",
+        "title": "将非标准决策材料修复为唯一契约"
+      }
+    },
+    {
+      "id": "decision-records-skill/260711-require-confirmed-decision-writes.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records-skill"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "如果 agent 对工作中的每个选择都询问是否记录，长期记忆判断会频繁打断原任务。",
+        "createdAt": "2026-07-11T14:55:56+08:00",
+        "decision": "agent 只在自然阶段发现会持续改变行为、owner、边界、兼容性、风险处理或验收方式的重要取舍时主动提出记录，从而保留高价值决策而不逐项打断工作。",
+        "path": "decision-records-skill/260711-require-confirmed-decision-writes.md",
+        "purpose": "只沉淀经确认且具有长期价值的判断，同时避免频繁打断日常工作。",
+        "relations": [
+          {
+            "target": "decision-records-skill/260711-repair-noncanonical-decision-formats.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "使用显式确认控制决策写入"
+      }
+    },
+    {
+      "id": "decision-records-skill/260713-recall-before-long-lived-changes.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records-skill"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "只在用户显式要求回放或记录时读取决策，不能保证普通维护任务在改变长期行为前看见已有方向。",
+        "createdAt": "2026-07-18T11:43:07+08:00",
+        "decision": "任务可能改变长期行为、owner、边界、兼容性、风险处理或验收方式时，在实质改动前从 JSON 当前索引读取相关记录，因为只有在决策点前恢复上下文才能实际防止方向静默漂移。",
+        "path": "decision-records-skill/260713-recall-before-long-lived-changes.md",
+        "purpose": "在长期行为改变前恢复既有方向，防止后续维护静默偏离。",
+        "relations": [],
+        "status": "archived",
+        "title": "在长期行为变更前恢复决策并显式处理偏离"
+      }
+    },
+    {
+      "id": "decision-records-skill/260718-notify-before-decision-writes.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records-skill"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "为每项决策维护操作重复询问授权会增加交互成本，但静默新增或调整长期决策又会让用户失去对长期记忆变化的感知。",
+        "createdAt": "2026-07-18T14:44:37+08:00",
+        "decision": "当前指令足以表达决策维护意图时不重复询问操作授权；新增、调整或退出当前集合前明确告知用户将写入或改变的判断及集合变化，长期含义或范围不清时再请求判断。",
+        "path": "decision-records-skill/260718-notify-before-decision-writes.md",
+        "purpose": "在不增加重复授权成本的前提下，让用户感知长期决策集合的变化。",
+        "relations": [
+          {
+            "target": "decision-records-skill/260711-require-confirmed-decision-writes.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "在决策写入前明确通知用户"
+      }
+    },
+    {
+      "id": "decision-records-skill/260718-trigger-on-long-term-decision-points.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "decision-records-skill"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "以“任务可能改变长期行为”作为触发条件会把普通执行也纳入范围，而逐项枚举维护操作会削弱真正需要主动恢复上下文的决策时刻。",
+        "createdAt": "2026-07-18T14:11:24+08:00",
+        "decision": "`decision-records` 用于长期决策管理；当用户正在形成可能产生长期影响的决定，或拟议决定与既有决定冲突时调用，触发后恢复相关当前决策并处理偏离，入口不枚举记录、查询或归档等自然操作。",
+        "path": "decision-records-skill/260718-trigger-on-long-term-decision-points.md",
+        "purpose": "在真正形成长期判断或发生冲突时恢复决策上下文，避免普通执行误触发。",
+        "relations": [
+          {
+            "target": "decision-records-skill/260713-recall-before-long-lived-changes.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "让长期决策形成和冲突成为核心触发"
+      }
+    },
+    {
+      "id": "decision-records-skill/260720-complete-by-task-outcome.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records-skill"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "非阻断查询已经能够返回可恢复结果，但统一要求严格检查通过会扩大查询范围，而仅报告 warning 又不足以约束对缺失记录和关系的推断。",
+        "createdAt": "2026-07-20T10:34:37+08:00",
+        "decision": "分别按恢复或审阅、候选、维护或迁移验收；warning 限定查询结论，严格 `check` 只作为写入和迁移门禁。",
+        "path": "decision-records-skill/260720-complete-by-task-outcome.md",
+        "purpose": "让查询、候选、维护和迁移按各自结果验收，并安全使用带 warning 返回的降级查询。",
+        "relations": [
+          {
+            "target": "decision-records/260720-return-query-results-with-warnings.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "按任务出口验收决策记录工作"
+      }
+    },
+    {
+      "id": "decision-records-skill/complete-current-decision-work-by-task-outcome.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "decision-records-skill"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "只读查询可能在局部材料有误时返回可恢复结果，统一要求严格检查会扩大任务范围，而维护写入仍需要完整一致性门禁。",
+        "createdAt": "2026-07-22T08:41:48Z",
+        "decision": "按恢复或审阅、候选和维护三类出口验收；warning 限定查询结论，严格 check 作为维护写入的最终门禁。",
+        "path": "decision-records-skill/complete-current-decision-work-by-task-outcome.md",
+        "purpose": "让恢复或审阅、候选和维护分别按实际结果验收，并安全使用带 warning 返回的查询结果。",
+        "relations": [
+          {
+            "target": "decision-records-skill/260720-complete-by-task-outcome.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "按当前任务出口验收决策记录工作"
+      }
+    },
+    {
+      "id": "decision-records-skill/notify-before-current-decision-writes.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "decision-records-skill"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "当前指令可能已经明确授权维护，但静默新增记录或改变状态会让后续默认依据在用户无感知时变化。",
+        "createdAt": "2026-07-22T08:41:27Z",
+        "decision": "当前指令足以表达维护意图时直接执行；新增记录或改变状态前告知判断与集合变化，长期含义或范围不清时再请求判断。",
+        "path": "decision-records-skill/notify-before-current-decision-writes.md",
+        "purpose": "在不重复索取操作授权的前提下，让用户感知长期决策集合和状态的变化。",
+        "relations": [
+          {
+            "target": "decision-records-skill/260718-notify-before-decision-writes.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "在当前决策写入前明确通知用户"
+      }
+    },
+    {
+      "id": "decision-records/260627-establish-decision-record-policy.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "决策记录需要帮助后续维护者回放重要设计原因, 但过多项目级记录会把真正重要的判断淹没。",
+        "createdAt": "2026-06-27T22:56:30+08:00",
+        "decision": "按影响面目录组织决策，分别由清单索引和维护规则承接导航与契约；文件命名由后续状态规则确定。",
+        "path": "decision-records/260627-establish-decision-record-policy.md",
+        "purpose": "只沉淀值得长期回放的重要判断，并让索引与维护规则各有明确 owner。",
+        "relations": [],
+        "status": "archived",
+        "title": "建立决策记录策略"
+      }
+    },
+    {
+      "id": "decision-records/260630-name-decision-root-docs-by-owner.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "通用的 `README.md` 与 `maintenance.md` 无法从文件名区分决策清单和维护规则的职责。",
+        "createdAt": "2026-06-30T16:44:06+08:00",
+        "decision": "`decision-record-index.md` 作为决策清单和影响面导航 owner, 只负责状态速查、影响面说明和决策链接。",
+        "path": "decision-records/260630-name-decision-root-docs-by-owner.md",
+        "purpose": "让决策清单和维护规则的 owner 能从文件名直接识别。",
+        "relations": [
+          {
+            "target": "decision-records/260627-establish-decision-record-policy.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "用 owner 命名决策记录根文档"
+      }
+    },
+    {
+      "id": "decision-records/260630-track-decision-status-and-relations.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "决策记录会随项目演进过期、被替代或被判定与后续规则冲突。",
+        "createdAt": "2026-06-30T16:11:49+08:00",
+        "decision": "决策文件名包含状态段, 状态值为 `active`、`amended`、`superseded` 或 `invalidated`。",
+        "path": "decision-records/260630-track-decision-status-and-relations.md",
+        "purpose": "区分当前与历史判断，并保留决策演进的可追溯关系。",
+        "relations": [
+          {
+            "target": "decision-records/260627-establish-decision-record-policy.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "给决策记录增加状态和关系"
+      }
+    },
+    {
+      "id": "decision-records/260630-use-compact-decision-records.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "决策文件名前缀使用完整日期时目录较长, 用户希望改成 `260627` 这类短日期。",
+        "createdAt": "2026-07-18T11:43:07+08:00",
+        "decision": "决策文件名使用 `YYMMDD-<status>-short-title.md`, 正文标题继续使用完整日期。",
+        "path": "decision-records/260630-use-compact-decision-records.md",
+        "purpose": "缩短决策文件名，同时允许简单判断保持精简、可读。",
+        "relations": [
+          {
+            "target": "decision-records/260630-track-decision-status-and-relations.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "使用短日期命名并允许短决策结构"
+      }
+    },
+    {
+      "id": "decision-records/260711-bound-history-with-direct-relations.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "旧记录只链接导致状态变化的新决定时, 从当前 `active` 记录不容易回看本次修订了什么。",
+        "createdAt": "2026-07-11T13:40:17+08:00",
+        "decision": "新 `active` 记录改变已有判断时, 在 `## 状态` 内使用可选的 `### 关系`, 按修订、替代、判定无效或归并链接本次直接作用的前序记录。",
+        "path": "decision-records/260711-bound-history-with-direct-relations.md",
+        "purpose": "让当前判断能够直接回看前序，并限制日常回放无限展开历史。",
+        "relations": [],
+        "status": "archived",
+        "title": "用直接关系和归并决策限制历史读取"
+      }
+    },
+    {
+      "id": "decision-records/260711-use-bundled-contract-owner.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "随包 reference 与目标项目的 `decision-record-rules.md` 同时解释固定格式时，会形成两份需要同步的契约和二次导航。",
+        "createdAt": "2026-07-18T11:43:07+08:00",
+        "decision": "由随包 `decision-record-rules.md` 唯一承接目录、命名、当前成员、关系、正文、索引和维护事务。",
+        "path": "decision-records/260711-use-bundled-contract-owner.md",
+        "purpose": "为不同项目提供唯一随包固定契约，避免项目副本长期漂移。",
+        "relations": [
+          {
+            "target": "decision-records/260630-name-decision-root-docs-by-owner.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "使用随包 reference 作为唯一固定契约"
+      }
+    },
+    {
+      "id": "decision-records/260713-use-json-current-index-and-stable-paths.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "当前索引既要明确成员，也要用经确认且与正文一致的精简背景和决策支持低成本判断；主题分类已经包含在路径中。",
+        "createdAt": "2026-07-18T11:43:07+08:00",
+        "decision": "以 `decision-index.json` 维护当前成员及 Markdown 摘要；路径保持稳定，归档只退出当前集合，关系由新记录单向指向直接前序。",
+        "path": "decision-records/260713-use-json-current-index-and-stable-paths.md",
+        "purpose": "让当前决策集合可机器维护、低成本检索，并为历史记录保留稳定身份。",
+        "relations": [
+          {
+            "target": "decision-records/260630-use-compact-decision-records.md",
+            "type": "归并"
+          },
+          {
+            "target": "decision-records-skill/260710-use-cli-active-index-and-invalidated-archive.md",
+            "type": "归并"
+          },
+          {
+            "target": "decision-records/260711-bound-history-with-direct-relations.md",
+            "type": "归并"
+          }
+        ],
+        "status": "archived",
+        "title": "使用 JSON 当前索引和稳定决策路径"
+      }
+    },
+    {
+      "id": "decision-records/260718-add-direction-and-depth-to-trace.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "`trace` 只能把关系当作双向图返回完整连通分量，无法只看前序、只反查后续或限制追溯深度；现有实现已经具备边集合和遍历逻辑。",
+        "createdAt": "2026-07-18T14:44:37+08:00",
+        "decision": "保持关系由新记录单向指向直接前序，给 `trace` 增加前序、后续、双向和最大深度选项；默认行为保持双向完整查询，使用现有邻接表和广度优先遍历实现，不引入图库。",
+        "path": "decision-records/260718-add-direction-and-depth-to-trace.md",
+        "purpose": "让使用者按回放需要低成本查询前序、后续或有限深度的关系链。",
+        "relations": [],
+        "status": "archived",
+        "title": "为 trace 增加定向和限深查询"
+      }
+    },
+    {
+      "id": "decision-records/260718-separate-behavior-entry-from-storage-contract.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "目的、背景和决策已经足以理解当前判断；若在 skill 入口再次概括正文结构、关系和事务规则，会形成契约的压缩副本，而 CLI 又必须同时服务只读恢复和写入维护。",
+        "createdAt": "2026-07-18T20:57:58+08:00",
+        "decision": "`SKILL.md` 承接触发、恢复、偏离判断、候选、CLI 编排和交付；随包 reference 唯一承接精确存储契约。",
+        "path": "decision-records/260718-separate-behavior-entry-from-storage-contract.md",
+        "purpose": "让日常决策恢复只加载必要语义，同时让精确维护继续遵循唯一、完整且可校验的固定契约。",
+        "relations": [
+          {
+            "target": "decision-records/260711-use-bundled-contract-owner.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "分离行为入口与精确存储契约"
+      }
+    },
+    {
+      "id": "decision-records/260718-separate-logical-archive-from-relations.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "强制每条逻辑归档记录都被后续记录引用，会把没有后续判断的普通退役误建模为决策演进；现有校验只要求任意入链，也不能证明 `archive --by` 指定的后续记录真实承接全部前序。",
+        "createdAt": "2026-07-18T14:11:24+08:00",
+        "decision": "JSON 索引维护当前成员；记录可独立归档，真实演进才建直接关系；`archive --by` 校验后续承接全部前序，CLI 拒绝关系环。",
+        "path": "decision-records/260718-separate-logical-archive-from-relations.md",
+        "purpose": "准确区分普通退出与真实决策演进，并保持当前集合和关系链可验证。",
+        "relations": [
+          {
+            "target": "decision-records/260713-use-json-current-index-and-stable-paths.md",
+            "type": "替代"
+          }
+        ],
+        "status": "archived",
+        "title": "分离逻辑归档与决策关系"
+      }
+    },
+    {
+      "id": "decision-records/260718-use-purpose-background-decision-structure.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "只在摘要增加目的会让摘要承载正文未显式出现的语义；继续由背景隐含目的又要求未来维护者自行推断，而完整目的本身可能需要展开。",
+        "createdAt": "2026-07-18T20:24:02+08:00",
+        "decision": "Markdown 使用索引摘要、目的、背景和决策四个必需章节；schema v2 索引保存摘要投影，既有生命周期与关系事务保持不变。",
+        "path": "decision-records/260718-use-purpose-background-decision-structure.md",
+        "purpose": "让当前决策显式回答希望达成什么、为何需要选择以及最终选择什么，同时保持低成本检索和可靠回放。",
+        "relations": [
+          {
+            "target": "decision-records/260718-separate-logical-archive-from-relations.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "使用目的、背景和决策的三层投影"
+      }
+    },
+    {
+      "id": "decision-records/260720-auto-initialize-index-on-first-activation.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "`activate` 已经明确表达目标记录和当前成员意图，但索引缺失时仍会失败；单独初始化空索引会增加一个没有独立语义的维护步骤。",
+        "createdAt": "2026-07-20T09:40:51+08:00",
+        "decision": "索引缺失且目录有效时，`activate` 创建 schema v2 索引并激活目标；无效索引不覆盖，首次校验失败则删除新索引。",
+        "path": "decision-records/260720-auto-initialize-index-on-first-activation.md",
+        "purpose": "让首条已确认决策无需独立的空索引初始化步骤即可进入当前集合。",
+        "relations": [],
+        "status": "archived",
+        "title": "在首次激活时自动初始化当前索引"
+      }
+    },
+    {
+      "id": "decision-records/260720-bound-index-projection-lengths.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "无长度上限会让索引退化为正文副本，内容过短又不能稳定表达决策含义。",
+        "createdAt": "2026-07-20T19:47:38+08:00",
+        "decision": "`title`、`purpose`、`background` 和 `decision` 必须是 4 至 100 个 Unicode 字符的单行文本；CLI 不截断或补齐，完整正文不受限制。",
+        "path": "decision-records/260720-bound-index-projection-lengths.md",
+        "purpose": "让索引摘要保持可检索、可展示，并具备最低限度的独立表达能力。",
+        "relations": [
+          {
+            "target": "decision-records/260718-use-purpose-background-decision-structure.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "限制索引投影字段长度"
+      }
+    },
+    {
+      "id": "decision-records/260720-focus-entry-on-behavior-routing.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "行为入口已经与存储契约分离，但仍重复自动初始化条件、编辑边界、CLI 参数和事务细节，形成了容易漂移的压缩契约。",
+        "createdAt": "2026-07-20T10:34:37+08:00",
+        "decision": "`SKILL.md` 只承接内容 owner、主动读取、任务出口、恢复、候选、命令选择和分出口验收；目录、字段、关系、维护事务与 CLI 精确语义继续只由固定契约完整承接，入口在精确维护前加载该契约。",
+        "path": "decision-records/260720-focus-entry-on-behavior-routing.md",
+        "purpose": "让频繁触发的 skill 入口只加载恢复和决策所需行为，同时保持精确维护遵循唯一固定契约。",
+        "relations": [
+          {
+            "target": "decision-records/260718-separate-behavior-entry-from-storage-contract.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "让行为入口聚焦任务路由"
+      }
+    },
+    {
+      "id": "decision-records/260720-return-query-results-with-warnings.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "`list` 和 `trace` 与 `check` 共用全库严格校验门禁，任一无关记录、关系或派生字段漂移都会让全部只读查询失败。",
+        "createdAt": "2026-07-20T09:40:51+08:00",
+        "decision": "中央索引可解析且目标存在时，`list` 与 `trace` 返回可恢复结果并以 warning 暴露错误；检查和写事务仍严格失败。",
+        "path": "decision-records/260720-return-query-results-with-warnings.md",
+        "purpose": "让局部记录或关系损坏不阻断其他长期判断的恢复，同时保留严格结构检查入口。",
+        "relations": [],
+        "status": "archived",
+        "title": "让决策查询带警告返回可用结果"
+      }
+    },
+    {
+      "id": "decision-records/260720-separate-editorial-edits-from-evolution.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "固定契约同时允许修改记录并要求长期修订创建后续记录，但没有明确哪些变化可以原地完成。",
+        "createdAt": "2026-07-20T09:40:51+08:00",
+        "decision": "只允许不改变目的、适用范围、关键背景前提、采用方向、核心理由或关系语义的编辑性修正原地完成；任一决策语义变化都创建新记录并按真实关系切换当前成员，无法判断时按决策演进处理。",
+        "path": "decision-records/260720-separate-editorial-edits-from-evolution.md",
+        "purpose": "在允许维护决策记录表述的同时，防止原地改写长期判断而丢失演进历史。",
+        "relations": [],
+        "status": "archived",
+        "title": "区分编辑性修正与决策演进"
+      }
+    },
+    {
+      "id": "decision-records/260720-separate-status-commands-from-relations.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "`archive --by` 会在归档前序时同时激活后续记录，但命令名称没有表达这一状态变化。",
+        "createdAt": "2026-07-20T19:47:38+08:00",
+        "decision": "`activate` 只把记录设为 active，`archive` 只设为 archived；关系不改变状态，不再由 archive 隐式激活后续记录。",
+        "path": "decision-records/260720-separate-status-commands-from-relations.md",
+        "purpose": "让 CLI 状态变化与决策演进关系各自显式，避免归档命令产生隐藏激活副作用。",
+        "relations": [
+          {
+            "target": "decision-records/260718-use-purpose-background-decision-structure.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "分离生命周期命令与演进关系"
+      }
+    },
+    {
+      "id": "decision-records/260720-use-configurable-decision-root.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "CLI 支持 `--decisions-dir`，但固定契约把 `docs/decisions` 写成唯一绝对位置，非默认目录的索引 owner、相对路径和初始化语义不明确。",
+        "createdAt": "2026-07-20T10:34:37+08:00",
+        "decision": "以可配置的决策根目录承载索引和 Markdown；默认 `docs/decisions`，身份、布局和 owner 均相对同一根目录解释。",
+        "path": "decision-records/260720-use-configurable-decision-root.md",
+        "purpose": "让默认目录和 CLI 目录覆盖共享同一套稳定身份与存储契约。",
+        "relations": [],
+        "status": "archived",
+        "title": "使用可配置的决策根目录"
+      }
+    },
+    {
+      "id": "decision-records/260720-use-filtered-decision-queries.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "把归档和全部记录与默认 list 并列会诱导先查完整历史，现有 list 也没有完整展示索引投影。",
+        "createdAt": "2026-07-20T19:47:38+08:00",
+        "decision": "`list` 以单一状态参数筛选并默认 active，输出除关系外的基础索引元数据；`show` 展开正文，`trace` 按方向和深度查询索引关系。",
+        "path": "decision-records/260720-use-filtered-decision-queries.md",
+        "purpose": "让日常恢复只查看活动决策，同时按需读取完整索引元数据、正文和关系历史。",
+        "relations": [
+          {
+            "target": "decision-records/260718-use-purpose-background-decision-structure.md",
+            "type": "修订"
+          },
+          {
+            "target": "decision-records/260718-add-direction-and-depth-to-trace.md",
+            "type": "替代"
+          }
+        ],
+        "status": "archived",
+        "title": "使用筛选式决策查询"
+      }
+    },
+    {
+      "id": "decision-records/260720-use-lifecycle-index-and-semantic-paths.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "日期前缀混合了身份与时间，当前索引只保存活动成员，归档后不能直接恢复完整索引元数据。",
+        "createdAt": "2026-07-20T19:47:38+08:00",
+        "decision": "使用不含日期的主题语义路径；索引登记全部记录并保存状态、精确创建时间、摘要投影和直接关系，按路径稳定排序。",
+        "path": "decision-records/260720-use-lifecycle-index-and-semantic-paths.md",
+        "purpose": "让决策按语义稳定定位，并从单一索引恢复全部记录的状态、时间、摘要和直接关系。",
+        "relations": [
+          {
+            "target": "decision-records/260718-use-purpose-background-decision-structure.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "采用全生命周期索引与语义路径"
+      }
+    },
+    {
+      "id": "decision-records/allow-sequential-activation-of-prewritten-candidates.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "单条 activate 的完整集合校验会让其他预写候选阻断目标激活，迫使维护者交替写入和激活文件。",
+        "createdAt": "2026-07-23T01:52:08Z",
+        "decision": "识别未进入 HEAD 的完整未激活候选；作用域维护可在逐条提醒后继续，索引排除候选，严格 check 继续阻断遗漏。",
+        "path": "decision-records/allow-sequential-activation-of-prewritten-candidates.md",
+        "purpose": "允许一次准备多条已确认决策并逐条激活，同时保持遗漏候选能够被明确发现。",
+        "relations": [],
+        "status": "active",
+        "title": "允许逐条激活预写决策候选"
+      }
+    },
+    {
+      "id": "decision-records/converge-records-before-stable-baseline.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "既有契约把任何语义变化都视为演进，没有区分已建立判断与当前事务中新建的记录。",
+        "createdAt": "2026-07-21T07:33:17Z",
+        "decision": "已建立记录继续通过后序保留演进；未进入稳定基线且未被依赖的新记录在原路径收敛。",
+        "path": "decision-records/converge-records-before-stable-baseline.md",
+        "purpose": "避免同一未提交变更事务的方案收敛被误记为多次正式决策演进。",
+        "relations": [
+          {
+            "target": "decision-records/260720-separate-editorial-edits-from-evolution.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "在稳定基线前原地收敛决策记录"
+      }
+    },
+    {
+      "id": "decision-records/define-decision-alignment-semantics.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "生命周期只能说明决策是否仍有效，不能说明当前实现是否已经推进到决策要求的状态。",
+        "createdAt": "2026-07-22T07:37:13Z",
+        "decision": "活动决策使用 aligned 或 unaligned 表达对齐关系；unaligned 表示决策已生效但当前实现尚未达到目标，不默认产生开放空间。",
+        "path": "decision-records/define-decision-alignment-semantics.md",
+        "purpose": "让已经生效但尚未落实的决策保持约束力，并准确表达当前实现与目标状态之间的差距。",
+        "relations": [
+          {
+            "target": "decision-records/express-decision-alignment-state.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "定义决策对齐状态与未对齐语义"
+      }
+    },
+    {
+      "id": "decision-records/derive-pending-from-head-path.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "持久化草稿状态或查询历史基线都会为简单的提交前判断增加额外维护成本。",
+        "createdAt": "2026-07-22T06:03:46Z",
+        "decision": "始终查询当前记录，并按 Markdown 路径是否存在于 HEAD 临时标记 pending。",
+        "path": "decision-records/derive-pending-from-head-path.md",
+        "purpose": "让提交前反复收敛的决策保持可见，同时避免形成虚假的正式演进历史。",
+        "relations": [
+          {
+            "target": "decision-records/converge-records-before-stable-baseline.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "从 HEAD 路径临时识别待提交决策"
+      }
+    },
+    {
+      "id": "decision-records/express-alignment-as-field-relation.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "为未对齐状态保存专门差距结构会重复决策约束和当前 owner 事实，并随实现变化产生漂移。",
+        "createdAt": "2026-07-22T09:43:47Z",
+        "decision": "active 即生效；alignment 只在 frontmatter 表达离散关系，索引仅投影该值，实际差距通过决策与 owner 比较得出。",
+        "path": "decision-records/express-alignment-as-field-relation.md",
+        "purpose": "让对齐状态准确表达当前事实与有效决策的关系，而不建立第二份决策内容或事实副本。",
+        "relations": [
+          {
+            "target": "decision-records/define-decision-alignment-semantics.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "仅用字段表达决策对齐关系"
+      }
+    },
+    {
+      "id": "decision-records/express-decision-alignment-state.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "生命周期状态只能说明决策是否仍有效，不能说明当前事实和行为是否已经与其对齐。",
+        "createdAt": "2026-07-22T07:10:38Z",
+        "decision": "后续决策格式必须表达独立于生命周期的对齐状态；具体形式不固定，索引投影是便于筛选与校验的自然延伸。",
+        "path": "decision-records/express-decision-alignment-state.md",
+        "purpose": "区分必须完全遵守的当前基线与方向已确定但仍保留过渡空间的有效决策。",
+        "relations": [],
+        "status": "archived",
+        "title": "为决策表达对齐状态"
+      }
+    },
+    {
+      "id": "decision-records/generate-index-from-self-contained-decisions.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "由集中索引独占生命周期和创建时间会形成第二真相源，索引损坏后无法仅凭决策文件恢复完整集合。",
+        "createdAt": "2026-07-22T07:37:46Z",
+        "decision": "决策文件保存 status、alignment 和 createdAt 等权威元数据；集中 JSON 索引完全由 Markdown 生成，不拥有独立事实。",
+        "path": "decision-records/generate-index-from-self-contained-decisions.md",
+        "purpose": "让每条决策自包含全部权威状态，并使集中索引成为可以随时无损重建的查询投影。",
+        "relations": [
+          {
+            "target": "decision-records/use-second-precision-lifecycle-index.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "从自包含决策文件生成完整索引"
+      }
+    },
+    {
+      "id": "decision-records/package-current-index-json-schema.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "当前格式版本会演进，长期决策若固定具体版本会把实现事实误写成稳定方向。",
+        "createdAt": "2026-07-22T09:44:48Z",
+        "decision": "从 CLI 共享常量生成当前索引 JSON Schema，随 decision-records 分发并用生成检查防止漂移。",
+        "path": "decision-records/package-current-index-json-schema.md",
+        "purpose": "让编辑器和恢复工具直接取得机器可读的当前索引结构，并让分发产物与 CLI 保持一致。",
+        "relations": [
+          {
+            "target": "decision-records/package-index-json-schema.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "随包分发当前索引 JSON Schema"
+      }
+    },
+    {
+      "id": "decision-records/package-index-json-schema.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "固定契约足以解释格式，但临时工具仍需要重新提取字段、枚举和基础约束。",
+        "createdAt": "2026-07-21T01:29:45Z",
+        "decision": "从 CLI 共享常量生成索引 JSON Schema，并作为 decision-records 资源随包分发。",
+        "path": "decision-records/package-index-json-schema.md",
+        "purpose": "让工具损坏时可以直接取得机器可读的索引结构并恢复必要操作。",
+        "relations": [],
+        "status": "archived",
+        "title": "随包分发索引 JSON Schema"
+      }
+    },
+    {
+      "id": "decision-records/query-projected-decision-metadata.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "查询需要集中索引，但把状态和时间描述为索引独有元数据会与索引可重建契约冲突。",
+        "createdAt": "2026-07-22T09:44:30Z",
+        "decision": "list、show 和 trace 查询 JSON 投影；状态、alignment 与创建时间均来自 Markdown，索引不拥有独立值。",
+        "path": "decision-records/query-projected-decision-metadata.md",
+        "purpose": "让日常恢复按主题、生命周期和对齐关系筛选，同时保持 Markdown 是全部状态元数据的唯一事实源。",
+        "relations": [
+          {
+            "target": "decision-records/use-topic-filtered-decision-queries.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "查询 Markdown 投影的决策元数据"
+      }
+    },
+    {
+      "id": "decision-records/rebuild-index-only-with-current-tools.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "手工构造通用索引没有日常产品价值，还会复制 state、keys 与 revision 协议。",
+        "createdAt": "2026-07-23T05:48:17Z",
+        "decision": "工具恢复前停止索引写入；恢复当前 CLI 后只由它从权威 Markdown 重建并校验索引。",
+        "path": "decision-records/rebuild-index-only-with-current-tools.md",
+        "purpose": "让索引故障恢复保持一条低成本、可执行且可验证的正式路径。",
+        "relations": [
+          {
+            "target": "decision-records/recover-current-format-tools-and-index.md",
+            "type": "替代"
+          }
+        ],
+        "status": "active",
+        "title": "只通过当前工具维护派生索引"
+      }
+    },
+    {
+      "id": "decision-records/recover-current-format-tools-and-index.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "Markdown 已拥有全部权威状态，继续维护旧 schema 映射或独立索引状态会重新引入并行事实源和兼容路径。",
+        "createdAt": "2026-07-22T08:42:44Z",
+        "decision": "恢复手册只处理当前格式；优先恢复当前 CLI，再从 Markdown 重建当前索引，不读取、迁移或推断其他 schema。",
+        "path": "decision-records/recover-current-format-tools-and-index.md",
+        "purpose": "让工具、索引或写入故障恢复到当前自包含 Markdown 与当前派生索引的单一可校验状态。",
+        "relations": [
+          {
+            "target": "decision-records/support-degraded-decision-maintenance.md",
+            "type": "替代"
+          }
+        ],
+        "status": "archived",
+        "title": "只恢复当前格式工具与派生索引"
+      }
+    },
+    {
+      "id": "decision-records/separate-activation-effect-from-head-pending.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "把生效绑定到 HEAD 会让已激活记录在提交前失去约束力，也会把临时查询标记误解为持久生命周期。",
+        "createdAt": "2026-07-22T08:48:05Z",
+        "decision": "活动记录激活即生效，HEAD 只决定路径是否临时显示 pending；pending 不改变确认、生命周期、对齐或生效状态。",
+        "path": "decision-records/separate-activation-effect-from-head-pending.md",
+        "purpose": "让活动决策从激活时起立即约束后续工作，同时只用 HEAD 区分路径是否进入正式历史。",
+        "relations": [
+          {
+            "target": "decision-records/derive-pending-from-head-path.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "分离决策激活生效与 HEAD pending 标记"
+      }
+    },
+    {
+      "id": "decision-records/support-degraded-decision-maintenance.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "既有手册只能描述命令效果，缺少替代运行时、重新取得工具和手工维护路径。",
+        "createdAt": "2026-07-21T01:04:44Z",
+        "decision": "维护恢复手册仅在异常时读取，并提供 CLI 下载、源码重建、最小复现和直接索引维护路径。",
+        "path": "decision-records/support-degraded-decision-maintenance.md",
+        "purpose": "让 CLI 或运行时损坏时仍能恢复工具或继续完成可追踪的决策维护。",
+        "relations": [
+          {
+            "target": "decision-records/use-error-recovery-reference.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "支持故障时的降级决策维护"
+      }
+    },
+    {
+      "id": "decision-records/use-alignment-aware-decision-commands.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "只维护 active 和 archived 会把尚未落实的有效决策与已经完全对齐的当前基线混为一类。",
+        "createdAt": "2026-07-22T07:38:16Z",
+        "decision": "activate 显式设置对齐状态，mark-aligned 只完成 unaligned 到 aligned，list 支持对齐筛选；关系不隐式改变状态。",
+        "path": "decision-records/use-alignment-aware-decision-commands.md",
+        "purpose": "让查询和状态命令准确区分决策是否活动、当前实现是否已经与决策对齐，并保持状态变化显式可校验。",
+        "relations": [
+          {
+            "target": "decision-records/260720-separate-status-commands-from-relations.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "使用对齐感知的决策命令"
+      }
+    },
+    {
+      "id": "decision-records/use-configurable-self-contained-decision-root.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "决策目录既可以使用默认位置，也可以指向 root 外部；若混淆目标选择与路径解析，会让同一参数落到不同集合。",
+        "createdAt": "2026-07-22T08:42:12Z",
+        "decision": "默认使用 root/docs/decisions；显式 decisions-dir 直接选择目标，绝对路径可在 root 外，非绝对路径只相对 root 解析。",
+        "path": "decision-records/use-configurable-self-contained-decision-root.md",
+        "purpose": "让默认位置和显式目标路径共享稳定身份，并保持 Markdown 事实源与派生索引的自包含契约。",
+        "relations": [
+          {
+            "target": "decision-records/260720-use-configurable-decision-root.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "使用可配置且自包含的决策根目录"
+      }
+    },
+    {
+      "id": "decision-records/use-error-recovery-reference.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "恢复步骤若混入日常 skill 入口会增加上下文；完全缺少说明又会让错误现场依赖临时猜测。",
+        "createdAt": "2026-07-20T13:18:28Z",
+        "decision": "提供仅在冷启动、升级或错误时读取的恢复手册，优先保留 Git 证据并以 check 返回 0 为出口。",
+        "path": "decision-records/use-error-recovery-reference.md",
+        "purpose": "让旧项目冷启动、索引损坏或运行时故障能够按固定顺序恢复到可校验状态。",
+        "relations": [],
+        "status": "archived",
+        "title": "使用按需维护恢复手册"
+      }
+    },
+    {
+      "id": "decision-records/use-field-alignment-commands.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "对齐关系属于 Markdown 元数据；让命令依赖专门正文结构会把事实比较误写成存储契约。",
+        "createdAt": "2026-07-22T09:44:09Z",
+        "decision": "activate 显式设置 alignment，mark-aligned 只更新字段，check 校验结构与投影；正文不随对齐状态分叉。",
+        "path": "decision-records/use-field-alignment-commands.md",
+        "purpose": "让查询和状态命令显式维护对齐字段，并用决策与实际 owner 的比较验证状态变化。",
+        "relations": [
+          {
+            "target": "decision-records/use-alignment-aware-decision-commands.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "使用字段化对齐状态命令"
+      }
+    },
+    {
+      "id": "decision-records/use-monotonic-alignment-baseline.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "把 alignment 称为实时事实关系，会与已对齐后不允许回退的基线约束产生歧义。",
+        "createdAt": "2026-07-22T10:07:23Z",
+        "decision": "active 即生效；alignment 表示目标是否已核对并建立为单向基线，偏离按一致性问题处理。",
+        "path": "decision-records/use-monotonic-alignment-baseline.md",
+        "purpose": "让 alignment 与只允许从 unaligned 进入 aligned 的状态机保持同一语义。",
+        "relations": [
+          {
+            "target": "decision-records/express-alignment-as-field-relation.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "将对齐状态定义为单向基线"
+      }
+    },
+    {
+      "id": "decision-records/use-second-precision-lifecycle-index.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "日期不应进入稳定身份；既有索引曾使用统一导入时刻，Git 历史能恢复更早的记录时间。",
+        "createdAt": "2026-07-20T13:18:05Z",
+        "decision": "使用语义路径和 schema v3 全生命周期索引；createdAt 固定秒级，新记录取激活时间，既有记录优先取最早 Git 作者时间。",
+        "path": "decision-records/use-second-precision-lifecycle-index.md",
+        "purpose": "让语义路径和单一索引稳定恢复全部记录，并用秒级时间区分同日先后。",
+        "relations": [
+          {
+            "target": "decision-records/260720-use-lifecycle-index-and-semantic-paths.md",
+            "type": "修订"
+          },
+          {
+            "target": "decision-records/260720-auto-initialize-index-on-first-activation.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "使用秒级全生命周期索引"
+      }
+    },
+    {
+      "id": "decision-records/use-topic-filtered-decision-queries.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "全量历史会给日常判断引入噪声；主题路径可以在结果较多时直接收窄范围。",
+        "createdAt": "2026-07-20T13:17:47Z",
+        "decision": "`list` 默认 active 并支持 `--topic` 与状态组合；输出基础元数据，`show` 展开正文，`trace` 回放关系。",
+        "path": "decision-records/use-topic-filtered-decision-queries.md",
+        "purpose": "让日常恢复默认聚焦活动决策，并按需组合主题、状态筛选和时间显示。",
+        "relations": [
+          {
+            "target": "decision-records/260720-use-filtered-decision-queries.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "使用主题与状态筛选决策查询"
+      }
+    },
+    {
+      "id": "git-commit-organizer-behavior/260702-refine-commit-granularity-types-and-command.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "git-commit-organizer-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "`git-commit-organizer` 已经规定提交格式和基础类型, 但没有明确要求按语义单元拆分提交, 也没有区分只影响 AI/agent 配置的改动。",
+        "createdAt": "2026-07-02T17:35:51+08:00",
+        "decision": "在 `git-commit-organizer` 的 skill 本体中增加“提交粒度”规则, 要求一个提交只表达一个可独立理解、审查和回滚的语义单元。",
+        "path": "git-commit-organizer-behavior/260702-refine-commit-granularity-types-and-command.md",
+        "purpose": "让每个提交形成可独立理解、审查和回滚的语义单元，并准确表达 agent 配置改动。",
+        "relations": [],
+        "status": "active",
+        "title": "调整 git-commit-organizer 的提交粒度、类型和创建命令"
+      }
+    },
+    {
+      "id": "git-commit-organizer-behavior/260720-treat-commit-format-as-project-style.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "git-commit-organizer-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "使用者会在理解影响后主动安装或调用该 skill，固定类型、中文格式和提交粒度是其核心价值。",
+        "createdAt": "2026-07-20T11:01:45+08:00",
+        "decision": "将 git-commit-organizer 定位为可跨项目复用的项目级提交风格，默认执行自身风格，并只补足影响提交正确性的必要门禁。",
+        "path": "git-commit-organizer-behavior/260720-treat-commit-format-as-project-style.md",
+        "purpose": "让 git-commit-organizer 在跨项目复用时保持稳定、有明确偏好的提交表达。",
+        "relations": [],
+        "status": "active",
+        "title": "将提交格式定位为项目级风格"
+      }
+    },
+    {
+      "id": "index-runtime/use-independent-read-side-index-runtime.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "决策、调查和测试证据都需要索引，但领域事实、写入和动态状态语义并不相同。",
+        "createdAt": "2026-07-22T15:09:24Z",
+        "decision": "领域提供 state、唯一 id、revision 和多 key 策略，通用层只管理派生副本、查询与确定性文件同步。",
+        "path": "index-runtime/use-independent-read-side-index-runtime.md",
+        "purpose": "让多个领域以低接入和维护成本获得稳定的状态查询与索引同步能力。",
+        "relations": [],
+        "status": "active",
+        "title": "采用领域状态驱动的极简通用索引"
+      }
+    },
+    {
+      "id": "investigation-report-behavior/append-self-contained-investigation-reports.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "investigation-report-behavior"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "顶部概述加增量调查段会让后续结论依赖旧上下文，缺失当前背景时容易产生错误推断。",
+        "createdAt": "2026-07-21T09:00:15Z",
+        "decision": "同一核心问题使用稳定主题文件，每次实质更新追加包含背景、起因和调查结果的完整报告。",
+        "path": "investigation-report-behavior/append-self-contained-investigation-reports.md",
+        "purpose": "让每次调查都具备正确背景并能独立汇报，同时保留同一问题的认识演进。",
+        "relations": [
+          {
+            "target": "investigation-report-behavior/use-report-oriented-investigation-rounds.md",
+            "type": "替代"
+          }
+        ],
+        "status": "archived",
+        "title": "以完整独立报告演进调查主题"
+      }
+    },
+    {
+      "id": "investigation-report-behavior/preserve-comparable-investigation-inputs.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "investigation-report-behavior"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "现有完整报告保留当前背景，却未固定每轮目标，也未明确相同结果在不同背景下的比较价值。",
+        "createdAt": "2026-07-21T11:20:39Z",
+        "decision": "每份报告固定记录背景、调查动因、调查目标和调查结果；判断输入实质变化时追加完整报告。",
+        "path": "investigation-report-behavior/preserve-comparable-investigation-inputs.md",
+        "purpose": "让每份调查报告保存形成结果时的完整判断输入，并支持跨背景比较同一问题的认识。",
+        "relations": [
+          {
+            "target": "investigation-report-behavior/append-self-contained-investigation-reports.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "以形成时调查输入保存可比较的认识快照"
+      }
+    },
+    {
+      "id": "investigation-report-behavior/use-fixed-investigation-record-core.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "investigation-report-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "真实报告标题各异，但共同保留形成时背景、调查目的、调查范围与依据以及结果边界；互斥格式不能承接混合场景。",
+        "createdAt": "2026-07-21T15:15:57Z",
+        "decision": "每份报告固定使用形成时背景、调查目的、调查范围与依据、调查结果与边界四段；场景支撑先写入对应核心，需要独立组织时再在其后展开。",
+        "path": "investigation-report-behavior/use-fixed-investigation-record-core.md",
+        "purpose": "让每轮调查完整保存可比较的形成时输入、证据基础和结果边界，同时避免按报告规模或既有形态分配格式。",
+        "relations": [
+          {
+            "target": "investigation-report-behavior/preserve-comparable-investigation-inputs.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "使用固定调查记录核心并按场景补充正文"
+      }
+    },
+    {
+      "id": "investigation-report-behavior/use-report-oriented-investigation-rounds.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "investigation-report-behavior"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "主动建议范围过宽，事后成文也无法保留多轮调查各自形成认识时的背景和时间。",
+        "createdAt": "2026-07-21T07:30:35Z",
+        "decision": "仅在明确沉淀请求下使用报告导向流程，并把每轮调查形成带时间的可接续调查段。",
+        "path": "investigation-report-behavior/use-report-oriented-investigation-rounds.md",
+        "purpose": "让 agent 稳定产出可快速汇报、降低上手门槛并支持接续探索的调查报告。",
+        "relations": [],
+        "status": "archived",
+        "title": "以可接续调查段形成调查报告"
+      }
+    },
+    {
+      "id": "openspec-skills/260706-gate-temporary-change-plans.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "openspec-skills"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "OpenSpec change 可以作为临时计划存在, 类似 issue 或 PR, 通常从用户想法、探索结论、代码事实或已有规范中引申出来。",
+        "createdAt": "2026-07-06T16:51:26+08:00",
+        "decision": "将 active change 视为可暂存的临时计划；创建 change 只表示完成结构化，不代表已经审计或获得实施许可。",
+        "path": "openspec-skills/260706-gate-temporary-change-plans.md",
+        "purpose": "允许先保存尚未完成审计的 change 计划，同时阻止它被误当成可直接实施的方案。",
+        "relations": [],
+        "status": "active",
+        "title": "将 OpenSpec change 作为临时计划并设置实现门禁"
+      }
+    },
+    {
+      "id": "problem-reframing-behavior/260720-keep-problem-reframing-self-contained.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "problem-reframing-behavior"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "当前解法容易反向定义问题, 使复杂度持续增加却没有改善真实结果, 而问题重构需要适用于多个领域并避免无边界扩张。",
+        "createdAt": "2026-07-20T14:55:55+08:00",
+        "decision": "使用 `problem-reframing` 按框架风险触发, 恢复目标、事实、约束、前提与边界, 选择有证据支持的最小问题框架并交回当前任务。",
+        "path": "problem-reframing-behavior/260720-keep-problem-reframing-self-contained.md",
+        "purpose": "让 agent 在局部优化掩盖真实目标时, 通过独立的问题重构流程形成可执行的问题框架。",
+        "relations": [],
+        "status": "archived",
+        "title": "让问题重构保持自包含"
+      }
+    },
+    {
+      "id": "product-architecture-judgment-behavior/260720-unify-product-and-architecture-judgment.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "product-architecture-judgment-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "问题重构与产品架构思维共享局部优化风险、消费者、结果、边界、抽象和取舍, 并会产生相同工程动作, 无法形成稳定的独立触发与验收。",
+        "createdAt": "2026-07-20T15:59:38+08:00",
+        "decision": "删除两个旧 skill, 新建独立分发的 `product-architecture-judgment`, 将问题重构作为内部动作, 统一使用产品价值与架构责任选择最小工程方案。",
+        "path": "product-architecture-judgment-behavior/260720-unify-product-and-architecture-judgment.md",
+        "purpose": "让 agent 通过一个工程判断流程决定事情是否该做、该做到什么程度, 以及应由谁在哪一层实现, 避免在相似能力之间路由。",
+        "relations": [
+          {
+            "target": "problem-reframing-behavior/260720-keep-problem-reframing-self-contained.md",
+            "type": "归并"
+          },
+          {
+            "target": "product-architecture-thinking-behavior/260720-separate-framing-from-engineering-landing.md",
+            "type": "归并"
+          }
+        ],
+        "status": "active",
+        "title": "归并为产品与架构判断"
+      }
+    },
+    {
+      "id": "product-architecture-thinking-behavior/260720-separate-framing-from-engineering-landing.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "product-architecture-thinking-behavior"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "产品与架构思维既不能重复决定目标是否值得追求, 也不能因要求工程问题预先成立而失去重定局部任务和技术抽象的核心作用。",
+        "createdAt": "2026-07-20T15:59:38+08:00",
+        "decision": "保留独立分发的产品与架构思维 skill, 只把目标结果基本明确作为前置条件; 当前工程问题和已有解法均可被重新定位, 只有需要改变目标或重新选择问题时才形成不依赖其他 skill 的最小交接。",
+        "path": "product-architecture-thinking-behavior/260720-separate-framing-from-engineering-landing.md",
+        "purpose": "让 `product-architecture-thinking` 从已确认目标推导正确的工程责任与实现层级, 而不把当前技术问题当作既定边界, 并与问题框架取舍保持清楚分工。",
+        "relations": [
+          {
+            "target": "product-architecture-thinking-behavior/260720-use-product-and-architecture-lenses.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "区分问题重构与工程落地"
+      }
+    },
+    {
+      "id": "product-architecture-thinking-behavior/260720-use-product-and-architecture-lenses.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "product-architecture-thinking-behavior"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "这项能力原先被表达为代码审查流程, 使 review 的 finding、分类和报告机制遮蔽了可复用于分析、设计、实现、排障与重构的核心思维。",
+        "createdAt": "2026-07-20T14:13:42+08:00",
+        "decision": "使用 `product-architecture-thinking` 承接产品与架构思维, 将 review 降为一个触发场景, 并让输出继续服从当前任务的行为 owner 与交付契约。",
+        "path": "product-architecture-thinking-behavior/260720-use-product-and-architecture-lenses.md",
+        "purpose": "让 agent 在工程任务中先确认产品结果和架构责任, 再选择技术实现, 避免局部技术视角主导目标与方案。",
+        "relations": [],
+        "status": "archived",
+        "title": "以产品与架构视角校准技术判断"
+      }
+    },
+    {
+      "id": "project-documentation/use-document-navigation-owner.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "project-documentation"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "项目已有多类稳定文档和 owner，但读取入口分散在 README、AGENTS、docs 与 skill 目录中。",
+        "createdAt": "2026-07-21T07:48:36Z",
+        "decision": "使用 docs/navigation.md 统一维护任务到 owner 的路由，其他入口只保留摘要和链接。",
+        "path": "project-documentation/use-document-navigation-owner.md",
+        "purpose": "让维护者和 agent 按任务快速定位文档 owner，避免重复搜索和规则归属漂移。",
+        "relations": [],
+        "status": "active",
+        "title": "使用文档导航作为任务路由 owner"
+      }
+    },
+    {
+      "id": "project-tooling/260630-publish-skill-package-as-latest-release.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "多个 skill 子仓库有重复的校验、打包和发布脚本，继续分散维护会让同一套工具链在多个仓库漂移。",
+        "createdAt": "2026-07-18T11:43:07+08:00",
+        "decision": "主仓库 CI 在所有触发场景运行校验、打包和 workflow artifact 上传。",
+        "path": "project-tooling/260630-publish-skill-package-as-latest-release.md",
+        "purpose": "集中重复的 skill 校验与打包工具链，并提供统一的聚合发布入口。",
+        "relations": [],
+        "status": "archived",
+        "title": "使用 latest release 自动发布 skill 制品"
+      }
+    },
+    {
+      "id": "project-tooling/260701-add-submodule-release-workflows.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "只有主仓库发布 `skills-latest` 时, 使用者必须从聚合 release 获取单个 skill 或 skill 集合, 子仓库本身没有独立交付入口。",
+        "createdAt": "2026-07-18T11:43:07+08:00",
+        "decision": "每个子仓库保留独立 workflow，只负责 `skill/` 内容的校验、打包、release 发布和发布 hash 维护。",
+        "path": "project-tooling/260701-add-submodule-release-workflows.md",
+        "purpose": "让每个 skill 子仓库拥有独立的校验、打包和发布入口。",
+        "relations": [
+          {
+            "target": "project-tooling/260630-publish-skill-package-as-latest-release.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "给子仓库增加独立 release workflow"
+      }
+    },
+    {
+      "id": "project-tooling/260701-avoid-workflow-structure-validation.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "用 TypeScript validator 解析或正则匹配 GitHub Actions workflow, 会把 workflow 结构重复表达在脚本里。",
+        "createdAt": "2026-07-18T11:43:07+08:00",
+        "decision": "校验脚本只检查仓库长期源文件、skill 入口、Markdown 链接、决策记录和 package script 等项目约束。",
+        "path": "project-tooling/260701-avoid-workflow-structure-validation.md",
+        "purpose": "避免在校验脚本中复制 workflow 结构，让检查聚焦稳定的项目约束。",
+        "relations": [
+          {
+            "target": "project-tooling/260630-publish-skill-package-as-latest-release.md",
+            "type": "修订"
+          },
+          {
+            "target": "project-tooling/260701-gate-latest-release-by-skill-hash.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "不用脚本校验 workflow 结构"
+      }
+    },
+    {
+      "id": "project-tooling/260701-embed-self-update-script-in-skill-packages.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "仅依赖外部安装器时，已有 skill 目录的覆盖更新、内容一致性检查和多客户端目录适配都缺少稳定 owner。",
+        "createdAt": "2026-07-03T10:31:47+08:00",
+        "decision": "主仓库维护统一 TypeScript updater 模板，用 `fflate` 解压 release zip，并提供远端指纹检查、确认和覆盖更新。",
+        "path": "project-tooling/260701-embed-self-update-script-in-skill-packages.md",
+        "purpose": "让已安装 skill 能自行检查版本并通过统一实现完成安全更新。",
+        "relations": [],
+        "status": "archived",
+        "title": "在 skill 包内分发自更新脚本"
+      }
+    },
+    {
+      "id": "project-tooling/260701-gate-latest-release-by-skill-hash.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "主仓库维护文档、脚本、CI 或子仓库 `skill/` 外文件变化时，旧 CI 也会覆盖 `skills-latest` release，但这些变化不一定改变可安装 skill 包。",
+        "createdAt": "2026-07-18T11:43:07+08:00",
+        "decision": "根目录保留 `skill-package.hash`，记录最近一次成功发布的全部 skill 打包输入 hash。",
+        "path": "project-tooling/260701-gate-latest-release-by-skill-hash.md",
+        "purpose": "只在可安装 skill 包内容变化时更新 latest release，避免产生虚假更新信号。",
+        "relations": [
+          {
+            "target": "project-tooling/260630-publish-skill-package-as-latest-release.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "使用 skill hash 门禁 latest release 发布"
+      }
+    },
+    {
+      "id": "project-tooling/260701-publish-versioned-skill-releases.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "固定 `*-latest` release 被更新后，GitHub 页面仍显示 release 最初的 `published_at`，容易让使用者误以为包没有更新。",
+        "createdAt": "2026-07-18T11:43:07+08:00",
+        "decision": "主仓库聚合发布和子仓库独立发布都使用 `<timestamp>-<hash12>` 作为版本化 release tag，时间戳使用 UTC `YYYYMMDDTHHMMSSZ` 格式。",
+        "path": "project-tooling/260701-publish-versioned-skill-releases.md",
+        "purpose": "让每次实际发布都具有可识别的时间和内容版本。",
+        "relations": [
+          {
+            "target": "project-tooling/260630-publish-skill-package-as-latest-release.md",
+            "type": "修订"
+          },
+          {
+            "target": "project-tooling/260701-gate-latest-release-by-skill-hash.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "使用版本化 release 发布 skill 制品"
+      }
+    },
+    {
+      "id": "project-tooling/260701-update-package-hash-with-git-hooks.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "GitHub Actions 在 release 成功后写回 `skill-package.hash` 会产生额外 bot 提交，干扰本地同步、提交历史阅读和 submodule 指针维护。",
+        "createdAt": "2026-07-03T10:58:54+08:00",
+        "decision": "主仓库和每个子仓库都继续保留 `skill-package.hash` 源文件。",
+        "path": "project-tooling/260701-update-package-hash-with-git-hooks.md",
+        "purpose": "让发布 hash 与提交内容同步，同时避免 CI 写回产生额外提交。",
+        "relations": [
+          {
+            "target": "project-tooling/260630-publish-skill-package-as-latest-release.md",
+            "type": "修订"
+          },
+          {
+            "target": "project-tooling/260701-gate-latest-release-by-skill-hash.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "用 Git hook 更新 package hash"
+      }
+    },
+    {
+      "id": "project-tooling/260701-use-libraries-for-common-script-behavior.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "为了减少依赖而手写 ZIP 结构、CRC、压缩头等通用底层逻辑，会让本地开发辅助脚本变得难读且难维护。",
+        "createdAt": "2026-07-01T10:02:50+08:00",
+        "decision": "常见格式、协议、解析、压缩和归档能力优先使用成熟库，不因为是辅助脚本就手写底层实现。",
+        "path": "project-tooling/260701-use-libraries-for-common-script-behavior.md",
+        "purpose": "降低通用底层能力的自研维护成本和缺陷风险。",
+        "relations": [],
+        "status": "active",
+        "title": "本地脚本的常见行为优先使用成熟库"
+      }
+    },
+    {
+      "id": "project-tooling/260701-use-tsgo-for-typecheck.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "主仓库脚本需要更好的 TypeScript 开发体验和更快的本地类型检查入口。",
+        "createdAt": "2026-07-18T11:43:07+08:00",
+        "decision": "安装 `@typescript/native-preview`，并让 `bun run typecheck` 执行 `tsgo --noEmit`。",
+        "path": "project-tooling/260701-use-tsgo-for-typecheck.md",
+        "purpose": "为主仓库脚本提供更快、更稳定的 TypeScript 类型检查入口。",
+        "relations": [],
+        "status": "active",
+        "title": "使用 tsgo 作为默认类型检查入口"
+      }
+    },
+    {
+      "id": "project-tooling/260702-use-monorepo-skills-directory.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "仓库原来通过 Git submodule 组织多个 skill 子仓库, 但当前项目是个人自用和个人维护, 没有外部使用者依赖子仓库的独立 release 入口。",
+        "createdAt": "2026-07-03T10:58:54+08:00",
+        "decision": "用 `skills/<skill-name>/` 直接承接所有实际可打包 skill, 每个一级目录必须包含 `SKILL.md`。",
+        "path": "project-tooling/260702-use-monorepo-skills-directory.md",
+        "purpose": "简化个人维护的多 skill 仓库结构，并统一共享工具链和交付。",
+        "relations": [
+          {
+            "target": "project-tooling/260630-publish-skill-package-as-latest-release.md",
+            "type": "修订"
+          },
+          {
+            "target": "project-tooling/260701-gate-latest-release-by-skill-hash.md",
+            "type": "修订"
+          },
+          {
+            "target": "project-tooling/260701-publish-versioned-skill-releases.md",
+            "type": "修订"
+          },
+          {
+            "target": "project-tooling/260701-embed-self-update-script-in-skill-packages.md",
+            "type": "修订"
+          },
+          {
+            "target": "project-tooling/260701-update-package-hash-with-git-hooks.md",
+            "type": "修订"
+          },
+          {
+            "target": "project-tooling/260701-add-submodule-release-workflows.md",
+            "type": "替代"
+          }
+        ],
+        "status": "active",
+        "title": "迁移为 skills 单仓库布局"
+      }
+    },
+    {
+      "id": "project-tooling/260703-follow-latest-release-for-skill-updater.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "自更新脚本原来默认从主仓库 `main` 分支下载源码 zip 并截取 `skills/<skill-name>/` 目录。",
+        "createdAt": "2026-07-03T10:31:47+08:00",
+        "decision": "skill updater 默认读取主仓库 latest release，并以正式 package lock 和 skill zip 作为远端更新输入。",
+        "path": "project-tooling/260703-follow-latest-release-for-skill-updater.md",
+        "purpose": "让 skill 自更新使用正式发布制品，而不是开发分支快照。",
+        "relations": [
+          {
+            "target": "project-tooling/260701-embed-self-update-script-in-skill-packages.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "自更新脚本跟随 latest release 制品"
+      }
+    },
+    {
+      "id": "project-tooling/260703-use-per-skill-hash-lock-for-updater.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "主仓库采用聚合 release，只要任一 skill 的打包输入变化，就会发布一次包含全部 skill zip 的 release。",
+        "createdAt": "2026-07-03T10:58:54+08:00",
+        "decision": "根目录只保留 `skill-package-lock.json`，记录聚合 hash 和每个 skill 的独立包内容 hash。",
+        "path": "project-tooling/260703-use-per-skill-hash-lock-for-updater.md",
+        "purpose": "让聚合发布中的每个 skill 能按自身内容准确判断是否需要更新。",
+        "relations": [
+          {
+            "target": "project-tooling/260701-gate-latest-release-by-skill-hash.md",
+            "type": "修订"
+          },
+          {
+            "target": "project-tooling/260701-publish-versioned-skill-releases.md",
+            "type": "修订"
+          },
+          {
+            "target": "project-tooling/260701-update-package-hash-with-git-hooks.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "用 skill package lock 承接发布和自更新"
+      }
+    },
+    {
+      "id": "project-tooling/260711-separate-skill-script-source-and-generated-artifacts.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "已安装 skill 需要可直接执行的 JavaScript，而在 skill 目录维护打包代码会失去 TypeScript 模块、类型检查和测试入口。",
+        "createdAt": "2026-07-11T11:04:33+08:00",
+        "decision": "在主仓库 `scripts/` 下按工具建立源码目录，承接 TypeScript 模块、测试、夹具和构建入口；skill 目录只承接实际分发所需的生成 JavaScript。",
+        "path": "project-tooling/260711-separate-skill-script-source-and-generated-artifacts.md",
+        "purpose": "兼顾分发脚本的独立可执行性与主仓库 TypeScript 源码的可维护性。",
+        "relations": [
+          {
+            "target": "project-tooling/260701-embed-self-update-script-in-skill-packages.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "分离 skill 分发脚本源码与生成产物"
+      }
+    },
+    {
+      "id": "project-tooling/260718-use-project-coding-style-owner.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "`AGENTS.md` 已承接项目协作约定，`docs/tooling.md` 已承接脚本工具链，但实现代码的归属、边界、类型、组织和风险验证缺少独立 owner。",
+        "createdAt": "2026-07-18T16:23:28+08:00",
+        "decision": "使用 `docs/coding-style.md` 承接 `scripts/` 实现代码的通用质量规则，由 `AGENTS.md` 提供读取入口；行为契约和工具链细节继续留在各自 owner。",
+        "path": "project-tooling/260718-use-project-coding-style-owner.md",
+        "purpose": "为脚本实现的归属、边界、类型、组织和风险验证提供单一长期 owner。",
+        "relations": [],
+        "status": "active",
+        "title": "采用项目级编码规范 owner"
+      }
+    },
+    {
+      "id": "project-tooling/260720-expose-importable-skill-modules.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "现有单文件 JavaScript 主要按 Node 子进程入口交付，不同脚本的导入副作用、公共 exports 和 TypeScript 类型支持并不一致。",
+        "createdAt": "2026-07-20T17:04:27+08:00",
+        "decision": "从同一 TypeScript 源生成 import-safe 的自包含 MJS、声明和 source map；主模块判断负责兼容 CLI。",
+        "path": "project-tooling/260720-expose-importable-skill-modules.md",
+        "purpose": "让已安装 skill 的自包含代码既能作为 CLI 运行，也能在现有 ESM 进程中直接导入复用。",
+        "relations": [
+          {
+            "target": "project-tooling/260711-separate-skill-script-source-and-generated-artifacts.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "让 skill 分发脚本同时提供可导入模块"
+      }
+    },
+    {
+      "id": "project-tooling/260720-orchestrate-checks-with-conservative-concurrency.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "串行执行会浪费彼此独立的只读检查等待时间，而固定较高或无界的顶层并发会叠加各任务内部的 Git 与 Node 子进程负载。",
+        "createdAt": "2026-07-20T18:59:56+08:00",
+        "decision": "由 `scripts/check.ts` 统一编排完整检查，默认最多并发两个顶层任务并允许显式覆盖；失败后停止领取新任务、等待已启动任务，且仅在全部前置检查通过后打包。",
+        "path": "project-tooling/260720-orchestrate-checks-with-conservative-concurrency.md",
+        "purpose": "缩短完整检查的反馈时间，同时让不同开发机和 CI 的资源使用与打包前置条件保持可预期。",
+        "relations": [],
+        "status": "archived",
+        "title": "用保守顶层并发编排完整检查"
+      }
+    },
+    {
+      "id": "project-tooling/260720-use-prebuilt-git-test-fixtures.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "`scripts/test-evidence/tests/` 为多个稳定场景反复创建仓库和提交相同基线，主要耗时来自 Git 与 Node 进程而非领域计算。",
+        "createdAt": "2026-07-20T16:49:56+08:00",
+        "decision": "使用多个预构建的逻辑 Git fixture 承接稳定历史，按场景物化隔离工作区；纯逻辑和可导入 CLI 测试在 Bun 进程内运行，只保留最小真实 Git 与 Node smoke。",
+        "path": "project-tooling/260720-use-prebuilt-git-test-fixtures.md",
+        "purpose": "在保留真实 Git 语义和 Node 分发兼容验证的前提下，减少 `test:test-evidence-cli` 的重复仓库初始化与子进程启动。",
+        "relations": [],
+        "status": "archived",
+        "title": "用预构建 Git fixture 加速 test-evidence 测试"
+      }
+    },
+    {
+      "id": "project-tooling/default-checks-to-warnings.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "新增检查若必须逐项声明为非阻断，会增加维护负担，临时损坏也会过早终止其余诊断。",
+        "createdAt": "2026-07-22T13:49:32Z",
+        "decision": "前置检查默认以 warning 继续；任务可显式声明 blocking，`--strict` 将全部失败升级为阻断。",
+        "path": "project-tooling/default-checks-to-warnings.md",
+        "purpose": "让并行修改中的工作区完成全部检查，同时为 CI 和真实依赖保留明确门禁。",
+        "relations": [
+          {
+            "target": "project-tooling/260720-orchestrate-checks-with-conservative-concurrency.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "让完整检查默认报告警告并显式启用阻断"
+      }
+    },
+    {
+      "id": "project-tooling/separate-distributable-tool-source-from-repository-automation.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "项目脚本与可分发工具源码混在 `scripts/`，工具运行时还反向依赖仓库 helper 和 validator。",
+        "createdAt": "2026-07-22T10:50:45Z",
+        "decision": "使用 `tools/` 维护可分发源码及共享协议，`scripts/` 只承接项目自动化，再生成自包含 skill 产物。",
+        "path": "project-tooling/separate-distributable-tool-source-from-repository-automation.md",
+        "purpose": "让可分发工具源码、主仓库自动化和 skill 分发内容拥有清晰、单向的 owner 边界。",
+        "relations": [
+          {
+            "target": "project-tooling/260720-expose-importable-skill-modules.md",
+            "type": "修订"
+          },
+          {
+            "target": "project-tooling/260720-use-prebuilt-git-test-fixtures.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "分离可分发工具源码与仓库自动化"
+      }
+    },
+    {
+      "id": "prompt-optimize-references/260630-merge-prompt-optimize-core-flow-into-entry.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "prompt-optimize-references"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "`workflows.md` 和 `rewrite-rules.md` 在实际使用中读取概率过高, 基本成为 `prompt-optimize` 的默认执行路径。",
+        "createdAt": "2026-06-30T17:17:43+08:00",
+        "decision": "由 `prompt-optimize` 的 `SKILL.md` 直接承接定位、出口、骨架、审计、owner、规则收敛、表达、冲突、交付和完成检查。",
+        "path": "prompt-optimize-references/260630-merge-prompt-optimize-core-flow-into-entry.md",
+        "purpose": "让 prompt-optimize 触发后直接获得默认流程，减少重复读取和职责分散。",
+        "relations": [
+          {
+            "target": "prompt-optimize-references/260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md",
+            "type": "替代"
+          }
+        ],
+        "status": "archived",
+        "title": "将 prompt-optimize 核心流程合并回入口"
+      }
+    },
+    {
+      "id": "prompt-optimize-references/260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "prompt-optimize-references"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "`prompt-optimize` skill 的规则内容持续膨胀, 入口和引用文件之间开始出现职责重复。",
+        "createdAt": "2026-06-30T15:02:20+08:00",
+        "decision": "在 `prompt-optimize` 中, `rewrite-rules.md` 作为改写判断 owner, 按管线组织规则, 每一步的产物决定下一步处理方式。",
+        "path": "prompt-optimize-references/260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md",
+        "purpose": "让 prompt-optimize 改写规则拥有单一 owner 和稳定的执行顺序。",
+        "relations": [],
+        "status": "archived",
+        "title": "将 prompt-optimize 改写规则重组为管线"
+      }
+    },
+    {
+      "id": "prompt-optimize-references/260701-add-document-main-promise-check.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "prompt-optimize-references"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "`prompt-optimize` 已经要求判断用途、阅读脉络和内容 owner, 但 owner 主要解决内容完整解释放在哪里, 不足以稳定识别整篇文档的重心是否偏离入口信号建立的预期。",
+        "createdAt": "2026-07-01T14:55:35+08:00",
+        "decision": "从标题、序言、触发条件、资源名、字段和输入输出等入口信号建立文档主承诺，并据此检查正文重心。",
+        "path": "prompt-optimize-references/260701-add-document-main-promise-check.md",
+        "purpose": "让文档正文兑现入口建立的预期，并能识别整体重心偏移。",
+        "relations": [],
+        "status": "active",
+        "title": "给 prompt-optimize 增加文档主承诺检查"
+      }
+    },
+    {
+      "id": "prompt-optimize-references/260701-compact-entry-and-archive-migration-copies.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "prompt-optimize-references"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "`skills/prompt-optimize/SKILL.md` 在承接默认执行路径后, 同时保留了过多细则展开, 使用时需要关注的点过多。",
+        "createdAt": "2026-07-18T11:43:07+08:00",
+        "decision": "`SKILL.md` 继续作为默认执行路径 owner, 但主执行流程只保留压缩后的八步判断链, 细节解释由 `principles.md` 和具体任务上下文承接。",
+        "path": "prompt-optimize-references/260701-compact-entry-and-archive-migration-copies.md",
+        "purpose": "降低 prompt-optimize 的默认加载和判断成本，同时保留必要细节的可访问性。",
+        "relations": [
+          {
+            "target": "prompt-optimize-references/260630-merge-prompt-optimize-core-flow-into-entry.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "压缩 prompt-optimize 入口并归档迁移副本"
+      }
+    },
+    {
+      "id": "prompt-optimize-references/260706-move-subagent-guidance-to-dedicated-skill.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "prompt-optimize-references"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "`prompt-optimize` 的 `agent-tasks.md` 曾负责 worker、explorer、并行 agent 和子 agent 任务结构。",
+        "createdAt": "2026-07-18T11:43:07+08:00",
+        "decision": "删除 `prompt-optimize` 的 `agent-tasks.md`，由 `subagent-orchestration` 唯一承接子代理编排和任务派发。",
+        "path": "prompt-optimize-references/260706-move-subagent-guidance-to-dedicated-skill.md",
+        "purpose": "让 prompt-optimize 聚焦结构化文本优化，并为子代理编排建立独立 owner。",
+        "relations": [
+          {
+            "target": "prompt-optimize-references/260630-merge-prompt-optimize-core-flow-into-entry.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "将子代理任务说明移出 prompt-optimize"
+      }
+    },
+    {
+      "id": "prompt-optimize-references/260720-remove-migration-copies.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "prompt-optimize-references"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "`workflows.md` 和 `rewrite-rules.md` 已长期不参与主动读取, 核心流程已由 `SKILL.md` 稳定承接, 决策记录和 Git 历史足以回放旧结构。",
+        "createdAt": "2026-07-20T10:15:36+08:00",
+        "decision": "保持 `SKILL.md` 作为压缩后的默认流程 owner, 保留 `principles.md` 解释长期理由, 删除两份迁移副本并停止随包分发。",
+        "path": "prompt-optimize-references/260720-remove-migration-copies.md",
+        "purpose": "让 prompt-optimize 的分发内容只保留当前执行和解释需要的入口与引用。",
+        "relations": [
+          {
+            "target": "prompt-optimize-references/260701-compact-entry-and-archive-migration-copies.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "删除 prompt-optimize 迁移副本"
+      }
+    },
+    {
+      "id": "prompt-optimize-references/260720-treat-negative-options-as-solution-anchors.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "prompt-optimize-references"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "模型可以理解“不使用 X”, 但 X 的常见用法、修正路径和反例仍进入上下文, 生成替代方案时可能继续围绕 X 搜索。",
+        "createdAt": "2026-07-20T10:15:36+08:00",
+        "decision": "先建立正向目标框架, 再分类负向方案; 只有容易回落、重要边界或明确契约需要时才点名 X, 并避免围绕 X 反复展开。",
+        "path": "prompt-optimize-references/260720-treat-negative-options-as-solution-anchors.md",
+        "purpose": "让 agent 从目标、约束和结果建立解题路径, 避免替代方案被排除对象限定在局部框架中。",
+        "relations": [],
+        "status": "active",
+        "title": "将负向方案视为解空间锚点"
+      }
+    },
+    {
+      "id": "prompt-optimize-references/260720-use-controlled-mermaid-flowcharts.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "prompt-optimize-references"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "有序列表、JSON 和简单表格适合作为默认格式, 但复杂关系强行线性化会降低理解效率; Mermaid flowchart 能用代码显式声明节点、边、方向和分组。",
+        "createdAt": "2026-07-20T10:15:36+08:00",
+        "decision": "先遵循目标已有格式契约, 否则保留稳定默认格式; 图示确有收益且环境支持时, 使用 `flowchart LR` 或 `flowchart TD` 配合 `subgraph`, 并显式标注关系。",
+        "path": "prompt-optimize-references/260720-use-controlled-mermaid-flowcharts.md",
+        "purpose": "在保持结构稳定和关系显式的前提下, 提高层级、分支和跨节点内容的可读性。",
+        "relations": [],
+        "status": "active",
+        "title": "使用受控 Mermaid flowchart 表达复杂关系"
+      }
+    },
+    {
+      "id": "repository-model/centralize-maintenance-and-keep-distribution-lightweight.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "repository-model"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "单 skill 独立建仓会重复工具链和发布维护；同仓、聚合 release 与 updater 便利不代表共同安装或完整更新系统。",
+        "createdAt": "2026-07-21T06:39:06Z",
+        "decision": "以单仓库集中维护并按 skill 独立打包，使用者知情选择所需能力，聚合发布和 updater 只承接轻量分发便利。",
+        "path": "repository-model/centralize-maintenance-and-keep-distribution-lightweight.md",
+        "purpose": "降低多个 skill 的长期维护与发布成本，同时保持使用者按需选择和单 skill 独立交付。",
+        "relations": [],
+        "status": "active",
+        "title": "集中维护 skill 并保持轻量分发"
+      }
+    },
+    {
+      "id": "skill-design-discovery-behavior/separate-design-discovery-from-lifecycle-maintenance.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "skill-design-discovery-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "现有维护能力覆盖归属、结构、分发和交付，但创建只是其中一条路径，无法稳定承接复杂领域能力的深度发现。",
+        "createdAt": "2026-07-21T02:44:23Z",
+        "decision": "新增独立 `skill-design-discovery`，以轻量或深度发现形成证据化设计契约，再交由当前环境的实现入口落地。",
+        "path": "skill-design-discovery-behavior/separate-design-discovery-from-lifecycle-maintenance.md",
+        "purpose": "让隐性工作流、潜藏决策和约束在 Skill 实现前成为可验证设计，同时保持生命周期维护职责聚焦。",
+        "relations": [],
+        "status": "active",
+        "title": "将 Skill 深度设计发现设为独立行为"
+      }
+    },
+    {
+      "id": "skill-maintainer-behavior/260719-own-project-aware-skill-lifecycle.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "skill-maintainer-behavior"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "Skill 可能位于成熟仓库、独立目录或安装位置；把项目级 owner、校验器和发布工具链作为默认前提会限制其可移植性。",
+        "createdAt": "2026-07-20T08:35:03+08:00",
+        "decision": "使用 `skill-maintainer` 承接 skill 模型、能力归属和行为契约，采用“自包含最小基线加环境适配”的交付方式，并随包提供独立结构验证器。",
+        "path": "skill-maintainer-behavior/260719-own-project-aware-skill-lifecycle.md",
+        "purpose": "让可复用的 agent 能力由新 skill、既有 skill 或其他 owner 清楚承接，并让选定的 skill 在简约或完整的维护环境中都能交付。",
+        "relations": [],
+        "status": "archived",
+        "title": "让 skill-maintainer 承接环境自适应的 skill 生命周期"
+      }
+    },
+    {
+      "id": "skill-maintainer-behavior/260720-define-skills-by-self-contained-contracts.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "skill-maintainer-behavior"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "仓库维护时可以比较多个能力, 但安装环境中的 skill 组合并不固定; 用相邻能力的差异解释触发或边界会把其他 skill 变成隐含前提。",
+        "createdAt": "2026-07-20T10:15:58+08:00",
+        "decision": "维护时可以比较可访问能力以判断 owner, 但分发入口和行为正文只用自身输入、目标结果、判断、步骤、边界和验收定义能力, 不假定其他 skill 存在。",
+        "path": "skill-maintainer-behavior/260720-define-skills-by-self-contained-contracts.md",
+        "purpose": "让每个分发后的 skill 在没有其他 skill 配合时也能被发现、理解和执行。",
+        "relations": [],
+        "status": "archived",
+        "title": "让分发 skill 以自身契约定义边界"
+      }
+    },
+    {
+      "id": "skill-maintainer-behavior/260720-use-distribution-unit-boundaries.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "skill-maintainer-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "Skill 是行为入口，分发单元才是安装和交付边界；要求每个 skill 单独交付会破坏合法的单元内依赖。",
+        "createdAt": "2026-07-20T10:15:58+08:00",
+        "decision": "`skill-maintainer` 区分 skill 行为单元与 distribution unit 交付单元, 允许同一单元内显式依赖和交接, 并要求跨单元依赖声明前置条件及缺失路径。",
+        "path": "skill-maintainer-behavior/260720-use-distribution-unit-boundaries.md",
+        "purpose": "让单个 skill 和成套 skills 都能按真实安装与使用方式维护, 同时阻止跨分发单元的隐含依赖。",
+        "relations": [
+          {
+            "target": "skill-maintainer-behavior/260719-own-project-aware-skill-lifecycle.md",
+            "type": "修订"
+          },
+          {
+            "target": "skill-maintainer-behavior/260720-define-skills-by-self-contained-contracts.md",
+            "type": "判定无效"
+          }
+        ],
+        "status": "active",
+        "title": "以分发单元定义 skill 的独立交付边界"
+      }
+    },
+    {
+      "id": "subagent-orchestration-behavior/260712-separate-write-ownership-from-read-scope.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "subagent-orchestration-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "`skills/subagent-orchestration/SKILL.md` 原先要求子代理工作范围、文件范围和决策范围保持互斥, 没有区分写入所有权与只读证据范围。",
+        "createdAt": "2026-07-18T11:43:07+08:00",
+        "decision": "只要求并行子代理的写入范围互斥, 并按实际可能修改的文件、配置、生成产物或外部状态划分所有权; 原因是冲突来自共享状态变更, 不是共享证据读取。",
+        "path": "subagent-orchestration-behavior/260712-separate-write-ownership-from-read-scope.md",
+        "purpose": "在避免并行写入冲突的同时，保留子代理读取必要证据的能力。",
+        "relations": [],
+        "status": "active",
+        "title": "区分并行写入所有权与只读调查范围"
+      }
+    },
+    {
+      "id": "subagent-orchestration-behavior/260718-default-to-minimal-subagent-history.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "subagent-orchestration-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "入口要求最小上下文，但缺少可映射到不同工具的历史选择规则；依赖默认值会引入噪音，绑定字段又降低复用性。",
+        "createdAt": "2026-07-18T12:20:25+08:00",
+        "decision": "派发前按当前工具能力确定最小充分的历史范围; 可控时显式配置, 默认不继承主线程对话, 必要时只继承最小有限范围, 仅在完整对话本身是不可替代输入时主动选择全量继承, 具体字段和值由工具接口承接。",
+        "path": "subagent-orchestration-behavior/260718-default-to-minimal-subagent-history.md",
+        "purpose": "让子代理只获得完成任务所需的上下文，降低无关历史干扰并保持工具无关。",
+        "relations": [],
+        "status": "active",
+        "title": "默认以最小历史派发子代理"
+      }
+    },
+    {
+      "id": "subagent-orchestration-behavior/260718-focus-description-on-trigger-context.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "subagent-orchestration-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "`description` 同时枚举触发场景和历史、所有权、等待、审计等执行规则，削弱触发信号并重复正文。",
+        "createdAt": "2026-07-18T12:27:40+08:00",
+        "decision": "`description` 只说明子代理编排定位和触发条件；用户显式要求或任务适合委派时加载，执行规则留在正文。",
+        "path": "subagent-orchestration-behavior/260718-focus-description-on-trigger-context.md",
+        "purpose": "让 skill 的触发入口清楚表达何时调用，避免执行细节稀释触发信号。",
+        "relations": [],
+        "status": "active",
+        "title": "让子代理 skill 描述聚焦触发条件"
+      }
+    },
+    {
+      "id": "test-evidence-review-behavior/260719-model-verification-obligations-and-source-roles.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "test-evidence-review-behavior"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "只登记自动化证明无法承接当前架构下不适合机械测试的真实风险，自由文本源码豁免又会脱离账本；测试发现仍需要区分真实主入口、归属于主 case 的衍生源码和误报。",
+        "createdAt": "2026-07-19T18:44:38+08:00",
+        "decision": "账本 case 采用 automated、review 或 exempt 验证义务；源码使用 main、derived、exempt 角色，CLI 按测试文件校验映射与发现结果。",
+        "path": "test-evidence-review-behavior/260719-model-verification-obligations-and-source-roles.md",
+        "purpose": "抑制低价值测试增长，同时让自动化证明、人工审查风险和测试发现豁免都能被持续追踪与审计。",
+        "relations": [
+          {
+            "target": "test-evidence-review-behavior/260719-separate-test-value-from-ledger-validation.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "将账本扩展为验证义务并统一源码角色"
+      }
+    },
+    {
+      "id": "test-evidence-review-behavior/260719-organize-multi-branch-proofs-by-shared-base.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "test-evidence-review-behavior"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "一条测试链路可以复用初始状态、基础数据和执行上下文，并在条件节点后形成多个可观察分支；按叶子结果逐项拆分会增加准备、同步和审计成本。",
+        "createdAt": "2026-07-19T19:50:10+08:00",
+        "decision": "automated case 可按共享基座或连续链路聚合分支；`Proves:` 使用原子结果列表，复杂分支用 Mermaid，只有独立边界才拆分。",
+        "path": "test-evidence-review-behavior/260719-organize-multi-branch-proofs-by-shared-base.md",
+        "purpose": "在保持证明点简短可审计的同时，避免多分支测试因机械拆分而重复 fixture、增加执行成本或造成共享数据底座漂移。",
+        "relations": [],
+        "status": "archived",
+        "title": "按共享测试基座组织多分支证明点"
+      }
+    },
+    {
+      "id": "test-evidence-review-behavior/260719-separate-test-value-from-ledger-validation.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "test-evidence-review-behavior"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "只维护测试账本会增加同步成本，单靠测试执行又无法阻止 AI 以 TDD、防回归或覆盖率为由持续新增低价值测试；调用 skill 后再判断是否启用账本还会造成流程分叉和漏登记。",
+        "createdAt": "2026-07-19T17:05:10+08:00",
+        "decision": "使用 `test-evidence-review` 对自动化测试执行证据准入，并默认以账本保存通过准入的稳定证明目标，再用可配置的跨语言 CLI 校验主要入口、辅助归属、豁免和未登记测试文件。",
+        "path": "test-evidence-review-behavior/260719-separate-test-value-from-ledger-validation.md",
+        "purpose": "抑制无意义、重复和实现耦合的测试增长，同时让测试证明目标与实现保持可审计映射。",
+        "relations": [],
+        "status": "archived",
+        "title": "分离测试价值审查与账本机械校验"
+      }
+    },
+    {
+      "id": "test-evidence-review-behavior/260720-map-test-entries-and-trigger-scoped-reviews.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "test-evidence-review-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "文件级最小归属会让一个 marker 覆盖同文件内未评估的其他测试；case 缺少契约背景，普通三级标题会被误判；Scope 只校验路径外形，无法发现失效范围或命中变更。",
+        "createdAt": "2026-07-20T13:48:52+08:00",
+        "decision": "case 使用固定标题和 `Contract:`；源码角色逐测试入口映射；Scope 用严格 glob 与 Git 路径校验，并按变化和 CR 基线触发 review。",
+        "path": "test-evidence-review-behavior/260720-map-test-entries-and-trigger-scoped-reviews.md",
+        "purpose": "让每个被发现器识别的测试入口都能回到明确契约和 case，消除文件级标记造成的遮蔽，并让人工审查范围在 Git 变化后可确定地重新触发。",
+        "relations": [
+          {
+            "target": "test-evidence-review-behavior/260719-model-verification-obligations-and-source-roles.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "按测试入口映射证据并触发范围审查"
+      }
+    },
+    {
+      "id": "test-evidence-review-behavior/260720-organize-proofs-by-shared-execution-chain.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "test-evidence-review-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "既有规则把 `Proves:` 主要描述为分支叶子，但一条没有分支的连续执行链路也可能依次固定多个状态迁移、输出、副作用或清理不变量。",
+        "createdAt": "2026-07-20T13:48:52+08:00",
+        "decision": "automated case 按共同契约、共享基座或连续链路组织；`Proves:` 可写分支或线性检查点，Mermaid 按需表达，仅独立契约才拆分。",
+        "path": "test-evidence-review-behavior/260720-organize-proofs-by-shared-execution-chain.md",
+        "purpose": "让 automated case 同时表达分支结果和线性 happy path 或失败链路上的多个可观察检查点，避免按证明点数量机械拆分 case。",
+        "relations": [
+          {
+            "target": "test-evidence-review-behavior/260719-organize-multi-branch-proofs-by-shared-base.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "按共享执行链路组织分支与线性证明点"
+      }
+    },
+    {
+      "id": "test-evidence-review-behavior/260721-separate-test-entry-collection-from-ledger.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "test-evidence-review-behavior"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "账本 CLI 同时拥有文件选择、跨语言正则和账本校验，按语言屏蔽非代码上下文仍会漏掉有效入口，也让自定义发现规则必须进入账本实现。",
+        "createdAt": "2026-07-21T02:59:31Z",
+        "decision": "以 Schema 为结构真源，把工具拆成输出标准清单的可替换采集层和只消费清单的账本层，并保留组合兼容入口。",
+        "path": "test-evidence-review-behavior/260721-separate-test-entry-collection-from-ledger.md",
+        "purpose": "让复杂项目能够替换入口收集方式，同时让账本维护只依赖稳定、可校验的数据契约。",
+        "relations": [
+          {
+            "target": "test-evidence-review-behavior/mask-non-code-test-syntax.md",
+            "type": "替代"
+          },
+          {
+            "target": "test-evidence-review-behavior/query-ledger-with-structured-inspection.md",
+            "type": "修订"
+          }
+        ],
+        "status": "archived",
+        "title": "分离测试入口采集与账本维护"
+      }
+    },
+    {
+      "id": "test-evidence-review-behavior/mask-non-code-test-syntax.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "test-evidence-review-behavior"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "全文正则会把发现器源码、测试 fixture 和生成代码中的测试语法样本识别为入口，增加无意义 marker 与账本库存。",
+        "createdAt": "2026-07-21T01:52:14Z",
+        "decision": "发现前按语言屏蔽常见非代码上下文并保留原始位置，再运行既有入口模式；不把轻量屏蔽扩展为完整解析器。",
+        "path": "test-evidence-review-behavior/mask-non-code-test-syntax.md",
+        "purpose": "降低注释、字符串、模板和正则样本造成的测试入口误报，让 exempt 保留给真正需要持续审计的发现边界。",
+        "relations": [],
+        "status": "archived",
+        "title": "在测试入口发现前屏蔽明显非代码上下文"
+      }
+    },
+    {
+      "id": "test-evidence-review-behavior/publish-only-layered-test-evidence-interfaces.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "test-evidence-review-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "组合兼容入口会把旧配置、旧输出和默认采集器继续带入账本工具边界，削弱两层接口的独立性。",
+        "createdAt": "2026-07-21T03:26:09Z",
+        "decision": "以 Schema 为结构真源，只发布采集层和账本层两套接口，旧版升级仅由独立文档承接。",
+        "path": "test-evidence-review-behavior/publish-only-layered-test-evidence-interfaces.md",
+        "purpose": "让测试入口采集可独立替换，并让账本维护只依赖稳定、严格校验的数据契约。",
+        "relations": [
+          {
+            "target": "test-evidence-review-behavior/260721-separate-test-entry-collection-from-ledger.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "仅发布分层测试证据接口"
+      }
+    },
+    {
+      "id": "test-evidence-review-behavior/query-ledger-with-structured-inspection.md",
+      "keys": {
+        "status": [
+          "archived"
+        ],
+        "topic": [
+          "test-evidence-review-behavior"
+        ]
+      },
+      "state": {
+        "alignment": null,
+        "background": "CLI 只有严格 check，成功结果只给汇总，普通错误仍是字符串，语义审查需要重复解析账本和源码。",
+        "createdAt": "2026-07-21T01:51:47Z",
+        "decision": "保留严格 check，新增非阻断 list/show、可导入 inspection 和带版本的结构化 diagnostics。",
+        "path": "test-evidence-review-behavior/query-ledger-with-structured-inspection.md",
+        "purpose": "让 agent 在严格校验之外直接恢复 case、入口映射和 review trigger，并稳定消费机器诊断。",
+        "relations": [],
+        "status": "archived",
+        "title": "为测试账本提供可恢复查询与结构化诊断"
+      }
+    },
+    {
+      "id": "test-evidence-review-behavior/read-ledger-contract-on-demand.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "test-evidence-review-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "固定契约包含大量字段、配置和 CLI 细节，纯语义审查每次完整读取会挤占实现、测试和行为 owner 的有效上下文。",
+        "createdAt": "2026-07-21T01:52:41Z",
+        "decision": "所有任务继续受账本契约约束，但仅在写入、结构审阅、修复或精确诊断时完整读取；日常恢复先用 list/show/check。",
+        "path": "test-evidence-review-behavior/read-ledger-contract-on-demand.md",
+        "purpose": "让测试价值审查先恢复相关契约和证据，只在精确维护需要时加载完整账本格式，降低无关上下文成本。",
+        "relations": [],
+        "status": "active",
+        "title": "按任务出口渐进读取测试账本契约"
+      }
+    },
+    {
+      "id": "version-control/centralize-version-control-responsibility.md",
+      "keys": {
+        "alignment": [
+          "unaligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "version-control"
+        ]
+      },
+      "state": {
+        "alignment": "unaligned",
+        "background": "项目同时需要提交树、待提交内容和工作区变化，直接依赖 Git 命令与 index 语义会把解析和替换成本散入多个模块。",
+        "createdAt": "2026-07-22T15:01:02Z",
+        "decision": "建立项目自有版本管理中间层，默认采用 Git 并允许 Git 倾向语义，但不提前承诺多版本系统兼容或建设 provider 框架。",
+        "path": "version-control/centralize-version-control-responsibility.md",
+        "purpose": "让项目只通过一个稳定 owner 查询版本状态，使后续替换实现或接入其他系统时不再追查分散调用。",
+        "relations": [],
+        "status": "active",
+        "title": "集中版本管理责任但不承诺跨系统兼容"
+      }
     }
-  ]
+  ],
+  "keyDefinitions": [
+    {
+      "mode": "exact",
+      "name": "alignment"
+    },
+    {
+      "mode": "exact",
+      "name": "status"
+    },
+    {
+      "mode": "exact",
+      "name": "topic"
+    }
+  ],
+  "namespace": "decisions",
+  "schemaVersion": 1,
+  "sourceRevision": "sha256:a9aef9347e435d4b26d4dfe6091e63ae9579af1197eac81b637ec7a093d36b4f"
 }

@@ -1,7 +1,15 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { HeadDecisionPathsResult } from "./head-decision-paths.ts";
-import { expectedIndex, validateDecisionScan } from "./index.ts";
+import {
+  selectDecisionIndexSourcePaths,
+  validateDecisionScan
+} from "./index.ts";
+import {
+  decisionIndexDiagnosticMessages,
+  decisionIndexFileName,
+  syncDecisionIndex
+} from "./decision-state-index.ts";
 import {
   decisionIndexRequiredError,
   missingIndexedDecisionError,
@@ -58,7 +66,7 @@ export async function applyDecisionChanges(options: {
     const hasDecisionMarkdown = candidateScan.records.some(
       (record) => record.markdownExists
     );
-    const sourceValidation = validateDecisionScan(
+    const sourceValidation = await validateDecisionScan(
       candidateScan,
       headDecisionPaths,
       {
@@ -114,19 +122,33 @@ export async function applyDecisionChanges(options: {
       ];
     }
 
-    const generated = expectedIndex(candidateScan, {
+    const selection = selectDecisionIndexSourcePaths(candidateScan, {
       includeUnindexedPaths: registerPaths
     });
-    if (generated.errors.length > 0 || generated.text === null) {
+    if (selection.errors.length > 0) {
       return [
-        ...generated.errors,
+        ...selection.errors,
         ...await restoreDecisionChanges(originalScan, originalBodies)
       ];
     }
-    await fs.writeFile(candidateScan.indexPath, generated.text, "utf8");
+    const synchronized = await syncDecisionIndex({
+      decisionsDirectory: candidateScan.decisionsDirectory,
+      indexPath: decisionIndexFileName,
+      mode: "write",
+      relativePaths: selection.relativePaths
+    });
+    if (synchronized.status === "error") {
+      return [
+        ...decisionIndexDiagnosticMessages(
+          synchronized.diagnostics,
+          candidateScan.indexRelativePath
+        ),
+        ...await restoreDecisionChanges(originalScan, originalBodies)
+      ];
+    }
 
     const validationScan = await scanDecisionRecords(scanOptions);
-    const validation = validateDecisionScan(validationScan, headDecisionPaths, {
+    const validation = await validateDecisionScan(validationScan, headDecisionPaths, {
       scanErrorPolicy: "allow-activation-candidates"
     });
     if (validation.errors.length > 0) {

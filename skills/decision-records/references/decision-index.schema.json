@@ -1,19 +1,79 @@
 {
-  "$comment": "集合级路径唯一性、路径排序、Markdown 投影一致性和关系图约束由 CLI check 检查。",
+  "$comment": "id、state.path、派生 keys、sourceRevision 与 Markdown 投影的一致性由 CLI check 检查。",
   "$defs": {
     "decisionPath": {
-      "description": "主题目录下的稳定决策 Markdown 相对路径。",
       "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*/[a-z0-9]+(?:-[a-z0-9]+)*\\.md$",
       "type": "string"
     },
-    "projectionText": {
-      "description": "单行索引投影文本。",
-      "maxLength": 100,
-      "minLength": 4,
-      "pattern": "^[^\\r\\n]+$",
-      "type": "string"
+    "keyValues": {
+      "additionalProperties": false,
+      "properties": {
+        "alignment": {
+          "items": {
+            "enum": [
+              "aligned",
+              "unaligned"
+            ],
+            "type": "string"
+          },
+          "maxItems": 1,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "items": {
+            "enum": [
+              "active",
+              "archived"
+            ],
+            "type": "string"
+          },
+          "maxItems": 1,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "topic": {
+          "items": {
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "type": "string"
+          },
+          "maxItems": 1,
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "status",
+        "topic"
+      ],
+      "type": "object"
     },
-    "record": {
+    "relation": {
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "$ref": "#/$defs/decisionPath"
+        },
+        "type": {
+          "enum": [
+            "修订",
+            "替代",
+            "判定无效",
+            "归并"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "target"
+      ],
+      "type": "object"
+    },
+    "state": {
       "additionalProperties": false,
       "allOf": [
         {
@@ -60,7 +120,6 @@
       ],
       "properties": {
         "alignment": {
-          "description": "活动决策目标是否已核对并建立为单向基线；归档决策固定为 null。",
           "enum": [
             "aligned",
             "unaligned",
@@ -72,21 +131,29 @@
           ]
         },
         "background": {
-          "$ref": "#/$defs/projectionText"
+          "maxLength": 100,
+          "minLength": 4,
+          "pattern": "^[^\\r\\n]+$",
+          "type": "string"
         },
         "createdAt": {
-          "description": "精确到秒且带显式时区的 RFC 3339 时间。",
           "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})(Z|[+-](\\d{2}):(\\d{2}))$",
           "type": "string"
         },
         "decision": {
-          "$ref": "#/$defs/projectionText"
+          "maxLength": 100,
+          "minLength": 4,
+          "pattern": "^[^\\r\\n]+$",
+          "type": "string"
         },
         "path": {
           "$ref": "#/$defs/decisionPath"
         },
         "purpose": {
-          "$ref": "#/$defs/projectionText"
+          "maxLength": 100,
+          "minLength": 4,
+          "pattern": "^[^\\r\\n]+$",
+          "type": "string"
         },
         "relations": {
           "items": {
@@ -103,63 +170,91 @@
           "type": "string"
         },
         "title": {
-          "$ref": "#/$defs/projectionText"
-        }
-      },
-      "required": [
-        "path",
-        "status",
-        "alignment",
-        "createdAt",
-        "title",
-        "purpose",
-        "background",
-        "decision",
-        "relations"
-      ],
-      "type": "object"
-    },
-    "relation": {
-      "additionalProperties": false,
-      "properties": {
-        "target": {
-          "$ref": "#/$defs/decisionPath"
-        },
-        "type": {
-          "enum": [
-            "修订",
-            "替代",
-            "判定无效",
-            "归并"
-          ],
+          "maxLength": 100,
+          "minLength": 4,
+          "pattern": "^[^\\r\\n]+$",
           "type": "string"
         }
       },
       "required": [
-        "type",
-        "target"
+        "alignment",
+        "background",
+        "createdAt",
+        "decision",
+        "path",
+        "purpose",
+        "relations",
+        "status",
+        "title"
       ],
       "type": "object"
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "由自包含决策 Markdown 生成的 decision-records schema v4 全生命周期索引。",
+  "description": "由决策 Markdown 生成的领域状态通用索引。",
   "properties": {
-    "records": {
+    "definitionVersion": {
+      "const": 1
+    },
+    "entries": {
       "items": {
-        "$ref": "#/$defs/record"
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/decisionPath"
+          },
+          "keys": {
+            "$ref": "#/$defs/keyValues"
+          },
+          "state": {
+            "$ref": "#/$defs/state"
+          }
+        },
+        "required": [
+          "id",
+          "keys",
+          "state"
+        ],
+        "type": "object"
       },
       "type": "array"
     },
+    "keyDefinitions": {
+      "const": [
+        {
+          "mode": "exact",
+          "name": "alignment"
+        },
+        {
+          "mode": "exact",
+          "name": "status"
+        },
+        {
+          "mode": "exact",
+          "name": "topic"
+        }
+      ]
+    },
+    "namespace": {
+      "const": "decisions"
+    },
     "schemaVersion": {
-      "const": 4
+      "const": 1
+    },
+    "sourceRevision": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
     }
   },
   "required": [
+    "definitionVersion",
+    "entries",
+    "keyDefinitions",
+    "namespace",
     "schemaVersion",
-    "records"
+    "sourceRevision"
   ],
-  "title": "Decision Records Index",
+  "title": "Decision Records State Index",
   "type": "object"
 }
