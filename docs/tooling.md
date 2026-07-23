@@ -51,7 +51,7 @@ node scripts/env.js install
 脚本边界：
 
 1. Node.js 是脚本启动前置，Git 是仓库操作前置，全局 `codegraph` 是代码图能力前置。Git、Node.js 或 CodeGraph 缺失时不会由同一个入口安装；脚本给出诊断并停止。
-2. `check` 从 `package.json` 读取 Bun 最低版本和固定 pnpm 版本，检查 Git、Node.js、Bun、pnpm、全局 CodeGraph 版本输出及仓库索引状态，并在规范化换行后比对 `node_modules` 内的 pnpm lock 快照，再用只读依赖清单确认本地安装对应当前 `pnpm-lock.yaml`；它不执行安装脚本、不下载内容，也不修改环境。
+2. `check` 从 `package.json` 读取 Bun 最低版本和固定 pnpm 版本，检查 Git、Node.js、Bun、pnpm、全局 CodeGraph 版本输出及仓库索引状态，并通过 `pnpm list` 的实际安装结果确认声明的直接依赖可用；它不直接读取 `node_modules` 内部文件，不执行安装脚本、不下载内容，也不修改环境。
 3. `install` 才允许产生外部副作用。Bun 不满足要求时通过 Node.js 附带的 npm 安装；pnpm 不匹配时优先使用 Corepack 安装 `package.json` 固定的版本，Corepack 不存在时回退到 npm；随后运行 `pnpm install --frozen-lockfile`，再用全局 CodeGraph 执行 `init` 和 `sync`。该入口不安装或升级 CodeGraph，并在自举子进程中关闭 CodeGraph 遥测，避免环境准备依赖外网。
 4. 脚本不调用 winget、Homebrew、apt 或其他平台包管理器；同一份 JavaScript 在 Windows、macOS 和 Linux 上使用。全局 npm/Corepack 目录不可写时，不提升权限，而是保留原始失败供调用者按本机策略处理。
 5. 该入口用于快速准备开发环境，不替代类型检查、测试、生成漂移检查或完整仓库检查，也不由这些入口反向调用。
@@ -99,7 +99,6 @@ Codex 工作区在 `.codex/environments/` 提供两个并列环境：
 30. `bun run test:change-plan-cli`: 使用临时 change 目录测试三文件结构、标题顺序、非空章节、任务语法、唯一 ID、包内导入、Node CLI、机器输出和生成追溯。
 31. `bun run sync:change-plan-cli`: 从 `tools/change-plan/` 构建并写入 `change-plan` skill 内的 `change-plan.mjs`、类型声明和 source map。
 32. `bun run check:change-plan-cli`: 在临时目录重建 change plan 检查器，并检查 skill 内分发产物是否与当前源码一致。
-33. `bun run test:environment-lockfile`: 使用 Node.js 验证环境检查会忽略 pnpm lock 快照的换行差异，同时仍能识别实际内容变化。
 
 需要直接排查实现时，可以用 `bun scripts/<script>.ts` 运行项目脚本，或用 `bun tools/<tool-name>/src/<entry>.ts` 运行工具源码入口。
 

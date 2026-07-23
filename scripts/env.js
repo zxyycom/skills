@@ -9,7 +9,6 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { lockfileFingerprint } from "./lib/environment-lockfile.js";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const manifestPath = path.join(repoRoot, "package.json");
@@ -297,38 +296,11 @@ function getDependencyStatus(config, toolStatuses) {
     };
   }
 
-  const modulesPath = path.join(repoRoot, "node_modules", ".modules.yaml");
-  const installedLockfilePath = path.join(
-    repoRoot,
-    "node_modules",
-    ".pnpm",
-    "lock.yaml"
-  );
-  if (!existsSync(modulesPath)) {
-    return { detail: "node_modules is not installed", state: "missing" };
-  }
-  if (!existsSync(installedLockfilePath)) {
-    return {
-      detail: "node_modules does not contain its pnpm lock snapshot",
-      state: "stale"
-    };
-  }
-  if (
-    lockfileFingerprint(lockfilePath)
-    !== lockfileFingerprint(installedLockfilePath)
-  ) {
-    return {
-      detail: "node_modules was installed from a different pnpm-lock.yaml",
-      state: "stale"
-    };
-  }
-
   const listResult = runCommand("pnpm", [
     "list",
     "--depth",
     "0",
-    "--json",
-    "--reporter=silent"
+    "--json"
   ]);
   if (listResult.resolutionError || listResult.exitCode !== 0) {
     return {
@@ -365,7 +337,7 @@ function getDependencyStatus(config, toolStatuses) {
   }
 
   return {
-    detail: `${config.dependencyNames.length} direct dependencies match pnpm-lock.yaml`,
+    detail: `${config.dependencyNames.length} direct dependencies are installed`,
     state: "ready"
   };
 }

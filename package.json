@@ -13,7 +13,6 @@
     "test:change-plan-cli": "bun tools/change-plan/tests/run.ts",
     "test:decision-records-cli": "bun tools/decision-records/tests/run.ts",
     "test:check": "bun scripts/check.test.ts",
-    "test:environment-lockfile": "node --test scripts/lib/environment-lockfile.test.js",
     "test:generated-file": "bun scripts/lib/generated-file.test.ts",
     "test:index-runtime": "bun tools/index-runtime/tests/run.ts",
     "test:version-control": "bun tools/shared/tests/version-control.test.ts",

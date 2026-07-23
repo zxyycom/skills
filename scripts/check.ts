@@ -31,7 +31,6 @@ const preflightTasks = [
   "typecheck",
   "check:skill-updaters",
   "test:check",
-  "test:environment-lockfile",
   "test:generated-file",
   "test:version-control"
 ] as const satisfies readonly CheckTask[];
