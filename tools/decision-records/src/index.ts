@@ -20,16 +20,32 @@ export type DecisionValidationContext = {
 export type DecisionValidationOptions = {
   allowEmptyDecisionSet?: boolean;
   checkIndexText?: boolean;
-  scanErrorPolicy?: "include" | "omit" | "source-only";
+  scanErrorPolicy?:
+    | "allow-activation-candidates"
+    | "include"
+    | "omit"
+    | "source-only";
+};
+
+export type ExpectedIndexOptions = {
+  includeUnindexedPaths?: ReadonlySet<string>;
 };
 
 export function expectedIndex(
-  scan: DecisionScan
+  scan: DecisionScan,
+  options: ExpectedIndexOptions = {}
 ): ExpectedIndex {
   const errors: string[] = [];
   const entries: DecisionIndexEntry[] = [];
+  const { includeUnindexedPaths } = options;
 
-  for (const record of scan.records.filter((candidate) => candidate.markdownExists)) {
+  for (const record of scan.records.filter((candidate) => (
+    candidate.markdownExists
+    && !candidate.activationCandidate
+    && (includeUnindexedPaths === undefined
+      || candidate.indexed
+      || includeUnindexedPaths.has(candidate.relativePath))
+  ))) {
     if (!record.document) {
       errors.push("Cannot generate index from invalid decision " + record.relativePath);
       continue;
@@ -105,11 +121,14 @@ export function validateDecisionScan(
   headDecisionPaths: HeadDecisionPathsResult,
   options: DecisionValidationOptions = {}
 ): DecisionValidationResult {
+  const candidateErrorSet = new Set(scan.activationCandidateErrors);
   const errors = options.scanErrorPolicy === "omit"
     ? []
     : options.scanErrorPolicy === "source-only"
       ? [...scan.sourceErrors]
-      : [...scan.errors];
+      : options.scanErrorPolicy === "allow-activation-candidates"
+        ? scan.errors.filter((error) => !candidateErrorSet.has(error))
+        : [...scan.errors];
   errors.push(...headDecisionPaths.errors);
   if (headDecisionPaths.errors.length === 0) {
     errors.push(...headPathConsistencyErrors(
@@ -133,17 +152,24 @@ export function validateDecisionScan(
     );
   }
 
+  const establishedRecords = scan.records.filter(
+    (record) => !record.activationCandidate
+  );
+
   return {
-    activeCount: scan.records.filter((record) => record.status === "active").length,
-    alignedCount: scan.records.filter((record) => (
+    activationCandidateCount: scan.records.length - establishedRecords.length,
+    activeCount: establishedRecords.filter((record) => record.status === "active").length,
+    alignedCount: establishedRecords.filter((record) => (
       record.status === "active" && record.alignment === "aligned"
     )).length,
-    archivedCount: scan.records.filter((record) => record.status === "archived").length,
+    archivedCount: establishedRecords.filter(
+      (record) => record.status === "archived"
+    ).length,
     areaCount: scan.areaIds.size,
-    decisionCount: scan.records.length,
+    decisionCount: establishedRecords.length,
     errors,
     scan,
-    unalignedCount: scan.records.filter((record) => (
+    unalignedCount: establishedRecords.filter((record) => (
       record.status === "active" && record.alignment === "unaligned"
     )).length
   };
@@ -170,9 +196,18 @@ function headPathConsistencyErrors(
     }
   }
 
+  for (const record of scan.records.filter((candidate) => (
+    candidate.activationCandidate && headPaths.has(candidate.relativePath)
+  ))) {
+    errors.push(
+      "Decision file present in Git HEAD cannot remain an unactivated candidate: "
+      + record.relativePath
+    );
+  }
+
   for (const record of scan.records.filter((candidate) => sourceOnly
-    ? candidate.document !== null
-    : candidate.document !== null || candidate.indexed)) {
+    ? candidate.bodyValid
+    : candidate.bodyValid || candidate.indexed)) {
     const relations = record.document?.relations ?? record.projection.relations;
     for (const relation of relations) {
       if (!headPaths.has(relation.target)) {

@@ -143,7 +143,7 @@ export async function runSuccessfulCli(
   args: readonly string[]
 ): Promise<string> {
   const result = await runBundledCli(args);
-  assert.equal(result.exitCode, 0);
+  assert.equal(result.exitCode, 0, result.stderr);
   assert.equal(result.stderr, "");
   return result.stdout;
 }
@@ -152,7 +152,7 @@ export async function runSuccessfulSourceCli(
   args: readonly string[]
 ): Promise<string> {
   const result = await runSourceCli(args);
-  assert.equal(result.exitCode, 0);
+  assert.equal(result.exitCode, 0, result.stderr);
   assert.equal(result.stderr, "");
   return result.stdout;
 }

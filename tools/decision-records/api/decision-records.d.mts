@@ -50,6 +50,7 @@ export type DecisionIndex = {
 };
 
 export type DecisionRecord = {
+  activationCandidate: boolean;
   alignment: DecisionAlignment | null;
   areaId: string;
   bodyValid: boolean;
@@ -70,6 +71,7 @@ export type DecisionScanOptions = {
 };
 
 export type DecisionScan = {
+  activationCandidateErrors: string[];
   areaIds: Set<string>;
   decisionsDirectoryAvailable: boolean;
   decisionsDirectory: string;
@@ -86,6 +88,7 @@ export type DecisionScan = {
 };
 
 export type DecisionValidationResult = {
+  activationCandidateCount: number;
   activeCount: number;
   alignedCount: number;
   archivedCount: number;

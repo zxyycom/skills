@@ -13,8 +13,8 @@ import {
   stripLinkSuffix
 } from "./markdown.ts";
 import {
-  decisionMetadataFromCandidate,
-  parseDecisionMarkdown
+  parseDecisionMarkdown,
+  type DecisionMetadataCandidate
 } from "./decision-metadata.ts";
 import {
   isDecisionFileName,
@@ -23,11 +23,13 @@ import {
 import { projectionTextIssue } from "./projection.ts";
 import {
   decisionRelationTypes,
-  type DecisionDocument,
+  type DecisionProjection,
   type DecisionRelation,
   type DecisionRelationType,
   type MarkdownSection
 } from "./types.ts";
+
+export type ValidatedDecisionBody = DecisionProjection & DecisionMetadataCandidate;
 
 const sectionOrder = [
   "## 索引摘要",
@@ -169,14 +171,16 @@ async function validateDecisionRelations(options: {
 }
 
 export async function validateDecisionBody(options: {
+  allowNullCreatedAt?: boolean;
   body: string;
   decisionPath: string;
   decisionsDirectory: string;
   errors: string[];
   fileName: string;
   relativePath: string;
-}): Promise<DecisionDocument | null> {
+}): Promise<ValidatedDecisionBody | null> {
   const {
+    allowNullCreatedAt = false,
     body: rawBody,
     decisionPath,
     decisionsDirectory,
@@ -186,14 +190,13 @@ export async function validateDecisionBody(options: {
   } = options;
   const errorCountBeforeValidation = errors.length;
   const parsedMarkdown = parseDecisionMarkdown({
+    allowNullCreatedAt,
     errors,
     markdown: rawBody,
     relativePath
   });
   const body = parsedMarkdown?.body ?? "";
-  const metadata = parsedMarkdown
-    ? decisionMetadataFromCandidate(parsedMarkdown.metadata)
-    : null;
+  const metadata = parsedMarkdown?.metadata ?? null;
   const expectedTitlePrefix = "# ";
   const firstLine = body.split("\n", 1)[0];
   const title = firstLine.startsWith(expectedTitlePrefix)

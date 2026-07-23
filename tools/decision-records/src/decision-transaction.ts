@@ -2,7 +2,12 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { HeadDecisionPathsResult } from "./head-decision-paths.ts";
 import { expectedIndex, validateDecisionScan } from "./index.ts";
-import { scanDecisionRecords } from "./scan.ts";
+import {
+  decisionIndexRequiredError,
+  missingIndexedDecisionError,
+  scanDecisionRecords,
+  unindexedDecisionError
+} from "./scan.ts";
 import type {
   DecisionScan,
   DecisionScanOptions
@@ -17,12 +22,14 @@ export async function applyDecisionChanges(options: {
   changes: readonly DecisionFileChange[];
   headDecisionPaths: HeadDecisionPathsResult;
   originalScan: DecisionScan;
+  registerPaths?: ReadonlySet<string>;
   scanOptions: DecisionScanOptions;
 }): Promise<string[]> {
   const {
     changes,
     headDecisionPaths,
     originalScan,
+    registerPaths = new Set<string>(),
     scanOptions
   } = options;
   const originalBodies = new Map<string, string>();
@@ -73,7 +80,43 @@ export async function applyDecisionChanges(options: {
       return [];
     }
 
-    const generated = expectedIndex(candidateScan);
+    const permittedIndexErrors = new Set(candidateScan.activationCandidateErrors);
+    for (const relativePath of registerPaths) {
+      permittedIndexErrors.add(
+        unindexedDecisionError(candidateScan.indexRelativePath, relativePath)
+      );
+    }
+    for (const change of changes.filter((candidate) => candidate.nextText === null)) {
+      const originalRecord = originalScan.records.find(
+        (record) => record.decisionPath === change.decisionPath && record.indexed
+      );
+      if (originalRecord) {
+        permittedIndexErrors.add(
+          missingIndexedDecisionError(
+            candidateScan.indexRelativePath,
+            originalRecord.relativePath
+          )
+        );
+      }
+    }
+    if (!originalScan.indexExists && registerPaths.size > 0) {
+      permittedIndexErrors.add(
+        decisionIndexRequiredError(candidateScan.indexRelativePath)
+      );
+    }
+    const unexpectedIndexErrors = candidateScan.indexErrors.filter(
+      (error) => !permittedIndexErrors.has(error)
+    );
+    if (unexpectedIndexErrors.length > 0) {
+      return [
+        ...unexpectedIndexErrors,
+        ...await restoreDecisionChanges(originalScan, originalBodies)
+      ];
+    }
+
+    const generated = expectedIndex(candidateScan, {
+      includeUnindexedPaths: registerPaths
+    });
     if (generated.errors.length > 0 || generated.text === null) {
       return [
         ...generated.errors,
@@ -83,7 +126,9 @@ export async function applyDecisionChanges(options: {
     await fs.writeFile(candidateScan.indexPath, generated.text, "utf8");
 
     const validationScan = await scanDecisionRecords(scanOptions);
-    const validation = validateDecisionScan(validationScan, headDecisionPaths);
+    const validation = validateDecisionScan(validationScan, headDecisionPaths, {
+      scanErrorPolicy: "allow-activation-candidates"
+    });
     if (validation.errors.length > 0) {
       return [
         ...validation.errors,

@@ -74,6 +74,30 @@ async function loadCommandContext(
   );
 }
 
+function activationCandidates(scan: DecisionScan): DecisionRecord[] {
+  return scan.records
+    .filter((record) => record.activationCandidate)
+    .sort(compareDecisionRecords);
+}
+
+function printActivationCandidateWarnings(scan: DecisionScan): void {
+  const candidates = activationCandidates(scan);
+  if (candidates.length === 0) {
+    return;
+  }
+
+  console.error("Decision records command completed with warnings:");
+  for (const candidate of candidates) {
+    console.error(
+      "- Unactivated decision candidate remains: " + candidate.relativePath
+    );
+  }
+  console.error(
+    "- Activate or discard every candidate before strict check; "
+    + "check will continue to fail while any remain."
+  );
+}
+
 async function validatedResult(
   args: CliArgs
 ): Promise<DecisionValidationContext | null> {
@@ -81,6 +105,19 @@ async function validatedResult(
   const { result } = context;
   if (result.errors.length > 0) {
     printErrors(result.errors);
+    return null;
+  }
+  return context;
+}
+
+async function validatedMaintenanceResult(
+  args: CliArgs
+): Promise<DecisionValidationContext | null> {
+  const context = await loadCommandContext(args, {
+    scanErrorPolicy: "allow-activation-candidates"
+  });
+  if (context.result.errors.length > 0) {
+    printErrors(context.result.errors);
     return null;
   }
   return context;
@@ -308,9 +345,12 @@ async function writeValidatedIndex(
   try {
     await fs.writeFile(scan.indexPath, text, "utf8");
     const validationScan = await scanDecisionRecords(decisionScanOptions(args));
-    const validation = validateDecisionScan(validationScan, headDecisionPaths);
+    const validation = validateDecisionScan(validationScan, headDecisionPaths, {
+      scanErrorPolicy: "allow-activation-candidates"
+    });
     if (validation.errors.length === 0) {
       console.log(successMessage);
+      printActivationCandidateWarnings(validationScan);
       return 0;
     }
 
@@ -358,6 +398,16 @@ async function runSyncIndex(args: CliArgs): Promise<number> {
     printErrors(sourceValidation.errors);
     return 1;
   }
+  if (scan.index !== null) {
+    const activationCandidateErrorSet = new Set(scan.activationCandidateErrors);
+    const membershipErrors = scan.indexErrors.filter(
+      (error) => !activationCandidateErrorSet.has(error)
+    );
+    if (membershipErrors.length > 0) {
+      printErrors(membershipErrors);
+      return 1;
+    }
+  }
 
   const generated = expectedIndex(scan);
   if (generated.errors.length > 0 || generated.text === null) {
@@ -367,6 +417,7 @@ async function runSyncIndex(args: CliArgs): Promise<number> {
 
   if (scan.indexText.replace(/\r\n/g, "\n") === generated.text) {
     console.log("Decision index is up to date.");
+    printActivationCandidateWarnings(scan);
     return 0;
   }
   if (!args.write) {
@@ -398,12 +449,14 @@ async function applySourceChanges(
   args: CliArgs,
   context: DecisionValidationContext,
   changes: readonly DecisionFileChange[],
-  successMessage: string
+  successMessage: string,
+  registerPaths: ReadonlySet<string> = new Set<string>()
 ): Promise<number> {
   const errors = await applyDecisionChanges({
     changes,
     headDecisionPaths: context.headDecisionPaths,
     originalScan: context.result.scan,
+    registerPaths,
     scanOptions: decisionScanOptions(args)
   });
   if (errors.length > 0) {
@@ -411,11 +464,16 @@ async function applySourceChanges(
     return 1;
   }
   console.log(successMessage);
+  printActivationCandidateWarnings(
+    await scanDecisionRecords(decisionScanOptions(args))
+  );
   return 0;
 }
 
 async function runActivate(args: CliArgs): Promise<number> {
-  const context = await loadCommandContext(args);
+  const context = await loadCommandContext(args, {
+    scanErrorPolicy: "allow-activation-candidates"
+  });
   const { headDecisionPaths, result } = context;
   const { scan } = result;
   if (headDecisionPaths.errors.length > 0) {
@@ -480,6 +538,7 @@ async function runActivate(args: CliArgs): Promise<number> {
         + record.relativePath
         + pendingRecordSuffix(record, headDecisionPaths.paths)
       );
+      printActivationCandidateWarnings(scan);
       return 0;
     }
     if (parsed.metadata.createdAt === null) {
@@ -489,8 +548,16 @@ async function runActivate(args: CliArgs): Promise<number> {
     createdAt = parsed.metadata.createdAt;
     prefix = "Activated";
   } else {
-    if (!headDecisionPaths.paths.has(record.relativePath)
-      && !isNewDecisionIdentityPath(record.relativePath)) {
+    if (headDecisionPaths.paths.has(record.relativePath)) {
+      printErrors([
+        "Decision file present in Git HEAD cannot be activated as a new "
+          + "decision candidate: "
+          + record.relativePath,
+        "Restore valid established metadata and index membership instead."
+      ]);
+      return 1;
+    }
+    if (!isNewDecisionIdentityPath(record.relativePath)) {
       printErrors([
         "New decision identity path must use kebab-case semantic slugs "
           + "without date tokens: "
@@ -533,7 +600,10 @@ async function runActivate(args: CliArgs): Promise<number> {
       headDecisionPaths.paths,
       record.relativePath,
       prefix + " as " + requestedAlignment
-    )
+    ),
+    record.indexed
+      ? new Set<string>()
+      : new Set([record.relativePath])
   );
 }
 
@@ -549,7 +619,7 @@ function activationMessage(
 }
 
 async function runMarkAligned(args: CliArgs): Promise<number> {
-  const context = await validatedResult(args);
+  const context = await validatedMaintenanceResult(args);
   if (!context) {
     return 1;
   }
@@ -594,7 +664,7 @@ async function runMarkAligned(args: CliArgs): Promise<number> {
 }
 
 async function runArchive(args: CliArgs): Promise<number> {
-  const context = await validatedResult(args);
+  const context = await validatedMaintenanceResult(args);
   if (!context) {
     return 1;
   }
@@ -687,9 +757,11 @@ async function runDiscard(args: CliArgs): Promise<number> {
 
   const referencingPaths = scan.records
     .filter((candidate) => candidate.relativePath !== record.relativePath)
-    .filter((candidate) => candidate.document?.relations.some(
+    .filter((candidate) => (
+      candidate.document?.relations ?? candidate.projection.relations
+    ).some(
       (relation) => relation.target === record.relativePath
-    ) === true)
+    ))
     .map((candidate) => candidate.relativePath);
   if (referencingPaths.length > 0) {
     printErrors([
@@ -707,7 +779,12 @@ async function runDiscard(args: CliArgs): Promise<number> {
       decisionPath: record.decisionPath,
       nextText: null
     }],
-    "Discarded pending decision "
+    "Discarded "
+    + (record.activationCandidate
+      ? "unactivated decision candidate "
+      : record.indexed
+        ? "pending decision "
+        : "unregistered decision file ")
     + record.relativePath
     + (record.indexed
       ? " and removed its index entry."

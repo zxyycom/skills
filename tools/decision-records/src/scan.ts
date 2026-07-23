@@ -2,16 +2,19 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { pathExists, toPosix } from "../../shared/src/node/filesystem.ts";
-import { isDecisionTopicId } from "./decision-path.ts";
+import {
+  isDecisionTopicId,
+  isNewDecisionIdentityPath
+} from "./decision-path.ts";
 import {
   parseDecisionIndex,
   type DecisionIndexEntry
 } from "./decision-index.ts";
 import { decisionRelationConsistencyErrors } from "./relation-graph.ts";
 import { validateDecisionBody } from "./record.ts";
+import { decisionMetadataFromCandidate } from "./decision-metadata.ts";
 import {
   compareDecisionRecords,
-  type DecisionDocument,
   type DecisionIndex,
   type DecisionProjection,
   type DecisionRecord,
@@ -36,16 +39,31 @@ function displayPath(workspaceRoot: string, targetPath: string): string {
   return toPosix(relativePath);
 }
 
-function unindexedDecisionError(
+export function unindexedDecisionError(
   indexRelativePath: string,
   relativePath: string
 ): string {
   return indexRelativePath + " does not include decision " + relativePath;
 }
 
-function selectProjection(
-  source: DecisionDocument | DecisionIndexEntry
-): DecisionProjection {
+export function activationCandidateError(relativePath: string): string {
+  return "Unactivated decision candidate must be activated or discarded before "
+    + "strict check: "
+    + relativePath;
+}
+
+export function decisionIndexRequiredError(indexRelativePath: string): string {
+  return indexRelativePath + " is required";
+}
+
+export function missingIndexedDecisionError(
+  indexRelativePath: string,
+  relativePath: string
+): string {
+  return indexRelativePath + " references missing decision " + relativePath;
+}
+
+function selectProjection(source: DecisionProjection): DecisionProjection {
   return {
     background: source.background,
     decision: source.decision,
@@ -63,6 +81,7 @@ function recordFromIndexEntry(options: {
   const pathParts = entry.path.split("/");
   const fileName = pathParts.at(-1) ?? entry.path;
   return {
+    activationCandidate: false,
     alignment: entry.alignment,
     areaId: pathParts[0] ?? "",
     bodyValid: false,
@@ -79,6 +98,7 @@ function recordFromIndexEntry(options: {
 }
 
 async function scanArea(options: {
+  activationCandidateErrors: string[];
   areaId: string;
   areaPath: string;
   decisionsDirectory: string;
@@ -89,6 +109,7 @@ async function scanArea(options: {
   sourceErrors: string[];
 }): Promise<void> {
   const {
+    activationCandidateErrors,
     areaId,
     areaPath,
     decisionsDirectory,
@@ -121,8 +142,10 @@ async function scanArea(options: {
       continue;
     }
 
+    const indexEntry = indexEntryByPath?.get(relativePath) ?? null;
     const recordErrors: string[] = [];
-    const document = await validateDecisionBody({
+    const sourceDocument = await validateDecisionBody({
+      allowNullCreatedAt: indexEntry === null,
       body: await fs.readFile(decisionPath, "utf8"),
       decisionPath,
       decisionsDirectory,
@@ -130,19 +153,42 @@ async function scanArea(options: {
       fileName: entry.name,
       relativePath
     });
+    const activationCandidate = indexEntry === null
+      && isNewDecisionIdentityPath(relativePath)
+      && sourceDocument?.status === "active"
+      && sourceDocument.alignment !== null
+      && sourceDocument.createdAt === null;
+    if (sourceDocument?.createdAt === null && !activationCandidate) {
+      recordErrors.push(
+        relativePath
+        + " createdAt: null is allowed only for an unindexed new decision "
+        + "identity with status: active and alignment: aligned or unaligned"
+      );
+    }
+    const establishedMetadata = sourceDocument
+      ? decisionMetadataFromCandidate(sourceDocument)
+      : null;
+    const document = sourceDocument && establishedMetadata
+      ? { ...selectProjection(sourceDocument), ...establishedMetadata }
+      : null;
+
+    if (indexEntryByPath && !indexEntry) {
+      const message = activationCandidate
+        ? activationCandidateError(relativePath)
+        : unindexedDecisionError(indexRelativePath, relativePath);
+      indexErrors.push(message);
+      if (activationCandidate) {
+        activationCandidateErrors.push(message);
+      }
+    }
     sourceErrors.push(...recordErrors);
 
-    const indexEntry = indexEntryByPath?.get(relativePath) ?? null;
-    if (indexEntryByPath && !indexEntry) {
-      const message = unindexedDecisionError(indexRelativePath, relativePath);
-      indexErrors.push(message);
-    }
-
     records.push({
-      alignment: indexEntry?.alignment ?? document?.alignment ?? null,
+      activationCandidate,
+      alignment: indexEntry?.alignment ?? sourceDocument?.alignment ?? null,
       areaId,
       bodyValid: recordErrors.length === 0,
-      createdAt: indexEntry?.createdAt ?? document?.createdAt ?? null,
+      createdAt: indexEntry?.createdAt ?? sourceDocument?.createdAt ?? null,
       decisionPath,
       document,
       fileName: entry.name,
@@ -150,8 +196,8 @@ async function scanArea(options: {
       markdownExists: true,
       projection: indexEntry
         ? selectProjection(indexEntry)
-        : document
-          ? selectProjection(document)
+        : sourceDocument
+          ? selectProjection(sourceDocument)
           : {
               background: "",
               decision: "",
@@ -160,7 +206,7 @@ async function scanArea(options: {
               title: ""
             },
       relativePath,
-      status: indexEntry?.status ?? document?.status ?? null
+      status: indexEntry?.status ?? sourceDocument?.status ?? null
     });
   }
 }
@@ -188,7 +234,7 @@ function addMissingIndexRecords(options: {
     if (recordPaths.has(entry.path)) {
       continue;
     }
-    indexErrors.push(indexRelativePath + " references missing decision " + entry.path);
+    indexErrors.push(missingIndexedDecisionError(indexRelativePath, entry.path));
     records.push(recordFromIndexEntry({ decisionsDirectory, entry }));
   }
 }
@@ -201,6 +247,7 @@ export async function scanDecisionRecords(
   const decisionsDirectory = path.isAbsolute(configuredDecisionDirectory)
     ? path.resolve(configuredDecisionDirectory)
     : path.resolve(workspaceRoot, configuredDecisionDirectory);
+  const activationCandidateErrors: string[] = [];
   const indexErrors: string[] = [];
   const sourceErrors: string[] = [];
   const records: DecisionRecord[] = [];
@@ -209,6 +256,7 @@ export async function scanDecisionRecords(
   const indexPath = path.join(decisionsDirectory, indexFileName);
   const indexRelativePath = displayPath(workspaceRoot, indexPath);
   const unavailableScan = (error: string): DecisionScan => ({
+    activationCandidateErrors,
     areaIds,
     decisionsDirectoryAvailable: false,
     decisionsDirectory,
@@ -233,7 +281,7 @@ export async function scanDecisionRecords(
 
   const indexExists = await pathExists(indexPath);
   if (!indexExists) {
-    const message = indexRelativePath + " is required";
+    const message = decisionIndexRequiredError(indexRelativePath);
     indexErrors.push(message);
   }
   const indexText = indexExists ? await fs.readFile(indexPath, "utf8") : "";
@@ -264,6 +312,7 @@ export async function scanDecisionRecords(
       sourceErrors.push("Decision area must use kebab-case: " + entry.name);
     }
     await scanArea({
+      activationCandidateErrors,
       areaId: entry.name,
       areaPath: entryPath,
       decisionsDirectory,
@@ -284,12 +333,13 @@ export async function scanDecisionRecords(
   });
   records.sort(compareDecisionRecords);
   sourceErrors.push(...decisionRelationConsistencyErrors(
-    records.filter((record) => record.document !== null)
+    records.filter((record) => record.document !== null || record.activationCandidate)
   ));
 
   const errors = [...sourceErrors, ...indexErrors];
 
   return {
+    activationCandidateErrors,
     areaIds,
     decisionsDirectoryAvailable: true,
     decisionsDirectory,

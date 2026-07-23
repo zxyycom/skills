@@ -128,7 +128,8 @@ export function createCliProgram(
       "\nDecision paths are relative to the decision directory, for example "
       + "topic/use-semantic-title.md.\n"
       + "Pending is derived from Markdown path absence in Git HEAD and is never stored.\n"
-      + "Exit codes: 0 success (queries may report warnings), "
+      + "Unactivated candidates remain outside the index and are reported as warnings.\n"
+      + "Exit codes: 0 success (queries and scoped maintenance may report warnings), "
       + "1 blocking validation or index failure, 2 invalid arguments."
     )
     .exitOverride();
@@ -144,7 +145,8 @@ export function createCliProgram(
   const check = createSubcommand(
     program,
     "check",
-    "Validate Markdown metadata, alignment, relations, the JSON index, and Git HEAD membership.",
+    "Strictly validate Markdown metadata, alignment, relations, activation candidates, "
+      + "the JSON index, and Git HEAD membership.",
     { isDefault: true }
   );
   check.action(() => execute("check", check));
@@ -197,15 +199,15 @@ export function createCliProgram(
   const syncIndex = createSubcommand(
     program,
     "sync-index",
-    "Rebuild the complete JSON index from decision Markdown files."
+    "Rebuild the complete JSON index from established decision Markdown files."
   )
-    .option("--write", "Write the index rebuilt from decision Markdown files.");
+    .option("--write", "Write the index rebuilt from established decisions.");
   syncIndex.action(() => execute("sync-index", syncIndex));
 
   const activate = createSubcommand(
     program,
     "activate <decision-path>",
-    "Activate a decision with an explicit alignment state."
+    "Activate one decision with an explicit alignment state and warn about other candidates."
   ).addOption(
     new Option("--alignment <value>", "Alignment state for the active decision.")
       .choices(decisionAlignments)

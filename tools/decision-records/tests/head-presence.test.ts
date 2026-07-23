@@ -45,7 +45,7 @@ try {
     "--root",
     pendingRoot
   ]);
-  assert.match(candidateDiscard, /Discarded pending decision/);
+  assert.match(candidateDiscard, /Discarded unactivated decision candidate/);
   assert.equal(await fileExists(candidatePath), false);
   assert.equal(await fileExists(path.dirname(candidatePath)), false);
   assert.equal(await fs.readFile(indexPath, "utf8"), indexBeforeCandidateDiscard);
@@ -68,7 +68,7 @@ try {
     "--root",
     pendingRoot
   ]);
-  assert.match(invalidCandidateDiscard, /Discarded pending decision/);
+  assert.match(invalidCandidateDiscard, /Discarded unregistered decision file/);
   assert.equal(await fileExists(invalidCandidatePath), false);
   assert.equal(await fileExists(path.dirname(invalidCandidatePath)), false);
   assert.equal(await fs.readFile(indexPath, "utf8"), indexBeforeCandidateDiscard);
@@ -389,10 +389,67 @@ try {
     "--root",
     onlyCandidateRoot
   ]);
-  assert.match(discard, /Discarded pending decision/);
+  assert.match(discard, /Discarded unactivated decision candidate/);
   assert.equal(await fileExists(decisionsDirectory), false);
 } finally {
   await fs.rm(onlyCandidateRoot, { force: true, recursive: true });
+}
+
+const committedCandidateRoot = await fs.mkdtemp(
+  path.join(os.tmpdir(), "decision-records-committed-candidate-")
+);
+try {
+  await fs.cp(fixtureRoot, committedCandidateRoot, { recursive: true });
+  initializeGitRepository(committedCandidateRoot);
+  const relativePath = "committed-candidate/use-invalid-candidate.md";
+  const decisionPath = path.join(
+    committedCandidateRoot,
+    "docs",
+    "decisions",
+    relativePath
+  );
+  const candidateBody = pendingDecisionBody();
+  await fs.mkdir(path.dirname(decisionPath), { recursive: true });
+  await fs.writeFile(decisionPath, candidateBody, "utf8");
+  runGit(committedCandidateRoot, [
+    "add",
+    "docs/decisions/" + relativePath
+  ]);
+  runGit(committedCandidateRoot, [
+    "commit",
+    "--quiet",
+    "--no-gpg-sign",
+    "-m",
+    "Commit invalid activation candidate"
+  ]);
+
+  const check = await runSourceCli([
+    "check",
+    "--root",
+    committedCandidateRoot
+  ]);
+  assert.equal(check.exitCode, 1);
+  assert.match(
+    check.stderr,
+    /present in Git HEAD cannot remain an unactivated candidate/
+  );
+
+  const activation = await runSourceCli([
+    "activate",
+    relativePath,
+    "--alignment",
+    "aligned",
+    "--root",
+    committedCandidateRoot
+  ]);
+  assert.equal(activation.exitCode, 1);
+  assert.match(
+    activation.stderr,
+    /present in Git HEAD cannot be activated as a new decision candidate/
+  );
+  assert.equal(await fs.readFile(decisionPath, "utf8"), candidateBody);
+} finally {
+  await fs.rm(committedCandidateRoot, { force: true, recursive: true });
 }
 
 const onlyPendingRoot = await fs.mkdtemp(

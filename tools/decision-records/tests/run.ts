@@ -310,18 +310,18 @@ try {
     "# 验证未登记成员",
     "",
     "## 索引摘要",
-    "- 目的: 验证严格登记事务只允许一个明确目标。",
-    "- 背景: 其他未登记记录必须继续阻断索引更新。",
-    "- 决策: 多个未登记记录存在时保持原索引不变。",
+    "- 目的: 验证多条预写候选可以按显式目标逐条激活。",
+    "- 背景: 其他完整候选需要明确提醒，但不应阻断当前目标。",
+    "- 决策: 单次只激活目标，索引排除其他候选且严格检查继续阻断。",
     "",
     "## 目的",
-    "- 验证严格登记事务只允许一个明确目标。",
+    "- 验证多条预写候选可以按显式目标逐条激活。",
     "",
     "## 背景",
-    "- 其他未登记记录必须继续阻断索引更新。",
+    "- 其他完整候选需要明确提醒，但不应阻断当前目标。",
     "",
     "## 决策",
-    "- 采用: 多个未登记记录存在时保持原索引不变。",
+    "- 采用: 单次只激活目标，索引排除其他候选且严格检查继续阻断。",
     ""
   ].join("\n");
   const firstUnindexedRelativePath = "tooling/use-first-unindexed.md";
@@ -344,18 +344,120 @@ try {
     "--root",
     tempRoot
   ]);
-  assert.equal(multipleUnindexedActivation.exitCode, 1);
+  assert.equal(multipleUnindexedActivation.exitCode, 0);
+  assert.match(
+    multipleUnindexedActivation.stdout,
+    /Activated new decision as aligned tooling\/use-first-unindexed\.md \[pending\]/
+  );
   assert.match(
     multipleUnindexedActivation.stderr,
-    /tooling\/use-second-unindexed\.md frontmatter createdAt must not be null/
+    /Unactivated decision candidate remains: tooling\/use-second-unindexed\.md/
   );
   assert.doesNotMatch(
     multipleUnindexedActivation.stderr,
-    /tooling\/use-first-unindexed\.md frontmatter createdAt must not be null/
+    /Unactivated decision candidate remains: tooling\/use-first-unindexed\.md/
   );
-  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
+  const firstActivationIndex = await readIndex(indexPath);
+  findIndexEntry(firstActivationIndex, firstUnindexedRelativePath);
+  assert.equal(
+    firstActivationIndex.records.some(
+      (record) => record.path === secondUnindexedRelativePath
+    ),
+    false
+  );
+
+  const candidateCheck = await runBundledCli(["check", "--root", tempRoot]);
+  assert.equal(candidateCheck.exitCode, 1);
+  assert.match(
+    candidateCheck.stderr,
+    /Unactivated decision candidate must be activated or discarded before strict check: tooling\/use-second-unindexed\.md/
+  );
+  const candidateValidation = await validateDecisionRecords({
+    workspaceRoot: tempRoot
+  });
+  assert.equal(candidateValidation.activationCandidateCount, 1);
+
+  const candidateList = await runBundledCli(["list", "--root", tempRoot]);
+  assert.equal(candidateList.exitCode, 0);
+  assert.match(candidateList.stderr, /use-second-unindexed\.md/);
+  assert.match(candidateList.stdout, /use-first-unindexed\.md/);
+  assert.doesNotMatch(candidateList.stdout, /use-second-unindexed\.md/);
+
+  const candidateSync = await runBundledCli([
+    "sync-index",
+    "--write",
+    "--root",
+    tempRoot
+  ]);
+  assert.equal(candidateSync.exitCode, 0);
+  assert.match(candidateSync.stdout, /Decision index is up to date/);
+  assert.match(candidateSync.stderr, /use-second-unindexed\.md/);
+
+  const secondActivation = await runSuccessfulCli([
+    "activate",
+    secondUnindexedRelativePath,
+    "--alignment",
+    "aligned",
+    "--root",
+    tempRoot
+  ]);
+  assert.match(secondActivation, /Activated new decision as aligned/);
+  const completeCandidateIndex = await readIndex(indexPath);
+  findIndexEntry(completeCandidateIndex, firstUnindexedRelativePath);
+  findIndexEntry(completeCandidateIndex, secondUnindexedRelativePath);
+  await runSuccessfulCli(["check", "--root", tempRoot]);
   await fs.rm(firstUnindexedPath);
   await fs.rm(secondUnindexedPath);
+  await fs.writeFile(indexPath, originalIndexText, "utf8");
+
+  const targetCandidateRelativePath = "tooling/use-target-candidate.md";
+  const orphanRelativePath = "tooling/use-orphan-established.md";
+  const targetCandidatePath = path.join(
+    decisionsDirectory,
+    targetCandidateRelativePath
+  );
+  const orphanPath = path.join(decisionsDirectory, orphanRelativePath);
+  await fs.writeFile(targetCandidatePath, unindexedBody, "utf8");
+  await fs.writeFile(
+    orphanPath,
+    unindexedBody.replace(
+      "createdAt: null",
+      "createdAt: 2026-07-22T10:20:30+08:00"
+    ),
+    "utf8"
+  );
+  const activationWithOrphan = await runBundledCli([
+    "activate",
+    targetCandidateRelativePath,
+    "--alignment",
+    "aligned",
+    "--root",
+    tempRoot
+  ]);
+  assert.equal(activationWithOrphan.exitCode, 1);
+  assert.match(
+    activationWithOrphan.stderr,
+    /does not include decision tooling\/use-orphan-established\.md/
+  );
+  assert.match(
+    await fs.readFile(targetCandidatePath, "utf8"),
+    /createdAt: null/
+  );
+  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
+  const syncWithOrphan = await runBundledCli([
+    "sync-index",
+    "--write",
+    "--root",
+    tempRoot
+  ]);
+  assert.equal(syncWithOrphan.exitCode, 1);
+  assert.match(
+    syncWithOrphan.stderr,
+    /does not include decision tooling\/use-orphan-established\.md/
+  );
+  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
+  await fs.rm(targetCandidatePath);
+  await fs.rm(orphanPath);
 
   const driftedDecision = currentDecision.replaceAll(
     "需要验证生成后的 CLI 能读取一套最小决策目录。",
@@ -498,8 +600,9 @@ try {
   const firstAreaDirectory = path.join(firstDecisionsDirectory, "tooling");
   await fs.mkdir(firstAreaDirectory, { recursive: true });
   const firstRelativePath = "tooling/use-first-index.md";
+  const firstDecisionPath = path.join(firstDecisionsDirectory, firstRelativePath);
   await fs.writeFile(
-    path.join(firstDecisionsDirectory, firstRelativePath),
+    firstDecisionPath,
     [
       "---",
       "status: active",
@@ -526,6 +629,15 @@ try {
     ].join("\n"),
     "utf8"
   );
+  const secondRelativePath = "tooling/use-second-index.md";
+  await fs.writeFile(
+    path.join(firstDecisionsDirectory, secondRelativePath),
+    (await fs.readFile(firstDecisionPath, "utf8")).replace(
+      "# 使用首条索引",
+      "# 使用第二条索引"
+    ),
+    "utf8"
+  );
 
   const firstActivation = await runBundledCli([
     "activate",
@@ -537,6 +649,7 @@ try {
   ]);
   assert.equal(firstActivation.exitCode, 0);
   assert.match(firstActivation.stdout, /Activated new decision as aligned/);
+  assert.match(firstActivation.stderr, /use-second-index\.md/);
   const firstIndex = await readIndex(
     path.join(firstDecisionsDirectory, "decision-index.json")
   );
@@ -548,6 +661,26 @@ try {
     firstIndex.records[0]!.createdAt,
     /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
   );
+  const firstActivationValidation = await validateDecisionRecords({
+    workspaceRoot: firstActivationRoot
+  });
+  assert.equal(firstActivationValidation.activationCandidateCount, 1);
+  assert.ok(firstActivationValidation.errors.some(
+    (error) => error.includes("use-second-index.md")
+  ));
+
+  await runSuccessfulCli([
+    "activate",
+    secondRelativePath,
+    "--alignment",
+    "aligned",
+    "--root",
+    firstActivationRoot
+  ]);
+  const completedFirstIndex = await readIndex(
+    path.join(firstDecisionsDirectory, "decision-index.json")
+  );
+  assert.equal(completedFirstIndex.records.length, 2);
   assert.deepEqual(
     (await validateDecisionRecords({ workspaceRoot: firstActivationRoot })).errors,
     []

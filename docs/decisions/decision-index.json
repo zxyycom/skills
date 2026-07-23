@@ -463,6 +463,17 @@
       ]
     },
     {
+      "path": "decision-records/allow-sequential-activation-of-prewritten-candidates.md",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-07-23T01:52:08Z",
+      "title": "允许逐条激活预写决策候选",
+      "purpose": "允许一次准备多条已确认决策并逐条激活，同时保持遗漏候选能够被明确发现。",
+      "background": "单条 activate 的完整集合校验会让其他预写候选阻断目标激活，迫使维护者交替写入和激活文件。",
+      "decision": "识别未进入 HEAD 的完整未激活候选；作用域维护可在逐条提醒后继续，索引排除候选，严格 check 继续阻断遗漏。",
+      "relations": []
+    },
+    {
       "path": "decision-records/converge-records-before-stable-baseline.md",
       "status": "archived",
       "alignment": null,
