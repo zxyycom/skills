@@ -2,11 +2,15 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { toJsonSchema } from "@valibot/to-json-schema";
+import * as v from "valibot";
 import {
   buildStateIndex,
+  createStateIndexSchema,
   createStateIndexRuntime,
   defineStateIndexDefinition,
-  type JsonObject
+  type JsonObject,
+  stateIndexTextSchema
 } from "../src/index.ts";
 import {
   decisionDefinition,
@@ -17,19 +21,68 @@ import {
 } from "./support.ts";
 
 export async function testRuntime(): Promise<void> {
+  const composableIndexSchema = createStateIndexSchema({
+    definitionVersion: 1,
+    keys: v.strictObject({
+      status: v.tuple([stateIndexTextSchema])
+    }),
+    keyDefinitions: v.tuple([
+      v.strictObject({
+        mode: v.literal("exact"),
+        name: v.literal("status")
+      })
+    ]),
+    namespace: "runtime-test",
+    sourceRevision: stateIndexTextSchema,
+    state: v.strictObject({
+      id: stateIndexTextSchema
+    })
+  });
+  assert.equal(
+    toJsonSchema(composableIndexSchema, { target: "draft-2020-12" }).type,
+    "object"
+  );
+
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "state-index-runtime-"));
   try {
     const source: MemoryStateSource<DecisionState> = {
       revision: "runtime-revision-1",
       states: await decisionStates()
     };
-    const definition = decisionDefinition(source);
+    let revisionReads = 0;
+    const baseDefinition = decisionDefinition(source);
+    const definition = defineStateIndexDefinition({
+      ...baseDefinition,
+      readRevision: async (context) => {
+        revisionReads += 1;
+        return await baseDefinition.readRevision(context);
+      }
+    });
     const runtime = createStateIndexRuntime({
       definition,
       indexPath: "indexes/decisions.json",
       root: tempRoot
     });
     assert.equal((await runtime.sync("write")).state, "written");
+    revisionReads = 0;
+
+    const opened = await runtime.open();
+    const reader = resultValue(opened);
+    assert.equal(revisionReads, 1);
+    assert.equal(resultValue(reader.all()).length, source.states.length);
+    assert.equal(
+      resultValue(reader.get("architecture/use-shared-cache.md"))?.state.title,
+      "采用共享缓存策略"
+    );
+    assert.equal(resultValue(reader.query({
+      filters: [{
+        key: "status",
+        kind: "exact",
+        operator: "all",
+        values: ["active"]
+      }]
+    })).total, 2);
+    assert.equal(revisionReads, 1);
 
     const queried = await runtime.query({
       filters: [{
@@ -99,6 +152,10 @@ export async function testRuntime(): Promise<void> {
       ...source.states[0]!,
       status: "archived"
     };
+    assert.equal(
+      resultValue(reader.get(source.states[0]!.path))?.state.status,
+      "active"
+    );
     assert.equal((await runtime.get(source.states[0]!.path)).status, "error");
     assert.equal((await runtime.sync("write")).state, "written");
     assert.equal((await runtime.get(source.states[0]!.path)).status, "ok");

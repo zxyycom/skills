@@ -7,17 +7,15 @@ export const stateIndexQueryMaximumLimit = 1_000;
 
 const namespacePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 const keyNamePattern = /^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$/u;
+const stateIndexTextPattern = /^(?![\s\S]*[\u0000-\u001f\u007f])\S(?:[\s\S]*\S)?$/;
 const controlCharacterPattern = /[\u0000-\u001f\u007f]/u;
 
-const trimmedNonEmptyStringSchema = v.pipe(
+export const stateIndexTextSchema = v.pipe(
   v.string("must be a string"),
-  v.check(
-    (value) => value.length > 0 && value.trim() === value,
-    "must be non-empty text without surrounding whitespace"
-  ),
-  v.check(
-    (value) => !controlCharacterPattern.test(value),
-    "must not contain control characters"
+  v.minLength(1, "must be non-empty text without surrounding whitespace or control characters"),
+  v.regex(
+    stateIndexTextPattern,
+    "must be non-empty text without surrounding whitespace or control characters"
   )
 );
 const nonNegativeIntegerSchema = v.pipe(
@@ -32,23 +30,23 @@ const positiveIntegerSchema = v.pipe(
 );
 
 export const stateIndexNamespaceSchema = v.pipe(
-  trimmedNonEmptyStringSchema,
+  stateIndexTextSchema,
   v.regex(namespacePattern, "must be a kebab-case namespace")
 );
 export const stateIndexKeyNameSchema = v.pipe(
-  trimmedNonEmptyStringSchema,
+  stateIndexTextSchema,
   v.regex(keyNamePattern, "must be a lowercase key name")
 );
-export const stateIndexIdSchema = trimmedNonEmptyStringSchema;
-export const stateIndexRevisionSchema = trimmedNonEmptyStringSchema;
+export const stateIndexIdSchema = stateIndexTextSchema;
+export const stateIndexRevisionSchema = stateIndexTextSchema;
 export const stateIndexKeyScalarSchema = v.union([
   v.boolean("must be a boolean, finite number, or string"),
   v.pipe(v.number("must be a boolean, finite number, or string"), v.finite("must be finite")),
-  trimmedNonEmptyStringSchema
+  stateIndexTextSchema
 ]);
 export const stateIndexRangeScalarSchema = v.union([
   v.pipe(v.number("must be a finite number or string"), v.finite("must be finite")),
-  trimmedNonEmptyStringSchema
+  stateIndexTextSchema
 ]);
 const jsonObjectSchema = v.custom<JsonObject>(
   isJsonObject,
@@ -84,6 +82,35 @@ export const stateIndexSchema = v.strictObject({
   sourceRevision: stateIndexRevisionSchema
 });
 
+export function createStateIndexSchema<
+  const DefinitionVersion extends number,
+  const KeysSchema extends v.GenericSchema,
+  const KeyDefinitionsSchema extends v.GenericSchema,
+  const Namespace extends string,
+  const SourceRevisionSchema extends v.GenericSchema,
+  const StateSchema extends v.GenericSchema
+>(options: {
+  definitionVersion: DefinitionVersion;
+  keys: KeysSchema;
+  keyDefinitions: KeyDefinitionsSchema;
+  namespace: Namespace;
+  sourceRevision: SourceRevisionSchema;
+  state: StateSchema;
+}) {
+  return v.strictObject({
+    definitionVersion: v.literal(options.definitionVersion),
+    entries: v.array(v.strictObject({
+      id: stateIndexIdSchema,
+      keys: options.keys,
+      state: options.state
+    })),
+    keyDefinitions: options.keyDefinitions,
+    namespace: v.literal(options.namespace),
+    schemaVersion: v.literal(stateIndexSchemaVersion),
+    sourceRevision: options.sourceRevision
+  });
+}
+
 const exactFilterSchema = v.strictObject({
   key: stateIndexKeyNameSchema,
   kind: v.literal("exact"),
@@ -103,7 +130,7 @@ const textFilterSchema = v.strictObject({
   key: stateIndexKeyNameSchema,
   kind: v.literal("text"),
   operator: v.picklist(["all", "any"]),
-  text: trimmedNonEmptyStringSchema
+  text: stateIndexTextSchema
 });
 const existsFilterSchema = v.strictObject({
   key: stateIndexKeyNameSchema,

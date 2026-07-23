@@ -11,6 +11,9 @@ export {
 export { findStateIndexEntry, queryStateIndex } from "./query.ts";
 export {
   createStateIndexRuntime,
+  type StateIndexAllQuery,
+  type StateIndexQueryOptions,
+  type StateIndexReader,
   type StateIndexRuntime
 } from "./runtime.ts";
 export {
@@ -45,6 +48,7 @@ export type {
   StateSnapshot
 } from "./types.ts";
 export {
+  createStateIndexSchema,
   stateIndexEntrySchema,
   stateIndexFilterSchema,
   stateIndexIdSchema,
@@ -59,7 +63,8 @@ export {
   stateIndexRevisionSchema,
   stateIndexSchema,
   stateIndexSchemaVersion,
-  stateIndexSortSchema
+  stateIndexSortSchema,
+  stateIndexTextSchema
 } from "./schemas.ts";
 export {
   isJsonObject,
