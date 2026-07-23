@@ -1425,6 +1425,31 @@
       }
     },
     {
+      "id": "dependency-boundary-design-behavior/concentrate-before-generalizing.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "dependency-boundary-design-behavior"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "单一实现也会产生调用扩散和重复治理成本；把收口等同于多实现抽象会延迟治理或过早泛化。",
+        "createdAt": "2026-07-23T07:34:02Z",
+        "decision": "新增独立 `dependency-boundary-design`，按责任建立最小且诚实的依赖边界，坚持先收口、再演进。",
+        "path": "dependency-boundary-design-behavior/concentrate-before-generalizing.md",
+        "purpose": "让散落的底层调用进入明确责任边界，使契约内变化集中处理且不虚构替换能力。",
+        "relations": [],
+        "status": "active",
+        "title": "用诚实的依赖边界先收口再演进"
+      }
+    },
+    {
       "id": "git-commit-organizer-behavior/260702-refine-commit-granularity-types-and-command.md",
       "keys": {
         "alignment": [
@@ -3026,5 +3051,5 @@
   ],
   "namespace": "decisions",
   "schemaVersion": 1,
-  "sourceRevision": "sha256:a9aef9347e435d4b26d4dfe6091e63ae9579af1197eac81b637ec7a093d36b4f"
+  "sourceRevision": "sha256:3ff4b96502472e72ee3e7cb4620366d9016e8d2e8ce240c92a2050516db3f838"
 }
