@@ -10,6 +10,7 @@
   "scripts": {
     "typecheck": "tsgo --noEmit",
     "validate": "bun scripts/validate.ts",
+    "test:change-plan-cli": "bun tools/change-plan/tests/run.ts",
     "test:decision-records-cli": "bun tools/decision-records/tests/run.ts",
     "test:check": "bun scripts/check.test.ts",
     "test:generated-file": "bun scripts/lib/generated-file.test.ts",
@@ -21,6 +22,8 @@
     "hash:skills": "bun scripts/hash-skills.ts",
     "pack:skills": "bun scripts/pack-skills.ts",
     "setup-hooks": "bun scripts/setup-git-hooks.ts",
+    "sync:change-plan-cli": "bun scripts/build/change-plan.ts --write",
+    "check:change-plan-cli": "bun scripts/build/change-plan.ts --check",
     "sync:decision-records-cli": "bun scripts/build/decision-records.ts --write",
     "check:decision-records-cli": "bun scripts/build/decision-records.ts --check",
     "sync:skill-validator": "bun scripts/build/skill-validator.ts --write",

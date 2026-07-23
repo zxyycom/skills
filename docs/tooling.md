@@ -64,6 +64,9 @@
 26. `bun run sync:investigation-report-check`: 从 `tools/investigation-report/` 构建并写入 `investigation-report` skill 内的 `check-investigations.mjs`、类型声明和 source map。
 27. `bun run check:investigation-report-check`: 在临时目录重建调查报告检查器，并检查 skill 内分发产物是否与当前源码一致。
 28. `bun run test:version-control`: 使用隔离 Git 仓库验证版本管理中间层的提交快照、待提交快照、工作区路径、提交差异、未出生与损坏 `HEAD`、冲突 index、错误映射和 linked worktree 行为。
+29. `bun run test:change-plan-cli`: 使用临时 change 目录测试三文件结构、标题顺序、非空章节、任务语法、唯一 ID、包内导入、Node CLI、机器输出和生成追溯。
+30. `bun run sync:change-plan-cli`: 从 `tools/change-plan/` 构建并写入 `change-plan` skill 内的 `change-plan.mjs`、类型声明和 source map。
+31. `bun run check:change-plan-cli`: 在临时目录重建 change plan 检查器，并检查 skill 内分发产物是否与当前源码一致。
 
 需要直接排查实现时，可以用 `bun scripts/<script>.ts` 运行项目脚本，或用 `bun tools/<tool-name>/src/<entry>.ts` 运行工具源码入口。
 
@@ -169,6 +172,19 @@
 9. 仓库调查集合：`bun run check:investigations`；`bun run check` 组合本入口与生成检查，使仓库内容按当前源码验证且分发产物保持一致。
 
 检查器默认校验调查根目录中的全部索引条目和主题文件；除索引外的 Markdown 文件都按主题文件检查。`--topic` 与 `--report` 只收窄本次结构检查，不改变主题文件、索引或调查状态。
+
+`change-plan` 检查器的维护入口：
+
+1. 源码：`tools/change-plan/src/`。
+2. 声明源：`tools/change-plan/api/change-plan.d.mts`。
+3. 测试：`tools/change-plan/tests/`。
+4. 构建入口：`scripts/build/change-plan.ts`。
+5. 分发产物：`skills/change-plan/scripts/change-plan.mjs`、`change-plan.d.mts` 及 `change-plan.mjs.map`。
+6. 同步：`bun run sync:change-plan-cli`。
+7. 检查：`bun run check:change-plan-cli`。
+8. 测试：`bun run test:change-plan-cli`。
+
+检查器接收单个 change 目录，只读检查 kebab-case 目录名、`proposal.md`、`design.md`、`tasks.md`、固定标题顺序、非空必需章节和任务语法。它不判断计划内容正确性、开放问题是否收敛或实施许可。
 
 已安装的 `skill-maintainer` 可在自身目录内运行，或使用脚本绝对路径验证其他 skill：
 

@@ -24,6 +24,7 @@
    - `prompt-optimize`: 独立组成一个分发单元, 优化 prompt、agent 指令、规则、任务、需求、模板和工作流等结构化文本。
    - `skill-maintainer`: 分析 skill 与分发单元的组成、主要类型、能力归属和依赖边界, 以单元级自包含基线和环境适配完成交付, 并随包提供单 skill 机械结构验证。
    - `git-commit-organizer`: 整理当前 Git 改动并创建范围清楚、信息可追踪的提交。
+   - `change-plan`: 为明确 change 创建、更新或审阅 proposal、design 与 tasks，并用基础 CLI 检查临时计划的固定结构。
    - `openspec-explore`、`openspec-propose`、`openspec-apply-change`、`openspec-archive-change`: 四者共同组成一个分发单元, 覆盖 OpenSpec change 的探索、提案、实施和归档流程。
    - `codex-shell-permissions`: 指导 shell 失败后的下一步命令选择, 并在用户要求时维护 Codex 权限 rules。
    - `decision-records`: 恢复、审阅和维护可回放的长期决策、JSON 全生命周期索引与历史关系。

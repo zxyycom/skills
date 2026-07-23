@@ -1,0 +1,4 @@
+interface:
+  display_name: "Change Plan"
+  short_description: "创建可审阅、可交接并带实施门禁的 change 计划"
+  default_prompt: "使用 $change-plan 为一个明确 change 创建、更新或审阅 proposal、design 与 tasks，恢复相关 owner 和决策，保留开放问题与 Readiness 门禁，并用随包 CLI 检查固定结构。"

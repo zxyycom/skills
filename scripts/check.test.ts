@@ -90,11 +90,11 @@ assert.deepEqual(formatCheckResult({
 });
 assert.equal(
   formatTimedStatus(
-    "All 18 preflight checks and packaging",
+    "All 20 preflight checks and packaging",
     "warning",
     6_370
   ),
-  "All 18 preflight checks and packaging [warning][6.37s]"
+  "All 20 preflight checks and packaging [warning][6.37s]"
 );
 
 const slowResult = Promise.withResolvers<ReturnType<typeof scriptResult>>();
@@ -245,7 +245,7 @@ assert.match(
 );
 assert.match(
   invalidConcurrency.stderr,
-  /All 18 preflight checks and packaging \[failed\]\[\d+\.\d{2}s\]/u
+  /All 20 preflight checks and packaging \[failed\]\[\d+\.\d{2}s\]/u
 );
 
 const invalidArgument = spawnSync(
@@ -261,7 +261,7 @@ assert.equal(invalidArgument.stdout, "");
 assert.match(invalidArgument.stderr, /Unknown option '--unknown'/u);
 assert.match(
   invalidArgument.stderr,
-  /All 18 preflight checks and packaging \[failed\]\[\d+\.\d{2}s\]/u
+  /All 20 preflight checks and packaging \[failed\]\[\d+\.\d{2}s\]/u
 );
 
 console.log("Check orchestration tests passed.");

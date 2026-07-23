@@ -13,6 +13,7 @@ type CheckTask =
 
 const preflightTasks = [
   "test:test-evidence-cli",
+  "test:change-plan-cli",
   "test:decision-records-cli",
   "check:test-evidence-fixture",
   "test:skill-validator",
@@ -24,6 +25,7 @@ const preflightTasks = [
   "check:test-evidence-cli",
   "check:skill-validator",
   "check:investigation-report-check",
+  "check:change-plan-cli",
   "check:decision-records-cli",
   "typecheck",
   "check:skill-updaters",

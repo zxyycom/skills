@@ -21,6 +21,7 @@
 5. 自动化测试、人工审查风险和发现豁免如何通过统一账本保持可追溯。
 6. 隐性专业工作如何在 Skill 实现前恢复为可执行的决策、约束、权限和验证义务。
 7. 多个格式、需求、数据模型或代码实现如何识别可共同依赖的契约, 并决定公约数的数量、变体与责任层。
+8. 一次 change 如何形成可持久审阅、带实施门禁并可机械检查结构的计划。
 
 因此这个项目不会把所有内容合成一个大而全的 skill。每个 skill 都应该有自己的问题意识、语义边界和演进方向；它们放在同一组项目里，是为了共同服务于更好的 agent 协作。
 
@@ -39,6 +40,8 @@
 [Skill Maintainer](docs/skills/skill-maintainer.md) 说明 skill 的组成与主要类型，判断能力归属，以自包含基线和环境适配完成交付，并随包提供机械结构验证器。实际 skill 位于 [`skills/skill-maintainer/`](skills/skill-maintainer/)。
 
 [Git Commit Organizer](docs/skills/git-commit-organizer.md) 关注提交信息质量。它希望统一提交风格，让每一次提交都能更准确地表达变更意图，降低后续阅读、审查、追踪和管理成本。实际 skill 位于 [`skills/git-commit-organizer/`](skills/git-commit-organizer/)。
+
+[Change Plan](docs/skills/change-plan.md) 为明确 change 创建、更新或审阅 `proposal.md`、`design.md` 和 `tasks.md`，把目标范围、当前 change 的设计上下文、Readiness 门禁、实施任务和验证任务整理为可交接的临时计划，并随包提供基础结构检查 CLI。实际 skill 位于 [`skills/change-plan/`](skills/change-plan/)。
 
 [OpenSpec Skills](docs/skills/openspec-skills.md) 关注 OpenSpec skills 的二次开发。它的起点是原有 OpenSpec skill 文本还不够适合实际 agent 协作，需要重新梳理阶段边界、指令质量和执行脉络。实际 skill 位于 [`skills/openspec-explore/`](skills/openspec-explore/)、[`skills/openspec-propose/`](skills/openspec-propose/)、[`skills/openspec-apply-change/`](skills/openspec-apply-change/) 和 [`skills/openspec-archive-change/`](skills/openspec-archive-change/)。
 
