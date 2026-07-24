@@ -25,6 +25,9 @@
 7. 多个格式、需求、数据模型或代码实现如何识别可共同依赖的契约, 并决定公约数的数量、变体与责任层。
 8. 一次 change 如何形成可持久审阅、带实施门禁并可机械检查结构的计划。
 9. 目标与责任已明确后，如何识别会改变实现选择的维护面，并在正确候选之间选择更小方案。
+10. 同一责任的底层依赖调用如何收口到明确边界，让后续变化集中处理。
+11. 调查如何保存形成时背景、目的、依据、结果与边界，并支持后续复核和比较。
+12. 复杂任务如何以最小充分上下文、互斥写入所有权和结果审计交给子代理协作完成。
 
 因此这个项目不会把所有内容合成一个大而全的 skill。每个 skill 都应该有自己的问题意识、语义边界和演进方向；它们放在同一组项目里，是为了共同服务于更好的 agent 协作。
 
@@ -33,6 +36,8 @@
 [Product & Architecture Judgment](docs/skills/product-architecture-judgment.md) 在工程任务深入局部实现前, 让 agent 区分目标结果、当前问题和已有解法, 再从产品价值与架构责任判断事情是否该做、该做到什么程度, 以及应由谁在哪一层实现。它从不做、简化、改写、重定责任、提炼抽象或局部实现中选择有证据支持的最小动作。实际 skill 位于 [`skills/product-architecture-judgment/`](skills/product-architecture-judgment/)。
 
 [Common Denominator Design](docs/skills/common-denominator-design.md) 在统一格式、需求、数据模型、接口、流程或代码实现前, 让 agent 按现实场景识别可共同依赖的契约边界。它决定应使用一个公约数、共享核心加变体、多个场景公约数还是保持局部, 并允许存储与使用按责任层形成不同但可映射的公约数。实际 skill 位于 [`skills/common-denominator-design/`](skills/common-denominator-design/)。
+
+[Dependency Boundary Design](docs/skills/dependency-boundary-design.md) 在同一责任的工具、库、SDK、存储或基础设施调用分散，或依赖处理重复、漂移时，判断是否需要建立明确边界。需要收口时，它按责任与变化原因确定 owner、范围、契约和例外，先集中当前依赖治理，再按现实多实现义务演进。实际 skill 位于 [`skills/dependency-boundary-design/`](skills/dependency-boundary-design/)。
 
 [Minimal Implementation](docs/skills/minimal-implementation.md) 在目标、contract 和责任 owner 已明确后，让 agent 识别依赖、抽象、配置、扩展点、状态和 ownership 等会改变选择的维护面，并在通过正确性门槛的候选之间选择总体维护面更小的实现；它也可以对当前 diff 或指定范围执行只读 complexity pass。实际 skill 位于 [`skills/minimal-implementation/`](skills/minimal-implementation/)。
 
@@ -48,9 +53,13 @@
 
 [Change Plan](docs/skills/change-plan.md) 为明确 change 创建、更新或审阅 `proposal.md`、`design.md` 和 `tasks.md`，把目标范围、当前 change 的设计上下文、Readiness 门禁、实施任务和验证任务整理为可交接的临时计划，并随包提供基础结构检查 CLI。实际 skill 位于 [`skills/change-plan/`](skills/change-plan/)。
 
+[Subagent Orchestration](docs/skills/subagent-orchestration.md) 在用户明确要求委派，或复杂任务适合拆成边界清楚的调查、实现、验证和审查子任务时，指导主 agent 选择最小充分历史、划分互斥写入所有权并审计结果。它让子代理负责有界交付，主 agent 保持目标一致性和下一步判断。实际 skill 位于 [`skills/subagent-orchestration/`](skills/subagent-orchestration/)。
+
 [OpenSpec Skills](docs/skills/openspec-skills.md) 关注 OpenSpec skills 的二次开发。它的起点是原有 OpenSpec skill 文本还不够适合实际 agent 协作，需要重新梳理阶段边界、指令质量和执行脉络。实际 skill 位于 [`skills/openspec-explore/`](skills/openspec-explore/)、[`skills/openspec-propose/`](skills/openspec-propose/)、[`skills/openspec-apply-change/`](skills/openspec-apply-change/) 和 [`skills/openspec-archive-change/`](skills/openspec-archive-change/)。
 
 [Codex Shell Permissions](docs/skills/codex-shell-permissions.md) 关注 Codex shell 失败后的下一步执行选择。它让 agent 判断应改用简单命令、申请必要提权、确认高风险范围，还是回到真实程序错误处理；当用户主动要求时，再进入 `execpolicy` 和 `allow/prompt/block` 的权限规则维护流程。实际 skill 位于 [`skills/codex-shell-permissions/`](skills/codex-shell-permissions/)。
+
+[Investigation Report](docs/skills/investigation-report.md) 在用户明确要求沉淀调查时，用稳定主题保存每轮形成时背景、调查目的、实际依据以及结果与边界。同一核心问题的新认识追加为可独立阅读的完整报告，主题级派生索引负责发现、新鲜度和查询。实际 skill 位于 [`skills/investigation-report/`](skills/investigation-report/)。
 
 [Decision Records](docs/skills/decision-records.md) 提供一套跨项目复用的长期决策记忆方案和配套 CLI。它用稳定 Markdown 文件保存显式摘要、完整背景、决策和按需声明的演进关系，用 JSON 索引保存当前判断的精简背景与决策，并支持结构检查、独立逻辑归档、关系链查询和校验式成员更新；实际 skill 位于 [`skills/decision-records/`](skills/decision-records/)。
 
