@@ -4,7 +4,8 @@ import os from "node:os";
 import path from "node:path";
 import {
   buildGeneratedDeclaration,
-  normalizeSourceMap
+  normalizeSourceMap,
+  syncGeneratedFile
 } from "./generated-file.ts";
 
 type ParsedSourceMap = {
@@ -89,6 +90,32 @@ try {
   );
 } finally {
   await fs.rm(declarationTempRoot, { force: true, recursive: true });
+}
+
+const generatedFileTempRoot = await fs.mkdtemp(
+  path.join(os.tmpdir(), "generated-file-line-endings-test-")
+);
+try {
+  const generatedFilePath = path.join(generatedFileTempRoot, "generated.txt");
+  await fs.writeFile(generatedFilePath, "first\r\nsecond\r\n", "utf8");
+  assert.equal(
+    await syncGeneratedFile(
+      generatedFilePath,
+      "first\nsecond\n",
+      "check"
+    ),
+    "current"
+  );
+  assert.equal(
+    await syncGeneratedFile(
+      generatedFilePath,
+      "first\nchanged\n",
+      "check"
+    ),
+    "stale"
+  );
+} finally {
+  await fs.rm(generatedFileTempRoot, { force: true, recursive: true });
 }
 
 console.log("Generated file tests passed.");

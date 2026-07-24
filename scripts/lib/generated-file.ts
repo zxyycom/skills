@@ -188,13 +188,23 @@ export async function buildGeneratedDeclaration(
   return `${options.banner}\n${declaration.endsWith("\n") ? declaration : `${declaration}\n`}`;
 }
 
+function normalizeGeneratedTextLineEndings(text: string): string {
+  return text.replace(/\r\n/g, "\n");
+}
+
 export async function syncGeneratedFile(
   outputPath: string,
   expected: string,
   mode: GeneratedFileMode
 ): Promise<"current" | "stale" | "written"> {
-  if (await pathExists(outputPath) && await fs.readFile(outputPath, "utf8") === expected) {
-    return "current";
+  if (await pathExists(outputPath)) {
+    const actual = await fs.readFile(outputPath, "utf8");
+    if (
+      normalizeGeneratedTextLineEndings(actual)
+      === normalizeGeneratedTextLineEndings(expected)
+    ) {
+      return "current";
+    }
   }
 
   if (mode === "check") {
