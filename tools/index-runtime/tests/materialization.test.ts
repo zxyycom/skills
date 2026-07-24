@@ -4,6 +4,8 @@ import os from "node:os";
 import path from "node:path";
 import {
   buildStateIndex,
+  defineStateIndexDefinition,
+  keyDefinitionsOf,
   loadCurrentStateIndex,
   loadStateIndex,
   parseStateIndex,
@@ -28,15 +30,162 @@ export async function testMaterialization(): Promise<void> {
     };
     const definition = decisionDefinition(source);
     const firstBuild = await buildStateIndex(definition, { root: tempRoot });
-    const firstText = serializeStateIndex(resultValue(firstBuild));
+    const firstIndex = resultValue(firstBuild);
+    assert.deepEqual(firstIndex.keyDefinitions, keyDefinitionsOf(definition));
+    const firstText = serializeStateIndex(firstIndex, definition);
     source.states.reverse();
     assert.equal(
-      serializeStateIndex(resultValue(await buildStateIndex(definition, { root: tempRoot }))),
+      serializeStateIndex(
+        resultValue(await buildStateIndex(definition, { root: tempRoot })),
+        definition
+      ),
       firstText
     );
     source.states.reverse();
     assert.equal(firstText.endsWith("\n"), true);
     assert.equal(firstText.includes("generatedAt"), false);
+
+    const semanticDefinition = defineStateIndexDefinition<{
+      path: string;
+      title: string;
+      status: string;
+      summary: { purpose: string; background: string };
+    }>({
+      definitionVersion: 1,
+      fieldOrder: "definition",
+      identify: (state) => state.path,
+      keyStrategies: [
+        {
+          derive: (state) => state.path.split("/", 1)[0],
+          mode: "exact",
+          name: "topic"
+        },
+        {
+          derive: (state) => state.status,
+          mode: "exact",
+          name: "status"
+        }
+      ],
+      namespace: "semantic-order",
+      parseState: (input) => {
+        const summary = input.summary;
+        if (
+          typeof input.path !== "string"
+          || typeof input.title !== "string"
+          || typeof input.status !== "string"
+          || summary === null
+          || typeof summary !== "object"
+          || Array.isArray(summary)
+          || typeof summary.purpose !== "string"
+          || typeof summary.background !== "string"
+        ) {
+          throw new TypeError("invalid semantic state");
+        }
+        return {
+          path: input.path,
+          title: input.title,
+          status: input.status,
+          summary: {
+            purpose: summary.purpose,
+            background: summary.background
+          }
+        };
+      },
+      read: async () => ({
+        revision: "semantic-revision-1",
+        states: [
+          {
+            path: "topic/z.md",
+            status: "active",
+            summary: { background: "B", purpose: "P" },
+            title: "Z"
+          },
+          {
+            path: "topic/a.md",
+            status: "active",
+            summary: { background: "B", purpose: "P" },
+            title: "A"
+          }
+        ]
+      }),
+      readRevision: async () => "semantic-revision-1"
+    });
+    const semanticIndex = resultValue(await buildStateIndex(
+      semanticDefinition,
+      { root: tempRoot }
+    ));
+    assert.deepEqual(
+      semanticIndex.keyDefinitions,
+      keyDefinitionsOf(semanticDefinition)
+    );
+    const semanticText = serializeStateIndex(semanticIndex, semanticDefinition);
+    const semanticValue = JSON.parse(semanticText) as {
+      entries: Array<{
+        id: string;
+        keys: Record<string, unknown>;
+        state: { summary: Record<string, unknown> };
+      }>;
+      keyDefinitions: Array<Record<string, unknown>>;
+    };
+    assert.deepEqual(Object.keys(semanticValue), [
+      "schemaVersion",
+      "namespace",
+      "definitionVersion",
+      "sourceRevision",
+      "keyDefinitions",
+      "entries"
+    ]);
+    assert.deepEqual(
+      semanticValue.keyDefinitions.map((definition) => Object.values(definition)),
+      [["topic", "exact"], ["status", "exact"]]
+    );
+    assert.deepEqual(
+      semanticValue.entries.map((entry) => entry.id),
+      ["topic/a.md", "topic/z.md"]
+    );
+    assert.deepEqual(Object.keys(semanticValue.entries[0]!.keys), [
+      "topic",
+      "status"
+    ]);
+    assert.deepEqual(Object.keys(semanticValue.entries[0]!.state), [
+      "path",
+      "title",
+      "status",
+      "summary"
+    ]);
+    assert.deepEqual(Object.keys(semanticValue.entries[0]!.state.summary), [
+      "purpose",
+      "background"
+    ]);
+    const parsedSemantic = parseStateIndex({
+      definition: semanticDefinition,
+      expectation: { definitionVersion: 1, namespace: "semantic-order" },
+      sourcePath: "indexes/semantic-order.json",
+      text: semanticText
+    });
+    assert.equal(parsedSemantic.status, "ok");
+    assert.deepEqual(
+      resultValue(parsedSemantic).keyDefinitions,
+      keyDefinitionsOf(semanticDefinition)
+    );
+    assert.deepEqual(
+      Object.keys(resultValue(parsedSemantic).entries[0]!.state),
+      ["path", "title", "status", "summary"]
+    );
+    const reorderedSemantic = JSON.parse(semanticText) as {
+      keyDefinitions: unknown[];
+    };
+    reorderedSemantic.keyDefinitions.reverse();
+    const rejectedSemantic = parseStateIndex({
+      definition: semanticDefinition,
+      expectation: { definitionVersion: 1, namespace: "semantic-order" },
+      sourcePath: "indexes/semantic-order.json",
+      text: JSON.stringify(reorderedSemantic)
+    });
+    assert.equal(rejectedSemantic.status, "error");
+    assert.ok(rejectedSemantic.diagnostics.some((entry) => (
+      entry.code === "state-index.definition-mismatch"
+    )));
 
     const parsed = parseStateIndex({
       expectation: { definitionVersion: 1, namespace: "decisions" },
@@ -124,6 +273,7 @@ export async function testMaterialization(): Promise<void> {
 
     const loaded = await loadStateIndex({
       context: { root: tempRoot },
+      definition,
       expectation: { definitionVersion: 1, namespace: "decisions" },
       indexPath
     });

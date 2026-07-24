@@ -27,8 +27,9 @@ import {
   validateStateIndexDefinition
 } from "./validation.ts";
 
-export async function loadStateIndex(options: {
+export async function loadStateIndex<State extends object = object>(options: {
   context: StateIndexContext;
+  definition?: StateIndexDefinition<State>;
   expectation: StateIndexExpectation;
   indexPath: string;
 }): Promise<StateIndexResult<StateIndex>> {
@@ -51,6 +52,9 @@ export async function loadStateIndex(options: {
     );
   }
   return parseStateIndex({
+    ...(options.definition === undefined
+      ? {}
+      : { definition: options.definition }),
     expectation: options.expectation,
     sourcePath: options.indexPath,
     text
@@ -72,6 +76,7 @@ export async function loadCurrentStateIndex<State extends object>(options: {
   }
   const loaded = await loadStateIndex({
     context: options.context,
+    definition: options.definition,
     expectation: expectationOf(options.definition),
     indexPath: options.indexPath
   });
@@ -151,7 +156,7 @@ export async function syncStateIndex<State extends object>(options: {
       path: indexPath
     })]);
   }
-  const expectedText = serializeStateIndex(built.value);
+  const expectedText = serializeStateIndex(built.value, definition);
   let currentText: string | null = null;
   try {
     currentText = await fs.readFile(resolved.value, "utf8");
@@ -188,6 +193,7 @@ export async function syncStateIndex<State extends object>(options: {
       })]);
     }
     const parsed = parseStateIndex({
+      definition,
       expectation: expectationOf(definition),
       sourcePath: indexPath,
       text: currentText
@@ -316,8 +322,12 @@ function sameKeyDefinitions(
   left: StateIndex["keyDefinitions"],
   right: StateIndex["keyDefinitions"]
 ): boolean {
-  return left.length === right.length && left.every((entry, index) => (
-    entry.name === right[index]?.name && entry.mode === right[index]?.mode
+  if (left.length !== right.length) {
+    return false;
+  }
+  return left.every((entry, index) => (
+    entry.name === right[index]?.name
+    && entry.mode === right[index]?.mode
   ));
 }
 

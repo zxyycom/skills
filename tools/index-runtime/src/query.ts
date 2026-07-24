@@ -409,8 +409,12 @@ function sameKeyDefinitions(
   left: readonly StateIndexKeyDefinition[],
   right: readonly StateIndexKeyDefinition[]
 ): boolean {
-  return left.length === right.length && left.every((entry, index) => (
-    entry.name === right[index]?.name && entry.mode === right[index]?.mode
+  if (left.length !== right.length) {
+    return false;
+  }
+  return left.every((entry, index) => (
+    entry.name === right[index]?.name
+    && entry.mode === right[index]?.mode
   ));
 }
 

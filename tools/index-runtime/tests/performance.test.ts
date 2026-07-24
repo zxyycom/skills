@@ -77,10 +77,11 @@ async function benchmark(count: number): Promise<BenchmarkResult> {
   const buildStart = performance.now();
   const index = resultValue(await buildStateIndex(definition, { root: "." }));
   const buildMs = performance.now() - buildStart;
-  const text = serializeStateIndex(index);
+  const text = serializeStateIndex(index, definition);
 
   const parseStart = performance.now();
   const parsed = resultValue(parseStateIndex({
+    definition,
     expectation: { definitionVersion: 1, namespace: "scale" },
     sourcePath: "scale.json",
     text

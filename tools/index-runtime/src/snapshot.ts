@@ -91,7 +91,7 @@ export async function buildStateIndex<State extends object>(
   return {
     diagnostics: [],
     status: "ok",
-    value: canonicalizeStateIndex(validated.index)
+    value: canonicalizeStateIndex(validated.index, definition)
   };
 }
 
@@ -168,11 +168,42 @@ export function projectStateIndexEntry<State extends object>(
   };
 }
 
-export function parseStateIndex(options: {
+export function parseStateIndex<State extends object = JsonObject>(options: {
+  definition?: StateIndexDefinition<State>;
   expectation: StateIndexExpectation;
   sourcePath: string;
   text: string;
 }): StateIndexResult<StateIndex> {
+  if (options.definition !== undefined) {
+    const definitionErrors = validateStateIndexDefinition(options.definition);
+    if (definitionErrors.length > 0) {
+      return {
+        diagnostics: [diagnostic({
+          code: "state-index.definition-invalid",
+          message: definitionErrors.join("; "),
+          path: options.sourcePath
+        })],
+        status: "error",
+        value: null
+      };
+    }
+    const definitionExpectation = expectationOf(options.definition);
+    if (
+      definitionExpectation.namespace !== options.expectation.namespace
+      || definitionExpectation.definitionVersion !== options.expectation.definitionVersion
+    ) {
+      return {
+        diagnostics: [diagnostic({
+          code: "state-index.definition-mismatch",
+          message: "parse expectation does not match the runtime definition",
+          path: options.sourcePath
+        })],
+        status: "error",
+        value: null
+      };
+    }
+  }
+
   let value: unknown;
   try {
     value = JSON.parse(options.text);
@@ -196,18 +227,74 @@ export function parseStateIndex(options: {
   if (validated.index === null) {
     return { diagnostics: validated.diagnostics, status: "error", value: null };
   }
+
+  if (
+    options.definition !== undefined
+    && !sameKeyDefinitions(
+      validated.index.keyDefinitions,
+      keyDefinitionsOf(options.definition)
+    )
+  ) {
+    return {
+      diagnostics: [diagnostic({
+        code: "state-index.definition-mismatch",
+        message: "index key definitions do not match the runtime definition",
+        path: options.sourcePath
+      })],
+      status: "error",
+      value: null
+    };
+  }
+
+  let canonical: StateIndex;
+  try {
+    canonical = canonicalizeStateIndex(validated.index, options.definition);
+  } catch (error) {
+    return {
+      diagnostics: [diagnostic({
+        code: "state-index.state-parse-failed",
+        message: errorText(error),
+        path: options.sourcePath
+      })],
+      status: "error",
+      value: null
+    };
+  }
   return {
     diagnostics: [],
     status: "ok",
-    value: canonicalizeStateIndex(validated.index)
+    value: canonical
   };
 }
 
-export function serializeStateIndex(index: StateIndex): string {
-  return `${JSON.stringify(canonicalizeStateIndex(index), null, 2)}\n`;
+export function serializeStateIndex<State extends object>(
+  index: StateIndex,
+  definition: StateIndexDefinition<State>
+): string {
+  return `${JSON.stringify(canonicalizeStateIndex(index, definition), null, 2)}\n`;
 }
 
-export function canonicalizeStateIndex(index: StateIndex): StateIndex {
+export function canonicalizeStateIndex<State extends object = JsonObject>(
+  index: StateIndex,
+  definition?: StateIndexDefinition<State>
+): StateIndex {
+  if (definition?.fieldOrder === "definition") {
+    const keyOrder = new Map(
+      definition.keyStrategies.map((strategy, index) => [strategy.name, index])
+    );
+    return {
+      schemaVersion: stateIndexSchemaVersion,
+      namespace: index.namespace,
+      definitionVersion: index.definitionVersion,
+      sourceRevision: index.sourceRevision,
+      keyDefinitions: [...index.keyDefinitions]
+        .sort((left, right) => compareDefinitionKeys(left.name, right.name, keyOrder))
+        .map(({ name, mode }) => ({ name, mode })),
+      entries: index.entries
+        .map((entry) => canonicalizeEntry(entry, definition, keyOrder))
+        .sort((left, right) => compareIndexText(left.id, right.id))
+    };
+  }
   return {
     definitionVersion: index.definitionVersion,
     entries: index.entries
@@ -234,9 +321,23 @@ export function expectationOf<State extends object>(
 export function keyDefinitionsOf<State extends object>(
   definition: StateIndexDefinition<State>
 ): StateIndexKeyDefinition[] {
+  if (definition.fieldOrder === "definition") {
+    return definition.keyStrategies.map(({ name, mode }) => ({ name, mode }));
+  }
   return definition.keyStrategies
     .map(({ mode, name }) => ({ mode, name }))
     .sort((left, right) => compareIndexText(left.name, right.name));
+}
+
+function sameKeyDefinitions(
+  left: readonly StateIndexKeyDefinition[],
+  right: readonly StateIndexKeyDefinition[]
+): boolean {
+  return left.length === right.length
+    && left.every((entry, index) => (
+      entry.name === right[index]?.name
+      && entry.mode === right[index]?.mode
+    ));
 }
 
 function isStateSnapshot(
@@ -288,7 +389,34 @@ function isKeyScalar(value: unknown): value is StateIndexKeyScalar {
     || (typeof value === "string" && isStateIndexText(value));
 }
 
-function canonicalizeEntry(entry: StateIndexEntry): StateIndexEntry {
+function canonicalizeEntry(entry: StateIndexEntry): StateIndexEntry;
+function canonicalizeEntry<State extends object>(
+  entry: StateIndexEntry,
+  definition: StateIndexDefinition<State>,
+  keyOrder: ReadonlyMap<string, number>
+): StateIndexEntry;
+function canonicalizeEntry(
+  entry: StateIndexEntry,
+  definition?: StateIndexDefinition<object>,
+  keyOrder?: ReadonlyMap<string, number>
+): StateIndexEntry {
+  if (definition?.fieldOrder === "definition" && keyOrder !== undefined) {
+    const state = definition.parseState(entry.state);
+    if (!isJsonObject(state)) {
+      throw new TypeError(
+        "parseState must return a JSON object containing only finite JSON values"
+      );
+    }
+    return {
+      id: entry.id,
+      keys: Object.fromEntries(
+        Object.entries(entry.keys)
+          .sort(([left], [right]) => compareDefinitionKeys(left, right, keyOrder))
+          .map(([name, values]) => [name, [...values].sort(compareKeyScalars)])
+      ),
+      state: preserveJsonObjectFieldOrder(state)
+    };
+  }
   return {
     id: entry.id,
     keys: Object.fromEntries(
@@ -316,6 +444,37 @@ function canonicalizeJsonValue(value: JsonValue): JsonValue {
     return canonicalizeJsonObject(value);
   }
   return value;
+}
+
+function preserveJsonObjectFieldOrder(value: JsonObject): JsonObject {
+  return Object.fromEntries(
+    Object.entries(value).map(([key, child]) => [
+      key,
+      preserveJsonValueFieldOrder(child)
+    ])
+  );
+}
+
+function preserveJsonValueFieldOrder(value: JsonValue): JsonValue {
+  if (Array.isArray(value)) {
+    return value.map(preserveJsonValueFieldOrder);
+  }
+  if (value !== null && typeof value === "object") {
+    return preserveJsonObjectFieldOrder(value);
+  }
+  return value;
+}
+
+function compareDefinitionKeys(
+  left: string,
+  right: string,
+  order: ReadonlyMap<string, number>
+): number {
+  const leftOrder = order.get(left) ?? Number.POSITIVE_INFINITY;
+  const rightOrder = order.get(right) ?? Number.POSITIVE_INFINITY;
+  return leftOrder === rightOrder
+    ? compareIndexText(left, right)
+    : leftOrder - rightOrder;
 }
 
 function compareKeyScalars(

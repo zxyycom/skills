@@ -47,6 +47,13 @@ export function validateStateIndexDefinition<State extends object>(
   ) {
     errors.push("definitionVersion must be a positive safe integer");
   }
+  if (
+    definition.fieldOrder !== undefined
+    && definition.fieldOrder !== "definition"
+    && definition.fieldOrder !== "lexicographic"
+  ) {
+    errors.push("fieldOrder must be definition or lexicographic");
+  }
   if (typeof definition.read !== "function") {
     errors.push("read must be a function");
   }

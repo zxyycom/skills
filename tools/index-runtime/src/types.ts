@@ -48,6 +48,8 @@ export type StateSnapshot<State extends object> = {
   states: readonly State[];
 };
 
+export type StateIndexFieldOrder = "definition" | "lexicographic";
+
 export type StateKeyInput =
   | StateIndexKeyScalar
   | readonly StateIndexKeyScalar[]
@@ -61,6 +63,7 @@ export type StateKeyStrategy<State extends object> = {
 
 export type StateIndexDefinition<State extends object = JsonObject> = {
   definitionVersion: number;
+  fieldOrder?: StateIndexFieldOrder;
   identify: (state: State) => string;
   keyStrategies: readonly StateKeyStrategy<State>[];
   namespace: string;
