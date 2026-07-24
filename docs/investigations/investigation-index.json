@@ -41,7 +41,7 @@
           1784622685000
         ],
         "status": [
-          "调查中"
+          "暂停"
         ],
         "text": [
           "TypeScript Git 库选型调查",
@@ -57,7 +57,7 @@
         "reportTitles": [
           "统一选型需要正确性、性能与维护证据"
         ],
-        "status": "调查中",
+        "status": "暂停",
         "title": "TypeScript Git 库选型调查"
       }
     },
@@ -112,5 +112,5 @@
   ],
   "namespace": "investigations",
   "schemaVersion": 1,
-  "sourceRevision": "sha256:efea20d0d5f580be1932d4fb17f81cedf6a0b819ec0770f170eeeeda24e4a366"
+  "sourceRevision": "sha256:80ba768a44410c2f8aef26fe0ff34c55541225062e89eef4554a4e1055e71a45"
 }

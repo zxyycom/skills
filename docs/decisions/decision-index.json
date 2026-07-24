@@ -3113,7 +3113,7 @@
       "id": "version-control/centralize-version-control-responsibility.md",
       "keys": {
         "alignment": [
-          "unaligned"
+          "aligned"
         ],
         "status": [
           "active"
@@ -3123,7 +3123,7 @@
         ]
       },
       "state": {
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "background": "项目同时需要提交树、待提交内容和工作区变化，直接依赖 Git 命令与 index 语义会把解析和替换成本散入多个模块。",
         "createdAt": "2026-07-22T15:01:02Z",
         "decision": "建立项目自有版本管理中间层，默认采用 Git 并允许 Git 倾向语义，但不提前承诺多版本系统兼容或建设 provider 框架。",
@@ -3151,5 +3151,5 @@
   ],
   "namespace": "decisions",
   "schemaVersion": 1,
-  "sourceRevision": "sha256:e48461d7ea6d4514299b6ffca471587d3864fb6d9ff158f61be1e6c74b8275c9"
+  "sourceRevision": "sha256:cccc4480c49a9fdc3c38f7207f57577190af68eba8b0f2383a0689b269995b19"
 }
