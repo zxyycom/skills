@@ -1,17 +1,18 @@
 import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
-import process from "node:process";
-import { calculateSkillPackageFingerprint } from "../../skill-package/src/fingerprint.ts";
+import {
+  readOptionalSkillVersionFromMarkdown,
+  skillEntryFileName
+} from "../../skill-package/src/version.ts";
 import {
   isFileSystemError,
-  isPathWithinDirectory,
-  pathExists,
-  toPosix
+  isPathWithinDirectory
 } from "../../shared/src/node/filesystem.ts";
-import type { SkillFile, UpdaterConfig } from "./types.ts";
-
-const ignoredDirectoryNames = new Set([".git", "node_modules"]);
+import type {
+  LocalSkillState,
+  SkillFile,
+  SkillUpdatePlanEntry
+} from "./types.ts";
 
 function safeJoin(root: string, relativePath: string): string {
   const fullPath = path.resolve(root, relativePath);
@@ -22,109 +23,186 @@ function safeJoin(root: string, relativePath: string): string {
   return fullPath;
 }
 
-async function collectLocalFiles(
-  directory: string,
-  baseDirectory = directory
-): Promise<string[]> {
-  let entries;
+async function lstatOrNull(targetPath: string): Promise<Awaited<ReturnType<typeof fs.lstat>> | null> {
   try {
-    entries = await fs.readdir(directory, { withFileTypes: true });
+    return await fs.lstat(targetPath);
   } catch (error) {
     if (isFileSystemError(error, "ENOENT")) {
-      return [];
+      return null;
     }
     throw error;
   }
+}
 
-  const files: string[] = [];
-  for (const entry of entries) {
-    if (entry.isDirectory() && ignoredDirectoryNames.has(entry.name)) {
+async function assertTargetDirectory(targetDir: string): Promise<boolean> {
+  const stats = await lstatOrNull(targetDir);
+  if (stats === null) {
+    return false;
+  }
+  if (stats.isSymbolicLink() || !stats.isDirectory()) {
+    throw new Error(`Target path exists but is not a regular directory: ${targetDir}`);
+  }
+
+  return true;
+}
+
+async function assertParentDirectories(
+  targetDir: string,
+  relativePath: string
+): Promise<void> {
+  const segments = relativePath.split("/");
+  for (let index = 1; index < segments.length; index += 1) {
+    const parentPath = safeJoin(targetDir, segments.slice(0, index).join("/"));
+    const stats = await lstatOrNull(parentPath);
+    if (stats !== null && (stats.isSymbolicLink() || !stats.isDirectory())) {
+      throw new Error(
+        `Cannot update ${relativePath}; parent path is not a regular directory: `
+        + segments.slice(0, index).join("/")
+      );
+    }
+  }
+}
+
+export async function localSkillState(targetDir: string): Promise<LocalSkillState> {
+  if (!await assertTargetDirectory(targetDir)) {
+    return { state: "missing" };
+  }
+
+  const skillEntryPath = safeJoin(targetDir, skillEntryFileName);
+  const skillEntryStats = await lstatOrNull(skillEntryPath);
+  if (skillEntryStats === null) {
+    return { state: "unversioned" };
+  }
+  if (skillEntryStats.isSymbolicLink() || !skillEntryStats.isFile()) {
+    throw new Error(
+      `${skillEntryFileName} exists but is not a regular file: ${skillEntryPath}`
+    );
+  }
+
+  const version = readOptionalSkillVersionFromMarkdown(
+    await fs.readFile(skillEntryPath, "utf8"),
+    skillEntryPath
+  );
+  return version === null
+    ? { state: "unversioned" }
+    : { state: "versioned", version };
+}
+
+export async function planSkillUpdate(
+  files: readonly SkillFile[],
+  targetDir: string
+): Promise<SkillUpdatePlanEntry[]> {
+  await assertTargetDirectory(targetDir);
+  const seenPaths = new Set<string>();
+  const plan: SkillUpdatePlanEntry[] = [];
+
+  for (const file of files) {
+    if (seenPaths.has(file.path)) {
+      throw new Error(`Remote release contains duplicate skill path: ${file.path}`);
+    }
+    seenPaths.add(file.path);
+
+    await assertParentDirectories(targetDir, file.path);
+    const outputPath = safeJoin(targetDir, file.path);
+    const stats = await lstatOrNull(outputPath);
+    if (stats === null) {
+      plan.push({ action: "add", path: file.path });
       continue;
     }
-
-    const fullPath = path.join(directory, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...await collectLocalFiles(fullPath, baseDirectory));
-    } else if (entry.isFile()) {
-      files.push(toPosix(path.relative(baseDirectory, fullPath)));
+    if (stats.isSymbolicLink() || !stats.isFile()) {
+      throw new Error(
+        `Cannot replace ${file.path}; target exists but is not a regular file`
+      );
     }
+
+    plan.push({ action: "replace", path: file.path });
   }
 
-  return files.sort((left, right) => left.localeCompare(right));
+  return plan;
 }
 
-export async function localSkillFingerprint(
-  config: UpdaterConfig,
-  targetDir: string
-): Promise<string | null> {
-  if (!await pathExists(targetDir)) {
-    return null;
-  }
-
-  const stats = await fs.stat(targetDir);
-  if (!stats.isDirectory()) {
-    throw new Error(`Target path exists but is not a directory: ${targetDir}`);
-  }
-
-  const localPaths = await collectLocalFiles(targetDir);
-  const files = await Promise.all(localPaths.map(async (relativePath) => ({
-    data: await fs.readFile(safeJoin(targetDir, relativePath)),
-    path: relativePath
-  })));
-
-  return calculateSkillPackageFingerprint(config.skillName, files);
-}
-
-async function writeSkillFiles(files: SkillFile[], tempDir: string): Promise<void> {
+async function writeSkillFiles(
+  files: readonly SkillFile[],
+  outputDir: string
+): Promise<void> {
   for (const file of files) {
-    const outputPath = safeJoin(tempDir, file.path);
+    const outputPath = safeJoin(outputDir, file.path);
     await fs.mkdir(path.dirname(outputPath), { recursive: true });
     await fs.writeFile(outputPath, file.data);
   }
 }
 
-async function replaceDirectory(targetDir: string, tempDir: string): Promise<void> {
-  const parentDir = path.dirname(targetDir);
-  const baseName = path.basename(targetDir);
-  const backupDir = path.join(parentDir, `.${baseName}.backup-${process.pid}-${Date.now()}`);
-  const targetExists = await pathExists(targetDir);
+async function restoreAppliedFiles(
+  applied: readonly SkillUpdatePlanEntry[],
+  backupDir: string,
+  targetDir: string
+): Promise<void> {
+  for (const entry of [...applied].reverse()) {
+    const outputPath = safeJoin(targetDir, entry.path);
+    if (entry.action === "add") {
+      await fs.rm(outputPath, { force: true });
+      continue;
+    }
 
-  if (isPathWithinDirectory(process.cwd(), targetDir)) {
-    process.chdir(os.tmpdir());
-  }
-
-  try {
-    if (targetExists) {
-      await fs.rename(targetDir, backupDir);
-    }
-    await fs.rename(tempDir, targetDir);
-    if (targetExists) {
-      await fs.rm(backupDir, { force: true, recursive: true });
-    }
-  } catch (error) {
-    if (!await pathExists(targetDir) && await pathExists(backupDir)) {
-      await fs.rename(backupDir, targetDir);
-    }
-    throw error;
+    const backupPath = safeJoin(backupDir, entry.path);
+    await fs.copyFile(backupPath, outputPath);
   }
 }
 
 export async function installSkillFiles(
-  files: SkillFile[],
+  files: readonly SkillFile[],
   targetDir: string
 ): Promise<void> {
+  const plan = await planSkillUpdate(files, targetDir);
   const parentDir = path.dirname(targetDir);
   await fs.mkdir(parentDir, { recursive: true });
   const tempDir = await fs.mkdtemp(
     path.join(parentDir, `.${path.basename(targetDir)}.update-`)
   );
+  const stagedDir = path.join(tempDir, "staged");
+  const backupDir = path.join(tempDir, "backup");
 
   try {
-    await writeSkillFiles(files, tempDir);
-    await replaceDirectory(targetDir, tempDir);
-  } finally {
-    if (await pathExists(tempDir)) {
-      await fs.rm(tempDir, { force: true, recursive: true });
+    await writeSkillFiles(files, stagedDir);
+    await fs.mkdir(targetDir, { recursive: true });
+
+    for (const entry of plan) {
+      if (entry.action !== "replace") {
+        continue;
+      }
+
+      const backupPath = safeJoin(backupDir, entry.path);
+      await fs.mkdir(path.dirname(backupPath), { recursive: true });
+      await fs.copyFile(safeJoin(targetDir, entry.path), backupPath);
     }
+
+    const entriesByPath = new Map(plan.map((entry) => [entry.path, entry]));
+    const applied: SkillUpdatePlanEntry[] = [];
+    try {
+      for (const file of files) {
+        const entry = entriesByPath.get(file.path);
+        if (entry === undefined) {
+          throw new Error(`Update plan is missing remote path: ${file.path}`);
+        }
+
+        const outputPath = safeJoin(targetDir, file.path);
+        await fs.mkdir(path.dirname(outputPath), { recursive: true });
+        applied.push(entry);
+        await fs.copyFile(safeJoin(stagedDir, file.path), outputPath);
+      }
+    } catch (error) {
+      try {
+        await restoreAppliedFiles(applied, backupDir, targetDir);
+      } catch (rollbackError) {
+        throw new Error(
+          "Skill update failed and rollback did not complete: "
+          + (rollbackError instanceof Error ? rollbackError.message : String(rollbackError)),
+          { cause: error }
+        );
+      }
+      throw error;
+    }
+  } finally {
+    await fs.rm(tempDir, { force: true, recursive: true });
   }
 }

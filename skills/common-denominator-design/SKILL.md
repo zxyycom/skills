@@ -5,6 +5,8 @@ description: >-
   真实共性又有稳定差异, 需要决定共享契约的边界、数量、变体或责任层时
   使用。按场景义务和消费者共同依赖检验候选。契约已明确的机械转换或
   单一局部实现不使用。
+metadata:
+  version: "1"
 ---
 
 # Common Denominator Design

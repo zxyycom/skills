@@ -1,6 +1,8 @@
 ---
 name: git-commit-organizer
 description: 按一套有明确偏好的项目级风格，整理并创建语义清楚、范围准确、信息可追踪的 Git 提交。Use when the task is to organize current Git changes into one or more well-scoped commits.
+metadata:
+  version: "1"
 ---
 
 # Git Commit Organizer

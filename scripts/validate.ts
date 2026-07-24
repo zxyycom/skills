@@ -8,7 +8,8 @@ import { validateMarkdownLinks } from "../tools/shared/src/markdown/links.ts";
 import { validateSkillDirectory } from "../tools/skill-validator/src/validation.ts";
 import {
   validatePackageScripts,
-  validateRequiredProjectFiles
+  validateRequiredProjectFiles,
+  validateSkillPackageVersions
 } from "./validators/project-config.ts";
 
 const reporter = new ValidationReporter();
@@ -30,6 +31,7 @@ await validateMarkdownLinks(mainMarkdownFiles, reporter.report, rootDir);
 
 await validatePackageScripts(reporter.report, rootDir);
 await validateRequiredProjectFiles(reporter.report, rootDir);
+await validateSkillPackageVersions(reporter.report, discovery.skills);
 
 if (reporter.hasErrors()) {
   console.error("Validation failed:");

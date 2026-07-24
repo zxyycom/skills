@@ -2107,18 +2107,15 @@
     {
       "id": "project-tooling/260702-use-monorepo-skills-directory.md",
       "keys": {
-        "alignment": [
-          "aligned"
-        ],
         "status": [
-          "active"
+          "archived"
         ],
         "topic": [
           "project-tooling"
         ]
       },
       "state": {
-        "alignment": "aligned",
+        "alignment": null,
         "background": "仓库原来通过 Git submodule 组织多个 skill 子仓库, 但当前项目是个人自用和个人维护, 没有外部使用者依赖子仓库的独立 release 入口。",
         "createdAt": "2026-07-03T10:58:54+08:00",
         "decision": "用 `skills/<skill-name>/` 直接承接所有实际可打包 skill, 每个一级目录必须包含 `SKILL.md`。",
@@ -2150,25 +2147,22 @@
             "type": "替代"
           }
         ],
-        "status": "active",
+        "status": "archived",
         "title": "迁移为 skills 单仓库布局"
       }
     },
     {
       "id": "project-tooling/260703-follow-latest-release-for-skill-updater.md",
       "keys": {
-        "alignment": [
-          "aligned"
-        ],
         "status": [
-          "active"
+          "archived"
         ],
         "topic": [
           "project-tooling"
         ]
       },
       "state": {
-        "alignment": "aligned",
+        "alignment": null,
         "background": "自更新脚本原来默认从主仓库 `main` 分支下载源码 zip 并截取 `skills/<skill-name>/` 目录。",
         "createdAt": "2026-07-03T10:31:47+08:00",
         "decision": "skill updater 默认读取主仓库 latest release，并以正式 package lock 和 skill zip 作为远端更新输入。",
@@ -2180,25 +2174,22 @@
             "type": "修订"
           }
         ],
-        "status": "active",
+        "status": "archived",
         "title": "自更新脚本跟随 latest release 制品"
       }
     },
     {
       "id": "project-tooling/260703-use-per-skill-hash-lock-for-updater.md",
       "keys": {
-        "alignment": [
-          "aligned"
-        ],
         "status": [
-          "active"
+          "archived"
         ],
         "topic": [
           "project-tooling"
         ]
       },
       "state": {
-        "alignment": "aligned",
+        "alignment": null,
         "background": "主仓库采用聚合 release，只要任一 skill 的打包输入变化，就会发布一次包含全部 skill zip 的 release。",
         "createdAt": "2026-07-03T10:58:54+08:00",
         "decision": "根目录只保留 `skill-package-lock.json`，记录聚合 hash 和每个 skill 的独立包内容 hash。",
@@ -2218,7 +2209,7 @@
             "type": "修订"
           }
         ],
-        "status": "active",
+        "status": "archived",
         "title": "用 skill package lock 承接发布和自更新"
       }
     },
@@ -2378,18 +2369,15 @@
     {
       "id": "project-tooling/separate-distributable-tool-source-from-repository-automation.md",
       "keys": {
-        "alignment": [
-          "aligned"
-        ],
         "status": [
-          "active"
+          "archived"
         ],
         "topic": [
           "project-tooling"
         ]
       },
       "state": {
-        "alignment": "aligned",
+        "alignment": null,
         "background": "项目脚本与可分发工具源码混在 `scripts/`，工具运行时还反向依赖仓库 helper 和 validator。",
         "createdAt": "2026-07-22T10:50:45Z",
         "decision": "使用 `tools/` 维护可分发源码及共享协议，`scripts/` 只承接项目自动化，再生成自包含 skill 产物。",
@@ -2405,8 +2393,102 @@
             "type": "修订"
           }
         ],
-        "status": "active",
+        "status": "archived",
         "title": "分离可分发工具源码与仓库自动化"
+      }
+    },
+    {
+      "id": "project-tooling/separate-tool-source-and-repository-automation.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "可分发运行时曾依赖仓库脚本，package lock 又把仓库状态误放进共享协议层。",
+        "createdAt": "2026-07-24T05:56:33Z",
+        "decision": "`tools/` 维护可分发能力，`scripts/` 维护仓库自动化，临时 package hash 不进入共享协议。",
+        "path": "project-tooling/separate-tool-source-and-repository-automation.md",
+        "purpose": "让可分发工具源码、共享协议、仓库自动化和 skill 产物保持单向 owner 边界。",
+        "relations": [
+          {
+            "target": "project-tooling/separate-distributable-tool-source-from-repository-automation.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "分离工具源码与仓库自动化"
+      }
+    },
+    {
+      "id": "project-tooling/use-monorepo-versioned-skill-packages.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "子仓库和持久化 package lock 都会增加当前个人维护仓库的状态同步成本。",
+        "createdAt": "2026-07-24T05:56:25Z",
+        "decision": "在 `skills/` 维护带手动 `metadata.version` 的独立包，聚合发布，hash 仅按需临时计算。",
+        "path": "project-tooling/use-monorepo-versioned-skill-packages.md",
+        "purpose": "集中维护和发布多个 skill，同时保留每个 skill 独立判断更新的版本边界。",
+        "relations": [
+          {
+            "target": "project-tooling/260702-use-monorepo-skills-directory.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "用单仓库维护带独立版本的 skill 包"
+      }
+    },
+    {
+      "id": "project-tooling/use-versioned-overlay-skill-updates.md",
+      "keys": {
+        "alignment": [
+          "aligned"
+        ],
+        "status": [
+          "active"
+        ],
+        "topic": [
+          "project-tooling"
+        ]
+      },
+      "state": {
+        "alignment": "aligned",
+        "background": "用本地目录 hash 判断更新会把定制误判为新版本，整目录替换还会删除额外文件。",
+        "createdAt": "2026-07-24T04:13:51Z",
+        "decision": "updater 只比较每个 skill 的独立版本，确认前列出文件，并覆盖正式制品中的路径。",
+        "path": "project-tooling/use-versioned-overlay-skill-updates.md",
+        "purpose": "让本地定制不干扰更新判断，并避免更新删除正式制品之外的本地文件。",
+        "relations": [
+          {
+            "target": "project-tooling/260703-use-per-skill-hash-lock-for-updater.md",
+            "type": "修订"
+          },
+          {
+            "target": "project-tooling/260703-follow-latest-release-for-skill-updater.md",
+            "type": "修订"
+          }
+        ],
+        "status": "active",
+        "title": "用独立版本和文件覆盖更新 skill"
       }
     },
     {
@@ -3151,5 +3233,5 @@
   ],
   "namespace": "decisions",
   "schemaVersion": 1,
-  "sourceRevision": "sha256:70ef9cb42d3680a8dcfdd87de041c7623b5c1e50644451927450755465f12af5"
+  "sourceRevision": "sha256:f7e5b0e8f22a9c14cefaf9208a005f2100f9633f2f9a8a010c87193c7265a3c4"
 }

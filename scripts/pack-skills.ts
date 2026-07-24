@@ -3,8 +3,7 @@ import path from "node:path";
 import { type Zippable, zipSync } from "fflate";
 import {
   collectSkillPackageFileSets,
-  getSkillPackageLockFilePath,
-  skillPackageLockFileName,
+  readSkillPackageVersion,
   type SkillPackageFile
 } from "./lib/skill-package-hash.ts";
 import {
@@ -12,6 +11,11 @@ import {
   rootDir,
   type SkillPackage
 } from "./lib/project.ts";
+import {
+  skillReleaseManifestFileName,
+  stringifySkillReleaseManifest,
+  type SkillReleaseManifest
+} from "../tools/skill-package/src/release-manifest.ts";
 
 const distDir = path.join(rootDir, "dist");
 const zipEntryOptions = { level: 9 as const, mtime: new Date(1980, 0, 1) };
@@ -46,6 +50,24 @@ for (const skill of discovery.skills) {
   console.log(`Packed ${skill.name} -> ${path.relative(rootDir, outputPath)} (${archive.length} bytes).`);
 }
 
-const lockOutputPath = path.join(distDir, skillPackageLockFileName);
-await fs.copyFile(getSkillPackageLockFilePath(rootDir), lockOutputPath);
-console.log(`Copied ${skillPackageLockFileName} -> ${path.relative(rootDir, lockOutputPath)}.`);
+const releaseManifest: SkillReleaseManifest = {
+  schemaVersion: 1,
+  skills: Object.fromEntries(discovery.skills.map((skill) => [
+    skill.name,
+    {
+      version: readSkillPackageVersion(
+        skill.name,
+        filesBySkill.get(skill.name) ?? []
+      )
+    }
+  ]))
+};
+const manifestOutputPath = path.join(distDir, skillReleaseManifestFileName);
+await fs.writeFile(
+  manifestOutputPath,
+  stringifySkillReleaseManifest(releaseManifest),
+  "utf8"
+);
+console.log(
+  `Generated ${skillReleaseManifestFileName} -> ${path.relative(rootDir, manifestOutputPath)}.`
+);

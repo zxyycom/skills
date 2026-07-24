@@ -1,6 +1,6 @@
 export type UpdaterConfig = {
-  packageLockAssetName: string;
   releaseAssetName: string;
+  releaseManifestAssetName: string;
   repo: string;
   skillName: string;
   sourcePath: string;

@@ -6,6 +6,8 @@ description: >-
   组合、PowerShell 引号/变量/数组/脚本块相关失败，或用户要求处理 shell 权限 rules、
   allow/prompt/block、execpolicy 时使用。这里包含 shell 失败场景、命令组合与语法限制、
   提权边界、权限 rules 维护和过往命令组合尝试记录的文档。
+metadata:
+  version: "1"
 ---
 
 # Codex Shell Permissions

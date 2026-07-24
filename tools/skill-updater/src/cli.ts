@@ -6,8 +6,8 @@ import type { CliOptions, UpdaterConfig } from "./types.ts";
 
 export type UpdaterLinks = {
   latestReleaseUrl: string;
-  packageLockAssetUrl: string;
   releaseAssetUrl: string;
+  releaseManifestAssetUrl: string;
   skillSourceDirectoryUrl: string;
   sourceRepositoryUrl: string;
   updaterSourceUrl: string;
@@ -26,8 +26,8 @@ export function getUpdaterLinks(config: UpdaterConfig): UpdaterLinks {
 
   return {
     latestReleaseUrl,
-    packageLockAssetUrl: `${latestReleaseUrl}/download/${config.packageLockAssetName}`,
     releaseAssetUrl: `${latestReleaseUrl}/download/${config.releaseAssetName}`,
+    releaseManifestAssetUrl: `${latestReleaseUrl}/download/${config.releaseManifestAssetName}`,
     skillSourceDirectoryUrl: `${sourceRepositoryUrl}/tree/main/${config.sourcePath}`,
     sourceRepositoryUrl,
     updaterSourceUrl: `${sourceRepositoryUrl}/blob/main/tools/skill-updater/src/index.ts`
@@ -46,11 +46,11 @@ export function printHelp(config: UpdaterConfig, scriptPath: string): void {
     `  Updater source: ${links.updaterSourceUrl}`,
     `  Skill source directory: ${links.skillSourceDirectoryUrl}`,
     `  Default release: ${links.latestReleaseUrl}`,
-    `  Package lock asset: ${links.packageLockAssetUrl}`,
+    `  Release manifest asset: ${links.releaseManifestAssetUrl}`,
     `  Skill zip asset: ${links.releaseAssetUrl}`,
     "",
     "Options:",
-    "  --check             Check whether the target differs from the remote source, without updating.",
+    "  --check             Check whether the installed version differs from the remote version, without updating.",
     "  --yes, -y           Update without prompting.",
     "  --target-dir <dir>  Skill directory to check or update. Defaults to this script's parent skill directory.",
     "  --release-tag <tag> GitHub release tag to read from. Defaults to the latest release.",
@@ -100,7 +100,7 @@ export async function confirmUpdate(options: CliOptions): Promise<boolean> {
   });
 
   try {
-    const answer = await rl.question("Update this skill now? [y/N] ");
+    const answer = await rl.question("Apply these file replacements now? [y/N] ");
     return /^y(es)?$/i.test(answer.trim());
   } finally {
     rl.close();

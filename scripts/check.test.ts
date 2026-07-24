@@ -245,7 +245,7 @@ assert.match(
 );
 assert.match(
   invalidConcurrency.stderr,
-  /All 22 preflight checks and packaging \[failed\]\[\d+\.\d{2}s\]/u
+  /All 23 preflight checks and packaging \[failed\]\[\d+\.\d{2}s\]/u
 );
 
 const invalidArgument = spawnSync(
@@ -261,7 +261,7 @@ assert.equal(invalidArgument.stdout, "");
 assert.match(invalidArgument.stderr, /Unknown option '--unknown'/u);
 assert.match(
   invalidArgument.stderr,
-  /All 22 preflight checks and packaging \[failed\]\[\d+\.\d{2}s\]/u
+  /All 23 preflight checks and packaging \[failed\]\[\d+\.\d{2}s\]/u
 );
 
 console.log("Check orchestration tests passed.");

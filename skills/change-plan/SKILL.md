@@ -4,6 +4,8 @@ description: >-
   创建、更新或审阅可持久保存和交接的 change 计划。用于在实施前把一个明确
   change 的原因、目标、范围、设计判断、开放问题、实施任务和验证任务整理为
   proposal.md、design.md 与 tasks.md，并用随包 CLI 检查固定结构。
+metadata:
+  version: "1"
 ---
 
 # Change Plan

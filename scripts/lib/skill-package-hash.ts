@@ -1,32 +1,27 @@
 import { createHash } from "node:crypto";
-import fs from "node:fs/promises";
 import path from "node:path";
+import { simpleGit } from "simple-git";
 import {
   rootDir,
   type SkillPackage
 } from "./project.ts";
 import { toPosix } from "../../tools/shared/src/node/filesystem.ts";
 import { openVersionControl } from "../../tools/shared/src/version-control/index.ts";
-import { calculateSkillPackageFingerprint } from "../../tools/skill-package/src/fingerprint.ts";
 import {
-  skillPackageLockFileName,
-  validateSkillPackageLock,
-  type SkillPackageLock
-} from "../../tools/skill-package/src/lock.ts";
+  readOptionalSkillVersionFromMarkdown,
+  readSkillVersionFromMarkdown,
+  skillEntryFileName
+} from "../../tools/skill-package/src/version.ts";
 
-export {
-  skillPackageLockFileName,
-  type SkillPackageLock
-} from "../../tools/skill-package/src/lock.ts";
-
-export type SkillPackageHashes = {
+export type SkillPackageHash = {
   aggregateHash: string;
-  skills: Record<string, string>;
+  versions: Record<string, number>;
 };
 
-export function getSkillPackageLockFilePath(workspaceRoot: string = rootDir): string {
-  return path.join(workspaceRoot, skillPackageLockFileName);
-}
+export type SkillPackageVersionBaseline = {
+  revision: string;
+  skills: Record<string, number | null>;
+};
 
 type SkillTree = {
   skillName: string;
@@ -37,6 +32,21 @@ export type SkillPackageFile = {
   data: Buffer;
   path: string;
 };
+
+export function readSkillPackageVersion(
+  skillName: string,
+  files: readonly SkillPackageFile[]
+): number {
+  const skillEntry = files.find((file) => file.path === skillEntryFileName);
+  if (skillEntry === undefined) {
+    throw new Error(`${skillName}/${skillEntryFileName} is required`);
+  }
+
+  return readSkillVersionFromMarkdown(
+    skillEntry.data.toString("utf8"),
+    `${skillName}/${skillEntryFileName}`
+  );
+}
 
 function resolveSkillTrees(
   skills: readonly SkillPackage[],
@@ -115,10 +125,10 @@ export async function collectSkillPackageFileSets(
   return filesBySkill;
 }
 
-export async function calculateSkillPackageHashes(skills: SkillPackage[]): Promise<SkillPackageHashes> {
+export async function calculateSkillPackageHash(skills: SkillPackage[]): Promise<SkillPackageHash> {
   const aggregate = createHash("sha256");
   aggregate.update("skills-package-v1\0");
-  const skillHashes: Record<string, string> = {};
+  const versions: Record<string, number> = {};
   const filesBySkill = await collectSkillPackageFileSets(skills);
 
   for (const skill of skills) {
@@ -132,70 +142,113 @@ export async function calculateSkillPackageHashes(skills: SkillPackage[]): Promi
       aggregate.update("\0");
     }
 
-    skillHashes[skill.name] = calculateSkillPackageFingerprint(skill.name, files);
+    versions[skill.name] = readSkillPackageVersion(skill.name, files);
   }
 
   return {
     aggregateHash: aggregate.digest("hex"),
-    skills: skillHashes
+    versions
   };
 }
 
-export function buildSkillPackageLock(hashes: SkillPackageHashes): SkillPackageLock {
-  return {
-    aggregateHash: hashes.aggregateHash,
-    schemaVersion: 1,
-    skills: Object.fromEntries(
-      Object.entries(hashes.skills).sort(([left], [right]) => left.localeCompare(right))
-    )
-  };
-}
-
-export function stringifySkillPackageLock(lock: SkillPackageLock): string {
-  return `${JSON.stringify(buildSkillPackageLock(lock), null, 2)}\n`;
-}
-
-export async function readRecordedSkillPackageLockText(workspaceRoot: string = rootDir): Promise<string | null> {
-  try {
-    return await fs.readFile(getSkillPackageLockFilePath(workspaceRoot), "utf8");
-  } catch (error) {
-    if (error instanceof Error && "code" in error && error.code === "ENOENT") {
-      return null;
+export function getSkillPackageVersionIssues(
+  currentPackage: SkillPackageHash,
+  baseline: SkillPackageVersionBaseline
+): string[] {
+  return Object.entries(baseline.skills).flatMap(([skillName, baselineVersion]) => {
+    const currentVersion = currentPackage.versions[skillName];
+    if (
+      baselineVersion === null
+      || currentVersion === undefined
+      || currentVersion > baselineVersion
+    ) {
+      return [];
     }
 
-    throw error;
-  }
+    return [
+      `${skillName} package content changed at version ${currentVersion}; `
+      + `increase skills/${skillName}/${skillEntryFileName} `
+      + `metadata.version above ${baselineVersion}`
+    ];
+  });
 }
 
-export async function readRecordedSkillPackageLock(workspaceRoot: string = rootDir): Promise<SkillPackageLock | null> {
-  const text = await readRecordedSkillPackageLockText(workspaceRoot);
-  if (text === null) {
-    return null;
-  }
-
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(text);
-  } catch (error) {
-    throw new Error(
-      `${skillPackageLockFileName} must contain valid JSON: `
-      + (error instanceof Error ? error.message : String(error))
-    );
-  }
-
-  const validation = validateSkillPackageLock(parsed);
-  if (!validation.success) {
-    throw new Error(
-      `${skillPackageLockFileName} is invalid:\n- ${validation.issues.join("\n- ")}`
-    );
-  }
-
-  return validation.output;
-}
-
-export async function writeRecordedSkillPackageLock(
-  lock: SkillPackageLock,
+export async function readSkillPackageVersionBaseline(
+  skills: readonly SkillPackage[],
+  baselineRef: string = "HEAD",
   workspaceRoot: string = rootDir
-): Promise<void> {
-  await fs.writeFile(getSkillPackageLockFilePath(workspaceRoot), stringifySkillPackageLock(lock), "utf8");
+): Promise<SkillPackageVersionBaseline> {
+  if (skills.length === 0) {
+    return {
+      revision: baselineRef,
+      skills: {}
+    };
+  }
+
+  const repository = await openVersionControl(workspaceRoot);
+  const git = simpleGit({
+    baseDir: repository.rootDirectory,
+    maxConcurrentProcesses: 4,
+    trimmed: false
+  });
+  let revision: string;
+  try {
+    revision = (await git.revparse([
+      "--verify",
+      "--quiet",
+      "--end-of-options",
+      `${baselineRef}^{commit}`
+    ])).trim();
+  } catch {
+    throw new Error(`Skill version baseline could not be resolved: ${baselineRef}`);
+  }
+
+  const trees = resolveSkillTrees(skills, repository.rootDirectory);
+  const changedOutput = await git.raw([
+    "diff",
+    "--cached",
+    "--name-only",
+    "--no-renames",
+    "-z",
+    revision,
+    "--",
+    ...trees.map((tree) => tree.treePath)
+  ]);
+  const changedPaths = changedOutput.split("\0").filter((candidate) => candidate.length > 0);
+  const changedTrees = trees.filter((tree) =>
+    changedPaths.some((changedPath) =>
+      changedPath === tree.treePath
+      || changedPath.startsWith(`${tree.treePath}/`)
+    )
+  );
+  const baselineSkills: Record<string, number | null> = {};
+
+  for (const tree of changedTrees) {
+    const skillEntryPath = `${tree.treePath}/${skillEntryFileName}`;
+    const skillEntry = (await git.raw([
+      "ls-tree",
+      "--name-only",
+      revision,
+      "--",
+      skillEntryPath
+    ])).trim();
+    if (skillEntry.length === 0) {
+      baselineSkills[tree.skillName] = null;
+      continue;
+    }
+
+    try {
+      baselineSkills[tree.skillName] = readOptionalSkillVersionFromMarkdown(
+        await git.show([`${revision}:${skillEntryPath}`]),
+        `${baselineRef}:${skillEntryPath}`
+      );
+    } catch {
+      baselineSkills[tree.skillName] = null;
+    }
+  }
+
+  return {
+    revision,
+    skills: baselineSkills
+  };
 }

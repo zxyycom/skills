@@ -19,7 +19,7 @@ import {
   pathExists,
   toPosix
 } from "../../tools/shared/src/node/filesystem.ts";
-import { skillPackageLockFileName } from "../../tools/skill-package/src/lock.ts";
+import { skillReleaseManifestFileName } from "../../tools/skill-package/src/release-manifest.ts";
 import type { UpdaterConfig } from "../../tools/skill-updater/src/types.ts";
 
 const templateRelativePath = "tools/skill-updater/src/index.ts";
@@ -42,8 +42,8 @@ type UpdaterArtifacts = {
 
 function buildConfig(skill: SkillPackage): UpdaterConfig {
   return {
-    packageLockAssetName: skillPackageLockFileName,
     releaseAssetName: `${skill.name}.zip`,
+    releaseManifestAssetName: skillReleaseManifestFileName,
     repo: githubRepository,
     skillName: skill.name,
     sourcePath: toPosix(path.relative(rootDir, skill.directory))
@@ -56,7 +56,7 @@ async function buildUpdater(
 ): Promise<UpdaterArtifacts> {
   const header = buildGeneratedFileHeader({
     additionalLines: [
-      `Package lock asset: https://github.com/${config.repo}/releases/latest/download/${config.packageLockAssetName}`,
+      `Release manifest asset: https://github.com/${config.repo}/releases/latest/download/${config.releaseManifestAssetName}`,
       `Release asset: https://github.com/${config.repo}/releases/latest/download/${config.releaseAssetName}`
     ],
     artifactName: "skill self-updater",

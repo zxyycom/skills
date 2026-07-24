@@ -1,6 +1,6 @@
 export type UpdaterConfig = {
-  packageLockAssetName: string;
   releaseAssetName: string;
+  releaseManifestAssetName: string;
   repo: string;
   skillName: string;
   sourcePath: string;
@@ -19,16 +19,23 @@ export type SkillFile = {
   path: string;
 };
 
-export type RemoteSkillPackage =
+export type LocalSkillState =
   | {
-      aggregateHash: string;
-      files: null;
-      fingerprint: string;
-      source: "package-lock";
+      state: "missing";
     }
   | {
-      aggregateHash: null;
-      files: SkillFile[];
-      fingerprint: string;
-      source: "zip";
+      state: "unversioned";
+    }
+  | {
+      state: "versioned";
+      version: number;
     };
+
+export type RemoteSkillPackage = {
+  version: number;
+};
+
+export type SkillUpdatePlanEntry = {
+  action: "add" | "replace";
+  path: string;
+};

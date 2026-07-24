@@ -9,14 +9,19 @@ import {
 } from "./cli.ts";
 import {
   installSkillFiles,
-  localSkillFingerprint
+  localSkillState,
+  planSkillUpdate
 } from "./installation.ts";
 import {
   fetchGitHubRelease,
   loadRemoteSkillFiles,
   resolveRemoteSkillPackage
 } from "./release.ts";
-import type { UpdaterConfig } from "./types.ts";
+import type {
+  LocalSkillState,
+  SkillUpdatePlanEntry,
+  UpdaterConfig
+} from "./types.ts";
 
 declare const __SKILL_UPDATE_CONFIG__: UpdaterConfig;
 
@@ -26,6 +31,38 @@ const updaterScriptPath = fileURLToPath(import.meta.url);
 export const skillUpdaterConfig: Readonly<UpdaterConfig> = Object.freeze({
   ...UPDATE_CONFIG
 });
+
+function formatLocalVersion(state: LocalSkillState): string {
+  if (state.state === "versioned") {
+    return String(state.version);
+  }
+
+  return state.state === "missing" ? "(target missing)" : "(unversioned)";
+}
+
+function printUpdatePlan(plan: readonly SkillUpdatePlanEntry[]): void {
+  const replacements = plan.filter((entry) => entry.action === "replace");
+  const additions = plan.filter((entry) => entry.action === "add");
+
+  console.log("Files to replace:");
+  if (replacements.length === 0) {
+    console.log("  (none)");
+  } else {
+    for (const entry of replacements) {
+      console.log(`  ${entry.path}`);
+    }
+  }
+
+  console.log("Files to add:");
+  if (additions.length === 0) {
+    console.log("  (none)");
+  } else {
+    for (const entry of additions) {
+      console.log(`  ${entry.path}`);
+    }
+  }
+  console.log("Other local files will be kept.");
+}
 
 export async function runSkillUpdaterCli(
   argv: readonly string[] = process.argv.slice(2)
@@ -42,7 +79,7 @@ export async function runSkillUpdaterCli(
   console.log(`Updater source: ${links.updaterSourceUrl}`);
   console.log(`Skill source directory: ${links.skillSourceDirectoryUrl}`);
   console.log(`Release: ${options.releaseTag ?? "latest"}`);
-  console.log(`Package lock asset: ${skillUpdaterConfig.packageLockAssetName}`);
+  console.log(`Release manifest asset: ${skillUpdaterConfig.releaseManifestAssetName}`);
   console.log(`Release asset: ${skillUpdaterConfig.releaseAssetName}`);
   console.log(`Target: ${options.targetDir}`);
 
@@ -50,34 +87,28 @@ export async function runSkillUpdaterCli(
   console.log(`Resolved release: ${release.tag_name} (${release.html_url})`);
 
   const remotePackage = await resolveRemoteSkillPackage(skillUpdaterConfig, release);
-  if (remotePackage.source === "package-lock") {
-    console.log(`Package lock asset: ${skillUpdaterConfig.packageLockAssetName}`);
-    console.log(`Package aggregate fingerprint: ${remotePackage.aggregateHash}`);
-  } else {
-    console.log(
-      `Package lock asset: ${skillUpdaterConfig.packageLockAssetName}`
-      + " (missing; falling back to zip fingerprint)"
-    );
-  }
+  const currentState = await localSkillState(options.targetDir);
+  console.log(`Remote version: ${remotePackage.version}`);
+  console.log(`Local version: ${formatLocalVersion(currentState)}`);
 
-  const currentFingerprint = await localSkillFingerprint(
-    skillUpdaterConfig,
-    options.targetDir
-  );
-  console.log(`Remote fingerprint: ${remotePackage.fingerprint}`);
-  console.log(`Local fingerprint: ${currentFingerprint ?? "(missing)"}`);
-
-  if (currentFingerprint === remotePackage.fingerprint) {
+  if (
+    currentState.state === "versioned"
+    && currentState.version === remotePackage.version
+  ) {
     console.log("Status: current");
     return 0;
   }
 
-  console.log(currentFingerprint ? "Status: update available" : "Status: target missing");
-  if (options.check) {
-    return 1;
+  if (currentState.state === "missing") {
+    console.log("Status: target missing");
+  } else if (currentState.state === "unversioned") {
+    console.log("Status: update available (local version unknown)");
+  } else if (currentState.version < remotePackage.version) {
+    console.log("Status: update available");
+  } else {
+    console.log("Status: selected release is older than the installed version");
   }
-
-  if (!await confirmUpdate(options)) {
+  if (options.check) {
     return 1;
   }
 
@@ -86,6 +117,13 @@ export async function runSkillUpdaterCli(
     release,
     remotePackage
   );
+  const updatePlan = await planSkillUpdate(remoteFiles, options.targetDir);
+  printUpdatePlan(updatePlan);
+
+  if (!await confirmUpdate(options)) {
+    return 1;
+  }
+
   await installSkillFiles(remoteFiles, options.targetDir);
   console.log("Updated skill successfully.");
   return 0;

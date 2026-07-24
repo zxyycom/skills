@@ -1,58 +1,53 @@
 import fs from "node:fs/promises";
+import { parseArgs } from "node:util";
 import {
-  buildSkillPackageLock,
-  calculateSkillPackageHashes,
-  readRecordedSkillPackageLock,
-  readRecordedSkillPackageLockText,
-  skillPackageLockFileName,
-  stringifySkillPackageLock,
-  writeRecordedSkillPackageLock
+  calculateSkillPackageHash,
+  getSkillPackageVersionIssues,
+  readSkillPackageVersionBaseline
 } from "./lib/skill-package-hash.ts";
 import {
   discoverSkillPackages,
   rootDir
 } from "./lib/project.ts";
 
-const allowedArgs = new Set(["--check", "--github-output", "--quiet", "--write"]);
-const args = new Set(process.argv.slice(2));
-
-for (const arg of args) {
-  if (!allowedArgs.has(arg)) {
-    throw new Error(`Unknown argument: ${arg}`);
-  }
-}
+const { values: options } = parseArgs({
+  args: process.argv.slice(2),
+  options: {
+    "baseline-ref": { type: "string" },
+    "github-output": { type: "boolean" },
+    quiet: { type: "boolean" }
+  },
+  strict: true
+});
+const baselineRef = options["baseline-ref"] ?? "HEAD";
 
 const discovery = await discoverSkillPackages(rootDir);
 if (discovery.errors.length > 0) {
   throw new Error(`Cannot hash skills:\n- ${discovery.errors.join("\n- ")}`);
 }
 
-const currentHashes = await calculateSkillPackageHashes(discovery.skills);
-const currentHash = currentHashes.aggregateHash;
-const currentLock = buildSkillPackageLock(currentHashes);
-const currentLockText = stringifySkillPackageLock(currentLock);
-const recordedLock = await readRecordedSkillPackageLock(rootDir);
-const recordedLockText = await readRecordedSkillPackageLockText(rootDir);
-const changed = recordedLock?.aggregateHash !== currentHash;
-const lockChanged = recordedLockText !== currentLockText;
-const quiet = args.has("--quiet");
-const shouldPrintSummary = !quiet || changed || lockChanged;
+const currentPackage = await calculateSkillPackageHash(discovery.skills);
+const currentHash = currentPackage.aggregateHash;
+const baseline = await readSkillPackageVersionBaseline(
+  discovery.skills,
+  baselineRef,
+  rootDir
+);
+const versionIssues = getSkillPackageVersionIssues(currentPackage, baseline);
+if (versionIssues.length > 0) {
+  throw new Error(
+    `Skill package versions are invalid against ${baselineRef}:\n- `
+    + versionIssues.join("\n- ")
+  );
+}
 
-if (shouldPrintSummary) {
+if (!options.quiet) {
   console.log(`Current skill package hash: ${currentHash}`);
-  console.log(`Recorded skill package hash: ${recordedLock?.aggregateHash ?? "(none)"}`);
-  console.log(`Skill package hash changed: ${changed ? "yes" : "no"}`);
-  console.log(`Skill package lock changed: ${lockChanged ? "yes" : "no"}`);
+  console.log(`Skill version baseline: ${baselineRef} (${baseline.revision})`);
+  console.log(`Changed skill versions checked: ${Object.keys(baseline.skills).length}`);
 }
 
-if (args.has("--write")) {
-  if (lockChanged) {
-    await writeRecordedSkillPackageLock(currentLock, rootDir);
-    console.log(`Wrote ${skillPackageLockFileName}.`);
-  }
-}
-
-if (args.has("--github-output")) {
+if (options["github-output"]) {
   const outputPath = process.env.GITHUB_OUTPUT;
   if (typeof outputPath !== "string" || outputPath.length === 0) {
     throw new Error("--github-output requires GITHUB_OUTPUT to be set");
@@ -61,18 +56,8 @@ if (args.has("--github-output")) {
   await fs.appendFile(
     outputPath,
     [
-      `current_hash=${currentHash}`,
-      `recorded_hash=${recordedLock?.aggregateHash ?? ""}`,
-      `changed=${changed ? "true" : "false"}`
+      `current_hash=${currentHash}`
     ].join("\n") + "\n",
     "utf8"
   );
-}
-
-if (args.has("--check") && (changed || lockChanged)) {
-  if (lockChanged) {
-    console.error(`${skillPackageLockFileName} does not match the current skill package hashes.`);
-  }
-
-  process.exitCode = 1;
 }

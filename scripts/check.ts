@@ -33,6 +33,7 @@ const preflightTasks = [
   "test:check",
   "test:generated-file",
   "test:skill-package-hash",
+  "hash:skills",
   "test:version-control"
 ] as const satisfies readonly CheckTask[];
 const packageScript = "pack:skills";

@@ -1,11 +1,14 @@
 import process from "node:process";
 import { unzipSync } from "fflate";
 import * as v from "valibot";
-import { calculateSkillPackageFingerprint } from "../../skill-package/src/fingerprint.ts";
 import {
-  validateSkillPackageLock,
-  type SkillPackageLock
-} from "../../skill-package/src/lock.ts";
+  validateSkillReleaseManifest,
+  type SkillReleaseManifest
+} from "../../skill-package/src/release-manifest.ts";
+import {
+  readSkillVersionFromMarkdown,
+  skillEntryFileName
+} from "../../skill-package/src/version.ts";
 import type {
   RemoteSkillPackage,
   SkillFile,
@@ -123,36 +126,25 @@ export async function fetchGitHubRelease(
   return validation.output;
 }
 
-async function fetchReleasePackageLock(
+async function fetchReleaseManifest(
   config: UpdaterConfig,
   release: GitHubRelease
-): Promise<SkillPackageLock | null> {
-  if (!findReleaseAsset(release, config.packageLockAssetName)) {
-    return null;
-  }
-
-  const data = await fetchReleaseAsset(release, config.packageLockAssetName);
+): Promise<SkillReleaseManifest> {
+  const data = await fetchReleaseAsset(release, config.releaseManifestAssetName);
   let parsed: unknown;
   try {
     parsed = JSON.parse(Buffer.from(data).toString("utf8"));
   } catch {
     throw new Error(
-      `Release ${release.tag_name} contains invalid ${config.packageLockAssetName} JSON`
+      `Release ${release.tag_name} contains invalid ${config.releaseManifestAssetName} JSON`
     );
   }
 
-  const validation = validateSkillPackageLock(parsed);
+  const validation = validateSkillReleaseManifest(parsed);
   if (!validation.success) {
     throw new Error(
-      `Release ${release.tag_name} contains invalid ${config.packageLockAssetName}:\n- `
+      `Release ${release.tag_name} contains invalid ${config.releaseManifestAssetName}:\n- `
       + validation.issues.join("\n- ")
-    );
-  }
-
-  const skillHash = validation.output.skills[config.skillName];
-  if (skillHash === undefined) {
-    throw new Error(
-      `${config.packageLockAssetName} does not contain a valid hash for ${config.skillName}`
     );
   }
 
@@ -194,22 +186,16 @@ export async function resolveRemoteSkillPackage(
   config: UpdaterConfig,
   release: GitHubRelease
 ): Promise<RemoteSkillPackage> {
-  const packageLock = await fetchReleasePackageLock(config, release);
-  if (packageLock) {
-    return {
-      aggregateHash: packageLock.aggregateHash,
-      files: null,
-      fingerprint: packageLock.skills[config.skillName],
-      source: "package-lock"
-    };
+  const manifest = await fetchReleaseManifest(config, release);
+  const skillRelease = manifest.skills[config.skillName];
+  if (skillRelease === undefined) {
+    throw new Error(
+      `${config.releaseManifestAssetName} does not contain a version for ${config.skillName}`
+    );
   }
 
-  const files = await fetchReleaseSkillFiles(config, release);
   return {
-    aggregateHash: null,
-    files,
-    fingerprint: calculateSkillPackageFingerprint(config.skillName, files),
-    source: "zip"
+    version: skillRelease.version
   };
 }
 
@@ -218,16 +204,22 @@ export async function loadRemoteSkillFiles(
   release: GitHubRelease,
   remotePackage: RemoteSkillPackage
 ): Promise<SkillFile[]> {
-  if (remotePackage.source === "zip") {
-    return remotePackage.files;
+  const files = await fetchReleaseSkillFiles(config, release);
+  const skillEntry = files.find((file) => file.path === skillEntryFileName);
+  if (skillEntry === undefined) {
+    throw new Error(
+      `Release asset ${config.releaseAssetName} does not contain ${skillEntryFileName}`
+    );
   }
 
-  const files = await fetchReleaseSkillFiles(config, release);
-  const zipFingerprint = calculateSkillPackageFingerprint(config.skillName, files);
-  if (zipFingerprint !== remotePackage.fingerprint) {
+  const packageVersion = readSkillVersionFromMarkdown(
+    skillEntry.data.toString("utf8"),
+    `${config.releaseAssetName}/${skillEntryFileName}`
+  );
+  if (packageVersion !== remotePackage.version) {
     throw new Error(
-      `Release asset ${config.releaseAssetName} fingerprint ${zipFingerprint}`
-      + ` does not match ${config.packageLockAssetName} hash ${remotePackage.fingerprint}`
+      `Release asset ${config.releaseAssetName} version ${packageVersion}`
+      + ` does not match ${config.releaseManifestAssetName} version ${remotePackage.version}`
     );
   }
 

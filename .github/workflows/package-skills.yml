@@ -15,8 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       skill_hash: ${{ steps.skill_hash.outputs.current_hash }}
-      recorded_skill_hash: ${{ steps.skill_hash.outputs.recorded_hash }}
-      skill_hash_changed: ${{ steps.release_gate.outputs.changed }}
+      skill_packages_changed: ${{ steps.release_gate.outputs.changed }}
 
     steps:
       - name: Checkout
@@ -40,37 +39,36 @@ jobs:
       - name: Validate and package
         run: bun run check --strict
 
-      - name: Check skill hash
+      - name: Calculate skill hash and check versions
         id: skill_hash
-        run: bun run hash:skills --check --github-output
-
-      - name: Read previous package lock
-        id: previous_hash
-        if: ${{ github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000' }}
+        env:
+          BASELINE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
           set -euo pipefail
 
-          if git cat-file -e "${{ github.event.before }}:skill-package-lock.json" 2>/dev/null; then
-            hash="$(git show "${{ github.event.before }}:skill-package-lock.json" | node -e "let input = ''; process.stdin.on('data', chunk => input += chunk); process.stdin.on('end', () => console.log(JSON.parse(input).aggregateHash));")"
-            echo "hash=$hash" >> "$GITHUB_OUTPUT"
+          args=(--github-output)
+          if [ -n "${BASELINE_REF:-}" ] && [ "$BASELINE_REF" != "0000000000000000000000000000000000000000" ]; then
+            args+=(--baseline-ref "$BASELINE_REF")
           fi
+          bun run hash:skills "${args[@]}"
 
-      - name: Detect release hash change
+      - name: Detect skill package changes
         id: release_gate
         env:
-          CURRENT_SKILL_HASH: ${{ steps.skill_hash.outputs.current_hash }}
-          PREVIOUS_SKILL_HASH: ${{ steps.previous_hash.outputs.hash }}
+          BASELINE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
           set -euo pipefail
 
           changed=false
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             changed=true
-          elif [ "$CURRENT_SKILL_HASH" != "${PREVIOUS_SKILL_HASH:-}" ]; then
+          elif [ -z "${BASELINE_REF:-}" ] || [ "$BASELINE_REF" = "0000000000000000000000000000000000000000" ]; then
+            changed=true
+          elif ! git diff --quiet "$BASELINE_REF" "$GITHUB_SHA" -- skills; then
             changed=true
           fi
 
-          echo "Release hash changed: $changed"
+          echo "Skill package content changed: $changed"
           echo "changed=$changed" >> "$GITHUB_OUTPUT"
 
       - name: Upload skill assets
@@ -82,7 +80,7 @@ jobs:
 
   publish:
     needs: package
-    if: ${{ needs.package.outputs.skill_hash_changed == 'true' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
+    if: ${{ needs.package.outputs.skill_packages_changed == 'true' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write

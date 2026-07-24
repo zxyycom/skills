@@ -2,9 +2,13 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { checkPackageScripts } from "../check.ts";
 import { rootDir } from "../lib/project.ts";
+import type { SkillPackage } from "../lib/project.ts";
 import type { ReportValidationError } from "../lib/validation.ts";
 import { pathExists } from "../../tools/shared/src/node/filesystem.ts";
-import { validateSkillPackageLock } from "../../tools/skill-package/src/lock.ts";
+import {
+  readSkillVersionFromMarkdown,
+  skillEntryFileName
+} from "../../tools/skill-package/src/version.ts";
 
 type PackageJson = {
   scripts?: Record<string, unknown>;
@@ -12,7 +16,6 @@ type PackageJson = {
 
 const requiredPackageScripts = [
   ...checkPackageScripts,
-  "hash:skills",
   "setup-hooks",
   "sync:skill-updaters",
   "sync:change-plan-cli",
@@ -25,7 +28,6 @@ const requiredPackageScripts = [
 ] as const;
 
 const requiredProjectFiles = [
-  "skill-package-lock.json",
   "skills",
   "README.md",
   "AGENTS.md",
@@ -37,6 +39,11 @@ const requiredProjectFiles = [
   "docs/skills",
   ".githooks/pre-commit",
   ".github/workflows/package-skills.yml"
+] as const;
+
+const forbiddenPackageStateFiles = [
+  "skill-package.hash",
+  "skill-package-lock.json"
 ] as const;
 
 export async function validatePackageScripts(
@@ -67,23 +74,34 @@ export async function validateRequiredProjectFiles(
     }
   }
 
-  if (await pathExists(path.join(workspaceRoot, "skill-package.hash"))) {
-    report("skill-package.hash must not exist; use skill-package-lock.json as the package state file");
-  }
-
-  const lockFilePath = path.join(workspaceRoot, "skill-package-lock.json");
-  if (await pathExists(lockFilePath)) {
-    try {
-      const validation = validateSkillPackageLock(
-        JSON.parse(await fs.readFile(lockFilePath, "utf8"))
+  for (const relativePath of forbiddenPackageStateFiles) {
+    if (await pathExists(path.join(workspaceRoot, relativePath))) {
+      report(
+        `${relativePath} must not exist; calculate package hashes on demand with hash:skills`
       );
-      if (!validation.success) {
-        for (const issue of validation.issues) {
-          report(`skill-package-lock.json ${issue}`);
-        }
-      }
-    } catch {
-      report("skill-package-lock.json must contain valid JSON");
+    }
+  }
+}
+
+export async function validateSkillPackageVersions(
+  report: ReportValidationError,
+  skills: readonly SkillPackage[]
+): Promise<void> {
+  for (const skill of skills) {
+    const relativePath = `skills/${skill.name}/${skillEntryFileName}`;
+    const skillEntryPath = path.join(skill.directory, skillEntryFileName);
+    if (!await pathExists(skillEntryPath)) {
+      report(`${relativePath} is required`);
+      continue;
+    }
+
+    try {
+      readSkillVersionFromMarkdown(
+        await fs.readFile(skillEntryPath, "utf8"),
+        relativePath
+      );
+    } catch (error) {
+      report(error instanceof Error ? error.message : String(error));
     }
   }
 }
