@@ -1,15 +1,15 @@
 ---
+title: 分离工具源码与仓库自动化
 status: active
 alignment: aligned
 createdAt: 2026-07-24T05:56:33Z
+purpose: 让可分发工具源码、共享协议、仓库自动化和 skill 产物保持单向 owner 边界。
+background: 可分发运行时曾依赖仓库脚本，package lock 又把仓库状态误放进共享协议层。
+decision: "`tools/` 维护可分发能力，`scripts/` 维护仓库自动化，临时 package hash 不进入共享协议。"
+relations:
+  - type: 修订
+    target: project-tooling/separate-distributable-tool-source-from-repository-automation.md
 ---
-
-# 分离工具源码与仓库自动化
-
-## 索引摘要
-- 目的: 让可分发工具源码、共享协议、仓库自动化和 skill 产物保持单向 owner 边界。
-- 背景: 可分发运行时曾依赖仓库脚本，package lock 又把仓库状态误放进共享协议层。
-- 决策: `tools/` 维护可分发能力，`scripts/` 维护仓库自动化，临时 package hash 不进入共享协议。
 
 ## 目的
 - 让维护者能够从路径判断代码的运行环境、分发责任和允许的依赖方向。
@@ -29,6 +29,3 @@ createdAt: 2026-07-24T05:56:33Z
 - 采用: 构建器从同一 TypeScript 源生成 import-safe 的自包含 ESM、声明和 source map；`sync:*` 显式写入，`check:*` 逐字节验证，独立 skill 不需要连接主仓库或其他 skill。
 - 采用: 根 TypeScript 配置和完整项目检查覆盖仓库脚本、工具源码、行为测试、生成漂移和 skill 打包，不为依赖方向额外建立 import 扫描门禁。
 - 不采用: 在旧路径保留转发模块或兼容副本，也不为只在本仓库维护的工具源码建立额外包分发模型。
-
-## 关系
-- 修订: [分离可分发工具源码与仓库自动化](separate-distributable-tool-source-from-repository-automation.md)

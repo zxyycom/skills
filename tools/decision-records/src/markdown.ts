@@ -1,13 +1,5 @@
 import type { MarkdownSection } from "./types.ts";
 
-export function stripLinkSuffix(target: string): string {
-  const hashIndex = target.indexOf("#");
-  const queryIndex = target.indexOf("?");
-  const indexes = [hashIndex, queryIndex].filter((value) => value >= 0);
-  const endIndex = indexes.length > 0 ? Math.min(...indexes) : target.length;
-  return target.slice(0, endIndex);
-}
-
 export function parseSections(body: string): MarkdownSection[] {
   const marker = "##";
   const matches = [...body.matchAll(new RegExp("^" + marker + " ([^\\n]+)$", "gm"))];
@@ -32,54 +24,6 @@ function fieldValues(sectionContent: string, label: string): string[] {
   const escapedLabel = label.replace(/[.*+?^$()|[\]\\]/g, "\\$&");
   const pattern = new RegExp("^- " + escapedLabel + ":\\s*(.*?)\\s*$", "gm");
   return [...sectionContent.matchAll(pattern)].map((match) => match[1].trim());
-}
-
-export function requireOnlyFields(
-  relativePath: string,
-  sectionContent: string,
-  sectionHeading: string,
-  labels: readonly string[],
-  errors: string[]
-): void {
-  const allowedLabels = new Set(labels);
-  const expectedFields = labels.map((label) => "\"- " + label + ":\"").join(" and ");
-
-  for (const line of sectionContent.split("\n").map((value) => value.trim()).filter(Boolean)) {
-    const match = line.match(/^- ([^:]+):\s*(.*?)\s*$/);
-    const label = match?.[1].trim();
-    if (!match || !label || !allowedLabels.has(label)) {
-      errors.push(
-        relativePath
-        + " section " + sectionHeading
-        + " must contain only " + expectedFields
-        + " fields: " + line
-      );
-    }
-  }
-}
-
-export function requireSingleField(
-  relativePath: string,
-  sectionContent: string,
-  label: string,
-  errors: string[]
-): string | null {
-  const values = fieldValues(sectionContent, label);
-  if (values.length === 0) {
-    errors.push(relativePath + " must include field \"- " + label + ": <value>\"");
-    return null;
-  }
-
-  if (values.length > 1) {
-    errors.push(relativePath + " must include field \"- " + label + ":\" exactly once");
-  }
-
-  if (values[0].length === 0) {
-    errors.push(relativePath + " field \"- " + label + ":\" must not be empty");
-    return null;
-  }
-
-  return values[0];
 }
 
 export function requireNonEmptyField(

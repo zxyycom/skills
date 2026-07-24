@@ -1,15 +1,15 @@
 ---
+title: 只通过当前工具维护派生索引
 status: active
 alignment: aligned
 createdAt: 2026-07-23T05:48:17Z
+purpose: 让索引故障恢复保持一条低成本、可执行且可验证的正式路径。
+background: 手工构造通用索引没有日常产品价值，还会复制 state、keys 与 revision 协议。
+decision: 工具恢复前停止索引写入；恢复当前 CLI 后只由它从权威 Markdown 重建并校验索引。
+relations:
+  - type: 替代
+    target: decision-records/recover-current-format-tools-and-index.md
 ---
-
-# 只通过当前工具维护派生索引
-
-## 索引摘要
-- 目的: 让索引故障恢复保持一条低成本、可执行且可验证的正式路径。
-- 背景: 手工构造通用索引没有日常产品价值，还会复制 state、keys 与 revision 协议。
-- 决策: 工具恢复前停止索引写入；恢复当前 CLI 后只由它从权威 Markdown 重建并校验索引。
 
 ## 目的
 - 让索引故障恢复保持一条低成本、可执行且可验证的正式路径。
@@ -26,6 +26,3 @@ createdAt: 2026-07-23T05:48:17Z
 - 采用: 通过兼容运行时、随包更新器、当前 release 或仓库源码恢复当前 CLI，不维护临时复刻或第二套长期实现。
 - 采用: CLI 恢复后只从权威 Markdown 运行 `sync-index --write` 重建索引，并以严格 `check` 通过作为完成条件。
 - 采用: 索引 reader 从同一批源文本产生 state 与 revision，通用同步在写入前再次核对 revision；任何一次核对失败都保留原索引。
-
-## 关系
-- 替代: [只恢复当前格式工具与派生索引](recover-current-format-tools-and-index.md)

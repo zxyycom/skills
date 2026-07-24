@@ -1,15 +1,15 @@
 ---
+title: 查询 Markdown 投影的决策元数据
 status: active
 alignment: aligned
 createdAt: 2026-07-22T09:44:30Z
+purpose: 让日常恢复按主题、生命周期和对齐关系筛选，同时保持 Markdown 是全部状态元数据的唯一事实源。
+background: 查询需要集中索引，但把状态和时间描述为索引独有元数据会与索引可重建契约冲突。
+decision: list、show 和 trace 查询 JSON 投影；状态、alignment 与创建时间均来自 Markdown，索引不拥有独立值。
+relations:
+  - type: 修订
+    target: decision-records/use-topic-filtered-decision-queries.md
 ---
-
-# 查询 Markdown 投影的决策元数据
-
-## 索引摘要
-- 目的: 让日常恢复按主题、生命周期和对齐关系筛选，同时保持 Markdown 是全部状态元数据的唯一事实源。
-- 背景: 查询需要集中索引，但把状态和时间描述为索引独有元数据会与索引可重建契约冲突。
-- 决策: list、show 和 trace 查询 JSON 投影；状态、alignment 与创建时间均来自 Markdown，索引不拥有独立值。
 
 ## 目的
 - 让日常任务默认只恢复仍作为后续依据的活动决策，并能按主题、生命周期和对齐关系缩小结果。
@@ -30,6 +30,3 @@ createdAt: 2026-07-22T09:44:30Z
 - 采用: `show <path>` 输出路径，以及从 Markdown frontmatter 投影的生命周期、对齐状态和秒级创建时间，再输出原始 Markdown。
 - 采用: `trace <path>` 使用索引中的直接关系构建前序和后续关系图，支持方向和非负最大深度，并显示各节点的生命周期与对齐状态。
 - 采用: 查询结果写入标准输出，warning 写入标准错误并限制结论完整性；查询输出不成为任何状态的独立 owner。
-
-## 关系
-- 修订: [使用主题与状态筛选决策查询](use-topic-filtered-decision-queries.md)

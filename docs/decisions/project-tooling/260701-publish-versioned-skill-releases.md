@@ -1,15 +1,17 @@
 ---
+title: 使用版本化 release 发布 skill 制品
 status: archived
 alignment: null
 createdAt: 2026-07-18T11:43:07+08:00
+purpose: 让每次实际发布都具有可识别的时间和内容版本。
+background: 固定 `*-latest` release 被更新后，GitHub 页面仍显示 release 最初的 `published_at`，容易让使用者误以为包没有更新。
+decision: 主仓库聚合发布和子仓库独立发布都使用 `<timestamp>-<hash12>` 作为版本化 release tag，时间戳使用 UTC `YYYYMMDDTHHMMSSZ` 格式。
+relations:
+  - type: 修订
+    target: project-tooling/260630-publish-skill-package-as-latest-release.md
+  - type: 修订
+    target: project-tooling/260701-gate-latest-release-by-skill-hash.md
 ---
-
-# 使用版本化 release 发布 skill 制品
-
-## 索引摘要
-- 目的: 让每次实际发布都具有可识别的时间和内容版本。
-- 背景: 固定 `*-latest` release 被更新后，GitHub 页面仍显示 release 最初的 `published_at`，容易让使用者误以为包没有更新。
-- 决策: 主仓库聚合发布和子仓库独立发布都使用 `<timestamp>-<hash12>` 作为版本化 release tag，时间戳使用 UTC `YYYYMMDDTHHMMSSZ` 格式。
 
 ## 目的
 - 让每次实际发布都具有可识别的时间和内容版本。
@@ -27,7 +29,3 @@ createdAt: 2026-07-18T11:43:07+08:00
 - 采用: 是否发布仍由当前聚合 hash 与上一提交中的聚合 hash 是否不同决定；`workflow_dispatch` 保留手动重发能力。
 - 不采用: 为每次非 skill 提交创建版本化 release；版本号代表可安装包内容，不代表仓库提交历史。
 - 不采用: 引入人工语义版本号；当前缺少需要人工版本规划的发布说明和兼容性承诺。
-
-## 关系
-- 修订: [使用 latest release 自动发布 skill 制品](260630-publish-skill-package-as-latest-release.md)
-- 修订: [使用 skill hash 门禁 latest release 发布](260701-gate-latest-release-by-skill-hash.md)

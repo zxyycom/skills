@@ -1,15 +1,15 @@
 ---
+title: 从 HEAD 路径临时识别待提交决策
 status: archived
 alignment: null
 createdAt: 2026-07-22T06:03:46Z
+purpose: 让提交前反复收敛的决策保持可见，同时避免形成虚假的正式演进历史。
+background: 持久化草稿状态或查询历史基线都会为简单的提交前判断增加额外维护成本。
+decision: 始终查询当前记录，并按 Markdown 路径是否存在于 HEAD 临时标记 pending。
+relations:
+  - type: 修订
+    target: decision-records/converge-records-before-stable-baseline.md
 ---
-
-# 从 HEAD 路径临时识别待提交决策
-
-## 索引摘要
-- 目的: 让提交前反复收敛的决策保持可见，同时避免形成虚假的正式演进历史。
-- 背景: 持久化草稿状态或查询历史基线都会为简单的提交前判断增加额外维护成本。
-- 决策: 始终查询当前记录，并按 Markdown 路径是否存在于 HEAD 临时标记 pending。
 
 ## 目的
 - 让 agent 默认看到当前工作区中准备采用的决策，同时清楚区分它是否已经进入正式版本历史。
@@ -32,6 +32,3 @@ createdAt: 2026-07-22T06:03:46Z
 - 采用: 历史关系目标必须在当前索引中已经归档，且其 Markdown 路径存在于 `HEAD`，避免把尚未正式建立的中间判断写成演进前序。
 - 采用: CLI 不推断重命名。已存在于 `HEAD` 的路径从工作区消失是严格错误；另一路径上的当前文件仍独立按 `pending` 处理。
 - 不采用: 持久化 `pending` 生命周期或额外 baseline 查询范围。它们会引入显式迁移、双重内容来源和当前任务不需要的历史读取成本。
-
-## 关系
-- 修订: [在稳定基线前原地收敛决策记录](converge-records-before-stable-baseline.md)

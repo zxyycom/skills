@@ -1,15 +1,17 @@
 ---
+title: 以分发单元定义 skill 的独立交付边界
 status: active
 alignment: aligned
 createdAt: 2026-07-20T10:15:58+08:00
+purpose: 让单个 skill 和成套 skills 都能按真实安装与使用方式维护, 同时阻止跨分发单元的隐含依赖。
+background: Skill 是行为入口，分发单元才是安装和交付边界；要求每个 skill 单独交付会破坏合法的单元内依赖。
+decision: "`skill-maintainer` 区分 skill 行为单元与 distribution unit 交付单元, 允许同一单元内显式依赖和交接, 并要求跨单元依赖声明前置条件及缺失路径。"
+relations:
+  - type: 修订
+    target: skill-maintainer-behavior/260719-own-project-aware-skill-lifecycle.md
+  - type: 判定无效
+    target: skill-maintainer-behavior/260720-define-skills-by-self-contained-contracts.md
 ---
-
-# 以分发单元定义 skill 的独立交付边界
-
-## 索引摘要
-- 目的: 让单个 skill 和成套 skills 都能按真实安装与使用方式维护, 同时阻止跨分发单元的隐含依赖。
-- 背景: Skill 是行为入口，分发单元才是安装和交付边界；要求每个 skill 单独交付会破坏合法的单元内依赖。
-- 决策: `skill-maintainer` 区分 skill 行为单元与 distribution unit 交付单元, 允许同一单元内显式依赖和交接, 并要求跨单元依赖声明前置条件及缺失路径。
 
 ## 目的
 - 让 skill 的行为契约按单个入口维护, 让安装、更新、兼容性和完整验收按真实分发单元维护。
@@ -37,7 +39,3 @@ createdAt: 2026-07-20T10:15:58+08:00
 - 采用: 以分发单元而不是单个 skill 承接“自包含最小基线加环境适配”; 单元必须包含兑现整体契约需要的全部成员和资源。
 - 采用: `scripts/validate-skill.mjs` 继续机械检查每个 skill 的通用结构; 分发单元成员、内部依赖、共享资源、metadata、打包和安装契约由当前环境的验证入口补充, 没有机械入口时报告人工证据和残余风险。
 - 采用: 安装、启停、发布、提交和全局配置变更继续作为用户明确授权的外部状态变更。
-
-## 关系
-- 修订: [让 skill-maintainer 承接环境自适应的 skill 生命周期](260719-own-project-aware-skill-lifecycle.md)
-- 判定无效: [让分发 skill 以自身契约定义边界](260720-define-skills-by-self-contained-contracts.md)

@@ -1,15 +1,13 @@
 ---
+title: 使用受控 Mermaid flowchart 表达复杂关系
 status: active
 alignment: aligned
 createdAt: 2026-07-20T10:15:36+08:00
+purpose: 在保持结构稳定和关系显式的前提下, 提高层级、分支和跨节点内容的可读性。
+background: 有序列表、JSON 和简单表格适合作为默认格式, 但复杂关系强行线性化会降低理解效率; Mermaid flowchart 能用代码显式声明节点、边、方向和分组。
+decision: 先遵循目标已有格式契约, 否则保留稳定默认格式; 图示确有收益且环境支持时, 使用 `flowchart LR` 或 `flowchart TD` 配合 `subgraph`, 并显式标注关系。
+relations: []
 ---
-
-# 使用受控 Mermaid flowchart 表达复杂关系
-
-## 索引摘要
-- 目的: 在保持结构稳定和关系显式的前提下, 提高层级、分支和跨节点内容的可读性。
-- 背景: 有序列表、JSON 和简单表格适合作为默认格式, 但复杂关系强行线性化会降低理解效率; Mermaid flowchart 能用代码显式声明节点、边、方向和分组。
-- 决策: 先遵循目标已有格式契约, 否则保留稳定默认格式; 图示确有收益且环境支持时, 使用 `flowchart LR` 或 `flowchart TD` 配合 `subgraph`, 并显式标注关系。
 
 ## 目的
 - 保持 prompt-optimize 的格式选择可预测, 避免无边界的自由排版。

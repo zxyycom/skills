@@ -1,15 +1,15 @@
 ---
+title: 只恢复当前格式工具与派生索引
 status: archived
 alignment: null
 createdAt: 2026-07-22T08:42:44Z
+purpose: 让工具、索引或写入故障恢复到当前自包含 Markdown 与当前派生索引的单一可校验状态。
+background: Markdown 已拥有全部权威状态，继续维护旧 schema 映射或独立索引状态会重新引入并行事实源和兼容路径。
+decision: 恢复手册只处理当前格式；优先恢复当前 CLI，再从 Markdown 重建当前索引，不读取、迁移或推断其他 schema。
+relations:
+  - type: 替代
+    target: decision-records/support-degraded-decision-maintenance.md
 ---
-
-# 只恢复当前格式工具与派生索引
-
-## 索引摘要
-- 目的: 让工具、索引或写入故障恢复到当前自包含 Markdown 与当前派生索引的单一可校验状态。
-- 背景: Markdown 已拥有全部权威状态，继续维护旧 schema 映射或独立索引状态会重新引入并行事实源和兼容路径。
-- 决策: 恢复手册只处理当前格式；优先恢复当前 CLI，再从 Markdown 重建当前索引，不读取、迁移或推断其他 schema。
 
 ## 目的
 - 让 decision-records CLI、运行时、索引或写事务损坏时能够恢复当前可维护工具和集合。
@@ -29,6 +29,3 @@ createdAt: 2026-07-22T08:42:44Z
 - 采用: CLI 暂时无法及时恢复而任务必须继续时，只按固定契约构建当前 schema 的完整候选索引；不为任何状态、时间、关系或缺失元数据设置默认值。
 - 采用: 恢复路径不读取、迁移或解释其他 schema 与格式；无法从可信的当前格式 Markdown 恢复的判断请求用户确认。
 - 采用: CLI 恢复后运行 `sync-index --write` 和严格 `check`，以 Markdown、索引、关系和 Git `HEAD` 边界全部一致作为完成条件。
-
-## 关系
-- 替代: [支持故障时的降级决策维护](support-degraded-decision-maintenance.md)

@@ -1,15 +1,15 @@
 ---
+title: 使用主题与状态筛选决策查询
 status: archived
 alignment: null
 createdAt: 2026-07-20T13:17:47Z
+purpose: 让日常恢复默认聚焦活动决策，并按需组合主题、状态筛选和时间显示。
+background: 全量历史会给日常判断引入噪声；主题路径可以在结果较多时直接收窄范围。
+decision: "`list` 默认 active 并支持 `--topic` 与状态组合；输出基础元数据，`show` 展开正文，`trace` 回放关系。"
+relations:
+  - type: 修订
+    target: decision-records/260720-use-filtered-decision-queries.md
 ---
-
-# 使用主题与状态筛选决策查询
-
-## 索引摘要
-- 目的: 让日常恢复默认聚焦活动决策，并按需组合主题、状态筛选和时间显示。
-- 背景: 全量历史会给日常判断引入噪声；主题路径可以在结果较多时直接收窄范围。
-- 决策: `list` 默认 active 并支持 `--topic` 与状态组合；输出基础元数据，`show` 展开正文，`trace` 回放关系。
 
 ## 目的
 - 让日常任务默认只恢复仍作为后续依据的活动决策，并能按主题进一步缩小结果。
@@ -30,6 +30,3 @@ createdAt: 2026-07-20T13:17:47Z
 - 采用: `show <path>` 输出路径、状态和秒级创建时间等索引独有元数据，再输出原始 Markdown，不重复正文已有投影。
 - 采用: `trace <path>` 使用索引直接关系构建前序和后续关系图，支持方向和非负最大深度。
 - 采用: 查询结果写入标准输出，warning 写入标准错误并限制结论完整性。
-
-## 关系
-- 修订: [使用筛选式决策查询](260720-use-filtered-decision-queries.md)

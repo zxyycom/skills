@@ -32,8 +32,11 @@ export const decisionIndexJsonSchema = {
     keyValues: {
       additionalProperties: false,
       properties: {
-        alignment: {
-          items: { enum: decisionAlignments, type: "string" },
+        topic: {
+          items: {
+            pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            type: "string"
+          },
           maxItems: 1,
           minItems: 1,
           type: "array",
@@ -46,25 +49,22 @@ export const decisionIndexJsonSchema = {
           type: "array",
           uniqueItems: true
         },
-        topic: {
-          items: {
-            pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-            type: "string"
-          },
+        alignment: {
+          items: { enum: decisionAlignments, type: "string" },
           maxItems: 1,
           minItems: 1,
           type: "array",
           uniqueItems: true
         }
       },
-      required: ["status", "topic"],
+      required: ["topic", "status"],
       type: "object"
     },
     relation: {
       additionalProperties: false,
       properties: {
-        target: { $ref: "#/$defs/decisionPath" },
-        type: { enum: decisionRelationTypes, type: "string" }
+        type: { enum: decisionRelationTypes, type: "string" },
+        target: { $ref: "#/$defs/decisionPath" }
       },
       required: ["type", "target"],
       type: "object"
@@ -92,36 +92,36 @@ export const decisionIndexJsonSchema = {
         }
       ],
       properties: {
+        path: { $ref: "#/$defs/decisionPath" },
+        title: projectionText,
+        status: { enum: decisionStatuses, type: "string" },
         alignment: {
           enum: [...decisionAlignments, null],
           type: ["string", "null"]
         },
-        background: projectionText,
         createdAt: {
           pattern: decisionTimestampPatternSource,
           type: "string"
         },
-        decision: projectionText,
-        path: { $ref: "#/$defs/decisionPath" },
         purpose: projectionText,
+        background: projectionText,
+        decision: projectionText,
         relations: {
           items: { $ref: "#/$defs/relation" },
           type: "array",
           uniqueItems: true
-        },
-        status: { enum: decisionStatuses, type: "string" },
-        title: projectionText
+        }
       },
       required: [
-        "alignment",
-        "background",
-        "createdAt",
-        "decision",
         "path",
-        "purpose",
-        "relations",
+        "title",
         "status",
-        "title"
+        "alignment",
+        "createdAt",
+        "purpose",
+        "background",
+        "decision",
+        "relations"
       ],
       type: "object"
     }
@@ -130,7 +130,20 @@ export const decisionIndexJsonSchema = {
   additionalProperties: false,
   description: "由决策 Markdown 生成的领域状态通用索引。",
   properties: {
+    schemaVersion: { const: 1 },
+    namespace: { const: decisionIndexNamespace },
     definitionVersion: { const: decisionIndexDefinitionVersion },
+    sourceRevision: {
+      pattern: "^sha256:[0-9a-f]{64}$",
+      type: "string"
+    },
+    keyDefinitions: {
+      const: [
+        { name: "topic", mode: "exact" },
+        { name: "status", mode: "exact" },
+        { name: "alignment", mode: "exact" }
+      ]
+    },
     entries: {
       items: {
         additionalProperties: false,
@@ -143,28 +156,15 @@ export const decisionIndexJsonSchema = {
         type: "object"
       },
       type: "array"
-    },
-    keyDefinitions: {
-      const: [
-        { mode: "exact", name: "alignment" },
-        { mode: "exact", name: "status" },
-        { mode: "exact", name: "topic" }
-      ]
-    },
-    namespace: { const: decisionIndexNamespace },
-    schemaVersion: { const: 1 },
-    sourceRevision: {
-      pattern: "^sha256:[0-9a-f]{64}$",
-      type: "string"
     }
   },
   required: [
-    "definitionVersion",
-    "entries",
-    "keyDefinitions",
-    "namespace",
     "schemaVersion",
-    "sourceRevision"
+    "namespace",
+    "definitionVersion",
+    "sourceRevision",
+    "keyDefinitions",
+    "entries"
   ],
   title: "Decision Records State Index",
   type: "object"

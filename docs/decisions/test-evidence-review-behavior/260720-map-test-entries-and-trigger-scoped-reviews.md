@@ -1,15 +1,15 @@
 ---
+title: 按测试入口映射证据并触发范围审查
 status: active
 alignment: aligned
 createdAt: 2026-07-20T13:48:52+08:00
+purpose: 让每个被发现器识别的测试入口都能回到明确契约和 case，消除文件级标记造成的遮蔽，并让人工审查范围在 Git 变化后可确定地重新触发。
+background: 文件级最小归属会让一个 marker 覆盖同文件内未评估的其他测试；case 缺少契约背景，普通三级标题会被误判；Scope 只校验路径外形，无法发现失效范围或命中变更。
+decision: case 使用固定标题和 `Contract:`；源码角色逐测试入口映射；Scope 用严格 glob 与 Git 路径校验，并按变化和 CR 基线触发 review。
+relations:
+  - type: 修订
+    target: test-evidence-review-behavior/260719-model-verification-obligations-and-source-roles.md
 ---
-
-# 按测试入口映射证据并触发范围审查
-
-## 索引摘要
-- 目的: 让每个被发现器识别的测试入口都能回到明确契约和 case，消除文件级标记造成的遮蔽，并让人工审查范围在 Git 变化后可确定地重新触发。
-- 背景: 文件级最小归属会让一个 marker 覆盖同文件内未评估的其他测试；case 缺少契约背景，普通三级标题会被误判；Scope 只校验路径外形，无法发现失效范围或命中变更。
-- 决策: case 使用固定标题和 `Contract:`；源码角色逐测试入口映射；Scope 用严格 glob 与 Git 路径校验，并按变化和 CR 基线触发 review。
 
 ## 目的
 - 让每个被发现器识别的测试入口都拥有且只拥有一个可追溯 case 映射，避免同文件其他测试被已有 marker 遮蔽，并让误报只能按入口豁免。
@@ -32,6 +32,3 @@ createdAt: 2026-07-20T13:48:52+08:00
 - 采用: 存在 Scope case 时以 Git worktree 根目录作为 `--root`；`Scope:` 使用 picomatch 严格括号模式解析正向 glob，并要求每个 pattern 至少匹配一个 Git tracked 或非 ignored untracked 路径；exempt marker 的路径必须由对应 Scope 覆盖。
 - 采用: review case 可以同时保存 `Review-Result`、`Reviewed-At` 和 `Reviewed-Commit` 作为最近一次可持久化 CR 状态。CLI 在脏工作区路径或该 commit 之后的已提交路径命中 Scope、最近结果不是 pass、尚无最近 CR 或提交基线不可读取时返回 review trigger；配置决定 trigger 是 warning 还是 error，时间阈值只产生长期未复核提醒。
 - 采用: CLI 只发现、校验和返回 review trigger，不执行测试、不判断契约或证明点价值，也不代替人工 `Review:` 动作；调用 skill 的 agent 继续负责语义评估和命中动作。
-
-## 关系
-- 修订: [将账本扩展为验证义务并统一源码角色](260719-model-verification-obligations-and-source-roles.md)

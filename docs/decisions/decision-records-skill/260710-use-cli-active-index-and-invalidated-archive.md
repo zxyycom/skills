@@ -1,15 +1,19 @@
 ---
+title: 使用 CLI 维护活动索引并归档失效决策
 status: archived
 alignment: null
 createdAt: 2026-07-11T10:26:44+08:00
+purpose: 用可预期的 CLI 维护当前决策可见性和索引一致性，同时保留历史。
+background: 只做结构校验不能帮助维护者在文件重命名或状态变化后同步索引，重复手工编辑容易产生旧路径和状态漂移。
+decision: "`decision-records.mjs check` 作为默认只读命令，检查目录、文件名、正文状态、链接、归档位置和活动索引。"
+relations:
+  - type: 修订
+    target: decision-records-skill/260710-use-explicit-portable-decision-memory.md
+  - type: 修订
+    target: decision-records/260627-establish-decision-record-policy.md
+  - type: 修订
+    target: decision-records/260630-track-decision-status-and-relations.md
 ---
-
-# 使用 CLI 维护活动索引并归档失效决策
-
-## 索引摘要
-- 目的: 用可预期的 CLI 维护当前决策可见性和索引一致性，同时保留历史。
-- 背景: 只做结构校验不能帮助维护者在文件重命名或状态变化后同步索引，重复手工编辑容易产生旧路径和状态漂移。
-- 决策: `decision-records.mjs check` 作为默认只读命令，检查目录、文件名、正文状态、链接、归档位置和活动索引。
 
 ## 目的
 - 用可预期的 CLI 维护当前决策可见性和索引一致性，同时保留历史。
@@ -39,8 +43,3 @@ createdAt: 2026-07-11T10:26:44+08:00
 - 不采用: 在 `check` 或 `list` 中自动修复索引。原因是只读命令需要保持可安全重复执行。
 - 不采用: 因决策不再活跃或回放价值降低而删除记录。原因是删除会破坏长期记忆的审核和优化链路。
 - 不采用: 当前版本自动移动 invalidated 文件。原因是移动会改变来源和反向引用，应该先形成可预览、原子更新链接的归档命令。
-
-## 关系
-- 修订: [使用显式可移植的决策记录形成长期记忆](260710-use-explicit-portable-decision-memory.md)
-- 修订: [建立决策记录策略](../decision-records/260627-establish-decision-record-policy.md)
-- 修订: [给决策记录增加状态和关系](../decision-records/260630-track-decision-status-and-relations.md)

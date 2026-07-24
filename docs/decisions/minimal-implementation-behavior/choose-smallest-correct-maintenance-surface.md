@@ -1,15 +1,13 @@
 ---
+title: 以有界候选比较选择最小实现维护面
 status: active
 alignment: aligned
 createdAt: 2026-07-23T07:45:41Z
+purpose: 让目标与责任已明确的工程任务在正确候选之间选择更小维护面，并能独立审计过度工程。
+background: 相邻 skills 已拥有产品架构、共享契约和测试证据判断，依赖、配置与预防性机制仍缺少实现取舍 owner。
+decision: 新增独立 minimal-implementation，以单一、有界流程识别决定性维护面并按授权选择、实施或报告，不依赖相邻 skill 安装。
+relations: []
 ---
-
-# 以有界候选比较选择最小实现维护面
-
-## 索引摘要
-- 目的: 让目标与责任已明确的工程任务在正确候选之间选择更小维护面，并能独立审计过度工程。
-- 背景: 相邻 skills 已拥有产品架构、共享契约和测试证据判断，依赖、配置与预防性机制仍缺少实现取舍 owner。
-- 决策: 新增独立 minimal-implementation，以单一、有界流程识别决定性维护面并按授权选择、实施或报告，不依赖相邻 skill 安装。
 
 ## 目的
 - 为目标、contract 和责任 owner 已明确的工程任务建立稳定的实现取舍 owner。

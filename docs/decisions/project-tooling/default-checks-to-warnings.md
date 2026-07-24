@@ -1,15 +1,15 @@
 ---
+title: 让完整检查默认报告警告并显式启用阻断
 status: active
 alignment: aligned
 createdAt: 2026-07-22T13:49:32Z
+purpose: 让并行修改中的工作区完成全部检查，同时为 CI 和真实依赖保留明确门禁。
+background: 新增检查若必须逐项声明为非阻断，会增加维护负担，临时损坏也会过早终止其余诊断。
+decision: 前置检查默认以 warning 继续；任务可显式声明 blocking，`--strict` 将全部失败升级为阻断。
+relations:
+  - type: 修订
+    target: project-tooling/260720-orchestrate-checks-with-conservative-concurrency.md
 ---
-
-# 让完整检查默认报告警告并显式启用阻断
-
-## 索引摘要
-- 目的: 让并行修改中的工作区完成全部检查，同时为 CI 和真实依赖保留明确门禁。
-- 背景: 新增检查若必须逐项声明为非阻断，会增加维护负担，临时损坏也会过早终止其余诊断。
-- 决策: 前置检查默认以 warning 继续；任务可显式声明 blocking，`--strict` 将全部失败升级为阻断。
 
 ## 目的
 - 让日常 `bun run check` 在决策、测试、调查报告或其他工作区内容临时不完整时，仍能运行全部可执行检查并汇总诊断。
@@ -30,6 +30,3 @@ createdAt: 2026-07-22T13:49:32Z
 - 采用: warning 保留原检查的 stdout 和 stderr 诊断，并在单项和最终汇总中显式显示 warning 状态，退出 `0` 不表示全部前置检查通过。
 - 采用: 顶层任务默认最多并发两个，并继续允许 `CHECK_CONCURRENCY` 以正整数显式覆盖。
 - 不采用: 要求维护者逐项声明哪些新任务属于 warning；非阻断是默认值，阻断才需要额外配置。
-
-## 关系
-- 修订: [用保守顶层并发编排完整检查](260720-orchestrate-checks-with-conservative-concurrency.md)

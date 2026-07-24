@@ -65,29 +65,29 @@ assert.notEqual(
 );
 
 const projection: DecisionProjection = {
+  title: "验证文档字段约束",
+  purpose: "证明文档类型不依赖额外的对齐说明结构。",
   background: "该对象只用于证明生命周期和对齐字段的类型组合。",
   decision: "对齐状态只由 alignment 字段表达。",
-  purpose: "证明文档类型不依赖额外的对齐说明结构。",
   relations: [],
-  title: "验证文档字段约束"
 };
 const alignedDocument = {
   ...projection,
+  status: "active",
   alignment: "aligned",
-  createdAt: "2026-07-22T10:20:30+08:00",
-  status: "active"
+  createdAt: "2026-07-22T10:20:30+08:00"
 } satisfies DecisionDocument;
 const unalignedDocument = {
   ...projection,
+  status: "active",
   alignment: "unaligned",
-  createdAt: "2026-07-22T10:20:30+08:00",
-  status: "active"
+  createdAt: "2026-07-22T10:20:30+08:00"
 } satisfies DecisionDocument;
 const archivedDocument = {
   ...projection,
+  status: "archived",
   alignment: null,
-  createdAt: "2026-07-22T10:20:30+08:00",
-  status: "archived"
+  createdAt: "2026-07-22T10:20:30+08:00"
 } satisfies DecisionDocument;
 
 function narrowedStatus(document: DecisionDocument): "active" | "archived" {
@@ -109,17 +109,15 @@ const errors: string[] = [];
 const document = await validateDecisionBody({
   body: [
     "---",
+    "title: 采用 2FA 安全策略",
     "status: active",
     "alignment: unaligned",
     "createdAt: 2026-07-22T10:20:30+08:00",
+    "purpose: 让语义明确的安全术语可以直接形成稳定决策身份。",
+    "background: 数字开头的领域术语不等于日期或形成时间。",
+    "decision: 允许 2fa 等语义 slug，同时继续拒绝日期 token。",
+    "relations: []",
     "---",
-    "",
-    "# 采用 2FA 安全策略",
-    "",
-    "## 索引摘要",
-    "- 目的: 让语义明确的安全术语可以直接形成稳定决策身份。",
-    "- 背景: 数字开头的领域术语不等于日期或形成时间。",
-    "- 决策: 允许 2fa 等语义 slug，同时继续拒绝日期 token。",
     "",
     "## 目的",
     "- 让语义明确的安全术语可以直接形成稳定决策身份。",
@@ -131,7 +129,6 @@ const document = await validateDecisionBody({
     "- 采用: 允许 2fa 等语义 slug，同时继续拒绝日期 token。",
     ""
   ].join("\n"),
-  decisionPath: path.join(decisionsDirectory, relativePath),
   decisionsDirectory,
   errors,
   fileName: "2fa-policy.md",

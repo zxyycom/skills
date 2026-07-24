@@ -1,15 +1,13 @@
 ---
+title: 使用独立 Change Plan 承接临时变更计划
 status: active
 alignment: aligned
 createdAt: 2026-07-23T03:24:48Z
+purpose: 让项目在不采用完整 specification 生命周期时也能保存可审阅、可交接并带实施门禁的 change 计划。
+background: 稳定文档和长期决策已有各自 owner，而 OpenSpec 的 proposal、design 与 tasks 仍提供有价值的 change 级规划结构。
+decision: 新增独立 `change-plan`，以三文件临时计划和只读结构检查器承接规划，不拥有稳定事实、长期决策或实施许可。
+relations: []
 ---
-
-# 使用独立 Change Plan 承接临时变更计划
-
-## 索引摘要
-- 目的: 让项目在不采用完整 specification 生命周期时也能保存可审阅、可交接并带实施门禁的 change 计划。
-- 背景: 稳定文档和长期决策已有各自 owner，而 OpenSpec 的 proposal、design 与 tasks 仍提供有价值的 change 级规划结构。
-- 决策: 新增独立 `change-plan`，以三文件临时计划和只读结构检查器承接规划，不拥有稳定事实、长期决策或实施许可。
 
 ## 目的
 - 让项目能够独立选择轻量的 change 规划能力，在不引入 capability、delta spec、主 spec 合并或专属归档系统时，仍保存目标、范围、当前设计、实施门禁、任务和验证安排。

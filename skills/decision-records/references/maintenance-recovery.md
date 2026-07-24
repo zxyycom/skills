@@ -4,7 +4,7 @@
 
 ## 恢复目标
 
-保留全部当前格式 Markdown 及其权威 `status`、`alignment`、`createdAt`、正文和关系，恢复可运行的当前 CLI，并从 Markdown 重建 `schemaVersion: 1`、`namespace: decisions`、`definitionVersion: 1` 的当前通用索引，让严格 `check` 返回 `0`。不要从损坏索引反向覆盖有效 Markdown，不要为消除错误删除无法解释的记录。
+保留全部当前格式 Markdown 及其权威 frontmatter、完整正文和关系，恢复可运行的当前 CLI，并从 Markdown 重建 `schemaVersion: 1`、`namespace: decisions`、`definitionVersion: 2` 的当前通用索引，让严格 `check` 返回 `0`。不要从损坏索引反向覆盖有效 Markdown，不要为消除错误删除无法解释的记录。
 
 ## 先判断故障类型
 
@@ -44,7 +44,7 @@
 ## 重建索引
 
 1. 先保留当前索引副本或确认 Git 中存在可回退版本。
-2. 完整校验每条 Markdown 的 frontmatter、正文和关系。状态、对齐与创建时间只取对应 Markdown；索引对 `alignment` 只做投影，不拥有该状态，也不从文件名、关系、正文或文件时间推断它。
+2. 完整校验每条 Markdown 的 frontmatter、正文和关系。标题、状态、对齐、创建时间、三项摘要和直接关系只取对应 Markdown frontmatter；索引只做投影，不从文件名、正文或文件时间推断这些字段。
 3. 运行：
 
    ```text

@@ -1,15 +1,17 @@
 ---
+title: 用独立版本和文件覆盖更新 skill
 status: active
 alignment: aligned
 createdAt: 2026-07-24T04:13:51Z
+purpose: 让本地定制不干扰更新判断，并避免更新删除正式制品之外的本地文件。
+background: 用本地目录 hash 判断更新会把定制误判为新版本，整目录替换还会删除额外文件。
+decision: updater 只比较每个 skill 的独立版本，确认前列出文件，并覆盖正式制品中的路径。
+relations:
+  - type: 修订
+    target: project-tooling/260703-use-per-skill-hash-lock-for-updater.md
+  - type: 修订
+    target: project-tooling/260703-follow-latest-release-for-skill-updater.md
 ---
-
-# 用独立版本和文件覆盖更新 skill
-
-## 索引摘要
-- 目的: 让本地定制不干扰更新判断，并避免更新删除正式制品之外的本地文件。
-- 背景: 用本地目录 hash 判断更新会把定制误判为新版本，整目录替换还会删除额外文件。
-- 决策: updater 只比较每个 skill 的独立版本，确认前列出文件，并覆盖正式制品中的路径。
 
 ## 目的
 - 让本地定制不改变 skill 是否存在上游更新的判断。
@@ -33,7 +35,3 @@ createdAt: 2026-07-24T04:13:51Z
 - 不采用: 根据本地内容 hash 推断安装版本或本地定制状态；这会重新耦合仓库内容证明与已安装 skill 更新。
 - 不采用: 跟踪 `skill-package-lock.json` 或其他派生 package 状态文件；版本与 Git 历史已经能够承接更新判断和版本遗漏检查。
 - 不采用: 自动合并同名文件中的本地定制；当前只承诺更新前清楚展示并由使用者确认覆盖。
-
-## 关系
-- 修订: [用 skill package lock 承接发布和自更新](260703-use-per-skill-hash-lock-for-updater.md)
-- 修订: [自更新脚本跟随 latest release 制品](260703-follow-latest-release-for-skill-updater.md)

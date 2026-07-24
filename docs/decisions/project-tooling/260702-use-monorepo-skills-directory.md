@@ -1,15 +1,25 @@
 ---
+title: 迁移为 skills 单仓库布局
 status: archived
 alignment: null
 createdAt: 2026-07-03T10:58:54+08:00
+purpose: 简化个人维护的多 skill 仓库结构，并统一共享工具链和交付。
+background: 仓库原来通过 Git submodule 组织多个 skill 子仓库, 但当前项目是个人自用和个人维护, 没有外部使用者依赖子仓库的独立 release 入口。
+decision: 用 `skills/<skill-name>/` 直接承接所有实际可打包 skill, 每个一级目录必须包含 `SKILL.md`。
+relations:
+  - type: 修订
+    target: project-tooling/260630-publish-skill-package-as-latest-release.md
+  - type: 修订
+    target: project-tooling/260701-gate-latest-release-by-skill-hash.md
+  - type: 修订
+    target: project-tooling/260701-publish-versioned-skill-releases.md
+  - type: 修订
+    target: project-tooling/260701-embed-self-update-script-in-skill-packages.md
+  - type: 修订
+    target: project-tooling/260701-update-package-hash-with-git-hooks.md
+  - type: 替代
+    target: project-tooling/260701-add-submodule-release-workflows.md
 ---
-
-# 迁移为 skills 单仓库布局
-
-## 索引摘要
-- 目的: 简化个人维护的多 skill 仓库结构，并统一共享工具链和交付。
-- 背景: 仓库原来通过 Git submodule 组织多个 skill 子仓库, 但当前项目是个人自用和个人维护, 没有外部使用者依赖子仓库的独立 release 入口。
-- 决策: 用 `skills/<skill-name>/` 直接承接所有实际可打包 skill, 每个一级目录必须包含 `SKILL.md`。
 
 ## 目的
 - 简化个人维护的多 skill 仓库结构，并统一共享工具链和交付。
@@ -36,11 +46,3 @@ createdAt: 2026-07-03T10:58:54+08:00
 - 采用: 只保留主仓库聚合版本化 release 和 `skills-latest` 兼容入口。
 - 不采用: 保留 `子仓库/skill/<skill-name>/` 的二级仓库形态; 这会把 submodule 迁移成普通目录, 但仍留下旧 owner 边界。
 - 不采用: 把 skill 直接平铺在项目根目录; 这会让 skill 本体和项目级维护文件混在一起。
-
-## 关系
-- 修订: [使用 latest release 自动发布 skill 制品](260630-publish-skill-package-as-latest-release.md)
-- 修订: [使用 skill hash 门禁 latest release 发布](260701-gate-latest-release-by-skill-hash.md)
-- 修订: [使用版本化 release 发布 skill 制品](260701-publish-versioned-skill-releases.md)
-- 修订: [在 skill 包内分发自更新脚本](260701-embed-self-update-script-in-skill-packages.md)
-- 修订: [用 Git hook 更新 package hash](260701-update-package-hash-with-git-hooks.md)
-- 替代: [给子仓库增加独立 release workflow](260701-add-submodule-release-workflows.md)

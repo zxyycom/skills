@@ -128,8 +128,8 @@ try {
     shownDecision,
     /^createdAt: 2026-07-11T14:15:16\+08:00$/m
   );
-  assert.match(shownDecision, /^# 使用生成 CLI$/m);
-  assert.doesNotMatch(shownDecision, /^title:/m);
+  assert.match(shownDecision, /^title: 使用生成 CLI$/m);
+  assert.doesNotMatch(shownDecision, /^# /m);
 
   const relationTrace = await traceDecision(archivedRelativePath, [], fixtureRoot);
   assert.match(

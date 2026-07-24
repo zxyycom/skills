@@ -1,15 +1,15 @@
 ---
+title: 让 skill 分发脚本同时提供可导入模块
 status: archived
 alignment: null
 createdAt: 2026-07-20T17:04:27+08:00
+purpose: 让已安装 skill 的自包含代码既能作为 CLI 运行，也能在现有 ESM 进程中直接导入复用。
+background: 现有单文件 JavaScript 主要按 Node 子进程入口交付，不同脚本的导入副作用、公共 exports 和 TypeScript 类型支持并不一致。
+decision: 从同一 TypeScript 源生成 import-safe 的自包含 MJS、声明和 source map；主模块判断负责兼容 CLI。
+relations:
+  - type: 修订
+    target: project-tooling/260711-separate-skill-script-source-and-generated-artifacts.md
 ---
-
-# 让 skill 分发脚本同时提供可导入模块
-
-## 索引摘要
-- 目的: 让已安装 skill 的自包含代码既能作为 CLI 运行，也能在现有 ESM 进程中直接导入复用。
-- 背景: 现有单文件 JavaScript 主要按 Node 子进程入口交付，不同脚本的导入副作用、公共 exports 和 TypeScript 类型支持并不一致。
-- 决策: 从同一 TypeScript 源生成 import-safe 的自包含 MJS、声明和 source map；主模块判断负责兼容 CLI。
 
 ## 目的
 - 让已安装 skill 自身携带可以直接导入的稳定代码接口，不要求调用方连接主仓库源码、安装源码依赖或启动额外的 Node 子进程。
@@ -30,6 +30,3 @@ createdAt: 2026-07-20T17:04:27+08:00
 - 采用: `pack:skills` 只收集已经同步并提交到 skill 目录的 Git blob，不在打包阶段临时构建源码、声明或未提交产物。
 - 不采用: 在 skill 包内复制可直接执行的原始 TypeScript 源码和源码依赖；这会破坏自包含边界并形成源码与生成产物的双重调用契约。
 - 不采用: 让已安装 skill 通过外部路径、源码仓库或额外 link 依赖获得可导入接口；公共接口直接由包内 MJS 和声明兑现。
-
-## 关系
-- 修订: [分离 skill 分发脚本源码与生成产物](260711-separate-skill-script-source-and-generated-artifacts.md)

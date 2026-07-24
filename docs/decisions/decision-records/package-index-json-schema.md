@@ -1,15 +1,13 @@
 ---
+title: 随包分发索引 JSON Schema
 status: archived
 alignment: null
 createdAt: 2026-07-21T01:29:45Z
+purpose: 让工具损坏时可以直接取得机器可读的索引结构并恢复必要操作。
+background: 固定契约足以解释格式，但临时工具仍需要重新提取字段、枚举和基础约束。
+decision: 从 CLI 共享常量生成索引 JSON Schema，并作为 decision-records 资源随包分发。
+relations: []
 ---
-
-# 随包分发索引 JSON Schema
-
-## 索引摘要
-- 目的: 让工具损坏时可以直接取得机器可读的索引结构并恢复必要操作。
-- 背景: 固定契约足以解释格式，但临时工具仍需要重新提取字段、枚举和基础约束。
-- 决策: 从 CLI 共享常量生成索引 JSON Schema，并作为 decision-records 资源随包分发。
 
 ## 目的
 - 让编辑器、JSON Schema 工具和临时恢复工具可以直接读取 schema v3 的字段、类型、枚举和基础格式。

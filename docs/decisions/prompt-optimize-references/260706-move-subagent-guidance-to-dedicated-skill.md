@@ -1,15 +1,15 @@
 ---
+title: 将子代理任务说明移出 prompt-optimize
 status: active
 alignment: aligned
 createdAt: 2026-07-18T11:43:07+08:00
+purpose: 让 prompt-optimize 聚焦结构化文本优化，并为子代理编排建立独立 owner。
+background: "`prompt-optimize` 的 `agent-tasks.md` 曾负责 worker、explorer、并行 agent 和子 agent 任务结构。"
+decision: 删除 `prompt-optimize` 的 `agent-tasks.md`，由 `subagent-orchestration` 唯一承接子代理编排和任务派发。
+relations:
+  - type: 修订
+    target: prompt-optimize-references/260630-merge-prompt-optimize-core-flow-into-entry.md
 ---
-
-# 将子代理任务说明移出 prompt-optimize
-
-## 索引摘要
-- 目的: 让 prompt-optimize 聚焦结构化文本优化，并为子代理编排建立独立 owner。
-- 背景: `prompt-optimize` 的 `agent-tasks.md` 曾负责 worker、explorer、并行 agent 和子 agent 任务结构。
-- 决策: 删除 `prompt-optimize` 的 `agent-tasks.md`，由 `subagent-orchestration` 唯一承接子代理编排和任务派发。
 
 ## 目的
 - 让 prompt-optimize 聚焦结构化文本优化，并为子代理编排建立独立 owner。
@@ -23,6 +23,3 @@ createdAt: 2026-07-18T11:43:07+08:00
 - 采用: 删除 `skills/prompt-optimize/references/agent-tasks.md`, 由 `skills/subagent-orchestration/SKILL.md` 承接子代理编排和子任务派发规则。
 - 采用: `skills/prompt-optimize/SKILL.md` 的主动引用只保留原理解释和整体审阅所需引用, 不再主动分流到子代理任务说明。
 - 不采用: 在 `prompt-optimize` 中保留子代理任务说明作为备用参考。原因是该内容已有更稳定 owner, 备用副本会让后续规则分裂。
-
-## 关系
-- 修订: [将 prompt-optimize 核心流程合并回入口](260630-merge-prompt-optimize-core-flow-into-entry.md)

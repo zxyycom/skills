@@ -8,12 +8,9 @@
     "keyValues": {
       "additionalProperties": false,
       "properties": {
-        "alignment": {
+        "topic": {
           "items": {
-            "enum": [
-              "aligned",
-              "unaligned"
-            ],
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
             "type": "string"
           },
           "maxItems": 1,
@@ -34,9 +31,12 @@
           "type": "array",
           "uniqueItems": true
         },
-        "topic": {
+        "alignment": {
           "items": {
-            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "enum": [
+              "aligned",
+              "unaligned"
+            ],
             "type": "string"
           },
           "maxItems": 1,
@@ -46,17 +46,14 @@
         }
       },
       "required": [
-        "status",
-        "topic"
+        "topic",
+        "status"
       ],
       "type": "object"
     },
     "relation": {
       "additionalProperties": false,
       "properties": {
-        "target": {
-          "$ref": "#/$defs/decisionPath"
-        },
         "type": {
           "enum": [
             "修订",
@@ -65,6 +62,9 @@
             "归并"
           ],
           "type": "string"
+        },
+        "target": {
+          "$ref": "#/$defs/decisionPath"
         }
       },
       "required": [
@@ -119,6 +119,22 @@
         }
       ],
       "properties": {
+        "path": {
+          "$ref": "#/$defs/decisionPath"
+        },
+        "title": {
+          "maxLength": 100,
+          "minLength": 4,
+          "pattern": "^[^\\r\\n]+$",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "archived"
+          ],
+          "type": "string"
+        },
         "alignment": {
           "enum": [
             "aligned",
@@ -130,26 +146,23 @@
             "null"
           ]
         },
+        "createdAt": {
+          "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})(Z|[+-](\\d{2}):(\\d{2}))$",
+          "type": "string"
+        },
+        "purpose": {
+          "maxLength": 100,
+          "minLength": 4,
+          "pattern": "^[^\\r\\n]+$",
+          "type": "string"
+        },
         "background": {
           "maxLength": 100,
           "minLength": 4,
           "pattern": "^[^\\r\\n]+$",
           "type": "string"
         },
-        "createdAt": {
-          "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})(Z|[+-](\\d{2}):(\\d{2}))$",
-          "type": "string"
-        },
         "decision": {
-          "maxLength": 100,
-          "minLength": 4,
-          "pattern": "^[^\\r\\n]+$",
-          "type": "string"
-        },
-        "path": {
-          "$ref": "#/$defs/decisionPath"
-        },
-        "purpose": {
           "maxLength": 100,
           "minLength": 4,
           "pattern": "^[^\\r\\n]+$",
@@ -161,31 +174,18 @@
           },
           "type": "array",
           "uniqueItems": true
-        },
-        "status": {
-          "enum": [
-            "active",
-            "archived"
-          ],
-          "type": "string"
-        },
-        "title": {
-          "maxLength": 100,
-          "minLength": 4,
-          "pattern": "^[^\\r\\n]+$",
-          "type": "string"
         }
       },
       "required": [
-        "alignment",
-        "background",
-        "createdAt",
-        "decision",
         "path",
-        "purpose",
-        "relations",
+        "title",
         "status",
-        "title"
+        "alignment",
+        "createdAt",
+        "purpose",
+        "background",
+        "decision",
+        "relations"
       ],
       "type": "object"
     }
@@ -194,8 +194,34 @@
   "additionalProperties": false,
   "description": "由决策 Markdown 生成的领域状态通用索引。",
   "properties": {
-    "definitionVersion": {
+    "schemaVersion": {
       "const": 1
+    },
+    "namespace": {
+      "const": "decisions"
+    },
+    "definitionVersion": {
+      "const": 2
+    },
+    "sourceRevision": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "keyDefinitions": {
+      "const": [
+        {
+          "name": "topic",
+          "mode": "exact"
+        },
+        {
+          "name": "status",
+          "mode": "exact"
+        },
+        {
+          "name": "alignment",
+          "mode": "exact"
+        }
+      ]
     },
     "entries": {
       "items": {
@@ -219,41 +245,15 @@
         "type": "object"
       },
       "type": "array"
-    },
-    "keyDefinitions": {
-      "const": [
-        {
-          "mode": "exact",
-          "name": "alignment"
-        },
-        {
-          "mode": "exact",
-          "name": "status"
-        },
-        {
-          "mode": "exact",
-          "name": "topic"
-        }
-      ]
-    },
-    "namespace": {
-      "const": "decisions"
-    },
-    "schemaVersion": {
-      "const": 1
-    },
-    "sourceRevision": {
-      "pattern": "^sha256:[0-9a-f]{64}$",
-      "type": "string"
     }
   },
   "required": [
-    "definitionVersion",
-    "entries",
-    "keyDefinitions",
-    "namespace",
     "schemaVersion",
-    "sourceRevision"
+    "namespace",
+    "definitionVersion",
+    "sourceRevision",
+    "keyDefinitions",
+    "entries"
   ],
   "title": "Decision Records State Index",
   "type": "object"

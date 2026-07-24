@@ -1,15 +1,13 @@
 ---
+title: 将 OpenSpec change 作为临时计划并设置实现门禁
 status: active
 alignment: aligned
 createdAt: 2026-07-06T16:51:26+08:00
+purpose: 允许先保存尚未完成审计的 change 计划，同时阻止它被误当成可直接实施的方案。
+background: OpenSpec change 可以作为临时计划存在, 类似 issue 或 PR, 通常从用户想法、探索结论、代码事实或已有规范中引申出来。
+decision: 将 active change 视为可暂存的临时计划；创建 change 只表示完成结构化，不代表已经审计或获得实施许可。
+relations: []
 ---
-
-# 将 OpenSpec change 作为临时计划并设置实现门禁
-
-## 索引摘要
-- 目的: 允许先保存尚未完成审计的 change 计划，同时阻止它被误当成可直接实施的方案。
-- 背景: OpenSpec change 可以作为临时计划存在, 类似 issue 或 PR, 通常从用户想法、探索结论、代码事实或已有规范中引申出来。
-- 决策: 将 active change 视为可暂存的临时计划；创建 change 只表示完成结构化，不代表已经审计或获得实施许可。
 
 ## 目的
 - 允许先保存尚未完成审计的 change 计划，同时阻止它被误当成可直接实施的方案。

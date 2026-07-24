@@ -1,15 +1,17 @@
 ---
+title: 使用筛选式决策查询
 status: archived
 alignment: null
 createdAt: 2026-07-20T19:47:38+08:00
+purpose: 让日常恢复只查看活动决策，同时按需读取完整索引元数据、正文和关系历史。
+background: 把归档和全部记录与默认 list 并列会诱导先查完整历史，现有 list 也没有完整展示索引投影。
+decision: "`list` 以单一状态参数筛选并默认 active，输出除关系外的基础索引元数据；`show` 展开正文，`trace` 按方向和深度查询索引关系。"
+relations:
+  - type: 修订
+    target: decision-records/260718-use-purpose-background-decision-structure.md
+  - type: 替代
+    target: decision-records/260718-add-direction-and-depth-to-trace.md
 ---
-
-# 使用筛选式决策查询
-
-## 索引摘要
-- 目的: 让日常恢复只查看活动决策，同时按需读取完整索引元数据、正文和关系历史。
-- 背景: 把归档和全部记录与默认 list 并列会诱导先查完整历史，现有 list 也没有完整展示索引投影。
-- 决策: `list` 以单一状态参数筛选并默认 active，输出除关系外的基础索引元数据；`show` 展开正文，`trace` 按方向和深度查询索引关系。
 
 ## 目的
 - 让日常任务从活动决策开始恢复，归档历史只在明确需要时进入读取范围。
@@ -29,7 +31,3 @@ createdAt: 2026-07-20T19:47:38+08:00
 - 采用: `show <path>` 输出路径、状态和完整创建时间等索引独有元数据，再输出原始 Markdown；文本模式不重复正文已有的标题、摘要和关系。
 - 采用: `trace <path>` 使用索引中的直接关系构建前序和后续关系图；默认双向查询，继续支持 `predecessors`、`successors`、`both` 和非负最大深度。
 - 采用: `list`、`show` 和 `trace` 的正常结果写入标准输出，查询 `warning` 写入标准错误并限制结论完整性。
-
-## 关系
-- 修订: [2026-07-18 - 使用目的、背景和决策的三层投影](260718-use-purpose-background-decision-structure.md)
-- 替代: [2026-07-18 - 为 trace 增加定向和限深查询](260718-add-direction-and-depth-to-trace.md)

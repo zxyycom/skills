@@ -25,33 +25,33 @@ export type DecisionAlignment = typeof decisionAlignments[number];
 export type DecisionListAlignment = DecisionAlignment | "all";
 
 export type DecisionRelation = {
-  target: string;
   type: DecisionRelationType;
+  target: string;
 };
 
 export type DecisionProjection = {
+  title: string;
+  purpose: string;
   background: string;
   decision: string;
-  purpose: string;
   relations: DecisionRelation[];
-  title: string;
 };
 
 export type DecisionMetadata =
   | {
+    status: "active";
     alignment: "aligned";
     createdAt: string;
-    status: "active";
   }
   | {
+    status: "active";
     alignment: "unaligned";
     createdAt: string;
-    status: "active";
   }
   | {
+    status: "archived";
     alignment: null;
     createdAt: string;
-    status: "archived";
   };
 
 export type DecisionDocument = DecisionProjection & DecisionMetadata;
@@ -66,7 +66,7 @@ export type DecisionIndex = Omit<
   StateIndex,
   "definitionVersion" | "entries" | "namespace"
 > & {
-  definitionVersion: 1;
+  definitionVersion: 2;
   entries: DecisionIndexEntry[];
   namespace: "decisions";
 };

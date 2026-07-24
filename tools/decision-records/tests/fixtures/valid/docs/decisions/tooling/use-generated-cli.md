@@ -1,15 +1,15 @@
 ---
+title: 使用生成 CLI
 status: active
 alignment: aligned
 createdAt: 2026-07-11T14:15:16+08:00
+purpose: 确保生成后的 CLI 能在独立运行环境中读取并校验决策记录。
+background: 需要验证生成后的 CLI 能读取一套最小决策目录。
+decision: 使用固定结构的测试夹具。
+relations:
+  - type: 修订
+    target: tooling/260710-use-source-cli.md
 ---
-
-# 使用生成 CLI
-
-## 索引摘要
-- 目的: 确保生成后的 CLI 能在独立运行环境中读取并校验决策记录。
-- 背景: 需要验证生成后的 CLI 能读取一套最小决策目录。
-- 决策: 使用固定结构的测试夹具。
 
 ## 目的
 - 确保生成后的 CLI 能在独立运行环境中读取并校验决策记录。
@@ -19,6 +19,3 @@ createdAt: 2026-07-11T14:15:16+08:00
 
 ## 决策
 - 采用: 使用固定结构的测试夹具。
-
-## 关系
-- 修订: [使用源码 CLI](260710-use-source-cli.md)

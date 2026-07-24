@@ -1,15 +1,13 @@
 ---
+title: 使用 ai-ready-docs 作为文档 AI 阅读优化能力的稳定身份
 status: active
 alignment: aligned
 createdAt: 2026-07-23T07:37:02Z
+purpose: 让 skill 的稳定身份和入口承诺准确表达把文档优化到 AI-ready 状态的能力。
+background: prompt-optimize 缩窄了处理对象，而对称的人机共读定位又弱化了 AI 阅读优化这一核心。
+decision: 将既有 skill 重命名为 ai-ready-docs，以 AI 的准确阅读、理解和使用为主目标，人类可维护性作为次级约束。
+relations: []
 ---
-
-# 使用 ai-ready-docs 作为文档 AI 阅读优化能力的稳定身份
-
-## 索引摘要
-- 目的: 让 skill 的稳定身份和入口承诺准确表达把文档优化到 AI-ready 状态的能力。
-- 背景: prompt-optimize 缩窄了处理对象，而对称的人机共读定位又弱化了 AI 阅读优化这一核心。
-- 决策: 将既有 skill 重命名为 ai-ready-docs，以 AI 的准确阅读、理解和使用为主目标，人类可维护性作为次级约束。
 
 ## 目的
 - 让人类能够从名称直接识别这是一项把文档优化到适合 AI 阅读和使用状态的能力。

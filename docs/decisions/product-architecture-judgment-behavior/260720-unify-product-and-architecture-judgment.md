@@ -1,15 +1,17 @@
 ---
+title: 归并为产品与架构判断
 status: active
 alignment: aligned
 createdAt: 2026-07-20T15:59:38+08:00
+purpose: 让 agent 通过一个工程判断流程决定事情是否该做、该做到什么程度, 以及应由谁在哪一层实现, 避免在相似能力之间路由。
+background: 问题重构与产品架构思维共享局部优化风险、消费者、结果、边界、抽象和取舍, 并会产生相同工程动作, 无法形成稳定的独立触发与验收。
+decision: 删除两个旧 skill, 新建独立分发的 `product-architecture-judgment`, 将问题重构作为内部动作, 统一使用产品价值与架构责任选择最小工程方案。
+relations:
+  - type: 归并
+    target: problem-reframing-behavior/260720-keep-problem-reframing-self-contained.md
+  - type: 归并
+    target: product-architecture-thinking-behavior/260720-separate-framing-from-engineering-landing.md
 ---
-
-# 归并为产品与架构判断
-
-## 索引摘要
-- 目的: 让 agent 通过一个工程判断流程决定事情是否该做、该做到什么程度, 以及应由谁在哪一层实现, 避免在相似能力之间路由。
-- 背景: 问题重构与产品架构思维共享局部优化风险、消费者、结果、边界、抽象和取舍, 并会产生相同工程动作, 无法形成稳定的独立触发与验收。
-- 决策: 删除两个旧 skill, 新建独立分发的 `product-architecture-judgment`, 将问题重构作为内部动作, 统一使用产品价值与架构责任选择最小工程方案。
 
 ## 目的
 - 让 agent 在深入局部实现前, 同时判断当前事情的必要性、产品与开发者价值、合理完成程度和架构落点。
@@ -29,7 +31,3 @@ createdAt: 2026-07-20T15:59:38+08:00
 - 采用: 产品方向判断用户、调用方、运营者和开发者收益、必要性、影响程度与成功边界; 架构方向判断责任 owner、事实源、边界、数据流、抽象稳定性和演进成本。
 - 采用: 统一从不做、简化、改写、重定责任、提炼抽象和局部实现中选择有证据支持且直接兑现目标的最小动作, 不因放眼大局默认扩大范围。
 - 采用: 新 skill 作为独立分发单元自包含运行; 项目入口和人类说明只保留新身份, 旧决策记录继续作为历史回放依据。
-
-## 关系
-- 归并: [让问题重构保持自包含](../problem-reframing-behavior/260720-keep-problem-reframing-self-contained.md)
-- 归并: [区分问题重构与工程落地](../product-architecture-thinking-behavior/260720-separate-framing-from-engineering-landing.md)

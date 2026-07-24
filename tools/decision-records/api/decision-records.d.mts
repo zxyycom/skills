@@ -9,33 +9,33 @@ export type DecisionAlignment = "aligned" | "unaligned";
 export type DecisionListAlignment = DecisionAlignment | "all";
 
 export type DecisionRelation = {
-  target: string;
   type: DecisionRelationType;
+  target: string;
 };
 
 export type DecisionProjection = {
+  title: string;
+  purpose: string;
   background: string;
   decision: string;
-  purpose: string;
   relations: DecisionRelation[];
-  title: string;
 };
 
 export type DecisionMetadata =
   | {
+    status: "active";
     alignment: "aligned";
     createdAt: string;
-    status: "active";
   }
   | {
+    status: "active";
     alignment: "unaligned";
     createdAt: string;
-    status: "active";
   }
   | {
+    status: "archived";
     alignment: null;
     createdAt: string;
-    status: "archived";
   };
 
 export type DecisionDocument = DecisionProjection & DecisionMetadata;
@@ -51,15 +51,15 @@ export type DecisionIndexEntry = {
 };
 
 export type DecisionIndex = {
-  definitionVersion: 1;
-  entries: DecisionIndexEntry[];
-  keyDefinitions: Array<{
-    mode: "exact" | "range" | "text";
-    name: string;
-  }>;
-  namespace: "decisions";
   schemaVersion: 1;
+  namespace: "decisions";
+  definitionVersion: 2;
   sourceRevision: string;
+  keyDefinitions: Array<{
+    name: string;
+    mode: "exact" | "range" | "text";
+  }>;
+  entries: DecisionIndexEntry[];
 };
 
 export type DecisionRecord = {

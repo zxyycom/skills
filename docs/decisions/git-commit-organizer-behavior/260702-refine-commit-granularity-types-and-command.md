@@ -1,15 +1,13 @@
 ---
+title: 调整 git-commit-organizer 的提交粒度、类型和创建命令
 status: active
 alignment: aligned
 createdAt: 2026-07-02T17:35:51+08:00
+purpose: 让每个提交形成可独立理解、审查和回滚的语义单元，并准确表达 agent 配置改动。
+background: "`git-commit-organizer` 已经规定提交格式和基础类型, 但没有明确要求按语义单元拆分提交, 也没有区分只影响 AI/agent 配置的改动。"
+decision: 在 `git-commit-organizer` 的 skill 本体中增加“提交粒度”规则, 要求一个提交只表达一个可独立理解、审查和回滚的语义单元。
+relations: []
 ---
-
-# 调整 git-commit-organizer 的提交粒度、类型和创建命令
-
-## 索引摘要
-- 目的: 让每个提交形成可独立理解、审查和回滚的语义单元，并准确表达 agent 配置改动。
-- 背景: `git-commit-organizer` 已经规定提交格式和基础类型, 但没有明确要求按语义单元拆分提交, 也没有区分只影响 AI/agent 配置的改动。
-- 决策: 在 `git-commit-organizer` 的 skill 本体中增加“提交粒度”规则, 要求一个提交只表达一个可独立理解、审查和回滚的语义单元。
 
 ## 目的
 - 让每个提交形成可独立理解、审查和回滚的语义单元，并准确表达 agent 配置改动。

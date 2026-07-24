@@ -171,16 +171,13 @@ try {
   await fs.writeFile(
     currentDecisionPath,
     currentDecision.replace(
-      "\n## 索引摘要\n"
-      + "- 目的: 确保生成后的 CLI 能在独立运行环境中读取并校验决策记录。\n"
-      + "- 背景: 需要验证生成后的 CLI 能读取一套最小决策目录。\n"
-      + "- 决策: 使用固定结构的测试夹具。\n",
-      "\n"
+      "purpose: 确保生成后的 CLI 能在独立运行环境中读取并校验决策记录。\n",
+      ""
     ),
     "utf8"
   );
   assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
-    (error) => error.includes("is missing section ## 索引摘要")
+    (error) => error.includes("frontmatter is missing purpose")
   ));
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
 
@@ -242,11 +239,11 @@ try {
 
   await fs.writeFile(
     currentDecisionPath,
-    currentDecision.replace("# 使用生成 CLI", "# 很短"),
+    currentDecision.replace("title: 使用生成 CLI", "title: 很短"),
     "utf8"
   );
   assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
-    (error) => error.includes("title must contain 4 to 100")
+    (error) => error.includes("title projection must contain 4 to 100")
       && error.includes("actual 2")
   ));
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
@@ -254,8 +251,10 @@ try {
   await fs.writeFile(
     currentDecisionPath,
     currentDecision.replace(
-      "\n## 关系\n- 修订: [使用源码 CLI](260710-use-source-cli.md)\n",
-      "\n"
+      "relations:\n"
+      + "  - type: 修订\n"
+      + "    target: tooling/260710-use-source-cli.md\n",
+      "relations: []\n"
     ),
     "utf8"
   );
@@ -272,8 +271,12 @@ try {
 
   await fs.writeFile(
     archivedDecisionPath,
-    archivedDecision.trimEnd()
-      + "\n\n## 关系\n- 修订: [使用生成 CLI](use-generated-cli.md)\n",
+    archivedDecision.replace(
+      "relations: []\n",
+      "relations:\n"
+      + "  - type: 修订\n"
+      + "    target: tooling/use-generated-cli.md\n"
+    ),
     "utf8"
   );
   assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
@@ -299,17 +302,15 @@ try {
 
   const unindexedBody = [
     "---",
+    "title: 验证未登记成员",
     "status: active",
     "alignment: aligned",
     "createdAt: null",
+    "purpose: 验证多条预写候选可以按显式目标逐条激活。",
+    "background: 其他完整候选需要明确提醒，但不应阻断当前目标。",
+    "decision: 单次只激活目标，索引排除其他候选且严格检查继续阻断。",
+    "relations: []",
     "---",
-    "",
-    "# 验证未登记成员",
-    "",
-    "## 索引摘要",
-    "- 目的: 验证多条预写候选可以按显式目标逐条激活。",
-    "- 背景: 其他完整候选需要明确提醒，但不应阻断当前目标。",
-    "- 决策: 单次只激活目标，索引排除其他候选且严格检查继续阻断。",
     "",
     "## 目的",
     "- 验证多条预写候选可以按显式目标逐条激活。",
@@ -490,17 +491,17 @@ try {
   const successorPath = path.join(decisionsDirectory, successorRelativePath);
   const successorBody = [
     "---",
+    "title: 使用打包 CLI",
     "status: active",
     "alignment: aligned",
     "createdAt: null",
+    "purpose: 验证显式生命周期命令能够完成决策演进。",
+    "background: 状态变化与关系已经拆分为彼此独立的操作。",
+    "decision: 分别归档前序并激活新的打包 CLI 决策。",
+    "relations:",
+    "  - type: 替代",
+    "    target: tooling/use-generated-cli.md",
     "---",
-    "",
-    "# 使用打包 CLI",
-    "",
-    "## 索引摘要",
-    "- 目的: 验证显式生命周期命令能够完成决策演进。",
-    "- 背景: 状态变化与关系已经拆分为彼此独立的操作。",
-    "- 决策: 分别归档前序并激活新的打包 CLI 决策。",
     "",
     "## 目的",
     "- 验证显式生命周期命令能够完成决策演进。",
@@ -510,9 +511,6 @@ try {
     "",
     "## 决策",
     "- 采用: 分别归档前序并激活新的打包 CLI 决策。",
-    "",
-    "## 关系",
-    "- 替代: [使用生成 CLI](use-generated-cli.md)",
     ""
   ].join("\n");
 
@@ -602,17 +600,15 @@ try {
     firstDecisionPath,
     [
       "---",
+      "title: 使用首条索引",
       "status: active",
       "alignment: aligned",
       "createdAt: null",
+      "purpose: 验证首次激活能够建立全生命周期索引。",
+      "background: 决策根目录中只有一条已经确认的记录。",
+      "decision: 激活该记录并保存秒级创建时间。",
+      "relations: []",
       "---",
-      "",
-      "# 使用首条索引",
-      "",
-      "## 索引摘要",
-      "- 目的: 验证首次激活能够建立全生命周期索引。",
-      "- 背景: 决策根目录中只有一条已经确认的记录。",
-      "- 决策: 激活该记录并保存秒级创建时间。",
       "",
       "## 目的",
       "- 验证首次激活能够建立全生命周期索引。",
@@ -630,8 +626,8 @@ try {
   await fs.writeFile(
     path.join(firstDecisionsDirectory, secondRelativePath),
     (await fs.readFile(firstDecisionPath, "utf8")).replace(
-      "# 使用首条索引",
-      "# 使用第二条索引"
+      "title: 使用首条索引",
+      "title: 使用第二条索引"
     ),
     "utf8"
   );
@@ -652,7 +648,7 @@ try {
   );
   assert.equal(firstIndex.schemaVersion, 1);
   assert.equal(firstIndex.namespace, "decisions");
-  assert.equal(firstIndex.definitionVersion, 1);
+  assert.equal(firstIndex.definitionVersion, 2);
   assert.equal(firstIndex.entries.length, 1);
   assert.equal(firstIndex.entries[0]!.state.status, "active");
   assert.equal(firstIndex.entries[0]!.state.alignment, "aligned");

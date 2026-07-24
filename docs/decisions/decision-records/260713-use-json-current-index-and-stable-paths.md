@@ -1,15 +1,19 @@
 ---
+title: 使用 JSON 当前索引和稳定决策路径
 status: archived
 alignment: null
 createdAt: 2026-07-18T11:43:07+08:00
+purpose: 让当前决策集合可机器维护、低成本检索，并为历史记录保留稳定身份。
+background: 当前索引既要明确成员，也要用经确认且与正文一致的精简背景和决策支持低成本判断；主题分类已经包含在路径中。
+decision: 以 `decision-index.json` 维护当前成员及 Markdown 摘要；路径保持稳定，归档只退出当前集合，关系由新记录单向指向直接前序。
+relations:
+  - type: 归并
+    target: decision-records/260630-use-compact-decision-records.md
+  - type: 归并
+    target: decision-records-skill/260710-use-cli-active-index-and-invalidated-archive.md
+  - type: 归并
+    target: decision-records/260711-bound-history-with-direct-relations.md
 ---
-
-# 使用 JSON 当前索引和稳定决策路径
-
-## 索引摘要
-- 目的: 让当前决策集合可机器维护、低成本检索，并为历史记录保留稳定身份。
-- 背景: 当前索引既要明确成员，也要用经确认且与正文一致的精简背景和决策支持低成本判断；主题分类已经包含在路径中。
-- 决策: 以 `decision-index.json` 维护当前成员及 Markdown 摘要；路径保持稳定，归档只退出当前集合，关系由新记录单向指向直接前序。
 
 ## 目的
 - 让当前决策集合可机器维护、低成本检索，并为历史记录保留稳定身份。
@@ -39,8 +43,3 @@ createdAt: 2026-07-18T11:43:07+08:00
 - 采用: 当前记录继续独立表达完整结论，关系只链接直接前序；历史妨碍日常理解时使用归并记录建立新的读取起点。
 - 不采用: 从全部 Markdown 自动推断当前集合。原因是“哪些判断仍作为后续依据”本身是需要显式确认和版本审阅的长期状态。
 - 不采用: 在 JSON 中复制完整背景、备选方案和决策过程。原因是索引只承接快速判断所需的精简背景和决策，完整语义继续由 Markdown 唯一承接。
-
-## 关系
-- 归并: [2026-06-30 - 使用短日期命名并允许短决策结构](260630-use-compact-decision-records.md)
-- 归并: [2026-07-10 - 使用 CLI 维护活动索引并归档失效决策](../decision-records-skill/260710-use-cli-active-index-and-invalidated-archive.md)
-- 归并: [2026-07-11 - 用直接关系和归并决策限制历史读取](260711-bound-history-with-direct-relations.md)

@@ -1,15 +1,15 @@
 ---
+title: 仅用字段表达决策对齐关系
 status: archived
 alignment: null
 createdAt: 2026-07-22T09:43:47Z
+purpose: 让对齐状态准确表达当前事实与有效决策的关系，而不建立第二份决策内容或事实副本。
+background: 为未对齐状态保存专门差距结构会重复决策约束和当前 owner 事实，并随实现变化产生漂移。
+decision: active 即生效；alignment 只在 frontmatter 表达离散关系，索引仅投影该值，实际差距通过决策与 owner 比较得出。
+relations:
+  - type: 修订
+    target: decision-records/define-decision-alignment-semantics.md
 ---
-
-# 仅用字段表达决策对齐关系
-
-## 索引摘要
-- 目的: 让对齐状态准确表达当前事实与有效决策的关系，而不建立第二份决策内容或事实副本。
-- 背景: 为未对齐状态保存专门差距结构会重复决策约束和当前 owner 事实，并随实现变化产生漂移。
-- 决策: active 即生效；alignment 只在 frontmatter 表达离散关系，索引仅投影该值，实际差距通过决策与 owner 比较得出。
 
 ## 目的
 - 区分决策是否仍有效，以及当前实现、行为 owner 和事实是否已经达到决策要求。
@@ -32,6 +32,3 @@ createdAt: 2026-07-22T09:43:47Z
 - 采用: 任何必须长期遵守的限制、允许范围或例外直接写在 `决策` 正文中；`unaligned` 本身不自动授予或取消实现、操作或抽象空间。
 - 采用: 已标记为 `aligned` 的决策发生事实偏离时按一致性问题处理，不把原记录改回 `unaligned`；新的未来方向通过新决策表达。
 - 采用: 对齐状态不记录任务列表、完成比例、执行日志或实施是否已经开始。
-
-## 关系
-- 修订: [定义决策对齐状态与未对齐语义](define-decision-alignment-semantics.md)

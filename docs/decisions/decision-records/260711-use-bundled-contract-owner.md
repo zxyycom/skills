@@ -1,15 +1,15 @@
 ---
+title: 使用随包 reference 作为唯一固定契约
 status: archived
 alignment: null
 createdAt: 2026-07-18T11:43:07+08:00
+purpose: 为不同项目提供唯一随包固定契约，避免项目副本长期漂移。
+background: 随包 reference 与目标项目的 `decision-record-rules.md` 同时解释固定格式时，会形成两份需要同步的契约和二次导航。
+decision: 由随包 `decision-record-rules.md` 唯一承接目录、命名、当前成员、关系、正文、索引和维护事务。
+relations:
+  - type: 修订
+    target: decision-records/260630-name-decision-root-docs-by-owner.md
 ---
-
-# 使用随包 reference 作为唯一固定契约
-
-## 索引摘要
-- 目的: 为不同项目提供唯一随包固定契约，避免项目副本长期漂移。
-- 背景: 随包 reference 与目标项目的 `decision-record-rules.md` 同时解释固定格式时，会形成两份需要同步的契约和二次导航。
-- 决策: 由随包 `decision-record-rules.md` 唯一承接目录、命名、当前成员、关系、正文、索引和维护事务。
 
 ## 目的
 - 为不同项目提供唯一随包固定契约，避免项目副本长期漂移。
@@ -29,6 +29,3 @@ createdAt: 2026-07-18T11:43:07+08:00
 - 采用: 项目专属的更高记录门槛写入 `AGENTS.md` 或相关行为 owner，不改变随包契约的固定字段和维护语义。
 - 采用: 校验入口检查索引、主题分类和实际记录，不要求或接受目标项目中的契约副本。
 - 不采用: 在每个目标项目复制 `decision-record-rules.md`。原因是重复 owner 会增加导航层级和长期漂移风险。
-
-## 关系
-- 修订: [2026-06-30 - 用 owner 命名决策记录根文档](260630-name-decision-root-docs-by-owner.md)

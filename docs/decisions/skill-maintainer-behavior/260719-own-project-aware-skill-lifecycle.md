@@ -1,15 +1,13 @@
 ---
+title: 让 skill-maintainer 承接环境自适应的 skill 生命周期
 status: archived
 alignment: null
 createdAt: 2026-07-20T08:35:03+08:00
+purpose: 让可复用的 agent 能力由新 skill、既有 skill 或其他 owner 清楚承接，并让选定的 skill 在简约或完整的维护环境中都能交付。
+background: Skill 可能位于成熟仓库、独立目录或安装位置；把项目级 owner、校验器和发布工具链作为默认前提会限制其可移植性。
+decision: 使用 `skill-maintainer` 承接 skill 模型、能力归属和行为契约，采用“自包含最小基线加环境适配”的交付方式，并随包提供独立结构验证器。
+relations: []
 ---
-
-# 让 skill-maintainer 承接环境自适应的 skill 生命周期
-
-## 索引摘要
-- 目的: 让可复用的 agent 能力由新 skill、既有 skill 或其他 owner 清楚承接，并让选定的 skill 在简约或完整的维护环境中都能交付。
-- 背景: Skill 可能位于成熟仓库、独立目录或安装位置；把项目级 owner、校验器和发布工具链作为默认前提会限制其可移植性。
-- 决策: 使用 `skill-maintainer` 承接 skill 模型、能力归属和行为契约，采用“自包含最小基线加环境适配”的交付方式，并随包提供独立结构验证器。
 
 ## 目的
 - 让每项可复用的 agent 能力先确定应由新 skill、既有 skill 还是其他 owner 承接，再让选定的 skill 形成清楚、可验证和可交付的行为单元。

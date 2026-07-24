@@ -1,15 +1,15 @@
 ---
+title: 分离决策激活生效与 HEAD pending 标记
 status: active
 alignment: aligned
 createdAt: 2026-07-22T08:48:05Z
+purpose: 让活动决策从激活时起立即约束后续工作，同时只用 HEAD 区分路径是否进入正式历史。
+background: 把生效绑定到 HEAD 会让已激活记录在提交前失去约束力，也会把临时查询标记误解为持久生命周期。
+decision: 活动记录激活即生效，HEAD 只决定路径是否临时显示 pending；pending 不改变确认、生命周期、对齐或生效状态。
+relations:
+  - type: 修订
+    target: decision-records/derive-pending-from-head-path.md
 ---
-
-# 分离决策激活生效与 HEAD pending 标记
-
-## 索引摘要
-- 目的: 让活动决策从激活时起立即约束后续工作，同时只用 HEAD 区分路径是否进入正式历史。
-- 背景: 把生效绑定到 HEAD 会让已激活记录在提交前失去约束力，也会把临时查询标记误解为持久生命周期。
-- 决策: 活动记录激活即生效，HEAD 只决定路径是否临时显示 pending；pending 不改变确认、生命周期、对齐或生效状态。
 
 ## 目的
 - 让已经激活的活动决策无论是否提交都立即成为当前有效判断。
@@ -29,6 +29,3 @@ createdAt: 2026-07-22T08:48:05Z
 - 采用: `active [pending]` 表示已经激活并生效但尚未进入正式 Git 历史的记录；它可以在首次提交前原地收敛或通过 `discard` 放弃。
 - 采用: `archive` 拒绝 pending 记录，历史关系目标必须已经归档且路径存在于 `HEAD`；pending 记录不能充当正式历史前序。
 - 采用: CLI 不从 `HEAD` 读取另一份索引或正文，不推断重命名；已建立路径从工作区消失时严格失败。
-
-## 关系
-- 修订: [从 HEAD 路径临时识别待提交决策](derive-pending-from-head-path.md)

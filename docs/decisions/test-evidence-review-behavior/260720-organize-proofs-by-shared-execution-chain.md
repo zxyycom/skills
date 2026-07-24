@@ -1,15 +1,15 @@
 ---
+title: 按共享执行链路组织分支与线性证明点
 status: active
 alignment: aligned
 createdAt: 2026-07-20T13:48:52+08:00
+purpose: 让 automated case 同时表达分支结果和线性 happy path 或失败链路上的多个可观察检查点，避免按证明点数量机械拆分 case。
+background: 既有规则把 `Proves:` 主要描述为分支叶子，但一条没有分支的连续执行链路也可能依次固定多个状态迁移、输出、副作用或清理不变量。
+decision: automated case 按共同契约、共享基座或连续链路组织；`Proves:` 可写分支或线性检查点，Mermaid 按需表达，仅独立契约才拆分。
+relations:
+  - type: 修订
+    target: test-evidence-review-behavior/260719-organize-multi-branch-proofs-by-shared-base.md
 ---
-
-# 按共享执行链路组织分支与线性证明点
-
-## 索引摘要
-- 目的: 让 automated case 同时表达分支结果和线性 happy path 或失败链路上的多个可观察检查点，避免按证明点数量机械拆分 case。
-- 背景: 既有规则把 `Proves:` 主要描述为分支叶子，但一条没有分支的连续执行链路也可能依次固定多个状态迁移、输出、副作用或清理不变量。
-- 决策: automated case 按共同契约、共享基座或连续链路组织；`Proves:` 可写分支或线性检查点，Mermaid 按需表达，仅独立契约才拆分。
 
 ## 目的
 - 让 `Proves:` 准确表达测试实际固定的多个观察点，而不把证明点限制为条件分支的最终叶子。
@@ -28,6 +28,3 @@ createdAt: 2026-07-20T13:48:52+08:00
 - 采用: 一个测试入口可以证明多个 `Proves:` 项，一个 main 与零个或多个 derived 入口也可以共同承接同一 case；入口 marker 只映射 case，不与证明点建立数量或位置上的一一对应。
 - 采用: 多分支关系使用 `flowchart LR` 或 `flowchart TD` 表达共享主干、条件和叶子；线性链路在顺序、共享状态或阶段关系影响理解时使用 `flowchart LR` 表达执行阶段和可观察检查点。每个分支叶子或线性检查点对应一个 `Proves:` 项，Mermaid 不替代列表。
 - 采用: 多个证明点属于同一契约并依赖共享基座或同一次连续执行，且拆分会复制准备、丢失顺序关系或增加运行、同步和审计成本时，保留在同一 case。证明点形成独立契约、观察入口、行为链路、运行环境或维护周期，或者拆分能降低总维护与审计成本时，再建立独立 case。
-
-## 关系
-- 修订: [按共享测试基座组织多分支证明点](260719-organize-multi-branch-proofs-by-shared-base.md)

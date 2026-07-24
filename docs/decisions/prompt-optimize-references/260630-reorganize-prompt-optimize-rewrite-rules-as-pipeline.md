@@ -1,15 +1,13 @@
 ---
+title: 将 prompt-optimize 改写规则重组为管线
 status: archived
 alignment: null
 createdAt: 2026-06-30T15:02:20+08:00
+purpose: 让 prompt-optimize 改写规则拥有单一 owner 和稳定的执行顺序。
+background: "`prompt-optimize` skill 的规则内容持续膨胀, 入口和引用文件之间开始出现职责重复。"
+decision: 在 `prompt-optimize` 中, `rewrite-rules.md` 作为改写判断 owner, 按管线组织规则, 每一步的产物决定下一步处理方式。
+relations: []
 ---
-
-# 将 prompt-optimize 改写规则重组为管线
-
-## 索引摘要
-- 目的: 让 prompt-optimize 改写规则拥有单一 owner 和稳定的执行顺序。
-- 背景: `prompt-optimize` skill 的规则内容持续膨胀, 入口和引用文件之间开始出现职责重复。
-- 决策: 在 `prompt-optimize` 中, `rewrite-rules.md` 作为改写判断 owner, 按管线组织规则, 每一步的产物决定下一步处理方式。
 
 ## 目的
 - 让 prompt-optimize 改写规则拥有单一 owner 和稳定的执行顺序。

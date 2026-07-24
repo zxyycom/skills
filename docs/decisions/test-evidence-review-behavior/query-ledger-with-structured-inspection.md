@@ -1,15 +1,13 @@
 ---
+title: 为测试账本提供可恢复查询与结构化诊断
 status: archived
 alignment: null
 createdAt: 2026-07-21T01:51:47Z
+purpose: 让 agent 在严格校验之外直接恢复 case、入口映射和 review trigger，并稳定消费机器诊断。
+background: CLI 只有严格 check，成功结果只给汇总，普通错误仍是字符串，语义审查需要重复解析账本和源码。
+decision: 保留严格 check，新增非阻断 list/show、可导入 inspection 和带版本的结构化 diagnostics。
+relations: []
 ---
-
-# 为测试账本提供可恢复查询与结构化诊断
-
-## 索引摘要
-- 目的: 让 agent 在严格校验之外直接恢复 case、入口映射和 review trigger，并稳定消费机器诊断。
-- 背景: CLI 只有严格 check，成功结果只给汇总，普通错误仍是字符串，语义审查需要重复解析账本和源码。
-- 决策: 保留严格 check，新增非阻断 list/show、可导入 inspection 和带版本的结构化 diagnostics。
 
 ## 目的
 - 让日常测试审查能够先定位相关 case、文字契约、源码入口和人工检查状态，再按需展开完整内容。

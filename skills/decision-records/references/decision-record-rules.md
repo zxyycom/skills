@@ -2,7 +2,7 @@
 
 本文件是 `decision-records` 的唯一固定契约，只承接精确存储、状态语义、维护事务和 CLI 行为。触发、语义恢复、偏离判断、候选确认和按任务出口交付由 `SKILL.md` 承接。本文将保存索引和 Markdown 的目录称为“决策根目录”。未传 `--decisions-dir` 时使用 `<root>/docs/decisions`；显式传入时，绝对路径直接作为目标，非绝对路径只相对 `--root` 解析。目标可以位于 `--root` 外部。
 
-CLI 只接受本契约定义的当前 Markdown 格式，以及 `schemaVersion: 1`、`namespace: decisions`、`definitionVersion: 1` 的当前通用索引，不推断缺失元数据，也不提供非 Git 降级语义。Git 命令不可用、决策根目录不在 Git 仓库内或无法读取 `HEAD` 路径时，查询和维护直接失败。只有 `HEAD` 仍是有效符号引用且尚不能解析到任何版本时，才把仓库解释为尚无首个提交，并把 `HEAD` 路径集合视为空。
+CLI 只接受本契约定义的当前 Markdown 格式，以及 `schemaVersion: 1`、`namespace: decisions`、`definitionVersion: 2` 的当前通用索引，不推断缺失元数据，也不提供非 Git 降级语义。Git 命令不可用、决策根目录不在 Git 仓库内或无法读取 `HEAD` 路径时，查询和维护直接失败。只有 `HEAD` 仍是有效符号引用且尚不能解析到任何版本时，才把仓库解释为尚无首个提交，并把 `HEAD` 路径集合视为空。
 
 ## Owner 与内容边界
 
@@ -32,21 +32,21 @@ CLI 只接受本契约定义的当前 Markdown 格式，以及 `schemaVersion: 1
 
 ## Markdown 格式
 
-合法记录必须从严格 YAML frontmatter 开始，且只包含以下三个字段：
+合法记录必须从严格 YAML frontmatter 开始。Frontmatter 只包含以下八个字段并保持所示顺序；正文紧随其后，不再重复标题、摘要或关系：
 
 ```markdown
 ---
+title: <标题>
 status: active
 alignment: aligned
 createdAt: 2026-07-22T10:20:30+08:00
+purpose: <足以判断期望结果的精简目的>
+background: <足以判断是否相关的精简背景>
+decision: <完整表达采用方向的精简决策>
+relations:
+  - type: 修订
+    target: workflow-policy/previous-decision.md
 ---
-
-# <标题>
-
-## 索引摘要
-- 目的: <足以判断期望结果的精简目的>
-- 背景: <足以判断是否相关的精简背景>
-- 决策: <完整表达采用方向的精简决策>
 
 ## 目的
 - <希望长期达成或维护的结果>
@@ -58,7 +58,7 @@ createdAt: 2026-07-22T10:20:30+08:00
 - 采用: <最终方向及核心理由>
 ```
 
-### 元数据
+### Frontmatter
 
 1. `status` 只能是 `active` 或 `archived`。
 2. 活动记录的 `alignment` 只能是 `aligned` 或 `unaligned`；归档记录的 `alignment` 必须是 YAML `null`。
@@ -66,13 +66,14 @@ createdAt: 2026-07-22T10:20:30+08:00
 4. 可以同时准备多条首次激活文件；每条都使用合法的新决策身份路径、`status: active`、与后续 `activate --alignment` 一致的对齐状态和 `createdAt: null`，并满足完整正文结构。它们是未激活决策候选，不是合法集合成员。
 5. 未激活候选必须尚未进入索引和 Git `HEAD`。`activate` 只把显式目标的 `createdAt: null` 替换为当前秒级时间并登记该记录；其余候选保持不变。
 6. 不满足未激活候选全部条件的 `createdAt: null` 始终无效；CLI 不从文件时间、文件名、索引或默认值补写它。
-7. 状态命令使用固定字段顺序写回 frontmatter；手工编辑仍必须满足相同字段集合、类型和状态组合。
+7. Frontmatter 固定使用 `title`、`status`、`alignment`、`createdAt`、`purpose`、`background`、`decision`、`relations` 的顺序；关系对象固定使用 `type`、`target` 的顺序。状态命令保留投影内容并按该顺序写回完整 frontmatter；手工编辑也必须满足相同字段集合、类型和状态组合。
+8. `relations` 必须是数组；没有直接前序时写作 `relations: []`，有关系时每项只包含 `type` 和决策根目录相对 `target`。
 
 ### 正文与投影
 
-1. 标题必须是 `# <标题>`，不写日期前缀。
-2. 必需二级章节按顺序为 `索引摘要`、`目的`、`背景` 和 `决策`；可选的 `关系` 位于最后。
-3. `索引摘要` 包含且仅包含一个 `目的`、一个 `背景` 和一个 `决策` 字段；三者由作者明确概括，CLI 不从完整章节猜测摘要。
+1. 标题只写在 frontmatter 的 `title`，不写日期前缀；正文不再使用一级标题。
+2. 正文必需二级章节按顺序且仅为 `目的`、`背景` 和 `决策`；关系只写在 frontmatter。
+3. Frontmatter 的 `purpose`、`background` 和 `decision` 是三项索引摘要；三者由作者明确概括，CLI 不从完整章节猜测摘要。
 4. 标题和三个摘要字段分别为 4 至 100 个 Unicode 码点的单行文本。完整章节不受该长度限制，但必须有实际内容。
 5. 摘要不得引入对应完整章节没有表达的独立含义；影响相关性、目标状态或采用方向的限定必须同时进入完整章节和摘要。
 6. `决策` 至少包含一个非空 `采用`；关键备选确实有助于回放时可以增加 `不采用`。
@@ -105,63 +106,63 @@ createdAt: 2026-07-22T10:20:30+08:00
 
 ```json
 {
-  "definitionVersion": 1,
+  "schemaVersion": 1,
+  "namespace": "decisions",
+  "definitionVersion": 2,
+  "sourceRevision": "sha256:<64 lowercase hexadecimal characters>",
+  "keyDefinitions": [
+    { "name": "topic", "mode": "exact" },
+    { "name": "status", "mode": "exact" },
+    { "name": "alignment", "mode": "exact" }
+  ],
   "entries": [
     {
       "id": "workflow-policy/use-explicit-approval-gate.md",
       "keys": {
-        "alignment": ["unaligned"],
+        "topic": ["workflow-policy"],
         "status": ["active"],
-        "topic": ["workflow-policy"]
+        "alignment": ["unaligned"]
       },
       "state": {
-        "alignment": "unaligned",
-        "background": "审批边界分散在多个入口，后续维护容易产生不一致。",
-        "createdAt": "2026-07-22T10:20:30+08:00",
-        "decision": "使用统一的显式审批门禁，并显式记录尚未覆盖的入口。",
         "path": "workflow-policy/use-explicit-approval-gate.md",
-        "purpose": "让高风险操作在执行前经过一致、可审计的确认。",
-        "relations": [],
+        "title": "采用显式审批门禁",
         "status": "active",
-        "title": "采用显式审批门禁"
+        "alignment": "unaligned",
+        "createdAt": "2026-07-22T10:20:30+08:00",
+        "purpose": "让高风险操作在执行前经过一致、可审计的确认。",
+        "background": "审批边界分散在多个入口，后续维护容易产生不一致。",
+        "decision": "使用统一的显式审批门禁，并显式记录尚未覆盖的入口。",
+        "relations": []
       }
     }
-  ],
-  "keyDefinitions": [
-    { "mode": "exact", "name": "alignment" },
-    { "mode": "exact", "name": "status" },
-    { "mode": "exact", "name": "topic" }
-  ],
-  "namespace": "decisions",
-  "schemaVersion": 1,
-  "sourceRevision": "sha256:<64 lowercase hexadecimal characters>"
+  ]
 }
 ```
 
 1. `entries` 投影全部已建立的活动和归档 Markdown；索引与已建立 Markdown 必须一一对应。未激活候选不进入索引。
-2. 每条 `state` 是领域完整投影：`path` 来自文件位置，状态元数据来自 frontmatter，标题和三项摘要来自正文，`relations` 来自关系章节。Markdown 仍是唯一事实源；索引不拥有或补写时间、生命周期、对齐状态及正文元数据。
+2. 每条 `state` 是领域完整投影：`path` 来自文件位置，其他字段来自 frontmatter。Markdown 仍是唯一事实源；索引不拥有或补写时间、生命周期、对齐状态、标题、摘要或关系。
 3. `id` 由 `state.path` 产生。`keys` 只由 state 确定性派生：`status`、`alignment` 和 `topic` 用于当前列表筛选；归档记录没有 alignment key。只有实际命令或公共 API 需要新的查询能力时才增加 key，并同步调整领域定义版本、Schema、固定契约和测试。
 4. CLI 读取索引时重新校验领域 state，包含字段集合、路径、秒级时间、生命周期与对齐组合、摘要长度和重复关系；随后从已校验 state 重新产生 id 与全部 keys，并与索引保存值核对。领域结构或 key 契约变化时提升 `definitionVersion`。
 5. 领域读取器从同一批已登记 Markdown 文本同时产生完整 state 与 `sourceRevision`；通用同步在写入前再次读取 revision，源在两次读取之间变化时拒绝写入。`sourceRevision` 对 POSIX 路径和完整 UTF-8 文本进行稳定 framing 后计算 SHA-256，计算前只把 CRLF 规范化为 LF，避免 Git 跨平台 checkout 产生虚假漂移。除此之外，任何已登记文件内容变化、缺失或路径变化都会使查询拒绝陈旧索引；它不是生命周期时间，也不进入领域 state。
-6. 条目、key 定义、key 名和 key 值按固定全序输出；state 对象键确定性排序，关系数组保持正文顺序。JSON 使用 UTF-8、两空格缩进和文件末尾换行；同步检查把 Git checkout 可能产生的 CRLF 与规范 LF 视为等价。
+6. JSON 外壳固定使用 `schemaVersion`、`namespace`、`definitionVersion`、`sourceRevision`、`keyDefinitions`、`entries` 的语义顺序；key 定义及每条 `keys` 固定使用 `topic`、`status`、`alignment`，对象字段固定使用 `name`、`mode`；每条 `state` 固定使用 `path`、`title`、`status`、`alignment`、`createdAt`、`purpose`、`background`、`decision`、`relations`；关系对象固定使用 `type`、`target`。归档条目的 `keys` 省略 `alignment`，但 `state.alignment` 保留 `null`。条目仍按 `id` 字典序输出，key 值仍按固定全序输出，关系数组保持作者顺序；关系图不参与默认排序。JSON 使用 UTF-8、两空格缩进和文件末尾换行；同步检查把 Git checkout 可能产生的 CRLF 与规范 LF 视为等价。
 7. 正常维护不直接编辑索引。索引有效时，`sync-index --write` 只同步已有成员的完整 state、派生 keys 和 revision，不自动吸收带非空 `createdAt` 的未登记 Markdown；索引缺失或损坏时，才从全部非候选且有效的当前格式 Markdown 恢复完整索引。未激活候选始终保持在索引外并通过 warning 列出。
 8. 随包 `decision-index.schema.json` 校验通用外壳、领域 state、key 定义、枚举、路径和基础格式；state 与 Markdown 一一对应、revision、新旧投影、id、keys、排序和关系图由 CLI `check` 校验。
 9. `list` 和 `trace` 发现目录成员后读取索引、校验领域 state 与派生键，并读取已登记文件的原文计算当前 revision；revision 一致时直接查询 keys 和 state，不重新解析每份 Markdown。`show` 在相同新鲜度检查通过后只读取目标原文。严格 `check`、同步和写事务仍完整解析领域 Markdown。
 
 ## 关系
 
-新判断改变已有已建立记录时，在正文最后使用：
+新判断改变已有已建立记录时，在 frontmatter 的 `relations` 中使用决策根目录相对路径：
 
-```markdown
-## 关系
-- 修订: [<直接被部分修订的决策>](relative/path.md)
-- 替代: [<直接被完整替代的决策>](relative/path.md)
-- 判定无效: [<直接被判定无效的决策>](relative/path.md)
-- 归并: [<被归并为当前结论的直接前序>](relative/path.md)
+```yaml
+relations:
+  - type: 修订
+    target: topic/direct-predecessor.md
+  - type: 替代
+    target: another-topic/replaced-decision.md
 ```
 
 1. `修订` 保留前序主体方向并改变一部分；`替代` 用完整新判断取代前序；`判定无效` 表明前序依据不成立；`归并` 把分散前序整合为可独立使用的当前结论。
-2. 关系只从新记录指向直接前序。目标必须已经归档、路径存在于当前 `HEAD`，且不能指向自身、重复或形成环。
+2. 关系只从新记录指向直接前序。`target` 必须是相对决策根目录的 POSIX Markdown 路径；目标必须已经归档、路径存在于当前 `HEAD`，且不能指向自身、重复或形成环。
 3. 活动记录必须独立表达完整当前判断，不要求读者与前序拼接。
 4. 关系不改变 `status` 或 `alignment`；归档、激活和对齐变化分别由显式命令完成。
 
@@ -222,9 +223,9 @@ createdAt: 2026-07-22T10:20:30+08:00
 
 1. 决策根目录、根文件、主题目录和文件路径。
 2. frontmatter 字段、类型、状态组合与秒级时间。
-3. 标题、摘要、完整章节、章节顺序和投影长度。
+3. Frontmatter 标题、摘要与关系，完整章节、章节顺序和投影长度。
 4. 通用 schema v1、决策定义版本、revision、路径唯一性与排序、已建立 Markdown 和索引一一对应、state 与派生 keys 一致性，以及未激活候选保持在索引外。
-5. 关系链接、归档目标、`HEAD` 成员、重复、自环和环路。
+5. 关系目标路径、归档目标、`HEAD` 成员、重复、自环和环路。
 6. 已建立路径没有从工作区消失，pending 只作为临时查询标记，未激活候选尚未进入 `HEAD`。
 7. 未激活候选已经全部激活或丢弃；候选存在本身就是严格失败，不因作用域维护曾经成功而降级。
 

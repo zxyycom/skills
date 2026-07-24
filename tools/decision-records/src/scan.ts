@@ -172,7 +172,6 @@ async function scanArea(options: {
     const sourceDocument = await validateDecisionBody({
       allowNullCreatedAt: indexEntry === null,
       body: sourceText,
-      decisionPath,
       decisionsDirectory,
       errors: recordErrors,
       fileName: entry.name,

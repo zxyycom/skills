@@ -1,15 +1,17 @@
 ---
+title: 分离测试入口采集与账本维护
 status: archived
 alignment: null
 createdAt: 2026-07-21T02:59:31Z
+purpose: 让复杂项目能够替换入口收集方式，同时让账本维护只依赖稳定、可校验的数据契约。
+background: 账本 CLI 同时拥有文件选择、跨语言正则和账本校验，按语言屏蔽非代码上下文仍会漏掉有效入口，也让自定义发现规则必须进入账本实现。
+decision: 以 Schema 为结构真源，把工具拆成输出标准清单的可替换采集层和只消费清单的账本层，并保留组合兼容入口。
+relations:
+  - type: 替代
+    target: test-evidence-review-behavior/mask-non-code-test-syntax.md
+  - type: 修订
+    target: test-evidence-review-behavior/query-ledger-with-structured-inspection.md
 ---
-
-# 分离测试入口采集与账本维护
-
-## 索引摘要
-- 目的: 让复杂项目能够替换入口收集方式，同时让账本维护只依赖稳定、可校验的数据契约。
-- 背景: 账本 CLI 同时拥有文件选择、跨语言正则和账本校验，按语言屏蔽非代码上下文仍会漏掉有效入口，也让自定义发现规则必须进入账本实现。
-- 决策: 以 Schema 为结构真源，把工具拆成输出标准清单的可替换采集层和只消费清单的账本层，并保留组合兼容入口。
 
 ## 目的
 - 让账本维护模块不需要知道测试入口来自源码正则、AST、框架注册表还是外部清单。
@@ -32,7 +34,3 @@ createdAt: 2026-07-21T02:59:31Z
 - 采用: Valibot Schema 是配置、清单、诊断、报告、inspection 和 query 的源码真源；源码类型使用 `InferOutput`，构建时从同一 Schema 生成 JSON Schema，再生成分发 TypeScript 数据声明。不得从手写类型反向生成 Schema。
 - 采用: diagnostic 同时包含固有 `severity` 和命令级 `blocking`。严格检查按 `blocking` 决定完成状态；恢复查询复制严格诊断并设为非阻断，不篡改其 error 或 warning 严重度。
 - 不采用: 让账本配置继续承接语言、文件发现或正则字段，也不要求复杂项目把入口规则提交给通用账本维护模块。
-
-## 关系
-- 替代: [在测试入口发现前屏蔽明显非代码上下文](mask-non-code-test-syntax.md)
-- 修订: [为测试账本提供可恢复查询与结构化诊断](query-ledger-with-structured-inspection.md)

@@ -36,7 +36,7 @@ import {
 
 export const decisionIndexFileName = "decision-index.json";
 export const decisionIndexNamespace = "decisions";
-export const decisionIndexDefinitionVersion = 1;
+export const decisionIndexDefinitionVersion = 2;
 
 const decisionSourceReadConcurrency = 32;
 const sourceRevisionPattern = /^sha256:[0-9a-f]{64}$/u;
@@ -49,19 +49,19 @@ const decisionPathSchema = v.pipe(
   v.check(isDecisionRelativePath, "must be a decision Markdown path")
 );
 const decisionRelationSchema = v.strictObject({
-  target: decisionPathSchema,
-  type: v.picklist(decisionRelationTypes)
+  type: v.picklist(decisionRelationTypes),
+  target: decisionPathSchema
 });
 const decisionIndexStateSchema = v.strictObject({
-  alignment: v.union([v.picklist(decisionAlignments), v.null()]),
-  background: nonEmptyStringSchema,
-  createdAt: nonEmptyStringSchema,
-  decision: nonEmptyStringSchema,
   path: decisionPathSchema,
-  purpose: nonEmptyStringSchema,
-  relations: v.array(decisionRelationSchema),
+  title: nonEmptyStringSchema,
   status: v.picklist(decisionStatuses),
-  title: nonEmptyStringSchema
+  alignment: v.union([v.picklist(decisionAlignments), v.null()]),
+  createdAt: nonEmptyStringSchema,
+  purpose: nonEmptyStringSchema,
+  background: nonEmptyStringSchema,
+  decision: nonEmptyStringSchema,
+  relations: v.array(decisionRelationSchema),
 });
 
 type DecisionIndexDefinitionOptions = {
@@ -74,12 +74,13 @@ export function createDecisionStateIndexDefinition(
   const relativePaths = options.relativePaths;
   return defineStateIndexDefinition({
     definitionVersion: decisionIndexDefinitionVersion,
+    fieldOrder: "definition",
     identify: (state) => state.path,
     keyStrategies: [
       {
-        derive: (state) => state.alignment ?? undefined,
+        derive: (state) => state.path.split("/", 1)[0],
         mode: "exact",
-        name: "alignment"
+        name: "topic"
       },
       {
         derive: (state) => state.status,
@@ -87,9 +88,9 @@ export function createDecisionStateIndexDefinition(
         name: "status"
       },
       {
-        derive: (state) => state.path.split("/", 1)[0],
+        derive: (state) => state.alignment ?? undefined,
         mode: "exact",
-        name: "topic"
+        name: "alignment"
       }
     ],
     namespace: decisionIndexNamespace,
@@ -115,10 +116,30 @@ export function decisionIndexState(
   relativePath: string,
   document: DecisionDocument
 ): DecisionIndexState {
-  return {
-    ...document,
-    path: relativePath
-  };
+  const projection = canonicalDecisionProjection(document);
+  return document.status === "active"
+    ? {
+        path: relativePath,
+        title: projection.title,
+        status: "active",
+        alignment: document.alignment,
+        createdAt: document.createdAt,
+        purpose: projection.purpose,
+        background: projection.background,
+        decision: projection.decision,
+        relations: projection.relations
+      }
+    : {
+        path: relativePath,
+        title: projection.title,
+        status: "archived",
+        alignment: null,
+        createdAt: document.createdAt,
+        purpose: projection.purpose,
+        background: projection.background,
+        decision: projection.decision,
+        relations: projection.relations
+      };
 }
 
 export function parseDecisionIndex(
@@ -126,6 +147,7 @@ export function parseDecisionIndex(
   sourcePath: string
 ): StateIndexResult<DecisionIndex> {
   const parsed = parseStateIndex({
+    definition: createDecisionStateIndexDefinition(),
     expectation: {
       definitionVersion: decisionIndexDefinitionVersion,
       namespace: decisionIndexNamespace
@@ -151,6 +173,7 @@ export async function loadCurrentDecisionIndex(options: {
   };
   const loaded = await loadStateIndex({
     context,
+    definition: createDecisionStateIndexDefinition(),
     expectation: {
       definitionVersion: decisionIndexDefinitionVersion,
       namespace: decisionIndexNamespace
@@ -195,7 +218,7 @@ export async function syncDecisionIndex(options: {
 }
 
 export function serializeDecisionIndex(index: StateIndex): string {
-  return serializeStateIndex(index);
+  return serializeStateIndex(index, createDecisionStateIndexDefinition());
 }
 
 export function decisionSourceRevision(
@@ -346,14 +369,14 @@ function parseDecisionIndexState(input: Parameters<
   }
   const metadata: DecisionMetadata = state.status === "active"
     ? {
+        status: "active",
         alignment: activeAlignment(state.alignment),
-        createdAt: state.createdAt,
-        status: "active"
+        createdAt: state.createdAt
       }
     : {
+        status: "archived",
         alignment: archivedAlignment(state.alignment),
-        createdAt: state.createdAt,
-        status: "archived"
+        createdAt: state.createdAt
       };
 
   for (const field of ["title", "purpose", "background", "decision"] as const) {
@@ -374,15 +397,30 @@ function parseDecisionIndexState(input: Parameters<
     relationKeys.add(key);
   }
 
-  return {
-    background: state.background,
-    decision: state.decision,
-    path: state.path,
-    purpose: state.purpose,
-    relations: state.relations,
-    title: state.title,
-    ...metadata
-  };
+  const projection = canonicalDecisionProjection(state);
+  return metadata.status === "active"
+    ? {
+        path: state.path,
+        title: projection.title,
+        status: "active",
+        alignment: metadata.alignment,
+        createdAt: metadata.createdAt,
+        purpose: projection.purpose,
+        background: projection.background,
+        decision: projection.decision,
+        relations: projection.relations
+      }
+    : {
+        path: state.path,
+        title: projection.title,
+        status: "archived",
+        alignment: null,
+        createdAt: metadata.createdAt,
+        purpose: projection.purpose,
+        background: projection.background,
+        decision: projection.decision,
+        relations: projection.relations
+      };
 }
 
 function formatDecisionStateIssue(issue: v.BaseIssue<unknown>): string {
@@ -459,13 +497,8 @@ async function parseDecisionSource(
   source: { path: string; text: string }
 ): Promise<DecisionIndexState> {
   const errors: string[] = [];
-  const decisionPath = path.join(
-    decisionsDirectory,
-    ...source.path.split("/")
-  );
   const candidate = await validateDecisionBody({
     body: source.text,
-    decisionPath,
     decisionsDirectory,
     errors,
     fileName: path.posix.basename(source.path),
@@ -481,15 +514,47 @@ async function parseDecisionSource(
         : `${source.path} does not contain established decision metadata`
     );
   }
-  const document: DecisionDocument = {
-    background: candidate.background,
-    decision: candidate.decision,
-    purpose: candidate.purpose,
-    relations: candidate.relations,
-    title: candidate.title,
-    ...metadata
-  };
+  const projection = canonicalDecisionProjection(candidate);
+  const document: DecisionDocument = metadata.status === "active"
+    ? {
+        title: projection.title,
+        status: "active",
+        alignment: metadata.alignment,
+        createdAt: metadata.createdAt,
+        purpose: projection.purpose,
+        background: projection.background,
+        decision: projection.decision,
+        relations: projection.relations
+      }
+    : {
+        title: projection.title,
+        status: "archived",
+        alignment: null,
+        createdAt: metadata.createdAt,
+        purpose: projection.purpose,
+        background: projection.background,
+        decision: projection.decision,
+        relations: projection.relations
+      };
   return decisionIndexState(source.path, document);
+}
+
+function canonicalDecisionProjection(
+  source: Pick<
+    DecisionDocument,
+    "background" | "decision" | "purpose" | "relations" | "title"
+  >
+): Pick<
+  DecisionDocument,
+  "background" | "decision" | "purpose" | "relations" | "title"
+> {
+  return {
+    title: source.title,
+    purpose: source.purpose,
+    background: source.background,
+    decision: source.decision,
+    relations: source.relations.map(({ type, target }) => ({ type, target }))
+  };
 }
 
 function compareText(left: string, right: string): number {

@@ -1,15 +1,15 @@
 ---
+title: 用单仓库维护带独立版本的 skill 包
 status: active
 alignment: aligned
 createdAt: 2026-07-24T05:56:25Z
+purpose: 集中维护和发布多个 skill，同时保留每个 skill 独立判断更新的版本边界。
+background: 子仓库和持久化 package lock 都会增加当前个人维护仓库的状态同步成本。
+decision: 在 `skills/` 维护带手动 `metadata.version` 的独立包，聚合发布，hash 仅按需临时计算。
+relations:
+  - type: 修订
+    target: project-tooling/260702-use-monorepo-skills-directory.md
 ---
-
-# 用单仓库维护带独立版本的 skill 包
-
-## 索引摘要
-- 目的: 集中维护和发布多个 skill，同时保留每个 skill 独立判断更新的版本边界。
-- 背景: 子仓库和持久化 package lock 都会增加当前个人维护仓库的状态同步成本。
-- 决策: 在 `skills/` 维护带手动 `metadata.version` 的独立包，聚合发布，hash 仅按需临时计算。
 
 ## 目的
 - 用一个仓库统一维护多个 skill、共享工具链和聚合发布流程。
@@ -27,6 +27,3 @@ createdAt: 2026-07-24T05:56:25Z
 - 采用: updater 依据对应 skill 的独立版本判断更新；一个 skill 的变化不改变其他 skill 的版本。
 - 采用: package hash 只从待提交或待发布快照按需临时计算，用于标识本次制品；仓库不保存 package hash 或 lock 文件。
 - 不采用: 恢复 submodule、子仓库独立 release，或把 skill 本体直接平铺到项目根目录。
-
-## 关系
-- 修订: [迁移为 skills 单仓库布局](260702-use-monorepo-skills-directory.md)

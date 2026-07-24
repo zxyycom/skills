@@ -1,15 +1,15 @@
 ---
+title: 分离生命周期命令与演进关系
 status: archived
 alignment: null
 createdAt: 2026-07-20T19:47:38+08:00
+purpose: 让 CLI 状态变化与决策演进关系各自显式，避免归档命令产生隐藏激活副作用。
+background: "`archive --by` 会在归档前序时同时激活后续记录，但命令名称没有表达这一状态变化。"
+decision: "`activate` 只把记录设为 active，`archive` 只设为 archived；关系不改变状态，不再由 archive 隐式激活后续记录。"
+relations:
+  - type: 修订
+    target: decision-records/260718-use-purpose-background-decision-structure.md
 ---
-
-# 分离生命周期命令与演进关系
-
-## 索引摘要
-- 目的: 让 CLI 状态变化与决策演进关系各自显式，避免归档命令产生隐藏激活副作用。
-- 背景: `archive --by` 会在归档前序时同时激活后续记录，但命令名称没有表达这一状态变化。
-- 决策: `activate` 只把记录设为 active，`archive` 只设为 archived；关系不改变状态，不再由 archive 隐式激活后续记录。
 
 ## 目的
 - 让每个生命周期命令的名称、输入和状态变化直接对应，使用者无需从关系参数推断额外副作用。
@@ -26,6 +26,3 @@ createdAt: 2026-07-20T19:47:38+08:00
 - 采用: 修订、替代、判定无效和归并关系只描述决策之间的直接演进，不隐式改变任一记录的状态。
 - 采用: 一次维护需要归档前序并激活后续时，分别显式调用对应状态命令；需要原子组合能力时使用能够直接表达全部状态变化的独立命令，不把副作用重新藏入 `archive`。
 - 采用: 完成维护时由严格检查验证活动状态、归档目标和关系图共同一致。
-
-## 关系
-- 修订: [2026-07-18 - 使用目的、背景和决策的三层投影](260718-use-purpose-background-decision-structure.md)

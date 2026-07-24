@@ -1,15 +1,17 @@
 ---
+title: 使用秒级全生命周期索引
 status: archived
 alignment: null
 createdAt: 2026-07-20T13:18:05Z
+purpose: 让语义路径和单一索引稳定恢复全部记录，并用秒级时间区分同日先后。
+background: 日期不应进入稳定身份；既有索引曾使用统一导入时刻，Git 历史能恢复更早的记录时间。
+decision: 使用语义路径和 schema v3 全生命周期索引；createdAt 固定秒级，新记录取激活时间，既有记录优先取最早 Git 作者时间。
+relations:
+  - type: 修订
+    target: decision-records/260720-use-lifecycle-index-and-semantic-paths.md
+  - type: 修订
+    target: decision-records/260720-auto-initialize-index-on-first-activation.md
 ---
-
-# 使用秒级全生命周期索引
-
-## 索引摘要
-- 目的: 让语义路径和单一索引稳定恢复全部记录，并用秒级时间区分同日先后。
-- 背景: 日期不应进入稳定身份；既有索引曾使用统一导入时刻，Git 历史能恢复更早的记录时间。
-- 决策: 使用语义路径和 schema v3 全生命周期索引；createdAt 固定秒级，新记录取激活时间，既有记录优先取最早 Git 作者时间。
 
 ## 目的
 - 让决策身份稳定表达主题与语义，不把日期混入路径或正文标题。
@@ -33,7 +35,3 @@ createdAt: 2026-07-20T13:18:05Z
 - 采用: 标题、目的、背景、决策和直接关系从 Markdown 同步，索引记录固定按 POSIX `path` 升序排列。
 - 采用: 每个生命周期写命令从全部 Markdown 和现有索引生成完整候选索引，写入后执行完整校验；失败时恢复原索引。
 - 采用: 索引不存在时，`activate` 只在目录中恰好有一条有效 Markdown、目标就是该记录且没有其他结构错误时创建 schema v3 索引；已存在但无效的索引不覆盖，首次校验失败则删除新索引。
-
-## 关系
-- 修订: [采用全生命周期索引与语义路径](260720-use-lifecycle-index-and-semantic-paths.md)
-- 修订: [在首次激活时自动初始化当前索引](260720-auto-initialize-index-on-first-activation.md)

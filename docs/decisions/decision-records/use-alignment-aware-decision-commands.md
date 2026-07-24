@@ -1,15 +1,15 @@
 ---
+title: 使用对齐感知的决策命令
 status: archived
 alignment: null
 createdAt: 2026-07-22T07:38:16Z
+purpose: 让查询和状态命令准确区分决策是否活动、当前实现是否已经与决策对齐，并保持状态变化显式可校验。
+background: 只维护 active 和 archived 会把尚未落实的有效决策与已经完全对齐的当前基线混为一类。
+decision: activate 显式设置对齐状态，mark-aligned 只完成 unaligned 到 aligned，list 支持对齐筛选；关系不隐式改变状态。
+relations:
+  - type: 修订
+    target: decision-records/260720-separate-status-commands-from-relations.md
 ---
-
-# 使用对齐感知的决策命令
-
-## 索引摘要
-- 目的: 让查询和状态命令准确区分决策是否活动、当前实现是否已经与决策对齐，并保持状态变化显式可校验。
-- 背景: 只维护 active 和 archived 会把尚未落实的有效决策与已经完全对齐的当前基线混为一类。
-- 决策: activate 显式设置对齐状态，mark-aligned 只完成 unaligned 到 aligned，list 支持对齐筛选；关系不隐式改变状态。
 
 ## 目的
 - 让每个 CLI 命令的名称、参数和实际状态变化直接对应，避免从正文、关系或默认值猜测对齐状态。
@@ -31,6 +31,3 @@ createdAt: 2026-07-22T07:38:16Z
 - 采用: `sync-index --write` 从全部决策 Markdown 完整重建索引，不保留任何索引独有状态；`check` 校验元数据组合、未对齐说明、正文结构、投影和关系图。
 - 采用: 路径尚未进入 Git `HEAD` 的记录继续只在查询输出中临时标记为 `pending`，不把 `pending` 写入决策文件或索引。
 - 采用: 所有状态命令在写回前构建并验证完整候选 Markdown 与索引，失败时恢复原文件；关系本身不改变生命周期或对齐状态。
-
-## 关系
-- 修订: [分离生命周期命令与演进关系](260720-separate-status-commands-from-relations.md)

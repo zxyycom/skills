@@ -1,15 +1,15 @@
 ---
+title: 随包分发当前索引 JSON Schema
 status: active
 alignment: aligned
 createdAt: 2026-07-22T09:44:48Z
+purpose: 让编辑器和恢复工具直接取得机器可读的当前索引结构，并让分发产物与 CLI 保持一致。
+background: 当前格式版本会演进，长期决策若固定具体版本会把实现事实误写成稳定方向。
+decision: 从 CLI 共享常量生成当前索引 JSON Schema，随 decision-records 分发并用生成检查防止漂移。
+relations:
+  - type: 修订
+    target: decision-records/package-index-json-schema.md
 ---
-
-# 随包分发当前索引 JSON Schema
-
-## 索引摘要
-- 目的: 让编辑器和恢复工具直接取得机器可读的当前索引结构，并让分发产物与 CLI 保持一致。
-- 背景: 当前格式版本会演进，长期决策若固定具体版本会把实现事实误写成稳定方向。
-- 决策: 从 CLI 共享常量生成当前索引 JSON Schema，随 decision-records 分发并用生成检查防止漂移。
 
 ## 目的
 - 让编辑器、JSON Schema 工具和临时恢复工具可以直接读取当前索引的字段、类型、枚举和基础格式。
@@ -27,6 +27,3 @@ createdAt: 2026-07-22T09:44:48Z
 - 采用: skill 入口和恢复手册将该文件作为编辑器、临时 CLI 和手工索引恢复的机器可读资源。
 - 采用: JSON Schema 承接字段、类型、枚举、路径和基础格式；集合级语义继续由固定契约和 CLI `check` 承接。
 - 采用: 长期决策不固定具体 schema 版本；当前版本只由固定契约、Schema 文件和 CLI 实现表达。
-
-## 关系
-- 修订: [随包分发索引 JSON Schema](package-index-json-schema.md)

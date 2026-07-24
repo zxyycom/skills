@@ -1,15 +1,15 @@
 ---
+title: 限制索引投影字段长度
 status: active
 alignment: aligned
 createdAt: 2026-07-20T19:47:38+08:00
+purpose: 让索引摘要保持可检索、可展示，并具备最低限度的独立表达能力。
+background: 无长度上限会让索引退化为正文副本，内容过短又不能稳定表达决策含义。
+decision: "`title`、`purpose`、`background` 和 `decision` 必须是 4 至 100 个 Unicode 字符的单行文本；CLI 不截断或补齐，完整正文不受限制。"
+relations:
+  - type: 修订
+    target: decision-records/260718-use-purpose-background-decision-structure.md
 ---
-
-# 限制索引投影字段长度
-
-## 索引摘要
-- 目的: 让索引摘要保持可检索、可展示，并具备最低限度的独立表达能力。
-- 背景: 无长度上限会让索引退化为正文副本，内容过短又不能稳定表达决策含义。
-- 决策: `title`、`purpose`、`background` 和 `decision` 必须是 4 至 100 个 Unicode 字符的单行文本；CLI 不截断或补齐，完整正文不受限制。
 
 ## 目的
 - 给标题和索引摘要建立简单、统一且可机械检查的表达边界。
@@ -26,6 +26,3 @@ createdAt: 2026-07-20T19:47:38+08:00
 - 采用: 四个字段都是单行文本，不允许换行；长度限制作用于 Markdown 标题、索引摘要及其 JSON 投影。
 - 采用: CLI 遇到不合规字段时报告实际长度并失败，不自动截断、补齐或改写内容。
 - 采用: `sync-index` 在写入前检查 Markdown 来源，`check` 同时检查 Markdown 和索引投影；完整目的、背景和决策章节不受此长度限制。
-
-## 关系
-- 修订: [2026-07-18 - 使用目的、背景和决策的三层投影](260718-use-purpose-background-decision-structure.md)

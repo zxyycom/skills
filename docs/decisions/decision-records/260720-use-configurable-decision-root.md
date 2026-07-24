@@ -1,15 +1,13 @@
 ---
+title: 使用可配置的决策根目录
 status: archived
 alignment: null
 createdAt: 2026-07-20T10:34:37+08:00
+purpose: 让默认目录和 CLI 目录覆盖共享同一套稳定身份与存储契约。
+background: CLI 支持 `--decisions-dir`，但固定契约把 `docs/decisions` 写成唯一绝对位置，非默认目录的索引 owner、相对路径和初始化语义不明确。
+decision: 以可配置的决策根目录承载索引和 Markdown；默认 `docs/decisions`，身份、布局和 owner 均相对同一根目录解释。
+relations: []
 ---
-
-# 使用可配置的决策根目录
-
-## 索引摘要
-- 目的: 让默认目录和 CLI 目录覆盖共享同一套稳定身份与存储契约。
-- 背景: CLI 支持 `--decisions-dir`，但固定契约把 `docs/decisions` 写成唯一绝对位置，非默认目录的索引 owner、相对路径和初始化语义不明确。
-- 决策: 以可配置的决策根目录承载索引和 Markdown；默认 `docs/decisions`，身份、布局和 owner 均相对同一根目录解释。
 
 ## 目的
 - 让 CLI 已有的目录覆盖能力具备明确、可移植且不会分裂身份的契约。

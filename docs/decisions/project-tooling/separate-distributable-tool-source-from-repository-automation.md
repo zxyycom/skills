@@ -1,15 +1,17 @@
 ---
+title: 分离可分发工具源码与仓库自动化
 status: archived
 alignment: null
 createdAt: 2026-07-22T10:50:45Z
+purpose: 让可分发工具源码、主仓库自动化和 skill 分发内容拥有清晰、单向的 owner 边界。
+background: 项目脚本与可分发工具源码混在 `scripts/`，工具运行时还反向依赖仓库 helper 和 validator。
+decision: 使用 `tools/` 维护可分发源码及共享协议，`scripts/` 只承接项目自动化，再生成自包含 skill 产物。
+relations:
+  - type: 修订
+    target: project-tooling/260720-expose-importable-skill-modules.md
+  - type: 修订
+    target: project-tooling/260720-use-prebuilt-git-test-fixtures.md
 ---
-
-# 分离可分发工具源码与仓库自动化
-
-## 索引摘要
-- 目的: 让可分发工具源码、主仓库自动化和 skill 分发内容拥有清晰、单向的 owner 边界。
-- 背景: 项目脚本与可分发工具源码混在 `scripts/`，工具运行时还反向依赖仓库 helper 和 validator。
-- 决策: 使用 `tools/` 维护可分发源码及共享协议，`scripts/` 只承接项目自动化，再生成自包含 skill 产物。
 
 ## 目的
 - 让开发者能够从路径直接判断一段代码是可分发工具实现、仓库构建适配还是已经进入 skill 的交付内容。
@@ -32,7 +34,3 @@ createdAt: 2026-07-22T10:50:45Z
 - 采用: `test-evidence` 的预构建 Git fixture、确定性重建入口、Bun 进程内逻辑验证和最小真实 Git 与 Node smoke 与其源码共同维护在 `tools/test-evidence/tests/`，继续证明真实历史语义和 Node 分发兼容性。
 - 采用: 根 TypeScript 配置同时检查 `scripts/`、工具源码和声明源，项目编码规范同时约束 `scripts/` 与 `tools/`；完整项目检查覆盖源码测试、生成漂移和 skill 打包，不把工具依赖方向设为机械验收项。
 - 不采用: 在旧 `scripts/<tool-name>/` 路径保留转发模块、兼容副本或第二套调用入口，也不为未独立安装、版本或发布的工具源码建立 npm package 分发模型。
-
-## 关系
-- 修订: [让 skill 分发脚本同时提供可导入模块](260720-expose-importable-skill-modules.md)
-- 修订: [用预构建 Git fixture 加速 test-evidence 测试](260720-use-prebuilt-git-test-fixtures.md)

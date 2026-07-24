@@ -1,15 +1,15 @@
 ---
+title: 使用可配置且自包含的决策根目录
 status: active
 alignment: aligned
 createdAt: 2026-07-22T08:42:12Z
+purpose: 让默认位置和显式目标路径共享稳定身份，并保持 Markdown 事实源与派生索引的自包含契约。
+background: 决策目录既可以使用默认位置，也可以指向 root 外部；若混淆目标选择与路径解析，会让同一参数落到不同集合。
+decision: 默认使用 root/docs/decisions；显式 decisions-dir 直接选择目标，绝对路径可在 root 外，非绝对路径只相对 root 解析。
+relations:
+  - type: 修订
+    target: decision-records/260720-use-configurable-decision-root.md
 ---
-
-# 使用可配置且自包含的决策根目录
-
-## 索引摘要
-- 目的: 让默认位置和显式目标路径共享稳定身份，并保持 Markdown 事实源与派生索引的自包含契约。
-- 背景: 决策目录既可以使用默认位置，也可以指向 root 外部；若混淆目标选择与路径解析，会让同一参数落到不同集合。
-- 决策: 默认使用 root/docs/decisions；显式 decisions-dir 直接选择目标，绝对路径可在 root 外，非绝对路径只相对 root 解析。
 
 ## 目的
 - 让 CLI 的目录覆盖能力具备明确、可移植且不会分裂身份的契约。
@@ -32,6 +32,3 @@ createdAt: 2026-07-22T08:42:12Z
 - 采用: 每条 Markdown 承接自身全部权威状态与语义，`decision-index.json` 只承接从根目录内全部有效 Markdown 确定性生成的全生命周期查询投影。
 - 采用: 根目录整体尚不存在时把集合解释为尚未初始化且查询不创建文件；已有当前格式 Markdown 但索引缺失或损坏时，从 Markdown 完整重建索引。
 - 采用: Markdown 自身无效时修复对应事实源或请求无法恢复的判断，不从索引或默认值反向制造状态。
-
-## 关系
-- 修订: [使用可配置的决策根目录](260720-use-configurable-decision-root.md)

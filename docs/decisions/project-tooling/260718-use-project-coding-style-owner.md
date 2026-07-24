@@ -1,15 +1,13 @@
 ---
+title: 采用项目级编码规范 owner
 status: active
 alignment: aligned
 createdAt: 2026-07-18T16:23:28+08:00
+purpose: 为脚本实现的归属、边界、类型、组织和风险验证提供单一长期 owner。
+background: "`AGENTS.md` 已承接项目协作约定，`docs/tooling.md` 已承接脚本工具链，但实现代码的归属、边界、类型、组织和风险验证缺少独立 owner。"
+decision: 使用 `docs/coding-style.md` 承接 `scripts/` 实现代码的通用质量规则，由 `AGENTS.md` 提供读取入口；行为契约和工具链细节继续留在各自 owner。
+relations: []
 ---
-
-# 采用项目级编码规范 owner
-
-## 索引摘要
-- 目的: 为脚本实现的归属、边界、类型、组织和风险验证提供单一长期 owner。
-- 背景: `AGENTS.md` 已承接项目协作约定，`docs/tooling.md` 已承接脚本工具链，但实现代码的归属、边界、类型、组织和风险验证缺少独立 owner。
-- 决策: 使用 `docs/coding-style.md` 承接 `scripts/` 实现代码的通用质量规则，由 `AGENTS.md` 提供读取入口；行为契约和工具链细节继续留在各自 owner。
 
 ## 目的
 - 为脚本实现的归属、边界、类型、组织和风险验证提供单一长期 owner。

@@ -1,15 +1,17 @@
 ---
+title: 用 Git hook 更新 package hash
 status: archived
 alignment: null
 createdAt: 2026-07-03T10:58:54+08:00
+purpose: 让发布 hash 与提交内容同步，同时避免 CI 写回产生额外提交。
+background: GitHub Actions 在 release 成功后写回 `skill-package.hash` 会产生额外 bot 提交，干扰本地同步、提交历史阅读和 submodule 指针维护。
+decision: 主仓库和每个子仓库都继续保留 `skill-package.hash` 源文件。
+relations:
+  - type: 修订
+    target: project-tooling/260630-publish-skill-package-as-latest-release.md
+  - type: 修订
+    target: project-tooling/260701-gate-latest-release-by-skill-hash.md
 ---
-
-# 用 Git hook 更新 package hash
-
-## 索引摘要
-- 目的: 让发布 hash 与提交内容同步，同时避免 CI 写回产生额外提交。
-- 背景: GitHub Actions 在 release 成功后写回 `skill-package.hash` 会产生额外 bot 提交，干扰本地同步、提交历史阅读和 submodule 指针维护。
-- 决策: 主仓库和每个子仓库都继续保留 `skill-package.hash` 源文件。
 
 ## 目的
 - 让发布 hash 与提交内容同步，同时避免 CI 写回产生额外提交。
@@ -31,7 +33,3 @@ createdAt: 2026-07-03T10:58:54+08:00
 - 采用: 主仓库提供 `bun run setup-hooks`，为主仓库和已配置 hook 的 submodule 设置 `core.hooksPath`。
 - 不采用: 继续由 GitHub Actions 向 `main` 提交发布 hash；CI 不能把修改合入原提交，只会制造额外提交。
 - 不采用: 只把 hash 存入 latest release asset；仓库内应直接保留当前可打包内容的 hash。
-
-## 关系
-- 修订: [使用 latest release 自动发布 skill 制品](260630-publish-skill-package-as-latest-release.md)
-- 修订: [使用 skill hash 门禁 latest release 发布](260701-gate-latest-release-by-skill-hash.md)

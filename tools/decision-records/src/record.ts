@@ -1,179 +1,66 @@
 import path from "node:path";
-import {
-  isPathWithinDirectory,
-  pathExists,
-  toPosix
-} from "../../shared/src/node/filesystem.ts";
-import { extractMarkdownLinks } from "../../shared/src/markdown/links.ts";
+import { pathExists } from "../../shared/src/node/filesystem.ts";
 import {
   parseSections,
-  requireNonEmptyField,
-  requireOnlyFields,
-  requireSingleField,
-  stripLinkSuffix
+  requireNonEmptyField
 } from "./markdown.ts";
 import {
   parseDecisionMarkdown,
   type DecisionMetadataCandidate
 } from "./decision-metadata.ts";
+import { isDecisionFileName } from "./decision-path.ts";
 import {
-  isDecisionFileName,
-  isDecisionRelativePath
-} from "./decision-path.ts";
-import { projectionTextIssue } from "./projection.ts";
-import {
-  decisionRelationTypes,
   type DecisionProjection,
   type DecisionRelation,
-  type DecisionRelationType,
   type MarkdownSection
 } from "./types.ts";
 
 export type ValidatedDecisionBody = DecisionProjection & DecisionMetadataCandidate;
 
 const sectionOrder = [
-  "## 索引摘要",
-  "## 目的",
-  "## 背景",
-  "## 决策",
-  "## 关系"
-];
-const requiredSections = new Set([
-  "## 索引摘要",
   "## 目的",
   "## 背景",
   "## 决策"
-]);
-const decisionRelationTypeSet: ReadonlySet<string> = new Set(decisionRelationTypes);
-
-function isDecisionRelationType(value: string): value is DecisionRelationType {
-  return decisionRelationTypeSet.has(value);
-}
-
-async function validateDecisionLink(options: {
-  baseDirectory: string;
-  decisionsDirectory: string;
-  errors: string[];
-  rawTarget: string;
-  relativeSourcePath: string;
-}): Promise<string | null> {
-  const {
-    baseDirectory,
-    decisionsDirectory,
-    errors,
-    rawTarget,
-    relativeSourcePath
-  } = options;
-  const target = stripLinkSuffix(rawTarget.trim());
-
-  if (target.length === 0) {
-    errors.push(relativeSourcePath + " decision link must target a file: " + rawTarget);
-    return null;
-  }
-  if (/^[a-z][a-z0-9+.-]*:/i.test(target)) {
-    errors.push(relativeSourcePath + " decision link must be relative: " + rawTarget);
-    return null;
-  }
-  if (target.includes("\\") || path.isAbsolute(target)) {
-    errors.push(
-      relativeSourcePath + " decision link must use a relative POSIX path: " + rawTarget
-    );
-    return null;
-  }
-
-  const resolvedTarget = path.resolve(baseDirectory, target);
-  if (!isPathWithinDirectory(resolvedTarget, decisionsDirectory)) {
-    errors.push(
-      relativeSourcePath + " decision link points outside the decision directory: " + rawTarget
-    );
-    return null;
-  }
-
-  const relativeTarget = toPosix(path.relative(decisionsDirectory, resolvedTarget));
-  if (!isDecisionRelativePath(relativeTarget)) {
-    errors.push(
-      relativeSourcePath + " decision link has an invalid target path: " + rawTarget
-    );
-    return null;
-  }
-  if (!await pathExists(resolvedTarget)) {
-    errors.push(relativeSourcePath + " decision link target does not exist: " + rawTarget);
-    return null;
-  }
-
-  return relativeTarget;
-}
+];
+const requiredSections = new Set(sectionOrder);
 
 async function validateDecisionRelations(options: {
-  decisionPath: string;
   decisionsDirectory: string;
   errors: string[];
-  relationSection: string;
+  relations: readonly DecisionRelation[];
   relativePath: string;
-}): Promise<DecisionRelation[]> {
+}): Promise<void> {
   const {
-    decisionPath,
     decisionsDirectory,
     errors,
-    relationSection,
+    relations,
     relativePath
   } = options;
-  const relations: DecisionRelation[] = [];
-  const relationKeys = new Set<string>();
-  const lines = relationSection.split("\n").map((value) => value.trim()).filter(Boolean);
 
-  for (const line of lines) {
-    const match = line.match(/^- ([^:]+):\s*(.*?)\s*$/);
-    const label = match?.[1].trim();
-    if (!match || !label || !isDecisionRelationType(label)) {
-      errors.push(relativePath + " has unsupported relationship entry: " + line);
+  for (const relation of relations) {
+    if (relation.target === relativePath) {
+      errors.push(relativePath + " must not relate to itself");
       continue;
     }
-
-    const links = extractMarkdownLinks(match[2]).targets.filter(
-      (target) => target.kind === "link"
+    const resolvedTarget = path.join(
+      decisionsDirectory,
+      ...relation.target.split("/")
     );
-    if (links.length === 0) {
+    if (!await pathExists(resolvedTarget)) {
       errors.push(
-        relativePath + " relationship " + label
-        + " must use an inline Markdown decision link"
+        relativePath
+        + " relationship "
+        + relation.type
+        + " target does not exist: "
+        + relation.target
       );
-      continue;
-    }
-
-    for (const link of links) {
-      const target = await validateDecisionLink({
-        baseDirectory: path.dirname(decisionPath),
-        decisionsDirectory,
-        errors,
-        rawTarget: link.target,
-        relativeSourcePath: relativePath
-      });
-      if (!target) {
-        continue;
-      }
-      if (target === relativePath) {
-        errors.push(relativePath + " must not relate to itself");
-        continue;
-      }
-
-      const relationKey = label + "\u0000" + target;
-      if (relationKeys.has(relationKey)) {
-        errors.push(relativePath + " repeats relationship " + label + " target " + target);
-        continue;
-      }
-      relationKeys.add(relationKey);
-      relations.push({ type: label, target });
     }
   }
-
-  return relations;
 }
 
 export async function validateDecisionBody(options: {
   allowNullCreatedAt?: boolean;
   body: string;
-  decisionPath: string;
   decisionsDirectory: string;
   errors: string[];
   fileName: string;
@@ -182,7 +69,6 @@ export async function validateDecisionBody(options: {
   const {
     allowNullCreatedAt = false,
     body: rawBody,
-    decisionPath,
     decisionsDirectory,
     fileName,
     relativePath,
@@ -197,25 +83,16 @@ export async function validateDecisionBody(options: {
   });
   const body = parsedMarkdown?.body ?? "";
   const metadata = parsedMarkdown?.metadata ?? null;
-  const expectedTitlePrefix = "# ";
-  const firstLine = body.split("\n", 1)[0];
-  const title = firstLine.startsWith(expectedTitlePrefix)
-    ? firstLine.slice(expectedTitlePrefix.length).trim()
-    : "";
+  const projection = parsedMarkdown?.projection ?? null;
 
   if (!isDecisionFileName(fileName)) {
     errors.push(relativePath + " must use semantic file name format short-title.md");
   }
-  if (title.length === 0) {
-    errors.push(relativePath + " must start with \"" + expectedTitlePrefix + "<标题>\"");
-  } else {
-    const titleIssue = projectionTextIssue(title);
-    if (titleIssue) {
-      errors.push(relativePath + " title " + titleIssue);
-    }
-    if (/^\d{4}-\d{2}-\d{2}\s+-\s+/.test(title)) {
-      errors.push(relativePath + " semantic decision title must not include a date prefix");
-    }
+  if (projection && /^\d{4}-\d{2}-\d{2}\s+-\s+/.test(projection.title)) {
+    errors.push(relativePath + " semantic decision title must not include a date prefix");
+  }
+  if (!body.startsWith("## 目的\n")) {
+    errors.push(relativePath + " body must start with \"## 目的\"");
   }
 
   const sections = parseSections(body);
@@ -263,62 +140,32 @@ export async function validateDecisionBody(options: {
     previousOrder = currentOrder;
   }
 
-  let background = "";
-  let decision = "";
-  let purpose = "";
-  const summarySection = sectionMap.get("## 索引摘要")?.[0]?.content;
-  if (summarySection) {
-    requireOnlyFields(
-      relativePath,
-      summarySection,
-      "## 索引摘要",
-      ["目的", "背景", "决策"],
-      errors
-    );
-    purpose = requireSingleField(relativePath, summarySection, "目的", errors) ?? "";
-    background = requireSingleField(relativePath, summarySection, "背景", errors) ?? "";
-    decision = requireSingleField(relativePath, summarySection, "决策", errors) ?? "";
-    for (const [field, value] of [
-      ["purpose", purpose],
-      ["background", background],
-      ["decision", decision]
-    ] as const) {
-      if (value.length === 0) {
-        continue;
-      }
-      const issue = projectionTextIssue(value);
-      if (issue) {
-        errors.push(relativePath + " " + field + " projection " + issue);
-      }
-    }
-  }
-
   const decisionSection = sectionMap.get("## 决策")?.[0]?.content;
   if (decisionSection) {
     requireNonEmptyField(relativePath, decisionSection, "采用", errors);
   }
 
-  const relationSection = sectionMap.get("## 关系")?.[0]?.content;
-  const relations = relationSection
-    ? await validateDecisionRelations({
-        decisionPath,
-        decisionsDirectory,
-        errors,
-        relationSection,
-        relativePath
-      })
-    : [];
+  if (projection) {
+    await validateDecisionRelations({
+      decisionsDirectory,
+      errors,
+      relations: projection.relations,
+      relativePath
+    });
+  }
 
-  if (!metadata || errors.length > errorCountBeforeValidation) {
+  if (!metadata || !projection || errors.length > errorCountBeforeValidation) {
     return null;
   }
 
-  const projection = {
-    background,
-    decision,
-    purpose,
-    relations,
-    title
+  return {
+    title: projection.title,
+    purpose: projection.purpose,
+    background: projection.background,
+    decision: projection.decision,
+    relations: projection.relations,
+    status: metadata.status,
+    alignment: metadata.alignment,
+    createdAt: metadata.createdAt
   };
-  return { ...projection, ...metadata };
 }

@@ -1,15 +1,13 @@
 ---
+title: 使用 tsgo 作为默认类型检查入口
 status: active
 alignment: aligned
 createdAt: 2026-07-18T11:43:07+08:00
+purpose: 为主仓库脚本提供更快、更稳定的 TypeScript 类型检查入口。
+background: 主仓库脚本需要更好的 TypeScript 开发体验和更快的本地类型检查入口。
+decision: 安装 `@typescript/native-preview`，并让 `bun run typecheck` 执行 `tsgo --noEmit`。
+relations: []
 ---
-
-# 使用 tsgo 作为默认类型检查入口
-
-## 索引摘要
-- 目的: 为主仓库脚本提供更快、更稳定的 TypeScript 类型检查入口。
-- 背景: 主仓库脚本需要更好的 TypeScript 开发体验和更快的本地类型检查入口。
-- 决策: 安装 `@typescript/native-preview`，并让 `bun run typecheck` 执行 `tsgo --noEmit`。
 
 ## 目的
 - 为主仓库脚本提供更快、更稳定的 TypeScript 类型检查入口。

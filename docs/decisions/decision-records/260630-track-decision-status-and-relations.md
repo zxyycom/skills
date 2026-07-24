@@ -1,15 +1,15 @@
 ---
+title: 给决策记录增加状态和关系
 status: archived
 alignment: null
 createdAt: 2026-06-30T16:11:49+08:00
+purpose: 区分当前与历史判断，并保留决策演进的可追溯关系。
+background: 决策记录会随项目演进过期、被替代或被判定与后续规则冲突。
+decision: 决策文件名包含状态段, 状态值为 `active`、`amended`、`superseded` 或 `invalidated`。
+relations:
+  - type: 修订
+    target: decision-records/260627-establish-decision-record-policy.md
 ---
-
-# 给决策记录增加状态和关系
-
-## 索引摘要
-- 目的: 区分当前与历史判断，并保留决策演进的可追溯关系。
-- 背景: 决策记录会随项目演进过期、被替代或被判定与后续规则冲突。
-- 决策: 决策文件名包含状态段, 状态值为 `active`、`amended`、`superseded` 或 `invalidated`。
 
 ## 目的
 - 区分当前与历史判断，并保留决策演进的可追溯关系。
@@ -34,6 +34,3 @@ createdAt: 2026-06-30T16:11:49+08:00
 - 采用: 影响面目录继续作为一级目录, 不按状态新建顶层目录或二级状态目录。
 - 不采用: 只在索引中标注状态; 原因是单独打开文件或浏览目录时仍可能误读。
 - 不采用: 按状态目录移动决策; 原因是状态会变化, 而影响面是更稳定的查找边界。
-
-## 关系
-- 修订: [建立决策记录策略](260627-establish-decision-record-policy.md)

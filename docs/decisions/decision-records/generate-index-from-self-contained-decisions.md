@@ -1,15 +1,15 @@
 ---
-status: active
-alignment: aligned
+title: 从自包含决策文件生成完整索引
+status: archived
+alignment: null
 createdAt: 2026-07-22T07:37:46Z
+purpose: 让每条决策自包含全部权威状态，并使集中索引成为可以随时无损重建的查询投影。
+background: 由集中索引独占生命周期和创建时间会形成第二真相源，索引损坏后无法仅凭决策文件恢复完整集合。
+decision: 决策文件保存 status、alignment 和 createdAt 等权威元数据；集中 JSON 索引完全由 Markdown 生成，不拥有独立事实。
+relations:
+  - type: 修订
+    target: decision-records/use-second-precision-lifecycle-index.md
 ---
-
-# 从自包含决策文件生成完整索引
-
-## 索引摘要
-- 目的: 让每条决策自包含全部权威状态，并使集中索引成为可以随时无损重建的查询投影。
-- 背景: 由集中索引独占生命周期和创建时间会形成第二真相源，索引损坏后无法仅凭决策文件恢复完整集合。
-- 决策: 决策文件保存 status、alignment 和 createdAt 等权威元数据；集中 JSON 索引完全由 Markdown 生成，不拥有独立事实。
 
 ## 目的
 - 让单条决策文件脱离集中索引后仍能独立恢复自身身份、生命周期、对齐状态、创建时间和完整语义。
@@ -31,6 +31,3 @@ createdAt: 2026-07-22T07:37:46Z
 - 采用: 索引中的每个字段都从 Markdown 生成，索引不拥有独立状态；删除索引后可以从全部有效决策文件无损重建。
 - 采用: 正常维护不直接编辑索引；CLI 在状态命令或正文同步后生成完整候选索引、严格校验，再一次性写回。
 - 采用: 实现只承接当前格式和当前 schema，不读取旧 schema、不提供兼容映射，也不为缺失对齐状态设置默认值。
-
-## 关系
-- 修订: [使用秒级全生命周期索引](use-second-precision-lifecycle-index.md)

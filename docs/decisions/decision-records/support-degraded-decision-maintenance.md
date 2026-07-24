@@ -1,15 +1,15 @@
 ---
+title: 支持故障时的降级决策维护
 status: archived
 alignment: null
 createdAt: 2026-07-21T01:04:44Z
+purpose: 让 CLI 或运行时损坏时仍能恢复工具或继续完成可追踪的决策维护。
+background: 既有手册只能描述命令效果，缺少替代运行时、重新取得工具和手工维护路径。
+decision: 维护恢复手册仅在异常时读取，并提供 CLI 下载、源码重建、最小复现和直接索引维护路径。
+relations:
+  - type: 修订
+    target: decision-records/use-error-recovery-reference.md
 ---
-
-# 支持故障时的降级决策维护
-
-## 索引摘要
-- 目的: 让 CLI 或运行时损坏时仍能恢复工具或继续完成可追踪的决策维护。
-- 背景: 既有手册只能描述命令效果，缺少替代运行时、重新取得工具和手工维护路径。
-- 决策: 维护恢复手册仅在异常时读取，并提供 CLI 下载、源码重建、最小复现和直接索引维护路径。
 
 ## 目的
 - 让 decision-records CLI、Node 运行时或分发文件损坏时，agent 能根据 skill 随包材料恢复可用工具。
@@ -30,6 +30,3 @@ createdAt: 2026-07-21T01:04:44Z
 - 采用: 降级维护保留可信的状态和创建时间，从 Markdown 生成投影与直接关系，先写候选索引并通过 Git diff 做手工检查。
 - 采用: 临时工具或手工维护只实现当前必要操作，不向索引加入临时字段；CLI 恢复后运行严格 `check`，只用 `sync-index --write` 修复派生投影或排序漂移。
 - 采用: v2 到 v3 的升级映射和其他数据恢复路径继续由同一恢复手册承接，当前格式与正常事务仍由固定契约唯一完整定义。
-
-## 关系
-- 修订: [使用按需维护恢复手册](use-error-recovery-reference.md)

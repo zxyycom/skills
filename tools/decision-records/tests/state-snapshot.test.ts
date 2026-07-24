@@ -29,7 +29,7 @@ try {
   const nextTitle = "使用当前快照读取器";
   await fs.writeFile(
     decisionPath,
-    original.replace("# 使用生成 CLI", `# ${nextTitle}`),
+    original.replace("title: 使用生成 CLI", `title: ${nextTitle}`),
     "utf8"
   );
 

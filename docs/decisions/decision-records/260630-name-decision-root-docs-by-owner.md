@@ -1,15 +1,15 @@
 ---
+title: 用 owner 命名决策记录根文档
 status: archived
 alignment: null
 createdAt: 2026-06-30T16:44:06+08:00
+purpose: 让决策清单和维护规则的 owner 能从文件名直接识别。
+background: 通用的 `README.md` 与 `maintenance.md` 无法从文件名区分决策清单和维护规则的职责。
+decision: "`decision-record-index.md` 作为决策清单和影响面导航 owner, 只负责状态速查、影响面说明和决策链接。"
+relations:
+  - type: 修订
+    target: decision-records/260627-establish-decision-record-policy.md
 ---
-
-# 用 owner 命名决策记录根文档
-
-## 索引摘要
-- 目的: 让决策清单和维护规则的 owner 能从文件名直接识别。
-- 背景: 通用的 `README.md` 与 `maintenance.md` 无法从文件名区分决策清单和维护规则的职责。
-- 决策: `decision-record-index.md` 作为决策清单和影响面导航 owner, 只负责状态速查、影响面说明和决策链接。
 
 ## 目的
 - 让决策清单和维护规则的 owner 能从文件名直接识别。
@@ -26,6 +26,3 @@ createdAt: 2026-06-30T16:44:06+08:00
 - 采用: `scripts/validate-decisions.ts` 校验非 `active` 决策的状态来源链接, 目标必须解析到 `docs/decisions/<impact-area-id>/` 下已存在的决策文件。
 - 不采用: 继续使用 `README.md` 承接决策清单。原因是文件名只表达目录入口, 不能表达“决策清单和影响面导航”的实际 owner。
 - 不采用: 继续使用 `maintenance.md` 承接规则。原因是文件名过泛, 不能直接说明规则范围包含门槛、命名、状态、正文结构和更新流程。
-
-## 关系
-- 修订: [建立决策记录策略](260627-establish-decision-record-policy.md)

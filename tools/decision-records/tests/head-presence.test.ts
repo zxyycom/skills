@@ -109,13 +109,15 @@ try {
 
   const establishedPath = path.join(decisionsDirectory, currentRelativePath);
   const establishedBody = await fs.readFile(establishedPath, "utf8");
+  const establishedWithPendingRelation = establishedBody.replace(
+    "    target: tooling/260710-use-source-cli.md",
+    "    target: tooling/260710-use-source-cli.md\n"
+      + "  - type: 替代\n"
+      + "    target: pending-only/use-pending-decision.md"
+  );
   await fs.writeFile(
     establishedPath,
-    establishedBody.replace(
-      "- 修订: [使用源码 CLI](260710-use-source-cli.md)",
-      "- 修订: [使用源码 CLI](260710-use-source-cli.md)\n"
-        + "- 替代: [使用待提交决策](../pending-only/use-pending-decision.md)"
-    ),
+    establishedWithPendingRelation,
     "utf8"
   );
   assert.ok((await validateDecisionRecords({ workspaceRoot: pendingRoot })).errors.some(
@@ -139,11 +141,7 @@ try {
   assert.equal(await fs.readFile(indexPath, "utf8"), indexBeforeReferencedDiscard);
   assert.equal(
     await fs.readFile(establishedPath, "utf8"),
-    establishedBody.replace(
-      "- 修订: [使用源码 CLI](260710-use-source-cli.md)",
-      "- 修订: [使用源码 CLI](260710-use-source-cli.md)\n"
-        + "- 替代: [使用待提交决策](../pending-only/use-pending-decision.md)"
-    )
+    establishedWithPendingRelation
   );
   await fs.writeFile(establishedPath, establishedBody, "utf8");
 
@@ -591,17 +589,15 @@ function pendingDecisionBody(
 ): string {
   return [
     "---",
+    "title: 使用待提交决策",
     "status: active",
     "alignment: " + alignment,
     "createdAt: null",
+    "purpose: 验证待提交标记只由 Git HEAD 路径存在性临时推导。",
+    "background: 工作区和暂存区都不能代表决策已经进入正式历史。",
+    "decision: 新决策在首次提交前保持可见并标记为 pending。",
+    "relations: []",
     "---",
-    "",
-    "# 使用待提交决策",
-    "",
-    "## 索引摘要",
-    "- 目的: 验证待提交标记只由 Git HEAD 路径存在性临时推导。",
-    "- 背景: 工作区和暂存区都不能代表决策已经进入正式历史。",
-    "- 决策: 新决策在首次提交前保持可见并标记为 pending。",
     "",
     "## 目的",
     "- 验证待提交标记只由 Git HEAD 路径存在性临时推导。",

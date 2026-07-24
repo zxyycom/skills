@@ -1,15 +1,13 @@
 ---
+title: 将提交格式定位为项目级风格
 status: active
 alignment: aligned
 createdAt: 2026-07-20T11:01:45+08:00
+purpose: 让 git-commit-organizer 在跨项目复用时保持稳定、有明确偏好的提交表达。
+background: 使用者会在理解影响后主动安装或调用该 skill，固定类型、中文格式和提交粒度是其核心价值。
+decision: 将 git-commit-organizer 定位为可跨项目复用的项目级提交风格，默认执行自身风格，并只补足影响提交正确性的必要门禁。
+relations: []
 ---
-
-# 将提交格式定位为项目级风格
-
-## 索引摘要
-- 目的: 让 git-commit-organizer 在跨项目复用时保持稳定、有明确偏好的提交表达。
-- 背景: 使用者会在理解影响后主动安装或调用该 skill，固定类型、中文格式和提交粒度是其核心价值。
-- 决策: 将 git-commit-organizer 定位为可跨项目复用的项目级提交风格，默认执行自身风格，并只补足影响提交正确性的必要门禁。
 
 ## 目的
 - 让 `git-commit-organizer` 在跨项目复用时保持稳定、有明确偏好的提交表达，并让使用者清楚理解安装或调用该 skill 所采用的默认行为。

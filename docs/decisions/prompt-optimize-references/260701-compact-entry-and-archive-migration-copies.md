@@ -1,15 +1,15 @@
 ---
+title: 压缩 prompt-optimize 入口并归档迁移副本
 status: archived
 alignment: null
 createdAt: 2026-07-18T11:43:07+08:00
+purpose: 降低 prompt-optimize 的默认加载和判断成本，同时保留必要细节的可访问性。
+background: "`skills/prompt-optimize/SKILL.md` 在承接默认执行路径后, 同时保留了过多细则展开, 使用时需要关注的点过多。"
+decision: "`SKILL.md` 继续作为默认执行路径 owner, 但主执行流程只保留压缩后的八步判断链, 细节解释由 `principles.md` 和具体任务上下文承接。"
+relations:
+  - type: 修订
+    target: prompt-optimize-references/260630-merge-prompt-optimize-core-flow-into-entry.md
 ---
-
-# 压缩 prompt-optimize 入口并归档迁移副本
-
-## 索引摘要
-- 目的: 降低 prompt-optimize 的默认加载和判断成本，同时保留必要细节的可访问性。
-- 背景: `skills/prompt-optimize/SKILL.md` 在承接默认执行路径后, 同时保留了过多细则展开, 使用时需要关注的点过多。
-- 决策: `SKILL.md` 继续作为默认执行路径 owner, 但主执行流程只保留压缩后的八步判断链, 细节解释由 `principles.md` 和具体任务上下文承接。
 
 ## 目的
 - 降低 prompt-optimize 的默认加载和判断成本，同时保留必要细节的可访问性。
@@ -26,6 +26,3 @@ createdAt: 2026-07-18T11:43:07+08:00
 - 采用: `workflows.md` 和 `rewrite-rules.md` 移入 `skills/prompt-optimize/references/archive/`, 作为迁移前旧结构留存。
 - 采用: `references/archive/` 只作为文件保留位置, 不写入入口主动引用清单。
 - 不采用: 删除迁移副本。原因是用户要求保留, 且旧结构仍有回溯价值。
-
-## 关系
-- 修订: [将 prompt-optimize 核心流程合并回入口](260630-merge-prompt-optimize-core-flow-into-entry.md)

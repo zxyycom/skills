@@ -1,15 +1,15 @@
 ---
+title: 将 prompt-optimize 核心流程合并回入口
 status: archived
 alignment: null
 createdAt: 2026-06-30T17:17:43+08:00
+purpose: 让 prompt-optimize 触发后直接获得默认流程，减少重复读取和职责分散。
+background: "`workflows.md` 和 `rewrite-rules.md` 在实际使用中读取概率过高, 基本成为 `prompt-optimize` 的默认执行路径。"
+decision: 由 `prompt-optimize` 的 `SKILL.md` 直接承接定位、出口、骨架、审计、owner、规则收敛、表达、冲突、交付和完成检查。
+relations:
+  - type: 替代
+    target: prompt-optimize-references/260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md
 ---
-
-# 将 prompt-optimize 核心流程合并回入口
-
-## 索引摘要
-- 目的: 让 prompt-optimize 触发后直接获得默认流程，减少重复读取和职责分散。
-- 背景: `workflows.md` 和 `rewrite-rules.md` 在实际使用中读取概率过高, 基本成为 `prompt-optimize` 的默认执行路径。
-- 决策: 由 `prompt-optimize` 的 `SKILL.md` 直接承接定位、出口、骨架、审计、owner、规则收敛、表达、冲突、交付和完成检查。
 
 ## 目的
 - 让 prompt-optimize 触发后直接获得默认流程，减少重复读取和职责分散。
@@ -35,6 +35,3 @@ createdAt: 2026-06-30T17:17:43+08:00
 - 采用: 在 `prompt-optimize` 中, `principles.md` 和 `agent-tasks.md` 继续作为主动引用文件, 分别承接原理解释和子 agent 任务结构。
 - 采用: 在 `prompt-optimize` 中, `workflows.md` 和 `rewrite-rules.md` 作为迁移期保留副本静默留存, 文件开头说明保留原因、原作用和当前状态。
 - 不采用: 将两个文件原样拼接进入口。原因是原文与入口已有最小协议存在重叠, 原样拼接会制造重复流程和 owner 漂移。
-
-## 关系
-- 替代: [将 prompt-optimize 改写规则重组为管线](260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md)

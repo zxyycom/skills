@@ -1,15 +1,15 @@
 ---
+title: 使用字段化对齐状态命令
 status: active
 alignment: aligned
 createdAt: 2026-07-22T09:44:09Z
+purpose: 让查询和状态命令显式维护对齐字段，并用决策与实际 owner 的比较验证状态变化。
+background: 对齐关系属于 Markdown 元数据；让命令依赖专门正文结构会把事实比较误写成存储契约。
+decision: activate 显式设置 alignment，mark-aligned 只更新字段，check 校验结构与投影；正文不随对齐状态分叉。
+relations:
+  - type: 修订
+    target: decision-records/use-alignment-aware-decision-commands.md
 ---
-
-# 使用字段化对齐状态命令
-
-## 索引摘要
-- 目的: 让查询和状态命令显式维护对齐字段，并用决策与实际 owner 的比较验证状态变化。
-- 背景: 对齐关系属于 Markdown 元数据；让命令依赖专门正文结构会把事实比较误写成存储契约。
-- 决策: activate 显式设置 alignment，mark-aligned 只更新字段，check 校验结构与投影；正文不随对齐状态分叉。
 
 ## 目的
 - 让每个 CLI 命令的名称、参数和实际状态变化直接对应，不从正文、关系或索引默认值猜测对齐状态。
@@ -33,6 +33,3 @@ createdAt: 2026-07-22T09:44:09Z
 - 采用: `sync-index --write` 从全部决策 Markdown 完整重建索引，alignment 只原样投影；`check` 校验元数据组合、正文结构、投影和关系图。
 - 采用: 路径尚未进入 Git `HEAD` 的记录只在查询输出中临时标记为 `pending`，不把 `pending` 写入决策文件或索引。
 - 采用: 所有状态命令在写回前构建并验证完整候选 Markdown 与索引，失败时恢复原文件；关系本身不改变生命周期或对齐状态。
-
-## 关系
-- 修订: [使用对齐感知的决策命令](use-alignment-aware-decision-commands.md)

@@ -1,15 +1,13 @@
 ---
+title: 以产品与架构视角校准技术判断
 status: archived
 alignment: null
 createdAt: 2026-07-20T14:13:42+08:00
+purpose: 让 agent 在工程任务中先确认产品结果和架构责任, 再选择技术实现, 避免局部技术视角主导目标与方案。
+background: 这项能力原先被表达为代码审查流程, 使 review 的 finding、分类和报告机制遮蔽了可复用于分析、设计、实现、排障与重构的核心思维。
+decision: 使用 `product-architecture-thinking` 承接产品与架构思维, 将 review 降为一个触发场景, 并让输出继续服从当前任务的行为 owner 与交付契约。
+relations: []
 ---
-
-# 以产品与架构视角校准技术判断
-
-## 索引摘要
-- 目的: 让 agent 在工程任务中先确认产品结果和架构责任, 再选择技术实现, 避免局部技术视角主导目标与方案。
-- 背景: 这项能力原先被表达为代码审查流程, 使 review 的 finding、分类和报告机制遮蔽了可复用于分析、设计、实现、排障与重构的核心思维。
-- 决策: 使用 `product-architecture-thinking` 承接产品与架构思维, 将 review 降为一个触发场景, 并让输出继续服从当前任务的行为 owner 与交付契约。
 
 ## 目的
 - 让 agent 在分析“怎么做”之前, 先恢复真实消费者、场景、预期结果和长期行为承诺。

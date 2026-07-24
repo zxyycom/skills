@@ -1,15 +1,15 @@
 ---
+title: 自更新脚本跟随 latest release 制品
 status: archived
 alignment: null
 createdAt: 2026-07-03T10:31:47+08:00
+purpose: 让 skill 自更新使用正式发布制品，而不是开发分支快照。
+background: 自更新脚本原来默认从主仓库 `main` 分支下载源码 zip 并截取 `skills/<skill-name>/` 目录。
+decision: skill updater 默认读取主仓库 latest release，并以正式 package lock 和 skill zip 作为远端更新输入。
+relations:
+  - type: 修订
+    target: project-tooling/260701-embed-self-update-script-in-skill-packages.md
 ---
-
-# 自更新脚本跟随 latest release 制品
-
-## 索引摘要
-- 目的: 让 skill 自更新使用正式发布制品，而不是开发分支快照。
-- 背景: 自更新脚本原来默认从主仓库 `main` 分支下载源码 zip 并截取 `skills/<skill-name>/` 目录。
-- 决策: skill updater 默认读取主仓库 latest release，并以正式 package lock 和 skill zip 作为远端更新输入。
 
 ## 目的
 - 让 skill 自更新使用正式发布制品，而不是开发分支快照。
@@ -24,6 +24,3 @@ createdAt: 2026-07-03T10:31:47+08:00
 - 采用: 自更新判断优先读取 release 中的 `skill-package-lock.json`；需要覆盖更新或旧 release 缺少 lock asset 时，再下载对应 `<skill-name>.zip` asset。
 - 采用: 保留 `--release-tag <tag>` 作为排查和复现入口, 但默认不要求使用者传入 tag。
 - 不采用: 继续默认读取 `main` 分支源码 zip; 这会绕过 release 作为正式交付入口的边界。
-
-## 关系
-- 修订: [在 skill 包内分发自更新脚本](260701-embed-self-update-script-in-skill-packages.md)

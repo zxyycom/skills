@@ -1,15 +1,15 @@
 ---
+title: 将对齐状态定义为单向基线
 status: active
 alignment: aligned
 createdAt: 2026-07-22T10:07:23Z
+purpose: 让 alignment 与只允许从 unaligned 进入 aligned 的状态机保持同一语义。
+background: 把 alignment 称为实时事实关系，会与已对齐后不允许回退的基线约束产生歧义。
+decision: active 即生效；alignment 表示目标是否已核对并建立为单向基线，偏离按一致性问题处理。
+relations:
+  - type: 修订
+    target: decision-records/express-alignment-as-field-relation.md
 ---
-
-# 将对齐状态定义为单向基线
-
-## 索引摘要
-- 目的: 让 alignment 与只允许从 unaligned 进入 aligned 的状态机保持同一语义。
-- 背景: 把 alignment 称为实时事实关系，会与已对齐后不允许回退的基线约束产生歧义。
-- 决策: active 即生效；alignment 表示目标是否已核对并建立为单向基线，偏离按一致性问题处理。
 
 ## 目的
 - 区分决策是否已经生效，以及决策目标是否已经核对并建立为后续必须保持的当前基线。
@@ -29,6 +29,3 @@ createdAt: 2026-07-22T10:07:23Z
 - 采用: 已对齐基线发生事实偏离时按一致性问题处理，应恢复符合基线的事实，或在长期方向改变时形成新决策；不通过回退字段重新开放实现空间。
 - 采用: `alignment` 是经过核对后建立的治理基线状态，不是 CLI 自动计算的实时事实镜像；当前差距仍从完整决策与实际 owner 和事实的比较中得出。
 - 采用: 对齐状态只由 Markdown frontmatter 表达并由 JSON 索引原样投影；两种活动状态使用同一正文结构，不增加专门差距、过渡或完成条件章节。
-
-## 关系
-- 修订: [仅用字段表达决策对齐关系](express-alignment-as-field-relation.md)

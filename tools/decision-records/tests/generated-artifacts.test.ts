@@ -46,28 +46,43 @@ assert.equal(
 assert.deepEqual(
   decisionIndexJsonSchema.$defs.state.required,
   [
-    "alignment",
-    "background",
-    "createdAt",
-    "decision",
     "path",
-    "purpose",
-    "relations",
+    "title",
     "status",
-    "title"
+    "alignment",
+    "createdAt",
+    "purpose",
+    "background",
+    "decision",
+    "relations"
   ]
 );
 assert.deepEqual(
   decisionIndexJsonSchema.properties.keyDefinitions.const,
   [
-    { mode: "exact", name: "alignment" },
-    { mode: "exact", name: "status" },
-    { mode: "exact", name: "topic" }
+    { name: "topic", mode: "exact" },
+    { name: "status", mode: "exact" },
+    { name: "alignment", mode: "exact" }
   ]
 );
 assert.deepEqual(
   Object.keys(decisionIndexJsonSchema.$defs.keyValues.properties),
-  ["alignment", "status", "topic"]
+  ["topic", "status", "alignment"]
+);
+assert.deepEqual(
+  Object.keys(decisionIndexJsonSchema.$defs.relation.properties),
+  ["type", "target"]
+);
+assert.deepEqual(
+  Object.keys(decisionIndexJsonSchema.properties),
+  [
+    "schemaVersion",
+    "namespace",
+    "definitionVersion",
+    "sourceRevision",
+    "keyDefinitions",
+    "entries"
+  ]
 );
 
 const cliSourceMap = JSON.parse(

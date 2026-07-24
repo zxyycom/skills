@@ -1,15 +1,15 @@
 ---
+title: 删除 prompt-optimize 迁移副本
 status: active
 alignment: aligned
 createdAt: 2026-07-20T10:15:36+08:00
+purpose: 让 prompt-optimize 的分发内容只保留当前执行和解释需要的入口与引用。
+background: "`workflows.md` 和 `rewrite-rules.md` 已长期不参与主动读取, 核心流程已由 `SKILL.md` 稳定承接, 决策记录和 Git 历史足以回放旧结构。"
+decision: 保持 `SKILL.md` 作为压缩后的默认流程 owner, 保留 `principles.md` 解释长期理由, 删除两份迁移副本并停止随包分发。
+relations:
+  - type: 修订
+    target: prompt-optimize-references/260701-compact-entry-and-archive-migration-copies.md
 ---
-
-# 删除 prompt-optimize 迁移副本
-
-## 索引摘要
-- 目的: 让 prompt-optimize 的分发内容只保留当前执行和解释需要的入口与引用。
-- 背景: `workflows.md` 和 `rewrite-rules.md` 已长期不参与主动读取, 核心流程已由 `SKILL.md` 稳定承接, 决策记录和 Git 历史足以回放旧结构。
-- 决策: 保持 `SKILL.md` 作为压缩后的默认流程 owner, 保留 `principles.md` 解释长期理由, 删除两份迁移副本并停止随包分发。
 
 ## 目的
 - 保持 prompt-optimize 的最小分发内容与当前行为契约一致。
@@ -26,6 +26,3 @@ createdAt: 2026-07-20T10:15:36+08:00
 - 采用: `skills/prompt-optimize/references/principles.md` 继续承接按需读取的原理和长期理由。
 - 采用: 删除 `skills/prompt-optimize/references/archive/workflows.md` 和 `rewrite-rules.md`, 不再随 skill 分发迁移副本。
 - 采用: 旧结构的形成和退出原因由决策关系及 Git 历史回放。
-
-## 关系
-- 修订: [压缩 prompt-optimize 入口并归档迁移副本](260701-compact-entry-and-archive-migration-copies.md)

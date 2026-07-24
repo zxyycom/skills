@@ -1,15 +1,15 @@
 ---
+title: 仅发布分层测试证据接口
 status: active
 alignment: aligned
 createdAt: 2026-07-21T03:26:09Z
+purpose: 让测试入口采集可独立替换，并让账本维护只依赖稳定、严格校验的数据契约。
+background: 组合兼容入口会把旧配置、旧输出和默认采集器继续带入账本工具边界，削弱两层接口的独立性。
+decision: 以 Schema 为结构真源，只发布采集层和账本层两套接口，旧版升级仅由独立文档承接。
+relations:
+  - type: 修订
+    target: test-evidence-review-behavior/260721-separate-test-entry-collection-from-ledger.md
 ---
-
-# 仅发布分层测试证据接口
-
-## 索引摘要
-- 目的: 让测试入口采集可独立替换，并让账本维护只依赖稳定、严格校验的数据契约。
-- 背景: 组合兼容入口会把旧配置、旧输出和默认采集器继续带入账本工具边界，削弱两层接口的独立性。
-- 决策: 以 Schema 为结构真源，只发布采集层和账本层两套接口，旧版升级仅由独立文档承接。
 
 ## 目的
 - 让账本维护模块不需要知道测试入口来自源码正则、AST、框架注册表还是外部清单。
@@ -30,6 +30,3 @@ createdAt: 2026-07-21T03:26:09Z
 - 采用: Valibot Schema 是配置、清单、诊断、报告、inspection 和 query 的源码真源；源码类型使用 `InferOutput`，构建时从同一 Schema 生成 JSON Schema，再生成分发 TypeScript 数据声明。
 - 采用: diagnostic 同时包含固有 `severity` 和命令级 `blocking`。严格检查按 `blocking` 决定完成状态；恢复查询复制严格诊断并设为非阻断，不篡改问题级别。
 - 采用: 旧 v2 组合配置、命令、导入和机器报告只在独立升级指南中映射到当前接口。当前契约文档和工具链说明只描述现行两层结构。
-
-## 关系
-- 修订: [分离测试入口采集与账本维护](260721-separate-test-entry-collection-from-ledger.md)
