@@ -1850,14 +1850,14 @@
       },
       "state": {
         "alignment": "aligned",
-        "background": "项目已有多类稳定文档和 owner，但读取入口分散在 README、AGENTS、docs 与 skill 目录中。",
+        "background": "项目已有多类稳定内容和 owner，但读取入口分散在 README、AGENTS、docs 与 skill 目录中。",
         "createdAt": "2026-07-21T07:48:36Z",
-        "decision": "使用 docs/navigation.md 统一维护任务到 owner 的路由，其他入口只保留摘要和链接。",
+        "decision": "使用 docs/navigation.md 统一维护任务路由、内容 owner 和仓库位置，其他入口只保留摘要和链接。",
         "path": "project-documentation/use-document-navigation-owner.md",
-        "purpose": "让维护者和 agent 按任务快速定位文档 owner，避免重复搜索和规则归属漂移。",
+        "purpose": "让维护者和 agent 按任务快速定位先读内容及其 owner，避免重复搜索和规则归属漂移。",
         "relations": [],
         "status": "active",
-        "title": "使用文档导航作为任务路由 owner"
+        "title": "使用仓库导航统一任务路由与内容 owner"
       }
     },
     {
@@ -3151,5 +3151,5 @@
   ],
   "namespace": "decisions",
   "schemaVersion": 1,
-  "sourceRevision": "sha256:cccc4480c49a9fdc3c38f7207f57577190af68eba8b0f2383a0689b269995b19"
+  "sourceRevision": "sha256:70ef9cb42d3680a8dcfdd87de041c7623b5c1e50644451927450755465f12af5"
 }

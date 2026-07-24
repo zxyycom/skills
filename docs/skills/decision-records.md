@@ -1,56 +1,19 @@
 # Decision Records
 
-`decision-records` 用自包含 Markdown 保存重要长期判断的生命周期、对齐状态、秒级创建时间、完整目的、背景、采用方向、明确约束和演进关系，再确定性生成 JSON 全生命周期查询索引。它关注“已经决定往哪里走、决策目标是否已经核对并建立为当前基线”，不承接通用知识、任务日志、进度状态或当前事实副本。
+`decision-records` 用自包含 Markdown 保存已经生效的重要长期判断、生命周期、对齐状态、形成背景、采用方向和演进关系，并从这些文件确定性生成 JSON 查询索引。
 
-## 核心体验
+它关注“项目已经决定往哪里走，以及决策目标是否已经核对并建立为当前基线”。通用知识、任务日志、进度状态和当前实现事实继续由各自 owner 承接。
 
-日常工作继续以原任务为主。当用户正在形成可能持续影响后续行为、owner、边界、兼容性、风险处理或验收方式的决定，或拟议决定可能与既有决定冲突时，agent 会在确定方向或实施依赖该方向的实质改动前恢复相关活动判断。
+## 核心内容
 
-恢复默认从当前决策根目录的活动记录开始，`list` 同时显示生命周期与对齐状态，并支持按主题、生命周期和对齐状态组合筛选。需要完整理由时运行 `show`，需要审计演进时运行 `trace`；相关记录为未对齐时必须展开完整决策，再与实际行为 owner 和事实比较以确定当前差距。
+1. 每条决策 Markdown 是自身状态与语义的事实源，JSON 索引只是可重建的查询投影。
+2. 活动决策在激活后生效；对齐状态表示完整目标是否已经结合实际 owner 和事实核对为当前基线，不表示任务进度或额外许可。
+3. 编辑性修正保留原记录；决策语义变化时创建新的完整记录，并保存真实演进关系。
+4. agent 的恢复、审阅和维护流程由 skill 入口承接，格式、状态、索引和 CLI 的精确行为由固定契约承接。
 
-每条 Markdown 都是自身状态与语义的唯一事实源；索引投影全部活动和归档记录，用于日常筛选、摘要阅读和关系查询，但不拥有独立状态。索引缺失或损坏时，`sync-index --write` 可以从全部当前格式 Markdown 无损重建。
+## 内容入口
 
-决策集合尚未初始化时不创建空索引；首条长期判断确认后再进入正常维护。已有材料但索引或运行时不可用、写入中断或严格检查无法普通修复时，agent 才读取维护恢复手册。手册只恢复当前格式工具和索引，不维护其他 schema 的读取路径。
-
-活动且已对齐的决策已经通过实际 owner 和事实核对，并建立为必须持续遵守的当前基线。活动且未对齐的决策也已经生效，只是完整目标尚未核对并建立为当前基线；`alignment` 是从未对齐到已对齐的单向治理状态，不增加或取消决策约束，也不是自动同步的实时事实镜像。任何必须遵守的限制、允许范围或例外直接写在决策正文中，当前差距从决策与实际 owner 的比较中恢复。已对齐基线发生事实偏离时按一致性问题处理，不把原记录退回未对齐来放宽约束。
-
-活动记录在 `activate` 成功后立即生效；Git `HEAD` 只决定其路径是否临时显示为 `pending`，不决定记录是否确认、活动或生效。
-
-当前指令已经明确长期判断、维护对象和影响范围时，agent 会直接执行而不重复询问；新增记录或改变生命周期、对齐状态前，会明确告知用户将写入或改变的判断及状态变化。由 agent 提炼的新候选或范围不清的调整仍需确认。
-
-Markdown 路径已经进入 Git `HEAD` 后，原地修改只承接不改变决策语义的编辑性修正，决策语义变化时创建新记录并保留真实演进关系。路径尚未进入 `HEAD` 的活动记录会在 CLI 中临时显示为 `pending`，首次提交前可以原地收敛；放弃时通过 `discard` 删除正文并重建索引，不把中间方案制造成正式演进。
-
-`pending` 不写入 JSON，也不因 `git add` 消失。CLI 每次调用批量读取一次决策根目录在 `HEAD` 中的 Markdown 路径，并与当前索引记录比对；它不读取历史正文，也不猜测重命名。已建立路径从工作区消失会严格报错，新路径仍按 `pending` 处理。解析后的决策根目录必须位于 Git 仓库内，Git 或 `HEAD` 路径不可读取时命令直接失败。
-
-查询带 warning 返回时，索引中仍可恢复的结果会继续输出，但不能据此断言缺失的正文或关系不存在。agent 会说明不完整性及其对结论的影响，写入完成仍以严格 `check` 为准。
-
-## 设计边界
-
-1. 可审核：生命周期、对齐状态、创建时间、完整语义和历史关系都在单条 Markdown 中进入版本审查。
-2. 单一事实源：完整章节承接完整语义，frontmatter 承接权威状态，JSON 只提供可重建的集中查询投影。
-3. 可演进：语义变化保留新的完整判断和直接关系，普通退役可以独立归档。
-4. 路径稳定：生命周期、关系或标题润色不改变既有身份。
-5. 防偏离：长期决策形成或发生冲突时恢复活动判断，明确区分一次性例外与长期修订。
-6. 查询可用：中央索引可解析时，局部问题以 warning 暴露，不阻断其他可恢复结果；warning 同时限定结论完整性。
-7. 范围可控：查询、候选和维护分别按自己的任务出口验收，不把查询自动扩大为修复。
-8. 状态准确：`pending` 只由 `HEAD` 临时推导；`alignment` 只在 Markdown frontmatter 中表达决策目标是否已核对并建立为单向基线，JSON 只投影该值，不承接实时监控、任务进度或差距正文。
-
-## Owner 分工
-
-1. [`SKILL.md`](../../skills/decision-records/SKILL.md) 承接 agent 的发现、语义恢复、偏离判断、候选确认、调用方式选择和按任务出口交付。
-2. [`decision-record-rules.md`](../../skills/decision-records/references/decision-record-rules.md) 是目录、索引 schema、稳定身份、正文格式、关系、生命周期、维护事务和结构校验语义的唯一固定契约。
-3. [`decision-index.schema.json`](../../skills/decision-records/references/decision-index.schema.json) 随 skill 分发，向编辑器、JSON Schema 工具和临时恢复工具提供机器可读的索引结构。
-4. [`maintenance-recovery.md`](../../skills/decision-records/references/maintenance-recovery.md) 只承接工具、索引和中断写入的故障恢复顺序，不重复定义固定契约。
-5. `tools/decision-records/` 承接 CLI 源码、公共声明源和测试，`scripts/build/decision-records.ts` 承接生成适配；随 skill 分发的 CLI 提供筛选列表、单条展开、关系追溯、索引重建和显式生命周期与对齐更新。
-6. 每条 Markdown 的 frontmatter 和完整章节承接全部权威状态与语义，同文件索引摘要承接作者确认的压缩表达；`decision-index.json` 只承接全库派生查询投影。
-
-## CLI 体验
-
-1. 恢复：`list` 定位活动判断，`show` 展开单条正文，`trace` 回放关系；局部问题通过 warning 和无效标记暴露。
-2. 筛选：列表可以按主题、生命周期、对齐状态和时间显示需求收窄结果。
-3. 验证与维护：`check` 严格验证集合；`activate` 显式指定对齐状态，`mark-aligned` 在核对实现后完成对齐，`archive` 清空对齐状态，`sync-index` 全量重建索引，`discard` 放弃待提交记录。
-4. 模块复用：直接导入已安装 skill 的 `scripts/decision-records.mjs`；公开导出和类型见相邻的 `decision-records.d.mts`。
-
-## 项目接入
-
-未传 `--decisions-dir` 时，决策根目录是 `<root>/docs/decisions`。显式传入绝对路径时直接使用该目标，允许位于 `--root` 外部；传入非绝对路径时只相对 `--root` 解析，不相对当前调用位置或其他目录猜测。对同一集合的所有 CLI 调用应使用同一个解析结果。项目 agent 指令只加入指向索引和本 skill 的短入口，项目专属记录门槛留在自己的行为 owner，不复制固定契约。
+- [`SKILL.md`](../../skills/decision-records/SKILL.md) 承接 agent 的行为与交付。
+- [`decision-record-rules.md`](../../skills/decision-records/references/decision-record-rules.md) 是记录格式、状态、关系、索引和维护事务的唯一固定契约。
+- [`maintenance-recovery.md`](../../skills/decision-records/references/maintenance-recovery.md) 只处理工具、索引和中断写入的故障恢复。
+- [`decision-index.schema.json`](../../skills/decision-records/references/decision-index.schema.json) 提供机器可读的索引结构。
