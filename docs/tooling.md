@@ -1,297 +1,162 @@
 # 项目工具链
 
-本文档是主仓库工具源码、项目脚本、依赖安装、校验、打包和 CI 的 owner 文档。README 只保留入口说明，AGENTS 只记录长期项目边界，具体工具链标准在这里维护；实现代码的通用质量规则由 [编码规范](coding-style.md) 承接。
+本文承接主仓库从环境准备到 skill 制品发布的项目级工具链：依赖与运行时分工、package scripts、`scripts/` 与 `tools/` 的边界、生成和校验、Git hook、CI 与 release。具体组件的内部契约由相邻源码目录承接，实现代码的通用质量规则由 [编码规范](coding-style.md) 承接。
 
-## 职责边界
+## 内容边界
 
 本文件负责：
 
-1. package scripts 的用途和命名。
-2. pnpm 与 Bun 的职责分工。
-3. `tools/` 可分发源码与 `scripts/` 项目自动化的目录、依赖、运行和生成约束。
-4. 本地校验、打包和可交付制品规则。
-5. GitHub CI 如何复用本地入口并发布全部 skill 制品。
-6. `skills/` 单仓库布局下的 hash、hook 和自更新脚本规则。
+1. 开发环境如何准备，以及 pnpm、Bun 和 tsgo 分别承担什么责任。
+2. 维护者应调用哪些稳定命令，以及 `test:*`、`sync:*`、`check:*` 的关系。
+3. 主仓库自动化、可分发工具源码和 skill 包内产物如何单向衔接。
+4. 本地检查、Git hook、CI、skill hash、打包和 release 如何组成交付流程。
 
-本文件不负责 skill 行为、引用内容、决策记录格式、实现代码的通用质量规则或 agent 项目级协作规则。
+本文件不展开单个 skill 的行为、工具内部 API、决策与调查格式或通用编码规则。需要修改具体组件时，继续读取对应源码目录及其局部契约：
 
-## 分发定位
-
-仓库为何集中维护、使用者如何选择 skill，以及轻量分发的产品边界由 [仓库模型](repository-model.md) 承接。本文件只定义对应机制：
-
-1. 主仓库自动化统一发现和处理 `skills/` 下的内容，但每个 skill 仍分别形成 zip、独立内容 hash 和 updater 配置。
-2. 聚合 release 从同一入口发布全部当前 skill 制品。
-3. updater 由使用者显式运行，只检查和可选替换当前 skill。
+- [Index Runtime](../tools/index-runtime/README.md)
+- [版本管理中间层](../tools/shared/version-control.md)
+- [Skill Updater](../tools/skill-updater/README.md)
 
 ## 工具分工
 
-1. pnpm 管安装：`packageManager` 使用 pnpm，锁文件使用 `pnpm-lock.yaml`，CI 安装依赖使用 `pnpm install --frozen-lockfile`。
-2. Bun 管脚本调度和执行：本地和 CI 通过 `bun run <script>` 调用 package scripts；package scripts 内部直接调用 Bun 执行 TypeScript 脚本。
-3. `tsgo` 管类型检查：`typecheck` 使用 `@typescript/native-preview` 提供的原生 TypeScript 编译器预览版。
-4. package scripts 是统一入口：本地和 CI 都通过 package scripts 调用脚本，不维护另一套命令。
-5. 脚本依赖按本地开发工具链处理：常见格式、协议、解析和压缩能力优先使用成熟库，不为减少依赖手写底层实现。
-6. `@typescript/native-preview` 是预览包；使用固定版本，并通过 `pnpm-workspace.yaml` 记录对应版本的 release-age 例外。
+1. pnpm 负责安装依赖；固定版本来自 `package.json#packageManager`，锁文件是 `pnpm-lock.yaml`，CI 使用 `pnpm install --frozen-lockfile`。
+2. Bun 负责 package scripts 调度和 TypeScript 脚本运行；本地、hook 和 CI 优先通过 `bun run <script>` 使用稳定入口。
+3. tsgo 负责类型检查；`typecheck` 使用固定版本的 `@typescript/native-preview`，对应 release-age 例外记录在 `pnpm-workspace.yaml`。
+4. 常见格式、协议、解析和压缩能力优先使用成熟依赖；项目领域规则才由本仓库直接实现。
 
 ## 环境自举
 
-跨平台本地环境使用 `scripts/env.js` 作为项目工具链之前的独立入口。它只使用 Node.js 标准库，不通过 Bun、pnpm、项目包、`bun run check` 或 CI 启动，也不接入现有校验编排。项目直接使用 PATH 中的全局 CodeGraph，不声明项目依赖，也不负责安装或升级该命令。
+`scripts/env.js` 是进入项目工具链前的跨平台独立入口，只使用 Node.js 标准库，不依赖 Bun、pnpm、项目包或 `bun run check`。
 
-只读检查当前环境：
+只读检查环境：
 
 ```bash
 node scripts/env.js check
 ```
 
-按需安装缺失工具和锁定的项目依赖：
+补齐 Bun、pnpm 和锁定依赖：
 
 ```bash
 node scripts/env.js install
 ```
 
-脚本边界：
+环境入口遵守以下边界：
 
-1. Node.js 是脚本启动前置，Git 是仓库操作前置，全局 `codegraph` 是代码图能力前置。Git、Node.js 或 CodeGraph 缺失时不会由同一个入口安装；脚本给出诊断并停止。
-2. `check` 从 `package.json` 读取 Bun 最低版本和固定 pnpm 版本，检查 Git、Node.js、Bun、pnpm、全局 CodeGraph 版本输出及仓库索引状态，并通过 `pnpm list` 的实际安装结果确认声明的直接依赖可用；它不直接读取 `node_modules` 内部文件，不执行安装脚本、不下载内容，也不修改环境。
-3. `install` 才允许产生外部副作用。Bun 不满足要求时通过 Node.js 附带的 npm 安装；pnpm 不匹配时优先使用 Corepack 安装 `package.json` 固定的版本，Corepack 不存在时回退到 npm；随后运行 `pnpm install --frozen-lockfile`，再用全局 CodeGraph 执行 `init` 和 `sync`。该入口不安装或升级 CodeGraph，并在自举子进程中关闭 CodeGraph 遥测，避免环境准备依赖外网。
-4. 脚本不调用 winget、Homebrew、apt 或其他平台包管理器；同一份 JavaScript 在 Windows、macOS 和 Linux 上使用。全局 npm/Corepack 目录不可写时，不提升权限，而是保留原始失败供调用者按本机策略处理。
-5. 该入口用于快速准备开发环境，不替代类型检查、测试、生成漂移检查或完整仓库检查，也不由这些入口反向调用。
+1. Git、Node.js 和全局 CodeGraph 是前置条件，入口只诊断缺失，不安装或升级它们。
+2. `check` 检查 Git、Node.js、Bun、pnpm、CodeGraph、索引状态和直接依赖，不下载或修改环境。
+3. `install` 可以安装或切换 Bun、pnpm，运行 `pnpm install --frozen-lockfile`，并调用全局 CodeGraph 执行 `init` 和 `sync`；它不使用系统包管理器，也不提升权限。
+4. 环境自举不替代类型检查、测试、生成漂移检查或完整仓库检查，也不由这些入口反向调用。
 
-Codex 工作区在 `.codex/environments/` 提供两个并列环境：
+Codex 工作区在 `.codex/environments/` 提供两个入口：
 
-1. `skills` 直接进入 `$CODEX_WORKTREE_PATH` 并运行 `node scripts/env.js install`，保留已有工作区内容。
-2. `clear` 先用 `git restore --staged --worktree .` 和 `git clean -fd` 丢弃已跟踪改动及未跟踪文件，再运行同一个环境安装入口；该环境只用于明确需要干净工作区的任务。
+1. `skills` 保留工作区内容并运行 `node scripts/env.js install`。
+2. `clear` 先丢弃已跟踪改动和未跟踪文件，再运行同一安装入口；只在明确需要干净工作区时使用。
 
-`.codex/config.toml` 直接以全局 `codegraph serve --mcp` 启动 MCP 服务，只开放探索、搜索、节点、调用关系、影响、文件和状态工具。`.codegraph/` 只保留用于维持忽略规则的 `.gitignore`，索引数据库和其他机器本地状态不进入版本控制。
+`.codex/config.toml` 通过全局 `codegraph serve --mcp` 启动代码图服务。`.codegraph/` 只提交维持忽略规则的 `.gitignore`，本机索引数据库不进入版本控制。
 
-## 脚本入口
+## Package scripts
 
-当前脚本入口：
+`package.json#scripts` 是命令名称与实际入口的唯一清单。本节只解释稳定命令和命令族，不复制每个测试的内部覆盖项。
 
-1. `bun run typecheck`: 使用 `tsgo --noEmit` 和根目录 `tsconfig.json` 检查 `scripts/` 与 `tools/` 下的 TypeScript 源码和声明源，不输出编译产物。
-2. `bun run validate`: 校验 `skills/` 下全部 skill 入口、内部链接和主仓库项目配置。
-3. `bun run hash:skills`: 计算当前版本管理 `pending` 快照中所有 skill 打包输入的聚合 SHA-256 hash 和单 skill hash；默认 Git 实现把该快照映射到 index。命令与根目录 `skill-package-lock.json` 对比，传入 `--write` 时写回当前状态，传入 `--check` 时不一致则失败，传入 `--quiet` 时只在 hash 或 lock 内容变化时输出。
-4. `bun run pack:skills`: 读取版本管理 `pending` 快照中 `skills/<skill-name>/` 的文件内容，将每个 skill 分别打包为 `dist/<skill-name>.zip`，并把 `skill-package-lock.json` 复制为 release manifest asset。
-5. `bun run setup-hooks`: 将主仓库 `core.hooksPath` 设置为 `.githooks`。
-6. `bun run test:generated-file`: 测试生成文件共享能力，覆盖 Bun source map 的临时目录解析、仓库相对路径归一化和越界拒绝。
-7. `bun run test:decision-records-cli`: 使用独立夹具测试 `decision-records` TypeScript 源码和包内 MJS；CLI 场景默认直接调用分发模块，只用 Node 子进程证明成功与失败入口。
-8. `bun run test:skill-validator`: 使用临时 skill 目录测试结构校验源码、包内 MJS 导入、Node CLI、类型声明、失败诊断和生成头。
-9. `bun run test:test-evidence-cli`: 从预构建 Git fixture 物化隔离 worktree，测试正则采集、外部清单接入、紧凑账本索引同步、分页摘要、单 case 原文、显式动态 trigger、纯账本 API 与两层组合，并用 Node 子进程证明两套 CLI 的成功与失败入口。
-10. `bun run test:skill-updater`: 使用本地假 GitHub 响应和临时目录测试 updater 的包内 MJS 导入、Node CLI、lock、zip 指纹、更新替换和失败诊断。
-11. `bun run sync:decision-records-cli`: 从 `tools/decision-records/` 构建并写入 skill 内的 `scripts/decision-records.mjs`、类型声明、source map 和索引 JSON Schema。
-12. `bun run check:decision-records-cli`: 在临时目录构建 CLI，并检查 skill 内分发产物是否与当前源码一致。
-13. `bun run check:decisions`: 使用 `tools/decision-records/src/` 的当前实现严格检查本仓库决策记录；由完整检查编排时再按运行模式决定是否阻断。
-14. `bun run sync:skill-validator`: 从 `tools/skill-validator/` 构建并写入 `skill-maintainer` 内的 `scripts/validate-skill.mjs`、类型声明和 source map。
-15. `bun run check:skill-validator`: 在临时目录构建结构验证器，并检查 skill 内分发产物是否与当前源码一致。
-16. `bun run sync:test-evidence-cli`: 从 `tools/test-evidence/` 构建并写入 `test-evidence-review` skill 内的正则采集与纯账本 CLI、内联通用索引运行时、source map、JSON Schema 与 Schema 派生类型声明。
-17. `bun run check:test-evidence-cli`: 在临时目录重建测试证据两套 CLI 和全部 Schema 派生产物，并检查分发内容是否与当前源码一致。
-18. `bun run sync:test-evidence-fixture`: 从可审查的 fixture 源生成包含固定 SHA-1 提交历史的 Git bundle。
-19. `bun run check:test-evidence-fixture`: 重建 fixture 的确定性提交历史，并检查 bundle 暴露的 head 是否仍与源一致。
-20. `bun run sync:skill-updaters`: 按主仓库模板和 `skills/` 发现结果生成各 skill 内的 `scripts/update-skill.mjs`、类型声明和 source map。
-21. `bun run check:skill-updaters`: 检查各 skill 内的 updater MJS、类型声明和 source map 是否由当前主仓库模板生成。
-22. `bun run test:check`: 在进程内测试完整检查的默认 warning、显式 blocking、严格模式、并发停止、已启动任务等待和打包条件。
-23. `bun run check`: 通过 `scripts/check.ts` 运行全部前置检查并汇总 warning；没有阻断失败时继续打包全部 skill。传入 `--strict` 时全部前置失败都阻断。
-24. `bun run test:investigation-report-check`: 使用临时调查集合测试默认全量检查、局部结构筛选、Markdown AST 标题、完整报告核心与时间、主题级通用 JSON 索引同步、新鲜度、领域查询与 keys、Schema、失败诊断、包内导入、Node CLI 及一千个主题的端到端读取。
-25. `bun run check:investigations`: 使用 `tools/investigation-report/src/` 的当前实现严格检查本仓库全部主题文件和派生索引新鲜度；由完整检查编排时再按运行模式决定是否阻断。
-26. `bun run sync:investigation-report-check`: 从 `tools/investigation-report/` 构建并写入 `investigation-report` skill 内的 `check-investigations.mjs`、类型声明、source map 和索引 JSON Schema。
-27. `bun run check:investigation-report-check`: 在临时目录重建调查报告 CLI 和 Schema，并检查 skill 内分发产物是否与当前源码一致。
-28. `bun run test:index-runtime`: 使用决策、调查和测试证据的隔离 state fixture，验证唯一 id、多 key 策略、revision、新鲜度、运行时 state、查询、确定性文件同步和一千条及五千条规模；不读取或改写现有三个领域的索引与入口。
-29. `bun run test:version-control`: 使用隔离 Git 仓库验证版本管理中间层的修订文件、待提交文件、工作区路径、提交差异、未出生与损坏 `HEAD`、冲突 index、错误映射和 linked worktree 行为。
-30. `bun run test:skill-package-hash`: 使用隔离 Git 仓库验证 skill 发布输入来自版本管理 `pending` 快照，保持暂存文本、二进制字节、多 skill 分组和稳定排序，并排除工作区覆盖、暂存删除与未跟踪文件。
-31. `bun run test:change-plan-cli`: 使用临时 change 目录测试三文件结构、标题顺序、非空章节、任务语法、唯一 ID、包内导入、Node CLI、机器输出和生成追溯。
-32. `bun run sync:change-plan-cli`: 从 `tools/change-plan/` 构建并写入 `change-plan` skill 内的 `change-plan.mjs`、类型声明和 source map。
-33. `bun run check:change-plan-cli`: 在临时目录重建 change plan 检查器，并检查 skill 内分发产物是否与当前源码一致。
+### 核心命令
 
-需要直接排查实现时，可以用 `bun scripts/<script>.ts` 运行项目脚本，或用 `bun tools/<tool-name>/src/<entry>.ts` 运行工具源码入口。
+| 命令 | 责任 |
+| --- | --- |
+| `bun run typecheck` | 使用根目录 `tsconfig.json` 对 `scripts/`、`tools/` 和声明源执行 `tsgo --noEmit` |
+| `bun run validate` | 校验全部 skill 入口、仓库内 Markdown 链接和主仓库配置 |
+| `bun run hash:skills` | 比较 skill 打包输入与 `skill-package-lock.json`；`--write` 更新，`--check` 只读校验 |
+| `bun run pack:skills` | 从版本管理 `pending` 快照生成每个 skill 的 zip 和 release manifest |
+| `bun run setup-hooks` | 将当前仓库 `core.hooksPath` 设置为 `.githooks` |
+| `bun run check` | 运行全部前置检查并在允许时打包；CI 使用 `bun run check --strict` |
 
-## 脚本标准
+### 工具维护命令
 
-1. `scripts/` 只承接主仓库命令编排、生成适配、校验、打包、Git 和 CI 自动化；需要构建后随 skill 分发的运行时源码进入 `tools/`。
-2. 根目录 `tsconfig.json` 是 `scripts/` 与 `tools/` 的 IDE 类型提示和 `tsgo` 统一配置；实现依赖 Node 类型，运行仍由 Bun 负责。
-3. 顶层脚本只保留命令编排和输出；工具产物构建适配放在 `scripts/build/`，跨项目脚本共享能力放在 `scripts/lib/`，具体项目校验项放在 `scripts/validators/`。
-4. `scripts/check.ts` 是完整检查的编排 owner；默认最多并发两个顶层任务，可通过 `CHECK_CONCURRENCY=<正整数>` 覆盖。普通字符串任务默认非阻断，失败时输出 warning 并继续；只有显式配置 `blocking: true` 的任务才永久阻断，新任务不按名称或类别推断阻断责任。
-5. `bun run check --strict` 将本次全部前置失败升级为阻断，供 CI 和其他门禁调用。阻断失败后停止领取新任务、等待已启动任务并跳过 `pack:skills`；没有阻断失败时即使存在 warning 也继续打包，只有 warning 且打包成功时退出 `0`，但不表示全部前置检查通过。`pack:skills` 自身失败始终使完整检查失败。
-6. 项目脚本优先覆盖所有 skill 的共同规则；具体工具行为由对应 `tools/<tool-name>/` 承接，skill 专属规则仍由对应 skill 本体承接。
-7. 脚本处理常见行为时优先使用高质量、高热度、维护活跃且有类型支持的库；只有规则属于本仓库领域约束时才在脚本中直接实现。
-8. 脚本默认只读写主仓库内路径；临时打包产物输出到 `dist/`，需要随 skill 分发的生成脚本通过显式 `sync:*` 写入对应 skill，并由配套 `check:*` 检查漂移。
-9. 外部 JSON 在边界完成运行时收窄；同一结构由多个入口消费或需要稳定字段诊断时，以 `valibot` schema 为结构真源，源码类型使用 `InferOutput` 推导。需要跨语言契约时从同一 Schema 生成 JSON Schema，再从 JSON Schema 生成分发 TypeScript 数据声明；不从手写 TypeScript 类型反向生成 Schema。
-10. 多子命令 CLI 的命令、参数、帮助和非法参数诊断由 `commander` 承接；短小的单命令脚本使用 Node 标准参数解析能力。
-11. 文件发现使用 `fast-glob`，避免在多个脚本中维护递归目录遍历。
-12. Skill frontmatter 使用 `yaml` 解析，避免手写 YAML 字符串解析。
-13. 打包脚本使用 `fflate` 生成 zip，只打包 `skills/<skill-name>/` 内文件，不把项目文档、CI、脚本或仓库元数据放进 skill zip；每次打包前清空 `dist/`，避免残留旧 skill 制品。
-14. Markdown 链接提取使用 `mdast-util-from-markdown` 解析 Markdown AST；脚本负责仓库路径、决策关系和项目约束校验。
-15. Markdown 内部链接目标必须是仓库内路径且目标存在；`#anchor` 必须匹配目标 Markdown 文件中的标题锚点。
-16. 决策记录的仓库内容入口直接复用 `tools/decision-records/src/`；skill 结构总校验和分发验证器直接复用 `tools/skill-validator/src/`。分发模块由逐字节生成检查、包内导入测试和 Node CLI 集成测试覆盖，避免仓库校验依赖生成文件或形成第二套规则。
-17. Skill 发布 hash 和 skill zip 都只覆盖会进入 skill zip 的文件路径和版本管理 `pending` 快照内容；`docs/skills/` 介绍页、项目文档、`tools/` 源码、项目脚本和 CI 变化不直接触发 skill release。工具源码变化需要先同步为 skill 内生成产物，只有分发产物发生变化时才改变对应 hash。默认 Git 实现从 index blob 读取该快照，避免 Windows 与 Linux 工作区换行差异导致本地 hook、CI 和 release asset 结果不一致。根目录 `skill-package-lock.json` 是唯一发布状态文件，记录聚合 hash 和每个 skill 的独立 hash。
-18. 校验脚本不解析 workflow 结构, 也不通过正则检查 workflow 内部步骤; workflow 逻辑由文档约定、代码审查和 GitHub Actions 实际运行结果验证。
-19. Skill 自更新脚本的通用逻辑由 `tools/skill-updater/` 承接；`scripts/build/skill-updaters.ts` 负责按 skill 注入配置并同步产物，各 skill 包内只保留生成的 `scripts/update-skill.mjs`、`update-skill.d.mts` 和 source map。
-20. 可嵌入注释的生成模块和声明顶部必须写明禁止直接编辑、仓库链接、线上可维护源码链接、仓库内源码或声明源路径、对应 skill 源目录和重建命令；按产物用途补充 release asset 等必要入口。生成头不写时间戳、本机绝对路径或其他非确定性状态。不能嵌入注释的 JSON 等机器制品由稳定生成入口和本文件承接追溯关系。
+| 责任 | 行为测试 | 显式写入 | 只读检查 |
+| --- | --- | --- | --- |
+| Change Plan | `test:change-plan-cli` | `sync:change-plan-cli` | `check:change-plan-cli` |
+| Decision Records | `test:decision-records-cli` | `sync:decision-records-cli` | `check:decision-records-cli`、`check:decisions` |
+| Skill Validator | `test:skill-validator` | `sync:skill-validator` | `check:skill-validator` |
+| Investigation Report | `test:investigation-report-check` | `sync:investigation-report-check` | `check:investigation-report-check`、`check:investigations` |
+| Test Evidence | `test:test-evidence-cli` | `sync:test-evidence-cli`、`sync:test-evidence-fixture` | `check:test-evidence-cli`、`check:test-evidence-fixture` |
+| Skill Updater | `test:skill-updater` | `sync:skill-updaters` | `check:skill-updaters` |
+| 共享基础设施 | `test:check`、`test:generated-file`、`test:index-runtime`、`test:skill-package-hash`、`test:version-control` | — | — |
 
-## 工具源码层级
+三类前缀表达不同义务：
 
-1. `tools/<tool-name>/src/` 承接运行时源码，`api/` 承接稳定公共声明源，`tests/` 承接源码、分发模块和 fixture 验证；构建后真正进入 skill 的文件仍只位于 `skills/<skill-name>/`。
-2. `tools/shared/src/` 只承接多个工具真实共享的运行时原语；仅有相似调用位置、短实现或未来可能复用，不足以进入共享层。
-3. `tools/skill-package/src/` 承接发布端和 updater 必须共同遵守的指纹与 package lock 协议，避免协议实现被任一消费方私有化。
-4. 具体领域工具的 `src/` 只能依赖自身源码、`tools/shared/src/`、`tools/skill-package/src/`、已经明确建立为跨领域协议 owner 的工具、目标运行时和显式外部依赖；不能依赖 `scripts/`、`skills/`、`dist/` 或另一个领域工具。当前跨领域工具依赖是 `decision-records`、`investigation-report` 和 `test-evidence` 分别接入 `tools/index-runtime/src/`。
-5. `tools/shared/` 不依赖其他工具；`tools/skill-package/` 只依赖自身和 `tools/shared/`；独立协议 owner 不反向依赖领域工具。
-6. 源码共享不改变分发单元边界。构建器把被消费的共享源码内联进目标自包含 MJS，因此不同 skill 可以共享一份维护源码而不产生跨 skill 运行时前置条件。
+1. `test:*` 证明源码或分发模块的行为。
+2. `sync:*` 是显式写入口，只在维护对应生成源时运行，不由完整检查自动写回。
+3. `check:*` 只读验证仓库内容或生成产物；生成工具的 `sync:*` 与 `check:*` 必须使用同一构建路径。
 
-`index-runtime` 的维护入口：
+只有具备独立维护操作、完整检查消费者或生成写入责任的命令才保留为 package script。`scripts/validators/project-config.ts` 检查这些稳定入口仍存在于 `package.json`。
 
-1. 源码：`tools/index-runtime/src/`。
-2. 公共入口：`tools/index-runtime/src/index.ts`；Valibot Schema 是索引文件、原始 state 条目、key 定义和查询输入的结构真源，`createStateIndexSchema` 用领域 state、keys、key definitions 和 revision Schema 组合出具体索引文件 Schema，领域不得手写通用外壳。
-3. 领域定义：领域提供 `namespace`、`definitionVersion`、同步 `parseState`、state 与 revision 读取、稳定唯一 id 和 `exact|range|text` key 策略。`parseState` 复用领域已有 parser，并拥有领域字段与元数据校验；它必须确定性地接受自身输出，id 和 key 策略也只对解析后的 state 执行确定性纯计算。parser 产出或 id、key 的名称、模式和含义变化时提升 `definitionVersion`，不改变投影的实现重构和普通源内容变化不提升该版本。
-4. 索引条目：通用层只保存 `id`、JSON `state` 和派生 `keys`。id 必须唯一；key 可以重复或一对多。无领域定义的底层加载和查询返回原始 JSON state；传入定义或使用领域 runtime 时，通用层重新解析 state、核对 id 与 keys，并返回对应领域 state 类型。
-5. Reader：`createStateIndexRuntime(...).open()` 校验一次当前 revision 并返回绑定该索引快照的不可变 reader；reader 统一提供 `query`、按保留 `id` 的 `get` 和自行遍历分页的 `all`。同一 reader 上的多次读取不重复校验 revision；需要观察新的源状态时重新 `open`。领域接口映射这些能力，不用特殊 filter 模拟 get，也不复制全量分页循环。
-6. 查询：filter 只使用 id 或已声明 key，支持 exact all/any/none、range 比较、text all/any、存在性、多字段排序和带上限的 offset/limit。`range` 数值按数值顺序比较，字符串按固定字典序比较；时间等具有领域顺序的值先由 key 策略转换为 epoch 数值或其他保持真实顺序的标量。参与排序的 key 在每条命中 state 上最多有一个值。
-7. 新鲜度：`read` 返回同一时点的完整 `{ revision, states }`，`readRevision` 返回当前 revision；同一 `definitionVersion` 下，revision 相等必须保证重新读取会产生相同的完整 state 投影。任何可能改变索引成员、state、id 或 keys 的源变化都必须改变 revision，不影响投影的变化也可以保守地产生新 revision。具体低成本算法仍由领域 owner 负责，通用层不推断 Git 或文件状态。
-8. 写入：`syncStateIndex` 从完整 state 快照检查或确定性重建 JSON，写入前再次核对 revision，在仓库根目录边界内原子替换并读回验证，不写领域源。领域 writer 完成事实写入后调用完整同步，并负责避免源写入与同步事务互相穿插。索引只提供完整同步；增量协议必须由接入后的领域证据和独立长期决策触发。
-9. 动态 state：查询可以接收使用同一定义产生的完整 runtime state；同 id 临时替换静态条目，新 id 临时追加，磁盘索引保持不变。
-10. 确定性：索引不保存生成时间；对象键、key 定义、key 值和条目使用与区域设置无关的固定全序，领域 state 中数组保持原顺序。序列化固定产生 LF，检查时把 Git checkout 可能产生的 CRLF 视为等价。
-11. 测试与接入：`tools/index-runtime/tests/run.ts` 覆盖三个领域外形、parser 边界、revision 一致性、reader 快照、运行时 state、查询和确定性同步，并保留 Node/Bun 下的一千条及五千条规模证据；这些测量不定义持续性能 SLO，领域 reader 的端到端成本在各自接入时验证。`decision-records`、`investigation-report` 和 `test-evidence` 是当前领域消费者；其他领域在完成自身 state、revision、key 和端到端成本设计前不因这些先例自动接入。构建器把被消费的通用源码内联进目标 skill 的自包含分发脚本。
+### 完整检查
 
-### 版本管理中间层
+1. `scripts/check.ts` 是编排 owner，通过 package scripts 运行前置任务，成功后调用 `pack:skills`。
+2. 默认模式把未显式标记为阻断的失败汇总为 warning，并继续其他检查；warning 不代表对应检查通过。
+3. `--strict` 把全部前置失败升级为阻断。阻断后停止领取新任务、等待已启动任务并跳过打包；`pack:skills` 失败始终阻断。
+4. 默认最多并发两个顶层任务，可用 `CHECK_CONCURRENCY=<正整数>` 调整。
 
-1. `tools/shared/src/version-control/` 是项目内版本管理责任的集中 owner；其公共接口只覆盖当前消费者需要的仓库、修订文件、待提交文件和路径变化语义，不暴露第三方 Git 对象或命令输出。
-2. 默认实现使用 Git，并把具体 TypeScript Git 库限制在该目录内部；这个边界用于隔离实现变化，不承诺当前契约已经兼容 SVN 或其他版本管理系统。
-3. `revision` 快照表示已经提交的不可变版本，`pending` 快照表示准备进入下一版本的内容；Git 实现把后者映射到 index，两种语义不得互相替代。
-4. 工作区文件和工作区变化不是版本快照，通过独立查询暴露；父修订、单文件读取等没有当前消费者的能力不进入公共契约，需要时再按真实场景补充。
-5. 新增公共操作必须来自项目内现实消费者，并保持路径校验、错误映射和结果排序在中间层内完成；不为假想后端预建 provider 注册、能力协商或降级框架。
+## 源码与依赖边界
 
-## Skill 分发脚本
+1. `scripts/` 只承接主仓库命令编排、构建适配、校验、打包、Git 和 CI 自动化。
+2. 顶层脚本只保留入口与编排；`scripts/build/` 承接生成适配，`scripts/lib/` 承接跨脚本共享能力，`scripts/validators/` 承接项目校验项。
+3. `tools/<tool-name>/src/` 承接需要构建后随 skill 分发的运行时源码，`api/` 承接公共声明源，`tests/` 承接源码、分发模块和 fixture 验证。
+4. `tools/shared/` 只承接多个工具已经真实共享的运行时不变量；[版本管理中间层](../tools/shared/version-control.md) 是当前共享组件之一。
+5. `tools/skill-package/` 承接发布端与 updater 共用的指纹和 package lock 协议；[Index Runtime](../tools/index-runtime/README.md) 承接已经建立的跨领域派生索引协议。
+6. 领域工具可以依赖自身源码、`tools/shared/`、`tools/skill-package/`、明确建立的跨领域协议、目标运行时和显式外部依赖；不能依赖 `scripts/`、`skills/`、`dist/` 或另一个领域工具。
+7. 根目录 `tsconfig.json` 统一提供 IDE 与类型检查配置；实现运行仍由 Bun 负责。
+8. 外部 JSON 在边界做运行时收窄。同一结构被多个入口消费或需要稳定字段诊断时，以 Valibot Schema 为结构真源；跨语言契约从同一 Schema 生成 JSON Schema 和分发声明。
+9. 校验器检查长期源文件、链接和项目约束，不解析或正则匹配 GitHub Actions workflow 内部结构；workflow 行为由代码审查和实际运行验证。
 
-需要编译后随 skill 分发的脚本采用源码与产物分离：
+实现代码的归属、边界处理、类型表达和风险验证继续遵循 [编码规范](coding-style.md)。
 
-1. TypeScript 源码、公共声明源、测试和夹具放在 `tools/<tool-name>/`；读取仓库配置并写入 skill 的构建适配器放在 `scripts/build/`。
-2. 构建后的自包含单文件 ESM 使用 `.mjs`，与同名 `.d.mts` 和 linked source map 一起放在 `skills/<skill-name>/scripts/`，提交到 Git 并进入 skill hash；map 内源码路径统一为仓库相对 POSIX 路径。
-3. `.mjs` 导入时不得执行 CLI、修改退出状态或触发文件和网络操作；只有作为主模块运行时才进入 CLI。公共核心函数返回结构化结果，`run*Cli(argv)` 返回退出码并保留 CLI 输出语义。
-4. `.d.mts` 描述对应 `.mjs` 的稳定公共 exports；函数声明源随 TypeScript 源码接受类型检查。Schema 拥有的数据结构不在函数声明源中重复定义，而由构建入口同时生成源码侧 `api/*.types.d.mts` 和 skill 分发声明；前者让函数声明源的引用进入根类型检查，后者与 JSON Schema 共同提供分发契约。`sync:*` 显式写入 MJS、声明、Schema 和 source map，`check:*` 重建并逐字节比较。
-5. 分发产物只能依赖目标运行时和已打包内容，不能要求使用者安装主仓库 Bun、pnpm、TypeScript 或源码依赖；产物主体可以压缩，维护和调试以文件头指向的源码和声明源为准。
-6. `pack:skills` 只收集已经通过生成状态检查的 skill 目录 Git blob，不在打包阶段临时构建未提交脚本。
+## 生成与分发
 
-`decision-records` CLI 的维护入口：
+可分发工具统一遵守：
 
-1. 源码：`tools/decision-records/src/`。
-2. 领域索引适配：`tools/decision-records/src/decision-state-index.ts` 承接决策源读取、state 解析、唯一 id、`alignment|status|topic` 派生 keys 和 source revision；同一次源读取产生完整 state 与对应 revision，通用解析、查询、二次 revision 核对与原子同步复用 `tools/index-runtime/src/`。
-3. 声明源：`tools/decision-records/api/decision-records.d.mts`。
-4. 测试和夹具：`tools/decision-records/tests/`。
-5. 构建入口：`scripts/build/decision-records.ts`，把决策源码及使用到的通用索引源码内联为自包含分发模块。
-6. 分发产物：`skills/decision-records/scripts/decision-records.mjs`、`decision-records.d.mts`、`decision-records.mjs.map` 及 `skills/decision-records/references/decision-index.schema.json`。
-7. 同步：`bun run sync:decision-records-cli`。
-8. 检查：`bun run check:decision-records-cli`。
-9. 测试：`bun run test:decision-records-cli`。
+1. TypeScript 源码和声明源位于 `tools/`，读取仓库配置并写入 skill 的适配器位于 `scripts/build/`。
+2. `sync:*` 生成自包含单文件 ESM `.mjs`、同名 `.d.mts` 和 linked source map；需要机器契约时同时生成 JSON Schema 和 Schema 派生声明。
+3. 生成模块可被导入而不执行 CLI、修改退出状态或产生文件和网络副作用；只有作为主模块运行时进入 CLI。
+4. 分发产物只能依赖目标运行时和包内内容。共享源码由构建器内联，不形成跨 skill 运行时前置。
+5. 可嵌入注释的生成产物必须写明禁止直接编辑、仓库与维护源码、skill 源目录和重建命令；生成头不写时间戳或本机绝对路径。
+6. `check:*` 在临时目录重建并逐字节比较产物。`pack:skills` 不临时构建，只收集已经进入版本管理 `pending` 快照的 `skills/<skill-name>/` 稳定分发输入。
 
-`test-evidence-review` CLI 的维护入口：
+当前映射：
 
-1. 源码：`tools/test-evidence/src/`。
-2. 领域索引适配：`tools/test-evidence/src/state-index.ts` 承接合法账本 case 的紧凑摘要、源范围、查询所需 Code/Scope/review 基线、case ID 身份、`search|status|verification|review-triggered` key、账本 source revision 和同步结果映射；完整 case 正文保持在 Markdown，`query.ts` 通过通用 reader query/all 组合普通与动态查询，`case-show.ts` 通过 reader get 按索引范围定点展开。入口 marker 只由严格检查和 inspection 消费，review trigger 仅在显式动态查询时作为 runtime state 叠加；索引外壳、解析、新鲜度、查询、分页遍历、revision 核对与原子同步复用 `tools/index-runtime/src/`。
-3. 函数声明源：`tools/test-evidence/api/test-entry-regex.d.mts`、`test-evidence-ledger.d.mts`；数据声明由 `src/schemas.ts` 单向生成到同目录的 `*.types.d.mts`，供声明引用解析和根类型检查。
-4. 测试：`tools/test-evidence/tests/`。
-5. Git fixture 源：`tools/test-evidence/tests/fixture-source.ts`。
-6. Git fixture 产物：`tools/test-evidence/tests/fixtures/reviewed-workspace.bundle`。
-7. Git fixture 构建入口：`tools/test-evidence/tests/build-fixture.ts`。
-8. CLI 构建入口：`scripts/build/test-evidence.ts`，把测试证据源码及使用到的通用索引源码内联为自包含分发模块。
-9. 分发 CLI：`skills/test-evidence-review/scripts/test-entry-regex.mjs`、`test-evidence-ledger.mjs`，以及各自 `.d.mts` 和 source map。
-10. 分发数据契约：`skills/test-evidence-review/references/schemas/*.schema.json` 和 `scripts/*.types.d.mts`，包含索引文件与同步结果；二者都由 `src/schemas.ts` 生成。
-11. CLI 同步：`bun run sync:test-evidence-cli`。
-12. CLI 检查：`bun run check:test-evidence-cli`。
-13. Fixture 同步与检查：`bun run sync:test-evidence-fixture`、`bun run check:test-evidence-fixture`。
-14. 测试：`bun run test:test-evidence-cli`。
+| 维护源码 | 分发目标 |
+| --- | --- |
+| `tools/change-plan/` | `skills/change-plan/scripts/change-plan.*` |
+| `tools/decision-records/` | `skills/decision-records/scripts/decision-records.*` 和索引 Schema |
+| `tools/investigation-report/` | `skills/investigation-report/scripts/check-investigations.*` 和索引 Schema |
+| `tools/skill-validator/` | `skills/skill-maintainer/scripts/validate-skill.*` |
+| `tools/test-evidence/` | `skills/test-evidence-review/scripts/` 与 `references/schemas/` 中的生成产物 |
+| `tools/skill-updater/` | 每个 skill 的 `scripts/update-skill.*`；具体契约见 [Skill Updater](../tools/skill-updater/README.md) |
+| `tools/index-runtime/` | 不独立分发，由当前领域构建器内联到对应自包含模块 |
 
-`skill-maintainer` 结构验证器的维护入口：
+Skill hash 和 zip 使用相同的版本管理 `pending` 快照，只覆盖最终进入 `skills/<skill-name>/` zip 的文件。默认 Git 实现把 `pending` 映射到 index，避免工作区覆盖和跨平台换行改变待提交制品。`skill-package-lock.json` 是唯一发布状态文件，记录聚合 hash 和各 skill 的独立 hash。
 
-1. 源码：`tools/skill-validator/src/`。
-2. 声明源：`tools/skill-validator/api/validate-skill.d.mts`。
-3. 测试：`tools/skill-validator/tests/`。
-4. 构建入口：`scripts/build/skill-validator.ts`。
-5. 分发产物：`skills/skill-maintainer/scripts/validate-skill.mjs`、`validate-skill.d.mts` 及 `validate-skill.mjs.map`。
-6. 同步：`bun run sync:skill-validator`。
-7. 检查：`bun run check:skill-validator`。
-8. 测试：`bun run test:skill-validator`。
+`pack:skills` 每次先清空 `dist/`，再分别生成 `dist/<skill-name>.zip` 并复制 package lock。项目文档、`tools/`、`scripts/`、CI 和仓库元数据不进入 zip；只有这些内容同步为 skill 内生成产物后，才会改变对应 skill hash。
 
-`investigation-report` CLI 的维护入口：
+## Git hook
 
-1. 源码：`tools/investigation-report/src/`。
-2. 领域索引适配：`tools/investigation-report/src/investigation-state-index.ts` 承接主题文件发现、主题 state 解析、相对路径 id、`category|latest-report-at|status|text` 派生 keys 和 source revision；每个主题只产生一个 state，报告数量与标题序列进入该 state。通用解析、查询、新鲜度与原子同步复用 `tools/index-runtime/src/`。
-3. 声明源：`tools/investigation-report/api/check-investigations.d.mts`。
-4. 测试：`tools/investigation-report/tests/`。
-5. 构建入口：`scripts/build/investigation-report.ts`，把调查源码及使用到的通用索引源码内联为自包含分发模块。
-6. 分发产物：`skills/investigation-report/scripts/check-investigations.mjs`、`check-investigations.d.mts`、`check-investigations.mjs.map` 及 `skills/investigation-report/references/investigation-index.schema.json`。
-7. 同步：`bun run sync:investigation-report-check`。
-8. 检查：`bun run check:investigation-report-check`。
-9. 测试：`bun run test:investigation-report-check`。
-10. 仓库调查集合：`bun run check:investigations`；`bun run check` 组合本入口与生成检查，使仓库内容按当前源码验证且分发产物保持一致。
-
-CLI 默认全量检查调查根目录中的全部主题 Markdown 和 JSON 索引新鲜度；`sync-index` 在全部主题有效后完整重建派生索引；`list` 核对当前 source revision 后通过通用运行时按主题路径、category、状态、最新报告时间与主题/报告标题文本查询持久化主题 state，不重新解析报告正文。`check` 的 `--category` 与 `--path` 只收窄只读主题结构检查并跳过全局索引新鲜度，不改变主题文件、索引或调查状态。
-
-`change-plan` 检查器的维护入口：
-
-1. 源码：`tools/change-plan/src/`。
-2. 声明源：`tools/change-plan/api/change-plan.d.mts`。
-3. 测试：`tools/change-plan/tests/`。
-4. 构建入口：`scripts/build/change-plan.ts`。
-5. 分发产物：`skills/change-plan/scripts/change-plan.mjs`、`change-plan.d.mts` 及 `change-plan.mjs.map`。
-6. 同步：`bun run sync:change-plan-cli`。
-7. 检查：`bun run check:change-plan-cli`。
-8. 测试：`bun run test:change-plan-cli`。
-
-检查器接收单个 change 目录，只读检查 kebab-case 目录名、`proposal.md`、`design.md`、`tasks.md`、固定标题顺序、非空必需章节和任务语法。它不判断计划内容正确性、开放问题是否收敛或实施许可。
-
-已安装的 `skill-maintainer` 可在自身目录内运行，或使用脚本绝对路径验证其他 skill：
+新 clone 或 hooksPath 丢失时运行：
 
 ```bash
-node scripts/validate-skill.mjs <skill-directory>
+bun run setup-hooks
 ```
 
-需要在现有 ESM 进程中复用时，直接从已安装 skill 的实际路径导入同一个 `validate-skill.mjs`；导入不会执行 CLI。模块导出 `validateSkillDirectory` 和 `runSkillValidatorCli`，相邻的 `validate-skill.d.mts` 提供 TypeScript 类型。
+`.githooks/pre-commit` 通过 `hash:skills --write --quiet` 更新 `skill-package-lock.json`；仅当文件相对 Git index 变化时自动 stage。GitHub Actions 不能修改已经 push 的提交，需要阻止错误提交进入 `main` 时，应由 branch protection 或 ruleset 要求 CI check。
 
-## Skill 自更新脚本
+## CI 与发布
 
-每个 skill 包内包含 `scripts/update-skill.mjs`、`update-skill.d.mts` 及 `update-skill.mjs.map`。该模块用于已安装 skill 的自检和可选更新：它读取模块内的配置项，从 `zxyycom/skills` 的 GitHub latest release 下载 `skill-package-lock.json`，用其中当前 skill 的独立 hash 与本地目录指纹比较；只有发现不一致并确认更新时，才下载对应 `<skill-name>.zip` asset，使用 `fflate` 解压出包内 `<skill-name>/` 目录并覆盖更新。指定旧 release tag 且该 release 没有 lock asset 时，模块回退为下载 zip 并计算远端指纹。
+`.github/workflows/package-skills.yml` 复用本地稳定入口：
 
-自更新脚本源码使用主仓库 TypeScript 工具链和依赖，但分发产物应能脱离主仓库运行，不能要求已安装 skill 的使用者具备主仓库 Bun、pnpm 或 TypeScript 工具链。需要访问私有仓库或提高 GitHub API 限额时，可通过 `GITHUB_TOKEN` 或 `GH_TOKEN` 提供 token。
+1. 安装固定 Bun 和 pnpm，执行 `pnpm install --frozen-lockfile`。
+2. 运行 `bun run check --strict`，完成门禁和全部 skill 打包。
+3. 运行 `bun run hash:skills --check --github-output`，核对 package lock 并输出当前聚合 hash。
+4. 上传全部 `dist/*` 作为 workflow artifact。
+5. `main` push 的聚合 hash 变化或手动触发时，发布版本化 release，并更新 `skills-latest` 的 tag 与完整资产集。
 
-生成后的 `update-skill.mjs` 主体不要求保持源码可读性；顶部必须遵循统一生成头契约，并补充默认 package lock asset 和默认 release asset。导入模块不会自动检查或更新，公共 exports 为 `skillUpdaterConfig` 和返回退出码的 `runSkillUpdaterCli(argv)`；默认目标目录按模块自身的 `import.meta.url` 定位，不受导入方入口影响。`--help` 和正常运行输出也要显示仓库、可维护源码、skill 源目录和 release 输入，方便使用者在模块报错时定位应修改的源文件，而不是直接修改打包产物。
+版本化 tag 使用 UTC 时间戳和聚合 hash 前 12 位：`<timestamp>-<hash12>`。版本化 release 是真实发布记录并标记为 Latest；固定 `skills-latest` 只提供兼容下载入口，不承接发布时间语义。
 
-维护方式：
-
-1. 通用源码只改 `tools/skill-updater/src/`，公共声明源位于 `tools/skill-updater/api/`，生成适配位于 `scripts/build/skill-updaters.ts`。
-2. 运行 `bun run sync:skill-updaters` 将模板按各 skill 的 repo、ref 和 source path 渲染后打包到 `skills/<skill-name>/scripts/update-skill.mjs`，并同步 `update-skill.d.mts` 和 source map。
-3. `tools/skill-updater/tests/` 使用包内直接导入、本地假响应和临时目录验证 MJS 与 Node CLI；运行入口是 `bun run test:skill-updater`。
-4. `bun run check` 会执行生成漂移检查和 updater 集成测试。
-5. 生成脚本进入 skill zip，因此会改变对应 skill hash 和聚合 hash；提交前 hook 会更新并 stage `skill-package-lock.json`。
-
-已安装 skill 可在对应 skill 目录内运行：
-
-```bash
-node scripts/update-skill.mjs --check
-node scripts/update-skill.mjs
-node scripts/update-skill.mjs --yes
-node scripts/update-skill.mjs --release-tag 20260701T085839Z-33304575c8da --check
-```
-
-## Git hooks
-
-主仓库保留 `.githooks/pre-commit`。新 clone 或 hooksPath 丢失时，在主仓库运行 `bun run setup-hooks`，它会设置主仓库 `core.hooksPath`，并把 pre-commit hook 文件设为可执行。
-
-主仓库 pre-commit hook 负责：
-
-1. 运行 `bun scripts/hash-skills.ts --write --quiet` 写回根目录 `skill-package-lock.json`；没有 hash 或 lock 内容变化时保持静默。
-2. 仅当 `skill-package-lock.json` 相对 Git index 有变化时自动 stage，让 hash manifest 和当前 staged 的 skill 内容进入同一个提交。
-
-GitHub Actions 运行在提交之后，不能取消或修改已经 push 的提交。CI 只能在 hash 不一致时失败；如果需要阻止错误提交进入 `main`，应通过 GitHub branch protection 或 ruleset 要求相关 check 通过，并限制直接 push。
-
-## CI 标准
-
-GitHub CI 复用本地入口：
-
-1. 安装 Bun，用于执行 TypeScript 脚本。
-2. 安装 pnpm，用于依赖安装。
-3. 运行 `pnpm install --frozen-lockfile`。
-4. 运行 `bun run check --strict`，显式把全部前置失败作为 CI 门禁。
-5. 运行 `bun scripts/hash-skills.ts --check --github-output`，校验根目录 `skill-package-lock.json` 是否匹配当前 skill 打包输入，并把当前聚合 hash 写入 job outputs。
-6. 从 `github.event.before` 读取上一提交的 `skill-package-lock.json` 中的 `aggregateHash`；当前聚合 hash 与上一提交聚合 hash 不同时，认为需要发布新的版本化 release 并更新 latest 兼容入口。
-7. 上传 `dist/*` 作为 workflow artifact，包含全部 skill zip 和 `skill-package-lock.json`，方便从单次运行中排查制品与单 skill hash。
-8. 对 `main` 分支的 `push`，仅当当前 hash 与上一提交 hash 不一致时发布 GitHub Release `<timestamp>-<hash12>`，并同步更新 `skills-latest`；`workflow_dispatch` 作为手动重发入口。
-9. Release 更新成功后，CI 上传全部 `dist/*`；更新固定 `skills-latest` 时先删除其中已有 assets，再上传当前完整资产集，避免已移除或重命名的 skill zip 残留；CI 不向 `main` 写回发布状态提交。
-
-CI 发布使用 UTC 时间戳和内容 hash 生成版本化 release tag：格式为 `<timestamp>-<hash12>`，例如 `20260701T085839Z-33304575c8da`；`<hash12>` 是当前 `skill-package-lock.json` 中 `aggregateHash` 的前 12 位。该版本化 release 是 GitHub Releases 列表里的真实发布记录，并显式标记为 Latest。固定 `skills-latest` release 只作为兼容下载入口继续维护，tag 指向最新发布提交，assets 覆盖为当前全部 skill zip 和 `skill-package-lock.json`，但不作为发布时间语义来源。PR 只运行校验、打包、hash 校验和 artifact 上传，不发布 release。只改 `tools/` 源码、`docs/skills/`、主仓库维护文档、项目脚本或 CI 且未改变 skill 内生成产物时，hash 不变，CI 不发布新的版本化 release，也不覆盖 latest release。
+PR 只校验、打包和上传 artifact。只改项目文档、`tools/` 源码、`scripts/` 或 CI 且未改变 skill 内分发产物时，skill hash 不变，不创建新版本化 release，也不覆盖 `skills-latest`。

@@ -42,7 +42,7 @@ jobs:
 
       - name: Check skill hash
         id: skill_hash
-        run: bun scripts/hash-skills.ts --check --github-output
+        run: bun run hash:skills --check --github-output
 
       - name: Read previous package lock
         id: previous_hash
