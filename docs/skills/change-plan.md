@@ -1,6 +1,6 @@
 # Change Plan
 
-`change-plan` 为一个准备实施的明确 change 创建可版本化、可审阅和可交接的临时计划。它保留 OpenSpec 计划材料中有价值的职责分离，但不建立 capability、delta spec、主 spec 合并或专属归档系统。
+`change-plan` 为一个明确 change 创建可版本化、可审阅和可交接的临时计划，并提供发现、展开、检查与目录归档组成的基础生命周期。它保留 OpenSpec 计划材料中有价值的职责分离，但不建立 capability、delta spec、主 spec 合并或派生索引。
 
 ## 为什么需要它
 
@@ -13,10 +13,11 @@
 1. 项目 owner 文档继续拥有稳定事实、行为、接口和验证语义。
 2. 项目已有长期决策 owner 时，跨 change 持续有效的理由和方向进入该 owner。
 3. Change plan 只拥有本次 change 的临时目标、局部判断、开放问题、任务和验证安排。
-4. 随包 CLI 只检查目录、标题、章节和任务语法，不判断内容正确性或批准状态。
+4. 随包 CLI 提供 `list`、`show`、`check` 和 `archive`；它只处理直接目录发现、artifact 读取、结构与任务门禁和无覆盖移动，不判断内容正确性、验证充分性或批准状态。
+5. Change 根目录的直接子目录表示 active change，`archive/` 的直接子目录表示历史；归档不产生额外 metadata 或 spec 同步。
 
 实际 skill 位于 [`skills/change-plan/`](../../skills/change-plan/)。
 
 ## 发展方向
 
-第一版只提供固定三文件结构和只读检查器。后续能力只有在真实使用反复暴露同一需要时再扩展，例如计划状态查询、项目级 change 发现或完成证据；不预先恢复完整 specification 或归档系统。
+当前基础命令面只承接 `list`、`show`、`check` 和 `archive`。后续能力仍以反复出现的现实需要为前提；不预先增加 create、restore、delete、跨根搜索、索引或完整 specification 生命周期。

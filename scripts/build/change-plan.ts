@@ -17,7 +17,7 @@ const declarationOutputRelativePath = "skills/change-plan/scripts/change-plan.d.
 async function buildArtifact(): Promise<BunBundleResult> {
   return await bundleWithBun({
     banner: buildGeneratedFileHeader({
-      artifactName: "change plan structure checker",
+      artifactName: "change plan lifecycle CLI",
       rebuildCommand: "bun run sync:change-plan-cli",
       repository: githubRepository,
       skillSourcePath: "skills/change-plan",
@@ -40,7 +40,7 @@ async function main(): Promise<void> {
   const expected = await buildArtifact();
   const expectedDeclaration = await buildGeneratedDeclaration({
     banner: buildGeneratedFileHeader({
-      artifactName: "change plan checker TypeScript declarations",
+      artifactName: "change plan lifecycle CLI TypeScript declarations",
       rebuildCommand: "bun run sync:change-plan-cli",
       repository: githubRepository,
       skillSourcePath: "skills/change-plan",
@@ -49,7 +49,7 @@ async function main(): Promise<void> {
     sourcePath: path.join(rootDir, declarationSourceRelativePath)
   });
   if (expected.sourceMap === null) {
-    throw new Error("Change plan checker bundle must include a source map");
+    throw new Error("Change plan CLI bundle must include a source map");
   }
 
   const changed = await syncGeneratedArtifacts(
@@ -71,7 +71,7 @@ async function main(): Promise<void> {
     process.exit(1);
   }
   if (!changed) {
-    console.log("Change plan checker generated artifacts are current.");
+    console.log("Change plan CLI generated artifacts are current.");
   }
 }
 

@@ -26,7 +26,7 @@
    - `ai-ready-docs`: 优化说明、规则、任务和工作流等文档, 使 AI 能准确理解和可靠使用。
    - `skill-maintainer`: 维护 skill 的能力归属、组成和交付边界。
    - `git-commit-organizer`: 整理当前 Git 改动并创建范围清楚、信息可追踪的提交。
-   - `change-plan`: 维护明确 change 的 proposal、design、tasks 和结构检查。
+   - `change-plan`: 维护明确 change 的 proposal、design、tasks 和基础查询、检查与归档生命周期。
    - `openspec-explore`、`openspec-propose`、`openspec-apply-change`、`openspec-archive-change`: 分别维护 OpenSpec change 的探索、提案、实施和归档阶段。
    - `codex-shell-permissions`: 指导 shell 失败后的下一步命令选择, 并在用户要求时维护 Codex 权限 rules。
    - `decision-records`: 以可回放记录与索引维护长期决策及其演进关系。

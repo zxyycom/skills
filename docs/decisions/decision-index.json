@@ -9,7 +9,7 @@
         "id": "ai-ready-docs"
       },
       {
-        "description": "维护明确变更的提案、设计、任务分解与结构检查。",
+        "description": "维护明确变更的提案、设计、任务分解与基础生命周期。",
         "id": "change-plan"
       },
       {
@@ -82,7 +82,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:ce67633137f0c5b29725b2c49d8d7a71bbe768e23594ee6d76e1fd1abf92750b",
+  "sourceRevision": "sha256:4b3f4ea103b927233406e71b66624ae85e90eeb742679390c6393bec80309cc1",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -335,7 +335,7 @@
       }
     },
     {
-      "id": "change-plan/use-independent-change-plans.md",
+      "id": "change-plan/manage-basic-change-lifecycle.md",
       "keys": {
         "domain": [
           "change-plan"
@@ -348,10 +348,37 @@
         ]
       },
       "state": {
-        "path": "change-plan/use-independent-change-plans.md",
-        "title": "使用独立 Change Plan 承接临时变更计划",
+        "path": "change-plan/manage-basic-change-lifecycle.md",
+        "title": "为 Change Plan 提供基础生命周期 CLI",
         "status": "active",
         "alignment": "aligned",
+        "createdAt": "2026-07-25T02:15:47Z",
+        "purpose": "让独立 change plan 能够发现、读取、检查和归档计划，同时保持轻量且不依赖 OpenSpec。",
+        "background": "只读检查器要求 agent 手工扫描和移动计划，已经无法承接实际形成的 active 与 archive 目录状态。",
+        "decision": "在现有 change-plan 中提供 list、show、check 和 archive，并让语义审阅继续负责机械命令无法判断的完成条件。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "change-plan/use-independent-change-plans.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "change-plan/use-independent-change-plans.md",
+      "keys": {
+        "domain": [
+          "change-plan"
+        ],
+        "status": [
+          "archived"
+        ]
+      },
+      "state": {
+        "path": "change-plan/use-independent-change-plans.md",
+        "title": "使用独立 Change Plan 承接临时变更计划",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-07-23T03:24:48Z",
         "purpose": "让项目在不采用完整 specification 生命周期时也能保存可审阅、可交接并带实施门禁的 change 计划。",
         "background": "稳定文档和长期决策已有各自 owner，而 OpenSpec 的 proposal、design 与 tasks 仍提供有价值的 change 级规划结构。",

@@ -36,7 +36,7 @@
 
 [Git Commit Organizer](docs/skills/git-commit-organizer.md) 关注提交信息质量。它希望统一提交风格，让每一次提交都能更准确地表达变更意图，降低后续阅读、审查、追踪和管理成本。实际 skill 位于 [`skills/git-commit-organizer/`](skills/git-commit-organizer/)。
 
-[Change Plan](docs/skills/change-plan.md) 为明确 change 创建、更新或审阅 `proposal.md`、`design.md` 和 `tasks.md`，把目标范围、当前 change 的设计上下文、Readiness 门禁、实施任务和验证任务整理为可交接的临时计划，并随包提供基础结构检查 CLI。实际 skill 位于 [`skills/change-plan/`](skills/change-plan/)。
+[Change Plan](docs/skills/change-plan.md) 为明确 change 创建、查询、更新、审阅或归档 `proposal.md`、`design.md` 和 `tasks.md`，把目标范围、当前设计上下文、Readiness 门禁、实施任务和验证任务整理为可交接的临时计划，并随包提供 `list`、`show`、`check` 和 `archive` 基础生命周期 CLI。实际 skill 位于 [`skills/change-plan/`](skills/change-plan/)。
 
 [Subagent Orchestration](docs/skills/subagent-orchestration.md) 在用户明确要求委派，或复杂任务适合拆成边界清楚的调查、实现、验证和审查子任务时，指导主 agent 选择最小充分历史、划分互斥写入所有权并审计结果。它让子代理负责有界交付，主 agent 保持目标一致性和下一步判断。实际 skill 位于 [`skills/subagent-orchestration/`](skills/subagent-orchestration/)。
 

@@ -1,6 +1,6 @@
 # Change Plan 固定结构契约
 
-本文件是 change 目录与检查器行为的唯一精确契约。`SKILL.md` 负责写作和审阅流程；本文件只固定可机械检查的结构。
+本文件是 change 目录、固定结构与 CLI 机械行为的唯一精确契约。`SKILL.md` 负责写作、语义审阅、实施门禁和归档授权；本文件只固定工具能够确定性执行的边界。
 
 ## Change 目录
 
@@ -10,7 +10,17 @@
    - `design.md`
    - `tasks.md`
 3. 可以在三个必需文件之外增加交付说明或证据文件；附加文件不参与基础结构检查，也不能代替必需文件。
-4. Change 目录位置由目标项目约定；本契约只检查传入的单个目录，不固定项目级 change 根目录。
+4. Change 根目录位置优先服从目标项目约定；项目没有约定时使用 `changes/`。
+5. Change 根目录的直接子目录表示 active change；保留的 `archive/` 目录不是 change，其直接子目录表示 archived change：
+
+   ```text
+   <change-root>/
+   ├── <active-change-name>/
+   └── archive/
+       └── <archived-change-name>/
+   ```
+
+6. 基础生命周期只发现上述两层普通目录，不递归发现更深层 change，也不把文件或符号链接作为列表成员。
 
 ## 通用 Markdown 规则
 
@@ -109,19 +119,56 @@
 
 ## CLI
 
-从 skill 目录或实际安装位置运行：
+脚本安装位置与 change 路径解析基准彼此独立。保持 shell 当前工作目录在目标项目根目录，并用 skill 的实际安装路径调用脚本；以下 `<change-plan-cli>` 表示 `<skill-directory>/scripts/change-plan.mjs`。默认根目录和所有相对路径参数都相对 shell 当前工作目录解析，不相对脚本安装目录解析。
 
 ```text
-node scripts/change-plan.mjs check <change-directory>
-node scripts/change-plan.mjs check <change-directory> --json
+node <change-plan-cli> list [change-root] [--archived | --all] [--json]
+node <change-plan-cli> show <change-directory> [--json]
+node <change-plan-cli> check <change-directory>
+node <change-plan-cli> check <change-directory> --json
+node <change-plan-cli> archive <change-directory> [--json]
 ```
+
+### list
+
+1. 未传 `change-root` 时使用当前工作目录下的 `changes/`。
+2. 默认只列 active changes；`--archived` 只列 archived changes；`--all` 先列 active、再列 archived。两个选项互斥。
+3. 同一状态内按 change 名称排序。每个条目包含状态、绝对目录、结构有效性和任务完成数；结构无效的成员仍列出并标记为 invalid。
+4. Change 根目录缺失、不可访问或不是普通目录时失败。`archive/` 缺失表示没有历史；存在但不可访问或不是普通目录时，查询 archived 或 all 失败。
+5. 文本模式输出一行一个摘要；`--json` 输出 `changeRoot`、查询 `status`、`entries` 和根级 `errors`。
+
+### show
+
+1. `show` 接受显式 change 目录，不进行跨根名称搜索。
+2. 目标的直接父目录名为 `archive` 时报告 `archived`，否则报告 `active`。
+3. 文本模式依次输出名称、状态、绝对目录、任务完成数、结构状态和三个 artifact 的原文；缺失或不可读取的 artifact 使用占位说明。
+4. `--json` 输出 `status`、完整 `check` 结果，以及以 artifact 文件名为键的原文或 `null`。
+5. 结构无效时仍返回可读取内容和诊断，但命令失败。
+
+### check
+
+1. `check` 接受显式 change 目录，只检查本契约定义的目录名称、三个 artifact、Markdown 结构和任务语法；目录或 artifact 无法检查和读取时返回对应结构诊断。
+2. 默认模式把成功摘要写入 stdout，把结构诊断写入 stderr。
+3. `--json` 把完整 `ChangePlanCheckResult` 写入 stdout；结构无效时仍返回机器结果。
+
+### archive
+
+1. `archive` 接受显式 active change 目录，不进行跨根名称搜索。CLI 先确认源路径存在、是普通目录、不是符号链接且尚未归档，再读取和检查计划内容。
+2. 路径预检通过后必须通过 `check`，且 `completedTaskCount` 必须等于 `taskCount`。
+3. 目标是源目录同级的 `archive/<change-name>/`；`archive/` 缺失时创建，已有普通目录时复用。
+4. 已位于 `archive/` 的 change、作为符号链接的源目录、非普通归档目录和已经存在的归档目标都拒绝；命令不覆盖目标。
+5. 成功时移动整个 change 目录，保留三个必需 artifacts 与全部附加文件。`--json` 返回源目录、归档目录、最终目录、原检查结果和 `archived: true`。
+6. 失败时不移动源 change；`--json` 返回 `archived: false` 和可行动错误。路径预检在结构检查前失败时 `check` 为 `null`，其余门禁失败保留检查结果。归档目录创建后若移动失败，CLI 尝试删除仍为空的目录，但不覆盖原始错误。
+7. Checkbox 全部完成只是机械门禁。CLI 不判断 proposal 成功标准、开放问题、稳定事实同步、验证证据、实施许可或归档授权。
+
+### 退出码与输出通道
 
 退出码：
 
-1. `0`：目录和三个 artifact 通过固定结构检查。
-2. `1`：目标可读取，但存在结构诊断，或读取检查发生失败。
+1. `0`：命令成功；`list` 中出现 invalid 成员不使发现操作本身失败。
+2. `1`：查询根或目标不可用、存在结构诊断，或归档门禁与文件操作失败。
 3. `2`：CLI 参数无效。
 
-默认模式把成功摘要写入 stdout，把结构诊断写入 stderr。`--json` 把完整结果写入 stdout；结构无效时仍返回 `1`。
+文本模式把成功结果写入 stdout，把诊断和失败写入 stderr。`--json` 把命令的完整结构结果写入 stdout；目录访问、结构诊断、归档门禁或文件操作失败时仍保留结构结果并返回 `1`。非法参数始终写入 stderr。
 
-检查器只证明本文件定义的机械结构，不判断事实准确性、方案质量、长期决策归位、验证充分性、开放问题是否真的收敛或实施权限。
+公开函数、结果类型与字段见相邻 `scripts/change-plan.d.mts`。CLI 只证明本文件定义的机械条件，不判断事实准确性、方案质量、长期决策归位、验证充分性、开放问题是否真的收敛或实施与归档权限。

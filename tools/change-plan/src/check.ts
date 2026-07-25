@@ -67,6 +67,10 @@ async function statOrNull(targetPath: string): Promise<Stats | null> {
   }
 }
 
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 function directoryDiagnostic(
   code: ChangePlanDiagnostic["code"],
   message: string
@@ -126,7 +130,16 @@ export async function checkChangePlanDirectory(
     ));
   }
 
-  const directoryStat = await statOrNull(changeDirectory);
+  let directoryStat: Stats | null;
+  try {
+    directoryStat = await statOrNull(changeDirectory);
+  } catch (error) {
+    diagnostics.push(directoryDiagnostic(
+      "change-directory-read-failed",
+      `cannot inspect change directory ${changeDirectory}: ${errorMessage(error)}`
+    ));
+    return result(changeDirectory, diagnostics, taskCount, completedTaskCount);
+  }
   if (directoryStat === null) {
     diagnostics.push(directoryDiagnostic(
       "change-directory-not-found",
@@ -144,7 +157,17 @@ export async function checkChangePlanDirectory(
 
   for (const contract of artifactContracts) {
     const artifactPath = path.join(changeDirectory, contract.file);
-    const artifactStat = await statOrNull(artifactPath);
+    let artifactStat: Stats | null;
+    try {
+      artifactStat = await statOrNull(artifactPath);
+    } catch (error) {
+      diagnostics.push(fileDiagnostic(
+        contract.file,
+        "file-read-failed",
+        `cannot inspect ${contract.file}: ${errorMessage(error)}`
+      ));
+      continue;
+    }
     if (artifactStat === null) {
       diagnostics.push(fileDiagnostic(
         contract.file,
@@ -174,9 +197,7 @@ export async function checkChangePlanDirectory(
       diagnostics.push(fileDiagnostic(
         contract.file,
         "file-read-failed",
-        `cannot read or parse ${contract.file}: ${
-          error instanceof Error ? error.message : String(error)
-        }`
+        `cannot read or parse ${contract.file}: ${errorMessage(error)}`
       ));
     }
   }
