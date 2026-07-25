@@ -82,7 +82,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:4b3f4ea103b927233406e71b66624ae85e90eeb742679390c6393bec80309cc1",
+  "sourceRevision": "sha256:c45dd018ef5876920aa32caf974b72f12df7fa3e6ed411e68c71c09c796d2c4a",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -972,17 +972,14 @@
           "decision-records"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "aligned"
+          "archived"
         ]
       },
       "state": {
         "path": "decision-records/260720-focus-entry-on-behavior-routing.md",
         "title": "让行为入口聚焦任务路由",
-        "status": "active",
-        "alignment": "aligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-07-20T10:34:37+08:00",
         "purpose": "让频繁触发的 skill 入口只加载恢复和决策所需行为，同时保持精确维护遵循唯一固定契约。",
         "background": "行为入口已经与存储契约分离，但仍重复自动初始化条件、编辑边界、CLI 参数和事务细节，形成了容易漂移的压缩契约。",
@@ -1256,17 +1253,14 @@
           "decision-records"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "aligned"
+          "archived"
         ]
       },
       "state": {
         "path": "decision-records/derive-establishment-from-markdown-lifecycle.md",
         "title": "从 Markdown 生命周期派生决策建立状态",
-        "status": "active",
-        "alignment": "aligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-07-24T15:35:32Z",
         "purpose": "让候选、已建立成员、生效与索引新鲜度都由自包含 Markdown 生命周期确定。",
         "background": "Git HEAD 只能证明路径曾被提交，旧索引也无法发现索引外新增的已建立记录，两者都不应拥有生命周期。",
@@ -1318,6 +1312,33 @@
           {
             "type": "修订",
             "target": "decision-records/converge-records-before-stable-baseline.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "decision-records/establish-decisions-with-atomic-evolution.md",
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "archived"
+        ]
+      },
+      "state": {
+        "path": "decision-records/establish-decisions-with-atomic-evolution.md",
+        "title": "使用 Markdown 生命周期与原子演进建立决策",
+        "status": "archived",
+        "alignment": null,
+        "createdAt": "2026-07-25T02:26:03Z",
+        "purpose": "让候选、已建立成员和演进切换均由自包含 Markdown 与显式原子事务确定。",
+        "background": "Markdown 已经能够确定建立状态，但先归档前序再激活带关系候选会产生无法通过完整校验的中间状态。",
+        "decision": "`createdAt` 确定建立状态；普通激活只建立目标，显式演进则原子归档前序、写入完整关系、激活候选并重建派生索引。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "decision-records/derive-establishment-from-markdown-lifecycle.md"
           }
         ]
       }
@@ -1592,6 +1613,36 @@
       }
     },
     {
+      "id": "decision-records/separate-agent-contract-from-tool-protocol.md",
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/separate-agent-contract-from-tool-protocol.md",
+        "title": "分离 Agent 决策契约与工具协议",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-07-25T02:10:02Z",
+        "purpose": "让 agent 只加载完成判断与维护所需的决策语义，并把机器细节交给对应 owner。",
+        "background": "固定契约同时解释决策模型、索引运行时和 CLI 精确行为，造成重心偏移并重复 Schema 与实现。",
+        "decision": "`SKILL.md` 承接 agent 流程，领域契约承接语义与维护不变量，Schema 和 CLI 自身承接机器细节。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "decision-records/260720-focus-entry-on-behavior-routing.md"
+          }
+        ]
+      }
+    },
+    {
       "id": "decision-records/support-degraded-decision-maintenance.md",
       "keys": {
         "domain": [
@@ -1808,6 +1859,36 @@
           {
             "type": "修订",
             "target": "decision-records/express-alignment-as-field-relation.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "decision-records/use-recoverable-evolution-transactions.md",
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/use-recoverable-evolution-transactions.md",
+        "title": "使用可恢复事务维护决策演进",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-07-25T02:52:10Z",
+        "purpose": "让决策演进尽量保持多份 Markdown 与派生索引一致，同时明确中断和恢复失败的处理边界。",
+        "background": "顺序文件写入可以在普通失败后尝试回滚，但无法承诺进程中断或回滚自身失败时仍具有严格原子性。",
+        "decision": "演进在一次可恢复事务中应用并验证全部变化，对可处理失败尽力恢复原组合；恢复不完整时停止维护并进入恢复流程。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "decision-records/establish-decisions-with-atomic-evolution.md"
           }
         ]
       }

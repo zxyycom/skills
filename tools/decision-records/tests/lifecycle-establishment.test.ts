@@ -1,12 +1,17 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { validateDecisionRecords } from "../src/index.ts";
+import { applyDecisionChanges } from "../src/decision-transaction.ts";
+import { scanDecisionRecords } from "../src/scan.ts";
 import {
+  archivedRelativePath,
   currentRelativePath,
   findIndexEntry,
   fixtureRoot,
+  generatedCliPath,
   readIndex,
   runBundledCli,
   runSourceCli,
@@ -413,12 +418,12 @@ try {
   }).replace(
     "    target: " + lifecycleRelativePath,
     "    target: " + lifecycleRelativePath + "\n"
-      + "  - type: 修订\n"
+      + "  - type: 替代\n"
       + "    target: " + lifecycleRelativePath
   );
   await fs.writeFile(invalidRelationPath, duplicateRelationBody, "utf8");
   assert.ok((await validateDecisionRecords({ workspaceRoot: lifecycleRoot })).errors.some(
-    (error) => error.includes("repeats relationship 修订 target")
+    (error) => error.includes("repeats relationship target")
   ));
 } finally {
   await fs.rm(lifecycleRoot, { force: true, recursive: true });
@@ -456,6 +461,141 @@ try {
   );
 } finally {
   await fs.rm(onlyCandidateRoot, { force: true, recursive: true });
+}
+
+const evolutionRoot = await fs.mkdtemp(
+  path.join(os.tmpdir(), "decision-records-evolution-")
+);
+try {
+  await fs.cp(fixtureRoot, evolutionRoot, { recursive: true });
+  const decisionsDirectory = path.join(evolutionRoot, "docs", "decisions");
+  const indexPath = path.join(decisionsDirectory, "decision-index.json");
+  const parallelRelativePath =
+    "decision-records/use-parallel-evolution-predecessor.md";
+  const parallelPath = path.join(decisionsDirectory, parallelRelativePath);
+  await fs.writeFile(
+    parallelPath,
+    candidateDecisionBody({ alignment: "aligned" }),
+    "utf8"
+  );
+  await runSuccessfulSourceCli([
+    "activate",
+    parallelRelativePath,
+    "--alignment",
+    "aligned",
+    "--root",
+    evolutionRoot
+  ]);
+
+  const mergedRelativePath = "decision-records/merge-direct-predecessors.md";
+  const mergedPath = path.join(decisionsDirectory, mergedRelativePath);
+  const mergedCandidate = candidateDecisionBody({ alignment: "aligned" });
+  await fs.writeFile(mergedPath, mergedCandidate, "utf8");
+  const indexBeforeRejectedEvolution = await fs.readFile(indexPath, "utf8");
+  const repeatedPredecessor = spawnSync(
+    "node",
+    [
+      generatedCliPath,
+      "evolve",
+      mergedRelativePath,
+      "--alignment",
+      "aligned",
+      "--relation",
+      "归并=" + currentRelativePath,
+      "--relation",
+      "替代=" + currentRelativePath,
+      "--root",
+      evolutionRoot
+    ],
+    { encoding: "utf8" }
+  );
+  assert.equal(repeatedPredecessor.status, 2);
+  assert.match(
+    repeatedPredecessor.stderr,
+    /must not repeat a direct predecessor target/
+  );
+  assert.equal(await fs.readFile(mergedPath, "utf8"), mergedCandidate);
+  assert.equal(await fs.readFile(indexPath, "utf8"), indexBeforeRejectedEvolution);
+
+  const currentPath = path.join(decisionsDirectory, currentRelativePath);
+  const archivedPath = path.join(decisionsDirectory, archivedRelativePath);
+  const currentBeforeRollback = await fs.readFile(currentPath, "utf8");
+  const archivedBeforeRollback = await fs.readFile(archivedPath, "utf8");
+  const indexBeforeRollback = await fs.readFile(indexPath, "utf8");
+  const currentInvalidUpdate = currentBeforeRollback.replace(
+    "alignment: aligned",
+    "alignment: unaligned"
+  );
+  const archivedInvalidUpdate = archivedBeforeRollback
+    .replace("status: archived", "status: active")
+    .replace("alignment: null", "alignment: aligned");
+  assert.notEqual(currentInvalidUpdate, currentBeforeRollback);
+  assert.notEqual(archivedInvalidUpdate, archivedBeforeRollback);
+  const rollbackErrors = await applyDecisionChanges({
+    changes: [
+      { decisionPath: currentPath, nextText: currentInvalidUpdate },
+      { decisionPath: archivedPath, nextText: archivedInvalidUpdate }
+    ],
+    originalScan: await scanDecisionRecords({ workspaceRoot: evolutionRoot }),
+    scanOptions: { workspaceRoot: evolutionRoot }
+  });
+  assert.ok(rollbackErrors.some((error) => /target must be archived/.test(error)));
+  assert.equal(await fs.readFile(currentPath, "utf8"), currentBeforeRollback);
+  assert.equal(await fs.readFile(archivedPath, "utf8"), archivedBeforeRollback);
+  assert.equal(await fs.readFile(indexPath, "utf8"), indexBeforeRollback);
+
+  const rejectedEvolution = await runSourceCli([
+    "evolve",
+    mergedRelativePath,
+    "--alignment",
+    "aligned",
+    "--relation",
+    "归并=" + currentRelativePath,
+    "--relation",
+    "归并=" + archivedRelativePath,
+    "--root",
+    evolutionRoot
+  ]);
+  assert.equal(rejectedEvolution.exitCode, 1);
+  assert.match(rejectedEvolution.stderr, /Evolution predecessor must be active/);
+  assert.equal(await fs.readFile(mergedPath, "utf8"), mergedCandidate);
+  assert.equal(await fs.readFile(indexPath, "utf8"), indexBeforeRejectedEvolution);
+
+  const evolved = await runSourceCli([
+    "evolve",
+    mergedRelativePath,
+    "--alignment",
+    "aligned",
+    "--relation",
+    "归并=" + currentRelativePath,
+    "--relation",
+    "归并=" + parallelRelativePath,
+    "--root",
+    evolutionRoot
+  ]);
+  assert.equal(evolved.exitCode, 0, evolved.stderr);
+  assert.match(evolved.stdout, /archived direct predecessors/);
+
+  const evolvedIndex = await readIndex(indexPath);
+  assert.equal(findIndexEntry(evolvedIndex, currentRelativePath).status, "archived");
+  assert.equal(findIndexEntry(evolvedIndex, parallelRelativePath).status, "archived");
+  const mergedState = findIndexEntry(evolvedIndex, mergedRelativePath);
+  assert.equal(mergedState.status, "active");
+  assert.equal(mergedState.alignment, "aligned");
+  assert.deepEqual(mergedState.relations, [
+    { type: "归并", target: currentRelativePath },
+    { type: "归并", target: parallelRelativePath }
+  ]);
+  assert.match(
+    await fs.readFile(mergedPath, "utf8"),
+    /relations:\n  - type: 归并\n    target: project-tooling\/use-generated-cli\.md\n  - type: 归并/
+  );
+  assert.deepEqual(
+    (await validateDecisionRecords({ workspaceRoot: evolutionRoot })).errors,
+    []
+  );
+} finally {
+  await fs.rm(evolutionRoot, { force: true, recursive: true });
 }
 
 function candidateDecisionBody(options: {

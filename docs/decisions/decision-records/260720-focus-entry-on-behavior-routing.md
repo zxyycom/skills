@@ -1,7 +1,7 @@
 ---
 title: 让行为入口聚焦任务路由
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-20T10:34:37+08:00
 purpose: 让频繁触发的 skill 入口只加载恢复和决策所需行为，同时保持精确维护遵循唯一固定契约。
 background: 行为入口已经与存储契约分离，但仍重复自动初始化条件、编辑边界、CLI 参数和事务细节，形成了容易漂移的压缩契约。

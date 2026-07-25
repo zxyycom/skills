@@ -1,7 +1,7 @@
 ---
 title: 从 Markdown 生命周期派生决策建立状态
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-24T15:35:32Z
 purpose: 让候选、已建立成员、生效与索引新鲜度都由自包含 Markdown 生命周期确定。
 background: Git HEAD 只能证明路径曾被提交，旧索引也无法发现索引外新增的已建立记录，两者都不应拥有生命周期。

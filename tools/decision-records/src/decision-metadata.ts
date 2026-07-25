@@ -202,9 +202,12 @@ export function decisionMetadataFromCandidate(
   return null;
 }
 
-export function replaceDecisionMetadata(
+export function replaceDecisionFrontmatter(
   markdown: string,
-  metadata: DecisionMetadataCandidate
+  options: {
+    metadata: DecisionMetadataCandidate;
+    relations?: readonly DecisionRelation[];
+  }
 ): string | null {
   const errors: string[] = [];
   const parsed = parseDecisionMarkdown({
@@ -216,7 +219,13 @@ export function replaceDecisionMetadata(
   if (parsed === null || errors.length > 0) {
     return null;
   }
-  return serializeDecisionFrontmatter(parsed.projection, metadata) + parsed.body;
+  const projection: DecisionProjection = options.relations === undefined
+    ? parsed.projection
+    : {
+        ...parsed.projection,
+        relations: options.relations.map(({ type, target }) => ({ type, target }))
+      };
+  return serializeDecisionFrontmatter(projection, options.metadata) + parsed.body;
 }
 
 export function serializeDecisionFrontmatter(
@@ -270,7 +279,7 @@ function parseRelations(
   }
 
   const relations: DecisionRelation[] = [];
-  const seen = new Set<string>();
+  const seenTargets = new Set<string>();
   let valid = true;
   for (const [index, candidate] of value.entries()) {
     if (!isRecord(candidate)) {
@@ -306,15 +315,14 @@ function parseRelations(
       valid = false;
       continue;
     }
-    const relationKey = `${String(type)}\u0000${target}`;
-    if (seen.has(relationKey)) {
+    if (seenTargets.has(target)) {
       errors.push(
-        relativePath + " repeats relationship " + String(type) + " target " + target
+        relativePath + " repeats relationship target " + target
       );
       valid = false;
       continue;
     }
-    seen.add(relationKey);
+    seenTargets.add(target);
     relations.push({ type: type as DecisionRelationType, target });
   }
   return valid ? relations : null;

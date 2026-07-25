@@ -18,7 +18,7 @@ import {
 } from "./cli-args.ts";
 import {
   parseDecisionMarkdown,
-  replaceDecisionMetadata
+  replaceDecisionFrontmatter
 } from "./decision-metadata.ts";
 import {
   decisionDomainCatalogFileName,
@@ -55,6 +55,7 @@ import {
   type DecisionIndex,
   type DecisionIndexEntry,
   type DecisionRecord,
+  type DecisionRelation,
   type DecisionScan,
   type DecisionScanOptions
 } from "./types.ts";
@@ -641,11 +642,98 @@ async function applySourceChanges(
   return 0;
 }
 
-async function runActivate(args: CliArgs): Promise<number> {
+type PreparedDecisionChange =
+  | {
+      change: DecisionFileChange;
+      status: "ok";
+    }
+  | {
+      error: string;
+      status: "error";
+    };
+
+async function prepareArchivedDecisionChange(
+  record: DecisionRecord
+): Promise<PreparedDecisionChange> {
+  if (record.createdAt === null) {
+    return {
+      error: "Decision createdAt is unavailable: " + record.relativePath,
+      status: "error"
+    };
+  }
+  const currentText = await fs.readFile(record.decisionPath, "utf8");
+  const nextText = replaceDecisionFrontmatter(currentText, {
+    metadata: {
+      alignment: null,
+      createdAt: record.createdAt,
+      status: "archived"
+    }
+  });
+  if (nextText === null) {
+    return {
+      error: "Decision frontmatter is unavailable: " + record.relativePath,
+      status: "error"
+    };
+  }
+  return {
+    change: {
+      decisionPath: record.decisionPath,
+      nextText
+    },
+    status: "ok"
+  };
+}
+
+function evolutionPredecessors(
+  scan: DecisionScan,
+  successorPath: string,
+  relations: readonly DecisionRelation[]
+): { errors: string[]; records: DecisionRecord[] } {
+  const errors: string[] = [];
+  const records = new Map<string, DecisionRecord>();
+  for (const relation of relations) {
+    if (relation.target === successorPath) {
+      errors.push("Decision relation must not target itself: " + successorPath);
+      continue;
+    }
+    const predecessor = findEstablishedRecord(scan, relation.target);
+    if (!predecessor) {
+      errors.push(
+        "Evolution predecessor is not an established decision: " + relation.target
+      );
+      continue;
+    }
+    if (predecessor.status !== "active") {
+      errors.push(
+        "Evolution predecessor must be active: " + predecessor.relativePath
+      );
+      continue;
+    }
+    records.set(predecessor.relativePath, predecessor);
+  }
+  return {
+    errors,
+    records: [...records.values()]
+  };
+}
+
+async function runDecisionActivation(
+  args: CliArgs,
+  requireRelations: boolean
+): Promise<number> {
+  if (requireRelations && args.relations.length === 0) {
+    console.error("evolve requires at least one --relation.");
+    return 1;
+  }
   const context = await loadCommandContext(args, {
+    allowEmptyDecisionSet: true,
     scanErrorPolicy: "allow-activation-candidates"
   });
   const { result } = context;
+  if (result.errors.length > 0) {
+    printErrors(result.errors);
+    return 1;
+  }
   const { scan } = result;
   const requestedAlignment: DecisionAlignment | null = args.alignment === "all"
     ? null
@@ -681,6 +769,12 @@ async function runActivate(args: CliArgs): Promise<number> {
   });
   if (!parsed || metadataErrors.length > 0) {
     printErrors(metadataErrors);
+    return 1;
+  }
+  if (args.relations.length > 0 && record.document !== null) {
+    console.error(
+      "--relation can only establish a new decision candidate: " + record.relativePath
+    );
     return 1;
   }
 
@@ -739,24 +833,60 @@ async function runActivate(args: CliArgs): Promise<number> {
     prefix = "Activated new decision";
   }
 
-  const nextText = replaceDecisionMetadata(currentText, {
-    alignment: requestedAlignment,
-    createdAt,
-    status: "active"
+  const predecessors = evolutionPredecessors(
+    scan,
+    record.relativePath,
+    args.relations
+  );
+  if (predecessors.errors.length > 0) {
+    printErrors(predecessors.errors);
+    return 1;
+  }
+  const changes: DecisionFileChange[] = [];
+  for (const predecessor of predecessors.records) {
+    const prepared = await prepareArchivedDecisionChange(predecessor);
+    if (prepared.status === "error") {
+      console.error(prepared.error);
+      return 1;
+    }
+    changes.push(prepared.change);
+  }
+
+  const nextText = replaceDecisionFrontmatter(currentText, {
+    metadata: {
+      alignment: requestedAlignment,
+      createdAt,
+      status: "active"
+    },
+    relations: args.relations.length > 0 ? args.relations : undefined
   });
   if (nextText === null) {
     console.error("Decision frontmatter is unavailable: " + record.relativePath);
     return 1;
   }
+  changes.push({
+    decisionPath: record.decisionPath,
+    nextText
+  });
+  const evolutionMessage = predecessors.records.length === 0
+    ? ""
+    : " and archived direct predecessors "
+      + predecessors.records.map((predecessor) => predecessor.relativePath).join(", ");
   return await applySourceChanges(
     args,
     context,
-    [{
-      decisionPath: record.decisionPath,
-      nextText
-    }],
-    prefix + " as " + requestedAlignment + " " + record.relativePath + "."
+    changes,
+    prefix + " as " + requestedAlignment + " " + record.relativePath
+      + evolutionMessage + "."
   );
+}
+
+async function runActivate(args: CliArgs): Promise<number> {
+  return await runDecisionActivation(args, false);
+}
+
+async function runEvolve(args: CliArgs): Promise<number> {
+  return await runDecisionActivation(args, true);
 }
 
 async function runMarkAligned(args: CliArgs): Promise<number> {
@@ -781,10 +911,12 @@ async function runMarkAligned(args: CliArgs): Promise<number> {
   }
 
   const currentText = await fs.readFile(record.decisionPath, "utf8");
-  const nextText = replaceDecisionMetadata(currentText, {
-    alignment: "aligned",
-    createdAt: record.createdAt,
-    status: "active"
+  const nextText = replaceDecisionFrontmatter(currentText, {
+    metadata: {
+      alignment: "aligned",
+      createdAt: record.createdAt,
+      status: "active"
+    }
   });
   if (nextText === null) {
     console.error("Decision frontmatter is unavailable: " + record.relativePath);
@@ -831,24 +963,12 @@ async function runArchive(args: CliArgs): Promise<number> {
       return 1;
     }
     archivedPaths.add(record.relativePath);
-    if (record.createdAt === null) {
-      console.error("Decision createdAt is unavailable: " + record.relativePath);
+    const prepared = await prepareArchivedDecisionChange(record);
+    if (prepared.status === "error") {
+      console.error(prepared.error);
       return 1;
     }
-    const currentText = await fs.readFile(record.decisionPath, "utf8");
-    const nextText = replaceDecisionMetadata(currentText, {
-      alignment: null,
-      createdAt: record.createdAt,
-      status: "archived"
-    });
-    if (nextText === null) {
-      console.error("Decision frontmatter is unavailable: " + record.relativePath);
-      return 1;
-    }
-    changes.push({
-      decisionPath: record.decisionPath,
-      nextText
-    });
+    changes.push(prepared.change);
   }
 
   return await applySourceChanges(
@@ -934,6 +1054,7 @@ const commandHandlers: Record<Command, CommandHandler> = {
   check: runCheck,
   discard: runDiscard,
   domains: runDomains,
+  evolve: runEvolve,
   list: runList,
   "mark-aligned": runMarkAligned,
   show: runShow,

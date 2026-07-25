@@ -504,59 +504,31 @@ try {
     "status: active",
     "alignment: aligned",
     "createdAt: null",
-    "purpose: 验证显式生命周期命令能够完成决策演进。",
-    "background: 状态变化与关系已经拆分为彼此独立的操作。",
-    "decision: 分别归档前序并激活新的打包 CLI 决策。",
-    "relations:",
-    "  - type: 替代",
-    "    target: project-tooling/use-generated-cli.md",
+    "purpose: 验证单条激活命令能够完成决策演进。",
+    "background: 演进同时改变新记录关系与直接前序生命周期，分步执行会产生无效中间状态。",
+    "decision: 激活新决策时显式提供直接关系，并在同一事务归档前序。",
+    "relations: []",
     "---",
     "",
     "## 目的",
-    "- 验证显式生命周期命令能够完成决策演进。",
+    "- 验证单条激活命令能够完成决策演进。",
     "",
     "## 背景",
-    "- 状态变化与关系已经拆分为彼此独立的操作。",
+    "- 演进同时改变新记录关系与直接前序生命周期，分步执行会产生无效中间状态。",
     "",
     "## 决策",
-    "- 采用: 分别归档前序并激活新的打包 CLI 决策。",
+    "- 采用: 激活新决策时显式提供直接关系，并在同一事务归档前序。",
     ""
   ].join("\n");
 
   await fs.writeFile(successorPath, successorBody, "utf8");
-  const hiddenSwitchAttempt = await runBundledCli([
-    "activate",
-    successorRelativePath,
-    "--alignment",
-    "aligned",
-    "--root",
-    tempRoot
-  ]);
-  assert.equal(hiddenSwitchAttempt.exitCode, 1);
-  assert.match(
-    hiddenSwitchAttempt.stderr,
-    /relationship 替代 target must be archived/
-  );
-  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
-  await fs.rm(successorPath);
-
-  await runSuccessfulCli([
-    "archive",
-    currentRelativePath,
-    "--root",
-    tempRoot
-  ]);
-  const archivedIndex = await readIndex(indexPath);
-  assert.equal(findIndexEntry(archivedIndex, currentRelativePath).status, "archived");
-  assert.equal(findIndexEntry(archivedIndex, currentRelativePath).alignment, null);
-  assert.equal(findIndexEntry(archivedIndex, archivedRelativePath).status, "archived");
-
-  await fs.writeFile(successorPath, successorBody, "utf8");
   await runSuccessfulCli([
     "activate",
     successorRelativePath,
     "--alignment",
     "aligned",
+    "--relation",
+    "替代=" + currentRelativePath,
     "--root",
     tempRoot
   ]);
@@ -568,10 +540,17 @@ try {
   const successorEntry = findIndexEntry(switchedIndex, successorRelativePath);
   assert.equal(successorEntry.status, "active");
   assert.equal(successorEntry.alignment, "aligned");
+  assert.deepEqual(successorEntry.relations, [{
+    type: "替代",
+    target: currentRelativePath
+  }]);
   assert.match(
     successorEntry.createdAt,
     /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
   );
+  assert.equal(findIndexEntry(switchedIndex, currentRelativePath).status, "archived");
+  assert.equal(findIndexEntry(switchedIndex, currentRelativePath).alignment, null);
+  assert.equal(findIndexEntry(switchedIndex, archivedRelativePath).status, "archived");
 
   const directPredecessorTrace = await traceDecision(
     successorRelativePath,

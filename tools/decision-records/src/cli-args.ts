@@ -6,12 +6,17 @@ import {
 } from "commander";
 import {
   decisionAlignments,
+  decisionRelationTypes,
   decisionStatuses,
   type DecisionListAlignment,
   type DecisionListStatus,
+  type DecisionRelation,
   type DecisionTraceDirection
 } from "./types.ts";
-import { isDecisionDomainId } from "./decision-path.ts";
+import {
+  isDecisionDomainId,
+  isDecisionRelativePath
+} from "./decision-path.ts";
 
 export type Command =
   | "activate"
@@ -19,6 +24,7 @@ export type Command =
   | "check"
   | "discard"
   | "domains"
+  | "evolve"
   | "list"
   | "mark-aligned"
   | "show"
@@ -32,6 +38,7 @@ export type CliArgs = {
   domain: string | null;
   fullTime: boolean;
   recordPaths: string[];
+  relations: DecisionRelation[];
   status: DecisionListStatus;
   traceDepth: number | null;
   traceDirection: DecisionTraceDirection;
@@ -46,6 +53,7 @@ type ParsedOptions = {
   depth?: number;
   direction?: DecisionTraceDirection;
   fullTime?: boolean;
+  relation?: DecisionRelation[];
   root?: string;
   status?: DecisionListStatus;
   write?: boolean;
@@ -77,6 +85,42 @@ function parseSingleDomainId(value: string, previous?: string): string {
   return value;
 }
 
+function parseDecisionRelation(
+  value: string,
+  previous: DecisionRelation[] = []
+): DecisionRelation[] {
+  const separatorIndex = value.indexOf("=");
+  if (separatorIndex <= 0 || separatorIndex === value.length - 1) {
+    throw new InvalidArgumentError(
+      "must use <type>=<decision-path>"
+    );
+  }
+
+  const relationTypeValue = value.slice(0, separatorIndex);
+  const relationType = decisionRelationTypes.find(
+    (candidate) => candidate === relationTypeValue
+  );
+  if (relationType === undefined) {
+    throw new InvalidArgumentError(
+      "type must be " + decisionRelationTypes.join(", ")
+    );
+  }
+
+  const target = value.slice(separatorIndex + 1);
+  if (!isDecisionRelativePath(target)) {
+    throw new InvalidArgumentError(
+      "target must be a decision-root-relative POSIX path"
+    );
+  }
+  if (previous.some((relation) => relation.target === target)) {
+    throw new InvalidArgumentError(
+      "must not repeat a direct predecessor target"
+    );
+  }
+
+  return [...previous, { type: relationType, target }];
+}
+
 function commandArgs(
   command: Command,
   commanderCommand: CommanderCommand,
@@ -90,6 +134,7 @@ function commandArgs(
     domain: options.domain ?? null,
     fullTime: options.fullTime ?? false,
     recordPaths,
+    relations: options.relation ?? [],
     status: options.status ?? "active",
     traceDepth: options.depth ?? null,
     traceDirection: options.direction ?? "both",
@@ -109,6 +154,15 @@ function createSubcommand(
     .description(description)
     .allowExcessArguments(false)
     .exitOverride();
+}
+
+function createDecisionRelationOption(required = false): Option {
+  const option = new Option(
+    "--relation <type=decision-path>",
+    "Set one direct predecessor relation and archive its active target; "
+      + "repeat to set the complete relation list."
+  ).argParser(parseDecisionRelation);
+  return required ? option.makeOptionMandatory() : option;
 }
 
 export function createCliProgram(
@@ -219,19 +273,37 @@ export function createCliProgram(
   const activate = createSubcommand(
     program,
     "activate <decision-path>",
-    "Activate one decision with an explicit alignment state and warn about other candidates."
-  ).addOption(
-    new Option("--alignment <value>", "Alignment state for the active decision.")
-      .choices(decisionAlignments)
-      .makeOptionMandatory()
-  );
+    "Establish one new decision candidate or reactivate one archived decision; "
+      + "new candidates may record direct evolution relations and archive their "
+      + "predecessors in the same transaction."
+  )
+    .addOption(
+      new Option("--alignment <value>", "Alignment state for the active decision.")
+        .choices(decisionAlignments)
+        .makeOptionMandatory()
+    )
+    .addOption(createDecisionRelationOption());
   activate.action((recordPath: string) => execute("activate", activate, [recordPath]));
+
+  const evolve = createSubcommand(
+    program,
+    "evolve <decision-path>",
+    "Activate one new decision and archive every explicitly related direct "
+      + "predecessor in one recoverable transaction."
+  )
+    .addOption(
+      new Option("--alignment <value>", "Alignment state for the active decision.")
+        .choices(decisionAlignments)
+        .makeOptionMandatory()
+    )
+    .addOption(createDecisionRelationOption(true));
+  evolve.action((recordPath: string) => execute("evolve", evolve, [recordPath]));
 
   const markAligned = createSubcommand(
     program,
     "mark-aligned <decision-path>",
-    "Mark an active unaligned decision as aligned after verifying current facts "
-      + "and behavior owners satisfy the decision, establishing it as the current baseline."
+    "Mark an active unaligned decision as aligned after verifying it against "
+      + "current fact sources, establishing it as the current baseline."
   );
   markAligned.action((recordPath: string) => (
     execute("mark-aligned", markAligned, [recordPath])
