@@ -2,6 +2,7 @@ import type {
   StateIndex,
   StateIndexEntry
 } from "../../index-runtime/src/index.ts";
+import type { DecisionDomainDefinition } from "./decision-domain-catalog.ts";
 
 export const decisionRelationTypes = [
   "修订",
@@ -62,11 +63,15 @@ export type DecisionIndexState = DecisionDocument & {
 
 export type DecisionIndexEntry = StateIndexEntry<DecisionIndexState>;
 
+export type DecisionIndexMetadata = {
+  domains: DecisionDomainDefinition[];
+};
+
 export type DecisionIndex = Omit<
-  StateIndex,
+  StateIndex<DecisionIndexState, DecisionIndexMetadata>,
   "definitionVersion" | "entries" | "namespace"
 > & {
-  definitionVersion: 2;
+  definitionVersion: 3;
   entries: DecisionIndexEntry[];
   namespace: "decisions";
 };
@@ -74,16 +79,17 @@ export type DecisionIndex = Omit<
 export type DecisionRecord = {
   activationCandidate: boolean;
   alignment: DecisionAlignment | null;
-  areaId: string;
   bodyValid: boolean;
   createdAt: string | null;
   decisionPath: string;
   document: DecisionDocument | null;
+  domain: string;
   fileName: string;
   indexed: boolean;
   markdownExists: boolean;
   projection: DecisionProjection;
   relativePath: string;
+  relationshipErrors: string[];
   status: DecisionStatus | null;
 };
 
@@ -98,9 +104,10 @@ export type DecisionScanOptions = {
 
 export type DecisionScan = {
   activationCandidateErrors: string[];
-  areaIds: Set<string>;
   decisionsDirectoryAvailable: boolean;
   decisionsDirectory: string;
+  domainErrors: string[];
+  domainIds: Set<string>;
   errors: string[];
   indexErrors: string[];
   index: DecisionIndex | null;
@@ -118,8 +125,8 @@ export type DecisionValidationResult = {
   activeCount: number;
   alignedCount: number;
   archivedCount: number;
-  areaCount: number;
   decisionCount: number;
+  domainCount: number;
   errors: string[];
   scan: DecisionScan;
   unalignedCount: number;

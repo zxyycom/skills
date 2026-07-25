@@ -60,6 +60,9 @@ const nonNegativeIntegerSchema = v.pipe(
   v.minValue(0, "must be at least 0")
 );
 
+export const testEvidenceIndexMetadataSchema = v.strictObject({});
+export type TestEvidenceIndexMetadata = Record<string, never>;
+
 export const testEvidenceDiagnosticSchema = v.strictObject({
   blocking: v.boolean(),
   caseId: v.optional(nonEmptyStringSchema),
@@ -344,6 +347,7 @@ export const testEvidenceStateIndexSchema = createStateIndexSchema({
       name: v.literal("verification")
     })
   ]),
+  metadata: testEvidenceIndexMetadataSchema,
   namespace: testEvidenceIndexNamespace,
   sourceRevision: v.pipe(
     v.string("must be a string"),

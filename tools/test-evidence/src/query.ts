@@ -7,7 +7,8 @@ import {
 } from "../../index-runtime/src/index.ts";
 import {
   defaultTestEvidenceCatalogPath,
-  defaultTestEvidenceIndexPath
+  defaultTestEvidenceIndexPath,
+  type TestEvidenceIndexMetadata
 } from "./schemas.ts";
 import { loadTestEvidenceLedgerConfig } from "./config.ts";
 import { createDiagnostic, sortUniqueDiagnostics } from "./diagnostics.ts";
@@ -211,7 +212,10 @@ async function openTestEvidenceIndex(options: {
     config: TestEvidenceLedgerConfig;
     configRelativePath: string;
     diagnostics: TestEvidenceDiagnostic[];
-    reader: StateIndexReader<TestEvidenceCaseState>;
+    reader: StateIndexReader<
+      TestEvidenceCaseState,
+      TestEvidenceIndexMetadata
+    >;
     status: "ok";
     workspaceRoot: string;
   }
@@ -301,7 +305,10 @@ function validFailureOffset(value: number | undefined): number {
 async function buildRuntimeQueryState(options: {
   config: TestEvidenceLedgerConfig;
   configPath: string;
-  reader: StateIndexReader<TestEvidenceCaseState>;
+  reader: StateIndexReader<
+    TestEvidenceCaseState,
+    TestEvidenceIndexMetadata
+  >;
   workspaceRoot: string;
 }): Promise<
   | {

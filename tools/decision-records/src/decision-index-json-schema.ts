@@ -1,4 +1,7 @@
-import { decisionRelativePathPatternSource } from "./decision-path.ts";
+import {
+  decisionKebabCaseIdPatternSource,
+  decisionRelativePathPatternSource
+} from "./decision-path.ts";
 import {
   decisionIndexDefinitionVersion,
   decisionIndexNamespace
@@ -24,18 +27,35 @@ const decisionPath = {
   pattern: decisionRelativePathPatternSource,
   type: "string"
 } as const;
+const decisionDomainId = {
+  pattern: decisionKebabCaseIdPatternSource,
+  type: "string"
+} as const;
 
 export const decisionIndexJsonSchema = {
   $comment: "id、state.path、派生 keys、sourceRevision 与 Markdown 投影的一致性由 CLI check 检查。",
   $defs: {
     decisionPath,
+    domainDefinition: {
+      additionalProperties: false,
+      properties: {
+        id: decisionDomainId,
+        description: {
+          maxLength: 200,
+          minLength: 4,
+          pattern: "^[^\\r\\n]+$",
+          type: "string"
+        }
+      },
+      required: ["id", "description"],
+      type: "object"
+    },
     keyValues: {
       additionalProperties: false,
       properties: {
-        topic: {
+        domain: {
           items: {
-            pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-            type: "string"
+            ...decisionDomainId
           },
           maxItems: 1,
           minItems: 1,
@@ -57,7 +77,7 @@ export const decisionIndexJsonSchema = {
           uniqueItems: true
         }
       },
-      required: ["topic", "status"],
+      required: ["domain", "status"],
       type: "object"
     },
     relation: {
@@ -128,18 +148,31 @@ export const decisionIndexJsonSchema = {
   },
   $schema: "https://json-schema.org/draft/2020-12/schema",
   additionalProperties: false,
-  description: "由决策 Markdown 生成的领域状态通用索引。",
+  description: "由决策 Markdown 生成的决策状态通用索引。",
   properties: {
-    schemaVersion: { const: 1 },
+    schemaVersion: { const: 2 },
     namespace: { const: decisionIndexNamespace },
     definitionVersion: { const: decisionIndexDefinitionVersion },
+    metadata: {
+      additionalProperties: false,
+      properties: {
+        domains: {
+          items: { $ref: "#/$defs/domainDefinition" },
+          minItems: 1,
+          type: "array",
+          uniqueItems: true
+        }
+      },
+      required: ["domains"],
+      type: "object"
+    },
     sourceRevision: {
       pattern: "^sha256:[0-9a-f]{64}$",
       type: "string"
     },
     keyDefinitions: {
       const: [
-        { name: "topic", mode: "exact" },
+        { name: "domain", mode: "exact" },
         { name: "status", mode: "exact" },
         { name: "alignment", mode: "exact" }
       ]
@@ -162,6 +195,7 @@ export const decisionIndexJsonSchema = {
     "schemaVersion",
     "namespace",
     "definitionVersion",
+    "metadata",
     "sourceRevision",
     "keyDefinitions",
     "entries"

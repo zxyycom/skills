@@ -10,7 +10,7 @@ relations:
   - type: 归并
     target: decision-records/260630-use-compact-decision-records.md
   - type: 归并
-    target: decision-records-skill/260710-use-cli-active-index-and-invalidated-archive.md
+    target: decision-records/260710-use-cli-active-index-and-invalidated-archive.md
   - type: 归并
     target: decision-records/260711-bound-history-with-direct-relations.md
 ---

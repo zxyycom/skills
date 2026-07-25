@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import {
+  isDecisionDomainId,
   isDecisionRelativePath,
   isNewDecisionIdentityPath
 } from "../src/decision-path.ts";
@@ -15,6 +16,8 @@ assert.equal(
   isNewDecisionIdentityPath("decision-records/use-semantic-paths.md"),
   true
 );
+assert.equal(isDecisionDomainId("security-policy"), true);
+assert.equal(isDecisionDomainId("Invalid_Domain"), false);
 assert.equal(
   isNewDecisionIdentityPath("decision-records/use-v2-paths.md"),
   true
@@ -29,7 +32,7 @@ assert.equal(
 );
 assert.equal(
   isNewDecisionIdentityPath("2026-records/use-semantic-paths.md"),
-  false
+  true
 );
 assert.equal(
   isNewDecisionIdentityPath("decision-records/use-2026-07-22-paths.md"),
@@ -44,20 +47,27 @@ const revisionSources = [
   { path: "security/2fa-policy.md", text: "line one\nline two\n" },
   { path: "workflow/use-approval.md", text: "approval\n" }
 ];
-const sourceRevision = decisionSourceRevision(revisionSources);
+const revisionCatalog = {
+  schemaVersion: 1 as const,
+  domains: [
+    { id: "security", description: "维护安全策略与身份验证责任边界。" },
+    { id: "workflow", description: "维护工作流执行与审批责任边界。" }
+  ]
+};
+const sourceRevision = decisionSourceRevision(revisionCatalog, revisionSources);
 assert.equal(
-  decisionSourceRevision([...revisionSources].reverse()),
+  decisionSourceRevision(revisionCatalog, [...revisionSources].reverse()),
   sourceRevision
 );
 assert.equal(
-  decisionSourceRevision([
+  decisionSourceRevision(revisionCatalog, [
     { path: "security/2fa-policy.md", text: "line one\r\nline two\r\n" },
     { path: "workflow/use-approval.md", text: "approval\r\n" }
   ]),
   sourceRevision
 );
 assert.notEqual(
-  decisionSourceRevision([
+  decisionSourceRevision(revisionCatalog, [
     { path: "security/2fa-policy.md", text: "line one\nchanged\n" },
     revisionSources[1]!
   ]),

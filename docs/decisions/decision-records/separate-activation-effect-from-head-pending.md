@@ -1,7 +1,7 @@
 ---
 title: 分离决策激活生效与 HEAD pending 标记
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-22T08:48:05Z
 purpose: 让活动决策从激活时起立即约束后续工作，同时只用 HEAD 区分路径是否进入正式历史。
 background: 把生效绑定到 HEAD 会让已激活记录在提交前失去约束力，也会把临时查询标记误解为持久生命周期。

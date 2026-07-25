@@ -19,7 +19,16 @@ import {
   type StateIndexSyncResult,
   type StateSnapshot
 } from "../../index-runtime/src/index.ts";
-import { isDecisionRelativePath } from "./decision-path.ts";
+import {
+  decisionDomainFromRelativePath,
+  isDecisionRelativePath
+} from "./decision-path.ts";
+import {
+  decisionDomainCatalogFileName,
+  decisionDomainDefinitionsSchema,
+  loadDecisionDomainCatalog,
+  type DecisionDomainCatalog
+} from "./decision-domain-catalog.ts";
 import { isDecisionTimestamp } from "./decision-timestamp.ts";
 import { decisionMetadataFromCandidate } from "./decision-metadata.ts";
 import { projectionTextIssue } from "./projection.ts";
@@ -30,13 +39,15 @@ import {
   decisionStatuses,
   type DecisionDocument,
   type DecisionIndex,
+  type DecisionIndexMetadata,
   type DecisionIndexState,
-  type DecisionMetadata
+  type DecisionMetadata,
+  type DecisionProjection
 } from "./types.ts";
 
 export const decisionIndexFileName = "decision-index.json";
 export const decisionIndexNamespace = "decisions";
-export const decisionIndexDefinitionVersion = 2;
+export const decisionIndexDefinitionVersion = 3;
 
 const decisionSourceReadConcurrency = 32;
 const sourceRevisionPattern = /^sha256:[0-9a-f]{64}$/u;
@@ -63,6 +74,9 @@ const decisionIndexStateSchema = v.strictObject({
   decision: nonEmptyStringSchema,
   relations: v.array(decisionRelationSchema),
 });
+const decisionIndexMetadataSchema = v.strictObject({
+  domains: decisionDomainDefinitionsSchema
+});
 
 type DecisionIndexDefinitionOptions = {
   relativePaths?: readonly string[];
@@ -70,7 +84,7 @@ type DecisionIndexDefinitionOptions = {
 
 export function createDecisionStateIndexDefinition(
   options: DecisionIndexDefinitionOptions = {}
-): StateIndexDefinition<DecisionIndexState> {
+): StateIndexDefinition<DecisionIndexState, DecisionIndexMetadata> {
   const relativePaths = options.relativePaths;
   return defineStateIndexDefinition({
     definitionVersion: decisionIndexDefinitionVersion,
@@ -78,9 +92,12 @@ export function createDecisionStateIndexDefinition(
     identify: (state) => state.path,
     keyStrategies: [
       {
-        derive: (state) => state.path.split("/", 1)[0],
+        derive: (state, context) => decisionDomainFromIndexPath(
+          state.path,
+          context.metadata
+        ),
         mode: "exact",
-        name: "topic"
+        name: "domain"
       },
       {
         derive: (state) => state.status,
@@ -94,6 +111,7 @@ export function createDecisionStateIndexDefinition(
       }
     ],
     namespace: decisionIndexNamespace,
+    parseMetadata: parseDecisionIndexMetadata,
     parseState: parseDecisionIndexState,
     read: relativePaths === undefined
       ? unavailableRead
@@ -164,6 +182,7 @@ export function parseDecisionIndex(
 export async function loadCurrentDecisionIndex(options: {
   decisionsDirectory: string;
   indexPath?: string;
+  relativePaths: readonly string[];
   signal?: AbortSignal;
 }): Promise<StateIndexResult<DecisionIndex>> {
   const indexPath = options.indexPath ?? decisionIndexFileName;
@@ -183,8 +202,9 @@ export async function loadCurrentDecisionIndex(options: {
   if (loaded.status === "error") {
     return loaded;
   }
-  const paths = loaded.value.entries.map((entry) => entry.id);
-  const definition = createDecisionStateIndexDefinition({ relativePaths: paths });
+  const definition = createDecisionStateIndexDefinition({
+    relativePaths: options.relativePaths
+  });
   const current = await loadCurrentStateIndex({
     context,
     definition,
@@ -193,7 +213,15 @@ export async function loadCurrentDecisionIndex(options: {
   if (current.status === "error") {
     return current;
   }
-  return validateDecisionIndex(current.value, indexPath);
+  const validated = validateDecisionIndex(current.value, indexPath);
+  if (validated.status === "error") {
+    return validated;
+  }
+  return validateDecisionIndexMembership(
+    validated.value,
+    options.relativePaths,
+    indexPath
+  );
 }
 
 export async function syncDecisionIndex(options: {
@@ -217,15 +245,53 @@ export async function syncDecisionIndex(options: {
   });
 }
 
-export function serializeDecisionIndex(index: StateIndex): string {
+export function serializeDecisionIndex(index: DecisionIndex): string {
   return serializeStateIndex(index, createDecisionStateIndexDefinition());
 }
 
+function validateDecisionIndexMembership(
+  index: DecisionIndex,
+  relativePaths: readonly string[],
+  sourcePath: string
+): StateIndexResult<DecisionIndex> {
+  const expectedPaths = [...new Set(relativePaths)].sort(compareText);
+  const indexedPaths = index.entries.map((entry) => entry.id).sort(compareText);
+  if (
+    expectedPaths.length === indexedPaths.length
+    && expectedPaths.every((entry, entryIndex) => (
+      entry === indexedPaths[entryIndex]
+    ))
+  ) {
+    return { diagnostics: [], status: "ok", value: index };
+  }
+
+  const expectedPathSet = new Set(expectedPaths);
+  const indexedPathSet = new Set(indexedPaths);
+  const missingPaths = expectedPaths.filter((entry) => !indexedPathSet.has(entry));
+  const unexpectedPaths = indexedPaths.filter((entry) => !expectedPathSet.has(entry));
+  const details = [
+    ...(missingPaths.length === 0
+      ? []
+      : ["missing: " + missingPaths.join(", ")]),
+    ...(unexpectedPaths.length === 0
+      ? []
+      : ["unexpected: " + unexpectedPaths.join(", ")])
+  ];
+  return failure(
+    "decision-index.membership-mismatch",
+    "index entries do not match the complete established Markdown set"
+      + (details.length === 0 ? "" : "; " + details.join("; ")),
+    sourcePath
+  );
+}
+
 export function decisionSourceRevision(
+  catalog: DecisionDomainCatalog,
   sources: readonly { path: string; text: string }[]
 ): string {
   const hash = createHash("sha256");
-  hash.update("decision-index-source-v1\0");
+  hash.update("decision-index-source-v2\0");
+  hashField(hash, normalizeDecisionDomainCatalog(catalog));
   for (const source of [...sources].sort((left, right) => compareText(
     left.path,
     right.path
@@ -241,23 +307,23 @@ export async function readDecisionSourceRevision(
   relativePaths: readonly string[],
   signal?: AbortSignal
 ): Promise<string> {
-  return decisionSourceRevision(await readDecisionSources(
-    decisionsDirectory,
-    relativePaths,
-    signal
-  ));
+  const [catalog, sources] = await Promise.all([
+    readDecisionDomainCatalog(decisionsDirectory),
+    readDecisionSources(decisionsDirectory, relativePaths, signal)
+  ]);
+  return decisionSourceRevision(catalog, sources);
 }
 
 export async function readDecisionStateSnapshot(
   decisionsDirectory: string,
   relativePaths: readonly string[],
   signal?: AbortSignal
-): Promise<StateSnapshot<DecisionIndexState>> {
-  const sources = await readDecisionSources(
-    decisionsDirectory,
-    relativePaths,
-    signal
-  );
+): Promise<StateSnapshot<DecisionIndexState, DecisionIndexMetadata>> {
+  const [catalog, sources] = await Promise.all([
+    readDecisionDomainCatalog(decisionsDirectory),
+    readDecisionSources(decisionsDirectory, relativePaths, signal)
+  ]);
+  const domainIds = new Set(catalog.domains.map((domain) => domain.id));
   const states: DecisionIndexState[] = [];
   for (
     let offset = 0;
@@ -269,11 +335,14 @@ export async function readDecisionStateSnapshot(
     }
     const batch = sources.slice(offset, offset + decisionSourceReadConcurrency);
     states.push(...await Promise.all(batch.map(async (source) => (
-      await parseDecisionSource(decisionsDirectory, source)
+      await parseDecisionSource(decisionsDirectory, source, domainIds)
     ))));
   }
   return {
-    revision: decisionSourceRevision(sources),
+    metadata: {
+      domains: catalog.domains.map(({ id, description }) => ({ id, description }))
+    },
+    revision: decisionSourceRevision(catalog, sources),
     states
   };
 }
@@ -320,7 +389,7 @@ export function decisionIndexDiagnosticMessages(
 }
 
 function validateDecisionIndex(
-  index: StateIndex,
+  index: StateIndex<DecisionIndexState, DecisionIndexMetadata>,
   sourcePath: string
 ): StateIndexResult<DecisionIndex> {
   if (!sourceRevisionPattern.test(index.sourceRevision)) {
@@ -353,14 +422,23 @@ function validateDecisionIndex(
 }
 
 function parseDecisionIndexState(input: Parameters<
-  StateIndexDefinition<DecisionIndexState>["parseState"]
->[0]): DecisionIndexState {
+  StateIndexDefinition<
+    DecisionIndexState,
+    DecisionIndexMetadata
+  >["parseState"]
+>[0], context: Parameters<
+  StateIndexDefinition<
+    DecisionIndexState,
+    DecisionIndexMetadata
+  >["parseState"]
+>[1]): DecisionIndexState {
   const parsed = v.safeParse(decisionIndexStateSchema, input);
   if (!parsed.success) {
     throw new TypeError(parsed.issues.map(formatDecisionStateIssue).join("; "));
   }
 
   const state = parsed.output;
+  decisionDomainFromIndexPath(state.path, context.metadata);
   if (!isDecisionTimestamp(state.createdAt)) {
     throw new TypeError(
       "createdAt must be an RFC 3339 timestamp precise to seconds "
@@ -448,7 +526,19 @@ function archivedAlignment(
   return alignment;
 }
 
-async function unavailableRead(): Promise<StateSnapshot<DecisionIndexState>> {
+function parseDecisionIndexMetadata(
+  input: Parameters<StateIndexDefinition<
+    DecisionIndexState,
+    DecisionIndexMetadata
+  >["parseMetadata"]>[0]
+): DecisionIndexMetadata {
+  return v.parse(decisionIndexMetadataSchema, input);
+}
+
+async function unavailableRead(): Promise<StateSnapshot<
+  DecisionIndexState,
+  DecisionIndexMetadata
+>> {
   throw new Error("decision state reader is unavailable in this operation");
 }
 
@@ -465,6 +555,47 @@ function hashField(hash: ReturnType<typeof createHash>, value: string): void {
 
 function normalizeDecisionSourceText(value: string): string {
   return value.replace(/\r\n/g, "\n");
+}
+
+function normalizeDecisionDomainCatalog(catalog: DecisionDomainCatalog): string {
+  return JSON.stringify({
+    schemaVersion: catalog.schemaVersion,
+    domains: catalog.domains.map(({ id, description }) => ({ id, description }))
+  });
+}
+
+async function readDecisionDomainCatalog(
+  decisionsDirectory: string
+): Promise<DecisionDomainCatalog> {
+  const catalogPath = path.join(decisionsDirectory, decisionDomainCatalogFileName);
+  const loaded = await loadDecisionDomainCatalog(
+    catalogPath,
+    decisionDomainCatalogFileName
+  );
+  if (loaded.status === "error") {
+    throw new Error(loaded.errors.join("; "));
+  }
+  return loaded.value;
+}
+
+function decisionDomainFromIndexPath(
+  relativePath: string,
+  metadata: {
+    readonly domains: readonly {
+      readonly id: string;
+    }[];
+  }
+): string {
+  const domain = decisionDomainFromRelativePath(relativePath);
+  if (domain === null) {
+    throw new TypeError(`path must identify a decision domain: ${relativePath}`);
+  }
+  if (!metadata.domains.some((definition) => definition.id === domain)) {
+    throw new TypeError(
+      `path domain is not defined in metadata.domains: ${domain}`
+    );
+  }
+  return domain;
 }
 
 async function readDecisionSource(
@@ -494,9 +625,17 @@ async function readDecisionSource(
 
 async function parseDecisionSource(
   decisionsDirectory: string,
-  source: { path: string; text: string }
+  source: { path: string; text: string },
+  domainIds: ReadonlySet<string>
 ): Promise<DecisionIndexState> {
   const errors: string[] = [];
+  const domain = decisionDomainFromRelativePath(source.path);
+  if (domain === null || !domainIds.has(domain)) {
+    errors.push(
+      `${source.path} path domain is not defined in `
+      + `${decisionDomainCatalogFileName}: ${domain ?? "<invalid>"}`
+    );
+  }
   const candidate = await validateDecisionBody({
     body: source.text,
     decisionsDirectory,
@@ -540,14 +679,8 @@ async function parseDecisionSource(
 }
 
 function canonicalDecisionProjection(
-  source: Pick<
-    DecisionDocument,
-    "background" | "decision" | "purpose" | "relations" | "title"
-  >
-): Pick<
-  DecisionDocument,
-  "background" | "decision" | "purpose" | "relations" | "title"
-> {
+  source: DecisionProjection
+): DecisionProjection {
   return {
     title: source.title,
     purpose: source.purpose,

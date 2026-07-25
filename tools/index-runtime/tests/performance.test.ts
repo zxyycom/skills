@@ -69,8 +69,9 @@ async function benchmark(count: number): Promise<BenchmarkResult> {
       }
     ],
     namespace: "scale",
+    parseMetadata: (metadata) => metadata,
     parseState: (state) => state as ScaleState,
-    read: async () => ({ revision: `scale-${count}`, states }),
+    read: async () => ({ metadata: {}, revision: `scale-${count}`, states }),
     readRevision: async () => `scale-${count}`
   });
 

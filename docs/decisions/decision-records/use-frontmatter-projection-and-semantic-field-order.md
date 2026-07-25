@@ -1,7 +1,7 @@
 ---
 title: 使用 Frontmatter 投影与语义字段顺序
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-24T06:30:20Z
 purpose: 让决策文件的结构化投影集中可读，并让单条索引记录按语义块稳定排列。
 background: 正文中的索引摘要和关系分散了结构化字段，递归字典序又会拆开相关字段。

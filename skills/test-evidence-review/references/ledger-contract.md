@@ -27,7 +27,7 @@ review 和 exempt 不使用 planned。验证方式变化时保留稳定 case ID�
 
 测试账本是通用状态索引的领域消费者，不维护独立的索引协议或查询引擎。通用层拥有索引外壳及其 Schema 组合、新鲜度校验、确定性同步和只读 `query|get|all`；测试领域适配只提供 Markdown 到 state 的投影、稳定 case ID、source revision、查询 key 和按需 Git runtime state，并把通用结果映射为账本诊断与 CLI 输出。
 
-索引固定为 `schemaVersion: 1`、`namespace: test-evidence`、`definitionVersion: 2`。Markdown 账本始终是权威源；索引只保存能够从合法账本完整重建的副本，不拥有 case 写入或修复。
+索引固定为 `schemaVersion: 2`、`namespace: test-evidence`、`definitionVersion: 2`，并因当前没有集合级数据而显式保存 `"metadata": {}`；schema v1 或缺失 metadata 的索引不兼容。Markdown 账本始终是权威源；索引只保存能够从合法账本完整重建的副本，不拥有 case 写入或修复。
 
 每个合法 case 产生一个紧凑 state，只保存日常定位、筛选和动态 review 查询需要的投影：
 

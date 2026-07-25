@@ -127,8 +127,12 @@ export const investigationIndexJsonSchema = {
         { mode: "text", name: "text" }
       ]
     },
+    metadata: {
+      additionalProperties: false,
+      type: "object"
+    },
     namespace: { const: investigationIndexNamespace },
-    schemaVersion: { const: 1 },
+    schemaVersion: { const: 2 },
     sourceRevision: {
       pattern: "^sha256:[0-9a-f]{64}$",
       type: "string"
@@ -138,6 +142,7 @@ export const investigationIndexJsonSchema = {
     "definitionVersion",
     "entries",
     "keyDefinitions",
+    "metadata",
     "namespace",
     "schemaVersion",
     "sourceRevision"

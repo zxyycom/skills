@@ -8,7 +8,7 @@ description: >-
   它会评估测试固定的文字契约、独立证明点和维护成本，并同步可审计的 case、测试入口
   映射与人工审查状态。
 metadata:
-  version: "1"
+  version: "2"
 ---
 
 # Test Evidence Review

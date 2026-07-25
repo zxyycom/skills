@@ -1,10 +1,14 @@
 import { compareIndexText } from "./ordering.ts";
 import {
+  canonicalizeStateIndex,
   expectationOf,
   keyDefinitionsOf,
-  projectStateIndexEntry
+  normalizeStateIndex,
+  projectStateIndexEntry,
+  readonlyStateIndexMetadata
 } from "./snapshot.ts";
 import type {
+  JsonObject,
   StateIndex,
   StateIndexDefinition,
   StateIndexEntry,
@@ -25,24 +29,32 @@ import {
   validateStateIndexValue
 } from "./validation.ts";
 
-export function queryStateIndex<State extends object>(options: {
-  definition: StateIndexDefinition<State>;
-  index: StateIndex;
+export function queryStateIndex<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
+  definition: StateIndexDefinition<State, Metadata>;
+  index: StateIndex<State, Metadata>;
   query?: StateIndexQuery;
   runtimeStates?: readonly State[];
-}): StateIndexResult<StateIndexQueryOutput<State>>;
+}): StateIndexResult<StateIndexQueryOutput<State, Metadata>>;
 export function queryStateIndex(options: {
   definition?: undefined;
   index: StateIndex;
   query?: StateIndexQuery;
   runtimeStates?: undefined;
 }): StateIndexResult<StateIndexQueryOutput>;
-export function queryStateIndex<State extends object>(options: {
-  definition?: StateIndexDefinition<State>;
-  index: StateIndex;
+export function queryStateIndex<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
+  definition?: StateIndexDefinition<State, Metadata>;
+  index: StateIndex<State, Metadata>;
   query?: StateIndexQuery;
   runtimeStates?: readonly State[];
-}): StateIndexResult<StateIndexQueryOutput<object>> {
+}): StateIndexResult<
+  StateIndexQueryOutput | StateIndexQueryOutput<State, Metadata>
+> {
   const validatedIndex = validateStateIndexValue(options.index, null, "<memory>");
   if (validatedIndex.index === null) {
     return {
@@ -60,41 +72,32 @@ export function queryStateIndex<State extends object>(options: {
     };
   }
 
-  const index = validatedIndex.index;
   const query = normalizeQuery(parsedQuery.query);
-  const entriesResult = options.definition === undefined
-    ? rawEntries(index, options.runtimeStates)
-    : effectiveEntries({
+  if (options.definition === undefined) {
+    const normalizedIndex = canonicalizeStateIndex(validatedIndex.index);
+    return queryValidatedStateIndex(
+      normalizedIndex,
+      query,
+      rawEntries(normalizedIndex, options.runtimeStates)
+    );
+  }
+  const normalized = normalizeStateIndex(
+    validatedIndex.index,
+    options.definition,
+    "<memory>"
+  );
+  if (normalized.status === "error") {
+    return normalized;
+  }
+  return queryValidatedStateIndex(
+    normalized.value,
+    query,
+    effectiveEntries({
       definition: options.definition,
-      index,
+      index: normalized.value,
       runtimeStates: options.runtimeStates
-    });
-  if (entriesResult.status === "error") {
-    return entriesResult;
-  }
-  const semanticDiagnostics = validateQuerySemantics(query, index.keyDefinitions);
-  if (semanticDiagnostics.length > 0) {
-    return { diagnostics: semanticDiagnostics, status: "error", value: null };
-  }
-
-  const entries = entriesResult.value
-    .filter((entry) => query.filters.every((filter) => matchesFilter(entry, filter)));
-  const sortDiagnostics = validateSortCardinality(entries, effectiveSort(query));
-  if (sortDiagnostics.length > 0) {
-    return { diagnostics: sortDiagnostics, status: "error", value: null };
-  }
-  entries.sort((left, right) => compareEntries(left, right, effectiveSort(query)));
-  const total = entries.length;
-  return {
-    diagnostics: [],
-    status: "ok",
-    value: {
-      entries: entries.slice(query.offset, query.offset + query.limit),
-      limit: query.limit,
-      offset: query.offset,
-      total
-    }
-  };
+    })
+  );
 }
 
 export function findStateIndexEntry(
@@ -123,10 +126,47 @@ export function findStateIndexEntry(
   };
 }
 
+function queryValidatedStateIndex<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  index: StateIndex<State, Metadata>,
+  query: StateIndexQueryValue,
+  entriesResult: StateIndexResult<StateIndexEntry<State>[]>
+): StateIndexResult<StateIndexQueryOutput<State, Metadata>> {
+  if (entriesResult.status === "error") {
+    return entriesResult;
+  }
+  const semanticDiagnostics = validateQuerySemantics(query, index.keyDefinitions);
+  if (semanticDiagnostics.length > 0) {
+    return { diagnostics: semanticDiagnostics, status: "error", value: null };
+  }
+
+  const entries = entriesResult.value
+    .filter((entry) => query.filters.every((filter) => matchesFilter(entry, filter)));
+  const sortDiagnostics = validateSortCardinality(entries, effectiveSort(query));
+  if (sortDiagnostics.length > 0) {
+    return { diagnostics: sortDiagnostics, status: "error", value: null };
+  }
+  entries.sort((left, right) => compareEntries(left, right, effectiveSort(query)));
+  const total = entries.length;
+  return {
+    diagnostics: [],
+    status: "ok",
+    value: {
+      entries: entries.slice(query.offset, query.offset + query.limit),
+      limit: query.limit,
+      metadata: readonlyStateIndexMetadata(index),
+      offset: query.offset,
+      total
+    }
+  };
+}
+
 function rawEntries(
   index: StateIndex,
   runtimeStates: readonly object[] | undefined
-): StateIndexResult<StateIndexEntry<object>[]> {
+): StateIndexResult<StateIndexEntry[]> {
   if (runtimeStates !== undefined && runtimeStates.length > 0) {
     return failure(
       "state-index.runtime-definition-required",
@@ -136,9 +176,12 @@ function rawEntries(
   return { diagnostics: [], status: "ok", value: [...index.entries] };
 }
 
-function effectiveEntries<State extends object>(options: {
-  definition: StateIndexDefinition<State>;
-  index: StateIndex;
+function effectiveEntries<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
+  definition: StateIndexDefinition<State, Metadata>;
+  index: StateIndex<State, Metadata>;
   runtimeStates: readonly State[] | undefined;
 }): StateIndexResult<StateIndexEntry<State>[]> {
   const definitionErrors = validateStateIndexDefinition(options.definition);
@@ -168,33 +211,19 @@ function effectiveEntries<State extends object>(options: {
 
   const byId = new Map<string, StateIndexEntry<State>>();
   for (const entry of options.index.entries) {
-    const projected = projectStateIndexEntry(options.definition, entry.state);
-    if (projected.status === "error") {
-      return {
-        diagnostics: projected.diagnostics.map((entryDiagnostic) => ({
-          ...entryDiagnostic,
-          stateId: entryDiagnostic.stateId ?? entry.id
-        })),
-        status: "error",
-        value: null
-      };
-    }
-    if (
-      projected.value.id !== entry.id
-      || !sameKeyMaps(projected.value.keys, entry.keys)
-    ) {
-      return failure(
-        "state-index.definition-mismatch",
-        `stored state ${entry.id} does not match its id and keys under the runtime definition`,
-        entry.id
-      );
-    }
-    byId.set(entry.id, projected.value);
+    byId.set(entry.id, entry);
   }
 
   const runtimeIds = new Set<string>();
+  const projectionContext = Object.freeze({
+    metadata: readonlyStateIndexMetadata(options.index)
+  });
   for (const state of options.runtimeStates ?? []) {
-    const projected = projectStateIndexEntry(options.definition, state);
+    const projected = projectStateIndexEntry(
+      options.definition,
+      state,
+      projectionContext
+    );
     if (projected.status === "error") {
       return projected;
     }
@@ -416,26 +445,6 @@ function sameKeyDefinitions(
     entry.name === right[index]?.name
     && entry.mode === right[index]?.mode
   ));
-}
-
-function sameKeyMaps(
-  left: StateIndexEntry["keys"],
-  right: StateIndexEntry["keys"]
-): boolean {
-  const leftNames = Object.keys(left).sort(compareIndexText);
-  const rightNames = Object.keys(right).sort(compareIndexText);
-  return leftNames.length === rightNames.length
-    && leftNames.every((name, index) => {
-      if (name !== rightNames[index]) {
-        return false;
-      }
-      const leftValues = left[name] ?? [];
-      const rightValues = right[name] ?? [];
-      return leftValues.length === rightValues.length
-        && leftValues.every((value, valueIndex) => (
-          scalarIdentity(value) === scalarIdentity(rightValues[valueIndex]!)
-        ));
-    });
 }
 
 function normalizeText(value: string): string {

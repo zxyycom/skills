@@ -263,6 +263,8 @@ try {
     path.join(validInvestigationRoot, investigationIndexFileName),
     "utf8"
   )) as StateIndex;
+  assert.equal(validIndex.schemaVersion, 2);
+  assert.deepEqual(validIndex.metadata, {});
   assert.equal(validIndex.namespace, "investigations");
   assert.equal(validIndex.definitionVersion, 2);
   assert.match(validIndex.sourceRevision, /^sha256:[0-9a-f]{64}$/u);
@@ -318,6 +320,7 @@ try {
       ]
     }
   }));
+  assert.deepEqual(queriedIndex.metadata, {});
   assert.deepEqual(
     queriedIndex.entries.map((entry) => entry.id),
     ["runtime/process-churn.md"]
@@ -795,7 +798,7 @@ try {
   });
   assert.ok(tampered.errors.some((error) => (
     error.includes(investigationIndexFileName)
-    && error.includes("does not match the current state projection")
+    && error.includes("does not match its id and keys under the runtime definition")
   )));
   assert.equal(
     (await synchronizeInvestigationIndex({ workspaceRoot: staleRoot })).changed,

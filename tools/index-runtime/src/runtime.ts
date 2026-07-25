@@ -1,12 +1,15 @@
 import path from "node:path";
 import { queryStateIndex } from "./query.ts";
+import { readonlyStateIndexMetadata } from "./snapshot.ts";
 import { stateIndexQueryMaximumLimit } from "./schemas.ts";
 import {
   loadCurrentStateIndex,
   syncStateIndex
 } from "./storage.ts";
 import type {
+  JsonObject,
   StateIndexContext,
+  DeepReadonly,
   StateIndexDefinition,
   StateIndexEntry,
   StateIndexFilter,
@@ -29,7 +32,10 @@ export type StateIndexAllQuery = {
   sort?: readonly StateIndexSort[];
 };
 
-export type StateIndexReader<State extends object> = {
+export type StateIndexReader<
+  State extends object,
+  Metadata extends JsonObject = JsonObject
+> = {
   all: (
     query?: StateIndexAllQuery,
     options?: StateIndexQueryOptions<State>
@@ -41,28 +47,35 @@ export type StateIndexReader<State extends object> = {
   query: (
     query?: StateIndexQuery,
     options?: StateIndexQueryOptions<State>
-  ) => StateIndexResult<StateIndexQueryOutput<State>>;
+  ) => StateIndexResult<StateIndexQueryOutput<State, Metadata>>;
+  readonly metadata: DeepReadonly<Metadata>;
 };
 
-export type StateIndexRuntime<State extends object> = {
+export type StateIndexRuntime<
+  State extends object,
+  Metadata extends JsonObject = JsonObject
+> = {
   get: (
     stateId: string,
     options?: StateIndexQueryOptions<State>
   ) => Promise<StateIndexResult<StateIndexEntry<State> | null>>;
-  open: () => Promise<StateIndexResult<StateIndexReader<State>>>;
+  open: () => Promise<StateIndexResult<StateIndexReader<State, Metadata>>>;
   query: (
     query?: StateIndexQuery,
     options?: StateIndexQueryOptions<State>
-  ) => Promise<StateIndexResult<StateIndexQueryOutput<State>>>;
+  ) => Promise<StateIndexResult<StateIndexQueryOutput<State, Metadata>>>;
   sync: (mode: StateIndexSyncMode) => Promise<StateIndexSyncResult>;
 };
 
-export function createStateIndexRuntime<State extends object>(options: {
-  definition: StateIndexDefinition<State>;
+export function createStateIndexRuntime<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
+  definition: StateIndexDefinition<State, Metadata>;
   indexPath: string;
   root: string;
   signal?: AbortSignal;
-}): StateIndexRuntime<State> {
+}): StateIndexRuntime<State, Metadata> {
   const errors = validateStateIndexDefinition(options.definition);
   if (errors.length > 0) {
     throw new TypeError(`Invalid state index runtime: ${errors.join("; ")}`);
@@ -72,7 +85,9 @@ export function createStateIndexRuntime<State extends object>(options: {
     ...(options.signal === undefined ? {} : { signal: options.signal })
   };
 
-  async function open(): Promise<StateIndexResult<StateIndexReader<State>>> {
+  async function open(): Promise<
+    StateIndexResult<StateIndexReader<State, Metadata>>
+  > {
     const loaded = await loadCurrentStateIndex({
       context,
       definition: options.definition,
@@ -95,7 +110,7 @@ export function createStateIndexRuntime<State extends object>(options: {
   async function query(
     input: StateIndexQuery = {},
     queryOptions: StateIndexQueryOptions<State> = {}
-  ): Promise<StateIndexResult<StateIndexQueryOutput<State>>> {
+  ): Promise<StateIndexResult<StateIndexQueryOutput<State, Metadata>>> {
     const opened = await open();
     if (opened.status === "error") {
       return opened;
@@ -127,15 +142,18 @@ export function createStateIndexRuntime<State extends object>(options: {
   });
 }
 
-function createStateIndexReader<State extends object>(options: {
-  definition: StateIndexDefinition<State>;
-  index: StateIndex;
+function createStateIndexReader<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
+  definition: StateIndexDefinition<State, Metadata>;
+  index: StateIndex<State, Metadata>;
   indexPath: string;
-}): StateIndexReader<State> {
+}): StateIndexReader<State, Metadata> {
   function query(
     input: StateIndexQuery = {},
     queryOptions: StateIndexQueryOptions<State> = {}
-  ): StateIndexResult<StateIndexQueryOutput<State>> {
+  ): StateIndexResult<StateIndexQueryOutput<State, Metadata>> {
     const queried = queryStateIndex({
       definition: options.definition,
       index: options.index,
@@ -203,5 +221,10 @@ function createStateIndexReader<State extends object>(options: {
     }
   }
 
-  return Object.freeze({ all, get, query });
+  return Object.freeze({
+    all,
+    get,
+    metadata: readonlyStateIndexMetadata(options.index),
+    query
+  });
 }

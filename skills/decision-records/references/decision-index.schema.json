@@ -5,10 +5,30 @@
       "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*/[a-z0-9]+(?:-[a-z0-9]+)*\\.md$",
       "type": "string"
     },
+    "domainDefinition": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 200,
+          "minLength": 4,
+          "pattern": "^[^\\r\\n]+$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "description"
+      ],
+      "type": "object"
+    },
     "keyValues": {
       "additionalProperties": false,
       "properties": {
-        "topic": {
+        "domain": {
           "items": {
             "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
             "type": "string"
@@ -46,7 +66,7 @@
         }
       },
       "required": [
-        "topic",
+        "domain",
         "status"
       ],
       "type": "object"
@@ -192,16 +212,33 @@
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "由决策 Markdown 生成的领域状态通用索引。",
+  "description": "由决策 Markdown 生成的决策状态通用索引。",
   "properties": {
     "schemaVersion": {
-      "const": 1
+      "const": 2
     },
     "namespace": {
       "const": "decisions"
     },
     "definitionVersion": {
-      "const": 2
+      "const": 3
+    },
+    "metadata": {
+      "additionalProperties": false,
+      "properties": {
+        "domains": {
+          "items": {
+            "$ref": "#/$defs/domainDefinition"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "domains"
+      ],
+      "type": "object"
     },
     "sourceRevision": {
       "pattern": "^sha256:[0-9a-f]{64}$",
@@ -210,7 +247,7 @@
     "keyDefinitions": {
       "const": [
         {
-          "name": "topic",
+          "name": "domain",
           "mode": "exact"
         },
         {
@@ -251,6 +288,7 @@
     "schemaVersion",
     "namespace",
     "definitionVersion",
+    "metadata",
     "sourceRevision",
     "keyDefinitions",
     "entries"

@@ -147,8 +147,13 @@ export function decisionDefinition(
       }
     ],
     namespace: "decisions",
+    parseMetadata: (metadata) => metadata,
     parseState: (state) => v.parse(decisionStateSchema, state),
-    read: async () => ({ revision: source.revision, states: [...source.states] }),
+    read: async () => ({
+      metadata: {},
+      revision: source.revision,
+      states: [...source.states]
+    }),
     readRevision: async () => source.revision
   });
 }
@@ -182,8 +187,13 @@ export function investigationDefinition(
       }
     ],
     namespace: "investigations",
+    parseMetadata: (metadata) => metadata,
     parseState: (state) => v.parse(investigationStateSchema, state),
-    read: async () => ({ revision: source.revision, states: [...source.states] }),
+    read: async () => ({
+      metadata: {},
+      revision: source.revision,
+      states: [...source.states]
+    }),
     readRevision: async () => source.revision
   });
 }
@@ -214,8 +224,13 @@ export function testEvidenceDefinition(
       { derive: (state) => state.verification, mode: "exact", name: "verification" }
     ],
     namespace: "test-evidence",
+    parseMetadata: (metadata) => metadata,
     parseState: (state) => v.parse(testEvidenceStateSchema, state),
-    read: async () => ({ revision: source.revision, states: [...source.states] }),
+    read: async () => ({
+      metadata: {},
+      revision: source.revision,
+      states: [...source.states]
+    }),
     readRevision: async () => source.revision
   });
 }

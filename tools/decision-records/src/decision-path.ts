@@ -1,5 +1,10 @@
 const decisionFileNamePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
-const decisionTopicIdPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+export const decisionKebabCaseIdPatternSource =
+  "^[a-z0-9]+(?:-[a-z0-9]+)*$";
+const decisionKebabCaseIdPattern = new RegExp(
+  decisionKebabCaseIdPatternSource,
+  "u"
+);
 export const decisionRelativePathPatternSource =
   "^[a-z0-9]+(?:-[a-z0-9]+)*/[a-z0-9]+(?:-[a-z0-9]+)*\\.md$";
 const decisionRelativePathPattern = new RegExp(decisionRelativePathPatternSource);
@@ -15,19 +20,26 @@ export function isNewDecisionIdentityPath(value: string): boolean {
   if (!isDecisionRelativePath(value)) {
     return false;
   }
-  const [topicId = "", fileName = ""] = value.split("/");
-  const identitySlugs = [topicId, fileName.slice(0, -3)];
-  return identitySlugs.every((slug) => (
-    !compactDateTokenPattern.test(slug)
-    && !isoDateTokenPattern.test(slug)
-    && !yearTokenPattern.test(slug)
-  ));
+  const [, fileName = ""] = value.split("/");
+  const semanticSlug = fileName.slice(0, -3);
+  return (
+    !compactDateTokenPattern.test(semanticSlug)
+    && !isoDateTokenPattern.test(semanticSlug)
+    && !yearTokenPattern.test(semanticSlug)
+  );
 }
 
 export function isDecisionFileName(value: string): boolean {
   return decisionFileNamePattern.test(value);
 }
 
-export function isDecisionTopicId(value: string): boolean {
-  return decisionTopicIdPattern.test(value);
+export function isDecisionDomainId(value: string): boolean {
+  return decisionKebabCaseIdPattern.test(value);
+}
+
+export function decisionDomainFromRelativePath(value: string): string | null {
+  if (!isDecisionRelativePath(value)) {
+    return null;
+  }
+  return value.slice(0, value.indexOf("/"));
 }

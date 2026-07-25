@@ -18,6 +18,7 @@ import {
   type StateIndexQueryValue
 } from "./schemas.ts";
 import type {
+  JsonObject,
   StateIndexDefinition,
   StateIndexDiagnostic,
   StateIndexExpectation
@@ -34,8 +35,11 @@ export {
   stateIndexSchemaVersion
 };
 
-export function validateStateIndexDefinition<State extends object>(
-  definition: StateIndexDefinition<State>
+export function validateStateIndexDefinition<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  definition: StateIndexDefinition<State, Metadata>
 ): string[] {
   const errors: string[] = [];
   if (!isStateIndexNamespace(definition.namespace)) {
@@ -63,8 +67,17 @@ export function validateStateIndexDefinition<State extends object>(
   if (typeof definition.identify !== "function") {
     errors.push("identify must be a function");
   }
+  if (typeof definition.parseMetadata !== "function") {
+    errors.push("parseMetadata must be a function");
+  }
   if (typeof definition.parseState !== "function") {
     errors.push("parseState must be a function");
+  }
+  if (
+    definition.validateIndex !== undefined
+    && typeof definition.validateIndex !== "function"
+  ) {
+    errors.push("validateIndex must be a function");
   }
   if (!Array.isArray(definition.keyStrategies) || definition.keyStrategies.length === 0) {
     errors.push("keyStrategies must contain at least one strategy");

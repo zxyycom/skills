@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "domains": [
+    {
+      "id": "change-plan",
+      "description": "维护明确变更的提案、设计、任务分解与结构检查。"
+    },
+    {
+      "id": "decision-records",
+      "description": "维护长期决策的记录契约、生命周期、索引、查询与演进关系。"
+    },
+    {
+      "id": "project-tooling",
+      "description": "维护仓库校验、生成、打包、发布和更新工具链。"
+    }
+  ]
+}

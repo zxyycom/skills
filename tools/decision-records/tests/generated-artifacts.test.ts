@@ -33,7 +33,10 @@ assert.match(declarationSource, /runDecisionRecordsCli/);
 assert.match(declarationSource, /DecisionProjection/);
 assert.match(declarationSource, /DecisionAlignment/);
 assert.match(declarationSource, /namespace: "decisions"/);
-assert.match(declarationSource, /schemaVersion: 1/);
+assert.match(declarationSource, /schemaVersion: 2/);
+assert.match(declarationSource, /metadata: DecisionIndexMetadata/);
+assert.match(declarationSource, /domains: DecisionDomainDefinition\[\]/);
+assert.doesNotMatch(declarationSource, /pathGroup/);
 
 const distributedSchema: unknown = JSON.parse(
   await fs.readFile(generatedSchemaPath, "utf8")
@@ -60,14 +63,14 @@ assert.deepEqual(
 assert.deepEqual(
   decisionIndexJsonSchema.properties.keyDefinitions.const,
   [
-    { name: "topic", mode: "exact" },
+    { name: "domain", mode: "exact" },
     { name: "status", mode: "exact" },
     { name: "alignment", mode: "exact" }
   ]
 );
 assert.deepEqual(
   Object.keys(decisionIndexJsonSchema.$defs.keyValues.properties),
-  ["topic", "status", "alignment"]
+  ["domain", "status", "alignment"]
 );
 assert.deepEqual(
   Object.keys(decisionIndexJsonSchema.$defs.relation.properties),
@@ -79,6 +82,7 @@ assert.deepEqual(
     "schemaVersion",
     "namespace",
     "definitionVersion",
+    "metadata",
     "sourceRevision",
     "keyDefinitions",
     "entries"

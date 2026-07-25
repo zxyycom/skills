@@ -7,6 +7,24 @@ export type JsonValue =
 
 export type JsonObject = { [key: string]: JsonValue };
 
+export type ReadonlyJsonValue =
+  | JsonPrimitive
+  | readonly ReadonlyJsonValue[]
+  | ReadonlyJsonObject;
+
+export type ReadonlyJsonObject = {
+  readonly [key: string]: ReadonlyJsonValue;
+};
+
+export type DeepReadonly<Value> =
+  Value extends JsonPrimitive
+    ? Value
+    : Value extends readonly unknown[]
+      ? { readonly [Key in keyof Value]: DeepReadonly<Value[Key]> }
+      : Value extends object
+        ? { readonly [Key in keyof Value]: DeepReadonly<Value[Key]> }
+        : Value;
+
 export function isJsonValue(value: unknown): value is JsonValue {
   return isJsonValueInternal(value, new Set<object>());
 }

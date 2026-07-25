@@ -3,15 +3,20 @@ import path from "node:path";
 import process from "node:process";
 import { pathExists, toPosix } from "../../shared/src/node/filesystem.ts";
 import {
-  isDecisionTopicId,
+  decisionDomainFromRelativePath,
+  isDecisionDomainId,
   isNewDecisionIdentityPath
 } from "./decision-path.ts";
+import {
+  decisionDomainCatalogFileName,
+  loadDecisionDomainCatalog
+} from "./decision-domain-catalog.ts";
 import {
   decisionIndexDiagnosticMessages,
   decisionIndexFileName,
   parseDecisionIndex
 } from "./decision-state-index.ts";
-import { decisionRelationConsistencyErrors } from "./relation-graph.ts";
+import { decisionRelationConsistencyIssues } from "./relation-graph.ts";
 import { validateDecisionBody } from "./record.ts";
 import { decisionMetadataFromCandidate } from "./decision-metadata.ts";
 import {
@@ -24,7 +29,10 @@ import {
   type DecisionScanOptions
 } from "./types.ts";
 
-const allowedRootFiles = new Set([decisionIndexFileName]);
+const allowedRootFiles = new Set([
+  decisionDomainCatalogFileName,
+  decisionIndexFileName
+]);
 
 function displayPath(workspaceRoot: string, targetPath: string): string {
   const relativePath = path.relative(workspaceRoot, targetPath);
@@ -85,99 +93,88 @@ function recordFromIndexEntry(options: {
   return {
     activationCandidate: false,
     alignment: state.alignment,
-    areaId: pathParts[0] ?? "",
     bodyValid: false,
     createdAt: state.createdAt,
     decisionPath: path.join(decisionsDirectory, ...pathParts),
     document: null,
+    domain: decisionDomainFromRelativePath(state.path) ?? "",
     fileName,
     indexed: true,
     markdownExists: false,
     projection: selectProjection(state),
     relativePath: state.path,
+    relationshipErrors: [],
     status: state.status
   };
 }
 
-async function scanArea(options: {
+async function scanDomainDirectory(options: {
   activationCandidateErrors: string[];
-  areaId: string;
-  areaPath: string;
   decisionsDirectory: string;
-  indexErrors: string[];
+  domainId: string;
+  domainPath: string;
   indexEntryByPath: ReadonlyMap<string, DecisionIndexEntry> | null;
+  indexErrors: string[];
   indexRelativePath: string;
   records: DecisionRecord[];
-  sourceMode: "full" | "index-first";
   sourceErrors: string[];
 }): Promise<void> {
   const {
     activationCandidateErrors,
-    areaId,
-    areaPath,
     decisionsDirectory,
-    indexErrors,
+    domainId,
+    domainPath,
     indexEntryByPath,
+    indexErrors,
     indexRelativePath,
     records,
-    sourceMode,
     sourceErrors
   } = options;
-  const areaEntries = await fs.readdir(areaPath, { withFileTypes: true });
-  areaEntries.sort((left, right) => left.name.localeCompare(right.name));
+  const domainEntries = await fs.readdir(domainPath, { withFileTypes: true });
+  domainEntries.sort((left, right) => left.name.localeCompare(right.name));
 
-  if (!areaEntries.some((entry) => entry.isFile() && entry.name.endsWith(".md"))) {
-    sourceErrors.push("Decision area must contain at least one decision file: " + areaId);
+  if (!domainEntries.some((entry) => (
+    entry.isFile() && entry.name.endsWith(".md")
+  ))) {
+    sourceErrors.push(
+      "Decision domain directory must contain at least one decision file: " + domainId
+    );
   }
 
-  for (const entry of areaEntries) {
-    const decisionPath = path.join(areaPath, entry.name);
+  for (const entry of domainEntries) {
+    const decisionPath = path.join(domainPath, entry.name);
     const relativePath = toPosix(path.relative(decisionsDirectory, decisionPath));
     if (entry.isDirectory()) {
-      sourceErrors.push("Decision area must not contain nested directories: " + relativePath);
+      sourceErrors.push(
+        "Decision domain directory must not contain nested directories: " + relativePath
+      );
       continue;
     }
     if (!entry.isFile()) {
-      sourceErrors.push("Decision area contains unsupported entry: " + relativePath);
+      sourceErrors.push(
+        "Decision domain directory contains unsupported entry: " + relativePath
+      );
       continue;
     }
     if (!entry.name.endsWith(".md")) {
-      sourceErrors.push("Decision area must contain only Markdown files: " + relativePath);
+      sourceErrors.push(
+        "Decision domain directory must contain only Markdown files: " + relativePath
+      );
       continue;
     }
 
     const indexEntry = indexEntryByPath?.get(relativePath) ?? null;
-    if (indexEntry !== null && sourceMode === "index-first") {
-      const state = indexEntry.state;
-      records.push({
-        activationCandidate: false,
-        alignment: state.alignment,
-        areaId,
-        bodyValid: true,
-        createdAt: state.createdAt,
-        decisionPath,
-        document: state,
-        fileName: entry.name,
-        indexed: true,
-        markdownExists: true,
-        projection: selectProjection(state),
-        relativePath,
-        status: state.status
-      });
-      continue;
-    }
-
     const recordErrors: string[] = [];
     const sourceText = await fs.readFile(decisionPath, "utf8");
     const sourceDocument = await validateDecisionBody({
-      allowNullCreatedAt: indexEntry === null,
+      allowNullCreatedAt: true,
       body: sourceText,
       decisionsDirectory,
       errors: recordErrors,
       fileName: entry.name,
       relativePath
     });
-    const activationCandidate = indexEntry === null
+    const activationCandidate = recordErrors.length === 0
       && isNewDecisionIdentityPath(relativePath)
       && sourceDocument?.status === "active"
       && sourceDocument.alignment !== null
@@ -185,52 +182,53 @@ async function scanArea(options: {
     if (sourceDocument?.createdAt === null && !activationCandidate) {
       recordErrors.push(
         relativePath
-        + " createdAt: null is allowed only for an unindexed new decision "
+        + " createdAt: null is allowed only for a current-format new decision "
         + "identity with status: active and alignment: aligned or unaligned"
       );
     }
     const establishedMetadata = sourceDocument
       ? decisionMetadataFromCandidate(sourceDocument)
       : null;
-    const document = sourceDocument && establishedMetadata
+    const document = recordErrors.length === 0
+      && sourceDocument
+      && establishedMetadata
       ? { ...selectProjection(sourceDocument), ...establishedMetadata }
       : null;
 
-    if (indexEntryByPath && !indexEntry) {
-      const message = activationCandidate
-        ? activationCandidateError(relativePath)
-        : unindexedDecisionError(indexRelativePath, relativePath);
+    if (activationCandidate) {
+      const message = activationCandidateError(relativePath);
       indexErrors.push(message);
-      if (activationCandidate) {
-        activationCandidateErrors.push(message);
-      }
+      activationCandidateErrors.push(message);
+    } else if (document !== null && !indexEntry) {
+      indexErrors.push(unindexedDecisionError(indexRelativePath, relativePath));
     }
     sourceErrors.push(...recordErrors);
 
     records.push({
       activationCandidate,
-      alignment: indexEntry?.state.alignment ?? sourceDocument?.alignment ?? null,
-      areaId,
+      alignment: sourceDocument?.alignment ?? null,
       bodyValid: recordErrors.length === 0,
-      createdAt: indexEntry?.state.createdAt ?? sourceDocument?.createdAt ?? null,
+      createdAt: sourceDocument?.createdAt ?? null,
       decisionPath,
       document,
+      domain: domainId,
       fileName: entry.name,
       indexed: indexEntry !== null,
       markdownExists: true,
-      projection: indexEntry
-        ? selectProjection(indexEntry.state)
-        : sourceDocument
-          ? selectProjection(sourceDocument)
+      projection: sourceDocument
+        ? selectProjection(sourceDocument)
+        : indexEntry
+          ? selectProjection(indexEntry.state)
           : {
               background: "",
               decision: "",
               purpose: "",
               relations: [],
               title: ""
-      },
+            },
       relativePath,
-      status: indexEntry?.state.status ?? sourceDocument?.status ?? null
+      relationshipErrors: [],
+      status: sourceDocument?.status ?? null
     });
   }
 }
@@ -264,29 +262,28 @@ function addMissingIndexRecords(options: {
 }
 
 export async function scanDecisionRecords(
-  options: DecisionScanOptions & {
-    sourceMode?: "full" | "index-first";
-  } = {}
+  options: DecisionScanOptions = {}
 ): Promise<DecisionScan> {
   const workspaceRoot = path.resolve(options.workspaceRoot ?? process.cwd());
   const configuredDecisionDirectory = options.decisionsDir ?? "docs/decisions";
-  const sourceMode = options.sourceMode ?? "full";
   const decisionsDirectory = path.isAbsolute(configuredDecisionDirectory)
     ? path.resolve(configuredDecisionDirectory)
     : path.resolve(workspaceRoot, configuredDecisionDirectory);
   const activationCandidateErrors: string[] = [];
+  const domainErrors: string[] = [];
+  const domainIds = new Set<string>();
   const indexErrors: string[] = [];
   const sourceErrors: string[] = [];
   const records: DecisionRecord[] = [];
-  const areaIds = new Set<string>();
   const decisionsLabel = displayPath(workspaceRoot, decisionsDirectory);
   const indexPath = path.join(decisionsDirectory, decisionIndexFileName);
   const indexRelativePath = displayPath(workspaceRoot, indexPath);
   const unavailableScan = (error: string): DecisionScan => ({
     activationCandidateErrors,
-    areaIds,
     decisionsDirectoryAvailable: false,
     decisionsDirectory,
+    domainErrors,
+    domainIds,
     errors: [error],
     indexErrors,
     index: null,
@@ -306,11 +303,28 @@ export async function scanDecisionRecords(
     return unavailableScan(decisionsLabel + " must be a directory");
   }
 
-  const indexExists = await pathExists(indexPath);
-  if (!indexExists) {
-    const message = decisionIndexRequiredError(indexRelativePath);
-    indexErrors.push(message);
+  const domainCatalogPath = path.join(
+    decisionsDirectory,
+    decisionDomainCatalogFileName
+  );
+  const domainCatalogRelativePath = displayPath(workspaceRoot, domainCatalogPath);
+  const loadedDomainCatalog = await loadDecisionDomainCatalog(
+    domainCatalogPath,
+    domainCatalogRelativePath
+  );
+  if (loadedDomainCatalog.status === "error") {
+    domainErrors.push(...loadedDomainCatalog.errors);
+    sourceErrors.push(...loadedDomainCatalog.errors);
+  } else {
+    for (const domain of loadedDomainCatalog.value.domains) {
+      domainIds.add(domain.id);
+    }
   }
+  const knownDomainIds = loadedDomainCatalog.status === "error"
+    ? null
+    : domainIds;
+
+  const indexExists = await pathExists(indexPath);
   const indexText = indexExists ? await fs.readFile(indexPath, "utf8") : "";
   const parsedIndex = indexText.length > 0
     ? parseDecisionIndex(indexText, indexRelativePath)
@@ -341,20 +355,30 @@ export async function scanDecisionRecords(
       continue;
     }
 
-    areaIds.add(entry.name);
-    if (!isDecisionTopicId(entry.name)) {
-      sourceErrors.push("Decision area must use kebab-case: " + entry.name);
+    if (!isDecisionDomainId(entry.name)) {
+      sourceErrors.push(
+        "Decision domain directory must use kebab-case: " + entry.name
+      );
     }
-    await scanArea({
+    if (knownDomainIds !== null && !knownDomainIds.has(entry.name)) {
+      const error = (
+        "Decision domain directory is not defined in "
+        + decisionDomainCatalogFileName
+        + ": "
+        + entry.name
+      );
+      domainErrors.push(error);
+      sourceErrors.push(error);
+    }
+    await scanDomainDirectory({
       activationCandidateErrors,
-      areaId: entry.name,
-      areaPath: entryPath,
       decisionsDirectory,
+      domainId: entry.name,
+      domainPath: entryPath,
       indexErrors,
       indexEntryByPath,
       indexRelativePath,
       records,
-      sourceMode,
       sourceErrors
     });
   }
@@ -366,18 +390,32 @@ export async function scanDecisionRecords(
     indexRelativePath,
     records
   });
+  if (!indexExists && records.some((record) => record.document !== null)) {
+    indexErrors.push(decisionIndexRequiredError(indexRelativePath));
+  }
   records.sort(compareDecisionRecords);
-  sourceErrors.push(...decisionRelationConsistencyErrors(
+  const relationshipIssues = decisionRelationConsistencyIssues(
     records.filter((record) => record.document !== null || record.activationCandidate)
-  ));
+  );
+  const recordByPath = new Map(records.map((record) => [
+    record.relativePath,
+    record
+  ]));
+  for (const issue of relationshipIssues) {
+    sourceErrors.push(issue.message);
+    for (const sourcePath of issue.sourcePaths) {
+      recordByPath.get(sourcePath)?.relationshipErrors.push(issue.message);
+    }
+  }
 
   const errors = [...sourceErrors, ...indexErrors];
 
   return {
     activationCandidateErrors,
-    areaIds,
     decisionsDirectoryAvailable: true,
     decisionsDirectory,
+    domainErrors,
+    domainIds,
     errors,
     indexErrors,
     index,

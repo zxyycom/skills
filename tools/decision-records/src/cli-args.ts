@@ -11,13 +11,14 @@ import {
   type DecisionListStatus,
   type DecisionTraceDirection
 } from "./types.ts";
-import { isDecisionTopicId } from "./decision-path.ts";
+import { isDecisionDomainId } from "./decision-path.ts";
 
 export type Command =
   | "activate"
   | "archive"
   | "check"
   | "discard"
+  | "domains"
   | "list"
   | "mark-aligned"
   | "show"
@@ -28,10 +29,10 @@ export type CliArgs = {
   alignment: DecisionListAlignment;
   command: Command;
   decisionsDir: string;
+  domain: string | null;
   fullTime: boolean;
   recordPaths: string[];
   status: DecisionListStatus;
-  topic: string | null;
   traceDepth: number | null;
   traceDirection: DecisionTraceDirection;
   workspaceRoot: string;
@@ -41,12 +42,12 @@ export type CliArgs = {
 type ParsedOptions = {
   alignment?: DecisionListAlignment;
   decisionsDir?: string;
+  domain?: string;
   depth?: number;
   direction?: DecisionTraceDirection;
   fullTime?: boolean;
   root?: string;
   status?: DecisionListStatus;
-  topic?: string;
   write?: boolean;
 };
 
@@ -66,11 +67,13 @@ function parseTraceDepth(value: string): number {
   return depth;
 }
 
-function parseTopicId(value: string): string {
-  if (!isDecisionTopicId(value)) {
-    throw new InvalidArgumentError("must be a kebab-case topic id");
+function parseSingleDomainId(value: string, previous?: string): string {
+  if (!isDecisionDomainId(value)) {
+    throw new InvalidArgumentError("must be a kebab-case domain id");
   }
-
+  if (previous !== undefined) {
+    throw new InvalidArgumentError("must not be repeated");
+  }
   return value;
 }
 
@@ -84,10 +87,10 @@ function commandArgs(
     alignment: options.alignment ?? "all",
     command,
     decisionsDir: options.decisionsDir ?? "docs/decisions",
+    domain: options.domain ?? null,
     fullTime: options.fullTime ?? false,
     recordPaths,
     status: options.status ?? "active",
-    topic: options.topic ?? null,
     traceDepth: options.depth ?? null,
     traceDirection: options.direction ?? "both",
     workspaceRoot: options.root ?? process.cwd(),
@@ -114,7 +117,7 @@ export function createCliProgram(
 ): CommanderCommand {
   const program = new CommanderCommand()
     .name("decision-records")
-    .description("Validate and maintain decision records in a Git worktree.")
+    .description("Validate and maintain decision records from Markdown lifecycle state.")
     .configureHelp({ showGlobalOptions: true })
     .option("--root <path>", "Workspace root.", process.cwd())
     .option(
@@ -126,8 +129,7 @@ export function createCliProgram(
     .addHelpText(
       "afterAll",
       "\nDecision paths are relative to the decision directory, for example "
-      + "topic/use-semantic-title.md.\n"
-      + "Pending is derived from Markdown path absence in Git HEAD and is never stored.\n"
+      + "domain-id/use-semantic-title.md.\n"
       + "Unactivated candidates remain outside the index and are reported as warnings.\n"
       + "Exit codes: 0 success (queries and scoped maintenance may report warnings), "
       + "1 blocking validation or index failure, 2 invalid arguments."
@@ -145,16 +147,23 @@ export function createCliProgram(
   const check = createSubcommand(
     program,
     "check",
-    "Strictly validate Markdown metadata, alignment, relations, activation candidates, "
-      + "the JSON index, and Git HEAD membership.",
+    "Strictly validate the domain catalog, Markdown metadata, alignment, relations, "
+      + "activation candidates, and the JSON index.",
     { isDefault: true }
   );
   check.action(() => execute("check", check));
 
+  const domains = createSubcommand(
+    program,
+    "domains",
+    "List the complete decision domain catalog without reading the decision index."
+  );
+  domains.action(() => execute("domains", domains));
+
   const list = createSubcommand(
     program,
     "list",
-    "List active decisions by default, or filter by topic, lifecycle, and alignment."
+    "List active decisions by default, or filter by domain, lifecycle, and alignment."
   )
     .addOption(
       new Option("--alignment <value>", "Alignment filter for active decisions.")
@@ -167,8 +176,11 @@ export function createCliProgram(
         .default("active")
     )
     .addOption(
-      new Option("--topic <topic-id>", "Filter by a kebab-case topic id.")
-        .argParser(parseTopicId)
+      new Option(
+        "--domain <domain-id>",
+        "Filter by one catalog domain id."
+      )
+        .argParser(parseSingleDomainId)
     )
     .option("--full-time", "Show the full createdAt timestamp instead of its date.");
   list.action(() => execute("list", list));
@@ -235,7 +247,7 @@ export function createCliProgram(
   const discard = createSubcommand(
     program,
     "discard <decision-path>",
-    "Delete a decision file not yet present in Git HEAD and rebuild the index."
+    "Delete a complete unactivated decision candidate and rebuild the index."
   );
   discard.action((recordPath: string) => execute("discard", discard, [recordPath]));
 

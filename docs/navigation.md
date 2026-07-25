@@ -35,7 +35,7 @@
 | 可分发工具源码 | `tools/<tool-name>/` | 随 skill 分发的源码、声明、测试、fixture 和局部组件契约；`tools/shared/` 承接跨工具运行时不变量，`tools/skill-package/` 承接发布端与 updater 共用的分发协议 |
 | 主仓库自动化与共享交付 | 主仓库根目录、`scripts/` 和 CI 配置 | 命令编排、生成适配、共享校验、打包、聚合发布、依赖入口、Git 和 CI 自动化；不承接随 skill 分发工具的运行时源码 |
 | 调查报告 | `docs/investigations/<category-id>/<semantic-slug>.md`、`docs/investigations/investigation-index.json` | 主题 Markdown 承接可独立复核的报告；`skills/investigation-report/references/investigation-report-contract.md` 是格式与维护事务的固定契约，JSON 是派生索引 |
-| 长期决策 | `docs/decisions/<topic-id>/*.md`、`docs/decisions/decision-index.json` | 决策 Markdown 承接生命周期、对齐状态和完整语义；`skills/decision-records/references/decision-record-rules.md` 是固定契约，JSON 是全生命周期查询投影 |
+| 长期决策 | `docs/decisions/decision-domains.json`、`docs/decisions/<domain-id>/*.md`、`docs/decisions/decision-index.json` | 领域目录表承接允许使用的领域及其边界，路径第一段承接唯一领域归属，决策 Markdown 承接生命周期、对齐状态和完整语义；`skills/decision-records/references/decision-record-rules.md` 是固定契约，索引 JSON 是含领域 metadata 的全生命周期查询投影 |
 
 ## 维护规则
 

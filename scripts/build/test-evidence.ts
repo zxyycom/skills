@@ -156,8 +156,14 @@ async function buildSchemaArtifacts(): Promise<GeneratedArtifact[]> {
       sourcePath: schemaSourcePath
     });
 
+    const declarationSchema = spec.typesFileName
+      === "test-evidence-state-index.types.d.mts"
+      ? withExactEmptyMetadataType(
+        schema as Parameters<typeof compile>[0]
+      )
+      : schema;
     const declaration = await compile(
-      schema as Parameters<typeof compile>[0],
+      declarationSchema as Parameters<typeof compile>[0],
       spec.typeName,
       {
         bannerComment: "",
@@ -200,6 +206,41 @@ async function buildSchemaArtifacts(): Promise<GeneratedArtifact[]> {
     );
   }
   return artifacts;
+}
+
+function withExactEmptyMetadataType(
+  schema: Parameters<typeof compile>[0]
+): Parameters<typeof compile>[0] {
+  const properties = schema.properties;
+  if (
+    properties === undefined
+    || Array.isArray(properties)
+    || typeof properties !== "object"
+    || properties === null
+  ) {
+    throw new TypeError("TestEvidenceStateIndex schema must define properties");
+  }
+  const metadata = properties.metadata;
+  if (
+    metadata === undefined
+    || typeof metadata !== "object"
+    || metadata === null
+    || Array.isArray(metadata)
+  ) {
+    throw new TypeError(
+      "TestEvidenceStateIndex schema must define object metadata"
+    );
+  }
+  return {
+    ...schema,
+    properties: {
+      ...properties,
+      metadata: {
+        ...metadata,
+        tsType: "Record<string, never>"
+      }
+    }
+  };
 }
 
 async function main(): Promise<void> {

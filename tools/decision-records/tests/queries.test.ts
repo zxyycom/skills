@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
+import path from "node:path";
 import {
   runDecisionRecordsCli,
   validateDecisionRecords as validateBundledDecisionRecords
@@ -8,18 +9,21 @@ import {
 import { validateDecisionRecords } from "../src/index.ts";
 import {
   archivedRelativePath,
-  createFixtureRepository,
+  createFixtureWorkspace,
   currentRelativePath,
   generatedCliPath,
+  readIndex,
+  runBundledCli,
   runSuccessfulCli,
-  traceDecision
+  traceDecision,
+  writeIndex
 } from "./support.ts";
 
-const fixtureRoot = await createFixtureRepository();
+const fixtureRoot = await createFixtureWorkspace();
 try {
   const validation = await validateDecisionRecords({ workspaceRoot: fixtureRoot });
   assert.deepEqual(validation.errors, []);
-  assert.equal(validation.areaCount, 1);
+  assert.equal(validation.domainCount, 3);
   assert.equal(validation.decisionCount, 2);
   assert.equal(validation.activeCount, 1);
   assert.equal(validation.alignedCount, 1);
@@ -39,14 +43,20 @@ try {
   );
   assert.match(
     cliOutput,
-    /Decision records check passed \(1 areas, 2 decisions, 1 active, 1 aligned, 0 unaligned, 1 archived, 0 pending\)\./
+    /Decision records check passed \(3 domains, 2 decisions, 1 active, 1 aligned, 0 unaligned, 1 archived\)\./
   );
 
   const defaultCliOutput = await runSuccessfulCli(["--root", fixtureRoot]);
   assert.match(defaultCliOutput, /Decision records check passed/);
 
   const activeList = await runSuccessfulCli(["list", "--root", fixtureRoot]);
-  assert.match(activeList, /active aligned 2026-07-11 tooling\/use-generated-cli\.md/);
+  assert.match(activeList, /^Domains:$/m);
+  assert.match(activeList, /project-tooling: 维护仓库校验、生成、打包、发布和更新工具链。/);
+  assert.match(
+    activeList,
+    /active aligned 2026-07-11 project-tooling\/use-generated-cli\.md/
+  );
+  assert.doesNotMatch(activeList, /^\s+domain:/m);
   assert.match(activeList, /title: 使用生成 CLI/);
   assert.match(activeList, /purpose: 确保生成后的 CLI/);
   assert.match(activeList, /background: 需要验证生成后的 CLI/);
@@ -63,9 +73,9 @@ try {
   ]);
   assert.match(
     archivedList,
-    /archived null 2026-07-10 tooling\/260710-use-source-cli\.md/
+    /archived null 2026-07-10 decision-records\/260710-use-source-cli\.md/
   );
-  assert.doesNotMatch(archivedList, /tooling\/use-generated-cli\.md/);
+  assert.doesNotMatch(archivedList, /project-tooling\/use-generated-cli\.md/);
 
   const completeList = await runSuccessfulCli([
     "list",
@@ -78,29 +88,69 @@ try {
   assert.match(completeList, /2026-07-10T09:10:11\+08:00/);
   assert.match(completeList, /2026-07-11T14:15:16\+08:00/);
 
-  const topicList = await runSuccessfulCli([
+  const decisionDomainList = await runSuccessfulCli([
     "list",
-    "--topic",
-    "tooling",
+    "--domain",
+    "decision-records",
     "--status",
     "all",
     "--root",
     fixtureRoot
   ]);
-  assert.match(topicList, /tooling\/260710-use-source-cli\.md/);
-  assert.match(topicList, /tooling\/use-generated-cli\.md/);
+  assert.match(
+    decisionDomainList,
+    /decision-records\/260710-use-source-cli\.md/
+  );
+  assert.doesNotMatch(
+    decisionDomainList,
+    /project-tooling\/use-generated-cli\.md/
+  );
 
-  const emptyTopicList = await runSuccessfulCli([
+  for (const repeatedDomain of ["decision-records", "project-tooling"]) {
+    const repeatedDomainList = spawnSync(
+      "node",
+      [
+        generatedCliPath,
+        "list",
+        "--domain",
+        "decision-records",
+        "--domain",
+        repeatedDomain,
+        "--status",
+        "all",
+        "--root",
+        fixtureRoot
+      ],
+      { encoding: "utf8" }
+    );
+    assert.equal(repeatedDomainList.status, 2);
+    assert.match(repeatedDomainList.stderr, /must not be repeated/);
+  }
+
+  const emptyDomainList = await runSuccessfulCli([
     "list",
-    "--topic",
-    "unrelated-topic",
+    "--domain",
+    "change-plan",
     "--root",
     fixtureRoot
   ]);
   assert.equal(
-    emptyTopicList,
-    "No decisions matched status active and alignment all and topic unrelated-topic.\n"
+    emptyDomainList,
+    "Domains:\n"
+      + "- change-plan: 维护明确变更的提案、设计、任务分解与结构检查。\n"
+      + "Decisions:\n"
+      + "- none\n"
   );
+
+  const unknownDomain = await runBundledCli([
+    "list",
+    "--domain",
+    "unrelated-domain",
+    "--root",
+    fixtureRoot
+  ]);
+  assert.equal(unknownDomain.exitCode, 2);
+  assert.match(unknownDomain.stderr, /Unknown decision domain/);
 
   const unalignedList = await runSuccessfulCli([
     "list",
@@ -111,7 +161,7 @@ try {
   ]);
   assert.equal(
     unalignedList,
-    "No decisions matched status active and alignment unaligned.\n"
+    "Domains:\n- none\nDecisions:\n- none\n"
   );
 
   const shownDecision = await runSuccessfulCli([
@@ -120,10 +170,18 @@ try {
     "--root",
     fixtureRoot
   ]);
-  assert.match(shownDecision, /^path: tooling\/use-generated-cli\.md/m);
+  assert.match(
+    shownDecision,
+    /^path: project-tooling\/use-generated-cli\.md/m
+  );
+  assert.match(shownDecision, /^domain: project-tooling$/m);
+  assert.match(
+    shownDecision,
+    /^domainDescription: 维护仓库校验、生成、打包、发布和更新工具链。$/m
+  );
   assert.match(shownDecision, /^status: active$/m);
   assert.match(shownDecision, /^alignment: aligned$/m);
-  assert.match(shownDecision, /^pending: false$/m);
+  assert.doesNotMatch(shownDecision, /^pending:/m);
   assert.match(
     shownDecision,
     /^createdAt: 2026-07-11T14:15:16\+08:00$/m
@@ -134,15 +192,21 @@ try {
   const relationTrace = await traceDecision(archivedRelativePath, [], fixtureRoot);
   assert.match(
     relationTrace,
-    /tooling\/use-generated-cli\.md --修订--> tooling\/260710-use-source-cli\.md/
+    /project-tooling\/use-generated-cli\.md --修订--> decision-records\/260710-use-source-cli\.md/
   );
+  assert.match(relationTrace, /^Domains:$/m);
+  assert.match(relationTrace, /decision-records: 维护长期决策/);
+  assert.match(relationTrace, /project-tooling: 维护仓库校验/);
 
   const predecessorTrace = await traceDecision(
     currentRelativePath,
     ["--direction", "predecessors"],
     fixtureRoot
   );
-  assert.match(predecessorTrace, /tooling\/260710-use-source-cli\.md/);
+  assert.match(
+    predecessorTrace,
+    /decision-records\/260710-use-source-cli\.md/
+  );
 
   const noPredecessorTrace = await traceDecision(
     archivedRelativePath,
@@ -156,7 +220,47 @@ try {
     ["--direction", "successors"],
     fixtureRoot
   );
-  assert.match(successorTrace, /tooling\/use-generated-cli\.md/);
+  assert.match(
+    successorTrace,
+    /project-tooling\/use-generated-cli\.md/
+  );
+
+  const indexPath = path.join(
+    fixtureRoot,
+    "docs",
+    "decisions",
+    "decision-index.json"
+  );
+  const originalIndex = await readIndex(indexPath);
+  await writeIndex(indexPath, {
+    ...originalIndex,
+    entries: originalIndex.entries.filter(
+      (entry) => entry.id !== currentRelativePath
+    )
+  });
+  await assertMembershipMismatchRejected(fixtureRoot);
+
+  const extraPath = "decision-records/extra-index-entry.md";
+  const extraSource = originalIndex.entries.find(
+    (entry) => entry.id === archivedRelativePath
+  );
+  assert.ok(extraSource);
+  await writeIndex(indexPath, {
+    ...originalIndex,
+    entries: [
+      ...originalIndex.entries,
+      {
+        ...extraSource,
+        id: extraPath,
+        state: {
+          ...extraSource.state,
+          path: extraPath
+        }
+      }
+    ].sort((left, right) => left.id.localeCompare(right.id))
+  });
+  await assertMembershipMismatchRejected(fixtureRoot);
+  await writeIndex(indexPath, originalIndex);
 
   // Keep real Node failures to prove invalid-option exit codes.
   for (const invalidArguments of [
@@ -192,20 +296,20 @@ try {
   assert.equal(invalidDepth.status, 2);
   assert.match(invalidDepth.stderr, /must be a non-negative integer/);
 
-  const invalidTopic = spawnSync(
+  const invalidDomain = spawnSync(
     "node",
     [
       generatedCliPath,
       "list",
-      "--topic",
-      "Invalid_Topic",
+      "--domain",
+      "Invalid_Domain",
       "--root",
       fixtureRoot
     ],
     { encoding: "utf8" }
   );
-  assert.equal(invalidTopic.status, 2);
-  assert.match(invalidTopic.stderr, /must be a kebab-case topic id/);
+  assert.equal(invalidDomain.status, 2);
+  assert.match(invalidDomain.stderr, /must be a kebab-case domain id/);
 
   const missingActivationAlignment = spawnSync(
     "node",
@@ -222,4 +326,22 @@ try {
   assert.match(missingActivationAlignment.stderr, /required option '--alignment <value>'/);
 } finally {
   await fs.rm(fixtureRoot, { force: true, recursive: true });
+}
+
+async function assertMembershipMismatchRejected(
+  workspaceRoot: string
+): Promise<void> {
+  for (const args of [
+    ["list", "--root", workspaceRoot],
+    ["show", currentRelativePath, "--root", workspaceRoot],
+    ["trace", currentRelativePath, "--root", workspaceRoot]
+  ]) {
+    const result = await runBundledCli(args);
+    assert.equal(result.exitCode, 1);
+    assert.equal(result.stdout, "");
+    assert.match(
+      result.stderr,
+      /index entries do not match the complete established Markdown set/
+    );
+  }
 }

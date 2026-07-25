@@ -21,6 +21,11 @@ export type DecisionRelation = {
   target: string;
 };
 
+export type DecisionDomainDefinition = {
+  id: string;
+  description: string;
+};
+
 export type DecisionProjection = {
   title: string;
   purpose: string;
@@ -58,10 +63,15 @@ export type DecisionIndexEntry = {
   state: DecisionIndexState;
 };
 
+export type DecisionIndexMetadata = {
+  domains: DecisionDomainDefinition[];
+};
+
 export type DecisionIndex = {
-  schemaVersion: 1;
+  schemaVersion: 2;
   namespace: "decisions";
-  definitionVersion: 2;
+  definitionVersion: 3;
+  metadata: DecisionIndexMetadata;
   sourceRevision: string;
   keyDefinitions: Array<{
     name: string;
@@ -73,16 +83,17 @@ export type DecisionIndex = {
 export type DecisionRecord = {
   activationCandidate: boolean;
   alignment: DecisionAlignment | null;
-  areaId: string;
   bodyValid: boolean;
   createdAt: string | null;
   decisionPath: string;
   document: DecisionDocument | null;
+  domain: string;
   fileName: string;
   indexed: boolean;
   markdownExists: boolean;
   projection: DecisionProjection;
   relativePath: string;
+  relationshipErrors: string[];
   status: DecisionStatus | null;
 };
 
@@ -93,9 +104,10 @@ export type DecisionScanOptions = {
 
 export type DecisionScan = {
   activationCandidateErrors: string[];
-  areaIds: Set<string>;
   decisionsDirectoryAvailable: boolean;
   decisionsDirectory: string;
+  domainErrors: string[];
+  domainIds: Set<string>;
   errors: string[];
   index: DecisionIndex | null;
   indexErrors: string[];
@@ -113,8 +125,8 @@ export type DecisionValidationResult = {
   activeCount: number;
   alignedCount: number;
   archivedCount: number;
-  areaCount: number;
   decisionCount: number;
+  domainCount: number;
   errors: string[];
   scan: DecisionScan;
   unalignedCount: number;

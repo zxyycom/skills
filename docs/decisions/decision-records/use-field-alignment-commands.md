@@ -1,7 +1,7 @@
 ---
 title: 使用字段化对齐状态命令
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-22T09:44:09Z
 purpose: 让查询和状态命令显式维护对齐字段，并用决策与实际 owner 的比较验证状态变化。
 background: 对齐关系属于 Markdown 元数据；让命令依赖专门正文结构会把事实比较误写成存储契约。

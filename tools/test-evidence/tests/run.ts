@@ -25,6 +25,7 @@ import {
 } from "../src/schemas.ts";
 import { runRegexCollectorTests } from "./discovery.test.ts";
 
+await import("./state-index-types.test.ts");
 await runRegexCollectorTests();
 
 const execFileAsync = promisify(execFile);
@@ -47,6 +48,20 @@ const generatedLedgerPath = path.join(
 const generatedLedgerDeclarationPath = generatedLedgerPath.replace(
   /\.mjs$/u,
   ".d.mts"
+);
+const maintainedStateIndexDeclarationPath = path.join(
+  rootDir,
+  "tools",
+  "test-evidence",
+  "api",
+  "test-evidence-state-index.types.d.mts"
+);
+const distributedStateIndexDeclarationPath = path.join(
+  rootDir,
+  "skills",
+  "test-evidence-review",
+  "scripts",
+  "test-evidence-state-index.types.d.mts"
 );
 const fixtureBundlePath = path.join(
   testsDirectory,
@@ -108,6 +123,8 @@ try {
       v.safeParse(testEvidenceStateIndexSchema, persistedIndex).success,
       true
     );
+    assert.equal(persistedIndex.schemaVersion, 2);
+    assert.deepEqual(persistedIndex.metadata, {});
     assert.equal(inspection.cases.length, 4);
     assert.equal(inspection.sourceEntries.length, 4);
     const automated = inspection.cases.find(
@@ -1072,6 +1089,15 @@ try {
   assert.match(declarationSource, /queryTestEvidenceLedger/);
   assert.match(declarationSource, /syncTestEvidenceIndex/);
   assert.match(declarationSource, /runTestEvidenceLedgerCli/);
+  for (const stateIndexDeclarationPath of [
+    maintainedStateIndexDeclarationPath,
+    distributedStateIndexDeclarationPath
+  ]) {
+    assert.match(
+      await fs.readFile(stateIndexDeclarationPath, "utf8"),
+      /metadata: Record<string, never>;/u
+    );
+  }
   const collectorSourceMap = JSON.parse(
     await fs.readFile(`${generatedCollectorPath}.map`, "utf8")
   ) as { sources: string[] };

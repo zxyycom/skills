@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -17,9 +16,6 @@ import type {
 
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const rootDirectory = path.resolve(testsDirectory, "../../..");
-const fixtureGitEnvironment: NodeJS.ProcessEnv = { ...process.env };
-// Fixture repositories own their indexes; a caller's alternate index belongs elsewhere.
-delete fixtureGitEnvironment.GIT_INDEX_FILE;
 
 export const fixtureRoot = path.join(testsDirectory, "fixtures", "valid");
 export const generatedCliPath = path.join(
@@ -51,8 +47,9 @@ export const generatedUpdaterPath = path.join(
   "update-skill.mjs"
 );
 
-export const currentRelativePath = "tooling/use-generated-cli.md";
-export const archivedRelativePath = "tooling/260710-use-source-cli.md";
+export const currentRelativePath = "project-tooling/use-generated-cli.md";
+export const archivedRelativePath = "decision-records/260710-use-source-cli.md";
+export const testDomainId = "decision-records";
 
 export type CliExecution = {
   exitCode: number;
@@ -60,46 +57,28 @@ export type CliExecution = {
   stdout: string;
 };
 
-export function runGit(
-  workspaceRoot: string,
-  args: readonly string[]
-): string {
-  return execFileSync(
-    "git",
-    ["-C", workspaceRoot, ...args],
-    { encoding: "utf8", env: fixtureGitEnvironment, windowsHide: true }
+export async function writeTestDomainCatalog(
+  decisionsDirectory: string
+): Promise<void> {
+  await fs.mkdir(decisionsDirectory, { recursive: true });
+  await fs.writeFile(
+    path.join(decisionsDirectory, "decision-domains.json"),
+    JSON.stringify({
+      schemaVersion: 1,
+      domains: [{
+        id: testDomainId,
+        description: "维护长期决策的记录契约、生命周期、索引、查询与演进关系。"
+      }]
+    }, null, 2) + "\n",
+    "utf8"
   );
 }
 
-export function initializeGitRepository(
-  workspaceRoot: string,
-  options: { commit?: boolean } = {}
-): void {
-  runGit(workspaceRoot, ["init", "--quiet"]);
-  runGit(workspaceRoot, ["config", "user.name", "Decision Records Tests"]);
-  runGit(workspaceRoot, ["config", "user.email", "decision-records@example.invalid"]);
-  runGit(workspaceRoot, ["config", "commit.gpgSign", "false"]);
-  runGit(workspaceRoot, ["config", "core.autocrlf", "false"]);
-  runGit(workspaceRoot, ["config", "core.safecrlf", "false"]);
-  runGit(workspaceRoot, ["config", "core.hooksPath", ".git/no-hooks"]);
-  if (options.commit !== false) {
-    runGit(workspaceRoot, ["add", "."]);
-    runGit(workspaceRoot, [
-      "commit",
-      "--quiet",
-      "--no-gpg-sign",
-      "-m",
-      "Create decision fixture"
-    ]);
-  }
-}
-
-export async function createFixtureRepository(): Promise<string> {
+export async function createFixtureWorkspace(): Promise<string> {
   const workspaceRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), "decision-records-query-")
   );
   await fs.cp(fixtureRoot, workspaceRoot, { recursive: true });
-  initializeGitRepository(workspaceRoot);
   return workspaceRoot;
 }
 

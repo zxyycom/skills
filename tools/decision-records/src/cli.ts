@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import fs from "node:fs/promises";
+import path from "node:path";
 import process from "node:process";
 import { CommanderError } from "commander";
 import {
@@ -20,6 +21,11 @@ import {
   replaceDecisionMetadata
 } from "./decision-metadata.ts";
 import {
+  decisionDomainCatalogFileName,
+  loadDecisionDomainCatalog,
+  type DecisionDomainDefinition
+} from "./decision-domain-catalog.ts";
+import {
   applyDecisionChanges,
   type DecisionFileChange
 } from "./decision-transaction.ts";
@@ -29,10 +35,11 @@ import {
   loadCurrentDecisionIndex,
   syncDecisionIndex
 } from "./decision-state-index.ts";
-import { isNewDecisionIdentityPath } from "./decision-path.ts";
-import { loadHeadDecisionPaths } from "./head-decision-paths.ts";
 import {
-  headPathConsistencyErrors,
+  decisionDomainFromRelativePath,
+  isNewDecisionIdentityPath
+} from "./decision-path.ts";
+import {
   loadDecisionValidationContext,
   selectDecisionIndexSourcePaths,
   validateDecisionRecords,
@@ -55,7 +62,6 @@ import {
 type CommandHandler = (args: CliArgs) => Promise<number>;
 
 type DecisionQueryContext = {
-  headDecisionPaths: Awaited<ReturnType<typeof loadHeadDecisionPaths>>;
   index: DecisionIndex;
   scan: DecisionScan;
 };
@@ -135,7 +141,8 @@ async function validatedMaintenanceResult(
   args: CliArgs
 ): Promise<DecisionValidationContext | null> {
   const context = await loadCommandContext(args, {
-    scanErrorPolicy: "allow-activation-candidates"
+    checkIndexText: false,
+    scanErrorPolicy: "source-only"
   });
   if (context.result.errors.length > 0) {
     printErrors(context.result.errors);
@@ -147,24 +154,24 @@ async function validatedMaintenanceResult(
 async function queryResult(
   args: CliArgs
 ): Promise<DecisionQueryContext | null> {
-  const scan = await scanDecisionRecords({
-    ...decisionScanOptions(args),
-    sourceMode: "index-first"
-  });
+  const scan = await scanDecisionRecords(decisionScanOptions(args));
   if (scan.index === null) {
     printErrors(scan.errors);
     return null;
   }
-  const [headDecisionPaths, currentIndex] = await Promise.all([
-    loadHeadDecisionPaths(scan.decisionsDirectory),
-    loadCurrentDecisionIndex({
-      decisionsDirectory: scan.decisionsDirectory
-    })
-  ]);
-  if (headDecisionPaths.errors.length > 0) {
-    printErrors(headDecisionPaths.errors);
+  if (scan.domainErrors.length > 0) {
+    printErrors(scan.domainErrors);
     return null;
   }
+  const selection = selectDecisionIndexSourcePaths(scan);
+  if (selection.errors.length > 0) {
+    printErrors(selection.errors);
+    return null;
+  }
+  const currentIndex = await loadCurrentDecisionIndex({
+    decisionsDirectory: scan.decisionsDirectory,
+    relativePaths: selection.relativePaths
+  });
   if (currentIndex.status === "error") {
     printErrors(decisionIndexDiagnosticMessages(
       currentIndex.diagnostics,
@@ -178,15 +185,11 @@ async function queryResult(
     ]);
     return null;
   }
-  const warnings = [
-    ...scan.errors,
-    ...headPathConsistencyErrors(scan, headDecisionPaths.paths)
-  ];
+  const warnings = scan.errors;
   if (warnings.length > 0) {
     printWarnings([...new Set(warnings)]);
   }
   return {
-    headDecisionPaths,
     index: currentIndex.value,
     scan
   };
@@ -205,24 +208,36 @@ function invalidRecordSuffix(record: DecisionRecord): string {
   return record.markdownExists && record.bodyValid ? "" : " [invalid]";
 }
 
-function pendingRecordSuffix(
-  record: DecisionRecord,
-  headPaths: ReadonlySet<string>
-): string {
-  return record.markdownExists && !headPaths.has(record.relativePath)
-    ? " [pending]"
-    : "";
+function establishedRecords(scan: DecisionScan): DecisionRecord[] {
+  return scan.records.filter((record) => record.document !== null);
 }
 
-function recordSuffix(
-  record: DecisionRecord,
-  headPaths: ReadonlySet<string>
-): string {
-  return invalidRecordSuffix(record) + pendingRecordSuffix(record, headPaths);
+function decisionDomainDefinition(
+  index: DecisionIndex,
+  domainId: string
+): DecisionDomainDefinition | null {
+  return index.metadata.domains.find((domain) => domain.id === domainId) ?? null;
 }
 
-function indexedRecords(scan: DecisionScan): DecisionRecord[] {
-  return scan.records.filter((record) => record.indexed);
+function decisionDomainDefinitionForPath(
+  index: DecisionIndex,
+  relativePath: string
+): DecisionDomainDefinition | null {
+  const domainId = decisionDomainFromRelativePath(relativePath);
+  return domainId === null ? null : decisionDomainDefinition(index, domainId);
+}
+
+function printDomainDefinitions(
+  domains: readonly DecisionDomainDefinition[]
+): void {
+  console.log("Domains:");
+  if (domains.length === 0) {
+    console.log("- none");
+    return;
+  }
+  for (const domain of domains) {
+    console.log("- " + domain.id + ": " + domain.description);
+  }
 }
 
 function queryDecisionEntry(
@@ -284,21 +299,38 @@ function currentCreatedAt(): string {
   return new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 }
 
+async function runDomains(args: CliArgs): Promise<number> {
+  const workspaceRoot = path.resolve(args.workspaceRoot);
+  const decisionsDirectory = path.isAbsolute(args.decisionsDir)
+    ? path.resolve(args.decisionsDir)
+    : path.resolve(workspaceRoot, args.decisionsDir);
+  const catalogPath = path.join(
+    decisionsDirectory,
+    decisionDomainCatalogFileName
+  );
+  const loaded = await loadDecisionDomainCatalog(
+    catalogPath,
+    decisionDomainCatalogFileName
+  );
+  if (loaded.status === "error") {
+    printErrors(loaded.errors);
+    return 1;
+  }
+  printDomainDefinitions(loaded.value.domains);
+  return 0;
+}
+
 async function runCheck(args: CliArgs): Promise<number> {
   const context = await validatedResult(args);
   if (!context) {
     return 1;
   }
   const { result } = context;
-  const pendingCount = indexedRecords(result.scan).filter((record) => (
-    record.markdownExists
-      && !context.headDecisionPaths.paths.has(record.relativePath)
-  )).length;
 
   console.log(
     "Decision records check passed ("
-    + result.areaCount
-    + " areas, "
+    + result.domainCount
+    + " domains, "
     + result.decisionCount
     + " decisions, "
     + result.activeCount
@@ -308,9 +340,7 @@ async function runCheck(args: CliArgs): Promise<number> {
     + result.unalignedCount
     + " unaligned, "
     + result.archivedCount
-    + " archived, "
-    + pendingCount
-    + " pending)."
+    + " archived)."
   );
   return 0;
 }
@@ -320,7 +350,15 @@ async function runList(args: CliArgs): Promise<number> {
   if (!context) {
     return 1;
   }
-  const headPaths = context.headDecisionPaths.paths;
+  const selectedDomain = args.domain === null
+    ? null
+    : decisionDomainDefinition(context.index, args.domain);
+  if (args.domain !== null && selectedDomain === null) {
+    printErrors([
+      "Unknown decision domain in decision-domains.json: " + args.domain
+    ]);
+    return 2;
+  }
   const filters: StateIndexFilter[] = [];
   if (args.status !== "all") {
     filters.push({
@@ -338,12 +376,12 @@ async function runList(args: CliArgs): Promise<number> {
       values: [args.alignment]
     });
   }
-  if (args.topic !== null) {
+  if (args.domain !== null) {
     filters.push({
-      key: "topic",
+      key: "domain",
       kind: "exact",
       operator: "all",
-      values: [args.topic]
+      values: [args.domain]
     });
   }
   const queried = queryAllDecisionEntries(context.index, filters);
@@ -355,39 +393,39 @@ async function runList(args: CliArgs): Promise<number> {
     return 1;
   }
   const recordsByPath = new Map(
-    indexedRecords(context.scan).map((record) => [record.relativePath, record])
+    establishedRecords(context.scan).map((record) => [record.relativePath, record])
   );
   const records = queried.value
     .map((entry) => recordsByPath.get(entry.id))
     .filter((record): record is DecisionRecord => record !== undefined);
-  if (records.length === 0) {
-    console.log(
-      "No decisions matched status "
-      + args.status
-      + " and alignment "
-      + args.alignment
-      + (args.topic === null ? "" : " and topic " + args.topic)
-      + "."
-    );
-    return 0;
-  }
+  const resultDomainIds = new Set(records.map((record) => record.domain));
+  const domains = selectedDomain === null
+    ? context.index.metadata.domains.filter((domain) => resultDomainIds.has(domain.id))
+    : [selectedDomain];
+  printDomainDefinitions(domains);
+  console.log("Decisions:");
 
-  for (const record of records) {
-    const timestamp = record.createdAt ?? "unknown";
-    console.log(
-      record.status
-      + " "
-      + (record.alignment ?? "null")
-      + " "
-      + (args.fullTime ? timestamp : timestamp.slice(0, 10))
-      + " "
-      + record.relativePath
-      + recordSuffix(record, headPaths)
-    );
-    console.log("  title: " + record.projection.title);
-    console.log("  purpose: " + record.projection.purpose);
-    console.log("  background: " + record.projection.background);
-    console.log("  decision: " + record.projection.decision);
+  if (records.length === 0) {
+    console.log("- none");
+  } else {
+    for (const record of records) {
+      const timestamp = record.createdAt ?? "unknown";
+      console.log(
+        "- "
+        + record.status
+        + " "
+        + (record.alignment ?? "null")
+        + " "
+        + (args.fullTime ? timestamp : timestamp.slice(0, 10))
+        + " "
+        + record.relativePath
+        + invalidRecordSuffix(record)
+      );
+      console.log("  title: " + record.projection.title);
+      console.log("  purpose: " + record.projection.purpose);
+      console.log("  background: " + record.projection.background);
+      console.log("  decision: " + record.projection.decision);
+    }
   }
   return 0;
 }
@@ -409,25 +447,31 @@ async function runShow(args: CliArgs): Promise<number> {
     return 1;
   }
   const record = matched?.status === "ok" && matched.value !== null
-    ? findIndexedRecord(context.scan, matched.value.id)
+    ? findEstablishedRecord(context.scan, matched.value.id)
     : null;
   if (!record) {
-    console.error("Indexed decision does not exist: " + recordPath);
+    console.error("Established decision does not exist: " + recordPath);
     return 1;
   }
   if (!record.markdownExists) {
     console.error("Decision body does not exist: " + record.relativePath);
     return 1;
   }
+  const domain = decisionDomainDefinitionForPath(
+    context.index,
+    record.relativePath
+  );
+  if (domain === null) {
+    printErrors(["Decision path has no indexed domain: " + record.relativePath]);
+    return 1;
+  }
 
   console.log("path: " + record.relativePath);
+  console.log("domain: " + domain.id);
+  console.log("domainDescription: " + domain.description);
   console.log("status: " + record.status);
   console.log("alignment: " + record.alignment);
   console.log("createdAt: " + record.createdAt);
-  console.log(
-    "pending: "
-    + (!context.headDecisionPaths.paths.has(record.relativePath) ? "true" : "false")
-  );
   console.log("");
   console.log((await fs.readFile(record.decisionPath, "utf8")).trimEnd());
   return 0;
@@ -441,9 +485,9 @@ async function runTrace(args: CliArgs): Promise<number> {
   const recordPath = args.recordPaths[0];
   const start = recordPath === undefined
     ? null
-    : findIndexedRecord(context.scan, recordPath);
+    : findEstablishedRecord(context.scan, recordPath);
   if (!start) {
-    console.error("Indexed decision does not exist: " + recordPath);
+    console.error("Established decision does not exist: " + recordPath);
     return 1;
   }
 
@@ -456,7 +500,7 @@ async function runTrace(args: CliArgs): Promise<number> {
     return 1;
   }
   const recordsByPath = new Map(
-    indexedRecords(context.scan).map((record) => [record.relativePath, record])
+    establishedRecords(context.scan).map((record) => [record.relativePath, record])
   );
   const records = queried.value
     .map((entry) => recordsByPath.get(entry.id))
@@ -470,21 +514,32 @@ async function runTrace(args: CliArgs): Promise<number> {
     }
   );
 
-  console.log("Decisions:");
-  for (const record of records
+  const tracedRecords = records
     .filter((candidate) => trace.paths.has(candidate.relativePath))
-    .sort(compareDecisionRecords)) {
-    console.log(
-      "- "
-      + record.status
-      + " "
-      + (record.alignment ?? "null")
-      + " "
-      + record.relativePath
-      + " - "
-      + record.projection.title
-      + recordSuffix(record, context.headDecisionPaths.paths)
-    );
+    .sort(compareDecisionRecords);
+  const tracedDomainIds = new Set(tracedRecords.map((record) => record.domain));
+  printDomainDefinitions(
+    context.index.metadata.domains.filter((domain) => (
+      tracedDomainIds.has(domain.id)
+    ))
+  );
+  console.log("Decisions:");
+  if (tracedRecords.length === 0) {
+    console.log("- none");
+  } else {
+    for (const record of tracedRecords) {
+      console.log(
+        "- "
+        + record.status
+        + " "
+        + (record.alignment ?? "null")
+        + " "
+        + record.relativePath
+        + " - "
+        + record.projection.title
+        + invalidRecordSuffix(record)
+      );
+    }
   }
 
   console.log("Relations:");
@@ -500,25 +555,15 @@ async function runTrace(args: CliArgs): Promise<number> {
 
 async function runSyncIndex(args: CliArgs): Promise<number> {
   const context = await loadCommandContext(args, { checkIndexText: false });
-  const { headDecisionPaths, result } = context;
+  const { result } = context;
   const { scan } = result;
-  const sourceValidation = await validateDecisionScan(scan, headDecisionPaths, {
+  const sourceValidation = await validateDecisionScan(scan, {
     checkIndexText: false,
     scanErrorPolicy: "source-only"
   });
   if (sourceValidation.errors.length > 0) {
     printErrors(sourceValidation.errors);
     return 1;
-  }
-  if (scan.index !== null) {
-    const activationCandidateErrorSet = new Set(scan.activationCandidateErrors);
-    const membershipErrors = scan.indexErrors.filter(
-      (error) => !activationCandidateErrorSet.has(error)
-    );
-    if (membershipErrors.length > 0) {
-      printErrors(membershipErrors);
-      return 1;
-    }
   }
 
   const selection = selectDecisionIndexSourcePaths(scan);
@@ -551,8 +596,14 @@ async function runSyncIndex(args: CliArgs): Promise<number> {
 
   console.log(
     synchronized.state === "written"
-      ? "Rebuilt " + scan.indexRelativePath + " from decision Markdown files."
-      : "Decision index is up to date."
+      ? "Rebuilt "
+        + scan.indexRelativePath
+        + " from decision Markdown files ("
+        + result.domainCount
+        + " domains)."
+      : "Decision index is up to date ("
+        + result.domainCount
+        + " domains)."
   );
   printActivationCandidateWarnings(scan);
   return 0;
@@ -563,23 +614,20 @@ function findRecord(scan: DecisionScan, value: string): DecisionRecord | null {
   return scan.records.find((record) => record.relativePath === recordPath) ?? null;
 }
 
-function findIndexedRecord(scan: DecisionScan, value: string): DecisionRecord | null {
+function findEstablishedRecord(scan: DecisionScan, value: string): DecisionRecord | null {
   const record = findRecord(scan, value);
-  return record?.indexed ? record : null;
+  return record?.document !== null ? record : null;
 }
 
 async function applySourceChanges(
   args: CliArgs,
   context: DecisionValidationContext,
   changes: readonly DecisionFileChange[],
-  successMessage: string,
-  registerPaths: ReadonlySet<string> = new Set<string>()
+  successMessage: string
 ): Promise<number> {
   const errors = await applyDecisionChanges({
     changes,
-    headDecisionPaths: context.headDecisionPaths,
     originalScan: context.result.scan,
-    registerPaths,
     scanOptions: decisionScanOptions(args)
   });
   if (errors.length > 0) {
@@ -597,12 +645,8 @@ async function runActivate(args: CliArgs): Promise<number> {
   const context = await loadCommandContext(args, {
     scanErrorPolicy: "allow-activation-candidates"
   });
-  const { headDecisionPaths, result } = context;
+  const { result } = context;
   const { scan } = result;
-  if (headDecisionPaths.errors.length > 0) {
-    printErrors(headDecisionPaths.errors);
-    return 1;
-  }
   const requestedAlignment: DecisionAlignment | null = args.alignment === "all"
     ? null
     : args.alignment;
@@ -642,11 +686,7 @@ async function runActivate(args: CliArgs): Promise<number> {
 
   let createdAt: string;
   let prefix: string;
-  if (record.indexed) {
-    if (scan.index === null || result.errors.length > 0 || !record.document) {
-      printErrors(result.errors);
-      return 1;
-    }
+  if (record.document !== null) {
     if (record.status === "active") {
       if (record.alignment !== requestedAlignment) {
         console.error(
@@ -656,30 +696,21 @@ async function runActivate(args: CliArgs): Promise<number> {
         );
         return 1;
       }
-      console.log(
+      return await applySourceChanges(
+        args,
+        context,
+        [],
         "Decision is already active and " + requestedAlignment + ": "
-        + record.relativePath
-        + pendingRecordSuffix(record, headDecisionPaths.paths)
+          + record.relativePath + "."
       );
-      printActivationCandidateWarnings(scan);
-      return 0;
     }
     if (parsed.metadata.createdAt === null) {
-      console.error("Indexed decision createdAt must not be null: " + record.relativePath);
+      console.error("Established decision createdAt must not be null: " + record.relativePath);
       return 1;
     }
     createdAt = parsed.metadata.createdAt;
     prefix = "Activated";
   } else {
-    if (headDecisionPaths.paths.has(record.relativePath)) {
-      printErrors([
-        "Decision file present in Git HEAD cannot be activated as a new "
-          + "decision candidate: "
-          + record.relativePath,
-        "Restore valid established metadata and index membership instead."
-      ]);
-      return 1;
-    }
     if (!isNewDecisionIdentityPath(record.relativePath)) {
       printErrors([
         "New decision identity path must use kebab-case semantic slugs "
@@ -688,15 +719,20 @@ async function runActivate(args: CliArgs): Promise<number> {
       ]);
       return 1;
     }
-    if (parsed.metadata.status !== "active"
+    if (!record.activationCandidate
+      || !record.bodyValid
+      || parsed.metadata.status !== "active"
       || parsed.metadata.alignment !== requestedAlignment
       || parsed.metadata.createdAt !== null) {
-      printErrors([
-        "New decision activation candidate must declare status: active, alignment: "
-          + requestedAlignment
-          + ", and createdAt: null: "
-          + record.relativePath
-      ]);
+      printErrors(scan.sourceErrors.length > 0
+        ? scan.sourceErrors
+        : [
+            "New decision activation candidate must be a complete current-format "
+              + "record with status: active, alignment: "
+              + requestedAlignment
+              + ", and createdAt: null: "
+              + record.relativePath
+          ]);
       return 1;
     }
     createdAt = currentCreatedAt();
@@ -719,26 +755,8 @@ async function runActivate(args: CliArgs): Promise<number> {
       decisionPath: record.decisionPath,
       nextText
     }],
-    activationMessage(
-      headDecisionPaths.paths,
-      record.relativePath,
-      prefix + " as " + requestedAlignment
-    ),
-    record.indexed
-      ? new Set<string>()
-      : new Set([record.relativePath])
+    prefix + " as " + requestedAlignment + " " + record.relativePath + "."
   );
-}
-
-function activationMessage(
-  headPaths: ReadonlySet<string>,
-  relativePath: string,
-  prefix: string
-): string {
-  return prefix
-    + " "
-    + relativePath
-    + (headPaths.has(relativePath) ? "." : " [pending].");
 }
 
 async function runMarkAligned(args: CliArgs): Promise<number> {
@@ -746,13 +764,13 @@ async function runMarkAligned(args: CliArgs): Promise<number> {
   if (!context) {
     return 1;
   }
-  const { headDecisionPaths, result } = context;
+  const { result } = context;
   const recordPath = args.recordPaths[0];
   const record = recordPath === undefined
     ? null
-    : findIndexedRecord(result.scan, recordPath);
+    : findEstablishedRecord(result.scan, recordPath);
   if (!record || !record.markdownExists || record.createdAt === null) {
-    console.error("Indexed decision does not exist: " + recordPath);
+    console.error("Established decision does not exist: " + recordPath);
     return 1;
   }
   if (record.status !== "active" || record.alignment !== "unaligned") {
@@ -780,9 +798,7 @@ async function runMarkAligned(args: CliArgs): Promise<number> {
       nextText
     }],
     "Marked aligned "
-      + record.relativePath
-      + pendingRecordSuffix(record, headDecisionPaths.paths)
-      + "."
+      + record.relativePath + "."
   );
 }
 
@@ -791,28 +807,19 @@ async function runArchive(args: CliArgs): Promise<number> {
   if (!context) {
     return 1;
   }
-  const { headDecisionPaths, result } = context;
+  const { result } = context;
   const { scan } = result;
-  if (scan.index === null || args.recordPaths.length === 0) {
-    console.error("At least one indexed decision path is required.");
+  if (args.recordPaths.length === 0) {
+    console.error("At least one established decision path is required.");
     return 1;
   }
 
   const archivedPaths = new Set<string>();
   const changes: DecisionFileChange[] = [];
   for (const recordPath of args.recordPaths) {
-    const record = findIndexedRecord(scan, recordPath);
+    const record = findEstablishedRecord(scan, recordPath);
     if (!record) {
-      console.error("Indexed decision does not exist: " + recordPath);
-      return 1;
-    }
-    if (!headDecisionPaths.paths.has(record.relativePath)) {
-      printErrors([
-        "Cannot archive decision file that is not present in Git HEAD: "
-          + record.relativePath,
-        "Edit the pending decision in place, or discard it if it should not "
-          + "become an established decision."
-      ]);
+      console.error("Established decision does not exist: " + recordPath);
       return 1;
     }
     if (record.status === "archived") {
@@ -854,12 +861,8 @@ async function runArchive(args: CliArgs): Promise<number> {
 
 async function runDiscard(args: CliArgs): Promise<number> {
   const context = await loadCommandContext(args, { checkIndexText: false });
-  const { headDecisionPaths, result } = context;
+  const { result } = context;
   const { scan } = result;
-  if (headDecisionPaths.errors.length > 0) {
-    printErrors(headDecisionPaths.errors);
-    return 1;
-  }
 
   const recordPath = args.recordPaths[0];
   const record = recordPath === undefined
@@ -869,11 +872,28 @@ async function runDiscard(args: CliArgs): Promise<number> {
     console.error("Decision does not exist: " + recordPath);
     return 1;
   }
-  if (headDecisionPaths.paths.has(record.relativePath)) {
+  if (record.document !== null) {
     printErrors([
-      "Cannot discard decision file already present in Git HEAD: "
+      "Cannot discard established decision: "
         + record.relativePath,
       "Use archive or create a real evolution decision instead."
+    ]);
+    return 1;
+  }
+  if (!record.activationCandidate || !record.bodyValid) {
+    printErrors([
+      "Discard requires a complete unactivated decision candidate with a new "
+        + "identity path, current format, status: active, non-null alignment, "
+        + "and createdAt: null: "
+        + record.relativePath
+    ]);
+    return 1;
+  }
+  if (record.relationshipErrors.length > 0) {
+    printErrors([
+      "Discard requires the candidate relationship graph to be valid: "
+        + record.relativePath,
+      ...record.relationshipErrors
     ]);
     return 1;
   }
@@ -902,18 +922,9 @@ async function runDiscard(args: CliArgs): Promise<number> {
       decisionPath: record.decisionPath,
       nextText: null
     }],
-    "Discarded "
-    + (record.activationCandidate
-      ? "unactivated decision candidate "
-      : record.indexed
-        ? "pending decision "
-        : "unregistered decision file ")
-    + record.relativePath
-    + (record.indexed
-      ? " and removed its index entry."
-      : " before it entered the decision index.")
-    + " Restage decision files before committing "
-    + "if they were already staged."
+    "Discarded unactivated decision candidate "
+      + record.relativePath
+      + " before it entered the decision index."
   );
 }
 
@@ -922,6 +933,7 @@ const commandHandlers: Record<Command, CommandHandler> = {
   archive: runArchive,
   check: runCheck,
   discard: runDiscard,
+  domains: runDomains,
   list: runList,
   "mark-aligned": runMarkAligned,
   show: runShow,
@@ -953,11 +965,13 @@ export async function runDecisionRecordsCli(
 }
 
 export { scanDecisionRecords, validateDecisionRecords };
+export type { DecisionDomainDefinition } from "./decision-domain-catalog.ts";
 export type {
   DecisionAlignment,
   DecisionDocument,
   DecisionIndex,
   DecisionIndexEntry,
+  DecisionIndexMetadata,
   DecisionIndexState,
   DecisionListAlignment,
   DecisionListStatus,

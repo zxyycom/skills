@@ -28,8 +28,10 @@ import {
   defaultTestEvidenceIndexPath,
   testEvidenceCaseStateSchema,
   testEvidenceIndexDefinitionVersion,
+  testEvidenceIndexMetadataSchema,
   testEvidenceIndexNamespace,
-  testEvidenceReportSchemaVersion
+  testEvidenceReportSchemaVersion,
+  type TestEvidenceIndexMetadata
 } from "./schemas.ts";
 import type {
   TestEvidenceCaseState,
@@ -48,7 +50,10 @@ export type SyncTestEvidenceIndexOptions = {
 type TestEvidenceIndexSourceResult =
   | {
     diagnostics: [];
-    snapshot: StateSnapshot<TestEvidenceCaseState>;
+    snapshot: StateSnapshot<
+      TestEvidenceCaseState,
+      TestEvidenceIndexMetadata
+    >;
   }
   | {
     diagnostics: TestEvidenceDiagnostic[];
@@ -58,8 +63,14 @@ type TestEvidenceIndexSourceResult =
 export function createTestEvidenceStateIndexDefinition(options: {
   config: TestEvidenceLedgerConfig;
   runtime?: boolean;
-  snapshot?: StateSnapshot<TestEvidenceCaseState>;
-}): StateIndexDefinition<TestEvidenceCaseState> {
+  snapshot?: StateSnapshot<
+    TestEvidenceCaseState,
+    TestEvidenceIndexMetadata
+  >;
+}): StateIndexDefinition<
+  TestEvidenceCaseState,
+  TestEvidenceIndexMetadata
+> {
   return defineStateIndexDefinition({
     definitionVersion: testEvidenceIndexDefinitionVersion,
     identify: (state) => state.id,
@@ -86,6 +97,10 @@ export function createTestEvidenceStateIndexDefinition(options: {
       }
     ],
     namespace: testEvidenceIndexNamespace,
+    parseMetadata: (input) => v.parse(
+      testEvidenceIndexMetadataSchema,
+      input
+    ),
     parseState: (input) => parseTestEvidenceCaseState(
       input,
       options.runtime === true
@@ -343,6 +358,7 @@ async function readTestEvidenceIndexSource(
   return {
     diagnostics: [],
     snapshot: {
+      metadata: {},
       revision: testEvidenceSourceRevision({
         caseIdPattern: config.caseIdPattern,
         catalogPath: config.catalogPath,

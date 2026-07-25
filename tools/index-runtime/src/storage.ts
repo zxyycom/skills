@@ -13,6 +13,7 @@ import {
   serializeStateIndex
 } from "./snapshot.ts";
 import type {
+  JsonObject,
   StateIndex,
   StateIndexContext,
   StateIndexDefinition,
@@ -27,12 +28,32 @@ import {
   validateStateIndexDefinition
 } from "./validation.ts";
 
-export async function loadStateIndex<State extends object = object>(options: {
+export async function loadStateIndex<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
   context: StateIndexContext;
-  definition?: StateIndexDefinition<State>;
+  definition: StateIndexDefinition<State, Metadata>;
   expectation: StateIndexExpectation;
   indexPath: string;
-}): Promise<StateIndexResult<StateIndex>> {
+}): Promise<StateIndexResult<StateIndex<State, Metadata>>>;
+export async function loadStateIndex(options: {
+  context: StateIndexContext;
+  definition?: undefined;
+  expectation: StateIndexExpectation;
+  indexPath: string;
+}): Promise<StateIndexResult<StateIndex>>;
+export async function loadStateIndex<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
+  context: StateIndexContext;
+  definition?: StateIndexDefinition<State, Metadata>;
+  expectation: StateIndexExpectation;
+  indexPath: string;
+}): Promise<
+  StateIndexResult<StateIndex | StateIndex<State, Metadata>>
+> {
   const resolved = resolveIndexPath(options.indexPath, options.context.root);
   if (resolved.status === "error") {
     return resolved;
@@ -51,21 +72,28 @@ export async function loadStateIndex<State extends object = object>(options: {
       options.indexPath
     );
   }
-  return parseStateIndex({
-    ...(options.definition === undefined
-      ? {}
-      : { definition: options.definition }),
-    expectation: options.expectation,
-    sourcePath: options.indexPath,
-    text
-  });
+  return options.definition === undefined
+    ? parseStateIndex({
+      expectation: options.expectation,
+      sourcePath: options.indexPath,
+      text
+    })
+    : parseStateIndex({
+      definition: options.definition,
+      expectation: options.expectation,
+      sourcePath: options.indexPath,
+      text
+    });
 }
 
-export async function loadCurrentStateIndex<State extends object>(options: {
+export async function loadCurrentStateIndex<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
   context: StateIndexContext;
-  definition: StateIndexDefinition<State>;
+  definition: StateIndexDefinition<State, Metadata>;
   indexPath: string;
-}): Promise<StateIndexResult<StateIndex>> {
+}): Promise<StateIndexResult<StateIndex<State, Metadata>>> {
   const definitionErrors = validateStateIndexDefinition(options.definition);
   if (definitionErrors.length > 0) {
     return failure(
@@ -113,9 +141,12 @@ export async function loadCurrentStateIndex<State extends object>(options: {
   return loaded;
 }
 
-export async function syncStateIndex<State extends object>(options: {
+export async function syncStateIndex<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
   context: StateIndexContext;
-  definition: StateIndexDefinition<State>;
+  definition: StateIndexDefinition<State, Metadata>;
   indexPath: string;
   mode: StateIndexSyncMode;
 }): Promise<StateIndexSyncResult> {
@@ -286,8 +317,11 @@ async function verifyWrittenText(targetPath: string, expected: string): Promise<
   }
 }
 
-async function readSourceRevision<State extends object>(
-  definition: StateIndexDefinition<State>,
+async function readSourceRevision<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  definition: StateIndexDefinition<State, Metadata>,
   context: StateIndexContext,
   indexPath: string
 ): Promise<StateIndexResult<string>> {
@@ -335,9 +369,12 @@ function isStateIndexSyncMode(value: unknown): value is StateIndexSyncMode {
   return value === "check" || value === "write";
 }
 
-function failedSync<State extends object>(
+function failedSync<
+  State extends object,
+  Metadata extends JsonObject
+>(
   options: {
-    definition: StateIndexDefinition<State>;
+    definition: StateIndexDefinition<State, Metadata>;
     indexPath: string;
     mode: StateIndexSyncMode;
   },

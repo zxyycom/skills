@@ -1,7 +1,7 @@
 ---
 title: 采用领域状态驱动的极简通用索引
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-22T15:09:24Z
 purpose: 让多个领域以低接入和维护成本获得稳定的状态查询与索引同步能力。
 background: 决策、调查和测试证据都需要索引，但领域事实、写入和动态状态语义并不相同。

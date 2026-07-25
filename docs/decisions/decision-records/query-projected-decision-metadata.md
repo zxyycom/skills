@@ -1,7 +1,7 @@
 ---
 title: 查询 Markdown 投影的决策元数据
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-22T09:44:30Z
 purpose: 让日常恢复按主题、生命周期和对齐关系筛选，同时保持 Markdown 是全部状态元数据的唯一事实源。
 background: 查询需要集中索引，但把状态和时间描述为索引独有元数据会与索引可重建契约冲突。

@@ -67,6 +67,7 @@ export async function testMaterialization(): Promise<void> {
         }
       ],
       namespace: "semantic-order",
+      parseMetadata: (metadata) => metadata,
       parseState: (input) => {
         const summary = input.summary;
         if (
@@ -92,6 +93,7 @@ export async function testMaterialization(): Promise<void> {
         };
       },
       read: async () => ({
+        metadata: {},
         revision: "semantic-revision-1",
         states: [
           {
@@ -131,6 +133,7 @@ export async function testMaterialization(): Promise<void> {
       "schemaVersion",
       "namespace",
       "definitionVersion",
+      "metadata",
       "sourceRevision",
       "keyDefinitions",
       "entries"

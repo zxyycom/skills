@@ -1,7 +1,9 @@
 import { compareIndexText } from "./ordering.ts";
 import type {
+  DeepReadonly,
   JsonObject,
   JsonValue,
+  ReadonlyStateIndex,
   StateIndex,
   StateIndexContext,
   StateIndexDefinition,
@@ -9,6 +11,7 @@ import type {
   StateIndexExpectation,
   StateIndexKeyDefinition,
   StateIndexKeyScalar,
+  StateIndexProjectionContext,
   StateIndexResult
 } from "./types.ts";
 import {
@@ -22,9 +25,12 @@ import {
   validateStateIndexValue
 } from "./validation.ts";
 
-export function defineStateIndexDefinition<State extends object>(
-  definition: StateIndexDefinition<State>
-): StateIndexDefinition<State> {
+export function defineStateIndexDefinition<
+  State extends object,
+  Metadata extends JsonObject = JsonObject
+>(
+  definition: StateIndexDefinition<State, Metadata>
+): StateIndexDefinition<State, Metadata> {
   const errors = validateStateIndexDefinition(definition);
   if (errors.length > 0) {
     throw new TypeError(
@@ -38,10 +44,13 @@ export function defineStateIndexDefinition<State extends object>(
   return Object.freeze({ ...definition, keyStrategies });
 }
 
-export async function buildStateIndex<State extends object>(
-  definition: StateIndexDefinition<State>,
+export async function buildStateIndex<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  definition: StateIndexDefinition<State, Metadata>,
   context: StateIndexContext
-): Promise<StateIndexResult<StateIndex>> {
+): Promise<StateIndexResult<StateIndex<State, Metadata>>> {
   const definitionErrors = validateStateIndexDefinition(definition);
   if (definitionErrors.length > 0) {
     return failure("state-index.definition-invalid", definitionErrors.join("; "));
@@ -59,14 +68,25 @@ export async function buildStateIndex<State extends object>(
   if (!isStateSnapshot(snapshot)) {
     return failure(
       "state-index.source-invalid",
-      "read must return { revision, states } with a valid revision and state array"
+      "read must return { revision, metadata, states } with a valid revision, "
+      + "JSON object metadata, and state array"
     );
   }
 
+  const parsedMetadata = parseStateIndexMetadata(definition, snapshot.metadata);
+  if (parsedMetadata.status === "error") {
+    return parsedMetadata;
+  }
+  const metadata = canonicalizeTypedJsonObject(parsedMetadata.value);
+  const projectionContext = createProjectionContext(metadata);
   const entries: StateIndexEntry<State>[] = [];
   const diagnostics = [];
   for (const state of snapshot.states) {
-    const projected = projectStateIndexEntry(definition, state);
+    const projected = projectStateIndexEntry(
+      definition,
+      state,
+      projectionContext
+    );
     diagnostics.push(...projected.diagnostics);
     if (projected.status === "ok") {
       entries.push(projected.value);
@@ -76,10 +96,11 @@ export async function buildStateIndex<State extends object>(
     return { diagnostics, status: "error", value: null };
   }
 
-  const rawIndex: unknown = {
+  const rawIndex: StateIndex<State, Metadata> = {
     definitionVersion: definition.definitionVersion,
     entries,
     keyDefinitions: definition.keyStrategies.map(({ mode, name }) => ({ mode, name })),
+    metadata,
     namespace: definition.namespace,
     schemaVersion: stateIndexSchemaVersion,
     sourceRevision: snapshot.revision
@@ -88,16 +109,21 @@ export async function buildStateIndex<State extends object>(
   if (validated.index === null) {
     return { diagnostics: validated.diagnostics, status: "error", value: null };
   }
-  return {
-    diagnostics: [],
-    status: "ok",
-    value: canonicalizeStateIndex(validated.index, definition)
-  };
+  const canonical = canonicalizeStateIndex(rawIndex, definition);
+  return validateCompleteStateIndex(
+    definition,
+    canonical,
+    "<generated>"
+  );
 }
 
-export function projectStateIndexEntry<State extends object>(
-  definition: StateIndexDefinition<State>,
-  input: unknown
+export function projectStateIndexEntry<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  definition: StateIndexDefinition<State, Metadata>,
+  input: unknown,
+  context: StateIndexProjectionContext<Metadata>
 ): StateIndexResult<StateIndexEntry<State>> {
   if (!isJsonObject(input)) {
     return failure(
@@ -108,7 +134,7 @@ export function projectStateIndexEntry<State extends object>(
 
   let state: State;
   try {
-    state = definition.parseState(input);
+    state = definition.parseState(input, context);
   } catch (error) {
     return failure("state-index.state-parse-failed", errorText(error));
   }
@@ -121,7 +147,7 @@ export function projectStateIndexEntry<State extends object>(
 
   let stateId: unknown;
   try {
-    stateId = definition.identify(state);
+    stateId = definition.identify(state, context);
   } catch (error) {
     return failure("state-index.identify-failed", errorText(error));
   }
@@ -136,7 +162,7 @@ export function projectStateIndexEntry<State extends object>(
   for (const strategy of definition.keyStrategies) {
     let rawValues: unknown;
     try {
-      rawValues = strategy.derive(state);
+      rawValues = strategy.derive(state, context);
     } catch (error) {
       return failure(
         "state-index.key-derive-failed",
@@ -160,20 +186,38 @@ export function projectStateIndexEntry<State extends object>(
   return {
     diagnostics: [],
     status: "ok",
-    value: {
+    value: freezeObject({
       id: stateId,
-      keys,
-      state
-    }
+      keys: freezeKeyMap(keys),
+      state: cloneAndFreezeTypedJsonObject(state, false)
+    })
   };
 }
 
-export function parseStateIndex<State extends object = JsonObject>(options: {
-  definition?: StateIndexDefinition<State>;
+export function parseStateIndex<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
+  definition: StateIndexDefinition<State, Metadata>;
   expectation: StateIndexExpectation;
   sourcePath: string;
   text: string;
-}): StateIndexResult<StateIndex> {
+}): StateIndexResult<StateIndex<State, Metadata>>;
+export function parseStateIndex(options: {
+  definition?: undefined;
+  expectation: StateIndexExpectation;
+  sourcePath: string;
+  text: string;
+}): StateIndexResult<StateIndex>;
+export function parseStateIndex<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
+  definition?: StateIndexDefinition<State, Metadata>;
+  expectation: StateIndexExpectation;
+  sourcePath: string;
+  text: string;
+}): StateIndexResult<StateIndex | StateIndex<State, Metadata>> {
   if (options.definition !== undefined) {
     const definitionErrors = validateStateIndexDefinition(options.definition);
     if (definitionErrors.length > 0) {
@@ -246,71 +290,94 @@ export function parseStateIndex<State extends object = JsonObject>(options: {
     };
   }
 
-  let canonical: StateIndex;
-  try {
-    canonical = canonicalizeStateIndex(validated.index, options.definition);
-  } catch (error) {
+  if (options.definition === undefined) {
     return {
-      diagnostics: [diagnostic({
-        code: "state-index.state-parse-failed",
-        message: errorText(error),
-        path: options.sourcePath
-      })],
-      status: "error",
-      value: null
+      diagnostics: [],
+      status: "ok",
+      value: canonicalizeStateIndex(validated.index)
     };
   }
-  return {
-    diagnostics: [],
-    status: "ok",
-    value: canonical
-  };
+  const normalized = normalizeStateIndex(
+    validated.index,
+    options.definition,
+    options.sourcePath
+  );
+  if (normalized.status === "error") {
+    return normalized;
+  }
+  return validateCompleteStateIndex(
+    options.definition,
+    normalized.value,
+    options.sourcePath
+  );
 }
 
-export function serializeStateIndex<State extends object>(
-  index: StateIndex,
-  definition: StateIndexDefinition<State>
+export function serializeStateIndex<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  index: StateIndex<State, Metadata>,
+  definition: StateIndexDefinition<State, Metadata>
 ): string {
   return `${JSON.stringify(canonicalizeStateIndex(index, definition), null, 2)}\n`;
 }
 
-export function canonicalizeStateIndex<State extends object = JsonObject>(
-  index: StateIndex,
-  definition?: StateIndexDefinition<State>
-): StateIndex {
+export function canonicalizeStateIndex<
+  State extends object = JsonObject,
+  Metadata extends JsonObject = JsonObject
+>(
+  index: StateIndex<State, Metadata>,
+  definition?: StateIndexDefinition<State, Metadata>
+): StateIndex<State, Metadata> {
+  const metadata = canonicalizeTypedJsonObject(index.metadata);
+  const context = createProjectionContext(metadata);
   if (definition?.fieldOrder === "definition") {
     const keyOrder = new Map(
       definition.keyStrategies.map((strategy, index) => [strategy.name, index])
     );
-    return {
+    const keyDefinitions = [...index.keyDefinitions]
+      .sort((left, right) => compareDefinitionKeys(left.name, right.name, keyOrder))
+      .map(({ name, mode }) => freezeObject({ name, mode }));
+    const entries = index.entries
+      .map((entry) => canonicalizeEntry(
+        entry,
+        definition,
+        context,
+        keyOrder
+      ))
+      .sort((left, right) => compareIndexText(left.id, right.id));
+    return freezeObject({
       schemaVersion: stateIndexSchemaVersion,
       namespace: index.namespace,
       definitionVersion: index.definitionVersion,
+      metadata,
       sourceRevision: index.sourceRevision,
-      keyDefinitions: [...index.keyDefinitions]
-        .sort((left, right) => compareDefinitionKeys(left.name, right.name, keyOrder))
-        .map(({ name, mode }) => ({ name, mode })),
-      entries: index.entries
-        .map((entry) => canonicalizeEntry(entry, definition, keyOrder))
-        .sort((left, right) => compareIndexText(left.id, right.id))
-    };
+      keyDefinitions: freezeObject(keyDefinitions),
+      entries: freezeObject(entries)
+    });
   }
-  return {
+  const entries = index.entries
+    .map((entry) => canonicalizeEntry(entry))
+    .sort((left, right) => compareIndexText(left.id, right.id));
+  const keyDefinitions = [...index.keyDefinitions]
+    .map(({ mode, name }) => freezeObject({ mode, name }))
+    .sort((left, right) => compareIndexText(left.name, right.name));
+  return freezeObject({
     definitionVersion: index.definitionVersion,
-    entries: index.entries
-      .map(canonicalizeEntry)
-      .sort((left, right) => compareIndexText(left.id, right.id)),
-    keyDefinitions: [...index.keyDefinitions]
-      .map(({ mode, name }) => ({ mode, name }))
-      .sort((left, right) => compareIndexText(left.name, right.name)),
+    entries: freezeObject(entries),
+    keyDefinitions: freezeObject(keyDefinitions),
+    metadata,
     namespace: index.namespace,
     schemaVersion: stateIndexSchemaVersion,
     sourceRevision: index.sourceRevision
-  };
+  });
 }
 
-export function expectationOf<State extends object>(
-  definition: StateIndexDefinition<State>
+export function expectationOf<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  definition: StateIndexDefinition<State, Metadata>
 ): StateIndexExpectation {
   return {
     definitionVersion: definition.definitionVersion,
@@ -318,8 +385,11 @@ export function expectationOf<State extends object>(
   };
 }
 
-export function keyDefinitionsOf<State extends object>(
-  definition: StateIndexDefinition<State>
+export function keyDefinitionsOf<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  definition: StateIndexDefinition<State, Metadata>
 ): StateIndexKeyDefinition[] {
   if (definition.fieldOrder === "definition") {
     return definition.keyStrategies.map(({ name, mode }) => ({ name, mode }));
@@ -327,6 +397,80 @@ export function keyDefinitionsOf<State extends object>(
   return definition.keyStrategies
     .map(({ mode, name }) => ({ mode, name }))
     .sort((left, right) => compareIndexText(left.name, right.name));
+}
+
+export function readonlyStateIndexMetadata<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  index: StateIndex<State, Metadata>
+): DeepReadonly<Metadata> {
+  return deeplyReadonlyFrozenValue(index.metadata);
+}
+
+export function normalizeStateIndex<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  index: StateIndex,
+  definition: StateIndexDefinition<State, Metadata>,
+  sourcePath: string
+): StateIndexResult<StateIndex<State, Metadata>> {
+  const parsedMetadata = parseStateIndexMetadata(
+    definition,
+    index.metadata,
+    sourcePath
+  );
+  if (parsedMetadata.status === "error") {
+    return parsedMetadata;
+  }
+  const metadata = canonicalizeTypedJsonObject(parsedMetadata.value);
+  const context = createProjectionContext(metadata);
+  const entries: StateIndexEntry<State>[] = [];
+  for (const entry of index.entries) {
+    const projected = projectStateIndexEntry(definition, entry.state, context);
+    if (projected.status === "error") {
+      return {
+        diagnostics: projected.diagnostics.map((entryDiagnostic) => ({
+          ...entryDiagnostic,
+          path: entryDiagnostic.path ?? sourcePath,
+          stateId: entryDiagnostic.stateId ?? entry.id
+        })),
+        status: "error",
+        value: null
+      };
+    }
+    if (
+      projected.value.id !== entry.id
+      || !sameKeyMaps(projected.value.keys, entry.keys)
+    ) {
+      return {
+        diagnostics: [diagnostic({
+          code: "state-index.definition-mismatch",
+          message: `stored state ${entry.id} does not match its id and keys `
+            + "under the runtime definition",
+          path: sourcePath,
+          stateId: entry.id
+        })],
+        status: "error",
+        value: null
+      };
+    }
+    entries.push(projected.value);
+  }
+  return {
+    diagnostics: [],
+    status: "ok",
+    value: canonicalizeStateIndex({
+      definitionVersion: index.definitionVersion,
+      entries,
+      keyDefinitions: [...index.keyDefinitions],
+      metadata,
+      namespace: index.namespace,
+      schemaVersion: stateIndexSchemaVersion,
+      sourceRevision: index.sourceRevision
+    }, definition)
+  };
 }
 
 function sameKeyDefinitions(
@@ -340,16 +484,118 @@ function sameKeyDefinitions(
     ));
 }
 
+function sameKeyMaps(
+  left: StateIndexEntry["keys"],
+  right: StateIndexEntry["keys"]
+): boolean {
+  const leftNames = Object.keys(left).sort(compareIndexText);
+  const rightNames = Object.keys(right).sort(compareIndexText);
+  return leftNames.length === rightNames.length
+    && leftNames.every((name, index) => {
+      if (name !== rightNames[index]) {
+        return false;
+      }
+      const leftValues = left[name] ?? [];
+      const rightValues = right[name] ?? [];
+      return leftValues.length === rightValues.length
+        && leftValues.every((value, valueIndex) => (
+          scalarIdentity(value) === scalarIdentity(rightValues[valueIndex]!)
+        ));
+    });
+}
+
 function isStateSnapshot(
   value: unknown
-): value is { revision: string; states: unknown[] } {
+): value is { metadata: JsonObject; revision: string; states: unknown[] } {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
     return false;
   }
-  const candidate = value as { revision?: unknown; states?: unknown };
+  const candidate = value as {
+    metadata?: unknown;
+    revision?: unknown;
+    states?: unknown;
+  };
   return typeof candidate.revision === "string"
     && isStateIndexText(candidate.revision)
+    && isJsonObject(candidate.metadata)
     && Array.isArray(candidate.states);
+}
+
+function parseStateIndexMetadata<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  definition: StateIndexDefinition<State, Metadata>,
+  input: unknown,
+  sourcePath: string | null = null
+): StateIndexResult<Metadata> {
+  if (!isJsonObject(input)) {
+    return failure(
+      "state-index.metadata-invalid",
+      "metadata must be a JSON object containing only finite JSON values"
+    );
+  }
+  let metadata: Metadata;
+  try {
+    metadata = definition.parseMetadata(input);
+  } catch (error) {
+    return {
+      diagnostics: [diagnostic({
+        code: "state-index.metadata-parse-failed",
+        message: errorText(error),
+        path: sourcePath
+      })],
+      status: "error",
+      value: null
+    };
+  }
+  if (!isJsonObject(metadata)) {
+    return {
+      diagnostics: [diagnostic({
+        code: "state-index.metadata-parse-invalid",
+        message: "parseMetadata must return a JSON object containing only finite JSON values",
+        path: sourcePath
+      })],
+      status: "error",
+      value: null
+    };
+  }
+  return { diagnostics: [], status: "ok", value: metadata };
+}
+
+function createProjectionContext<Metadata extends JsonObject>(
+  metadata: Metadata
+): StateIndexProjectionContext<Metadata> {
+  return Object.freeze({
+    metadata: deeplyReadonlyFrozenValue(metadata)
+  });
+}
+
+function validateCompleteStateIndex<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  definition: StateIndexDefinition<State, Metadata>,
+  index: StateIndex<State, Metadata>,
+  sourcePath: string
+): StateIndexResult<StateIndex<State, Metadata>> {
+  if (definition.validateIndex === undefined) {
+    return { diagnostics: [], status: "ok", value: index };
+  }
+  try {
+    definition.validateIndex(readonlyFrozenStateIndex(index));
+  } catch (error) {
+    return {
+      diagnostics: [diagnostic({
+        code: "state-index.index-validation-failed",
+        message: errorText(error),
+        path: sourcePath
+      })],
+      status: "error",
+      value: null
+    };
+  }
+  return { diagnostics: [], status: "ok", value: index };
 }
 
 function normalizeKeyValues(
@@ -389,80 +635,160 @@ function isKeyScalar(value: unknown): value is StateIndexKeyScalar {
     || (typeof value === "string" && isStateIndexText(value));
 }
 
-function canonicalizeEntry(entry: StateIndexEntry): StateIndexEntry;
-function canonicalizeEntry<State extends object>(
-  entry: StateIndexEntry,
-  definition: StateIndexDefinition<State>,
+function canonicalizeEntry<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  entry: StateIndexEntry<State>,
+  definition: StateIndexDefinition<State, Metadata>,
+  context: StateIndexProjectionContext<Metadata>,
   keyOrder: ReadonlyMap<string, number>
-): StateIndexEntry;
-function canonicalizeEntry(
-  entry: StateIndexEntry,
-  definition?: StateIndexDefinition<object>,
+): StateIndexEntry<State>;
+function canonicalizeEntry<State extends object>(
+  entry: StateIndexEntry<State>
+): StateIndexEntry<State>;
+function canonicalizeEntry<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  entry: StateIndexEntry<State>,
+  definition?: StateIndexDefinition<State, Metadata>,
+  context?: StateIndexProjectionContext<Metadata>,
   keyOrder?: ReadonlyMap<string, number>
-): StateIndexEntry {
+): StateIndexEntry<State> {
   if (definition?.fieldOrder === "definition" && keyOrder !== undefined) {
-    const state = definition.parseState(entry.state);
+    if (!isJsonObject(entry.state) || context === undefined) {
+      throw new TypeError(
+        "state must be a JSON object containing only finite JSON values"
+      );
+    }
+    const state = definition.parseState(entry.state, context);
     if (!isJsonObject(state)) {
       throw new TypeError(
         "parseState must return a JSON object containing only finite JSON values"
       );
     }
-    return {
+    return freezeObject({
       id: entry.id,
-      keys: Object.fromEntries(
+      keys: freezeKeyMap(Object.fromEntries(
         Object.entries(entry.keys)
           .sort(([left], [right]) => compareDefinitionKeys(left, right, keyOrder))
           .map(([name, values]) => [name, [...values].sort(compareKeyScalars)])
-      ),
-      state: preserveJsonObjectFieldOrder(state)
-    };
+      )),
+      state: cloneAndFreezeTypedJsonObject(state, false)
+    });
   }
-  return {
+  return freezeObject({
     id: entry.id,
-    keys: Object.fromEntries(
+    keys: freezeKeyMap(Object.fromEntries(
       Object.entries(entry.keys)
         .sort(([left], [right]) => compareIndexText(left, right))
         .map(([name, values]) => [name, [...values].sort(compareKeyScalars)])
-    ),
-    state: canonicalizeJsonObject(entry.state)
-  };
+    )),
+    state: canonicalizeTypedJsonObject(entry.state)
+  });
 }
 
-function canonicalizeJsonObject(value: JsonObject): JsonObject {
-  return Object.fromEntries(
-    Object.entries(value)
-      .sort(([left], [right]) => compareIndexText(left, right))
-      .map(([key, child]) => [key, canonicalizeJsonValue(child)])
-  );
+function canonicalizeTypedJsonObject<Value extends object>(value: Value): Value {
+  return cloneAndFreezeTypedJsonObject(value, true);
 }
 
-function canonicalizeJsonValue(value: JsonValue): JsonValue {
-  if (Array.isArray(value)) {
-    return value.map(canonicalizeJsonValue);
+function cloneAndFreezeTypedJsonObject<Value extends object>(
+  value: Value,
+  sortKeys: boolean
+): Value {
+  if (!isJsonObject(value)) {
+    throw new TypeError(
+      "value must be a JSON object containing only finite JSON values"
+    );
   }
-  if (value !== null && typeof value === "object") {
-    return canonicalizeJsonObject(value);
-  }
-  return value;
+  // The validated JSON shape is preserved in a fresh recursively frozen copy.
+  return cloneAndFreezeJsonObject(value, sortKeys) as Value;
 }
 
-function preserveJsonObjectFieldOrder(value: JsonObject): JsonObject {
-  return Object.fromEntries(
-    Object.entries(value).map(([key, child]) => [
+function cloneAndFreezeJsonObject(
+  value: JsonObject,
+  sortKeys: boolean
+): JsonObject {
+  const entries = Object.entries(value);
+  if (sortKeys) {
+    entries.sort(([left], [right]) => compareIndexText(left, right));
+  }
+  return freezeObject(Object.fromEntries(
+    entries.map(([key, child]) => [
       key,
-      preserveJsonValueFieldOrder(child)
+      cloneAndFreezeJsonValue(child, sortKeys)
     ])
-  );
+  ));
 }
 
-function preserveJsonValueFieldOrder(value: JsonValue): JsonValue {
+function cloneAndFreezeJsonValue(
+  value: JsonValue,
+  sortKeys: boolean
+): JsonValue {
   if (Array.isArray(value)) {
-    return value.map(preserveJsonValueFieldOrder);
+    return freezeObject(value.map((entry) => (
+      cloneAndFreezeJsonValue(entry, sortKeys)
+    )));
   }
   if (value !== null && typeof value === "object") {
-    return preserveJsonObjectFieldOrder(value);
+    return cloneAndFreezeJsonObject(value, sortKeys);
   }
   return value;
+}
+
+function freezeKeyMap(
+  keys: Record<string, StateIndexKeyScalar[]>
+): Record<string, StateIndexKeyScalar[]> {
+  for (const values of Object.values(keys)) {
+    freezeObject(values);
+  }
+  return freezeObject(keys);
+}
+
+function freezeObject<Value extends object>(value: Value): Value {
+  Object.freeze(value);
+  return value;
+}
+
+function deeplyReadonlyFrozenValue<Value>(
+  value: Value
+): DeepReadonly<Value> {
+  if (!isDeeplyFrozen(value)) {
+    throw new TypeError("internal normalized value must be recursively frozen");
+  }
+  return value as DeepReadonly<Value>;
+}
+
+function readonlyFrozenStateIndex<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  index: StateIndex<State, Metadata>
+): ReadonlyStateIndex<State, Metadata> {
+  if (!isDeeplyFrozen(index)) {
+    throw new TypeError("complete state index must be recursively frozen");
+  }
+  return index as unknown as ReadonlyStateIndex<State, Metadata>;
+}
+
+function isDeeplyFrozen(
+  value: unknown,
+  seen: Set<object> = new Set()
+): boolean {
+  if (value === null || typeof value !== "object") {
+    return true;
+  }
+  if (seen.has(value)) {
+    return true;
+  }
+  if (!Object.isFrozen(value)) {
+    return false;
+  }
+  seen.add(value);
+  return Reflect.ownKeys(value).every((key) => (
+    isDeeplyFrozen(Reflect.get(value, key), seen)
+  ));
 }
 
 function compareDefinitionKeys(

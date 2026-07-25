@@ -1,7 +1,7 @@
 ---
 title: 使用可配置且自包含的决策根目录
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-22T08:42:12Z
 purpose: 让默认位置和显式目标路径共享稳定身份，并保持 Markdown 事实源与派生索引的自包含契约。
 background: 决策目录既可以使用默认位置，也可以指向 root 外部；若混淆目标选择与路径解析，会让同一参数落到不同集合。

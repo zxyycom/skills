@@ -5,7 +5,6 @@ import path from "node:path";
 import { validateDecisionRecords } from "../src/index.ts";
 import {
   fixtureRoot,
-  initializeGitRepository,
   runSuccessfulSourceCli
 } from "./support.ts";
 
@@ -19,7 +18,6 @@ try {
   const decisionsDirectory = path.join(relativeConfigurationRoot, configuredPath);
   await fs.mkdir(path.dirname(decisionsDirectory), { recursive: true });
   await fs.cp(fixtureDecisionsDirectory, decisionsDirectory, { recursive: true });
-  initializeGitRepository(relativeConfigurationRoot);
 
   const validation = await validateDecisionRecords({
     decisionsDir: configuredPath,
@@ -56,7 +54,6 @@ try {
   );
   await fs.mkdir(workspaceRoot, { recursive: true });
   await fs.cp(fixtureDecisionsDirectory, decisionsDirectory, { recursive: true });
-  initializeGitRepository(absoluteConfigurationRoot);
   assert.ok(path.relative(workspaceRoot, decisionsDirectory).startsWith(".."));
 
   const validation = await validateDecisionRecords({

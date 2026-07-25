@@ -8,15 +8,16 @@ import {
   currentRelativePath,
   findIndexEntry,
   fixtureRoot,
-  initializeGitRepository,
   readIndex,
   runBundledCli,
   runSuccessfulCli,
   traceDecision,
-  writeIndex
+  writeIndex,
+  writeTestDomainCatalog
 } from "./support.ts";
 
 await import("./generated-artifacts.test.ts");
+await import("./decision-domain-catalog.test.ts");
 await import("./queries.test.ts");
 await import("./type-path-invariants.test.ts");
 await import("./state-snapshot.test.ts");
@@ -25,21 +26,18 @@ await import("./configured-decision-directory.test.ts");
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "decision-records-test-"));
 try {
   await fs.cp(fixtureRoot, tempRoot, { recursive: true });
-  initializeGitRepository(tempRoot);
   const decisionsDirectory = path.join(tempRoot, "docs", "decisions");
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
   const originalIndexText = await fs.readFile(indexPath, "utf8");
   const originalIndex = await readIndex(indexPath);
   const currentDecisionPath = path.join(
     decisionsDirectory,
-    "tooling",
-    "use-generated-cli.md"
+    ...currentRelativePath.split("/")
   );
   const currentDecision = await fs.readFile(currentDecisionPath, "utf8");
   const archivedDecisionPath = path.join(
     decisionsDirectory,
-    "tooling",
-    "260710-use-source-cli.md"
+    ...archivedRelativePath.split("/")
   );
   const archivedDecision = await fs.readFile(archivedDecisionPath, "utf8");
 
@@ -93,7 +91,7 @@ try {
     workspaceRoot: tempRoot
   });
   assert.ok(withUnsupportedSchemaVersion.errors.some(
-    (error) => error.includes("schemaVersion must be 1")
+    (error) => error.includes("schemaVersion must be 2")
   ));
   const listWithInvalidIndex = await runBundledCli([
     "list",
@@ -162,7 +160,8 @@ try {
     ]),
     /Rebuilt .*decision-index\.json from decision Markdown files/
   );
-  assert.equal((await readIndex(indexPath)).schemaVersion, 1);
+  assert.equal((await readIndex(indexPath)).schemaVersion, 2);
+  assert.deepEqual((await readIndex(indexPath)).metadata, originalIndex.metadata);
   assert.deepEqual(
     (await validateDecisionRecords({ workspaceRoot: tempRoot })).errors,
     []
@@ -205,7 +204,9 @@ try {
     "utf8"
   );
   assert.ok((await validateDecisionRecords({ workspaceRoot: tempRoot })).errors.some(
-    (error) => error.includes("frontmatter createdAt must not be null")
+    (error) => error.includes(
+      "Unactivated decision candidate must be activated or discarded before strict check"
+    )
   ));
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
 
@@ -253,7 +254,7 @@ try {
     currentDecision.replace(
       "relations:\n"
       + "  - type: 修订\n"
-      + "    target: tooling/260710-use-source-cli.md\n",
+      + "    target: decision-records/260710-use-source-cli.md\n",
       "relations: []\n"
     ),
     "utf8"
@@ -275,7 +276,7 @@ try {
       "relations: []\n",
       "relations:\n"
       + "  - type: 修订\n"
-      + "    target: tooling/use-generated-cli.md\n"
+      + "    target: project-tooling/use-generated-cli.md\n"
     ),
     "utf8"
   );
@@ -322,8 +323,8 @@ try {
     "- 采用: 单次只激活目标，索引排除其他候选且严格检查继续阻断。",
     ""
   ].join("\n");
-  const firstUnindexedRelativePath = "tooling/use-first-unindexed.md";
-  const secondUnindexedRelativePath = "tooling/use-second-unindexed.md";
+  const firstUnindexedRelativePath = "decision-records/use-first-unindexed.md";
+  const secondUnindexedRelativePath = "decision-records/use-second-unindexed.md";
   const firstUnindexedPath = path.join(
     decisionsDirectory,
     firstUnindexedRelativePath
@@ -345,15 +346,15 @@ try {
   assert.equal(multipleUnindexedActivation.exitCode, 0);
   assert.match(
     multipleUnindexedActivation.stdout,
-    /Activated new decision as aligned tooling\/use-first-unindexed\.md \[pending\]/
+    /Activated new decision as aligned decision-records\/use-first-unindexed\.md\./
   );
   assert.match(
     multipleUnindexedActivation.stderr,
-    /Unactivated decision candidate remains: tooling\/use-second-unindexed\.md/
+    /Unactivated decision candidate remains: decision-records\/use-second-unindexed\.md/
   );
   assert.doesNotMatch(
     multipleUnindexedActivation.stderr,
-    /Unactivated decision candidate remains: tooling\/use-first-unindexed\.md/
+    /Unactivated decision candidate remains: decision-records\/use-first-unindexed\.md/
   );
   const firstActivationIndex = await readIndex(indexPath);
   findIndexEntry(firstActivationIndex, firstUnindexedRelativePath);
@@ -368,7 +369,7 @@ try {
   assert.equal(candidateCheck.exitCode, 1);
   assert.match(
     candidateCheck.stderr,
-    /Unactivated decision candidate must be activated or discarded before strict check: tooling\/use-second-unindexed\.md/
+    /Unactivated decision candidate must be activated or discarded before strict check: decision-records\/use-second-unindexed\.md/
   );
   const candidateValidation = await validateDecisionRecords({
     workspaceRoot: tempRoot
@@ -408,8 +409,8 @@ try {
   await fs.rm(secondUnindexedPath);
   await fs.writeFile(indexPath, originalIndexText, "utf8");
 
-  const targetCandidateRelativePath = "tooling/use-target-candidate.md";
-  const orphanRelativePath = "tooling/use-orphan-established.md";
+  const targetCandidateRelativePath = "decision-records/use-target-candidate.md";
+  const orphanRelativePath = "decision-records/use-orphan-established.md";
   const targetCandidatePath = path.join(
     decisionsDirectory,
     targetCandidateRelativePath
@@ -424,6 +425,27 @@ try {
     ),
     "utf8"
   );
+  for (const staleQueryArgs of [
+    ["list", "--root", tempRoot],
+    ["show", currentRelativePath, "--root", tempRoot],
+    ["trace", currentRelativePath, "--root", tempRoot]
+  ]) {
+    const staleQueryWithOrphan = await runBundledCli(staleQueryArgs);
+    assert.equal(staleQueryWithOrphan.exitCode, 1);
+    assert.equal(staleQueryWithOrphan.stdout, "");
+    assert.match(staleQueryWithOrphan.stderr, /source revision|out of sync/i);
+  }
+
+  const syncWithOrphan = await runBundledCli([
+    "sync-index",
+    "--write",
+    "--root",
+    tempRoot
+  ]);
+  assert.equal(syncWithOrphan.exitCode, 0);
+  assert.match(syncWithOrphan.stderr, /use-target-candidate\.md/);
+  findIndexEntry(await readIndex(indexPath), orphanRelativePath);
+
   const activationWithOrphan = await runBundledCli([
     "activate",
     targetCandidateRelativePath,
@@ -432,30 +454,17 @@ try {
     "--root",
     tempRoot
   ]);
-  assert.equal(activationWithOrphan.exitCode, 1);
-  assert.match(
-    activationWithOrphan.stderr,
-    /does not include decision tooling\/use-orphan-established\.md/
-  );
+  assert.equal(activationWithOrphan.exitCode, 0);
   assert.match(
     await fs.readFile(targetCandidatePath, "utf8"),
-    /createdAt: null/
+    /createdAt: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/
   );
-  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
-  const syncWithOrphan = await runBundledCli([
-    "sync-index",
-    "--write",
-    "--root",
-    tempRoot
-  ]);
-  assert.equal(syncWithOrphan.exitCode, 1);
-  assert.match(
-    syncWithOrphan.stderr,
-    /does not include decision tooling\/use-orphan-established\.md/
-  );
-  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
+  const indexWithEstablishedAdditions = await readIndex(indexPath);
+  findIndexEntry(indexWithEstablishedAdditions, targetCandidateRelativePath);
+  findIndexEntry(indexWithEstablishedAdditions, orphanRelativePath);
   await fs.rm(targetCandidatePath);
   await fs.rm(orphanPath);
+  await fs.writeFile(indexPath, originalIndexText, "utf8");
 
   const driftedDecision = currentDecision.replaceAll(
     "需要验证生成后的 CLI 能读取一套最小决策目录。",
@@ -487,7 +496,7 @@ try {
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
   await fs.writeFile(indexPath, originalIndexText, "utf8");
 
-  const successorRelativePath = "tooling/use-bundled-cli.md";
+  const successorRelativePath = "project-tooling/use-bundled-cli.md";
   const successorPath = path.join(decisionsDirectory, successorRelativePath);
   const successorBody = [
     "---",
@@ -500,7 +509,7 @@ try {
     "decision: 分别归档前序并激活新的打包 CLI 决策。",
     "relations:",
     "  - type: 替代",
-    "    target: tooling/use-generated-cli.md",
+    "    target: project-tooling/use-generated-cli.md",
     "---",
     "",
     "## 目的",
@@ -569,7 +578,7 @@ try {
     ["--direction", "predecessors", "--depth", "1"],
     tempRoot
   );
-  assert.match(directPredecessorTrace, /tooling\/use-generated-cli\.md/);
+  assert.match(directPredecessorTrace, /project-tooling\/use-generated-cli\.md/);
   assert.doesNotMatch(directPredecessorTrace, /260710-use-source-cli/);
 
   const fullPredecessorTrace = await traceDecision(
@@ -586,15 +595,15 @@ const firstActivationRoot = await fs.mkdtemp(
   path.join(os.tmpdir(), "decision-records-first-")
 );
 try {
-  initializeGitRepository(firstActivationRoot, { commit: false });
   const firstDecisionsDirectory = path.join(
     firstActivationRoot,
     "docs",
     "decisions"
   );
-  const firstAreaDirectory = path.join(firstDecisionsDirectory, "tooling");
-  await fs.mkdir(firstAreaDirectory, { recursive: true });
-  const firstRelativePath = "tooling/use-first-index.md";
+  const firstDomainDirectory = path.join(firstDecisionsDirectory, "decision-records");
+  await fs.mkdir(firstDomainDirectory, { recursive: true });
+  await writeTestDomainCatalog(firstDecisionsDirectory);
+  const firstRelativePath = "decision-records/use-first-index.md";
   const firstDecisionPath = path.join(firstDecisionsDirectory, firstRelativePath);
   await fs.writeFile(
     firstDecisionPath,
@@ -622,7 +631,7 @@ try {
     ].join("\n"),
     "utf8"
   );
-  const secondRelativePath = "tooling/use-second-index.md";
+  const secondRelativePath = "decision-records/use-second-index.md";
   await fs.writeFile(
     path.join(firstDecisionsDirectory, secondRelativePath),
     (await fs.readFile(firstDecisionPath, "utf8")).replace(
@@ -646,9 +655,13 @@ try {
   const firstIndex = await readIndex(
     path.join(firstDecisionsDirectory, "decision-index.json")
   );
-  assert.equal(firstIndex.schemaVersion, 1);
+  assert.equal(firstIndex.schemaVersion, 2);
+  assert.deepEqual(
+    firstIndex.metadata.domains.map((domain) => domain.id),
+    ["decision-records"]
+  );
   assert.equal(firstIndex.namespace, "decisions");
-  assert.equal(firstIndex.definitionVersion, 2);
+  assert.equal(firstIndex.definitionVersion, 3);
   assert.equal(firstIndex.entries.length, 1);
   assert.equal(firstIndex.entries[0]!.state.status, "active");
   assert.equal(firstIndex.entries[0]!.state.alignment, "aligned");
@@ -684,6 +697,6 @@ try {
   await fs.rm(firstActivationRoot, { force: true, recursive: true });
 }
 
-await import("./head-presence.test.ts");
+await import("./lifecycle-establishment.test.ts");
 
 console.log("Decision records CLI tests passed.");

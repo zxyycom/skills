@@ -74,8 +74,16 @@ type InvestigationSource = {
   text: string;
 };
 
+export type InvestigationIndexMetadata = Record<string, never>;
+
+const investigationIndexMetadata: InvestigationIndexMetadata = Object.freeze({});
+const investigationIndexMetadataSchema = v.strictObject({});
+
 export function createInvestigationStateIndexDefinition(
-): StateIndexDefinition<InvestigationIndexState> {
+): StateIndexDefinition<
+  InvestigationIndexState,
+  InvestigationIndexMetadata
+> {
   return defineStateIndexDefinition({
     definitionVersion: investigationIndexDefinitionVersion,
     identify: (state) => state.path,
@@ -108,6 +116,7 @@ export function createInvestigationStateIndexDefinition(
       }
     ],
     namespace: investigationIndexNamespace,
+    parseMetadata: parseInvestigationIndexMetadata,
     parseState: parseInvestigationIndexState,
     read: async (context) => await readInvestigationStateSnapshot(
       context.root,
@@ -137,7 +146,10 @@ export async function loadCurrentInvestigationIndex(options: {
   investigationsDirectory: string;
   indexPath?: string;
   signal?: AbortSignal;
-}): Promise<StateIndexResult<StateIndex>> {
+}): Promise<StateIndexResult<StateIndex<
+  InvestigationIndexState,
+  InvestigationIndexMetadata
+>>> {
   return await loadCurrentStateIndex({
     context: stateIndexContext(
       options.investigationsDirectory,
@@ -211,7 +223,10 @@ export async function readInvestigationSourceRevision(
 export async function readInvestigationStateSnapshot(
   investigationsDirectory: string,
   signal?: AbortSignal
-): Promise<StateSnapshot<InvestigationIndexState>> {
+): Promise<StateSnapshot<
+  InvestigationIndexState,
+  InvestigationIndexMetadata
+>> {
   const sources = await readInvestigationSources(
     investigationsDirectory,
     signal
@@ -227,13 +242,27 @@ export async function readInvestigationStateSnapshot(
     return built.state;
   });
   return {
+    metadata: investigationIndexMetadata,
     revision: investigationSourceRevision(sources),
     states
   };
 }
 
+function parseInvestigationIndexMetadata(
+  input: Parameters<StateIndexDefinition<
+    InvestigationIndexState,
+    InvestigationIndexMetadata
+  >["parseMetadata"]>[0]
+): InvestigationIndexMetadata {
+  v.parse(investigationIndexMetadataSchema, input);
+  return investigationIndexMetadata;
+}
+
 function parseInvestigationIndexState(input: Parameters<
-  StateIndexDefinition<InvestigationIndexState>["parseState"]
+  StateIndexDefinition<
+    InvestigationIndexState,
+    InvestigationIndexMetadata
+  >["parseState"]
 >[0]): InvestigationIndexState {
   const parsed = v.safeParse(investigationIndexStateSchema, input);
   if (!parsed.success) {

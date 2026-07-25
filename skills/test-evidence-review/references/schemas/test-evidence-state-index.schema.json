@@ -260,11 +260,17 @@
       ],
       "minItems": 4
     },
+    "metadata": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
     "namespace": {
       "const": "test-evidence"
     },
     "schemaVersion": {
-      "const": 1
+      "const": 2
     },
     "sourceRevision": {
       "type": "string",
@@ -275,6 +281,7 @@
     "definitionVersion",
     "entries",
     "keyDefinitions",
+    "metadata",
     "namespace",
     "schemaVersion",
     "sourceRevision"

@@ -15,6 +15,11 @@ export type DecisionRelationTrace = {
   paths: Set<string>;
 };
 
+export type DecisionRelationConsistencyIssue = {
+  message: string;
+  sourcePaths: string[];
+};
+
 type DecisionRelationGraph = {
   edges: DecisionRelationEdge[];
   edgesBySource: Map<string, DecisionRelationEdge[]>;
@@ -82,10 +87,10 @@ export function traceDecisionRelations(
 ): DecisionRelationTrace {
   const graph = buildDecisionRelationGraph(records);
   const paths = new Set<string>();
-  const pending = [{ depth: 0, path: startPath }];
+  const traversalQueue = [{ depth: 0, path: startPath }];
 
-  for (let index = 0; index < pending.length; index += 1) {
-    const item = pending[index];
+  for (let index = 0; index < traversalQueue.length; index += 1) {
+    const item = traversalQueue[index];
     if (item === undefined || paths.has(item.path)) {
       continue;
     }
@@ -96,13 +101,13 @@ export function traceDecisionRelations(
     }
 
     if (options.direction !== "successors") {
-      pending.push(...(graph.edgesBySource.get(item.path) ?? []).map((edge) => ({
+      traversalQueue.push(...(graph.edgesBySource.get(item.path) ?? []).map((edge) => ({
         depth: item.depth + 1,
         path: edge.target
       })));
     }
     if (options.direction !== "predecessors") {
-      pending.push(...(graph.edgesByTarget.get(item.path) ?? []).map((edge) => ({
+      traversalQueue.push(...(graph.edgesByTarget.get(item.path) ?? []).map((edge) => ({
         depth: item.depth + 1,
         path: edge.source
       })));
@@ -120,25 +125,35 @@ export function traceDecisionRelations(
 export function decisionRelationConsistencyErrors(
   records: readonly DecisionRecord[]
 ): string[] {
+  return decisionRelationConsistencyIssues(records).map((issue) => issue.message);
+}
+
+export function decisionRelationConsistencyIssues(
+  records: readonly DecisionRecord[]
+): DecisionRelationConsistencyIssue[] {
   const graph = buildDecisionRelationGraph(records.map((record) => ({
     ...record,
     projection: record.document ?? record.projection,
     status: record.document?.status ?? record.status
   })));
-  const errors: string[] = [];
+  const issues: DecisionRelationConsistencyIssue[] = [];
 
   for (const edge of graph.edges) {
     const target = graph.recordByPath.get(edge.target);
     if (!target) {
-      errors.push(
-        edge.source + " relationship target is not a scanned decision: " + edge.target
-      );
+      issues.push({
+        message: edge.source
+          + " relationship target is not a scanned decision: "
+          + edge.target,
+        sourcePaths: [edge.source]
+      });
     } else if (target.status === "active") {
-      errors.push(
-        edge.source
+      issues.push({
+        message: edge.source
         + " relationship " + edge.type
-        + " target must be archived: " + edge.target
-      );
+        + " target must be archived: " + edge.target,
+        sourcePaths: [edge.source]
+      });
     }
   }
 
@@ -158,10 +173,12 @@ export function decisionRelationConsistencyErrors(
       const targetState = visitState.get(target);
       if (targetState === "visiting") {
         const cycleStart = pathStack.indexOf(target);
-        errors.push(
-          "Decision relations must not form a cycle: "
-          + [...pathStack.slice(cycleStart), target].join(" -> ")
-        );
+        const cyclePaths = pathStack.slice(cycleStart);
+        issues.push({
+          message: "Decision relations must not form a cycle: "
+            + [...cyclePaths, target].join(" -> "),
+          sourcePaths: cyclePaths
+        });
       } else if (targetState !== "visited") {
         visit(target);
       }
@@ -177,5 +194,5 @@ export function decisionRelationConsistencyErrors(
     }
   }
 
-  return errors;
+  return issues;
 }

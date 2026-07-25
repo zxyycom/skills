@@ -1,7 +1,7 @@
 import * as v from "valibot";
 import { isJsonObject, type JsonObject } from "./json.ts";
 
-export const stateIndexSchemaVersion = 1 as const;
+export const stateIndexSchemaVersion = 2 as const;
 export const stateIndexQueryDefaultLimit = 50;
 export const stateIndexQueryMaximumLimit = 1_000;
 
@@ -77,8 +77,9 @@ export const stateIndexSchema = v.strictObject({
     v.array(stateIndexKeyDefinitionSchema, "must be an array"),
     v.minLength(1, "must contain at least one key definition")
   ),
+  metadata: jsonObjectSchema,
   namespace: stateIndexNamespaceSchema,
-  schemaVersion: v.literal(stateIndexSchemaVersion, "must be 1"),
+  schemaVersion: v.literal(stateIndexSchemaVersion, "must be 2"),
   sourceRevision: stateIndexRevisionSchema
 });
 
@@ -86,6 +87,7 @@ export function createStateIndexSchema<
   const DefinitionVersion extends number,
   const KeysSchema extends v.GenericSchema,
   const KeyDefinitionsSchema extends v.GenericSchema,
+  const MetadataSchema extends v.GenericSchema,
   const Namespace extends string,
   const SourceRevisionSchema extends v.GenericSchema,
   const StateSchema extends v.GenericSchema
@@ -93,6 +95,7 @@ export function createStateIndexSchema<
   definitionVersion: DefinitionVersion;
   keys: KeysSchema;
   keyDefinitions: KeyDefinitionsSchema;
+  metadata: MetadataSchema;
   namespace: Namespace;
   sourceRevision: SourceRevisionSchema;
   state: StateSchema;
@@ -105,6 +108,7 @@ export function createStateIndexSchema<
       state: options.state
     })),
     keyDefinitions: options.keyDefinitions,
+    metadata: options.metadata,
     namespace: v.literal(options.namespace),
     schemaVersion: v.literal(stateIndexSchemaVersion),
     sourceRevision: options.sourceRevision

@@ -64,8 +64,9 @@ docs/investigations/
     { "mode": "exact", "name": "status" },
     { "mode": "text", "name": "text" }
   ],
+  "metadata": {},
   "namespace": "investigations",
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "sourceRevision": "sha256:<64 lowercase hexadecimal characters>"
 }
 ```
@@ -78,7 +79,7 @@ docs/investigations/
 4. `category` 和 `status` 是 exact key；`latest-report-at` 把最新报告时间转换为 epoch 毫秒后作为 range key；`text` 聚合主题标题、核心问题和全部报告标题。它不索引报告正文；需要正文级知识检索时应建立独立的报告读取侧，而不是改变主题主索引的粒度。路径查询直接使用保留的 `id`。
 5. 索引覆盖调查根目录内全部合法主题文件，不维护手工成员清单，也不保留归档目录。新增和删除主题文件都通过下一次完整同步改变成员。
 6. `sourceRevision` 对排序后的 POSIX 路径和完整 Markdown UTF-8 文本进行稳定 framing 后计算 SHA-256，计算前只把 CRLF 规范化为 LF。任何源内容或成员变化都会使旧索引失效，即使变化没有改变 state 投影。
-7. 索引条目、key 定义、key 名和 key 值使用固定全序；state 对象键确定性排序，`reportTitles` 保持源顺序。JSON 使用两空格缩进、LF 和文件末尾换行，不保存生成时间。
+7. 通用外壳固定使用 `schemaVersion: 2`，调查领域当前没有集合级数据，因而显式保存 `"metadata": {}`；schema v1 或缺失 metadata 的索引不兼容。索引条目、key 定义、key 名和 key 值使用固定全序；metadata 与 state 对象键确定性排序，`reportTitles` 保持源顺序。JSON 使用两空格缩进、LF 和文件末尾换行，不保存生成时间。
 8. 索引是可删除重建的派生副本。正常维护不直接编辑它，也不保留 `investigation-index.md` 或其他兼容索引；工具损坏时先恢复当前 CLI，再从主题 Markdown 重建当前 JSON 格式。
 9. `sync-index` 从完整主题快照检查或原子替换索引，写入前再次读取 source revision；源在构建期间变化时拒绝写入。
 

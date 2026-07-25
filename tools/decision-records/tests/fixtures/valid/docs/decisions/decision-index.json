@@ -1,11 +1,27 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "namespace": "decisions",
-  "definitionVersion": 2,
-  "sourceRevision": "sha256:911f9aab468e2fef80d477cd2093eb06a55bb263e03da8ad937c0f3881294def",
+  "definitionVersion": 3,
+  "metadata": {
+    "domains": [
+      {
+        "description": "维护明确变更的提案、设计、任务分解与结构检查。",
+        "id": "change-plan"
+      },
+      {
+        "description": "维护长期决策的记录契约、生命周期、索引、查询与演进关系。",
+        "id": "decision-records"
+      },
+      {
+        "description": "维护仓库校验、生成、打包、发布和更新工具链。",
+        "id": "project-tooling"
+      }
+    ]
+  },
+  "sourceRevision": "sha256:1b8dd48ab9aced2c399f196eae7875de7f02399922169818ef96b417db8639b2",
   "keyDefinitions": [
     {
-      "name": "topic",
+      "name": "domain",
       "mode": "exact"
     },
     {
@@ -19,17 +35,17 @@
   ],
   "entries": [
     {
-      "id": "tooling/260710-use-source-cli.md",
+      "id": "decision-records/260710-use-source-cli.md",
       "keys": {
-        "topic": [
-          "tooling"
+        "domain": [
+          "decision-records"
         ],
         "status": [
           "archived"
         ]
       },
       "state": {
-        "path": "tooling/260710-use-source-cli.md",
+        "path": "decision-records/260710-use-source-cli.md",
         "title": "使用源码 CLI",
         "status": "archived",
         "alignment": null,
@@ -41,10 +57,10 @@
       }
     },
     {
-      "id": "tooling/use-generated-cli.md",
+      "id": "project-tooling/use-generated-cli.md",
       "keys": {
-        "topic": [
-          "tooling"
+        "domain": [
+          "project-tooling"
         ],
         "status": [
           "active"
@@ -54,7 +70,7 @@
         ]
       },
       "state": {
-        "path": "tooling/use-generated-cli.md",
+        "path": "project-tooling/use-generated-cli.md",
         "title": "使用生成 CLI",
         "status": "active",
         "alignment": "aligned",
@@ -65,7 +81,7 @@
         "relations": [
           {
             "type": "修订",
-            "target": "tooling/260710-use-source-cli.md"
+            "target": "decision-records/260710-use-source-cli.md"
           }
         ]
       }

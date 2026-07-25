@@ -50,7 +50,8 @@ export interface TestEvidenceStateIndex {
    * @minItems 4
    */
   keyDefinitions: [unknown, unknown, unknown, unknown, ...unknown[]];
+  metadata: Record<string, never>;
   namespace: "test-evidence";
-  schemaVersion: 1;
+  schemaVersion: 2;
   sourceRevision: string;
 }
