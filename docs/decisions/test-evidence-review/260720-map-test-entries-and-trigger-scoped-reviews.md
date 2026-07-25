@@ -1,7 +1,7 @@
 ---
 title: 按测试入口映射证据并触发范围审查
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-20T13:48:52+08:00
 purpose: 让每个被发现器识别的测试入口都能回到明确契约和 case，消除文件级标记造成的遮蔽，并让人工审查范围在 Git 变化后可确定地重新触发。
 background: 文件级最小归属会让一个 marker 覆盖同文件内未评估的其他测试；case 缺少契约背景，普通三级标题会被误判；Scope 只校验路径外形，无法发现失效范围或命中变更。

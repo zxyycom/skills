@@ -1,7 +1,7 @@
 ---
 title: 按任务出口渐进读取测试账本契约
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-21T01:52:41Z
 purpose: 让测试价值审查先恢复相关契约和证据，只在精确维护需要时加载完整账本格式，降低无关上下文成本。
 background: 固定契约包含大量字段、配置和 CLI 细节，纯语义审查每次完整读取会挤占实现、测试和行为 owner 的有效上下文。

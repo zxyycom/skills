@@ -73,7 +73,7 @@
         "id": "subagent-orchestration"
       },
       {
-        "description": "评估测试证明价值与维护成本，并管理证据、人工风险和豁免。",
+        "description": "审查测试与工程校验实现的证明价值、可靠性和维护成本，并维护显式 case 与派生索引。",
         "id": "test-evidence-review"
       },
       {
@@ -82,7 +82,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:c45dd018ef5876920aa32caf974b72f12df7fa3e6ed411e68c71c09c796d2c4a",
+  "sourceRevision": "sha256:78fbf5e9808910af5e2858da5199337092d438f718cfd8cbfa309cf9aaa1bc2c",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -3301,17 +3301,14 @@
           "test-evidence-review"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "aligned"
+          "archived"
         ]
       },
       "state": {
         "path": "test-evidence-review/260720-map-test-entries-and-trigger-scoped-reviews.md",
         "title": "按测试入口映射证据并触发范围审查",
-        "status": "active",
-        "alignment": "aligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-07-20T13:48:52+08:00",
         "purpose": "让每个被发现器识别的测试入口都能回到明确契约和 case，消除文件级标记造成的遮蔽，并让人工审查范围在 Git 变化后可确定地重新触发。",
         "background": "文件级最小归属会让一个 marker 覆盖同文件内未评估的其他测试；case 缺少契约背景，普通三级标题会被误判；Scope 只校验路径外形，无法发现失效范围或命中变更。",
@@ -3392,17 +3389,14 @@
           "test-evidence-review"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "aligned"
+          "archived"
         ]
       },
       "state": {
         "path": "test-evidence-review/index-ledger-by-stable-case-state.md",
         "title": "测试账本以领域适配接入通用状态索引",
-        "status": "active",
-        "alignment": "aligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-07-23T08:04:36Z",
         "purpose": "让测试账本直接获得通用索引的统一同步、筛选、分页和按 ID 展开能力。",
         "background": "账本登记本身已有成本；如果每次维护和查询还依赖加载完整正文或专用查询逻辑，账本增长会继续放大用户与 agent 的上下文、定位和写入成本。",
@@ -3439,17 +3433,14 @@
           "test-evidence-review"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "aligned"
+          "archived"
         ]
       },
       "state": {
         "path": "test-evidence-review/publish-only-layered-test-evidence-interfaces.md",
         "title": "仅发布分层测试证据接口",
-        "status": "active",
-        "alignment": "aligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-07-21T03:26:09Z",
         "purpose": "让测试入口采集可独立替换，并让账本维护只依赖稳定、严格校验的数据契约。",
         "background": "组合兼容入口会把旧配置、旧输出和默认采集器继续带入账本工具边界，削弱两层接口的独立性。",
@@ -3491,6 +3482,28 @@
           "test-evidence-review"
         ],
         "status": [
+          "archived"
+        ]
+      },
+      "state": {
+        "path": "test-evidence-review/read-ledger-contract-on-demand.md",
+        "title": "按任务出口渐进读取测试账本契约",
+        "status": "archived",
+        "alignment": null,
+        "createdAt": "2026-07-21T01:52:41Z",
+        "purpose": "让测试价值审查先恢复相关契约和证据，只在精确维护需要时加载完整账本格式，降低无关上下文成本。",
+        "background": "固定契约包含大量字段、配置和 CLI 细节，纯语义审查每次完整读取会挤占实现、测试和行为 owner 的有效上下文。",
+        "decision": "所有任务继续受账本契约约束，但仅在写入、结构审阅、修复或精确诊断时完整读取；日常恢复先用 list/show/check。",
+        "relations": []
+      }
+    },
+    {
+      "id": "test-evidence-review/review-verification-implementations-with-explicit-indexed-cases.md",
+      "keys": {
+        "domain": [
+          "test-evidence-review"
+        ],
+        "status": [
           "active"
         ],
         "alignment": [
@@ -3498,15 +3511,32 @@
         ]
       },
       "state": {
-        "path": "test-evidence-review/read-ledger-contract-on-demand.md",
-        "title": "按任务出口渐进读取测试账本契约",
+        "path": "test-evidence-review/review-verification-implementations-with-explicit-indexed-cases.md",
+        "title": "以验证实现为触发边界并显式索引 test/check case",
         "status": "active",
         "alignment": "aligned",
-        "createdAt": "2026-07-21T01:52:41Z",
-        "purpose": "让测试价值审查先恢复相关契约和证据，只在精确维护需要时加载完整账本格式，降低无关上下文成本。",
-        "background": "固定契约包含大量字段、配置和 CLI 细节，纯语义审查每次完整读取会挤占实现、测试和行为 owner 的有效上下文。",
-        "decision": "所有任务继续受账本契约约束，但仅在写入、结构审阅、修复或精确诊断时完整读取；日常恢复先用 list/show/check。",
-        "relations": []
+        "createdAt": "2026-07-25T03:32:33Z",
+        "purpose": "让 skill 只在测试或工程校验实现发生变化时评估证明价值，并以显式 case 和派生索引保持低成本查找。",
+        "background": "入口发现、源码 marker、未登记统计和 Git 范围触发让流程围绕采集完整性展开，也会由普通业务变化间接启用；工程校验又无法被测试入口模型准确承接。",
+        "decision": "使用 `verification-implementation-review` 审查 test/check 实现；只登记显式 case，移除采集、marker、自动注册与范围触发，保留派生索引查询。",
+        "relations": [
+          {
+            "type": "替代",
+            "target": "test-evidence-review/260720-map-test-entries-and-trigger-scoped-reviews.md"
+          },
+          {
+            "type": "修订",
+            "target": "test-evidence-review/index-ledger-by-stable-case-state.md"
+          },
+          {
+            "type": "替代",
+            "target": "test-evidence-review/publish-only-layered-test-evidence-interfaces.md"
+          },
+          {
+            "type": "修订",
+            "target": "test-evidence-review/read-ledger-contract-on-demand.md"
+          }
+        ]
       }
     },
     {

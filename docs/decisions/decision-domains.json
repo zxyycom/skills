@@ -71,7 +71,7 @@
     },
     {
       "id": "test-evidence-review",
-      "description": "评估测试证明价值与维护成本，并管理证据、人工风险和豁免。"
+      "description": "审查测试与工程校验实现的证明价值、可靠性和维护成本，并维护显式 case 与派生索引。"
     },
     {
       "id": "version-control",

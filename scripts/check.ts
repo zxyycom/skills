@@ -12,18 +12,17 @@ type CheckTask =
   | { blocking: true; script: string };
 
 const preflightTasks = [
-  "test:test-evidence-cli",
+  "test:verification-evidence-cli",
   "test:change-plan-cli",
   "test:decision-records-cli",
   "test:index-runtime",
-  "check:test-evidence-fixture",
   "test:skill-validator",
   "test:investigation-report-check",
   "check:investigations",
   "check:decisions",
   "validate",
   "test:skill-updater",
-  "check:test-evidence-cli",
+  "check:verification-evidence-cli",
   "check:skill-validator",
   "check:investigation-report-check",
   "check:change-plan-cli",

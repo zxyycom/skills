@@ -28,7 +28,7 @@
 
 [Skill Design Discovery](docs/skills/skill-design-discovery.md) 用于创建、显著扩展或大幅重构 skill 前的深度设计发现。它从现实案例、现有材料和行为证据中恢复目标、端到端流程、潜藏决策、约束来源、人机权限与验证义务，形成可交给实现入口的设计契约。实际 skill 位于 [`skills/skill-design-discovery/`](skills/skill-design-discovery/)。
 
-[Test Evidence Review](docs/skills/test-evidence-review.md) 评估测试固定的契约和证明价值，把当前无法经济自动化的稳定风险登记为人工 CR，并把测试发现误报登记为可巡检豁免；可替换入口采集层与账本维护层通过标准清单连接，共同检查入口角色、Git Scope 和归属漂移。实际 skill 位于 [`skills/test-evidence-review/`](skills/test-evidence-review/)。
+[Verification Implementation Review](docs/skills/verification-implementation-review.md) 在新增、修改、删除或评审测试与工程校验实现时，判断它实际证明什么，是否可靠、重复或成本失衡；只把保留的 test/check 实现登记为显式 case，并通过派生索引快速搜索、筛选和按 ID 展开。普通业务代码修改和仅运行既有检查不会触发。实际 skill 位于 [`skills/verification-implementation-review/`](skills/verification-implementation-review/)。
 
 [AI-Ready Docs](docs/skills/ai-ready-docs.md) 负责把文档优化到适合 AI 阅读、理解和使用的状态。它让 AI 能从实际文本准确恢复用途、信息、关系、范围、权威性和边界，同时保持文档便于人类阅读与维护；人类侧是次级约束和常见收益，不是并列主目标。实际 skill 位于 [`skills/ai-ready-docs/`](skills/ai-ready-docs/)。
 

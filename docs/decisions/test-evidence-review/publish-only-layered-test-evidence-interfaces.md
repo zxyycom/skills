@@ -1,7 +1,7 @@
 ---
 title: 仅发布分层测试证据接口
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-21T03:26:09Z
 purpose: 让测试入口采集可独立替换，并让账本维护只依赖稳定、严格校验的数据契约。
 background: 组合兼容入口会把旧配置、旧输出和默认采集器继续带入账本工具边界，削弱两层接口的独立性。
