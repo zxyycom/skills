@@ -1,7 +1,11 @@
 import path from "node:path";
 import {
+  buildStateIndex,
   createStateIndexRuntime,
+  queryStateIndex,
   stateIndexQueryMaximumLimit,
+  type StateIndex,
+  type StateIndexDiagnostic,
   type StateIndexFilter,
   type StateIndexReader
 } from "../../index-runtime/src/index.ts";
@@ -18,12 +22,21 @@ import {
   mapStateIndexDiagnostics
 } from "./state-index.ts";
 import type {
+  VerificationCaseIndexState,
   VerificationCaseState,
   VerificationEvidenceConfig,
   VerificationEvidenceDiagnostic,
   VerificationEvidenceQueryResult,
   VerificationKind
 } from "./types.ts";
+
+type VerificationEvidenceReader = Pick<
+  StateIndexReader<
+    VerificationCaseIndexState,
+    VerificationEvidenceIndexMetadata
+  >,
+  "get" | "query"
+>;
 
 export type QueryVerificationEvidenceOptions = {
   config?: unknown;
@@ -90,7 +103,7 @@ export async function queryVerificationEvidence(
   }
 
   return {
-    cases: queried.value.entries.map((entry) => entry.state),
+    cases: queried.value.entries.map((entry) => publicCaseState(entry.state)),
     catalogPath: opened.config.catalogPath,
     diagnostics: opened.diagnostics,
     indexPath: opened.config.indexPath,
@@ -149,7 +162,7 @@ export async function getVerificationCaseState(options: {
     };
   }
   return {
-    case: found.value.state,
+    case: publicCaseState(found.value.state),
     catalogPath: opened.config.catalogPath,
     diagnostics: opened.diagnostics,
     indexPath: opened.config.indexPath
@@ -170,10 +183,7 @@ async function openVerificationEvidenceIndex(options: {
   | {
     config: VerificationEvidenceConfig;
     diagnostics: VerificationEvidenceDiagnostic[];
-    reader: StateIndexReader<
-      VerificationCaseState,
-      VerificationEvidenceIndexMetadata
-    >;
+    reader: VerificationEvidenceReader;
     status: "ok";
   }
 > {
@@ -192,18 +202,44 @@ async function openVerificationEvidenceIndex(options: {
     };
   }
   const config = loadedConfig.config;
+  const definition = createVerificationEvidenceStateIndexDefinition({ config });
   const runtime = createStateIndexRuntime({
-    definition: createVerificationEvidenceStateIndexDefinition({ config }),
+    definition,
     indexPath: config.indexPath,
     root: workspaceRoot
   });
   const opened = await runtime.open();
   if (opened.status === "error") {
+    const built = await buildStateIndex(definition, { root: workspaceRoot });
+    if (built.status === "ok") {
+      return {
+        config,
+        diagnostics: [
+          ...loadedConfig.diagnostics,
+          ...mapIndexFallbackDiagnostics(
+            opened.diagnostics,
+            config.catalogPath,
+            config.indexPath
+          )
+        ],
+        reader: createInMemoryReader({
+          definition,
+          index: built.value,
+          indexPath: config.indexPath
+        }),
+        status: "ok"
+      };
+    }
     return {
       catalogPath: config.catalogPath,
       diagnostics: [
         ...loadedConfig.diagnostics,
-        ...mapStateIndexDiagnostics(opened.diagnostics, config.indexPath)
+        ...mapStateIndexDiagnostics(opened.diagnostics, config.indexPath),
+        ...mapStateIndexDiagnostics(
+          built.diagnostics,
+          config.indexPath,
+          false
+        )
       ],
       indexPath: config.indexPath,
       status: "error"
@@ -214,6 +250,89 @@ async function openVerificationEvidenceIndex(options: {
     diagnostics: loadedConfig.diagnostics,
     reader: opened.value,
     status: "ok"
+  };
+}
+
+function createInMemoryReader(options: {
+  definition: ReturnType<typeof createVerificationEvidenceStateIndexDefinition>;
+  index: StateIndex<
+    VerificationCaseIndexState,
+    VerificationEvidenceIndexMetadata
+  >;
+  indexPath: string;
+}): VerificationEvidenceReader {
+  const query: VerificationEvidenceReader["query"] = (
+    input = {},
+    queryOptions = {}
+  ) => {
+    const queried = queryStateIndex({
+      definition: options.definition,
+      index: options.index,
+      query: input,
+      runtimeStates: queryOptions.runtimeStates
+    });
+    return queried.status === "ok"
+      ? queried
+      : {
+        ...queried,
+        diagnostics: queried.diagnostics.map((entry) => ({
+          ...entry,
+          path: entry.path ?? options.indexPath
+        }))
+      };
+  };
+  const get: VerificationEvidenceReader["get"] = (
+    stateId,
+    getOptions = {}
+  ) => {
+    const queried = query({
+      filters: [{
+        key: "id",
+        kind: "exact",
+        operator: "all",
+        values: [stateId]
+      }],
+      limit: 1
+    }, getOptions);
+    if (queried.status === "error") {
+      return queried;
+    }
+    return {
+      diagnostics: [],
+      status: "ok",
+      value: queried.value.entries[0] ?? null
+    };
+  };
+  return Object.freeze({ get, query });
+}
+
+function mapIndexFallbackDiagnostics(
+  diagnostics: readonly StateIndexDiagnostic[],
+  catalogPath: string,
+  indexPath: string
+): VerificationEvidenceDiagnostic[] {
+  return diagnostics.map((entry) => createDiagnostic({
+    caseId: entry.stateId ?? undefined,
+    category: "index",
+    code: entry.code,
+    message: `${entry.message}. Used current ${catalogPath} in memory for this `
+      + `read-only query; run sync-index --write to refresh ${indexPath}`,
+    path: entry.path ?? indexPath,
+    severity: "warning"
+  }));
+}
+
+function publicCaseState(
+  state: VerificationCaseIndexState
+): VerificationCaseState {
+  return {
+    endLine: state.endLine,
+    entries: [...state.entries],
+    id: state.id,
+    line: state.line,
+    summary: state.summary,
+    title: state.title,
+    verification: state.verification
   };
 }
 

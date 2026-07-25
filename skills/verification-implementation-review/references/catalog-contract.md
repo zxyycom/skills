@@ -6,7 +6,9 @@
 
 默认目录路径是 `docs/verification/cases.md`，默认派生索引路径是 `docs/verification/verification-evidence-index.json`，默认配置路径是 `.verification-evidence.json`。
 
-Markdown 目录是 case 的权威源；索引只保存可删除重建的紧凑投影和源定位。CLI 校验显式 case 并提供低上下文查询，不读取源码、不发现入口、不执行 `Entry:`、不自动登记 case，也不判断 `Contract:` 或 `Proves:` 的语义质量。
+Markdown 目录是 case 的权威源；索引只保存可删除重建的查询投影和源定位。[SKILL.md](../SKILL.md) 定义“一个保留的独立验证入口对应一个 case”的语义规则，本文件只固定其目录表示和机器接口。
+
+CLI 校验显式 case 并提供低上下文查询，不读取源码、不发现入口、不执行 `Entry:`、不自动登记 case，也不判断入口身份、父子归属、多个 locator 是否指向同一逻辑入口，或 `Contract:`、`Proves:` 的语义质量。`list` 或 `show` 无法使用持久化索引时，可以从当前合法目录在内存中建立同一投影；该降级路径不写文件，`check` 仍严格报告索引问题。
 
 case 标题固定使用：
 
@@ -21,11 +23,11 @@ case 标题固定使用：
 每个 case 各有且只有一个 `Verification:`、`Entry:`、`Contract:` 和 `Proves:`：
 
 1. `Verification: test | check` 表示实现类型。
-2. `Entry:` 是至少一个非空列表项；每项使用一对反引号包裹一个实现定位信息。
+2. `Entry:` 是至少一个非空列表项；每项使用一对反引号包裹同一逻辑入口的一个定义或调用定位信息。
 3. `Contract:` 是至少一个非空文字列表项，说明该 case 需要长期固定的行为、边界或工程不变量。
 4. `Proves:` 是至少一个非空文字列表项；每项说明当前契约语境下一个可独立判断的观察点。
 
-目录只登记已经存在并决定保留的验证实现，不使用 `Status:`，也不登记 planned、review 或 exempt case。
+目录只表示已经存在且决定保留的独立验证入口。入口准入和父子归属按 SKILL.md 判断；格式中不使用 `Status:`，也不表示 planned、review 或 exempt case。
 
 ### Test case
 
@@ -64,13 +66,13 @@ Proves:
 
 ### Entry
 
-`Entry:` 用于定位实现，可以保存：
+`Entry:` 用于定位当前 case 对应的独立入口，可以保存：
 
-1. 工作区相对文件或目录。
+1. 定义该独立入口的工作区相对文件或目录。
 2. 项目拥有的 package script、task、规则 ID 或 CLI 调用入口。
-3. 同一 case 的多个实现位置或规范调用入口。
+3. 同一逻辑入口的多个定义位置或规范调用方式。
 
-每项必须是一个非空反引号字符串；同一 case 内不得重复。目录校验不推断 locator 类型、不检查目标存在，也不执行命令。Agent 在语义审查和项目验证中确认 Entry 仍能定位真实实现。
+每项必须是一个非空反引号字符串；同一 case 内不得重复，且全部 locator 必须指向同一逻辑入口，不收纳内部辅助实现。目录校验不推断 locator 类型、不检查目标存在，也不执行命令。Agent 按 SKILL.md 确认 Entry 仍能定位真实入口、locator 归属一致，并确认本次范围内没有保留但未登记的独立入口。
 
 ### Contract 与 Proves
 
@@ -78,31 +80,32 @@ Proves:
 
 `Proves:` 每项只写一个简短、直接且可判断的结果。它可以是行为分支、等价类、失败出口、状态迁移、工程规则、产物一致性或资源清理不变量。
 
-多个证明点共享 fixture、输入集合、规则上下文、执行主干或连续链路，且拆分会复制准备、丢失顺序关系或增加维护成本时，保留在同一 case。形成独立契约、Entry、运行环境或维护周期时建立独立 case。证明点数量与 Entry 数量不要求一一对应。
+同一独立入口的多个证明点保留在一个 case 中。case 的拆分与合并按 SKILL.md 的入口身份判断，不按 fixture、断言、规则、分支、执行阶段或 locator 数量机械处理；证明点数量与 Entry locator 数量不要求一一对应。
 
 顺序、共享状态或分支关系仅靠列表难以恢复时，可以增加 fenced `mermaid` 图；图不替代 `Proves:`。
 
 ## 派生状态索引
 
-目录通过领域适配接入通用状态索引。索引固定使用通用 `schemaVersion: 2`、`namespace: verification-evidence`、`definitionVersion: 1` 和 `"metadata": {}`。Markdown 始终是权威源；索引不拥有 case 写入或修复。
+目录通过领域适配接入通用状态索引。索引固定使用通用 `schemaVersion: 2`、`namespace: verification-evidence`、`definitionVersion: 2` 和 `"metadata": {}`。Markdown 始终是权威源；索引不拥有 case 写入或修复。
 
-每个合法 case 产生一个紧凑 state：
+每个合法 case 产生一个查询 state：
 
 1. case ID、标题和 `Verification`。
 2. case 在当前目录中的起止行，用于 `show` 定点读取原始 Markdown。
 3. `entries`，来自规范化后的 `Entry:` 列表。
 4. `summary`，确定性取第一条 `Contract:`，不要求作者维护第二份摘要。
+5. `searchText`，按 case ID、标题、全部 `Contract:`、全部 `Proves:` 和全部 `Entry:` 的顺序确定性拼接，仅用于生成搜索 key。
 
-完整 `Contract:`、`Proves:`、Mermaid 和其他正文不进入索引或 `list` 结果。重复 ID、非法字段、无效源范围或其他目录结构错误会阻止索引同步。
+结构化的完整 `Contract:`、`Proves:`、Mermaid 和其他正文不进入 `list` 结果；`show` 继续从 Markdown 展开原文。重复 ID、非法字段、无效源范围或其他目录结构错误会阻止索引同步和内存投影。
 
 索引声明两个领域查询 key：
 
-1. `search`：case ID、标题、首条契约摘要和全部 Entry 的确定性拼接文本。
+1. `search`：使用 state 的 `searchText`，覆盖 case ID、标题、全部 Contract、全部 Proves 和全部 Entry。
 2. `verification`：单值 exact key，合法值是 `test | check`。
 
 保留的通用 `id` 查询直接使用 case ID。非空文本查询按空白拆词，所有词必须在同一 case 的 `search` key 中出现。`list` 默认最多返回 20 条并按 ID 排序；`show` 使用 reader get 定位一个 case。
 
-`sourceRevision` 是对规范化目录文本、`catalogPath` 和 `caseIdPattern` 的 SHA-256 投影。上述输入变化后，旧索引必须判定为陈旧。索引缺失、损坏或陈旧时查询明确失败并提示重建，不回退为每次解析整份目录，也不静默使用旧 state。精确结构由 [verification-evidence-state-index.schema.json](schemas/verification-evidence-state-index.schema.json) 定义。
+`sourceRevision` 是对规范化目录文本、`catalogPath` 和 `caseIdPattern` 的 SHA-256 投影。上述输入变化后，旧索引必须判定为陈旧。`check` 和 `sync-index` 将索引缺失、损坏或陈旧视为阻断问题；`list` 和 `show` 不使用旧 state，而是从当前合法目录建立一次性内存投影，并返回非阻断 warning 提示运行 `sync-index --write`。目录自身无效或不可读时查询失败。精确结构由 [verification-evidence-state-index.schema.json](schemas/verification-evidence-state-index.schema.json) 定义。
 
 ## 配置
 
@@ -128,7 +131,7 @@ node scripts/verification-catalog.mjs list --root <workspace-root> [--query <tex
 node scripts/verification-catalog.mjs show <case-id> --root <workspace-root> [--config <config>] [--json]
 ```
 
-`check` 严格校验配置、目录和索引新鲜度；`sync-index` 默认只检查，增加 `--write` 才原子重建；`list` 只查询当前索引；`show` 返回一个紧凑 state 和对应原始 Markdown。CLI 不执行 Entry 中的命令或文件。
+`check` 严格校验配置、目录和索引新鲜度；`sync-index` 默认只检查，增加 `--write` 才原子重建。`list` 和 `show` 优先查询当前索引，索引不可用时只读使用当前目录的内存投影；`show` 返回一个紧凑公开 state 和对应原始 Markdown。CLI 不执行 Entry 中的命令或文件。
 
 退出状态：
 

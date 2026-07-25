@@ -14,6 +14,7 @@ export {
 
 export type {
   VerificationCaseShowResult,
+  VerificationCaseIndexState,
   VerificationCaseState,
   VerificationEvidenceConfig,
   VerificationEvidenceDiagnostic,

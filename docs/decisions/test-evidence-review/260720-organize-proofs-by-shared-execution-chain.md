@@ -1,7 +1,7 @@
 ---
 title: 按共享执行链路组织分支与线性证明点
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-20T13:48:52+08:00
 purpose: 让 automated case 同时表达分支结果和线性 happy path 或失败链路上的多个可观察检查点，避免按证明点数量机械拆分 case。
 background: 既有规则把 `Proves:` 主要描述为分支叶子，但一条没有分支的连续执行链路也可能依次固定多个状态迁移、输出、副作用或清理不变量。

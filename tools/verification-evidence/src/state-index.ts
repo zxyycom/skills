@@ -24,7 +24,7 @@ import { createDiagnostic } from "./diagnostics.ts";
 import {
   defaultVerificationEvidenceCatalogPath,
   defaultVerificationEvidenceIndexPath,
-  verificationCaseStateSchema,
+  verificationCaseIndexStateSchema,
   verificationEvidenceIndexDefinitionVersion,
   verificationEvidenceIndexMetadataSchema,
   verificationEvidenceIndexNamespace,
@@ -32,7 +32,7 @@ import {
   type VerificationEvidenceIndexMetadata
 } from "./schemas.ts";
 import type {
-  VerificationCaseState,
+  VerificationCaseIndexState,
   VerificationEvidenceConfig,
   VerificationEvidenceDiagnostic,
   VerificationEvidenceIndexSyncResult
@@ -49,7 +49,7 @@ type VerificationEvidenceIndexSourceResult =
   | {
     diagnostics: [];
     snapshot: StateSnapshot<
-      VerificationCaseState,
+      VerificationCaseIndexState,
       VerificationEvidenceIndexMetadata
     >;
   }
@@ -61,11 +61,11 @@ type VerificationEvidenceIndexSourceResult =
 export function createVerificationEvidenceStateIndexDefinition(options: {
   config: VerificationEvidenceConfig;
   snapshot?: StateSnapshot<
-    VerificationCaseState,
+    VerificationCaseIndexState,
     VerificationEvidenceIndexMetadata
   >;
 }): StateIndexDefinition<
-  VerificationCaseState,
+  VerificationCaseIndexState,
   VerificationEvidenceIndexMetadata
 > {
   return defineStateIndexDefinition({
@@ -88,7 +88,7 @@ export function createVerificationEvidenceStateIndexDefinition(options: {
       verificationEvidenceIndexMetadataSchema,
       input
     ),
-    parseState: (input) => v.parse(verificationCaseStateSchema, input),
+    parseState: (input) => v.parse(verificationCaseIndexStateSchema, input),
     read: async (context) => {
       if (options.snapshot !== undefined) {
         return options.snapshot;
@@ -111,13 +111,8 @@ export function createVerificationEvidenceStateIndexDefinition(options: {
   });
 }
 
-function caseSearchText(state: VerificationCaseState): string {
-  return [
-    state.id,
-    state.title,
-    state.summary,
-    ...state.entries
-  ].join(" ");
+function caseSearchText(state: VerificationCaseIndexState): string {
+  return state.searchText;
 }
 
 export async function syncVerificationEvidenceIndex(
@@ -296,16 +291,23 @@ async function readCurrentSourceRevision(
 function catalogCaseState(
   entry: ParsedVerificationCase,
   validated: VerificationCase
-): VerificationCaseState {
+): VerificationCaseIndexState {
   const summary = entry.sections.contract.items[0];
   if (summary === undefined) {
     throw new TypeError(`validated case ${entry.id} has no index summary`);
   }
-  return v.parse(verificationCaseStateSchema, {
+  return v.parse(verificationCaseIndexStateSchema, {
     endLine: entry.endLine,
     entries: validated.entries,
     id: entry.id,
     line: entry.line,
+    searchText: [
+      entry.id,
+      entry.title,
+      ...entry.sections.contract.items,
+      ...entry.sections.proves.items,
+      ...validated.entries
+    ].join(" "),
     summary,
     title: entry.title,
     verification: validated.verification

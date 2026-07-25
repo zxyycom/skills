@@ -82,7 +82,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:78fbf5e9808910af5e2858da5199337092d438f718cfd8cbfa309cf9aaa1bc2c",
+  "sourceRevision": "sha256:6154b8195b8d00ba79a542943505ca4d009679e2dde56dd3b1fe6af5c5b00af2",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -3328,17 +3328,14 @@
           "test-evidence-review"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "aligned"
+          "archived"
         ]
       },
       "state": {
         "path": "test-evidence-review/260720-organize-proofs-by-shared-execution-chain.md",
         "title": "按共享执行链路组织分支与线性证明点",
-        "status": "active",
-        "alignment": "aligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-07-20T13:48:52+08:00",
         "purpose": "让 automated case 同时表达分支结果和线性 happy path 或失败链路上的多个可观察检查点，避免按证明点数量机械拆分 case。",
         "background": "既有规则把 `Proves:` 主要描述为分支叶子，但一条没有分支的连续执行链路也可能依次固定多个状态迁移、输出、副作用或清理不变量。",
@@ -3378,6 +3375,37 @@
           {
             "type": "修订",
             "target": "test-evidence-review/query-ledger-with-structured-inspection.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "test-evidence-review/index-independent-proof-cases-from-current-catalog.md",
+      "keys": {
+        "domain": [
+          "test-evidence-review"
+        ],
+        "status": [
+          "archived"
+        ]
+      },
+      "state": {
+        "path": "test-evidence-review/index-independent-proof-cases-from-current-catalog.md",
+        "title": "以独立证明单元登记 case 并从当前目录提供只读查询",
+        "status": "archived",
+        "alignment": null,
+        "createdAt": "2026-07-25T04:02:05Z",
+        "purpose": "让验证目录只保存值得长期找回的独立证明单元，并让只读查询始终基于当前合法目录而不要求先写索引。",
+        "background": "将保留实现直接等同于登记 case 会扩大目录库存；只索引首条契约摘要又无法兑现按证明点查找，陈旧索引还会阻断只读审查。",
+        "decision": "按独立长期证明单元组织 test/check case，搜索覆盖完整 Contract 与 Proves；持久化索引不可用时只读建立内存投影，严格检查仍要求索引新鲜。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "test-evidence-review/review-verification-implementations-with-explicit-indexed-cases.md"
+          },
+          {
+            "type": "归并",
+            "target": "test-evidence-review/260720-organize-proofs-by-shared-execution-chain.md"
           }
         ]
       }
@@ -3498,7 +3526,7 @@
       }
     },
     {
-      "id": "test-evidence-review/review-verification-implementations-with-explicit-indexed-cases.md",
+      "id": "test-evidence-review/register-one-case-per-independent-verification-entry.md",
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -3511,10 +3539,37 @@
         ]
       },
       "state": {
-        "path": "test-evidence-review/review-verification-implementations-with-explicit-indexed-cases.md",
-        "title": "以验证实现为触发边界并显式索引 test/check case",
+        "path": "test-evidence-review/register-one-case-per-independent-verification-entry.md",
+        "title": "以独立验证入口作为 case 的唯一登记单元",
         "status": "active",
         "alignment": "aligned",
+        "createdAt": "2026-07-25T05:45:35Z",
+        "purpose": "让项目保留的每个独立 test 或 check 入口都可追踪，同时避免把入口内部环节误建为 case。",
+        "background": "以值得长期找回的独立证明单元作为准入标准仍然主观，可能让真实 gate 漏登记，也可能让一个 case 混入多个独立入口。",
+        "decision": "每个项目保留的独立验证入口各登记一个 case，内部环节归入父入口；入口身份由稳定选择方式和自身最终判定确定。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "test-evidence-review/index-independent-proof-cases-from-current-catalog.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "test-evidence-review/review-verification-implementations-with-explicit-indexed-cases.md",
+      "keys": {
+        "domain": [
+          "test-evidence-review"
+        ],
+        "status": [
+          "archived"
+        ]
+      },
+      "state": {
+        "path": "test-evidence-review/review-verification-implementations-with-explicit-indexed-cases.md",
+        "title": "以验证实现为触发边界并显式索引 test/check case",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-07-25T03:32:33Z",
         "purpose": "让 skill 只在测试或工程校验实现发生变化时评估证明价值，并以显式 case 和派生索引保持低成本查找。",
         "background": "入口发现、源码 marker、未登记统计和 Git 范围触发让流程围绕采集完整性展开，也会由普通业务变化间接启用；工程校验又无法被测试入口模型准确承接。",

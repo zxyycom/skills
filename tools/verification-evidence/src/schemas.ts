@@ -19,7 +19,7 @@ export const verificationEvidenceDiagnosticSeverities = [
 export const verificationEvidenceConfigSchemaVersion = 1 as const;
 export const verificationEvidenceReportSchemaVersion = 1 as const;
 export const verificationEvidenceIndexSchemaVersion = stateIndexSchemaVersion;
-export const verificationEvidenceIndexDefinitionVersion = 1 as const;
+export const verificationEvidenceIndexDefinitionVersion = 2 as const;
 export const verificationEvidenceIndexNamespace =
   "verification-evidence" as const;
 
@@ -105,6 +105,11 @@ export const verificationCaseStateSchema = v.strictObject(
   verificationCaseStateFields
 );
 
+export const verificationCaseIndexStateSchema = v.strictObject({
+  ...verificationCaseStateFields,
+  searchText: nonEmptyStringSchema
+});
+
 export const verificationEvidenceQueryResultSchema = v.strictObject({
   cases: v.array(verificationCaseStateSchema),
   catalogPath: nonEmptyStringSchema,
@@ -176,7 +181,7 @@ export const verificationEvidenceStateIndexSchema = createStateIndexSchema({
       "must be a sha256 verification-evidence source revision"
     )
   ),
-  state: verificationCaseStateSchema
+  state: verificationCaseIndexStateSchema
 });
 
 export type VerificationKind = (typeof verificationKinds)[number];
@@ -198,6 +203,9 @@ export type VerificationEvidenceReport = v.InferOutput<
 >;
 export type VerificationCaseState = v.InferOutput<
   typeof verificationCaseStateSchema
+>;
+export type VerificationCaseIndexState = v.InferOutput<
+  typeof verificationCaseIndexStateSchema
 >;
 export type VerificationEvidenceQueryResult = v.InferOutput<
   typeof verificationEvidenceQueryResultSchema

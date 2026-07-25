@@ -1,7 +1,7 @@
 ---
 title: 以验证实现为触发边界并显式索引 test/check case
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-25T03:32:33Z
 purpose: 让 skill 只在测试或工程校验实现发生变化时评估证明价值，并以显式 case 和派生索引保持低成本查找。
 background: 入口发现、源码 marker、未登记统计和 Git 范围触发让流程围绕采集完整性展开，也会由普通业务变化间接启用；工程校验又无法被测试入口模型准确承接。

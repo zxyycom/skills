@@ -53,6 +53,7 @@ const catalog = [
   "",
   "Contract:",
   "- Resource mutation follows the caller role boundary.",
+  "- Rejected mutations leave the resource unchanged.",
   "",
   "Proves:",
   "- Owners can edit.",
@@ -90,6 +91,16 @@ try {
     (entry) => entry.code === "state-index.index-missing"
   ));
 
+  const initialQuery = await queryVerificationEvidence({
+    workspaceRoot: tempRoot
+  });
+  assert.equal(initialQuery.total, 2);
+  assert.ok(initialQuery.diagnostics.some(
+    (entry) => entry.code === "state-index.index-missing"
+      && entry.severity === "warning"
+      && !entry.blocking
+  ));
+
   const synchronized = await syncVerificationEvidenceIndex({
     mode: "write",
     workspaceRoot: tempRoot
@@ -124,6 +135,21 @@ try {
   });
   assert.equal(searched.total, 1);
   assert.equal(searched.cases[0]?.id, "SCHEMA-GENERATED-CURRENT-001");
+
+  const searchedContract = await queryVerificationEvidence({
+    query: "rejected mutations unchanged",
+    workspaceRoot: tempRoot
+  });
+  assert.equal(searchedContract.total, 1);
+  assert.equal(searchedContract.cases[0]?.id, "AUTH-ROLE-ACCESS-001");
+
+  const searchedProof = await queryVerificationEvidence({
+    query: "guests denied",
+    workspaceRoot: tempRoot
+  });
+  assert.equal(searchedProof.total, 1);
+  assert.equal(searchedProof.cases[0]?.id, "AUTH-ROLE-ACCESS-001");
+  assert.equal("searchText" in (searchedProof.cases[0] ?? {}), false);
 
   const shown = await showVerificationCase({
     caseId: "AUTH-ROLE-ACCESS-001",
@@ -186,8 +212,21 @@ try {
   const staleQuery = await queryVerificationEvidence({
     workspaceRoot: tempRoot
   });
+  assert.equal(staleQuery.total, 2);
   assert.ok(staleQuery.diagnostics.some(
     (entry) => entry.code === "state-index.index-stale"
+      && entry.severity === "warning"
+      && !entry.blocking
+  ));
+  const staleShow = await showVerificationCase({
+    caseId: "AUTH-ROLE-ACCESS-001",
+    workspaceRoot: tempRoot
+  });
+  assert.match(staleShow.markdown ?? "", /Guests are denied\./u);
+  assert.ok(staleShow.diagnostics.some(
+    (entry) => entry.code === "state-index.index-stale"
+      && entry.severity === "warning"
+      && !entry.blocking
   ));
 
   await syncVerificationEvidenceIndex({

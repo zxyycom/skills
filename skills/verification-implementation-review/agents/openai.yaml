@@ -1,4 +1,4 @@
 interface:
   display_name: "Verification Implementation Review"
-  short_description: "审查测试与工程校验实现，并维护可检索的验证 case"
-  default_prompt: "使用 $verification-implementation-review 审查当前新增、修改、删除或评审的测试与工程校验实现；只把保留的 test/check 实现登记为 Entry、Contract、Proves 清楚的 case，并同步派生索引。普通业务代码、仅运行既有检查和业务运行时输入校验不触发。"
+  short_description: "区分独立验证入口与内部环节，并维护 case"
+  default_prompt: "使用 $verification-implementation-review 审查当前新增、修改、删除或评审的测试与工程校验实现；区分项目拥有的独立验证入口与其他证明入口的内部环节，评估证据质量，并为每个保留的独立入口维护一个 Entry、Contract、Proves 清楚的 case。普通业务代码、仅运行既有检查和业务运行时输入校验不触发。"

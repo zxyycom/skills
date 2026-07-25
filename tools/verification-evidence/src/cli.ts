@@ -112,7 +112,7 @@ export async function runVerificationCatalogCli(
   const list = subcommand(
     program,
     "list",
-    "List compact case summaries from the current derived index."
+    "List compact case summaries from the current catalog."
   )
     .addOption(new Option(
       "--verification <value>",
@@ -128,14 +128,14 @@ export async function runVerificationCatalogCli(
     ).argParser(parseNonNegativeInteger).default(0))
     .addOption(new Option(
       "--query <text>",
-      "Search case ID, title, contract summary, or Entry text."
+      "Search case ID, title, Contract, Proves, or Entry text."
     ).argParser(parseNonEmptyText));
   list.action(() => execute("list", list));
 
   const show = subcommand(
     program,
     "show <case-id>",
-    "Show one indexed case and its original Markdown body."
+    "Show one case and its original Markdown body."
   );
   show.action((caseId: string) => execute("show", show, caseId));
 

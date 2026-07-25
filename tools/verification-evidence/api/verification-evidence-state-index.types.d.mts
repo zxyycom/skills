@@ -6,7 +6,7 @@
  * Rebuild: bun run sync:verification-evidence-cli
  */
 export interface VerificationEvidenceStateIndex {
-  definitionVersion: 1;
+  definitionVersion: 2;
   entries: {
     id: string;
     keys: {
@@ -30,6 +30,7 @@ export interface VerificationEvidenceStateIndex {
       summary: string;
       title: string;
       verification: "test" | "check";
+      searchText: string;
     };
   }[];
   /**

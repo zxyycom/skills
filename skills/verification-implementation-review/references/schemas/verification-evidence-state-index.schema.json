@@ -2,7 +2,7 @@
   "type": "object",
   "properties": {
     "definitionVersion": {
-      "const": 1
+      "const": 2
     },
     "entries": {
       "type": "array",
@@ -85,6 +85,10 @@
                   "check"
                 ],
                 "type": "string"
+              },
+              "searchText": {
+                "type": "string",
+                "minLength": 1
               }
             },
             "required": [
@@ -94,7 +98,8 @@
               "line",
               "summary",
               "title",
-              "verification"
+              "verification",
+              "searchText"
             ],
             "additionalProperties": false
           }
