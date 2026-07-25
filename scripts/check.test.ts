@@ -10,6 +10,12 @@ import {
   runCheckWorkflow,
   runPreflightTasks
 } from "./check.ts";
+import {
+  checkPackageScript,
+  checkPackageScripts,
+  checkPreflightTasks,
+  checkTaskScript
+} from "./lib/check-plan.ts";
 
 function scriptResult(script: string, exitCode = 0) {
   return {
@@ -20,6 +26,42 @@ function scriptResult(script: string, exitCode = 0) {
     stdout: exitCode === 0 ? `${script} passed` : `${script} context`
   };
 }
+
+const expectedCheckPackageScripts = [
+  "test:verification-evidence-cli",
+  "test:change-plan-cli",
+  "test:decision-records-cli",
+  "test:index-runtime",
+  "test:skill-validator",
+  "test:investigation-report-check",
+  "check:investigations",
+  "check:decisions",
+  "validate",
+  "test:skill-updater",
+  "check:verification-evidence-cli",
+  "check:skill-validator",
+  "check:investigation-report-check",
+  "check:change-plan-cli",
+  "check:decision-records-cli",
+  "typecheck",
+  "check:skill-updaters",
+  "test:check",
+  "test:generated-file",
+  "test:skill-package-hash",
+  "hash:skills",
+  "test:version-control",
+  "pack:skills"
+] as const;
+assert.deepEqual(checkPackageScripts, expectedCheckPackageScripts);
+assert.deepEqual(
+  checkPreflightTasks.map(checkTaskScript),
+  expectedCheckPackageScripts.slice(0, -1)
+);
+assert.equal(checkPackageScript, expectedCheckPackageScripts.at(-1));
+assert.equal(
+  checkTaskScript({ blocking: true, script: "blocking" }),
+  "blocking"
+);
 
 assert.equal(resolveConcurrency({
   availableParallelism: 8,

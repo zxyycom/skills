@@ -91,7 +91,7 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 
 ### 完整检查
 
-1. `scripts/check.ts` 是编排 owner，通过 package scripts 运行前置任务，成功后调用 `pack:skills`。
+1. `scripts/lib/check-plan.ts` 承接稳定前置任务、package script 映射和共享任务类型；`scripts/check.ts` 只消费该计划并负责编排，成功后调用 `pack:skills`。
 2. 默认模式把未显式标记为阻断的失败汇总为 warning，并继续其他检查；warning 不代表对应检查通过。
 3. `--strict` 把全部前置失败升级为阻断。阻断后停止领取新任务、等待已启动任务并跳过打包；`pack:skills` 失败始终阻断。
 4. 默认最多并发两个顶层任务，可用 `CHECK_CONCURRENCY=<正整数>` 调整。

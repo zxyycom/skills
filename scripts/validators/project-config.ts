@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { checkPackageScripts } from "../check.ts";
+import { checkPackageScripts } from "../lib/check-plan.ts";
 import { rootDir } from "../lib/project.ts";
 import type { SkillPackage } from "../lib/project.ts";
 import type { ReportValidationError } from "../lib/validation.ts";

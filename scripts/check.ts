@@ -3,43 +3,15 @@ import os from "node:os";
 import process from "node:process";
 import { parseArgs } from "node:util";
 import { isMainModule } from "../tools/shared/src/node/main-module.ts";
+import {
+  checkPackageScript as packageScript,
+  checkPreflightTasks as preflightTasks,
+  checkTaskScript,
+  type CheckTask
+} from "./lib/check-plan.ts";
 import { rootDir } from "./lib/project.ts";
 
 const defaultConcurrencyLimit = 2;
-
-type CheckTask =
-  | string
-  | { blocking: true; script: string };
-
-const preflightTasks = [
-  "test:verification-evidence-cli",
-  "test:change-plan-cli",
-  "test:decision-records-cli",
-  "test:index-runtime",
-  "test:skill-validator",
-  "test:investigation-report-check",
-  "check:investigations",
-  "check:decisions",
-  "validate",
-  "test:skill-updater",
-  "check:verification-evidence-cli",
-  "check:skill-validator",
-  "check:investigation-report-check",
-  "check:change-plan-cli",
-  "check:decision-records-cli",
-  "typecheck",
-  "check:skill-updaters",
-  "test:check",
-  "test:generated-file",
-  "test:skill-package-hash",
-  "hash:skills",
-  "test:version-control"
-] as const satisfies readonly CheckTask[];
-const packageScript = "pack:skills";
-export const checkPackageScripts = [
-  ...preflightTasks.map(checkTaskScript),
-  packageScript
-];
 
 type ScriptResult = {
   durationMilliseconds: number;
@@ -123,10 +95,6 @@ export function resolveCheckMode(argv: readonly string[]): CheckMode {
     strict: true
   });
   return parsed.values.strict === true ? "strict" : "warnings";
-}
-
-function checkTaskScript(task: CheckTask): string {
-  return typeof task === "string" ? task : task.script;
 }
 
 export function resolveCheckStatus(
