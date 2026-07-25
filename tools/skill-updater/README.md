@@ -7,13 +7,14 @@
 ## 运行契约
 
 1. 默认读取仓库 latest release；`--release-tag` 可以定位指定版本。
-2. 本地版本来自 `SKILL.md` frontmatter 的 `metadata.version`，远端版本来自 release 中的 `skill-release-manifest.json`；updater 不读取或计算 package hash。
-3. 远端与本地版本一致时返回成功；`--check` 发现缺失、未版本化或版本不同的目标时返回失败，但不下载 zip、不写文件。
-4. 需要更新时下载对应 zip，并要求 zip 内 `SKILL.md` 的 `metadata.version` 与 release manifest 一致。
-5. 确认前分别列出将覆盖的现有文件和将新增的文件，并说明其他本地文件会被保留。普通更新需要交互确认，`--yes` 显式跳过确认但仍输出文件清单。
-6. 更新只覆盖 zip 中出现的路径，不删除远端包中不存在的本地文件；同名本地文件的自定义内容会被覆盖。
-7. 默认目标目录相对分发模块自身的 `import.meta.url` 定位，不受导入方入口影响。
-8. 私有仓库或更高 GitHub API 限额使用 `GITHUB_TOKEN` 或 `GH_TOKEN`。
+2. 配置中的 `skillName` 是预期 skill 身份。任何远端请求前先检查本地目标：目录不存在或为空时允许安装；其他目标必须是普通目录，包含普通 `SKILL.md`，且 frontmatter `name` 与预期身份一致。
+3. 本地版本来自同一份 `SKILL.md` frontmatter 的 `metadata.version`，远端版本来自 release 中的 `skill-release-manifest.json`；updater 不读取或计算 package hash。
+4. 远端与本地版本一致时返回成功；`--check` 发现缺失、未版本化或版本不同的目标时返回失败，但不下载 zip、不写文件。
+5. 需要更新时下载对应 zip，并要求其中的 `SKILL.md` frontmatter `name` 与配置身份一致、`metadata.version` 与 release manifest 一致。zip 内每个文件必须一一映射到唯一的 skill 内相对路径；路径穿越、别名路径和当前平台上的重复目标会在写入前被拒绝。
+6. 确认前分别列出将覆盖的现有文件和将新增的文件，并说明其他本地文件会被保留。普通更新需要交互确认，`--yes` 显式跳过确认但仍输出文件清单。
+7. 更新只覆盖 zip 中出现的路径，不删除远端包中不存在的本地文件；同名本地文件的自定义内容会被覆盖。
+8. 默认目标目录相对分发模块自身的 `import.meta.url` 定位，不受导入方入口影响。
+9. 私有仓库或更高 GitHub API 限额使用 `GITHUB_TOKEN` 或 `GH_TOKEN`。
 
 分发模块可被导入而不执行 CLI。公共 exports 是 `skillUpdaterConfig` 和返回退出码的 `runSkillUpdaterCli(argv)`。
 

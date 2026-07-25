@@ -11,7 +11,10 @@ import type {
   VerificationEvidenceConfig,
   VerificationEvidenceDiagnostic
 } from "./types.ts";
-import { normalizeWorkspaceRelative } from "./workspace-path.ts";
+import {
+  normalizeWorkspaceRelative,
+  workspaceRelativePathsAreDistinct
+} from "./workspace-path.ts";
 
 export type LoadedVerificationEvidenceConfig = {
   config: VerificationEvidenceConfig | null;
@@ -102,15 +105,24 @@ export async function loadVerificationEvidenceConfig(
     }));
   }
 
-  if (
-    catalogPath !== null
-    && indexPath !== null
-    && (
-      indexPath === catalogPath
-      || indexPath === configRelativePath
-      || catalogPath === configRelativePath
-    )
-  ) {
+  let pathsAreDistinct = true;
+  if (catalogPath !== null && indexPath !== null) {
+    try {
+      pathsAreDistinct = await workspaceRelativePathsAreDistinct(
+        workspaceRoot,
+        [catalogPath, indexPath, configRelativePath]
+      );
+    } catch (error) {
+      diagnostics.push(createDiagnostic({
+        category: "config",
+        code: "config.path-inspection-failed",
+        message: `Configured path identities could not be inspected: ${errorMessage(error)}`,
+        path: configRelativePath,
+        severity: "error"
+      }));
+    }
+  }
+  if (!pathsAreDistinct) {
     diagnostics.push(createDiagnostic({
       category: "config",
       code: "config.path-conflict",

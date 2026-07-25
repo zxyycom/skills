@@ -5,7 +5,7 @@ description: >-
   每份报告固定保存形成时背景、调查目的、调查范围与依据以及调查结果与边界；
   同一核心问题的新认识追加为新的完整报告。仅在用户明确要求记录、沉淀、维护或审阅调查时使用。
 metadata:
-  version: "2"
+  version: "3"
 ---
 
 # Investigation Report

@@ -1,12 +1,19 @@
-import { compareIndexText } from "./ordering.ts";
 import {
-  canonicalizeStateIndex,
   expectationOf,
   keyDefinitionsOf,
+  sameKeyDefinitions,
+  validateStateIndexDefinition
+} from "./definition.ts";
+import {
+  canonicalizeStateIndex,
   normalizeStateIndex,
   projectStateIndexEntry,
   readonlyStateIndexMetadata
-} from "./snapshot.ts";
+} from "./normalization.ts";
+import {
+  compareIndexText,
+  compareStateIndexKeyScalars
+} from "./ordering.ts";
 import type {
   JsonObject,
   StateIndex,
@@ -24,7 +31,6 @@ import type {
 import {
   diagnostic,
   scalarIdentity,
-  validateStateIndexDefinition,
   validateStateIndexQueryValue,
   validateStateIndexValue
 } from "./validation.ts";
@@ -409,42 +415,8 @@ function compareOptionalScalars(
   if (right === undefined) {
     return -1;
   }
-  const comparison = compareScalars(left, right);
+  const comparison = compareStateIndexKeyScalars(left, right);
   return direction === "desc" ? -comparison : comparison;
-}
-
-function compareScalars(left: StateIndexKeyScalar, right: StateIndexKeyScalar): number {
-  if (typeof left === typeof right) {
-    if (typeof left === "number" && typeof right === "number") {
-      return left - right;
-    }
-    if (typeof left === "boolean" && typeof right === "boolean") {
-      return Number(left) - Number(right);
-    }
-    return compareIndexText(String(left), String(right));
-  }
-  return scalarTypeOrder(left) - scalarTypeOrder(right);
-}
-
-function scalarTypeOrder(value: StateIndexKeyScalar): number {
-  switch (typeof value) {
-    case "boolean": return 0;
-    case "number": return 1;
-    case "string": return 2;
-  }
-}
-
-function sameKeyDefinitions(
-  left: readonly StateIndexKeyDefinition[],
-  right: readonly StateIndexKeyDefinition[]
-): boolean {
-  if (left.length !== right.length) {
-    return false;
-  }
-  return left.every((entry, index) => (
-    entry.name === right[index]?.name
-    && entry.mode === right[index]?.mode
-  ));
 }
 
 function normalizeText(value: string): string {

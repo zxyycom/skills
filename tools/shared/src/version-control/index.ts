@@ -7,6 +7,7 @@ export {
 } from "./errors.ts";
 export type {
   ListChangedPathsOptions,
+  ListPendingChangedPathsOptions,
   ListVersionControlFilesOptions,
   RevisionId,
   VersionControlFile,

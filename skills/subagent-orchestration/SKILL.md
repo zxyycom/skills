@@ -7,7 +7,7 @@ description: >-
   调查、实现、验证或审查子任务时。需要实现与审查分离、并行调查或让主线程
   只负责编排与结果审计时也使用。
 metadata:
-  version: "1"
+  version: "2"
 ---
 
 # Subagent Orchestration

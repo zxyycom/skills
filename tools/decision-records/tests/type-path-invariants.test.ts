@@ -3,7 +3,8 @@ import path from "node:path";
 import {
   isDecisionDomainId,
   isDecisionRelativePath,
-  isNewDecisionIdentityPath
+  isNewDecisionIdentityPath,
+  normalizeDecisionRelativePath
 } from "../src/decision-path.ts";
 import { decisionSourceRevision } from "../src/decision-state-index.ts";
 import { validateDecisionBody } from "../src/record.ts";
@@ -41,6 +42,10 @@ assert.equal(
 assert.equal(
   isDecisionRelativePath("decision-records/260722-use-semantic-paths.md"),
   true
+);
+assert.equal(
+  normalizeDecisionRelativePath(".\\decision-records\\use-semantic-paths.md"),
+  "decision-records/use-semantic-paths.md"
 );
 
 const revisionSources = [

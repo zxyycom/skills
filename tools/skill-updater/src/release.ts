@@ -6,8 +6,9 @@ import {
   type SkillReleaseManifest
 } from "../../skill-package/src/release-manifest.ts";
 import {
-  readSkillVersionFromMarkdown,
-  skillEntryFileName
+  readSkillPackageIdentityFromMarkdown,
+  skillEntryFileName,
+  skillVersionMetadataPath
 } from "../../skill-package/src/version.ts";
 import type {
   RemoteSkillPackage,
@@ -157,21 +158,64 @@ function extractSkillFiles(
 ): SkillFile[] {
   const sourcePath = config.skillName.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
   const sourcePrefix = `${sourcePath}/`;
+  const seenTargets = new Map<string, string>();
   const skillFiles = Object.entries(unzipSync(zipData))
     .sort(([left], [right]) => left.localeCompare(right))
-    .filter(([entryPath]) => entryPath.startsWith(sourcePrefix) && !entryPath.endsWith("/"))
-    .map(([entryPath, data]) => ({
-      data: Buffer.from(data),
-      path: entryPath.slice(sourcePrefix.length)
-    }))
-    .filter((file) => file.path.length > 0)
-    .sort((left, right) => left.path.localeCompare(right.path));
+    .flatMap(([entryPath, data]) => {
+      const relativePath = skillArchiveFilePath(entryPath, sourcePrefix);
+      if (relativePath === null) {
+        return [];
+      }
+      const targetIdentity = skillFileTargetIdentity(relativePath);
+      const previousPath = seenTargets.get(targetIdentity);
+      if (previousPath !== undefined) {
+        throw new Error(
+          `Remote release paths ${JSON.stringify(previousPath)} and `
+          + `${JSON.stringify(relativePath)} target the same local skill file`
+        );
+      }
+      seenTargets.set(targetIdentity, relativePath);
+      return [{
+        data: Buffer.from(data),
+        path: relativePath
+      }];
+    });
 
   if (!skillFiles.some((file) => file.path === "SKILL.md")) {
     throw new Error(`Remote release asset does not contain ${sourcePath}/SKILL.md`);
   }
 
   return skillFiles;
+}
+
+function skillArchiveFilePath(
+  entryPath: string,
+  sourcePrefix: string
+): string | null {
+  if (!entryPath.startsWith(sourcePrefix) || entryPath.endsWith("/")) {
+    return null;
+  }
+  const relativePath = entryPath.slice(sourcePrefix.length);
+  const segments = relativePath.split("/");
+  if (
+    relativePath.length === 0
+    || relativePath.includes("\\")
+    || relativePath.includes("\0")
+    || segments.some((segment) => (
+      segment.length === 0 || segment === "." || segment === ".."
+    ))
+  ) {
+    throw new Error(
+      `Remote release asset contains non-canonical skill path: ${entryPath}`
+    );
+  }
+  return relativePath;
+}
+
+function skillFileTargetIdentity(relativePath: string): string {
+  return process.platform === "win32" || process.platform === "darwin"
+    ? relativePath.toLowerCase()
+    : relativePath;
 }
 
 async function fetchReleaseSkillFiles(
@@ -212,13 +256,26 @@ export async function loadRemoteSkillFiles(
     );
   }
 
-  const packageVersion = readSkillVersionFromMarkdown(
+  const skillEntrySource = `${config.releaseAssetName}/${skillEntryFileName}`;
+  const packageIdentity = readSkillPackageIdentityFromMarkdown(
     skillEntry.data.toString("utf8"),
-    `${config.releaseAssetName}/${skillEntryFileName}`
+    skillEntrySource
   );
-  if (packageVersion !== remotePackage.version) {
+  if (packageIdentity.name !== config.skillName) {
     throw new Error(
-      `Release asset ${config.releaseAssetName} version ${packageVersion}`
+      `Release asset ${config.releaseAssetName} identifies skill `
+      + `${JSON.stringify(packageIdentity.name)} in ${skillEntryFileName}, but this updater expects `
+      + `${JSON.stringify(config.skillName)}. Use the matching updater or publish a corrected asset.`
+    );
+  }
+  if (packageIdentity.version === null) {
+    throw new Error(
+      `${skillEntrySource} frontmatter ${skillVersionMetadataPath} is required`
+    );
+  }
+  if (packageIdentity.version !== remotePackage.version) {
+    throw new Error(
+      `Release asset ${config.releaseAssetName} version ${packageIdentity.version}`
       + ` does not match ${config.releaseManifestAssetName} version ${remotePackage.version}`
     );
   }

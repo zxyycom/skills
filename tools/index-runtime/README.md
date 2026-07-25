@@ -22,10 +22,11 @@ Valibot Schema 是索引结构和查询输入的真源：通用层固定使用 `
 ## 读取与查询
 
 1. `createStateIndexRuntime(...).open()` 校验一次当前 revision，并返回绑定该索引快照的不可变 reader；reader 的递归只读 `metadata` 暴露领域已收窄的集合级类型，嵌套对象与数组也不能修改。
-2. Reader 提供 `query`、按 id 的 `get` 和遍历全部分页的 `all`；同一 reader 上的多次读取不重复校验 revision，需要观察新状态时重新 `open`。
-3. 查询结果包含与索引快照相同的只读 metadata，并支持 id 或已声明 key、exact all/any/none、range、text、存在性、多字段排序和带上限的 offset/limit。
-4. `range` 数值按数值顺序比较，字符串按固定字典序比较；时间等领域顺序先映射为能保持真实顺序的标量。
-5. 查询可以叠加由同一定义产生的完整 runtime state；同 id 临时替换静态条目，新 id 临时追加，磁盘索引保持不变。overlay 使用持久索引的同一 metadata 上下文，不能替换或合并 metadata。
+2. `createStateIndexReader(...)` 在构造边界同步执行与持久化读取相同的结构、definition 和领域校验，并持有独立的递归冻结规范化快照。调用方随后修改原始 metadata、state 或 entries 不会影响 reader；非法输入抛出 `TypeError`，消息保留对应的 `state-index.*` 诊断 code。
+3. Reader 提供 `query`、按 id 的 `get` 和遍历全部分页的 `all`；同一 reader 上的多次读取不重复校验 revision，需要观察新状态时重新 `open`。
+4. 查询结果包含与索引快照相同的只读 metadata，并支持 id 或已声明 key、exact all/any/none、range、text、存在性、多字段排序和带上限的 offset/limit。
+5. `range` 数值按数值顺序比较，字符串按固定字典序比较；时间等领域顺序先映射为能保持真实顺序的标量。
+6. 查询可以叠加由同一定义产生的完整 runtime state；同 id 临时替换静态条目，新 id 临时追加，磁盘索引保持不变。overlay 使用持久索引的同一 metadata 上下文，不能替换或合并 metadata。
 
 ## Revision 与同步
 

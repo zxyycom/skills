@@ -10,6 +10,12 @@ export type ListChangedPathsOptions = {
   to?: RevisionId;
 };
 
+export type ListPendingChangedPathsOptions = {
+  from: RevisionId;
+  /** Literal repository-relative file or directory scopes. */
+  pathScopes?: readonly string[];
+};
+
 export type VersionControlFile = {
   data: Uint8Array;
   path: string;
@@ -19,6 +25,9 @@ export type VersionControlRepository = {
   readonly rootDirectory: string;
   getCurrentRevision: () => Promise<RevisionId | null>;
   listChangedPaths: (options: ListChangedPathsOptions) => Promise<string[]>;
+  listPendingChangedPaths: (
+    options: ListPendingChangedPathsOptions
+  ) => Promise<string[]>;
   listRevisionFiles: (
     revision: RevisionId,
     options?: ListVersionControlFilesOptions
@@ -28,4 +37,9 @@ export type VersionControlRepository = {
   readPendingFiles: (
     options?: ListVersionControlFilesOptions
   ) => Promise<VersionControlFile[]>;
+  readRevisionFile: (
+    revision: RevisionId,
+    filePath: string
+  ) => Promise<VersionControlFile | null>;
+  resolveRevision: (revision: string) => Promise<RevisionId>;
 };

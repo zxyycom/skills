@@ -5,7 +5,7 @@ description: >-
   约束来源、人机权限或验证方式仍然隐含或冲突时使用。从案例、现有材料和
   行为证据恢复可实现的设计契约；目标、边界和验收已经清楚的局部维护不使用。
 metadata:
-  version: "1"
+  version: "2"
 ---
 
 # Skill Design Discovery

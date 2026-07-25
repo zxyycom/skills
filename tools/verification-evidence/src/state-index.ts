@@ -332,12 +332,34 @@ function failedSyncResult(options: {
   };
 }
 
-function indexCanBeRebuilt(code: string): boolean {
-  return code === "state-index.index-missing"
-    || code === "state-index.index-stale"
-    || code === "state-index.definition-mismatch"
-    || code === "state-index.schema-invalid"
-    || code === "state-index.state-parse-failed";
+const rebuildableIndexCodes: ReadonlySet<string> = new Set([
+  "state-index.definition-mismatch",
+  "state-index.definition-version-mismatch",
+  "state-index.id-duplicate",
+  "state-index.id-invalid",
+  "state-index.identify-failed",
+  "state-index.index-missing",
+  "state-index.index-stale",
+  "state-index.index-validation-failed",
+  "state-index.json-invalid",
+  "state-index.key-definition-duplicate",
+  "state-index.key-derive-failed",
+  "state-index.key-reserved",
+  "state-index.key-unknown",
+  "state-index.key-value-duplicate",
+  "state-index.key-value-invalid",
+  "state-index.metadata-invalid",
+  "state-index.metadata-parse-failed",
+  "state-index.metadata-parse-invalid",
+  "state-index.namespace-mismatch",
+  "state-index.schema-invalid",
+  "state-index.state-invalid",
+  "state-index.state-parse-failed",
+  "state-index.state-parse-invalid"
+]);
+
+export function indexCanBeRebuilt(code: string): boolean {
+  return rebuildableIndexCodes.has(code);
 }
 
 function caseLocation(id: string, line: number): string {

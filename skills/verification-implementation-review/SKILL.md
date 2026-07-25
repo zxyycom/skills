@@ -6,7 +6,7 @@ description: >-
   的独立入口维护一个可检索 case。普通业务代码修改、仅运行既有检查、只修复被检查
   对象或业务运行时输入校验不使用。
 metadata:
-  version: "2"
+  version: "3"
 ---
 
 # Verification Implementation Review

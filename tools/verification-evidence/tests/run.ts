@@ -11,6 +11,8 @@ import {
   syncVerificationEvidenceIndex,
   validateVerificationEvidence
 } from "../src/cli.ts";
+import { workspaceRelativePathsAreDistinct } from "../src/workspace-path.ts";
+import { runConfigPathTests } from "./config-path.test.ts";
 
 const execFileAsync = promisify(execFile);
 const repositoryRoot = path.resolve(
@@ -80,6 +82,76 @@ try {
     "docs/verification/cases.md",
     catalog
   );
+  await runConfigPathTests(tempRoot);
+  await assertConfigPathConflict(
+    tempRoot,
+    {
+      catalogPath: "docs/verification/cases.md",
+      indexPath: ".verification-evidence.json",
+      schemaVersion: 1
+    },
+    "./.verification-evidence.json"
+  );
+  await assertConfigPathConflict(tempRoot, {
+    catalogPath: "docs//verification/./cases.md",
+    indexPath: "docs/verification/cases.md",
+    schemaVersion: 1
+  });
+  const missingCaseAliases = ["missing/Index.json", "MISSING/index.json"];
+  assert.equal(await workspaceRelativePathsAreDistinct(
+    tempRoot, missingCaseAliases, "win32"
+  ), false);
+  assert.equal(await workspaceRelativePathsAreDistinct(
+    tempRoot, missingCaseAliases, "darwin"
+  ), false);
+  const hardLinkConfig = "identity/config.json";
+  const hardLinkIndex = "identity/index.json";
+  await writeWorkspaceFile(tempRoot, hardLinkConfig, "identity\n");
+  const hardLinkConfigPath = path.join(tempRoot, "identity", "config.json");
+  const hardLinkIndexPath = path.join(tempRoot, "identity", "index.json");
+  await fs.link(hardLinkConfigPath, hardLinkIndexPath);
+  const [configStats, indexStats] = await Promise.all([
+    fs.stat(hardLinkConfigPath, { bigint: true }),
+    fs.stat(hardLinkIndexPath, { bigint: true })
+  ]);
+  assert.equal(configStats.dev, indexStats.dev);
+  assert.equal(configStats.ino, indexStats.ino);
+  await assertConfigPathConflict(tempRoot, {
+    catalogPath: "docs/verification/cases.md",
+    indexPath: hardLinkIndex,
+    schemaVersion: 1
+  }, hardLinkConfig);
+  const darwinConfigPath = "darwin/config.json";
+  const darwinConfig = `${JSON.stringify({
+    catalogPath: "docs/verification/cases.md",
+    indexPath: "DARWIN/CONFIG.JSON",
+    schemaVersion: 1
+  }, null, 2)}\n`;
+  await writeWorkspaceFile(tempRoot, darwinConfigPath, darwinConfig);
+  const platformDescriptor = Object.getOwnPropertyDescriptor(
+    process,
+    "platform"
+  )!;
+  try {
+    Object.defineProperty(process, "platform", {
+      ...platformDescriptor,
+      value: "darwin"
+    });
+    await assertConfigPathConflict(tempRoot, undefined, darwinConfigPath);
+  } finally {
+    Object.defineProperty(process, "platform", platformDescriptor);
+  }
+  assert.equal(
+    await fs.readFile(path.join(tempRoot, "darwin", "config.json"), "utf8"),
+    darwinConfig
+  );
+  assert.equal(
+    await fs.readFile(
+      path.join(tempRoot, "docs", "verification", "cases.md"),
+      "utf8"
+    ),
+    catalog
+  );
 
   const initialCheck = await validateVerificationEvidence({
     workspaceRoot: tempRoot
@@ -112,6 +184,25 @@ try {
     workspaceRoot: tempRoot
   });
   assert.deepEqual(checked.diagnostics, []);
+
+  await writeWorkspaceFile(
+    tempRoot,
+    "docs/verification/verification-evidence-index.json",
+    "{ invalid json\n"
+  );
+  const damagedIndexQuery = await queryVerificationEvidence({
+    workspaceRoot: tempRoot
+  });
+  assert.equal(damagedIndexQuery.total, 2);
+  assert.ok(damagedIndexQuery.diagnostics.some(
+    (entry) => entry.code === "state-index.json-invalid"
+      && entry.severity === "warning"
+      && !entry.blocking
+  ));
+  assert.equal((await syncVerificationEvidenceIndex({
+    mode: "write",
+    workspaceRoot: tempRoot
+  })).status, "ok");
 
   const allCases = await queryVerificationEvidence({
     workspaceRoot: tempRoot
@@ -233,12 +324,78 @@ try {
     mode: "write",
     workspaceRoot: tempRoot
   });
+  const unreadableIndexPath = path.join(
+    tempRoot,
+    "unreadable-index",
+    "index.json"
+  );
+  await fs.mkdir(unreadableIndexPath, { recursive: true });
+  const unreadableConfig = {
+    catalogPath: "docs/verification/cases.md",
+    indexPath: "unreadable-index/index.json",
+    schemaVersion: 1 as const
+  };
+  const unreadableQuery = await queryVerificationEvidence({
+    config: unreadableConfig,
+    workspaceRoot: tempRoot
+  });
+  assert.equal(unreadableQuery.total, 0);
+  assert.deepEqual(unreadableQuery.cases, []);
+  assertUnrecoverableIndexReadFailure(unreadableQuery.diagnostics);
+  const unreadableShow = await showVerificationCase({
+    caseId: "AUTH-ROLE-ACCESS-001",
+    config: unreadableConfig,
+    workspaceRoot: tempRoot
+  });
+  assert.equal(unreadableShow.case, null);
+  assert.equal(unreadableShow.markdown, null);
+  assertUnrecoverableIndexReadFailure(unreadableShow.diagnostics);
+
   await testDistributedModule(tempRoot);
 } finally {
   await fs.rm(tempRoot, { force: true, recursive: true });
 }
 
 console.log("Verification evidence tests passed.");
+
+async function assertConfigPathConflict(
+  workspaceRoot: string,
+  config: {
+    catalogPath: string;
+    indexPath: string;
+    schemaVersion: 1;
+  } | undefined,
+  configPath?: string
+): Promise<void> {
+  const result = await syncVerificationEvidenceIndex({
+    config,
+    configPath,
+    mode: "write",
+    workspaceRoot
+  });
+  assert.equal(result.status, "error");
+  assert.ok(result.diagnostics.some((entry) => (
+    entry.code === "config.path-conflict"
+    && entry.blocking
+  )));
+}
+
+function assertUnrecoverableIndexReadFailure(
+  diagnostics: readonly {
+    blocking: boolean;
+    code: string;
+    message: string;
+    severity: "error" | "warning";
+  }[]
+): void {
+  const failure = diagnostics.find((entry) => (
+    entry.code === "state-index.index-read-failed"
+  ));
+  assert.ok(failure);
+  assert.equal(failure.blocking, true);
+  assert.equal(failure.severity, "error");
+  assert.doesNotMatch(failure.message, /sync-index --write/u);
+}
 
 async function assertInvalidCatalog(
   workspaceRoot: string,
@@ -279,6 +436,56 @@ async function testDistributedModule(workspaceRoot: string): Promise<void> {
   };
   assert.equal(result.total, 2);
   assert.equal(result.cases.length, 2);
+
+  const unreadableConfigPath = "unreadable-index/config.json";
+  await writeWorkspaceFile(
+    workspaceRoot,
+    unreadableConfigPath,
+    `${JSON.stringify({
+      catalogPath: "docs/verification/cases.md",
+      indexPath: "unreadable-index/index.json",
+      schemaVersion: 1
+    }, null, 2)}\n`
+  );
+  for (const command of [
+    ["list"],
+    ["show", "AUTH-ROLE-ACCESS-001"]
+  ]) {
+    try {
+      await execFileAsync(
+        "node",
+        [
+          distributedScript,
+          ...command,
+          "--root",
+          workspaceRoot,
+          "--config",
+          unreadableConfigPath,
+          "--json"
+        ],
+        {
+          encoding: "utf8",
+          windowsHide: true
+        }
+      );
+      assert.fail(`${command[0]} should fail when the index cannot be read`);
+    } catch (error) {
+      const failure = error as Error & {
+        code?: number | string;
+        stdout?: string;
+      };
+      assert.equal(failure.code, 1);
+      const output = JSON.parse(failure.stdout ?? "") as {
+        diagnostics: Array<{
+          blocking: boolean;
+          code: string;
+          message: string;
+          severity: "error" | "warning";
+        }>;
+      };
+      assertUnrecoverableIndexReadFailure(output.diagnostics);
+    }
+  }
 }
 
 async function writeWorkspaceFile(

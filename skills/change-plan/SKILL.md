@@ -5,7 +5,7 @@ description: >-
   明确 change 的原因、目标、范围、设计判断、开放问题、实施任务和验证任务
   整理为 proposal.md、design.md 与 tasks.md，并用随包 CLI 管理基础生命周期。
 metadata:
-  version: "2"
+  version: "3"
 ---
 
 # Change Plan

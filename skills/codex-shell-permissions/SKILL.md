@@ -7,7 +7,7 @@ description: >-
   allow/prompt/block、execpolicy 时使用。这里包含 shell 失败场景、命令组合与语法限制、
   提权边界、权限 rules 维护和过往命令组合尝试记录的文档。
 metadata:
-  version: "1"
+  version: "2"
 ---
 
 # Codex Shell Permissions

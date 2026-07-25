@@ -6,12 +6,16 @@ import {
   isPathWithinDirectory
 } from "../../shared/src/node/filesystem.ts";
 import {
-  buildStateIndex,
   expectationOf,
   keyDefinitionsOf,
+  sameKeyDefinitions,
+  validateStateIndexDefinition
+} from "./definition.ts";
+import { buildStateIndex } from "./snapshot-builder.ts";
+import {
   parseStateIndex,
   serializeStateIndex
-} from "./snapshot.ts";
+} from "./snapshot-parser.ts";
 import type {
   JsonObject,
   StateIndex,
@@ -24,8 +28,7 @@ import type {
 } from "./types.ts";
 import {
   diagnostic,
-  isStateIndexText,
-  validateStateIndexDefinition
+  isStateIndexText
 } from "./validation.ts";
 
 export async function loadStateIndex<
@@ -350,19 +353,6 @@ async function readSourceRevision<
     );
   }
   return { diagnostics: [], status: "ok", value: revision };
-}
-
-function sameKeyDefinitions(
-  left: StateIndex["keyDefinitions"],
-  right: StateIndex["keyDefinitions"]
-): boolean {
-  if (left.length !== right.length) {
-    return false;
-  }
-  return left.every((entry, index) => (
-    entry.name === right[index]?.name
-    && entry.mode === right[index]?.mode
-  ));
 }
 
 function isStateIndexSyncMode(value: unknown): value is StateIndexSyncMode {

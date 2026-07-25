@@ -7,11 +7,16 @@ import {
 import { VersionControlError } from "./errors.ts";
 import { readGitBlobs } from "./git-blob-batch.ts";
 import {
+  parseGitTreeEntries,
+  type GitTreeEntry
+} from "./git-tree-entry.ts";
+import {
   normalizeRepositoryPath,
   normalizeRepositoryPaths
 } from "./repository-path.ts";
 import type {
   ListChangedPathsOptions,
+  ListPendingChangedPathsOptions,
   ListVersionControlFilesOptions,
   RevisionId,
   VersionControlFile,
@@ -105,7 +110,7 @@ class GitVersionControlRepository implements VersionControlRepository {
     }
   }
 
-  async #resolveRevision(revision: string): Promise<RevisionId> {
+  async resolveRevision(revision: string): Promise<RevisionId> {
     assertRevisionInput(revision);
     try {
       return parseObjectId(await this.#git.revparse([
@@ -129,7 +134,7 @@ class GitVersionControlRepository implements VersionControlRepository {
     options: ListVersionControlFilesOptions = {}
   ): Promise<string[]> {
     const pathScopes = normalizePathScopes(options.pathScopes ?? []);
-    const resolvedRevision = await this.#resolveRevision(revision);
+    const resolvedRevision = await this.resolveRevision(revision);
     const pathspecs = pathScopes.map((scope) => `:(literal)${scope}`);
     try {
       return parseNullSeparatedPaths(await this.#git.raw([
@@ -149,6 +154,62 @@ class GitVersionControlRepository implements VersionControlRepository {
     }
   }
 
+  async readRevisionFile(
+    revision: RevisionId,
+    filePath: string
+  ): Promise<VersionControlFile | null> {
+    const normalizedPath = normalizeRepositoryPath(filePath);
+    const resolvedRevision = await this.resolveRevision(revision);
+    let entries: GitTreeEntry[];
+    try {
+      entries = parseGitTreeEntries(await this.#git.raw([
+        "ls-tree",
+        "-z",
+        resolvedRevision,
+        "--",
+        `:(literal)${normalizedPath}`
+      ]));
+    } catch {
+      throw operationError(
+        `locate ${normalizedPath} in revision ${resolvedRevision}`
+      );
+    }
+    if (entries.length === 0) {
+      return null;
+    }
+
+    const entry = entries[0];
+    if (
+      entries.length !== 1
+      || entry === undefined
+      || entry.path !== normalizedPath
+      || entry.objectType !== "blob"
+      || !gitBlobModes.has(entry.mode)
+    ) {
+      throw operationError(
+        `locate file ${normalizedPath} in revision ${resolvedRevision}`
+      );
+    }
+
+    let data: Buffer | undefined;
+    try {
+      data = (await readGitBlobs(
+        this.rootDirectory,
+        [entry.objectId]
+      )).get(entry.objectId);
+    } catch {
+      throw operationError(
+        `read ${normalizedPath} from revision ${resolvedRevision}`
+      );
+    }
+    if (data === undefined) {
+      throw operationError(
+        `read ${normalizedPath} from revision ${resolvedRevision}`
+      );
+    }
+    return { data, path: normalizedPath };
+  }
+
   async readPendingFiles(
     options: ListVersionControlFilesOptions = {}
   ): Promise<VersionControlFile[]> {
@@ -156,6 +217,31 @@ class GitVersionControlRepository implements VersionControlRepository {
     return await this.#readPendingIndexEntries(
       await this.#listPendingIndexEntries(pathScopes)
     );
+  }
+
+  async listPendingChangedPaths(
+    options: ListPendingChangedPathsOptions
+  ): Promise<string[]> {
+    const pathScopes = normalizePathScopes(options.pathScopes ?? []);
+    const from = await this.resolveRevision(options.from);
+    const pathspecs = pathScopes.map((scope) => `:(literal)${scope}`);
+    try {
+      return parseNullSeparatedPaths(await this.#git.raw([
+        "diff",
+        "--cached",
+        "--name-only",
+        "--no-renames",
+        "-z",
+        from,
+        "--",
+        ...pathspecs
+      ]));
+    } catch (cause) {
+      if (cause instanceof VersionControlError) {
+        throw cause;
+      }
+      throw operationError(`list changed paths from ${from} to the pending snapshot`);
+    }
   }
 
   async #listPendingIndexEntries(
@@ -237,10 +323,10 @@ class GitVersionControlRepository implements VersionControlRepository {
   }
 
   async listChangedPaths(options: ListChangedPathsOptions): Promise<string[]> {
-    const from = await this.#resolveRevision(options.from);
+    const from = await this.resolveRevision(options.from);
     const to = options.to === undefined
       ? await this.getCurrentRevision()
-      : await this.#resolveRevision(options.to);
+      : await this.resolveRevision(options.to);
     if (to === null) {
       throw new VersionControlError(
         "revision-not-found",

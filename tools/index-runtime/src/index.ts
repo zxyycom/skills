@@ -10,6 +10,7 @@ export {
 } from "./snapshot.ts";
 export { findStateIndexEntry, queryStateIndex } from "./query.ts";
 export {
+  createStateIndexReader,
   createStateIndexRuntime,
   type StateIndexAllQuery,
   type StateIndexQueryOptions,

@@ -1,10 +1,9 @@
 import path from "node:path";
 import {
   buildStateIndex,
+  createStateIndexReader,
   createStateIndexRuntime,
-  queryStateIndex,
   stateIndexQueryMaximumLimit,
-  type StateIndex,
   type StateIndexDiagnostic,
   type StateIndexFilter,
   type StateIndexReader
@@ -19,6 +18,7 @@ import {
 } from "./schemas.ts";
 import {
   createVerificationEvidenceStateIndexDefinition,
+  indexCanBeRebuilt,
   mapStateIndexDiagnostics
 } from "./state-index.ts";
 import type {
@@ -210,6 +210,20 @@ async function openVerificationEvidenceIndex(options: {
   });
   const opened = await runtime.open();
   if (opened.status === "error") {
+    if (
+      opened.diagnostics.length === 0
+      || !opened.diagnostics.every((entry) => indexCanBeRebuilt(entry.code))
+    ) {
+      return {
+        catalogPath: config.catalogPath,
+        diagnostics: [
+          ...loadedConfig.diagnostics,
+          ...mapStateIndexDiagnostics(opened.diagnostics, config.indexPath)
+        ],
+        indexPath: config.indexPath,
+        status: "error"
+      };
+    }
     const built = await buildStateIndex(definition, { root: workspaceRoot });
     if (built.status === "ok") {
       return {
@@ -222,7 +236,7 @@ async function openVerificationEvidenceIndex(options: {
             config.indexPath
           )
         ],
-        reader: createInMemoryReader({
+        reader: createStateIndexReader({
           definition,
           index: built.value,
           indexPath: config.indexPath
@@ -251,59 +265,6 @@ async function openVerificationEvidenceIndex(options: {
     reader: opened.value,
     status: "ok"
   };
-}
-
-function createInMemoryReader(options: {
-  definition: ReturnType<typeof createVerificationEvidenceStateIndexDefinition>;
-  index: StateIndex<
-    VerificationCaseIndexState,
-    VerificationEvidenceIndexMetadata
-  >;
-  indexPath: string;
-}): VerificationEvidenceReader {
-  const query: VerificationEvidenceReader["query"] = (
-    input = {},
-    queryOptions = {}
-  ) => {
-    const queried = queryStateIndex({
-      definition: options.definition,
-      index: options.index,
-      query: input,
-      runtimeStates: queryOptions.runtimeStates
-    });
-    return queried.status === "ok"
-      ? queried
-      : {
-        ...queried,
-        diagnostics: queried.diagnostics.map((entry) => ({
-          ...entry,
-          path: entry.path ?? options.indexPath
-        }))
-      };
-  };
-  const get: VerificationEvidenceReader["get"] = (
-    stateId,
-    getOptions = {}
-  ) => {
-    const queried = query({
-      filters: [{
-        key: "id",
-        kind: "exact",
-        operator: "all",
-        values: [stateId]
-      }],
-      limit: 1
-    }, getOptions);
-    if (queried.status === "error") {
-      return queried;
-    }
-    return {
-      diagnostics: [],
-      status: "ok",
-      value: queried.value.entries[0] ?? null
-    };
-  };
-  return Object.freeze({ get, query });
 }
 
 function mapIndexFallbackDiagnostics(

@@ -12,13 +12,20 @@ import {
   type SkillPackageFile
 } from "./skill-package-hash.ts";
 import type { SkillPackage } from "./project.ts";
+import { VersionControlError } from "../../tools/shared/src/version-control/index.ts";
 
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "skill-package-hash-test-"));
 const repositoryRoot = path.join(tempRoot, "repository");
+const unreadableRepositoryRoot = path.join(tempRoot, "unreadable-repository");
 const alphaDirectory = path.join(repositoryRoot, "skills", "alpha");
 const betaDirectory = path.join(repositoryRoot, "skills", "beta");
+const gammaDirectory = path.join(repositoryRoot, "skills", "gamma");
 const alphaCommitted = skillMarkdown("alpha", 3, "alpha committed");
 const alphaStaged = skillMarkdown("alpha", 3, "alpha staged");
+const alphaMalformed = alphaCommitted.replace(
+  '  version: "3"',
+  "  version: malformed"
+);
 const betaCommitted = skillMarkdown("beta", 7, "beta committed");
 
 try {
@@ -29,9 +36,14 @@ try {
   runGit(repositoryRoot, ["config", "user.email", "skill-package@example.invalid"]);
   runGit(repositoryRoot, ["config", "user.name", "Skill Package Test"]);
 
+  await fs.writeFile(path.join(alphaDirectory, "SKILL.md"), alphaMalformed);
+  await fs.writeFile(path.join(betaDirectory, "SKILL.md"), betaCommitted);
+  runGit(repositoryRoot, ["add", "."]);
+  runGit(repositoryRoot, ["commit", "--quiet", "--message", "malformed baseline"]);
+  const malformedRevision = runGit(repositoryRoot, ["rev-parse", "HEAD"]).trim();
+
   await fs.writeFile(path.join(alphaDirectory, "SKILL.md"), alphaCommitted);
   await fs.writeFile(path.join(alphaDirectory, "deleted.txt"), "delete me\n");
-  await fs.writeFile(path.join(betaDirectory, "SKILL.md"), betaCommitted);
   runGit(repositoryRoot, ["add", "."]);
   runGit(repositoryRoot, ["commit", "--quiet", "--message", "base"]);
 
@@ -86,6 +98,27 @@ try {
   assert.equal(readSkillPackageVersion("beta", betaFiles), 7);
   assert.equal((await collectSkillPackageFileSets([])).size, 0);
 
+  await assert.rejects(
+    readSkillPackageVersionBaseline(
+      skills,
+      "missing-baseline",
+      repositoryRoot
+    ),
+    (error: unknown) => error instanceof VersionControlError
+      && error.code === "revision-not-found"
+      && error.message.includes("missing-baseline")
+  );
+  await assert.rejects(
+    readSkillPackageVersionBaseline(
+      skills,
+      malformedRevision,
+      repositoryRoot
+    ),
+    (error: unknown) => error instanceof Error
+      && error.message.includes("frontmatter metadata.version")
+      && error.message.includes("must be a string containing one positive integer")
+  );
+
   const baseline = await readSkillPackageVersionBaseline(
     skills,
     "HEAD",
@@ -113,6 +146,35 @@ try {
     ),
     []
   );
+
+  await fs.mkdir(gammaDirectory, { recursive: true });
+  await fs.writeFile(
+    path.join(gammaDirectory, "SKILL.md"),
+    skillMarkdown("gamma", 1, "gamma staged")
+  );
+  runGit(repositoryRoot, ["add", "skills/gamma/SKILL.md"]);
+  const skillsWithNewSkill = [
+    ...skills,
+    { directory: gammaDirectory, name: "gamma" }
+  ];
+  const newSkillBaseline = await readSkillPackageVersionBaseline(
+    skillsWithNewSkill,
+    "HEAD",
+    repositoryRoot
+  );
+  assert.deepEqual(newSkillBaseline.skills, {
+    alpha: 3,
+    gamma: null
+  });
+  assert.deepEqual(
+    getSkillPackageVersionIssues(
+      await calculateSkillPackageHash(skillsWithNewSkill),
+      newSkillBaseline
+    ),
+    []
+  );
+
+  await assertUnreadableBaselineFails(unreadableRepositoryRoot);
 } finally {
   await fs.rm(tempRoot, { force: true, recursive: true });
 }
@@ -150,5 +212,55 @@ function runGit(workingDirectory: string, args: readonly string[]): string {
     "git",
     ["-C", workingDirectory, ...args],
     { encoding: "utf8", windowsHide: true }
+  );
+}
+
+async function assertUnreadableBaselineFails(
+  workingDirectory: string
+): Promise<void> {
+  const skillDirectory = path.join(workingDirectory, "skills", "unreadable");
+  await fs.mkdir(skillDirectory, { recursive: true });
+  runGit(workingDirectory, ["init", "--quiet"]);
+  runGit(workingDirectory, ["config", "core.autocrlf", "false"]);
+  runGit(workingDirectory, ["config", "user.email", "skill-package@example.invalid"]);
+  runGit(workingDirectory, ["config", "user.name", "Skill Package Test"]);
+  await fs.writeFile(
+    path.join(skillDirectory, "SKILL.md"),
+    skillMarkdown("unreadable", 1, "committed")
+  );
+  runGit(workingDirectory, ["add", "."]);
+  runGit(workingDirectory, ["commit", "--quiet", "--message", "base"]);
+  await fs.writeFile(path.join(skillDirectory, "changed.txt"), "changed\n");
+  runGit(workingDirectory, ["add", "skills/unreadable/changed.txt"]);
+
+  const blobId = runGit(workingDirectory, [
+    "rev-parse",
+    "HEAD:skills/unreadable/SKILL.md"
+  ]).trim();
+  const blobPath = path.join(
+    workingDirectory,
+    ".git",
+    "objects",
+    blobId.slice(0, 2),
+    blobId.slice(2)
+  );
+  await fs.chmod(blobPath, 0o666);
+  await fs.writeFile(
+    blobPath,
+    "corrupt Git object",
+    "utf8"
+  );
+
+  await assert.rejects(
+    readSkillPackageVersionBaseline(
+      [{ directory: skillDirectory, name: "unreadable" }],
+      "HEAD",
+      workingDirectory
+    ),
+    (error: unknown) => error instanceof VersionControlError
+      && error.code === "operation-failed"
+      && error.message.includes(
+        "read skills/unreadable/SKILL.md from revision"
+      )
   );
 }

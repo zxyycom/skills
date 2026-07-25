@@ -14,6 +14,7 @@ import {
   generatedCliPath,
   readIndex,
   runBundledCli,
+  runSourceCli,
   runSuccessfulCli,
   traceDecision,
   writeIndex
@@ -188,6 +189,51 @@ try {
   );
   assert.match(shownDecision, /^title: 使用生成 CLI$/m);
   assert.doesNotMatch(shownDecision, /^# /m);
+
+  const shownDecisionPath = path.join(
+    fixtureRoot,
+    "docs",
+    "decisions",
+    ...currentRelativePath.split("/")
+  );
+  const originalReadFileDescriptor = Object.getOwnPropertyDescriptor(
+    fs,
+    "readFile"
+  );
+  assert.ok(originalReadFileDescriptor);
+  const originalReadFile = fs.readFile.bind(fs);
+  let shownDecisionReadCount = 0;
+  Object.defineProperty(fs, "readFile", {
+    ...originalReadFileDescriptor,
+    value: async (
+      filePath: string,
+      encoding: BufferEncoding
+    ): Promise<string> => {
+      if (path.resolve(filePath) === shownDecisionPath) {
+        shownDecisionReadCount += 1;
+        if (shownDecisionReadCount === 3) {
+          throw new Error("simulated decision body read failure");
+        }
+      }
+      return await originalReadFile(filePath, encoding);
+    }
+  });
+  try {
+    const failedShow = await runSourceCli([
+      "show",
+      currentRelativePath,
+      "--root",
+      fixtureRoot
+    ]);
+    assert.equal(failedShow.exitCode, 1);
+    assert.equal(failedShow.stdout, "");
+    assert.match(
+      failedShow.stderr,
+      /Failed to read decision body project-tooling\/use-generated-cli\.md: simulated decision body read failure/
+    );
+  } finally {
+    Object.defineProperty(fs, "readFile", originalReadFileDescriptor);
+  }
 
   const relationTrace = await traceDecision(archivedRelativePath, [], fixtureRoot);
   assert.match(

@@ -1,6 +1,16 @@
 import path from "node:path";
+import {
+  defineStateIndexDefinition,
+  expectationOf,
+  keyDefinitionsOf,
+  sameKeyDefinitions
+} from "./definition.ts";
+import {
+  normalizeStateIndex,
+  readonlyStateIndexMetadata,
+  validateCompleteStateIndex
+} from "./normalization.ts";
 import { queryStateIndex } from "./query.ts";
-import { readonlyStateIndexMetadata } from "./snapshot.ts";
 import { stateIndexQueryMaximumLimit } from "./schemas.ts";
 import {
   loadCurrentStateIndex,
@@ -11,6 +21,7 @@ import type {
   StateIndexContext,
   DeepReadonly,
   StateIndexDefinition,
+  StateIndexDiagnostic,
   StateIndexEntry,
   StateIndexFilter,
   StateIndex,
@@ -21,7 +32,10 @@ import type {
   StateIndexSyncMode,
   StateIndexSyncResult
 } from "./types.ts";
-import { validateStateIndexDefinition } from "./validation.ts";
+import {
+  diagnostic,
+  validateStateIndexValue
+} from "./validation.ts";
 
 export type StateIndexQueryOptions<State extends object> = {
   runtimeStates?: readonly State[];
@@ -76,10 +90,7 @@ export function createStateIndexRuntime<
   root: string;
   signal?: AbortSignal;
 }): StateIndexRuntime<State, Metadata> {
-  const errors = validateStateIndexDefinition(options.definition);
-  if (errors.length > 0) {
-    throw new TypeError(`Invalid state index runtime: ${errors.join("; ")}`);
-  }
+  const definition = defineStateIndexDefinition(options.definition);
   const context: StateIndexContext = {
     root: path.resolve(options.root),
     ...(options.signal === undefined ? {} : { signal: options.signal })
@@ -90,7 +101,7 @@ export function createStateIndexRuntime<
   > {
     const loaded = await loadCurrentStateIndex({
       context,
-      definition: options.definition,
+      definition,
       indexPath: options.indexPath
     });
     if (loaded.status === "error") {
@@ -99,8 +110,8 @@ export function createStateIndexRuntime<
     return {
       diagnostics: [],
       status: "ok",
-      value: createStateIndexReader({
-        definition: options.definition,
+      value: createStateIndexReaderFromSnapshot({
+        definition,
         index: loaded.value,
         indexPath: options.indexPath
       })
@@ -135,14 +146,35 @@ export function createStateIndexRuntime<
     query,
     sync: (mode) => syncStateIndex({
       context,
-      definition: options.definition,
+      definition,
       indexPath: options.indexPath,
       mode
     })
   });
 }
 
-function createStateIndexReader<
+export function createStateIndexReader<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
+  definition: StateIndexDefinition<State, Metadata>;
+  index: StateIndex<State, Metadata>;
+  indexPath: string;
+}): StateIndexReader<State, Metadata> {
+  const definition = defineStateIndexDefinition(options.definition);
+  const index = createReaderSnapshot({
+    definition,
+    index: options.index,
+    indexPath: options.indexPath
+  });
+  return createStateIndexReaderFromSnapshot({
+    definition,
+    index,
+    indexPath: options.indexPath
+  });
+}
+
+function createStateIndexReaderFromSnapshot<
   State extends object,
   Metadata extends JsonObject
 >(options: {
@@ -227,4 +259,58 @@ function createStateIndexReader<
     metadata: readonlyStateIndexMetadata(options.index),
     query
   });
+}
+
+function createReaderSnapshot<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
+  definition: StateIndexDefinition<State, Metadata>;
+  index: StateIndex<State, Metadata>;
+  indexPath: string;
+}): StateIndex<State, Metadata> {
+  const validated = validateStateIndexValue(
+    options.index,
+    expectationOf(options.definition),
+    options.indexPath
+  );
+  if (validated.index === null) {
+    throw invalidReaderError(validated.diagnostics);
+  }
+  if (!sameKeyDefinitions(
+    validated.index.keyDefinitions,
+    keyDefinitionsOf(options.definition)
+  )) {
+    throw invalidReaderError([diagnostic({
+      code: "state-index.definition-mismatch",
+      message: "index key definitions do not match the runtime definition",
+      path: options.indexPath
+    })]);
+  }
+  const normalized = normalizeStateIndex(
+    validated.index,
+    options.definition,
+    options.indexPath
+  );
+  if (normalized.status === "error") {
+    throw invalidReaderError(normalized.diagnostics);
+  }
+  const complete = validateCompleteStateIndex(
+    options.definition,
+    normalized.value,
+    options.indexPath
+  );
+  if (complete.status === "error") {
+    throw invalidReaderError(complete.diagnostics);
+  }
+  return complete.value;
+}
+
+function invalidReaderError(
+  diagnostics: readonly StateIndexDiagnostic[]
+): TypeError {
+  const details = diagnostics
+    .map((entry) => `${entry.code}: ${entry.message}`)
+    .join("; ");
+  return new TypeError(`Invalid state index reader: ${details}`);
 }

@@ -8,7 +8,7 @@ description: >-
   报告更小方案。前置未决时只暴露缺口；普通机械修改、一般 correctness
   review 和纯可读性重构不使用。
 metadata:
-  version: "1"
+  version: "2"
 ---
 
 # Minimal Implementation

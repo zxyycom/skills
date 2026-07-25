@@ -64,21 +64,30 @@ assert.match(
   /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/tools\/skill-updater\/api\/update-skill\.d\.mts/
 );
 assert.match(generatedDeclaration, /releaseManifestAssetName/);
+assert.match(
+  generatedDeclaration,
+  /Expected SKILL\.md frontmatter name for the local target and remote package/
+);
 assert.match(generatedDeclaration, /runSkillUpdaterCli/);
 assert.match(generatedDeclaration, /skillUpdaterConfig/);
 
 type UpdaterRunOptions = {
   args: string[];
+  fetchMarkerPath?: string;
   manifest: unknown;
   release: unknown;
   targetDir: string;
   zipData: Uint8Array;
 };
 
-function skillMarkdown(version: number, body: string): string {
+function skillMarkdown(
+  version: number,
+  body: string,
+  name: string = skillName
+): string {
   return [
     "---",
-    `name: ${skillName}`,
+    `name: ${name}`,
     "description: AI-ready docs test skill",
     "metadata:",
     `  version: "${version}"`,
@@ -108,6 +117,7 @@ function runUpdater(
       encoding: "utf8",
       env: {
         ...process.env,
+        SKILLS_TEST_FETCH_MARKER_PATH: options.fetchMarkerPath ?? "",
         SKILLS_TEST_MANIFEST_JSON: JSON.stringify(options.manifest),
         SKILLS_TEST_RELEASE_JSON: JSON.stringify(options.release),
         SKILLS_TEST_ZIP_BASE64: Buffer.from(options.zipData).toString("base64")
@@ -127,11 +137,14 @@ try {
   await fs.writeFile(
     mockFetchPath,
     [
+      "const fs = require('node:fs');",
       "const releaseJson = process.env.SKILLS_TEST_RELEASE_JSON;",
       "const manifestJson = process.env.SKILLS_TEST_MANIFEST_JSON;",
       "const zipBase64 = process.env.SKILLS_TEST_ZIP_BASE64;",
+      "const fetchMarkerPath = process.env.SKILLS_TEST_FETCH_MARKER_PATH;",
       "globalThis.fetch = async (input) => {",
       "  const url = String(input);",
+      "  if (fetchMarkerPath) fs.writeFileSync(fetchMarkerPath, url, 'utf8');",
       "  if (url.startsWith('https://api.github.com/repos/')) {",
       "    return new Response(releaseJson, { status: 200 });",
       "  }",
@@ -219,6 +232,97 @@ try {
   assert.match(customizedCurrent.stdout, /Local version: 2/);
   assert.match(customizedCurrent.stdout, /Status: current/);
 
+  const wrongLocalTarget = path.join(tempRoot, "wrong-local-target");
+  await fs.mkdir(wrongLocalTarget);
+  const wrongLocalMarkdown = skillMarkdown(
+    2,
+    "# Different local skill",
+    "different-skill"
+  );
+  await fs.writeFile(
+    path.join(wrongLocalTarget, "SKILL.md"),
+    wrongLocalMarkdown,
+    "utf8"
+  );
+
+  const wrongLocal = runUpdater(mockFetchPath, {
+    args: ["--yes"],
+    manifest: validManifest,
+    release: validRelease,
+    targetDir: wrongLocalTarget,
+    zipData
+  });
+  assert.equal(wrongLocal.status, 1);
+  assert.match(
+    wrongLocal.stderr,
+    /identifies skill "different-skill", but this updater expects "ai-ready-docs"/
+  );
+  assert.doesNotMatch(wrongLocal.stdout, /Status: current/);
+  assert.doesNotMatch(wrongLocal.stdout, /Updated skill successfully\./);
+  assert.equal(
+    await fs.readFile(path.join(wrongLocalTarget, "SKILL.md"), "utf8"),
+    wrongLocalMarkdown
+  );
+
+  const nonSkillTarget = path.join(tempRoot, "non-skill-target");
+  const conflictPath = path.join(nonSkillTarget, "references", "current.md");
+  const fetchMarkerPath = path.join(tempRoot, "non-skill-fetch-marker.txt");
+  await fs.mkdir(path.dirname(conflictPath), { recursive: true });
+  await fs.writeFile(conflictPath, "# Preserve this directory\n", "utf8");
+
+  const nonSkill = runUpdater(mockFetchPath, {
+    args: ["--yes"],
+    fetchMarkerPath,
+    manifest: validManifest,
+    release: validRelease,
+    targetDir: nonSkillTarget,
+    zipData
+  });
+  assert.equal(nonSkill.status, 1);
+  assert.match(
+    nonSkill.stderr,
+    /Target directory is not empty and does not contain SKILL\.md/
+  );
+  assert.equal(await pathExists(fetchMarkerPath), false);
+  assert.equal(
+    await fs.readFile(conflictPath, "utf8"),
+    "# Preserve this directory\n"
+  );
+  assert.equal(await pathExists(path.join(nonSkillTarget, "SKILL.md")), false);
+
+  const missingTarget = path.join(tempRoot, "missing-target");
+  const missing = runUpdater(mockFetchPath, {
+    args: ["--yes"],
+    manifest: validManifest,
+    release: validRelease,
+    targetDir: missingTarget,
+    zipData
+  });
+  assert.equal(missing.status, 0, missing.stderr);
+  assert.match(missing.stdout, /Status: target missing/);
+  assert.match(missing.stdout, /Updated skill successfully\./);
+  assert.equal(
+    await fs.readFile(path.join(missingTarget, "SKILL.md"), "utf8"),
+    remoteSkillMarkdown
+  );
+
+  const emptyTarget = path.join(tempRoot, "empty-target");
+  await fs.mkdir(emptyTarget);
+  const empty = runUpdater(mockFetchPath, {
+    args: ["--yes"],
+    manifest: validManifest,
+    release: validRelease,
+    targetDir: emptyTarget,
+    zipData
+  });
+  assert.equal(empty.status, 0, empty.stderr);
+  assert.match(empty.stdout, /Local version: \(unversioned\)/);
+  assert.match(empty.stdout, /Updated skill successfully\./);
+  assert.equal(
+    await fs.readFile(path.join(emptyTarget, "SKILL.md"), "utf8"),
+    remoteSkillMarkdown
+  );
+
   const unversionedTarget = path.join(tempRoot, "unversioned-target");
   await fs.mkdir(unversionedTarget);
   await fs.writeFile(
@@ -270,6 +374,70 @@ try {
   assert.equal(
     await fs.readFile(path.join(mismatchTarget, "SKILL.md"), "utf8"),
     mismatchSkillMarkdown
+  );
+
+  const wrongRemoteTarget = path.join(tempRoot, "wrong-remote-target");
+  await fs.mkdir(wrongRemoteTarget);
+  const wrongRemoteLocalMarkdown = skillMarkdown(1, "# Keep this skill");
+  await fs.writeFile(
+    path.join(wrongRemoteTarget, "SKILL.md"),
+    wrongRemoteLocalMarkdown,
+    "utf8"
+  );
+  const wrongRemoteSkillMarkdown = skillMarkdown(
+    2,
+    "# Different remote skill",
+    "different-skill"
+  );
+  const wrongRemoteZipData = zipSync({
+    [`${skillName}/SKILL.md`]: Buffer.from(wrongRemoteSkillMarkdown, "utf8")
+  });
+
+  const wrongRemote = runUpdater(mockFetchPath, {
+    args: ["--yes"],
+    manifest: validManifest,
+    release: validRelease,
+    targetDir: wrongRemoteTarget,
+    zipData: wrongRemoteZipData
+  });
+  assert.equal(wrongRemote.status, 1);
+  assert.match(
+    wrongRemote.stderr,
+    /identifies skill "different-skill" in SKILL\.md, but this updater expects "ai-ready-docs"/
+  );
+  assert.doesNotMatch(wrongRemote.stdout, /Updated skill successfully\./);
+  assert.equal(
+    await fs.readFile(path.join(wrongRemoteTarget, "SKILL.md"), "utf8"),
+    wrongRemoteLocalMarkdown
+  );
+
+  const aliasedRemoteTarget = path.join(tempRoot, "aliased-remote-target");
+  await fs.mkdir(aliasedRemoteTarget);
+  const aliasedRemoteLocalMarkdown = skillMarkdown(1, "# Keep this skill");
+  await fs.writeFile(
+    path.join(aliasedRemoteTarget, "SKILL.md"),
+    aliasedRemoteLocalMarkdown,
+    "utf8"
+  );
+  const aliasedRemoteZipData = zipSync({
+    [`${skillName}/SKILL.md`]: Buffer.from(remoteSkillMarkdown, "utf8"),
+    [`${skillName}/references/../SKILL.md`]: Buffer.from(
+      skillMarkdown(2, "# Must not replace the validated entry"),
+      "utf8"
+    )
+  });
+  const aliasedRemote = runUpdater(mockFetchPath, {
+    args: ["--yes"],
+    manifest: validManifest,
+    release: validRelease,
+    targetDir: aliasedRemoteTarget,
+    zipData: aliasedRemoteZipData
+  });
+  assert.equal(aliasedRemote.status, 1);
+  assert.match(aliasedRemote.stderr, /non-canonical skill path/);
+  assert.equal(
+    await fs.readFile(path.join(aliasedRemoteTarget, "SKILL.md"), "utf8"),
+    aliasedRemoteLocalMarkdown
   );
 
   const invalidRelease = runUpdater(mockFetchPath, {

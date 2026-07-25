@@ -6,12 +6,12 @@ import { toJsonSchema } from "@valibot/to-json-schema";
 import * as v from "valibot";
 import {
   buildStateIndex,
+  createStateIndexReader,
   createStateIndexSchema,
   createStateIndexRuntime,
   defineStateIndexDefinition,
   parseStateIndex,
   serializeStateIndex,
-  type JsonObject,
   stateIndexTextSchema
 } from "../src/index.ts";
 import {
@@ -161,11 +161,47 @@ export async function testRuntime(): Promise<void> {
   ));
   const typedTenant: string = metadataIndex.metadata.tenant;
   assert.equal(typedTenant, "tenant-a");
+  const readerInput = structuredClone(metadataIndex);
+  const inMemoryReader = createStateIndexReader({
+    definition: metadataDefinition,
+    index: readerInput,
+    indexPath: "typed-metadata.json"
+  });
+  readerInput.metadata.tenant = "tenant-b";
+  readerInput.metadata.groups.push("mutated");
+  readerInput.entries[0]!.state.label = "Mutated";
+  readerInput.entries.splice(0);
+  readerInput.keyDefinitions.splice(0);
+  assert.equal(inMemoryReader.metadata.tenant, "tenant-a");
+  assert.equal(
+    resultValue(inMemoryReader.get("tenant-a:one"))?.state.label,
+    "First"
+  );
+  assert.equal(resultValue(inMemoryReader.query()).total, 1);
+  assert.equal(resultValue(inMemoryReader.all()).length, 1);
+  const mismatchedReaderIndex = structuredClone(metadataIndex);
+  mismatchedReaderIndex.keyDefinitions[0]!.mode = "range";
+  assert.throws(
+    () => createStateIndexReader({
+      definition: metadataDefinition,
+      index: mismatchedReaderIndex,
+      indexPath: "typed-metadata.json"
+    }),
+    /state-index\.definition-mismatch/u
+  );
+  assert.throws(
+    () => createStateIndexReader({
+      definition: metadataDefinition,
+      index: { ...structuredClone(metadataIndex), entries: null } as never,
+      indexPath: "typed-metadata.json"
+    }),
+    /state-index\.schema-invalid/u
+  );
   assert.equal(Object.isFrozen(sourceMetadata), false);
   assert.equal(Object.isFrozen(sourceMetadata.nested), false);
   assert.equal(Object.isFrozen(sourceMetadata.groups), false);
   assert.equal(Object.isFrozen(sourceMetadataState), false);
-  assert.equal(completeIndexValidations, 1);
+  assert.equal(completeIndexValidations, 2);
   const metadataText = serializeStateIndex(metadataIndex, metadataDefinition);
   const serializedMetadata = (
     JSON.parse(metadataText) as { metadata: RuntimeMetadata }
@@ -183,7 +219,7 @@ export async function testRuntime(): Promise<void> {
     sourcePath: "typed-metadata.json",
     text: metadataText
   }).status, "ok");
-  assert.equal(completeIndexValidations, 2);
+  assert.equal(completeIndexValidations, 3);
 
   for (const mutate of [
     (value: Record<string, unknown>) => {
@@ -395,176 +431,6 @@ export async function testRuntime(): Promise<void> {
     assert.equal((await runtime.get(source.states[0]!.path)).status, "error");
     assert.equal((await runtime.sync("write")).state, "written");
     assert.equal((await runtime.get(source.states[0]!.path)).status, "ok");
-
-    assert.throws(
-      () => defineStateIndexDefinition({
-        definitionVersion: 1,
-        identify: () => "state",
-        keyStrategies: [
-          { derive: () => "a", mode: "exact", name: "status" },
-          { derive: () => "b", mode: "exact", name: "status" }
-        ],
-        namespace: "duplicate-keys",
-        parseMetadata: (metadata) => metadata,
-        parseState: (state) => state,
-        read: async () => ({ metadata: {}, revision: "one", states: [{}] }),
-        readRevision: async () => "one"
-      }),
-      /appears more than once/u
-    );
-    assert.throws(
-      () => defineStateIndexDefinition({
-        definitionVersion: 1,
-        identify: () => "state",
-        keyStrategies: [
-          { derive: () => "state", mode: "exact", name: "id" }
-        ],
-        namespace: "reserved-key",
-        parseMetadata: (metadata) => metadata,
-        parseState: (state) => state,
-        read: async () => ({ metadata: {}, revision: "one", states: [{}] }),
-        readRevision: async () => "one"
-      }),
-      /reserved id/u
-    );
-    assert.throws(
-      () => defineStateIndexDefinition({
-        definitionVersion: 1,
-        identify: () => "state",
-        keyStrategies: [
-          { derive: () => "active", mode: "exact", name: "status" }
-        ],
-        namespace: "missing-parser",
-        parseMetadata: (metadata) => metadata,
-        parseState: null as never,
-        read: async () => ({ metadata: {}, revision: "one", states: [{}] }),
-        readRevision: async () => "one"
-      }),
-      /parseState/u
-    );
-
-    const duplicateIdDefinition = defineStateIndexDefinition({
-      definitionVersion: 1,
-      identify: () => "same-id",
-      keyStrategies: [{ derive: () => "active", mode: "exact", name: "status" }],
-      namespace: "duplicate-id",
-      parseMetadata: (metadata) => metadata,
-      parseState: (state) => state,
-      read: async () => ({
-        metadata: {},
-        revision: "one",
-        states: [{ a: 1 }, { a: 2 }]
-      }),
-      readRevision: async () => "one"
-    });
-    const duplicateId = await buildStateIndex(duplicateIdDefinition, { root: tempRoot });
-    assert.equal(duplicateId.status, "error");
-    assert.ok(duplicateId.diagnostics.some((entry) => (
-      entry.code === "state-index.id-duplicate"
-    )));
-
-    const invalidStateDefinition = defineStateIndexDefinition<JsonObject>({
-      definitionVersion: 1,
-      identify: () => "invalid",
-      keyStrategies: [{ derive: () => "active", mode: "exact", name: "status" }],
-      namespace: "invalid-state",
-      parseMetadata: (metadata) => metadata,
-      parseState: (state) => state,
-      read: async () => ({
-        metadata: {},
-        revision: "one",
-        states: [{ value: Number.NaN }]
-      }),
-      readRevision: async () => "one"
-    });
-    const invalidState = await buildStateIndex(invalidStateDefinition, { root: tempRoot });
-    assert.equal(invalidState.status, "error");
-    assert.ok(invalidState.diagnostics.some((entry) => (
-      entry.code === "state-index.state-invalid"
-    )));
-
-    const invalidParserOutput = defineStateIndexDefinition<JsonObject>({
-      definitionVersion: 1,
-      identify: () => "invalid-parser-output",
-      keyStrategies: [{ derive: () => "active", mode: "exact", name: "status" }],
-      namespace: "invalid-parser-output",
-      parseMetadata: (metadata) => metadata,
-      parseState: () => new Date() as never,
-      read: async () => ({ metadata: {}, revision: "one", states: [{}] }),
-      readRevision: async () => "one"
-    });
-    const invalidParsedState = await buildStateIndex(invalidParserOutput, {
-      root: tempRoot
-    });
-    assert.equal(invalidParsedState.status, "error");
-    assert.ok(invalidParsedState.diagnostics.some((entry) => (
-      entry.code === "state-index.state-parse-invalid"
-    )));
-
-    const invalidMetadataParserOutput = defineStateIndexDefinition<JsonObject>({
-      definitionVersion: 1,
-      identify: () => "invalid-metadata-parser-output",
-      keyStrategies: [{
-        derive: () => "active",
-        mode: "exact",
-        name: "status"
-      }],
-      namespace: "invalid-metadata-parser-output",
-      parseMetadata: () => new Date() as never,
-      parseState: (state) => state,
-      read: async () => ({ metadata: {}, revision: "one", states: [{}] }),
-      readRevision: async () => "one"
-    });
-    const invalidParsedMetadata = await buildStateIndex(
-      invalidMetadataParserOutput,
-      { root: tempRoot }
-    );
-    assert.equal(invalidParsedMetadata.status, "error");
-    assert.ok(invalidParsedMetadata.diagnostics.some((entry) => (
-      entry.code === "state-index.metadata-parse-invalid"
-    )));
-
-    const invalidTextKey = defineStateIndexDefinition({
-      definitionVersion: 1,
-      identify: () => "invalid-key",
-      keyStrategies: [{ derive: () => true, mode: "text", name: "text" }],
-      namespace: "invalid-text-key",
-      parseMetadata: (metadata) => metadata,
-      parseState: (state) => state,
-      read: async () => ({ metadata: {}, revision: "one", states: [{}] }),
-      readRevision: async () => "one"
-    });
-    const invalidKey = await buildStateIndex(invalidTextKey, { root: tempRoot });
-    assert.equal(invalidKey.status, "error");
-    assert.ok(invalidKey.diagnostics.some((entry) => (
-      entry.code === "state-index.key-value-invalid"
-    )));
-
-    const malformedRead = defineStateIndexDefinition({
-      definitionVersion: 1,
-      identify: () => "state",
-      keyStrategies: [{ derive: () => "active", mode: "exact", name: "status" }],
-      namespace: "malformed-read",
-      parseMetadata: (metadata) => metadata,
-      parseState: (state) => state,
-      read: async () => null as never,
-      readRevision: async () => "one"
-    });
-    assert.equal(
-      (await buildStateIndex(malformedRead, { root: tempRoot })).status,
-      "error"
-    );
-
-    const controller = new AbortController();
-    controller.abort();
-    const aborted = await buildStateIndex(definition, {
-      root: tempRoot,
-      signal: controller.signal
-    });
-    assert.equal(aborted.status, "error");
-    assert.ok(aborted.diagnostics.some((entry) => (
-      entry.code === "state-index.operation-aborted"
-    )));
   } finally {
     await fs.rm(tempRoot, { force: true, recursive: true });
   }

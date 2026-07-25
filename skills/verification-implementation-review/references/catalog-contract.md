@@ -8,7 +8,7 @@
 
 Markdown 目录是 case 的权威源；索引只保存可删除重建的查询投影和源定位。[SKILL.md](../SKILL.md) 定义“一个保留的独立验证入口对应一个 case”的语义规则，本文件只固定其目录表示和机器接口。
 
-CLI 校验显式 case 并提供低上下文查询，不读取源码、不发现入口、不执行 `Entry:`、不自动登记 case，也不判断入口身份、父子归属、多个 locator 是否指向同一逻辑入口，或 `Contract:`、`Proves:` 的语义质量。`list` 或 `show` 无法使用持久化索引时，可以从当前合法目录在内存中建立同一投影；该降级路径不写文件，`check` 仍严格报告索引问题。
+CLI 校验显式 case 并提供低上下文查询，不读取源码、不发现入口、不执行 `Entry:`、不自动登记 case，也不判断入口身份、父子归属、多个 locator 是否指向同一逻辑入口，或 `Contract:`、`Proves:` 的语义质量。
 
 case 标题固定使用：
 
@@ -105,7 +105,15 @@ Proves:
 
 保留的通用 `id` 查询直接使用 case ID。非空文本查询按空白拆词，所有词必须在同一 case 的 `search` key 中出现。`list` 默认最多返回 20 条并按 ID 排序；`show` 使用 reader get 定位一个 case。
 
-`sourceRevision` 是对规范化目录文本、`catalogPath` 和 `caseIdPattern` 的 SHA-256 投影。上述输入变化后，旧索引必须判定为陈旧。`check` 和 `sync-index` 将索引缺失、损坏或陈旧视为阻断问题；`list` 和 `show` 不使用旧 state，而是从当前合法目录建立一次性内存投影，并返回非阻断 warning 提示运行 `sync-index --write`。目录自身无效或不可读时查询失败。精确结构由 [verification-evidence-state-index.schema.json](schemas/verification-evidence-state-index.schema.json) 定义。
+`sourceRevision` 是对规范化目录文本、`catalogPath` 和 `caseIdPattern` 的 SHA-256 投影。上述输入变化后，旧索引必须判定为陈旧。`check` 和 `sync-index` 将索引缺失、损坏或陈旧视为阻断问题。
+
+`list` 和 `show` 的索引读取遵循以下规则：
+
+1. 优先使用当前持久化索引。
+2. 索引缺失、陈旧、定义不匹配，或索引结构与 state 校验失败时，丢弃旧 state，从当前合法目录建立一次性内存投影，并返回非阻断 warning 提示运行 `sync-index --write`。
+3. 索引路径非法、打开或读取失败、权限不足、源 revision 无法读取，以及目录自身无效或不可读时，查询失败且不附加同步建议。
+
+内存投影不写文件。精确索引结构由 [verification-evidence-state-index.schema.json](schemas/verification-evidence-state-index.schema.json) 定义。
 
 ## 配置
 
@@ -120,7 +128,7 @@ Proves:
 }
 ```
 
-配置文件缺失且未显式传入 `--config` 时使用默认值。三个路径必须是互不相同的工作区相对路径；`caseIdPattern` 必须是合法 JavaScript Unicode 正则。精确结构由 [verification-evidence-config.schema.json](schemas/verification-evidence-config.schema.json) 定义。
+配置文件缺失且未显式传入 `--config` 时使用默认值。`catalogPath`、`indexPath` 和实际配置文件路径必须是互不相同的工作区相对文件身份：比较前统一路径分隔符并折叠 `.` 与重复分隔符；已存在目标按文件系统身份比较，尚未存在的目标在 Windows 和 macOS 上按常见的大小写不敏感语义比较。身份检查无法完成时配置无效；身份判断只用于拒绝冲突，不替换后续读写使用的工作区相对路径。`caseIdPattern` 必须是合法 JavaScript Unicode 正则。精确结构由 [verification-evidence-config.schema.json](schemas/verification-evidence-config.schema.json) 定义。
 
 ## CLI 与导入接口
 
@@ -131,7 +139,7 @@ node scripts/verification-catalog.mjs list --root <workspace-root> [--query <tex
 node scripts/verification-catalog.mjs show <case-id> --root <workspace-root> [--config <config>] [--json]
 ```
 
-`check` 严格校验配置、目录和索引新鲜度；`sync-index` 默认只检查，增加 `--write` 才原子重建。`list` 和 `show` 优先查询当前索引，索引不可用时只读使用当前目录的内存投影；`show` 返回一个紧凑公开 state 和对应原始 Markdown。CLI 不执行 Entry 中的命令或文件。
+`check` 严格校验配置、目录和索引新鲜度；`sync-index` 默认只检查，增加 `--write` 才原子重建。`list` 和 `show` 的降级与阻断条件由[“派生状态索引”](#派生状态索引)统一定义。`show` 返回一个紧凑公开 state 和对应原始 Markdown。CLI 不执行 Entry 中的命令或文件。
 
 退出状态：
 

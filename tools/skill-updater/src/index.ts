@@ -83,11 +83,14 @@ export async function runSkillUpdaterCli(
   console.log(`Release asset: ${skillUpdaterConfig.releaseAssetName}`);
   console.log(`Target: ${options.targetDir}`);
 
+  const currentState = await localSkillState(
+    options.targetDir,
+    skillUpdaterConfig.skillName
+  );
   const release = await fetchGitHubRelease(skillUpdaterConfig, options.releaseTag);
   console.log(`Resolved release: ${release.tag_name} (${release.html_url})`);
 
   const remotePackage = await resolveRemoteSkillPackage(skillUpdaterConfig, release);
-  const currentState = await localSkillState(options.targetDir);
   console.log(`Remote version: ${remotePackage.version}`);
   console.log(`Local version: ${formatLocalVersion(currentState)}`);
 

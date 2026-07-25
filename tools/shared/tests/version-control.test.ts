@@ -11,6 +11,7 @@ import {
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "version-control-test-"));
 const brokenHeadRoot = path.join(tempRoot, "broken-head");
 const conflictRoot = path.join(tempRoot, "conflict");
+const corruptBlobRoot = path.join(tempRoot, "corrupt-blob");
 const repositoryRoot = path.join(tempRoot, "repository");
 const linkedWorktreeRoot = path.join(tempRoot, "linked-worktree");
 
@@ -69,6 +70,17 @@ try {
     ["docs/current-only.md"]
   );
   assert.deepEqual(
+    await repository.readRevisionFile(baseRevision, "docs/tracked.md"),
+    {
+      data: Buffer.from("base\n"),
+      path: "docs/tracked.md"
+    }
+  );
+  assert.equal(
+    await repository.readRevisionFile(baseRevision, "docs/missing.md"),
+    null
+  );
+  assert.deepEqual(
     (await repository.readPendingFiles({
       pathScopes: ["docs/tracked.md"]
     })).map((file) => ({
@@ -125,6 +137,17 @@ try {
     "docs/current-only.md",
     "docs/tracked.md"
   ]);
+  assert.deepEqual(
+    await repository.listPendingChangedPaths({
+      from: currentRevision,
+      pathScopes: ["docs"]
+    }),
+    [
+      "docs/staged-copy.bin",
+      "docs/staged.bin",
+      "docs/tracked.md"
+    ]
+  );
   assert.deepEqual(await repository.listChangedPaths({
     from: currentRevision,
     to: currentRevision
@@ -138,6 +161,14 @@ try {
   );
   await assert.rejects(
     repository.listRevisionFiles("missing-revision"),
+    (error: unknown) => hasVersionControlCode(error, "revision-not-found")
+  );
+  await assert.rejects(
+    repository.readRevisionFile(currentRevision, "../outside.md"),
+    (error: unknown) => hasVersionControlCode(error, "invalid-path")
+  );
+  await assert.rejects(
+    repository.listPendingChangedPaths({ from: "missing-revision" }),
     (error: unknown) => hasVersionControlCode(error, "revision-not-found")
   );
 
@@ -199,6 +230,40 @@ try {
     (error: unknown) => error instanceof VersionControlError
       && error.code === "operation-failed"
       && error.message.includes("resolve pending content conflicts")
+  );
+
+  await fs.mkdir(corruptBlobRoot, { recursive: true });
+  runGit(corruptBlobRoot, ["init", "--quiet"]);
+  runGit(corruptBlobRoot, ["config", "user.email", "version-control@example.invalid"]);
+  runGit(corruptBlobRoot, ["config", "user.name", "Version Control Test"]);
+  await writeFile(corruptBlobRoot, "docs/unreadable.md", "unreadable\n");
+  runGit(corruptBlobRoot, ["add", "."]);
+  runGit(corruptBlobRoot, ["commit", "--quiet", "--message", "base"]);
+  const corruptBlobId = runGit(corruptBlobRoot, [
+    "rev-parse",
+    "HEAD:docs/unreadable.md"
+  ]).trim();
+  const corruptBlobPath = path.join(
+    corruptBlobRoot,
+    ".git",
+    "objects",
+    corruptBlobId.slice(0, 2),
+    corruptBlobId.slice(2)
+  );
+  await fs.chmod(corruptBlobPath, 0o666);
+  await fs.writeFile(
+    corruptBlobPath,
+    "corrupt Git object",
+    "utf8"
+  );
+  await assert.rejects(
+    (await openVersionControl(corruptBlobRoot)).readRevisionFile(
+      "HEAD",
+      "docs/unreadable.md"
+    ),
+    (error: unknown) => error instanceof VersionControlError
+      && error.code === "operation-failed"
+      && error.message.includes("read docs/unreadable.md from revision")
   );
 
   const plainDirectory = path.join(tempRoot, "plain");

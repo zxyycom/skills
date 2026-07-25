@@ -16,6 +16,10 @@ export function isDecisionRelativePath(value: string): boolean {
   return decisionRelativePathPattern.test(value);
 }
 
+export function normalizeDecisionRelativePath(value: string): string {
+  return value.replace(/\\/gu, "/").replace(/^\.\//u, "");
+}
+
 export function isNewDecisionIdentityPath(value: string): boolean {
   if (!isDecisionRelativePath(value)) {
     return false;

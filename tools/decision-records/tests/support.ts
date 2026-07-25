@@ -74,12 +74,96 @@ export async function writeTestDomainCatalog(
   );
 }
 
-export async function createFixtureWorkspace(): Promise<string> {
+export async function createFixtureWorkspace(
+  label = "query"
+): Promise<string> {
   const workspaceRoot = await fs.mkdtemp(
-    path.join(os.tmpdir(), "decision-records-query-")
+    path.join(os.tmpdir(), `decision-records-${label}-`)
   );
   await fs.cp(fixtureRoot, workspaceRoot, { recursive: true });
   return workspaceRoot;
+}
+
+export async function withFixtureWorkspace<T>(
+  label: string,
+  operation: (workspaceRoot: string) => Promise<T>
+): Promise<T> {
+  const workspaceRoot = await createFixtureWorkspace(label);
+  try {
+    return await operation(workspaceRoot);
+  } finally {
+    await fs.rm(workspaceRoot, { force: true, recursive: true });
+  }
+}
+
+export async function withTemporaryWorkspace<T>(
+  label: string,
+  operation: (workspaceRoot: string) => Promise<T>
+): Promise<T> {
+  const workspaceRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), `decision-records-${label}-`)
+  );
+  try {
+    return await operation(workspaceRoot);
+  } finally {
+    await fs.rm(workspaceRoot, { force: true, recursive: true });
+  }
+}
+
+export function decisionFilePath(
+  workspaceRoot: string,
+  relativePath: string
+): string {
+  return path.join(
+    workspaceRoot,
+    "docs",
+    "decisions",
+    ...relativePath.split("/")
+  );
+}
+
+export function candidateDecisionBody(options: {
+  alignment: "aligned" | "unaligned";
+  relationTarget?: string;
+}): string {
+  const relations = options.relationTarget === undefined
+    ? ["relations: []"]
+    : [
+        "relations:",
+        "  - type: 修订",
+        "    target: " + options.relationTarget
+      ];
+  return [
+    "---",
+    "title: 使用 Markdown 建立状态",
+    "status: active",
+    "alignment: " + options.alignment,
+    "createdAt: null",
+    "purpose: 验证 Markdown 生命周期独立定义候选和已建立状态。",
+    "background: 索引和版本历史不应共同承担决策成员身份。",
+    "decision: 使用 createdAt 是否为空区分候选与已建立决策。",
+    ...relations,
+    "---",
+    "",
+    "## 目的",
+    "- 验证 Markdown 生命周期独立定义候选和已建立状态。",
+    "",
+    "## 背景",
+    "- 索引和版本历史不应共同承担决策成员身份。",
+    "",
+    "## 决策",
+    "- 采用: 使用 createdAt 是否为空区分候选与已建立决策。",
+    ""
+  ].join("\n");
+}
+
+export async function fileExists(filePath: string): Promise<boolean> {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 async function captureCliExecution(

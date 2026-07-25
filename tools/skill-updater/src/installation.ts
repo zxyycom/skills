@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import {
-  readOptionalSkillVersionFromMarkdown,
+  readSkillPackageIdentityFromMarkdown,
   skillEntryFileName
 } from "../../skill-package/src/version.ts";
 import {
@@ -46,6 +46,15 @@ async function assertTargetDirectory(targetDir: string): Promise<boolean> {
   return true;
 }
 
+async function assertEmptyTargetDirectory(targetDir: string): Promise<void> {
+  if ((await fs.readdir(targetDir)).length > 0) {
+    throw new Error(
+      `Target directory is not empty and does not contain ${skillEntryFileName}: ${targetDir}. `
+      + "Use --target-dir with an empty directory or the matching installed skill directory."
+    );
+  }
+}
+
 async function assertParentDirectories(
   targetDir: string,
   relativePath: string
@@ -63,7 +72,10 @@ async function assertParentDirectories(
   }
 }
 
-export async function localSkillState(targetDir: string): Promise<LocalSkillState> {
+export async function localSkillState(
+  targetDir: string,
+  expectedSkillName: string
+): Promise<LocalSkillState> {
   if (!await assertTargetDirectory(targetDir)) {
     return { state: "missing" };
   }
@@ -71,6 +83,7 @@ export async function localSkillState(targetDir: string): Promise<LocalSkillStat
   const skillEntryPath = safeJoin(targetDir, skillEntryFileName);
   const skillEntryStats = await lstatOrNull(skillEntryPath);
   if (skillEntryStats === null) {
+    await assertEmptyTargetDirectory(targetDir);
     return { state: "unversioned" };
   }
   if (skillEntryStats.isSymbolicLink() || !skillEntryStats.isFile()) {
@@ -79,20 +92,33 @@ export async function localSkillState(targetDir: string): Promise<LocalSkillStat
     );
   }
 
-  const version = readOptionalSkillVersionFromMarkdown(
+  const identity = readSkillPackageIdentityFromMarkdown(
     await fs.readFile(skillEntryPath, "utf8"),
     skillEntryPath
   );
-  return version === null
+  if (identity.name !== expectedSkillName) {
+    throw new Error(
+      `${skillEntryPath} identifies skill ${JSON.stringify(identity.name)}, but this updater expects `
+      + `${JSON.stringify(expectedSkillName)}. Use --target-dir with the matching skill directory `
+      + "or an empty directory."
+    );
+  }
+
+  return identity.version === null
     ? { state: "unversioned" }
-    : { state: "versioned", version };
+    : { state: "versioned", version: identity.version };
 }
 
 export async function planSkillUpdate(
   files: readonly SkillFile[],
   targetDir: string
 ): Promise<SkillUpdatePlanEntry[]> {
-  await assertTargetDirectory(targetDir);
+  if (
+    await assertTargetDirectory(targetDir)
+    && await lstatOrNull(safeJoin(targetDir, skillEntryFileName)) === null
+  ) {
+    await assertEmptyTargetDirectory(targetDir);
+  }
   const seenPaths = new Set<string>();
   const plan: SkillUpdatePlanEntry[] = [];
 

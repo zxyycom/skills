@@ -7,7 +7,7 @@ description: >-
   需要 AI 依赖某份文档且目标、结构、关系、范围、边界、权威性不清以及
   重复、冲突、模糊或历史残留会妨碍它从实际文本恢复正确含义时使用。
 metadata:
-  version: "1"
+  version: "2"
 ---
 
 # AI-Ready Docs

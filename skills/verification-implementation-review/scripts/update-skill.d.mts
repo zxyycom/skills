@@ -10,6 +10,7 @@ export type UpdaterConfig = {
   releaseAssetName: string;
   releaseManifestAssetName: string;
   repo: string;
+  /** Expected SKILL.md frontmatter name for the local target and remote package. */
   skillName: string;
   sourcePath: string;
 };

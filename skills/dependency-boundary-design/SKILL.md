@@ -7,7 +7,7 @@ description: >-
   范围和当前可兑现的契约，使后续变化能够集中处理。单一实现也可以建立
   具体边界。调用仍然局部且责任清楚，或只需按既定契约实施时不使用。
 metadata:
-  version: "1"
+  version: "2"
 ---
 
 # Dependency Boundary Design

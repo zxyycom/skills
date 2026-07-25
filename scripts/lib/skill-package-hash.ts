@@ -1,6 +1,5 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
-import { simpleGit } from "simple-git";
 import {
   rootDir,
   type SkillPackage
@@ -8,7 +7,6 @@ import {
 import { toPosix } from "../../tools/shared/src/node/filesystem.ts";
 import { openVersionControl } from "../../tools/shared/src/version-control/index.ts";
 import {
-  readOptionalSkillVersionFromMarkdown,
   readSkillVersionFromMarkdown,
   skillEntryFileName
 } from "../../tools/skill-package/src/version.ts";
@@ -178,43 +176,20 @@ export async function readSkillPackageVersionBaseline(
   baselineRef: string = "HEAD",
   workspaceRoot: string = rootDir
 ): Promise<SkillPackageVersionBaseline> {
+  const repository = await openVersionControl(workspaceRoot);
+  const revision = await repository.resolveRevision(baselineRef);
   if (skills.length === 0) {
     return {
-      revision: baselineRef,
+      revision,
       skills: {}
     };
   }
 
-  const repository = await openVersionControl(workspaceRoot);
-  const git = simpleGit({
-    baseDir: repository.rootDirectory,
-    maxConcurrentProcesses: 4,
-    trimmed: false
-  });
-  let revision: string;
-  try {
-    revision = (await git.revparse([
-      "--verify",
-      "--quiet",
-      "--end-of-options",
-      `${baselineRef}^{commit}`
-    ])).trim();
-  } catch {
-    throw new Error(`Skill version baseline could not be resolved: ${baselineRef}`);
-  }
-
   const trees = resolveSkillTrees(skills, repository.rootDirectory);
-  const changedOutput = await git.raw([
-    "diff",
-    "--cached",
-    "--name-only",
-    "--no-renames",
-    "-z",
-    revision,
-    "--",
-    ...trees.map((tree) => tree.treePath)
-  ]);
-  const changedPaths = changedOutput.split("\0").filter((candidate) => candidate.length > 0);
+  const changedPaths = await repository.listPendingChangedPaths({
+    from: revision,
+    pathScopes: trees.map((tree) => tree.treePath)
+  });
   const changedTrees = trees.filter((tree) =>
     changedPaths.some((changedPath) =>
       changedPath === tree.treePath
@@ -225,26 +200,19 @@ export async function readSkillPackageVersionBaseline(
 
   for (const tree of changedTrees) {
     const skillEntryPath = `${tree.treePath}/${skillEntryFileName}`;
-    const skillEntry = (await git.raw([
-      "ls-tree",
-      "--name-only",
+    const skillEntry = await repository.readRevisionFile(
       revision,
-      "--",
       skillEntryPath
-    ])).trim();
-    if (skillEntry.length === 0) {
+    );
+    if (skillEntry === null) {
       baselineSkills[tree.skillName] = null;
       continue;
     }
 
-    try {
-      baselineSkills[tree.skillName] = readOptionalSkillVersionFromMarkdown(
-        await git.show([`${revision}:${skillEntryPath}`]),
-        `${baselineRef}:${skillEntryPath}`
-      );
-    } catch {
-      baselineSkills[tree.skillName] = null;
-    }
+    baselineSkills[tree.skillName] = readSkillVersionFromMarkdown(
+      Buffer.from(skillEntry.data).toString("utf8"),
+      `${baselineRef}:${skillEntryPath}`
+    );
   }
 
   return {
