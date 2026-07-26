@@ -14,6 +14,7 @@ export interface TestEvidenceCaseShowResult {
     entries: [string, ...string[]];
     id: string;
     line: number;
+    sourcePath: string;
     summary: string;
     title: string;
   } | null;
@@ -31,5 +32,5 @@ export interface TestEvidenceCaseShowResult {
   }[];
   indexPath: string;
   markdown: string | null;
-  schemaVersion: 1;
+  schemaVersion: 2;
 }

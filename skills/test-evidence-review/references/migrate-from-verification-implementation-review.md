@@ -6,7 +6,8 @@
 ## 恢复测试专属边界
 
 1. 使用 `test-evidence-review`。
-2. 使用 `.test-evidence.json`、`docs/test-evidence/cases.md` 和
+2. 使用 `.test-evidence.json`、`docs/test-evidence/cases/` 中按稳定测试责任拆分的
+   主题 Markdown，以及
    `docs/test-evidence/test-evidence-index.json`。
 3. 使用 `scripts/test-evidence-catalog.mjs`。
 4. 目录只保留原生测试入口；lint、schema、生成物、依赖、工作区状态等工程 check

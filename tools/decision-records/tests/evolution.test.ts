@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
+import test from "node:test";
 import { applyDecisionChanges } from "../src/decision-transaction.ts";
 import { validateDecisionRecords } from "../src/index.ts";
 import { scanDecisionRecords } from "../src/scan.ts";
@@ -21,7 +22,8 @@ import {
   withFixtureWorkspace
 } from "./support.ts";
 
-await withFixtureWorkspace("relation-evolution", async (workspaceRoot) => {
+test("decision evolution validates relation semantics and target states", () => (
+  withFixtureWorkspace("relation-evolution", async (workspaceRoot) => {
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
   const originalIndexText = await fs.readFile(indexPath, "utf8");
@@ -239,9 +241,11 @@ await withFixtureWorkspace("relation-evolution", async (workspaceRoot) => {
     workspaceRoot
   );
   assert.match(fullPredecessorTrace, /260710-use-source-cli/);
-});
+  })
+));
 
-await withFixtureWorkspace("evolve-command", async (workspaceRoot) => {
+test("evolve command archives sources and creates the aligned target atomically", () => (
+  withFixtureWorkspace("evolve-command", async (workspaceRoot) => {
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
   const parallelRelativePath =
@@ -383,4 +387,5 @@ await withFixtureWorkspace("evolve-command", async (workspaceRoot) => {
     (await validateDecisionRecords({ workspaceRoot })).errors,
     []
   );
-});
+  })
+));

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
+import test from "node:test";
 import { loadCurrentInvestigationIndex } from "../src/investigation-state-index.ts";
 import { queryInvestigationIndex } from "../src/query.ts";
 import { synchronizeInvestigationIndex } from "../src/validation.ts";
@@ -42,7 +43,7 @@ async function writeScaleTopics(workspaceRoot: string): Promise<void> {
   }
 }
 
-export async function runScaleEvidenceTests(): Promise<void> {
+async function testScaleEvidence(): Promise<void> {
   await withTempRoot("scale", async (workspaceRoot) => {
     await writeScaleTopics(workspaceRoot);
 
@@ -80,3 +81,7 @@ export async function runScaleEvidenceTests(): Promise<void> {
     );
   });
 }
+
+test("index synchronizes and queries one thousand investigation reports", () => (
+  testScaleEvidence()
+));

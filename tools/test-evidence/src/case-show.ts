@@ -40,7 +40,7 @@ export async function showTestEvidenceCase(
   let text: string;
   try {
     text = await fs.readFile(
-      path.join(workspaceRoot, ...found.catalogPath.split("/")),
+      path.join(workspaceRoot, ...entry.sourcePath.split("/")),
       "utf8"
     );
   } catch (error) {
@@ -49,8 +49,8 @@ export async function showTestEvidenceCase(
         caseId: entry.id,
         category: "catalog",
         code: "catalog.read-failed",
-        message: `${found.catalogPath} could not be read: ${errorText(error)}`,
-        path: found.catalogPath,
+        message: `${entry.sourcePath} could not be read: ${errorText(error)}`,
+        path: entry.sourcePath,
         severity: "error"
       })
     ], {
@@ -72,7 +72,7 @@ export async function showTestEvidenceCase(
         code: "state-index.index-stale",
         line: entry.line,
         message: `${found.indexPath} no longer locates ${entry.id} in `
-          + `${found.catalogPath}. Run sync-index --write to rebuild the index`,
+          + `${entry.sourcePath}. Run sync-index --write to rebuild the index`,
         path: found.indexPath,
         severity: "error"
       })

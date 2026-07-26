@@ -14,6 +14,7 @@ export const checkPreflightTasks = [
   "validate",
   "test:skill-updater",
   "check:test-evidence-cli",
+  "check:test-evidence-catalog",
   "check:skill-validator",
   "check:investigation-report-check",
   "check:change-plan-cli",

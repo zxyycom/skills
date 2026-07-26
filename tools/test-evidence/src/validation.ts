@@ -1,10 +1,7 @@
-import fs from "node:fs/promises";
 import path from "node:path";
-import { collectTestEvidenceCases } from "./catalog.ts";
-import { validateTestEvidenceCases } from "./catalog-validation.ts";
+import { loadTestEvidenceCatalog } from "./catalog-source.ts";
 import { loadTestEvidenceConfig } from "./config.ts";
 import {
-  createDiagnostic,
   sortUniqueDiagnostics
 } from "./diagnostics.ts";
 import {
@@ -44,40 +41,10 @@ export async function validateTestEvidence(
   const diagnostics: TestEvidenceDiagnostic[] = [
     ...loadedConfig.diagnostics
   ];
-  let catalogText: string;
-  try {
-    catalogText = await fs.readFile(
-      path.join(workspaceRoot, ...config.catalogPath.split("/")),
-      "utf8"
-    );
-  } catch (error) {
-    diagnostics.push(createDiagnostic({
-      category: "catalog",
-      code: "catalog.read-failed",
-      message: `${config.catalogPath} could not be read: ${errorMessage(error)}`,
-      path: config.catalogPath,
-      severity: "error"
-    }));
-    return createTestEvidenceReport(diagnostics);
-  }
+  const catalog = await loadTestEvidenceCatalog(workspaceRoot, config);
+  diagnostics.push(...catalog.diagnostics);
 
-  const parsedCases = collectTestEvidenceCases(
-    catalogText,
-    new RegExp(config.caseIdPattern, "u")
-  );
-  const catalog = validateTestEvidenceCases(parsedCases, config.catalogPath);
-  diagnostics.push(...catalog.errors.map((message) => createDiagnostic({
-    category: "catalog",
-    code: "catalog.invalid",
-    message,
-    path: config.catalogPath,
-    severity: "error"
-  })));
-
-  if (
-    catalog.errors.length === 0
-    && catalog.cases.length === parsedCases.length
-  ) {
+  if (catalog.diagnostics.length === 0) {
     const synchronized = await syncTestEvidenceIndex({
       config,
       configPath: options.configPath,
@@ -104,8 +71,4 @@ export function createTestEvidenceReport(
     schemaVersion: testEvidenceReportSchemaVersion,
     summary: { ...summary }
   };
-}
-
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }

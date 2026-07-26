@@ -26,6 +26,10 @@
             "type": "integer",
             "minimum": 1
           },
+          "sourcePath": {
+            "type": "string",
+            "minLength": 1
+          },
           "summary": {
             "type": "string",
             "minLength": 1
@@ -40,6 +44,7 @@
           "entries",
           "id",
           "line",
+          "sourcePath",
           "summary",
           "title"
         ],
@@ -121,7 +126,7 @@
       "minimum": 0
     },
     "schemaVersion": {
-      "const": 1
+      "const": 2
     },
     "total": {
       "type": "integer",

@@ -14,6 +14,7 @@ export interface TestEvidenceQueryResult {
     entries: [string, ...string[]];
     id: string;
     line: number;
+    sourcePath: string;
     summary: string;
     title: string;
   }[];
@@ -32,6 +33,6 @@ export interface TestEvidenceQueryResult {
   indexPath: string;
   limit: number;
   offset: number;
-  schemaVersion: 1;
+  schemaVersion: 2;
   total: number;
 }

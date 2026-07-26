@@ -9,5 +9,5 @@ export interface TestEvidenceConfig {
   caseIdPattern?: string;
   catalogPath?: string;
   indexPath?: string;
-  schemaVersion: 1;
+  schemaVersion: 2;
 }

@@ -3,6 +3,7 @@ import { spawnSync, type SpawnSyncReturns } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import test, { after } from "node:test";
 import { fileURLToPath } from "node:url";
 import { zipSync } from "fflate";
 import {
@@ -38,38 +39,6 @@ const validRelease = {
   html_url: "https://example.test/releases/review",
   tag_name: "review"
 };
-
-assert.equal(skillUpdaterConfig.skillName, skillName);
-assert.equal(
-  skillUpdaterConfig.releaseManifestAssetName,
-  "skill-release-manifest.json"
-);
-assert.equal(typeof runSkillUpdaterCli, "function");
-const helpOutput: string[] = [];
-const originalConsoleLog = console.log;
-console.log = (...values: unknown[]) => {
-  helpOutput.push(values.map(String).join(" "));
-};
-try {
-  assert.equal(await runSkillUpdaterCli(["--help"]), 0);
-} finally {
-  console.log = originalConsoleLog;
-}
-assert.match(helpOutput.join("\n"), /Usage: node update-skill\.mjs/);
-assert.match(helpOutput.join("\n"), /installed version differs from the remote version/);
-
-const generatedDeclaration = await fs.readFile(generatedDeclarationPath, "utf8");
-assert.match(
-  generatedDeclaration,
-  /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/tools\/skill-updater\/api\/update-skill\.d\.mts/
-);
-assert.match(generatedDeclaration, /releaseManifestAssetName/);
-assert.match(
-  generatedDeclaration,
-  /Expected SKILL\.md frontmatter name for the local target and remote package/
-);
-assert.match(generatedDeclaration, /runSkillUpdaterCli/);
-assert.match(generatedDeclaration, /skillUpdaterConfig/);
 
 type UpdaterRunOptions = {
   args: string[];
@@ -132,7 +101,10 @@ function runUpdater(
 }
 
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "skill-updater-test-"));
-try {
+after(async () => {
+  await fs.rm(tempRoot, { force: true, recursive: true });
+});
+
   const mockFetchPath = path.join(tempRoot, "mock-fetch.cjs");
   await fs.writeFile(
     mockFetchPath,
@@ -182,6 +154,41 @@ try {
     }
   };
 
+test("updater configuration, help, and declarations expose the public contract", async () => {
+  assert.equal(skillUpdaterConfig.skillName, skillName);
+  assert.equal(
+    skillUpdaterConfig.releaseManifestAssetName,
+    "skill-release-manifest.json"
+  );
+  assert.equal(typeof runSkillUpdaterCli, "function");
+  const helpOutput: string[] = [];
+  const originalConsoleLog = console.log;
+  console.log = (...values: unknown[]) => {
+    helpOutput.push(values.map(String).join(" "));
+  };
+  try {
+    assert.equal(await runSkillUpdaterCli(["--help"]), 0);
+  } finally {
+    console.log = originalConsoleLog;
+  }
+  assert.match(helpOutput.join("\n"), /Usage: node update-skill\.mjs/);
+  assert.match(helpOutput.join("\n"), /installed version differs from the remote version/);
+
+  const generatedDeclaration = await fs.readFile(generatedDeclarationPath, "utf8");
+  assert.match(
+    generatedDeclaration,
+    /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/tools\/skill-updater\/api\/update-skill\.d\.mts/
+  );
+  assert.match(generatedDeclaration, /releaseManifestAssetName/);
+  assert.match(
+    generatedDeclaration,
+    /Expected SKILL\.md frontmatter name for the local target and remote package/
+  );
+  assert.match(generatedDeclaration, /runSkillUpdaterCli/);
+  assert.match(generatedDeclaration, /skillUpdaterConfig/);
+});
+
+test("updater replaces packaged files and preserves local custom files", async () => {
   const successTarget = path.join(tempRoot, "success-target");
   await fs.mkdir(successTarget);
   await fs.writeFile(
@@ -212,7 +219,9 @@ try {
     await fs.readFile(path.join(successTarget, "stale.md"), "utf8"),
     "# Keep this customization\n"
   );
+});
 
+test("updater check treats a matching installed version as current", async () => {
   const customizedCurrentTarget = path.join(tempRoot, "customized-current-target");
   await fs.mkdir(customizedCurrentTarget);
   await fs.writeFile(
@@ -231,7 +240,9 @@ try {
   assert.equal(customizedCurrent.status, 0, customizedCurrent.stderr);
   assert.match(customizedCurrent.stdout, /Local version: 2/);
   assert.match(customizedCurrent.stdout, /Status: current/);
+});
 
+test("updater rejects a local directory owned by another skill", async () => {
   const wrongLocalTarget = path.join(tempRoot, "wrong-local-target");
   await fs.mkdir(wrongLocalTarget);
   const wrongLocalMarkdown = skillMarkdown(
@@ -263,7 +274,9 @@ try {
     await fs.readFile(path.join(wrongLocalTarget, "SKILL.md"), "utf8"),
     wrongLocalMarkdown
   );
+});
 
+test("updater rejects a non-skill directory before fetching release data", async () => {
   const nonSkillTarget = path.join(tempRoot, "non-skill-target");
   const conflictPath = path.join(nonSkillTarget, "references", "current.md");
   const fetchMarkerPath = path.join(tempRoot, "non-skill-fetch-marker.txt");
@@ -289,7 +302,9 @@ try {
     "# Preserve this directory\n"
   );
   assert.equal(await pathExists(path.join(nonSkillTarget, "SKILL.md")), false);
+});
 
+test("updater installs into missing and empty target directories", async () => {
   const missingTarget = path.join(tempRoot, "missing-target");
   const missing = runUpdater(mockFetchPath, {
     args: ["--yes"],
@@ -322,7 +337,9 @@ try {
     await fs.readFile(path.join(emptyTarget, "SKILL.md"), "utf8"),
     remoteSkillMarkdown
   );
+});
 
+test("updater check reports an unversioned installed skill", async () => {
   const unversionedTarget = path.join(tempRoot, "unversioned-target");
   await fs.mkdir(unversionedTarget);
   await fs.writeFile(
@@ -349,7 +366,9 @@ try {
   assert.equal(unversioned.status, 1);
   assert.match(unversioned.stdout, /Local version: \(unversioned\)/);
   assert.match(unversioned.stdout, /Status: update available \(local version unknown\)/);
+});
 
+test("updater rejects a manifest version that differs from the package", async () => {
   const mismatchTarget = path.join(tempRoot, "mismatch-target");
   await fs.mkdir(mismatchTarget);
   const mismatchSkillMarkdown = skillMarkdown(1, "# Keep this skill");
@@ -375,7 +394,9 @@ try {
     await fs.readFile(path.join(mismatchTarget, "SKILL.md"), "utf8"),
     mismatchSkillMarkdown
   );
+});
 
+test("updater rejects a remote package owned by another skill", async () => {
   const wrongRemoteTarget = path.join(tempRoot, "wrong-remote-target");
   await fs.mkdir(wrongRemoteTarget);
   const wrongRemoteLocalMarkdown = skillMarkdown(1, "# Keep this skill");
@@ -410,7 +431,9 @@ try {
     await fs.readFile(path.join(wrongRemoteTarget, "SKILL.md"), "utf8"),
     wrongRemoteLocalMarkdown
   );
+});
 
+test("updater rejects aliased non-canonical package paths", async () => {
   const aliasedRemoteTarget = path.join(tempRoot, "aliased-remote-target");
   await fs.mkdir(aliasedRemoteTarget);
   const aliasedRemoteLocalMarkdown = skillMarkdown(1, "# Keep this skill");
@@ -439,7 +462,9 @@ try {
     await fs.readFile(path.join(aliasedRemoteTarget, "SKILL.md"), "utf8"),
     aliasedRemoteLocalMarkdown
   );
+});
 
+test("updater reports invalid release and manifest payloads", () => {
   const invalidRelease = runUpdater(mockFetchPath, {
     args: ["--check"],
     manifest: validManifest,
@@ -461,8 +486,4 @@ try {
   assert.equal(invalidManifest.status, 1);
   assert.match(invalidManifest.stderr, /contains invalid skill-release-manifest\.json/);
   assert.match(invalidManifest.stderr, /schemaVersion/);
-} finally {
-  await fs.rm(tempRoot, { force: true, recursive: true });
-}
-
-console.log("Skill updater integration tests passed.");
+});

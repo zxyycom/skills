@@ -23,6 +23,7 @@ const requiredPackageScripts = [
   "sync:investigation-report-check",
   "sync:decision-records-cli",
   "sync:test-evidence-cli",
+  "sync:test-evidence-catalog",
   "check"
 ] as const;
 

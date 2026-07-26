@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
+import test from "node:test";
 import {
   listChangePlans as listBundledChangePlans,
   showChangePlanDirectory as showBundledChangePlanDirectory
@@ -182,12 +183,22 @@ async function testSymbolicLinksAreNotDiscovered(
   assert.match(linkedRootList.errors[0] ?? "", /must be a directory/u);
 }
 
-export async function runCatalogTests(): Promise<void> {
-  await withTempRoot("catalog", async (tempRoot) => {
-    await testListStatuses(tempRoot);
-    await testInvalidEntriesRemainDiscoverable(tempRoot);
-    await testChangeRootDiagnostics(tempRoot);
-    await testShowStatusAndBundledParity(tempRoot);
-    await testSymbolicLinksAreNotDiscovered(tempRoot);
-  });
-}
+test("catalog lists active, archived, and all change plans", () => (
+  withTempRoot("catalog-statuses", testListStatuses)
+));
+
+test("catalog keeps invalid change entries discoverable", () => (
+  withTempRoot("catalog-invalid", testInvalidEntriesRemainDiscoverable)
+));
+
+test("catalog reports inaccessible and malformed lifecycle roots", () => (
+  withTempRoot("catalog-roots", testChangeRootDiagnostics)
+));
+
+test("catalog shows lifecycle status with bundled API parity", () => (
+  withTempRoot("catalog-show", testShowStatusAndBundledParity)
+));
+
+test("catalog does not discover symbolic-link change directories", () => (
+  withTempRoot("catalog-links", testSymbolicLinksAreNotDiscovered)
+));

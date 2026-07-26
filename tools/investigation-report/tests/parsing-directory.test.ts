@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
+import test from "node:test";
 import { validateInvestigationReports } from "../src/validation.ts";
 import {
   coreSectionCases,
@@ -90,10 +91,7 @@ async function testDirectoryPathRules(tempRoot: string): Promise<void> {
   )));
 }
 
-async function testInformationFieldValidation(tempRoot: string): Promise<{
-  goodReport: ReportInput;
-  invalidRoot: string;
-}> {
+async function testInformationFieldValidation(tempRoot: string): Promise<void> {
   const invalidRoot = path.join(tempRoot, "invalid-information");
   const goodReport: ReportInput = {
     path: "codex/good-report.md",
@@ -144,7 +142,12 @@ async function testInformationFieldValidation(tempRoot: string): Promise<{
     && error.includes("field \"核心问题\" must not be empty")
   )));
   assert.equal(invalid.indexChecked, false);
-  return { goodReport, invalidRoot };
+
+  const scopedValid = await validateInvestigationReports({
+    paths: [goodReport.path],
+    workspaceRoot: invalidRoot
+  });
+  assert.deepEqual(scopedValid.errors, []);
 }
 
 async function testCompleteReportStructure(tempRoot: string): Promise<void> {
@@ -325,19 +328,18 @@ async function testCompleteReportStructure(tempRoot: string): Promise<void> {
   )));
 }
 
-export async function runParsingAndDirectoryTests(): Promise<void> {
-  await withTempRoot("parsing-directory", async (tempRoot) => {
-    await testFilteredDirectoryValidation(tempRoot);
-    await testDirectoryPathRules(tempRoot);
-    const { goodReport, invalidRoot } = await testInformationFieldValidation(
-      tempRoot
-    );
-    await testCompleteReportStructure(tempRoot);
+test("validation filters reports by category and path", () => (
+  withTempRoot("parsing-filters", testFilteredDirectoryValidation)
+));
 
-    const scopedValid = await validateInvestigationReports({
-      paths: [goodReport.path],
-      workspaceRoot: invalidRoot
-    });
-    assert.deepEqual(scopedValid.errors, []);
-  });
-}
+test("validation enforces investigation directory path rules", () => (
+  withTempRoot("parsing-paths", testDirectoryPathRules)
+));
+
+test("validation reports invalid information fields without blocking valid scopes", () => (
+  withTempRoot("parsing-information", testInformationFieldValidation)
+));
+
+test("validation enforces complete report structure and chronology", () => (
+  withTempRoot("parsing-structure", testCompleteReportStructure)
+));

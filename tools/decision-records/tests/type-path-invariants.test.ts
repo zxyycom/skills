@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import path from "node:path";
+import test from "node:test";
 import {
   isDecisionDomainId,
   isDecisionRelativePath,
@@ -13,6 +14,7 @@ import type {
   DecisionProjection
 } from "../src/types.ts";
 
+test("decision types and paths preserve identity and alignment invariants", async () => {
 assert.equal(
   isNewDecisionIdentityPath("decision-records/use-semantic-paths.md"),
   true
@@ -154,3 +156,4 @@ assert.deepEqual(errors, []);
 assert.ok(document);
 assert.equal(document.status, "active");
 assert.equal(document.alignment, "unaligned");
+});

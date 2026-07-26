@@ -289,6 +289,7 @@ function publicCaseState(
     entries: [...state.entries],
     id: state.id,
     line: state.line,
+    sourcePath: state.sourcePath,
     summary: state.summary,
     title: state.title
   };

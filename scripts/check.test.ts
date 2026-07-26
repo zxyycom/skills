@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   formatCheckResult,
@@ -27,6 +28,7 @@ function scriptResult(script: string, exitCode = 0) {
   };
 }
 
+test("check plan exposes every package script in execution order", () => {
 const expectedCheckPackageScripts = [
   "test:test-evidence-cli",
   "test:change-plan-cli",
@@ -39,6 +41,7 @@ const expectedCheckPackageScripts = [
   "validate",
   "test:skill-updater",
   "check:test-evidence-cli",
+  "check:test-evidence-catalog",
   "check:skill-validator",
   "check:investigation-report-check",
   "check:change-plan-cli",
@@ -62,7 +65,9 @@ assert.equal(
   checkTaskScript({ blocking: true, script: "blocking" }),
   "blocking"
 );
+});
 
+test("check options resolve concurrency and modes with strict validation", () => {
 assert.equal(resolveConcurrency({
   availableParallelism: 8,
   configured: undefined,
@@ -90,7 +95,9 @@ assert.throws(
 assert.equal(resolveCheckMode([]), "warnings");
 assert.equal(resolveCheckMode(["--strict"]), "strict");
 assert.throws(() => resolveCheckMode(["--unknown"]), /Unknown option/u);
+});
 
+test("check statuses and output preserve warning and failure semantics", () => {
 const blockingTask = { blocking: true, script: "blocking" } as const;
 assert.equal(resolveCheckStatus("default-warning", "warnings", 1), "warning");
 assert.equal(resolveCheckStatus("strict-failure", "strict", 1), "failed");
@@ -138,7 +145,9 @@ assert.equal(
   ),
   "All 21 preflight checks and packaging [warning][6.37s]"
 );
+});
 
+test("strict scheduling stops new work and waits for running tasks", async () => {
 const slowResult = Promise.withResolvers<ReturnType<typeof scriptResult>>();
 const failedResult = Promise.withResolvers<ReturnType<typeof scriptResult>>();
 const strictCalls: string[] = [];
@@ -174,7 +183,9 @@ assert.deepEqual(await strictRun, {
   hasWarnings: false
 });
 assert.deepEqual(strictCalls, ["slow", "failure"]);
+});
 
+test("warning scheduling continues after recoverable failures", async () => {
 const warningCalls: string[] = [];
 const warningStatuses: string[] = [];
 const warningRun = await runPreflightTasks(
@@ -193,7 +204,9 @@ assert.deepEqual(warningRun, {
 });
 assert.deepEqual(warningCalls, ["warning", "after-warning"]);
 assert.deepEqual(warningStatuses, ["warning", "passed"]);
+});
 
+test("workflow packages after warnings and skips after blocking failures", async () => {
 const workflowCalls: string[] = [];
 const defaultWarning = await runCheckWorkflow({
   concurrency: 1,
@@ -269,7 +282,9 @@ assert.deepEqual(packageFailure, {
   status: "failed"
 });
 assert.deepEqual(workflowCalls, ["successful", "package"]);
+});
 
+test("CLI reports invalid concurrency without starting checks", () => {
 const invalidConcurrency = spawnSync(
   process.execPath,
   [fileURLToPath(new URL("./check.ts", import.meta.url))],
@@ -287,9 +302,11 @@ assert.match(
 );
 assert.match(
   invalidConcurrency.stderr,
-  /All 22 preflight checks and packaging \[failed\]\[\d+\.\d{2}s\]/u
+  /All 23 preflight checks and packaging \[failed\]\[\d+\.\d{2}s\]/u
 );
+});
 
+test("CLI reports unknown options without starting checks", () => {
 const invalidArgument = spawnSync(
   process.execPath,
   [fileURLToPath(new URL("./check.ts", import.meta.url)), "--unknown"],
@@ -303,7 +320,6 @@ assert.equal(invalidArgument.stdout, "");
 assert.match(invalidArgument.stderr, /Unknown option '--unknown'/u);
 assert.match(
   invalidArgument.stderr,
-  /All 22 preflight checks and packaging \[failed\]\[\d+\.\d{2}s\]/u
+  /All 23 preflight checks and packaging \[failed\]\[\d+\.\d{2}s\]/u
 );
-
-console.log("Check orchestration tests passed.");
+});

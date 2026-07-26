@@ -9,5 +9,3 @@ await import("./first-establishment.test.ts");
 await import("./type-path-invariants.test.ts");
 await import("./state-snapshot.test.ts");
 await import("./configured-decision-directory.test.ts");
-
-console.log("Decision records CLI tests passed.");

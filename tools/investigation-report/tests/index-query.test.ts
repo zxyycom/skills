@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
+import test from "node:test";
 import {
   queryStateIndex,
   type StateIndex
@@ -243,9 +244,10 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
   );
 }
 
-export async function runIndexAndQueryTests(): Promise<void> {
-  await withTempRoot("index-query", async (tempRoot) => {
-    await testValidIndexAndQueries(tempRoot);
-    await testStaleAndTamperedIndexes(tempRoot);
-  });
-}
+test("index queries return filtered and paginated investigation states", () => (
+  withTempRoot("index-query-valid", testValidIndexAndQueries)
+));
+
+test("index loading rejects stale and tampered investigation indexes", () => (
+  withTempRoot("index-query-stale", testStaleAndTamperedIndexes)
+));

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import test from "node:test";
 import {
   buildStateIndex,
   findStateIndexEntry,
@@ -246,3 +247,7 @@ export async function testQueries(): Promise<void> {
     entry.code === "state-index.sort-key-multivalued"
   )));
 }
+
+test("queries filter, sort, paginate, and merge runtime states", () => (
+  testQueries()
+));

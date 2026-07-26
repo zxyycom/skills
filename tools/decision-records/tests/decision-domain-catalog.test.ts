@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
+import test from "node:test";
 import { validateDecisionRecords } from "../src/index.ts";
 import {
   createFixtureWorkspace,
@@ -16,6 +17,7 @@ type TestDomainCatalog = {
   }>;
 };
 
+test("decision domain catalog validates ownership and domain membership", async () => {
 const workspaceRoot = await createFixtureWorkspace();
 try {
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
@@ -176,3 +178,4 @@ try {
 } finally {
   await fs.rm(workspaceRoot, { force: true, recursive: true });
 }
+});

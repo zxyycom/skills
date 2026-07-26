@@ -21,7 +21,7 @@ export interface TestEvidenceIndexSyncResult {
   }[];
   indexPath: string;
   mode: "check" | "write";
-  schemaVersion: 1;
+  schemaVersion: 2;
   state:
     | "current"
     | "unchanged"

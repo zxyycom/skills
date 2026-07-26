@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
+import test from "node:test";
 import {
   candidateDecisionBody,
   currentRelativePath,
@@ -14,7 +15,8 @@ import {
   withFixtureWorkspace
 } from "./support.ts";
 
-await withFixtureWorkspace("activation-archive", async (workspaceRoot) => {
+test("activation and archive transitions preserve content and index atomicity", () => (
+  withFixtureWorkspace("activation-archive", async (workspaceRoot) => {
   assert.equal(await fileExists(path.join(workspaceRoot, ".git")), false);
 
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
@@ -197,4 +199,5 @@ await withFixtureWorkspace("activation-archive", async (workspaceRoot) => {
   assert.match(failedActivation.stderr, /target must be archived/);
   assert.equal(await fs.readFile(rollbackPath, "utf8"), rollbackCandidate);
   assert.equal(await fs.readFile(indexPath, "utf8"), indexBeforeRollback);
-});
+  })
+));

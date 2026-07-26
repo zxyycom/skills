@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
+import test from "node:test";
 import {
   archiveChangePlanDirectory as archiveBundledChangePlanDirectory
 } from "../../../skills/change-plan/scripts/change-plan.mjs";
@@ -151,11 +152,18 @@ async function testSuccessfulArchive(tempRoot: string): Promise<void> {
   );
 }
 
-export async function runArchiveTests(): Promise<void> {
-  await withTempRoot("archive", async (tempRoot) => {
-    await testContentGates(tempRoot);
-    await testPathGates(tempRoot);
-    await testTargetGates(tempRoot);
-    await testSuccessfulArchive(tempRoot);
-  });
-}
+test("archive rejects plans that fail content gates", () => (
+  withTempRoot("archive-content", testContentGates)
+));
+
+test("archive rejects unsafe source paths", () => (
+  withTempRoot("archive-paths", testPathGates)
+));
+
+test("archive rejects invalid target directories", () => (
+  withTempRoot("archive-targets", testTargetGates)
+));
+
+test("archive moves complete plans and preserves their content", () => (
+  withTempRoot("archive-success", testSuccessfulArchive)
+));

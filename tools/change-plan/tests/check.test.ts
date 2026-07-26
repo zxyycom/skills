@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
+import test from "node:test";
 import {
   checkChangePlanDirectory as checkBundledChangePlanDirectory
 } from "../../../skills/change-plan/scripts/change-plan.mjs";
@@ -161,10 +162,14 @@ async function testArtifactDiagnostics(tempRoot: string): Promise<void> {
   );
 }
 
-export async function runCheckTests(): Promise<void> {
-  await withTempRoot("check", async (tempRoot) => {
-    await testValidPlan(tempRoot);
-    await testDirectoryDiagnostics(tempRoot);
-    await testArtifactDiagnostics(tempRoot);
-  });
-}
+test("check accepts a complete plan with bundled API parity", () => (
+  withTempRoot("check-valid", testValidPlan)
+));
+
+test("check reports change directory path diagnostics", () => (
+  withTempRoot("check-paths", testDirectoryDiagnostics)
+));
+
+test("check reports proposal and task artifact diagnostics", () => (
+  withTempRoot("check-artifacts", testArtifactDiagnostics)
+));

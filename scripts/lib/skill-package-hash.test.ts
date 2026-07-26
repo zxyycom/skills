@@ -3,6 +3,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import test from "node:test";
 import {
   calculateSkillPackageHash,
   collectSkillPackageFileSets,
@@ -14,6 +15,7 @@ import {
 import type { SkillPackage } from "./project.ts";
 import { VersionControlError } from "../../tools/shared/src/version-control/index.ts";
 
+test("package hashes use pending Git content and enforce independent skill versions", async () => {
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "skill-package-hash-test-"));
 const repositoryRoot = path.join(tempRoot, "repository");
 const unreadableRepositoryRoot = path.join(tempRoot, "unreadable-repository");
@@ -178,8 +180,7 @@ try {
 } finally {
   await fs.rm(tempRoot, { force: true, recursive: true });
 }
-
-console.log("Skill package hash tests passed.");
+});
 
 function skillMarkdown(name: string, version: number, body: string): string {
   return [

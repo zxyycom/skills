@@ -3,11 +3,15 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import test from "node:test";
 import {
   openVersionControl,
   VersionControlError
 } from "../src/version-control/index.ts";
 
+test("version control reads revision, pending, workspace, and failure states", {
+  timeout: 15_000
+}, async () => {
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "version-control-test-"));
 const brokenHeadRoot = path.join(tempRoot, "broken-head");
 const conflictRoot = path.join(tempRoot, "conflict");
@@ -275,8 +279,7 @@ try {
 } finally {
   await fs.rm(tempRoot, { force: true, recursive: true });
 }
-
-console.log("Version-control middle-layer tests passed.");
+});
 
 function runGit(workingDirectory: string, args: readonly string[]): string {
   return execFileSync("git", ["-C", workingDirectory, ...args], {

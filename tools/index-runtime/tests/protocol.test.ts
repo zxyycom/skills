@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import test from "node:test";
 import {
   buildStateIndex,
   defineStateIndexDefinition,
@@ -223,3 +224,7 @@ export async function testIndexProtocols(): Promise<void> {
     entry.code === "state-index.operation-aborted"
   )));
 }
+
+test("protocol definitions validate keys, states, and metadata", () => (
+  testIndexProtocols()
+));

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
+import test from "node:test";
 import { validateDecisionRecords } from "../src/index.ts";
 import {
   candidateDecisionBody,
@@ -17,7 +18,8 @@ import {
   writeTestDomainCatalog
 } from "./support.ts";
 
-await withFixtureWorkspace("candidate-lifecycle", async (workspaceRoot) => {
+test("candidate lifecycle enforces create, activate, discard, and rollback rules", () => (
+  withFixtureWorkspace("candidate-lifecycle", async (workspaceRoot) => {
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
   const originalIndexText = await fs.readFile(indexPath, "utf8");
@@ -384,9 +386,11 @@ await withFixtureWorkspace("candidate-lifecycle", async (workspaceRoot) => {
   const indexWithEstablishedAdditions = await readIndex(indexPath);
   findIndexEntry(indexWithEstablishedAdditions, targetCandidateRelativePath);
   findIndexEntry(indexWithEstablishedAdditions, orphanRelativePath);
-});
+  })
+));
 
-await withTemporaryWorkspace("only-candidate", async (workspaceRoot) => {
+test("discarding the only candidate preserves the domain catalog", () => (
+  withTemporaryWorkspace("only-candidate", async (workspaceRoot) => {
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
   const relativePath = "decision-records/use-only-candidate.md";
   const decisionPath = decisionFilePath(workspaceRoot, relativePath);
@@ -413,7 +417,8 @@ await withTemporaryWorkspace("only-candidate", async (workspaceRoot) => {
     await fileExists(path.join(decisionsDirectory, "decision-index.json")),
     false
   );
-});
+  })
+));
 
 async function assertRejectedDiscardPreserves(options: {
   decisionPath: string;

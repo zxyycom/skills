@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 2,
+  "catalogPath": "docs/test-evidence/cases",
+  "indexPath": "docs/test-evidence/test-evidence-index.json",
+  "caseIdPattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
+}

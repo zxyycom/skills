@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
+import test from "node:test";
 import {
   runDecisionRecordsCli,
   validateDecisionRecords as validateBundledDecisionRecords
@@ -20,6 +21,7 @@ import {
   writeIndex
 } from "./support.ts";
 
+test("decision queries, show, and trace preserve filter and index contracts", async () => {
 const fixtureRoot = await createFixtureWorkspace();
 try {
   const validation = await validateDecisionRecords({ workspaceRoot: fixtureRoot });
@@ -391,3 +393,4 @@ async function assertMembershipMismatchRejected(
     );
   }
 }
+});

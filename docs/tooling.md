@@ -77,7 +77,7 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | Decision Records | `test:decision-records-cli` | `sync:decision-records-cli` | `check:decision-records-cli`、`check:decisions` |
 | Skill Validator | `test:skill-validator` | `sync:skill-validator` | `check:skill-validator` |
 | Investigation Report | `test:investigation-report-check` | `sync:investigation-report-check` | `check:investigation-report-check`、`check:investigations` |
-| Test Evidence | `test:test-evidence-cli` | `sync:test-evidence-cli` | `check:test-evidence-cli` |
+| Test Evidence | `test:test-evidence-cli` | `sync:test-evidence-cli`、`sync:test-evidence-catalog` | `check:test-evidence-cli`、`check:test-evidence-catalog` |
 | Skill Updater | `test:skill-updater` | `sync:skill-updaters` | `check:skill-updaters` |
 | 共享基础设施 | `test:check`、`test:generated-file`、`test:index-runtime`、`test:skill-package-hash`、`test:version-control` | — | — |
 
@@ -88,6 +88,16 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 3. `check:*` 只读验证仓库内容或生成产物；生成工具的 `sync:*` 与 `check:*` 必须使用同一构建路径。
 
 只有具备独立维护操作、完整检查消费者或生成写入责任的命令才保留为 package script。`scripts/validators/project-config.ts` 检查这些稳定入口仍存在于 `package.json`。
+
+本仓库使用 `.test-evidence.json`、`docs/test-evidence/cases/` 中按责任主题拆分的
+Markdown 和一个派生索引维护测试账本。账本已覆盖 `test:*` 稳定入口保留的历史与
+当前测试；一个 case 对应测试框架能够独立选择并单独报告的一个最小原生测试节点。
+框架不限，本仓库当前沿用 `node:test` API 定义节点，并通过已固定版本的 `bun test`
+执行；这只是现有依赖下的简单选择。测试文件、package script 和完整检查仍只是聚合
+容器。主题文件与 case 由测试改动显式维护，工具只聚合配置目录内的 Markdown，不
+扫描测试源码、自动收集或注册 case。正文变化后运行
+`sync:test-evidence-catalog`；`check:test-evidence-catalog` 已进入完整检查并只校验
+显式主题目录与统一索引。
 
 ### 完整检查
 

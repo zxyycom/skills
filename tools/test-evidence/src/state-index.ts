@@ -1,5 +1,4 @@
 import { createHash, type Hash } from "node:crypto";
-import fs from "node:fs/promises";
 import path from "node:path";
 import * as v from "valibot";
 import {
@@ -12,13 +11,11 @@ import {
   type StateSnapshot
 } from "../../index-runtime/src/index.ts";
 import {
-  collectTestEvidenceCases,
-  type ParsedTestEvidenceCase
-} from "./catalog.ts";
-import {
-  validateTestEvidenceCases,
-  type TestEvidenceCase
-} from "./catalog-validation.ts";
+  loadTestEvidenceCatalog,
+  readTestEvidenceCatalogSources,
+  type LoadedTestEvidenceCatalogCase,
+  type TestEvidenceCatalogSource
+} from "./catalog-source.ts";
 import { loadTestEvidenceConfig } from "./config.ts";
 import { createDiagnostic } from "./diagnostics.ts";
 import {
@@ -188,13 +185,18 @@ export function mapStateIndexDiagnostics(
 export function testEvidenceSourceRevision(options: {
   caseIdPattern: string;
   catalogPath: string;
-  text: string;
+  sources: readonly TestEvidenceCatalogSource[];
 }): string {
   const hash = createHash("sha256");
-  hash.update("test-evidence-index-source-v1\0");
+  hash.update("test-evidence-index-source-v2\0");
   hashField(hash, options.catalogPath);
   hashField(hash, options.caseIdPattern);
-  hashField(hash, normalizeSourceText(options.text));
+  for (const source of [...options.sources].sort((left, right) => (
+    compareText(left.path, right.path)
+  ))) {
+    hashField(hash, source.path);
+    hashField(hash, normalizeSourceText(source.text));
+  }
   return `sha256:${hash.digest("hex")}`;
 }
 
@@ -202,58 +204,15 @@ async function readTestEvidenceIndexSource(
   context: StateIndexContext,
   config: TestEvidenceConfig
 ): Promise<TestEvidenceIndexSourceResult> {
-  let text: string;
-  try {
-    text = await fs.readFile(
-      path.join(context.root, ...config.catalogPath.split("/")),
-      "utf8"
-    );
-  } catch (error) {
+  const catalog = await loadTestEvidenceCatalog(context.root, config);
+  if (catalog.diagnostics.length > 0) {
     return {
-      diagnostics: [createDiagnostic({
-        category: "catalog",
-        code: "catalog.read-failed",
-        message: `${config.catalogPath} could not be read: ${errorText(error)}`,
-        path: config.catalogPath,
-        severity: "error"
-      })],
+      diagnostics: catalog.diagnostics,
       snapshot: null
     };
   }
 
-  const parsedCases = collectTestEvidenceCases(
-    text,
-    new RegExp(config.caseIdPattern, "u")
-  );
-  const validated = validateTestEvidenceCases(parsedCases, config.catalogPath);
-  if (
-    validated.errors.length > 0
-    || validated.cases.length !== parsedCases.length
-  ) {
-    return {
-      diagnostics: validated.errors.map((message) => createDiagnostic({
-        category: "catalog",
-        code: "catalog.invalid",
-        message,
-        path: config.catalogPath,
-        severity: "error"
-      })),
-      snapshot: null
-    };
-  }
-
-  const casesByLocation = new Map(
-    validated.cases.map((entry) => [caseLocation(entry.id, entry.line), entry])
-  );
-  const states = parsedCases.map((entry) => {
-    const validatedCase = casesByLocation.get(caseLocation(entry.id, entry.line));
-    if (validatedCase === undefined) {
-      throw new Error(
-        `${config.catalogPath}:${entry.line} ${entry.id} has no validated state`
-      );
-    }
-    return catalogCaseState(entry, validatedCase);
-  });
+  const states = catalog.cases.map(catalogCaseState);
   return {
     diagnostics: [],
     snapshot: {
@@ -261,7 +220,7 @@ async function readTestEvidenceIndexSource(
       revision: testEvidenceSourceRevision({
         caseIdPattern: config.caseIdPattern,
         catalogPath: config.catalogPath,
-        text
+        sources: catalog.sources
       }),
       states
     }
@@ -272,21 +231,26 @@ async function readCurrentSourceRevision(
   context: StateIndexContext,
   config: TestEvidenceConfig
 ): Promise<string> {
-  const text = await fs.readFile(
-    path.join(context.root, ...config.catalogPath.split("/")),
-    "utf8"
+  const sourceResult = await readTestEvidenceCatalogSources(
+    context.root,
+    config.catalogPath
   );
+  if (sourceResult.diagnostics.length > 0) {
+    throw new Error(
+      sourceResult.diagnostics.map((entry) => entry.message).join("; ")
+    );
+  }
   return testEvidenceSourceRevision({
     caseIdPattern: config.caseIdPattern,
     catalogPath: config.catalogPath,
-    text
+    sources: sourceResult.sources
   });
 }
 
 function catalogCaseState(
-  entry: ParsedTestEvidenceCase,
-  validated: TestEvidenceCase
+  catalogCase: LoadedTestEvidenceCatalogCase
 ): TestEvidenceCaseIndexState {
+  const { parsed: entry, sourcePath, validated } = catalogCase;
   const summary = entry.sections.contract.items[0];
   if (summary === undefined) {
     throw new TypeError(`validated case ${entry.id} has no index summary`);
@@ -303,6 +267,7 @@ function catalogCaseState(
       ...entry.sections.proves.items,
       ...validated.entries
     ].join(" "),
+    sourcePath,
     summary,
     title: entry.title
   });
@@ -356,10 +321,6 @@ export function indexCanBeRebuilt(code: string): boolean {
   return rebuildableIndexCodes.has(code);
 }
 
-function caseLocation(id: string, line: number): string {
-  return `${id}\0${line}`;
-}
-
 function normalizeSourceText(value: string): string {
   return value.replace(/\r\n?/gu, "\n");
 }
@@ -371,6 +332,6 @@ function hashField(hash: Hash, value: string): void {
   hash.update("\0", "utf8");
 }
 
-function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
 }

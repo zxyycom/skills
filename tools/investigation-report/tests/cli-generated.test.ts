@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
+import test from "node:test";
 import {
   queryInvestigationIndex as queryBundledInvestigationIndex,
   runInvestigationReportCheckCli,
@@ -282,10 +283,14 @@ async function testGeneratedArtifacts(): Promise<void> {
   )));
 }
 
-export async function runCliAndGeneratedArtifactTests(): Promise<void> {
-  await withTempRoot("cli-generated", async (tempRoot) => {
-    await testBundledApiParity(tempRoot);
-    await testGeneratedCliCommands(tempRoot);
-    await testGeneratedArtifacts();
-  });
-}
+test("bundled investigation APIs preserve source implementation parity", () => (
+  withTempRoot("cli-bundled", testBundledApiParity)
+));
+
+test("generated investigation CLI preserves command and exit contracts", () => (
+  withTempRoot("cli-commands", testGeneratedCliCommands)
+));
+
+test("generated investigation artifacts expose portable metadata", () => (
+  testGeneratedArtifacts()
+));

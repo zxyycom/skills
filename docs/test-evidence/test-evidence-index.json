@@ -1,0 +1,1905 @@
+{
+  "definitionVersion": 2,
+  "entries": [
+    {
+      "id": "CHANGE-PLAN-ARCHIVE-GATES-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-ARCHIVE-GATES-001 归档拒绝未通过内容门禁的计划 Change plan 只有在 proposal、design 和 tasks 满足归档门禁后才能归档。 未完成或无效计划保持在活动目录并返回阻断诊断。 tools/change-plan/tests/archive.test.ts > archive rejects plans that fail content gates bun test --test-name-pattern=\"^archive rejects plans that fail content gates$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 11,
+        "entries": [
+          "tools/change-plan/tests/archive.test.ts > archive rejects plans that fail content gates",
+          "bun test --test-name-pattern=\"^archive rejects plans that fail content gates$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-ARCHIVE-GATES-001",
+        "line": 3,
+        "searchText": "CHANGE-PLAN-ARCHIVE-GATES-001 归档拒绝未通过内容门禁的计划 Change plan 只有在 proposal、design 和 tasks 满足归档门禁后才能归档。 未完成或无效计划保持在活动目录并返回阻断诊断。 tools/change-plan/tests/archive.test.ts > archive rejects plans that fail content gates bun test --test-name-pattern=\"^archive rejects plans that fail content gates$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "Change plan 只有在 proposal、design 和 tasks 满足归档门禁后才能归档。",
+        "title": "归档拒绝未通过内容门禁的计划"
+      }
+    },
+    {
+      "id": "CHANGE-PLAN-ARCHIVE-MOVE-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-ARCHIVE-MOVE-001 完整计划被原子归档 完整计划归档后必须从活动目录移动到归档目录并保持内容。 源目录消失、目标目录存在，三个计划制品内容保持不变。 tools/change-plan/tests/archive.test.ts > archive moves complete plans and preserves their content bun test --test-name-pattern=\"^archive moves complete plans and preserves their content$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 38,
+        "entries": [
+          "tools/change-plan/tests/archive.test.ts > archive moves complete plans and preserves their content",
+          "bun test --test-name-pattern=\"^archive moves complete plans and preserves their content$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-ARCHIVE-MOVE-001",
+        "line": 30,
+        "searchText": "CHANGE-PLAN-ARCHIVE-MOVE-001 完整计划被原子归档 完整计划归档后必须从活动目录移动到归档目录并保持内容。 源目录消失、目标目录存在，三个计划制品内容保持不变。 tools/change-plan/tests/archive.test.ts > archive moves complete plans and preserves their content bun test --test-name-pattern=\"^archive moves complete plans and preserves their content$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "完整计划归档后必须从活动目录移动到归档目录并保持内容。",
+        "title": "完整计划被原子归档"
+      }
+    },
+    {
+      "id": "CHANGE-PLAN-ARCHIVE-SOURCE-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-ARCHIVE-SOURCE-001 归档拒绝不安全源路径 归档源必须是受管理活动目录中的安全 change 路径。 越界、别名或不受支持的源路径不会触发文件移动。 tools/change-plan/tests/archive.test.ts > archive rejects unsafe source paths bun test --test-name-pattern=\"^archive rejects unsafe source paths$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 20,
+        "entries": [
+          "tools/change-plan/tests/archive.test.ts > archive rejects unsafe source paths",
+          "bun test --test-name-pattern=\"^archive rejects unsafe source paths$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-ARCHIVE-SOURCE-001",
+        "line": 12,
+        "searchText": "CHANGE-PLAN-ARCHIVE-SOURCE-001 归档拒绝不安全源路径 归档源必须是受管理活动目录中的安全 change 路径。 越界、别名或不受支持的源路径不会触发文件移动。 tools/change-plan/tests/archive.test.ts > archive rejects unsafe source paths bun test --test-name-pattern=\"^archive rejects unsafe source paths$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "归档源必须是受管理活动目录中的安全 change 路径。",
+        "title": "归档拒绝不安全源路径"
+      }
+    },
+    {
+      "id": "CHANGE-PLAN-ARCHIVE-TARGET-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-ARCHIVE-TARGET-001 归档拒绝无效目标目录 归档目标必须满足生命周期目录与目标命名约束。 冲突或非法目标目录在写入前被拒绝。 tools/change-plan/tests/archive.test.ts > archive rejects invalid target directories bun test --test-name-pattern=\"^archive rejects invalid target directories$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 29,
+        "entries": [
+          "tools/change-plan/tests/archive.test.ts > archive rejects invalid target directories",
+          "bun test --test-name-pattern=\"^archive rejects invalid target directories$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-ARCHIVE-TARGET-001",
+        "line": 21,
+        "searchText": "CHANGE-PLAN-ARCHIVE-TARGET-001 归档拒绝无效目标目录 归档目标必须满足生命周期目录与目标命名约束。 冲突或非法目标目录在写入前被拒绝。 tools/change-plan/tests/archive.test.ts > archive rejects invalid target directories bun test --test-name-pattern=\"^archive rejects invalid target directories$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "归档目标必须满足生命周期目录与目标命名约束。",
+        "title": "归档拒绝无效目标目录"
+      }
+    },
+    {
+      "id": "CHANGE-PLAN-CATALOG-INVALID-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CATALOG-INVALID-001 无效计划仍可被发现 结构或内容无效的 change 不得从目录查询中静默消失。 无效条目仍返回身份和诊断，便于定位修复。 tools/change-plan/tests/catalog.test.ts > catalog keeps invalid change entries discoverable bun test --test-name-pattern=\"^catalog keeps invalid change entries discoverable$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 56,
+        "entries": [
+          "tools/change-plan/tests/catalog.test.ts > catalog keeps invalid change entries discoverable",
+          "bun test --test-name-pattern=\"^catalog keeps invalid change entries discoverable$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CATALOG-INVALID-001",
+        "line": 48,
+        "searchText": "CHANGE-PLAN-CATALOG-INVALID-001 无效计划仍可被发现 结构或内容无效的 change 不得从目录查询中静默消失。 无效条目仍返回身份和诊断，便于定位修复。 tools/change-plan/tests/catalog.test.ts > catalog keeps invalid change entries discoverable bun test --test-name-pattern=\"^catalog keeps invalid change entries discoverable$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "结构或内容无效的 change 不得从目录查询中静默消失。",
+        "title": "无效计划仍可被发现"
+      }
+    },
+    {
+      "id": "CHANGE-PLAN-CATALOG-LIFECYCLE-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CATALOG-LIFECYCLE-001 目录按生命周期列出计划 Change catalog 必须支持 active、archived 与 all 生命周期筛选。 每种筛选只返回对应生命周期且排序稳定的计划。 tools/change-plan/tests/catalog.test.ts > catalog lists active, archived, and all change plans bun test --test-name-pattern=\"^catalog lists active, archived, and all change plans$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 47,
+        "entries": [
+          "tools/change-plan/tests/catalog.test.ts > catalog lists active, archived, and all change plans",
+          "bun test --test-name-pattern=\"^catalog lists active, archived, and all change plans$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CATALOG-LIFECYCLE-001",
+        "line": 39,
+        "searchText": "CHANGE-PLAN-CATALOG-LIFECYCLE-001 目录按生命周期列出计划 Change catalog 必须支持 active、archived 与 all 生命周期筛选。 每种筛选只返回对应生命周期且排序稳定的计划。 tools/change-plan/tests/catalog.test.ts > catalog lists active, archived, and all change plans bun test --test-name-pattern=\"^catalog lists active, archived, and all change plans$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "Change catalog 必须支持 active、archived 与 all 生命周期筛选。",
+        "title": "目录按生命周期列出计划"
+      }
+    },
+    {
+      "id": "CHANGE-PLAN-CATALOG-ROOTS-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CATALOG-ROOTS-001 生命周期根目录错误可诊断 不可访问或形态错误的生命周期根目录必须产生明确诊断。 根目录读取失败不会被解释为空 catalog。 tools/change-plan/tests/catalog.test.ts > catalog reports inaccessible and malformed lifecycle roots bun test --test-name-pattern=\"^catalog reports inaccessible and malformed lifecycle roots$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 65,
+        "entries": [
+          "tools/change-plan/tests/catalog.test.ts > catalog reports inaccessible and malformed lifecycle roots",
+          "bun test --test-name-pattern=\"^catalog reports inaccessible and malformed lifecycle roots$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CATALOG-ROOTS-001",
+        "line": 57,
+        "searchText": "CHANGE-PLAN-CATALOG-ROOTS-001 生命周期根目录错误可诊断 不可访问或形态错误的生命周期根目录必须产生明确诊断。 根目录读取失败不会被解释为空 catalog。 tools/change-plan/tests/catalog.test.ts > catalog reports inaccessible and malformed lifecycle roots bun test --test-name-pattern=\"^catalog reports inaccessible and malformed lifecycle roots$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "不可访问或形态错误的生命周期根目录必须产生明确诊断。",
+        "title": "生命周期根目录错误可诊断"
+      }
+    },
+    {
+      "id": "CHANGE-PLAN-CATALOG-SHOW-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CATALOG-SHOW-001 Show 保留生命周期与分发 API 一致性 Show 结果必须包含计划生命周期，并与 bundled API 输出一致。 源实现和分发实现对同一 change 返回相同状态与制品。 tools/change-plan/tests/catalog.test.ts > catalog shows lifecycle status with bundled API parity bun test --test-name-pattern=\"^catalog shows lifecycle status with bundled API parity$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 74,
+        "entries": [
+          "tools/change-plan/tests/catalog.test.ts > catalog shows lifecycle status with bundled API parity",
+          "bun test --test-name-pattern=\"^catalog shows lifecycle status with bundled API parity$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CATALOG-SHOW-001",
+        "line": 66,
+        "searchText": "CHANGE-PLAN-CATALOG-SHOW-001 Show 保留生命周期与分发 API 一致性 Show 结果必须包含计划生命周期，并与 bundled API 输出一致。 源实现和分发实现对同一 change 返回相同状态与制品。 tools/change-plan/tests/catalog.test.ts > catalog shows lifecycle status with bundled API parity bun test --test-name-pattern=\"^catalog shows lifecycle status with bundled API parity$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "Show 结果必须包含计划生命周期，并与 bundled API 输出一致。",
+        "title": "Show 保留生命周期与分发 API 一致性"
+      }
+    },
+    {
+      "id": "CHANGE-PLAN-CATALOG-SYMLINK-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CATALOG-SYMLINK-001 Catalog 不发现符号链接 change Change catalog 只发现受管理根目录中的真实目录。 指向其他位置的符号链接目录不会被登记为 change。 tools/change-plan/tests/catalog.test.ts > catalog does not discover symbolic-link change directories bun test --test-name-pattern=\"^catalog does not discover symbolic-link change directories$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 83,
+        "entries": [
+          "tools/change-plan/tests/catalog.test.ts > catalog does not discover symbolic-link change directories",
+          "bun test --test-name-pattern=\"^catalog does not discover symbolic-link change directories$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CATALOG-SYMLINK-001",
+        "line": 75,
+        "searchText": "CHANGE-PLAN-CATALOG-SYMLINK-001 Catalog 不发现符号链接 change Change catalog 只发现受管理根目录中的真实目录。 指向其他位置的符号链接目录不会被登记为 change。 tools/change-plan/tests/catalog.test.ts > catalog does not discover symbolic-link change directories bun test --test-name-pattern=\"^catalog does not discover symbolic-link change directories$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "Change catalog 只发现受管理根目录中的真实目录。",
+        "title": "Catalog 不发现符号链接 change"
+      }
+    },
+    {
+      "id": "CHANGE-PLAN-CHECK-ARTIFACTS-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CHECK-ARTIFACTS-001 检查报告 proposal 与 tasks 问题 Proposal 和 tasks 的必需结构与完成状态必须被逐项检查。 缺失或无效制品产生对应文件和规则诊断。 tools/change-plan/tests/check.test.ts > check reports proposal and task artifact diagnostics bun test --test-name-pattern=\"^check reports proposal and task artifact diagnostics$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 110,
+        "entries": [
+          "tools/change-plan/tests/check.test.ts > check reports proposal and task artifact diagnostics",
+          "bun test --test-name-pattern=\"^check reports proposal and task artifact diagnostics$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CHECK-ARTIFACTS-001",
+        "line": 102,
+        "searchText": "CHANGE-PLAN-CHECK-ARTIFACTS-001 检查报告 proposal 与 tasks 问题 Proposal 和 tasks 的必需结构与完成状态必须被逐项检查。 缺失或无效制品产生对应文件和规则诊断。 tools/change-plan/tests/check.test.ts > check reports proposal and task artifact diagnostics bun test --test-name-pattern=\"^check reports proposal and task artifact diagnostics$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "Proposal 和 tasks 的必需结构与完成状态必须被逐项检查。",
+        "title": "检查报告 proposal 与 tasks 问题"
+      }
+    },
+    {
+      "id": "CHANGE-PLAN-CHECK-COMPLETE-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CHECK-COMPLETE-001 完整计划通过检查且 API 一致 制品完整且内容有效的计划应通过源 API 与 bundled API 检查。 两种入口都返回成功且无诊断。 tools/change-plan/tests/check.test.ts > check accepts a complete plan with bundled API parity bun test --test-name-pattern=\"^check accepts a complete plan with bundled API parity$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 92,
+        "entries": [
+          "tools/change-plan/tests/check.test.ts > check accepts a complete plan with bundled API parity",
+          "bun test --test-name-pattern=\"^check accepts a complete plan with bundled API parity$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CHECK-COMPLETE-001",
+        "line": 84,
+        "searchText": "CHANGE-PLAN-CHECK-COMPLETE-001 完整计划通过检查且 API 一致 制品完整且内容有效的计划应通过源 API 与 bundled API 检查。 两种入口都返回成功且无诊断。 tools/change-plan/tests/check.test.ts > check accepts a complete plan with bundled API parity bun test --test-name-pattern=\"^check accepts a complete plan with bundled API parity$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "制品完整且内容有效的计划应通过源 API 与 bundled API 检查。",
+        "title": "完整计划通过检查且 API 一致"
+      }
+    },
+    {
+      "id": "CHANGE-PLAN-CHECK-PATH-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CHECK-PATH-001 检查报告 change 目录路径问题 Change 目录名称与位置必须满足路径契约。 非法目录身份产生可定位的路径诊断。 tools/change-plan/tests/check.test.ts > check reports change directory path diagnostics bun test --test-name-pattern=\"^check reports change directory path diagnostics$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 101,
+        "entries": [
+          "tools/change-plan/tests/check.test.ts > check reports change directory path diagnostics",
+          "bun test --test-name-pattern=\"^check reports change directory path diagnostics$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CHECK-PATH-001",
+        "line": 93,
+        "searchText": "CHANGE-PLAN-CHECK-PATH-001 检查报告 change 目录路径问题 Change 目录名称与位置必须满足路径契约。 非法目录身份产生可定位的路径诊断。 tools/change-plan/tests/check.test.ts > check reports change directory path diagnostics bun test --test-name-pattern=\"^check reports change directory path diagnostics$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "Change 目录名称与位置必须满足路径契约。",
+        "title": "检查报告 change 目录路径问题"
+      }
+    },
+    {
+      "id": "CHANGE-PLAN-CLI-ARCHIVE-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CLI-ARCHIVE-001 Archive CLI 执行门禁与移动 Archive CLI 必须复用归档门禁并只移动完整计划。 无效计划被拒绝，完整计划被移动到归档生命周期。 tools/change-plan/tests/cli.test.ts > CLI archive enforces gates and moves complete plans bun test --test-name-pattern=\"^CLI archive enforces gates and moves complete plans$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 146,
+        "entries": [
+          "tools/change-plan/tests/cli.test.ts > CLI archive enforces gates and moves complete plans",
+          "bun test --test-name-pattern=\"^CLI archive enforces gates and moves complete plans$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CLI-ARCHIVE-001",
+        "line": 138,
+        "searchText": "CHANGE-PLAN-CLI-ARCHIVE-001 Archive CLI 执行门禁与移动 Archive CLI 必须复用归档门禁并只移动完整计划。 无效计划被拒绝，完整计划被移动到归档生命周期。 tools/change-plan/tests/cli.test.ts > CLI archive enforces gates and moves complete plans bun test --test-name-pattern=\"^CLI archive enforces gates and moves complete plans$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "Archive CLI 必须复用归档门禁并只移动完整计划。",
+        "title": "Archive CLI 执行门禁与移动"
+      }
+    },
+    {
+      "id": "CHANGE-PLAN-CLI-ARGS-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CLI-ARGS-001 CLI 帮助与参数错误稳定 帮助请求和参数错误必须使用稳定输出与退出码。 Help 成功返回，缺失或冲突参数以参数错误退出。 tools/change-plan/tests/cli.test.ts > CLI help and argument errors use stable exit contracts bun test --test-name-pattern=\"^CLI help and argument errors use stable exit contracts$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 155,
+        "entries": [
+          "tools/change-plan/tests/cli.test.ts > CLI help and argument errors use stable exit contracts",
+          "bun test --test-name-pattern=\"^CLI help and argument errors use stable exit contracts$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CLI-ARGS-001",
+        "line": 147,
+        "searchText": "CHANGE-PLAN-CLI-ARGS-001 CLI 帮助与参数错误稳定 帮助请求和参数错误必须使用稳定输出与退出码。 Help 成功返回，缺失或冲突参数以参数错误退出。 tools/change-plan/tests/cli.test.ts > CLI help and argument errors use stable exit contracts bun test --test-name-pattern=\"^CLI help and argument errors use stable exit contracts$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "帮助请求和参数错误必须使用稳定输出与退出码。",
+        "title": "CLI 帮助与参数错误稳定"
+      }
+    },
+    {
+      "id": "CHANGE-PLAN-CLI-CHECK-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CLI-CHECK-001 Check CLI 保持文本与 JSON 退出契约 Check CLI 的文本和 JSON 模式必须表达相同结果与退出码。 成功和失败计划在两种输出模式下具有一致状态。 tools/change-plan/tests/cli.test.ts > CLI check preserves text and JSON exit contracts bun test --test-name-pattern=\"^CLI check preserves text and JSON exit contracts$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 119,
+        "entries": [
+          "tools/change-plan/tests/cli.test.ts > CLI check preserves text and JSON exit contracts",
+          "bun test --test-name-pattern=\"^CLI check preserves text and JSON exit contracts$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CLI-CHECK-001",
+        "line": 111,
+        "searchText": "CHANGE-PLAN-CLI-CHECK-001 Check CLI 保持文本与 JSON 退出契约 Check CLI 的文本和 JSON 模式必须表达相同结果与退出码。 成功和失败计划在两种输出模式下具有一致状态。 tools/change-plan/tests/cli.test.ts > CLI check preserves text and JSON exit contracts bun test --test-name-pattern=\"^CLI check preserves text and JSON exit contracts$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "Check CLI 的文本和 JSON 模式必须表达相同结果与退出码。",
+        "title": "Check CLI 保持文本与 JSON 退出契约"
+      }
+    },
+    {
+      "id": "CHANGE-PLAN-CLI-LIST-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CLI-LIST-001 List CLI 筛选生命周期并拒绝非法选项 List CLI 只接受受支持的生命周期筛选和参数组合。 合法筛选返回对应计划，非法选项产生参数错误。 tools/change-plan/tests/cli.test.ts > CLI list filters lifecycle status and rejects invalid options bun test --test-name-pattern=\"^CLI list filters lifecycle status and rejects invalid options$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 128,
+        "entries": [
+          "tools/change-plan/tests/cli.test.ts > CLI list filters lifecycle status and rejects invalid options",
+          "bun test --test-name-pattern=\"^CLI list filters lifecycle status and rejects invalid options$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CLI-LIST-001",
+        "line": 120,
+        "searchText": "CHANGE-PLAN-CLI-LIST-001 List CLI 筛选生命周期并拒绝非法选项 List CLI 只接受受支持的生命周期筛选和参数组合。 合法筛选返回对应计划，非法选项产生参数错误。 tools/change-plan/tests/cli.test.ts > CLI list filters lifecycle status and rejects invalid options bun test --test-name-pattern=\"^CLI list filters lifecycle status and rejects invalid options$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "List CLI 只接受受支持的生命周期筛选和参数组合。",
+        "title": "List CLI 筛选生命周期并拒绝非法选项"
+      }
+    },
+    {
+      "id": "CHANGE-PLAN-CLI-SHOW-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CLI-SHOW-001 Show CLI 返回制品与无效计划诊断 Show CLI 必须同时呈现计划制品和当前有效性诊断。 已知有效与无效计划都可查询，且无效状态不会被隐藏。 tools/change-plan/tests/cli.test.ts > CLI show returns artifacts and invalid-plan diagnostics bun test --test-name-pattern=\"^CLI show returns artifacts and invalid-plan diagnostics$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 137,
+        "entries": [
+          "tools/change-plan/tests/cli.test.ts > CLI show returns artifacts and invalid-plan diagnostics",
+          "bun test --test-name-pattern=\"^CLI show returns artifacts and invalid-plan diagnostics$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CLI-SHOW-001",
+        "line": 129,
+        "searchText": "CHANGE-PLAN-CLI-SHOW-001 Show CLI 返回制品与无效计划诊断 Show CLI 必须同时呈现计划制品和当前有效性诊断。 已知有效与无效计划都可查询，且无效状态不会被隐藏。 tools/change-plan/tests/cli.test.ts > CLI show returns artifacts and invalid-plan diagnostics bun test --test-name-pattern=\"^CLI show returns artifacts and invalid-plan diagnostics$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "Show CLI 必须同时呈现计划制品和当前有效性诊断。",
+        "title": "Show CLI 返回制品与无效计划诊断"
+      }
+    },
+    {
+      "id": "CHANGE-PLAN-GENERATED-ARTIFACTS-001",
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-GENERATED-ARTIFACTS-001 生成制品公开 API 与来源信息 Change Plan 分发制品必须公开约定 API，并携带可移植维护来源。 生成脚本、声明与 source map 包含所需导出和仓库相对元数据。 tools/change-plan/tests/generated-artifacts.test.ts > generated artifacts expose the public API and portable source metadata bun test --test-name-pattern=\"^generated artifacts expose the public API and portable source metadata$\" ./tools/change-plan/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 164,
+        "entries": [
+          "tools/change-plan/tests/generated-artifacts.test.ts > generated artifacts expose the public API and portable source metadata",
+          "bun test --test-name-pattern=\"^generated artifacts expose the public API and portable source metadata$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-GENERATED-ARTIFACTS-001",
+        "line": 156,
+        "searchText": "CHANGE-PLAN-GENERATED-ARTIFACTS-001 生成制品公开 API 与来源信息 Change Plan 分发制品必须公开约定 API，并携带可移植维护来源。 生成脚本、声明与 source map 包含所需导出和仓库相对元数据。 tools/change-plan/tests/generated-artifacts.test.ts > generated artifacts expose the public API and portable source metadata bun test --test-name-pattern=\"^generated artifacts expose the public API and portable source metadata$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/change-plan.md",
+        "summary": "Change Plan 分发制品必须公开约定 API，并携带可移植维护来源。",
+        "title": "生成制品公开 API 与来源信息"
+      }
+    },
+    {
+      "id": "CHECK-CLI-CONCURRENCY-001",
+      "keys": {
+        "search": [
+          "CHECK-CLI-CONCURRENCY-001 CLI 在无效并发度下不启动检查 CLI 必须在任务启动前验证并发度参数。 无效并发度产生参数错误，且没有检查任务被执行。 scripts/check.test.ts > CLI reports invalid concurrency without starting checks bun test --test-name-pattern=\"^CLI reports invalid concurrency without starting checks$\" ./scripts/check.test.ts"
+        ]
+      },
+      "state": {
+        "endLine": 65,
+        "entries": [
+          "scripts/check.test.ts > CLI reports invalid concurrency without starting checks",
+          "bun test --test-name-pattern=\"^CLI reports invalid concurrency without starting checks$\" ./scripts/check.test.ts"
+        ],
+        "id": "CHECK-CLI-CONCURRENCY-001",
+        "line": 57,
+        "searchText": "CHECK-CLI-CONCURRENCY-001 CLI 在无效并发度下不启动检查 CLI 必须在任务启动前验证并发度参数。 无效并发度产生参数错误，且没有检查任务被执行。 scripts/check.test.ts > CLI reports invalid concurrency without starting checks bun test --test-name-pattern=\"^CLI reports invalid concurrency without starting checks$\" ./scripts/check.test.ts",
+        "sourcePath": "docs/test-evidence/cases/shared-infrastructure.md",
+        "summary": "CLI 必须在任务启动前验证并发度参数。",
+        "title": "CLI 在无效并发度下不启动检查"
+      }
+    },
+    {
+      "id": "CHECK-CLI-UNKNOWN-OPTION-001",
+      "keys": {
+        "search": [
+          "CHECK-CLI-UNKNOWN-OPTION-001 CLI 拒绝未知选项 未声明的 CLI 选项不得被静默忽略。 未知选项产生参数错误，且没有检查任务被执行。 scripts/check.test.ts > CLI reports unknown options without starting checks bun test --test-name-pattern=\"^CLI reports unknown options without starting checks$\" ./scripts/check.test.ts"
+        ]
+      },
+      "state": {
+        "endLine": 74,
+        "entries": [
+          "scripts/check.test.ts > CLI reports unknown options without starting checks",
+          "bun test --test-name-pattern=\"^CLI reports unknown options without starting checks$\" ./scripts/check.test.ts"
+        ],
+        "id": "CHECK-CLI-UNKNOWN-OPTION-001",
+        "line": 66,
+        "searchText": "CHECK-CLI-UNKNOWN-OPTION-001 CLI 拒绝未知选项 未声明的 CLI 选项不得被静默忽略。 未知选项产生参数错误，且没有检查任务被执行。 scripts/check.test.ts > CLI reports unknown options without starting checks bun test --test-name-pattern=\"^CLI reports unknown options without starting checks$\" ./scripts/check.test.ts",
+        "sourcePath": "docs/test-evidence/cases/shared-infrastructure.md",
+        "summary": "未声明的 CLI 选项不得被静默忽略。",
+        "title": "CLI 拒绝未知选项"
+      }
+    },
+    {
+      "id": "CHECK-OPTIONS-MODES-001",
+      "keys": {
+        "search": [
+          "CHECK-OPTIONS-MODES-001 完整检查选项具有严格解析契约 并发度和检查模式只接受受支持的默认值与显式取值。 合法选项被正确解析，非法并发度和模式会在执行前被拒绝。 scripts/check.test.ts > check options resolve concurrency and modes with strict validation bun test --test-name-pattern=\"^check options resolve concurrency and modes with strict validation$\" ./scripts/check.test.ts"
+        ]
+      },
+      "state": {
+        "endLine": 20,
+        "entries": [
+          "scripts/check.test.ts > check options resolve concurrency and modes with strict validation",
+          "bun test --test-name-pattern=\"^check options resolve concurrency and modes with strict validation$\" ./scripts/check.test.ts"
+        ],
+        "id": "CHECK-OPTIONS-MODES-001",
+        "line": 12,
+        "searchText": "CHECK-OPTIONS-MODES-001 完整检查选项具有严格解析契约 并发度和检查模式只接受受支持的默认值与显式取值。 合法选项被正确解析，非法并发度和模式会在执行前被拒绝。 scripts/check.test.ts > check options resolve concurrency and modes with strict validation bun test --test-name-pattern=\"^check options resolve concurrency and modes with strict validation$\" ./scripts/check.test.ts",
+        "sourcePath": "docs/test-evidence/cases/shared-infrastructure.md",
+        "summary": "并发度和检查模式只接受受支持的默认值与显式取值。",
+        "title": "完整检查选项具有严格解析契约"
+      }
+    },
+    {
+      "id": "CHECK-PLAN-SCRIPTS-001",
+      "keys": {
+        "search": [
+          "CHECK-PLAN-SCRIPTS-001 完整检查计划保持稳定脚本顺序 完整检查计划必须显式列出全部 package script，并保持约定的执行顺序。 实际前置任务名称和命令与仓库声明的稳定顺序完全一致。 scripts/check.test.ts > check plan exposes every package script in execution order bun test --test-name-pattern=\"^check plan exposes every package script in execution order$\" ./scripts/check.test.ts"
+        ]
+      },
+      "state": {
+        "endLine": 11,
+        "entries": [
+          "scripts/check.test.ts > check plan exposes every package script in execution order",
+          "bun test --test-name-pattern=\"^check plan exposes every package script in execution order$\" ./scripts/check.test.ts"
+        ],
+        "id": "CHECK-PLAN-SCRIPTS-001",
+        "line": 3,
+        "searchText": "CHECK-PLAN-SCRIPTS-001 完整检查计划保持稳定脚本顺序 完整检查计划必须显式列出全部 package script，并保持约定的执行顺序。 实际前置任务名称和命令与仓库声明的稳定顺序完全一致。 scripts/check.test.ts > check plan exposes every package script in execution order bun test --test-name-pattern=\"^check plan exposes every package script in execution order$\" ./scripts/check.test.ts",
+        "sourcePath": "docs/test-evidence/cases/shared-infrastructure.md",
+        "summary": "完整检查计划必须显式列出全部 package script，并保持约定的执行顺序。",
+        "title": "完整检查计划保持稳定脚本顺序"
+      }
+    },
+    {
+      "id": "CHECK-STATUS-OUTPUT-001",
+      "keys": {
+        "search": [
+          "CHECK-STATUS-OUTPUT-001 检查状态决定输出与失败语义 成功、警告和阻断失败必须保留各自的状态、摘要和输出语义。 可恢复警告不会被误判为阻断失败，真正失败仍产生失败结果。 scripts/check.test.ts > check statuses and output preserve warning and failure semantics bun test --test-name-pattern=\"^check statuses and output preserve warning and failure semantics$\" ./scripts/check.test.ts"
+        ]
+      },
+      "state": {
+        "endLine": 29,
+        "entries": [
+          "scripts/check.test.ts > check statuses and output preserve warning and failure semantics",
+          "bun test --test-name-pattern=\"^check statuses and output preserve warning and failure semantics$\" ./scripts/check.test.ts"
+        ],
+        "id": "CHECK-STATUS-OUTPUT-001",
+        "line": 21,
+        "searchText": "CHECK-STATUS-OUTPUT-001 检查状态决定输出与失败语义 成功、警告和阻断失败必须保留各自的状态、摘要和输出语义。 可恢复警告不会被误判为阻断失败，真正失败仍产生失败结果。 scripts/check.test.ts > check statuses and output preserve warning and failure semantics bun test --test-name-pattern=\"^check statuses and output preserve warning and failure semantics$\" ./scripts/check.test.ts",
+        "sourcePath": "docs/test-evidence/cases/shared-infrastructure.md",
+        "summary": "成功、警告和阻断失败必须保留各自的状态、摘要和输出语义。",
+        "title": "检查状态决定输出与失败语义"
+      }
+    },
+    {
+      "id": "CHECK-STRICT-SCHEDULING-001",
+      "keys": {
+        "search": [
+          "CHECK-STRICT-SCHEDULING-001 严格模式在阻断失败后停止派发 严格模式遇到阻断失败后不得启动新任务，但必须等待已运行任务收尾。 阻断失败后的待执行任务未被派发，已经启动的任务仍被完整回收。 scripts/check.test.ts > strict scheduling stops new work and waits for running tasks bun test --test-name-pattern=\"^strict scheduling stops new work and waits for running tasks$\" ./scripts/check.test.ts"
+        ]
+      },
+      "state": {
+        "endLine": 38,
+        "entries": [
+          "scripts/check.test.ts > strict scheduling stops new work and waits for running tasks",
+          "bun test --test-name-pattern=\"^strict scheduling stops new work and waits for running tasks$\" ./scripts/check.test.ts"
+        ],
+        "id": "CHECK-STRICT-SCHEDULING-001",
+        "line": 30,
+        "searchText": "CHECK-STRICT-SCHEDULING-001 严格模式在阻断失败后停止派发 严格模式遇到阻断失败后不得启动新任务，但必须等待已运行任务收尾。 阻断失败后的待执行任务未被派发，已经启动的任务仍被完整回收。 scripts/check.test.ts > strict scheduling stops new work and waits for running tasks bun test --test-name-pattern=\"^strict scheduling stops new work and waits for running tasks$\" ./scripts/check.test.ts",
+        "sourcePath": "docs/test-evidence/cases/shared-infrastructure.md",
+        "summary": "严格模式遇到阻断失败后不得启动新任务，但必须等待已运行任务收尾。",
+        "title": "严格模式在阻断失败后停止派发"
+      }
+    },
+    {
+      "id": "CHECK-WARNING-SCHEDULING-001",
+      "keys": {
+        "search": [
+          "CHECK-WARNING-SCHEDULING-001 警告模式允许后续检查继续 可恢复失败在警告模式下不得中断其余检查任务。 警告结果被保留，同时后续任务仍完成执行。 scripts/check.test.ts > warning scheduling continues after recoverable failures bun test --test-name-pattern=\"^warning scheduling continues after recoverable failures$\" ./scripts/check.test.ts"
+        ]
+      },
+      "state": {
+        "endLine": 47,
+        "entries": [
+          "scripts/check.test.ts > warning scheduling continues after recoverable failures",
+          "bun test --test-name-pattern=\"^warning scheduling continues after recoverable failures$\" ./scripts/check.test.ts"
+        ],
+        "id": "CHECK-WARNING-SCHEDULING-001",
+        "line": 39,
+        "searchText": "CHECK-WARNING-SCHEDULING-001 警告模式允许后续检查继续 可恢复失败在警告模式下不得中断其余检查任务。 警告结果被保留，同时后续任务仍完成执行。 scripts/check.test.ts > warning scheduling continues after recoverable failures bun test --test-name-pattern=\"^warning scheduling continues after recoverable failures$\" ./scripts/check.test.ts",
+        "sourcePath": "docs/test-evidence/cases/shared-infrastructure.md",
+        "summary": "可恢复失败在警告模式下不得中断其余检查任务。",
+        "title": "警告模式允许后续检查继续"
+      }
+    },
+    {
+      "id": "CHECK-WORKFLOW-PACKAGING-001",
+      "keys": {
+        "search": [
+          "CHECK-WORKFLOW-PACKAGING-001 打包只在无阻断失败时运行 完整工作流可在警告后打包，但任何阻断失败都必须跳过打包。 警告路径调用打包，阻断失败路径不调用打包。 scripts/check.test.ts > workflow packages after warnings and skips after blocking failures bun test --test-name-pattern=\"^workflow packages after warnings and skips after blocking failures$\" ./scripts/check.test.ts"
+        ]
+      },
+      "state": {
+        "endLine": 56,
+        "entries": [
+          "scripts/check.test.ts > workflow packages after warnings and skips after blocking failures",
+          "bun test --test-name-pattern=\"^workflow packages after warnings and skips after blocking failures$\" ./scripts/check.test.ts"
+        ],
+        "id": "CHECK-WORKFLOW-PACKAGING-001",
+        "line": 48,
+        "searchText": "CHECK-WORKFLOW-PACKAGING-001 打包只在无阻断失败时运行 完整工作流可在警告后打包，但任何阻断失败都必须跳过打包。 警告路径调用打包，阻断失败路径不调用打包。 scripts/check.test.ts > workflow packages after warnings and skips after blocking failures bun test --test-name-pattern=\"^workflow packages after warnings and skips after blocking failures$\" ./scripts/check.test.ts",
+        "sourcePath": "docs/test-evidence/cases/shared-infrastructure.md",
+        "summary": "完整工作流可在警告后打包，但任何阻断失败都必须跳过打包。",
+        "title": "打包只在无阻断失败时运行"
+      }
+    },
+    {
+      "id": "DECISION-ACTIVATION-ARCHIVE-001",
+      "keys": {
+        "search": [
+          "DECISION-ACTIVATION-ARCHIVE-001 激活与归档保持内容和索引原子性 决策激活和归档必须同步更新内容位置与索引状态。 成功转换后文件与索引一致，失败路径不会留下半完成状态。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 65,
+        "entries": [
+          "tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity",
+          "bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-ACTIVATION-ARCHIVE-001",
+        "line": 57,
+        "searchText": "DECISION-ACTIVATION-ARCHIVE-001 激活与归档保持内容和索引原子性 决策激活和归档必须同步更新内容位置与索引状态。 成功转换后文件与索引一致，失败路径不会留下半完成状态。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/decision-records.md",
+        "summary": "决策激活和归档必须同步更新内容位置与索引状态。",
+        "title": "激活与归档保持内容和索引原子性"
+      }
+    },
+    {
+      "id": "DECISION-CANDIDATE-LIFECYCLE-001",
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-LIFECYCLE-001 候选决策生命周期受控 候选决策的创建、激活、丢弃与回滚必须遵循状态转换规则。 合法转换更新状态，非法转换不修改决策集合。 tools/decision-records/tests/candidate-lifecycle.test.ts > candidate lifecycle enforces create, activate, discard, and rollback rules bun test --test-name-pattern=\"^candidate lifecycle enforces create, activate, discard, and rollback rules$\" ./tools/decision-records/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 38,
+        "entries": [
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > candidate lifecycle enforces create, activate, discard, and rollback rules",
+          "bun test --test-name-pattern=\"^candidate lifecycle enforces create, activate, discard, and rollback rules$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-LIFECYCLE-001",
+        "line": 30,
+        "searchText": "DECISION-CANDIDATE-LIFECYCLE-001 候选决策生命周期受控 候选决策的创建、激活、丢弃与回滚必须遵循状态转换规则。 合法转换更新状态，非法转换不修改决策集合。 tools/decision-records/tests/candidate-lifecycle.test.ts > candidate lifecycle enforces create, activate, discard, and rollback rules bun test --test-name-pattern=\"^candidate lifecycle enforces create, activate, discard, and rollback rules$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/decision-records.md",
+        "summary": "候选决策的创建、激活、丢弃与回滚必须遵循状态转换规则。",
+        "title": "候选决策生命周期受控"
+      }
+    },
+    {
+      "id": "DECISION-CANDIDATE-ONLY-001",
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-ONLY-001 丢弃唯一候选仍保留域目录 决策域不应因最后一个候选被丢弃而失去目录定义。 候选删除后 domain catalog 仍存在且有效。 tools/decision-records/tests/candidate-lifecycle.test.ts > discarding the only candidate preserves the domain catalog bun test --test-name-pattern=\"^discarding the only candidate preserves the domain catalog$\" ./tools/decision-records/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 47,
+        "entries": [
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > discarding the only candidate preserves the domain catalog",
+          "bun test --test-name-pattern=\"^discarding the only candidate preserves the domain catalog$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-ONLY-001",
+        "line": 39,
+        "searchText": "DECISION-CANDIDATE-ONLY-001 丢弃唯一候选仍保留域目录 决策域不应因最后一个候选被丢弃而失去目录定义。 候选删除后 domain catalog 仍存在且有效。 tools/decision-records/tests/candidate-lifecycle.test.ts > discarding the only candidate preserves the domain catalog bun test --test-name-pattern=\"^discarding the only candidate preserves the domain catalog$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/decision-records.md",
+        "summary": "决策域不应因最后一个候选被丢弃而失去目录定义。",
+        "title": "丢弃唯一候选仍保留域目录"
+      }
+    },
+    {
+      "id": "DECISION-CONFIGURED-DIRECTORIES-001",
+      "keys": {
+        "search": [
+          "DECISION-CONFIGURED-DIRECTORIES-001 决策目录支持相对与绝对配置 决策根目录配置必须正确解析 workspace 相对路径和显式绝对路径。 两种配置都定位同一类决策制品且不改变身份语义。 tools/decision-records/tests/configured-decision-directory.test.ts > configured decision directories support relative and absolute paths bun test --test-name-pattern=\"^configured decision directories support relative and absolute paths$\" ./tools/decision-records/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 20,
+        "entries": [
+          "tools/decision-records/tests/configured-decision-directory.test.ts > configured decision directories support relative and absolute paths",
+          "bun test --test-name-pattern=\"^configured decision directories support relative and absolute paths$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CONFIGURED-DIRECTORIES-001",
+        "line": 12,
+        "searchText": "DECISION-CONFIGURED-DIRECTORIES-001 决策目录支持相对与绝对配置 决策根目录配置必须正确解析 workspace 相对路径和显式绝对路径。 两种配置都定位同一类决策制品且不改变身份语义。 tools/decision-records/tests/configured-decision-directory.test.ts > configured decision directories support relative and absolute paths bun test --test-name-pattern=\"^configured decision directories support relative and absolute paths$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/decision-records.md",
+        "summary": "决策根目录配置必须正确解析 workspace 相对路径和显式绝对路径。",
+        "title": "决策目录支持相对与绝对配置"
+      }
+    },
+    {
+      "id": "DECISION-DOMAIN-CATALOG-001",
+      "keys": {
+        "search": [
+          "DECISION-DOMAIN-CATALOG-001 决策域目录验证 owner 与成员关系 决策域目录必须唯一声明 owner，并只接纳属于该域的决策。 owner 冲突和跨域成员会产生诊断，合法成员保持可查询。 tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog validates ownership and domain membership bun test --test-name-pattern=\"^decision domain catalog validates ownership and domain membership$\" ./tools/decision-records/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 11,
+        "entries": [
+          "tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog validates ownership and domain membership",
+          "bun test --test-name-pattern=\"^decision domain catalog validates ownership and domain membership$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-DOMAIN-CATALOG-001",
+        "line": 3,
+        "searchText": "DECISION-DOMAIN-CATALOG-001 决策域目录验证 owner 与成员关系 决策域目录必须唯一声明 owner，并只接纳属于该域的决策。 owner 冲突和跨域成员会产生诊断，合法成员保持可查询。 tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog validates ownership and domain membership bun test --test-name-pattern=\"^decision domain catalog validates ownership and domain membership$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/decision-records.md",
+        "summary": "决策域目录必须唯一声明 owner，并只接纳属于该域的决策。",
+        "title": "决策域目录验证 owner 与成员关系"
+      }
+    },
+    {
+      "id": "DECISION-EVOLUTION-RELATIONS-001",
+      "keys": {
+        "search": [
+          "DECISION-EVOLUTION-RELATIONS-001 决策演进验证关系与目标状态 决策演进关系必须匹配来源语义和允许的目标状态。 非法关系或目标被拒绝，合法演进关系可解析。 tools/decision-records/tests/evolution.test.ts > decision evolution validates relation semantics and target states bun test --test-name-pattern=\"^decision evolution validates relation semantics and target states$\" ./tools/decision-records/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 101,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > decision evolution validates relation semantics and target states",
+          "bun test --test-name-pattern=\"^decision evolution validates relation semantics and target states$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-EVOLUTION-RELATIONS-001",
+        "line": 93,
+        "searchText": "DECISION-EVOLUTION-RELATIONS-001 决策演进验证关系与目标状态 决策演进关系必须匹配来源语义和允许的目标状态。 非法关系或目标被拒绝，合法演进关系可解析。 tools/decision-records/tests/evolution.test.ts > decision evolution validates relation semantics and target states bun test --test-name-pattern=\"^decision evolution validates relation semantics and target states$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/decision-records.md",
+        "summary": "决策演进关系必须匹配来源语义和允许的目标状态。",
+        "title": "决策演进验证关系与目标状态"
+      }
+    },
+    {
+      "id": "DECISION-EVOLVE-COMMAND-001",
+      "keys": {
+        "search": [
+          "DECISION-EVOLVE-COMMAND-001 Evolve 原子归档来源并创建目标 Evolve 命令必须在一次操作中归档来源决策并创建对齐目标。 成功后来源与目标状态一致，失败时不会留下部分转换。 tools/decision-records/tests/evolution.test.ts > evolve command archives sources and creates the aligned target atomically bun test --test-name-pattern=\"^evolve command archives sources and creates the aligned target atomically$\" ./tools/decision-records/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 110,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve command archives sources and creates the aligned target atomically",
+          "bun test --test-name-pattern=\"^evolve command archives sources and creates the aligned target atomically$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-EVOLVE-COMMAND-001",
+        "line": 102,
+        "searchText": "DECISION-EVOLVE-COMMAND-001 Evolve 原子归档来源并创建目标 Evolve 命令必须在一次操作中归档来源决策并创建对齐目标。 成功后来源与目标状态一致，失败时不会留下部分转换。 tools/decision-records/tests/evolution.test.ts > evolve command archives sources and creates the aligned target atomically bun test --test-name-pattern=\"^evolve command archives sources and creates the aligned target atomically$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/decision-records.md",
+        "summary": "Evolve 命令必须在一次操作中归档来源决策并创建对齐目标。",
+        "title": "Evolve 原子归档来源并创建目标"
+      }
+    },
+    {
+      "id": "DECISION-FIRST-ESTABLISHMENT-001",
+      "keys": {
+        "search": [
+          "DECISION-FIRST-ESTABLISHMENT-001 首次建立创建决策域与当前索引 空 workspace 中首次建立决策必须创建 domain 定义和当前索引。 新决策可立即被域目录和索引查询。 tools/decision-records/tests/first-establishment.test.ts > first establishment creates a decision domain and current index bun test --test-name-pattern=\"^first establishment creates a decision domain and current index$\" ./tools/decision-records/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 119,
+        "entries": [
+          "tools/decision-records/tests/first-establishment.test.ts > first establishment creates a decision domain and current index",
+          "bun test --test-name-pattern=\"^first establishment creates a decision domain and current index$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-FIRST-ESTABLISHMENT-001",
+        "line": 111,
+        "searchText": "DECISION-FIRST-ESTABLISHMENT-001 首次建立创建决策域与当前索引 空 workspace 中首次建立决策必须创建 domain 定义和当前索引。 新决策可立即被域目录和索引查询。 tools/decision-records/tests/first-establishment.test.ts > first establishment creates a decision domain and current index bun test --test-name-pattern=\"^first establishment creates a decision domain and current index$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/decision-records.md",
+        "summary": "空 workspace 中首次建立决策必须创建 domain 定义和当前索引。",
+        "title": "首次建立创建决策域与当前索引"
+      }
+    },
+    {
+      "id": "DECISION-GENERATED-ARTIFACTS-001",
+      "keys": {
+        "search": [
+          "DECISION-GENERATED-ARTIFACTS-001 决策生成制品公开 Schema 与 API 决策分发制品必须包含约定 Schema、API 和可移植来源元数据。 生成脚本、声明及 source map 暴露完整公共契约。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose schemas, APIs, and portable metadata bun test --test-name-pattern=\"^generated decision artifacts expose schemas, APIs, and portable metadata$\" ./tools/decision-records/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 92,
+        "entries": [
+          "tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose schemas, APIs, and portable metadata",
+          "bun test --test-name-pattern=\"^generated decision artifacts expose schemas, APIs, and portable metadata$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-GENERATED-ARTIFACTS-001",
+        "line": 84,
+        "searchText": "DECISION-GENERATED-ARTIFACTS-001 决策生成制品公开 Schema 与 API 决策分发制品必须包含约定 Schema、API 和可移植来源元数据。 生成脚本、声明及 source map 暴露完整公共契约。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose schemas, APIs, and portable metadata bun test --test-name-pattern=\"^generated decision artifacts expose schemas, APIs, and portable metadata$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/decision-records.md",
+        "summary": "决策分发制品必须包含约定 Schema、API 和可移植来源元数据。",
+        "title": "决策生成制品公开 Schema 与 API"
+      }
+    },
+    {
+      "id": "DECISION-INDEX-MAINTENANCE-001",
+      "keys": {
+        "search": [
+          "DECISION-INDEX-MAINTENANCE-001 索引维护识别漂移并同步规范状态 决策索引检查必须识别漂移，同步必须从规范源重建状态。 漂移索引产生诊断，写入同步后再次检查通过。 tools/decision-records/tests/index-maintenance.test.ts > index maintenance detects drift and synchronizes canonical decision states bun test --test-name-pattern=\"^index maintenance detects drift and synchronizes canonical decision states$\" ./tools/decision-records/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 83,
+        "entries": [
+          "tools/decision-records/tests/index-maintenance.test.ts > index maintenance detects drift and synchronizes canonical decision states",
+          "bun test --test-name-pattern=\"^index maintenance detects drift and synchronizes canonical decision states$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-INDEX-MAINTENANCE-001",
+        "line": 75,
+        "searchText": "DECISION-INDEX-MAINTENANCE-001 索引维护识别漂移并同步规范状态 决策索引检查必须识别漂移，同步必须从规范源重建状态。 漂移索引产生诊断，写入同步后再次检查通过。 tools/decision-records/tests/index-maintenance.test.ts > index maintenance detects drift and synchronizes canonical decision states bun test --test-name-pattern=\"^index maintenance detects drift and synchronizes canonical decision states$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/decision-records.md",
+        "summary": "决策索引检查必须识别漂移，同步必须从规范源重建状态。",
+        "title": "索引维护识别漂移并同步规范状态"
+      }
+    },
+    {
+      "id": "DECISION-QUERIES-TRACE-001",
+      "keys": {
+        "search": [
+          "DECISION-QUERIES-TRACE-001 决策查询、展示与追踪保持契约 决策 query、show 和 trace 必须共享筛选与索引身份语义。 各入口返回一致决策集合、关系和诊断。 tools/decision-records/tests/queries.test.ts > decision queries, show, and trace preserve filter and index contracts bun test --test-name-pattern=\"^decision queries, show, and trace preserve filter and index contracts$\" ./tools/decision-records/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 74,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > decision queries, show, and trace preserve filter and index contracts",
+          "bun test --test-name-pattern=\"^decision queries, show, and trace preserve filter and index contracts$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-QUERIES-TRACE-001",
+        "line": 66,
+        "searchText": "DECISION-QUERIES-TRACE-001 决策查询、展示与追踪保持契约 决策 query、show 和 trace 必须共享筛选与索引身份语义。 各入口返回一致决策集合、关系和诊断。 tools/decision-records/tests/queries.test.ts > decision queries, show, and trace preserve filter and index contracts bun test --test-name-pattern=\"^decision queries, show, and trace preserve filter and index contracts$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/decision-records.md",
+        "summary": "决策 query、show 和 trace 必须共享筛选与索引身份语义。",
+        "title": "决策查询、展示与追踪保持契约"
+      }
+    },
+    {
+      "id": "DECISION-STATE-SNAPSHOT-001",
+      "keys": {
+        "search": [
+          "DECISION-STATE-SNAPSHOT-001 状态快照与后续源变更隔离 已返回的决策状态快照不得被后续源对象修改反向污染。 修改原始对象后，既有快照内容保持不变。 tools/decision-records/tests/state-snapshot.test.ts > state snapshots are isolated from later source mutations bun test --test-name-pattern=\"^state snapshots are isolated from later source mutations$\" ./tools/decision-records/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 56,
+        "entries": [
+          "tools/decision-records/tests/state-snapshot.test.ts > state snapshots are isolated from later source mutations",
+          "bun test --test-name-pattern=\"^state snapshots are isolated from later source mutations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STATE-SNAPSHOT-001",
+        "line": 48,
+        "searchText": "DECISION-STATE-SNAPSHOT-001 状态快照与后续源变更隔离 已返回的决策状态快照不得被后续源对象修改反向污染。 修改原始对象后，既有快照内容保持不变。 tools/decision-records/tests/state-snapshot.test.ts > state snapshots are isolated from later source mutations bun test --test-name-pattern=\"^state snapshots are isolated from later source mutations$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/decision-records.md",
+        "summary": "已返回的决策状态快照不得被后续源对象修改反向污染。",
+        "title": "状态快照与后续源变更隔离"
+      }
+    },
+    {
+      "id": "DECISION-TYPE-PATH-001",
+      "keys": {
+        "search": [
+          "DECISION-TYPE-PATH-001 决策类型与路径保持身份不变量 决策 ID、类型、domain 与文件路径必须相互对齐。 不匹配身份被拒绝，合法路径可稳定还原决策身份。 tools/decision-records/tests/type-path-invariants.test.ts > decision types and paths preserve identity and alignment invariants bun test --test-name-pattern=\"^decision types and paths preserve identity and alignment invariants$\" ./tools/decision-records/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 29,
+        "entries": [
+          "tools/decision-records/tests/type-path-invariants.test.ts > decision types and paths preserve identity and alignment invariants",
+          "bun test --test-name-pattern=\"^decision types and paths preserve identity and alignment invariants$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-TYPE-PATH-001",
+        "line": 21,
+        "searchText": "DECISION-TYPE-PATH-001 决策类型与路径保持身份不变量 决策 ID、类型、domain 与文件路径必须相互对齐。 不匹配身份被拒绝，合法路径可稳定还原决策身份。 tools/decision-records/tests/type-path-invariants.test.ts > decision types and paths preserve identity and alignment invariants bun test --test-name-pattern=\"^decision types and paths preserve identity and alignment invariants$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/decision-records.md",
+        "summary": "决策 ID、类型、domain 与文件路径必须相互对齐。",
+        "title": "决策类型与路径保持身份不变量"
+      }
+    },
+    {
+      "id": "GENERATED-FILE-DECLARATION-001",
+      "keys": {
+        "search": [
+          "GENERATED-FILE-DECLARATION-001 声明文件生成结果稳定 生成声明必须规范化换行，同时保留维护来源 banner。 不同输入换行产生一致声明内容，且 banner 未被移除。 scripts/lib/generated-file.test.ts > generated declarations normalize line endings and preserve the banner bun test --test-name-pattern=\"^generated declarations normalize line endings and preserve the banner$\" ./scripts/lib/generated-file.test.ts"
+        ]
+      },
+      "state": {
+        "endLine": 92,
+        "entries": [
+          "scripts/lib/generated-file.test.ts > generated declarations normalize line endings and preserve the banner",
+          "bun test --test-name-pattern=\"^generated declarations normalize line endings and preserve the banner$\" ./scripts/lib/generated-file.test.ts"
+        ],
+        "id": "GENERATED-FILE-DECLARATION-001",
+        "line": 84,
+        "searchText": "GENERATED-FILE-DECLARATION-001 声明文件生成结果稳定 生成声明必须规范化换行，同时保留维护来源 banner。 不同输入换行产生一致声明内容，且 banner 未被移除。 scripts/lib/generated-file.test.ts > generated declarations normalize line endings and preserve the banner bun test --test-name-pattern=\"^generated declarations normalize line endings and preserve the banner$\" ./scripts/lib/generated-file.test.ts",
+        "sourcePath": "docs/test-evidence/cases/shared-infrastructure.md",
+        "summary": "生成声明必须规范化换行，同时保留维护来源 banner。",
+        "title": "声明文件生成结果稳定"
+      }
+    },
+    {
+      "id": "GENERATED-FILE-DRIFT-001",
+      "keys": {
+        "search": [
+          "GENERATED-FILE-DRIFT-001 生成文件检查识别真实漂移 生成文件检查应忽略纯换行差异并报告实质内容漂移。 等价换行通过检查，内容变化返回漂移诊断。 scripts/lib/generated-file.test.ts > generated file checks ignore line-ending differences and detect drift bun test --test-name-pattern=\"^generated file checks ignore line-ending differences and detect drift$\" ./scripts/lib/generated-file.test.ts"
+        ]
+      },
+      "state": {
+        "endLine": 101,
+        "entries": [
+          "scripts/lib/generated-file.test.ts > generated file checks ignore line-ending differences and detect drift",
+          "bun test --test-name-pattern=\"^generated file checks ignore line-ending differences and detect drift$\" ./scripts/lib/generated-file.test.ts"
+        ],
+        "id": "GENERATED-FILE-DRIFT-001",
+        "line": 93,
+        "searchText": "GENERATED-FILE-DRIFT-001 生成文件检查识别真实漂移 生成文件检查应忽略纯换行差异并报告实质内容漂移。 等价换行通过检查，内容变化返回漂移诊断。 scripts/lib/generated-file.test.ts > generated file checks ignore line-ending differences and detect drift bun test --test-name-pattern=\"^generated file checks ignore line-ending differences and detect drift$\" ./scripts/lib/generated-file.test.ts",
+        "sourcePath": "docs/test-evidence/cases/shared-infrastructure.md",
+        "summary": "生成文件检查应忽略纯换行差异并报告实质内容漂移。",
+        "title": "生成文件检查识别真实漂移"
+      }
+    },
+    {
+      "id": "GENERATED-FILE-SOURCE-MAP-001",
+      "keys": {
+        "search": [
+          "GENERATED-FILE-SOURCE-MAP-001 Source map 路径保持可移植 生成 source map 中的 workspace 源路径必须规范化为可移植相对路径。 绝对路径和平台分隔符不会泄漏到规范化 source map。 scripts/lib/generated-file.test.ts > source map normalization keeps workspace sources portable bun test --test-name-pattern=\"^source map normalization keeps workspace sources portable$\" ./scripts/lib/generated-file.test.ts"
+        ]
+      },
+      "state": {
+        "endLine": 83,
+        "entries": [
+          "scripts/lib/generated-file.test.ts > source map normalization keeps workspace sources portable",
+          "bun test --test-name-pattern=\"^source map normalization keeps workspace sources portable$\" ./scripts/lib/generated-file.test.ts"
+        ],
+        "id": "GENERATED-FILE-SOURCE-MAP-001",
+        "line": 75,
+        "searchText": "GENERATED-FILE-SOURCE-MAP-001 Source map 路径保持可移植 生成 source map 中的 workspace 源路径必须规范化为可移植相对路径。 绝对路径和平台分隔符不会泄漏到规范化 source map。 scripts/lib/generated-file.test.ts > source map normalization keeps workspace sources portable bun test --test-name-pattern=\"^source map normalization keeps workspace sources portable$\" ./scripts/lib/generated-file.test.ts",
+        "sourcePath": "docs/test-evidence/cases/shared-infrastructure.md",
+        "summary": "生成 source map 中的 workspace 源路径必须规范化为可移植相对路径。",
+        "title": "Source map 路径保持可移植"
+      }
+    },
+    {
+      "id": "INDEX-RUNTIME-MATERIALIZATION-001",
+      "keys": {
+        "search": [
+          "INDEX-RUNTIME-MATERIALIZATION-001 索引物化确定且执行新鲜度检查 相同状态集合必须物化为确定索引，并按源摘要判断新鲜度。 重复构建结果一致，源状态变化会标记旧索引。 tools/index-runtime/tests/materialization.test.ts > materialization builds deterministic indexes and enforces freshness bun test --test-name-pattern=\"^materialization builds deterministic indexes and enforces freshness$\" ./tools/index-runtime/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 11,
+        "entries": [
+          "tools/index-runtime/tests/materialization.test.ts > materialization builds deterministic indexes and enforces freshness",
+          "bun test --test-name-pattern=\"^materialization builds deterministic indexes and enforces freshness$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "id": "INDEX-RUNTIME-MATERIALIZATION-001",
+        "line": 3,
+        "searchText": "INDEX-RUNTIME-MATERIALIZATION-001 索引物化确定且执行新鲜度检查 相同状态集合必须物化为确定索引，并按源摘要判断新鲜度。 重复构建结果一致，源状态变化会标记旧索引。 tools/index-runtime/tests/materialization.test.ts > materialization builds deterministic indexes and enforces freshness bun test --test-name-pattern=\"^materialization builds deterministic indexes and enforces freshness$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/index-runtime.md",
+        "summary": "相同状态集合必须物化为确定索引，并按源摘要判断新鲜度。",
+        "title": "索引物化确定且执行新鲜度检查"
+      }
+    },
+    {
+      "id": "INDEX-RUNTIME-PERFORMANCE-001",
+      "keys": {
+        "search": [
+          "INDEX-RUNTIME-PERFORMANCE-001 大状态集合物化与查询在预算内 Index runtime 对大规模状态集合的物化和查询必须保持在既定性能边界内。 基准规模在时间预算内完成并返回正确结果数。 tools/index-runtime/tests/performance.test.ts > runtime materializes and queries large state collections within bounds bun test --test-name-pattern=\"^runtime materializes and queries large state collections within bounds$\" ./tools/index-runtime/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 20,
+        "entries": [
+          "tools/index-runtime/tests/performance.test.ts > runtime materializes and queries large state collections within bounds",
+          "bun test --test-name-pattern=\"^runtime materializes and queries large state collections within bounds$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "id": "INDEX-RUNTIME-PERFORMANCE-001",
+        "line": 12,
+        "searchText": "INDEX-RUNTIME-PERFORMANCE-001 大状态集合物化与查询在预算内 Index runtime 对大规模状态集合的物化和查询必须保持在既定性能边界内。 基准规模在时间预算内完成并返回正确结果数。 tools/index-runtime/tests/performance.test.ts > runtime materializes and queries large state collections within bounds bun test --test-name-pattern=\"^runtime materializes and queries large state collections within bounds$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/index-runtime.md",
+        "summary": "Index runtime 对大规模状态集合的物化和查询必须保持在既定性能边界内。",
+        "title": "大状态集合物化与查询在预算内"
+      }
+    },
+    {
+      "id": "INDEX-RUNTIME-PERSISTENCE-001",
+      "keys": {
+        "search": [
+          "INDEX-RUNTIME-PERSISTENCE-001 Runtime 打开、同步并恢复持久化索引 Runtime 必须打开当前索引、同步写入并从可恢复漂移回退。 正常、缺失、过期和损坏索引路径返回约定状态与诊断。 tools/index-runtime/tests/runtime.test.ts > runtime opens, synchronizes, and recovers persisted indexes bun test --test-name-pattern=\"^runtime opens, synchronizes, and recovers persisted indexes$\" ./tools/index-runtime/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 47,
+        "entries": [
+          "tools/index-runtime/tests/runtime.test.ts > runtime opens, synchronizes, and recovers persisted indexes",
+          "bun test --test-name-pattern=\"^runtime opens, synchronizes, and recovers persisted indexes$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "id": "INDEX-RUNTIME-PERSISTENCE-001",
+        "line": 39,
+        "searchText": "INDEX-RUNTIME-PERSISTENCE-001 Runtime 打开、同步并恢复持久化索引 Runtime 必须打开当前索引、同步写入并从可恢复漂移回退。 正常、缺失、过期和损坏索引路径返回约定状态与诊断。 tools/index-runtime/tests/runtime.test.ts > runtime opens, synchronizes, and recovers persisted indexes bun test --test-name-pattern=\"^runtime opens, synchronizes, and recovers persisted indexes$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/index-runtime.md",
+        "summary": "Runtime 必须打开当前索引、同步写入并从可恢复漂移回退。",
+        "title": "Runtime 打开、同步并恢复持久化索引"
+      }
+    },
+    {
+      "id": "INDEX-RUNTIME-PROTOCOL-001",
+      "keys": {
+        "search": [
+          "INDEX-RUNTIME-PROTOCOL-001 协议定义验证 key、state 与 metadata 索引协议必须验证 key 定义、状态结构和 metadata Schema。 合法定义可构建，冲突或无效协议产生明确错误。 tools/index-runtime/tests/protocol.test.ts > protocol definitions validate keys, states, and metadata bun test --test-name-pattern=\"^protocol definitions validate keys, states, and metadata$\" ./tools/index-runtime/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 29,
+        "entries": [
+          "tools/index-runtime/tests/protocol.test.ts > protocol definitions validate keys, states, and metadata",
+          "bun test --test-name-pattern=\"^protocol definitions validate keys, states, and metadata$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "id": "INDEX-RUNTIME-PROTOCOL-001",
+        "line": 21,
+        "searchText": "INDEX-RUNTIME-PROTOCOL-001 协议定义验证 key、state 与 metadata 索引协议必须验证 key 定义、状态结构和 metadata Schema。 合法定义可构建，冲突或无效协议产生明确错误。 tools/index-runtime/tests/protocol.test.ts > protocol definitions validate keys, states, and metadata bun test --test-name-pattern=\"^protocol definitions validate keys, states, and metadata$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/index-runtime.md",
+        "summary": "索引协议必须验证 key 定义、状态结构和 metadata Schema。",
+        "title": "协议定义验证 key、state 与 metadata"
+      }
+    },
+    {
+      "id": "INDEX-RUNTIME-QUERY-001",
+      "keys": {
+        "search": [
+          "INDEX-RUNTIME-QUERY-001 查询支持筛选、排序、分页与合并 索引查询必须组合筛选、排序、分页及 runtime state 覆盖语义。 组合查询返回稳定顺序、正确总数和合并后的状态。 tools/index-runtime/tests/query.test.ts > queries filter, sort, paginate, and merge runtime states bun test --test-name-pattern=\"^queries filter, sort, paginate, and merge runtime states$\" ./tools/index-runtime/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 38,
+        "entries": [
+          "tools/index-runtime/tests/query.test.ts > queries filter, sort, paginate, and merge runtime states",
+          "bun test --test-name-pattern=\"^queries filter, sort, paginate, and merge runtime states$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "id": "INDEX-RUNTIME-QUERY-001",
+        "line": 30,
+        "searchText": "INDEX-RUNTIME-QUERY-001 查询支持筛选、排序、分页与合并 索引查询必须组合筛选、排序、分页及 runtime state 覆盖语义。 组合查询返回稳定顺序、正确总数和合并后的状态。 tools/index-runtime/tests/query.test.ts > queries filter, sort, paginate, and merge runtime states bun test --test-name-pattern=\"^queries filter, sort, paginate, and merge runtime states$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/index-runtime.md",
+        "summary": "索引查询必须组合筛选、排序、分页及 runtime state 覆盖语义。",
+        "title": "查询支持筛选、排序、分页与合并"
+      }
+    },
+    {
+      "id": "INVESTIGATION-BUNDLED-PARITY-001",
+      "keys": {
+        "search": [
+          "INVESTIGATION-BUNDLED-PARITY-001 Bundled 调查 API 与源码一致 分发的调查 API 必须与维护源码实现保持行为一致。 相同输入在源码与 bundled 入口得到相同结果。 tools/investigation-report/tests/cli-generated.test.ts > bundled investigation APIs preserve source implementation parity bun test --test-name-pattern=\"^bundled investigation APIs preserve source implementation parity$\" ./tools/investigation-report/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 65,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > bundled investigation APIs preserve source implementation parity",
+          "bun test --test-name-pattern=\"^bundled investigation APIs preserve source implementation parity$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-BUNDLED-PARITY-001",
+        "line": 57,
+        "searchText": "INVESTIGATION-BUNDLED-PARITY-001 Bundled 调查 API 与源码一致 分发的调查 API 必须与维护源码实现保持行为一致。 相同输入在源码与 bundled 入口得到相同结果。 tools/investigation-report/tests/cli-generated.test.ts > bundled investigation APIs preserve source implementation parity bun test --test-name-pattern=\"^bundled investigation APIs preserve source implementation parity$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/investigation-report.md",
+        "summary": "分发的调查 API 必须与维护源码实现保持行为一致。",
+        "title": "Bundled 调查 API 与源码一致"
+      }
+    },
+    {
+      "id": "INVESTIGATION-CLI-CONTRACTS-001",
+      "keys": {
+        "search": [
+          "INVESTIGATION-CLI-CONTRACTS-001 生成 CLI 保持命令与退出契约 生成调查 CLI 必须保留命令、输出模式和退出码契约。 成功、诊断与参数错误路径返回预期结果。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation CLI preserves command and exit contracts bun test --test-name-pattern=\"^generated investigation CLI preserves command and exit contracts$\" ./tools/investigation-report/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 74,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > generated investigation CLI preserves command and exit contracts",
+          "bun test --test-name-pattern=\"^generated investigation CLI preserves command and exit contracts$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CLI-CONTRACTS-001",
+        "line": 66,
+        "searchText": "INVESTIGATION-CLI-CONTRACTS-001 生成 CLI 保持命令与退出契约 生成调查 CLI 必须保留命令、输出模式和退出码契约。 成功、诊断与参数错误路径返回预期结果。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation CLI preserves command and exit contracts bun test --test-name-pattern=\"^generated investigation CLI preserves command and exit contracts$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/investigation-report.md",
+        "summary": "生成调查 CLI 必须保留命令、输出模式和退出码契约。",
+        "title": "生成 CLI 保持命令与退出契约"
+      }
+    },
+    {
+      "id": "INVESTIGATION-DIRECTORY-PATH-001",
+      "keys": {
+        "search": [
+          "INVESTIGATION-DIRECTORY-PATH-001 调查目录路径规则被执行 调查报告必须位于配置允许且身份对齐的目录路径。 越界、别名和无效目录结构产生路径诊断。 tools/investigation-report/tests/parsing-directory.test.ts > validation enforces investigation directory path rules bun test --test-name-pattern=\"^validation enforces investigation directory path rules$\" ./tools/investigation-report/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 20,
+        "entries": [
+          "tools/investigation-report/tests/parsing-directory.test.ts > validation enforces investigation directory path rules",
+          "bun test --test-name-pattern=\"^validation enforces investigation directory path rules$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DIRECTORY-PATH-001",
+        "line": 12,
+        "searchText": "INVESTIGATION-DIRECTORY-PATH-001 调查目录路径规则被执行 调查报告必须位于配置允许且身份对齐的目录路径。 越界、别名和无效目录结构产生路径诊断。 tools/investigation-report/tests/parsing-directory.test.ts > validation enforces investigation directory path rules bun test --test-name-pattern=\"^validation enforces investigation directory path rules$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/investigation-report.md",
+        "summary": "调查报告必须位于配置允许且身份对齐的目录路径。",
+        "title": "调查目录路径规则被执行"
+      }
+    },
+    {
+      "id": "INVESTIGATION-GENERATED-METADATA-001",
+      "keys": {
+        "search": [
+          "INVESTIGATION-GENERATED-METADATA-001 生成调查制品携带可移植元数据 调查分发制品必须暴露维护来源且不包含机器绝对路径。 Banner、声明和 source map 使用仓库可移植路径。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation artifacts expose portable metadata bun test --test-name-pattern=\"^generated investigation artifacts expose portable metadata$\" ./tools/investigation-report/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 83,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > generated investigation artifacts expose portable metadata",
+          "bun test --test-name-pattern=\"^generated investigation artifacts expose portable metadata$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-GENERATED-METADATA-001",
+        "line": 75,
+        "searchText": "INVESTIGATION-GENERATED-METADATA-001 生成调查制品携带可移植元数据 调查分发制品必须暴露维护来源且不包含机器绝对路径。 Banner、声明和 source map 使用仓库可移植路径。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation artifacts expose portable metadata bun test --test-name-pattern=\"^generated investigation artifacts expose portable metadata$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/investigation-report.md",
+        "summary": "调查分发制品必须暴露维护来源且不包含机器绝对路径。",
+        "title": "生成调查制品携带可移植元数据"
+      }
+    },
+    {
+      "id": "INVESTIGATION-INDEX-INTEGRITY-001",
+      "keys": {
+        "search": [
+          "INVESTIGATION-INDEX-INTEGRITY-001 索引加载拒绝过期与篡改内容 调查索引加载必须验证源新鲜度和内容完整性。 过期或篡改索引不会被当作当前可信状态使用。 tools/investigation-report/tests/index-query.test.ts > index loading rejects stale and tampered investigation indexes bun test --test-name-pattern=\"^index loading rejects stale and tampered investigation indexes$\" ./tools/investigation-report/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 56,
+        "entries": [
+          "tools/investigation-report/tests/index-query.test.ts > index loading rejects stale and tampered investigation indexes",
+          "bun test --test-name-pattern=\"^index loading rejects stale and tampered investigation indexes$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-INDEX-INTEGRITY-001",
+        "line": 48,
+        "searchText": "INVESTIGATION-INDEX-INTEGRITY-001 索引加载拒绝过期与篡改内容 调查索引加载必须验证源新鲜度和内容完整性。 过期或篡改索引不会被当作当前可信状态使用。 tools/investigation-report/tests/index-query.test.ts > index loading rejects stale and tampered investigation indexes bun test --test-name-pattern=\"^index loading rejects stale and tampered investigation indexes$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/investigation-report.md",
+        "summary": "调查索引加载必须验证源新鲜度和内容完整性。",
+        "title": "索引加载拒绝过期与篡改内容"
+      }
+    },
+    {
+      "id": "INVESTIGATION-INDEX-QUERY-001",
+      "keys": {
+        "search": [
+          "INVESTIGATION-INDEX-QUERY-001 索引查询筛选并分页调查状态 调查索引查询必须支持状态筛选、稳定排序和分页。 查询返回正确 total、offset 和目标报告集合。 tools/investigation-report/tests/index-query.test.ts > index queries return filtered and paginated investigation states bun test --test-name-pattern=\"^index queries return filtered and paginated investigation states$\" ./tools/investigation-report/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 47,
+        "entries": [
+          "tools/investigation-report/tests/index-query.test.ts > index queries return filtered and paginated investigation states",
+          "bun test --test-name-pattern=\"^index queries return filtered and paginated investigation states$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-INDEX-QUERY-001",
+        "line": 39,
+        "searchText": "INVESTIGATION-INDEX-QUERY-001 索引查询筛选并分页调查状态 调查索引查询必须支持状态筛选、稳定排序和分页。 查询返回正确 total、offset 和目标报告集合。 tools/investigation-report/tests/index-query.test.ts > index queries return filtered and paginated investigation states bun test --test-name-pattern=\"^index queries return filtered and paginated investigation states$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/investigation-report.md",
+        "summary": "调查索引查询必须支持状态筛选、稳定排序和分页。",
+        "title": "索引查询筛选并分页调查状态"
+      }
+    },
+    {
+      "id": "INVESTIGATION-INFORMATION-FIELDS-001",
+      "keys": {
+        "search": [
+          "INVESTIGATION-INFORMATION-FIELDS-001 无效信息字段不阻断有效范围 校验必须报告无效信息字段，同时保留其他有效查询范围。 字段诊断准确出现，未受影响的报告仍可处理。 tools/investigation-report/tests/parsing-directory.test.ts > validation reports invalid information fields without blocking valid scopes bun test --test-name-pattern=\"^validation reports invalid information fields without blocking valid scopes$\" ./tools/investigation-report/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 29,
+        "entries": [
+          "tools/investigation-report/tests/parsing-directory.test.ts > validation reports invalid information fields without blocking valid scopes",
+          "bun test --test-name-pattern=\"^validation reports invalid information fields without blocking valid scopes$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-INFORMATION-FIELDS-001",
+        "line": 21,
+        "searchText": "INVESTIGATION-INFORMATION-FIELDS-001 无效信息字段不阻断有效范围 校验必须报告无效信息字段，同时保留其他有效查询范围。 字段诊断准确出现，未受影响的报告仍可处理。 tools/investigation-report/tests/parsing-directory.test.ts > validation reports invalid information fields without blocking valid scopes bun test --test-name-pattern=\"^validation reports invalid information fields without blocking valid scopes$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/investigation-report.md",
+        "summary": "校验必须报告无效信息字段，同时保留其他有效查询范围。",
+        "title": "无效信息字段不阻断有效范围"
+      }
+    },
+    {
+      "id": "INVESTIGATION-SCALE-INDEX-001",
+      "keys": {
+        "search": [
+          "INVESTIGATION-SCALE-INDEX-001 千份调查报告可同步并查询 调查索引必须支持至少一千份报告的同步与查询。 规模夹具完整写入索引并返回正确筛选结果。 tools/investigation-report/tests/scale.test.ts > index synchronizes and queries one thousand investigation reports bun test --test-name-pattern=\"^index synchronizes and queries one thousand investigation reports$\" ./tools/investigation-report/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 92,
+        "entries": [
+          "tools/investigation-report/tests/scale.test.ts > index synchronizes and queries one thousand investigation reports",
+          "bun test --test-name-pattern=\"^index synchronizes and queries one thousand investigation reports$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-SCALE-INDEX-001",
+        "line": 84,
+        "searchText": "INVESTIGATION-SCALE-INDEX-001 千份调查报告可同步并查询 调查索引必须支持至少一千份报告的同步与查询。 规模夹具完整写入索引并返回正确筛选结果。 tools/investigation-report/tests/scale.test.ts > index synchronizes and queries one thousand investigation reports bun test --test-name-pattern=\"^index synchronizes and queries one thousand investigation reports$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/investigation-report.md",
+        "summary": "调查索引必须支持至少一千份报告的同步与查询。",
+        "title": "千份调查报告可同步并查询"
+      }
+    },
+    {
+      "id": "INVESTIGATION-STRUCTURE-CHRONOLOGY-001",
+      "keys": {
+        "search": [
+          "INVESTIGATION-STRUCTURE-CHRONOLOGY-001 完整报告结构与时间顺序受约束 完整调查报告必须具备必需章节，并保持事件时间顺序。 缺失结构和逆序时间线分别产生对应诊断。 tools/investigation-report/tests/parsing-directory.test.ts > validation enforces complete report structure and chronology bun test --test-name-pattern=\"^validation enforces complete report structure and chronology$\" ./tools/investigation-report/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 38,
+        "entries": [
+          "tools/investigation-report/tests/parsing-directory.test.ts > validation enforces complete report structure and chronology",
+          "bun test --test-name-pattern=\"^validation enforces complete report structure and chronology$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-STRUCTURE-CHRONOLOGY-001",
+        "line": 30,
+        "searchText": "INVESTIGATION-STRUCTURE-CHRONOLOGY-001 完整报告结构与时间顺序受约束 完整调查报告必须具备必需章节，并保持事件时间顺序。 缺失结构和逆序时间线分别产生对应诊断。 tools/investigation-report/tests/parsing-directory.test.ts > validation enforces complete report structure and chronology bun test --test-name-pattern=\"^validation enforces complete report structure and chronology$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/investigation-report.md",
+        "summary": "完整调查报告必须具备必需章节，并保持事件时间顺序。",
+        "title": "完整报告结构与时间顺序受约束"
+      }
+    },
+    {
+      "id": "INVESTIGATION-VALIDATION-FILTER-001",
+      "keys": {
+        "search": [
+          "INVESTIGATION-VALIDATION-FILTER-001 调查校验按类别与路径筛选 调查校验必须按 category 和目录路径限制目标报告。 仅匹配范围的报告参与结果和诊断。 tools/investigation-report/tests/parsing-directory.test.ts > validation filters reports by category and path bun test --test-name-pattern=\"^validation filters reports by category and path$\" ./tools/investigation-report/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 11,
+        "entries": [
+          "tools/investigation-report/tests/parsing-directory.test.ts > validation filters reports by category and path",
+          "bun test --test-name-pattern=\"^validation filters reports by category and path$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-VALIDATION-FILTER-001",
+        "line": 3,
+        "searchText": "INVESTIGATION-VALIDATION-FILTER-001 调查校验按类别与路径筛选 调查校验必须按 category 和目录路径限制目标报告。 仅匹配范围的报告参与结果和诊断。 tools/investigation-report/tests/parsing-directory.test.ts > validation filters reports by category and path bun test --test-name-pattern=\"^validation filters reports by category and path$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/investigation-report.md",
+        "summary": "调查校验必须按 category 和目录路径限制目标报告。",
+        "title": "调查校验按类别与路径筛选"
+      }
+    },
+    {
+      "id": "SKILL-PACKAGE-HASH-001",
+      "keys": {
+        "search": [
+          "SKILL-PACKAGE-HASH-001 Skill hash 使用待提交内容与独立版本 Skill 包 hash 必须基于待提交 Git 内容，并按 skill 独立版本判断变更。 工作区噪声不改变待提交 hash，打包内容变化要求对应 skill 提升版本。 scripts/lib/skill-package-hash.test.ts > package hashes use pending Git content and enforce independent skill versions bun test --test-name-pattern=\"^package hashes use pending Git content and enforce independent skill versions$\" ./scripts/lib/skill-package-hash.test.ts"
+        ]
+      },
+      "state": {
+        "endLine": 110,
+        "entries": [
+          "scripts/lib/skill-package-hash.test.ts > package hashes use pending Git content and enforce independent skill versions",
+          "bun test --test-name-pattern=\"^package hashes use pending Git content and enforce independent skill versions$\" ./scripts/lib/skill-package-hash.test.ts"
+        ],
+        "id": "SKILL-PACKAGE-HASH-001",
+        "line": 102,
+        "searchText": "SKILL-PACKAGE-HASH-001 Skill hash 使用待提交内容与独立版本 Skill 包 hash 必须基于待提交 Git 内容，并按 skill 独立版本判断变更。 工作区噪声不改变待提交 hash，打包内容变化要求对应 skill 提升版本。 scripts/lib/skill-package-hash.test.ts > package hashes use pending Git content and enforce independent skill versions bun test --test-name-pattern=\"^package hashes use pending Git content and enforce independent skill versions$\" ./scripts/lib/skill-package-hash.test.ts",
+        "sourcePath": "docs/test-evidence/cases/shared-infrastructure.md",
+        "summary": "Skill 包 hash 必须基于待提交 Git 内容，并按 skill 独立版本判断变更。",
+        "title": "Skill hash 使用待提交内容与独立版本"
+      }
+    },
+    {
+      "id": "SKILL-UPDATER-CANONICAL-PATH-001",
+      "keys": {
+        "search": [
+          "SKILL-UPDATER-CANONICAL-PATH-001 Updater 拒绝非规范包路径别名 Release zip 中的 skill 文件必须位于规范且无别名的包路径。 路径别名和非规范路径在解包写入前被拒绝。 tools/skill-updater/tests/run.ts > updater rejects aliased non-canonical package paths bun test --test-name-pattern=\"^updater rejects aliased non-canonical package paths$\" ./tools/skill-updater/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 92,
+        "entries": [
+          "tools/skill-updater/tests/run.ts > updater rejects aliased non-canonical package paths",
+          "bun test --test-name-pattern=\"^updater rejects aliased non-canonical package paths$\" ./tools/skill-updater/tests/run.ts"
+        ],
+        "id": "SKILL-UPDATER-CANONICAL-PATH-001",
+        "line": 84,
+        "searchText": "SKILL-UPDATER-CANONICAL-PATH-001 Updater 拒绝非规范包路径别名 Release zip 中的 skill 文件必须位于规范且无别名的包路径。 路径别名和非规范路径在解包写入前被拒绝。 tools/skill-updater/tests/run.ts > updater rejects aliased non-canonical package paths bun test --test-name-pattern=\"^updater rejects aliased non-canonical package paths$\" ./tools/skill-updater/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/skill-updater.md",
+        "summary": "Release zip 中的 skill 文件必须位于规范且无别名的包路径。",
+        "title": "Updater 拒绝非规范包路径别名"
+      }
+    },
+    {
+      "id": "SKILL-UPDATER-CURRENT-CHECK-001",
+      "keys": {
+        "search": [
+          "SKILL-UPDATER-CURRENT-CHECK-001 当前安装版本被识别为无需更新 Check 模式按版本判断当前安装，不因本地正文定制误报过期。 本地版本与 manifest 一致时报告 current 且不写入文件。 tools/skill-updater/tests/run.ts > updater check treats a matching installed version as current bun test --test-name-pattern=\"^updater check treats a matching installed version as current$\" ./tools/skill-updater/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 29,
+        "entries": [
+          "tools/skill-updater/tests/run.ts > updater check treats a matching installed version as current",
+          "bun test --test-name-pattern=\"^updater check treats a matching installed version as current$\" ./tools/skill-updater/tests/run.ts"
+        ],
+        "id": "SKILL-UPDATER-CURRENT-CHECK-001",
+        "line": 21,
+        "searchText": "SKILL-UPDATER-CURRENT-CHECK-001 当前安装版本被识别为无需更新 Check 模式按版本判断当前安装，不因本地正文定制误报过期。 本地版本与 manifest 一致时报告 current 且不写入文件。 tools/skill-updater/tests/run.ts > updater check treats a matching installed version as current bun test --test-name-pattern=\"^updater check treats a matching installed version as current$\" ./tools/skill-updater/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/skill-updater.md",
+        "summary": "Check 模式按版本判断当前安装，不因本地正文定制误报过期。",
+        "title": "当前安装版本被识别为无需更新"
+      }
+    },
+    {
+      "id": "SKILL-UPDATER-EMPTY-TARGET-001",
+      "keys": {
+        "search": [
+          "SKILL-UPDATER-EMPTY-TARGET-001 Updater 可安装到缺失或空目录 缺失目录和显式空目录都应被视为合法首次安装目标。 两种目标状态均安装完整远端 skill 包。 tools/skill-updater/tests/run.ts > updater installs into missing and empty target directories bun test --test-name-pattern=\"^updater installs into missing and empty target directories$\" ./tools/skill-updater/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 56,
+        "entries": [
+          "tools/skill-updater/tests/run.ts > updater installs into missing and empty target directories",
+          "bun test --test-name-pattern=\"^updater installs into missing and empty target directories$\" ./tools/skill-updater/tests/run.ts"
+        ],
+        "id": "SKILL-UPDATER-EMPTY-TARGET-001",
+        "line": 48,
+        "searchText": "SKILL-UPDATER-EMPTY-TARGET-001 Updater 可安装到缺失或空目录 缺失目录和显式空目录都应被视为合法首次安装目标。 两种目标状态均安装完整远端 skill 包。 tools/skill-updater/tests/run.ts > updater installs into missing and empty target directories bun test --test-name-pattern=\"^updater installs into missing and empty target directories$\" ./tools/skill-updater/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/skill-updater.md",
+        "summary": "缺失目录和显式空目录都应被视为合法首次安装目标。",
+        "title": "Updater 可安装到缺失或空目录"
+      }
+    },
+    {
+      "id": "SKILL-UPDATER-LOCAL-OWNER-001",
+      "keys": {
+        "search": [
+          "SKILL-UPDATER-LOCAL-OWNER-001 Updater 拒绝其他 skill 拥有的目录 目标目录中的 `SKILL.md` owner 必须与 updater 目标 skill 一致。 其他 skill 的目录在远端获取和写入前被拒绝。 tools/skill-updater/tests/run.ts > updater rejects a local directory owned by another skill bun test --test-name-pattern=\"^updater rejects a local directory owned by another skill$\" ./tools/skill-updater/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 38,
+        "entries": [
+          "tools/skill-updater/tests/run.ts > updater rejects a local directory owned by another skill",
+          "bun test --test-name-pattern=\"^updater rejects a local directory owned by another skill$\" ./tools/skill-updater/tests/run.ts"
+        ],
+        "id": "SKILL-UPDATER-LOCAL-OWNER-001",
+        "line": 30,
+        "searchText": "SKILL-UPDATER-LOCAL-OWNER-001 Updater 拒绝其他 skill 拥有的目录 目标目录中的 `SKILL.md` owner 必须与 updater 目标 skill 一致。 其他 skill 的目录在远端获取和写入前被拒绝。 tools/skill-updater/tests/run.ts > updater rejects a local directory owned by another skill bun test --test-name-pattern=\"^updater rejects a local directory owned by another skill$\" ./tools/skill-updater/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/skill-updater.md",
+        "summary": "目标目录中的 `SKILL.md` owner 必须与 updater 目标 skill 一致。",
+        "title": "Updater 拒绝其他 skill 拥有的目录"
+      }
+    },
+    {
+      "id": "SKILL-UPDATER-MANIFEST-VERSION-001",
+      "keys": {
+        "search": [
+          "SKILL-UPDATER-MANIFEST-VERSION-001 Updater 拒绝 manifest 与包版本不一致 Release manifest 声明版本必须与远端 `SKILL.md` 版本一致。 版本不一致在安装前被拒绝且目标未被替换。 tools/skill-updater/tests/run.ts > updater rejects a manifest version that differs from the package bun test --test-name-pattern=\"^updater rejects a manifest version that differs from the package$\" ./tools/skill-updater/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 74,
+        "entries": [
+          "tools/skill-updater/tests/run.ts > updater rejects a manifest version that differs from the package",
+          "bun test --test-name-pattern=\"^updater rejects a manifest version that differs from the package$\" ./tools/skill-updater/tests/run.ts"
+        ],
+        "id": "SKILL-UPDATER-MANIFEST-VERSION-001",
+        "line": 66,
+        "searchText": "SKILL-UPDATER-MANIFEST-VERSION-001 Updater 拒绝 manifest 与包版本不一致 Release manifest 声明版本必须与远端 `SKILL.md` 版本一致。 版本不一致在安装前被拒绝且目标未被替换。 tools/skill-updater/tests/run.ts > updater rejects a manifest version that differs from the package bun test --test-name-pattern=\"^updater rejects a manifest version that differs from the package$\" ./tools/skill-updater/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/skill-updater.md",
+        "summary": "Release manifest 声明版本必须与远端 `SKILL.md` 版本一致。",
+        "title": "Updater 拒绝 manifest 与包版本不一致"
+      }
+    },
+    {
+      "id": "SKILL-UPDATER-NON-SKILL-DIRECTORY-001",
+      "keys": {
+        "search": [
+          "SKILL-UPDATER-NON-SKILL-DIRECTORY-001 Updater 拒绝非空非 skill 目录 非空且不含 `SKILL.md` 的目录不得被 updater 接管。 目标在获取 release 数据前失败，现有文件保持不变。 tools/skill-updater/tests/run.ts > updater rejects a non-skill directory before fetching release data bun test --test-name-pattern=\"^updater rejects a non-skill directory before fetching release data$\" ./tools/skill-updater/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 47,
+        "entries": [
+          "tools/skill-updater/tests/run.ts > updater rejects a non-skill directory before fetching release data",
+          "bun test --test-name-pattern=\"^updater rejects a non-skill directory before fetching release data$\" ./tools/skill-updater/tests/run.ts"
+        ],
+        "id": "SKILL-UPDATER-NON-SKILL-DIRECTORY-001",
+        "line": 39,
+        "searchText": "SKILL-UPDATER-NON-SKILL-DIRECTORY-001 Updater 拒绝非空非 skill 目录 非空且不含 `SKILL.md` 的目录不得被 updater 接管。 目标在获取 release 数据前失败，现有文件保持不变。 tools/skill-updater/tests/run.ts > updater rejects a non-skill directory before fetching release data bun test --test-name-pattern=\"^updater rejects a non-skill directory before fetching release data$\" ./tools/skill-updater/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/skill-updater.md",
+        "summary": "非空且不含 `SKILL.md` 的目录不得被 updater 接管。",
+        "title": "Updater 拒绝非空非 skill 目录"
+      }
+    },
+    {
+      "id": "SKILL-UPDATER-PUBLIC-CONTRACT-001",
+      "keys": {
+        "search": [
+          "SKILL-UPDATER-PUBLIC-CONTRACT-001 Updater 配置、帮助与声明公开稳定契约 Updater 配置、帮助文本和类型声明必须公开一致的 skill 更新契约。 Skill 名称、manifest 资产、CLI 用法和公共导出均可发现。 tools/skill-updater/tests/run.ts > updater configuration, help, and declarations expose the public contract bun test --test-name-pattern=\"^updater configuration, help, and declarations expose the public contract$\" ./tools/skill-updater/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 11,
+        "entries": [
+          "tools/skill-updater/tests/run.ts > updater configuration, help, and declarations expose the public contract",
+          "bun test --test-name-pattern=\"^updater configuration, help, and declarations expose the public contract$\" ./tools/skill-updater/tests/run.ts"
+        ],
+        "id": "SKILL-UPDATER-PUBLIC-CONTRACT-001",
+        "line": 3,
+        "searchText": "SKILL-UPDATER-PUBLIC-CONTRACT-001 Updater 配置、帮助与声明公开稳定契约 Updater 配置、帮助文本和类型声明必须公开一致的 skill 更新契约。 Skill 名称、manifest 资产、CLI 用法和公共导出均可发现。 tools/skill-updater/tests/run.ts > updater configuration, help, and declarations expose the public contract bun test --test-name-pattern=\"^updater configuration, help, and declarations expose the public contract$\" ./tools/skill-updater/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/skill-updater.md",
+        "summary": "Updater 配置、帮助文本和类型声明必须公开一致的 skill 更新契约。",
+        "title": "Updater 配置、帮助与声明公开稳定契约"
+      }
+    },
+    {
+      "id": "SKILL-UPDATER-REMOTE-OWNER-001",
+      "keys": {
+        "search": [
+          "SKILL-UPDATER-REMOTE-OWNER-001 Updater 拒绝其他 owner 的远端包 远端包的 `SKILL.md` owner 必须与 updater 目标一致。 错误 owner 的 release 包不会写入本地目标。 tools/skill-updater/tests/run.ts > updater rejects a remote package owned by another skill bun test --test-name-pattern=\"^updater rejects a remote package owned by another skill$\" ./tools/skill-updater/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 83,
+        "entries": [
+          "tools/skill-updater/tests/run.ts > updater rejects a remote package owned by another skill",
+          "bun test --test-name-pattern=\"^updater rejects a remote package owned by another skill$\" ./tools/skill-updater/tests/run.ts"
+        ],
+        "id": "SKILL-UPDATER-REMOTE-OWNER-001",
+        "line": 75,
+        "searchText": "SKILL-UPDATER-REMOTE-OWNER-001 Updater 拒绝其他 owner 的远端包 远端包的 `SKILL.md` owner 必须与 updater 目标一致。 错误 owner 的 release 包不会写入本地目标。 tools/skill-updater/tests/run.ts > updater rejects a remote package owned by another skill bun test --test-name-pattern=\"^updater rejects a remote package owned by another skill$\" ./tools/skill-updater/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/skill-updater.md",
+        "summary": "远端包的 `SKILL.md` owner 必须与 updater 目标一致。",
+        "title": "Updater 拒绝其他 owner 的远端包"
+      }
+    },
+    {
+      "id": "SKILL-UPDATER-REMOTE-PAYLOADS-001",
+      "keys": {
+        "search": [
+          "SKILL-UPDATER-REMOTE-PAYLOADS-001 Updater 报告无效 release 与 manifest GitHub release 和 manifest 响应必须在使用前通过结构验证。 无效 JSON 结构产生明确远端 payload 诊断。 tools/skill-updater/tests/run.ts > updater reports invalid release and manifest payloads bun test --test-name-pattern=\"^updater reports invalid release and manifest payloads$\" ./tools/skill-updater/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 101,
+        "entries": [
+          "tools/skill-updater/tests/run.ts > updater reports invalid release and manifest payloads",
+          "bun test --test-name-pattern=\"^updater reports invalid release and manifest payloads$\" ./tools/skill-updater/tests/run.ts"
+        ],
+        "id": "SKILL-UPDATER-REMOTE-PAYLOADS-001",
+        "line": 93,
+        "searchText": "SKILL-UPDATER-REMOTE-PAYLOADS-001 Updater 报告无效 release 与 manifest GitHub release 和 manifest 响应必须在使用前通过结构验证。 无效 JSON 结构产生明确远端 payload 诊断。 tools/skill-updater/tests/run.ts > updater reports invalid release and manifest payloads bun test --test-name-pattern=\"^updater reports invalid release and manifest payloads$\" ./tools/skill-updater/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/skill-updater.md",
+        "summary": "GitHub release 和 manifest 响应必须在使用前通过结构验证。",
+        "title": "Updater 报告无效 release 与 manifest"
+      }
+    },
+    {
+      "id": "SKILL-UPDATER-REPLACE-PRESERVE-001",
+      "keys": {
+        "search": [
+          "SKILL-UPDATER-REPLACE-PRESERVE-001 Updater 替换包文件并保留本地自定义 更新必须替换远端包拥有的文件，同时保留不属于包的本地文件。 包文件更新为远端内容，本地自定义文件内容不变。 tools/skill-updater/tests/run.ts > updater replaces packaged files and preserves local custom files bun test --test-name-pattern=\"^updater replaces packaged files and preserves local custom files$\" ./tools/skill-updater/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 20,
+        "entries": [
+          "tools/skill-updater/tests/run.ts > updater replaces packaged files and preserves local custom files",
+          "bun test --test-name-pattern=\"^updater replaces packaged files and preserves local custom files$\" ./tools/skill-updater/tests/run.ts"
+        ],
+        "id": "SKILL-UPDATER-REPLACE-PRESERVE-001",
+        "line": 12,
+        "searchText": "SKILL-UPDATER-REPLACE-PRESERVE-001 Updater 替换包文件并保留本地自定义 更新必须替换远端包拥有的文件，同时保留不属于包的本地文件。 包文件更新为远端内容，本地自定义文件内容不变。 tools/skill-updater/tests/run.ts > updater replaces packaged files and preserves local custom files bun test --test-name-pattern=\"^updater replaces packaged files and preserves local custom files$\" ./tools/skill-updater/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/skill-updater.md",
+        "summary": "更新必须替换远端包拥有的文件，同时保留不属于包的本地文件。",
+        "title": "Updater 替换包文件并保留本地自定义"
+      }
+    },
+    {
+      "id": "SKILL-UPDATER-UNVERSIONED-001",
+      "keys": {
+        "search": [
+          "SKILL-UPDATER-UNVERSIONED-001 Check 报告未版本化安装 缺少有效版本 metadata 的已安装 skill 必须被明确标记为 unversioned。 Check 输出本地未版本化状态并与远端版本比较。 tools/skill-updater/tests/run.ts > updater check reports an unversioned installed skill bun test --test-name-pattern=\"^updater check reports an unversioned installed skill$\" ./tools/skill-updater/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 65,
+        "entries": [
+          "tools/skill-updater/tests/run.ts > updater check reports an unversioned installed skill",
+          "bun test --test-name-pattern=\"^updater check reports an unversioned installed skill$\" ./tools/skill-updater/tests/run.ts"
+        ],
+        "id": "SKILL-UPDATER-UNVERSIONED-001",
+        "line": 57,
+        "searchText": "SKILL-UPDATER-UNVERSIONED-001 Check 报告未版本化安装 缺少有效版本 metadata 的已安装 skill 必须被明确标记为 unversioned。 Check 输出本地未版本化状态并与远端版本比较。 tools/skill-updater/tests/run.ts > updater check reports an unversioned installed skill bun test --test-name-pattern=\"^updater check reports an unversioned installed skill$\" ./tools/skill-updater/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/skill-updater.md",
+        "summary": "缺少有效版本 metadata 的已安装 skill 必须被明确标记为 unversioned。",
+        "title": "Check 报告未版本化安装"
+      }
+    },
+    {
+      "id": "SKILL-VALIDATOR-CLI-ARGS-001",
+      "keys": {
+        "search": [
+          "SKILL-VALIDATOR-CLI-ARGS-001 Validator CLI 帮助与参数错误稳定 Validator CLI 的帮助和参数数量错误必须使用稳定退出契约。 Help 成功输出用法，多余参数以参数错误退出。 tools/skill-validator/tests/run.ts > validator CLI help and argument errors use stable exit contracts bun test --test-name-pattern=\"^validator CLI help and argument errors use stable exit contracts$\" ./tools/skill-validator/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 38,
+        "entries": [
+          "tools/skill-validator/tests/run.ts > validator CLI help and argument errors use stable exit contracts",
+          "bun test --test-name-pattern=\"^validator CLI help and argument errors use stable exit contracts$\" ./tools/skill-validator/tests/run.ts"
+        ],
+        "id": "SKILL-VALIDATOR-CLI-ARGS-001",
+        "line": 30,
+        "searchText": "SKILL-VALIDATOR-CLI-ARGS-001 Validator CLI 帮助与参数错误稳定 Validator CLI 的帮助和参数数量错误必须使用稳定退出契约。 Help 成功输出用法，多余参数以参数错误退出。 tools/skill-validator/tests/run.ts > validator CLI help and argument errors use stable exit contracts bun test --test-name-pattern=\"^validator CLI help and argument errors use stable exit contracts$\" ./tools/skill-validator/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/skill-validator.md",
+        "summary": "Validator CLI 的帮助和参数数量错误必须使用稳定退出契约。",
+        "title": "Validator CLI 帮助与参数错误稳定"
+      }
+    },
+    {
+      "id": "SKILL-VALIDATOR-DIAGNOSTICS-001",
+      "keys": {
+        "search": [
+          "SKILL-VALIDATOR-DIAGNOSTICS-001 无效 metadata、目录与链接可诊断 Validator 必须报告 frontmatter、保留目录形态和 Markdown 链接错误。 每类无效输入都产生可定位诊断和失败退出码。 tools/skill-validator/tests/run.ts > validator reports invalid metadata, directories, and links bun test --test-name-pattern=\"^validator reports invalid metadata, directories, and links$\" ./tools/skill-validator/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 20,
+        "entries": [
+          "tools/skill-validator/tests/run.ts > validator reports invalid metadata, directories, and links",
+          "bun test --test-name-pattern=\"^validator reports invalid metadata, directories, and links$\" ./tools/skill-validator/tests/run.ts"
+        ],
+        "id": "SKILL-VALIDATOR-DIAGNOSTICS-001",
+        "line": 12,
+        "searchText": "SKILL-VALIDATOR-DIAGNOSTICS-001 无效 metadata、目录与链接可诊断 Validator 必须报告 frontmatter、保留目录形态和 Markdown 链接错误。 每类无效输入都产生可定位诊断和失败退出码。 tools/skill-validator/tests/run.ts > validator reports invalid metadata, directories, and links bun test --test-name-pattern=\"^validator reports invalid metadata, directories, and links$\" ./tools/skill-validator/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/skill-validator.md",
+        "summary": "Validator 必须报告 frontmatter、保留目录形态和 Markdown 链接错误。",
+        "title": "无效 metadata、目录与链接可诊断"
+      }
+    },
+    {
+      "id": "SKILL-VALIDATOR-ENTRY-STATES-001",
+      "keys": {
+        "search": [
+          "SKILL-VALIDATOR-ENTRY-STATES-001 缺失、空与损坏入口可诊断 `SKILL.md` 缺失、无可执行正文或 frontmatter 损坏必须分别诊断。 三类入口状态都不会被误判为有效 skill。 tools/skill-validator/tests/run.ts > validator reports missing, empty, and malformed skill entries bun test --test-name-pattern=\"^validator reports missing, empty, and malformed skill entries$\" ./tools/skill-validator/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 29,
+        "entries": [
+          "tools/skill-validator/tests/run.ts > validator reports missing, empty, and malformed skill entries",
+          "bun test --test-name-pattern=\"^validator reports missing, empty, and malformed skill entries$\" ./tools/skill-validator/tests/run.ts"
+        ],
+        "id": "SKILL-VALIDATOR-ENTRY-STATES-001",
+        "line": 21,
+        "searchText": "SKILL-VALIDATOR-ENTRY-STATES-001 缺失、空与损坏入口可诊断 `SKILL.md` 缺失、无可执行正文或 frontmatter 损坏必须分别诊断。 三类入口状态都不会被误判为有效 skill。 tools/skill-validator/tests/run.ts > validator reports missing, empty, and malformed skill entries bun test --test-name-pattern=\"^validator reports missing, empty, and malformed skill entries$\" ./tools/skill-validator/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/skill-validator.md",
+        "summary": "`SKILL.md` 缺失、无可执行正文或 frontmatter 损坏必须分别诊断。",
+        "title": "缺失、空与损坏入口可诊断"
+      }
+    },
+    {
+      "id": "SKILL-VALIDATOR-GENERATED-001",
+      "keys": {
+        "search": [
+          "SKILL-VALIDATOR-GENERATED-001 Validator 生成制品公开声明与来源 Validator 分发制品必须暴露声明、公共 API 和可移植来源元数据。 生成脚本、声明及 source map 包含约定导出和仓库相对路径。 tools/skill-validator/tests/run.ts > generated validator artifacts expose declarations and portable metadata bun test --test-name-pattern=\"^generated validator artifacts expose declarations and portable metadata$\" ./tools/skill-validator/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 47,
+        "entries": [
+          "tools/skill-validator/tests/run.ts > generated validator artifacts expose declarations and portable metadata",
+          "bun test --test-name-pattern=\"^generated validator artifacts expose declarations and portable metadata$\" ./tools/skill-validator/tests/run.ts"
+        ],
+        "id": "SKILL-VALIDATOR-GENERATED-001",
+        "line": 39,
+        "searchText": "SKILL-VALIDATOR-GENERATED-001 Validator 生成制品公开声明与来源 Validator 分发制品必须暴露声明、公共 API 和可移植来源元数据。 生成脚本、声明及 source map 包含约定导出和仓库相对路径。 tools/skill-validator/tests/run.ts > generated validator artifacts expose declarations and portable metadata bun test --test-name-pattern=\"^generated validator artifacts expose declarations and portable metadata$\" ./tools/skill-validator/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/skill-validator.md",
+        "summary": "Validator 分发制品必须暴露声明、公共 API 和可移植来源元数据。",
+        "title": "Validator 生成制品公开声明与来源"
+      }
+    },
+    {
+      "id": "SKILL-VALIDATOR-PORTABLE-001",
+      "keys": {
+        "search": [
+          "SKILL-VALIDATOR-PORTABLE-001 可移植 skill 通过源码与 CLI 校验 结构和链接合法的可移植 skill 必须通过源码、bundled API 与 CLI。 三个入口均成功且报告相同 Markdown 文件数量。 tools/skill-validator/tests/run.ts > validator accepts a portable skill with bundled and CLI parity bun test --test-name-pattern=\"^validator accepts a portable skill with bundled and CLI parity$\" ./tools/skill-validator/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 11,
+        "entries": [
+          "tools/skill-validator/tests/run.ts > validator accepts a portable skill with bundled and CLI parity",
+          "bun test --test-name-pattern=\"^validator accepts a portable skill with bundled and CLI parity$\" ./tools/skill-validator/tests/run.ts"
+        ],
+        "id": "SKILL-VALIDATOR-PORTABLE-001",
+        "line": 3,
+        "searchText": "SKILL-VALIDATOR-PORTABLE-001 可移植 skill 通过源码与 CLI 校验 结构和链接合法的可移植 skill 必须通过源码、bundled API 与 CLI。 三个入口均成功且报告相同 Markdown 文件数量。 tools/skill-validator/tests/run.ts > validator accepts a portable skill with bundled and CLI parity bun test --test-name-pattern=\"^validator accepts a portable skill with bundled and CLI parity$\" ./tools/skill-validator/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/skill-validator.md",
+        "summary": "结构和链接合法的可移植 skill 必须通过源码、bundled API 与 CLI。",
+        "title": "可移植 skill 通过源码与 CLI 校验"
+      }
+    },
+    {
+      "id": "TEST-EVIDENCE-CONFIG-PATH-001",
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-CONFIG-PATH-001 不可检查的 catalog 路径被拒绝 Test evidence 配置必须拒绝无法安全检查的 uninspectable catalog 路径。 该路径返回 blocking `config.path-inspection-failed` 诊断且不写入索引。 tools/test-evidence/tests/config-path.test.ts > rejects a catalog path that cannot be inspected bun test --test-name-pattern=\"^rejects a catalog path that cannot be inspected$\" ./tools/test-evidence/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 11,
+        "entries": [
+          "tools/test-evidence/tests/config-path.test.ts > rejects a catalog path that cannot be inspected",
+          "bun test --test-name-pattern=\"^rejects a catalog path that cannot be inspected$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-CONFIG-PATH-001",
+        "line": 3,
+        "searchText": "TEST-EVIDENCE-CONFIG-PATH-001 不可检查的 catalog 路径被拒绝 Test evidence 配置必须拒绝无法安全检查的 uninspectable catalog 路径。 该路径返回 blocking `config.path-inspection-failed` 诊断且不写入索引。 tools/test-evidence/tests/config-path.test.ts > rejects a catalog path that cannot be inspected bun test --test-name-pattern=\"^rejects a catalog path that cannot be inspected$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/test-evidence.md",
+        "summary": "Test evidence 配置必须拒绝无法安全检查的 uninspectable catalog 路径。",
+        "title": "不可检查的 catalog 路径被拒绝"
+      }
+    },
+    {
+      "id": "TEST-EVIDENCE-CROSS-TOPIC-ID-001",
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-CROSS-TOPIC-ID-001 Case ID 在全部主题中唯一 Case ID 是统一目录身份，不能在不同主题文件中重复。 两个主题声明相同 ID 时返回包含双方源路径的 `catalog.case-id-duplicate` 诊断。 tools/test-evidence/tests/run.ts > catalog validation rejects duplicate case IDs across topics bun test --test-name-pattern=\"^catalog validation rejects duplicate case IDs across topics$\" ./tools/test-evidence/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 101,
+        "entries": [
+          "tools/test-evidence/tests/run.ts > catalog validation rejects duplicate case IDs across topics",
+          "bun test --test-name-pattern=\"^catalog validation rejects duplicate case IDs across topics$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-CROSS-TOPIC-ID-001",
+        "line": 93,
+        "searchText": "TEST-EVIDENCE-CROSS-TOPIC-ID-001 Case ID 在全部主题中唯一 Case ID 是统一目录身份，不能在不同主题文件中重复。 两个主题声明相同 ID 时返回包含双方源路径的 `catalog.case-id-duplicate` 诊断。 tools/test-evidence/tests/run.ts > catalog validation rejects duplicate case IDs across topics bun test --test-name-pattern=\"^catalog validation rejects duplicate case IDs across topics$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/test-evidence.md",
+        "summary": "Case ID 是统一目录身份，不能在不同主题文件中重复。",
+        "title": "Case ID 在全部主题中唯一"
+      }
+    },
+    {
+      "id": "TEST-EVIDENCE-DAMAGED-INDEX-001",
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-DAMAGED-INDEX-001 损坏索引可回退并重建 JSON 损坏但可恢复的索引不得阻断 catalog 查询，并应允许重建。 查询返回当前 case 与非阻断诊断，写入同步恢复有效索引。 tools/test-evidence/tests/run.ts > damaged indexes fall back to the catalog and can be rebuilt bun test --test-name-pattern=\"^damaged indexes fall back to the catalog and can be rebuilt$\" ./tools/test-evidence/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 65,
+        "entries": [
+          "tools/test-evidence/tests/run.ts > damaged indexes fall back to the catalog and can be rebuilt",
+          "bun test --test-name-pattern=\"^damaged indexes fall back to the catalog and can be rebuilt$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-DAMAGED-INDEX-001",
+        "line": 57,
+        "searchText": "TEST-EVIDENCE-DAMAGED-INDEX-001 损坏索引可回退并重建 JSON 损坏但可恢复的索引不得阻断 catalog 查询，并应允许重建。 查询返回当前 case 与非阻断诊断，写入同步恢复有效索引。 tools/test-evidence/tests/run.ts > damaged indexes fall back to the catalog and can be rebuilt bun test --test-name-pattern=\"^damaged indexes fall back to the catalog and can be rebuilt$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/test-evidence.md",
+        "summary": "JSON 损坏但可恢复的索引不得阻断 catalog 查询，并应允许重建。",
+        "title": "损坏索引可回退并重建"
+      }
+    },
+    {
+      "id": "TEST-EVIDENCE-DISTRIBUTED-CLI-001",
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-DISTRIBUTED-CLI-001 分发模块与 CLI 保持查询契约 分发模块和 CLI 必须与维护源码共享 catalog 查询及失败语义。 正常 list 返回全部 case，不可读索引在 list 与 show 中都以失败退出。 tools/test-evidence/tests/run.ts > distributed module and CLI preserve catalog query contracts bun test --test-name-pattern=\"^distributed module and CLI preserve catalog query contracts$\" ./tools/test-evidence/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 137,
+        "entries": [
+          "tools/test-evidence/tests/run.ts > distributed module and CLI preserve catalog query contracts",
+          "bun test --test-name-pattern=\"^distributed module and CLI preserve catalog query contracts$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-DISTRIBUTED-CLI-001",
+        "line": 129,
+        "searchText": "TEST-EVIDENCE-DISTRIBUTED-CLI-001 分发模块与 CLI 保持查询契约 分发模块和 CLI 必须与维护源码共享 catalog 查询及失败语义。 正常 list 返回全部 case，不可读索引在 list 与 show 中都以失败退出。 tools/test-evidence/tests/run.ts > distributed module and CLI preserve catalog query contracts bun test --test-name-pattern=\"^distributed module and CLI preserve catalog query contracts$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/test-evidence.md",
+        "summary": "分发模块和 CLI 必须与维护源码共享 catalog 查询及失败语义。",
+        "title": "分发模块与 CLI 保持查询契约"
+      }
+    },
+    {
+      "id": "TEST-EVIDENCE-ENTRY-LIST-001",
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-ENTRY-LIST-001 Catalog 要求非空且唯一的 Entry 每个 case 必须且只能声明一个非空 Entry 列表，列表项不得重复。 缺失 Entry 和重复 locator 都被目录校验拒绝。 tools/test-evidence/tests/run.ts > catalog validation requires one non-empty unique entry list bun test --test-name-pattern=\"^catalog validation requires one non-empty unique entry list$\" ./tools/test-evidence/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 92,
+        "entries": [
+          "tools/test-evidence/tests/run.ts > catalog validation requires one non-empty unique entry list",
+          "bun test --test-name-pattern=\"^catalog validation requires one non-empty unique entry list$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-ENTRY-LIST-001",
+        "line": 84,
+        "searchText": "TEST-EVIDENCE-ENTRY-LIST-001 Catalog 要求非空且唯一的 Entry 每个 case 必须且只能声明一个非空 Entry 列表，列表项不得重复。 缺失 Entry 和重复 locator 都被目录校验拒绝。 tools/test-evidence/tests/run.ts > catalog validation requires one non-empty unique entry list bun test --test-name-pattern=\"^catalog validation requires one non-empty unique entry list$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/test-evidence.md",
+        "summary": "每个 case 必须且只能声明一个非空 Entry 列表，列表项不得重复。",
+        "title": "Catalog 要求非空且唯一的 Entry"
+      }
+    },
+    {
+      "id": "TEST-EVIDENCE-INDEX-SYNC-001",
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-INDEX-SYNC-001 索引同步写入有效可检索快照 写入同步必须从 catalog 生成当前有效的派生索引。 同步返回 written，随后目录和索引校验无诊断。 tools/test-evidence/tests/run.ts > index synchronization writes a valid searchable snapshot bun test --test-name-pattern=\"^index synchronization writes a valid searchable snapshot$\" ./tools/test-evidence/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 56,
+        "entries": [
+          "tools/test-evidence/tests/run.ts > index synchronization writes a valid searchable snapshot",
+          "bun test --test-name-pattern=\"^index synchronization writes a valid searchable snapshot$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-INDEX-SYNC-001",
+        "line": 48,
+        "searchText": "TEST-EVIDENCE-INDEX-SYNC-001 索引同步写入有效可检索快照 写入同步必须从 catalog 生成当前有效的派生索引。 同步返回 written，随后目录和索引校验无诊断。 tools/test-evidence/tests/run.ts > index synchronization writes a valid searchable snapshot bun test --test-name-pattern=\"^index synchronization writes a valid searchable snapshot$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/test-evidence.md",
+        "summary": "写入同步必须从 catalog 生成当前有效的派生索引。",
+        "title": "索引同步写入有效可检索快照"
+      }
+    },
+    {
+      "id": "TEST-EVIDENCE-LEGACY-FIELD-001",
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-LEGACY-FIELD-001 Catalog 拒绝旧 Verification 字段 测试专用 catalog 不接受已经移除的 `Verification` 分类字段。 `test` 与 `check` 两种旧字段值都产生结构诊断。 tools/test-evidence/tests/run.ts > catalog validation rejects legacy verification fields bun test --test-name-pattern=\"^catalog validation rejects legacy verification fields$\" ./tools/test-evidence/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 83,
+        "entries": [
+          "tools/test-evidence/tests/run.ts > catalog validation rejects legacy verification fields",
+          "bun test --test-name-pattern=\"^catalog validation rejects legacy verification fields$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-LEGACY-FIELD-001",
+        "line": 75,
+        "searchText": "TEST-EVIDENCE-LEGACY-FIELD-001 Catalog 拒绝旧 Verification 字段 测试专用 catalog 不接受已经移除的 `Verification` 分类字段。 `test` 与 `check` 两种旧字段值都产生结构诊断。 tools/test-evidence/tests/run.ts > catalog validation rejects legacy verification fields bun test --test-name-pattern=\"^catalog validation rejects legacy verification fields$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/test-evidence.md",
+        "summary": "测试专用 catalog 不接受已经移除的 `Verification` 分类字段。",
+        "title": "Catalog 拒绝旧 Verification 字段"
+      }
+    },
+    {
+      "id": "TEST-EVIDENCE-MISSING-INDEX-001",
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-MISSING-INDEX-001 缺失索引时从 catalog 回退 索引缺失时，校验和查询必须读取权威 catalog 并返回非阻断诊断。 两个 case 仍可查询，`state-index.index-missing` 不阻断读取。 tools/test-evidence/tests/run.ts > missing indexes fall back to the catalog for validation and queries bun test --test-name-pattern=\"^missing indexes fall back to the catalog for validation and queries$\" ./tools/test-evidence/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 47,
+        "entries": [
+          "tools/test-evidence/tests/run.ts > missing indexes fall back to the catalog for validation and queries",
+          "bun test --test-name-pattern=\"^missing indexes fall back to the catalog for validation and queries$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-MISSING-INDEX-001",
+        "line": 39,
+        "searchText": "TEST-EVIDENCE-MISSING-INDEX-001 缺失索引时从 catalog 回退 索引缺失时，校验和查询必须读取权威 catalog 并返回非阻断诊断。 两个 case 仍可查询，`state-index.index-missing` 不阻断读取。 tools/test-evidence/tests/run.ts > missing indexes fall back to the catalog for validation and queries bun test --test-name-pattern=\"^missing indexes fall back to the catalog for validation and queries$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/test-evidence.md",
+        "summary": "索引缺失时，校验和查询必须读取权威 catalog 并返回非阻断诊断。",
+        "title": "缺失索引时从 catalog 回退"
+      }
+    },
+    {
+      "id": "TEST-EVIDENCE-PATH-IDENTITY-001",
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-PATH-IDENTITY-001 Catalog 路径身份拒绝别名与硬链接 配置、catalog 与索引路径必须按平台和文件身份保持互异。 词法别名、大小写等价路径和同 inode 硬链接都产生路径冲突。 tools/test-evidence/tests/run.ts > catalog paths reject aliases, hard links, and platform-equivalent identities bun test --test-name-pattern=\"^catalog paths reject aliases, hard links, and platform-equivalent identities$\" ./tools/test-evidence/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 38,
+        "entries": [
+          "tools/test-evidence/tests/run.ts > catalog paths reject aliases, hard links, and platform-equivalent identities",
+          "bun test --test-name-pattern=\"^catalog paths reject aliases, hard links, and platform-equivalent identities$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-PATH-IDENTITY-001",
+        "line": 30,
+        "searchText": "TEST-EVIDENCE-PATH-IDENTITY-001 Catalog 路径身份拒绝别名与硬链接 配置、catalog 与索引路径必须按平台和文件身份保持互异。 词法别名、大小写等价路径和同 inode 硬链接都产生路径冲突。 tools/test-evidence/tests/run.ts > catalog paths reject aliases, hard links, and platform-equivalent identities bun test --test-name-pattern=\"^catalog paths reject aliases, hard links, and platform-equivalent identities$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/test-evidence.md",
+        "summary": "配置、catalog 与索引路径必须按平台和文件身份保持互异。",
+        "title": "Catalog 路径身份拒绝别名与硬链接"
+      }
+    },
+    {
+      "id": "TEST-EVIDENCE-QUERY-REPOSITORY-001",
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-QUERY-REPOSITORY-001 仓库 case 可按契约与证明检索 Test evidence 查询必须把当前仓库目录投影为可检索 case metadata。 跨 Contract 与 Proves 的多词查询只返回匹配 case ID。 tools/test-evidence/tests/repository-catalog.test.ts > queries the repository catalog by contract and proof terms bun test --test-name-pattern=\"^queries the repository catalog by contract and proof terms$\" ./tools/test-evidence/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 20,
+        "entries": [
+          "tools/test-evidence/tests/repository-catalog.test.ts > queries the repository catalog by contract and proof terms",
+          "bun test --test-name-pattern=\"^queries the repository catalog by contract and proof terms$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-QUERY-REPOSITORY-001",
+        "line": 12,
+        "searchText": "TEST-EVIDENCE-QUERY-REPOSITORY-001 仓库 case 可按契约与证明检索 Test evidence 查询必须把当前仓库目录投影为可检索 case metadata。 跨 Contract 与 Proves 的多词查询只返回匹配 case ID。 tools/test-evidence/tests/repository-catalog.test.ts > queries the repository catalog by contract and proof terms bun test --test-name-pattern=\"^queries the repository catalog by contract and proof terms$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/test-evidence.md",
+        "summary": "Test evidence 查询必须把当前仓库目录投影为可检索 case metadata。",
+        "title": "仓库 case 可按契约与证明检索"
+      }
+    },
+    {
+      "id": "TEST-EVIDENCE-QUERY-SHOW-001",
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-QUERY-SHOW-001 多主题 Catalog 支持精确列出、搜索与展示 List、search 和 show 必须跨主题文件使用同一 catalog case 身份与正文。 ID 顺序、源文件定位、契约词搜索、证明词搜索及 Markdown 展开均返回精确结果。 tools/test-evidence/tests/run.ts > catalog queries list, search, and show exact cases bun test --test-name-pattern=\"^catalog queries list, search, and show exact cases$\" ./tools/test-evidence/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 74,
+        "entries": [
+          "tools/test-evidence/tests/run.ts > catalog queries list, search, and show exact cases",
+          "bun test --test-name-pattern=\"^catalog queries list, search, and show exact cases$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-QUERY-SHOW-001",
+        "line": 66,
+        "searchText": "TEST-EVIDENCE-QUERY-SHOW-001 多主题 Catalog 支持精确列出、搜索与展示 List、search 和 show 必须跨主题文件使用同一 catalog case 身份与正文。 ID 顺序、源文件定位、契约词搜索、证明词搜索及 Markdown 展开均返回精确结果。 tools/test-evidence/tests/run.ts > catalog queries list, search, and show exact cases bun test --test-name-pattern=\"^catalog queries list, search, and show exact cases$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/test-evidence.md",
+        "summary": "List、search 和 show 必须跨主题文件使用同一 catalog case 身份与正文。",
+        "title": "多主题 Catalog 支持精确列出、搜索与展示"
+      }
+    },
+    {
+      "id": "TEST-EVIDENCE-SHOW-REPOSITORY-001",
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-SHOW-REPOSITORY-001 仓库 case 可展开权威 Markdown Show 必须把已登记 case ID 解析回权威 Markdown 块。 已知 case 返回自身内容且不混入相邻 case。 tools/test-evidence/tests/repository-catalog.test.ts > shows the authoritative Markdown for a repository case bun test --test-name-pattern=\"^shows the authoritative Markdown for a repository case$\" ./tools/test-evidence/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 29,
+        "entries": [
+          "tools/test-evidence/tests/repository-catalog.test.ts > shows the authoritative Markdown for a repository case",
+          "bun test --test-name-pattern=\"^shows the authoritative Markdown for a repository case$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-SHOW-REPOSITORY-001",
+        "line": 21,
+        "searchText": "TEST-EVIDENCE-SHOW-REPOSITORY-001 仓库 case 可展开权威 Markdown Show 必须把已登记 case ID 解析回权威 Markdown 块。 已知 case 返回自身内容且不混入相邻 case。 tools/test-evidence/tests/repository-catalog.test.ts > shows the authoritative Markdown for a repository case bun test --test-name-pattern=\"^shows the authoritative Markdown for a repository case$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/test-evidence.md",
+        "summary": "Show 必须把已登记 case ID 解析回权威 Markdown 块。",
+        "title": "仓库 case 可展开权威 Markdown"
+      }
+    },
+    {
+      "id": "TEST-EVIDENCE-STALE-INDEX-001",
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-STALE-INDEX-001 过期索引回退到当前 catalog 派生索引落后于 catalog 时，查询与展示必须使用当前正文。 Case 仍可读取，同时返回非阻断 `state-index.index-stale` 诊断。 tools/test-evidence/tests/run.ts > stale indexes fall back to current catalog content bun test --test-name-pattern=\"^stale indexes fall back to current catalog content$\" ./tools/test-evidence/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 119,
+        "entries": [
+          "tools/test-evidence/tests/run.ts > stale indexes fall back to current catalog content",
+          "bun test --test-name-pattern=\"^stale indexes fall back to current catalog content$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-STALE-INDEX-001",
+        "line": 111,
+        "searchText": "TEST-EVIDENCE-STALE-INDEX-001 过期索引回退到当前 catalog 派生索引落后于 catalog 时，查询与展示必须使用当前正文。 Case 仍可读取，同时返回非阻断 `state-index.index-stale` 诊断。 tools/test-evidence/tests/run.ts > stale indexes fall back to current catalog content bun test --test-name-pattern=\"^stale indexes fall back to current catalog content$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/test-evidence.md",
+        "summary": "派生索引落后于 catalog 时，查询与展示必须使用当前正文。",
+        "title": "过期索引回退到当前 catalog"
+      }
+    },
+    {
+      "id": "TEST-EVIDENCE-TOPIC-MEMBERSHIP-001",
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-TOPIC-MEMBERSHIP-001 主题集合与文件都必须非空 Catalog 目录必须包含主题 Markdown，且每个主题文件至少承接一个 case。 空主题集合返回 `catalog.empty`，无 case 的主题文件返回可定位的 `catalog.topic-empty`。 tools/test-evidence/tests/run.ts > catalog validation rejects empty topic sets and topic files bun test --test-name-pattern=\"^catalog validation rejects empty topic sets and topic files$\" ./tools/test-evidence/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 110,
+        "entries": [
+          "tools/test-evidence/tests/run.ts > catalog validation rejects empty topic sets and topic files",
+          "bun test --test-name-pattern=\"^catalog validation rejects empty topic sets and topic files$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-TOPIC-MEMBERSHIP-001",
+        "line": 102,
+        "searchText": "TEST-EVIDENCE-TOPIC-MEMBERSHIP-001 主题集合与文件都必须非空 Catalog 目录必须包含主题 Markdown，且每个主题文件至少承接一个 case。 空主题集合返回 `catalog.empty`，无 case 的主题文件返回可定位的 `catalog.topic-empty`。 tools/test-evidence/tests/run.ts > catalog validation rejects empty topic sets and topic files bun test --test-name-pattern=\"^catalog validation rejects empty topic sets and topic files$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/test-evidence.md",
+        "summary": "Catalog 目录必须包含主题 Markdown，且每个主题文件至少承接一个 case。",
+        "title": "主题集合与文件都必须非空"
+      }
+    },
+    {
+      "id": "TEST-EVIDENCE-UNREADABLE-INDEX-001",
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-UNREADABLE-INDEX-001 不可读索引阻断 list 与 show 无法安全读取且不可回退的索引错误必须阻断 list 与 show。 两种操作都不返回 case，并报告 blocking `state-index.index-read-failed`。 tools/test-evidence/tests/run.ts > unreadable indexes remain blocking for list and show operations bun test --test-name-pattern=\"^unreadable indexes remain blocking for list and show operations$\" ./tools/test-evidence/tests/run.ts"
+        ]
+      },
+      "state": {
+        "endLine": 128,
+        "entries": [
+          "tools/test-evidence/tests/run.ts > unreadable indexes remain blocking for list and show operations",
+          "bun test --test-name-pattern=\"^unreadable indexes remain blocking for list and show operations$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-UNREADABLE-INDEX-001",
+        "line": 120,
+        "searchText": "TEST-EVIDENCE-UNREADABLE-INDEX-001 不可读索引阻断 list 与 show 无法安全读取且不可回退的索引错误必须阻断 list 与 show。 两种操作都不返回 case，并报告 blocking `state-index.index-read-failed`。 tools/test-evidence/tests/run.ts > unreadable indexes remain blocking for list and show operations bun test --test-name-pattern=\"^unreadable indexes remain blocking for list and show operations$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "docs/test-evidence/cases/test-evidence.md",
+        "summary": "无法安全读取且不可回退的索引错误必须阻断 list 与 show。",
+        "title": "不可读索引阻断 list 与 show"
+      }
+    },
+    {
+      "id": "VERSION-CONTROL-STATES-001",
+      "keys": {
+        "search": [
+          "VERSION-CONTROL-STATES-001 版本控制适配器区分仓库状态 版本控制适配器必须分别读取 revision、pending、workspace 与命令失败状态。 各状态返回正确内容，底层失败不会被伪装成空结果。 tools/shared/tests/version-control.test.ts > version control reads revision, pending, workspace, and failure states bun test --test-name-pattern=\"^version control reads revision, pending, workspace, and failure states$\" ./tools/shared/tests/version-control.test.ts"
+        ]
+      },
+      "state": {
+        "endLine": 119,
+        "entries": [
+          "tools/shared/tests/version-control.test.ts > version control reads revision, pending, workspace, and failure states",
+          "bun test --test-name-pattern=\"^version control reads revision, pending, workspace, and failure states$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "id": "VERSION-CONTROL-STATES-001",
+        "line": 111,
+        "searchText": "VERSION-CONTROL-STATES-001 版本控制适配器区分仓库状态 版本控制适配器必须分别读取 revision、pending、workspace 与命令失败状态。 各状态返回正确内容，底层失败不会被伪装成空结果。 tools/shared/tests/version-control.test.ts > version control reads revision, pending, workspace, and failure states bun test --test-name-pattern=\"^version control reads revision, pending, workspace, and failure states$\" ./tools/shared/tests/version-control.test.ts",
+        "sourcePath": "docs/test-evidence/cases/shared-infrastructure.md",
+        "summary": "版本控制适配器必须分别读取 revision、pending、workspace 与命令失败状态。",
+        "title": "版本控制适配器区分仓库状态"
+      }
+    }
+  ],
+  "keyDefinitions": [
+    {
+      "mode": "text",
+      "name": "search"
+    }
+  ],
+  "metadata": {},
+  "namespace": "test-evidence",
+  "schemaVersion": 2,
+  "sourceRevision": "sha256:d00074ee83e16f2f8e9b04dc60a6a4af84bc4db282e2492737bf9fe84e1422df"
+}

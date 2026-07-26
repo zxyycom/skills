@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import test from "node:test";
 import { toJsonSchema } from "@valibot/to-json-schema";
 import * as v from "valibot";
 import {
@@ -435,3 +436,7 @@ export async function testRuntime(): Promise<void> {
     await fs.rm(tempRoot, { force: true, recursive: true });
   }
 }
+
+test("runtime opens, synchronizes, and recovers persisted indexes", () => (
+  testRuntime()
+));

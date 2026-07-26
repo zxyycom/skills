@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import test from "node:test";
 import {
   syncDecisionIndex
 } from "../src/decision-state-index.ts";
@@ -14,6 +15,7 @@ import {
   readIndex
 } from "./support.ts";
 
+test("state snapshots are isolated from later source mutations", async () => {
 const tempRoot = await fs.mkdtemp(
   path.join(os.tmpdir(), "decision-state-snapshot-")
 );
@@ -51,3 +53,4 @@ try {
 } finally {
   await fs.rm(tempRoot, { force: true, recursive: true });
 }
+});

@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import test, { after } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   runSkillValidatorCli,
@@ -28,7 +29,10 @@ const generatedDeclarationPath = path.join(
 );
 
 const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "skill-validator-test-"));
-try {
+after(async () => {
+  await fs.rm(tempRoot, { force: true, recursive: true });
+});
+
   const validSkillPath = path.join(tempRoot, "valid-skill");
   await fs.mkdir(path.join(validSkillPath, "references"), { recursive: true });
   await fs.writeFile(
@@ -52,6 +56,7 @@ try {
     "utf8"
   );
 
+test("validator accepts a portable skill with bundled and CLI parity", async () => {
   const valid = await validateSkillDirectory(validSkillPath);
   assert.deepEqual(valid.errors, []);
   assert.equal(valid.markdownFileCount, 2);
@@ -64,6 +69,7 @@ try {
   assert.equal(cliSuccess.status, 0, cliSuccess.stderr);
   assert.match(cliSuccess.stdout, /Skill structure validation passed/);
   assert.match(cliSuccess.stdout, /2 markdown files checked/);
+});
 
   const invalidSkillPath = path.join(tempRoot, "invalid-skill");
   await fs.mkdir(invalidSkillPath);
@@ -84,6 +90,7 @@ try {
   await fs.writeFile(path.join(invalidSkillPath, "scripts"), "not a directory\n", "utf8");
   await fs.writeFile(path.join(tempRoot, "outside.md"), "# Outside\n", "utf8");
 
+test("validator reports invalid metadata, directories, and links", async () => {
   const invalid = await validateSkillDirectory(invalidSkillPath);
   assert.ok(invalid.errors.some((error) => error.includes("name must use kebab-case")));
   assert.ok(invalid.errors.some((error) => error.includes("name must match directory name")));
@@ -98,7 +105,9 @@ try {
   assert.equal(cliFailure.status, 1);
   assert.match(cliFailure.stderr, /Skill structure validation failed/);
   assert.match(cliFailure.stderr, /frontmatter name must use kebab-case/);
+});
 
+test("validator reports missing, empty, and malformed skill entries", async () => {
   const missingSkillPath = path.join(tempRoot, "missing-skill");
   await fs.mkdir(missingSkillPath);
   assert.ok((await validateSkillDirectory(missingSkillPath)).errors.includes("SKILL.md is required"));
@@ -128,7 +137,9 @@ try {
       (error) => error.startsWith("SKILL.md frontmatter")
     )
   );
+});
 
+test("validator CLI help and argument errors use stable exit contracts", () => {
   const help = spawnSync("node", [generatedValidatorPath, "--help"], { encoding: "utf8" });
   assert.equal(help.status, 0, help.stderr);
   assert.match(help.stdout, /Usage: validate-skill\.mjs/);
@@ -140,7 +151,9 @@ try {
   );
   assert.equal(extraArgument.status, 2);
   assert.match(extraArgument.stderr, /at most one skill-directory/);
+});
 
+test("generated validator artifacts expose declarations and portable metadata", async () => {
   const validatorSource = await fs.readFile(generatedValidatorPath, "utf8");
   assert.match(validatorSource, /Repository: https:\/\/github\.com\/zxyycom\/skills/);
   assert.match(
@@ -164,8 +177,4 @@ try {
   assert.equal(sourceMap.sourceRoot, "../../../");
   assert.ok(sourceMap.sources.includes("tools/skill-validator/src/cli.ts"));
   assert.ok(sourceMap.sources.every((source) => !path.isAbsolute(source) && !source.includes("\\")));
-} finally {
-  await fs.rm(tempRoot, { force: true, recursive: true });
-}
-
-console.log("Skill structure validator tests passed.");
+});

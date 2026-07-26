@@ -7,7 +7,7 @@
  * Rebuild: bun run sync:test-evidence-cli
  */
 export interface TestEvidenceStateIndex {
-  definitionVersion: 1;
+  definitionVersion: 2;
   entries: {
     id: string;
     keys: {
@@ -24,6 +24,7 @@ export interface TestEvidenceStateIndex {
       entries: [string, ...string[]];
       id: string;
       line: number;
+      sourcePath: string;
       summary: string;
       title: string;
       searchText: string;

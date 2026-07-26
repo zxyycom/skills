@@ -1,7 +1,7 @@
 ---
 title: 只按最小原生测试入口维护证据目录
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-25T08:36:12Z
 purpose: 恢复测试证据目录的自然粒度，避免泛化校验把模块、skill 或聚合命令扩成巨型 case。
 background: 测试框架有可独立选择和报告的原生节点，工程校验没有统一的最小单位；共用独立验证入口会把聚合容器误当登记单元。

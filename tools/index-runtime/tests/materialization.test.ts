@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import test from "node:test";
 import {
   buildStateIndex,
   defineStateIndexDefinition,
@@ -365,3 +366,7 @@ export async function testMaterialization(): Promise<void> {
     await fs.rm(tempRoot, { force: true, recursive: true });
   }
 }
+
+test("materialization builds deterministic indexes and enforces freshness", () => (
+  testMaterialization()
+));

@@ -82,7 +82,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:51dc535f7711f6cce63179f39ccd8f91297968023f66d6ca215abc31c423c4b3",
+  "sourceRevision": "sha256:38b9f82f2b36849a15c6c2c9f88a10ae21b27ca34517e9cdf346e1bb3981fe42",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -3386,17 +3386,14 @@
           "test-evidence-review"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "aligned"
+          "archived"
         ]
       },
       "state": {
         "path": "test-evidence-review/catalog-minimal-native-test-entries.md",
         "title": "只按最小原生测试入口维护证据目录",
-        "status": "active",
-        "alignment": "aligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-07-25T08:36:12Z",
         "purpose": "恢复测试证据目录的自然粒度，避免泛化校验把模块、skill 或聚合命令扩成巨型 case。",
         "background": "测试框架有可独立选择和报告的原生节点，工程校验没有统一的最小单位；共用独立验证入口会把聚合容器误当登记单元。",
@@ -3482,6 +3479,36 @@
         "background": "全文正则会把发现器源码、测试 fixture 和生成代码中的测试语法样本识别为入口，增加无意义 marker 与账本库存。",
         "decision": "发现前按语言屏蔽常见非代码上下文并保留原始位置，再运行既有入口模式；不把轻量屏蔽扩展为完整解析器。",
         "relations": []
+      }
+    },
+    {
+      "id": "test-evidence-review/organize-native-test-cases-by-responsibility-topic.md",
+      "keys": {
+        "domain": [
+          "test-evidence-review"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "test-evidence-review/organize-native-test-cases-by-responsibility-topic.md",
+        "title": "按原生入口与责任主题维护测试证据",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-07-26T08:49:33Z",
+        "purpose": "同时保持测试 case 的自然粒度和账本随规模增长后的可维护定位边界。",
+        "background": "测试框架能提供最小可归因节点，但把全部节点集中在单个 Markdown 会放大查找、修改冲突和上下文成本；主题文件不应反向改变 case 身份。",
+        "decision": "每个最小原生测试入口仍对应一个 case，权威目录按稳定测试责任拆分主题 Markdown，并由统一索引跨文件查询和定点展开。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "test-evidence-review/catalog-minimal-native-test-entries.md"
+          }
+        ]
       }
     },
     {

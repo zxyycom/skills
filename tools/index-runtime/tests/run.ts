@@ -1,13 +1,5 @@
-import { testMaterialization } from "./materialization.test.ts";
-import { testPerformance } from "./performance.test.ts";
-import { testIndexProtocols } from "./protocol.test.ts";
-import { testQueries } from "./query.test.ts";
-import { testRuntime } from "./runtime.test.ts";
-
-await testMaterialization();
-await testIndexProtocols();
-await testQueries();
-await testRuntime();
-await testPerformance();
-
-console.log("Index runtime tests passed.");
+await import("./materialization.test.ts");
+await import("./performance.test.ts");
+await import("./protocol.test.ts");
+await import("./query.test.ts");
+await import("./runtime.test.ts");

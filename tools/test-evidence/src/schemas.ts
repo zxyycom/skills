@@ -15,17 +15,17 @@ export const testEvidenceDiagnosticSeverities = [
   "warning"
 ] as const;
 
-export const testEvidenceConfigSchemaVersion = 1 as const;
-export const testEvidenceReportSchemaVersion = 1 as const;
+export const testEvidenceConfigSchemaVersion = 2 as const;
+export const testEvidenceReportSchemaVersion = 2 as const;
 export const testEvidenceIndexSchemaVersion = stateIndexSchemaVersion;
-export const testEvidenceIndexDefinitionVersion = 1 as const;
+export const testEvidenceIndexDefinitionVersion = 2 as const;
 export const testEvidenceIndexNamespace =
   "test-evidence" as const;
 
 export const defaultTestEvidenceConfigPath =
   ".test-evidence.json";
 export const defaultTestEvidenceCatalogPath =
-  "docs/test-evidence/cases.md";
+  "docs/test-evidence/cases";
 export const defaultTestEvidenceIndexPath =
   "docs/test-evidence/test-evidence-index.json";
 
@@ -93,6 +93,7 @@ const testEvidenceCaseStateFields = {
   ),
   id: nonEmptyStringSchema,
   line: positiveIntegerSchema,
+  sourcePath: nonEmptyStringSchema,
   summary: nonEmptyStringSchema,
   title: nonEmptyStringSchema
 };

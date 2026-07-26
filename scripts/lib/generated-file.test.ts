@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import test from "node:test";
 import {
   buildGeneratedDeclaration,
   normalizeSourceMap,
@@ -26,6 +27,7 @@ const publishedSourceMapDirectory = path.join(
 const workspaceSource = path.join(workspaceRoot, "scripts", "source.ts");
 const relativeWorkspaceSource = path.relative(generatedSourceMapDirectory, workspaceSource);
 
+test("source map normalization keeps workspace sources portable", () => {
 const normalized = JSON.parse(normalizeSourceMap(
   JSON.stringify({
     mappings: "",
@@ -66,7 +68,9 @@ assert.throws(
   ),
   /Bun source map contains a source outside the workspace/
 );
+});
 
+test("generated declarations normalize line endings and preserve the banner", async () => {
 const declarationTempRoot = await fs.mkdtemp(
   path.join(os.tmpdir(), "generated-declaration-test-")
 );
@@ -91,7 +95,9 @@ try {
 } finally {
   await fs.rm(declarationTempRoot, { force: true, recursive: true });
 }
+});
 
+test("generated file checks ignore line-ending differences and detect drift", async () => {
 const generatedFileTempRoot = await fs.mkdtemp(
   path.join(os.tmpdir(), "generated-file-line-endings-test-")
 );
@@ -117,5 +123,4 @@ try {
 } finally {
   await fs.rm(generatedFileTempRoot, { force: true, recursive: true });
 }
-
-console.log("Generated file tests passed.");
+});

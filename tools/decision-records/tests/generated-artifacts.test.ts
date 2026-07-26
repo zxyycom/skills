@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
+import test from "node:test";
 import { decisionIndexJsonSchema } from "../src/decision-index-json-schema.ts";
 import {
   generatedCliPath,
@@ -9,6 +10,7 @@ import {
   generatedUpdaterPath
 } from "./support.ts";
 
+test("generated decision artifacts expose schemas, APIs, and portable metadata", async () => {
 const cliSource = await fs.readFile(generatedCliPath, "utf8");
 assert.match(cliSource, /Repository: https:\/\/github\.com\/zxyycom\/skills/);
 assert.match(
@@ -126,3 +128,4 @@ assert.ok(updaterSourceMap.sources.includes("tools/skill-updater/src/index.ts"))
 assert.ok(updaterSourceMap.sources.every(
   (source) => !path.isAbsolute(source) && !source.includes("\\")
 ));
+});

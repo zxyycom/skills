@@ -5,13 +5,18 @@
 
 ## 通用模型
 
-默认目录路径是 `docs/test-evidence/cases.md`，默认派生索引路径是
+默认目录路径是 `docs/test-evidence/cases`，默认派生索引路径是
 `docs/test-evidence/test-evidence-index.json`，默认配置路径是
 `.test-evidence.json`。
 
-Markdown 目录是权威源；索引只保存可删除重建的查询投影和源定位。CLI 不读取
-测试源码、不发现测试、不执行 `Entry:`、不自动收集或注册 case，也不判断多个
-locator 是否属于同一最小原生测试入口。
+`catalogPath` 指向主题目录。该目录直接子级中的每个 `*.md` 都是一个权威主题源，
+必须至少包含一个 case；主题按稳定测试责任拆分，而不是把全部 case 集中进单个
+Markdown。主题文件只提供维护与定位边界，case ID 仍是跨全部文件唯一的目录身份。
+子目录和非 Markdown 文件不进入目录集合。
+
+Markdown 主题文件共同组成权威源；索引只保存可删除重建的统一查询投影和源定位。
+CLI 不读取测试源码、不发现测试、不执行 `Entry:`、不自动收集或注册 case，也不
+判断多个 locator 是否属于同一最小原生测试入口。
 
 case 标题固定使用：
 
@@ -81,7 +86,7 @@ Proves:
 每个合法 case 产生一个查询 state：
 
 1. case ID 和标题。
-2. case 在当前目录中的起止行。
+2. `sourcePath` 与 case 在该主题文件中的起止行。
 3. `entries`，来自规范化后的 `Entry:` 列表。
 4. `summary`，确定性取第一条 `Contract:`。
 5. `searchText`，按 ID、标题、全部 Contract、全部 Proves 和全部 Entry 拼接，
@@ -92,8 +97,9 @@ Proves:
 ID。非空文本查询按空白拆词，所有词必须在同一 case 中出现；`list` 默认最多返回
 20 条并按 ID 排序。
 
-`sourceRevision` 是规范化目录文本、`catalogPath` 和 `caseIdPattern` 的 SHA-256
-投影。输入变化后旧索引必须判定为陈旧。
+`sourceRevision` 是 `catalogPath`、`caseIdPattern` 以及按路径排序后的全部主题
+路径与规范化正文的 SHA-256 投影。主题新增、删除、移动或正文变化后，旧索引都
+必须判定为陈旧。
 
 `list` 和 `show` 优先使用当前持久化索引。索引缺失、陈旧、定义不匹配或结构无效
 时，从当前合法 Markdown 建立一次性内存投影，并返回非阻断 warning；索引路径、
@@ -104,21 +110,21 @@ ID。非空文本查询按空白拆词，所有词必须在同一 case 中出现
 
 ## 配置
 
-配置固定使用 `schemaVersion: 1`：
+配置固定使用 `schemaVersion: 2`：
 
 ```json
 {
-  "schemaVersion": 1,
-  "catalogPath": "docs/test-evidence/cases.md",
+  "schemaVersion": 2,
+  "catalogPath": "docs/test-evidence/cases",
   "indexPath": "docs/test-evidence/test-evidence-index.json",
   "caseIdPattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
 }
 ```
 
-配置缺失且未显式传入 `--config` 时使用默认值。`catalogPath`、`indexPath` 和实际
-配置文件路径必须是互不相同的工作区相对文件身份。路径会统一分隔符并折叠 `.` 与
-重复分隔符；已有目标按文件系统身份比较，未存在目标在 Windows 和 macOS 上按常见
-大小写不敏感语义比较。身份检查失败时配置无效。
+配置缺失且未显式传入 `--config` 时使用默认值。`catalogPath` 是工作区相对目录；
+`indexPath` 和实际配置路径是工作区相对文件。三者身份必须互不相同。路径会统一
+分隔符并折叠 `.` 与重复分隔符；已有目标按文件系统身份比较，未存在目标在 Windows
+和 macOS 上按常见大小写不敏感语义比较。身份检查失败时配置无效。
 
 精确结构由 [test-evidence-config.schema.json](schemas/test-evidence-config.schema.json)
 定义。
@@ -132,7 +138,8 @@ node scripts/test-evidence-catalog.mjs list --root <workspace-root> [--query <te
 node scripts/test-evidence-catalog.mjs show <case-id> --root <workspace-root> [--config <config>] [--json]
 ```
 
-`check` 严格校验配置、目录和索引新鲜度；`sync-index --write` 原子重建索引。
+`check` 严格校验配置、全部主题文件、跨文件 case ID 唯一性和索引新鲜度；
+`sync-index --write` 从完整主题集合原子重建统一索引。
 CLI 不执行 Entry。
 
 退出状态：
@@ -142,7 +149,7 @@ CLI 不执行 Entry。
 3. `2`：参数错误。
 
 使用 `--json` 时，可预期的配置、目录、索引和查询失败仍向 stdout 写当前命令
-Schema，stderr 为空。报告、query、show 和同步结果使用 `schemaVersion: 1`；
+Schema，stderr 为空。报告、query、show 和同步结果使用 `schemaVersion: 2`；
 调用方使用 `diagnostics[].blocking` 判断完成状态。
 
 模块可安全导入且不会执行 CLI，导出：

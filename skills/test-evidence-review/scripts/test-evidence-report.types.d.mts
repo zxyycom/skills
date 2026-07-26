@@ -18,7 +18,7 @@ export interface TestEvidenceReport {
     path?: string;
     severity: "error" | "warning";
   }[];
-  schemaVersion: 1;
+  schemaVersion: 2;
   summary: {
     testCases: number;
   };

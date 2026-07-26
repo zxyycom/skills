@@ -1,15 +1,5 @@
-import { runArchiveTests } from "./archive.test.ts";
-import { runCatalogTests } from "./catalog.test.ts";
-import { runCheckTests } from "./check.test.ts";
-import { runCliTests } from "./cli.test.ts";
-import {
-  runGeneratedArtifactTests
-} from "./generated-artifacts.test.ts";
-
-await runCheckTests();
-await runCatalogTests();
-await runArchiveTests();
-await runCliTests();
-await runGeneratedArtifactTests();
-
-console.log("Change plan CLI tests passed.");
+await import("./archive.test.ts");
+await import("./catalog.test.ts");
+await import("./check.test.ts");
+await import("./cli.test.ts");
+await import("./generated-artifacts.test.ts");

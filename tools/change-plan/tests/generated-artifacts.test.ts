@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
+import test from "node:test";
 import {
   generatedCliPath,
   generatedDeclarationPath
 } from "./support.ts";
 
-export async function runGeneratedArtifactTests(): Promise<void> {
+test("generated artifacts expose the public API and portable source metadata", async () => {
   const cliSource = await fs.readFile(generatedCliPath, "utf8");
   assert.match(
     cliSource,
@@ -38,4 +39,4 @@ export async function runGeneratedArtifactTests(): Promise<void> {
       (source) => !path.isAbsolute(source) && !source.includes("\\")
     )
   );
-}
+});

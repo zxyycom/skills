@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
+import test from "node:test";
 import {
   completedTasks,
   generatedCliPath,
@@ -260,13 +261,31 @@ function testUsageCommands(): void {
   assert.match(invalidArgument.stderr, /Expected:/u);
 }
 
-export async function runCliTests(): Promise<void> {
-  await withTempRoot("cli", async (tempRoot) => {
-    const fixture = await createCliFixture(tempRoot);
-    testCheckCommands(fixture);
-    testListCommands(fixture);
-    testShowCommands(fixture);
-    await testArchiveCommands(fixture);
-    testUsageCommands();
+async function withCliFixture(
+  name: string,
+  run: (fixture: CliFixture) => void | Promise<void>
+): Promise<void> {
+  await withTempRoot(`cli-${name}`, async (tempRoot) => {
+    await run(await createCliFixture(tempRoot));
   });
 }
+
+test("CLI check preserves text and JSON exit contracts", () => (
+  withCliFixture("check", testCheckCommands)
+));
+
+test("CLI list filters lifecycle status and rejects invalid options", () => (
+  withCliFixture("list", testListCommands)
+));
+
+test("CLI show returns artifacts and invalid-plan diagnostics", () => (
+  withCliFixture("show", testShowCommands)
+));
+
+test("CLI archive enforces gates and moves complete plans", () => (
+  withCliFixture("archive", testArchiveCommands)
+));
+
+test("CLI help and argument errors use stable exit contracts", () => {
+  testUsageCommands();
+});

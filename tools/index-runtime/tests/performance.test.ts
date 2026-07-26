@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import test from "node:test";
 import { performance } from "node:perf_hooks";
 import {
   buildStateIndex,
@@ -45,6 +46,10 @@ export async function testPerformance(): Promise<void> {
     oneThousand
   }));
 }
+
+test("runtime materializes and queries large state collections within bounds", () => (
+  testPerformance()
+));
 
 async function benchmark(count: number): Promise<BenchmarkResult> {
   const states = Array.from({ length: count }, (_, index): ScaleState => ({

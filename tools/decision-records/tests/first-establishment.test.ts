@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
+import test from "node:test";
 import { validateDecisionRecords } from "../src/index.ts";
 import {
   decisionFilePath,
@@ -11,7 +12,8 @@ import {
   writeTestDomainCatalog
 } from "./support.ts";
 
-await withTemporaryWorkspace("first-establishment", async (workspaceRoot) => {
+test("first establishment creates a decision domain and current index", () => (
+  withTemporaryWorkspace("first-establishment", async (workspaceRoot) => {
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
   const firstDomainDirectory = path.join(
     decisionsDirectory,
@@ -107,4 +109,5 @@ await withTemporaryWorkspace("first-establishment", async (workspaceRoot) => {
     (await validateDecisionRecords({ workspaceRoot })).errors,
     []
   );
-});
+  })
+));

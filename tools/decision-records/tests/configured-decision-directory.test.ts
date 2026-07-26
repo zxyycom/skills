@@ -2,12 +2,14 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import test from "node:test";
 import { validateDecisionRecords } from "../src/index.ts";
 import {
   fixtureRoot,
   runSuccessfulSourceCli
 } from "./support.ts";
 
+test("configured decision directories support relative and absolute paths", async () => {
 const fixtureDecisionsDirectory = path.join(fixtureRoot, "docs", "decisions");
 
 const relativeConfigurationRoot = await fs.mkdtemp(
@@ -79,3 +81,4 @@ try {
 } finally {
   await fs.rm(absoluteConfigurationRoot, { force: true, recursive: true });
 }
+});

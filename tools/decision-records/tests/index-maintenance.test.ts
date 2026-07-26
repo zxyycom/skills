@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
+import test from "node:test";
 import { validateDecisionRecords } from "../src/index.ts";
 import {
   currentRelativePath,
@@ -13,7 +14,8 @@ import {
   writeIndex
 } from "./support.ts";
 
-await withFixtureWorkspace("index-maintenance", async (workspaceRoot) => {
+test("index maintenance detects drift and synchronizes canonical decision states", () => (
+  withFixtureWorkspace("index-maintenance", async (workspaceRoot) => {
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
   const originalIndexText = await fs.readFile(indexPath, "utf8");
@@ -256,4 +258,5 @@ await withFixtureWorkspace("index-maintenance", async (workspaceRoot) => {
     synchronizedEntry.createdAt,
     "2026-07-11T14:15:16+08:00"
   );
-});
+  })
+));
