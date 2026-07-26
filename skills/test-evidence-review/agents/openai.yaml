@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Evidence Review"
+  short_description: "按最小原生测试入口审查证据并维护 case"
+  default_prompt: "使用 $test-evidence-review 审查当前新增、修改、删除或评审的测试实现；先判断最终结果属于自身还是只组成父节点判定，再检查是否存在结果可分别归因的更小原生测试节点，以此区分最小入口、聚合容器和内部环节。为本次范围内每个新增或保留入口维护一个 Entry、Contract、Proves 清楚的 case，删除入口时同步删除 case。不要把整个模块、skill、测试文件、suite、脚本或 CI job 合成一个 case；工程校验不进入目录。"

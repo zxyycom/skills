@@ -12,7 +12,7 @@
 
 #### 形成时背景
 
-本仓库已经用 [decision-records](../../../skills/decision-records/SKILL.md)、[OpenSpec](../../../skills/openspec-explore/SKILL.md)、[investigation-report](../../../skills/investigation-report/SKILL.md)和 [test-evidence-review](../../../skills/verification-implementation-review/references/migrate-from-test-evidence-review.md)分别承接长期判断、change 上下文、阶段性认识和稳定验证义务；规范、代码、配置和测试等项目事实继续由各自 owner 承接。[项目导航](../../navigation.md)负责按任务定位这些内容，[仓库模型](../../repository-model.md)则明确同仓维护不自动产生 skill 间的组合、交接或验证承诺。
+本仓库已经用 [decision-records](../../../skills/decision-records/SKILL.md)、[OpenSpec](../../../skills/openspec-explore/SKILL.md)、[investigation-report](../../../skills/investigation-report/SKILL.md)和 [test-evidence-review](../../../skills/test-evidence-review/SKILL.md)分别承接长期判断、change 上下文、阶段性认识和测试证据义务；规范、代码、配置和测试等项目事实继续由各自 owner 承接。[项目导航](../../navigation.md)负责按任务定位这些内容，[仓库模型](../../repository-model.md)则明确同仓维护不自动产生 skill 间的组合、交接或验证承诺。
 
 用户观察到这些能力组合后已经接近一套项目上下文管理系统，希望判断现有 owner、项目导航和项目治理已经解决了什么，还缺少哪些能够让它们作为整体工作的能力，并提供 [Docnav 提交 `2df037f`](https://github.com/zxyycom/docnav/tree/2df037fa0a2553a9cabe6dc8d01187a424926393)作为实践样本。
 

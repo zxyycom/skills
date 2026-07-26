@@ -3,7 +3,7 @@ export type CheckTask =
   | { blocking: true; script: string };
 
 export const checkPreflightTasks = [
-  "test:verification-evidence-cli",
+  "test:test-evidence-cli",
   "test:change-plan-cli",
   "test:decision-records-cli",
   "test:index-runtime",
@@ -13,7 +13,7 @@ export const checkPreflightTasks = [
   "check:decisions",
   "validate",
   "test:skill-updater",
-  "check:verification-evidence-cli",
+  "check:test-evidence-cli",
   "check:skill-validator",
   "check:investigation-report-check",
   "check:change-plan-cli",

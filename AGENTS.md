@@ -22,7 +22,7 @@
    - `minimal-implementation`: 在目标和责任明确后, 比较正确候选的整体维护面并选择更小方案。
    - `skill-design-discovery`: 在创建或重构 skill 前, 从现实材料恢复流程、判断、约束、权限和验证义务。
    - `investigation-report`: 以可独立复核和比较的报告保存调查背景、依据、结果与边界。
-   - `verification-implementation-review`: 区分独立验证入口与其他证明入口的内部环节, 审查证据质量, 并为每个保留的独立入口维护可检索 case。
+   - `test-evidence-review`: 以最小原生测试入口为单位审查测试证据, 区分测试节点与聚合容器或内部环节, 并维护可检索 case。
    - `ai-ready-docs`: 优化说明、规则、任务和工作流等文档, 使 AI 能准确理解和可靠使用。
    - `skill-maintainer`: 维护 skill 的能力归属、组成和交付边界。
    - `git-commit-organizer`: 整理当前 Git 改动并创建范围清楚、信息可追踪的提交。

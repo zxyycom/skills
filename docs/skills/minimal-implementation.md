@@ -18,7 +18,7 @@
 
 - `product-architecture-judgment` 判断事情是否该做、做到什么程度以及由谁在哪一层实现。
 - `common-denominator-design` 判断多个现实场景是否形成共享契约、变体和分层。
-- `verification-implementation-review` 判断测试与工程校验实现的证明价值、可靠性和 case 维护。
+- `test-evidence-review` 判断测试实现的证明价值、可靠性和 case 维护。
 - `minimal-implementation` 只在这些前置已经由项目或当前任务明确后，比较正确候选的实现维护面；相邻 skills 未安装时也不会接管其判断。
 
 ## 当前状态

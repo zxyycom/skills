@@ -1,7 +1,7 @@
 ---
 title: 以独立验证入口作为 case 的唯一登记单元
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-25T05:45:35Z
 purpose: 让项目保留的每个独立 test 或 check 入口都可追踪，同时避免把入口内部环节误建为 case。
 background: 以值得长期找回的独立证明单元作为准入标准仍然主观，可能让真实 gate 漏登记，也可能让一个 case 混入多个独立入口。

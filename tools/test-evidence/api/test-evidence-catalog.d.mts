@@ -1,0 +1,87 @@
+import type { TestEvidenceCaseShowResult } from "./test-evidence-case-show-result.types.mjs";
+import type { TestEvidenceConfig } from "./test-evidence-config.types.mjs";
+import type { TestEvidenceIndexSyncResult } from "./test-evidence-index-sync-result.types.mjs";
+import type { TestEvidenceQueryResult } from "./test-evidence-query-result.types.mjs";
+import type { TestEvidenceReport } from "./test-evidence-report.types.mjs";
+import type { TestEvidenceStateIndex } from "./test-evidence-state-index.types.mjs";
+
+export type StandardOutputSchema<T> = {
+  readonly "~standard": {
+    readonly types?: { readonly input: unknown; readonly output: T };
+    readonly validate: (value: unknown) => unknown;
+  };
+};
+
+export type ValidateTestEvidenceOptions = {
+  config?: unknown;
+  configPath?: string;
+  workspaceRoot: string;
+};
+
+export type QueryTestEvidenceOptions = {
+  config?: unknown;
+  configPath?: string;
+  limit?: number;
+  offset?: number;
+  query?: string;
+  workspaceRoot: string;
+};
+
+export type ShowTestEvidenceCaseOptions = {
+  caseId: string;
+  config?: unknown;
+  configPath?: string;
+  workspaceRoot: string;
+};
+
+export type SyncTestEvidenceIndexOptions = {
+  config?: unknown;
+  configPath?: string;
+  mode: "check" | "write";
+  workspaceRoot: string;
+};
+
+export type TestEvidenceCaseState =
+  TestEvidenceQueryResult["cases"][number];
+
+export type {
+  TestEvidenceCaseShowResult,
+  TestEvidenceConfig,
+  TestEvidenceIndexSyncResult,
+  TestEvidenceQueryResult,
+  TestEvidenceReport,
+  TestEvidenceStateIndex
+};
+
+export declare const testEvidenceCaseShowResultSchema:
+  StandardOutputSchema<TestEvidenceCaseShowResult>;
+export declare const testEvidenceConfigSchema:
+  StandardOutputSchema<unknown>;
+export declare const testEvidenceIndexSyncResultSchema:
+  StandardOutputSchema<TestEvidenceIndexSyncResult>;
+export declare const testEvidenceQueryResultSchema:
+  StandardOutputSchema<TestEvidenceQueryResult>;
+export declare const testEvidenceReportSchema:
+  StandardOutputSchema<TestEvidenceReport>;
+export declare const testEvidenceStateIndexSchema:
+  StandardOutputSchema<TestEvidenceStateIndex>;
+
+export declare function queryTestEvidence(
+  options: QueryTestEvidenceOptions
+): Promise<TestEvidenceQueryResult>;
+
+export declare function showTestEvidenceCase(
+  options: ShowTestEvidenceCaseOptions
+): Promise<TestEvidenceCaseShowResult>;
+
+export declare function syncTestEvidenceIndex(
+  options: SyncTestEvidenceIndexOptions
+): Promise<TestEvidenceIndexSyncResult>;
+
+export declare function validateTestEvidence(
+  options: ValidateTestEvidenceOptions
+): Promise<TestEvidenceReport>;
+
+export declare function runTestEvidenceCatalogCli(
+  argv?: readonly string[]
+): Promise<number>;

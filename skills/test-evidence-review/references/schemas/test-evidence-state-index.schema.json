@@ -1,0 +1,145 @@
+{
+  "type": "object",
+  "properties": {
+    "definitionVersion": {
+      "const": 1
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f])\\S(?:[\\s\\S]*\\S)?$"
+          },
+          "keys": {
+            "type": "object",
+            "properties": {
+              "search": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f])\\S(?:[\\s\\S]*\\S)?$"
+                  }
+                ],
+                "minItems": 1
+              }
+            },
+            "required": [
+              "search"
+            ],
+            "additionalProperties": false
+          },
+          "state": {
+            "type": "object",
+            "properties": {
+              "endLine": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "entries": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "minItems": 1
+              },
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "line": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "summary": {
+                "type": "string",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "searchText": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "endLine",
+              "entries",
+              "id",
+              "line",
+              "summary",
+              "title",
+              "searchText"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "keys",
+          "state"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "keyDefinitions": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "const": "text"
+            },
+            "name": {
+              "const": "search"
+            }
+          },
+          "required": [
+            "mode",
+            "name"
+          ],
+          "additionalProperties": false
+        }
+      ],
+      "minItems": 1
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    },
+    "namespace": {
+      "const": "test-evidence"
+    },
+    "schemaVersion": {
+      "const": 2
+    },
+    "sourceRevision": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  },
+  "required": [
+    "definitionVersion",
+    "entries",
+    "keyDefinitions",
+    "metadata",
+    "namespace",
+    "schemaVersion",
+    "sourceRevision"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/zxyycom/skills/main/skills/test-evidence-review/references/schemas/test-evidence-state-index.schema.json",
+  "title": "TestEvidenceStateIndex"
+}

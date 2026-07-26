@@ -73,7 +73,7 @@
         "id": "subagent-orchestration"
       },
       {
-        "description": "审查测试与工程校验实现的证明价值、可靠性和维护成本，并维护显式 case 与派生索引。",
+        "description": "以最小原生测试入口为单位审查测试证据，并维护显式 case 与派生索引。",
         "id": "test-evidence-review"
       },
       {
@@ -82,7 +82,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:6154b8195b8d00ba79a542943505ca4d009679e2dde56dd3b1fe6af5c5b00af2",
+  "sourceRevision": "sha256:51dc535f7711f6cce63179f39ccd8f91297968023f66d6ca215abc31c423c4b3",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -3380,6 +3380,36 @@
       }
     },
     {
+      "id": "test-evidence-review/catalog-minimal-native-test-entries.md",
+      "keys": {
+        "domain": [
+          "test-evidence-review"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "test-evidence-review/catalog-minimal-native-test-entries.md",
+        "title": "只按最小原生测试入口维护证据目录",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-07-25T08:36:12Z",
+        "purpose": "恢复测试证据目录的自然粒度，避免泛化校验把模块、skill 或聚合命令扩成巨型 case。",
+        "background": "测试框架有可独立选择和报告的原生节点，工程校验没有统一的最小单位；共用独立验证入口会把聚合容器误当登记单元。",
+        "decision": "test-evidence-review 只登记最小原生测试入口，目录与索引保持显式维护和快速查询，不接入工程校验、marker、采集或自动注册。",
+        "relations": [
+          {
+            "type": "替代",
+            "target": "test-evidence-review/register-one-case-per-independent-verification-entry.md"
+          }
+        ]
+      }
+    },
+    {
       "id": "test-evidence-review/index-independent-proof-cases-from-current-catalog.md",
       "keys": {
         "domain": [
@@ -3532,17 +3562,14 @@
           "test-evidence-review"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "aligned"
+          "archived"
         ]
       },
       "state": {
         "path": "test-evidence-review/register-one-case-per-independent-verification-entry.md",
         "title": "以独立验证入口作为 case 的唯一登记单元",
-        "status": "active",
-        "alignment": "aligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-07-25T05:45:35Z",
         "purpose": "让项目保留的每个独立 test 或 check 入口都可追踪，同时避免把入口内部环节误建为 case。",
         "background": "以值得长期找回的独立证明单元作为准入标准仍然主观，可能让真实 gate 漏登记，也可能让一个 case 混入多个独立入口。",

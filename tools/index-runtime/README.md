@@ -39,7 +39,7 @@ Valibot Schema 是索引结构和查询输入的真源：通用层固定使用 `
 
 ## 依赖与验证
 
-当前消费者是 `decision-records`、`investigation-report` 和 `verification-evidence`。其他领域必须先完成自身 state、revision、key 和端到端成本设计，不能只因现有先例自动接入。
+当前消费者是 `decision-records`、`investigation-report` 和 `test-evidence`。其他领域必须先完成自身 state、revision、key 和端到端成本设计，不能只因现有先例自动接入。
 
 公共入口是 `src/index.ts`，行为测试是：
 

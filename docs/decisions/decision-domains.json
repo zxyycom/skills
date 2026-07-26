@@ -71,7 +71,7 @@
     },
     {
       "id": "test-evidence-review",
-      "description": "审查测试与工程校验实现的证明价值、可靠性和维护成本，并维护显式 case 与派生索引。"
+      "description": "以最小原生测试入口为单位审查测试证据，并维护显式 case 与派生索引。"
     },
     {
       "id": "version-control",
