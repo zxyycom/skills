@@ -21,8 +21,8 @@ import {
   writeIndex
 } from "./support.ts";
 
-test("decision queries, show, and trace preserve filter and index contracts", async () => {
-const fixtureRoot = await createFixtureWorkspace();
+test("decision check preserves source, bundled API, and process CLI parity", async () => {
+const fixtureRoot = await createFixtureWorkspace("query-check");
 try {
   const validation = await validateDecisionRecords({ workspaceRoot: fixtureRoot });
   assert.deepEqual(validation.errors, []);
@@ -51,7 +51,14 @@ try {
 
   const defaultCliOutput = await runSuccessfulCli(["--root", fixtureRoot]);
   assert.match(defaultCliOutput, /Decision records check passed/);
+} finally {
+  await fs.rm(fixtureRoot, { force: true, recursive: true });
+}
+});
 
+test("decision list filters lifecycle, domain, and alignment selectors", async () => {
+const fixtureRoot = await createFixtureWorkspace("query-list");
+try {
   const activeList = await runSuccessfulCli(["list", "--root", fixtureRoot]);
   assert.match(activeList, /^Domains:$/m);
   assert.match(activeList, /project-tooling: 维护仓库校验、生成、打包、发布和更新工具链。/);
@@ -166,7 +173,14 @@ try {
     unalignedList,
     "Domains:\n- none\nDecisions:\n- none\n"
   );
+} finally {
+  await fs.rm(fixtureRoot, { force: true, recursive: true });
+}
+});
 
+test("decision show returns metadata and reports body read failures", async () => {
+const fixtureRoot = await createFixtureWorkspace("query-show");
+try {
   const shownDecision = await runSuccessfulCli([
     "show",
     currentRelativePath,
@@ -236,7 +250,14 @@ try {
   } finally {
     Object.defineProperty(fs, "readFile", originalReadFileDescriptor);
   }
+} finally {
+  await fs.rm(fixtureRoot, { force: true, recursive: true });
+}
+});
 
+test("decision trace follows predecessor and successor directions", async () => {
+const fixtureRoot = await createFixtureWorkspace("query-trace");
+try {
   const relationTrace = await traceDecision(archivedRelativePath, [], fixtureRoot);
   assert.match(
     relationTrace,
@@ -272,7 +293,14 @@ try {
     successorTrace,
     /project-tooling\/use-generated-cli\.md/
   );
+} finally {
+  await fs.rm(fixtureRoot, { force: true, recursive: true });
+}
+});
 
+test("decision queries reject incomplete or extra index membership", async () => {
+const fixtureRoot = await createFixtureWorkspace("query-index-membership");
+try {
   const indexPath = path.join(
     fixtureRoot,
     "docs",
@@ -309,7 +337,14 @@ try {
   });
   await assertMembershipMismatchRejected(fixtureRoot);
   await writeIndex(indexPath, originalIndex);
+} finally {
+  await fs.rm(fixtureRoot, { force: true, recursive: true });
+}
+});
 
+test("decision CLI rejects invalid command options", async () => {
+const fixtureRoot = await createFixtureWorkspace("query-cli-args");
+try {
   // Keep real Node failures to prove invalid-option exit codes.
   for (const invalidArguments of [
     ["list", "--unknown-option", "--root", fixtureRoot],
@@ -375,6 +410,7 @@ try {
 } finally {
   await fs.rm(fixtureRoot, { force: true, recursive: true });
 }
+});
 
 async function assertMembershipMismatchRejected(
   workspaceRoot: string
@@ -393,4 +429,3 @@ async function assertMembershipMismatchRejected(
     );
   }
 }
-});

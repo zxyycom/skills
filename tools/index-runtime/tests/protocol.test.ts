@@ -9,7 +9,7 @@ import { sameKeyDefinitions } from "../src/definition.ts";
 import { compareStateIndexKeyScalars } from "../src/ordering.ts";
 import type { StateIndexKeyScalar } from "../src/types.ts";
 
-export async function testIndexProtocols(): Promise<void> {
+test("orders key scalars and compares ordered key definitions", () => {
   const scalars: StateIndexKeyScalar[] = [
     "alpha",
     10,
@@ -33,7 +33,9 @@ export async function testIndexProtocols(): Promise<void> {
     definitions[0]!,
     { mode: "text", name: "created-at" }
   ]), false);
+});
 
+test("rejects duplicate, reserved, or missing key definition inputs", () => {
   assert.throws(
     () => defineStateIndexDefinition({
       definitionVersion: 1,
@@ -80,8 +82,10 @@ export async function testIndexProtocols(): Promise<void> {
     }),
     /parseState/u
   );
+});
 
-  const duplicateIdDefinition = defineStateIndexDefinition({
+test("rejects duplicate state identifiers during materialization", async () => {
+  const definition = defineStateIndexDefinition({
     definitionVersion: 1,
     identify: () => "same-id",
     keyStrategies: [{
@@ -99,12 +103,14 @@ export async function testIndexProtocols(): Promise<void> {
     }),
     readRevision: async () => "one"
   });
-  const duplicateId = await buildStateIndex(duplicateIdDefinition, { root: "." });
-  assert.equal(duplicateId.status, "error");
-  assert.ok(duplicateId.diagnostics.some((entry) => (
+  const result = await buildStateIndex(definition, { root: "." });
+  assert.equal(result.status, "error");
+  assert.ok(result.diagnostics.some((entry) => (
     entry.code === "state-index.id-duplicate"
   )));
+});
 
+test("rejects non-JSON states and parser outputs", async () => {
   const invalidStateDefinition = defineStateIndexDefinition<JsonObject>({
     definitionVersion: 1,
     identify: () => "invalid",
@@ -173,8 +179,10 @@ export async function testIndexProtocols(): Promise<void> {
   assert.ok(invalidParsedMetadata.diagnostics.some((entry) => (
     entry.code === "state-index.metadata-parse-invalid"
   )));
+});
 
-  const invalidTextKey = defineStateIndexDefinition({
+test("rejects key values incompatible with the declared mode", async () => {
+  const definition = defineStateIndexDefinition({
     definitionVersion: 1,
     identify: () => "invalid-key",
     keyStrategies: [{
@@ -188,13 +196,15 @@ export async function testIndexProtocols(): Promise<void> {
     read: async () => ({ metadata: {}, revision: "one", states: [{}] }),
     readRevision: async () => "one"
   });
-  const invalidKey = await buildStateIndex(invalidTextKey, { root: "." });
-  assert.equal(invalidKey.status, "error");
-  assert.ok(invalidKey.diagnostics.some((entry) => (
+  const result = await buildStateIndex(definition, { root: "." });
+  assert.equal(result.status, "error");
+  assert.ok(result.diagnostics.some((entry) => (
     entry.code === "state-index.key-value-invalid"
   )));
+});
 
-  const malformedRead = defineStateIndexDefinition({
+function malformedReadDefinition() {
+  return defineStateIndexDefinition({
     definitionVersion: 1,
     identify: () => "state",
     keyStrategies: [{
@@ -208,23 +218,24 @@ export async function testIndexProtocols(): Promise<void> {
     read: async () => null as never,
     readRevision: async () => "one"
   });
+}
+
+test("reports malformed source snapshots", async () => {
   assert.equal(
-    (await buildStateIndex(malformedRead, { root: "." })).status,
+    (await buildStateIndex(malformedReadDefinition(), { root: "." })).status,
     "error"
   );
+});
 
+test("honors an already-aborted build signal", async () => {
   const controller = new AbortController();
   controller.abort();
-  const aborted = await buildStateIndex(malformedRead, {
+  const result = await buildStateIndex(malformedReadDefinition(), {
     root: ".",
     signal: controller.signal
   });
-  assert.equal(aborted.status, "error");
-  assert.ok(aborted.diagnostics.some((entry) => (
+  assert.equal(result.status, "error");
+  assert.ok(result.diagnostics.some((entry) => (
     entry.code === "state-index.operation-aborted"
   )));
-}
-
-test("protocol definitions validate keys, states, and metadata", () => (
-  testIndexProtocols()
-));
+});

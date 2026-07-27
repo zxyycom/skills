@@ -73,10 +73,9 @@ async function testBundledApiParity(tempRoot: string): Promise<void> {
   assert.equal(unchanged.changed, false);
 }
 
-async function testGeneratedCliCommands(tempRoot: string): Promise<void> {
+async function testGeneratedCheckCommand(tempRoot: string): Promise<void> {
   const validRoot = path.join(tempRoot, "cli-valid");
-  const validReports = createValidReports();
-  await writeCollection(validRoot, validReports);
+  await writeCollection(validRoot, createValidReports());
 
   const cliSuccess = spawnSync(
     "node",
@@ -107,6 +106,26 @@ async function testGeneratedCliCommands(tempRoot: string): Promise<void> {
   );
   assert.match(cliFiltered.stdout, /index not checked/);
 
+  const invalidRoot = path.join(tempRoot, "cli-invalid");
+  const invalidReport: ReportInput = {
+    path: "runtime/invalid-report.md",
+    question: "CLI 是否会向调用方返回结构失败？",
+    status: "完成",
+    title: "无效 CLI 调查"
+  };
+  await writeCollection(invalidRoot, [invalidReport], false);
+  const cliFailure = spawnSync(
+    "node",
+    [generatedCheckerPath, "--root", invalidRoot],
+    { encoding: "utf8" }
+  );
+  assert.equal(cliFailure.status, 1);
+  assert.match(cliFailure.stderr, /Investigation report check failed/);
+}
+
+async function testGeneratedListCommand(tempRoot: string): Promise<void> {
+  const validRoot = path.join(tempRoot, "cli-list");
+  await writeCollection(validRoot, createValidReports());
   const cliList = spawnSync(
     "node",
     [
@@ -132,9 +151,11 @@ async function testGeneratedCliCommands(tempRoot: string): Promise<void> {
     cliList.stdout,
     /codex\/project-shell-registration\.md/
   );
+}
 
+async function testGeneratedSyncCommand(tempRoot: string): Promise<void> {
   const cliSyncRoot = path.join(tempRoot, "cli-sync");
-  await writeCollection(cliSyncRoot, [validReports[0]], false);
+  await writeCollection(cliSyncRoot, [createValidReports()[0]], false);
   const cliSync = spawnSync(
     "node",
     [generatedCheckerPath, "sync-index", "--root", cliSyncRoot],
@@ -151,23 +172,9 @@ async function testGeneratedCliCommands(tempRoot: string): Promise<void> {
     )).then((entry) => entry.isFile()),
     true
   );
+}
 
-  const invalidRoot = path.join(tempRoot, "cli-invalid");
-  const invalidReport: ReportInput = {
-    path: "runtime/invalid-report.md",
-    question: "CLI 是否会向调用方返回结构失败？",
-    status: "完成",
-    title: "无效 CLI 调查"
-  };
-  await writeCollection(invalidRoot, [invalidReport], false);
-  const cliFailure = spawnSync(
-    "node",
-    [generatedCheckerPath, "--root", invalidRoot],
-    { encoding: "utf8" }
-  );
-  assert.equal(cliFailure.status, 1);
-  assert.match(cliFailure.stderr, /Investigation report check failed/);
-
+async function testGeneratedCliUsage(tempRoot: string): Promise<void> {
   const help = spawnSync(
     "node",
     [generatedCheckerPath, "--help"],
@@ -180,6 +187,8 @@ async function testGeneratedCliCommands(tempRoot: string): Promise<void> {
   assert.match(help.stdout, /sync-index validates every topic/);
   assert.match(help.stdout, /list checks index freshness/);
 
+  const validRoot = path.join(tempRoot, "cli-usage");
+  await writeCollection(validRoot, createValidReports());
   const invalidArgument = spawnSync(
     "node",
     [generatedCheckerPath, "--unknown"],
@@ -287,8 +296,20 @@ test("bundled investigation APIs preserve source implementation parity", () => (
   withTempRoot("cli-bundled", testBundledApiParity)
 ));
 
-test("generated investigation CLI preserves command and exit contracts", () => (
-  withTempRoot("cli-commands", testGeneratedCliCommands)
+test("generated investigation check command preserves validation contracts", () => (
+  withTempRoot("cli-check", testGeneratedCheckCommand)
+));
+
+test("generated investigation list command filters indexed topics", () => (
+  withTempRoot("cli-list", testGeneratedListCommand)
+));
+
+test("generated investigation sync command writes the full index", () => (
+  withTempRoot("cli-sync", testGeneratedSyncCommand)
+));
+
+test("generated investigation CLI usage errors preserve exit contracts", () => (
+  withTempRoot("cli-usage", testGeneratedCliUsage)
 ));
 
 test("generated investigation artifacts expose portable metadata", () => (

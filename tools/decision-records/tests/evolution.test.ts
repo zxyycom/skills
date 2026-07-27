@@ -159,7 +159,13 @@ test("decision evolution validates relation semantics and target states", () => 
     (error) => error.includes("repeats relationship target")
   ));
   await fs.rm(invalidRelationPath);
+  })
+));
 
+test("activation archives a direct predecessor and traces bounded relations", () => (
+  withFixtureWorkspace("relation-activation", async (workspaceRoot) => {
+  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+  const indexPath = path.join(decisionsDirectory, "decision-index.json");
   const successorRelativePath = "project-tooling/use-bundled-cli.md";
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
   const successorBody = [
@@ -244,7 +250,7 @@ test("decision evolution validates relation semantics and target states", () => 
   })
 ));
 
-test("evolve command archives sources and creates the aligned target atomically", () => (
+test("evolve rejects duplicate predecessor arguments without mutation", () => (
   withFixtureWorkspace("evolve-command", async (workspaceRoot) => {
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
@@ -298,7 +304,13 @@ test("evolve command archives sources and creates the aligned target atomically"
     await fs.readFile(indexPath, "utf8"),
     indexBeforeRejectedEvolution
   );
+  })
+));
 
+test("decision transactions roll back relation validation failures", () => (
+  withFixtureWorkspace("evolve-rollback", async (workspaceRoot) => {
+  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+  const indexPath = path.join(decisionsDirectory, "decision-index.json");
   const currentPath = decisionFilePath(workspaceRoot, currentRelativePath);
   const archivedPath = decisionFilePath(workspaceRoot, archivedRelativePath);
   const currentBeforeRollback = await fs.readFile(currentPath, "utf8");
@@ -327,7 +339,19 @@ test("evolve command archives sources and creates the aligned target atomically"
   assert.equal(await fs.readFile(currentPath, "utf8"), currentBeforeRollback);
   assert.equal(await fs.readFile(archivedPath, "utf8"), archivedBeforeRollback);
   assert.equal(await fs.readFile(indexPath, "utf8"), indexBeforeRollback);
+  })
+));
 
+test("evolve rejects archived predecessors without mutation", () => (
+  withFixtureWorkspace("evolve-archived-predecessor", async (workspaceRoot) => {
+  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+  const indexPath = path.join(decisionsDirectory, "decision-index.json");
+  const mergedRelativePath =
+    "decision-records/merge-direct-predecessors.md";
+  const mergedPath = decisionFilePath(workspaceRoot, mergedRelativePath);
+  const mergedCandidate = candidateDecisionBody({ alignment: "aligned" });
+  await fs.writeFile(mergedPath, mergedCandidate, "utf8");
+  const indexBeforeRejectedEvolution = await fs.readFile(indexPath, "utf8");
   const rejectedEvolution = await runSourceCli([
     "evolve",
     mergedRelativePath,
@@ -347,7 +371,37 @@ test("evolve command archives sources and creates the aligned target atomically"
     await fs.readFile(indexPath, "utf8"),
     indexBeforeRejectedEvolution
   );
+  })
+));
 
+test("evolve command archives sources and creates the aligned target atomically", () => (
+  withFixtureWorkspace("evolve-command", async (workspaceRoot) => {
+  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+  const indexPath = path.join(decisionsDirectory, "decision-index.json");
+  const parallelRelativePath =
+    "decision-records/use-parallel-evolution-predecessor.md";
+  const parallelPath = decisionFilePath(workspaceRoot, parallelRelativePath);
+  await fs.writeFile(
+    parallelPath,
+    candidateDecisionBody({ alignment: "aligned" }),
+    "utf8"
+  );
+  await runSuccessfulSourceCli([
+    "activate",
+    parallelRelativePath,
+    "--alignment",
+    "aligned",
+    "--root",
+    workspaceRoot
+  ]);
+  const mergedRelativePath =
+    "decision-records/merge-direct-predecessors.md";
+  const mergedPath = decisionFilePath(workspaceRoot, mergedRelativePath);
+  await fs.writeFile(
+    mergedPath,
+    candidateDecisionBody({ alignment: "aligned" }),
+    "utf8"
+  );
   const evolved = await runSourceCli([
     "evolve",
     mergedRelativePath,

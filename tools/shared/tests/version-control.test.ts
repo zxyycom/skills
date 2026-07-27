@@ -9,22 +9,23 @@ import {
   VersionControlError
 } from "../src/version-control/index.ts";
 
-test("version control reads revision, pending, workspace, and failure states", {
-  timeout: 15_000
-}, async () => {
-const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "version-control-test-"));
-const brokenHeadRoot = path.join(tempRoot, "broken-head");
-const conflictRoot = path.join(tempRoot, "conflict");
-const corruptBlobRoot = path.join(tempRoot, "corrupt-blob");
-const repositoryRoot = path.join(tempRoot, "repository");
-const linkedWorktreeRoot = path.join(tempRoot, "linked-worktree");
+const gitTestOptions = { timeout: 15_000 };
 
-try {
+async function withTempRoot(
+  run: (tempRoot: string) => Promise<void>
+): Promise<void> {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "version-control-test-"));
+  try {
+    await run(tempRoot);
+  } finally {
+    await fs.rm(tempRoot, { force: true, recursive: true });
+  }
+}
+
+async function createRepositoryFixture(tempRoot: string) {
+  const repositoryRoot = path.join(tempRoot, "repository");
   await fs.mkdir(repositoryRoot, { recursive: true });
-  runGit(repositoryRoot, ["init", "--quiet"]);
-  runGit(repositoryRoot, ["config", "core.autocrlf", "false"]);
-  runGit(repositoryRoot, ["config", "user.email", "version-control@example.invalid"]);
-  runGit(repositoryRoot, ["config", "user.name", "Version Control Test"]);
+  initializeRepository(repositoryRoot);
 
   await writeFile(repositoryRoot, ".gitignore", "ignored.txt\n");
   await writeFile(repositoryRoot, "docs/base-only.md", "base only\n");
@@ -58,228 +59,322 @@ try {
   await writeFile(repositoryRoot, "docs/tracked.md", "working\n");
   await writeFile(repositoryRoot, "docs/untracked.md", "untracked\n");
   await writeFile(repositoryRoot, "ignored.txt", "ignored\n");
-  await fs.mkdir(path.join(repositoryRoot, "nested"), { recursive: true });
+  return {
+    baseRevision,
+    currentRevision,
+    repositoryRoot,
+    stagedBinary
+  };
+}
 
-  const repository = await openVersionControl(path.join(repositoryRoot, "nested"));
-  assert.equal(repository.rootDirectory, path.resolve(repositoryRoot));
-  assert.equal(await repository.getCurrentRevision(), currentRevision);
-  assert.deepEqual(
-    await repository.listRevisionFiles(baseRevision, { pathScopes: ["docs"] }),
-    ["docs/base-only.md", "docs/tracked.md"]
-  );
-  assert.deepEqual(
-    await repository.listRevisionFiles("HEAD", {
-      pathScopes: ["docs/current-only.md"]
-    }),
-    ["docs/current-only.md"]
-  );
-  assert.deepEqual(
-    await repository.readRevisionFile(baseRevision, "docs/tracked.md"),
-    {
-      data: Buffer.from("base\n"),
-      path: "docs/tracked.md"
-    }
-  );
-  assert.equal(
-    await repository.readRevisionFile(baseRevision, "docs/missing.md"),
-    null
-  );
-  assert.deepEqual(
-    (await repository.readPendingFiles({
-      pathScopes: ["docs/tracked.md"]
-    })).map((file) => ({
-      data: Buffer.from(file.data).toString("utf8"),
-      path: file.path
-    })),
-    [{ data: "staged\n", path: "docs/tracked.md" }]
-  );
-  assert.deepEqual(
-    (await repository.readPendingFiles({
-      pathScopes: ["docs/staged.bin", "docs/staged-copy.bin"]
-    })).map((file) => ({
-      data: Buffer.from(file.data),
-      path: file.path
-    })),
-    [
+test("discovers the repository root and reads revision snapshots", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const {
+      baseRevision,
+      currentRevision,
+      repositoryRoot
+    } = await createRepositoryFixture(tempRoot);
+    const nested = path.join(repositoryRoot, "nested");
+    await fs.mkdir(nested, { recursive: true });
+    const repository = await openVersionControl(nested);
+    assert.equal(repository.rootDirectory, path.resolve(repositoryRoot));
+    assert.equal(await repository.getCurrentRevision(), currentRevision);
+    assert.deepEqual(
+      await repository.listRevisionFiles(baseRevision, { pathScopes: ["docs"] }),
+      ["docs/base-only.md", "docs/tracked.md"]
+    );
+    assert.deepEqual(
+      await repository.listRevisionFiles("HEAD", {
+        pathScopes: ["docs/current-only.md"]
+      }),
+      ["docs/current-only.md"]
+    );
+    assert.deepEqual(
+      await repository.readRevisionFile(baseRevision, "docs/tracked.md"),
       {
-        data: stagedBinary,
-        path: "docs/staged-copy.bin"
-      },
-      {
-        data: stagedBinary,
-        path: "docs/staged.bin"
+        data: Buffer.from("base\n"),
+        path: "docs/tracked.md"
       }
-    ]
-  );
-  assert.deepEqual(
-    (await repository.readPendingFiles({ pathScopes: ["docs"] }))
-      .map((file) => file.path),
-    [
+    );
+    assert.equal(
+      await repository.readRevisionFile(baseRevision, "docs/missing.md"),
+      null
+    );
+  });
+});
+
+test("reads pending index content separately from workspace state", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const {
+      repositoryRoot,
+      stagedBinary
+    } = await createRepositoryFixture(tempRoot);
+    const repository = await openVersionControl(repositoryRoot);
+    assert.deepEqual(
+      (await repository.readPendingFiles({
+        pathScopes: ["docs/tracked.md"]
+      })).map((file) => ({
+        data: Buffer.from(file.data).toString("utf8"),
+        path: file.path
+      })),
+      [{ data: "staged\n", path: "docs/tracked.md" }]
+    );
+    assert.deepEqual(
+      (await repository.readPendingFiles({
+        pathScopes: ["docs/staged.bin", "docs/staged-copy.bin"]
+      })).map((file) => ({
+        data: Buffer.from(file.data),
+        path: file.path
+      })),
+      [
+        {
+          data: stagedBinary,
+          path: "docs/staged-copy.bin"
+        },
+        {
+          data: stagedBinary,
+          path: "docs/staged.bin"
+        }
+      ]
+    );
+    assert.deepEqual(
+      (await repository.readPendingFiles({ pathScopes: ["docs"] }))
+        .map((file) => file.path),
+      [
+        "docs/base-only.md",
+        "docs/current-only.md",
+        "docs/staged-copy.bin",
+        "docs/staged.bin",
+        "docs/tracked.md"
+      ]
+    );
+    assert.deepEqual(await repository.listWorkspaceFiles(), [
+      ".gitignore",
       "docs/base-only.md",
       "docs/current-only.md",
       "docs/staged-copy.bin",
       "docs/staged.bin",
-      "docs/tracked.md"
-    ]
-  );
-  assert.deepEqual(await repository.listWorkspaceFiles(), [
-    ".gitignore",
-    "docs/base-only.md",
-    "docs/current-only.md",
-    "docs/staged-copy.bin",
-    "docs/staged.bin",
-    "docs/tracked.md",
-    "docs/untracked.md"
-  ]);
-  assert.deepEqual(await repository.listWorkspaceChangedPaths(), [
-    "docs/staged-copy.bin",
-    "docs/staged.bin",
-    "docs/tracked.md",
-    "docs/untracked.md"
-  ]);
-  assert.deepEqual(await repository.listChangedPaths({ from: baseRevision }), [
-    "docs/current-only.md",
-    "docs/tracked.md"
-  ]);
-  assert.deepEqual(
-    await repository.listPendingChangedPaths({
-      from: currentRevision,
-      pathScopes: ["docs"]
-    }),
-    [
+      "docs/tracked.md",
+      "docs/untracked.md"
+    ]);
+    assert.deepEqual(await repository.listWorkspaceChangedPaths(), [
       "docs/staged-copy.bin",
       "docs/staged.bin",
-      "docs/tracked.md"
-    ]
-  );
-  assert.deepEqual(await repository.listChangedPaths({
-    from: currentRevision,
-    to: currentRevision
-  }), []);
-
-  await assert.rejects(
-    repository.listRevisionFiles(currentRevision, {
-      pathScopes: ["../outside.md"]
-    }),
-    (error: unknown) => hasVersionControlCode(error, "invalid-path")
-  );
-  await assert.rejects(
-    repository.listRevisionFiles("missing-revision"),
-    (error: unknown) => hasVersionControlCode(error, "revision-not-found")
-  );
-  await assert.rejects(
-    repository.readRevisionFile(currentRevision, "../outside.md"),
-    (error: unknown) => hasVersionControlCode(error, "invalid-path")
-  );
-  await assert.rejects(
-    repository.listPendingChangedPaths({ from: "missing-revision" }),
-    (error: unknown) => hasVersionControlCode(error, "revision-not-found")
-  );
-
-  runGit(repositoryRoot, [
-    "worktree",
-    "add",
-    "--detach",
-    "--quiet",
-    linkedWorktreeRoot,
-    currentRevision
-  ]);
-  await fs.mkdir(path.join(linkedWorktreeRoot, "nested"), { recursive: true });
-  const linked = await openVersionControl(path.join(linkedWorktreeRoot, "nested"));
-  assert.equal(linked.rootDirectory, path.resolve(linkedWorktreeRoot));
-  assert.equal(await linked.getCurrentRevision(), currentRevision);
-  assert.deepEqual(
-    await linked.listRevisionFiles(currentRevision, {
-      pathScopes: ["docs/tracked.md"]
-    }),
-    ["docs/tracked.md"]
-  );
-
-  const unbornRoot = path.join(tempRoot, "unborn");
-  await fs.mkdir(unbornRoot, { recursive: true });
-  runGit(unbornRoot, ["init", "--quiet"]);
-  assert.equal(await (await openVersionControl(unbornRoot)).getCurrentRevision(), null);
-
-  await fs.mkdir(brokenHeadRoot, { recursive: true });
-  runGit(brokenHeadRoot, ["init", "--quiet"]);
-  runGit(brokenHeadRoot, ["symbolic-ref", "HEAD", "refs/heads/broken"]);
-  await fs.writeFile(
-    path.join(brokenHeadRoot, ".git", "refs", "heads", "broken"),
-    "not-an-object\n",
-    "utf8"
-  );
-  await assert.rejects(
-    (await openVersionControl(brokenHeadRoot)).getCurrentRevision(),
-    (error: unknown) => hasVersionControlCode(error, "operation-failed")
-  );
-
-  await fs.mkdir(conflictRoot, { recursive: true });
-  runGit(conflictRoot, ["init", "--quiet"]);
-  runGit(conflictRoot, ["config", "user.email", "version-control@example.invalid"]);
-  runGit(conflictRoot, ["config", "user.name", "Version Control Test"]);
-  await writeFile(conflictRoot, "conflicted.txt", "base\n");
-  runGit(conflictRoot, ["add", "conflicted.txt"]);
-  runGit(conflictRoot, ["commit", "--quiet", "--message", "base"]);
-  const primaryBranch = runGit(conflictRoot, ["branch", "--show-current"]).trim();
-  runGit(conflictRoot, ["checkout", "--quiet", "-b", "conflict-side"]);
-  await writeFile(conflictRoot, "conflicted.txt", "side\n");
-  runGit(conflictRoot, ["commit", "--quiet", "--all", "--message", "side"]);
-  runGit(conflictRoot, ["checkout", "--quiet", primaryBranch]);
-  await writeFile(conflictRoot, "conflicted.txt", "primary\n");
-  runGit(conflictRoot, ["commit", "--quiet", "--all", "--message", "primary"]);
-  assert.throws(() => runGit(conflictRoot, ["merge", "--quiet", "conflict-side"]));
-  const conflictedRepository = await openVersionControl(conflictRoot);
-  await assert.rejects(
-    conflictedRepository.readPendingFiles(),
-    (error: unknown) => error instanceof VersionControlError
-      && error.code === "operation-failed"
-      && error.message.includes("resolve pending content conflicts")
-  );
-
-  await fs.mkdir(corruptBlobRoot, { recursive: true });
-  runGit(corruptBlobRoot, ["init", "--quiet"]);
-  runGit(corruptBlobRoot, ["config", "user.email", "version-control@example.invalid"]);
-  runGit(corruptBlobRoot, ["config", "user.name", "Version Control Test"]);
-  await writeFile(corruptBlobRoot, "docs/unreadable.md", "unreadable\n");
-  runGit(corruptBlobRoot, ["add", "."]);
-  runGit(corruptBlobRoot, ["commit", "--quiet", "--message", "base"]);
-  const corruptBlobId = runGit(corruptBlobRoot, [
-    "rev-parse",
-    "HEAD:docs/unreadable.md"
-  ]).trim();
-  const corruptBlobPath = path.join(
-    corruptBlobRoot,
-    ".git",
-    "objects",
-    corruptBlobId.slice(0, 2),
-    corruptBlobId.slice(2)
-  );
-  await fs.chmod(corruptBlobPath, 0o666);
-  await fs.writeFile(
-    corruptBlobPath,
-    "corrupt Git object",
-    "utf8"
-  );
-  await assert.rejects(
-    (await openVersionControl(corruptBlobRoot)).readRevisionFile(
-      "HEAD",
-      "docs/unreadable.md"
-    ),
-    (error: unknown) => error instanceof VersionControlError
-      && error.code === "operation-failed"
-      && error.message.includes("read docs/unreadable.md from revision")
-  );
-
-  const plainDirectory = path.join(tempRoot, "plain");
-  await fs.mkdir(plainDirectory, { recursive: true });
-  await assert.rejects(
-    openVersionControl(plainDirectory),
-    (error: unknown) => hasVersionControlCode(error, "not-repository")
-  );
-} finally {
-  await fs.rm(tempRoot, { force: true, recursive: true });
-}
+      "docs/tracked.md",
+      "docs/untracked.md"
+    ]);
+  });
 });
+
+test("lists committed and pending changes and validates revision paths", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const {
+      baseRevision,
+      currentRevision,
+      repositoryRoot
+    } = await createRepositoryFixture(tempRoot);
+    const repository = await openVersionControl(repositoryRoot);
+    assert.deepEqual(await repository.listChangedPaths({ from: baseRevision }), [
+      "docs/current-only.md",
+      "docs/tracked.md"
+    ]);
+    assert.deepEqual(
+      await repository.listPendingChangedPaths({
+        from: currentRevision,
+        pathScopes: ["docs"]
+      }),
+      [
+        "docs/staged-copy.bin",
+        "docs/staged.bin",
+        "docs/tracked.md"
+      ]
+    );
+    assert.deepEqual(await repository.listChangedPaths({
+      from: currentRevision,
+      to: currentRevision
+    }), []);
+
+    await assert.rejects(
+      repository.listRevisionFiles(currentRevision, {
+        pathScopes: ["../outside.md"]
+      }),
+      (error: unknown) => hasVersionControlCode(error, "invalid-path")
+    );
+    await assert.rejects(
+      repository.listRevisionFiles("missing-revision"),
+      (error: unknown) => hasVersionControlCode(error, "revision-not-found")
+    );
+    await assert.rejects(
+      repository.readRevisionFile(currentRevision, "../outside.md"),
+      (error: unknown) => hasVersionControlCode(error, "invalid-path")
+    );
+    await assert.rejects(
+      repository.listPendingChangedPaths({ from: "missing-revision" }),
+      (error: unknown) => hasVersionControlCode(error, "revision-not-found")
+    );
+  });
+});
+
+test("opens linked worktrees as independent repository roots", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const {
+      currentRevision,
+      repositoryRoot
+    } = await createRepositoryFixture(tempRoot);
+    const linkedWorktreeRoot = path.join(tempRoot, "linked-worktree");
+    runGit(repositoryRoot, [
+      "worktree",
+      "add",
+      "--detach",
+      "--quiet",
+      linkedWorktreeRoot,
+      currentRevision
+    ]);
+    const nested = path.join(linkedWorktreeRoot, "nested");
+    await fs.mkdir(nested, { recursive: true });
+    const linked = await openVersionControl(nested);
+    assert.equal(linked.rootDirectory, path.resolve(linkedWorktreeRoot));
+    assert.equal(await linked.getCurrentRevision(), currentRevision);
+    assert.deepEqual(
+      await linked.listRevisionFiles(currentRevision, {
+        pathScopes: ["docs/tracked.md"]
+      }),
+      ["docs/tracked.md"]
+    );
+  });
+});
+
+test("distinguishes unborn heads from broken heads", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const unbornRoot = path.join(tempRoot, "unborn");
+    await fs.mkdir(unbornRoot, { recursive: true });
+    runGit(unbornRoot, ["init", "--quiet"]);
+    assert.equal(
+      await (await openVersionControl(unbornRoot)).getCurrentRevision(),
+      null
+    );
+
+    const brokenHeadRoot = path.join(tempRoot, "broken-head");
+    await fs.mkdir(brokenHeadRoot, { recursive: true });
+    runGit(brokenHeadRoot, ["init", "--quiet"]);
+    runGit(brokenHeadRoot, ["symbolic-ref", "HEAD", "refs/heads/broken"]);
+    await fs.writeFile(
+      path.join(brokenHeadRoot, ".git", "refs", "heads", "broken"),
+      "not-an-object\n",
+      "utf8"
+    );
+    await assert.rejects(
+      (await openVersionControl(brokenHeadRoot)).getCurrentRevision(),
+      (error: unknown) => hasVersionControlCode(error, "operation-failed")
+    );
+  });
+});
+
+test("rejects pending reads while the index contains conflicts", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const repositoryRoot = path.join(tempRoot, "conflict");
+    await fs.mkdir(repositoryRoot, { recursive: true });
+    initializeRepository(repositoryRoot);
+    await writeFile(repositoryRoot, "conflicted.txt", "base\n");
+    runGit(repositoryRoot, ["add", "conflicted.txt"]);
+    runGit(repositoryRoot, ["commit", "--quiet", "--message", "base"]);
+    const primaryBranch = runGit(
+      repositoryRoot,
+      ["branch", "--show-current"]
+    ).trim();
+    runGit(repositoryRoot, ["checkout", "--quiet", "-b", "conflict-side"]);
+    await writeFile(repositoryRoot, "conflicted.txt", "side\n");
+    runGit(repositoryRoot, [
+      "commit",
+      "--quiet",
+      "--all",
+      "--message",
+      "side"
+    ]);
+    runGit(repositoryRoot, ["checkout", "--quiet", primaryBranch]);
+    await writeFile(repositoryRoot, "conflicted.txt", "primary\n");
+    runGit(repositoryRoot, [
+      "commit",
+      "--quiet",
+      "--all",
+      "--message",
+      "primary"
+    ]);
+    assert.throws(() => runGit(repositoryRoot, [
+      "merge",
+      "--quiet",
+      "conflict-side"
+    ]));
+
+    const repository = await openVersionControl(repositoryRoot);
+    await assert.rejects(
+      repository.readPendingFiles(),
+      (error: unknown) => error instanceof VersionControlError
+        && error.code === "operation-failed"
+        && error.message.includes("resolve pending content conflicts")
+    );
+  });
+});
+
+test("reports corrupt revision objects as operation failures", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const repositoryRoot = path.join(tempRoot, "corrupt-blob");
+    await fs.mkdir(repositoryRoot, { recursive: true });
+    initializeRepository(repositoryRoot);
+    await writeFile(repositoryRoot, "docs/unreadable.md", "unreadable\n");
+    runGit(repositoryRoot, ["add", "."]);
+    runGit(repositoryRoot, ["commit", "--quiet", "--message", "base"]);
+    const blobId = runGit(repositoryRoot, [
+      "rev-parse",
+      "HEAD:docs/unreadable.md"
+    ]).trim();
+    const blobPath = path.join(
+      repositoryRoot,
+      ".git",
+      "objects",
+      blobId.slice(0, 2),
+      blobId.slice(2)
+    );
+    await fs.chmod(blobPath, 0o666);
+    await fs.writeFile(blobPath, "corrupt Git object", "utf8");
+
+    await assert.rejects(
+      (await openVersionControl(repositoryRoot)).readRevisionFile(
+        "HEAD",
+        "docs/unreadable.md"
+      ),
+      (error: unknown) => error instanceof VersionControlError
+        && error.code === "operation-failed"
+        && error.message.includes("read docs/unreadable.md from revision")
+    );
+  });
+});
+
+test("rejects directories that are not Git repositories", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const plainDirectory = path.join(tempRoot, "plain");
+    await fs.mkdir(plainDirectory, { recursive: true });
+    await assert.rejects(
+      openVersionControl(plainDirectory),
+      (error: unknown) => hasVersionControlCode(error, "not-repository")
+    );
+  });
+});
+
+function initializeRepository(repositoryRoot: string): void {
+  runGit(repositoryRoot, ["init", "--quiet"]);
+  runGit(repositoryRoot, ["config", "core.autocrlf", "false"]);
+  runGit(repositoryRoot, [
+    "config",
+    "user.email",
+    "version-control@example.invalid"
+  ]);
+  runGit(repositoryRoot, [
+    "config",
+    "user.name",
+    "Version Control Test"
+  ]);
+}
 
 function runGit(workingDirectory: string, args: readonly string[]): string {
   return execFileSync("git", ["-C", workingDirectory, ...args], {

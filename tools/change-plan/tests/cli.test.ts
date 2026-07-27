@@ -119,7 +119,7 @@ function testCheckCommands(fixture: CliFixture): void {
   assert.equal(jsonResult.valid, false);
 }
 
-function testListCommands(fixture: CliFixture): void {
+function testListLifecycleJson(fixture: CliFixture): void {
   const cliList = spawnSync(
     "node",
     [generatedCliPath, "list", fixture.lifecycleRoot, "--all", "--json"],
@@ -140,7 +140,9 @@ function testListCommands(fixture: CliFixture): void {
       (entry) => entry.changeName === "old-plan" && entry.status === "archived"
     )
   );
+}
 
+function testListRootDiagnostics(fixture: CliFixture): void {
   const cliListFailure = spawnSync(
     "node",
     [generatedCliPath, "list", fixture.nonDirectoryChangeRoot, "--json"],
@@ -152,7 +154,9 @@ function testListCommands(fixture: CliFixture): void {
     errors: string[];
   };
   assert.match(cliListFailureResult.errors[0] ?? "", /must be a directory/u);
+}
 
+function testListOptionConflicts(fixture: CliFixture): void {
   const conflictingListOptions = spawnSync(
     "node",
     [
@@ -274,8 +278,16 @@ test("CLI check preserves text and JSON exit contracts", () => (
   withCliFixture("check", testCheckCommands)
 ));
 
-test("CLI list filters lifecycle status and rejects invalid options", () => (
-  withCliFixture("list", testListCommands)
+test("CLI list returns lifecycle-filtered JSON", () => (
+  withCliFixture("list-lifecycle", testListLifecycleJson)
+));
+
+test("CLI list returns structured lifecycle root diagnostics", () => (
+  withCliFixture("list-root", testListRootDiagnostics)
+));
+
+test("CLI list rejects conflicting lifecycle options", () => (
+  withCliFixture("list-options", testListOptionConflicts)
 ));
 
 test("CLI show returns artifacts and invalid-plan diagnostics", () => (

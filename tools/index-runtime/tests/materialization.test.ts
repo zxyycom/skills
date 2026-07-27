@@ -22,18 +22,34 @@ import {
   type MemoryStateSource
 } from "./support.ts";
 
-export async function testMaterialization(): Promise<void> {
+async function withTempRoot(
+  run: (tempRoot: string) => Promise<void>
+): Promise<void> {
   const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "state-index-store-"));
   try {
-    const source: MemoryStateSource<DecisionState> = {
-      revision: "decision-revision-1",
-      states: await decisionStates()
-    };
-    const definition = decisionDefinition(source);
-    const firstBuild = await buildStateIndex(definition, { root: tempRoot });
-    const firstIndex = resultValue(firstBuild);
+    await run(tempRoot);
+  } finally {
+    await fs.rm(tempRoot, { force: true, recursive: true });
+  }
+}
+
+async function createDecisionFixture() {
+  const source: MemoryStateSource<DecisionState> = {
+    revision: "decision-revision-1",
+    states: await decisionStates()
+  };
+  return { definition: decisionDefinition(source), source };
+}
+
+test("serializes deterministic indexes independent of source order", async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { definition, source } = await createDecisionFixture();
+    const firstIndex = resultValue(await buildStateIndex(definition, {
+      root: tempRoot
+    }));
     assert.deepEqual(firstIndex.keyDefinitions, keyDefinitionsOf(definition));
     const firstText = serializeStateIndex(firstIndex, definition);
+
     source.states.reverse();
     assert.equal(
       serializeStateIndex(
@@ -42,11 +58,14 @@ export async function testMaterialization(): Promise<void> {
       ),
       firstText
     );
-    source.states.reverse();
     assert.equal(firstText.endsWith("\n"), true);
     assert.equal(firstText.includes("generatedAt"), false);
+  });
+});
 
-    const semanticDefinition = defineStateIndexDefinition<{
+test("preserves definition field and key order through serialization", async () => {
+  await withTempRoot(async (tempRoot) => {
+    const definition = defineStateIndexDefinition<{
       path: string;
       title: string;
       status: string;
@@ -113,16 +132,12 @@ export async function testMaterialization(): Promise<void> {
       }),
       readRevision: async () => "semantic-revision-1"
     });
-    const semanticIndex = resultValue(await buildStateIndex(
-      semanticDefinition,
-      { root: tempRoot }
-    ));
-    assert.deepEqual(
-      semanticIndex.keyDefinitions,
-      keyDefinitionsOf(semanticDefinition)
-    );
-    const semanticText = serializeStateIndex(semanticIndex, semanticDefinition);
-    const semanticValue = JSON.parse(semanticText) as {
+    const index = resultValue(await buildStateIndex(definition, {
+      root: tempRoot
+    }));
+    assert.deepEqual(index.keyDefinitions, keyDefinitionsOf(definition));
+    const text = serializeStateIndex(index, definition);
+    const value = JSON.parse(text) as {
       entries: Array<{
         id: string;
         keys: Record<string, unknown>;
@@ -130,7 +145,7 @@ export async function testMaterialization(): Promise<void> {
       }>;
       keyDefinitions: Array<Record<string, unknown>>;
     };
-    assert.deepEqual(Object.keys(semanticValue), [
+    assert.deepEqual(Object.keys(value), [
       "schemaVersion",
       "namespace",
       "definitionVersion",
@@ -140,90 +155,105 @@ export async function testMaterialization(): Promise<void> {
       "entries"
     ]);
     assert.deepEqual(
-      semanticValue.keyDefinitions.map((definition) => Object.values(definition)),
+      value.keyDefinitions.map((entry) => Object.values(entry)),
       [["topic", "exact"], ["status", "exact"]]
     );
     assert.deepEqual(
-      semanticValue.entries.map((entry) => entry.id),
+      value.entries.map((entry) => entry.id),
       ["topic/a.md", "topic/z.md"]
     );
-    assert.deepEqual(Object.keys(semanticValue.entries[0]!.keys), [
-      "topic",
-      "status"
-    ]);
-    assert.deepEqual(Object.keys(semanticValue.entries[0]!.state), [
+    assert.deepEqual(Object.keys(value.entries[0]!.keys), ["topic", "status"]);
+    assert.deepEqual(Object.keys(value.entries[0]!.state), [
       "path",
       "title",
       "status",
       "summary"
     ]);
-    assert.deepEqual(Object.keys(semanticValue.entries[0]!.state.summary), [
+    assert.deepEqual(Object.keys(value.entries[0]!.state.summary), [
       "purpose",
       "background"
     ]);
-    const parsedSemantic = parseStateIndex({
-      definition: semanticDefinition,
-      expectation: { definitionVersion: 1, namespace: "semantic-order" },
-      sourcePath: "indexes/semantic-order.json",
-      text: semanticText
-    });
-    assert.equal(parsedSemantic.status, "ok");
-    assert.deepEqual(
-      resultValue(parsedSemantic).keyDefinitions,
-      keyDefinitionsOf(semanticDefinition)
-    );
-    assert.deepEqual(
-      Object.keys(resultValue(parsedSemantic).entries[0]!.state),
-      ["path", "title", "status", "summary"]
-    );
-    const reorderedSemantic = JSON.parse(semanticText) as {
-      keyDefinitions: unknown[];
-    };
-    reorderedSemantic.keyDefinitions.reverse();
-    const rejectedSemantic = parseStateIndex({
-      definition: semanticDefinition,
-      expectation: { definitionVersion: 1, namespace: "semantic-order" },
-      sourcePath: "indexes/semantic-order.json",
-      text: JSON.stringify(reorderedSemantic)
-    });
-    assert.equal(rejectedSemantic.status, "error");
-    assert.ok(rejectedSemantic.diagnostics.some((entry) => (
-      entry.code === "state-index.definition-mismatch"
-    )));
 
     const parsed = parseStateIndex({
-      expectation: { definitionVersion: 1, namespace: "decisions" },
-      sourcePath: "indexes/decisions.json",
-      text: firstText
+      definition,
+      expectation: { definitionVersion: 1, namespace: "semantic-order" },
+      sourcePath: "indexes/semantic-order.json",
+      text
     });
     assert.equal(parsed.status, "ok");
+    assert.deepEqual(
+      resultValue(parsed).keyDefinitions,
+      keyDefinitionsOf(definition)
+    );
+    assert.deepEqual(
+      Object.keys(resultValue(parsed).entries[0]!.state),
+      ["path", "title", "status", "summary"]
+    );
+
+    const reordered = JSON.parse(text) as { keyDefinitions: unknown[] };
+    reordered.keyDefinitions.reverse();
+    const rejected = parseStateIndex({
+      definition,
+      expectation: { definitionVersion: 1, namespace: "semantic-order" },
+      sourcePath: "indexes/semantic-order.json",
+      text: JSON.stringify(reordered)
+    });
+    assert.equal(rejected.status, "error");
+    assert.ok(rejected.diagnostics.some((entry) => (
+      entry.code === "state-index.definition-mismatch"
+    )));
+  });
+});
+
+test("rejects persisted indexes from another namespace", async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { definition } = await createDecisionFixture();
+    const text = serializeStateIndex(
+      resultValue(await buildStateIndex(definition, { root: tempRoot })),
+      definition
+    );
+    assert.equal(parseStateIndex({
+      expectation: { definitionVersion: 1, namespace: "decisions" },
+      sourcePath: "indexes/decisions.json",
+      text
+    }).status, "ok");
+
     const mismatched = parseStateIndex({
       expectation: { definitionVersion: 1, namespace: "investigations" },
       sourcePath: "indexes/decisions.json",
-      text: firstText
+      text
     });
     assert.equal(mismatched.status, "error");
     assert.ok(mismatched.diagnostics.some((entry) => (
       entry.code === "state-index.namespace-mismatch"
     )));
+  });
+});
 
-    const indexPath = "indexes/decisions.json";
-    const invalidModePath = "indexes/invalid-mode.json";
-    const invalidMode = await syncStateIndex({
+test("rejects invalid sync modes without writing an index", async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { definition } = await createDecisionFixture();
+    const indexPath = "indexes/invalid-mode.json";
+    const result = await syncStateIndex({
       context: { root: tempRoot },
       definition,
-      indexPath: invalidModePath,
+      indexPath,
       mode: "invalid" as StateIndexSyncMode
     });
-    assert.equal(invalidMode.state, "mode-invalid");
-    assert.equal(invalidMode.mode, null);
+    assert.equal(result.state, "mode-invalid");
+    assert.equal(result.mode, null);
     assert.equal(
-      await fs.access(path.join(tempRoot, ...invalidModePath.split("/")))
+      await fs.access(path.join(tempRoot, ...indexPath.split("/")))
         .then(() => true, () => false),
       false
     );
+  });
+});
 
-    const inconsistentRevision = await syncStateIndex({
+test("rejects a source revision that changes during synchronization", async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { definition } = await createDecisionFixture();
+    const result = await syncStateIndex({
       context: { root: tempRoot },
       definition: {
         ...definition,
@@ -232,48 +262,48 @@ export async function testMaterialization(): Promise<void> {
       indexPath: "indexes/inconsistent-revision.json",
       mode: "write"
     });
-    assert.equal(inconsistentRevision.state, "source-invalid");
-    assert.ok(inconsistentRevision.diagnostics.some((entry) => (
+    assert.equal(result.state, "source-invalid");
+    assert.ok(result.diagnostics.some((entry) => (
       entry.code === "state-index.source-changed"
     )));
+  });
+});
 
-    const missing = await syncStateIndex({
+test("checks, writes, and reloads current indexes across line endings", async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { definition, source } = await createDecisionFixture();
+    const indexPath = "indexes/decisions.json";
+    assert.equal((await syncStateIndex({
       context: { root: tempRoot },
       definition,
       indexPath,
       mode: "check"
-    });
-    assert.equal(missing.state, "index-missing");
-    const written = await syncStateIndex({
+    })).state, "index-missing");
+    assert.equal((await syncStateIndex({
       context: { root: tempRoot },
       definition,
       indexPath,
       mode: "write"
-    });
-    assert.equal(written.state, "written");
-    const current = await syncStateIndex({
+    })).state, "written");
+    assert.equal((await syncStateIndex({
       context: { root: tempRoot },
       definition,
       indexPath,
       mode: "check"
-    });
-    assert.equal(current.state, "current");
-    const resolvedIndexPath = path.join(
-      tempRoot,
-      ...indexPath.split("/")
-    );
+    })).state, "current");
+
+    const resolvedIndexPath = path.join(tempRoot, ...indexPath.split("/"));
     await fs.writeFile(
       resolvedIndexPath,
       (await fs.readFile(resolvedIndexPath, "utf8")).replace(/\n/g, "\r\n"),
       "utf8"
     );
-    const currentWithCrLf = await syncStateIndex({
+    assert.equal((await syncStateIndex({
       context: { root: tempRoot },
       definition,
       indexPath,
       mode: "check"
-    });
-    assert.equal(currentWithCrLf.state, "current");
+    })).state, "current");
 
     const loaded = await loadStateIndex({
       context: { root: tempRoot },
@@ -287,7 +317,20 @@ export async function testMaterialization(): Promise<void> {
       definition,
       indexPath
     })).status, "ok");
-    const changedKeyDefinitions = await loadCurrentStateIndex({
+  });
+});
+
+test("rejects persisted indexes with changed key definitions", async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { definition } = await createDecisionFixture();
+    const indexPath = "indexes/decisions.json";
+    await syncStateIndex({
+      context: { root: tempRoot },
+      definition,
+      indexPath,
+      mode: "write"
+    });
+    const result = await loadCurrentStateIndex({
       context: { root: tempRoot },
       definition: {
         ...definition,
@@ -299,10 +342,23 @@ export async function testMaterialization(): Promise<void> {
       },
       indexPath
     });
-    assert.equal(changedKeyDefinitions.status, "error");
-    assert.ok(changedKeyDefinitions.diagnostics.some((entry) => (
+    assert.equal(result.status, "error");
+    assert.ok(result.diagnostics.some((entry) => (
       entry.code === "state-index.definition-mismatch"
     )));
+  });
+});
+
+test("detects stale sources and refreshes changed or removed states", async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { definition, source } = await createDecisionFixture();
+    const indexPath = "indexes/decisions.json";
+    await syncStateIndex({
+      context: { root: tempRoot },
+      definition,
+      indexPath,
+      mode: "write"
+    });
 
     source.revision = "decision-revision-2";
     source.states[0] = {
@@ -342,31 +398,29 @@ export async function testMaterialization(): Promise<void> {
     const removed = source.states.pop();
     assert.ok(removed);
     source.revision = "decision-revision-3";
-    const removeResult = await syncStateIndex({
+    assert.equal((await syncStateIndex({
       context: { root: tempRoot },
       definition,
       indexPath,
       mode: "write"
-    });
-    assert.equal(removeResult.state, "written");
+    })).state, "written");
     assert.equal(resultValue(await loadCurrentStateIndex({
       context: { root: tempRoot },
       definition,
       indexPath
     })).entries.length, source.states.length);
+  });
+});
 
-    const invalidPath = await syncStateIndex({
+test("rejects index paths outside the configured root", async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { definition } = await createDecisionFixture();
+    const result = await syncStateIndex({
       context: { root: tempRoot },
       definition,
       indexPath: "../outside.json",
       mode: "write"
     });
-    assert.equal(invalidPath.state, "index-path-invalid");
-  } finally {
-    await fs.rm(tempRoot, { force: true, recursive: true });
-  }
-}
-
-test("materialization builds deterministic indexes and enforces freshness", () => (
-  testMaterialization()
-));
+    assert.equal(result.state, "index-path-invalid");
+  });
+});

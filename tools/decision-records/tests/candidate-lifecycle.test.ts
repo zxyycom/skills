@@ -18,7 +18,30 @@ import {
   writeTestDomainCatalog
 } from "./support.ts";
 
-test("candidate lifecycle enforces create, activate, discard, and rollback rules", () => (
+const unindexedBody = [
+  "---",
+  "title: 验证未登记成员",
+  "status: active",
+  "alignment: aligned",
+  "createdAt: null",
+  "purpose: 验证多条预写候选可以按显式目标逐条激活。",
+  "background: 其他完整候选需要明确提醒，但不应阻断当前目标。",
+  "decision: 单次只激活目标，索引排除其他候选且严格检查继续阻断。",
+  "relations: []",
+  "---",
+  "",
+  "## 目的",
+  "- 验证多条预写候选可以按显式目标逐条激活。",
+  "",
+  "## 背景",
+  "- 其他完整候选需要明确提醒，但不应阻断当前目标。",
+  "",
+  "## 决策",
+  "- 采用: 单次只激活目标，索引排除其他候选且严格检查继续阻断。",
+  ""
+].join("\n");
+
+test("discard rejects established, incomplete, or related candidates without mutation", () => (
   withFixtureWorkspace("candidate-lifecycle", async (workspaceRoot) => {
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
@@ -177,7 +200,14 @@ test("candidate lifecycle enforces create, activate, discard, and rollback rules
   assert.equal(await fs.readFile(invalidTargetPath, "utf8"), invalidTargetText);
   await fs.rm(invalidTargetSourcePath);
   await fs.rm(invalidTargetPath);
+  })
+));
 
+test("discard removes only the selected candidate and preserves siblings", () => (
+  withFixtureWorkspace("candidate-discard-selection", async (workspaceRoot) => {
+  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+  const indexPath = path.join(decisionsDirectory, "decision-index.json");
+  const originalIndexText = await fs.readFile(indexPath, "utf8");
   const otherCandidateRelativePath =
     "decision-records/use-other-valid-candidate.md";
   const otherCandidatePath = decisionFilePath(
@@ -214,29 +244,14 @@ test("candidate lifecycle enforces create, activate, discard, and rollback rules
   assert.equal(await fs.readFile(otherCandidatePath, "utf8"), otherCandidateText);
   assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
   await fs.rm(otherCandidatePath);
+  })
+));
 
-  const unindexedBody = [
-    "---",
-    "title: 验证未登记成员",
-    "status: active",
-    "alignment: aligned",
-    "createdAt: null",
-    "purpose: 验证多条预写候选可以按显式目标逐条激活。",
-    "background: 其他完整候选需要明确提醒，但不应阻断当前目标。",
-    "decision: 单次只激活目标，索引排除其他候选且严格检查继续阻断。",
-    "relations: []",
-    "---",
-    "",
-    "## 目的",
-    "- 验证多条预写候选可以按显式目标逐条激活。",
-    "",
-    "## 背景",
-    "- 其他完整候选需要明确提醒，但不应阻断当前目标。",
-    "",
-    "## 决策",
-    "- 采用: 单次只激活目标，索引排除其他候选且严格检查继续阻断。",
-    ""
-  ].join("\n");
+test("activation establishes selected candidates while leaving others pending", () => (
+  withFixtureWorkspace("candidate-activation-selection", async (workspaceRoot) => {
+  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+  const indexPath = path.join(decisionsDirectory, "decision-index.json");
+  const originalIndexText = await fs.readFile(indexPath, "utf8");
   const firstUnindexedRelativePath =
     "decision-records/use-first-unindexed.md";
   const secondUnindexedRelativePath =
@@ -330,7 +345,13 @@ test("candidate lifecycle enforces create, activate, discard, and rollback rules
   await fs.rm(firstUnindexedPath);
   await fs.rm(secondUnindexedPath);
   await fs.writeFile(indexPath, originalIndexText, "utf8");
+  })
+));
 
+test("activation reconciles unindexed established records before committing a candidate", () => (
+  withFixtureWorkspace("candidate-activation-index", async (workspaceRoot) => {
+  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+  const indexPath = path.join(decisionsDirectory, "decision-index.json");
   const targetCandidateRelativePath =
     "decision-records/use-target-candidate.md";
   const orphanRelativePath =

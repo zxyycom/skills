@@ -67,7 +67,7 @@ assert.equal(
 );
 });
 
-test("check options resolve concurrency and modes with strict validation", () => {
+test("check concurrency resolves defaults, caps, and invalid values", () => {
 assert.equal(resolveConcurrency({
   availableParallelism: 8,
   configured: undefined,
@@ -91,19 +91,23 @@ assert.throws(
   }),
   /CHECK_CONCURRENCY must be a positive integer/
 );
+});
 
+test("check mode resolves warning and strict options", () => {
 assert.equal(resolveCheckMode([]), "warnings");
 assert.equal(resolveCheckMode(["--strict"]), "strict");
 assert.throws(() => resolveCheckMode(["--unknown"]), /Unknown option/u);
 });
 
-test("check statuses and output preserve warning and failure semantics", () => {
+test("check statuses preserve warning and failure semantics", () => {
 const blockingTask = { blocking: true, script: "blocking" } as const;
 assert.equal(resolveCheckStatus("default-warning", "warnings", 1), "warning");
 assert.equal(resolveCheckStatus("strict-failure", "strict", 1), "failed");
 assert.equal(resolveCheckStatus(blockingTask, "warnings", 1), "failed");
 assert.equal(resolveCheckStatus(blockingTask, "warnings", 0), "passed");
+});
 
+test("check result formatting preserves diagnostics and timing", () => {
 assert.deepEqual(formatCheckResult({
   durationMilliseconds: 250,
   exitCode: 0,
@@ -263,8 +267,10 @@ assert.deepEqual(strictFailure, {
   status: "failed"
 });
 assert.deepEqual(workflowCalls, ["failure"]);
+});
 
-workflowCalls.length = 0;
+test("workflow reports package script failures", async () => {
+const workflowCalls: string[] = [];
 const packageFailure = await runCheckWorkflow({
   concurrency: 1,
   mode: "warnings",

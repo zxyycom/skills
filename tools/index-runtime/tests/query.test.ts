@@ -17,18 +17,43 @@ import {
   type TestEvidenceState
 } from "./support.ts";
 
-export async function testQueries(): Promise<void> {
-  const decisionSource = {
+async function buildDecisionFixture() {
+  const source = {
     revision: "decision-revision-1",
     states: await decisionStates()
   };
-  const decisionIndex = resultValue(await buildStateIndex(
-    decisionDefinition(decisionSource),
-    { root: "." }
-  ));
+  return {
+    index: resultValue(await buildStateIndex(
+      decisionDefinition(source),
+      { root: "." }
+    )),
+    source
+  };
+}
 
+async function buildTestEvidenceFixture() {
+  const originalStates = await testEvidenceStates();
+  const staticStates = originalStates.map((state) => ({
+    ...state,
+    trigger: null
+  }));
+  const source: MemoryStateSource<TestEvidenceState> = {
+    revision: "test-revision-1",
+    states: staticStates
+  };
+  const definition = testEvidenceDefinition(source);
+  return {
+    definition,
+    index: resultValue(await buildStateIndex(definition, { root: "." })),
+    originalStates,
+    staticStates
+  };
+}
+
+test("filters decision states and finds entries by stable identity", async () => {
+  const { index } = await buildDecisionFixture();
   const text = queryStateIndex({
-    index: decisionIndex,
+    index,
     query: {
       filters: [{
         key: "text",
@@ -44,7 +69,7 @@ export async function testQueries(): Promise<void> {
   );
 
   const range = queryStateIndex({
-    index: decisionIndex,
+    index,
     query: {
       filters: [{
         key: "created-at",
@@ -59,36 +84,8 @@ export async function testQueries(): Promise<void> {
     ["architecture/shared-id.md"]
   );
 
-  const temporalSource = {
-    revision: "temporal-revision-1",
-    states: [
-      {
-        ...decisionSource.states[0]!,
-        createdAt: "2026-07-22T10:00:00+08:00",
-        path: "time/earlier-offset.md"
-      },
-      {
-        ...decisionSource.states[1]!,
-        createdAt: "2026-07-22T03:00:00Z",
-        path: "time/later-z.md"
-      }
-    ]
-  };
-  const temporalIndex = resultValue(await buildStateIndex(
-    decisionDefinition(temporalSource),
-    { root: "." }
-  ));
-  const temporalOrder = queryStateIndex({
-    index: temporalIndex,
-    query: { sort: [{ direction: "asc", key: "created-at" }] }
-  });
-  assert.deepEqual(
-    resultValue(temporalOrder).entries.map((entry) => entry.id),
-    ["time/earlier-offset.md", "time/later-z.md"]
-  );
-
   const exact = queryStateIndex({
-    index: decisionIndex,
+    index,
     query: {
       filters: [{
         key: "alignment",
@@ -103,10 +100,43 @@ export async function testQueries(): Promise<void> {
     ["architecture/shared-id.md"]
   );
   assert.equal(
-    resultValue(findStateIndexEntry(decisionIndex, "architecture/shared-id.md"))?.state.title,
+    resultValue(findStateIndexEntry(index, "architecture/shared-id.md"))?.state.title,
     "共享身份决策"
   );
+});
 
+test("sorts temporal keys by instants across timezone offsets", async () => {
+  const { source } = await buildDecisionFixture();
+  const temporalSource = {
+    revision: "temporal-revision-1",
+    states: [
+      {
+        ...source.states[0]!,
+        createdAt: "2026-07-22T10:00:00+08:00",
+        path: "time/earlier-offset.md"
+      },
+      {
+        ...source.states[1]!,
+        createdAt: "2026-07-22T03:00:00Z",
+        path: "time/later-z.md"
+      }
+    ]
+  };
+  const index = resultValue(await buildStateIndex(
+    decisionDefinition(temporalSource),
+    { root: "." }
+  ));
+  const result = queryStateIndex({
+    index,
+    query: { sort: [{ direction: "asc", key: "created-at" }] }
+  });
+  assert.deepEqual(
+    resultValue(result).entries.map((entry) => entry.id),
+    ["time/earlier-offset.md", "time/later-z.md"]
+  );
+});
+
+test("searches text keys across investigation and test-evidence states", async () => {
   const investigationSource = {
     revision: "investigation-revision-1",
     states: await investigationStates()
@@ -131,24 +161,13 @@ export async function testQueries(): Promise<void> {
     ["index-cost/lookup-cost.md"]
   );
 
-  const originalTestStates = await testEvidenceStates();
-  const staticStates = originalTestStates.map((state) => ({
-    ...state,
-    trigger: null
-  }));
-  const testSource: MemoryStateSource<TestEvidenceState> = {
-    revision: "test-revision-1",
-    states: staticStates
-  };
-  const testDefinition = testEvidenceDefinition(testSource);
-  const testIndex = resultValue(await buildStateIndex(testDefinition, { root: "." }));
-
+  const { index } = await buildTestEvidenceFixture();
   assert.deepEqual(
-    testIndex.entries.map((entry) => entry.id),
+    index.entries.map((entry) => entry.id),
     ["read-error", "state-query"]
   );
-  const searchedTestEvidence = queryStateIndex({
-    index: testIndex,
+  const searched = queryStateIndex({
+    index,
     query: {
       filters: [{
         key: "search",
@@ -159,11 +178,14 @@ export async function testQueries(): Promise<void> {
     }
   });
   assert.deepEqual(
-    resultValue(searchedTestEvidence).entries.map((entry) => entry.id),
+    resultValue(searched).entries.map((entry) => entry.id),
     ["state-query"]
   );
+});
 
-  const duplicateCaseId = await buildStateIndex(
+test("rejects duplicate test-evidence identities during integration", async () => {
+  const { staticStates } = await buildTestEvidenceFixture();
+  const result = await buildStateIndex(
     testEvidenceDefinition({
       revision: "test-revision-duplicate",
       states: [
@@ -173,18 +195,26 @@ export async function testQueries(): Promise<void> {
     }),
     { root: "." }
   );
-  assert.equal(duplicateCaseId.status, "error");
-  assert.ok(duplicateCaseId.diagnostics.some((entry) => (
+  assert.equal(result.status, "error");
+  assert.ok(result.diagnostics.some((entry) => (
     entry.code === "state-index.id-duplicate"
   )));
+});
 
+test("merges runtime states without mutating persisted index entries", async () => {
+  const {
+    definition,
+    index,
+    originalStates,
+    staticStates
+  } = await buildTestEvidenceFixture();
   const runtimeState: TestEvidenceState = {
     ...staticStates[0]!,
-    trigger: originalTestStates[0]!.trigger
+    trigger: originalStates[0]!.trigger
   };
-  const dynamic = queryStateIndex({
-    definition: testDefinition,
-    index: testIndex,
+  const result = queryStateIndex({
+    definition,
+    index,
     query: {
       filters: [{
         key: "review-triggered",
@@ -196,26 +226,32 @@ export async function testQueries(): Promise<void> {
     runtimeStates: [runtimeState]
   });
   assert.deepEqual(
-    resultValue(dynamic).entries.map((entry) => entry.id),
+    resultValue(result).entries.map((entry) => entry.id),
     ["state-query"]
   );
-  assert.equal(testIndex.entries.find((entry) => (
+  assert.equal(index.entries.find((entry) => (
     entry.id === "state-query"
   ))?.keys["review-triggered"], undefined);
+});
 
-  const paged = queryStateIndex({
-    index: testIndex,
+test("paginates sorted results while preserving the total count", async () => {
+  const { index } = await buildTestEvidenceFixture();
+  const result = queryStateIndex({
+    index,
     query: {
       limit: 1,
       offset: 1,
       sort: [{ direction: "desc", key: "id" }]
     }
   });
-  assert.equal(resultValue(paged).entries.length, 1);
-  assert.equal(resultValue(paged).total, 2);
+  assert.equal(resultValue(result).entries.length, 1);
+  assert.equal(resultValue(result).total, 2);
+});
 
+test("rejects unknown, mode-mismatched, and multivalued sort keys", async () => {
+  const { index } = await buildDecisionFixture();
   const wrongMode = queryStateIndex({
-    index: decisionIndex,
+    index,
     query: {
       filters: [{
         key: "status",
@@ -231,7 +267,7 @@ export async function testQueries(): Promise<void> {
   )));
 
   const unknownKey = queryStateIndex({
-    index: decisionIndex,
+    index,
     query: {
       filters: [{ key: "missing", kind: "exists", value: true }]
     }
@@ -239,15 +275,11 @@ export async function testQueries(): Promise<void> {
   assert.equal(unknownKey.status, "error");
 
   const multivaluedSort = queryStateIndex({
-    index: decisionIndex,
+    index,
     query: { sort: [{ direction: "asc", key: "text" }] }
   });
   assert.equal(multivaluedSort.status, "error");
   assert.ok(multivaluedSort.diagnostics.some((entry) => (
     entry.code === "state-index.sort-key-multivalued"
   )));
-}
-
-test("queries filter, sort, paginate, and merge runtime states", () => (
-  testQueries()
-));
+});

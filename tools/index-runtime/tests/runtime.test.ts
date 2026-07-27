@@ -8,8 +8,8 @@ import * as v from "valibot";
 import {
   buildStateIndex,
   createStateIndexReader,
-  createStateIndexSchema,
   createStateIndexRuntime,
+  createStateIndexSchema,
   defineStateIndexDefinition,
   parseStateIndex,
   serializeStateIndex,
@@ -32,31 +32,19 @@ type RuntimeMetadata = {
   tenant: string;
 };
 
-export async function testRuntime(): Promise<void> {
-  const composableIndexSchema = createStateIndexSchema({
-    definitionVersion: 1,
-    keys: v.strictObject({
-      status: v.tuple([stateIndexTextSchema])
-    }),
-    keyDefinitions: v.tuple([
-      v.strictObject({
-        mode: v.literal("exact"),
-        name: v.literal("status")
-      })
-    ]),
-    metadata: v.strictObject({}),
-    namespace: "runtime-test",
-    sourceRevision: stateIndexTextSchema,
-    state: v.strictObject({
-      id: stateIndexTextSchema
-    })
-  });
-  assert.equal(
-    toJsonSchema(composableIndexSchema, { target: "draft-2020-12" }).type,
-    "object"
-  );
+async function withTempRoot(
+  run: (tempRoot: string) => Promise<void>
+): Promise<void> {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "state-index-runtime-"));
+  try {
+    await run(tempRoot);
+  } finally {
+    await fs.rm(tempRoot, { force: true, recursive: true });
+  }
+}
 
-  const runtimeMetadataSchema = v.strictObject({
+function createMetadataFixture() {
+  const metadataSchema = v.strictObject({
     groups: v.array(v.string()),
     nested: v.strictObject({
       a: v.number(),
@@ -64,7 +52,7 @@ export async function testRuntime(): Promise<void> {
     }),
     tenant: v.string()
   });
-  const runtimeMetadataStateSchema = v.strictObject({
+  const stateSchema = v.strictObject({
     id: v.string(),
     label: v.string()
   });
@@ -73,10 +61,12 @@ export async function testRuntime(): Promise<void> {
     nested: { z: 2, a: 1 },
     groups: ["second", "first"]
   };
-  const sourceMetadataState = { id: "one", label: "First" };
-  let rejectCompleteIndex = false;
-  let completeIndexValidations = 0;
-  const metadataDefinition = defineStateIndexDefinition({
+  const sourceState = { id: "one", label: "First" };
+  const control = {
+    rejectCompleteIndex: false,
+    validations: 0
+  };
+  const definition = defineStateIndexDefinition({
     definitionVersion: 1,
     identify: (state, { metadata }) => `${metadata.tenant}:${state.id}`,
     keyStrategies: [{
@@ -88,7 +78,7 @@ export async function testRuntime(): Promise<void> {
       name: "text"
     }],
     namespace: "typed-metadata",
-    parseMetadata: (input) => v.parse(runtimeMetadataSchema, input),
+    parseMetadata: (input) => v.parse(metadataSchema, input),
     parseState: (input, context) => {
       assert.equal(context.metadata.tenant, "tenant-a");
       if (false) {
@@ -101,16 +91,16 @@ export async function testRuntime(): Promise<void> {
         // @ts-expect-error Metadata arrays are recursively readonly.
         context.metadata.groups.push("third");
       }
-      return v.parse(runtimeMetadataStateSchema, input);
+      return v.parse(stateSchema, input);
     },
     read: async () => ({
       metadata: sourceMetadata,
       revision: "typed-metadata-revision-1",
-      states: [sourceMetadataState]
+      states: [sourceState]
     }),
     readRevision: async () => "typed-metadata-revision-1",
     validateIndex: (index) => {
-      completeIndexValidations += 1;
+      control.validations += 1;
       assert.deepEqual(index.entries.map((entry) => entry.id), ["tenant-a:one"]);
       assert.deepEqual(Object.keys(index.metadata), ["groups", "nested", "tenant"]);
       if (false) {
@@ -151,20 +141,86 @@ export async function testRuntime(): Promise<void> {
       );
       assert.equal(index.entries[0]!.state.label, "First");
       assert.deepEqual(index.metadata.groups, ["second", "first"]);
-      if (rejectCompleteIndex) {
+      if (control.rejectCompleteIndex) {
         throw new TypeError("complete index rejected");
       }
     }
   });
-  const metadataIndex = resultValue(await buildStateIndex(
-    metadataDefinition,
-    { root: "." }
-  ));
-  const typedTenant: string = metadataIndex.metadata.tenant;
-  assert.equal(typedTenant, "tenant-a");
-  const readerInput = structuredClone(metadataIndex);
-  const inMemoryReader = createStateIndexReader({
-    definition: metadataDefinition,
+  return { control, definition, sourceMetadata, sourceState };
+}
+
+async function createDecisionRuntimeFixture(tempRoot: string) {
+  const source: MemoryStateSource<DecisionState> = {
+    revision: "runtime-revision-1",
+    states: await decisionStates()
+  };
+  const revisionReads = { value: 0 };
+  const baseDefinition = decisionDefinition(source);
+  const definition = defineStateIndexDefinition({
+    ...baseDefinition,
+    readRevision: async (context) => {
+      revisionReads.value += 1;
+      return await baseDefinition.readRevision(context);
+    }
+  });
+  const runtime = createStateIndexRuntime({
+    definition,
+    indexPath: "indexes/decisions.json",
+    root: tempRoot
+  });
+  assert.equal((await runtime.sync("write")).state, "written");
+  revisionReads.value = 0;
+  return { definition, revisionReads, runtime, source };
+}
+
+test("exposes a composable state-index schema", () => {
+  const schema = createStateIndexSchema({
+    definitionVersion: 1,
+    keys: v.strictObject({
+      status: v.tuple([stateIndexTextSchema])
+    }),
+    keyDefinitions: v.tuple([
+      v.strictObject({
+        mode: v.literal("exact"),
+        name: v.literal("status")
+      })
+    ]),
+    metadata: v.strictObject({}),
+    namespace: "runtime-test",
+    sourceRevision: stateIndexTextSchema,
+    state: v.strictObject({
+      id: stateIndexTextSchema
+    })
+  });
+  assert.equal(
+    toJsonSchema(schema, { target: "draft-2020-12" }).type,
+    "object"
+  );
+});
+
+test("builds typed metadata and freezes complete index projections", async () => {
+  const {
+    control,
+    definition,
+    sourceMetadata,
+    sourceState
+  } = createMetadataFixture();
+  const index = resultValue(await buildStateIndex(definition, { root: "." }));
+  const tenant: string = index.metadata.tenant;
+  assert.equal(tenant, "tenant-a");
+  assert.equal(control.validations, 1);
+  assert.equal(Object.isFrozen(sourceMetadata), false);
+  assert.equal(Object.isFrozen(sourceMetadata.nested), false);
+  assert.equal(Object.isFrozen(sourceMetadata.groups), false);
+  assert.equal(Object.isFrozen(sourceState), false);
+});
+
+test("creates an immutable in-memory reader snapshot and validates its input", async () => {
+  const { control, definition } = createMetadataFixture();
+  const index = resultValue(await buildStateIndex(definition, { root: "." }));
+  const readerInput = structuredClone(index);
+  const reader = createStateIndexReader({
+    definition,
     index: readerInput,
     indexPath: "typed-metadata.json"
   });
@@ -173,39 +229,41 @@ export async function testRuntime(): Promise<void> {
   readerInput.entries[0]!.state.label = "Mutated";
   readerInput.entries.splice(0);
   readerInput.keyDefinitions.splice(0);
-  assert.equal(inMemoryReader.metadata.tenant, "tenant-a");
+  assert.equal(reader.metadata.tenant, "tenant-a");
   assert.equal(
-    resultValue(inMemoryReader.get("tenant-a:one"))?.state.label,
+    resultValue(reader.get("tenant-a:one"))?.state.label,
     "First"
   );
-  assert.equal(resultValue(inMemoryReader.query()).total, 1);
-  assert.equal(resultValue(inMemoryReader.all()).length, 1);
-  const mismatchedReaderIndex = structuredClone(metadataIndex);
-  mismatchedReaderIndex.keyDefinitions[0]!.mode = "range";
+  assert.equal(resultValue(reader.query()).total, 1);
+  assert.equal(resultValue(reader.all()).length, 1);
+
+  const mismatchedIndex = structuredClone(index);
+  mismatchedIndex.keyDefinitions[0]!.mode = "range";
   assert.throws(
     () => createStateIndexReader({
-      definition: metadataDefinition,
-      index: mismatchedReaderIndex,
+      definition,
+      index: mismatchedIndex,
       indexPath: "typed-metadata.json"
     }),
     /state-index\.definition-mismatch/u
   );
   assert.throws(
     () => createStateIndexReader({
-      definition: metadataDefinition,
-      index: { ...structuredClone(metadataIndex), entries: null } as never,
+      definition,
+      index: { ...structuredClone(index), entries: null } as never,
       indexPath: "typed-metadata.json"
     }),
     /state-index\.schema-invalid/u
   );
-  assert.equal(Object.isFrozen(sourceMetadata), false);
-  assert.equal(Object.isFrozen(sourceMetadata.nested), false);
-  assert.equal(Object.isFrozen(sourceMetadata.groups), false);
-  assert.equal(Object.isFrozen(sourceMetadataState), false);
-  assert.equal(completeIndexValidations, 2);
-  const metadataText = serializeStateIndex(metadataIndex, metadataDefinition);
+  assert.equal(control.validations, 2);
+});
+
+test("serializes, parses, and domain-validates typed metadata", async () => {
+  const { control, definition } = createMetadataFixture();
+  const index = resultValue(await buildStateIndex(definition, { root: "." }));
+  const text = serializeStateIndex(index, definition);
   const serializedMetadata = (
-    JSON.parse(metadataText) as { metadata: RuntimeMetadata }
+    JSON.parse(text) as { metadata: RuntimeMetadata }
   ).metadata;
   assert.deepEqual(Object.keys(serializedMetadata), [
     "groups",
@@ -215,12 +273,12 @@ export async function testRuntime(): Promise<void> {
   assert.deepEqual(Object.keys(serializedMetadata.nested), ["a", "z"]);
   assert.deepEqual(serializedMetadata.groups, ["second", "first"]);
   assert.equal(parseStateIndex({
-    definition: metadataDefinition,
+    definition,
     expectation: { definitionVersion: 1, namespace: "typed-metadata" },
     sourcePath: "typed-metadata.json",
-    text: metadataText
+    text
   }).status, "ok");
-  assert.equal(completeIndexValidations, 3);
+  assert.equal(control.validations, 2);
 
   for (const mutate of [
     (value: Record<string, unknown>) => {
@@ -233,7 +291,7 @@ export async function testRuntime(): Promise<void> {
       value.schemaVersion = 1;
     }
   ]) {
-    const invalid = JSON.parse(metadataText) as Record<string, unknown>;
+    const invalid = JSON.parse(text) as Record<string, unknown>;
     mutate(invalid);
     const rejected = parseStateIndex({
       expectation: { definitionVersion: 1, namespace: "typed-metadata" },
@@ -246,102 +304,85 @@ export async function testRuntime(): Promise<void> {
     )));
   }
 
-  rejectCompleteIndex = true;
-  const rejectedCompleteIndex = parseStateIndex({
-    definition: metadataDefinition,
+  control.rejectCompleteIndex = true;
+  const rejected = parseStateIndex({
+    definition,
     expectation: { definitionVersion: 1, namespace: "typed-metadata" },
     sourcePath: "typed-metadata.json",
-    text: metadataText
+    text
   });
-  assert.equal(rejectedCompleteIndex.status, "error");
-  assert.ok(rejectedCompleteIndex.diagnostics.some((entry) => (
+  assert.equal(rejected.status, "error");
+  assert.ok(rejected.diagnostics.some((entry) => (
     entry.code === "state-index.index-validation-failed"
     && entry.path === "typed-metadata.json"
   )));
-  rejectCompleteIndex = false;
+});
 
-  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "state-index-runtime-"));
-  try {
-    const metadataRuntime = createStateIndexRuntime({
-      definition: metadataDefinition,
+test("freezes runtime reader metadata and avoids revalidating query overlays", async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { control, definition, sourceMetadata } = createMetadataFixture();
+    const runtime = createStateIndexRuntime({
+      definition,
       indexPath: "indexes/typed-metadata.json",
       root: tempRoot
     });
-    assert.equal((await metadataRuntime.sync("write")).state, "written");
-    const metadataReader = resultValue(await metadataRuntime.open());
-    const readerTenant: string = metadataReader.metadata.tenant;
-    assert.equal(readerTenant, "tenant-a");
+    assert.equal((await runtime.sync("write")).state, "written");
+    const reader = resultValue(await runtime.open());
+    const tenant: string = reader.metadata.tenant;
+    assert.equal(tenant, "tenant-a");
     if (false) {
       // @ts-expect-error Reader metadata objects are recursively readonly.
-      metadataReader.metadata.nested.a = 3;
+      reader.metadata.nested.a = 3;
       // @ts-expect-error Reader metadata arrays are recursively readonly.
-      metadataReader.metadata.groups.push("third");
+      reader.metadata.groups.push("third");
     }
-    const escapedReaderMetadata = metadataReader.metadata as unknown as RuntimeMetadata;
+    const escapedMetadata = reader.metadata as unknown as RuntimeMetadata;
     assert.throws(
       () => {
-        escapedReaderMetadata.nested.a = 3;
+        escapedMetadata.nested.a = 3;
       },
       TypeError
     );
     assert.throws(
-      () => escapedReaderMetadata.groups.push("third"),
+      () => escapedMetadata.groups.push("third"),
       TypeError
     );
+
     sourceMetadata.nested.a = 9;
     sourceMetadata.groups.push("external");
-    assert.equal(metadataReader.metadata.nested.a, 1);
-    assert.deepEqual(metadataReader.metadata.groups, ["second", "first"]);
-    const validationsBeforeReaderQueries = completeIndexValidations;
-    const metadataReaderQuery = resultValue(metadataReader.query());
-    const queryTenant: string = metadataReaderQuery.metadata.tenant;
+    assert.equal(reader.metadata.nested.a, 1);
+    assert.deepEqual(reader.metadata.groups, ["second", "first"]);
+    const validationsBeforeQueries = control.validations;
+    const queried = resultValue(reader.query());
+    const queryTenant: string = queried.metadata.tenant;
     assert.equal(queryTenant, "tenant-a");
     if (false) {
       // @ts-expect-error Query metadata objects are recursively readonly.
-      metadataReaderQuery.metadata.nested.a = 3;
+      queried.metadata.nested.a = 3;
       // @ts-expect-error Query metadata arrays are recursively readonly.
-      metadataReaderQuery.metadata.groups.push("third");
+      queried.metadata.groups.push("third");
     }
-    assert.equal(metadataReaderQuery.metadata.nested.a, 1);
-    assert.deepEqual(metadataReaderQuery.metadata.groups, ["second", "first"]);
-    const metadataOverlayQuery = resultValue(metadataReader.query(
+    assert.equal(queried.metadata.nested.a, 1);
+    assert.deepEqual(queried.metadata.groups, ["second", "first"]);
+    const overlay = resultValue(reader.query(
       {},
       { runtimeStates: [{ id: "two", label: "Second" }] }
     ));
-    assert.equal(metadataOverlayQuery.metadata.tenant, "tenant-a");
+    assert.equal(overlay.metadata.tenant, "tenant-a");
     assert.deepEqual(
-      metadataOverlayQuery.entries.map((entry) => entry.id),
+      overlay.entries.map((entry) => entry.id),
       ["tenant-a:one", "tenant-a:two"]
     );
-    assert.equal(completeIndexValidations, validationsBeforeReaderQueries);
-    const metadataRuntimeQuery = resultValue(await metadataRuntime.query());
-    const runtimeQueryTenant: string = metadataRuntimeQuery.metadata.tenant;
-    assert.equal(runtimeQueryTenant, "tenant-a");
+    assert.equal(control.validations, validationsBeforeQueries);
+  });
+});
 
-    const source: MemoryStateSource<DecisionState> = {
-      revision: "runtime-revision-1",
-      states: await decisionStates()
-    };
-    let revisionReads = 0;
-    const baseDefinition = decisionDefinition(source);
-    const definition = defineStateIndexDefinition({
-      ...baseDefinition,
-      readRevision: async (context) => {
-        revisionReads += 1;
-        return await baseDefinition.readRevision(context);
-      }
-    });
-    const runtime = createStateIndexRuntime({
-      definition,
-      indexPath: "indexes/decisions.json",
-      root: tempRoot
-    });
-    assert.equal((await runtime.sync("write")).state, "written");
-    revisionReads = 0;
-
-    const opened = await runtime.open();
-    const reader = resultValue(opened);
-    assert.equal(revisionReads, 1);
+test("opens a bound reader with one revision check for all operations", async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { revisionReads, runtime, source } =
+      await createDecisionRuntimeFixture(tempRoot);
+    const reader = resultValue(await runtime.open());
+    assert.equal(revisionReads.value, 1);
     assert.equal(resultValue(reader.all()).length, source.states.length);
     assert.equal(
       resultValue(reader.get("architecture/use-shared-cache.md"))?.state.title,
@@ -355,8 +396,13 @@ export async function testRuntime(): Promise<void> {
         values: ["active"]
       }]
     })).total, 2);
-    assert.equal(revisionReads, 1);
+    assert.equal(revisionReads.value, 1);
+  });
+});
 
+test("queries and gets runtime states through direct operations", async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { runtime, source } = await createDecisionRuntimeFixture(tempRoot);
     const queried = await runtime.query({
       filters: [{
         key: "status",
@@ -386,7 +432,12 @@ export async function testRuntime(): Promise<void> {
       resultValue(liveQuery).entries.map((entry) => entry.id),
       [runtimeState.path]
     );
+  });
+});
 
+test("rejects incompatible or corrupt persisted indexes and can rebuild them", async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { definition, runtime } = await createDecisionRuntimeFixture(tempRoot);
     const incompatibleDefinition = defineStateIndexDefinition({
       ...definition,
       keyStrategies: definition.keyStrategies.map((strategy) => (
@@ -400,9 +451,9 @@ export async function testRuntime(): Promise<void> {
       indexPath: "indexes/decisions.json",
       root: tempRoot
     });
-    const incompatibleProjection = await incompatibleRuntime.query();
-    assert.equal(incompatibleProjection.status, "error");
-    assert.ok(incompatibleProjection.diagnostics.some((entry) => (
+    const incompatible = await incompatibleRuntime.query();
+    assert.equal(incompatible.status, "error");
+    assert.ok(incompatible.diagnostics.some((entry) => (
       entry.code === "state-index.definition-mismatch"
     )));
 
@@ -412,14 +463,20 @@ export async function testRuntime(): Promise<void> {
     ) as { entries: Array<{ state: { title: unknown } }> };
     persisted.entries[0]!.state.title = 42;
     await fs.writeFile(persistedPath, `${JSON.stringify(persisted, null, 2)}\n`);
-    const invalidPersistedState = await runtime.query();
-    assert.equal(invalidPersistedState.status, "error");
-    assert.ok(invalidPersistedState.diagnostics.some((entry) => (
+    const invalidState = await runtime.query();
+    assert.equal(invalidState.status, "error");
+    assert.ok(invalidState.diagnostics.some((entry) => (
       entry.code === "state-index.state-parse-failed"
       && entry.path === "indexes/decisions.json"
     )));
     assert.equal((await runtime.sync("write")).state, "written");
+  });
+});
 
+test("keeps bound snapshots stable while runtime detects and refreshes staleness", async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { runtime, source } = await createDecisionRuntimeFixture(tempRoot);
+    const reader = resultValue(await runtime.open());
     source.revision = "runtime-revision-2";
     source.states[0] = {
       ...source.states[0]!,
@@ -432,11 +489,5 @@ export async function testRuntime(): Promise<void> {
     assert.equal((await runtime.get(source.states[0]!.path)).status, "error");
     assert.equal((await runtime.sync("write")).state, "written");
     assert.equal((await runtime.get(source.states[0]!.path)).status, "ok");
-  } finally {
-    await fs.rm(tempRoot, { force: true, recursive: true });
-  }
-}
-
-test("runtime opens, synchronizes, and recovers persisted indexes", () => (
-  testRuntime()
-));
+  });
+});

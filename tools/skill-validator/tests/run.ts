@@ -90,15 +90,25 @@ test("validator accepts a portable skill with bundled and CLI parity", async () 
   await fs.writeFile(path.join(invalidSkillPath, "scripts"), "not a directory\n", "utf8");
   await fs.writeFile(path.join(tempRoot, "outside.md"), "# Outside\n", "utf8");
 
-test("validator reports invalid metadata, directories, and links", async () => {
+test("validator reports invalid frontmatter metadata", async () => {
   const invalid = await validateSkillDirectory(invalidSkillPath);
   assert.ok(invalid.errors.some((error) => error.includes("name must use kebab-case")));
   assert.ok(invalid.errors.some((error) => error.includes("name must match directory name")));
   assert.ok(invalid.errors.some((error) => error.includes("description must be a non-empty string")));
+});
+
+test("validator reports invalid reserved directory entries", async () => {
+  const invalid = await validateSkillDirectory(invalidSkillPath);
   assert.ok(invalid.errors.some((error) => error.includes("scripts/ must be a directory")));
+});
+
+test("validator rejects missing and outside links", async () => {
+  const invalid = await validateSkillDirectory(invalidSkillPath);
   assert.ok(invalid.errors.some((error) => error.includes("missing link target")));
   assert.ok(invalid.errors.some((error) => error.includes("links outside")));
+});
 
+test("validator CLI reports invalid skill failures", () => {
   const cliFailure = spawnSync("node", [generatedValidatorPath, invalidSkillPath], {
     encoding: "utf8"
   });
@@ -107,11 +117,13 @@ test("validator reports invalid metadata, directories, and links", async () => {
   assert.match(cliFailure.stderr, /frontmatter name must use kebab-case/);
 });
 
-test("validator reports missing, empty, and malformed skill entries", async () => {
+test("validator reports a missing SKILL.md entry", async () => {
   const missingSkillPath = path.join(tempRoot, "missing-skill");
   await fs.mkdir(missingSkillPath);
   assert.ok((await validateSkillDirectory(missingSkillPath)).errors.includes("SKILL.md is required"));
+});
 
+test("validator reports an empty SKILL.md body", async () => {
   const emptyBodyPath = path.join(tempRoot, "empty-body");
   await fs.mkdir(emptyBodyPath);
   await fs.writeFile(
@@ -124,7 +136,9 @@ test("validator reports missing, empty, and malformed skill entries", async () =
       "SKILL.md body must contain executable guidance"
     )
   );
+});
 
+test("validator reports malformed SKILL.md frontmatter", async () => {
   const malformedFrontmatterPath = path.join(tempRoot, "malformed-frontmatter");
   await fs.mkdir(malformedFrontmatterPath);
   await fs.writeFile(

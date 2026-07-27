@@ -4,9 +4,9 @@ import path from "node:path";
 import test from "node:test";
 import { validateDecisionRecords } from "../src/index.ts";
 import {
-  createFixtureWorkspace,
   currentRelativePath,
-  runBundledCli
+  runBundledCli,
+  withFixtureWorkspace
 } from "./support.ts";
 
 type TestDomainCatalog = {
@@ -17,17 +17,10 @@ type TestDomainCatalog = {
   }>;
 };
 
-test("decision domain catalog validates ownership and domain membership", async () => {
-const workspaceRoot = await createFixtureWorkspace();
-try {
+test("domains command reads the catalog without a decision index", () => (
+  withFixtureWorkspace("domain-query", async (workspaceRoot) => {
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
-  const catalogPath = path.join(decisionsDirectory, "decision-domains.json");
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
-  const decisionPath = path.join(decisionsDirectory, currentRelativePath);
-  const originalCatalogText = await fs.readFile(catalogPath, "utf8");
-  const originalCatalog = JSON.parse(originalCatalogText) as TestDomainCatalog;
-  const originalDecision = await fs.readFile(decisionPath, "utf8");
-  const originalIndexText = await fs.readFile(indexPath, "utf8");
 
   await fs.rm(indexPath);
   const domainsWithoutIndex = await runBundledCli([
@@ -40,33 +33,50 @@ try {
   assert.match(domainsWithoutIndex.stdout, /- change-plan: /);
   assert.match(domainsWithoutIndex.stdout, /- decision-records: /);
   assert.match(domainsWithoutIndex.stdout, /- project-tooling: /);
-  await fs.writeFile(indexPath, originalIndexText, "utf8");
+  })
+));
+
+test("decision domain catalog enforces required sorted unique entries", () => (
+  withFixtureWorkspace("domain-structure", async (workspaceRoot) => {
+  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+  const catalogPath = path.join(decisionsDirectory, "decision-domains.json");
+  const originalCatalogText = await fs.readFile(catalogPath, "utf8");
+  const originalCatalog = JSON.parse(originalCatalogText) as TestDomainCatalog;
 
   await fs.rm(catalogPath);
-  await assertValidationError("decision-domains.json is required");
-  await restoreCatalog();
+  await assertValidationError(workspaceRoot, "decision-domains.json is required");
+  await fs.writeFile(catalogPath, originalCatalogText, "utf8");
 
   const reversedCatalog = structuredClone(originalCatalog);
   reversedCatalog.domains.reverse();
-  await writeCatalog(reversedCatalog);
+  await writeCatalog(catalogPath, reversedCatalog);
   await assertValidationError(
+    workspaceRoot,
     "domains must be sorted by id in ascending lexical order"
   );
-  await restoreCatalog();
+  await fs.writeFile(catalogPath, originalCatalogText, "utf8");
 
   const duplicateCatalog = structuredClone(originalCatalog);
   duplicateCatalog.domains.splice(1, 0, {
     ...duplicateCatalog.domains[0]!
   });
-  await writeCatalog(duplicateCatalog);
-  await assertValidationError("domain ids must be unique");
-  await restoreCatalog();
+  await writeCatalog(catalogPath, duplicateCatalog);
+  await assertValidationError(workspaceRoot, "domain ids must be unique");
+  await fs.writeFile(catalogPath, originalCatalogText, "utf8");
 
   const multilineDescriptionCatalog = structuredClone(originalCatalog);
   multilineDescriptionCatalog.domains[0]!.description = "第一行\n第二行";
-  await writeCatalog(multilineDescriptionCatalog);
-  await assertValidationError("must be a single line");
-  await restoreCatalog();
+  await writeCatalog(catalogPath, multilineDescriptionCatalog);
+  await assertValidationError(workspaceRoot, "must be a single line");
+  })
+));
+
+test("decision domain catalog revision ignores formatting but tracks descriptions", () => (
+  withFixtureWorkspace("domain-revision", async (workspaceRoot) => {
+  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+  const catalogPath = path.join(decisionsDirectory, "decision-domains.json");
+  const originalCatalogText = await fs.readFile(catalogPath, "utf8");
+  const originalCatalog = JSON.parse(originalCatalogText) as TestDomainCatalog;
 
   await fs.writeFile(
     catalogPath,
@@ -79,11 +89,11 @@ try {
     workspaceRoot
   ]);
   assert.equal(reformattedCatalogQuery.exitCode, 0, reformattedCatalogQuery.stderr);
-  await restoreCatalog();
+  await fs.writeFile(catalogPath, originalCatalogText, "utf8");
 
   const changedDescriptionCatalog = structuredClone(originalCatalog);
   changedDescriptionCatalog.domains[0]!.description += "（修订）";
-  await writeCatalog(changedDescriptionCatalog);
+  await writeCatalog(catalogPath, changedDescriptionCatalog);
   const changedDescriptionQuery = await runBundledCli([
     "list",
     "--root",
@@ -91,13 +101,23 @@ try {
   ]);
   assert.equal(changedDescriptionQuery.exitCode, 1);
   assert.match(changedDescriptionQuery.stderr, /source revision/i);
-  await restoreCatalog();
+  })
+));
+
+test("decision domain catalog validates ownership and domain membership", () => (
+  withFixtureWorkspace("domain-membership", async (workspaceRoot) => {
+  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+  const catalogPath = path.join(decisionsDirectory, "decision-domains.json");
+  const decisionPath = path.join(decisionsDirectory, currentRelativePath);
+  const originalCatalogText = await fs.readFile(catalogPath, "utf8");
+  const originalCatalog = JSON.parse(originalCatalogText) as TestDomainCatalog;
+  const originalDecision = await fs.readFile(decisionPath, "utf8");
 
   const missingUsedDomainCatalog = structuredClone(originalCatalog);
   missingUsedDomainCatalog.domains = missingUsedDomainCatalog.domains.filter(
     (domain) => domain.id !== "project-tooling"
   );
-  await writeCatalog(missingUsedDomainCatalog);
+  await writeCatalog(catalogPath, missingUsedDomainCatalog);
   const queryWithUndefinedRecordDomain = await runBundledCli([
     "list",
     "--root",
@@ -108,7 +128,7 @@ try {
     queryWithUndefinedRecordDomain.stderr,
     /Decision domain directory is not defined in decision-domains\.json: project-tooling/
   );
-  await restoreCatalog();
+  await fs.writeFile(catalogPath, originalCatalogText, "utf8");
 
   await fs.writeFile(
     decisionPath,
@@ -118,7 +138,10 @@ try {
     ),
     "utf8"
   );
-  await assertValidationError("frontmatter has unsupported keys: domain");
+  await assertValidationError(
+    workspaceRoot,
+    "frontmatter has unsupported keys: domain"
+  );
   await fs.writeFile(decisionPath, originalDecision, "utf8");
 
   const candidatePath = path.join(
@@ -152,30 +175,30 @@ try {
   const emptyDomainDirectory = path.join(decisionsDirectory, "change-plan");
   await fs.mkdir(emptyDomainDirectory);
   await assertValidationError(
+    workspaceRoot,
     "Decision domain directory must contain at least one decision file: change-plan"
   );
-  await fs.rmdir(emptyDomainDirectory);
+  })
+));
 
-  async function restoreCatalog(): Promise<void> {
-    await fs.writeFile(catalogPath, originalCatalogText, "utf8");
-  }
-
-  async function writeCatalog(catalog: TestDomainCatalog): Promise<void> {
-    await fs.writeFile(
-      catalogPath,
-      JSON.stringify(catalog, null, 2) + "\n",
-      "utf8"
-    );
-  }
-
-  async function assertValidationError(expected: string): Promise<void> {
-    const validation = await validateDecisionRecords({ workspaceRoot });
-    assert.ok(
-      validation.errors.some((error) => error.includes(expected)),
-      `Expected validation error containing: ${expected}`
-    );
-  }
-} finally {
-  await fs.rm(workspaceRoot, { force: true, recursive: true });
+async function writeCatalog(
+  catalogPath: string,
+  catalog: TestDomainCatalog
+): Promise<void> {
+  await fs.writeFile(
+    catalogPath,
+    JSON.stringify(catalog, null, 2) + "\n",
+    "utf8"
+  );
 }
-});
+
+async function assertValidationError(
+  workspaceRoot: string,
+  expected: string
+): Promise<void> {
+  const validation = await validateDecisionRecords({ workspaceRoot });
+  assert.ok(
+    validation.errors.some((error) => error.includes(expected)),
+    `Expected validation error containing: ${expected}`
+  );
+}

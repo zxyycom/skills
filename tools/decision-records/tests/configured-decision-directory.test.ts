@@ -9,7 +9,7 @@ import {
   runSuccessfulSourceCli
 } from "./support.ts";
 
-test("configured decision directories support relative and absolute paths", async () => {
+test("relative decision directories resolve from the workspace root", async () => {
 const fixtureDecisionsDirectory = path.join(fixtureRoot, "docs", "decisions");
 
 const relativeConfigurationRoot = await fs.mkdtemp(
@@ -44,7 +44,10 @@ try {
 } finally {
   await fs.rm(relativeConfigurationRoot, { force: true, recursive: true });
 }
+});
 
+test("absolute decision directories remain outside the workspace root", async () => {
+const fixtureDecisionsDirectory = path.join(fixtureRoot, "docs", "decisions");
 const absoluteConfigurationRoot = await fs.mkdtemp(
   path.join(os.tmpdir(), "decision-records-absolute-directory-")
 );

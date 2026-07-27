@@ -154,13 +154,16 @@ after(async () => {
     }
   };
 
-test("updater configuration, help, and declarations expose the public contract", async () => {
+test("updater configuration exposes the public contract", () => {
   assert.equal(skillUpdaterConfig.skillName, skillName);
   assert.equal(
     skillUpdaterConfig.releaseManifestAssetName,
     "skill-release-manifest.json"
   );
   assert.equal(typeof runSkillUpdaterCli, "function");
+});
+
+test("updater help exposes the public CLI contract", async () => {
   const helpOutput: string[] = [];
   const originalConsoleLog = console.log;
   console.log = (...values: unknown[]) => {
@@ -173,7 +176,9 @@ test("updater configuration, help, and declarations expose the public contract",
   }
   assert.match(helpOutput.join("\n"), /Usage: node update-skill\.mjs/);
   assert.match(helpOutput.join("\n"), /installed version differs from the remote version/);
+});
 
+test("updater declarations expose the public API contract", async () => {
   const generatedDeclaration = await fs.readFile(generatedDeclarationPath, "utf8");
   assert.match(
     generatedDeclaration,
@@ -304,7 +309,7 @@ test("updater rejects a non-skill directory before fetching release data", async
   assert.equal(await pathExists(path.join(nonSkillTarget, "SKILL.md")), false);
 });
 
-test("updater installs into missing and empty target directories", async () => {
+test("updater installs into a missing target directory", async () => {
   const missingTarget = path.join(tempRoot, "missing-target");
   const missing = runUpdater(mockFetchPath, {
     args: ["--yes"],
@@ -320,7 +325,9 @@ test("updater installs into missing and empty target directories", async () => {
     await fs.readFile(path.join(missingTarget, "SKILL.md"), "utf8"),
     remoteSkillMarkdown
   );
+});
 
+test("updater installs into an empty target directory", async () => {
   const emptyTarget = path.join(tempRoot, "empty-target");
   await fs.mkdir(emptyTarget);
   const empty = runUpdater(mockFetchPath, {
@@ -464,7 +471,7 @@ test("updater rejects aliased non-canonical package paths", async () => {
   );
 });
 
-test("updater reports invalid release and manifest payloads", () => {
+test("updater reports invalid release payloads", () => {
   const invalidRelease = runUpdater(mockFetchPath, {
     args: ["--check"],
     manifest: validManifest,
@@ -475,7 +482,9 @@ test("updater reports invalid release and manifest payloads", () => {
   assert.equal(invalidRelease.status, 1);
   assert.match(invalidRelease.stderr, /GitHub release response .* is invalid/);
   assert.match(invalidRelease.stderr, /assets/);
+});
 
+test("updater reports invalid manifest payloads", () => {
   const invalidManifest = runUpdater(mockFetchPath, {
     args: ["--check"],
     manifest: {},
