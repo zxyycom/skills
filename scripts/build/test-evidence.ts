@@ -12,7 +12,6 @@ import {
 import { githubRepository, rootDir } from "../lib/project.ts";
 import {
   testEvidenceCaseShowResultSchema,
-  testEvidenceConfigSchema,
   testEvidenceIndexSyncResultSchema,
   testEvidenceQueryResultSchema,
   testEvidenceReportSchema,
@@ -53,13 +52,6 @@ const schemaSpecs = [
     schema: testEvidenceTopicCatalogSchema,
     typeName: "TestEvidenceTopicCatalog",
     typesFileName: "test-evidence-topic-catalog.types.d.mts"
-  },
-  {
-    fileName: "test-evidence-config.schema.json",
-    mode: "input" as const,
-    schema: testEvidenceConfigSchema,
-    typeName: "TestEvidenceConfig",
-    typesFileName: "test-evidence-config.types.d.mts"
   },
   {
     fileName: "test-evidence-case-show-result.schema.json",

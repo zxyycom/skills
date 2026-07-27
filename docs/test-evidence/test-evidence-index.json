@@ -3362,10 +3362,10 @@
       }
     },
     {
-      "id": "TEST-EVIDENCE-CONFIG-PATH-001",
+      "id": "TEST-EVIDENCE-CASE-ID-PATTERN-001",
       "keys": {
         "search": [
-          "TEST-EVIDENCE-CONFIG-PATH-001 不可检查的 catalog 路径被拒绝 Test evidence 配置必须拒绝无法安全检查的 uninspectable catalog 路径。 该路径返回 blocking `config.path-inspection-failed` 诊断且不写入索引。 tools/test-evidence/tests/config-path.test.ts > rejects a catalog path that cannot be inspected bun test --test-name-pattern=\"^rejects a catalog path that cannot be inspected$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-CASE-ID-PATTERN-001 Case ID 使用固定协议 每个测试账本 case ID 必须符合工具内置且不可配置的统一格式。 不符合固定格式的 case ID 产生阻断目录诊断。 tools/test-evidence/tests/run.ts > catalog enforces the fixed case ID pattern bun test --test-name-pattern=\"^catalog enforces the fixed case ID pattern$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -3374,15 +3374,15 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/config-path.test.ts > rejects a catalog path that cannot be inspected",
-          "bun test --test-name-pattern=\"^rejects a catalog path that cannot be inspected$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/run.ts > catalog enforces the fixed case ID pattern",
+          "bun test --test-name-pattern=\"^catalog enforces the fixed case ID pattern$\" ./tools/test-evidence/tests/run.ts"
         ],
-        "id": "TEST-EVIDENCE-CONFIG-PATH-001",
+        "id": "TEST-EVIDENCE-CASE-ID-PATTERN-001",
         "line": 1,
-        "searchText": "TEST-EVIDENCE-CONFIG-PATH-001 不可检查的 catalog 路径被拒绝 Test evidence 配置必须拒绝无法安全检查的 uninspectable catalog 路径。 该路径返回 blocking `config.path-inspection-failed` 诊断且不写入索引。 tools/test-evidence/tests/config-path.test.ts > rejects a catalog path that cannot be inspected bun test --test-name-pattern=\"^rejects a catalog path that cannot be inspected$\" ./tools/test-evidence/tests/run.ts",
-        "sourcePath": "test-evidence/rejects-a-catalog-path-that-cannot-be-inspected.md",
-        "summary": "Test evidence 配置必须拒绝无法安全检查的 uninspectable catalog 路径。",
-        "title": "不可检查的 catalog 路径被拒绝"
+        "searchText": "TEST-EVIDENCE-CASE-ID-PATTERN-001 Case ID 使用固定协议 每个测试账本 case ID 必须符合工具内置且不可配置的统一格式。 不符合固定格式的 case ID 产生阻断目录诊断。 tools/test-evidence/tests/run.ts > catalog enforces the fixed case ID pattern bun test --test-name-pattern=\"^catalog enforces the fixed case ID pattern$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/catalog-enforces-the-fixed-case-id-pattern.md",
+        "summary": "每个测试账本 case ID 必须符合工具内置且不可配置的统一格式。",
+        "title": "Case ID 使用固定协议"
       }
     },
     {
@@ -3437,7 +3437,7 @@
       "id": "TEST-EVIDENCE-DISTRIBUTED-CLI-001",
       "keys": {
         "search": [
-          "TEST-EVIDENCE-DISTRIBUTED-CLI-001 分发模块与 CLI 保持 Topic 查询契约 分发模块和 CLI 必须与维护源码共享 topic 表、catalog 查询及不可恢复失败语义。 分发 API 暴露 topic 查询与 Schema，`topics` 和 `list` 返回 v3 结果，不可读索引在 `list` 与 `show` 中都以失败退出。 tools/test-evidence/tests/run.ts > distributed module and CLI preserve catalog query contracts bun test --test-name-pattern=\"^distributed module and CLI preserve catalog query contracts$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-DISTRIBUTED-CLI-001 分发模块与 CLI 保持 Topic 查询契约 分发模块和 CLI 必须与维护源码共享 topic 表、catalog 查询及不可恢复失败语义。 分发 API 不再暴露配置 Schema，topic 查询与其他 Schema 可用，`topics` 和 `list` 返回 v4 结果，不可读固定索引在 `list` 与 `show` 中都以失败退出。 tools/test-evidence/tests/run.ts > distributed module and CLI preserve catalog query contracts bun test --test-name-pattern=\"^distributed module and CLI preserve catalog query contracts$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -3451,7 +3451,7 @@
         ],
         "id": "TEST-EVIDENCE-DISTRIBUTED-CLI-001",
         "line": 1,
-        "searchText": "TEST-EVIDENCE-DISTRIBUTED-CLI-001 分发模块与 CLI 保持 Topic 查询契约 分发模块和 CLI 必须与维护源码共享 topic 表、catalog 查询及不可恢复失败语义。 分发 API 暴露 topic 查询与 Schema，`topics` 和 `list` 返回 v3 结果，不可读索引在 `list` 与 `show` 中都以失败退出。 tools/test-evidence/tests/run.ts > distributed module and CLI preserve catalog query contracts bun test --test-name-pattern=\"^distributed module and CLI preserve catalog query contracts$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "TEST-EVIDENCE-DISTRIBUTED-CLI-001 分发模块与 CLI 保持 Topic 查询契约 分发模块和 CLI 必须与维护源码共享 topic 表、catalog 查询及不可恢复失败语义。 分发 API 不再暴露配置 Schema，topic 查询与其他 Schema 可用，`topics` 和 `list` 返回 v4 结果，不可读固定索引在 `list` 与 `show` 中都以失败退出。 tools/test-evidence/tests/run.ts > distributed module and CLI preserve catalog query contracts bun test --test-name-pattern=\"^distributed module and CLI preserve catalog query contracts$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/distributed-module-and-cli-preserve-catalog-query-contracts.md",
         "summary": "分发模块和 CLI 必须与维护源码共享 topic 表、catalog 查询及不可恢复失败语义。",
         "title": "分发模块与 CLI 保持 Topic 查询契约"
@@ -3482,10 +3482,10 @@
       }
     },
     {
-      "id": "TEST-EVIDENCE-INDEX-HARDLINK-001",
+      "id": "TEST-EVIDENCE-FIXED-CONTRACT-001",
       "keys": {
         "search": [
-          "TEST-EVIDENCE-INDEX-HARDLINK-001 索引路径不能硬链接到保留源 索引目标与配置、topic 表、README 和权威单 case 文件必须保持文件身份隔离。 指向任一保留源或配置文件 inode 的硬链接都会阻断索引同步。 tools/test-evidence/tests/run.ts > index paths cannot hard-link to reserved sources, config, or case files bun test --test-name-pattern=\"^index paths cannot hard-link to reserved sources, config, or case files$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-FIXED-CONTRACT-001 项目级配置不参与测试账本接口 测试账本的目录、索引和 case ID 规则由固定协议决定，不接受项目级配置改写。 遗留配置文件不能重定向查询，CLI 对 `--config` 返回未知参数错误。 tools/test-evidence/tests/run.ts > catalog ignores legacy config files and rejects config arguments bun test --test-name-pattern=\"^catalog ignores legacy config files and rejects config arguments$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -3494,15 +3494,39 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > index paths cannot hard-link to reserved sources, config, or case files",
-          "bun test --test-name-pattern=\"^index paths cannot hard-link to reserved sources, config, or case files$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/run.ts > catalog ignores legacy config files and rejects config arguments",
+          "bun test --test-name-pattern=\"^catalog ignores legacy config files and rejects config arguments$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-FIXED-CONTRACT-001",
+        "line": 1,
+        "searchText": "TEST-EVIDENCE-FIXED-CONTRACT-001 项目级配置不参与测试账本接口 测试账本的目录、索引和 case ID 规则由固定协议决定，不接受项目级配置改写。 遗留配置文件不能重定向查询，CLI 对 `--config` 返回未知参数错误。 tools/test-evidence/tests/run.ts > catalog ignores legacy config files and rejects config arguments bun test --test-name-pattern=\"^catalog ignores legacy config files and rejects config arguments$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/catalog-ignores-legacy-config-and-rejects-config-arguments.md",
+        "summary": "测试账本的目录、索引和 case ID 规则由固定协议决定，不接受项目级配置改写。",
+        "title": "项目级配置不参与测试账本接口"
+      }
+    },
+    {
+      "id": "TEST-EVIDENCE-INDEX-HARDLINK-001",
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-INDEX-HARDLINK-001 固定索引不能硬链接到权威源 固定索引目标与 topic 表和权威单 case 文件必须保持文件身份隔离。 固定索引指向 topic 表或 case 文件 inode 的硬链接都会阻断同步。 tools/test-evidence/tests/run.ts > fixed index cannot hard-link to authoritative sources bun test --test-name-pattern=\"^fixed index cannot hard-link to authoritative sources$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "topic": [
+          "test-evidence"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/test-evidence/tests/run.ts > fixed index cannot hard-link to authoritative sources",
+          "bun test --test-name-pattern=\"^fixed index cannot hard-link to authoritative sources$\" ./tools/test-evidence/tests/run.ts"
         ],
         "id": "TEST-EVIDENCE-INDEX-HARDLINK-001",
         "line": 1,
-        "searchText": "TEST-EVIDENCE-INDEX-HARDLINK-001 索引路径不能硬链接到保留源 索引目标与配置、topic 表、README 和权威单 case 文件必须保持文件身份隔离。 指向任一保留源或配置文件 inode 的硬链接都会阻断索引同步。 tools/test-evidence/tests/run.ts > index paths cannot hard-link to reserved sources, config, or case files bun test --test-name-pattern=\"^index paths cannot hard-link to reserved sources, config, or case files$\" ./tools/test-evidence/tests/run.ts",
-        "sourcePath": "test-evidence/index-paths-cannot-hard-link-to-reserved-sources.md",
-        "summary": "索引目标与配置、topic 表、README 和权威单 case 文件必须保持文件身份隔离。",
-        "title": "索引路径不能硬链接到保留源"
+        "searchText": "TEST-EVIDENCE-INDEX-HARDLINK-001 固定索引不能硬链接到权威源 固定索引目标与 topic 表和权威单 case 文件必须保持文件身份隔离。 固定索引指向 topic 表或 case 文件 inode 的硬链接都会阻断同步。 tools/test-evidence/tests/run.ts > fixed index cannot hard-link to authoritative sources bun test --test-name-pattern=\"^fixed index cannot hard-link to authoritative sources$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/fixed-index-cannot-hard-link-to-authoritative-sources.md",
+        "summary": "固定索引目标与 topic 表和权威单 case 文件必须保持文件身份隔离。",
+        "title": "固定索引不能硬链接到权威源"
       }
     },
     {
@@ -3527,30 +3551,6 @@
         "sourcePath": "test-evidence/persisted-index-topic-projection-is-validated.md",
         "summary": "持久化索引中的 topic metadata、case 源路径与精确 topic 键必须表示同一合法投影。",
         "title": "持久化 Topic 投影必须整体一致"
-      }
-    },
-    {
-      "id": "TEST-EVIDENCE-INDEX-RESERVED-PATH-001",
-      "keys": {
-        "search": [
-          "TEST-EVIDENCE-INDEX-RESERVED-PATH-001 索引路径不能覆盖保留源文件 索引写入目标必须与配置、topic 表、README 和权威单 case 文件保持路径隔离。 把任一保留源或配置路径用作索引目标都会产生路径冲突且不会写入。 tools/test-evidence/tests/run.ts > index paths cannot overwrite reserved sources or case files bun test --test-name-pattern=\"^index paths cannot overwrite reserved sources or case files$\" ./tools/test-evidence/tests/run.ts"
-        ],
-        "topic": [
-          "test-evidence"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/test-evidence/tests/run.ts > index paths cannot overwrite reserved sources or case files",
-          "bun test --test-name-pattern=\"^index paths cannot overwrite reserved sources or case files$\" ./tools/test-evidence/tests/run.ts"
-        ],
-        "id": "TEST-EVIDENCE-INDEX-RESERVED-PATH-001",
-        "line": 1,
-        "searchText": "TEST-EVIDENCE-INDEX-RESERVED-PATH-001 索引路径不能覆盖保留源文件 索引写入目标必须与配置、topic 表、README 和权威单 case 文件保持路径隔离。 把任一保留源或配置路径用作索引目标都会产生路径冲突且不会写入。 tools/test-evidence/tests/run.ts > index paths cannot overwrite reserved sources or case files bun test --test-name-pattern=\"^index paths cannot overwrite reserved sources or case files$\" ./tools/test-evidence/tests/run.ts",
-        "sourcePath": "test-evidence/index-paths-cannot-overwrite-reserved-sources-or-case-files.md",
-        "summary": "索引写入目标必须与配置、topic 表、README 和权威单 case 文件保持路径隔离。",
-        "title": "索引路径不能覆盖保留源文件"
       }
     },
     {
@@ -3674,34 +3674,10 @@
       }
     },
     {
-      "id": "TEST-EVIDENCE-PATH-IDENTITY-001",
-      "keys": {
-        "search": [
-          "TEST-EVIDENCE-PATH-IDENTITY-001 配置、Catalog 与索引路径身份拒绝冲突 配置文件、catalog 根目录与索引目标必须按解析后路径、平台身份和文件身份保持互异。 点段或重复分隔符别名、大小写等价身份和同 inode 硬链接都产生阻断路径冲突。 tools/test-evidence/tests/run.ts > catalog paths reject aliases, hard links, and platform-equivalent identities bun test --test-name-pattern=\"^catalog paths reject aliases, hard links, and platform-equivalent identities$\" ./tools/test-evidence/tests/run.ts"
-        ],
-        "topic": [
-          "test-evidence"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/test-evidence/tests/run.ts > catalog paths reject aliases, hard links, and platform-equivalent identities",
-          "bun test --test-name-pattern=\"^catalog paths reject aliases, hard links, and platform-equivalent identities$\" ./tools/test-evidence/tests/run.ts"
-        ],
-        "id": "TEST-EVIDENCE-PATH-IDENTITY-001",
-        "line": 1,
-        "searchText": "TEST-EVIDENCE-PATH-IDENTITY-001 配置、Catalog 与索引路径身份拒绝冲突 配置文件、catalog 根目录与索引目标必须按解析后路径、平台身份和文件身份保持互异。 点段或重复分隔符别名、大小写等价身份和同 inode 硬链接都产生阻断路径冲突。 tools/test-evidence/tests/run.ts > catalog paths reject aliases, hard links, and platform-equivalent identities bun test --test-name-pattern=\"^catalog paths reject aliases, hard links, and platform-equivalent identities$\" ./tools/test-evidence/tests/run.ts",
-        "sourcePath": "test-evidence/catalog-paths-reject-aliases-hard-links-and-platform-equivalent-identities.md",
-        "summary": "配置文件、catalog 根目录与索引目标必须按解析后路径、平台身份和文件身份保持互异。",
-        "title": "配置、Catalog 与索引路径身份拒绝冲突"
-      }
-    },
-    {
       "id": "TEST-EVIDENCE-QUERY-REPOSITORY-001",
       "keys": {
         "search": [
-          "TEST-EVIDENCE-QUERY-REPOSITORY-001 仓库 Topic Case 可按契约与证明检索 Test evidence 查询必须把当前仓库的受控 topic 目录投影为可检索 case metadata。 跨 Contract 与 Proves 的多词查询只返回匹配 case ID、`test-evidence` topic 与单 case 源路径。 tools/test-evidence/tests/repository-catalog.test.ts > queries the repository catalog by contract and proof terms bun test --test-name-pattern=\"^queries the repository catalog by contract and proof terms$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-QUERY-REPOSITORY-001 仓库 Topic Case 可按契约与证明检索 Test evidence 查询必须把当前仓库的受控 topic 目录投影为可检索 case metadata。 跨 Contract 与 Proves 的多词查询只返回固定契约 case ID、`test-evidence` topic 与单 case 源路径。 tools/test-evidence/tests/repository-catalog.test.ts > queries the repository catalog by contract and proof terms bun test --test-name-pattern=\"^queries the repository catalog by contract and proof terms$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -3715,7 +3691,7 @@
         ],
         "id": "TEST-EVIDENCE-QUERY-REPOSITORY-001",
         "line": 1,
-        "searchText": "TEST-EVIDENCE-QUERY-REPOSITORY-001 仓库 Topic Case 可按契约与证明检索 Test evidence 查询必须把当前仓库的受控 topic 目录投影为可检索 case metadata。 跨 Contract 与 Proves 的多词查询只返回匹配 case ID、`test-evidence` topic 与单 case 源路径。 tools/test-evidence/tests/repository-catalog.test.ts > queries the repository catalog by contract and proof terms bun test --test-name-pattern=\"^queries the repository catalog by contract and proof terms$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "TEST-EVIDENCE-QUERY-REPOSITORY-001 仓库 Topic Case 可按契约与证明检索 Test evidence 查询必须把当前仓库的受控 topic 目录投影为可检索 case metadata。 跨 Contract 与 Proves 的多词查询只返回固定契约 case ID、`test-evidence` topic 与单 case 源路径。 tools/test-evidence/tests/repository-catalog.test.ts > queries the repository catalog by contract and proof terms bun test --test-name-pattern=\"^queries the repository catalog by contract and proof terms$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/queries-the-repository-catalog-by-contract-and-proof-terms.md",
         "summary": "Test evidence 查询必须把当前仓库的受控 topic 目录投影为可检索 case metadata。",
         "title": "仓库 Topic Case 可按契约与证明检索"
@@ -3749,7 +3725,7 @@
       "id": "TEST-EVIDENCE-REVISION-FRAMING-001",
       "keys": {
         "search": [
-          "TEST-EVIDENCE-REVISION-FRAMING-001 Revision Framing 规范化非语义输入 源 revision 只反映规范化后的 topic 定义、case 源路径与正文及 case ID 规则，不受非语义载体差异影响。 LF 与 CRLF 产生相同 revision，topic JSON 格式、README 和索引内容不改变当前 revision。 tools/test-evidence/tests/run.ts > revision framing normalizes line endings and ignores catalog path, JSON formatting, README, and index content bun test --test-name-pattern=\"^revision framing normalizes line endings and ignores catalog path, JSON formatting, README, and index content$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-REVISION-FRAMING-001 Revision Framing 规范化非语义输入 源 revision 只反映规范化后的 topic 定义、case 源路径与正文及固定 case ID 规则，不受非语义载体差异影响。 LF 与 CRLF 产生相同 revision，topic JSON 纯格式变化不改变当前 revision。 tools/test-evidence/tests/run.ts > revision framing normalizes line endings and topic JSON formatting bun test --test-name-pattern=\"^revision framing normalizes line endings and topic JSON formatting$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -3758,14 +3734,14 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > revision framing normalizes line endings and ignores catalog path, JSON formatting, README, and index content",
-          "bun test --test-name-pattern=\"^revision framing normalizes line endings and ignores catalog path, JSON formatting, README, and index content$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/run.ts > revision framing normalizes line endings and topic JSON formatting",
+          "bun test --test-name-pattern=\"^revision framing normalizes line endings and topic JSON formatting$\" ./tools/test-evidence/tests/run.ts"
         ],
         "id": "TEST-EVIDENCE-REVISION-FRAMING-001",
         "line": 1,
-        "searchText": "TEST-EVIDENCE-REVISION-FRAMING-001 Revision Framing 规范化非语义输入 源 revision 只反映规范化后的 topic 定义、case 源路径与正文及 case ID 规则，不受非语义载体差异影响。 LF 与 CRLF 产生相同 revision，topic JSON 格式、README 和索引内容不改变当前 revision。 tools/test-evidence/tests/run.ts > revision framing normalizes line endings and ignores catalog path, JSON formatting, README, and index content bun test --test-name-pattern=\"^revision framing normalizes line endings and ignores catalog path, JSON formatting, README, and index content$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "TEST-EVIDENCE-REVISION-FRAMING-001 Revision Framing 规范化非语义输入 源 revision 只反映规范化后的 topic 定义、case 源路径与正文及固定 case ID 规则，不受非语义载体差异影响。 LF 与 CRLF 产生相同 revision，topic JSON 纯格式变化不改变当前 revision。 tools/test-evidence/tests/run.ts > revision framing normalizes line endings and topic JSON formatting bun test --test-name-pattern=\"^revision framing normalizes line endings and topic JSON formatting$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/revision-framing-normalizes-non-semantic-inputs.md",
-        "summary": "源 revision 只反映规范化后的 topic 定义、case 源路径与正文及 case ID 规则，不受非语义载体差异影响。",
+        "summary": "源 revision 只反映规范化后的 topic 定义、case 源路径与正文及固定 case ID 规则，不受非语义载体差异影响。",
         "title": "Revision Framing 规范化非语义输入"
       }
     },
@@ -3821,7 +3797,7 @@
       "id": "TEST-EVIDENCE-SHOW-REPOSITORY-001",
       "keys": {
         "search": [
-          "TEST-EVIDENCE-SHOW-REPOSITORY-001 仓库 Topic Case 可展开权威 Markdown Show 必须把已登记 case ID 解析回 topic 归属、单 case 源路径与权威 Markdown。 已知 case 返回 `test-evidence` topic 下的自身内容，且不混入其他单 case 文件。 tools/test-evidence/tests/repository-catalog.test.ts > shows the authoritative Markdown for a repository case bun test --test-name-pattern=\"^shows the authoritative Markdown for a repository case$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-SHOW-REPOSITORY-001 仓库 Topic Case 可展开权威 Markdown Show 必须把已登记 case ID 解析回 topic 归属、单 case 源路径与权威 Markdown。 已知固定契约 case 返回 `test-evidence` topic 下的自身内容，且不混入其他单 case 文件。 tools/test-evidence/tests/repository-catalog.test.ts > shows the authoritative Markdown for a repository case bun test --test-name-pattern=\"^shows the authoritative Markdown for a repository case$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -3835,7 +3811,7 @@
         ],
         "id": "TEST-EVIDENCE-SHOW-REPOSITORY-001",
         "line": 1,
-        "searchText": "TEST-EVIDENCE-SHOW-REPOSITORY-001 仓库 Topic Case 可展开权威 Markdown Show 必须把已登记 case ID 解析回 topic 归属、单 case 源路径与权威 Markdown。 已知 case 返回 `test-evidence` topic 下的自身内容，且不混入其他单 case 文件。 tools/test-evidence/tests/repository-catalog.test.ts > shows the authoritative Markdown for a repository case bun test --test-name-pattern=\"^shows the authoritative Markdown for a repository case$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "TEST-EVIDENCE-SHOW-REPOSITORY-001 仓库 Topic Case 可展开权威 Markdown Show 必须把已登记 case ID 解析回 topic 归属、单 case 源路径与权威 Markdown。 已知固定契约 case 返回 `test-evidence` topic 下的自身内容，且不混入其他单 case 文件。 tools/test-evidence/tests/repository-catalog.test.ts > shows the authoritative Markdown for a repository case bun test --test-name-pattern=\"^shows the authoritative Markdown for a repository case$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/shows-the-authoritative-markdown-for-a-repository-case.md",
         "summary": "Show 必须把已登记 case ID 解析回 topic 归属、单 case 源路径与权威 Markdown。",
         "title": "仓库 Topic Case 可展开权威 Markdown"
@@ -4037,7 +4013,7 @@
       "id": "TEST-EVIDENCE-UPGRADE-V1-001",
       "keys": {
         "search": [
-          "TEST-EVIDENCE-UPGRADE-V1-001 V1 Consumer 升级生成隔离的 V3 Topic Catalog v1 consumer 必须通过显式迁移切换到独立 v3 topic 根目录，运行时不双读旧源或扫描测试。 v1 配置先被拒绝；切换后 topics、sync、check、按 topic list 与 show 均成功，随后修改旧源或新增未登记测试不改变结果。 tools/test-evidence/tests/run.ts > documented v1 consumer upgrade produces an isolated v3 topic catalog bun test --test-name-pattern=\"^documented v1 consumer upgrade produces an isolated v3 topic catalog$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-UPGRADE-V1-001 V1 Consumer 升级到固定 Topic Catalog v1 consumer 必须通过显式迁移切换到固定 topic 根目录，运行时不读取遗留配置、不双读旧源或扫描测试。 固定目录缺失时检查失败；显式切换并删除遗留配置后，topics、sync、check、按 topic list 与 show 均成功，随后修改旧源或新增未登记测试不改变结果。 tools/test-evidence/tests/run.ts > documented v1 consumer upgrade produces the fixed topic catalog bun test --test-name-pattern=\"^documented v1 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -4046,22 +4022,22 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > documented v1 consumer upgrade produces an isolated v3 topic catalog",
-          "bun test --test-name-pattern=\"^documented v1 consumer upgrade produces an isolated v3 topic catalog$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/run.ts > documented v1 consumer upgrade produces the fixed topic catalog",
+          "bun test --test-name-pattern=\"^documented v1 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/run.ts"
         ],
         "id": "TEST-EVIDENCE-UPGRADE-V1-001",
         "line": 1,
-        "searchText": "TEST-EVIDENCE-UPGRADE-V1-001 V1 Consumer 升级生成隔离的 V3 Topic Catalog v1 consumer 必须通过显式迁移切换到独立 v3 topic 根目录，运行时不双读旧源或扫描测试。 v1 配置先被拒绝；切换后 topics、sync、check、按 topic list 与 show 均成功，随后修改旧源或新增未登记测试不改变结果。 tools/test-evidence/tests/run.ts > documented v1 consumer upgrade produces an isolated v3 topic catalog bun test --test-name-pattern=\"^documented v1 consumer upgrade produces an isolated v3 topic catalog$\" ./tools/test-evidence/tests/run.ts",
-        "sourcePath": "test-evidence/documented-v1-upgrade-produces-an-isolated-v3-catalog.md",
-        "summary": "v1 consumer 必须通过显式迁移切换到独立 v3 topic 根目录，运行时不双读旧源或扫描测试。",
-        "title": "V1 Consumer 升级生成隔离的 V3 Topic Catalog"
+        "searchText": "TEST-EVIDENCE-UPGRADE-V1-001 V1 Consumer 升级到固定 Topic Catalog v1 consumer 必须通过显式迁移切换到固定 topic 根目录，运行时不读取遗留配置、不双读旧源或扫描测试。 固定目录缺失时检查失败；显式切换并删除遗留配置后，topics、sync、check、按 topic list 与 show 均成功，随后修改旧源或新增未登记测试不改变结果。 tools/test-evidence/tests/run.ts > documented v1 consumer upgrade produces the fixed topic catalog bun test --test-name-pattern=\"^documented v1 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/documented-v1-upgrade-produces-the-fixed-topic-catalog.md",
+        "summary": "v1 consumer 必须通过显式迁移切换到固定 topic 根目录，运行时不读取遗留配置、不双读旧源或扫描测试。",
+        "title": "V1 Consumer 升级到固定 Topic Catalog"
       }
     },
     {
       "id": "TEST-EVIDENCE-UPGRADE-V2-001",
       "keys": {
         "search": [
-          "TEST-EVIDENCE-UPGRADE-V2-001 V2 Consumer 升级生成隔离的 V3 Topic Catalog v2 consumer 必须通过显式迁移切换到独立 v3 topic 根目录，运行时不双读旧源或扫描测试。 v2 配置先被拒绝；切换后 topics、sync、check、按 topic list 与 show 均成功，随后修改旧源或新增未登记测试不改变结果。 tools/test-evidence/tests/run.ts > documented v2 consumer upgrade produces an isolated v3 topic catalog bun test --test-name-pattern=\"^documented v2 consumer upgrade produces an isolated v3 topic catalog$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-UPGRADE-V2-001 V2 Consumer 升级到固定 Topic Catalog v2 consumer 必须通过显式迁移切换到固定 topic 根目录，运行时不读取遗留配置、不双读旧源或扫描测试。 旧目录不符合固定契约时检查失败；显式切换并删除遗留配置后，topics、sync、check、按 topic list 与 show 均成功，随后修改旧源或新增未登记测试不改变结果。 tools/test-evidence/tests/run.ts > documented v2 consumer upgrade produces the fixed topic catalog bun test --test-name-pattern=\"^documented v2 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -4070,15 +4046,15 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/test-evidence/tests/run.ts > documented v2 consumer upgrade produces an isolated v3 topic catalog",
-          "bun test --test-name-pattern=\"^documented v2 consumer upgrade produces an isolated v3 topic catalog$\" ./tools/test-evidence/tests/run.ts"
+          "tools/test-evidence/tests/run.ts > documented v2 consumer upgrade produces the fixed topic catalog",
+          "bun test --test-name-pattern=\"^documented v2 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/run.ts"
         ],
         "id": "TEST-EVIDENCE-UPGRADE-V2-001",
         "line": 1,
-        "searchText": "TEST-EVIDENCE-UPGRADE-V2-001 V2 Consumer 升级生成隔离的 V3 Topic Catalog v2 consumer 必须通过显式迁移切换到独立 v3 topic 根目录，运行时不双读旧源或扫描测试。 v2 配置先被拒绝；切换后 topics、sync、check、按 topic list 与 show 均成功，随后修改旧源或新增未登记测试不改变结果。 tools/test-evidence/tests/run.ts > documented v2 consumer upgrade produces an isolated v3 topic catalog bun test --test-name-pattern=\"^documented v2 consumer upgrade produces an isolated v3 topic catalog$\" ./tools/test-evidence/tests/run.ts",
-        "sourcePath": "test-evidence/documented-v2-upgrade-produces-an-isolated-v3-catalog.md",
-        "summary": "v2 consumer 必须通过显式迁移切换到独立 v3 topic 根目录，运行时不双读旧源或扫描测试。",
-        "title": "V2 Consumer 升级生成隔离的 V3 Topic Catalog"
+        "searchText": "TEST-EVIDENCE-UPGRADE-V2-001 V2 Consumer 升级到固定 Topic Catalog v2 consumer 必须通过显式迁移切换到固定 topic 根目录，运行时不读取遗留配置、不双读旧源或扫描测试。 旧目录不符合固定契约时检查失败；显式切换并删除遗留配置后，topics、sync、check、按 topic list 与 show 均成功，随后修改旧源或新增未登记测试不改变结果。 tools/test-evidence/tests/run.ts > documented v2 consumer upgrade produces the fixed topic catalog bun test --test-name-pattern=\"^documented v2 consumer upgrade produces the fixed topic catalog$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/documented-v2-upgrade-produces-the-fixed-topic-catalog.md",
+        "summary": "v2 consumer 必须通过显式迁移切换到固定 topic 根目录，运行时不读取遗留配置、不双读旧源或扫描测试。",
+        "title": "V2 Consumer 升级到固定 Topic Catalog"
       }
     },
     {
@@ -4315,7 +4291,7 @@
         "id": "skill-validator"
       },
       {
-        "description": "测试证据目录的配置、路径与 case 结构、统一索引同步与回退、查询展示，以及 CLI 和分发 API 契约。",
+        "description": "测试证据目录的固定路径与 case 结构、统一索引同步与回退、查询展示，以及 CLI 和分发 API 契约。",
         "id": "test-evidence"
       },
       {
@@ -4326,5 +4302,5 @@
   },
   "namespace": "test-evidence",
   "schemaVersion": 2,
-  "sourceRevision": "sha256:b38202b9164d55347132e83ab58c123f509fd05d7d2bf7da9cffb8a3695f27e1"
+  "sourceRevision": "sha256:e01c53fc162a8ed3c1b6898fd49df31b63c3b9f0f795258e68a80ecb49aae631"
 }

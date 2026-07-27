@@ -82,7 +82,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:8dcaaf09fab007eac5cda262138bfaa658fb46a9479c42c91e7b2107d232b9dd",
+  "sourceRevision": "sha256:833ac37c80e1da58148ae0bf1d2d5aaf04f98569874d88a53c404b852c5a0268",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -3407,6 +3407,36 @@
       }
     },
     {
+      "id": "test-evidence-review/fix-test-evidence-workspace-contract.md",
+      "keys": {
+        "domain": [
+          "test-evidence-review"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "test-evidence-review/fix-test-evidence-workspace-contract.md",
+        "title": "固定测试账本的工作区协议",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-07-27T02:22:31Z",
+        "purpose": "让测试账本只依赖一个可预测的目录协议，消除没有现实用途的项目级配置和说明文件边界。",
+        "background": "可配置目录、索引和 case ID 规则没有形成有效使用差异，却引入额外 Schema、路径冲突、兼容分支和重复说明。",
+        "decision": "只由工作区根定位固定测试账本目录、派生索引和 case ID 规则，目录不承接独立说明文件，CLI 与导入 API 不提供项目级配置能力。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "test-evidence-review/organize-test-cases-by-controlled-topic-path.md"
+          }
+        ]
+      }
+    },
+    {
       "id": "test-evidence-review/index-independent-proof-cases-from-current-catalog.md",
       "keys": {
         "domain": [
@@ -3515,17 +3545,14 @@
           "test-evidence-review"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "aligned"
+          "archived"
         ]
       },
       "state": {
         "path": "test-evidence-review/organize-test-cases-by-controlled-topic-path.md",
         "title": "按受控主题路径维护单文件测试证据",
-        "status": "active",
-        "alignment": "aligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-07-26T15:20:07Z",
         "purpose": "让测试 case 的稳定身份、责任归属和物理源路径在账本增长时仍可独立校验和查询。",
         "background": "根目录直属主题文件只能表达隐含分组，无法约束主题集合、路径唯一归属或单 case 写入边界。",

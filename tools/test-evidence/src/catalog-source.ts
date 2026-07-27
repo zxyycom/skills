@@ -11,8 +11,9 @@ import {
 } from "./catalog-validation.ts";
 import { createDiagnostic } from "./diagnostics.ts";
 import {
-  defaultTestEvidenceConfigPath,
-  type TestEvidenceConfig,
+  testEvidenceCaseIdPatternSource,
+  testEvidenceCatalogPath,
+  testEvidenceIndexPath,
   type TestEvidenceDiagnostic,
   type TestEvidenceTopicCatalog
 } from "./schemas.ts";
@@ -20,9 +21,7 @@ import {
   loadTestEvidenceTopicCatalog
 } from "./topic-catalog.ts";
 import {
-  catalogRelativeIndexPath,
   isTestEvidenceCaseFileName,
-  testEvidenceCatalogReadmeFileName,
   testEvidenceTopicCatalogFileName
 } from "./topic.ts";
 import {
@@ -51,22 +50,16 @@ export type LoadedTestEvidenceCatalog = TestEvidenceCatalogSourceResult & {
 };
 
 export async function loadTestEvidenceCatalog(
-  workspaceRoot: string,
-  config: TestEvidenceConfig,
-  configRelativePath = defaultTestEvidenceConfigPath
+  workspaceRoot: string
 ): Promise<LoadedTestEvidenceCatalog> {
-  const sourceResult = await readTestEvidenceCatalogSources(
-    workspaceRoot,
-    config,
-    configRelativePath
-  );
+  const sourceResult = await readTestEvidenceCatalogSources(workspaceRoot);
   const diagnostics = [...sourceResult.diagnostics];
   const cases: LoadedTestEvidenceCatalogCase[] = [];
   const parsedById = new Map<
     string,
     Array<{ line: number; sourcePath: string }>
   >();
-  const caseIdPattern = new RegExp(config.caseIdPattern, "u");
+  const caseIdPattern = new RegExp(testEvidenceCaseIdPatternSource, "u");
 
   for (const source of sourceResult.sources) {
     const parsedCases = collectTestEvidenceCases(source.text, caseIdPattern);
@@ -124,7 +117,7 @@ export async function loadTestEvidenceCatalog(
           .map((entry) => `${entry.sourcePath}:${entry.line}`)
           .join(", ")
       })`,
-      path: config.catalogPath,
+      path: testEvidenceCatalogPath,
       severity: "error"
     }));
   }
@@ -138,17 +131,15 @@ export async function loadTestEvidenceCatalog(
 }
 
 export async function readTestEvidenceCatalogSources(
-  workspaceRoot: string,
-  config: TestEvidenceConfig,
-  configRelativePath = defaultTestEvidenceConfigPath
+  workspaceRoot: string
 ): Promise<TestEvidenceCatalogSourceResult> {
   const catalogDirectory = path.join(
     workspaceRoot,
-    ...config.catalogPath.split("/")
+    ...testEvidenceCatalogPath.split("/")
   );
   const rootDiagnostic = await inspectCatalogRoot(
     catalogDirectory,
-    config.catalogPath
+    testEvidenceCatalogPath
   );
   if (rootDiagnostic !== null) {
     return {
@@ -159,8 +150,7 @@ export async function readTestEvidenceCatalogSources(
   }
 
   const loadedTopics = await loadTestEvidenceTopicCatalog(
-    workspaceRoot,
-    config.catalogPath
+    workspaceRoot
   );
   const diagnostics = [...loadedTopics.diagnostics];
   const topicCatalog = loadedTopics.catalog;
@@ -169,34 +159,10 @@ export async function readTestEvidenceCatalogSources(
   }
 
   const topicIds = new Set(topicCatalog.topics.map((topic) => topic.id));
-  const relativeIndexPath = catalogRelativeIndexPath(
-    config.catalogPath,
-    config.indexPath
-  );
   const allowedRootFiles = new Set([
     testEvidenceTopicCatalogFileName,
-    testEvidenceCatalogReadmeFileName,
-    ...(
-      relativeIndexPath !== null && !relativeIndexPath.includes("/")
-        ? [relativeIndexPath]
-        : []
-    )
+    path.posix.basename(testEvidenceIndexPath)
   ]);
-  if (
-    relativeIndexPath !== null
-    && !relativeIndexPath.includes("/")
-    && topicIds.has(relativeIndexPath)
-  ) {
-    diagnostics.push(createDiagnostic({
-      category: "config",
-      code: "config.index-path-conflict",
-      message: `indexPath occupies defined topic directory name: ${
-        relativeIndexPath
-      }`,
-      path: configRelativePath,
-      severity: "error"
-    }));
-  }
 
   let entries: Dirent[];
   try {
@@ -206,8 +172,8 @@ export async function readTestEvidenceCatalogSources(
     diagnostics.push(createDiagnostic({
       category: "catalog",
       code: "catalog.read-failed",
-      message: `${config.catalogPath} could not be read: ${errorText(error)}`,
-      path: config.catalogPath,
+      message: `${testEvidenceCatalogPath} could not be read: ${errorText(error)}`,
+      path: testEvidenceCatalogPath,
       severity: "error"
     }));
     return { diagnostics, sources: [], topicCatalog };
@@ -220,10 +186,10 @@ export async function readTestEvidenceCatalogSources(
         diagnostics.push(createDiagnostic({
           category: "catalog",
           code: "catalog.root-file-unsupported",
-          message: `${config.catalogPath} root contains unsupported file ${
+          message: `${testEvidenceCatalogPath} root contains unsupported file ${
             entry.name
           }`,
-          path: path.posix.join(config.catalogPath, entry.name),
+          path: path.posix.join(testEvidenceCatalogPath, entry.name),
           severity: "error"
         }));
       }
@@ -231,12 +197,12 @@ export async function readTestEvidenceCatalogSources(
     }
     if (!entry.isDirectory()) {
       diagnostics.push(createDiagnostic({
-        category: "catalog",
-        code: "catalog.root-entry-unsupported",
-        message: `${config.catalogPath} contains unsupported entry ${
-          entry.name
-        }`,
-        path: path.posix.join(config.catalogPath, entry.name),
+          category: "catalog",
+          code: "catalog.root-entry-unsupported",
+          message: `${testEvidenceCatalogPath} contains unsupported entry ${
+            entry.name
+          }`,
+          path: path.posix.join(testEvidenceCatalogPath, entry.name),
         severity: "error"
       }));
       continue;
@@ -248,14 +214,14 @@ export async function readTestEvidenceCatalogSources(
         message: `topic directory is not defined in ${
           testEvidenceTopicCatalogFileName
         }: ${entry.name}`,
-        path: path.posix.join(config.catalogPath, entry.name),
+        path: path.posix.join(testEvidenceCatalogPath, entry.name),
         severity: "error"
       }));
       continue;
     }
     const topicSources = await readTopicDirectory({
       catalogDirectory,
-      catalogPath: config.catalogPath,
+      catalogPath: testEvidenceCatalogPath,
       topicId: entry.name
     });
     diagnostics.push(...topicSources.diagnostics);
@@ -263,8 +229,6 @@ export async function readTestEvidenceCatalogSources(
   }
 
   diagnostics.push(...await indexIdentityDiagnostics({
-    config,
-    configRelativePath,
     sources,
     workspaceRoot
   }));
@@ -372,23 +336,16 @@ async function readTopicDirectory(options: {
 }
 
 async function indexIdentityDiagnostics(options: {
-  config: TestEvidenceConfig;
-  configRelativePath: string;
   sources: readonly TestEvidenceCatalogSource[];
   workspaceRoot: string;
 }): Promise<TestEvidenceDiagnostic[]> {
   const candidates = [
     path.posix.join(
-      options.config.catalogPath,
+      testEvidenceCatalogPath,
       testEvidenceTopicCatalogFileName
     ),
-    path.posix.join(
-      options.config.catalogPath,
-      testEvidenceCatalogReadmeFileName
-    ),
-    options.configRelativePath,
     ...options.sources.map((source) => path.posix.join(
-      options.config.catalogPath,
+      testEvidenceCatalogPath,
       source.path
     ))
   ];
@@ -397,31 +354,31 @@ async function indexIdentityDiagnostics(options: {
     for (const candidate of candidates) {
       if (!await workspaceRelativePathsAreDistinct(
         options.workspaceRoot,
-        [options.config.indexPath, candidate]
+        [testEvidenceIndexPath, candidate]
       )) {
         conflicts.push(candidate);
       }
     }
   } catch (error) {
     return [createDiagnostic({
-      category: "config",
-      code: "config.path-inspection-failed",
-      message: `indexPath identities could not be inspected: ${
+      category: "catalog",
+      code: "catalog.index-identity-inspection-failed",
+      message: `The fixed index file identity could not be inspected: ${
         errorText(error)
       }`,
-      path: options.configRelativePath,
+      path: testEvidenceIndexPath,
       severity: "error"
     })];
   }
   return conflicts.length === 0
     ? []
     : [createDiagnostic({
-        category: "config",
-        code: "config.index-path-conflict",
-        message: `indexPath must not share a path or filesystem identity with: ${
+        category: "catalog",
+        code: "catalog.index-file-conflict",
+        message: `The fixed index file must not share a filesystem identity with: ${
           conflicts.join(", ")
         }`,
-        path: options.configRelativePath,
+        path: testEvidenceIndexPath,
         severity: "error"
       })];
 }

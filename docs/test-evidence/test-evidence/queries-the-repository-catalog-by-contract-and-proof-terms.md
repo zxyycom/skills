@@ -5,4 +5,4 @@ Entry:
 Contract:
 - Test evidence 查询必须把当前仓库的受控 topic 目录投影为可检索 case metadata。
 Proves:
-- 跨 Contract 与 Proves 的多词查询只返回匹配 case ID、`test-evidence` topic 与单 case 源路径。
+- 跨 Contract 与 Proves 的多词查询只返回固定契约 case ID、`test-evidence` topic 与单 case 源路径。

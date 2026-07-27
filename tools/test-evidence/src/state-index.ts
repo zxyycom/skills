@@ -15,11 +15,11 @@ import {
   type LoadedTestEvidenceCatalogCase,
   type TestEvidenceCatalogSource
 } from "./catalog-source.ts";
-import { loadTestEvidenceConfig } from "./config.ts";
 import { createDiagnostic } from "./diagnostics.ts";
 import {
-  defaultTestEvidenceCatalogPath,
-  defaultTestEvidenceIndexPath,
+  testEvidenceCaseIdPatternSource,
+  testEvidenceCatalogPath,
+  testEvidenceIndexPath,
   testEvidenceCaseIndexStateSchema,
   testEvidenceIndexDefinitionVersion,
   testEvidenceIndexMetadataSchema,
@@ -34,14 +34,11 @@ import { testEvidenceTopicIdFromSourcePath } from "./topic.ts";
 import { cloneTopicDefinitions } from "./topics.ts";
 import type {
   TestEvidenceCaseIndexState,
-  TestEvidenceConfig,
   TestEvidenceDiagnostic,
   TestEvidenceIndexSyncResult
 } from "./types.ts";
 
 export type SyncTestEvidenceIndexOptions = {
-  config?: unknown;
-  configPath?: string;
   mode: StateIndexSyncMode;
   workspaceRoot: string;
 };
@@ -62,13 +59,11 @@ type TestEvidenceIndexSourceResult =
   };
 
 export function createTestEvidenceStateIndexDefinition(options: {
-  config: TestEvidenceConfig;
-  configRelativePath?: string;
   snapshot?: StateSnapshot<
     TestEvidenceCaseIndexState,
     TestEvidenceIndexMetadata
   >;
-}): StateIndexDefinition<
+} = {}): StateIndexDefinition<
   TestEvidenceCaseIndexState,
   TestEvidenceIndexMetadata
 > {
@@ -105,9 +100,7 @@ export function createTestEvidenceStateIndexDefinition(options: {
         return options.snapshot;
       }
       const source = await readTestEvidenceIndexSource(
-        context,
-        options.config,
-        options.configRelativePath
+        context
       );
       if (source.snapshot === null) {
         throw new Error(
@@ -116,11 +109,7 @@ export function createTestEvidenceStateIndexDefinition(options: {
       }
       return source.snapshot;
     },
-    readRevision: async (context) => await readCurrentSourceRevision(
-      context,
-      options.config,
-      options.configRelativePath
-    )
+    readRevision: async (context) => await readCurrentSourceRevision(context)
   });
 }
 
@@ -156,30 +145,12 @@ export async function syncTestEvidenceIndex(
   options: SyncTestEvidenceIndexOptions
 ): Promise<TestEvidenceIndexSyncResult> {
   const workspaceRoot = path.resolve(options.workspaceRoot);
-  const loadedConfig = await loadTestEvidenceConfig(
-    workspaceRoot,
-    options.configPath,
-    options.config
-  );
-  if (loadedConfig.config === null) {
-    return failedSyncResult({
-      catalogPath: defaultTestEvidenceCatalogPath,
-      diagnostics: loadedConfig.diagnostics,
-      indexPath: defaultTestEvidenceIndexPath,
-      mode: options.mode
-    });
-  }
-
   const source = await readTestEvidenceIndexSource(
-    { root: workspaceRoot },
-    loadedConfig.config,
-    loadedConfig.configRelativePath
+    { root: workspaceRoot }
   );
   if (source.snapshot === null) {
     return failedSyncResult({
-      catalogPath: loadedConfig.config.catalogPath,
       diagnostics: source.diagnostics,
-      indexPath: loadedConfig.config.indexPath,
       mode: options.mode,
       topics: source.topics
     });
@@ -187,23 +158,21 @@ export async function syncTestEvidenceIndex(
 
   const runtime = createStateIndexRuntime({
     definition: createTestEvidenceStateIndexDefinition({
-      config: loadedConfig.config,
-      configRelativePath: loadedConfig.configRelativePath,
       snapshot: source.snapshot
     }),
-    indexPath: loadedConfig.config.indexPath,
+    indexPath: testEvidenceIndexPath,
     root: workspaceRoot
   });
   const synchronized = await runtime.sync(options.mode);
   return {
-    catalogPath: loadedConfig.config.catalogPath,
+    catalogPath: testEvidenceCatalogPath,
     changed: synchronized.changed,
     diagnostics: mapStateIndexDiagnostics(
       synchronized.diagnostics,
-      loadedConfig.config.indexPath,
+      testEvidenceIndexPath,
       options.mode === "check"
     ),
-    indexPath: loadedConfig.config.indexPath,
+    indexPath: testEvidenceIndexPath,
     mode: options.mode,
     schemaVersion: testEvidenceReportSchemaVersion,
     state: synchronized.state === "mode-invalid"
@@ -232,14 +201,13 @@ export function mapStateIndexDiagnostics(
 }
 
 export function testEvidenceSourceRevision(options: {
-  caseIdPattern: string;
   sources: readonly TestEvidenceCatalogSource[];
   topicCatalog: Parameters<typeof normalizeTestEvidenceTopicCatalog>[0];
 }): string {
   const hash = createHash("sha256");
   hash.update("test-evidence-index-source-v3\0");
   hashField(hash, normalizeTestEvidenceTopicCatalog(options.topicCatalog));
-  hashField(hash, options.caseIdPattern);
+  hashField(hash, testEvidenceCaseIdPatternSource);
   for (const source of [...options.sources].sort((left, right) => (
     compareText(left.path, right.path)
   ))) {
@@ -250,15 +218,9 @@ export function testEvidenceSourceRevision(options: {
 }
 
 async function readTestEvidenceIndexSource(
-  context: StateIndexContext,
-  config: TestEvidenceConfig,
-  configRelativePath?: string
+  context: StateIndexContext
 ): Promise<TestEvidenceIndexSourceResult> {
-  const catalog = await loadTestEvidenceCatalog(
-    context.root,
-    config,
-    configRelativePath
-  );
+  const catalog = await loadTestEvidenceCatalog(context.root);
   const topics = cloneTopicDefinitions(catalog.topicCatalog?.topics ?? []);
   if (catalog.diagnostics.length > 0) {
     return {
@@ -277,7 +239,6 @@ async function readTestEvidenceIndexSource(
     snapshot: {
       metadata: { topics },
       revision: testEvidenceSourceRevision({
-        caseIdPattern: config.caseIdPattern,
         sources: catalog.sources,
         topicCatalog: catalog.topicCatalog
       }),
@@ -288,22 +249,15 @@ async function readTestEvidenceIndexSource(
 }
 
 async function readCurrentSourceRevision(
-  context: StateIndexContext,
-  config: TestEvidenceConfig,
-  configRelativePath?: string
+  context: StateIndexContext
 ): Promise<string> {
-  const catalog = await loadTestEvidenceCatalog(
-    context.root,
-    config,
-    configRelativePath
-  );
+  const catalog = await loadTestEvidenceCatalog(context.root);
   if (catalog.diagnostics.length > 0 || catalog.topicCatalog === null) {
     throw new Error(
       catalog.diagnostics.map((entry) => entry.message).join("; ")
     );
   }
   return testEvidenceSourceRevision({
-    caseIdPattern: config.caseIdPattern,
     sources: catalog.sources,
     topicCatalog: catalog.topicCatalog
   });
@@ -336,17 +290,15 @@ function catalogCaseState(
 }
 
 function failedSyncResult(options: {
-  catalogPath: string;
   diagnostics: readonly TestEvidenceDiagnostic[];
-  indexPath: string;
   mode: StateIndexSyncMode;
   topics?: TestEvidenceIndexMetadata["topics"];
 }): TestEvidenceIndexSyncResult {
   return {
-    catalogPath: options.catalogPath,
+    catalogPath: testEvidenceCatalogPath,
     changed: false,
     diagnostics: [...options.diagnostics],
-    indexPath: options.indexPath,
+    indexPath: testEvidenceIndexPath,
     mode: options.mode,
     schemaVersion: testEvidenceReportSchemaVersion,
     state: "source-invalid",

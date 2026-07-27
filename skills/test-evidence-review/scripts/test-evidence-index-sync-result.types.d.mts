@@ -12,7 +12,7 @@ export interface TestEvidenceIndexSyncResult {
   diagnostics: {
     blocking: boolean;
     caseId?: string;
-    category: "catalog" | "config" | "index";
+    category: "catalog" | "index";
     code: string;
     column?: number;
     line?: number;
@@ -22,7 +22,7 @@ export interface TestEvidenceIndexSyncResult {
   }[];
   indexPath: string;
   mode: "check" | "write";
-  schemaVersion: 3;
+  schemaVersion: 4;
   state:
     | "current"
     | "unchanged"

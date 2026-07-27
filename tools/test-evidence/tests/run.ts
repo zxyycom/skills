@@ -14,8 +14,6 @@ import {
   validateTestEvidence
 } from "../src/cli.ts";
 import { testEvidenceSourceRevision } from "../src/state-index.ts";
-import { workspaceRelativePathsAreDistinct } from "../src/workspace-path.ts";
-import "./config-path.test.ts";
 import "./repository-catalog.test.ts";
 
 const execFileAsync = promisify(execFile);
@@ -94,89 +92,60 @@ const sessionCatalog = [
   ""
 ].join("\n");
 
-test("catalog paths reject aliases, hard links, and platform-equivalent identities", async () => {
+test("catalog ignores legacy config files and rejects config arguments", async () => {
   await withWorkspace(async (tempRoot) => {
-    await assertConfigPathConflict(
+    await writeWorkspaceFile(
       tempRoot,
-      {
-        catalogPath: "docs/test-evidence",
-        indexPath: ".test-evidence.json",
-        schemaVersion: 3
-      },
-      "./.test-evidence.json"
+      ".test-evidence.json",
+      `${JSON.stringify({
+        schemaVersion: 3,
+        catalogPath: "elsewhere",
+        indexPath: "elsewhere/index.json",
+        caseIdPattern: "^CUSTOM$"
+      }, null, 2)}\n`
     );
-    await assertConfigPathConflict(tempRoot, {
-      catalogPath: "docs//test-evidence/.",
-      indexPath: "docs/test-evidence",
-      schemaVersion: 3
-    });
+    await writeTopicCatalog(tempRoot, "elsewhere", [{
+      id: "ignored",
+      description: "Ignored legacy configuration target."
+    }]);
 
-    const missingCaseAliases = ["missing/Index.json", "MISSING/index.json"];
+    const queried = await queryTestEvidence({ workspaceRoot: tempRoot });
+    assert.equal(queried.total, 2);
+    assert.equal(queried.catalogPath, "docs/test-evidence");
     assert.equal(
-      await workspaceRelativePathsAreDistinct(tempRoot, missingCaseAliases, "win32"),
-      false
-    );
-    assert.equal(
-      await workspaceRelativePathsAreDistinct(tempRoot, missingCaseAliases, "darwin"),
-      false
+      queried.indexPath,
+      "docs/test-evidence/test-evidence-index.json"
     );
 
-    const hardLinkConfig = "identity/config.json";
-    const hardLinkIndex = "identity/index.json";
-    await writeWorkspaceFile(tempRoot, hardLinkConfig, "identity\n");
-    const hardLinkConfigPath = path.join(tempRoot, "identity", "config.json");
-    const hardLinkIndexPath = path.join(tempRoot, "identity", "index.json");
-    await fs.link(hardLinkConfigPath, hardLinkIndexPath);
-    const [configStats, indexStats] = await Promise.all([
-      fs.stat(hardLinkConfigPath, { bigint: true }),
-      fs.stat(hardLinkIndexPath, { bigint: true })
+    const rejected = await runDistributedCliFailure([
+      "list",
+      "--root",
+      tempRoot,
+      "--config",
+      ".test-evidence.json"
     ]);
-    assert.equal(configStats.dev, indexStats.dev);
-    assert.equal(configStats.ino, indexStats.ino);
-    await assertConfigPathConflict(
-      tempRoot,
-      {
-        catalogPath: "docs/test-evidence",
-        indexPath: hardLinkIndex,
-        schemaVersion: 3
-      },
-      hardLinkConfig
-    );
+    assert.equal(rejected.code, 2);
+    assert.match(rejected.stderr, /unknown option '--config'/u);
+  });
+});
 
-    const darwinConfigPath = "darwin/config.json";
-    const darwinConfig = `${JSON.stringify({
-      catalogPath: "docs/test-evidence",
-      indexPath: "DARWIN/CONFIG.JSON",
-      schemaVersion: 3
-    }, null, 2)}\n`;
-    await writeWorkspaceFile(tempRoot, darwinConfigPath, darwinConfig);
-    const platformDescriptor = Object.getOwnPropertyDescriptor(process, "platform")!;
-    try {
-      Object.defineProperty(process, "platform", {
-        ...platformDescriptor,
-        value: "darwin"
-      });
-      await assertConfigPathConflict(tempRoot, undefined, darwinConfigPath);
-    } finally {
-      Object.defineProperty(process, "platform", platformDescriptor);
-    }
-    assert.equal(
-      await fs.readFile(path.join(tempRoot, "darwin", "config.json"), "utf8"),
-      darwinConfig
+test("catalog enforces the fixed case ID pattern", async () => {
+  await withWorkspace(async (tempRoot) => {
+    await writeWorkspaceFile(
+      tempRoot,
+      "docs/test-evidence/access-control/access-role.md",
+      accessCatalog.replace(
+        "AUTH-ROLE-ACCESS-001",
+        "INVALID-001"
+      )
     );
-    assert.equal(
-      await fs.readFile(
-        path.join(
-          tempRoot,
-          "docs",
-          "test-evidence",
-          "access-control",
-          "access-role.md"
-        ),
-        "utf8"
-      ),
-      accessCatalog
-    );
+    const report = await validateTestEvidence({
+      workspaceRoot: tempRoot
+    });
+    assert.ok(report.diagnostics.some((entry) => (
+      entry.code === "catalog.invalid"
+      && entry.message.includes("must include a valid case ID")
+    )));
   });
 });
 
@@ -361,7 +330,8 @@ test("catalog validation requires one non-empty unique entry list", async () => 
 
 test("catalog validation rejects duplicate case IDs across topics", async () => {
   await withWorkspace(async (tempRoot) => {
-    const duplicateCatalogPath = "invalid/cross-file";
+    await resetTestEvidenceCatalog(tempRoot);
+    const duplicateCatalogPath = "docs/test-evidence";
     await writeTopicCatalog(tempRoot, duplicateCatalogPath, [
       { id: "first", description: "First responsibility topic." },
       { id: "second", description: "Second responsibility topic." }
@@ -386,14 +356,7 @@ test("catalog validation rejects duplicate case IDs across topics", async () => 
       duplicateCase
     );
 
-    const report = await validateTestEvidence({
-      config: {
-        catalogPath: duplicateCatalogPath,
-        indexPath: "invalid/cross-file/index.json",
-        schemaVersion: 3
-      },
-      workspaceRoot: tempRoot
-    });
+    const report = await validateTestEvidence({ workspaceRoot: tempRoot });
 
     assert.ok(report.diagnostics.some((entry) => (
       entry.code === "catalog.case-id-duplicate"
@@ -405,35 +368,22 @@ test("catalog validation rejects duplicate case IDs across topics", async () => 
 
 test("defined topics may be empty but existing topic directories may not", async () => {
   await withWorkspace(async (tempRoot) => {
-    const emptyCatalogPath = "valid/empty-topics";
+    await resetTestEvidenceCatalog(tempRoot);
+    const emptyCatalogPath = "docs/test-evidence";
     await writeTopicCatalog(tempRoot, emptyCatalogPath, [
       { id: "future-work", description: "Reserved future responsibility." }
     ]);
-    const config = {
-      catalogPath: emptyCatalogPath,
-      indexPath: "valid/empty-topics-index.json",
-      schemaVersion: 3 as const
-    };
     const synchronized = await syncTestEvidenceIndex({
-      config,
       mode: "write",
       workspaceRoot: tempRoot
     });
     assert.equal(synchronized.status, "ok");
-    const emptySetReport = await validateTestEvidence({
-      config,
-      workspaceRoot: tempRoot
-    });
+    const emptySetReport = await validateTestEvidence({ workspaceRoot: tempRoot });
     assert.deepEqual(emptySetReport.diagnostics, []);
     assert.equal(emptySetReport.summary.testCases, 0);
 
     await fs.mkdir(path.join(tempRoot, emptyCatalogPath, "future-work"));
     const emptyDirectoryReport = await validateTestEvidence({
-      config: {
-        catalogPath: emptyCatalogPath,
-        indexPath: "valid/empty-topics-index.json",
-        schemaVersion: 3
-      },
       workspaceRoot: tempRoot
     });
     assert.ok(emptyDirectoryReport.diagnostics.some((entry) => (
@@ -584,7 +534,8 @@ test("topic tables reject missing, malformed, unknown, duplicate, unsorted, and 
     ];
 
     for (const variant of variants) {
-      const catalogPath = `invalid/topics-${variant.name}`;
+      await resetTestEvidenceCatalog(tempRoot);
+      const catalogPath = "docs/test-evidence";
       await fs.mkdir(path.join(tempRoot, ...catalogPath.split("/")), {
         recursive: true
       });
@@ -596,11 +547,6 @@ test("topic tables reject missing, malformed, unknown, duplicate, unsorted, and 
         );
       }
       const result = await listTestEvidenceTopics({
-        config: {
-          catalogPath,
-          indexPath: `invalid/topics-${variant.name}-index.json`,
-          schemaVersion: 3
-        },
         workspaceRoot: tempRoot
       });
       assert.deepEqual(result.topics, [], variant.name);
@@ -612,17 +558,13 @@ test("topic tables reject missing, malformed, unknown, duplicate, unsorted, and 
       );
     }
 
-    const unicodeCatalogPath = "valid/topics-unicode-code-points";
+    await resetTestEvidenceCatalog(tempRoot);
+    const unicodeCatalogPath = "docs/test-evidence";
     await writeTopicCatalog(tempRoot, unicodeCatalogPath, [{
       id: "unicode-description",
       description: "😀".repeat(200)
     }]);
     const unicodeResult = await listTestEvidenceTopics({
-      config: {
-        catalogPath: unicodeCatalogPath,
-        indexPath: "valid/topics-unicode-code-points-index.json",
-        schemaVersion: 3
-      },
       workspaceRoot: tempRoot
     });
     assert.equal(unicodeResult.diagnostics.length, 0);
@@ -673,7 +615,8 @@ test("one case file rejects zero or multiple case headings", async () => {
 
 test("topic directories reject nested, non-Markdown, and symbolic-link members", async () => {
   await withWorkspace(async (tempRoot) => {
-    const catalogPath = "invalid/topic-members";
+    await resetTestEvidenceCatalog(tempRoot);
+    const catalogPath = "docs/test-evidence";
     await writeTopicCatalog(tempRoot, catalogPath, [
       { id: "topic", description: "Strict member responsibility." }
     ]);
@@ -701,127 +644,39 @@ test("topic directories reject nested, non-Markdown, and symbolic-link members",
       symbolicLinkPath,
       "file"
     );
-    const report = await validateTestEvidence({
-      config: {
-        catalogPath,
-        indexPath: "invalid/topic-members-index.json",
-        schemaVersion: 3
-      },
-      workspaceRoot: tempRoot
-    });
+    const report = await validateTestEvidence({ workspaceRoot: tempRoot });
     assert.ok(report.diagnostics.filter(
       (entry) => entry.code === "catalog.topic-entry-unsupported"
     ).length >= 3);
   });
 });
 
-test("index paths cannot overwrite reserved sources or case files", async () => {
-  await withWorkspace(async (tempRoot) => {
-    for (const indexPath of [
-      "docs/test-evidence/test-evidence-topics.json",
-      "docs/test-evidence/README.md",
-      "docs/test-evidence/access-control/access-role.md"
-    ]) {
-      const result = await syncTestEvidenceIndex({
-        config: {
-          catalogPath: "docs/test-evidence",
-          indexPath,
-          schemaVersion: 3
-        },
-        mode: "write",
-        workspaceRoot: tempRoot
-      });
-      assert.equal(result.status, "error", indexPath);
-      assert.ok(result.diagnostics.some((entry) => (
-        entry.code === "config.path-conflict"
-        || entry.code === "config.index-path-invalid"
-      )), indexPath);
-    }
-
-    const configPath = "unsafe/config.json";
-    await writeWorkspaceFile(
-      tempRoot,
-      configPath,
-      `${JSON.stringify({
-        catalogPath: "docs/test-evidence",
-        indexPath: configPath,
-        schemaVersion: 3
-      })}\n`
-    );
-    const configConflict = await syncTestEvidenceIndex({
-      configPath,
-      mode: "write",
-      workspaceRoot: tempRoot
-    });
-    assert.ok(configConflict.diagnostics.some(
-      (entry) => entry.code === "config.path-conflict"
-    ));
-  });
-});
-
-test("index paths cannot hard-link to reserved sources, config, or case files", async () => {
-  await withWorkspace(async (tempRoot) => {
-    await writeWorkspaceFile(
-      tempRoot,
-      "docs/test-evidence/README.md",
-      "Catalog notes.\n"
-    );
-    const candidates = [
-      "docs/test-evidence/test-evidence-topics.json",
-      "docs/test-evidence/README.md",
-      "docs/test-evidence/access-control/access-role.md"
-    ];
-    for (const [index, candidate] of candidates.entries()) {
-      const indexPath = `unsafe/hard-link-${index}.json`;
-      const absoluteIndexPath = path.join(
-        tempRoot,
-        ...indexPath.split("/")
-      );
-      await fs.mkdir(path.dirname(absoluteIndexPath), { recursive: true });
+test("fixed index cannot hard-link to authoritative sources", async () => {
+  const candidates = [
+    "docs/test-evidence/test-evidence-topics.json",
+    "docs/test-evidence/access-control/access-role.md"
+  ];
+  for (const candidate of candidates) {
+    await withWorkspace(async (tempRoot) => {
       await fs.link(
         path.join(tempRoot, ...candidate.split("/")),
-        absoluteIndexPath
+        path.join(
+          tempRoot,
+          "docs",
+          "test-evidence",
+          "test-evidence-index.json"
+        )
       );
       const result = await syncTestEvidenceIndex({
-        config: {
-          catalogPath: "docs/test-evidence",
-          indexPath,
-          schemaVersion: 3
-        },
         mode: "write",
         workspaceRoot: tempRoot
       });
       assert.equal(result.status, "error", candidate);
       assert.ok(result.diagnostics.some((entry) => (
-        entry.code === "config.path-conflict"
-        || entry.code === "config.index-path-conflict"
+        entry.code === "catalog.index-file-conflict"
       )), candidate);
-    }
-
-    const configPath = "unsafe/source-config.json";
-    const configIndexPath = "unsafe/config-hard-link.json";
-    await writeWorkspaceFile(
-      tempRoot,
-      configPath,
-      `${JSON.stringify({
-        catalogPath: "docs/test-evidence",
-        indexPath: configIndexPath,
-        schemaVersion: 3
-      })}\n`
-    );
-    await fs.link(
-      path.join(tempRoot, ...configPath.split("/")),
-      path.join(tempRoot, ...configIndexPath.split("/"))
-    );
-    const result = await syncTestEvidenceIndex({
-      configPath,
-      mode: "write",
-      workspaceRoot: tempRoot
     });
-    assert.ok(result.diagnostics.some(
-      (entry) => entry.code === "config.path-conflict"
-    ));
-  });
+  }
 });
 
 test("indexes project sorted topic metadata and path-derived topic keys", async () => {
@@ -923,19 +778,17 @@ test("topic descriptions and case moves change source revisions without changing
   });
 });
 
-test("revision framing normalizes line endings and ignores catalog path, JSON formatting, README, and index content", async () => {
+test("revision framing normalizes line endings and topic JSON formatting", async () => {
   await withWorkspace(async (tempRoot) => {
     const parsedTopics = JSON.parse(topicCatalog) as {
       schemaVersion: 1;
       topics: Array<{ description: string; id: string }>;
     };
     const lfRevision = testEvidenceSourceRevision({
-      caseIdPattern: "pattern",
       sources: [{ path: "access-control/case.md", text: "line\nnext\n" }],
       topicCatalog: parsedTopics
     });
     const crlfRevision = testEvidenceSourceRevision({
-      caseIdPattern: "pattern",
       sources: [{ path: "access-control/case.md", text: "line\r\nnext\r\n" }],
       topicCatalog: parsedTopics
     });
@@ -947,11 +800,6 @@ test("revision framing normalizes line endings and ignores catalog path, JSON fo
       tempRoot,
       "docs/test-evidence/test-evidence-topics.json",
       JSON.stringify(parsedTopics)
-    );
-    await writeWorkspaceFile(
-      tempRoot,
-      "docs/test-evidence/README.md",
-      "This root note is not indexed.\r\n"
     );
     const checked = await syncTestEvidenceIndex({
       mode: "check",
@@ -1068,7 +916,7 @@ test("unknown and repeated topic CLI arguments fail deterministically", async ()
       diagnostics: Array<{ code: string }>;
       schemaVersion: number;
     };
-    assert.equal(unknownResult.schemaVersion, 3);
+    assert.equal(unknownResult.schemaVersion, 4);
     assert.ok(unknownResult.diagnostics.some(
       (entry) => entry.code === "query.topic-unknown"
     ));
@@ -1117,27 +965,19 @@ test("unreadable indexes remain blocking for list and show operations", async ()
   await withWorkspace(async (tempRoot) => {
     const unreadableIndexPath = path.join(
       tempRoot,
-      "unreadable-index",
-      "index.json"
+      "docs",
+      "test-evidence",
+      "test-evidence-index.json"
     );
     await fs.mkdir(unreadableIndexPath, { recursive: true });
-    const unreadableConfig = {
-      catalogPath: "docs/test-evidence",
-      indexPath: "unreadable-index/index.json",
-      schemaVersion: 3 as const
-    };
 
-    const unreadableQuery = await queryTestEvidence({
-      config: unreadableConfig,
-      workspaceRoot: tempRoot
-    });
+    const unreadableQuery = await queryTestEvidence({ workspaceRoot: tempRoot });
     assert.equal(unreadableQuery.total, 0);
     assert.deepEqual(unreadableQuery.cases, []);
     assertUnrecoverableIndexReadFailure(unreadableQuery.diagnostics);
 
     const unreadableShow = await showTestEvidenceCase({
       caseId: "AUTH-ROLE-ACCESS-001",
-      config: unreadableConfig,
       workspaceRoot: tempRoot
     });
     assert.equal(unreadableShow.case, null);
@@ -1149,16 +989,12 @@ test("unreadable indexes remain blocking for list and show operations", async ()
 test("distributed module and CLI preserve catalog query contracts", async () => {
   await withWorkspace(async (tempRoot) => {
     await syncTestEvidenceIndex({ mode: "write", workspaceRoot: tempRoot });
-    await fs.mkdir(
-      path.join(tempRoot, "unreadable-index", "index.json"),
-      { recursive: true }
-    );
     await assertDistributedModuleParity(tempRoot);
   });
 });
 
 for (const legacyVersion of [1, 2] as const) {
-  test(`documented v${legacyVersion} consumer upgrade produces an isolated v3 topic catalog`, async () => {
+  test(`documented v${legacyVersion} consumer upgrade produces the fixed topic catalog`, async () => {
     await rehearseLegacyConsumerUpgrade(legacyVersion);
   });
 }
@@ -1189,26 +1025,13 @@ async function withWorkspace(
   }
 }
 
-async function assertConfigPathConflict(
-  workspaceRoot: string,
-  config: {
-    catalogPath: string;
-    indexPath: string;
-    schemaVersion: 3;
-  } | undefined,
-  configPath?: string
+async function resetTestEvidenceCatalog(
+  workspaceRoot: string
 ): Promise<void> {
-  const result = await syncTestEvidenceIndex({
-    config,
-    configPath,
-    mode: "write",
-    workspaceRoot
-  });
-  assert.equal(result.status, "error");
-  assert.ok(result.diagnostics.some((entry) => (
-    entry.code === "config.path-conflict"
-    && entry.blocking
-  )));
+  await fs.rm(
+    path.join(workspaceRoot, "docs", "test-evidence"),
+    { force: true, recursive: true }
+  );
 }
 
 function assertUnrecoverableIndexReadFailure(
@@ -1234,8 +1057,8 @@ async function assertInvalidCatalog(
   text: string,
   expected: RegExp
 ): Promise<void> {
-  const catalogPath = `invalid/${name}`;
-  const indexPath = `invalid/${name}/index.json`;
+  await resetTestEvidenceCatalog(workspaceRoot);
+  const catalogPath = "docs/test-evidence";
   await writeTopicCatalog(workspaceRoot, catalogPath, [
     { id: "topic", description: "Invalid catalog test topic." }
   ]);
@@ -1244,14 +1067,7 @@ async function assertInvalidCatalog(
     `${catalogPath}/topic/${name}.md`,
     text
   );
-  const report = await validateTestEvidence({
-    config: {
-      catalogPath,
-      indexPath,
-      schemaVersion: 3
-    },
-    workspaceRoot
-  });
+  const report = await validateTestEvidence({ workspaceRoot });
   assert.ok(report.diagnostics.some((entry) => expected.test(entry.message)));
 }
 
@@ -1262,6 +1078,7 @@ async function assertDistributedModuleParity(
   assert.equal(typeof distributed.listTestEvidenceTopics, "function");
   assert.equal(typeof distributed.queryTestEvidence, "function");
   assert.equal(typeof distributed.runTestEvidenceCatalogCli, "function");
+  assert.equal("testEvidenceConfigSchema" in distributed, false);
   assert.ok(distributed.testEvidenceTopicCatalogSchema);
   assert.ok(distributed.testEvidenceTopicsResultSchema);
 
@@ -1292,22 +1109,20 @@ async function assertDistributedModuleParity(
     schemaVersion: number;
     topics: Array<{ id: string }>;
   };
-  assert.equal(topicsResult.schemaVersion, 3);
+  assert.equal(topicsResult.schemaVersion, 4);
   assert.deepEqual(
     topicsResult.topics.map((topic) => topic.id),
     ["access-control", "future-work", "sessions"]
   );
 
-  const unreadableConfigPath = "unreadable-index/config.json";
-  await writeWorkspaceFile(
+  const indexPath = path.join(
     workspaceRoot,
-    unreadableConfigPath,
-    `${JSON.stringify({
-      catalogPath: "docs/test-evidence",
-      indexPath: "unreadable-index/index.json",
-      schemaVersion: 3
-    }, null, 2)}\n`
+    "docs",
+    "test-evidence",
+    "test-evidence-index.json"
   );
+  await fs.rm(indexPath);
+  await fs.mkdir(indexPath);
   for (const command of [
     ["list"],
     ["show", "AUTH-ROLE-ACCESS-001"]
@@ -1320,8 +1135,6 @@ async function assertDistributedModuleParity(
           ...command,
           "--root",
           workspaceRoot,
-          "--config",
-          unreadableConfigPath,
           "--json"
         ],
         {
@@ -1358,7 +1171,10 @@ async function rehearseLegacyConsumerUpgrade(
   const legacyCatalogPath = legacyVersion === 1
     ? "docs/test-evidence.md"
     : "docs/test-evidence/cases";
-  const targetCatalogPath = "docs/test-evidence-v3";
+  const stagedCatalogPath = "docs/test-evidence-next";
+  const retainedLegacyCatalogPath = legacyVersion === 1
+    ? legacyCatalogPath
+    : "docs/legacy-test-evidence-v2/cases";
 
   try {
     if (legacyVersion === 1) {
@@ -1398,7 +1214,7 @@ async function rehearseLegacyConsumerUpgrade(
     assert.equal(legacyFailure.code, 1);
     assert.doesNotThrow(() => JSON.parse(legacyFailure.stdout));
 
-    await writeTopicCatalog(workspaceRoot, targetCatalogPath, [
+    await writeTopicCatalog(workspaceRoot, stagedCatalogPath, [
       {
         id: "access-control",
         description: "Access-control contract tests."
@@ -1410,23 +1226,25 @@ async function rehearseLegacyConsumerUpgrade(
     ]);
     await writeWorkspaceFile(
       workspaceRoot,
-      `${targetCatalogPath}/access-control/access-role.md`,
+      `${stagedCatalogPath}/access-control/access-role.md`,
       `${accessCatalog}\n`
     );
     await writeWorkspaceFile(
       workspaceRoot,
-      `${targetCatalogPath}/sessions/session-expiry.md`,
+      `${stagedCatalogPath}/sessions/session-expiry.md`,
       `${sessionCatalog}\n`
     );
-    await writeWorkspaceFile(
-      workspaceRoot,
-      ".test-evidence.json",
-      `${JSON.stringify({
-        schemaVersion: 3,
-        catalogPath: targetCatalogPath,
-        indexPath: `${targetCatalogPath}/test-evidence-index.json`
-      }, null, 2)}\n`
+    if (legacyVersion === 2) {
+      await fs.rename(
+        path.join(workspaceRoot, "docs", "test-evidence"),
+        path.join(workspaceRoot, "docs", "legacy-test-evidence-v2")
+      );
+    }
+    await fs.rename(
+      path.join(workspaceRoot, "docs", "test-evidence-next"),
+      path.join(workspaceRoot, "docs", "test-evidence")
     );
+    await fs.rm(path.join(workspaceRoot, ".test-evidence.json"));
 
     const topics = await runDistributedCliJson<{
       topics: Array<{ id: string }>;
@@ -1497,14 +1315,14 @@ async function rehearseLegacyConsumerUpgrade(
     );
     if (legacyVersion === 1) {
       await fs.appendFile(
-        path.join(workspaceRoot, ...legacyCatalogPath.split("/")),
+        path.join(workspaceRoot, ...retainedLegacyCatalogPath.split("/")),
         "\n### Case LEGACY-ONLY-CASE-001: Old source is ignored\n",
         "utf8"
       );
     } else {
       await writeWorkspaceFile(
         workspaceRoot,
-        `${legacyCatalogPath}/legacy-only.md`,
+        `${retainedLegacyCatalogPath}/legacy-only.md`,
         "### Case LEGACY-ONLY-CASE-001: Old source is ignored\n"
       );
     }

@@ -23,7 +23,7 @@ export interface TestEvidenceQueryResult {
   diagnostics: {
     blocking: boolean;
     caseId?: string;
-    category: "catalog" | "config" | "index";
+    category: "catalog" | "index";
     code: string;
     column?: number;
     line?: number;
@@ -34,7 +34,7 @@ export interface TestEvidenceQueryResult {
   indexPath: string;
   limit: number;
   offset: number;
-  schemaVersion: 3;
+  schemaVersion: 4;
   topics: {
     description: string;
     id: string;

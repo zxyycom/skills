@@ -1,6 +1,5 @@
 import path from "node:path";
 import { loadTestEvidenceCatalog } from "./catalog-source.ts";
-import { loadTestEvidenceConfig } from "./config.ts";
 import {
   sortUniqueDiagnostics
 } from "./diagnostics.ts";
@@ -17,8 +16,6 @@ import type {
 } from "./types.ts";
 
 export type ValidateTestEvidenceOptions = {
-  config?: unknown;
-  configPath?: string;
   workspaceRoot: string;
 };
 
@@ -30,30 +27,12 @@ export async function validateTestEvidence(
   options: ValidateTestEvidenceOptions
 ): Promise<TestEvidenceReport> {
   const workspaceRoot = path.resolve(options.workspaceRoot);
-  const loadedConfig = await loadTestEvidenceConfig(
-    workspaceRoot,
-    options.configPath,
-    options.config
-  );
-  if (loadedConfig.config === null) {
-    return createTestEvidenceReport(loadedConfig.diagnostics);
-  }
-  const config = loadedConfig.config;
-
-  const diagnostics: TestEvidenceDiagnostic[] = [
-    ...loadedConfig.diagnostics
-  ];
-  const catalog = await loadTestEvidenceCatalog(
-    workspaceRoot,
-    config,
-    loadedConfig.configRelativePath
-  );
+  const diagnostics: TestEvidenceDiagnostic[] = [];
+  const catalog = await loadTestEvidenceCatalog(workspaceRoot);
   diagnostics.push(...catalog.diagnostics);
 
   if (catalog.diagnostics.length === 0) {
     const synchronized = await syncTestEvidenceIndex({
-      config,
-      configPath: options.configPath,
       mode: "check",
       workspaceRoot
     });

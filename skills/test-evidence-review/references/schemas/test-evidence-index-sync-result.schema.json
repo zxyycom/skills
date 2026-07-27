@@ -23,7 +23,6 @@
           "category": {
             "enum": [
               "catalog",
-              "config",
               "index"
             ],
             "type": "string"
@@ -78,7 +77,7 @@
       "type": "string"
     },
     "schemaVersion": {
-      "const": 3
+      "const": 4
     },
     "state": {
       "enum": [

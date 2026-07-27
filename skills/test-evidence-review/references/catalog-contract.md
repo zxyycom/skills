@@ -1,14 +1,15 @@
 # 测试证据目录契约
 
-本引用定义 `test-evidence-review` 的 topic、case、派生索引、配置、CLI 和机器接口。
+本引用定义 `test-evidence-review` 的 topic、case、派生索引、CLI 和机器接口。
 触发边界、测试粒度、证据评估和执行顺序由 [SKILL.md](../SKILL.md) 承接。
 
 ## 通用模型
 
-默认测试证据根目录是 `docs/test-evidence`，默认派生索引路径是
-`docs/test-evidence/test-evidence-index.json`，默认配置路径是
-`.test-evidence.json`。根目录中的 `test-evidence-topics.json` 是受控 topic 表；
-每个 case 单独位于 `<topic>/<slug>.md`。
+测试证据根目录固定为 `docs/test-evidence`，派生索引固定为
+`docs/test-evidence/test-evidence-index.json`。根目录中的
+`test-evidence-topics.json` 是受控 topic 表；每个 case 单独位于
+`<topic>/<slug>.md`。调用方只通过 `--root` 或 `workspaceRoot` 指定工作区，
+不能改变目录、索引或 case ID 规则。
 
 topic 只表达稳定的测试责任边界和查询维度，不改变 case 身份或测试粒度。一个保留的
 最小原生测试入口仍恰好对应一个 case；case ID 在全部 topic 中唯一，移动 case 文件
@@ -49,9 +50,8 @@ point。topic 表的 JSON 缩进或换行不参与 source revision；结构规�
 测试证据根目录只允许：
 
 1. 必需的 `test-evidence-topics.json`。
-2. 可选的 `README.md`。
+2. 派生的 `test-evidence-index.json`。
 3. topic 表中定义的直属目录。
-4. 当配置把索引放在根目录时，对应的一个直属索引文件。
 
 其他根文件、未知 topic 目录、符号链接或其他成员均使目录无效。每个 case 文件必须
 是 topic 目录中的直属普通文件，文件名符合
@@ -74,8 +74,8 @@ case 标题固定使用：
 ```
 
 fenced code block 外，以 `Case` 开头的三级标题必须逐字采用
-`### Case <CASE-ID>: <title>`。ID 是不含空白或冒号的单个 token，并符合
-`caseIdPattern`；标题不能为空。
+`### Case <CASE-ID>: <title>`。ID 是不含空白或冒号的单个 token，并固定符合
+`^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\d{3}$`；标题不能为空。
 
 每个 case 各有且只有一个 `Entry:`、`Contract:` 和 `Proves:`：
 
@@ -153,11 +153,11 @@ Proves:
 `sourceRevision` 由以下规范化输入计算：
 
 1. topic 表的结构值。
-2. `caseIdPattern`。
+2. 固定 case ID 规则。
 3. 按根目录相对路径排序的全部 case `sourcePath` 与规范化正文。
 
-topic 描述、case 新增、删除、移动或正文变化都会使旧索引陈旧。`catalogPath`、
-`README.md`、索引本身、topic 表 JSON 的纯格式变化和源文件换行风格不进入 revision。
+topic 描述、case 新增、删除、移动或正文变化都会使旧索引陈旧。索引本身、topic
+表 JSON 的纯格式变化和源文件换行风格不进入 revision。
 
 `list` 和 `show` 优先使用当前持久化索引。索引缺失、陈旧、定义不匹配或结构无效
 时，从当前完整合法目录建立一次性内存投影并返回非阻断 warning；topic 表、根目录
@@ -167,47 +167,29 @@ topic 描述、case 新增、删除、移动或正文变化都会使旧索引陈
 [test-evidence-state-index.schema.json](schemas/test-evidence-state-index.schema.json)
 定义。
 
-## 配置与路径身份
+## 固定路径与文件身份
 
-配置固定使用 `schemaVersion: 3`：
+工作区根目录是唯一位置参数。topic 表、派生索引和 case 文件都从固定目录直接
+派生，不读取项目级配置，也不接受自定义路径或 case ID 正则。
 
-```json
-{
-  "schemaVersion": 3,
-  "catalogPath": "docs/test-evidence",
-  "indexPath": "docs/test-evidence/test-evidence-index.json",
-  "caseIdPattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
-}
-```
-
-配置缺失且未显式传入 `--config` 时使用默认值。`catalogPath` 是工作区相对目录；
-`indexPath` 和实际配置路径是工作区相对文件。索引可以位于目录外；位于目录内时
-只能是根目录直属文件。
-
-配置、目录、topic 表、`README.md`、索引和全部 case 必须是不同文件系统身份。
-路径会统一分隔符并折叠 `.` 与重复分隔符；已有目标还会比较符号链接解析结果和
-硬链接身份，未存在目标在 Windows 和 macOS 上按常见大小写不敏感语义比较。
-身份检查失败时配置或目录无效。
-
-精确结构由
-[test-evidence-config.schema.json](schemas/test-evidence-config.schema.json)
-定义。
+索引与 topic 表及全部 case 必须拥有不同文件系统身份；已有目标会比较硬链接身份，
+避免索引写入覆盖权威源。身份检查失败时目录无效。
 
 ## CLI 与导入接口
 
 ```text
-node scripts/test-evidence-catalog.mjs topics --root <workspace-root> [--config <config>] [--json]
-node scripts/test-evidence-catalog.mjs check --root <workspace-root> [--config <config>] [--json]
-node scripts/test-evidence-catalog.mjs sync-index [--write] --root <workspace-root> [--config <config>] [--json]
+node scripts/test-evidence-catalog.mjs topics --root <workspace-root> [--json]
+node scripts/test-evidence-catalog.mjs check --root <workspace-root> [--json]
+node scripts/test-evidence-catalog.mjs sync-index [--write] --root <workspace-root> [--json]
 node scripts/test-evidence-catalog.mjs list --root <workspace-root> [--topic <topic>] [--query <text>] [--limit <n>] [--offset <n>] [--json]
-node scripts/test-evidence-catalog.mjs show <case-id> --root <workspace-root> [--config <config>] [--json]
+node scripts/test-evidence-catalog.mjs show <case-id> --root <workspace-root> [--json]
 ```
 
 `topics` 直接读取受控 topic 表，不依赖索引。`list --topic` 只接受一个已定义 topic；
 已定义但没有 case 的 topic 返回合法空结果。未知 topic 返回结构化诊断并退出 `2`；
 重复 `--topic` 属于参数错误并退出 `2`。
 
-`check` 严格校验配置、topic 表、全部 case、跨 topic case ID 唯一性和索引新鲜度；
+`check` 严格校验 topic 表、全部 case、跨 topic case ID 唯一性和索引新鲜度；
 `sync-index --write` 从完整合法目录原子重建统一索引。CLI 不执行 Entry。
 
 其他退出状态：
@@ -216,9 +198,9 @@ node scripts/test-evidence-catalog.mjs show <case-id> --root <workspace-root> [-
 2. `1`：存在阻断诊断、索引未同步、目标缺失或执行失败。
 3. `2`：参数错误或未知 topic。
 
-使用 `--json` 时，可预期的配置、目录、索引和查询失败仍向 stdout 写当前命令
-Schema，stderr 为空。report、query、show、topics 和同步结果使用
-`schemaVersion: 3`；能够读取 topic 定义的结果都提供规范化 `topics` 数组，读取
+使用 `--json` 时，可预期的目录、索引和查询失败仍向 stdout 写当前命令 Schema，
+stderr 为空。report、query、show、topics 和同步结果使用
+`schemaVersion: 4`；能够读取 topic 定义的结果都提供规范化 `topics` 数组，读取
 失败时该数组为空。调用方使用 `diagnostics[].blocking` 判断完成状态。
 
 模块可安全导入且不会执行 CLI，导出：

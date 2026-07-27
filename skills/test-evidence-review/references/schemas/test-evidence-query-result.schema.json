@@ -70,7 +70,6 @@
           "category": {
             "enum": [
               "catalog",
-              "config",
               "index"
             ],
             "type": "string"
@@ -126,7 +125,7 @@
       "minimum": 0
     },
     "schemaVersion": {
-      "const": 3
+      "const": 4
     },
     "topics": {
       "type": "array",

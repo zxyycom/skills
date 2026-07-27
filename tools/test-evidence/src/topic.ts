@@ -1,8 +1,5 @@
-import path from "node:path";
-
 export const testEvidenceTopicCatalogFileName =
   "test-evidence-topics.json";
-export const testEvidenceCatalogReadmeFileName = "README.md";
 
 export const testEvidenceTopicIdPatternSource =
   "^[a-z0-9]+(?:-[a-z0-9]+)*$";
@@ -32,20 +29,4 @@ export function testEvidenceTopicIdFromSourcePath(
     return null;
   }
   return segments[0] ?? null;
-}
-
-export function catalogRelativeIndexPath(
-  catalogPath: string,
-  indexPath: string
-): string | null {
-  const relativePath = path.posix.relative(catalogPath, indexPath);
-  if (
-    relativePath.length === 0
-    || relativePath === ".."
-    || relativePath.startsWith("../")
-    || path.posix.isAbsolute(relativePath)
-  ) {
-    return null;
-  }
-  return relativePath;
 }

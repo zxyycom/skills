@@ -24,7 +24,6 @@ import {
 } from "./query.ts";
 import {
   testEvidenceCaseShowResultSchema,
-  testEvidenceConfigSchema,
   testEvidenceIndexSyncResultSchema,
   testEvidenceQueryResultSchema,
   testEvidenceReportSchema,
@@ -44,7 +43,6 @@ import {
 
 type CatalogCommand = "check" | "list" | "show" | "sync-index" | "topics";
 type ParsedOptions = {
-  config?: string;
   json?: boolean;
   limit?: number;
   offset?: number;
@@ -56,7 +54,6 @@ type ParsedOptions = {
 type CatalogCliArgs = {
   caseId: string | null;
   command: CatalogCommand;
-  configPath?: string;
   json: boolean;
   limit: number;
   offset: number;
@@ -78,10 +75,6 @@ export async function runTestEvidenceCatalogCli(
     .option(
       "--root <path>",
       "Target workspace root (default: current directory)."
-    )
-    .option(
-      "--config <path>",
-      "Workspace-relative config (default: .test-evidence.json)."
     )
     .option("--json", "Write one machine-readable result to stdout.")
     .configureHelp({ showGlobalOptions: true })
@@ -174,7 +167,6 @@ export async function runTestEvidenceCatalogCli(
 async function runCatalogCommand(args: CatalogCliArgs): Promise<number> {
   if (args.command === "sync-index") {
     const result = await syncTestEvidenceIndex({
-      configPath: args.configPath,
       mode: args.write ? "write" : "check",
       workspaceRoot: path.resolve(args.workspaceRoot)
     });
@@ -184,7 +176,6 @@ async function runCatalogCommand(args: CatalogCliArgs): Promise<number> {
 
   if (args.command === "check") {
     const report = await validateTestEvidence({
-      configPath: args.configPath,
       workspaceRoot: path.resolve(args.workspaceRoot)
     });
     writeOutput(formatTestEvidenceReport(report, args.json));
@@ -193,7 +184,6 @@ async function runCatalogCommand(args: CatalogCliArgs): Promise<number> {
 
   if (args.command === "topics") {
     const result = await listTestEvidenceTopics({
-      configPath: args.configPath,
       workspaceRoot: path.resolve(args.workspaceRoot)
     });
     writeOutput(formatTestEvidenceTopics(result, args.json));
@@ -203,7 +193,6 @@ async function runCatalogCommand(args: CatalogCliArgs): Promise<number> {
   if (args.command === "show") {
     const result = await showTestEvidenceCase({
       caseId: args.caseId ?? "",
-      configPath: args.configPath,
       workspaceRoot: path.resolve(args.workspaceRoot)
     });
     writeOutput(formatTestEvidenceCaseShow(result, args.json));
@@ -211,7 +200,6 @@ async function runCatalogCommand(args: CatalogCliArgs): Promise<number> {
   }
 
   const result = await queryTestEvidence({
-    configPath: args.configPath,
     limit: args.limit,
     offset: args.offset,
     query: args.query,
@@ -237,7 +225,6 @@ function commandArgs(
   return {
     caseId,
     command,
-    configPath: options.config,
     json: options.json ?? false,
     limit: options.limit ?? testEvidenceQueryDefaultLimit,
     offset: options.offset ?? 0,
@@ -324,7 +311,6 @@ export {
   syncTestEvidenceIndex,
   validateTestEvidence,
   testEvidenceCaseShowResultSchema,
-  testEvidenceConfigSchema,
   testEvidenceIndexSyncResultSchema,
   testEvidenceQueryResultSchema,
   testEvidenceReportSchema,
@@ -339,7 +325,6 @@ export type {
 export type {
   TestEvidenceCaseShowResult,
   TestEvidenceCaseState,
-  TestEvidenceConfig,
   TestEvidenceIndexSyncResult,
   TestEvidenceReport,
   TestEvidenceStateIndex,

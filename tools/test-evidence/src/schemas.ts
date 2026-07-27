@@ -8,7 +8,6 @@ import { testEvidenceTopicIdPatternSource } from "./topic.ts";
 
 export const testEvidenceDiagnosticCategories = [
   "catalog",
-  "config",
   "index"
 ] as const;
 export const testEvidenceDiagnosticSeverities = [
@@ -16,20 +15,19 @@ export const testEvidenceDiagnosticSeverities = [
   "warning"
 ] as const;
 
-export const testEvidenceConfigSchemaVersion = 3 as const;
-export const testEvidenceReportSchemaVersion = 3 as const;
+export const testEvidenceReportSchemaVersion = 4 as const;
 export const testEvidenceIndexSchemaVersion = stateIndexSchemaVersion;
 export const testEvidenceIndexDefinitionVersion = 3 as const;
 export const testEvidenceIndexNamespace =
   "test-evidence" as const;
 export const testEvidenceTopicCatalogSchemaVersion = 1 as const;
 
-export const defaultTestEvidenceConfigPath =
-  ".test-evidence.json";
-export const defaultTestEvidenceCatalogPath =
+export const testEvidenceCatalogPath =
   "docs/test-evidence";
-export const defaultTestEvidenceIndexPath =
+export const testEvidenceIndexPath =
   "docs/test-evidence/test-evidence-index.json";
+export const testEvidenceCaseIdPatternSource =
+  "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$";
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
@@ -106,22 +104,6 @@ export const testEvidenceDiagnosticSchema = v.strictObject({
   message: nonEmptyStringSchema,
   path: v.optional(nonEmptyStringSchema),
   severity: v.picklist(testEvidenceDiagnosticSeverities)
-});
-
-export const testEvidenceConfigSchema = v.strictObject({
-  caseIdPattern: v.optional(
-    nonEmptyStringSchema,
-    "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
-  ),
-  catalogPath: v.optional(
-    nonEmptyStringSchema,
-    defaultTestEvidenceCatalogPath
-  ),
-  indexPath: v.optional(
-    nonEmptyStringSchema,
-    defaultTestEvidenceIndexPath
-  ),
-  schemaVersion: v.literal(testEvidenceConfigSchemaVersion)
 });
 
 export const testEvidenceSummarySchema = v.strictObject({
@@ -256,9 +238,6 @@ export type TestEvidenceTopicCatalog = v.InferOutput<
 >;
 export type TestEvidenceIndexMetadata = v.InferOutput<
   typeof testEvidenceIndexMetadataSchema
->;
-export type TestEvidenceConfig = v.InferOutput<
-  typeof testEvidenceConfigSchema
 >;
 export type TestEvidenceSummary = v.InferOutput<
   typeof testEvidenceSummarySchema

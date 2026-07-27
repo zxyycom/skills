@@ -1,7 +1,7 @@
 ---
 title: 按受控主题路径维护单文件测试证据
-status: active
-alignment: aligned
+status: archived
+alignment: null
 createdAt: 2026-07-26T15:20:07Z
 purpose: 让测试 case 的稳定身份、责任归属和物理源路径在账本增长时仍可独立校验和查询。
 background: 根目录直属主题文件只能表达隐含分组，无法约束主题集合、路径唯一归属或单 case 写入边界。

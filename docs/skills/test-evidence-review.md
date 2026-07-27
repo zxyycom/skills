@@ -65,6 +65,10 @@ Markdown 目录是权威源。根目录的 `test-evidence-topics.json` 定义受
 以支持定点展开。它不发现测试、不自动收集或注册 case，也不使用源码 marker、角色
 或状态字段。
 
+账本路径固定为 `docs/test-evidence`，派生索引固定为其中的
+`test-evidence-index.json`，case ID 采用统一协议。使用者只指定工作区根目录，
+不需要也不能用项目级配置改变这些规则。
+
 主要命令：
 
 ```text

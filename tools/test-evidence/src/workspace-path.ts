@@ -2,28 +2,6 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
 
-export function normalizePathSeparators(value: string): string {
-  return value.replaceAll("\\", "/");
-}
-
-export function normalizeWorkspaceRelative(value: string): string | null {
-  const normalized = normalizePathSeparators(value).trim();
-  const segments = normalized.split("/");
-  if (
-    normalized.length === 0
-    || path.posix.isAbsolute(normalized)
-    || path.win32.isAbsolute(normalized)
-    || /^[A-Za-z]:/u.test(normalized)
-    || segments.includes("..")
-  ) {
-    return null;
-  }
-  const canonicalSegments = segments.filter((segment) => (
-    segment.length > 0 && segment !== "."
-  ));
-  return canonicalSegments.length === 0 ? null : canonicalSegments.join("/");
-}
-
 type WorkspaceFileIdentity = {
   device: bigint;
   inode: bigint;

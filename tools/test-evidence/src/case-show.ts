@@ -3,8 +3,8 @@ import path from "node:path";
 import { createDiagnostic } from "./diagnostics.ts";
 import { getTestEvidenceCaseState } from "./query.ts";
 import {
-  defaultTestEvidenceCatalogPath,
-  defaultTestEvidenceIndexPath,
+  testEvidenceCatalogPath,
+  testEvidenceIndexPath,
   testEvidenceReportSchemaVersion
 } from "./schemas.ts";
 import type {
@@ -14,8 +14,6 @@ import type {
 
 export type ShowTestEvidenceCaseOptions = {
   caseId: string;
-  config?: unknown;
-  configPath?: string;
   workspaceRoot: string;
 };
 
@@ -25,15 +23,11 @@ export async function showTestEvidenceCase(
   const workspaceRoot = path.resolve(options.workspaceRoot);
   const found = await getTestEvidenceCaseState({
     caseId: options.caseId,
-    config: options.config,
-    configPath: options.configPath,
     workspaceRoot
   });
   const entry = found.case;
   if (entry === null) {
     return createShowFailureResult(found.diagnostics, {
-      catalogPath: found.catalogPath,
-      indexPath: found.indexPath,
       topic: found.topic
     });
   }
@@ -59,8 +53,6 @@ export async function showTestEvidenceCase(
         severity: "error"
       })
     ], {
-      catalogPath: found.catalogPath,
-      indexPath: found.indexPath,
       topic: found.topic
     });
   }
@@ -83,8 +75,6 @@ export async function showTestEvidenceCase(
         severity: "error"
       })
     ], {
-      catalogPath: found.catalogPath,
-      indexPath: found.indexPath,
       topic: found.topic
     });
   }
@@ -103,16 +93,14 @@ export async function showTestEvidenceCase(
 function createShowFailureResult(
   diagnostics: readonly TestEvidenceDiagnostic[],
   paths: {
-    catalogPath?: string;
-    indexPath?: string;
     topic?: TestEvidenceCaseShowResult["topic"];
   } = {}
 ): TestEvidenceCaseShowResult {
   return {
     case: null,
-    catalogPath: paths.catalogPath ?? defaultTestEvidenceCatalogPath,
+    catalogPath: testEvidenceCatalogPath,
     diagnostics: [...diagnostics],
-    indexPath: paths.indexPath ?? defaultTestEvidenceIndexPath,
+    indexPath: testEvidenceIndexPath,
     markdown: null,
     schemaVersion: testEvidenceReportSchemaVersion,
     topic: paths.topic ?? null

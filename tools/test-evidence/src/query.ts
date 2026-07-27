@@ -8,11 +8,10 @@ import {
   type StateIndexFilter,
   type StateIndexReader
 } from "../../index-runtime/src/index.ts";
-import { loadTestEvidenceConfig } from "./config.ts";
 import { createDiagnostic } from "./diagnostics.ts";
 import {
-  defaultTestEvidenceCatalogPath,
-  defaultTestEvidenceIndexPath,
+  testEvidenceCatalogPath,
+  testEvidenceIndexPath,
   testEvidenceReportSchemaVersion,
   type TestEvidenceIndexMetadata
 } from "./schemas.ts";
@@ -26,7 +25,6 @@ import { cloneTopicDefinitions } from "./topics.ts";
 import type {
   TestEvidenceCaseIndexState,
   TestEvidenceCaseState,
-  TestEvidenceConfig,
   TestEvidenceDiagnostic,
   TestEvidenceQueryResult,
   TestEvidenceTopicDefinition
@@ -41,8 +39,6 @@ type TestEvidenceReader = Pick<
 >;
 
 export type QueryTestEvidenceOptions = {
-  config?: unknown;
-  configPath?: string;
   limit?: number;
   offset?: number;
   query?: string;
@@ -77,8 +73,6 @@ export async function queryTestEvidence(
   const opened = await openTestEvidenceIndex(options);
   if (opened.status === "error") {
     return createQueryFailureResult(opened.diagnostics, {
-      catalogPath: opened.catalogPath,
-      indexPath: opened.indexPath,
       limit: options.limit,
       offset: options.offset
     });
@@ -98,8 +92,6 @@ export async function queryTestEvidence(
         severity: "error"
       })
     ], {
-      catalogPath: opened.config.catalogPath,
-      indexPath: opened.config.indexPath,
       limit: options.limit,
       offset: options.offset,
       topics: opened.reader.metadata.topics
@@ -117,11 +109,9 @@ export async function queryTestEvidence(
       ...opened.diagnostics,
       ...mapStateIndexDiagnostics(
         queried.diagnostics,
-        opened.config.indexPath
+        testEvidenceIndexPath
       )
     ], {
-      catalogPath: opened.config.catalogPath,
-      indexPath: opened.config.indexPath,
       limit: options.limit,
       offset: options.offset,
       topics: opened.reader.metadata.topics
@@ -130,9 +120,9 @@ export async function queryTestEvidence(
 
   return {
     cases: queried.value.entries.map((entry) => publicCaseState(entry.state)),
-    catalogPath: opened.config.catalogPath,
+    catalogPath: testEvidenceCatalogPath,
     diagnostics: opened.diagnostics,
-    indexPath: opened.config.indexPath,
+    indexPath: testEvidenceIndexPath,
     limit: queried.value.limit,
     offset: queried.value.offset,
     schemaVersion: testEvidenceReportSchemaVersion,
@@ -143,8 +133,6 @@ export async function queryTestEvidence(
 
 export async function getTestEvidenceCaseState(options: {
   caseId: string;
-  config?: unknown;
-  configPath?: string;
   workspaceRoot: string;
 }): Promise<TestEvidenceCaseLookupResult> {
   const opened = await openTestEvidenceIndex(options);
@@ -161,22 +149,22 @@ export async function getTestEvidenceCaseState(options: {
   if (found.status === "error") {
     return {
       case: null,
-      catalogPath: opened.config.catalogPath,
+      catalogPath: testEvidenceCatalogPath,
       diagnostics: [
         ...opened.diagnostics,
         ...mapStateIndexDiagnostics(
           found.diagnostics,
-          opened.config.indexPath
+          testEvidenceIndexPath
         )
       ],
-      indexPath: opened.config.indexPath,
+      indexPath: testEvidenceIndexPath,
       topic: null
     };
   }
   if (found.value === null) {
     return {
       case: null,
-      catalogPath: opened.config.catalogPath,
+      catalogPath: testEvidenceCatalogPath,
       diagnostics: [
         ...opened.diagnostics,
         createDiagnostic({
@@ -187,15 +175,15 @@ export async function getTestEvidenceCaseState(options: {
           severity: "error"
         })
       ],
-      indexPath: opened.config.indexPath,
+      indexPath: testEvidenceIndexPath,
       topic: null
     };
   }
   return {
     case: publicCaseState(found.value.state),
-    catalogPath: opened.config.catalogPath,
+    catalogPath: testEvidenceCatalogPath,
     diagnostics: opened.diagnostics,
-    indexPath: opened.config.indexPath,
+    indexPath: testEvidenceIndexPath,
     topic: topicDefinition(
       found.value.state.sourcePath,
       opened.reader.metadata.topics
@@ -204,8 +192,6 @@ export async function getTestEvidenceCaseState(options: {
 }
 
 async function openTestEvidenceIndex(options: {
-  config?: unknown;
-  configPath?: string;
   workspaceRoot: string;
 }): Promise<
   | {
@@ -215,34 +201,16 @@ async function openTestEvidenceIndex(options: {
     status: "error";
   }
   | {
-    config: TestEvidenceConfig;
     diagnostics: TestEvidenceDiagnostic[];
     reader: TestEvidenceReader;
     status: "ok";
   }
 > {
   const workspaceRoot = path.resolve(options.workspaceRoot);
-  const loadedConfig = await loadTestEvidenceConfig(
-    workspaceRoot,
-    options.configPath,
-    options.config
-  );
-  if (loadedConfig.config === null) {
-    return {
-      catalogPath: defaultTestEvidenceCatalogPath,
-      diagnostics: loadedConfig.diagnostics,
-      indexPath: defaultTestEvidenceIndexPath,
-      status: "error"
-    };
-  }
-  const config = loadedConfig.config;
-  const definition = createTestEvidenceStateIndexDefinition({
-    config,
-    configRelativePath: loadedConfig.configRelativePath
-  });
+  const definition = createTestEvidenceStateIndexDefinition();
   const runtime = createStateIndexRuntime({
     definition,
-    indexPath: config.indexPath,
+    indexPath: testEvidenceIndexPath,
     root: workspaceRoot
   });
   const opened = await runtime.open();
@@ -252,53 +220,49 @@ async function openTestEvidenceIndex(options: {
       || !opened.diagnostics.every((entry) => indexCanBeRebuilt(entry.code))
     ) {
       return {
-        catalogPath: config.catalogPath,
-        diagnostics: [
-          ...loadedConfig.diagnostics,
-          ...mapStateIndexDiagnostics(opened.diagnostics, config.indexPath)
-        ],
-        indexPath: config.indexPath,
+        catalogPath: testEvidenceCatalogPath,
+        diagnostics: mapStateIndexDiagnostics(
+          opened.diagnostics,
+          testEvidenceIndexPath
+        ),
+        indexPath: testEvidenceIndexPath,
         status: "error"
       };
     }
     const built = await buildStateIndex(definition, { root: workspaceRoot });
     if (built.status === "ok") {
       return {
-        config,
         diagnostics: [
-          ...loadedConfig.diagnostics,
           ...mapIndexFallbackDiagnostics(
             opened.diagnostics,
-            config.catalogPath,
-            config.indexPath
+            testEvidenceCatalogPath,
+            testEvidenceIndexPath
           )
         ],
         reader: createStateIndexReader({
           definition,
           index: built.value,
-          indexPath: config.indexPath
+          indexPath: testEvidenceIndexPath
         }),
         status: "ok"
       };
     }
     return {
-      catalogPath: config.catalogPath,
+      catalogPath: testEvidenceCatalogPath,
       diagnostics: [
-        ...loadedConfig.diagnostics,
-        ...mapStateIndexDiagnostics(opened.diagnostics, config.indexPath),
+        ...mapStateIndexDiagnostics(opened.diagnostics, testEvidenceIndexPath),
         ...mapStateIndexDiagnostics(
           built.diagnostics,
-          config.indexPath,
+          testEvidenceIndexPath,
           false
         )
       ],
-      indexPath: config.indexPath,
+      indexPath: testEvidenceIndexPath,
       status: "error"
     };
   }
   return {
-    config,
-    diagnostics: loadedConfig.diagnostics,
+    diagnostics: [],
     reader: opened.value,
     status: "ok"
   };
@@ -337,8 +301,6 @@ function publicCaseState(
 export function createQueryFailureResult(
   diagnostics: readonly TestEvidenceDiagnostic[],
   paths: {
-    catalogPath?: string;
-    indexPath?: string;
     limit?: number;
     offset?: number;
     topics?: readonly TestEvidenceTopicDefinition[];
@@ -346,9 +308,9 @@ export function createQueryFailureResult(
 ): TestEvidenceQueryResult {
   return {
     cases: [],
-    catalogPath: paths.catalogPath ?? defaultTestEvidenceCatalogPath,
+    catalogPath: testEvidenceCatalogPath,
     diagnostics: [...diagnostics],
-    indexPath: paths.indexPath ?? defaultTestEvidenceIndexPath,
+    indexPath: testEvidenceIndexPath,
     limit: validFailureLimit(paths.limit),
     offset: validFailureOffset(paths.offset),
     schemaVersion: testEvidenceReportSchemaVersion,

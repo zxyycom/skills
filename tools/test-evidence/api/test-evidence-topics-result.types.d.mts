@@ -10,7 +10,7 @@ export interface TestEvidenceTopicsResult {
   diagnostics: {
     blocking: boolean;
     caseId?: string;
-    category: "catalog" | "config" | "index";
+    category: "catalog" | "index";
     code: string;
     column?: number;
     line?: number;
@@ -18,7 +18,7 @@ export interface TestEvidenceTopicsResult {
     path?: string;
     severity: "error" | "warning";
   }[];
-  schemaVersion: 3;
+  schemaVersion: 4;
   topics: {
     description: string;
     id: string;

@@ -7,7 +7,7 @@ description: >-
   测试证据质量并维护可检索 case。工程校验、普通业务代码、仅运行既有测试
   或只修复被测对象不使用。
 metadata:
-  version: "5"
+  version: "6"
 ---
 
 # Test Evidence Review
@@ -32,7 +32,7 @@ metadata:
 3. 只运行既有测试，或只修复被测对象而不修改测试。
 
 任务同时修改产品代码和测试时，只对测试部分应用本 skill。审查、查询和评估
-请求保持只读；只有修改请求才更新测试、行为 owner、case 目录、配置或派生索引。
+请求保持只读；只有修改请求才更新测试、行为 owner、case 目录或派生索引。
 
 ## 核心判断：最小原生测试入口
 
@@ -73,15 +73,14 @@ runner 命令和 CI job 即使可选，也只要聚合多个可区分的原生�
 
 1. 本文件承接触发边界、入口粒度、证据评估、处置流程和完成标准。
 2. [catalog-contract.md](references/catalog-contract.md) 承接 case 字段、目录、
-   派生索引、配置、CLI 和机器接口。
+   派生索引、CLI 和机器接口。
 3. `scripts/test-evidence-catalog.mjs` 只校验、同步和查询显式 case。它不扫描源码、
    不执行 `Entry:`、不发现或自动登记测试，也不判断测试粒度或证明价值。
 4. [migrate-from-verification-implementation-review.md](references/migrate-from-verification-implementation-review.md)
    只在工作区仍使用泛化验证目录、`Verification:` 字段，或更早的 marker 与采集
    配置时读取。
 5. [upgrade-from-single-file-catalog.md](references/upgrade-from-single-file-catalog.md)
-   只在配置仍使用 `schemaVersion: 1`、`catalogPath` 仍指向单个 Markdown，或
-   `schemaVersion: 2` 目录仍由根目录直属主题 Markdown 组成时读取。
+   只在旧账本仍是单个 Markdown，或旧目录仍由根目录直属主题 Markdown 组成时读取。
 6. 项目行为 owner 承接长期产品与接口契约；case 的 `Contract:` 只压缩当前测试
    所需背景，不取代行为 owner。
 
@@ -96,8 +95,7 @@ runner 命令和 CI job 即使可选，也只要聚合多个可区分的原生�
 4. **旧格式迁移**：遇到 `.verification-evidence.json`、`docs/verification/`、
    `Verification:`、`verification-catalog.mjs`、`@test-evidence` 或入口采集配置时
    读取迁移文档。
-5. **旧目录升级**：遇到配置 `schemaVersion: 1`、文件型 `catalogPath`，或
-   `schemaVersion: 2` 根目录直属主题 Markdown 时读取升级文档。
+5. **旧目录升级**：遇到单文件账本或根目录直属主题 Markdown 时读取升级文档。
 
 索引缺失、损坏或陈旧时，`list` 和 `show` 使用当前合法 Markdown 的只读内存
 投影并报告 warning，不写回文件。目录不存在时，查询任务报告没有可查询目录；

@@ -3,6 +3,7 @@ import path from "node:path";
 import * as v from "valibot";
 import { createDiagnostic } from "./diagnostics.ts";
 import {
+  testEvidenceCatalogPath,
   testEvidenceTopicCatalogSchema,
   type TestEvidenceDiagnostic,
   type TestEvidenceTopicCatalog
@@ -16,11 +17,10 @@ export type LoadedTestEvidenceTopicCatalog = {
 };
 
 export async function loadTestEvidenceTopicCatalog(
-  workspaceRoot: string,
-  catalogPath: string
+  workspaceRoot: string
 ): Promise<LoadedTestEvidenceTopicCatalog> {
   const relativePath = path.posix.join(
-    catalogPath,
+    testEvidenceCatalogPath,
     testEvidenceTopicCatalogFileName
   );
   const absolutePath = path.join(

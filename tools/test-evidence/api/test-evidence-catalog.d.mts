@@ -1,5 +1,4 @@
 import type { TestEvidenceCaseShowResult } from "./test-evidence-case-show-result.types.mjs";
-import type { TestEvidenceConfig } from "./test-evidence-config.types.mjs";
 import type { TestEvidenceIndexSyncResult } from "./test-evidence-index-sync-result.types.mjs";
 import type { TestEvidenceQueryResult } from "./test-evidence-query-result.types.mjs";
 import type { TestEvidenceReport } from "./test-evidence-report.types.mjs";
@@ -15,14 +14,10 @@ export type StandardOutputSchema<T> = {
 };
 
 export type ValidateTestEvidenceOptions = {
-  config?: unknown;
-  configPath?: string;
   workspaceRoot: string;
 };
 
 export type QueryTestEvidenceOptions = {
-  config?: unknown;
-  configPath?: string;
   limit?: number;
   offset?: number;
   query?: string;
@@ -31,21 +26,15 @@ export type QueryTestEvidenceOptions = {
 };
 
 export type ListTestEvidenceTopicsOptions = {
-  config?: unknown;
-  configPath?: string;
   workspaceRoot: string;
 };
 
 export type ShowTestEvidenceCaseOptions = {
   caseId: string;
-  config?: unknown;
-  configPath?: string;
   workspaceRoot: string;
 };
 
 export type SyncTestEvidenceIndexOptions = {
-  config?: unknown;
-  configPath?: string;
   mode: "check" | "write";
   workspaceRoot: string;
 };
@@ -55,7 +44,6 @@ export type TestEvidenceCaseState =
 
 export type {
   TestEvidenceCaseShowResult,
-  TestEvidenceConfig,
   TestEvidenceIndexSyncResult,
   TestEvidenceQueryResult,
   TestEvidenceReport,
@@ -66,8 +54,6 @@ export type {
 
 export declare const testEvidenceCaseShowResultSchema:
   StandardOutputSchema<TestEvidenceCaseShowResult>;
-export declare const testEvidenceConfigSchema:
-  StandardOutputSchema<unknown>;
 export declare const testEvidenceIndexSyncResultSchema:
   StandardOutputSchema<TestEvidenceIndexSyncResult>;
 export declare const testEvidenceQueryResultSchema:
