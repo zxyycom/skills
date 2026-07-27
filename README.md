@@ -44,6 +44,8 @@
 
 [Codex Shell Permissions](docs/skills/codex-shell-permissions.md) 关注 Codex shell 失败后的下一步执行选择。它让 agent 判断应改用简单命令、申请必要提权、确认高风险范围，还是回到真实程序错误处理；当用户主动要求时，再进入 `execpolicy` 和 `allow/prompt/block` 的权限规则维护流程。实际 skill 位于 [`skills/codex-shell-permissions/`](skills/codex-shell-permissions/)。
 
+[ast-grep](docs/skills/ast-grep.md) 让 agent 使用 ast-grep CLI 按语法树结构查看、搜索、检查和受控迁移代码。它在 `outline`、`run`、`scan` 和 `test` 之间选择最小入口，先用正反例证明 matcher，再限制真实扫描或 rewrite 范围；文本、语义、符号引用和调用图查询继续交给各自工具。实际 skill 位于 [`skills/ast-grep/`](skills/ast-grep/)。
+
 [Investigation Report](docs/skills/investigation-report.md) 在用户明确要求沉淀调查时，用稳定主题保存每轮形成时背景、调查目的、实际依据以及结果与边界。同一核心问题的新认识追加为可独立阅读的完整报告，主题级派生索引负责发现、新鲜度和查询。实际 skill 位于 [`skills/investigation-report/`](skills/investigation-report/)。
 
 [Decision Records](docs/skills/decision-records.md) 提供一套跨项目复用的长期决策记忆方案和配套 CLI。它用自包含 Markdown 保存长期决策的完整语义、生命周期、对齐状态和演进关系，并生成可重建的全生命周期 JSON 查询索引；配套 CLI 负责查询、检查、索引同步和受约束的维护事务。实际 skill 位于 [`skills/decision-records/`](skills/decision-records/)。

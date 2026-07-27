@@ -1,0 +1,4 @@
+interface:
+  display_name: "ast-grep"
+  short_description: "用 AST 结构搜索、扫描和受控改写代码"
+  default_prompt: "使用 $ast-grep 选择 outline、run、scan 或 test，把目标代码形状转成可复现 matcher，先用正反例验证，再在最小范围搜索或安全重写并报告证据。"

@@ -29,6 +29,7 @@
    - `change-plan`: 维护明确 change 的 proposal、design、tasks 和基础查询、检查与归档生命周期。
    - `openspec-explore`、`openspec-propose`、`openspec-apply-change`、`openspec-archive-change`: 分别维护 OpenSpec change 的探索、提案、实施和归档阶段。
    - `codex-shell-permissions`: 指导 shell 失败后的下一步命令选择, 并在用户要求时维护 Codex 权限 rules。
+   - `ast-grep`: 使用 ast-grep CLI 按 AST 结构概览、搜索、规则扫描和受控重写代码。
    - `decision-records`: 以可回放记录与索引维护长期决策及其演进关系。
    - `subagent-orchestration`: 维护复杂任务的子代理拆分、上下文控制、写入所有权和结果审计。
 5. 仓库内 skill 的实际清单以 `skills/*/SKILL.md` 为准; 新增、重命名或移除 skill 时同步更新本节概览。
