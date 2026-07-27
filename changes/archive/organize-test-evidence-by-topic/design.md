@@ -45,9 +45,13 @@
 2. `test-evidence-topics.json` 使用独立 schema，保存按 ID 升序排列的 `{ id, description }`。topic ID 使用 kebab-case，描述提供稳定测试责任边界；ID 唯一且至少定义一个 topic。
 3. 每个 case Markdown 必须直接位于一个 topic 目录中，并且恰好包含一个 `### Case <CASE-ID>: <title>` 及其 `Entry:`、`Contract:`、`Proves:`。文件名使用语义化 kebab-case，不重复 case ID 字段作为第二个身份 owner。
 4. case ID 继续作为索引 `id` 和目录内全局唯一身份。`sourcePath` 只负责定位；topic 纠正需要移动文件并重建索引，但不改 case ID、Entry、Contract 或 Proves。
-5. 路径第一段是唯一 topic 归属。Markdown 不新增 `Topic:` 字段，index state 不重复保存 topic；`keys.topic` 从 `state.sourcePath` 第一段派生并用 `metadata.topics` 校验。
+5. 路径第一段是唯一 topic 归属。v3 的 `state.sourcePath` 与公共结果都固定为
+   catalog-root-relative 的 `<topic-id>/<semantic-slug>.md`，`show` 通过
+   `catalogPath + sourcePath` 读取原文；Markdown 不新增 `Topic:` 字段，index
+   state 不重复保存 topic；`keys.topic` 从 `state.sourcePath` 第一段派生并用
+   `metadata.topics` 校验。
 6. 索引 metadata 固定包含完整 `topics` 定义。公共 query 可按需要返回相关定义；`show` 返回目标 case 的 topic ID、description、紧凑 state 和完整 Markdown。
-7. `sourceRevision` 对规范化主题表、配置中的 case ID pattern，以及按 POSIX 路径排序后的全部 case 路径与规范化正文做稳定 framing。仅换行风格变化不应制造漂移，主题描述、文件移动、增删或正文变化必须制造漂移。
+7. `sourceRevision` 对规范化主题表、配置中的 case ID pattern，以及按 POSIX 路径排序后的全部 catalog-root-relative case 路径与规范化正文做稳定 framing。v3 不再把 `catalogPath` 自身写入 revision；相同内容根移动后仍可复用同一索引语义。仅换行风格变化不应制造漂移，主题描述、文件移动、增删或正文变化必须制造漂移。
 8. 根目录固定允许 `test-evidence-topics.json`、配置指向根目录内时的派生索引和可选 `README.md`；其他普通文件、符号链接和未知目录均失败。已存在 topic 目录必须至少包含一个 Markdown，只允许直接 case 文件，不允许嵌套目录。
 9. 主题表可以定义尚无 case 的 topic；这类 topic 不创建空目录，但仍出现在 `topics` 命令和索引 metadata 中。
 10. CLI 新增 `topics`，直接读取并校验权威主题表，不要求索引存在。`list` 接受至多一个 `--topic`，未知 topic 返回参数错误，已定义但无 case 的 topic 返回空结果及其定义。
@@ -65,6 +69,13 @@
 - 主题描述进入 source revision 后，文字边界变化会要求同步索引；这保证查询不会展示过期定义。
 - 当前多主题文件基线与历史测试改造在同一仓库版本中落地。实施必须保持现有 case 和测试入口语义，并把 v2 到 v3 的兼容边界写入升级文档，不能把现有格式当作从未存在。
 - 固定根文件白名单会拒绝消费者随意放置其他说明或资产；这是让 scanner、固定契约和目录成员保持一致所需的约束，额外材料应放在根目录之外或由未来契约显式扩展。
+- v3 工具与分发产物完成后，本仓库仍暂时使用 v2 `.test-evidence.json` 和
+  `cases/*.md`。由于本 change 明确不迁移真实仓库账本，目标测试、生成漂移、
+  skill 结构和类型检查可以先形成稳定实现证据，但完整 `bun run check --strict`
+  必然在仓库目录检查处失败。不得通过兼容双读或隐式 fallback 消除该失败；
+  本 change 保持 active，直到紧随其后的
+  `migrate-repository-test-evidence-to-topic-layout` 切换真实仓库目录并让完整检查
+  通过，才满足原子交付门禁。
 
 ## Open Questions
 

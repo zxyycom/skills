@@ -52,3 +52,80 @@
 ## Open Questions
 
 无统一框架选择问题需要提前决定。每个测试组在实施时按已有运行环境和上述最小维护面标准选择常见框架，并在对应任务证据中记录选择。
+
+## Implementation Observations
+
+### 2026-07-27 实施起点
+
+- `organize-test-evidence-by-topic` 与
+  `migrate-repository-test-evidence-to-topic-layout` 已归档；v3 目录基线包含
+  9 个受控 topic、106 个 case，test-evidence runner 报告 31/31 节点通过且
+  strict 目录检查通过。
+- 一次性历史清单覆盖 11 个稳定 `test:*` 命令。最初可达 104 个节点，
+  `tools/test-evidence/tests/repository-catalog.test.ts` 的 2 个历史节点恢复到
+  稳定 runner 后，当前实施基线为 106 个可达原生节点。
+- 清单已区分 package script、`run.ts`、测试文件、support、fixture、helper 和
+  断言；前五类中的容器或内部环节不登记 case，工程校验继续排除在账本之外。
+- 本 change 不修改通用 topic 工具、Schema、配置、topic 表或源码采集行为。
+  当前并行实施按测试责任分区；本分区只处理 index-runtime、version-control 和
+  skill-package-hash 的自然节点拆分及对应 case。
+
+### 2026-07-27 index-runtime、version-control 与 skill-package-hash 分区
+
+- 三组继续使用现有 `node:test` 与 Bun runner，不修改 package script 或
+  `run.ts` 容器。index-runtime 从 5 个聚合节点拆为 33 个稳定节点，
+  version-control 从 1 个拆为 8 个，skill-package-hash 从 1 个拆为 5 个；
+  本分区账本因此由 7 个 case 调整为 46 个 case。
+- index-runtime 按定义协议、物化与序列化、查询、新鲜度、reader 快照、
+  runtime 覆盖和持久化恢复等行为边界拆分；已有性能节点保持单一尺度证据，
+  没有把 helper、fixture 或 `run.ts` 登记为 case。
+- Git 相关节点各自建立并清理临时仓库。skill-package-hash 的首次隔离运行
+  暴露旧聚合节点顺序依赖：新增 skill 场景暗中依赖前一段已把 alpha 提升到
+  v4；节点内显式建立该前置状态后独立通过。
+- 逐节点对照确认 index-runtime 33/33、version-control 8/8、
+  skill-package-hash 5/5 的 runner 名称与 case Entry 完全一致；46 个本分区
+  case 文件各含一个 Case、Entry、Contract 和 Proves，case ID 无重复。
+- 目标验证结果为 `bun run test:index-runtime` 33/33、
+  `bun test ./tools/shared/tests/version-control.test.ts` 8/8 和
+  `bun test ./scripts/lib/skill-package-hash.test.ts` 5/5。代表性的 pending
+  Git 内容节点随后单独重复运行并通过，未观察到共享状态污染或临时资源泄漏。
+- 本分区没有修改统一派生索引、topic 表、test-evidence 配置或其他测试组；
+  这些全局产物与完整 strict 验证留给各分区汇总后的统一步骤。
+
+### 2026-07-27 全仓汇总与最终验收
+
+- 三个实施分区均已结束且没有跨分区写入冲突。106 个基线节点最终调整为
+  178 个自然 runner 节点，净增加 72 个：change-plan 18→20、
+  decision-records 13→29、check 8→11、generated-file 3→3、
+  skill-package-hash 1→5、index-runtime 5→33、version-control 1→8、
+  investigation-report 10→13、skill-validator 5→10、test-evidence 31→31、
+  skill-updater 11→15。
+- 最终 topic 数为 9，case 分布为 change-plan 20、decision-records 29、
+  index-runtime 33、investigation-report 13、repository-tooling 19
+  （check 11、generated-file 3、skill-package-hash 5）、skill-updater 15、
+  skill-validator 10、test-evidence 31、version-control 8，总计 178。
+- 一次性源清单覆盖 `package.json` 中全部 11 个稳定 `test:*` runner。逐文件
+  提取原生注册节点，并按 runner 的实际报告粒度展开 test-evidence 的 v1/v2
+  参数化升级节点；与全部 case 的“文件路径 > 完整节点名”Entry 双向比较后，
+  missing、extra、重复源节点、重复 case locator、重复 case ID、无定位 case、
+  多节点 locator 和文件结构问题均为 0。
+- 导入型 `run.ts` 只作为容器；skill-validator、test-evidence 和 skill-updater
+  的 `run.ts` 直接注册原生节点，因此 case 定位其中的具体节点而非整个文件。
+  Package script、suite、support、fixture、helper、断言与 `check:*` 工程 gate
+  均未登记为独立 case。
+- 统一索引只通过 `bun run sync:test-evidence-catalog` 重建。最终索引使用
+  `schemaVersion: 2`、`namespace: test-evidence`、`definitionVersion: 3`，
+  包含 178 个 entry；官方 catalog check 返回 0 diagnostics，索引为 current。
+  全量 `list --limit 200` 返回 178/178，九个 topic 各自执行 `list` 与 `show`
+  均无诊断，并能从索引定位到权威 Markdown。
+- 11 个稳定 runner 均单独通过，报告数量依次为 20、29、11、3、5、33、8、
+  13、10、31、15，总计 178。Git pending、skill package pending、
+  `process.platform` 恢复和 `console.log` 恢复节点随后按精确名称隔离重跑通过，
+  未发现并发污染、临时资源泄漏或剩余顺序依赖。
+- generated-file 的 3 个既有节点和 test-evidence 的 31 个保留节点无需为账本
+  形式更换框架，证明登记契约只依赖 runner 的自然最终节点，不依赖特定注册
+  API 或本 change 是否改造过测试。
+- `bun run typecheck`、`bun run validate`（18 个 skill、413 个 Markdown）、
+  `bun run check:decisions`（19 个 domain、134 条 decision）均通过。
+  `bun run check --strict` 的 23 个 preflight、全部测试与最终 packaging 在
+  19.95 秒内全部通过；最终没有阻塞诊断或未解释的账本缺口。
