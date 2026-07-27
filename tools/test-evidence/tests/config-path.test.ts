@@ -14,7 +14,7 @@ test("rejects a catalog path that cannot be inspected", async () => {
       config: {
         catalogPath: "invalid\0catalog",
         indexPath: "docs/test-evidence/index.json",
-        schemaVersion: 2
+        schemaVersion: 3
       },
       mode: "check",
       workspaceRoot

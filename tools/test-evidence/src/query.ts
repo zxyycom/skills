@@ -21,12 +21,15 @@ import {
   indexCanBeRebuilt,
   mapStateIndexDiagnostics
 } from "./state-index.ts";
+import { testEvidenceTopicIdFromSourcePath } from "./topic.ts";
+import { cloneTopicDefinitions } from "./topics.ts";
 import type {
   TestEvidenceCaseIndexState,
   TestEvidenceCaseState,
   TestEvidenceConfig,
   TestEvidenceDiagnostic,
-  TestEvidenceQueryResult
+  TestEvidenceQueryResult,
+  TestEvidenceTopicDefinition
 } from "./types.ts";
 
 type TestEvidenceReader = Pick<
@@ -34,7 +37,7 @@ type TestEvidenceReader = Pick<
     TestEvidenceCaseIndexState,
     TestEvidenceIndexMetadata
   >,
-  "get" | "query"
+  "get" | "metadata" | "query"
 >;
 
 export type QueryTestEvidenceOptions = {
@@ -43,6 +46,7 @@ export type QueryTestEvidenceOptions = {
   limit?: number;
   offset?: number;
   query?: string;
+  topic?: string;
   workspaceRoot: string;
 };
 
@@ -51,6 +55,7 @@ export type TestEvidenceCaseLookupResult = {
   catalogPath: string;
   diagnostics: TestEvidenceDiagnostic[];
   indexPath: string;
+  topic: TestEvidenceTopicDefinition | null;
 };
 
 export const testEvidenceQueryDefaultLimit = 20;
@@ -78,6 +83,28 @@ export async function queryTestEvidence(
       offset: options.offset
     });
   }
+  if (
+    options.topic !== undefined
+    && !opened.reader.metadata.topics.some(
+      (topic) => topic.id === options.topic
+    )
+  ) {
+    return createQueryFailureResult([
+      ...opened.diagnostics,
+      createDiagnostic({
+        category: "catalog",
+        code: "query.topic-unknown",
+        message: `Unknown test evidence topic: ${options.topic}`,
+        severity: "error"
+      })
+    ], {
+      catalogPath: opened.config.catalogPath,
+      indexPath: opened.config.indexPath,
+      limit: options.limit,
+      offset: options.offset,
+      topics: opened.reader.metadata.topics
+    });
+  }
 
   const queried = opened.reader.query({
     filters: queryFilters(options),
@@ -96,7 +123,8 @@ export async function queryTestEvidence(
       catalogPath: opened.config.catalogPath,
       indexPath: opened.config.indexPath,
       limit: options.limit,
-      offset: options.offset
+      offset: options.offset,
+      topics: opened.reader.metadata.topics
     });
   }
 
@@ -108,6 +136,7 @@ export async function queryTestEvidence(
     limit: queried.value.limit,
     offset: queried.value.offset,
     schemaVersion: testEvidenceReportSchemaVersion,
+    topics: cloneTopicDefinitions(opened.reader.metadata.topics),
     total: queried.value.total
   };
 }
@@ -124,7 +153,8 @@ export async function getTestEvidenceCaseState(options: {
       case: null,
       catalogPath: opened.catalogPath,
       diagnostics: opened.diagnostics,
-      indexPath: opened.indexPath
+      indexPath: opened.indexPath,
+      topic: null
     };
   }
   const found = opened.reader.get(options.caseId);
@@ -139,7 +169,8 @@ export async function getTestEvidenceCaseState(options: {
           opened.config.indexPath
         )
       ],
-      indexPath: opened.config.indexPath
+      indexPath: opened.config.indexPath,
+      topic: null
     };
   }
   if (found.value === null) {
@@ -156,14 +187,19 @@ export async function getTestEvidenceCaseState(options: {
           severity: "error"
         })
       ],
-      indexPath: opened.config.indexPath
+      indexPath: opened.config.indexPath,
+      topic: null
     };
   }
   return {
     case: publicCaseState(found.value.state),
     catalogPath: opened.config.catalogPath,
     diagnostics: opened.diagnostics,
-    indexPath: opened.config.indexPath
+    indexPath: opened.config.indexPath,
+    topic: topicDefinition(
+      found.value.state.sourcePath,
+      opened.reader.metadata.topics
+    )
   };
 }
 
@@ -200,7 +236,10 @@ async function openTestEvidenceIndex(options: {
     };
   }
   const config = loadedConfig.config;
-  const definition = createTestEvidenceStateIndexDefinition({ config });
+  const definition = createTestEvidenceStateIndexDefinition({
+    config,
+    configRelativePath: loadedConfig.configRelativePath
+  });
   const runtime = createStateIndexRuntime({
     definition,
     indexPath: config.indexPath,
@@ -302,6 +341,7 @@ export function createQueryFailureResult(
     indexPath?: string;
     limit?: number;
     offset?: number;
+    topics?: readonly TestEvidenceTopicDefinition[];
   } = {}
 ): TestEvidenceQueryResult {
   return {
@@ -312,6 +352,7 @@ export function createQueryFailureResult(
     limit: validFailureLimit(paths.limit),
     offset: validFailureOffset(paths.offset),
     schemaVersion: testEvidenceReportSchemaVersion,
+    topics: cloneTopicDefinitions(paths.topics ?? []),
     total: 0
   };
 }
@@ -343,5 +384,29 @@ function queryFilters(
       text: options.query.trim()
     });
   }
+  if (options.topic !== undefined) {
+    filters.push({
+      key: "topic",
+      kind: "exact",
+      operator: "all",
+      values: [options.topic]
+    });
+  }
   return filters;
+}
+
+function topicDefinition(
+  sourcePath: string,
+  topics: readonly TestEvidenceTopicDefinition[]
+): TestEvidenceTopicDefinition {
+  const topicId = testEvidenceTopicIdFromSourcePath(sourcePath);
+  const topic = topicId === null
+    ? undefined
+    : topics.find((candidate) => candidate.id === topicId);
+  if (topic === undefined) {
+    throw new TypeError(`Indexed sourcePath has no topic definition: ${
+      sourcePath
+    }`);
+  }
+  return { id: topic.id, description: topic.description };
 }

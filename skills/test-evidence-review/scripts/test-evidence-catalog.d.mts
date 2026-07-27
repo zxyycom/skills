@@ -12,6 +12,8 @@ import type { TestEvidenceIndexSyncResult } from "./test-evidence-index-sync-res
 import type { TestEvidenceQueryResult } from "./test-evidence-query-result.types.mjs";
 import type { TestEvidenceReport } from "./test-evidence-report.types.mjs";
 import type { TestEvidenceStateIndex } from "./test-evidence-state-index.types.mjs";
+import type { TestEvidenceTopicCatalog } from "./test-evidence-topic-catalog.types.mjs";
+import type { TestEvidenceTopicsResult } from "./test-evidence-topics-result.types.mjs";
 
 export type StandardOutputSchema<T> = {
   readonly "~standard": {
@@ -32,6 +34,13 @@ export type QueryTestEvidenceOptions = {
   limit?: number;
   offset?: number;
   query?: string;
+  topic?: string;
+  workspaceRoot: string;
+};
+
+export type ListTestEvidenceTopicsOptions = {
+  config?: unknown;
+  configPath?: string;
   workspaceRoot: string;
 };
 
@@ -58,7 +67,9 @@ export type {
   TestEvidenceIndexSyncResult,
   TestEvidenceQueryResult,
   TestEvidenceReport,
-  TestEvidenceStateIndex
+  TestEvidenceStateIndex,
+  TestEvidenceTopicCatalog,
+  TestEvidenceTopicsResult
 };
 
 export declare const testEvidenceCaseShowResultSchema:
@@ -73,6 +84,14 @@ export declare const testEvidenceReportSchema:
   StandardOutputSchema<TestEvidenceReport>;
 export declare const testEvidenceStateIndexSchema:
   StandardOutputSchema<TestEvidenceStateIndex>;
+export declare const testEvidenceTopicCatalogSchema:
+  StandardOutputSchema<TestEvidenceTopicCatalog>;
+export declare const testEvidenceTopicsResultSchema:
+  StandardOutputSchema<TestEvidenceTopicsResult>;
+
+export declare function listTestEvidenceTopics(
+  options: ListTestEvidenceTopicsOptions
+): Promise<TestEvidenceTopicsResult>;
 
 export declare function queryTestEvidence(
   options: QueryTestEvidenceOptions

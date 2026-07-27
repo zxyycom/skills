@@ -21,7 +21,7 @@ export interface TestEvidenceIndexSyncResult {
   }[];
   indexPath: string;
   mode: "check" | "write";
-  schemaVersion: 2;
+  schemaVersion: 3;
   state:
     | "current"
     | "unchanged"
@@ -34,4 +34,8 @@ export interface TestEvidenceIndexSyncResult {
     | "index-write-failed"
     | "source-invalid";
   status: "ok" | "error";
+  topics: {
+    description: string;
+    id: string;
+  }[];
 }

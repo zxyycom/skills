@@ -33,6 +33,10 @@ export interface TestEvidenceQueryResult {
   indexPath: string;
   limit: number;
   offset: number;
-  schemaVersion: 2;
+  schemaVersion: 3;
+  topics: {
+    description: string;
+    id: string;
+  }[];
   total: number;
 }

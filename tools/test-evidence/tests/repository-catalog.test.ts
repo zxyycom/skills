@@ -25,7 +25,7 @@ test("queries the repository catalog by contract and proof terms", async () => {
   assert.equal(result.cases[0]?.id, "TEST-EVIDENCE-CONFIG-PATH-001");
   assert.equal(
     result.cases[0]?.sourcePath,
-    "docs/test-evidence/cases/test-evidence.md"
+    "test-evidence/rejects-a-catalog-path-that-cannot-be-inspected.md"
   );
 });
 
@@ -39,8 +39,13 @@ test("shows the authoritative Markdown for a repository case", async () => {
   assert.equal(result.case?.id, "TEST-EVIDENCE-CONFIG-PATH-001");
   assert.equal(
     result.case?.sourcePath,
-    "docs/test-evidence/cases/test-evidence.md"
+    "test-evidence/rejects-a-catalog-path-that-cannot-be-inspected.md"
   );
+  assert.deepEqual(result.topic, {
+    id: "test-evidence",
+    description: "测试证据目录的配置、路径与 case 结构、统一索引同步与回退、"
+      + "查询展示，以及 CLI 和分发 API 契约。"
+  });
   assert.match(
     result.markdown ?? "",
     /config\.path-inspection-failed/u

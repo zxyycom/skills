@@ -7,7 +7,7 @@ description: >-
   测试证据质量并维护可检索 case。工程校验、普通业务代码、仅运行既有测试
   或只修复被测对象不使用。
 metadata:
-  version: "4"
+  version: "5"
 ---
 
 # Test Evidence Review
@@ -80,22 +80,24 @@ runner 命令和 CI job 即使可选，也只要聚合多个可区分的原生�
    只在工作区仍使用泛化验证目录、`Verification:` 字段，或更早的 marker 与采集
    配置时读取。
 5. [upgrade-from-single-file-catalog.md](references/upgrade-from-single-file-catalog.md)
-   只在配置仍使用 `schemaVersion: 1`，或 `catalogPath` 仍指向单个 Markdown 时读取。
+   只在配置仍使用 `schemaVersion: 1`、`catalogPath` 仍指向单个 Markdown，或
+   `schemaVersion: 2` 目录仍由根目录直属主题 Markdown 组成时读取。
 6. 项目行为 owner 承接长期产品与接口契约；case 的 `Contract:` 只压缩当前测试
    所需背景，不取代行为 owner。
 
 按任务读取：
 
-1. **查询或整理 case**：先用 `list --query <text>` 搜索 ID、标题、Contract、
-   Proves 和 Entry；主题不明确时先用有界 `list`，再用 `show` 展开目标 case。
+1. **查询或整理 case**：先用 `topics` 读取受控主题表，再用 `list --topic <topic>`
+   和 `list --query <text>` 搜索 ID、标题、Contract、Proves 和 Entry；范围不明确时
+   先用有界 `list`，再用 `show` 展开目标 case。
 2. **审查或修改测试**：读取项目测试约定、当前 diff、目标测试及被测契约，再搜索
    相关 case，并按 runner 的原生报告节点确定粒度。
 3. **写入或结构修复**：完整读取目录契约。
 4. **旧格式迁移**：遇到 `.verification-evidence.json`、`docs/verification/`、
    `Verification:`、`verification-catalog.mjs`、`@test-evidence` 或入口采集配置时
    读取迁移文档。
-5. **单文件目录升级**：遇到配置 `schemaVersion: 1` 或文件型 `catalogPath` 时读取
-   单文件升级文档。
+5. **旧目录升级**：遇到配置 `schemaVersion: 1`、文件型 `catalogPath`，或
+   `schemaVersion: 2` 根目录直属主题 Markdown 时读取升级文档。
 
 索引缺失、损坏或陈旧时，`list` 和 `show` 使用当前合法 Markdown 的只读内存
 投影并报告 warning，不写回文件。目录不存在时，查询任务报告没有可查询目录；
@@ -136,21 +138,25 @@ runner 命令和 CI job 即使可选，也只要聚合多个可区分的原生�
 每个 case 使用 `Entry:`、`Contract:` 和 `Proves:`；没有 `Verification:`、状态、
 角色或 marker 字段。精确格式以目录契约为准。
 
-Markdown 目录是权威源。派生索引只提供按 case ID、标题、全部 Contract、全部
-Proves 和全部 Entry 的快速查询。目录按稳定测试责任主题拆成 Markdown 文件；
-主题文件只是维护和定位边界，不合并或改变 case 身份。`show` 根据索引中的源文件
-路径展开完整原文。索引统一聚合全部主题，但不收集、注册或生成 case。
+Markdown 目录是权威源。根目录的受控主题表定义可用 topic；每个 case 单独位于
+`<topic>/<slug>.md`，路径 topic 只提供维护、筛选和定位边界，不合并或改变 case
+身份。派生索引提供按 case ID、标题、全部 Contract、全部 Proves、全部 Entry 和
+精确 topic 的快速查询；`show` 根据目录相对 `sourcePath` 展开完整原文。索引统一
+聚合全部 topic，但不收集、注册或生成 case。
 
 从 skill 目录运行：
 
 ```text
+node scripts/test-evidence-catalog.mjs topics --root <workspace-root>
+node scripts/test-evidence-catalog.mjs list --topic <topic> --root <workspace-root>
 node scripts/test-evidence-catalog.mjs list --query "<contract or entry>" --root <workspace-root>
 node scripts/test-evidence-catalog.mjs show <case-id> --root <workspace-root>
 node scripts/test-evidence-catalog.mjs sync-index --write --root <workspace-root>
 node scripts/test-evidence-catalog.mjs check --root <workspace-root>
 ```
 
-`list` 可组合 `--query`、`--limit` 和 `--offset`；需要机器输出时增加 `--json`。
+`list` 可组合单个 `--topic`、`--query`、`--limit` 和 `--offset`；需要机器输出时
+增加 `--json`。
 
 ## 完成标准
 
@@ -165,7 +171,8 @@ node scripts/test-evidence-catalog.mjs check --root <workspace-root>
    入口不再保留 case。
 2. 没有把整个 skill、模块、测试文件、suite、脚本或 CI job 当成聚合 case。
 3. 每个 case 的 `Entry:` 都定位同一原生测试入口；Contract 与 Proves 可独立理解。
-4. case 位于对应的稳定测试责任主题文件，没有重新集中成随规模增长的单文件。
+4. case 位于受控主题表定义的 `<topic>/<slug>.md`，一个文件恰好承接一个 case；
+   topic 只表达稳定测试责任，没有重新集中或改变 case 粒度。
 5. fixture、helper、mock、断言和测试步骤没有被误登记为独立 case。
 6. 工程校验没有进入测试证据目录，目录中也没有 `Verification:`、marker 或状态角色。
 7. 派生索引已从合法目录同步；已运行目标测试和目录 `check`，或明确报告阻塞边界。

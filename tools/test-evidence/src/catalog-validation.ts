@@ -10,7 +10,7 @@ export type TestEvidenceCase = {
 };
 
 export type CatalogValidationResult = {
-  cases: TestEvidenceCase[];
+  case: TestEvidenceCase | null;
   errors: string[];
 };
 
@@ -20,36 +20,11 @@ const sectionLabels: Record<CatalogSectionName, string> = {
   proves: "Proves"
 };
 
-export function validateTestEvidenceCases(
-  entries: readonly ParsedTestEvidenceCase[],
+export function validateTestEvidenceCase(
+  entry: ParsedTestEvidenceCase,
   catalogPath: string
 ): CatalogValidationResult {
   const errors: string[] = [];
-  for (const id of duplicateValues(entries.map((entry) => entry.id)).sort()) {
-    errors.push(`duplicate case ID in ${catalogPath}: ${id}`);
-  }
-
-  const cases: TestEvidenceCase[] = [];
-  const acceptedIds = new Set<string>();
-  for (const entry of entries) {
-    const testEvidenceCase = validateTestEvidenceCase(
-      entry,
-      catalogPath,
-      errors
-    );
-    if (testEvidenceCase !== null && !acceptedIds.has(entry.id)) {
-      cases.push(testEvidenceCase);
-      acceptedIds.add(entry.id);
-    }
-  }
-  return { cases, errors };
-}
-
-function validateTestEvidenceCase(
-  entry: ParsedTestEvidenceCase,
-  catalogPath: string,
-  errors: string[]
-): TestEvidenceCase | null {
   const initialErrorCount = errors.length;
   const location = `${catalogPath}:${entry.line} ${entry.id}`;
   if (!entry.headingFormatIsValid) {
@@ -57,11 +32,11 @@ function validateTestEvidenceCase(
       `${catalogPath}:${entry.line} case heading must use exactly: `
       + "### Case <CASE-ID>: <title>"
     );
-    return null;
+    return { case: null, errors };
   }
   if (!entry.caseIdIsValid) {
     errors.push(`${location} must include a valid case ID`);
-    return null;
+    return { case: null, errors };
   }
   if (entry.legacyVerificationDeclarations !== 0) {
     errors.push(
@@ -80,12 +55,15 @@ function validateTestEvidenceCase(
     errors.length !== initialErrorCount
     || implementationEntries.length === 0
   ) {
-    return null;
+    return { case: null, errors };
   }
   return {
-    entries: implementationEntries,
-    id: entry.id,
-    line: entry.line
+    case: {
+      entries: implementationEntries,
+      id: entry.id,
+      line: entry.line
+    },
+    errors
   };
 }
 

@@ -7,6 +7,11 @@ import {
   testEvidenceConfigSchema,
   testEvidenceConfigSchemaVersion
 } from "./schemas.ts";
+import {
+  catalogRelativeIndexPath,
+  testEvidenceCatalogReadmeFileName,
+  testEvidenceTopicCatalogFileName
+} from "./topic.ts";
 import type {
   TestEvidenceConfig,
   TestEvidenceDiagnostic
@@ -108,9 +113,23 @@ export async function loadTestEvidenceConfig(
   let pathsAreDistinct = true;
   if (catalogPath !== null && indexPath !== null) {
     try {
+      const topicCatalogPath = path.posix.join(
+        catalogPath,
+        testEvidenceTopicCatalogFileName
+      );
+      const readmePath = path.posix.join(
+        catalogPath,
+        testEvidenceCatalogReadmeFileName
+      );
       pathsAreDistinct = await workspaceRelativePathsAreDistinct(
         workspaceRoot,
-        [catalogPath, indexPath, configRelativePath]
+        [
+          catalogPath,
+          indexPath,
+          configRelativePath,
+          topicCatalogPath,
+          readmePath
+        ]
       );
     } catch (error) {
       diagnostics.push(createDiagnostic({
@@ -126,10 +145,31 @@ export async function loadTestEvidenceConfig(
     diagnostics.push(createDiagnostic({
       category: "config",
       code: "config.path-conflict",
-      message: "catalogPath, indexPath, and the config path must be distinct",
+      message: "catalogPath, indexPath, the config path, and reserved "
+        + "test-evidence root files must have distinct filesystem identities",
       path: configRelativePath,
       severity: "error"
     }));
+  }
+
+  if (catalogPath !== null && indexPath !== null) {
+    const relativeIndexPath = catalogRelativeIndexPath(
+      catalogPath,
+      indexPath
+    );
+    if (
+      relativeIndexPath !== null
+      && relativeIndexPath.includes("/")
+    ) {
+      diagnostics.push(createDiagnostic({
+        category: "config",
+        code: "config.index-path-invalid",
+        message: "indexPath must be outside catalogPath or identify one "
+          + `root-level index file inside ${catalogPath}`,
+        path: configRelativePath,
+        severity: "error"
+      }));
+    }
   }
 
   if (catalogPath === null || indexPath === null || diagnostics.length > 0) {

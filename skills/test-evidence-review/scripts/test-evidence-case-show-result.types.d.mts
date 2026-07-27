@@ -33,5 +33,9 @@ export interface TestEvidenceCaseShowResult {
   }[];
   indexPath: string;
   markdown: string | null;
-  schemaVersion: 2;
+  schemaVersion: 3;
+  topic: {
+    description: string;
+    id: string;
+  } | null;
 }

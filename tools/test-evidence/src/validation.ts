@@ -8,10 +8,12 @@ import {
   testEvidenceReportSchemaVersion
 } from "./schemas.ts";
 import { syncTestEvidenceIndex } from "./state-index.ts";
+import { cloneTopicDefinitions } from "./topics.ts";
 import type {
   TestEvidenceDiagnostic,
   TestEvidenceReport,
-  TestEvidenceSummary
+  TestEvidenceSummary,
+  TestEvidenceTopicDefinition
 } from "./types.ts";
 
 export type ValidateTestEvidenceOptions = {
@@ -41,7 +43,11 @@ export async function validateTestEvidence(
   const diagnostics: TestEvidenceDiagnostic[] = [
     ...loadedConfig.diagnostics
   ];
-  const catalog = await loadTestEvidenceCatalog(workspaceRoot, config);
+  const catalog = await loadTestEvidenceCatalog(
+    workspaceRoot,
+    config,
+    loadedConfig.configRelativePath
+  );
   diagnostics.push(...catalog.diagnostics);
 
   if (catalog.diagnostics.length === 0) {
@@ -58,17 +64,20 @@ export async function validateTestEvidence(
     sortUniqueDiagnostics(diagnostics),
     {
       testCases: catalog.cases.length
-    }
+    },
+    catalog.topicCatalog?.topics ?? []
   );
 }
 
 export function createTestEvidenceReport(
   diagnostics: readonly TestEvidenceDiagnostic[],
-  summary: TestEvidenceSummary = emptySummary
+  summary: TestEvidenceSummary = emptySummary,
+  topics: readonly TestEvidenceTopicDefinition[] = []
 ): TestEvidenceReport {
   return {
     diagnostics: [...diagnostics],
     schemaVersion: testEvidenceReportSchemaVersion,
-    summary: { ...summary }
+    summary: { ...summary },
+    topics: cloneTopicDefinitions(topics)
   };
 }

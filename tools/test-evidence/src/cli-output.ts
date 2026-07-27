@@ -5,7 +5,9 @@ import type {
   TestEvidenceDiagnostic,
   TestEvidenceIndexSyncResult,
   TestEvidenceQueryResult,
-  TestEvidenceReport
+  TestEvidenceReport,
+  TestEvidenceTopicDefinition,
+  TestEvidenceTopicsResult
 } from "./types.ts";
 
 export type TestEvidenceCliOutput = {
@@ -26,6 +28,7 @@ export function formatTestEvidenceReport(
     stderr: formatDiagnostics(report.diagnostics),
     stdout:
       `Test evidence check ${failed ? "failed" : "passed"}: `
+      + `${report.topics.length} topic(s), `
       + `${summary.testCases} test case(s).\n`
   };
 }
@@ -38,7 +41,7 @@ export function formatTestEvidenceCaseList(
     return jsonOutput(result);
   }
   const lines = result.cases.flatMap((entry) =>
-    formatCaseListItem(entry, result.catalogPath)
+    formatCaseListItem(entry, result.catalogPath, result.topics)
   );
   const page = `Showing ${result.cases.length} of ${result.total} case(s) `
     + `from offset ${result.offset}.`;
@@ -64,11 +67,27 @@ export function formatTestEvidenceCaseShow(
       ? ""
       : [
         caseHeading(entry),
-        `Catalog: ${result.catalogPath}:${entry.line}`,
+        `Topic: ${formatTopic(result.topic)}`,
+        `Catalog: ${result.catalogPath}/${entry.sourcePath}:${entry.line}`,
         `Summary: ${entry.summary}`,
         "",
         result.markdown
       ].join("\n") + "\n"
+  };
+}
+
+export function formatTestEvidenceTopics(
+  result: TestEvidenceTopicsResult,
+  json: boolean
+): TestEvidenceCliOutput {
+  if (json) {
+    return jsonOutput(result);
+  }
+  return {
+    stderr: formatDiagnostics(result.diagnostics),
+    stdout: result.topics.length === 0
+      ? ""
+      : `${result.topics.map((topic) => formatTopic(topic)).join("\n")}\n`
   };
 }
 
@@ -124,14 +143,24 @@ function formatDiagnostic(
 
 function formatCaseListItem(
   entry: TestEvidenceCaseState,
-  catalogPath: string
+  catalogPath: string,
+  topics: readonly TestEvidenceTopicDefinition[]
 ): string[] {
+  const topicId = entry.sourcePath.split("/", 1)[0] ?? "";
+  const topic = topics.find((candidate) => candidate.id === topicId) ?? null;
   return [
     caseHeading(entry),
-    `  Catalog: ${catalogPath}:${entry.line}`,
+    `  Topic: ${formatTopic(topic)}`,
+    `  Catalog: ${catalogPath}/${entry.sourcePath}:${entry.line}`,
     `  Entry: ${entry.entries.join(", ")}`,
     `  Summary: ${entry.summary}`
   ];
+}
+
+function formatTopic(topic: TestEvidenceTopicDefinition | null): string {
+  return topic === null
+    ? "<unknown-topic>"
+    : `${topic.id} - ${topic.description}`;
 }
 
 function caseHeading(entry: TestEvidenceCaseState): string {

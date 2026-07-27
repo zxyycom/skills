@@ -89,15 +89,15 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 
 只有具备独立维护操作、完整检查消费者或生成写入责任的命令才保留为 package script。`scripts/validators/project-config.ts` 检查这些稳定入口仍存在于 `package.json`。
 
-本仓库使用 `.test-evidence.json`、`docs/test-evidence/cases/` 中按责任主题拆分的
-Markdown 和一个派生索引维护测试账本。账本已覆盖 `test:*` 稳定入口保留的历史与
-当前测试；一个 case 对应测试框架能够独立选择并单独报告的一个最小原生测试节点。
-框架不限，本仓库当前沿用 `node:test` API 定义节点，并通过已固定版本的 `bun test`
-执行；这只是现有依赖下的简单选择。测试文件、package script 和完整检查仍只是聚合
-容器。主题文件与 case 由测试改动显式维护，工具只聚合配置目录内的 Markdown，不
-扫描测试源码、自动收集或注册 case。正文变化后运行
-`sync:test-evidence-catalog`；`check:test-evidence-catalog` 已进入完整检查并只校验
-显式主题目录与统一索引。
+本仓库使用 `.test-evidence.json`、`docs/test-evidence/` 根目录中的受控 topic 表、
+每个 `<topic>/<slug>.md` 单 case 文件和一个派生索引维护测试账本。账本覆盖
+`test:*` 稳定入口保留的历史与当前测试；一个 case 对应测试框架能够独立选择并
+单独报告的一个最小原生测试节点。框架不限，本仓库当前沿用 `node:test` API 定义
+节点，并通过已固定版本的 `bun test` 执行；这只是现有依赖下的简单选择。测试文件、
+package script 和完整检查仍只是聚合容器。topic 表与 case 由测试改动显式维护，
+工具只读取配置根目录中的合法 topic 和 case，不扫描测试源码、自动收集或注册 case。
+正文变化后运行 `sync:test-evidence-catalog`；`check:test-evidence-catalog` 已进入
+完整检查并只校验显式 topic 根目录与统一索引。
 
 ### 完整检查
 

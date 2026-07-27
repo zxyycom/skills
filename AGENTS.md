@@ -44,7 +44,7 @@
 7. 新增 skill 时, 在 `skills/<skill-name>/` 放置本体, 在 `SKILL.md` frontmatter 写入初始 `metadata.version`, 按需在 `docs/skills/` 增加人类介绍, 再确认聚合打包和自更新脚本覆盖该 skill。
 8. 新增或调整主仓库自动化时放在 `scripts/`; 新增需要随 skill 分发的工具实现时放在 `tools/`, 真实跨工具运行时能力再进入 `tools/shared/` 或独立协议 owner; skill 专属规则仍留在对应 skill 目录。
 9. 打包产物、依赖目录和 workflow 运行产物不作为长期源文件提交。
-10. 新增、修改、删除或审查测试实现时, 按 `skills/test-evidence-review/SKILL.md` 维护 `docs/test-evidence/cases/` 中对应主题文件; 当前账本覆盖 `test:*` 保留的全部最小原生测试入口, 测试框架不限, 但每个入口必须能被框架独立选择和单独报告; 修改目录后同步统一派生索引。
+10. 新增、修改、删除或审查测试实现时, 按 `skills/test-evidence-review/SKILL.md` 维护 `docs/test-evidence/test-evidence-topics.json` 与对应 `docs/test-evidence/<topic-id>/<semantic-slug>.md`; 每个文件只保存一个 case, 当前账本覆盖 `test:*` 保留的全部最小原生测试入口, 测试框架不限, 但每个入口必须能被框架独立选择和单独报告; 修改目录后同步统一派生索引。
 
 ## 写作约定
 

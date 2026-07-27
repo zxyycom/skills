@@ -2,7 +2,7 @@
   "type": "object",
   "properties": {
     "definitionVersion": {
-      "const": 2
+      "const": 3
     },
     "entries": {
       "type": "array",
@@ -27,10 +27,22 @@
                   }
                 ],
                 "minItems": 1
+              },
+              "topic": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^(?![\\s\\S]*[\\u0000-\\u001f\\u007f])\\S(?:[\\s\\S]*\\S)?$"
+                  }
+                ],
+                "minItems": 1
               }
             },
             "required": [
-              "search"
+              "search",
+              "topic"
             ],
             "additionalProperties": false
           },
@@ -113,14 +125,55 @@
             "name"
           ],
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "const": "exact"
+            },
+            "name": {
+              "const": "topic"
+            }
+          },
+          "required": [
+            "mode",
+            "name"
+          ],
+          "additionalProperties": false
         }
       ],
-      "minItems": 1
+      "minItems": 2
     },
     "metadata": {
       "type": "object",
-      "properties": {},
-      "required": [],
+      "properties": {
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string",
+                "pattern": "^[^\\r\\n]*$"
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+              }
+            },
+            "required": [
+              "description",
+              "id"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "topics"
+      ],
       "additionalProperties": false
     },
     "namespace": {

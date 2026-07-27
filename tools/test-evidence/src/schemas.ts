@@ -4,6 +4,7 @@ import {
   stateIndexSchemaVersion,
   stateIndexTextSchema
 } from "../../index-runtime/src/index.ts";
+import { testEvidenceTopicIdPatternSource } from "./topic.ts";
 
 export const testEvidenceDiagnosticCategories = [
   "catalog",
@@ -15,17 +16,18 @@ export const testEvidenceDiagnosticSeverities = [
   "warning"
 ] as const;
 
-export const testEvidenceConfigSchemaVersion = 2 as const;
-export const testEvidenceReportSchemaVersion = 2 as const;
+export const testEvidenceConfigSchemaVersion = 3 as const;
+export const testEvidenceReportSchemaVersion = 3 as const;
 export const testEvidenceIndexSchemaVersion = stateIndexSchemaVersion;
-export const testEvidenceIndexDefinitionVersion = 2 as const;
+export const testEvidenceIndexDefinitionVersion = 3 as const;
 export const testEvidenceIndexNamespace =
   "test-evidence" as const;
+export const testEvidenceTopicCatalogSchemaVersion = 1 as const;
 
 export const defaultTestEvidenceConfigPath =
   ".test-evidence.json";
 export const defaultTestEvidenceCatalogPath =
-  "docs/test-evidence/cases";
+  "docs/test-evidence";
 export const defaultTestEvidenceIndexPath =
   "docs/test-evidence/test-evidence-index.json";
 
@@ -44,8 +46,55 @@ const nonNegativeIntegerSchema = v.pipe(
   v.minValue(0, "must be at least 0")
 );
 
-export const testEvidenceIndexMetadataSchema = v.strictObject({});
-export type TestEvidenceIndexMetadata = Record<string, never>;
+const topicIdSchema = v.pipe(
+  v.string("must be a string"),
+  v.regex(
+    new RegExp(testEvidenceTopicIdPatternSource, "u"),
+    "must be a kebab-case topic id"
+  )
+);
+const topicDescriptionSchema = v.pipe(
+  v.string("must be a string"),
+  v.check(
+    (value) => {
+      const length = Array.from(value).length;
+      return length >= 4 && length <= 200;
+    },
+    "must contain 4 to 200 Unicode code points"
+  ),
+  v.regex(/^[^\r\n]*$/u, "must be a single line"),
+  v.check(
+    (value) => value.trim() === value,
+    "must not have surrounding whitespace"
+  )
+);
+
+export const testEvidenceTopicDefinitionSchema = v.strictObject({
+  description: topicDescriptionSchema,
+  id: topicIdSchema
+});
+export const testEvidenceTopicDefinitionsSchema = v.pipe(
+  v.array(testEvidenceTopicDefinitionSchema),
+  v.minLength(1, "must define at least one topic"),
+  v.check(
+    (topics) => new Set(topics.map((topic) => topic.id)).size === topics.length,
+    "topic ids must be unique"
+  ),
+  v.check(
+    (topics) => topics.every((topic, index) => (
+      index === 0 || (topics[index - 1]?.id ?? "") < topic.id
+    )),
+    "topics must be sorted by id in ascending lexical order"
+  )
+);
+export const testEvidenceTopicCatalogSchema = v.strictObject({
+  schemaVersion: v.literal(testEvidenceTopicCatalogSchemaVersion),
+  topics: testEvidenceTopicDefinitionsSchema
+});
+
+export const testEvidenceIndexMetadataSchema = v.strictObject({
+  topics: testEvidenceTopicDefinitionsSchema
+});
 
 export const testEvidenceDiagnosticSchema = v.strictObject({
   blocking: v.boolean(),
@@ -82,7 +131,8 @@ export const testEvidenceSummarySchema = v.strictObject({
 export const testEvidenceReportSchema = v.strictObject({
   diagnostics: v.array(testEvidenceDiagnosticSchema),
   schemaVersion: v.literal(testEvidenceReportSchemaVersion),
-  summary: testEvidenceSummarySchema
+  summary: testEvidenceSummarySchema,
+  topics: v.array(testEvidenceTopicDefinitionSchema)
 });
 
 const testEvidenceCaseStateFields = {
@@ -115,6 +165,7 @@ export const testEvidenceQueryResultSchema = v.strictObject({
   limit: positiveIntegerSchema,
   offset: nonNegativeIntegerSchema,
   schemaVersion: v.literal(testEvidenceReportSchemaVersion),
+  topics: v.array(testEvidenceTopicDefinitionSchema),
   total: nonNegativeIntegerSchema
 });
 
@@ -124,7 +175,15 @@ export const testEvidenceCaseShowResultSchema = v.strictObject({
   diagnostics: v.array(testEvidenceDiagnosticSchema),
   indexPath: nonEmptyStringSchema,
   markdown: v.nullable(v.string()),
-  schemaVersion: v.literal(testEvidenceReportSchemaVersion)
+  schemaVersion: v.literal(testEvidenceReportSchemaVersion),
+  topic: v.nullable(testEvidenceTopicDefinitionSchema)
+});
+
+export const testEvidenceTopicsResultSchema = v.strictObject({
+  catalogPath: nonEmptyStringSchema,
+  diagnostics: v.array(testEvidenceDiagnosticSchema),
+  schemaVersion: v.literal(testEvidenceReportSchemaVersion),
+  topics: v.array(testEvidenceTopicDefinitionSchema)
 });
 
 const testEvidenceIndexSyncStates = [
@@ -148,11 +207,13 @@ export const testEvidenceIndexSyncResultSchema = v.strictObject({
   mode: v.picklist(["check", "write"]),
   schemaVersion: v.literal(testEvidenceReportSchemaVersion),
   state: v.picklist(testEvidenceIndexSyncStates),
-  status: v.picklist(["ok", "error"])
+  status: v.picklist(["ok", "error"]),
+  topics: v.array(testEvidenceTopicDefinitionSchema)
 });
 
 const testEvidenceIndexKeysSchema = v.strictObject({
-  search: v.tuple([stateIndexTextSchema])
+  search: v.tuple([stateIndexTextSchema]),
+  topic: v.tuple([stateIndexTextSchema])
 });
 
 export const testEvidenceStateIndexSchema = createStateIndexSchema({
@@ -162,6 +223,10 @@ export const testEvidenceStateIndexSchema = createStateIndexSchema({
     v.strictObject({
       mode: v.literal("text"),
       name: v.literal("search")
+    }),
+    v.strictObject({
+      mode: v.literal("exact"),
+      name: v.literal("topic")
     })
   ]),
   metadata: testEvidenceIndexMetadataSchema,
@@ -183,6 +248,15 @@ export type TestEvidenceDiagnosticSeverity =
 export type TestEvidenceDiagnostic = v.InferOutput<
   typeof testEvidenceDiagnosticSchema
 >;
+export type TestEvidenceTopicDefinition = v.InferOutput<
+  typeof testEvidenceTopicDefinitionSchema
+>;
+export type TestEvidenceTopicCatalog = v.InferOutput<
+  typeof testEvidenceTopicCatalogSchema
+>;
+export type TestEvidenceIndexMetadata = v.InferOutput<
+  typeof testEvidenceIndexMetadataSchema
+>;
 export type TestEvidenceConfig = v.InferOutput<
   typeof testEvidenceConfigSchema
 >;
@@ -203,6 +277,9 @@ export type TestEvidenceQueryResult = v.InferOutput<
 >;
 export type TestEvidenceCaseShowResult = v.InferOutput<
   typeof testEvidenceCaseShowResultSchema
+>;
+export type TestEvidenceTopicsResult = v.InferOutput<
+  typeof testEvidenceTopicsResultSchema
 >;
 export type TestEvidenceIndexSyncResult = v.InferOutput<
   typeof testEvidenceIndexSyncResultSchema

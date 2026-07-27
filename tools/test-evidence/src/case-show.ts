@@ -33,14 +33,19 @@ export async function showTestEvidenceCase(
   if (entry === null) {
     return createShowFailureResult(found.diagnostics, {
       catalogPath: found.catalogPath,
-      indexPath: found.indexPath
+      indexPath: found.indexPath,
+      topic: found.topic
     });
   }
 
   let text: string;
   try {
     text = await fs.readFile(
-      path.join(workspaceRoot, ...entry.sourcePath.split("/")),
+      path.join(
+        workspaceRoot,
+        ...found.catalogPath.split("/"),
+        ...entry.sourcePath.split("/")
+      ),
       "utf8"
     );
   } catch (error) {
@@ -55,7 +60,8 @@ export async function showTestEvidenceCase(
       })
     ], {
       catalogPath: found.catalogPath,
-      indexPath: found.indexPath
+      indexPath: found.indexPath,
+      topic: found.topic
     });
   }
 
@@ -78,7 +84,8 @@ export async function showTestEvidenceCase(
       })
     ], {
       catalogPath: found.catalogPath,
-      indexPath: found.indexPath
+      indexPath: found.indexPath,
+      topic: found.topic
     });
   }
 
@@ -88,7 +95,8 @@ export async function showTestEvidenceCase(
     diagnostics: found.diagnostics,
     indexPath: found.indexPath,
     markdown,
-    schemaVersion: testEvidenceReportSchemaVersion
+    schemaVersion: testEvidenceReportSchemaVersion,
+    topic: found.topic
   };
 }
 
@@ -97,6 +105,7 @@ function createShowFailureResult(
   paths: {
     catalogPath?: string;
     indexPath?: string;
+    topic?: TestEvidenceCaseShowResult["topic"];
   } = {}
 ): TestEvidenceCaseShowResult {
   return {
@@ -105,7 +114,8 @@ function createShowFailureResult(
     diagnostics: [...diagnostics],
     indexPath: paths.indexPath ?? defaultTestEvidenceIndexPath,
     markdown: null,
-    schemaVersion: testEvidenceReportSchemaVersion
+    schemaVersion: testEvidenceReportSchemaVersion,
+    topic: paths.topic ?? null
   };
 }
 

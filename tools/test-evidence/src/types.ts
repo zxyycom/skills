@@ -8,7 +8,8 @@ export {
   testEvidenceIndexDefinitionVersion,
   testEvidenceIndexNamespace,
   testEvidenceIndexSchemaVersion,
-  testEvidenceReportSchemaVersion
+  testEvidenceReportSchemaVersion,
+  testEvidenceTopicCatalogSchemaVersion
 } from "./schemas.ts";
 
 export type {
@@ -20,8 +21,12 @@ export type {
   TestEvidenceDiagnosticCategory,
   TestEvidenceDiagnosticSeverity,
   TestEvidenceIndexSyncResult,
+  TestEvidenceIndexMetadata,
   TestEvidenceQueryResult,
   TestEvidenceReport,
   TestEvidenceStateIndex,
-  TestEvidenceSummary
+  TestEvidenceSummary,
+  TestEvidenceTopicCatalog,
+  TestEvidenceTopicDefinition,
+  TestEvidenceTopicsResult
 } from "./schemas.ts";

@@ -16,7 +16,9 @@ import {
   testEvidenceIndexSyncResultSchema,
   testEvidenceQueryResultSchema,
   testEvidenceReportSchema,
-  testEvidenceStateIndexSchema
+  testEvidenceStateIndexSchema,
+  testEvidenceTopicCatalogSchema,
+  testEvidenceTopicsResultSchema
 } from "../../tools/test-evidence/src/schemas.ts";
 
 const rebuildCommand = "bun run sync:test-evidence-cli";
@@ -45,6 +47,13 @@ const bundleSpec = {
 } as const;
 
 const schemaSpecs = [
+  {
+    fileName: "test-evidence-topic-catalog.schema.json",
+    mode: "input" as const,
+    schema: testEvidenceTopicCatalogSchema,
+    typeName: "TestEvidenceTopicCatalog",
+    typesFileName: "test-evidence-topic-catalog.types.d.mts"
+  },
   {
     fileName: "test-evidence-config.schema.json",
     mode: "input" as const,
@@ -86,6 +95,13 @@ const schemaSpecs = [
     schema: testEvidenceQueryResultSchema,
     typeName: "TestEvidenceQueryResult",
     typesFileName: "test-evidence-query-result.types.d.mts"
+  },
+  {
+    fileName: "test-evidence-topics-result.schema.json",
+    mode: "output" as const,
+    schema: testEvidenceTopicsResultSchema,
+    typeName: "TestEvidenceTopicsResult",
+    typesFileName: "test-evidence-topics-result.types.d.mts"
   }
 ] as const;
 
@@ -149,6 +165,7 @@ async function buildSchemaArtifacts(): Promise<GeneratedArtifact[]> {
   const artifacts: GeneratedArtifact[] = [];
   for (const spec of schemaSpecs) {
     const converted = toJsonSchema(spec.schema, {
+      errorMode: "ignore",
       target: "draft-2020-12",
       typeMode: spec.mode
     });
@@ -165,14 +182,8 @@ async function buildSchemaArtifacts(): Promise<GeneratedArtifact[]> {
       sourcePath: schemaSourcePath
     });
 
-    const declarationSchema = spec.typesFileName
-      === "test-evidence-state-index.types.d.mts"
-      ? withExactEmptyMetadataType(
-        schema as Parameters<typeof compile>[0]
-      )
-      : schema;
     const declaration = await compile(
-      declarationSchema as Parameters<typeof compile>[0],
+      schema as Parameters<typeof compile>[0],
       spec.typeName,
       {
         bannerComment: "",
@@ -216,43 +227,6 @@ async function buildSchemaArtifacts(): Promise<GeneratedArtifact[]> {
     );
   }
   return artifacts;
-}
-
-function withExactEmptyMetadataType(
-  schema: Parameters<typeof compile>[0]
-): Parameters<typeof compile>[0] {
-  const properties = schema.properties;
-  if (
-    properties === undefined
-    || Array.isArray(properties)
-    || typeof properties !== "object"
-    || properties === null
-  ) {
-    throw new TypeError(
-      "TestEvidenceStateIndex schema must define properties"
-    );
-  }
-  const metadata = properties.metadata;
-  if (
-    metadata === undefined
-    || typeof metadata !== "object"
-    || metadata === null
-    || Array.isArray(metadata)
-  ) {
-    throw new TypeError(
-      "TestEvidenceStateIndex schema must define object metadata"
-    );
-  }
-  return {
-    ...schema,
-    properties: {
-      ...properties,
-      metadata: {
-        ...metadata,
-        tsType: "Record<string, never>"
-      }
-    }
-  };
 }
 
 async function main(): Promise<void> {

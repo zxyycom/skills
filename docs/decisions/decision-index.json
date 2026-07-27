@@ -82,7 +82,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:38b9f82f2b36849a15c6c2c9f88a10ae21b27ca34517e9cdf346e1bb3981fe42",
+  "sourceRevision": "sha256:8dcaaf09fab007eac5cda262138bfaa658fb46a9479c42c91e7b2107d232b9dd",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -3488,17 +3488,14 @@
           "test-evidence-review"
         ],
         "status": [
-          "active"
-        ],
-        "alignment": [
-          "aligned"
+          "archived"
         ]
       },
       "state": {
         "path": "test-evidence-review/organize-native-test-cases-by-responsibility-topic.md",
         "title": "按原生入口与责任主题维护测试证据",
-        "status": "active",
-        "alignment": "aligned",
+        "status": "archived",
+        "alignment": null,
         "createdAt": "2026-07-26T08:49:33Z",
         "purpose": "同时保持测试 case 的自然粒度和账本随规模增长后的可维护定位边界。",
         "background": "测试框架能提供最小可归因节点，但把全部节点集中在单个 Markdown 会放大查找、修改冲突和上下文成本；主题文件不应反向改变 case 身份。",
@@ -3507,6 +3504,36 @@
           {
             "type": "修订",
             "target": "test-evidence-review/catalog-minimal-native-test-entries.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "test-evidence-review/organize-test-cases-by-controlled-topic-path.md",
+      "keys": {
+        "domain": [
+          "test-evidence-review"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "test-evidence-review/organize-test-cases-by-controlled-topic-path.md",
+        "title": "按受控主题路径维护单文件测试证据",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-07-26T15:20:07Z",
+        "purpose": "让测试 case 的稳定身份、责任归属和物理源路径在账本增长时仍可独立校验和查询。",
+        "background": "根目录直属主题文件只能表达隐含分组，无法约束主题集合、路径唯一归属或单 case 写入边界。",
+        "decision": "由受控主题表定义责任域，每个 case 独占一个主题路径文件，并由统一索引投影主题 metadata 和路径派生查询 key。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "test-evidence-review/organize-native-test-cases-by-responsibility-topic.md"
           }
         ]
       }

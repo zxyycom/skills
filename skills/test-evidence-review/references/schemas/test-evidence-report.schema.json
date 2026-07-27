@@ -60,7 +60,7 @@
       }
     },
     "schemaVersion": {
-      "const": 2
+      "const": 3
     },
     "summary": {
       "type": "object",
@@ -74,12 +74,34 @@
         "testCases"
       ],
       "additionalProperties": false
+    },
+    "topics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "pattern": "^[^\\r\\n]*$"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          }
+        },
+        "required": [
+          "description",
+          "id"
+        ],
+        "additionalProperties": false
+      }
     }
   },
   "required": [
     "diagnostics",
     "schemaVersion",
-    "summary"
+    "summary",
+    "topics"
   ],
   "additionalProperties": false,
   "$schema": "https://json-schema.org/draft/2020-12/schema",

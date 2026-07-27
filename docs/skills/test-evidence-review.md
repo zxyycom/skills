@@ -58,15 +58,18 @@ Proves:
 - The resource remains unchanged.
 ```
 
-Markdown 目录是权威源，并按稳定测试责任主题拆成多个文件；文件只是维护与定位
-边界，不改变“一个最小原生测试入口对应一个 case”的身份。派生索引统一聚合全部
-主题文件，按 ID、标题、Contract、Proves 和 Entry 快速查询，并保存 case 所在源
-文件以支持定点展开。它不发现测试、不自动收集或注册 case，也不使用源码 marker、
-角色或状态字段。
+Markdown 目录是权威源。根目录的 `test-evidence-topics.json` 定义受控 topic，
+每个 case 单独位于 `<topic>/<slug>.md`；topic 只是稳定测试责任、维护和查询边界，
+不改变“一个最小原生测试入口对应一个 case”的身份。派生索引统一聚合全部 case，
+按 ID、标题、Contract、Proves、Entry 和精确 topic 查询，并保存根目录相对源路径
+以支持定点展开。它不发现测试、不自动收集或注册 case，也不使用源码 marker、角色
+或状态字段。
 
 主要命令：
 
 ```text
+node scripts/test-evidence-catalog.mjs topics --root <workspace-root>
+node scripts/test-evidence-catalog.mjs list --topic <topic> --root <workspace-root>
 node scripts/test-evidence-catalog.mjs list --query "<text>" --root <workspace-root>
 node scripts/test-evidence-catalog.mjs show <case-id> --root <workspace-root>
 node scripts/test-evidence-catalog.mjs sync-index --write --root <workspace-root>

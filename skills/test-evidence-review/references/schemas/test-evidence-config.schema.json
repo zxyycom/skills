@@ -9,7 +9,7 @@
     "catalogPath": {
       "type": "string",
       "minLength": 1,
-      "default": "docs/test-evidence/cases"
+      "default": "docs/test-evidence"
     },
     "indexPath": {
       "type": "string",
@@ -17,7 +17,7 @@
       "default": "docs/test-evidence/test-evidence-index.json"
     },
     "schemaVersion": {
-      "const": 2
+      "const": 3
     }
   },
   "required": [

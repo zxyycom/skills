@@ -14,6 +14,7 @@ import {
   formatTestEvidenceIndexSync,
   formatTestEvidenceQueryFailure,
   formatTestEvidenceReport,
+  formatTestEvidenceTopics,
   type TestEvidenceCliOutput
 } from "./cli-output.ts";
 import { hasBlockingDiagnostics } from "./diagnostics.ts";
@@ -27,15 +28,21 @@ import {
   testEvidenceIndexSyncResultSchema,
   testEvidenceQueryResultSchema,
   testEvidenceReportSchema,
-  testEvidenceStateIndexSchema
+  testEvidenceStateIndexSchema,
+  testEvidenceTopicCatalogSchema,
+  testEvidenceTopicsResultSchema
 } from "./schemas.ts";
 import { syncTestEvidenceIndex } from "./state-index.ts";
 import {
   validateTestEvidence,
   type ValidateTestEvidenceOptions
 } from "./validation.ts";
+import {
+  listTestEvidenceTopics,
+  type ListTestEvidenceTopicsOptions
+} from "./topics.ts";
 
-type CatalogCommand = "check" | "list" | "show" | "sync-index";
+type CatalogCommand = "check" | "list" | "show" | "sync-index" | "topics";
 type ParsedOptions = {
   config?: string;
   json?: boolean;
@@ -43,6 +50,7 @@ type ParsedOptions = {
   offset?: number;
   query?: string;
   root?: string;
+  topic?: string;
   write?: boolean;
 };
 type CatalogCliArgs = {
@@ -53,6 +61,7 @@ type CatalogCliArgs = {
   limit: number;
   offset: number;
   query?: string;
+  topic?: string;
   workspaceRoot: string;
   write: boolean;
 };
@@ -122,8 +131,19 @@ export async function runTestEvidenceCatalogCli(
     .addOption(new Option(
       "--query <text>",
       "Search case ID, title, Contract, Proves, or Entry text."
-    ).argParser(parseNonEmptyText));
+    ).argParser(parseNonEmptyText))
+    .addOption(new Option(
+      "--topic <topic-id>",
+      "Filter cases by one defined test-evidence topic."
+    ).argParser(parseSingleTopic));
   list.action(() => execute("list", list));
+
+  const topics = subcommand(
+    program,
+    "topics",
+    "List the authoritative test-evidence topic definitions."
+  );
+  topics.action(() => execute("topics", topics));
 
   const show = subcommand(
     program,
@@ -171,6 +191,15 @@ async function runCatalogCommand(args: CatalogCliArgs): Promise<number> {
     return hasBlockingDiagnostics(report.diagnostics) ? 1 : 0;
   }
 
+  if (args.command === "topics") {
+    const result = await listTestEvidenceTopics({
+      configPath: args.configPath,
+      workspaceRoot: path.resolve(args.workspaceRoot)
+    });
+    writeOutput(formatTestEvidenceTopics(result, args.json));
+    return hasBlockingDiagnostics(result.diagnostics) ? 1 : 0;
+  }
+
   if (args.command === "show") {
     const result = await showTestEvidenceCase({
       caseId: args.caseId ?? "",
@@ -186,11 +215,14 @@ async function runCatalogCommand(args: CatalogCliArgs): Promise<number> {
     limit: args.limit,
     offset: args.offset,
     query: args.query,
+    topic: args.topic,
     workspaceRoot: path.resolve(args.workspaceRoot)
   });
   if (hasBlockingDiagnostics(result.diagnostics)) {
     writeOutput(formatTestEvidenceQueryFailure(result, args.json));
-    return 1;
+    return result.diagnostics.some(
+      (entry) => entry.code === "query.topic-unknown"
+    ) ? 2 : 1;
   }
   writeOutput(formatTestEvidenceCaseList(result, args.json));
   return 0;
@@ -210,6 +242,7 @@ function commandArgs(
     limit: options.limit ?? testEvidenceQueryDefaultLimit,
     offset: options.offset ?? 0,
     query: options.query,
+    topic: options.topic,
     workspaceRoot: options.root ?? process.cwd(),
     write: options.write ?? false
   };
@@ -254,6 +287,16 @@ function parseNonEmptyText(value: string): string {
   return parsed;
 }
 
+function parseSingleTopic(
+  value: string,
+  previous: string | undefined
+): string {
+  if (previous !== undefined) {
+    throw new InvalidArgumentError("may only be specified once");
+  }
+  return parseNonEmptyText(value);
+}
+
 function parseCliInteger(value: string): number {
   if (!/^\d+$/u.test(value)) {
     throw new InvalidArgumentError("must be an integer");
@@ -275,6 +318,7 @@ function writeOutput(output: TestEvidenceCliOutput): void {
 }
 
 export {
+  listTestEvidenceTopics,
   queryTestEvidence,
   showTestEvidenceCase,
   syncTestEvidenceIndex,
@@ -284,16 +328,23 @@ export {
   testEvidenceIndexSyncResultSchema,
   testEvidenceQueryResultSchema,
   testEvidenceReportSchema,
-  testEvidenceStateIndexSchema
+  testEvidenceStateIndexSchema,
+  testEvidenceTopicCatalogSchema,
+  testEvidenceTopicsResultSchema
 };
-export type { ValidateTestEvidenceOptions };
+export type {
+  ListTestEvidenceTopicsOptions,
+  ValidateTestEvidenceOptions
+};
 export type {
   TestEvidenceCaseShowResult,
   TestEvidenceCaseState,
   TestEvidenceConfig,
   TestEvidenceIndexSyncResult,
   TestEvidenceReport,
-  TestEvidenceStateIndex
+  TestEvidenceStateIndex,
+  TestEvidenceTopicCatalog,
+  TestEvidenceTopicsResult
 } from "./types.ts";
 export type { QueryTestEvidenceOptions } from "./query.ts";
 export type { ShowTestEvidenceCaseOptions } from "./case-show.ts";

@@ -1,22 +1,71 @@
 # 测试证据目录契约
 
-本引用定义 `test-evidence-review` 的 case 字段、派生索引、配置、CLI 和机器接口。
+本引用定义 `test-evidence-review` 的 topic、case、派生索引、配置、CLI 和机器接口。
 触发边界、测试粒度、证据评估和执行顺序由 [SKILL.md](../SKILL.md) 承接。
 
 ## 通用模型
 
-默认目录路径是 `docs/test-evidence/cases`，默认派生索引路径是
+默认测试证据根目录是 `docs/test-evidence`，默认派生索引路径是
 `docs/test-evidence/test-evidence-index.json`，默认配置路径是
-`.test-evidence.json`。
+`.test-evidence.json`。根目录中的 `test-evidence-topics.json` 是受控 topic 表；
+每个 case 单独位于 `<topic>/<slug>.md`。
 
-`catalogPath` 指向主题目录。该目录直接子级中的每个 `*.md` 都是一个权威主题源，
-必须至少包含一个 case；主题按稳定测试责任拆分，而不是把全部 case 集中进单个
-Markdown。主题文件只提供维护与定位边界，case ID 仍是跨全部文件唯一的目录身份。
-子目录和非 Markdown 文件不进入目录集合。
+topic 只表达稳定的测试责任边界和查询维度，不改变 case 身份或测试粒度。一个保留的
+最小原生测试入口仍恰好对应一个 case；case ID 在全部 topic 中唯一，移动 case 文件
+不得修改其 ID。
 
-Markdown 主题文件共同组成权威源；索引只保存可删除重建的统一查询投影和源定位。
+Markdown case 文件共同组成权威源。索引只保存可删除重建的统一查询投影和源定位。
 CLI 不读取测试源码、不发现测试、不执行 `Entry:`、不自动收集或注册 case，也不
 判断多个 locator 是否属于同一最小原生测试入口。
+
+## Topic 表与目录布局
+
+`test-evidence-topics.json` 固定使用以下严格结构：
+
+```json
+{
+  "schemaVersion": 1,
+  "topics": [
+    {
+      "id": "access-control",
+      "description": "Authorization boundaries and role-dependent outcomes."
+    }
+  ]
+}
+```
+
+topic 表必须至少定义一个 topic，且不接受未知字段。每个 `id`：
+
+1. 符合 `^[a-z0-9]+(?:-[a-z0-9]+)*$`。
+2. 在表内唯一。
+3. 按二进制词法升序排列。
+
+每个 `description` 必须已经 trim、只占一行，并包含 4 至 200 个 Unicode code
+point。topic 表的 JSON 缩进或换行不参与 source revision；结构规范化后才进入投影。
+精确结构由
+[test-evidence-topic-catalog.schema.json](schemas/test-evidence-topic-catalog.schema.json)
+定义。
+
+测试证据根目录只允许：
+
+1. 必需的 `test-evidence-topics.json`。
+2. 可选的 `README.md`。
+3. topic 表中定义的直属目录。
+4. 当配置把索引放在根目录时，对应的一个直属索引文件。
+
+其他根文件、未知 topic 目录、符号链接或其他成员均使目录无效。每个 case 文件必须
+是 topic 目录中的直属普通文件，文件名符合
+`^[a-z0-9]+(?:-[a-z0-9]+)*\.md$`；嵌套目录、非 Markdown、符号链接和其他成员
+均无效。
+
+已定义 topic 可以没有 case，此时不创建对应目录。topic 目录一旦存在就必须至少
+包含一个合法 case 文件，不能保留空目录。每个文件必须恰好包含一个 case。
+
+`sourcePath` 固定为测试证据根目录相对路径 `<topic>/<slug>.md`，不包含
+`catalogPath`。工具的构建、revision 读取和索引失效回退共同使用同一套根目录与
+topic 扫描规则；非法布局不能通过只读回退绕过。
+
+## Case 格式
 
 case 标题固定使用：
 
@@ -27,8 +76,6 @@ case 标题固定使用：
 fenced code block 外，以 `Case` 开头的三级标题必须逐字采用
 `### Case <CASE-ID>: <title>`。ID 是不含空白或冒号的单个 token，并符合
 `caseIdPattern`；标题不能为空。
-
-## Case 格式
 
 每个 case 各有且只有一个 `Entry:`、`Contract:` 和 `Proves:`：
 
@@ -81,84 +128,107 @@ Proves:
 ## 派生状态索引
 
 目录通过领域适配接入通用状态索引。索引固定使用通用 `schemaVersion: 2`、
-`namespace: test-evidence`、`definitionVersion: 1` 和 `"metadata": {}`。
+`namespace: test-evidence` 和 `definitionVersion: 3`。`metadata.topics` 保存
+规范化后的完整 topic 表。
 
 每个合法 case 产生一个查询 state：
 
 1. case ID 和标题。
-2. `sourcePath` 与 case 在该主题文件中的起止行。
+2. 根目录相对 `sourcePath` 与 case 在文件中的起止行。
 3. `entries`，来自规范化后的 `Entry:` 列表。
 4. `summary`，确定性取第一条 `Contract:`。
 5. `searchText`，按 ID、标题、全部 Contract、全部 Proves 和全部 Entry 拼接，
    仅用于生成搜索 key。
 
-结构化的完整 Contract、Proves 和其他正文不进入 `list` 结果；`show` 从 Markdown
-展开原文。索引只声明一个领域 key：`search`。保留的通用 `id` 查询直接使用 case
-ID。非空文本查询按空白拆词，所有词必须在同一 case 中出现；`list` 默认最多返回
-20 条并按 ID 排序。
+索引声明 `search` 和 `topic` 两个领域 key。`topic` 必须从 `sourcePath` 的第一段
+派生，并同时存在于 `metadata.topics`；state 中不另存重复 topic 字段。解析持久化
+索引时必须交叉校验 `sourcePath`、`keys.topic` 和 metadata，不能信任其中任一份
+孤立数据。
 
-`sourceRevision` 是 `catalogPath`、`caseIdPattern` 以及按路径排序后的全部主题
-路径与规范化正文的 SHA-256 投影。主题新增、删除、移动或正文变化后，旧索引都
-必须判定为陈旧。
+结构化的完整 Contract、Proves 和其他正文不进入 `list` 结果；`show` 从 Markdown
+展开原文。保留的通用 `id` 查询直接使用 case ID。非空文本查询按空白拆词，所有词
+必须在同一 case 中出现；topic 查询使用精确 ID 匹配。`list` 默认最多返回 20 条并
+按 ID 排序。
+
+`sourceRevision` 由以下规范化输入计算：
+
+1. topic 表的结构值。
+2. `caseIdPattern`。
+3. 按根目录相对路径排序的全部 case `sourcePath` 与规范化正文。
+
+topic 描述、case 新增、删除、移动或正文变化都会使旧索引陈旧。`catalogPath`、
+`README.md`、索引本身、topic 表 JSON 的纯格式变化和源文件换行风格不进入 revision。
 
 `list` 和 `show` 优先使用当前持久化索引。索引缺失、陈旧、定义不匹配或结构无效
-时，从当前合法 Markdown 建立一次性内存投影，并返回非阻断 warning；索引路径、
-源目录或权限本身不可用时查询失败。内存投影不写文件。
+时，从当前完整合法目录建立一次性内存投影并返回非阻断 warning；topic 表、根目录
+或任一 topic 成员无效时查询失败。内存投影不写文件。
 
-精确结构由 [test-evidence-state-index.schema.json](schemas/test-evidence-state-index.schema.json)
+精确结构由
+[test-evidence-state-index.schema.json](schemas/test-evidence-state-index.schema.json)
 定义。
 
-## 配置
+## 配置与路径身份
 
-配置固定使用 `schemaVersion: 2`：
+配置固定使用 `schemaVersion: 3`：
 
 ```json
 {
-  "schemaVersion": 2,
-  "catalogPath": "docs/test-evidence/cases",
+  "schemaVersion": 3,
+  "catalogPath": "docs/test-evidence",
   "indexPath": "docs/test-evidence/test-evidence-index.json",
   "caseIdPattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
 }
 ```
 
 配置缺失且未显式传入 `--config` 时使用默认值。`catalogPath` 是工作区相对目录；
-`indexPath` 和实际配置路径是工作区相对文件。三者身份必须互不相同。路径会统一
-分隔符并折叠 `.` 与重复分隔符；已有目标按文件系统身份比较，未存在目标在 Windows
-和 macOS 上按常见大小写不敏感语义比较。身份检查失败时配置无效。
+`indexPath` 和实际配置路径是工作区相对文件。索引可以位于目录外；位于目录内时
+只能是根目录直属文件。
 
-精确结构由 [test-evidence-config.schema.json](schemas/test-evidence-config.schema.json)
+配置、目录、topic 表、`README.md`、索引和全部 case 必须是不同文件系统身份。
+路径会统一分隔符并折叠 `.` 与重复分隔符；已有目标还会比较符号链接解析结果和
+硬链接身份，未存在目标在 Windows 和 macOS 上按常见大小写不敏感语义比较。
+身份检查失败时配置或目录无效。
+
+精确结构由
+[test-evidence-config.schema.json](schemas/test-evidence-config.schema.json)
 定义。
 
 ## CLI 与导入接口
 
 ```text
+node scripts/test-evidence-catalog.mjs topics --root <workspace-root> [--config <config>] [--json]
 node scripts/test-evidence-catalog.mjs check --root <workspace-root> [--config <config>] [--json]
 node scripts/test-evidence-catalog.mjs sync-index [--write] --root <workspace-root> [--config <config>] [--json]
-node scripts/test-evidence-catalog.mjs list --root <workspace-root> [--query <text>] [--limit <n>] [--offset <n>] [--json]
+node scripts/test-evidence-catalog.mjs list --root <workspace-root> [--topic <topic>] [--query <text>] [--limit <n>] [--offset <n>] [--json]
 node scripts/test-evidence-catalog.mjs show <case-id> --root <workspace-root> [--config <config>] [--json]
 ```
 
-`check` 严格校验配置、全部主题文件、跨文件 case ID 唯一性和索引新鲜度；
-`sync-index --write` 从完整主题集合原子重建统一索引。
-CLI 不执行 Entry。
+`topics` 直接读取受控 topic 表，不依赖索引。`list --topic` 只接受一个已定义 topic；
+已定义但没有 case 的 topic 返回合法空结果。未知 topic 返回结构化诊断并退出 `2`；
+重复 `--topic` 属于参数错误并退出 `2`。
 
-退出状态：
+`check` 严格校验配置、topic 表、全部 case、跨 topic case ID 唯一性和索引新鲜度；
+`sync-index --write` 从完整合法目录原子重建统一索引。CLI 不执行 Entry。
+
+其他退出状态：
 
 1. `0`：检查通过、同步成功或查询返回合法结果。
 2. `1`：存在阻断诊断、索引未同步、目标缺失或执行失败。
-3. `2`：参数错误。
+3. `2`：参数错误或未知 topic。
 
 使用 `--json` 时，可预期的配置、目录、索引和查询失败仍向 stdout 写当前命令
-Schema，stderr 为空。报告、query、show 和同步结果使用 `schemaVersion: 2`；
-调用方使用 `diagnostics[].blocking` 判断完成状态。
+Schema，stderr 为空。report、query、show、topics 和同步结果使用
+`schemaVersion: 3`；能够读取 topic 定义的结果都提供规范化 `topics` 数组，读取
+失败时该数组为空。调用方使用 `diagnostics[].blocking` 判断完成状态。
 
 模块可安全导入且不会执行 CLI，导出：
 
-1. `validateTestEvidence(options)`。
-2. `syncTestEvidenceIndex(options)`。
-3. `queryTestEvidence(options)`。
-4. `showTestEvidenceCase(options)`。
-5. 对应 Valibot Schema 和 `runTestEvidenceCatalogCli(argv)`。
+1. `listTestEvidenceTopics(options)`。
+2. `validateTestEvidence(options)`。
+3. `syncTestEvidenceIndex(options)`。
+4. `queryTestEvidence(options)`。
+5. `showTestEvidenceCase(options)`。
+6. 对应 Valibot Schema 和 `runTestEvidenceCatalogCli(argv)`。
 
 相邻 `.d.mts` 提供公共声明；数据类型由 Valibot Schema 生成 JSON Schema，再生成
 `*.types.d.mts`，不维护第二套结构真源。
