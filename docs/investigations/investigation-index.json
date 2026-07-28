@@ -32,6 +32,36 @@
       }
     },
     {
+      "id": "decision-records/intra-change-decision-evolution.md",
+      "keys": {
+        "category": [
+          "decision-records"
+        ],
+        "latest-report-at": [
+          1785227943000
+        ],
+        "status": [
+          "调查中"
+        ],
+        "text": [
+          "同一变更内决策演进保留边界调查",
+          "已激活决策在进入版本基线前被同一变更中的新决策修订时，是否应保留为长期演进历史，以及版本控制证据能否支持安全折叠？",
+          "版本基线可发现同一变更内的决策演进候选"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-07-28T16:39:03+08:00",
+        "path": "decision-records/intra-change-decision-evolution.md",
+        "question": "已激活决策在进入版本基线前被同一变更中的新决策修订时，是否应保留为长期演进历史，以及版本控制证据能否支持安全折叠？",
+        "reportCount": 1,
+        "reportTitles": [
+          "版本基线可发现同一变更内的决策演进候选"
+        ],
+        "status": "调查中",
+        "title": "同一变更内决策演进保留边界调查"
+      }
+    },
+    {
       "id": "git-integration/direct-git-library-selection.md",
       "keys": {
         "category": [
@@ -113,5 +143,5 @@
   "metadata": {},
   "namespace": "investigations",
   "schemaVersion": 2,
-  "sourceRevision": "sha256:67855f146583bd30bd7681867747abd5be9397f261566e3fa9f26815fd3a41db"
+  "sourceRevision": "sha256:19dbf6a1f19872274b9442a7de9d5a60bc6c58cd6e9a374afb5a81835a73ea96"
 }
