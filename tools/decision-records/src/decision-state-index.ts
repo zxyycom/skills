@@ -62,6 +62,29 @@ export function parseDecisionIndex(
   return validateDecisionIndex(parsed.value, sourcePath);
 }
 
+export async function loadDecisionIndex(options: {
+  decisionsDirectory: string;
+  indexPath?: string;
+  signal?: AbortSignal;
+}): Promise<StateIndexResult<DecisionIndex>> {
+  const indexPath = options.indexPath ?? decisionIndexFileName;
+  const loaded = await loadStateIndex({
+    context: {
+      root: options.decisionsDirectory,
+      ...(options.signal === undefined ? {} : { signal: options.signal })
+    },
+    definition: createDecisionStateIndexDefinition(),
+    expectation: {
+      definitionVersion: decisionIndexDefinitionVersion,
+      namespace: decisionIndexNamespace
+    },
+    indexPath
+  });
+  return loaded.status === "error"
+    ? loaded
+    : validateDecisionIndex(loaded.value, indexPath);
+}
+
 export async function loadCurrentDecisionIndex(options: {
   decisionsDirectory: string;
   indexPath?: string;
@@ -73,18 +96,6 @@ export async function loadCurrentDecisionIndex(options: {
     root: options.decisionsDirectory,
     ...(options.signal === undefined ? {} : { signal: options.signal })
   };
-  const loaded = await loadStateIndex({
-    context,
-    definition: createDecisionStateIndexDefinition(),
-    expectation: {
-      definitionVersion: decisionIndexDefinitionVersion,
-      namespace: decisionIndexNamespace
-    },
-    indexPath
-  });
-  if (loaded.status === "error") {
-    return loaded;
-  }
   const definition = createDecisionStateIndexDefinition({
     relativePaths: options.relativePaths
   });

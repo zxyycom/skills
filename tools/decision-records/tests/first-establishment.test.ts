@@ -79,7 +79,7 @@ test("first establishment creates a decision domain and current index", () => (
     ["decision-records"]
   );
   assert.equal(firstIndex.namespace, "decisions");
-  assert.equal(firstIndex.definitionVersion, 3);
+  assert.equal(firstIndex.definitionVersion, 4);
   assert.equal(firstIndex.entries.length, 1);
   assert.equal(firstIndex.entries[0]!.state.status, "active");
   assert.equal(firstIndex.entries[0]!.state.alignment, "aligned");

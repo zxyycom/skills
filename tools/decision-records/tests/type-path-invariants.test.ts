@@ -106,19 +106,28 @@ const archivedDocument = {
   alignment: null,
   createdAt: "2026-07-22T10:20:30+08:00"
 } satisfies DecisionDocument;
+const archivedAlignedDocument = {
+  ...projection,
+  status: "archived",
+  alignment: "aligned",
+  createdAt: "2026-07-22T10:20:30+08:00"
+} satisfies DecisionDocument;
 
 function narrowedStatus(document: DecisionDocument): "active" | "archived" {
-  if (document.alignment === null) {
-    const status: "archived" = document.status;
-    return status;
+  if (document.status === "active") {
+    const alignment: "aligned" | "unaligned" = document.alignment;
+    assert.ok(alignment === "aligned" || alignment === "unaligned");
+    return "active";
   }
-  const status: "active" = document.status;
-  return status;
+  const alignment: "aligned" | "unaligned" | null = document.alignment;
+  assert.ok(alignment === null || alignment === "aligned" || alignment === "unaligned");
+  return "archived";
 }
 
 assert.equal(narrowedStatus(alignedDocument), "active");
 assert.equal(narrowedStatus(unalignedDocument), "active");
 assert.equal(narrowedStatus(archivedDocument), "archived");
+assert.equal(narrowedStatus(archivedAlignedDocument), "archived");
 
 const relativePath = "security/2fa-policy.md";
 const decisionsDirectory = path.resolve("decision-records-test-data");

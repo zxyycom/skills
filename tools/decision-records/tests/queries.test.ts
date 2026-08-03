@@ -13,12 +13,10 @@ import {
   createFixtureWorkspace,
   currentRelativePath,
   generatedCliPath,
-  readIndex,
   runBundledCli,
   runSourceCli,
   runSuccessfulCli,
-  traceDecision,
-  writeIndex
+  traceDecision
 } from "./support.ts";
 
 test("decision check preserves source, bundled API, and process CLI parity", async () => {
@@ -69,8 +67,8 @@ try {
   assert.doesNotMatch(activeList, /^\s+domain:/m);
   assert.match(activeList, /title: 使用生成 CLI/);
   assert.match(activeList, /purpose: 确保生成后的 CLI/);
-  assert.match(activeList, /background: 需要验证生成后的 CLI/);
-  assert.match(activeList, /decision: 使用固定结构的测试夹具/);
+  assert.doesNotMatch(activeList, /^\s+background:/m);
+  assert.doesNotMatch(activeList, /^\s+decision:/m);
   assert.doesNotMatch(activeList, /260710-use-source-cli/);
   assert.doesNotMatch(activeList, /relations/);
 
@@ -227,9 +225,7 @@ try {
     ): Promise<string> => {
       if (path.resolve(filePath) === shownDecisionPath) {
         shownDecisionReadCount += 1;
-        if (shownDecisionReadCount === 3) {
-          throw new Error("simulated decision body read failure");
-        }
+        throw new Error("simulated decision body read failure");
       }
       return await originalReadFile(filePath, encoding);
     }
@@ -247,6 +243,7 @@ try {
       failedShow.stderr,
       /Failed to read decision body project-tooling\/use-generated-cli\.md: simulated decision body read failure/
     );
+    assert.equal(shownDecisionReadCount, 1);
   } finally {
     Object.defineProperty(fs, "readFile", originalReadFileDescriptor);
   }
@@ -298,53 +295,59 @@ try {
 }
 });
 
-test("decision queries reject incomplete or extra index membership", async () => {
-const fixtureRoot = await createFixtureWorkspace("query-index-membership");
+test("decision queries use persisted snapshots while check detects source drift", async () => {
+const fixtureRoot = await createFixtureWorkspace("query-index-snapshot");
 try {
-  const indexPath = path.join(
+  const decisionPath = path.join(
     fixtureRoot,
     "docs",
     "decisions",
-    "decision-index.json"
+    ...currentRelativePath.split("/")
   );
-  const originalIndex = await readIndex(indexPath);
-  await writeIndex(indexPath, {
-    ...originalIndex,
-    entries: originalIndex.entries.filter(
-      (entry) => entry.id !== currentRelativePath
-    )
-  });
-  await assertMembershipMismatchRejected(fixtureRoot);
+  await fs.rm(decisionPath);
 
-  const extraPath = "decision-records/extra-index-entry.md";
-  const extraSource = originalIndex.entries.find(
-    (entry) => entry.id === archivedRelativePath
-  );
-  assert.ok(extraSource);
-  await writeIndex(indexPath, {
-    ...originalIndex,
-    entries: [
-      ...originalIndex.entries,
-      {
-        ...extraSource,
-        id: extraPath,
-        state: {
-          ...extraSource.state,
-          path: extraPath
-        }
-      }
-    ].sort((left, right) => left.id.localeCompare(right.id))
-  });
-  await assertMembershipMismatchRejected(fixtureRoot);
-  await writeIndex(indexPath, originalIndex);
+  const listed = await runSuccessfulCli(["list", "--root", fixtureRoot]);
+  assert.match(listed, /project-tooling\/use-generated-cli\.md/);
+  const traced = await traceDecision(currentRelativePath, [], fixtureRoot);
+  assert.match(traced, /decision-records\/260710-use-source-cli\.md/);
+
+  const shown = await runBundledCli([
+    "show",
+    currentRelativePath,
+    "--root",
+    fixtureRoot
+  ]);
+  assert.equal(shown.exitCode, 1);
+  assert.match(shown.stderr, /Failed to read decision body/);
+
+  const checked = await runBundledCli(["check", "--root", fixtureRoot]);
+  assert.equal(checked.exitCode, 1);
+  assert.match(checked.stderr, /out of sync|references missing decision/);
 } finally {
   await fs.rm(fixtureRoot, { force: true, recursive: true });
 }
 });
 
-test("decision CLI rejects invalid command options", async () => {
+test("decision CLI help and invalid options expose one consistent contract", async () => {
 const fixtureRoot = await createFixtureWorkspace("query-cli-args");
 try {
+  const help = spawnSync("node", [generatedCliPath, "--help"], {
+    encoding: "utf8"
+  });
+  assert.equal(help.status, 0);
+  assert.match(help.stdout, /Query and maintain agent-oriented decision records/);
+  assert.match(help.stdout, /This is the default command/);
+  assert.match(help.stdout, /Check the JSON index against established\s+Markdown/);
+  assert.match(help.stdout, /candidates remain outside the index and make strict check fail/i);
+
+  const archiveHelp = spawnSync(
+    "node",
+    [generatedCliPath, "archive", "--help"],
+    { encoding: "utf8" }
+  );
+  assert.equal(archiveHelp.status, 0);
+  assert.match(archiveHelp.stdout, /preserving their last alignment/);
+
   // Keep real Node failures to prove invalid-option exit codes.
   for (const invalidArguments of [
     ["list", "--unknown-option", "--root", fixtureRoot],
@@ -411,21 +414,3 @@ try {
   await fs.rm(fixtureRoot, { force: true, recursive: true });
 }
 });
-
-async function assertMembershipMismatchRejected(
-  workspaceRoot: string
-): Promise<void> {
-  for (const args of [
-    ["list", "--root", workspaceRoot],
-    ["show", currentRelativePath, "--root", workspaceRoot],
-    ["trace", currentRelativePath, "--root", workspaceRoot]
-  ]) {
-    const result = await runBundledCli(args);
-    assert.equal(result.exitCode, 1);
-    assert.equal(result.stdout, "");
-    assert.match(
-      result.stderr,
-      /index entries do not match the complete established Markdown set/
-    );
-  }
-}

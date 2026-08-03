@@ -111,7 +111,7 @@ test("activation and archive transitions preserve content and index atomicity", 
     lifecycleRelativePath
   );
   assert.equal(archivedState.status, "archived");
-  assert.equal(archivedState.alignment, null);
+  assert.equal(archivedState.alignment, "aligned");
   assert.equal(archivedState.createdAt, createdAt);
 
   const archivedDiscard = await runSourceCli([

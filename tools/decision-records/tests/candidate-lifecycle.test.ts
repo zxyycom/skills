@@ -315,7 +315,7 @@ test("activation establishes selected candidates while leaving others pending", 
     workspaceRoot
   ]);
   assert.equal(candidateList.exitCode, 0);
-  assert.match(candidateList.stderr, /use-second-unindexed\.md/);
+  assert.equal(candidateList.stderr, "");
   assert.match(candidateList.stdout, /use-first-unindexed\.md/);
   assert.doesNotMatch(candidateList.stdout, /use-second-unindexed\.md/);
 
@@ -376,9 +376,12 @@ test("activation reconciles unindexed established records before committing a ca
     ["trace", currentRelativePath, "--root", workspaceRoot]
   ]) {
     const staleQueryWithOrphan = await runBundledCli(staleQueryArgs);
-    assert.equal(staleQueryWithOrphan.exitCode, 1);
-    assert.equal(staleQueryWithOrphan.stdout, "");
-    assert.match(staleQueryWithOrphan.stderr, /source revision|out of sync/i);
+    assert.equal(
+      staleQueryWithOrphan.exitCode,
+      0,
+      staleQueryWithOrphan.stderr
+    );
+    assert.doesNotMatch(staleQueryWithOrphan.stdout, /use-orphan-established\.md/);
   }
 
   const syncWithOrphan = await runBundledCli([

@@ -1,6 +1,6 @@
 ---
 title: 将对齐状态定义为单向基线
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-22T10:07:23Z
 purpose: 让 alignment 与只允许从 unaligned 进入 aligned 的状态机保持同一语义。

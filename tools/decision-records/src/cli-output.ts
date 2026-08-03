@@ -6,7 +6,6 @@ import type {
   DecisionQuerySuccess
 } from "./decision-query-service.ts";
 import type { DecisionDomainDefinition } from "./decision-domain-catalog.ts";
-import type { DecisionRecord } from "./types.ts";
 
 export function printDecisionFailure(
   failure: DecisionApplicationFailure
@@ -108,7 +107,10 @@ function printCheck(
 
 function printList(
   domains: readonly DecisionDomainDefinition[],
-  records: readonly DecisionRecord[],
+  records: Extract<
+    DecisionQuerySuccess,
+    { command: "list" }
+  >["records"],
   fullTime: boolean
 ): void {
   printDomainDefinitions(domains);
@@ -128,12 +130,9 @@ function printList(
         + (fullTime ? timestamp : timestamp.slice(0, 10))
         + " "
         + record.relativePath
-        + invalidRecordSuffix(record)
     );
     console.log("  title: " + record.projection.title);
     console.log("  purpose: " + record.projection.purpose);
-    console.log("  background: " + record.projection.background);
-    console.log("  decision: " + record.projection.decision);
   }
 }
 
@@ -169,7 +168,10 @@ function printSyncIndex(
 
 function printTrace(
   domains: readonly DecisionDomainDefinition[],
-  records: readonly DecisionRecord[],
+  records: Extract<
+    DecisionQuerySuccess,
+    { command: "trace" }
+  >["records"],
   edges: Extract<
     DecisionQuerySuccess,
     { command: "trace" }
@@ -190,7 +192,6 @@ function printTrace(
           + record.relativePath
           + " - "
           + record.projection.title
-          + invalidRecordSuffix(record)
       );
     }
   }
@@ -217,8 +218,4 @@ function printDomainDefinitions(
   for (const domain of domains) {
     console.log("- " + domain.id + ": " + domain.description);
   }
-}
-
-function invalidRecordSuffix(record: DecisionRecord): string {
-  return record.markdownExists && record.bodyValid ? "" : " [invalid]";
 }

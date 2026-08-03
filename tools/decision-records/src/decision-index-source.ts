@@ -48,7 +48,7 @@ export function decisionIndexState(
         path: relativePath,
         title: projection.title,
         status: "archived",
-        alignment: null,
+        alignment: document.alignment,
         createdAt: document.createdAt,
         purpose: projection.purpose,
         background: projection.background,
@@ -226,7 +226,7 @@ async function parseDecisionSource(
     : {
         title: projection.title,
         status: "archived",
-        alignment: null,
+        alignment: metadata.alignment,
         createdAt: metadata.createdAt,
         purpose: projection.purpose,
         background: projection.background,

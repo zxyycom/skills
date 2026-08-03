@@ -27,7 +27,7 @@ import {
 } from "./types.ts";
 
 export const decisionIndexNamespace = "decisions";
-export const decisionIndexDefinitionVersion = 3;
+export const decisionIndexDefinitionVersion = 4;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
@@ -140,7 +140,7 @@ function parseDecisionIndexState(input: Parameters<
       }
     : {
         status: "archived",
-        alignment: archivedAlignment(state.alignment),
+        alignment: state.alignment,
         createdAt: state.createdAt
       };
 
@@ -176,7 +176,7 @@ function parseDecisionIndexState(input: Parameters<
     : {
         title: state.title,
         status: "archived",
-        alignment: null,
+        alignment: metadata.alignment,
         createdAt: metadata.createdAt,
         purpose: state.purpose,
         background: state.background,
@@ -198,15 +198,6 @@ function activeAlignment(
     throw new TypeError(
       "alignment must be aligned or unaligned when status is active"
     );
-  }
-  return alignment;
-}
-
-function archivedAlignment(
-  alignment: DecisionIndexState["alignment"]
-): null {
-  if (alignment !== null) {
-    throw new TypeError("alignment must be null when status is archived");
   }
   return alignment;
 }

@@ -282,7 +282,7 @@ export function createCliProgram(
 ): CommanderCommand {
   const program = new CommanderCommand()
     .name("decision-records")
-    .description("Validate and maintain decision records from Markdown lifecycle state.")
+    .description("Query and maintain agent-oriented decision records and their lifecycle state.")
     .configureHelp({ showGlobalOptions: true })
     .option("--root <path>", "Workspace root.", process.cwd())
     .option(
@@ -295,7 +295,7 @@ export function createCliProgram(
       "afterAll",
       "\nDecision paths are relative to the decision directory, for example "
       + "domain-id/use-semantic-title.md.\n"
-      + "Unactivated candidates remain outside the index and are reported as warnings.\n"
+      + "Unactivated candidates remain outside the index and make strict check fail.\n"
       + "Exit codes: 0 success (queries and scoped maintenance may report warnings), "
       + "1 paused lifecycle choice, blocking validation, or index failure, "
       + "2 invalid arguments."
@@ -314,7 +314,7 @@ export function createCliProgram(
     program,
     "check",
     "Strictly validate the domain catalog, Markdown metadata, alignment, relations, "
-      + "activation candidates, and the JSON index.",
+      + "activation candidates, and the JSON index. This is the default command.",
     { isDefault: true }
   );
   check.action(() => execute("check", check));
@@ -329,10 +329,10 @@ export function createCliProgram(
   const list = createSubcommand(
     program,
     "list",
-    "List active decisions by default, or filter by domain, lifecycle, and alignment."
+    "List the persisted active decision snapshot by default, or filter its indexed state."
   )
     .addOption(
-      new Option("--alignment <value>", "Alignment filter for active decisions.")
+      new Option("--alignment <value>", "Alignment filter for indexed decisions.")
         .choices([...decisionAlignments, "all"])
         .default("all")
     )
@@ -377,7 +377,7 @@ export function createCliProgram(
   const syncIndex = createSubcommand(
     program,
     "sync-index",
-    "Rebuild the complete JSON index from established decision Markdown files."
+    "Check the JSON index against established Markdown; use --write to rebuild it."
   )
     .option("--write", "Write the index rebuilt from established decisions.");
   syncIndex.action(() => execute("sync-index", syncIndex));
@@ -424,8 +424,8 @@ export function createCliProgram(
   const markAligned = createSubcommand(
     program,
     "mark-aligned <decision-path>",
-    "Mark an active unaligned decision as aligned after verifying it against "
-      + "current fact sources, establishing it as the current baseline."
+    "Mark an active unaligned decision as aligned after verifying its complete "
+      + "execution against current fact sources."
   );
   markAligned.action((recordPath: string) => (
     execute("mark-aligned", markAligned, [recordPath])
@@ -434,7 +434,7 @@ export function createCliProgram(
   const archive = createSubcommand(
     program,
     "archive <decision-path...>",
-    "Set active decisions to archived with null alignment without changing relations."
+    "Archive active decisions while preserving their last alignment and relations."
   ).addOption(createKeepUnrecordedHistoryOption());
   archive.action((recordPaths: string[]) => execute("archive", archive, recordPaths));
 

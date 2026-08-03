@@ -1,3 +1,6 @@
+import path from "node:path";
+import { toPosix } from "../../shared/src/node/filesystem.ts";
+
 const decisionFileNamePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 export const decisionKebabCaseIdPatternSource =
   "^[a-z0-9]+(?:-[a-z0-9]+)*$";
@@ -18,6 +21,24 @@ export function isDecisionRelativePath(value: string): boolean {
 
 export function normalizeDecisionRelativePath(value: string): string {
   return value.replace(/\\/gu, "/").replace(/^\.\//u, "");
+}
+
+export function displayDecisionPath(
+  workspaceRoot: string,
+  targetPath: string
+): string {
+  const relativePath = path.relative(workspaceRoot, targetPath);
+  if (relativePath === "") {
+    return ".";
+  }
+  if (
+    relativePath === ".."
+    || relativePath.startsWith(".." + path.sep)
+    || path.isAbsolute(relativePath)
+  ) {
+    return targetPath;
+  }
+  return toPosix(relativePath);
 }
 
 export function isNewDecisionIdentityPath(value: string): boolean {

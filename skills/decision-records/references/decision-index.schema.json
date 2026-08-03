@@ -117,25 +117,6 @@
               }
             }
           }
-        },
-        {
-          "if": {
-            "properties": {
-              "status": {
-                "const": "archived"
-              }
-            },
-            "required": [
-              "status"
-            ]
-          },
-          "then": {
-            "properties": {
-              "alignment": {
-                "const": null
-              }
-            }
-          }
         }
       ],
       "properties": {
@@ -221,7 +202,7 @@
       "const": "decisions"
     },
     "definitionVersion": {
-      "const": 3
+      "const": 4
     },
     "metadata": {
       "additionalProperties": false,

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "namespace": "decisions",
-  "definitionVersion": 3,
+  "definitionVersion": 4,
   "metadata": {
     "domains": [
       {
@@ -82,7 +82,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:3d1108865be54e12cac5270f6c4d0c7ac0f52dc36a8b09d11fb1386a3b2cfc7e",
+  "sourceRevision": "sha256:518eab6f8b4fac82aba04ca93d48828e8db3342ead90172063540a15a3b96579",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -1695,6 +1695,36 @@
       }
     },
     {
+      "id": "decision-records/track-decision-execution-state.md",
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/track-decision-execution-state.md",
+        "title": "用对齐状态记录决策是否已经执行",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-03T07:35:02Z",
+        "purpose": "区分已确认但尚未完整执行的决策与已经执行并建立为当前基线的决策。",
+        "background": "只说明决策是否当前适用，无法让后续工作判断目标是否已经落地以及应当承担何种约束。",
+        "decision": "active 与 alignment 共同表达当前约束；unaligned 必须纳入相关工作规划，aligned 必须被遵守，归档时保留最后执行状态。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "decision-records/use-monotonic-alignment-baseline.md"
+          }
+        ]
+      }
+    },
+    {
       "id": "decision-records/use-alignment-aware-decision-commands.md",
       "keys": {
         "domain": [
@@ -1865,7 +1895,7 @@
           "decision-records"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -1874,7 +1904,7 @@
       "state": {
         "path": "decision-records/use-monotonic-alignment-baseline.md",
         "title": "将对齐状态定义为单向基线",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-22T10:07:23Z",
         "purpose": "让 alignment 与只允许从 unaligned 进入 aligned 的状态机保持同一语义。",
@@ -1886,6 +1916,31 @@
             "target": "decision-records/express-alignment-as-field-relation.md"
           }
         ]
+      }
+    },
+    {
+      "id": "decision-records/use-persisted-index-for-routine-queries.md",
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/use-persisted-index-for-routine-queries.md",
+        "title": "使用持久索引承接常规决策查询",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-03T07:35:13Z",
+        "purpose": "让 agent 在千级决策集合中以稳定成本恢复相关决策，并保留明确可读的集合视图。",
+        "background": "常规查询先遍历并解析全部 Markdown 再读取索引，既重复工作，也让派生索引无法发挥读取模型作用。",
+        "decision": "list、show 和 trace 直接读取已验证结构的持久索引；完整源一致性由维护事务、check 和 sync-index 负责。",
+        "relations": []
       }
     },
     {

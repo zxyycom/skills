@@ -51,7 +51,7 @@ export type DecisionMetadata =
   }
   | {
     status: "archived";
-    alignment: null;
+    alignment: DecisionAlignment | null;
     createdAt: string;
   };
 
@@ -71,7 +71,7 @@ export type DecisionIndex = Omit<
   StateIndex<DecisionIndexState, DecisionIndexMetadata>,
   "definitionVersion" | "entries" | "namespace"
 > & {
-  definitionVersion: 3;
+  definitionVersion: 4;
   entries: DecisionIndexEntry[];
   namespace: "decisions";
 };
@@ -93,7 +93,10 @@ export type DecisionRecord = {
   status: DecisionStatus | null;
 };
 
-export function compareDecisionRecords(left: DecisionRecord, right: DecisionRecord): number {
+export function compareDecisionRecords(
+  left: Pick<DecisionRecord, "relativePath">,
+  right: Pick<DecisionRecord, "relativePath">
+): number {
   return left.relativePath.localeCompare(right.relativePath);
 }
 

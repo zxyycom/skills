@@ -74,7 +74,7 @@ test("archive pauses before preserving an unrecorded established decision", () =
     unrecordedRelativePath
   );
   assert.equal(archivedState.status, "archived");
-  assert.equal(archivedState.alignment, null);
+  assert.equal(archivedState.alignment, "aligned");
   })
 ));
 const unrecordedIntermediateRelativePath =

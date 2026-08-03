@@ -4,6 +4,7 @@ import process from "node:process";
 import { pathExists, toPosix } from "../../shared/src/node/filesystem.ts";
 import {
   decisionDomainFromRelativePath,
+  displayDecisionPath,
   isDecisionDomainId,
   isNewDecisionIdentityPath
 } from "./decision-path.ts";
@@ -33,20 +34,6 @@ const allowedRootFiles = new Set([
   decisionDomainCatalogFileName,
   decisionIndexFileName
 ]);
-
-function displayPath(workspaceRoot: string, targetPath: string): string {
-  const relativePath = path.relative(workspaceRoot, targetPath);
-  if (relativePath === "") {
-    return ".";
-  }
-  if (relativePath === ".."
-    || relativePath.startsWith(".." + path.sep)
-    || path.isAbsolute(relativePath)) {
-    return targetPath;
-  }
-
-  return toPosix(relativePath);
-}
 
 export function unindexedDecisionError(
   indexRelativePath: string,
@@ -275,9 +262,9 @@ export async function scanDecisionRecords(
   const indexErrors: string[] = [];
   const sourceErrors: string[] = [];
   const records: DecisionRecord[] = [];
-  const decisionsLabel = displayPath(workspaceRoot, decisionsDirectory);
+  const decisionsLabel = displayDecisionPath(workspaceRoot, decisionsDirectory);
   const indexPath = path.join(decisionsDirectory, decisionIndexFileName);
-  const indexRelativePath = displayPath(workspaceRoot, indexPath);
+  const indexRelativePath = displayDecisionPath(workspaceRoot, indexPath);
   const unavailableScan = (error: string): DecisionScan => ({
     activationCandidateErrors,
     decisionsDirectoryAvailable: false,
@@ -307,7 +294,10 @@ export async function scanDecisionRecords(
     decisionsDirectory,
     decisionDomainCatalogFileName
   );
-  const domainCatalogRelativePath = displayPath(workspaceRoot, domainCatalogPath);
+  const domainCatalogRelativePath = displayDecisionPath(
+    workspaceRoot,
+    domainCatalogPath
+  );
   const loadedDomainCatalog = await loadDecisionDomainCatalog(
     domainCatalogPath,
     domainCatalogRelativePath

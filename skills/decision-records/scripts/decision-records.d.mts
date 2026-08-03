@@ -47,7 +47,7 @@ export type DecisionMetadata =
   }
   | {
     status: "archived";
-    alignment: null;
+    alignment: DecisionAlignment | null;
     createdAt: string;
   };
 
@@ -70,7 +70,7 @@ export type DecisionIndexMetadata = {
 export type DecisionIndex = {
   schemaVersion: 2;
   namespace: "decisions";
-  definitionVersion: 3;
+  definitionVersion: 4;
   metadata: DecisionIndexMetadata;
   sourceRevision: string;
   keyDefinitions: Array<{

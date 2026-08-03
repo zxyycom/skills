@@ -99,8 +99,18 @@ test("decision domain catalog revision ignores formatting but tracks description
     "--root",
     workspaceRoot
   ]);
-  assert.equal(changedDescriptionQuery.exitCode, 1);
-  assert.match(changedDescriptionQuery.stderr, /source revision/i);
+  assert.equal(changedDescriptionQuery.exitCode, 0, changedDescriptionQuery.stderr);
+  assert.doesNotMatch(changedDescriptionQuery.stdout, /（修订）/);
+  const changedDescriptionDomains = await runBundledCli([
+    "domains",
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(changedDescriptionDomains.exitCode, 0);
+  assert.match(changedDescriptionDomains.stdout, /（修订）/);
+  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
+    (error) => error.includes("out of sync")
+  ));
   })
 ));
 
@@ -123,10 +133,11 @@ test("decision domain catalog validates ownership and domain membership", () => 
     "--root",
     workspaceRoot
   ]);
-  assert.equal(queryWithUndefinedRecordDomain.exitCode, 1);
-  assert.match(
-    queryWithUndefinedRecordDomain.stderr,
-    /Decision domain directory is not defined in decision-domains\.json: project-tooling/
+  assert.equal(queryWithUndefinedRecordDomain.exitCode, 0);
+  assert.match(queryWithUndefinedRecordDomain.stdout, /project-tooling:/);
+  await assertValidationError(
+    workspaceRoot,
+    "Decision domain directory is not defined in decision-domains.json: project-tooling"
   );
   await fs.writeFile(catalogPath, originalCatalogText, "utf8");
 
@@ -165,10 +176,11 @@ test("decision domain catalog validates ownership and domain membership", () => 
     "--root",
     workspaceRoot
   ]);
-  assert.equal(queryWithUndefinedCandidateDomain.exitCode, 1);
-  assert.match(
-    queryWithUndefinedCandidateDomain.stderr,
-    /Decision domain directory is not defined in decision-domains\.json: unavailable-domain/
+  assert.equal(queryWithUndefinedCandidateDomain.exitCode, 0);
+  assert.doesNotMatch(queryWithUndefinedCandidateDomain.stdout, /unavailable-domain/);
+  await assertValidationError(
+    workspaceRoot,
+    "Decision domain directory is not defined in decision-domains.json: unavailable-domain"
   );
   await fs.rm(path.dirname(candidatePath), { force: true, recursive: true });
 

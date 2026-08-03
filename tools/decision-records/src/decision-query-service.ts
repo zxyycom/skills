@@ -23,6 +23,7 @@ import {
 import {
   decisionScanOptions,
   loadDecisionQueryContext,
+  resolveDecisionLocation,
   type DecisionLocation
 } from "./decision-query-context.ts";
 import {
@@ -36,12 +37,15 @@ import {
 } from "./relation-graph.ts";
 import {
   compareDecisionRecords,
+  type DecisionAlignment,
   type DecisionIndex,
   type DecisionIndexEntry,
   type DecisionListAlignment,
   type DecisionListStatus,
+  type DecisionProjection,
   type DecisionRecord,
   type DecisionScan,
+  type DecisionStatus,
   type DecisionTraceDirection,
   type DecisionValidationResult
 } from "./types.ts";
@@ -84,6 +88,15 @@ type QuerySuccessBase = {
   warnings: string[];
 };
 
+export type IndexedDecisionRecord = {
+  alignment: DecisionAlignment | null;
+  createdAt: string;
+  domain: string;
+  projection: DecisionProjection;
+  relativePath: string;
+  status: DecisionStatus;
+};
+
 export type DecisionQuerySuccess =
   | (QuerySuccessBase & {
       command: "check";
@@ -105,13 +118,13 @@ export type DecisionQuerySuccess =
       command: "list";
       domains: DecisionDomainDefinition[];
       fullTime: boolean;
-      records: DecisionRecord[];
+      records: IndexedDecisionRecord[];
     })
   | (QuerySuccessBase & {
       body: string;
       command: "show";
       domain: DecisionDomainDefinition;
-      record: DecisionRecord;
+      record: IndexedDecisionRecord;
     })
   | (QuerySuccessBase & {
       command: "sync-index";
@@ -124,7 +137,7 @@ export type DecisionQuerySuccess =
       command: "trace";
       domains: DecisionDomainDefinition[];
       edges: DecisionRelationEdge[];
-      records: DecisionRecord[];
+      records: IndexedDecisionRecord[];
     });
 
 export type DecisionQueryResult =
@@ -153,10 +166,7 @@ export async function executeDecisionQuery(
 async function queryDecisionDomains(
   location: DecisionLocation
 ): Promise<DecisionQueryResult> {
-  const workspaceRoot = path.resolve(location.workspaceRoot);
-  const decisionsDirectory = path.isAbsolute(location.decisionsDir)
-    ? path.resolve(location.decisionsDir)
-    : path.resolve(workspaceRoot, location.decisionsDir);
+  const { decisionsDirectory } = resolveDecisionLocation(location);
   const loaded = await loadDecisionDomainCatalog(
     path.join(decisionsDirectory, decisionDomainCatalogFileName),
     decisionDomainCatalogFileName
@@ -217,9 +227,9 @@ async function listDecisionRecords(
     sort: [{ direction: "asc", key: "id" }]
   });
   if (queried.status === "error") {
-    return indexFailure(queried, context.scan.indexRelativePath);
+    return indexFailure(queried, context.indexRelativePath);
   }
-  const records = indexedRecords(context.scan, queried.value);
+  const records = indexedRecords(queried.value);
   const resultDomainIds = new Set(records.map((record) => record.domain));
   return {
     command: "list",
@@ -229,7 +239,7 @@ async function listDecisionRecords(
     fullTime: request.fullTime,
     records,
     status: "ok",
-    warnings: context.warnings
+    warnings: []
   };
 }
 
@@ -243,20 +253,14 @@ async function showDecisionRecord(
   const recordPath = normalizeDecisionRelativePath(request.recordPath);
   const matched = context.reader.get(recordPath);
   if (matched.status === "error") {
-    return indexFailure(matched, context.scan.indexRelativePath);
+    return indexFailure(matched, context.indexRelativePath);
   }
   const record = matched.value === null
     ? null
-    : findEstablishedRecord(context.scan, matched.value.id);
+    : indexedRecord(matched.value);
   if (record === null) {
     return decisionFailure(
       ["Established decision does not exist: " + request.recordPath],
-      { presentation: "plain" }
-    );
-  }
-  if (!record.markdownExists) {
-    return decisionFailure(
-      ["Decision body does not exist: " + record.relativePath],
       { presentation: "plain" }
     );
   }
@@ -267,7 +271,7 @@ async function showDecisionRecord(
       "Decision path has no indexed domain: " + record.relativePath
     ]);
   }
-  const body = await readDecisionBody(record);
+  const body = await readDecisionBody(context.decisionsDirectory, record);
   return body.status === "error"
     ? body
     : {
@@ -276,7 +280,7 @@ async function showDecisionRecord(
         domain,
         record,
         status: "ok",
-        warnings: context.warnings
+        warnings: []
       };
 }
 
@@ -287,8 +291,12 @@ async function traceDecisionRecord(
   if (context.status === "error") {
     return context;
   }
-  const start = findEstablishedRecord(context.scan, request.recordPath);
-  if (start === null) {
+  const startPath = normalizeDecisionRelativePath(request.recordPath);
+  const matched = context.reader.get(startPath);
+  if (matched.status === "error") {
+    return indexFailure(matched, context.indexRelativePath);
+  }
+  if (matched.value === null) {
     return decisionFailure(
       ["Established decision does not exist: " + request.recordPath],
       { presentation: "plain" }
@@ -298,10 +306,10 @@ async function traceDecisionRecord(
     sort: [{ direction: "asc", key: "id" }]
   });
   if (queried.status === "error") {
-    return indexFailure(queried, context.scan.indexRelativePath);
+    return indexFailure(queried, context.indexRelativePath);
   }
-  const records = indexedRecords(context.scan, queried.value);
-  const trace = traceDecisionRelations(records, start.relativePath, {
+  const records = indexedRecords(queried.value);
+  const trace = traceDecisionRelations(records, startPath, {
     direction: request.direction,
     maxDepth: request.maxDepth
   });
@@ -315,7 +323,7 @@ async function traceDecisionRecord(
     edges: trace.edges,
     records: tracedRecords,
     status: "ok",
-    warnings: context.warnings
+    warnings: []
   };
 }
 
@@ -388,27 +396,38 @@ function listFilters(
 }
 
 function indexedRecords(
-  scan: DecisionScan,
   entries: readonly DecisionIndexEntry[]
-): DecisionRecord[] {
-  const recordsByPath = new Map(
-    scan.records
-      .filter((record) => record.document !== null)
-      .map((record) => [record.relativePath, record])
-  );
-  return entries
-    .map((entry) => recordsByPath.get(entry.id))
-    .filter((record): record is DecisionRecord => record !== undefined);
+): IndexedDecisionRecord[] {
+  return entries.map(indexedRecord);
 }
 
-function findEstablishedRecord(
-  scan: DecisionScan,
-  value: string
-): DecisionRecord | null {
-  const recordPath = normalizeDecisionRelativePath(value);
-  return scan.records.find((record) => (
-    record.relativePath === recordPath && record.document !== null
-  )) ?? null;
+function indexedRecord(
+  entry: DecisionIndexEntry
+): IndexedDecisionRecord {
+  const state = entry.state;
+  const projection = {
+    title: state.title,
+    purpose: state.purpose,
+    background: state.background,
+    decision: state.decision,
+    relations: state.relations.map(({ type, target }) => ({ type, target }))
+  };
+  return {
+    alignment: state.alignment,
+    createdAt: state.createdAt,
+    domain: indexedDecisionDomain(entry.id),
+    projection,
+    relativePath: entry.id,
+    status: state.status
+  };
+}
+
+function indexedDecisionDomain(relativePath: string): string {
+  const domain = decisionDomainFromRelativePath(relativePath);
+  if (domain === null) {
+    throw new TypeError("Indexed decision has no domain: " + relativePath);
+  }
+  return domain;
 }
 
 function domainDefinition(
@@ -435,7 +454,8 @@ function indexFailure(
 }
 
 async function readDecisionBody(
-  record: DecisionRecord
+  decisionsDirectory: string,
+  record: IndexedDecisionRecord
 ): Promise<
   | DecisionApplicationFailure
   | { status: "ok"; value: string }
@@ -443,7 +463,10 @@ async function readDecisionBody(
   try {
     return {
       status: "ok",
-      value: await fs.readFile(record.decisionPath, "utf8")
+      value: await fs.readFile(
+        path.join(decisionsDirectory, ...record.relativePath.split("/")),
+        "utf8"
+      )
     };
   } catch (error) {
     return decisionFailure([

@@ -1,3 +1,4 @@
+import path from "node:path";
 import {
   createStateIndexReader,
   type StateIndexReader
@@ -8,16 +9,15 @@ import {
 } from "./application-result.ts";
 import {
   createDecisionStateIndexDefinition,
+  decisionIndexFileName,
   decisionIndexDiagnosticMessages,
-  loadCurrentDecisionIndex
+  loadDecisionIndex
 } from "./decision-state-index.ts";
-import { selectDecisionIndexSourcePaths } from "./index.ts";
-import { scanDecisionRecords } from "./scan.ts";
+import { displayDecisionPath } from "./decision-path.ts";
 import type {
   DecisionIndex,
   DecisionIndexMetadata,
   DecisionIndexState,
-  DecisionScan,
   DecisionScanOptions
 } from "./types.ts";
 
@@ -27,52 +27,55 @@ export type DecisionLocation = {
 };
 
 export type DecisionQueryContext = {
+  decisionsDirectory: string;
   index: DecisionIndex;
+  indexRelativePath: string;
   reader: StateIndexReader<DecisionIndexState, DecisionIndexMetadata>;
-  scan: DecisionScan;
   status: "ok";
-  warnings: string[];
+};
+
+type ResolvedDecisionLocation = {
+  decisionsDirectory: string;
+  workspaceRoot: string;
 };
 
 export async function loadDecisionQueryContext(
   location: DecisionLocation
 ): Promise<DecisionApplicationFailure | DecisionQueryContext> {
-  const scan = await scanDecisionRecords(decisionScanOptions(location));
-  if (scan.index === null) {
-    return decisionFailure(scan.errors);
-  }
-  if (scan.domainErrors.length > 0) {
-    return decisionFailure(scan.domainErrors);
-  }
-  const selection = selectDecisionIndexSourcePaths(scan);
-  if (selection.errors.length > 0) {
-    return decisionFailure(selection.errors);
-  }
-  const currentIndex = await loadCurrentDecisionIndex({
-    decisionsDirectory: scan.decisionsDirectory,
-    relativePaths: selection.relativePaths
+  const { decisionsDirectory, workspaceRoot } = resolveDecisionLocation(location);
+  const indexPath = path.join(decisionsDirectory, decisionIndexFileName);
+  const indexRelativePath = displayDecisionPath(workspaceRoot, indexPath);
+  const currentIndex = await loadDecisionIndex({
+    decisionsDirectory
   });
   if (currentIndex.status === "error") {
     return decisionFailure(decisionIndexDiagnosticMessages(
       currentIndex.diagnostics,
-      scan.indexRelativePath
+      indexRelativePath
     ));
   }
-  if (!sameDecisionIndexSnapshot(scan.index, currentIndex.value)) {
-    return decisionFailure([
-      scan.indexRelativePath + " changed while preparing the query; retry"
-    ]);
-  }
   return {
+    decisionsDirectory,
     index: currentIndex.value,
+    indexRelativePath,
     reader: createStateIndexReader({
       definition: createDecisionStateIndexDefinition(),
       index: currentIndex.value,
-      indexPath: scan.indexRelativePath
+      indexPath: indexRelativePath
     }),
-    scan,
-    status: "ok",
-    warnings: [...new Set(scan.errors)]
+    status: "ok"
+  };
+}
+
+export function resolveDecisionLocation(
+  location: DecisionLocation
+): ResolvedDecisionLocation {
+  const workspaceRoot = path.resolve(location.workspaceRoot);
+  return {
+    decisionsDirectory: path.isAbsolute(location.decisionsDir)
+      ? path.resolve(location.decisionsDir)
+      : path.resolve(workspaceRoot, location.decisionsDir),
+    workspaceRoot
   };
 }
 
@@ -83,13 +86,4 @@ export function decisionScanOptions(
     decisionsDir: location.decisionsDir,
     workspaceRoot: location.workspaceRoot
   };
-}
-
-function sameDecisionIndexSnapshot(
-  left: DecisionIndex,
-  right: DecisionIndex
-): boolean {
-  return left.sourceRevision === right.sourceRevision
-    && left.entries.length === right.entries.length
-    && left.entries.every((entry, index) => entry.id === right.entries[index]?.id);
 }

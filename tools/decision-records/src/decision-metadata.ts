@@ -144,10 +144,6 @@ export function parseDecisionMarkdown(options: {
       relativePath + " active decision frontmatter alignment must be aligned or unaligned"
     );
   }
-  if (status === "archived" && alignment !== null) {
-    errors.push(relativePath + " archived decision frontmatter alignment must be null");
-  }
-
   if (
     title === null
     || purpose === null
@@ -192,10 +188,10 @@ export function decisionMetadataFromCandidate(
       createdAt: candidate.createdAt
     };
   }
-  if (candidate.status === "archived" && candidate.alignment === null) {
+  if (candidate.status === "archived") {
     return {
       status: "archived",
-      alignment: null,
+      alignment: candidate.alignment,
       createdAt: candidate.createdAt
     };
   }

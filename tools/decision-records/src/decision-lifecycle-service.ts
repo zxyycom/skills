@@ -560,13 +560,18 @@ async function prepareArchivedDecisionChange(
       "Decision createdAt is unavailable: " + record.relativePath
     );
   }
+  if (record.alignment === null) {
+    return plainFailure(
+      "Active decision alignment is unavailable: " + record.relativePath
+    );
+  }
   const currentText = await readDecisionText(record);
   if (currentText.status === "error") {
     return currentText;
   }
   const nextText = replaceDecisionFrontmatter(currentText.value, {
     metadata: {
-      alignment: null,
+      alignment: record.alignment,
       createdAt: record.createdAt,
       status: "archived"
     }

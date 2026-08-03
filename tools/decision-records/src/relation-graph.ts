@@ -1,6 +1,8 @@
 import type {
+  DecisionProjection,
   DecisionRecord,
   DecisionRelationType,
+  DecisionStatus,
   DecisionTraceDirection
 } from "./types.ts";
 
@@ -24,7 +26,13 @@ type DecisionRelationGraph = {
   edges: DecisionRelationEdge[];
   edgesBySource: Map<string, DecisionRelationEdge[]>;
   edgesByTarget: Map<string, DecisionRelationEdge[]>;
-  recordByPath: Map<string, DecisionRecord>;
+  recordByPath: Map<string, DecisionRelationRecord>;
+};
+
+type DecisionRelationRecord = {
+  projection: DecisionProjection;
+  relativePath: string;
+  status: DecisionStatus | null;
 };
 
 function indexEdges(
@@ -45,7 +53,7 @@ function indexEdges(
 }
 
 export function collectDecisionRelationEdges(
-  records: readonly DecisionRecord[]
+  records: readonly DecisionRelationRecord[]
 ): DecisionRelationEdge[] {
   return records.flatMap((record) =>
     record.projection.relations.map((relation) => ({
@@ -57,7 +65,7 @@ export function collectDecisionRelationEdges(
 }
 
 function buildDecisionRelationGraph(
-  records: readonly DecisionRecord[]
+  records: readonly DecisionRelationRecord[]
 ): DecisionRelationGraph {
   const edges = collectDecisionRelationEdges(records);
   return {
@@ -78,7 +86,7 @@ function compareEdges(
 }
 
 export function traceDecisionRelations(
-  records: readonly DecisionRecord[],
+  records: readonly DecisionRelationRecord[],
   startPath: string,
   options: {
     direction: DecisionTraceDirection;

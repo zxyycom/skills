@@ -100,15 +100,6 @@ export const decisionIndexJsonSchema = {
           then: {
             properties: { alignment: { enum: decisionAlignments } }
           }
-        },
-        {
-          if: {
-            properties: { status: { const: "archived" } },
-            required: ["status"]
-          },
-          then: {
-            properties: { alignment: { const: null } }
-          }
         }
       ],
       properties: {

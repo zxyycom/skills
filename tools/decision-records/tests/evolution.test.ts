@@ -227,7 +227,7 @@ test("activation archives a direct predecessor and traces bounded relations", ()
   );
   assert.equal(
     findIndexEntry(switchedIndex, currentRelativePath).alignment,
-    null
+    "aligned"
   );
   assert.equal(
     findIndexEntry(switchedIndex, archivedRelativePath).status,

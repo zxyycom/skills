@@ -178,18 +178,20 @@ test("index maintenance detects drift and synchronizes canonical decision states
     "--root",
     workspaceRoot
   ]);
-  assert.equal(listWithInvalidRecord.exitCode, 1);
-  assert.equal(listWithInvalidRecord.stdout, "");
-  assert.match(listWithInvalidRecord.stderr, /does not match source revision/);
+  assert.equal(listWithInvalidRecord.exitCode, 0, listWithInvalidRecord.stderr);
+  assert.match(listWithInvalidRecord.stdout, /project-tooling\/use-generated-cli\.md/);
   const traceWithInvalidRecord = await runBundledCli([
     "trace",
     currentRelativePath,
     "--root",
     workspaceRoot
   ]);
-  assert.equal(traceWithInvalidRecord.exitCode, 1);
-  assert.equal(traceWithInvalidRecord.stdout, "");
-  assert.match(traceWithInvalidRecord.stderr, /does not match source revision/);
+  assert.equal(traceWithInvalidRecord.exitCode, 0, traceWithInvalidRecord.stderr);
+  assert.match(traceWithInvalidRecord.stdout, /decision-records\/260710-use-source-cli\.md/);
+  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
+    (error) => error.includes(currentRelativePath)
+      && error.includes('body must start with "## 目的"')
+  ));
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
 
   await fs.writeFile(
@@ -219,14 +221,19 @@ test("index maintenance detects drift and synchronizes canonical decision states
     "--root",
     workspaceRoot
   ]);
-  assert.equal(traceWithRelationDrift.exitCode, 1);
-  assert.equal(traceWithRelationDrift.stdout, "");
-  assert.match(traceWithRelationDrift.stderr, /does not match source revision/);
+  assert.equal(traceWithRelationDrift.exitCode, 0, traceWithRelationDrift.stderr);
+  assert.match(
+    traceWithRelationDrift.stdout,
+    /project-tooling\/use-generated-cli\.md --修订--> decision-records\/260710-use-source-cli\.md/
+  );
+  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
+    (error) => error.includes("out of sync")
+  ));
   await fs.writeFile(currentDecisionPath, currentDecision, "utf8");
 
-  const driftedDecision = currentDecision.replaceAll(
-    "需要验证生成后的 CLI 能读取一套最小决策目录。",
-    "需要验证索引同步会刷新全部记录的摘要投影。"
+  const driftedDecision = currentDecision.replace(
+    "title: 使用生成 CLI",
+    "title: 使用同步后的生成 CLI"
   );
   await fs.writeFile(currentDecisionPath, driftedDecision, "utf8");
   const driftedList = await runBundledCli([
@@ -234,9 +241,9 @@ test("index maintenance detects drift and synchronizes canonical decision states
     "--root",
     workspaceRoot
   ]);
-  assert.equal(driftedList.exitCode, 1);
-  assert.equal(driftedList.stdout, "");
-  assert.match(driftedList.stderr, /does not match source revision/);
+  assert.equal(driftedList.exitCode, 0, driftedList.stderr);
+  assert.match(driftedList.stdout, /title: 使用生成 CLI/);
+  assert.doesNotMatch(driftedList.stdout, /title: 使用同步后的生成 CLI/);
   await runSuccessfulCli([
     "sync-index",
     "--write",
@@ -249,8 +256,8 @@ test("index maintenance detects drift and synchronizes canonical decision states
     currentRelativePath
   );
   assert.equal(
-    synchronizedEntry.background,
-    "需要验证索引同步会刷新全部记录的摘要投影。"
+    synchronizedEntry.title,
+    "使用同步后的生成 CLI"
   );
   assert.equal(synchronizedEntry.status, "active");
   assert.equal(synchronizedEntry.alignment, "aligned");

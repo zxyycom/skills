@@ -749,7 +749,7 @@
       "id": "DECISION-ACTIVATION-ARCHIVE-001",
       "keys": {
         "search": [
-          "DECISION-ACTIVATION-ARCHIVE-001 激活与归档保持内容和索引原子性 决策激活和归档必须同步更新内容位置与索引状态。 成功转换后文件与索引一致，失败路径不会留下半完成状态。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-ACTIVATION-ARCHIVE-001 激活与归档保持内容和索引原子性 决策激活和归档必须同步更新内容位置与索引状态，并在归档时保留最后执行状态。 成功转换后文件与索引一致，aligned 记录归档后仍为 aligned，失败路径不会留下半完成状态。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -763,9 +763,9 @@
         ],
         "id": "DECISION-ACTIVATION-ARCHIVE-001",
         "line": 1,
-        "searchText": "DECISION-ACTIVATION-ARCHIVE-001 激活与归档保持内容和索引原子性 决策激活和归档必须同步更新内容位置与索引状态。 成功转换后文件与索引一致，失败路径不会留下半完成状态。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-ACTIVATION-ARCHIVE-001 激活与归档保持内容和索引原子性 决策激活和归档必须同步更新内容位置与索引状态，并在归档时保留最后执行状态。 成功转换后文件与索引一致，aligned 记录归档后仍为 aligned，失败路径不会留下半完成状态。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/activation-and-archive-transitions-preserve-content-and-index-atomicity.md",
-        "summary": "决策激活和归档必须同步更新内容位置与索引状态。",
+        "summary": "决策激活和归档必须同步更新内容位置与索引状态，并在归档时保留最后执行状态。",
         "title": "激活与归档保持内容和索引原子性"
       }
     },
@@ -773,7 +773,7 @@
       "id": "DECISION-ACTIVATION-RELATION-001",
       "keys": {
         "search": [
-          "DECISION-ACTIVATION-RELATION-001 激活归档直接前序并支持有界关系追踪 带直接关系激活新候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围；已经进入 Git HEAD 的前序不增加确认调用。 新记录成为 aligned active，直接前序成为 archived 且关系进入索引。 直接前序已存在于 Git HEAD 时，关系激活一次调用即可完成。 predecessor trace 深度 1 只包含直接前序，深度 2 可继续到更早记录。 tools/decision-records/tests/evolution.test.ts > activation archives a direct predecessor and traces bounded relations bun test --test-name-pattern=\"^activation archives a direct predecessor and traces bounded relations$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-ACTIVATION-RELATION-001 激活归档直接前序并支持有界关系追踪 带直接关系激活新候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围；已经进入 Git HEAD 的前序不增加确认调用。 新记录成为 aligned active，直接前序成为 archived 并保留 aligned 执行状态，关系进入索引。 直接前序已存在于 Git HEAD 时，关系激活一次调用即可完成。 predecessor trace 深度 1 只包含直接前序，深度 2 可继续到更早记录。 tools/decision-records/tests/evolution.test.ts > activation archives a direct predecessor and traces bounded relations bun test --test-name-pattern=\"^activation archives a direct predecessor and traces bounded relations$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -787,7 +787,7 @@
         ],
         "id": "DECISION-ACTIVATION-RELATION-001",
         "line": 1,
-        "searchText": "DECISION-ACTIVATION-RELATION-001 激活归档直接前序并支持有界关系追踪 带直接关系激活新候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围；已经进入 Git HEAD 的前序不增加确认调用。 新记录成为 aligned active，直接前序成为 archived 且关系进入索引。 直接前序已存在于 Git HEAD 时，关系激活一次调用即可完成。 predecessor trace 深度 1 只包含直接前序，深度 2 可继续到更早记录。 tools/decision-records/tests/evolution.test.ts > activation archives a direct predecessor and traces bounded relations bun test --test-name-pattern=\"^activation archives a direct predecessor and traces bounded relations$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-ACTIVATION-RELATION-001 激活归档直接前序并支持有界关系追踪 带直接关系激活新候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围；已经进入 Git HEAD 的前序不增加确认调用。 新记录成为 aligned active，直接前序成为 archived 并保留 aligned 执行状态，关系进入索引。 直接前序已存在于 Git HEAD 时，关系激活一次调用即可完成。 predecessor trace 深度 1 只包含直接前序，深度 2 可继续到更早记录。 tools/decision-records/tests/evolution.test.ts > activation archives a direct predecessor and traces bounded relations bun test --test-name-pattern=\"^activation archives a direct predecessor and traces bounded relations$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/activation-archives-a-direct-predecessor-and-traces-bounded-relations.md",
         "summary": "带直接关系激活新候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围；已经进入 Git HEAD 的前序不增加确认调用。",
         "title": "激活归档直接前序并支持有界关系追踪"
@@ -869,7 +869,7 @@
       "id": "DECISION-CANDIDATE-ACTIVATION-INDEX-001",
       "keys": {
         "search": [
-          "DECISION-CANDIDATE-ACTIVATION-INDEX-001 激活前收敛未索引的已建立记录 激活候选前必须从规范 Markdown 收敛已建立但未索引的记录，不能丢失任一成员。 索引陈旧时查询拒绝结果，显式同步吸收孤立的已建立记录。 随后的候选激活为目标写入建立时间，并让目标和既有记录同时保留在索引。 tools/decision-records/tests/candidate-lifecycle.test.ts > activation reconciles unindexed established records before committing a candidate bun test --test-name-pattern=\"^activation reconciles unindexed established records before committing a candidate$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CANDIDATE-ACTIVATION-INDEX-001 激活前收敛未索引的已建立记录 激活候选前必须从规范 Markdown 收敛已建立但未索引的记录，不能丢失任一成员。 常规查询继续返回最近一次持久快照且不包含孤立来源，显式同步吸收未索引的已建立记录。 随后的候选激活为目标写入建立时间，并让目标和既有记录同时保留在索引。 tools/decision-records/tests/candidate-lifecycle.test.ts > activation reconciles unindexed established records before committing a candidate bun test --test-name-pattern=\"^activation reconciles unindexed established records before committing a candidate$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -883,7 +883,7 @@
         ],
         "id": "DECISION-CANDIDATE-ACTIVATION-INDEX-001",
         "line": 1,
-        "searchText": "DECISION-CANDIDATE-ACTIVATION-INDEX-001 激活前收敛未索引的已建立记录 激活候选前必须从规范 Markdown 收敛已建立但未索引的记录，不能丢失任一成员。 索引陈旧时查询拒绝结果，显式同步吸收孤立的已建立记录。 随后的候选激活为目标写入建立时间，并让目标和既有记录同时保留在索引。 tools/decision-records/tests/candidate-lifecycle.test.ts > activation reconciles unindexed established records before committing a candidate bun test --test-name-pattern=\"^activation reconciles unindexed established records before committing a candidate$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-CANDIDATE-ACTIVATION-INDEX-001 激活前收敛未索引的已建立记录 激活候选前必须从规范 Markdown 收敛已建立但未索引的记录，不能丢失任一成员。 常规查询继续返回最近一次持久快照且不包含孤立来源，显式同步吸收未索引的已建立记录。 随后的候选激活为目标写入建立时间，并让目标和既有记录同时保留在索引。 tools/decision-records/tests/candidate-lifecycle.test.ts > activation reconciles unindexed established records before committing a candidate bun test --test-name-pattern=\"^activation reconciles unindexed established records before committing a candidate$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/activation-reconciles-unindexed-established-records-before-committing-a-candidate.md",
         "summary": "激活候选前必须从规范 Markdown 收敛已建立但未索引的记录，不能丢失任一成员。",
         "title": "激活前收敛未索引的已建立记录"
@@ -893,7 +893,7 @@
       "id": "DECISION-CANDIDATE-ACTIVATION-SELECTION-001",
       "keys": {
         "search": [
-          "DECISION-CANDIDATE-ACTIVATION-SELECTION-001 激活逐个建立选定候选并保留其余候选 多个完整候选并存时，Activate 必须只建立显式目标，索引排除其余候选并继续报告严格检查阻断。 第一次激活只索引目标并提醒剩余候选，list 与 sync-index 不把剩余候选当作已建立记录。 第二次激活后两个记录都进入索引，严格检查通过。 tools/decision-records/tests/candidate-lifecycle.test.ts > activation establishes selected candidates while leaving others pending bun test --test-name-pattern=\"^activation establishes selected candidates while leaving others pending$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CANDIDATE-ACTIVATION-SELECTION-001 激活逐个建立选定候选并保留其余候选 多个完整候选并存时，Activate 必须只建立显式目标，索引排除其余候选并继续报告严格检查阻断。 第一次激活只索引目标并提醒剩余候选；list 只读索引且不扫描候选，sync-index 维护入口仍提醒剩余候选。 第二次激活后两个记录都进入索引，严格检查通过。 tools/decision-records/tests/candidate-lifecycle.test.ts > activation establishes selected candidates while leaving others pending bun test --test-name-pattern=\"^activation establishes selected candidates while leaving others pending$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -907,7 +907,7 @@
         ],
         "id": "DECISION-CANDIDATE-ACTIVATION-SELECTION-001",
         "line": 1,
-        "searchText": "DECISION-CANDIDATE-ACTIVATION-SELECTION-001 激活逐个建立选定候选并保留其余候选 多个完整候选并存时，Activate 必须只建立显式目标，索引排除其余候选并继续报告严格检查阻断。 第一次激活只索引目标并提醒剩余候选，list 与 sync-index 不把剩余候选当作已建立记录。 第二次激活后两个记录都进入索引，严格检查通过。 tools/decision-records/tests/candidate-lifecycle.test.ts > activation establishes selected candidates while leaving others pending bun test --test-name-pattern=\"^activation establishes selected candidates while leaving others pending$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-CANDIDATE-ACTIVATION-SELECTION-001 激活逐个建立选定候选并保留其余候选 多个完整候选并存时，Activate 必须只建立显式目标，索引排除其余候选并继续报告严格检查阻断。 第一次激活只索引目标并提醒剩余候选；list 只读索引且不扫描候选，sync-index 维护入口仍提醒剩余候选。 第二次激活后两个记录都进入索引，严格检查通过。 tools/decision-records/tests/candidate-lifecycle.test.ts > activation establishes selected candidates while leaving others pending bun test --test-name-pattern=\"^activation establishes selected candidates while leaving others pending$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/activation-establishes-selected-candidates-while-leaving-others-pending.md",
         "summary": "多个完整候选并存时，Activate 必须只建立显式目标，索引排除其余候选并继续报告严格检查阻断。",
         "title": "激活逐个建立选定候选并保留其余候选"
@@ -1013,24 +1013,24 @@
       "id": "DECISION-CLI-ARGS-001",
       "keys": {
         "search": [
-          "DECISION-CLI-ARGS-001 决策 CLI 拒绝非法命令选项 决策 CLI 必须对未知选项、非法深度、非法领域 ID 和缺失必需参数使用参数错误退出契约。 每种非法命令均退出 2，并在 stderr 返回对应可行动诊断。 tools/decision-records/tests/queries.test.ts > decision CLI rejects invalid command options bun test --test-name-pattern=\"^decision CLI rejects invalid command options$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CLI-ARGS-001 CLI 帮助与参数错误暴露一致命令契约 顶层与子命令帮助必须准确说明默认 check、索引检查/重建和归档执行状态语义；非法参数继续使用参数错误退出契约。 帮助文本公开 agent-oriented 入口、默认严格检查、sync-index 的只检/写入差异和归档保留 alignment；未知选项、非法深度、非法领域 ID 与缺失必需参数均退出 2。 tools/decision-records/tests/queries.test.ts > decision CLI help and invalid options expose one consistent contract bun test --test-name-pattern=\"^decision CLI help and invalid options expose one consistent contract$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
         "entries": [
-          "tools/decision-records/tests/queries.test.ts > decision CLI rejects invalid command options",
-          "bun test --test-name-pattern=\"^decision CLI rejects invalid command options$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/queries.test.ts > decision CLI help and invalid options expose one consistent contract",
+          "bun test --test-name-pattern=\"^decision CLI help and invalid options expose one consistent contract$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-CLI-ARGS-001",
         "line": 1,
-        "searchText": "DECISION-CLI-ARGS-001 决策 CLI 拒绝非法命令选项 决策 CLI 必须对未知选项、非法深度、非法领域 ID 和缺失必需参数使用参数错误退出契约。 每种非法命令均退出 2，并在 stderr 返回对应可行动诊断。 tools/decision-records/tests/queries.test.ts > decision CLI rejects invalid command options bun test --test-name-pattern=\"^decision CLI rejects invalid command options$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/decision-cli-rejects-invalid-command-options.md",
-        "summary": "决策 CLI 必须对未知选项、非法深度、非法领域 ID 和缺失必需参数使用参数错误退出契约。",
-        "title": "决策 CLI 拒绝非法命令选项"
+        "searchText": "DECISION-CLI-ARGS-001 CLI 帮助与参数错误暴露一致命令契约 顶层与子命令帮助必须准确说明默认 check、索引检查/重建和归档执行状态语义；非法参数继续使用参数错误退出契约。 帮助文本公开 agent-oriented 入口、默认严格检查、sync-index 的只检/写入差异和归档保留 alignment；未知选项、非法深度、非法领域 ID 与缺失必需参数均退出 2。 tools/decision-records/tests/queries.test.ts > decision CLI help and invalid options expose one consistent contract bun test --test-name-pattern=\"^decision CLI help and invalid options expose one consistent contract$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-cli-help-and-invalid-options-expose-one-consistent-contract.md",
+        "summary": "顶层与子命令帮助必须准确说明默认 check、索引检查/重建和归档执行状态语义；非法参数继续使用参数错误退出契约。",
+        "title": "CLI 帮助与参数错误暴露一致命令契约"
       }
     },
     {
@@ -1085,7 +1085,7 @@
       "id": "DECISION-DOMAIN-CATALOG-001",
       "keys": {
         "search": [
-          "DECISION-DOMAIN-CATALOG-001 决策域目录验证 owner 与成员关系 决策域目录必须唯一声明 owner，并只接纳属于该域的决策。 缺失已使用的领域、记录内冗余 domain 字段、未知候选领域和非空约束违反都会产生定位诊断。 tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog validates ownership and domain membership bun test --test-name-pattern=\"^decision domain catalog validates ownership and domain membership$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-DOMAIN-CATALOG-001 决策域目录验证 owner 与成员关系 决策域目录必须唯一声明 owner，并只接纳属于该域的决策。 常规 list 不遍历来源并继续返回索引快照；严格验证对缺失已使用领域、记录内冗余 domain 字段、未知候选领域和非空约束违反产生定位诊断。 tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog validates ownership and domain membership bun test --test-name-pattern=\"^decision domain catalog validates ownership and domain membership$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1099,7 +1099,7 @@
         ],
         "id": "DECISION-DOMAIN-CATALOG-001",
         "line": 1,
-        "searchText": "DECISION-DOMAIN-CATALOG-001 决策域目录验证 owner 与成员关系 决策域目录必须唯一声明 owner，并只接纳属于该域的决策。 缺失已使用的领域、记录内冗余 domain 字段、未知候选领域和非空约束违反都会产生定位诊断。 tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog validates ownership and domain membership bun test --test-name-pattern=\"^decision domain catalog validates ownership and domain membership$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-DOMAIN-CATALOG-001 决策域目录验证 owner 与成员关系 决策域目录必须唯一声明 owner，并只接纳属于该域的决策。 常规 list 不遍历来源并继续返回索引快照；严格验证对缺失已使用领域、记录内冗余 domain 字段、未知候选领域和非空约束违反产生定位诊断。 tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog validates ownership and domain membership bun test --test-name-pattern=\"^decision domain catalog validates ownership and domain membership$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-domain-catalog-validates-ownership-and-domain-membership.md",
         "summary": "决策域目录必须唯一声明 owner，并只接纳属于该域的决策。",
         "title": "决策域目录验证 owner 与成员关系"
@@ -1133,7 +1133,7 @@
       "id": "DECISION-DOMAIN-CATALOG-REVISION-001",
       "keys": {
         "search": [
-          "DECISION-DOMAIN-CATALOG-REVISION-001 领域目录 revision 忽略格式并跟踪描述 决策索引 revision 由规范领域值决定，纯 JSON 格式变化不失效索引，描述变化必须失效。 压缩 JSON 后 list 仍成功，修改领域描述后 list 拒绝陈旧索引并报告 source revision。 tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog revision ignores formatting but tracks descriptions bun test --test-name-pattern=\"^decision domain catalog revision ignores formatting but tracks descriptions$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-DOMAIN-CATALOG-REVISION-001 领域目录 revision 忽略格式并跟踪描述 决策索引 revision 由规范领域值决定；常规列表读取持久快照，严格检查仍必须识别领域描述漂移。 压缩 JSON 后 list 仍成功；修改描述后 domains 立即读取新目录值，list 保持旧快照，严格检查报告索引失效。 tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog revision ignores formatting but tracks descriptions bun test --test-name-pattern=\"^decision domain catalog revision ignores formatting but tracks descriptions$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1147,9 +1147,9 @@
         ],
         "id": "DECISION-DOMAIN-CATALOG-REVISION-001",
         "line": 1,
-        "searchText": "DECISION-DOMAIN-CATALOG-REVISION-001 领域目录 revision 忽略格式并跟踪描述 决策索引 revision 由规范领域值决定，纯 JSON 格式变化不失效索引，描述变化必须失效。 压缩 JSON 后 list 仍成功，修改领域描述后 list 拒绝陈旧索引并报告 source revision。 tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog revision ignores formatting but tracks descriptions bun test --test-name-pattern=\"^decision domain catalog revision ignores formatting but tracks descriptions$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-DOMAIN-CATALOG-REVISION-001 领域目录 revision 忽略格式并跟踪描述 决策索引 revision 由规范领域值决定；常规列表读取持久快照，严格检查仍必须识别领域描述漂移。 压缩 JSON 后 list 仍成功；修改描述后 domains 立即读取新目录值，list 保持旧快照，严格检查报告索引失效。 tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog revision ignores formatting but tracks descriptions bun test --test-name-pattern=\"^decision domain catalog revision ignores formatting but tracks descriptions$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-domain-catalog-revision-ignores-formatting-but-tracks-descriptions.md",
-        "summary": "决策索引 revision 由规范领域值决定，纯 JSON 格式变化不失效索引，描述变化必须失效。",
+        "summary": "决策索引 revision 由规范领域值决定；常规列表读取持久快照，严格检查仍必须识别领域描述漂移。",
         "title": "领域目录 revision 忽略格式并跟踪描述"
       }
     },
@@ -1277,7 +1277,7 @@
       "id": "DECISION-FIRST-ESTABLISHMENT-001",
       "keys": {
         "search": [
-          "DECISION-FIRST-ESTABLISHMENT-001 首次建立创建决策域与当前索引 空 workspace 中首次建立决策必须创建 domain 定义和当前索引。 新决策可立即被域目录和索引查询。 tools/decision-records/tests/first-establishment.test.ts > first establishment creates a decision domain and current index bun test --test-name-pattern=\"^first establishment creates a decision domain and current index$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-FIRST-ESTABLISHMENT-001 首次建立创建决策域与当前索引 空 workspace 中首次建立决策必须创建 domain 定义和当前索引。 新决策可立即被域目录和当前 definitionVersion 4 索引查询。 tools/decision-records/tests/first-establishment.test.ts > first establishment creates a decision domain and current index bun test --test-name-pattern=\"^first establishment creates a decision domain and current index$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1291,7 +1291,7 @@
         ],
         "id": "DECISION-FIRST-ESTABLISHMENT-001",
         "line": 1,
-        "searchText": "DECISION-FIRST-ESTABLISHMENT-001 首次建立创建决策域与当前索引 空 workspace 中首次建立决策必须创建 domain 定义和当前索引。 新决策可立即被域目录和索引查询。 tools/decision-records/tests/first-establishment.test.ts > first establishment creates a decision domain and current index bun test --test-name-pattern=\"^first establishment creates a decision domain and current index$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-FIRST-ESTABLISHMENT-001 首次建立创建决策域与当前索引 空 workspace 中首次建立决策必须创建 domain 定义和当前索引。 新决策可立即被域目录和当前 definitionVersion 4 索引查询。 tools/decision-records/tests/first-establishment.test.ts > first establishment creates a decision domain and current index bun test --test-name-pattern=\"^first establishment creates a decision domain and current index$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/first-establishment-creates-a-decision-domain-and-current-index.md",
         "summary": "空 workspace 中首次建立决策必须创建 domain 定义和当前索引。",
         "title": "首次建立创建决策域与当前索引"
@@ -1325,7 +1325,7 @@
       "id": "DECISION-INDEX-MAINTENANCE-001",
       "keys": {
         "search": [
-          "DECISION-INDEX-MAINTENANCE-001 索引维护识别漂移并同步规范状态 决策索引检查必须识别漂移，同步必须从规范源重建状态。 漂移索引产生诊断，写入同步后再次检查通过。 tools/decision-records/tests/index-maintenance.test.ts > index maintenance detects drift and synchronizes canonical decision states bun test --test-name-pattern=\"^index maintenance detects drift and synchronizes canonical decision states$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-INDEX-MAINTENANCE-001 索引维护识别漂移并同步规范状态 常规查询必须稳定读取持久快照，严格检查必须识别来源漂移，同步必须从规范源重建状态。 Markdown 结构、关系或投影漂移时 list 与 trace 继续返回旧快照，严格验证产生诊断；写入同步后索引采用规范来源并再次检查通过。 tools/decision-records/tests/index-maintenance.test.ts > index maintenance detects drift and synchronizes canonical decision states bun test --test-name-pattern=\"^index maintenance detects drift and synchronizes canonical decision states$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1339,9 +1339,9 @@
         ],
         "id": "DECISION-INDEX-MAINTENANCE-001",
         "line": 1,
-        "searchText": "DECISION-INDEX-MAINTENANCE-001 索引维护识别漂移并同步规范状态 决策索引检查必须识别漂移，同步必须从规范源重建状态。 漂移索引产生诊断，写入同步后再次检查通过。 tools/decision-records/tests/index-maintenance.test.ts > index maintenance detects drift and synchronizes canonical decision states bun test --test-name-pattern=\"^index maintenance detects drift and synchronizes canonical decision states$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-INDEX-MAINTENANCE-001 索引维护识别漂移并同步规范状态 常规查询必须稳定读取持久快照，严格检查必须识别来源漂移，同步必须从规范源重建状态。 Markdown 结构、关系或投影漂移时 list 与 trace 继续返回旧快照，严格验证产生诊断；写入同步后索引采用规范来源并再次检查通过。 tools/decision-records/tests/index-maintenance.test.ts > index maintenance detects drift and synchronizes canonical decision states bun test --test-name-pattern=\"^index maintenance detects drift and synchronizes canonical decision states$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/index-maintenance-detects-drift-and-synchronizes-canonical-decision-states.md",
-        "summary": "决策索引检查必须识别漂移，同步必须从规范源重建状态。",
+        "summary": "常规查询必须稳定读取持久快照，严格检查必须识别来源漂移，同步必须从规范源重建状态。",
         "title": "索引维护识别漂移并同步规范状态"
       }
     },
@@ -1349,7 +1349,7 @@
       "id": "DECISION-LIST-FILTERS-001",
       "keys": {
         "search": [
-          "DECISION-LIST-FILTERS-001 决策列表按生命周期、领域与对齐状态筛选 List CLI 必须按生命周期、领域与对齐状态返回对应决策，并验证领域选择器。 active、archived、all、full-time、domain 和 alignment 选择器产生匹配集合与格式。 空领域返回合法空集合，重复或未知领域选择器产生参数诊断。 tools/decision-records/tests/queries.test.ts > decision list filters lifecycle, domain, and alignment selectors bun test --test-name-pattern=\"^decision list filters lifecycle, domain, and alignment selectors$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-LIST-FILTERS-001 决策列表按生命周期、领域与对齐状态筛选 List CLI 必须从持久索引按生命周期、领域与对齐状态返回紧凑定位信息，并验证领域选择器。 active、archived、all、full-time、domain 和 alignment 选择器产生匹配集合；默认只展开 title 与 purpose，不重复 background 和 decision。 空领域返回合法空集合，重复或未知领域选择器产生参数诊断。 tools/decision-records/tests/queries.test.ts > decision list filters lifecycle, domain, and alignment selectors bun test --test-name-pattern=\"^decision list filters lifecycle, domain, and alignment selectors$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1363,9 +1363,9 @@
         ],
         "id": "DECISION-LIST-FILTERS-001",
         "line": 1,
-        "searchText": "DECISION-LIST-FILTERS-001 决策列表按生命周期、领域与对齐状态筛选 List CLI 必须按生命周期、领域与对齐状态返回对应决策，并验证领域选择器。 active、archived、all、full-time、domain 和 alignment 选择器产生匹配集合与格式。 空领域返回合法空集合，重复或未知领域选择器产生参数诊断。 tools/decision-records/tests/queries.test.ts > decision list filters lifecycle, domain, and alignment selectors bun test --test-name-pattern=\"^decision list filters lifecycle, domain, and alignment selectors$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-LIST-FILTERS-001 决策列表按生命周期、领域与对齐状态筛选 List CLI 必须从持久索引按生命周期、领域与对齐状态返回紧凑定位信息，并验证领域选择器。 active、archived、all、full-time、domain 和 alignment 选择器产生匹配集合；默认只展开 title 与 purpose，不重复 background 和 decision。 空领域返回合法空集合，重复或未知领域选择器产生参数诊断。 tools/decision-records/tests/queries.test.ts > decision list filters lifecycle, domain, and alignment selectors bun test --test-name-pattern=\"^decision list filters lifecycle, domain, and alignment selectors$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-list-filters-lifecycle-domain-and-alignment-selectors.md",
-        "summary": "List CLI 必须按生命周期、领域与对齐状态返回对应决策，并验证领域选择器。",
+        "summary": "List CLI 必须从持久索引按生命周期、领域与对齐状态返回紧凑定位信息，并验证领域选择器。",
         "title": "决策列表按生命周期、领域与对齐状态筛选"
       }
     },
@@ -1373,31 +1373,31 @@
       "id": "DECISION-QUERY-INDEX-MEMBERSHIP-001",
       "keys": {
         "search": [
-          "DECISION-QUERY-INDEX-MEMBERSHIP-001 决策查询拒绝缺失或多余的索引成员 List、show 与 trace 查询不得使用成员集合不等于全部已建立 Markdown 的索引。 删除合法索引成员或注入额外成员时，三个查询入口都退出 1、stdout 为空并报告成员不一致。 tools/decision-records/tests/queries.test.ts > decision queries reject incomplete or extra index membership bun test --test-name-pattern=\"^decision queries reject incomplete or extra index membership$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-QUERY-INDEX-MEMBERSHIP-001 常规查询读取持久快照且严格检查识别来源漂移 List 与 trace 必须直接使用结构有效的持久索引；show 只读取目标正文；完整来源一致性由严格 check 验证。 删除已索引 Markdown 后，list 与 trace 仍返回最近快照，show 因目标正文缺失而失败，check 报告来源与索引不一致。 tools/decision-records/tests/queries.test.ts > decision queries use persisted snapshots while check detects source drift bun test --test-name-pattern=\"^decision queries use persisted snapshots while check detects source drift$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
         "entries": [
-          "tools/decision-records/tests/queries.test.ts > decision queries reject incomplete or extra index membership",
-          "bun test --test-name-pattern=\"^decision queries reject incomplete or extra index membership$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/queries.test.ts > decision queries use persisted snapshots while check detects source drift",
+          "bun test --test-name-pattern=\"^decision queries use persisted snapshots while check detects source drift$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-QUERY-INDEX-MEMBERSHIP-001",
         "line": 1,
-        "searchText": "DECISION-QUERY-INDEX-MEMBERSHIP-001 决策查询拒绝缺失或多余的索引成员 List、show 与 trace 查询不得使用成员集合不等于全部已建立 Markdown 的索引。 删除合法索引成员或注入额外成员时，三个查询入口都退出 1、stdout 为空并报告成员不一致。 tools/decision-records/tests/queries.test.ts > decision queries reject incomplete or extra index membership bun test --test-name-pattern=\"^decision queries reject incomplete or extra index membership$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/decision-queries-reject-incomplete-or-extra-index-membership.md",
-        "summary": "List、show 与 trace 查询不得使用成员集合不等于全部已建立 Markdown 的索引。",
-        "title": "决策查询拒绝缺失或多余的索引成员"
+        "searchText": "DECISION-QUERY-INDEX-MEMBERSHIP-001 常规查询读取持久快照且严格检查识别来源漂移 List 与 trace 必须直接使用结构有效的持久索引；show 只读取目标正文；完整来源一致性由严格 check 验证。 删除已索引 Markdown 后，list 与 trace 仍返回最近快照，show 因目标正文缺失而失败，check 报告来源与索引不一致。 tools/decision-records/tests/queries.test.ts > decision queries use persisted snapshots while check detects source drift bun test --test-name-pattern=\"^decision queries use persisted snapshots while check detects source drift$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-queries-use-persisted-snapshots-while-check-detects-source-drift.md",
+        "summary": "List 与 trace 必须直接使用结构有效的持久索引；show 只读取目标正文；完整来源一致性由严格 check 验证。",
+        "title": "常规查询读取持久快照且严格检查识别来源漂移"
       }
     },
     {
       "id": "DECISION-SHOW-OUTPUT-001",
       "keys": {
         "search": [
-          "DECISION-SHOW-OUTPUT-001 决策展示返回元数据并报告正文读取失败 Show CLI 必须从当前决策源返回领域与生命周期元数据，并在正文读取失败时停止输出部分结果。 成功结果包含路径、领域说明、状态、对齐、建立时间和正文标题。 模拟正文读取失败时退出码为 1、stdout 为空且 stderr 定位目标决策。 tools/decision-records/tests/queries.test.ts > decision show returns metadata and reports body read failures bun test --test-name-pattern=\"^decision show returns metadata and reports body read failures$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-SHOW-OUTPUT-001 决策展示返回元数据并报告正文读取失败 Show CLI 必须从持久索引定位元数据、只读取目标 Markdown，并在正文读取失败时停止输出部分结果。 成功结果包含路径、领域说明、状态、对齐、建立时间和正文标题。 模拟目标正文第一次读取即失败时只发生一次目标读取，退出码为 1、stdout 为空且 stderr 定位目标决策。 tools/decision-records/tests/queries.test.ts > decision show returns metadata and reports body read failures bun test --test-name-pattern=\"^decision show returns metadata and reports body read failures$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1411,9 +1411,9 @@
         ],
         "id": "DECISION-SHOW-OUTPUT-001",
         "line": 1,
-        "searchText": "DECISION-SHOW-OUTPUT-001 决策展示返回元数据并报告正文读取失败 Show CLI 必须从当前决策源返回领域与生命周期元数据，并在正文读取失败时停止输出部分结果。 成功结果包含路径、领域说明、状态、对齐、建立时间和正文标题。 模拟正文读取失败时退出码为 1、stdout 为空且 stderr 定位目标决策。 tools/decision-records/tests/queries.test.ts > decision show returns metadata and reports body read failures bun test --test-name-pattern=\"^decision show returns metadata and reports body read failures$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-SHOW-OUTPUT-001 决策展示返回元数据并报告正文读取失败 Show CLI 必须从持久索引定位元数据、只读取目标 Markdown，并在正文读取失败时停止输出部分结果。 成功结果包含路径、领域说明、状态、对齐、建立时间和正文标题。 模拟目标正文第一次读取即失败时只发生一次目标读取，退出码为 1、stdout 为空且 stderr 定位目标决策。 tools/decision-records/tests/queries.test.ts > decision show returns metadata and reports body read failures bun test --test-name-pattern=\"^decision show returns metadata and reports body read failures$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-show-returns-metadata-and-reports-body-read-failures.md",
-        "summary": "Show CLI 必须从当前决策源返回领域与生命周期元数据，并在正文读取失败时停止输出部分结果。",
+        "summary": "Show CLI 必须从持久索引定位元数据、只读取目标 Markdown，并在正文读取失败时停止输出部分结果。",
         "title": "决策展示返回元数据并报告正文读取失败"
       }
     },
@@ -1493,7 +1493,7 @@
       "id": "DECISION-TYPE-PATH-001",
       "keys": {
         "search": [
-          "DECISION-TYPE-PATH-001 决策类型与路径保持身份不变量 决策 ID、类型、domain 与文件路径必须相互对齐。 不匹配身份被拒绝，合法路径可稳定还原决策身份。 tools/decision-records/tests/type-path-invariants.test.ts > decision types and paths preserve identity and alignment invariants bun test --test-name-pattern=\"^decision types and paths preserve identity and alignment invariants$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-TYPE-PATH-001 决策类型与路径保持身份不变量 决策 ID、生命周期类型、alignment、domain 与文件路径必须相互对齐。 active 类型保证非空 alignment，archived 类型同时兼容保留值与历史 null；不匹配身份被拒绝，合法路径可稳定还原决策身份。 tools/decision-records/tests/type-path-invariants.test.ts > decision types and paths preserve identity and alignment invariants bun test --test-name-pattern=\"^decision types and paths preserve identity and alignment invariants$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1507,9 +1507,9 @@
         ],
         "id": "DECISION-TYPE-PATH-001",
         "line": 1,
-        "searchText": "DECISION-TYPE-PATH-001 决策类型与路径保持身份不变量 决策 ID、类型、domain 与文件路径必须相互对齐。 不匹配身份被拒绝，合法路径可稳定还原决策身份。 tools/decision-records/tests/type-path-invariants.test.ts > decision types and paths preserve identity and alignment invariants bun test --test-name-pattern=\"^decision types and paths preserve identity and alignment invariants$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-TYPE-PATH-001 决策类型与路径保持身份不变量 决策 ID、生命周期类型、alignment、domain 与文件路径必须相互对齐。 active 类型保证非空 alignment，archived 类型同时兼容保留值与历史 null；不匹配身份被拒绝，合法路径可稳定还原决策身份。 tools/decision-records/tests/type-path-invariants.test.ts > decision types and paths preserve identity and alignment invariants bun test --test-name-pattern=\"^decision types and paths preserve identity and alignment invariants$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-types-and-paths-preserve-identity-and-alignment-invariants.md",
-        "summary": "决策 ID、类型、domain 与文件路径必须相互对齐。",
+        "summary": "决策 ID、生命周期类型、alignment、domain 与文件路径必须相互对齐。",
         "title": "决策类型与路径保持身份不变量"
       }
     },
@@ -1517,7 +1517,7 @@
       "id": "DECISION-UNRECORDED-ARCHIVE-001",
       "keys": {
         "search": [
-          "DECISION-UNRECORDED-ARCHIVE-001 归档未提交决策前暂停并要求显式保留 Archive 不得静默保留尚未进入 Git HEAD 的已建立记录；首次调用必须无写入暂停，显式确认后才能归档。 首次 archive 返回预警且决策 Markdown 与索引逐字节不变。 带 `--keep-unrecorded-history` 的重试不再依赖 Git 基线读取，并把目标归档且清空 alignment。 tools/decision-records/tests/unrecorded-history.test.ts > archive pauses before preserving an unrecorded established decision bun test --test-name-pattern=\"^archive pauses before preserving an unrecorded established decision$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-UNRECORDED-ARCHIVE-001 归档未提交决策前暂停并要求显式保留 Archive 不得静默保留尚未进入 Git HEAD 的已建立记录；首次调用必须无写入暂停，显式确认后才能归档。 首次 archive 返回预警且决策 Markdown 与索引逐字节不变。 带 `--keep-unrecorded-history` 的重试不再依赖 Git 基线读取，并把目标归档且保留 aligned 执行状态。 tools/decision-records/tests/unrecorded-history.test.ts > archive pauses before preserving an unrecorded established decision bun test --test-name-pattern=\"^archive pauses before preserving an unrecorded established decision$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1531,7 +1531,7 @@
         ],
         "id": "DECISION-UNRECORDED-ARCHIVE-001",
         "line": 1,
-        "searchText": "DECISION-UNRECORDED-ARCHIVE-001 归档未提交决策前暂停并要求显式保留 Archive 不得静默保留尚未进入 Git HEAD 的已建立记录；首次调用必须无写入暂停，显式确认后才能归档。 首次 archive 返回预警且决策 Markdown 与索引逐字节不变。 带 `--keep-unrecorded-history` 的重试不再依赖 Git 基线读取，并把目标归档且清空 alignment。 tools/decision-records/tests/unrecorded-history.test.ts > archive pauses before preserving an unrecorded established decision bun test --test-name-pattern=\"^archive pauses before preserving an unrecorded established decision$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-UNRECORDED-ARCHIVE-001 归档未提交决策前暂停并要求显式保留 Archive 不得静默保留尚未进入 Git HEAD 的已建立记录；首次调用必须无写入暂停，显式确认后才能归档。 首次 archive 返回预警且决策 Markdown 与索引逐字节不变。 带 `--keep-unrecorded-history` 的重试不再依赖 Git 基线读取，并把目标归档且保留 aligned 执行状态。 tools/decision-records/tests/unrecorded-history.test.ts > archive pauses before preserving an unrecorded established decision bun test --test-name-pattern=\"^archive pauses before preserving an unrecorded established decision$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/archive-pauses-before-preserving-an-unrecorded-established-decision.md",
         "summary": "Archive 不得静默保留尚未进入 Git HEAD 的已建立记录；首次调用必须无写入暂停，显式确认后才能归档。",
         "title": "归档未提交决策前暂停并要求显式保留"
@@ -4566,5 +4566,5 @@
   },
   "namespace": "test-evidence",
   "schemaVersion": 2,
-  "sourceRevision": "sha256:b51feb4f8b0c485b104abc92b913d68b04b451cc0fec77aec4490a4695ab979f"
+  "sourceRevision": "sha256:cca27d0bc30f0b20f562b4a9645ca9183ec9ba9b96c775b34a3e2a029033a786"
 }

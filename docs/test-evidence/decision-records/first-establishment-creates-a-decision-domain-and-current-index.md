@@ -5,4 +5,4 @@ Entry:
 Contract:
 - 空 workspace 中首次建立决策必须创建 domain 定义和当前索引。
 Proves:
-- 新决策可立即被域目录和索引查询。
+- 新决策可立即被域目录和当前 definitionVersion 4 索引查询。
