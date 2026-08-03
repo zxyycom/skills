@@ -1020,7 +1020,7 @@
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 9,
         "entries": [
           "tools/decision-records/tests/queries.test.ts > decision CLI help and invalid options expose one consistent contract",
           "bun test --test-name-pattern=\"^decision CLI help and invalid options expose one consistent contract$\" ./tools/decision-records/tests/run.ts"
@@ -1380,7 +1380,7 @@
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 9,
         "entries": [
           "tools/decision-records/tests/queries.test.ts > decision queries use persisted snapshots while check detects source drift",
           "bun test --test-name-pattern=\"^decision queries use persisted snapshots while check detects source drift$\" ./tools/decision-records/tests/run.ts"
@@ -4566,5 +4566,5 @@
   },
   "namespace": "test-evidence",
   "schemaVersion": 2,
-  "sourceRevision": "sha256:cca27d0bc30f0b20f562b4a9645ca9183ec9ba9b96c775b34a3e2a029033a786"
+  "sourceRevision": "sha256:1d4146bbcee35e15e0c8942d765f3a713853c6919ac362cb963c395e3f976152"
 }
