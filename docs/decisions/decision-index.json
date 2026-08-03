@@ -82,7 +82,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:24bbc498d8be500b240260eba7bbc1e6f8e8e9093ae9d814b2dc68c36d95c911",
+  "sourceRevision": "sha256:259eb12e2f57452238f56ccdd10bdbe7ad6c363f167a1bbc5108db9e590c5e96",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -3851,9 +3851,9 @@
         "status": "active",
         "alignment": "unaligned",
         "createdAt": "2026-08-03T10:35:28Z",
-        "purpose": "让调用方通过共享版本管理 owner 读写待提交快照，而不依赖当前底层实现的专属信息。",
+        "purpose": "让调用方通过共享版本管理 owner 读写待提交快照，而不依赖底层实现的专属信息。",
         "background": "指定范围的待提交快照需要完整替换与失败恢复，领域消费者直接调用 Git 会破坏共享边界。",
-        "decision": "共享版本管理层拥有完整范围替换及恢复；当前只需支持 Git，但公共契约不得暴露 Git 专属语义。",
+        "decision": "共享版本管理层拥有完整范围替换及恢复；本决策不要求 Git 以外实现，公共契约不得暴露 Git 专属语义。",
         "relations": [
           {
             "type": "修订",

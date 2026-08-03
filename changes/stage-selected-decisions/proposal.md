@@ -1,6 +1,6 @@
 # Proposal
 
-本 change 规划 `decision-records stage <decision-path...>`：调用者从并行的磁盘决策变化中显式选择一个集合，命令为它构造索引一致的待提交快照。本文只拥有当前实施范围与验收，不表示行为已经改变。
+本 change 计划实现 `decision-records stage <decision-path...>`：调用者从并行的磁盘决策变化中显式选择一个集合，命令为它构造索引一致的待提交快照；proposal 定义本次实施范围与验收条件。
 
 ## Why
 
@@ -15,7 +15,7 @@
 - decision-records 提供独立命令 `stage <decision-path...>`，显式接收一个或多个共同形成合法目标集合的决策路径。
 - 命令以 `revision` 决策集合为基线，只叠加指定路径在 `filesystem` 中的增加、修改或删除，并生成与目标来源一致的完整 `decision-index.json`。
 - 命令完整替换 `pending` 决策范围：未指定决策恢复为 `revision` 内容，`filesystem` 保持不变，决策范围外既有 `pending` 内容保持不变。
-- 共享版本管理层用项目类型、结果和错误语义提供范围替换；当前实现只需支持 Git，公共边界不暴露 Git 专属信息。
+- 共享版本管理层用项目类型、结果和错误语义提供范围替换；首版实现只需支持 Git，公共边界不暴露 Git 专属信息。
 - `activate`、`evolve`、`archive` 等生命周期命令继续直接维护 `filesystem` 决策集合，不增加 `--stage` 参数，也不感知 `pending`。
 
 ## Scope
@@ -24,7 +24,7 @@
 
 - `decision-records stage <decision-path...>` 的参数、显式选择语义、结果输出、失败处理和退出状态。
 - 从 `revision` 与指定 `filesystem` 决策构造完整目标来源，并从同一来源生成、序列化和验证 `pending` 索引。
-- 共享版本管理层不暴露底层专属信息的 `pending` 范围替换契约、当前 Git 实现和可恢复失败边界。
+- 共享版本管理层不暴露底层专属信息的 `pending` 范围替换契约、首版 Git 实现和可恢复失败边界。
 - 指定决策的增加、修改和删除；重命名由显式选择旧路径删除与新路径增加共同表达。
 - decision-records 与共享版本管理层的行为文档、长期决策、测试、测试证据、生成产物和 skill 版本。
 
@@ -58,4 +58,4 @@
 - `skills/decision-records/scripts/`：从工具源码同步的可分发 CLI、声明和 source map。
 - [指定决策暂存决策](../../docs/decisions/decision-records/stage-selected-decisions.md) 与 [共享版本管理写入决策](../../docs/decisions/version-control/manage-pending-snapshot-writes.md)：跨 change 持续有效的方向与理由。
 - `docs/test-evidence/`：新增或修改的最小原生测试入口及统一派生索引。
-- [`docs/skills/decision-records.md`](../../docs/skills/decision-records.md)：面向人类的能力说明；只在实现完成后同步当前事实。
+- [`docs/skills/decision-records.md`](../../docs/skills/decision-records.md)：面向人类的当前能力与使用边界说明。
