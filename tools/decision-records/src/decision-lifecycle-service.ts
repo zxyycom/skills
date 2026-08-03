@@ -51,6 +51,40 @@ export type DecisionLifecycleRequest =
       recordPath: string;
     };
 
+export type DecisionHistoryBaselineRequirement =
+  | "collapse-proof"
+  | "none"
+  | "unrecorded-preflight";
+
+export function decisionHistoryBaselineRequirement(
+  request: DecisionLifecycleRequest
+): DecisionHistoryBaselineRequirement {
+  if (
+    request.action === "evolve"
+    && request.collapseUnrecordedPath !== null
+  ) {
+    return "collapse-proof";
+  }
+  if (
+    (request.action === "activate"
+      || request.action === "archive"
+      || request.action === "evolve")
+    && request.keepUnrecordedHistory
+  ) {
+    return "none";
+  }
+  if (request.action === "archive") {
+    return "unrecorded-preflight";
+  }
+  if (
+    (request.action === "activate" || request.action === "evolve")
+    && request.relations.length > 0
+  ) {
+    return "unrecorded-preflight";
+  }
+  return "none";
+}
+
 export type DecisionLifecyclePreparation =
   | DecisionApplicationFailure
   | DecisionApplicationAttention
@@ -65,9 +99,18 @@ export async function prepareDecisionLifecycle(
   request: DecisionLifecycleRequest,
   options: {
     currentTimestamp?: () => string;
-    historyBaseline?: DecisionHistoryBaseline | null;
-  } = {}
+    historyBaseline: DecisionHistoryBaseline | null;
+  }
 ): Promise<DecisionLifecyclePreparation> {
+  const baselineRequirement = decisionHistoryBaselineRequirement(request);
+  if (
+    baselineRequirement !== "none"
+    && options.historyBaseline === null
+  ) {
+    return plainFailure(
+      "Decision history baseline was not loaded before " + request.action + "."
+    );
+  }
   switch (request.action) {
     case "activate":
     case "evolve":
@@ -75,14 +118,14 @@ export async function prepareDecisionLifecycle(
         scan,
         request,
         options.currentTimestamp ?? currentDecisionTimestamp,
-        options.historyBaseline ?? null
+        options.historyBaseline
       );
     case "archive":
       return await prepareArchive(
         scan,
         request.recordPaths,
         request.keepUnrecordedHistory,
-        options.historyBaseline ?? null
+        options.historyBaseline
       );
     case "discard":
       return prepareDiscard(scan, request.recordPath);
@@ -165,48 +208,16 @@ async function prepareActivation(
     };
   }
 
-  const collapsed = prepareCollapsedPredecessor(
+  const evolution = await prepareEvolutionPlan(
     scan,
     record.relativePath,
-    collapseUnrecordedPath,
-    request.relations,
+    request,
     historyBaseline
   );
-  if (collapsed.status === "error") {
-    return collapsed;
+  if (evolution.status !== "ok") {
+    return evolution;
   }
-  const predecessors = evolutionPredecessors(
-    scan,
-    record.relativePath,
-    request.relations,
-    collapsed.record
-  );
-  if (predecessors.errors.length > 0) {
-    return decisionFailure(predecessors.errors);
-  }
-  const unrecordedAttention = prepareUnrecordedHistoryAttention(
-    predecessors.records,
-    request.keepUnrecordedHistory,
-    historyBaseline,
-    true
-  );
-  if (unrecordedAttention !== null) {
-    return unrecordedAttention;
-  }
-  const changes: DecisionFileChange[] = [];
-  for (const predecessor of predecessors.records) {
-    const prepared = await prepareArchivedDecisionChange(predecessor);
-    if (prepared.status === "error") {
-      return prepared;
-    }
-    changes.push(prepared.change);
-  }
-  if (collapsed.record !== null) {
-    changes.push({
-      decisionPath: collapsed.record.decisionPath,
-      nextText: null
-    });
-  }
+  const changes = [...evolution.changes];
   const nextText = replaceDecisionFrontmatter(currentText.value, {
     metadata: {
       alignment: request.alignment,
@@ -223,13 +234,16 @@ async function prepareActivation(
     );
   }
   changes.push({ decisionPath: record.decisionPath, nextText });
-  const evolutionMessage = predecessors.records.length === 0
+  const evolutionMessage = evolution.predecessors.length === 0
     ? ""
     : " and archived direct predecessors "
-      + predecessors.records.map((predecessor) => predecessor.relativePath).join(", ");
-  const collapseMessage = collapsed.record === null
+      + evolution.predecessors
+        .map((predecessor) => predecessor.relativePath)
+        .join(", ");
+  const collapseMessage = evolution.collapsedRecord === null
     ? ""
-    : " and collapsed unrecorded predecessor " + collapsed.record.relativePath;
+    : " and collapsed unrecorded predecessor "
+      + evolution.collapsedRecord.relativePath;
   return {
     changes,
     message: activation.prefix
@@ -240,6 +254,79 @@ async function prepareActivation(
       + evolutionMessage
       + collapseMessage
       + ".",
+    status: "ok"
+  };
+}
+
+type DecisionEvolutionPlan =
+  | DecisionApplicationAttention
+  | DecisionApplicationFailure
+  | {
+      changes: DecisionFileChange[];
+      collapsedRecord: DecisionRecord | null;
+      predecessors: DecisionRecord[];
+      status: "ok";
+    };
+
+async function prepareEvolutionPlan(
+  scan: DecisionScan,
+  successorPath: string,
+  request: Extract<
+    DecisionLifecycleRequest,
+    { action: "activate" | "evolve" }
+  >,
+  historyBaseline: DecisionHistoryBaseline | null
+): Promise<DecisionEvolutionPlan> {
+  const collapseUnrecordedPath = request.action === "evolve"
+    ? request.collapseUnrecordedPath
+    : null;
+  const collapsed = prepareCollapsedPredecessor(
+    scan,
+    successorPath,
+    collapseUnrecordedPath,
+    request.relations,
+    historyBaseline
+  );
+  if (collapsed.status === "error") {
+    return collapsed;
+  }
+  const predecessors = evolutionPredecessors(
+    scan,
+    successorPath,
+    request.relations,
+    collapsed.record
+  );
+  if (predecessors.errors.length > 0) {
+    return decisionFailure(predecessors.errors);
+  }
+  const unrecordedAttention = prepareUnrecordedHistoryAttention(
+    predecessors.records,
+    request.keepUnrecordedHistory,
+    historyBaseline,
+    true
+  );
+  if (unrecordedAttention !== null) {
+    return unrecordedAttention;
+  }
+
+  const changes: DecisionFileChange[] = [];
+  for (const predecessor of predecessors.records) {
+    const prepared = await prepareArchivedDecisionChange(predecessor);
+    if (prepared.status === "error") {
+      return prepared;
+    }
+    changes.push(prepared.change);
+  }
+  if (collapsed.record !== null) {
+    changes.push({
+      decisionPath: collapsed.record.decisionPath,
+      nextText: null
+    });
+  }
+  return {
+    changes,
+    collapsedRecord: collapsed.record,
+    predecessors: predecessors.records,
     status: "ok"
   };
 }
@@ -511,7 +598,10 @@ function prepareCollapsedPredecessor(
   if (collapsedPath === null) {
     return { record: null, status: "ok" };
   }
-  if (historyBaseline === null) {
+  if (
+    historyBaseline === null
+    || historyBaseline.kind !== "git-head"
+  ) {
     return plainFailure(
       "--collapse-unrecorded requires an available Git HEAD baseline."
     );
@@ -551,20 +641,6 @@ function prepareCollapsedPredecessor(
     );
   }
 
-  const referencingPaths = scan.records
-    .filter((candidate) => candidate.relativePath !== record.relativePath)
-    .filter((candidate) => candidate.relativePath !== successorPath)
-    .filter((candidate) => (
-      candidate.document?.relations ?? candidate.projection.relations
-    ).some((relation) => relation.target === record.relativePath))
-    .map((candidate) => candidate.relativePath);
-  if (referencingPaths.length > 0) {
-    return decisionFailure([
-      "Cannot collapse decision while it is still referenced: "
-        + record.relativePath,
-      "Resolve references from: " + referencingPaths.join(", ")
-    ]);
-  }
   return { record, status: "ok" };
 }
 
@@ -574,7 +650,11 @@ function prepareUnrecordedHistoryAttention(
   historyBaseline: DecisionHistoryBaseline | null,
   canCollapse: boolean
 ): DecisionApplicationAttention | null {
-  if (keepUnrecordedHistory || historyBaseline === null) {
+  if (
+    keepUnrecordedHistory
+    || historyBaseline === null
+    || historyBaseline.kind !== "git-head"
+  ) {
     return null;
   }
   const unrecordedPaths = records

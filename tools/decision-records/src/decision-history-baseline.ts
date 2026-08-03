@@ -9,15 +9,20 @@ import {
 } from "./application-result.ts";
 import type { DecisionScan } from "./types.ts";
 
-export type DecisionHistoryBaseline = {
-  label: "Git HEAD";
-  recordedDecisionPaths: ReadonlySet<string>;
-};
+export type DecisionHistoryBaseline =
+  | {
+      kind: "git-head";
+      label: "Git HEAD";
+      recordedDecisionPaths: ReadonlySet<string>;
+    }
+  | {
+      kind: "outside-git-worktree";
+    };
 
 export type DecisionHistoryBaselineResult =
   | DecisionApplicationFailure
   | {
-      baseline: DecisionHistoryBaseline | null;
+      baseline: DecisionHistoryBaseline;
       status: "ok";
     };
 
@@ -29,7 +34,10 @@ export async function loadDecisionHistoryBaseline(
     repository = await openVersionControl(scan.decisionsDirectory);
   } catch (error) {
     if (error instanceof VersionControlError && error.code === "not-repository") {
-      return { baseline: null, status: "ok" };
+      return {
+        baseline: { kind: "outside-git-worktree" },
+        status: "ok"
+      };
     }
     return baselineFailure(error);
   }
@@ -39,7 +47,10 @@ export async function loadDecisionHistoryBaseline(
     scan.decisionsDirectory
   );
   if (isOutsideRepository(relativeDirectory)) {
-    return { baseline: null, status: "ok" };
+    return {
+      baseline: { kind: "outside-git-worktree" },
+      status: "ok"
+    };
   }
 
   try {
@@ -47,6 +58,7 @@ export async function loadDecisionHistoryBaseline(
     if (revision === null) {
       return {
         baseline: {
+          kind: "git-head",
           label: "Git HEAD",
           recordedDecisionPaths: new Set<string>()
         },
@@ -69,7 +81,11 @@ export async function loadDecisionHistoryBaseline(
       recordedDecisionPaths.add(filePath.slice(prefix.length));
     }
     return {
-      baseline: { label: "Git HEAD", recordedDecisionPaths },
+      baseline: {
+        kind: "git-head",
+        label: "Git HEAD",
+        recordedDecisionPaths
+      },
       status: "ok"
     };
   } catch (error) {

@@ -5,5 +5,5 @@ Entry:
 Contract:
 - 只有确认起点不在 Git 工作树内时才能返回 `not-repository`；损坏或受限的仓库发现必须保持为操作失败。
 Proves:
-- 起点存在损坏的 `.git` 工作树元数据时，打开版本控制返回 `operation-failed`。
+- 起点存在损坏的 `.git` 工作树元数据时，打开版本控制返回 `operation-failed`，并保留 Git 报告的具体失败原因。
 - 仓库发现故障不会被误报为可静默降级的非 Git 目录。

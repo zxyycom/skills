@@ -2,10 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { loadDecisionHistoryBaseline } from "../src/decision-history-baseline.ts";
-import { prepareDecisionLifecycle } from "../src/decision-lifecycle-service.ts";
 import { validateDecisionRecords } from "../src/index.ts";
-import { scanDecisionRecords } from "../src/scan.ts";
 import {
   archivedRelativePath,
   candidateDecisionBody,
@@ -57,6 +54,12 @@ test("archive pauses before preserving an unrecorded established decision", () =
   assert.match(paused.stderr, /meaningless evolution history/);
   assert.equal(await fs.readFile(unrecordedPath, "utf8"), decisionBeforeWarning);
   assert.equal(await fs.readFile(indexPath, "utf8"), indexBeforeWarning);
+
+  await fs.writeFile(
+    path.join(workspaceRoot, ".git", "HEAD"),
+    "invalid Git head\n",
+    "utf8"
+  );
 
   const archived = await runSourceCli([
     "archive",
@@ -308,7 +311,7 @@ test("evolve collapse rejects a predecessor recorded in Git HEAD", () => (
   })
 ));
 
-test("collapse preparation rejects a predecessor referenced by another candidate", () => (
+test("evolve collapse rejects a predecessor referenced by another candidate", () => (
   withFixtureWorkspace("referenced-evolution-collapse", async (workspaceRoot) => {
   const { indexPath, intermediatePath } = await establishUnrecordedIntermediate(
     workspaceRoot
@@ -328,27 +331,21 @@ test("collapse preparation rejects a predecessor referenced by another candidate
   await fs.writeFile(successorPath, successorCandidate, "utf8");
   const intermediateBefore = await fs.readFile(intermediatePath, "utf8");
   const indexBefore = await fs.readFile(indexPath, "utf8");
-  const scan = await scanDecisionRecords({ workspaceRoot });
-  const loadedBaseline = await loadDecisionHistoryBaseline(scan);
-  assert.equal(loadedBaseline.status, "ok");
-  if (loadedBaseline.status !== "ok") {
-    throw new Error("Expected a Git history baseline");
-  }
-  assert.ok(loadedBaseline.baseline);
-  const rejected = await prepareDecisionLifecycle(scan, {
-    action: "evolve",
-    alignment: "aligned",
-    collapseUnrecordedPath: unrecordedIntermediateRelativePath,
-    keepUnrecordedHistory: false,
-    recordPath: successorRelativePath,
-    relations: [{ type: "修订", target: currentRelativePath }]
-  }, { historyBaseline: loadedBaseline.baseline });
-  assert.equal(rejected.status, "error");
-  if (rejected.status !== "error") {
-    throw new Error("Expected referenced collapse preparation to fail");
-  }
-  assert.ok(rejected.errors.some((error) => /still referenced/.test(error)));
-  assert.ok(rejected.errors.some((error) => error.includes(referencingRelativePath)));
+  const rejected = await runSourceCli([
+    "evolve",
+    successorRelativePath,
+    "--alignment",
+    "aligned",
+    "--collapse-unrecorded",
+    unrecordedIntermediateRelativePath,
+    "--relation",
+    "修订=" + currentRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(rejected.exitCode, 1);
+  assert.match(rejected.stderr, /relationship 修订 target must be archived/);
+  assert.ok(rejected.stderr.includes(referencingRelativePath));
   assert.equal(await fs.readFile(successorPath, "utf8"), successorCandidate);
   assert.equal(await fs.readFile(referencingPath, "utf8"), referencingCandidate);
   assert.equal(await fs.readFile(intermediatePath, "utf8"), intermediateBefore);

@@ -26,6 +26,7 @@ import type {
 
 const gitMaxConcurrentProcesses = 4;
 const gitOutputMaxBuffer = 16 * 1024 * 1024;
+const operationErrorDetailMaxLength = 500;
 const gitBlobModes = new Set(["100644", "100755", "120000"]);
 const gitIndexModePattern = /^[0-7]{6}$/u;
 const objectIdPattern = /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/u;
@@ -53,16 +54,22 @@ export async function openGitVersionControl(
       "rev-parse",
       "--show-toplevel"
     ]);
-  } catch {
-    throw operationError(`discover a Git worktree from ${resolvedStart}`);
+  } catch (error) {
+    throw operationError(
+      `discover a Git worktree from ${resolvedStart}`,
+      error
+    );
   }
 
   if (discoveryState.exitCode !== 0) {
     let hasWorktreeMarker: boolean;
     try {
       hasWorktreeMarker = await hasGitWorktreeMarker(resolvedStart);
-    } catch {
-      throw operationError(`discover a Git worktree from ${resolvedStart}`);
+    } catch (error) {
+      throw operationError(
+        `discover a Git worktree from ${resolvedStart}`,
+        error
+      );
     }
     if (discoveryState.exitCode === 128 && !hasWorktreeMarker) {
       throw new VersionControlError(
@@ -70,12 +77,18 @@ export async function openGitVersionControl(
         `No Git worktree could be opened from ${resolvedStart}`
       );
     }
-    throw operationError(`discover a Git worktree from ${resolvedStart}`);
+    throw operationError(
+      `discover a Git worktree from ${resolvedStart}`,
+      discoveryState.stderr
+    );
   }
 
   const discoveredRoot = discoveryState.stdout.trim();
   if (discoveredRoot.length === 0) {
-    throw operationError(`discover a Git worktree from ${resolvedStart}`);
+    throw operationError(
+      `discover a Git worktree from ${resolvedStart}`,
+      "Git returned an empty worktree root."
+    );
   }
   const rootDirectory = path.resolve(resolvedStart, discoveredRoot);
 
@@ -140,12 +153,15 @@ class GitVersionControlRepository implements VersionControlRepository {
           "--quiet",
           "HEAD"
         ])).trim();
-      } catch {
-        throw operationError("resolve the current revision");
+      } catch (error) {
+        throw operationError("resolve the current revision", error);
       }
 
       if (symbolicHead.length === 0) {
-        throw operationError("resolve the current revision");
+        throw operationError(
+          "resolve the current revision",
+          "Git returned an empty symbolic HEAD."
+        );
       }
       let referenceState: GitCommandExit;
       try {
@@ -155,13 +171,16 @@ class GitVersionControlRepository implements VersionControlRepository {
           "--quiet",
           symbolicHead
         ]);
-      } catch {
-        throw operationError("resolve the current revision");
+      } catch (error) {
+        throw operationError("resolve the current revision", error);
       }
       if (referenceState.exitCode === 1 && referenceState.stderr.trim().length === 0) {
         return null;
       }
-      throw operationError("resolve the current revision");
+      throw operationError(
+        "resolve the current revision",
+        referenceState.stderr
+      );
     }
   }
 
@@ -536,9 +555,29 @@ function parseNullSeparatedPaths(output: string): string[] {
   return normalizeRepositoryPaths(candidates);
 }
 
-function operationError(operation: string): VersionControlError {
+function operationError(
+  operation: string,
+  detail?: unknown
+): VersionControlError {
+  const detailText = operationErrorDetail(detail);
   return new VersionControlError(
     "operation-failed",
     `Version-control operation failed: ${operation}`
+      + (detailText === null ? "" : ": " + detailText)
   );
+}
+
+function operationErrorDetail(detail: unknown): string | null {
+  if (detail === undefined || detail === null) {
+    return null;
+  }
+  const text = (detail instanceof Error ? detail.message : String(detail))
+    .trim()
+    .replace(/\s+/gu, " ");
+  if (text.length === 0) {
+    return null;
+  }
+  return text.length <= operationErrorDetailMaxLength
+    ? text
+    : text.slice(0, operationErrorDetailMaxLength - 1) + "…";
 }

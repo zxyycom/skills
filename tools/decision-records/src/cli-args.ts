@@ -8,6 +8,7 @@ import {
   decisionAlignments,
   decisionRelationTypes,
   decisionStatuses,
+  type DecisionAlignment,
   type DecisionListAlignment,
   type DecisionListStatus,
   type DecisionRelation,
@@ -31,22 +32,55 @@ export type Command =
   | "sync-index"
   | "trace";
 
-export type CliArgs = {
-  alignment: DecisionListAlignment;
-  collapseUnrecordedPath: string | null;
-  command: Command;
+type LocatedCommand<
+  TCommand extends Command,
+  TOptions extends object = Record<never, never>
+> = TOptions & {
+  command: TCommand;
   decisionsDir: string;
-  domain: string | null;
-  fullTime: boolean;
-  keepUnrecordedHistory: boolean;
-  recordPaths: string[];
-  relations: DecisionRelation[];
-  status: DecisionListStatus;
-  traceDepth: number | null;
-  traceDirection: DecisionTraceDirection;
   workspaceRoot: string;
-  write: boolean;
 };
+
+export type CliArgs =
+  | LocatedCommand<"activate", {
+      alignment: DecisionAlignment;
+      keepUnrecordedHistory: boolean;
+      recordPath: string;
+      relations: DecisionRelation[];
+    }>
+  | LocatedCommand<"archive", {
+      keepUnrecordedHistory: boolean;
+      recordPaths: string[];
+    }>
+  | LocatedCommand<"check">
+  | LocatedCommand<"discard", { recordPath: string }>
+  | LocatedCommand<"domains">
+  | LocatedCommand<"evolve", {
+      alignment: DecisionAlignment;
+      collapseUnrecordedPath: string | null;
+      keepUnrecordedHistory: boolean;
+      recordPath: string;
+      relations: DecisionRelation[];
+    }>
+  | LocatedCommand<"list", {
+      alignment: DecisionListAlignment;
+      domain: string | null;
+      fullTime: boolean;
+      status: DecisionListStatus;
+    }>
+  | LocatedCommand<"mark-aligned", { recordPath: string }>
+  | LocatedCommand<"show", { recordPath: string }>
+  | LocatedCommand<"sync-index", { write: boolean }>
+  | LocatedCommand<"trace", {
+      recordPath: string;
+      traceDepth: number | null;
+      traceDirection: DecisionTraceDirection;
+    }>;
+
+export type CliArgsFor<TCommand extends Command> = Extract<
+  CliArgs,
+  { command: TCommand }
+>;
 
 type ParsedOptions = {
   alignment?: DecisionListAlignment;
@@ -137,28 +171,80 @@ function parseDecisionRelation(
   return [...previous, { type: relationType, target }];
 }
 
+function requiredDecisionAlignment(
+  value: DecisionListAlignment | undefined
+): DecisionAlignment {
+  if (value === "aligned" || value === "unaligned") {
+    return value;
+  }
+  throw new InvalidArgumentError("must be aligned or unaligned");
+}
+
 function commandArgs(
   command: Command,
   commanderCommand: CommanderCommand,
   recordPaths: string[] = []
 ): CliArgs {
   const options = commanderCommand.optsWithGlobals<ParsedOptions>();
-  return {
-    alignment: options.alignment ?? "all",
-    collapseUnrecordedPath: options.collapseUnrecorded ?? null,
-    command,
+  const location = {
     decisionsDir: options.decisionsDir ?? "docs/decisions",
-    domain: options.domain ?? null,
-    fullTime: options.fullTime ?? false,
-    keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
-    recordPaths,
-    relations: options.relation ?? [],
-    status: options.status ?? "active",
-    traceDepth: options.depth ?? null,
-    traceDirection: options.direction ?? "both",
-    workspaceRoot: options.root ?? process.cwd(),
-    write: options.write ?? false
+    workspaceRoot: options.root ?? process.cwd()
   };
+  const recordPath = recordPaths[0] ?? "";
+  switch (command) {
+    case "activate":
+      return {
+        ...location,
+        alignment: requiredDecisionAlignment(options.alignment),
+        command,
+        keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
+        recordPath,
+        relations: options.relation ?? []
+      };
+    case "archive":
+      return {
+        ...location,
+        command,
+        keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
+        recordPaths
+      };
+    case "check":
+    case "domains":
+      return { ...location, command };
+    case "discard":
+    case "mark-aligned":
+    case "show":
+      return { ...location, command, recordPath };
+    case "evolve":
+      return {
+        ...location,
+        alignment: requiredDecisionAlignment(options.alignment),
+        collapseUnrecordedPath: options.collapseUnrecorded ?? null,
+        command,
+        keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
+        recordPath,
+        relations: options.relation ?? []
+      };
+    case "list":
+      return {
+        ...location,
+        alignment: options.alignment ?? "all",
+        command,
+        domain: options.domain ?? null,
+        fullTime: options.fullTime ?? false,
+        status: options.status ?? "active"
+      };
+    case "sync-index":
+      return { ...location, command, write: options.write ?? false };
+    case "trace":
+      return {
+        ...location,
+        command,
+        recordPath,
+        traceDepth: options.depth ?? null,
+        traceDirection: options.direction ?? "both"
+      };
+  }
 }
 
 function createSubcommand(

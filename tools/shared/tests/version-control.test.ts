@@ -373,7 +373,11 @@ test("reports Git worktree discovery failures as operation failures", gitTestOpt
 
     await assert.rejects(
       openVersionControl(brokenWorktree),
-      (error: unknown) => hasVersionControlCode(error, "operation-failed")
+      (error: unknown) => (
+        hasVersionControlCode(error, "operation-failed")
+        && error instanceof Error
+        && /invalid gitfile format/iu.test(error.message)
+      )
     );
   });
 });

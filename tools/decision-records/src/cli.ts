@@ -9,7 +9,7 @@ import {
 import {
   createCliProgram,
   type CliArgs,
-  type Command
+  type CliArgsFor
 } from "./cli-args.ts";
 import {
   printActivationCandidateWarnings,
@@ -22,6 +22,7 @@ import {
   type DecisionHistoryBaseline
 } from "./decision-history-baseline.ts";
 import {
+  decisionHistoryBaselineRequirement,
   prepareDecisionLifecycle,
   type DecisionLifecycleRequest
 } from "./decision-lifecycle-service.ts";
@@ -41,12 +42,14 @@ import {
 import { scanDecisionRecords } from "./scan.ts";
 import {
   compareDecisionRecords,
-  type DecisionAlignment,
   type DecisionScan,
   type DecisionScanOptions
 } from "./types.ts";
 
-type CommandHandler = (args: CliArgs) => Promise<number>;
+type DecisionLocationArgs = {
+  decisionsDir: string;
+  workspaceRoot: string;
+};
 
 async function runQuery(request: DecisionQueryRequest): Promise<number> {
   const result = await executeDecisionQuery(request);
@@ -58,21 +61,21 @@ async function runQuery(request: DecisionQueryRequest): Promise<number> {
   return 0;
 }
 
-async function runDomains(args: CliArgs): Promise<number> {
+async function runDomains(args: CliArgsFor<"domains">): Promise<number> {
   return await runQuery({
     command: "domains",
     location: decisionLocation(args)
   });
 }
 
-async function runCheck(args: CliArgs): Promise<number> {
+async function runCheck(args: CliArgsFor<"check">): Promise<number> {
   return await runQuery({
     command: "check",
     location: decisionLocation(args)
   });
 }
 
-async function runList(args: CliArgs): Promise<number> {
+async function runList(args: CliArgsFor<"list">): Promise<number> {
   return await runQuery({
     alignment: args.alignment,
     command: "list",
@@ -83,25 +86,27 @@ async function runList(args: CliArgs): Promise<number> {
   });
 }
 
-async function runShow(args: CliArgs): Promise<number> {
+async function runShow(args: CliArgsFor<"show">): Promise<number> {
   return await runQuery({
     command: "show",
     location: decisionLocation(args),
-    recordPath: args.recordPaths[0] ?? ""
+    recordPath: args.recordPath
   });
 }
 
-async function runTrace(args: CliArgs): Promise<number> {
+async function runTrace(args: CliArgsFor<"trace">): Promise<number> {
   return await runQuery({
     command: "trace",
     direction: args.traceDirection,
     location: decisionLocation(args),
     maxDepth: args.traceDepth,
-    recordPath: args.recordPaths[0] ?? ""
+    recordPath: args.recordPath
   });
 }
 
-async function runSyncIndex(args: CliArgs): Promise<number> {
+async function runSyncIndex(
+  args: CliArgsFor<"sync-index">
+): Promise<number> {
   return await runQuery({
     command: "sync-index",
     location: decisionLocation(args),
@@ -109,39 +114,17 @@ async function runSyncIndex(args: CliArgs): Promise<number> {
   });
 }
 
-async function runActivate(args: CliArgs): Promise<number> {
-  return await runActivation(args, "activate");
+async function runActivate(args: CliArgsFor<"activate">): Promise<number> {
+  return await runActivation(args);
 }
 
-async function runEvolve(args: CliArgs): Promise<number> {
-  return await runActivation(args, "evolve");
+async function runEvolve(args: CliArgsFor<"evolve">): Promise<number> {
+  return await runActivation(args);
 }
 
 async function runActivation(
-  args: CliArgs,
-  action: "activate" | "evolve"
+  args: CliArgsFor<"activate" | "evolve">
 ): Promise<number> {
-  if (
-    action === "evolve"
-    && args.relations.length === 0
-    && args.collapseUnrecordedPath === null
-  ) {
-    printDecisionFailure(decisionFailure(
-      ["evolve requires at least one --relation or --collapse-unrecorded."],
-      { presentation: "plain" }
-    ));
-    return 1;
-  }
-  const alignment: DecisionAlignment | null = args.alignment === "all"
-    ? null
-    : args.alignment;
-  if (alignment === null) {
-    printDecisionFailure(decisionFailure(
-      [`${action} requires --alignment aligned or unaligned.`],
-      { presentation: "plain" }
-    ));
-    return 1;
-  }
   const scan = await loadLifecycleScan(args, {
     allowEmptyDecisionSet: true,
     scanErrorPolicy: "allow-activation-candidates"
@@ -150,31 +133,33 @@ async function runActivation(
     return 1;
   }
   const commonRequest = {
-    alignment,
+    alignment: args.alignment,
     keepUnrecordedHistory: args.keepUnrecordedHistory,
-    recordPath: args.recordPaths[0] ?? "",
+    recordPath: args.recordPath,
     relations: args.relations
   };
-  return action === "evolve"
+  return args.command === "evolve"
     ? await applyLifecycle(args, scan, {
         ...commonRequest,
-        action,
+        action: args.command,
         collapseUnrecordedPath: args.collapseUnrecordedPath
       })
     : await applyLifecycle(args, scan, {
         ...commonRequest,
-        action
+        action: args.command
       });
 }
 
-async function runMarkAligned(args: CliArgs): Promise<number> {
+async function runMarkAligned(
+  args: CliArgsFor<"mark-aligned">
+): Promise<number> {
   return await runValidatedMaintenance(args, {
     action: "mark-aligned",
-    recordPath: args.recordPaths[0] ?? ""
+    recordPath: args.recordPath
   });
 }
 
-async function runArchive(args: CliArgs): Promise<number> {
+async function runArchive(args: CliArgsFor<"archive">): Promise<number> {
   return await runValidatedMaintenance(args, {
     action: "archive",
     keepUnrecordedHistory: args.keepUnrecordedHistory,
@@ -183,7 +168,7 @@ async function runArchive(args: CliArgs): Promise<number> {
 }
 
 async function runValidatedMaintenance(
-  args: CliArgs,
+  args: DecisionLocationArgs,
   request: DecisionLifecycleRequest
 ): Promise<number> {
   const scan = await loadLifecycleScan(args, {
@@ -193,19 +178,19 @@ async function runValidatedMaintenance(
   return scan === null ? 1 : await applyLifecycle(args, scan, request);
 }
 
-async function runDiscard(args: CliArgs): Promise<number> {
+async function runDiscard(args: CliArgsFor<"discard">): Promise<number> {
   const { result } = await loadDecisionValidationContext(
     decisionScanOptions(args),
     { checkIndexText: false }
   );
   return await applyLifecycle(args, result.scan, {
     action: "discard",
-    recordPath: args.recordPaths[0] ?? ""
+    recordPath: args.recordPath
   });
 }
 
 async function loadLifecycleScan(
-  args: CliArgs,
+  args: DecisionLocationArgs,
   validationOptions: DecisionValidationOptions
 ): Promise<DecisionScan | null> {
   const { result } = await loadDecisionValidationContext(
@@ -220,12 +205,12 @@ async function loadLifecycleScan(
 }
 
 async function applyLifecycle(
-  args: CliArgs,
+  args: DecisionLocationArgs,
   scan: DecisionScan,
   request: DecisionLifecycleRequest
 ): Promise<number> {
   let historyBaseline: DecisionHistoryBaseline | null = null;
-  if (requiresHistoryBaseline(request)) {
+  if (decisionHistoryBaselineRequirement(request) !== "none") {
     const loadedBaseline = await loadDecisionHistoryBaseline(scan);
     if (loadedBaseline.status === "error") {
       printDecisionFailure(loadedBaseline);
@@ -264,48 +249,50 @@ async function applyLifecycle(
   return 0;
 }
 
-function requiresHistoryBaseline(request: DecisionLifecycleRequest): boolean {
-  if (request.action === "archive") {
-    return true;
-  }
-  if (request.action === "evolve") {
-    return request.relations.length > 0
-      || request.collapseUnrecordedPath !== null;
-  }
-  return request.action === "activate" && request.relations.length > 0;
-}
-
-function decisionLocation(args: CliArgs): DecisionLocation {
+function decisionLocation(args: DecisionLocationArgs): DecisionLocation {
   return {
     decisionsDir: args.decisionsDir,
     workspaceRoot: args.workspaceRoot
   };
 }
 
-function decisionScanOptions(args: CliArgs): DecisionScanOptions {
+function decisionScanOptions(args: DecisionLocationArgs): DecisionScanOptions {
   return decisionLocation(args);
 }
 
-const commandHandlers: Record<Command, CommandHandler> = {
-  activate: runActivate,
-  archive: runArchive,
-  check: runCheck,
-  discard: runDiscard,
-  domains: runDomains,
-  evolve: runEvolve,
-  list: runList,
-  "mark-aligned": runMarkAligned,
-  show: runShow,
-  "sync-index": runSyncIndex,
-  trace: runTrace
-};
+async function runCommand(args: CliArgs): Promise<number> {
+  switch (args.command) {
+    case "activate":
+      return await runActivate(args);
+    case "archive":
+      return await runArchive(args);
+    case "check":
+      return await runCheck(args);
+    case "discard":
+      return await runDiscard(args);
+    case "domains":
+      return await runDomains(args);
+    case "evolve":
+      return await runEvolve(args);
+    case "list":
+      return await runList(args);
+    case "mark-aligned":
+      return await runMarkAligned(args);
+    case "show":
+      return await runShow(args);
+    case "sync-index":
+      return await runSyncIndex(args);
+    case "trace":
+      return await runTrace(args);
+  }
+}
 
 export async function runDecisionRecordsCli(
   argv: readonly string[] = process.argv.slice(2)
 ): Promise<number> {
   let exitCode = 0;
   const program = createCliProgram(
-    async (args) => await commandHandlers[args.command](args),
+    runCommand,
     (value) => {
       exitCode = value;
     }
