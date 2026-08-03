@@ -7,6 +7,7 @@ await import("./activation-archive.test.ts");
 await import("./evolution.test.ts");
 await import("./unrecorded-history.test.ts");
 await import("./first-establishment.test.ts");
+await import("./body-field-validation.test.ts");
 await import("./type-path-invariants.test.ts");
 await import("./state-snapshot.test.ts");
 await import("./configured-decision-directory.test.ts");

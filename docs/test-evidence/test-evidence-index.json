@@ -794,6 +794,78 @@
       }
     },
     {
+      "id": "DECISION-BODY-EMPTY-001",
+      "keys": {
+        "search": [
+          "DECISION-BODY-EMPTY-001 决策正文字段值必须同行非空 决策正文中的必填 `采用` 值必须与字段标签位于同一行，并在去除首尾空白后保持非空。 `-`、`*`、`+` 分别与 `:`、`：` 组合时，空值都返回标准字段缺失诊断，且不生成决策文档。 空字段后的下一行内容不会被当作 `采用` 值。 tools/decision-records/tests/body-field-validation.test.ts > decision body fields require non-empty values on the field line bun test --test-name-pattern=\"^decision body fields require non-empty values on the field line$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/body-field-validation.test.ts > decision body fields require non-empty values on the field line",
+          "bun test --test-name-pattern=\"^decision body fields require non-empty values on the field line$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-BODY-EMPTY-001",
+        "line": 1,
+        "searchText": "DECISION-BODY-EMPTY-001 决策正文字段值必须同行非空 决策正文中的必填 `采用` 值必须与字段标签位于同一行，并在去除首尾空白后保持非空。 `-`、`*`、`+` 分别与 `:`、`：` 组合时，空值都返回标准字段缺失诊断，且不生成决策文档。 空字段后的下一行内容不会被当作 `采用` 值。 tools/decision-records/tests/body-field-validation.test.ts > decision body fields require non-empty values on the field line bun test --test-name-pattern=\"^decision body fields require non-empty values on the field line$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-body-fields-require-non-empty-values-on-the-field-line.md",
+        "summary": "决策正文中的必填 `采用` 值必须与字段标签位于同一行，并在去除首尾空白后保持非空。",
+        "title": "决策正文字段值必须同行非空"
+      }
+    },
+    {
+      "id": "DECISION-BODY-PUNCTUATION-001",
+      "keys": {
+        "search": [
+          "DECISION-BODY-PUNCTUATION-001 决策正文字段容忍等价 Markdown 标点 决策正文结构校验在识别必填 `采用` 字段时，不因 Markdown 等价列表标记或半角、全角冒号差异拒绝文档。 分别组合 `-`、`*`、`+` 与 `:`、`：` 得到的六种字段行都不产生校验错误，并返回非空决策文档。 tools/decision-records/tests/body-field-validation.test.ts > decision body fields accept common equivalent punctuation bun test --test-name-pattern=\"^decision body fields accept common equivalent punctuation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/body-field-validation.test.ts > decision body fields accept common equivalent punctuation",
+          "bun test --test-name-pattern=\"^decision body fields accept common equivalent punctuation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-BODY-PUNCTUATION-001",
+        "line": 1,
+        "searchText": "DECISION-BODY-PUNCTUATION-001 决策正文字段容忍等价 Markdown 标点 决策正文结构校验在识别必填 `采用` 字段时，不因 Markdown 等价列表标记或半角、全角冒号差异拒绝文档。 分别组合 `-`、`*`、`+` 与 `:`、`：` 得到的六种字段行都不产生校验错误，并返回非空决策文档。 tools/decision-records/tests/body-field-validation.test.ts > decision body fields accept common equivalent punctuation bun test --test-name-pattern=\"^decision body fields accept common equivalent punctuation$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-body-fields-accept-common-equivalent-punctuation.md",
+        "summary": "决策正文结构校验在识别必填 `采用` 字段时，不因 Markdown 等价列表标记或半角、全角冒号差异拒绝文档。",
+        "title": "决策正文字段容忍等价 Markdown 标点"
+      }
+    },
+    {
+      "id": "DECISION-BODY-UNSUPPORTED-001",
+      "keys": {
+        "search": [
+          "DECISION-BODY-UNSUPPORTED-001 决策正文字段不归一化任意相似符号 决策正文结构校验只按 Markdown 无序列表和冒号分隔结构识别必填 `采用` 字段，不把任意相似符号归一化为合法结构。 `• 采用: ...` 与 `- 采用; ...` 都返回标准字段缺失诊断，且不生成决策文档。 tools/decision-records/tests/body-field-validation.test.ts > decision body fields reject unsupported punctuation bun test --test-name-pattern=\"^decision body fields reject unsupported punctuation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/body-field-validation.test.ts > decision body fields reject unsupported punctuation",
+          "bun test --test-name-pattern=\"^decision body fields reject unsupported punctuation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-BODY-UNSUPPORTED-001",
+        "line": 1,
+        "searchText": "DECISION-BODY-UNSUPPORTED-001 决策正文字段不归一化任意相似符号 决策正文结构校验只按 Markdown 无序列表和冒号分隔结构识别必填 `采用` 字段，不把任意相似符号归一化为合法结构。 `• 采用: ...` 与 `- 采用; ...` 都返回标准字段缺失诊断，且不生成决策文档。 tools/decision-records/tests/body-field-validation.test.ts > decision body fields reject unsupported punctuation bun test --test-name-pattern=\"^decision body fields reject unsupported punctuation$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-body-fields-reject-unsupported-punctuation.md",
+        "summary": "决策正文结构校验只按 Markdown 无序列表和冒号分隔结构识别必填 `采用` 字段，不把任意相似符号归一化为合法结构。",
+        "title": "决策正文字段不归一化任意相似符号"
+      }
+    },
+    {
       "id": "DECISION-CANDIDATE-ACTIVATION-INDEX-001",
       "keys": {
         "search": [
@@ -4494,5 +4566,5 @@
   },
   "namespace": "test-evidence",
   "schemaVersion": 2,
-  "sourceRevision": "sha256:c8d6ed2733444afcdd031da5fc7f3b911950a5a8176f969e2132f93634ea6782"
+  "sourceRevision": "sha256:b51feb4f8b0c485b104abc92b913d68b04b451cc0fec77aec4490a4695ab979f"
 }

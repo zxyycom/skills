@@ -1,5 +1,8 @@
 import type { MarkdownSection } from "./types.ts";
 
+const unorderedListMarkerPattern = "[-*+]";
+const fieldSeparatorPattern = "[:：]";
+
 export function parseSections(body: string): MarkdownSection[] {
   const marker = "##";
   const matches = [...body.matchAll(new RegExp("^" + marker + " ([^\\n]+)$", "gm"))];
@@ -22,7 +25,12 @@ export function parseSections(body: string): MarkdownSection[] {
 
 function fieldValues(sectionContent: string, label: string): string[] {
   const escapedLabel = label.replace(/[.*+?^$()|[\]\\]/g, "\\$&");
-  const pattern = new RegExp("^- " + escapedLabel + ":\\s*(.*?)\\s*$", "gm");
+  const fieldPrefixPattern =
+    `${unorderedListMarkerPattern} ${escapedLabel}${fieldSeparatorPattern}`;
+  const pattern = new RegExp(
+    `^${fieldPrefixPattern}[\\t ]*(.*?)[\\t ]*$`,
+    "gmu"
+  );
   return [...sectionContent.matchAll(pattern)].map((match) => match[1].trim());
 }
 
