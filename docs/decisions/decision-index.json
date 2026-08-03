@@ -77,12 +77,12 @@
         "id": "test-evidence-review"
       },
       {
-        "description": "提供工具共享的版本控制快照、路径和变更读取协议。",
+        "description": "提供工具共享的版本控制快照、路径、变更读取与受控待提交写入协议。",
         "id": "version-control"
       }
     ]
   },
-  "sourceRevision": "sha256:e7e9a0b2217643e17a338285a945ba3ab6d6d20a8c256b0574e2d4994547fe4e",
+  "sourceRevision": "sha256:24bbc498d8be500b240260eba7bbc1e6f8e8e9093ae9d814b2dc68c36d95c911",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -1665,6 +1665,31 @@
             "target": "decision-records/260720-focus-entry-on-behavior-routing.md"
           }
         ]
+      }
+    },
+    {
+      "id": "decision-records/stage-selected-decisions.md",
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/stage-selected-decisions.md",
+        "title": "按指定决策构造待提交快照",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-03T10:35:38Z",
+        "purpose": "让调用者从并行磁盘决策变化中选择可独立提交且索引一致的待提交决策集合。",
+        "background": "单一完整索引使普通路径暂存无法隔离并行决策，而生命周期命令只维护磁盘决策集合。",
+        "decision": "独立 stage 命令以 revision 为基线叠加指定 filesystem 变化，生成完整索引后替换 pending 决策范围。",
+        "relations": []
       }
     },
     {
@@ -3789,7 +3814,7 @@
           "version-control"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -3798,13 +3823,43 @@
       "state": {
         "path": "version-control/centralize-version-control-responsibility.md",
         "title": "集中版本管理责任但不承诺跨系统兼容",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-22T15:01:02Z",
         "purpose": "让项目只通过一个稳定 owner 查询版本状态，使后续替换实现或接入其他系统时不再追查分散调用。",
         "background": "项目同时需要提交树、待提交内容和工作区变化，直接依赖 Git 命令与 index 语义会把解析和替换成本散入多个模块。",
         "decision": "建立项目自有版本管理中间层，默认采用 Git 并允许 Git 倾向语义，但不提前承诺多版本系统兼容或建设 provider 框架。",
         "relations": []
+      }
+    },
+    {
+      "id": "version-control/manage-pending-snapshot-writes.md",
+      "keys": {
+        "domain": [
+          "version-control"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "version-control/manage-pending-snapshot-writes.md",
+        "title": "由共享版本管理层承接待提交快照写入",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-03T10:35:28Z",
+        "purpose": "让调用方通过共享版本管理 owner 读写待提交快照，而不依赖当前底层实现的专属信息。",
+        "background": "指定范围的待提交快照需要完整替换与失败恢复，领域消费者直接调用 Git 会破坏共享边界。",
+        "decision": "共享版本管理层拥有完整范围替换及恢复；当前只需支持 Git，但公共契约不得暴露 Git 专属语义。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "version-control/centralize-version-control-responsibility.md"
+          }
+        ]
       }
     }
   ]

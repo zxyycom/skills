@@ -1,6 +1,6 @@
 ---
 title: 集中版本管理责任但不承诺跨系统兼容
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-22T15:01:02Z
 purpose: 让项目只通过一个稳定 owner 查询版本状态，使后续替换实现或接入其他系统时不再追查分散调用。
