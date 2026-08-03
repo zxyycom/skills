@@ -1,4 +1,7 @@
-import type { DecisionApplicationFailure } from "./application-result.ts";
+import type {
+  DecisionApplicationAttention,
+  DecisionApplicationFailure
+} from "./application-result.ts";
 import type {
   DecisionQuerySuccess
 } from "./decision-query-service.ts";
@@ -17,6 +20,15 @@ export function printDecisionFailure(
   }
   for (const error of failure.errors) {
     console.error(error);
+  }
+}
+
+export function printDecisionAttention(
+  attention: DecisionApplicationAttention
+): void {
+  console.error("Decision records command paused with warnings:");
+  for (const warning of attention.warnings) {
+    console.error("- " + warning);
   }
 }
 

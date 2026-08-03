@@ -773,23 +773,23 @@
       "id": "DECISION-ACTIVATION-RELATION-001",
       "keys": {
         "search": [
-          "DECISION-ACTIVATION-RELATION-001 激活归档直接前序并支持有界关系追踪 带直接关系激活新候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围。 新记录成为 aligned active，直接前序成为 archived 且关系进入索引。 predecessor trace 深度 1 只包含直接前序，深度 2 可继续到更早记录。 tools/decision-records/tests/evolution.test.ts > activation archives a direct predecessor and traces bounded relations bun test --test-name-pattern=\"^activation archives a direct predecessor and traces bounded relations$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-ACTIVATION-RELATION-001 激活归档直接前序并支持有界关系追踪 带直接关系激活新候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围；已经进入 Git HEAD 的前序不增加确认调用。 新记录成为 aligned active，直接前序成为 archived 且关系进入索引。 直接前序已存在于 Git HEAD 时，关系激活一次调用即可完成。 predecessor trace 深度 1 只包含直接前序，深度 2 可继续到更早记录。 tools/decision-records/tests/evolution.test.ts > activation archives a direct predecessor and traces bounded relations bun test --test-name-pattern=\"^activation archives a direct predecessor and traces bounded relations$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 11,
         "entries": [
           "tools/decision-records/tests/evolution.test.ts > activation archives a direct predecessor and traces bounded relations",
           "bun test --test-name-pattern=\"^activation archives a direct predecessor and traces bounded relations$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-ACTIVATION-RELATION-001",
         "line": 1,
-        "searchText": "DECISION-ACTIVATION-RELATION-001 激活归档直接前序并支持有界关系追踪 带直接关系激活新候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围。 新记录成为 aligned active，直接前序成为 archived 且关系进入索引。 predecessor trace 深度 1 只包含直接前序，深度 2 可继续到更早记录。 tools/decision-records/tests/evolution.test.ts > activation archives a direct predecessor and traces bounded relations bun test --test-name-pattern=\"^activation archives a direct predecessor and traces bounded relations$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-ACTIVATION-RELATION-001 激活归档直接前序并支持有界关系追踪 带直接关系激活新候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围；已经进入 Git HEAD 的前序不增加确认调用。 新记录成为 aligned active，直接前序成为 archived 且关系进入索引。 直接前序已存在于 Git HEAD 时，关系激活一次调用即可完成。 predecessor trace 深度 1 只包含直接前序，深度 2 可继续到更早记录。 tools/decision-records/tests/evolution.test.ts > activation archives a direct predecessor and traces bounded relations bun test --test-name-pattern=\"^activation archives a direct predecessor and traces bounded relations$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/activation-archives-a-direct-predecessor-and-traces-bounded-relations.md",
-        "summary": "带直接关系激活新候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围。",
+        "summary": "带直接关系激活新候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围；已经进入 Git HEAD 的前序不增加确认调用。",
         "title": "激活归档直接前序并支持有界关系追踪"
       }
     },
@@ -1397,7 +1397,7 @@
       "id": "DECISION-TRANSACTION-ROLLBACK-001",
       "keys": {
         "search": [
-          "DECISION-TRANSACTION-ROLLBACK-001 决策事务回滚关系验证失败 多记录决策事务在最终关系验证失败时必须恢复全部 Markdown 和索引。 同时修改活动与归档记录造成关系目标状态非法时返回验证错误。 两个记录正文和 decision-index.json 均恢复到事务前内容。 tools/decision-records/tests/evolution.test.ts > decision transactions roll back relation validation failures bun test --test-name-pattern=\"^decision transactions roll back relation validation failures$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-TRANSACTION-ROLLBACK-001 决策事务回滚关系验证失败 多记录决策事务在最终关系验证失败时必须恢复全部 Markdown 和索引。 删除一个已建立记录并同时修改活动与归档记录，造成关系目标状态非法时返回验证错误。 被删除记录、两个被修改记录和 decision-index.json 均恢复到事务前内容。 tools/decision-records/tests/evolution.test.ts > decision transactions roll back relation validation failures bun test --test-name-pattern=\"^decision transactions roll back relation validation failures$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1411,7 +1411,7 @@
         ],
         "id": "DECISION-TRANSACTION-ROLLBACK-001",
         "line": 1,
-        "searchText": "DECISION-TRANSACTION-ROLLBACK-001 决策事务回滚关系验证失败 多记录决策事务在最终关系验证失败时必须恢复全部 Markdown 和索引。 同时修改活动与归档记录造成关系目标状态非法时返回验证错误。 两个记录正文和 decision-index.json 均恢复到事务前内容。 tools/decision-records/tests/evolution.test.ts > decision transactions roll back relation validation failures bun test --test-name-pattern=\"^decision transactions roll back relation validation failures$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-TRANSACTION-ROLLBACK-001 决策事务回滚关系验证失败 多记录决策事务在最终关系验证失败时必须恢复全部 Markdown 和索引。 删除一个已建立记录并同时修改活动与归档记录，造成关系目标状态非法时返回验证错误。 被删除记录、两个被修改记录和 decision-index.json 均恢复到事务前内容。 tools/decision-records/tests/evolution.test.ts > decision transactions roll back relation validation failures bun test --test-name-pattern=\"^decision transactions roll back relation validation failures$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-transactions-roll-back-relation-validation-failures.md",
         "summary": "多记录决策事务在最终关系验证失败时必须恢复全部 Markdown 和索引。",
         "title": "决策事务回滚关系验证失败"
@@ -1439,6 +1439,174 @@
         "sourcePath": "decision-records/decision-types-and-paths-preserve-identity-and-alignment-invariants.md",
         "summary": "决策 ID、类型、domain 与文件路径必须相互对齐。",
         "title": "决策类型与路径保持身份不变量"
+      }
+    },
+    {
+      "id": "DECISION-UNRECORDED-ARCHIVE-001",
+      "keys": {
+        "search": [
+          "DECISION-UNRECORDED-ARCHIVE-001 归档未提交决策前暂停并要求显式保留 Archive 不得静默保留尚未进入 Git HEAD 的已建立记录；首次调用必须无写入暂停，显式确认后才能归档。 首次 archive 返回预警且决策 Markdown 与索引逐字节不变。 带 `--keep-unrecorded-history` 的重试把目标归档并清空 alignment。 tools/decision-records/tests/unrecorded-history.test.ts > archive pauses before preserving an unrecorded established decision bun test --test-name-pattern=\"^archive pauses before preserving an unrecorded established decision$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > archive pauses before preserving an unrecorded established decision",
+          "bun test --test-name-pattern=\"^archive pauses before preserving an unrecorded established decision$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-UNRECORDED-ARCHIVE-001",
+        "line": 1,
+        "searchText": "DECISION-UNRECORDED-ARCHIVE-001 归档未提交决策前暂停并要求显式保留 Archive 不得静默保留尚未进入 Git HEAD 的已建立记录；首次调用必须无写入暂停，显式确认后才能归档。 首次 archive 返回预警且决策 Markdown 与索引逐字节不变。 带 `--keep-unrecorded-history` 的重试把目标归档并清空 alignment。 tools/decision-records/tests/unrecorded-history.test.ts > archive pauses before preserving an unrecorded established decision bun test --test-name-pattern=\"^archive pauses before preserving an unrecorded established decision$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/archive-pauses-before-preserving-an-unrecorded-established-decision.md",
+        "summary": "Archive 不得静默保留尚未进入 Git HEAD 的已建立记录；首次调用必须无写入暂停，显式确认后才能归档。",
+        "title": "归档未提交决策前暂停并要求显式保留"
+      }
+    },
+    {
+      "id": "DECISION-UNRECORDED-COLLAPSE-001",
+      "keys": {
+        "search": [
+          "DECISION-UNRECORDED-COLLAPSE-001 Evolve 以显式最终关系折叠未提交中间决策 `evolve --collapse-unrecorded` 只删除未进入 Git HEAD 的单个活动已建立中间前序，并把调用者提供的关系作为后继的完整最终关系集合。 合法折叠删除未提交中间记录，并从派生索引移除该记录。 后继只保留调用者显式给出的原中间记录直接上游关系，严格决策检查继续通过。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapses an unrecorded intermediate with explicit final relations bun test --test-name-pattern=\"^evolve collapses an unrecorded intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > evolve collapses an unrecorded intermediate with explicit final relations",
+          "bun test --test-name-pattern=\"^evolve collapses an unrecorded intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-UNRECORDED-COLLAPSE-001",
+        "line": 1,
+        "searchText": "DECISION-UNRECORDED-COLLAPSE-001 Evolve 以显式最终关系折叠未提交中间决策 `evolve --collapse-unrecorded` 只删除未进入 Git HEAD 的单个活动已建立中间前序，并把调用者提供的关系作为后继的完整最终关系集合。 合法折叠删除未提交中间记录，并从派生索引移除该记录。 后继只保留调用者显式给出的原中间记录直接上游关系，严格决策检查继续通过。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapses an unrecorded intermediate with explicit final relations bun test --test-name-pattern=\"^evolve collapses an unrecorded intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-collapses-an-unrecorded-intermediate-with-explicit-final-relations.md",
+        "summary": "`evolve --collapse-unrecorded` 只删除未进入 Git HEAD 的单个活动已建立中间前序，并把调用者提供的关系作为后继的完整最终关系集合。",
+        "title": "Evolve 以显式最终关系折叠未提交中间决策"
+      }
+    },
+    {
+      "id": "DECISION-UNRECORDED-COLLAPSE-BOUNDARY-001",
+      "keys": {
+        "search": [
+          "DECISION-UNRECORDED-COLLAPSE-BOUNDARY-001 Evolve 折叠拒绝越过中间决策边界的归档关系 折叠后的已归档关系目标只能来自被折叠记录原有的直接前序，CLI 不跨层推断或合成上游关系。 最终关系引用无关归档决策时命令返回关系边界错误。 拒绝路径逐字节保留后继候选、中间记录和派生索引。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects archived relations outside the intermediate boundary bun test --test-name-pattern=\"^evolve collapse rejects archived relations outside the intermediate boundary$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects archived relations outside the intermediate boundary",
+          "bun test --test-name-pattern=\"^evolve collapse rejects archived relations outside the intermediate boundary$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-UNRECORDED-COLLAPSE-BOUNDARY-001",
+        "line": 1,
+        "searchText": "DECISION-UNRECORDED-COLLAPSE-BOUNDARY-001 Evolve 折叠拒绝越过中间决策边界的归档关系 折叠后的已归档关系目标只能来自被折叠记录原有的直接前序，CLI 不跨层推断或合成上游关系。 最终关系引用无关归档决策时命令返回关系边界错误。 拒绝路径逐字节保留后继候选、中间记录和派生索引。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects archived relations outside the intermediate boundary bun test --test-name-pattern=\"^evolve collapse rejects archived relations outside the intermediate boundary$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-collapse-rejects-archived-relations-outside-the-intermediate-boundary.md",
+        "summary": "折叠后的已归档关系目标只能来自被折叠记录原有的直接前序，CLI 不跨层推断或合成上游关系。",
+        "title": "Evolve 折叠拒绝越过中间决策边界的归档关系"
+      }
+    },
+    {
+      "id": "DECISION-UNRECORDED-COLLAPSE-EMPTY-001",
+      "keys": {
+        "search": [
+          "DECISION-UNRECORDED-COLLAPSE-EMPTY-001 Evolve 折叠接受空的最终关系集合 折叠调用中的零个或多个 `--relation` 共同构成后继的完整最终关系集合；调用者可以明确不承接中间记录的任何上游。 不提供 `--relation` 的显式折叠成功删除未提交中间记录。 建立后的后继关系集合为空，不会自动继承中间记录的上游。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse accepts an empty final relation set bun test --test-name-pattern=\"^evolve collapse accepts an empty final relation set$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse accepts an empty final relation set",
+          "bun test --test-name-pattern=\"^evolve collapse accepts an empty final relation set$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-UNRECORDED-COLLAPSE-EMPTY-001",
+        "line": 1,
+        "searchText": "DECISION-UNRECORDED-COLLAPSE-EMPTY-001 Evolve 折叠接受空的最终关系集合 折叠调用中的零个或多个 `--relation` 共同构成后继的完整最终关系集合；调用者可以明确不承接中间记录的任何上游。 不提供 `--relation` 的显式折叠成功删除未提交中间记录。 建立后的后继关系集合为空，不会自动继承中间记录的上游。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse accepts an empty final relation set bun test --test-name-pattern=\"^evolve collapse accepts an empty final relation set$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-collapse-accepts-an-empty-final-relation-set.md",
+        "summary": "折叠调用中的零个或多个 `--relation` 共同构成后继的完整最终关系集合；调用者可以明确不承接中间记录的任何上游。",
+        "title": "Evolve 折叠接受空的最终关系集合"
+      }
+    },
+    {
+      "id": "DECISION-UNRECORDED-COLLAPSE-RECORDED-001",
+      "keys": {
+        "search": [
+          "DECISION-UNRECORDED-COLLAPSE-RECORDED-001 Evolve 折叠拒绝已进入 Git HEAD 的前序 `--collapse-unrecorded` 只能删除当前 Git HEAD 中不存在同一决策根相对路径的活动已建立前序。 中间记录路径提交到 Git HEAD 后，折叠返回已记录诊断并拒绝执行。 拒绝路径逐字节保留后继候选、中间记录和派生索引。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects a predecessor recorded in Git HEAD bun test --test-name-pattern=\"^evolve collapse rejects a predecessor recorded in Git HEAD$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects a predecessor recorded in Git HEAD",
+          "bun test --test-name-pattern=\"^evolve collapse rejects a predecessor recorded in Git HEAD$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-UNRECORDED-COLLAPSE-RECORDED-001",
+        "line": 1,
+        "searchText": "DECISION-UNRECORDED-COLLAPSE-RECORDED-001 Evolve 折叠拒绝已进入 Git HEAD 的前序 `--collapse-unrecorded` 只能删除当前 Git HEAD 中不存在同一决策根相对路径的活动已建立前序。 中间记录路径提交到 Git HEAD 后，折叠返回已记录诊断并拒绝执行。 拒绝路径逐字节保留后继候选、中间记录和派生索引。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects a predecessor recorded in Git HEAD bun test --test-name-pattern=\"^evolve collapse rejects a predecessor recorded in Git HEAD$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-collapse-rejects-a-predecessor-recorded-in-git-head.md",
+        "summary": "`--collapse-unrecorded` 只能删除当前 Git HEAD 中不存在同一决策根相对路径的活动已建立前序。",
+        "title": "Evolve 折叠拒绝已进入 Git HEAD 的前序"
+      }
+    },
+    {
+      "id": "DECISION-UNRECORDED-COLLAPSE-REFERENCE-001",
+      "keys": {
+        "search": [
+          "DECISION-UNRECORDED-COLLAPSE-REFERENCE-001 折叠准备拒绝仍被其他候选引用的前序 被其他决策记录或候选引用的中间前序不能自动折叠，调用者必须先明确处理引用关系。 生命周期准备发现另一个候选仍引用折叠目标时返回包含引用路径的失败结果。 准备失败不会修改后继候选、引用候选、中间记录或派生索引。 tools/decision-records/tests/unrecorded-history.test.ts > collapse preparation rejects a predecessor referenced by another candidate bun test --test-name-pattern=\"^collapse preparation rejects a predecessor referenced by another candidate$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > collapse preparation rejects a predecessor referenced by another candidate",
+          "bun test --test-name-pattern=\"^collapse preparation rejects a predecessor referenced by another candidate$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-UNRECORDED-COLLAPSE-REFERENCE-001",
+        "line": 1,
+        "searchText": "DECISION-UNRECORDED-COLLAPSE-REFERENCE-001 折叠准备拒绝仍被其他候选引用的前序 被其他决策记录或候选引用的中间前序不能自动折叠，调用者必须先明确处理引用关系。 生命周期准备发现另一个候选仍引用折叠目标时返回包含引用路径的失败结果。 准备失败不会修改后继候选、引用候选、中间记录或派生索引。 tools/decision-records/tests/unrecorded-history.test.ts > collapse preparation rejects a predecessor referenced by another candidate bun test --test-name-pattern=\"^collapse preparation rejects a predecessor referenced by another candidate$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/collapse-preparation-rejects-a-predecessor-referenced-by-another-candidate.md",
+        "summary": "被其他决策记录或候选引用的中间前序不能自动折叠，调用者必须先明确处理引用关系。",
+        "title": "折叠准备拒绝仍被其他候选引用的前序"
+      }
+    },
+    {
+      "id": "DECISION-UNRECORDED-EVOLUTION-001",
+      "keys": {
+        "search": [
+          "DECISION-UNRECORDED-EVOLUTION-001 未提交决策演进等待显式保留 演进即将归档未进入 Git HEAD 的直接前序时必须先无写入暂停；只有调用者确认具有长期回放价值后，才能显式保留该历史。 首次带关系激活返回可行动 warning，并逐字节保留候选、前序和索引。 `--keep-unrecorded-history` 重试后保留中间记录和后继到中间记录的直接关系。 tools/decision-records/tests/unrecorded-history.test.ts > unrecorded decision evolution pauses until history is explicitly preserved bun test --test-name-pattern=\"^unrecorded decision evolution pauses until history is explicitly preserved$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > unrecorded decision evolution pauses until history is explicitly preserved",
+          "bun test --test-name-pattern=\"^unrecorded decision evolution pauses until history is explicitly preserved$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-UNRECORDED-EVOLUTION-001",
+        "line": 1,
+        "searchText": "DECISION-UNRECORDED-EVOLUTION-001 未提交决策演进等待显式保留 演进即将归档未进入 Git HEAD 的直接前序时必须先无写入暂停；只有调用者确认具有长期回放价值后，才能显式保留该历史。 首次带关系激活返回可行动 warning，并逐字节保留候选、前序和索引。 `--keep-unrecorded-history` 重试后保留中间记录和后继到中间记录的直接关系。 tools/decision-records/tests/unrecorded-history.test.ts > unrecorded decision evolution pauses until history is explicitly preserved bun test --test-name-pattern=\"^unrecorded decision evolution pauses until history is explicitly preserved$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/unrecorded-decision-evolution-pauses-until-history-is-explicitly-preserved.md",
+        "summary": "演进即将归档未进入 Git HEAD 的直接前序时必须先无写入暂停；只有调用者确认具有长期回放价值后，才能显式保留该历史。",
+        "title": "未提交决策演进等待显式保留"
       }
     },
     {
@@ -4130,6 +4298,30 @@
       }
     },
     {
+      "id": "VERSION-CONTROL-DISCOVERY-FAILURE-001",
+      "keys": {
+        "search": [
+          "VERSION-CONTROL-DISCOVERY-FAILURE-001 Git 工作树发现故障报告为操作失败 只有确认起点不在 Git 工作树内时才能返回 `not-repository`；损坏或受限的仓库发现必须保持为操作失败。 起点存在损坏的 `.git` 工作树元数据时，打开版本控制返回 `operation-failed`。 仓库发现故障不会被误报为可静默降级的非 Git 目录。 tools/shared/tests/version-control.test.ts > reports Git worktree discovery failures as operation failures bun test --test-name-pattern=\"^reports Git worktree discovery failures as operation failures$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "topic": [
+          "version-control"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/shared/tests/version-control.test.ts > reports Git worktree discovery failures as operation failures",
+          "bun test --test-name-pattern=\"^reports Git worktree discovery failures as operation failures$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "id": "VERSION-CONTROL-DISCOVERY-FAILURE-001",
+        "line": 1,
+        "searchText": "VERSION-CONTROL-DISCOVERY-FAILURE-001 Git 工作树发现故障报告为操作失败 只有确认起点不在 Git 工作树内时才能返回 `not-repository`；损坏或受限的仓库发现必须保持为操作失败。 起点存在损坏的 `.git` 工作树元数据时，打开版本控制返回 `operation-failed`。 仓库发现故障不会被误报为可静默降级的非 Git 目录。 tools/shared/tests/version-control.test.ts > reports Git worktree discovery failures as operation failures bun test --test-name-pattern=\"^reports Git worktree discovery failures as operation failures$\" ./tools/shared/tests/version-control.test.ts",
+        "sourcePath": "version-control/reports-git-worktree-discovery-failures-as-operation-failures.md",
+        "summary": "只有确认起点不在 Git 工作树内时才能返回 `not-repository`；损坏或受限的仓库发现必须保持为操作失败。",
+        "title": "Git 工作树发现故障报告为操作失败"
+      }
+    },
+    {
       "id": "VERSION-CONTROL-HEAD-001",
       "keys": {
         "search": [
@@ -4302,5 +4494,5 @@
   },
   "namespace": "test-evidence",
   "schemaVersion": 2,
-  "sourceRevision": "sha256:e01c53fc162a8ed3c1b6898fd49df31b63c3b9f0f795258e68a80ecb49aae631"
+  "sourceRevision": "sha256:0f44248611591180be040dd310ea3e9fcf961a7fa94add198f1f0f0055f4c515"
 }

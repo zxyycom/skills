@@ -13,9 +13,14 @@ import {
 } from "./cli-args.ts";
 import {
   printActivationCandidateWarnings,
+  printDecisionAttention,
   printDecisionFailure,
   printDecisionQuerySuccess
 } from "./cli-output.ts";
+import {
+  loadDecisionHistoryBaseline,
+  type DecisionHistoryBaseline
+} from "./decision-history-baseline.ts";
 import {
   prepareDecisionLifecycle,
   type DecisionLifecycleRequest
@@ -116,9 +121,13 @@ async function runActivation(
   args: CliArgs,
   action: "activate" | "evolve"
 ): Promise<number> {
-  if (action === "evolve" && args.relations.length === 0) {
+  if (
+    action === "evolve"
+    && args.relations.length === 0
+    && args.collapseUnrecordedPath === null
+  ) {
     printDecisionFailure(decisionFailure(
-      ["evolve requires at least one --relation."],
+      ["evolve requires at least one --relation or --collapse-unrecorded."],
       { presentation: "plain" }
     ));
     return 1;
@@ -140,12 +149,22 @@ async function runActivation(
   if (scan === null) {
     return 1;
   }
-  return await applyLifecycle(args, scan, {
-    action,
+  const commonRequest = {
     alignment,
+    keepUnrecordedHistory: args.keepUnrecordedHistory,
     recordPath: args.recordPaths[0] ?? "",
     relations: args.relations
-  });
+  };
+  return action === "evolve"
+    ? await applyLifecycle(args, scan, {
+        ...commonRequest,
+        action,
+        collapseUnrecordedPath: args.collapseUnrecordedPath
+      })
+    : await applyLifecycle(args, scan, {
+        ...commonRequest,
+        action
+      });
 }
 
 async function runMarkAligned(args: CliArgs): Promise<number> {
@@ -158,6 +177,7 @@ async function runMarkAligned(args: CliArgs): Promise<number> {
 async function runArchive(args: CliArgs): Promise<number> {
   return await runValidatedMaintenance(args, {
     action: "archive",
+    keepUnrecordedHistory: args.keepUnrecordedHistory,
     recordPaths: args.recordPaths
   });
 }
@@ -204,7 +224,22 @@ async function applyLifecycle(
   scan: DecisionScan,
   request: DecisionLifecycleRequest
 ): Promise<number> {
-  const prepared = await prepareDecisionLifecycle(scan, request);
+  let historyBaseline: DecisionHistoryBaseline | null = null;
+  if (requiresHistoryBaseline(request)) {
+    const loadedBaseline = await loadDecisionHistoryBaseline(scan);
+    if (loadedBaseline.status === "error") {
+      printDecisionFailure(loadedBaseline);
+      return loadedBaseline.exitCode;
+    }
+    historyBaseline = loadedBaseline.baseline;
+  }
+  const prepared = await prepareDecisionLifecycle(scan, request, {
+    historyBaseline
+  });
+  if (prepared.status === "attention") {
+    printDecisionAttention(prepared);
+    return prepared.exitCode;
+  }
   if (prepared.status === "error") {
     printDecisionFailure(prepared);
     return prepared.exitCode;
@@ -227,6 +262,17 @@ async function applyLifecycle(
       .map((record) => record.relativePath)
   );
   return 0;
+}
+
+function requiresHistoryBaseline(request: DecisionLifecycleRequest): boolean {
+  if (request.action === "archive") {
+    return true;
+  }
+  if (request.action === "evolve") {
+    return request.relations.length > 0
+      || request.collapseUnrecordedPath !== null;
+  }
+  return request.action === "activate" && request.relations.length > 0;
 }
 
 function decisionLocation(args: CliArgs): DecisionLocation {

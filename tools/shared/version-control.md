@@ -20,11 +20,12 @@
 
 1. 默认实现使用 Git，并把具体 TypeScript Git 库限制在 `tools/shared/src/version-control/` 内部；当前契约不承诺兼容 SVN 或其他后端。
 2. 公共接口只增加项目内已经存在的消费者所需能力。父 revision、批量 revision 内容读取或 provider 注册等能力没有现实消费者时不预建。
-3. revision 无法解析、Git 读取失败或 revision 文件内容无法读取时必须失败；只有 Git 明确确认目标路径在该 revision 中不存在时，单文件读取才返回 `null`，并由消费者决定是否表示没有基线。
-4. 路径校验、错误映射和确定性排序在中间层内完成，不交给领域消费者重复实现。
-5. `tools/shared/` 不依赖领域工具；消费者通过公共入口使用该中间层。
+3. 只有 Git 返回常规非仓库结果且起点及其祖先不存在 Git 工作树标记时，仓库发现才报告 `not-repository`。Git 不可执行、起点不可访问、权限或安全目录限制、损坏的工作树元数据和异常发现输出都报告操作失败，消费者不得把这些故障降级为非 Git 环境。
+4. revision 无法解析、Git 读取失败或 revision 文件内容无法读取时必须失败；只有 Git 明确确认目标路径在该 revision 中不存在时，单文件读取才返回 `null`，并由消费者决定是否表示没有基线。
+5. 路径校验、错误映射和确定性排序在中间层内完成，不交给领域消费者重复实现。
+6. `tools/shared/` 不依赖领域工具；消费者通过公共入口使用该中间层。
 
-当前直接生产消费者是 skill 打包 hash 与独立版本门禁。验证入口是：
+当前直接生产消费者包括 skill 打包 hash、独立版本门禁，以及 decision-records 的 Git 基线预检。验证入口是：
 
 ```bash
 bun run test:version-control

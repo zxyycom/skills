@@ -1,8 +1,13 @@
 import fs from "node:fs/promises";
 import {
+  decisionAttention,
   decisionFailure,
+  type DecisionApplicationAttention,
   type DecisionApplicationFailure
 } from "./application-result.ts";
+import type {
+  DecisionHistoryBaseline
+} from "./decision-history-baseline.ts";
 import {
   parseDecisionMarkdown,
   replaceDecisionFrontmatter,
@@ -22,13 +27,23 @@ import type {
 
 export type DecisionLifecycleRequest =
   | {
-      action: "activate" | "evolve";
+      action: "activate";
       alignment: DecisionAlignment;
+      keepUnrecordedHistory: boolean;
+      recordPath: string;
+      relations: readonly DecisionRelation[];
+    }
+  | {
+      action: "evolve";
+      alignment: DecisionAlignment;
+      collapseUnrecordedPath: string | null;
+      keepUnrecordedHistory: boolean;
       recordPath: string;
       relations: readonly DecisionRelation[];
     }
   | {
       action: "archive";
+      keepUnrecordedHistory: boolean;
       recordPaths: readonly string[];
     }
   | {
@@ -38,6 +53,7 @@ export type DecisionLifecycleRequest =
 
 export type DecisionLifecyclePreparation =
   | DecisionApplicationFailure
+  | DecisionApplicationAttention
   | {
       changes: DecisionFileChange[];
       message: string;
@@ -49,6 +65,7 @@ export async function prepareDecisionLifecycle(
   request: DecisionLifecycleRequest,
   options: {
     currentTimestamp?: () => string;
+    historyBaseline?: DecisionHistoryBaseline | null;
   } = {}
 ): Promise<DecisionLifecyclePreparation> {
   switch (request.action) {
@@ -57,10 +74,16 @@ export async function prepareDecisionLifecycle(
       return await prepareActivation(
         scan,
         request,
-        options.currentTimestamp ?? currentDecisionTimestamp
+        options.currentTimestamp ?? currentDecisionTimestamp,
+        options.historyBaseline ?? null
       );
     case "archive":
-      return await prepareArchive(scan, request.recordPaths);
+      return await prepareArchive(
+        scan,
+        request.recordPaths,
+        request.keepUnrecordedHistory,
+        options.historyBaseline ?? null
+      );
     case "discard":
       return prepareDiscard(scan, request.recordPath);
     case "mark-aligned":
@@ -74,10 +97,20 @@ async function prepareActivation(
     DecisionLifecycleRequest,
     { action: "activate" | "evolve" }
   >,
-  currentTimestamp: () => string
+  currentTimestamp: () => string,
+  historyBaseline: DecisionHistoryBaseline | null
 ): Promise<DecisionLifecyclePreparation> {
-  if (request.action === "evolve" && request.relations.length === 0) {
-    return plainFailure("evolve requires at least one --relation.");
+  const collapseUnrecordedPath = request.action === "evolve"
+    ? request.collapseUnrecordedPath
+    : null;
+  if (
+    request.action === "evolve"
+    && request.relations.length === 0
+    && collapseUnrecordedPath === null
+  ) {
+    return plainFailure(
+      "evolve requires at least one --relation or --collapse-unrecorded."
+    );
   }
   const record = findRecord(scan, request.recordPath);
   if (record === null) {
@@ -100,9 +133,12 @@ async function prepareActivation(
   if (parsed === null || metadataErrors.length > 0) {
     return decisionFailure(metadataErrors);
   }
-  if (request.relations.length > 0 && record.document !== null) {
+  if (
+    (request.relations.length > 0 || collapseUnrecordedPath !== null)
+    && record.document !== null
+  ) {
     return plainFailure(
-      "--relation can only establish a new decision candidate: "
+      "Evolution options can only establish a new decision candidate: "
         + record.relativePath
     );
   }
@@ -129,13 +165,33 @@ async function prepareActivation(
     };
   }
 
+  const collapsed = prepareCollapsedPredecessor(
+    scan,
+    record.relativePath,
+    collapseUnrecordedPath,
+    request.relations,
+    historyBaseline
+  );
+  if (collapsed.status === "error") {
+    return collapsed;
+  }
   const predecessors = evolutionPredecessors(
     scan,
     record.relativePath,
-    request.relations
+    request.relations,
+    collapsed.record
   );
   if (predecessors.errors.length > 0) {
     return decisionFailure(predecessors.errors);
+  }
+  const unrecordedAttention = prepareUnrecordedHistoryAttention(
+    predecessors.records,
+    request.keepUnrecordedHistory,
+    historyBaseline,
+    true
+  );
+  if (unrecordedAttention !== null) {
+    return unrecordedAttention;
   }
   const changes: DecisionFileChange[] = [];
   for (const predecessor of predecessors.records) {
@@ -145,13 +201,19 @@ async function prepareActivation(
     }
     changes.push(prepared.change);
   }
+  if (collapsed.record !== null) {
+    changes.push({
+      decisionPath: collapsed.record.decisionPath,
+      nextText: null
+    });
+  }
   const nextText = replaceDecisionFrontmatter(currentText.value, {
     metadata: {
       alignment: request.alignment,
       createdAt: activation.createdAt,
       status: "active"
     },
-    relations: request.relations.length > 0
+    relations: request.action === "evolve" || request.relations.length > 0
       ? [...request.relations]
       : undefined
   });
@@ -165,6 +227,9 @@ async function prepareActivation(
     ? ""
     : " and archived direct predecessors "
       + predecessors.records.map((predecessor) => predecessor.relativePath).join(", ");
+  const collapseMessage = collapsed.record === null
+    ? ""
+    : " and collapsed unrecorded predecessor " + collapsed.record.relativePath;
   return {
     changes,
     message: activation.prefix
@@ -173,6 +238,7 @@ async function prepareActivation(
       + " "
       + record.relativePath
       + evolutionMessage
+      + collapseMessage
       + ".",
     status: "ok"
   };
@@ -294,13 +360,15 @@ async function prepareMarkAligned(
 
 async function prepareArchive(
   scan: DecisionScan,
-  recordPaths: readonly string[]
+  recordPaths: readonly string[],
+  keepUnrecordedHistory: boolean,
+  historyBaseline: DecisionHistoryBaseline | null
 ): Promise<DecisionLifecyclePreparation> {
   if (recordPaths.length === 0) {
     return plainFailure("At least one established decision path is required.");
   }
   const archivedPaths = new Set<string>();
-  const changes: DecisionFileChange[] = [];
+  const records: DecisionRecord[] = [];
   for (const recordPath of recordPaths) {
     const record = findEstablishedRecord(scan, recordPath);
     if (record === null) {
@@ -313,6 +381,19 @@ async function prepareArchive(
       return plainFailure("Decision path is repeated: " + record.relativePath);
     }
     archivedPaths.add(record.relativePath);
+    records.push(record);
+  }
+  const unrecordedAttention = prepareUnrecordedHistoryAttention(
+    records,
+    keepUnrecordedHistory,
+    historyBaseline,
+    false
+  );
+  if (unrecordedAttention !== null) {
+    return unrecordedAttention;
+  }
+  const changes: DecisionFileChange[] = [];
+  for (const record of records) {
     const prepared = await prepareArchivedDecisionChange(record);
     if (prepared.status === "error") {
       return prepared;
@@ -413,13 +494,128 @@ async function prepareArchivedDecisionChange(
       };
 }
 
+type CollapsedPredecessorPreparation =
+  | DecisionApplicationFailure
+  | {
+      record: DecisionRecord | null;
+      status: "ok";
+    };
+
+function prepareCollapsedPredecessor(
+  scan: DecisionScan,
+  successorPath: string,
+  collapsedPath: string | null,
+  finalRelations: readonly DecisionRelation[],
+  historyBaseline: DecisionHistoryBaseline | null
+): CollapsedPredecessorPreparation {
+  if (collapsedPath === null) {
+    return { record: null, status: "ok" };
+  }
+  if (historyBaseline === null) {
+    return plainFailure(
+      "--collapse-unrecorded requires an available Git HEAD baseline."
+    );
+  }
+  const record = findEstablishedRecord(scan, collapsedPath);
+  if (record === null || !record.markdownExists) {
+    return plainFailure(
+      "Collapsed predecessor is not an established decision: " + collapsedPath
+    );
+  }
+  if (record.relativePath === successorPath) {
+    return plainFailure(
+      "Collapsed predecessor must not be the successor itself: " + successorPath
+    );
+  }
+  if (record.status !== "active") {
+    return plainFailure(
+      "Collapsed predecessor must be active: " + record.relativePath
+    );
+  }
+  if (historyBaseline.recordedDecisionPaths.has(record.relativePath)) {
+    return plainFailure(
+      "Cannot collapse a decision recorded in "
+        + historyBaseline.label
+        + ": "
+        + record.relativePath
+    );
+  }
+  if (
+    finalRelations.some(
+      (relation) => relation.target === record.relativePath
+    )
+  ) {
+    return plainFailure(
+      "The complete final relation list must not retain the collapsed predecessor: "
+        + record.relativePath
+    );
+  }
+
+  const referencingPaths = scan.records
+    .filter((candidate) => candidate.relativePath !== record.relativePath)
+    .filter((candidate) => candidate.relativePath !== successorPath)
+    .filter((candidate) => (
+      candidate.document?.relations ?? candidate.projection.relations
+    ).some((relation) => relation.target === record.relativePath))
+    .map((candidate) => candidate.relativePath);
+  if (referencingPaths.length > 0) {
+    return decisionFailure([
+      "Cannot collapse decision while it is still referenced: "
+        + record.relativePath,
+      "Resolve references from: " + referencingPaths.join(", ")
+    ]);
+  }
+  return { record, status: "ok" };
+}
+
+function prepareUnrecordedHistoryAttention(
+  records: readonly DecisionRecord[],
+  keepUnrecordedHistory: boolean,
+  historyBaseline: DecisionHistoryBaseline | null,
+  canCollapse: boolean
+): DecisionApplicationAttention | null {
+  if (keepUnrecordedHistory || historyBaseline === null) {
+    return null;
+  }
+  const unrecordedPaths = records
+    .map((record) => record.relativePath)
+    .filter((recordPath) => (
+      !historyBaseline.recordedDecisionPaths.has(recordPath)
+    ));
+  if (unrecordedPaths.length === 0) {
+    return null;
+  }
+  return decisionAttention([
+    "The following decisions have not entered "
+      + historyBaseline.label
+      + ": "
+      + unrecordedPaths.join(", ")
+      + ".",
+    "Archiving them now may preserve same-change intermediate decisions as "
+      + "meaningless evolution history; no files were changed.",
+    canCollapse
+      ? "Re-run with --keep-unrecorded-history to preserve that history, or use "
+        + "evolve --collapse-unrecorded <decision-path> with the complete final "
+        + "--relation list."
+      : "Re-run with --keep-unrecorded-history only after deciding that the "
+        + "unrecorded history should be preserved; otherwise resolve it through "
+        + "an explicit evolve collapse."
+  ]);
+}
+
 function evolutionPredecessors(
   scan: DecisionScan,
   successorPath: string,
-  relations: readonly DecisionRelation[]
+  relations: readonly DecisionRelation[],
+  collapsedPredecessor: DecisionRecord | null
 ): { errors: string[]; records: DecisionRecord[] } {
   const errors: string[] = [];
   const records = new Map<string, DecisionRecord>();
+  const collapsedDirectPredecessors = new Set(
+    collapsedPredecessor?.document?.relations.map(
+      (relation) => relation.target
+    ) ?? []
+  );
   for (const relation of relations) {
     if (relation.target === successorPath) {
       errors.push("Decision relation must not target itself: " + successorPath);
@@ -433,8 +629,16 @@ function evolutionPredecessors(
       continue;
     }
     if (predecessor.status !== "active") {
+      if (
+        predecessor.status === "archived"
+        && collapsedDirectPredecessors.has(predecessor.relativePath)
+      ) {
+        continue;
+      }
       errors.push(
-        "Evolution predecessor must be active: " + predecessor.relativePath
+        "Evolution predecessor must be active, unless it is a direct predecessor "
+          + "of the collapsed decision: "
+          + predecessor.relativePath
       );
       continue;
     }

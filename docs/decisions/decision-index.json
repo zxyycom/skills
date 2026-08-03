@@ -82,7 +82,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:833ac37c80e1da58148ae0bf1d2d5aaf04f98569874d88a53c404b852c5a0268",
+  "sourceRevision": "sha256:3d1108865be54e12cac5270f6c4d0c7ac0f52dc36a8b09d11fb1386a3b2cfc7e",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -1417,6 +1417,31 @@
             "target": "decision-records/use-second-precision-lifecycle-index.md"
           }
         ]
+      }
+    },
+    {
+      "id": "decision-records/guard-unrecorded-decision-evolution.md",
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/guard-unrecorded-decision-evolution.md",
+        "title": "显式处理未进入版本基线的决策演进",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-03T02:36:35Z",
+        "purpose": "防止同一未提交变更中的中间判断被无意保存为长期决策演进历史。",
+        "background": "Git 不决定决策是否生效，但能证明一个待归档前序尚未进入已提交基线；删除该前序后的关系又不能安全自动合成。",
+        "decision": "归档未进入 Git HEAD 的决策前先暂停警告，由调用者显式保留历史或通过 evolve 折叠单个中间前序并声明完整最终关系集合。",
+        "relations": []
       }
     },
     {

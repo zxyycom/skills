@@ -7,6 +7,12 @@ export type DecisionApplicationFailure = {
   status: "error";
 };
 
+export type DecisionApplicationAttention = {
+  exitCode: 1;
+  status: "attention";
+  warnings: string[];
+};
+
 export function decisionFailure(
   errors: string[],
   options: {
@@ -19,5 +25,15 @@ export function decisionFailure(
     exitCode: options.exitCode ?? 1,
     presentation: options.presentation ?? "command",
     status: "error"
+  };
+}
+
+export function decisionAttention(
+  warnings: string[]
+): DecisionApplicationAttention {
+  return {
+    exitCode: 1,
+    status: "attention",
+    warnings
   };
 }

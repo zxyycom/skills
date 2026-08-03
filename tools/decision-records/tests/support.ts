@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -82,6 +83,29 @@ export async function createFixtureWorkspace(
   );
   await fs.cp(fixtureRoot, workspaceRoot, { recursive: true });
   return workspaceRoot;
+}
+
+export function initializeGitRepository(workspaceRoot: string): void {
+  runGit(workspaceRoot, ["init", "--quiet"]);
+  runGit(workspaceRoot, ["config", "core.autocrlf", "false"]);
+  runGit(workspaceRoot, [
+    "config",
+    "user.email",
+    "decision-records@example.invalid"
+  ]);
+  runGit(workspaceRoot, [
+    "config",
+    "user.name",
+    "Decision Records Test"
+  ]);
+}
+
+export function commitWorkspace(
+  workspaceRoot: string,
+  message = "decision baseline"
+): void {
+  runGit(workspaceRoot, ["add", "."]);
+  runGit(workspaceRoot, ["commit", "--quiet", "--message", message]);
 }
 
 export async function withFixtureWorkspace<T>(
@@ -255,4 +279,11 @@ export function findIndexEntry(
   const entry = index.entries.find((candidate) => candidate.id === decisionPath);
   assert.ok(entry, "Expected indexed decision " + decisionPath);
   return entry.state;
+}
+
+function runGit(workingDirectory: string, args: readonly string[]): string {
+  return execFileSync("git", ["-C", workingDirectory, ...args], {
+    encoding: "utf8",
+    windowsHide: true
+  });
 }

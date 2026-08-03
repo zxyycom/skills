@@ -33,10 +33,12 @@ export type Command =
 
 export type CliArgs = {
   alignment: DecisionListAlignment;
+  collapseUnrecordedPath: string | null;
   command: Command;
   decisionsDir: string;
   domain: string | null;
   fullTime: boolean;
+  keepUnrecordedHistory: boolean;
   recordPaths: string[];
   relations: DecisionRelation[];
   status: DecisionListStatus;
@@ -48,11 +50,13 @@ export type CliArgs = {
 
 type ParsedOptions = {
   alignment?: DecisionListAlignment;
+  collapseUnrecorded?: string;
   decisionsDir?: string;
   domain?: string;
   depth?: number;
   direction?: DecisionTraceDirection;
   fullTime?: boolean;
+  keepUnrecordedHistory?: boolean;
   relation?: DecisionRelation[];
   root?: string;
   status?: DecisionListStatus;
@@ -78,6 +82,18 @@ function parseTraceDepth(value: string): number {
 function parseSingleDomainId(value: string, previous?: string): string {
   if (!isDecisionDomainId(value)) {
     throw new InvalidArgumentError("must be a kebab-case domain id");
+  }
+  if (previous !== undefined) {
+    throw new InvalidArgumentError("must not be repeated");
+  }
+  return value;
+}
+
+function parseSingleDecisionPath(value: string, previous?: string): string {
+  if (!isDecisionRelativePath(value)) {
+    throw new InvalidArgumentError(
+      "must be a decision-root-relative POSIX path"
+    );
   }
   if (previous !== undefined) {
     throw new InvalidArgumentError("must not be repeated");
@@ -129,10 +145,12 @@ function commandArgs(
   const options = commanderCommand.optsWithGlobals<ParsedOptions>();
   return {
     alignment: options.alignment ?? "all",
+    collapseUnrecordedPath: options.collapseUnrecorded ?? null,
     command,
     decisionsDir: options.decisionsDir ?? "docs/decisions",
     domain: options.domain ?? null,
     fullTime: options.fullTime ?? false,
+    keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
     recordPaths,
     relations: options.relation ?? [],
     status: options.status ?? "active",
@@ -159,10 +177,17 @@ function createSubcommand(
 function createDecisionRelationOption(required = false): Option {
   const option = new Option(
     "--relation <type=decision-path>",
-    "Set one direct predecessor relation and archive its active target; "
-      + "repeat to set the complete relation list."
+    "Set one final direct predecessor relation; active targets are archived. "
+      + "Repeat to set the complete relation list."
   ).argParser(parseDecisionRelation);
   return required ? option.makeOptionMandatory() : option;
+}
+
+function createKeepUnrecordedHistoryOption(): Option {
+  return new Option(
+    "--keep-unrecorded-history",
+    "Explicitly preserve decisions that have not entered Git HEAD."
+  );
 }
 
 export function createCliProgram(
@@ -186,7 +211,8 @@ export function createCliProgram(
       + "domain-id/use-semantic-title.md.\n"
       + "Unactivated candidates remain outside the index and are reported as warnings.\n"
       + "Exit codes: 0 success (queries and scoped maintenance may report warnings), "
-      + "1 blocking validation or index failure, 2 invalid arguments."
+      + "1 paused lifecycle choice, blocking validation, or index failure, "
+      + "2 invalid arguments."
     )
     .exitOverride();
 
@@ -282,21 +308,31 @@ export function createCliProgram(
         .choices(decisionAlignments)
         .makeOptionMandatory()
     )
-    .addOption(createDecisionRelationOption());
+    .addOption(createDecisionRelationOption())
+    .addOption(createKeepUnrecordedHistoryOption());
   activate.action((recordPath: string) => execute("activate", activate, [recordPath]));
 
   const evolve = createSubcommand(
     program,
     "evolve <decision-path>",
-    "Activate one new decision and archive every explicitly related direct "
-      + "predecessor in one recoverable transaction."
+    "Activate one new decision, archive explicit active predecessors, and "
+      + "optionally collapse one unrecorded intermediate predecessor in one "
+      + "recoverable transaction."
   )
     .addOption(
       new Option("--alignment <value>", "Alignment state for the active decision.")
         .choices(decisionAlignments)
         .makeOptionMandatory()
     )
-    .addOption(createDecisionRelationOption(true));
+    .addOption(createDecisionRelationOption())
+    .addOption(createKeepUnrecordedHistoryOption())
+    .addOption(
+      new Option(
+        "--collapse-unrecorded <decision-path>",
+        "Delete one active predecessor absent from Git HEAD; --relation values "
+          + "must declare the complete final relation list."
+      ).argParser(parseSingleDecisionPath)
+    );
   evolve.action((recordPath: string) => execute("evolve", evolve, [recordPath]));
 
   const markAligned = createSubcommand(
@@ -313,7 +349,7 @@ export function createCliProgram(
     program,
     "archive <decision-path...>",
     "Set active decisions to archived with null alignment without changing relations."
-  );
+  ).addOption(createKeepUnrecordedHistoryOption());
   archive.action((recordPaths: string[]) => execute("archive", archive, recordPaths));
 
   const discard = createSubcommand(

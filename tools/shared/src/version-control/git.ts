@@ -1,4 +1,5 @@
 import { execFile } from "node:child_process";
+import fs from "node:fs/promises";
 import path from "node:path";
 import {
   simpleGit,
@@ -39,26 +40,80 @@ type GitIndexEntry = {
 type GitCommandExit = {
   exitCode: number;
   stderr: string;
+  stdout: string;
 };
 
 export async function openGitVersionControl(
   startDirectory: string
 ): Promise<VersionControlRepository> {
   const resolvedStart = path.resolve(startDirectory);
-  let rootDirectory: string;
+  let discoveryState: GitCommandExit;
   try {
-    const discoveryClient = createGitClient(resolvedStart);
-    rootDirectory = path.resolve(
-      (await discoveryClient.revparse(["--show-toplevel"])).trim()
-    );
+    discoveryState = await runGitForExitCode(resolvedStart, [
+      "rev-parse",
+      "--show-toplevel"
+    ]);
   } catch {
-    throw new VersionControlError(
-      "not-repository",
-      `No Git worktree could be opened from ${resolvedStart}`
+    throw operationError(`discover a Git worktree from ${resolvedStart}`);
+  }
+
+  if (discoveryState.exitCode !== 0) {
+    let hasWorktreeMarker: boolean;
+    try {
+      hasWorktreeMarker = await hasGitWorktreeMarker(resolvedStart);
+    } catch {
+      throw operationError(`discover a Git worktree from ${resolvedStart}`);
+    }
+    if (discoveryState.exitCode === 128 && !hasWorktreeMarker) {
+      throw new VersionControlError(
+        "not-repository",
+        `No Git worktree could be opened from ${resolvedStart}`
+      );
+    }
+    throw operationError(`discover a Git worktree from ${resolvedStart}`);
+  }
+
+  const discoveredRoot = discoveryState.stdout.trim();
+  if (discoveredRoot.length === 0) {
+    throw operationError(`discover a Git worktree from ${resolvedStart}`);
+  }
+  const rootDirectory = path.resolve(resolvedStart, discoveredRoot);
+
+  return new GitVersionControlRepository(rootDirectory);
+}
+
+async function hasGitWorktreeMarker(startDirectory: string): Promise<boolean> {
+  const canonicalStart = await fs.realpath(startDirectory);
+  if (!(await fs.stat(canonicalStart)).isDirectory()) {
+    throw new Error(
+      `Version-control discovery path is not a directory: ${startDirectory}`
     );
   }
 
-  return new GitVersionControlRepository(rootDirectory);
+  let candidate = canonicalStart;
+  while (true) {
+    try {
+      await fs.lstat(path.join(candidate, ".git"));
+      return true;
+    } catch (cause) {
+      if (!isFileNotFoundError(cause)) {
+        throw cause;
+      }
+    }
+
+    const parent = path.dirname(candidate);
+    if (parent === candidate) {
+      return false;
+    }
+    candidate = parent;
+  }
+}
+
+function isFileNotFoundError(cause: unknown): boolean {
+  return typeof cause === "object"
+    && cause !== null
+    && "code" in cause
+    && cause.code === "ENOENT";
 }
 
 class GitVersionControlRepository implements VersionControlRepository {
@@ -447,15 +502,15 @@ function runGitForExitCode(
         maxBuffer: gitOutputMaxBuffer,
         windowsHide: true
       },
-      (error, _stdout, stderr) => {
+      (error, stdout, stderr) => {
         if (error === null) {
-          resolve({ exitCode: 0, stderr });
+          resolve({ exitCode: 0, stderr, stdout });
           return;
         }
 
         const exitCode = (error as Error & { code?: string | number }).code;
         if (typeof exitCode === "number") {
-          resolve({ exitCode, stderr });
+          resolve({ exitCode, stderr, stdout });
           return;
         }
         reject(error);

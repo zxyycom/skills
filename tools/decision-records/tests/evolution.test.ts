@@ -9,10 +9,12 @@ import { scanDecisionRecords } from "../src/scan.ts";
 import {
   archivedRelativePath,
   candidateDecisionBody,
+  commitWorkspace,
   currentRelativePath,
   decisionFilePath,
   findIndexEntry,
   generatedCliPath,
+  initializeGitRepository,
   readIndex,
   runBundledCli,
   runSourceCli,
@@ -164,6 +166,8 @@ test("decision evolution validates relation semantics and target states", () => 
 
 test("activation archives a direct predecessor and traces bounded relations", () => (
   withFixtureWorkspace("relation-activation", async (workspaceRoot) => {
+  initializeGitRepository(workspaceRoot);
+  commitWorkspace(workspaceRoot);
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
   const successorRelativePath = "project-tooling/use-bundled-cli.md";
@@ -250,6 +254,7 @@ test("activation archives a direct predecessor and traces bounded relations", ()
   })
 ));
 
+
 test("evolve rejects duplicate predecessor arguments without mutation", () => (
   withFixtureWorkspace("evolve-command", async (workspaceRoot) => {
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
@@ -313,8 +318,25 @@ test("decision transactions roll back relation validation failures", () => (
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
   const currentPath = decisionFilePath(workspaceRoot, currentRelativePath);
   const archivedPath = decisionFilePath(workspaceRoot, archivedRelativePath);
+  const deletedRelativePath =
+    "decision-records/restore-deleted-decision-after-rollback.md";
+  const deletedPath = decisionFilePath(workspaceRoot, deletedRelativePath);
+  await fs.writeFile(
+    deletedPath,
+    candidateDecisionBody({ alignment: "aligned" }),
+    "utf8"
+  );
+  await runSuccessfulSourceCli([
+    "activate",
+    deletedRelativePath,
+    "--alignment",
+    "aligned",
+    "--root",
+    workspaceRoot
+  ]);
   const currentBeforeRollback = await fs.readFile(currentPath, "utf8");
   const archivedBeforeRollback = await fs.readFile(archivedPath, "utf8");
+  const deletedBeforeRollback = await fs.readFile(deletedPath, "utf8");
   const indexBeforeRollback = await fs.readFile(indexPath, "utf8");
   const currentInvalidUpdate = currentBeforeRollback.replace(
     "alignment: aligned",
@@ -327,6 +349,7 @@ test("decision transactions roll back relation validation failures", () => (
   assert.notEqual(archivedInvalidUpdate, archivedBeforeRollback);
   const rollbackErrors = await applyDecisionChanges({
     changes: [
+      { decisionPath: deletedPath, nextText: null },
       { decisionPath: currentPath, nextText: currentInvalidUpdate },
       { decisionPath: archivedPath, nextText: archivedInvalidUpdate }
     ],
@@ -338,6 +361,7 @@ test("decision transactions roll back relation validation failures", () => (
   ));
   assert.equal(await fs.readFile(currentPath, "utf8"), currentBeforeRollback);
   assert.equal(await fs.readFile(archivedPath, "utf8"), archivedBeforeRollback);
+  assert.equal(await fs.readFile(deletedPath, "utf8"), deletedBeforeRollback);
   assert.equal(await fs.readFile(indexPath, "utf8"), indexBeforeRollback);
   })
 ));

@@ -361,6 +361,23 @@ test("rejects directories that are not Git repositories", gitTestOptions, async 
   });
 });
 
+test("reports Git worktree discovery failures as operation failures", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const brokenWorktree = path.join(tempRoot, "broken-worktree");
+    await fs.mkdir(brokenWorktree, { recursive: true });
+    await fs.writeFile(
+      path.join(brokenWorktree, ".git"),
+      "invalid Git worktree metadata\n",
+      "utf8"
+    );
+
+    await assert.rejects(
+      openVersionControl(brokenWorktree),
+      (error: unknown) => hasVersionControlCode(error, "operation-failed")
+    );
+  });
+});
+
 function initializeRepository(repositoryRoot: string): void {
   runGit(repositoryRoot, ["init", "--quiet"]);
   runGit(repositoryRoot, ["config", "core.autocrlf", "false"]);
