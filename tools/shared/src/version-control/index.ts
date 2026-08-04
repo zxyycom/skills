@@ -9,6 +9,8 @@ export type {
   ListChangedPathsOptions,
   ListPendingChangedPathsOptions,
   ListVersionControlFilesOptions,
+  ReplacePendingFilesOptions,
+  ReplacePendingFilesResult,
   RevisionId,
   VersionControlFile,
   VersionControlRepository

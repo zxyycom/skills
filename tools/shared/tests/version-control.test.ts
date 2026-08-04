@@ -8,6 +8,7 @@ import {
   openVersionControl,
   VersionControlError
 } from "../src/version-control/index.ts";
+import { openGitVersionControl } from "../src/version-control/git.ts";
 
 const gitTestOptions = { timeout: 15_000 };
 
@@ -163,6 +164,272 @@ test("reads pending index content separately from workspace state", gitTestOptio
       "docs/tracked.md",
       "docs/untracked.md"
     ]);
+  });
+});
+
+test("replaces a literal pending range exactly and preserves pending files outside it", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { repositoryRoot } = await createRepositoryFixture(tempRoot);
+    await writeFile(repositoryRoot, "selected/modify.md", "revision modify\n");
+    await writeFile(repositoryRoot, "selected/delete.md", "revision delete\n");
+    await writeFile(repositoryRoot, "selected/link.md", "revision link\n");
+    await writeFile(repositoryRoot, "selected/mode-only.md", "revision mode\n");
+    await writeFile(repositoryRoot, "outside/keep.md", "revision outside\n");
+    runGit(repositoryRoot, ["add", "selected", "outside"]);
+    runGit(repositoryRoot, ["commit", "--quiet", "--message", "replacement base"]);
+
+    await writeFile(repositoryRoot, "selected/modify.md", "old pending modify\n");
+    await writeFile(repositoryRoot, "outside/keep.md", "pending outside\n");
+    runGit(repositoryRoot, [
+      "add",
+      "selected/modify.md",
+      "outside/keep.md"
+    ]);
+    runGit(repositoryRoot, [
+      "update-index",
+      "--chmod=+x",
+      "selected/mode-only.md"
+    ]);
+    const linkObjectId = writeGitBlob(repositoryRoot, "pending link target");
+    runGit(repositoryRoot, [
+      "update-index",
+      "--add",
+      "--cacheinfo",
+      `120000,${linkObjectId},selected/link.md`
+    ]);
+    await writeFile(repositoryRoot, "selected/modify.md", "workspace modify\n");
+
+    const repository = await openVersionControl(repositoryRoot);
+    const result = await repository.replacePendingFiles({
+      expectedRevision: await repository.getCurrentRevision(),
+      files: [
+        { data: Buffer.from("target add\n"), path: "selected/add.md" },
+        { data: Buffer.from("revision link\n"), path: "selected/link.md" },
+        { data: Buffer.from("revision mode\n"), path: "selected/mode-only.md" },
+        { data: Buffer.from("target modify\n"), path: "selected/modify.md" }
+      ],
+      pathScope: "selected"
+    });
+
+    assert.deepEqual(result, {
+      pathScope: "selected",
+      pendingPaths: [
+        "selected/add.md",
+        "selected/link.md",
+        "selected/mode-only.md",
+        "selected/modify.md"
+      ],
+      previousPaths: [
+        "selected/delete.md",
+        "selected/link.md",
+        "selected/mode-only.md",
+        "selected/modify.md"
+      ]
+    });
+    assert.deepEqual(
+      await readPendingText(repository, "selected"),
+      [
+        { data: "target add\n", path: "selected/add.md" },
+        { data: "revision link\n", path: "selected/link.md" },
+        { data: "revision mode\n", path: "selected/mode-only.md" },
+        { data: "target modify\n", path: "selected/modify.md" }
+      ]
+    );
+    assert.deepEqual(
+      await readPendingText(repository, "outside/keep.md"),
+      [{ data: "pending outside\n", path: "outside/keep.md" }]
+    );
+    assert.deepEqual(
+      await repository.listPendingChangedPaths({ from: "HEAD" }),
+      [
+        "outside/keep.md",
+        "selected/add.md",
+        "selected/delete.md",
+        "selected/modify.md"
+      ]
+    );
+    assert.deepEqual(readPendingModes(repositoryRoot, [
+      "selected/link.md",
+      "selected/mode-only.md"
+    ]), [
+      { mode: "100644", path: "selected/link.md" },
+      { mode: "100644", path: "selected/mode-only.md" }
+    ]);
+    assert.equal(
+      await fs.readFile(
+        path.join(repositoryRoot, "selected/modify.md"),
+        "utf8"
+      ),
+      "workspace modify\n"
+    );
+  });
+});
+
+test("rejects invalid pending replacement paths without changing pending files", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { repositoryRoot } = await createRepositoryFixture(tempRoot);
+    const repository = await openVersionControl(repositoryRoot);
+    const before = await readPendingText(repository);
+    const expectedRevision = await repository.getCurrentRevision();
+
+    await assert.rejects(
+      repository.replacePendingFiles({
+        expectedRevision,
+        files: [{ data: Buffer.from("outside\n"), path: "outside.md" }],
+        pathScope: "docs"
+      }),
+      (error: unknown) => hasVersionControlCode(error, "invalid-path")
+    );
+    await assert.rejects(
+      repository.replacePendingFiles({
+        expectedRevision,
+        files: [
+          { data: Buffer.from("one\n"), path: "docs/duplicate.md" },
+          { data: Buffer.from("two\n"), path: "docs\\duplicate.md" }
+        ],
+        pathScope: "docs"
+      }),
+      (error: unknown) => hasVersionControlCode(error, "invalid-path")
+    );
+    await assert.rejects(
+      repository.replacePendingFiles({
+        expectedRevision,
+        files: [],
+        pathScope: "../docs"
+      }),
+      (error: unknown) => hasVersionControlCode(error, "invalid-path")
+    );
+
+    assert.deepEqual(await readPendingText(repository), before);
+  });
+});
+
+test("rejects stale pending replacements without changing pending files", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { repositoryRoot } = await createRepositoryFixture(tempRoot);
+    const repository = await openVersionControl(repositoryRoot);
+    const staleRevision = await repository.getCurrentRevision();
+    runGit(repositoryRoot, [
+      "commit",
+      "--quiet",
+      "--message",
+      "advance revision"
+    ]);
+    const currentRevision = await repository.getCurrentRevision();
+    const before = await readPendingText(repository);
+    const replacement = [{
+      data: Buffer.from("replacement\n"),
+      path: "docs/tracked.md"
+    }];
+
+    await assert.rejects(
+      repository.replacePendingFiles({
+        expectedRevision: staleRevision,
+        files: replacement,
+        pathScope: "docs"
+      }),
+      isPendingConflict
+    );
+    assert.deepEqual(await readPendingText(repository), before);
+
+    const lockPath = path.join(repositoryRoot, ".git", "index.lock");
+    await fs.writeFile(lockPath, "busy\n", "utf8");
+    try {
+      await assert.rejects(
+        repository.replacePendingFiles({
+          expectedRevision: currentRevision,
+          files: replacement,
+          pathScope: "docs"
+        }),
+        isPendingConflict
+      );
+    } finally {
+      await fs.rm(lockPath, { force: true });
+    }
+    assert.deepEqual(await readPendingText(repository), before);
+  });
+});
+
+test("restores the original range after a pending write failure", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { repositoryRoot } = await createRepositoryFixture(tempRoot);
+    const repository = await openGitVersionControl(repositoryRoot, {
+      beforePendingWrite: () => {
+        throw new Error("injected write failure");
+      }
+    });
+    const before = await readPendingText(repository, "docs");
+    await assert.rejects(
+      repository.replacePendingFiles({
+        expectedRevision: await repository.getCurrentRevision(),
+        files: [{
+          data: Buffer.from("replacement\n"),
+          path: "docs/tracked.md"
+        }],
+        pathScope: "docs"
+      }),
+      (error: unknown) => error instanceof VersionControlError
+        && error.code === "pending-replacement-failed"
+        && error.message.includes("the original range was restored")
+        && !/git|index|object|mode|lock/iu.test(error.message)
+    );
+    assert.deepEqual(await readPendingText(repository, "docs"), before);
+  });
+});
+
+test("restores the original range after pending readback fails", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { repositoryRoot } = await createRepositoryFixture(tempRoot);
+    const repository = await openGitVersionControl(repositoryRoot, {
+      afterPendingWrite: () => {
+        throw new Error("injected readback failure");
+      }
+    });
+    const before = await readPendingText(repository, "docs");
+
+    await assert.rejects(
+      repository.replacePendingFiles({
+        expectedRevision: await repository.getCurrentRevision(),
+        files: [{
+          data: Buffer.from("replacement\n"),
+          path: "docs/tracked.md"
+        }],
+        pathScope: "docs"
+      }),
+      (error: unknown) => hasVersionControlCode(
+        error,
+        "pending-replacement-failed"
+      )
+    );
+    assert.deepEqual(await readPendingText(repository, "docs"), before);
+  });
+});
+
+test("reports incomplete pending recovery with stable public semantics", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { repositoryRoot } = await createRepositoryFixture(tempRoot);
+    const repository = await openGitVersionControl(repositoryRoot, {
+      afterPendingWrite: () => {
+        throw new Error("injected readback failure");
+      },
+      beforePendingRecovery: () => {
+        throw new Error("injected recovery failure");
+      }
+    });
+    await assert.rejects(
+      repository.replacePendingFiles({
+        expectedRevision: await repository.getCurrentRevision(),
+        files: [{
+          data: Buffer.from("replacement\n"),
+          path: "docs/tracked.md"
+        }],
+        pathScope: "docs"
+      }),
+      (error: unknown) => error instanceof VersionControlError
+        && error.code === "pending-recovery-failed"
+        && error.message.includes("the range may be partially updated")
+        && !/git|index|object|mode|lock/iu.test(error.message)
+    );
   });
 });
 
@@ -404,6 +671,37 @@ function runGit(workingDirectory: string, args: readonly string[]): string {
   });
 }
 
+function writeGitBlob(workingDirectory: string, content: string): string {
+  return execFileSync(
+    "git",
+    ["-C", workingDirectory, "hash-object", "-w", "--stdin"],
+    {
+      encoding: "utf8",
+      input: Buffer.from(content, "utf8"),
+      windowsHide: true
+    }
+  ).trim();
+}
+
+function readPendingModes(
+  workingDirectory: string,
+  paths: readonly string[]
+): Array<{ mode: string; path: string }> {
+  return runGit(workingDirectory, [
+    "ls-files",
+    "--stage",
+    "--",
+    ...paths
+  ]).trim().split("\n").filter((line) => line.length > 0).map((line) => {
+    const match = /^(?<mode>[0-7]{6}) [a-f0-9]+ 0\t(?<path>.+)$/u.exec(line);
+    assert.ok(match?.groups !== undefined, `unexpected pending entry: ${line}`);
+    return {
+      mode: match.groups.mode ?? "",
+      path: match.groups.path ?? ""
+    };
+  });
+}
+
 async function writeFile(
   rootDirectory: string,
   relativePath: string,
@@ -419,4 +717,24 @@ function hasVersionControlCode(
   code: VersionControlError["code"]
 ): boolean {
   return error instanceof VersionControlError && error.code === code;
+}
+
+function isPendingConflict(error: unknown): boolean {
+  return error instanceof VersionControlError
+    && error.code === "pending-conflict"
+    && error.message.includes("retry from the current revision")
+    && !/git|index|object|mode|lock/iu.test(error.message);
+}
+
+async function readPendingText(
+  repository: Awaited<ReturnType<typeof openVersionControl>>,
+  pathScope?: string
+): Promise<Array<{ data: string; path: string }>> {
+  const files = await repository.readPendingFiles(
+    pathScope === undefined ? {} : { pathScopes: [pathScope] }
+  );
+  return files.map((file) => ({
+    data: Buffer.from(file.data).toString("utf8"),
+    path: file.path
+  }));
 }

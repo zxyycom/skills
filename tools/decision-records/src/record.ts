@@ -24,17 +24,31 @@ const sectionOrder = [
 ];
 const requiredSections = new Set(sectionOrder);
 
+type DecisionRelationTargetExists = (
+  relativePath: string
+) => boolean | Promise<boolean>;
+
+type DecisionRelationTargetSource =
+  | {
+      decisionsDirectory: string;
+      targetExists?: never;
+    }
+  | {
+      decisionsDirectory?: never;
+      targetExists: DecisionRelationTargetExists;
+    };
+
 async function validateDecisionRelations(options: {
-  decisionsDirectory: string;
   errors: string[];
   relations: readonly DecisionRelation[];
   relativePath: string;
+  targetExists: DecisionRelationTargetExists;
 }): Promise<void> {
   const {
-    decisionsDirectory,
     errors,
     relations,
-    relativePath
+    relativePath,
+    targetExists
   } = options;
 
   for (const relation of relations) {
@@ -42,11 +56,7 @@ async function validateDecisionRelations(options: {
       errors.push(relativePath + " must not relate to itself");
       continue;
     }
-    const resolvedTarget = path.join(
-      decisionsDirectory,
-      ...relation.target.split("/")
-    );
-    if (!await pathExists(resolvedTarget)) {
+    if (!await targetExists(relation.target)) {
       errors.push(
         relativePath
         + " relationship "
@@ -58,18 +68,30 @@ async function validateDecisionRelations(options: {
   }
 }
 
-export async function validateDecisionBody(options: {
-  allowNullCreatedAt?: boolean;
-  body: string;
-  decisionsDirectory: string;
-  errors: string[];
-  fileName: string;
-  relativePath: string;
-}): Promise<ValidatedDecisionBody | null> {
+function resolveDecisionRelationTargetExists(
+  source: DecisionRelationTargetSource
+): DecisionRelationTargetExists {
+  if (source.targetExists !== undefined) {
+    return source.targetExists;
+  }
+  return (relativePath) => pathExists(path.join(
+    source.decisionsDirectory,
+    ...relativePath.split("/")
+  ));
+}
+
+export async function validateDecisionBody(
+  options: {
+    allowNullCreatedAt?: boolean;
+    body: string;
+    errors: string[];
+    fileName: string;
+    relativePath: string;
+  } & DecisionRelationTargetSource
+): Promise<ValidatedDecisionBody | null> {
   const {
     allowNullCreatedAt = false,
     body: rawBody,
-    decisionsDirectory,
     fileName,
     relativePath,
     errors
@@ -147,10 +169,10 @@ export async function validateDecisionBody(options: {
 
   if (projection) {
     await validateDecisionRelations({
-      decisionsDirectory,
       errors,
       relations: projection.relations,
-      relativePath
+      relativePath,
+      targetExists: resolveDecisionRelationTargetExists(options)
     });
   }
 

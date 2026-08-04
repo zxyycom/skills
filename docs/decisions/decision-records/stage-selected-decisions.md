@@ -1,7 +1,7 @@
 ---
 title: 按指定决策构造待提交快照
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-03T10:35:38Z
 purpose: 让调用者从并行磁盘决策变化中选择可独立提交且索引一致的待提交决策集合。
 background: 单一完整索引使普通路径暂存无法隔离并行决策，而生命周期命令只维护磁盘决策集合。

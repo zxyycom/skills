@@ -1,7 +1,7 @@
 ---
 title: 由共享版本管理层承接待提交快照写入
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-03T10:35:28Z
 purpose: 让调用方通过共享版本管理 owner 读写待提交快照，而不依赖底层实现的专属信息。
 background: 指定范围的待提交快照需要完整替换与失败恢复，领域消费者直接调用 Git 会破坏共享边界。

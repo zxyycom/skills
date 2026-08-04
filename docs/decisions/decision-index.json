@@ -82,7 +82,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:259eb12e2f57452238f56ccdd10bdbe7ad6c363f167a1bbc5108db9e590c5e96",
+  "sourceRevision": "sha256:bfbf6c9979f239a62ea3823b8a86da6baa0e255329d0c501cb7bcbc0688c7642",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -1677,14 +1677,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "decision-records/stage-selected-decisions.md",
         "title": "按指定决策构造待提交快照",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-03T10:35:38Z",
         "purpose": "让调用者从并行磁盘决策变化中选择可独立提交且索引一致的待提交决策集合。",
         "background": "单一完整索引使普通路径暂存无法隔离并行决策，而生命周期命令只维护磁盘决策集合。",
@@ -3842,14 +3842,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "version-control/manage-pending-snapshot-writes.md",
         "title": "由共享版本管理层承接待提交快照写入",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-03T10:35:28Z",
         "purpose": "让调用方通过共享版本管理 owner 读写待提交快照，而不依赖底层实现的专属信息。",
         "background": "指定范围的待提交快照需要完整替换与失败恢复，领域消费者直接调用 Git 会破坏共享边界。",

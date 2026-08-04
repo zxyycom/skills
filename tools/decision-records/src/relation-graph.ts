@@ -1,4 +1,5 @@
 import type {
+  DecisionDocument,
   DecisionProjection,
   DecisionRecord,
   DecisionRelationType,
@@ -26,10 +27,11 @@ type DecisionRelationGraph = {
   edges: DecisionRelationEdge[];
   edgesBySource: Map<string, DecisionRelationEdge[]>;
   edgesByTarget: Map<string, DecisionRelationEdge[]>;
-  recordByPath: Map<string, DecisionRelationRecord>;
+  recordByPath: Map<string, DecisionRelationConsistencyRecord>;
 };
 
-type DecisionRelationRecord = {
+export type DecisionRelationConsistencyRecord = {
+  document?: DecisionDocument | null;
   projection: DecisionProjection;
   relativePath: string;
   status: DecisionStatus | null;
@@ -53,7 +55,7 @@ function indexEdges(
 }
 
 export function collectDecisionRelationEdges(
-  records: readonly DecisionRelationRecord[]
+  records: readonly DecisionRelationConsistencyRecord[]
 ): DecisionRelationEdge[] {
   return records.flatMap((record) =>
     record.projection.relations.map((relation) => ({
@@ -65,7 +67,7 @@ export function collectDecisionRelationEdges(
 }
 
 function buildDecisionRelationGraph(
-  records: readonly DecisionRelationRecord[]
+  records: readonly DecisionRelationConsistencyRecord[]
 ): DecisionRelationGraph {
   const edges = collectDecisionRelationEdges(records);
   return {
@@ -86,7 +88,7 @@ function compareEdges(
 }
 
 export function traceDecisionRelations(
-  records: readonly DecisionRelationRecord[],
+  records: readonly DecisionRelationConsistencyRecord[],
   startPath: string,
   options: {
     direction: DecisionTraceDirection;
@@ -137,7 +139,7 @@ export function decisionRelationConsistencyErrors(
 }
 
 export function decisionRelationConsistencyIssues(
-  records: readonly DecisionRecord[]
+  records: readonly DecisionRelationConsistencyRecord[]
 ): DecisionRelationConsistencyIssue[] {
   const graph = buildDecisionRelationGraph(records.map((record) => ({
     ...record,

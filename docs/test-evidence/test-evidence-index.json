@@ -1418,6 +1418,246 @@
       }
     },
     {
+      "id": "DECISION-STAGE-BOOTSTRAP-001",
+      "keys": {
+        "search": [
+          "DECISION-STAGE-BOOTSTRAP-001 Stage 引导首个 pending 决策集合 revision 尚无决策范围时，`stage` 使用完整合法的 filesystem 领域目录表与显式选择的已建立决策构造首个 pending 集合。 `HEAD` 已由决策范围外的提交建立，但其 `docs/decisions` 范围为空，首次决策集合仍从完整合法的 filesystem 领域目录表引导。 pending 同时包含 filesystem 领域目录表、所选决策和由该来源生成的完整索引。 索引只含所选首条决策且 `sourceRevision` 与 pending 来源一致，filesystem 不新增索引文件。 tools/decision-records/tests/stage.test.ts > stage bootstraps the first pending decision collection bun test --test-name-pattern=\"^stage bootstraps the first pending decision collection$\" ./tools/decision-records/tests/stage.test.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage bootstraps the first pending decision collection",
+          "bun test --test-name-pattern=\"^stage bootstraps the first pending decision collection$\" ./tools/decision-records/tests/stage.test.ts"
+        ],
+        "id": "DECISION-STAGE-BOOTSTRAP-001",
+        "line": 1,
+        "searchText": "DECISION-STAGE-BOOTSTRAP-001 Stage 引导首个 pending 决策集合 revision 尚无决策范围时，`stage` 使用完整合法的 filesystem 领域目录表与显式选择的已建立决策构造首个 pending 集合。 `HEAD` 已由决策范围外的提交建立，但其 `docs/decisions` 范围为空，首次决策集合仍从完整合法的 filesystem 领域目录表引导。 pending 同时包含 filesystem 领域目录表、所选决策和由该来源生成的完整索引。 索引只含所选首条决策且 `sourceRevision` 与 pending 来源一致，filesystem 不新增索引文件。 tools/decision-records/tests/stage.test.ts > stage bootstraps the first pending decision collection bun test --test-name-pattern=\"^stage bootstraps the first pending decision collection$\" ./tools/decision-records/tests/stage.test.ts",
+        "sourcePath": "decision-records/stage-bootstraps-the-first-pending-decision-collection.md",
+        "summary": "revision 尚无决策范围时，`stage` 使用完整合法的 filesystem 领域目录表与显式选择的已建立决策构造首个 pending 集合。",
+        "title": "Stage 引导首个 pending 决策集合"
+      }
+    },
+    {
+      "id": "DECISION-STAGE-CLI-001",
+      "keys": {
+        "search": [
+          "DECISION-STAGE-CLI-001 CLI 独立公开 Stage 且不扩展生命周期选项 指定决策进入 pending 使用独立 `stage <decision-path...>` 命令，生命周期命令保持 filesystem 责任且不提供 `--stage`。 顶层 CLI 帮助列出接受一个或多个显式路径的 `stage` 命令。 `activate`、`evolve`、`archive`、`mark-aligned` 和 `discard` 的帮助均不包含 `--stage`。 tools/decision-records/tests/stage.test.ts > help exposes stage independently without adding lifecycle stage options bun test --test-name-pattern=\"^help exposes stage independently without adding lifecycle stage options$\" ./tools/decision-records/tests/stage.test.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > help exposes stage independently without adding lifecycle stage options",
+          "bun test --test-name-pattern=\"^help exposes stage independently without adding lifecycle stage options$\" ./tools/decision-records/tests/stage.test.ts"
+        ],
+        "id": "DECISION-STAGE-CLI-001",
+        "line": 1,
+        "searchText": "DECISION-STAGE-CLI-001 CLI 独立公开 Stage 且不扩展生命周期选项 指定决策进入 pending 使用独立 `stage <decision-path...>` 命令，生命周期命令保持 filesystem 责任且不提供 `--stage`。 顶层 CLI 帮助列出接受一个或多个显式路径的 `stage` 命令。 `activate`、`evolve`、`archive`、`mark-aligned` 和 `discard` 的帮助均不包含 `--stage`。 tools/decision-records/tests/stage.test.ts > help exposes stage independently without adding lifecycle stage options bun test --test-name-pattern=\"^help exposes stage independently without adding lifecycle stage options$\" ./tools/decision-records/tests/stage.test.ts",
+        "sourcePath": "decision-records/help-exposes-stage-independently-without-adding-lifecycle-stage-options.md",
+        "summary": "指定决策进入 pending 使用独立 `stage <decision-path...>` 命令，生命周期命令保持 filesystem 责任且不提供 `--stage`。",
+        "title": "CLI 独立公开 Stage 且不扩展生命周期选项"
+      }
+    },
+    {
+      "id": "DECISION-STAGE-INPUT-001",
+      "keys": {
+        "search": [
+          "DECISION-STAGE-INPUT-001 Stage 拒绝非法重复和缺失路径且保持 pending `stage` 只接受唯一、合法且至少存在于 revision 或 filesystem 一处的决策根相对 POSIX Markdown 路径。 越界路径、重复路径和两处都缺失的路径均以参数失败退出且不产生成功输出。 每次失败后完整 pending 条目保持调用前状态。 tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing pending bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing pending$\" ./tools/decision-records/tests/stage.test.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing pending",
+          "bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing pending$\" ./tools/decision-records/tests/stage.test.ts"
+        ],
+        "id": "DECISION-STAGE-INPUT-001",
+        "line": 1,
+        "searchText": "DECISION-STAGE-INPUT-001 Stage 拒绝非法重复和缺失路径且保持 pending `stage` 只接受唯一、合法且至少存在于 revision 或 filesystem 一处的决策根相对 POSIX Markdown 路径。 越界路径、重复路径和两处都缺失的路径均以参数失败退出且不产生成功输出。 每次失败后完整 pending 条目保持调用前状态。 tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing pending bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing pending$\" ./tools/decision-records/tests/stage.test.ts",
+        "sourcePath": "decision-records/stage-rejects-invalid-duplicate-and-missing-paths-without-changing-pending.md",
+        "summary": "`stage` 只接受唯一、合法且至少存在于 revision 或 filesystem 一处的决策根相对 POSIX Markdown 路径。",
+        "title": "Stage 拒绝非法重复和缺失路径且保持 pending"
+      }
+    },
+    {
+      "id": "DECISION-STAGE-ISOLATION-001",
+      "keys": {
+        "search": [
+          "DECISION-STAGE-ISOLATION-001 Stage 隔离显式选择并重建完整 pending 索引 `stage` 只把显式选择的 filesystem 决策叠加到 revision 基线，以同一目标来源重建完整 pending 索引，并整体替换 pending 决策范围。 选择 A 后，pending 包含 filesystem A 与 revision B，先前 pending 中的 filesystem B 被移出决策范围。 pending 索引包含完整 A/B 集合，且 `sourceRevision` 与该 pending 领域目录和 Markdown 来源一致。 决策范围外的 pending 文件和完整 filesystem 决策范围保持不变。 tools/decision-records/tests/stage.test.ts > stage isolates one selected filesystem decision and rebuilds the complete pending index bun test --test-name-pattern=\"^stage isolates one selected filesystem decision and rebuilds the complete pending index$\" ./tools/decision-records/tests/stage.test.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage isolates one selected filesystem decision and rebuilds the complete pending index",
+          "bun test --test-name-pattern=\"^stage isolates one selected filesystem decision and rebuilds the complete pending index$\" ./tools/decision-records/tests/stage.test.ts"
+        ],
+        "id": "DECISION-STAGE-ISOLATION-001",
+        "line": 1,
+        "searchText": "DECISION-STAGE-ISOLATION-001 Stage 隔离显式选择并重建完整 pending 索引 `stage` 只把显式选择的 filesystem 决策叠加到 revision 基线，以同一目标来源重建完整 pending 索引，并整体替换 pending 决策范围。 选择 A 后，pending 包含 filesystem A 与 revision B，先前 pending 中的 filesystem B 被移出决策范围。 pending 索引包含完整 A/B 集合，且 `sourceRevision` 与该 pending 领域目录和 Markdown 来源一致。 决策范围外的 pending 文件和完整 filesystem 决策范围保持不变。 tools/decision-records/tests/stage.test.ts > stage isolates one selected filesystem decision and rebuilds the complete pending index bun test --test-name-pattern=\"^stage isolates one selected filesystem decision and rebuilds the complete pending index$\" ./tools/decision-records/tests/stage.test.ts",
+        "sourcePath": "decision-records/stage-isolates-one-selected-filesystem-decision-and-rebuilds-the-complete-pending-index.md",
+        "summary": "`stage` 只把显式选择的 filesystem 决策叠加到 revision 基线，以同一目标来源重建完整 pending 索引，并整体替换 pending 决策范围。",
+        "title": "Stage 隔离显式选择并重建完整 pending 索引"
+      }
+    },
+    {
+      "id": "DECISION-STAGE-OVERLAY-001",
+      "keys": {
+        "search": [
+          "DECISION-STAGE-OVERLAY-001 Stage 应用显式增加修改删除与重命名 所选路径在 revision 与 filesystem 中的存在状态分别表达增加、修改和删除；重命名由旧路径删除与新路径增加共同显式表达。 pending 精确应用所选增加、修改和删除，并移除显式选择的旧名称路径。 重建索引只包含最终目标路径集合，且 `sourceRevision` 与同一 pending 来源一致。 tools/decision-records/tests/stage.test.ts > stage applies selected additions modifications deletions and explicit renames bun test --test-name-pattern=\"^stage applies selected additions modifications deletions and explicit renames$\" ./tools/decision-records/tests/stage.test.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage applies selected additions modifications deletions and explicit renames",
+          "bun test --test-name-pattern=\"^stage applies selected additions modifications deletions and explicit renames$\" ./tools/decision-records/tests/stage.test.ts"
+        ],
+        "id": "DECISION-STAGE-OVERLAY-001",
+        "line": 1,
+        "searchText": "DECISION-STAGE-OVERLAY-001 Stage 应用显式增加修改删除与重命名 所选路径在 revision 与 filesystem 中的存在状态分别表达增加、修改和删除；重命名由旧路径删除与新路径增加共同显式表达。 pending 精确应用所选增加、修改和删除，并移除显式选择的旧名称路径。 重建索引只包含最终目标路径集合，且 `sourceRevision` 与同一 pending 来源一致。 tools/decision-records/tests/stage.test.ts > stage applies selected additions modifications deletions and explicit renames bun test --test-name-pattern=\"^stage applies selected additions modifications deletions and explicit renames$\" ./tools/decision-records/tests/stage.test.ts",
+        "sourcePath": "decision-records/stage-applies-selected-additions-modifications-deletions-and-explicit-renames.md",
+        "summary": "所选路径在 revision 与 filesystem 中的存在状态分别表达增加、修改和删除；重命名由旧路径删除与新路径增加共同显式表达。",
+        "title": "Stage 应用显式增加修改删除与重命名"
+      }
+    },
+    {
+      "id": "DECISION-STAGE-TARGET-VALIDATION-001",
+      "keys": {
+        "search": [
+          "DECISION-STAGE-TARGET-VALIDATION-001 Stage 在写入前拒绝非法目标集合 `stage` 必须在 pending 写入前完整验证目标来源的建立状态、revision 领域目录归属和关系目标集合，不自动扩大选择集。 所选候选和未进入目标来源的关系目标均导致行为失败。 filesystem 领域目录表即使合法新增领域，已有决策基线仍使用不含该领域的 revision 目录表；所选新领域决策在任何 pending 写入前失败。 每种目标校验失败都保持完整 pending 条目不变。 tools/decision-records/tests/stage.test.ts > stage rejects invalid candidate domain and relationship targets before pending writes bun test --test-name-pattern=\"^stage rejects invalid candidate domain and relationship targets before pending writes$\" ./tools/decision-records/tests/stage.test.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage rejects invalid candidate domain and relationship targets before pending writes",
+          "bun test --test-name-pattern=\"^stage rejects invalid candidate domain and relationship targets before pending writes$\" ./tools/decision-records/tests/stage.test.ts"
+        ],
+        "id": "DECISION-STAGE-TARGET-VALIDATION-001",
+        "line": 1,
+        "searchText": "DECISION-STAGE-TARGET-VALIDATION-001 Stage 在写入前拒绝非法目标集合 `stage` 必须在 pending 写入前完整验证目标来源的建立状态、revision 领域目录归属和关系目标集合，不自动扩大选择集。 所选候选和未进入目标来源的关系目标均导致行为失败。 filesystem 领域目录表即使合法新增领域，已有决策基线仍使用不含该领域的 revision 目录表；所选新领域决策在任何 pending 写入前失败。 每种目标校验失败都保持完整 pending 条目不变。 tools/decision-records/tests/stage.test.ts > stage rejects invalid candidate domain and relationship targets before pending writes bun test --test-name-pattern=\"^stage rejects invalid candidate domain and relationship targets before pending writes$\" ./tools/decision-records/tests/stage.test.ts",
+        "sourcePath": "decision-records/stage-rejects-invalid-candidate-domain-and-relationship-targets-before-pending-writes.md",
+        "summary": "`stage` 必须在 pending 写入前完整验证目标来源的建立状态、revision 领域目录归属和关系目标集合，不自动扩大选择集。",
+        "title": "Stage 在写入前拒绝非法目标集合"
+      }
+    },
+    {
+      "id": "DECISION-STAGE-VERSION-CONTROL-001",
+      "keys": {
+        "search": [
+          "DECISION-STAGE-VERSION-CONTROL-001 Stage 在版本管理不可用时保持 filesystem `stage` 需要可用的版本管理决策工作区；环境不可用时必须通过稳定领域诊断失败，不能退化为 filesystem 写入。 无可用版本管理工作区时命令以行为失败退出且不产生成功输出。 领域目录、所选决策和 filesystem 索引状态与调用前完全一致。 tools/decision-records/tests/stage.test.ts > stage reports unavailable version control without writing filesystem state bun test --test-name-pattern=\"^stage reports unavailable version control without writing filesystem state$\" ./tools/decision-records/tests/stage.test.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage reports unavailable version control without writing filesystem state",
+          "bun test --test-name-pattern=\"^stage reports unavailable version control without writing filesystem state$\" ./tools/decision-records/tests/stage.test.ts"
+        ],
+        "id": "DECISION-STAGE-VERSION-CONTROL-001",
+        "line": 1,
+        "searchText": "DECISION-STAGE-VERSION-CONTROL-001 Stage 在版本管理不可用时保持 filesystem `stage` 需要可用的版本管理决策工作区；环境不可用时必须通过稳定领域诊断失败，不能退化为 filesystem 写入。 无可用版本管理工作区时命令以行为失败退出且不产生成功输出。 领域目录、所选决策和 filesystem 索引状态与调用前完全一致。 tools/decision-records/tests/stage.test.ts > stage reports unavailable version control without writing filesystem state bun test --test-name-pattern=\"^stage reports unavailable version control without writing filesystem state$\" ./tools/decision-records/tests/stage.test.ts",
+        "sourcePath": "decision-records/stage-reports-unavailable-version-control-without-writing-filesystem-state.md",
+        "summary": "`stage` 需要可用的版本管理决策工作区；环境不可用时必须通过稳定领域诊断失败，不能退化为 filesystem 写入。",
+        "title": "Stage 在版本管理不可用时保持 filesystem"
+      }
+    },
+    {
+      "id": "DECISION-STATE-MEMORY-ACTIVE-TARGET-001",
+      "keys": {
+        "search": [
+          "DECISION-STATE-MEMORY-ACTIVE-TARGET-001 内存快照拒绝活动关系目标 决策演进关系的直接目标必须在同一目标快照中处于归档状态，内存来源不能绕过该生命周期约束。 把关系目标改为活动且已对齐后，内存快照以目标必须归档的诊断拒绝构造。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots reject active relationship targets bun test --test-name-pattern=\"^memory source snapshots reject active relationship targets$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots reject active relationship targets",
+          "bun test --test-name-pattern=\"^memory source snapshots reject active relationship targets$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+        ],
+        "id": "DECISION-STATE-MEMORY-ACTIVE-TARGET-001",
+        "line": 1,
+        "searchText": "DECISION-STATE-MEMORY-ACTIVE-TARGET-001 内存快照拒绝活动关系目标 决策演进关系的直接目标必须在同一目标快照中处于归档状态，内存来源不能绕过该生命周期约束。 把关系目标改为活动且已对齐后，内存快照以目标必须归档的诊断拒绝构造。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots reject active relationship targets bun test --test-name-pattern=\"^memory source snapshots reject active relationship targets$\" ./tools/decision-records/tests/state-snapshot.test.ts",
+        "sourcePath": "decision-records/memory-source-snapshots-reject-active-relationship-targets.md",
+        "summary": "决策演进关系的直接目标必须在同一目标快照中处于归档状态，内存来源不能绕过该生命周期约束。",
+        "title": "内存快照拒绝活动关系目标"
+      }
+    },
+    {
+      "id": "DECISION-STATE-MEMORY-CYCLE-001",
+      "keys": {
+        "search": [
+          "DECISION-STATE-MEMORY-CYCLE-001 内存快照拒绝决策关系环 从内存来源构造的完整决策关系图必须保持无环，与文件系统索引构造使用相同关系不变量。 两条内存决策来源形成闭环时，快照以关系不得成环的诊断拒绝构造。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots reject relationship cycles bun test --test-name-pattern=\"^memory source snapshots reject relationship cycles$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots reject relationship cycles",
+          "bun test --test-name-pattern=\"^memory source snapshots reject relationship cycles$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+        ],
+        "id": "DECISION-STATE-MEMORY-CYCLE-001",
+        "line": 1,
+        "searchText": "DECISION-STATE-MEMORY-CYCLE-001 内存快照拒绝决策关系环 从内存来源构造的完整决策关系图必须保持无环，与文件系统索引构造使用相同关系不变量。 两条内存决策来源形成闭环时，快照以关系不得成环的诊断拒绝构造。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots reject relationship cycles bun test --test-name-pattern=\"^memory source snapshots reject relationship cycles$\" ./tools/decision-records/tests/state-snapshot.test.ts",
+        "sourcePath": "decision-records/memory-source-snapshots-reject-relationship-cycles.md",
+        "summary": "从内存来源构造的完整决策关系图必须保持无环，与文件系统索引构造使用相同关系不变量。",
+        "title": "内存快照拒绝决策关系环"
+      }
+    },
+    {
+      "id": "DECISION-STATE-MEMORY-RELATION-SOURCE-001",
+      "keys": {
+        "search": [
+          "DECISION-STATE-MEMORY-RELATION-SOURCE-001 内存快照关系只解析同一来源集合 内存决策快照的关系目标只能由同一内存来源集合提供，磁盘上的同名决策不得补足目标集合。 从内存来源移除关系目标后，即使文件系统仍有同名决策，快照仍以目标不存在拒绝构造。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots ignore same-name filesystem relation targets bun test --test-name-pattern=\"^memory source snapshots ignore same-name filesystem relation targets$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots ignore same-name filesystem relation targets",
+          "bun test --test-name-pattern=\"^memory source snapshots ignore same-name filesystem relation targets$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+        ],
+        "id": "DECISION-STATE-MEMORY-RELATION-SOURCE-001",
+        "line": 1,
+        "searchText": "DECISION-STATE-MEMORY-RELATION-SOURCE-001 内存快照关系只解析同一来源集合 内存决策快照的关系目标只能由同一内存来源集合提供，磁盘上的同名决策不得补足目标集合。 从内存来源移除关系目标后，即使文件系统仍有同名决策，快照仍以目标不存在拒绝构造。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots ignore same-name filesystem relation targets bun test --test-name-pattern=\"^memory source snapshots ignore same-name filesystem relation targets$\" ./tools/decision-records/tests/state-snapshot.test.ts",
+        "sourcePath": "decision-records/memory-source-snapshots-ignore-same-name-filesystem-relation-targets.md",
+        "summary": "内存决策快照的关系目标只能由同一内存来源集合提供，磁盘上的同名决策不得补足目标集合。",
+        "title": "内存快照关系只解析同一来源集合"
+      }
+    },
+    {
       "id": "DECISION-STATE-SNAPSHOT-001",
       "keys": {
         "search": [
@@ -1439,6 +1679,30 @@
         "sourcePath": "decision-records/state-snapshots-are-isolated-from-later-source-mutations.md",
         "summary": "已返回的决策状态快照不得被后续源对象修改反向污染。",
         "title": "状态快照与后续源变更隔离"
+      }
+    },
+    {
+      "id": "DECISION-STATE-SOURCE-PARITY-001",
+      "keys": {
+        "search": [
+          "DECISION-STATE-SOURCE-PARITY-001 内存与文件系统来源共享确定性索引构造 相同领域目录与已建立决策来源必须通过同一快照、source revision 和索引物化语义产生确定性结果，不受来源介质或输入顺序影响。 内存来源与文件系统来源构造出相同快照，且快照 revision 等于同一来源集合的规范 revision。 反转内存来源顺序后生成的完整索引与文件系统索引序列化结果相同。 tools/decision-records/tests/state-snapshot.test.ts > memory and filesystem sources share deterministic index construction bun test --test-name-pattern=\"^memory and filesystem sources share deterministic index construction$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/state-snapshot.test.ts > memory and filesystem sources share deterministic index construction",
+          "bun test --test-name-pattern=\"^memory and filesystem sources share deterministic index construction$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+        ],
+        "id": "DECISION-STATE-SOURCE-PARITY-001",
+        "line": 1,
+        "searchText": "DECISION-STATE-SOURCE-PARITY-001 内存与文件系统来源共享确定性索引构造 相同领域目录与已建立决策来源必须通过同一快照、source revision 和索引物化语义产生确定性结果，不受来源介质或输入顺序影响。 内存来源与文件系统来源构造出相同快照，且快照 revision 等于同一来源集合的规范 revision。 反转内存来源顺序后生成的完整索引与文件系统索引序列化结果相同。 tools/decision-records/tests/state-snapshot.test.ts > memory and filesystem sources share deterministic index construction bun test --test-name-pattern=\"^memory and filesystem sources share deterministic index construction$\" ./tools/decision-records/tests/state-snapshot.test.ts",
+        "sourcePath": "decision-records/memory-and-filesystem-sources-share-deterministic-index-construction.md",
+        "summary": "相同领域目录与已建立决策来源必须通过同一快照、source revision 和索引物化语义产生确定性结果，不受来源介质或输入顺序影响。",
+        "title": "内存与文件系统来源共享确定性索引构造"
       }
     },
     {
@@ -4418,6 +4682,150 @@
       }
     },
     {
+      "id": "VERSION-CONTROL-PENDING-CONFLICT-001",
+      "keys": {
+        "search": [
+          "VERSION-CONTROL-PENDING-CONFLICT-001 拒绝陈旧 pending 替换且保持文件 pending 范围替换只接受仍为当前值的 expected revision，并在无法独占当前 pending 更新前提时以稳定冲突语义要求调用方重新读取后重试。 expected revision 已变化或当前 pending 更新前提不可用时均返回 `pending-conflict`，诊断要求从当前 revision 重试且不泄漏底层实现值。 每次冲突后完整 pending 文件集合与调用前一致。 tools/shared/tests/version-control.test.ts > rejects stale pending replacements without changing pending files bun test --test-name-pattern=\"^rejects stale pending replacements without changing pending files$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "topic": [
+          "version-control"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/shared/tests/version-control.test.ts > rejects stale pending replacements without changing pending files",
+          "bun test --test-name-pattern=\"^rejects stale pending replacements without changing pending files$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "id": "VERSION-CONTROL-PENDING-CONFLICT-001",
+        "line": 1,
+        "searchText": "VERSION-CONTROL-PENDING-CONFLICT-001 拒绝陈旧 pending 替换且保持文件 pending 范围替换只接受仍为当前值的 expected revision，并在无法独占当前 pending 更新前提时以稳定冲突语义要求调用方重新读取后重试。 expected revision 已变化或当前 pending 更新前提不可用时均返回 `pending-conflict`，诊断要求从当前 revision 重试且不泄漏底层实现值。 每次冲突后完整 pending 文件集合与调用前一致。 tools/shared/tests/version-control.test.ts > rejects stale pending replacements without changing pending files bun test --test-name-pattern=\"^rejects stale pending replacements without changing pending files$\" ./tools/shared/tests/version-control.test.ts",
+        "sourcePath": "version-control/rejects-stale-pending-replacements-without-changing-pending-files.md",
+        "summary": "pending 范围替换只接受仍为当前值的 expected revision，并在无法独占当前 pending 更新前提时以稳定冲突语义要求调用方重新读取后重试。",
+        "title": "拒绝陈旧 pending 替换且保持文件"
+      }
+    },
+    {
+      "id": "VERSION-CONTROL-PENDING-PATHS-001",
+      "keys": {
+        "search": [
+          "VERSION-CONTROL-PENDING-PATHS-001 拒绝非法 pending 替换路径且不产生写入 pending 替换只接受合法字面仓库相对范围、范围内目标路径和规范化后唯一的精确文件集合。 范围外目标、重复目标和越界范围均返回 `invalid-path`，完整 pending 快照保持不变。 tools/shared/tests/version-control.test.ts > rejects invalid pending replacement paths without changing pending files bun test --test-name-pattern=\"^rejects invalid pending replacement paths without changing pending files$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "topic": [
+          "version-control"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/shared/tests/version-control.test.ts > rejects invalid pending replacement paths without changing pending files",
+          "bun test --test-name-pattern=\"^rejects invalid pending replacement paths without changing pending files$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "id": "VERSION-CONTROL-PENDING-PATHS-001",
+        "line": 1,
+        "searchText": "VERSION-CONTROL-PENDING-PATHS-001 拒绝非法 pending 替换路径且不产生写入 pending 替换只接受合法字面仓库相对范围、范围内目标路径和规范化后唯一的精确文件集合。 范围外目标、重复目标和越界范围均返回 `invalid-path`，完整 pending 快照保持不变。 tools/shared/tests/version-control.test.ts > rejects invalid pending replacement paths without changing pending files bun test --test-name-pattern=\"^rejects invalid pending replacement paths without changing pending files$\" ./tools/shared/tests/version-control.test.ts",
+        "sourcePath": "version-control/rejects-invalid-pending-replacement-paths-without-changing-pending-files.md",
+        "summary": "pending 替换只接受合法字面仓库相对范围、范围内目标路径和规范化后唯一的精确文件集合。",
+        "title": "拒绝非法 pending 替换路径且不产生写入"
+      }
+    },
+    {
+      "id": "VERSION-CONTROL-PENDING-READBACK-FAILURE-001",
+      "keys": {
+        "search": [
+          "VERSION-CONTROL-PENDING-READBACK-FAILURE-001 pending 读回失败后恢复原范围 应用目标后的读回核对属于 pending 范围替换成功条件，读回失败时必须恢复写入前范围。 目标已应用但读回阶段失败时返回 `pending-replacement-failed`，随后读取的范围逐路径、逐内容等于原快照。 tools/shared/tests/version-control.test.ts > restores the original range after pending readback fails bun test --test-name-pattern=\"^restores the original range after pending readback fails$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "topic": [
+          "version-control"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/shared/tests/version-control.test.ts > restores the original range after pending readback fails",
+          "bun test --test-name-pattern=\"^restores the original range after pending readback fails$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "id": "VERSION-CONTROL-PENDING-READBACK-FAILURE-001",
+        "line": 1,
+        "searchText": "VERSION-CONTROL-PENDING-READBACK-FAILURE-001 pending 读回失败后恢复原范围 应用目标后的读回核对属于 pending 范围替换成功条件，读回失败时必须恢复写入前范围。 目标已应用但读回阶段失败时返回 `pending-replacement-failed`，随后读取的范围逐路径、逐内容等于原快照。 tools/shared/tests/version-control.test.ts > restores the original range after pending readback fails bun test --test-name-pattern=\"^restores the original range after pending readback fails$\" ./tools/shared/tests/version-control.test.ts",
+        "sourcePath": "version-control/restores-the-original-range-after-pending-readback-fails.md",
+        "summary": "应用目标后的读回核对属于 pending 范围替换成功条件，读回失败时必须恢复写入前范围。",
+        "title": "pending 读回失败后恢复原范围"
+      }
+    },
+    {
+      "id": "VERSION-CONTROL-PENDING-RECOVERY-FAILURE-001",
+      "keys": {
+        "search": [
+          "VERSION-CONTROL-PENDING-RECOVERY-FAILURE-001 以稳定公共语义报告 pending 恢复不完整 pending 范围恢复无法完成或无法核对时必须停止，并与已完整恢复的普通替换失败明确区分。 读回失败后恢复写入也失败时返回 `pending-recovery-failed`，消息说明范围可能部分更新且不泄漏底层实现值。 tools/shared/tests/version-control.test.ts > reports incomplete pending recovery with stable public semantics bun test --test-name-pattern=\"^reports incomplete pending recovery with stable public semantics$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "topic": [
+          "version-control"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/shared/tests/version-control.test.ts > reports incomplete pending recovery with stable public semantics",
+          "bun test --test-name-pattern=\"^reports incomplete pending recovery with stable public semantics$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "id": "VERSION-CONTROL-PENDING-RECOVERY-FAILURE-001",
+        "line": 1,
+        "searchText": "VERSION-CONTROL-PENDING-RECOVERY-FAILURE-001 以稳定公共语义报告 pending 恢复不完整 pending 范围恢复无法完成或无法核对时必须停止，并与已完整恢复的普通替换失败明确区分。 读回失败后恢复写入也失败时返回 `pending-recovery-failed`，消息说明范围可能部分更新且不泄漏底层实现值。 tools/shared/tests/version-control.test.ts > reports incomplete pending recovery with stable public semantics bun test --test-name-pattern=\"^reports incomplete pending recovery with stable public semantics$\" ./tools/shared/tests/version-control.test.ts",
+        "sourcePath": "version-control/reports-incomplete-pending-recovery-with-stable-public-semantics.md",
+        "summary": "pending 范围恢复无法完成或无法核对时必须停止，并与已完整恢复的普通替换失败明确区分。",
+        "title": "以稳定公共语义报告 pending 恢复不完整"
+      }
+    },
+    {
+      "id": "VERSION-CONTROL-PENDING-REPLACE-001",
+      "keys": {
+        "search": [
+          "VERSION-CONTROL-PENDING-REPLACE-001 精确替换字面 pending 范围并保留范围外文件 pending 范围替换以精确目标文件集合表达增加、修改和删除，并保持范围外 pending 内容与 workspace 不变。 写入结果与读回内容只包含目标范围内的新增和修改文件，遗漏的原范围文件成为删除。 目标普通文件不会继承同路径既有 pending 的符号链接或仅 mode 变化，替换后统一保持普通文件语义。 范围外已暂存内容和范围内 workspace 内容保持原值，结果只返回项目级路径语义。 tools/shared/tests/version-control.test.ts > replaces a literal pending range exactly and preserves pending files outside it bun test --test-name-pattern=\"^replaces a literal pending range exactly and preserves pending files outside it$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "topic": [
+          "version-control"
+        ]
+      },
+      "state": {
+        "endLine": 11,
+        "entries": [
+          "tools/shared/tests/version-control.test.ts > replaces a literal pending range exactly and preserves pending files outside it",
+          "bun test --test-name-pattern=\"^replaces a literal pending range exactly and preserves pending files outside it$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "id": "VERSION-CONTROL-PENDING-REPLACE-001",
+        "line": 1,
+        "searchText": "VERSION-CONTROL-PENDING-REPLACE-001 精确替换字面 pending 范围并保留范围外文件 pending 范围替换以精确目标文件集合表达增加、修改和删除，并保持范围外 pending 内容与 workspace 不变。 写入结果与读回内容只包含目标范围内的新增和修改文件，遗漏的原范围文件成为删除。 目标普通文件不会继承同路径既有 pending 的符号链接或仅 mode 变化，替换后统一保持普通文件语义。 范围外已暂存内容和范围内 workspace 内容保持原值，结果只返回项目级路径语义。 tools/shared/tests/version-control.test.ts > replaces a literal pending range exactly and preserves pending files outside it bun test --test-name-pattern=\"^replaces a literal pending range exactly and preserves pending files outside it$\" ./tools/shared/tests/version-control.test.ts",
+        "sourcePath": "version-control/replaces-a-literal-pending-range-exactly-and-preserves-pending-files-outside-it.md",
+        "summary": "pending 范围替换以精确目标文件集合表达增加、修改和删除，并保持范围外 pending 内容与 workspace 不变。",
+        "title": "精确替换字面 pending 范围并保留范围外文件"
+      }
+    },
+    {
+      "id": "VERSION-CONTROL-PENDING-WRITE-FAILURE-001",
+      "keys": {
+        "search": [
+          "VERSION-CONTROL-PENDING-WRITE-FAILURE-001 pending 写入失败后保留原范围 pending 范围写入失败不能留下部分目标；确认原范围完整后以稳定项目错误报告失败。 写入不可用时返回 `pending-replacement-failed`，错误不泄漏底层实现值且范围内容与写入前一致。 tools/shared/tests/version-control.test.ts > restores the original range after a pending write failure bun test --test-name-pattern=\"^restores the original range after a pending write failure$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "topic": [
+          "version-control"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/shared/tests/version-control.test.ts > restores the original range after a pending write failure",
+          "bun test --test-name-pattern=\"^restores the original range after a pending write failure$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "id": "VERSION-CONTROL-PENDING-WRITE-FAILURE-001",
+        "line": 1,
+        "searchText": "VERSION-CONTROL-PENDING-WRITE-FAILURE-001 pending 写入失败后保留原范围 pending 范围写入失败不能留下部分目标；确认原范围完整后以稳定项目错误报告失败。 写入不可用时返回 `pending-replacement-failed`，错误不泄漏底层实现值且范围内容与写入前一致。 tools/shared/tests/version-control.test.ts > restores the original range after a pending write failure bun test --test-name-pattern=\"^restores the original range after a pending write failure$\" ./tools/shared/tests/version-control.test.ts",
+        "sourcePath": "version-control/restores-the-original-range-after-a-pending-write-failure.md",
+        "summary": "pending 范围写入失败不能留下部分目标；确认原范围完整后以稳定项目错误报告失败。",
+        "title": "pending 写入失败后保留原范围"
+      }
+    },
+    {
       "id": "VERSION-CONTROL-REPOSITORY-001",
       "keys": {
         "search": [
@@ -4566,5 +4974,5 @@
   },
   "namespace": "test-evidence",
   "schemaVersion": 2,
-  "sourceRevision": "sha256:1d4146bbcee35e15e0c8942d765f3a713853c6919ac362cb963c395e3f976152"
+  "sourceRevision": "sha256:0ee50ae96ab793e5dd0007237726aafd28426b974a7b953fb221ec008d04f0b7"
 }

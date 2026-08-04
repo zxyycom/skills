@@ -34,6 +34,7 @@ import {
 import {
   applyDecisionChanges
 } from "./decision-transaction.ts";
+import { stageDecisionRecords } from "./decision-stage-service.ts";
 import {
   loadDecisionValidationContext,
   validateDecisionRecords,
@@ -112,6 +113,27 @@ async function runSyncIndex(
     location: decisionLocation(args),
     write: args.write
   });
+}
+
+async function runStage(args: CliArgsFor<"stage">): Promise<number> {
+  const result = await stageDecisionRecords({
+    location: decisionLocation(args),
+    recordPaths: args.recordPaths
+  });
+  if (result.status === "error") {
+    printDecisionFailure(result);
+    return result.exitCode;
+  }
+  console.log(
+    "Staged a complete pending decision snapshot for "
+      + result.selectedPaths.length
+      + " selected decision path(s), including "
+      + result.indexRelativePath
+      + " ("
+      + result.pendingFileCount
+      + " files in the pending decision scope)."
+  );
+  return 0;
 }
 
 async function runActivate(args: CliArgsFor<"activate">): Promise<number> {
@@ -280,6 +302,8 @@ async function runCommand(args: CliArgs): Promise<number> {
       return await runMarkAligned(args);
     case "show":
       return await runShow(args);
+    case "stage":
+      return await runStage(args);
     case "sync-index":
       return await runSyncIndex(args);
     case "trace":

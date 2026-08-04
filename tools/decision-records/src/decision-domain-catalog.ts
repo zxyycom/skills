@@ -79,6 +79,13 @@ export async function loadDecisionDomainCatalog(
     ]);
   }
 
+  return parseDecisionDomainCatalog(text, displayPath);
+}
+
+export function parseDecisionDomainCatalog(
+  text: string,
+  displayPath: string
+): DecisionDomainCatalogResult {
   let input: unknown;
   try {
     input = JSON.parse(text) as unknown;

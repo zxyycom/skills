@@ -29,6 +29,7 @@ export type Command =
   | "list"
   | "mark-aligned"
   | "show"
+  | "stage"
   | "sync-index"
   | "trace";
 
@@ -70,6 +71,7 @@ export type CliArgs =
     }>
   | LocatedCommand<"mark-aligned", { recordPath: string }>
   | LocatedCommand<"show", { recordPath: string }>
+  | LocatedCommand<"stage", { recordPaths: string[] }>
   | LocatedCommand<"sync-index", { write: boolean }>
   | LocatedCommand<"trace", {
       recordPath: string;
@@ -215,6 +217,8 @@ function commandArgs(
     case "mark-aligned":
     case "show":
       return { ...location, command, recordPath };
+    case "stage":
+      return { ...location, command, recordPaths };
     case "evolve":
       return {
         ...location,
@@ -381,6 +385,14 @@ export function createCliProgram(
   )
     .option("--write", "Write the index rebuilt from established decisions.");
   syncIndex.action(() => execute("sync-index", syncIndex));
+
+  const stage = createSubcommand(
+    program,
+    "stage <decision-path...>",
+    "Build a complete pending decision snapshot from the current revision and "
+      + "the explicitly selected filesystem decision paths."
+  );
+  stage.action((recordPaths: string[]) => execute("stage", stage, recordPaths));
 
   const activate = createSubcommand(
     program,

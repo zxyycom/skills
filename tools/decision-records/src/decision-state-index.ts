@@ -1,4 +1,5 @@
 import {
+  buildStateIndex,
   loadCurrentStateIndex,
   loadStateIndex,
   parseStateIndex,
@@ -9,6 +10,7 @@ import {
   type StateIndexContext,
   type StateIndexDiagnostic,
   type StateIndexResult,
+  type StateSnapshot,
   type StateIndexSyncMode,
   type StateIndexSyncResult
 } from "../../index-runtime/src/index.ts";
@@ -18,10 +20,12 @@ import {
   decisionIndexNamespace
 } from "./decision-index-definition.ts";
 import {
+  buildDecisionStateSnapshotFromSources,
   decisionIndexState,
   decisionSourceRevision,
   readDecisionSourceRevision,
-  readDecisionStateSnapshot
+  readDecisionStateSnapshot,
+  type DecisionSource
 } from "./decision-index-source.ts";
 import type {
   DecisionIndex,
@@ -33,11 +37,14 @@ export {
   createDecisionStateIndexDefinition,
   decisionIndexDefinitionVersion,
   decisionIndexNamespace,
+  buildDecisionStateSnapshotFromSources,
   decisionIndexState,
   decisionSourceRevision,
   readDecisionSourceRevision,
   readDecisionStateSnapshot
 };
+
+export type { DecisionSource };
 
 export const decisionIndexFileName = "decision-index.json";
 
@@ -137,6 +144,23 @@ export async function syncDecisionIndex(options: {
     indexPath: options.indexPath ?? decisionIndexFileName,
     mode: options.mode
   });
+}
+
+export async function buildDecisionIndexFromSnapshot(
+  snapshot: StateSnapshot<DecisionIndexState, DecisionIndexMetadata>,
+  signal?: AbortSignal
+): Promise<StateIndexResult<DecisionIndex>> {
+  const definition = createDecisionStateIndexDefinition();
+  const built = await buildStateIndex({
+    ...definition,
+    read: async () => snapshot
+  }, {
+    root: ".",
+    ...(signal === undefined ? {} : { signal })
+  });
+  return built.status === "error"
+    ? built
+    : validateDecisionIndex(built.value, decisionIndexFileName);
 }
 
 export function serializeDecisionIndex(index: DecisionIndex): string {

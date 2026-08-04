@@ -13,6 +13,7 @@ import {
 } from "./decision-domain-catalog.ts";
 import { decisionMetadataFromCandidate } from "./decision-metadata.ts";
 import { validateDecisionBody } from "./record.ts";
+import { decisionRelationConsistencyIssues } from "./relation-graph.ts";
 import type {
   DecisionDocument,
   DecisionIndexMetadata,
@@ -22,7 +23,7 @@ import type {
 
 const decisionSourceReadConcurrency = 32;
 
-type DecisionSource = {
+export type DecisionSource = {
   path: string;
   text: string;
 };
@@ -95,26 +96,53 @@ export async function readDecisionStateSnapshot(
     readDecisionDomainCatalog(decisionsDirectory),
     readDecisionSources(decisionsDirectory, relativePaths, signal)
   ]);
+  return await buildDecisionStateSnapshotFromSources(catalog, sources, signal);
+}
+
+export async function buildDecisionStateSnapshotFromSources(
+  catalog: DecisionDomainCatalog,
+  sources: readonly DecisionSource[],
+  signal?: AbortSignal
+): Promise<StateSnapshot<DecisionIndexState, DecisionIndexMetadata>> {
+  const sourceSnapshot = sources.map(({ path: sourcePath, text }) => ({
+    path: sourcePath,
+    text
+  }));
+  const sourcePaths = new Set(sourceSnapshot.map((source) => source.path));
+  if (sourcePaths.size !== sourceSnapshot.length) {
+    throw new Error("decision sources must use unique paths");
+  }
   const domainIds = new Set(catalog.domains.map((domain) => domain.id));
   const states: DecisionIndexState[] = [];
   for (
     let offset = 0;
-    offset < sources.length;
+    offset < sourceSnapshot.length;
     offset += decisionSourceReadConcurrency
   ) {
     if (signal?.aborted === true) {
       throw new Error("decision state read was aborted");
     }
-    const batch = sources.slice(offset, offset + decisionSourceReadConcurrency);
+    const batch = sourceSnapshot.slice(
+      offset,
+      offset + decisionSourceReadConcurrency
+    );
     states.push(...await Promise.all(batch.map(async (source) => (
-      await parseDecisionSource(decisionsDirectory, source, domainIds)
+      await parseDecisionSource(source, domainIds, sourcePaths)
     ))));
+  }
+  const relationIssues = decisionRelationConsistencyIssues(states.map((state) => ({
+    projection: state,
+    relativePath: state.path,
+    status: state.status
+  })));
+  if (relationIssues.length > 0) {
+    throw new Error(relationIssues.map((issue) => issue.message).join("; "));
   }
   return {
     metadata: {
       domains: catalog.domains.map(({ id, description }) => ({ id, description }))
     },
-    revision: decisionSourceRevision(catalog, sources),
+    revision: decisionSourceRevision(catalog, sourceSnapshot),
     states
   };
 }
@@ -182,9 +210,9 @@ async function readDecisionSource(
 }
 
 async function parseDecisionSource(
-  decisionsDirectory: string,
   source: DecisionSource,
-  domainIds: ReadonlySet<string>
+  domainIds: ReadonlySet<string>,
+  sourcePaths: ReadonlySet<string>
 ): Promise<DecisionIndexState> {
   const errors: string[] = [];
   const domain = decisionDomainFromRelativePath(source.path);
@@ -196,10 +224,10 @@ async function parseDecisionSource(
   }
   const candidate = await validateDecisionBody({
     body: source.text,
-    decisionsDirectory,
     errors,
     fileName: path.posix.basename(source.path),
-    relativePath: source.path
+    relativePath: source.path,
+    targetExists: (targetPath) => sourcePaths.has(targetPath)
   });
   const metadata = candidate === null
     ? null

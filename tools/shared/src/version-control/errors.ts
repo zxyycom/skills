@@ -2,6 +2,9 @@ export type VersionControlErrorCode =
   | "invalid-path"
   | "not-repository"
   | "operation-failed"
+  | "pending-conflict"
+  | "pending-recovery-failed"
+  | "pending-replacement-failed"
   | "revision-not-found";
 
 export class VersionControlError extends Error {
