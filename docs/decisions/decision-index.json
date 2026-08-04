@@ -82,7 +82,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:4fba9fad6b7717aa620e8d109cbd3dd5cf0c3ab0ccb74d9768786e881f9ae8f9",
+  "sourceRevision": "sha256:7ca4e6adaffc1b0b5d9f7706d2effd8896d88e029ef7dae858c12242a8187507",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -3310,7 +3310,7 @@
           "subagent-orchestration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -3319,7 +3319,7 @@
       "state": {
         "path": "subagent-orchestration/260712-separate-write-ownership-from-read-scope.md",
         "title": "区分并行写入所有权与只读调查范围",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-18T11:43:07+08:00",
         "purpose": "在避免并行写入冲突的同时，保留子代理读取必要证据的能力。",
@@ -3375,6 +3375,61 @@
         "purpose": "让 skill 的触发入口清楚表达何时调用，避免执行细节稀释触发信号。",
         "background": "`description` 同时枚举触发场景和历史、所有权、等待、审计等执行规则，削弱触发信号并重复正文。",
         "decision": "`description` 只说明子代理编排定位和触发条件；用户显式要求或任务适合委派时加载，执行规则留在正文。",
+        "relations": []
+      }
+    },
+    {
+      "id": "subagent-orchestration/allocate-agents-and-runtime-by-task-slice.md",
+      "keys": {
+        "domain": [
+          "subagent-orchestration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "subagent-orchestration/allocate-agents-and-runtime-by-task-slice.md",
+        "title": "按任务切面分配代理与运行能力",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-04T08:06:42Z",
+        "purpose": "让每个子代理完成边界清楚且可独立验收的工作，并使代理能力、思考上限和写入边界与切面匹配。",
+        "background": "用绝对只读表达独立性会妨碍必要的辅助执行，把模型与思考强度视为同类档位则会混淆能力和困难问题的思考上限。",
+        "decision": "以最小可独立验收切面和主要交付责任分配子代理；独立代理不修改被评估对象但可有限辅助写入；模型决定能力，思考强度决定所选模型的思考预算上限。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "subagent-orchestration/260712-separate-write-ownership-from-read-scope.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "subagent-orchestration/bound-review-and-handoff-by-delivery-impact.md",
+      "keys": {
+        "domain": [
+          "subagent-orchestration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "subagent-orchestration/bound-review-and-handoff-by-delivery-impact.md",
+        "title": "以交付影响收敛审查与交接",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-04T08:16:33Z",
+        "purpose": "让审查围绕阻断交付的问题收敛，并让子代理只返回主代理决策所需的信息。",
+        "background": "不区分问题实质性会制造审查循环，强制填写重复或空字段也会增加成本而不改善交付判断。",
+        "decision": "审查只对实质阻断问题触发定向修复；交接只强制结果和证据，改动与重大例外在实际存在时报告。",
         "relations": []
       }
     },

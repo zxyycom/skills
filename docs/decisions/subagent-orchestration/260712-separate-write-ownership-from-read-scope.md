@@ -1,6 +1,6 @@
 ---
 title: 区分并行写入所有权与只读调查范围
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-18T11:43:07+08:00
 purpose: 在避免并行写入冲突的同时，保留子代理读取必要证据的能力。
