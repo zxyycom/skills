@@ -1,4 +1,4 @@
 interface:
   display_name: "Git 提交整理"
   short_description: "按既定项目风格审计差异并创建清晰的 Git 提交"
-  default_prompt: "Use $git-commit-organizer to apply its project-level commit style, review the current diff, preserve unrelated changes, stage the intended scope, and create the commit."
+  default_prompt: "Use $git-commit-organizer to create the requested commit. Treat a generic commit request as authorization only for changes attributable to the current task, preserve other or unknown-origin changes, isolate and verify the exact snapshot, then apply the skill's commit style."

@@ -82,7 +82,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:7221ab7f1a4499226e3dbef0ff7c6ebd6627dba1fa6fad261ef8b5e7fdf37c2c",
+  "sourceRevision": "sha256:4fba9fad6b7717aa620e8d109cbd3dd5cf0c3ab0ccb74d9768786e881f9ae8f9",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -2128,6 +2128,31 @@
         "purpose": "让 git-commit-organizer 在跨项目复用时保持稳定、有明确偏好的提交表达。",
         "background": "使用者会在理解影响后主动安装或调用该 skill，固定类型、中文格式和提交粒度是其核心价值。",
         "decision": "将 git-commit-organizer 定位为可跨项目复用的项目级提交风格，默认执行自身风格，并只补足影响提交正确性的必要门禁。",
+        "relations": []
+      }
+    },
+    {
+      "id": "git-commit-organizer/default-to-current-task-changes.md",
+      "keys": {
+        "domain": [
+          "git-commit-organizer"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "git-commit-organizer/default-to-current-task-changes.md",
+        "title": "默认只提交可归因于当前任务的改动",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-04T06:53:13Z",
+        "purpose": "防止共享工作区中的其他会话或归属不明改动被泛化提交指令意外写入历史。",
+        "background": "Git 状态不记录工作区改动的会话归属，而用户常用简短的提交指令表示提交当前任务结果。",
+        "decision": "将泛化提交指令的默认范围限定为可由任务上下文可靠归因的改动，并在无法隔离混合改动时停止提交。",
         "relations": []
       }
     },
