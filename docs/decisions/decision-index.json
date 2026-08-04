@@ -82,7 +82,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:bfbf6c9979f239a62ea3823b8a86da6baa0e255329d0c501cb7bcbc0688c7642",
+  "sourceRevision": "sha256:7221ab7f1a4499226e3dbef0ff7c6ebd6627dba1fa6fad261ef8b5e7fdf37c2c",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -2951,6 +2951,31 @@
             "target": "project-tooling/260720-orchestrate-checks-with-conservative-concurrency.md"
           }
         ]
+      }
+    },
+    {
+      "id": "project-tooling/exclude-archived-changes-from-link-validation.md",
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/exclude-archived-changes-from-link-validation.md",
+        "title": "归档 change 不参与持续链接校验",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-04T06:30:59Z",
+        "purpose": "让 Markdown 链接校验聚焦仍需维护的文档，避免历史计划阻塞当前仓库演进。",
+        "background": "归档会增加目录层级，稳定 owner 后续也可能移动；持续校验历史计划会迫使维护者改写归档内容。",
+        "decision": "bun run validate 排除 changes/archive 下的 Markdown，同时继续校验 active change 与当前稳定文档。",
+        "relations": []
       }
     },
     {

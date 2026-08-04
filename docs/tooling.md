@@ -63,7 +63,7 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | 命令 | 责任 |
 | --- | --- |
 | `bun run typecheck` | 使用根目录 `tsconfig.json` 对 `scripts/`、`tools/` 和声明源执行 `tsgo --noEmit` |
-| `bun run validate` | 校验全部 skill 入口、仓库内 Markdown 链接和主仓库配置 |
+| `bun run validate` | 校验全部 skill 入口、当前维护的仓库 Markdown 链接和主仓库配置 |
 | `bun run hash:skills` | 从 Git `pending` 快照临时计算 package hash，并校验内容变化的 skill 已相对 `--baseline-ref` 提升 `SKILL.md` 中的 `metadata.version` |
 | `bun run pack:skills` | 从版本管理 `pending` 快照生成每个 skill 的 zip 和 release manifest |
 | `bun run setup-hooks` | 将当前仓库 `core.hooksPath` 设置为 `.githooks` |
@@ -80,6 +80,8 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | Test Evidence | `test:test-evidence-cli` | `sync:test-evidence-cli`、`sync:test-evidence-catalog` | `check:test-evidence-cli`、`check:test-evidence-catalog` |
 | Skill Updater | `test:skill-updater` | `sync:skill-updaters` | `check:skill-updaters` |
 | 共享基础设施 | `test:check`、`test:generated-file`、`test:index-runtime`、`test:skill-package-hash`、`test:version-control` | — | — |
+
+`bun run validate` 的主仓库 Markdown 链接范围排除 `changes/archive/**`。归档 change 只作为历史参考，仍由 change-plan CLI 保留结构、完成任务和归档目标门禁；active change 与其他当前维护文档继续参与链接校验。
 
 三类前缀表达不同义务：
 

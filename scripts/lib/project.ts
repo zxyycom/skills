@@ -99,6 +99,7 @@ export async function collectSkillFiles(skillDirectory: string): Promise<string[
 export async function collectMainMarkdownFiles(workspaceRoot: string = rootDir): Promise<string[]> {
   const ignoredPaths = [
     `${skillsRootName}/**`,
+    "changes/archive/**",
     ...ignoredDirectoryNames.map((directoryName) => `${directoryName}/**`)
   ];
 
