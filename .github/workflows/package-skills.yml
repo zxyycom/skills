@@ -37,7 +37,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Validate and package
-        run: bun run check --strict
+        run: bun run check --full
 
       - name: Calculate skill hash and check versions
         id: skill_hash
