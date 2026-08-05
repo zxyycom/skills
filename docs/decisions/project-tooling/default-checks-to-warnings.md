@@ -1,6 +1,6 @@
 ---
 title: 让完整检查默认报告警告并显式启用阻断
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-22T13:49:32Z
 purpose: 让并行修改中的工作区完成全部检查，同时为 CI 和真实依赖保留明确门禁。

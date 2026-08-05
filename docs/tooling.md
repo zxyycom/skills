@@ -67,7 +67,8 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run hash:skills` | 从 Git `pending` 快照临时计算 package hash，并校验内容变化的 skill 已相对 `--baseline-ref` 提升 `SKILL.md` 中的 `metadata.version` |
 | `bun run pack:skills` | 从版本管理 `pending` 快照生成每个 skill 的 zip 和 release manifest |
 | `bun run setup-hooks` | 将当前仓库 `core.hooksPath` 设置为 `.githooks` |
-| `bun run check` | 运行全部前置检查并在允许时打包；CI 使用 `bun run check --strict` |
+| `bun run check` | 使用 quick 档运行必要快速检查，显式跳过 full 档耗时检查，并在已选检查通过后打包 |
+| `bun run check --full` | 运行 quick 与 full 的全部检查并打包；CI 使用这一完整门禁 |
 
 ### 工具维护命令
 
@@ -101,12 +102,45 @@ package script 和完整检查仍只是聚合容器。topic 表与 case 由测�
 正文变化后运行 `sync:test-evidence-catalog`；`check:test-evidence-catalog` 已进入
 完整检查并只校验显式 topic 根目录与统一索引。
 
-### 完整检查
+### 分档检查
 
-1. `scripts/lib/check-plan.ts` 承接稳定前置任务、package script 映射和共享任务类型；`scripts/check.ts` 只消费该计划并负责编排，成功后调用 `pack:skills`。
-2. 默认模式把未显式标记为阻断的失败汇总为 warning，并继续其他检查；warning 不代表对应检查通过。
-3. `--strict` 把全部前置失败升级为阻断。阻断后停止领取新任务、等待已启动任务并跳过打包；`pack:skills` 失败始终阻断。
-4. 默认最多并发两个顶层任务，可用 `CHECK_CONCURRENCY=<正整数>` 调整。
+本节是 `bun run check` 档位、输出、失败和打包行为的 owner。
+`scripts/lib/check-plan.ts` 实现当前任务映射与调度顺序，`scripts/check.ts` 解析调用边界并执行计划；代码和测试不另行定义行为规则。
+
+#### 档位与任务范围
+
+每个前置任务声明一个最低档位。`full` 包含 `quick`，因此同一任务不会在 full 档重复执行。
+
+| 任务最低档位 | `bun run check` | `bun run check --full` |
+| --- | --- | --- |
+| `quick` | 执行 | 执行 |
+| `full` | 不执行，并逐项报告 `skipped` | 执行 |
+
+当前只有以下耗时集成测试使用 `full` 最低档位；检查计划中的其他前置任务使用 `quick`：
+
+| full-only 脚本 | 成本边界 |
+| --- | --- |
+| `test:decision-records-cli` | 覆盖大量生命周期、关系和 Git 事务场景 |
+| `test:version-control` | 覆盖多个临时 Git 仓库与失败恢复场景 |
+| `test:skill-package-hash` | 覆盖 Git 基线、pending 内容和独立版本门禁 |
+| `test:investigation-report-check` | 覆盖分发一致性、索引查询和规模场景 |
+| `test:test-evidence-cli` | 覆盖目录迁移、索引恢复和分发接口场景 |
+
+调整任务档位时，同步本节、`scripts/lib/check-plan.ts` 和对应测试。`pack:skills` 不属于前置任务档位；它只在本次选中的全部前置任务通过后执行。
+
+#### 输出与失败
+
+1. 成功任务默认只输出名称、`passed` 和耗时。使用 `--verbose` 时，任务完成后在该摘要前展开它捕获的 stdout 与 stderr。
+2. 失败任务无论是否启用 `--verbose` 都完整展开自身捕获日志并输出 `failed`；该失败不会停止其余已选前置任务。
+3. quick 档未选择的 full 任务逐项输出 `skipped`。前置任务失败时，`pack:skills` 也输出 `skipped`，但不会执行。
+4. 最终摘要报告 profile、全部计划项与打包组成的 total checks，以及 passed、skipped、failed 和总耗时。quick 档只有 full-only 跳过且其余任务通过时，最终状态为 `passed`；任一已选任务或打包失败时，最终状态为 `failed`，命令退出 `1`。
+5. 正常人类报告与捕获日志写入 stdout；任务启动前的参数或并发配置错误写入 stderr，并在不启动检查的情况下退出 `1`。
+
+#### 调度与打包
+
+1. 已选前置任务默认最多并发两个，可用 `CHECK_CONCURRENCY=<正整数>` 调整；该环境变量不改变任务档位，也不并发执行 `pack:skills`。
+2. full-only 长任务在计划中优先领取，以减少保守并发下的尾部等待。
+3. 全部已选前置任务完成后，只要其中一项失败就跳过打包；全部通过时运行一次 `pack:skills`，并把打包结果计入最终摘要。
 
 ## 源码与依赖边界
 
@@ -166,7 +200,7 @@ bun run setup-hooks
 `.github/workflows/package-skills.yml` 复用本地稳定入口：
 
 1. 安装固定 Bun 和 pnpm，执行 `pnpm install --frozen-lockfile`。
-2. 运行 `bun run check --strict`，完成门禁和全部 skill 打包。
+2. 运行 `bun run check --full`，完成门禁和全部 skill 打包。
 3. 运行 `bun run hash:skills --github-output --baseline-ref <event-baseline>`，校验独立版本并输出本次聚合 hash。
 4. 上传全部 `dist/*` 作为 workflow artifact。
 5. `main` push 的 skill 打包内容变化或手动触发时，发布版本化 release，并更新 `skills-latest` 的 tag 与完整资产集。

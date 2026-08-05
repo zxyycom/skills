@@ -3,329 +3,379 @@ import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
-  formatCheckResult,
-  formatTimedStatus,
-  resolveCheckMode,
-  resolveCheckStatus,
+  formatCheckReport,
+  formatCheckSummary,
+  formatDuration,
+  resolveCheckOptions,
   resolveConcurrency,
   runCheckWorkflow,
-  runPreflightTasks
+  runPreflightTasks,
+  type CheckReport
 } from "./check.ts";
 import {
   checkPackageScript,
   checkPackageScripts,
   checkPreflightTasks,
-  checkTaskScript
+  checkTaskRunsInProfile,
+  checkTaskScript,
+  type CheckProfile,
+  type CheckTask
 } from "./lib/check-plan.ts";
+
+function checkTask(
+  script: string,
+  minimumProfile: CheckProfile = "quick"
+): CheckTask {
+  return { minimumProfile, script };
+}
 
 function scriptResult(script: string, exitCode = 0) {
   return {
+    capturedOutput: exitCode === 0
+      ? `${script} details\n`
+      : `${script} failure\n`,
     durationMilliseconds: 1,
     exitCode,
-    script,
-    stderr: exitCode === 0 ? "" : `${script} failed`,
-    stdout: exitCode === 0 ? `${script} passed` : `${script} context`
+    script
   };
 }
 
-test("check plan exposes every package script in execution order", () => {
-const expectedCheckPackageScripts = [
-  "test:test-evidence-cli",
-  "test:change-plan-cli",
-  "test:decision-records-cli",
-  "test:index-runtime",
-  "test:skill-validator",
-  "test:investigation-report-check",
-  "check:investigations",
-  "check:decisions",
-  "validate",
-  "test:skill-updater",
-  "check:test-evidence-cli",
-  "check:test-evidence-catalog",
-  "check:skill-validator",
-  "check:investigation-report-check",
-  "check:change-plan-cli",
-  "check:decision-records-cli",
-  "typecheck",
-  "check:skill-updaters",
-  "test:check",
-  "test:generated-file",
-  "test:skill-package-hash",
-  "hash:skills",
-  "test:version-control",
-  "pack:skills"
-] as const;
-assert.deepEqual(checkPackageScripts, expectedCheckPackageScripts);
-assert.deepEqual(
-  checkPreflightTasks.map(checkTaskScript),
-  expectedCheckPackageScripts.slice(0, -1)
-);
-assert.equal(checkPackageScript, expectedCheckPackageScripts.at(-1));
-assert.equal(
-  checkTaskScript({ blocking: true, script: "blocking" }),
-  "blocking"
-);
+test("check plan classifies every package script by minimum profile", () => {
+  const expectedCheckTasks = [
+    ["test:decision-records-cli", "full"],
+    ["test:version-control", "full"],
+    ["test:skill-package-hash", "full"],
+    ["test:investigation-report-check", "full"],
+    ["test:test-evidence-cli", "full"],
+    ["test:change-plan-cli", "quick"],
+    ["test:index-runtime", "quick"],
+    ["test:skill-validator", "quick"],
+    ["check:investigations", "quick"],
+    ["check:decisions", "quick"],
+    ["validate", "quick"],
+    ["test:skill-updater", "quick"],
+    ["check:test-evidence-cli", "quick"],
+    ["check:test-evidence-catalog", "quick"],
+    ["check:skill-validator", "quick"],
+    ["check:investigation-report-check", "quick"],
+    ["check:change-plan-cli", "quick"],
+    ["check:decision-records-cli", "quick"],
+    ["typecheck", "quick"],
+    ["check:skill-updaters", "quick"],
+    ["test:check", "quick"],
+    ["test:generated-file", "quick"],
+    ["hash:skills", "quick"]
+  ] as const;
+  assert.deepEqual(
+    checkPreflightTasks.map((task) => [task.script, task.minimumProfile]),
+    expectedCheckTasks
+  );
+  assert.deepEqual(
+    checkPackageScripts,
+    [...expectedCheckTasks.map(([script]) => script), "pack:skills"]
+  );
+  assert.equal(checkPackageScript, "pack:skills");
+  assert.equal(checkTaskScript(checkTask("script")), "script");
+  assert.equal(checkTaskRunsInProfile(checkTask("quick"), "quick"), true);
+  assert.equal(checkTaskRunsInProfile(checkTask("quick"), "full"), true);
+  assert.equal(
+    checkTaskRunsInProfile(checkTask("full", "full"), "quick"),
+    false
+  );
+  assert.equal(checkTaskRunsInProfile(checkTask("full", "full"), "full"), true);
 });
 
 test("check concurrency resolves defaults, caps, and invalid values", () => {
-assert.equal(resolveConcurrency({
-  availableParallelism: 8,
-  configured: undefined,
-  taskCount: 5
-}), 2);
-assert.equal(resolveConcurrency({
-  availableParallelism: 1,
-  configured: undefined,
-  taskCount: 5
-}), 1);
-assert.equal(resolveConcurrency({
-  availableParallelism: 1,
-  configured: "4",
-  taskCount: 3
-}), 3);
-assert.throws(
-  () => resolveConcurrency({
+  assert.equal(resolveConcurrency({
     availableParallelism: 8,
-    configured: "0",
+    configured: undefined,
     taskCount: 5
-  }),
-  /CHECK_CONCURRENCY must be a positive integer/
-);
+  }), 2);
+  assert.equal(resolveConcurrency({
+    availableParallelism: 1,
+    configured: undefined,
+    taskCount: 5
+  }), 1);
+  assert.equal(resolveConcurrency({
+    availableParallelism: 1,
+    configured: "4",
+    taskCount: 3
+  }), 3);
+  assert.throws(
+    () => resolveConcurrency({
+      availableParallelism: 8,
+      configured: "0",
+      taskCount: 5
+    }),
+    /CHECK_CONCURRENCY must be a positive integer/
+  );
 });
 
-test("check mode resolves warning and strict options", () => {
-assert.equal(resolveCheckMode([]), "warnings");
-assert.equal(resolveCheckMode(["--strict"]), "strict");
-assert.throws(() => resolveCheckMode(["--unknown"]), /Unknown option/u);
+test("check options resolve quick, full, and verbose profiles", () => {
+  assert.deepEqual(resolveCheckOptions([]), {
+    profile: "quick",
+    verbose: false
+  });
+  assert.deepEqual(resolveCheckOptions(["--full"]), {
+    profile: "full",
+    verbose: false
+  });
+  assert.deepEqual(resolveCheckOptions(["--verbose"]), {
+    profile: "quick",
+    verbose: true
+  });
+  assert.deepEqual(resolveCheckOptions(["--full", "--verbose"]), {
+    profile: "full",
+    verbose: true
+  });
+  assert.throws(() => resolveCheckOptions(["--strict"]), /Unknown option/u);
 });
 
-test("check statuses preserve warning and failure semantics", () => {
-const blockingTask = { blocking: true, script: "blocking" } as const;
-assert.equal(resolveCheckStatus("default-warning", "warnings", 1), "warning");
-assert.equal(resolveCheckStatus("strict-failure", "strict", 1), "failed");
-assert.equal(resolveCheckStatus(blockingTask, "warnings", 1), "failed");
-assert.equal(resolveCheckStatus(blockingTask, "warnings", 0), "passed");
+test("check durations use compact human-readable units", () => {
+  assert.equal(formatDuration(55), "55ms");
+  assert.equal(formatDuration(1_100), "1.1s");
+  assert.equal(formatDuration(12_000), "12s");
 });
 
-test("check result formatting preserves diagnostics and timing", () => {
-assert.deepEqual(formatCheckResult({
-  durationMilliseconds: 250,
-  exitCode: 0,
-  script: "successful",
-  stderr: "diagnostic\n",
-  stdout: "successful details\n"
-}, "passed"), {
-  stderr: "diagnostic\n",
-  stdout: "",
-  summary: "successful [passed][0.25s]"
-});
-assert.deepEqual(formatCheckResult({
-  durationMilliseconds: 500,
-  exitCode: 1,
-  script: "recoverable-task",
-  stderr: "failure diagnostic\n",
-  stdout: "failure context\n"
-}, "warning"), {
-  stderr: "failure diagnostic\n",
-  stdout: "failure context\n",
-  summary: "recoverable-task [warning][0.50s]"
-});
-assert.deepEqual(formatCheckResult({
-  durationMilliseconds: 500,
-  exitCode: 1,
-  script: "blocking-task",
-  stderr: "failure diagnostic\n",
-  stdout: "failure context\n"
-}, "failed"), {
-  stderr: "failure diagnostic\n",
-  stdout: "failure context\n",
-  summary: "blocking-task [failed][0.50s]"
-});
-assert.equal(
-  formatTimedStatus(
-    "All 21 preflight checks and packaging",
-    "warning",
-    6_370
-  ),
-  "All 21 preflight checks and packaging [warning][6.37s]"
-);
+test("check report formatting keeps success concise and failures complete", () => {
+  const passedReport = {
+    result: {
+      capturedOutput: "successful details\n",
+      durationMilliseconds: 1_100,
+      exitCode: 0,
+      script: "successful"
+    },
+    status: "passed"
+  } as const;
+  const failedReport = {
+    result: {
+      capturedOutput: "failure details\n",
+      durationMilliseconds: 12_000,
+      exitCode: 1,
+      script: "failed"
+    },
+    status: "failed"
+  } as const;
+  const skippedReport = {
+    reason: "full profile only",
+    script: "slow",
+    status: "skipped"
+  } as const;
+
+  assert.deepEqual(formatCheckReport(passedReport), {
+    details: "",
+    script: "successful",
+    summary: "  passed: successful (1.1s)"
+  });
+  assert.deepEqual(formatCheckReport(passedReport, true), {
+    details: "successful details\n",
+    script: "successful",
+    summary: "  passed: successful (1.1s)"
+  });
+  assert.deepEqual(formatCheckReport(failedReport), {
+    details: "failure details\n",
+    script: "failed",
+    summary: "  failed: failed (12s)"
+  });
+  assert.deepEqual(formatCheckReport(skippedReport), {
+    details: "",
+    script: "slow",
+    summary: "  skipped: slow (full profile only)"
+  });
 });
 
-test("strict scheduling stops new work and waits for running tasks", async () => {
-const slowResult = Promise.withResolvers<ReturnType<typeof scriptResult>>();
-const failedResult = Promise.withResolvers<ReturnType<typeof scriptResult>>();
-const strictCalls: string[] = [];
-let strictRunSettled = false;
-const strictRun = runPreflightTasks(
-  ["slow", "failure", "must-not-start"],
-  "strict",
-  2,
-  async (script) => {
-    strictCalls.push(script);
-    if (script === "slow") {
-      return await slowResult.promise;
+test("check summary reports profile and status counts", () => {
+  const reports: CheckReport[] = [
+    {
+      result: {
+        capturedOutput: "",
+        durationMilliseconds: 1_100,
+        exitCode: 0,
+        script: "successful"
+      },
+      status: "passed"
+    },
+    {
+      reason: "full profile only",
+      script: "slow",
+      status: "skipped"
+    },
+    {
+      result: {
+        capturedOutput: "failure details\n",
+        durationMilliseconds: 12_000,
+        exitCode: 1,
+        script: "failed"
+      },
+      status: "failed"
     }
-    if (script === "failure") {
-      return await failedResult.promise;
+  ];
+
+  assert.equal(
+    formatCheckSummary(
+      "quick",
+      reports,
+      12_000
+    ),
+    [
+      "Summary:",
+      "  status: failed",
+      "  profile: quick",
+      "  total checks: 3",
+      "  passed: 1",
+      "  skipped: 1",
+      "  failed: 1",
+      "  duration: 12s"
+    ].join("\n")
+  );
+});
+
+test("preflight scheduling continues after failures", async () => {
+  const calls: string[] = [];
+  const reports: CheckReport[] = [];
+  const result = await runPreflightTasks(
+    [checkTask("failure"), checkTask("after-failure")],
+    1,
+    async (script) => {
+      calls.push(script);
+      return scriptResult(script, script === "failure" ? 1 : 0);
+    },
+    (report) => reports.push(report)
+  );
+
+  assert.deepEqual(result, { hasFailures: true });
+  assert.deepEqual(calls, ["failure", "after-failure"]);
+  assert.deepEqual(reports.map((report) => report.status), ["failed", "passed"]);
+});
+
+test("workflow skips full checks in the quick profile", async () => {
+  const calls: string[] = [];
+  const reports: CheckReport[] = [];
+  const result = await runCheckWorkflow({
+    concurrency: 1,
+    packageScript: "package",
+    preflightTasks: [checkTask("slow", "full"), checkTask("quick")],
+    profile: "quick",
+    onReport: (report) => reports.push(report),
+    runScript: async (script) => {
+      calls.push(script);
+      return scriptResult(script);
     }
-    return scriptResult(script);
-  },
-  () => undefined
-);
-void strictRun.then(() => {
-  strictRunSettled = true;
-});
-assert.deepEqual(strictCalls, ["slow", "failure"]);
+  });
 
-failedResult.resolve(scriptResult("failure", 1));
-await Promise.resolve();
-assert.equal(strictRunSettled, false);
-
-slowResult.resolve(scriptResult("slow"));
-assert.deepEqual(await strictRun, {
-  blockingFailure: true,
-  hasWarnings: false
-});
-assert.deepEqual(strictCalls, ["slow", "failure"]);
+  assert.deepEqual(result, {
+    exitCode: 0,
+    packageStatus: "passed"
+  });
+  assert.deepEqual(calls, ["quick", "package"]);
+  assert.deepEqual(reports.map((report) => report.status), [
+    "skipped",
+    "passed",
+    "passed"
+  ]);
 });
 
-test("warning scheduling continues after recoverable failures", async () => {
-const warningCalls: string[] = [];
-const warningStatuses: string[] = [];
-const warningRun = await runPreflightTasks(
-  ["warning", "after-warning"],
-  "warnings",
-  1,
-  async (script) => {
-    warningCalls.push(script);
-    return scriptResult(script, script === "warning" ? 1 : 0);
-  },
-  (_result, status) => warningStatuses.push(status)
-);
-assert.deepEqual(warningRun, {
-  blockingFailure: false,
-  hasWarnings: true
-});
-assert.deepEqual(warningCalls, ["warning", "after-warning"]);
-assert.deepEqual(warningStatuses, ["warning", "passed"]);
+test("workflow runs every check in the full profile", async () => {
+  const calls: string[] = [];
+  const reports: CheckReport[] = [];
+  const result = await runCheckWorkflow({
+    concurrency: 1,
+    packageScript: "package",
+    preflightTasks: [checkTask("slow", "full"), checkTask("quick")],
+    profile: "full",
+    onReport: (report) => reports.push(report),
+    runScript: async (script) => {
+      calls.push(script);
+      return scriptResult(script);
+    }
+  });
+
+  assert.deepEqual(result, {
+    exitCode: 0,
+    packageStatus: "passed"
+  });
+  assert.deepEqual(calls, ["slow", "quick", "package"]);
+  assert.deepEqual(reports.map((report) => report.status), [
+    "passed",
+    "passed",
+    "passed"
+  ]);
 });
 
-test("workflow packages after warnings and skips after blocking failures", async () => {
-const workflowCalls: string[] = [];
-const defaultWarning = await runCheckWorkflow({
-  concurrency: 1,
-  mode: "warnings",
-  packageScript: "package",
-  preflightTasks: ["warning", "successful"],
-  report: () => undefined,
-  runScript: async (script) => {
-    workflowCalls.push(script);
-    return scriptResult(script, script === "warning" ? 1 : 0);
-  }
-});
-assert.deepEqual(defaultWarning, {
-  exitCode: 0,
-  packagingSkipped: false,
-  status: "warning"
-});
-assert.deepEqual(workflowCalls, ["warning", "successful", "package"]);
+test("workflow skips packaging after preflight failures", async () => {
+  const calls: string[] = [];
+  const reports: CheckReport[] = [];
+  const result = await runCheckWorkflow({
+    concurrency: 1,
+    packageScript: "package",
+    preflightTasks: [checkTask("failure"), checkTask("after-failure")],
+    profile: "quick",
+    onReport: (report) => reports.push(report),
+    runScript: async (script) => {
+      calls.push(script);
+      return scriptResult(script, script === "failure" ? 1 : 0);
+    }
+  });
 
-workflowCalls.length = 0;
-const explicitBlockingFailure = await runCheckWorkflow({
-  concurrency: 1,
-  mode: "warnings",
-  packageScript: "package",
-  preflightTasks: [{ blocking: true, script: "failure" }],
-  report: () => undefined,
-  runScript: async (script) => {
-    workflowCalls.push(script);
-    return scriptResult(script, 1);
-  }
-});
-assert.deepEqual(explicitBlockingFailure, {
-  exitCode: 1,
-  packagingSkipped: true,
-  status: "failed"
-});
-assert.deepEqual(workflowCalls, ["failure"]);
-
-workflowCalls.length = 0;
-const strictFailure = await runCheckWorkflow({
-  concurrency: 1,
-  mode: "strict",
-  packageScript: "package",
-  preflightTasks: ["failure"],
-  report: () => undefined,
-  runScript: async (script) => {
-    workflowCalls.push(script);
-    return scriptResult(script, 1);
-  }
-});
-assert.deepEqual(strictFailure, {
-  exitCode: 1,
-  packagingSkipped: true,
-  status: "failed"
-});
-assert.deepEqual(workflowCalls, ["failure"]);
+  assert.deepEqual(result, {
+    exitCode: 1,
+    packageStatus: "skipped"
+  });
+  assert.deepEqual(calls, ["failure", "after-failure"]);
+  assert.deepEqual(reports.map((report) => report.status), [
+    "failed",
+    "passed",
+    "skipped"
+  ]);
 });
 
 test("workflow reports package script failures", async () => {
-const workflowCalls: string[] = [];
-const packageFailure = await runCheckWorkflow({
-  concurrency: 1,
-  mode: "warnings",
-  packageScript: "package",
-  preflightTasks: ["successful"],
-  report: () => undefined,
-  runScript: async (script) => {
-    workflowCalls.push(script);
-    return scriptResult(script, script === "package" ? 1 : 0);
-  }
-});
-assert.deepEqual(packageFailure, {
-  exitCode: 1,
-  packagingSkipped: false,
-  status: "failed"
-});
-assert.deepEqual(workflowCalls, ["successful", "package"]);
+  const reports: CheckReport[] = [];
+  const result = await runCheckWorkflow({
+    concurrency: 1,
+    packageScript: "package",
+    preflightTasks: [checkTask("successful")],
+    profile: "quick",
+    onReport: (report) => reports.push(report),
+    runScript: async (script) =>
+      scriptResult(script, script === "package" ? 1 : 0)
+  });
+
+  assert.deepEqual(result, {
+    exitCode: 1,
+    packageStatus: "failed"
+  });
+  assert.deepEqual(reports.map((report) => report.status), ["passed", "failed"]);
 });
 
 test("CLI reports invalid concurrency without starting checks", () => {
-const invalidConcurrency = spawnSync(
-  process.execPath,
-  [fileURLToPath(new URL("./check.ts", import.meta.url))],
-  {
-    encoding: "utf8",
-    env: { ...process.env, CHECK_CONCURRENCY: "0" },
-    windowsHide: true
-  }
-);
-assert.equal(invalidConcurrency.status, 1);
-assert.equal(invalidConcurrency.stdout, "");
-assert.match(
-  invalidConcurrency.stderr,
-  /CHECK_CONCURRENCY must be a positive integer/u
-);
-assert.match(
-  invalidConcurrency.stderr,
-  /All 23 preflight checks and packaging \[failed\]\[\d+\.\d{2}s\]/u
-);
+  const invalidConcurrency = spawnSync(
+    process.execPath,
+    [fileURLToPath(new URL("./check.ts", import.meta.url))],
+    {
+      encoding: "utf8",
+      env: { ...process.env, CHECK_CONCURRENCY: "0" },
+      windowsHide: true
+    }
+  );
+  assert.equal(invalidConcurrency.status, 1);
+  assert.equal(invalidConcurrency.stdout, "");
+  assert.match(
+    invalidConcurrency.stderr,
+    /CHECK_CONCURRENCY must be a positive integer/u
+  );
 });
 
 test("CLI reports unknown options without starting checks", () => {
-const invalidArgument = spawnSync(
-  process.execPath,
-  [fileURLToPath(new URL("./check.ts", import.meta.url)), "--unknown"],
-  {
-    encoding: "utf8",
-    windowsHide: true
-  }
-);
-assert.equal(invalidArgument.status, 1);
-assert.equal(invalidArgument.stdout, "");
-assert.match(invalidArgument.stderr, /Unknown option '--unknown'/u);
-assert.match(
-  invalidArgument.stderr,
-  /All 23 preflight checks and packaging \[failed\]\[\d+\.\d{2}s\]/u
-);
+  const invalidArgument = spawnSync(
+    process.execPath,
+    [fileURLToPath(new URL("./check.ts", import.meta.url)), "--unknown"],
+    {
+      encoding: "utf8",
+      windowsHide: true
+    }
+  );
+  assert.equal(invalidArgument.status, 1);
+  assert.equal(invalidArgument.stdout, "");
+  assert.match(invalidArgument.stderr, /Unknown option '--unknown'/u);
 });

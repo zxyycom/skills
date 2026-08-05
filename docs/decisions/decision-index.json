@@ -82,7 +82,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:7ca4e6adaffc1b0b5d9f7706d2effd8896d88e029ef7dae858c12242a8187507",
+  "sourceRevision": "sha256:29936d17ff06948affe53bfefeca88a0b41fe31a8fa6f0a2b581bb95ae0e3251",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -2955,7 +2955,7 @@
           "project-tooling"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -2964,7 +2964,7 @@
       "state": {
         "path": "project-tooling/default-checks-to-warnings.md",
         "title": "让完整检查默认报告警告并显式启用阻断",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-22T13:49:32Z",
         "purpose": "让并行修改中的工作区完成全部检查，同时为 CI 和真实依赖保留明确门禁。",
@@ -3060,6 +3060,36 @@
           {
             "type": "修订",
             "target": "project-tooling/separate-distributable-tool-source-from-repository-automation.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "project-tooling/use-profiled-concise-checks.md",
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/use-profiled-concise-checks.md",
+        "title": "按档位运行检查并按结果展开日志",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-05T07:12:40Z",
+        "purpose": "让日常检查在保留必要门禁的同时快速反馈，并为完整验证和失败诊断提供显式入口。",
+        "background": "少数耗时集成测试和默认展开的成功日志延长日常反馈，而将前置失败降级为 warning 会削弱最终退出状态的可信度。",
+        "decision": "默认 quick 只运行必要快速检查，`--full` 执行全部；成功与跳过使用单行摘要，失败完整展开且不阻塞其余检查，`--verbose` 显式展开全部日志。",
+        "relations": [
+          {
+            "type": "替代",
+            "target": "project-tooling/default-checks-to-warnings.md"
           }
         ]
       }
