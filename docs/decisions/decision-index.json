@@ -86,7 +86,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:f0f830accaf10678648ce22dfaf094fe914211e92d377b4a0d24ea530c9cf535",
+  "sourceRevision": "sha256:5c93ca1d21668d089eed8affe59e8b51b135133dc30e0643df713a05a9d2d46d",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -3938,6 +3938,31 @@
       }
     },
     {
+      "id": "task-graph/install-native-runtime-in-user-tool-home.md",
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/install-native-runtime-in-user-tool-home.md",
+        "title": "在用户工具目录安装 task-graph 原生运行时",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-06T16:23:22Z",
+        "purpose": "让 task-graph 使用原生文件锁而不把平台二进制写入 Git 或 skill 分发包。",
+        "background": "Native addon 包体不大，但 `.node` 不可审阅、会累积 Git 历史，并扩大每个 skill 制品的平台内容。",
+        "decision": "由 task-graph 显式安装锁定 native 依赖到 `~/.tools/task-graph`，并允许环境变量覆盖 tool home。",
+        "relations": []
+      }
+    },
+    {
       "id": "task-graph/key-task-identity-and-separate-content-state-projection.md",
       "keys": {
         "domain": [
@@ -4064,6 +4089,31 @@
         "purpose": "让大量短期任务以稳定、紧凑且可查询的状态存在，而不产生逐任务文档。",
         "background": "任务上下文很少、更新频繁且通常无需长期回放；逐任务 Markdown 会放大维护面，派生索引也会引入第二事实源。",
         "decision": "使用长期存在的 JSON 运行时索引作为任务唯一事实源，每项任务是短期条目，不创建逐任务 Markdown 或归档历史。",
+        "relations": []
+      }
+    },
+    {
+      "id": "task-graph/use-native-locks-for-json-transactions.md",
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/use-native-locks-for-json-transactions.md",
+        "title": "使用原生文件锁简化 JSON 事务",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-06T16:23:21Z",
+        "purpose": "让 task-graph 保留可追踪 JSON，同时把跨进程互斥和原子替换交给成熟系统与库边界。",
+        "background": "自研锁恢复需要 owner、heartbeat、进程探测和 generation 防护，维护面远超短事务本身。",
+        "decision": "使用稳定旁路文件上的原生排他锁和成熟原子写库，并保留 revision、执行租约与未知结果核验。",
         "relations": []
       }
     },
