@@ -797,7 +797,7 @@
       "id": "DECISION-ACTIVATION-ARCHIVE-001",
       "keys": {
         "search": [
-          "DECISION-ACTIVATION-ARCHIVE-001 激活与归档保持内容和索引原子性 决策激活和归档必须同步更新内容位置与索引状态，并在归档时保留最后执行状态。 成功转换后文件与索引一致，aligned 记录归档后仍为 aligned，失败路径不会留下半完成状态。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-ACTIVATION-ARCHIVE-001 激活与归档保持内容和索引原子性 决策激活和归档必须同步更新内容位置与索引状态，并在归档时保留最后对齐状态。 成功转换后文件与索引一致，aligned 记录归档后仍为 aligned，失败路径不会留下半完成状态。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -811,9 +811,9 @@
         ],
         "id": "DECISION-ACTIVATION-ARCHIVE-001",
         "line": 1,
-        "searchText": "DECISION-ACTIVATION-ARCHIVE-001 激活与归档保持内容和索引原子性 决策激活和归档必须同步更新内容位置与索引状态，并在归档时保留最后执行状态。 成功转换后文件与索引一致，aligned 记录归档后仍为 aligned，失败路径不会留下半完成状态。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-ACTIVATION-ARCHIVE-001 激活与归档保持内容和索引原子性 决策激活和归档必须同步更新内容位置与索引状态，并在归档时保留最后对齐状态。 成功转换后文件与索引一致，aligned 记录归档后仍为 aligned，失败路径不会留下半完成状态。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/activation-and-archive-transitions-preserve-content-and-index-atomicity.md",
-        "summary": "决策激活和归档必须同步更新内容位置与索引状态，并在归档时保留最后执行状态。",
+        "summary": "决策激活和归档必须同步更新内容位置与索引状态，并在归档时保留最后对齐状态。",
         "title": "激活与归档保持内容和索引原子性"
       }
     },
@@ -821,7 +821,7 @@
       "id": "DECISION-ACTIVATION-RELATION-001",
       "keys": {
         "search": [
-          "DECISION-ACTIVATION-RELATION-001 激活归档直接前序并支持有界关系追踪 带直接关系激活新候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围；已经进入 Git HEAD 的前序不增加确认调用。 新记录成为 aligned active，直接前序成为 archived 并保留 aligned 执行状态，关系进入索引。 直接前序已存在于 Git HEAD 时，关系激活一次调用即可完成。 predecessor trace 深度 1 只包含直接前序，深度 2 可继续到更早记录。 tools/decision-records/tests/evolution.test.ts > activation archives a direct predecessor and traces bounded relations bun test --test-name-pattern=\"^activation archives a direct predecessor and traces bounded relations$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-ACTIVATION-RELATION-001 激活归档直接前序并支持有界关系追踪 带直接关系激活新候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围；已经进入 Git HEAD 的前序不增加确认调用。 新记录成为 aligned active，直接前序成为 archived 并保留 aligned 对齐状态，关系进入索引。 直接前序已存在于 Git HEAD 时，关系激活一次调用即可完成。 predecessor trace 深度 1 只包含直接前序，深度 2 可继续到更早记录。 tools/decision-records/tests/evolution.test.ts > activation archives a direct predecessor and traces bounded relations bun test --test-name-pattern=\"^activation archives a direct predecessor and traces bounded relations$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -835,7 +835,7 @@
         ],
         "id": "DECISION-ACTIVATION-RELATION-001",
         "line": 1,
-        "searchText": "DECISION-ACTIVATION-RELATION-001 激活归档直接前序并支持有界关系追踪 带直接关系激活新候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围；已经进入 Git HEAD 的前序不增加确认调用。 新记录成为 aligned active，直接前序成为 archived 并保留 aligned 执行状态，关系进入索引。 直接前序已存在于 Git HEAD 时，关系激活一次调用即可完成。 predecessor trace 深度 1 只包含直接前序，深度 2 可继续到更早记录。 tools/decision-records/tests/evolution.test.ts > activation archives a direct predecessor and traces bounded relations bun test --test-name-pattern=\"^activation archives a direct predecessor and traces bounded relations$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-ACTIVATION-RELATION-001 激活归档直接前序并支持有界关系追踪 带直接关系激活新候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围；已经进入 Git HEAD 的前序不增加确认调用。 新记录成为 aligned active，直接前序成为 archived 并保留 aligned 对齐状态，关系进入索引。 直接前序已存在于 Git HEAD 时，关系激活一次调用即可完成。 predecessor trace 深度 1 只包含直接前序，深度 2 可继续到更早记录。 tools/decision-records/tests/evolution.test.ts > activation archives a direct predecessor and traces bounded relations bun test --test-name-pattern=\"^activation archives a direct predecessor and traces bounded relations$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/activation-archives-a-direct-predecessor-and-traces-bounded-relations.md",
         "summary": "带直接关系激活新候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围；已经进入 Git HEAD 的前序不增加确认调用。",
         "title": "激活归档直接前序并支持有界关系追踪"
@@ -1061,7 +1061,7 @@
       "id": "DECISION-CLI-ARGS-001",
       "keys": {
         "search": [
-          "DECISION-CLI-ARGS-001 CLI 帮助与参数错误暴露一致命令契约 顶层与子命令帮助必须准确说明默认 check、索引检查/重建和归档执行状态语义；非法参数继续使用参数错误退出契约。 帮助文本公开 agent-oriented 入口、默认严格检查、sync-index 的只检/写入差异和归档保留 alignment；未知选项、非法深度、非法领域 ID 与缺失必需参数均退出 2。 tools/decision-records/tests/queries.test.ts > decision CLI help and invalid options expose one consistent contract bun test --test-name-pattern=\"^decision CLI help and invalid options expose one consistent contract$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CLI-ARGS-001 CLI 帮助与参数错误暴露一致命令契约 顶层与子命令帮助必须准确说明默认 check、索引检查/重建、只有完整方向成为当前事实并完成核对后才能对齐，以及归档保留对齐状态；非法参数继续使用参数错误退出契约。 帮助文本公开 agent-oriented 入口、默认严格检查、sync-index 的只检/写入差异、mark-aligned 的事实基线语义和归档保留 alignment；未知选项、非法深度、非法领域 ID 与缺失必需参数均退出 2。 tools/decision-records/tests/queries.test.ts > decision CLI help and invalid options expose one consistent contract bun test --test-name-pattern=\"^decision CLI help and invalid options expose one consistent contract$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1075,9 +1075,9 @@
         ],
         "id": "DECISION-CLI-ARGS-001",
         "line": 1,
-        "searchText": "DECISION-CLI-ARGS-001 CLI 帮助与参数错误暴露一致命令契约 顶层与子命令帮助必须准确说明默认 check、索引检查/重建和归档执行状态语义；非法参数继续使用参数错误退出契约。 帮助文本公开 agent-oriented 入口、默认严格检查、sync-index 的只检/写入差异和归档保留 alignment；未知选项、非法深度、非法领域 ID 与缺失必需参数均退出 2。 tools/decision-records/tests/queries.test.ts > decision CLI help and invalid options expose one consistent contract bun test --test-name-pattern=\"^decision CLI help and invalid options expose one consistent contract$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-CLI-ARGS-001 CLI 帮助与参数错误暴露一致命令契约 顶层与子命令帮助必须准确说明默认 check、索引检查/重建、只有完整方向成为当前事实并完成核对后才能对齐，以及归档保留对齐状态；非法参数继续使用参数错误退出契约。 帮助文本公开 agent-oriented 入口、默认严格检查、sync-index 的只检/写入差异、mark-aligned 的事实基线语义和归档保留 alignment；未知选项、非法深度、非法领域 ID 与缺失必需参数均退出 2。 tools/decision-records/tests/queries.test.ts > decision CLI help and invalid options expose one consistent contract bun test --test-name-pattern=\"^decision CLI help and invalid options expose one consistent contract$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-cli-help-and-invalid-options-expose-one-consistent-contract.md",
-        "summary": "顶层与子命令帮助必须准确说明默认 check、索引检查/重建和归档执行状态语义；非法参数继续使用参数错误退出契约。",
+        "summary": "顶层与子命令帮助必须准确说明默认 check、索引检查/重建、只有完整方向成为当前事实并完成核对后才能对齐，以及归档保留对齐状态；非法参数继续使用参数错误退出契约。",
         "title": "CLI 帮助与参数错误暴露一致命令契约"
       }
     },
@@ -1829,7 +1829,7 @@
       "id": "DECISION-UNRECORDED-ARCHIVE-001",
       "keys": {
         "search": [
-          "DECISION-UNRECORDED-ARCHIVE-001 归档未提交决策前暂停并要求显式保留 Archive 不得静默保留尚未进入 Git HEAD 的已建立记录；首次调用必须无写入暂停，显式确认后才能归档。 首次 archive 返回预警且决策 Markdown 与索引逐字节不变。 带 `--keep-unrecorded-history` 的重试不再依赖 Git 基线读取，并把目标归档且保留 aligned 执行状态。 tools/decision-records/tests/unrecorded-history.test.ts > archive pauses before preserving an unrecorded established decision bun test --test-name-pattern=\"^archive pauses before preserving an unrecorded established decision$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-UNRECORDED-ARCHIVE-001 归档未提交决策前暂停并要求显式保留 Archive 不得静默保留尚未进入 Git HEAD 的已建立记录；首次调用必须无写入暂停，显式确认后才能归档。 首次 archive 返回预警且决策 Markdown 与索引逐字节不变。 带 `--keep-unrecorded-history` 的重试不再依赖 Git 基线读取，并把目标归档且保留 aligned 对齐状态。 tools/decision-records/tests/unrecorded-history.test.ts > archive pauses before preserving an unrecorded established decision bun test --test-name-pattern=\"^archive pauses before preserving an unrecorded established decision$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1843,7 +1843,7 @@
         ],
         "id": "DECISION-UNRECORDED-ARCHIVE-001",
         "line": 1,
-        "searchText": "DECISION-UNRECORDED-ARCHIVE-001 归档未提交决策前暂停并要求显式保留 Archive 不得静默保留尚未进入 Git HEAD 的已建立记录；首次调用必须无写入暂停，显式确认后才能归档。 首次 archive 返回预警且决策 Markdown 与索引逐字节不变。 带 `--keep-unrecorded-history` 的重试不再依赖 Git 基线读取，并把目标归档且保留 aligned 执行状态。 tools/decision-records/tests/unrecorded-history.test.ts > archive pauses before preserving an unrecorded established decision bun test --test-name-pattern=\"^archive pauses before preserving an unrecorded established decision$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "DECISION-UNRECORDED-ARCHIVE-001 归档未提交决策前暂停并要求显式保留 Archive 不得静默保留尚未进入 Git HEAD 的已建立记录；首次调用必须无写入暂停，显式确认后才能归档。 首次 archive 返回预警且决策 Markdown 与索引逐字节不变。 带 `--keep-unrecorded-history` 的重试不再依赖 Git 基线读取，并把目标归档且保留 aligned 对齐状态。 tools/decision-records/tests/unrecorded-history.test.ts > archive pauses before preserving an unrecorded established decision bun test --test-name-pattern=\"^archive pauses before preserving an unrecorded established decision$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/archive-pauses-before-preserving-an-unrecorded-established-decision.md",
         "summary": "Archive 不得静默保留尚未进入 Git HEAD 的已建立记录；首次调用必须无写入暂停，显式确认后才能归档。",
         "title": "归档未提交决策前暂停并要求显式保留"
@@ -5022,5 +5022,5 @@
   },
   "namespace": "test-evidence",
   "schemaVersion": 2,
-  "sourceRevision": "sha256:dbe5a1e39577e7b0477694c0861a58c109c8d36fae9be5026e8af826fa6bec5b"
+  "sourceRevision": "sha256:1a79f5cde601c3231f2c328f3886fa0edc3dda9131d50a9747721d392deeb1a1"
 }

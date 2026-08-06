@@ -3,6 +3,6 @@ Entry:
 - `tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity`
 - `bun test --test-name-pattern="^activation and archive transitions preserve content and index atomicity$" ./tools/decision-records/tests/run.ts`
 Contract:
-- 决策激活和归档必须同步更新内容位置与索引状态，并在归档时保留最后执行状态。
+- 决策激活和归档必须同步更新内容位置与索引状态，并在归档时保留最后对齐状态。
 Proves:
 - 成功转换后文件与索引一致，aligned 记录归档后仍为 aligned，失败路径不会留下半完成状态。

@@ -348,6 +348,17 @@ try {
   assert.equal(archiveHelp.status, 0);
   assert.match(archiveHelp.stdout, /preserving their last alignment/);
 
+  const markAlignedHelp = spawnSync(
+    "node",
+    [generatedCliPath, "mark-aligned", "--help"],
+    { encoding: "utf8" }
+  );
+  assert.equal(markAlignedHelp.status, 0);
+  assert.match(
+    markAlignedHelp.stdout,
+    /only after its complete\s+direction\s+has become current fact\s+and been verified against the relevant\s+fact sources/
+  );
+
   // Keep real Node failures to prove invalid-option exit codes.
   for (const invalidArguments of [
     ["list", "--unknown-option", "--root", fixtureRoot],

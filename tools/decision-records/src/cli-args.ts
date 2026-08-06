@@ -436,8 +436,9 @@ export function createCliProgram(
   const markAligned = createSubcommand(
     program,
     "mark-aligned <decision-path>",
-    "Mark an active unaligned decision as aligned after verifying its complete "
-      + "execution against current fact sources."
+    "Mark an active unaligned decision as aligned only after its complete "
+      + "direction has become current fact and been verified against the relevant "
+      + "fact sources."
   );
   markAligned.action((recordPath: string) => (
     execute("mark-aligned", markAligned, [recordPath])

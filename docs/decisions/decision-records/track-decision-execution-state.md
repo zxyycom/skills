@@ -1,6 +1,6 @@
 ---
 title: 用对齐状态记录决策是否已经执行
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-03T07:35:02Z
 purpose: 区分已确认但尚未完整执行的决策与已经执行并建立为当前基线的决策。
