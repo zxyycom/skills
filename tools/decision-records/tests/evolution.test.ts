@@ -467,3 +467,134 @@ test("evolve command archives sources and creates the aligned target atomically"
   );
   })
 ));
+
+test("split atomically replaces one coarse decision with independently aligned successors", () => (
+  withFixtureWorkspace("split-decision", async (workspaceRoot) => {
+  initializeGitRepository(workspaceRoot);
+  commitWorkspace(workspaceRoot);
+  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+  const indexPath = path.join(decisionsDirectory, "decision-index.json");
+  const coarseRelativePath = "decision-records/use-coarse-future-direction.md";
+  const coarsePath = decisionFilePath(workspaceRoot, coarseRelativePath);
+  await fs.writeFile(
+    coarsePath,
+    candidateDecisionBody({ alignment: "unaligned" }),
+    "utf8"
+  );
+  await runSuccessfulSourceCli([
+    "activate",
+    coarseRelativePath,
+    "--alignment",
+    "unaligned",
+    "--root",
+    workspaceRoot
+  ]);
+  commitWorkspace(workspaceRoot, "record coarse future direction");
+
+  const alignedRelativePath =
+    "decision-records/keep-current-split-slice.md";
+  const unalignedRelativePath =
+    "decision-records/keep-future-split-slice.md";
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, alignedRelativePath),
+    candidateDecisionBody({ alignment: "aligned" }),
+    "utf8"
+  );
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, unalignedRelativePath),
+    candidateDecisionBody({ alignment: "unaligned" }),
+    "utf8"
+  );
+
+  const output = await runSuccessfulSourceCli([
+    "split",
+    coarseRelativePath,
+    "--successor",
+    "aligned=" + alignedRelativePath,
+    "--successor",
+    "unaligned=" + unalignedRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+  assert.match(output, /Split .* into aligned .* unaligned/);
+
+  const splitIndex = await readIndex(indexPath);
+  const coarseState = findIndexEntry(splitIndex, coarseRelativePath);
+  const alignedState = findIndexEntry(splitIndex, alignedRelativePath);
+  const unalignedState = findIndexEntry(splitIndex, unalignedRelativePath);
+  assert.equal(coarseState.status, "archived");
+  assert.equal(coarseState.alignment, "unaligned");
+  assert.equal(alignedState.status, "active");
+  assert.equal(alignedState.alignment, "aligned");
+  assert.deepEqual(alignedState.relations, [{
+    type: "拆分",
+    target: coarseRelativePath
+  }]);
+  assert.equal(unalignedState.status, "active");
+  assert.equal(unalignedState.alignment, "unaligned");
+  assert.deepEqual(unalignedState.relations, [{
+    type: "拆分",
+    target: coarseRelativePath
+  }]);
+  assert.equal(alignedState.createdAt, unalignedState.createdAt);
+
+  const traced = await runSuccessfulSourceCli([
+    "trace",
+    coarseRelativePath,
+    "--direction",
+    "successors",
+    "--depth",
+    "1",
+    "--root",
+    workspaceRoot
+  ]);
+  assert.match(traced, /keep-current-split-slice/);
+  assert.match(traced, /keep-future-split-slice/);
+  assert.deepEqual(
+    (await validateDecisionRecords({ workspaceRoot })).errors,
+    []
+  );
+  })
+));
+
+test("split rejects incomplete successor sets and relationship graphs", () => (
+  withFixtureWorkspace("split-closure", async (workspaceRoot) => {
+  initializeGitRepository(workspaceRoot);
+  commitWorkspace(workspaceRoot);
+  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+  const indexPath = path.join(decisionsDirectory, "decision-index.json");
+  const successorRelativePath =
+    "decision-records/use-incomplete-split-successor.md";
+  const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
+  const successorCandidate = candidateDecisionBody({ alignment: "aligned" });
+  await fs.writeFile(successorPath, successorCandidate, "utf8");
+  const predecessorPath = decisionFilePath(workspaceRoot, currentRelativePath);
+  const predecessorBefore = await fs.readFile(predecessorPath, "utf8");
+  const indexBefore = await fs.readFile(indexPath, "utf8");
+
+  const rejected = await runSourceCli([
+    "split",
+    currentRelativePath,
+    "--successor",
+    "aligned=" + successorRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(rejected.exitCode, 1);
+  assert.match(rejected.stderr, /at least two --successor values/);
+  assert.equal(await fs.readFile(predecessorPath, "utf8"), predecessorBefore);
+  assert.equal(await fs.readFile(successorPath, "utf8"), successorCandidate);
+  assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
+
+  await fs.writeFile(
+    predecessorPath,
+    predecessorBefore.replace("type: 修订", "type: 拆分"),
+    "utf8"
+  );
+  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
+    (error) => error.includes(
+      "must have at least two direct 拆分 successors"
+    )
+  ));
+  })
+));

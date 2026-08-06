@@ -22,7 +22,8 @@ import type {
   DecisionAlignment,
   DecisionRecord,
   DecisionRelation,
-  DecisionScan
+  DecisionScan,
+  DecisionSplitSuccessor
 } from "./types.ts";
 
 export type DecisionLifecycleRequest =
@@ -47,6 +48,12 @@ export type DecisionLifecycleRequest =
       recordPaths: readonly string[];
     }
   | {
+      action: "split";
+      keepUnrecordedHistory: boolean;
+      predecessorPath: string;
+      successors: readonly DecisionSplitSuccessor[];
+    }
+  | {
       action: "discard" | "mark-aligned";
       recordPath: string;
     };
@@ -68,12 +75,13 @@ export function decisionHistoryBaselineRequirement(
   if (
     (request.action === "activate"
       || request.action === "archive"
-      || request.action === "evolve")
+      || request.action === "evolve"
+      || request.action === "split")
     && request.keepUnrecordedHistory
   ) {
     return "none";
   }
-  if (request.action === "archive") {
+  if (request.action === "archive" || request.action === "split") {
     return "unrecorded-preflight";
   }
   if (
@@ -131,6 +139,13 @@ export async function prepareDecisionLifecycle(
       return prepareDiscard(scan, request.recordPath);
     case "mark-aligned":
       return await prepareMarkAligned(scan, request.recordPath);
+    case "split":
+      return await prepareSplit(
+        scan,
+        request,
+        options.currentTimestamp ?? currentDecisionTimestamp,
+        options.historyBaseline
+      );
   }
 }
 
@@ -402,6 +417,152 @@ function activationMetadata(
     createdAt: currentTimestamp(),
     prefix: "Activated new decision",
     state: "changed",
+    status: "ok"
+  };
+}
+
+async function prepareSplit(
+  scan: DecisionScan,
+  request: Extract<DecisionLifecycleRequest, { action: "split" }>,
+  currentTimestamp: () => string,
+  historyBaseline: DecisionHistoryBaseline | null
+): Promise<DecisionLifecyclePreparation> {
+  if (request.successors.length < 2) {
+    return plainFailure(
+      "split requires at least two --successor values that form the complete "
+        + "successor set."
+    );
+  }
+
+  const predecessor = findEstablishedRecord(scan, request.predecessorPath);
+  if (predecessor === null || !predecessor.markdownExists) {
+    return plainFailure(
+      "Split predecessor is not an established decision: "
+        + request.predecessorPath
+    );
+  }
+  if (predecessor.status !== "active") {
+    return plainFailure(
+      "Split predecessor must be active: " + predecessor.relativePath
+    );
+  }
+
+  const establishedAt = currentTimestamp();
+  const successorPaths = new Set<string>();
+  const preparedSuccessors: Array<{
+    nextText: string;
+    record: DecisionRecord;
+    successor: DecisionSplitSuccessor;
+  }> = [];
+  for (const successor of request.successors) {
+    const record = findRecord(scan, successor.recordPath);
+    if (record === null || !record.markdownExists) {
+      return plainFailure(
+        "Split successor decision does not exist: " + successor.recordPath
+      );
+    }
+    if (record.relativePath === predecessor.relativePath) {
+      return plainFailure(
+        "Split successor must not be the predecessor itself: "
+          + record.relativePath
+      );
+    }
+    if (successorPaths.has(record.relativePath)) {
+      return plainFailure(
+        "Split successor decision path is repeated: " + record.relativePath
+      );
+    }
+    successorPaths.add(record.relativePath);
+    if (record.document !== null) {
+      return plainFailure(
+        "Split successor must be a new decision candidate: "
+          + record.relativePath
+      );
+    }
+
+    const currentText = await readDecisionText(record);
+    if (currentText.status === "error") {
+      return currentText;
+    }
+    const metadataErrors: string[] = [];
+    const parsed = parseDecisionMarkdown({
+      allowNullCreatedAt: true,
+      errors: metadataErrors,
+      markdown: currentText.value,
+      relativePath: record.relativePath
+    });
+    if (parsed === null || metadataErrors.length > 0) {
+      return decisionFailure(metadataErrors);
+    }
+    if (parsed.projection.relations.length > 0) {
+      return plainFailure(
+        "Split successor candidate must declare relations: [] before the "
+          + "split transaction sets its complete relation list: "
+          + record.relativePath
+      );
+    }
+    const activation = activationMetadata(
+      scan,
+      record,
+      parsed.metadata,
+      successor.alignment,
+      () => establishedAt
+    );
+    if (activation.status === "error") {
+      return activation;
+    }
+    if (activation.state === "unchanged") {
+      return plainFailure(
+        "Split successor must not already be active: " + record.relativePath
+      );
+    }
+    const nextText = replaceDecisionFrontmatter(currentText.value, {
+      metadata: {
+        alignment: successor.alignment,
+        createdAt: activation.createdAt,
+        status: "active"
+      },
+      relations: [{
+        type: "拆分",
+        target: predecessor.relativePath
+      }]
+    });
+    if (nextText === null) {
+      return plainFailure(
+        "Decision frontmatter is unavailable: " + record.relativePath
+      );
+    }
+    preparedSuccessors.push({ nextText, record, successor });
+  }
+
+  const unrecordedAttention = prepareUnrecordedHistoryAttention(
+    [predecessor],
+    request.keepUnrecordedHistory,
+    historyBaseline,
+    false
+  );
+  if (unrecordedAttention !== null) {
+    return unrecordedAttention;
+  }
+  const archivedPredecessor = await prepareArchivedDecisionChange(predecessor);
+  if (archivedPredecessor.status === "error") {
+    return archivedPredecessor;
+  }
+  return {
+    changes: [
+      archivedPredecessor.change,
+      ...preparedSuccessors.map(({ nextText, record }) => ({
+        decisionPath: record.decisionPath,
+        nextText
+      }))
+    ],
+    message: "Split "
+      + predecessor.relativePath
+      + " into "
+      + preparedSuccessors.map(({ record, successor }) => (
+        successor.alignment + " " + record.relativePath
+      )).join(", ")
+      + ".",
     status: "ok"
   };
 }

@@ -8,7 +8,8 @@ export const decisionRelationTypes = [
   "修订",
   "替代",
   "判定无效",
-  "归并"
+  "归并",
+  "拆分"
 ] as const;
 
 export type DecisionRelationType = typeof decisionRelationTypes[number];
@@ -28,6 +29,11 @@ export type DecisionListAlignment = DecisionAlignment | "all";
 export type DecisionRelation = {
   type: DecisionRelationType;
   target: string;
+};
+
+export type DecisionSplitSuccessor = {
+  alignment: DecisionAlignment;
+  recordPath: string;
 };
 
 export type DecisionProjection = {
@@ -71,7 +77,7 @@ export type DecisionIndex = Omit<
   StateIndex<DecisionIndexState, DecisionIndexMetadata>,
   "definitionVersion" | "entries" | "namespace"
 > & {
-  definitionVersion: 4;
+  definitionVersion: 5;
   entries: DecisionIndexEntry[];
   namespace: "decisions";
 };

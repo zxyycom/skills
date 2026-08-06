@@ -27,7 +27,7 @@ import {
 } from "./types.ts";
 
 export const decisionIndexNamespace = "decisions";
-export const decisionIndexDefinitionVersion = 4;
+export const decisionIndexDefinitionVersion = 5;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),

@@ -6,7 +6,12 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
-export type DecisionRelationType = "修订" | "替代" | "判定无效" | "归并";
+export type DecisionRelationType =
+  | "修订"
+  | "替代"
+  | "判定无效"
+  | "归并"
+  | "拆分";
 
 export type DecisionStatus = "active" | "archived";
 
@@ -70,7 +75,7 @@ export type DecisionIndexMetadata = {
 export type DecisionIndex = {
   schemaVersion: 2;
   namespace: "decisions";
-  definitionVersion: 4;
+  definitionVersion: 5;
   metadata: DecisionIndexMetadata;
   sourceRevision: string;
   keyDefinitions: Array<{

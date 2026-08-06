@@ -167,6 +167,19 @@ export function decisionRelationConsistencyIssues(
     }
   }
 
+  for (const [targetPath, targetEdges] of [...graph.edgesByTarget.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))) {
+    const splitEdges = targetEdges.filter((edge) => edge.type === "拆分");
+    if (splitEdges.length === 1) {
+      issues.push({
+        message: "Decision split target must have at least two direct 拆分 "
+          + "successors: "
+          + targetPath,
+        sourcePaths: splitEdges.map((edge) => edge.source)
+      });
+    }
+  }
+
   const visitState = new Map<string, "visiting" | "visited">();
   const pathStack: string[] = [];
 

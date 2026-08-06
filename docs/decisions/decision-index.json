@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "namespace": "decisions",
-  "definitionVersion": 4,
+  "definitionVersion": 5,
   "metadata": {
     "domains": [
       {
@@ -86,7 +86,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:bfaea0604806c4698fb0b27ddb8ca53376fee011c95070c8a5f8c7a3ab8182ca",
+  "sourceRevision": "sha256:902dfe4d766bd674637b496f24ae3080e1e2a793a65b413b87a5d9b3ceb0b783",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -1749,6 +1749,31 @@
       }
     },
     {
+      "id": "decision-records/support-reorganization-after-real-evidence.md",
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/support-reorganization-after-real-evidence.md",
+        "title": "在真实案例出现后支持决策重组",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-06T04:01:44Z",
+        "purpose": "为多前序到多后继的真实演进保留明确方向，同时避免在缺少实例时预设协议。",
+        "background": "拆分和归并分别覆盖一对多与多对一；多对多边界重划可能无法忠实组合表达，但当前还没有可复核案例。",
+        "decision": "将重组作为由真实案例触发的未来方向；现有关系无法忠实表达时再设计，并要求多前序、多后继和语义覆盖共同闭合。",
+        "relations": []
+      }
+    },
+    {
       "id": "decision-records/track-decision-execution-state.md",
       "keys": {
         "domain": [
@@ -1833,6 +1858,31 @@
             "target": "decision-records/260720-separate-status-commands-from-relations.md"
           }
         ]
+      }
+    },
+    {
+      "id": "decision-records/use-closed-splits-for-coarse-decisions.md",
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/use-closed-splits-for-coarse-decisions.md",
+        "title": "用闭合拆分处理过粗决策",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-06T03:35:42Z",
+        "purpose": "让可独立演进的子判断分别维护生命周期和对齐状态，避免过粗记录产生部分对齐。",
+        "background": "alignment 只适用于完整决策；粗记录的不同部分分别落地时，既不能整体对齐，也无法独立修订。",
+        "decision": "发现可独立演进的部分时，以闭合的一对多拆分归档粗决策并同时建立全部后继；每条后继独立对齐。",
+        "relations": []
       }
     },
     {

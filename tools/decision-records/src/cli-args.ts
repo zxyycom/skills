@@ -12,6 +12,7 @@ import {
   type DecisionListAlignment,
   type DecisionListStatus,
   type DecisionRelation,
+  type DecisionSplitSuccessor,
   type DecisionTraceDirection
 } from "./types.ts";
 import {
@@ -29,6 +30,7 @@ export type Command =
   | "list"
   | "mark-aligned"
   | "show"
+  | "split"
   | "stage"
   | "sync-index"
   | "trace";
@@ -71,6 +73,11 @@ export type CliArgs =
     }>
   | LocatedCommand<"mark-aligned", { recordPath: string }>
   | LocatedCommand<"show", { recordPath: string }>
+  | LocatedCommand<"split", {
+      keepUnrecordedHistory: boolean;
+      predecessorPath: string;
+      successors: DecisionSplitSuccessor[];
+    }>
   | LocatedCommand<"stage", { recordPaths: string[] }>
   | LocatedCommand<"sync-index", { write: boolean }>
   | LocatedCommand<"trace", {
@@ -96,6 +103,7 @@ type ParsedOptions = {
   relation?: DecisionRelation[];
   root?: string;
   status?: DecisionListStatus;
+  successor?: DecisionSplitSuccessor[];
   write?: boolean;
 };
 
@@ -149,6 +157,11 @@ function parseDecisionRelation(
   }
 
   const relationTypeValue = value.slice(0, separatorIndex);
+  if (relationTypeValue === "拆分") {
+    throw new InvalidArgumentError(
+      "拆分 relations must use the split command"
+    );
+  }
   const relationType = decisionRelationTypes.find(
     (candidate) => candidate === relationTypeValue
   );
@@ -171,6 +184,33 @@ function parseDecisionRelation(
   }
 
   return [...previous, { type: relationType, target }];
+}
+
+function parseDecisionSplitSuccessor(
+  value: string,
+  previous: DecisionSplitSuccessor[] = []
+): DecisionSplitSuccessor[] {
+  const separatorIndex = value.indexOf("=");
+  if (separatorIndex <= 0 || separatorIndex === value.length - 1) {
+    throw new InvalidArgumentError(
+      "must use <alignment>=<decision-path>"
+    );
+  }
+
+  const alignmentValue = value.slice(0, separatorIndex);
+  if (alignmentValue !== "aligned" && alignmentValue !== "unaligned") {
+    throw new InvalidArgumentError("alignment must be aligned or unaligned");
+  }
+  const recordPath = value.slice(separatorIndex + 1);
+  if (!isDecisionRelativePath(recordPath)) {
+    throw new InvalidArgumentError(
+      "decision path must be a decision-root-relative POSIX path"
+    );
+  }
+  if (previous.some((successor) => successor.recordPath === recordPath)) {
+    throw new InvalidArgumentError("must not repeat a successor decision path");
+  }
+  return [...previous, { alignment: alignmentValue, recordPath }];
 }
 
 function requiredDecisionAlignment(
@@ -219,6 +259,14 @@ function commandArgs(
       return { ...location, command, recordPath };
     case "stage":
       return { ...location, command, recordPaths };
+    case "split":
+      return {
+        ...location,
+        command,
+        keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
+        predecessorPath: recordPath,
+        successors: options.successor ?? []
+      };
     case "evolve":
       return {
         ...location,
@@ -443,6 +491,24 @@ export function createCliProgram(
   markAligned.action((recordPath: string) => (
     execute("mark-aligned", markAligned, [recordPath])
   ));
+
+  const split = createSubcommand(
+    program,
+    "split <decision-path>",
+    "Archive one coarse active decision and establish at least two successor "
+      + "candidates with independent alignment in one recoverable transaction."
+  )
+    .addOption(
+      new Option(
+        "--successor <alignment=decision-path>",
+        "Set one successor candidate and its whole-decision alignment. "
+          + "Repeat for the complete successor set."
+      )
+        .argParser(parseDecisionSplitSuccessor)
+        .makeOptionMandatory()
+    )
+    .addOption(createKeepUnrecordedHistoryOption());
+  split.action((recordPath: string) => execute("split", split, [recordPath]));
 
   const archive = createSubcommand(
     program,

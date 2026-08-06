@@ -1466,6 +1466,54 @@
       }
     },
     {
+      "id": "DECISION-SPLIT-CLOSURE-001",
+      "keys": {
+        "search": [
+          "DECISION-SPLIT-CLOSURE-001 拆分拒绝不完整后继集合与关系图 一个决策拆分必须形成至少两个直接后继；单个后继不能冒充闭合的一对多演进，也不能留下孤立的 `拆分` 关系边。 只提供一个 `--successor` 时命令失败，并逐字节保留前序、候选和索引。 权威 Markdown 只包含一条指向某前序的 `拆分` 边时，严格集合校验报告后继数量不足。 tools/decision-records/tests/evolution.test.ts > split rejects incomplete successor sets and relationship graphs bun test --test-name-pattern=\"^split rejects incomplete successor sets and relationship graphs$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > split rejects incomplete successor sets and relationship graphs",
+          "bun test --test-name-pattern=\"^split rejects incomplete successor sets and relationship graphs$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SPLIT-CLOSURE-001",
+        "line": 1,
+        "searchText": "DECISION-SPLIT-CLOSURE-001 拆分拒绝不完整后继集合与关系图 一个决策拆分必须形成至少两个直接后继；单个后继不能冒充闭合的一对多演进，也不能留下孤立的 `拆分` 关系边。 只提供一个 `--successor` 时命令失败，并逐字节保留前序、候选和索引。 权威 Markdown 只包含一条指向某前序的 `拆分` 边时，严格集合校验报告后继数量不足。 tools/decision-records/tests/evolution.test.ts > split rejects incomplete successor sets and relationship graphs bun test --test-name-pattern=\"^split rejects incomplete successor sets and relationship graphs$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/split-rejects-incomplete-successor-sets-and-relationship-graphs.md",
+        "summary": "一个决策拆分必须形成至少两个直接后继；单个后继不能冒充闭合的一对多演进，也不能留下孤立的 `拆分` 关系边。",
+        "title": "拆分拒绝不完整后继集合与关系图"
+      }
+    },
+    {
+      "id": "DECISION-SPLIT-TRANSACTION-001",
+      "keys": {
+        "search": [
+          "DECISION-SPLIT-TRANSACTION-001 拆分原子替换粗决策并独立对齐后继 `split` 必须在一次可恢复事务中归档一个活动粗决策，建立至少两个完整后继，并让每条后继保存自己的整条决策对齐状态。 一个未对齐前序被归档后，已成为当前事实的后继为 `aligned`，仍面向未来的后继为 `unaligned`。 两条后继都以 `拆分` 关系指向同一前序，拥有同一次建立时间，并能从前序按后继方向追踪。 完整事务结束后严格决策检查通过。 tools/decision-records/tests/evolution.test.ts > split atomically replaces one coarse decision with independently aligned successors bun test --test-name-pattern=\"^split atomically replaces one coarse decision with independently aligned successors$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 11,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > split atomically replaces one coarse decision with independently aligned successors",
+          "bun test --test-name-pattern=\"^split atomically replaces one coarse decision with independently aligned successors$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SPLIT-TRANSACTION-001",
+        "line": 1,
+        "searchText": "DECISION-SPLIT-TRANSACTION-001 拆分原子替换粗决策并独立对齐后继 `split` 必须在一次可恢复事务中归档一个活动粗决策，建立至少两个完整后继，并让每条后继保存自己的整条决策对齐状态。 一个未对齐前序被归档后，已成为当前事实的后继为 `aligned`，仍面向未来的后继为 `unaligned`。 两条后继都以 `拆分` 关系指向同一前序，拥有同一次建立时间，并能从前序按后继方向追踪。 完整事务结束后严格决策检查通过。 tools/decision-records/tests/evolution.test.ts > split atomically replaces one coarse decision with independently aligned successors bun test --test-name-pattern=\"^split atomically replaces one coarse decision with independently aligned successors$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/split-atomically-replaces-one-coarse-decision-with-independently-aligned-successors.md",
+        "summary": "`split` 必须在一次可恢复事务中归档一个活动粗决策，建立至少两个完整后继，并让每条后继保存自己的整条决策对齐状态。",
+        "title": "拆分原子替换粗决策并独立对齐后继"
+      }
+    },
+    {
       "id": "DECISION-STAGE-BOOTSTRAP-001",
       "keys": {
         "search": [
@@ -5022,5 +5070,5 @@
   },
   "namespace": "test-evidence",
   "schemaVersion": 2,
-  "sourceRevision": "sha256:1a79f5cde601c3231f2c328f3886fa0edc3dda9131d50a9747721d392deeb1a1"
+  "sourceRevision": "sha256:ca3a2d0b00d2a97e16bcc2747cb873be004446f93aa30b693a6e3a53d35a6d57"
 }

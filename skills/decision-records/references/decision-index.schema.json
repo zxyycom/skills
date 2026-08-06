@@ -79,7 +79,8 @@
             "修订",
             "替代",
             "判定无效",
-            "归并"
+            "归并",
+            "拆分"
           ],
           "type": "string"
         },
@@ -202,7 +203,7 @@
       "const": "decisions"
     },
     "definitionVersion": {
-      "const": 4
+      "const": 5
     },
     "metadata": {
       "additionalProperties": false,

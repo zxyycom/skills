@@ -144,6 +144,21 @@ async function runEvolve(args: CliArgsFor<"evolve">): Promise<number> {
   return await runActivation(args);
 }
 
+async function runSplit(args: CliArgsFor<"split">): Promise<number> {
+  const scan = await loadLifecycleScan(args, {
+    allowEmptyDecisionSet: true,
+    scanErrorPolicy: "allow-activation-candidates"
+  });
+  return scan === null
+    ? 1
+    : await applyLifecycle(args, scan, {
+        action: "split",
+        keepUnrecordedHistory: args.keepUnrecordedHistory,
+        predecessorPath: args.predecessorPath,
+        successors: args.successors
+      });
+}
+
 async function runActivation(
   args: CliArgsFor<"activate" | "evolve">
 ): Promise<number> {
@@ -302,6 +317,8 @@ async function runCommand(args: CliArgs): Promise<number> {
       return await runMarkAligned(args);
     case "show":
       return await runShow(args);
+    case "split":
+      return await runSplit(args);
     case "stage":
       return await runStage(args);
     case "sync-index":
