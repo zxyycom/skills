@@ -1,6 +1,6 @@
 ---
 title: 让单文件状态索引按条目独立暂存
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-05T15:46:39Z
 purpose: 让并行任务只暂存自己选择的索引条目，不带入同一文件中的其他工作区变化。

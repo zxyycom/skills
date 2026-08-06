@@ -86,7 +86,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:987c75e6880a0e2cf11efaa9e59aa3a89cc75a9dad10522144a1dbc7ac2df0c8",
+  "sourceRevision": "sha256:e0815a2c0202da1a8f6263ab11c92fd6cac6607c5abc98929503d71266d0a68d",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -2381,7 +2381,7 @@
       }
     },
     {
-      "id": "index-runtime/stage-selected-index-entries.md",
+      "id": "index-runtime/stage-selected-index-entries-by-id.md",
       "keys": {
         "domain": [
           "index-runtime"
@@ -2394,15 +2394,75 @@
         ]
       },
       "state": {
+        "path": "index-runtime/stage-selected-index-entries-by-id.md",
+        "title": "按 ID 键控条目独立暂存状态索引",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-06T09:23:47Z",
+        "purpose": "让并行任务只暂存自己选择的索引条目，不带入同一文件中的其他工作区变化。",
+        "background": "单文件索引无法按文件边界隔离不同任务，但 ID 键控条目及其来源指纹可以独立组合。",
+        "decision": "索引运行时只接收选中 ID，从 revision 与工作区索引组合完整目标并受控写入 pending。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "index-runtime/stage-selected-index-entries.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "index-runtime/stage-selected-index-entries.md",
+      "keys": {
+        "domain": [
+          "index-runtime"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
         "path": "index-runtime/stage-selected-index-entries.md",
         "title": "让单文件状态索引按条目独立暂存",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-05T15:46:39Z",
         "purpose": "让并行任务只暂存自己选择的索引条目，不带入同一文件中的其他工作区变化。",
         "background": "一个领域的全部索引条目聚合在单个文件中，普通文件级暂存无法隔离互不相关的并行变化。",
         "decision": "索引运行时只接收选中条目 id，自行重建并暂存完整索引；领域文件由接入方负责，同索引已有待提交变化时拒绝。",
         "relations": []
+      }
+    },
+    {
+      "id": "index-runtime/use-id-keyed-state-index.md",
+      "keys": {
+        "domain": [
+          "index-runtime"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "index-runtime/use-id-keyed-state-index.md",
+        "title": "以稳定 ID 键控状态索引",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-06T09:23:47Z",
+        "purpose": "让索引从领域输入到持久化都直接按稳定 ID 管理条目，并保持低成本的新鲜度检查。",
+        "background": "现有数组需要再次推导身份，整体来源摘要又无法在选择部分条目时安全组合。",
+        "decision": "身份集合统一使用 ID 键控对象，来源 revision 按 metadata 与各 ID 分解，快速读取保持单次轻量扫描。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "index-runtime/stage-selected-index-entries.md"
+          }
+        ]
       }
     },
     {
