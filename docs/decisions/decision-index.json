@@ -86,7 +86,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:2f33b355d24b8eff1533da1d1f3c07fbb9eb048f4cb9104ba1bc6c27248c71fe",
+  "sourceRevision": "sha256:39691a8762bf54ba1fd8a0403b1f187daae0a5086daf945180cee7aa646c2a1d",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -1470,6 +1470,31 @@
         "purpose": "防止同一未提交变更中的中间判断被无意保存为长期决策演进历史。",
         "background": "Git 不决定决策是否生效，但能证明一个待归档前序尚未进入已提交基线；删除该前序后的关系又不能安全自动合成。",
         "decision": "归档未进入 Git HEAD 的决策前先暂停警告，由调用者显式保留历史或通过 evolve 折叠单个中间前序并声明完整最终关系集合。",
+        "relations": []
+      }
+    },
+    {
+      "id": "decision-records/make-independent-decision-staging-discoverable.md",
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/make-independent-decision-staging-discoverable.md",
+        "title": "让独立决策暂存能够被发现",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-06T11:26:45Z",
+        "purpose": "让需要单独暂存决策集合的任务能够发现 decision-records 的专用能力。",
+        "background": "当前发现入口没有表达后来新增的独立 stage 能力，提交任务可能在加载 skill 前错过它。",
+        "decision": "后续必须让发现入口覆盖独立决策暂存；具体文案、触发边界、能力交接和降级方式在实施时确定。",
         "relations": []
       }
     },
