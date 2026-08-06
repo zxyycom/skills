@@ -13,7 +13,7 @@ import {
 import {
   decisionAlignments,
   decisionRelationTypes,
-  decisionStatuses
+  establishedDecisionStatuses
 } from "./types.ts";
 import { decisionTimestampPatternSource } from "./decision-timestamp.ts";
 
@@ -63,7 +63,7 @@ export const decisionIndexJsonSchema = {
           uniqueItems: true
         },
         status: {
-          items: { enum: decisionStatuses, type: "string" },
+          items: { enum: establishedDecisionStatuses, type: "string" },
           maxItems: 1,
           minItems: 1,
           type: "array",
@@ -105,7 +105,7 @@ export const decisionIndexJsonSchema = {
       properties: {
         path: { $ref: "#/$defs/decisionPath" },
         title: projectionText,
-        status: { enum: decisionStatuses, type: "string" },
+        status: { enum: establishedDecisionStatuses, type: "string" },
         alignment: {
           enum: [...decisionAlignments, null],
           type: ["string", "null"]

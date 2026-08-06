@@ -29,7 +29,7 @@ test("archive pauses before preserving an unrecorded established decision", () =
   const unrecordedPath = decisionFilePath(workspaceRoot, unrecordedRelativePath);
   await fs.writeFile(
     unrecordedPath,
-    candidateDecisionBody({ alignment: "aligned" }),
+    candidateDecisionBody(),
     "utf8"
   );
   await runSuccessfulSourceCli([
@@ -92,7 +92,7 @@ async function establishUnrecordedIntermediate(
   );
   await fs.writeFile(
     intermediatePath,
-    candidateDecisionBody({ alignment: "aligned" }),
+    candidateDecisionBody(),
     "utf8"
   );
   await runSuccessfulSourceCli([
@@ -119,7 +119,7 @@ test("unrecorded decision evolution pauses until history is explicitly preserved
   const successorRelativePath =
     "decision-records/use-preserved-unrecorded-history.md";
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
-  const successorCandidate = candidateDecisionBody({ alignment: "aligned" });
+  const successorCandidate = candidateDecisionBody();
   await fs.writeFile(successorPath, successorCandidate, "utf8");
   const intermediateBeforeWarning = await fs.readFile(intermediatePath, "utf8");
   const indexBeforeWarning = await fs.readFile(indexPath, "utf8");
@@ -178,7 +178,7 @@ test("evolve collapses an unrecorded intermediate with explicit final relations"
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
   await fs.writeFile(
     successorPath,
-    candidateDecisionBody({ alignment: "aligned" }),
+    candidateDecisionBody(),
     "utf8"
   );
   const collapsed = await runSourceCli([
@@ -221,7 +221,7 @@ test("evolve collapse accepts an empty final relation set", () => (
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
   await fs.writeFile(
     successorPath,
-    candidateDecisionBody({ alignment: "aligned" }),
+    candidateDecisionBody(),
     "utf8"
   );
   const collapsed = await runSourceCli([
@@ -251,7 +251,7 @@ test("evolve collapse rejects archived relations outside the intermediate bounda
   const successorRelativePath =
     "decision-records/reject-unrelated-collapsed-upstream.md";
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
-  const successorCandidate = candidateDecisionBody({ alignment: "aligned" });
+  const successorCandidate = candidateDecisionBody();
   await fs.writeFile(successorPath, successorCandidate, "utf8");
   const intermediateBefore = await fs.readFile(intermediatePath, "utf8");
   const indexBefore = await fs.readFile(indexPath, "utf8");
@@ -287,7 +287,7 @@ test("evolve collapse rejects a predecessor recorded in Git HEAD", () => (
   const successorRelativePath =
     "decision-records/reject-recorded-collapse.md";
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
-  const successorCandidate = candidateDecisionBody({ alignment: "aligned" });
+  const successorCandidate = candidateDecisionBody();
   await fs.writeFile(successorPath, successorCandidate, "utf8");
   const intermediateBefore = await fs.readFile(intermediatePath, "utf8");
   const indexBefore = await fs.readFile(indexPath, "utf8");
@@ -320,14 +320,13 @@ test("evolve collapse rejects a predecessor referenced by another candidate", ()
     "decision-records/reference-unrecorded-intermediate.md";
   const referencingPath = decisionFilePath(workspaceRoot, referencingRelativePath);
   const referencingCandidate = candidateDecisionBody({
-    alignment: "aligned",
     relationTarget: unrecordedIntermediateRelativePath
   });
   await fs.writeFile(referencingPath, referencingCandidate, "utf8");
   const successorRelativePath =
     "decision-records/reject-referenced-collapse.md";
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
-  const successorCandidate = candidateDecisionBody({ alignment: "aligned" });
+  const successorCandidate = candidateDecisionBody();
   await fs.writeFile(successorPath, successorCandidate, "utf8");
   const intermediateBefore = await fs.readFile(intermediatePath, "utf8");
   const indexBefore = await fs.readFile(indexPath, "utf8");

@@ -44,7 +44,7 @@ try {
   );
   assert.match(
     cliOutput,
-    /Decision records check passed \(3 domains, 2 decisions, 1 active, 1 aligned, 0 unaligned, 1 archived\)\./
+    /Decision records check passed \(3 domains, 2 decisions, 1 active, 1 aligned, 0 unaligned, 1 archived, 0 candidates\)\./
   );
 
   const defaultCliOutput = await runSuccessfulCli(["--root", fixtureRoot]);
@@ -338,7 +338,12 @@ try {
   assert.match(help.stdout, /Query and maintain agent-oriented decision records/);
   assert.match(help.stdout, /This is the default command/);
   assert.match(help.stdout, /Check the JSON index against established\s+Markdown/);
-  assert.match(help.stdout, /candidates remain outside the index and make strict check fail/i);
+  assert.match(help.stdout, /candidates remain outside the index and are queried from source/i);
+  assert.match(help.stdout, /candidates\s+Discover complete reviewable candidates/i);
+  assert.match(
+    help.stdout,
+    /show-candidate <decision-path>\s+Show one source-discovered candidate/i
+  );
 
   const archiveHelp = spawnSync(
     "node",

@@ -102,8 +102,7 @@ export async function applyDecisionChanges(options: {
 
     const validationScan = await scanDecisionRecords(scanOptions);
     const validation = await validateDecisionScan(validationScan, {
-      allowEmptyDecisionSet: !hasEstablishedDecision,
-      scanErrorPolicy: "allow-activation-candidates"
+      allowEmptyDecisionSet: !hasEstablishedDecision
     });
     if (validation.errors.length > 0) {
       return [

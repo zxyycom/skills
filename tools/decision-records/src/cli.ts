@@ -12,7 +12,7 @@ import {
   type CliArgsFor
 } from "./cli-args.ts";
 import {
-  printActivationCandidateWarnings,
+  printCandidateWarnings,
   printDecisionAttention,
   printDecisionFailure,
   printDecisionQuerySuccess
@@ -76,6 +76,13 @@ async function runCheck(args: CliArgsFor<"check">): Promise<number> {
   });
 }
 
+async function runCandidates(args: CliArgsFor<"candidates">): Promise<number> {
+  return await runQuery({
+    command: "candidates",
+    location: decisionLocation(args)
+  });
+}
+
 async function runList(args: CliArgsFor<"list">): Promise<number> {
   return await runQuery({
     alignment: args.alignment,
@@ -90,6 +97,16 @@ async function runList(args: CliArgsFor<"list">): Promise<number> {
 async function runShow(args: CliArgsFor<"show">): Promise<number> {
   return await runQuery({
     command: "show",
+    location: decisionLocation(args),
+    recordPath: args.recordPath
+  });
+}
+
+async function runShowCandidate(
+  args: CliArgsFor<"show-candidate">
+): Promise<number> {
+  return await runQuery({
+    command: "show-candidate",
     location: decisionLocation(args),
     recordPath: args.recordPath
   });
@@ -146,8 +163,7 @@ async function runEvolve(args: CliArgsFor<"evolve">): Promise<number> {
 
 async function runSplit(args: CliArgsFor<"split">): Promise<number> {
   const scan = await loadLifecycleScan(args, {
-    allowEmptyDecisionSet: true,
-    scanErrorPolicy: "allow-activation-candidates"
+    allowEmptyDecisionSet: true
   });
   return scan === null
     ? 1
@@ -163,8 +179,7 @@ async function runActivation(
   args: CliArgsFor<"activate" | "evolve">
 ): Promise<number> {
   const scan = await loadLifecycleScan(args, {
-    allowEmptyDecisionSet: true,
-    scanErrorPolicy: "allow-activation-candidates"
+    allowEmptyDecisionSet: true
   });
   if (scan === null) {
     return 1;
@@ -277,7 +292,7 @@ async function applyLifecycle(
   }
   console.log(prepared.message);
   const updatedScan = await scanDecisionRecords(decisionScanOptions(args));
-  printActivationCandidateWarnings(
+  printCandidateWarnings(
     updatedScan.records
       .filter((record) => record.activationCandidate)
       .sort(compareDecisionRecords)
@@ -303,6 +318,8 @@ async function runCommand(args: CliArgs): Promise<number> {
       return await runActivate(args);
     case "archive":
       return await runArchive(args);
+    case "candidates":
+      return await runCandidates(args);
     case "check":
       return await runCheck(args);
     case "discard":
@@ -317,6 +334,8 @@ async function runCommand(args: CliArgs): Promise<number> {
       return await runMarkAligned(args);
     case "show":
       return await runShow(args);
+    case "show-candidate":
+      return await runShowCandidate(args);
     case "split":
       return await runSplit(args);
     case "stage":
@@ -376,6 +395,7 @@ export type {
   DecisionScan,
   DecisionScanOptions,
   DecisionStatus,
+  EstablishedDecisionStatus,
   DecisionValidationResult
 } from "./types.ts";
 

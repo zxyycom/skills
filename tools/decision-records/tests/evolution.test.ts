@@ -95,13 +95,12 @@ test("decision evolution validates relation semantics and target states", () => 
   );
   await fs.writeFile(
     candidateTargetPath,
-    candidateDecisionBody({ alignment: "aligned" }),
+    candidateDecisionBody(),
     "utf8"
   );
   await fs.writeFile(
     candidateSourcePath,
     candidateDecisionBody({
-      alignment: "aligned",
       relationTarget: candidateTargetRelativePath
     }),
     "utf8"
@@ -124,7 +123,6 @@ test("decision evolution validates relation semantics and target states", () => 
   await fs.writeFile(
     invalidRelationPath,
     candidateDecisionBody({
-      alignment: "aligned",
       relationTarget: "decision-records/missing-target.md"
     }),
     "utf8"
@@ -138,7 +136,6 @@ test("decision evolution validates relation semantics and target states", () => 
   await fs.writeFile(
     invalidRelationPath,
     candidateDecisionBody({
-      alignment: "aligned",
       relationTarget: invalidRelationRelativePath
     }),
     "utf8"
@@ -148,7 +145,6 @@ test("decision evolution validates relation semantics and target states", () => 
   ));
 
   const duplicateRelationBody = candidateDecisionBody({
-    alignment: "aligned",
     relationTarget: archivedRelativePath
   }).replace(
     "    target: " + archivedRelativePath,
@@ -175,8 +171,8 @@ test("activation archives a direct predecessor and traces bounded relations", ()
   const successorBody = [
     "---",
     "title: 使用打包 CLI",
-    "status: active",
-    "alignment: aligned",
+    "status: candidate",
+    "alignment: null",
     "createdAt: null",
     "purpose: 验证单条激活命令能够完成决策演进。",
     "background: 演进同时改变新记录关系与直接前序生命周期，分步执行会产生无效中间状态。",
@@ -264,7 +260,7 @@ test("evolve rejects duplicate predecessor arguments without mutation", () => (
   const parallelPath = decisionFilePath(workspaceRoot, parallelRelativePath);
   await fs.writeFile(
     parallelPath,
-    candidateDecisionBody({ alignment: "aligned" }),
+    candidateDecisionBody(),
     "utf8"
   );
   await runSuccessfulSourceCli([
@@ -279,7 +275,7 @@ test("evolve rejects duplicate predecessor arguments without mutation", () => (
   const mergedRelativePath =
     "decision-records/merge-direct-predecessors.md";
   const mergedPath = decisionFilePath(workspaceRoot, mergedRelativePath);
-  const mergedCandidate = candidateDecisionBody({ alignment: "aligned" });
+  const mergedCandidate = candidateDecisionBody();
   await fs.writeFile(mergedPath, mergedCandidate, "utf8");
   const indexBeforeRejectedEvolution = await fs.readFile(indexPath, "utf8");
   const repeatedPredecessor = spawnSync(
@@ -323,7 +319,7 @@ test("decision transactions roll back relation validation failures", () => (
   const deletedPath = decisionFilePath(workspaceRoot, deletedRelativePath);
   await fs.writeFile(
     deletedPath,
-    candidateDecisionBody({ alignment: "aligned" }),
+    candidateDecisionBody(),
     "utf8"
   );
   await runSuccessfulSourceCli([
@@ -373,7 +369,7 @@ test("evolve rejects archived predecessors without mutation", () => (
   const mergedRelativePath =
     "decision-records/merge-direct-predecessors.md";
   const mergedPath = decisionFilePath(workspaceRoot, mergedRelativePath);
-  const mergedCandidate = candidateDecisionBody({ alignment: "aligned" });
+  const mergedCandidate = candidateDecisionBody();
   await fs.writeFile(mergedPath, mergedCandidate, "utf8");
   const indexBeforeRejectedEvolution = await fs.readFile(indexPath, "utf8");
   const rejectedEvolution = await runSourceCli([
@@ -407,7 +403,7 @@ test("evolve command archives sources and creates the aligned target atomically"
   const parallelPath = decisionFilePath(workspaceRoot, parallelRelativePath);
   await fs.writeFile(
     parallelPath,
-    candidateDecisionBody({ alignment: "aligned" }),
+    candidateDecisionBody(),
     "utf8"
   );
   await runSuccessfulSourceCli([
@@ -423,7 +419,7 @@ test("evolve command archives sources and creates the aligned target atomically"
   const mergedPath = decisionFilePath(workspaceRoot, mergedRelativePath);
   await fs.writeFile(
     mergedPath,
-    candidateDecisionBody({ alignment: "aligned" }),
+    candidateDecisionBody(),
     "utf8"
   );
   const evolved = await runSourceCli([
@@ -478,7 +474,7 @@ test("split atomically replaces one coarse decision with independently aligned s
   const coarsePath = decisionFilePath(workspaceRoot, coarseRelativePath);
   await fs.writeFile(
     coarsePath,
-    candidateDecisionBody({ alignment: "unaligned" }),
+    candidateDecisionBody(),
     "utf8"
   );
   await runSuccessfulSourceCli([
@@ -497,12 +493,12 @@ test("split atomically replaces one coarse decision with independently aligned s
     "decision-records/keep-future-split-slice.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, alignedRelativePath),
-    candidateDecisionBody({ alignment: "aligned" }),
+    candidateDecisionBody(),
     "utf8"
   );
   await fs.writeFile(
     decisionFilePath(workspaceRoot, unalignedRelativePath),
-    candidateDecisionBody({ alignment: "unaligned" }),
+    candidateDecisionBody(),
     "utf8"
   );
 
@@ -566,7 +562,7 @@ test("split rejects incomplete successor sets and relationship graphs", () => (
   const successorRelativePath =
     "decision-records/use-incomplete-split-successor.md";
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
-  const successorCandidate = candidateDecisionBody({ alignment: "aligned" });
+  const successorCandidate = candidateDecisionBody();
   await fs.writeFile(successorPath, successorCandidate, "utf8");
   const predecessorPath = decisionFilePath(workspaceRoot, currentRelativePath);
   const predecessorBefore = await fs.readFile(predecessorPath, "utf8");

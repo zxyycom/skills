@@ -19,7 +19,7 @@ import { projectionTextIssue } from "./projection.ts";
 import {
   decisionAlignments,
   decisionRelationTypes,
-  decisionStatuses,
+  establishedDecisionStatuses,
   type DecisionDocument,
   type DecisionIndexMetadata,
   type DecisionIndexState,
@@ -44,7 +44,7 @@ const decisionRelationSchema = v.strictObject({
 const decisionIndexStateSchema = v.strictObject({
   path: decisionPathSchema,
   title: nonEmptyStringSchema,
-  status: v.picklist(decisionStatuses),
+  status: v.picklist(establishedDecisionStatuses),
   alignment: v.union([v.picklist(decisionAlignments), v.null()]),
   createdAt: nonEmptyStringSchema,
   purpose: nonEmptyStringSchema,

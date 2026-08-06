@@ -157,7 +157,7 @@ export function decisionRelationConsistencyIssues(
           + edge.target,
         sourcePaths: [edge.source]
       });
-    } else if (target.status === "active") {
+    } else if (target.status !== "archived") {
       issues.push({
         message: edge.source
         + " relationship " + edge.type

@@ -226,9 +226,11 @@ test(
         label: "candidate",
         prepare: async (workspaceRoot) => {
           const candidatePath = `${domain}/use-candidate.md`;
-          await writeDecision(workspaceRoot, candidatePath, candidateDecisionBody({
-            alignment: "unaligned"
-          }));
+          await writeDecision(
+            workspaceRoot,
+            candidatePath,
+            candidateDecisionBody()
+          );
           return candidatePath;
         }
       },

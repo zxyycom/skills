@@ -147,9 +147,8 @@ export function decisionFilePath(
 }
 
 export function candidateDecisionBody(options: {
-  alignment: "aligned" | "unaligned";
   relationTarget?: string;
-}): string {
+} = {}): string {
   const relations = options.relationTarget === undefined
     ? ["relations: []"]
     : [
@@ -160,12 +159,12 @@ export function candidateDecisionBody(options: {
   return [
     "---",
     "title: 使用 Markdown 建立状态",
-    "status: active",
-    "alignment: " + options.alignment,
+    "status: candidate",
+    "alignment: null",
     "createdAt: null",
     "purpose: 验证 Markdown 生命周期独立定义候选和已建立状态。",
     "background: 索引和版本历史不应共同承担决策成员身份。",
-    "decision: 使用 createdAt 是否为空区分候选与已建立决策。",
+    "decision: 使用显式 candidate 状态区分候选与已建立决策。",
     ...relations,
     "---",
     "",
@@ -176,7 +175,7 @@ export function candidateDecisionBody(options: {
     "- 索引和版本历史不应共同承担决策成员身份。",
     "",
     "## 决策",
-    "- 采用: 使用 createdAt 是否为空区分候选与已建立决策。",
+    "- 采用: 使用显式 candidate 状态区分候选与已建立决策。",
     ""
   ].join("\n");
 }

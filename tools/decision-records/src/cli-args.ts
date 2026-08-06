@@ -7,7 +7,7 @@ import {
 import {
   decisionAlignments,
   decisionRelationTypes,
-  decisionStatuses,
+  establishedDecisionStatuses,
   type DecisionAlignment,
   type DecisionListAlignment,
   type DecisionListStatus,
@@ -23,6 +23,7 @@ import {
 export type Command =
   | "activate"
   | "archive"
+  | "candidates"
   | "check"
   | "discard"
   | "domains"
@@ -30,6 +31,7 @@ export type Command =
   | "list"
   | "mark-aligned"
   | "show"
+  | "show-candidate"
   | "split"
   | "stage"
   | "sync-index"
@@ -55,6 +57,7 @@ export type CliArgs =
       keepUnrecordedHistory: boolean;
       recordPaths: string[];
     }>
+  | LocatedCommand<"candidates">
   | LocatedCommand<"check">
   | LocatedCommand<"discard", { recordPath: string }>
   | LocatedCommand<"domains">
@@ -73,6 +76,7 @@ export type CliArgs =
     }>
   | LocatedCommand<"mark-aligned", { recordPath: string }>
   | LocatedCommand<"show", { recordPath: string }>
+  | LocatedCommand<"show-candidate", { recordPath: string }>
   | LocatedCommand<"split", {
       keepUnrecordedHistory: boolean;
       predecessorPath: string;
@@ -250,12 +254,14 @@ function commandArgs(
         keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
         recordPaths
       };
+    case "candidates":
     case "check":
     case "domains":
       return { ...location, command };
     case "discard":
     case "mark-aligned":
     case "show":
+    case "show-candidate":
       return { ...location, command, recordPath };
     case "stage":
       return { ...location, command, recordPaths };
@@ -347,7 +353,7 @@ export function createCliProgram(
       "afterAll",
       "\nDecision paths are relative to the decision directory, for example "
       + "domain-id/use-semantic-title.md.\n"
-      + "Unactivated candidates remain outside the index and make strict check fail.\n"
+      + "Reviewable candidates remain outside the index and are queried from source.\n"
       + "Exit codes: 0 success (queries and scoped maintenance may report warnings), "
       + "1 paused lifecycle choice, blocking validation, or index failure, "
       + "2 invalid arguments."
@@ -366,7 +372,7 @@ export function createCliProgram(
     program,
     "check",
     "Strictly validate the domain catalog, Markdown metadata, alignment, relations, "
-      + "activation candidates, and the JSON index. This is the default command.",
+      + "reviewable candidates, and the JSON index. This is the default command.",
     { isDefault: true }
   );
   check.action(() => execute("check", check));
@@ -377,6 +383,14 @@ export function createCliProgram(
     "List the complete decision domain catalog without reading the decision index."
   );
   domains.action(() => execute("domains", domains));
+
+  const candidates = createSubcommand(
+    program,
+    "candidates",
+    "Discover complete reviewable candidates directly from decision Markdown "
+      + "without adding them to the persisted decision index."
+  );
+  candidates.action(() => execute("candidates", candidates));
 
   const list = createSubcommand(
     program,
@@ -390,7 +404,7 @@ export function createCliProgram(
     )
     .addOption(
       new Option("--status <value>", "Lifecycle status filter.")
-        .choices([...decisionStatuses, "all"])
+        .choices([...establishedDecisionStatuses, "all"])
         .default("active")
     )
     .addOption(
@@ -409,6 +423,15 @@ export function createCliProgram(
     "Show decision metadata followed by the original Markdown body."
   );
   show.action((recordPath: string) => execute("show", show, [recordPath]));
+
+  const showCandidate = createSubcommand(
+    program,
+    "show-candidate <decision-path>",
+    "Show one source-discovered candidate for semantic review before activation."
+  );
+  showCandidate.action((recordPath: string) => (
+    execute("show-candidate", showCandidate, [recordPath])
+  ));
 
   const trace = createSubcommand(
     program,
@@ -520,7 +543,7 @@ export function createCliProgram(
   const discard = createSubcommand(
     program,
     "discard <decision-path>",
-    "Delete a complete unactivated decision candidate and rebuild the index."
+    "Delete a complete reviewable decision candidate and rebuild the index."
   );
   discard.action((recordPath: string) => execute("discard", discard, [recordPath]));
 

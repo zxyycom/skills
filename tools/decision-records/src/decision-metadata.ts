@@ -7,12 +7,10 @@ import {
   decisionAlignments,
   decisionRelationTypes,
   decisionStatuses,
-  type DecisionAlignment,
   type DecisionMetadata,
   type DecisionProjection,
   type DecisionRelation,
-  type DecisionRelationType,
-  type DecisionStatus
+  type DecisionRelationType
 } from "./types.ts";
 
 const frontmatterPattern = /^---\n([\s\S]*?)\n---(?:\n|$)/;
@@ -31,26 +29,26 @@ const statusSet: ReadonlySet<unknown> = new Set(decisionStatuses);
 const alignmentSet: ReadonlySet<unknown> = new Set(decisionAlignments);
 const relationTypeSet: ReadonlySet<unknown> = new Set(decisionRelationTypes);
 
-export type DecisionMetadataCandidate = {
-  status: DecisionStatus;
-  alignment: DecisionAlignment | null;
-  createdAt: string | null;
-};
+export type DecisionSourceMetadata =
+  | DecisionMetadata
+  | {
+      status: "candidate";
+      alignment: null;
+      createdAt: null;
+    };
 
 export type ParsedDecisionMarkdown = {
   body: string;
-  metadata: DecisionMetadataCandidate;
+  metadata: DecisionSourceMetadata;
   projection: DecisionProjection;
 };
 
 export function parseDecisionMarkdown(options: {
-  allowNullCreatedAt?: boolean;
   errors: string[];
   markdown: string;
   relativePath: string;
 }): ParsedDecisionMarkdown | null {
   const {
-    allowNullCreatedAt = false,
     errors,
     markdown: rawMarkdown,
     relativePath
@@ -119,19 +117,22 @@ export function parseDecisionMarkdown(options: {
   const alignment = frontmatter.values.alignment;
   const createdAt = frontmatter.values.createdAt;
 
-  if (!statusSet.has(status)) {
-    errors.push(relativePath + " frontmatter status must be active or archived");
+  const statusValid = statusSet.has(status);
+  const alignmentValid = alignment === null || alignmentSet.has(alignment);
+  const createdAtValid = createdAt === null
+    || (typeof createdAt === "string" && isDecisionTimestamp(createdAt));
+  if (!statusValid) {
+    errors.push(
+      relativePath
+      + " frontmatter status must be candidate, active, or archived"
+    );
   }
-  if (alignment !== null && !alignmentSet.has(alignment)) {
+  if (!alignmentValid) {
     errors.push(
       relativePath + " frontmatter alignment must be aligned, unaligned, or null"
     );
   }
-  if (createdAt === null) {
-    if (!allowNullCreatedAt) {
-      errors.push(relativePath + " frontmatter createdAt must not be null");
-    }
-  } else if (typeof createdAt !== "string" || !isDecisionTimestamp(createdAt)) {
+  if (!createdAtValid) {
     errors.push(
       relativePath
       + " frontmatter createdAt must be an RFC 3339 timestamp precise to seconds "
@@ -139,9 +140,37 @@ export function parseDecisionMarkdown(options: {
     );
   }
 
+  let lifecycleValid = statusValid && alignmentValid && createdAtValid;
+  if (status === "candidate" && alignment !== null) {
+    lifecycleValid = false;
+    errors.push(
+      relativePath + " candidate decision frontmatter alignment must be null"
+    );
+  }
+  if (status === "candidate" && createdAt !== null) {
+    lifecycleValid = false;
+    errors.push(
+      relativePath + " candidate decision frontmatter createdAt must be null"
+    );
+  }
   if (status === "active" && !alignmentSet.has(alignment)) {
+    lifecycleValid = false;
     errors.push(
       relativePath + " active decision frontmatter alignment must be aligned or unaligned"
+    );
+  }
+  if (status === "active" && createdAt === null) {
+    lifecycleValid = false;
+    errors.push(
+      relativePath
+      + " active decision frontmatter createdAt must not be null; use status: "
+      + "candidate with alignment: null for a reviewable candidate"
+    );
+  }
+  if (status === "archived" && createdAt === null) {
+    lifecycleValid = false;
+    errors.push(
+      relativePath + " archived decision frontmatter createdAt must not be null"
     );
   }
   if (
@@ -150,10 +179,7 @@ export function parseDecisionMarkdown(options: {
     || background === null
     || decision === null
     || relations === null
-    || !statusSet.has(status)
-    || (alignment !== null && !alignmentSet.has(alignment))
-    || (createdAt !== null && typeof createdAt !== "string")
-    || (createdAt === null && !allowNullCreatedAt)
+    || !lifecycleValid
   ) {
     return null;
   }
@@ -161,10 +187,10 @@ export function parseDecisionMarkdown(options: {
   return {
     body: markdown.slice(frontmatterMatch[0].length).replace(/^\n+/, ""),
     metadata: {
-      status: status as DecisionStatus,
-      alignment: alignment as DecisionAlignment | null,
+      status,
+      alignment,
       createdAt
-    },
+    } as DecisionSourceMetadata,
     projection: {
       title,
       purpose,
@@ -175,39 +201,24 @@ export function parseDecisionMarkdown(options: {
   };
 }
 
-export function decisionMetadataFromCandidate(
-  candidate: DecisionMetadataCandidate
+export function establishedDecisionMetadataFromSource(
+  source: DecisionSourceMetadata
 ): DecisionMetadata | null {
-  if (candidate.createdAt === null) {
+  if (source.status === "candidate") {
     return null;
   }
-  if (candidate.status === "active" && candidate.alignment !== null) {
-    return {
-      status: "active",
-      alignment: candidate.alignment,
-      createdAt: candidate.createdAt
-    };
-  }
-  if (candidate.status === "archived") {
-    return {
-      status: "archived",
-      alignment: candidate.alignment,
-      createdAt: candidate.createdAt
-    };
-  }
-  return null;
+  return source;
 }
 
 export function replaceDecisionFrontmatter(
   markdown: string,
   options: {
-    metadata: DecisionMetadataCandidate;
+    metadata: DecisionSourceMetadata;
     relations?: readonly DecisionRelation[];
   }
 ): string | null {
   const errors: string[] = [];
   const parsed = parseDecisionMarkdown({
-    allowNullCreatedAt: true,
     errors,
     markdown,
     relativePath: "<decision>"
@@ -226,7 +237,7 @@ export function replaceDecisionFrontmatter(
 
 export function serializeDecisionFrontmatter(
   projection: DecisionProjection,
-  metadata: DecisionMetadataCandidate
+  metadata: DecisionSourceMetadata
 ): string {
   const frontmatter = {
     title: projection.title,

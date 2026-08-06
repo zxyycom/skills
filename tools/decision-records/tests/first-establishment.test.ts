@@ -29,8 +29,8 @@ test("first establishment creates a decision domain and current index", () => (
     [
       "---",
       "title: 使用首条索引",
-      "status: active",
-      "alignment: aligned",
+      "status: candidate",
+      "alignment: null",
       "createdAt: null",
       "purpose: 验证首次激活能够建立全生命周期索引。",
       "background: 决策根目录中只有一条已经确认的记录。",
@@ -91,9 +91,7 @@ test("first establishment creates a decision domain and current index", () => (
     workspaceRoot
   });
   assert.equal(firstActivationValidation.activationCandidateCount, 1);
-  assert.ok(firstActivationValidation.errors.some(
-    (error) => error.includes("use-second-index.md")
-  ));
+  assert.deepEqual(firstActivationValidation.errors, []);
 
   await runSuccessfulCli([
     "activate",

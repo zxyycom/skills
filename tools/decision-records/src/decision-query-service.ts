@@ -35,6 +35,7 @@ import {
   traceDecisionRelations,
   type DecisionRelationEdge
 } from "./relation-graph.ts";
+import { scanDecisionRecords } from "./scan.ts";
 import {
   compareDecisionRecords,
   type DecisionAlignment,
@@ -42,10 +43,10 @@ import {
   type DecisionIndexEntry,
   type DecisionListAlignment,
   type DecisionListStatus,
+  type EstablishedDecisionStatus,
   type DecisionProjection,
   type DecisionRecord,
   type DecisionScan,
-  type DecisionStatus,
   type DecisionTraceDirection,
   type DecisionValidationResult
 } from "./types.ts";
@@ -54,7 +55,7 @@ export type { DecisionLocation } from "./decision-query-context.ts";
 
 export type DecisionQueryRequest =
   | {
-      command: "check" | "domains";
+      command: "candidates" | "check" | "domains";
       location: DecisionLocation;
     }
   | {
@@ -64,6 +65,11 @@ export type DecisionQueryRequest =
       fullTime: boolean;
       location: DecisionLocation;
       status: DecisionListStatus;
+    }
+  | {
+      command: "show-candidate";
+      location: DecisionLocation;
+      recordPath: string;
     }
   | {
       command: "show";
@@ -94,15 +100,30 @@ export type IndexedDecisionRecord = {
   domain: string;
   projection: DecisionProjection;
   relativePath: string;
-  status: DecisionStatus;
+  status: EstablishedDecisionStatus;
+};
+
+export type CandidateDecisionRecord = {
+  alignment: null;
+  createdAt: null;
+  domain: string;
+  projection: DecisionProjection;
+  relativePath: string;
+  status: "candidate";
 };
 
 export type DecisionQuerySuccess =
+  | (QuerySuccessBase & {
+      command: "candidates";
+      domains: DecisionDomainDefinition[];
+      records: CandidateDecisionRecord[];
+    })
   | (QuerySuccessBase & {
       command: "check";
       summary: Pick<
         DecisionValidationResult,
         | "activeCount"
+        | "activationCandidateCount"
         | "alignedCount"
         | "archivedCount"
         | "decisionCount"
@@ -122,6 +143,12 @@ export type DecisionQuerySuccess =
     })
   | (QuerySuccessBase & {
       body: string;
+      command: "show-candidate";
+      domain: DecisionDomainDefinition;
+      record: CandidateDecisionRecord;
+    })
+  | (QuerySuccessBase & {
+      body: string;
       command: "show";
       domain: DecisionDomainDefinition;
       record: IndexedDecisionRecord;
@@ -131,6 +158,7 @@ export type DecisionQuerySuccess =
       domainCount: number;
       indexRelativePath: string;
       state: "current" | "written";
+      /** Reviewable candidates excluded from the index; legacy property name. */
       unactivatedPaths: string[];
     })
   | (QuerySuccessBase & {
@@ -148,6 +176,8 @@ export async function executeDecisionQuery(
   request: DecisionQueryRequest
 ): Promise<DecisionQueryResult> {
   switch (request.command) {
+    case "candidates":
+      return await listDecisionCandidates(request.location);
     case "check":
       return await checkDecisionRecords(request.location);
     case "domains":
@@ -156,11 +186,31 @@ export async function executeDecisionQuery(
       return await listDecisionRecords(request);
     case "show":
       return await showDecisionRecord(request);
+    case "show-candidate":
+      return await showDecisionCandidate(request);
     case "sync-index":
       return await synchronizeDecisionIndex(request);
     case "trace":
       return await traceDecisionRecord(request);
   }
+}
+
+async function listDecisionCandidates(
+  location: DecisionLocation
+): Promise<DecisionQueryResult> {
+  const context = await loadCandidateQueryContext(location);
+  if (context.status === "error") {
+    return context;
+  }
+  const records = candidateRecords(context.scan);
+  const domainIds = new Set(records.map((record) => record.domain));
+  return {
+    command: "candidates",
+    domains: context.domains.filter((domain) => domainIds.has(domain.id)),
+    records,
+    status: "ok",
+    warnings: context.warnings
+  };
 }
 
 async function queryDecisionDomains(
@@ -195,6 +245,7 @@ async function checkDecisionRecords(
     status: "ok",
     summary: {
       activeCount: result.activeCount,
+      activationCandidateCount: result.activationCandidateCount,
       alignedCount: result.alignedCount,
       archivedCount: result.archivedCount,
       decisionCount: result.decisionCount,
@@ -281,6 +332,56 @@ async function showDecisionRecord(
         record,
         status: "ok",
         warnings: []
+      };
+}
+
+async function showDecisionCandidate(
+  request: Extract<DecisionQueryRequest, { command: "show-candidate" }>
+): Promise<DecisionQueryResult> {
+  const context = await loadCandidateQueryContext(request.location);
+  if (context.status === "error") {
+    return context;
+  }
+  const recordPath = normalizeDecisionRelativePath(request.recordPath);
+  const record = candidateRecords(context.scan).find(
+    (candidate) => candidate.relativePath === recordPath
+  ) ?? null;
+  if (record === null) {
+    const sourceRecord = context.scan.records.find(
+      (candidate) => candidate.relativePath === recordPath
+        && candidate.markdownExists
+    ) ?? null;
+    const targetWarnings = sourceRecord === null
+      ? []
+      : sourceWarningsForRecord(context.warnings, sourceRecord);
+    return decisionFailure(
+      sourceRecord === null
+        ? ["Decision candidate does not exist: " + request.recordPath]
+        : [
+            "Decision source is not a valid reviewable candidate: " + recordPath,
+            ...targetWarnings
+          ],
+      { presentation: "plain" }
+    );
+  }
+  const domain = context.domains.find(
+    (candidate) => candidate.id === record.domain
+  ) ?? null;
+  if (domain === null) {
+    return decisionFailure([
+      "Decision candidate path has no source domain: " + record.relativePath
+    ]);
+  }
+  const body = await readDecisionBody(context.scan.decisionsDirectory, record);
+  return body.status === "error"
+    ? body
+    : {
+        body: body.value,
+        command: "show-candidate",
+        domain,
+        record,
+        status: "ok",
+        warnings: context.warnings
       };
 }
 
@@ -443,6 +544,59 @@ function activationCandidates(scan: DecisionScan): DecisionRecord[] {
     .sort(compareDecisionRecords);
 }
 
+function candidateRecords(scan: DecisionScan): CandidateDecisionRecord[] {
+  return activationCandidates(scan)
+    .filter((record) => record.relationshipErrors.length === 0)
+    .map((record) => ({
+      alignment: null,
+      createdAt: null,
+      domain: record.domain,
+      projection: record.projection,
+      relativePath: record.relativePath,
+      status: "candidate"
+    }));
+}
+
+async function loadCandidateQueryContext(
+  location: DecisionLocation
+): Promise<
+  | DecisionApplicationFailure
+  | {
+      domains: DecisionDomainDefinition[];
+      scan: DecisionScan;
+      status: "ok";
+      warnings: string[];
+    }
+> {
+  const scan = await scanDecisionRecords(decisionScanOptions(location));
+  if (!scan.decisionsDirectoryAvailable) {
+    return decisionFailure(scan.sourceErrors);
+  }
+  if (scan.collectionErrors.length > 0) {
+    return decisionFailure(scan.collectionErrors);
+  }
+  return {
+    domains: scan.domainDefinitions,
+    scan,
+    status: "ok",
+    warnings: scan.sourceErrors.filter(
+      (error) => !scan.collectionErrors.includes(error)
+    )
+  };
+}
+
+function sourceWarningsForRecord(
+  warnings: readonly string[],
+  record: DecisionRecord
+): string[] {
+  return [...new Set([
+    ...warnings.filter((warning) => (
+      warning.startsWith(record.relativePath + " ")
+    )),
+    ...record.relationshipErrors
+  ])];
+}
+
 function indexFailure(
   result: { diagnostics: Parameters<typeof decisionIndexDiagnosticMessages>[0] },
   indexRelativePath: string
@@ -455,7 +609,7 @@ function indexFailure(
 
 async function readDecisionBody(
   decisionsDirectory: string,
-  record: IndexedDecisionRecord
+  record: CandidateDecisionRecord | IndexedDecisionRecord
 ): Promise<
   | DecisionApplicationFailure
   | { status: "ok"; value: string }

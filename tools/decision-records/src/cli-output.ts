@@ -36,6 +36,9 @@ export function printDecisionQuerySuccess(
 ): void {
   printQueryWarnings(result.warnings);
   switch (result.command) {
+    case "candidates":
+      printCandidates(result.domains, result.records);
+      return;
     case "check":
       printCheck(result.summary);
       return;
@@ -48,6 +51,9 @@ export function printDecisionQuerySuccess(
     case "show":
       printShow(result);
       return;
+    case "show-candidate":
+      printShowCandidate(result);
+      return;
     case "sync-index":
       printSyncIndex(result);
       return;
@@ -56,7 +62,27 @@ export function printDecisionQuerySuccess(
   }
 }
 
-export function printActivationCandidateWarnings(
+function printCandidates(
+  domains: readonly DecisionDomainDefinition[],
+  records: Extract<
+    DecisionQuerySuccess,
+    { command: "candidates" }
+  >["records"]
+): void {
+  printDomainDefinitions(domains);
+  console.log("Candidates:");
+  if (records.length === 0) {
+    console.log("- none");
+    return;
+  }
+  for (const record of records) {
+    console.log("- candidate " + record.relativePath);
+    console.log("  title: " + record.projection.title);
+    console.log("  purpose: " + record.projection.purpose);
+  }
+}
+
+export function printCandidateWarnings(
   relativePaths: readonly string[]
 ): void {
   if (relativePaths.length === 0) {
@@ -64,11 +90,11 @@ export function printActivationCandidateWarnings(
   }
   console.error("Decision records command completed with warnings:");
   for (const relativePath of relativePaths) {
-    console.error("- Unactivated decision candidate remains: " + relativePath);
+    console.error("- Reviewable decision candidate remains: " + relativePath);
   }
   console.error(
-    "- Activate or discard every candidate before strict check; "
-      + "check will continue to fail while any remain."
+    "- Candidates remain outside the decision index; use candidates to review "
+      + "them, then activate or discard them explicitly."
   );
 }
 
@@ -101,7 +127,9 @@ function printCheck(
       + summary.unalignedCount
       + " unaligned, "
       + summary.archivedCount
-      + " archived)."
+      + " archived, "
+      + summary.activationCandidateCount
+      + " candidates)."
   );
 }
 
@@ -149,6 +177,19 @@ function printShow(
   console.log(result.body.trimEnd());
 }
 
+function printShowCandidate(
+  result: Extract<DecisionQuerySuccess, { command: "show-candidate" }>
+): void {
+  console.log("path: " + result.record.relativePath);
+  console.log("domain: " + result.domain.id);
+  console.log("domainDescription: " + result.domain.description);
+  console.log("status: candidate");
+  console.log("alignment: null");
+  console.log("createdAt: null");
+  console.log("");
+  console.log(result.body.trimEnd());
+}
+
 function printSyncIndex(
   result: Extract<DecisionQuerySuccess, { command: "sync-index" }>
 ): void {
@@ -163,7 +204,7 @@ function printSyncIndex(
         + result.domainCount
         + " domains)."
   );
-  printActivationCandidateWarnings(result.unactivatedPaths);
+  printCandidateWarnings(result.unactivatedPaths);
 }
 
 function printTrace(

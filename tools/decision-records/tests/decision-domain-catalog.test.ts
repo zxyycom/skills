@@ -165,6 +165,8 @@ test("decision domain catalog validates ownership and domain membership", () => 
     candidatePath,
     originalDecision
       .replace("title: 使用生成 CLI", "title: 使用未登记领域候选")
+      .replace("status: active", "status: candidate")
+      .replace("alignment: aligned", "alignment: null")
       .replace(
         "createdAt: 2026-07-11T14:15:16+08:00",
         "createdAt: null"
@@ -178,6 +180,16 @@ test("decision domain catalog validates ownership and domain membership", () => 
   ]);
   assert.equal(queryWithUndefinedCandidateDomain.exitCode, 0);
   assert.doesNotMatch(queryWithUndefinedCandidateDomain.stdout, /unavailable-domain/);
+  const candidatesWithUndefinedDomain = await runBundledCli([
+    "candidates",
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(candidatesWithUndefinedDomain.exitCode, 1);
+  assert.match(
+    candidatesWithUndefinedDomain.stderr,
+    /Decision domain directory is not defined in decision-domains\.json: unavailable-domain/
+  );
   await assertValidationError(
     workspaceRoot,
     "Decision domain directory is not defined in decision-domains.json: unavailable-domain"
@@ -186,6 +198,16 @@ test("decision domain catalog validates ownership and domain membership", () => 
 
   const emptyDomainDirectory = path.join(decisionsDirectory, "change-plan");
   await fs.mkdir(emptyDomainDirectory);
+  const candidatesWithEmptyDomain = await runBundledCli([
+    "candidates",
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(candidatesWithEmptyDomain.exitCode, 1);
+  assert.match(
+    candidatesWithEmptyDomain.stderr,
+    /Decision domain directory must contain at least one decision file: change-plan/
+  );
   await assertValidationError(
     workspaceRoot,
     "Decision domain directory must contain at least one decision file: change-plan"

@@ -10,7 +10,8 @@ import {
 } from "./decision-path.ts";
 import {
   decisionDomainCatalogFileName,
-  loadDecisionDomainCatalog
+  loadDecisionDomainCatalog,
+  type DecisionDomainDefinition
 } from "./decision-domain-catalog.ts";
 import {
   decisionIndexDiagnosticMessages,
@@ -19,7 +20,7 @@ import {
 } from "./decision-state-index.ts";
 import { decisionRelationConsistencyIssues } from "./relation-graph.ts";
 import { validateDecisionBody } from "./record.ts";
-import { decisionMetadataFromCandidate } from "./decision-metadata.ts";
+import { establishedDecisionMetadataFromSource } from "./decision-metadata.ts";
 import {
   compareDecisionRecords,
   type DecisionIndex,
@@ -42,12 +43,6 @@ export function unindexedDecisionError(
   return indexRelativePath + " does not include decision " + relativePath;
 }
 
-export function activationCandidateError(relativePath: string): string {
-  return "Unactivated decision candidate must be activated or discarded before "
-    + "strict check: "
-    + relativePath;
-}
-
 export function decisionIndexRequiredError(indexRelativePath: string): string {
   return indexRelativePath + " is required";
 }
@@ -67,6 +62,15 @@ function selectProjection(source: DecisionProjection): DecisionProjection {
     relations: source.relations,
     title: source.title
   };
+}
+
+function addCollectionError(
+  collectionErrors: string[],
+  sourceErrors: string[],
+  error: string
+): void {
+  collectionErrors.push(error);
+  sourceErrors.push(error);
 }
 
 function recordFromIndexEntry(options: {
@@ -96,7 +100,7 @@ function recordFromIndexEntry(options: {
 }
 
 async function scanDomainDirectory(options: {
-  activationCandidateErrors: string[];
+  collectionErrors: string[];
   decisionsDirectory: string;
   domainId: string;
   domainPath: string;
@@ -107,7 +111,7 @@ async function scanDomainDirectory(options: {
   sourceErrors: string[];
 }): Promise<void> {
   const {
-    activationCandidateErrors,
+    collectionErrors,
     decisionsDirectory,
     domainId,
     domainPath,
@@ -123,7 +127,9 @@ async function scanDomainDirectory(options: {
   if (!domainEntries.some((entry) => (
     entry.isFile() && entry.name.endsWith(".md")
   ))) {
-    sourceErrors.push(
+    addCollectionError(
+      collectionErrors,
+      sourceErrors,
       "Decision domain directory must contain at least one decision file: " + domainId
     );
   }
@@ -132,19 +138,25 @@ async function scanDomainDirectory(options: {
     const decisionPath = path.join(domainPath, entry.name);
     const relativePath = toPosix(path.relative(decisionsDirectory, decisionPath));
     if (entry.isDirectory()) {
-      sourceErrors.push(
+      addCollectionError(
+        collectionErrors,
+        sourceErrors,
         "Decision domain directory must not contain nested directories: " + relativePath
       );
       continue;
     }
     if (!entry.isFile()) {
-      sourceErrors.push(
+      addCollectionError(
+        collectionErrors,
+        sourceErrors,
         "Decision domain directory contains unsupported entry: " + relativePath
       );
       continue;
     }
     if (!entry.name.endsWith(".md")) {
-      sourceErrors.push(
+      addCollectionError(
+        collectionErrors,
+        sourceErrors,
         "Decision domain directory must contain only Markdown files: " + relativePath
       );
       continue;
@@ -154,7 +166,6 @@ async function scanDomainDirectory(options: {
     const recordErrors: string[] = [];
     const sourceText = await fs.readFile(decisionPath, "utf8");
     const sourceDocument = await validateDecisionBody({
-      allowNullCreatedAt: true,
       body: sourceText,
       decisionsDirectory,
       errors: recordErrors,
@@ -163,18 +174,19 @@ async function scanDomainDirectory(options: {
     });
     const activationCandidate = recordErrors.length === 0
       && isNewDecisionIdentityPath(relativePath)
-      && sourceDocument?.status === "active"
-      && sourceDocument.alignment !== null
+      && indexEntry === null
+      && sourceDocument?.status === "candidate"
+      && sourceDocument.alignment === null
       && sourceDocument.createdAt === null;
-    if (sourceDocument?.createdAt === null && !activationCandidate) {
+    if (sourceDocument?.status === "candidate" && !activationCandidate) {
       recordErrors.push(
         relativePath
-        + " createdAt: null is allowed only for a current-format new decision "
-        + "identity with status: active and alignment: aligned or unaligned"
+        + " candidate status is allowed only for a complete, unindexed, "
+        + "current-format new decision identity"
       );
     }
     const establishedMetadata = sourceDocument
-      ? decisionMetadataFromCandidate(sourceDocument)
+      ? establishedDecisionMetadataFromSource(sourceDocument)
       : null;
     const document = recordErrors.length === 0
       && sourceDocument
@@ -182,11 +194,7 @@ async function scanDomainDirectory(options: {
       ? { ...selectProjection(sourceDocument), ...establishedMetadata }
       : null;
 
-    if (activationCandidate) {
-      const message = activationCandidateError(relativePath);
-      indexErrors.push(message);
-      activationCandidateErrors.push(message);
-    } else if (document !== null && !indexEntry) {
+    if (document !== null && !indexEntry) {
       indexErrors.push(unindexedDecisionError(indexRelativePath, relativePath));
     }
     sourceErrors.push(...recordErrors);
@@ -257,6 +265,8 @@ export async function scanDecisionRecords(
     ? path.resolve(configuredDecisionDirectory)
     : path.resolve(workspaceRoot, configuredDecisionDirectory);
   const activationCandidateErrors: string[] = [];
+  const collectionErrors: string[] = [];
+  const domainDefinitions: DecisionDomainDefinition[] = [];
   const domainErrors: string[] = [];
   const domainIds = new Set<string>();
   const indexErrors: string[] = [];
@@ -267,8 +277,10 @@ export async function scanDecisionRecords(
   const indexRelativePath = displayDecisionPath(workspaceRoot, indexPath);
   const unavailableScan = (error: string): DecisionScan => ({
     activationCandidateErrors,
+    collectionErrors: [error],
     decisionsDirectoryAvailable: false,
     decisionsDirectory,
+    domainDefinitions,
     domainErrors,
     domainIds,
     errors: [error],
@@ -304,8 +316,10 @@ export async function scanDecisionRecords(
   );
   if (loadedDomainCatalog.status === "error") {
     domainErrors.push(...loadedDomainCatalog.errors);
+    collectionErrors.push(...loadedDomainCatalog.errors);
     sourceErrors.push(...loadedDomainCatalog.errors);
   } else {
+    domainDefinitions.push(...loadedDomainCatalog.value.domains);
     for (const domain of loadedDomainCatalog.value.domains) {
       domainIds.add(domain.id);
     }
@@ -336,17 +350,27 @@ export async function scanDecisionRecords(
     const entryPath = path.join(decisionsDirectory, entry.name);
     if (entry.isFile()) {
       if (!allowedRootFiles.has(entry.name)) {
-        sourceErrors.push(decisionsLabel + " root contains unsupported file " + entry.name);
+        addCollectionError(
+          collectionErrors,
+          sourceErrors,
+          decisionsLabel + " root contains unsupported file " + entry.name
+        );
       }
       continue;
     }
     if (!entry.isDirectory()) {
-      sourceErrors.push(decisionsLabel + " contains unsupported entry " + entry.name);
+      addCollectionError(
+        collectionErrors,
+        sourceErrors,
+        decisionsLabel + " contains unsupported entry " + entry.name
+      );
       continue;
     }
 
     if (!isDecisionDomainId(entry.name)) {
-      sourceErrors.push(
+      addCollectionError(
+        collectionErrors,
+        sourceErrors,
         "Decision domain directory must use kebab-case: " + entry.name
       );
     }
@@ -358,10 +382,10 @@ export async function scanDecisionRecords(
         + entry.name
       );
       domainErrors.push(error);
-      sourceErrors.push(error);
+      addCollectionError(collectionErrors, sourceErrors, error);
     }
     await scanDomainDirectory({
-      activationCandidateErrors,
+      collectionErrors,
       decisionsDirectory,
       domainId: entry.name,
       domainPath: entryPath,
@@ -402,8 +426,10 @@ export async function scanDecisionRecords(
 
   return {
     activationCandidateErrors,
+    collectionErrors,
     decisionsDirectoryAvailable: true,
     decisionsDirectory,
+    domainDefinitions,
     domainErrors,
     domainIds,
     errors,

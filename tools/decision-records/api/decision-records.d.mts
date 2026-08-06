@@ -5,9 +5,11 @@ export type DecisionRelationType =
   | "归并"
   | "拆分";
 
-export type DecisionStatus = "active" | "archived";
+export type DecisionStatus = "candidate" | "active" | "archived";
 
-export type DecisionListStatus = DecisionStatus | "all";
+export type EstablishedDecisionStatus = "active" | "archived";
+
+export type DecisionListStatus = EstablishedDecisionStatus | "all";
 
 export type DecisionAlignment = "aligned" | "unaligned";
 
@@ -78,6 +80,7 @@ export type DecisionIndex = {
 };
 
 export type DecisionRecord = {
+  /** Whether the source is a complete candidate eligible for activation. */
   activationCandidate: boolean;
   alignment: DecisionAlignment | null;
   bodyValid: boolean;
@@ -100,9 +103,14 @@ export type DecisionScanOptions = {
 };
 
 export type DecisionScan = {
+  /** @deprecated Candidates no longer produce validation errors; always empty. */
   activationCandidateErrors: string[];
+  /** Source collection errors that prevent returning a partial candidate query. */
+  collectionErrors: string[];
   decisionsDirectoryAvailable: boolean;
   decisionsDirectory: string;
+  /** Validated domain catalog definitions from the same source scan. */
+  domainDefinitions: DecisionDomainDefinition[];
   domainErrors: string[];
   domainIds: Set<string>;
   errors: string[];
@@ -118,6 +126,7 @@ export type DecisionScan = {
 };
 
 export type DecisionValidationResult = {
+  /** Number of complete candidates eligible for activation. */
   activationCandidateCount: number;
   activeCount: number;
   alignedCount: number;

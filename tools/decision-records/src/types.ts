@@ -16,10 +16,15 @@ export type DecisionRelationType = typeof decisionRelationTypes[number];
 
 export type DecisionTraceDirection = "both" | "predecessors" | "successors";
 
-export const decisionStatuses = ["active", "archived"] as const;
+export const decisionStatuses = ["candidate", "active", "archived"] as const;
 
 export type DecisionStatus = typeof decisionStatuses[number];
-export type DecisionListStatus = DecisionStatus | "all";
+
+export const establishedDecisionStatuses = ["active", "archived"] as const;
+
+export type EstablishedDecisionStatus =
+  typeof establishedDecisionStatuses[number];
+export type DecisionListStatus = EstablishedDecisionStatus | "all";
 
 export const decisionAlignments = ["aligned", "unaligned"] as const;
 
@@ -83,6 +88,7 @@ export type DecisionIndex = Omit<
 };
 
 export type DecisionRecord = {
+  /** Whether the source is a complete candidate eligible for activation. */
   activationCandidate: boolean;
   alignment: DecisionAlignment | null;
   bodyValid: boolean;
@@ -112,9 +118,14 @@ export type DecisionScanOptions = {
 };
 
 export type DecisionScan = {
+  /** @deprecated Candidates no longer produce validation errors; always empty. */
   activationCandidateErrors: string[];
+  /** Source collection errors that prevent returning a partial candidate query. */
+  collectionErrors: string[];
   decisionsDirectoryAvailable: boolean;
   decisionsDirectory: string;
+  /** Validated domain catalog definitions from the same source scan. */
+  domainDefinitions: DecisionDomainDefinition[];
   domainErrors: string[];
   domainIds: Set<string>;
   errors: string[];
@@ -130,6 +141,7 @@ export type DecisionScan = {
 };
 
 export type DecisionValidationResult = {
+  /** Number of complete candidates eligible for activation. */
   activationCandidateCount: number;
   activeCount: number;
   alignedCount: number;

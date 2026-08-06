@@ -50,7 +50,7 @@ test("activation and archive transitions preserve content and index atomicity", 
   await fs.mkdir(path.dirname(lifecyclePath), { recursive: true });
   await fs.writeFile(
     lifecyclePath,
-    candidateDecisionBody({ alignment: "unaligned" }),
+    candidateDecisionBody(),
     "utf8"
   );
 
@@ -162,7 +162,6 @@ test("activation and archive transitions preserve content and index atomicity", 
   await fs.writeFile(
     relationPath,
     candidateDecisionBody({
-      alignment: "aligned",
       relationTarget: lifecycleRelativePath
     }),
     "utf8"
@@ -182,7 +181,6 @@ test("activation and archive transitions preserve content and index atomicity", 
     "decision-records/use-active-relation-target.md";
   const rollbackPath = decisionFilePath(workspaceRoot, rollbackRelativePath);
   const rollbackCandidate = candidateDecisionBody({
-    alignment: "aligned",
     relationTarget: currentRelativePath
   });
   await fs.writeFile(rollbackPath, rollbackCandidate, "utf8");

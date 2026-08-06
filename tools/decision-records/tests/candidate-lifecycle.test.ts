@@ -5,10 +5,12 @@ import test from "node:test";
 import { validateDecisionRecords } from "../src/index.ts";
 import {
   candidateDecisionBody,
+  commitWorkspace,
   currentRelativePath,
   decisionFilePath,
   fileExists,
   findIndexEntry,
+  initializeGitRepository,
   readIndex,
   runBundledCli,
   runSourceCli,
@@ -21,12 +23,12 @@ import {
 const unindexedBody = [
   "---",
   "title: 验证未登记成员",
-  "status: active",
-  "alignment: aligned",
+  "status: candidate",
+  "alignment: null",
   "createdAt: null",
   "purpose: 验证多条预写候选可以按显式目标逐条激活。",
   "background: 其他完整候选需要明确提醒，但不应阻断当前目标。",
-  "decision: 单次只激活目标，索引排除其他候选且严格检查继续阻断。",
+  "decision: 单次只激活目标，索引排除其他候选并允许等待审核。",
   "relations: []",
   "---",
   "",
@@ -37,7 +39,7 @@ const unindexedBody = [
   "- 其他完整候选需要明确提醒，但不应阻断当前目标。",
   "",
   "## 决策",
-  "- 采用: 单次只激活目标，索引排除其他候选且严格检查继续阻断。",
+  "- 采用: 单次只激活目标，索引排除其他候选并允许等待审核。",
   ""
 ].join("\n");
 
@@ -62,25 +64,61 @@ test("discard rejects established, incomplete, or related candidates without mut
 
   await fs.writeFile(
     establishedPath,
-    establishedText.replace(
-      "createdAt: 2026-07-11T14:15:16+08:00",
-      "createdAt: null"
-    ),
+    establishedText
+      .replace("status: active", "status: candidate")
+      .replace("alignment: aligned", "alignment: null")
+      .replace(
+        "createdAt: 2026-07-11T14:15:16+08:00",
+        "createdAt: null"
+      ),
     "utf8"
   );
   assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
     (error) => error.includes(
-      "Unactivated decision candidate must be activated or discarded before strict check"
+      "candidate status is allowed only for a complete, unindexed"
     )
   ));
   await fs.writeFile(establishedPath, establishedText, "utf8");
+
+  const invalidLifecycleRelativePath =
+    "decision-records/use-invalid-candidate-lifecycle.md";
+  const invalidLifecyclePath = decisionFilePath(
+    workspaceRoot,
+    invalidLifecycleRelativePath
+  );
+  for (const invalidLifecycleBody of [
+    candidateDecisionBody().replace("alignment: null", "alignment: aligned"),
+    candidateDecisionBody().replace(
+      "createdAt: null",
+      "createdAt: 2026-08-06T10:20:30Z"
+    )
+  ]) {
+    await fs.writeFile(invalidLifecyclePath, invalidLifecycleBody, "utf8");
+    const invalidLifecycleDiscard = await runSourceCli([
+      "discard",
+      invalidLifecycleRelativePath,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(invalidLifecycleDiscard.exitCode, 1);
+    assert.match(
+      invalidLifecycleDiscard.stderr,
+      /Discard requires a complete reviewable decision candidate/
+    );
+    assert.equal(
+      await fs.readFile(invalidLifecyclePath, "utf8"),
+      invalidLifecycleBody
+    );
+    assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
+  }
+  await fs.rm(invalidLifecyclePath);
 
   const invalidRelativePath = "decision-records/use-invalid-candidate.md";
   const invalidPath = decisionFilePath(workspaceRoot, invalidRelativePath);
   await fs.mkdir(path.dirname(invalidPath), { recursive: true });
   await fs.writeFile(
     invalidPath,
-    candidateDecisionBody({ alignment: "aligned" }).replace(
+    candidateDecisionBody().replace(
       "\n## 目的\n- 验证 Markdown 生命周期独立定义候选和已建立状态。\n",
       "\n"
     ),
@@ -93,7 +131,7 @@ test("discard rejects established, incomplete, or related candidates without mut
     workspaceRoot
   ]);
   assert.equal(invalidDiscard.exitCode, 1);
-  assert.match(invalidDiscard.stderr, /Discard requires a complete unactivated/);
+  assert.match(invalidDiscard.stderr, /Discard requires a complete reviewable/);
   assert.equal(await fileExists(invalidPath), true);
   assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
   await fs.rm(invalidPath);
@@ -107,7 +145,6 @@ test("discard rejects established, incomplete, or related candidates without mut
   await fs.writeFile(
     activeTargetSourcePath,
     candidateDecisionBody({
-      alignment: "aligned",
       relationTarget: currentRelativePath
     }),
     "utf8"
@@ -127,9 +164,7 @@ test("discard rejects established, incomplete, or related candidates without mut
     workspaceRoot,
     discardCandidateTargetRelativePath
   );
-  const discardCandidateTargetText = candidateDecisionBody({
-    alignment: "aligned"
-  });
+  const discardCandidateTargetText = candidateDecisionBody();
   await fs.writeFile(
     discardCandidateTargetPath,
     discardCandidateTargetText,
@@ -144,7 +179,6 @@ test("discard rejects established, incomplete, or related candidates without mut
   await fs.writeFile(
     candidateTargetSourcePath,
     candidateDecisionBody({
-      alignment: "aligned",
       relationTarget: discardCandidateTargetRelativePath
     }),
     "utf8"
@@ -169,9 +203,7 @@ test("discard rejects established, incomplete, or related candidates without mut
     workspaceRoot,
     invalidTargetRelativePath
   );
-  const invalidTargetText = candidateDecisionBody({
-    alignment: "aligned"
-  }).replace(
+  const invalidTargetText = candidateDecisionBody().replace(
     "\n## 目的\n- 验证 Markdown 生命周期独立定义候选和已建立状态。\n",
     "\n"
   );
@@ -185,7 +217,6 @@ test("discard rejects established, incomplete, or related candidates without mut
   await fs.writeFile(
     invalidTargetSourcePath,
     candidateDecisionBody({
-      alignment: "aligned",
       relationTarget: invalidTargetRelativePath
     }),
     "utf8"
@@ -214,23 +245,26 @@ test("discard removes only the selected candidate and preserves siblings", () =>
     workspaceRoot,
     otherCandidateRelativePath
   );
-  const otherCandidateText = candidateDecisionBody({ alignment: "unaligned" });
+  const otherCandidateText = candidateDecisionBody();
   await fs.writeFile(otherCandidatePath, otherCandidateText, "utf8");
   const discardedRelativePath =
     "decision-records/use-discarded-candidate.md";
   const discardedPath = decisionFilePath(workspaceRoot, discardedRelativePath);
   await fs.writeFile(
     discardedPath,
-    candidateDecisionBody({ alignment: "aligned" }),
+    candidateDecisionBody(),
     "utf8"
   );
+  initializeGitRepository(workspaceRoot);
+  commitWorkspace(workspaceRoot, "record reviewable candidates");
   const candidateCheck = await runSourceCli([
     "check",
     "--root",
     workspaceRoot
   ]);
-  assert.equal(candidateCheck.exitCode, 1);
-  assert.match(candidateCheck.stderr, /must be activated or discarded/);
+  assert.equal(candidateCheck.exitCode, 0, candidateCheck.stderr);
+  assert.equal(candidateCheck.stderr, "");
+  assert.match(candidateCheck.stdout, /2 candidates/);
   const discarded = await runSourceCli([
     "discard",
     discardedRelativePath,
@@ -238,7 +272,7 @@ test("discard removes only the selected candidate and preserves siblings", () =>
     workspaceRoot
   ]);
   assert.equal(discarded.exitCode, 0, discarded.stderr);
-  assert.match(discarded.stdout, /Discarded unactivated decision candidate/);
+  assert.match(discarded.stdout, /Discarded decision candidate/);
   assert.match(discarded.stderr, /use-other-valid-candidate\.md/);
   assert.equal(await fileExists(discardedPath), false);
   assert.equal(await fs.readFile(otherCandidatePath, "utf8"), otherCandidateText);
@@ -247,7 +281,7 @@ test("discard removes only the selected candidate and preserves siblings", () =>
   })
 ));
 
-test("activation establishes selected candidates while leaving others pending", () => (
+test("candidate queries discover source records while activation indexes only reviewed targets", () => (
   withFixtureWorkspace("candidate-activation-selection", async (workspaceRoot) => {
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
@@ -266,6 +300,66 @@ test("activation establishes selected candidates while leaving others pending", 
   );
   await fs.writeFile(firstUnindexedPath, unindexedBody, "utf8");
   await fs.writeFile(secondUnindexedPath, unindexedBody, "utf8");
+  const invalidRelativePath = "decision-records/use-invalid-source-candidate.md";
+  const invalidPath = decisionFilePath(workspaceRoot, invalidRelativePath);
+  await fs.writeFile(
+    invalidPath,
+    candidateDecisionBody().replace("\n## 决策\n", "\n## 非法章节\n"),
+    "utf8"
+  );
+  const discoveredCandidates = await runBundledCli([
+    "candidates",
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(discoveredCandidates.exitCode, 0, discoveredCandidates.stderr);
+  assert.match(discoveredCandidates.stderr, /query completed with warnings/i);
+  assert.match(discoveredCandidates.stderr, /use-invalid-source-candidate\.md/);
+  assert.match(discoveredCandidates.stdout, /Candidates:/);
+  assert.match(discoveredCandidates.stdout, /use-first-unindexed\.md/);
+  assert.match(discoveredCandidates.stdout, /use-second-unindexed\.md/);
+  assert.doesNotMatch(
+    discoveredCandidates.stdout,
+    /use-invalid-source-candidate\.md/
+  );
+  const shownCandidate = await runBundledCli([
+    "show-candidate",
+    secondUnindexedRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(shownCandidate.exitCode, 0, shownCandidate.stderr);
+  assert.match(shownCandidate.stderr, /use-invalid-source-candidate\.md/);
+  assert.match(shownCandidate.stdout, /^status: candidate$/m);
+  assert.match(shownCandidate.stdout, /^alignment: null$/m);
+  assert.match(shownCandidate.stdout, /^createdAt: null$/m);
+  const invalidCandidate = await runBundledCli([
+    "show-candidate",
+    invalidRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(invalidCandidate.exitCode, 1);
+  assert.match(
+    invalidCandidate.stderr,
+    /not a valid reviewable candidate.*use-invalid-source-candidate\.md/i
+  );
+  assert.match(
+    invalidCandidate.stderr,
+    /has unsupported section ## 非法章节/
+  );
+  await fs.rm(invalidPath);
+  const candidateCheckBeforeActivation = await runBundledCli([
+    "check",
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(
+    candidateCheckBeforeActivation.exitCode,
+    0,
+    candidateCheckBeforeActivation.stderr
+  );
+  assert.match(candidateCheckBeforeActivation.stdout, /2 candidates/);
   const multipleUnindexedActivation = await runBundledCli([
     "activate",
     firstUnindexedRelativePath,
@@ -281,11 +375,11 @@ test("activation establishes selected candidates while leaving others pending", 
   );
   assert.match(
     multipleUnindexedActivation.stderr,
-    /Unactivated decision candidate remains: decision-records\/use-second-unindexed\.md/
+    /Reviewable decision candidate remains: decision-records\/use-second-unindexed\.md/
   );
   assert.doesNotMatch(
     multipleUnindexedActivation.stderr,
-    /Unactivated decision candidate remains: decision-records\/use-first-unindexed\.md/
+    /Reviewable decision candidate remains: decision-records\/use-first-unindexed\.md/
   );
   const firstActivationIndex = await readIndex(indexPath);
   findIndexEntry(firstActivationIndex, firstUnindexedRelativePath);
@@ -301,11 +395,9 @@ test("activation establishes selected candidates while leaving others pending", 
     "--root",
     workspaceRoot
   ]);
-  assert.equal(remainingCandidateCheck.exitCode, 1);
-  assert.match(
-    remainingCandidateCheck.stderr,
-    /Unactivated decision candidate must be activated or discarded before strict check: decision-records\/use-second-unindexed\.md/
-  );
+  assert.equal(remainingCandidateCheck.exitCode, 0);
+  assert.equal(remainingCandidateCheck.stderr, "");
+  assert.match(remainingCandidateCheck.stdout, /1 candidates/);
   const candidateValidation = await validateDecisionRecords({ workspaceRoot });
   assert.equal(candidateValidation.activationCandidateCount, 1);
 
@@ -365,6 +457,12 @@ test("activation reconciles unindexed established records before committing a ca
   await fs.writeFile(
     orphanPath,
     unindexedBody.replace(
+      "status: candidate",
+      "status: active"
+    ).replace(
+      "alignment: null",
+      "alignment: aligned"
+    ).replace(
       "createdAt: null",
       "createdAt: 2026-07-22T10:20:30+08:00"
     ),
@@ -422,7 +520,7 @@ test("discarding the only candidate preserves the domain catalog", () => (
   await fs.mkdir(path.dirname(decisionPath), { recursive: true });
   await fs.writeFile(
     decisionPath,
-    candidateDecisionBody({ alignment: "aligned" }),
+    candidateDecisionBody(),
     "utf8"
   );
   const discarded = await runSourceCli([

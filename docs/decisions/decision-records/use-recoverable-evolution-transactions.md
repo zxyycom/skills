@@ -1,6 +1,6 @@
 ---
 title: 使用可恢复事务维护决策演进
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-25T02:52:10Z
 purpose: 让决策演进尽量保持多份 Markdown 与派生索引一致，同时明确中断和恢复失败的处理边界。

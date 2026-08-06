@@ -17,8 +17,6 @@ export type DecisionValidationOptions = {
   allowEmptyDecisionSet?: boolean;
   checkIndexText?: boolean;
   scanErrorPolicy?:
-    | "allow-activation-candidates"
-    | "include"
     | "omit"
     | "source-only";
 };
@@ -63,14 +61,11 @@ export async function validateDecisionScan(
   scan: DecisionScan,
   options: DecisionValidationOptions = {}
 ): Promise<DecisionValidationResult> {
-  const candidateErrorSet = new Set(scan.activationCandidateErrors);
   const errors = options.scanErrorPolicy === "omit"
     ? []
     : options.scanErrorPolicy === "source-only"
       ? [...scan.sourceErrors]
-      : options.scanErrorPolicy === "allow-activation-candidates"
-        ? scan.errors.filter((error) => !candidateErrorSet.has(error))
-        : [...scan.errors];
+      : [...scan.errors];
   const hasEstablishedDecision = scan.records.some(
     (record) => record.markdownExists && record.document !== null
   );

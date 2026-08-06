@@ -6,7 +6,7 @@ import {
 } from "./markdown.ts";
 import {
   parseDecisionMarkdown,
-  type DecisionMetadataCandidate
+  type DecisionSourceMetadata
 } from "./decision-metadata.ts";
 import { isDecisionFileName } from "./decision-path.ts";
 import {
@@ -15,7 +15,7 @@ import {
   type MarkdownSection
 } from "./types.ts";
 
-export type ValidatedDecisionBody = DecisionProjection & DecisionMetadataCandidate;
+export type ValidatedDecisionBody = DecisionProjection & DecisionSourceMetadata;
 
 const sectionOrder = [
   "## 目的",
@@ -82,7 +82,6 @@ function resolveDecisionRelationTargetExists(
 
 export async function validateDecisionBody(
   options: {
-    allowNullCreatedAt?: boolean;
     body: string;
     errors: string[];
     fileName: string;
@@ -90,7 +89,6 @@ export async function validateDecisionBody(
   } & DecisionRelationTargetSource
 ): Promise<ValidatedDecisionBody | null> {
   const {
-    allowNullCreatedAt = false,
     body: rawBody,
     fileName,
     relativePath,
@@ -98,7 +96,6 @@ export async function validateDecisionBody(
   } = options;
   const errorCountBeforeValidation = errors.length;
   const parsedMarkdown = parseDecisionMarkdown({
-    allowNullCreatedAt,
     errors,
     markdown: rawBody,
     relativePath
@@ -180,14 +177,5 @@ export async function validateDecisionBody(
     return null;
   }
 
-  return {
-    title: projection.title,
-    purpose: projection.purpose,
-    background: projection.background,
-    decision: projection.decision,
-    relations: projection.relations,
-    status: metadata.status,
-    alignment: metadata.alignment,
-    createdAt: metadata.createdAt
-  };
+  return { ...projection, ...metadata };
 }

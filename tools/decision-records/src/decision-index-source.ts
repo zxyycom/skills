@@ -11,7 +11,7 @@ import {
   loadDecisionDomainCatalog,
   type DecisionDomainCatalog
 } from "./decision-domain-catalog.ts";
-import { decisionMetadataFromCandidate } from "./decision-metadata.ts";
+import { establishedDecisionMetadataFromSource } from "./decision-metadata.ts";
 import { validateDecisionBody } from "./record.ts";
 import { decisionRelationConsistencyIssues } from "./relation-graph.ts";
 import type {
@@ -231,7 +231,7 @@ async function parseDecisionSource(
   });
   const metadata = candidate === null
     ? null
-    : decisionMetadataFromCandidate(candidate);
+    : establishedDecisionMetadataFromSource(candidate);
   if (candidate === null || metadata === null || errors.length > 0) {
     throw new Error(
       errors.length > 0

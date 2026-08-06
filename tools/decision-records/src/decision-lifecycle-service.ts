@@ -11,7 +11,7 @@ import type {
 import {
   parseDecisionMarkdown,
   replaceDecisionFrontmatter,
-  type DecisionMetadataCandidate
+  type DecisionSourceMetadata
 } from "./decision-metadata.ts";
 import {
   isNewDecisionIdentityPath,
@@ -183,7 +183,6 @@ async function prepareActivation(
   }
   const metadataErrors: string[] = [];
   const parsed = parseDecisionMarkdown({
-    allowNullCreatedAt: true,
     errors: metadataErrors,
     markdown: currentText.value,
     relativePath: record.relativePath
@@ -362,7 +361,7 @@ type ActivationMetadata =
 function activationMetadata(
   scan: DecisionScan,
   record: DecisionRecord,
-  metadata: DecisionMetadataCandidate,
+  metadata: DecisionSourceMetadata,
   alignment: DecisionAlignment,
   currentTimestamp: () => string
 ): ActivationMetadata {
@@ -399,17 +398,16 @@ function activationMetadata(
   if (
     !record.activationCandidate
     || !record.bodyValid
-    || metadata.status !== "active"
-    || metadata.alignment !== alignment
+    || metadata.status !== "candidate"
+    || metadata.alignment !== null
     || metadata.createdAt !== null
   ) {
     return decisionFailure(scan.sourceErrors.length > 0
       ? scan.sourceErrors
       : [
           "New decision activation candidate must be a complete current-format "
-            + "record with status: active, alignment: "
-            + alignment
-            + ", and createdAt: null: "
+            + "record with status: candidate, alignment: null, and "
+            + "createdAt: null: "
             + record.relativePath
         ]);
   }
@@ -486,7 +484,6 @@ async function prepareSplit(
     }
     const metadataErrors: string[] = [];
     const parsed = parseDecisionMarkdown({
-      allowNullCreatedAt: true,
       errors: metadataErrors,
       markdown: currentText.value,
       relativePath: record.relativePath
@@ -671,8 +668,8 @@ function prepareDiscard(
   }
   if (!record.activationCandidate || !record.bodyValid) {
     return decisionFailure([
-      "Discard requires a complete unactivated decision candidate with a new "
-        + "identity path, current format, status: active, non-null alignment, "
+      "Discard requires a complete reviewable decision candidate with a new "
+        + "identity path, current format, status: candidate, alignment: null, "
         + "and createdAt: null: "
         + record.relativePath
     ]);
@@ -699,7 +696,7 @@ function prepareDiscard(
   }
   return {
     changes: [{ decisionPath: record.decisionPath, nextText: null }],
-    message: "Discarded unactivated decision candidate "
+    message: "Discarded decision candidate "
       + record.relativePath
       + " before it entered the decision index.",
     status: "ok"

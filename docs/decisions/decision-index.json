@@ -86,7 +86,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:902dfe4d766bd674637b496f24ae3080e1e2a793a65b413b87a5d9b3ceb0b783",
+  "sourceRevision": "sha256:12e2376162d626180035c1d354ac2a0d97bccbfa31171fe094658ac52cfe0195",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -1969,6 +1969,36 @@
       }
     },
     {
+      "id": "decision-records/use-explicit-reviewable-candidates.md",
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/use-explicit-reviewable-candidates.md",
+        "title": "使用显式完整候选分离创建与审核",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-06T07:26:10Z",
+        "purpose": "让完整决策记录可以在正式建立前等待审核、被源码查询发现，并与已建立决策保持清楚边界。",
+        "background": "创建记录与确认其能够进入当前决策集合是两个动作，隐式候选状态既提前要求对齐结论，也无法由索引优先查询主动发现。",
+        "decision": "使用显式 candidate 保存结构完整但尚未审核建立的记录；候选由源码查询和检查发现，审核通过后才选择对齐状态并进入正式索引。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "decision-records/use-recoverable-evolution-transactions.md"
+          }
+        ]
+      }
+    },
+    {
       "id": "decision-records/use-field-alignment-commands.md",
       "keys": {
         "domain": [
@@ -2078,7 +2108,7 @@
       }
     },
     {
-      "id": "decision-records/use-recoverable-evolution-transactions.md",
+      "id": "decision-records/use-recoverable-decision-lifecycle-transactions.md",
       "keys": {
         "domain": [
           "decision-records"
@@ -2091,9 +2121,39 @@
         ]
       },
       "state": {
+        "path": "decision-records/use-recoverable-decision-lifecycle-transactions.md",
+        "title": "使用可恢复事务维护决策生命周期",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-06T07:26:10Z",
+        "purpose": "让决策演进尽量保持多份 Markdown 与派生索引一致，同时明确中断和恢复失败的处理边界。",
+        "background": "一次演进会同时改变后继、直接前序和派生索引，普通文件系统只能对可处理失败尽力恢复，无法承诺进程中断时严格原子。",
+        "decision": "生命周期演进在一次可恢复事务中应用并验证全部变化，对可处理失败尽力恢复原组合；恢复不完整时停止维护并进入恢复流程。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "decision-records/use-recoverable-evolution-transactions.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "decision-records/use-recoverable-evolution-transactions.md",
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
         "path": "decision-records/use-recoverable-evolution-transactions.md",
         "title": "使用可恢复事务维护决策演进",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-25T02:52:10Z",
         "purpose": "让决策演进尽量保持多份 Markdown 与派生索引一致，同时明确中断和恢复失败的处理边界。",
@@ -2134,6 +2194,36 @@
           {
             "type": "修订",
             "target": "decision-records/260720-auto-initialize-index-on-first-activation.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "decision-records/use-source-resilient-reviewable-candidates.md",
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/use-source-resilient-reviewable-candidates.md",
+        "title": "使用可逐文件容错的显式完整候选",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-06T08:16:27Z",
+        "purpose": "让完整决策记录在正式建立前可等待审核、被可靠发现和直接删除，同时保持正式索引只表达已确认的决策集合。",
+        "background": "创建记录与确认其进入当前决策集合是两个动作；候选不进入索引后需要独立源码查询，而单条非法决策源码不应遮蔽其他可审核候选。",
+        "decision": "使用结构完整的显式 candidate 分离创建与审核；候选查询逐文件跳过非法源码，严格检查仍校验全集，审核后才选择对齐状态并进入正式索引。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "decision-records/use-explicit-reviewable-candidates.md"
           }
         ]
       }
