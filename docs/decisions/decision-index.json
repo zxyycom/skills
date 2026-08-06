@@ -86,7 +86,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:39691a8762bf54ba1fd8a0403b1f187daae0a5086daf945180cee7aa646c2a1d",
+  "sourceRevision": "sha256:3521e1ebd1016afb5bb1b4f181035d66b8790b01022719ca92bb3009078805fc",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -3938,6 +3938,36 @@
       }
     },
     {
+      "id": "task-graph/key-task-identity-and-separate-content-state-projection.md",
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/key-task-identity-and-separate-content-state-projection.md",
+        "title": "由嵌套字典键承接任务身份并分离内容与状态",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-06T12:11:25Z",
+        "purpose": "让 scope 与 task 的字典键成为身份和归属的唯一来源，同时保持任务内容、显式状态与查询投影边界清楚。",
+        "background": "任务采用嵌套字典后，如果 entry 内继续重复保存 ID 和作用域，就会形成可分叉的身份事实；内容、运行事实和派生结果混写也会让调度语义失真。",
+        "decision": "嵌套字典键承接身份与作用域；task entry 只保存 content 和显式 state，派生信息仅在查询时投影。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "task-graph/separate-task-content-state-and-effective-projection.md"
+          }
+        ]
+      }
+    },
+    {
       "id": "task-graph/model-task-topology-and-inheritance-explicitly.md",
       "keys": {
         "domain": [
@@ -3994,7 +4024,7 @@
           "task-graph"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -4003,7 +4033,7 @@
       "state": {
         "path": "task-graph/separate-task-content-state-and-effective-projection.md",
         "title": "分离任务内容、显式状态与有效投影",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-06T06:13:45Z",
         "purpose": "让紧凑任务语义与复杂调度状态各自清楚，并避免派生结果回写成第二事实。",

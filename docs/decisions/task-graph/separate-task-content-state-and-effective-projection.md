@@ -1,6 +1,6 @@
 ---
 title: 分离任务内容、显式状态与有效投影
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-06T06:13:45Z
 purpose: 让紧凑任务语义与复杂调度状态各自清楚，并避免派生结果回写成第二事实。
