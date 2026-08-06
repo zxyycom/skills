@@ -86,7 +86,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:c5748047636a6596e7a3822f1dc8175ed4fb33daaaeff05bd88f26bfad886595",
+  "sourceRevision": "sha256:987c75e6880a0e2cf11efaa9e59aa3a89cc75a9dad10522144a1dbc7ac2df0c8",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -1831,6 +1831,31 @@
             "target": "decision-records/track-decision-execution-state.md"
           }
         ]
+      }
+    },
+    {
+      "id": "decision-records/upgrade-decision-domains-after-real-pressure.md",
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/upgrade-decision-domains-after-real-pressure.md",
+        "title": "由现实维护压力触发决策领域谱系升级",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-06T09:28:54Z",
+        "purpose": "为低频高影响的决策领域演进保留升级方向，并让真实案例约束实现范围。",
+        "background": "现有模型用稳定领域路径表达当前分类；边界变化会联动路径、关系、查询和责任归属。",
+        "decision": "将领域谱系支持作为证据触发的未来方向；触发前继续结构迁移，触发后再创建 change。",
+        "relations": []
       }
     },
     {
