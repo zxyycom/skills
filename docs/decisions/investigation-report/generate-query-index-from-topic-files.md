@@ -1,6 +1,6 @@
 ---
 title: 以调查主题作为通用索引单位
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-23T07:43:07Z
 purpose: 让调查主题可低成本发现、续接和查询，同时只维护一份权威事实。
