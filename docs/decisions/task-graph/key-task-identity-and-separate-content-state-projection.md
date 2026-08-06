@@ -1,7 +1,7 @@
 ---
 title: 由嵌套字典键承接任务身份并分离内容与状态
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-06T12:11:25Z
 purpose: 让 scope 与 task 的字典键成为身份和归属的唯一来源，同时保持任务内容、显式状态与查询投影边界清楚。
 background: 任务采用嵌套字典后，如果 entry 内继续重复保存 ID 和作用域，就会形成可分叉的身份事实；内容、运行事实和派生结果混写也会让调度语义失真。

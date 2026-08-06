@@ -1,7 +1,7 @@
 ---
 title: 使用权威 JSON 索引保存短期任务
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-06T06:13:41Z
 purpose: 让大量短期任务以稳定、紧凑且可查询的状态存在，而不产生逐任务文档。
 background: 任务上下文很少、更新频繁且通常无需长期回放；逐任务 Markdown 会放大维护面，派生索引也会引入第二事实源。

@@ -38,6 +38,8 @@
 
 [Change Plan](docs/skills/change-plan.md) 为明确 change 创建、查询、更新、审阅或归档 `proposal.md`、`design.md` 和 `tasks.md`，把目标范围、当前设计上下文、Readiness 门禁、实施任务和验证任务整理为可交接的临时计划，并随包提供 `list`、`show`、`check` 和 `archive` 基础生命周期 CLI。实际 skill 位于 [`skills/change-plan/`](skills/change-plan/)。
 
+[Task Graph](docs/skills/task-graph.md) 为当前工作维护短期、可恢复的非线性任务图。它用权威 JSON 索引显式保存候选、真实父子、依赖、排斥和执行租约，通过事务化 JSON CLI 支持动态追加、并发领取和上下文恢复；持久 change 与代理编排继续由各自 skill 承接。实际 skill 位于 [`skills/task-graph/`](skills/task-graph/)。
+
 [Subagent Orchestration](docs/skills/subagent-orchestration.md) 在用户明确要求委派，或复杂任务适合拆成边界清楚的调查、实现、验证和审查子任务时，指导主 agent 选择最小充分历史、划分互斥写入所有权并审计结果。它让子代理负责有界交付，主 agent 保持目标一致性和下一步判断。实际 skill 位于 [`skills/subagent-orchestration/`](skills/subagent-orchestration/)。
 
 [OpenSpec Skills](docs/skills/openspec-skills.md) 关注 OpenSpec skills 的二次开发。它的起点是原有 OpenSpec skill 文本还不够适合实际 agent 协作，需要重新梳理阶段边界、指令质量和执行脉络。实际 skill 位于 [`skills/openspec-explore/`](skills/openspec-explore/)、[`skills/openspec-propose/`](skills/openspec-propose/)、[`skills/openspec-apply-change/`](skills/openspec-apply-change/) 和 [`skills/openspec-archive-change/`](skills/openspec-archive-change/)。

@@ -86,7 +86,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:3521e1ebd1016afb5bb1b4f181035d66b8790b01022719ca92bb3009078805fc",
+  "sourceRevision": "sha256:f0f830accaf10678648ce22dfaf094fe914211e92d377b4a0d24ea530c9cf535",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -3922,14 +3922,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "task-graph/coordinate-task-execution-with-transactional-claims.md",
         "title": "通过事务领取协调任务执行",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-06T06:13:52Z",
         "purpose": "让多个 agent 在共享索引上领取就绪任务，而不重复执行或违反排斥关系。",
         "background": "查询就绪后再非事务地写入运行状态会产生竞态，执行者异常退出还会留下无法判断归属的运行状态。",
@@ -3947,14 +3947,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "task-graph/key-task-identity-and-separate-content-state-projection.md",
         "title": "由嵌套字典键承接任务身份并分离内容与状态",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-06T12:11:25Z",
         "purpose": "让 scope 与 task 的字典键成为身份和归属的唯一来源，同时保持任务内容、显式状态与查询投影边界清楚。",
         "background": "任务采用嵌套字典后，如果 entry 内继续重复保存 ID 和作用域，就会形成可分叉的身份事实；内容、运行事实和派生结果混写也会让调度语义失真。",
@@ -3977,14 +3977,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "task-graph/model-task-topology-and-inheritance-explicitly.md",
         "title": "显式维护任务层级、依赖与排斥",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-06T06:13:48Z",
         "purpose": "让执行顺序、父子继承和并发互斥由可校验拓扑决定。",
         "background": "依赖和排斥具有不同方向与约束，若由 agent 临场推断，多个执行者无法共享稳定调度依据。",
@@ -4002,14 +4002,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "task-graph/own-short-lived-task-orchestration.md",
         "title": "由 task-graph 承接短期任务编排",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-06T06:13:37Z",
         "purpose": "让 agent 以独立能力维护当前工作的短期任务状态、拓扑和调度边界。",
         "background": "线性计划和子代理编排都不拥有跨步骤持续维护的短期任务图，依靠对话推演会丢失候选、阻塞和并行关系。",
@@ -4052,14 +4052,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "task-graph/use-authoritative-json-index-for-short-lived-tasks.md",
         "title": "使用权威 JSON 索引保存短期任务",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-06T06:13:41Z",
         "purpose": "让大量短期任务以稳定、紧凑且可查询的状态存在，而不产生逐任务文档。",
         "background": "任务上下文很少、更新频繁且通常无需长期回放；逐任务 Markdown 会放大维护面，派生索引也会引入第二事实源。",

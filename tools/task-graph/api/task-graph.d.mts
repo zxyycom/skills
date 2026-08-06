@@ -1,0 +1,701 @@
+export declare const taskGraphSchemaVersion: 1;
+export declare const taskGraphVersion: "1.0.0";
+export declare const defaultTaskGraphIndexPath:
+  "docs/task-graph/task-graph-index.json";
+export declare const taskControlModes: readonly [
+  "inherit",
+  "candidate",
+  "queued",
+  "waiting",
+  "paused"
+];
+export declare const taskExecutionPhases: readonly [
+  "idle",
+  "running",
+  "succeeded",
+  "failed",
+  "cancelled"
+];
+export declare const taskEffectiveStates: readonly [
+  "candidate",
+  "waiting",
+  "paused",
+  "ready",
+  "running",
+  "recovery-needed",
+  "succeeded",
+  "failed",
+  "cancelled"
+];
+
+export type TaskControlMode = (typeof taskControlModes)[number];
+export type TaskExecutionPhase = (typeof taskExecutionPhases)[number];
+export type TaskEffectiveState = (typeof taskEffectiveStates)[number];
+export type JsonPrimitive = boolean | number | string | null;
+export type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
+export type JsonObject = { [key: string]: JsonValue };
+export type Clock = () => Date;
+
+export type TaskControl =
+  | { mode: "inherit" | "candidate" | "queued"; reason: null }
+  | { mode: "waiting" | "paused"; reason: string };
+
+export type TaskControlInput =
+  | { mode: "inherit" | "candidate" | "queued"; reason?: null }
+  | { mode: "waiting" | "paused"; reason: string };
+
+export type TaskLease = {
+  id: string;
+  actor: string;
+  claimedAt: string;
+  renewedAt: string;
+  expiresAt: string;
+};
+
+export type TaskExecution =
+  | { phase: "idle"; attempt: number }
+  | { phase: "running"; attempt: number; lease: TaskLease }
+  | { phase: "succeeded"; attempt: number }
+  | { phase: "failed"; attempt: number; reason: string }
+  | { phase: "cancelled"; attempt: number; reason: string };
+
+export type TaskResult = {
+  summary: string;
+  references: Record<string, string>;
+};
+
+export type TaskMutationPrecondition =
+  | { leaseId: string; expectedRevision?: never }
+  | { leaseId?: never; expectedRevision: number };
+
+export type CompleteTaskOptions = {
+  scopeId: string;
+  taskId: string;
+  result: TaskResult;
+} & TaskMutationPrecondition;
+
+export type CancelTaskOptions = {
+  scopeId: string;
+  taskId: string;
+  reason: string;
+} & TaskMutationPrecondition;
+
+export type RecoverTaskOptions = {
+  scopeId: string;
+  taskId: string;
+  leaseId: string;
+  reason: string;
+} & (
+  | { force: true; expectedRevision: number }
+  | { force?: false; expectedRevision?: never }
+);
+
+export type TaskContent = {
+  title: string;
+  goal: string;
+  acceptance: string[];
+  context: string | null;
+  references: Record<string, string>;
+  result: TaskResult | null;
+};
+
+export type TaskContentInput = {
+  title: string;
+  goal: string;
+  acceptance: string[];
+  context?: string | null;
+  references?: Record<string, string>;
+};
+
+export type TaskRelations = {
+  parentId: string | null;
+  dependsOn: Record<string, true>;
+  excludes: Record<string, true>;
+};
+
+export type TaskTimestamps = {
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TaskState = {
+  control: TaskControl;
+  execution: TaskExecution;
+  relations: TaskRelations;
+  timestamps: TaskTimestamps;
+};
+
+export type TaskEntry = {
+  content: TaskContent;
+  state: TaskState;
+};
+
+export type TaskScope = {
+  key: string;
+  bindings: Record<string, string>;
+  timestamps: TaskTimestamps;
+  tasks: Record<string, TaskEntry>;
+};
+
+export type TaskIndex = {
+  schemaVersion: 1;
+  revision: number;
+  nextIds: { scope: number; task: number };
+  scopes: Record<string, TaskScope>;
+};
+
+export type TaskBlockerKind =
+  | "control-candidate"
+  | "control-waiting"
+  | "control-paused"
+  | "dependency-incomplete"
+  | "dependency-cancelled"
+  | "dependency-failed"
+  | "exclusion-running"
+  | "ancestor-terminal"
+  | "child-incomplete"
+  | "all-children-cancelled"
+  | "descendant-lease";
+
+type TaskBlockerBase = {
+  taskId: string;
+  relatedTaskId: string;
+  sourceTaskId: string;
+  inheritancePath: string[];
+};
+
+export type TaskBlocker = TaskBlockerBase & (
+  | { kind: "control-candidate"; state: "candidate" }
+  | { kind: "control-waiting"; state: "waiting" }
+  | { kind: "control-paused"; state: "paused" }
+  | { kind: "dependency-failed"; state: "failed" }
+  | { kind: "dependency-cancelled"; state: "cancelled" }
+  | {
+      kind: "dependency-incomplete";
+      state: Exclude<TaskEffectiveState, "succeeded" | "failed" | "cancelled">;
+    }
+  | {
+      kind: "child-incomplete";
+      state: Exclude<TaskEffectiveState, "succeeded" | "cancelled">;
+    }
+  | {
+      kind: "exclusion-running" | "descendant-lease";
+      state: "running" | "recovery-needed";
+    }
+  | { kind: "ancestor-terminal"; state: "succeeded" | "cancelled" }
+  | { kind: "all-children-cancelled"; state: "cancelled" }
+);
+
+export type TaskConstraintSource = {
+  targetTaskId: string;
+  sourceTaskId: string;
+  inheritancePath: string[];
+  declaredTargetTaskId: string;
+  targetInheritancePath: string[];
+};
+
+export type TaskProjection = {
+  taskId: string;
+  effectiveState: TaskEffectiveState;
+  effectiveControl: {
+    mode: Exclude<TaskControlMode, "inherit">;
+    reason: string | null;
+    sourceTaskId: string;
+    inheritancePath: string[];
+  };
+  blockers: TaskBlocker[];
+  dependencies: TaskConstraintSource[];
+  exclusions: TaskConstraintSource[];
+  children: string[];
+  dependents: string[];
+  nextAction: "claim" | "complete" | null;
+};
+
+export type ScopeProjection = {
+  scopeId: string;
+  revision: number;
+  tasks: Record<string, TaskProjection>;
+  actionable: Record<string, TaskProjection>;
+  actionableOrder: string[];
+};
+
+export type TaskGraphErrorCode =
+  | "ARGUMENT_INVALID"
+  | "REQUEST_INVALID"
+  | "INDEX_NOT_FOUND"
+  | "INDEX_EXISTS"
+  | "INDEX_READ_FAILED"
+  | "INDEX_INVALID"
+  | "SCHEMA_UNSUPPORTED"
+  | "PATH_SYMLINK"
+  | "LOCK_TIMEOUT"
+  | "LOCK_RECOVERY_REQUIRED"
+  | "LOCK_LOST"
+  | "REVISION_CONFLICT"
+  | "SCOPE_NOT_FOUND"
+  | "SCOPE_KEY_CONFLICT"
+  | "BINDING_CONFLICT"
+  | "TASK_NOT_FOUND"
+  | "STATE_CONFLICT"
+  | "TOPOLOGY_INVALID"
+  | "LEASE_CONFLICT"
+  | "LEASE_EXPIRED"
+  | "DELIVERY_NOT_CONFIRMED"
+  | "SCOPE_NOT_CLOSABLE"
+  | "WRITE_FAILED"
+  | "WRITE_OUTCOME_UNKNOWN";
+
+export type TaskGraphErrorBody = {
+  code: TaskGraphErrorCode;
+  retryable: boolean;
+  message: string;
+  details: JsonObject;
+};
+
+export declare class TaskGraphError extends Error {
+  readonly code: TaskGraphErrorCode;
+  readonly details: JsonObject;
+  readonly retryable: boolean;
+  constructor(
+    code: TaskGraphErrorCode,
+    message: string,
+    details?: unknown,
+    options?: ErrorOptions
+  );
+}
+
+export type TaskGraphSuccess<TData = unknown> = {
+  ok: true;
+  indexPath: string;
+  revision: number | null;
+  data: TData;
+};
+
+export type TaskGraphFailure = {
+  ok: false;
+  indexPath: string;
+  revision: number | null;
+  error: TaskGraphErrorBody;
+};
+
+export type TaskGraphResult<TData = unknown> =
+  | TaskGraphSuccess<TData>
+  | TaskGraphFailure;
+
+export type CreateScopeOperation = {
+  kind: "create-scope";
+  key: string;
+  bindings?: Record<string, string>;
+};
+
+export type SetScopeBindingOperation = {
+  kind: "set-scope-binding";
+  scopeId: string;
+  bindingKind: string;
+  value: string | null;
+};
+
+export type CreateTaskOperation = {
+  kind: "create-task";
+  scopeId: string;
+  alias?: string;
+  content: TaskContentInput;
+  parentId?: string | null;
+  control?: TaskControlInput;
+};
+
+export type UpdateTaskContentOperation = {
+  kind: "update-task-content";
+  scopeId: string;
+  taskId: string;
+  content: TaskContentInput;
+};
+
+export type UpdateTaskControlOperation = {
+  kind: "update-task-control";
+  scopeId: string;
+  taskId: string;
+  control: TaskControlInput;
+};
+
+export type SetParentOperation = {
+  kind: "set-parent";
+  scopeId: string;
+  taskId: string;
+  parentId: string | null;
+};
+
+export type SetDependencyOperation = {
+  kind: "set-dependency";
+  scopeId: string;
+  taskId: string;
+  dependencyId: string;
+  present: boolean;
+};
+
+export type SetExclusionOperation = {
+  kind: "set-exclusion";
+  scopeId: string;
+  taskId: string;
+  excludedTaskId: string;
+  present: boolean;
+};
+
+export type TaskGraphRevisionOperation =
+  | CreateScopeOperation
+  | SetScopeBindingOperation
+  | CreateTaskOperation
+  | UpdateTaskContentOperation
+  | UpdateTaskControlOperation
+  | SetParentOperation
+  | SetDependencyOperation
+  | SetExclusionOperation;
+
+export type TaskGraphApplyRequest = {
+  expectedRevision: number;
+  operations: TaskGraphRevisionOperation[];
+};
+
+export type TaskGraphApplyResult = {
+  aliases: Record<string, string>;
+  createdScopeIds: string[];
+  createdTaskIds: string[];
+};
+
+export type ScopeCloseBlockerKind =
+  | "top-task-not-terminal"
+  | "failed-task"
+  | "active-lease"
+  | "recovery-needed";
+
+export type ScopeCloseBlocker = {
+  kind: ScopeCloseBlockerKind;
+  scopeId: string;
+  taskId: string;
+  state: TaskEffectiveState;
+};
+
+export type ScopeCloseProjection = {
+  scopeId: string;
+  closable: boolean;
+  blockers: ScopeCloseBlocker[];
+  requiresResultsDelivered: true;
+  taskCount: number;
+};
+
+export type ScopeGcProjection = {
+  revision: number;
+  scopes: Record<string, ScopeCloseProjection>;
+  scopeOrder: string[];
+};
+
+export type ScopeCloseRequest = {
+  scopeId: string;
+  resultsDelivered: true;
+};
+
+export type IndexMutation<TData> = {
+  index: TaskIndex;
+  data: TData;
+};
+
+export declare function applyTaskGraphOperations(
+  current: TaskIndex,
+  request: TaskGraphApplyRequest,
+  now: Date
+): IndexMutation<TaskGraphApplyResult>;
+
+export declare function claimTask(
+  current: TaskIndex,
+  options: {
+    scopeId: string;
+    taskId: string;
+    actor: string;
+    durationSeconds?: number;
+    leaseUuid: string;
+  },
+  now: Date
+): IndexMutation<{ taskId: string; leaseId: string; expiresAt: string }>;
+
+export declare function renewTaskLease(
+  current: TaskIndex,
+  options: {
+    scopeId: string;
+    taskId: string;
+    leaseId: string;
+    durationSeconds?: number;
+  },
+  now: Date
+): IndexMutation<{ taskId: string; leaseId: string; expiresAt: string }>;
+
+export declare function releaseTask(
+  current: TaskIndex,
+  options: {
+    scopeId: string;
+    taskId: string;
+    leaseId: string;
+    control: TaskControlInput;
+  },
+  now: Date
+): IndexMutation<{ taskId: string; phase: "idle" }>;
+
+export declare function completeTask(
+  current: TaskIndex,
+  options: CompleteTaskOptions,
+  now: Date
+): IndexMutation<{ taskId: string; phase: "succeeded" }>;
+
+export declare function failTask(
+  current: TaskIndex,
+  options: {
+    scopeId: string;
+    taskId: string;
+    leaseId: string;
+    reason: string;
+  },
+  now: Date
+): IndexMutation<{ taskId: string; phase: "failed" }>;
+
+export declare function retryTask(
+  current: TaskIndex,
+  options: { scopeId: string; taskId: string; expectedRevision: number },
+  now: Date
+): IndexMutation<{ taskId: string; phase: "idle" }>;
+
+export declare function cancelTask(
+  current: TaskIndex,
+  options: CancelTaskOptions,
+  now: Date
+): IndexMutation<{ taskId: string; cancelledTaskIds: string[] }>;
+
+export declare function recoverTask(
+  current: TaskIndex,
+  options: RecoverTaskOptions,
+  now: Date
+): IndexMutation<{ taskId: string; phase: "failed"; forced: boolean }>;
+
+export declare function scopeCloseProjection(
+  index: TaskIndex,
+  scopeId: string,
+  now: Date
+): ScopeCloseProjection;
+
+export declare function queryScopeGc(
+  index: TaskIndex,
+  now: Date
+): ScopeGcProjection;
+
+type CloseScopesResult = {
+  closedScopeIds: string[];
+  scopes: Record<string, ScopeCloseProjection>;
+};
+
+export declare function closeScopes(
+  current: TaskIndex,
+  options: { expectedRevision: number; scopes: ScopeCloseRequest[] },
+  now: Date
+): IndexMutation<CloseScopesResult>;
+
+export declare function emptyTaskIndex(): TaskIndex;
+export declare function parseTaskGraphApplyRequest(input: unknown): TaskGraphApplyRequest;
+export declare function parseTaskIndex(input: unknown): TaskIndex;
+export declare function serializeTaskIndex(index: TaskIndex): string;
+export declare function projectScope(
+  index: TaskIndex,
+  scopeId: string,
+  now: Date
+): ScopeProjection;
+export declare function validateTaskIndexGraph(index: TaskIndex): string[];
+
+type TaskIndexDiagnosticCode =
+  | "index-invalid"
+  | "index-not-canonical"
+  | "index-read-failed"
+  | "schema-unsupported";
+
+export type TaskIndexCheck = {
+  valid: boolean;
+  canonical: boolean;
+  diagnostics: Array<{ code: TaskIndexDiagnosticCode; message: string }>;
+  revision: number | null;
+};
+
+export type TaskIndexInfo = {
+  revision: number;
+  schemaVersion: 1;
+  scopeCount: number;
+  taskCount: number;
+  nextIds: { scope: number; task: number };
+};
+
+export type TaskGraphServiceOptions = {
+  clock?: Clock;
+  indexPath?: string;
+  root?: string;
+};
+
+export type ServiceResult<TData> = {
+  revision: number;
+  data: TData;
+};
+
+export type ScopeSummary = {
+  scopeId: string;
+  key: string;
+  bindings: Record<string, string>;
+  taskCount: number;
+  topTaskCount: number;
+};
+
+export type ListScopesOptions = { key?: string } & (
+  | { bindingKind: string; bindingValue: string }
+  | { bindingKind?: never; bindingValue?: never }
+);
+
+export type TaskSummary = {
+  taskId: string;
+  title: string;
+  parentId: string | null;
+  phase: TaskExecutionPhase;
+  effectiveState: TaskEffectiveState;
+  nextAction: "claim" | "complete" | null;
+};
+
+export declare class TaskGraphService {
+  constructor(options?: TaskGraphServiceOptions);
+  init(): Promise<ServiceResult<TaskIndexInfo>>;
+  info(): Promise<ServiceResult<TaskIndexInfo>>;
+  check(): Promise<{ revision: number | null; data: TaskIndexCheck }>;
+  readIndex(): Promise<ServiceResult<TaskIndex>>;
+  apply(request: TaskGraphApplyRequest): Promise<ServiceResult<TaskGraphApplyResult>>;
+  createScope(options: {
+    expectedRevision: number;
+    key: string;
+    bindings?: Record<string, string>;
+  }): Promise<ServiceResult<{ scopeId: string }>>;
+  setScopeBinding(options: {
+    expectedRevision: number;
+    scopeId: string;
+    kind: string;
+    value: string | null;
+  }): Promise<ServiceResult<{ scopeId: string }>>;
+  listScopes(options?: ListScopesOptions): Promise<ServiceResult<Record<string, ScopeSummary>>>;
+  showScope(scopeId: string): Promise<ServiceResult<{
+    scope: TaskScope;
+    projection: ScopeProjection;
+  }>>;
+  createTask(options: {
+    expectedRevision: number;
+    scopeId: string;
+    content: TaskContentInput;
+    parentId?: string | null;
+    control?: TaskControlInput;
+  }): Promise<ServiceResult<{ taskId: string }>>;
+  updateTaskContent(options: {
+    expectedRevision: number;
+    scopeId: string;
+    taskId: string;
+    content: TaskContentInput;
+  }): Promise<ServiceResult<{ taskId: string }>>;
+  updateTaskControl(options: {
+    expectedRevision: number;
+    scopeId: string;
+    taskId: string;
+    control: TaskControlInput;
+  }): Promise<ServiceResult<{ taskId: string }>>;
+  setParent(options: {
+    expectedRevision: number;
+    scopeId: string;
+    taskId: string;
+    parentId: string | null;
+  }): Promise<ServiceResult<{ taskId: string }>>;
+  setDependency(options: {
+    expectedRevision: number;
+    scopeId: string;
+    taskId: string;
+    dependencyId: string;
+    present: boolean;
+  }): Promise<ServiceResult<{ taskId: string }>>;
+  setExclusion(options: {
+    expectedRevision: number;
+    scopeId: string;
+    taskId: string;
+    excludedTaskId: string;
+    present: boolean;
+  }): Promise<ServiceResult<{ taskId: string; excludedTaskId: string }>>;
+  listTasks(scopeId: string): Promise<ServiceResult<Record<string, TaskSummary>>>;
+  showTask(scopeId: string, taskId: string): Promise<ServiceResult<{
+    task: TaskEntry;
+    projection: TaskProjection;
+  }>>;
+  actionable(scopeId: string): Promise<ServiceResult<{
+    tasks: Record<string, TaskProjection>;
+    order: string[];
+  }>>;
+  trace(scopeId: string, taskId: string): Promise<ServiceResult<{
+    task: TaskEntry;
+    projection: TaskProjection;
+  }>>;
+  claim(options: {
+    scopeId: string;
+    taskId: string;
+    actor: string;
+    durationSeconds?: number;
+  }): Promise<ServiceResult<{ taskId: string; leaseId: string; expiresAt: string }>>;
+  renew(options: {
+    scopeId: string;
+    taskId: string;
+    leaseId: string;
+    durationSeconds?: number;
+  }): Promise<ServiceResult<{ taskId: string; leaseId: string; expiresAt: string }>>;
+  release(options: {
+    scopeId: string;
+    taskId: string;
+    leaseId: string;
+    control: TaskControlInput;
+  }): Promise<ServiceResult<{ taskId: string; phase: "idle" }>>;
+  complete(options: CompleteTaskOptions): Promise<
+    ServiceResult<{ taskId: string; phase: "succeeded" }>
+  >;
+  fail(options: {
+    scopeId: string;
+    taskId: string;
+    leaseId: string;
+    reason: string;
+  }): Promise<ServiceResult<{ taskId: string; phase: "failed" }>>;
+  retry(options: {
+    scopeId: string;
+    taskId: string;
+    expectedRevision: number;
+  }): Promise<ServiceResult<{ taskId: string; phase: "idle" }>>;
+  cancel(options: CancelTaskOptions): Promise<
+    ServiceResult<{ taskId: string; cancelledTaskIds: string[] }>
+  >;
+  recover(options: RecoverTaskOptions): Promise<
+    ServiceResult<{ taskId: string; phase: "failed"; forced: boolean }>
+  >;
+  queryGc(): Promise<ServiceResult<ScopeGcProjection>>;
+  closeScope(options: {
+    expectedRevision: number;
+    scopeId: string;
+    resultsDelivered: true;
+  }): Promise<ServiceResult<CloseScopesResult>>;
+  closeScopeSet(options: {
+    expectedRevision: number;
+    scopes: ScopeCloseRequest[];
+  }): Promise<ServiceResult<CloseScopesResult>>;
+}
+
+export declare function createTaskGraphService(
+  options?: TaskGraphServiceOptions
+): TaskGraphService;
+
+export type TaskGraphCliOptions = {
+  io?: { stdout: (text: string) => void };
+  serviceOptions?: Omit<TaskGraphServiceOptions, "root" | "indexPath">;
+};
+
+export declare function runTaskGraphCli(
+  argv?: readonly string[],
+  options?: TaskGraphCliOptions
+): Promise<number>;

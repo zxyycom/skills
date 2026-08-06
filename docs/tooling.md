@@ -78,6 +78,7 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | Decision Records | `test:decision-records-cli` | `sync:decision-records-cli` | `check:decision-records-cli`、`check:decisions` |
 | Skill Validator | `test:skill-validator` | `sync:skill-validator` | `check:skill-validator` |
 | Investigation Report | `test:investigation-report-check` | `sync:investigation-report-check` | `check:investigation-report-check`、`check:investigations` |
+| Task Graph | `test:task-graph-cli` | `sync:task-graph-cli` | `check:task-graph-cli`、`check:task-graph-index` |
 | Test Evidence | `test:test-evidence-cli` | `sync:test-evidence-cli`、`sync:test-evidence-catalog` | `check:test-evidence-cli`、`check:test-evidence-catalog` |
 | Skill Updater | `test:skill-updater` | `sync:skill-updaters` | `check:skill-updaters` |
 | 共享基础设施 | `test:check`、`test:generated-file`、`test:index-runtime`、`test:skill-package-hash`、`test:version-control` | — | — |
@@ -125,6 +126,7 @@ package script 和完整检查仍只是聚合容器。topic 表与 case 由测�
 | `test:skill-package-hash` | 覆盖 Git 基线、pending 内容和独立版本门禁 |
 | `test:investigation-report-check` | 覆盖分发一致性、索引查询和规模场景 |
 | `test:test-evidence-cli` | 覆盖目录迁移、索引恢复和分发接口场景 |
+| `test:task-graph-cli` | 覆盖图语义、事务写入、并发领取、租约恢复和 JSON CLI 场景 |
 
 调整任务档位时，同步本节、`scripts/lib/check-plan.ts` 和对应测试。`pack:skills` 不属于前置任务档位；它只在本次选中的全部前置任务通过后执行。
 
@@ -174,6 +176,7 @@ package script 和完整检查仍只是聚合容器。topic 表与 case 由测�
 | `tools/change-plan/` | `skills/change-plan/scripts/change-plan.*` |
 | `tools/decision-records/` | `skills/decision-records/scripts/decision-records.*` 和索引 Schema |
 | `tools/investigation-report/` | `skills/investigation-report/scripts/check-investigations.*` 和索引 Schema |
+| `tools/task-graph/` | `skills/task-graph/scripts/task-graph.*` 和 task index Schema |
 | `tools/skill-validator/` | `skills/skill-maintainer/scripts/validate-skill.*` |
 | `tools/test-evidence/` | `skills/test-evidence-review/scripts/` 与 `references/schemas/` 中的生成产物 |
 | `tools/skill-updater/` | 每个 skill 的 `scripts/update-skill.*`；具体契约见 [Skill Updater](../tools/skill-updater/README.md) |

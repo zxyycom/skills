@@ -3,3 +3,6 @@ dist/
 .DS_Store
 Thumbs.db
 *.log
+/docs/task-graph/task-graph-index.json.lock/
+/docs/task-graph/task-graph-index.json.tmp-*
+/docs/task-graph/task-graph-index.json.lock.quarantine-*

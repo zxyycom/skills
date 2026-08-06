@@ -22,6 +22,7 @@ const requiredPackageScripts = [
   "sync:skill-validator",
   "sync:investigation-report-check",
   "sync:decision-records-cli",
+  "sync:task-graph-cli",
   "sync:test-evidence-cli",
   "sync:test-evidence-catalog",
   "check"

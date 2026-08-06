@@ -30,6 +30,10 @@
       "description": "单个可移植 Codex skill 的入口、frontmatter、目录和链接结构，以及 validator CLI 与分发制品契约。"
     },
     {
+      "id": "task-graph",
+      "description": "短期任务图的索引结构、图投影、生命周期、事务存储、执行租约、JSON CLI、scope 清理与分发边界。"
+    },
+    {
       "id": "test-evidence",
       "description": "测试证据目录的固定路径与 case 结构、统一索引同步与回退、查询展示，以及 CLI 和分发 API 契约。"
     },

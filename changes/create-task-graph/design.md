@@ -141,7 +141,7 @@
 - 每个 `nextIds` 值必须严格大于索引中同类 ID 的全部数值后缀；解析、`check` 和每次 mutation 都验证该不变量，不能根据现存条目静默重算计数器。
 - 每个 scope 的 `key` 是创建后不可变的稳定短名称，`bindings` 是按 binding kind 查找宿主任务或线程的可选字典；同一开放索引中的 scope key 和非空 binding 对必须唯一。开放 scope 可以在 expectedRevision 下设置或移除 binding，候选完整索引仍须满足唯一性。
 - `content` 只保存 `title`、`goal`、`acceptance`、短 `context`、外部 `references` 字典和紧凑 `result`；result 只能由完成操作写入，长篇背景与长期结果交给稳定 owner。
-- `state` 只保存 control、execution、显式 relations 和 timestamps。未知字段、非法 key、非规范 ID、跨 scope 引用和不符合判别联合的组合全部拒绝。
+- `state` 只保存 control、execution、显式 relations 和 timestamps。未知字段、非法 key、非规范 ID、跨 scope 引用和不符合判别联合的组合全部拒绝。binding 与 reference key 使用最多 80 个 ASCII 字符的 kebab-case，并将 `constructor`、`prototype` 和 `__proto__` 列为拒绝使用的保留字；raw request/index/result 在 Schema 解析前拒绝这些 own key，避免运行时把它们静默丢弃。Apply alias 是独立的瞬时身份，不受这组持久字典保留字限制。
 - 新建顶层 task 默认使用 `control.mode: candidate`，新建子 task 默认使用 `control.mode: inherit`，两者的 execution 均从 `idle`、`attempt: 0` 开始；调用方可以在同一创建事务中显式选择其他合法 control，但不能直接创建 running 或终态 task。
 - `dependsOn` 与 `excludes` 使用以 task ID 为 key、`true` 为值的字典集合。`excludes` 的两个 task entry 必须完全对称，由工具在一个事务中同时维护。
 - `parentId` 是父子关系的唯一持久方向；children、dependents、排斥来源、继承展开和其他反向关系只在查询时投影。
@@ -170,7 +170,7 @@
 
 - Scope 只隔离任务，不创建 root task；一个 scope 可以包含多个 `parentId: null` 的顶层真实任务。
 - 每个 task 都是真实目标，不保存 `work`、`group` 或其他虚拟任务类型。没有子任务的 task 可以被 `claim`；拥有一个或多个子任务的 task 表示自身已经被分解，不能直接领取。
-- 给 task 增加第一个子任务只允许在父任务 `execution.phase` 为 `idle` 且尚未进入运行或终态时发生。如果父任务曾失败，必须先显式 `retry`。
+- 给 task 增加第一个或后续子任务只允许在父任务当前 `execution.phase` 为 `idle` 时发生；此前的领取历史和非零 attempt 不构成额外屏障，因此 task 经合法 `release` 或失败后显式 `retry` 回到 `idle` 后可以分解。运行、失败或终态父任务不能增加子任务。
 - 叶子 task 的 `complete` 必须匹配活动 lease。父 task 使用同一个 `complete` 操作，但要求自身 `execution.phase` 为 `idle`、有效 control 为 `queued`，并以 revision 为前置条件；所有直接子任务必须为 `succeeded` 或 `cancelled`、至少一个直接子任务必须为 `succeeded`，且不存在活动或待恢复后代租约。操作重新验证全部条件并写入父任务紧凑 result。
 - 任一直接子任务的 `execution.phase` 不是 `succeeded` 或 `cancelled` 时都会阻止父任务完成。全部直接子任务均取消时，父任务只能取消或增加替代子任务，不能成功。
 - 父任务仍需直接执行的一段工作必须表示为真实子任务，避免父任务在持有长租约期间等待其他子任务。
@@ -198,21 +198,23 @@
 
 ### Revision、短事务锁与原子替换
 
-- 所有写命令通过相邻固定 lock directory 获取跨进程短事务锁。锁元数据至少包含不可预测 owner token、同主机进程身份和更新时间；正常获取最多等待 5 秒。锁超过 60 秒只成为陈旧候选，工具只有在能够确认记录的同主机 owner 进程已经失效时才以原子隔离方式回收并重新获取；元数据损坏、owner 仍存活或存活状态无法确认时返回稳定恢复错误，不按时间单独偷锁。
+- 所有写命令通过相邻固定 lock directory 获取跨进程短事务锁。锁元数据至少包含不可预测 owner token、同主机进程身份和更新时间，并先写入 owner-token 专属临时文件、完成同步后再原子发布；正常获取最多等待 5 秒。新创建但元数据尚未完整发布的 fresh lock 视为获取窗口并继续重试，不能立即按损坏锁处理。锁超过 60 秒只成为陈旧候选，工具只有在能够确认记录的同主机 owner 进程已经失效时才进入恢复选举；已经越过 fresh 窗口的元数据损坏、owner 仍存活或存活状态无法确认时返回稳定恢复错误，不按时间单独偷锁。
+- Canonical lock directory 恰好包含一个 generation owner 文件：未认领时为 `owner-<O>.json`，已认领时为 `owner-<O>.claimed-by-<R>.json`，后者必须同时存在 metadata 与文件名完全匹配的 `reclaimer-<R>.json`。陈旧锁回收者先以 `wx` 发布自己的唯一 `reclaimer-<N>.json`，再把它实际读取的精确 owner generation 文件原子 rename 为 `owner-<O>.claimed-by-<N>.json`；只有该精确 rename 的胜者能够继续，失败者只清理自己成功创建的 reclaimer 文件。已崩溃的 stale claimed generation 也按 `claimed-by-<R>` 到 `claimed-by-<N>` 的精确 rename 接管，不能先清除共享标记或退回仅按 owner token 判断。
+- 胜者在隔离 canonical directory 前核对 claimed owner 与自己的 reclaimer generation，rename 到唯一 quarantine 后再次核对同一 generation，再尽力删除。`wx` 碰撞者不得删除既存 reclaimer；owner、claimed owner 或 reclaimer 的非法 JSON、缺失、符号链接和无法确认的进程状态都返回稳定恢复错误。任何从 directory 观察到读取、认领或隔离的竞态都必须重新读取 canonical generation；旧观察者不得隔离后来发布的 fresh owner。
 - 短事务锁只覆盖读取当前文件、解析与校验、检查 revision 或 lease 前置条件、构造候选状态、验证完整候选图、序列化、原子替换和读回验证；实际任务执行绝不持有文件锁。
-- 锁 owner 在替换与释放前必须验证当前 lock directory 仍包含自己的 owner token；陈旧锁隔离会使旧 owner 的后续写入失效。回收者取得新锁后必须重新读取索引和 revision，不能沿用回收前视图。
+- 锁 owner 在替换与释放前必须验证当前 lock directory 仍包含自己获取时记录的精确 owner generation 文件，且该文件的 metadata owner token 与 handle 匹配；任何可等待 hook 或文件操作之后、真正 replace 或 release isolation 之前都重新验证。释放时把已验证的 canonical lock directory 原子 rename 到唯一 quarantine，再尽力清理；提交后的释放隔离失败按未知写入结果处理，提交前操作失败又无法释放时返回稳定恢复错误并保留原操作诊断。陈旧锁隔离会使旧 owner 的后续写入失效；回收者取得新锁后必须重新读取索引和 revision，不能沿用回收前视图。
 - `init` 只允许以 `schemaVersion: 1`、`revision: 0`、两个 `nextIds` 均为 `1` 且 `scopes` 为空的规范内容独占创建不存在的索引；目标已经存在时返回稳定错误，绝不覆盖或隐式重置现有事实。
 - 除 `init`、在锁内重验最新状态的 `claim` 和以当前 lease 为前置条件的执行操作外，所有写命令都必须携带 `expectedRevision`；这包括 scope/task 创建、批量 apply、content/control/关系修改、父任务完成、重试、非运行态取消和 scope 清理。取得锁后当前 revision 不匹配时返回可重试冲突且不写入。
 - `claim` 不依赖调用方旧 revision，而是在锁内读取最新索引并重新验证叶子身份、有效 control、依赖、祖先屏障和正在运行的排斥任务。执行后续操作使用当前 lease ID，而不是普通 revision 覆盖。
-- 除 `init` 外，每次成功写入把 revision 增加 1。原子替换是事务提交点：提交点前的锁冲突、验证失败或写入失败不改变 revision、`nextIds` 或任何 task；提交点后的读回或响应失败不能宣称未写入，必须返回稳定的 `WRITE_OUTCOME_UNKNOWN` 类错误和预期 revision，要求调用方先运行信息与检查查询，不能盲目重试 mutation。
-- 写入在目标文件同目录创建 `wx` 临时文件，完成写入和文件同步后执行一次原子替换，再读回核对 revision 与规范文本；只读查询不取短事务锁，只会观察提交点前或后的完整文件。索引、lock directory 与临时路径必须拒绝符号链接边界，避免显式 root/index 解析到未预期目标。
+- 除 `init` 外，每次成功写入把 revision 增加 1。原子替换是事务提交点：提交点前的锁冲突、验证失败或写入失败不改变 revision、`nextIds` 或任何 task；原子替换调用抛错后必须读回判定，仍为旧 revision 表示未提交并返回可重试写入失败，已经是候选新 revision 表示写入已提交但本次响应结果未知，其他 revision 或无法读取同样视为未知。提交后的读回或响应失败不能宣称未写入，必须返回稳定的 `WRITE_OUTCOME_UNKNOWN` 类错误和预期 revision，要求调用方先运行信息与检查查询，不能盲目重试 mutation。
+- 写入在目标文件同目录创建 `wx` 唯一临时文件，且只有本次 `open(wx)` 成功后才拥有并可清理该路径；既存同名文件导致创建失败时不得删除它。完成写入和文件同步后执行一次原子替换，再读回核对 revision 与规范文本；只读查询不取短事务锁，只会观察提交点前或后的完整文件。索引、lock directory、generation metadata 与临时路径必须拒绝符号链接边界，避免显式 root/index 解析到未预期目标。
 - `check` 只读取和报告，不自动修复、覆盖或迁移损坏索引。未知 schemaVersion 明确失败；第一版不预建无现实输入的迁移框架，未来版本通过显式 `migrate` 契约处理。
 
 ### 执行租约与恢复
 
-- `claim` 把叶子 task 从 `idle` 事务化转为 `running`，增加 attempt，并写入包含唯一 lease ID、actor、claimedAt、renewedAt 和 expiresAt 的执行租约。
+- `claim` 把叶子 task 从 `idle` 事务化转为 `running`，增加 attempt，并写入包含全索引唯一 lease ID、actor、claimedAt、renewedAt 和 expiresAt 的执行租约；生成器碰撞在写入候选 execution 前以可重试 `LEASE_CONFLICT` 拒绝，存量索引中的重复 running lease 由完整语义检查拒绝。
 - 默认租约时长为 30 分钟；公开输入允许 1 分钟至 24 小时。`renew` 必须在租约有效期内匹配当前 lease，并从当前时钟重新计算 expiresAt。
-- `complete`、`fail`、`release` 和运行中 `cancel` 必须匹配当前且尚未过期的 lease；租约过期后只能进入受控 recover 流程。`release` 清除运行租约并显式选择下一本地 control；可选值覆盖 `inherit`、`candidate`、`queued`、`waiting` 和 `paused`，但仍遵守顶层 task 不得 `inherit` 以及等待或暂停必须带原因的规则。`fail` 保存当前紧凑失败原因但不保存 attempt 历史。
+- `complete` 和 `cancel` 必须且只能提供 `leaseId` 或 `expectedRevision` 之一，再按叶子/父任务及运行/非运行状态验证所选前置条件；两者同给或都不给均在领域与 CLI 边界以参数错误拒绝。`complete`、`fail`、`release` 和运行中 `cancel` 必须匹配当前且尚未过期的 lease；租约过期后只能进入受控 recover 流程。`release` 清除运行租约并显式选择下一本地 control；可选值覆盖 `inherit`、`candidate`、`queued`、`waiting` 和 `paused`，但仍遵守顶层 task 不得 `inherit` 以及等待或暂停必须带原因的规则。`fail` 保存当前紧凑失败原因但不保存 attempt 历史。
 - `retry` 只把 `failed` task 恢复为 `idle`，清除当前失败原因并保留累计 attempt 与现有 control；它不直接领取任务。取消保存紧凑原因并清除当前 lease，终态 result 与失败原因的精确判别联合由公开 Schema 固定。
 - 租约过期不会自动释放 task 或排斥边界；有效状态变为 `recovery-needed`，继续阻止重复领取和排斥任务运行。
 - 过期租约的 `recover` 必须指明当前 lease ID，在锁内重新确认它仍是当前且已经过期的租约，再把任务转成 `failed` 并保存 lease 失效原因；之后必须显式 `retry` 或 `cancel`。活动租约的提前强制恢复必须同时提供当前 revision、明确 `force` 和原因，不能由另一个 agent 静默覆盖。
@@ -220,7 +222,7 @@
 ### JSON CLI 与批量事务
 
 - CLI 不提供 `--json` 或人类文本模式。每次正常调用只向 stdout 输出一个 JSON 对象；可预期的参数、schema、状态、冲突、租约和文件失败也输出稳定 JSON 结果。stderr 只保留 CLI 无法进入协议入口或输出 JSON 前发生的非预期故障。
-- 成功结果固定包含 `ok: true`、当前 index path、revision 和 `data`；失败结果固定包含 `ok: false`、可读取时的当前 revision，以及含稳定 `code`、`retryable`、`message` 和结构化 `details` 的 error。
+- 成功结果固定包含 `ok: true`、当前 index path、`revision: number | null` 和 `data`；读取或修改索引的成功返回当前 number revision，help、version 等未打开索引的协议成功返回 `null`。失败结果固定包含 `ok: false`、可读取时的当前 revision，以及含稳定 `code`、`retryable`、`message` 和结构化 `details` 的 error。
 - `ok: true` 对应进程退出码 `0`，已经进入 JSON 协议的 `ok: false` 对应退出码 `1`；只有 CLI 在构造 JSON 结果前发生的启动级故障使用退出码 `2` 并写入 stderr。stdout 的 JSON 对象以 LF 结束，协议内不得混入日志、usage 或进度文本。
 - 简单操作使用显式子命令和类型化参数；复杂初始建图与多关系更新使用 `apply` 接收一个 stdin 或显式文件中的 JSON request，在一个 expectedRevision 下原子执行全部 operations，并返回调用方 alias 到生成 task ID 的字典映射。
 - 第一版入口至少覆盖 index 初始化、信息和检查，scope 创建、列表、显示、binding 更新和关闭，task 创建、批量 apply、显示、列表、内容与 control 更新，parent/dependency/exclusion 维护，actionable 查询与 trace，以及 claim、renew、release、complete、fail、retry、cancel 和 recover。
@@ -244,7 +246,7 @@
 - 第一版不删除单个 task。终态 task 与其结果、关系和父任务完成证据保留到整个 scope 关闭，避免为提前删除物化消费标记或聚合历史。
 - Scope 关闭要求所有顶层任务为 `succeeded` 或 `cancelled`，完整 scope 中不存在 `running`、`recovery-needed` 或 `failed` task，并由调用方显式确认结果已经交付给用户或稳定 owner。
 - `scope close` 在一个 expectedRevision 事务中删除 scope 及其全部 task；revision 增加且 scope/task `nextIds` 保留，不复用已经清理的 ID。
-- `gc` 只查询或显式清理满足同一门禁的选定 scope，不提供后台任务、默认保留窗口或根据时间静默删除。工具不自动 stage 或 commit 清理前后的索引状态。
+- `gc` 查询返回全部 scope 按 ID 排序的 closable 状态和结构化 blocker。GC mutation 必须显式提供非空且不重复的 scope ID 集合，并为每个 scope 提供 `resultsDelivered: true`；工具在同一 expectedRevision、短锁和原子替换中先验证全部选择，再以 all-or-nothing 方式删除，成功只增加一次 revision 且保留 `nextIds`。单 scope `close` 与批量 GC 复用同一个 `closeScopes` 领域原语，但保持各自边界语义；不提供后台任务、默认保留窗口或根据查询或时间静默删除。工具不自动 stage 或 commit 清理前后的索引状态。
 
 ## Risks / Trade-offs
 

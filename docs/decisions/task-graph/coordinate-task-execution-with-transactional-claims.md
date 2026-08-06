@@ -1,7 +1,7 @@
 ---
 title: 通过事务领取协调任务执行
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-06T06:13:52Z
 purpose: 让多个 agent 在共享索引上领取就绪任务，而不重复执行或违反排斥关系。
 background: 查询就绪后再非事务地写入运行状态会产生竞态，执行者异常退出还会留下无法判断归属的运行状态。

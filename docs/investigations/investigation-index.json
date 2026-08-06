@@ -122,6 +122,36 @@
         "status": "暂停",
         "title": "Prompt Optimize 名称与触发对齐调查"
       }
+    },
+    {
+      "id": "task-graph/file-lock-and-atomic-write-libraries.md",
+      "keys": {
+        "category": [
+          "task-graph"
+        ],
+        "latest-report-at": [
+          1786024415000
+        ],
+        "status": [
+          "已结束"
+        ],
+        "text": [
+          "Task Graph 文件锁与原子写入 npm 库调查",
+          "task-graph 是否应采用成熟 npm 库承接同主机跨进程文件锁、陈旧锁恢复和原子索引替换？",
+          "现有候选无法缩减 task-graph 的关键事务协议"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-08-06T21:53:35+08:00",
+        "path": "task-graph/file-lock-and-atomic-write-libraries.md",
+        "question": "task-graph 是否应采用成熟 npm 库承接同主机跨进程文件锁、陈旧锁恢复和原子索引替换？",
+        "reportCount": 1,
+        "reportTitles": [
+          "现有候选无法缩减 task-graph 的关键事务协议"
+        ],
+        "status": "已结束",
+        "title": "Task Graph 文件锁与原子写入 npm 库调查"
+      }
     }
   ],
   "keyDefinitions": [
@@ -145,5 +175,5 @@
   "metadata": {},
   "namespace": "investigations",
   "schemaVersion": 2,
-  "sourceRevision": "sha256:e593153dbf067c763b30f19abb1535eb56343954f5d93195cdc141db101d68e0"
+  "sourceRevision": "sha256:ae288409479edd46610215a4fdf99f1efe9a261d4b8099764178b3fb333b0f7f"
 }

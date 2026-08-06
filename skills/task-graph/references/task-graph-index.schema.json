@@ -1,0 +1,511 @@
+{
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "nextIds": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "task": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "scope",
+        "task"
+      ],
+      "additionalProperties": false
+    },
+    "scopes": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^scope-(?:(?!000000$)[0-9]{6}|[1-9][0-9]{6,15})$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "maxLength": 80
+          },
+          "bindings": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "pattern": "^(?!(?:constructor|prototype|__proto__)$)[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+              "maxLength": 80
+            },
+            "additionalProperties": {
+              "minLength": 1,
+              "maxLength": 200,
+              "pattern": "^(?![\\s\\S]*[\\r\\n])(?!\\s)(?:[\\s\\S]*\\S)?$"
+            }
+          },
+          "timestamps": {
+            "type": "object",
+            "properties": {
+              "createdAt": {
+                "type": "string",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+              },
+              "updatedAt": {
+                "type": "string",
+                "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+              }
+            },
+            "required": [
+              "createdAt",
+              "updatedAt"
+            ],
+            "additionalProperties": false
+          },
+          "tasks": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "pattern": "^task-(?:(?!000000$)[0-9]{6}|[1-9][0-9]{6,15})$"
+            },
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "content": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "minLength": 1,
+                      "maxLength": 120,
+                      "pattern": "^(?![\\s\\S]*[\\r\\n])(?!\\s)(?:[\\s\\S]*\\S)?$"
+                    },
+                    "goal": {
+                      "minLength": 1,
+                      "maxLength": 1000,
+                      "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+                    },
+                    "acceptance": {
+                      "type": "array",
+                      "items": {
+                        "minLength": 1,
+                        "maxLength": 300,
+                        "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+                      },
+                      "minItems": 1,
+                      "maxItems": 20
+                    },
+                    "context": {
+                      "anyOf": [
+                        {
+                          "minLength": 1,
+                          "maxLength": 2000,
+                          "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "references": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string",
+                        "pattern": "^(?!(?:constructor|prototype|__proto__)$)[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+                        "maxLength": 80
+                      },
+                      "additionalProperties": {
+                        "minLength": 1,
+                        "maxLength": 500,
+                        "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+                      }
+                    },
+                    "result": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "summary": {
+                              "minLength": 1,
+                              "maxLength": 1000,
+                              "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+                            },
+                            "references": {
+                              "type": "object",
+                              "propertyNames": {
+                                "type": "string",
+                                "pattern": "^(?!(?:constructor|prototype|__proto__)$)[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+                                "maxLength": 80
+                              },
+                              "additionalProperties": {
+                                "minLength": 1,
+                                "maxLength": 500,
+                                "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+                              }
+                            }
+                          },
+                          "required": [
+                            "summary",
+                            "references"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "goal",
+                    "acceptance",
+                    "context",
+                    "references",
+                    "result"
+                  ],
+                  "additionalProperties": false
+                },
+                "state": {
+                  "type": "object",
+                  "properties": {
+                    "control": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "mode": {
+                              "const": "inherit"
+                            },
+                            "reason": {
+                              "type": "null"
+                            }
+                          },
+                          "required": [
+                            "mode",
+                            "reason"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "mode": {
+                              "const": "candidate"
+                            },
+                            "reason": {
+                              "type": "null"
+                            }
+                          },
+                          "required": [
+                            "mode",
+                            "reason"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "mode": {
+                              "const": "queued"
+                            },
+                            "reason": {
+                              "type": "null"
+                            }
+                          },
+                          "required": [
+                            "mode",
+                            "reason"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "mode": {
+                              "const": "waiting"
+                            },
+                            "reason": {
+                              "minLength": 1,
+                              "maxLength": 1000,
+                              "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+                            }
+                          },
+                          "required": [
+                            "mode",
+                            "reason"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "mode": {
+                              "const": "paused"
+                            },
+                            "reason": {
+                              "minLength": 1,
+                              "maxLength": 1000,
+                              "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+                            }
+                          },
+                          "required": [
+                            "mode",
+                            "reason"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "execution": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "phase": {
+                              "const": "idle"
+                            },
+                            "attempt": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "phase",
+                            "attempt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "phase": {
+                              "const": "running"
+                            },
+                            "attempt": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 9007199254740991
+                            },
+                            "lease": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "pattern": "^lease-[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+                                },
+                                "actor": {
+                                  "minLength": 1,
+                                  "maxLength": 200,
+                                  "pattern": "^(?![\\s\\S]*[\\r\\n])(?!\\s)(?:[\\s\\S]*\\S)?$"
+                                },
+                                "claimedAt": {
+                                  "type": "string",
+                                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                                },
+                                "renewedAt": {
+                                  "type": "string",
+                                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                                },
+                                "expiresAt": {
+                                  "type": "string",
+                                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "actor",
+                                "claimedAt",
+                                "renewedAt",
+                                "expiresAt"
+                              ],
+                              "additionalProperties": false
+                            }
+                          },
+                          "required": [
+                            "phase",
+                            "attempt",
+                            "lease"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "phase": {
+                              "const": "succeeded"
+                            },
+                            "attempt": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "phase",
+                            "attempt"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "phase": {
+                              "const": "failed"
+                            },
+                            "attempt": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 9007199254740991
+                            },
+                            "reason": {
+                              "minLength": 1,
+                              "maxLength": 1000,
+                              "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+                            }
+                          },
+                          "required": [
+                            "phase",
+                            "attempt",
+                            "reason"
+                          ],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "phase": {
+                              "const": "cancelled"
+                            },
+                            "attempt": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 9007199254740991
+                            },
+                            "reason": {
+                              "minLength": 1,
+                              "maxLength": 1000,
+                              "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
+                            }
+                          },
+                          "required": [
+                            "phase",
+                            "attempt",
+                            "reason"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    },
+                    "relations": {
+                      "type": "object",
+                      "properties": {
+                        "parentId": {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "pattern": "^task-(?:(?!000000$)[0-9]{6}|[1-9][0-9]{6,15})$"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "dependsOn": {
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string",
+                            "pattern": "^task-(?:(?!000000$)[0-9]{6}|[1-9][0-9]{6,15})$"
+                          },
+                          "additionalProperties": {
+                            "const": true
+                          }
+                        },
+                        "excludes": {
+                          "type": "object",
+                          "propertyNames": {
+                            "type": "string",
+                            "pattern": "^task-(?:(?!000000$)[0-9]{6}|[1-9][0-9]{6,15})$"
+                          },
+                          "additionalProperties": {
+                            "const": true
+                          }
+                        }
+                      },
+                      "required": [
+                        "parentId",
+                        "dependsOn",
+                        "excludes"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "timestamps": {
+                      "type": "object",
+                      "properties": {
+                        "createdAt": {
+                          "type": "string",
+                          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                        },
+                        "updatedAt": {
+                          "type": "string",
+                          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$"
+                        }
+                      },
+                      "required": [
+                        "createdAt",
+                        "updatedAt"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "control",
+                    "execution",
+                    "relations",
+                    "timestamps"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "content",
+                "state"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "key",
+          "bindings",
+          "timestamps",
+          "tasks"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "revision",
+    "nextIds",
+    "scopes"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/zxyycom/skills/main/skills/task-graph/references/task-graph-index.schema.json",
+  "$comment": "Safe-integer ID suffixes, real RFC 3339 instants, cross-field, topology, revision, lease, and canonical-form invariants are validated by the task-graph CLI check command.",
+  "title": "TaskGraphIndex"
+}
