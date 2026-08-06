@@ -1,6 +1,6 @@
 ---
 title: 使用可恢复事务维护决策生命周期
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-06T07:26:10Z
 purpose: 让决策演进尽量保持多份 Markdown 与派生索引一致，同时明确中断和恢复失败的处理边界。

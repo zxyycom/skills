@@ -86,7 +86,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:e0815a2c0202da1a8f6263ab11c92fd6cac6607c5abc98929503d71266d0a68d",
+  "sourceRevision": "sha256:2f33b355d24b8eff1533da1d1f3c07fbb9eb048f4cb9104ba1bc6c27248c71fe",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -1640,6 +1640,36 @@
       }
     },
     {
+      "id": "decision-records/replace-decision-relations-as-complete-sets.md",
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/replace-decision-relations-as-complete-sets.md",
+        "title": "以完整集合审核和替换决策关系",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-06T11:12:10Z",
+        "purpose": "让候选关系可提前审核，并允许在闭合事务中完整修订错误的已建立关系。",
+        "background": "强制候选关系为空会隐藏演进意图，逐边追加又会绕过完整集合和关系拓扑校验。",
+        "decision": "候选与已建立记录都以完整最终集合维护关系，CLI 覆盖不追加，已建立关系修订不隐式改变正文或生命周期。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "decision-records/use-recoverable-decision-lifecycle-transactions.md"
+          }
+        ]
+      }
+    },
+    {
       "id": "decision-records/separate-activation-effect-from-head-pending.md",
       "keys": {
         "domain": [
@@ -1829,6 +1859,36 @@
           {
             "type": "修订",
             "target": "decision-records/track-decision-execution-state.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "decision-records/unify-closed-decision-relation-evolution.md",
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/unify-closed-decision-relation-evolution.md",
+        "title": "用 evolve 统一闭合决策关系事务",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-06T11:12:10Z",
+        "purpose": "让所有关系类型共享一个按完整后继集合执行的可恢复事务入口。",
+        "background": "evolve、split 和带关系的 activate 分担关系维护，新增关系类型会扩大命令面并留下绕过闭合策略的路径。",
+        "decision": "由 evolve 统一执行完整关系事务，关系策略校验拓扑闭合，activate --relation 作为单后继便捷入口。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "decision-records/use-recoverable-decision-lifecycle-transactions.md"
           }
         ]
       }
@@ -2139,7 +2199,7 @@
           "decision-records"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -2148,7 +2208,7 @@
       "state": {
         "path": "decision-records/use-recoverable-decision-lifecycle-transactions.md",
         "title": "使用可恢复事务维护决策生命周期",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-06T07:26:10Z",
         "purpose": "让决策演进尽量保持多份 Markdown 与派生索引一致，同时明确中断和恢复失败的处理边界。",
