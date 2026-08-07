@@ -1,0 +1,36 @@
+# Tasks
+
+本 change 先实现阶段模型和 Git 距离，再接入命令、查询与迁移，最后同步行为 owner、测试证据和长期决策。
+
+## Readiness
+
+- [x] 0.1 读取 change-plan 行为入口、固定契约、基础生命周期决策、阶段决策、工具链、编码规范和测试证据维护入口，确认当前实现与 owner 边界。
+- [x] 0.2 确认 `.change-plan.json` 是 active 阶段事实源，阶段为 draft、plan、implementation、shelved，迁移后不保留旧 active 格式。
+- [x] 0.3 确认搁置使用统一 `git-distance-v1`，依据计划后的 first-parent 提交数和累计 diff 行数，不使用时间或每 Change 阈值。
+- [x] 0.4 确认显式 shelve、机械 reconcile、resume 后重新确认、candidate 阻断 implement 和 implementation-only archive 的推进路径。
+- [x] 0.5 完成 proposal、design 和 tasks 的 AI-ready 审阅，使实现代理能够直接恢复阶段、算法、命令、迁移和验收主线。
+- [x] 0.6 完成项目环境自举和检查，确认锁定依赖、Bun、pnpm 与 CodeGraph 索引可用。
+
+## Implementation
+
+- [ ] 1.1 在 `tools/change-plan/` 实现 `.change-plan.json` 判别联合、读取写入、公开类型和 active metadata 检查。
+- [ ] 1.2 按阶段改造 artifact 与任务检查：draft 接受最小 proposal，plan、implementation 和 shelved 使用完整三文件，并提供任务区段进度。
+- [ ] 1.3 实现 plan Git 基线检查、first-parent 提交统计、当前 change 目录排除和累计 additions/deletions。
+- [ ] 1.4 实现 `git-distance-v1`、current、shelve-candidate、plan-review-required 及 assessment evidence。
+- [ ] 1.5 实现 `plan`、`implement`、`shelve --reason`、`reconcile` 和 `resume`，并为 archive 增加 implementation 阶段门禁。
+- [ ] 1.6 扩展 list、show、check、stage filter、文本与 JSON 输出、公共 API、CLI 帮助和退出码。
+- [ ] 1.7 同步分发声明并运行 `bun run sync:change-plan-cli` 生成自包含 MJS、声明和 source map。
+- [ ] 1.8 更新 change-plan skill、固定契约、发现入口、独立版本和生命周期决策正文，使机械搁置成为长期 owner 的当前事实。
+- [ ] 1.9 重新读取 active catalog，逐项确认阶段和已提交基线，为全部 active Change（包括本 change）写入 metadata。
+- [ ] 1.10 新增或调整元数据、阶段、Git 距离、命令、查询、archive、迁移和分发 API 的原生测试，并同步测试证据 case 与派生索引。
+
+## Verification
+
+- [ ] 2.1 验证四阶段 metadata、draft 最小内容、其他阶段完整三文件、任务区段进度和 active/archived 边界。
+- [ ] 2.2 在临时 Git 仓库验证 `3/1000` 保持 current，`4/1001`、`9/小 churn`、`1/3000` 成为候选，并验证零项目提交、只改 change 目录和计划内容变化。
+- [ ] 2.3 验证 plan、implement、显式 shelve、reconcile、resume 与 archive 的合法路径，以及 candidate、待复核 plan 和 shelved 的推进门禁。
+- [ ] 2.4 验证 list、show、check、stage filter、紧凑候选摘要、JSON evidence、公共 API 和 `0/1/2` 退出码。
+- [ ] 2.5 审阅全部 active Change 的迁移结果，确认 stage、`baseCommit` 和现实工作状态一致，catalog 中没有缺失 metadata 的 active 条目。
+- [ ] 2.6 运行 change-plan 原生测试、生成制品检查、skill 验证、测试证据检查、决策严格检查和 `bun run check --full`。
+- [ ] 2.7 对照成功标准完成语义审阅；实现、文档、迁移和验证全部成为当前事实后，将生命周期决策标记为 aligned。
+- [ ] 2.8 完成归档前审阅并取得明确归档授权后，勾选本项并运行 change-plan archive。
