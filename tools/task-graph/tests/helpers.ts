@@ -14,7 +14,7 @@ import {
   type TaskGraphRevisionOperation,
   type TaskIndex
 } from "../src/index.ts";
-import type { NativeLockBinding, NpmCommandResult } from "../src/runtime.ts";
+import type { NativeLockBinding } from "../src/runtime.ts";
 import { getTaskGraphRuntimeInfo } from "../src/runtime.ts";
 
 export const initialNow = new Date("2026-08-06T08:00:00.000Z");
@@ -45,35 +45,6 @@ export async function resolveNodeVersion(): Promise<string> {
   return await nodeVersionPromise;
 }
 
-export async function copyRootNativePackages(cwd: string): Promise<NpmCommandResult> {
-  const lock = JSON.parse(
-    await fs.readFile(path.join(cwd, "package-lock.json"), "utf8")
-  ) as { packages: Record<string, { optional?: boolean; version?: string }> };
-  for (const [lockPath, entry] of Object.entries(lock.packages)) {
-    if (lockPath === "" || entry.optional === true || entry.version === undefined) continue;
-    const packageName = lockPath.slice(lockPath.lastIndexOf("node_modules/") + 13);
-    const pnpmDirectoryName = `${packageName.replace("/", "+")}@${entry.version}`;
-    const source = path.join(
-      repositoryRoot,
-      "node_modules",
-      ".pnpm",
-      pnpmDirectoryName,
-      "node_modules",
-      packageName
-    );
-    const target = path.join(cwd, ...lockPath.split("/"));
-    await fs.mkdir(path.dirname(target), { recursive: true });
-    await copyDirectory(source, target);
-  }
-  return {
-    exitCode: 0,
-    signal: null,
-    stderr: "",
-    stdout: "",
-    timedOut: false
-  };
-}
-
 async function copyDirectory(source: string, target: string): Promise<void> {
   await fs.mkdir(target, { recursive: true });
   for (const entry of await fs.readdir(source, { withFileTypes: true })) {
@@ -92,35 +63,53 @@ async function copyDirectory(source: string, target: string): Promise<void> {
   }
 }
 
+async function copyPackageClosure(
+  packageName: string,
+  resolver: NodeJS.Require,
+  runtimePath: string,
+  copied: Set<string>
+): Promise<void> {
+  if (copied.has(packageName)) return;
+  const entryPath = resolver.resolve(packageName);
+  let packageRoot = path.dirname(entryPath);
+  let manifest: { dependencies?: Record<string, string>; name?: string };
+  while (true) {
+    try {
+      manifest = JSON.parse(
+        await fs.readFile(path.join(packageRoot, "package.json"), "utf8")
+      ) as typeof manifest;
+      if (manifest.name === packageName) break;
+    } catch {
+      // Continue toward the package root.
+    }
+    const parent = path.dirname(packageRoot);
+    if (parent === packageRoot) throw new Error(`Unable to locate package root for ${packageName}`);
+    packageRoot = parent;
+  }
+  copied.add(packageName);
+  await copyDirectory(
+    packageRoot,
+    path.join(runtimePath, "node_modules", ...packageName.split("/"))
+  );
+  const packageRequire = createRequire(path.join(packageRoot, "package.json"));
+  for (const dependencyName of Object.keys(manifest.dependencies ?? {})) {
+    await copyPackageClosure(dependencyName, packageRequire, runtimePath, copied);
+  }
+}
+
 export async function prepareRootNativeRuntime(toolHome: string): Promise<void> {
-  const nodeVersion = await resolveNodeVersion();
   const options = {
     environment: { TASK_GRAPH_TOOL_HOME: toolHome },
-    nodeVersion
+    nodeVersion: await resolveNodeVersion()
   };
   const info = await getTaskGraphRuntimeInfo(options);
-  await fs.mkdir(info.runtimePath, { recursive: true });
-  await Promise.all([
-    fs.copyFile(
-      path.join(repositoryRoot, "tools", "task-graph", "references", "runtime", "package.json"),
-      path.join(info.runtimePath, "package.json")
-    ),
-    fs.copyFile(
-      path.join(repositoryRoot, "tools", "task-graph", "references", "runtime", "package-lock.json"),
-      path.join(info.runtimePath, "package-lock.json")
-    )
-  ]);
-  await copyRootNativePackages(info.runtimePath);
-  await fs.writeFile(path.join(info.runtimePath, "runtime.json"), `${JSON.stringify({
-    schemaVersion: 1,
-    runtimeId: info.runtimeId,
-    packageLockSha256: info.runtimeId.slice(3),
-    packages: { "fs-native-extensions": "1.5.0" },
-    installedAt: "2026-08-06T08:00:00.000Z",
-    nodeVersion,
-    platform: process.platform,
-    arch: process.arch
-  }, null, 2)}\n`, "utf8");
+  await fs.mkdir(path.join(info.runtimePath, "node_modules"), { recursive: true });
+  await copyPackageClosure(
+    "fs-native-extensions",
+    createRequire(import.meta.url),
+    info.runtimePath,
+    new Set()
+  );
 }
 
 export const uncontendedNativeLock: NativeLockBinding = {

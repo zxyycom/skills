@@ -126,7 +126,7 @@ package script 和完整检查仍只是聚合容器。topic 表与 case 由测�
 | `test:skill-package-hash` | 覆盖 Git 基线、pending 内容和独立版本门禁 |
 | `test:investigation-report-check` | 覆盖分发一致性、索引查询和规模场景 |
 | `test:test-evidence-cli` | 覆盖目录迁移、索引恢复和分发接口场景 |
-| `test:task-graph-cli` | 覆盖图语义、事务写入、并发领取、租约恢复和 JSON CLI 场景 |
+| `test:task-graph-cli` | 覆盖图语义、native runtime、JSON 事务、跨进程互斥、租约恢复和分发场景 |
 
 调整任务档位时，同步本节、`scripts/lib/check-plan.ts` 和对应测试。`pack:skills` 不属于前置任务档位；它只在本次选中的全部前置任务通过后执行。
 
@@ -165,7 +165,7 @@ package script 和完整检查仍只是聚合容器。topic 表与 case 由测�
 1. TypeScript 源码和声明源位于 `tools/`，读取仓库配置并写入 skill 的适配器位于 `scripts/build/`。
 2. `sync:*` 生成自包含单文件 ESM `.mjs`、同名 `.d.mts` 和 linked source map；需要机器契约时同时生成 JSON Schema 和 Schema 派生声明。
 3. 生成模块可被导入而不执行 CLI、修改退出状态或产生文件和网络副作用；只有作为主模块运行时进入 CLI。
-4. 分发产物只能依赖目标运行时和包内内容。共享源码由构建器内联，不形成跨 skill 运行时前置。Task-graph 由包内自包含 ESM 加同一 skill 显式安装、验证的 native runtime 扩展共同交付；该例外不改变通用 updater 或其他工具的分发边界。
+4. 分发产物只能依赖目标运行时和包内内容。共享源码由构建器内联，不形成跨 skill 运行时前置。Task-graph 的包内 ESM 保持自包含；mutation 另行加载调用方按该 skill 指引配置、并由 CLI 探测的 native runtime 扩展。该扩展不属于 skill 制品，也不改变通用 updater 或其他工具的分发边界。
 5. 可嵌入注释的生成产物必须写明禁止直接编辑、仓库与维护源码、skill 源目录和重建命令；生成头不写时间戳或本机绝对路径。
 6. `check:*` 在临时目录重建并逐字节比较产物。`pack:skills` 不临时构建，只收集已经进入版本管理 `pending` 快照的 `skills/<skill-name>/` 稳定分发输入。
 
@@ -176,7 +176,7 @@ package script 和完整检查仍只是聚合容器。topic 表与 case 由测�
 | `tools/change-plan/` | `skills/change-plan/scripts/change-plan.*` |
 | `tools/decision-records/` | `skills/decision-records/scripts/decision-records.*` 和索引 Schema |
 | `tools/investigation-report/` | `skills/investigation-report/scripts/check-investigations.*` 和索引 Schema |
-| `tools/task-graph/` | `skills/task-graph/scripts/task-graph.*`、task index Schema 和 native runtime 精确文本资产 |
+| `tools/task-graph/` | `skills/task-graph/scripts/task-graph.*` 和 task index Schema |
 | `tools/skill-validator/` | `skills/skill-maintainer/scripts/validate-skill.*` |
 | `tools/test-evidence/` | `skills/test-evidence-review/scripts/` 与 `references/schemas/` 中的生成产物 |
 | `tools/skill-updater/` | 每个 skill 的 `scripts/update-skill.*`；具体契约见 [Skill Updater](../tools/skill-updater/README.md) |

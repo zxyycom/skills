@@ -341,11 +341,12 @@ function projectOneTask(
     dependents: [...(dependents.get(taskId) ?? [])]
   };
   if (phase !== "idle") {
+    const effectiveState = directEffectiveState(scope, taskId, now);
     return {
       ...commonProjection,
-      effectiveState: directEffectiveState(scope, taskId, now),
+      effectiveState,
       blockers: [],
-      nextAction: null
+      nextAction: effectiveState === "recovery-needed" ? "claim" : null
     };
   }
   const blockers: TaskBlocker[] = [];
@@ -531,8 +532,7 @@ export function projectScope(
     tasks[taskId] = projectOneTask(scope, taskId, now, children, dependents);
   }
   const actionableOrder = Object.keys(tasks).filter(
-    (taskId) => tasks[taskId]?.effectiveState === "ready"
-      && tasks[taskId]?.nextAction !== null
+    (taskId) => tasks[taskId]?.nextAction !== null
   );
   return {
     scopeId,

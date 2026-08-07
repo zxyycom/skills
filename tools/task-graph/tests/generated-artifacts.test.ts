@@ -118,7 +118,6 @@ async function copyTaskGraphBuildCheckout(targetRoot: string): Promise<void> {
     "scripts/lib",
     "tools/shared/src",
     "tools/task-graph/api",
-    "tools/task-graph/references",
     "tools/task-graph/src"
   ]) {
     const source = path.join(repositoryRoot, relativePath);
@@ -149,8 +148,6 @@ const publicRuntimeExports = [
   "parseTaskGraphApplyRequest",
   "parseTaskIndex",
   "projectScope",
-  "queryScopeGc",
-  "recoverTask",
   "releaseTask",
   "renewTaskLease",
   "retryTask",
@@ -201,11 +198,10 @@ test("generated distribution matches source API, schema bytes, and portable meta
     "TaskMutationPrecondition",
     "CompleteTaskOptions",
     "CancelTaskOptions",
-    "RecoverTaskOptions",
+    "ClaimTaskOptions",
     "TaskGraphApplyRequest",
     "TaskGraphRuntimeInfo",
-    "TaskGraphRuntimeInstallResult",
-    "TaskGraphRuntimeCheckResult",
+    "TaskGraphRuntimeInstallCommand",
     "ScopeProjection",
     "TaskGraphServiceOptions",
     "TaskGraphCliOptions"
@@ -224,7 +220,9 @@ test("generated distribution matches source API, schema bytes, and portable meta
     "processState",
     "NativeLockBinding",
     "RuntimeInstallInternalOptions",
-    "NpmCommandRequest",
+    "RuntimeCommandRequest",
+    "RuntimeCommandResult",
+    "runRuntimeCommand",
     "AtomicWrite",
     "commandRunner",
     "probeCommandRunner"
@@ -264,45 +262,6 @@ test("generated distribution matches source API, schema bytes, and portable meta
   assert.equal(script.includes(repositoryRoot), false);
   assert.equal(script.includes(repositoryRoot.replaceAll("\\", "\\\\")), false);
 
-  for (const name of ["package.json", "package-lock.json"]) {
-    const source = await fs.readFile(path.join(
-      repositoryRoot,
-      "tools",
-      "task-graph",
-      "references",
-      "runtime",
-      name
-    ));
-    const generated = await fs.readFile(path.join(
-      repositoryRoot,
-      "skills",
-      "task-graph",
-      "references",
-      "runtime",
-      name
-    ));
-    assert.deepEqual(generated, source);
-  }
-  const runtimeLock = JSON.parse(await fs.readFile(path.join(
-    repositoryRoot,
-    "skills",
-    "task-graph",
-    "references",
-    "runtime",
-    "package-lock.json"
-  ), "utf8")) as {
-    lockfileVersion: number;
-    packages: Record<string, { dependencies?: Record<string, string>; integrity?: string }>;
-  };
-  assert.equal(runtimeLock.lockfileVersion, 3);
-  assert.deepEqual(runtimeLock.packages[""]?.dependencies, {
-    "fs-native-extensions": "1.5.0"
-  });
-  assert.equal(
-    typeof runtimeLock.packages["node_modules/fs-native-extensions"]?.integrity,
-    "string"
-  );
-
   const convertedSchema = toJsonSchema(taskIndexSchema, {
     errorMode: "ignore",
     overrideAction: taskGraphJsonSchemaOverrideAction,
@@ -315,7 +274,7 @@ test("generated distribution matches source API, schema bytes, and portable meta
     $comment:
       "Safe-integer ID suffixes, real RFC 3339 instants, cross-field, topology, "
       + "revision, lease, and canonical-form invariants are validated by the "
-      + "task-graph CLI check command.",
+      + "task-graph CLI info command.",
     title: "TaskGraphIndex"
   };
   assert.equal(
@@ -456,7 +415,7 @@ test("generated module import is side-effect free in an empty tool home under su
   });
 });
 
-test("generated Node CLI loads only the isolated runtime and mutates offline after installation", async () => {
+test("generated Node CLI probes the isolated runtime and mutates offline", async () => {
   await withTempWorkspace(async (root) => {
     const toolHome = path.join(root, "tool-home");
     const workspace = path.join(root, "workspace");
@@ -465,7 +424,7 @@ test("generated Node CLI loads only the isolated runtime and mutates offline aft
     const checked = await execFileAsync(await resolveNodeExecutable(), [
       generatedScriptPath,
       "runtime",
-      "check",
+      "info",
       "--root",
       workspace
     ], { cwd: root, env: environment, windowsHide: true });
@@ -485,16 +444,16 @@ test("generated Node CLI loads only the isolated runtime and mutates offline aft
     ], { cwd: root, env: environment, windowsHide: true });
     assert.equal(initialized.stderr, "");
     assert.equal((JSON.parse(initialized.stdout) as { ok: boolean }).ok, true);
-    assert.equal((await fs.stat(path.join(
+    await assert.rejects(fs.stat(path.join(
       workspace,
       "docs",
       "task-graph",
       "task-graph-index.json.lock"
-    ))).isFile(), true);
+    )), { code: "ENOENT" });
   });
 });
 
-test("distributed task-graph tree contains text runtime assets and no native or install artifacts", async () => {
+test("distributed task-graph tree contains no native runtime or install artifacts", async () => {
   const skillRoot = path.join(repositoryRoot, "skills", "task-graph");
   const pending = [skillRoot];
   const files: string[] = [];
@@ -507,8 +466,7 @@ test("distributed task-graph tree contains text runtime assets and no native or 
       else files.push(path.relative(skillRoot, target).replaceAll("\\", "/"));
     }
   }
-  assert.ok(files.includes("references/runtime/package.json"));
-  assert.ok(files.includes("references/runtime/package-lock.json"));
+  assert.ok(files.every((name) => !name.startsWith("references/runtime/")));
   assert.ok(files.every((name) => !name.endsWith(".node")));
   assert.ok(files.every((name) => !name.includes("/.install-") && !name.includes("npm-cache")));
 });

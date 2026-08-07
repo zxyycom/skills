@@ -40,7 +40,12 @@ export type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
 export type JsonObject = { [key: string]: JsonValue };
 export type Clock = () => Date;
 
-export type TaskGraphRuntimeState = "missing" | "installed" | "invalid";
+export type TaskGraphRuntimeState = "missing" | "compatible" | "incompatible";
+
+export type TaskGraphRuntimeInstallCommand = {
+  command: "npm";
+  args: string[];
+};
 
 export type TaskGraphRuntimeInfo = {
   runtimeId: string;
@@ -49,17 +54,12 @@ export type TaskGraphRuntimeInfo = {
   runtimePath: string;
   toolHomeSource: "default" | "environment";
   state: TaskGraphRuntimeState;
+  compatible: boolean;
+  reason: string | null;
+  installCommand: TaskGraphRuntimeInstallCommand | null;
   nodeVersion: string;
   platform: string;
   arch: string;
-};
-
-export type TaskGraphRuntimeInstallResult = TaskGraphRuntimeInfo & {
-  action: "installed" | "reused";
-};
-
-export type TaskGraphRuntimeCheckResult = TaskGraphRuntimeInfo & {
-  compatible: true;
 };
 
 export type TaskControl =
@@ -106,14 +106,22 @@ export type CancelTaskOptions = {
   reason: string;
 } & TaskMutationPrecondition;
 
-export type RecoverTaskOptions = {
+export type ClaimTaskOptions = {
   scopeId: string;
   taskId: string;
-  leaseId: string;
-  reason: string;
+  actor: string;
+  durationSeconds?: number;
 } & (
-  | { force: true; expectedRevision: number }
-  | { force?: false; expectedRevision?: never }
+  | {
+      recoverLeaseId: string;
+      expectedRevision: number;
+      reason: string;
+    }
+  | {
+      recoverLeaseId?: never;
+      expectedRevision?: never;
+      reason?: never;
+    }
 );
 
 export type TaskContent = {
@@ -253,10 +261,8 @@ export type TaskGraphErrorCode =
   | "INDEX_READ_FAILED"
   | "INDEX_INVALID"
   | "SCHEMA_UNSUPPORTED"
-  | "PATH_SYMLINK"
   | "RUNTIME_MISSING"
   | "RUNTIME_UNSUPPORTED"
-  | "RUNTIME_INSTALL_FAILED"
   | "RUNTIME_INCOMPATIBLE"
   | "LOCK_TIMEOUT"
   | "REVISION_CONFLICT"
@@ -411,17 +417,6 @@ export type ScopeCloseProjection = {
   taskCount: number;
 };
 
-export type ScopeGcProjection = {
-  revision: number;
-  scopes: Record<string, ScopeCloseProjection>;
-  scopeOrder: string[];
-};
-
-export type ScopeCloseRequest = {
-  scopeId: string;
-  resultsDelivered: true;
-};
-
 export type IndexMutation<TData> = {
   index: TaskIndex;
   data: TData;
@@ -435,13 +430,7 @@ export declare function applyTaskGraphOperations(
 
 export declare function claimTask(
   current: TaskIndex,
-  options: {
-    scopeId: string;
-    taskId: string;
-    actor: string;
-    durationSeconds?: number;
-    leaseUuid: string;
-  },
+  options: ClaimTaskOptions & { leaseUuid: string },
   now: Date
 ): IndexMutation<{ taskId: string; leaseId: string; expiresAt: string }>;
 
@@ -496,22 +485,11 @@ export declare function cancelTask(
   now: Date
 ): IndexMutation<{ taskId: string; cancelledTaskIds: string[] }>;
 
-export declare function recoverTask(
-  current: TaskIndex,
-  options: RecoverTaskOptions,
-  now: Date
-): IndexMutation<{ taskId: string; phase: "failed"; forced: boolean }>;
-
 export declare function scopeCloseProjection(
   index: TaskIndex,
   scopeId: string,
   now: Date
 ): ScopeCloseProjection;
-
-export declare function queryScopeGc(
-  index: TaskIndex,
-  now: Date
-): ScopeGcProjection;
 
 type CloseScopesResult = {
   closedScopeIds: string[];
@@ -520,7 +498,11 @@ type CloseScopesResult = {
 
 export declare function closeScopes(
   current: TaskIndex,
-  options: { expectedRevision: number; scopes: ScopeCloseRequest[] },
+  options: {
+    expectedRevision: number;
+    scopeIds: string[];
+    resultsDelivered: true;
+  },
   now: Date
 ): IndexMutation<CloseScopesResult>;
 
@@ -535,20 +517,10 @@ export declare function projectScope(
 ): ScopeProjection;
 export declare function validateTaskIndexGraph(index: TaskIndex): string[];
 
-type TaskIndexDiagnosticCode =
-  | "index-invalid"
-  | "index-not-canonical"
-  | "index-read-failed"
-  | "schema-unsupported";
-
-export type TaskIndexCheck = {
-  valid: boolean;
-  canonical: boolean;
-  diagnostics: Array<{ code: TaskIndexDiagnosticCode; message: string }>;
-  revision: number | null;
-};
-
 export type TaskIndexInfo = {
+  valid: true;
+  canonical: boolean;
+  diagnostics: Array<{ code: "index-not-canonical"; message: string }>;
   revision: number;
   schemaVersion: 1;
   scopeCount: number;
@@ -573,6 +545,7 @@ export type ScopeSummary = {
   bindings: Record<string, string>;
   taskCount: number;
   topTaskCount: number;
+  close: ScopeCloseProjection;
 };
 
 export type ListScopesOptions = { key?: string } & (
@@ -593,64 +566,13 @@ export declare class TaskGraphService {
   constructor(options?: TaskGraphServiceOptions);
   init(): Promise<ServiceResult<TaskIndexInfo>>;
   info(): Promise<ServiceResult<TaskIndexInfo>>;
-  check(): Promise<{ revision: number | null; data: TaskIndexCheck }>;
   readIndex(): Promise<ServiceResult<TaskIndex>>;
   apply(request: TaskGraphApplyRequest): Promise<ServiceResult<TaskGraphApplyResult>>;
-  createScope(options: {
-    expectedRevision: number;
-    key: string;
-    bindings?: Record<string, string>;
-  }): Promise<ServiceResult<{ scopeId: string }>>;
-  setScopeBinding(options: {
-    expectedRevision: number;
-    scopeId: string;
-    kind: string;
-    value: string | null;
-  }): Promise<ServiceResult<{ scopeId: string }>>;
   listScopes(options?: ListScopesOptions): Promise<ServiceResult<Record<string, ScopeSummary>>>;
   showScope(scopeId: string): Promise<ServiceResult<{
     scope: TaskScope;
     projection: ScopeProjection;
   }>>;
-  createTask(options: {
-    expectedRevision: number;
-    scopeId: string;
-    content: TaskContentInput;
-    parentId?: string | null;
-    control?: TaskControlInput;
-  }): Promise<ServiceResult<{ taskId: string }>>;
-  updateTaskContent(options: {
-    expectedRevision: number;
-    scopeId: string;
-    taskId: string;
-    content: TaskContentInput;
-  }): Promise<ServiceResult<{ taskId: string }>>;
-  updateTaskControl(options: {
-    expectedRevision: number;
-    scopeId: string;
-    taskId: string;
-    control: TaskControlInput;
-  }): Promise<ServiceResult<{ taskId: string }>>;
-  setParent(options: {
-    expectedRevision: number;
-    scopeId: string;
-    taskId: string;
-    parentId: string | null;
-  }): Promise<ServiceResult<{ taskId: string }>>;
-  setDependency(options: {
-    expectedRevision: number;
-    scopeId: string;
-    taskId: string;
-    dependencyId: string;
-    present: boolean;
-  }): Promise<ServiceResult<{ taskId: string }>>;
-  setExclusion(options: {
-    expectedRevision: number;
-    scopeId: string;
-    taskId: string;
-    excludedTaskId: string;
-    present: boolean;
-  }): Promise<ServiceResult<{ taskId: string; excludedTaskId: string }>>;
   listTasks(scopeId: string): Promise<ServiceResult<Record<string, TaskSummary>>>;
   showTask(scopeId: string, taskId: string): Promise<ServiceResult<{
     task: TaskEntry;
@@ -664,12 +586,9 @@ export declare class TaskGraphService {
     task: TaskEntry;
     projection: TaskProjection;
   }>>;
-  claim(options: {
-    scopeId: string;
-    taskId: string;
-    actor: string;
-    durationSeconds?: number;
-  }): Promise<ServiceResult<{ taskId: string; leaseId: string; expiresAt: string }>>;
+  claim(options: ClaimTaskOptions): Promise<
+    ServiceResult<{ taskId: string; leaseId: string; expiresAt: string }>
+  >;
   renew(options: {
     scopeId: string;
     taskId: string;
@@ -699,18 +618,10 @@ export declare class TaskGraphService {
   cancel(options: CancelTaskOptions): Promise<
     ServiceResult<{ taskId: string; cancelledTaskIds: string[] }>
   >;
-  recover(options: RecoverTaskOptions): Promise<
-    ServiceResult<{ taskId: string; phase: "failed"; forced: boolean }>
-  >;
-  queryGc(): Promise<ServiceResult<ScopeGcProjection>>;
-  closeScope(options: {
+  closeScopes(options: {
     expectedRevision: number;
-    scopeId: string;
+    scopeIds: string[];
     resultsDelivered: true;
-  }): Promise<ServiceResult<CloseScopesResult>>;
-  closeScopeSet(options: {
-    expectedRevision: number;
-    scopes: ScopeCloseRequest[];
   }): Promise<ServiceResult<CloseScopesResult>>;
 }
 

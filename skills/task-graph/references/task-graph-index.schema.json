@@ -506,6 +506,6 @@
   "additionalProperties": false,
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/zxyycom/skills/main/skills/task-graph/references/task-graph-index.schema.json",
-  "$comment": "Safe-integer ID suffixes, real RFC 3339 instants, cross-field, topology, revision, lease, and canonical-form invariants are validated by the task-graph CLI check command.",
+  "$comment": "Safe-integer ID suffixes, real RFC 3339 instants, cross-field, topology, revision, lease, and canonical-form invariants are validated by the task-graph CLI info command.",
   "title": "TaskGraphIndex"
 }

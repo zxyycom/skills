@@ -76,14 +76,22 @@ export type CancelTaskOptions = {
   reason: string;
 } & TaskMutationPrecondition;
 
-export type RecoverTaskOptions = {
+export type ClaimTaskOptions = {
   scopeId: string;
   taskId: string;
-  leaseId: string;
-  reason: string;
+  actor: string;
+  durationSeconds?: number;
 } & (
-  | { force: true; expectedRevision: number }
-  | { force?: false; expectedRevision?: never }
+  | {
+      recoverLeaseId: string;
+      expectedRevision: number;
+      reason: string;
+    }
+  | {
+      recoverLeaseId?: never;
+      expectedRevision?: never;
+      reason?: never;
+    }
 );
 
 export type TaskContent = {
@@ -218,10 +226,8 @@ export type TaskGraphErrorCode =
   | "INDEX_READ_FAILED"
   | "INDEX_INVALID"
   | "SCHEMA_UNSUPPORTED"
-  | "PATH_SYMLINK"
   | "RUNTIME_MISSING"
   | "RUNTIME_UNSUPPORTED"
-  | "RUNTIME_INSTALL_FAILED"
   | "RUNTIME_INCOMPATIBLE"
   | "LOCK_TIMEOUT"
   | "REVISION_CONFLICT"
@@ -269,7 +275,12 @@ export type TaskGraphResult<TData = unknown> =
 
 export type Clock = () => Date;
 
-export type TaskGraphRuntimeState = "missing" | "installed" | "invalid";
+export type TaskGraphRuntimeState = "missing" | "compatible" | "incompatible";
+
+export type TaskGraphRuntimeInstallCommand = {
+  command: "npm";
+  args: string[];
+};
 
 export type TaskGraphRuntimeInfo = {
   runtimeId: string;
@@ -278,17 +289,12 @@ export type TaskGraphRuntimeInfo = {
   runtimePath: string;
   toolHomeSource: "default" | "environment";
   state: TaskGraphRuntimeState;
+  compatible: boolean;
+  reason: string | null;
+  installCommand: TaskGraphRuntimeInstallCommand | null;
   nodeVersion: string;
   platform: string;
   arch: string;
-};
-
-export type TaskGraphRuntimeInstallResult = TaskGraphRuntimeInfo & {
-  action: "installed" | "reused";
-};
-
-export type TaskGraphRuntimeCheckResult = TaskGraphRuntimeInfo & {
-  compatible: true;
 };
 
 export type TaskContentInput = {
@@ -402,15 +408,4 @@ export type ScopeCloseProjection = {
   blockers: ScopeCloseBlocker[];
   requiresResultsDelivered: true;
   taskCount: number;
-};
-
-export type ScopeGcProjection = {
-  revision: number;
-  scopes: Record<string, ScopeCloseProjection>;
-  scopeOrder: string[];
-};
-
-export type ScopeCloseRequest = {
-  scopeId: string;
-  resultsDelivered: true;
 };

@@ -6,11 +6,9 @@ import process from "node:process";
 import { isMainModule } from "../../shared/src/node/main-module.ts";
 import { TaskGraphError } from "./errors.ts";
 import {
-  checkTaskGraphRuntime,
   getTaskGraphRuntimeInfo,
-  installTaskGraphRuntime,
   loadNativeLockBinding,
-  type RuntimeInstallInternalOptions
+  type RuntimeContextOptions
 } from "./runtime.ts";
 import { parseTaskGraphApplyRequest } from "./schema.ts";
 import {
@@ -44,7 +42,7 @@ export type TaskGraphCliOptions = {
 
 type TaskGraphCliInternalOptions = {
   io?: CliIo;
-  runtimeOptions?: RuntimeInstallInternalOptions;
+  runtimeOptions?: RuntimeContextOptions;
   serviceOptions?: Omit<TaskGraphServiceInternalOptions, "root" | "indexPath">;
 };
 
@@ -83,6 +81,7 @@ type CommandHelp = {
   };
   options: readonly HelpParameter[];
   positionals: readonly HelpParameter[];
+  requiresMutationRuntime?: true;
   usage: string;
 };
 
@@ -115,11 +114,13 @@ const controlHelp = [
 
 const commandHelpCatalog = {
   "runtime info": { usage: "task-graph runtime info", positionals: [], options: [] },
-  "runtime install": { usage: "task-graph runtime install", positionals: [], options: [] },
-  "runtime check": { usage: "task-graph runtime check", positionals: [], options: [] },
-  "index init": { usage: "task-graph index init", positionals: [], options: [] },
+  "index init": {
+    usage: "task-graph index init",
+    positionals: [],
+    options: [],
+    requiresMutationRuntime: true
+  },
   "index info": { usage: "task-graph index info", positionals: [], options: [] },
-  "index check": { usage: "task-graph index check", positionals: [], options: [] },
   "scope create": {
     usage: "task-graph scope create --key <key> --expected-revision <n> [--binding <kind=value> ...]",
     positionals: [],
@@ -127,7 +128,8 @@ const commandHelpCatalog = {
       { name: "--key", required: true, type: "string" },
       expectedRevisionHelp,
       { name: "--binding", required: false, type: "key-value", multiple: true }
-    ]
+    ],
+    requiresMutationRuntime: true
   },
   "scope list": {
     usage: "task-graph scope list [--key <key>] [--binding <kind=value>]",
@@ -144,30 +146,24 @@ const commandHelpCatalog = {
   "scope binding-set": {
     usage: "task-graph scope binding-set <scope-id> <kind> <value> --expected-revision <n>",
     positionals: [positional("scope-id"), positional("kind"), positional("value")],
-    options: [expectedRevisionHelp]
+    options: [expectedRevisionHelp],
+    requiresMutationRuntime: true
   },
   "scope binding-remove": {
     usage: "task-graph scope binding-remove <scope-id> <kind> --expected-revision <n>",
     positionals: [positional("scope-id"), positional("kind")],
-    options: [expectedRevisionHelp]
+    options: [expectedRevisionHelp],
+    requiresMutationRuntime: true
   },
   "scope close": {
-    usage: "task-graph scope close <scope-id> --expected-revision <n> --results-delivered",
-    positionals: [positional("scope-id")],
-    options: [
-      expectedRevisionHelp,
-      { name: "--results-delivered", required: true, type: "boolean" }
-    ]
-  },
-  "scope gc-query": { usage: "task-graph scope gc-query", positionals: [], options: [] },
-  "scope gc": {
-    usage: "task-graph scope gc --scope <id> --results-delivered <id> --expected-revision <n>",
+    usage: "task-graph scope close --scope <id>... --expected-revision <n> --results-delivered",
     positionals: [],
     options: [
       { name: "--scope", required: true, type: "string", multiple: true },
-      { name: "--results-delivered", required: true, type: "string", multiple: true },
-      expectedRevisionHelp
-    ]
+      expectedRevisionHelp,
+      { name: "--results-delivered", required: true, type: "boolean" }
+    ],
+    requiresMutationRuntime: true
   },
   "task create": {
     usage: "task-graph task create <scope-id> --title <text> --goal <text> --acceptance <text> --expected-revision <n> [options]",
@@ -178,7 +174,8 @@ const commandHelpCatalog = {
       { name: "--control", required: false, type: "string", enum: taskControlModes },
       { name: "--reason", required: false, type: "string" },
       expectedRevisionHelp
-    ]
+    ],
+    requiresMutationRuntime: true
   },
   "task list": {
     usage: "task-graph task list <scope-id>",
@@ -191,37 +188,44 @@ const commandHelpCatalog = {
   "task update-content": {
     usage: "task-graph task update-content <scope-id> <task-id> --title <text> --goal <text> --acceptance <text> --expected-revision <n>",
     positionals: [positional("scope-id"), positional("task-id")],
-    options: [...contentHelp, expectedRevisionHelp]
+    options: [...contentHelp, expectedRevisionHelp],
+    requiresMutationRuntime: true
   },
   "task update-control": {
     usage: "task-graph task update-control <scope-id> <task-id> --control <mode> --expected-revision <n> [--reason <text>]",
     positionals: [positional("scope-id"), positional("task-id")],
-    options: [...controlHelp, expectedRevisionHelp]
+    options: [...controlHelp, expectedRevisionHelp],
+    requiresMutationRuntime: true
   },
   "relation parent": {
     usage: "task-graph relation parent <scope-id> <task-id> <parent-id|null> --expected-revision <n>",
     positionals: [positional("scope-id"), positional("task-id"), positional("parent-id|null")],
-    options: [expectedRevisionHelp]
+    options: [expectedRevisionHelp],
+    requiresMutationRuntime: true
   },
   "relation dependency-add": {
     usage: "task-graph relation dependency-add <scope-id> <task-id> <dependency-id> --expected-revision <n>",
     positionals: [positional("scope-id"), positional("task-id"), positional("dependency-id")],
-    options: [expectedRevisionHelp]
+    options: [expectedRevisionHelp],
+    requiresMutationRuntime: true
   },
   "relation dependency-remove": {
     usage: "task-graph relation dependency-remove <scope-id> <task-id> <dependency-id> --expected-revision <n>",
     positionals: [positional("scope-id"), positional("task-id"), positional("dependency-id")],
-    options: [expectedRevisionHelp]
+    options: [expectedRevisionHelp],
+    requiresMutationRuntime: true
   },
   "relation exclusion-add": {
     usage: "task-graph relation exclusion-add <scope-id> <task-id> <excluded-id> --expected-revision <n>",
     positionals: [positional("scope-id"), positional("task-id"), positional("excluded-id")],
-    options: [expectedRevisionHelp]
+    options: [expectedRevisionHelp],
+    requiresMutationRuntime: true
   },
   "relation exclusion-remove": {
     usage: "task-graph relation exclusion-remove <scope-id> <task-id> <excluded-id> --expected-revision <n>",
     positionals: [positional("scope-id"), positional("task-id"), positional("excluded-id")],
-    options: [expectedRevisionHelp]
+    options: [expectedRevisionHelp],
+    requiresMutationRuntime: true
   },
   actionable: {
     usage: "task-graph actionable <scope-id>",
@@ -232,12 +236,16 @@ const commandHelpCatalog = {
     positionals: [positional("scope-id"), positional("task-id")], options: []
   },
   claim: {
-    usage: "task-graph claim <scope-id> <task-id> --actor <actor> [--duration <seconds>]",
+    usage: "task-graph claim <scope-id> <task-id> --actor <actor> [--duration <seconds>] [--recover-lease <id> --expected-revision <n> --reason <text>]",
     positionals: [positional("scope-id"), positional("task-id")],
     options: [
       { name: "--actor", required: true, type: "string" },
-      { name: "--duration", required: false, type: "integer", default: 1800 }
-    ]
+      { name: "--duration", required: false, type: "integer", default: 1800 },
+      { name: "--recover-lease", required: false, type: "string" },
+      { ...expectedRevisionHelp, required: false },
+      { name: "--reason", required: false, type: "string" }
+    ],
+    requiresMutationRuntime: true
   },
   renew: {
     usage: "task-graph renew <scope-id> <task-id> --lease <id> [--duration <seconds>]",
@@ -245,12 +253,14 @@ const commandHelpCatalog = {
     options: [
       { name: "--lease", required: true, type: "string" },
       { name: "--duration", required: false, type: "integer", default: 1800 }
-    ]
+    ],
+    requiresMutationRuntime: true
   },
   release: {
     usage: "task-graph release <scope-id> <task-id> --lease <id> --control <mode> [--reason <text>]",
     positionals: [positional("scope-id"), positional("task-id")],
-    options: [{ name: "--lease", required: true, type: "string" }, ...controlHelp]
+    options: [{ name: "--lease", required: true, type: "string" }, ...controlHelp],
+    requiresMutationRuntime: true
   },
   complete: {
     usage: "task-graph complete <scope-id> <task-id> --result-summary <text> (--lease <id>|--expected-revision <n>) [--result-reference <kind=value> ...]",
@@ -260,7 +270,8 @@ const commandHelpCatalog = {
       { name: "--result-reference", required: false, type: "key-value", multiple: true },
       { name: "--lease", required: false, type: "string" },
       { ...expectedRevisionHelp, required: false }
-    ]
+    ],
+    requiresMutationRuntime: true
   },
   fail: {
     usage: "task-graph fail <scope-id> <task-id> --lease <id> --reason <text>",
@@ -268,12 +279,14 @@ const commandHelpCatalog = {
     options: [
       { name: "--lease", required: true, type: "string" },
       { name: "--reason", required: true, type: "string" }
-    ]
+    ],
+    requiresMutationRuntime: true
   },
   retry: {
     usage: "task-graph retry <scope-id> <task-id> --expected-revision <n>",
     positionals: [positional("scope-id"), positional("task-id")],
-    options: [expectedRevisionHelp]
+    options: [expectedRevisionHelp],
+    requiresMutationRuntime: true
   },
   cancel: {
     usage: "task-graph cancel <scope-id> <task-id> --reason <text> (--lease <id>|--expected-revision <n>)",
@@ -282,57 +295,34 @@ const commandHelpCatalog = {
       { name: "--reason", required: true, type: "string" },
       { name: "--lease", required: false, type: "string" },
       { ...expectedRevisionHelp, required: false }
-    ]
-  },
-  recover: {
-    usage: "task-graph recover <scope-id> <task-id> --lease <id> --reason <text> [--force --expected-revision <n>]",
-    positionals: [positional("scope-id"), positional("task-id")],
-    options: [
-      { name: "--lease", required: true, type: "string" },
-      { name: "--reason", required: true, type: "string" },
-      { name: "--force", required: false, type: "boolean", default: false },
-      { ...expectedRevisionHelp, required: false }
-    ]
+    ],
+    requiresMutationRuntime: true
   },
   apply: {
     usage: "task-graph apply [--file <path>]",
     positionals: [],
     options: [{ name: "--file", required: false, type: "string", default: "stdin" }],
-    input: { default: "stdin", fileOption: "--file", format: "json" }
+    input: { default: "stdin", fileOption: "--file", format: "json" },
+    requiresMutationRuntime: true
   }
 } as const satisfies Record<string, CommandHelp>;
 
 const commandPaths = Object.keys(commandHelpCatalog).sort();
 
-const mutationCommandPaths = new Set([
-  "index init",
-  "scope create",
-  "scope binding-set",
-  "scope binding-remove",
-  "scope close",
-  "scope gc",
-  "task create",
-  "task update-content",
-  "task update-control",
-  "relation parent",
-  "relation dependency-add",
-  "relation dependency-remove",
-  "relation exclusion-add",
-  "relation exclusion-remove",
-  "claim",
-  "renew",
-  "release",
-  "complete",
-  "fail",
-  "retry",
-  "cancel",
-  "recover",
-  "apply"
-]);
+type CommandPath = keyof typeof commandHelpCatalog;
 
-function isMutationInvocation(tokens: readonly string[]): boolean {
+function resolveCommandPath(tokens: readonly string[]): CommandPath | null {
   const twoPart = tokens.slice(0, 2).join(" ");
-  return mutationCommandPaths.has(twoPart) || mutationCommandPaths.has(tokens[0] ?? "");
+  if (Object.hasOwn(commandHelpCatalog, twoPart)) return twoPart as CommandPath;
+  const onePart = tokens[0] ?? "";
+  return Object.hasOwn(commandHelpCatalog, onePart) ? onePart as CommandPath : null;
+}
+
+function requiresMutationRuntime(tokens: readonly string[]): boolean {
+  const command = resolveCommandPath(tokens);
+  if (command === null) return false;
+  const entry: CommandHelp = commandHelpCatalog[command];
+  return entry.requiresMutationRuntime === true;
 }
 
 function failArgument(message: string, details: JsonObject = {}): never {
@@ -531,13 +521,7 @@ const contentOptionDefinitions = {
 } as const satisfies Record<string, OptionDefinition>;
 
 function helpData(pathTokens: readonly string[]) {
-  const twoPart = pathTokens.slice(0, 2).join(" ");
-  const onePart = pathTokens[0] ?? "";
-  const command = Object.hasOwn(commandHelpCatalog, twoPart)
-    ? twoPart
-    : Object.hasOwn(commandHelpCatalog, onePart)
-      ? onePart
-      : null;
+  const command = resolveCommandPath(pathTokens);
   if (pathTokens.length > 0 && command === null) {
     failArgument("Unknown task-graph help command", {
       command: pathTokens.slice(0, 2).join(" ")
@@ -545,7 +529,7 @@ function helpData(pathTokens: readonly string[]) {
   }
   const entry: CommandHelp | null = command === null
     ? null
-    : commandHelpCatalog[command as keyof typeof commandHelpCatalog];
+    : commandHelpCatalog[command];
   return {
     command,
     usage: entry?.usage
@@ -563,8 +547,9 @@ function helpData(pathTokens: readonly string[]) {
     ],
     runtimeRequirements: {
       supportedNodeRange: taskGraphSupportedNodeRange,
-      mutationPrerequisite: "installed-compatible-runtime",
-      installCommand: ["runtime", "install"]
+      mutationPrerequisite: "compatible-runtime",
+      setupCommand: ["runtime", "info"],
+      installCommandSource: "runtime info data.installCommand"
     },
     commands: command === null ? [...commandPaths] : []
   };
@@ -604,44 +589,24 @@ async function readJsonRequest(filePath: string | undefined): Promise<unknown> {
 async function dispatch(
   service: TaskGraphService,
   tokens: readonly string[],
-  runtimeOptions: RuntimeInstallInternalOptions
+  runtimeOptions: RuntimeContextOptions
 ): Promise<ServiceResult<unknown> | { revision: number | null; data: unknown }> {
   const first = tokens[0];
   const second = tokens[1];
   if (first === "runtime") {
     const parsed = parseCommandOptions(tokens.slice(2), {});
-    requirePositionals(parsed, 0, `task-graph runtime ${second ?? "<info|install|check>"}`);
+    requirePositionals(parsed, 0, `task-graph runtime ${second ?? "<info>"}`);
     if (second === "info") {
       return { revision: null, data: await getTaskGraphRuntimeInfo(runtimeOptions) };
     }
-    if (second === "install") {
-      return { revision: null, data: await installTaskGraphRuntime(runtimeOptions) };
-    }
-    if (second === "check") {
-      return { revision: null, data: await checkTaskGraphRuntime(runtimeOptions) };
-    }
-    failArgument("runtime command must be info, install, or check");
+    failArgument("runtime command must be info");
   }
   if (first === "index") {
     const parsed = parseCommandOptions(tokens.slice(2), {});
-    requirePositionals(parsed, 0, `task-graph index ${second ?? "<init|info|check>"}`);
+    requirePositionals(parsed, 0, `task-graph index ${second ?? "<init|info>"}`);
     if (second === "init") return await service.init();
     if (second === "info") return await service.info();
-    if (second === "check") {
-      const result = await service.check();
-      if (!result.data.valid) {
-        const unsupported = result.data.diagnostics.some(
-          (diagnostic) => diagnostic.code === "schema-unsupported"
-        );
-        throw new TaskGraphError(
-          unsupported ? "SCHEMA_UNSUPPORTED" : "INDEX_INVALID",
-          "Task index check failed",
-          { diagnostics: result.data.diagnostics }
-        );
-      }
-      return result;
-    }
-    failArgument("index command must be init, info, or check");
+    failArgument("index command must be init or info");
   }
 
   if (first === "scope") {
@@ -652,11 +617,17 @@ async function dispatch(
         "expected-revision": { kind: "string" }
       });
       requirePositionals(parsed, 0, "task-graph scope create --key <key> --expected-revision <n>");
-      return await service.createScope({
+      const applied = await service.apply({
         expectedRevision: integerValue(parsed, "expected-revision", { required: true }) ?? 0,
-        key: stringValue(parsed, "key", { required: true }) ?? "",
-        bindings: keyValueDictionary(stringsValue(parsed, "binding"), "--binding")
+        operations: [{
+          kind: "create-scope",
+          key: stringValue(parsed, "key", { required: true }) ?? "",
+          bindings: keyValueDictionary(stringsValue(parsed, "binding"), "--binding")
+        }]
       });
+      const scopeId = applied.data.createdScopeIds[0];
+      if (scopeId === undefined) throw new Error("create-scope mutation returned no scope id");
+      return { revision: applied.revision, data: { scopeId } };
     }
     if (second === "list") {
       const parsed = parseCommandOptions(tokens.slice(2), {
@@ -689,56 +660,38 @@ async function dispatch(
           ? "task-graph scope binding-set <scope-id> <kind> <value> --expected-revision <n>"
           : "task-graph scope binding-remove <scope-id> <kind> --expected-revision <n>"
       );
-      return await service.setScopeBinding({
-        scopeId: positionals[0] ?? "",
-        kind: positionals[1] ?? "",
-        value: second === "binding-set" ? positionals[2] ?? "" : null,
-        expectedRevision: integerValue(parsed, "expected-revision", { required: true }) ?? 0
+      const scopeId = positionals[0] ?? "";
+      const applied = await service.apply({
+        expectedRevision: integerValue(parsed, "expected-revision", { required: true }) ?? 0,
+        operations: [{
+          kind: "set-scope-binding",
+          scopeId,
+          bindingKind: positionals[1] ?? "",
+          value: second === "binding-set" ? positionals[2] ?? "" : null
+        }]
       });
+      return { revision: applied.revision, data: { scopeId } };
     }
     if (second === "close") {
       const parsed = parseCommandOptions(tokens.slice(2), {
+        scope: { kind: "string", multiple: true },
         "expected-revision": { kind: "string" },
         "results-delivered": { kind: "boolean" }
       });
-      const [scopeId = ""] = requirePositionals(
+      requirePositionals(
         parsed,
-        1,
-        "task-graph scope close <scope-id> --expected-revision <n> --results-delivered"
+        0,
+        "task-graph scope close --scope <id>... --expected-revision <n> --results-delivered"
       );
+      const scopeIds = stringsValue(parsed, "scope");
+      if (scopeIds.length === 0) failArgument("--scope is required and may be repeated");
       if (!booleanValue(parsed, "results-delivered")) {
         failArgument("--results-delivered is required");
       }
-      return await service.closeScope({
-        scopeId,
+      return await service.closeScopes({
+        scopeIds,
         expectedRevision: integerValue(parsed, "expected-revision", { required: true }) ?? 0,
         resultsDelivered: true
-      });
-    }
-    if (second === "gc-query") {
-      const parsed = parseCommandOptions(tokens.slice(2), {});
-      requirePositionals(parsed, 0, "task-graph scope gc-query");
-      return await service.queryGc();
-    }
-    if (second === "gc") {
-      const parsed = parseCommandOptions(tokens.slice(2), {
-        scope: { kind: "string", multiple: true },
-        "results-delivered": { kind: "string", multiple: true },
-        "expected-revision": { kind: "string" }
-      });
-      requirePositionals(parsed, 0, "task-graph scope gc --scope <id> --results-delivered <id> --expected-revision <n>");
-      const scopes = stringsValue(parsed, "scope");
-      const delivered = stringsValue(parsed, "results-delivered");
-      if (
-        scopes.length === 0
-        || delivered.length !== scopes.length
-        || scopes.some((scopeId) => !delivered.includes(scopeId))
-      ) {
-        failArgument("Every explicit --scope must have one matching --results-delivered value");
-      }
-      return await service.closeScopeSet({
-        expectedRevision: integerValue(parsed, "expected-revision", { required: true }) ?? 0,
-        scopes: scopes.map((scopeId) => ({ scopeId, resultsDelivered: true }))
       });
     }
     failArgument("Unknown scope command", { command: second ?? null });
@@ -754,13 +707,19 @@ async function dispatch(
         "expected-revision": { kind: "string" }
       });
       const [scopeId = ""] = requirePositionals(parsed, 1, "task-graph task create <scope-id> [options]");
-      return await service.createTask({
-        scopeId,
+      const applied = await service.apply({
         expectedRevision: integerValue(parsed, "expected-revision", { required: true }) ?? 0,
-        content: contentInput(parsed),
-        parentId: stringValue(parsed, "parent"),
-        control: controlInput(stringValue(parsed, "control"), stringValue(parsed, "reason"))
+        operations: [{
+          kind: "create-task",
+          scopeId,
+          content: contentInput(parsed),
+          parentId: stringValue(parsed, "parent"),
+          control: controlInput(stringValue(parsed, "control"), stringValue(parsed, "reason"))
+        }]
       });
+      const taskId = applied.data.createdTaskIds[0];
+      if (taskId === undefined) throw new Error("create-task mutation returned no task id");
+      return { revision: applied.revision, data: { taskId } };
     }
     if (second === "list") {
       const parsed = parseCommandOptions(tokens.slice(2), {});
@@ -778,12 +737,16 @@ async function dispatch(
         "expected-revision": { kind: "string" }
       });
       const [scopeId = "", taskId = ""] = requirePositionals(parsed, 2, "task-graph task update-content <scope-id> <task-id> [options]");
-      return await service.updateTaskContent({
-        scopeId,
-        taskId,
+      const applied = await service.apply({
         expectedRevision: integerValue(parsed, "expected-revision", { required: true }) ?? 0,
-        content: contentInput(parsed)
+        operations: [{
+          kind: "update-task-content",
+          scopeId,
+          taskId,
+          content: contentInput(parsed)
+        }]
       });
+      return { revision: applied.revision, data: { taskId } };
     }
     if (second === "update-control") {
       const parsed = parseCommandOptions(tokens.slice(2), {
@@ -797,12 +760,11 @@ async function dispatch(
         stringValue(parsed, "reason")
       );
       if (control === undefined) failArgument("--control is required");
-      return await service.updateTaskControl({
-        scopeId,
-        taskId,
+      const applied = await service.apply({
         expectedRevision: integerValue(parsed, "expected-revision", { required: true }) ?? 0,
-        control
+        operations: [{ kind: "update-task-control", scopeId, taskId, control }]
       });
+      return { revision: applied.revision, data: { taskId } };
     }
     failArgument("Unknown task command", { command: second ?? null });
   }
@@ -814,32 +776,44 @@ async function dispatch(
     const expectedRevision = integerValue(parsed, "expected-revision", { required: true }) ?? 0;
     if (second === "parent") {
       const [scopeId = "", taskId = "", parent = ""] = requirePositionals(parsed, 3, "task-graph relation parent <scope-id> <task-id> <parent-id|null> --expected-revision <n>");
-      return await service.setParent({
-        scopeId,
-        taskId,
-        parentId: parent === "null" ? null : parent,
-        expectedRevision
+      const applied = await service.apply({
+        expectedRevision,
+        operations: [{
+          kind: "set-parent",
+          scopeId,
+          taskId,
+          parentId: parent === "null" ? null : parent
+        }]
       });
+      return { revision: applied.revision, data: { taskId } };
     }
     if (second === "dependency-add" || second === "dependency-remove") {
       const [scopeId = "", taskId = "", dependencyId = ""] = requirePositionals(parsed, 3, `task-graph relation ${second} <scope-id> <task-id> <dependency-id> --expected-revision <n>`);
-      return await service.setDependency({
-        scopeId,
-        taskId,
-        dependencyId,
-        present: second === "dependency-add",
-        expectedRevision
+      const applied = await service.apply({
+        expectedRevision,
+        operations: [{
+          kind: "set-dependency",
+          scopeId,
+          taskId,
+          dependencyId,
+          present: second === "dependency-add"
+        }]
       });
+      return { revision: applied.revision, data: { taskId } };
     }
     if (second === "exclusion-add" || second === "exclusion-remove") {
       const [scopeId = "", taskId = "", excludedTaskId = ""] = requirePositionals(parsed, 3, `task-graph relation ${second} <scope-id> <task-id> <excluded-id> --expected-revision <n>`);
-      return await service.setExclusion({
-        scopeId,
-        taskId,
-        excludedTaskId,
-        present: second === "exclusion-add",
-        expectedRevision
+      const applied = await service.apply({
+        expectedRevision,
+        operations: [{
+          kind: "set-exclusion",
+          scopeId,
+          taskId,
+          excludedTaskId,
+          present: second === "exclusion-add"
+        }]
       });
+      return { revision: applied.revision, data: { taskId, excludedTaskId } };
     }
     failArgument("Unknown relation command", { command: second ?? null });
   }
@@ -858,15 +832,40 @@ async function dispatch(
   if (first === "claim") {
     const parsed = parseCommandOptions(tokens.slice(1), {
       actor: { kind: "string" },
-      duration: { kind: "string" }
+      duration: { kind: "string" },
+      "recover-lease": { kind: "string" },
+      "expected-revision": { kind: "string" },
+      reason: { kind: "string" }
     });
-    const [scopeId = "", taskId = ""] = requirePositionals(parsed, 2, "task-graph claim <scope-id> <task-id> --actor <actor> [--duration <seconds>]");
-    return await service.claim({
+    const [scopeId = "", taskId = ""] = requirePositionals(
+      parsed,
+      2,
+      "task-graph claim <scope-id> <task-id> --actor <actor> [--recover-lease <id> --expected-revision <n> --reason <text>]"
+    );
+    const recoverLeaseId = stringValue(parsed, "recover-lease");
+    const expectedRevision = integerValue(parsed, "expected-revision");
+    const reason = stringValue(parsed, "reason");
+    const recoveryValueCount = [recoverLeaseId, expectedRevision, reason]
+      .filter((value) => value !== undefined).length;
+    if (recoveryValueCount !== 0 && recoveryValueCount !== 3) {
+      failArgument(
+        "--recover-lease, --expected-revision, and --reason must be provided together"
+      );
+    }
+    const common = {
       scopeId,
       taskId,
       actor: stringValue(parsed, "actor", { required: true }) ?? "",
       durationSeconds: integerValue(parsed, "duration", { minimum: 60, maximum: 86_400 })
-    });
+    };
+    return recoverLeaseId === undefined
+      ? await service.claim(common)
+      : await service.claim({
+          ...common,
+          recoverLeaseId,
+          expectedRevision: expectedRevision ?? 0,
+          reason: reason ?? ""
+        });
   }
   if (first === "renew") {
     const parsed = parseCommandOptions(tokens.slice(1), {
@@ -976,29 +975,6 @@ async function dispatch(
       ? { ...common, leaseId }
       : { ...common, expectedRevision: expectedRevision ?? 0 });
   }
-  if (first === "recover") {
-    const parsed = parseCommandOptions(tokens.slice(1), {
-      lease: { kind: "string" },
-      reason: { kind: "string" },
-      force: { kind: "boolean" },
-      "expected-revision": { kind: "string" }
-    });
-    const [scopeId = "", taskId = ""] = requirePositionals(parsed, 2, "task-graph recover <scope-id> <task-id> --lease <id> --reason <text> [--force --expected-revision <n>]");
-    const force = booleanValue(parsed, "force");
-    const expectedRevision = integerValue(parsed, "expected-revision");
-    if (force !== (expectedRevision !== undefined)) {
-      failArgument("--force and --expected-revision must be provided together");
-    }
-    const common = {
-      scopeId,
-      taskId,
-      leaseId: stringValue(parsed, "lease", { required: true }) ?? "",
-      reason: stringValue(parsed, "reason", { required: true }) ?? ""
-    };
-    return force
-      ? await service.recover({ ...common, force: true, expectedRevision: expectedRevision ?? 0 })
-      : await service.recover(common);
-  }
   if (first === "apply") {
     const parsed = parseCommandOptions(tokens.slice(1), { file: { kind: "string" } });
     requirePositionals(parsed, 0, "task-graph apply [--file <path>|stdin]");
@@ -1018,6 +994,24 @@ function success<TData>(
   return { ok: true, indexPath, revision, data };
 }
 
+function failure(
+  indexPath: string,
+  revision: number | null,
+  error: TaskGraphError
+): TaskGraphFailure {
+  return {
+    ok: false,
+    indexPath,
+    revision,
+    error: {
+      code: error.code,
+      retryable: error.retryable,
+      message: error.message,
+      details: error.details
+    }
+  };
+}
+
 function writeResult(io: CliIo, result: TaskGraphResult): void {
   io.stdout(`${JSON.stringify(result)}\n`);
 }
@@ -1033,17 +1027,7 @@ export async function runTaskGraphCli(
   } catch (error) {
     if (!(error instanceof TaskGraphError)) throw error;
     const fallbackPath = path.resolve(process.cwd(), defaultTaskGraphIndexPath);
-    writeResult(io, {
-      ok: false,
-      indexPath: fallbackPath,
-      revision: null,
-      error: {
-        code: error.code,
-        retryable: error.retryable,
-        message: error.message,
-        details: error.details
-      }
-    });
+    writeResult(io, failure(fallbackPath, null, error));
     return 1;
   }
 
@@ -1062,17 +1046,7 @@ export async function runTaskGraphCli(
       globals.root,
       globals.indexPath ?? defaultTaskGraphIndexPath
     );
-    writeResult(io, {
-      ok: false,
-      indexPath: fallbackPath,
-      revision: null,
-      error: {
-        code: error.code,
-        retryable: error.retryable,
-        message: error.message,
-        details: error.details
-      }
-    });
+    writeResult(io, failure(fallbackPath, null, error));
     return 1;
   }
 
@@ -1093,7 +1067,7 @@ export async function runTaskGraphCli(
       ));
       return 0;
     }
-    if (isMutationInvocation(globals.remaining)) {
+    if (requiresMutationRuntime(globals.remaining)) {
       await assertTaskGraphMutationRuntime(service);
     }
     const result = await dispatch(service, globals.remaining, options.runtimeOptions ?? {});
@@ -1111,18 +1085,7 @@ export async function runTaskGraphCli(
         // The error envelope still remains valid without a readable index.
       }
     }
-    const failure: TaskGraphFailure = {
-      ok: false,
-      indexPath: service.store.indexPath,
-      revision,
-      error: {
-        code: error.code,
-        retryable: error.retryable,
-        message: error.message,
-        details: error.details
-      }
-    };
-    writeResult(io, failure);
+    writeResult(io, failure(service.store.indexPath, revision, error));
     return 1;
   }
 }

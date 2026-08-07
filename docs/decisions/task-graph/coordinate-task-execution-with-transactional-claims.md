@@ -1,6 +1,6 @@
 ---
 title: 通过事务领取协调任务执行
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-06T06:13:52Z
 purpose: 让多个 agent 在共享索引上领取就绪任务，而不重复执行或违反排斥关系。

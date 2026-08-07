@@ -6,8 +6,6 @@ export {
   closeScopes,
   completeTask,
   failTask,
-  queryScopeGc,
-  recoverTask,
   releaseTask,
   renewTaskLease,
   retryTask,

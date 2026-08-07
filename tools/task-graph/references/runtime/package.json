@@ -1,8 +1,0 @@
-{
-  "name": "@skills-workspace/task-graph-native-runtime",
-  "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "fs-native-extensions": "1.5.0"
-  }
-}

@@ -46,6 +46,7 @@ async function callCli(
       clock: () => new Date("2026-08-06T08:00:00.000Z"),
       leaseIdGenerator: uuidSequence(1001),
       loadNativeLock: loadUncontendedNativeLock,
+      lockRoot: path.join(root, "test-locks"),
       ...serviceOptions
     }
   });
@@ -112,13 +113,14 @@ test("CLI help, version, and usage stay inside the single-JSON LF protocol", asy
       assert.equal(help.result.revision, null);
       const data = help.result.data as { commands: string[]; usage: string };
       assert.equal(data.usage.startsWith("task-graph"), true);
-      assert.equal(data.commands.length, 35);
+      assert.equal(data.commands.length, 29);
       assert.deepEqual(
         (help.result.data as { runtimeRequirements: unknown }).runtimeRequirements,
         {
           supportedNodeRange: "^22.22.2 || ^24.15.0 || >=26.0.0",
-          mutationPrerequisite: "installed-compatible-runtime",
-          installCommand: ["runtime", "install"]
+          mutationPrerequisite: "compatible-runtime",
+          setupCommand: ["runtime", "info"],
+          installCommandSource: "runtime info data.installCommand"
         }
       );
       for (const command of data.commands) {
@@ -218,7 +220,6 @@ test("CLI gates every mutation before argument parsing or apply request and inde
         ["scope", "binding-set"],
         ["scope", "binding-remove"],
         ["scope", "close"],
-        ["scope", "gc"],
         ["task", "create"],
         ["task", "update-content"],
         ["task", "update-control"],
@@ -234,7 +235,6 @@ test("CLI gates every mutation before argument parsing or apply request and inde
         ["fail"],
         ["retry"],
         ["cancel"],
-        ["recover"],
         ["apply", "--file", requestPath]
       ];
       for (const args of mutationInvocations) {
@@ -283,10 +283,8 @@ test("CLI domain read-only commands run without an installed runtime", async () 
     )).stdout.trim();
     for (const args of [
       ["index", "info"],
-      ["index", "check"],
       ["scope", "list"],
       ["scope", "show", "scope-000001"],
-      ["scope", "gc-query"],
       ["task", "list", "scope-000001"],
       ["task", "show", "scope-000001", "task-000001"],
       ["actionable", "scope-000001"],
@@ -300,7 +298,7 @@ test("CLI domain read-only commands run without an installed runtime", async () 
   });
 });
 
-test("CLI runtime info, install reuse, and check use one JSON envelope without index access", async () => {
+test("CLI runtime info reports missing and compatible states without index access", async () => {
   await withTempWorkspace(async (root) => {
     const toolHome = path.join(root, "tool-home");
     const node = await resolveNodeExecutable();
@@ -328,34 +326,17 @@ test("CLI runtime info, install reuse, and check use one JSON envelope without i
       assert.equal((missing.result.data as { state: string }).state, "missing");
       assert.equal(missing.result.revision, null);
     }
-    const missingCheck = await invoke(["runtime", "check"]);
-    assert.equal(missingCheck.result.ok, false);
-    if (!missingCheck.result.ok) {
-      assert.equal(missingCheck.result.error.code, "RUNTIME_MISSING");
-      assert.equal(missingCheck.result.revision, null);
-    }
     await prepareRootNativeRuntime(toolHome);
     const environment = { ...process.env, TASK_GRAPH_TOOL_HOME: toolHome };
-    const installed = await callProcessCli(
-      ["runtime", "install", "--root", root],
+    const compatible = await callProcessCli(
+      ["runtime", "info", "--root", root],
       "",
       environment
     );
-    assert.equal(installed.exitCode, 0);
-    assert.equal(installed.stderr, "");
+    assert.equal(compatible.exitCode, 0);
+    assert.equal(compatible.stderr, "");
     assert.equal(
-      (JSON.parse(installed.stdout) as { data: { action: string } }).data.action,
-      "reused"
-    );
-    const checked = await callProcessCli(
-      ["runtime", "check", "--root", root],
-      "",
-      environment
-    );
-    assert.equal(checked.exitCode, 0);
-    assert.equal(checked.stderr, "");
-    assert.equal(
-      (JSON.parse(checked.stdout) as { data: { compatible: boolean } }).data.compatible,
+      (JSON.parse(compatible.stdout) as { data: { compatible: boolean } }).data.compatible,
       true
     );
     await assert.rejects(fs.stat(path.join(root, "docs")), { code: "ENOENT" });
@@ -529,16 +510,12 @@ test("CLI success and predictable schema, state, conflict, and file failures use
         await fs.unlink(target);
       }
     });
-    assert.equal(unknown.result.ok, false);
-    if (!unknown.result.ok) {
-      assert.equal(unknown.result.error.code, "WRITE_OUTCOME_UNKNOWN");
-      assert.equal(unknown.result.revision, null);
-      assert.equal(unknown.result.error.details.possibleRevision, 1);
-    }
+    assert.equal(unknown.result.ok, true);
+    assert.equal(unknown.result.revision, 1);
   });
 });
 
-test("CLI index check preserves the unsupported schema error code", async () => {
+test("CLI index info preserves the unsupported schema error code", async () => {
   await withTempWorkspace(async (root) => {
     const indexPath = path.join(root, "docs", "task-graph", "task-graph-index.json");
     await fs.mkdir(path.dirname(indexPath), { recursive: true });
@@ -549,7 +526,7 @@ test("CLI index check preserves the unsupported schema error code", async () => 
       scopes: {},
       constructor: "unsupported-schema-field"
     }, null, 2)}\n`, "utf8");
-    const checked = await callCli(root, ["index", "check"]);
+    const checked = await callCli(root, ["index", "info"]);
     assert.equal(checked.exitCode, 1);
     assert.equal(checked.result.ok, false);
     if (!checked.result.ok) {
@@ -629,6 +606,11 @@ test("CLI rejects ambiguous lease and revision pairs plus invalid control reason
         "--lease", leaseId,
         "--expected-revision", "3",
         "--reason", "ambiguous"
+      ],
+      [
+        "claim", "scope-000001", "task-000001",
+        "--actor", "replacement",
+        "--recover-lease", leaseId
       ]
     ]) {
       const failure = await callCli(root, args);

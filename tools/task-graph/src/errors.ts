@@ -7,7 +7,6 @@ import type {
 const retryableCodes = new Set<TaskGraphErrorCode>([
   "INDEX_READ_FAILED",
   "LOCK_TIMEOUT",
-  "RUNTIME_INSTALL_FAILED",
   "REVISION_CONFLICT",
   "LEASE_CONFLICT",
   "WRITE_FAILED"

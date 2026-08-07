@@ -86,7 +86,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:152c32ec36f1062704ee6981b1945f8ad8c0de306476bf5a5d07e87514a18d04",
+  "sourceRevision": "sha256:3b29bb7f36f2fa74b916e744642c6f2a4b412bd13f4f42c800a96aeef37421d0",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -3919,7 +3919,7 @@
           "task-graph"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -3928,7 +3928,7 @@
       "state": {
         "path": "task-graph/coordinate-task-execution-with-transactional-claims.md",
         "title": "通过事务领取协调任务执行",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-06T06:13:52Z",
         "purpose": "让多个 agent 在共享索引上领取就绪任务，而不重复执行或违反排斥关系。",
@@ -3938,7 +3938,7 @@
       }
     },
     {
-      "id": "task-graph/install-native-runtime-in-user-tool-home.md",
+      "id": "task-graph/delegate-native-runtime-installation-to-caller.md",
       "keys": {
         "domain": [
           "task-graph"
@@ -3951,15 +3951,75 @@
         ]
       },
       "state": {
+        "path": "task-graph/delegate-native-runtime-installation-to-caller.md",
+        "title": "将 task-graph 原生运行时安装委托给调用方",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-07T02:31:24Z",
+        "purpose": "保留经过探针验证的原生锁，同时删除 task-graph 对包管理器进程和安装生命周期的监督责任。",
+        "background": "固定 npm 包已经携带多平台 prebuild，CLI 内建超时、输出清理、marker、并发发布和安装回收没有改善任务图能力。",
+        "decision": "runtime info 只返回状态、诊断和固定安装 argv，由取得授权的调用方执行安装，再由同一命令验证精确直接版本、API 和真实探针。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "task-graph/install-native-runtime-in-user-tool-home.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "task-graph/install-native-runtime-in-user-tool-home.md",
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
         "path": "task-graph/install-native-runtime-in-user-tool-home.md",
         "title": "在用户工具目录安装 task-graph 原生运行时",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-06T16:23:22Z",
         "purpose": "让 task-graph 使用原生文件锁而不把平台二进制写入 Git 或 skill 分发包。",
         "background": "Native addon 包体不大，但 `.node` 不可审阅、会累积 Git 历史，并扩大每个 skill 制品的平台内容。",
         "decision": "由 task-graph 显式安装锁定 native 依赖到 `~/.tools/task-graph`，并允许环境变量覆盖 tool home。",
         "relations": []
+      }
+    },
+    {
+      "id": "task-graph/keep-task-graph-locks-outside-workspace.md",
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/keep-task-graph-locks-outside-workspace.md",
+        "title": "将 task-graph 短事务锁保留在工作区外",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-07T02:31:25Z",
+        "purpose": "保留权威 JSON 与原生短锁，同时让目标仓库只承载任务索引，不承担锁文件和忽略规则管理。",
+        "background": "稳定锁身份可以由索引绝对路径在系统临时目录确定，工作区旁路锁、符号链接门禁和提交回读增加维护面却不改变领域结果。",
+        "decision": "以索引路径 hash 定位系统临时锁，原子写 resolve 即成功、reject 统一未知，并停止管理工作区 gitignore 与路径别名防护。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "task-graph/use-native-locks-for-json-transactions.md"
+          }
+        ]
       }
     },
     {
@@ -4043,6 +4103,36 @@
       }
     },
     {
+      "id": "task-graph/reclaim-expired-task-leases-through-claim.md",
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/reclaim-expired-task-leases-through-claim.md",
+        "title": "通过 claim 直接接管过期 task lease",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-07T02:31:28Z",
+        "purpose": "让失联执行的恢复仍是一个可竞争的事务领取动作，而不经过独立恢复状态和多步命令链。",
+        "background": "recover 后再 retry 和 claim 扩大命令面与竞态窗口，活动 lease 强制接管还会削弱当前执行者所有权。",
+        "decision": "过期 running task 只通过携带旧 lease、最新 revision 和原因的 claim 写入新 lease，活动 lease 不允许提前接管。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "task-graph/coordinate-task-execution-with-transactional-claims.md"
+          }
+        ]
+      }
+    },
+    {
       "id": "task-graph/separate-task-content-state-and-effective-projection.md",
       "keys": {
         "domain": [
@@ -4099,7 +4189,7 @@
           "task-graph"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -4108,7 +4198,7 @@
       "state": {
         "path": "task-graph/use-native-locks-for-json-transactions.md",
         "title": "使用原生文件锁简化 JSON 事务",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-06T16:23:21Z",
         "purpose": "让 task-graph 保留可追踪 JSON，同时把跨进程互斥和原子替换交给成熟系统与库边界。",

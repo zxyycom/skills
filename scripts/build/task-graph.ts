@@ -21,13 +21,6 @@ const skillSourcePath = "skills/task-graph";
 const cliSourcePath = "tools/task-graph/src/cli.ts";
 const declarationSourcePath = "tools/task-graph/api/task-graph.d.mts";
 const schemaSourcePath = "tools/task-graph/src/schema.ts";
-const runtimeAssetSourceDirectory = "tools/task-graph/references/runtime";
-const runtimeAssetOutputDirectory = path.join(
-  rootDir,
-  skillSourcePath,
-  "references",
-  "runtime"
-);
 const publishedScriptsDirectory = path.join(rootDir, skillSourcePath, "scripts");
 const cliOutputPath = path.join(publishedScriptsDirectory, "task-graph.mjs");
 const schemaOutputPath = path.join(
@@ -167,20 +160,9 @@ async function buildArtifacts(): Promise<GeneratedArtifact[]> {
     $comment:
       "Safe-integer ID suffixes, real RFC 3339 instants, cross-field, topology, "
       + "revision, lease, and canonical-form invariants are validated by the "
-      + "task-graph CLI check command.",
+      + "task-graph CLI info command.",
     title: "TaskGraphIndex"
   };
-  const runtimeAssets = await Promise.all(
-    ["package.json", "package-lock.json"].map(async (name): Promise<GeneratedArtifact> => {
-      const sourcePath = `${runtimeAssetSourceDirectory}/${name}`;
-      return {
-        content: await fs.readFile(path.join(rootDir, sourcePath), "utf8"),
-        path: path.join(runtimeAssetOutputDirectory, name),
-        sourcePath
-      };
-    })
-  );
-
   return [
     {
       content: portableBundle.code,
@@ -201,8 +183,7 @@ async function buildArtifacts(): Promise<GeneratedArtifact[]> {
       content: `${JSON.stringify(jsonSchema, null, 2)}\n`,
       path: schemaOutputPath,
       sourcePath: schemaSourcePath
-    },
-    ...runtimeAssets
+    }
   ];
 }
 

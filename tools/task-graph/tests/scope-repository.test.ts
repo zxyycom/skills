@@ -11,7 +11,7 @@ import {
   claimTask,
   closeScopes,
   failTask,
-  queryScopeGc
+  scopeCloseProjection
 } from "../src/index.ts";
 import { runTaskGraphCli, type TaskGraphResult } from "../src/cli.ts";
 import {
@@ -99,38 +99,34 @@ test("scope close projection reports terminal, failed, active, and recovery bloc
     reason: "done"
   }, initialNow).index;
 
-  const gc = queryScopeGc(index, new Date("2026-08-06T08:31:00.000Z"));
-  assert.deepEqual(gc.scopeOrder, [
-    "scope-000001",
-    "scope-000002",
-    "scope-000003",
-    "scope-000004",
-    "scope-000005"
-  ]);
-  assert.ok(gc.scopes["scope-000001"]!.blockers.some((item) =>
+  const projectedAt = new Date("2026-08-06T08:31:00.000Z");
+  const projections = Object.fromEntries(Object.keys(index.scopes).map((scopeId) => [
+    scopeId,
+    scopeCloseProjection(index, scopeId, projectedAt)
+  ]));
+  assert.ok(projections["scope-000001"]!.blockers.some((item) =>
     item.kind === "top-task-not-terminal"
   ));
-  assert.ok(gc.scopes["scope-000002"]!.blockers.some((item) =>
+  assert.ok(projections["scope-000002"]!.blockers.some((item) =>
     item.kind === "failed-task"
   ));
-  assert.ok(gc.scopes["scope-000003"]!.blockers.some((item) =>
+  assert.ok(projections["scope-000003"]!.blockers.some((item) =>
     item.kind === "active-lease"
   ));
-  assert.ok(gc.scopes["scope-000004"]!.blockers.some((item) =>
+  assert.ok(projections["scope-000004"]!.blockers.some((item) =>
     item.kind === "recovery-needed"
   ));
-  assert.equal(gc.scopes["scope-000005"]!.closable, true);
+  assert.equal(projections["scope-000005"]!.closable, true);
 
   expectTaskGraphError(() => closeScopes(index, {
     expectedRevision: index.revision,
-    scopes: [{
-      scopeId: "scope-000005",
-      resultsDelivered: false as unknown as true
-    }]
+    scopeIds: ["scope-000005"],
+    resultsDelivered: false as unknown as true
   }, initialNow), "DELIVERY_NOT_CONFIRMED");
   const closed = closeScopes(index, {
     expectedRevision: index.revision,
-    scopes: [{ scopeId: "scope-000005", resultsDelivered: true }]
+    scopeIds: ["scope-000005"],
+    resultsDelivered: true
   }, initialNow);
   assert.equal(closed.index.scopes["scope-000005"], undefined);
 
@@ -139,18 +135,24 @@ test("scope close projection reports terminal, failed, active, and recovery bloc
       root,
       clock: () => initialNow,
       leaseIdGenerator: uuidSequence(4001),
-      loadNativeLock: loadUncontendedNativeLock
+      loadNativeLock: loadUncontendedNativeLock,
+      lockRoot: path.join(root, "test-locks")
     });
     await service.init();
-    const scope = await service.createScope({
+    const scope = await service.apply({
       expectedRevision: 0,
-      key: "service-close",
-      bindings: { thread: "supported" }
+      operations: [{
+        kind: "create-scope",
+        key: "service-close",
+        bindings: { thread: "supported" }
+      }]
     });
+    const scopeId = scope.data.createdScopeIds[0] ?? "";
     assert.deepEqual((await service.listScopes({
       bindingKind: "thread",
       bindingValue: "supported"
-    })).data[scope.data.scopeId]?.bindings, { thread: "supported" });
+    })).data[scopeId]?.bindings, { thread: "supported" });
+    assert.equal((await service.listScopes()).data[scopeId]?.close.closable, true);
     await expectTaskGraphRejection(
       () => service.listScopes({ bindingKind: "thread" } as never),
       "ARGUMENT_INVALID"
@@ -159,37 +161,41 @@ test("scope close projection reports terminal, failed, active, and recovery bloc
       () => service.listScopes({ bindingValue: "supported" } as never),
       "ARGUMENT_INVALID"
     );
-    const task = await service.createTask({
+    const task = await service.apply({
       expectedRevision: scope.revision,
-      scopeId: scope.data.scopeId,
-      content: taskContent("service close")
+      operations: [{
+        kind: "create-task",
+        scopeId,
+        content: taskContent("service close")
+      }]
     });
+    const taskId = task.data.createdTaskIds[0] ?? "";
     const cancelled = await service.cancel({
       expectedRevision: task.revision,
-      scopeId: scope.data.scopeId,
-      taskId: task.data.taskId,
+      scopeId,
+      taskId,
       reason: "settled"
     });
     await expectTaskGraphRejection(
-      () => service.closeScope({
+      () => service.closeScopes({
         expectedRevision: cancelled.revision,
-        scopeId: scope.data.scopeId,
+        scopeIds: [scopeId],
         resultsDelivered: false
       } as never),
       "DELIVERY_NOT_CONFIRMED"
     );
     await expectTaskGraphRejection(
-      () => service.closeScope({
+      () => service.closeScopes({
         expectedRevision: cancelled.revision,
-        scopeId: scope.data.scopeId
+        scopeIds: [scopeId]
       } as never),
       "DELIVERY_NOT_CONFIRMED"
     );
-    assert.ok((await service.readIndex()).data.scopes[scope.data.scopeId]);
+    assert.ok((await service.readIndex()).data.scopes[scopeId]);
   });
 });
 
-test("bulk scope GC validates all selections before one revision and preserves nextIds", () => {
+test("bulk scope close validates all selections before one revision and preserves nextIds", () => {
   let index = applyOperations(graphIndex([
     taskOperation("first")
   ]), [
@@ -221,19 +227,15 @@ test("bulk scope GC validates all selections before one revision and preserves n
   const before = structuredClone(index);
   expectTaskGraphError(() => closeScopes(index, {
     expectedRevision: index.revision,
-    scopes: [
-      { scopeId: "scope-000001", resultsDelivered: true },
-      { scopeId: "scope-000003", resultsDelivered: true }
-    ]
+    scopeIds: ["scope-000001", "scope-000003"],
+    resultsDelivered: true
   }, initialNow), "SCOPE_NOT_CLOSABLE");
   assert.deepEqual(index, before);
 
   const closed = closeScopes(index, {
     expectedRevision: index.revision,
-    scopes: [
-      { scopeId: "scope-000002", resultsDelivered: true },
-      { scopeId: "scope-000001", resultsDelivered: true }
-    ]
+    scopeIds: ["scope-000002", "scope-000001"],
+    resultsDelivered: true
   }, initialNow);
   assert.deepEqual(closed.data.closedScopeIds, ["scope-000001", "scope-000002"]);
   assert.equal(closed.index.revision, index.revision + 1);
@@ -241,14 +243,13 @@ test("bulk scope GC validates all selections before one revision and preserves n
   assert.deepEqual(Object.keys(closed.index.scopes), ["scope-000003"]);
   expectTaskGraphError(() => closeScopes(index, {
     expectedRevision: index.revision,
-    scopes: []
+    scopeIds: [],
+    resultsDelivered: true
   }, initialNow), "ARGUMENT_INVALID");
   expectTaskGraphError(() => closeScopes(index, {
     expectedRevision: index.revision,
-    scopes: [
-      { scopeId: "scope-000001", resultsDelivered: true },
-      { scopeId: "scope-000001", resultsDelivered: true }
-    ]
+    scopeIds: ["scope-000001", "scope-000001"],
+    resultsDelivered: true
   }, initialNow), "ARGUMENT_INVALID");
 });
 
@@ -269,7 +270,7 @@ test("CLI exposes scope-only cleanup and no single-task deletion command", async
   });
 });
 
-test("task index mutations leave Git staging and commits caller-owned while runtime artifacts stay ignored", async () => {
+test("task index mutations leave Git staging, commits, and ignore policy caller-owned", async () => {
   await withTempWorkspace(async (root) => {
     await fs.copyFile(
       path.join(repositoryRoot, ".gitignore"),
@@ -294,7 +295,6 @@ test("task index mutations leave Git staging and commits caller-owned while runt
     await execFileAsync("git", [
       "add",
       ".gitignore",
-      "docs/task-graph/.gitignore",
       "docs/task-graph/task-graph-index.json"
     ], {
       cwd: root,
@@ -309,7 +309,10 @@ test("task index mutations leave Git staging and commits caller-owned while runt
       encoding: "utf8",
       windowsHide: true
     })).stdout.trim();
-    await service.createScope({ expectedRevision: 0, key: "git-boundary" });
+    await service.apply({
+      expectedRevision: 0,
+      operations: [{ kind: "create-scope", key: "git-boundary" }]
+    });
 
     await fs.writeFile(`${service.store.indexPath}.tmp-test`, "temporary\n", "utf8");
     const status = (await execFileAsync(
@@ -319,13 +322,15 @@ test("task index mutations leave Git staging and commits caller-owned while runt
     )).stdout.replaceAll("\\", "/");
     assert.match(status, /^ M docs\/task-graph\/task-graph-index\.json$/mu);
     assert.doesNotMatch(status, /^M  docs\/task-graph\/task-graph-index\.json$/mu);
-    assert.match(status, /^!! docs\/task-graph\/task-graph-index\.json\.lock$/mu);
-    assert.match(status, /^!! docs\/task-graph\/task-graph-index\.json\.tmp-test$/mu);
+    assert.match(status, /^\?\? docs\/task-graph\/task-graph-index\.json\.tmp-test$/mu);
+    assert.doesNotMatch(status, /docs\/task-graph\/\.gitignore/u);
+    await assert.rejects(fs.stat(`${service.store.indexPath}.lock`), { code: "ENOENT" });
     const afterHead = (await execFileAsync("git", ["rev-parse", "HEAD"], {
       cwd: root,
       encoding: "utf8",
       windowsHide: true
     })).stdout.trim();
     assert.equal(afterHead, beforeHead);
+    await fs.unlink(service.store.lockPath);
   });
 });

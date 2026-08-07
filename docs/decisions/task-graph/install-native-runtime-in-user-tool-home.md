@@ -1,6 +1,6 @@
 ---
 title: 在用户工具目录安装 task-graph 原生运行时
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-06T16:23:22Z
 purpose: 让 task-graph 使用原生文件锁而不把平台二进制写入 Git 或 skill 分发包。

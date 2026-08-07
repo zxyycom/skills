@@ -15,11 +15,9 @@ import {
 } from "./schema.ts";
 import type {
   CancelTaskOptions,
+  ClaimTaskOptions,
   CompleteTaskOptions,
-  RecoverTaskOptions,
   ScopeCloseProjection,
-  ScopeCloseRequest,
-  ScopeGcProjection,
   TaskContentInput,
   TaskControlInput,
   TaskGraphApplyRequest,
@@ -555,7 +553,7 @@ function requireRunningLease(
   if (!allowExpired && new Date(execution.lease.expiresAt) <= now) {
     throw new TaskGraphError(
       "LEASE_EXPIRED",
-      `Lease ${leaseId} has expired and requires recover`,
+      `Lease ${leaseId} has expired and requires claim recovery`,
       { scopeId, taskId, leaseId, expiresAt: execution.lease.expiresAt }
     );
   }
@@ -564,17 +562,25 @@ function requireRunningLease(
 
 export function claimTask(
   current: TaskIndex,
-  options: {
-    scopeId: string;
-    taskId: string;
-    actor: string;
-    durationSeconds?: number;
-    leaseUuid: string;
-  },
+  options: ClaimTaskOptions & { leaseUuid: string },
   now: Date
 ): IndexMutation<{ taskId: string; leaseId: string; expiresAt: string }> {
   const duration = leaseDurationMilliseconds(options.durationSeconds ?? 1800);
   const actor = boundedString(options.actor, "actor", 200, { singleLine: true });
+  const recoveryValues = [
+    options.recoverLeaseId,
+    options.expectedRevision,
+    options.reason
+  ];
+  const recoveryValueCount = recoveryValues.filter((value) => value !== undefined).length;
+  if (recoveryValueCount !== 0 && recoveryValueCount !== recoveryValues.length) {
+    throw new TaskGraphError(
+      "ARGUMENT_INVALID",
+      "Expired lease recovery requires recoverLeaseId, expectedRevision, and reason together"
+    );
+  }
+  const recovering = recoveryValueCount === recoveryValues.length;
+  if (recovering) boundedString(options.reason ?? "", "recovery reason", 1000);
   return mutateExecution(current, options.scopeId, options.taskId, now, (
     candidate,
     scope,
@@ -582,11 +588,55 @@ export function claimTask(
   ) => {
     const task = requireTask(scope, options.scopeId, options.taskId);
     const projection = projectScope(candidate, options.scopeId, now).tasks[options.taskId];
-    if (
-      task.state.execution.phase !== "idle"
-      || projection?.effectiveState !== "ready"
-      || projection.nextAction !== "claim"
-    ) {
+    const execution = task.state.execution;
+    if (execution.phase === "idle") {
+      if (recovering) {
+        throw new TaskGraphError(
+          "ARGUMENT_INVALID",
+          "An idle task claim does not accept lease recovery arguments"
+        );
+      }
+      if (projection?.effectiveState !== "ready" || projection.nextAction !== "claim") {
+        throw new TaskGraphError(
+          "STATE_CONFLICT",
+          `Task ${options.taskId} is not claimable`,
+          { projection }
+        );
+      }
+    } else if (execution.phase === "running") {
+      if (new Date(execution.lease.expiresAt) > now) {
+        throw new TaskGraphError(
+          "LEASE_CONFLICT",
+          `Task ${options.taskId} still has an active lease`,
+          { leaseId: execution.lease.id, expiresAt: execution.lease.expiresAt }
+        );
+      }
+      if (!recovering) {
+        throw new TaskGraphError(
+          "LEASE_EXPIRED",
+          `Task ${options.taskId} requires explicit expired lease recovery`,
+          { leaseId: execution.lease.id, expiresAt: execution.lease.expiresAt }
+        );
+      }
+      requireExpectedRevision(candidate, options.expectedRevision ?? -1);
+      if (execution.lease.id !== options.recoverLeaseId) {
+        throw new TaskGraphError(
+          "LEASE_CONFLICT",
+          `Lease ${options.recoverLeaseId ?? ""} does not own task ${options.taskId}`,
+          {
+            expectedLeaseId: execution.lease.id,
+            recoverLeaseId: options.recoverLeaseId ?? ""
+          }
+        );
+      }
+      if (projection?.effectiveState !== "recovery-needed" || projection.nextAction !== "claim") {
+        throw new TaskGraphError(
+          "STATE_CONFLICT",
+          `Task ${options.taskId} is not recoverable through claim`,
+          { projection }
+        );
+      }
+    } else {
       throw new TaskGraphError(
         "STATE_CONFLICT",
         `Task ${options.taskId} is not claimable`,
@@ -902,61 +952,6 @@ export function cancelTask(
   });
 }
 
-export function recoverTask(
-  current: TaskIndex,
-  options: RecoverTaskOptions,
-  now: Date
-): IndexMutation<{ taskId: string; phase: "failed"; forced: boolean }> {
-  const reason = boundedString(options.reason, "recovery reason", 1000);
-  const scope = requireScope(current, options.scopeId);
-  const execution = requireRunningLease(
-    scope,
-    options.scopeId,
-    options.taskId,
-    options.leaseId,
-    now,
-    true
-  );
-  const expired = new Date(execution.lease.expiresAt) <= now;
-  if (expired && (options.force === true || options.expectedRevision !== undefined)) {
-    throw new TaskGraphError(
-      "ARGUMENT_INVALID",
-      "Expired lease recovery does not accept force or expectedRevision"
-    );
-  }
-  if (!expired) {
-    if (options.force !== true || options.expectedRevision === undefined) {
-      throw new TaskGraphError(
-        "LEASE_CONFLICT",
-        "An active lease can only be recovered with force and expectedRevision",
-        { leaseId: options.leaseId }
-      );
-    }
-    requireExpectedRevision(current, options.expectedRevision);
-  }
-  return mutateExecution(current, options.scopeId, options.taskId, now, (
-    _candidate,
-    candidateScope
-  ) => {
-    const currentExecution = requireRunningLease(
-      candidateScope,
-      options.scopeId,
-      options.taskId,
-      options.leaseId,
-      now,
-      true
-    );
-    const task = requireTask(candidateScope, options.scopeId, options.taskId);
-    task.state.execution = {
-      phase: "failed",
-      attempt: currentExecution.attempt,
-      reason
-    };
-    task.content.result = null;
-    return { taskId: options.taskId, phase: "failed", forced: !expired };
-  });
-}
-
 export function scopeCloseProjection(
   index: TaskIndex,
   scopeId: string,
@@ -995,22 +990,12 @@ export function scopeCloseProjection(
   };
 }
 
-export function queryScopeGc(index: TaskIndex, now: Date): ScopeGcProjection {
-  const scopeOrder = Object.keys(index.scopes).sort(compareText);
-  return {
-    revision: index.revision,
-    scopes: Object.fromEntries(
-      scopeOrder.map((scopeId) => [scopeId, scopeCloseProjection(index, scopeId, now)])
-    ),
-    scopeOrder
-  };
-}
-
 export function closeScopes(
   current: TaskIndex,
   options: {
     expectedRevision: number;
-    scopes: ScopeCloseRequest[];
+    scopeIds: string[];
+    resultsDelivered: true;
   },
   now: Date
 ): IndexMutation<{
@@ -1018,34 +1003,33 @@ export function closeScopes(
   scopes: Record<string, ScopeCloseProjection>;
 }> {
   requireExpectedRevision(current, options.expectedRevision);
-  if (options.scopes.length === 0) {
+  if (options.scopeIds.length === 0) {
     throw new TaskGraphError(
       "ARGUMENT_INVALID",
       "Scope close requires at least one explicitly selected scope"
     );
   }
-  const scopeIds = options.scopes.map((request) => request.scopeId);
+  const scopeIds = options.scopeIds;
   if (new Set(scopeIds).size !== scopeIds.length) {
     throw new TaskGraphError(
       "ARGUMENT_INVALID",
       "Scope close selection must not repeat a scope id"
     );
   }
+  if (options.resultsDelivered !== true) {
+    throw new TaskGraphError(
+      "DELIVERY_NOT_CONFIRMED",
+      "Scope results must be explicitly confirmed delivered"
+    );
+  }
   const projections: Record<string, ScopeCloseProjection> = {};
-  for (const request of options.scopes) {
-    if (request.resultsDelivered !== true) {
-      throw new TaskGraphError(
-        "DELIVERY_NOT_CONFIRMED",
-        `Scope ${request.scopeId} results must be explicitly confirmed delivered`,
-        { scopeId: request.scopeId }
-      );
-    }
-    const projection = scopeCloseProjection(current, request.scopeId, now);
-    projections[request.scopeId] = projection;
+  for (const scopeId of scopeIds) {
+    const projection = scopeCloseProjection(current, scopeId, now);
+    projections[scopeId] = projection;
     if (!projection.closable) {
       throw new TaskGraphError(
         "SCOPE_NOT_CLOSABLE",
-        `Scope ${request.scopeId} does not satisfy the close gate`,
+        `Scope ${scopeId} does not satisfy the close gate`,
         { scope: projection }
       );
     }

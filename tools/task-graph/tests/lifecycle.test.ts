@@ -7,7 +7,6 @@ import {
   completeTask,
   failTask,
   projectScope,
-  recoverTask,
   releaseTask,
   renewTaskLease,
   retryTask
@@ -77,7 +76,10 @@ test("effective-state priority and actionable distinguish leaf claim from parent
   assert.equal(projection.tasks["task-000007"]!.effectiveState, "succeeded");
   assert.equal(projection.tasks["task-000004"]!.nextAction, "claim");
   assert.equal(projection.tasks["task-000006"]!.nextAction, "complete");
-  assert.deepEqual(projection.actionableOrder, ["task-000004", "task-000006"]);
+  assert.deepEqual(
+    projection.actionableOrder,
+    ["task-000004", "task-000005", "task-000006"]
+  );
 });
 
 test("higher-priority execution and control states suppress lower-priority blockers", () => {
@@ -391,7 +393,7 @@ test("claim revalidates same-task and exclusion conflicts against the latest ind
   const leftClaim = claim(index, "task-000001");
   expectTaskGraphError(
     () => claim(leftClaim.index, "task-000001", leaseUuidB),
-    "STATE_CONFLICT"
+    "LEASE_CONFLICT"
   );
   expectTaskGraphError(
     () => claim(leftClaim.index, "task-000002", leaseUuidB),
@@ -408,7 +410,7 @@ test("claim revalidates same-task and exclusion conflicts against the latest ind
   }, initialNow), "REVISION_CONFLICT");
 });
 
-test("lease lifecycle enforces duration, renewal, expiry, matching recovery, and force", () => {
+test("lease lifecycle enforces duration, renewal, expiry, and explicit claim recovery", () => {
   const collisionIndex = graphIndex([
     taskOperation("first", { control: { mode: "queued" } }),
     taskOperation("second", { control: { mode: "queued" } })
@@ -543,42 +545,65 @@ test("lease lifecycle enforces duration, renewal, expiry, matching recovery, and
   ]) {
     expectTaskGraphError(operation, "LEASE_EXPIRED");
   }
-  expectTaskGraphError(() => recoverTask(renewed.index, {
+  expectTaskGraphError(() => claimTask(renewed.index, {
     scopeId: "scope-000001",
     taskId: "task-000001",
-    leaseId: `lease-${leaseUuidB}`,
-    reason: "wrong lease"
+    actor: "replacement",
+    leaseUuid: leaseUuidB,
+    recoverLeaseId: `lease-${leaseUuidB}`,
+    expectedRevision: renewed.index.revision,
+    reason: "wrong previous lease"
   }, new Date("2026-08-06T08:12:00.000Z")), "LEASE_CONFLICT");
-  const recovered = recoverTask(renewed.index, {
+  expectTaskGraphError(() => claimTask(renewed.index, {
     scopeId: "scope-000001",
     taskId: "task-000001",
-    leaseId: claimed.data.leaseId,
-    reason: "expired"
+    actor: "replacement",
+    leaseUuid: leaseUuidB
+  }, new Date("2026-08-06T08:12:00.000Z")), "LEASE_EXPIRED");
+  const expiredProjection = projectScope(
+    renewed.index,
+    "scope-000001",
+    new Date("2026-08-06T08:12:00.000Z")
+  );
+  assert.equal(expiredProjection.tasks["task-000001"]?.effectiveState, "recovery-needed");
+  assert.equal(expiredProjection.tasks["task-000001"]?.nextAction, "claim");
+  assert.deepEqual(expiredProjection.actionableOrder, ["task-000001"]);
+  const recovered = claimTask(renewed.index, {
+    scopeId: "scope-000001",
+    taskId: "task-000001",
+    actor: "replacement",
+    leaseUuid: leaseUuidB,
+    recoverLeaseId: claimed.data.leaseId,
+    expectedRevision: renewed.index.revision,
+    reason: "expired worker disappeared"
   }, new Date("2026-08-06T08:12:00.000Z"));
-  assert.equal(recovered.data.forced, false);
+  assert.equal(recovered.data.leaseId, `lease-${leaseUuidB}`);
+  assert.deepEqual(
+    recovered.index.scopes["scope-000001"]!.tasks["task-000001"]!.state.execution,
+    {
+      phase: "running",
+      attempt: 2,
+      lease: {
+        id: `lease-${leaseUuidB}`,
+        actor: "replacement",
+        claimedAt: "2026-08-06T08:12:00.000Z",
+        renewedAt: "2026-08-06T08:12:00.000Z",
+        expiresAt: "2026-08-06T08:42:00.000Z"
+      }
+    }
+  );
 
   index = graphIndex([
     taskOperation("active", { control: { mode: "queued" } })
   ]);
   const active = claim(index, "task-000001");
-  expectTaskGraphError(() => recoverTask(active.index, {
+  expectTaskGraphError(() => claimTask(active.index, {
     scopeId: "scope-000001",
     taskId: "task-000001",
-    leaseId: active.data.leaseId,
+    actor: "replacement",
+    leaseUuid: leaseUuidB,
+    recoverLeaseId: active.data.leaseId,
+    expectedRevision: active.index.revision,
     reason: "too early"
   }, new Date("2026-08-06T08:01:00.000Z")), "LEASE_CONFLICT");
-  const forced = recoverTask(active.index, {
-    scopeId: "scope-000001",
-    taskId: "task-000001",
-    leaseId: active.data.leaseId,
-    reason: "operator recovery",
-    force: true,
-    expectedRevision: active.index.revision
-  }, new Date("2026-08-06T08:01:00.000Z"));
-  assert.equal(forced.data.forced, true);
-  assert.equal(
-    forced.index.scopes["scope-000001"]!.tasks["task-000001"]!
-      .state.execution.phase,
-    "failed"
-  );
 });

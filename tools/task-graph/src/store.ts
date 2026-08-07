@@ -1,4 +1,6 @@
+import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
 import writeFileAtomic from "write-file-atomic";
@@ -18,9 +20,6 @@ import {
   type TaskIndex
 } from "./types.ts";
 
-const gitIgnoreComment = "# task-graph runtime artifacts";
-const gitIgnoreRule = "/task-graph-index.json.*";
-
 export type AtomicWrite = (
   target: string,
   text: string,
@@ -31,6 +30,7 @@ export type TaskGraphStoreOptions = {
   atomicWrite?: AtomicWrite;
   indexPath?: string;
   loadNativeLock?: () => Promise<NativeLockBinding>;
+  lockRoot?: string;
   lockPollMilliseconds?: number;
   lockWaitMilliseconds?: number;
   monotonicClock?: () => number;
@@ -44,21 +44,13 @@ export type TaskIndexRead = {
   text: string;
 };
 
-export type TaskIndexCheck = {
-  valid: boolean;
+export type TaskIndexInfo = {
+  valid: true;
   canonical: boolean;
   diagnostics: Array<{
-    code:
-      | "index-invalid"
-      | "index-not-canonical"
-      | "index-read-failed"
-      | "schema-unsupported";
+    code: "index-not-canonical";
     message: string;
   }>;
-  revision: number | null;
-};
-
-export type TaskIndexInfo = {
   revision: number;
   schemaVersion: 1;
   scopeCount: number;
@@ -69,11 +61,6 @@ export type TaskIndexInfo = {
 type LockHandle = {
   binding: NativeLockBinding;
   file: fs.FileHandle;
-};
-
-type ObservedIndex = {
-  revision: number | null | "unreadable";
-  text: string | null | "unreadable";
 };
 
 const defaultSleep = async (milliseconds: number): Promise<void> => {
@@ -130,38 +117,6 @@ async function lstatOrNull(target: string): Promise<Awaited<ReturnType<typeof fs
   }
 }
 
-async function assertNoSymbolicPath(
-  target: string,
-  failureCode: "INDEX_READ_FAILED" | "WRITE_FAILED" = "INDEX_READ_FAILED"
-): Promise<void> {
-  const resolved = path.resolve(target);
-  const parsed = path.parse(resolved);
-  let current = parsed.root;
-  const parts = resolved.slice(parsed.root.length).split(path.sep).filter(Boolean);
-  for (const part of parts) {
-    current = path.join(current, part);
-    let stat: Awaited<ReturnType<typeof fs.lstat>> | null;
-    try {
-      stat = await lstatOrNull(current);
-    } catch (error) {
-      throwFileBoundaryError(
-        error,
-        failureCode,
-        `Unable to inspect task graph path component: ${current}`,
-        current
-      );
-    }
-    if (stat === null) break;
-    if (stat.isSymbolicLink()) {
-      throw new TaskGraphError(
-        "PATH_SYMLINK",
-        `Task graph path crosses symbolic link ${current}`,
-        { path: current }
-      );
-    }
-  }
-}
-
 function resolveIndexPath(root: string, configured?: string): string {
   const candidate = configured ?? defaultTaskGraphIndexPath;
   if (path.isAbsolute(candidate)) return path.resolve(candidate);
@@ -177,25 +132,13 @@ function resolveIndexPath(root: string, configured?: string): string {
   return resolved;
 }
 
-function hasGitIgnoreRule(text: string): boolean {
-  return text.split(/\r\n|\n|\r/u).includes(gitIgnoreRule);
-}
-
-function appendGitIgnoreRule(text: string): string {
-  if (hasGitIgnoreRule(text)) return text;
-  const lineEnding = text.includes("\r\n") ? "\r\n" : "\n";
-  const prefix = text.length === 0 || text.endsWith("\n")
-    ? text
-    : `${text}${lineEnding}`;
-  return `${prefix}${gitIgnoreComment}${lineEnding}${gitIgnoreRule}${lineEnding}`;
-}
-
 export class TaskGraphStore {
   readonly indexPath: string;
   readonly lockPath: string;
   private readonly atomicWrite: AtomicWrite;
   private readonly loadNativeLock: () => Promise<NativeLockBinding>;
   private readonly lockPollMilliseconds: number;
+  private readonly lockRoot: string;
   private readonly lockWaitMilliseconds: number;
   private readonly monotonicClock: () => number;
   private readonly sleep: (milliseconds: number) => Promise<void>;
@@ -204,7 +147,16 @@ export class TaskGraphStore {
   constructor(options: TaskGraphStoreOptions = {}) {
     const root = path.resolve(options.root ?? process.cwd());
     this.indexPath = resolveIndexPath(root, options.indexPath);
-    this.lockPath = `${this.indexPath}.lock`;
+    this.lockRoot = path.resolve(
+      options.lockRoot ?? path.join(os.tmpdir(), "task-graph-locks")
+    );
+    const normalizedIndexPath = process.platform === "win32"
+      ? this.indexPath.toLowerCase()
+      : this.indexPath;
+    const lockName = createHash("sha256")
+      .update(normalizedIndexPath, "utf8")
+      .digest("hex");
+    this.lockPath = path.join(this.lockRoot, `${lockName}.lock`);
     this.atomicWrite = options.atomicWrite ?? defaultAtomicWrite;
     this.loadNativeLock = options.loadNativeLock ?? loadNativeLockBinding;
     this.lockPollMilliseconds = options.lockPollMilliseconds ?? 50;
@@ -229,7 +181,6 @@ export class TaskGraphStore {
   }
 
   async read(): Promise<TaskIndexRead> {
-    await assertNoSymbolicPath(this.indexPath);
     let text: string;
     try {
       text = await fs.readFile(this.indexPath, "utf8");
@@ -263,8 +214,16 @@ export class TaskGraphStore {
   }
 
   async info(): Promise<TaskIndexInfo> {
-    const { index } = await this.read();
+    const { canonical, index } = await this.read();
     return {
+      valid: true,
+      canonical,
+      diagnostics: canonical
+        ? []
+        : [{
+            code: "index-not-canonical",
+            message: "Task index must use canonical field order, LF, and trailing newline"
+          }],
       revision: index.revision,
       schemaVersion: index.schemaVersion,
       scopeCount: Object.keys(index.scopes).length,
@@ -276,48 +235,12 @@ export class TaskGraphStore {
     };
   }
 
-  async check(): Promise<TaskIndexCheck> {
-    try {
-      const read = await this.read();
-      return {
-        valid: read.canonical,
-        canonical: read.canonical,
-        diagnostics: read.canonical
-          ? []
-          : [{
-              code: "index-not-canonical",
-              message: "Task index must use canonical field order, LF, and trailing newline"
-            }],
-        revision: read.index.revision
-      };
-    } catch (error) {
-      if (!(error instanceof TaskGraphError)) throw error;
-      const diagnosticCode = error.code === "INDEX_INVALID"
-        ? "index-invalid"
-        : error.code === "SCHEMA_UNSUPPORTED"
-          ? "schema-unsupported"
-          : error.code === "INDEX_NOT_FOUND"
-              || error.code === "INDEX_READ_FAILED"
-              || error.code === "PATH_SYMLINK"
-            ? "index-read-failed"
-            : null;
-      if (diagnosticCode === null) throw error;
-      return {
-        valid: false,
-        canonical: false,
-        diagnostics: [{ code: diagnosticCode, message: error.message }],
-        revision: null
-      };
-    }
-  }
-
   async assertMutationRuntime(): Promise<void> {
     await this.getNativeBinding();
   }
 
   async init(): Promise<TaskIndex> {
     await this.assertMutationRuntime();
-    await assertNoSymbolicPath(this.indexPath, "WRITE_FAILED");
     await this.assertIndexMissing();
     const indexDirectory = path.dirname(this.indexPath);
     try {
@@ -330,13 +253,10 @@ export class TaskGraphStore {
         indexDirectory
       );
     }
-    await assertNoSymbolicPath(this.indexPath, "WRITE_FAILED");
-    await this.assertIndexMissing();
-    await this.ensureLocalGitIgnore();
     return await this.withLock(async () => {
       await this.assertIndexMissing();
       const index = emptyTaskIndex();
-      await this.commit(null, index);
+      await this.commit(index);
       return index;
     }, (index) => index.revision);
   }
@@ -359,7 +279,7 @@ export class TaskGraphStore {
           }
         );
       }
-      await this.commit(current.text, candidate);
+      await this.commit(candidate);
       return { index: candidate, data: transformed.data };
     }, (result) => result.index.revision);
   }
@@ -400,57 +320,6 @@ export class TaskGraphStore {
     }
   }
 
-  private async ensureLocalGitIgnore(): Promise<void> {
-    const ignorePath = path.join(path.dirname(this.indexPath), ".gitignore");
-    await assertNoSymbolicPath(ignorePath, "WRITE_FAILED");
-    let previousText = "";
-    try {
-      previousText = await fs.readFile(ignorePath, "utf8");
-    } catch (error) {
-      if (!isErrno(error, "ENOENT")) {
-        throwFileBoundaryError(
-          error,
-          "WRITE_FAILED",
-          "Unable to read task graph local .gitignore",
-          ignorePath,
-          { phase: "gitignore-read" }
-        );
-      }
-    }
-    if (hasGitIgnoreRule(previousText)) return;
-    const candidateText = appendGitIgnoreRule(previousText);
-    try {
-      await this.atomicWrite(ignorePath, candidateText, { encoding: "utf8", fsync: true });
-    } catch (error) {
-      try {
-        if (hasGitIgnoreRule(await fs.readFile(ignorePath, "utf8"))) return;
-      } catch {
-        // The stable write failure below remains actionable.
-      }
-      throw new TaskGraphError(
-        "WRITE_FAILED",
-        "Unable to write task graph local .gitignore",
-        { phase: "gitignore-write", path: ignorePath, cause: error },
-        error instanceof Error ? { cause: error } : undefined
-      );
-    }
-    try {
-      if (hasGitIgnoreRule(await fs.readFile(ignorePath, "utf8"))) return;
-    } catch (error) {
-      throw new TaskGraphError(
-        "WRITE_FAILED",
-        "Unable to verify task graph local .gitignore",
-        { phase: "gitignore-readback", path: ignorePath, cause: error },
-        error instanceof Error ? { cause: error } : undefined
-      );
-    }
-    throw new TaskGraphError(
-      "WRITE_FAILED",
-      "Task graph local .gitignore does not contain the required rule",
-      { phase: "gitignore-readback", path: ignorePath }
-    );
-  }
-
   private async withLock<T>(
     operation: () => Promise<T>,
     committedRevision: (result: T) => number
@@ -464,35 +333,38 @@ export class TaskGraphStore {
       operationError = error;
     }
 
-    const released = await this.releaseLock(lock);
+    let releaseError: unknown;
+    try {
+      await this.releaseLock(lock);
+    } catch (error) {
+      releaseError = error;
+    }
     if (operationError !== undefined) throw operationError;
     if (result === undefined) throw new Error("Task graph transaction returned no result");
-    if (!released) {
+    if (releaseError !== undefined) {
       const revision = committedRevision(result);
-      throw this.writeOutcomeUnknown(revision, new Error("native lock release failed"), revision, {
-        phase: "lock-release"
-      });
+      throw this.writeOutcomeUnknown(revision, releaseError, "lock-release");
     }
     return result;
   }
 
   private async acquireLock(): Promise<LockHandle> {
     const binding = await this.getNativeBinding();
-    await assertNoSymbolicPath(this.lockPath, "WRITE_FAILED");
-    let file: fs.FileHandle | null = null;
+    try {
+      await fs.mkdir(this.lockRoot, { recursive: true });
+    } catch (error) {
+      throwFileBoundaryError(
+        error,
+        "WRITE_FAILED",
+        "Unable to create the task graph lock directory",
+        this.lockRoot,
+        { phase: "lock-directory" }
+      );
+    }
+    let file: fs.FileHandle;
     try {
       file = await fs.open(this.lockPath, "a+");
-      const stat = await file.stat();
-      if (!stat.isFile()) {
-        throw new TaskGraphError(
-          "WRITE_FAILED",
-          "Task graph lock path must be a regular file",
-          { phase: "lock-open", lockPath: this.lockPath }
-        );
-      }
     } catch (error) {
-      await file?.close().catch(() => undefined);
-      if (error instanceof TaskGraphError) throw error;
       const fileErrorCode = getErrnoCode(error);
       throw new TaskGraphError(
         "WRITE_FAILED",
@@ -506,8 +378,6 @@ export class TaskGraphStore {
         error instanceof Error ? { cause: error } : undefined
       );
     }
-    if (file === null) throw new Error("Task graph lock file was not opened");
-
     const startedAt = this.monotonicClock();
     while (true) {
       let acquired: boolean;
@@ -539,26 +409,22 @@ export class TaskGraphStore {
     }
   }
 
-  private async releaseLock(lock: LockHandle): Promise<boolean> {
-    let unlocked = false;
-    let closed = false;
+  private async releaseLock(lock: LockHandle): Promise<void> {
+    let unlockError: unknown;
     try {
       lock.binding.unlock(lock.file.fd);
-      unlocked = true;
-    } catch {
-      // Closing the descriptor below still releases the operating-system lock.
+    } catch (error) {
+      unlockError = error;
     }
     try {
       await lock.file.close();
-      closed = true;
-    } catch {
-      // A successful unlock above already released the operating-system lock.
+    } catch (closeError) {
+      throw unlockError ?? closeError;
     }
-    return unlocked || closed;
+    if (unlockError !== undefined) throw unlockError;
   }
 
-  private async commit(previousText: string | null, candidate: TaskIndex): Promise<void> {
-    await assertNoSymbolicPath(this.indexPath, "WRITE_FAILED");
+  private async commit(candidate: TaskIndex): Promise<void> {
     const candidateText = serializeTaskIndex(candidate);
     try {
       await this.atomicWrite(
@@ -567,85 +433,26 @@ export class TaskGraphStore {
         { encoding: "utf8", fsync: true }
       );
     } catch (error) {
-      const observed = await this.observeIndex();
-      if (observed.text === candidateText) return;
-      if (observed.text === previousText) {
-        throw new TaskGraphError(
-          "WRITE_FAILED",
-          "Atomic write failed and the previous task index is still current",
-          {
-            indexPath: this.indexPath,
-            candidateRevision: candidate.revision,
-            observedRevision: observed.revision,
-            committed: false,
-            cause: error
-          },
-          error instanceof Error ? { cause: error } : undefined
-        );
-      }
-      throw this.writeOutcomeUnknown(candidate.revision, error, observed.revision);
+      throw this.writeOutcomeUnknown(candidate.revision, error);
     }
-
-    const observed = await this.observeIndex();
-    if (observed.text !== candidateText) {
-      throw this.writeOutcomeUnknown(
-        candidate.revision,
-        new Error("task index read-back did not match the committed candidate"),
-        observed.revision
-      );
-    }
-  }
-
-  private async observeIndex(): Promise<ObservedIndex> {
-    let text: string;
-    try {
-      text = await fs.readFile(this.indexPath, "utf8");
-    } catch (error) {
-      return isErrno(error, "ENOENT")
-        ? { revision: null, text: null }
-        : { revision: "unreadable", text: "unreadable" };
-    }
-    try {
-      const input: unknown = JSON.parse(text);
-      return { revision: parseTaskIndex(input).revision, text };
-    } catch {
-      return { revision: "unreadable", text };
-    }
-  }
-
-  private unknownOutcomeDetails(
-    possibleRevision: number,
-    cause: unknown,
-    observedRevision: number | null | "unreadable" = "unreadable",
-    extra: JsonObject = {}
-  ): JsonObject {
-    return new TaskGraphError("WRITE_OUTCOME_UNKNOWN", "details", {
-      indexPath: this.indexPath,
-      possibleRevision,
-      observedRevision,
-      recoveryAction: "Run index info and index check before attempting another mutation",
-      ...extra,
-      cause
-    }).details;
   }
 
   private writeOutcomeUnknown(
     possibleRevision: number,
     cause: unknown,
-    observedRevision: number | null | "unreadable" = "unreadable",
-    extra: JsonObject = {}
+    phase?: "lock-release"
   ): TaskGraphError {
     return new TaskGraphError(
       "WRITE_OUTCOME_UNKNOWN",
       "Task index write outcome is unknown; re-query before any retry",
-      this.unknownOutcomeDetails(possibleRevision, cause, observedRevision, extra),
+      {
+        indexPath: this.indexPath,
+        possibleRevision,
+        recoveryAction: "Run index info before attempting another mutation",
+        ...(phase === undefined ? {} : { phase }),
+        cause
+      },
       cause instanceof Error ? { cause } : undefined
     );
   }
-}
-
-export function createTaskGraphStore(
-  options: TaskGraphStoreOptions = {}
-): TaskGraphStore {
-  return new TaskGraphStore(options);
 }
