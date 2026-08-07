@@ -3,7 +3,7 @@ import {
   assertRunningControlUnchanged,
   childrenByTask,
   descendantIds,
-  projectScope
+  projectTaskGraph
 } from "./graph.ts";
 import { TaskGraphError, taskGraphError } from "./errors.ts";
 import {
@@ -17,14 +17,14 @@ import type {
   CancelTaskOptions,
   ClaimTaskOptions,
   CompleteTaskOptions,
-  ScopeCloseProjection,
+  RemoveTasksOptions,
   TaskContentInput,
   TaskControlInput,
+  TaskExecutionPhase,
   TaskGraphApplyRequest,
   TaskGraphApplyResult,
   TaskGraphRevisionOperation,
-  TaskIndex,
-  TaskScope
+  TaskIndex
 } from "./types.ts";
 
 const compareText = (left: string, right: string): number =>
@@ -35,15 +35,15 @@ export type IndexMutation<TData> = {
   data: TData;
 };
 
-function formatId(prefix: "scope" | "task", value: number): string {
+function formatTaskId(value: number): string {
   if (!Number.isSafeInteger(value) || value < 1) {
     throw new TaskGraphError(
       "STATE_CONFLICT",
-      `Cannot allocate ${prefix} id outside the positive safe integer range`,
+      "Cannot allocate task id outside the positive safe integer range",
       { value }
     );
   }
-  return `${prefix}-${String(value).padStart(6, "0")}`;
+  return `task-${String(value).padStart(6, "0")}`;
 }
 
 function nextRevision(index: TaskIndex): number {
@@ -70,25 +70,13 @@ function requireExpectedRevision(index: TaskIndex, expectedRevision: number): vo
   }
 }
 
-function requireScope(index: TaskIndex, scopeId: string): TaskScope {
-  const scope = Object.hasOwn(index.scopes, scopeId) ? index.scopes[scopeId] : undefined;
-  if (scope === undefined) {
-    throw new TaskGraphError(
-      "SCOPE_NOT_FOUND",
-      `Scope ${scopeId} does not exist`,
-      { scopeId }
-    );
-  }
-  return scope;
-}
-
-function requireTask(scope: TaskScope, scopeId: string, taskId: string) {
-  const task = Object.hasOwn(scope.tasks, taskId) ? scope.tasks[taskId] : undefined;
+function requireTask(index: TaskIndex, taskId: string) {
+  const task = Object.hasOwn(index.tasks, taskId) ? index.tasks[taskId] : undefined;
   if (task === undefined) {
     throw new TaskGraphError(
       "TASK_NOT_FOUND",
-      `Task ${taskId} does not exist in scope ${scopeId}`,
-      { scopeId, taskId }
+      `Task ${taskId} does not exist`,
+      { taskId }
     );
   }
   return task;
@@ -125,16 +113,11 @@ function boundedString(
   return value;
 }
 
-function updateScopeTime(scope: TaskScope, now: string): void {
-  scope.timestamps.updatedAt = now;
-}
-
-function updateTaskTime(scope: TaskScope, taskId: string, now: string): void {
-  const task = scope.tasks[taskId];
+function updateTaskTime(index: TaskIndex, taskId: string, now: string): void {
+  const task = index.tasks[taskId];
   if (task !== undefined) {
     task.state.timestamps.updatedAt = now;
   }
-  updateScopeTime(scope, now);
 }
 
 function parseControl(input: TaskControlInput) {
@@ -145,83 +128,15 @@ function parseControl(input: TaskControlInput) {
   }
 }
 
-function createScope(
-  index: TaskIndex,
-  operation: Extract<TaskGraphRevisionOperation, { kind: "create-scope" }>,
-  now: string
-): string {
-  if (Object.values(index.scopes).some((scope) => scope.key === operation.key)) {
-    throw new TaskGraphError(
-      "SCOPE_KEY_CONFLICT",
-      `Scope key ${operation.key} is already in use`,
-      { key: operation.key }
-    );
-  }
-  for (const [kind, value] of Object.entries(operation.bindings ?? {})) {
-    assertBindingAvailable(index, kind, value);
-  }
-  const scopeId = formatId("scope", index.nextIds.scope);
-  index.nextIds.scope += 1;
-  index.scopes[scopeId] = {
-    key: operation.key,
-    bindings: { ...(operation.bindings ?? {}) },
-    timestamps: { createdAt: now, updatedAt: now },
-    tasks: {}
-  };
-  return scopeId;
-}
-
-function assertBindingAvailable(
-  index: TaskIndex,
-  kind: string,
-  value: string,
-  currentScopeId?: string
-): void {
-  for (const [scopeId, scope] of Object.entries(index.scopes)) {
-    if (
-      scopeId !== currentScopeId
-      && Object.hasOwn(scope.bindings, kind)
-      && scope.bindings[kind] === value
-    ) {
-      throw new TaskGraphError(
-        "BINDING_CONFLICT",
-        `Binding ${kind}=${value} is already in use`,
-        { scopeId, kind, value }
-      );
-    }
-  }
-}
-
-function setScopeBinding(
-  index: TaskIndex,
-  operation: Extract<TaskGraphRevisionOperation, { kind: "set-scope-binding" }>,
-  now: string
-): void {
-  const scope = requireScope(index, operation.scopeId);
-  if (operation.value === null) {
-    delete scope.bindings[operation.bindingKind];
-  } else {
-    assertBindingAvailable(
-      index,
-      operation.bindingKind,
-      operation.value,
-      operation.scopeId
-    );
-    scope.bindings[operation.bindingKind] = operation.value;
-  }
-  updateScopeTime(scope, now);
-}
-
 function createTask(
   index: TaskIndex,
   operation: Extract<TaskGraphRevisionOperation, { kind: "create-task" }>,
   now: string
 ): string {
-  const scope = requireScope(index, operation.scopeId);
-  const before = structuredClone(scope);
+  const before = structuredClone(index);
   const parentId = operation.parentId ?? null;
   if (parentId !== null) {
-    const parent = requireTask(scope, operation.scopeId, parentId);
+    const parent = requireTask(index, parentId);
     if (parent.state.execution.phase !== "idle") {
       throw new TaskGraphError(
         "STATE_CONFLICT",
@@ -241,9 +156,9 @@ function createTask(
       "Top-level task control cannot inherit"
     );
   }
-  const taskId = formatId("task", index.nextIds.task);
-  index.nextIds.task += 1;
-  scope.tasks[taskId] = {
+  const taskId = formatTaskId(index.nextTaskId);
+  index.nextTaskId += 1;
+  index.tasks[taskId] = {
     content: normalizeTaskContent(operation.content),
     state: {
       control,
@@ -252,8 +167,7 @@ function createTask(
       timestamps: { createdAt: now, updatedAt: now }
     }
   };
-  assertProtectedTopologyUnchanged(before, scope);
-  updateScopeTime(scope, now);
+  assertProtectedTopologyUnchanged(before, index);
   return taskId;
 }
 
@@ -262,8 +176,7 @@ function updateTaskContent(
   operation: Extract<TaskGraphRevisionOperation, { kind: "update-task-content" }>,
   now: string
 ): void {
-  const scope = requireScope(index, operation.scopeId);
-  const task = requireTask(scope, operation.scopeId, operation.taskId);
+  const task = requireTask(index, operation.taskId);
   const phase = task.state.execution.phase;
   if (phase === "running" || phase === "succeeded" || phase === "cancelled") {
     throw new TaskGraphError(
@@ -273,7 +186,7 @@ function updateTaskContent(
     );
   }
   task.content = normalizeTaskContent(operation.content);
-  updateTaskTime(scope, operation.taskId, now);
+  updateTaskTime(index, operation.taskId, now);
 }
 
 function updateTaskControl(
@@ -281,9 +194,8 @@ function updateTaskControl(
   operation: Extract<TaskGraphRevisionOperation, { kind: "update-task-control" }>,
   now: string
 ): void {
-  const scope = requireScope(index, operation.scopeId);
-  const before = structuredClone(scope);
-  const task = requireTask(scope, operation.scopeId, operation.taskId);
+  const before = structuredClone(index);
+  const task = requireTask(index, operation.taskId);
   if (task.state.execution.phase === "succeeded" || task.state.execution.phase === "cancelled") {
     throw new TaskGraphError(
       "STATE_CONFLICT",
@@ -298,8 +210,8 @@ function updateTaskControl(
     );
   }
   task.state.control = control;
-  assertRunningControlUnchanged(before, scope);
-  updateTaskTime(scope, operation.taskId, now);
+  assertRunningControlUnchanged(before, index);
+  updateTaskTime(index, operation.taskId, now);
 }
 
 function setParent(
@@ -307,11 +219,10 @@ function setParent(
   operation: Extract<TaskGraphRevisionOperation, { kind: "set-parent" }>,
   now: string
 ): void {
-  const scope = requireScope(index, operation.scopeId);
-  const before = structuredClone(scope);
-  const task = requireTask(scope, operation.scopeId, operation.taskId);
+  const before = structuredClone(index);
+  const task = requireTask(index, operation.taskId);
   if (operation.parentId !== null) {
-    const parent = requireTask(scope, operation.scopeId, operation.parentId);
+    const parent = requireTask(index, operation.parentId);
     if (parent.state.execution.phase !== "idle") {
       throw new TaskGraphError(
         "STATE_CONFLICT",
@@ -321,8 +232,8 @@ function setParent(
     }
   }
   task.state.relations.parentId = operation.parentId;
-  assertProtectedTopologyUnchanged(before, scope);
-  updateTaskTime(scope, operation.taskId, now);
+  assertProtectedTopologyUnchanged(before, index);
+  updateTaskTime(index, operation.taskId, now);
 }
 
 function setDependency(
@@ -330,17 +241,16 @@ function setDependency(
   operation: Extract<TaskGraphRevisionOperation, { kind: "set-dependency" }>,
   now: string
 ): void {
-  const scope = requireScope(index, operation.scopeId);
-  const before = structuredClone(scope);
-  const task = requireTask(scope, operation.scopeId, operation.taskId);
-  requireTask(scope, operation.scopeId, operation.dependencyId);
+  const before = structuredClone(index);
+  const task = requireTask(index, operation.taskId);
+  requireTask(index, operation.dependencyId);
   if (operation.present) {
     task.state.relations.dependsOn[operation.dependencyId] = true;
   } else {
     delete task.state.relations.dependsOn[operation.dependencyId];
   }
-  assertProtectedTopologyUnchanged(before, scope);
-  updateTaskTime(scope, operation.taskId, now);
+  assertProtectedTopologyUnchanged(before, index);
+  updateTaskTime(index, operation.taskId, now);
 }
 
 function setExclusion(
@@ -348,10 +258,9 @@ function setExclusion(
   operation: Extract<TaskGraphRevisionOperation, { kind: "set-exclusion" }>,
   now: string
 ): void {
-  const scope = requireScope(index, operation.scopeId);
-  const before = structuredClone(scope);
-  const task = requireTask(scope, operation.scopeId, operation.taskId);
-  const other = requireTask(scope, operation.scopeId, operation.excludedTaskId);
+  const before = structuredClone(index);
+  const task = requireTask(index, operation.taskId);
+  const other = requireTask(index, operation.excludedTaskId);
   if (operation.present) {
     task.state.relations.excludes[operation.excludedTaskId] = true;
     other.state.relations.excludes[operation.taskId] = true;
@@ -359,9 +268,9 @@ function setExclusion(
     delete task.state.relations.excludes[operation.excludedTaskId];
     delete other.state.relations.excludes[operation.taskId];
   }
-  assertProtectedTopologyUnchanged(before, scope);
-  updateTaskTime(scope, operation.taskId, now);
-  updateTaskTime(scope, operation.excludedTaskId, now);
+  assertProtectedTopologyUnchanged(before, index);
+  updateTaskTime(index, operation.taskId, now);
+  updateTaskTime(index, operation.excludedTaskId, now);
 }
 
 function resolveTaskReference(value: string, aliases: ReadonlyMap<string, string>): string {
@@ -385,9 +294,6 @@ function resolveOperationAliases(
   aliases: ReadonlyMap<string, string>
 ): TaskGraphRevisionOperation {
   switch (operation.kind) {
-    case "create-scope":
-    case "set-scope-binding":
-      return operation;
     case "create-task":
       return {
         ...operation,
@@ -431,18 +337,11 @@ export function applyTaskGraphOperations(
   const candidate = cloneIndex(current);
   const timestamp = canonicalNow(now);
   const aliases = new Map<string, string>();
-  const createdScopeIds: string[] = [];
   const createdTaskIds: string[] = [];
 
   for (const rawOperation of request.operations) {
     const operation = resolveOperationAliases(rawOperation, aliases);
     switch (operation.kind) {
-      case "create-scope":
-        createdScopeIds.push(createScope(candidate, operation, timestamp));
-        break;
-      case "set-scope-binding":
-        setScopeBinding(candidate, operation, timestamp);
-        break;
       case "create-task": {
         if (operation.alias !== undefined && aliases.has(operation.alias)) {
           throw new TaskGraphError(
@@ -483,7 +382,6 @@ export function applyTaskGraphOperations(
       aliases: Object.fromEntries(
         [...aliases.entries()].sort(([left], [right]) => compareText(left, right))
       ),
-      createdScopeIds,
       createdTaskIds
     }
   };
@@ -491,17 +389,15 @@ export function applyTaskGraphOperations(
 
 function mutateExecution<TData>(
   current: TaskIndex,
-  scopeId: string,
   taskId: string,
   now: Date,
-  mutate: (candidate: TaskIndex, scope: TaskScope, timestamp: string) => TData
+  mutate: (candidate: TaskIndex, timestamp: string) => TData
 ): IndexMutation<TData> {
   const candidate = cloneIndex(current);
-  const scope = requireScope(candidate, scopeId);
-  requireTask(scope, scopeId, taskId);
+  requireTask(candidate, taskId);
   const timestamp = canonicalNow(now);
-  const data = mutate(candidate, scope, timestamp);
-  updateTaskTime(scope, taskId, timestamp);
+  const data = mutate(candidate, timestamp);
+  updateTaskTime(candidate, taskId, timestamp);
   candidate.revision = nextRevision(current);
   return { index: parseTaskIndex(candidate), data };
 }
@@ -534,27 +430,26 @@ function canonicalLeaseId(value: string): string {
 }
 
 function requireRunningLease(
-  scope: TaskScope,
-  scopeId: string,
+  index: TaskIndex,
   taskId: string,
   leaseId: string,
   now: Date,
   allowExpired: boolean
 ) {
-  const task = requireTask(scope, scopeId, taskId);
+  const task = requireTask(index, taskId);
   const execution = task.state.execution;
   if (execution.phase !== "running" || execution.lease.id !== leaseId) {
     throw new TaskGraphError(
       "LEASE_CONFLICT",
       `Lease ${leaseId} does not own task ${taskId}`,
-      { scopeId, taskId, leaseId }
+      { taskId, leaseId }
     );
   }
   if (!allowExpired && new Date(execution.lease.expiresAt) <= now) {
     throw new TaskGraphError(
       "LEASE_EXPIRED",
       `Lease ${leaseId} has expired and requires claim recovery`,
-      { scopeId, taskId, leaseId, expiresAt: execution.lease.expiresAt }
+      { taskId, leaseId, expiresAt: execution.lease.expiresAt }
     );
   }
   return execution;
@@ -581,13 +476,9 @@ export function claimTask(
   }
   const recovering = recoveryValueCount === recoveryValues.length;
   if (recovering) boundedString(options.reason ?? "", "recovery reason", 1000);
-  return mutateExecution(current, options.scopeId, options.taskId, now, (
-    candidate,
-    scope,
-    timestamp
-  ) => {
-    const task = requireTask(scope, options.scopeId, options.taskId);
-    const projection = projectScope(candidate, options.scopeId, now).tasks[options.taskId];
+  return mutateExecution(current, options.taskId, now, (candidate, timestamp) => {
+    const task = requireTask(candidate, options.taskId);
+    const projection = projectTaskGraph(candidate, now).tasks[options.taskId];
     const execution = task.state.execution;
     if (execution.phase === "idle") {
       if (recovering) {
@@ -644,22 +535,18 @@ export function claimTask(
       );
     }
     const leaseId = canonicalLeaseId(options.leaseUuid);
-    for (const [candidateScopeId, candidateScope] of Object.entries(candidate.scopes)) {
-      for (const [candidateTaskId, candidateTask] of Object.entries(candidateScope.tasks)) {
-        const execution = candidateTask.state.execution;
-        if (execution.phase === "running" && execution.lease.id === leaseId) {
-          throw new TaskGraphError(
-            "LEASE_CONFLICT",
-            `Lease ${leaseId} is already assigned to another running task`,
-            {
-              leaseId,
-              ownerScopeId: candidateScopeId,
-              ownerTaskId: candidateTaskId,
-              requestedScopeId: options.scopeId,
-              requestedTaskId: options.taskId
-            }
-          );
-        }
+    for (const [candidateTaskId, candidateTask] of Object.entries(candidate.tasks)) {
+      const candidateExecution = candidateTask.state.execution;
+      if (candidateExecution.phase === "running" && candidateExecution.lease.id === leaseId) {
+        throw new TaskGraphError(
+          "LEASE_CONFLICT",
+          `Lease ${leaseId} is already assigned to another running task`,
+          {
+            leaseId,
+            ownerTaskId: candidateTaskId,
+            requestedTaskId: options.taskId
+          }
+        );
       }
     }
     const expiresAt = new Date(now.valueOf() + duration).toISOString();
@@ -681,7 +568,6 @@ export function claimTask(
 export function renewTaskLease(
   current: TaskIndex,
   options: {
-    scopeId: string;
     taskId: string;
     leaseId: string;
     durationSeconds?: number;
@@ -689,14 +575,9 @@ export function renewTaskLease(
   now: Date
 ): IndexMutation<{ taskId: string; leaseId: string; expiresAt: string }> {
   const duration = leaseDurationMilliseconds(options.durationSeconds ?? 1800);
-  return mutateExecution(current, options.scopeId, options.taskId, now, (
-    _candidate,
-    scope,
-    timestamp
-  ) => {
+  return mutateExecution(current, options.taskId, now, (candidate, timestamp) => {
     const execution = requireRunningLease(
-      scope,
-      options.scopeId,
+      candidate,
       options.taskId,
       options.leaseId,
       now,
@@ -712,26 +593,21 @@ export function renewTaskLease(
 export function releaseTask(
   current: TaskIndex,
   options: {
-    scopeId: string;
     taskId: string;
     leaseId: string;
     control: TaskControlInput;
   },
   now: Date
 ): IndexMutation<{ taskId: string; phase: "idle" }> {
-  return mutateExecution(current, options.scopeId, options.taskId, now, (
-    _candidate,
-    scope
-  ) => {
+  return mutateExecution(current, options.taskId, now, (candidate) => {
     const execution = requireRunningLease(
-      scope,
-      options.scopeId,
+      candidate,
       options.taskId,
       options.leaseId,
       now,
       false
     );
-    const task = requireTask(scope, options.scopeId, options.taskId);
+    const task = requireTask(candidate, options.taskId);
     const control = parseControl(options.control);
     if (task.state.relations.parentId === null && control.mode === "inherit") {
       throw new TaskGraphError(
@@ -756,9 +632,8 @@ export function completeTask(
       "Task completion requires exactly one of leaseId or expectedRevision"
     );
   }
-  const scope = requireScope(current, options.scopeId);
-  requireTask(scope, options.scopeId, options.taskId);
-  const children = childrenByTask(scope).get(options.taskId) ?? [];
+  requireTask(current, options.taskId);
+  const children = childrenByTask(current).get(options.taskId) ?? [];
   if (children.length === 0) {
     if (options.leaseId === undefined) {
       throw new TaskGraphError(
@@ -776,15 +651,11 @@ export function completeTask(
     requireExpectedRevision(current, options.expectedRevision);
   }
   const result = parseTaskResult(options.result);
-  return mutateExecution(current, options.scopeId, options.taskId, now, (
-    candidate,
-    candidateScope
-  ) => {
-    const task = requireTask(candidateScope, options.scopeId, options.taskId);
+  return mutateExecution(current, options.taskId, now, (candidate) => {
+    const task = requireTask(candidate, options.taskId);
     if (children.length === 0) {
       const execution = requireRunningLease(
-        candidateScope,
-        options.scopeId,
+        candidate,
         options.taskId,
         options.leaseId ?? "",
         now,
@@ -792,7 +663,7 @@ export function completeTask(
       );
       task.state.execution = { phase: "succeeded", attempt: execution.attempt };
     } else {
-      const projection = projectScope(candidate, options.scopeId, now).tasks[options.taskId];
+      const projection = projectTaskGraph(candidate, now).tasks[options.taskId];
       if (
         task.state.execution.phase !== "idle"
         || projection?.effectiveState !== "ready"
@@ -816,23 +687,19 @@ export function completeTask(
 
 export function failTask(
   current: TaskIndex,
-  options: { scopeId: string; taskId: string; leaseId: string; reason: string },
+  options: { taskId: string; leaseId: string; reason: string },
   now: Date
 ): IndexMutation<{ taskId: string; phase: "failed" }> {
   const reason = boundedString(options.reason, "failure reason", 1000);
-  return mutateExecution(current, options.scopeId, options.taskId, now, (
-    _candidate,
-    scope
-  ) => {
+  return mutateExecution(current, options.taskId, now, (candidate) => {
     const execution = requireRunningLease(
-      scope,
-      options.scopeId,
+      candidate,
       options.taskId,
       options.leaseId,
       now,
       false
     );
-    const task = requireTask(scope, options.scopeId, options.taskId);
+    const task = requireTask(candidate, options.taskId);
     task.state.execution = {
       phase: "failed",
       attempt: execution.attempt,
@@ -845,15 +712,12 @@ export function failTask(
 
 export function retryTask(
   current: TaskIndex,
-  options: { scopeId: string; taskId: string; expectedRevision: number },
+  options: { taskId: string; expectedRevision: number },
   now: Date
 ): IndexMutation<{ taskId: string; phase: "idle" }> {
   requireExpectedRevision(current, options.expectedRevision);
-  return mutateExecution(current, options.scopeId, options.taskId, now, (
-    _candidate,
-    scope
-  ) => {
-    const task = requireTask(scope, options.scopeId, options.taskId);
+  return mutateExecution(current, options.taskId, now, (candidate) => {
+    const task = requireTask(candidate, options.taskId);
     if (task.state.execution.phase !== "failed") {
       throw new TaskGraphError(
         "STATE_CONFLICT",
@@ -880,8 +744,7 @@ export function cancelTask(
     );
   }
   const reason = boundedString(options.reason, "cancellation reason", 1000);
-  const currentScope = requireScope(current, options.scopeId);
-  const currentTask = requireTask(currentScope, options.scopeId, options.taskId);
+  const currentTask = requireTask(current, options.taskId);
   if (currentTask.state.execution.phase === "running") {
     if (options.leaseId === undefined) {
       throw new TaskGraphError(
@@ -898,12 +761,8 @@ export function cancelTask(
     }
     requireExpectedRevision(current, options.expectedRevision);
   }
-  return mutateExecution(current, options.scopeId, options.taskId, now, (
-    _candidate,
-    scope,
-    timestamp
-  ) => {
-    const task = requireTask(scope, options.scopeId, options.taskId);
+  return mutateExecution(current, options.taskId, now, (candidate, timestamp) => {
+    const task = requireTask(candidate, options.taskId);
     if (task.state.execution.phase === "succeeded" || task.state.execution.phase === "cancelled") {
       throw new TaskGraphError(
         "STATE_CONFLICT",
@@ -912,17 +771,16 @@ export function cancelTask(
     }
     if (task.state.execution.phase === "running") {
       requireRunningLease(
-        scope,
-        options.scopeId,
+        candidate,
         options.taskId,
         options.leaseId ?? "",
         now,
         false
       );
     }
-    const targets = [options.taskId, ...descendantIds(scope, options.taskId)];
+    const targets = [options.taskId, ...descendantIds(candidate, options.taskId)];
     for (const targetId of targets) {
-      if (scope.tasks[targetId]?.state.execution.phase === "running") {
+      if (candidate.tasks[targetId]?.state.execution.phase === "running") {
         if (targetId !== options.taskId) {
           throw new TaskGraphError(
             "STATE_CONFLICT",
@@ -934,7 +792,7 @@ export function cancelTask(
     }
     const cancelledTaskIds: string[] = [];
     for (const targetId of targets) {
-      const target = scope.tasks[targetId];
+      const target = candidate.tasks[targetId];
       if (target === undefined) continue;
       const phase = target.state.execution.phase;
       if (phase === "succeeded" || phase === "cancelled") continue;
@@ -952,101 +810,110 @@ export function cancelTask(
   });
 }
 
-export function scopeCloseProjection(
-  index: TaskIndex,
-  scopeId: string,
-  now: Date
-): ScopeCloseProjection {
-  const scope = requireScope(index, scopeId);
-  const projection = projectScope(index, scopeId, now);
-  const blockers: ScopeCloseProjection["blockers"] = [];
-  for (const [taskId, task] of Object.entries(scope.tasks)) {
-    const state = projection.tasks[taskId]?.effectiveState ?? "waiting";
-    const phase = task.state.execution.phase;
-    if (task.state.relations.parentId === null && phase !== "succeeded" && phase !== "cancelled") {
-      blockers.push({ kind: "top-task-not-terminal", scopeId, taskId, state });
-    }
-    if (phase === "failed") {
-      blockers.push({ kind: "failed-task", scopeId, taskId, state: "failed" });
-    }
-    if (phase === "running") {
-      blockers.push({
-        kind: state === "recovery-needed" ? "recovery-needed" : "active-lease",
-        scopeId,
-        taskId,
-        state
-      });
-    }
-  }
-  blockers.sort((left, right) =>
-    compareText(left.taskId, right.taskId) || compareText(left.kind, right.kind)
-  );
-  return {
-    scopeId,
-    closable: blockers.length === 0,
-    blockers,
-    requiresResultsDelivered: true,
-    taskCount: Object.keys(scope.tasks).length
+type TaskRemovalBlocker =
+  | { kind: "task-not-terminal"; taskId: string; phase: TaskExecutionPhase }
+  | {
+    kind: "parent-crosses-selection"
+      | "child-crosses-selection"
+      | "dependency-crosses-selection"
+      | "exclusion-crosses-selection";
+    taskId: string;
+    relatedTaskId: string;
   };
-}
 
-export function closeScopes(
+export function removeTasks(
   current: TaskIndex,
-  options: {
-    expectedRevision: number;
-    scopeIds: string[];
-    resultsDelivered: true;
-  },
-  now: Date
+  options: RemoveTasksOptions
 ): IndexMutation<{
-  closedScopeIds: string[];
-  scopes: Record<string, ScopeCloseProjection>;
+  removedTaskIds: string[];
 }> {
   requireExpectedRevision(current, options.expectedRevision);
-  if (options.scopeIds.length === 0) {
+  if (options.taskIds.length === 0) {
     throw new TaskGraphError(
       "ARGUMENT_INVALID",
-      "Scope close requires at least one explicitly selected scope"
+      "Task removal requires at least one explicitly selected task"
     );
   }
-  const scopeIds = options.scopeIds;
-  if (new Set(scopeIds).size !== scopeIds.length) {
+  if (new Set(options.taskIds).size !== options.taskIds.length) {
     throw new TaskGraphError(
       "ARGUMENT_INVALID",
-      "Scope close selection must not repeat a scope id"
+      "Task removal selection must not repeat a task id"
     );
   }
   if (options.resultsDelivered !== true) {
     throw new TaskGraphError(
       "DELIVERY_NOT_CONFIRMED",
-      "Scope results must be explicitly confirmed delivered"
+      "Task results must be explicitly confirmed delivered"
     );
   }
-  const projections: Record<string, ScopeCloseProjection> = {};
-  for (const scopeId of scopeIds) {
-    const projection = scopeCloseProjection(current, scopeId, now);
-    projections[scopeId] = projection;
-    if (!projection.closable) {
-      throw new TaskGraphError(
-        "SCOPE_NOT_CLOSABLE",
-        `Scope ${scopeId} does not satisfy the close gate`,
-        { scope: projection }
-      );
+
+  const selected = new Set(options.taskIds);
+  for (const taskId of selected) requireTask(current, taskId);
+  const blockers: TaskRemovalBlocker[] = [];
+  for (const taskId of selected) {
+    const task = requireTask(current, taskId);
+    const phase = task.state.execution.phase;
+    if (phase !== "succeeded" && phase !== "cancelled") {
+      blockers.push({ kind: "task-not-terminal", taskId, phase });
+    }
+    const parentId = task.state.relations.parentId;
+    if (parentId !== null && !selected.has(parentId)) {
+      blockers.push({ kind: "parent-crosses-selection", taskId, relatedTaskId: parentId });
+    }
+    for (const dependencyId of Object.keys(task.state.relations.dependsOn)) {
+      if (!selected.has(dependencyId)) {
+        blockers.push({
+          kind: "dependency-crosses-selection",
+          taskId,
+          relatedTaskId: dependencyId
+        });
+      }
+    }
+    for (const excludedTaskId of Object.keys(task.state.relations.excludes)) {
+      if (!selected.has(excludedTaskId)) {
+        blockers.push({
+          kind: "exclusion-crosses-selection",
+          taskId,
+          relatedTaskId: excludedTaskId
+        });
+      }
     }
   }
-  const candidate = cloneIndex(current);
-  const closedScopeIds = [...scopeIds].sort(compareText);
-  for (const scopeId of closedScopeIds) {
-    delete candidate.scopes[scopeId];
+  for (const [taskId, task] of Object.entries(current.tasks)) {
+    if (selected.has(taskId)) continue;
+    const parentId = task.state.relations.parentId;
+    if (parentId !== null && selected.has(parentId)) {
+      blockers.push({ kind: "child-crosses-selection", taskId: parentId, relatedTaskId: taskId });
+    }
+    for (const dependencyId of Object.keys(task.state.relations.dependsOn)) {
+      if (selected.has(dependencyId)) {
+        blockers.push({
+          kind: "dependency-crosses-selection",
+          taskId,
+          relatedTaskId: dependencyId
+        });
+      }
+    }
   }
+  blockers.sort((left, right) =>
+    compareText(left.taskId, right.taskId)
+    || compareText(left.kind, right.kind)
+    || compareText("relatedTaskId" in left ? left.relatedTaskId : "", "relatedTaskId" in right ? right.relatedTaskId : "")
+  );
+  if (blockers.length > 0) {
+    throw new TaskGraphError(
+      "TASKS_NOT_REMOVABLE",
+      "Selected tasks are not terminal and detached from the remaining graph",
+      { blockers }
+    );
+  }
+
+  const candidate = cloneIndex(current);
+  const removedTaskIds = [...selected].sort(compareText);
+  for (const taskId of removedTaskIds) delete candidate.tasks[taskId];
   candidate.revision = nextRevision(current);
   return {
     index: parseTaskIndex(candidate),
-    data: {
-      closedScopeIds,
-      scopes: Object.fromEntries(
-        Object.entries(projections).sort(([left], [right]) => compareText(left, right))
-      )
-    }
+    data: { removedTaskIds }
   };
 }

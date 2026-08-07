@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   applyTaskGraphOperations,
-  projectScope,
+  projectTaskGraph,
   validateTaskIndexGraph
 } from "../src/index.ts";
 import {
@@ -14,14 +14,14 @@ import {
   taskOperation
 } from "./helpers.ts";
 
-test("graph validation rejects cycles, dangling references, and cross-scope relations", () => {
+test("graph validation rejects cycles and dangling references", () => {
   const base = graphIndex([
     taskOperation("parent"),
     taskOperation("child", { parentId: "@parent" }),
     taskOperation("other")
   ]);
   const parentCycle = structuredClone(base);
-  parentCycle.scopes["scope-000001"]!.tasks["task-000001"]!
+  parentCycle.tasks["task-000001"]!
     .state.relations.parentId = "task-000002";
   assert.ok(validateTaskIndexGraph(parentCycle).some((issue) =>
     issue.includes("parent cycle")
@@ -32,14 +32,12 @@ test("graph validation rejects cycles, dangling references, and cross-scope rela
     operations: [
       {
         kind: "set-dependency",
-        scopeId: "scope-000001",
         taskId: "task-000001",
         dependencyId: "task-000003",
         present: true
       },
       {
         kind: "set-dependency",
-        scopeId: "scope-000001",
         taskId: "task-000003",
         dependencyId: "task-000002",
         present: true
@@ -47,22 +45,10 @@ test("graph validation rejects cycles, dangling references, and cross-scope rela
     ]
   }, initialNow), "INDEX_INVALID");
 
-  const isolated = applyOperations(base, [{ kind: "create-scope", key: "other-scope" }]);
-  const crossScope = structuredClone(isolated);
-  crossScope.scopes["scope-000002"]!.tasks = {
-    "task-000004": structuredClone(
-      crossScope.scopes["scope-000001"]!.tasks["task-000003"]!
-    )
-  };
-  crossScope.nextIds.task = 5;
-  crossScope.scopes["scope-000002"]!.tasks["task-000004"]!
-    .state.relations.dependsOn = { "task-000001": true };
-  assert.ok(validateTaskIndexGraph(crossScope).some((issue) =>
-    issue.includes("crosses scope")
-  ));
-  crossScope.scopes["scope-000002"]!.tasks["task-000004"]!
+  const dangling = structuredClone(base);
+  dangling.tasks["task-000003"]!
     .state.relations.dependsOn = { "task-999999": true };
-  assert.ok(validateTaskIndexGraph(crossScope).some((issue) =>
+  assert.ok(validateTaskIndexGraph(dangling).some((issue) =>
     issue.includes("is missing")
   ));
 });
@@ -75,17 +61,16 @@ test("relations enforce symmetric exclusions and reject conflicting inherited pa
   ]);
   index = applyOperations(index, [{
     kind: "set-exclusion",
-    scopeId: "scope-000001",
     taskId: "task-000001",
     excludedTaskId: "task-000003",
     present: true
   }]);
-  const scope = index.scopes["scope-000001"]!;
-  assert.equal(scope.tasks["task-000001"]!.state.relations.excludes["task-000003"], true);
-  assert.equal(scope.tasks["task-000003"]!.state.relations.excludes["task-000001"], true);
+  const tasks = index.tasks;
+  assert.equal(tasks["task-000001"]!.state.relations.excludes["task-000003"], true);
+  assert.equal(tasks["task-000003"]!.state.relations.excludes["task-000001"], true);
 
   const asymmetric = structuredClone(index);
-  delete asymmetric.scopes["scope-000001"]!.tasks["task-000003"]!
+  delete asymmetric.tasks["task-000003"]!
     .state.relations.excludes["task-000001"];
   assert.ok(validateTaskIndexGraph(asymmetric).some((issue) =>
     issue.includes("is not symmetric")
@@ -93,7 +78,6 @@ test("relations enforce symmetric exclusions and reject conflicting inherited pa
 
   expectTaskGraphError(() => applyOperations(index, [{
     kind: "set-dependency",
-    scopeId: "scope-000001",
     taskId: "task-000002",
     dependencyId: "task-000003",
     present: true
@@ -101,7 +85,6 @@ test("relations enforce symmetric exclusions and reject conflicting inherited pa
 
   expectTaskGraphError(() => applyOperations(index, [{
     kind: "set-exclusion",
-    scopeId: "scope-000001",
     taskId: "task-000001",
     excludedTaskId: "task-000002",
     present: true
@@ -118,20 +101,18 @@ test("projection expands ancestor constraints with declaration paths and reverse
   index = applyOperations(index, [
     {
       kind: "set-dependency",
-      scopeId: "scope-000001",
       taskId: "task-000001",
       dependencyId: "task-000003",
       present: true
     },
     {
       kind: "set-exclusion",
-      scopeId: "scope-000001",
       taskId: "task-000001",
       excludedTaskId: "task-000004",
       present: true
     }
   ]);
-  const projection = projectScope(index, "scope-000001", initialNow);
+  const projection = projectTaskGraph(index, initialNow);
   const child = projection.tasks["task-000002"]!;
 
   assert.deepEqual(child.dependencies, [{
@@ -166,12 +147,11 @@ test("nearest local control overrides ancestor soft control without removing har
   ]);
   index = applyOperations(index, [{
     kind: "set-dependency",
-    scopeId: "scope-000001",
     taskId: "task-000001",
     dependencyId: "task-000003",
     present: true
   }]);
-  const child = projectScope(index, "scope-000001", initialNow)
+  const child = projectTaskGraph(index, initialNow)
     .tasks["task-000002"]!;
 
   assert.deepEqual(child.effectiveControl, {
@@ -194,12 +174,11 @@ test("topology edits cannot rewrite running or terminal execution evidence", () 
   ]);
   index = applyOperations(index, [{
     kind: "set-exclusion",
-    scopeId: "scope-000001",
     taskId: "task-000001",
     excludedTaskId: "task-000002",
     present: true
   }]);
-  index.scopes["scope-000001"]!.tasks["task-000001"]!.state.execution = {
+  index.tasks["task-000001"]!.state.execution = {
     phase: "running",
     attempt: 1,
     lease: {
@@ -212,7 +191,6 @@ test("topology edits cannot rewrite running or terminal execution evidence", () 
   };
   expectTaskGraphError(() => applyOperations(index, [{
     kind: "set-dependency",
-    scopeId: "scope-000001",
     taskId: "task-000001",
     dependencyId: "task-000002",
     present: true
@@ -220,31 +198,28 @@ test("topology edits cannot rewrite running or terminal execution evidence", () 
   const beforeRunningChild = structuredClone(index);
   expectTaskGraphError(() => applyOperations(index, [{
     kind: "create-task",
-    scopeId: "scope-000001",
     parentId: "task-000002",
     content: taskContent("new excluded descendant")
   }]), "STATE_CONFLICT");
   assert.deepEqual(index, beforeRunningChild);
 
   const terminal = structuredClone(index);
-  terminal.scopes["scope-000001"]!.tasks["task-000001"]!.state.execution = {
+  terminal.tasks["task-000001"]!.state.execution = {
     phase: "succeeded",
     attempt: 1
   };
-  terminal.scopes["scope-000001"]!.tasks["task-000001"]!.content.result = {
+  terminal.tasks["task-000001"]!.content.result = {
     summary: "done",
     references: {}
   };
   expectTaskGraphError(() => applyOperations(terminal, [{
     kind: "set-parent",
-    scopeId: "scope-000001",
     taskId: "task-000002",
     parentId: "task-000001"
   }]), "STATE_CONFLICT");
   const beforeTerminalChild = structuredClone(terminal);
   expectTaskGraphError(() => applyOperations(terminal, [{
     kind: "create-task",
-    scopeId: "scope-000001",
     parentId: "task-000002",
     content: taskContent("new terminal exclusion descendant")
   }]), "STATE_CONFLICT");

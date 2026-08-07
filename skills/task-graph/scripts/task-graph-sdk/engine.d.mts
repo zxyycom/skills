@@ -6,7 +6,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/task-graph
  * Rebuild: bun run sync:task-graph-cli
  */
-import type { CancelTaskOptions, ClaimTaskOptions, CompleteTaskOptions, ScopeCloseProjection, TaskControlInput, TaskGraphApplyRequest, TaskGraphApplyResult, TaskIndex } from "./types.mjs";
+import type { CancelTaskOptions, ClaimTaskOptions, CompleteTaskOptions, RemoveTasksOptions, TaskControlInput, TaskGraphApplyRequest, TaskGraphApplyResult, TaskIndex } from "./types.mjs";
 export type IndexMutation<TData> = {
     index: TaskIndex;
     data: TData;
@@ -20,7 +20,6 @@ export declare function claimTask(current: TaskIndex, options: ClaimTaskOptions 
     expiresAt: string;
 }>;
 export declare function renewTaskLease(current: TaskIndex, options: {
-    scopeId: string;
     taskId: string;
     leaseId: string;
     durationSeconds?: number;
@@ -30,7 +29,6 @@ export declare function renewTaskLease(current: TaskIndex, options: {
     expiresAt: string;
 }>;
 export declare function releaseTask(current: TaskIndex, options: {
-    scopeId: string;
     taskId: string;
     leaseId: string;
     control: TaskControlInput;
@@ -43,7 +41,6 @@ export declare function completeTask(current: TaskIndex, options: CompleteTaskOp
     phase: "succeeded";
 }>;
 export declare function failTask(current: TaskIndex, options: {
-    scopeId: string;
     taskId: string;
     leaseId: string;
     reason: string;
@@ -52,7 +49,6 @@ export declare function failTask(current: TaskIndex, options: {
     phase: "failed";
 }>;
 export declare function retryTask(current: TaskIndex, options: {
-    scopeId: string;
     taskId: string;
     expectedRevision: number;
 }, now: Date): IndexMutation<{
@@ -63,12 +59,6 @@ export declare function cancelTask(current: TaskIndex, options: CancelTaskOption
     taskId: string;
     cancelledTaskIds: string[];
 }>;
-export declare function scopeCloseProjection(index: TaskIndex, scopeId: string, now: Date): ScopeCloseProjection;
-export declare function closeScopes(current: TaskIndex, options: {
-    expectedRevision: number;
-    scopeIds: string[];
-    resultsDelivered: true;
-}, now: Date): IndexMutation<{
-    closedScopeIds: string[];
-    scopes: Record<string, ScopeCloseProjection>;
+export declare function removeTasks(current: TaskIndex, options: RemoveTasksOptions): IndexMutation<{
+    removedTaskIds: string[];
 }>;

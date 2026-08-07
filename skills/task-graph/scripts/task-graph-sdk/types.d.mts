@@ -6,8 +6,8 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/task-graph
  * Rebuild: bun run sync:task-graph-cli
  */
-export declare const taskGraphSchemaVersion: 1;
-export declare const taskGraphVersion: "1.2.0";
+export declare const taskGraphSchemaVersion: 2;
+export declare const taskGraphVersion: "2.0.0";
 export declare const defaultTaskGraphIndexPath: "docs/task-graph/task-graph-index.json";
 export declare const taskGraphRuntimeProtocolVersion: 1;
 export declare const taskGraphSupportedNodeRange: "^22.22.2 || ^24.15.0 || >=26.0.0";
@@ -62,17 +62,14 @@ export type TaskMutationPrecondition = {
     expectedRevision: number;
 };
 export type CompleteTaskOptions = {
-    scopeId: string;
     taskId: string;
     result: TaskResult;
 } & TaskMutationPrecondition;
 export type CancelTaskOptions = {
-    scopeId: string;
     taskId: string;
     reason: string;
 } & TaskMutationPrecondition;
 export type ClaimTaskOptions = {
-    scopeId: string;
     taskId: string;
     actor: string;
     durationSeconds?: number;
@@ -112,20 +109,11 @@ export type TaskEntry = {
     content: TaskContent;
     state: TaskState;
 };
-export type TaskScope = {
-    key: string;
-    bindings: Record<string, string>;
-    timestamps: TaskTimestamps;
-    tasks: Record<string, TaskEntry>;
-};
 export type TaskIndex = {
     schemaVersion: typeof taskGraphSchemaVersion;
     revision: number;
-    nextIds: {
-        scope: number;
-        task: number;
-    };
-    scopes: Record<string, TaskScope>;
+    nextTaskId: number;
+    tasks: Record<string, TaskEntry>;
 };
 export type TaskBlockerKind = "control-candidate" | "control-waiting" | "control-paused" | "dependency-incomplete" | "dependency-cancelled" | "dependency-failed" | "exclusion-running" | "ancestor-terminal" | "child-incomplete" | "all-children-cancelled" | "descendant-lease";
 type TaskBlockerBase = {
@@ -188,14 +176,13 @@ export type TaskProjection = {
     dependents: string[];
     nextAction: "claim" | "complete" | null;
 };
-export type ScopeProjection = {
-    scopeId: string;
+export type TaskGraphProjection = {
     revision: number;
     tasks: Record<string, TaskProjection>;
     actionable: Record<string, TaskProjection>;
     actionableOrder: string[];
 };
-export type TaskGraphErrorCode = "ARGUMENT_INVALID" | "REQUEST_INVALID" | "INDEX_NOT_FOUND" | "INDEX_EXISTS" | "INDEX_READ_FAILED" | "INDEX_INVALID" | "SCHEMA_UNSUPPORTED" | "RUNTIME_MISSING" | "RUNTIME_UNSUPPORTED" | "RUNTIME_INCOMPATIBLE" | "LOCK_TIMEOUT" | "REVISION_CONFLICT" | "SCOPE_NOT_FOUND" | "SCOPE_KEY_CONFLICT" | "BINDING_CONFLICT" | "TASK_NOT_FOUND" | "STATE_CONFLICT" | "TOPOLOGY_INVALID" | "LEASE_CONFLICT" | "LEASE_EXPIRED" | "DELIVERY_NOT_CONFIRMED" | "SCOPE_NOT_CLOSABLE" | "WRITE_FAILED" | "WRITE_OUTCOME_UNKNOWN";
+export type TaskGraphErrorCode = "ARGUMENT_INVALID" | "REQUEST_INVALID" | "INDEX_NOT_FOUND" | "INDEX_EXISTS" | "INDEX_READ_FAILED" | "INDEX_INVALID" | "SCHEMA_UNSUPPORTED" | "RUNTIME_MISSING" | "RUNTIME_UNSUPPORTED" | "RUNTIME_INCOMPATIBLE" | "LOCK_TIMEOUT" | "REVISION_CONFLICT" | "TASK_NOT_FOUND" | "STATE_CONFLICT" | "TOPOLOGY_INVALID" | "LEASE_CONFLICT" | "LEASE_EXPIRED" | "DELIVERY_NOT_CONFIRMED" | "TASKS_NOT_REMOVABLE" | "WRITE_FAILED" | "WRITE_OUTCOME_UNKNOWN";
 export type TaskGraphErrorBody = {
     code: TaskGraphErrorCode;
     retryable: boolean;
@@ -248,13 +235,10 @@ export type TaskIndexInfo = {
         message: string;
     }>;
     revision: number;
-    schemaVersion: 1;
-    scopeCount: number;
+    schemaVersion: typeof taskGraphSchemaVersion;
     taskCount: number;
-    nextIds: {
-        scope: number;
-        task: number;
-    };
+    topTaskCount: number;
+    nextTaskId: number;
 };
 export type TaskContentInput = {
     title: string;
@@ -270,20 +254,8 @@ export type TaskControlInput = {
     mode: "waiting" | "paused";
     reason: string;
 };
-export type CreateScopeOperation = {
-    kind: "create-scope";
-    key: string;
-    bindings?: Record<string, string>;
-};
-export type SetScopeBindingOperation = {
-    kind: "set-scope-binding";
-    scopeId: string;
-    bindingKind: string;
-    value: string | null;
-};
 export type CreateTaskOperation = {
     kind: "create-task";
-    scopeId: string;
     alias?: string;
     content: TaskContentInput;
     parentId?: string | null;
@@ -291,58 +263,43 @@ export type CreateTaskOperation = {
 };
 export type UpdateTaskContentOperation = {
     kind: "update-task-content";
-    scopeId: string;
     taskId: string;
     content: TaskContentInput;
 };
 export type UpdateTaskControlOperation = {
     kind: "update-task-control";
-    scopeId: string;
     taskId: string;
     control: TaskControlInput;
 };
 export type SetParentOperation = {
     kind: "set-parent";
-    scopeId: string;
     taskId: string;
     parentId: string | null;
 };
 export type SetDependencyOperation = {
     kind: "set-dependency";
-    scopeId: string;
     taskId: string;
     dependencyId: string;
     present: boolean;
 };
 export type SetExclusionOperation = {
     kind: "set-exclusion";
-    scopeId: string;
     taskId: string;
     excludedTaskId: string;
     present: boolean;
 };
-export type TaskGraphRevisionOperation = CreateScopeOperation | SetScopeBindingOperation | CreateTaskOperation | UpdateTaskContentOperation | UpdateTaskControlOperation | SetParentOperation | SetDependencyOperation | SetExclusionOperation;
+export type TaskGraphRevisionOperation = CreateTaskOperation | UpdateTaskContentOperation | UpdateTaskControlOperation | SetParentOperation | SetDependencyOperation | SetExclusionOperation;
 export type TaskGraphApplyRequest = {
     expectedRevision: number;
     operations: TaskGraphRevisionOperation[];
 };
 export type TaskGraphApplyResult = {
     aliases: Record<string, string>;
-    createdScopeIds: string[];
     createdTaskIds: string[];
 };
-export type ScopeCloseBlockerKind = "top-task-not-terminal" | "failed-task" | "active-lease" | "recovery-needed";
-export type ScopeCloseBlocker = {
-    kind: ScopeCloseBlockerKind;
-    scopeId: string;
-    taskId: string;
-    state: TaskEffectiveState;
-};
-export type ScopeCloseProjection = {
-    scopeId: string;
-    closable: boolean;
-    blockers: ScopeCloseBlocker[];
-    requiresResultsDelivered: true;
-    taskCount: number;
+export type RemoveTasksOptions = {
+    expectedRevision: number;
+    taskIds: string[];
+    resultsDelivered: true;
 };
 export {};

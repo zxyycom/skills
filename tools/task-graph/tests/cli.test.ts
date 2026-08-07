@@ -115,7 +115,7 @@ test("CLI help, version, and usage stay inside the single-JSON LF protocol", asy
       assert.equal(help.result.revision, null);
       const data = help.result.data as { commands: string[]; usage: string };
       assert.equal(data.usage.startsWith("task-graph"), true);
-      assert.equal(data.commands.length, 28);
+      assert.equal(data.commands.length, 23);
       assert.deepEqual(
         (help.result.data as { runtimeRequirements: unknown }).runtimeRequirements,
         {
@@ -134,19 +134,19 @@ test("CLI help, version, and usage stay inside the single-JSON LF protocol", asy
       }
     }
 
-    const createHelp = await callCli(root, ["scope", "create", "--help"]);
-    assert.equal(createHelp.result.ok, true);
-    if (createHelp.result.ok) {
-      const data = createHelp.result.data as {
+    const removeHelp = await callCli(root, ["task", "remove", "--help"]);
+    assert.equal(removeHelp.result.ok, true);
+    if (removeHelp.result.ok) {
+      const data = removeHelp.result.data as {
         command: string;
         parameters: { options: Array<{ name: string; required: boolean; type: string }> };
         usage: string;
       };
-      assert.equal(data.command, "scope create");
+      assert.equal(data.command, "task remove");
       assert.match(data.usage, /--expected-revision/u);
       assert.deepEqual(
-        data.parameters.options.find((option) => option.name === "--binding"),
-        { name: "--binding", required: false, type: "key-value", multiple: true }
+        data.parameters.options.find((option) => option.name === "--task"),
+        { name: "--task", required: true, type: "string", multiple: true }
       );
     }
 
@@ -195,11 +195,11 @@ test("CLI help, version, and usage stay inside the single-JSON LF protocol", asy
     const version = await callCli(root, ["--version"]);
     assert.equal(version.result.ok, true);
     if (version.result.ok) {
-      assert.deepEqual(version.result.data, { name: "task-graph", version: "1.2.0" });
+      assert.deepEqual(version.result.data, { name: "task-graph", version: "2.0.0" });
       assert.equal(version.result.revision, null);
     }
 
-    const usage = await callCli(root, ["scope", "create"]);
+    const usage = await callCli(root, ["task", "create"]);
     assert.equal(usage.exitCode, 1);
     assert.equal(usage.result.ok, false);
     if (!usage.result.ok) {
@@ -237,13 +237,10 @@ test("CLI gates every mutation before argument parsing or apply request and inde
     try {
       const mutationInvocations = [
         ["index", "init"],
-        ["scope", "create", "--key"],
-        ["scope", "binding-set"],
-        ["scope", "binding-remove"],
-        ["scope", "close"],
         ["task", "create"],
         ["task", "update-content"],
         ["task", "update-control"],
+        ["task", "remove"],
         ["relation", "parent"],
         ["relation", "dependency-add"],
         ["relation", "dependency-remove"],
@@ -285,16 +282,11 @@ test("CLI domain read-only commands run without an installed runtime", async () 
   await withTempWorkspace(async (root) => {
     await callCli(root, ["index", "init"]);
     await callCli(root, [
-      "scope", "create",
-      "--key", "read-only",
-      "--expected-revision", "0"
-    ]);
-    await callCli(root, [
-      "task", "create", "scope-000001",
+      "task", "create",
       "--title", "read-only task",
       "--goal", "query without runtime",
       "--acceptance", "all read-only commands succeed",
-      "--expected-revision", "1"
+      "--expected-revision", "0"
     ]);
     const toolHome = path.join(root, "missing-tool-home");
     const nodeVersion = (await execFileAsync(
@@ -304,11 +296,9 @@ test("CLI domain read-only commands run without an installed runtime", async () 
     )).stdout.trim();
     for (const args of [
       ["index", "info"],
-      ["scope", "list"],
-      ["scope", "show", "scope-000001"],
-      ["task", "list", "scope-000001"],
-      ["task", "show", "scope-000001", "task-000001"],
-      ["actionable", "scope-000001"]
+      ["task", "list"],
+      ["task", "show", "task-000001"],
+      ["actionable"]
     ]) {
       const result = await callCliWithMissingRuntime(root, args, toolHome, nodeVersion);
       assert.equal(result.exitCode, 0, args.join(" "));
@@ -369,34 +359,18 @@ test("CLI success and predictable schema, state, conflict, and file failures use
     assert.equal(initialized.result.ok, true);
     assert.equal(initialized.result.revision, 0);
 
-    const scope = await callCli(root, [
-      "scope", "create",
-      "--key", "cli-scope",
-      "--binding", "thread=supported",
-      "--expected-revision", "0"
-    ]);
-    assert.equal(scope.result.ok, true);
-    assert.equal(scope.result.revision, 1);
-
     const task = await callCli(root, [
-      "task", "create", "scope-000001",
+      "task", "create",
       "--title", "candidate",
       "--goal", "candidate goal",
       "--reference", "thread=supported",
-      "--expected-revision", "1"
+      "--expected-revision", "0"
     ]);
     assert.equal(task.result.ok, true);
-    assert.equal(task.result.revision, 2);
+    assert.equal(task.result.revision, 1);
 
-    const bindingFilter = await callCli(root, [
-      "scope", "list", "--binding", "thread=supported"
-    ]);
-    assert.equal(bindingFilter.result.ok, true);
-    if (bindingFilter.result.ok) {
-      assert.ok((bindingFilter.result.data as Record<string, unknown>)["scope-000001"]);
-    }
     const shownTask = await callCli(root, [
-      "task", "show", "scope-000001", "task-000001"
+      "task", "show", "task-000001"
     ]);
     assert.equal(shownTask.result.ok, true);
     if (shownTask.result.ok) {
@@ -407,24 +381,13 @@ test("CLI success and predictable schema, state, conflict, and file failures use
       assert.deepEqual(content.references, { thread: "supported" });
     }
 
-    const reservedBinding = await callCli(root, [
-      "scope", "create",
-      "--key", "reserved-binding",
-      "--binding", "constructor=blocked",
-      "--expected-revision", "2"
-    ]);
-    assert.equal(reservedBinding.result.ok, false);
-    if (!reservedBinding.result.ok) {
-      assert.equal(reservedBinding.result.error.code, "REQUEST_INVALID");
-    }
-
     const reservedReference = await callCli(root, [
-      "task", "create", "scope-000001",
+      "task", "create",
       "--title", "reserved reference",
       "--goal", "reserved reference goal",
       "--acceptance", "reserved reference accepted",
       "--reference", "prototype=blocked",
-      "--expected-revision", "2"
+      "--expected-revision", "1"
     ]);
     assert.equal(reservedReference.result.ok, false);
     if (!reservedReference.result.ok) {
@@ -432,12 +395,12 @@ test("CLI success and predictable schema, state, conflict, and file failures use
     }
 
     const prototypeReference = await callCli(root, [
-      "task", "create", "scope-000001",
+      "task", "create",
       "--title", "invalid prototype",
       "--goal", "invalid prototype goal",
       "--acceptance", "invalid prototype accepted",
       "--reference", "__proto__=blocked",
-      "--expected-revision", "2"
+      "--expected-revision", "1"
     ]);
     assert.equal(prototypeReference.result.ok, false);
     if (!prototypeReference.result.ok) {
@@ -445,8 +408,7 @@ test("CLI success and predictable schema, state, conflict, and file failures use
     }
 
     for (const [args, code] of [
-      [["scope", "show", "constructor"], "SCOPE_NOT_FOUND"],
-      [["task", "show", "scope-000001", "constructor"], "TASK_NOT_FOUND"]
+      [["task", "show", "constructor"], "TASK_NOT_FOUND"]
     ] as const) {
       const lookup = await callCli(root, [...args]);
       assert.equal(lookup.result.ok, false);
@@ -454,18 +416,19 @@ test("CLI success and predictable schema, state, conflict, and file failures use
     }
 
     const stateFailure = await callCli(root, [
-      "claim", "scope-000001", "task-000001", "--actor", "worker"
+      "claim", "task-000001", "--actor", "worker"
     ]);
     assert.equal(stateFailure.result.ok, false);
     if (!stateFailure.result.ok) {
       assert.equal(stateFailure.result.error.code, "STATE_CONFLICT");
-      assert.equal(stateFailure.result.revision, 2);
+      assert.equal(stateFailure.result.revision, 1);
     }
 
     const conflict = await callCli(root, [
-      "scope", "create",
-      "--key", "stale",
-      "--expected-revision", "1"
+      "task", "create",
+      "--title", "stale",
+      "--goal", "stale revision",
+      "--expected-revision", "0"
     ]);
     assert.equal(conflict.result.ok, false);
     if (!conflict.result.ok) {
@@ -475,8 +438,8 @@ test("CLI success and predictable schema, state, conflict, and file failures use
 
     const invalidRequestPath = path.join(root, "invalid-request.json");
     await fs.writeFile(invalidRequestPath, JSON.stringify({
-      expectedRevision: 2,
-      operations: [{ kind: "create-scope", key: "invalid", extra: true }]
+      expectedRevision: 1,
+      operations: [{ kind: "create-task", content: taskContent("invalid"), extra: true }]
     }), "utf8");
     const schemaFailure = await callCli(root, ["apply", "--file", invalidRequestPath]);
     assert.equal(schemaFailure.result.ok, false);
@@ -502,8 +465,9 @@ test("CLI success and predictable schema, state, conflict, and file failures use
   await withTempWorkspace(async (root) => {
     await callCli(root, ["index", "init"]);
     const unknown = await callCli(root, [
-      "scope", "create",
-      "--key", "committed-but-response-lost",
+      "task", "create",
+      "--title", "committed but response lost",
+      "--goal", "exercise write outcome",
       "--expected-revision", "0"
     ], {
       atomicWrite: async (target) => {
@@ -522,8 +486,9 @@ test("CLI success and predictable schema, state, conflict, and file failures use
   await withTempWorkspace(async (root) => {
     await callCli(root, ["index", "init"]);
     const unknown = await callCli(root, [
-      "scope", "create",
-      "--key", "committed-then-unreadable",
+      "task", "create",
+      "--title", "committed then unreadable",
+      "--goal", "exercise missing readback",
       "--expected-revision", "0"
     ], {
       atomicWrite: async (target) => {
@@ -540,11 +505,10 @@ test("CLI index info preserves the unsupported schema error code", async () => {
     const indexPath = path.join(root, "docs", "task-graph", "task-graph-index.json");
     await fs.mkdir(path.dirname(indexPath), { recursive: true });
     await fs.writeFile(indexPath, `${JSON.stringify({
-      schemaVersion: 2,
+      schemaVersion: 1,
       revision: 0,
       nextIds: { scope: 1, task: 1 },
-      scopes: {},
-      constructor: "unsupported-schema-field"
+      scopes: {}
     }, null, 2)}\n`, "utf8");
     const checked = await callCli(root, ["index", "info"]);
     assert.equal(checked.exitCode, 1);
@@ -595,20 +559,15 @@ test("CLI rejects ambiguous lease and revision pairs plus invalid control reason
   await withTempWorkspace(async (root) => {
     await callCli(root, ["index", "init"]);
     await callCli(root, [
-      "scope", "create",
-      "--key", "argument-scope",
-      "--expected-revision", "0"
-    ]);
-    await callCli(root, [
-      "task", "create", "scope-000001",
+      "task", "create",
       "--title", "running",
       "--goal", "running goal",
       "--acceptance", "running accepted",
       "--control", "queued",
-      "--expected-revision", "1"
+      "--expected-revision", "0"
     ]);
     const claimed = await callCli(root, [
-      "claim", "scope-000001", "task-000001", "--actor", "worker"
+      "claim", "task-000001", "--actor", "worker"
     ]);
     assert.equal(claimed.result.ok, true);
     const leaseId = claimed.result.ok
@@ -616,19 +575,19 @@ test("CLI rejects ambiguous lease and revision pairs plus invalid control reason
       : "";
     for (const args of [
       [
-        "complete", "scope-000001", "task-000001",
+        "complete", "task-000001",
         "--lease", leaseId,
         "--expected-revision", "3",
         "--result-summary", "ambiguous"
       ],
       [
-        "cancel", "scope-000001", "task-000001",
+        "cancel", "task-000001",
         "--lease", leaseId,
         "--expected-revision", "3",
         "--reason", "ambiguous"
       ],
       [
-        "claim", "scope-000001", "task-000001",
+        "claim", "task-000001",
         "--actor", "replacement",
         "--recover-lease", leaseId
       ]
@@ -642,11 +601,11 @@ test("CLI rejects ambiguous lease and revision pairs plus invalid control reason
 
     for (const args of [
       [
-        "complete", "scope-000001", "task-000001",
+        "complete", "task-000001",
         "--result-summary", "missing mutation precondition"
       ],
       [
-        "cancel", "scope-000001", "task-000001",
+        "cancel", "task-000001",
         "--reason", "missing mutation precondition"
       ]
     ]) {
@@ -663,7 +622,7 @@ test("CLI rejects ambiguous lease and revision pairs plus invalid control reason
       ["--reason", "orphaned"]
     ]) {
       const failure = await callCli(root, [
-        "task", "create", "scope-000001",
+        "task", "create",
         "--title", "invalid control",
         "--goal", "invalid control goal",
         "--acceptance", "invalid control accepted",
@@ -681,25 +640,18 @@ test("CLI rejects ambiguous lease and revision pairs plus invalid control reason
 test("CLI apply resolves aliases and rolls back every operation when one fails", async () => {
   await withTempWorkspace(async (root) => {
     await callCli(root, ["index", "init"]);
-    await callCli(root, [
-      "scope", "create",
-      "--key", "apply-scope",
-      "--expected-revision", "0"
-    ]);
     const validRequestPath = path.join(root, "valid-apply.json");
     await fs.writeFile(validRequestPath, `${JSON.stringify({
-      expectedRevision: 1,
+      expectedRevision: 0,
       operations: [
         {
           kind: "create-task",
-          scopeId: "scope-000001",
           alias: "constructor",
           content: taskContent("parent"),
           control: { mode: "queued" }
         },
         {
           kind: "create-task",
-          scopeId: "scope-000001",
           alias: "child",
           parentId: "@constructor",
           content: taskContent("child")
@@ -709,7 +661,7 @@ test("CLI apply resolves aliases and rolls back every operation when one fails",
     const applied = await callCli(root, ["apply", "--file", validRequestPath]);
     assert.equal(applied.result.ok, true);
     if (applied.result.ok) {
-      assert.equal(applied.result.revision, 2);
+      assert.equal(applied.result.revision, 1);
       assert.deepEqual(
         (applied.result.data as { aliases: Record<string, string> }).aliases,
         { child: "task-000002", constructor: "task-000001" }
@@ -718,17 +670,15 @@ test("CLI apply resolves aliases and rolls back every operation when one fails",
 
     const duplicateAliasPath = path.join(root, "duplicate-alias.json");
     await fs.writeFile(duplicateAliasPath, `${JSON.stringify({
-      expectedRevision: 2,
+      expectedRevision: 1,
       operations: [
         {
           kind: "create-task",
-          scopeId: "scope-000001",
           alias: "constructor",
           content: taskContent("first duplicate")
         },
         {
           kind: "create-task",
-          scopeId: "scope-000001",
           alias: "constructor",
           content: taskContent("second duplicate")
         }
@@ -742,10 +692,9 @@ test("CLI apply resolves aliases and rolls back every operation when one fails",
 
     const longAliasPath = path.join(root, "long-alias.json");
     await fs.writeFile(longAliasPath, `${JSON.stringify({
-      expectedRevision: 2,
+      expectedRevision: 1,
       operations: [{
         kind: "create-task",
-        scopeId: "scope-000001",
         alias: "a".repeat(81),
         content: taskContent("long alias")
       }]
@@ -758,17 +707,15 @@ test("CLI apply resolves aliases and rolls back every operation when one fails",
 
     const invalidRequestPath = path.join(root, "rollback-apply.json");
     await fs.writeFile(invalidRequestPath, `${JSON.stringify({
-      expectedRevision: 2,
+      expectedRevision: 1,
       operations: [
         {
           kind: "create-task",
-          scopeId: "scope-000001",
           alias: "temporary",
           content: taskContent("temporary")
         },
         {
           kind: "set-dependency",
-          scopeId: "scope-000001",
           taskId: "@temporary",
           dependencyId: "task-999999",
           present: true
@@ -783,8 +730,8 @@ test("CLI apply resolves aliases and rolls back every operation when one fails",
     const info = await callCli(root, ["index", "info"]);
     assert.equal(info.result.ok, true);
     if (info.result.ok) {
-      assert.equal(info.result.revision, 2);
-      assert.equal((info.result.data as { nextIds: { task: number } }).nextIds.task, 3);
+      assert.equal(info.result.revision, 1);
+      assert.equal((info.result.data as { nextTaskId: number }).nextTaskId, 3);
     }
   });
 });
@@ -794,16 +741,10 @@ test("process CLI apply accepts a JSON request from stdin without extra output",
     const toolHome = path.join(root, "tool-home");
     await prepareRootNativeRuntime(toolHome);
     await callCli(root, ["index", "init"]);
-    await callCli(root, [
-      "scope", "create",
-      "--key", "stdin-scope",
-      "--expected-revision", "0"
-    ]);
     const request = `${JSON.stringify({
-      expectedRevision: 1,
+      expectedRevision: 0,
       operations: [{
         kind: "create-task",
-        scopeId: "scope-000001",
         alias: "stdin-task",
         content: taskContent("stdin task"),
         control: { mode: "queued" }
@@ -820,7 +761,7 @@ test("process CLI apply accepts a JSON request from stdin without extra output",
     const result = JSON.parse(invoked.stdout) as TaskGraphResult;
     assert.equal(result.ok, true);
     if (result.ok) {
-      assert.equal(result.revision, 2);
+      assert.equal(result.revision, 1);
       assert.deepEqual(
         (result.data as { aliases: Record<string, string> }).aliases,
         { "stdin-task": "task-000001" }
@@ -834,32 +775,24 @@ test("independent Node CLI claims serialize and only one excluded task wins", as
     const toolHome = path.join(root, "tool-home");
     await prepareRootNativeRuntime(toolHome);
     await callCli(root, ["index", "init"]);
-    await callCli(root, [
-      "scope", "create",
-      "--key", "process-race",
-      "--expected-revision", "0"
-    ]);
     const requestPath = path.join(root, "excluded-tasks.json");
     await fs.writeFile(requestPath, `${JSON.stringify({
-      expectedRevision: 1,
+      expectedRevision: 0,
       operations: [
         {
           kind: "create-task",
-          scopeId: "scope-000001",
           alias: "left",
           content: taskContent("left"),
           control: { mode: "queued" }
         },
         {
           kind: "create-task",
-          scopeId: "scope-000001",
           alias: "right",
           content: taskContent("right"),
           control: { mode: "queued" }
         },
         {
           kind: "set-exclusion",
-          scopeId: "scope-000001",
           taskId: "@left",
           excludedTaskId: "@right",
           present: true
@@ -871,12 +804,12 @@ test("independent Node CLI claims serialize and only one excluded task wins", as
     const environment = { ...process.env, TASK_GRAPH_TOOL_HOME: toolHome };
     const claims = await Promise.all([
       callProcessCli([
-        "claim", "scope-000001", "task-000001",
+        "claim", "task-000001",
         "--actor", "left-worker",
         "--root", root
       ], "", environment),
       callProcessCli([
-        "claim", "scope-000001", "task-000002",
+        "claim", "task-000002",
         "--actor", "right-worker",
         "--root", root
       ], "", environment)
@@ -894,9 +827,9 @@ test("independent Node CLI claims serialize and only one excluded task wins", as
     assert.equal(failureResult.ok, false);
     if (!failureResult.ok) {
       assert.equal(failureResult.error.code, "STATE_CONFLICT");
-      assert.equal(failureResult.revision, 3);
+      assert.equal(failureResult.revision, 2);
     }
     const info = await callCli(root, ["index", "info"]);
-    assert.equal(info.result.revision, 3);
+    assert.equal(info.result.revision, 2);
   });
 });

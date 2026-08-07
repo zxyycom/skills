@@ -31,7 +31,7 @@
     },
     {
       "id": "task-graph",
-      "description": "短期任务图的索引结构、图投影、生命周期、事务存储、执行租约、JSON CLI、scope 清理与分发边界。"
+      "description": "任务图的根级索引结构、图投影、生命周期、事务存储、执行租约、JSON CLI、显式任务清理与分发边界。"
     },
     {
       "id": "test-evidence",

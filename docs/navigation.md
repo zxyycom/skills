@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | 了解项目或选择 skill | [README](../README.md)、[仓库模型](repository-model.md) | `docs/skills/<skill-name>.md` 中对应的人类介绍 |
 | 使用或审阅某个 skill | `skills/<skill-name>/SKILL.md` | 该入口按读取策略指向的 `references/`、`scripts/` 或其他材料；按需读取对应 `docs/skills/<skill-name>.md` |
-| 维护或恢复短期非线性任务图 | [Task Graph](../skills/task-graph/SKILL.md) | [权威 task index](task-graph/task-graph-index.json)；需要持久 change 或代理编排时按该 skill 的交接条件读取对应 owner |
+| 维护或恢复非线性任务图 | [Task Graph](../skills/task-graph/SKILL.md) | [权威 task index](task-graph/task-graph-index.json)；需要持久 change、长期知识或代理编排时按该 skill 的交接条件读取对应 owner |
 | 新增、修改、删除或审查测试实现 | [Test Evidence Review](../skills/test-evidence-review/SKILL.md) | 项目测试约定、目标测试及被测契约；写入 case 时读取该 skill 的目录契约 |
 | 创建、显著扩展或大幅重构 skill | [Skill Maintainer](../skills/skill-maintainer/SKILL.md)、已有目标 skill 的 `SKILL.md` | 真实流程、关键判断、约束或验收仍隐含或冲突时读 [Skill Design Discovery](../skills/skill-design-discovery/SKILL.md)；涉及通用分发边界时读 [仓库模型](repository-model.md) |
 | 调整仓库定位、skill 选择与启用边界或通用分发边界 | [仓库模型](repository-model.md) | 涉及具体打包、发布或 updater 机制时读 [项目工具链](tooling.md)；只影响特定 skill 时读其行为 owner |
@@ -34,7 +34,7 @@
 | 编码规范 | `docs/coding-style.md` | `scripts/` 与 `tools/` 实现代码的归属、边界、类型、组织和风险验证规则 |
 | Skill 人类介绍 | `docs/skills/<skill-name>.md` | 面向人类的定位、项目起点和发展方向；不作为 agent 执行入口，也不进入 skill zip |
 | Skill 本体 | `skills/<skill-name>/SKILL.md` 及其相邻材料 | 单个 skill 的触发、行为、读取策略、执行流程、边界、验收和分发内容 |
-| 短期任务图索引 | `docs/task-graph/task-graph-index.json` | 当前工作中 scope、task、显式关系与执行租约的唯一权威事实；只由 task-graph 工具事务化修改，复杂有效状态由查询投影 |
+| 任务图索引 | `docs/task-graph/task-graph-index.json` | 当前工作中 task、真实父子、显式依赖与排斥、执行租约的唯一权威事实；只由 task-graph 工具事务化修改，复杂有效状态由查询投影 |
 | 测试证据账本 | `docs/test-evidence/test-evidence-topics.json`、`docs/test-evidence/<topic-id>/*.md`、`docs/test-evidence/test-evidence-index.json` | 受控 topic 表定义稳定测试责任，每个 Markdown 只承接一个最小原生测试入口的权威 case，索引 JSON 是统一查询投影；格式与维护事务由 `skills/test-evidence-review/` 承接 |
 | 可分发工具源码 | `tools/<tool-name>/` | 随 skill 分发的源码、声明、测试、fixture 和局部组件契约；`tools/shared/` 承接跨工具运行时不变量，`tools/skill-package/` 承接发布端与 updater 共用的分发协议 |
 | 主仓库自动化与共享交付 | 主仓库根目录、`scripts/` 和 CI 配置 | 命令编排、生成适配、共享校验、打包、聚合发布、依赖入口、Git 和 CI 自动化；不承接随 skill 分发工具的运行时源码 |

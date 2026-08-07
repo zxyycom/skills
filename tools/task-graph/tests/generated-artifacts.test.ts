@@ -167,19 +167,18 @@ const publicRuntimeExports = [
   "applyTaskGraphOperations",
   "cancelTask",
   "claimTask",
-  "closeScopes",
   "completeTask",
   "defaultTaskGraphIndexPath",
   "emptyTaskIndex",
   "failTask",
   "parseTaskGraphApplyRequest",
   "parseTaskIndex",
-  "projectScope",
+  "projectTaskGraph",
   "releaseTask",
+  "removeTasks",
   "renewTaskLease",
   "retryTask",
   "runTaskGraphCli",
-  "scopeCloseProjection",
   "serializeTaskIndex",
   "taskControlModes",
   "taskEffectiveStates",
@@ -252,10 +251,11 @@ test("generated distribution matches source API, schema bytes, and portable meta
     "CompleteTaskOptions",
     "CancelTaskOptions",
     "ClaimTaskOptions",
+    "RemoveTasksOptions",
     "TaskGraphApplyRequest",
     "TaskGraphRuntimeInfo",
     "TaskGraphRuntimeInstallCommand",
-    "ScopeProjection",
+    "TaskGraphProjection",
     "TaskContentInput",
     "TaskIndexInfo",
     "TaskGraphServiceOptions",
@@ -385,16 +385,13 @@ test("generated distribution matches source API, schema bytes, and portable meta
     consumerSchema
   );
   const validIndex = graphIndex([taskOperation("consumer")]);
-  validIndex.scopes["scope-000001"]!.bindings = Object.fromEntries([
-    ["thread", "supported"]
-  ]);
-  validIndex.scopes["scope-000001"]!.tasks["task-000001"]!.content.references =
+  validIndex.tasks["task-000001"]!.content.references =
     Object.fromEntries([["source", "supported"]]);
-  validIndex.scopes["scope-000001"]!.tasks["task-000001"]!.content.acceptance = [];
+  validIndex.tasks["task-000001"]!.content.acceptance = [];
   assert.doesNotThrow(() => sourceApi.parseTaskIndex(validIndex));
   assert.equal(validateConsumer(validIndex), true, JSON.stringify(validateConsumer.errors));
 
-  const title = validIndex.scopes["scope-000001"]!.tasks["task-000001"]!.content;
+  const title = validIndex.tasks["task-000001"]!.content;
   title.title = "😀".repeat(120);
   assert.doesNotThrow(() => sourceApi.parseTaskIndex(validIndex));
   assert.equal(validateConsumer(validIndex), true, JSON.stringify(validateConsumer.errors));
@@ -408,62 +405,44 @@ test("generated distribution matches source API, schema bytes, and portable meta
     "trailing "
   ]) {
     const invalid = structuredClone(validIndex);
-    invalid.scopes["scope-000001"]!.tasks["task-000001"]!.content.title = invalidTitle;
+    invalid.tasks["task-000001"]!.content.title = invalidTitle;
     assert.throws(() => sourceApi.parseTaskIndex(invalid));
     assert.equal(validateConsumer(invalid), false, invalidTitle);
   }
 
-  for (const invalidTextField of ["title", "binding"] as const) {
+  for (const invalidTextField of ["title", "reference"] as const) {
     const invalid = structuredClone(validIndex);
     if (invalidTextField === "title") {
-      (invalid.scopes["scope-000001"]!.tasks["task-000001"]!.content as {
+      (invalid.tasks["task-000001"]!.content as {
         title: unknown;
       }).title = 42;
     } else {
-      (invalid.scopes["scope-000001"]!.bindings as Record<string, unknown>).thread = 42;
+      (invalid.tasks["task-000001"]!.content.references as Record<string, unknown>).source = 42;
     }
     assert.throws(() => sourceApi.parseTaskIndex(invalid));
     assert.equal(validateConsumer(invalid), false, invalidTextField);
   }
 
   for (const [sourceId, zeroId] of [
-    ["scope-000001", "scope-000000"],
     ["task-000001", "task-000000"]
   ] as const) {
     const invalid = structuredClone(validIndex);
-    if (sourceId.startsWith("scope-")) {
-      invalid.scopes[zeroId] = invalid.scopes[sourceId]!;
-      delete invalid.scopes[sourceId];
-    } else {
-      const tasks = invalid.scopes["scope-000001"]!.tasks;
-      tasks[zeroId] = tasks[sourceId]!;
-      delete tasks[sourceId];
-    }
+    invalid.tasks[zeroId] = invalid.tasks[sourceId]!;
+    delete invalid.tasks[sourceId];
     assert.throws(() => sourceApi.parseTaskIndex(invalid));
     assert.equal(validateConsumer(invalid), false, zeroId);
   }
 
-  const longScopeKey = structuredClone(validIndex);
-  longScopeKey.scopes["scope-000001"]!.key = "x".repeat(81);
-  assert.throws(() => sourceApi.parseTaskIndex(longScopeKey));
-  assert.equal(validateConsumer(longScopeKey), false);
-
-  for (const dictionaryKind of ["binding", "reference"] as const) {
-    const longDictionaryKey = structuredClone(validIndex);
-    const dictionary = Object.fromEntries([["a".repeat(81), "too long"]]);
-    if (dictionaryKind === "binding") {
-      longDictionaryKey.scopes["scope-000001"]!.bindings = dictionary;
-    } else {
-      longDictionaryKey.scopes["scope-000001"]!.tasks["task-000001"]!
-        .content.references = dictionary;
-    }
-    assert.throws(() => sourceApi.parseTaskIndex(longDictionaryKey));
-    assert.equal(validateConsumer(longDictionaryKey), false, dictionaryKind);
-  }
+  const longDictionaryKey = structuredClone(validIndex);
+  longDictionaryKey.tasks["task-000001"]!.content.references = Object.fromEntries([
+    ["a".repeat(81), "too long"]
+  ]);
+  assert.throws(() => sourceApi.parseTaskIndex(longDictionaryKey));
+  assert.equal(validateConsumer(longDictionaryKey), false);
 
   for (const reservedKey of ["constructor", "prototype", "__proto__"]) {
     const prototypeKey = structuredClone(validIndex);
-    prototypeKey.scopes["scope-000001"]!.bindings = Object.fromEntries([
+    prototypeKey.tasks["task-000001"]!.content.references = Object.fromEntries([
       [reservedKey, "blocked"]
     ]);
     assert.throws(() => sourceApi.parseTaskIndex(prototypeKey));

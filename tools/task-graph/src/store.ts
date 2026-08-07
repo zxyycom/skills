@@ -213,12 +213,11 @@ export class TaskGraphStore {
           }],
       revision: index.revision,
       schemaVersion: index.schemaVersion,
-      scopeCount: Object.keys(index.scopes).length,
-      taskCount: Object.values(index.scopes).reduce(
-        (count, scope) => count + Object.keys(scope.tasks).length,
-        0
-      ),
-      nextIds: { ...index.nextIds }
+      taskCount: Object.keys(index.tasks).length,
+      topTaskCount: Object.values(index.tasks).filter(
+        (task) => task.state.relations.parentId === null
+      ).length,
+      nextTaskId: index.nextTaskId
     };
   }
 

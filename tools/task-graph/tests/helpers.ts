@@ -155,10 +155,7 @@ export function graphIndex(
   operations: TaskGraphRevisionOperation[],
   now: Date = initialNow
 ): TaskIndex {
-  return applyOperations(emptyTaskIndex(), [
-    { kind: "create-scope", key: "test-scope" },
-    ...operations
-  ], now);
+  return applyOperations(emptyTaskIndex(), operations, now);
 }
 
 export function taskOperation(
@@ -172,7 +169,6 @@ export function taskOperation(
 ): TaskGraphRevisionOperation {
   return {
     kind: "create-task",
-    scopeId: "scope-000001",
     alias,
     content: taskContent(options.title ?? alias),
     ...(options.parentId === undefined ? {} : { parentId: options.parentId }),

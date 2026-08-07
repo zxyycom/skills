@@ -8,4 +8,4 @@ Contract:
 - 共享索引的原生短锁必须串行化并发 mutation，revision 继续使用全局 compare-and-swap。
 
 Proves:
-- 两个独立 service 同时以 revision 0 创建 scope 时只有一个提交，另一个得到 `REVISION_CONFLICT`，最终 revision 为 1。
+- 两个独立 service 同时以 revision 0 创建 task 时只有一个提交，另一个得到 `REVISION_CONFLICT`，最终 revision 为 1。

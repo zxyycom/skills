@@ -1,6 +1,6 @@
 ---
 title: 由 task-graph 承接短期任务编排
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-06T06:13:37Z
 purpose: 让 agent 以独立能力维护当前工作的短期任务状态、拓扑和调度边界。

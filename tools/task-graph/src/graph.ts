@@ -1,33 +1,22 @@
 import { TaskGraphError } from "./errors.ts";
 import type {
-  ScopeProjection,
+  TaskGraphProjection,
   TaskBlocker,
   TaskConstraintSource,
   TaskEffectiveState,
   TaskEntry,
   TaskIndex,
-  TaskProjection,
-  TaskScope
+  TaskProjection
 } from "./types.ts";
 
 const compareText = (left: string, right: string): number =>
   left < right ? -1 : left > right ? 1 : 0;
 
-function taskOwnerById(index: TaskIndex): Map<string, string> {
-  const owners = new Map<string, string>();
-  for (const [scopeId, scope] of Object.entries(index.scopes)) {
-    for (const taskId of Object.keys(scope.tasks)) {
-      owners.set(taskId, scopeId);
-    }
-  }
-  return owners;
-}
-
-export function childrenByTask(scope: TaskScope): Map<string, string[]> {
+export function childrenByTask(index: TaskIndex): Map<string, string[]> {
   const children = new Map<string, string[]>(
-    Object.keys(scope.tasks).map((taskId) => [taskId, []])
+    Object.keys(index.tasks).map((taskId) => [taskId, []])
   );
-  for (const [taskId, task] of Object.entries(scope.tasks)) {
+  for (const [taskId, task] of Object.entries(index.tasks)) {
     const parentId = task.state.relations.parentId;
     if (parentId !== null) {
       children.get(parentId)?.push(taskId);
@@ -39,24 +28,24 @@ export function childrenByTask(scope: TaskScope): Map<string, string[]> {
   return children;
 }
 
-export function ancestorIds(scope: TaskScope, taskId: string): string[] {
+export function ancestorIds(index: TaskIndex, taskId: string): string[] {
   const result: string[] = [];
   const visited = new Set<string>([taskId]);
-  let current = scope.tasks[taskId]?.state.relations.parentId ?? null;
+  let current = index.tasks[taskId]?.state.relations.parentId ?? null;
   while (current !== null && !visited.has(current)) {
     result.push(current);
     visited.add(current);
-    current = scope.tasks[current]?.state.relations.parentId ?? null;
+    current = index.tasks[current]?.state.relations.parentId ?? null;
   }
   return result;
 }
 
-function lineage(scope: TaskScope, taskId: string): string[] {
-  return [taskId, ...ancestorIds(scope, taskId)];
+function lineage(index: TaskIndex, taskId: string): string[] {
+  return [taskId, ...ancestorIds(index, taskId)];
 }
 
-export function descendantIds(scope: TaskScope, taskId: string): string[] {
-  const children = childrenByTask(scope);
+export function descendantIds(index: TaskIndex, taskId: string): string[] {
+  const children = childrenByTask(index);
   const descendants: string[] = [];
   const visited = new Set<string>([taskId]);
   const queue = [...(children.get(taskId) ?? [])];
@@ -76,13 +65,13 @@ export function descendantIds(scope: TaskScope, taskId: string): string[] {
 }
 
 export function effectiveControl(
-  scope: TaskScope,
+  index: TaskIndex,
   taskId: string
 ): TaskProjection["effectiveControl"] {
   const path: string[] = [];
-  for (const candidateId of lineage(scope, taskId)) {
+  for (const candidateId of lineage(index, taskId)) {
     path.push(candidateId);
-    const control = scope.tasks[candidateId]?.state.control;
+    const control = index.tasks[candidateId]?.state.control;
     if (control !== undefined && control.mode !== "inherit") {
       return {
         mode: control.mode,
@@ -99,15 +88,15 @@ export function effectiveControl(
 }
 
 export function effectiveDependencySources(
-  scope: TaskScope,
+  index: TaskIndex,
   taskId: string
 ): TaskConstraintSource[] {
   const sources: TaskConstraintSource[] = [];
   const path: string[] = [];
-  for (const sourceTaskId of lineage(scope, taskId)) {
+  for (const sourceTaskId of lineage(index, taskId)) {
     path.push(sourceTaskId);
     for (const targetTaskId of Object.keys(
-      scope.tasks[sourceTaskId]?.state.relations.dependsOn ?? {}
+      index.tasks[sourceTaskId]?.state.relations.dependsOn ?? {}
     )) {
       sources.push({
         targetTaskId,
@@ -125,25 +114,25 @@ export function effectiveDependencySources(
 }
 
 export function effectiveExclusionSources(
-  scope: TaskScope,
+  index: TaskIndex,
   taskId: string
 ): TaskConstraintSource[] {
   const sources: TaskConstraintSource[] = [];
-  const currentLineage = lineage(scope, taskId);
+  const currentLineage = lineage(index, taskId);
   const pathBySource = new Map(
     currentLineage.map((sourceId, index) => [
       sourceId,
       currentLineage.slice(0, index + 1)
     ])
   );
-  for (const targetTaskId of Object.keys(scope.tasks)) {
+  for (const targetTaskId of Object.keys(index.tasks)) {
     if (targetTaskId === taskId) {
       continue;
     }
-    const targetLineage = lineage(scope, targetTaskId);
+    const targetLineage = lineage(index, targetTaskId);
     for (const sourceTaskId of currentLineage) {
       const explicitTargets = Object.keys(
-        scope.tasks[sourceTaskId]?.state.relations.excludes ?? {}
+        index.tasks[sourceTaskId]?.state.relations.excludes ?? {}
       );
       for (const declaredTargetTaskId of explicitTargets) {
         const targetOffset = targetLineage.indexOf(declaredTargetTaskId);
@@ -186,11 +175,11 @@ export function effectiveExclusionSources(
 }
 
 function directEffectiveState(
-  scope: TaskScope,
+  index: TaskIndex,
   taskId: string,
   now: Date
 ): TaskEffectiveState {
-  const task = scope.tasks[taskId];
+  const task = index.tasks[taskId];
   if (task === undefined) {
     return "waiting";
   }
@@ -206,32 +195,32 @@ function directEffectiveState(
     case "idle":
       break;
   }
-  const control = effectiveControl(scope, taskId);
+  const control = effectiveControl(index, taskId);
   if (control.mode === "candidate" || control.mode === "waiting" || control.mode === "paused") {
     return control.mode;
   }
-  const dependencyBlocked = effectiveDependencySources(scope, taskId).some(
-    (source) => scope.tasks[source.targetTaskId]?.state.execution.phase !== "succeeded"
+  const dependencyBlocked = effectiveDependencySources(index, taskId).some(
+    (source) => index.tasks[source.targetTaskId]?.state.execution.phase !== "succeeded"
   );
-  const taskChildren = childrenByTask(scope).get(taskId) ?? [];
+  const taskChildren = childrenByTask(index).get(taskId) ?? [];
   const exclusionBlocked = taskChildren.length === 0
-    && effectiveExclusionSources(scope, taskId).some(
-      (source) => scope.tasks[source.targetTaskId]?.state.execution.phase === "running"
+    && effectiveExclusionSources(index, taskId).some(
+      (source) => index.tasks[source.targetTaskId]?.state.execution.phase === "running"
     );
-  const ancestorBlocked = ancestorIds(scope, taskId).some((ancestorId) => {
-    const phase = scope.tasks[ancestorId]?.state.execution.phase;
+  const ancestorBlocked = ancestorIds(index, taskId).some((ancestorId) => {
+    const phase = index.tasks[ancestorId]?.state.execution.phase;
     return phase === "succeeded" || phase === "cancelled";
   });
   const childBlocked = taskChildren.length > 0 && (
     !taskChildren.every((childId) => {
-      const phase = scope.tasks[childId]?.state.execution.phase;
+      const phase = index.tasks[childId]?.state.execution.phase;
       return phase === "succeeded" || phase === "cancelled";
     })
     || !taskChildren.some(
-      (childId) => scope.tasks[childId]?.state.execution.phase === "succeeded"
+      (childId) => index.tasks[childId]?.state.execution.phase === "succeeded"
     )
-    || descendantIds(scope, taskId).some(
-      (descendantId) => scope.tasks[descendantId]?.state.execution.phase === "running"
+    || descendantIds(index, taskId).some(
+      (descendantId) => index.tasks[descendantId]?.state.execution.phase === "running"
     )
   );
   return dependencyBlocked || exclusionBlocked || ancestorBlocked || childBlocked
@@ -317,19 +306,19 @@ function sortBlockers(blockers: TaskBlocker[]): TaskBlocker[] {
 }
 
 function projectOneTask(
-  scope: TaskScope,
+  index: TaskIndex,
   taskId: string,
   now: Date,
   children: Map<string, string[]>,
   dependents: Map<string, string[]>
 ): TaskProjection {
-  const task = Object.hasOwn(scope.tasks, taskId) ? scope.tasks[taskId] : undefined;
+  const task = Object.hasOwn(index.tasks, taskId) ? index.tasks[taskId] : undefined;
   if (task === undefined) {
     throw new TaskGraphError("TASK_NOT_FOUND", `Task ${taskId} does not exist`);
   }
-  const control = effectiveControl(scope, taskId);
-  const dependencies = effectiveDependencySources(scope, taskId);
-  const exclusions = effectiveExclusionSources(scope, taskId);
+  const control = effectiveControl(index, taskId);
+  const dependencies = effectiveDependencySources(index, taskId);
+  const exclusions = effectiveExclusionSources(index, taskId);
   const taskChildren = children.get(taskId) ?? [];
   const phase = task.state.execution.phase;
   const commonProjection = {
@@ -341,7 +330,7 @@ function projectOneTask(
     dependents: [...(dependents.get(taskId) ?? [])]
   };
   if (phase !== "idle") {
-    const effectiveState = directEffectiveState(scope, taskId, now);
+    const effectiveState = directEffectiveState(index, taskId, now);
     return {
       ...commonProjection,
       effectiveState,
@@ -390,7 +379,7 @@ function projectOneTask(
   }
 
   for (const dependency of dependencies) {
-    const target = scope.tasks[dependency.targetTaskId];
+    const target = index.tasks[dependency.targetTaskId];
     if (target === undefined || target.state.execution.phase === "succeeded") {
       continue;
     }
@@ -405,12 +394,12 @@ function projectOneTask(
       dependency.targetTaskId,
       dependency.sourceTaskId,
       dependency.inheritancePath,
-      directEffectiveState(scope, dependency.targetTaskId, now)
+      directEffectiveState(index, dependency.targetTaskId, now)
     ));
   }
 
   for (const exclusion of taskChildren.length === 0 ? exclusions : []) {
-    const target = scope.tasks[exclusion.targetTaskId];
+    const target = index.tasks[exclusion.targetTaskId];
     if (target?.state.execution.phase !== "running") {
       continue;
     }
@@ -420,12 +409,12 @@ function projectOneTask(
       exclusion.targetTaskId,
       exclusion.sourceTaskId,
       exclusion.inheritancePath,
-      directEffectiveState(scope, exclusion.targetTaskId, now)
+      directEffectiveState(index, exclusion.targetTaskId, now)
     ));
   }
 
-  for (const ancestorId of ancestorIds(scope, taskId)) {
-    const ancestor = scope.tasks[ancestorId];
+  for (const ancestorId of ancestorIds(index, taskId)) {
+    const ancestor = index.tasks[ancestorId];
     const phase = ancestor?.state.execution.phase;
     if (phase === "succeeded" || phase === "cancelled") {
       blockers.push(blocker(
@@ -433,7 +422,7 @@ function projectOneTask(
         taskId,
         ancestorId,
         ancestorId,
-        lineage(scope, taskId).slice(0, lineage(scope, taskId).indexOf(ancestorId) + 1),
+        lineage(index, taskId).slice(0, lineage(index, taskId).indexOf(ancestorId) + 1),
         phase
       ));
     }
@@ -441,7 +430,7 @@ function projectOneTask(
 
   if (taskChildren.length > 0) {
     for (const childId of taskChildren) {
-      const child = scope.tasks[childId];
+      const child = index.tasks[childId];
       if (
         child !== undefined
         && child.state.execution.phase !== "succeeded"
@@ -453,12 +442,12 @@ function projectOneTask(
           childId,
           taskId,
           [taskId],
-          directEffectiveState(scope, childId, now)
+          directEffectiveState(index, childId, now)
         ));
       }
     }
     if (taskChildren.every(
-      (childId) => scope.tasks[childId]?.state.execution.phase === "cancelled"
+      (childId) => index.tasks[childId]?.state.execution.phase === "cancelled"
     )) {
       blockers.push(blocker(
         "all-children-cancelled",
@@ -469,8 +458,8 @@ function projectOneTask(
         "cancelled"
       ));
     }
-    for (const descendantId of descendantIds(scope, taskId)) {
-      const descendant = scope.tasks[descendantId];
+    for (const descendantId of descendantIds(index, taskId)) {
+      const descendant = index.tasks[descendantId];
       if (descendant?.state.execution.phase === "running") {
         blockers.push(blocker(
           "descendant-lease",
@@ -478,7 +467,7 @@ function projectOneTask(
           descendantId,
           taskId,
           [taskId],
-          directEffectiveState(scope, descendantId, now)
+          directEffectiveState(index, descendantId, now)
         ));
       }
     }
@@ -502,21 +491,16 @@ function projectOneTask(
   };
 }
 
-export function projectScope(
+export function projectTaskGraph(
   index: TaskIndex,
-  scopeId: string,
   now: Date
-): ScopeProjection {
-  const scope = Object.hasOwn(index.scopes, scopeId) ? index.scopes[scopeId] : undefined;
-  if (scope === undefined) {
-    throw new TaskGraphError("SCOPE_NOT_FOUND", `Scope ${scopeId} does not exist`);
-  }
-  const children = childrenByTask(scope);
+): TaskGraphProjection {
+  const children = childrenByTask(index);
   const dependents = new Map<string, string[]>(
-    Object.keys(scope.tasks).map((taskId) => [taskId, []])
+    Object.keys(index.tasks).map((taskId) => [taskId, []])
   );
-  for (const taskId of Object.keys(scope.tasks)) {
-    for (const dependency of effectiveDependencySources(scope, taskId)) {
+  for (const taskId of Object.keys(index.tasks)) {
+    for (const dependency of effectiveDependencySources(index, taskId)) {
       const targets = dependents.get(dependency.targetTaskId);
       if (targets !== undefined && !targets.includes(taskId)) {
         targets.push(taskId);
@@ -528,14 +512,13 @@ export function projectScope(
   }
 
   const tasks: Record<string, TaskProjection> = {};
-  for (const taskId of Object.keys(scope.tasks).sort(compareText)) {
-    tasks[taskId] = projectOneTask(scope, taskId, now, children, dependents);
+  for (const taskId of Object.keys(index.tasks).sort(compareText)) {
+    tasks[taskId] = projectOneTask(index, taskId, now, children, dependents);
   }
   const actionableOrder = Object.keys(tasks).filter(
     (taskId) => tasks[taskId]?.nextAction !== null
   );
   return {
-    scopeId,
     revision: index.revision,
     tasks,
     actionable: Object.fromEntries(
@@ -581,215 +564,194 @@ function detectCycle(edges: Map<string, Set<string>>): string[] | null {
 
 export function validateTaskIndexGraph(index: TaskIndex): string[] {
   const issues: string[] = [];
-  const owners = taskOwnerById(index);
   const leaseOwners = new Map<string, string>();
-  for (const [scopeId, scope] of Object.entries(index.scopes)) {
-    const taskIds = Object.keys(scope.tasks);
-    const taskIdSet = new Set(taskIds);
-    const children = childrenByTask(scope);
-    const parentEdges = new Map<string, Set<string>>(
-      taskIds.map((taskId) => [taskId, new Set<string>()])
-    );
-    for (const [taskId, task] of Object.entries(scope.tasks)) {
-      const parentId = task.state.relations.parentId;
-      if (parentId !== null) {
-        if (!taskIdSet.has(parentId)) {
-          issues.push(
-            owners.has(parentId)
-              ? `${scopeId}/${taskId} parent ${parentId} crosses scope`
-              : `${scopeId}/${taskId} parent ${parentId} is missing`
-          );
-        } else {
-          parentEdges.get(taskId)?.add(parentId);
-        }
-      }
-      for (const relationId of [
-        ...Object.keys(task.state.relations.dependsOn),
-        ...Object.keys(task.state.relations.excludes)
-      ]) {
-        if (!taskIdSet.has(relationId)) {
-          issues.push(
-            owners.has(relationId)
-              ? `${scopeId}/${taskId} relation ${relationId} crosses scope`
-              : `${scopeId}/${taskId} relation ${relationId} is missing`
-          );
-        }
-      }
-      if (task.state.relations.dependsOn[taskId] === true) {
-        issues.push(`${scopeId}/${taskId} cannot depend on itself`);
-      }
-      if (task.state.relations.excludes[taskId] === true) {
-        issues.push(`${scopeId}/${taskId} cannot exclude itself`);
-      }
-      for (const excludedId of Object.keys(task.state.relations.excludes)) {
-        if (scope.tasks[excludedId]?.state.relations.excludes[taskId] !== true) {
-          issues.push(`${scopeId}/${taskId} exclusion ${excludedId} is not symmetric`);
-        }
-      }
-      const execution = task.state.execution;
-      if (execution.phase === "running") {
-        const leaseOwner = leaseOwners.get(execution.lease.id);
-        if (leaseOwner === undefined) {
-          leaseOwners.set(execution.lease.id, `${scopeId}/${taskId}`);
-        } else {
-          issues.push(
-            `${scopeId}/${taskId} duplicates lease ${execution.lease.id} from ${leaseOwner}`
-          );
-        }
-        const claimedAt = new Date(execution.lease.claimedAt).valueOf();
-        const renewedAt = new Date(execution.lease.renewedAt).valueOf();
-        const expiresAt = new Date(execution.lease.expiresAt).valueOf();
-        if (claimedAt > renewedAt || renewedAt >= expiresAt) {
-          issues.push(`${scopeId}/${taskId} lease timestamps are not monotonic`);
-        }
-      }
-      const taskChildren = children.get(taskId) ?? [];
-      if (
-        taskChildren.length > 0
-        && (execution.phase === "running" || execution.phase === "failed")
-      ) {
-        issues.push(`${scopeId}/${taskId} non-leaf task cannot be ${execution.phase}`);
-      }
-      if (execution.phase === "succeeded" && taskChildren.length > 0) {
-        if (!taskChildren.some(
-          (childId) => scope.tasks[childId]?.state.execution.phase === "succeeded"
-        )) {
-          issues.push(`${scopeId}/${taskId} succeeded parent needs a succeeded child`);
-        }
-        if (!taskChildren.every((childId) => {
-          const phase = scope.tasks[childId]?.state.execution.phase;
-          return phase === "succeeded" || phase === "cancelled";
-        })) {
-          issues.push(`${scopeId}/${taskId} succeeded parent has incomplete children`);
-        }
+  const taskIds = Object.keys(index.tasks);
+  const taskIdSet = new Set(taskIds);
+  const children = childrenByTask(index);
+  const parentEdges = new Map<string, Set<string>>(
+    taskIds.map((taskId) => [taskId, new Set<string>()])
+  );
+  for (const [taskId, task] of Object.entries(index.tasks)) {
+    const parentId = task.state.relations.parentId;
+    if (parentId !== null) {
+      if (!taskIdSet.has(parentId)) {
+        issues.push(`${taskId} parent ${parentId} is missing`);
+      } else {
+        parentEdges.get(taskId)?.add(parentId);
       }
     }
-    const parentCycle = detectCycle(parentEdges);
-    if (parentCycle !== null) {
-      issues.push(`${scopeId} parent cycle: ${parentCycle.join(" -> ")}`);
-      continue;
+    for (const relationId of [
+      ...Object.keys(task.state.relations.dependsOn),
+      ...Object.keys(task.state.relations.excludes)
+    ]) {
+      if (!taskIdSet.has(relationId)) {
+        issues.push(`${taskId} relation ${relationId} is missing`);
+      }
     }
-
-    for (const [taskId, task] of Object.entries(scope.tasks)) {
-      if (task.state.execution.phase === "cancelled" && descendantIds(scope, taskId).some(
-        (descendantId) => {
-          const phase = scope.tasks[descendantId]?.state.execution.phase;
-          return phase !== "succeeded" && phase !== "cancelled";
-        }
+    if (task.state.relations.dependsOn[taskId] === true) {
+      issues.push(`${taskId} cannot depend on itself`);
+    }
+    if (task.state.relations.excludes[taskId] === true) {
+      issues.push(`${taskId} cannot exclude itself`);
+    }
+    for (const excludedId of Object.keys(task.state.relations.excludes)) {
+      if (index.tasks[excludedId]?.state.relations.excludes[taskId] !== true) {
+        issues.push(`${taskId} exclusion ${excludedId} is not symmetric`);
+      }
+    }
+    const execution = task.state.execution;
+    if (execution.phase === "running") {
+      const leaseOwner = leaseOwners.get(execution.lease.id);
+      if (leaseOwner === undefined) {
+        leaseOwners.set(execution.lease.id, taskId);
+      } else {
+        issues.push(`${taskId} duplicates lease ${execution.lease.id} from ${leaseOwner}`);
+      }
+      const claimedAt = new Date(execution.lease.claimedAt).valueOf();
+      const renewedAt = new Date(execution.lease.renewedAt).valueOf();
+      const expiresAt = new Date(execution.lease.expiresAt).valueOf();
+      if (claimedAt > renewedAt || renewedAt >= expiresAt) {
+        issues.push(`${taskId} lease timestamps are not monotonic`);
+      }
+    }
+    const taskChildren = children.get(taskId) ?? [];
+    if (
+      taskChildren.length > 0
+      && (execution.phase === "running" || execution.phase === "failed")
+    ) {
+      issues.push(`${taskId} non-leaf task cannot be ${execution.phase}`);
+    }
+    if (execution.phase === "succeeded" && taskChildren.length > 0) {
+      if (!taskChildren.some(
+        (childId) => index.tasks[childId]?.state.execution.phase === "succeeded"
       )) {
-        issues.push(`${scopeId}/${taskId} cancelled parent has non-terminal descendants`);
+        issues.push(`${taskId} succeeded parent needs a succeeded child`);
+      }
+      if (!taskChildren.every((childId) => {
+        const phase = index.tasks[childId]?.state.execution.phase;
+        return phase === "succeeded" || phase === "cancelled";
+      })) {
+        issues.push(`${taskId} succeeded parent has incomplete children`);
       }
     }
+  }
+  const parentCycle = detectCycle(parentEdges);
+  if (parentCycle !== null) {
+    issues.push(`parent cycle: ${parentCycle.join(" -> ")}`);
+    return [...new Set(issues)].sort(compareText);
+  }
 
-    for (const taskId of taskIds) {
-      const ancestors = new Set(ancestorIds(scope, taskId));
-      for (const excludedId of Object.keys(
-        scope.tasks[taskId]?.state.relations.excludes ?? {}
-      )) {
-        if (ancestors.has(excludedId) || ancestorIds(scope, excludedId).includes(taskId)) {
-          issues.push(`${scopeId}/${taskId} cannot exclude ancestor or descendant ${excludedId}`);
-        }
+  for (const [taskId, task] of Object.entries(index.tasks)) {
+    if (task.state.execution.phase === "cancelled" && descendantIds(index, taskId).some(
+      (descendantId) => {
+        const phase = index.tasks[descendantId]?.state.execution.phase;
+        return phase !== "succeeded" && phase !== "cancelled";
+      }
+    )) {
+      issues.push(`${taskId} cancelled parent has non-terminal descendants`);
+    }
+  }
+
+  for (const taskId of taskIds) {
+    const ancestors = new Set(ancestorIds(index, taskId));
+    for (const excludedId of Object.keys(
+      index.tasks[taskId]?.state.relations.excludes ?? {}
+    )) {
+      if (ancestors.has(excludedId) || ancestorIds(index, excludedId).includes(taskId)) {
+        issues.push(`${taskId} cannot exclude ancestor or descendant ${excludedId}`);
       }
     }
+  }
 
-    const dependencyEdges = new Map<string, Set<string>>(
-      taskIds.map((taskId) => [taskId, new Set<string>()])
+  const dependencyEdges = new Map<string, Set<string>>(
+    taskIds.map((taskId) => [taskId, new Set<string>()])
+  );
+  for (const taskId of taskIds) {
+    for (const dependency of effectiveDependencySources(index, taskId)) {
+      dependencyEdges.get(taskId)?.add(dependency.targetTaskId);
+    }
+    for (const childId of children.get(taskId) ?? []) {
+      dependencyEdges.get(taskId)?.add(childId);
+    }
+    const effectiveDependencies = new Set(
+      effectiveDependencySources(index, taskId).map((source) => source.targetTaskId)
     );
-    for (const taskId of taskIds) {
-      for (const dependency of effectiveDependencySources(scope, taskId)) {
-        dependencyEdges.get(taskId)?.add(dependency.targetTaskId);
+    const effectiveExclusions = new Set(
+      effectiveExclusionSources(index, taskId).map((source) => source.targetTaskId)
+    );
+    for (const targetId of effectiveDependencies) {
+      if (targetId === taskId) {
+        issues.push(`${taskId} inherits a self dependency`);
       }
-      for (const childId of children.get(taskId) ?? []) {
-        dependencyEdges.get(taskId)?.add(childId);
-      }
-      const effectiveDependencies = new Set(
-        effectiveDependencySources(scope, taskId).map((source) => source.targetTaskId)
-      );
-      const effectiveExclusions = new Set(
-        effectiveExclusionSources(scope, taskId).map((source) => source.targetTaskId)
-      );
-      for (const targetId of effectiveDependencies) {
-        if (targetId === taskId) {
-          issues.push(`${scopeId}/${taskId} inherits a self dependency`);
-        }
-        if (effectiveExclusions.has(targetId)) {
-          issues.push(
-            `${scopeId}/${taskId} cannot both depend on and exclude ${targetId}`
-          );
-        }
+      if (effectiveExclusions.has(targetId)) {
+        issues.push(`${taskId} cannot both depend on and exclude ${targetId}`);
       }
     }
-    const dependencyCycle = detectCycle(dependencyEdges);
-    if (dependencyCycle !== null) {
-      issues.push(`${scopeId} expanded dependency cycle: ${dependencyCycle.join(" -> ")}`);
-    }
+  }
+  const dependencyCycle = detectCycle(dependencyEdges);
+  if (dependencyCycle !== null) {
+    issues.push(`expanded dependency cycle: ${dependencyCycle.join(" -> ")}`);
+  }
 
-    for (const taskId of taskIds) {
-      const task = scope.tasks[taskId];
-      if (task === undefined) {
-        continue;
+  for (const taskId of taskIds) {
+    const task = index.tasks[taskId];
+    if (task === undefined) continue;
+    const phase = task.state.execution.phase;
+    const taskChildren = children.get(taskId) ?? [];
+    const dependencies = new Set(
+      effectiveDependencySources(index, taskId).map((source) => source.targetTaskId)
+    );
+    if (phase === "running" || phase === "succeeded") {
+      for (const dependencyId of dependencies) {
+        if (index.tasks[dependencyId]?.state.execution.phase !== "succeeded") {
+          issues.push(`${taskId} ${phase} evidence has incomplete dependency ${dependencyId}`);
+        }
       }
-      const phase = task.state.execution.phase;
-      const taskChildren = children.get(taskId) ?? [];
-      const dependencies = new Set(
-        effectiveDependencySources(scope, taskId).map((source) => source.targetTaskId)
+    }
+    if (phase === "running") {
+      const hasControlSource = lineage(index, taskId).some(
+        (sourceId) => index.tasks[sourceId]?.state.control.mode !== "inherit"
       );
-      if (phase === "running" || phase === "succeeded") {
-        for (const dependencyId of dependencies) {
-          if (scope.tasks[dependencyId]?.state.execution.phase !== "succeeded") {
-            issues.push(
-              `${scopeId}/${taskId} ${phase} evidence has incomplete dependency ${dependencyId}`
-            );
-          }
+      if (!hasControlSource) {
+        issues.push(`${taskId} running evidence has no effective control source`);
+      } else if (effectiveControl(index, taskId).mode !== "queued") {
+        issues.push(`${taskId} running evidence requires effective queued control`);
+      }
+      if (ancestorIds(index, taskId).some((ancestorId) => {
+        const ancestorPhase = index.tasks[ancestorId]?.state.execution.phase;
+        return ancestorPhase === "succeeded" || ancestorPhase === "cancelled";
+      })) {
+        issues.push(`${taskId} running evidence is behind a terminal ancestor`);
+      }
+      for (const exclusion of effectiveExclusionSources(index, taskId)) {
+        if (index.tasks[exclusion.targetTaskId]?.state.execution.phase === "running") {
+          issues.push(`${taskId} and ${exclusion.targetTaskId} cannot both be running`);
         }
       }
-      if (phase === "running") {
-        const hasControlSource = lineage(scope, taskId).some(
-          (sourceId) => scope.tasks[sourceId]?.state.control.mode !== "inherit"
-        );
-        if (!hasControlSource) {
-          issues.push(`${scopeId}/${taskId} running evidence has no effective control source`);
-        } else if (effectiveControl(scope, taskId).mode !== "queued") {
-          issues.push(`${scopeId}/${taskId} running evidence requires effective queued control`);
-        }
-        if (ancestorIds(scope, taskId).some((ancestorId) => {
-          const ancestorPhase = scope.tasks[ancestorId]?.state.execution.phase;
-          return ancestorPhase === "succeeded" || ancestorPhase === "cancelled";
-        })) {
-          issues.push(`${scopeId}/${taskId} running evidence is behind a terminal ancestor`);
-        }
-        for (const exclusion of effectiveExclusionSources(scope, taskId)) {
-          if (scope.tasks[exclusion.targetTaskId]?.state.execution.phase === "running") {
-            issues.push(
-              `${scopeId}/${taskId} and ${exclusion.targetTaskId} cannot both be running`
-            );
-          }
-        }
-      }
-      if (
-        phase === "succeeded"
-        && taskChildren.length === 0
-        && task.state.execution.attempt < 1
-      ) {
-        issues.push(`${scopeId}/${taskId} succeeded leaf requires at least one claim attempt`);
-      }
+    }
+    if (
+      phase === "succeeded"
+      && taskChildren.length === 0
+      && task.state.execution.attempt < 1
+    ) {
+      issues.push(`${taskId} succeeded leaf requires at least one claim attempt`);
     }
   }
   return [...new Set(issues)].sort(compareText);
 }
 
-function topologySignature(scope: TaskScope, taskId: string): string {
+function topologySignature(index: TaskIndex, taskId: string): string {
   return JSON.stringify({
-    ancestors: ancestorIds(scope, taskId),
-    children: childrenByTask(scope).get(taskId) ?? [],
-    dependencies: effectiveDependencySources(scope, taskId),
-    exclusions: effectiveExclusionSources(scope, taskId)
+    ancestors: ancestorIds(index, taskId),
+    children: childrenByTask(index).get(taskId) ?? [],
+    dependencies: effectiveDependencySources(index, taskId),
+    exclusions: effectiveExclusionSources(index, taskId)
   });
 }
 
 export function assertProtectedTopologyUnchanged(
-  before: TaskScope,
-  after: TaskScope
+  before: TaskIndex,
+  after: TaskIndex
 ): void {
   for (const [taskId, task] of Object.entries(before.tasks)) {
     const phase = task.state.execution.phase;
@@ -814,8 +776,8 @@ export function assertProtectedTopologyUnchanged(
 }
 
 export function assertRunningControlUnchanged(
-  before: TaskScope,
-  after: TaskScope
+  before: TaskIndex,
+  after: TaskIndex
 ): void {
   for (const [taskId, task] of Object.entries(before.tasks)) {
     if (task.state.execution.phase !== "running") {

@@ -14,20 +14,17 @@ export {
   applyTaskGraphOperations,
   cancelTask,
   claimTask,
-  closeScopes,
   completeTask,
   failTask,
   releaseTask,
+  removeTasks,
   renewTaskLease,
   retryTask,
-  scopeCloseProjection,
   type IndexMutation
 } from "./engine.ts";
-export { projectScope, validateTaskIndexGraph } from "./graph.ts";
+export { projectTaskGraph, validateTaskIndexGraph } from "./graph.ts";
 export {
   TaskGraphService,
-  type ListScopesOptions,
-  type ScopeSummary,
   type ServiceResult,
   type TaskGraphServiceOptions,
   type TaskSummary

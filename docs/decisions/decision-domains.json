@@ -71,7 +71,7 @@
     },
     {
       "id": "task-graph",
-      "description": "维护短期任务图的权威状态、拓扑关系、并发调度和生命周期边界。"
+      "description": "维护可恢复任务图的权威状态、拓扑关系、并发调度和生命周期边界。"
     },
     {
       "id": "test-evidence-review",

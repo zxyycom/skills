@@ -73,7 +73,7 @@
         "id": "subagent-orchestration"
       },
       {
-        "description": "维护短期任务图的权威状态、拓扑关系、并发调度和生命周期边界。",
+        "description": "维护可恢复任务图的权威状态、拓扑关系、并发调度和生命周期边界。",
         "id": "task-graph"
       },
       {
@@ -86,7 +86,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:734b70d2d3b2c3afd8ed74614946c940563374da38b3e6414f40650c03d3436e",
+  "sourceRevision": "sha256:1b6dc53e29e69497b5a1385dcecabda861e6e1be6a3059532dd76e7d1a9b43b0",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -4054,7 +4054,7 @@
           "task-graph"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -4063,7 +4063,7 @@
       "state": {
         "path": "task-graph/key-task-identity-and-separate-content-state-projection.md",
         "title": "由嵌套字典键承接任务身份并分离内容与状态",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-06T12:11:25Z",
         "purpose": "让 scope 与 task 的字典键成为身份和归属的唯一来源，同时保持任务内容、显式状态与查询投影边界清楚。",
@@ -4103,7 +4103,7 @@
       }
     },
     {
-      "id": "task-graph/own-short-lived-task-orchestration.md",
+      "id": "task-graph/own-recoverable-task-coordination.md",
       "keys": {
         "domain": [
           "task-graph"
@@ -4116,9 +4116,39 @@
         ]
       },
       "state": {
+        "path": "task-graph/own-recoverable-task-coordination.md",
+        "title": "由 task-graph 承接可恢复的任务协调",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-07T07:19:01Z",
+        "purpose": "让 agent 持续维护仍有协调价值的任务、拓扑和执行边界，而不以存活时间判断任务是否有效。",
+        "background": "任务图可能需要跨越较长工作周期；把内容职责上的临时性误写成短生命周期，会诱导调用方按时间清理仍有价值的协调事实。",
+        "decision": "由 task-graph 承接当前工作中仍有协调价值的可恢复任务图；task entry 不承担长期知识，但任务可以保留到协调价值消失。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "task-graph/own-short-lived-task-orchestration.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "task-graph/own-short-lived-task-orchestration.md",
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
         "path": "task-graph/own-short-lived-task-orchestration.md",
         "title": "由 task-graph 承接短期任务编排",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-06T06:13:37Z",
         "purpose": "让 agent 以独立能力维护当前工作的短期任务状态、拓扑和调度边界。",
@@ -4189,7 +4219,7 @@
           "task-graph"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -4198,13 +4228,43 @@
       "state": {
         "path": "task-graph/use-authoritative-json-index-for-short-lived-tasks.md",
         "title": "使用权威 JSON 索引保存短期任务",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-06T06:13:41Z",
         "purpose": "让大量短期任务以稳定、紧凑且可查询的状态存在，而不产生逐任务文档。",
         "background": "任务上下文很少、更新频繁且通常无需长期回放；逐任务 Markdown 会放大维护面，派生索引也会引入第二事实源。",
         "decision": "使用长期存在的 JSON 运行时索引作为任务唯一事实源，每项任务是短期条目，不创建逐任务 Markdown 或归档历史。",
         "relations": []
+      }
+    },
+    {
+      "id": "task-graph/use-authoritative-json-index-for-task-coordination.md",
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/use-authoritative-json-index-for-task-coordination.md",
+        "title": "使用权威 JSON 索引保存任务协调事实",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-07T07:19:06Z",
+        "purpose": "让任务内容、拓扑和执行状态以稳定、可查询的形式存在，而不产生逐任务文档或第二事实源。",
+        "background": "Task entry 的本地上下文有限且更新频繁，但任务拓扑可能持续存在；逐任务 Markdown 会放大同步、发现和维护成本。",
+        "decision": "使用受工具管理的 JSON 索引作为任务协调事实的唯一来源；任务按协调价值保留，不创建逐任务 Markdown、归档目录或默认事件历史。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "task-graph/use-authoritative-json-index-for-short-lived-tasks.md"
+          }
+        ]
       }
     },
     {
@@ -4230,6 +4290,36 @@
         "background": "自研锁恢复需要 owner、heartbeat、进程探测和 generation 防护，维护面远超短事务本身。",
         "decision": "使用稳定旁路文件上的原生排他锁和成熟原子写库，并保留 revision、执行租约与未知结果核验。",
         "relations": []
+      }
+    },
+    {
+      "id": "task-graph/use-root-task-dictionary.md",
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/use-root-task-dictionary.md",
+        "title": "使用根级任务字典承接唯一身份",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-07T06:40:32Z",
+        "purpose": "让索引直接保存平铺任务集合，并只由父任务关系表达层级，删除没有调度价值的 scope 容器。",
+        "background": "索引文件已经确定工作区边界，scope 额外引入身份、绑定、命令参数和清理生命周期，却不改变任务拓扑或执行约束。",
+        "decision": "根级 tasks 字典键承接 task 唯一身份；entry 继续分离 content 与 state，任务层级仅由 parentId 表达，工具只维护当前 Schema。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "task-graph/key-task-identity-and-separate-content-state-projection.md"
+          }
+        ]
       }
     },
     {

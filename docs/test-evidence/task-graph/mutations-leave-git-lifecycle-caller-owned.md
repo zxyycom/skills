@@ -1,7 +1,7 @@
 ### Case TASK-GRAPH-GIT-BOUNDARY-001: mutation 不接管 Git 生命周期或 ignore 策略
 
 Entry:
-- `tools/task-graph/tests/scope-repository.test.ts > task index mutations leave Git staging, commits, and ignore policy caller-owned`
+- `tools/task-graph/tests/task-removal.test.ts > task index mutations leave Git staging, commits, and ignore policy caller-owned`
 - `bun test --test-name-pattern="^task index mutations leave Git staging, commits, and ignore policy caller-owned$" ./tools/task-graph/tests/run.ts`
 
 Contract:

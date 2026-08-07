@@ -6,7 +6,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/task-graph
  * Rebuild: bun run sync:task-graph-cli
  */
-import type { CancelTaskOptions, ClaimTaskOptions, Clock, CompleteTaskOptions, ScopeCloseProjection, ScopeProjection, TaskControlInput, TaskGraphApplyRequest, TaskGraphApplyResult, TaskEffectiveState, TaskExecutionPhase, TaskIndex, TaskIndexInfo } from "./types.mjs";
+import type { CancelTaskOptions, ClaimTaskOptions, Clock, CompleteTaskOptions, RemoveTasksOptions, TaskControlInput, TaskEffectiveState, TaskExecutionPhase, TaskGraphApplyRequest, TaskGraphApplyResult, TaskGraphProjection, TaskIndex, TaskIndexInfo } from "./types.mjs";
 export type TaskGraphServiceOptions = {
     clock?: Clock;
     indexPath?: string;
@@ -16,23 +16,6 @@ export type ServiceResult<TData> = {
     revision: number;
     data: TData;
 };
-export type ScopeSummary = {
-    scopeId: string;
-    key: string;
-    bindings: Record<string, string>;
-    taskCount: number;
-    topTaskCount: number;
-    close: ScopeCloseProjection;
-};
-export type ListScopesOptions = {
-    key?: string;
-} & ({
-    bindingKind: string;
-    bindingValue: string;
-} | {
-    bindingKind?: never;
-    bindingValue?: never;
-});
 export type TaskSummary = {
     taskId: string;
     title: string;
@@ -49,18 +32,13 @@ export declare class TaskGraphService {
     info(): Promise<ServiceResult<TaskIndexInfo>>;
     readIndex(): Promise<ServiceResult<TaskIndex>>;
     apply(request: TaskGraphApplyRequest): Promise<ServiceResult<TaskGraphApplyResult>>;
-    listScopes(options?: ListScopesOptions): Promise<ServiceResult<Record<string, ScopeSummary>>>;
-    showScope(scopeId: string): Promise<ServiceResult<{
-        scope: TaskIndex["scopes"][string];
-        projection: ScopeProjection;
+    listTasks(): Promise<ServiceResult<Record<string, TaskSummary>>>;
+    showTask(taskId: string): Promise<ServiceResult<{
+        task: TaskIndex["tasks"][string];
+        projection: TaskGraphProjection["tasks"][string];
     }>>;
-    listTasks(scopeId: string): Promise<ServiceResult<Record<string, TaskSummary>>>;
-    showTask(scopeId: string, taskId: string): Promise<ServiceResult<{
-        task: TaskIndex["scopes"][string]["tasks"][string];
-        projection: ScopeProjection["tasks"][string];
-    }>>;
-    actionable(scopeId: string): Promise<ServiceResult<{
-        tasks: ScopeProjection["actionable"];
+    actionable(): Promise<ServiceResult<{
+        tasks: TaskGraphProjection["actionable"];
         order: string[];
     }>>;
     claim(options: ClaimTaskOptions): Promise<ServiceResult<{
@@ -69,7 +47,6 @@ export declare class TaskGraphService {
         expiresAt: string;
     }>>;
     renew(options: {
-        scopeId: string;
         taskId: string;
         leaseId: string;
         durationSeconds?: number;
@@ -79,7 +56,6 @@ export declare class TaskGraphService {
         expiresAt: string;
     }>>;
     release(options: {
-        scopeId: string;
         taskId: string;
         leaseId: string;
         control: TaskControlInput;
@@ -92,7 +68,6 @@ export declare class TaskGraphService {
         phase: "succeeded";
     }>>;
     fail(options: {
-        scopeId: string;
         taskId: string;
         leaseId: string;
         reason: string;
@@ -101,7 +76,6 @@ export declare class TaskGraphService {
         phase: "failed";
     }>>;
     retry(options: {
-        scopeId: string;
         taskId: string;
         expectedRevision: number;
     }): Promise<ServiceResult<{
@@ -112,13 +86,8 @@ export declare class TaskGraphService {
         taskId: string;
         cancelledTaskIds: string[];
     }>>;
-    closeScopes(options: {
-        expectedRevision: number;
-        scopeIds: string[];
-        resultsDelivered: true;
-    }): Promise<ServiceResult<{
-        closedScopeIds: string[];
-        scopes: Record<string, ScopeCloseProjection>;
+    removeTasks(options: RemoveTasksOptions): Promise<ServiceResult<{
+        removedTaskIds: string[];
     }>>;
     private executionMutation;
 }

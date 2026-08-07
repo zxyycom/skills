@@ -35,14 +35,14 @@ async function initialize(root: string): Promise<TaskGraphService> {
   return service;
 }
 
-async function createScope(
+async function createTask(
   service: TaskGraphService,
   expectedRevision: number,
-  key: string
+  title: string
 ) {
   return await service.apply({
     expectedRevision,
-    operations: [{ kind: "create-scope", key }]
+    operations: [{ kind: "create-task", content: { title, goal: `${title} goal` } }]
   });
 }
 
@@ -53,8 +53,8 @@ test("store serializes concurrent native mutations and preserves revision compar
     const second = new TaskGraphService({ root, lockRoot, loadNativeLock: loadRootNativeLock });
     await first.init();
     const settled = await Promise.allSettled([
-      createScope(first, 0, "first"),
-      createScope(second, 0, "second")
+      createTask(first, 0, "first"),
+      createTask(second, 0, "second")
     ]);
     assert.equal(settled.filter((result) => result.status === "fulfilled").length, 1);
     const rejected = settled.find((result) => result.status === "rejected");
@@ -103,7 +103,7 @@ test("active native lock holder reaches bounded timeout and leaves the stable lo
     assert.equal(binding.tryLock(holder.fd), true);
     try {
       const error = await expectTaskGraphRejection(
-        () => createScope(service, 0, "blocked"),
+        () => createTask(service, 0, "blocked"),
         "LOCK_TIMEOUT"
       );
       assert.equal(error.details.waitMilliseconds, 5_000);
@@ -153,7 +153,7 @@ test("operating system releases a child process native lock without stale metada
         child.once("error", reject);
         child.once("close", () => resolve());
       });
-      const created = await createScope(service, 0, "after-exit");
+      const created = await createTask(service, 0, "after-exit");
       assert.equal(created.revision, 1);
       assert.equal(await fs.readFile(service.store.lockPath, "utf8"), "");
     } finally {
@@ -175,7 +175,7 @@ test("lock release failure reports a committed mutation as outcome unknown", asy
       loadNativeLock: async () => binding
     });
     const error = await expectTaskGraphRejection(
-      () => createScope(service, 0, "unknown-release"),
+      () => createTask(service, 0, "unknown-release"),
       "WRITE_OUTCOME_UNKNOWN"
     );
     assert.equal(error.details.phase, "lock-release");
@@ -219,7 +219,7 @@ test("every rejected atomic write has one conservative outcome-unknown result", 
         await writer(...args);
       });
       const error = await expectTaskGraphRejection(
-        () => createScope(service, 0, "candidate"),
+        () => createTask(service, 0, "candidate"),
         "WRITE_OUTCOME_UNKNOWN"
       );
       assert.equal(error.details.possibleRevision, 1);
@@ -235,7 +235,7 @@ test("resolved atomic write succeeds without commit readback", async () => {
       calls += 1;
       await fs.unlink(target);
     });
-    const created = await createScope(service, 0, "no-readback");
+    const created = await createTask(service, 0, "no-readback");
     assert.equal(created.revision, 1);
     assert.equal(calls, 1);
     await assert.rejects(fs.stat(service.store.indexPath), { code: "ENOENT" });

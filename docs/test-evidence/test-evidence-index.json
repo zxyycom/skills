@@ -3941,7 +3941,7 @@
       "id": "TASK-GRAPH-APPLY-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-APPLY-001 成功返回排序 alias 映射 apply 用 Map 在一个 expectedRevision 中解析先定义 alias，并以 all-or-nothing 方式提交 operations；瞬时 alias 与持久字典 key 分属不同契约。 `constructor` alias 可被后续 `@constructor` 安全引用并出现在排序映射中，重复或超过 80 字符的 alias 稳定拒绝；任一操作失败时 revision、task 与 nextIds 全部回滚。 tools/task-graph/tests/cli.test.ts > CLI apply resolves aliases and rolls back every operation when one fails bun test --test-name-pattern=\"^CLI apply resolves aliases and rolls back every operation when one fails$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-APPLY-001 成功返回排序 alias 映射 apply 用 Map 在一个 expectedRevision 中解析先定义 alias，并以 all-or-nothing 方式提交 operations；瞬时 alias 与持久字典 key 分属不同契约。 `constructor` alias 可被后续 `@constructor` 安全引用并出现在排序映射中，重复或超过 80 字符的 alias 稳定拒绝；任一操作失败时 revision、task 与 `nextTaskId` 全部回滚。 tools/task-graph/tests/cli.test.ts > CLI apply resolves aliases and rolls back every operation when one fails bun test --test-name-pattern=\"^CLI apply resolves aliases and rolls back every operation when one fails$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -3955,7 +3955,7 @@
         ],
         "id": "TASK-GRAPH-APPLY-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-APPLY-001 成功返回排序 alias 映射 apply 用 Map 在一个 expectedRevision 中解析先定义 alias，并以 all-or-nothing 方式提交 operations；瞬时 alias 与持久字典 key 分属不同契约。 `constructor` alias 可被后续 `@constructor` 安全引用并出现在排序映射中，重复或超过 80 字符的 alias 稳定拒绝；任一操作失败时 revision、task 与 nextIds 全部回滚。 tools/task-graph/tests/cli.test.ts > CLI apply resolves aliases and rolls back every operation when one fails bun test --test-name-pattern=\"^CLI apply resolves aliases and rolls back every operation when one fails$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-APPLY-001 成功返回排序 alias 映射 apply 用 Map 在一个 expectedRevision 中解析先定义 alias，并以 all-or-nothing 方式提交 operations；瞬时 alias 与持久字典 key 分属不同契约。 `constructor` alias 可被后续 `@constructor` 安全引用并出现在排序映射中，重复或超过 80 字符的 alias 稳定拒绝；任一操作失败时 revision、task 与 `nextTaskId` 全部回滚。 tools/task-graph/tests/cli.test.ts > CLI apply resolves aliases and rolls back every operation when one fails bun test --test-name-pattern=\"^CLI apply resolves aliases and rolls back every operation when one fails$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/cli-apply-resolves-aliases-and-rolls-back.md",
         "summary": "apply 用 Map 在一个 expectedRevision 中解析先定义 alias，并以 all-or-nothing 方式提交 operations；瞬时 alias 与持久字典 key 分属不同契约。",
         "title": "成功返回排序 alias 映射"
@@ -4007,30 +4007,6 @@
         "sourcePath": "task-graph/atomic-resolve-succeeds-without-readback.md",
         "summary": "`write-file-atomic` resolve 是提交调用成功边界；task-graph 不以额外文件读取重新判定该结果。",
         "title": "atomic resolve 后不执行提交读回"
-      }
-    },
-    {
-      "id": "TASK-GRAPH-BINDING-001",
-      "keys": {
-        "search": [
-          "TASK-GRAPH-BINDING-001 创建时的重复 binding 返回 BINDING_CONFLICT，而不是泛化索引错误 create-scope 的初始 bindings 与 binding-set 使用同一唯一性和稳定错误语义。 创建时的重复 binding 返回 BINDING_CONFLICT，而不是泛化索引错误。 tools/task-graph/tests/schema-index.test.ts > scope creation reports initial binding collisions with the stable binding error bun test --test-name-pattern=\"^scope creation reports initial binding collisions with the stable binding error$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "topic": [
-          "task-graph"
-        ]
-      },
-      "state": {
-        "endLine": 12,
-        "entries": [
-          "tools/task-graph/tests/schema-index.test.ts > scope creation reports initial binding collisions with the stable binding error",
-          "bun test --test-name-pattern=\"^scope creation reports initial binding collisions with the stable binding error$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "id": "TASK-GRAPH-BINDING-001",
-        "line": 1,
-        "searchText": "TASK-GRAPH-BINDING-001 创建时的重复 binding 返回 BINDING_CONFLICT，而不是泛化索引错误 create-scope 的初始 bindings 与 binding-set 使用同一唯一性和稳定错误语义。 创建时的重复 binding 返回 BINDING_CONFLICT，而不是泛化索引错误。 tools/task-graph/tests/schema-index.test.ts > scope creation reports initial binding collisions with the stable binding error bun test --test-name-pattern=\"^scope creation reports initial binding collisions with the stable binding error$\" ./tools/task-graph/tests/run.ts",
-        "sourcePath": "task-graph/scope-creation-reports-initial-binding-collisions.md",
-        "summary": "create-scope 的初始 bindings 与 binding-set 使用同一唯一性和稳定错误语义。",
-        "title": "创建时的重复 binding 返回 BINDING_CONFLICT，而不是泛化索引错误"
       }
     },
     {
@@ -4130,6 +4106,30 @@
       }
     },
     {
+      "id": "TASK-GRAPH-CLI-CLEANUP-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-CLI-CLEANUP-001 CLI 暴露批量 task removal 且不存在 scope 命令 清理入口是带 revision 与结果交付确认的显式批量 `task remove`；CLI 不提供 scope 层或后台 GC。 根 help 包含 `task remove` 且没有任何 `scope` command path；调用旧容器命令返回参数错误。 tools/task-graph/tests/task-removal.test.ts > CLI exposes batch task removal and no scope command bun test --test-name-pattern=\"^CLI exposes batch task removal and no scope command$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/task-removal.test.ts > CLI exposes batch task removal and no scope command",
+          "bun test --test-name-pattern=\"^CLI exposes batch task removal and no scope command$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-CLI-CLEANUP-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-CLI-CLEANUP-001 CLI 暴露批量 task removal 且不存在 scope 命令 清理入口是带 revision 与结果交付确认的显式批量 `task remove`；CLI 不提供 scope 层或后台 GC。 根 help 包含 `task remove` 且没有任何 `scope` command path；调用旧容器命令返回参数错误。 tools/task-graph/tests/task-removal.test.ts > CLI exposes batch task removal and no scope command bun test --test-name-pattern=\"^CLI exposes batch task removal and no scope command$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-exposes-task-removal-and-no-scope.md",
+        "summary": "清理入口是带 revision 与结果交付确认的显式批量 `task remove`；CLI 不提供 scope 层或后台 GC。",
+        "title": "CLI 暴露批量 task removal 且不存在 scope 命令"
+      }
+    },
+    {
       "id": "TASK-GRAPH-CLI-ERRORS-001",
       "keys": {
         "search": [
@@ -4181,7 +4181,7 @@
       "id": "TASK-GRAPH-CLI-PROTOCOL-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-CLI-PROTOCOL-001 每次调用只写一个 LF 结尾 JSON help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。 根 help 枚举全部 28 个命令并逐一查询成功，机器可读地公布固定 Node range、mutation runtime 前置以及安装命令；scope create、task create 与 apply 的参数契约可恢复，其中 acceptance 明确为可选重复参数；每次调用只写一个 LF 结尾 JSON。 tools/task-graph/tests/cli.test.ts > CLI help, version, and usage stay inside the single-JSON LF protocol bun test --test-name-pattern=\"^CLI help, version, and usage stay inside the single-JSON LF protocol$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-CLI-PROTOCOL-001 每次调用只写一个 LF 结尾 JSON help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。 根 help 枚举全部 23 个命令并逐一查询成功，机器可读地公布固定 Node range、mutation runtime 前置以及安装命令；task create、task remove 与 apply 的参数契约可恢复，其中 acceptance 明确为可选重复参数；每次调用只写一个 LF 结尾 JSON。 tools/task-graph/tests/cli.test.ts > CLI help, version, and usage stay inside the single-JSON LF protocol bun test --test-name-pattern=\"^CLI help, version, and usage stay inside the single-JSON LF protocol$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4195,7 +4195,7 @@
         ],
         "id": "TASK-GRAPH-CLI-PROTOCOL-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-CLI-PROTOCOL-001 每次调用只写一个 LF 结尾 JSON help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。 根 help 枚举全部 28 个命令并逐一查询成功，机器可读地公布固定 Node range、mutation runtime 前置以及安装命令；scope create、task create 与 apply 的参数契约可恢复，其中 acceptance 明确为可选重复参数；每次调用只写一个 LF 结尾 JSON。 tools/task-graph/tests/cli.test.ts > CLI help, version, and usage stay inside the single-JSON LF protocol bun test --test-name-pattern=\"^CLI help, version, and usage stay inside the single-JSON LF protocol$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-CLI-PROTOCOL-001 每次调用只写一个 LF 结尾 JSON help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。 根 help 枚举全部 23 个命令并逐一查询成功，机器可读地公布固定 Node range、mutation runtime 前置以及安装命令；task create、task remove 与 apply 的参数契约可恢复，其中 acceptance 明确为可选重复参数；每次调用只写一个 LF 结尾 JSON。 tools/task-graph/tests/cli.test.ts > CLI help, version, and usage stay inside the single-JSON LF protocol bun test --test-name-pattern=\"^CLI help, version, and usage stay inside the single-JSON LF protocol$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/cli-help-version-and-usage-use-json-lf.md",
         "summary": "help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。",
         "title": "每次调用只写一个 LF 结尾 JSON"
@@ -4253,7 +4253,7 @@
       "id": "TASK-GRAPH-CONCURRENCY-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-CONCURRENCY-001 原生短锁串行化同 revision 并发 mutation 共享索引的原生短锁必须串行化并发 mutation，revision 继续使用全局 compare-and-swap。 两个独立 service 同时以 revision 0 创建 scope 时只有一个提交，另一个得到 `REVISION_CONFLICT`，最终 revision 为 1。 tools/task-graph/tests/store.test.ts > store serializes concurrent native mutations and preserves revision compare-and-swap bun test --test-name-pattern=\"^store serializes concurrent native mutations and preserves revision compare-and-swap$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-CONCURRENCY-001 原生短锁串行化同 revision 并发 mutation 共享索引的原生短锁必须串行化并发 mutation，revision 继续使用全局 compare-and-swap。 两个独立 service 同时以 revision 0 创建 task 时只有一个提交，另一个得到 `REVISION_CONFLICT`，最终 revision 为 1。 tools/task-graph/tests/store.test.ts > store serializes concurrent native mutations and preserves revision compare-and-swap bun test --test-name-pattern=\"^store serializes concurrent native mutations and preserves revision compare-and-swap$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4267,7 +4267,7 @@
         ],
         "id": "TASK-GRAPH-CONCURRENCY-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-CONCURRENCY-001 原生短锁串行化同 revision 并发 mutation 共享索引的原生短锁必须串行化并发 mutation，revision 继续使用全局 compare-and-swap。 两个独立 service 同时以 revision 0 创建 scope 时只有一个提交，另一个得到 `REVISION_CONFLICT`，最终 revision 为 1。 tools/task-graph/tests/store.test.ts > store serializes concurrent native mutations and preserves revision compare-and-swap bun test --test-name-pattern=\"^store serializes concurrent native mutations and preserves revision compare-and-swap$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-CONCURRENCY-001 原生短锁串行化同 revision 并发 mutation 共享索引的原生短锁必须串行化并发 mutation，revision 继续使用全局 compare-and-swap。 两个独立 service 同时以 revision 0 创建 task 时只有一个提交，另一个得到 `REVISION_CONFLICT`，最终 revision 为 1。 tools/task-graph/tests/store.test.ts > store serializes concurrent native mutations and preserves revision compare-and-swap bun test --test-name-pattern=\"^store serializes concurrent native mutations and preserves revision compare-and-swap$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/store-serializes-claims-and-global-cas.md",
         "summary": "共享索引的原生短锁必须串行化并发 mutation，revision 继续使用全局 compare-and-swap。",
         "title": "原生短锁串行化同 revision 并发 mutation"
@@ -4325,7 +4325,7 @@
       "id": "TASK-GRAPH-DISTRIBUTION-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 task-graph 分发脚本、从公开实现机械派生的声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 bundled/source exports 与 version 行为一致；同名声明入口及其可达声明树可被独立 TypeScript consumer 使用，允许省略 acceptance，且不暴露 native、runner、store、内部注入类型或 Valibot。`write-file-atomic` 已内联、native 包未内联、bundle 无工作区绝对路径；Schema 与运行时共同拒绝长度、格式和错误文本类型等全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 task-graph 分发脚本、从公开实现机械派生的声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 bundled/source exports 与 2.0.0 行为一致，公开根级任务投影和批量删除而不暴露 scope API；同名声明入口及其可达声明树可被独立 TypeScript consumer 使用，允许省略 acceptance，且不暴露 native、runner、store、内部注入类型或 Valibot。`write-file-atomic` 已内联、native 包未内联、bundle 无工作区绝对路径；Schema 与运行时共同拒绝长度、格式和错误文本类型等全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4339,7 +4339,7 @@
         ],
         "id": "TASK-GRAPH-DISTRIBUTION-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 task-graph 分发脚本、从公开实现机械派生的声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 bundled/source exports 与 version 行为一致；同名声明入口及其可达声明树可被独立 TypeScript consumer 使用，允许省略 acceptance，且不暴露 native、runner、store、内部注入类型或 Valibot。`write-file-atomic` 已内联、native 包未内联、bundle 无工作区绝对路径；Schema 与运行时共同拒绝长度、格式和错误文本类型等全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 task-graph 分发脚本、从公开实现机械派生的声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 bundled/source exports 与 2.0.0 行为一致，公开根级任务投影和批量删除而不暴露 scope API；同名声明入口及其可达声明树可被独立 TypeScript consumer 使用，允许省略 acceptance，且不暴露 native、runner、store、内部注入类型或 Valibot。`write-file-atomic` 已内联、native 包未内联、bundle 无工作区绝对路径；Schema 与运行时共同拒绝长度、格式和错误文本类型等全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/generated-distribution-matches-source-contracts.md",
         "summary": "task-graph 分发脚本、从公开实现机械派生的声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。",
         "title": "分发制品与源码公共契约一致"
@@ -4445,7 +4445,7 @@
       "id": "TASK-GRAPH-GC-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-GC-001 批量 scope close 在全部门禁通过后一次提交 显式非空 scope 集合共用一个结果交付确认，先验证全部选择，再以一次 revision 原子关闭并保留 nextIds。 包含不可关闭、空集合或重复 scope 时无变更；合法批次排序返回、只增一次 revision 且不复用 ID。 tools/task-graph/tests/scope-repository.test.ts > bulk scope close validates all selections before one revision and preserves nextIds bun test --test-name-pattern=\"^bulk scope close validates all selections before one revision and preserves nextIds$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-GC-001 批量 task removal 在全部门禁通过后一次提交 显式非空 task 集合共用结果交付确认，先验证全部选择，再以一次 revision 原子删除，并保持 `nextTaskId` 单调。 空集合、重复 ID 或未确认结果交付时无变更；合法批次排序返回、只增一次 revision 且不复用 ID。 tools/task-graph/tests/task-removal.test.ts > bulk task removal is atomic, explicit, and preserves monotonic allocation bun test --test-name-pattern=\"^bulk task removal is atomic, explicit, and preserves monotonic allocation$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4454,22 +4454,22 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/scope-repository.test.ts > bulk scope close validates all selections before one revision and preserves nextIds",
-          "bun test --test-name-pattern=\"^bulk scope close validates all selections before one revision and preserves nextIds$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/task-removal.test.ts > bulk task removal is atomic, explicit, and preserves monotonic allocation",
+          "bun test --test-name-pattern=\"^bulk task removal is atomic, explicit, and preserves monotonic allocation$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-GC-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-GC-001 批量 scope close 在全部门禁通过后一次提交 显式非空 scope 集合共用一个结果交付确认，先验证全部选择，再以一次 revision 原子关闭并保留 nextIds。 包含不可关闭、空集合或重复 scope 时无变更；合法批次排序返回、只增一次 revision 且不复用 ID。 tools/task-graph/tests/scope-repository.test.ts > bulk scope close validates all selections before one revision and preserves nextIds bun test --test-name-pattern=\"^bulk scope close validates all selections before one revision and preserves nextIds$\" ./tools/task-graph/tests/run.ts",
-        "sourcePath": "task-graph/bulk-scope-close-is-atomic.md",
-        "summary": "显式非空 scope 集合共用一个结果交付确认，先验证全部选择，再以一次 revision 原子关闭并保留 nextIds。",
-        "title": "批量 scope close 在全部门禁通过后一次提交"
+        "searchText": "TASK-GRAPH-GC-001 批量 task removal 在全部门禁通过后一次提交 显式非空 task 集合共用结果交付确认，先验证全部选择，再以一次 revision 原子删除，并保持 `nextTaskId` 单调。 空集合、重复 ID 或未确认结果交付时无变更；合法批次排序返回、只增一次 revision 且不复用 ID。 tools/task-graph/tests/task-removal.test.ts > bulk task removal is atomic, explicit, and preserves monotonic allocation bun test --test-name-pattern=\"^bulk task removal is atomic, explicit, and preserves monotonic allocation$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/bulk-task-removal-is-atomic.md",
+        "summary": "显式非空 task 集合共用结果交付确认，先验证全部选择，再以一次 revision 原子删除，并保持 `nextTaskId` 单调。",
+        "title": "批量 task removal 在全部门禁通过后一次提交"
       }
     },
     {
       "id": "TASK-GRAPH-GIT-BOUNDARY-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-GIT-BOUNDARY-001 mutation 不接管 Git 生命周期或 ignore 策略 task-graph 只写权威索引，不创建局部 `.gitignore`、工作区 lock，也不自动 stage 或 commit。 mutation 后索引保持未暂存、HEAD 不变，调用方创建的临时文件仍是未跟踪状态，工作区没有 task-graph `.gitignore` 或相邻 lock。 tools/task-graph/tests/scope-repository.test.ts > task index mutations leave Git staging, commits, and ignore policy caller-owned bun test --test-name-pattern=\"^task index mutations leave Git staging, commits, and ignore policy caller-owned$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-GIT-BOUNDARY-001 mutation 不接管 Git 生命周期或 ignore 策略 task-graph 只写权威索引，不创建局部 `.gitignore`、工作区 lock，也不自动 stage 或 commit。 mutation 后索引保持未暂存、HEAD 不变，调用方创建的临时文件仍是未跟踪状态，工作区没有 task-graph `.gitignore` 或相邻 lock。 tools/task-graph/tests/task-removal.test.ts > task index mutations leave Git staging, commits, and ignore policy caller-owned bun test --test-name-pattern=\"^task index mutations leave Git staging, commits, and ignore policy caller-owned$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4478,12 +4478,12 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/scope-repository.test.ts > task index mutations leave Git staging, commits, and ignore policy caller-owned",
+          "tools/task-graph/tests/task-removal.test.ts > task index mutations leave Git staging, commits, and ignore policy caller-owned",
           "bun test --test-name-pattern=\"^task index mutations leave Git staging, commits, and ignore policy caller-owned$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-GIT-BOUNDARY-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-GIT-BOUNDARY-001 mutation 不接管 Git 生命周期或 ignore 策略 task-graph 只写权威索引，不创建局部 `.gitignore`、工作区 lock，也不自动 stage 或 commit。 mutation 后索引保持未暂存、HEAD 不变，调用方创建的临时文件仍是未跟踪状态，工作区没有 task-graph `.gitignore` 或相邻 lock。 tools/task-graph/tests/scope-repository.test.ts > task index mutations leave Git staging, commits, and ignore policy caller-owned bun test --test-name-pattern=\"^task index mutations leave Git staging, commits, and ignore policy caller-owned$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-GIT-BOUNDARY-001 mutation 不接管 Git 生命周期或 ignore 策略 task-graph 只写权威索引，不创建局部 `.gitignore`、工作区 lock，也不自动 stage 或 commit。 mutation 后索引保持未暂存、HEAD 不变，调用方创建的临时文件仍是未跟踪状态，工作区没有 task-graph `.gitignore` 或相邻 lock。 tools/task-graph/tests/task-removal.test.ts > task index mutations leave Git staging, commits, and ignore policy caller-owned bun test --test-name-pattern=\"^task index mutations leave Git staging, commits, and ignore policy caller-owned$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/mutations-leave-git-lifecycle-caller-owned.md",
         "summary": "task-graph 只写权威索引，不创建局部 `.gitignore`、工作区 lock，也不自动 stage 或 commit。",
         "title": "mutation 不接管 Git 生命周期或 ignore 策略"
@@ -4493,7 +4493,7 @@
       "id": "TASK-GRAPH-ID-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-ID-001 扩展 ID 保持规范，失败批次不改变原索引或消耗编号 scope/task ID 单调分配、可扩展到六位以上，nextIds 必须严格大于已分配 ID。 扩展 ID 保持规范，失败批次不改变原索引或消耗编号。 tools/task-graph/tests/schema-index.test.ts > nextIds stay monotonic, extend beyond six digits, and failed apply consumes nothing bun test --test-name-pattern=\"^nextIds stay monotonic, extend beyond six digits, and failed apply consumes nothing$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-ID-001 扩展 task ID 保持规范，失败批次不消耗编号 Task ID 单调分配并可扩展到六位以上，`nextTaskId` 必须严格大于全部已分配 task ID。 七位 task ID 保持规范；失败 apply 不改变原索引或消耗编号，回退计数器的索引被拒绝。 tools/task-graph/tests/schema-index.test.ts > nextTaskId stays monotonic beyond six digits and failed apply consumes nothing bun test --test-name-pattern=\"^nextTaskId stays monotonic beyond six digits and failed apply consumes nothing$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4502,15 +4502,15 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/schema-index.test.ts > nextIds stay monotonic, extend beyond six digits, and failed apply consumes nothing",
-          "bun test --test-name-pattern=\"^nextIds stay monotonic, extend beyond six digits, and failed apply consumes nothing$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/schema-index.test.ts > nextTaskId stays monotonic beyond six digits and failed apply consumes nothing",
+          "bun test --test-name-pattern=\"^nextTaskId stays monotonic beyond six digits and failed apply consumes nothing$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-ID-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-ID-001 扩展 ID 保持规范，失败批次不改变原索引或消耗编号 scope/task ID 单调分配、可扩展到六位以上，nextIds 必须严格大于已分配 ID。 扩展 ID 保持规范，失败批次不改变原索引或消耗编号。 tools/task-graph/tests/schema-index.test.ts > nextIds stay monotonic, extend beyond six digits, and failed apply consumes nothing bun test --test-name-pattern=\"^nextIds stay monotonic, extend beyond six digits, and failed apply consumes nothing$\" ./tools/task-graph/tests/run.ts",
-        "sourcePath": "task-graph/next-ids-remain-monotonic-and-failed-apply-consumes-nothing.md",
-        "summary": "scope/task ID 单调分配、可扩展到六位以上，nextIds 必须严格大于已分配 ID。",
-        "title": "扩展 ID 保持规范，失败批次不改变原索引或消耗编号"
+        "searchText": "TASK-GRAPH-ID-001 扩展 task ID 保持规范，失败批次不消耗编号 Task ID 单调分配并可扩展到六位以上，`nextTaskId` 必须严格大于全部已分配 task ID。 七位 task ID 保持规范；失败 apply 不改变原索引或消耗编号，回退计数器的索引被拒绝。 tools/task-graph/tests/schema-index.test.ts > nextTaskId stays monotonic beyond six digits and failed apply consumes nothing bun test --test-name-pattern=\"^nextTaskId stays monotonic beyond six digits and failed apply consumes nothing$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/next-task-id-remains-monotonic-and-failed-apply-consumes-nothing.md",
+        "summary": "Task ID 单调分配并可扩展到六位以上，`nextTaskId` 必须严格大于全部已分配 task ID。",
+        "title": "扩展 task ID 保持规范，失败批次不消耗编号"
       }
     },
     {
@@ -4826,6 +4826,30 @@
       }
     },
     {
+      "id": "TASK-GRAPH-REMOVE-BLOCKERS-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-REMOVE-BLOCKERS-001 task removal 报告终态和关系边界 blocker 只有已成功或取消、且父子、依赖和排斥关系不跨越选择边界的显式 task 集合可以删除。 非终态、父节点留存、子节点留存、依赖跨界和排斥跨界分别产生结构化 blocker；任一失败都不修改原索引。 tools/task-graph/tests/task-removal.test.ts > task removal reports terminal and graph-boundary blockers without mutation bun test --test-name-pattern=\"^task removal reports terminal and graph-boundary blockers without mutation$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/task-removal.test.ts > task removal reports terminal and graph-boundary blockers without mutation",
+          "bun test --test-name-pattern=\"^task removal reports terminal and graph-boundary blockers without mutation$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-REMOVE-BLOCKERS-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-REMOVE-BLOCKERS-001 task removal 报告终态和关系边界 blocker 只有已成功或取消、且父子、依赖和排斥关系不跨越选择边界的显式 task 集合可以删除。 非终态、父节点留存、子节点留存、依赖跨界和排斥跨界分别产生结构化 blocker；任一失败都不修改原索引。 tools/task-graph/tests/task-removal.test.ts > task removal reports terminal and graph-boundary blockers without mutation bun test --test-name-pattern=\"^task removal reports terminal and graph-boundary blockers without mutation$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/task-removal-reports-all-blockers.md",
+        "summary": "只有已成功或取消、且父子、依赖和排斥关系不跨越选择边界的显式 task 集合可以删除。",
+        "title": "task removal 报告终态和关系边界 blocker"
+      }
+    },
+    {
       "id": "TASK-GRAPH-RETRY-001",
       "keys": {
         "search": [
@@ -4925,7 +4949,7 @@
       "id": "TASK-GRAPH-RUNTIME-GATE-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-RUNTIME-GATE-001 CLI 在参数和 apply 输入访问前统一 gate mutation 识别 mutation 后必须先加载 runtime；缺失时 `RUNTIME_MISSING` 优先于 malformed args 或不可读 request。 23 个 mutation command path 全部先返回 revision null 的 runtime error；其中 malformed scope create 与 apply file 进一步证明参数、请求文件和索引读取计数为零，工作区目录未创建。 tools/task-graph/tests/cli.test.ts > CLI gates every mutation before argument parsing or apply request and index access bun test --test-name-pattern=\"^CLI gates every mutation before argument parsing or apply request and index access$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-RUNTIME-GATE-001 CLI 在参数和 apply 输入访问前统一 gate mutation 识别 mutation 后必须先加载 runtime；缺失时 `RUNTIME_MISSING` 优先于 malformed args 或不可读 request。 18 个 mutation command path 全部先返回 revision null 的 runtime error；其中 malformed task create 与 apply file 进一步证明参数、请求文件和索引读取计数为零，工作区目录未创建。 tools/task-graph/tests/cli.test.ts > CLI gates every mutation before argument parsing or apply request and index access bun test --test-name-pattern=\"^CLI gates every mutation before argument parsing or apply request and index access$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4939,7 +4963,7 @@
         ],
         "id": "TASK-GRAPH-RUNTIME-GATE-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-RUNTIME-GATE-001 CLI 在参数和 apply 输入访问前统一 gate mutation 识别 mutation 后必须先加载 runtime；缺失时 `RUNTIME_MISSING` 优先于 malformed args 或不可读 request。 23 个 mutation command path 全部先返回 revision null 的 runtime error；其中 malformed scope create 与 apply file 进一步证明参数、请求文件和索引读取计数为零，工作区目录未创建。 tools/task-graph/tests/cli.test.ts > CLI gates every mutation before argument parsing or apply request and index access bun test --test-name-pattern=\"^CLI gates every mutation before argument parsing or apply request and index access$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-RUNTIME-GATE-001 CLI 在参数和 apply 输入访问前统一 gate mutation 识别 mutation 后必须先加载 runtime；缺失时 `RUNTIME_MISSING` 优先于 malformed args 或不可读 request。 18 个 mutation command path 全部先返回 revision null 的 runtime error；其中 malformed task create 与 apply file 进一步证明参数、请求文件和索引读取计数为零，工作区目录未创建。 tools/task-graph/tests/cli.test.ts > CLI gates every mutation before argument parsing or apply request and index access bun test --test-name-pattern=\"^CLI gates every mutation before argument parsing or apply request and index access$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/cli-gates-mutations-before-input-access.md",
         "summary": "识别 mutation 后必须先加载 runtime；缺失时 `RUNTIME_MISSING` 优先于 malformed args 或不可读 request。",
         "title": "CLI 在参数和 apply 输入访问前统一 gate mutation"
@@ -4997,7 +5021,7 @@
       "id": "TASK-GRAPH-RUNTIME-READ-ONLY-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-RUNTIME-READ-ONLY-001 领域只读命令不依赖 native runtime Index、scope、task 与图投影的只读命令不得加载或安装 native runtime。 `index info`、scope list/show、task list/show 和 actionable 六个领域只读 command path 在有效索引和空 tool home 下全部成功，且没有创建 tool home。 tools/task-graph/tests/cli.test.ts > CLI domain read-only commands run without an installed runtime bun test --test-name-pattern=\"^CLI domain read-only commands run without an installed runtime$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-RUNTIME-READ-ONLY-001 领域只读命令不依赖 native runtime Index、task 与图投影的只读命令不得加载或安装 native runtime。 `index info`、task list/show 和 actionable 四个领域只读 command path 在有效索引和空 tool home 下全部成功，且没有创建 tool home。 tools/task-graph/tests/cli.test.ts > CLI domain read-only commands run without an installed runtime bun test --test-name-pattern=\"^CLI domain read-only commands run without an installed runtime$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -5011,9 +5035,9 @@
         ],
         "id": "TASK-GRAPH-RUNTIME-READ-ONLY-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-RUNTIME-READ-ONLY-001 领域只读命令不依赖 native runtime Index、scope、task 与图投影的只读命令不得加载或安装 native runtime。 `index info`、scope list/show、task list/show 和 actionable 六个领域只读 command path 在有效索引和空 tool home 下全部成功，且没有创建 tool home。 tools/task-graph/tests/cli.test.ts > CLI domain read-only commands run without an installed runtime bun test --test-name-pattern=\"^CLI domain read-only commands run without an installed runtime$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-RUNTIME-READ-ONLY-001 领域只读命令不依赖 native runtime Index、task 与图投影的只读命令不得加载或安装 native runtime。 `index info`、task list/show 和 actionable 四个领域只读 command path 在有效索引和空 tool home 下全部成功，且没有创建 tool home。 tools/task-graph/tests/cli.test.ts > CLI domain read-only commands run without an installed runtime bun test --test-name-pattern=\"^CLI domain read-only commands run without an installed runtime$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/cli-read-only-commands-need-no-runtime.md",
-        "summary": "Index、scope、task 与图投影的只读命令不得加载或安装 native runtime。",
+        "summary": "Index、task 与图投影的只读命令不得加载或安装 native runtime。",
         "title": "领域只读命令不依赖 native runtime"
       }
     },
@@ -5045,7 +5069,7 @@
       "id": "TASK-GRAPH-SCHEMA-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-SCHEMA-001 未知字段和互斥状态组合都返回稳定的结构错误 严格索引与 apply Schema 拒绝未知字段、不合法的 control/execution 判别联合、超过 80 字符的持久字典 key 或 alias，以及存量索引中的重复 running lease ID。 未知字段、互斥状态组合、超长 binding/reference key、超长 alias 和跨 task 重复 lease 都返回稳定结构或语义错误。 tools/task-graph/tests/schema-index.test.ts > strict schema rejects unknown fields and illegal state unions bun test --test-name-pattern=\"^strict schema rejects unknown fields and illegal state unions$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-SCHEMA-001 未知字段和互斥状态组合都返回稳定的结构错误 严格索引与 apply Schema 拒绝未知字段、不合法的 control 判别联合、保留字典 key，以及存量索引中的重复 running lease ID。 未知字段、互斥状态组合、保留 reference key 和跨 task 重复 lease 都返回稳定结构或语义错误。 tools/task-graph/tests/schema-index.test.ts > strict schema rejects unknown fields, illegal state unions, and duplicate leases bun test --test-name-pattern=\"^strict schema rejects unknown fields, illegal state unions, and duplicate leases$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -5054,22 +5078,22 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/schema-index.test.ts > strict schema rejects unknown fields and illegal state unions",
-          "bun test --test-name-pattern=\"^strict schema rejects unknown fields and illegal state unions$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/schema-index.test.ts > strict schema rejects unknown fields, illegal state unions, and duplicate leases",
+          "bun test --test-name-pattern=\"^strict schema rejects unknown fields, illegal state unions, and duplicate leases$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-SCHEMA-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-SCHEMA-001 未知字段和互斥状态组合都返回稳定的结构错误 严格索引与 apply Schema 拒绝未知字段、不合法的 control/execution 判别联合、超过 80 字符的持久字典 key 或 alias，以及存量索引中的重复 running lease ID。 未知字段、互斥状态组合、超长 binding/reference key、超长 alias 和跨 task 重复 lease 都返回稳定结构或语义错误。 tools/task-graph/tests/schema-index.test.ts > strict schema rejects unknown fields and illegal state unions bun test --test-name-pattern=\"^strict schema rejects unknown fields and illegal state unions$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-SCHEMA-001 未知字段和互斥状态组合都返回稳定的结构错误 严格索引与 apply Schema 拒绝未知字段、不合法的 control 判别联合、保留字典 key，以及存量索引中的重复 running lease ID。 未知字段、互斥状态组合、保留 reference key 和跨 task 重复 lease 都返回稳定结构或语义错误。 tools/task-graph/tests/schema-index.test.ts > strict schema rejects unknown fields, illegal state unions, and duplicate leases bun test --test-name-pattern=\"^strict schema rejects unknown fields, illegal state unions, and duplicate leases$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/strict-schema-rejects-unknown-fields-and-illegal-state-unions.md",
-        "summary": "严格索引与 apply Schema 拒绝未知字段、不合法的 control/execution 判别联合、超过 80 字符的持久字典 key 或 alias，以及存量索引中的重复 running lease ID。",
+        "summary": "严格索引与 apply Schema 拒绝未知字段、不合法的 control 判别联合、保留字典 key，以及存量索引中的重复 running lease ID。",
         "title": "未知字段和互斥状态组合都返回稳定的结构错误"
       }
     },
     {
-      "id": "TASK-GRAPH-SCOPE-CLOSE-001",
+      "id": "TASK-GRAPH-SCHEMA-V1-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-SCOPE-CLOSE-001 scope list 与 close 区分全部门禁 blocker scope close 要求顶层终态、无 failed、active 或 recovery-needed task，并显式确认结果交付。 close 投影区分全部 blocker；scope list 携带同一 close 投影，service 对缺失或 false 的 `resultsDelivered` 都拒绝，并要求 binding filter kind/value 成对出现。 tools/task-graph/tests/scope-repository.test.ts > scope close projection reports terminal, failed, active, and recovery blockers bun test --test-name-pattern=\"^scope close projection reports terminal, failed, active, and recovery blockers$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-SCHEMA-V1-001 scope 形态的 schema v1 不进入兼容路径 当前解析器只接受根级 `tasks` 字典的 schema v2，不提供旧结构读取、双写或迁移协议。 带 `nextIds` 和 `scopes` 的 schema v1 索引稳定返回 `SCHEMA_UNSUPPORTED`，不会被解释为当前索引。 tools/task-graph/tests/schema-index.test.ts > scope-shaped schema v1 is unsupported without a compatibility path bun test --test-name-pattern=\"^scope-shaped schema v1 is unsupported without a compatibility path$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -5078,70 +5102,22 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/scope-repository.test.ts > scope close projection reports terminal, failed, active, and recovery blockers",
-          "bun test --test-name-pattern=\"^scope close projection reports terminal, failed, active, and recovery blockers$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/schema-index.test.ts > scope-shaped schema v1 is unsupported without a compatibility path",
+          "bun test --test-name-pattern=\"^scope-shaped schema v1 is unsupported without a compatibility path$\" ./tools/task-graph/tests/run.ts"
         ],
-        "id": "TASK-GRAPH-SCOPE-CLOSE-001",
+        "id": "TASK-GRAPH-SCHEMA-V1-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-SCOPE-CLOSE-001 scope list 与 close 区分全部门禁 blocker scope close 要求顶层终态、无 failed、active 或 recovery-needed task，并显式确认结果交付。 close 投影区分全部 blocker；scope list 携带同一 close 投影，service 对缺失或 false 的 `resultsDelivered` 都拒绝，并要求 binding filter kind/value 成对出现。 tools/task-graph/tests/scope-repository.test.ts > scope close projection reports terminal, failed, active, and recovery blockers bun test --test-name-pattern=\"^scope close projection reports terminal, failed, active, and recovery blockers$\" ./tools/task-graph/tests/run.ts",
-        "sourcePath": "task-graph/scope-close-reports-all-gate-blockers.md",
-        "summary": "scope close 要求顶层终态、无 failed、active 或 recovery-needed task，并显式确认结果交付。",
-        "title": "scope list 与 close 区分全部门禁 blocker"
-      }
-    },
-    {
-      "id": "TASK-GRAPH-SCOPE-IDENTITY-001",
-      "keys": {
-        "search": [
-          "TASK-GRAPH-SCOPE-IDENTITY-001 不存在改 key 操作，binding 替换成功且重复占用被拒绝 scope key 是不可变身份，binding 可更新但同 kind/value 在 scope 间唯一。 不存在改 key 操作，binding 替换成功且重复占用被拒绝。 tools/task-graph/tests/schema-index.test.ts > scope key identity is immutable while bindings remain replaceable and unique bun test --test-name-pattern=\"^scope key identity is immutable while bindings remain replaceable and unique$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "topic": [
-          "task-graph"
-        ]
-      },
-      "state": {
-        "endLine": 12,
-        "entries": [
-          "tools/task-graph/tests/schema-index.test.ts > scope key identity is immutable while bindings remain replaceable and unique",
-          "bun test --test-name-pattern=\"^scope key identity is immutable while bindings remain replaceable and unique$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "id": "TASK-GRAPH-SCOPE-IDENTITY-001",
-        "line": 1,
-        "searchText": "TASK-GRAPH-SCOPE-IDENTITY-001 不存在改 key 操作，binding 替换成功且重复占用被拒绝 scope key 是不可变身份，binding 可更新但同 kind/value 在 scope 间唯一。 不存在改 key 操作，binding 替换成功且重复占用被拒绝。 tools/task-graph/tests/schema-index.test.ts > scope key identity is immutable while bindings remain replaceable and unique bun test --test-name-pattern=\"^scope key identity is immutable while bindings remain replaceable and unique$\" ./tools/task-graph/tests/run.ts",
-        "sourcePath": "task-graph/scope-key-is-immutable-and-bindings-are-unique.md",
-        "summary": "scope key 是不可变身份，binding 可更新但同 kind/value 在 scope 间唯一。",
-        "title": "不存在改 key 操作，binding 替换成功且重复占用被拒绝"
-      }
-    },
-    {
-      "id": "TASK-GRAPH-SCOPE-ONLY-001",
-      "keys": {
-        "search": [
-          "TASK-GRAPH-SCOPE-ONLY-001 task delete 请求以参数错误拒绝，不改变索引 第一版只允许 scope 级清理，不提供单 task delete 或 GC。 task delete 请求以参数错误拒绝，不改变索引。 tools/task-graph/tests/scope-repository.test.ts > CLI exposes scope-only cleanup and no single-task deletion command bun test --test-name-pattern=\"^CLI exposes scope-only cleanup and no single-task deletion command$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "topic": [
-          "task-graph"
-        ]
-      },
-      "state": {
-        "endLine": 12,
-        "entries": [
-          "tools/task-graph/tests/scope-repository.test.ts > CLI exposes scope-only cleanup and no single-task deletion command",
-          "bun test --test-name-pattern=\"^CLI exposes scope-only cleanup and no single-task deletion command$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "id": "TASK-GRAPH-SCOPE-ONLY-001",
-        "line": 1,
-        "searchText": "TASK-GRAPH-SCOPE-ONLY-001 task delete 请求以参数错误拒绝，不改变索引 第一版只允许 scope 级清理，不提供单 task delete 或 GC。 task delete 请求以参数错误拒绝，不改变索引。 tools/task-graph/tests/scope-repository.test.ts > CLI exposes scope-only cleanup and no single-task deletion command bun test --test-name-pattern=\"^CLI exposes scope-only cleanup and no single-task deletion command$\" ./tools/task-graph/tests/run.ts",
-        "sourcePath": "task-graph/cli-exposes-no-single-task-cleanup.md",
-        "summary": "第一版只允许 scope 级清理，不提供单 task delete 或 GC。",
-        "title": "task delete 请求以参数错误拒绝，不改变索引"
+        "searchText": "TASK-GRAPH-SCHEMA-V1-001 scope 形态的 schema v1 不进入兼容路径 当前解析器只接受根级 `tasks` 字典的 schema v2，不提供旧结构读取、双写或迁移协议。 带 `nextIds` 和 `scopes` 的 schema v1 索引稳定返回 `SCHEMA_UNSUPPORTED`，不会被解释为当前索引。 tools/task-graph/tests/schema-index.test.ts > scope-shaped schema v1 is unsupported without a compatibility path bun test --test-name-pattern=\"^scope-shaped schema v1 is unsupported without a compatibility path$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/scope-shaped-schema-v1-is-unsupported.md",
+        "summary": "当前解析器只接受根级 `tasks` 字典的 schema v2，不提供旧结构读取、双写或迁移协议。",
+        "title": "scope 形态的 schema v1 不进入兼容路径"
       }
     },
     {
       "id": "TASK-GRAPH-SERIALIZATION-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-SERIALIZATION-001 规范文本按键排序，往返解析不丢失事实且 entry 不重复保存 ID task index 以 scope/task 字典键承接身份，并使用确定性排序、LF 与尾换行规范序列化。 规范文本按键排序，往返解析不丢失事实且 entry 不重复保存 ID。 tools/task-graph/tests/schema-index.test.ts > canonical serialization keeps dictionary identity, sorting, LF, and round trip bun test --test-name-pattern=\"^canonical serialization keeps dictionary identity, sorting, LF, and round trip$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-SERIALIZATION-001 规范文本按键排序，往返解析不丢失事实且 entry 不重复保存 ID task index 以根级 task 字典键承接身份，并使用确定性排序、LF 与尾换行规范序列化。 规范文本按键排序，往返解析不丢失事实且 entry 不重复保存 ID。 tools/task-graph/tests/schema-index.test.ts > canonical serialization keeps root task identity, sorting, LF, and round trip bun test --test-name-pattern=\"^canonical serialization keeps root task identity, sorting, LF, and round trip$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -5150,14 +5126,14 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/schema-index.test.ts > canonical serialization keeps dictionary identity, sorting, LF, and round trip",
-          "bun test --test-name-pattern=\"^canonical serialization keeps dictionary identity, sorting, LF, and round trip$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/schema-index.test.ts > canonical serialization keeps root task identity, sorting, LF, and round trip",
+          "bun test --test-name-pattern=\"^canonical serialization keeps root task identity, sorting, LF, and round trip$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-SERIALIZATION-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-SERIALIZATION-001 规范文本按键排序，往返解析不丢失事实且 entry 不重复保存 ID task index 以 scope/task 字典键承接身份，并使用确定性排序、LF 与尾换行规范序列化。 规范文本按键排序，往返解析不丢失事实且 entry 不重复保存 ID。 tools/task-graph/tests/schema-index.test.ts > canonical serialization keeps dictionary identity, sorting, LF, and round trip bun test --test-name-pattern=\"^canonical serialization keeps dictionary identity, sorting, LF, and round trip$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-SERIALIZATION-001 规范文本按键排序，往返解析不丢失事实且 entry 不重复保存 ID task index 以根级 task 字典键承接身份，并使用确定性排序、LF 与尾换行规范序列化。 规范文本按键排序，往返解析不丢失事实且 entry 不重复保存 ID。 tools/task-graph/tests/schema-index.test.ts > canonical serialization keeps root task identity, sorting, LF, and round trip bun test --test-name-pattern=\"^canonical serialization keeps root task identity, sorting, LF, and round trip$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/canonical-serialization-keeps-keyed-identity-and-round-trip.md",
-        "summary": "task index 以 scope/task 字典键承接身份，并使用确定性排序、LF 与尾换行规范序列化。",
+        "summary": "task index 以根级 task 字典键承接身份，并使用确定性排序、LF 与尾换行规范序列化。",
         "title": "规范文本按键排序，往返解析不丢失事实且 entry 不重复保存 ID"
       }
     },
@@ -5165,7 +5141,7 @@
       "id": "TASK-GRAPH-TOPOLOGY-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-TOPOLOGY-001 父子环、展开依赖环、跨 scope 和悬空引用均被识别 父子森林与继承展开依赖必须无环，关系仅能指向同一 scope 的现存 task。 父子环、展开依赖环、跨 scope 和悬空引用均被识别。 tools/task-graph/tests/graph-projection.test.ts > graph validation rejects cycles, dangling references, and cross-scope relations bun test --test-name-pattern=\"^graph validation rejects cycles, dangling references, and cross-scope relations$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-TOPOLOGY-001 父子环、展开依赖环和悬空引用均被识别 根级任务字典中的父子森林与继承展开依赖必须无环，关系只能指向现存 task。 父子环、展开依赖环和悬空引用均被识别。 tools/task-graph/tests/graph-projection.test.ts > graph validation rejects cycles and dangling references bun test --test-name-pattern=\"^graph validation rejects cycles and dangling references$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -5174,15 +5150,15 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/graph-projection.test.ts > graph validation rejects cycles, dangling references, and cross-scope relations",
-          "bun test --test-name-pattern=\"^graph validation rejects cycles, dangling references, and cross-scope relations$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/graph-projection.test.ts > graph validation rejects cycles and dangling references",
+          "bun test --test-name-pattern=\"^graph validation rejects cycles and dangling references$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-TOPOLOGY-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-TOPOLOGY-001 父子环、展开依赖环、跨 scope 和悬空引用均被识别 父子森林与继承展开依赖必须无环，关系仅能指向同一 scope 的现存 task。 父子环、展开依赖环、跨 scope 和悬空引用均被识别。 tools/task-graph/tests/graph-projection.test.ts > graph validation rejects cycles, dangling references, and cross-scope relations bun test --test-name-pattern=\"^graph validation rejects cycles, dangling references, and cross-scope relations$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-TOPOLOGY-001 父子环、展开依赖环和悬空引用均被识别 根级任务字典中的父子森林与继承展开依赖必须无环，关系只能指向现存 task。 父子环、展开依赖环和悬空引用均被识别。 tools/task-graph/tests/graph-projection.test.ts > graph validation rejects cycles and dangling references bun test --test-name-pattern=\"^graph validation rejects cycles and dangling references$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/graph-validation-rejects-cycles-and-invalid-references.md",
-        "summary": "父子森林与继承展开依赖必须无环，关系仅能指向同一 scope 的现存 task。",
-        "title": "父子环、展开依赖环、跨 scope 和悬空引用均被识别"
+        "summary": "根级任务字典中的父子森林与继承展开依赖必须无环，关系只能指向现存 task。",
+        "title": "父子环、展开依赖环和悬空引用均被识别"
       }
     },
     {
@@ -6307,7 +6283,7 @@
         "id": "skill-validator"
       },
       {
-        "description": "短期任务图的索引结构、图投影、生命周期、事务存储、执行租约、JSON CLI、scope 清理与分发边界。",
+        "description": "任务图的根级索引结构、图投影、生命周期、事务存储、执行租约、JSON CLI、显式任务清理与分发边界。",
         "id": "task-graph"
       },
       {
@@ -6322,5 +6298,5 @@
   },
   "namespace": "test-evidence",
   "schemaVersion": 2,
-  "sourceRevision": "sha256:d838499933ace6b8f2550f080324287f306354657842e4c0dec7264d6ea099fd"
+  "sourceRevision": "sha256:d391230946e27ad4f5995a7db2032bbbc0e7c47ecb6c4b84af1a5319fcc00712"
 }

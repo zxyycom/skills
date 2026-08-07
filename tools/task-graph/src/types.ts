@@ -1,5 +1,5 @@
-export const taskGraphSchemaVersion = 1 as const;
-export const taskGraphVersion = "1.2.0" as const;
+export const taskGraphSchemaVersion = 2 as const;
+export const taskGraphVersion = "2.0.0" as const;
 export const defaultTaskGraphIndexPath =
   "docs/task-graph/task-graph-index.json" as const;
 export const taskGraphRuntimeProtocolVersion = 1 as const;
@@ -65,19 +65,16 @@ export type TaskMutationPrecondition =
   | { leaseId?: never; expectedRevision: number };
 
 export type CompleteTaskOptions = {
-  scopeId: string;
   taskId: string;
   result: TaskResult;
 } & TaskMutationPrecondition;
 
 export type CancelTaskOptions = {
-  scopeId: string;
   taskId: string;
   reason: string;
 } & TaskMutationPrecondition;
 
 export type ClaimTaskOptions = {
-  scopeId: string;
   taskId: string;
   actor: string;
   durationSeconds?: number;
@@ -126,21 +123,11 @@ export type TaskEntry = {
   state: TaskState;
 };
 
-export type TaskScope = {
-  key: string;
-  bindings: Record<string, string>;
-  timestamps: TaskTimestamps;
-  tasks: Record<string, TaskEntry>;
-};
-
 export type TaskIndex = {
   schemaVersion: typeof taskGraphSchemaVersion;
   revision: number;
-  nextIds: {
-    scope: number;
-    task: number;
-  };
-  scopes: Record<string, TaskScope>;
+  nextTaskId: number;
+  tasks: Record<string, TaskEntry>;
 };
 
 export type TaskBlockerKind =
@@ -210,8 +197,7 @@ export type TaskProjection = {
   nextAction: "claim" | "complete" | null;
 };
 
-export type ScopeProjection = {
-  scopeId: string;
+export type TaskGraphProjection = {
   revision: number;
   tasks: Record<string, TaskProjection>;
   actionable: Record<string, TaskProjection>;
@@ -231,16 +217,13 @@ export type TaskGraphErrorCode =
   | "RUNTIME_INCOMPATIBLE"
   | "LOCK_TIMEOUT"
   | "REVISION_CONFLICT"
-  | "SCOPE_NOT_FOUND"
-  | "SCOPE_KEY_CONFLICT"
-  | "BINDING_CONFLICT"
   | "TASK_NOT_FOUND"
   | "STATE_CONFLICT"
   | "TOPOLOGY_INVALID"
   | "LEASE_CONFLICT"
   | "LEASE_EXPIRED"
   | "DELIVERY_NOT_CONFIRMED"
-  | "SCOPE_NOT_CLOSABLE"
+  | "TASKS_NOT_REMOVABLE"
   | "WRITE_FAILED"
   | "WRITE_OUTCOME_UNKNOWN";
 
@@ -305,10 +288,10 @@ export type TaskIndexInfo = {
     message: string;
   }>;
   revision: number;
-  schemaVersion: 1;
-  scopeCount: number;
+  schemaVersion: typeof taskGraphSchemaVersion;
   taskCount: number;
-  nextIds: { scope: number; task: number };
+  topTaskCount: number;
+  nextTaskId: number;
 };
 
 export type TaskContentInput = {
@@ -323,22 +306,8 @@ export type TaskControlInput =
   | { mode: "inherit" | "candidate" | "queued"; reason?: null }
   | { mode: "waiting" | "paused"; reason: string };
 
-export type CreateScopeOperation = {
-  kind: "create-scope";
-  key: string;
-  bindings?: Record<string, string>;
-};
-
-export type SetScopeBindingOperation = {
-  kind: "set-scope-binding";
-  scopeId: string;
-  bindingKind: string;
-  value: string | null;
-};
-
 export type CreateTaskOperation = {
   kind: "create-task";
-  scopeId: string;
   alias?: string;
   content: TaskContentInput;
   parentId?: string | null;
@@ -347,28 +316,24 @@ export type CreateTaskOperation = {
 
 export type UpdateTaskContentOperation = {
   kind: "update-task-content";
-  scopeId: string;
   taskId: string;
   content: TaskContentInput;
 };
 
 export type UpdateTaskControlOperation = {
   kind: "update-task-control";
-  scopeId: string;
   taskId: string;
   control: TaskControlInput;
 };
 
 export type SetParentOperation = {
   kind: "set-parent";
-  scopeId: string;
   taskId: string;
   parentId: string | null;
 };
 
 export type SetDependencyOperation = {
   kind: "set-dependency";
-  scopeId: string;
   taskId: string;
   dependencyId: string;
   present: boolean;
@@ -376,15 +341,12 @@ export type SetDependencyOperation = {
 
 export type SetExclusionOperation = {
   kind: "set-exclusion";
-  scopeId: string;
   taskId: string;
   excludedTaskId: string;
   present: boolean;
 };
 
 export type TaskGraphRevisionOperation =
-  | CreateScopeOperation
-  | SetScopeBindingOperation
   | CreateTaskOperation
   | UpdateTaskContentOperation
   | UpdateTaskControlOperation
@@ -399,27 +361,11 @@ export type TaskGraphApplyRequest = {
 
 export type TaskGraphApplyResult = {
   aliases: Record<string, string>;
-  createdScopeIds: string[];
   createdTaskIds: string[];
 };
 
-export type ScopeCloseBlockerKind =
-  | "top-task-not-terminal"
-  | "failed-task"
-  | "active-lease"
-  | "recovery-needed";
-
-export type ScopeCloseBlocker = {
-  kind: ScopeCloseBlockerKind;
-  scopeId: string;
-  taskId: string;
-  state: TaskEffectiveState;
-};
-
-export type ScopeCloseProjection = {
-  scopeId: string;
-  closable: boolean;
-  blockers: ScopeCloseBlocker[];
-  requiresResultsDelivered: true;
-  taskCount: number;
+export type RemoveTasksOptions = {
+  expectedRevision: number;
+  taskIds: string[];
+  resultsDelivered: true;
 };

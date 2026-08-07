@@ -4,5 +4,5 @@ await import("./lifecycle.test.ts");
 await import("./runtime.test.ts");
 await import("./store.test.ts");
 await import("./cli.test.ts");
-await import("./scope-repository.test.ts");
+await import("./task-removal.test.ts");
 await import("./generated-artifacts.test.ts");

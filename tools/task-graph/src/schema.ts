@@ -11,17 +11,14 @@ import {
   type TaskExecution,
   type TaskGraphApplyRequest,
   type TaskIndex,
-  type TaskResult,
-  type TaskScope
+  type TaskResult
 } from "./types.ts";
 
 const positiveCanonicalIdSuffixPatternSource =
   "(?:(?!000000$)[0-9]{6}|[1-9][0-9]{6,15})";
-export const scopeIdPatternSource = `^scope-${positiveCanonicalIdSuffixPatternSource}$`;
 export const taskIdPatternSource = `^task-${positiveCanonicalIdSuffixPatternSource}$`;
 export const leaseIdPatternSource =
   "^lease-[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$";
-export const scopeKeyPatternSource = "^[a-z0-9]+(?:-[a-z0-9]+)*$";
 export const dictionaryKeyPatternSource =
   "^(?!(?:constructor|prototype|__proto__)$)[a-z][a-z0-9]*(?:-[a-z0-9]+)*$";
 export const aliasPatternSource = "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$";
@@ -131,26 +128,18 @@ const positiveIntegerSchema = v.pipe(
   nonNegativeIntegerSchema,
   v.minValue(1, "must be positive")
 );
-function canonicalNumericId(value: string, prefix: "scope" | "task"): boolean {
-  const suffix = value.slice(prefix.length + 1);
+function isCanonicalTaskId(value: string): boolean {
+  const suffix = value.slice("task-".length);
   const number = Number(suffix);
   return Number.isSafeInteger(number)
     && number >= 1
-    && `${prefix}-${String(number).padStart(6, "0")}` === value;
+    && `task-${String(number).padStart(6, "0")}` === value;
 }
-const scopeIdSchema = v.pipe(
-  v.string("scope id must be a string"),
-  v.regex(new RegExp(scopeIdPatternSource, "u"), "must be a canonical scope id"),
-  v.check(
-    (value) => canonicalNumericId(value, "scope"),
-    "must contain a positive safe canonical scope number"
-  )
-);
 const taskIdSchema = v.pipe(
   v.string("task id must be a string"),
   v.regex(new RegExp(taskIdPatternSource, "u"), "must be a canonical task id"),
   v.check(
-    (value) => canonicalNumericId(value, "task"),
+    (value) => isCanonicalTaskId(value),
     "must contain a positive safe canonical task number"
   )
 );
@@ -164,7 +153,7 @@ const taskReferenceSchema = v.pipe(
     "must be a canonical task id or apply alias"
   ),
   v.check(
-    (value) => value.startsWith("@") || canonicalNumericId(value, "task"),
+    (value) => value.startsWith("@") || isCanonicalTaskId(value),
     "must contain a positive safe canonical task number or apply alias"
   )
 );
@@ -315,29 +304,11 @@ const taskEntrySchema = v.strictObject({
   content: taskContentSchema,
   state: taskStateSchema
 });
-const scopeKeySchema = v.pipe(
-  v.string("scope key must be a string"),
-  v.regex(new RegExp(scopeKeyPatternSource, "u"), "must be a kebab-case scope key"),
-  v.maxLength(80, "scope key must be at most 80 characters")
-);
-const bindingValueSchema = boundedText("binding value", 1, 200, {
-  singleLine: true
-});
-const taskScopeSchema = v.strictObject({
-  key: scopeKeySchema,
-  bindings: v.record(dictionaryKeySchema, bindingValueSchema),
-  timestamps: timestampsSchema,
-  tasks: v.record(taskIdSchema, taskEntrySchema)
-});
-
 const taskIndexStructuralSchema = v.strictObject({
   schemaVersion: v.literal(taskGraphSchemaVersion),
   revision: nonNegativeIntegerSchema,
-  nextIds: v.strictObject({
-    scope: positiveIntegerSchema,
-    task: positiveIntegerSchema
-  }),
-  scopes: v.record(scopeIdSchema, taskScopeSchema)
+  nextTaskId: positiveIntegerSchema,
+  tasks: v.record(taskIdSchema, taskEntrySchema)
 });
 
 export const taskIndexSchema = v.pipe(
@@ -348,20 +319,8 @@ export const taskIndexSchema = v.pipe(
   )
 );
 
-const createScopeOperationSchema = v.strictObject({
-  kind: v.literal("create-scope"),
-  key: scopeKeySchema,
-  bindings: v.optional(v.record(dictionaryKeySchema, bindingValueSchema))
-});
-const setScopeBindingOperationSchema = v.strictObject({
-  kind: v.literal("set-scope-binding"),
-  scopeId: scopeIdSchema,
-  bindingKind: dictionaryKeySchema,
-  value: v.nullable(bindingValueSchema)
-});
 const createTaskOperationSchema = v.strictObject({
   kind: v.literal("create-task"),
-  scopeId: scopeIdSchema,
   alias: v.optional(v.pipe(
     v.string("alias must be a string"),
     v.regex(new RegExp(aliasPatternSource, "u"), "must be a kebab-case alias"),
@@ -373,32 +332,27 @@ const createTaskOperationSchema = v.strictObject({
 });
 const updateTaskContentOperationSchema = v.strictObject({
   kind: v.literal("update-task-content"),
-  scopeId: scopeIdSchema,
   taskId: taskReferenceSchema,
   content: taskContentInputSchema
 });
 const updateTaskControlOperationSchema = v.strictObject({
   kind: v.literal("update-task-control"),
-  scopeId: scopeIdSchema,
   taskId: taskReferenceSchema,
   control: taskControlInputSchema
 });
 const setParentOperationSchema = v.strictObject({
   kind: v.literal("set-parent"),
-  scopeId: scopeIdSchema,
   taskId: taskReferenceSchema,
   parentId: v.nullable(taskReferenceSchema)
 });
 const setDependencyOperationSchema = v.strictObject({
   kind: v.literal("set-dependency"),
-  scopeId: scopeIdSchema,
   taskId: taskReferenceSchema,
   dependencyId: taskReferenceSchema,
   present: v.boolean()
 });
 const setExclusionOperationSchema = v.strictObject({
   kind: v.literal("set-exclusion"),
-  scopeId: scopeIdSchema,
   taskId: taskReferenceSchema,
   excludedTaskId: taskReferenceSchema,
   present: v.boolean()
@@ -408,8 +362,6 @@ export const taskGraphApplyRequestSchema = v.strictObject({
   expectedRevision: nonNegativeIntegerSchema,
   operations: v.pipe(
     v.array(v.variant("kind", [
-      createScopeOperationSchema,
-      setScopeBindingOperationSchema,
       createTaskOperationSchema,
       updateTaskContentOperationSchema,
       updateTaskControlOperationSchema,
@@ -428,59 +380,27 @@ function suffixNumber(id: string): number {
 
 export function validateTaskIndexSemantics(index: TaskIndex): string[] {
   const issues: string[] = [];
-  const scopeIds = Object.keys(index.scopes);
-  const taskIds = scopeIds.flatMap(
-    (scopeId) => Object.keys(index.scopes[scopeId]?.tasks ?? {})
-  );
-  const maximumScopeId = Math.max(0, ...scopeIds.map(suffixNumber));
+  const taskIds = Object.keys(index.tasks);
   const maximumTaskId = Math.max(0, ...taskIds.map(suffixNumber));
-  if (index.nextIds.scope <= maximumScopeId) {
-    issues.push("nextIds.scope must be greater than every allocated scope id");
-  }
-  if (index.nextIds.task <= maximumTaskId) {
-    issues.push("nextIds.task must be greater than every allocated task id");
-  }
-  if (new Set(taskIds).size !== taskIds.length) {
-    issues.push("task ids must be globally unique across scopes");
+  if (index.nextTaskId <= maximumTaskId) {
+    issues.push("nextTaskId must be greater than every allocated task id");
   }
 
-  const scopeKeys = new Set<string>();
-  const bindings = new Set<string>();
-  for (const scopeId of scopeIds) {
-    const scope = index.scopes[scopeId];
-    if (scope === undefined) {
-      continue;
-    }
-    if (scopeKeys.has(scope.key)) {
-      issues.push(`scope key ${scope.key} must be unique`);
-    }
-    scopeKeys.add(scope.key);
-    for (const [kind, value] of Object.entries(scope.bindings)) {
-      const identity = `${kind}\0${value}`;
-      if (bindings.has(identity)) {
-        issues.push(`binding ${kind}=${value} must be unique`);
-      }
-      bindings.add(identity);
-    }
-    for (const [taskId, task] of Object.entries(scope.tasks)) {
-      if (task.state.relations.parentId === null) {
-        if (task.state.control.mode === "inherit") {
-          issues.push(`${scopeId}/${taskId} top-level control cannot inherit`);
-        }
-      }
-      const phase = task.state.execution.phase;
-      if (phase === "succeeded" && task.content.result === null) {
-        issues.push(`${scopeId}/${taskId} succeeded task must have a result`);
-      }
-      if (phase !== "succeeded" && task.content.result !== null) {
-        issues.push(`${scopeId}/${taskId} non-succeeded task cannot have a result`);
-      }
-      if (task.state.timestamps.createdAt > task.state.timestamps.updatedAt) {
-        issues.push(`${scopeId}/${taskId} updatedAt cannot precede createdAt`);
+  for (const [taskId, task] of Object.entries(index.tasks)) {
+    if (task.state.relations.parentId === null) {
+      if (task.state.control.mode === "inherit") {
+        issues.push(`${taskId} top-level control cannot inherit`);
       }
     }
-    if (scope.timestamps.createdAt > scope.timestamps.updatedAt) {
-      issues.push(`${scopeId} updatedAt cannot precede createdAt`);
+    const phase = task.state.execution.phase;
+    if (phase === "succeeded" && task.content.result === null) {
+      issues.push(`${taskId} succeeded task must have a result`);
+    }
+    if (phase !== "succeeded" && task.content.result !== null) {
+      issues.push(`${taskId} non-succeeded task cannot have a result`);
+    }
+    if (task.state.timestamps.createdAt > task.state.timestamps.updatedAt) {
+      issues.push(`${taskId} updatedAt cannot precede createdAt`);
     }
   }
   issues.push(...validateTaskIndexGraph(index));
@@ -642,31 +562,15 @@ function canonicalTask(task: TaskEntry): TaskEntry {
   };
 }
 
-function canonicalScope(scope: TaskScope): TaskScope {
-  return {
-    key: scope.key,
-    bindings: sortedRecord(scope.bindings),
-    timestamps: {
-      createdAt: scope.timestamps.createdAt,
-      updatedAt: scope.timestamps.updatedAt
-    },
-    tasks: Object.fromEntries(
-      Object.entries(scope.tasks)
-        .sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)
-        .map(([taskId, task]) => [taskId, canonicalTask(task)])
-    )
-  };
-}
-
 export function canonicalTaskIndex(index: TaskIndex): TaskIndex {
   return {
     schemaVersion: taskGraphSchemaVersion,
     revision: index.revision,
-    nextIds: { scope: index.nextIds.scope, task: index.nextIds.task },
-    scopes: Object.fromEntries(
-      Object.entries(index.scopes)
+    nextTaskId: index.nextTaskId,
+    tasks: Object.fromEntries(
+      Object.entries(index.tasks)
         .sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)
-        .map(([scopeId, scope]) => [scopeId, canonicalScope(scope)])
+        .map(([taskId, task]) => [taskId, canonicalTask(task)])
     )
   };
 }
@@ -679,8 +583,8 @@ export function emptyTaskIndex(): TaskIndex {
   return {
     schemaVersion: taskGraphSchemaVersion,
     revision: 0,
-    nextIds: { scope: 1, task: 1 },
-    scopes: {}
+    nextTaskId: 1,
+    tasks: {}
   };
 }
 
@@ -688,6 +592,5 @@ export type {
   TaskContent,
   TaskControl,
   TaskEntry,
-  TaskIndex,
-  TaskScope
+  TaskIndex
 };
