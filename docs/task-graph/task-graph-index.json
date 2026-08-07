@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "revision": 38,
-  "nextTaskId": 12,
+  "revision": 46,
+  "nextTaskId": 28,
   "tasks": {
     "task-000001": {
       "content": {
@@ -273,17 +273,20 @@
           "reason": null
         },
         "execution": {
-          "phase": "idle",
-          "attempt": 0
+          "phase": "cancelled",
+          "attempt": 0,
+          "reason": "用户已选择 task list 默认分层 DAG，并以全局 --json 直接序列化 raw result；单独增加 --pretty 且保持默认 JSON-only 的候选方向不再采用。"
         },
         "relations": {
           "parentId": null,
           "dependsOn": {},
-          "excludes": {}
+          "excludes": {
+            "task-000027": true
+          }
         },
         "timestamps": {
           "createdAt": "2026-08-07T06:12:48.577Z",
-          "updatedAt": "2026-08-07T06:12:48.577Z"
+          "updatedAt": "2026-08-07T08:23:21.155Z"
         }
       }
     },
@@ -349,6 +352,568 @@
         "timestamps": {
           "createdAt": "2026-08-07T07:13:58.668Z",
           "updatedAt": "2026-08-07T07:13:58.668Z"
+        }
+      }
+    },
+    "task-000013": {
+      "content": {
+        "title": "审阅并归档 create-task-graph change",
+        "goal": "对已经完成 27/27 项任务的 active change 做语义归档审计，核对成功标准、稳定 owner、验证与长期决策状态；取得明确归档授权后通过 change-plan 归档。",
+        "acceptance": [
+          "proposal 成功标准已逐项与当前事实和验证证据核对。",
+          "稳定 owner 与相关长期决策处于正确状态，change 结构检查有效。",
+          "取得明确归档授权并由 change-plan CLI 成功归档。"
+        ],
+        "context": "资源面：change-plan 语义审阅与归档；实现任务已全部完成，当前不应重新实施原计划。",
+        "references": {
+          "change": "changes/create-task-graph/"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-07T07:34:06.155Z",
+          "updatedAt": "2026-08-07T07:38:55.944Z"
+        }
+      }
+    },
+    "task-000014": {
+      "content": {
+        "title": "审阅并归档 reduce-task-graph-infrastructure change",
+        "goal": "对已经完成 14/14 项任务的 active change 做语义归档审计，核对删除矩阵、当前 task-graph 事实、验证与长期决策状态；取得明确归档授权后归档。",
+        "acceptance": [
+          "proposal 成功标准与当前 task-graph 实现、分发和验证证据一致。",
+          "change 结构有效且稳定 owner 已同步。",
+          "取得明确归档授权并由 change-plan CLI 成功归档。"
+        ],
+        "context": "资源面：change-plan 语义审阅与归档；实现任务已全部完成。",
+        "references": {
+          "change": "changes/reduce-task-graph-infrastructure/"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-07T07:34:06.155Z",
+          "updatedAt": "2026-08-07T07:38:55.944Z"
+        }
+      }
+    },
+    "task-000015": {
+      "content": {
+        "title": "审阅并归档 simplify-task-graph-json-transactions change",
+        "goal": "对已经完成 38/38 项任务的 active change 做语义归档审计，核对 runtime、存储事务、生成产物、验证与长期决策状态；取得明确归档授权后归档。",
+        "acceptance": [
+          "proposal 成功标准与当前事实及记录的验证证据一致。",
+          "change 结构有效且稳定 owner、调查与决策状态已同步。",
+          "取得明确归档授权并由 change-plan CLI 成功归档。"
+        ],
+        "context": "资源面：change-plan 语义审阅与归档；实现任务已全部完成。",
+        "references": {
+          "change": "changes/simplify-task-graph-json-transactions/"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-07T07:34:06.155Z",
+          "updatedAt": "2026-08-07T07:38:55.944Z"
+        }
+      }
+    },
+    "task-000016": {
+      "content": {
+        "title": "推进 use-id-keyed-state-index change",
+        "goal": "完成 schema v3、ID 键控 state index、结构化来源 revision、三个消费者迁移与全部验证，在事实完整落地后对齐对应长期决策并使 change 达到可归档状态。",
+        "acceptance": [
+          "change tasks 中全部实施与验证项有实际证据并完成。",
+          "index-runtime/use-id-keyed-state-index.md 仅在完整事实核对后标记为 aligned。",
+          "change 通过结构和语义审阅并完成获授权的归档。"
+        ],
+        "context": "资源面：index-runtime 以及 decision-records、investigation-report、test-evidence 三个消费者；这是后续选择性索引暂存流水线的公共前置，并与修改同一消费者实现的工作流排斥。",
+        "references": {
+          "change": "changes/use-id-keyed-state-index/",
+          "decision": "docs/decisions/index-runtime/use-id-keyed-state-index.md"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {
+            "task-000020": true,
+            "task-000021": true,
+            "task-000026": true
+          }
+        },
+        "timestamps": {
+          "createdAt": "2026-08-07T07:34:06.155Z",
+          "updatedAt": "2026-08-07T07:38:55.944Z"
+        }
+      }
+    },
+    "task-000017": {
+      "content": {
+        "title": "推进 stage-selected-index-entries change",
+        "goal": "在 ID 键控索引前置已经对齐后，实现按选中 ID 从 revision 与工作区索引构造完整 pending 索引、受锁冲突保护和全部验证，对齐长期决策并使 change 达到可归档状态。",
+        "acceptance": [
+          "前置 use-id-keyed-state-index 已完成并对齐。",
+          "change tasks 中全部实施与验证项有实际证据并完成。",
+          "index-runtime/stage-selected-index-entries-by-id.md 完整核对后 aligned，change 完成获授权的归档。"
+        ],
+        "context": "资源面：index-runtime + shared version-control；是 investigation-report 与 test-evidence 两个领域接入 change 的公共前置。",
+        "references": {
+          "change": "changes/stage-selected-index-entries/",
+          "decision": "docs/decisions/index-runtime/stage-selected-index-entries-by-id.md"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {
+            "task-000016": true
+          },
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-07T07:34:06.155Z",
+          "updatedAt": "2026-08-07T07:38:55.944Z"
+        }
+      }
+    },
+    "task-000018": {
+      "content": {
+        "title": "推进 stage-selected-investigations change",
+        "goal": "在公共按条目暂存能力完成后，为 investigation-report 建立选择性索引暂存决策与 stage-index 入口，完成领域接入、分发、验证、决策对齐和 change 收敛。",
+        "acceptance": [
+          "公共 stage-selected-index-entries 前置已完成。",
+          "调查主题 ID 接入、生成产物、测试与证据按 change tasks 完成。",
+          "新增长期决策与最终事实一致并 aligned，change 完成获授权的归档。"
+        ],
+        "context": "资源面：investigation-report；与随附资源 change 修改相同实现与行为 owner，不能在同一共享工作区同时执行。",
+        "references": {
+          "change": "changes/stage-selected-investigations/"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {
+            "task-000017": true
+          },
+          "excludes": {
+            "task-000020": true
+          }
+        },
+        "timestamps": {
+          "createdAt": "2026-08-07T07:34:06.155Z",
+          "updatedAt": "2026-08-07T07:38:55.944Z"
+        }
+      }
+    },
+    "task-000019": {
+      "content": {
+        "title": "推进 stage-selected-test-evidence change",
+        "goal": "在公共按条目暂存能力完成后，为 test-evidence 建立选择性索引暂存决策与 stage-index 入口，完成领域接入、分发、验证、决策对齐和 change 收敛。",
+        "acceptance": [
+          "公共 stage-selected-index-entries 前置已完成。",
+          "case ID 接入、生成产物、测试与证据按 change tasks 完成。",
+          "新增长期决策与最终事实一致并 aligned，change 完成获授权的归档。"
+        ],
+        "context": "资源面：test-evidence；与测试实体—语义 Case 多对多工作修改相同实现与行为 owner，不能在同一共享工作区同时执行。",
+        "references": {
+          "change": "changes/stage-selected-test-evidence/"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {
+            "task-000017": true
+          },
+          "excludes": {
+            "task-000026": true
+          }
+        },
+        "timestamps": {
+          "createdAt": "2026-08-07T07:34:06.155Z",
+          "updatedAt": "2026-08-07T07:38:55.944Z"
+        }
+      }
+    },
+    "task-000020": {
+      "content": {
+        "title": "推进 support-investigation-resources change",
+        "goal": "实现 investigation-report 统一资源池、报告级引用、索引关系与 SHA-256、新鲜度和验证，在完整事实落地后对齐资源决策并使 change 达到可归档状态。",
+        "acceptance": [
+          "change tasks 中契约、实现、生成、证据和验证项全部完成。",
+          "investigation-report/attach-verifiable-resources-to-investigation-reports.md 完整核对后 aligned。",
+          "change 通过语义审阅并完成获授权的归档。"
+        ],
+        "context": "资源面：investigation-report；与选择性 investigation index 暂存 change 修改相同实现与行为 owner。",
+        "references": {
+          "change": "changes/support-investigation-resources/",
+          "decision": "docs/decisions/investigation-report/attach-verifiable-resources-to-investigation-reports.md"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {
+            "task-000016": true,
+            "task-000018": true
+          }
+        },
+        "timestamps": {
+          "createdAt": "2026-08-07T07:34:06.155Z",
+          "updatedAt": "2026-08-07T07:38:55.944Z"
+        }
+      }
+    },
+    "task-000021": {
+      "content": {
+        "title": "推进 unify-decision-relation-evolution change",
+        "goal": "把决策关系维护收口到统一闭合 evolve 事务，完成完整关系集合替换、拓扑策略、恢复、破坏性 CLI 更新、测试证据和分发，并在事实落地后对齐两条长期决策与收敛 change。",
+        "acceptance": [
+          "change tasks 中 readiness、实现与验证项全部以实际证据完成。",
+          "统一关系事务与完整集合替换两条决策均逐项核对后 aligned。",
+          "change 通过语义审阅并完成获授权的归档。"
+        ],
+        "context": "资源面：decision-records；与 use-id-keyed-state-index 对 decision-records 消费者的迁移修改相同实现与生成 owner。",
+        "references": {
+          "change": "changes/unify-decision-relation-evolution/",
+          "decision-evolve": "docs/decisions/decision-records/unify-closed-decision-relation-evolution.md",
+          "decision-relations": "docs/decisions/decision-records/replace-decision-relations-as-complete-sets.md"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {
+            "task-000016": true
+          }
+        },
+        "timestamps": {
+          "createdAt": "2026-08-07T07:34:06.155Z",
+          "updatedAt": "2026-08-07T07:38:55.944Z"
+        }
+      }
+    },
+    "task-000022": {
+      "content": {
+        "title": "为 Change 生命周期阶段建立并推进实施 change",
+        "goal": "围绕起草、计划、实施与搁置恢复方向核对当前 change-plan 事实，建立可执行的 active change，确定持久状态、CLI 与门禁，实施验证后对齐长期决策并完成 change 生命周期。",
+        "acceptance": [
+          "实施 change 明确阶段结构、迁移或兼容边界、CLI 和验证门禁。",
+          "完整方向成为当前事实并通过验证后，change-plan/manage-change-lifecycle-stages.md 标记为 aligned。",
+          "实施 change 完成语义审阅并在获得授权后归档。"
+        ],
+        "context": "资源面：change-plan；当前没有承接该决策的 active change，因此先完成设计与资源估算，再进入实施。",
+        "references": {
+          "decision": "docs/decisions/change-plan/manage-change-lifecycle-stages.md"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-07T07:34:06.155Z",
+          "updatedAt": "2026-08-07T07:38:55.944Z"
+        }
+      }
+    },
+    "task-000023": {
+      "content": {
+        "title": "让独立决策暂存能力进入发现入口",
+        "goal": "为 decision-records 独立 stage 能力建立最小实施 change 或等价可审阅实施范围，确定发现文案、触发边界、能力交接与降级方式，完成触发验证后对齐长期决策。",
+        "acceptance": [
+          "发现入口能够覆盖独立暂存所选决策集合的真实使用时机。",
+          "触发边界、与提交整理能力的交接及能力缺失时的处理经过验证。",
+          "decision-records/make-independent-decision-staging-discoverable.md 在事实核对后 aligned，相关 change 完成收敛。"
+        ],
+        "context": "资源面：decision-records 的行为入口与触发验证；当前没有对应 active change。",
+        "references": {
+          "decision": "docs/decisions/decision-records/make-independent-decision-staging-discoverable.md"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-07T07:34:06.155Z",
+          "updatedAt": "2026-08-07T07:38:55.944Z"
+        }
+      }
+    },
+    "task-000024": {
+      "content": {
+        "title": "等待真实案例后评估决策重组",
+        "goal": "监测并复核至少两个直接前序重划为至少两个自包含后继的真实案例；仅在现有关系无法忠实表达且会产生无意义中间决策时建立重组 change，并按闭合语义推进。",
+        "acceptance": [
+          "存在可独立复核且满足多前序、多后继和边界重分配条件的真实案例。",
+          "已证明现有修订、替代、判定无效、归并和拆分无法忠实表达。",
+          "触发后建立受案例约束的 change；在此之前不预设关系名、协议或实现。"
+        ],
+        "context": "资源投入：触发前为零，只保留监测与案例复核；该决策明确不产生当前实施承诺。",
+        "references": {
+          "decision": "docs/decisions/decision-records/support-reorganization-after-real-evidence.md"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "waiting",
+          "reason": "当前尚无可独立复核的多前序到多后继真实案例；决策明确要求等待证据，禁止预设协议。"
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-07T07:34:06.155Z",
+          "updatedAt": "2026-08-07T07:38:55.944Z"
+        }
+      }
+    },
+    "task-000025": {
+      "content": {
+        "title": "等待现实维护压力后评估决策领域谱系",
+        "goal": "监测决策领域改名、拆分、归并或责任重划的可复核维护压力；仅在现有结构迁移无法恢复历史与当前归属或风险不可接受时建立领域谱系 change。",
+        "acceptance": [
+          "至少一项决策规定的可复核维护压力真实出现。",
+          "触发案例能够约束稳定身份、生命周期、关系、迁移和查询的实施范围。",
+          "触发后建立 change；在此之前继续使用受控领域目录和人工结构迁移。"
+        ],
+        "context": "资源投入：触发前为零，只保留监测与案例复核；当前决策明确不创建 change 或专用工具。",
+        "references": {
+          "decision": "docs/decisions/decision-records/upgrade-decision-domains-after-real-pressure.md"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "waiting",
+          "reason": "当前缺少无法由既有结构迁移闭合的可复核维护压力；决策明确要求触发前不创建 change。"
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-07T07:34:06.155Z",
+          "updatedAt": "2026-08-07T07:38:55.944Z"
+        }
+      }
+    },
+    "task-000026": {
+      "content": {
+        "title": "为测试实体与语义 Case 多对多关系建立并推进 change",
+        "goal": "围绕受控测试实体与语义 Case 的单一闭合多对多关系建立可执行 change，确定事实 owner、schema、CLI、迁移与双向查询，实施验证后对齐长期决策并收敛 change。",
+        "acceptance": [
+          "实施 change 明确单一关系 owner、无悬空不变量、迁移和双向查询验收。",
+          "测试与 Case 的新增、重命名、拆分、合并和删除能够在同一维护事务中保持闭合。",
+          "test-evidence-review/maintain-closed-many-to-many-test-case-relations.md 在完整事实核对后 aligned，相关 change 完成收敛。"
+        ],
+        "context": "资源面：test-evidence；当前没有对应 active change，并与 stage-selected-test-evidence 修改相同实现与行为 owner。",
+        "references": {
+          "decision": "docs/decisions/test-evidence-review/maintain-closed-many-to-many-test-case-relations.md"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {
+            "task-000016": true,
+            "task-000019": true
+          }
+        },
+        "timestamps": {
+          "createdAt": "2026-08-07T07:34:06.155Z",
+          "updatedAt": "2026-08-07T07:38:55.944Z"
+        }
+      }
+    },
+    "task-000027": {
+      "content": {
+        "title": "让 task list 默认使用低冗余的分层 DAG renderer",
+        "goal": "扩展 task list 的 raw result object，并在其上实现默认自定义 renderer，通过 dependency track、拓扑层、信息优先级和关系去重改善可读性与推进规划；JSON 只作为该 object 的通用便捷序列化，--json 显式选择 serializer。",
+        "acceptance": [
+          "不带 --json 的 task list 默认显示确定性的纵向分层 DAG；每个任务只出现一次，断开 track、父子关系、依赖层级、有效状态与下一动作能够直接辨认。",
+          "自定义 renderer 以摘要、track、node、mutex 建立信息层次，折叠对称关系、重复继承来源和不影响概览的信息；完整语义仍保留在同一个 raw list projection。",
+          "Track 只由父子与有效依赖形成；有效 exclusion 对称去重后进入独立 RUN MUTEX 区域，实际运行互斥 blocker 同时定位到受阻任务，不把互斥误作顺序或取消。",
+          "固定结构字段位于任意 Unicode title 之前，标准与窄布局不使用方框、跨标题连线、ANSI 颜色或 Unicode padding，并在 TTY、非 TTY、中文、emoji、长标题和密集互斥下保持确定。",
+          "服务与 dispatch 始终先返回结构化 raw result object；JSON serializer 与自定义 renderer 并列消费该 object，任意命令使用 --json 时直接 JSON.stringify envelope 并保留 revision、错误、退出码、stdout/stderr 与单 LF 契约。",
+          "未注册 renderer 的其他命令继续以 JSON serializer 作为便捷回退；程序化 listTasks、task list --json 与默认 renderer 共用同一扩展 list projection，不建立第二套图语义。"
+        ],
+        "context": "用户明确修正了“人类 renderer / 机器 JSON”的二分：command raw object 才是共同输入；JSON 只是因便于直接序列化而采用的通用输出，尚未针对可读性、信息冗余和布局进行设计。正式计划位于 changes/render-task-list-as-layered-dag；原 task-000009 的 --pretty 方向已被 raw serializer + custom renderer 方案替代。",
+        "references": {
+          "change": "changes/render-task-list-as-layered-dag",
+          "cli": "tools/task-graph/src/cli.ts",
+          "service": "tools/task-graph/src/service.ts",
+          "skill": "skills/task-graph/SKILL.md",
+          "superseded-task": "task-000009",
+          "topology-decision": "docs/decisions/task-graph/model-task-topology-and-inheritance-explicitly.md"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {
+            "task-000009": true
+          }
+        },
+        "timestamps": {
+          "createdAt": "2026-08-07T07:43:42.167Z",
+          "updatedAt": "2026-08-07T08:28:04.773Z"
         }
       }
     }
