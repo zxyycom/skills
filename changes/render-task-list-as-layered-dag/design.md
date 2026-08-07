@@ -1,170 +1,255 @@
 # Design
 
-本设计以 raw result object 为单一语义输入，由通用 JSON serializer 和 task-list renderer 两个并列输出函数分别提供完整序列化与低冗余分层视图。
+本设计让 JSON serializer 和 task-list renderer 并列消费同一个 raw result object；projection 保存完整领域语义，renderer 只派生显示结构。
 
 ## Context
 
-### 文档用途
+### 当前 owner 事实
 
-后续实现或审阅 agent 应能只读取本 change 的 proposal、design、tasks 及其中直接引用的 owner，恢复输出架构、list projection、track/layer 语义、信息取舍、mutex 表达、兼容边界、改动 owner 和验证出口；对话中的预览与解释不属于实施前置。
+- [`TaskGraphService.listTasks`](../../tools/task-graph/src/service.ts) 当前返回按 task ID 排序的 `Record<string, TaskSummary>`。每项只有 `taskId`、`title`、`parentId`、`phase`、`effectiveState` 和 `nextAction`，不能恢复 effective control reason、dependency 或 exclusion。
+- [`TaskProjection`](../../tools/task-graph/src/types.ts) 已拥有 `effectiveControl`、完整 blockers、effective dependencies/exclusions、children、dependents 和 `nextAction`；这些字段由图投影统一推导。
+- [`runTaskGraphCli`](../../tools/task-graph/src/cli.ts) 当前让全部协议内结果经过 `JSON.stringify(result) + LF`；现有全局参数没有 `--json`。
+- [`Task Graph`](../../skills/task-graph/SKILL.md) 规定 exclusion 对称且只禁止同时运行，不建立完成顺序。只有对端处于 `running` 或 `recovery-needed` 并形成 `exclusion-running` blocker 时，当前 task 的 claim 才实际受阻。
+- Parent 是结构与完成门禁；dependency 是有向无环执行约束。两者都连接推进上下文，只有 dependency 决定 layer。
 
-### 当前事实
+### 实施协调约束
 
-- [`TaskGraphService.listTasks`](../../tools/task-graph/src/service.ts) 当前返回按 task ID 排序的 `Record<string, TaskSummary>`；每项只有 ID、title、parent、execution phase、effective state 和 next action，不能恢复 dependency 或 exclusion。
-- [`runTaskGraphCli`](../../tools/task-graph/src/cli.ts) 当前让所有协议内结果经过 `writeResult`，执行 `JSON.stringify(result)` 并追加 LF；现有全局参数没有 `--json`。
-- [`Task Graph`](../../skills/task-graph/SKILL.md) 规定 exclusion 对称且只禁止同时运行，不建立完成顺序。候选 task 可以同时存在；一方处于 `running` 或 `recovery-needed` 时，另一方的 claim 才受到实际阻塞。
-- Parent 是结构与完成门禁；dependency 是有向无环执行约束。两者都影响 task 是否属于同一推进上下文，但只有 dependency 决定拓扑 layer。
-- 当前行为 owner 把 CLI 定义为 JSON-only。JSON 是 raw result object 的通用序列化，并没有单独承接 list 的可读性、信息优先级或冗余控制。
+本 change 修改 task-graph 自身的参数解析、输出路由和生成产物，因此待集成 CLI 不能同时承担中央 task graph 协调。实施期间，中央 queue、claim、renew 和 complete 继续使用当前稳定分发 CLI 及 compatible runtime；待集成 CLI 只操作隔离 fixture 或临时 root。
 
-### 已确认目标
-
-- `task list` 默认使用自定义分层 DAG renderer。
-- `--json` 直接序列化同一 raw result object；JSON 不是 renderer 的输入，也不是另一套语义模型。
-- 第一版列出索引中的全部 task，不增加过滤或分页。
-- 其他 command 暂不新增 renderer，并继续使用 JSON serializer 作为默认回退。
+协调入口只在改动集成到中央 checkout，并从该入口确认 runtime compatible、无生成漂移、默认 `task list` 与 `task list --json` 的只读 smoke check 全部通过后切换。此前的本地测试、生成结果或版本号变化都不构成切换依据。
 
 ### 稳定术语
 
-- **Raw result object**：service/dispatch 产生的内存 `TaskGraphResult`；它是 serializer 与 renderer 的共同输入。
-- **List projection**：`task list` raw result 的 `data`，以 task ID 字典保存 renderer 和程序化调用共同需要的语义字段。
-- **JSON serializer**：对 raw result object 执行 `JSON.stringify` 并追加 LF 的通用输出函数。
-- **Task-list renderer**：只消费 raw result object 与显式 render context，并为 `task list` 选择、分组、去重和排列信息的纯函数。
-- **推进线（track）**：在 parent/child 与有效 dependency 的无向闭包上形成的 weakly connected component。Track 不表示其中或彼此之间必然可以并行。
-- **Dependency layer**：只由有效 dependency DAG 计算的 `L<n>`；dependency endpoint 位于被其阻塞 task 的更低 layer。
-- **Run mutex pair**：由 effective exclusion 形成的无向 task pair，只表示两个 endpoint 不能同时运行。
-- **Active mutex blocker**：run mutex pair 的一方处于 `running` 或 `recovery-needed`，从而实际阻止另一方 claim 的当前 blocker。
+- **Raw result object**：service/dispatch 产生的内存 `TaskGraphResult`；serializer 与 renderer 都直接消费它。
+- **List projection**：`task list` success result 的 `data`，类型为 `Record<string, TaskListItem>`。
+- **实际 task ID**：`TaskListItem.taskId` 原值，例如 `task-000016`；node、关系和排序均直接使用该值。
+- **全量 list view**：同一次输出包含索引中的全部 task，因此每个 parent、dependency 和 exclusion endpoint 都对应输出中的真实 node。
+- **Track**：由 parent 与 effective dependency 连接形成的 weakly connected component；track 只表达推进上下文，不表示可并行性。
+- **Dependency layer**：仅由 effective dependency DAG 推导的 `L<n>`。
+- **Run mutex pair**：由 effective exclusion 形成的无向 task pair，只表达两个 endpoint 不能同时运行。
+- **Active mutex blocker**：projection 中 kind 为 `exclusion-running` 的 blocker；其 related task 正处于 `running` 或 `recovery-needed`。
 
 ## Goals / Non-Goals
 
 目标：
 
-- 默认 `task list` 能直接呈现推进线、dependency layer、parent、状态、next action 和运行互斥。
-- Renderer 通过摘要、分组、稳定字段顺序和重复关系折叠降低阅读与上下文恢复成本。
-- List projection 是图语义的唯一来源；renderer 不重新读取索引、不解析 JSON 文本，也不复制状态推导规则。
-- 需要完整 raw serialization 的调用方能够显式选择 `--json`，并延续当前 JSON envelope 与进程协议。
-- 任意 Unicode title 不决定连接线、右侧字段或后续 node 的位置。
+- 默认 `task list` 直接表达 track、dependency layer、parent、effective state、control reason、next action 和 run mutex。
+- Raw result object 是完整语义的单一来源；renderer 不读取 index、不解析 JSON 文本，也不重新推导领域状态。
+- 显示投影通过稳定排序和显式 folding 降低冗余，同时让被折叠信息仍可由程序化 `listTasks()` 或 `--json` 恢复。
+- 相同 raw result 与 render context 产生逐字节相同的文本，不依赖 title 的 Unicode 显示宽度。
 
 非目标：
 
-- 不把 CLI 划分为两套面向不同读者的语义模式。
-- 不把 track 数宣称为当前可并行数；exclusion 和 execution state 必须另行参与判断。
-- 不改变 task graph 的持久数据、调度、继承或事务模型。
-- 不为所有 command 建立 renderer registry 的外部扩展 API。
-- 不在终端复刻通用图可视化；第一版优先确定性、低冗余和可测试性。
+- 不改变持久数据、约束继承、调度、事务或错误码语义。
+- 不把 track 数解释为可并行数，也不把 exclusion 解释成 dependency。
+- 不为所有 command 建立 renderer registry 或新增公开 renderer 扩展 API。
+- 本 change 只提供全量静态文本视图，不承担过滤、分页、自动收缩或交互。
 
 ## Decisions
 
-### 1. Raw result object 先于全部输出函数
+### 1. 输出路由由已识别的操作决定
 
-Service/dispatch 继续返回结构化 `TaskGraphResult`，不返回预格式化文本。CLI 输出阶段接收 command path、全局 format 选择、raw result object 和可注入 render context，再按以下优先级选择输出函数：
+Service/dispatch 继续返回结构化 `TaskGraphResult`。CLI 在协议结果写入 stdout 前按以下优先级选择输出函数：
 
-1. 指定 `--json`：调用 JSON serializer，自定义 renderer 不执行。
-2. 未指定 `--json` 且 command path 为 `task list`：调用 task-list renderer。
-3. 未指定 `--json` 且 command 没有 renderer：调用 JSON serializer 作为默认回退。
-4. CLI 尚未构造 raw result object 就发生启动级故障：保持当前 stderr 与退出码 `2` 行为。
+1. 全局参数解析失败：构造 JSON failure envelope 并使用 JSON serializer。
+2. 全局参数合法且包含 `--json`：全部 success/failure、help 和 version 使用 JSON serializer。
+3. 未指定 `--json`，且 router 已识别为实际执行 `task list`：success 和 command-local failure 使用 task-list renderer。
+4. 未指定 `--json` 的 help、version、其他 command 或尚未识别为 `task list` 的 command failure：使用 JSON serializer。
+5. 尚未构造协议内 result 就发生未处理 fault：保持 stderr 和退出码 `2`，不伪造 envelope。
 
-`--json` 是可位于 command 前后的全局无值布尔参数，不可重复。JSON serializer 固定为 `JSON.stringify(result) + "\n"`，不增加 pretty、颜色、日志或 renderer 派生字段。
+`task list --help` 属于 help 路由，默认使用 JSON serializer；router 已识别 `task list` 后发生的非法 list option 或 arity failure 属于 task-list 路由。实现应传递明确的 route kind，不能只根据 argv 前缀或 raw data shape 猜测 renderer。
 
-Task-list renderer 是纯函数。它可以重排、分组、摘要和删除显示层重复，但不能发明 raw result object 中不存在的状态；渲染失败不得静默回退为 JSON 并伪装成成功的默认输出。两个输出函数都只向 stdout 写入一个以单个 LF 结尾的结果，不混入日志或进度文本。
+`--json` 的合法语法只有一个独立、无值、最多出现一次的全局 token；它可以位于 command 前后。其他拼写和重复出现沿用全局参数错误契约，不新增变体语义。JSON serializer 固定执行 `JSON.stringify(result) + "\n"`，不增加 pretty、颜色、日志或 renderer 派生字段。
 
-### 2. List projection 保存完整语义，不保存布局
+Task-list renderer 是内部纯函数。渲染异常向上抛出，不静默回退为 JSON；renderer 与 serializer 都只产生一个以单个 LF 结尾的 stdout 结果。
 
-`TaskGraphService.listTasks()` 继续返回以 task ID 为 key 的字典，并把当前 `TaskSummary` 扩展为明确命名的 list item 类型。每个 item 保留：
+### 2. `TaskListItem` 复用 `TaskProjection` 语义
 
-- `taskId`、`title`、`parentId`、`phase`、`effectiveState` 和 `nextAction`；
-- 有效 dependencies 与 exclusions，包括声明来源和继承路径；
-- `children`、`dependents` 与完整 blockers。
+公开 list item type 直接替换 `TaskSummary`：
 
-List projection 不保存 `T01`、`L0`、缩进、换行、终端宽度、摘要计数或预格式化文本。这些值由 renderer 临时派生，不能成为第二份领域状态。
-
-### 3. Track 与 layer 使用不同关系
-
-Renderer 用 parent/child 与有效 dependency 的无向闭包计算 track。Exclusion 不参与 track 计算，否则并发约束会把原本不同的推进线合并。
-
-每个 track 内按有效 dependency DAG 计算 layer：
-
-1. 没有有效 dependency 的 task 位于 `L0`。
-2. 其他 task 位于其全部 dependency 最大 layer 加一。
-3. Dependency 的方向在文本中表达为当前 task `needs:[dependency-id]`；视觉顺序不单独承担方向语义。
-4. Parent 不改变 dependency layer，只影响 track 归属和 parent 表达。
-
-Track 按成员中的最小 task ID 排序，并按一基索引编号为 `T${String(index).padStart(2, "0")}`，例如 `T01`、`T02`、`T100`。编号只是 renderer 内定位符，不进入 list projection 或持久身份。Track 内先按 layer 排序；同层的 parent path 使用从顶层祖先到 direct parent 的 task ID 序列做字典序比较，空 path 在前，最后以当前 task ID 打破平局。每个 task 只出现一次。
-
-### 4. 信息层次与字段取舍是 renderer 的显式契约
-
-Renderer 按以下层次输出；每层只承接会改变该层判断的信息：
-
-| 输出层次 | 默认内容 | 冗余控制 |
-| --- | --- | --- |
-| 全局摘要 | `tasks`、`tracks`、`actionable`、`running`、`recovery-needed`、`mutex-blocked` task 数 | 不重复静态 pair 数或可从 track/node 直接计数的明细 |
-| Track 标题 | 本次输出的 `T<n>` 与该 track 的 task 数 | 不把存在 exclusion 的 track 标成整体冲突或不可并行 |
-| Node 主行 | layer、task ID、effective state、title | Title 始终位于最后，不在其后补齐字段 |
-| Node 关系字段 | direct parent、effective dependency endpoints、非空 next action、会补充因果信息的 blockers | Children、dependents、完整继承路径和对称反向关系不逐 node 重复 |
-| `RUN MUTEX` | 全部规范化 effective exclusion pairs | 每个无向 pair 只表达一次，并按共同 endpoint 分组 |
-
-标准 node 使用以下固定字段顺序；方括号中的字段按条件省略：
-
-```text
-[indent] L<n> [task-id] <effective-state> [parent:[id]] [needs:[ids]] [blocked-by:<summary>] [mutex:[ids]] [next:<action>] <title>
+```ts
+export type TaskListItem = TaskProjection & {
+  title: string;
+  parentId: string | null;
+  phase: TaskExecutionPhase;
+};
 ```
 
-Parent indentation 只用于扫描，`parent:[id]` 才是权威关系表达。`blocked-by` 只显示 effective state 本身不能说明的因果信息：每项使用 `<kind>@<related-task-id>`，没有外部 related task 时只显示 kind，并按 kind、related task ID 排序。已经由 state、`needs` 或行内 `mutex` 完整表达的信息不重复输出。`next` 只在 `nextAction` 非空时显示。
+`TaskGraphService.listTasks()` 返回 `ServiceResult<Record<string, TaskListItem>>`。字典 key 必须等于 item 的 `taskId`；service 按实际 task ID 顺序构造字典，renderer 仍自行排序而不依赖 object insertion order。`TaskSummary` 不保留 alias。
 
-### 5. Run mutex 与 DAG 分区表达
+`TaskProjection` 继续拥有 effective state/control、完整 blockers、effective dependency/exclusion source、children、dependents 和 next action；`TaskListItem` 只增加 list 所需的 title、direct parent 和 execution phase。这样 list projection 直接复用图 owner 的状态与约束推导，不复制算法。
 
-Renderer 把每条 effective exclusion 规范化为 `(minTaskId, maxTaskId)`，再对继承展开和对称投影产生的重复 pair 去重。存在 pair 时，在全部 track 后输出 `RUN MUTEX`。
+List projection 不保存 track label、layer、缩进、render columns、摘要计数、folded blocker token 或预格式化文本。这些值只存在于 renderer 的临时 layout。完整 relation source 和 inheritance path 保留在 raw result 与 `--json` 中。
 
-默认按左 endpoint 分组以减少重复，例如：
+### 3. Track、layer 和排序分别使用明确关系
+
+Renderer 先把 raw relation source 按 `targetTaskId` 折叠为显示 endpoint set；source 与 inheritance path 仍保留在 raw projection。
+
+对 `data` 中的全部 task 建图：
+
+1. Track graph 的 vertex 是全部实际 task ID。
+2. 每个非空 `parentId` 在 parent 与 child 间增加无向 track edge。
+3. 每个 `dependencies[].targetTaskId` 在 dependency 与当前 task 间增加无向 track edge。
+4. Exclusion 不进入 track graph。
+5. Track 是该无向图的 connected component；孤立 task 自成一个 track。
+
+每个 task 的 layer 只使用 effective dependency endpoint：没有 dependency 的 task 为 `L0`；其余 task 的 layer 为全部 dependency layer 的最大值加一。Parent 不改变 layer。`needs:[...]` 显式表达当前 task 指向其 dependency 的方向。
+
+Track 按成员中的最小实际 task ID 排序，并从 `T01` 开始编号；编号至少两位，不设两位上限。Track label 只用于本次输出导航，不进入 projection 或持久身份。Track 内按 layer、parent path、当前实际 task ID 依次排序；parent path 是从顶层祖先到 direct parent 的实际 task ID 序列，空 path 在前。每个 task 恰好渲染一次。
+
+Renderer 始终以全部 `data` 为 vertex set，不进行筛选或收缩；有效 parent、dependency 和 exclusion endpoint 因此都必须定位到真实 task 与 track，不生成 `outside-view` 节点。
+
+### 4. 显示投影只折叠可由同一视图恢复的信息
+
+Node 字段按下表从 `TaskListItem` 派生：
+
+| Raw 字段 | 显示 token | 显示条件与 folding |
+| --- | --- | --- |
+| `taskId` | `[<task-id>]` | 始终显示实际 task ID |
+| `effectiveState` | `<state>` | 始终显示；不发明 `blocked` 等新状态 |
+| `parentId` | `parent:[<task-id>]` | direct parent 非空时显示 |
+| `dependencies[].targetTaskId` | `needs:[<id-list>]` | endpoint 去重后非空时显示 |
+| 选定 blockers | `blocked-by:[<blocker-list>]` | folding 后非空时显示 |
+| `exclusion-running` blockers | `mutex:[<id-list>]` | related task ID 去重后非空时显示 |
+| `effectiveControl.reason` | `reason:<json-string>` | reason 非 `null` 时显示 |
+| `nextAction` | `next:<action>` | action 非 `null` 时显示 |
+| `title` | inline title 或 `title:<title>` | 始终显示，且是 node 最后一个字段 |
+
+`blocked-by` 只保留会补充终态或层级因果的 kind：`dependency-failed`、`dependency-cancelled`、`ancestor-terminal`、`all-children-cancelled`、`descendant-lease`。每项写成 `<kind>@<related-task-id>`，按 kind、related task ID 排序并去重。
+
+其余 blocker 按已有可见信息折叠：
+
+- `dependency-incomplete` 由 `needs` 和全量视图中的 dependency node state 表达。
+- `child-incomplete` 由 child 的 `parent` token 和 node state 表达。
+- `exclusion-running` 转为 `mutex`。
+- `control-candidate`、`control-waiting`、`control-paused` 由 effective state 表达；非空原因由 `reason` 表达。
+
+Children、dependents、relation source、inheritance path 和未显示的完整 blockers 不在 node 重复展开，但始终保留在 raw projection。
+
+### 5. Render context 只选择固定 form
+
+内部 render context 为 `{ columns }`，其中 `columns` 是正整数。CLI 按以下顺序得到规范值：
+
+1. 测试或内部调用显式注入的有效值；
+2. TTY stdout 的有效 `columns`；
+3. 规范回退值 `80`。
+
+Node 在 `columns >= 80` 且 folding、排序和去重后的 `needs`、`blocked-by`、`mutex` 各不超过三个 item 时使用 inline form；否则使用 block form。Run mutex group 在 `columns >= 80` 且右 endpoints 不超过三个时使用 inline form；否则使用 block form。
+
+`columns` 不承诺硬性行宽。Title、reason、task ID 或 token 的字符数和 Unicode cell width 不参与 form 选择，也不触发自动换行、截断、隐藏或重新分配 task。输出只使用 ASCII space 缩进，不使用 ANSI、box drawing 或 Unicode padding。
+
+### 6. Success renderer 使用固定文本契约
+
+以下 notation 适用于本节：
+
+- `<task-id>` 是实际 `TaskListItem.taskId`。
+- `<n>` 和 `<layer>` 是非负十进制整数；`<state>`、`<action>` 和 `<title>` 分别是 item 的 `effectiveState`、非空 `nextAction` 和单行 title 原值。
+- `<id-list>` 是去重后的实际 task ID 按字典序排序，再用 `,` 连接；逗号后没有空格。
+- `<blocker-list>` 是排序后的 `<kind>@<related-task-id>`，同样用 `,` 连接。
+- `<json-string>` 是对 string 执行 `JSON.stringify` 的结果，包含 JSON 引号和 escaping。
+- `<json-value>` 是对任意 `JsonValue` 执行 `JSON.stringify` 的结果。
+- `<indent>` 是 direct parent depth 乘两个 ASCII space。
+- Angle-bracket placeholder 在输出时由对应值替换；示例中的方括号、冒号和标点都是 literal。
+
+Success 的第一行固定为：
+
+```text
+TASK LIST tasks=<n> tracks=<n> actionable=<n> running=<n> recovery-needed=<n> mutex-blocked=<n>
+```
+
+`actionable` 是 `nextAction` 非 `null` 的 task 数；`running` 和 `recovery-needed` 按 effective state 计数；`mutex-blocked` 是至少有一个 `exclusion-running` blocker 的 task 数，同一 task 只计一次。空 list 只输出六个计数均为 `0` 的摘要和末尾 LF。
+
+每个非空 track 是一个 section，首行固定为：
+
+```text
+TRACK T01 tasks=<n>
+```
+
+Inline node 的完整字段顺序如下；条件不成立的 token 连同其前导 space 整体省略：
+
+```text
+<indent>L<layer> [<task-id>] <state> parent:[<task-id>] needs:[<id-list>] blocked-by:[<blocker-list>] mutex:[<id-list>] reason:<json-string> next:<action> <title>
+```
+
+Block node 的主行只保留 layer、实际 task ID 和 state。非空 continuation 按以下顺序输出，并在 `<indent>` 后再缩进两个 ASCII space；`title` 始终存在且最后输出：
+
+```text
+<indent>L<layer> [<task-id>] <state>
+<indent>  parent:[<task-id>]
+<indent>  needs:[<id-list>]
+<indent>  blocked-by:[<blocker-list>]
+<indent>  mutex:[<id-list>]
+<indent>  reason:<json-string>
+<indent>  next:<action>
+<indent>  title:<title>
+```
+
+Inline 字段之间恰好一个 ASCII space。Title 是 schema 已保证的单行原值。Track header 与第一个 node 之间、同一 track 的 nodes 之间都没有空行。
+
+存在 effective exclusion pair 时，在全部 track 后增加 `RUN MUTEX` section。Renderer 把每个 pair 规范化为 `(minTaskId, maxTaskId)`，对称去重，再按左 endpoint 分组。Header 固定为：
 
 ```text
 RUN MUTEX - cannot run at the same time
-
-T01 [task-000016] mutex T02 [task-000020], T03 [task-000021]
-T01 [task-000018] mutex T02 [task-000020]
 ```
 
-同一行的每个右 endpoint 都只与左 endpoint 形成独立 pair；右 endpoints 之间不因此建立关系。精确 task ID 是关系身份，`T<n>` 只帮助定位 track。
+Inline group 使用以下格式，右 endpoints 之间用 `, ` 连接：
 
-Static pair 只表示潜在并发约束。只有 blocker 表明对端正在 `running` 或 `recovery-needed` 时，受阻 task 的 node 才显示 `mutex:[task-id]`，并计入摘要中的 `mutex-blocked` task 数。完整 relation source 和 inheritance path 只保留在 list projection。
+```text
+T01 [task-000016] mutex T02 [task-000020], T03 [task-000021]
+```
 
-### 6. 布局只依赖显式 render context
+Block group 使用以下格式：
 
-Renderer 从注入的 `columns` 选择两个固定布局：
+```text
+T01 [task-000016] mutex
+  T02 [task-000020]
+  T03 [task-000021]
+```
 
-- `columns >= 80`：标准布局；node 字段按固定顺序位于同一主行，endpoint 集合超过三个时转入固定缩进 continuation line。
-- `columns < 80`：窄布局；node 主行只保留 layer、ID 和 state，title 与每类 relation 分别进入固定缩进 continuation line。
-- TTY 使用 stdout columns；缺失 columns 的非 TTY 使用规范值 `80`。
+Groups 按左 endpoint task ID 排序；右 endpoints 按 task ID 排序；groups 之间没有空行。每个右 endpoint 只与所在 group 的左 endpoint 形成 pair。Track label 只用于定位，实际 task ID 才是关系身份。
 
-档位只由 `columns` 决定，不由 title 内容或 Unicode cell width 决定。两种布局都不使用包围 title 的方框、跨 title 连线、box drawing、ANSI 颜色或 Unicode padding。相同 raw result object 与 render context 必须产生逐字节相同输出。
+摘要、每个 track 和 `RUN MUTEX` 各自是 section。相邻 section 之间恰好一个空行；不输出尾部空 section；完整结果以一个 LF 结束。
 
-### 7. 协议失败也使用同一输出选择
+### 7. Task-list failure 使用独立固定格式
 
-`task list` 已进入协议的 failure 在默认模式下由 task-list renderer 输出：主行包含 `error.code`、`message`、`revision` 和 `retryable`；非空 details 按 key 字典序进入 continuation line，每项使用 `key=<JSON.stringify(value)>`。使用 `--json` 时仍序列化完整 failure object。
+输出路由已经识别为实际 `task list` 且未指定 `--json` 时，协议内 failure 首行固定为：
 
-这一规则不改变错误码、revision 恢复、stdout/stderr 分工或退出码。其他 command 的 failure 在本 change 中仍使用 JSON serializer。
+```text
+TASK LIST ERROR code=<code> revision=<number|null> retryable=<true|false> message=<json-string>
+```
 
-### 8. Public 兼容与 owner 同步
+`error.details` 的 own keys 按字典序各占一行；空 details 不输出 continuation：
 
-默认 `task list` 从通用 JSON serialization 改为 task-list renderer 输出，是有意的 public CLI 变化。需要 raw result serialization 的调用方必须增加 `--json`，不能依赖 TTY 自动猜测。兼容边界如下：
+```text
+  detail <key>=<json-value>
+```
 
-- `--json` 的 envelope、revision、错误码、retryable、stdout/stderr、退出码和单 LF 规则保持不变。
-- List item 保留全部既有字段；新增关系和 blocker 字段是满足 renderer 与程序化恢复所需的结构化扩展。
-- JSON serialization 不包含 track 编号、layer、摘要折叠、字符布局或其他 renderer 派生值。
-- 其他 command 即使不写 `--json` 也保持当前 JSON 默认输出。
+Failure 只输出上述内容并以一个 LF 结束。`indexPath` 和完整 details 仍存在于 raw failure，合法 `--json` 会完整序列化它们。全局参数 failure、help、version 和其他 command failure 按第 1 节使用 JSON serializer。
 
-实现必须更新 task-graph skill 中的 JSON-only 说明、面向使用者的介绍和 help。长期判断按可独立演进边界分别评估“raw result object 与并列输出函数”和“默认 task-list renderer 输出”，不让 change plan 替代决策 owner。
+这些规则不改变错误码、revision 恢复、retryable、stdout/stderr 分工或退出码。未处理 fault 仍使用 stderr 和退出码 `2`。
 
-代码只修改 `tools/task-graph/` 的维护源码；公开声明和 `skills/task-graph/scripts/` 由既有构建入口生成。Skill 分发内容变化时提升独立版本。新增或修改的每个最小 `test()` 入口按 test-evidence owner 维护单独 case 并同步派生索引。
+### 8. Public 变化、版本和 owner 同步
+
+默认 `task list` 改为文本 renderer，公开 list item type 从 `TaskSummary` 改为 `TaskListItem`；两者都是有意的 breaking change，不保留兼容分支。需要 raw serialization 的调用方显式增加 `--json`。
+
+本 change 将 `taskGraphVersion` 从 `2.0.0` 提升到 `3.0.0`，并把 `skills/task-graph/SKILL.md` 的独立 `metadata.version` 从 `5` 提升到 `6`。`TaskListItem` 经既有 `index.ts`/CLI 导出链路进入公开声明；task-list renderer 和 render context 保持内部实现边界。
+
+实现同步以下 owner：
+
+- `skills/task-graph/SKILL.md`、`docs/skills/task-graph.md` 和 help：默认 list、显式 `--json`、track/layer、folding 与 run mutex。
+- `docs/decisions/task-graph/`：分别评估 raw result/output-function 边界和默认 list renderer 是否需要独立长期决策。
+- `docs/test-evidence/test-evidence-topics.json`：把 task-graph CLI 责任从 JSON-only 更新为 serializer/renderer 输出协议。
+- `docs/test-evidence/task-graph/`：每个新增或改名的最小 `test()` 入口各维护一个 case，并同步派生索引。
+
+可分发工具实现只修改 `tools/task-graph/` 维护源码。`skills/task-graph/scripts/` 的 ESM、source map 和声明树由 `scripts/build/task-graph.ts` 单向生成，不手改生成产物。JSON serializer 继续保留现有 envelope、revision、错误码、retryable、stdout/stderr、退出码和单 LF 语义，也不包含 track、layer、folding 或布局派生值。
 
 ## Risks / Trade-offs
 
-- Track 只说明 task 在 parent/dependency 图上相连，不证明 track 之间当前可并行。稳定术语、独立 mutex 区和 `mutex-blocked` 摘要限制这一误读。
-- 既有调用若继续使用无参数 `task list` 会得到 task-list renderer 输出。`--json` 提供明确的 raw serialization 出口，但默认变化仍是 public contract change。
-- List projection 增加关系与 blocker 后，JSON serialization 体积会扩大。该代价换取 serializer、renderer 与程序化调用共享一个完整语义源。
-- 密集 exclusion 仍可能形成较长区段。Endpoint 分组、对称去重、固定 continuation 和 DAG 分区保证主图不被交叉线污染；第一版不通过截断隐藏调度事实。
-- 不使用颜色和连接字符降低了装饰性，但让输出在普通终端、日志、复制粘贴和无颜色环境中保持相同语义。
-- 标准与窄布局会产生不同文本。显式两档、可注入 columns、80 列非 TTY 回退和双档快照测试限制差异。
+- Track 只表达 parent/dependency 连通性。独立 `RUN MUTEX` 和 active mutex token 用于防止把 track 误读成可并行集合。
+- 全量 projection 会扩大 JSON，密集 task graph 也会产生较长文本；该代价换取单一完整语义源和无需猜测的全量视图。
+- Inline 与 block form 会产生不同文本；固定阈值、显式 columns 和逐字节测试限制差异。
+- 默认输出和公开 type name 都发生 breaking change；major CLI version 与显式 `--json` 让调用方能够识别并迁移。
 
 ## Open Questions
 
-无。Raw result/output-function 边界、list projection、track/layer、信息取舍、mutex、失败呈现、宽度回退、兼容出口和第一版非目标均已固定。
+无。实施前需要的输出路由、projection、图关系、显示 folding、文本格式、版本和协调切换条件均已固定。
