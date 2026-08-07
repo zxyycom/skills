@@ -94,6 +94,96 @@
       }
     },
     {
+      "id": "implementation-libraries/functional-utilities-and-data-structures.md",
+      "keys": {
+        "category": [
+          "implementation-libraries"
+        ],
+        "latest-report-at": [
+          1786074200000
+        ],
+        "status": [
+          "已结束"
+        ],
+        "text": [
+          "TypeScript 函数式工具与专用数据结构库调查",
+          "在本仓库的 TypeScript 实现中，哪些函数式集合/管道工具与专用数据结构库值得预装，既能提供可靠实现又不会用重叠抽象扩大代码风格的解空间？",
+          "预装候选的适用价值与依赖边界"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-08-07T11:43:20+08:00",
+        "path": "implementation-libraries/functional-utilities-and-data-structures.md",
+        "question": "在本仓库的 TypeScript 实现中，哪些函数式集合/管道工具与专用数据结构库值得预装，既能提供可靠实现又不会用重叠抽象扩大代码风格的解空间？",
+        "reportCount": 1,
+        "reportTitles": [
+          "预装候选的适用价值与依赖边界"
+        ],
+        "status": "已结束",
+        "title": "TypeScript 函数式工具与专用数据结构库调查"
+      }
+    },
+    {
+      "id": "implementation-libraries/pattern-matching-and-state-modeling-libraries.md",
+      "keys": {
+        "category": [
+          "implementation-libraries"
+        ],
+        "latest-report-at": [
+          1786074236000
+        ],
+        "status": [
+          "已结束"
+        ],
+        "text": [
+          "TypeScript 穷尽匹配与轻量状态建模库调查",
+          "哪些 TypeScript 库适合预装，用于可靠表达封闭分支、判别联合和真正的有限状态机，同时保持轻量、成熟且持续维护？",
+          "确定穷尽匹配与轻量状态机的预装候选"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-08-07T11:43:56+08:00",
+        "path": "implementation-libraries/pattern-matching-and-state-modeling-libraries.md",
+        "question": "哪些 TypeScript 库适合预装，用于可靠表达封闭分支、判别联合和真正的有限状态机，同时保持轻量、成熟且持续维护？",
+        "reportCount": 1,
+        "reportTitles": [
+          "确定穷尽匹配与轻量状态机的预装候选"
+        ],
+        "status": "已结束",
+        "title": "TypeScript 穷尽匹配与轻量状态建模库调查"
+      }
+    },
+    {
+      "id": "implementation-libraries/result-and-option-libraries.md",
+      "keys": {
+        "category": [
+          "implementation-libraries"
+        ],
+        "latest-report-at": [
+          1786074253000
+        ],
+        "status": [
+          "已结束"
+        ],
+        "text": [
+          "TypeScript Result 与 Option 库调查",
+          "本项目应预装哪一个轻量 TypeScript Result 库，并怎样与项目自有 Option 源码形成稳定、不过度重叠的实现基础？",
+          "采用 neverthrow 并由项目源码承接 Option"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-08-07T11:44:13+08:00",
+        "path": "implementation-libraries/result-and-option-libraries.md",
+        "question": "本项目应预装哪一个轻量 TypeScript Result 库，并怎样与项目自有 Option 源码形成稳定、不过度重叠的实现基础？",
+        "reportCount": 1,
+        "reportTitles": [
+          "采用 neverthrow 并由项目源码承接 Option"
+        ],
+        "status": "已结束",
+        "title": "TypeScript Result 与 Option 库调查"
+      }
+    },
+    {
       "id": "prompt-optimize/name-and-trigger-alignment.md",
       "keys": {
         "category": [
@@ -179,5 +269,5 @@
   "metadata": {},
   "namespace": "investigations",
   "schemaVersion": 2,
-  "sourceRevision": "sha256:d40c53decbd24f17a4fc80dba951de918db2612296db750be9a2d6c8a568d46d"
+  "sourceRevision": "sha256:b81670801e0092fc3b3904acfd097ee6af512f54a5d7734c4628631adddc688b"
 }

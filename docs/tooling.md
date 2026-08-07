@@ -149,7 +149,7 @@ package script 和完整检查仍只是聚合容器。topic 表与 case 由测�
 1. `scripts/` 只承接主仓库命令编排、构建适配、校验、打包、Git 和 CI 自动化。
 2. 顶层脚本只保留入口与编排；`scripts/build/` 承接生成适配，`scripts/lib/` 承接跨脚本共享能力，`scripts/validators/` 承接项目校验项。
 3. `tools/<tool-name>/src/` 承接需要构建后随 skill 分发的运行时源码，`api/` 承接公共声明源，`tests/` 承接源码、分发模块和 fixture 验证。
-4. `tools/shared/` 只承接多个工具已经真实共享的运行时不变量；[版本管理中间层](../tools/shared/version-control.md) 是当前共享组件之一。
+4. `tools/shared/` 承接多个工具已经真实共享的运行时不变量，以及项目明确选定并预置、具有独立契约的基础实现原语；预置原语不降低其他共享代码的准入条件。[版本管理中间层](../tools/shared/version-control.md) 和 [`Option`](../tools/shared/src/option.ts) 是当前共享组件。
 5. `tools/skill-package/` 承接 skill 版本以及发布端与 updater 共用的 release manifest 协议；仓库专用的临时 package hash 留在 `scripts/lib/`。[Index Runtime](../tools/index-runtime/README.md) 承接已经建立的跨领域派生索引协议。
 6. 领域工具可以依赖自身源码、`tools/shared/`、`tools/skill-package/`、明确建立的跨领域协议、目标运行时和显式外部依赖；不能依赖 `scripts/`、`skills/`、`dist/` 或另一个领域工具。
 7. 根目录 `tsconfig.json` 统一提供 IDE 与类型检查配置；仓库源码运行、构建和测试由 Bun 负责。Task-graph 分发 CLI 是明确例外，受支持执行器为其 skill frontmatter 与 help 公布的固定 Node.js engine。
