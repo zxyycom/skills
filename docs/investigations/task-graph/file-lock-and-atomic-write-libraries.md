@@ -12,7 +12,7 @@
 
 #### 形成时背景
 
-[`create-task-graph` design](../../../changes/create-task-graph/design.md) 要求索引存储在本地文件系统，由同一主机上的多个进程短时并发修改。锁等待上限是 5 秒；锁龄达到 60 秒只产生陈旧候选，只有记录的同主机进程已确认死亡时才能自动回收。锁还必须携带 owner token，并通过原子隔离与再次校验阻止旧持有者、释放者或两个回收者删除后来创建的新锁。
+[`create-task-graph` design](../../../changes/archive/create-task-graph/design.md) 要求索引存储在本地文件系统，由同一主机上的多个进程短时并发修改。锁等待上限是 5 秒；锁龄达到 60 秒只产生陈旧候选，只有记录的同主机进程已确认死亡时才能自动回收。锁还必须携带 owner token，并通过原子隔离与再次校验阻止旧持有者、释放者或两个回收者删除后来创建的新锁。
 
 同一设计对提交路径另有硬约束：拒绝符号链接路径；在目标目录以 `wx` 创建临时文件；写入、文件 `fsync`、单次原子替换、尽力执行目录 `fsync`，再回读并按旧 revision、新候选 revision 或其他/不可读状态分类。替换调用一旦抛错，不得盲目重试，因为系统必须区分“尚未提交”和“提交结果未知”。这些语义共同构成 task-graph 的事务协议，不能只用“有 lock API”或“先写临时文件再 rename”替代。
 
@@ -24,7 +24,7 @@
 
 #### 调查范围与依据
 
-需求依据是 2026-08-06 工作区中的 [`proposal`](../../../changes/create-task-graph/proposal.md)、[`design`](../../../changes/create-task-graph/design.md)、[`tasks`](../../../changes/create-task-graph/tasks.md) 和当时尚在实施中的 [`store.ts`](../../../tools/task-graph/src/store.ts)。候选覆盖纯 JavaScript 锁库 `proper-lockfile`、旧式锁库 `lockfile`、原生系统锁库 `fs-ext`，以及原子写库 `write-file-atomic`、`atomically`。
+需求依据是 2026-08-06 工作区中的 [`proposal`](../../../changes/archive/create-task-graph/proposal.md)、[`design`](../../../changes/archive/create-task-graph/design.md)、[`tasks`](../../../changes/archive/create-task-graph/tasks.md) 和当时尚在实施中的 [`store.ts`](../../../tools/task-graph/src/store.ts)。候选覆盖纯 JavaScript 锁库 `proper-lockfile`、旧式锁库 `lockfile`、原生系统锁库 `fs-ext`，以及原子写库 `write-file-atomic`、`atomically`。
 
 生态数据取自 2026-08-06 观察到的官方 npm 包页面和注册表元数据；npm 页面提供的是滚动周下载量，本报告用它作为采用规模的粗略代理，不将下载量等同于质量或安全性。活跃度、实现行为与已知限制取自各项目的官方 GitHub 仓库、对应版本源码和 README。没有安装候选、运行本仓库适配器、执行 Windows 故障注入或完成依赖供应链安全审计。
 
@@ -75,7 +75,7 @@
 
 #### 调查范围与依据
 
-依赖判断继续以 [`fs-native-extensions@1.5.0`](https://github.com/holepunchto/fs-native-extensions/tree/v1.5.0) 和 [`write-file-atomic@8.0.0`](https://github.com/npm/write-file-atomic/tree/v8.0.0) 的正式源码、包元数据与许可证为依据。实施事实来自 [`simplify-task-graph-json-transactions` design](../../../changes/simplify-task-graph-json-transactions/design.md)、当时分发的精确 runtime manifest 与 npm lockfile、[`runtime.ts`](../../../tools/task-graph/src/runtime.ts)、[`store.ts`](../../../tools/task-graph/src/store.ts) 及对应 runtime、store、CLI 和生成产物测试。
+依赖判断继续以 [`fs-native-extensions@1.5.0`](https://github.com/holepunchto/fs-native-extensions/tree/v1.5.0) 和 [`write-file-atomic@8.0.0`](https://github.com/npm/write-file-atomic/tree/v8.0.0) 的正式源码、包元数据与许可证为依据。实施事实来自 [`simplify-task-graph-json-transactions` design](../../../changes/archive/simplify-task-graph-json-transactions/design.md)、当时分发的精确 runtime manifest 与 npm lockfile、[`runtime.ts`](../../../tools/task-graph/src/runtime.ts)、[`store.ts`](../../../tools/task-graph/src/store.ts) 及对应 runtime、store、CLI 和生成产物测试。
 
 当前验证覆盖 Windows 上的真实 addon 探针、独立描述符互斥、进程级 claim 竞争、持锁子进程退出、安装并发收敛、安装后离线 mutation、atomic writer 故障分类和分发树无 `.node`。POSIX 进程组终止与符号链接相关 case 在 Windows 上保守跳过，交给受支持的 POSIX CI 运行；没有验证网络文件系统、恶意本机路径竞争或断电后的目录元数据持久性。
 
@@ -109,7 +109,7 @@ Native addon 不随 skill 打包。Skill 分发精确 manifest 与 npm lockfile�
 
 实现复盘表明，实际占用最多代码和测试的并不是 task graph 的任务、关系或 lease 语义，而是 native runtime 的 npm 子进程监督、安装 marker、精确传递闭包验证，以及 atomic reject 后的回读分类。这些外围协议没有改善用户可感知的任务编排能力，也没有改变两个库已经承担的核心责任。
 
-[`reduce-task-graph-infrastructure` design](../../../changes/reduce-task-graph-infrastructure/design.md)进一步收窄边界：调用方可以接受显式 npm argv；锁文件可以离开工作区；atomic reject 可以保守地统一视为结果未知；平台兼容性继续由真实 addon 探针确认。
+[`reduce-task-graph-infrastructure` design](../../../changes/archive/reduce-task-graph-infrastructure/design.md)进一步收窄边界：调用方可以接受显式 npm argv；锁文件可以离开工作区；atomic reject 可以保守地统一视为结果未知；平台兼容性继续由真实 addon 探针确认。
 
 #### 调查目的
 
@@ -117,7 +117,7 @@ Native addon 不随 skill 打包。Skill 分发精确 manifest 与 npm lockfile�
 
 #### 调查范围与依据
 
-本轮不重新比较 npm 生态候选，也不改变两个固定依赖版本。判断依据是 [`reduce-task-graph-infrastructure` design](../../../changes/reduce-task-graph-infrastructure/design.md)、[`runtime.ts`](../../../tools/task-graph/src/runtime.ts)、[`store.ts`](../../../tools/task-graph/src/store.ts)，以及对应 runtime、store、CLI、跨进程和生成产物测试。验证环境是当前 Windows 与受支持 Node；网络文件系统、断电目录持久性、恶意路径替换和不遵守 CLI 的写入者不在范围内。
+本轮不重新比较 npm 生态候选，也不改变两个固定依赖版本。判断依据是 [`reduce-task-graph-infrastructure` design](../../../changes/archive/reduce-task-graph-infrastructure/design.md)、[`runtime.ts`](../../../tools/task-graph/src/runtime.ts)、[`store.ts`](../../../tools/task-graph/src/store.ts)，以及对应 runtime、store、CLI、跨进程和生成产物测试。验证环境是当前 Windows 与受支持 Node；网络文件系统、断电目录持久性、恶意路径替换和不遵守 CLI 的写入者不在范围内。
 
 #### 调查结果与边界
 
