@@ -1,9 +1,318 @@
 {
   "schemaVersion": 1,
-  "revision": 0,
+  "revision": 27,
   "nextIds": {
-    "scope": 1,
-    "task": 1
+    "scope": 2,
+    "task": 11
   },
-  "scopes": {}
+  "scopes": {
+    "scope-000001": {
+      "key": "task-graph-semantics",
+      "bindings": {},
+      "timestamps": {
+        "createdAt": "2026-08-07T05:46:50.698Z",
+        "updatedAt": "2026-08-07T06:23:43.252Z"
+      },
+      "tasks": {
+        "task-000001": {
+          "content": {
+            "title": "纠正 task-graph 的短生命周期语义",
+            "goal": "将“短生命周期”限定为 task entry 不作为长期知识、正式计划或历史记录的 owner，而是保存当前仍有调度价值的任务内容、拓扑和执行协调事实；task 可以按实际协调需要持续存在，不以经过时间长短决定是否有效。",
+            "acceptance": [],
+            "context": null,
+            "references": {},
+            "result": null
+          },
+          "state": {
+            "control": {
+              "mode": "candidate",
+              "reason": null
+            },
+            "execution": {
+              "phase": "idle",
+              "attempt": 0
+            },
+            "relations": {
+              "parentId": null,
+              "dependsOn": {},
+              "excludes": {}
+            },
+            "timestamps": {
+              "createdAt": "2026-08-07T05:46:58.205Z",
+              "updatedAt": "2026-08-07T06:22:07.706Z"
+            }
+          }
+        },
+        "task-000002": {
+          "content": {
+            "title": "明确 SDK 与 CLI 的直接调用关系",
+            "goal": "将 SDK 定义为 CLI 调度层所调用底层能力的直接公开入口，用于绕开 CLI 启动、参数转义与序列化成本；目标只是方便调用，不额外建立接口稳定性、独立版本或第二套契约。",
+            "acceptance": [],
+            "context": null,
+            "references": {},
+            "result": null
+          },
+          "state": {
+            "control": {
+              "mode": "candidate",
+              "reason": null
+            },
+            "execution": {
+              "phase": "idle",
+              "attempt": 0
+            },
+            "relations": {
+              "parentId": null,
+              "dependsOn": {},
+              "excludes": {}
+            },
+            "timestamps": {
+              "createdAt": "2026-08-07T05:47:06.077Z",
+              "updatedAt": "2026-08-07T05:47:06.077Z"
+            }
+          }
+        },
+        "task-000003": {
+          "content": {
+            "title": "支持有意义的显式 ID 与自动生成回退",
+            "goal": "在最终的平铺任务模型中调整 task ID 创建契约：调用方仅在提供具有实际语义的 ID 时主动指定；未指定 ID 或指定值已被占用时，工具自动生成唯一 ID、返回最终采用的 ID，且不得覆盖既有 task。",
+            "acceptance": [],
+            "context": "最终 ID 的格式以及 title 是否独立由 task-000010 决定；本任务只承接创建时的显式 ID、自动回退和冲突不覆盖语义，并让 CLI 与程序化调用使用同一契约。",
+            "references": {},
+            "result": null
+          },
+          "state": {
+            "control": {
+              "mode": "candidate",
+              "reason": null
+            },
+            "execution": {
+              "phase": "idle",
+              "attempt": 0
+            },
+            "relations": {
+              "parentId": null,
+              "dependsOn": {
+                "task-000005": true,
+                "task-000010": true
+              },
+              "excludes": {}
+            },
+            "timestamps": {
+              "createdAt": "2026-08-07T05:51:51.650Z",
+              "updatedAt": "2026-08-07T06:22:18.049Z"
+            }
+          }
+        },
+        "task-000004": {
+          "content": {
+            "title": "评估并支持 task ID 变更",
+            "goal": "在平铺身份模型和 ID/title 契约确定后，评估并增加 task ID 变更能力；明确允许变更的生命周期阶段，并保证任务字典键、父子、依赖、排斥、租约归属及索引内 task ID 引用保持原子一致。",
+            "acceptance": [],
+            "context": "目标 ID 的合法性与冲突处理复用 task-000003 的创建契约；运行中或待恢复任务能否改名必须形成显式规则，不通过手工编辑 JSON 实现。",
+            "references": {},
+            "result": null
+          },
+          "state": {
+            "control": {
+              "mode": "candidate",
+              "reason": null
+            },
+            "execution": {
+              "phase": "idle",
+              "attempt": 0
+            },
+            "relations": {
+              "parentId": null,
+              "dependsOn": {
+                "task-000003": true
+              },
+              "excludes": {}
+            },
+            "timestamps": {
+              "createdAt": "2026-08-07T05:51:56.959Z",
+              "updatedAt": "2026-08-07T06:23:35.741Z"
+            }
+          }
+        },
+        "task-000005": {
+          "content": {
+            "title": "从 task-graph 中彻底移除 scope",
+            "goal": "将权威索引改为根级平铺 task 字典，任务层级仅由每个 task 的 parentId 表达；从 Schema、CLI、程序化调用、查询投影和生命周期中删除 scope ID、key、binding 及 scope close，使无关任务作为同一图中的断开分量共存。迁移既有任务时保留内容、控制、执行、父子、依赖、排斥和租约事实。",
+            "acceptance": [],
+            "context": "索引文件本身承担工作区边界；使用明确的任务级终态清理契约替代 scope close，锁、revision 和租约继续保持索引级。",
+            "references": {},
+            "result": null
+          },
+          "state": {
+            "control": {
+              "mode": "candidate",
+              "reason": null
+            },
+            "execution": {
+              "phase": "idle",
+              "attempt": 0
+            },
+            "relations": {
+              "parentId": null,
+              "dependsOn": {},
+              "excludes": {}
+            },
+            "timestamps": {
+              "createdAt": "2026-08-07T06:07:27.099Z",
+              "updatedAt": "2026-08-07T06:22:38.795Z"
+            }
+          }
+        },
+        "task-000006": {
+          "content": {
+            "title": "改进 task 结构以支持细粒度关系继承",
+            "goal": "重新设计父子任务的关系继承结构，使子任务能分别对依赖关系与排斥关系选择追加继承或覆盖继承，而不是用一个整体继承策略处理全部关系；同时允许在各关系维度内对具体继承项进行细粒度增加、替换或移除，并让最终有效关系可确定性投影和校验。",
+            "acceptance": [],
+            "context": "当前实现把祖先依赖和排斥作为不可删除的硬约束向下展开，子任务只能追加本地关系。新结构需要区分每种关系的本地声明、继承策略和投影结果；不要把控制状态或其他字段不加区分地纳入同一继承开关。",
+            "references": {},
+            "result": null
+          },
+          "state": {
+            "control": {
+              "mode": "candidate",
+              "reason": null
+            },
+            "execution": {
+              "phase": "idle",
+              "attempt": 0
+            },
+            "relations": {
+              "parentId": null,
+              "dependsOn": {},
+              "excludes": {}
+            },
+            "timestamps": {
+              "createdAt": "2026-08-07T06:07:35.928Z",
+              "updatedAt": "2026-08-07T06:07:35.928Z"
+            }
+          }
+        },
+        "task-000007": {
+          "content": {
+            "title": "修正任务关系的确定性推断与记录策略",
+            "goal": "修正 task-graph 的关系记录工作流：当父子、完成依赖或并发排斥能够由用户要求、任务目标、既有拓扑或确定的执行约束唯一推出时，agent 应主动记录；只有存在多种合理解释或事实不足时才保持不写或请求确认，不得把业务偏好和猜测写成拓扑事实。",
+            "acceptance": [],
+            "context": "分别为父子、依赖和排斥定义确定性证据门槛、推断依据表达及冲突后的重新判断。工具继续只校验和写入显式关系；自然语言判断由 skill 与调用 agent 承担，但不要求用户逐条确认已经唯一确定的关系。",
+            "references": {},
+            "result": null
+          },
+          "state": {
+            "control": {
+              "mode": "candidate",
+              "reason": null
+            },
+            "execution": {
+              "phase": "idle",
+              "attempt": 0
+            },
+            "relations": {
+              "parentId": null,
+              "dependsOn": {},
+              "excludes": {}
+            },
+            "timestamps": {
+              "createdAt": "2026-08-07T06:10:12.169Z",
+              "updatedAt": "2026-08-07T06:22:51.989Z"
+            }
+          }
+        },
+        "task-000008": {
+          "content": {
+            "title": "增加 task 标签与 find 查询能力",
+            "goal": "为根级平铺 task 字典增加可选 tag，并提供正式的 find 查询入口直接读取权威索引；支持按最终 task ID、tag 和任务内容条件定位任务并返回结构化结果。Tag 只承担分类与发现，不具有调度、状态或关系语义。",
+            "acceptance": [],
+            "context": "索引规模较小时直接查询权威 JSON，不建立独立搜索索引或第二事实源。Tag 写入与更新、组合过滤、结果排序以及 ID/title 查询字段需要形成一致的 CLI 与程序化调用契约，并服从 task-000010 的身份模型结论。",
+            "references": {},
+            "result": null
+          },
+          "state": {
+            "control": {
+              "mode": "candidate",
+              "reason": null
+            },
+            "execution": {
+              "phase": "idle",
+              "attempt": 0
+            },
+            "relations": {
+              "parentId": null,
+              "dependsOn": {
+                "task-000005": true,
+                "task-000010": true
+              },
+              "excludes": {}
+            },
+            "timestamps": {
+              "createdAt": "2026-08-07T06:12:39.308Z",
+              "updatedAt": "2026-08-07T06:23:43.252Z"
+            }
+          }
+        },
+        "task-000009": {
+          "content": {
+            "title": "为 task-graph JSON 输出增加可选美化模式",
+            "goal": "为 CLI 增加全局显式美化参数，使调用方可以把成功、失败和 help 的同一 JSON envelope 输出为缩进的多行 JSON；默认仍保留适合机器调用的单行 JSON，格式切换不得改变字段、错误码、revision 或退出语义。",
+            "acceptance": [],
+            "context": "优先采用统一的 --pretty 参数，只改变序列化格式并保留末尾 LF；不额外引入表格、颜色或自然语言输出，程序化调用直接返回结构化数据而不受影响。",
+            "references": {},
+            "result": null
+          },
+          "state": {
+            "control": {
+              "mode": "candidate",
+              "reason": null
+            },
+            "execution": {
+              "phase": "idle",
+              "attempt": 0
+            },
+            "relations": {
+              "parentId": null,
+              "dependsOn": {},
+              "excludes": {}
+            },
+            "timestamps": {
+              "createdAt": "2026-08-07T06:12:48.577Z",
+              "updatedAt": "2026-08-07T06:12:48.577Z"
+            }
+          }
+        },
+        "task-000010": {
+          "content": {
+            "title": "评估 task ID 与 title 一体化及重名语义",
+            "goal": "确定 task 的身份与显示契约：比较取消独立 title、由具有业务意义且唯一的 task ID 同时承担身份和显示名称，与保留独立显示名称、允许部分普通任务重名两种方案；明确唯一性、重名和冲突规则后，再统一约束创建、改名、显示与查找行为。",
+            "acceptance": [],
+            "context": "例如“提交 Git”可能应包含仓库、change 或提交内容以形成唯一名称，也可能需要作为可重复显示名称存在。该例只暴露未决边界，不预先判定所有重名都有问题，也不在结论形成前删除 title。",
+            "references": {},
+            "result": null
+          },
+          "state": {
+            "control": {
+              "mode": "candidate",
+              "reason": null
+            },
+            "execution": {
+              "phase": "idle",
+              "attempt": 0
+            },
+            "relations": {
+              "parentId": null,
+              "dependsOn": {},
+              "excludes": {}
+            },
+            "timestamps": {
+              "createdAt": "2026-08-07T06:18:02.442Z",
+              "updatedAt": "2026-08-07T06:23:12.009Z"
+            }
+          }
+        }
+      }
+    }
+  }
 }
