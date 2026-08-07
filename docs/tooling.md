@@ -97,8 +97,10 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 每个 `<topic>/<slug>.md` 单 case 文件和固定派生索引维护测试账本。账本覆盖
 `test:*` 稳定入口保留的历史与当前测试；一个 case 对应测试框架能够独立选择并
 单独报告的一个最小原生测试节点。框架不限，本仓库当前沿用 `node:test` API 定义
-节点，并通过已固定版本的 `bun test` 执行；这只是现有依赖下的简单选择。测试文件、
-package script 和完整检查仍只是聚合容器。topic 表与 case 由测试改动显式维护，
+节点；普通测试通过已固定版本的 `bun test` 执行，task-graph 真实 native lock
+集成测试通过其声明支持的 Node.js `--test` 执行。该执行器分工只是现有依赖下的
+简单选择。测试文件、package script 和完整检查仍只是聚合容器。topic 表与 case
+由测试改动显式维护，
 工具只读取固定根目录中的合法 topic 和 case，不扫描测试源码、自动收集或注册 case。
 正文变化后运行 `sync:test-evidence-catalog`；`check:test-evidence-catalog` 已进入
 完整检查并只校验显式 topic 根目录与统一索引。
@@ -152,7 +154,7 @@ package script 和完整检查仍只是聚合容器。topic 表与 case 由测�
 4. `tools/shared/` 承接多个工具已经真实共享的运行时不变量，以及项目明确选定并预置、具有独立契约的基础实现原语；预置原语不降低其他共享代码的准入条件。[版本管理中间层](../tools/shared/version-control.md) 和 [`Option`](../tools/shared/src/option.ts) 是当前共享组件。
 5. `tools/skill-package/` 承接 skill 版本以及发布端与 updater 共用的 release manifest 协议；仓库专用的临时 package hash 留在 `scripts/lib/`。[Index Runtime](../tools/index-runtime/README.md) 承接已经建立的跨领域派生索引协议。
 6. 领域工具可以依赖自身源码、`tools/shared/`、`tools/skill-package/`、明确建立的跨领域协议、目标运行时和显式外部依赖；不能依赖 `scripts/`、`skills/`、`dist/` 或另一个领域工具。
-7. 根目录 `tsconfig.json` 统一提供 IDE 与类型检查配置；仓库源码运行、构建和测试由 Bun 负责。Task-graph 分发 CLI 是明确例外，受支持执行器为其 skill frontmatter 与 help 公布的固定 Node.js engine。
+7. 根目录 `tsconfig.json` 统一提供 IDE 与类型检查配置；仓库源码运行、构建和普通测试由 Bun 负责。Task-graph 真实 native lock 集成测试和分发 CLI 是明确例外，使用其 skill frontmatter 与 help 公布的固定 Node.js engine。
 8. 外部 JSON 在边界做运行时收窄。同一结构被多个入口消费或需要稳定字段诊断时，以 Valibot Schema 为结构真源；跨语言契约从同一 Schema 生成 JSON Schema 和分发声明。
 9. 校验器检查长期源文件、链接和项目约束，不解析或正则匹配 GitHub Actions workflow 内部结构；workflow 行为由代码审查和实际运行验证。
 

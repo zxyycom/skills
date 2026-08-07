@@ -19,7 +19,7 @@
     "test:version-control": "bun test ./tools/shared/tests/version-control.test.ts",
     "test:investigation-report-check": "bun test ./tools/investigation-report/tests/run.ts",
     "test:skill-validator": "bun test ./tools/skill-validator/tests/run.ts",
-    "test:task-graph-cli": "bun test ./tools/task-graph/tests/run.ts",
+    "test:task-graph-cli": "bun test ./tools/task-graph/tests/run.ts && node --test ./tools/task-graph/tests/native-store.test.ts",
     "test:test-evidence-cli": "bun test ./tools/test-evidence/tests/run.ts",
     "test:skill-updater": "bun test ./tools/skill-updater/tests/run.ts",
     "hash:skills": "bun scripts/hash-skills.ts",

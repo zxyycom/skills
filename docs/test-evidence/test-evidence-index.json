@@ -4253,7 +4253,7 @@
       "id": "TASK-GRAPH-CONCURRENCY-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-CONCURRENCY-001 原生短锁串行化同 revision 并发 mutation 共享索引的原生短锁必须串行化并发 mutation，revision 继续使用全局 compare-and-swap。 两个独立 service 同时以 revision 0 创建 task 时只有一个提交，另一个得到 `REVISION_CONFLICT`，最终 revision 为 1。 tools/task-graph/tests/store.test.ts > store serializes concurrent native mutations and preserves revision compare-and-swap bun test --test-name-pattern=\"^store serializes concurrent native mutations and preserves revision compare-and-swap$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-CONCURRENCY-001 原生短锁串行化同 revision 并发 mutation 共享索引的原生短锁必须串行化并发 mutation，revision 继续使用全局 compare-and-swap。 两个独立 service 同时以 revision 0 创建 task 时只有一个提交，另一个得到 `REVISION_CONFLICT`，最终 revision 为 1。 tools/task-graph/tests/native-store.test.ts > store serializes concurrent native mutations and preserves revision compare-and-swap node --test --test-name-pattern=\"^store serializes concurrent native mutations and preserves revision compare-and-swap$\" ./tools/task-graph/tests/native-store.test.ts"
         ],
         "topic": [
           "task-graph"
@@ -4262,12 +4262,12 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/store.test.ts > store serializes concurrent native mutations and preserves revision compare-and-swap",
-          "bun test --test-name-pattern=\"^store serializes concurrent native mutations and preserves revision compare-and-swap$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/native-store.test.ts > store serializes concurrent native mutations and preserves revision compare-and-swap",
+          "node --test --test-name-pattern=\"^store serializes concurrent native mutations and preserves revision compare-and-swap$\" ./tools/task-graph/tests/native-store.test.ts"
         ],
         "id": "TASK-GRAPH-CONCURRENCY-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-CONCURRENCY-001 原生短锁串行化同 revision 并发 mutation 共享索引的原生短锁必须串行化并发 mutation，revision 继续使用全局 compare-and-swap。 两个独立 service 同时以 revision 0 创建 task 时只有一个提交，另一个得到 `REVISION_CONFLICT`，最终 revision 为 1。 tools/task-graph/tests/store.test.ts > store serializes concurrent native mutations and preserves revision compare-and-swap bun test --test-name-pattern=\"^store serializes concurrent native mutations and preserves revision compare-and-swap$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-CONCURRENCY-001 原生短锁串行化同 revision 并发 mutation 共享索引的原生短锁必须串行化并发 mutation，revision 继续使用全局 compare-and-swap。 两个独立 service 同时以 revision 0 创建 task 时只有一个提交，另一个得到 `REVISION_CONFLICT`，最终 revision 为 1。 tools/task-graph/tests/native-store.test.ts > store serializes concurrent native mutations and preserves revision compare-and-swap node --test --test-name-pattern=\"^store serializes concurrent native mutations and preserves revision compare-and-swap$\" ./tools/task-graph/tests/native-store.test.ts",
         "sourcePath": "task-graph/store-serializes-claims-and-global-cas.md",
         "summary": "共享索引的原生短锁必须串行化并发 mutation，revision 继续使用全局 compare-and-swap。",
         "title": "原生短锁串行化同 revision 并发 mutation"
@@ -4637,7 +4637,7 @@
       "id": "TASK-GRAPH-NATIVE-EXIT-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-NATIVE-EXIT-001 持锁子进程退出后 OS 自动释放 native lock 进程崩溃释放由 OS 文件锁语义承接，不使用 owner metadata 或 stale recovery。 显式 Node holder 被终止后下一 mutation 成功，稳定锁文件内容仍为空且未删除。 tools/task-graph/tests/store.test.ts > operating system releases a child process native lock without stale metadata recovery bun test --test-name-pattern=\"^operating system releases a child process native lock without stale metadata recovery$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-NATIVE-EXIT-001 持锁子进程退出后 OS 自动释放 native lock 进程崩溃释放由 OS 文件锁语义承接，不使用 owner metadata 或 stale recovery。 显式 Node holder 被终止后下一 mutation 成功，稳定锁文件内容仍为空且未删除。 tools/task-graph/tests/native-store.test.ts > operating system releases a child process native lock without stale metadata recovery node --test --test-name-pattern=\"^operating system releases a child process native lock without stale metadata recovery$\" ./tools/task-graph/tests/native-store.test.ts"
         ],
         "topic": [
           "task-graph"
@@ -4646,12 +4646,12 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/store.test.ts > operating system releases a child process native lock without stale metadata recovery",
-          "bun test --test-name-pattern=\"^operating system releases a child process native lock without stale metadata recovery$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/native-store.test.ts > operating system releases a child process native lock without stale metadata recovery",
+          "node --test --test-name-pattern=\"^operating system releases a child process native lock without stale metadata recovery$\" ./tools/task-graph/tests/native-store.test.ts"
         ],
         "id": "TASK-GRAPH-NATIVE-EXIT-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-NATIVE-EXIT-001 持锁子进程退出后 OS 自动释放 native lock 进程崩溃释放由 OS 文件锁语义承接，不使用 owner metadata 或 stale recovery。 显式 Node holder 被终止后下一 mutation 成功，稳定锁文件内容仍为空且未删除。 tools/task-graph/tests/store.test.ts > operating system releases a child process native lock without stale metadata recovery bun test --test-name-pattern=\"^operating system releases a child process native lock without stale metadata recovery$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-NATIVE-EXIT-001 持锁子进程退出后 OS 自动释放 native lock 进程崩溃释放由 OS 文件锁语义承接，不使用 owner metadata 或 stale recovery。 显式 Node holder 被终止后下一 mutation 成功，稳定锁文件内容仍为空且未删除。 tools/task-graph/tests/native-store.test.ts > operating system releases a child process native lock without stale metadata recovery node --test --test-name-pattern=\"^operating system releases a child process native lock without stale metadata recovery$\" ./tools/task-graph/tests/native-store.test.ts",
         "sourcePath": "task-graph/child-exit-releases-native-lock.md",
         "summary": "进程崩溃释放由 OS 文件锁语义承接，不使用 owner metadata 或 stale recovery。",
         "title": "持锁子进程退出后 OS 自动释放 native lock"
@@ -4661,7 +4661,7 @@
       "id": "TASK-GRAPH-NATIVE-FD-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-NATIVE-FD-001 同进程独立描述符遵守原生排他锁 稳定普通文件上的 native tryLock 必须对独立描述符互斥，并在 unlock 后立即可再次取得。 第一个描述符取锁成功时第二个失败；释放后第二个成功。 tools/task-graph/tests/store.test.ts > native binding excludes two independent file descriptors in one process bun test --test-name-pattern=\"^native binding excludes two independent file descriptors in one process$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-NATIVE-FD-001 同进程独立描述符遵守原生排他锁 稳定普通文件上的 native tryLock 必须对独立描述符互斥，并在 unlock 后立即可再次取得。 第一个描述符取锁成功时第二个失败；释放后第二个成功。 tools/task-graph/tests/native-store.test.ts > native binding excludes two independent file descriptors in one process node --test --test-name-pattern=\"^native binding excludes two independent file descriptors in one process$\" ./tools/task-graph/tests/native-store.test.ts"
         ],
         "topic": [
           "task-graph"
@@ -4670,12 +4670,12 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/store.test.ts > native binding excludes two independent file descriptors in one process",
-          "bun test --test-name-pattern=\"^native binding excludes two independent file descriptors in one process$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/native-store.test.ts > native binding excludes two independent file descriptors in one process",
+          "node --test --test-name-pattern=\"^native binding excludes two independent file descriptors in one process$\" ./tools/task-graph/tests/native-store.test.ts"
         ],
         "id": "TASK-GRAPH-NATIVE-FD-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-NATIVE-FD-001 同进程独立描述符遵守原生排他锁 稳定普通文件上的 native tryLock 必须对独立描述符互斥，并在 unlock 后立即可再次取得。 第一个描述符取锁成功时第二个失败；释放后第二个成功。 tools/task-graph/tests/store.test.ts > native binding excludes two independent file descriptors in one process bun test --test-name-pattern=\"^native binding excludes two independent file descriptors in one process$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-NATIVE-FD-001 同进程独立描述符遵守原生排他锁 稳定普通文件上的 native tryLock 必须对独立描述符互斥，并在 unlock 后立即可再次取得。 第一个描述符取锁成功时第二个失败；释放后第二个成功。 tools/task-graph/tests/native-store.test.ts > native binding excludes two independent file descriptors in one process node --test --test-name-pattern=\"^native binding excludes two independent file descriptors in one process$\" ./tools/task-graph/tests/native-store.test.ts",
         "sourcePath": "task-graph/native-binding-excludes-independent-descriptors.md",
         "summary": "稳定普通文件上的 native tryLock 必须对独立描述符互斥，并在 unlock 后立即可再次取得。",
         "title": "同进程独立描述符遵守原生排他锁"
@@ -4685,7 +4685,7 @@
       "id": "TASK-GRAPH-NATIVE-TIMEOUT-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-NATIVE-TIMEOUT-001 活跃 native holder 超时且稳定锁文件保留 tryLock 竞争只按默认 5 秒单调期限轮询，达到期限返回 `LOCK_TIMEOUT`，不得偷锁或 unlink 稳定文件。 活跃 holder 下可控单调时钟精确推进到 5000 ms，details 含默认 waitMilliseconds，锁文件仍为普通文件。 tools/task-graph/tests/store.test.ts > active native lock holder reaches bounded timeout and leaves the stable lock file bun test --test-name-pattern=\"^active native lock holder reaches bounded timeout and leaves the stable lock file$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-NATIVE-TIMEOUT-001 活跃 native holder 超时且稳定锁文件保留 tryLock 竞争只按默认 5 秒单调期限轮询，达到期限返回 `LOCK_TIMEOUT`，不得偷锁或 unlink 稳定文件。 活跃 holder 下可控单调时钟精确推进到 5000 ms，details 含默认 waitMilliseconds，锁文件仍为普通文件。 tools/task-graph/tests/native-store.test.ts > active native lock holder reaches bounded timeout and leaves the stable lock file node --test --test-name-pattern=\"^active native lock holder reaches bounded timeout and leaves the stable lock file$\" ./tools/task-graph/tests/native-store.test.ts"
         ],
         "topic": [
           "task-graph"
@@ -4694,12 +4694,12 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/store.test.ts > active native lock holder reaches bounded timeout and leaves the stable lock file",
-          "bun test --test-name-pattern=\"^active native lock holder reaches bounded timeout and leaves the stable lock file$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/native-store.test.ts > active native lock holder reaches bounded timeout and leaves the stable lock file",
+          "node --test --test-name-pattern=\"^active native lock holder reaches bounded timeout and leaves the stable lock file$\" ./tools/task-graph/tests/native-store.test.ts"
         ],
         "id": "TASK-GRAPH-NATIVE-TIMEOUT-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-NATIVE-TIMEOUT-001 活跃 native holder 超时且稳定锁文件保留 tryLock 竞争只按默认 5 秒单调期限轮询，达到期限返回 `LOCK_TIMEOUT`，不得偷锁或 unlink 稳定文件。 活跃 holder 下可控单调时钟精确推进到 5000 ms，details 含默认 waitMilliseconds，锁文件仍为普通文件。 tools/task-graph/tests/store.test.ts > active native lock holder reaches bounded timeout and leaves the stable lock file bun test --test-name-pattern=\"^active native lock holder reaches bounded timeout and leaves the stable lock file$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-NATIVE-TIMEOUT-001 活跃 native holder 超时且稳定锁文件保留 tryLock 竞争只按默认 5 秒单调期限轮询，达到期限返回 `LOCK_TIMEOUT`，不得偷锁或 unlink 稳定文件。 活跃 holder 下可控单调时钟精确推进到 5000 ms，details 含默认 waitMilliseconds，锁文件仍为普通文件。 tools/task-graph/tests/native-store.test.ts > active native lock holder reaches bounded timeout and leaves the stable lock file node --test --test-name-pattern=\"^active native lock holder reaches bounded timeout and leaves the stable lock file$\" ./tools/task-graph/tests/native-store.test.ts",
         "sourcePath": "task-graph/active-native-lock-times-out-and-persists.md",
         "summary": "tryLock 竞争只按默认 5 秒单调期限轮询，达到期限返回 `LOCK_TIMEOUT`，不得偷锁或 unlink 稳定文件。",
         "title": "活跃 native holder 超时且稳定锁文件保留"
@@ -6298,5 +6298,5 @@
   },
   "namespace": "test-evidence",
   "schemaVersion": 2,
-  "sourceRevision": "sha256:d391230946e27ad4f5995a7db2032bbbc0e7c47ecb6c4b84af1a5319fcc00712"
+  "sourceRevision": "sha256:d1b743eb06c55c04ddb1ce23b3a9e81d4d8f32f789d5a9c7575bb01cd0627282"
 }

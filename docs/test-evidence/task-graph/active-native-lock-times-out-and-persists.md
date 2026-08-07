@@ -1,8 +1,8 @@
 ### Case TASK-GRAPH-NATIVE-TIMEOUT-001: 活跃 native holder 超时且稳定锁文件保留
 
 Entry:
-- `tools/task-graph/tests/store.test.ts > active native lock holder reaches bounded timeout and leaves the stable lock file`
-- `bun test --test-name-pattern="^active native lock holder reaches bounded timeout and leaves the stable lock file$" ./tools/task-graph/tests/run.ts`
+- `tools/task-graph/tests/native-store.test.ts > active native lock holder reaches bounded timeout and leaves the stable lock file`
+- `node --test --test-name-pattern="^active native lock holder reaches bounded timeout and leaves the stable lock file$" ./tools/task-graph/tests/native-store.test.ts`
 
 Contract:
 - tryLock 竞争只按默认 5 秒单调期限轮询，达到期限返回 `LOCK_TIMEOUT`，不得偷锁或 unlink 稳定文件。

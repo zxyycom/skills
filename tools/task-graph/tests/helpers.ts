@@ -121,6 +121,11 @@ export const loadUncontendedNativeLock = async (): Promise<NativeLockBinding> =>
   uncontendedNativeLock;
 
 export async function loadRootNativeLock(): Promise<NativeLockBinding> {
+  if ("Bun" in globalThis) {
+    throw new Error(
+      "Real fs-native-extensions tests must run under Node.js; Bun must not load the native binding."
+    );
+  }
   const runtimeRequire = createRequire(import.meta.url);
   const input = runtimeRequire("fs-native-extensions") as unknown;
   assert.ok(typeof input === "object" && input !== null);
