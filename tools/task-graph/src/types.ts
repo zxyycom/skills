@@ -1,7 +1,10 @@
 export const taskGraphSchemaVersion = 1 as const;
-export const taskGraphVersion = "1.0.0" as const;
+export const taskGraphVersion = "1.1.0" as const;
 export const defaultTaskGraphIndexPath =
   "docs/task-graph/task-graph-index.json" as const;
+export const taskGraphRuntimeProtocolVersion = 1 as const;
+export const taskGraphSupportedNodeRange =
+  "^22.22.2 || ^24.15.0 || >=26.0.0" as const;
 
 export const taskControlModes = [
   "inherit",
@@ -216,9 +219,11 @@ export type TaskGraphErrorCode =
   | "INDEX_INVALID"
   | "SCHEMA_UNSUPPORTED"
   | "PATH_SYMLINK"
+  | "RUNTIME_MISSING"
+  | "RUNTIME_UNSUPPORTED"
+  | "RUNTIME_INSTALL_FAILED"
+  | "RUNTIME_INCOMPATIBLE"
   | "LOCK_TIMEOUT"
-  | "LOCK_RECOVERY_REQUIRED"
-  | "LOCK_LOST"
   | "REVISION_CONFLICT"
   | "SCOPE_NOT_FOUND"
   | "SCOPE_KEY_CONFLICT"
@@ -263,6 +268,28 @@ export type TaskGraphResult<TData = unknown> =
   | TaskGraphFailure;
 
 export type Clock = () => Date;
+
+export type TaskGraphRuntimeState = "missing" | "installed" | "invalid";
+
+export type TaskGraphRuntimeInfo = {
+  runtimeId: string;
+  protocolVersion: typeof taskGraphRuntimeProtocolVersion;
+  toolHome: string;
+  runtimePath: string;
+  toolHomeSource: "default" | "environment";
+  state: TaskGraphRuntimeState;
+  nodeVersion: string;
+  platform: string;
+  arch: string;
+};
+
+export type TaskGraphRuntimeInstallResult = TaskGraphRuntimeInfo & {
+  action: "installed" | "reused";
+};
+
+export type TaskGraphRuntimeCheckResult = TaskGraphRuntimeInfo & {
+  compatible: true;
+};
 
 export type TaskContentInput = {
   title: string;

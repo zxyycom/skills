@@ -1,11 +1,11 @@
-### Case TASK-GRAPH-SYMLINK-001: 权威路径与 recovery generation 都拒绝符号链接
+### Case TASK-GRAPH-SYMLINK-001: 索引路径拒绝穿过已存在符号链接
 
 Entry:
-- `tools/task-graph/tests/store.test.ts > index, lock, and temporary paths reject symbolic-link boundaries`
-- `bun test --test-name-pattern="^index, lock, and temporary paths reject symbolic-link boundaries$" ./tools/task-graph/tests/run.ts`
+- `tools/task-graph/tests/store.test.ts > store rejects an index path crossing an existing symbolic link`
+- `bun test --test-name-pattern="^store rejects an index path crossing an existing symbolic link$" ./tools/task-graph/tests/run.ts`
 
 Contract:
-- index、lock 与同目录临时文件路径不得跨越符号链接，claimed owner 与 reclaimer generation 也必须是普通非符号文件。
+- 权威索引及其旁路锁路径不得穿过已存在的符号链接边界。
 
 Proves:
-- index、lock 与临时路径边界在写入前以 `PATH_SYMLINK` 拒绝；claimed owner 或 reclaimer symlink 在恢复读取时以稳定 `LOCK_RECOVERY_REQUIRED` 拒绝且链接保持不变。
+- init 在创建索引、局部 ignore 或稳定锁文件前以 `PATH_SYMLINK` 拒绝链接目录。

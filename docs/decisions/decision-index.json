@@ -86,7 +86,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:5c93ca1d21668d089eed8affe59e8b51b135133dc30e0643df713a05a9d2d46d",
+  "sourceRevision": "sha256:152c32ec36f1062704ee6981b1945f8ad8c0de306476bf5a5d07e87514a18d04",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -3947,14 +3947,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "task-graph/install-native-runtime-in-user-tool-home.md",
         "title": "在用户工具目录安装 task-graph 原生运行时",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-06T16:23:22Z",
         "purpose": "让 task-graph 使用原生文件锁而不把平台二进制写入 Git 或 skill 分发包。",
         "background": "Native addon 包体不大，但 `.node` 不可审阅、会累积 Git 历史，并扩大每个 skill 制品的平台内容。",
@@ -4102,14 +4102,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "task-graph/use-native-locks-for-json-transactions.md",
         "title": "使用原生文件锁简化 JSON 事务",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-06T16:23:21Z",
         "purpose": "让 task-graph 保留可追踪 JSON，同时把跨进程互斥和原子替换交给成熟系统与库边界。",
         "background": "自研锁恢复需要 owner、heartbeat、进程探测和 generation 防护，维护面远超短事务本身。",

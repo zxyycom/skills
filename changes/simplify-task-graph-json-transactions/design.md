@@ -61,7 +61,7 @@
 | Runtime 安装临时目录 | `<tool-home>/runtimes/.install-<runtime-id>-<uuid>/` |
 | 稳定锁文件 | `<index-path>.lock` 普通文件，长期保留且内容为空 |
 | 锁等待 | 最长 `5_000ms`，默认每 `50ms` 调用一次 `tryLock()`，用单调时钟计时 |
-| npm 安装超时 | `300_000ms`；超时终止子进程并返回 `RUNTIME_INSTALL_FAILED` |
+| npm 安装超时 | `300_000ms`；超时后立即停止采集输出，以真实 `close` 作为管道关闭证据，并在独立 `2_500ms` 总期限内终止进程树或销毁本地管道后返回结构化 `RUNTIME_INSTALL_FAILED`；Windows `taskkill` 本身也必须有界 |
 | npm 诊断 | stdout/stderr 分别只保留经凭据清理后的最后 `8KiB`，不转发到 CLI 输出流 |
 | 局部 ignore 文件 | `<index-directory>/.gitignore` |
 | 局部 ignore 规则 | `/task-graph-index.json.*` |
@@ -101,8 +101,8 @@
 1. 在任何写入前校验 Node engine，读取并解析分发的 `package.json` 与 `package-lock.json`，校验根依赖精确为 `fs-native-extensions@1.5.0`，计算 runtime ID 和最终目录。
 2. 最终目录存在时，校验 `runtime.json`、从该目录解析 addon 并运行探针。全部通过即返回 `action: "reused"`；任一步失败返回 `RUNTIME_INCOMPATIBLE`，不删除、不覆盖，也不退回全局包或根 `node_modules`。
 3. 最终目录缺失时，在 `runtimes/` 下创建唯一临时目录，把分发的两个 JSON 文件写入其中。非 Windows 平台以 `shell: false`、`windowsHide: true` 直接 spawn `npm`；Windows 的 `.cmd` 不能直接执行，因此以 `shell: false` spawn `process.env.ComSpec ?? "cmd.exe"`，固定参数前缀为 `/d /s /c npm.cmd`。两条路径都只传固定参数数组，不把 tool home、工作区路径或其他用户输入拼进命令字符串。
-4. npm 参数固定为 `ci --ignore-scripts --omit=dev --no-audit --no-fund`，cwd 为临时目录。捕获输出并执行 300 秒超时；诊断清理至少移除 ANSI/control 字符、URL userinfo，以及 `_authToken`、`token`、`password` 键的值，再分别保留最后 8 KiB。任何失败都映射为单一 JSON 错误并尽力删除本次临时目录。
-5. npm 成功后，只能通过临时目录的 `package.json` 创建 `createRequire()`；校验 `tryLock` 与 `unlock` 是函数，在 OS 临时目录创建普通探针文件，执行 `tryLock(fd) === true`、`unlock(fd)` 和关闭句柄，再删除探针目录。
+4. npm 参数固定为 `ci --ignore-scripts --omit=dev --no-audit --no-fund`，cwd 为临时目录。捕获输出并执行 300 秒超时；超时后立即停止采集，进程终止、Windows `taskkill`、真实 `close` 等待和必要的管道销毁共同受独立总期限约束，且不得把 timeout 后到达的后代输出加入结果。诊断清理至少移除 ANSI/control 字符、URL userinfo，以及 `_authToken`、`token`、`password` 键的值，再分别保留最后 8 KiB。任何失败都映射为单一 JSON 错误并尽力删除本次临时目录。
+5. npm 成功后，只能通过临时目录的 `package.json` 创建 `createRequire()`；在独立 Node 子进程中校验 `tryLock` 与 `unlock` 是函数，在 OS 临时目录创建普通探针文件，执行 `tryLock(fd) === true`、`unlock(fd)` 和关闭句柄，再删除探针目录。探针非零退出、信号退出或超时时，`RUNTIME_INSTALL_FAILED` 保留与 npm 失败相同的 `exitCode`、`signal`、`timedOut` 和已清理输出尾部。
 6. 探针成功后写入规范 `runtime.json`：`schemaVersion`、`runtimeId`、`packageLockSha256`、`packages.fs-native-extensions`、`installedAt`、`nodeVersion`、`platform`、`arch`。marker 写完后把整个临时目录 rename 到最终目录。
 7. 并发安装各自使用独立临时目录。发布 rename 因最终目录已出现而失败时，校验并探针最终目录；有效则清理自己的临时目录并返回 `reused`，无效则返回 `RUNTIME_INCOMPATIBLE`。不为 bootstrap 再实现文件锁。
 8. 进程崩溃遗留的 `.install-*` 不被当作已安装 runtime。第一版没有自动修复或 GC；用户只有在明确判断后才手工删除工具报告的精确目录。

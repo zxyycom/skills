@@ -130,7 +130,7 @@
           "task-graph"
         ],
         "latest-report-at": [
-          1786024415000
+          1786038330000
         ],
         "status": [
           "已结束"
@@ -138,16 +138,18 @@
         "text": [
           "Task Graph 文件锁与原子写入 npm 库调查",
           "task-graph 是否应采用成熟 npm 库承接同主机跨进程文件锁、陈旧锁恢复和原子索引替换？",
-          "现有候选无法缩减 task-graph 的关键事务协议"
+          "现有候选无法缩减 task-graph 的关键事务协议",
+          "约束收窄后采用原生锁与原子写库"
         ]
       },
       "state": {
-        "latestReportAt": "2026-08-06T21:53:35+08:00",
+        "latestReportAt": "2026-08-07T01:45:30+08:00",
         "path": "task-graph/file-lock-and-atomic-write-libraries.md",
         "question": "task-graph 是否应采用成熟 npm 库承接同主机跨进程文件锁、陈旧锁恢复和原子索引替换？",
-        "reportCount": 1,
+        "reportCount": 2,
         "reportTitles": [
-          "现有候选无法缩减 task-graph 的关键事务协议"
+          "现有候选无法缩减 task-graph 的关键事务协议",
+          "约束收窄后采用原生锁与原子写库"
         ],
         "status": "已结束",
         "title": "Task Graph 文件锁与原子写入 npm 库调查"
@@ -175,5 +177,5 @@
   "metadata": {},
   "namespace": "investigations",
   "schemaVersion": 2,
-  "sourceRevision": "sha256:ae288409479edd46610215a4fdf99f1efe9a261d4b8099764178b3fb333b0f7f"
+  "sourceRevision": "sha256:c420bc71a540c16636975ac5e4f807ac1daee20d1ac32ee88d9874744ac25eb8"
 }

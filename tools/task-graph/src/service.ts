@@ -40,12 +40,14 @@ import type {
 const compareText = (left: string, right: string): number =>
   left < right ? -1 : left > right ? 1 : 0;
 
-export type TaskGraphServiceOptions = Pick<
-  TaskGraphStoreOptions,
-  "clock" | "indexPath" | "root"
->;
+export type TaskGraphServiceOptions = {
+  clock?: Clock;
+  indexPath?: string;
+  root?: string;
+};
 
-export type TaskGraphServiceInternalOptions = TaskGraphStoreOptions & {
+export type TaskGraphServiceInternalOptions = TaskGraphServiceOptions
+& Omit<TaskGraphStoreOptions, "indexPath" | "root"> & {
   leaseIdGenerator?: () => string;
 };
 
@@ -84,7 +86,16 @@ export class TaskGraphService {
   constructor(options: TaskGraphServiceInternalOptions = {}) {
     this.clock = options.clock ?? (() => new Date());
     this.leaseIdGenerator = options.leaseIdGenerator ?? randomUUID;
-    this.store = new TaskGraphStore({ ...options, clock: this.clock });
+    this.store = new TaskGraphStore({
+      atomicWrite: options.atomicWrite,
+      indexPath: options.indexPath,
+      loadNativeLock: options.loadNativeLock,
+      lockPollMilliseconds: options.lockPollMilliseconds,
+      lockWaitMilliseconds: options.lockWaitMilliseconds,
+      monotonicClock: options.monotonicClock,
+      root: options.root,
+      sleep: options.sleep
+    });
   }
 
   async init(): Promise<ServiceResult<TaskIndexInfo>> {
@@ -464,4 +475,10 @@ export function createTaskGraphService(
   options: TaskGraphServiceOptions = {}
 ): TaskGraphService {
   return new TaskGraphService(options);
+}
+
+export async function assertTaskGraphMutationRuntime(
+  service: TaskGraphService
+): Promise<void> {
+  await service.store.assertMutationRuntime();
 }

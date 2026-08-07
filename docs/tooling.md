@@ -152,7 +152,7 @@ package script 和完整检查仍只是聚合容器。topic 表与 case 由测�
 4. `tools/shared/` 只承接多个工具已经真实共享的运行时不变量；[版本管理中间层](../tools/shared/version-control.md) 是当前共享组件之一。
 5. `tools/skill-package/` 承接 skill 版本以及发布端与 updater 共用的 release manifest 协议；仓库专用的临时 package hash 留在 `scripts/lib/`。[Index Runtime](../tools/index-runtime/README.md) 承接已经建立的跨领域派生索引协议。
 6. 领域工具可以依赖自身源码、`tools/shared/`、`tools/skill-package/`、明确建立的跨领域协议、目标运行时和显式外部依赖；不能依赖 `scripts/`、`skills/`、`dist/` 或另一个领域工具。
-7. 根目录 `tsconfig.json` 统一提供 IDE 与类型检查配置；实现运行仍由 Bun 负责。
+7. 根目录 `tsconfig.json` 统一提供 IDE 与类型检查配置；仓库源码运行、构建和测试由 Bun 负责。Task-graph 分发 CLI 是明确例外，受支持执行器为其 skill frontmatter 与 help 公布的固定 Node.js engine。
 8. 外部 JSON 在边界做运行时收窄。同一结构被多个入口消费或需要稳定字段诊断时，以 Valibot Schema 为结构真源；跨语言契约从同一 Schema 生成 JSON Schema 和分发声明。
 9. 校验器检查长期源文件、链接和项目约束，不解析或正则匹配 GitHub Actions workflow 内部结构；workflow 行为由代码审查和实际运行验证。
 
@@ -165,7 +165,7 @@ package script 和完整检查仍只是聚合容器。topic 表与 case 由测�
 1. TypeScript 源码和声明源位于 `tools/`，读取仓库配置并写入 skill 的适配器位于 `scripts/build/`。
 2. `sync:*` 生成自包含单文件 ESM `.mjs`、同名 `.d.mts` 和 linked source map；需要机器契约时同时生成 JSON Schema 和 Schema 派生声明。
 3. 生成模块可被导入而不执行 CLI、修改退出状态或产生文件和网络副作用；只有作为主模块运行时进入 CLI。
-4. 分发产物只能依赖目标运行时和包内内容。共享源码由构建器内联，不形成跨 skill 运行时前置。
+4. 分发产物只能依赖目标运行时和包内内容。共享源码由构建器内联，不形成跨 skill 运行时前置。Task-graph 由包内自包含 ESM 加同一 skill 显式安装、验证的 native runtime 扩展共同交付；该例外不改变通用 updater 或其他工具的分发边界。
 5. 可嵌入注释的生成产物必须写明禁止直接编辑、仓库与维护源码、skill 源目录和重建命令；生成头不写时间戳或本机绝对路径。
 6. `check:*` 在临时目录重建并逐字节比较产物。`pack:skills` 不临时构建，只收集已经进入版本管理 `pending` 快照的 `skills/<skill-name>/` 稳定分发输入。
 
@@ -176,7 +176,7 @@ package script 和完整检查仍只是聚合容器。topic 表与 case 由测�
 | `tools/change-plan/` | `skills/change-plan/scripts/change-plan.*` |
 | `tools/decision-records/` | `skills/decision-records/scripts/decision-records.*` 和索引 Schema |
 | `tools/investigation-report/` | `skills/investigation-report/scripts/check-investigations.*` 和索引 Schema |
-| `tools/task-graph/` | `skills/task-graph/scripts/task-graph.*` 和 task index Schema |
+| `tools/task-graph/` | `skills/task-graph/scripts/task-graph.*`、task index Schema 和 native runtime 精确文本资产 |
 | `tools/skill-validator/` | `skills/skill-maintainer/scripts/validate-skill.*` |
 | `tools/test-evidence/` | `skills/test-evidence-review/scripts/` 与 `references/schemas/` 中的生成产物 |
 | `tools/skill-updater/` | 每个 skill 的 `scripts/update-skill.*`；具体契约见 [Skill Updater](../tools/skill-updater/README.md) |

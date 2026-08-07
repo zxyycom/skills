@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
+import { execFile } from "node:child_process";
+import { createRequire } from "node:module";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { promisify } from "node:util";
+import { fileURLToPath } from "node:url";
 import {
   TaskGraphError,
   applyTaskGraphOperations,
@@ -10,8 +14,134 @@ import {
   type TaskGraphRevisionOperation,
   type TaskIndex
 } from "../src/index.ts";
+import type { NativeLockBinding, NpmCommandResult } from "../src/runtime.ts";
+import { getTaskGraphRuntimeInfo } from "../src/runtime.ts";
 
 export const initialNow = new Date("2026-08-06T08:00:00.000Z");
+const execFileAsync = promisify(execFile);
+let nodeExecutablePromise: Promise<string> | null = null;
+let nodeVersionPromise: Promise<string> | null = null;
+const repositoryRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "..",
+  ".."
+);
+
+export async function resolveNodeExecutable(): Promise<string> {
+  nodeExecutablePromise ??= execFileAsync("node", ["-p", "process.execPath"], {
+    windowsHide: true
+  }).then(({ stdout }) => stdout.trim());
+  return await nodeExecutablePromise;
+}
+
+export async function resolveNodeVersion(): Promise<string> {
+  nodeVersionPromise ??= resolveNodeExecutable().then(async (node) => {
+    const { stdout } = await execFileAsync(node, ["-p", "process.version"], {
+      windowsHide: true
+    });
+    return stdout.trim();
+  });
+  return await nodeVersionPromise;
+}
+
+export async function copyRootNativePackages(cwd: string): Promise<NpmCommandResult> {
+  const lock = JSON.parse(
+    await fs.readFile(path.join(cwd, "package-lock.json"), "utf8")
+  ) as { packages: Record<string, { optional?: boolean; version?: string }> };
+  for (const [lockPath, entry] of Object.entries(lock.packages)) {
+    if (lockPath === "" || entry.optional === true || entry.version === undefined) continue;
+    const packageName = lockPath.slice(lockPath.lastIndexOf("node_modules/") + 13);
+    const pnpmDirectoryName = `${packageName.replace("/", "+")}@${entry.version}`;
+    const source = path.join(
+      repositoryRoot,
+      "node_modules",
+      ".pnpm",
+      pnpmDirectoryName,
+      "node_modules",
+      packageName
+    );
+    const target = path.join(cwd, ...lockPath.split("/"));
+    await fs.mkdir(path.dirname(target), { recursive: true });
+    await copyDirectory(source, target);
+  }
+  return {
+    exitCode: 0,
+    signal: null,
+    stderr: "",
+    stdout: "",
+    timedOut: false
+  };
+}
+
+async function copyDirectory(source: string, target: string): Promise<void> {
+  await fs.mkdir(target, { recursive: true });
+  for (const entry of await fs.readdir(source, { withFileTypes: true })) {
+    const sourceEntry = path.join(source, entry.name);
+    const targetEntry = path.join(target, entry.name);
+    if (entry.isDirectory()) {
+      await copyDirectory(sourceEntry, targetEntry);
+    } else if (entry.isSymbolicLink()) {
+      const resolved = await fs.realpath(sourceEntry);
+      const stat = await fs.stat(resolved);
+      if (stat.isDirectory()) await copyDirectory(resolved, targetEntry);
+      else await fs.copyFile(resolved, targetEntry);
+    } else {
+      await fs.copyFile(sourceEntry, targetEntry);
+    }
+  }
+}
+
+export async function prepareRootNativeRuntime(toolHome: string): Promise<void> {
+  const nodeVersion = await resolveNodeVersion();
+  const options = {
+    environment: { TASK_GRAPH_TOOL_HOME: toolHome },
+    nodeVersion
+  };
+  const info = await getTaskGraphRuntimeInfo(options);
+  await fs.mkdir(info.runtimePath, { recursive: true });
+  await Promise.all([
+    fs.copyFile(
+      path.join(repositoryRoot, "tools", "task-graph", "references", "runtime", "package.json"),
+      path.join(info.runtimePath, "package.json")
+    ),
+    fs.copyFile(
+      path.join(repositoryRoot, "tools", "task-graph", "references", "runtime", "package-lock.json"),
+      path.join(info.runtimePath, "package-lock.json")
+    )
+  ]);
+  await copyRootNativePackages(info.runtimePath);
+  await fs.writeFile(path.join(info.runtimePath, "runtime.json"), `${JSON.stringify({
+    schemaVersion: 1,
+    runtimeId: info.runtimeId,
+    packageLockSha256: info.runtimeId.slice(3),
+    packages: { "fs-native-extensions": "1.5.0" },
+    installedAt: "2026-08-06T08:00:00.000Z",
+    nodeVersion,
+    platform: process.platform,
+    arch: process.arch
+  }, null, 2)}\n`, "utf8");
+}
+
+export const uncontendedNativeLock: NativeLockBinding = {
+  tryLock: () => true,
+  unlock: () => undefined
+};
+
+export const loadUncontendedNativeLock = async (): Promise<NativeLockBinding> =>
+  uncontendedNativeLock;
+
+export async function loadRootNativeLock(): Promise<NativeLockBinding> {
+  const runtimeRequire = createRequire(import.meta.url);
+  const input = runtimeRequire("fs-native-extensions") as unknown;
+  assert.ok(typeof input === "object" && input !== null);
+  const value = input as Record<string, unknown>;
+  assert.equal(typeof value.tryLock, "function");
+  assert.equal(typeof value.unlock, "function");
+  const tryLock = value.tryLock as (fd: number) => boolean;
+  const unlock = value.unlock as (fd: number) => void;
+  return { tryLock, unlock };
+}
 
 export function taskContent(title: string): TaskContentInput {
   return {

@@ -4,8 +4,9 @@ description: >-
   维护当前工作中短期、可恢复的非线性任务图。用于同时存在多个候选任务、
   动态追加、真实父子分解、依赖、并发排斥或跨上下文恢复时，通过权威 JSON
   索引查询、选择、领取并收敛任务；少量固定顺序步骤继续使用当前对话计划。
+compatibility: "Requires Node.js ^22.22.2 || ^24.15.0 || >=26.0.0; mutations require an explicitly installed native runtime."
 metadata:
-  version: "1"
+  version: "2"
 ---
 
 # Task Graph
@@ -31,12 +32,19 @@ metadata:
 ## 内容 owner 与工具
 
 1. 本文件承接触发、任务记录判断、调度流程、权限边界、恢复和交接。
-2. `scripts/task-graph.mjs` 是 JSON-only 管理入口；它负责索引校验、查询、关系、状态事务、租约和 scope 清理。模块可以安全导入，只有作为主模块运行时进入 CLI。
+2. `scripts/task-graph.mjs` 是 JSON-only 管理入口；它负责 runtime 查询与显式安装、索引校验、关系、状态事务、租约和 scope 清理。模块可以安全导入，只有作为主模块运行时进入 CLI。
 3. `scripts/task-graph.d.mts` 提供公开 TypeScript 声明；[task index Schema](references/task-graph-index.schema.json) 提供权威索引的机器结构。精确命令、参数、结果和错误以 CLI 的 JSON help、公开声明及 Schema 为准。
-4. 目标仓库的 `docs/task-graph/task-graph-index.json` 是当前短期任务状态的唯一权威索引，只能通过工具修改；lock、临时文件和隔离残留不是事实源。
+4. 目标仓库的 `docs/task-graph/task-graph-index.json` 是当前短期任务状态的唯一权威索引，只能通过工具修改；长期存在的空 `.lock` 文件和原子写临时文件不是事实源。
 5. 稳定需求、长篇背景、设计理由、测试证据和最终结果继续由项目已有 owner 承接。Task entry 只保存执行所需摘要和引用。
 
 ## 工作流程
+
+### 0. 准备 mutation runtime
+
+1. 使用满足 `^22.22.2 || ^24.15.0 || >=26.0.0` 的 Node.js 运行 CLI；Bun 只用于本 skill 源仓库的构建和测试，不是分发 CLI 的受支持执行器。
+2. 首次 mutation 前先调用 `runtime info`，读取确定性的 runtime ID、目录和 `missing|installed|invalid` 状态。默认 tool home 是 `~/.tools/task-graph`；非空 `TASK_GRAPH_TOOL_HOME` 完整覆盖该目录。
+3. Runtime 缺失时，取得用户对 npm 联网和 tool home 写入的明确授权后显式调用 `runtime install`。该命令以 skill 内精确 lockfile 执行一次有界安装；普通查询、mutation、模块导入和 updater 都不会静默安装或联网。
+4. 安装后调用 `runtime check`，只有目标 runtime 中的精确依赖闭包能够加载并通过真实 lock/unlock 探针时才开始 mutation。无效或不兼容的既有 runtime 不会被自动覆盖、修复或删除。
 
 ### 1. 恢复索引与 scope
 
@@ -82,7 +90,7 @@ metadata:
 
 1. `queued`、`claim`、lease actor 和 task result 都只是协调事实，不授予文件写入、外部系统调用、不可逆操作、子代理创建、提交或发布权限。
 2. 工具只维护 task index，不自动 stage、commit 或决定索引是否进入某次提交。
-3. 短事务锁只保护一次索引 mutation；实际任务执行期间不持有文件锁。不要手工删除存活状态不明、元数据损坏或 owner 仍存活的锁。
+3. 短事务锁只保护一次索引 mutation；实际任务执行期间不持有文件锁。锁位于长期存在的普通旁路文件，由操作系统 advisory lock 保护；句柄关闭或进程退出即释放，不需要 owner、heartbeat、stale 判定或手工删除恢复。
 4. Exclusion 只禁止同时运行，不建立先后顺序。多个执行者竞争时，以第一个成功 claim 后的权威索引为准。
 
 ## 错误恢复
@@ -90,7 +98,8 @@ metadata:
 1. 正常结果和可预期失败都从 stdout 返回一个 LF 结尾 JSON envelope；读取 `ok`、`error.code`、`retryable`、revision 和结构化 details，不从 message 文本推断协议。
 2. Revision 冲突或领取竞争后重新查询；只有错误明确可重试且当前事实仍支持原意时才重试。
 3. 收到 `WRITE_OUTCOME_UNKNOWN` 时，mutation 可能已经越过原子提交点。先调用 index 信息和检查并读取目标实体，确认 revision 与结果后再决定下一步，绝不盲目重放。
-4. 索引 schema、符号链接、锁恢复或完整图校验失败时停止写入，保留诊断并交给对应维护者处理；不得绕过工具直接修 JSON。
+4. Node/runtime 不支持、native 锁获取、索引 schema、符号链接或完整图校验失败时停止写入，保留诊断并交给对应维护者处理；不得绕过工具直接修 JSON。
+5. 崩溃安装可能留下工具报告的 `.install-*` 临时目录。第一版不自动 GC；只有操作者确认精确路径不属于活动安装后才可显式清理，不按名称范围批量删除。
 
 ## 完成标准
 
@@ -98,4 +107,4 @@ metadata:
 2. 每项实际执行都在成功 claim 后进行，并以匹配 lease 完成、失败、释放、取消或恢复；父任务按完成门禁收敛。
 3. Revision 或未知写入结果没有被盲目重试，活动与待恢复执行没有被静默覆盖。
 4. 权限判断、代理编排、持久 change 和长期事实仍由各自 owner 承接，没有被 task graph 状态替代。
-5. 需要保留的结果已经交付；满足门禁并获得明确确认时，scope 已关闭或保留理由已经说明。
+5. Mutation 使用的 runtime 已通过当前平台真实探针；需要保留的结果已经交付，满足门禁并获得明确确认时，scope 已关闭或保留理由已经说明。

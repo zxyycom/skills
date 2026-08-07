@@ -20,6 +20,7 @@ import {
   expectTaskGraphRejection,
   graphIndex,
   initialNow,
+  loadUncontendedNativeLock,
   taskContent,
   taskOperation,
   uuidSequence,
@@ -137,7 +138,8 @@ test("scope close projection reports terminal, failed, active, and recovery bloc
     const service = new TaskGraphService({
       root,
       clock: () => initialNow,
-      idGenerator: uuidSequence(4001)
+      leaseIdGenerator: uuidSequence(4001),
+      loadNativeLock: loadUncontendedNativeLock
     });
     await service.init();
     const scope = await service.createScope({
@@ -285,10 +287,16 @@ test("task index mutations leave Git staging and commits caller-owned while runt
     const service = new TaskGraphService({
       root,
       clock: () => initialNow,
-      idGenerator: uuidSequence(1)
+      leaseIdGenerator: uuidSequence(1),
+      loadNativeLock: loadUncontendedNativeLock
     });
     await service.init();
-    await execFileAsync("git", ["add", ".gitignore", "docs/task-graph/task-graph-index.json"], {
+    await execFileAsync("git", [
+      "add",
+      ".gitignore",
+      "docs/task-graph/.gitignore",
+      "docs/task-graph/task-graph-index.json"
+    ], {
       cwd: root,
       windowsHide: true
     });
@@ -303,19 +311,7 @@ test("task index mutations leave Git staging and commits caller-owned while runt
     })).stdout.trim();
     await service.createScope({ expectedRevision: 0, key: "git-boundary" });
 
-    await fs.mkdir(`${service.store.indexPath}.lock`, { recursive: true });
-    await fs.writeFile(
-      path.join(`${service.store.indexPath}.lock`, "owner.json"),
-      "ignored lock\n",
-      "utf8"
-    );
     await fs.writeFile(`${service.store.indexPath}.tmp-test`, "temporary\n", "utf8");
-    await fs.mkdir(`${service.store.indexPath}.lock.quarantine-test`, { recursive: true });
-    await fs.writeFile(
-      path.join(`${service.store.indexPath}.lock.quarantine-test`, "owner.json"),
-      "ignored quarantine\n",
-      "utf8"
-    );
     const status = (await execFileAsync(
       "git",
       ["status", "--porcelain=v1", "--ignored"],
@@ -323,12 +319,8 @@ test("task index mutations leave Git staging and commits caller-owned while runt
     )).stdout.replaceAll("\\", "/");
     assert.match(status, /^ M docs\/task-graph\/task-graph-index\.json$/mu);
     assert.doesNotMatch(status, /^M  docs\/task-graph\/task-graph-index\.json$/mu);
-    assert.match(status, /^!! docs\/task-graph\/task-graph-index\.json\.lock\/$/mu);
+    assert.match(status, /^!! docs\/task-graph\/task-graph-index\.json\.lock$/mu);
     assert.match(status, /^!! docs\/task-graph\/task-graph-index\.json\.tmp-test$/mu);
-    assert.match(
-      status,
-      /^!! docs\/task-graph\/task-graph-index\.json\.lock\.quarantine-test\/$/mu
-    );
     const afterHead = (await execFileAsync("git", ["rev-parse", "HEAD"], {
       cwd: root,
       encoding: "utf8",

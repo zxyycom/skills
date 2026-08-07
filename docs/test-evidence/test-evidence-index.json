@@ -3962,6 +3962,102 @@
       }
     },
     {
+      "id": "TASK-GRAPH-ATOMIC-CANDIDATE-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-ATOMIC-CANDIDATE-001 单次 atomic 已写完整候选再抛错时按成功处理 atomic 抛错后的回读若逐字等于 candidateText，事务已明确提交且不得重放。 writer 只调用一次，候选完整落盘后响应丢失仍返回 revision 1 成功。 tools/task-graph/tests/store.test.ts > single atomic write that installs the complete candidate before throwing succeeds bun test --test-name-pattern=\"^single atomic write that installs the complete candidate before throwing succeeds$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/store.test.ts > single atomic write that installs the complete candidate before throwing succeeds",
+          "bun test --test-name-pattern=\"^single atomic write that installs the complete candidate before throwing succeeds$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-ATOMIC-CANDIDATE-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-ATOMIC-CANDIDATE-001 单次 atomic 已写完整候选再抛错时按成功处理 atomic 抛错后的回读若逐字等于 candidateText，事务已明确提交且不得重放。 writer 只调用一次，候选完整落盘后响应丢失仍返回 revision 1 成功。 tools/task-graph/tests/store.test.ts > single atomic write that installs the complete candidate before throwing succeeds bun test --test-name-pattern=\"^single atomic write that installs the complete candidate before throwing succeeds$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/atomic-candidate-text-is-success.md",
+        "summary": "atomic 抛错后的回读若逐字等于 candidateText，事务已明确提交且不得重放。",
+        "title": "单次 atomic 已写完整候选再抛错时按成功处理"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-ATOMIC-DIFFERENT-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-ATOMIC-DIFFERENT-001 单次 atomic 留下不同原文时结果未知 atomic 抛错后既非完整旧原文也非完整候选的状态不得猜测或自动重试。 writer 一次写入损坏文本后返回 `WRITE_OUTCOME_UNKNOWN`，observedRevision 为 unreadable。 tools/task-graph/tests/store.test.ts > single atomic write leaving different text returns WRITE_OUTCOME_UNKNOWN bun test --test-name-pattern=\"^single atomic write leaving different text returns WRITE_OUTCOME_UNKNOWN$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/store.test.ts > single atomic write leaving different text returns WRITE_OUTCOME_UNKNOWN",
+          "bun test --test-name-pattern=\"^single atomic write leaving different text returns WRITE_OUTCOME_UNKNOWN$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-ATOMIC-DIFFERENT-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-ATOMIC-DIFFERENT-001 单次 atomic 留下不同原文时结果未知 atomic 抛错后既非完整旧原文也非完整候选的状态不得猜测或自动重试。 writer 一次写入损坏文本后返回 `WRITE_OUTCOME_UNKNOWN`，observedRevision 为 unreadable。 tools/task-graph/tests/store.test.ts > single atomic write leaving different text returns WRITE_OUTCOME_UNKNOWN bun test --test-name-pattern=\"^single atomic write leaving different text returns WRITE_OUTCOME_UNKNOWN$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/atomic-different-text-is-unknown.md",
+        "summary": "atomic 抛错后既非完整旧原文也非完整候选的状态不得猜测或自动重试。",
+        "title": "单次 atomic 留下不同原文时结果未知"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-ATOMIC-OLD-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-ATOMIC-OLD-001 单次 atomic 抛错且完整旧原文仍在时返回 WRITE_FAILED atomic writer 每个候选只调用一次；抛错后完整 previousText 等价于明确未提交。 writer 调用一次并在替换前抛错，返回 `WRITE_FAILED` 且 revision 仍为 0。 tools/task-graph/tests/store.test.ts > single atomic write failure with the complete old text returns WRITE_FAILED bun test --test-name-pattern=\"^single atomic write failure with the complete old text returns WRITE_FAILED$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/store.test.ts > single atomic write failure with the complete old text returns WRITE_FAILED",
+          "bun test --test-name-pattern=\"^single atomic write failure with the complete old text returns WRITE_FAILED$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-ATOMIC-OLD-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-ATOMIC-OLD-001 单次 atomic 抛错且完整旧原文仍在时返回 WRITE_FAILED atomic writer 每个候选只调用一次；抛错后完整 previousText 等价于明确未提交。 writer 调用一次并在替换前抛错，返回 `WRITE_FAILED` 且 revision 仍为 0。 tools/task-graph/tests/store.test.ts > single atomic write failure with the complete old text returns WRITE_FAILED bun test --test-name-pattern=\"^single atomic write failure with the complete old text returns WRITE_FAILED$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/atomic-old-text-is-write-failed.md",
+        "summary": "atomic writer 每个候选只调用一次；抛错后完整 previousText 等价于明确未提交。",
+        "title": "单次 atomic 抛错且完整旧原文仍在时返回 WRITE_FAILED"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-ATOMIC-READBACK-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-ATOMIC-READBACK-001 atomic 成功但回读缺失时结果未知 atomic 调用成功后仍必须逐字回读完整候选，缺失或不等都按未知结果处理。 writer 一次删除目标并返回后得到 `WRITE_OUTCOME_UNKNOWN`，observedRevision 为 null。 tools/task-graph/tests/store.test.ts > successful atomic call with missing readback returns WRITE_OUTCOME_UNKNOWN bun test --test-name-pattern=\"^successful atomic call with missing readback returns WRITE_OUTCOME_UNKNOWN$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/store.test.ts > successful atomic call with missing readback returns WRITE_OUTCOME_UNKNOWN",
+          "bun test --test-name-pattern=\"^successful atomic call with missing readback returns WRITE_OUTCOME_UNKNOWN$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-ATOMIC-READBACK-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-ATOMIC-READBACK-001 atomic 成功但回读缺失时结果未知 atomic 调用成功后仍必须逐字回读完整候选，缺失或不等都按未知结果处理。 writer 一次删除目标并返回后得到 `WRITE_OUTCOME_UNKNOWN`，observedRevision 为 null。 tools/task-graph/tests/store.test.ts > successful atomic call with missing readback returns WRITE_OUTCOME_UNKNOWN bun test --test-name-pattern=\"^successful atomic call with missing readback returns WRITE_OUTCOME_UNKNOWN$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/atomic-missing-readback-is-unknown.md",
+        "summary": "atomic 调用成功后仍必须逐字回读完整候选，缺失或不等都按未知结果处理。",
+        "title": "atomic 成功但回读缺失时结果未知"
+      }
+    },
+    {
       "id": "TASK-GRAPH-BINDING-001",
       "keys": {
         "search": [
@@ -4085,7 +4181,7 @@
       "id": "TASK-GRAPH-CLI-ERRORS-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-CLI-ERRORS-001 各结果保持单 JSON、稳定 error code、retryable 与可读取 revision CLI 成功及可预期 schema、状态、revision 与文件错误使用统一 envelope；Map/null-prototype 解析不得把保留字或原型属性误当作已有选项或实体。所有协议内失败都 best-effort 重读当前 revision，包括 `WRITE_OUTCOME_UNKNOWN`，且绝不重放 mutation。 合法 binding/reference 可创建和查询，持久字典中的 `constructor`、`prototype`、`__proto__` 稳定拒绝，外部 scope/task ID `constructor` 返回明确 not-found；已提交且可读的 unknown outcome 返回 revision 1，不可读时返回 null，两者保留 possible revision；各结果保持单 JSON、稳定 error code 与 retryable。 tools/task-graph/tests/cli.test.ts > CLI success and predictable schema, state, conflict, and file failures use one envelope bun test --test-name-pattern=\"^CLI success and predictable schema, state, conflict, and file failures use one envelope$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-CLI-ERRORS-001 各结果保持单 JSON、稳定 error code、retryable 与可读取 revision CLI 成功及可预期 schema、状态、revision 与文件错误使用统一 envelope；Map/null-prototype 解析不得把保留字或原型属性误当作已有选项或实体。非 runtime 失败可以尽力读取 revision；runtime 命令和 `RUNTIME_*` 失败禁止读取工作区，且绝不重放 mutation。 合法 binding/reference 可创建和查询，持久字典保留字稳定拒绝，外部非法 ID 返回明确 not-found；unknown outcome 不可读时 revision 为 null 并保留 possible revision；各结果保持单 JSON、稳定 error code 与 retryable。 tools/task-graph/tests/cli.test.ts > CLI success and predictable schema, state, conflict, and file failures use one envelope bun test --test-name-pattern=\"^CLI success and predictable schema, state, conflict, and file failures use one envelope$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4099,9 +4195,9 @@
         ],
         "id": "TASK-GRAPH-CLI-ERRORS-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-CLI-ERRORS-001 各结果保持单 JSON、稳定 error code、retryable 与可读取 revision CLI 成功及可预期 schema、状态、revision 与文件错误使用统一 envelope；Map/null-prototype 解析不得把保留字或原型属性误当作已有选项或实体。所有协议内失败都 best-effort 重读当前 revision，包括 `WRITE_OUTCOME_UNKNOWN`，且绝不重放 mutation。 合法 binding/reference 可创建和查询，持久字典中的 `constructor`、`prototype`、`__proto__` 稳定拒绝，外部 scope/task ID `constructor` 返回明确 not-found；已提交且可读的 unknown outcome 返回 revision 1，不可读时返回 null，两者保留 possible revision；各结果保持单 JSON、稳定 error code 与 retryable。 tools/task-graph/tests/cli.test.ts > CLI success and predictable schema, state, conflict, and file failures use one envelope bun test --test-name-pattern=\"^CLI success and predictable schema, state, conflict, and file failures use one envelope$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-CLI-ERRORS-001 各结果保持单 JSON、稳定 error code、retryable 与可读取 revision CLI 成功及可预期 schema、状态、revision 与文件错误使用统一 envelope；Map/null-prototype 解析不得把保留字或原型属性误当作已有选项或实体。非 runtime 失败可以尽力读取 revision；runtime 命令和 `RUNTIME_*` 失败禁止读取工作区，且绝不重放 mutation。 合法 binding/reference 可创建和查询，持久字典保留字稳定拒绝，外部非法 ID 返回明确 not-found；unknown outcome 不可读时 revision 为 null 并保留 possible revision；各结果保持单 JSON、稳定 error code 与 retryable。 tools/task-graph/tests/cli.test.ts > CLI success and predictable schema, state, conflict, and file failures use one envelope bun test --test-name-pattern=\"^CLI success and predictable schema, state, conflict, and file failures use one envelope$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/cli-predictable-outcomes-use-one-envelope.md",
-        "summary": "CLI 成功及可预期 schema、状态、revision 与文件错误使用统一 envelope；Map/null-prototype 解析不得把保留字或原型属性误当作已有选项或实体。所有协议内失败都 best-effort 重读当前 revision，包括 `WRITE_OUTCOME_UNKNOWN`，且绝不重放 mutation。",
+        "summary": "CLI 成功及可预期 schema、状态、revision 与文件错误使用统一 envelope；Map/null-prototype 解析不得把保留字或原型属性误当作已有选项或实体。非 runtime 失败可以尽力读取 revision；runtime 命令和 `RUNTIME_*` 失败禁止读取工作区，且绝不重放 mutation。",
         "title": "各结果保持单 JSON、稳定 error code、retryable 与可读取 revision"
       }
     },
@@ -4109,7 +4205,7 @@
       "id": "TASK-GRAPH-CLI-PATH-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-CLI-PATH-001 路径和恢复失败返回 exit 1、单个 LF JSON 且 stderr 为空 真实进程中的路径读取和 generation 恢复失败仍属于协议内错误，不泄漏原始异常到 stderr 或启动级退出码。 普通文件 root 与非法 reclaimer JSON 都返回 exit 1、单个 LF JSON 且 stderr 为空；后者使用稳定 `LOCK_RECOVERY_REQUIRED`。 tools/task-graph/tests/cli.test.ts > process CLI maps path and recovery failures to JSON exit one with empty stderr bun test --test-name-pattern=\"^process CLI maps path and recovery failures to JSON exit one with empty stderr$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-CLI-PATH-001 路径失败返回 exit 1、单个 LF JSON 且 stderr 为空 真实进程中的路径读取失败仍属于协议内错误，不泄漏原始异常到 stderr 或启动级退出码。 普通文件 root 返回 exit 1、单个 LF JSON 且 stderr 为空，并保留稳定路径错误 code。 tools/task-graph/tests/cli.test.ts > process CLI maps path failures to JSON exit one with empty stderr bun test --test-name-pattern=\"^process CLI maps path failures to JSON exit one with empty stderr$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4118,22 +4214,22 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/cli.test.ts > process CLI maps path and recovery failures to JSON exit one with empty stderr",
-          "bun test --test-name-pattern=\"^process CLI maps path and recovery failures to JSON exit one with empty stderr$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/cli.test.ts > process CLI maps path failures to JSON exit one with empty stderr",
+          "bun test --test-name-pattern=\"^process CLI maps path failures to JSON exit one with empty stderr$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-CLI-PATH-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-CLI-PATH-001 路径和恢复失败返回 exit 1、单个 LF JSON 且 stderr 为空 真实进程中的路径读取和 generation 恢复失败仍属于协议内错误，不泄漏原始异常到 stderr 或启动级退出码。 普通文件 root 与非法 reclaimer JSON 都返回 exit 1、单个 LF JSON 且 stderr 为空；后者使用稳定 `LOCK_RECOVERY_REQUIRED`。 tools/task-graph/tests/cli.test.ts > process CLI maps path and recovery failures to JSON exit one with empty stderr bun test --test-name-pattern=\"^process CLI maps path and recovery failures to JSON exit one with empty stderr$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-CLI-PATH-001 路径失败返回 exit 1、单个 LF JSON 且 stderr 为空 真实进程中的路径读取失败仍属于协议内错误，不泄漏原始异常到 stderr 或启动级退出码。 普通文件 root 返回 exit 1、单个 LF JSON 且 stderr 为空，并保留稳定路径错误 code。 tools/task-graph/tests/cli.test.ts > process CLI maps path failures to JSON exit one with empty stderr bun test --test-name-pattern=\"^process CLI maps path failures to JSON exit one with empty stderr$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/process-cli-maps-path-errors-with-empty-stderr.md",
-        "summary": "真实进程中的路径读取和 generation 恢复失败仍属于协议内错误，不泄漏原始异常到 stderr 或启动级退出码。",
-        "title": "路径和恢复失败返回 exit 1、单个 LF JSON 且 stderr 为空"
+        "summary": "真实进程中的路径读取失败仍属于协议内错误，不泄漏原始异常到 stderr 或启动级退出码。",
+        "title": "路径失败返回 exit 1、单个 LF JSON 且 stderr 为空"
       }
     },
     {
       "id": "TASK-GRAPH-CLI-PROTOCOL-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-CLI-PROTOCOL-001 每次调用只写一个 LF 结尾 JSON help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。 根 help 枚举全部 32 个命令并逐一查询成功，scope create 与 apply 的复杂参数和 stdin/file 默认输入可恢复；每次调用只写一个 LF 结尾 JSON，成功 revision 为 null，原型属性形式的未知 help/option 仍以稳定参数错误退出 1。 tools/task-graph/tests/cli.test.ts > CLI help, version, and usage stay inside the single-JSON LF protocol bun test --test-name-pattern=\"^CLI help, version, and usage stay inside the single-JSON LF protocol$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-CLI-PROTOCOL-001 每次调用只写一个 LF 结尾 JSON help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。 根 help 枚举全部 35 个命令并逐一查询成功，机器可读地公布固定 Node range、mutation runtime 前置以及安装命令；scope create 与 apply 的复杂参数和 stdin/file 默认输入可恢复，每次调用只写一个 LF 结尾 JSON。 tools/task-graph/tests/cli.test.ts > CLI help, version, and usage stay inside the single-JSON LF protocol bun test --test-name-pattern=\"^CLI help, version, and usage stay inside the single-JSON LF protocol$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4147,7 +4243,7 @@
         ],
         "id": "TASK-GRAPH-CLI-PROTOCOL-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-CLI-PROTOCOL-001 每次调用只写一个 LF 结尾 JSON help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。 根 help 枚举全部 32 个命令并逐一查询成功，scope create 与 apply 的复杂参数和 stdin/file 默认输入可恢复；每次调用只写一个 LF 结尾 JSON，成功 revision 为 null，原型属性形式的未知 help/option 仍以稳定参数错误退出 1。 tools/task-graph/tests/cli.test.ts > CLI help, version, and usage stay inside the single-JSON LF protocol bun test --test-name-pattern=\"^CLI help, version, and usage stay inside the single-JSON LF protocol$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-CLI-PROTOCOL-001 每次调用只写一个 LF 结尾 JSON help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。 根 help 枚举全部 35 个命令并逐一查询成功，机器可读地公布固定 Node range、mutation runtime 前置以及安装命令；scope create 与 apply 的复杂参数和 stdin/file 默认输入可恢复，每次调用只写一个 LF 结尾 JSON。 tools/task-graph/tests/cli.test.ts > CLI help, version, and usage stay inside the single-JSON LF protocol bun test --test-name-pattern=\"^CLI help, version, and usage stay inside the single-JSON LF protocol$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/cli-help-version-and-usage-use-json-lf.md",
         "summary": "help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。",
         "title": "每次调用只写一个 LF 结尾 JSON"
@@ -4202,58 +4298,10 @@
       }
     },
     {
-      "id": "TASK-GRAPH-CLOCK-001",
-      "keys": {
-        "search": [
-          "TASK-GRAPH-CLOCK-001 注入时间驱动 recovery-needed，并能在禁用 Date.now 时确定性结束锁等待 投影、租约与锁等待时限使用公开注入 clock，不直接依赖系统墙钟。 注入时间驱动 recovery-needed，并能在禁用 Date.now 时确定性结束锁等待。 tools/task-graph/tests/store.test.ts > injected clock controls effective projection and lock-wait deadlines bun test --test-name-pattern=\"^injected clock controls effective projection and lock-wait deadlines$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "topic": [
-          "task-graph"
-        ]
-      },
-      "state": {
-        "endLine": 12,
-        "entries": [
-          "tools/task-graph/tests/store.test.ts > injected clock controls effective projection and lock-wait deadlines",
-          "bun test --test-name-pattern=\"^injected clock controls effective projection and lock-wait deadlines$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "id": "TASK-GRAPH-CLOCK-001",
-        "line": 1,
-        "searchText": "TASK-GRAPH-CLOCK-001 注入时间驱动 recovery-needed，并能在禁用 Date.now 时确定性结束锁等待 投影、租约与锁等待时限使用公开注入 clock，不直接依赖系统墙钟。 注入时间驱动 recovery-needed，并能在禁用 Date.now 时确定性结束锁等待。 tools/task-graph/tests/store.test.ts > injected clock controls effective projection and lock-wait deadlines bun test --test-name-pattern=\"^injected clock controls effective projection and lock-wait deadlines$\" ./tools/task-graph/tests/run.ts",
-        "sourcePath": "task-graph/injected-clock-controls-projection-and-lock-wait.md",
-        "summary": "投影、租约与锁等待时限使用公开注入 clock，不直接依赖系统墙钟。",
-        "title": "注入时间驱动 recovery-needed，并能在禁用 Date.now 时确定性结束锁等待"
-      }
-    },
-    {
-      "id": "TASK-GRAPH-COMMIT-001",
-      "keys": {
-        "search": [
-          "TASK-GRAPH-COMMIT-001 旧 revision 返回 WRITE_FAILED，可能已提交或不可读返回 WRITE_OUTCOME_UNKNOWN，并可从索引复核 原子替换是提交点；提交前失败、替换后抛错、无法读回和提交后响应失败具有不同恢复语义，且 store 只能清理本次 `open(wx)` 成功创建的临时路径。 旧 revision 返回 `WRITE_FAILED`，可能已提交或不可读返回 `WRITE_OUTCOME_UNKNOWN` 并可从索引复核；同名 foreign 临时文件导致 `wx` 失败时内容保持不变且 revision 不前进。 tools/task-graph/tests/store.test.ts > commit-point failures distinguish old, committed, unknown, and post-commit outcomes bun test --test-name-pattern=\"^commit-point failures distinguish old, committed, unknown, and post-commit outcomes$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "topic": [
-          "task-graph"
-        ]
-      },
-      "state": {
-        "endLine": 12,
-        "entries": [
-          "tools/task-graph/tests/store.test.ts > commit-point failures distinguish old, committed, unknown, and post-commit outcomes",
-          "bun test --test-name-pattern=\"^commit-point failures distinguish old, committed, unknown, and post-commit outcomes$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "id": "TASK-GRAPH-COMMIT-001",
-        "line": 1,
-        "searchText": "TASK-GRAPH-COMMIT-001 旧 revision 返回 WRITE_FAILED，可能已提交或不可读返回 WRITE_OUTCOME_UNKNOWN，并可从索引复核 原子替换是提交点；提交前失败、替换后抛错、无法读回和提交后响应失败具有不同恢复语义，且 store 只能清理本次 `open(wx)` 成功创建的临时路径。 旧 revision 返回 `WRITE_FAILED`，可能已提交或不可读返回 `WRITE_OUTCOME_UNKNOWN` 并可从索引复核；同名 foreign 临时文件导致 `wx` 失败时内容保持不变且 revision 不前进。 tools/task-graph/tests/store.test.ts > commit-point failures distinguish old, committed, unknown, and post-commit outcomes bun test --test-name-pattern=\"^commit-point failures distinguish old, committed, unknown, and post-commit outcomes$\" ./tools/task-graph/tests/run.ts",
-        "sourcePath": "task-graph/commit-point-failures-have-distinct-outcomes.md",
-        "summary": "原子替换是提交点；提交前失败、替换后抛错、无法读回和提交后响应失败具有不同恢复语义，且 store 只能清理本次 `open(wx)` 成功创建的临时路径。",
-        "title": "旧 revision 返回 WRITE_FAILED，可能已提交或不可读返回 WRITE_OUTCOME_UNKNOWN，并可从索引复核"
-      }
-    },
-    {
       "id": "TASK-GRAPH-CONCURRENCY-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-CONCURRENCY-001 排斥任务并发领取只有一个成功，同 revision 并发写入只有一个提交 共享索引的短锁串行化并发 claim，所有 revision 写入使用全局 compare-and-swap。 排斥任务并发领取只有一个成功，同 revision 并发写入只有一个提交。 tools/task-graph/tests/store.test.ts > store serializes concurrent claims and global revision compare-and-swap bun test --test-name-pattern=\"^store serializes concurrent claims and global revision compare-and-swap$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-CONCURRENCY-001 原生短锁串行化同 revision 并发 mutation 共享索引的原生短锁必须串行化并发 mutation，revision 继续使用全局 compare-and-swap。 两个独立 service 同时以 revision 0 创建 scope 时只有一个提交，另一个得到 `REVISION_CONFLICT`，最终 revision 为 1。 tools/task-graph/tests/store.test.ts > store serializes concurrent native mutations and preserves revision compare-and-swap bun test --test-name-pattern=\"^store serializes concurrent native mutations and preserves revision compare-and-swap$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4262,15 +4310,15 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/store.test.ts > store serializes concurrent claims and global revision compare-and-swap",
-          "bun test --test-name-pattern=\"^store serializes concurrent claims and global revision compare-and-swap$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/store.test.ts > store serializes concurrent native mutations and preserves revision compare-and-swap",
+          "bun test --test-name-pattern=\"^store serializes concurrent native mutations and preserves revision compare-and-swap$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-CONCURRENCY-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-CONCURRENCY-001 排斥任务并发领取只有一个成功，同 revision 并发写入只有一个提交 共享索引的短锁串行化并发 claim，所有 revision 写入使用全局 compare-and-swap。 排斥任务并发领取只有一个成功，同 revision 并发写入只有一个提交。 tools/task-graph/tests/store.test.ts > store serializes concurrent claims and global revision compare-and-swap bun test --test-name-pattern=\"^store serializes concurrent claims and global revision compare-and-swap$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-CONCURRENCY-001 原生短锁串行化同 revision 并发 mutation 共享索引的原生短锁必须串行化并发 mutation，revision 继续使用全局 compare-and-swap。 两个独立 service 同时以 revision 0 创建 scope 时只有一个提交，另一个得到 `REVISION_CONFLICT`，最终 revision 为 1。 tools/task-graph/tests/store.test.ts > store serializes concurrent native mutations and preserves revision compare-and-swap bun test --test-name-pattern=\"^store serializes concurrent native mutations and preserves revision compare-and-swap$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/store-serializes-claims-and-global-cas.md",
-        "summary": "共享索引的短锁串行化并发 claim，所有 revision 写入使用全局 compare-and-swap。",
-        "title": "排斥任务并发领取只有一个成功，同 revision 并发写入只有一个提交"
+        "summary": "共享索引的原生短锁必须串行化并发 mutation，revision 继续使用全局 compare-and-swap。",
+        "title": "原生短锁串行化同 revision 并发 mutation"
       }
     },
     {
@@ -4325,7 +4373,7 @@
       "id": "TASK-GRAPH-DISTRIBUTION-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 task-graph 分发脚本、收窄后的声明、source map 与 JSON Schema 必须由当前源码确定性生成并保持 LF 字节稳定；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 bundled/source runtime exports 与 version 行为一致，声明不暴露 store、hook、generator 或 process seams，source map 可移植且 Schema 字节匹配单一真源；Ajv 与运行时共同验证 Unicode code-point 文本边界、首尾空白与单行约束、scope/dictionary key 上限、正 canonical ID，以及 `constructor`、`prototype`、`__proto__` 持久字典保留字拒绝。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 task-graph 分发脚本、收窄后的声明、source map、JSON Schema 与两个 runtime 文本资产必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 bundled/source exports 与 version 行为一致，声明含稳定 runtime 类型但不暴露 native、runner、store 或 ambient Node 类型；`write-file-atomic` 已内联、native 包未内联、bundle 无工作区绝对路径，runtime 文本资产逐字节一致；Schema 与运行时继续共同验证全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4339,10 +4387,106 @@
         ],
         "id": "TASK-GRAPH-DISTRIBUTION-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 task-graph 分发脚本、收窄后的声明、source map 与 JSON Schema 必须由当前源码确定性生成并保持 LF 字节稳定；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 bundled/source runtime exports 与 version 行为一致，声明不暴露 store、hook、generator 或 process seams，source map 可移植且 Schema 字节匹配单一真源；Ajv 与运行时共同验证 Unicode code-point 文本边界、首尾空白与单行约束、scope/dictionary key 上限、正 canonical ID，以及 `constructor`、`prototype`、`__proto__` 持久字典保留字拒绝。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 task-graph 分发脚本、收窄后的声明、source map、JSON Schema 与两个 runtime 文本资产必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 bundled/source exports 与 version 行为一致，声明含稳定 runtime 类型但不暴露 native、runner、store 或 ambient Node 类型；`write-file-atomic` 已内联、native 包未内联、bundle 无工作区绝对路径，runtime 文本资产逐字节一致；Schema 与运行时继续共同验证全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/generated-distribution-matches-source-contracts.md",
-        "summary": "task-graph 分发脚本、收窄后的声明、source map 与 JSON Schema 必须由当前源码确定性生成并保持 LF 字节稳定；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。",
+        "summary": "task-graph 分发脚本、收窄后的声明、source map、JSON Schema 与两个 runtime 文本资产必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。",
         "title": "分发制品与源码公共契约一致"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-DISTRIBUTION-004",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-DISTRIBUTION-004 bundle 与 source map 不依赖 checkout 绝对路径 Task-graph 的生成脚本必须在长度不同的 checkout 绝对路径下产生逐字节一致的 bundle 与 source map。 构建只对锁定的 `write-file-atomic@8.0.0` 唯一 `__filename` token 使用稳定模块路径；Bun 的 bundle/map debugId 必须先一致再成对移除，其他 source map 映射保持由 bundler 生成。 两个不同长度的隔离源码与依赖树分别执行真实生成入口后，`task-graph.mjs` 与 `.map` 逐字节一致；制品不含 debugId，并包含稳定的 write-file-atomic 模块标识。 tools/task-graph/tests/generated-artifacts.test.ts > generated task graph bundle and source map are checkout-path independent bun test --test-name-pattern=\"^generated task graph bundle and source map are checkout-path independent$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/generated-artifacts.test.ts > generated task graph bundle and source map are checkout-path independent",
+          "bun test --test-name-pattern=\"^generated task graph bundle and source map are checkout-path independent$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-DISTRIBUTION-004",
+        "line": 1,
+        "searchText": "TASK-GRAPH-DISTRIBUTION-004 bundle 与 source map 不依赖 checkout 绝对路径 Task-graph 的生成脚本必须在长度不同的 checkout 绝对路径下产生逐字节一致的 bundle 与 source map。 构建只对锁定的 `write-file-atomic@8.0.0` 唯一 `__filename` token 使用稳定模块路径；Bun 的 bundle/map debugId 必须先一致再成对移除，其他 source map 映射保持由 bundler 生成。 两个不同长度的隔离源码与依赖树分别执行真实生成入口后，`task-graph.mjs` 与 `.map` 逐字节一致；制品不含 debugId，并包含稳定的 write-file-atomic 模块标识。 tools/task-graph/tests/generated-artifacts.test.ts > generated task graph bundle and source map are checkout-path independent bun test --test-name-pattern=\"^generated task graph bundle and source map are checkout-path independent$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/generated-bundle-is-checkout-path-independent.md",
+        "summary": "Task-graph 的生成脚本必须在长度不同的 checkout 绝对路径下产生逐字节一致的 bundle 与 source map。",
+        "title": "bundle 与 source map 不依赖 checkout 绝对路径"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-DISTRIBUTION-IMPORT-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-DISTRIBUTION-IMPORT-001 生成模块导入在空 tool home 无副作用 导入生成 ESM 不读取或创建用户 runtime，不加载 addon，不写 stdout/stderr。 显式受支持 Node 导入后输出为空，隔离 tool home 仍不存在。 tools/task-graph/tests/generated-artifacts.test.ts > generated module import is side-effect free in an empty tool home under supported Node bun test --test-name-pattern=\"^generated module import is side-effect free in an empty tool home under supported Node$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/generated-artifacts.test.ts > generated module import is side-effect free in an empty tool home under supported Node",
+          "bun test --test-name-pattern=\"^generated module import is side-effect free in an empty tool home under supported Node$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-DISTRIBUTION-IMPORT-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-DISTRIBUTION-IMPORT-001 生成模块导入在空 tool home 无副作用 导入生成 ESM 不读取或创建用户 runtime，不加载 addon，不写 stdout/stderr。 显式受支持 Node 导入后输出为空，隔离 tool home 仍不存在。 tools/task-graph/tests/generated-artifacts.test.ts > generated module import is side-effect free in an empty tool home under supported Node bun test --test-name-pattern=\"^generated module import is side-effect free in an empty tool home under supported Node$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/generated-import-is-side-effect-free.md",
+        "summary": "导入生成 ESM 不读取或创建用户 runtime，不加载 addon，不写 stdout/stderr。",
+        "title": "生成模块导入在空 tool home 无副作用"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-DISTRIBUTION-OFFLINE-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-DISTRIBUTION-OFFLINE-001 生成 CLI 从隔离 runtime 离线 mutation 安装完成后生成 ESM 从 `TASK_GRAPH_TOOL_HOME` 的当前 runtime 加载 addon，普通 mutation 不运行 npm 或联网。 显式 Node 的 runtime check 和 index init 成功，工作区产生普通稳定锁文件。 tools/task-graph/tests/generated-artifacts.test.ts > generated Node CLI loads only the isolated runtime and mutates offline after installation bun test --test-name-pattern=\"^generated Node CLI loads only the isolated runtime and mutates offline after installation$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/generated-artifacts.test.ts > generated Node CLI loads only the isolated runtime and mutates offline after installation",
+          "bun test --test-name-pattern=\"^generated Node CLI loads only the isolated runtime and mutates offline after installation$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-DISTRIBUTION-OFFLINE-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-DISTRIBUTION-OFFLINE-001 生成 CLI 从隔离 runtime 离线 mutation 安装完成后生成 ESM 从 `TASK_GRAPH_TOOL_HOME` 的当前 runtime 加载 addon，普通 mutation 不运行 npm 或联网。 显式 Node 的 runtime check 和 index init 成功，工作区产生普通稳定锁文件。 tools/task-graph/tests/generated-artifacts.test.ts > generated Node CLI loads only the isolated runtime and mutates offline after installation bun test --test-name-pattern=\"^generated Node CLI loads only the isolated runtime and mutates offline after installation$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/generated-cli-loads-isolated-runtime-offline.md",
+        "summary": "安装完成后生成 ESM 从 `TASK_GRAPH_TOOL_HOME` 的当前 runtime 加载 addon，普通 mutation 不运行 npm 或联网。",
+        "title": "生成 CLI 从隔离 runtime 离线 mutation"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-DISTRIBUTION-PACKAGE-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-DISTRIBUTION-PACKAGE-001 skill 树只含 runtime 文本资产而无 native 安装产物 Skill 分发必须包含精确 runtime manifest/lockfile，但不得包含 `.node`、npm cache 或 `.install-*`。 递归检查 task-graph skill 树确认两个文本资产存在，所有 native 与安装期路径缺失。 tools/task-graph/tests/generated-artifacts.test.ts > distributed task-graph tree contains text runtime assets and no native or install artifacts bun test --test-name-pattern=\"^distributed task-graph tree contains text runtime assets and no native or install artifacts$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/generated-artifacts.test.ts > distributed task-graph tree contains text runtime assets and no native or install artifacts",
+          "bun test --test-name-pattern=\"^distributed task-graph tree contains text runtime assets and no native or install artifacts$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-DISTRIBUTION-PACKAGE-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-DISTRIBUTION-PACKAGE-001 skill 树只含 runtime 文本资产而无 native 安装产物 Skill 分发必须包含精确 runtime manifest/lockfile，但不得包含 `.node`、npm cache 或 `.install-*`。 递归检查 task-graph skill 树确认两个文本资产存在，所有 native 与安装期路径缺失。 tools/task-graph/tests/generated-artifacts.test.ts > distributed task-graph tree contains text runtime assets and no native or install artifacts bun test --test-name-pattern=\"^distributed task-graph tree contains text runtime assets and no native or install artifacts$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/distributed-tree-excludes-native-artifacts.md",
+        "summary": "Skill 分发必须包含精确 runtime manifest/lockfile，但不得包含 `.node`、npm cache 或 `.install-*`。",
+        "title": "skill 树只含 runtime 文本资产而无 native 安装产物"
       }
     },
     {
@@ -4373,7 +4517,7 @@
       "id": "TASK-GRAPH-GIT-BOUNDARY-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-GIT-BOUNDARY-001 mutation 只产生未暂存索引修改，HEAD 不变且三类运行态辅助路径显示为 ignored task-graph 只写权威索引，不自动 stage 或 commit；lock、temp 与 quarantine 路径由 Git 忽略。 mutation 只产生未暂存索引修改，HEAD 不变且三类运行态辅助路径显示为 ignored。 tools/task-graph/tests/scope-repository.test.ts > task index mutations leave Git staging and commits caller-owned while runtime artifacts stay ignored bun test --test-name-pattern=\"^task index mutations leave Git staging and commits caller-owned while runtime artifacts stay ignored$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-GIT-BOUNDARY-001 mutation 只产生未暂存索引修改，HEAD 不变且局部规则忽略运行态文件 task-graph 只写权威索引和首次 init 所需的局部 `.gitignore`，不自动 stage 或 commit；稳定 lock 与 atomic temp 由局部规则忽略。 mutation 只产生未暂存索引修改，HEAD 不变，稳定 lock 与 atomic temp 显示为 ignored。 tools/task-graph/tests/scope-repository.test.ts > task index mutations leave Git staging and commits caller-owned while runtime artifacts stay ignored bun test --test-name-pattern=\"^task index mutations leave Git staging and commits caller-owned while runtime artifacts stay ignored$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4387,10 +4531,58 @@
         ],
         "id": "TASK-GRAPH-GIT-BOUNDARY-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-GIT-BOUNDARY-001 mutation 只产生未暂存索引修改，HEAD 不变且三类运行态辅助路径显示为 ignored task-graph 只写权威索引，不自动 stage 或 commit；lock、temp 与 quarantine 路径由 Git 忽略。 mutation 只产生未暂存索引修改，HEAD 不变且三类运行态辅助路径显示为 ignored。 tools/task-graph/tests/scope-repository.test.ts > task index mutations leave Git staging and commits caller-owned while runtime artifacts stay ignored bun test --test-name-pattern=\"^task index mutations leave Git staging and commits caller-owned while runtime artifacts stay ignored$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-GIT-BOUNDARY-001 mutation 只产生未暂存索引修改，HEAD 不变且局部规则忽略运行态文件 task-graph 只写权威索引和首次 init 所需的局部 `.gitignore`，不自动 stage 或 commit；稳定 lock 与 atomic temp 由局部规则忽略。 mutation 只产生未暂存索引修改，HEAD 不变，稳定 lock 与 atomic temp 显示为 ignored。 tools/task-graph/tests/scope-repository.test.ts > task index mutations leave Git staging and commits caller-owned while runtime artifacts stay ignored bun test --test-name-pattern=\"^task index mutations leave Git staging and commits caller-owned while runtime artifacts stay ignored$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/mutations-leave-git-lifecycle-caller-owned.md",
-        "summary": "task-graph 只写权威索引，不自动 stage 或 commit；lock、temp 与 quarantine 路径由 Git 忽略。",
-        "title": "mutation 只产生未暂存索引修改，HEAD 不变且三类运行态辅助路径显示为 ignored"
+        "summary": "task-graph 只写权威索引和首次 init 所需的局部 `.gitignore`，不自动 stage 或 commit；稳定 lock 与 atomic temp 由局部规则忽略。",
+        "title": "mutation 只产生未暂存索引修改，HEAD 不变且局部规则忽略运行态文件"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-GITIGNORE-CRLF-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-GITIGNORE-CRLF-001 init 保留局部 ignore 的 CRLF 与既有顺序 首次 init 在锁文件前幂等维护局部 `.gitignore`，只追加固定注释和规则。 既有 CRLF 字节和规则顺序不变，新增规则沿用 CRLF，随后稳定锁文件为普通文件。 tools/task-graph/tests/store.test.ts > index init appends the local ignore rule without changing existing CRLF content or order bun test --test-name-pattern=\"^index init appends the local ignore rule without changing existing CRLF content or order$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/store.test.ts > index init appends the local ignore rule without changing existing CRLF content or order",
+          "bun test --test-name-pattern=\"^index init appends the local ignore rule without changing existing CRLF content or order$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-GITIGNORE-CRLF-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-GITIGNORE-CRLF-001 init 保留局部 ignore 的 CRLF 与既有顺序 首次 init 在锁文件前幂等维护局部 `.gitignore`，只追加固定注释和规则。 既有 CRLF 字节和规则顺序不变，新增规则沿用 CRLF，随后稳定锁文件为普通文件。 tools/task-graph/tests/store.test.ts > index init appends the local ignore rule without changing existing CRLF content or order bun test --test-name-pattern=\"^index init appends the local ignore rule without changing existing CRLF content or order$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/index-init-preserves-crlf-ignore-content.md",
+        "summary": "首次 init 在锁文件前幂等维护局部 `.gitignore`，只追加固定注释和规则。",
+        "title": "init 保留局部 ignore 的 CRLF 与既有顺序"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-GITIGNORE-FAIL-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-GITIGNORE-FAIL-001 局部 ignore 写失败不创建索引或锁 ignore 写入或回读失败必须发生在锁与索引创建前，并返回稳定 write phase。 注入 ignore atomic 失败后 index、lock、ignore 与临时 artifact 均不存在。 tools/task-graph/tests/store.test.ts > local ignore write failure creates no index, lock, or atomic runtime artifact bun test --test-name-pattern=\"^local ignore write failure creates no index, lock, or atomic runtime artifact$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/store.test.ts > local ignore write failure creates no index, lock, or atomic runtime artifact",
+          "bun test --test-name-pattern=\"^local ignore write failure creates no index, lock, or atomic runtime artifact$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-GITIGNORE-FAIL-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-GITIGNORE-FAIL-001 局部 ignore 写失败不创建索引或锁 ignore 写入或回读失败必须发生在锁与索引创建前，并返回稳定 write phase。 注入 ignore atomic 失败后 index、lock、ignore 与临时 artifact 均不存在。 tools/task-graph/tests/store.test.ts > local ignore write failure creates no index, lock, or atomic runtime artifact bun test --test-name-pattern=\"^local ignore write failure creates no index, lock, or atomic runtime artifact$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/ignore-write-failure-leaves-no-runtime-artifacts.md",
+        "summary": "ignore 写入或回读失败必须发生在锁与索引创建前，并返回稳定 write phase。",
+        "title": "局部 ignore 写失败不创建索引或锁"
       }
     },
     {
@@ -4421,7 +4613,7 @@
       "id": "TASK-GRAPH-INDEX-CHECK-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-INDEX-CHECK-001 index check 只读报告规范漂移 index check 只读取和报告规范格式或语义问题，不自动修复、覆盖或迁移权威索引；validator 对结构合法但有效 control 无来源的 running task 必须收集 issue 而非抛出。 非规范但语义合法的索引返回 `index-not-canonical` 且原文件字节不变；顶层 inherit+running 索引返回 `index-invalid` diagnostic 而不会让 check 逸出异常。 tools/task-graph/tests/store.test.ts > index check reports canonical drift without rewriting authoritative content bun test --test-name-pattern=\"^index check reports canonical drift without rewriting authoritative content$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-INDEX-CHECK-001 index check 只读报告规范漂移 index check 只读取和报告规范格式或语义问题，不自动修复、覆盖或迁移权威索引；validator 对结构合法但有效 control 无来源的 running task 必须收集 issue 而非抛出。 非规范但语义合法的索引返回 `index-not-canonical` 且原文件字节不变；顶层 inherit+running 索引返回 `index-invalid` diagnostic 而不会让 check 逸出异常。 tools/task-graph/tests/store.test.ts > store check detects complete-text canonical drift bun test --test-name-pattern=\"^store check detects complete-text canonical drift$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4430,12 +4622,12 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/store.test.ts > index check reports canonical drift without rewriting authoritative content",
-          "bun test --test-name-pattern=\"^index check reports canonical drift without rewriting authoritative content$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/store.test.ts > store check detects complete-text canonical drift",
+          "bun test --test-name-pattern=\"^store check detects complete-text canonical drift$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-INDEX-CHECK-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-INDEX-CHECK-001 index check 只读报告规范漂移 index check 只读取和报告规范格式或语义问题，不自动修复、覆盖或迁移权威索引；validator 对结构合法但有效 control 无来源的 running task 必须收集 issue 而非抛出。 非规范但语义合法的索引返回 `index-not-canonical` 且原文件字节不变；顶层 inherit+running 索引返回 `index-invalid` diagnostic 而不会让 check 逸出异常。 tools/task-graph/tests/store.test.ts > index check reports canonical drift without rewriting authoritative content bun test --test-name-pattern=\"^index check reports canonical drift without rewriting authoritative content$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-INDEX-CHECK-001 index check 只读报告规范漂移 index check 只读取和报告规范格式或语义问题，不自动修复、覆盖或迁移权威索引；validator 对结构合法但有效 control 无来源的 running task 必须收集 issue 而非抛出。 非规范但语义合法的索引返回 `index-not-canonical` 且原文件字节不变；顶层 inherit+running 索引返回 `index-invalid` diagnostic 而不会让 check 逸出异常。 tools/task-graph/tests/store.test.ts > store check detects complete-text canonical drift bun test --test-name-pattern=\"^store check detects complete-text canonical drift$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/index-check-reports-drift-without-rewriting.md",
         "summary": "index check 只读取和报告规范格式或语义问题，不自动修复、覆盖或迁移权威索引；validator 对结构合法但有效 control 无来源的 running task 必须收集 issue 而非抛出。",
         "title": "index check 只读报告规范漂移"
@@ -4490,10 +4682,10 @@
       }
     },
     {
-      "id": "TASK-GRAPH-LOCK-ABA-001",
+      "id": "TASK-GRAPH-LOCK-HANDLE-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-LOCK-ABA-001 stale claimed generation 的双回收者不得隔离后来发布的新 owner 两个回收者观察同一 stale `owner-O.claimed-by-Rold` 时，必须各自发布唯一 reclaimer，并以精确 owner-generation rename 决定唯一胜者；胜者隔离前后复验 claimed owner 与自己的 reclaimer，失败者重新读取 canonical generation，不能沿用旧 directory 观察隔离新鲜 owner。 B/C 同时接管 stale claimant Rold 时只有精确 rename 胜者进入 isolation seam；胜者隔离旧 generation 并发布 fresh owner N 后，失败者及在 directory `lstat` 后暂停的旧观察者都会重读 N、超时而不偷锁，最终只有胜者提交一次 mutation。 tools/task-graph/tests/store.test.ts > stale recovery never isolates a fresh owner published after observation bun test --test-name-pattern=\"^stale recovery never isolates a fresh owner published after observation$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-LOCK-HANDLE-001 lock stat 失败仍关闭已打开描述符 稳定锁文件 open 后的 stat 失败映射为 lock-open `WRITE_FAILED`，且句柄无条件关闭。 注入 EIO stat 后 close 恰好执行一次，错误 details 标记 `phase: lock-open`。 tools/task-graph/tests/store.test.ts > lock FileHandle stat failure still closes the opened descriptor bun test --test-name-pattern=\"^lock FileHandle stat failure still closes the opened descriptor$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4502,118 +4694,22 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/store.test.ts > stale recovery never isolates a fresh owner published after observation",
-          "bun test --test-name-pattern=\"^stale recovery never isolates a fresh owner published after observation$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/store.test.ts > lock FileHandle stat failure still closes the opened descriptor",
+          "bun test --test-name-pattern=\"^lock FileHandle stat failure still closes the opened descriptor$\" ./tools/task-graph/tests/run.ts"
         ],
-        "id": "TASK-GRAPH-LOCK-ABA-001",
+        "id": "TASK-GRAPH-LOCK-HANDLE-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-LOCK-ABA-001 stale claimed generation 的双回收者不得隔离后来发布的新 owner 两个回收者观察同一 stale `owner-O.claimed-by-Rold` 时，必须各自发布唯一 reclaimer，并以精确 owner-generation rename 决定唯一胜者；胜者隔离前后复验 claimed owner 与自己的 reclaimer，失败者重新读取 canonical generation，不能沿用旧 directory 观察隔离新鲜 owner。 B/C 同时接管 stale claimant Rold 时只有精确 rename 胜者进入 isolation seam；胜者隔离旧 generation 并发布 fresh owner N 后，失败者及在 directory `lstat` 后暂停的旧观察者都会重读 N、超时而不偷锁，最终只有胜者提交一次 mutation。 tools/task-graph/tests/store.test.ts > stale recovery never isolates a fresh owner published after observation bun test --test-name-pattern=\"^stale recovery never isolates a fresh owner published after observation$\" ./tools/task-graph/tests/run.ts",
-        "sourcePath": "task-graph/stale-recovery-revalidates-owner-before-isolation.md",
-        "summary": "两个回收者观察同一 stale `owner-O.claimed-by-Rold` 时，必须各自发布唯一 reclaimer，并以精确 owner-generation rename 决定唯一胜者；胜者隔离前后复验 claimed owner 与自己的 reclaimer，失败者重新读取 canonical generation，不能沿用旧 directory 观察隔离新鲜 owner。",
-        "title": "stale claimed generation 的双回收者不得隔离后来发布的新 owner"
-      }
-    },
-    {
-      "id": "TASK-GRAPH-LOCK-CLAIMED-001",
-      "keys": {
-        "search": [
-          "TASK-GRAPH-LOCK-CLAIMED-001 claimed generation 只在本机 claimant 已确认失效时精确接管 fresh claimed generation 必须等待；stale claimed generation 只有在 owner/reclaimer metadata 与文件名相符、host 相同且 claimant pid 已确认失效时，才能通过精确 generation rename 接管。remote、alive、unknown、非法 JSON、符号链接和 token 碰撞均停止自动恢复，竞争者只能清理自己成功创建的 reclaimer 文件。 fresh claimant 超时后仍保留；不可确认或非法 generation 返回 `LOCK_RECOVERY_REQUIRED`；既存 reclaimer token 的内容不被碰撞者删除；本机 dead claimant 可由新 generation 接管并只提交一次 mutation，注入的恢复 errno 也被映射为稳定错误。 tools/task-graph/tests/store.test.ts > claimed recovery generations wait, reject uncertainty, and allow dead takeover bun test --test-name-pattern=\"^claimed recovery generations wait, reject uncertainty, and allow dead takeover$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "topic": [
-          "task-graph"
-        ]
-      },
-      "state": {
-        "endLine": 12,
-        "entries": [
-          "tools/task-graph/tests/store.test.ts > claimed recovery generations wait, reject uncertainty, and allow dead takeover",
-          "bun test --test-name-pattern=\"^claimed recovery generations wait, reject uncertainty, and allow dead takeover$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "id": "TASK-GRAPH-LOCK-CLAIMED-001",
-        "line": 1,
-        "searchText": "TASK-GRAPH-LOCK-CLAIMED-001 claimed generation 只在本机 claimant 已确认失效时精确接管 fresh claimed generation 必须等待；stale claimed generation 只有在 owner/reclaimer metadata 与文件名相符、host 相同且 claimant pid 已确认失效时，才能通过精确 generation rename 接管。remote、alive、unknown、非法 JSON、符号链接和 token 碰撞均停止自动恢复，竞争者只能清理自己成功创建的 reclaimer 文件。 fresh claimant 超时后仍保留；不可确认或非法 generation 返回 `LOCK_RECOVERY_REQUIRED`；既存 reclaimer token 的内容不被碰撞者删除；本机 dead claimant 可由新 generation 接管并只提交一次 mutation，注入的恢复 errno 也被映射为稳定错误。 tools/task-graph/tests/store.test.ts > claimed recovery generations wait, reject uncertainty, and allow dead takeover bun test --test-name-pattern=\"^claimed recovery generations wait, reject uncertainty, and allow dead takeover$\" ./tools/task-graph/tests/run.ts",
-        "sourcePath": "task-graph/claimed-recovery-generations-use-conservative-stale-gates.md",
-        "summary": "fresh claimed generation 必须等待；stale claimed generation 只有在 owner/reclaimer metadata 与文件名相符、host 相同且 claimant pid 已确认失效时，才能通过精确 generation rename 接管。remote、alive、unknown、非法 JSON、符号链接和 token 碰撞均停止自动恢复，竞争者只能清理自己成功创建的 reclaimer 文件。",
-        "title": "claimed generation 只在本机 claimant 已确认失效时精确接管"
-      }
-    },
-    {
-      "id": "TASK-GRAPH-LOCK-FRESH-001",
-      "keys": {
-        "search": [
-          "TASK-GRAPH-LOCK-FRESH-001 fresh lock 消失后写入继续，stale incomplete lock 返回 LOCK_RECOVERY_REQUIRED fresh incomplete lock 属于发布窗口并重试，超过陈旧阈值仍不被盲目回收。 fresh lock 消失后写入继续，stale incomplete lock 返回 LOCK_RECOVERY_REQUIRED。 tools/task-graph/tests/store.test.ts > fresh incomplete locks retry while stale incomplete locks require recovery bun test --test-name-pattern=\"^fresh incomplete locks retry while stale incomplete locks require recovery$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "topic": [
-          "task-graph"
-        ]
-      },
-      "state": {
-        "endLine": 12,
-        "entries": [
-          "tools/task-graph/tests/store.test.ts > fresh incomplete locks retry while stale incomplete locks require recovery",
-          "bun test --test-name-pattern=\"^fresh incomplete locks retry while stale incomplete locks require recovery$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "id": "TASK-GRAPH-LOCK-FRESH-001",
-        "line": 1,
-        "searchText": "TASK-GRAPH-LOCK-FRESH-001 fresh lock 消失后写入继续，stale incomplete lock 返回 LOCK_RECOVERY_REQUIRED fresh incomplete lock 属于发布窗口并重试，超过陈旧阈值仍不被盲目回收。 fresh lock 消失后写入继续，stale incomplete lock 返回 LOCK_RECOVERY_REQUIRED。 tools/task-graph/tests/store.test.ts > fresh incomplete locks retry while stale incomplete locks require recovery bun test --test-name-pattern=\"^fresh incomplete locks retry while stale incomplete locks require recovery$\" ./tools/task-graph/tests/run.ts",
-        "sourcePath": "task-graph/fresh-incomplete-locks-retry-and-stale-ones-stop.md",
-        "summary": "fresh incomplete lock 属于发布窗口并重试，超过陈旧阈值仍不被盲目回收。",
-        "title": "fresh lock 消失后写入继续，stale incomplete lock 返回 LOCK_RECOVERY_REQUIRED"
-      }
-    },
-    {
-      "id": "TASK-GRAPH-LOCK-PUBLISH-001",
-      "keys": {
-        "search": [
-          "TASK-GRAPH-LOCK-PUBLISH-001 metadata 发布失败不得清理竞争者的新 canonical owner fresh lock metadata 发布失败时只能清理仍由本次 staged 或 published owner token 标识的 generation；canonical owner 已换代时必须返回恢复错误并保留新锁。 metadata 已暂存但最终发布前 canonical lock 被替换时，操作返回 `LOCK_RECOVERY_REQUIRED`，新 owner token 保持不变，索引 revision 与 scopes 未提交。 tools/task-graph/tests/store.test.ts > metadata publish failure never discards a replacement canonical owner bun test --test-name-pattern=\"^metadata publish failure never discards a replacement canonical owner$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "topic": [
-          "task-graph"
-        ]
-      },
-      "state": {
-        "endLine": 12,
-        "entries": [
-          "tools/task-graph/tests/store.test.ts > metadata publish failure never discards a replacement canonical owner",
-          "bun test --test-name-pattern=\"^metadata publish failure never discards a replacement canonical owner$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "id": "TASK-GRAPH-LOCK-PUBLISH-001",
-        "line": 1,
-        "searchText": "TASK-GRAPH-LOCK-PUBLISH-001 metadata 发布失败不得清理竞争者的新 canonical owner fresh lock metadata 发布失败时只能清理仍由本次 staged 或 published owner token 标识的 generation；canonical owner 已换代时必须返回恢复错误并保留新锁。 metadata 已暂存但最终发布前 canonical lock 被替换时，操作返回 `LOCK_RECOVERY_REQUIRED`，新 owner token 保持不变，索引 revision 与 scopes 未提交。 tools/task-graph/tests/store.test.ts > metadata publish failure never discards a replacement canonical owner bun test --test-name-pattern=\"^metadata publish failure never discards a replacement canonical owner$\" ./tools/task-graph/tests/run.ts",
-        "sourcePath": "task-graph/metadata-publish-failure-preserves-replacement-owner.md",
-        "summary": "fresh lock metadata 发布失败时只能清理仍由本次 staged 或 published owner token 标识的 generation；canonical owner 已换代时必须返回恢复错误并保留新锁。",
-        "title": "metadata 发布失败不得清理竞争者的新 canonical owner"
-      }
-    },
-    {
-      "id": "TASK-GRAPH-LOCK-RECOVERY-001",
-      "keys": {
-        "search": [
-          "TASK-GRAPH-LOCK-RECOVERY-001 三种不可确认状态返回恢复错误，dead owner 被隔离后事务重新读取并成功 陈旧锁只在同主机 owner 明确死亡时自动隔离，live、unknown 或远端 owner 均停止。 三种不可确认状态返回恢复错误，dead owner 被隔离后事务重新读取并成功。 tools/task-graph/tests/store.test.ts > stale lock recovery is conservative for live, unknown, remote, and dead owners bun test --test-name-pattern=\"^stale lock recovery is conservative for live, unknown, remote, and dead owners$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "topic": [
-          "task-graph"
-        ]
-      },
-      "state": {
-        "endLine": 12,
-        "entries": [
-          "tools/task-graph/tests/store.test.ts > stale lock recovery is conservative for live, unknown, remote, and dead owners",
-          "bun test --test-name-pattern=\"^stale lock recovery is conservative for live, unknown, remote, and dead owners$\" ./tools/task-graph/tests/run.ts"
-        ],
-        "id": "TASK-GRAPH-LOCK-RECOVERY-001",
-        "line": 1,
-        "searchText": "TASK-GRAPH-LOCK-RECOVERY-001 三种不可确认状态返回恢复错误，dead owner 被隔离后事务重新读取并成功 陈旧锁只在同主机 owner 明确死亡时自动隔离，live、unknown 或远端 owner 均停止。 三种不可确认状态返回恢复错误，dead owner 被隔离后事务重新读取并成功。 tools/task-graph/tests/store.test.ts > stale lock recovery is conservative for live, unknown, remote, and dead owners bun test --test-name-pattern=\"^stale lock recovery is conservative for live, unknown, remote, and dead owners$\" ./tools/task-graph/tests/run.ts",
-        "sourcePath": "task-graph/stale-lock-recovery-is-conservative-by-owner-state.md",
-        "summary": "陈旧锁只在同主机 owner 明确死亡时自动隔离，live、unknown 或远端 owner 均停止。",
-        "title": "三种不可确认状态返回恢复错误，dead owner 被隔离后事务重新读取并成功"
+        "searchText": "TASK-GRAPH-LOCK-HANDLE-001 lock stat 失败仍关闭已打开描述符 稳定锁文件 open 后的 stat 失败映射为 lock-open `WRITE_FAILED`，且句柄无条件关闭。 注入 EIO stat 后 close 恰好执行一次，错误 details 标记 `phase: lock-open`。 tools/task-graph/tests/store.test.ts > lock FileHandle stat failure still closes the opened descriptor bun test --test-name-pattern=\"^lock FileHandle stat failure still closes the opened descriptor$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/lock-stat-failure-closes-descriptor.md",
+        "summary": "稳定锁文件 open 后的 stat 失败映射为 lock-open `WRITE_FAILED`，且句柄无条件关闭。",
+        "title": "lock stat 失败仍关闭已打开描述符"
       }
     },
     {
       "id": "TASK-GRAPH-LOCK-RELEASE-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-LOCK-RELEASE-001 release 失败不被原 REQUEST_INVALID 遮蔽，LOCK_RECOVERY_REQUIRED details 可定位原错误 operation 失败后的 lock release/isolation 失败必须提升为可恢复锁错误并保留原错误上下文。 release 失败不被原 REQUEST_INVALID 遮蔽，LOCK_RECOVERY_REQUIRED details 可定位原错误。 tools/task-graph/tests/store.test.ts > operation errors expose lock-release failures with the original error context bun test --test-name-pattern=\"^operation errors expose lock-release failures with the original error context$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-LOCK-RELEASE-001 close 成功时 unlock 失败不改变提交结果 unlock 失败但 FileHandle close 成功已释放 OS 锁，不得把成功 mutation 改写为失败。 注入 unlock 异常后 create scope 正常返回 revision 1，索引可读。 tools/task-graph/tests/store.test.ts > successful close preserves a committed mutation when native unlock fails bun test --test-name-pattern=\"^successful close preserves a committed mutation when native unlock fails$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4622,22 +4718,22 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/store.test.ts > operation errors expose lock-release failures with the original error context",
-          "bun test --test-name-pattern=\"^operation errors expose lock-release failures with the original error context$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/store.test.ts > successful close preserves a committed mutation when native unlock fails",
+          "bun test --test-name-pattern=\"^successful close preserves a committed mutation when native unlock fails$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-LOCK-RELEASE-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-LOCK-RELEASE-001 release 失败不被原 REQUEST_INVALID 遮蔽，LOCK_RECOVERY_REQUIRED details 可定位原错误 operation 失败后的 lock release/isolation 失败必须提升为可恢复锁错误并保留原错误上下文。 release 失败不被原 REQUEST_INVALID 遮蔽，LOCK_RECOVERY_REQUIRED details 可定位原错误。 tools/task-graph/tests/store.test.ts > operation errors expose lock-release failures with the original error context bun test --test-name-pattern=\"^operation errors expose lock-release failures with the original error context$\" ./tools/task-graph/tests/run.ts",
-        "sourcePath": "task-graph/operation-errors-expose-lock-release-failures.md",
-        "summary": "operation 失败后的 lock release/isolation 失败必须提升为可恢复锁错误并保留原错误上下文。",
-        "title": "release 失败不被原 REQUEST_INVALID 遮蔽，LOCK_RECOVERY_REQUIRED details 可定位原错误"
+        "searchText": "TASK-GRAPH-LOCK-RELEASE-001 close 成功时 unlock 失败不改变提交结果 unlock 失败但 FileHandle close 成功已释放 OS 锁，不得把成功 mutation 改写为失败。 注入 unlock 异常后 create scope 正常返回 revision 1，索引可读。 tools/task-graph/tests/store.test.ts > successful close preserves a committed mutation when native unlock fails bun test --test-name-pattern=\"^successful close preserves a committed mutation when native unlock fails$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/close-preserves-commit-when-unlock-fails.md",
+        "summary": "unlock 失败但 FileHandle close 成功已释放 OS 锁，不得把成功 mutation 改写为失败。",
+        "title": "close 成功时 unlock 失败不改变提交结果"
       }
     },
     {
       "id": "TASK-GRAPH-LOCK-RELEASE-002",
       "keys": {
         "search": [
-          "TASK-GRAPH-LOCK-RELEASE-002 已提交 mutation 的 release 失败返回未知结果 mutation 已完成原子替换与读回后，lock release/isolation 失败不能把已提交结果报告为未提交。 调用返回 WRITE_OUTCOME_UNKNOWN，索引 revision 已增加且已提交 scope 可读。 tools/task-graph/tests/store.test.ts > committed mutations report unknown outcome when lock release isolation fails bun test --test-name-pattern=\"^committed mutations report unknown outcome when lock release isolation fails$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-LOCK-RELEASE-002 unlock 与 close 都失败时已提交 mutation 返回未知结果 mutation 已完成候选提交与读回后，原生 unlock 和句柄 close 都失败时不能把结果报告为未提交。 返回带 `phase: lock-release` 和候选 revision 的 `WRITE_OUTCOME_UNKNOWN`，禁止调用方盲目重放。 tools/task-graph/tests/store.test.ts > failed unlock and close classify a committed mutation as outcome unknown bun test --test-name-pattern=\"^failed unlock and close classify a committed mutation as outcome unknown$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4646,22 +4742,22 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/store.test.ts > committed mutations report unknown outcome when lock release isolation fails",
-          "bun test --test-name-pattern=\"^committed mutations report unknown outcome when lock release isolation fails$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/store.test.ts > failed unlock and close classify a committed mutation as outcome unknown",
+          "bun test --test-name-pattern=\"^failed unlock and close classify a committed mutation as outcome unknown$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-LOCK-RELEASE-002",
         "line": 1,
-        "searchText": "TASK-GRAPH-LOCK-RELEASE-002 已提交 mutation 的 release 失败返回未知结果 mutation 已完成原子替换与读回后，lock release/isolation 失败不能把已提交结果报告为未提交。 调用返回 WRITE_OUTCOME_UNKNOWN，索引 revision 已增加且已提交 scope 可读。 tools/task-graph/tests/store.test.ts > committed mutations report unknown outcome when lock release isolation fails bun test --test-name-pattern=\"^committed mutations report unknown outcome when lock release isolation fails$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-LOCK-RELEASE-002 unlock 与 close 都失败时已提交 mutation 返回未知结果 mutation 已完成候选提交与读回后，原生 unlock 和句柄 close 都失败时不能把结果报告为未提交。 返回带 `phase: lock-release` 和候选 revision 的 `WRITE_OUTCOME_UNKNOWN`，禁止调用方盲目重放。 tools/task-graph/tests/store.test.ts > failed unlock and close classify a committed mutation as outcome unknown bun test --test-name-pattern=\"^failed unlock and close classify a committed mutation as outcome unknown$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/committed-mutations-report-unknown-release-outcome.md",
-        "summary": "mutation 已完成原子替换与读回后，lock release/isolation 失败不能把已提交结果报告为未提交。",
-        "title": "已提交 mutation 的 release 失败返回未知结果"
+        "summary": "mutation 已完成候选提交与读回后，原生 unlock 和句柄 close 都失败时不能把结果报告为未提交。",
+        "title": "unlock 与 close 都失败时已提交 mutation 返回未知结果"
       }
     },
     {
-      "id": "TASK-GRAPH-LOCK-RELEASE-003",
+      "id": "TASK-GRAPH-NATIVE-EXIT-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-LOCK-RELEASE-003 已提交写入的释放竞争不得删除替换 owner lock release 在隔离 canonical directory 前必须最终复验 owner token；提交后发现 owner 已换代时不得隔离新锁，并必须按未知写入结果返回候选 revision。 mutation 已提交后、release rename 前 canonical owner 被替换时，操作返回 `WRITE_OUTCOME_UNKNOWN` 且报告 revision 1，新 owner 保持不变，已提交 scope 可从索引读回。 tools/task-graph/tests/store.test.ts > release isolation never removes a replacement owner after commit bun test --test-name-pattern=\"^release isolation never removes a replacement owner after commit$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-NATIVE-EXIT-001 持锁子进程退出后 OS 自动释放 native lock 进程崩溃释放由 OS 文件锁语义承接，不使用 owner metadata 或 stale recovery。 显式 Node holder 被终止后下一 mutation 成功，稳定锁文件内容仍为空且未删除。 tools/task-graph/tests/store.test.ts > operating system releases a child process native lock without stale metadata recovery bun test --test-name-pattern=\"^operating system releases a child process native lock without stale metadata recovery$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4670,22 +4766,22 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/store.test.ts > release isolation never removes a replacement owner after commit",
-          "bun test --test-name-pattern=\"^release isolation never removes a replacement owner after commit$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/store.test.ts > operating system releases a child process native lock without stale metadata recovery",
+          "bun test --test-name-pattern=\"^operating system releases a child process native lock without stale metadata recovery$\" ./tools/task-graph/tests/run.ts"
         ],
-        "id": "TASK-GRAPH-LOCK-RELEASE-003",
+        "id": "TASK-GRAPH-NATIVE-EXIT-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-LOCK-RELEASE-003 已提交写入的释放竞争不得删除替换 owner lock release 在隔离 canonical directory 前必须最终复验 owner token；提交后发现 owner 已换代时不得隔离新锁，并必须按未知写入结果返回候选 revision。 mutation 已提交后、release rename 前 canonical owner 被替换时，操作返回 `WRITE_OUTCOME_UNKNOWN` 且报告 revision 1，新 owner 保持不变，已提交 scope 可从索引读回。 tools/task-graph/tests/store.test.ts > release isolation never removes a replacement owner after commit bun test --test-name-pattern=\"^release isolation never removes a replacement owner after commit$\" ./tools/task-graph/tests/run.ts",
-        "sourcePath": "task-graph/release-isolation-preserves-replacement-owner.md",
-        "summary": "lock release 在隔离 canonical directory 前必须最终复验 owner token；提交后发现 owner 已换代时不得隔离新锁，并必须按未知写入结果返回候选 revision。",
-        "title": "已提交写入的释放竞争不得删除替换 owner"
+        "searchText": "TASK-GRAPH-NATIVE-EXIT-001 持锁子进程退出后 OS 自动释放 native lock 进程崩溃释放由 OS 文件锁语义承接，不使用 owner metadata 或 stale recovery。 显式 Node holder 被终止后下一 mutation 成功，稳定锁文件内容仍为空且未删除。 tools/task-graph/tests/store.test.ts > operating system releases a child process native lock without stale metadata recovery bun test --test-name-pattern=\"^operating system releases a child process native lock without stale metadata recovery$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/child-exit-releases-native-lock.md",
+        "summary": "进程崩溃释放由 OS 文件锁语义承接，不使用 owner metadata 或 stale recovery。",
+        "title": "持锁子进程退出后 OS 自动释放 native lock"
       }
     },
     {
-      "id": "TASK-GRAPH-LOCK-TOKEN-001",
+      "id": "TASK-GRAPH-NATIVE-FD-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-LOCK-TOKEN-001 token 被替换后旧 owner 不得提交或删除新 owner 的锁 提交点和释放前必须确认 lock owner token 仍属于当前写者；验证失败的旧 owner 不得隔离或删除新 owner 的锁。 token 被替换后旧 owner 返回 LOCK_LOST，revision 与 scopes 保持未提交状态，新的 owner token 仍保留在规范 lock directory 中。 tools/task-graph/tests/store.test.ts > a changed lock owner token prevents the old owner from committing bun test --test-name-pattern=\"^a changed lock owner token prevents the old owner from committing$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-NATIVE-FD-001 同进程独立描述符遵守原生排他锁 稳定普通文件上的 native tryLock 必须对独立描述符互斥，并在 unlock 后立即可再次取得。 第一个描述符取锁成功时第二个失败；释放后第二个成功。 tools/task-graph/tests/store.test.ts > native binding excludes two independent file descriptors in one process bun test --test-name-pattern=\"^native binding excludes two independent file descriptors in one process$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4694,15 +4790,39 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/store.test.ts > a changed lock owner token prevents the old owner from committing",
-          "bun test --test-name-pattern=\"^a changed lock owner token prevents the old owner from committing$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/store.test.ts > native binding excludes two independent file descriptors in one process",
+          "bun test --test-name-pattern=\"^native binding excludes two independent file descriptors in one process$\" ./tools/task-graph/tests/run.ts"
         ],
-        "id": "TASK-GRAPH-LOCK-TOKEN-001",
+        "id": "TASK-GRAPH-NATIVE-FD-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-LOCK-TOKEN-001 token 被替换后旧 owner 不得提交或删除新 owner 的锁 提交点和释放前必须确认 lock owner token 仍属于当前写者；验证失败的旧 owner 不得隔离或删除新 owner 的锁。 token 被替换后旧 owner 返回 LOCK_LOST，revision 与 scopes 保持未提交状态，新的 owner token 仍保留在规范 lock directory 中。 tools/task-graph/tests/store.test.ts > a changed lock owner token prevents the old owner from committing bun test --test-name-pattern=\"^a changed lock owner token prevents the old owner from committing$\" ./tools/task-graph/tests/run.ts",
-        "sourcePath": "task-graph/changed-owner-token-blocks-old-owner-commit.md",
-        "summary": "提交点和释放前必须确认 lock owner token 仍属于当前写者；验证失败的旧 owner 不得隔离或删除新 owner 的锁。",
-        "title": "token 被替换后旧 owner 不得提交或删除新 owner 的锁"
+        "searchText": "TASK-GRAPH-NATIVE-FD-001 同进程独立描述符遵守原生排他锁 稳定普通文件上的 native tryLock 必须对独立描述符互斥，并在 unlock 后立即可再次取得。 第一个描述符取锁成功时第二个失败；释放后第二个成功。 tools/task-graph/tests/store.test.ts > native binding excludes two independent file descriptors in one process bun test --test-name-pattern=\"^native binding excludes two independent file descriptors in one process$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/native-binding-excludes-independent-descriptors.md",
+        "summary": "稳定普通文件上的 native tryLock 必须对独立描述符互斥，并在 unlock 后立即可再次取得。",
+        "title": "同进程独立描述符遵守原生排他锁"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-NATIVE-TIMEOUT-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-NATIVE-TIMEOUT-001 活跃 native holder 超时且稳定锁文件保留 tryLock 竞争只按默认 5 秒单调期限轮询，达到期限返回 `LOCK_TIMEOUT`，不得偷锁或 unlink 稳定文件。 活跃 holder 下可控单调时钟精确推进到 5000 ms，details 含默认 waitMilliseconds，锁文件仍为普通文件。 tools/task-graph/tests/store.test.ts > active native lock holder reaches bounded timeout and leaves the stable lock file bun test --test-name-pattern=\"^active native lock holder reaches bounded timeout and leaves the stable lock file$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/store.test.ts > active native lock holder reaches bounded timeout and leaves the stable lock file",
+          "bun test --test-name-pattern=\"^active native lock holder reaches bounded timeout and leaves the stable lock file$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-NATIVE-TIMEOUT-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-NATIVE-TIMEOUT-001 活跃 native holder 超时且稳定锁文件保留 tryLock 竞争只按默认 5 秒单调期限轮询，达到期限返回 `LOCK_TIMEOUT`，不得偷锁或 unlink 稳定文件。 活跃 holder 下可控单调时钟精确推进到 5000 ms，details 含默认 waitMilliseconds，锁文件仍为普通文件。 tools/task-graph/tests/store.test.ts > active native lock holder reaches bounded timeout and leaves the stable lock file bun test --test-name-pattern=\"^active native lock holder reaches bounded timeout and leaves the stable lock file$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/active-native-lock-times-out-and-persists.md",
+        "summary": "tryLock 竞争只按默认 5 秒单调期限轮询，达到期限返回 `LOCK_TIMEOUT`，不得偷锁或 unlink 稳定文件。",
+        "title": "活跃 native holder 超时且稳定锁文件保留"
       }
     },
     {
@@ -4727,6 +4847,30 @@
         "sourcePath": "task-graph/parent-completion-enforces-the-settlement-gate.md",
         "summary": "父任务完成要求直接子任务全部成功或取消、至少一个成功且没有后代租约。",
         "title": "未收敛或全取消子任务阻止完成，混合成功/取消允许 attempt 0 的父任务成功"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-PROCESS-CLAIM-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-PROCESS-CLAIM-001 独立 Node CLI 排斥 claim 只有一个赢家 独立进程必须通过同一稳定 native lock 串行化并在最新索引重验 exclusion。 两个显式 Node 进程同时领取排斥任务时一个成功、一个 `STATE_CONFLICT`，最终 revision 只增加一次。 tools/task-graph/tests/cli.test.ts > independent Node CLI claims serialize and only one excluded task wins bun test --test-name-pattern=\"^independent Node CLI claims serialize and only one excluded task wins$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > independent Node CLI claims serialize and only one excluded task wins",
+          "bun test --test-name-pattern=\"^independent Node CLI claims serialize and only one excluded task wins$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-PROCESS-CLAIM-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-PROCESS-CLAIM-001 独立 Node CLI 排斥 claim 只有一个赢家 独立进程必须通过同一稳定 native lock 串行化并在最新索引重验 exclusion。 两个显式 Node 进程同时领取排斥任务时一个成功、一个 `STATE_CONFLICT`，最终 revision 只增加一次。 tools/task-graph/tests/cli.test.ts > independent Node CLI claims serialize and only one excluded task wins bun test --test-name-pattern=\"^independent Node CLI claims serialize and only one excluded task wins$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/independent-node-claims-have-one-winner.md",
+        "summary": "独立进程必须通过同一稳定 native lock 串行化并在最新索引重验 exclusion。",
+        "title": "独立 Node CLI 排斥 claim 只有一个赢家"
       }
     },
     {
@@ -4847,6 +4991,462 @@
         "sourcePath": "task-graph/ancestor-control-cannot-change-running-descendant.md",
         "summary": "control 编辑必须重算后代；会改变 running task 有效 control 时拒绝。",
         "title": "继承 control 的运行子任务受保护，本地覆盖使无影响的祖先编辑可提交"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-CLOSURE-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-CLOSURE-001 缺失锁定传递包时拒绝祖先 node_modules fallback 加载 addon 前必须按嵌入 lockfile 校验目标 runtime 内全部非 optional 包的 realpath 与精确版本。 目标 `require-addon` 被删除而祖先副本存在时，check 与 mutation 都返回 incompatible，mutation 不创建工作区目录。 tools/task-graph/tests/runtime.test.ts > runtime rejects a missing locked transitive package instead of ancestor node_modules fallback bun test --test-name-pattern=\"^runtime rejects a missing locked transitive package instead of ancestor node_modules fallback$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/runtime.test.ts > runtime rejects a missing locked transitive package instead of ancestor node_modules fallback",
+          "bun test --test-name-pattern=\"^runtime rejects a missing locked transitive package instead of ancestor node_modules fallback$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-CLOSURE-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-CLOSURE-001 缺失锁定传递包时拒绝祖先 node_modules fallback 加载 addon 前必须按嵌入 lockfile 校验目标 runtime 内全部非 optional 包的 realpath 与精确版本。 目标 `require-addon` 被删除而祖先副本存在时，check 与 mutation 都返回 incompatible，mutation 不创建工作区目录。 tools/task-graph/tests/runtime.test.ts > runtime rejects a missing locked transitive package instead of ancestor node_modules fallback bun test --test-name-pattern=\"^runtime rejects a missing locked transitive package instead of ancestor node_modules fallback$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/runtime-rejects-transitive-ancestor-fallback.md",
+        "summary": "加载 addon 前必须按嵌入 lockfile 校验目标 runtime 内全部非 optional 包的 realpath 与精确版本。",
+        "title": "缺失锁定传递包时拒绝祖先 node_modules fallback"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-COMMANDS-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-COMMANDS-001 runtime 命令保持单 JSON 且不访问索引 `runtime info|install|check` 无参数、revision 为 null，并与工作区 task index 生命周期隔离。 missing info/check、显式 Node 下 install reuse/check 都使用一个 LF JSON 与空 stderr，工作区 docs 未创建。 tools/task-graph/tests/cli.test.ts > CLI runtime info, install reuse, and check use one JSON envelope without index access bun test --test-name-pattern=\"^CLI runtime info, install reuse, and check use one JSON envelope without index access$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > CLI runtime info, install reuse, and check use one JSON envelope without index access",
+          "bun test --test-name-pattern=\"^CLI runtime info, install reuse, and check use one JSON envelope without index access$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-COMMANDS-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-COMMANDS-001 runtime 命令保持单 JSON 且不访问索引 `runtime info|install|check` 无参数、revision 为 null，并与工作区 task index 生命周期隔离。 missing info/check、显式 Node 下 install reuse/check 都使用一个 LF JSON 与空 stderr，工作区 docs 未创建。 tools/task-graph/tests/cli.test.ts > CLI runtime info, install reuse, and check use one JSON envelope without index access bun test --test-name-pattern=\"^CLI runtime info, install reuse, and check use one JSON envelope without index access$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-runtime-commands-avoid-index.md",
+        "summary": "`runtime info|install|check` 无参数、revision 为 null，并与工作区 task index 生命周期隔离。",
+        "title": "runtime 命令保持单 JSON 且不访问索引"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-DIAGNOSTIC-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-DIAGNOSTIC-001 安装诊断先清理秘密再保留 8 KiB 尾部 npm stdout/stderr 不能因超长值、JSON key、URL userinfo 或控制字符泄漏凭据。 超长 token、引号值和 URL 凭据都被替换，安全尾部保留且每个流不超过 8 KiB，失败临时目录被清理。 tools/task-graph/tests/runtime.test.ts > runtime install failure sanitizes long, chunk-independent JSON and URL secrets before 8 KiB tail bun test --test-name-pattern=\"^runtime install failure sanitizes long, chunk-independent JSON and URL secrets before 8 KiB tail$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/runtime.test.ts > runtime install failure sanitizes long, chunk-independent JSON and URL secrets before 8 KiB tail",
+          "bun test --test-name-pattern=\"^runtime install failure sanitizes long, chunk-independent JSON and URL secrets before 8 KiB tail$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-DIAGNOSTIC-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-DIAGNOSTIC-001 安装诊断先清理秘密再保留 8 KiB 尾部 npm stdout/stderr 不能因超长值、JSON key、URL userinfo 或控制字符泄漏凭据。 超长 token、引号值和 URL 凭据都被替换，安全尾部保留且每个流不超过 8 KiB，失败临时目录被清理。 tools/task-graph/tests/runtime.test.ts > runtime install failure sanitizes long, chunk-independent JSON and URL secrets before 8 KiB tail bun test --test-name-pattern=\"^runtime install failure sanitizes long, chunk-independent JSON and URL secrets before 8 KiB tail$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/runtime-diagnostics-redact-before-tail.md",
+        "summary": "npm stdout/stderr 不能因超长值、JSON key、URL userinfo 或控制字符泄漏凭据。",
+        "title": "安装诊断先清理秘密再保留 8 KiB 尾部"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-DIAGNOSTIC-CHUNK-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-DIAGNOSTIC-CHUNK-001 流式诊断跨 chunk 识别 secret key 凭据 key 或值跨子进程输出 chunk 时仍必须按同一有界清理状态处理。 `_auth`/`Token` 跨 chunk、JSON token 与 URL userinfo 全部清理，非零退出信息仍可诊断。 tools/task-graph/tests/runtime.test.ts > npm command sanitizer handles secret keys split across process output chunks bun test --test-name-pattern=\"^npm command sanitizer handles secret keys split across process output chunks$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/runtime.test.ts > npm command sanitizer handles secret keys split across process output chunks",
+          "bun test --test-name-pattern=\"^npm command sanitizer handles secret keys split across process output chunks$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-DIAGNOSTIC-CHUNK-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-DIAGNOSTIC-CHUNK-001 流式诊断跨 chunk 识别 secret key 凭据 key 或值跨子进程输出 chunk 时仍必须按同一有界清理状态处理。 `_auth`/`Token` 跨 chunk、JSON token 与 URL userinfo 全部清理，非零退出信息仍可诊断。 tools/task-graph/tests/runtime.test.ts > npm command sanitizer handles secret keys split across process output chunks bun test --test-name-pattern=\"^npm command sanitizer handles secret keys split across process output chunks$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/runtime-diagnostics-handle-chunk-boundaries.md",
+        "summary": "凭据 key 或值跨子进程输出 chunk 时仍必须按同一有界清理状态处理。",
+        "title": "流式诊断跨 chunk 识别 secret key"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-ENGINE-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-ENGINE-001 Node engine 在安装状态前失败关闭 Mutation runtime 只支持 `^22.22.2 || ^24.15.0 || >=26.0.0`。 边界下版本与 Node 25 返回 `RUNTIME_UNSUPPORTED`，三个最低受支持版本继续得到准确的 missing 状态。 tools/task-graph/tests/runtime.test.ts > runtime engine boundaries reject unsupported Node before installation state bun test --test-name-pattern=\"^runtime engine boundaries reject unsupported Node before installation state$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/runtime.test.ts > runtime engine boundaries reject unsupported Node before installation state",
+          "bun test --test-name-pattern=\"^runtime engine boundaries reject unsupported Node before installation state$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-ENGINE-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-ENGINE-001 Node engine 在安装状态前失败关闭 Mutation runtime 只支持 `^22.22.2 || ^24.15.0 || >=26.0.0`。 边界下版本与 Node 25 返回 `RUNTIME_UNSUPPORTED`，三个最低受支持版本继续得到准确的 missing 状态。 tools/task-graph/tests/runtime.test.ts > runtime engine boundaries reject unsupported Node before installation state bun test --test-name-pattern=\"^runtime engine boundaries reject unsupported Node before installation state$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/runtime-engine-boundaries-fail-before-state.md",
+        "summary": "Mutation runtime 只支持 `^22.22.2 || ^24.15.0 || >=26.0.0`。",
+        "title": "Node engine 在安装状态前失败关闭"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-GATE-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-GATE-001 CLI 在参数和 apply 输入访问前统一 gate mutation 识别 mutation 后必须先加载 runtime；缺失时 `RUNTIME_MISSING` 优先于 malformed args 或不可读 request。 23 个 mutation command path 全部先返回 revision null 的 runtime error；其中 malformed scope create 与 apply file 进一步证明参数、请求文件和索引读取计数为零，工作区目录未创建。 tools/task-graph/tests/cli.test.ts > CLI gates every mutation before argument parsing or apply request and index access bun test --test-name-pattern=\"^CLI gates every mutation before argument parsing or apply request and index access$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > CLI gates every mutation before argument parsing or apply request and index access",
+          "bun test --test-name-pattern=\"^CLI gates every mutation before argument parsing or apply request and index access$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-GATE-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-GATE-001 CLI 在参数和 apply 输入访问前统一 gate mutation 识别 mutation 后必须先加载 runtime；缺失时 `RUNTIME_MISSING` 优先于 malformed args 或不可读 request。 23 个 mutation command path 全部先返回 revision null 的 runtime error；其中 malformed scope create 与 apply file 进一步证明参数、请求文件和索引读取计数为零，工作区目录未创建。 tools/task-graph/tests/cli.test.ts > CLI gates every mutation before argument parsing or apply request and index access bun test --test-name-pattern=\"^CLI gates every mutation before argument parsing or apply request and index access$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-gates-mutations-before-input-access.md",
+        "summary": "识别 mutation 后必须先加载 runtime；缺失时 `RUNTIME_MISSING` 优先于 malformed args 或不可读 request。",
+        "title": "CLI 在参数和 apply 输入访问前统一 gate mutation"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-INFO-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-INFO-001 runtime info 的身份稳定且没有写副作用 Runtime ID 由 lockfile 语义内容确定，默认目录与环境覆盖稳定，info 只读。 LF/CRLF 资产得到同一 ID，空环境使用默认 home，非空覆盖完整生效，两个 home 都未被创建。 tools/task-graph/tests/runtime.test.ts > runtime info uses deterministic text identity, default and environment homes, and no writes bun test --test-name-pattern=\"^runtime info uses deterministic text identity, default and environment homes, and no writes$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/runtime.test.ts > runtime info uses deterministic text identity, default and environment homes, and no writes",
+          "bun test --test-name-pattern=\"^runtime info uses deterministic text identity, default and environment homes, and no writes$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-INFO-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-INFO-001 runtime info 的身份稳定且没有写副作用 Runtime ID 由 lockfile 语义内容确定，默认目录与环境覆盖稳定，info 只读。 LF/CRLF 资产得到同一 ID，空环境使用默认 home，非空覆盖完整生效，两个 home 都未被创建。 tools/task-graph/tests/runtime.test.ts > runtime info uses deterministic text identity, default and environment homes, and no writes bun test --test-name-pattern=\"^runtime info uses deterministic text identity, default and environment homes, and no writes$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/runtime-info-has-stable-identity-and-no-writes.md",
+        "summary": "Runtime ID 由 lockfile 语义内容确定，默认目录与环境覆盖稳定，info 只读。",
+        "title": "runtime info 的身份稳定且没有写副作用"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-INSTALL-CONCURRENCY-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-INSTALL-CONCURRENCY-001 并发 runtime 安装收敛到 installed 与 reused 独立安装进程使用唯一临时目录，发布竞争后验证最终 runtime，不另建 bootstrap 锁。 显式 Node 下两个安装分别返回 installed/reused，真实 check 与重复 reuse 成功，普通完成不残留 `.install-*`。 tools/task-graph/tests/runtime.test.ts > concurrent native runtime installation converges to installed and reused with a real probe bun test --test-name-pattern=\"^concurrent native runtime installation converges to installed and reused with a real probe$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/runtime.test.ts > concurrent native runtime installation converges to installed and reused with a real probe",
+          "bun test --test-name-pattern=\"^concurrent native runtime installation converges to installed and reused with a real probe$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-INSTALL-CONCURRENCY-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-INSTALL-CONCURRENCY-001 并发 runtime 安装收敛到 installed 与 reused 独立安装进程使用唯一临时目录，发布竞争后验证最终 runtime，不另建 bootstrap 锁。 显式 Node 下两个安装分别返回 installed/reused，真实 check 与重复 reuse 成功，普通完成不残留 `.install-*`。 tools/task-graph/tests/runtime.test.ts > concurrent native runtime installation converges to installed and reused with a real probe bun test --test-name-pattern=\"^concurrent native runtime installation converges to installed and reused with a real probe$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/concurrent-runtime-install-converges.md",
+        "summary": "独立安装进程使用唯一临时目录，发布竞争后验证最终 runtime，不另建 bootstrap 锁。",
+        "title": "并发 runtime 安装收敛到 installed 与 reused"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-POSIX-TIMEOUT-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-POSIX-TIMEOUT-001 POSIX 超时升级终止忽略 SIGTERM 的进程组 非 Windows 超时使用有界 SIGTERM 宽限，再以 SIGKILL 收敛同一进程组并等待 close。 在 POSIX 上忽略 SIGTERM 的父进程和派生后代被 SIGKILL，延迟 sentinel 不会写出；Windows 不执行该平台分支。 tools/task-graph/tests/runtime.test.ts > POSIX npm timeout escalates to SIGKILL for an ignoring process group and descendants bun test --test-name-pattern=\"^POSIX npm timeout escalates to SIGKILL for an ignoring process group and descendants$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/runtime.test.ts > POSIX npm timeout escalates to SIGKILL for an ignoring process group and descendants",
+          "bun test --test-name-pattern=\"^POSIX npm timeout escalates to SIGKILL for an ignoring process group and descendants$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-POSIX-TIMEOUT-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-POSIX-TIMEOUT-001 POSIX 超时升级终止忽略 SIGTERM 的进程组 非 Windows 超时使用有界 SIGTERM 宽限，再以 SIGKILL 收敛同一进程组并等待 close。 在 POSIX 上忽略 SIGTERM 的父进程和派生后代被 SIGKILL，延迟 sentinel 不会写出；Windows 不执行该平台分支。 tools/task-graph/tests/runtime.test.ts > POSIX npm timeout escalates to SIGKILL for an ignoring process group and descendants bun test --test-name-pattern=\"^POSIX npm timeout escalates to SIGKILL for an ignoring process group and descendants$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/posix-timeout-kills-process-group.md",
+        "summary": "非 Windows 超时使用有界 SIGTERM 宽限，再以 SIGKILL 收敛同一进程组并等待 close。",
+        "title": "POSIX 超时升级终止忽略 SIGTERM 的进程组"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-PROBE-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-PROBE-001 tryLock 探针失败保留子进程诊断 安装后探针必须在独立 Node 子进程内执行真实的无争用 tryLock/unlock；探针非零退出必须报告为 probe 阶段的 `RUNTIME_INSTALL_FAILED`，并保留结构化进程诊断。 运行时闭包完整但 binding 对无争用锁返回 false 时，子进程非零退出；错误同时保留 exitCode、signal、timedOut、stdoutTail、stderrTail，且 stderr 能定位 tryLock 失败。 tools/task-graph/tests/runtime.test.ts > runtime install probe reports an uncontended tryLock failure with child diagnostics bun test --test-name-pattern=\"^runtime install probe reports an uncontended tryLock failure with child diagnostics$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/runtime.test.ts > runtime install probe reports an uncontended tryLock failure with child diagnostics",
+          "bun test --test-name-pattern=\"^runtime install probe reports an uncontended tryLock failure with child diagnostics$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-PROBE-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-PROBE-001 tryLock 探针失败保留子进程诊断 安装后探针必须在独立 Node 子进程内执行真实的无争用 tryLock/unlock；探针非零退出必须报告为 probe 阶段的 `RUNTIME_INSTALL_FAILED`，并保留结构化进程诊断。 运行时闭包完整但 binding 对无争用锁返回 false 时，子进程非零退出；错误同时保留 exitCode、signal、timedOut、stdoutTail、stderrTail，且 stderr 能定位 tryLock 失败。 tools/task-graph/tests/runtime.test.ts > runtime install probe reports an uncontended tryLock failure with child diagnostics bun test --test-name-pattern=\"^runtime install probe reports an uncontended tryLock failure with child diagnostics$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/runtime-probe-trylock-failure-keeps-child-diagnostics.md",
+        "summary": "安装后探针必须在独立 Node 子进程内执行真实的无争用 tryLock/unlock；探针非零退出必须报告为 probe 阶段的 `RUNTIME_INSTALL_FAILED`，并保留结构化进程诊断。",
+        "title": "tryLock 探针失败保留子进程诊断"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-PROBE-002",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-PROBE-002 探针超时诊断完整且先脱敏 探针超时或信号退出必须保留 exitCode、signal、timedOut 和 stdout/stderr 尾部，并在进入错误 details 前脱敏凭据。 注入 timedOut + SIGKILL 的探针结果后，probe 阶段错误逐项保留进程字段与安全文本，同时移除 token 和 URL userinfo 原文。 tools/task-graph/tests/runtime.test.ts > runtime install probe preserves sanitized timed-out child diagnostics bun test --test-name-pattern=\"^runtime install probe preserves sanitized timed-out child diagnostics$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/runtime.test.ts > runtime install probe preserves sanitized timed-out child diagnostics",
+          "bun test --test-name-pattern=\"^runtime install probe preserves sanitized timed-out child diagnostics$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-PROBE-002",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-PROBE-002 探针超时诊断完整且先脱敏 探针超时或信号退出必须保留 exitCode、signal、timedOut 和 stdout/stderr 尾部，并在进入错误 details 前脱敏凭据。 注入 timedOut + SIGKILL 的探针结果后，probe 阶段错误逐项保留进程字段与安全文本，同时移除 token 和 URL userinfo 原文。 tools/task-graph/tests/runtime.test.ts > runtime install probe preserves sanitized timed-out child diagnostics bun test --test-name-pattern=\"^runtime install probe preserves sanitized timed-out child diagnostics$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/runtime-probe-timeout-diagnostics-are-sanitized.md",
+        "summary": "探针超时或信号退出必须保留 exitCode、signal、timedOut 和 stdout/stderr 尾部，并在进入错误 details 前脱敏凭据。",
+        "title": "探针超时诊断完整且先脱敏"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-READ-ONLY-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-READ-ONLY-001 领域只读命令不依赖 native runtime Index、scope、task 与图投影的只读命令不得加载或安装 native runtime。 九个领域只读 command path 在有效索引和空 tool home 下全部成功，且没有创建 tool home。 tools/task-graph/tests/cli.test.ts > CLI domain read-only commands run without an installed runtime bun test --test-name-pattern=\"^CLI domain read-only commands run without an installed runtime$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > CLI domain read-only commands run without an installed runtime",
+          "bun test --test-name-pattern=\"^CLI domain read-only commands run without an installed runtime$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-READ-ONLY-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-READ-ONLY-001 领域只读命令不依赖 native runtime Index、scope、task 与图投影的只读命令不得加载或安装 native runtime。 九个领域只读 command path 在有效索引和空 tool home 下全部成功，且没有创建 tool home。 tools/task-graph/tests/cli.test.ts > CLI domain read-only commands run without an installed runtime bun test --test-name-pattern=\"^CLI domain read-only commands run without an installed runtime$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-read-only-commands-need-no-runtime.md",
+        "summary": "Index、scope、task 与图投影的只读命令不得加载或安装 native runtime。",
+        "title": "领域只读命令不依赖 native runtime"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-SPAWN-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-SPAWN-001 npm spawn error 及时结算 子进程启动失败不得遗留超时器、监听器或等待完整安装期限。 不存在的命令在两秒内拒绝，而不是等待十秒测试超时。 tools/task-graph/tests/runtime.test.ts > npm command spawn errors reject promptly and clear process resources bun test --test-name-pattern=\"^npm command spawn errors reject promptly and clear process resources$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/runtime.test.ts > npm command spawn errors reject promptly and clear process resources",
+          "bun test --test-name-pattern=\"^npm command spawn errors reject promptly and clear process resources$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-SPAWN-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-SPAWN-001 npm spawn error 及时结算 子进程启动失败不得遗留超时器、监听器或等待完整安装期限。 不存在的命令在两秒内拒绝，而不是等待十秒测试超时。 tools/task-graph/tests/runtime.test.ts > npm command spawn errors reject promptly and clear process resources bun test --test-name-pattern=\"^npm command spawn errors reject promptly and clear process resources$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/npm-spawn-errors-settle-promptly.md",
+        "summary": "子进程启动失败不得遗留超时器、监听器或等待完整安装期限。",
+        "title": "npm spawn error 及时结算"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-STATE-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-STATE-001 missing 与 invalid marker 不被自动修复 缺失 runtime 返回安装动作；无效既有目录返回 incompatible 并原样保留。 info 区分 missing/invalid，check 分别返回 `RUNTIME_MISSING` 与 `RUNTIME_INCOMPATIBLE`，无效 marker 不被删除。 tools/task-graph/tests/runtime.test.ts > runtime missing and invalid marker states fail closed without repair bun test --test-name-pattern=\"^runtime missing and invalid marker states fail closed without repair$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/runtime.test.ts > runtime missing and invalid marker states fail closed without repair",
+          "bun test --test-name-pattern=\"^runtime missing and invalid marker states fail closed without repair$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-STATE-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-STATE-001 missing 与 invalid marker 不被自动修复 缺失 runtime 返回安装动作；无效既有目录返回 incompatible 并原样保留。 info 区分 missing/invalid，check 分别返回 `RUNTIME_MISSING` 与 `RUNTIME_INCOMPATIBLE`，无效 marker 不被删除。 tools/task-graph/tests/runtime.test.ts > runtime missing and invalid marker states fail closed without repair bun test --test-name-pattern=\"^runtime missing and invalid marker states fail closed without repair$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/runtime-marker-states-fail-closed.md",
+        "summary": "缺失 runtime 返回安装动作；无效既有目录返回 incompatible 并原样保留。",
+        "title": "missing 与 invalid marker 不被自动修复"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-TEMP-OWNERSHIP-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-TEMP-OWNERSHIP-001 安装不删除未创建的 UUID 碰撞目录 安装 finally 只能清理本次成功创建的唯一临时目录。 预建同名目录导致 prepare 失败，其 sentinel 保持不变且 command runner 未启动。 tools/task-graph/tests/runtime.test.ts > runtime install never removes a pre-existing UUID-collision directory it did not create bun test --test-name-pattern=\"^runtime install never removes a pre-existing UUID-collision directory it did not create$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/runtime.test.ts > runtime install never removes a pre-existing UUID-collision directory it did not create",
+          "bun test --test-name-pattern=\"^runtime install never removes a pre-existing UUID-collision directory it did not create$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-TEMP-OWNERSHIP-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-TEMP-OWNERSHIP-001 安装不删除未创建的 UUID 碰撞目录 安装 finally 只能清理本次成功创建的唯一临时目录。 预建同名目录导致 prepare 失败，其 sentinel 保持不变且 command runner 未启动。 tools/task-graph/tests/runtime.test.ts > runtime install never removes a pre-existing UUID-collision directory it did not create bun test --test-name-pattern=\"^runtime install never removes a pre-existing UUID-collision directory it did not create$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/runtime-install-preserves-unowned-temp-directory.md",
+        "summary": "安装 finally 只能清理本次成功创建的唯一临时目录。",
+        "title": "安装不删除未创建的 UUID 碰撞目录"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-TIMEOUT-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-TIMEOUT-001 npm 超时终止并等待直接子进程 安装子进程超时必须终止并结算为 timedOut，不留下后台直接子进程。 长驻显式 Node 子进程在短期限后被终止，结果标记 timedOut 且没有成功退出。 tools/task-graph/tests/runtime.test.ts > npm command timeout terminates and waits for the direct child bun test --test-name-pattern=\"^npm command timeout terminates and waits for the direct child$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/runtime.test.ts > npm command timeout terminates and waits for the direct child",
+          "bun test --test-name-pattern=\"^npm command timeout terminates and waits for the direct child$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-TIMEOUT-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-TIMEOUT-001 npm 超时终止并等待直接子进程 安装子进程超时必须终止并结算为 timedOut，不留下后台直接子进程。 长驻显式 Node 子进程在短期限后被终止，结果标记 timedOut 且没有成功退出。 tools/task-graph/tests/runtime.test.ts > npm command timeout terminates and waits for the direct child bun test --test-name-pattern=\"^npm command timeout terminates and waits for the direct child$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/npm-timeout-waits-for-child-termination.md",
+        "summary": "安装子进程超时必须终止并结算为 timedOut，不留下后台直接子进程。",
+        "title": "npm 超时终止并等待直接子进程"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-TIMEOUT-002",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-TIMEOUT-002 脱离的后代进程不延迟超时结算 直接子进程只有在收到脱离后代的 ready IPC、核对 ready sentinel 并确认后代已继承 stdout/stderr 后才以退出码 0 正常结束；后代必须继续持有管道超过命令 timeout。 安装子进程超时只以真实 `close` 作为管道关闭证据；直接子进程已经正常退出但脱离后代仍持有管道时，终止流程必须在独立总期限内结算，超时之后实际到达的后代输出不得进入返回诊断。 Ready 与 parent-confirmed sentinel、父进程确认输出及 `exitCode === 0` 共同证明直接父进程只在后代启动并持有继承管道后正常退出，随后结果仍为 `timedOut === true` 且在独立总期限内返回。 测试观察到后代在 timeout 之后写入 late sentinel；同一次实际延迟写入的 stdout 标记不在已返回诊断中。 tools/task-graph/tests/runtime.test.ts > npm timeout does not wait for or capture a detached descendant holding inherited pipes bun test --test-name-pattern=\"^npm timeout does not wait for or capture a detached descendant holding inherited pipes$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/task-graph/tests/runtime.test.ts > npm timeout does not wait for or capture a detached descendant holding inherited pipes",
+          "bun test --test-name-pattern=\"^npm timeout does not wait for or capture a detached descendant holding inherited pipes$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-TIMEOUT-002",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-TIMEOUT-002 脱离的后代进程不延迟超时结算 直接子进程只有在收到脱离后代的 ready IPC、核对 ready sentinel 并确认后代已继承 stdout/stderr 后才以退出码 0 正常结束；后代必须继续持有管道超过命令 timeout。 安装子进程超时只以真实 `close` 作为管道关闭证据；直接子进程已经正常退出但脱离后代仍持有管道时，终止流程必须在独立总期限内结算，超时之后实际到达的后代输出不得进入返回诊断。 Ready 与 parent-confirmed sentinel、父进程确认输出及 `exitCode === 0` 共同证明直接父进程只在后代启动并持有继承管道后正常退出，随后结果仍为 `timedOut === true` 且在独立总期限内返回。 测试观察到后代在 timeout 之后写入 late sentinel；同一次实际延迟写入的 stdout 标记不在已返回诊断中。 tools/task-graph/tests/runtime.test.ts > npm timeout does not wait for or capture a detached descendant holding inherited pipes bun test --test-name-pattern=\"^npm timeout does not wait for or capture a detached descendant holding inherited pipes$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/detached-descendant-pipes-do-not-delay-timeout.md",
+        "summary": "直接子进程只有在收到脱离后代的 ready IPC、核对 ready sentinel 并确认后代已继承 stdout/stderr 后才以退出码 0 正常结束；后代必须继续持有管道超过命令 timeout。",
+        "title": "脱离的后代进程不延迟超时结算"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-WINDOWS-TIMEOUT-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-WINDOWS-TIMEOUT-001 Windows taskkill 失败后回退直接终止 Windows 安装子进程超时调用 `taskkill` 失败或返回非零时，必须回退直接 `SIGKILL` 并有界等待 close。 注入不成功的 taskkill 结果后，真实长驻 Node 子进程仍被直接终止并结算为 timedOut；非 Windows 不执行该平台分支。 tools/task-graph/tests/runtime.test.ts > Windows npm timeout falls back to direct kill when taskkill is unsuccessful bun test --test-name-pattern=\"^Windows npm timeout falls back to direct kill when taskkill is unsuccessful$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/runtime.test.ts > Windows npm timeout falls back to direct kill when taskkill is unsuccessful",
+          "bun test --test-name-pattern=\"^Windows npm timeout falls back to direct kill when taskkill is unsuccessful$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-WINDOWS-TIMEOUT-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-WINDOWS-TIMEOUT-001 Windows taskkill 失败后回退直接终止 Windows 安装子进程超时调用 `taskkill` 失败或返回非零时，必须回退直接 `SIGKILL` 并有界等待 close。 注入不成功的 taskkill 结果后，真实长驻 Node 子进程仍被直接终止并结算为 timedOut；非 Windows 不执行该平台分支。 tools/task-graph/tests/runtime.test.ts > Windows npm timeout falls back to direct kill when taskkill is unsuccessful bun test --test-name-pattern=\"^Windows npm timeout falls back to direct kill when taskkill is unsuccessful$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/windows-timeout-falls-back-after-taskkill-failure.md",
+        "summary": "Windows 安装子进程超时调用 `taskkill` 失败或返回非零时，必须回退直接 `SIGKILL` 并有界等待 close。",
+        "title": "Windows taskkill 失败后回退直接终止"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-RUNTIME-WINDOWS-TIMEOUT-002",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-RUNTIME-WINDOWS-TIMEOUT-002 Windows taskkill 永不结算时仍有界回退 Windows 安装子进程超时不能无限等待 `taskkill`；无论外部终止调用是否结算，都必须在独立期限内回退直接终止并返回结构化 timedOut 结果。 注入永不结算的 taskkill 后，真实长驻 Node 子进程仍在一秒内终止并结算；非 Windows 不执行该平台分支。 tools/task-graph/tests/runtime.test.ts > Windows npm timeout bounds a taskkill call that never settles bun test --test-name-pattern=\"^Windows npm timeout bounds a taskkill call that never settles$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/runtime.test.ts > Windows npm timeout bounds a taskkill call that never settles",
+          "bun test --test-name-pattern=\"^Windows npm timeout bounds a taskkill call that never settles$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-RUNTIME-WINDOWS-TIMEOUT-002",
+        "line": 1,
+        "searchText": "TASK-GRAPH-RUNTIME-WINDOWS-TIMEOUT-002 Windows taskkill 永不结算时仍有界回退 Windows 安装子进程超时不能无限等待 `taskkill`；无论外部终止调用是否结算，都必须在独立期限内回退直接终止并返回结构化 timedOut 结果。 注入永不结算的 taskkill 后，真实长驻 Node 子进程仍在一秒内终止并结算；非 Windows 不执行该平台分支。 tools/task-graph/tests/runtime.test.ts > Windows npm timeout bounds a taskkill call that never settles bun test --test-name-pattern=\"^Windows npm timeout bounds a taskkill call that never settles$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/windows-taskkill-hang-is-bounded.md",
+        "summary": "Windows 安装子进程超时不能无限等待 `taskkill`；无论外部终止调用是否结算，都必须在独立期限内回退直接终止并返回结构化 timedOut 结果。",
+        "title": "Windows taskkill 永不结算时仍有界回退"
       }
     },
     {
@@ -4973,7 +5573,7 @@
       "id": "TASK-GRAPH-SYMLINK-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-SYMLINK-001 权威路径与 recovery generation 都拒绝符号链接 index、lock 与同目录临时文件路径不得跨越符号链接，claimed owner 与 reclaimer generation 也必须是普通非符号文件。 index、lock 与临时路径边界在写入前以 `PATH_SYMLINK` 拒绝；claimed owner 或 reclaimer symlink 在恢复读取时以稳定 `LOCK_RECOVERY_REQUIRED` 拒绝且链接保持不变。 tools/task-graph/tests/store.test.ts > index, lock, and temporary paths reject symbolic-link boundaries bun test --test-name-pattern=\"^index, lock, and temporary paths reject symbolic-link boundaries$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-SYMLINK-001 索引路径拒绝穿过已存在符号链接 权威索引及其旁路锁路径不得穿过已存在的符号链接边界。 init 在创建索引、局部 ignore 或稳定锁文件前以 `PATH_SYMLINK` 拒绝链接目录。 tools/task-graph/tests/store.test.ts > store rejects an index path crossing an existing symbolic link bun test --test-name-pattern=\"^store rejects an index path crossing an existing symbolic link$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4982,15 +5582,15 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/store.test.ts > index, lock, and temporary paths reject symbolic-link boundaries",
-          "bun test --test-name-pattern=\"^index, lock, and temporary paths reject symbolic-link boundaries$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/store.test.ts > store rejects an index path crossing an existing symbolic link",
+          "bun test --test-name-pattern=\"^store rejects an index path crossing an existing symbolic link$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-SYMLINK-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-SYMLINK-001 权威路径与 recovery generation 都拒绝符号链接 index、lock 与同目录临时文件路径不得跨越符号链接，claimed owner 与 reclaimer generation 也必须是普通非符号文件。 index、lock 与临时路径边界在写入前以 `PATH_SYMLINK` 拒绝；claimed owner 或 reclaimer symlink 在恢复读取时以稳定 `LOCK_RECOVERY_REQUIRED` 拒绝且链接保持不变。 tools/task-graph/tests/store.test.ts > index, lock, and temporary paths reject symbolic-link boundaries bun test --test-name-pattern=\"^index, lock, and temporary paths reject symbolic-link boundaries$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-SYMLINK-001 索引路径拒绝穿过已存在符号链接 权威索引及其旁路锁路径不得穿过已存在的符号链接边界。 init 在创建索引、局部 ignore 或稳定锁文件前以 `PATH_SYMLINK` 拒绝链接目录。 tools/task-graph/tests/store.test.ts > store rejects an index path crossing an existing symbolic link bun test --test-name-pattern=\"^store rejects an index path crossing an existing symbolic link$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/task-graph-paths-reject-symbolic-links.md",
-        "summary": "index、lock 与同目录临时文件路径不得跨越符号链接，claimed owner 与 reclaimer generation 也必须是普通非符号文件。",
-        "title": "权威路径与 recovery generation 都拒绝符号链接"
+        "summary": "权威索引及其旁路锁路径不得穿过已存在的符号链接边界。",
+        "title": "索引路径拒绝穿过已存在符号链接"
       }
     },
     {
@@ -6154,5 +6754,5 @@
   },
   "namespace": "test-evidence",
   "schemaVersion": 2,
-  "sourceRevision": "sha256:aa3eab7da6babb65ad69f53f1ee4a13cf721efe76e9d40b3c9b21cdb3cde515f"
+  "sourceRevision": "sha256:93752edbf814ee649c07f9a16d7a24b4f6eb878b4c67a0a12765f4ac22cb2e74"
 }

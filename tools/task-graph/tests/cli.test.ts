@@ -6,7 +6,14 @@ import test from "node:test";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import { runTaskGraphCli, type TaskGraphResult } from "../src/cli.ts";
-import { taskContent, uuidSequence, withTempWorkspace } from "./helpers.ts";
+import {
+  loadUncontendedNativeLock,
+  prepareRootNativeRuntime,
+  resolveNodeExecutable,
+  taskContent,
+  uuidSequence,
+  withTempWorkspace
+} from "./helpers.ts";
 
 const execFileAsync = promisify(execFile);
 const repositoryRoot = path.resolve(
@@ -37,8 +44,8 @@ async function callCli(
     io: { stdout: (text) => chunks.push(text) },
     serviceOptions: {
       clock: () => new Date("2026-08-06T08:00:00.000Z"),
-      idGenerator: uuidSequence(1),
       leaseIdGenerator: uuidSequence(1001),
+      loadNativeLock: loadUncontendedNativeLock,
       ...serviceOptions
     }
   });
@@ -53,9 +60,11 @@ async function callCli(
 
 async function callProcessCli(
   args: string[],
-  input: string
+  input: string,
+  environment: NodeJS.ProcessEnv = process.env
 ): Promise<{ exitCode: number | null; stderr: string; stdout: string }> {
-  const child = spawn(process.execPath, [cliSourcePath, ...args], {
+  const child = spawn(await resolveNodeExecutable(), [cliSourcePath, ...args], {
+    env: environment,
     stdio: ["pipe", "pipe", "pipe"],
     windowsHide: true
   });
@@ -75,6 +84,26 @@ async function callProcessCli(
   };
 }
 
+async function callCliWithMissingRuntime(
+  root: string,
+  args: string[],
+  toolHome: string,
+  nodeVersion: string
+): Promise<CliCall> {
+  const chunks: string[] = [];
+  const exitCode = await runTaskGraphCli(["--root", root, ...args], {
+    io: { stdout: (text) => chunks.push(text) },
+    runtimeOptions: {
+      environment: { TASK_GRAPH_TOOL_HOME: toolHome },
+      nodeVersion
+    }
+  });
+  assert.equal(chunks.length, 1);
+  const output = chunks[0]!;
+  const result = JSON.parse(output) as TaskGraphResult;
+  return { exitCode, output, result };
+}
+
 test("CLI help, version, and usage stay inside the single-JSON LF protocol", async () => {
   await withTempWorkspace(async (root) => {
     const help = await callCli(root, []);
@@ -83,7 +112,15 @@ test("CLI help, version, and usage stay inside the single-JSON LF protocol", asy
       assert.equal(help.result.revision, null);
       const data = help.result.data as { commands: string[]; usage: string };
       assert.equal(data.usage.startsWith("task-graph"), true);
-      assert.equal(data.commands.length, 32);
+      assert.equal(data.commands.length, 35);
+      assert.deepEqual(
+        (help.result.data as { runtimeRequirements: unknown }).runtimeRequirements,
+        {
+          supportedNodeRange: "^22.22.2 || ^24.15.0 || >=26.0.0",
+          mutationPrerequisite: "installed-compatible-runtime",
+          installCommand: ["runtime", "install"]
+        }
+      );
       for (const command of data.commands) {
         const commandHelp = await callCli(root, [...command.split(" "), "--help"]);
         assert.equal(commandHelp.result.ok, true);
@@ -135,7 +172,7 @@ test("CLI help, version, and usage stay inside the single-JSON LF protocol", asy
     const version = await callCli(root, ["--version"]);
     assert.equal(version.result.ok, true);
     if (version.result.ok) {
-      assert.deepEqual(version.result.data, { name: "task-graph", version: "1.0.0" });
+      assert.deepEqual(version.result.data, { name: "task-graph", version: "1.1.0" });
       assert.equal(version.result.revision, null);
     }
 
@@ -146,6 +183,182 @@ test("CLI help, version, and usage stay inside the single-JSON LF protocol", asy
       assert.equal(usage.result.error.code, "ARGUMENT_INVALID");
       assert.equal(usage.result.revision, null);
     }
+  });
+});
+
+test("CLI gates every mutation before argument parsing or apply request and index access", async () => {
+  await withTempWorkspace(async (root) => {
+    const toolHome = path.join(root, "missing-tool-home");
+    const requestPath = path.join(root, "observable-request.json");
+    const indexPath = path.join(root, "docs", "task-graph", "task-graph-index.json");
+    const nodeVersion = (await execFileAsync(
+      await resolveNodeExecutable(),
+      ["-p", "process.version"],
+      { windowsHide: true }
+    )).stdout.trim();
+    await fs.writeFile(requestPath, "{not-json", "utf8");
+    const originalReadFile = fs.readFile;
+    let requestReads = 0;
+    let indexReads = 0;
+    Object.defineProperty(fs, "readFile", {
+      configurable: true,
+      value: async (...args: Parameters<typeof fs.readFile>) => {
+        const target = args[0];
+        if (typeof target === "string") {
+          if (path.resolve(target) === requestPath) requestReads += 1;
+          if (path.resolve(target) === indexPath) indexReads += 1;
+        }
+        return await originalReadFile(...args);
+      }
+    });
+    try {
+      const mutationInvocations = [
+        ["index", "init"],
+        ["scope", "create", "--key"],
+        ["scope", "binding-set"],
+        ["scope", "binding-remove"],
+        ["scope", "close"],
+        ["scope", "gc"],
+        ["task", "create"],
+        ["task", "update-content"],
+        ["task", "update-control"],
+        ["relation", "parent"],
+        ["relation", "dependency-add"],
+        ["relation", "dependency-remove"],
+        ["relation", "exclusion-add"],
+        ["relation", "exclusion-remove"],
+        ["claim"],
+        ["renew"],
+        ["release"],
+        ["complete"],
+        ["fail"],
+        ["retry"],
+        ["cancel"],
+        ["recover"],
+        ["apply", "--file", requestPath]
+      ];
+      for (const args of mutationInvocations) {
+        const failure = await callCliWithMissingRuntime(root, args, toolHome, nodeVersion);
+        assert.equal(failure.exitCode, 1);
+        assert.equal(failure.output.endsWith("\n"), true);
+        assert.equal(failure.output.slice(0, -1).includes("\n"), false);
+        assert.equal(failure.result.ok, false);
+        if (!failure.result.ok) {
+          assert.equal(failure.result.error.code, "RUNTIME_MISSING");
+          assert.equal(failure.result.revision, null);
+        }
+      }
+    } finally {
+      Object.defineProperty(fs, "readFile", {
+        configurable: true,
+        value: originalReadFile
+      });
+    }
+    assert.equal(requestReads, 0);
+    assert.equal(indexReads, 0);
+    await assert.rejects(fs.stat(path.dirname(indexPath)), { code: "ENOENT" });
+  });
+});
+
+test("CLI domain read-only commands run without an installed runtime", async () => {
+  await withTempWorkspace(async (root) => {
+    await callCli(root, ["index", "init"]);
+    await callCli(root, [
+      "scope", "create",
+      "--key", "read-only",
+      "--expected-revision", "0"
+    ]);
+    await callCli(root, [
+      "task", "create", "scope-000001",
+      "--title", "read-only task",
+      "--goal", "query without runtime",
+      "--acceptance", "all read-only commands succeed",
+      "--expected-revision", "1"
+    ]);
+    const toolHome = path.join(root, "missing-tool-home");
+    const nodeVersion = (await execFileAsync(
+      await resolveNodeExecutable(),
+      ["-p", "process.version"],
+      { windowsHide: true }
+    )).stdout.trim();
+    for (const args of [
+      ["index", "info"],
+      ["index", "check"],
+      ["scope", "list"],
+      ["scope", "show", "scope-000001"],
+      ["scope", "gc-query"],
+      ["task", "list", "scope-000001"],
+      ["task", "show", "scope-000001", "task-000001"],
+      ["actionable", "scope-000001"],
+      ["trace", "scope-000001", "task-000001"]
+    ]) {
+      const result = await callCliWithMissingRuntime(root, args, toolHome, nodeVersion);
+      assert.equal(result.exitCode, 0, args.join(" "));
+      assert.equal(result.result.ok, true, args.join(" "));
+    }
+    await assert.rejects(fs.stat(toolHome), { code: "ENOENT" });
+  });
+});
+
+test("CLI runtime info, install reuse, and check use one JSON envelope without index access", async () => {
+  await withTempWorkspace(async (root) => {
+    const toolHome = path.join(root, "tool-home");
+    const node = await resolveNodeExecutable();
+    const nodeVersion = (await execFileAsync(node, ["-p", "process.version"], {
+      windowsHide: true
+    })).stdout.trim();
+    const invoke = async (args: string[]): Promise<CliCall> => {
+      const chunks: string[] = [];
+      const exitCode = await runTaskGraphCli(["--root", root, ...args], {
+        io: { stdout: (text) => chunks.push(text) },
+        runtimeOptions: {
+          environment: { TASK_GRAPH_TOOL_HOME: toolHome },
+          nodeVersion
+        }
+      });
+      assert.equal(chunks.length, 1);
+      const output = chunks[0]!;
+      assert.equal(output.endsWith("\n"), true);
+      assert.equal(output.slice(0, -1).includes("\n"), false);
+      return { exitCode, output, result: JSON.parse(output) as TaskGraphResult };
+    };
+    const missing = await invoke(["runtime", "info"]);
+    assert.equal(missing.result.ok, true);
+    if (missing.result.ok) {
+      assert.equal((missing.result.data as { state: string }).state, "missing");
+      assert.equal(missing.result.revision, null);
+    }
+    const missingCheck = await invoke(["runtime", "check"]);
+    assert.equal(missingCheck.result.ok, false);
+    if (!missingCheck.result.ok) {
+      assert.equal(missingCheck.result.error.code, "RUNTIME_MISSING");
+      assert.equal(missingCheck.result.revision, null);
+    }
+    await prepareRootNativeRuntime(toolHome);
+    const environment = { ...process.env, TASK_GRAPH_TOOL_HOME: toolHome };
+    const installed = await callProcessCli(
+      ["runtime", "install", "--root", root],
+      "",
+      environment
+    );
+    assert.equal(installed.exitCode, 0);
+    assert.equal(installed.stderr, "");
+    assert.equal(
+      (JSON.parse(installed.stdout) as { data: { action: string } }).data.action,
+      "reused"
+    );
+    const checked = await callProcessCli(
+      ["runtime", "check", "--root", root],
+      "",
+      environment
+    );
+    assert.equal(checked.exitCode, 0);
+    assert.equal(checked.stderr, "");
+    assert.equal(
+      (JSON.parse(checked.stdout) as { data: { compatible: boolean } }).data.compatible,
+      true
+    );
+    await assert.rejects(fs.stat(path.join(root, "docs")), { code: "ENOENT" });
   });
 });
 
@@ -292,17 +505,15 @@ test("CLI success and predictable schema, state, conflict, and file failures use
       "--key", "committed-but-response-lost",
       "--expected-revision", "0"
     ], {
-      idGenerator: uuidSequence(2001),
-      hooks: {
-        afterCommit: () => {
-          throw new Error("simulated response loss");
-        }
+      atomicWrite: async (target) => {
+        await fs.writeFile(target, "{corrupt", "utf8");
+        throw new Error("simulated different replacement");
       }
     });
     assert.equal(unknown.result.ok, false);
     if (!unknown.result.ok) {
       assert.equal(unknown.result.error.code, "WRITE_OUTCOME_UNKNOWN");
-      assert.equal(unknown.result.revision, 1);
+      assert.equal(unknown.result.revision, null);
       assert.equal(unknown.result.error.details.possibleRevision, 1);
     }
   });
@@ -314,12 +525,8 @@ test("CLI success and predictable schema, state, conflict, and file failures use
       "--key", "committed-then-unreadable",
       "--expected-revision", "0"
     ], {
-      idGenerator: uuidSequence(3001),
-      hooks: {
-        afterCommit: async ({ indexPath }) => {
-          await fs.unlink(indexPath);
-          throw new Error("simulated unreadable outcome");
-        }
+      atomicWrite: async (target) => {
+        await fs.unlink(target);
       }
     });
     assert.equal(unknown.result.ok, false);
@@ -352,12 +559,12 @@ test("CLI index check preserves the unsupported schema error code", async () => 
   });
 });
 
-test("process CLI maps path and recovery failures to JSON exit one with empty stderr", async () => {
+test("process CLI maps path failures to JSON exit one with empty stderr", async () => {
   await withTempWorkspace(async (root) => {
     const rootFile = path.join(root, "not-a-directory");
     await fs.writeFile(rootFile, "ordinary file\n", "utf8");
     try {
-      await execFileAsync(process.execPath, [
+      await execFileAsync(await resolveNodeExecutable(), [
         cliSourcePath,
         "index", "info",
         "--root", rootFile
@@ -385,51 +592,6 @@ test("process CLI maps path and recovery failures to JSON exit one with empty st
     }
   });
 
-  await withTempWorkspace(async (root) => {
-    await callCli(root, ["index", "init"]);
-    const lockPath = path.join(
-      root,
-      "docs",
-      "task-graph",
-      "task-graph-index.json.lock"
-    );
-    await fs.mkdir(lockPath);
-    const ownerToken = "00000000-0000-4000-8000-000000009001";
-    const reclaimerToken = "00000000-0000-4000-8000-000000009301";
-    await fs.writeFile(
-      path.join(
-        lockPath,
-        `owner-${ownerToken}.claimed-by-${reclaimerToken}.json`
-      ),
-      `${JSON.stringify({
-        hostname: "test-host",
-        ownerToken,
-        pid: 9001,
-        updatedAt: "2020-01-01T00:00:00.000Z"
-      })}\n`,
-      "utf8"
-    );
-    await fs.writeFile(
-      path.join(lockPath, `reclaimer-${reclaimerToken}.json`),
-      "{not-json}\n",
-      "utf8"
-    );
-    const invoked = await callProcessCli([
-      "scope", "create",
-      "--root", root,
-      "--key", "blocked-by-invalid-recovery",
-      "--expected-revision", "0"
-    ], "");
-    assert.equal(invoked.exitCode, 1);
-    assert.equal(invoked.stderr, "");
-    assert.ok(invoked.stdout.endsWith("\n"));
-    assert.equal(invoked.stdout.slice(0, -1).includes("\n"), false);
-    const result = JSON.parse(invoked.stdout) as TaskGraphResult;
-    assert.equal(result.ok, false);
-    if (!result.ok) {
-      assert.equal(result.error.code, "LOCK_RECOVERY_REQUIRED");
-    }
-  });
 });
 
 test("CLI rejects ambiguous lease and revision pairs plus invalid control reasons", async () => {
@@ -627,6 +789,8 @@ test("CLI apply resolves aliases and rolls back every operation when one fails",
 
 test("process CLI apply accepts a JSON request from stdin without extra output", async () => {
   await withTempWorkspace(async (root) => {
+    const toolHome = path.join(root, "tool-home");
+    await prepareRootNativeRuntime(toolHome);
     await callCli(root, ["index", "init"]);
     await callCli(root, [
       "scope", "create",
@@ -646,7 +810,7 @@ test("process CLI apply accepts a JSON request from stdin without extra output",
     const invoked = await callProcessCli([
       "apply",
       "--root", root
-    ], request);
+    ], request, { ...process.env, TASK_GRAPH_TOOL_HOME: toolHome });
     assert.equal(invoked.exitCode, 0);
     assert.equal(invoked.stderr, "");
     assert.ok(invoked.stdout.endsWith("\n"));
@@ -660,5 +824,77 @@ test("process CLI apply accepts a JSON request from stdin without extra output",
         { "stdin-task": "task-000001" }
       );
     }
+  });
+});
+
+test("independent Node CLI claims serialize and only one excluded task wins", async () => {
+  await withTempWorkspace(async (root) => {
+    const toolHome = path.join(root, "tool-home");
+    await prepareRootNativeRuntime(toolHome);
+    await callCli(root, ["index", "init"]);
+    await callCli(root, [
+      "scope", "create",
+      "--key", "process-race",
+      "--expected-revision", "0"
+    ]);
+    const requestPath = path.join(root, "excluded-tasks.json");
+    await fs.writeFile(requestPath, `${JSON.stringify({
+      expectedRevision: 1,
+      operations: [
+        {
+          kind: "create-task",
+          scopeId: "scope-000001",
+          alias: "left",
+          content: taskContent("left"),
+          control: { mode: "queued" }
+        },
+        {
+          kind: "create-task",
+          scopeId: "scope-000001",
+          alias: "right",
+          content: taskContent("right"),
+          control: { mode: "queued" }
+        },
+        {
+          kind: "set-exclusion",
+          scopeId: "scope-000001",
+          taskId: "@left",
+          excludedTaskId: "@right",
+          present: true
+        }
+      ]
+    }, null, 2)}\n`, "utf8");
+    const applied = await callCli(root, ["apply", "--file", requestPath]);
+    assert.equal(applied.result.ok, true);
+    const environment = { ...process.env, TASK_GRAPH_TOOL_HOME: toolHome };
+    const claims = await Promise.all([
+      callProcessCli([
+        "claim", "scope-000001", "task-000001",
+        "--actor", "left-worker",
+        "--root", root
+      ], "", environment),
+      callProcessCli([
+        "claim", "scope-000001", "task-000002",
+        "--actor", "right-worker",
+        "--root", root
+      ], "", environment)
+    ]);
+    assert.equal(claims.filter(({ exitCode }) => exitCode === 0).length, 1);
+    assert.equal(claims.filter(({ exitCode }) => exitCode === 1).length, 1);
+    for (const claim of claims) {
+      assert.equal(claim.stderr, "");
+      assert.equal(claim.stdout.endsWith("\n"), true);
+      assert.equal(claim.stdout.slice(0, -1).includes("\n"), false);
+    }
+    const failure = claims.find(({ exitCode }) => exitCode === 1);
+    assert.ok(failure !== undefined);
+    const failureResult = JSON.parse(failure.stdout) as TaskGraphResult;
+    assert.equal(failureResult.ok, false);
+    if (!failureResult.ok) {
+      assert.equal(failureResult.error.code, "STATE_CONFLICT");
+      assert.equal(failureResult.revision, 3);
+    }
+    const info = await callCli(root, ["index", "info"]);
+    assert.equal(info.result.revision, 3);
   });
 });

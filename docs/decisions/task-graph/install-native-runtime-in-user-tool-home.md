@@ -1,7 +1,7 @@
 ---
 title: 在用户工具目录安装 task-graph 原生运行时
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-06T16:23:22Z
 purpose: 让 task-graph 使用原生文件锁而不把平台二进制写入 Git 或 skill 分发包。
 background: Native addon 包体不大，但 `.node` 不可审阅、会累积 Git 历史，并扩大每个 skill 制品的平台内容。

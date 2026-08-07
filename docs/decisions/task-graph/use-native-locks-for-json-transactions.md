@@ -1,7 +1,7 @@
 ---
 title: 使用原生文件锁简化 JSON 事务
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-06T16:23:21Z
 purpose: 让 task-graph 保留可追踪 JSON，同时把跨进程互斥和原子替换交给成熟系统与库边界。
 background: 自研锁恢复需要 owner、heartbeat、进程探测和 generation 防护，维护面远超短事务本身。

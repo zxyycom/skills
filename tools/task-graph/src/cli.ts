@@ -5,9 +5,17 @@ import path from "node:path";
 import process from "node:process";
 import { isMainModule } from "../../shared/src/node/main-module.ts";
 import { TaskGraphError } from "./errors.ts";
+import {
+  checkTaskGraphRuntime,
+  getTaskGraphRuntimeInfo,
+  installTaskGraphRuntime,
+  loadNativeLockBinding,
+  type RuntimeInstallInternalOptions
+} from "./runtime.ts";
 import { parseTaskGraphApplyRequest } from "./schema.ts";
 import {
   TaskGraphService,
+  assertTaskGraphMutationRuntime,
   type ServiceResult,
   type TaskGraphServiceInternalOptions,
   type TaskGraphServiceOptions
@@ -15,6 +23,7 @@ import {
 import {
   defaultTaskGraphIndexPath,
   taskControlModes,
+  taskGraphSupportedNodeRange,
   taskGraphVersion,
   type JsonObject,
   type TaskContentInput,
@@ -35,6 +44,7 @@ export type TaskGraphCliOptions = {
 
 type TaskGraphCliInternalOptions = {
   io?: CliIo;
+  runtimeOptions?: RuntimeInstallInternalOptions;
   serviceOptions?: Omit<TaskGraphServiceInternalOptions, "root" | "indexPath">;
 };
 
@@ -104,6 +114,9 @@ const controlHelp = [
 ] as const satisfies readonly HelpParameter[];
 
 const commandHelpCatalog = {
+  "runtime info": { usage: "task-graph runtime info", positionals: [], options: [] },
+  "runtime install": { usage: "task-graph runtime install", positionals: [], options: [] },
+  "runtime check": { usage: "task-graph runtime check", positionals: [], options: [] },
   "index init": { usage: "task-graph index init", positionals: [], options: [] },
   "index info": { usage: "task-graph index info", positionals: [], options: [] },
   "index check": { usage: "task-graph index check", positionals: [], options: [] },
@@ -290,6 +303,37 @@ const commandHelpCatalog = {
 } as const satisfies Record<string, CommandHelp>;
 
 const commandPaths = Object.keys(commandHelpCatalog).sort();
+
+const mutationCommandPaths = new Set([
+  "index init",
+  "scope create",
+  "scope binding-set",
+  "scope binding-remove",
+  "scope close",
+  "scope gc",
+  "task create",
+  "task update-content",
+  "task update-control",
+  "relation parent",
+  "relation dependency-add",
+  "relation dependency-remove",
+  "relation exclusion-add",
+  "relation exclusion-remove",
+  "claim",
+  "renew",
+  "release",
+  "complete",
+  "fail",
+  "retry",
+  "cancel",
+  "recover",
+  "apply"
+]);
+
+function isMutationInvocation(tokens: readonly string[]): boolean {
+  const twoPart = tokens.slice(0, 2).join(" ");
+  return mutationCommandPaths.has(twoPart) || mutationCommandPaths.has(tokens[0] ?? "");
+}
 
 function failArgument(message: string, details: JsonObject = {}): never {
   throw new TaskGraphError("ARGUMENT_INVALID", message, details);
@@ -517,6 +561,11 @@ function helpData(pathTokens: readonly string[]) {
       { name: "--root", required: false, type: "string", default: process.cwd() },
       { name: "--index", required: false, type: "string", default: defaultTaskGraphIndexPath }
     ],
+    runtimeRequirements: {
+      supportedNodeRange: taskGraphSupportedNodeRange,
+      mutationPrerequisite: "installed-compatible-runtime",
+      installCommand: ["runtime", "install"]
+    },
     commands: command === null ? [...commandPaths] : []
   };
 }
@@ -554,10 +603,25 @@ async function readJsonRequest(filePath: string | undefined): Promise<unknown> {
 
 async function dispatch(
   service: TaskGraphService,
-  tokens: readonly string[]
+  tokens: readonly string[],
+  runtimeOptions: RuntimeInstallInternalOptions
 ): Promise<ServiceResult<unknown> | { revision: number | null; data: unknown }> {
   const first = tokens[0];
   const second = tokens[1];
+  if (first === "runtime") {
+    const parsed = parseCommandOptions(tokens.slice(2), {});
+    requirePositionals(parsed, 0, `task-graph runtime ${second ?? "<info|install|check>"}`);
+    if (second === "info") {
+      return { revision: null, data: await getTaskGraphRuntimeInfo(runtimeOptions) };
+    }
+    if (second === "install") {
+      return { revision: null, data: await installTaskGraphRuntime(runtimeOptions) };
+    }
+    if (second === "check") {
+      return { revision: null, data: await checkTaskGraphRuntime(runtimeOptions) };
+    }
+    failArgument("runtime command must be info, install, or check");
+  }
   if (first === "index") {
     const parsed = parseCommandOptions(tokens.slice(2), {});
     requirePositionals(parsed, 0, `task-graph index ${second ?? "<init|info|check>"}`);
@@ -988,7 +1052,9 @@ export async function runTaskGraphCli(
     service = new TaskGraphService({
       ...(options.serviceOptions ?? {}),
       root: globals.root,
-      indexPath: globals.indexPath
+      indexPath: globals.indexPath,
+      loadNativeLock: options.serviceOptions?.loadNativeLock
+        ?? (() => loadNativeLockBinding(options.runtimeOptions))
     });
   } catch (error) {
     if (!(error instanceof TaskGraphError)) throw error;
@@ -1027,16 +1093,23 @@ export async function runTaskGraphCli(
       ));
       return 0;
     }
-    const result = await dispatch(service, globals.remaining);
+    if (isMutationInvocation(globals.remaining)) {
+      await assertTaskGraphMutationRuntime(service);
+    }
+    const result = await dispatch(service, globals.remaining, options.runtimeOptions ?? {});
     writeResult(io, success(service.store.indexPath, result.revision, result.data));
     return 0;
   } catch (error) {
     if (!(error instanceof TaskGraphError)) throw error;
+    const runtimeInvocation = globals.remaining[0] === "runtime"
+      || (globals.remaining[0] === "help" && globals.remaining[1] === "runtime");
     let revision: number | null = null;
-    try {
-      revision = (await service.info()).revision;
-    } catch {
-      // The error envelope still remains valid without a readable index.
+    if (!runtimeInvocation && !error.code.startsWith("RUNTIME_")) {
+      try {
+        revision = (await service.info()).revision;
+      } catch {
+        // The error envelope still remains valid without a readable index.
+      }
     }
     const failure: TaskGraphFailure = {
       ok: false,

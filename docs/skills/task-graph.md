@@ -14,4 +14,12 @@
 4. `change-plan` 继续承接需要持久审阅和交接的明确 change；`subagent-orchestration` 继续承接代理创建、配置和结果审计。Task graph 只向这些 owner 交付紧凑任务事实。
 5. 任务被排队或领取不等于取得文件、外部系统、不可逆操作、提交或发布权限。
 
+## Native runtime
+
+分发 CLI 支持 Node.js `^22.22.2 || ^24.15.0 || >=26.0.0`；Bun 只用于本仓库构建和测试。只读命令、help 和模块导入不需要 native runtime。首次 mutation 前先运行 `runtime info`；缺失时，在取得 npm 联网与用户工具目录写入授权后显式运行 `runtime install`，随后用 `runtime check` 验证精确依赖闭包和真实 lock/unlock 探针。普通命令、mutation 和 updater 不会静默联网或修复 runtime。
+
+Runtime 默认安装在 `~/.tools/task-graph/runtimes/<runtime-id>/`，非空 `TASK_GRAPH_TOOL_HOME` 完整覆盖 tool home。Skill、Git 和 zip 只携带精确 manifest 与 lockfile，不携带 `.node`。无效既有 runtime 和崩溃遗留的 `.install-*` 不会自动删除；后者只能在操作者确认精确目录不属于活动安装后显式清理。
+
+Mutation 使用长期存在的空 `<index-path>.lock` 普通文件和操作系统 advisory lock。锁只覆盖一次索引事务，句柄关闭或进程退出后由操作系统释放；不再存在 owner metadata、heartbeat、stale 判定或手工抢锁恢复。该边界只承诺受测平台上的同主机本地文件系统；其他平台必须由 `runtime check` 失败关闭，不能从包名外推支持。
+
 实际 skill 位于 [`skills/task-graph/`](../../skills/task-graph/)。

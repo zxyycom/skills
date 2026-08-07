@@ -49,12 +49,14 @@
   "devDependencies": {
     "@types/node": "^26.0.1",
     "@types/picomatch": "^4.0.3",
+    "@types/write-file-atomic": "4.0.3",
     "@typescript/native-preview": "7.0.0-dev.20260630.1",
     "@valibot/to-json-schema": "1.7.1",
     "ajv": "8.17.1",
     "commander": "^13.1.0",
     "fast-glob": "^3.3.3",
     "fflate": "^0.8.3",
+    "fs-native-extensions": "1.5.0",
     "github-slugger": "^2.0.0",
     "json-schema-to-typescript": "15.0.4",
     "mdast-util-from-markdown": "^2.0.3",
@@ -62,6 +64,7 @@
     "picomatch": "4.0.5",
     "simple-git": "3.36.0",
     "valibot": "^1.4.2",
+    "write-file-atomic": "8.0.0",
     "yaml": "^2.9.0"
   }
 }

@@ -7,9 +7,13 @@
  * Rebuild: bun run sync:task-graph-cli
  */
 export declare const taskGraphSchemaVersion: 1;
-export declare const taskGraphVersion: "1.0.0";
+export declare const taskGraphVersion: "1.1.0";
 export declare const defaultTaskGraphIndexPath:
   "docs/task-graph/task-graph-index.json";
+export declare const taskGraphRuntimeProtocolVersion: 1;
+/** Supported Node.js range for the distributed task-graph CLI. */
+export declare const taskGraphSupportedNodeRange:
+  "^22.22.2 || ^24.15.0 || >=26.0.0";
 export declare const taskControlModes: readonly [
   "inherit",
   "candidate",
@@ -43,6 +47,28 @@ export type JsonPrimitive = boolean | number | string | null;
 export type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
 export type JsonObject = { [key: string]: JsonValue };
 export type Clock = () => Date;
+
+export type TaskGraphRuntimeState = "missing" | "installed" | "invalid";
+
+export type TaskGraphRuntimeInfo = {
+  runtimeId: string;
+  protocolVersion: typeof taskGraphRuntimeProtocolVersion;
+  toolHome: string;
+  runtimePath: string;
+  toolHomeSource: "default" | "environment";
+  state: TaskGraphRuntimeState;
+  nodeVersion: string;
+  platform: string;
+  arch: string;
+};
+
+export type TaskGraphRuntimeInstallResult = TaskGraphRuntimeInfo & {
+  action: "installed" | "reused";
+};
+
+export type TaskGraphRuntimeCheckResult = TaskGraphRuntimeInfo & {
+  compatible: true;
+};
 
 export type TaskControl =
   | { mode: "inherit" | "candidate" | "queued"; reason: null }
@@ -236,9 +262,11 @@ export type TaskGraphErrorCode =
   | "INDEX_INVALID"
   | "SCHEMA_UNSUPPORTED"
   | "PATH_SYMLINK"
+  | "RUNTIME_MISSING"
+  | "RUNTIME_UNSUPPORTED"
+  | "RUNTIME_INSTALL_FAILED"
+  | "RUNTIME_INCOMPATIBLE"
   | "LOCK_TIMEOUT"
-  | "LOCK_RECOVERY_REQUIRED"
-  | "LOCK_LOST"
   | "REVISION_CONFLICT"
   | "SCOPE_NOT_FOUND"
   | "SCOPE_KEY_CONFLICT"

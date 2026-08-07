@@ -1,11 +1,11 @@
-### Case TASK-GRAPH-CONCURRENCY-001: 排斥任务并发领取只有一个成功，同 revision 并发写入只有一个提交
+### Case TASK-GRAPH-CONCURRENCY-001: 原生短锁串行化同 revision 并发 mutation
 
 Entry:
-- `tools/task-graph/tests/store.test.ts > store serializes concurrent claims and global revision compare-and-swap`
-- `bun test --test-name-pattern="^store serializes concurrent claims and global revision compare-and-swap$" ./tools/task-graph/tests/run.ts`
+- `tools/task-graph/tests/store.test.ts > store serializes concurrent native mutations and preserves revision compare-and-swap`
+- `bun test --test-name-pattern="^store serializes concurrent native mutations and preserves revision compare-and-swap$" ./tools/task-graph/tests/run.ts`
 
 Contract:
-- 共享索引的短锁串行化并发 claim，所有 revision 写入使用全局 compare-and-swap。
+- 共享索引的原生短锁必须串行化并发 mutation，revision 继续使用全局 compare-and-swap。
 
 Proves:
-- 排斥任务并发领取只有一个成功，同 revision 并发写入只有一个提交。
+- 两个独立 service 同时以 revision 0 创建 scope 时只有一个提交，另一个得到 `REVISION_CONFLICT`，最终 revision 为 1。

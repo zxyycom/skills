@@ -15,8 +15,22 @@ export type BunBundleOptions = {
   keepNames?: boolean;
   minify?: boolean;
   outputFileName: string;
+  plugins?: BunBuildPlugin[];
   sourceMapBaseDirectory?: string;
   sourceMap?: boolean;
+};
+
+export type BunBuildPlugin = {
+  name: string;
+  setup(builder: {
+    onLoad(
+      options: { filter: RegExp },
+      callback: (args: { path: string }) => Promise<{
+        contents: string;
+        loader: "js" | "ts";
+      }>
+    ): void;
+  }): void;
 };
 
 export type BunBundleResult = {
@@ -51,6 +65,31 @@ export type SourceMapNormalizationOptions = {
 };
 
 const execFileAsync = promisify(execFile);
+
+type BunBuildOutput = {
+  path: string;
+  text(): Promise<string>;
+};
+
+type BunBuildResult = {
+  logs: unknown[];
+  outputs: BunBuildOutput[];
+  success: boolean;
+};
+
+type BunBuild = (options: {
+  banner: string;
+  entrypoints: string[];
+  format: "cjs" | "esm";
+  keepNames: boolean;
+  minify: boolean;
+  naming: string;
+  outdir: string;
+  packages: "bundle";
+  plugins: BunBuildPlugin[];
+  sourcemap: "linked" | "none";
+  target: "node";
+}) => Promise<BunBuildResult>;
 
 function isSourceContentArray(value: unknown): value is Array<string | null> {
   return Array.isArray(value)
@@ -150,8 +189,54 @@ export async function bundleWithBun(options: BunBundleOptions): Promise<BunBundl
   ];
 
   try {
-    await execFileAsync(process.execPath, args, { cwd: options.cwd });
-    const code = await fs.readFile(outputPath, "utf8");
+    let code: string;
+    let generatedSourceMap: string | null = null;
+    if (options.plugins === undefined) {
+      await execFileAsync(process.execPath, args, { cwd: options.cwd });
+      code = await fs.readFile(outputPath, "utf8");
+      generatedSourceMap = options.sourceMap
+        ? await fs.readFile(`${outputPath}.map`, "utf8")
+        : null;
+    } else {
+      const bun = (globalThis as typeof globalThis & {
+        Bun?: { build: BunBuild };
+      }).Bun;
+      if (bun === undefined) {
+        throw new Error("Bundling with plugins requires the Bun runtime");
+      }
+      const result = await bun.build({
+        banner,
+        entrypoints: [options.entryPath],
+        format: options.format,
+        keepNames: options.keepNames ?? false,
+        minify: options.minify ?? false,
+        naming: options.outputFileName,
+        outdir: tempDir,
+        packages: "bundle",
+        plugins: options.plugins,
+        sourcemap: options.sourceMap ? "linked" : "none",
+        target: "node"
+      });
+      if (!result.success) {
+        throw new Error(`Bun bundle failed: ${result.logs.map(String).join("\n")}`);
+      }
+      const codeOutput = result.outputs.find(
+        (output) => path.resolve(output.path) === path.resolve(outputPath)
+      );
+      if (codeOutput === undefined) {
+        throw new Error(`Bun bundle did not produce ${options.outputFileName}`);
+      }
+      code = await codeOutput.text();
+      if (options.sourceMap) {
+        const sourceMapOutput = result.outputs.find(
+          (output) => path.resolve(output.path) === path.resolve(`${outputPath}.map`)
+        );
+        if (sourceMapOutput === undefined) {
+          throw new Error(`Bun bundle did not produce ${options.outputFileName}.map`);
+        }
+        generatedSourceMap = await sourceMapOutput.text();
+      }
+    }
     if (!code.startsWith("#!")) {
       throw new Error(`Bundled executable ${options.outputFileName} must start with a shebang`);
     }
@@ -162,7 +247,7 @@ export async function bundleWithBun(options: BunBundleOptions): Promise<BunBundl
         throw new Error("sourceMapBaseDirectory is required when sourceMap is enabled");
       }
       sourceMap = normalizeSourceMap(
-        await fs.readFile(`${outputPath}.map`, "utf8"),
+        generatedSourceMap ?? "",
         {
           generatedSourceMapDirectory: path.dirname(outputPath),
           publishedSourceMapDirectory: sourceMapBaseDirectory,
