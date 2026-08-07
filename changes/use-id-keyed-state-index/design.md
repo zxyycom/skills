@@ -6,7 +6,7 @@
 
 当前通用运行时存在四个身份集合：领域完整读取的 `states`、持久化 `entries`、runtime overlay 和选择性暂存需要处理的 revision 条目。它们的主要操作都是按稳定 id 校验、替换、追加、删除或获取，但前三者仍以数组表达，并由 definition 的 `identify` 再次恢复 id。
 
-当前三个消费者都已经在领域读取阶段知道稳定 id：decision-records 与 investigation-report 使用相对路径，test-evidence 使用 case id。现有 369 条工作区索引记录的外层 id 与 state 中身份字段全部一致；通用查询仍需建立 `Map` 或扫描条目，说明当前数组表示没有承接真实使用方式。
+当前三个消费者都已经在领域读取阶段知道稳定 id：decision-records 与 investigation-report 使用相对路径，test-evidence 使用 case id。通用查询仍需建立 `Map` 或扫描条目，说明当前数组表示没有承接真实使用方式。
 
 新鲜度路径必须保持独立价值。现有千条 investigation-report 规模测试中，完整同步约为 1.5 秒，快速新鲜度读取约为 64 毫秒，包含检查的一次查询约为 107 毫秒。具体数值受环境影响，但快速路径与完整解析属于不同成本级别；本 change 不能通过重新投影全部 state 来获得来源 revision。
 
@@ -20,7 +20,7 @@
 - 持久化索引可以直接按 id 获取、比较和组合条目，不保存第二份通用 entry id。
 - 完整读取与快速新鲜度读取使用同一个结构化来源 revision 契约，快速路径不执行领域解析。
 - schema v3、类型、运行时、领域 Schema 与三个消费者一次性迁移，没有双格式分支。
-- 所有对象键操作保持确定性并对特殊键安全；解析不能静默覆盖重复 entry id。
+- 所有对象键操作保持确定性并对特殊键安全；解析后的索引必须通过 Schema、身份键和来源 revision 集合校验。
 
 非目标：
 
@@ -86,9 +86,9 @@
 
    每个领域的快速读取最多执行一次既有来源发现与内容读取，在同一遍读取中计算 metadata 和逐 id 指纹。它不得调用 Markdown/state parser、构造 keys、执行 `validateIndex` 或再次读取同一来源。一个成功打开的 reader 后续执行 `get/query/all` 不再调用 `readRevision`。
 
-6. **对象键规范化不改变数组语义。** 通用序列化按稳定文本顺序输出 `entries` 与 `sourceRevision.entries` 的键；metadata/state 对象继续遵守既有 field order 规则。`keyDefinitions`、query filters/sorts、查询结果、多值 key 和领域数组保持数组。
+6. **对象键规范化不改变数组语义。** 通用序列化使 `entries` 与 `sourceRevision.entries` 的输出确定且不依赖输入顺序，不额外规定 JSON 对象成员必须使用某一种文本排序。metadata/state 对象继续遵守既有 field order 规则。`keyDefinitions`、query filters/sorts、查询结果、多值 key 和领域数组保持数组。
 
-   所有 id record 使用 own-property 检查或无原型内部对象，不通过原型链读取。索引 JSON 解析必须拒绝重复 entry id，不能接受 `JSON.parse` 最后值覆盖；`__proto__`、`constructor` 等符合文本规则的 id 必须作为普通键安全往返。
+   所有 id record 使用 own-property 检查或无原型内部对象，不通过原型链读取。索引 JSON 按标准 JSON 语义解析，再验证 Schema、id 合法性以及 `entries` 与 `sourceRevision.entries` 的成员一致性；`__proto__`、`constructor` 等符合文本规则的 id 必须作为普通键安全往返。
 
 7. **schema v3 一次性替换 schema v2。** 通用 parser、领域 Schema 和生成产物只接受 schema v3；schema v2 以稳定版本诊断失败，由领域 sync 从权威源重建。通用外壳迁移本身不要求提升领域 `definitionVersion`；只有领域 state、metadata、id 或 key 含义变化时才按既有规则提升。
 
@@ -98,7 +98,7 @@
 
 - schema v3 会同时改变公共类型、持久化索引、领域 Schema、生成产物和 fixture；不保留 schema v2 读取能减少长期分支，但要求三个消费者在同一实施中完成迁移并重建派生索引。
 - 每个 id 增加一个来源指纹会扩大索引和快速 revision 结果；它换取选择性组合与轻量新鲜度检查，实施必须证明没有新增源读取遍数或完整 parser 调用。
-- id record 在 JavaScript 中存在原型键和 JSON 重复键风险；实现必须在统一边界处理，不能让每个消费者自行规避。
+- id record 在 JavaScript 中存在原型敏感键风险；实现必须在统一边界处理，不能让每个消费者自行规避。
 - 领域必须能把 metadata 与每个 id 的来源影响表示为稳定指纹。当前三个消费者具有明确路径或 case id；未来无法满足该义务的领域不能只复用部分契约接入。
 - 按 id 直接获取会变快，但完整校验、任意过滤与排序仍与条目数量线性相关。
 - 当前性能实测来自缓存较热的临时目录；验收以“单次读取、零完整 parser”结构门禁为主，并保留规模测量防止明显墙钟退化。

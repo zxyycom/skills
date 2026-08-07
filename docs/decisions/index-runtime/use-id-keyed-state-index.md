@@ -31,5 +31,5 @@ relations:
 - 采用: 通用索引升级为 schema v3，持久化 `entries[id]` 只保存 `state` 和派生 `keys`。reader 的有序查询结果仍显式附加 ID 并使用数组；key definitions、多值 key 和领域数组继续保留其原有顺序语义。
 - 采用: `sourceRevision` 保存 metadata 来源指纹和按 ID 键控的条目来源指纹。其 ID 集合必须与 states 或 entries 完全相同；领域负责让任何可能改变对应投影的来源变化改变相关指纹，通用层只比较和组合不透明值。
 - 采用: 完整 source read 与快速 `readRevision` 返回同一 revision 结构。快速路径只在一遍来源发现与读取中计算指纹，不调用领域 state parser、key 投影或完整索引构建；同一 reader 打开后的读取不重复检查。
-- 采用: id record 按稳定 ID 顺序序列化，并在统一边界处理重复 JSON entry 键和原型敏感键。schema v2 不进入兼容读取分支，由各领域从权威来源重建 schema v3 派生索引。
+- 采用: id record 的序列化结果确定且不依赖输入顺序。索引 JSON 按标准 JSON 语义解析，再校验 Schema、ID 合法性以及 `entries` 与 `sourceRevision.entries` 的成员一致性；通用边界统一处理原型敏感键。schema v2 不进入兼容读取分支，由各领域从权威来源重建 schema v3 派生索引。
 - 采用: 字典化只承诺直接身份操作和可组合来源状态；普通过滤、全文匹配、排序和完整校验仍可遍历全部条目，不据此引入倒排索引、缓存或 watcher。

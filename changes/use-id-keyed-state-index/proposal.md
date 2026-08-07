@@ -27,7 +27,7 @@
 - schema v3、通用与领域 JSON Schema、确定性序列化、解析、规范化、完整校验和 schema v2 拒绝行为。
 - metadata 来源指纹、逐 id 来源指纹、完整读取与快速 `readRevision` 的一致性，以及单次轻量扫描约束。
 - decision-records、investigation-report 和 test-evidence 的 definition、source reader、查询适配、生成产物和派生索引迁移。
-- 特殊对象键、重复 JSON entry 键、id 集合不一致、来源指纹不一致和快速路径退化的稳定失败与验证。
+- 特殊对象键、id 集合不一致、来源指纹不一致和快速路径退化的稳定失败与验证。
 - 长期决策、现有选择性暂存 change 的前置关系和新增或修改测试入口的测试证据。
 
 不纳入范围：
@@ -42,13 +42,13 @@
 ## Success Criteria
 
 - 领域完整读取直接返回 `id -> state`，definition 不再包含 `identify`；非法 id 在进入 state parser 前失败。
-- schema v3 使用 `entries[id] -> { keys, state }`，持久化条目不重复保存 `id`；序列化按 id 固定排序。
+- schema v3 使用 `entries[id] -> { keys, state }`，持久化条目不重复保存 `id`；序列化结果确定且不依赖输入顺序。
 - `sourceRevision.metadata` 表示 metadata 来源，`sourceRevision.entries[id]` 表示对应 state 来源；其 id 集合与 `states` / `entries` 完全一致。
 - `read` 与 `readRevision` 对同一来源得到相同 revision 清单；成员、metadata 来源或任一条目来源变化都能使清单产生对应变化。
 - 快速新鲜度检查只完成一次来源发现与读取，不调用领域 state parser 或完整 index builder；一个 reader 打开后多次 `get/query/all` 不重复检查。
 - 当前千条 investigation-report 规模场景保持百毫秒级新鲜度读取与查询，不退化到完整解析重建的秒级成本；实施验证记录前后测量结果。
 - `get(id)` 直接查找静态条目或同 id runtime overlay；过滤、排序和分页结果仍按既有数组契约返回。
-- 重复 entry 键、`__proto__` 等特殊合法 id、非法 id、source revision 缺失或多余成员都不会被静默覆盖或错误解释。
+- `__proto__` 等特殊合法 id 能够安全往返；非法 id、source revision 缺失或多余成员不会被错误解释。
 - 三个现有消费者、派生索引、领域 Schema、生成产物、类型检查、测试证据和 `bun run check` 通过。
 
 ## Affected Owners
