@@ -86,7 +86,7 @@
       }
     ]
   },
-  "sourceRevision": "sha256:3b29bb7f36f2fa74b916e744642c6f2a4b412bd13f4f42c800a96aeef37421d0",
+  "sourceRevision": "sha256:734b70d2d3b2c3afd8ed74614946c940563374da38b3e6414f40650c03d3436e",
   "keyDefinitions": [
     {
       "name": "domain",
@@ -3965,6 +3965,31 @@
             "target": "task-graph/install-native-runtime-in-user-tool-home.md"
           }
         ]
+      }
+    },
+    {
+      "id": "task-graph/derive-sdk-declarations-from-runtime-source.md",
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/derive-sdk-declarations-from-runtime-source.md",
+        "title": "从 task-graph 运行时源码派生 SDK 声明",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-07T04:59:10Z",
+        "purpose": "让 CLI 与程序化调用共享一个实现和公开导出事实源，避免人工声明漂移。",
+        "background": "Task-graph 模块已经安全导出 CLI 所调用的核心能力；把 SDK 作为独立接口层会重复维护同一接口，并可能泄漏内部依赖。",
+        "decision": "程序化调用直接使用 CLI 模块的公开导出，由 TypeScript 实现机械生成声明入口及其可达声明树，不维护独立 SDK 实现、接口清单或声明源。",
+        "relations": []
       }
     },
     {

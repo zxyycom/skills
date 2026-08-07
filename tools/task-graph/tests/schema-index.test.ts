@@ -229,7 +229,12 @@ test("scope creation reports initial binding collisions with the stable binding 
 
 test("task creation applies safe top-level and child defaults", () => {
   const index = graphIndex([
-    taskOperation("parent"),
+    {
+      kind: "create-task",
+      scopeId: "scope-000001",
+      alias: "parent",
+      content: { title: "parent", goal: "parent goal" }
+    },
     taskOperation("child", { parentId: "@parent" })
   ]);
   const scope = index.scopes["scope-000001"]!;
@@ -243,6 +248,7 @@ test("task creation applies safe top-level and child defaults", () => {
   assert.equal(parent.state.relations.parentId, null);
   assert.equal(child.state.relations.parentId, "task-000001");
   assert.equal(parent.content.context, null);
+  assert.deepEqual(parent.content.acceptance, []);
   assert.deepEqual(parent.content.references, {});
   assert.equal(parent.content.result, null);
 });

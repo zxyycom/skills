@@ -8,13 +8,13 @@
 
 ## 数据模型
 
-Task entry 将目标内容与调度状态分开：内容保存目标、验收、紧凑上下文、引用和结果；状态分别保存调度控制、执行尝试与租约、父子关系、依赖和排斥。可行动性、有效控制和阻塞原因由工具从权威索引计算，不要求调用方维护第二份派生状态。精确字段和状态转移以实际 [Task Graph skill](../../skills/task-graph/SKILL.md) 与 [task index Schema](../../skills/task-graph/references/task-graph-index.schema.json) 为准。
+Task entry 将目标内容与调度状态分开：内容保存标题、目标、可选 `acceptance` 完成提示、紧凑上下文、引用和结果；状态分别保存调度控制、执行尝试与租约、父子关系、依赖和排斥。标题和目标说明要做什么；`acceptance` 只在已有明确标准时提供辅助，不会被工具解释为调度或完成门禁，也不表示必须进行用户验收。可行动性、有效控制和阻塞原因由工具从权威索引计算，不要求调用方维护第二份派生状态。精确字段和状态转移以实际 [Task Graph skill](../../skills/task-graph/SKILL.md) 与 [task index Schema](../../skills/task-graph/references/task-graph-index.schema.json) 为准。
 
 ## 能力边界
 
 1. `docs/task-graph/task-graph-index.json` 是仓库当前短期任务状态的唯一权威索引；task entry 保持紧凑，复杂状态和反向关系由工具查询投影。
 2. Scope 可以包含多个顶层真实任务，任意任务都可以分解为真实子任务；不使用 group、work 或虚拟 root。
-3. 随 skill 分发的 JSON-only CLI 负责索引校验、关系约束、revision 事务、执行租约和 scope 级清理，工具不自动推断关系、选择业务优先级、运行包管理器或改变 Git 状态。
+3. 随 skill 分发的 JSON-only CLI 负责索引校验、关系约束、revision 事务、执行租约和 scope 级清理，工具不自动推断关系、选择业务优先级、运行包管理器或改变 Git 状态。程序化调用直接导入同一模块的公开导出；SDK 只是这种导入方式，不是另一层实现或接口清单，TypeScript 声明也从该实现机械生成。
 4. `change-plan` 继续承接需要持久审阅和交接的明确 change；`subagent-orchestration` 继续承接代理创建、配置和结果审计。Task graph 只向这些 owner 交付紧凑任务事实。
 5. 任务被排队或领取不等于取得文件、外部系统、不可逆操作、提交或发布权限。
 

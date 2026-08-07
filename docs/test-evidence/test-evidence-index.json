@@ -4133,7 +4133,7 @@
       "id": "TASK-GRAPH-CLI-ERRORS-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-CLI-ERRORS-001 各结果保持单 JSON、稳定 error code、retryable 与可读取 revision CLI 成功及可预期 schema、状态、revision 与文件错误使用统一 envelope；Map/null-prototype 解析不得把保留字或原型属性误当作已有选项或实体。非 runtime 失败可以尽力读取 revision；runtime 命令和 `RUNTIME_*` 失败禁止读取工作区，且绝不重放 mutation。 合法 binding/reference 可创建和查询，持久字典保留字稳定拒绝，外部非法 ID 返回明确 not-found；atomic reject 的 unknown outcome 保留 possible revision，atomic resolve 不要求读回；各结果保持单 JSON、稳定 error code 与 retryable。 tools/task-graph/tests/cli.test.ts > CLI success and predictable schema, state, conflict, and file failures use one envelope bun test --test-name-pattern=\"^CLI success and predictable schema, state, conflict, and file failures use one envelope$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-CLI-ERRORS-001 各结果保持单 JSON、稳定 error code、retryable 与可读取 revision CLI 成功及可预期 schema、状态、revision 与文件错误使用统一 envelope；Map/null-prototype 解析不得把保留字或原型属性误当作已有选项或实体。非 runtime 失败可以尽力读取 revision；runtime 命令和 `RUNTIME_*` 失败禁止读取工作区，且绝不重放 mutation。 只提供标题和目标也能创建任务，并把省略的 acceptance 规范化为空数组；合法 binding/reference 可创建和查询，持久字典保留字稳定拒绝，外部非法 ID 返回明确 not-found；atomic reject 的 unknown outcome 保留 possible revision，atomic resolve 不要求读回；各结果保持单 JSON、稳定 error code 与 retryable。 tools/task-graph/tests/cli.test.ts > CLI success and predictable schema, state, conflict, and file failures use one envelope bun test --test-name-pattern=\"^CLI success and predictable schema, state, conflict, and file failures use one envelope$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4147,7 +4147,7 @@
         ],
         "id": "TASK-GRAPH-CLI-ERRORS-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-CLI-ERRORS-001 各结果保持单 JSON、稳定 error code、retryable 与可读取 revision CLI 成功及可预期 schema、状态、revision 与文件错误使用统一 envelope；Map/null-prototype 解析不得把保留字或原型属性误当作已有选项或实体。非 runtime 失败可以尽力读取 revision；runtime 命令和 `RUNTIME_*` 失败禁止读取工作区，且绝不重放 mutation。 合法 binding/reference 可创建和查询，持久字典保留字稳定拒绝，外部非法 ID 返回明确 not-found；atomic reject 的 unknown outcome 保留 possible revision，atomic resolve 不要求读回；各结果保持单 JSON、稳定 error code 与 retryable。 tools/task-graph/tests/cli.test.ts > CLI success and predictable schema, state, conflict, and file failures use one envelope bun test --test-name-pattern=\"^CLI success and predictable schema, state, conflict, and file failures use one envelope$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-CLI-ERRORS-001 各结果保持单 JSON、稳定 error code、retryable 与可读取 revision CLI 成功及可预期 schema、状态、revision 与文件错误使用统一 envelope；Map/null-prototype 解析不得把保留字或原型属性误当作已有选项或实体。非 runtime 失败可以尽力读取 revision；runtime 命令和 `RUNTIME_*` 失败禁止读取工作区，且绝不重放 mutation。 只提供标题和目标也能创建任务，并把省略的 acceptance 规范化为空数组；合法 binding/reference 可创建和查询，持久字典保留字稳定拒绝，外部非法 ID 返回明确 not-found；atomic reject 的 unknown outcome 保留 possible revision，atomic resolve 不要求读回；各结果保持单 JSON、稳定 error code 与 retryable。 tools/task-graph/tests/cli.test.ts > CLI success and predictable schema, state, conflict, and file failures use one envelope bun test --test-name-pattern=\"^CLI success and predictable schema, state, conflict, and file failures use one envelope$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/cli-predictable-outcomes-use-one-envelope.md",
         "summary": "CLI 成功及可预期 schema、状态、revision 与文件错误使用统一 envelope；Map/null-prototype 解析不得把保留字或原型属性误当作已有选项或实体。非 runtime 失败可以尽力读取 revision；runtime 命令和 `RUNTIME_*` 失败禁止读取工作区，且绝不重放 mutation。",
         "title": "各结果保持单 JSON、稳定 error code、retryable 与可读取 revision"
@@ -4181,7 +4181,7 @@
       "id": "TASK-GRAPH-CLI-PROTOCOL-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-CLI-PROTOCOL-001 每次调用只写一个 LF 结尾 JSON help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。 根 help 枚举全部 35 个命令并逐一查询成功，机器可读地公布固定 Node range、mutation runtime 前置以及安装命令；scope create 与 apply 的复杂参数和 stdin/file 默认输入可恢复，每次调用只写一个 LF 结尾 JSON。 tools/task-graph/tests/cli.test.ts > CLI help, version, and usage stay inside the single-JSON LF protocol bun test --test-name-pattern=\"^CLI help, version, and usage stay inside the single-JSON LF protocol$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-CLI-PROTOCOL-001 每次调用只写一个 LF 结尾 JSON help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。 根 help 枚举全部 28 个命令并逐一查询成功，机器可读地公布固定 Node range、mutation runtime 前置以及安装命令；scope create、task create 与 apply 的参数契约可恢复，其中 acceptance 明确为可选重复参数；每次调用只写一个 LF 结尾 JSON。 tools/task-graph/tests/cli.test.ts > CLI help, version, and usage stay inside the single-JSON LF protocol bun test --test-name-pattern=\"^CLI help, version, and usage stay inside the single-JSON LF protocol$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4195,7 +4195,7 @@
         ],
         "id": "TASK-GRAPH-CLI-PROTOCOL-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-CLI-PROTOCOL-001 每次调用只写一个 LF 结尾 JSON help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。 根 help 枚举全部 35 个命令并逐一查询成功，机器可读地公布固定 Node range、mutation runtime 前置以及安装命令；scope create 与 apply 的复杂参数和 stdin/file 默认输入可恢复，每次调用只写一个 LF 结尾 JSON。 tools/task-graph/tests/cli.test.ts > CLI help, version, and usage stay inside the single-JSON LF protocol bun test --test-name-pattern=\"^CLI help, version, and usage stay inside the single-JSON LF protocol$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-CLI-PROTOCOL-001 每次调用只写一个 LF 结尾 JSON help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。 根 help 枚举全部 28 个命令并逐一查询成功，机器可读地公布固定 Node range、mutation runtime 前置以及安装命令；scope create、task create 与 apply 的参数契约可恢复，其中 acceptance 明确为可选重复参数；每次调用只写一个 LF 结尾 JSON。 tools/task-graph/tests/cli.test.ts > CLI help, version, and usage stay inside the single-JSON LF protocol bun test --test-name-pattern=\"^CLI help, version, and usage stay inside the single-JSON LF protocol$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/cli-help-version-and-usage-use-json-lf.md",
         "summary": "help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。",
         "title": "每次调用只写一个 LF 结尾 JSON"
@@ -4301,7 +4301,7 @@
       "id": "TASK-GRAPH-DEFAULTS-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-DEFAULTS-001 顶层默认为 candidate，子任务默认为 inherit，execution 为 idle/attempt 0 顶层任务、子任务、内容、执行状态与关系具有固定安全默认值。 顶层默认为 candidate，子任务默认为 inherit，execution 为 idle/attempt 0。 tools/task-graph/tests/schema-index.test.ts > task creation applies safe top-level and child defaults bun test --test-name-pattern=\"^task creation applies safe top-level and child defaults$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-DEFAULTS-001 顶层默认为 candidate，子任务默认为 inherit，execution 为 idle/attempt 0 顶层任务、子任务、任务内容中的可选字段、执行状态与关系具有固定安全默认值。 顶层默认为 candidate，子任务默认为 inherit，execution 为 idle/attempt 0；省略 acceptance 时规范化为稳定空数组。 tools/task-graph/tests/schema-index.test.ts > task creation applies safe top-level and child defaults bun test --test-name-pattern=\"^task creation applies safe top-level and child defaults$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4315,9 +4315,9 @@
         ],
         "id": "TASK-GRAPH-DEFAULTS-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-DEFAULTS-001 顶层默认为 candidate，子任务默认为 inherit，execution 为 idle/attempt 0 顶层任务、子任务、内容、执行状态与关系具有固定安全默认值。 顶层默认为 candidate，子任务默认为 inherit，execution 为 idle/attempt 0。 tools/task-graph/tests/schema-index.test.ts > task creation applies safe top-level and child defaults bun test --test-name-pattern=\"^task creation applies safe top-level and child defaults$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-DEFAULTS-001 顶层默认为 candidate，子任务默认为 inherit，execution 为 idle/attempt 0 顶层任务、子任务、任务内容中的可选字段、执行状态与关系具有固定安全默认值。 顶层默认为 candidate，子任务默认为 inherit，execution 为 idle/attempt 0；省略 acceptance 时规范化为稳定空数组。 tools/task-graph/tests/schema-index.test.ts > task creation applies safe top-level and child defaults bun test --test-name-pattern=\"^task creation applies safe top-level and child defaults$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/task-creation-applies-safe-defaults.md",
-        "summary": "顶层任务、子任务、内容、执行状态与关系具有固定安全默认值。",
+        "summary": "顶层任务、子任务、任务内容中的可选字段、执行状态与关系具有固定安全默认值。",
         "title": "顶层默认为 candidate，子任务默认为 inherit，execution 为 idle/attempt 0"
       }
     },
@@ -4325,7 +4325,7 @@
       "id": "TASK-GRAPH-DISTRIBUTION-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 task-graph 分发脚本、收窄后的声明、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 bundled/source exports 与 version 行为一致，声明含 runtime info 与 caller install argv 类型但不暴露 native、runner、store 或 ambient Node 类型；`write-file-atomic` 已内联、native 包未内联、bundle 无工作区绝对路径，Schema 与运行时继续共同验证全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 task-graph 分发脚本、从公开实现机械派生的声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 bundled/source exports 与 version 行为一致；同名声明入口及其可达声明树可被独立 TypeScript consumer 使用，允许省略 acceptance，且不暴露 native、runner、store、内部注入类型或 Valibot。`write-file-atomic` 已内联、native 包未内联、bundle 无工作区绝对路径；Schema 与运行时共同拒绝长度、格式和错误文本类型等全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4339,9 +4339,9 @@
         ],
         "id": "TASK-GRAPH-DISTRIBUTION-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 task-graph 分发脚本、收窄后的声明、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 bundled/source exports 与 version 行为一致，声明含 runtime info 与 caller install argv 类型但不暴露 native、runner、store 或 ambient Node 类型；`write-file-atomic` 已内联、native 包未内联、bundle 无工作区绝对路径，Schema 与运行时继续共同验证全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 task-graph 分发脚本、从公开实现机械派生的声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 bundled/source exports 与 version 行为一致；同名声明入口及其可达声明树可被独立 TypeScript consumer 使用，允许省略 acceptance，且不暴露 native、runner、store、内部注入类型或 Valibot。`write-file-atomic` 已内联、native 包未内联、bundle 无工作区绝对路径；Schema 与运行时共同拒绝长度、格式和错误文本类型等全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/generated-distribution-matches-source-contracts.md",
-        "summary": "task-graph 分发脚本、收窄后的声明、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。",
+        "summary": "task-graph 分发脚本、从公开实现机械派生的声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。",
         "title": "分发制品与源码公共契约一致"
       }
     },
@@ -4349,24 +4349,24 @@
       "id": "TASK-GRAPH-DISTRIBUTION-004",
       "keys": {
         "search": [
-          "TASK-GRAPH-DISTRIBUTION-004 bundle 与 source map 不依赖 checkout 绝对路径 Task-graph 的生成脚本必须在长度不同的 checkout 绝对路径下产生逐字节一致的 bundle 与 source map。 构建只对锁定的 `write-file-atomic@8.0.0` 唯一 `__filename` token 使用稳定模块路径；Bun 的 bundle/map debugId 必须先一致再成对移除，其他 source map 映射保持由 bundler 生成。 两个不同长度的隔离源码与依赖树分别执行真实生成入口后，`task-graph.mjs` 与 `.map` 逐字节一致；制品不含 debugId，并包含稳定的 write-file-atomic 模块标识。 tools/task-graph/tests/generated-artifacts.test.ts > generated task graph bundle and source map are checkout-path independent bun test --test-name-pattern=\"^generated task graph bundle and source map are checkout-path independent$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-DISTRIBUTION-004 生成模块与声明树不依赖 checkout 绝对路径 Task-graph 的生成脚本必须在长度不同的 checkout 绝对路径下产生逐字节一致的 bundle、source map、声明入口和完整声明树。 构建只对锁定的 `write-file-atomic@8.0.0` 唯一 `__filename` token 使用稳定模块路径；Bun 的 bundle/map debugId 必须先一致再成对移除，其他 source map 映射保持由 bundler 生成。 声明目录只保留当前公开入口可达的生成文件；额外文件必须让 `--check` 失败，并由 `--write` 清除。 两个不同长度的隔离源码与依赖树分别执行真实生成入口后，`task-graph.mjs`、`.map`、根声明和声明树逐字节一致；制品不含 debugId，并包含稳定的 write-file-atomic 模块标识。注入 stale 声明后，check 拒绝该目录，write 删除额外文件。 tools/task-graph/tests/generated-artifacts.test.ts > generated task graph bundle and source map are checkout-path independent bun test --test-name-pattern=\"^generated task graph bundle and source map are checkout-path independent$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 14,
         "entries": [
           "tools/task-graph/tests/generated-artifacts.test.ts > generated task graph bundle and source map are checkout-path independent",
           "bun test --test-name-pattern=\"^generated task graph bundle and source map are checkout-path independent$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-DISTRIBUTION-004",
         "line": 1,
-        "searchText": "TASK-GRAPH-DISTRIBUTION-004 bundle 与 source map 不依赖 checkout 绝对路径 Task-graph 的生成脚本必须在长度不同的 checkout 绝对路径下产生逐字节一致的 bundle 与 source map。 构建只对锁定的 `write-file-atomic@8.0.0` 唯一 `__filename` token 使用稳定模块路径；Bun 的 bundle/map debugId 必须先一致再成对移除，其他 source map 映射保持由 bundler 生成。 两个不同长度的隔离源码与依赖树分别执行真实生成入口后，`task-graph.mjs` 与 `.map` 逐字节一致；制品不含 debugId，并包含稳定的 write-file-atomic 模块标识。 tools/task-graph/tests/generated-artifacts.test.ts > generated task graph bundle and source map are checkout-path independent bun test --test-name-pattern=\"^generated task graph bundle and source map are checkout-path independent$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-DISTRIBUTION-004 生成模块与声明树不依赖 checkout 绝对路径 Task-graph 的生成脚本必须在长度不同的 checkout 绝对路径下产生逐字节一致的 bundle、source map、声明入口和完整声明树。 构建只对锁定的 `write-file-atomic@8.0.0` 唯一 `__filename` token 使用稳定模块路径；Bun 的 bundle/map debugId 必须先一致再成对移除，其他 source map 映射保持由 bundler 生成。 声明目录只保留当前公开入口可达的生成文件；额外文件必须让 `--check` 失败，并由 `--write` 清除。 两个不同长度的隔离源码与依赖树分别执行真实生成入口后，`task-graph.mjs`、`.map`、根声明和声明树逐字节一致；制品不含 debugId，并包含稳定的 write-file-atomic 模块标识。注入 stale 声明后，check 拒绝该目录，write 删除额外文件。 tools/task-graph/tests/generated-artifacts.test.ts > generated task graph bundle and source map are checkout-path independent bun test --test-name-pattern=\"^generated task graph bundle and source map are checkout-path independent$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/generated-bundle-is-checkout-path-independent.md",
-        "summary": "Task-graph 的生成脚本必须在长度不同的 checkout 绝对路径下产生逐字节一致的 bundle 与 source map。",
-        "title": "bundle 与 source map 不依赖 checkout 绝对路径"
+        "summary": "Task-graph 的生成脚本必须在长度不同的 checkout 绝对路径下产生逐字节一致的 bundle、source map、声明入口和完整声明树。",
+        "title": "生成模块与声明树不依赖 checkout 绝对路径"
       }
     },
     {
@@ -4997,7 +4997,7 @@
       "id": "TASK-GRAPH-RUNTIME-READ-ONLY-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-RUNTIME-READ-ONLY-001 领域只读命令不依赖 native runtime Index、scope、task 与图投影的只读命令不得加载或安装 native runtime。 九个领域只读 command path 在有效索引和空 tool home 下全部成功，且没有创建 tool home。 tools/task-graph/tests/cli.test.ts > CLI domain read-only commands run without an installed runtime bun test --test-name-pattern=\"^CLI domain read-only commands run without an installed runtime$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-RUNTIME-READ-ONLY-001 领域只读命令不依赖 native runtime Index、scope、task 与图投影的只读命令不得加载或安装 native runtime。 `index info`、scope list/show、task list/show 和 actionable 六个领域只读 command path 在有效索引和空 tool home 下全部成功，且没有创建 tool home。 tools/task-graph/tests/cli.test.ts > CLI domain read-only commands run without an installed runtime bun test --test-name-pattern=\"^CLI domain read-only commands run without an installed runtime$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -5011,7 +5011,7 @@
         ],
         "id": "TASK-GRAPH-RUNTIME-READ-ONLY-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-RUNTIME-READ-ONLY-001 领域只读命令不依赖 native runtime Index、scope、task 与图投影的只读命令不得加载或安装 native runtime。 九个领域只读 command path 在有效索引和空 tool home 下全部成功，且没有创建 tool home。 tools/task-graph/tests/cli.test.ts > CLI domain read-only commands run without an installed runtime bun test --test-name-pattern=\"^CLI domain read-only commands run without an installed runtime$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-RUNTIME-READ-ONLY-001 领域只读命令不依赖 native runtime Index、scope、task 与图投影的只读命令不得加载或安装 native runtime。 `index info`、scope list/show、task list/show 和 actionable 六个领域只读 command path 在有效索引和空 tool home 下全部成功，且没有创建 tool home。 tools/task-graph/tests/cli.test.ts > CLI domain read-only commands run without an installed runtime bun test --test-name-pattern=\"^CLI domain read-only commands run without an installed runtime$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/cli-read-only-commands-need-no-runtime.md",
         "summary": "Index、scope、task 与图投影的只读命令不得加载或安装 native runtime。",
         "title": "领域只读命令不依赖 native runtime"
@@ -6322,5 +6322,5 @@
   },
   "namespace": "test-evidence",
   "schemaVersion": 2,
-  "sourceRevision": "sha256:b791802de6d20a9cd99a0bb3fa0e757424850c5ec66b6f94ba06f4ab04538eaa"
+  "sourceRevision": "sha256:d838499933ace6b8f2550f080324287f306354657842e4c0dec7264d6ea099fd"
 }

@@ -8,4 +8,4 @@ Contract:
 - Index、scope、task 与图投影的只读命令不得加载或安装 native runtime。
 
 Proves:
-- 九个领域只读 command path 在有效索引和空 tool home 下全部成功，且没有创建 tool home。
+- `index info`、scope list/show、task list/show 和 actionable 六个领域只读 command path 在有效索引和空 tool home 下全部成功，且没有创建 tool home。

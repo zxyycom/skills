@@ -40,7 +40,8 @@ export type TaskGraphCliOptions = {
   serviceOptions?: Omit<TaskGraphServiceOptions, "root" | "indexPath">;
 };
 
-type TaskGraphCliInternalOptions = {
+/** @internal */
+export type TaskGraphCliInternalOptions = {
   io?: CliIo;
   runtimeOptions?: RuntimeContextOptions;
   serviceOptions?: Omit<TaskGraphServiceInternalOptions, "root" | "indexPath">;
@@ -98,7 +99,7 @@ const expectedRevisionHelp = {
 const contentHelp = [
   { name: "--title", required: true, type: "string" },
   { name: "--goal", required: true, type: "string" },
-  { name: "--acceptance", required: true, type: "string", multiple: true },
+  { name: "--acceptance", required: false, type: "string", multiple: true },
   { name: "--context", required: false, type: "string", default: null },
   { name: "--reference", required: false, type: "key-value", multiple: true }
 ] as const satisfies readonly HelpParameter[];
@@ -166,7 +167,7 @@ const commandHelpCatalog = {
     requiresMutationRuntime: true
   },
   "task create": {
-    usage: "task-graph task create <scope-id> --title <text> --goal <text> --acceptance <text> --expected-revision <n> [options]",
+    usage: "task-graph task create <scope-id> --title <text> --goal <text> --expected-revision <n> [options]",
     positionals: [positional("scope-id")],
     options: [
       ...contentHelp,
@@ -186,7 +187,7 @@ const commandHelpCatalog = {
     positionals: [positional("scope-id"), positional("task-id")], options: []
   },
   "task update-content": {
-    usage: "task-graph task update-content <scope-id> <task-id> --title <text> --goal <text> --acceptance <text> --expected-revision <n>",
+    usage: "task-graph task update-content <scope-id> <task-id> --title <text> --goal <text> --expected-revision <n> [options]",
     positionals: [positional("scope-id"), positional("task-id")],
     options: [...contentHelp, expectedRevisionHelp],
     requiresMutationRuntime: true
@@ -230,10 +231,6 @@ const commandHelpCatalog = {
   actionable: {
     usage: "task-graph actionable <scope-id>",
     positionals: [positional("scope-id")], options: []
-  },
-  trace: {
-    usage: "task-graph trace <scope-id> <task-id>",
-    positionals: [positional("scope-id"), positional("task-id")], options: []
   },
   claim: {
     usage: "task-graph claim <scope-id> <task-id> --actor <actor> [--duration <seconds>] [--recover-lease <id> --expected-revision <n> --reason <text>]",
@@ -501,12 +498,10 @@ function controlInput(
 function contentInput(parsed: ParsedCommandOptions): TaskContentInput {
   const title = stringValue(parsed, "title", { required: true }) ?? "";
   const goal = stringValue(parsed, "goal", { required: true }) ?? "";
-  const acceptance = stringsValue(parsed, "acceptance");
-  if (acceptance.length === 0) failArgument("--acceptance is required and may be repeated");
   return {
     title,
     goal,
-    acceptance,
+    acceptance: stringsValue(parsed, "acceptance"),
     context: stringValue(parsed, "context") ?? null,
     references: keyValueDictionary(stringsValue(parsed, "reference"), "--reference")
   };
@@ -823,12 +818,6 @@ async function dispatch(
     const [scopeId = ""] = requirePositionals(parsed, 1, "task-graph actionable <scope-id>");
     return await service.actionable(scopeId);
   }
-  if (first === "trace") {
-    const parsed = parseCommandOptions(tokens.slice(1), {});
-    const [scopeId = "", taskId = ""] = requirePositionals(parsed, 2, "task-graph trace <scope-id> <task-id>");
-    return await service.trace(scopeId, taskId);
-  }
-
   if (first === "claim") {
     const parsed = parseCommandOptions(tokens.slice(1), {
       actor: { kind: "string" },
@@ -1016,6 +1005,15 @@ function writeResult(io: CliIo, result: TaskGraphResult): void {
   io.stdout(`${JSON.stringify(result)}\n`);
 }
 
+/** @internal */
+export function runTaskGraphCli(
+  argv: readonly string[],
+  options: TaskGraphCliInternalOptions
+): Promise<number>;
+export function runTaskGraphCli(
+  argv?: readonly string[],
+  options?: TaskGraphCliOptions
+): Promise<number>;
 export async function runTaskGraphCli(
   argv: readonly string[] = process.argv.slice(2),
   options: TaskGraphCliInternalOptions = {}

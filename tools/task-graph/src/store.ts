@@ -17,7 +17,8 @@ import {
 import {
   defaultTaskGraphIndexPath,
   type JsonObject,
-  type TaskIndex
+  type TaskIndex,
+  type TaskIndexInfo
 } from "./types.ts";
 
 export type AtomicWrite = (
@@ -42,20 +43,6 @@ export type TaskIndexRead = {
   canonical: boolean;
   index: TaskIndex;
   text: string;
-};
-
-export type TaskIndexInfo = {
-  valid: true;
-  canonical: boolean;
-  diagnostics: Array<{
-    code: "index-not-canonical";
-    message: string;
-  }>;
-  revision: number;
-  schemaVersion: 1;
-  scopeCount: number;
-  taskCount: number;
-  nextIds: { scope: number; task: number };
 };
 
 type LockHandle = {

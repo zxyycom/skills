@@ -5,7 +5,11 @@ import path from "node:path";
 import test from "node:test";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
-import { runTaskGraphCli, type TaskGraphResult } from "../src/cli.ts";
+import {
+  runTaskGraphCli,
+  type TaskGraphCliInternalOptions,
+  type TaskGraphResult
+} from "../src/cli.ts";
 import {
   loadUncontendedNativeLock,
   prepareRootNativeRuntime,
@@ -30,9 +34,7 @@ type CliCall = {
   result: TaskGraphResult;
 };
 
-type CliServiceOptions = NonNullable<
-  NonNullable<Parameters<typeof runTaskGraphCli>[1]>["serviceOptions"]
->;
+type CliServiceOptions = NonNullable<TaskGraphCliInternalOptions["serviceOptions"]>;
 
 async function callCli(
   root: string,
@@ -113,7 +115,7 @@ test("CLI help, version, and usage stay inside the single-JSON LF protocol", asy
       assert.equal(help.result.revision, null);
       const data = help.result.data as { commands: string[]; usage: string };
       assert.equal(data.usage.startsWith("task-graph"), true);
-      assert.equal(data.commands.length, 29);
+      assert.equal(data.commands.length, 28);
       assert.deepEqual(
         (help.result.data as { runtimeRequirements: unknown }).runtimeRequirements,
         {
@@ -148,6 +150,25 @@ test("CLI help, version, and usage stay inside the single-JSON LF protocol", asy
       );
     }
 
+    const taskCreateHelp = await callCli(root, ["task", "create", "--help"]);
+    assert.equal(taskCreateHelp.result.ok, true);
+    if (taskCreateHelp.result.ok) {
+      const data = taskCreateHelp.result.data as {
+        parameters: {
+          options: Array<{
+            multiple?: boolean;
+            name: string;
+            required: boolean;
+            type: string;
+          }>;
+        };
+      };
+      assert.deepEqual(
+        data.parameters.options.find((option) => option.name === "--acceptance"),
+        { name: "--acceptance", required: false, type: "string", multiple: true }
+      );
+    }
+
     const applyHelp = await callCli(root, ["help", "apply"]);
     assert.equal(applyHelp.result.ok, true);
     if (applyHelp.result.ok) {
@@ -174,7 +195,7 @@ test("CLI help, version, and usage stay inside the single-JSON LF protocol", asy
     const version = await callCli(root, ["--version"]);
     assert.equal(version.result.ok, true);
     if (version.result.ok) {
-      assert.deepEqual(version.result.data, { name: "task-graph", version: "1.1.0" });
+      assert.deepEqual(version.result.data, { name: "task-graph", version: "1.2.0" });
       assert.equal(version.result.revision, null);
     }
 
@@ -287,8 +308,7 @@ test("CLI domain read-only commands run without an installed runtime", async () 
       ["scope", "show", "scope-000001"],
       ["task", "list", "scope-000001"],
       ["task", "show", "scope-000001", "task-000001"],
-      ["actionable", "scope-000001"],
-      ["trace", "scope-000001", "task-000001"]
+      ["actionable", "scope-000001"]
     ]) {
       const result = await callCliWithMissingRuntime(root, args, toolHome, nodeVersion);
       assert.equal(result.exitCode, 0, args.join(" "));
@@ -362,7 +382,6 @@ test("CLI success and predictable schema, state, conflict, and file failures use
       "task", "create", "scope-000001",
       "--title", "candidate",
       "--goal", "candidate goal",
-      "--acceptance", "candidate accepted",
       "--reference", "thread=supported",
       "--expected-revision", "1"
     ]);
@@ -381,10 +400,11 @@ test("CLI success and predictable schema, state, conflict, and file failures use
     ]);
     assert.equal(shownTask.result.ok, true);
     if (shownTask.result.ok) {
-      const references = (shownTask.result.data as {
-        task: { content: { references: Record<string, string> } };
-      }).task.content.references;
-      assert.deepEqual(references, { thread: "supported" });
+      const content = (shownTask.result.data as {
+        task: { content: { acceptance: string[]; references: Record<string, string> } };
+      }).task.content;
+      assert.deepEqual(content.acceptance, []);
+      assert.deepEqual(content.references, { thread: "supported" });
     }
 
     const reservedBinding = await callCli(root, [

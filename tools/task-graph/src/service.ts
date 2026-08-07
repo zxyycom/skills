@@ -15,8 +15,7 @@ import {
 import { projectScope } from "./graph.ts";
 import {
   TaskGraphStore,
-  type TaskGraphStoreOptions,
-  type TaskIndexInfo
+  type TaskGraphStoreOptions
 } from "./store.ts";
 import type {
   CancelTaskOptions,
@@ -30,7 +29,8 @@ import type {
   TaskGraphApplyResult,
   TaskEffectiveState,
   TaskExecutionPhase,
-  TaskIndex
+  TaskIndex,
+  TaskIndexInfo
 } from "./types.ts";
 
 const compareText = (left: string, right: string): number =>
@@ -42,6 +42,7 @@ export type TaskGraphServiceOptions = {
   root?: string;
 };
 
+/** @internal */
 export type TaskGraphServiceInternalOptions = TaskGraphServiceOptions
 & Omit<TaskGraphStoreOptions, "indexPath" | "root"> & {
   leaseIdGenerator?: () => string;
@@ -76,10 +77,14 @@ export type TaskSummary = {
 };
 
 export class TaskGraphService {
+  /** @internal */
   readonly store: TaskGraphStore;
   private readonly clock: Clock;
   private readonly leaseIdGenerator: () => string;
 
+  /** @internal */
+  constructor(options: TaskGraphServiceInternalOptions);
+  constructor(options?: TaskGraphServiceOptions);
   constructor(options: TaskGraphServiceInternalOptions = {}) {
     this.clock = options.clock ?? (() => new Date());
     this.leaseIdGenerator = options.leaseIdGenerator ?? randomUUID;
@@ -233,10 +238,6 @@ export class TaskGraphService {
     };
   }
 
-  async trace(scopeId: string, taskId: string) {
-    return await this.showTask(scopeId, taskId);
-  }
-
   async claim(options: ClaimTaskOptions) {
     return await this.executionMutation((index) => claimTask(index, {
       ...options,
@@ -294,12 +295,7 @@ export class TaskGraphService {
   }
 }
 
-export function createTaskGraphService(
-  options: TaskGraphServiceOptions = {}
-): TaskGraphService {
-  return new TaskGraphService(options);
-}
-
+/** @internal */
 export async function assertTaskGraphMutationRuntime(
   service: TaskGraphService
 ): Promise<void> {

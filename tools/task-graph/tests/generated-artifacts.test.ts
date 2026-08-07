@@ -41,6 +41,13 @@ const generatedDeclarationPath = path.join(
   "scripts",
   "task-graph.d.mts"
 );
+const generatedDeclarationDirectory = path.join(
+  repositoryRoot,
+  "skills",
+  "task-graph",
+  "scripts",
+  "task-graph-sdk"
+);
 const generatedSchemaPath = path.join(
   repositoryRoot,
   "skills",
@@ -55,7 +62,12 @@ async function resolveInstalledPackageRoot(
   fromManifestPath: string
 ): Promise<string> {
   const packageRequire = createRequire(fromManifestPath);
-  let current = path.dirname(packageRequire.resolve(packageName));
+  let current: string;
+  try {
+    current = path.dirname(packageRequire.resolve(`${packageName}/package.json`));
+  } catch {
+    current = path.dirname(packageRequire.resolve(packageName));
+  }
   while (true) {
     const manifestPath = path.join(current, "package.json");
     try {
@@ -117,7 +129,6 @@ async function copyTaskGraphBuildCheckout(targetRoot: string): Promise<void> {
     "scripts/build/task-graph.ts",
     "scripts/lib",
     "tools/shared/src",
-    "tools/task-graph/api",
     "tools/task-graph/src"
   ]) {
     const source = path.join(repositoryRoot, relativePath);
@@ -127,8 +138,25 @@ async function copyTaskGraphBuildCheckout(targetRoot: string): Promise<void> {
   }
   const rootManifestPath = path.join(repositoryRoot, "package.json");
   await copyInstalledPackageClosure(
-    ["@valibot/to-json-schema", "fast-glob", "valibot", "write-file-atomic"],
+    [
+      "@types/node",
+      "@types/write-file-atomic",
+      "@typescript/native-preview",
+      "@valibot/to-json-schema",
+      "fast-glob",
+      "valibot",
+      "write-file-atomic"
+    ],
     rootManifestPath,
+    path.join(targetRoot, "node_modules")
+  );
+  const compilerRoot = await resolveInstalledPackageRoot(
+    "@typescript/native-preview",
+    rootManifestPath
+  );
+  await copyInstalledPackageClosure(
+    [`@typescript/native-preview-${process.platform}-${process.arch}`],
+    path.join(compilerRoot, "package.json"),
     path.join(targetRoot, "node_modules")
   );
 }
@@ -141,7 +169,6 @@ const publicRuntimeExports = [
   "claimTask",
   "closeScopes",
   "completeTask",
-  "createTaskGraphService",
   "defaultTaskGraphIndexPath",
   "emptyTaskIndex",
   "failTask",
@@ -191,8 +218,34 @@ test("generated distribution matches source API, schema bytes, and portable meta
   assert.doesNotMatch(script, /debugId=/u);
 
   const declaration = await fs.readFile(generatedDeclarationPath, "utf8");
+  assert.match(declaration, /export \* from "\.\/task-graph-sdk\/cli\.mjs";/u);
+  const declarationFiles = (await fs.readdir(generatedDeclarationDirectory))
+    .filter((filename) => filename.endsWith(".d.mts"))
+    .sort();
+  assert.deepEqual(declarationFiles, [
+    "cli.d.mts",
+    "engine.d.mts",
+    "errors.d.mts",
+    "graph.d.mts",
+    "index.d.mts",
+    "service.d.mts",
+    "types.d.mts"
+  ]);
+  const declarations = await Promise.all(declarationFiles.map(async (filename) => (
+    await fs.readFile(path.join(generatedDeclarationDirectory, filename), "utf8")
+  )));
+  const declarationTree = [declaration, ...declarations].join("\n");
+  for (const generatedDeclaration of [declaration, ...declarations]) {
+    assert.match(generatedDeclaration, /Generated task graph SDK TypeScript declaration/u);
+    assert.doesNotMatch(generatedDeclaration, /["']\.\.?\/[^"']+\.ts["']/u);
+    for (const match of generatedDeclaration.matchAll(
+      /\bfrom\s+["']([^"']+)["']/gu
+    )) {
+      assert.match(match[1] ?? "", /^\.\//u);
+    }
+  }
   for (const exportedName of publicRuntimeExports) {
-    assert.match(declaration, new RegExp(`\\b${exportedName}\\b`, "u"));
+    assert.match(declarationTree, new RegExp(`\\b${exportedName}\\b`, "u"));
   }
   for (const publicType of [
     "TaskMutationPrecondition",
@@ -203,10 +256,12 @@ test("generated distribution matches source API, schema bytes, and portable meta
     "TaskGraphRuntimeInfo",
     "TaskGraphRuntimeInstallCommand",
     "ScopeProjection",
+    "TaskContentInput",
+    "TaskIndexInfo",
     "TaskGraphServiceOptions",
     "TaskGraphCliOptions"
   ]) {
-    assert.match(declaration, new RegExp(`export type ${publicType}\\b`, "u"));
+    assert.match(declarationTree, new RegExp(`export type ${publicType}\\b`, "u"));
   }
   for (const internalName of [
     "TaskGraphStore",
@@ -216,7 +271,6 @@ test("generated distribution matches source API, schema bytes, and portable meta
     "IdGenerator",
     "hooks",
     "idGenerator",
-    "leaseIdGenerator",
     "processState",
     "NativeLockBinding",
     "RuntimeInstallInternalOptions",
@@ -225,12 +279,54 @@ test("generated distribution matches source API, schema bytes, and portable meta
     "runRuntimeCommand",
     "AtomicWrite",
     "commandRunner",
-    "probeCommandRunner"
+    "probeCommandRunner",
+    "TaskGraphCliInternalOptions",
+    "TaskGraphServiceInternalOptions"
   ]) {
-    assert.doesNotMatch(declaration, new RegExp(`\\b${internalName}\\b`, "u"));
+    assert.doesNotMatch(declarationTree, new RegExp(`\\b${internalName}\\b`, "u"));
   }
-  assert.doesNotMatch(declaration, /\bNodeJS\b/u);
-  assert.doesNotMatch(declaration, /LOCK_RECOVERY_REQUIRED|LOCK_LOST/u);
+  assert.doesNotMatch(declarationTree, /\bNodeJS\b/u);
+  assert.doesNotMatch(declarationTree, /LOCK_RECOVERY_REQUIRED|LOCK_LOST|valibot/u);
+
+  await withTempWorkspace(async (root) => {
+    await fs.copyFile(generatedScriptPath, path.join(root, "task-graph.mjs"));
+    await fs.copyFile(generatedDeclarationPath, path.join(root, "task-graph.d.mts"));
+    await fs.cp(
+      generatedDeclarationDirectory,
+      path.join(root, "task-graph-sdk"),
+      { recursive: true }
+    );
+    const consumerPath = path.join(root, "consumer.mts");
+    await fs.writeFile(consumerPath, [
+      "import { TaskGraphService, runTaskGraphCli } from \"./task-graph.mjs\";",
+      "import type { TaskContentInput, TaskGraphCliOptions } from \"./task-graph.mjs\";",
+      "// @ts-expect-error internal store is not part of the SDK entry",
+      "import type { TaskGraphStore } from \"./task-graph.mjs\";",
+      "// @ts-expect-error redundant service factory is not part of the SDK entry",
+      "import { createTaskGraphService } from \"./task-graph.mjs\";",
+      "const content: TaskContentInput = { title: \"candidate\", goal: \"do work\" };",
+      "const options: TaskGraphCliOptions = {};",
+      "new TaskGraphService();",
+      "void runTaskGraphCli([], options);",
+      "void content;",
+      ""
+    ].join("\n"), "utf8");
+    const compilerRoot = await resolveInstalledPackageRoot(
+      "@typescript/native-preview",
+      path.join(repositoryRoot, "package.json")
+    );
+    await execFileAsync(process.execPath, [
+      path.join(compilerRoot, "bin", "tsgo"),
+      "--ignoreConfig",
+      "--noEmit",
+      "--target", "ES2024",
+      "--module", "NodeNext",
+      "--moduleResolution", "NodeNext",
+      "--strict",
+      "--skipLibCheck", "false",
+      consumerPath
+    ], { cwd: root, windowsHide: true });
+  });
 
   const sourceMap = JSON.parse(
     await fs.readFile(`${generatedScriptPath}.map`, "utf8")
@@ -294,6 +390,7 @@ test("generated distribution matches source API, schema bytes, and portable meta
   ]);
   validIndex.scopes["scope-000001"]!.tasks["task-000001"]!.content.references =
     Object.fromEntries([["source", "supported"]]);
+  validIndex.scopes["scope-000001"]!.tasks["task-000001"]!.content.acceptance = [];
   assert.doesNotThrow(() => sourceApi.parseTaskIndex(validIndex));
   assert.equal(validateConsumer(validIndex), true, JSON.stringify(validateConsumer.errors));
 
@@ -314,6 +411,19 @@ test("generated distribution matches source API, schema bytes, and portable meta
     invalid.scopes["scope-000001"]!.tasks["task-000001"]!.content.title = invalidTitle;
     assert.throws(() => sourceApi.parseTaskIndex(invalid));
     assert.equal(validateConsumer(invalid), false, invalidTitle);
+  }
+
+  for (const invalidTextField of ["title", "binding"] as const) {
+    const invalid = structuredClone(validIndex);
+    if (invalidTextField === "title") {
+      (invalid.scopes["scope-000001"]!.tasks["task-000001"]!.content as {
+        title: unknown;
+      }).title = 42;
+    } else {
+      (invalid.scopes["scope-000001"]!.bindings as Record<string, unknown>).thread = 42;
+    }
+    assert.throws(() => sourceApi.parseTaskIndex(invalid));
+    assert.equal(validateConsumer(invalid), false, invalidTextField);
   }
 
   for (const [sourceId, zeroId] of [
@@ -386,14 +496,60 @@ test("generated task graph bundle and source map are checkout-path independent",
     const longBundle = await fs.readFile(path.join(longCheckout, relativeOutput));
     const shortSourceMap = await fs.readFile(path.join(shortCheckout, `${relativeOutput}.map`));
     const longSourceMap = await fs.readFile(path.join(longCheckout, `${relativeOutput}.map`));
+    const relativeDeclaration = path.join(
+      "skills",
+      "task-graph",
+      "scripts",
+      "task-graph.d.mts"
+    );
+    const shortDeclaration = await fs.readFile(path.join(shortCheckout, relativeDeclaration));
+    const longDeclaration = await fs.readFile(path.join(longCheckout, relativeDeclaration));
+    const relativeDeclarationDirectory = path.join(
+      "skills",
+      "task-graph",
+      "scripts",
+      "task-graph-sdk"
+    );
+    const declarationFiles = (await fs.readdir(
+      path.join(shortCheckout, relativeDeclarationDirectory)
+    )).sort();
+    assert.deepEqual(
+      declarationFiles,
+      (await fs.readdir(path.join(longCheckout, relativeDeclarationDirectory))).sort()
+    );
     assert.deepEqual(shortBundle, longBundle);
     assert.deepEqual(shortSourceMap, longSourceMap);
+    assert.deepEqual(shortDeclaration, longDeclaration);
+    for (const filename of declarationFiles) {
+      assert.deepEqual(
+        await fs.readFile(path.join(shortCheckout, relativeDeclarationDirectory, filename)),
+        await fs.readFile(path.join(longCheckout, relativeDeclarationDirectory, filename))
+      );
+    }
     assert.equal(shortBundle.includes(Buffer.from("debugId=")), false);
     assert.equal(shortSourceMap.includes(Buffer.from("debugId")), false);
     assert.equal(
       shortBundle.includes(Buffer.from("node_modules/write-file-atomic/lib/index.js")),
       true
     );
+
+    const staleDeclaration = path.join(
+      shortCheckout,
+      relativeDeclarationDirectory,
+      "stale.d.mts"
+    );
+    await fs.writeFile(staleDeclaration, "export {};\n", "utf8");
+    await assert.rejects(execFileAsync(
+      process.execPath,
+      ["scripts/build/task-graph.ts", "--check"],
+      { cwd: shortCheckout, timeout: 120_000, windowsHide: true }
+    ));
+    await execFileAsync(
+      process.execPath,
+      ["scripts/build/task-graph.ts", "--write"],
+      { cwd: shortCheckout, timeout: 120_000, windowsHide: true }
+    );
+    await assert.rejects(fs.stat(staleDeclaration), { code: "ENOENT" });
   });
 });
 

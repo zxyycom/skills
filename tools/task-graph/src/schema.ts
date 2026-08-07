@@ -79,10 +79,16 @@ function boundedTextPattern(singleLine: boolean): string {
 
 export function taskGraphJsonSchemaOverrideAction(context: {
   valibotAction: object;
-}): { minLength: number; maxLength: number; pattern: string } | undefined {
+}): {
+  type: "string";
+  minLength: number;
+  maxLength: number;
+  pattern: string;
+} | undefined {
   const constraint = boundedTextConstraints.get(context.valibotAction);
   if (constraint === undefined) return undefined;
   return {
+    type: "string",
     minLength: constraint.minimum,
     maxLength: constraint.maximum,
     pattern: constraint.pattern
@@ -201,7 +207,6 @@ export const taskContentSchema = v.strictObject({
   goal: boundedText("task goal", 1, 1000),
   acceptance: v.pipe(
     v.array(boundedText("acceptance item", 1, 300)),
-    v.minLength(1, "acceptance must contain at least one item"),
     v.maxLength(20, "acceptance must contain at most 20 items")
   ),
   context: v.nullable(boundedText("task context", 1, 2000)),
@@ -212,11 +217,10 @@ export const taskContentSchema = v.strictObject({
 export const taskContentInputSchema = v.strictObject({
   title: boundedText("task title", 1, 120, { singleLine: true }),
   goal: boundedText("task goal", 1, 1000),
-  acceptance: v.pipe(
+  acceptance: v.optional(v.pipe(
     v.array(boundedText("acceptance item", 1, 300)),
-    v.minLength(1, "acceptance must contain at least one item"),
     v.maxLength(20, "acceptance must contain at most 20 items")
-  ),
+  )),
   context: v.optional(v.nullable(boundedText("task context", 1, 2000))),
   references: v.optional(referenceDictionarySchema)
 });
@@ -538,7 +542,7 @@ export function normalizeTaskContent(input: TaskContentInput): TaskContent {
   return {
     title: parsed.title,
     goal: parsed.goal,
-    acceptance: [...parsed.acceptance],
+    acceptance: [...(parsed.acceptance ?? [])],
     context: parsed.context ?? null,
     references: { ...(parsed.references ?? {}) },
     result: null

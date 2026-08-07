@@ -1,5 +1,5 @@
 export const taskGraphSchemaVersion = 1 as const;
-export const taskGraphVersion = "1.1.0" as const;
+export const taskGraphVersion = "1.2.0" as const;
 export const defaultTaskGraphIndexPath =
   "docs/task-graph/task-graph-index.json" as const;
 export const taskGraphRuntimeProtocolVersion = 1 as const;
@@ -297,10 +297,24 @@ export type TaskGraphRuntimeInfo = {
   arch: string;
 };
 
+export type TaskIndexInfo = {
+  valid: true;
+  canonical: boolean;
+  diagnostics: Array<{
+    code: "index-not-canonical";
+    message: string;
+  }>;
+  revision: number;
+  schemaVersion: 1;
+  scopeCount: number;
+  taskCount: number;
+  nextIds: { scope: number; task: number };
+};
+
 export type TaskContentInput = {
   title: string;
   goal: string;
-  acceptance: string[];
+  acceptance?: string[];
   context?: string | null;
   references?: Record<string, string>;
 };

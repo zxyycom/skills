@@ -1,3 +1,14 @@
+import {
+  emptyTaskIndex as createEmptyTaskIndex,
+  parseTaskGraphApplyRequest as parseApplyRequest,
+  parseTaskIndex as parseIndex,
+  serializeTaskIndex as serializeIndex
+} from "./schema.ts";
+import type {
+  TaskGraphApplyRequest,
+  TaskIndex
+} from "./types.ts";
+
 export { TaskGraphError } from "./errors.ts";
 export {
   applyTaskGraphOperations,
@@ -14,13 +25,6 @@ export {
 } from "./engine.ts";
 export { projectScope, validateTaskIndexGraph } from "./graph.ts";
 export {
-  emptyTaskIndex,
-  parseTaskGraphApplyRequest,
-  parseTaskIndex,
-  serializeTaskIndex
-} from "./schema.ts";
-export {
-  createTaskGraphService,
   TaskGraphService,
   type ListScopesOptions,
   type ScopeSummary,
@@ -29,3 +33,20 @@ export {
   type TaskSummary
 } from "./service.ts";
 export * from "./types.ts";
+
+// Keep the SDK declaration closure independent of schema implementation types.
+export function emptyTaskIndex(): TaskIndex {
+  return createEmptyTaskIndex();
+}
+
+export function parseTaskGraphApplyRequest(input: unknown): TaskGraphApplyRequest {
+  return parseApplyRequest(input);
+}
+
+export function parseTaskIndex(input: unknown): TaskIndex {
+  return parseIndex(input);
+}
+
+export function serializeTaskIndex(index: TaskIndex): string {
+  return serializeIndex(index);
+}

@@ -51,6 +51,7 @@
               "maxLength": 80
             },
             "additionalProperties": {
+              "type": "string",
               "minLength": 1,
               "maxLength": 200,
               "pattern": "^(?![\\s\\S]*[\\r\\n])(?!\\s)(?:[\\s\\S]*\\S)?$"
@@ -87,11 +88,13 @@
                   "type": "object",
                   "properties": {
                     "title": {
+                      "type": "string",
                       "minLength": 1,
                       "maxLength": 120,
                       "pattern": "^(?![\\s\\S]*[\\r\\n])(?!\\s)(?:[\\s\\S]*\\S)?$"
                     },
                     "goal": {
+                      "type": "string",
                       "minLength": 1,
                       "maxLength": 1000,
                       "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
@@ -99,16 +102,17 @@
                     "acceptance": {
                       "type": "array",
                       "items": {
+                        "type": "string",
                         "minLength": 1,
                         "maxLength": 300,
                         "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
                       },
-                      "minItems": 1,
                       "maxItems": 20
                     },
                     "context": {
                       "anyOf": [
                         {
+                          "type": "string",
                           "minLength": 1,
                           "maxLength": 2000,
                           "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
@@ -126,6 +130,7 @@
                         "maxLength": 80
                       },
                       "additionalProperties": {
+                        "type": "string",
                         "minLength": 1,
                         "maxLength": 500,
                         "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
@@ -137,6 +142,7 @@
                           "type": "object",
                           "properties": {
                             "summary": {
+                              "type": "string",
                               "minLength": 1,
                               "maxLength": 1000,
                               "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
@@ -149,6 +155,7 @@
                                 "maxLength": 80
                               },
                               "additionalProperties": {
+                                "type": "string",
                                 "minLength": 1,
                                 "maxLength": 500,
                                 "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
@@ -237,6 +244,7 @@
                               "const": "waiting"
                             },
                             "reason": {
+                              "type": "string",
                               "minLength": 1,
                               "maxLength": 1000,
                               "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
@@ -255,6 +263,7 @@
                               "const": "paused"
                             },
                             "reason": {
+                              "type": "string",
                               "minLength": 1,
                               "maxLength": 1000,
                               "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
@@ -307,6 +316,7 @@
                                   "pattern": "^lease-[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
                                 },
                                 "actor": {
+                                  "type": "string",
                                   "minLength": 1,
                                   "maxLength": 200,
                                   "pattern": "^(?![\\s\\S]*[\\r\\n])(?!\\s)(?:[\\s\\S]*\\S)?$"
@@ -371,6 +381,7 @@
                               "maximum": 9007199254740991
                             },
                             "reason": {
+                              "type": "string",
                               "minLength": 1,
                               "maxLength": 1000,
                               "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"
@@ -395,6 +406,7 @@
                               "maximum": 9007199254740991
                             },
                             "reason": {
+                              "type": "string",
                               "minLength": 1,
                               "maxLength": 1000,
                               "pattern": "^(?!\\s)(?:[\\s\\S]*\\S)?$"

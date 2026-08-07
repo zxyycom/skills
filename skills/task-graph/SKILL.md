@@ -6,7 +6,7 @@ description: >-
   索引查询、选择、领取并收敛任务；少量固定顺序步骤继续使用当前对话计划。
 compatibility: "Requires Node.js ^22.22.2 || ^24.15.0 || >=26.0.0; mutations require a caller-provisioned compatible native runtime."
 metadata:
-  version: "3"
+  version: "4"
 ---
 
 # Task Graph
@@ -32,15 +32,15 @@ metadata:
 ## 内容 owner 与工具
 
 1. 本文件承接触发、任务记录判断、调度流程、权限边界、恢复和交接。
-2. `scripts/task-graph.mjs` 是 JSON-only 管理入口；它负责 runtime 探测与安装指引、索引校验、关系、状态事务、租约和 scope 清理。模块可以安全导入，只有作为主模块运行时进入 CLI。
-3. `scripts/task-graph.d.mts` 提供公开 TypeScript 声明；[task index Schema](references/task-graph-index.schema.json) 提供权威索引的机器结构。精确命令、参数、结果和错误以 CLI 的 JSON help、公开声明及 Schema 为准；调用具体命令前先用 `help` 或 `help <command-path>` 恢复当前契约，不凭记忆猜测参数。
+2. `scripts/task-graph.mjs` 是 JSON-only 管理入口，也提供程序化调用所需的公开导出；它负责 runtime 探测与安装指引、索引校验、关系、状态事务、租约和 scope 清理。模块可以安全导入，只有作为主模块运行时才进入 CLI dispatch。
+3. `scripts/task-graph.d.mts` 及其包内声明树描述该模块的公开导出；声明从 CLI 模块实际使用和导出的同一 TypeScript 实现机械生成，不另行维护 SDK 实现、接口清单或声明源。[task index Schema](references/task-graph-index.schema.json) 提供权威索引的机器结构。精确命令、参数、结果和错误以 CLI 的 JSON help、公开声明及 Schema 为准；调用具体命令前先用 `help` 或 `help <command-path>` 恢复当前契约，不凭记忆猜测参数。
 4. 目标仓库的 `docs/task-graph/task-graph-index.json` 是当前短期任务状态的唯一权威索引，只能通过工具修改；系统临时目录中的空锁文件与索引目录内的原子写临时文件都不是事实源。
 5. 稳定需求、长篇背景、设计理由、测试证据和最终结果继续由项目已有 owner 承接。Task entry 只保存执行所需摘要和引用。
 
 ## 对象模型
 
 1. Scope 是一次短期协调边界，使用稳定 ID、可读 key 和宿主 binding 定位；一个 scope 可以包含多个顶层真实任务。
-2. Task entry 把 `content` 与 `state` 分开：`content` 保存目标、验收、紧凑上下文、引用和结果；`state.control` 保存候选、排队、等待或暂停意图；`state.execution` 保存尝试、租约和终结结果；`state.relations` 保存父任务、依赖和排斥。
+2. Task entry 把 `content` 与 `state` 分开：`content` 保存标题、目标、可选 `acceptance` 完成提示、紧凑上下文、引用和结果；`state.control` 保存候选、排队、等待或暂停意图；`state.execution` 保存尝试、租约和终结结果；`state.relations` 保存父任务、依赖和排斥。`acceptance` 没有状态语义。
 3. 可行动性、有效控制、阻塞原因、继承关系和待恢复状态由查询投影从权威索引计算，不作为第二份状态写回 task entry。
 
 ## 工作流程
@@ -65,13 +65,14 @@ metadata:
 
 1. 只写入能够从用户要求、稳定 owner 或明确工作事实确认的任务和关系；工具不会从自然语言自动补全依赖、排斥、优先级或最佳并行集合。
 2. 尚未选入当前执行的真实任务使用 `candidate`；已经选择执行的任务使用 `queued`；等待外部输入或暂停时保存明确原因。顶层任务不能继承 control，子任务可以继承最近祖先的软控制。
-3. 每个 task 都表示真实目标。需要分解时创建真实子任务，不创建 group、work 或虚拟 root；父任务通过子任务完成门禁收敛。
-4. 只有确认完成顺序时才记录 dependency，只有确认不能同时运行时才记录 exclusion。使用批量 `apply` 在一个 expectedRevision 下原子创建相互引用的任务和关系。
-5. 任务新增、内容或 control 更新以及关系修改都携带最新 expectedRevision。冲突后重新读取完整相关视图并重新判断，不盲目重放旧 mutation。
+3. 每个 task 都表示真实目标。需要分解时创建真实子任务，不创建 group、work 或虚拟 root；父任务通过子任务与租约状态构成的完成门禁收敛。
+4. 每个 task 必须说明标题和目标，它们定义要做什么；`acceptance` 只在已有明确标准时保存为可选辅助。省略或使用空数组不会阻止排队、领取或完成，工具也不会把该字段当作自动验收门禁。
+5. 只有确认完成顺序时才记录 dependency，只有确认不能同时运行时才记录 exclusion。使用批量 `apply` 在一个 expectedRevision 下原子创建相互引用的任务和关系。
+6. 任务新增、内容或 control 更新以及关系修改都携带最新 expectedRevision。冲突后重新读取完整相关视图并重新判断，不盲目重放旧 mutation。
 
 ### 3. 查询、选择与领取
 
-1. 每轮调度先读取 actionable 投影及其 revision，并按需读取 task trace。`actionable` 只表示当前存在合法下一动作：就绪叶子任务和待恢复叶子任务可以 `claim`，已满足门禁的父任务可以 `complete`。
+1. 每轮调度先读取 actionable 投影及其 revision，并按需使用 `task show` 读取任务详情。`actionable` 只表示当前存在合法下一动作：就绪叶子任务和待恢复叶子任务可以 `claim`，已满足门禁的父任务可以 `complete`。
 2. 工具可以返回多个可行动 task 及其排斥边，但不替 agent 或用户选择业务优先级。选择具体 task 后，在开始实际工作前成功执行 `claim`，并保存返回的 lease ID、actor 和到期时间。
 3. `claim` 只用于叶子任务并在最新索引上重新验证约束；不要用旧 revision 推断领取仍然成立。父任务不领取租约，满足门禁后使用最新 expectedRevision 完成。
 
@@ -79,21 +80,21 @@ metadata:
 
 1. 执行期间由 lease 持有者跟踪到期时间；工作可能越过到期时间时，在有效期内主动 `renew`。
 2. 完成、失败、释放或运行中取消必须使用匹配的当前 lease。释放时显式选择下一本地 control；失败后需要继续工作时先 `retry`，再重新查询和领取。
-3. 租约过期后不要继续普通 lease 操作。读取当前 task、trace 和最新 revision，再用 `claim --recover-lease <旧 lease> --expected-revision <最新 revision> --reason <原因>` 原子写入新 lease。恢复三元组缺一不可，旧 lease 必须匹配；活动租约不能被该入口提前接管。
-4. 有子任务的父任务只有在直接子任务全部成功或取消、至少一个成功且不存在活动或待恢复后代租约时才能完成。取消父任务会按工具门禁递归取消未终结后代，并保留已经终结的结果。
+3. 租约过期后不要继续普通 lease 操作。使用 `task show` 读取当前任务及最新 revision，再用 `claim --recover-lease <旧 lease> --expected-revision <最新 revision> --reason <原因>` 原子写入新 lease。恢复三元组缺一不可，旧 lease 必须匹配；活动租约不能被该入口提前接管。
+4. 有子任务的父任务只有在直接子任务全部成功或取消、至少一个成功且不存在活动或待恢复后代租约时才能完成。该判断不读取父任务或子任务的 `acceptance`；取消父任务会按工具门禁递归取消未终结后代，并保留已经终结的结果。
 
 ### 5. 动态追加、恢复与交接
 
-1. 新任务出现时先读取最新 scope、revision 和相关 trace，再以普通 create 或原子 `apply` 追加；不要用记忆中的旧拓扑直接写入。
+1. 新任务出现时先读取最新 scope、revision 和相关任务详情，再以普通 create 或原子 `apply` 追加；不要用记忆中的旧拓扑直接写入。
 2. 上下文恢复后重新执行 `index info`、scope 定位和 actionable 查询。对 `running` 或 `recovery-needed` task 先确认实际执行者和 lease 状态，不能因当前对话不记得它就释放或覆盖。
 3. 需要长篇背景、正式设计、跨阶段任务或稳定理由时，把内容交给 `change-plan`、决策记录或对应事实 owner，并在 task 中只保留紧凑引用。
-4. 需要创建或审计代理时，把已就绪 task 的目标、验收、约束和 lease 边界交给 `subagent-orchestration`。没有该 skill 或当前环境不能创建代理时，在当前 agent 中按同一 claim 与 lease 规则顺序执行，不改变任务图语义。
+4. 需要创建或审计代理时，把已就绪 task 的目标、已有的完成提示、约束和 lease 边界交给 `subagent-orchestration`。没有该 skill 或当前环境不能创建代理时，在当前 agent 中按同一 claim 与 lease 规则顺序执行，不改变任务图语义。
 
 ### 6. 关闭 scope
 
 1. 在关闭前确认全部顶层任务已经成功或取消，scope 中没有失败、活动租约或待恢复租约，并把需要长期保留的结果交付给用户或稳定 owner。
 2. `scope list` 的每项 `close` 投影给出门禁和 blocker。只有调用方明确确认结果已经交付后，才用 `scope close --scope <id>... --expected-revision <n> --results-delivered` 原子关闭显式选择的一个或多个 scope。工具不删除单个 task，也不运行后台或按时间静默清理。
-3. Scope 删除、task checkbox 或工具成功不表示用户已经验收；按当前任务的真实交付和验证标准单独确认完成。
+3. Task entry 的 `acceptance` 提示、scope 删除或工具成功都不表示用户已经验收；按当前任务的真实交付和验证要求单独判断。
 
 ## 权限与并发边界
 
