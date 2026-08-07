@@ -1,7 +1,7 @@
 ---
 title: 让独立决策暂存能够被发现
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-06T11:26:45Z
 purpose: 让需要单独暂存决策集合的任务能够发现 decision-records 的专用能力。
 background: 当前发现入口没有表达后来新增的独立 stage 能力，提交任务可能在加载 skill 前错过它。

@@ -141,7 +141,7 @@
       "decision-records/express-decision-alignment-state.md": "sha256:7937c9582dbf462d55a6a6d70022ecd7a7d8ca8a9a695aace912ed7746cd376b",
       "decision-records/generate-index-from-self-contained-decisions.md": "sha256:d36d0135f480c191e2bae9f371ee13ad24df16e3c4851cdd4386d165c30eddc0",
       "decision-records/guard-unrecorded-decision-evolution.md": "sha256:80d2d2dbffc2d8b29cc804d720929312f8023b09b21bd99b9a084df297677812",
-      "decision-records/make-independent-decision-staging-discoverable.md": "sha256:6822f5fff9c2f51ae62c4f25312e0a645eed16c9c9923dca453955404905eb6e",
+      "decision-records/make-independent-decision-staging-discoverable.md": "sha256:7b9da2c4d93545f4826a846487b0e025304ad625fcf8894443192ddbb653341f",
       "decision-records/notify-before-current-decision-writes.md": "sha256:c2444940a1c325a9f908d156950f3584bd593e124a8a19e36e0339ce84e0d10d",
       "decision-records/package-current-index-json-schema.md": "sha256:eae46f50130d05f4ae1c52eeae4982a158a1d2ae6a63302f999e15f70ee7f525",
       "decision-records/package-index-json-schema.md": "sha256:418e7a8eb311ff07c2bef2e2d8c247a0f90113217ea094c91520f6d7b8f7d328",
@@ -1638,14 +1638,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "decision-records/make-independent-decision-staging-discoverable.md",
         "title": "让独立决策暂存能够被发现",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-06T11:26:45Z",
         "purpose": "让需要单独暂存决策集合的任务能够发现 decision-records 的专用能力。",
         "background": "当前发现入口没有表达后来新增的独立 stage 能力，提交任务可能在加载 skill 前错过它。",
