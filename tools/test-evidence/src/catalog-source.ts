@@ -35,7 +35,7 @@ export type TestEvidenceCatalogSource = {
 
 export type LoadedTestEvidenceCatalogCase = {
   parsed: ParsedTestEvidenceCase;
-  sourcePath: string;
+  source: TestEvidenceCatalogSource;
   validated: TestEvidenceCase;
 };
 
@@ -63,6 +63,20 @@ export async function loadTestEvidenceCatalog(
 
   for (const source of sourceResult.sources) {
     const parsedCases = collectTestEvidenceCases(source.text, caseIdPattern);
+    const firstCase = parsedCases[0];
+    const startsWithValidCaseHeading = firstCase?.line === 1
+      && firstCase.headingFormatIsValid
+      && firstCase.caseIdIsValid;
+    if (!startsWithValidCaseHeading) {
+      diagnostics.push(createDiagnostic({
+        category: "catalog",
+        code: "catalog.invalid",
+        message: `${source.path} must start on line 1 with `
+          + "### Case <CASE-ID>: <title>",
+        path: source.path,
+        severity: "error"
+      }));
+    }
     for (const entry of parsedCases) {
       if (entry.headingFormatIsValid && entry.caseIdIsValid) {
         const locations = parsedById.get(entry.id) ?? [];
@@ -95,10 +109,10 @@ export async function loadTestEvidenceCatalog(
       path: source.path,
       severity: "error"
     })));
-    if (validated.case !== null) {
+    if (validated.case !== null && startsWithValidCaseHeading) {
       cases.push({
         parsed,
-        sourcePath: source.path,
+        source,
         validated: validated.case
       });
     }

@@ -1,7 +1,8 @@
 import * as v from "valibot";
 import { isJsonObject, type JsonObject } from "./json.ts";
+import { createSafeRecordSchema } from "./record.ts";
 
-export const stateIndexSchemaVersion = 2 as const;
+export const stateIndexSchemaVersion = 3 as const;
 export const stateIndexQueryDefaultLimit = 50;
 export const stateIndexQueryMaximumLimit = 1_000;
 
@@ -52,7 +53,7 @@ const jsonObjectSchema = v.custom<JsonObject>(
   isJsonObject,
   "must be a JSON object containing only finite JSON values"
 );
-const keyMapSchema = v.record(
+const keyMapSchema = createSafeRecordSchema(
   stateIndexKeyNameSchema,
   v.pipe(
     v.array(stateIndexKeyScalarSchema, "must be an array of index scalars"),
@@ -65,26 +66,59 @@ export const stateIndexKeyDefinitionSchema = v.strictObject({
   mode: v.picklist(["exact", "range", "text"]),
   name: stateIndexKeyNameSchema
 });
+export const stateIndexStoredEntrySchema = v.strictObject({
+  keys: keyMapSchema,
+  state: jsonObjectSchema
+});
 export const stateIndexEntrySchema = v.strictObject({
   id: stateIndexIdSchema,
   keys: keyMapSchema,
   state: jsonObjectSchema
 });
+export function createStateSourceRevisionSchema<
+  const IdSchema extends v.GenericSchema<string, string>,
+  const FingerprintSchema extends v.GenericSchema<string, string>
+>(options: {
+  fingerprint: FingerprintSchema;
+  id: IdSchema;
+}) {
+  return v.strictObject({
+    entries: createSafeRecordSchema(
+      options.id,
+      options.fingerprint,
+      "must be an object keyed by state id"
+    ),
+    metadata: options.fingerprint
+  });
+}
+export const stateSourceRevisionSchema = v.strictObject({
+  entries: createSafeRecordSchema(
+    stateIndexIdSchema,
+    stateIndexRevisionSchema,
+    "must be an object keyed by state id"
+  ),
+  metadata: stateIndexRevisionSchema
+});
 export const stateIndexSchema = v.strictObject({
   definitionVersion: positiveIntegerSchema,
-  entries: v.array(stateIndexEntrySchema, "must be an array"),
+  entries: createSafeRecordSchema(
+    stateIndexIdSchema,
+    stateIndexStoredEntrySchema,
+    "must be an object keyed by state id"
+  ),
   keyDefinitions: v.pipe(
     v.array(stateIndexKeyDefinitionSchema, "must be an array"),
     v.minLength(1, "must contain at least one key definition")
   ),
   metadata: jsonObjectSchema,
   namespace: stateIndexNamespaceSchema,
-  schemaVersion: v.literal(stateIndexSchemaVersion, "must be 2"),
-  sourceRevision: stateIndexRevisionSchema
+  schemaVersion: v.literal(stateIndexSchemaVersion, "must be 3"),
+  sourceRevision: stateSourceRevisionSchema
 });
 
 export function createStateIndexSchema<
   const DefinitionVersion extends number,
+  const IdSchema extends v.GenericSchema<string, string>,
   const KeysSchema extends v.GenericSchema,
   const KeyDefinitionsSchema extends v.GenericSchema,
   const MetadataSchema extends v.GenericSchema,
@@ -93,6 +127,7 @@ export function createStateIndexSchema<
   const StateSchema extends v.GenericSchema
 >(options: {
   definitionVersion: DefinitionVersion;
+  id: IdSchema;
   keys: KeysSchema;
   keyDefinitions: KeyDefinitionsSchema;
   metadata: MetadataSchema;
@@ -102,11 +137,10 @@ export function createStateIndexSchema<
 }) {
   return v.strictObject({
     definitionVersion: v.literal(options.definitionVersion),
-    entries: v.array(v.strictObject({
-      id: stateIndexIdSchema,
+    entries: createSafeRecordSchema(options.id, v.strictObject({
       keys: options.keys,
       state: options.state
-    })),
+    }), "must be an object keyed by state id"),
     keyDefinitions: options.keyDefinitions,
     metadata: options.metadata,
     namespace: v.literal(options.namespace),
@@ -169,6 +203,8 @@ export const stateIndexQuerySchema = v.strictObject({
 
 export type StateIndex = v.InferOutput<typeof stateIndexSchema>;
 export type StateIndexEntry = v.InferOutput<typeof stateIndexEntrySchema>;
+export type StateIndexStoredEntry = v.InferOutput<typeof stateIndexStoredEntrySchema>;
+export type StateSourceRevision = v.InferOutput<typeof stateSourceRevisionSchema>;
 export type StateIndexFilter = v.InferOutput<typeof stateIndexFilterSchema>;
 export type StateIndexKeyDefinition = v.InferOutput<typeof stateIndexKeyDefinitionSchema>;
 export type StateIndexKeyMode = StateIndexKeyDefinition["mode"];

@@ -56,27 +56,35 @@ export type DecisionIndexState = DecisionDocument & {
   path: string;
 };
 
-export type DecisionIndexEntry = {
-  id: string;
+export type DecisionIndexStoredEntry = {
   keys: Record<string, Array<boolean | number | string>>;
   state: DecisionIndexState;
+};
+
+export type DecisionIndexEntry = DecisionIndexStoredEntry & {
+  id: string;
 };
 
 export type DecisionIndexMetadata = {
   domains: DecisionDomainDefinition[];
 };
 
+export type DecisionSourceRevision = {
+  metadata: string;
+  entries: Record<string, string>;
+};
+
 export type DecisionIndex = {
-  schemaVersion: 2;
+  schemaVersion: 3;
   namespace: "decisions";
   definitionVersion: 5;
   metadata: DecisionIndexMetadata;
-  sourceRevision: string;
+  sourceRevision: DecisionSourceRevision;
   keyDefinitions: Array<{
     name: string;
     mode: "exact" | "range" | "text";
   }>;
-  entries: DecisionIndexEntry[];
+  entries: Record<string, DecisionIndexStoredEntry>;
 };
 
 export type DecisionRecord = {

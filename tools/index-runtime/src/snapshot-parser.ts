@@ -4,11 +4,13 @@ import {
   sameKeyDefinitions,
   validateStateIndexDefinition
 } from "./definition.ts";
+import { canonicalizeStateIndex } from "./canonicalization.ts";
+import { diagnostic, errorText } from "./diagnostics.ts";
+import { cloneAndFreezeTypedJsonObject } from "./frozen-json.ts";
 import {
-  canonicalizeStateIndex,
   normalizeStateIndex,
   validateCompleteStateIndex
-} from "./normalization.ts";
+} from "./projection.ts";
 import type {
   JsonObject,
   StateIndex,
@@ -16,10 +18,7 @@ import type {
   StateIndexExpectation,
   StateIndexResult
 } from "./types.ts";
-import {
-  diagnostic,
-  validateStateIndexValue
-} from "./validation.ts";
+import { validateStateIndexValue } from "./validation.ts";
 
 export function parseStateIndex<
   State extends object,
@@ -121,7 +120,9 @@ export function parseStateIndex<
     return {
       diagnostics: [],
       status: "ok",
-      value: canonicalizeStateIndex(validated.index)
+      // The validated schema output retains nested member order. Freeze a
+      // detached copy without invoking domain parsers on the fast-open path.
+      value: cloneAndFreezeTypedJsonObject(validated.index, false)
     };
   }
   const normalized = normalizeStateIndex(
@@ -147,8 +148,4 @@ export function serializeStateIndex<
   definition: StateIndexDefinition<State, Metadata>
 ): string {
   return `${JSON.stringify(canonicalizeStateIndex(index, definition), null, 2)}\n`;
-}
-
-function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }

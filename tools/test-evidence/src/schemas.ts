@@ -1,6 +1,7 @@
 import * as v from "valibot";
 import {
   createStateIndexSchema,
+  createStateSourceRevisionSchema,
   stateIndexSchemaVersion,
   stateIndexTextSchema
 } from "../../index-runtime/src/index.ts";
@@ -42,6 +43,13 @@ const nonNegativeIntegerSchema = v.pipe(
   v.number("must be a number"),
   v.integer("must be an integer"),
   v.minValue(0, "must be at least 0")
+);
+const testEvidenceCaseIdSchema = v.pipe(
+  nonEmptyStringSchema,
+  v.regex(
+    new RegExp(testEvidenceCaseIdPatternSource, "u"),
+    "must be a valid test evidence case id"
+  )
 );
 
 const topicIdSchema = v.pipe(
@@ -123,7 +131,7 @@ const testEvidenceCaseStateFields = {
     v.array(nonEmptyStringSchema),
     v.minLength(1, "must include at least one entry")
   ),
-  id: nonEmptyStringSchema,
+  id: testEvidenceCaseIdSchema,
   line: positiveIntegerSchema,
   sourcePath: nonEmptyStringSchema,
   summary: nonEmptyStringSchema,
@@ -197,9 +205,17 @@ const testEvidenceIndexKeysSchema = v.strictObject({
   search: v.tuple([stateIndexTextSchema]),
   topic: v.tuple([stateIndexTextSchema])
 });
+const testEvidenceSourceFingerprintSchema = v.pipe(
+  v.string("must be a string"),
+  v.regex(
+    /^sha256:[0-9a-f]{64}$/u,
+    "must be a sha256 test-evidence source fingerprint"
+  )
+);
 
 export const testEvidenceStateIndexSchema = createStateIndexSchema({
   definitionVersion: testEvidenceIndexDefinitionVersion,
+  id: testEvidenceCaseIdSchema,
   keys: testEvidenceIndexKeysSchema,
   keyDefinitions: v.tuple([
     v.strictObject({
@@ -213,13 +229,10 @@ export const testEvidenceStateIndexSchema = createStateIndexSchema({
   ]),
   metadata: testEvidenceIndexMetadataSchema,
   namespace: testEvidenceIndexNamespace,
-  sourceRevision: v.pipe(
-    v.string("must be a string"),
-    v.regex(
-      /^sha256:[0-9a-f]{64}$/,
-      "must be a sha256 test-evidence source revision"
-    )
-  ),
+  sourceRevision: createStateSourceRevisionSchema({
+    fingerprint: testEvidenceSourceFingerprintSchema,
+    id: testEvidenceCaseIdSchema
+  }),
   state: testEvidenceCaseIndexStateSchema
 });
 

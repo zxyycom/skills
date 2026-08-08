@@ -1,10 +1,10 @@
 ---
 title: 以稳定 ID 键控状态索引
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-06T09:23:47Z
 purpose: 让索引从领域输入到持久化都直接按稳定 ID 管理条目，并保持低成本的新鲜度检查。
-background: 现有数组需要再次推导身份，整体来源摘要又无法在选择部分条目时安全组合。
+background: 决策形成时的数组需要再次推导身份，整体来源摘要又无法在选择部分条目时安全组合。
 decision: 身份集合统一使用 ID 键控对象，来源 revision 按 metadata 与各 ID 分解，快速读取保持单次轻量扫描。
 relations:
   - type: 拆分
@@ -19,8 +19,8 @@ relations:
 
 ## 背景
 
-- 现有 snapshot、持久化 entries 和 runtime overlay 使用数组，definition 再通过 `identify` 从 state 恢复 ID；运行时随后仍需建立映射或扫描条目。
-- decision-records、investigation-report 和 test-evidence 在领域读取阶段已经拥有稳定路径或 case ID，数组和二次身份推导没有承接真实责任边界。
+- 决策形成时，snapshot、持久化 entries 和 runtime overlay 使用数组，definition 再通过 `identify` 从 state 恢复 ID；运行时随后仍需建立映射或扫描条目。
+- 当时 decision-records、investigation-report 和 test-evidence 在领域读取阶段已经拥有稳定路径或 case ID，数组和二次身份推导没有承接真实责任边界。
 - 单一的整体 `sourceRevision` 可以快速判断完整来源是否变化，却不能只凭 revision 与工作区两份索引组合选中条目的来源状态。
 - 用完整 state 投影摘要替代来源 revision 会要求常规新鲜度检查重新解析全部领域源，削弱索引用于快速读取的核心价值。
 

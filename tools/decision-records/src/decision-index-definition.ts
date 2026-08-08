@@ -1,8 +1,11 @@
 import * as v from "valibot";
 import {
+  createStateSourceRevisionSchema,
   defineStateIndexDefinition,
+  type ReadonlyStateIndex,
   type StateIndexDefinition,
-  type StateSnapshot
+  type StateSnapshot,
+  type StateSourceRevision
 } from "../../index-runtime/src/index.ts";
 import { decisionDomainDefinitionsSchema } from "./decision-domain-catalog.ts";
 import {
@@ -10,10 +13,11 @@ import {
   isDecisionRelativePath
 } from "./decision-path.ts";
 import {
-  decisionIndexState,
   readDecisionSourceRevision,
   readDecisionStateSnapshot
 } from "./decision-index-source.ts";
+import { decisionSourceFingerprintPatternSource } from "./decision-source-revision.ts";
+import { decisionIndexState } from "./decision-state-snapshot.ts";
 import { isDecisionTimestamp } from "./decision-timestamp.ts";
 import { projectionTextIssue } from "./projection.ts";
 import {
@@ -55,6 +59,17 @@ const decisionIndexStateSchema = v.strictObject({
 const decisionIndexMetadataSchema = v.strictObject({
   domains: decisionDomainDefinitionsSchema
 });
+const sourceFingerprintSchema = v.pipe(
+  v.string("must be a string"),
+  v.regex(
+    new RegExp(decisionSourceFingerprintPatternSource, "u"),
+    "must be a sha256 decision source fingerprint"
+  )
+);
+const decisionSourceRevisionSchema = createStateSourceRevisionSchema({
+  fingerprint: sourceFingerprintSchema,
+  id: decisionPathSchema
+});
 
 type DecisionIndexDefinitionOptions = {
   relativePaths?: readonly string[];
@@ -67,11 +82,10 @@ export function createDecisionStateIndexDefinition(
   return defineStateIndexDefinition({
     definitionVersion: decisionIndexDefinitionVersion,
     fieldOrder: "definition",
-    identify: (state) => state.path,
     keyStrategies: [
       {
-        derive: (state, context) => decisionDomainFromIndexPath(
-          state.path,
+        derive: (_state, context) => decisionDomainFromIndexPath(
+          context.id,
           context.metadata
         ),
         mode: "exact",
@@ -104,8 +118,20 @@ export function createDecisionStateIndexDefinition(
         context.root,
         relativePaths,
         context.signal
-      )
+      ),
+    validateIndex: validateDecisionSourceRevision
   });
+}
+
+function validateDecisionSourceRevision(
+  index: ReadonlyStateIndex<DecisionIndexState, DecisionIndexMetadata>
+): void {
+  const parsed = v.safeParse(decisionSourceRevisionSchema, index.sourceRevision);
+  if (!parsed.success) {
+    throw new TypeError(
+      parsed.issues.map(formatDecisionIndexIssue).join("; ")
+    );
+  }
 }
 
 function parseDecisionIndexState(input: Parameters<
@@ -121,11 +147,14 @@ function parseDecisionIndexState(input: Parameters<
 >[1]): DecisionIndexState {
   const parsed = v.safeParse(decisionIndexStateSchema, input);
   if (!parsed.success) {
-    throw new TypeError(parsed.issues.map(formatDecisionStateIssue).join("; "));
+    throw new TypeError(parsed.issues.map(formatDecisionIndexIssue).join("; "));
   }
 
   const state = parsed.output;
-  decisionDomainFromIndexPath(state.path, context.metadata);
+  if (state.path !== context.id) {
+    throw new TypeError("state.path must equal the entry id");
+  }
+  decisionDomainFromIndexPath(context.id, context.metadata);
   if (!isDecisionTimestamp(state.createdAt)) {
     throw new TypeError(
       "createdAt must be an RFC 3339 timestamp precise to seconds "
@@ -186,7 +215,7 @@ function parseDecisionIndexState(input: Parameters<
   return decisionIndexState(state.path, document);
 }
 
-function formatDecisionStateIssue(issue: v.BaseIssue<unknown>): string {
+function formatDecisionIndexIssue(issue: v.BaseIssue<unknown>): string {
   const issuePath = v.getDotPath(issue);
   return issuePath === null ? issue.message : `${issuePath} ${issue.message}`;
 }
@@ -218,7 +247,7 @@ async function unavailableRead(): Promise<StateSnapshot<
   throw new Error("decision state reader is unavailable in this operation");
 }
 
-async function unavailableRevisionRead(): Promise<string> {
+async function unavailableRevisionRead(): Promise<StateSourceRevision> {
   throw new Error("decision revision reader is unavailable in this operation");
 }
 

@@ -1,23 +1,15 @@
-import { createHash, type Hash } from "node:crypto";
 import path from "node:path";
 import * as v from "valibot";
 import {
   createStateIndexRuntime,
   defineStateIndexDefinition,
-  type StateIndexContext,
   type StateIndexDefinition,
   type StateIndexDiagnostic,
   type StateIndexSyncMode,
   type StateSnapshot
 } from "../../index-runtime/src/index.ts";
-import {
-  loadTestEvidenceCatalog,
-  type LoadedTestEvidenceCatalogCase,
-  type TestEvidenceCatalogSource
-} from "./catalog-source.ts";
 import { createDiagnostic } from "./diagnostics.ts";
 import {
-  testEvidenceCaseIdPatternSource,
   testEvidenceCatalogPath,
   testEvidenceIndexPath,
   testEvidenceCaseIndexStateSchema,
@@ -28,8 +20,9 @@ import {
   type TestEvidenceIndexMetadata
 } from "./schemas.ts";
 import {
-  normalizeTestEvidenceTopicCatalog
-} from "./topic-catalog.ts";
+  readCurrentTestEvidenceSourceRevision,
+  readTestEvidenceIndexSource
+} from "./state-index-source.ts";
 import { testEvidenceTopicIdFromSourcePath } from "./topic.ts";
 import { cloneTopicDefinitions } from "./topics.ts";
 import type {
@@ -43,21 +36,6 @@ export type SyncTestEvidenceIndexOptions = {
   workspaceRoot: string;
 };
 
-type TestEvidenceIndexSourceResult =
-  | {
-    diagnostics: [];
-    snapshot: StateSnapshot<
-      TestEvidenceCaseIndexState,
-      TestEvidenceIndexMetadata
-    >;
-    topics: TestEvidenceIndexMetadata["topics"];
-  }
-  | {
-    diagnostics: TestEvidenceDiagnostic[];
-    snapshot: null;
-    topics: TestEvidenceIndexMetadata["topics"];
-  };
-
 export function createTestEvidenceStateIndexDefinition(options: {
   snapshot?: StateSnapshot<
     TestEvidenceCaseIndexState,
@@ -69,10 +47,9 @@ export function createTestEvidenceStateIndexDefinition(options: {
 > {
   return defineStateIndexDefinition({
     definitionVersion: testEvidenceIndexDefinitionVersion,
-    identify: (state) => state.id,
     keyStrategies: [
       {
-        derive: caseSearchText,
+        derive: (state, context) => caseSearchText(state, context.id),
         mode: "text",
         name: "search"
       },
@@ -92,6 +69,11 @@ export function createTestEvidenceStateIndexDefinition(options: {
     ),
     parseState: (input, context) => {
       const state = v.parse(testEvidenceCaseIndexStateSchema, input);
+      if (state.id !== context.id) {
+        throw new TypeError(
+          `state id must match its index key: ${context.id}`
+        );
+      }
       topicFromIndexState(state, context.metadata);
       return state;
     },
@@ -99,9 +81,7 @@ export function createTestEvidenceStateIndexDefinition(options: {
       if (options.snapshot !== undefined) {
         return options.snapshot;
       }
-      const source = await readTestEvidenceIndexSource(
-        context
-      );
+      const source = await readTestEvidenceIndexSource(context);
       if (source.snapshot === null) {
         throw new Error(
           source.diagnostics.map((entry) => entry.message).join("; ")
@@ -109,12 +89,15 @@ export function createTestEvidenceStateIndexDefinition(options: {
       }
       return source.snapshot;
     },
-    readRevision: async (context) => await readCurrentSourceRevision(context)
+    readRevision: readCurrentTestEvidenceSourceRevision
   });
 }
 
-function caseSearchText(state: TestEvidenceCaseIndexState): string {
-  return state.searchText;
+function caseSearchText(
+  state: TestEvidenceCaseIndexState,
+  id: string
+): string {
+  return `${id} ${state.searchText}`;
 }
 
 function topicFromIndexState(
@@ -145,9 +128,7 @@ export async function syncTestEvidenceIndex(
   options: SyncTestEvidenceIndexOptions
 ): Promise<TestEvidenceIndexSyncResult> {
   const workspaceRoot = path.resolve(options.workspaceRoot);
-  const source = await readTestEvidenceIndexSource(
-    { root: workspaceRoot }
-  );
+  const source = await readTestEvidenceIndexSource({ root: workspaceRoot });
   if (source.snapshot === null) {
     return failedSyncResult({
       diagnostics: source.diagnostics,
@@ -200,95 +181,6 @@ export function mapStateIndexDiagnostics(
   }));
 }
 
-export function testEvidenceSourceRevision(options: {
-  sources: readonly TestEvidenceCatalogSource[];
-  topicCatalog: Parameters<typeof normalizeTestEvidenceTopicCatalog>[0];
-}): string {
-  const hash = createHash("sha256");
-  hash.update("test-evidence-index-source-v3\0");
-  hashField(hash, normalizeTestEvidenceTopicCatalog(options.topicCatalog));
-  hashField(hash, testEvidenceCaseIdPatternSource);
-  for (const source of [...options.sources].sort((left, right) => (
-    compareText(left.path, right.path)
-  ))) {
-    hashField(hash, source.path);
-    hashField(hash, normalizeSourceText(source.text));
-  }
-  return `sha256:${hash.digest("hex")}`;
-}
-
-async function readTestEvidenceIndexSource(
-  context: StateIndexContext
-): Promise<TestEvidenceIndexSourceResult> {
-  const catalog = await loadTestEvidenceCatalog(context.root);
-  const topics = cloneTopicDefinitions(catalog.topicCatalog?.topics ?? []);
-  if (catalog.diagnostics.length > 0) {
-    return {
-      diagnostics: catalog.diagnostics,
-      snapshot: null,
-      topics
-    };
-  }
-  if (catalog.topicCatalog === null) {
-    throw new TypeError("validated catalog must include a topic catalog");
-  }
-
-  const states = catalog.cases.map(catalogCaseState);
-  return {
-    diagnostics: [],
-    snapshot: {
-      metadata: { topics },
-      revision: testEvidenceSourceRevision({
-        sources: catalog.sources,
-        topicCatalog: catalog.topicCatalog
-      }),
-      states
-    },
-    topics
-  };
-}
-
-async function readCurrentSourceRevision(
-  context: StateIndexContext
-): Promise<string> {
-  const catalog = await loadTestEvidenceCatalog(context.root);
-  if (catalog.diagnostics.length > 0 || catalog.topicCatalog === null) {
-    throw new Error(
-      catalog.diagnostics.map((entry) => entry.message).join("; ")
-    );
-  }
-  return testEvidenceSourceRevision({
-    sources: catalog.sources,
-    topicCatalog: catalog.topicCatalog
-  });
-}
-
-function catalogCaseState(
-  catalogCase: LoadedTestEvidenceCatalogCase
-): TestEvidenceCaseIndexState {
-  const { parsed: entry, sourcePath, validated } = catalogCase;
-  const summary = entry.sections.contract.items[0];
-  if (summary === undefined) {
-    throw new TypeError(`validated case ${entry.id} has no index summary`);
-  }
-  return v.parse(testEvidenceCaseIndexStateSchema, {
-    endLine: entry.endLine,
-    entries: validated.entries,
-    id: entry.id,
-    line: entry.line,
-    searchText: [
-      entry.id,
-      entry.title,
-      ...entry.sections.contract.items,
-      ...entry.sections.proves.items,
-      ...validated.entries
-    ].join(" "),
-    sourcePath,
-    summary,
-    title: entry.title
-  });
-}
-
 function failedSyncResult(options: {
   diagnostics: readonly TestEvidenceDiagnostic[];
   mode: StateIndexSyncMode;
@@ -310,9 +202,7 @@ function failedSyncResult(options: {
 const rebuildableIndexCodes: ReadonlySet<string> = new Set([
   "state-index.definition-mismatch",
   "state-index.definition-version-mismatch",
-  "state-index.id-duplicate",
   "state-index.id-invalid",
-  "state-index.identify-failed",
   "state-index.index-missing",
   "state-index.index-stale",
   "state-index.index-validation-failed",
@@ -328,6 +218,9 @@ const rebuildableIndexCodes: ReadonlySet<string> = new Set([
   "state-index.metadata-parse-invalid",
   "state-index.namespace-mismatch",
   "state-index.schema-invalid",
+  "state-index.schema-version-unsupported",
+  "state-index.source-revision-invalid",
+  "state-index.source-revision-members-mismatch",
   "state-index.state-invalid",
   "state-index.state-parse-failed",
   "state-index.state-parse-invalid"
@@ -335,19 +228,4 @@ const rebuildableIndexCodes: ReadonlySet<string> = new Set([
 
 export function indexCanBeRebuilt(code: string): boolean {
   return rebuildableIndexCodes.has(code);
-}
-
-function normalizeSourceText(value: string): string {
-  return value.replace(/\r\n?/gu, "\n");
-}
-
-function hashField(hash: Hash, value: string): void {
-  const byteLength = Buffer.byteLength(value, "utf8");
-  hash.update(`${byteLength}:`, "utf8");
-  hash.update(value, "utf8");
-  hash.update("\0", "utf8");
-}
-
-function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
 }

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "namespace": "decisions",
   "definitionVersion": 5,
   "metadata": {
@@ -18,7 +18,13 @@
       }
     ]
   },
-  "sourceRevision": "sha256:1b8dd48ab9aced2c399f196eae7875de7f02399922169818ef96b417db8639b2",
+  "sourceRevision": {
+    "entries": {
+      "decision-records/260710-use-source-cli.md": "sha256:13e04af12a60177cefabc9169fd9b3e1d25b271987ad922d2d20fa61d4ca36b4",
+      "project-tooling/use-generated-cli.md": "sha256:9ef4bb62c9e0c1e783d177bce7d8d50e19037f9d93471c85f10afecc37fe79d4"
+    },
+    "metadata": "sha256:48b988bd521b5f95e65df25f7408df0507a2944224f0e797112716b2de868d17"
+  },
   "keyDefinitions": [
     {
       "name": "domain",
@@ -33,9 +39,8 @@
       "mode": "exact"
     }
   ],
-  "entries": [
-    {
-      "id": "decision-records/260710-use-source-cli.md",
+  "entries": {
+    "decision-records/260710-use-source-cli.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -56,8 +61,7 @@
         "relations": []
       }
     },
-    {
-      "id": "project-tooling/use-generated-cli.md",
+    "project-tooling/use-generated-cli.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -86,5 +90,5 @@
         ]
       }
     }
-  ]
+  }
 }

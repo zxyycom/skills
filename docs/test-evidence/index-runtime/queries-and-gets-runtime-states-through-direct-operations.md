@@ -3,6 +3,6 @@ Entry:
 - `tools/index-runtime/tests/runtime.test.ts > queries and gets runtime states through direct operations`
 - `bun test --test-name-pattern="^queries and gets runtime states through direct operations$" ./tools/index-runtime/tests/run.ts`
 Contract:
-- runtime 直接 `query` 与 `get` 必须加载当前索引，并允许调用级状态覆盖。
+- Runtime 直接 `query` 与 `get` 必须加载当前索引，并允许按 ID record 提供调用级状态覆盖。
 Proves:
 - 直接过滤、标识获取和归档状态覆盖均返回预期结果。

@@ -5,4 +5,4 @@ Entry:
 Contract:
 - 内存 reader 必须复制并冻结有效索引，拒绝定义不匹配或结构畸形输入。
 Proves:
-- 创建后修改输入不影响查询，错误键定义和空条目分别触发稳定错误。
+- 创建后修改 metadata、删除 keyed entry 或改写 state 均不影响查询，错误键定义和非对象 entries 分别触发稳定错误。

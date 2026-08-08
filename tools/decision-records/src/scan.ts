@@ -24,12 +24,13 @@ import { establishedDecisionMetadataFromSource } from "./decision-metadata.ts";
 import {
   compareDecisionRecords,
   type DecisionIndex,
-  type DecisionIndexEntry,
   type DecisionProjection,
   type DecisionRecord,
   type DecisionScan,
   type DecisionScanOptions
 } from "./types.ts";
+
+type DecisionStoredIndexEntry = DecisionIndex["entries"][string];
 
 const allowedRootFiles = new Set([
   decisionDomainCatalogFileName,
@@ -75,12 +76,13 @@ function addCollectionError(
 
 function recordFromIndexEntry(options: {
   decisionsDirectory: string;
-  entry: DecisionIndexEntry;
+  entry: DecisionStoredIndexEntry;
+  relativePath: string;
 }): DecisionRecord {
-  const { decisionsDirectory, entry } = options;
+  const { decisionsDirectory, entry, relativePath } = options;
   const state = entry.state;
-  const pathParts = state.path.split("/");
-  const fileName = pathParts.at(-1) ?? state.path;
+  const pathParts = relativePath.split("/");
+  const fileName = pathParts.at(-1) ?? relativePath;
   return {
     activationCandidate: false,
     alignment: state.alignment,
@@ -88,12 +90,12 @@ function recordFromIndexEntry(options: {
     createdAt: state.createdAt,
     decisionPath: path.join(decisionsDirectory, ...pathParts),
     document: null,
-    domain: decisionDomainFromRelativePath(state.path) ?? "",
+    domain: decisionDomainFromRelativePath(relativePath) ?? "",
     fileName,
     indexed: true,
     markdownExists: false,
     projection: selectProjection(state),
-    relativePath: state.path,
+    relativePath,
     relationshipErrors: [],
     status: state.status
   };
@@ -104,7 +106,7 @@ async function scanDomainDirectory(options: {
   decisionsDirectory: string;
   domainId: string;
   domainPath: string;
-  indexEntryByPath: ReadonlyMap<string, DecisionIndexEntry> | null;
+  indexEntryByPath: DecisionIndex["entries"] | null;
   indexErrors: string[];
   indexRelativePath: string;
   records: DecisionRecord[];
@@ -162,7 +164,10 @@ async function scanDomainDirectory(options: {
       continue;
     }
 
-    const indexEntry = indexEntryByPath?.get(relativePath) ?? null;
+    const indexEntry = indexEntryByPath !== null
+      && Object.hasOwn(indexEntryByPath, relativePath)
+      ? indexEntryByPath[relativePath]
+      : null;
     const recordErrors: string[] = [];
     const sourceText = await fs.readFile(decisionPath, "utf8");
     const sourceDocument = await validateDecisionBody({
@@ -247,12 +252,16 @@ function addMissingIndexRecords(options: {
   }
 
   const recordPaths = new Set(records.map((record) => record.relativePath));
-  for (const entry of index.entries) {
-    if (recordPaths.has(entry.id)) {
+  for (const [id, storedEntry] of Object.entries(index.entries)) {
+    if (recordPaths.has(id)) {
       continue;
     }
-    indexErrors.push(missingIndexedDecisionError(indexRelativePath, entry.id));
-    records.push(recordFromIndexEntry({ decisionsDirectory, entry }));
+    indexErrors.push(missingIndexedDecisionError(indexRelativePath, id));
+    records.push(recordFromIndexEntry({
+      decisionsDirectory,
+      entry: storedEntry,
+      relativePath: id
+    }));
   }
 }
 
@@ -340,9 +349,7 @@ export async function scanDecisionRecords(
     ));
   }
   const index = parsedIndex?.status === "ok" ? parsedIndex.value : null;
-  const indexEntryByPath = index
-    ? new Map(index.entries.map((entry) => [entry.id, entry]))
-    : null;
+  const indexEntryByPath = index?.entries ?? null;
   const rootEntries = await fs.readdir(decisionsDirectory, { withFileTypes: true });
   rootEntries.sort((left, right) => left.name.localeCompare(right.name));
 

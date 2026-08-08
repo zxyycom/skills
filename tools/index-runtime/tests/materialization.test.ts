@@ -5,6 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import {
   buildStateIndex,
+  createStateIndexRuntime,
   defineStateIndexDefinition,
   keyDefinitionsOf,
   loadCurrentStateIndex,
@@ -65,6 +66,13 @@ test("serializes deterministic indexes independent of source order", async () =>
 
 test("preserves definition field and key order through serialization", async () => {
   await withTempRoot(async (tempRoot) => {
+    const calls = {
+      derives: 0,
+      metadataParses: 0,
+      parses: 0,
+      revisionReads: 0,
+      validations: 0
+    };
     const definition = defineStateIndexDefinition<{
       path: string;
       title: string;
@@ -73,22 +81,31 @@ test("preserves definition field and key order through serialization", async () 
     }>({
       definitionVersion: 1,
       fieldOrder: "definition",
-      identify: (state) => state.path,
       keyStrategies: [
         {
-          derive: (state) => state.path.split("/", 1)[0],
+          derive: (state) => {
+            calls.derives += 1;
+            return state.path.split("/", 1)[0];
+          },
           mode: "exact",
           name: "topic"
         },
         {
-          derive: (state) => state.status,
+          derive: (state) => {
+            calls.derives += 1;
+            return state.status;
+          },
           mode: "exact",
           name: "status"
         }
       ],
       namespace: "semantic-order",
-      parseMetadata: (metadata) => metadata,
+      parseMetadata: (metadata) => {
+        calls.metadataParses += 1;
+        return metadata;
+      },
       parseState: (input) => {
+        calls.parses += 1;
         const summary = input.summary;
         if (
           typeof input.path !== "string"
@@ -114,23 +131,41 @@ test("preserves definition field and key order through serialization", async () 
       },
       read: async () => ({
         metadata: {},
-        revision: "semantic-revision-1",
-        states: [
-          {
+        sourceRevision: {
+          entries: {
+            "topic/a.md": "semantic-a-revision-1",
+            "topic/z.md": "semantic-z-revision-1"
+          },
+          metadata: "semantic-metadata-revision-1"
+        },
+        states: {
+          "topic/z.md": {
             path: "topic/z.md",
             status: "active",
             summary: { background: "B", purpose: "P" },
             title: "Z"
           },
-          {
+          "topic/a.md": {
             path: "topic/a.md",
             status: "active",
             summary: { background: "B", purpose: "P" },
             title: "A"
           }
-        ]
+        }
       }),
-      readRevision: async () => "semantic-revision-1"
+      readRevision: async () => {
+        calls.revisionReads += 1;
+        return {
+          entries: {
+            "topic/a.md": "semantic-a-revision-1",
+            "topic/z.md": "semantic-z-revision-1"
+          },
+          metadata: "semantic-metadata-revision-1"
+        };
+      },
+      validateIndex: () => {
+        calls.validations += 1;
+      }
     });
     const index = resultValue(await buildStateIndex(definition, {
       root: tempRoot
@@ -138,8 +173,7 @@ test("preserves definition field and key order through serialization", async () 
     assert.deepEqual(index.keyDefinitions, keyDefinitionsOf(definition));
     const text = serializeStateIndex(index, definition);
     const value = JSON.parse(text) as {
-      entries: Array<{
-        id: string;
+      entries: Record<string, {
         keys: Record<string, unknown>;
         state: { summary: Record<string, unknown> };
       }>;
@@ -159,20 +193,78 @@ test("preserves definition field and key order through serialization", async () 
       [["topic", "exact"], ["status", "exact"]]
     );
     assert.deepEqual(
-      value.entries.map((entry) => entry.id),
+      Object.keys(value.entries),
       ["topic/a.md", "topic/z.md"]
     );
-    assert.deepEqual(Object.keys(value.entries[0]!.keys), ["topic", "status"]);
-    assert.deepEqual(Object.keys(value.entries[0]!.state), [
+    assert.deepEqual(Object.keys(value.entries["topic/a.md"]!.keys), ["topic", "status"]);
+    assert.deepEqual(Object.keys(value.entries["topic/a.md"]!.state), [
       "path",
       "title",
       "status",
       "summary"
     ]);
-    assert.deepEqual(Object.keys(value.entries[0]!.state.summary), [
+    assert.deepEqual(Object.keys(value.entries["topic/a.md"]!.state.summary), [
       "purpose",
       "background"
     ]);
+
+    const indexPath = "indexes/semantic-order.json";
+    await fs.mkdir(path.join(tempRoot, "indexes"), { recursive: true });
+    await fs.writeFile(path.join(tempRoot, indexPath), text, "utf8");
+    calls.derives = 0;
+    calls.metadataParses = 0;
+    calls.parses = 0;
+    calls.revisionReads = 0;
+    calls.validations = 0;
+    const current = resultValue(await loadCurrentStateIndex({
+      context: { root: tempRoot },
+      definition,
+      indexPath
+    }));
+    assert.deepEqual(current.keyDefinitions, keyDefinitionsOf(definition));
+    assert.deepEqual(Object.keys(current.entries["topic/a.md"]!.state), [
+      "path",
+      "title",
+      "status",
+      "summary"
+    ]);
+    assert.deepEqual(Object.keys(current.entries["topic/a.md"]!.state.summary), [
+      "purpose",
+      "background"
+    ]);
+    assert.deepEqual(calls, {
+      derives: 0,
+      metadataParses: 0,
+      parses: 0,
+      revisionReads: 1,
+      validations: 0
+    });
+
+    const runtime = createStateIndexRuntime({
+      definition,
+      indexPath,
+      root: tempRoot
+    });
+    const reader = resultValue(await runtime.open());
+    const stored = resultValue(reader.get("topic/a.md"));
+    assert.ok(stored);
+    assert.deepEqual(Object.keys(stored.state), [
+      "path",
+      "title",
+      "status",
+      "summary"
+    ]);
+    assert.deepEqual(Object.keys(stored.state.summary), [
+      "purpose",
+      "background"
+    ]);
+    assert.deepEqual(calls, {
+      derives: 0,
+      metadataParses: 0,
+      parses: 0,
+      revisionReads: 2,
+      validations: 0
+    });
 
     const parsed = parseStateIndex({
       definition,
@@ -186,7 +278,7 @@ test("preserves definition field and key order through serialization", async () 
       keyDefinitionsOf(definition)
     );
     assert.deepEqual(
-      Object.keys(resultValue(parsed).entries[0]!.state),
+      Object.keys(resultValue(parsed).entries["topic/a.md"]!.state),
       ["path", "title", "status", "summary"]
     );
 
@@ -257,7 +349,10 @@ test("rejects a source revision that changes during synchronization", async () =
       context: { root: tempRoot },
       definition: {
         ...definition,
-        readRevision: async () => "different-revision"
+        readRevision: async () => ({
+          entries: {},
+          metadata: "different-revision"
+        })
       },
       indexPath: "indexes/inconsistent-revision.json",
       mode: "write"
@@ -311,7 +406,7 @@ test("checks, writes, and reloads current indexes across line endings", async ()
       expectation: { definitionVersion: 1, namespace: "decisions" },
       indexPath
     });
-    assert.equal(resultValue(loaded).entries.length, source.states.length);
+    assert.equal(Object.keys(resultValue(loaded).entries).length, source.states.length);
     assert.equal((await loadCurrentStateIndex({
       context: { root: tempRoot },
       definition,
@@ -391,9 +486,10 @@ test("detects stale sources and refreshes changed or removed states", async () =
       definition,
       indexPath
     }));
-    assert.equal(refreshed.entries.find((entry) => (
-      entry.id === source.states[0]!.path
-    ))?.state.title, "Changed decision title");
+    assert.equal(
+      refreshed.entries[source.states[0]!.path]?.state.title,
+      "Changed decision title"
+    );
 
     const removed = source.states.pop();
     assert.ok(removed);
@@ -404,11 +500,11 @@ test("detects stale sources and refreshes changed or removed states", async () =
       indexPath,
       mode: "write"
     })).state, "written");
-    assert.equal(resultValue(await loadCurrentStateIndex({
+    assert.equal(Object.keys(resultValue(await loadCurrentStateIndex({
       context: { root: tempRoot },
       definition,
       indexPath
-    })).entries.length, source.states.length);
+    })).entries).length, source.states.length);
   });
 });
 

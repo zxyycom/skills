@@ -384,9 +384,7 @@ test("candidate queries discover source records while activation indexes only re
   const firstActivationIndex = await readIndex(indexPath);
   findIndexEntry(firstActivationIndex, firstUnindexedRelativePath);
   assert.equal(
-    firstActivationIndex.entries.some(
-      (record) => record.id === secondUnindexedRelativePath
-    ),
+    Object.hasOwn(firstActivationIndex.entries, secondUnindexedRelativePath),
     false
   );
 

@@ -1,11 +1,12 @@
 import {
   investigationIndexDefinitionVersion,
   investigationIndexNamespace
-} from "./investigation-state-index.ts";
+} from "./investigation-index-definition.ts";
 import {
   investigationKebabCasePatternSource,
   investigationTopicPathPatternSource
 } from "./report-path.ts";
+import { investigationSourceFingerprintPatternSource } from "./investigation-source-revision.ts";
 import { investigationTimestampPatternSource } from "./timestamp.ts";
 import { investigationReportStatuses } from "./types.ts";
 
@@ -20,8 +21,12 @@ const topicPath = {
 } as const;
 
 export const investigationIndexJsonSchema = {
-  $comment: "id、state.path、派生 keys、sourceRevision 与调查 Markdown 投影的一致性由调查报告 CLI 检查。",
+  $comment: "entry 对象键、state.path、派生 keys、sourceRevision 与调查 Markdown 投影的一致性由调查报告 CLI 检查。",
   $defs: {
+    fingerprint: {
+      pattern: investigationSourceFingerprintPatternSource,
+      type: "string"
+    },
     keyValues: {
       additionalProperties: false,
       properties: {
@@ -107,17 +112,17 @@ export const investigationIndexJsonSchema = {
   properties: {
     definitionVersion: { const: investigationIndexDefinitionVersion },
     entries: {
-      items: {
+      additionalProperties: {
         additionalProperties: false,
         properties: {
-          id: { $ref: "#/$defs/topicPath" },
           keys: { $ref: "#/$defs/keyValues" },
           state: { $ref: "#/$defs/state" }
         },
-        required: ["id", "keys", "state"],
+        required: ["keys", "state"],
         type: "object"
       },
-      type: "array"
+      propertyNames: { $ref: "#/$defs/topicPath" },
+      type: "object"
     },
     keyDefinitions: {
       const: [
@@ -132,10 +137,19 @@ export const investigationIndexJsonSchema = {
       type: "object"
     },
     namespace: { const: investigationIndexNamespace },
-    schemaVersion: { const: 2 },
+    schemaVersion: { const: 3 },
     sourceRevision: {
-      pattern: "^sha256:[0-9a-f]{64}$",
-      type: "string"
+      additionalProperties: false,
+      properties: {
+        metadata: { $ref: "#/$defs/fingerprint" },
+        entries: {
+          additionalProperties: { $ref: "#/$defs/fingerprint" },
+          propertyNames: { $ref: "#/$defs/topicPath" },
+          type: "object"
+        }
+      },
+      required: ["metadata", "entries"],
+      type: "object"
     }
   },
   required: [

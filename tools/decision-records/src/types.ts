@@ -72,6 +72,11 @@ export type DecisionIndexState = DecisionDocument & {
   path: string;
 };
 
+export type DecisionSource = Readonly<{
+  path: string;
+  text: string;
+}>;
+
 export type DecisionIndexEntry = StateIndexEntry<DecisionIndexState>;
 
 export type DecisionIndexMetadata = {
@@ -80,10 +85,9 @@ export type DecisionIndexMetadata = {
 
 export type DecisionIndex = Omit<
   StateIndex<DecisionIndexState, DecisionIndexMetadata>,
-  "definitionVersion" | "entries" | "namespace"
+  "definitionVersion" | "namespace"
 > & {
   definitionVersion: 5;
-  entries: DecisionIndexEntry[];
   namespace: "decisions";
 };
 

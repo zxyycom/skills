@@ -5,7 +5,7 @@ import {
 import {
   decisionIndexDefinitionVersion,
   decisionIndexNamespace
-} from "./decision-state-index.ts";
+} from "./decision-index-definition.ts";
 import {
   projectionMaximumLength,
   projectionMinimumLength
@@ -16,6 +16,7 @@ import {
   establishedDecisionStatuses
 } from "./types.ts";
 import { decisionTimestampPatternSource } from "./decision-timestamp.ts";
+import { decisionSourceFingerprintPatternSource } from "./decision-source-revision.ts";
 
 const projectionText = {
   maxLength: projectionMaximumLength,
@@ -33,9 +34,13 @@ const decisionDomainId = {
 } as const;
 
 export const decisionIndexJsonSchema = {
-  $comment: "id、state.path、派生 keys、sourceRevision 与 Markdown 投影的一致性由 CLI check 检查。",
+  $comment: "entry 对象键、state.path、派生 keys、sourceRevision 与 Markdown 投影的一致性由 CLI check 检查。",
   $defs: {
     decisionPath,
+    fingerprint: {
+      pattern: decisionSourceFingerprintPatternSource,
+      type: "string"
+    },
     domainDefinition: {
       additionalProperties: false,
       properties: {
@@ -141,7 +146,7 @@ export const decisionIndexJsonSchema = {
   additionalProperties: false,
   description: "由决策 Markdown 生成的决策状态通用索引。",
   properties: {
-    schemaVersion: { const: 2 },
+    schemaVersion: { const: 3 },
     namespace: { const: decisionIndexNamespace },
     definitionVersion: { const: decisionIndexDefinitionVersion },
     metadata: {
@@ -158,8 +163,17 @@ export const decisionIndexJsonSchema = {
       type: "object"
     },
     sourceRevision: {
-      pattern: "^sha256:[0-9a-f]{64}$",
-      type: "string"
+      additionalProperties: false,
+      properties: {
+        metadata: { $ref: "#/$defs/fingerprint" },
+        entries: {
+          additionalProperties: { $ref: "#/$defs/fingerprint" },
+          propertyNames: { $ref: "#/$defs/decisionPath" },
+          type: "object"
+        }
+      },
+      required: ["metadata", "entries"],
+      type: "object"
     },
     keyDefinitions: {
       const: [
@@ -169,17 +183,17 @@ export const decisionIndexJsonSchema = {
       ]
     },
     entries: {
-      items: {
+      additionalProperties: {
         additionalProperties: false,
         properties: {
-          id: { $ref: "#/$defs/decisionPath" },
           keys: { $ref: "#/$defs/keyValues" },
           state: { $ref: "#/$defs/state" }
         },
-        required: ["id", "keys", "state"],
+        required: ["keys", "state"],
         type: "object"
       },
-      type: "array"
+      propertyNames: { $ref: "#/$defs/decisionPath" },
+      type: "object"
     }
   },
   required: [

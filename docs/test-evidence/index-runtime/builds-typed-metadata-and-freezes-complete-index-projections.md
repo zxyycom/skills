@@ -3,6 +3,6 @@ Entry:
 - `tools/index-runtime/tests/runtime.test.ts > builds typed metadata and freezes complete index projections`
 - `bun test --test-name-pattern="^builds typed metadata and freezes complete index projections$" ./tools/index-runtime/tests/run.ts`
 Contract:
-- 元数据必须先解析为领域类型，完整索引验证接收递归只读快照。
+- Metadata 与 state 必须在包含 `{id, metadata}` 的 projection context 中解析，完整 ID-keyed 索引验证接收递归只读快照。
 Proves:
-- 标识与键可读取类型化元数据，索引、条目、状态、键和元数据均被冻结而源对象不被冻结。
+- State parser 与 key strategy 获得权威对象键和类型化 metadata；索引 record、stored entry、状态、键与 metadata 均被冻结而源对象不被冻结。

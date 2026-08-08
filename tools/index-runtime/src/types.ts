@@ -8,7 +8,7 @@ import type {
 } from "./json.ts";
 import type {
   StateIndex as StateIndexValue,
-  StateIndexEntry as StateIndexEntryValue,
+  StateIndexStoredEntry as StateIndexStoredEntryValue,
   StateIndexFilter,
   StateIndexKeyDefinition,
   StateIndexKeyMode,
@@ -40,37 +40,59 @@ export type {
 
 export type StateIndexEntry<
   State extends object = JsonObject
-> = Omit<StateIndexEntryValue, "state"> & {
+> = StateIndexStoredEntry<State> & {
+  id: string;
+};
+
+export type StateIndexStoredEntry<
+  State extends object = JsonObject
+> = Omit<StateIndexStoredEntryValue, "state"> & {
   state: State;
 };
+
+export type StateRecord<State extends object = JsonObject> = Readonly<{
+  [id: string]: State;
+}>;
+
+export type StateSourceRevision = Readonly<{
+  entries: Readonly<Record<string, string>>;
+  metadata: string;
+}>;
 
 export type StateIndex<
   State extends object = JsonObject,
   Metadata extends JsonObject = JsonObject
-> = Omit<StateIndexValue, "entries" | "metadata"> & {
-  entries: StateIndexEntry<State>[];
+> = Omit<StateIndexValue, "entries" | "metadata" | "sourceRevision"> & {
+  entries: StateRecord<StateIndexStoredEntry<State>>;
   metadata: Metadata;
+  sourceRevision: StateSourceRevision;
 };
 
-export type ReadonlyStateIndexEntry<State extends object> = {
-  readonly id: string;
+export type ReadonlyStateIndexStoredEntry<State extends object> = {
   readonly keys: {
     readonly [name: string]: readonly StateIndexKeyScalar[];
   };
   readonly state: DeepReadonly<State>;
 };
 
+export type ReadonlyStateIndexEntry<State extends object> =
+  ReadonlyStateIndexStoredEntry<State> & {
+    readonly id: string;
+  };
+
 export type ReadonlyStateIndex<
   State extends object = JsonObject,
   Metadata extends JsonObject = JsonObject
 > = {
   readonly definitionVersion: number;
-  readonly entries: readonly ReadonlyStateIndexEntry<State>[];
+  readonly entries: Readonly<{
+    [id: string]: ReadonlyStateIndexStoredEntry<State>;
+  }>;
   readonly keyDefinitions: readonly DeepReadonly<StateIndexKeyDefinition>[];
   readonly metadata: DeepReadonly<Metadata>;
   readonly namespace: string;
   readonly schemaVersion: StateIndexValue["schemaVersion"];
-  readonly sourceRevision: string;
+  readonly sourceRevision: DeepReadonly<StateSourceRevision>;
 };
 
 export type StateIndexDiagnostic = {
@@ -90,8 +112,8 @@ export type StateSnapshot<
   Metadata extends JsonObject = JsonObject
 > = {
   metadata: Metadata;
-  revision: string;
-  states: readonly State[];
+  sourceRevision: StateSourceRevision;
+  states: StateRecord<State>;
 };
 
 export type StateIndexFieldOrder = "definition" | "lexicographic";
@@ -104,6 +126,7 @@ export type StateKeyInput =
 export type StateIndexProjectionContext<
   Metadata extends JsonObject = JsonObject
 > = Readonly<{
+  id: string;
   metadata: DeepReadonly<Metadata>;
 }>;
 
@@ -125,10 +148,6 @@ export type StateIndexDefinition<
 > = {
   definitionVersion: number;
   fieldOrder?: StateIndexFieldOrder;
-  identify: (
-    state: State,
-    context: StateIndexProjectionContext<Metadata>
-  ) => string;
   keyStrategies: readonly StateKeyStrategy<State, Metadata>[];
   namespace: string;
   parseMetadata: (metadata: JsonObject) => Metadata;
@@ -139,7 +158,7 @@ export type StateIndexDefinition<
   read: (
     context: StateIndexContext
   ) => Promise<StateSnapshot<State, Metadata>>;
-  readRevision: (context: StateIndexContext) => Promise<string>;
+  readRevision: (context: StateIndexContext) => Promise<StateSourceRevision>;
   validateIndex?: (
     index: ReadonlyStateIndex<State, Metadata>
   ) => void;

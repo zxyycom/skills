@@ -3,12 +3,12 @@ export {
   expectationOf,
   keyDefinitionsOf
 } from "./definition.ts";
+export { canonicalizeStateIndex } from "./canonicalization.ts";
 export {
-  canonicalizeStateIndex,
   normalizeStateIndex,
   projectStateIndexEntry,
   readonlyStateIndexMetadata
-} from "./normalization.ts";
+} from "./projection.ts";
 export { buildStateIndex } from "./snapshot-builder.ts";
 export {
   parseStateIndex,

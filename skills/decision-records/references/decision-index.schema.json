@@ -1,8 +1,12 @@
 {
-  "$comment": "id、state.path、派生 keys、sourceRevision 与 Markdown 投影的一致性由 CLI check 检查。",
+  "$comment": "entry 对象键、state.path、派生 keys、sourceRevision 与 Markdown 投影的一致性由 CLI check 检查。",
   "$defs": {
     "decisionPath": {
       "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*/[a-z0-9]+(?:-[a-z0-9]+)*\\.md$",
+      "type": "string"
+    },
+    "fingerprint": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
       "type": "string"
     },
     "domainDefinition": {
@@ -197,7 +201,7 @@
   "description": "由决策 Markdown 生成的决策状态通用索引。",
   "properties": {
     "schemaVersion": {
-      "const": 2
+      "const": 3
     },
     "namespace": {
       "const": "decisions"
@@ -223,8 +227,26 @@
       "type": "object"
     },
     "sourceRevision": {
-      "pattern": "^sha256:[0-9a-f]{64}$",
-      "type": "string"
+      "additionalProperties": false,
+      "properties": {
+        "metadata": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "entries": {
+          "additionalProperties": {
+            "$ref": "#/$defs/fingerprint"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/decisionPath"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "metadata",
+        "entries"
+      ],
+      "type": "object"
     },
     "keyDefinitions": {
       "const": [
@@ -243,12 +265,9 @@
       ]
     },
     "entries": {
-      "items": {
+      "additionalProperties": {
         "additionalProperties": false,
         "properties": {
-          "id": {
-            "$ref": "#/$defs/decisionPath"
-          },
           "keys": {
             "$ref": "#/$defs/keyValues"
           },
@@ -257,13 +276,15 @@
           }
         },
         "required": [
-          "id",
           "keys",
           "state"
         ],
         "type": "object"
       },
-      "type": "array"
+      "propertyNames": {
+        "$ref": "#/$defs/decisionPath"
+      },
+      "type": "object"
     }
   },
   "required": [

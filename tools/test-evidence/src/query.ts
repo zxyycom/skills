@@ -5,6 +5,7 @@ import {
   createStateIndexRuntime,
   stateIndexQueryMaximumLimit,
   type StateIndexDiagnostic,
+  type StateIndexEntry,
   type StateIndexFilter,
   type StateIndexReader
 } from "../../index-runtime/src/index.ts";
@@ -119,7 +120,7 @@ export async function queryTestEvidence(
   }
 
   return {
-    cases: queried.value.entries.map((entry) => publicCaseState(entry.state)),
+    cases: queried.value.entries.map(publicCaseState),
     catalogPath: testEvidenceCatalogPath,
     diagnostics: opened.diagnostics,
     indexPath: testEvidenceIndexPath,
@@ -180,7 +181,7 @@ export async function getTestEvidenceCaseState(options: {
     };
   }
   return {
-    case: publicCaseState(found.value.state),
+    case: publicCaseState(found.value),
     catalogPath: testEvidenceCatalogPath,
     diagnostics: opened.diagnostics,
     indexPath: testEvidenceIndexPath,
@@ -285,12 +286,12 @@ function mapIndexFallbackDiagnostics(
 }
 
 function publicCaseState(
-  state: TestEvidenceCaseIndexState
+  { id, state }: StateIndexEntry<TestEvidenceCaseIndexState>
 ): TestEvidenceCaseState {
   return {
     endLine: state.endLine,
     entries: [...state.entries],
-    id: state.id,
+    id,
     line: state.line,
     sourcePath: state.sourcePath,
     summary: state.summary,

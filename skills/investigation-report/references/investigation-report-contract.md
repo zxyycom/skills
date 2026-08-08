@@ -30,9 +30,8 @@ docs/investigations/
 ```json
 {
   "definitionVersion": 2,
-  "entries": [
-    {
-      "id": "codex/project-shell-mcp-registration.md",
+  "entries": {
+    "codex/project-shell-mcp-registration.md": {
       "keys": {
         "category": ["codex"],
         "latest-report-at": [1784613930000],
@@ -57,7 +56,7 @@ docs/investigations/
         "title": "项目 Shell MCP 注册调查"
       }
     }
-  ],
+  },
   "keyDefinitions": [
     { "mode": "exact", "name": "category" },
     { "mode": "range", "name": "latest-report-at" },
@@ -66,20 +65,25 @@ docs/investigations/
   ],
   "metadata": {},
   "namespace": "investigations",
-  "schemaVersion": 2,
-  "sourceRevision": "sha256:<64 lowercase hexadecimal characters>"
+  "schemaVersion": 3,
+  "sourceRevision": {
+    "entries": {
+      "codex/project-shell-mcp-registration.md": "sha256:<64 lowercase hexadecimal characters>"
+    },
+    "metadata": "sha256:<64 lowercase hexadecimal characters>"
+  }
 }
 ```
 
 规则：
 
-1. `entries` 与合法主题 Markdown 一一对应；同一主题内无论包含多少份 H3 报告都只生成一个 entry，报告不拥有独立 `id`。
-2. 相对调查根目录的主题路径同时作为 `id` 和 `state.path`。路径在当前集合中唯一；移动主题会显式产生新 id，不从内容猜测重命名。`category-id` 只派生分类 key，不充当身份。
+1. `entries` 是以主题 `id` 为成员键的对象，与合法主题 Markdown 一一对应；stored entry 只保存 `keys` 和 `state`，不重复保存 `id`。同一主题内无论包含多少份 H3 报告都只生成一个 entry，报告不拥有独立 `id`。
+2. 相对调查根目录的主题路径同时作为 `entries` 成员键和 `state.path`，两者必须相等。路径在当前集合中唯一；移动主题会显式产生新 id，不从内容猜测重命名。`category-id` 只派生分类 key，不充当身份。
 3. `state.title`、`state.question` 和 `state.reportTitles` 通过 Markdown AST 提取语义纯文本，去除行内标记并折叠空白；`reportTitles` 保持报告形成顺序，`reportCount` 必须等于其长度。状态和最新报告时间保存解析后的字段文本，state 不保存报告结果摘要、Markdown 展示语法或正文副本。
 4. `category` 和 `status` 是 exact key；`latest-report-at` 把最新报告时间转换为 epoch 毫秒后作为 range key；`text` 聚合主题标题、核心问题和全部报告标题。它不索引报告正文；需要正文级知识检索时应建立独立的报告读取侧，而不是改变主题主索引的粒度。路径查询直接使用保留的 `id`。
 5. 索引覆盖调查根目录内全部合法主题文件，不维护手工成员清单，也不保留归档目录。新增和删除主题文件都通过下一次完整同步改变成员。
-6. `sourceRevision` 对排序后的 POSIX 路径和完整 Markdown UTF-8 文本进行稳定 framing 后计算 SHA-256，计算前只把 CRLF 规范化为 LF。任何源内容或成员变化都会使旧索引失效，即使变化没有改变 state 投影。
-7. 通用外壳固定使用 `schemaVersion: 2`，调查领域当前没有集合级数据，因而显式保存 `"metadata": {}`；schema v1 或缺失 metadata 的索引不兼容。索引条目、key 定义、key 名和 key 值使用固定全序；metadata 与 state 对象键确定性排序，`reportTitles` 保持源顺序。JSON 使用两空格缩进、LF 和文件末尾换行，不保存生成时间。
+6. `sourceRevision.entries` 与 `entries` 使用相同的 `id` 成员集。每个值只指纹化对应主题的 POSIX 路径和完整 Markdown UTF-8 文本，计算前只把 CRLF 规范化为 LF；单个主题内容变化只改变该主题的指纹，新增、删除或移动主题会改变成员集。`sourceRevision.metadata` 单独指纹化集合级来源；调查领域当前没有集合级来源，所以它保持由当前 revision 协议定义的固定值。
+7. 通用外壳固定使用 `schemaVersion: 3`，调查领域当前没有集合级数据，因而显式保存 `"metadata": {}`；旧 schema 版本或缺失 metadata 的索引不兼容。输入发现顺序不影响确定性输出；key 定义、key 名和 key 值使用固定全序，metadata 与 state 对象键确定性排序，`reportTitles` 保持源顺序。JSON 使用两空格缩进、LF 和文件末尾换行，不保存生成时间。
 8. 索引是可删除重建的派生副本。正常维护不直接编辑它，也不保留 `investigation-index.md` 或其他兼容索引；工具损坏时先恢复当前 CLI，再从主题 Markdown 重建当前 JSON 格式。
 9. `sync-index` 从完整主题快照检查或原子替换索引，写入前再次读取 source revision；源在构建期间变化时拒绝写入。
 
@@ -180,11 +184,11 @@ node <investigation-report-skill>/scripts/check-investigations.mjs list --root <
 1. 检查调查根目录、分类目录、路径层级和 kebab-case 文件名。
 2. 检查主题文件 H1、前两个固定 H2、调查信息、状态和至少一份 H3 报告。
 3. 检查每份报告的形成时间、四个固定 H4 的存在、唯一、非空和顺序、报告时间顺序及最新报告时间一致性。
-4. 通过通用索引运行时检查 JSON 外壳、主题 state、id、keys、source revision、确定性内容、报告聚合字段以及主题 Markdown 与索引一一对应。
+4. 通过通用索引运行时完整解析来源并检查 JSON 外壳、主题 state、id、keys、source revision、确定性内容、报告聚合字段以及主题 Markdown 与索引一一对应。
 
 带 `--category` 或 `--path` 的 `check` 只检查命中的主题文件结构，不检查全局索引新鲜度；筛选没有命中时失败。这个结果可用于隔离局部格式问题，但不能证明完整集合或索引已经可查询。
 
-`list` 先读取持久化主题 state 和 keys、核对当前 source revision，再执行通用索引查询，不重新解析主题 Markdown 或报告正文。结果默认按 `latest-report-at` 倒序、相同时间按路径排序，并显示状态、最新报告时间、路径、主题标题、核心问题、报告数量和最新报告标题；没有命中不是错误。索引缺失、失效、定义不匹配或源在读取期间变化时失败，不返回可能过期的结果。
+`list` 先校验索引的通用结构、成员身份、namespace、definition version 和 key definitions，再通过一次来源发现与读取核对当前 source revision，然后查询持久化的主题 state 和 keys；这个快速路径不解析主题 Markdown、不重建 state 或 keys，也不运行完整索引构建与领域深度校验。结果默认按 `latest-report-at` 倒序、相同时间按路径排序，并显示状态、最新报告时间、路径、主题标题、核心问题、报告数量和最新报告标题；没有命中不是错误。索引缺失、失效、定义不匹配或源在读取期间变化时失败，不返回可能过期的结果。
 
 `sync-index` 不接受筛选。它先验证全部主题文件，再确定性创建或替换 JSON 索引；任一主题无效、根目录不可读、源在同步期间变化或写入验证失败时退出失败。
 

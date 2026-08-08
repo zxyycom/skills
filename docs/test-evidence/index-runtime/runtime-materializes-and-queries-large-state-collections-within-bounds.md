@@ -3,6 +3,6 @@ Entry:
 - `tools/index-runtime/tests/performance.test.ts > runtime materializes and queries large state collections within bounds`
 - `bun test --test-name-pattern="^runtime materializes and queries large state collections within bounds$" ./tools/index-runtime/tests/run.ts`
 Contract:
-- Index runtime 对大规模状态集合的物化和查询必须保持在既定性能边界内。
+- Index runtime 的大规模 ID-keyed state 与逐 ID revision 回归必须通过测试内的宽松退化门禁；该门禁不构成持续性能 SLO。
 Proves:
-- 基准规模在时间预算内完成并返回正确结果数。
+- 一千和五千条 keyed state/revision 基准在时间预算内完成并返回正确结果数。

@@ -1,23 +1,36 @@
+import * as v from "valibot";
 import {
   expectationOf,
   keyDefinitionsOf,
   sameKeyDefinitions,
   validateStateIndexDefinition
 } from "./definition.ts";
+import { canonicalizeStateIndex } from "./canonicalization.ts";
 import {
-  canonicalizeStateIndex,
-  normalizeStateIndex,
+  diagnostic,
+  failure,
+  formatValibotIssue
+} from "./diagnostics.ts";
+import {
+  createProjectionContext,
   projectStateIndexEntry,
   readonlyStateIndexMetadata
-} from "./normalization.ts";
+} from "./projection.ts";
 import {
   compareIndexText,
   compareStateIndexKeyScalars
 } from "./ordering.ts";
+import { isPlainRecord } from "./record.ts";
+import {
+  isStateIndexText,
+  stateIndexQuerySchema
+} from "./schemas.ts";
+import { scalarIdentity } from "./key-values.ts";
 import type {
   JsonObject,
   StateIndex,
   StateIndexDefinition,
+  StateIndexDiagnostic,
   StateIndexEntry,
   StateIndexFilter,
   StateIndexKeyDefinition,
@@ -26,14 +39,10 @@ import type {
   StateIndexQueryOutput,
   StateIndexQueryValue,
   StateIndexResult,
-  StateIndexSort
+  StateIndexSort,
+  StateRecord
 } from "./types.ts";
-import {
-  diagnostic,
-  scalarIdentity,
-  validateStateIndexQueryValue,
-  validateStateIndexValue
-} from "./validation.ts";
+import { validateStateIndexValue } from "./validation.ts";
 
 export function queryStateIndex<
   State extends object,
@@ -42,7 +51,7 @@ export function queryStateIndex<
   definition: StateIndexDefinition<State, Metadata>;
   index: StateIndex<State, Metadata>;
   query?: StateIndexQuery;
-  runtimeStates?: readonly State[];
+  runtimeStates?: StateRecord<State>;
 }): StateIndexResult<StateIndexQueryOutput<State, Metadata>>;
 export function queryStateIndex(options: {
   definition?: undefined;
@@ -57,7 +66,7 @@ export function queryStateIndex<
   definition?: StateIndexDefinition<State, Metadata>;
   index: StateIndex<State, Metadata>;
   query?: StateIndexQuery;
-  runtimeStates?: readonly State[];
+  runtimeStates?: StateRecord<State>;
 }): StateIndexResult<
   StateIndexQueryOutput | StateIndexQueryOutput<State, Metadata>
 > {
@@ -84,23 +93,19 @@ export function queryStateIndex<
     return queryValidatedStateIndex(
       normalizedIndex,
       query,
-      rawEntries(normalizedIndex, options.runtimeStates)
+      rawEntries(normalizedIndex)
     );
   }
-  const normalized = normalizeStateIndex(
-    validatedIndex.index,
-    options.definition,
-    "<memory>"
+  const normalized = canonicalizeStateIndex<State, Metadata>(
+    options.index,
+    options.definition
   );
-  if (normalized.status === "error") {
-    return normalized;
-  }
   return queryValidatedStateIndex(
-    normalized.value,
+    normalized,
     query,
     effectiveEntries({
       definition: options.definition,
-      index: normalized.value,
+      index: normalized,
       runtimeStates: options.runtimeStates
     })
   );
@@ -110,25 +115,23 @@ export function findStateIndexEntry(
   index: StateIndex,
   stateId: string
 ): StateIndexResult<StateIndexEntry | null> {
-  const queried = queryStateIndex({
-    index,
-    query: {
-      filters: [{
-        key: "id",
-        kind: "exact",
-        operator: "all",
-        values: [stateId]
-      }],
-      limit: 1
-    }
-  });
-  if (queried.status === "error") {
-    return queried;
+  if (!isStateIndexText(stateId)) {
+    return failure(
+      "state-index.query-invalid",
+      "state id must be non-empty text without surrounding whitespace or control characters"
+    );
   }
+  const validated = validateStateIndexValue(index, null, "<memory>");
+  if (validated.index === null) {
+    return { diagnostics: validated.diagnostics, status: "error", value: null };
+  }
+  const entry = Object.hasOwn(validated.index.entries, stateId)
+    ? validated.index.entries[stateId]
+    : undefined;
   return {
     diagnostics: [],
     status: "ok",
-    value: queried.value.entries[0] ?? null
+    value: entry === undefined ? null : stateIndexEntryOf(stateId, entry)
   };
 }
 
@@ -150,11 +153,12 @@ function queryValidatedStateIndex<
 
   const entries = entriesResult.value
     .filter((entry) => query.filters.every((filter) => matchesFilter(entry, filter)));
-  const sortDiagnostics = validateSortCardinality(entries, effectiveSort(query));
+  const sort = effectiveSort(query);
+  const sortDiagnostics = validateSortCardinality(entries, sort);
   if (sortDiagnostics.length > 0) {
     return { diagnostics: sortDiagnostics, status: "error", value: null };
   }
-  entries.sort((left, right) => compareEntries(left, right, effectiveSort(query)));
+  entries.sort((left, right) => compareEntries(left, right, sort));
   const total = entries.length;
   return {
     diagnostics: [],
@@ -169,17 +173,14 @@ function queryValidatedStateIndex<
   };
 }
 
-function rawEntries(
-  index: StateIndex,
-  runtimeStates: readonly object[] | undefined
-): StateIndexResult<StateIndexEntry[]> {
-  if (runtimeStates !== undefined && runtimeStates.length > 0) {
-    return failure(
-      "state-index.runtime-definition-required",
-      "definition is required when runtimeStates are provided"
-    );
-  }
-  return { diagnostics: [], status: "ok", value: [...index.entries] };
+function rawEntries(index: StateIndex): StateIndexResult<StateIndexEntry[]> {
+  return {
+    diagnostics: [],
+    status: "ok",
+    value: Object.entries(index.entries).map(([id, entry]) => (
+      stateIndexEntryOf(id, entry)
+    ))
+  };
 }
 
 function effectiveEntries<
@@ -188,7 +189,7 @@ function effectiveEntries<
 >(options: {
   definition: StateIndexDefinition<State, Metadata>;
   index: StateIndex<State, Metadata>;
-  runtimeStates: readonly State[] | undefined;
+  runtimeStates: StateRecord<State> | undefined;
 }): StateIndexResult<StateIndexEntry<State>[]> {
   const definitionErrors = validateStateIndexDefinition(options.definition);
   if (definitionErrors.length > 0) {
@@ -216,34 +217,35 @@ function effectiveEntries<
   }
 
   const byId = new Map<string, StateIndexEntry<State>>();
-  for (const entry of options.index.entries) {
-    byId.set(entry.id, entry);
+  for (const [id, entry] of Object.entries(options.index.entries)) {
+    byId.set(id, stateIndexEntryOf(id, entry));
   }
 
-  const runtimeIds = new Set<string>();
-  const projectionContext = Object.freeze({
-    metadata: readonlyStateIndexMetadata(options.index)
-  });
-  for (const state of options.runtimeStates ?? []) {
+  if (options.runtimeStates !== undefined && !isPlainRecord(options.runtimeStates)) {
+    return failure(
+      "state-index.runtime-states-invalid",
+      "runtimeStates must be an object keyed by state id"
+    );
+  }
+  for (const [id, state] of Object.entries(options.runtimeStates ?? {})) {
     const projected = projectStateIndexEntry(
       options.definition,
       state,
-      projectionContext
+      createProjectionContext(id, options.index.metadata)
     );
     if (projected.status === "error") {
       return projected;
     }
-    if (runtimeIds.has(projected.value.id)) {
-      return failure(
-        "state-index.runtime-id-duplicate",
-        `runtime state id ${projected.value.id} appears more than once`,
-        projected.value.id
-      );
-    }
-    runtimeIds.add(projected.value.id);
-    byId.set(projected.value.id, projected.value);
+    byId.set(id, stateIndexEntryOf(id, projected.value));
   }
   return { diagnostics: [], status: "ok", value: [...byId.values()] };
+}
+
+export function stateIndexEntryOf<State extends object>(
+  id: string,
+  entry: Omit<StateIndexEntry<State>, "id">
+): StateIndexEntry<State> {
+  return Object.freeze({ id, keys: entry.keys, state: entry.state });
 }
 
 function validateQuerySemantics(
@@ -251,7 +253,7 @@ function validateQuerySemantics(
   definitions: readonly StateIndexKeyDefinition[]
 ): ReturnType<typeof diagnostic>[] {
   const byName = new Map(definitions.map((definition) => [definition.name, definition]));
-  const diagnostics = [];
+  const diagnostics: StateIndexDiagnostic[] = [];
   for (const filter of query.filters) {
     if (filter.key === "id") {
       if (filter.kind !== "exact" && filter.kind !== "exists") {
@@ -309,6 +311,33 @@ function normalizeQuery(query: StateIndexQueryValue): StateIndexQueryValue {
       : filter),
     sort: query.sort
   };
+}
+
+function validateStateIndexQueryValue(input: unknown): {
+  diagnostics: StateIndexDiagnostic[];
+  query: StateIndexQueryValue | null;
+} {
+  const parsed = v.safeParse(stateIndexQuerySchema, input);
+  if (!parsed.success) {
+    return {
+      diagnostics: parsed.issues.map((issue) => diagnostic({
+        code: "state-index.query-invalid",
+        message: formatValibotIssue(issue)
+      })),
+      query: null
+    };
+  }
+  const sortKeys = parsed.output.sort?.map((entry) => entry.key) ?? [];
+  if (new Set(sortKeys).size !== sortKeys.length) {
+    return {
+      diagnostics: [diagnostic({
+        code: "state-index.query-invalid",
+        message: "sort rules must not repeat a key"
+      })],
+      query: null
+    };
+  }
+  return { diagnostics: [], query: parsed.output };
 }
 
 function matchesFilter(
@@ -425,16 +454,4 @@ function normalizeText(value: string): string {
 
 function unique<Value>(values: readonly Value[]): Value[] {
   return [...new Set(values)];
-}
-
-function failure<Value = never>(
-  code: string,
-  message: string,
-  stateId: string | null = null
-): StateIndexResult<Value> {
-  return {
-    diagnostics: [diagnostic({ code, message, stateId })],
-    status: "error",
-    value: null
-  };
 }

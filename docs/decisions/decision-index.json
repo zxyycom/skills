@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "namespace": "decisions",
   "definitionVersion": 5,
   "metadata": {
@@ -86,7 +86,190 @@
       }
     ]
   },
-  "sourceRevision": "sha256:f6a1a707ec6fce3b1e08133cfae0ddb9aa1d23b493e2dfbd53e210f0a51f77fb",
+  "sourceRevision": {
+    "entries": {
+      "ai-ready-docs/260630-merge-prompt-optimize-core-flow-into-entry.md": "sha256:cd07184286befc291e3950754d8618ef1867b89298ce9af5421ac385b0144dc1",
+      "ai-ready-docs/260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md": "sha256:ca01f730f4eb994ad926370a5761c4676c36c5791ee77600a4768f9f7edec8b6",
+      "ai-ready-docs/260701-add-document-main-promise-check.md": "sha256:6e5c4105d66b877f90f43da7e9afe65f51e498ffb053b72268d2894be037ad35",
+      "ai-ready-docs/260701-compact-entry-and-archive-migration-copies.md": "sha256:6fce4f73d8d049c792a4548248874b4c944d6d2811ed5ee2d7e5e2ed697995c3",
+      "ai-ready-docs/260706-move-subagent-guidance-to-dedicated-skill.md": "sha256:a17f7678211442bbf422fc85f8989d738b5504ffe19d067080b204c5a7c8930d",
+      "ai-ready-docs/260720-remove-migration-copies.md": "sha256:b9a6098cc649208796b586ed87805011e37019acb8b455d10b3c5aeb8ca5945d",
+      "ai-ready-docs/260720-treat-negative-options-as-solution-anchors.md": "sha256:f55b608c9ecf634a0ee6ffd465e2a86bd9265f64a275f70de8a2ea5ce1f7ddaf",
+      "ai-ready-docs/260720-use-controlled-mermaid-flowcharts.md": "sha256:25b009a74b0d9a84865bec942f2c8516793f581a47484982e65ad0c7e956f95a",
+      "ai-ready-docs/use-ai-ready-docs-identity.md": "sha256:c7ef4248915e21ed551d5864b5f8556777334bf91676b380ed6431eba403075a",
+      "change-plan/manage-basic-change-lifecycle.md": "sha256:86c0318b9b43a533bc2332eaa97c08e756104c2d097e2f745bed2f45988d8b7b",
+      "change-plan/manage-change-lifecycle-stages.md": "sha256:d1ee6ece1769b8ec33e33aa181eb667c0ec04f4b712fa0c0089c11262547b58a",
+      "change-plan/use-independent-change-plans.md": "sha256:2d32fbd6ed64b1eff7d852fd7ee0e0037c72dcdceb27803d5bb879cddab41f0c",
+      "common-denominator-design/design-by-scenario-denominators.md": "sha256:218a489e475594152f861a152cf785274ef297e862216fe198191418114619ac",
+      "decision-records/260627-establish-decision-record-policy.md": "sha256:afdeb4ca6139a9fe9a5a8e971836690f6893b4dedf5c9e86d2c4a0a7e5c934e4",
+      "decision-records/260630-name-decision-root-docs-by-owner.md": "sha256:52247027cefd9a55d8db25635f80724c6df8fe7907863169efa1b4b3912e5668",
+      "decision-records/260630-track-decision-status-and-relations.md": "sha256:455ac7f180c0b5c87a36e0b6840ec97e677826de46dbfcb70e3335f4f3200b20",
+      "decision-records/260630-use-compact-decision-records.md": "sha256:446da60c761285174e4d19ad7b186711684cf96d4981c35a7b5bd7164e6c2060",
+      "decision-records/260710-use-cli-active-index-and-invalidated-archive.md": "sha256:b241475cc245dcd8b3a987c254db803ae50417671bd1b429b0b2df1fc4f0c0f4",
+      "decision-records/260710-use-explicit-portable-decision-memory.md": "sha256:2b222db26f83ea756aada501af8ef5849a65cbb0fc3350dc74b6569deb84cde9",
+      "decision-records/260711-bound-history-with-direct-relations.md": "sha256:4e12524d3ca2866e879fc539be204c8a59c496de75d4fdfd029241c0f0b0e0ed",
+      "decision-records/260711-repair-noncanonical-decision-formats.md": "sha256:c07532e81a6cec96fb9338f7323973da3be48afd6e8625cd2eb0b88d8e67c447",
+      "decision-records/260711-require-confirmed-decision-writes.md": "sha256:b574efa1d36732ed7ae418576493e2545b08fd71baf3462a86be7fb8e52c2da2",
+      "decision-records/260711-use-bundled-contract-owner.md": "sha256:c67cef4ea27f0d8a8995669923880c5c36f61c441dc4fc0b4dcf6bf49cc1b2cd",
+      "decision-records/260713-recall-before-long-lived-changes.md": "sha256:f5c5a51647fe8cd1ef933b3f3f315f6eddc9942b33c840708a4392eece6a1db4",
+      "decision-records/260713-use-json-current-index-and-stable-paths.md": "sha256:ef6ed425fdec3a74bd0dba6f25bde62dd2ce1afe49c34f4db5a8219a80a7bfae",
+      "decision-records/260718-add-direction-and-depth-to-trace.md": "sha256:183b63f2e92cdde7d381687b010cc7ba44c8f0740741ccc8ff9ced6ab9ad107f",
+      "decision-records/260718-notify-before-decision-writes.md": "sha256:34b80b521f9f2dfc6bd24d4b9b082717c9b204b92baceb6b57942de002cbcca8",
+      "decision-records/260718-separate-behavior-entry-from-storage-contract.md": "sha256:0156d465f8be37116e0a040a8579cdc70493df48b2228734f2c18c3ec5cbc7cb",
+      "decision-records/260718-separate-logical-archive-from-relations.md": "sha256:d007ab07d9f63c2a1a278d12803d09594f724d216ab8cd193422ff10c5077c9d",
+      "decision-records/260718-trigger-on-long-term-decision-points.md": "sha256:efdcba22f94973e536c66ccce49aff0b701d5a85236d31e22d00af8835df4405",
+      "decision-records/260718-use-purpose-background-decision-structure.md": "sha256:b98248d330650b92e9e9b31a8174884114422984e8cea9e7a7995bcd052f0bad",
+      "decision-records/260720-auto-initialize-index-on-first-activation.md": "sha256:122acf4aa311a8efe5574fc9b0497c3681a4cfd2565ba4921a811c301ab27854",
+      "decision-records/260720-bound-index-projection-lengths.md": "sha256:2e7d98766c10d44dc35ac5c4df43783a32d8e2ec4d576c80417e3f4e740d9ff2",
+      "decision-records/260720-complete-by-task-outcome.md": "sha256:355f0bf9a38943af3681ad33bb008fd462d91cdd5894e49f42c47e53feeb8a4c",
+      "decision-records/260720-focus-entry-on-behavior-routing.md": "sha256:72abc0bca1e165c97b5e5538e65f4f8b1e5fceb93c254c114e87763a22b29a1d",
+      "decision-records/260720-return-query-results-with-warnings.md": "sha256:5c9b63dfde5c4c179df8588364f6a3efe0c9f0d9afb67a3582004dcda8af7bd7",
+      "decision-records/260720-separate-editorial-edits-from-evolution.md": "sha256:f4cf3d1b68aca851ceb2566db20898e20cfee5d813935071a7133ea2419859c3",
+      "decision-records/260720-separate-status-commands-from-relations.md": "sha256:5c8cbd4e0e2690676441ea7112ac2b5fd5f15736e43ea5b0b7b7174279747f84",
+      "decision-records/260720-use-configurable-decision-root.md": "sha256:209681de70c22b83b0148fbf80f67fff75d7e7205e0ca6b049fb3e7df65ffd13",
+      "decision-records/260720-use-filtered-decision-queries.md": "sha256:73f353d0c6c8864da633073a8ded326d1b687e569ae2822d1e5ffd31f64c3192",
+      "decision-records/260720-use-lifecycle-index-and-semantic-paths.md": "sha256:71681914b79cf4b8c1287c708bf528f8eae2da2d84bb2cf6ef27a798bfa4b782",
+      "decision-records/allow-sequential-activation-of-prewritten-candidates.md": "sha256:05fe0687d8e6fd2c5d251167d4b3a59c9e9d676e88e73d97c10c0e823dd97ad5",
+      "decision-records/complete-current-decision-work-by-task-outcome.md": "sha256:7faef24141b07411dbe82be28457d45a678534e86862a3ed653591e6ef067e12",
+      "decision-records/converge-records-before-stable-baseline.md": "sha256:a06978cb5cbb74c6e85c358faa09f012ceccc43127c73394e943b88ce9c9035e",
+      "decision-records/define-decision-alignment-semantics.md": "sha256:36b1f6370b84a82ec8ab54b4b52f60713c19785337bdd6ec988b534c5c8a2404",
+      "decision-records/derive-establishment-from-markdown-lifecycle.md": "sha256:19a6b0edb7c0d2333f1654c7ef6894c296efbac1057d8f7c7c672d696d61996f",
+      "decision-records/derive-pending-from-head-path.md": "sha256:a3c08df72eacc920c749bfaa8c52bdda9864e0d6bc3cd98fa6ec93a7befa556f",
+      "decision-records/establish-decisions-with-atomic-evolution.md": "sha256:80ffe60f769725f130bac1091cdb17d13985220c8764dce6fbd60e1ca4d24c67",
+      "decision-records/express-alignment-as-field-relation.md": "sha256:faf61e2f53b0c07f56f489ddb3c463c5bb3473319cf9d87d80317392f40fd08f",
+      "decision-records/express-decision-alignment-state.md": "sha256:7937c9582dbf462d55a6a6d70022ecd7a7d8ca8a9a695aace912ed7746cd376b",
+      "decision-records/generate-index-from-self-contained-decisions.md": "sha256:d36d0135f480c191e2bae9f371ee13ad24df16e3c4851cdd4386d165c30eddc0",
+      "decision-records/guard-unrecorded-decision-evolution.md": "sha256:80d2d2dbffc2d8b29cc804d720929312f8023b09b21bd99b9a084df297677812",
+      "decision-records/make-independent-decision-staging-discoverable.md": "sha256:6822f5fff9c2f51ae62c4f25312e0a645eed16c9c9923dca453955404905eb6e",
+      "decision-records/notify-before-current-decision-writes.md": "sha256:c2444940a1c325a9f908d156950f3584bd593e124a8a19e36e0339ce84e0d10d",
+      "decision-records/package-current-index-json-schema.md": "sha256:eae46f50130d05f4ae1c52eeae4982a158a1d2ae6a63302f999e15f70ee7f525",
+      "decision-records/package-index-json-schema.md": "sha256:418e7a8eb311ff07c2bef2e2d8c247a0f90113217ea094c91520f6d7b8f7d328",
+      "decision-records/query-projected-decision-metadata.md": "sha256:f9974fe576148ed9a34bcd21fcb4fabd5ff3ea7311486430eef745b03732880c",
+      "decision-records/rebuild-index-only-with-current-tools.md": "sha256:001f3420b70f86be19788b56969c5b479b7db9d1e22366b17c90b49558e3deb7",
+      "decision-records/recover-current-format-tools-and-index.md": "sha256:d3c896c11e9d50fc7a31c2887c8a487393d3e4bf2cb027aaf67b705772484c32",
+      "decision-records/replace-decision-relations-as-complete-sets.md": "sha256:74f35df4830cd06c2b343d3d0533491eace4a67aed3d627f8ed57a566cc313f4",
+      "decision-records/separate-activation-effect-from-head-pending.md": "sha256:72ecb082053ab0a237331afcf2e7eb4bc1e1c050a803075e044633f240d787a4",
+      "decision-records/separate-agent-contract-from-tool-protocol.md": "sha256:c88a6d981b516057dfdf735ee550ea39928e2f35101e983c69cc7638743ce072",
+      "decision-records/stage-selected-decisions.md": "sha256:e31bd34a990cf35147b86cde5e01dd1d8a8ecbd149533fcda5d8845a2237ba91",
+      "decision-records/support-degraded-decision-maintenance.md": "sha256:e5f91d459b6acaf0d45d12dd5f9fdc1cf75ddcfaf1a3e156cab72df66323eb3b",
+      "decision-records/support-reorganization-after-real-evidence.md": "sha256:0cdf93822de62c43be235f565574d74d45f5e0f9975ab19bf85144a682a330a3",
+      "decision-records/track-decision-execution-state.md": "sha256:cd366ed4285f39d89af811baae0102eb068d3366f37e47045e75baaa877c6ace",
+      "decision-records/treat-unaligned-as-future-direction.md": "sha256:420cd94412fbcb6ed124d8d20b639c2167f607804e876485067dd0f0e345fccb",
+      "decision-records/unify-closed-decision-relation-evolution.md": "sha256:d889e9f0ac7376af06efcd585046bf0b09b24f97bf112673d610b33ebe6f2754",
+      "decision-records/upgrade-decision-domains-after-real-pressure.md": "sha256:36c0d931e0e7d401d837e483945407f0ff8b9c0822361f3d1f54738550f028c6",
+      "decision-records/use-alignment-aware-decision-commands.md": "sha256:21f3bc02c81bb53eb32f327a58e4c2d8328f47339169f6f98d8cae747adbdb39",
+      "decision-records/use-closed-splits-for-coarse-decisions.md": "sha256:464061c66bbb4c279c84aec8a4b8007fd793bdff843c0764ba537c937331d07e",
+      "decision-records/use-configurable-self-contained-decision-root.md": "sha256:533b1989653dd598b677d2f022202d432a8520ba574a272cc6d40d2961cc2384",
+      "decision-records/use-domain-paths-as-primary-classification.md": "sha256:5ce673142f6f9b1db900415006042f8d3d484668875b08786924f10a97e814d0",
+      "decision-records/use-error-recovery-reference.md": "sha256:3bd2feea34cb1513b4fa0ba0424c3bef3e9de3736023f088acb31d82ed992655",
+      "decision-records/use-explicit-reviewable-candidates.md": "sha256:51746e2e33cafe4338c27b580d72fa13d1a2282357de04dede554e0069a1a996",
+      "decision-records/use-field-alignment-commands.md": "sha256:52739a5ecc40ddc2b60b257c9c1ef09c767a7bdede8c436e15b1cc549f5930ee",
+      "decision-records/use-frontmatter-projection-and-semantic-field-order.md": "sha256:4b4846e12841472c69409bc92c94f7a38bd1bddbb65de088b6a4c193f3b9e8ef",
+      "decision-records/use-monotonic-alignment-baseline.md": "sha256:e2b48c31f35830149b46e3c99f825a22899087e8dce52306cb3a10e9db88fb68",
+      "decision-records/use-persisted-index-for-routine-queries.md": "sha256:495666a860afce34484c965875960d5c7e1155d94a9d1d9b58b7dd299d582f61",
+      "decision-records/use-recoverable-decision-lifecycle-transactions.md": "sha256:fb48f8d5bfdc279c0ce811fd8b21a9162fdde221d9e2ac7f5002bf8fb8e9bbfd",
+      "decision-records/use-recoverable-evolution-transactions.md": "sha256:b4dc6dad6a53465e57c4fbdd16bcb661e021c954720ae6d34dcc840ad128a4dd",
+      "decision-records/use-second-precision-lifecycle-index.md": "sha256:f8cfdc13e809667ed2c4779d3a8c5a43dc2381c752ee8a02f535123a39d9f710",
+      "decision-records/use-source-resilient-reviewable-candidates.md": "sha256:900736c5b44a6c52b6714055681562754e2f689b4953ff10e37e7ea3dea84738",
+      "decision-records/use-topic-filtered-decision-queries.md": "sha256:cbb3e409147b3211117cde2a9fb6f253b8e98eebd9b104bb62ee023786c4de85",
+      "dependency-boundary-design/concentrate-before-generalizing.md": "sha256:97fbcc417daeb80a452d6cd68b94b41cdd4719c27869563bbe450a1824647937",
+      "git-commit-organizer/260702-refine-commit-granularity-types-and-command.md": "sha256:7230c893238dc71d0fc6860d46d962c91d70557561470bba9826a8370ffa2649",
+      "git-commit-organizer/260720-treat-commit-format-as-project-style.md": "sha256:10e057cbcbc14332de9d5bb6a571930ca5c0be11864f17be58ea9bd479e51a1d",
+      "git-commit-organizer/default-to-current-task-changes.md": "sha256:65e3059bc7b838e27840b329cc8194e8a76bd3238f8cf78b100cfc77624d4427",
+      "index-runtime/stage-selected-index-entries-by-id.md": "sha256:567fdfd91f7e81cf0ba261a0b420b51e58b0e642e7161f34e4682a816c755bd3",
+      "index-runtime/stage-selected-index-entries.md": "sha256:2d43831aaff5e122c29ccdd6aedc2f2fb79205617b0cb085a4e53d2a878c01be",
+      "index-runtime/use-id-keyed-state-index.md": "sha256:3d15447ba110c39edca56e8594d178829e3d156d0e14772c1f83107de790768b",
+      "index-runtime/use-independent-read-side-index-runtime.md": "sha256:041bd0263ff543d6b1cd1e85def33b157a6d0ed1bb1f447565b66ee497a43369",
+      "index-runtime/use-typed-collection-metadata.md": "sha256:61fe2fe1ecf0adb7821bc73003a8112dd693679e6f2811ec24c64a1daec7b362",
+      "investigation-report/append-self-contained-investigation-reports.md": "sha256:9ec28b624b1fe97bca30a5317fd50057d37401f22201b72cfef0f3db49504e5d",
+      "investigation-report/attach-verifiable-resources-to-investigation-reports.md": "sha256:15d2bbd7758aa0e39a5b78eb4f8542f4d1b907cf9521b793b87b6405b16b96e2",
+      "investigation-report/generate-query-index-from-topic-files.md": "sha256:637b0aadd380f076be45cb2d13dd507e847207ad002cda74d0269d2e9133a757",
+      "investigation-report/maintain-topic-level-investigation-index.md": "sha256:5788503c5b29c34795dc281cc602b6ad39d66b51884a2ce060991113fffb03cf",
+      "investigation-report/preserve-comparable-investigation-inputs.md": "sha256:ac753d3ea152903ab36b19f598cd36664b3e7857f32dcd5ce944f7d4ad437847",
+      "investigation-report/use-fixed-investigation-record-core.md": "sha256:b734c932f71ba3b33c1e4fc0b9a148c77edf5c7d6423b258ff67eb1dbf001fa6",
+      "investigation-report/use-report-oriented-investigation-rounds.md": "sha256:27f07abcc019329318902bc89d0298bd04b12553c2c574874c48376fab045233",
+      "minimal-implementation/choose-smallest-correct-maintenance-surface.md": "sha256:4f5999b575d879ada2c7133b8523f33909ce927cc7381edfed45edea0587664e",
+      "openspec/260706-gate-temporary-change-plans.md": "sha256:6b9d7d45f99d32702bd53bc879fda489f5bee97c8c15c0834e5f1dd489f8543e",
+      "product-architecture-judgment/260720-keep-problem-reframing-self-contained.md": "sha256:2e2f4f4e0036cd034bf6b0d4f489a19b0fc3d6d9d603b37874a53ed31468d6df",
+      "product-architecture-judgment/260720-separate-framing-from-engineering-landing.md": "sha256:d99f7e26c0fe5738af423c3dd6bb6de33de650f78e29d90514fbbc6f1c6066e3",
+      "product-architecture-judgment/260720-unify-product-and-architecture-judgment.md": "sha256:34b16f81dea5f3fc445e0e80a7b6fe4f0b2fd07ff4557840beb8cb77c5fa3896",
+      "product-architecture-judgment/260720-use-product-and-architecture-lenses.md": "sha256:e7a588bc65bf9486507f69cc59c26e1e13387a6e33b95ba085542b1c9082e4a7",
+      "project-documentation/260718-use-project-coding-style-owner.md": "sha256:2c402eaab3fe16048614adc0a3fc8b57f915b037dec34583c7c827b753fd7554",
+      "project-documentation/use-document-navigation-owner.md": "sha256:ef5e06f78ce6713e5f4b94c0b9ac6061a9bed4c4dc041d3bf544880c8f9e9f57",
+      "project-tooling/260630-publish-skill-package-as-latest-release.md": "sha256:5f0ff7be6a5888d4c323e910fba10bf53f19e6f5529e61cd8f71005ff5012353",
+      "project-tooling/260701-add-submodule-release-workflows.md": "sha256:5e4458d2bde2717e7a1ad8e22bf370228ca9312c0a31fac5a3b177b628dd47bc",
+      "project-tooling/260701-avoid-workflow-structure-validation.md": "sha256:4f18f658f42cd627d6e02c7405162dace4c94fec5be034918b3c5f743f279e66",
+      "project-tooling/260701-embed-self-update-script-in-skill-packages.md": "sha256:6122db495042acb1d83e874595832f52f088ccde57648fc9a4f891fdacb485bb",
+      "project-tooling/260701-gate-latest-release-by-skill-hash.md": "sha256:bac2441d9356def93f94f7277614788d6963efaeba9875bb01dd5e2995d6df1f",
+      "project-tooling/260701-publish-versioned-skill-releases.md": "sha256:e4c1a601abcd67fd78d98cc25ff224201ab5621e007c866bbc4eff0c1932860b",
+      "project-tooling/260701-update-package-hash-with-git-hooks.md": "sha256:d37e62ee1619e9ccd047f4538ec918f2a9b1fd7028d49b040ab17caf34577ead",
+      "project-tooling/260701-use-libraries-for-common-script-behavior.md": "sha256:8d4a026fcf546973c1506a47ca94a61d3d9ad97c3276d75dca38103def0bf5a9",
+      "project-tooling/260701-use-tsgo-for-typecheck.md": "sha256:8d3a440e1f7fd6c0932d58cdefa1cc630e21181f639c555aa0626f8084e2f2f6",
+      "project-tooling/260703-follow-latest-release-for-skill-updater.md": "sha256:789293ae2ef131873846e048af8e2d0f90f3ba44b3d2d4ef9ebc25f78b181b2d",
+      "project-tooling/260703-use-per-skill-hash-lock-for-updater.md": "sha256:3919955e6b59e01bb233a61b83d6bc393baa9b35e2fb640948ff3753f8e38075",
+      "project-tooling/260711-separate-skill-script-source-and-generated-artifacts.md": "sha256:6c7b05c2bd4c27e63be6b7494f86b34ab4ffa6f611d45e31ff900e1be74942e7",
+      "project-tooling/260720-expose-importable-skill-modules.md": "sha256:a846beff3ccae6ef8de85c7496b689a0c6852efc0cff04aedae8f87cce0fb17d",
+      "project-tooling/260720-orchestrate-checks-with-conservative-concurrency.md": "sha256:7bff1159274ee84bfc71a5607bc0054f3c4438b6a0ce84ad96dfe99fc633e720",
+      "project-tooling/260720-use-prebuilt-git-test-fixtures.md": "sha256:b0840a64780fcb2ee92303f2ee15d8acdfbd872220ba2fed2e25979d4ba6ea65",
+      "project-tooling/default-checks-to-warnings.md": "sha256:223432266726cccdac1cbaec319e139a2af38b2e18de4770581bd7cc40b39ac0",
+      "project-tooling/exclude-archived-changes-from-link-validation.md": "sha256:4dd74ead05f2be49de2a176225b159a5248afc2bbb5edb2735b149df97f03fbd",
+      "project-tooling/separate-distributable-tool-source-from-repository-automation.md": "sha256:878e9070277071510f71ceb604208253809df75124a117ae40e15cf4293446b3",
+      "project-tooling/separate-tool-source-and-repository-automation.md": "sha256:93efec40cac5dec9a114ee44a7e33caba51647f74d24e859c7d16ed7ed3af317",
+      "project-tooling/use-profiled-concise-checks.md": "sha256:6eb996b07594c447247a455523539cc5df4f989f8a1e5ed1a0ddc9cd533f0b34",
+      "repository-model/260702-use-monorepo-skills-directory.md": "sha256:2e103862e5cb2a492dd80635af42ab559e0d831f7dc3bae53f7cb6882d94d0c4",
+      "repository-model/centralize-maintenance-and-keep-distribution-lightweight.md": "sha256:162e339b2a957e58e7d8706f228ce4b7c0439f7cde9273bc473071d6afec8cbe",
+      "repository-model/use-monorepo-versioned-skill-packages.md": "sha256:2c3bc5c15f86027526cd54f65a7751d1f43dea0a7e3fa12f8095eb7090513c8e",
+      "repository-model/use-versioned-overlay-skill-updates.md": "sha256:86fdc5228e8f91aa2f1267f8698f9940d4e7bd8de6f2eaf2bb4c1baea3063844",
+      "skill-design-discovery/separate-design-discovery-from-lifecycle-maintenance.md": "sha256:745e9da140da172ac632bdeee7deb4436eea427136e38770106199759bb052b1",
+      "skill-maintainer/260719-own-project-aware-skill-lifecycle.md": "sha256:42f4dd984d6cb6d2b40eff9d52e310ff19c2a776af3add5f5d46246b0d10697e",
+      "skill-maintainer/260720-define-skills-by-self-contained-contracts.md": "sha256:78365a69a90ac1b89be69dd238af30cfef409d4148568dab56c081b43c38b3f8",
+      "skill-maintainer/260720-use-distribution-unit-boundaries.md": "sha256:4f78dcf556bc8c093f870cc182de7be5cc59a30aa3ded0f8880ba3c1f0129302",
+      "subagent-orchestration/260712-separate-write-ownership-from-read-scope.md": "sha256:bbdc9055b1f0e5ed39420448e9d5f7bb85108f37f2417d2070e8870887095fa3",
+      "subagent-orchestration/260718-default-to-minimal-subagent-history.md": "sha256:069394927690d9a99ee5fa50247a2207acb756f08d5cf722da75ce39a18fc741",
+      "subagent-orchestration/260718-focus-description-on-trigger-context.md": "sha256:8ba13bfa3fd702f51d52db39ec060fe5879d061463cef6ec5f662f9402770f49",
+      "subagent-orchestration/allocate-agents-and-runtime-by-task-slice.md": "sha256:8bd0ceef201c4e90d9c97a6340f6a4e3ef1ee333267b3abc0136b22e1d955605",
+      "subagent-orchestration/bound-review-and-handoff-by-delivery-impact.md": "sha256:f9a19ed300003b4730bbd8d522947aaa501a99d1be5af61a54b4c385ff36b7a5",
+      "task-graph/coordinate-task-execution-with-transactional-claims.md": "sha256:eed05bfa690ee8c16351419d3fe37d65ea9f93fe599bb91f37dac6adf695dded",
+      "task-graph/delegate-native-runtime-installation-to-caller.md": "sha256:287e98cd90491f9acbf5cf1e4deaa5b973875ce615cdfa75e84069d54044743c",
+      "task-graph/derive-sdk-declarations-from-runtime-source.md": "sha256:d2fad5e26b872a1ee6a4edf63b6555fe5b4b80de5fbdfdb21d63e38068ef393e",
+      "task-graph/install-native-runtime-in-user-tool-home.md": "sha256:12cd7a8ec12bb7db0252b7359deef934a54cdd8415f679041ec3e8994cc1fb3f",
+      "task-graph/keep-task-graph-locks-outside-workspace.md": "sha256:170fb403439cfd00bc29e235b0447acfcf8edc9073a345dd07ce8c633940909f",
+      "task-graph/key-task-identity-and-separate-content-state-projection.md": "sha256:7682969f3f97266dd4be1d8ac03e2e93c13cb41c2f07ecc54887de9578438f8d",
+      "task-graph/model-task-topology-and-inheritance-explicitly.md": "sha256:05dc43defe36f4013f7fc9a087de500bbb4dcd9f3a66bfa2afda935584af859f",
+      "task-graph/own-recoverable-task-coordination.md": "sha256:858d29efd147cc6b92829374673383b4028f20b11aa496f40aeea18060368f96",
+      "task-graph/own-short-lived-task-orchestration.md": "sha256:31bd741db8177fb2951459abb8691c9196c8f5f365f15483ee2c3a4f8869fbd5",
+      "task-graph/reclaim-expired-task-leases-through-claim.md": "sha256:efb54ef212ad2cb64710af05480a1f418b45c6604c80766463cc72d7424960eb",
+      "task-graph/render-full-task-list-as-layered-dag.md": "sha256:a10ee1a8a77c4a14d6f778165fc84a6eee013120944f74bd8cbf8504e948d989",
+      "task-graph/separate-raw-results-from-output-functions.md": "sha256:d736d63f18acd029ca6720b412f25e2acd5afdfeded60fc9fef5cfea891b5341",
+      "task-graph/separate-task-content-state-and-effective-projection.md": "sha256:2cb20d03d5ddd7df090066fa50d3ac94a4fb27a320352584e0edf49692d6b4ba",
+      "task-graph/use-authoritative-json-index-for-short-lived-tasks.md": "sha256:65a8dd896fb80e6c062085b6091e74fded821d6df965ae2c28f3977228fc3e53",
+      "task-graph/use-authoritative-json-index-for-task-coordination.md": "sha256:bdeaa3c32d3b88eca87045d607d1cd7a0e43d10df2c6f6dc874b3eb1019ee8e4",
+      "task-graph/use-native-locks-for-json-transactions.md": "sha256:252cd9df419eeb1c2b54d78170bccfbbe3d68662cac1173d459dd2b7c20a99c4",
+      "task-graph/use-root-task-dictionary.md": "sha256:eff9d0c06c240f76520987ec5aea6afdb8539e6f9e5ba8eb337d3c425fb97b06",
+      "test-evidence-review/260719-model-verification-obligations-and-source-roles.md": "sha256:6a270e8c7ac2618566aafee2003cdc08ad3ea054c2126456067168df7fa55ab0",
+      "test-evidence-review/260719-organize-multi-branch-proofs-by-shared-base.md": "sha256:47a8a687316844876412da3ef008a9510c5888040b2ab7affc9c57a0ff84a29b",
+      "test-evidence-review/260719-separate-test-value-from-ledger-validation.md": "sha256:94dfe555be0753a50d749299bfbe3420c3805a69365400baef39fd4d75eb439b",
+      "test-evidence-review/260720-map-test-entries-and-trigger-scoped-reviews.md": "sha256:821fa420925eeeb26d82da6497de686d329e66b23ef17f17987cc0ee582d7cd4",
+      "test-evidence-review/260720-organize-proofs-by-shared-execution-chain.md": "sha256:4a0081db6aee627ae118c8aaff210c2cec7f786d0d08031cbec41b9e7524ecbd",
+      "test-evidence-review/260721-separate-test-entry-collection-from-ledger.md": "sha256:6d58c4e9683b225a9850ecf196d73e4589a844371f8f2b0f156a9c6618c034ee",
+      "test-evidence-review/catalog-minimal-native-test-entries.md": "sha256:c9b915a309a4464f44e088062fe7f6dc4a8277e9a1f4b87f463940b5dec981e3",
+      "test-evidence-review/fix-test-evidence-workspace-contract.md": "sha256:78743d06c85fa906cbfc5831678115d4176076b7660982f3c0f790fc4eb0cad6",
+      "test-evidence-review/index-independent-proof-cases-from-current-catalog.md": "sha256:b280fbb91b41c024f47ddaa2d1be8e7b60927ab959d627c4cb3b6dea774a0bba",
+      "test-evidence-review/index-ledger-by-stable-case-state.md": "sha256:c151387f1b5b9d627b6af82059a0335b515ade3653176ea2ae2b9c6f726a13a4",
+      "test-evidence-review/maintain-closed-many-to-many-test-case-relations.md": "sha256:f2f72c65d2776e41d7e99b48a7c9057756fc886a1ff1a75ec0747fa76639892d",
+      "test-evidence-review/mask-non-code-test-syntax.md": "sha256:b1a6eee4179b64f179a5cbdaf54886d8bc3ece0e7ba41944766c82740a2872d4",
+      "test-evidence-review/organize-native-test-cases-by-responsibility-topic.md": "sha256:d904f498a04bccce2ad10b83bc4176967671c79d2a226c83c21c7465df264ad3",
+      "test-evidence-review/organize-test-cases-by-controlled-topic-path.md": "sha256:6907ddad90311b6ec7b960f0f1a9e1334fa0cbffc3c94ff808659a93f7c134b4",
+      "test-evidence-review/publish-only-layered-test-evidence-interfaces.md": "sha256:b91286160865899384c46b8ce1c99765791e9e51512b175db85305572b7a1d60",
+      "test-evidence-review/query-ledger-with-structured-inspection.md": "sha256:6d23198e1d458bce0bcab7b6e6c0e475945ca85b566992452bba6a12ea84b23e",
+      "test-evidence-review/read-ledger-contract-on-demand.md": "sha256:94cf0f02e748c00b9cb0cb5f00065f62a6708d27c1c85f333fb90dbe8397ea51",
+      "test-evidence-review/register-one-case-per-independent-verification-entry.md": "sha256:43fb6475f81c0b1ac217dff4130c38ee051bb90fa6cddf81bb1bbc05df823e07",
+      "test-evidence-review/review-verification-implementations-with-explicit-indexed-cases.md": "sha256:ae61a930af094437bb47d5a1b747b0954c33516a3b311ead23c0e5dc9fd65927",
+      "version-control/centralize-version-control-responsibility.md": "sha256:e17340b87ea60b8f18cb3b090c47545180b6f29539b74c168fa2d338d5d92d24",
+      "version-control/manage-pending-snapshot-writes.md": "sha256:32011eda08ab497629cfcba677e4214d6703f8687f9bca69014cb86675bf8236"
+    },
+    "metadata": "sha256:c1f9e0d434316a49a1cc2d865e3282d026b1cedb1b2c8de9c23eec886444bc0d"
+  },
   "keyDefinitions": [
     {
       "name": "domain",
@@ -101,9 +284,8 @@
       "mode": "exact"
     }
   ],
-  "entries": [
-    {
-      "id": "ai-ready-docs/260630-merge-prompt-optimize-core-flow-into-entry.md",
+  "entries": {
+    "ai-ready-docs/260630-merge-prompt-optimize-core-flow-into-entry.md": {
       "keys": {
         "domain": [
           "ai-ready-docs"
@@ -129,8 +311,7 @@
         ]
       }
     },
-    {
-      "id": "ai-ready-docs/260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md",
+    "ai-ready-docs/260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md": {
       "keys": {
         "domain": [
           "ai-ready-docs"
@@ -151,8 +332,7 @@
         "relations": []
       }
     },
-    {
-      "id": "ai-ready-docs/260701-add-document-main-promise-check.md",
+    "ai-ready-docs/260701-add-document-main-promise-check.md": {
       "keys": {
         "domain": [
           "ai-ready-docs"
@@ -176,8 +356,7 @@
         "relations": []
       }
     },
-    {
-      "id": "ai-ready-docs/260701-compact-entry-and-archive-migration-copies.md",
+    "ai-ready-docs/260701-compact-entry-and-archive-migration-copies.md": {
       "keys": {
         "domain": [
           "ai-ready-docs"
@@ -203,8 +382,7 @@
         ]
       }
     },
-    {
-      "id": "ai-ready-docs/260706-move-subagent-guidance-to-dedicated-skill.md",
+    "ai-ready-docs/260706-move-subagent-guidance-to-dedicated-skill.md": {
       "keys": {
         "domain": [
           "ai-ready-docs"
@@ -233,8 +411,7 @@
         ]
       }
     },
-    {
-      "id": "ai-ready-docs/260720-remove-migration-copies.md",
+    "ai-ready-docs/260720-remove-migration-copies.md": {
       "keys": {
         "domain": [
           "ai-ready-docs"
@@ -263,8 +440,7 @@
         ]
       }
     },
-    {
-      "id": "ai-ready-docs/260720-treat-negative-options-as-solution-anchors.md",
+    "ai-ready-docs/260720-treat-negative-options-as-solution-anchors.md": {
       "keys": {
         "domain": [
           "ai-ready-docs"
@@ -288,8 +464,7 @@
         "relations": []
       }
     },
-    {
-      "id": "ai-ready-docs/260720-use-controlled-mermaid-flowcharts.md",
+    "ai-ready-docs/260720-use-controlled-mermaid-flowcharts.md": {
       "keys": {
         "domain": [
           "ai-ready-docs"
@@ -313,8 +488,7 @@
         "relations": []
       }
     },
-    {
-      "id": "ai-ready-docs/use-ai-ready-docs-identity.md",
+    "ai-ready-docs/use-ai-ready-docs-identity.md": {
       "keys": {
         "domain": [
           "ai-ready-docs"
@@ -338,8 +512,7 @@
         "relations": []
       }
     },
-    {
-      "id": "change-plan/manage-basic-change-lifecycle.md",
+    "change-plan/manage-basic-change-lifecycle.md": {
       "keys": {
         "domain": [
           "change-plan"
@@ -368,8 +541,7 @@
         ]
       }
     },
-    {
-      "id": "change-plan/manage-change-lifecycle-stages.md",
+    "change-plan/manage-change-lifecycle-stages.md": {
       "keys": {
         "domain": [
           "change-plan"
@@ -393,8 +565,7 @@
         "relations": []
       }
     },
-    {
-      "id": "change-plan/use-independent-change-plans.md",
+    "change-plan/use-independent-change-plans.md": {
       "keys": {
         "domain": [
           "change-plan"
@@ -415,8 +586,7 @@
         "relations": []
       }
     },
-    {
-      "id": "common-denominator-design/design-by-scenario-denominators.md",
+    "common-denominator-design/design-by-scenario-denominators.md": {
       "keys": {
         "domain": [
           "common-denominator-design"
@@ -440,8 +610,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/260627-establish-decision-record-policy.md",
+    "decision-records/260627-establish-decision-record-policy.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -462,8 +631,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/260630-name-decision-root-docs-by-owner.md",
+    "decision-records/260630-name-decision-root-docs-by-owner.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -489,8 +657,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/260630-track-decision-status-and-relations.md",
+    "decision-records/260630-track-decision-status-and-relations.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -516,8 +683,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/260630-use-compact-decision-records.md",
+    "decision-records/260630-use-compact-decision-records.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -543,8 +709,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/260710-use-cli-active-index-and-invalidated-archive.md",
+    "decision-records/260710-use-cli-active-index-and-invalidated-archive.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -578,8 +743,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/260710-use-explicit-portable-decision-memory.md",
+    "decision-records/260710-use-explicit-portable-decision-memory.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -600,8 +764,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/260711-bound-history-with-direct-relations.md",
+    "decision-records/260711-bound-history-with-direct-relations.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -622,8 +785,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/260711-repair-noncanonical-decision-formats.md",
+    "decision-records/260711-repair-noncanonical-decision-formats.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -644,8 +806,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/260711-require-confirmed-decision-writes.md",
+    "decision-records/260711-require-confirmed-decision-writes.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -671,8 +832,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/260711-use-bundled-contract-owner.md",
+    "decision-records/260711-use-bundled-contract-owner.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -698,8 +858,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/260713-recall-before-long-lived-changes.md",
+    "decision-records/260713-recall-before-long-lived-changes.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -720,8 +879,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/260713-use-json-current-index-and-stable-paths.md",
+    "decision-records/260713-use-json-current-index-and-stable-paths.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -755,8 +913,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/260718-add-direction-and-depth-to-trace.md",
+    "decision-records/260718-add-direction-and-depth-to-trace.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -777,8 +934,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/260718-notify-before-decision-writes.md",
+    "decision-records/260718-notify-before-decision-writes.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -804,8 +960,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/260718-separate-behavior-entry-from-storage-contract.md",
+    "decision-records/260718-separate-behavior-entry-from-storage-contract.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -831,8 +986,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/260718-separate-logical-archive-from-relations.md",
+    "decision-records/260718-separate-logical-archive-from-relations.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -858,8 +1012,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/260718-trigger-on-long-term-decision-points.md",
+    "decision-records/260718-trigger-on-long-term-decision-points.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -888,8 +1041,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/260718-use-purpose-background-decision-structure.md",
+    "decision-records/260718-use-purpose-background-decision-structure.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -915,8 +1067,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/260720-auto-initialize-index-on-first-activation.md",
+    "decision-records/260720-auto-initialize-index-on-first-activation.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -937,8 +1088,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/260720-bound-index-projection-lengths.md",
+    "decision-records/260720-bound-index-projection-lengths.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -967,8 +1117,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/260720-complete-by-task-outcome.md",
+    "decision-records/260720-complete-by-task-outcome.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -994,8 +1143,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/260720-focus-entry-on-behavior-routing.md",
+    "decision-records/260720-focus-entry-on-behavior-routing.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1021,8 +1169,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/260720-return-query-results-with-warnings.md",
+    "decision-records/260720-return-query-results-with-warnings.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1043,8 +1190,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/260720-separate-editorial-edits-from-evolution.md",
+    "decision-records/260720-separate-editorial-edits-from-evolution.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1065,8 +1211,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/260720-separate-status-commands-from-relations.md",
+    "decision-records/260720-separate-status-commands-from-relations.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1092,8 +1237,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/260720-use-configurable-decision-root.md",
+    "decision-records/260720-use-configurable-decision-root.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1114,8 +1258,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/260720-use-filtered-decision-queries.md",
+    "decision-records/260720-use-filtered-decision-queries.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1145,8 +1288,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/260720-use-lifecycle-index-and-semantic-paths.md",
+    "decision-records/260720-use-lifecycle-index-and-semantic-paths.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1172,8 +1314,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/allow-sequential-activation-of-prewritten-candidates.md",
+    "decision-records/allow-sequential-activation-of-prewritten-candidates.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1194,8 +1335,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/complete-current-decision-work-by-task-outcome.md",
+    "decision-records/complete-current-decision-work-by-task-outcome.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1221,8 +1361,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/converge-records-before-stable-baseline.md",
+    "decision-records/converge-records-before-stable-baseline.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1248,8 +1387,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/define-decision-alignment-semantics.md",
+    "decision-records/define-decision-alignment-semantics.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1275,8 +1413,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/derive-establishment-from-markdown-lifecycle.md",
+    "decision-records/derive-establishment-from-markdown-lifecycle.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1318,8 +1455,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/derive-pending-from-head-path.md",
+    "decision-records/derive-pending-from-head-path.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1345,8 +1481,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/establish-decisions-with-atomic-evolution.md",
+    "decision-records/establish-decisions-with-atomic-evolution.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1372,8 +1507,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/express-alignment-as-field-relation.md",
+    "decision-records/express-alignment-as-field-relation.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1399,8 +1533,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/express-decision-alignment-state.md",
+    "decision-records/express-decision-alignment-state.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1421,8 +1554,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/generate-index-from-self-contained-decisions.md",
+    "decision-records/generate-index-from-self-contained-decisions.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1448,8 +1580,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/guard-unrecorded-decision-evolution.md",
+    "decision-records/guard-unrecorded-decision-evolution.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1473,8 +1604,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/make-independent-decision-staging-discoverable.md",
+    "decision-records/make-independent-decision-staging-discoverable.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1498,8 +1628,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/notify-before-current-decision-writes.md",
+    "decision-records/notify-before-current-decision-writes.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1528,8 +1657,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/package-current-index-json-schema.md",
+    "decision-records/package-current-index-json-schema.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1558,8 +1686,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/package-index-json-schema.md",
+    "decision-records/package-index-json-schema.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1580,8 +1707,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/query-projected-decision-metadata.md",
+    "decision-records/query-projected-decision-metadata.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1607,8 +1733,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/rebuild-index-only-with-current-tools.md",
+    "decision-records/rebuild-index-only-with-current-tools.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1637,8 +1762,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/recover-current-format-tools-and-index.md",
+    "decision-records/recover-current-format-tools-and-index.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1664,8 +1788,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/replace-decision-relations-as-complete-sets.md",
+    "decision-records/replace-decision-relations-as-complete-sets.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1694,8 +1817,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/separate-activation-effect-from-head-pending.md",
+    "decision-records/separate-activation-effect-from-head-pending.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1721,8 +1843,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/separate-agent-contract-from-tool-protocol.md",
+    "decision-records/separate-agent-contract-from-tool-protocol.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1751,8 +1872,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/stage-selected-decisions.md",
+    "decision-records/stage-selected-decisions.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1776,8 +1896,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/support-degraded-decision-maintenance.md",
+    "decision-records/support-degraded-decision-maintenance.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1803,8 +1922,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/support-reorganization-after-real-evidence.md",
+    "decision-records/support-reorganization-after-real-evidence.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1828,8 +1946,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/track-decision-execution-state.md",
+    "decision-records/track-decision-execution-state.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1858,8 +1975,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/treat-unaligned-as-future-direction.md",
+    "decision-records/treat-unaligned-as-future-direction.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1888,8 +2004,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/unify-closed-decision-relation-evolution.md",
+    "decision-records/unify-closed-decision-relation-evolution.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1918,8 +2033,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/upgrade-decision-domains-after-real-pressure.md",
+    "decision-records/upgrade-decision-domains-after-real-pressure.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1943,8 +2057,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/use-alignment-aware-decision-commands.md",
+    "decision-records/use-alignment-aware-decision-commands.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1970,8 +2083,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/use-closed-splits-for-coarse-decisions.md",
+    "decision-records/use-closed-splits-for-coarse-decisions.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -1995,8 +2107,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/use-configurable-self-contained-decision-root.md",
+    "decision-records/use-configurable-self-contained-decision-root.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -2022,8 +2133,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/use-domain-paths-as-primary-classification.md",
+    "decision-records/use-domain-paths-as-primary-classification.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -2056,8 +2166,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/use-error-recovery-reference.md",
+    "decision-records/use-error-recovery-reference.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -2078,8 +2187,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/use-explicit-reviewable-candidates.md",
+    "decision-records/use-explicit-reviewable-candidates.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -2108,8 +2216,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/use-field-alignment-commands.md",
+    "decision-records/use-field-alignment-commands.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -2135,8 +2242,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/use-frontmatter-projection-and-semantic-field-order.md",
+    "decision-records/use-frontmatter-projection-and-semantic-field-order.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -2162,8 +2268,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/use-monotonic-alignment-baseline.md",
+    "decision-records/use-monotonic-alignment-baseline.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -2192,8 +2297,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/use-persisted-index-for-routine-queries.md",
+    "decision-records/use-persisted-index-for-routine-queries.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -2217,8 +2321,7 @@
         "relations": []
       }
     },
-    {
-      "id": "decision-records/use-recoverable-decision-lifecycle-transactions.md",
+    "decision-records/use-recoverable-decision-lifecycle-transactions.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -2247,8 +2350,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/use-recoverable-evolution-transactions.md",
+    "decision-records/use-recoverable-evolution-transactions.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -2277,8 +2379,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/use-second-precision-lifecycle-index.md",
+    "decision-records/use-second-precision-lifecycle-index.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -2308,8 +2409,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/use-source-resilient-reviewable-candidates.md",
+    "decision-records/use-source-resilient-reviewable-candidates.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -2338,8 +2438,7 @@
         ]
       }
     },
-    {
-      "id": "decision-records/use-topic-filtered-decision-queries.md",
+    "decision-records/use-topic-filtered-decision-queries.md": {
       "keys": {
         "domain": [
           "decision-records"
@@ -2365,8 +2464,7 @@
         ]
       }
     },
-    {
-      "id": "dependency-boundary-design/concentrate-before-generalizing.md",
+    "dependency-boundary-design/concentrate-before-generalizing.md": {
       "keys": {
         "domain": [
           "dependency-boundary-design"
@@ -2390,8 +2488,7 @@
         "relations": []
       }
     },
-    {
-      "id": "git-commit-organizer/260702-refine-commit-granularity-types-and-command.md",
+    "git-commit-organizer/260702-refine-commit-granularity-types-and-command.md": {
       "keys": {
         "domain": [
           "git-commit-organizer"
@@ -2415,8 +2512,7 @@
         "relations": []
       }
     },
-    {
-      "id": "git-commit-organizer/260720-treat-commit-format-as-project-style.md",
+    "git-commit-organizer/260720-treat-commit-format-as-project-style.md": {
       "keys": {
         "domain": [
           "git-commit-organizer"
@@ -2440,8 +2536,7 @@
         "relations": []
       }
     },
-    {
-      "id": "git-commit-organizer/default-to-current-task-changes.md",
+    "git-commit-organizer/default-to-current-task-changes.md": {
       "keys": {
         "domain": [
           "git-commit-organizer"
@@ -2465,8 +2560,7 @@
         "relations": []
       }
     },
-    {
-      "id": "index-runtime/stage-selected-index-entries-by-id.md",
+    "index-runtime/stage-selected-index-entries-by-id.md": {
       "keys": {
         "domain": [
           "index-runtime"
@@ -2495,8 +2589,7 @@
         ]
       }
     },
-    {
-      "id": "index-runtime/stage-selected-index-entries.md",
+    "index-runtime/stage-selected-index-entries.md": {
       "keys": {
         "domain": [
           "index-runtime"
@@ -2520,8 +2613,7 @@
         "relations": []
       }
     },
-    {
-      "id": "index-runtime/use-id-keyed-state-index.md",
+    "index-runtime/use-id-keyed-state-index.md": {
       "keys": {
         "domain": [
           "index-runtime"
@@ -2530,17 +2622,17 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "index-runtime/use-id-keyed-state-index.md",
         "title": "以稳定 ID 键控状态索引",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-06T09:23:47Z",
         "purpose": "让索引从领域输入到持久化都直接按稳定 ID 管理条目，并保持低成本的新鲜度检查。",
-        "background": "现有数组需要再次推导身份，整体来源摘要又无法在选择部分条目时安全组合。",
+        "background": "决策形成时的数组需要再次推导身份，整体来源摘要又无法在选择部分条目时安全组合。",
         "decision": "身份集合统一使用 ID 键控对象，来源 revision 按 metadata 与各 ID 分解，快速读取保持单次轻量扫描。",
         "relations": [
           {
@@ -2550,8 +2642,7 @@
         ]
       }
     },
-    {
-      "id": "index-runtime/use-independent-read-side-index-runtime.md",
+    "index-runtime/use-independent-read-side-index-runtime.md": {
       "keys": {
         "domain": [
           "index-runtime"
@@ -2572,8 +2663,7 @@
         "relations": []
       }
     },
-    {
-      "id": "index-runtime/use-typed-collection-metadata.md",
+    "index-runtime/use-typed-collection-metadata.md": {
       "keys": {
         "domain": [
           "index-runtime"
@@ -2602,8 +2692,7 @@
         ]
       }
     },
-    {
-      "id": "investigation-report/append-self-contained-investigation-reports.md",
+    "investigation-report/append-self-contained-investigation-reports.md": {
       "keys": {
         "domain": [
           "investigation-report"
@@ -2629,8 +2718,7 @@
         ]
       }
     },
-    {
-      "id": "investigation-report/attach-verifiable-resources-to-investigation-reports.md",
+    "investigation-report/attach-verifiable-resources-to-investigation-reports.md": {
       "keys": {
         "domain": [
           "investigation-report"
@@ -2654,8 +2742,7 @@
         "relations": []
       }
     },
-    {
-      "id": "investigation-report/generate-query-index-from-topic-files.md",
+    "investigation-report/generate-query-index-from-topic-files.md": {
       "keys": {
         "domain": [
           "investigation-report"
@@ -2679,8 +2766,7 @@
         "relations": []
       }
     },
-    {
-      "id": "investigation-report/maintain-topic-level-investigation-index.md",
+    "investigation-report/maintain-topic-level-investigation-index.md": {
       "keys": {
         "domain": [
           "investigation-report"
@@ -2709,8 +2795,7 @@
         ]
       }
     },
-    {
-      "id": "investigation-report/preserve-comparable-investigation-inputs.md",
+    "investigation-report/preserve-comparable-investigation-inputs.md": {
       "keys": {
         "domain": [
           "investigation-report"
@@ -2736,8 +2821,7 @@
         ]
       }
     },
-    {
-      "id": "investigation-report/use-fixed-investigation-record-core.md",
+    "investigation-report/use-fixed-investigation-record-core.md": {
       "keys": {
         "domain": [
           "investigation-report"
@@ -2766,8 +2850,7 @@
         ]
       }
     },
-    {
-      "id": "investigation-report/use-report-oriented-investigation-rounds.md",
+    "investigation-report/use-report-oriented-investigation-rounds.md": {
       "keys": {
         "domain": [
           "investigation-report"
@@ -2788,8 +2871,7 @@
         "relations": []
       }
     },
-    {
-      "id": "minimal-implementation/choose-smallest-correct-maintenance-surface.md",
+    "minimal-implementation/choose-smallest-correct-maintenance-surface.md": {
       "keys": {
         "domain": [
           "minimal-implementation"
@@ -2813,8 +2895,7 @@
         "relations": []
       }
     },
-    {
-      "id": "openspec/260706-gate-temporary-change-plans.md",
+    "openspec/260706-gate-temporary-change-plans.md": {
       "keys": {
         "domain": [
           "openspec"
@@ -2838,8 +2919,7 @@
         "relations": []
       }
     },
-    {
-      "id": "product-architecture-judgment/260720-keep-problem-reframing-self-contained.md",
+    "product-architecture-judgment/260720-keep-problem-reframing-self-contained.md": {
       "keys": {
         "domain": [
           "product-architecture-judgment"
@@ -2860,8 +2940,7 @@
         "relations": []
       }
     },
-    {
-      "id": "product-architecture-judgment/260720-separate-framing-from-engineering-landing.md",
+    "product-architecture-judgment/260720-separate-framing-from-engineering-landing.md": {
       "keys": {
         "domain": [
           "product-architecture-judgment"
@@ -2887,8 +2966,7 @@
         ]
       }
     },
-    {
-      "id": "product-architecture-judgment/260720-unify-product-and-architecture-judgment.md",
+    "product-architecture-judgment/260720-unify-product-and-architecture-judgment.md": {
       "keys": {
         "domain": [
           "product-architecture-judgment"
@@ -2921,8 +2999,7 @@
         ]
       }
     },
-    {
-      "id": "product-architecture-judgment/260720-use-product-and-architecture-lenses.md",
+    "product-architecture-judgment/260720-use-product-and-architecture-lenses.md": {
       "keys": {
         "domain": [
           "product-architecture-judgment"
@@ -2943,8 +3020,7 @@
         "relations": []
       }
     },
-    {
-      "id": "project-documentation/260718-use-project-coding-style-owner.md",
+    "project-documentation/260718-use-project-coding-style-owner.md": {
       "keys": {
         "domain": [
           "project-documentation"
@@ -2968,8 +3044,7 @@
         "relations": []
       }
     },
-    {
-      "id": "project-documentation/use-document-navigation-owner.md",
+    "project-documentation/use-document-navigation-owner.md": {
       "keys": {
         "domain": [
           "project-documentation"
@@ -2993,8 +3068,7 @@
         "relations": []
       }
     },
-    {
-      "id": "project-tooling/260630-publish-skill-package-as-latest-release.md",
+    "project-tooling/260630-publish-skill-package-as-latest-release.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3015,8 +3089,7 @@
         "relations": []
       }
     },
-    {
-      "id": "project-tooling/260701-add-submodule-release-workflows.md",
+    "project-tooling/260701-add-submodule-release-workflows.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3042,8 +3115,7 @@
         ]
       }
     },
-    {
-      "id": "project-tooling/260701-avoid-workflow-structure-validation.md",
+    "project-tooling/260701-avoid-workflow-structure-validation.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3076,8 +3148,7 @@
         ]
       }
     },
-    {
-      "id": "project-tooling/260701-embed-self-update-script-in-skill-packages.md",
+    "project-tooling/260701-embed-self-update-script-in-skill-packages.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3098,8 +3169,7 @@
         "relations": []
       }
     },
-    {
-      "id": "project-tooling/260701-gate-latest-release-by-skill-hash.md",
+    "project-tooling/260701-gate-latest-release-by-skill-hash.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3125,8 +3195,7 @@
         ]
       }
     },
-    {
-      "id": "project-tooling/260701-publish-versioned-skill-releases.md",
+    "project-tooling/260701-publish-versioned-skill-releases.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3156,8 +3225,7 @@
         ]
       }
     },
-    {
-      "id": "project-tooling/260701-update-package-hash-with-git-hooks.md",
+    "project-tooling/260701-update-package-hash-with-git-hooks.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3187,8 +3255,7 @@
         ]
       }
     },
-    {
-      "id": "project-tooling/260701-use-libraries-for-common-script-behavior.md",
+    "project-tooling/260701-use-libraries-for-common-script-behavior.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3212,8 +3279,7 @@
         "relations": []
       }
     },
-    {
-      "id": "project-tooling/260701-use-tsgo-for-typecheck.md",
+    "project-tooling/260701-use-tsgo-for-typecheck.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3237,8 +3303,7 @@
         "relations": []
       }
     },
-    {
-      "id": "project-tooling/260703-follow-latest-release-for-skill-updater.md",
+    "project-tooling/260703-follow-latest-release-for-skill-updater.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3264,8 +3329,7 @@
         ]
       }
     },
-    {
-      "id": "project-tooling/260703-use-per-skill-hash-lock-for-updater.md",
+    "project-tooling/260703-use-per-skill-hash-lock-for-updater.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3299,8 +3363,7 @@
         ]
       }
     },
-    {
-      "id": "project-tooling/260711-separate-skill-script-source-and-generated-artifacts.md",
+    "project-tooling/260711-separate-skill-script-source-and-generated-artifacts.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3326,8 +3389,7 @@
         ]
       }
     },
-    {
-      "id": "project-tooling/260720-expose-importable-skill-modules.md",
+    "project-tooling/260720-expose-importable-skill-modules.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3353,8 +3415,7 @@
         ]
       }
     },
-    {
-      "id": "project-tooling/260720-orchestrate-checks-with-conservative-concurrency.md",
+    "project-tooling/260720-orchestrate-checks-with-conservative-concurrency.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3375,8 +3436,7 @@
         "relations": []
       }
     },
-    {
-      "id": "project-tooling/260720-use-prebuilt-git-test-fixtures.md",
+    "project-tooling/260720-use-prebuilt-git-test-fixtures.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3397,8 +3457,7 @@
         "relations": []
       }
     },
-    {
-      "id": "project-tooling/default-checks-to-warnings.md",
+    "project-tooling/default-checks-to-warnings.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3427,8 +3486,7 @@
         ]
       }
     },
-    {
-      "id": "project-tooling/exclude-archived-changes-from-link-validation.md",
+    "project-tooling/exclude-archived-changes-from-link-validation.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3452,8 +3510,7 @@
         "relations": []
       }
     },
-    {
-      "id": "project-tooling/separate-distributable-tool-source-from-repository-automation.md",
+    "project-tooling/separate-distributable-tool-source-from-repository-automation.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3483,8 +3540,7 @@
         ]
       }
     },
-    {
-      "id": "project-tooling/separate-tool-source-and-repository-automation.md",
+    "project-tooling/separate-tool-source-and-repository-automation.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3513,8 +3569,7 @@
         ]
       }
     },
-    {
-      "id": "project-tooling/use-profiled-concise-checks.md",
+    "project-tooling/use-profiled-concise-checks.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3543,8 +3598,7 @@
         ]
       }
     },
-    {
-      "id": "repository-model/260702-use-monorepo-skills-directory.md",
+    "repository-model/260702-use-monorepo-skills-directory.md": {
       "keys": {
         "domain": [
           "repository-model"
@@ -3590,8 +3644,7 @@
         ]
       }
     },
-    {
-      "id": "repository-model/centralize-maintenance-and-keep-distribution-lightweight.md",
+    "repository-model/centralize-maintenance-and-keep-distribution-lightweight.md": {
       "keys": {
         "domain": [
           "repository-model"
@@ -3615,8 +3668,7 @@
         "relations": []
       }
     },
-    {
-      "id": "repository-model/use-monorepo-versioned-skill-packages.md",
+    "repository-model/use-monorepo-versioned-skill-packages.md": {
       "keys": {
         "domain": [
           "repository-model"
@@ -3645,8 +3697,7 @@
         ]
       }
     },
-    {
-      "id": "repository-model/use-versioned-overlay-skill-updates.md",
+    "repository-model/use-versioned-overlay-skill-updates.md": {
       "keys": {
         "domain": [
           "repository-model"
@@ -3679,8 +3730,7 @@
         ]
       }
     },
-    {
-      "id": "skill-design-discovery/separate-design-discovery-from-lifecycle-maintenance.md",
+    "skill-design-discovery/separate-design-discovery-from-lifecycle-maintenance.md": {
       "keys": {
         "domain": [
           "skill-design-discovery"
@@ -3704,8 +3754,7 @@
         "relations": []
       }
     },
-    {
-      "id": "skill-maintainer/260719-own-project-aware-skill-lifecycle.md",
+    "skill-maintainer/260719-own-project-aware-skill-lifecycle.md": {
       "keys": {
         "domain": [
           "skill-maintainer"
@@ -3726,8 +3775,7 @@
         "relations": []
       }
     },
-    {
-      "id": "skill-maintainer/260720-define-skills-by-self-contained-contracts.md",
+    "skill-maintainer/260720-define-skills-by-self-contained-contracts.md": {
       "keys": {
         "domain": [
           "skill-maintainer"
@@ -3748,8 +3796,7 @@
         "relations": []
       }
     },
-    {
-      "id": "skill-maintainer/260720-use-distribution-unit-boundaries.md",
+    "skill-maintainer/260720-use-distribution-unit-boundaries.md": {
       "keys": {
         "domain": [
           "skill-maintainer"
@@ -3782,8 +3829,7 @@
         ]
       }
     },
-    {
-      "id": "subagent-orchestration/260712-separate-write-ownership-from-read-scope.md",
+    "subagent-orchestration/260712-separate-write-ownership-from-read-scope.md": {
       "keys": {
         "domain": [
           "subagent-orchestration"
@@ -3807,8 +3853,7 @@
         "relations": []
       }
     },
-    {
-      "id": "subagent-orchestration/260718-default-to-minimal-subagent-history.md",
+    "subagent-orchestration/260718-default-to-minimal-subagent-history.md": {
       "keys": {
         "domain": [
           "subagent-orchestration"
@@ -3832,8 +3877,7 @@
         "relations": []
       }
     },
-    {
-      "id": "subagent-orchestration/260718-focus-description-on-trigger-context.md",
+    "subagent-orchestration/260718-focus-description-on-trigger-context.md": {
       "keys": {
         "domain": [
           "subagent-orchestration"
@@ -3857,8 +3901,7 @@
         "relations": []
       }
     },
-    {
-      "id": "subagent-orchestration/allocate-agents-and-runtime-by-task-slice.md",
+    "subagent-orchestration/allocate-agents-and-runtime-by-task-slice.md": {
       "keys": {
         "domain": [
           "subagent-orchestration"
@@ -3887,8 +3930,7 @@
         ]
       }
     },
-    {
-      "id": "subagent-orchestration/bound-review-and-handoff-by-delivery-impact.md",
+    "subagent-orchestration/bound-review-and-handoff-by-delivery-impact.md": {
       "keys": {
         "domain": [
           "subagent-orchestration"
@@ -3912,8 +3954,7 @@
         "relations": []
       }
     },
-    {
-      "id": "task-graph/coordinate-task-execution-with-transactional-claims.md",
+    "task-graph/coordinate-task-execution-with-transactional-claims.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -3937,8 +3978,7 @@
         "relations": []
       }
     },
-    {
-      "id": "task-graph/delegate-native-runtime-installation-to-caller.md",
+    "task-graph/delegate-native-runtime-installation-to-caller.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -3967,8 +4007,7 @@
         ]
       }
     },
-    {
-      "id": "task-graph/derive-sdk-declarations-from-runtime-source.md",
+    "task-graph/derive-sdk-declarations-from-runtime-source.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -3992,8 +4031,7 @@
         "relations": []
       }
     },
-    {
-      "id": "task-graph/install-native-runtime-in-user-tool-home.md",
+    "task-graph/install-native-runtime-in-user-tool-home.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4017,8 +4055,7 @@
         "relations": []
       }
     },
-    {
-      "id": "task-graph/keep-task-graph-locks-outside-workspace.md",
+    "task-graph/keep-task-graph-locks-outside-workspace.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4047,8 +4084,7 @@
         ]
       }
     },
-    {
-      "id": "task-graph/key-task-identity-and-separate-content-state-projection.md",
+    "task-graph/key-task-identity-and-separate-content-state-projection.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4077,8 +4113,7 @@
         ]
       }
     },
-    {
-      "id": "task-graph/model-task-topology-and-inheritance-explicitly.md",
+    "task-graph/model-task-topology-and-inheritance-explicitly.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4102,8 +4137,7 @@
         "relations": []
       }
     },
-    {
-      "id": "task-graph/own-recoverable-task-coordination.md",
+    "task-graph/own-recoverable-task-coordination.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4132,8 +4166,7 @@
         ]
       }
     },
-    {
-      "id": "task-graph/own-short-lived-task-orchestration.md",
+    "task-graph/own-short-lived-task-orchestration.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4157,8 +4190,7 @@
         "relations": []
       }
     },
-    {
-      "id": "task-graph/reclaim-expired-task-leases-through-claim.md",
+    "task-graph/reclaim-expired-task-leases-through-claim.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4187,8 +4219,7 @@
         ]
       }
     },
-    {
-      "id": "task-graph/render-full-task-list-as-layered-dag.md",
+    "task-graph/render-full-task-list-as-layered-dag.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4212,8 +4243,7 @@
         "relations": []
       }
     },
-    {
-      "id": "task-graph/separate-raw-results-from-output-functions.md",
+    "task-graph/separate-raw-results-from-output-functions.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4237,8 +4267,7 @@
         "relations": []
       }
     },
-    {
-      "id": "task-graph/separate-task-content-state-and-effective-projection.md",
+    "task-graph/separate-task-content-state-and-effective-projection.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4262,8 +4291,7 @@
         "relations": []
       }
     },
-    {
-      "id": "task-graph/use-authoritative-json-index-for-short-lived-tasks.md",
+    "task-graph/use-authoritative-json-index-for-short-lived-tasks.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4287,8 +4315,7 @@
         "relations": []
       }
     },
-    {
-      "id": "task-graph/use-authoritative-json-index-for-task-coordination.md",
+    "task-graph/use-authoritative-json-index-for-task-coordination.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4317,8 +4344,7 @@
         ]
       }
     },
-    {
-      "id": "task-graph/use-native-locks-for-json-transactions.md",
+    "task-graph/use-native-locks-for-json-transactions.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4342,8 +4368,7 @@
         "relations": []
       }
     },
-    {
-      "id": "task-graph/use-root-task-dictionary.md",
+    "task-graph/use-root-task-dictionary.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4372,8 +4397,7 @@
         ]
       }
     },
-    {
-      "id": "test-evidence-review/260719-model-verification-obligations-and-source-roles.md",
+    "test-evidence-review/260719-model-verification-obligations-and-source-roles.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4399,8 +4423,7 @@
         ]
       }
     },
-    {
-      "id": "test-evidence-review/260719-organize-multi-branch-proofs-by-shared-base.md",
+    "test-evidence-review/260719-organize-multi-branch-proofs-by-shared-base.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4421,8 +4444,7 @@
         "relations": []
       }
     },
-    {
-      "id": "test-evidence-review/260719-separate-test-value-from-ledger-validation.md",
+    "test-evidence-review/260719-separate-test-value-from-ledger-validation.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4443,8 +4465,7 @@
         "relations": []
       }
     },
-    {
-      "id": "test-evidence-review/260720-map-test-entries-and-trigger-scoped-reviews.md",
+    "test-evidence-review/260720-map-test-entries-and-trigger-scoped-reviews.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4470,8 +4491,7 @@
         ]
       }
     },
-    {
-      "id": "test-evidence-review/260720-organize-proofs-by-shared-execution-chain.md",
+    "test-evidence-review/260720-organize-proofs-by-shared-execution-chain.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4497,8 +4517,7 @@
         ]
       }
     },
-    {
-      "id": "test-evidence-review/260721-separate-test-entry-collection-from-ledger.md",
+    "test-evidence-review/260721-separate-test-entry-collection-from-ledger.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4528,8 +4547,7 @@
         ]
       }
     },
-    {
-      "id": "test-evidence-review/catalog-minimal-native-test-entries.md",
+    "test-evidence-review/catalog-minimal-native-test-entries.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4555,8 +4573,7 @@
         ]
       }
     },
-    {
-      "id": "test-evidence-review/fix-test-evidence-workspace-contract.md",
+    "test-evidence-review/fix-test-evidence-workspace-contract.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4585,8 +4602,7 @@
         ]
       }
     },
-    {
-      "id": "test-evidence-review/index-independent-proof-cases-from-current-catalog.md",
+    "test-evidence-review/index-independent-proof-cases-from-current-catalog.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4616,8 +4632,7 @@
         ]
       }
     },
-    {
-      "id": "test-evidence-review/index-ledger-by-stable-case-state.md",
+    "test-evidence-review/index-ledger-by-stable-case-state.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4638,8 +4653,7 @@
         "relations": []
       }
     },
-    {
-      "id": "test-evidence-review/maintain-closed-many-to-many-test-case-relations.md",
+    "test-evidence-review/maintain-closed-many-to-many-test-case-relations.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4663,8 +4677,7 @@
         "relations": []
       }
     },
-    {
-      "id": "test-evidence-review/mask-non-code-test-syntax.md",
+    "test-evidence-review/mask-non-code-test-syntax.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4685,8 +4698,7 @@
         "relations": []
       }
     },
-    {
-      "id": "test-evidence-review/organize-native-test-cases-by-responsibility-topic.md",
+    "test-evidence-review/organize-native-test-cases-by-responsibility-topic.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4712,8 +4724,7 @@
         ]
       }
     },
-    {
-      "id": "test-evidence-review/organize-test-cases-by-controlled-topic-path.md",
+    "test-evidence-review/organize-test-cases-by-controlled-topic-path.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4739,8 +4750,7 @@
         ]
       }
     },
-    {
-      "id": "test-evidence-review/publish-only-layered-test-evidence-interfaces.md",
+    "test-evidence-review/publish-only-layered-test-evidence-interfaces.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4766,8 +4776,7 @@
         ]
       }
     },
-    {
-      "id": "test-evidence-review/query-ledger-with-structured-inspection.md",
+    "test-evidence-review/query-ledger-with-structured-inspection.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4788,8 +4797,7 @@
         "relations": []
       }
     },
-    {
-      "id": "test-evidence-review/read-ledger-contract-on-demand.md",
+    "test-evidence-review/read-ledger-contract-on-demand.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4810,8 +4818,7 @@
         "relations": []
       }
     },
-    {
-      "id": "test-evidence-review/register-one-case-per-independent-verification-entry.md",
+    "test-evidence-review/register-one-case-per-independent-verification-entry.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4837,8 +4844,7 @@
         ]
       }
     },
-    {
-      "id": "test-evidence-review/review-verification-implementations-with-explicit-indexed-cases.md",
+    "test-evidence-review/review-verification-implementations-with-explicit-indexed-cases.md": {
       "keys": {
         "domain": [
           "test-evidence-review"
@@ -4876,8 +4882,7 @@
         ]
       }
     },
-    {
-      "id": "version-control/centralize-version-control-responsibility.md",
+    "version-control/centralize-version-control-responsibility.md": {
       "keys": {
         "domain": [
           "version-control"
@@ -4901,8 +4906,7 @@
         "relations": []
       }
     },
-    {
-      "id": "version-control/manage-pending-snapshot-writes.md",
+    "version-control/manage-pending-snapshot-writes.md": {
       "keys": {
         "domain": [
           "version-control"
@@ -4931,5 +4935,5 @@
         ]
       }
     }
-  ]
+  }
 }

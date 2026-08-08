@@ -53,6 +53,11 @@ export type InvestigationIndexQueryResult = {
   total: number;
 };
 
+export type InvestigationIndexMetadata = Record<string, never>;
+
+export const investigationIndexMetadata: InvestigationIndexMetadata =
+  Object.freeze({});
+
 export type InvestigationIndexState = {
   latestReportAt: string;
   path: string;
@@ -62,6 +67,11 @@ export type InvestigationIndexState = {
   status: InvestigationReportStatus;
   title: string;
 };
+
+export type InvestigationSource = Readonly<{
+  path: string;
+  text: string;
+}>;
 
 export type InvestigationReportProjection = {
   latestReportAt: string | null;

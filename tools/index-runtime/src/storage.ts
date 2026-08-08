@@ -5,17 +5,24 @@ import {
   isFileSystemError,
   isPathWithinDirectory
 } from "../../shared/src/node/filesystem.ts";
+import { sameStateSourceRevision } from "./canonicalization.ts";
 import {
   expectationOf,
   keyDefinitionsOf,
   sameKeyDefinitions,
   validateStateIndexDefinition
 } from "./definition.ts";
+import {
+  diagnostic,
+  errorText,
+  failure
+} from "./diagnostics.ts";
 import { buildStateIndex } from "./snapshot-builder.ts";
 import {
   parseStateIndex,
   serializeStateIndex
 } from "./snapshot-parser.ts";
+import { isStateIndexText } from "./schemas.ts";
 import type {
   JsonObject,
   StateIndex,
@@ -23,13 +30,11 @@ import type {
   StateIndexDefinition,
   StateIndexExpectation,
   StateIndexResult,
+  StateSourceRevision,
   StateIndexSyncMode,
   StateIndexSyncResult
 } from "./types.ts";
-import {
-  diagnostic,
-  isStateIndexText
-} from "./validation.ts";
+import { validateStateSourceRevisionValue } from "./validation.ts";
 
 export async function loadStateIndex<
   State extends object,
@@ -72,7 +77,7 @@ export async function loadStateIndex<
       isFileSystemError(error, "ENOENT")
         ? `${options.indexPath} does not exist`
         : `failed to read ${options.indexPath}: ${errorText(error)}`,
-      options.indexPath
+      { path: options.indexPath }
     );
   }
   return options.definition === undefined
@@ -102,12 +107,11 @@ export async function loadCurrentStateIndex<
     return failure(
       "state-index.definition-invalid",
       definitionErrors.join("; "),
-      options.indexPath
+      { path: options.indexPath }
     );
   }
   const loaded = await loadStateIndex({
     context: options.context,
-    definition: options.definition,
     expectation: expectationOf(options.definition),
     indexPath: options.indexPath
   });
@@ -121,7 +125,7 @@ export async function loadCurrentStateIndex<
     return failure(
       "state-index.definition-mismatch",
       "index key definitions do not match the runtime definition",
-      options.indexPath
+      { path: options.indexPath }
     );
   }
 
@@ -133,15 +137,18 @@ export async function loadCurrentStateIndex<
   if (currentRevision.status === "error") {
     return currentRevision;
   }
-  if (loaded.value.sourceRevision !== currentRevision.value) {
+  if (!sameStateSourceRevision(loaded.value.sourceRevision, currentRevision.value)) {
     return failure(
       "state-index.index-stale",
-      "index revision "
-        + `${loaded.value.sourceRevision} does not match source revision ${currentRevision.value}`,
-      options.indexPath
+      "index source revision does not match the current source revision",
+      { path: options.indexPath }
     );
   }
-  return loaded;
+  return {
+    diagnostics: [],
+    status: "ok",
+    value: bindCurrentIndexToDefinition(loaded.value, options.definition)
+  };
 }
 
 export async function syncStateIndex<
@@ -182,7 +189,7 @@ export async function syncStateIndex<
   if (currentRevision.status === "error") {
     return failedSync(options, "source-invalid", currentRevision.diagnostics);
   }
-  if (currentRevision.value !== built.value.sourceRevision) {
+  if (!sameStateSourceRevision(currentRevision.value, built.value.sourceRevision)) {
     return failedSync(options, "source-invalid", [diagnostic({
       code: "state-index.source-changed",
       message: "source revision changed while building the state projection; retry after "
@@ -274,7 +281,7 @@ function resolveIndexPath(
     return failure(
       "state-index.index-path-invalid",
       `${indexPath} must be a normalized relative POSIX path`,
-      indexPath
+      { path: indexPath }
     );
   }
   const resolvedRoot = path.resolve(root);
@@ -283,7 +290,7 @@ function resolveIndexPath(
     return failure(
       "state-index.index-path-invalid",
       `${indexPath} resolves outside the index root`,
-      indexPath
+      { path: indexPath }
     );
   }
   return { diagnostics: [], status: "ok", value: resolvedPath };
@@ -327,12 +334,12 @@ async function readSourceRevision<
   definition: StateIndexDefinition<State, Metadata>,
   context: StateIndexContext,
   indexPath: string
-): Promise<StateIndexResult<string>> {
+): Promise<StateIndexResult<StateSourceRevision>> {
   if (context.signal?.aborted === true) {
     return failure(
       "state-index.operation-aborted",
       "revision read was aborted",
-      indexPath
+      { path: indexPath }
     );
   }
   let revision: unknown;
@@ -342,21 +349,41 @@ async function readSourceRevision<
     return failure(
       "state-index.revision-read-failed",
       errorText(error),
-      indexPath
+      { path: indexPath }
     );
   }
-  if (typeof revision !== "string" || !isStateIndexText(revision)) {
-    return failure(
-      "state-index.revision-invalid",
-      "readRevision must return non-empty text without surrounding whitespace",
-      indexPath
-    );
+  const validated = validateStateSourceRevisionValue(revision, indexPath);
+  if (validated.status === "error") {
+    return {
+      diagnostics: validated.diagnostics.map((entry) => ({
+        ...entry,
+        code: "state-index.revision-invalid",
+        message: `readRevision returned an invalid source revision: ${entry.message}`
+      })),
+      status: "error",
+      value: null
+    };
   }
-  return { diagnostics: [], status: "ok", value: revision };
+  return validated;
 }
 
 function isStateIndexSyncMode(value: unknown): value is StateIndexSyncMode {
   return value === "check" || value === "write";
+}
+
+function bindCurrentIndexToDefinition<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  index: StateIndex,
+  _definition: StateIndexDefinition<State, Metadata>
+): StateIndex<State, Metadata> {
+  // This is the one deliberate fast-open type binding. The caller has already
+  // checked the definition identity, key definitions, common JSON schema and
+  // current source revision. Re-running parseMetadata/parseState here would
+  // violate the fast-open contract; persisted domain-shape validation remains
+  // the consumer schema/check responsibility documented by Index Runtime.
+  return index as StateIndex<State, Metadata>;
 }
 
 function failedSync<
@@ -387,20 +414,4 @@ function failedSync<
     state,
     status: "error"
   };
-}
-
-function failure<Value = never>(
-  code: string,
-  message: string,
-  pathValue: string | null = null
-): StateIndexResult<Value> {
-  return {
-    diagnostics: [diagnostic({ code, message, path: pathValue })],
-    status: "error",
-    value: null
-  };
-}
-
-function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }

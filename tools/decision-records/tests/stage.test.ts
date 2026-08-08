@@ -85,7 +85,10 @@ test(
 
     const pendingIndex = await readPendingIndex(workspaceRoot);
     assert.deepEqual(
-      pendingIndex.entries.map((entry) => [entry.id, entry.state.title]),
+      Object.entries(pendingIndex.entries).map(([id, entry]) => [
+        id,
+        entry.state.title
+      ]),
       [
         [pathA, "采用磁盘方案 A"],
         [pathB, "采用基线方案 B"]
@@ -139,7 +142,7 @@ test(
 
     const pendingIndex = await readPendingIndex(workspaceRoot);
     assert.deepEqual(
-      pendingIndex.entries.map((entry) => entry.id),
+      Object.keys(pendingIndex.entries),
       [pathA, addedPath, newPath].sort()
     );
     await assertPendingSourceRevision(
@@ -182,7 +185,7 @@ test("stage bootstraps the first pending decision collection", () => (
       repositoryDecisionPath(pathA)
     ]);
     const pendingIndex = await readPendingIndex(workspaceRoot);
-    assert.deepEqual(pendingIndex.entries.map((entry) => entry.id), [pathA]);
+    assert.deepEqual(Object.keys(pendingIndex.entries), [pathA]);
     await assertPendingSourceRevision(workspaceRoot, pendingIndex, [pathA]);
     assert.equal(await fileExists(path.join(workspaceRoot, indexRepositoryPath)), false);
   })
@@ -490,7 +493,10 @@ async function assertPendingSourceRevision(
       repositoryDecisionPath(relativePath)
     )
   })));
-  assert.equal(index.sourceRevision, decisionSourceRevision(catalog.value, sources));
+  assert.deepEqual(
+    index.sourceRevision,
+    decisionSourceRevision(catalog.value, sources)
+  );
 }
 
 async function readPendingIndex(workspaceRoot: string): Promise<DecisionIndex> {

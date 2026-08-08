@@ -73,18 +73,23 @@ test("first establishment creates a decision domain and current index", () => (
   assert.match(firstActivation.stderr, /use-second-index\.md/);
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
   const firstIndex = await readIndex(indexPath);
-  assert.equal(firstIndex.schemaVersion, 2);
+  assert.equal(firstIndex.schemaVersion, 3);
   assert.deepEqual(
     firstIndex.metadata.domains.map((domain) => domain.id),
     ["decision-records"]
   );
   assert.equal(firstIndex.namespace, "decisions");
   assert.equal(firstIndex.definitionVersion, 5);
-  assert.equal(firstIndex.entries.length, 1);
-  assert.equal(firstIndex.entries[0]!.state.status, "active");
-  assert.equal(firstIndex.entries[0]!.state.alignment, "aligned");
+  assert.equal(Object.keys(firstIndex.entries).length, 1);
+  assert.deepEqual(
+    Object.keys(firstIndex.sourceRevision.entries),
+    Object.keys(firstIndex.entries)
+  );
+  assert.equal(Object.hasOwn(firstIndex.entries[firstRelativePath]!, "id"), false);
+  assert.equal(firstIndex.entries[firstRelativePath]!.state.status, "active");
+  assert.equal(firstIndex.entries[firstRelativePath]!.state.alignment, "aligned");
   assert.match(
-    firstIndex.entries[0]!.state.createdAt,
+    firstIndex.entries[firstRelativePath]!.state.createdAt,
     /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
   );
   const firstActivationValidation = await validateDecisionRecords({
@@ -102,7 +107,7 @@ test("first establishment creates a decision domain and current index", () => (
     workspaceRoot
   ]);
   const completedFirstIndex = await readIndex(indexPath);
-  assert.equal(completedFirstIndex.entries.length, 2);
+  assert.equal(Object.keys(completedFirstIndex.entries).length, 2);
   assert.deepEqual(
     (await validateDecisionRecords({ workspaceRoot })).errors,
     []

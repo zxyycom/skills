@@ -60,7 +60,7 @@ async function testScaleEvidence(): Promise<void> {
       investigationsDirectory: investigationRoot(workspaceRoot)
     }));
     const readMilliseconds = performance.now() - readStartedAt;
-    assert.equal(index.entries.length, scaleTopicCount);
+    assert.equal(Object.keys(index.entries).length, scaleTopicCount);
 
     const queryStartedAt = performance.now();
     const query = await queryInvestigationIndex({

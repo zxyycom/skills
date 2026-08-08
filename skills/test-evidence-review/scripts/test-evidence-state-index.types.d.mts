@@ -9,31 +9,32 @@
 export interface TestEvidenceStateIndex {
   definitionVersion: 3;
   entries: {
-    id: string;
-    keys: {
-      /**
-       * @minItems 1
-       */
-      search: [unknown, ...unknown[]];
-      /**
-       * @minItems 1
-       */
-      topic: [unknown, ...unknown[]];
+    [k: string]: {
+      keys: {
+        /**
+         * @minItems 1
+         */
+        search: [unknown, ...unknown[]];
+        /**
+         * @minItems 1
+         */
+        topic: [unknown, ...unknown[]];
+      };
+      state: {
+        endLine: number;
+        /**
+         * @minItems 1
+         */
+        entries: [string, ...string[]];
+        id: string;
+        line: number;
+        sourcePath: string;
+        summary: string;
+        title: string;
+        searchText: string;
+      };
     };
-    state: {
-      endLine: number;
-      /**
-       * @minItems 1
-       */
-      entries: [string, ...string[]];
-      id: string;
-      line: number;
-      sourcePath: string;
-      summary: string;
-      title: string;
-      searchText: string;
-    };
-  }[];
+  };
   /**
    * @minItems 2
    */
@@ -54,6 +55,11 @@ export interface TestEvidenceStateIndex {
     ];
   };
   namespace: "test-evidence";
-  schemaVersion: 2;
-  sourceRevision: string;
+  schemaVersion: 3;
+  sourceRevision: {
+    entries: {
+      [k: string]: string;
+    };
+    metadata: string;
+  };
 }

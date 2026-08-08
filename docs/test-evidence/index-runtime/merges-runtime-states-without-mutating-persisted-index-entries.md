@@ -3,6 +3,7 @@ Entry:
 - `tools/index-runtime/tests/query.test.ts > merges runtime states without mutating persisted index entries`
 - `bun test --test-name-pattern="^merges runtime states without mutating persisted index entries$" ./tools/index-runtime/tests/run.ts`
 Contract:
-- 运行时状态只能覆盖当前查询投影，不得回写持久化索引。
+- 运行时状态必须按 ID record 覆盖当前查询投影，不得回写持久化索引；数组型 overlay 容器不再兼容。
 Proves:
 - 动态键可命中覆盖状态，而原索引条目仍不含该键。
+- 非 record 的 runtime states 返回 `state-index.runtime-states-invalid`。

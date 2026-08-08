@@ -45,17 +45,29 @@ export type {
   StateIndexProjectionContext,
   ReadonlyStateIndex,
   ReadonlyStateIndexEntry,
+  ReadonlyStateIndexStoredEntry,
   StateIndexRangeScalar,
   StateIndexResult,
+  StateIndexStoredEntry,
   StateIndexSort,
   StateIndexSyncMode,
   StateIndexSyncResult,
   StateKeyInput,
   StateKeyStrategy,
-  StateSnapshot
+  StateRecord,
+  StateSnapshot,
+  StateSourceRevision
 } from "./types.ts";
 export {
+  isJsonObject,
+  isJsonValue
+} from "./json.ts";
+export {
   createStateIndexSchema,
+  createStateSourceRevisionSchema,
+  isStateIndexKeyName,
+  isStateIndexNamespace,
+  isStateIndexText,
   stateIndexEntrySchema,
   stateIndexFilterSchema,
   stateIndexIdSchema,
@@ -71,12 +83,7 @@ export {
   stateIndexSchema,
   stateIndexSchemaVersion,
   stateIndexSortSchema,
+  stateIndexStoredEntrySchema,
+  stateSourceRevisionSchema,
   stateIndexTextSchema
 } from "./schemas.ts";
-export {
-  isJsonObject,
-  isJsonValue,
-  isStateIndexKeyName,
-  isStateIndexNamespace,
-  isStateIndexText
-} from "./validation.ts";

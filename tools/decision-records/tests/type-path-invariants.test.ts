@@ -62,23 +62,50 @@ const revisionCatalog = {
   ]
 };
 const sourceRevision = decisionSourceRevision(revisionCatalog, revisionSources);
-assert.equal(
+assert.deepEqual(
   decisionSourceRevision(revisionCatalog, [...revisionSources].reverse()),
   sourceRevision
 );
-assert.equal(
+assert.deepEqual(
   decisionSourceRevision(revisionCatalog, [
     { path: "security/2fa-policy.md", text: "line one\r\nline two\r\n" },
     { path: "workflow/use-approval.md", text: "approval\r\n" }
   ]),
   sourceRevision
 );
-assert.notEqual(
-  decisionSourceRevision(revisionCatalog, [
+const changedEntryRevision = decisionSourceRevision(revisionCatalog, [
     { path: "security/2fa-policy.md", text: "line one\nchanged\n" },
     revisionSources[1]!
-  ]),
-  sourceRevision
+]);
+assert.equal(changedEntryRevision.metadata, sourceRevision.metadata);
+assert.notEqual(
+  changedEntryRevision.entries["security/2fa-policy.md"],
+  sourceRevision.entries["security/2fa-policy.md"]
+);
+assert.equal(
+  changedEntryRevision.entries["workflow/use-approval.md"],
+  sourceRevision.entries["workflow/use-approval.md"]
+);
+const changedCatalogRevision = decisionSourceRevision({
+  ...revisionCatalog,
+  domains: revisionCatalog.domains.map((domain) => domain.id === "security"
+    ? { ...domain, description: "维护安全策略与认证边界。" }
+    : domain)
+}, revisionSources);
+assert.notEqual(changedCatalogRevision.metadata, sourceRevision.metadata);
+assert.deepEqual(changedCatalogRevision.entries, sourceRevision.entries);
+const removedEntryRevision = decisionSourceRevision(
+  revisionCatalog,
+  revisionSources.slice(1)
+);
+assert.equal(removedEntryRevision.metadata, sourceRevision.metadata);
+assert.deepEqual(
+  Object.keys(removedEntryRevision.entries),
+  ["workflow/use-approval.md"]
+);
+assert.equal(
+  removedEntryRevision.entries["workflow/use-approval.md"],
+  sourceRevision.entries["workflow/use-approval.md"]
 );
 
 const projection: DecisionProjection = {

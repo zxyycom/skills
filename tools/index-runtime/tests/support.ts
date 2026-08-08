@@ -125,7 +125,6 @@ export function decisionDefinition(
 ): StateIndexDefinition<DecisionState> {
   return defineStateIndexDefinition({
     definitionVersion: 1,
-    identify: (state) => state.path,
     keyStrategies: [
       { derive: (state) => state.status, mode: "exact", name: "status" },
       { derive: (state) => state.alignment ?? undefined, mode: "exact", name: "alignment" },
@@ -149,12 +148,8 @@ export function decisionDefinition(
     namespace: "decisions",
     parseMetadata: (metadata) => metadata,
     parseState: (state) => v.parse(decisionStateSchema, state),
-    read: async () => ({
-      metadata: {},
-      revision: source.revision,
-      states: [...source.states]
-    }),
-    readRevision: async () => source.revision
+    read: async () => snapshot(source, (state) => state.path),
+    readRevision: async () => sourceRevision(source, (state) => state.path)
   });
 }
 
@@ -163,7 +158,6 @@ export function investigationDefinition(
 ): StateIndexDefinition<InvestigationState> {
   return defineStateIndexDefinition({
     definitionVersion: 2,
-    identify: (state) => state.path,
     keyStrategies: [
       {
         derive: (state) => state.path.split("/", 1)[0],
@@ -189,12 +183,8 @@ export function investigationDefinition(
     namespace: "investigations",
     parseMetadata: (metadata) => metadata,
     parseState: (state) => v.parse(investigationStateSchema, state),
-    read: async () => ({
-      metadata: {},
-      revision: source.revision,
-      states: [...source.states]
-    }),
-    readRevision: async () => source.revision
+    read: async () => snapshot(source, (state) => state.path),
+    readRevision: async () => sourceRevision(source, (state) => state.path)
   });
 }
 
@@ -203,7 +193,6 @@ export function testEvidenceDefinition(
 ): StateIndexDefinition<TestEvidenceState> {
   return defineStateIndexDefinition({
     definitionVersion: 2,
-    identify: (state) => state.caseId,
     keyStrategies: [
       {
         derive: (state) => state.trigger === null ? undefined : true,
@@ -226,13 +215,49 @@ export function testEvidenceDefinition(
     namespace: "test-evidence",
     parseMetadata: (metadata) => metadata,
     parseState: (state) => v.parse(testEvidenceStateSchema, state),
-    read: async () => ({
-      metadata: {},
-      revision: source.revision,
-      states: [...source.states]
-    }),
-    readRevision: async () => source.revision
+    read: async () => snapshot(source, (state) => state.caseId),
+    readRevision: async () => sourceRevision(source, (state) => state.caseId)
   });
+}
+
+function snapshot<State extends object>(
+  source: MemoryStateSource<State>,
+  identify: (state: State) => string
+) {
+  const states = stateRecord(source.states, identify);
+  return {
+    metadata: {},
+    sourceRevision: sourceRevisionFromIds(source.revision, Object.keys(states)),
+    states
+  };
+}
+
+function sourceRevision<State extends object>(
+  source: MemoryStateSource<State>,
+  identify: (state: State) => string
+) {
+  return sourceRevisionFromIds(
+    source.revision,
+    Object.keys(stateRecord(source.states, identify))
+  );
+}
+
+function stateRecord<State extends object>(
+  states: readonly State[],
+  identify: (state: State) => string
+): Readonly<Record<string, State>> {
+  const entries = states.map((state) => [identify(state), state] as const);
+  if (new Set(entries.map(([id]) => id)).size !== entries.length) {
+    throw new TypeError("duplicate state id in memory source");
+  }
+  return Object.fromEntries(entries);
+}
+
+function sourceRevisionFromIds(revision: string, ids: readonly string[]) {
+  return {
+    entries: Object.fromEntries(ids.map((id) => [id, `${revision}:${id}`])),
+    metadata: revision
+  };
 }
 
 function timestampRangeKey(value: string): number {

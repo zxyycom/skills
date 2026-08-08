@@ -198,8 +198,9 @@ test("evolve collapses an unrecorded intermediate with explicit final relations"
   assert.equal(await fileExists(intermediatePath), false);
   const collapsedIndex = await readIndex(indexPath);
   assert.equal(
-    collapsedIndex.entries.some(
-      (entry) => entry.id === unrecordedIntermediateRelativePath
+    Object.hasOwn(
+      collapsedIndex.entries,
+      unrecordedIntermediateRelativePath
     ),
     false
   );

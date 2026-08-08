@@ -259,14 +259,20 @@ async function testGeneratedArtifacts(): Promise<void> {
   ) as {
     properties: {
       definitionVersion: { const: number };
+      entries: { type: string };
       namespace: { const: string };
+      schemaVersion: { const: number };
+      sourceRevision: { type: string };
     };
   };
   assert.equal(generatedSchema.properties.definitionVersion.const, 2);
+  assert.equal(generatedSchema.properties.entries.type, "object");
   assert.equal(
     generatedSchema.properties.namespace.const,
     "investigations"
   );
+  assert.equal(generatedSchema.properties.schemaVersion.const, 3);
+  assert.equal(generatedSchema.properties.sourceRevision.type, "object");
 
   const sourceMap = JSON.parse(
     await fs.readFile(`${generatedCheckerPath}.map`, "utf8")

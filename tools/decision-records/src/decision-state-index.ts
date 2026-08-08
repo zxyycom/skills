@@ -20,17 +20,19 @@ import {
   decisionIndexNamespace
 } from "./decision-index-definition.ts";
 import {
-  buildDecisionStateSnapshotFromSources,
-  decisionIndexState,
-  decisionSourceRevision,
   readDecisionSourceRevision,
-  readDecisionStateSnapshot,
-  type DecisionSource
+  readDecisionStateSnapshot
 } from "./decision-index-source.ts";
+import { decisionSourceRevision } from "./decision-source-revision.ts";
+import {
+  buildDecisionStateSnapshotFromSources,
+  decisionIndexState
+} from "./decision-state-snapshot.ts";
 import type {
   DecisionIndex,
   DecisionIndexMetadata,
-  DecisionIndexState
+  DecisionIndexState,
+  DecisionSource
 } from "./types.ts";
 
 export {
@@ -47,8 +49,6 @@ export {
 export type { DecisionSource };
 
 export const decisionIndexFileName = "decision-index.json";
-
-const sourceRevisionPattern = /^sha256:[0-9a-f]{64}$/u;
 
 export function parseDecisionIndex(
   text: string,
@@ -191,7 +191,7 @@ function validateDecisionIndexMembership(
   sourcePath: string
 ): StateIndexResult<DecisionIndex> {
   const expectedPaths = [...new Set(relativePaths)].sort(compareText);
-  const indexedPaths = index.entries.map((entry) => entry.id).sort(compareText);
+  const indexedPaths = Object.keys(index.entries).sort(compareText);
   if (
     expectedPaths.length === indexedPaths.length
     && expectedPaths.every((entry, entryIndex) => (
@@ -225,13 +225,6 @@ function validateDecisionIndex(
   index: StateIndex<DecisionIndexState, DecisionIndexMetadata>,
   sourcePath: string
 ): StateIndexResult<DecisionIndex> {
-  if (!sourceRevisionPattern.test(index.sourceRevision)) {
-    return failure(
-      "decision-index.source-revision-invalid",
-      "sourceRevision must be a sha256 decision source revision",
-      sourcePath
-    );
-  }
   const validated = queryStateIndex({
     definition: createDecisionStateIndexDefinition(),
     index,

@@ -1,5 +1,6 @@
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { toString } from "mdast-util-to-string";
+import { testEvidenceCaseHeadingPattern } from "./catalog-identity.ts";
 type MarkdownRoot = ReturnType<typeof fromMarkdown>;
 type MarkdownRootContent = MarkdownRoot["children"][number];
 type MarkdownHeading = Extract<MarkdownRootContent, { type: "heading" }>;
@@ -23,7 +24,6 @@ export type ParsedTestEvidenceCase = {
   legacyVerificationDeclarations: number;
 };
 
-const caseHeadingPattern = /^### Case\s+([^\s:]+):\s+(\S.*)$/u;
 const verificationPrefixPattern = /^Verification:/u;
 const sectionPattern = /^(Entry|Contract|Proves):\s*$/u;
 
@@ -55,7 +55,7 @@ export function collectTestEvidenceCases(
     }
 
     const headingLine = lines[(heading.position?.start.line ?? 1) - 1] ?? "";
-    const match = headingLine.match(caseHeadingPattern);
+    const match = headingLine.match(testEvidenceCaseHeadingPattern);
     const candidateId = match?.[1]
       ?? headingText.split(/\s+/u)[1]
       ?? "<invalid>";

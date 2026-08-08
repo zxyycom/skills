@@ -5,13 +5,23 @@ import {
   keyDefinitionsOf,
   sameKeyDefinitions
 } from "./definition.ts";
+import { diagnostic } from "./diagnostics.ts";
 import {
   normalizeStateIndex,
+  createProjectionContext,
+  projectStateIndexEntry,
   readonlyStateIndexMetadata,
   validateCompleteStateIndex
-} from "./normalization.ts";
-import { queryStateIndex } from "./query.ts";
-import { stateIndexQueryMaximumLimit } from "./schemas.ts";
+} from "./projection.ts";
+import {
+  queryStateIndex,
+  stateIndexEntryOf
+} from "./query.ts";
+import { isPlainRecord } from "./record.ts";
+import {
+  isStateIndexText,
+  stateIndexQueryMaximumLimit
+} from "./schemas.ts";
 import {
   loadCurrentStateIndex,
   syncStateIndex
@@ -30,15 +40,13 @@ import type {
   StateIndexResult,
   StateIndexSort,
   StateIndexSyncMode,
-  StateIndexSyncResult
+  StateIndexSyncResult,
+  StateRecord
 } from "./types.ts";
-import {
-  diagnostic,
-  validateStateIndexValue
-} from "./validation.ts";
+import { validateStateIndexValue } from "./validation.ts";
 
 export type StateIndexQueryOptions<State extends object> = {
-  runtimeStates?: readonly State[];
+  runtimeStates?: StateRecord<State>;
 };
 
 export type StateIndexAllQuery = {
@@ -207,22 +215,53 @@ function createStateIndexReaderFromSnapshot<
     stateId: string,
     getOptions: StateIndexQueryOptions<State> = {}
   ): StateIndexResult<StateIndexEntry<State> | null> {
-    const queried = query({
-      filters: [{
-        key: "id",
-        kind: "exact",
-        operator: "all",
-        values: [stateId]
-      }],
-      limit: 1
-    }, getOptions);
-    if (queried.status === "error") {
-      return queried;
+    if (!isStateIndexText(stateId)) {
+      return withIndexPath({
+        diagnostics: [diagnostic({
+          code: "state-index.query-invalid",
+          message: "state id must be non-empty text without surrounding whitespace or "
+            + "control characters"
+        })],
+        status: "error",
+        value: null
+      }, options.indexPath);
     }
+    const runtimeStates = getOptions.runtimeStates;
+    if (runtimeStates !== undefined && !isPlainRecord(runtimeStates)) {
+      return withIndexPath({
+        diagnostics: [diagnostic({
+          code: "state-index.runtime-states-invalid",
+          message: "runtimeStates must be an object keyed by state id"
+        })],
+        status: "error",
+        value: null
+      }, options.indexPath);
+    }
+    if (
+      runtimeStates !== undefined
+      && Object.hasOwn(runtimeStates, stateId)
+    ) {
+      const projected = projectStateIndexEntry(
+        options.definition,
+        runtimeStates[stateId],
+        createProjectionContext(stateId, options.index.metadata)
+      );
+      if (projected.status === "error") {
+        return withIndexPath(projected, options.indexPath);
+      }
+      return {
+        diagnostics: [],
+        status: "ok",
+        value: stateIndexEntryOf(stateId, projected.value)
+      };
+    }
+    const stored = Object.hasOwn(options.index.entries, stateId)
+      ? options.index.entries[stateId]
+      : undefined;
     return {
       diagnostics: [],
       status: "ok",
-      value: queried.value.entries[0] ?? null
+      value: stored === undefined ? null : stateIndexEntryOf(stateId, stored)
     };
   }
 
@@ -259,6 +298,21 @@ function createStateIndexReaderFromSnapshot<
     metadata: readonlyStateIndexMetadata(options.index),
     query
   });
+}
+
+function withIndexPath<Value>(
+  result: StateIndexResult<Value>,
+  indexPath: string
+): StateIndexResult<Value> {
+  return result.status === "ok"
+    ? result
+    : {
+      ...result,
+      diagnostics: result.diagnostics.map((entry) => ({
+        ...entry,
+        path: entry.path ?? indexPath
+      }))
+    };
 }
 
 function createReaderSnapshot<

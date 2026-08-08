@@ -6,14 +6,24 @@ import path from "node:path";
 import test from "node:test";
 import { promisify } from "node:util";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { Ajv2020 } from "ajv/dist/2020.js";
+import * as v from "valibot";
+import { createStateIndexRuntime } from "../../index-runtime/src/index.ts";
 import {
   listTestEvidenceTopics,
   queryTestEvidence,
   showTestEvidenceCase,
   syncTestEvidenceIndex,
+  testEvidenceStateIndexSchema,
+  testEvidenceTopicCatalogSchema,
+  type TestEvidenceStateIndex,
+  type TestEvidenceTopicCatalog,
   validateTestEvidence
 } from "../src/cli.ts";
-import { testEvidenceSourceRevision } from "../src/state-index.ts";
+import {
+  createTestEvidenceStateIndexDefinition
+} from "../src/state-index.ts";
+import { testEvidenceSourceRevision } from "../src/source-revision.ts";
 import "./repository-catalog.test.ts";
 
 const execFileAsync = promisify(execFile);
@@ -48,23 +58,11 @@ const topicCatalog = `${JSON.stringify({
   ]
 }, null, 2)}\n`;
 const accessCatalog = [
-  "# Access Test Evidence",
-  "",
-  "```markdown",
-  "### Case IGNORED-EXAMPLE-CASE-001: Fenced examples are not cases",
-  "Entry:",
-  "- `ignored.test.ts`",
-  "Contract:",
-  "- This example is ignored.",
-  "Proves:",
-  "- Nothing.",
-  "```",
-  "",
   "### Case AUTH-ROLE-ACCESS-001: Access tests cover role outcomes",
   "",
   "Entry:",
-  "- `tests/access.test.ts`",
-  "- `bun test tests/access.test.ts`",
+  "- `tests/access.test.ts > enforces role outcomes`",
+  "- `bun test tests/access.test.ts --test-name-pattern \"enforces role outcomes\"`",
   "",
   "Contract:",
   "- Resource mutation follows the caller role boundary.",
@@ -73,16 +71,18 @@ const accessCatalog = [
   "Proves:",
   "- Owners can edit.",
   "- Guests are denied.",
+  "",
+  "```markdown",
+  "### Case IGNORED-EXAMPLE-CASE-001: Fenced examples are not cases",
+  "```",
   ""
 ].join("\n");
 const sessionCatalog = [
-  "# Session Test Evidence",
-  "",
   "### Case AUTH-SESSION-EXPIRY-001: Session tests cover expiry outcomes",
   "",
   "Entry:",
-  "- `tests/session-expiry.test.ts`",
-  "- `bun test tests/session-expiry.test.ts`",
+  "- `tests/session-expiry.test.ts > rejects expired sessions`",
+  "- `bun test tests/session-expiry.test.ts --test-name-pattern \"rejects expired sessions\"`",
   "",
   "Contract:",
   "- Expired sessions cannot access protected resources.",
@@ -231,6 +231,13 @@ test("catalog queries list, search, and show exact cases", async () => {
     assert.equal(searched.total, 1);
     assert.equal(searched.cases[0]?.id, "AUTH-SESSION-EXPIRY-001");
 
+    const searchedId = await queryTestEvidence({
+      query: "AUTH-ROLE-ACCESS-001",
+      workspaceRoot: tempRoot
+    });
+    assert.equal(searchedId.total, 1);
+    assert.equal(searchedId.cases[0]?.id, "AUTH-ROLE-ACCESS-001");
+
     const searchedContract = await queryTestEvidence({
       query: "rejected mutations unchanged",
       workspaceRoot: tempRoot
@@ -269,7 +276,7 @@ test("catalog validation rejects legacy verification fields", async () => {
         "### Case LEGACY-TEST-FIELD-001: Verification fields are rejected",
         "Verification: test",
         "Entry:",
-        "- `tests/legacy.test.ts`",
+        "- `tests/legacy.test.ts > rejects legacy verification fields`",
         "Contract:",
         "- Test identity is implicit.",
         "Proves:",
@@ -315,8 +322,8 @@ test("catalog validation requires one non-empty unique entry list", async () => 
       [
         "### Case DUPLICATE-ENTRY-CASE-001: Entries are unique",
         "Entry:",
-        "- `tests/duplicate.test.ts`",
-        "- `tests/duplicate.test.ts`",
+        "- `tests/duplicate.test.ts > rejects duplicate locators`",
+        "- `tests/duplicate.test.ts > rejects duplicate locators`",
         "Contract:",
         "- A locator is registered once.",
         "Proves:",
@@ -328,7 +335,7 @@ test("catalog validation requires one non-empty unique entry list", async () => 
   });
 });
 
-test("catalog validation rejects duplicate case IDs across topics", async () => {
+test("full and fast source reads reject duplicate case IDs across topics", async () => {
   await withWorkspace(async (tempRoot) => {
     await resetTestEvidenceCatalog(tempRoot);
     const duplicateCatalogPath = "docs/test-evidence";
@@ -339,7 +346,7 @@ test("catalog validation rejects duplicate case IDs across topics", async () => 
     const duplicateCase = [
       "### Case DUPLICATE-CROSS-FILE-001: IDs are unique across topics",
       "Entry:",
-      "- `tests/duplicate.test.ts`",
+      "- `tests/duplicate.test.ts > rejects duplicate case IDs`",
       "Contract:",
       "- A case has one catalog identity.",
       "Proves:",
@@ -363,6 +370,12 @@ test("catalog validation rejects duplicate case IDs across topics", async () => 
       && entry.message.includes("first/duplicate-case.md")
       && entry.message.includes("second/duplicate-case.md")
     )));
+    await assert.rejects(
+      createTestEvidenceStateIndexDefinition().readRevision({
+        root: tempRoot
+      }),
+      /duplicate test evidence case id/u
+    );
   });
 });
 
@@ -596,6 +609,30 @@ test("catalog roots reject unknown topic directories and unsupported root files"
   });
 });
 
+test("full and fast source reads require the case heading on line one", async () => {
+  await withWorkspace(async (tempRoot) => {
+    for (const [name, text] of [
+      ["leading-blank", `\n${accessCatalog}`],
+      ["leading-comment", `<!-- leading comment -->\n${accessCatalog}`],
+      ["leading-frontmatter", `---\ntitle: legacy\n---\n${accessCatalog}`],
+      ["bare-carriage-returns", accessCatalog.replace(/\n/gu, "\r")]
+    ] as const) {
+      await assertInvalidCatalog(
+        tempRoot,
+        name,
+        text,
+        /must start on line 1 with ### Case/u
+      );
+      await assert.rejects(
+        createTestEvidenceStateIndexDefinition().readRevision({
+          root: tempRoot
+        }),
+        /must start with a valid test evidence case heading/u
+      );
+    }
+  });
+});
+
 test("one case file rejects zero or multiple case headings", async () => {
   await withWorkspace(async (tempRoot) => {
     await assertInvalidCatalog(
@@ -682,53 +719,141 @@ test("fixed index cannot hard-link to authoritative sources", async () => {
 test("indexes project sorted topic metadata and path-derived topic keys", async () => {
   await withWorkspace(async (tempRoot) => {
     await syncTestEvidenceIndex({ mode: "write", workspaceRoot: tempRoot });
-    const index = JSON.parse(await fs.readFile(
-      path.join(
-        tempRoot,
-        "docs",
-        "test-evidence",
-        "test-evidence-index.json"
-      ),
-      "utf8"
-    )) as {
-      definitionVersion: number;
-      entries: Array<{
-        id: string;
-        keys: { topic: string[] };
-        state: { sourcePath: string };
-      }>;
-      metadata: {
-        topics: Array<{ description: string; id: string }>;
-      };
-    };
+    const index = await readTestEvidenceStateIndex(tempRoot);
     assert.equal(index.definitionVersion, 3);
+    assert.equal(index.schemaVersion, 3);
     assert.deepEqual(
       index.metadata.topics.map((topic) => topic.id),
       ["access-control", "future-work", "sessions"]
     );
+    const ids = Object.keys(index.entries);
+    assert.deepEqual(ids, [
+      "AUTH-ROLE-ACCESS-001",
+      "AUTH-SESSION-EXPIRY-001"
+    ]);
+    assert.deepEqual(Object.keys(index.sourceRevision.entries), ids);
+    assert.match(index.sourceRevision.metadata, /^sha256:[0-9a-f]{64}$/u);
     assert.deepEqual(
-      index.entries.map((entry) => entry.keys.topic),
+      ids.map((id) => index.entries[id]?.keys.topic),
       [["access-control"], ["sessions"]]
     );
     assert.deepEqual(
-      index.entries.map((entry) => entry.state.sourcePath),
+      ids.map((id) => index.entries[id]?.state.sourcePath),
       [
         "access-control/access-role.md",
         "sessions/session-expiry.md"
       ]
     );
+    assert.equal("id" in (index.entries[ids[0] ?? ""] ?? {}), false);
   });
 });
 
-test("topic descriptions and case moves change source revisions without changing case identity", async () => {
+test("state index schemas reject invalid case IDs used as record keys", async () => {
+  await withWorkspace(async (tempRoot) => {
+    await syncTestEvidenceIndex({ mode: "write", workspaceRoot: tempRoot });
+    const index = await readTestEvidenceStateIndex(tempRoot);
+    const generatedSchema = v.parse(
+      v.record(v.string(), v.unknown()),
+      await readJsonFile(path.join(
+        repositoryRoot,
+        "skills",
+        "test-evidence-review",
+        "references",
+        "schemas",
+        "test-evidence-state-index.schema.json"
+      ))
+    );
+    const validateGeneratedIndex = new Ajv2020({
+      allErrors: true,
+      strict: false
+    }).compile(generatedSchema);
+    assert.equal(
+      validateGeneratedIndex(index),
+      true,
+      JSON.stringify(validateGeneratedIndex.errors)
+    );
+
+    const invalidEntryId = structuredClone(index);
+    const validEntry = invalidEntryId.entries["AUTH-ROLE-ACCESS-001"];
+    assert.ok(validEntry);
+    invalidEntryId.entries["not-a-case-id"] = validEntry;
+    Reflect.deleteProperty(
+      invalidEntryId.entries,
+      "AUTH-ROLE-ACCESS-001"
+    );
+    const invalidRevisionId = structuredClone(index);
+    const validRevision = invalidRevisionId.sourceRevision.entries[
+      "AUTH-ROLE-ACCESS-001"
+    ];
+    assert.ok(validRevision);
+    invalidRevisionId.sourceRevision.entries["not-a-case-id"] = validRevision;
+    Reflect.deleteProperty(
+      invalidRevisionId.sourceRevision.entries,
+      "AUTH-ROLE-ACCESS-001"
+    );
+    for (const invalidIndex of [invalidEntryId, invalidRevisionId]) {
+      assert.equal(
+        v.safeParse(testEvidenceStateIndexSchema, invalidIndex).success,
+        false
+      );
+      assert.equal(validateGeneratedIndex(invalidIndex), false);
+    }
+  });
+});
+
+test("schema v2 indexes are rejected and rebuilt as keyed schema v3", async () => {
+  await withWorkspace(async (tempRoot) => {
+    await syncTestEvidenceIndex({ mode: "write", workspaceRoot: tempRoot });
+    const indexPath = path.join(
+      tempRoot,
+      "docs",
+      "test-evidence",
+      "test-evidence-index.json"
+    );
+    const current = await readTestEvidenceStateIndex(tempRoot);
+    const schemaV2 = {
+      ...current,
+      entries: Object.entries(current.entries).map(([id, entry]) => ({
+        id,
+        ...entry
+      })),
+      schemaVersion: 2,
+      sourceRevision: current.sourceRevision.metadata
+    };
+    assert.equal(
+      v.safeParse(testEvidenceStateIndexSchema, schemaV2).success,
+      false
+    );
+    await fs.writeFile(indexPath, `${JSON.stringify(schemaV2, null, 2)}\n`);
+
+    const queried = await queryTestEvidence({ workspaceRoot: tempRoot });
+    assert.equal(queried.total, 2);
+    assert.ok(queried.diagnostics.some((entry) => (
+      entry.severity === "warning"
+      && entry.code === "state-index.schema-version-unsupported"
+    )));
+
+    const rebuilt = await syncTestEvidenceIndex({
+      mode: "write",
+      workspaceRoot: tempRoot
+    });
+    assert.equal(rebuilt.status, "ok");
+    const schemaV3 = await readJsonFile(indexPath);
+    assert.equal(
+      v.safeParse(testEvidenceStateIndexSchema, schemaV3).success,
+      true
+    );
+  });
+});
+
+test("topic descriptions change only the metadata source revision", async () => {
   await withWorkspace(async (tempRoot) => {
     await syncTestEvidenceIndex({ mode: "write", workspaceRoot: tempRoot });
     const initialRevision = await readIndexRevision(tempRoot);
-    const changedTopics = JSON.parse(topicCatalog) as {
-      schemaVersion: 1;
-      topics: Array<{ description: string; id: string }>;
-    };
-    changedTopics.topics[0]!.description =
+    const changedTopics = parseTopicCatalogFixture();
+    const accessTopic = changedTopics.topics[0];
+    assert.ok(accessTopic);
+    accessTopic.description =
       "Changed access-control contract tests.";
     await writeWorkspaceFile(
       tempRoot,
@@ -737,8 +862,15 @@ test("topic descriptions and case moves change source revisions without changing
     );
     await syncTestEvidenceIndex({ mode: "write", workspaceRoot: tempRoot });
     const topicRevision = await readIndexRevision(tempRoot);
-    assert.notEqual(topicRevision, initialRevision);
+    assert.notEqual(topicRevision.metadata, initialRevision.metadata);
+    assert.deepEqual(topicRevision.entries, initialRevision.entries);
+  });
+});
 
+test("case moves change only their entry revision and preserve identity", async () => {
+  await withWorkspace(async (tempRoot) => {
+    await syncTestEvidenceIndex({ mode: "write", workspaceRoot: tempRoot });
+    const initialRevision = await readIndexRevision(tempRoot);
     await fs.rename(
       path.join(
         tempRoot,
@@ -767,7 +899,15 @@ test("topic descriptions and case moves change source revisions without changing
     });
     assert.equal(movedSync.status, "ok");
     const movedRevision = await readIndexRevision(tempRoot);
-    assert.notEqual(movedRevision, topicRevision);
+    assert.equal(movedRevision.metadata, initialRevision.metadata);
+    assert.notEqual(
+      movedRevision.entries["AUTH-ROLE-ACCESS-001"],
+      initialRevision.entries["AUTH-ROLE-ACCESS-001"]
+    );
+    assert.equal(
+      movedRevision.entries["AUTH-SESSION-EXPIRY-001"],
+      initialRevision.entries["AUTH-SESSION-EXPIRY-001"]
+    );
     const shown = await showTestEvidenceCase({
       caseId: "AUTH-ROLE-ACCESS-001",
       workspaceRoot: tempRoot
@@ -780,19 +920,49 @@ test("topic descriptions and case moves change source revisions without changing
 
 test("revision framing normalizes line endings and topic JSON formatting", async () => {
   await withWorkspace(async (tempRoot) => {
-    const parsedTopics = JSON.parse(topicCatalog) as {
-      schemaVersion: 1;
-      topics: Array<{ description: string; id: string }>;
-    };
+    const parsedTopics = parseTopicCatalogFixture();
+    const revisionCase = [
+      "### Case AUTH-ROLE-ACCESS-001: Revision framing is stable",
+      "",
+      "Entry:",
+      "- `tests/revision.test.ts > normalizes line endings`",
+      "",
+      "Contract:",
+      "- Revision framing normalizes non-semantic source formatting.",
+      "",
+      "Proves:",
+      "- Equivalent line endings produce the same fingerprint.",
+      ""
+    ].join("\n");
     const lfRevision = testEvidenceSourceRevision({
-      sources: [{ path: "access-control/case.md", text: "line\nnext\n" }],
+      sources: [{
+        id: "AUTH-ROLE-ACCESS-001",
+        path: "access-control/case.md",
+        text: revisionCase
+      }],
       topicCatalog: parsedTopics
     });
     const crlfRevision = testEvidenceSourceRevision({
-      sources: [{ path: "access-control/case.md", text: "line\r\nnext\r\n" }],
+      sources: [{
+        id: "AUTH-ROLE-ACCESS-001",
+        path: "access-control/case.md",
+        text: revisionCase.replace(/\n/gu, "\r\n")
+      }],
       topicCatalog: parsedTopics
     });
-    assert.equal(lfRevision, crlfRevision);
+    const bareCrRevision = testEvidenceSourceRevision({
+      sources: [{
+        id: "AUTH-ROLE-ACCESS-001",
+        path: "access-control/case.md",
+        text: revisionCase.replace(/\n/gu, "\r")
+      }],
+      topicCatalog: parsedTopics
+    });
+    assert.deepEqual(lfRevision, crlfRevision);
+    assert.notEqual(
+      bareCrRevision.entries["AUTH-ROLE-ACCESS-001"],
+      lfRevision.entries["AUTH-ROLE-ACCESS-001"]
+    );
 
     await syncTestEvidenceIndex({ mode: "write", workspaceRoot: tempRoot });
     const initialRevision = await readIndexRevision(tempRoot);
@@ -806,50 +976,280 @@ test("revision framing normalizes line endings and topic JSON formatting", async
       workspaceRoot: tempRoot
     });
     assert.equal(checked.status, "ok");
-    assert.equal(await readIndexRevision(tempRoot), initialRevision);
+    assert.deepEqual(await readIndexRevision(tempRoot), initialRevision);
   });
 });
 
-test("persisted metadata, source paths, and topic keys are validated as one projection", async () => {
+test("full and fast source reads return the same per-case revision", async () => {
+  await withWorkspace(async (tempRoot) => {
+    const definition = createTestEvidenceStateIndexDefinition();
+    const snapshot = await definition.read({ root: tempRoot });
+    const fastRevision = await definition.readRevision({ root: tempRoot });
+
+    assert.deepEqual(snapshot.sourceRevision, fastRevision);
+    assert.deepEqual(Object.keys(snapshot.states), [
+      "AUTH-ROLE-ACCESS-001",
+      "AUTH-SESSION-EXPIRY-001"
+    ]);
+    await writeWorkspaceFile(
+      tempRoot,
+      "docs/test-evidence/access-control/access-role.md",
+      accessCatalog.replace(/\n/gu, "\r\n")
+    );
+    const crlfSnapshot = await definition.read({ root: tempRoot });
+    const crlfFastRevision = await definition.readRevision({ root: tempRoot });
+    assert.deepEqual(crlfSnapshot.sourceRevision, fastRevision);
+    assert.deepEqual(crlfFastRevision, fastRevision);
+  });
+});
+
+test("domain parsing treats the record key as the authoritative case id", async () => {
+  await withWorkspace(async (tempRoot) => {
+    const definition = createTestEvidenceStateIndexDefinition();
+    const snapshot = await definition.read({ root: tempRoot });
+    const id = "AUTH-ROLE-ACCESS-001";
+    const state = snapshot.states[id];
+    assert.ok(state);
+
+    assert.equal(
+      definition.parseState(state, {
+        id,
+        metadata: snapshot.metadata
+      }).id,
+      id
+    );
+    assert.throws(
+      () => definition.parseState({
+        ...state,
+        id: "AUTH-SESSION-EXPIRY-001"
+      }, {
+        id,
+        metadata: snapshot.metadata
+      }),
+      /state id must match its index key/u
+    );
+  });
+});
+
+test("query results use record keys as authoritative case identities", async () => {
   await withWorkspace(async (tempRoot) => {
     await syncTestEvidenceIndex({ mode: "write", workspaceRoot: tempRoot });
-    const indexPath = path.join(
+    const index = await readTestEvidenceStateIndex(tempRoot);
+    const accessEntry = index.entries["AUTH-ROLE-ACCESS-001"];
+    assert.ok(accessEntry);
+    accessEntry.state.id = "AUTH-SESSION-EXPIRY-001";
+    await writeTestEvidenceStateIndex(tempRoot, index);
+
+    const queried = await queryTestEvidence({ workspaceRoot: tempRoot });
+    assert.deepEqual(queried.diagnostics, []);
+    const accessCase = queried.cases.find((entry) => (
+      entry.sourcePath === "access-control/access-role.md"
+    ));
+    assert.equal(accessCase?.id, "AUTH-ROLE-ACCESS-001");
+  });
+});
+
+test("case membership changes only add or remove matching revision entries", async () => {
+  await withWorkspace(async (tempRoot) => {
+    const definition = createTestEvidenceStateIndexDefinition();
+    const initial = await definition.readRevision({ root: tempRoot });
+    await writeWorkspaceFile(
+      tempRoot,
+      "docs/test-evidence/access-control/role-delete.md",
+      [
+        "### Case AUTH-ROLE-DELETE-001: Delete access is covered",
+        "",
+        "Entry:",
+        "- `tests/delete.test.ts > rejects guest deletion`",
+        "",
+        "Contract:",
+        "- Delete access follows the caller role boundary.",
+        "",
+        "Proves:",
+        "- Guests cannot delete resources."
+      ].join("\n")
+    );
+
+    const addedSnapshot = await definition.read({ root: tempRoot });
+    const added = await definition.readRevision({ root: tempRoot });
+    assert.deepEqual(addedSnapshot.sourceRevision, added);
+    assert.equal(added.metadata, initial.metadata);
+    assert.deepEqual(Object.keys(added.entries), [
+      "AUTH-ROLE-ACCESS-001",
+      "AUTH-ROLE-DELETE-001",
+      "AUTH-SESSION-EXPIRY-001"
+    ]);
+    assert.equal(
+      added.entries["AUTH-ROLE-ACCESS-001"],
+      initial.entries["AUTH-ROLE-ACCESS-001"]
+    );
+    assert.equal(
+      added.entries["AUTH-SESSION-EXPIRY-001"],
+      initial.entries["AUTH-SESSION-EXPIRY-001"]
+    );
+
+    await fs.rm(path.join(
       tempRoot,
       "docs",
       "test-evidence",
-      "test-evidence-index.json"
+      "sessions",
+      "session-expiry.md"
+    ));
+    await fs.rmdir(path.join(
+      tempRoot,
+      "docs",
+      "test-evidence",
+      "sessions"
+    ));
+    const removed = await definition.readRevision({ root: tempRoot });
+    assert.equal(removed.metadata, added.metadata);
+    assert.deepEqual(Object.keys(removed.entries), [
+      "AUTH-ROLE-ACCESS-001",
+      "AUTH-ROLE-DELETE-001"
+    ]);
+    assert.equal(
+      removed.entries["AUTH-ROLE-ACCESS-001"],
+      added.entries["AUTH-ROLE-ACCESS-001"]
     );
-    const index = JSON.parse(await fs.readFile(indexPath, "utf8")) as {
-      entries: Array<{
-        keys: { topic: string[] };
-        state: { sourcePath: string };
-      }>;
-      metadata: {
-        topics: Array<{ description: string; id: string }>;
-      };
+    assert.equal(
+      removed.entries["AUTH-ROLE-DELETE-001"],
+      added.entries["AUTH-ROLE-DELETE-001"]
+    );
+  });
+});
+
+test("fast revision reads do not parse case bodies", async () => {
+  await withWorkspace(async (tempRoot) => {
+    const definition = createTestEvidenceStateIndexDefinition();
+    await writeWorkspaceFile(
+      tempRoot,
+      "docs/test-evidence/access-control/access-role.md",
+      [
+        "### Case AUTH-ROLE-ACCESS-001: Invalid body remains identifiable",
+        "",
+        "This body has no Entry, Contract, or Proves sections."
+      ].join("\n")
+    );
+
+    const revision = await definition.readRevision({ root: tempRoot });
+    assert.match(
+      revision.entries["AUTH-ROLE-ACCESS-001"] ?? "",
+      /^sha256:[0-9a-f]{64}$/u
+    );
+    await assert.rejects(
+      definition.read({ root: tempRoot }),
+      /non-empty Entry list|exactly one Contract/u
+    );
+  });
+});
+
+test("one index open performs one fast source read and reader calls reuse it", async () => {
+  await withWorkspace(async (tempRoot) => {
+    await syncTestEvidenceIndex({ mode: "write", workspaceRoot: tempRoot });
+    const base = createTestEvidenceStateIndexDefinition();
+    const calls = {
+      derive: 0,
+      parseState: 0,
+      read: 0,
+      readRevision: 0,
+      validateIndex: 0
     };
-    index.entries[0]!.keys.topic = ["sessions"];
-    await fs.writeFile(indexPath, `${JSON.stringify(index, null, 2)}\n`);
-    const keyMismatch = await queryTestEvidence({ workspaceRoot: tempRoot });
-    assert.equal(keyMismatch.total, 2);
+    const sourceBackup = path.join(tempRoot, "test-evidence-source-backup");
+    const definition = {
+      ...base,
+      keyStrategies: base.keyStrategies.map((strategy) => ({
+        ...strategy,
+        derive: (...args: Parameters<typeof strategy.derive>) => {
+          calls.derive += 1;
+          return strategy.derive(...args);
+        }
+      })),
+      parseState: (...args: Parameters<typeof base.parseState>) => {
+        calls.parseState += 1;
+        return base.parseState(...args);
+      },
+      read: async (...args: Parameters<typeof base.read>) => {
+        calls.read += 1;
+        return await base.read(...args);
+      },
+      readRevision: async (
+        ...args: Parameters<typeof base.readRevision>
+      ) => {
+        calls.readRevision += 1;
+        const revision = await base.readRevision(...args);
+        await fs.mkdir(sourceBackup);
+        const catalogRoot = path.join(tempRoot, "docs", "test-evidence");
+        for (const name of [
+          "test-evidence-topics.json",
+          "access-control",
+          "sessions"
+        ]) {
+          await fs.rename(
+            path.join(catalogRoot, name),
+            path.join(sourceBackup, name)
+          );
+        }
+        return revision;
+      },
+      validateIndex: () => {
+        calls.validateIndex += 1;
+      }
+    };
+    const runtime = createStateIndexRuntime({
+      definition,
+      indexPath: "docs/test-evidence/test-evidence-index.json",
+      root: tempRoot
+    });
+
+    const opened = await runtime.open();
+    if (opened.status !== "ok") {
+      assert.fail(`index open failed: ${JSON.stringify(opened.diagnostics)}`);
+    }
+    assert.deepEqual(calls, {
+      derive: 0,
+      parseState: 0,
+      read: 0,
+      readRevision: 1,
+      validateIndex: 0
+    });
+
+    assert.equal(opened.value.get("AUTH-ROLE-ACCESS-001").status, "ok");
+    assert.equal(opened.value.query().status, "ok");
+    assert.equal(opened.value.all().status, "ok");
+    assert.deepEqual(calls, {
+      derive: 0,
+      parseState: 0,
+      read: 0,
+      readRevision: 1,
+      validateIndex: 0
+    });
+  });
+});
+
+test("strict checks cross-validate persisted source paths and topic keys", async () => {
+  await withWorkspace(async (tempRoot) => {
+    await syncTestEvidenceIndex({ mode: "write", workspaceRoot: tempRoot });
+    const index = await readTestEvidenceStateIndex(tempRoot);
+    const accessEntry = index.entries["AUTH-ROLE-ACCESS-001"];
+    assert.ok(accessEntry);
+    accessEntry.keys.topic = ["sessions"];
+    await writeTestEvidenceStateIndex(tempRoot, index);
+    const keyMismatch = await validateTestEvidence({ workspaceRoot: tempRoot });
     assert.ok(keyMismatch.diagnostics.some((entry) => (
-      entry.severity === "warning"
+      entry.blocking
       && entry.code.startsWith("state-index.")
     )));
 
     await syncTestEvidenceIndex({ mode: "write", workspaceRoot: tempRoot });
-    const rebuilt = JSON.parse(await fs.readFile(indexPath, "utf8")) as {
-      entries: Array<{ state: { sourcePath: string } }>;
-      metadata: {
-        topics: Array<{ description: string; id: string }>;
-      };
-    };
-    rebuilt.entries[0]!.state.sourcePath = "unknown-topic/access-role.md";
-    await fs.writeFile(indexPath, `${JSON.stringify(rebuilt, null, 2)}\n`);
-    const pathMismatch = await queryTestEvidence({ workspaceRoot: tempRoot });
-    assert.equal(pathMismatch.total, 2);
+    const rebuilt = await readTestEvidenceStateIndex(tempRoot);
+    const rebuiltAccessEntry = rebuilt.entries["AUTH-ROLE-ACCESS-001"];
+    assert.ok(rebuiltAccessEntry);
+    rebuiltAccessEntry.state.sourcePath =
+      "unknown-topic/access-role.md";
+    await writeTestEvidenceStateIndex(tempRoot, rebuilt);
+    const pathMismatch = await validateTestEvidence({ workspaceRoot: tempRoot });
     assert.ok(pathMismatch.diagnostics.some((entry) => (
-      entry.severity === "warning"
+      entry.blocking
       && entry.code.startsWith("state-index.")
     )));
   });
@@ -1335,16 +1735,49 @@ async function rehearseLegacyConsumerUpgrade(
   }
 }
 
-async function readIndexRevision(workspaceRoot: string): Promise<string> {
-  const index = JSON.parse(await fs.readFile(
-    path.join(
-      workspaceRoot,
-      "docs",
-      "test-evidence",
-      "test-evidence-index.json"
-    ),
+function parseTopicCatalogFixture(): TestEvidenceTopicCatalog {
+  const input: unknown = JSON.parse(topicCatalog);
+  return v.parse(testEvidenceTopicCatalogSchema, input);
+}
+
+async function readJsonFile(filePath: string): Promise<unknown> {
+  const input: unknown = JSON.parse(await fs.readFile(filePath, "utf8"));
+  return input;
+}
+
+async function readTestEvidenceStateIndex(
+  workspaceRoot: string
+): Promise<TestEvidenceStateIndex> {
+  return v.parse(
+    testEvidenceStateIndexSchema,
+    await readJsonFile(testEvidenceStateIndexPath(workspaceRoot))
+  );
+}
+
+async function writeTestEvidenceStateIndex(
+  workspaceRoot: string,
+  index: TestEvidenceStateIndex
+): Promise<void> {
+  await fs.writeFile(
+    testEvidenceStateIndexPath(workspaceRoot),
+    `${JSON.stringify(index, null, 2)}\n`,
     "utf8"
-  )) as { sourceRevision: string };
+  );
+}
+
+function testEvidenceStateIndexPath(workspaceRoot: string): string {
+  return path.join(
+    workspaceRoot,
+    "docs",
+    "test-evidence",
+    "test-evidence-index.json"
+  );
+}
+
+async function readIndexRevision(
+  workspaceRoot: string
+): Promise<TestEvidenceStateIndex["sourceRevision"]> {
+  const index = await readTestEvidenceStateIndex(workspaceRoot);
   return index.sourceRevision;
 }
 

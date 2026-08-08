@@ -163,7 +163,7 @@ test("searches text keys across investigation and test-evidence states", async (
 
   const { index } = await buildTestEvidenceFixture();
   assert.deepEqual(
-    index.entries.map((entry) => entry.id),
+    Object.keys(index.entries),
     ["read-error", "state-query"]
   );
   const searched = queryStateIndex({
@@ -183,7 +183,7 @@ test("searches text keys across investigation and test-evidence states", async (
   );
 });
 
-test("rejects duplicate test-evidence identities during integration", async () => {
+test("requires the domain source to reject duplicate identities", async () => {
   const { staticStates } = await buildTestEvidenceFixture();
   const result = await buildStateIndex(
     testEvidenceDefinition({
@@ -197,7 +197,8 @@ test("rejects duplicate test-evidence identities during integration", async () =
   );
   assert.equal(result.status, "error");
   assert.ok(result.diagnostics.some((entry) => (
-    entry.code === "state-index.id-duplicate"
+    entry.code === "state-index.source-read-failed"
+    && entry.message.includes("duplicate state id")
   )));
 });
 
@@ -223,15 +224,24 @@ test("merges runtime states without mutating persisted index entries", async () 
         values: [true]
       }]
     },
-    runtimeStates: [runtimeState]
+    runtimeStates: { [runtimeState.caseId]: runtimeState }
   });
   assert.deepEqual(
     resultValue(result).entries.map((entry) => entry.id),
     ["state-query"]
   );
-  assert.equal(index.entries.find((entry) => (
-    entry.id === "state-query"
-  ))?.keys["review-triggered"], undefined);
+  assert.equal(index.entries["state-query"]?.keys["review-triggered"], undefined);
+
+  const invalidOverlay = queryStateIndex({
+    definition,
+    index,
+    runtimeStates: [runtimeState] as never
+  });
+  assert.equal(invalidOverlay.status, "error");
+  assert.equal(
+    invalidOverlay.diagnostics[0]?.code,
+    "state-index.runtime-states-invalid"
+  );
 });
 
 test("paginates sorted results while preserving the total count", async () => {

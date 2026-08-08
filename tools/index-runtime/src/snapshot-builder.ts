@@ -1,25 +1,33 @@
 import { expectationOf, validateStateIndexDefinition } from "./definition.ts";
+import { canonicalizeStateIndex } from "./canonicalization.ts";
+import { errorText, failure } from "./diagnostics.ts";
 import { canonicalizeTypedJsonObject } from "./frozen-json.ts";
+import { isJsonObject } from "./json.ts";
 import {
-  canonicalizeStateIndex,
   createProjectionContext,
   parseStateIndexMetadata,
   projectStateIndexEntry,
   validateCompleteStateIndex
-} from "./normalization.ts";
+} from "./projection.ts";
 import type {
   JsonObject,
   StateIndex,
   StateIndexContext,
   StateIndexDefinition,
-  StateIndexEntry,
-  StateIndexResult
+  StateIndexDiagnostic,
+  StateIndexResult,
+  StateIndexStoredEntry
 } from "./types.ts";
 import {
-  diagnostic,
-  isJsonObject,
+  isPlainRecord,
+  sameRecordMembers
+} from "./record.ts";
+import {
   isStateIndexText,
-  stateIndexSchemaVersion,
+  stateIndexSchemaVersion
+} from "./schemas.ts";
+import {
+  validateStateSourceRevisionValue,
   validateStateIndexValue
 } from "./validation.ts";
 
@@ -47,8 +55,28 @@ export async function buildStateIndex<
   if (!isStateSnapshot(snapshot)) {
     return failure(
       "state-index.source-invalid",
-      "read must return { revision, metadata, states } with a valid revision, "
-      + "JSON object metadata, and state array"
+      "read must return { sourceRevision, metadata, states } with JSON object "
+      + "metadata and an id-keyed state record"
+    );
+  }
+
+  const sourceRevision = validateStateSourceRevisionValue(snapshot.sourceRevision);
+  if (sourceRevision.status === "error") {
+    return sourceRevision;
+  }
+  const invalidId = Object.keys(snapshot.states).find((id) => !isStateIndexText(id));
+  if (invalidId !== undefined) {
+    return failure(
+      "state-index.id-invalid",
+      `state id ${JSON.stringify(invalidId)} must be non-empty text without surrounding `
+        + "whitespace or control characters",
+      { stateId: invalidId }
+    );
+  }
+  if (!sameRecordMembers(snapshot.states, sourceRevision.value.entries)) {
+    return failure(
+      "state-index.source-revision-members-mismatch",
+      "sourceRevision.entries must contain exactly the same state ids as states"
     );
   }
 
@@ -57,18 +85,17 @@ export async function buildStateIndex<
     return parsedMetadata;
   }
   const metadata = canonicalizeTypedJsonObject(parsedMetadata.value);
-  const projectionContext = createProjectionContext(metadata);
-  const entries: StateIndexEntry<State>[] = [];
-  const diagnostics = [];
-  for (const state of snapshot.states) {
+  const entries: Array<[string, StateIndexStoredEntry<State>]> = [];
+  const diagnostics: StateIndexDiagnostic[] = [];
+  for (const [id, state] of Object.entries(snapshot.states)) {
     const projected = projectStateIndexEntry(
       definition,
       state,
-      projectionContext
+      createProjectionContext(id, metadata)
     );
     diagnostics.push(...projected.diagnostics);
     if (projected.status === "ok") {
-      entries.push(projected.value);
+      entries.push([id, projected.value]);
     }
   }
   if (diagnostics.length > 0) {
@@ -77,12 +104,12 @@ export async function buildStateIndex<
 
   const rawIndex: StateIndex<State, Metadata> = {
     definitionVersion: definition.definitionVersion,
-    entries,
+    entries: Object.fromEntries(entries),
     keyDefinitions: definition.keyStrategies.map(({ mode, name }) => ({ mode, name })),
     metadata,
     namespace: definition.namespace,
     schemaVersion: stateIndexSchemaVersion,
-    sourceRevision: snapshot.revision
+    sourceRevision: sourceRevision.value
   };
   const validated = validateStateIndexValue(
     rawIndex,
@@ -102,32 +129,15 @@ export async function buildStateIndex<
 
 function isStateSnapshot(
   value: unknown
-): value is { metadata: JsonObject; revision: string; states: unknown[] } {
-  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+): value is {
+  metadata: JsonObject;
+  sourceRevision: unknown;
+  states: Record<string, unknown>;
+} {
+  if (!isPlainRecord(value)) {
     return false;
   }
-  const candidate = value as {
-    metadata?: unknown;
-    revision?: unknown;
-    states?: unknown;
-  };
-  return typeof candidate.revision === "string"
-    && isStateIndexText(candidate.revision)
-    && isJsonObject(candidate.metadata)
-    && Array.isArray(candidate.states);
-}
-
-function failure<Value = never>(
-  code: string,
-  message: string
-): StateIndexResult<Value> {
-  return {
-    diagnostics: [diagnostic({ code, message })],
-    status: "error",
-    value: null
-  };
-}
-
-function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
+  return isJsonObject(value.metadata)
+    && isPlainRecord(value.states)
+    && value.sourceRevision !== undefined;
 }

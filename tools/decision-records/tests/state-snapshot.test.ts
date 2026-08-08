@@ -11,6 +11,7 @@ import {
   buildDecisionIndexFromSnapshot,
   buildDecisionStateSnapshotFromSources,
   decisionSourceRevision,
+  readDecisionSourceRevision,
   readDecisionStateSnapshot,
   serializeDecisionIndex,
   type DecisionSource,
@@ -81,13 +82,20 @@ test("memory and filesystem sources share deterministic index construction", () 
     decisionsDirectory,
     selection.relativePaths
   );
+  assert.deepEqual(
+    await readDecisionSourceRevision(
+      decisionsDirectory,
+      selection.relativePaths
+    ),
+    filesystemSnapshot.sourceRevision
+  );
   const memorySnapshot = await buildDecisionStateSnapshotFromSources(
     catalog,
     sources
   );
   assert.deepEqual(memorySnapshot, filesystemSnapshot);
-  assert.equal(
-    memorySnapshot.revision,
+  assert.deepEqual(
+    memorySnapshot.sourceRevision,
     decisionSourceRevision(catalog, sources)
   );
 
@@ -188,6 +196,34 @@ test("memory source snapshots reject relationship cycles", () => (
     buildDecisionStateSnapshotFromSources(catalog, cycleSources),
     /Decision relations must not form a cycle/
   );
+  })
+));
+
+test("fast decision revisions fingerprint invalid Markdown without parsing it", () => (
+  withFixtureWorkspace("fast-revision-no-parser", async (workspaceRoot) => {
+    const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+    const scan = await scanDecisionRecords({ workspaceRoot });
+    const selection = selectDecisionIndexSourcePaths(scan);
+    assert.deepEqual(selection.errors, []);
+    const targetPath = selection.relativePaths[0]!;
+    await fs.writeFile(
+      path.join(decisionsDirectory, ...targetPath.split("/")),
+      "not a decision record\n",
+      "utf8"
+    );
+
+    const revision = await readDecisionSourceRevision(
+      decisionsDirectory,
+      selection.relativePaths
+    );
+    assert.match(
+      revision.entries[targetPath]!,
+      /^sha256:[0-9a-f]{64}$/u
+    );
+    await assert.rejects(
+      readDecisionStateSnapshot(decisionsDirectory, selection.relativePaths),
+      /frontmatter|decision metadata|Decision record/u
+    );
   })
 ));
 

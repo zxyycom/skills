@@ -1,24 +1,26 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { performance } from "node:perf_hooks";
+import * as v from "valibot";
 import {
   buildStateIndex,
   defineStateIndexDefinition,
   parseStateIndex,
   queryStateIndex,
-  serializeStateIndex,
-  type JsonObject
+  serializeStateIndex
 } from "../src/index.ts";
 import { resultValue } from "./support.ts";
 
-interface ScaleState extends JsonObject {
-  body: string;
-  createdAt: number;
-  id: string;
-  status: "active" | "archived";
-  tags: string[];
-  title: string;
-}
+const scaleStateSchema = v.strictObject({
+  body: v.string(),
+  createdAt: v.pipe(v.number(), v.finite()),
+  id: v.string(),
+  status: v.picklist(["active", "archived"]),
+  tags: v.array(v.string()),
+  title: v.string()
+});
+
+type ScaleState = v.InferOutput<typeof scaleStateSchema>;
 
 type BenchmarkResult = {
   buildMs: number;
@@ -60,9 +62,16 @@ async function benchmark(count: number): Promise<BenchmarkResult> {
     tags: [`group-${index % 20}`, `bucket-${index % 7}`],
     title: `Indexed state ${index}`
   }));
-  const definition = defineStateIndexDefinition({
+  const stateRecord = Object.fromEntries(states.map((state) => [state.id, state]));
+  const sourceRevision = {
+    entries: Object.fromEntries(states.map((state) => [
+      state.id,
+      `scale-${count}:${state.id}`
+    ])),
+    metadata: `scale-${count}:metadata`
+  };
+  const definition = defineStateIndexDefinition<ScaleState>({
     definitionVersion: 1,
-    identify: (state: ScaleState) => state.id,
     keyStrategies: [
       { derive: (state) => state.status, mode: "exact", name: "status" },
       { derive: (state) => state.tags, mode: "exact", name: "tag" },
@@ -75,9 +84,9 @@ async function benchmark(count: number): Promise<BenchmarkResult> {
     ],
     namespace: "scale",
     parseMetadata: (metadata) => metadata,
-    parseState: (state) => state as ScaleState,
-    read: async () => ({ metadata: {}, revision: `scale-${count}`, states }),
-    readRevision: async () => `scale-${count}`
+    parseState: (state) => v.parse(scaleStateSchema, state),
+    read: async () => ({ metadata: {}, sourceRevision, states: stateRecord }),
+    readRevision: async () => sourceRevision
   });
 
   const buildStart = performance.now();

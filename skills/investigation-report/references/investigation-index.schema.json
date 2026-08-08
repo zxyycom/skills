@@ -1,6 +1,10 @@
 {
-  "$comment": "id、state.path、派生 keys、sourceRevision 与调查 Markdown 投影的一致性由调查报告 CLI 检查。",
+  "$comment": "entry 对象键、state.path、派生 keys、sourceRevision 与调查 Markdown 投影的一致性由调查报告 CLI 检查。",
   "$defs": {
+    "fingerprint": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
     "keyValues": {
       "additionalProperties": false,
       "properties": {
@@ -122,12 +126,9 @@
       "const": 2
     },
     "entries": {
-      "items": {
+      "additionalProperties": {
         "additionalProperties": false,
         "properties": {
-          "id": {
-            "$ref": "#/$defs/topicPath"
-          },
           "keys": {
             "$ref": "#/$defs/keyValues"
           },
@@ -136,13 +137,15 @@
           }
         },
         "required": [
-          "id",
           "keys",
           "state"
         ],
         "type": "object"
       },
-      "type": "array"
+      "propertyNames": {
+        "$ref": "#/$defs/topicPath"
+      },
+      "type": "object"
     },
     "keyDefinitions": {
       "const": [
@@ -172,11 +175,29 @@
       "const": "investigations"
     },
     "schemaVersion": {
-      "const": 2
+      "const": 3
     },
     "sourceRevision": {
-      "pattern": "^sha256:[0-9a-f]{64}$",
-      "type": "string"
+      "additionalProperties": false,
+      "properties": {
+        "metadata": {
+          "$ref": "#/$defs/fingerprint"
+        },
+        "entries": {
+          "additionalProperties": {
+            "$ref": "#/$defs/fingerprint"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/topicPath"
+          },
+          "type": "object"
+        }
+      },
+      "required": [
+        "metadata",
+        "entries"
+      ],
+      "type": "object"
     }
   },
   "required": [

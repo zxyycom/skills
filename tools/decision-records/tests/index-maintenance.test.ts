@@ -20,6 +20,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
   const originalIndexText = await fs.readFile(indexPath, "utf8");
   const originalIndex = await readIndex(indexPath);
+  const firstEntryId = Object.keys(originalIndex.entries)[0]!;
   const currentDecisionPath = decisionFilePath(
     workspaceRoot,
     currentRelativePath
@@ -55,14 +56,14 @@ test("index maintenance detects drift and synchronizes canonical decision states
 
   await fs.writeFile(
     indexPath,
-    JSON.stringify({ schemaVersion: 3, records: [] }, null, 2) + "\n",
+    JSON.stringify({ schemaVersion: 2, records: [] }, null, 2) + "\n",
     "utf8"
   );
   const withUnsupportedSchemaVersion = await validateDecisionRecords({
     workspaceRoot
   });
   assert.ok(withUnsupportedSchemaVersion.errors.some(
-    (error) => error.includes("schemaVersion must be 2")
+    (error) => error.includes("schema version 2 is unsupported; expected 3")
   ));
   const listWithInvalidIndex = await runBundledCli([
     "list",
@@ -73,14 +74,37 @@ test("index maintenance detects drift and synchronizes canonical decision states
   assert.match(listWithInvalidIndex.stderr, /Decision records command failed/);
 
   const invalidTimestampIndex = structuredClone(originalIndex);
-  invalidTimestampIndex.entries[0]!.state.createdAt = "2026-07-10";
+  invalidTimestampIndex.entries[firstEntryId]!.state.createdAt = "2026-07-10";
   await writeIndex(indexPath, invalidTimestampIndex);
   assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
     (error) => error.includes("createdAt must be an RFC 3339 timestamp")
   ));
 
+  const mismatchedPathIndex = structuredClone(originalIndex);
+  mismatchedPathIndex.entries[firstEntryId]!.state.path =
+    "project-tooling/mismatched-id.md";
+  await writeIndex(indexPath, mismatchedPathIndex);
+  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
+    (error) => error.includes("state.path must equal the entry id")
+  ));
+
+  const invalidRevisionIndex = structuredClone(originalIndex);
+  invalidRevisionIndex.sourceRevision = {
+    ...invalidRevisionIndex.sourceRevision,
+    entries: {
+      ...invalidRevisionIndex.sourceRevision.entries,
+      [firstEntryId]: "not-a-sha256"
+    }
+  };
+  await writeIndex(indexPath, invalidRevisionIndex);
+  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
+    (error) => error.includes(
+      "must be a sha256 decision source fingerprint"
+    )
+  ));
+
   const fractionalTimestampIndex = structuredClone(originalIndex);
-  fractionalTimestampIndex.entries[0]!.state.createdAt =
+  fractionalTimestampIndex.entries[firstEntryId]!.state.createdAt =
     "2026-07-10T09:10:11.123+08:00";
   await writeIndex(indexPath, fractionalTimestampIndex);
   assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
@@ -97,14 +121,14 @@ test("index maintenance detects drift and synchronizes canonical decision states
   ));
 
   const shortProjectionIndex = structuredClone(originalIndex);
-  shortProjectionIndex.entries[0]!.state.title = "短";
+  shortProjectionIndex.entries[firstEntryId]!.state.title = "短";
   await writeIndex(indexPath, shortProjectionIndex);
   assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
     (error) => error.includes("actual 1")
   ));
 
   const longProjectionIndex = structuredClone(originalIndex);
-  longProjectionIndex.entries[0]!.state.purpose = "长".repeat(101);
+  longProjectionIndex.entries[firstEntryId]!.state.purpose = "长".repeat(101);
   await writeIndex(indexPath, longProjectionIndex);
   assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
     (error) => error.includes("actual 101")
@@ -122,7 +146,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
     /Rebuilt .*decision-index\.json from decision Markdown files/
   );
   assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
-  assert.equal((await readIndex(indexPath)).schemaVersion, 2);
+  assert.equal((await readIndex(indexPath)).schemaVersion, 3);
   assert.deepEqual((await readIndex(indexPath)).metadata, originalIndex.metadata);
   assert.deepEqual(
     (await validateDecisionRecords({ workspaceRoot })).errors,

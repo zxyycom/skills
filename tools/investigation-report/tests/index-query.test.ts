@@ -3,13 +3,17 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import {
+  parseStateIndex,
   queryStateIndex,
   type StateIndex
 } from "../../index-runtime/src/index.ts";
 import {
   createInvestigationStateIndexDefinition,
+  investigationSourceRevision,
   investigationIndexFileName,
-  loadCurrentInvestigationIndex
+  loadCurrentInvestigationIndex,
+  readInvestigationSourceRevision,
+  readInvestigationStateSnapshot
 } from "../src/investigation-state-index.ts";
 import { queryInvestigationIndex } from "../src/query.ts";
 import {
@@ -42,20 +46,31 @@ async function testValidIndexAndQueries(tempRoot: string): Promise<void> {
     path.join(collectionRoot, investigationIndexFileName),
     "utf8"
   )) as StateIndex;
-  assert.equal(validIndex.schemaVersion, 2);
+  assert.equal(validIndex.schemaVersion, 3);
   assert.deepEqual(validIndex.metadata, {});
   assert.equal(validIndex.namespace, "investigations");
   assert.equal(validIndex.definitionVersion, 2);
-  assert.match(validIndex.sourceRevision, /^sha256:[0-9a-f]{64}$/u);
+  assert.match(
+    validIndex.sourceRevision.metadata,
+    /^sha256:[0-9a-f]{64}$/u
+  );
+  assert.ok(Object.values(validIndex.sourceRevision.entries).every(
+    (fingerprint) => /^sha256:[0-9a-f]{64}$/u.test(fingerprint)
+  ));
   assert.deepEqual(
-    validIndex.entries.map((entry) => entry.id),
+    Object.keys(validIndex.entries),
     [
       "codex/project-shell-registration.md",
       "runtime/process-churn.md"
     ]
   );
+  assert.deepEqual(
+    Object.keys(validIndex.sourceRevision.entries),
+    Object.keys(validIndex.entries)
+  );
 
-  const codexEntry = validIndex.entries[0];
+  const codexEntry = validIndex.entries["codex/project-shell-registration.md"]!;
+  assert.equal(Object.hasOwn(codexEntry, "id"), false);
   assert.deepEqual(codexEntry.state, {
     latestReportAt: "2026-07-21T09:00:00+08:00",
     path: "codex/project-shell-registration.md",
@@ -175,7 +190,7 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
   const staleQuery = await queryInvestigationIndex({ workspaceRoot });
   assert.ok(staleQuery.errors.some((error) => (
     error.includes(investigationIndexFileName)
-    && error.includes("does not match source revision")
+    && error.includes("does not match the current source revision")
   )));
   assert.deepEqual(staleQuery.entries, []);
 
@@ -199,7 +214,7 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
     investigationsDirectory: investigationRoot(workspaceRoot)
   }));
   assert.deepEqual(
-    resynchronizedIndex.entries.map((entry) => entry.id),
+    Object.keys(resynchronizedIndex.entries),
     ["runtime/added-report.md", "runtime/first-report.md"]
   );
 
@@ -217,7 +232,7 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
   assert.ok(tampered.errors.some((error) => (
     error.includes(investigationIndexFileName)
     && error.includes(
-      "does not match its id and keys under the runtime definition"
+      "does not match its keys under the runtime definition"
     )
   )));
   assert.equal(
@@ -226,21 +241,83 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
   );
 
   const restoredIndex = await fs.readFile(indexPath, "utf8");
-  await fs.writeFile(
-    indexPath,
-    restoredIndex.replace("\"reportCount\": 1", "\"reportCount\": 2"),
-    "utf8"
-  );
-  const invalidCount = await queryInvestigationIndex({ workspaceRoot });
+  const schemaV2 = parseStateIndex({
+    definition: createInvestigationStateIndexDefinition(),
+    expectation: {
+      definitionVersion: 2,
+      namespace: "investigations"
+    },
+    sourcePath: investigationIndexFileName,
+    text: restoredIndex.replace(
+      "\"schemaVersion\": 3",
+      "\"schemaVersion\": 2"
+    )
+  });
+  assert.equal(schemaV2.status, "error");
+  assert.ok(schemaV2.diagnostics.some((diagnostic) => (
+    diagnostic.message.includes("schema version 2 is unsupported; expected 3")
+  )));
+
+  const invalidRevisionIndex = JSON.parse(restoredIndex) as StateIndex;
+  invalidRevisionIndex.sourceRevision = {
+    ...invalidRevisionIndex.sourceRevision,
+    entries: {
+      ...invalidRevisionIndex.sourceRevision.entries,
+      "runtime/added-report.md": "not-a-sha256"
+    }
+  };
+  const invalidRevision = parseStateIndex({
+    definition: createInvestigationStateIndexDefinition(),
+    expectation: {
+      definitionVersion: 2,
+      namespace: "investigations"
+    },
+    sourcePath: investigationIndexFileName,
+    text: JSON.stringify(invalidRevisionIndex)
+  });
+  assert.equal(invalidRevision.status, "error");
+  assert.ok(invalidRevision.diagnostics.some((diagnostic) => (
+    diagnostic.message.includes(
+      "must be a sha256 investigation source fingerprint"
+    )
+  )), invalidRevision.diagnostics.map((entry) => entry.message).join("; "));
+
+  const mismatchedPathIndex = JSON.parse(restoredIndex) as {
+    entries: Record<string, { state: { path: string } }>;
+  };
+  mismatchedPathIndex.entries["runtime/added-report.md"]!.state.path =
+    "runtime/mismatched-id.md";
+  const mismatchedPath = parseStateIndex({
+    definition: createInvestigationStateIndexDefinition(),
+    expectation: {
+      definitionVersion: 2,
+      namespace: "investigations"
+    },
+    sourcePath: investigationIndexFileName,
+    text: JSON.stringify(mismatchedPathIndex)
+  });
+  assert.equal(mismatchedPath.status, "error");
+  assert.ok(mismatchedPath.diagnostics.some((diagnostic) => (
+    diagnostic.message.includes("state.path must equal the entry id")
+  )));
+
+  const invalidCount = parseStateIndex({
+    definition: createInvestigationStateIndexDefinition(),
+    expectation: {
+      definitionVersion: 2,
+      namespace: "investigations"
+    },
+    sourcePath: investigationIndexFileName,
+    text: restoredIndex.replace("\"reportCount\": 1", "\"reportCount\": 2")
+  });
+  assert.equal(invalidCount.status, "error");
   assert.ok(
-    invalidCount.errors.some((error) => (
-      error.includes("reportCount must equal the number of reportTitles")
+    invalidCount.diagnostics.some((diagnostic) => (
+      diagnostic.message.includes(
+        "reportCount must equal the number of reportTitles"
+      )
     )),
-    invalidCount.errors.join("; ")
-  );
-  assert.equal(
-    (await synchronizeInvestigationIndex({ workspaceRoot })).changed,
-    true
+    invalidCount.diagnostics.map((entry) => entry.message).join("; ")
   );
 }
 
@@ -250,4 +327,78 @@ test("index queries return filtered and paginated investigation states", () => (
 
 test("index loading rejects stale and tampered investigation indexes", () => (
   withTempRoot("index-query-stale", testStaleAndTamperedIndexes)
+));
+
+test("source revisions partition metadata and topic fingerprints without parsing Markdown", () => (
+  withTempRoot("source-revision", async (tempRoot) => {
+    const workspaceRoot = path.join(tempRoot, "source-revision");
+    const reports = createValidReports();
+    await writeCollection(workspaceRoot, reports, false);
+    const collectionRoot = investigationRoot(workspaceRoot);
+
+    const snapshot = await readInvestigationStateSnapshot(collectionRoot);
+    const revision = await readInvestigationSourceRevision(collectionRoot);
+    assert.deepEqual(snapshot.sourceRevision, revision);
+    assert.deepEqual(Object.keys(snapshot.states), reports.map(
+      (report) => report.path
+    ).sort());
+
+    const sources = reports.map((report) => ({
+      path: report.path,
+      text: reportMarkdown(report)
+    }));
+    const reversed = investigationSourceRevision([...sources].reverse());
+    assert.deepEqual(reversed, revision);
+    assert.deepEqual(
+      investigationSourceRevision(sources.map((source) => ({
+        ...source,
+        text: source.text.replace(/\n/gu, "\r\n")
+      }))),
+      revision
+    );
+
+    const changedPath = reports[0]!.path;
+    const changedRevision = investigationSourceRevision(sources.map((source) => (
+      source.path === changedPath
+        ? { ...source, text: source.text + "not projected\n" }
+        : source
+    )));
+    assert.equal(changedRevision.metadata, revision.metadata);
+    assert.notEqual(
+      changedRevision.entries[changedPath],
+      revision.entries[changedPath]
+    );
+    for (const report of reports.slice(1)) {
+      assert.equal(
+        changedRevision.entries[report.path],
+        revision.entries[report.path]
+      );
+    }
+    const removedRevision = investigationSourceRevision(sources.slice(1));
+    assert.equal(removedRevision.metadata, revision.metadata);
+    assert.deepEqual(
+      Object.keys(removedRevision.entries),
+      reports.slice(1).map((report) => report.path)
+    );
+    for (const report of reports.slice(1)) {
+      assert.equal(
+        removedRevision.entries[report.path],
+        revision.entries[report.path]
+      );
+    }
+
+    const invalidPath = path.join(collectionRoot, ...changedPath.split("/"));
+    await fs.writeFile(invalidPath, "not a report\n", "utf8");
+    const unparsedRevision = await readInvestigationSourceRevision(
+      collectionRoot
+    );
+    assert.match(
+      unparsedRevision.entries[changedPath]!,
+      /^sha256:[0-9a-f]{64}$/u
+    );
+    await assert.rejects(
+      readInvestigationStateSnapshot(collectionRoot),
+      /must contain exactly one H1/
+    );
+  })
 ));

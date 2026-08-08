@@ -59,7 +59,9 @@ point。topic 表的 JSON 缩进或换行不参与 source revision；结构规�
 均无效。
 
 已定义 topic 可以没有 case，此时不创建对应目录。topic 目录一旦存在就必须至少
-包含一个合法 case 文件，不能保留空目录。每个文件必须恰好包含一个 case。
+包含一个合法 case 文件，不能保留空目录。每个文件第一行必须是该文件唯一权威 case
+的合法标题，且全文必须恰好包含一个 Markdown case；标题前不允许空行、comment、
+frontmatter 或其他前置内容。
 
 `sourcePath` 固定为测试证据根目录相对路径 `<topic>/<slug>.md`，不包含
 `catalogPath`。工具的构建、revision 读取和索引失效回退共同使用同一套根目录与
@@ -67,14 +69,15 @@ topic 扫描规则；非法布局不能通过只读回退绕过。
 
 ## Case 格式
 
-case 标题固定使用：
+case 文件第一行固定使用：
 
 ```markdown
 ### Case AUTH-ROLE-ACCESS-001: Guest access is rejected
 ```
 
-fenced code block 外，以 `Case` 开头的三级标题必须逐字采用
-`### Case <CASE-ID>: <title>`。ID 是不含空白或冒号的单个 token，并固定符合
+第一行不得缩进；fenced code block 外，以 `Case` 开头的其他三级标题仍参与
+“全文恰好一个 case”的校验。标题必须逐字采用
+`### Case <CASE-ID>: <title>`；ID 是不含空白或冒号的单个 token，并固定符合
 `^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\d{3}$`；标题不能为空。
 
 每个 case 各有且只有一个 `Entry:`、`Contract:` 和 `Proves:`：
@@ -127,9 +130,14 @@ Proves:
 
 ## 派生状态索引
 
-目录通过领域适配接入通用状态索引。索引固定使用通用 `schemaVersion: 2`、
+目录通过领域适配接入通用状态索引。索引固定使用通用 `schemaVersion: 3`、
 `namespace: test-evidence` 和 `definitionVersion: 3`。`metadata.topics` 保存
 规范化后的完整 topic 表。
+
+索引的 `entries` 使用 case ID 键控对象。每个 `entries[case-id]` 只保存 `keys`
+和 `state`；查询结果在读取边界从对象键附加 ID。state 继续保存领域 case ID，严格
+解析时必须与对象键一致，但通用索引不从 state 恢复身份。schema v2 不兼容读取，
+由 `sync-index --write` 从权威目录重建。
 
 每个合法 case 产生一个查询 state：
 
@@ -137,29 +145,38 @@ Proves:
 2. 根目录相对 `sourcePath` 与 case 在文件中的起止行。
 3. `entries`，来自规范化后的 `Entry:` 列表。
 4. `summary`，确定性取第一条 `Contract:`。
-5. `searchText`，按 ID、标题、全部 Contract、全部 Proves 和全部 Entry 拼接，
-   仅用于生成搜索 key。
+5. `searchText`，按标题、全部 Contract、全部 Proves 和全部 Entry 拼接，仅用于
+   生成搜索 key；case ID 由 key projection context 提供。
 
 索引声明 `search` 和 `topic` 两个领域 key。`topic` 必须从 `sourcePath` 的第一段
 派生，并同时存在于 `metadata.topics`；state 中不另存重复 topic 字段。解析持久化
-索引时必须交叉校验 `sourcePath`、`keys.topic` 和 metadata，不能信任其中任一份
-孤立数据。
+索引的严格检查必须交叉校验 `sourcePath`、`keys.topic` 和 metadata，不能信任其中
+任一份孤立数据。普通查询打开索引时只验证通用结构、definition 身份与来源 revision，
+不重复执行领域 state parser、key projection 或完整校验。
 
 结构化的完整 Contract、Proves 和其他正文不进入 `list` 结果；`show` 从 Markdown
 展开原文。保留的通用 `id` 查询直接使用 case ID。非空文本查询按空白拆词，所有词
 必须在同一 case 中出现；topic 查询使用精确 ID 匹配。`list` 默认最多返回 20 条并
 按 ID 排序。
 
-`sourceRevision` 由以下规范化输入计算：
+`sourceRevision` 是结构化来源清单：
 
-1. topic 表的结构值。
-2. 固定 case ID 规则。
-3. 按根目录相对路径排序的全部 case `sourcePath` 与规范化正文。
+1. `metadata` 是规范化 topic 表结构值的指纹。
+2. `entries[case-id]` 是该 case 的 `sourcePath` 与规范化正文指纹。
+3. `sourceRevision.entries` 与索引 `entries` 必须拥有完全相同的 case ID 集合。
 
-topic 描述、case 新增、删除、移动或正文变化都会使旧索引陈旧。索引本身、topic
-表 JSON 的纯格式变化和源文件换行风格不进入 revision。
+topic 描述变化只改变 metadata 指纹；case 新增、删除、移动或正文变化分别增删或
+改变对应 case 指纹。索引本身、topic 表 JSON 的纯格式变化和源文件在 LF 与 CRLF
+之间的换行风格差异不进入 revision；孤立 CR 不视为换行归一化。
 
-`list` 和 `show` 优先使用当前持久化索引。索引缺失、陈旧、定义不匹配或结构无效
+完整读取在一次目录与文件读取后先校验首行权威标题，再解析全文唯一 case、构造 state
+record，并从同一批原文产生 revision。快速 `readRevision` 只从已经读取的 Markdown
+首行取得 case ID，不扫描或解析 case body、构造 keys 或建立完整索引；正文全文仍参与
+该 case 的 fingerprint。一次成功打开的 reader 后续执行 `get`、`query` 或 `all` 不
+重复读取 revision。
+
+`list` 和 `show` 优先使用当前持久化索引。索引缺失、陈旧、版本或定义不匹配、
+source revision 成员不一致或通用结构无效
 时，从当前完整合法目录建立一次性内存投影并返回非阻断 warning；topic 表、根目录
 或任一 topic 成员无效时查询失败。内存投影不写文件。
 

@@ -275,7 +275,7 @@ export function findIndexEntry(
   index: DecisionIndex,
   decisionPath: string
 ): DecisionIndexState {
-  const entry = index.entries.find((candidate) => candidate.id === decisionPath);
+  const entry = index.entries[decisionPath];
   assert.ok(entry, "Expected indexed decision " + decisionPath);
   return entry.state;
 }

@@ -1,76 +1,61 @@
 import * as v from "valibot";
+import { diagnostic, formatValibotIssue } from "./diagnostics.ts";
 import {
-  isJsonObject,
-  isJsonValue
-} from "./json.ts";
+  keyValueMatchesMode,
+  scalarIdentity
+} from "./key-values.ts";
 import {
-  isStateIndexKeyName,
-  isStateIndexNamespace,
+  isPlainRecord,
+  sameRecordMembers
+} from "./record.ts";
+import {
   isStateIndexText,
-  stateIndexQueryDefaultLimit,
-  stateIndexQueryMaximumLimit,
-  stateIndexQuerySchema,
   stateIndexSchema,
   stateIndexSchemaVersion,
+  stateSourceRevisionSchema,
   type StateIndex,
-  type StateIndexKeyDefinition,
-  type StateIndexKeyScalar,
-  type StateIndexQueryValue
+  type StateIndexKeyDefinition
 } from "./schemas.ts";
 import type {
   StateIndexDiagnostic,
-  StateIndexExpectation
+  StateIndexExpectation,
+  StateIndexResult,
+  StateSourceRevision
 } from "./types.ts";
-
-export {
-  isJsonObject,
-  isJsonValue,
-  isStateIndexKeyName,
-  isStateIndexNamespace,
-  isStateIndexText,
-  stateIndexQueryDefaultLimit,
-  stateIndexQueryMaximumLimit,
-  stateIndexSchemaVersion
-};
-
-export function validateStateIndexQueryValue(input: unknown): {
-  diagnostics: StateIndexDiagnostic[];
-  query: StateIndexQueryValue | null;
-} {
-  const parsed = v.safeParse(stateIndexQuerySchema, input);
-  if (!parsed.success) {
-    return {
-      diagnostics: parsed.issues.map((issue) => diagnostic({
-        code: "state-index.query-invalid",
-        message: formatSchemaIssue(issue)
-      })),
-      query: null
-    };
-  }
-  const sortKeys = parsed.output.sort?.map((entry) => entry.key) ?? [];
-  if (new Set(sortKeys).size !== sortKeys.length) {
-    return {
-      diagnostics: [diagnostic({
-        code: "state-index.query-invalid",
-        message: "sort rules must not repeat a key"
-      })],
-      query: null
-    };
-  }
-  return { diagnostics: [], query: parsed.output };
-}
 
 export function validateStateIndexValue(
   input: unknown,
   expectation: StateIndexExpectation | null,
   sourcePath: string
 ): { diagnostics: StateIndexDiagnostic[]; index: StateIndex | null } {
+  if (
+    isPlainRecord(input)
+    && Object.hasOwn(input, "schemaVersion")
+    && input.schemaVersion !== stateIndexSchemaVersion
+  ) {
+    return {
+      diagnostics: [diagnostic({
+        code: "state-index.schema-version-unsupported",
+        message: `schema version ${String(input.schemaVersion)} is unsupported; expected `
+          + stateIndexSchemaVersion,
+        path: sourcePath
+      })],
+      index: null
+    };
+  }
+
+  const idDiagnostics = validateIndexRecordIds(input, sourcePath);
+  if (idDiagnostics.length > 0) {
+    return { diagnostics: idDiagnostics, index: null };
+  }
   const parsed = v.safeParse(stateIndexSchema, input);
   if (!parsed.success) {
     return {
       diagnostics: parsed.issues.map((issue) => diagnostic({
-        code: "state-index.schema-invalid",
-        message: formatSchemaIssue(issue),
+        code: issueBelongsToSourceRevision(issue)
+          ? "state-index.source-revision-invalid"
+          : "state-index.schema-invalid",
+        message: formatValibotIssue(issue),
         path: sourcePath
       })),
       index: null
@@ -99,34 +84,31 @@ export function validateStateIndexValue(
   }
 
   const definitions = validateKeyDefinitions(index.keyDefinitions, sourcePath, diagnostics);
-  const ids = new Set<string>();
-  for (const entry of index.entries) {
-    if (ids.has(entry.id)) {
-      diagnostics.push(diagnostic({
-        code: "state-index.id-duplicate",
-        message: `state id ${entry.id} appears more than once`,
-        path: sourcePath,
-        stateId: entry.id
-      }));
-    }
-    ids.add(entry.id);
+  if (!sameRecordMembers(index.entries, index.sourceRevision.entries)) {
+    diagnostics.push(diagnostic({
+      code: "state-index.source-revision-members-mismatch",
+      message: "sourceRevision.entries must contain exactly the same state ids as entries",
+      path: sourcePath
+    }));
+  }
+  for (const [id, entry] of Object.entries(index.entries)) {
     for (const [key, values] of Object.entries(entry.keys)) {
       const definition = definitions.get(key);
       if (definition === undefined) {
         diagnostics.push(diagnostic({
           code: "state-index.key-unknown",
-          message: `state ${entry.id} contains undeclared key ${key}`,
+          message: `state ${id} contains undeclared key ${key}`,
           path: sourcePath,
-          stateId: entry.id
+          stateId: id
         }));
         continue;
       }
       if (new Set(values.map(scalarIdentity)).size !== values.length) {
         diagnostics.push(diagnostic({
           code: "state-index.key-value-duplicate",
-          message: `state ${entry.id} repeats a value for key ${key}`,
+          message: `state ${id} repeats a value for key ${key}`,
           path: sourcePath,
-          stateId: entry.id
+          stateId: id
         }));
       }
       for (const value of values) {
@@ -135,7 +117,7 @@ export function validateStateIndexValue(
             code: "state-index.key-value-invalid",
             message: `key ${key} with mode ${definition.mode} cannot contain ${typeof value}`,
             path: sourcePath,
-            stateId: entry.id
+            stateId: id
           }));
         }
       }
@@ -146,6 +128,29 @@ export function validateStateIndexValue(
     diagnostics,
     index: diagnostics.length === 0 ? index : null
   };
+}
+
+export function validateStateSourceRevisionValue(
+  input: unknown,
+  sourcePath: string | null = null
+): StateIndexResult<StateSourceRevision> {
+  const idDiagnostics = validateRecordIds(input, "entries", sourcePath);
+  if (idDiagnostics.length > 0) {
+    return { diagnostics: idDiagnostics, status: "error", value: null };
+  }
+  const parsed = v.safeParse(stateSourceRevisionSchema, input);
+  if (!parsed.success) {
+    return {
+      diagnostics: parsed.issues.map((issue) => diagnostic({
+        code: "state-index.source-revision-invalid",
+        message: formatValibotIssue(issue),
+        path: sourcePath
+      })),
+      status: "error",
+      value: null
+    };
+  }
+  return { diagnostics: [], status: "ok", value: parsed.output };
 }
 
 function validateKeyDefinitions(
@@ -174,39 +179,45 @@ function validateKeyDefinitions(
   return byName;
 }
 
-export function keyValueMatchesMode(
-  value: StateIndexKeyScalar,
-  mode: StateIndexKeyDefinition["mode"]
-): boolean {
-  switch (mode) {
-    case "exact":
-      return true;
-    case "range":
-      return typeof value === "number" || typeof value === "string";
-    case "text":
-      return typeof value === "string";
+function validateIndexRecordIds(
+  input: unknown,
+  sourcePath: string
+): StateIndexDiagnostic[] {
+  if (!isPlainRecord(input)) {
+    return [];
   }
+  return [
+    ...validateRecordIds(input, "entries", sourcePath),
+    ...isPlainRecord(input.sourceRevision)
+      ? validateRecordIds(input.sourceRevision, "entries", sourcePath)
+      : []
+  ];
 }
 
-export function scalarIdentity(value: StateIndexKeyScalar): string {
-  return `${typeof value}:${String(value)}`;
+function validateRecordIds(
+  container: unknown,
+  member: string,
+  sourcePath: string | null
+): StateIndexDiagnostic[] {
+  if (!isPlainRecord(container)) {
+    return [];
+  }
+  const record = container[member];
+  if (!isPlainRecord(record)) {
+    return [];
+  }
+  return Object.keys(record)
+    .filter((id) => !isStateIndexText(id))
+    .map((id) => diagnostic({
+      code: "state-index.id-invalid",
+      message: "state id must be non-empty text without surrounding whitespace or "
+        + "control characters",
+      path: sourcePath,
+      stateId: id
+    }));
 }
 
-function formatSchemaIssue(issue: v.BaseIssue<unknown>): string {
-  const issuePath = v.getDotPath(issue);
-  return issuePath ? `${issuePath} ${issue.message}` : issue.message;
-}
-
-export function diagnostic(options: {
-  code: string;
-  message: string;
-  path?: string | null;
-  stateId?: string | null;
-}): StateIndexDiagnostic {
-  return {
-    code: options.code,
-    message: options.message,
-    path: options.path ?? null,
-    stateId: options.stateId ?? null
-  };
+function issueBelongsToSourceRevision(issue: v.BaseIssue<unknown>): boolean {
+  const path = v.getDotPath(issue);
+  return path === "sourceRevision" || path?.startsWith("sourceRevision.") === true;
 }

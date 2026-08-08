@@ -1,6 +1,7 @@
 import { Buffer } from "node:buffer";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { isDeepStrictEqual } from "node:util";
 import {
   openVersionControl,
   type RevisionId,
@@ -368,9 +369,9 @@ async function buildDecisionIndexText(
     ).join("; "));
   }
   if (
-    parsed.value.sourceRevision !== snapshot.revision
+    !isDeepStrictEqual(parsed.value.sourceRevision, snapshot.sourceRevision)
     || !samePaths(
-      parsed.value.entries.map((entry) => entry.id),
+      Object.keys(parsed.value.entries),
       sources.map((source) => source.path)
     )
   ) {

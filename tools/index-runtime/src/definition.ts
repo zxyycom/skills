@@ -58,9 +58,6 @@ export function validateStateIndexDefinition<
   if (typeof definition.readRevision !== "function") {
     errors.push("readRevision must be a function");
   }
-  if (typeof definition.identify !== "function") {
-    errors.push("identify must be a function");
-  }
   if (typeof definition.parseMetadata !== "function") {
     errors.push("parseMetadata must be a function");
   }

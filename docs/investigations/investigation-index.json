@@ -1,8 +1,7 @@
 {
   "definitionVersion": 2,
-  "entries": [
-    {
-      "id": "context-management/unified-context-management.md",
+  "entries": {
+    "context-management/unified-context-management.md": {
       "keys": {
         "category": [
           "context-management"
@@ -31,8 +30,7 @@
         "title": "现有上下文管理 skills 与统一上下文管理系统的差距调查"
       }
     },
-    {
-      "id": "decision-records/intra-change-decision-evolution.md",
+    "decision-records/intra-change-decision-evolution.md": {
       "keys": {
         "category": [
           "decision-records"
@@ -63,8 +61,7 @@
         "title": "同一变更内决策演进保留边界调查"
       }
     },
-    {
-      "id": "git-integration/direct-git-library-selection.md",
+    "git-integration/direct-git-library-selection.md": {
       "keys": {
         "category": [
           "git-integration"
@@ -93,8 +90,7 @@
         "title": "TypeScript Git 库选型调查"
       }
     },
-    {
-      "id": "implementation-libraries/functional-utilities-and-data-structures.md",
+    "implementation-libraries/functional-utilities-and-data-structures.md": {
       "keys": {
         "category": [
           "implementation-libraries"
@@ -123,8 +119,7 @@
         "title": "TypeScript 函数式工具与专用数据结构库调查"
       }
     },
-    {
-      "id": "implementation-libraries/pattern-matching-and-state-modeling-libraries.md",
+    "implementation-libraries/pattern-matching-and-state-modeling-libraries.md": {
       "keys": {
         "category": [
           "implementation-libraries"
@@ -153,8 +148,7 @@
         "title": "TypeScript 穷尽匹配与轻量状态建模库调查"
       }
     },
-    {
-      "id": "implementation-libraries/result-and-option-libraries.md",
+    "implementation-libraries/result-and-option-libraries.md": {
       "keys": {
         "category": [
           "implementation-libraries"
@@ -183,8 +177,7 @@
         "title": "TypeScript Result 与 Option 库调查"
       }
     },
-    {
-      "id": "prompt-optimize/name-and-trigger-alignment.md",
+    "prompt-optimize/name-and-trigger-alignment.md": {
       "keys": {
         "category": [
           "prompt-optimize"
@@ -213,8 +206,7 @@
         "title": "Prompt Optimize 名称与触发对齐调查"
       }
     },
-    {
-      "id": "task-graph/file-lock-and-atomic-write-libraries.md",
+    "task-graph/file-lock-and-atomic-write-libraries.md": {
       "keys": {
         "category": [
           "task-graph"
@@ -247,27 +239,39 @@
         "title": "Task Graph 文件锁与原子写入 npm 库调查"
       }
     }
-  ],
+  },
   "keyDefinitions": [
     {
-      "mode": "exact",
-      "name": "category"
+      "name": "category",
+      "mode": "exact"
     },
     {
-      "mode": "range",
-      "name": "latest-report-at"
+      "name": "latest-report-at",
+      "mode": "range"
     },
     {
-      "mode": "exact",
-      "name": "status"
+      "name": "status",
+      "mode": "exact"
     },
     {
-      "mode": "text",
-      "name": "text"
+      "name": "text",
+      "mode": "text"
     }
   ],
   "metadata": {},
   "namespace": "investigations",
-  "schemaVersion": 2,
-  "sourceRevision": "sha256:14ce9a85d5468a5f18e4621ab51ddd9b325c2f73c310b4dc1856e86c0664d63e"
+  "schemaVersion": 3,
+  "sourceRevision": {
+    "entries": {
+      "context-management/unified-context-management.md": "sha256:924236b12d95a2df8e645a9b51587591dc626749ff47e8f0676eb862eeef1c2e",
+      "decision-records/intra-change-decision-evolution.md": "sha256:ea0534815b78a50f47c871b082a7aaec25c0d6e1b518e6fa2c7c745e435f6e57",
+      "git-integration/direct-git-library-selection.md": "sha256:9948dbd4fcf22f71a82702d5d4cecd1008a189fab81c2e3bbcc0375c244ad4c9",
+      "implementation-libraries/functional-utilities-and-data-structures.md": "sha256:6bf7e428f3ad5573d3f6de2b6dbfc13c9dff95bc0b073409fb95351455c72ffd",
+      "implementation-libraries/pattern-matching-and-state-modeling-libraries.md": "sha256:3a58606070f5268283b32f37752872012bd05defd4a588b6092e014e62cc79fc",
+      "implementation-libraries/result-and-option-libraries.md": "sha256:3700335afd0bf7a4c1e4618a606af6b5fbb9a774d34ab5fdf5dad07eff1ec098",
+      "prompt-optimize/name-and-trigger-alignment.md": "sha256:3e962c81424f762a619986a4c3d8fc668a84b7ff3e867ca38ee370531ac826db",
+      "task-graph/file-lock-and-atomic-write-libraries.md": "sha256:1ef40f9481f4a6a1275f50b5ede4f08d70dd67677d0057852a3c6bf9841c1edb"
+    },
+    "metadata": "sha256:931315855b004e2e1a7d21a464b55602aff04ccf765c650c1966077b5e2053c6"
+  }
 }

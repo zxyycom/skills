@@ -35,7 +35,7 @@ assert.match(declarationSource, /runDecisionRecordsCli/);
 assert.match(declarationSource, /DecisionProjection/);
 assert.match(declarationSource, /DecisionAlignment/);
 assert.match(declarationSource, /namespace: "decisions"/);
-assert.match(declarationSource, /schemaVersion: 2/);
+assert.match(declarationSource, /schemaVersion: 3/);
 assert.match(declarationSource, /metadata: DecisionIndexMetadata/);
 assert.match(declarationSource, /domains: DecisionDomainDefinition\[\]/);
 assert.doesNotMatch(declarationSource, /pathGroup/);
@@ -77,6 +77,12 @@ assert.deepEqual(
 assert.deepEqual(
   Object.keys(decisionIndexJsonSchema.$defs.relation.properties),
   ["type", "target"]
+);
+assert.equal(decisionIndexJsonSchema.properties.schemaVersion.const, 3);
+assert.equal(decisionIndexJsonSchema.properties.entries.type, "object");
+assert.equal(
+  decisionIndexJsonSchema.properties.sourceRevision.type,
+  "object"
 );
 assert.deepEqual(
   Object.keys(decisionIndexJsonSchema.properties),

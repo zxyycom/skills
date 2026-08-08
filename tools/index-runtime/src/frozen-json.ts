@@ -52,6 +52,9 @@ export function readonlyFrozenStateIndex<
   if (!isDeeplyFrozen(index)) {
     throw new TypeError("complete state index must be recursively frozen");
   }
+  // Recursive freezing proves the mutable generic shape is safe to expose
+  // through its recursively readonly view; TypeScript cannot derive that
+  // relationship for an unconstrained generic object.
   return index as unknown as ReadonlyStateIndex<State, Metadata>;
 }
 
