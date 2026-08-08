@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "revision": 92,
+  "revision": 95,
   "nextTaskId": 28,
   "tasks": {
     "task-000001": {
@@ -728,16 +728,22 @@
         "references": {
           "decision": "docs/decisions/change-plan/manage-change-lifecycle-stages.md"
         },
-        "result": null
+        "result": {
+          "summary": "完成 Change 生命周期阶段实施、第一波集成与授权归档；完整门禁通过，change 已移入 archive。",
+          "references": {
+            "archive": "changes/archive/manage-change-lifecycle-stages/",
+            "integrated-commit": "9a04c8d2b8e1d862d1c13988763b8d7039efae5d"
+          }
+        }
       },
       "state": {
         "control": {
-          "mode": "waiting",
-          "reason": "实施、语义审阅与第一波集成已完成；集成提交 9a04c8d2b8e1d862d1c13988763b8d7039efae5d，完整门禁 27/27 通过；仅等待用户明确授权归档 Change。"
+          "mode": "queued",
+          "reason": null
         },
         "execution": {
-          "phase": "idle",
-          "attempt": 3
+          "phase": "succeeded",
+          "attempt": 4
         },
         "relations": {
           "parentId": null,
@@ -746,7 +752,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-08T11:15:18.468Z"
+          "updatedAt": "2026-08-08T11:38:45.801Z"
         }
       }
     },
