@@ -12,7 +12,7 @@
 
 维护仓库内容时，从 [仓库导航](docs/navigation.md) 按任务定位先读内容和对应 owner。
 
-开发环境可以先运行 `node scripts/env.js check`；需要补齐工具或项目依赖时改用 `node scripts/env.js install`。完整边界见 [项目工具链](docs/tooling.md#环境自举)。
+开发环境可以先运行 `node scripts/environment.js check`；需要补齐工具、项目依赖和仓库本地配置时改用 `node scripts/environment.js setup`。完整边界见 [项目工具链](docs/tooling.md#环境自举)。
 
 项目不会把所有内容合成一个大而全的 skill。每个 skill 都有自己的问题意识、语义边界和演进方向；它们放在同一组项目里，是为了共同服务于更好的 agent 协作。
 

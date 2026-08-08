@@ -7,5 +7,5 @@ script = '''
 cd "$CODEX_WORKTREE_PATH"
 git restore --staged --worktree .
 git clean -fd
-node scripts/env.js install
+node scripts/environment.js setup
 '''

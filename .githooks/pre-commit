@@ -2,6 +2,10 @@
 set -eu
 
 repo_root="$(git rev-parse --show-toplevel)"
+git_local_env_vars="$(git rev-parse --local-env-vars)"
+for variable in $git_local_env_vars; do
+  unset "$variable"
+done
 cd "$repo_root"
 
 if ! command -v bun >/dev/null 2>&1; then

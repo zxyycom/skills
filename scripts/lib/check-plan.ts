@@ -30,6 +30,7 @@ export const checkPreflightTasks = [
   { minimumProfile: "quick", script: "typecheck" },
   { minimumProfile: "quick", script: "check:skill-updaters" },
   { minimumProfile: "quick", script: "test:check" },
+  { minimumProfile: "quick", script: "test:environment" },
   { minimumProfile: "quick", script: "test:generated-file" },
   { minimumProfile: "quick", script: "hash:skills" }
 ] as const satisfies readonly CheckTask[];

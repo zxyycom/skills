@@ -2531,6 +2531,121 @@
         "title": "未提交决策演进等待显式保留"
       }
     },
+    "ENV-CHECK-READONLY-001": {
+      "keys": {
+        "search": [
+          "ENV-CHECK-READONLY-001 环境 check 只报告缺失的仓库配置 `environment.js check` 只诊断环境与仓库配置，不能借检查写入 Git config 或文件 mode。 缺失仓库 setup 时检查失败，并给出运行 `environment.js setup` 的行动诊断。 检查前后的仓库 local config 和 pre-commit mode 完全相同。 scripts/environment.test.ts > environment check reports missing repository setup without writing it bun test --test-name-pattern=\"^environment check reports missing repository setup without writing it$\" ./scripts/environment.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "scripts/environment.test.ts > environment check reports missing repository setup without writing it",
+          "bun test --test-name-pattern=\"^environment check reports missing repository setup without writing it$\" ./scripts/environment.test.ts"
+        ],
+        "id": "ENV-CHECK-READONLY-001",
+        "line": 1,
+        "searchText": "环境 check 只报告缺失的仓库配置 `environment.js check` 只诊断环境与仓库配置，不能借检查写入 Git config 或文件 mode。 缺失仓库 setup 时检查失败，并给出运行 `environment.js setup` 的行动诊断。 检查前后的仓库 local config 和 pre-commit mode 完全相同。 scripts/environment.test.ts > environment check reports missing repository setup without writing it bun test --test-name-pattern=\"^environment check reports missing repository setup without writing it$\" ./scripts/environment.test.ts",
+        "sourcePath": "repository-tooling/environment-check-is-read-only.md",
+        "summary": "`environment.js check` 只诊断环境与仓库配置，不能借检查写入 Git config 或文件 mode。",
+        "title": "环境 check 只报告缺失的仓库配置"
+      }
+    },
+    "ENV-CLONE-HOOK-001": {
+      "keys": {
+        "search": [
+          "ENV-CLONE-HOOK-001 环境 setup 在新 clone 中启用 pre-commit 标准环境 setup 必须让新 clone 的当前 worktree 直接具备可执行且由 Git 使用的 pre-commit hook。 setup 将 `core.hooksPath` 配置为 `.githooks`，并把当前 pre-commit 设为可执行。 随后的真实 `git commit` 会进入 fixture hook 并被该 hook 阻止。 scripts/environment.test.ts > environment setup enables the pre-commit hook in a fresh clone bun test --test-name-pattern=\"^environment setup enables the pre-commit hook in a fresh clone$\" ./scripts/environment.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "scripts/environment.test.ts > environment setup enables the pre-commit hook in a fresh clone",
+          "bun test --test-name-pattern=\"^environment setup enables the pre-commit hook in a fresh clone$\" ./scripts/environment.test.ts"
+        ],
+        "id": "ENV-CLONE-HOOK-001",
+        "line": 1,
+        "searchText": "环境 setup 在新 clone 中启用 pre-commit 标准环境 setup 必须让新 clone 的当前 worktree 直接具备可执行且由 Git 使用的 pre-commit hook。 setup 将 `core.hooksPath` 配置为 `.githooks`，并把当前 pre-commit 设为可执行。 随后的真实 `git commit` 会进入 fixture hook 并被该 hook 阻止。 scripts/environment.test.ts > environment setup enables the pre-commit hook in a fresh clone bun test --test-name-pattern=\"^environment setup enables the pre-commit hook in a fresh clone$\" ./scripts/environment.test.ts",
+        "sourcePath": "repository-tooling/environment-setup-enables-hook-in-fresh-clone.md",
+        "summary": "标准环境 setup 必须让新 clone 的当前 worktree 直接具备可执行且由 Git 使用的 pre-commit hook。",
+        "title": "环境 setup 在新 clone 中启用 pre-commit"
+      }
+    },
+    "ENV-LINKED-HASH-HOOK-001": {
+      "keys": {
+        "search": [
+          "ENV-LINKED-HASH-HOOK-001 linked worktree 的真实 hash hook 隔离 Git 环境 pre-commit 必须保留真实 `hash:skills` 门禁，同时避免 Git 注入的 repository-local 环境变量改变 hash 内部按目录执行的仓库发现。 临时主仓库与 linked worktree 使用当前 pre-commit 和真实 skill-package hash 源码执行一次真实 `git commit`。 hook 清理 `GIT_DIR`、`GIT_INDEX_FILE` 等本地变量后，nested Git 重新发现 linked worktree 及其 index，hash 成功且 commit 完成。 scripts/environment.test.ts > real hash pre-commit succeeds in a linked worktree with isolated Git environment bun test --test-name-pattern=\"^real hash pre-commit succeeds in a linked worktree with isolated Git environment$\" ./scripts/environment.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "scripts/environment.test.ts > real hash pre-commit succeeds in a linked worktree with isolated Git environment",
+          "bun test --test-name-pattern=\"^real hash pre-commit succeeds in a linked worktree with isolated Git environment$\" ./scripts/environment.test.ts"
+        ],
+        "id": "ENV-LINKED-HASH-HOOK-001",
+        "line": 1,
+        "searchText": "linked worktree 的真实 hash hook 隔离 Git 环境 pre-commit 必须保留真实 `hash:skills` 门禁，同时避免 Git 注入的 repository-local 环境变量改变 hash 内部按目录执行的仓库发现。 临时主仓库与 linked worktree 使用当前 pre-commit 和真实 skill-package hash 源码执行一次真实 `git commit`。 hook 清理 `GIT_DIR`、`GIT_INDEX_FILE` 等本地变量后，nested Git 重新发现 linked worktree 及其 index，hash 成功且 commit 完成。 scripts/environment.test.ts > real hash pre-commit succeeds in a linked worktree with isolated Git environment bun test --test-name-pattern=\"^real hash pre-commit succeeds in a linked worktree with isolated Git environment$\" ./scripts/environment.test.ts",
+        "sourcePath": "repository-tooling/linked-worktree-real-hash-hook-isolates-git-environment.md",
+        "summary": "pre-commit 必须保留真实 `hash:skills` 门禁，同时避免 Git 注入的 repository-local 环境变量改变 hash 内部按目录执行的仓库发现。",
+        "title": "linked worktree 的真实 hash hook 隔离 Git 环境"
+      }
+    },
+    "ENV-PERMISSION-RULES-001": {
+      "keys": {
+        "search": [
+          "ENV-PERMISSION-RULES-001 仓库权限规则覆盖环境 setup 且拒绝死入口 项目配置校验必须保持环境 check 的只读 allow、setup 与仓库配置入口的 prompt，并拒绝已删除脚本或 task-graph 混合读写 launcher 的 blanket 权限。 当前 `.codex/rules/bun.rules` 包含全部必要环境权限且没有阻断诊断。 替换为已删除的 TypeScript hook 入口并 blanket allow task-graph 后，校验同时报告缺失 prompt、死引用与过宽权限。 scripts/validators/project-config.test.ts > repository permission rules cover environment setup without stale or blanket entries bun test --test-name-pattern=\"^repository permission rules cover environment setup without stale or blanket entries$\" ./scripts/validators/project-config.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "scripts/validators/project-config.test.ts > repository permission rules cover environment setup without stale or blanket entries",
+          "bun test --test-name-pattern=\"^repository permission rules cover environment setup without stale or blanket entries$\" ./scripts/validators/project-config.test.ts"
+        ],
+        "id": "ENV-PERMISSION-RULES-001",
+        "line": 1,
+        "searchText": "仓库权限规则覆盖环境 setup 且拒绝死入口 项目配置校验必须保持环境 check 的只读 allow、setup 与仓库配置入口的 prompt，并拒绝已删除脚本或 task-graph 混合读写 launcher 的 blanket 权限。 当前 `.codex/rules/bun.rules` 包含全部必要环境权限且没有阻断诊断。 替换为已删除的 TypeScript hook 入口并 blanket allow task-graph 后，校验同时报告缺失 prompt、死引用与过宽权限。 scripts/validators/project-config.test.ts > repository permission rules cover environment setup without stale or blanket entries bun test --test-name-pattern=\"^repository permission rules cover environment setup without stale or blanket entries$\" ./scripts/validators/project-config.test.ts",
+        "sourcePath": "repository-tooling/repository-permission-rules-cover-environment-setup.md",
+        "summary": "项目配置校验必须保持环境 check 的只读 allow、setup 与仓库配置入口的 prompt，并拒绝已删除脚本或 task-graph 混合读写 launcher 的 blanket 权限。",
+        "title": "仓库权限规则覆盖环境 setup 且拒绝死入口"
+      }
+    },
+    "ENV-WORKTREE-SETUP-001": {
+      "keys": {
+        "search": [
+          "ENV-WORKTREE-SETUP-001 linked worktree 重复 setup 保持中央 task root linked worktree 的标准环境 setup 必须可重复执行，并把 task-graph 协调 root 固定为同仓主 worktree，而不是执行 worktree。 连续两次 setup 都成功，仓库 local config 中的 `skills.taskGraphRoot` 保持主 worktree 绝对路径。 原本不可执行的 linked worktree pre-commit 在 setup 后会被真实 `git commit` 调用。 scripts/environment.test.ts > environment setup is idempotent in a linked worktree and keeps the main task root bun test --test-name-pattern=\"^environment setup is idempotent in a linked worktree and keeps the main task root$\" ./scripts/environment.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "scripts/environment.test.ts > environment setup is idempotent in a linked worktree and keeps the main task root",
+          "bun test --test-name-pattern=\"^environment setup is idempotent in a linked worktree and keeps the main task root$\" ./scripts/environment.test.ts"
+        ],
+        "id": "ENV-WORKTREE-SETUP-001",
+        "line": 1,
+        "searchText": "linked worktree 重复 setup 保持中央 task root linked worktree 的标准环境 setup 必须可重复执行，并把 task-graph 协调 root 固定为同仓主 worktree，而不是执行 worktree。 连续两次 setup 都成功，仓库 local config 中的 `skills.taskGraphRoot` 保持主 worktree 绝对路径。 原本不可执行的 linked worktree pre-commit 在 setup 后会被真实 `git commit` 调用。 scripts/environment.test.ts > environment setup is idempotent in a linked worktree and keeps the main task root bun test --test-name-pattern=\"^environment setup is idempotent in a linked worktree and keeps the main task root$\" ./scripts/environment.test.ts",
+        "sourcePath": "repository-tooling/environment-setup-keeps-main-root-in-linked-worktree.md",
+        "summary": "linked worktree 的标准环境 setup 必须可重复执行，并把 task-graph 协调 root 固定为同仓主 worktree，而不是执行 worktree。",
+        "title": "linked worktree 重复 setup 保持中央 task root"
+      }
+    },
     "GENERATED-FILE-DECLARATION-001": {
       "keys": {
         "search": [
@@ -3771,6 +3886,52 @@
         "sourcePath": "investigation-report/validation-filters-reports-by-category-and-path.md",
         "summary": "调查校验必须按 category 和目录路径限制目标报告。",
         "title": "调查校验按类别与路径筛选"
+      }
+    },
+    "REPO-TASK-ROOT-001": {
+      "keys": {
+        "search": [
+          "REPO-TASK-ROOT-001 task-graph 短命令注入已配置的中央 root 仓库 task-graph package 命令只向现有领域 CLI 注入已配置的中央协调 root 和唯一索引，不能按当前 worktree 静默猜测或接受第二个 root 或 index。 linked worktree 中的 package 命令实际从主 worktree 运行中央 CLI，并向其传入同一个绝对 `--root`。 调用方传入 `--root`、`--index` 或仓库没有 root 配置时，launcher 在调用领域 CLI 前失败。 scripts/environment.test.ts > task-graph package command requires and injects the configured main root bun test --test-name-pattern=\"^task-graph package command requires and injects the configured main root$\" ./scripts/environment.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "scripts/environment.test.ts > task-graph package command requires and injects the configured main root",
+          "bun test --test-name-pattern=\"^task-graph package command requires and injects the configured main root$\" ./scripts/environment.test.ts"
+        ],
+        "id": "REPO-TASK-ROOT-001",
+        "line": 1,
+        "searchText": "task-graph 短命令注入已配置的中央 root 仓库 task-graph package 命令只向现有领域 CLI 注入已配置的中央协调 root 和唯一索引，不能按当前 worktree 静默猜测或接受第二个 root 或 index。 linked worktree 中的 package 命令实际从主 worktree 运行中央 CLI，并向其传入同一个绝对 `--root`。 调用方传入 `--root`、`--index` 或仓库没有 root 配置时，launcher 在调用领域 CLI 前失败。 scripts/environment.test.ts > task-graph package command requires and injects the configured main root bun test --test-name-pattern=\"^task-graph package command requires and injects the configured main root$\" ./scripts/environment.test.ts",
+        "sourcePath": "repository-tooling/task-graph-package-command-injects-main-root.md",
+        "summary": "仓库 task-graph package 命令只向现有领域 CLI 注入已配置的中央协调 root 和唯一索引，不能按当前 worktree 静默猜测或接受第二个 root 或 index。",
+        "title": "task-graph 短命令注入已配置的中央 root"
+      }
+    },
+    "REPO-TASK-STALE-001": {
+      "keys": {
+        "search": [
+          "REPO-TASK-STALE-001 task-graph 短命令拒绝陈旧的中央 root 仓库 task-graph package 命令每次调用都必须确认已配置 root 仍是当前 Git 仓库的主 worktree，不能仅凭旧路径仍有 task index 就继续执行。 将 `skills.taskGraphRoot` 指向另一个仍含合法 task index 的仓库时，launcher 在调用领域 CLI 前报告 main-worktree mismatch 并失败。 scripts/environment.test.ts > task-graph package command rejects a stale configured main root bun test --test-name-pattern=\"^task-graph package command rejects a stale configured main root$\" ./scripts/environment.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "scripts/environment.test.ts > task-graph package command rejects a stale configured main root",
+          "bun test --test-name-pattern=\"^task-graph package command rejects a stale configured main root$\" ./scripts/environment.test.ts"
+        ],
+        "id": "REPO-TASK-STALE-001",
+        "line": 1,
+        "searchText": "task-graph 短命令拒绝陈旧的中央 root 仓库 task-graph package 命令每次调用都必须确认已配置 root 仍是当前 Git 仓库的主 worktree，不能仅凭旧路径仍有 task index 就继续执行。 将 `skills.taskGraphRoot` 指向另一个仍含合法 task index 的仓库时，launcher 在调用领域 CLI 前报告 main-worktree mismatch 并失败。 scripts/environment.test.ts > task-graph package command rejects a stale configured main root bun test --test-name-pattern=\"^task-graph package command rejects a stale configured main root$\" ./scripts/environment.test.ts",
+        "sourcePath": "repository-tooling/task-graph-package-command-rejects-stale-root.md",
+        "summary": "仓库 task-graph package 命令每次调用都必须确认已配置 root 仍是当前 Git 仓库的主 worktree，不能仅凭旧路径仍有 task index 就继续执行。",
+        "title": "task-graph 短命令拒绝陈旧的中央 root"
       }
     },
     "SKILL-PACKAGE-HASH-001": {
@@ -7898,6 +8059,11 @@
       "DECISION-UNRECORDED-COLLAPSE-RECORDED-001": "sha256:393424879ded25295580036f42fb925d904f813ee4b8f78145145ef74f577651",
       "DECISION-UNRECORDED-COLLAPSE-REFERENCE-001": "sha256:b93261aa5527905c3685195a1ba21495ea5324b32f39ace5975332800eb2d04a",
       "DECISION-UNRECORDED-EVOLUTION-001": "sha256:febded1810b231ce8775d25dc6b2460fba9b25c72a3cf7566ae3779d9e0a617a",
+      "ENV-CHECK-READONLY-001": "sha256:1cc8bb79619b0886f6166381c90048049dc07658f88f51ca0bd0901ffebb6731",
+      "ENV-CLONE-HOOK-001": "sha256:3bb0b26af6bc8cea1d0cef60418a85ca45bd7ce970ff7c224dfd9fbedf6a7e53",
+      "ENV-LINKED-HASH-HOOK-001": "sha256:13a94db1d55359cb4362c4db760d950fbc1f0b4480ea0db4928da59711cc3f92",
+      "ENV-PERMISSION-RULES-001": "sha256:21a124776a169674569296131b473013b83cd4982ea6a91fde7ec22edc11b45a",
+      "ENV-WORKTREE-SETUP-001": "sha256:32917168bd00fc36068993d61b8647b0a3f0a84807987074110a43a2b94e7237",
       "GENERATED-FILE-DECLARATION-001": "sha256:6e1393221dbc7a89eb508e87745a86f801af86a6067ebd39427d34876b660d3a",
       "GENERATED-FILE-DRIFT-001": "sha256:75f8e90a810f0a9bb1d14f9e6c378c6815b3fce9dd7d9217124df59684ff852a",
       "GENERATED-FILE-SOURCE-MAP-001": "sha256:8554388099096f17fa56eab44ac699ce0c23660e8fe15f8ea96ea7e14e3abe08",
@@ -7952,6 +8118,8 @@
       "INVESTIGATION-SOURCE-REVISION-001": "sha256:d7bc684d85b8c31c9e3249fd94cd22271db1cf9fdc8ea806468252e62acd57ad",
       "INVESTIGATION-STRUCTURE-CHRONOLOGY-001": "sha256:c37b58ae1a46e45c4c65521f420c6f373301ce0465e1d5c14ed70abb8a7f0de4",
       "INVESTIGATION-VALIDATION-FILTER-001": "sha256:59fb97585ad6fe441e9bf7a42044f69eb26a826b7c648a25322a8ab2e350e036",
+      "REPO-TASK-ROOT-001": "sha256:486d7cdd654965748ac8210f3198de00bbeff39dda58aa17fab1bb3915386714",
+      "REPO-TASK-STALE-001": "sha256:892ea919b6ee77805fc77ae1563d963db5d1801aa2abd526370648359928167b",
       "SKILL-PACKAGE-HASH-001": "sha256:cf44553e22b994bf18ecc1269c2a95e1d58c03eaa247bff8abcc4a6bef099732",
       "SKILL-PACKAGE-HASH-002": "sha256:acd1e290d0b553f438700b71fabd6fab1856c150d9e1d1ad194d3eb1a499f9c3",
       "SKILL-PACKAGE-HASH-003": "sha256:20a11e306f874a30f6bd5dbaefe1e14155caa0aea61574fc5e685b6a253f30fb",

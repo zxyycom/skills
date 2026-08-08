@@ -5,5 +5,5 @@ name = "skills"
 [setup]
 script = '''
 cd "$CODEX_WORKTREE_PATH"
-node scripts/env.js install
+node scripts/environment.js setup
 '''

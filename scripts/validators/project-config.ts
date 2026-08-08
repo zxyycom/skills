@@ -14,9 +14,18 @@ type PackageJson = {
   scripts?: Record<string, unknown>;
 };
 
+type PermissionDecision = "allow" | "prompt";
+
+type PermissionRule = {
+  command: readonly string[];
+  decision: PermissionDecision;
+};
+
 const requiredPackageScripts = [
   ...checkPackageScripts,
   "setup-hooks",
+  "setup-repository",
+  "task-graph",
   "sync:skill-updaters",
   "sync:change-plan-cli",
   "sync:skill-validator",
@@ -34,12 +43,37 @@ const requiredProjectFiles = [
   "AGENTS.md",
   "pnpm-workspace.yaml",
   "tsconfig.json",
+  ".codex/rules/bun.rules",
   "scripts/check.ts",
-  "scripts/setup-git-hooks.ts",
+  "scripts/environment.js",
+  "scripts/setup-git-hooks.js",
+  "scripts/setup-repository.js",
+  "scripts/task-graph.js",
   "docs/tooling.md",
   "docs/skills",
   ".githooks/pre-commit",
   ".github/workflows/package-skills.yml"
+] as const;
+
+const requiredPermissionRules = [
+  { command: ["bun", "run", "setup-hooks"], decision: "prompt" },
+  { command: ["bun", "run", "setup-repository"], decision: "prompt" },
+  { command: ["node", "scripts/environment.js", "check"], decision: "allow" },
+  { command: ["node", "scripts/environment.js", "setup"], decision: "prompt" },
+  { command: ["node", "scripts/setup-git-hooks.js"], decision: "prompt" },
+  { command: ["node", "scripts/setup-repository.js"], decision: "prompt" }
+] as const satisfies readonly PermissionRule[];
+
+// Build removed paths from segments so active-source searches cannot mistake
+// the validator's deny list for another copyable command reference.
+const forbiddenPermissionRuleReferences = [
+  ["scripts", ["env", "js"].join(".")].join("/"),
+  ["scripts", ["setup-git-hooks", "ts"].join(".")].join("/")
+] as const;
+
+const forbiddenBlanketPermissionRules = [
+  ["bun", "run", "task-graph"],
+  ["node", "scripts/task-graph.js"]
 ] as const;
 
 const forbiddenPackageStateFiles = [
@@ -80,6 +114,45 @@ export async function validateRequiredProjectFiles(
       report(
         `${relativePath} must not exist; calculate package hashes on demand with hash:skills`
       );
+    }
+  }
+}
+
+function permissionRuleSource(rule: PermissionRule): string {
+  const pattern = rule.command.map((part) => JSON.stringify(part)).join(", ");
+  return `prefix_rule(pattern=[${pattern}], decision="${rule.decision}")`;
+}
+
+export async function validateRepositoryPermissionRules(
+  report: ReportValidationError,
+  workspaceRoot: string = rootDir
+): Promise<void> {
+  const relativePath = ".codex/rules/bun.rules";
+  const rulesPath = path.join(workspaceRoot, relativePath);
+  if (!await pathExists(rulesPath)) {
+    return;
+  }
+
+  const source = await fs.readFile(rulesPath, "utf8");
+  for (const rule of requiredPermissionRules) {
+    if (!source.includes(permissionRuleSource(rule))) {
+      report(
+        `${relativePath} must ${rule.decision} ${rule.command.join(" ")}`
+      );
+    }
+  }
+  for (const reference of forbiddenPermissionRuleReferences) {
+    if (source.includes(reference)) {
+      report(`${relativePath} must not reference removed entry ${reference}`);
+    }
+  }
+  for (const command of forbiddenBlanketPermissionRules) {
+    for (const decision of ["allow", "prompt"] as const) {
+      if (source.includes(permissionRuleSource({ command, decision }))) {
+        report(
+          `${relativePath} must not blanket ${decision} ${command.join(" ")}`
+        );
+      }
     }
   }
 }

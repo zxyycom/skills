@@ -9,6 +9,10 @@ import {
 } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  getRepositorySetupStatus,
+  setupRepository
+} from "./setup-repository.js";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const manifestPath = path.join(repoRoot, "package.json");
@@ -30,10 +34,10 @@ function parseAction(argv) {
   if (argv.length === 0) {
     return "check";
   }
-  if (argv.length === 1 && (argv[0] === "check" || argv[0] === "install")) {
+  if (argv.length === 1 && (argv[0] === "check" || argv[0] === "setup")) {
     return argv[0];
   }
-  throw new Error("usage: node scripts/env.js <check|install>");
+  throw new Error("usage: node scripts/environment.js <check|setup>");
 }
 
 function readEnvironmentConfig() {
@@ -412,12 +416,21 @@ function getEnvironmentStatus(config) {
   const tools = getToolStatuses(config);
   const dependencies = getDependencyStatus(config, tools);
   const codegraphIndex = getCodeGraphIndexStatus(tools);
+  const gitStatus = tools.find(({ name }) => name === "git");
+  const repository = gitStatus?.state === "ready"
+    ? getRepositorySetupStatus(repoRoot)
+    : {
+        detail: "git must be ready before repository setup can be checked",
+        state: "blocked"
+      };
   return {
     codegraphIndex,
     dependencies,
+    repository,
     ready: tools.every(({ state }) => state === "ready")
       && dependencies.state === "ready"
-      && codegraphIndex.state === "ready",
+      && codegraphIndex.state === "ready"
+      && repository.state === "ready",
     tools
   };
 }
@@ -455,6 +468,16 @@ function printEnvironmentStatus(status) {
     );
   }
 
+  if (status.repository.state === "ready") {
+    console.log(
+      `[ok]       repository setup - ${status.repository.detail}`
+    );
+  } else {
+    console.log(
+      `[${status.repository.state}] repository setup - ${status.repository.detail}`
+    );
+  }
+
   if (status.ready) {
     console.log("Environment is ready.");
   } else {
@@ -467,10 +490,12 @@ function printEnvironmentStatus(status) {
       );
       console.log(
         "Environment is not ready. Make codegraph available on PATH, "
-          + "then run: node scripts/env.js install"
+          + "then run: node scripts/environment.js setup"
       );
     } else {
-      console.log("Environment is not ready. Run: node scripts/env.js install");
+      console.log(
+        "Environment is not ready. Run: node scripts/environment.js setup"
+      );
     }
   }
 }
@@ -503,7 +528,7 @@ function installPnpm(version) {
   installWithNpm(`pnpm@${version.text}`);
 }
 
-function installEnvironment(config) {
+function setupEnvironment(config) {
   let toolStatuses = getToolStatuses(config);
   const bootstrapFailures = toolStatuses.filter(
     ({ name, state }) => (name === "git" || name === "node") && state !== "ready"
@@ -515,6 +540,9 @@ function installEnvironment(config) {
         .join(", ")}`
     );
   }
+
+  console.log("Configuring repository-local hooks and task coordination root...");
+  setupRepository(repoRoot);
 
   const bunStatus = toolStatuses.find(({ name }) => name === "bun");
   if (bunStatus.state !== "ready") {
@@ -565,7 +593,7 @@ function installEnvironment(config) {
   printEnvironmentStatus(finalStatus);
   if (!finalStatus.ready) {
     throw new Error(
-      "installation completed but the final environment check failed"
+      "setup completed but the final environment check failed"
     );
   }
 }
@@ -577,8 +605,8 @@ function errorMessage(error) {
 try {
   const action = parseAction(process.argv.slice(2));
   const config = readEnvironmentConfig();
-  if (action === "install") {
-    installEnvironment(config);
+  if (action === "setup") {
+    setupEnvironment(config);
   } else {
     const status = getEnvironmentStatus(config);
     printEnvironmentStatus(status);

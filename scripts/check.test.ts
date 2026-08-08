@@ -66,6 +66,7 @@ test("check plan classifies every package script by minimum profile", () => {
     ["typecheck", "quick"],
     ["check:skill-updaters", "quick"],
     ["test:check", "quick"],
+    ["test:environment", "quick"],
     ["test:generated-file", "quick"],
     ["hash:skills", "quick"]
   ] as const;

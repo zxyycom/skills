@@ -26,31 +26,37 @@
 
 ## 环境自举
 
-`scripts/env.js` 是进入项目工具链前的跨平台独立入口，只使用 Node.js 标准库，不依赖 Bun、pnpm、项目包或 `bun run check`。
+`scripts/environment.js` 是进入项目工具链前的跨平台独立入口，只使用 Node.js 标准库，不依赖 Bun、pnpm、项目包或 `bun run check`。`check` 明确表示只读诊断，`setup` 明确表示会补齐工具、依赖和仓库本地配置。
 
 只读检查环境：
 
 ```bash
-node scripts/env.js check
+node scripts/environment.js check
 ```
 
-补齐 Bun、pnpm 和锁定依赖：
+补齐 Bun、pnpm、锁定依赖和仓库本地配置：
 
 ```bash
-node scripts/env.js install
+node scripts/environment.js setup
 ```
 
 环境入口遵守以下边界：
 
 1. Git、Node.js 和全局 CodeGraph 是前置条件，入口只诊断缺失，不安装或升级它们。
-2. `check` 检查 Git、Node.js、Bun、pnpm、CodeGraph、索引状态和直接依赖，不下载或修改环境。
-3. `install` 可以安装或切换 Bun、pnpm，运行 `pnpm install --frozen-lockfile`，并调用全局 CodeGraph 执行 `init` 和 `sync`；它不使用系统包管理器，也不提升权限。
+2. `check` 检查 Git、Node.js、Bun、pnpm、CodeGraph、索引状态、直接依赖、Git hook 和中央 task-graph root，不下载或修改环境。
+3. `setup` 可以安装或切换 Bun、pnpm，运行 `pnpm install --frozen-lockfile`，调用全局 CodeGraph 执行 `init` 和 `sync`，并配置当前 worktree；它不使用系统包管理器，也不提升权限。
 4. 环境自举不替代类型检查、测试、生成漂移检查或完整仓库检查，也不由这些入口反向调用。
+
+仓库本地配置由 `scripts/setup-repository.js` 承接：
+
+1. 当前 worktree 的 `.githooks/pre-commit` 会被设为可执行，仓库 local Git config 的 `core.hooksPath` 会设为 `.githooks`；hook 本身也以可执行 mode 进入版本管理。
+2. `skills.taskGraphRoot` 保存绝对的主 worktree 路径，作用域是当前 Git 仓库，并由同一仓库的 linked worktree 共享。重复 `setup` 会按当前主 worktree 刷新该值。
+3. 每个新 clone 和 linked worktree 都运行标准环境 `setup`；这样当前 worktree 的文件权限会实际落地，不需要再手工 `chmod` 或另跑 hook 命令。
 
 Codex 工作区在 `.codex/environments/` 提供两个入口：
 
-1. `skills` 保留工作区内容并运行 `node scripts/env.js install`。
-2. `clear` 先丢弃已跟踪改动和未跟踪文件，再运行同一安装入口；只在明确需要干净工作区时使用。
+1. `skills` 保留工作区内容并运行 `node scripts/environment.js setup`。
+2. `clear` 先丢弃已跟踪改动和未跟踪文件，再运行同一 setup 入口；只在明确需要干净工作区时使用。
 
 `.codex/config.toml` 通过全局 `codegraph serve --mcp` 启动代码图服务。`.codegraph/` 只提交维持忽略规则的 `.gitignore`，本机索引数据库不进入版本控制。
 
@@ -66,7 +72,9 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run validate` | 校验全部 skill 入口、当前维护的仓库 Markdown 链接和主仓库配置 |
 | `bun run hash:skills` | 从 Git `pending` 快照临时计算 package hash，并校验内容变化的 skill 已相对 `--baseline-ref` 提升 `SKILL.md` 中的 `metadata.version` |
 | `bun run pack:skills` | 从版本管理 `pending` 快照生成每个 skill 的 zip 和 release manifest |
-| `bun run setup-hooks` | 将当前仓库 `core.hooksPath` 设置为 `.githooks` |
+| `bun run setup-hooks` | 只修复当前 worktree 的 hook 可执行权限与 `core.hooksPath` |
+| `bun run setup-repository` | 配置当前 worktree hook，并为同仓 linked worktree 保存中央 task-graph root |
+| `bun run task-graph -- <arguments>` | 从已配置的中央 root 调用现有 task-graph CLI，并注入同一个 `--root` |
 | `bun run check` | 使用 quick 档运行必要快速检查，显式跳过 full 档耗时检查，并在已选检查通过后打包 |
 | `bun run check --full` | 运行 quick 与 full 的全部检查并打包；CI 使用这一完整门禁 |
 
@@ -81,7 +89,7 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | Task Graph | `test:task-graph-cli` | `sync:task-graph-cli` | `check:task-graph-cli`、`check:task-graph-index` |
 | Test Evidence | `test:test-evidence-cli` | `sync:test-evidence-cli`、`sync:test-evidence-catalog` | `check:test-evidence-cli`、`check:test-evidence-catalog` |
 | Skill Updater | `test:skill-updater` | `sync:skill-updaters` | `check:skill-updaters` |
-| 共享基础设施 | `test:check`、`test:generated-file`、`test:index-runtime`、`test:skill-package-hash`、`test:version-control` | — | — |
+| 共享基础设施 | `test:check`、`test:environment`、`test:generated-file`、`test:index-runtime`、`test:skill-package-hash`、`test:version-control` | — | — |
 
 `bun run validate` 的主仓库 Markdown 链接范围排除 `changes/archive/**`。归档 change 只作为历史参考，仍由 change-plan CLI 保留结构、完成任务和归档目标门禁；active change 与其他当前维护文档继续参与链接校验。
 
@@ -92,6 +100,14 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 3. `check:*` 只读验证仓库内容或生成产物；生成工具的 `sync:*` 与 `check:*` 必须使用同一构建路径。
 
 只有具备独立维护操作、完整检查消费者或生成写入责任的命令才保留为 package script。`scripts/validators/project-config.ts` 检查这些稳定入口仍存在于 `package.json`。
+
+需要协调 task graph 时使用：
+
+```bash
+bun run task-graph -- task list
+```
+
+这个 package 命令只是仓库拥有的非交互 launcher；领域参数、输出和事务行为仍由中央 root 中现有的 `skills/task-graph/scripts/task-graph.mjs` 负责。launcher 每次调用都必须读到 `skills.taskGraphRoot`，确认其中存在权威索引且仍等于当前 Git 仓库的主 worktree，并拒绝调用方再次传入 `--root` 或 `--index`；配置缺失、陈旧或失效时直接失败，不回退到执行 worktree。其他稳定长命令继续统一使用 `bun run <package-script>`，不依赖交互式 shell alias 或用户级 PATH 修改。需要有意操作其他 task index 时直接调用领域 CLI，并显式传入目标 root。
 
 本仓库使用固定的 `docs/test-evidence/` 根目录、其中的受控 topic 表、
 每个 `<topic>/<slug>.md` 单 case 文件和固定派生索引维护测试账本。账本覆盖
@@ -192,13 +208,15 @@ Skill hash 和 zip 使用相同的版本管理 `pending` 快照，只覆盖最�
 
 ## Git hook
 
-新 clone 或 hooksPath 丢失时运行：
+标准 `node scripts/environment.js setup` 已包含 hook 配置。只需要单独修复当前 worktree 的 hook 权限或 `hooksPath` 时运行：
 
 ```bash
 bun run setup-hooks
 ```
 
 `.githooks/pre-commit` 通过 `hash:skills --quiet` 只读检查 Git index；包内容变化但对应 `metadata.version` 未提升时命令失败。hook 不写文件，也不自动 stage。GitHub Actions 不能修改已经 push 的提交，需要阻止错误提交进入 `main` 时，应由 branch protection 或 ruleset 要求 CI check。
+
+Git 调用 hook 时会注入当前 worktree 的 `GIT_DIR`、`GIT_INDEX_FILE` 等 repository-local 环境变量。pre-commit 在取得当前顶层路径后先清除 `git rev-parse --local-env-vars` 声明的变量，再从该顶层运行 hash；这样 hash 内部按 skill 路径执行的 Git 发现会重新识别 linked worktree 及其 index，而不会把单个 skill 目录误判成仓库根。
 
 ## CI 与发布
 

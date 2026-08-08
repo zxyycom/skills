@@ -212,6 +212,7 @@
       "project-tooling/260720-expose-importable-skill-modules.md": "sha256:a846beff3ccae6ef8de85c7496b689a0c6852efc0cff04aedae8f87cce0fb17d",
       "project-tooling/260720-orchestrate-checks-with-conservative-concurrency.md": "sha256:7bff1159274ee84bfc71a5607bc0054f3c4438b6a0ce84ad96dfe99fc633e720",
       "project-tooling/260720-use-prebuilt-git-test-fixtures.md": "sha256:b0840a64780fcb2ee92303f2ee15d8acdfbd872220ba2fed2e25979d4ba6ea65",
+      "project-tooling/bootstrap-repository-coordination-with-owned-launchers.md": "sha256:86d5846ac66fbccd457fb00b12181e150c6ee8306de32403d3947a400795e0ba",
       "project-tooling/default-checks-to-warnings.md": "sha256:223432266726cccdac1cbaec319e139a2af38b2e18de4770581bd7cc40b39ac0",
       "project-tooling/exclude-archived-changes-from-link-validation.md": "sha256:4dd74ead05f2be49de2a176225b159a5248afc2bbb5edb2735b149df97f03fbd",
       "project-tooling/separate-distributable-tool-source-from-repository-automation.md": "sha256:878e9070277071510f71ceb604208253809df75124a117ae40e15cf4293446b3",
@@ -3479,6 +3480,30 @@
         "purpose": "在保留真实 Git 语义和 Node 分发兼容验证的前提下，减少 `test:test-evidence-cli` 的重复仓库初始化与子进程启动。",
         "background": "`scripts/test-evidence/tests/` 为多个稳定场景反复创建仓库和提交相同基线，主要耗时来自 Git 与 Node 进程而非领域计算。",
         "decision": "使用多个预构建的逻辑 Git fixture 承接稳定历史，按场景物化隔离工作区；纯逻辑和可导入 CLI 测试在 Bun 进程内运行，只保留最小真实 Git 与 Node smoke。",
+        "relations": []
+      }
+    },
+    "project-tooling/bootstrap-repository-coordination-with-owned-launchers.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/bootstrap-repository-coordination-with-owned-launchers.md",
+        "title": "由环境自举建立仓库本地协调入口",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-08T12:37:26Z",
+        "purpose": "让每个 clone 和 linked worktree 在标准自举后获得可恢复且不会分叉的仓库协调入口。",
+        "background": "交互式 alias 和进程环境不能稳定覆盖跨平台非交互命令，当前目录默认值还可能把中央 task index 分叉到 worker。",
+        "decision": "标准 setup 持久化 hook 与中央 task root；仓库 launcher 核对主 worktree 后委托现有 CLI。",
         "relations": []
       }
     },
