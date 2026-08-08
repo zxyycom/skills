@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "revision": 46,
+  "revision": 90,
   "nextTaskId": 28,
   "tasks": {
     "task-000001": {
@@ -368,16 +368,21 @@
         "references": {
           "change": "changes/create-task-graph/"
         },
-        "result": null
+        "result": {
+          "summary": "已完成 create-task-graph 的语义审阅并归档；任务 27/27，仓库统一检查通过。",
+          "references": {
+            "archive": "changes/archive/create-task-graph/"
+          }
+        }
       },
       "state": {
         "control": {
-          "mode": "candidate",
+          "mode": "queued",
           "reason": null
         },
         "execution": {
-          "phase": "idle",
-          "attempt": 0
+          "phase": "succeeded",
+          "attempt": 1
         },
         "relations": {
           "parentId": null,
@@ -386,7 +391,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-07T07:38:55.944Z"
+          "updatedAt": "2026-08-07T09:45:54.147Z"
         }
       }
     },
@@ -403,16 +408,21 @@
         "references": {
           "change": "changes/reduce-task-graph-infrastructure/"
         },
-        "result": null
+        "result": {
+          "summary": "已完成 reduce-task-graph-infrastructure 的语义审阅并归档；任务 14/14，仓库统一检查通过。",
+          "references": {
+            "archive": "changes/archive/reduce-task-graph-infrastructure/"
+          }
+        }
       },
       "state": {
         "control": {
-          "mode": "candidate",
+          "mode": "queued",
           "reason": null
         },
         "execution": {
-          "phase": "idle",
-          "attempt": 0
+          "phase": "succeeded",
+          "attempt": 1
         },
         "relations": {
           "parentId": null,
@@ -421,7 +431,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-07T07:38:55.944Z"
+          "updatedAt": "2026-08-07T09:45:54.272Z"
         }
       }
     },
@@ -438,16 +448,21 @@
         "references": {
           "change": "changes/simplify-task-graph-json-transactions/"
         },
-        "result": null
+        "result": {
+          "summary": "已完成 simplify-task-graph-json-transactions 的语义审阅并归档；任务 38/38，仓库统一检查通过。",
+          "references": {
+            "archive": "changes/archive/simplify-task-graph-json-transactions/"
+          }
+        }
       },
       "state": {
         "control": {
-          "mode": "candidate",
+          "mode": "queued",
           "reason": null
         },
         "execution": {
-          "phase": "idle",
-          "attempt": 0
+          "phase": "succeeded",
+          "attempt": 1
         },
         "relations": {
           "parentId": null,
@@ -456,7 +471,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-07T07:38:55.944Z"
+          "updatedAt": "2026-08-07T09:45:54.392Z"
         }
       }
     },
@@ -474,16 +489,22 @@
           "change": "changes/use-id-keyed-state-index/",
           "decision": "docs/decisions/index-runtime/use-id-keyed-state-index.md"
         },
-        "result": null
+        "result": {
+          "summary": "完成 schema v3 ID 键控索引、三个消费者与生成产物/派生索引/测试证据迁移；change 22/22、full 27/27、长期决策 aligned，独立审查无剩余 findings，已达到可归档状态。change 尚未归档，工作树尚未提交。",
+          "references": {
+            "change": "changes/use-id-keyed-state-index/",
+            "decision": "docs/decisions/index-runtime/use-id-keyed-state-index.md"
+          }
+        }
       },
       "state": {
         "control": {
-          "mode": "candidate",
+          "mode": "queued",
           "reason": null
         },
         "execution": {
-          "phase": "idle",
-          "attempt": 0
+          "phase": "succeeded",
+          "attempt": 1
         },
         "relations": {
           "parentId": null,
@@ -496,7 +517,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-07T07:38:55.944Z"
+          "updatedAt": "2026-08-08T03:08:18.933Z"
         }
       }
     },
@@ -711,12 +732,12 @@
       },
       "state": {
         "control": {
-          "mode": "candidate",
-          "reason": null
+          "mode": "waiting",
+          "reason": "实施、语义审阅与第一波集成已完成；集成提交 9a04c8d2b8e1d862d1c13988763b8d7039efae5d，完整门禁 27/27 通过；仅等待用户明确授权归档 Change。"
         },
         "execution": {
           "phase": "idle",
-          "attempt": 0
+          "attempt": 3
         },
         "relations": {
           "parentId": null,
@@ -725,7 +746,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-07T07:38:55.944Z"
+          "updatedAt": "2026-08-08T11:15:18.468Z"
         }
       }
     },
@@ -746,12 +767,19 @@
       },
       "state": {
         "control": {
-          "mode": "candidate",
+          "mode": "queued",
           "reason": null
         },
         "execution": {
-          "phase": "idle",
-          "attempt": 0
+          "phase": "running",
+          "attempt": 1,
+          "lease": {
+            "id": "lease-180ea996-4623-4c16-a366-dda12ad874ea",
+            "actor": "central-integration-wave-1",
+            "claimedAt": "2026-08-08T11:15:12.354Z",
+            "renewedAt": "2026-08-08T11:15:12.354Z",
+            "expiresAt": "2026-08-08T13:15:12.354Z"
+          }
         },
         "relations": {
           "parentId": null,
@@ -760,7 +788,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-07T07:38:55.944Z"
+          "updatedAt": "2026-08-08T11:15:12.354Z"
         }
       }
     },
@@ -897,12 +925,19 @@
       },
       "state": {
         "control": {
-          "mode": "candidate",
+          "mode": "queued",
           "reason": null
         },
         "execution": {
-          "phase": "idle",
-          "attempt": 0
+          "phase": "running",
+          "attempt": 6,
+          "lease": {
+            "id": "lease-3da9f25e-b7cb-417f-a77a-e732c06221cf",
+            "actor": "central-integration-wave-1",
+            "claimedAt": "2026-08-08T11:15:08.067Z",
+            "renewedAt": "2026-08-08T11:15:08.067Z",
+            "expiresAt": "2026-08-08T13:15:08.067Z"
+          }
         },
         "relations": {
           "parentId": null,
@@ -913,7 +948,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:43:42.167Z",
-          "updatedAt": "2026-08-07T08:28:04.773Z"
+          "updatedAt": "2026-08-08T11:15:08.067Z"
         }
       }
     }
