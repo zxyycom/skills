@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "revision": 95,
-  "nextTaskId": 28,
+  "revision": 99,
+  "nextTaskId": 30,
   "tasks": {
     "task-000001": {
       "content": {
@@ -60,11 +60,13 @@
         "relations": {
           "parentId": null,
           "dependsOn": {},
-          "excludes": {}
+          "excludes": {
+            "task-000028": true
+          }
         },
         "timestamps": {
           "createdAt": "2026-08-07T05:47:06.077Z",
-          "updatedAt": "2026-08-07T05:47:06.077Z"
+          "updatedAt": "2026-08-08T12:01:37.160Z"
         }
       }
     },
@@ -92,11 +94,13 @@
             "task-000005": true,
             "task-000010": true
           },
-          "excludes": {}
+          "excludes": {
+            "task-000028": true
+          }
         },
         "timestamps": {
           "createdAt": "2026-08-07T05:51:51.650Z",
-          "updatedAt": "2026-08-07T06:35:03.229Z"
+          "updatedAt": "2026-08-08T12:01:37.160Z"
         }
       }
     },
@@ -123,11 +127,13 @@
           "dependsOn": {
             "task-000003": true
           },
-          "excludes": {}
+          "excludes": {
+            "task-000028": true
+          }
         },
         "timestamps": {
           "createdAt": "2026-08-07T05:51:56.959Z",
-          "updatedAt": "2026-08-07T06:35:03.229Z"
+          "updatedAt": "2026-08-08T12:01:37.160Z"
         }
       }
     },
@@ -188,12 +194,13 @@
           "parentId": null,
           "dependsOn": {},
           "excludes": {
-            "task-000011": true
+            "task-000011": true,
+            "task-000028": true
           }
         },
         "timestamps": {
           "createdAt": "2026-08-07T06:07:35.928Z",
-          "updatedAt": "2026-08-07T07:13:58.668Z"
+          "updatedAt": "2026-08-08T12:01:37.160Z"
         }
       }
     },
@@ -218,11 +225,13 @@
         "relations": {
           "parentId": null,
           "dependsOn": {},
-          "excludes": {}
+          "excludes": {
+            "task-000028": true
+          }
         },
         "timestamps": {
           "createdAt": "2026-08-07T06:10:12.169Z",
-          "updatedAt": "2026-08-07T06:22:51.989Z"
+          "updatedAt": "2026-08-08T12:01:37.160Z"
         }
       }
     },
@@ -250,11 +259,13 @@
             "task-000005": true,
             "task-000010": true
           },
-          "excludes": {}
+          "excludes": {
+            "task-000028": true
+          }
         },
         "timestamps": {
           "createdAt": "2026-08-07T06:12:39.308Z",
-          "updatedAt": "2026-08-07T06:35:03.229Z"
+          "updatedAt": "2026-08-08T12:01:37.160Z"
         }
       }
     },
@@ -346,12 +357,13 @@
             "task-000005": true
           },
           "excludes": {
-            "task-000006": true
+            "task-000006": true,
+            "task-000028": true
           }
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:13:58.668Z",
-          "updatedAt": "2026-08-07T07:13:58.668Z"
+          "updatedAt": "2026-08-08T12:01:37.160Z"
         }
       }
     },
@@ -955,6 +967,97 @@
         "timestamps": {
           "createdAt": "2026-08-07T07:43:42.167Z",
           "updatedAt": "2026-08-08T11:16:59.881Z"
+        }
+      }
+    },
+    "task-000028": {
+      "content": {
+        "title": "为 task-graph 索引增加按任务 ID 的分段暂存命令",
+        "goal": "为中央 task-graph-index.json 提供按一个或多个 task ID 构造并写入 Git pending 的专用命令，使协调者能提交某批任务的索引变化而不带入其他并发任务的工作区变化，同时保持任务图唯一事实源、关系闭合与规范序列化。",
+        "acceptance": [
+          "命令至少接收一个不重复的 task ID，以 HEAD revision 为基线、中央工作区索引为候选，只把选中任务的当前条目纳入目标 pending；未选中任务保持基线内容。",
+          "明确并正确处理 revision、nextTaskId、跨任务关系和新增、删除等根级与闭合语义；目标必须通过完整 Schema、语义与 canonical 校验，无法安全组合时拒绝写入。",
+          "在版本控制锁内核对既有 pending，保留索引外路径，不覆盖另一批已暂存任务，不修改工作区索引；并发或基线变化返回稳定诊断。",
+          "提供稳定文本与 JSON 结果、原生测试、测试证据、skill 与生成制品说明，并用真实并发任务变化证明可分别形成提交。"
+        ],
+        "context": "这是 task-graph 自己的领域接入，不预设它可直接复用 StateIndexRuntime：task index 具有 revision、nextTaskId 和关系闭合规则。先比较复用 task-000017 公共能力、共享 version-control 原语或专用组合器的最小正确实现。所有 mutation 仍显式指向中央 root；命令只改变 Git pending，不改变任务状态。",
+        "references": {
+          "index": "docs/task-graph/task-graph-index.json",
+          "related-decision": "docs/decisions/index-runtime/stage-selected-index-entries-by-id.md",
+          "skill": "skills/task-graph/SKILL.md"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {
+            "task-000002": true,
+            "task-000003": true,
+            "task-000004": true,
+            "task-000006": true,
+            "task-000007": true,
+            "task-000008": true,
+            "task-000011": true
+          }
+        },
+        "timestamps": {
+          "createdAt": "2026-08-08T12:01:37.160Z",
+          "updatedAt": "2026-08-08T12:01:37.160Z"
+        }
+      }
+    },
+    "task-000029": {
+      "content": {
+        "title": "让环境自举完成 worktree hooks 配置并提供仓库短命令入口",
+        "goal": "让标准环境自举在每个 clone 和 linked worktree 中完成 Git hook 可执行权限与 hooksPath 配置，并提供适用于非交互 Codex 命令的仓库短入口，减少重复 CLI 绝对路径与 --root 参数，同时不建立第二套工具契约。",
+        "acceptance": [
+          "运行 .codex environment 标准 setup 后，当前 worktree 的 pre-commit 可被 Git 实际执行；新 clone 与新 linked worktree 不再需要手工 chmod 或另跑 setup-hooks。",
+          "短命令在 Linux、Windows 和非交互 shell 可用，不仅依赖用户 shell alias；现有 package script 与领域 CLI 仍是唯一行为入口。",
+          "task-graph 短入口能显式使用已配置的中央协调 root，不会静默回退到执行工作树并造成索引分叉；其他长命令使用一致的最小入口。",
+          "环境变量、配置或 launcher 的作用域、生命周期和失败诊断有明确 owner，并以重复自举和 linked worktree 场景验证，最终通过仓库完整检查。"
+        ],
+        "context": "已确认 T22 worktree 的 hook 被 Git 忽略，是因为环境 setup 只运行 node scripts/env.js install，而 setup-hooks 是独立入口；pre-commit 在索引中为 100644，core.fileMode=false，现有 setup 只 chmod 当前 worktree。环境变量或 alias 只是候选实现，优先选择仓库拥有、可恢复且非交互可用的最小机制。",
+        "references": {
+          "environment-config": ".codex/environments/",
+          "hook-setup": "scripts/setup-git-hooks.ts",
+          "tooling": "docs/tooling.md"
+        },
+        "result": {
+          "summary": "环境入口已收敛为 environment.js check|setup；setup 修复并启用 worktree hook、隔离 Git hook 局部环境、持久化中央 task root，并提供失败关闭的 task-graph 短入口。",
+          "references": {
+            "commit": "104bccd5572fdad0a1afe608539df67e7b4f2948",
+            "decision": "docs/decisions/project-tooling/bootstrap-repository-coordination-with-owned-launchers.md",
+            "test": "bun run check --full (28/28)"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-08T12:01:37.160Z",
+          "updatedAt": "2026-08-08T12:58:42.152Z"
         }
       }
     }
