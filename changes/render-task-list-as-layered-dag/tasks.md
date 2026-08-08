@@ -34,4 +34,4 @@
 - [x] 2.5 验证输出路由矩阵：默认 `task list`、合法 `--json` 前后位置、默认 `task list --help`、version、其他 command、已识别 list 的 command-local failure、该 failure 加合法 `--json`，以及重复或带值 `--json` 的 global JSON failure；核对 stdout/stderr 与退出码。
 - [x] 2.6 验证程序化 `listTasks()`、JSON serializer 和内部 renderer 消费同一 projection；JSON 保留 effective control/reason、关系来源、继承路径和完整 blockers，不包含 layout 派生值；公开声明导出 `TaskListItem` 且不再导出 `TaskSummary`。
 - [x] 2.7 运行 `bun run sync:task-graph-cli` 和 `bun run sync:test-evidence-catalog` 同步派生产物，再运行 `node skills/change-plan/scripts/change-plan.mjs check changes/render-task-list-as-layered-dag --json` 与 `bun run check --full`；记录实际结果并确认没有生成漂移或未跟踪打包产物。
-- [ ] 2.8 改动集成到中央 checkout 后，从中央入口确认 compatible runtime、无生成漂移，并对默认 `task list` 与 `task list --json` 做只读 smoke check；全部通过后才把后续中央 mutation 切到新版本。
+- [x] 2.8 改动集成到中央 checkout 后，从中央入口确认 compatible runtime、无生成漂移，并对默认 `task list` 与 `task list --json` 做只读 smoke check；全部通过后才把后续中央 mutation 切到新版本。
