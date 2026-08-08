@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "revision": 90,
+  "revision": 92,
   "nextTaskId": 28,
   "tasks": {
     "task-000001": {
@@ -763,7 +763,14 @@
         "references": {
           "decision": "docs/decisions/decision-records/make-independent-decision-staging-discoverable.md"
         },
-        "result": null
+        "result": {
+          "summary": "完成 decision-records 独立暂存发现入口集成；触发说明、长期决策与 Schema v3 派生索引一致，决策严格检查通过。",
+          "references": {
+            "decision": "docs/decisions/decision-records/make-independent-decision-staging-discoverable.md",
+            "integrated-commit": "8ee1eecc2aaa2b4d89b46187ff831e88531b7f17",
+            "source-commit": "a29246bc6c778eba63d177eefb2440370a1cbf4f"
+          }
+        }
       },
       "state": {
         "control": {
@@ -771,15 +778,8 @@
           "reason": null
         },
         "execution": {
-          "phase": "running",
-          "attempt": 1,
-          "lease": {
-            "id": "lease-180ea996-4623-4c16-a366-dda12ad874ea",
-            "actor": "central-integration-wave-1",
-            "claimedAt": "2026-08-08T11:15:12.354Z",
-            "renewedAt": "2026-08-08T11:15:12.354Z",
-            "expiresAt": "2026-08-08T13:15:12.354Z"
-          }
+          "phase": "succeeded",
+          "attempt": 1
         },
         "relations": {
           "parentId": null,
@@ -788,7 +788,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-08T11:15:12.354Z"
+          "updatedAt": "2026-08-08T11:16:59.960Z"
         }
       }
     },
@@ -921,7 +921,14 @@
           "superseded-task": "task-000009",
           "topology-decision": "docs/decisions/task-graph/model-task-topology-and-inheritance-explicitly.md"
         },
-        "result": null
+        "result": {
+          "summary": "完成分层 DAG renderer 集成；默认文本与 --json 已从中央 checkout 对 revision 90 做只读 smoke，生成物检查通过，change 23/23。",
+          "references": {
+            "change": "changes/render-task-list-as-layered-dag/",
+            "integrated-commit": "c250993ad0bdb1387b23f387609edb912c8dbd09",
+            "source-commit": "834b07733d183638ec1b049c10758fedd7001cdd"
+          }
+        }
       },
       "state": {
         "control": {
@@ -929,15 +936,8 @@
           "reason": null
         },
         "execution": {
-          "phase": "running",
-          "attempt": 6,
-          "lease": {
-            "id": "lease-3da9f25e-b7cb-417f-a77a-e732c06221cf",
-            "actor": "central-integration-wave-1",
-            "claimedAt": "2026-08-08T11:15:08.067Z",
-            "renewedAt": "2026-08-08T11:15:08.067Z",
-            "expiresAt": "2026-08-08T13:15:08.067Z"
-          }
+          "phase": "succeeded",
+          "attempt": 6
         },
         "relations": {
           "parentId": null,
@@ -948,7 +948,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:43:42.167Z",
-          "updatedAt": "2026-08-08T11:15:08.067Z"
+          "updatedAt": "2026-08-08T11:16:59.881Z"
         }
       }
     }
