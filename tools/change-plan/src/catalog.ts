@@ -82,6 +82,11 @@ export async function listChangePlans(
     status
   };
 
+  if (options.stage !== undefined && status !== "active") {
+    result.errors.push("stage filter is only valid for active changes");
+    return result;
+  }
+
   let rootStat: Stats | null;
   try {
     rootStat = await lstatOrNull(changeRoot);
@@ -136,6 +141,11 @@ export async function listChangePlans(
     (left.status === right.status ? 0 : left.status === "active" ? -1 : 1)
     || left.changeName.localeCompare(right.changeName)
   ));
+  if (options.stage !== undefined) {
+    result.entries = result.entries.filter(
+      (entry) => entry.stage === options.stage
+    );
+  }
   return result;
 }
 
@@ -147,12 +157,31 @@ async function readArtifactContents(
     "design.md": null,
     "tasks.md": null
   };
+  let directoryStat: Stats | null;
+  try {
+    directoryStat = await lstatOrNull(changeDirectory);
+  } catch {
+    return artifacts;
+  }
+  if (
+    directoryStat === null
+    || directoryStat.isSymbolicLink()
+    || !directoryStat.isDirectory()
+  ) {
+    return artifacts;
+  }
+
   await Promise.all(changePlanArtifactNames.map(async (artifact) => {
+    const artifactPath = path.join(changeDirectory, artifact);
     try {
-      artifacts[artifact] = await fs.readFile(
-        path.join(changeDirectory, artifact),
-        "utf8"
-      );
+      const artifactStat = await lstatOrNull(artifactPath);
+      if (
+        artifactStat !== null
+        && artifactStat.isFile()
+        && !artifactStat.isSymbolicLink()
+      ) {
+        artifacts[artifact] = await fs.readFile(artifactPath, "utf8");
+      }
     } catch {
       artifacts[artifact] = null;
     }
@@ -165,6 +194,7 @@ export async function showChangePlanDirectory(
 ): Promise<ChangePlanShowResult> {
   const check = await checkChangePlanDirectory(changeDirectoryInput);
   return {
+    assessment: check.assessment,
     artifacts: await readArtifactContents(check.changeDirectory),
     check,
     status: changePlanStatusFromDirectory(check.changeDirectory)

@@ -6,6 +6,7 @@ export {
   type VersionControlErrorCode
 } from "./errors.ts";
 export type {
+  ListFirstParentRevisionChangesOptions,
   ListChangedPathsOptions,
   ListPendingChangedPathsOptions,
   ListVersionControlFilesOptions,
@@ -13,6 +14,8 @@ export type {
   ReplacePendingFilesResult,
   RevisionId,
   VersionControlFile,
+  VersionControlPathChange,
+  VersionControlRevisionChange,
   VersionControlRepository
 } from "./types.ts";
 

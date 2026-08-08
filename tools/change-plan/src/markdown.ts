@@ -4,24 +4,51 @@ import type {
   ArtifactStructureContract,
   ArtifactValidationResult,
   ChangePlanArtifactName,
-  ChangePlanDiagnostic
+  ChangePlanDiagnostic,
+  ChangePlanTaskHeading,
+  ChangePlanTaskProgress,
+  ChangePlanTaskSection
 } from "./types.ts";
 
+type MarkdownRoot = ReturnType<typeof fromMarkdown>;
+type RootContent = MarkdownRoot["children"][number];
+type MarkdownHeading = Extract<RootContent, { type: "heading" }>;
+
 type RootHeading = {
-  depth: number;
+  depth: MarkdownHeading["depth"];
   lineIndex: number;
   title: string;
 };
 
+type ChecklistCandidate = {
+  line: string;
+  lineIndex: number;
+};
+
 const taskLinePrefixPattern = /^- \[[^\]]*\]/u;
 const taskLinePattern = /^- \[([ xX])\] ([0-9]+\.[0-9]+(?:\.[0-9]+)*) (.+\S|\S)$/u;
+const taskSectionByHeading: Readonly<
+  Record<ChangePlanTaskHeading, ChangePlanTaskSection>
+> = {
+  Implementation: "implementation",
+  Readiness: "readiness",
+  Verification: "verification"
+};
+
+function emptyTaskProgress(): ChangePlanTaskProgress {
+  return {
+    implementation: { completedTaskCount: 0, taskCount: 0 },
+    readiness: { completedTaskCount: 0, taskCount: 0 },
+    verification: { completedTaskCount: 0, taskCount: 0 }
+  };
+}
 
 function normalizeNewlines(markdown: string): string {
   return markdown.replace(/\r\n?/g, "\n");
 }
 
-function rootHeadings(markdown: string): RootHeading[] {
-  return fromMarkdown(markdown).children.flatMap((node) => {
+function rootHeadings(root: MarkdownRoot): RootHeading[] {
+  return root.children.flatMap((node) => {
     if (node.type !== "heading" || node.position === undefined) {
       return [];
     }
@@ -33,10 +60,46 @@ function rootHeadings(markdown: string): RootHeading[] {
   });
 }
 
-function hasSemanticContent(markdown: string): boolean {
-  return fromMarkdown(markdown).children.some((node) => (
-    node.type !== "heading" && toString(node).trim().length > 0
-  ));
+function isSemanticNode(node: RootContent): boolean {
+  return node.type !== "heading"
+    && node.type !== "html"
+    && toString(node).trim().length > 0;
+}
+
+function hasSemanticContent(
+  root: MarkdownRoot,
+  startLineIndex: number,
+  endLineIndex: number
+): boolean {
+  return root.children.some((node) => {
+    const lineIndex = node.position?.start.line;
+    return lineIndex !== undefined
+      && lineIndex - 1 >= startLineIndex
+      && lineIndex - 1 < endLineIndex
+      && isSemanticNode(node);
+  });
+}
+
+function checklistCandidates(
+  root: MarkdownRoot,
+  lines: readonly string[]
+): ChecklistCandidate[] {
+  return root.children.flatMap((node) => {
+    if (node.type !== "list" || node.ordered) {
+      return [];
+    }
+    return node.children.flatMap((item) => {
+      const start = item.position?.start;
+      if (start === undefined || start.column !== 1) {
+        return [];
+      }
+      const lineIndex = start.line - 1;
+      const line = lines[lineIndex];
+      return line !== undefined && taskLinePrefixPattern.test(line)
+        ? [{ line, lineIndex }]
+        : [];
+    });
+  });
 }
 
 function diagnostic(
@@ -54,6 +117,7 @@ function diagnostic(
 }
 
 function validateHeadings(
+  root: MarkdownRoot,
   lines: readonly string[],
   headings: readonly RootHeading[],
   contract: ArtifactStructureContract,
@@ -91,7 +155,9 @@ function validateHeadings(
         contract.file,
         "duplicate-section",
         `"## ${title}" must appear exactly once`,
-        matches[1].lineIndex + 1
+        matches[1]?.lineIndex === undefined
+          ? undefined
+          : matches[1].lineIndex + 1
       ));
     }
     if (h2[index]?.title !== title) {
@@ -110,7 +176,9 @@ function validateHeadings(
     firstH1 !== undefined
     && firstH2 !== undefined
     && !hasSemanticContent(
-      lines.slice(firstH1.lineIndex + 1, firstH2.lineIndex).join("\n")
+      root,
+      firstH1.lineIndex + 1,
+      firstH2.lineIndex
     )
   ) {
     diagnostics.push(diagnostic(
@@ -128,7 +196,7 @@ function validateHeadings(
     }
     const nextH2 = h2.find((heading) => heading.lineIndex > section.lineIndex);
     const sectionEnd = nextH2?.lineIndex ?? lines.length;
-    if (!hasSemanticContent(lines.slice(section.lineIndex + 1, sectionEnd).join("\n"))) {
+    if (!hasSemanticContent(root, section.lineIndex + 1, sectionEnd)) {
       diagnostics.push(diagnostic(
         contract.file,
         "empty-section",
@@ -141,62 +209,80 @@ function validateHeadings(
   return h2;
 }
 
+function isTaskHeading(
+  heading: string,
+  taskSections: ReadonlySet<string>
+): heading is ChangePlanTaskHeading {
+  return taskSections.has(heading)
+    && Object.hasOwn(taskSectionByHeading, heading);
+}
+
 function validateTasks(
+  root: MarkdownRoot,
   lines: readonly string[],
   h2: readonly RootHeading[],
   contract: ArtifactStructureContract,
   diagnostics: ChangePlanDiagnostic[]
-): Pick<ArtifactValidationResult, "completedTaskCount" | "taskCount"> {
+): Pick<
+  ArtifactValidationResult,
+  "completedTaskCount" | "taskCount" | "taskProgress"
+> {
   const taskSections = new Set(contract.taskSections ?? []);
-  const taskCounts = new Map([...taskSections].map((title) => [title, 0]));
+  const taskCounts = new Map<ChangePlanTaskHeading, number>(
+    [...taskSections].map((title) => [title, 0])
+  );
+  const taskProgress = emptyTaskProgress();
   const seenTaskIds = new Map<string, number>();
   let completedTaskCount = 0;
   let taskCount = 0;
-  let currentSection: string | null = null;
-  const headingsByLine = new Map(h2.map((heading) => [heading.lineIndex, heading.title]));
 
-  for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
-    currentSection = headingsByLine.get(lineIndex) ?? currentSection;
-    const line = lines[lineIndex];
-    if (!taskLinePrefixPattern.test(line)) {
-      continue;
-    }
-    if (currentSection === null || !taskSections.has(currentSection)) {
+  for (const candidate of checklistCandidates(root, lines)) {
+    const section = h2.findLast(
+      (heading) => heading.lineIndex < candidate.lineIndex
+    )?.title;
+    if (section === undefined || !isTaskHeading(section, taskSections)) {
       diagnostics.push(diagnostic(
         contract.file,
         "task-outside-required-section",
         "checklist tasks must be inside Readiness, Implementation, or Verification",
-        lineIndex + 1
+        candidate.lineIndex + 1
       ));
       continue;
     }
 
-    const match = line.match(taskLinePattern);
+    const match = taskLinePattern.exec(candidate.line);
     if (match === null) {
       diagnostics.push(diagnostic(
         contract.file,
         "invalid-task-syntax",
         "task must use '- [ ] <numeric-id> <description>' or '- [x] <numeric-id> <description>'",
-        lineIndex + 1
+        candidate.lineIndex + 1
       ));
       continue;
     }
 
+    const completedMarker = match[1];
     const taskId = match[2];
+    if (completedMarker === undefined || taskId === undefined) {
+      continue;
+    }
     const previousLine = seenTaskIds.get(taskId);
     if (previousLine !== undefined) {
       diagnostics.push(diagnostic(
         contract.file,
         "duplicate-task-id",
         `task id ${taskId} duplicates line ${previousLine}`,
-        lineIndex + 1
+        candidate.lineIndex + 1
       ));
     } else {
-      seenTaskIds.set(taskId, lineIndex + 1);
+      seenTaskIds.set(taskId, candidate.lineIndex + 1);
     }
-    taskCounts.set(currentSection, (taskCounts.get(currentSection) ?? 0) + 1);
+    taskCounts.set(section, (taskCounts.get(section) ?? 0) + 1);
+    const progress = taskProgress[taskSectionByHeading[section]];
+    progress.taskCount += 1;
     taskCount += 1;
-    if (match[1].toLowerCase() === "x") {
+    if (completedMarker.toLowerCase() === "x") {
+      progress.completedTaskCount += 1;
       completedTaskCount += 1;
     }
   }
@@ -211,7 +297,7 @@ function validateTasks(
     }
   }
 
-  return { completedTaskCount, taskCount };
+  return { completedTaskCount, taskCount, taskProgress };
 }
 
 export function validateChangePlanArtifact(
@@ -219,13 +305,18 @@ export function validateChangePlanArtifact(
   contract: ArtifactStructureContract
 ): ArtifactValidationResult {
   const normalized = normalizeNewlines(markdown);
+  const root = fromMarkdown(normalized);
   const lines = normalized.split("\n");
   const diagnostics: ChangePlanDiagnostic[] = [];
-  const headings = rootHeadings(normalized);
-  const h2 = validateHeadings(lines, headings, contract, diagnostics);
+  const headings = rootHeadings(root);
+  const h2 = validateHeadings(root, lines, headings, contract, diagnostics);
   const tasks = contract.taskSections === undefined
-    ? { completedTaskCount: 0, taskCount: 0 }
-    : validateTasks(lines, h2, contract, diagnostics);
+    ? {
+      completedTaskCount: 0,
+      taskCount: 0,
+      taskProgress: emptyTaskProgress()
+    }
+    : validateTasks(root, lines, h2, contract, diagnostics);
 
   return {
     ...tasks,

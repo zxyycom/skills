@@ -1,10 +1,10 @@
 # Proposal
 
-本 change 为 active Change 建立阶段元数据和基于 Git 项目演进距离的搁置流程；本文描述待实施结果，当前行为仍以 change-plan skill 和固定契约为准。
+本 change 为 active Change 建立阶段元数据和基于 Git 项目演进距离的搁置流程；本文定义本次交付目标，实际行为以 change-plan skill 和固定契约为准。
 
 ## Why
 
-当前 `change-plan` 只区分 active 与 archived，并要求每个 active Change 从建立起就具备完整 proposal、design 和 tasks。它无法表达方向仍在起草、计划已经就绪、实施已经开始或计划已经搁置，也无法阻止搁置后的旧计划未经复核直接实施。
+建立本 change 时，`change-plan` 只区分 active 与 archived，并要求每个 active Change 从建立起就具备完整 proposal、design 和 tasks。它无法表达方向仍在起草、计划已经就绪、实施已经开始或计划已经搁置，也无法阻止搁置后的旧计划未经复核直接实施。
 
 搁置不能只靠操作者凭感觉判断，日历时间也不能反映计划是否过时：如果整个项目没有继续演进，Change 放置再久也没有因此远离原计划。确认计划之后的项目提交数和累计 diff 行数能提供统一、可复核的信号，帮助快速识别已经退出当前实施主线的 plan。
 
@@ -12,7 +12,7 @@
 
 - 每个 active Change 使用 `.change-plan.json` 表达 `draft`、`plan`、`implementation` 或 `shelved`。
 - draft 只要求可识别的方向；plan 才要求完整三文件、完成 Readiness 并记录确认计划的 Git commit。
-- plan 可以因明确暂停进入 shelved，也可以在命中固定 Git 距离规则后由 `reconcile` 转为 shelved；恢复后必须重新确认 plan。
+- plan 可以因明确暂停进入 shelved；命中固定 Git 距离规则后先成为候选，复核时可以用 `plan` 更新基线，或用 `reconcile` 转为 shelved；恢复后必须重新确认 plan。
 - `list`、`show`、`check`、公共 API 和新增阶段命令能够报告、检查并推进同一阶段模型；archive 继续承接终态。
 - 实施时为全部 active Change 一次性写入元数据，随后不再接受无元数据的 active 格式；历史 archive 保持原状。
 
@@ -47,7 +47,10 @@
 
 - [`skills/change-plan/SKILL.md`](../../skills/change-plan/SKILL.md) 与 [`change-plan-contract.md`](../../skills/change-plan/references/change-plan-contract.md)：阶段流程、元数据、artifact 和 CLI 契约。
 - [`tools/change-plan/`](../../tools/change-plan/) 与 [`scripts/build/change-plan.ts`](../../scripts/build/change-plan.ts)：实现、公共 API、CLI、测试和分发制品。
+- [`docs/tooling.md`](../../docs/tooling.md) 与 [`derive-change-plan-sdk-declarations-from-runtime-source.md`](../../docs/decisions/change-plan/derive-change-plan-sdk-declarations-from-runtime-source.md)：源码、生成声明和 metadata 机器契约的长期 owner 边界。
+- [`tools/shared/version-control.md`](../../tools/shared/version-control.md)、[`tools/shared/src/version-control/`](../../tools/shared/src/version-control/)、[`tools/shared/tests/version-control.test.ts`](../../tools/shared/tests/version-control.test.ts) 与 [`docs/test-evidence/version-control/`](../../docs/test-evidence/version-control/)：领域无关 first-parent revision、numstat、仓库路径和错误语义及其验证证据。
 - [`docs/skills/change-plan.md`](../../docs/skills/change-plan.md)、[`README.md`](../../README.md)、[`AGENTS.md`](../../AGENTS.md) 与 `skills/change-plan/agents/openai.yaml`：发现入口和能力说明。
 - [`docs/test-evidence/change-plan/`](../../docs/test-evidence/change-plan/)：原生测试入口对应的证据 case。
-- [`docs/decisions/change-plan/manage-change-lifecycle-stages.md`](../../docs/decisions/change-plan/manage-change-lifecycle-stages.md)：长期阶段和机械搁置方向。
+- [`docs/decisions/change-plan/manage-change-lifecycle-stages.md`](../../docs/decisions/change-plan/manage-change-lifecycle-stages.md)：既有长期阶段方向，在完整事实成立后标记为 aligned。
+- [`detect-shelved-plans-by-git-distance.md`](../../docs/decisions/change-plan/detect-shelved-plans-by-git-distance.md)：Git 距离机械搁置候选，在完整事实成立后以 aligned 激活。
 - [`changes/`](../)：实施时仍存在的 active Change 元数据迁移。

@@ -7,18 +7,57 @@ import { archiveChangePlanDirectory } from "./archive.ts";
 import { listChangePlans, showChangePlanDirectory } from "./catalog.ts";
 import { checkChangePlanDirectory } from "./check.ts";
 import {
+  implementChangePlanDirectory,
+  planChangePlanDirectory,
+  reconcileChangePlanDirectory,
+  resumeChangePlanDirectory,
+  shelveChangePlanDirectory
+} from "./lifecycle.ts";
+import {
+  ChangePlanMetadataError,
+  parseChangePlanMetadata,
+  readChangePlanMetadata
+} from "./metadata.ts";
+import {
   changePlanArtifactNames,
+  type ChangePlanAssessment,
   type ChangePlanCheckResult,
   type ChangePlanDiagnostic,
-  type ChangePlanListStatus
+  type ChangePlanLifecycleAction,
+  type ChangePlanLifecycleResult,
+  type ChangePlanListStatus,
+  type ChangePlanStage
 } from "./types.ts";
+
+type NonShelveLifecycleAction = Exclude<
+  ChangePlanLifecycleAction,
+  "shelve"
+>;
+
+type LifecycleCliCommand =
+  | {
+    action: NonShelveLifecycleAction;
+    changeDirectory: string;
+    json: boolean;
+  }
+  | {
+    action: "shelve";
+    changeDirectory: string;
+    json: boolean;
+    reason: string;
+  };
 
 function helpText(): string {
   return [
     "Usage:",
-    "  change-plan.mjs list [change-root] [--archived | --all] [--json]",
+    "  change-plan.mjs list [change-root] [--archived | --all | --stage <stage>] [--json]",
     "  change-plan.mjs show <change-directory> [--json]",
     "  change-plan.mjs check <change-directory> [--json]",
+    "  change-plan.mjs plan <change-directory> [--json]",
+    "  change-plan.mjs implement <change-directory> [--json]",
+    "  change-plan.mjs shelve <change-directory> --reason <text> [--json]",
+    "  change-plan.mjs reconcile <change-directory> [--json]",
+    "  change-plan.mjs resume <change-directory> [--json]",
     "  change-plan.mjs archive <change-directory> [--json]",
     "",
     "Manage the basic lifecycle of proposal.md, design.md, and tasks.md change plans.",
@@ -27,9 +66,27 @@ function helpText(): string {
     "Options:",
     "  --archived   List archived changes instead of active changes",
     "  --all        List active and archived changes",
+    "  --stage      List active changes in one lifecycle stage",
+    "  --reason     Record why a confirmed plan is explicitly shelved",
     "  --json       Write the structured result to stdout",
     "  -h, --help   Show this help"
   ].join("\n");
+}
+
+function formatAssessment(assessment: ChangePlanAssessment | null): string {
+  if (assessment === null) {
+    return "unavailable";
+  }
+  if (assessment.assessment === "plan-review-required") {
+    return `${assessment.assessment} (${assessment.reason})`;
+  }
+  if (
+    assessment.assessment === "shelve-candidate"
+  ) {
+    return `${assessment.assessment}: ${assessment.commitCount} commits / `
+      + `${assessment.changedLines} changed lines since plan`;
+  }
+  return assessment.assessment;
 }
 
 function formatDiagnostic(diagnostic: ChangePlanDiagnostic): string {
@@ -65,7 +122,9 @@ async function runCheckCommand(
 
   console.log(
     `Change plan check passed (${result.changeName}; `
-    + `${result.completedTaskCount}/${result.taskCount} tasks completed).`
+    + `${result.completedTaskCount}/${result.taskCount} tasks completed; `
+    + `stage ${result.stage ?? "none"}; `
+    + `assessment ${formatAssessment(result.assessment)}).`
   );
   return 0;
 }
@@ -73,9 +132,10 @@ async function runCheckCommand(
 async function runListCommand(
   changeRoot: string | undefined,
   status: ChangePlanListStatus,
+  stage: ChangePlanStage | undefined,
   json: boolean
 ): Promise<number> {
-  const result = await listChangePlans({ changeRoot, status });
+  const result = await listChangePlans({ changeRoot, stage, status });
   if (json) {
     console.log(JSON.stringify(result, null, 2));
     return result.errors.length === 0 ? 0 : 1;
@@ -97,6 +157,8 @@ async function runListCommand(
   for (const entry of result.entries) {
     console.log(
       `- ${entry.status} ${entry.changeName} `
+      + `stage=${entry.stage ?? "none"} `
+      + `assessment=${formatAssessment(entry.assessment)} `
       + `${entry.completedTaskCount}/${entry.taskCount} `
       + `${entry.valid ? "valid" : "invalid"} `
       + entry.changeDirectory
@@ -117,11 +179,26 @@ async function runShowCommand(
 
   console.log(`Change: ${result.check.changeName}`);
   console.log(`Status: ${result.status}`);
+  console.log(`Stage: ${result.check.stage ?? "none"}`);
+  const assessment = result.assessment;
+  console.log(`Assessment: ${formatAssessment(assessment)}`);
+  if (
+    assessment?.assessment === "current"
+    || assessment?.assessment === "shelve-candidate"
+  ) {
+    console.log(`Policy: ${assessment.policy}`);
+    console.log(`Base commit: ${assessment.baseCommit}`);
+    console.log(`Head commit: ${assessment.headCommit}`);
+    console.log(
+      `Git distance: ${assessment.commitCount} commits / `
+      + `${assessment.changedLines} changed lines`
+    );
+  }
   console.log(`Directory: ${result.check.changeDirectory}`);
   console.log(
     `Tasks: ${result.check.completedTaskCount}/${result.check.taskCount}`
   );
-  console.log(`Structure: ${result.check.valid ? "valid" : "invalid"}`);
+  console.log(`Check: ${result.check.valid ? "valid" : "invalid"}`);
   for (const artifact of changePlanArtifactNames) {
     console.log("");
     console.log(`--- ${artifact} ---`);
@@ -133,6 +210,54 @@ async function runShowCommand(
     printCheckDiagnostics("Change plan show completed with diagnostics", result.check);
     return 1;
   }
+  return 0;
+}
+
+async function runLifecycleCommand(
+  command: LifecycleCliCommand
+): Promise<number> {
+  let result: ChangePlanLifecycleResult;
+  switch (command.action) {
+    case "plan":
+      result = await planChangePlanDirectory(command.changeDirectory);
+      break;
+    case "implement":
+      result = await implementChangePlanDirectory(command.changeDirectory);
+      break;
+    case "shelve":
+      result = await shelveChangePlanDirectory(
+        command.changeDirectory,
+        command.reason
+      );
+      break;
+    case "reconcile":
+      result = await reconcileChangePlanDirectory(command.changeDirectory);
+      break;
+    case "resume":
+      result = await resumeChangePlanDirectory(command.changeDirectory);
+      break;
+  }
+
+  if (command.json) {
+    console.log(JSON.stringify(result, null, 2));
+    return result.success ? 0 : 1;
+  }
+  if (!result.success) {
+    console.error(
+      `Change plan ${result.action} failed [${result.errorCode}]: ${result.error}`
+    );
+    if (result.check !== null && result.check.diagnostics.length > 0) {
+      for (const diagnostic of result.check.diagnostics) {
+        console.error(formatDiagnostic(diagnostic));
+      }
+    }
+    return 1;
+  }
+
+  console.log(
+    `Change plan ${result.check.changeName}: `
+    + `${result.fromStage} -> ${result.toStage} (${result.action}).`
+  );
   return 0;
 }
 
@@ -170,6 +295,18 @@ function invalidArguments(message: string): number {
   return 2;
 }
 
+function parseStage(value: string | undefined): ChangePlanStage | undefined {
+  if (
+    value === "draft"
+    || value === "plan"
+    || value === "implementation"
+    || value === "shelved"
+  ) {
+    return value;
+  }
+  return undefined;
+}
+
 export async function runChangePlanCli(
   argv: readonly string[] = process.argv.slice(2)
 ): Promise<number> {
@@ -182,7 +319,9 @@ export async function runChangePlanCli(
         all: { type: "boolean" },
         archived: { type: "boolean" },
         help: { short: "h", type: "boolean" },
-        json: { type: "boolean" }
+        json: { type: "boolean" },
+        reason: { type: "string" },
+        stage: { type: "string" }
       },
       strict: true
     });
@@ -198,41 +337,99 @@ export async function runChangePlanCli(
 
   const [command, ...operands] = parsed.positionals;
   const json = parsed.values.json === true;
+  const reasonValue = parsed.values.reason;
+  const reason = typeof reasonValue === "string" ? reasonValue : undefined;
+  const stageValue = parsed.values.stage;
+  const stageArgument = typeof stageValue === "string" ? stageValue : undefined;
   if (command === "list") {
     if (operands.length > 1 || operands[0]?.trim().length === 0) {
       return invalidArguments(
-        "Expected: change-plan.mjs list [change-root] [--archived | --all] [--json]"
+        "Expected: change-plan.mjs list [change-root] "
+        + "[--archived | --all | --stage <stage>] [--json]"
       );
     }
-    if (parsed.values.all === true && parsed.values.archived === true) {
-      return invalidArguments("--archived and --all cannot be used together.");
+    if (reasonValue !== undefined) {
+      return invalidArguments("--reason is only valid with shelve.");
+    }
+    const selectedFilters = [
+      parsed.values.all === true,
+      parsed.values.archived === true,
+      stageValue !== undefined
+    ].filter(Boolean).length;
+    if (selectedFilters > 1) {
+      return invalidArguments(
+        "--archived, --all, and --stage cannot be used together."
+      );
+    }
+    const stage = parseStage(stageArgument);
+    if (stageValue !== undefined && stage === undefined) {
+      return invalidArguments(
+        "--stage must be draft, plan, implementation, or shelved."
+      );
     }
     const status: ChangePlanListStatus = parsed.values.all === true
       ? "all"
       : parsed.values.archived === true
         ? "archived"
         : "active";
-    return await runListCommand(operands[0], status, json);
+    return await runListCommand(operands[0], status, stage, json);
   }
 
-  if (parsed.values.all === true || parsed.values.archived === true) {
-    return invalidArguments("--archived and --all are only valid with list.");
-  }
-  if (operands.length !== 1 || operands[0]?.trim().length === 0) {
+  if (
+    parsed.values.all === true
+    || parsed.values.archived === true
+    || stageValue !== undefined
+  ) {
     return invalidArguments(
-      "Expected: show <change-directory>, check <change-directory>, "
-      + "or archive <change-directory>."
+      "--archived, --all, and --stage are only valid with list."
+    );
+  }
+  const changeDirectory = operands[0];
+  if (
+    operands.length !== 1
+    || changeDirectory === undefined
+    || changeDirectory.trim().length === 0
+  ) {
+    return invalidArguments(
+      "Expected: one <change-directory> operand."
     );
   }
 
+  if (command === "shelve") {
+    if (reason === undefined || reason.trim().length === 0) {
+      return invalidArguments("shelve requires a non-empty --reason <text>.");
+    }
+    return await runLifecycleCommand({
+      action: "shelve",
+      changeDirectory,
+      json,
+      reason: reason.trim()
+    });
+  }
+  if (reasonValue !== undefined) {
+    return invalidArguments("--reason is only valid with shelve.");
+  }
+
   if (command === "show") {
-    return await runShowCommand(operands[0], json);
+    return await runShowCommand(changeDirectory, json);
   }
   if (command === "check") {
-    return await runCheckCommand(operands[0], json);
+    return await runCheckCommand(changeDirectory, json);
+  }
+  if (
+    command === "plan"
+    || command === "implement"
+    || command === "reconcile"
+    || command === "resume"
+  ) {
+    return await runLifecycleCommand({
+      action: command,
+      changeDirectory,
+      json
+    });
   }
   if (command === "archive") {
-    return await runArchiveCommand(operands[0], json);
+    return await runArchiveCommand(changeDirectory, json);
   }
   return invalidArguments(`Unknown change-plan command: ${command ?? "<missing>"}`);
 }
@@ -240,23 +437,47 @@ export async function runChangePlanCli(
 export {
   archiveChangePlanDirectory,
   checkChangePlanDirectory,
+  implementChangePlanDirectory,
   listChangePlans,
-  showChangePlanDirectory
+  parseChangePlanMetadata,
+  planChangePlanDirectory,
+  readChangePlanMetadata,
+  reconcileChangePlanDirectory,
+  resumeChangePlanDirectory,
+  shelveChangePlanDirectory,
+  showChangePlanDirectory,
+  ChangePlanMetadataError
 };
 export type {
+  ChangePlanAssessment,
+  ChangePlanAssessmentName,
   ChangePlanArchiveResult,
   ChangePlanArtifactContents,
   ChangePlanArtifactName,
+  ChangePlanArtifactCheckResult,
   ChangePlanCheckResult,
   ChangePlanDiagnostic,
   ChangePlanDiagnosticCode,
+  ChangePlanFileName,
+  ChangePlanLifecycleAction,
+  ChangePlanLifecycleErrorCode,
+  ChangePlanLifecycleFailure,
+  ChangePlanLifecycleResult,
+  ChangePlanLifecycleSuccess,
   ChangePlanListEntry,
   ChangePlanListOptions,
   ChangePlanListResult,
   ChangePlanListStatus,
+  ChangePlanMetadata,
+  ChangePlanMetadataName,
   ChangePlanShowResult,
-  ChangePlanStatus
+  ChangePlanStage,
+  ChangePlanStatus,
+  ChangePlanTaskProgress,
+  ChangePlanTaskSection,
+  ChangePlanTaskSectionProgress
 } from "./types.ts";
+export type { ChangePlanMetadataErrorCode } from "./metadata.ts";
 
 if (isMainModule(import.meta.url)) {
   try {

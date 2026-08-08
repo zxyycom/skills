@@ -40,6 +40,21 @@ async function testContentGates(tempRoot: string): Promise<void> {
   assert.notEqual(incompleteArchive.check, null);
   assert.match(incompleteArchive.error ?? "", /all tasks must be completed/u);
   assert.equal(await fs.stat(activeDirectory).then(() => true), true);
+
+  const completedDraftDirectory = await writePlan(
+    path.join(tempRoot, "draft-stage"),
+    "completed-draft",
+    {
+      metadata: { schemaVersion: 1, stage: "draft" },
+      tasks: completedTasks
+    }
+  );
+  const draftArchive = await archiveChangePlanDirectory(
+    completedDraftDirectory
+  );
+  assert.equal(draftArchive.archived, false);
+  assert.match(draftArchive.error ?? "", /implementation stage/u);
+  assert.equal(await fs.stat(completedDraftDirectory).then(() => true), true);
 }
 
 async function testPathGates(tempRoot: string): Promise<void> {

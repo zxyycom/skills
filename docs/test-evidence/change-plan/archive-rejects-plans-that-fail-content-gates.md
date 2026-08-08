@@ -3,6 +3,6 @@ Entry:
 - `tools/change-plan/tests/archive.test.ts > archive rejects plans that fail content gates`
 - `bun test --test-name-pattern="^archive rejects plans that fail content gates$" ./tools/change-plan/tests/run.ts`
 Contract:
-- Change plan 只有在 proposal、design 和 tasks 满足归档门禁后才能归档。
+- Change 只有处于 implementation 阶段，且 proposal、design 和 tasks 满足内容门禁后才能归档。
 Proves:
-- 未完成或无效计划保持在活动目录并返回阻断诊断。
+- 未完成的 implementation Change 与任务已完成的 draft Change 都保持在活动目录并返回对应阻断原因。

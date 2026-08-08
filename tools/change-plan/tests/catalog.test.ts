@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
@@ -12,6 +13,8 @@ import {
 } from "../src/catalog.ts";
 import {
   completedTasks,
+  generatedCliPath,
+  validBaseCommit,
   validProposal,
   withTempRoot,
   writePlan
@@ -22,7 +25,10 @@ async function testListStatuses(tempRoot: string): Promise<void> {
   await writePlan(lifecycleRoot, "active-plan");
   await writePlan(lifecycleRoot, "completed-plan", { tasks: completedTasks });
   const archiveRoot = path.join(lifecycleRoot, "archive");
-  await writePlan(archiveRoot, "old-plan", { tasks: completedTasks });
+  await writePlan(archiveRoot, "old-plan", {
+    metadata: null,
+    tasks: completedTasks
+  });
 
   const activeList = await listChangePlans({ changeRoot: lifecycleRoot });
   assert.deepEqual(activeList.errors, []);
@@ -32,6 +38,10 @@ async function testListStatuses(tempRoot: string): Promise<void> {
     ["active-plan", "completed-plan"]
   );
   assert.ok(activeList.entries.every((entry) => entry.status === "active"));
+  assert.ok(activeList.entries.every((entry) => (
+    entry.stage === "implementation"
+    && entry.assessment?.assessment === "not-applicable"
+  )));
   assert.deepEqual(
     await listBundledChangePlans({ changeRoot: lifecycleRoot }),
     activeList
@@ -46,6 +56,11 @@ async function testListStatuses(tempRoot: string): Promise<void> {
     archivedList.entries.map((entry) => [entry.status, entry.changeName]),
     [["archived", "old-plan"]]
   );
+  assert.equal(archivedList.entries[0]?.stage, null);
+  assert.equal(
+    archivedList.entries[0]?.assessment?.assessment,
+    "not-applicable"
+  );
 
   const allList = await listChangePlans({
     changeRoot: lifecycleRoot,
@@ -59,6 +74,44 @@ async function testListStatuses(tempRoot: string): Promise<void> {
       ["archived", "old-plan"]
     ]
   );
+}
+
+async function testStageFilter(tempRoot: string): Promise<void> {
+  const lifecycleRoot = path.join(tempRoot, "stage-filter");
+  await writePlan(lifecycleRoot, "draft-change", {
+    metadata: { schemaVersion: 1, stage: "draft" }
+  });
+  await writePlan(lifecycleRoot, "implementation-change");
+  await writePlan(lifecycleRoot, "shelved-change", {
+    metadata: {
+      baseCommit: validBaseCommit,
+      schemaVersion: 1,
+      shelf: {
+        atCommit: validBaseCommit,
+        reason: "等待后续处理",
+        source: "explicit"
+      },
+      stage: "shelved"
+    }
+  });
+
+  const draftList = await listChangePlans({
+    changeRoot: lifecycleRoot,
+    stage: "draft"
+  });
+  assert.deepEqual(draftList.errors, []);
+  assert.deepEqual(
+    draftList.entries.map((entry) => [entry.changeName, entry.stage]),
+    [["draft-change", "draft"]]
+  );
+
+  const invalidFilter = await listChangePlans({
+    changeRoot: lifecycleRoot,
+    stage: "draft",
+    status: "all"
+  });
+  assert.deepEqual(invalidFilter.entries, []);
+  assert.match(invalidFilter.errors[0] ?? "", /only valid for active/u);
 }
 
 async function testInvalidEntriesRemainDiscoverable(
@@ -147,6 +200,7 @@ async function testShowStatusAndBundledParity(
   assert.equal(shownActive.status, "active");
   assert.equal(shownActive.check.valid, true);
   assert.equal(shownActive.artifacts["proposal.md"], validProposal);
+  assert.deepEqual(shownActive.assessment, shownActive.check.assessment);
   assert.deepEqual(
     await showBundledChangePlanDirectory(activeDirectory),
     shownActive
@@ -183,12 +237,86 @@ async function testSymbolicLinksAreNotDiscovered(
   assert.match(linkedRootList.errors[0] ?? "", /must be a directory/u);
 }
 
+async function testShowDoesNotReadSymbolicLinks(
+  tempRoot: string
+): Promise<void> {
+  const externalMarker = "EXTERNAL-SHOW-MARKER";
+  const externalDirectory = path.join(tempRoot, "external-change");
+  await fs.mkdir(externalDirectory);
+  await Promise.all([
+    "proposal.md",
+    "design.md",
+    "tasks.md"
+  ].map((artifact) => fs.writeFile(
+    path.join(externalDirectory, artifact),
+    `${externalMarker}:${artifact}\n`,
+    "utf8"
+  )));
+
+  const linkedDirectory = path.join(tempRoot, "linked-change");
+  await fs.symlink(
+    externalDirectory,
+    linkedDirectory,
+    process.platform === "win32" ? "junction" : "dir"
+  );
+
+  const realDirectory = await writePlan(tempRoot, "linked-artifact");
+  await fs.rm(path.join(realDirectory, "proposal.md"));
+  await fs.symlink(
+    path.join(externalDirectory, "proposal.md"),
+    path.join(realDirectory, "proposal.md"),
+    "file"
+  );
+
+  for (const show of [
+    showChangePlanDirectory,
+    showBundledChangePlanDirectory
+  ]) {
+    const linkedDirectoryResult = await show(linkedDirectory);
+    assert.deepEqual(linkedDirectoryResult.artifacts, {
+      "proposal.md": null,
+      "design.md": null,
+      "tasks.md": null
+    });
+    assert.doesNotMatch(
+      JSON.stringify(linkedDirectoryResult),
+      /EXTERNAL-SHOW-MARKER/u
+    );
+
+    const linkedArtifactResult = await show(realDirectory);
+    assert.equal(linkedArtifactResult.artifacts["proposal.md"], null);
+    assert.doesNotMatch(
+      JSON.stringify(linkedArtifactResult),
+      /EXTERNAL-SHOW-MARKER/u
+    );
+  }
+
+  for (const changeDirectory of [linkedDirectory, realDirectory]) {
+    const cliResult = spawnSync(
+      "node",
+      [generatedCliPath, "show", changeDirectory, "--json"],
+      { encoding: "utf8" }
+    );
+    assert.equal(cliResult.status, 1);
+    assert.equal(cliResult.stderr, "");
+    assert.doesNotMatch(cliResult.stdout, /EXTERNAL-SHOW-MARKER/u);
+    const parsed = JSON.parse(cliResult.stdout) as {
+      artifacts: Record<string, string | null>;
+    };
+    assert.equal(parsed.artifacts["proposal.md"], null);
+  }
+}
+
 test("catalog lists active, archived, and all change plans", () => (
   withTempRoot("catalog-statuses", testListStatuses)
 ));
 
 test("catalog keeps invalid change entries discoverable", () => (
   withTempRoot("catalog-invalid", testInvalidEntriesRemainDiscoverable)
+));
+
+test("catalog filters active changes by lifecycle stage", () => (
+  withTempRoot("catalog-stage", testStageFilter)
 ));
 
 test("catalog reports inaccessible and malformed lifecycle roots", () => (
@@ -201,4 +329,8 @@ test("catalog shows lifecycle status with bundled API parity", () => (
 
 test("catalog does not discover symbolic-link change directories", () => (
   withTempRoot("catalog-links", testSymbolicLinksAreNotDiscovered)
+));
+
+test("show does not read symbolic-link directories or artifacts", () => (
+  withTempRoot("catalog-show-links", testShowDoesNotReadSymbolicLinks)
 ));

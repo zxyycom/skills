@@ -97,8 +97,10 @@
       "ai-ready-docs/260720-treat-negative-options-as-solution-anchors.md": "sha256:f55b608c9ecf634a0ee6ffd465e2a86bd9265f64a275f70de8a2ea5ce1f7ddaf",
       "ai-ready-docs/260720-use-controlled-mermaid-flowcharts.md": "sha256:25b009a74b0d9a84865bec942f2c8516793f581a47484982e65ad0c7e956f95a",
       "ai-ready-docs/use-ai-ready-docs-identity.md": "sha256:c7ef4248915e21ed551d5864b5f8556777334bf91676b380ed6431eba403075a",
+      "change-plan/derive-change-plan-sdk-declarations-from-runtime-source.md": "sha256:e9203bdaf581918a9bdc911cbce7f293874bca36892f8e32da23b63d59c5b7bb",
+      "change-plan/detect-shelved-plans-by-git-distance.md": "sha256:7c1a9b1e21bd1590e43bb0fd67cff53758d3802cec0628fe4bfa460c9023f6ae",
       "change-plan/manage-basic-change-lifecycle.md": "sha256:86c0318b9b43a533bc2332eaa97c08e756104c2d097e2f745bed2f45988d8b7b",
-      "change-plan/manage-change-lifecycle-stages.md": "sha256:d1ee6ece1769b8ec33e33aa181eb667c0ec04f4b712fa0c0089c11262547b58a",
+      "change-plan/manage-change-lifecycle-stages.md": "sha256:6897ba0a61e9c6c7a0a5098f8ce3ff540e4aa96f8caedea56988c1b5e85e5025",
       "change-plan/use-independent-change-plans.md": "sha256:2d32fbd6ed64b1eff7d852fd7ee0e0037c72dcdceb27803d5bb879cddab41f0c",
       "common-denominator-design/design-by-scenario-denominators.md": "sha256:218a489e475594152f861a152cf785274ef297e862216fe198191418114619ac",
       "decision-records/260627-establish-decision-record-policy.md": "sha256:afdeb4ca6139a9fe9a5a8e971836690f6893b4dedf5c9e86d2c4a0a7e5c934e4",
@@ -512,6 +514,54 @@
         "relations": []
       }
     },
+    "change-plan/derive-change-plan-sdk-declarations-from-runtime-source.md": {
+      "keys": {
+        "domain": [
+          "change-plan"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "change-plan/derive-change-plan-sdk-declarations-from-runtime-source.md",
+        "title": "从 Change Plan 运行时源码派生 SDK 声明",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-08T04:18:46Z",
+        "purpose": "让 Change Plan 的运行时 API、分发声明和 metadata 机器契约保持同一事实源。",
+        "background": "CLI 公开导出和 Valibot metadata schema 已经定义真实运行时边界，独立手写声明会重复维护接口并产生漂移。",
+        "decision": "从运行时公开导出派生可达 SDK 声明树，从 metadata schema 派生 JSON Schema 和公开类型，不维护独立 api 声明源。",
+        "relations": []
+      }
+    },
+    "change-plan/detect-shelved-plans-by-git-distance.md": {
+      "keys": {
+        "domain": [
+          "change-plan"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "change-plan/detect-shelved-plans-by-git-distance.md",
+        "title": "按 Git 演进距离识别搁置计划",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-08T02:29:49Z",
+        "purpose": "让已确认但尚未实施的计划获得统一、可复核的机械搁置候选信号。",
+        "background": "日历时间不能区分项目停滞与计划偏离，完全依赖个人判断又难以稳定识别退出当前主线的计划。",
+        "decision": "使用固定 Git 演进距离产生候选；查询不改阶段，显式 reconcile 以机械证据写入 shelved。",
+        "relations": []
+      }
+    },
     "change-plan/manage-basic-change-lifecycle.md": {
       "keys": {
         "domain": [
@@ -550,14 +600,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "change-plan/manage-change-lifecycle-stages.md",
         "title": "按生命周期阶段维护 Change",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-06T02:22:22Z",
         "purpose": "让活动 Change 在起草、计划、实施和搁置恢复时只固化当前工作阶段有意义的内容。",
         "background": "起草只需记录任务或方向，计划阶段才固化执行细节；搁置无法总在事前预测，恢复时原计划可能已经过时。",

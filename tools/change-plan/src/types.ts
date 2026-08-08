@@ -1,10 +1,86 @@
+import type { ChangePlanMetadata } from "./metadata.ts";
+
 export const changePlanArtifactNames = [
   "proposal.md",
   "design.md",
   "tasks.md"
 ] as const;
 
+export const changePlanMetadataName = ".change-plan.json" as const;
+
 export type ChangePlanArtifactName = typeof changePlanArtifactNames[number];
+
+export type ChangePlanMetadataName = typeof changePlanMetadataName;
+
+export type ChangePlanFileName = ChangePlanArtifactName | ChangePlanMetadataName;
+
+export type ChangePlanStage =
+  | "draft"
+  | "plan"
+  | "implementation"
+  | "shelved";
+
+export type { ChangePlanMetadata } from "./metadata.ts";
+
+export type ChangePlanAssessmentName =
+  | "not-applicable"
+  | "current"
+  | "shelve-candidate"
+  | "plan-review-required";
+
+export type ChangePlanAssessment =
+  | {
+    assessment: "not-applicable";
+  }
+  | {
+    assessment: "plan-review-required";
+    baseCommit: string | null;
+    headCommit: string | null;
+    reason: "base-unavailable" | "artifacts-changed";
+  }
+  | {
+    assessment: "current" | "shelve-candidate";
+    baseCommit: string;
+    changedLines: number;
+    commitCount: number;
+    headCommit: string;
+    policy: "git-distance-v1";
+  };
+
+export type ChangePlanTaskSection =
+  | "readiness"
+  | "implementation"
+  | "verification";
+
+export type ChangePlanTaskHeading =
+  | "Readiness"
+  | "Implementation"
+  | "Verification";
+
+export type ChangePlanArtifactHeading =
+  | "Why"
+  | "Outcome"
+  | "Scope"
+  | "Success Criteria"
+  | "Affected Owners"
+  | "Context"
+  | "Goals / Non-Goals"
+  | "Decisions"
+  | "Risks / Trade-offs"
+  | "Open Questions"
+  | ChangePlanTaskHeading;
+
+export type ChangePlanArtifactTitle = "Proposal" | "Design" | "Tasks";
+
+export type ChangePlanTaskSectionProgress = {
+  completedTaskCount: number;
+  taskCount: number;
+};
+
+export type ChangePlanTaskProgress = Record<
+  ChangePlanTaskSection,
+  ChangePlanTaskSectionProgress
+>;
 
 export type ChangePlanDiagnosticCode =
   | "change-directory-not-found"
@@ -17,27 +93,45 @@ export type ChangePlanDiagnosticCode =
   | "file-read-failed"
   | "invalid-change-name"
   | "invalid-h1"
+  | "invalid-metadata"
   | "invalid-task-syntax"
   | "missing-required-file"
   | "missing-section"
   | "missing-task"
+  | "plan-review-required"
   | "required-path-not-file"
   | "section-order"
-  | "task-outside-required-section";
+  | "task-outside-required-section"
+  | "version-control-failed";
 
 export type ChangePlanDiagnostic = {
   code: ChangePlanDiagnosticCode;
-  file: ChangePlanArtifactName | null;
+  file: ChangePlanFileName | null;
   line?: number;
   message: string;
 };
 
 export type ChangePlanCheckResult = {
+  assessment: ChangePlanAssessment | null;
   changeDirectory: string;
   changeName: string;
   completedTaskCount: number;
   diagnostics: ChangePlanDiagnostic[];
+  metadata: ChangePlanMetadata | null;
+  stage: ChangePlanStage | null;
   taskCount: number;
+  taskProgress: ChangePlanTaskProgress;
+  valid: boolean;
+};
+
+export type ChangePlanArtifactCheckResult = {
+  changeDirectory: string;
+  changeName: string;
+  completedTaskCount: number;
+  diagnostics: ChangePlanDiagnostic[];
+  targetStage: ChangePlanStage;
+  taskCount: number;
+  taskProgress: ChangePlanTaskProgress;
   valid: boolean;
 };
 
@@ -47,6 +141,7 @@ export type ChangePlanListStatus = ChangePlanStatus | "all";
 
 export type ChangePlanListOptions = {
   changeRoot?: string;
+  stage?: ChangePlanStage;
   status?: ChangePlanListStatus;
 };
 
@@ -67,10 +162,86 @@ export type ChangePlanArtifactContents = Record<
 >;
 
 export type ChangePlanShowResult = {
+  assessment: ChangePlanAssessment | null;
   artifacts: ChangePlanArtifactContents;
   check: ChangePlanCheckResult;
   status: ChangePlanStatus;
 };
+
+export type ChangePlanLifecycleAction =
+  | "plan"
+  | "implement"
+  | "shelve"
+  | "reconcile"
+  | "resume";
+
+export type ChangePlanLifecycleErrorCode =
+  | "artifact-check-failed"
+  | "artifacts-not-confirmed"
+  | "change-check-failed"
+  | "delivery-already-started"
+  | "invalid-assessment"
+  | "invalid-source-stage"
+  | "metadata-write-failed"
+  | "readiness-incomplete"
+  | "reason-required"
+  | "version-control-failed";
+
+type ChangePlanLifecycleSuccessBase = {
+  assessment: ChangePlanAssessment | null;
+  changeDirectory: string;
+  check: ChangePlanCheckResult;
+  error: null;
+  errorCode: null;
+  success: true;
+};
+
+export type ChangePlanLifecycleSuccess = ChangePlanLifecycleSuccessBase & (
+  | {
+    action: "plan";
+    fromStage: "draft" | "plan";
+    toStage: "plan";
+  }
+  | {
+    action: "implement";
+    fromStage: "plan";
+    toStage: "implementation";
+  }
+  | {
+    action: "shelve";
+    fromStage: "plan";
+    toStage: "shelved";
+  }
+  | {
+    action: "reconcile";
+    fromStage: "plan";
+    toStage: "shelved";
+  }
+  | {
+    action: "resume";
+    fromStage: "shelved";
+    toStage: "plan";
+  }
+);
+
+export type ChangePlanLifecycleFailure<
+  Action extends ChangePlanLifecycleAction = ChangePlanLifecycleAction
+> = {
+  action: Action;
+  assessment: ChangePlanAssessment | null;
+  changeDirectory: string;
+  check: ChangePlanArtifactCheckResult | ChangePlanCheckResult | null;
+  error: string;
+  errorCode: ChangePlanLifecycleErrorCode;
+  fromStage: ChangePlanStage | null;
+  success: false;
+  toStage: null;
+};
+
+export type ChangePlanLifecycleResult<
+  Action extends ChangePlanLifecycleAction = ChangePlanLifecycleAction
+> = Extract<ChangePlanLifecycleSuccess, { action: Action }>
+  | ChangePlanLifecycleFailure<Action>;
 
 type ChangePlanArchiveResultBase = {
   archiveDirectory: string;
@@ -93,13 +264,14 @@ export type ChangePlanArchiveResult = ChangePlanArchiveResultBase & (
 
 export type ArtifactStructureContract = {
   file: ChangePlanArtifactName;
-  h1: string;
-  requiredSections: readonly string[];
-  taskSections?: readonly string[];
+  h1: ChangePlanArtifactTitle;
+  requiredSections: readonly ChangePlanArtifactHeading[];
+  taskSections?: readonly ChangePlanTaskHeading[];
 };
 
 export type ArtifactValidationResult = {
   completedTaskCount: number;
   diagnostics: ChangePlanDiagnostic[];
   taskCount: number;
+  taskProgress: ChangePlanTaskProgress;
 };

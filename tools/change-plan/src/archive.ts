@@ -101,6 +101,12 @@ export async function archiveChangePlanDirectory(
   if (!check.valid) {
     return failure("change plan must pass check before archive", check);
   }
+  if (check.stage !== "implementation") {
+    return failure(
+      "change plan must be in implementation stage before archive",
+      check
+    );
+  }
   if (check.completedTaskCount !== check.taskCount) {
     return failure(
       `all tasks must be completed before archive: `

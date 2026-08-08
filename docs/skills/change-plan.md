@@ -1,23 +1,28 @@
 # Change Plan
 
-`change-plan` 为一个明确 change 创建可版本化、可审阅和可交接的临时计划，并提供发现、展开、检查与目录归档组成的基础生命周期。它保留 OpenSpec 计划材料中有价值的职责分离，但不建立 capability、delta spec、主 spec 合并或派生索引。
+`change-plan` 为明确 Change 保存可版本化、可审阅和可交接的临时计划，并用 `.change-plan.json` 维护 `draft`、`plan`、`implementation` 和 `shelved` 四个 active 阶段。完成后的 Change 进入 `archive/` 历史目录。
 
 ## 为什么需要它
 
-项目的稳定文档可以拥有当前行为和接口，长期决策可以保存跨 change 的理由，但一次 change 仍需要临时回答为什么做、做到什么程度、采用什么方案、按什么顺序改以及怎样验证。只把这些信息留在对话中，会让跨会话实施、审阅和交接重新恢复范围。
+项目的稳定文档拥有当前行为和接口，长期决策保存跨 Change 的理由，但一次 Change 仍需要临时回答为什么做、做到什么程度、采用什么方案、按什么顺序改以及怎样验证。只把这些信息留在对话中，会让跨会话实施、审阅和交接反复恢复范围。
 
-`change-plan` 使用 `proposal.md`、`design.md` 和 `tasks.md` 分别承接目标与范围、当前 change 的设计上下文，以及带 Readiness 门禁的实施和验证清单。计划建立与结构通过不等于实施许可。
+`change-plan` 让内容承诺随工作成熟度增加：draft 只需最小 proposal；plan 才需要完整 `proposal.md`、`design.md`、`tasks.md`、完成 Readiness 并确认 Git 基线；implementation 表示按当前有效计划实施。计划退出当前主线时可以显式搁置，也可以由固定 Git 演进距离识别为候选，再通过 `reconcile` 写入 shelved。恢复只能回到 plan 重新审阅。
+
+## 提供的能力
+
+1. `list`、`show` 和 `check` 发现 Change，区分目录 status、active stage 与 plan assessment。
+2. `plan`、`implement`、`shelve`、`reconcile` 和 `resume` 按固定门禁推进阶段。
+3. `git-distance-v1` 依据确认计划后的 first-parent 提交数和 Change 目录外累计 diff 行数识别 `shelve-candidate`，不使用日历时间。
+4. `archive` 只归档处于 implementation、结构有效且任务全部完成的 Change。
+5. 随包 CLI 与可导入 API 使用同一结构、阶段和查询结果。
+6. `.change-plan.json` 的运行时 schema、JSON Schema 和公开 TypeScript 类型由同一来源生成；生命周期写入边界不作为公共 API。
 
 ## 能力边界
 
-1. 项目 owner 文档继续拥有稳定事实、行为、接口和验证语义。
-2. 项目已有长期决策 owner 时，跨 change 持续有效的理由和方向进入该 owner。
-3. Change plan 只拥有本次 change 的临时目标、局部判断、开放问题、任务和验证安排。
-4. 随包 CLI 提供 `list`、`show`、`check` 和 `archive`；它只处理直接目录发现、artifact 读取、结构与任务门禁和无覆盖移动，不判断内容正确性、验证充分性或批准状态。
-5. Change 根目录的直接子目录表示 active change，`archive/` 的直接子目录表示历史；归档不产生额外 metadata 或 spec 同步。
+1. 项目 owner 文档继续拥有稳定事实、行为、接口和验证语义；长期判断进入项目已有决策 owner。
+2. 查询发现候选但不自动改变阶段；复核后可以用 `plan` 更新基线，以 `reconcile` 保存 Git 距离证据并进入 shelved，或用 `shelve` 保存明确原因并进入 shelved。
+3. CLI 只证明 metadata、artifact、任务、Git 基线、阶段转换和目录移动等机械条件，不判断内容正确性、验证充分性或批准状态。
+4. Archived Change 只作为历史；CLI 不提供 restore，也不为其补写 active metadata。
+5. 版本控制操作失败会让 assessment 暂时不可用并产生明确诊断，不会被解释为计划内容需要复核。
 
-实际 skill 位于 [`skills/change-plan/`](../../skills/change-plan/)。
-
-## 发展方向
-
-当前基础命令面只承接 `list`、`show`、`check` 和 `archive`。后续能力仍以反复出现的现实需要为前提；不预先增加 create、restore、delete、跨根搜索、索引或完整 specification 生命周期。
+实际 skill 位于 [`skills/change-plan/`](../../skills/change-plan/)，精确字段、阈值和命令门禁见其固定契约。

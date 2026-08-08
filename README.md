@@ -36,7 +36,7 @@
 
 [Git Commit Organizer](docs/skills/git-commit-organizer.md) 关注提交信息质量。它希望统一提交风格，让每一次提交都能更准确地表达变更意图，降低后续阅读、审查、追踪和管理成本。实际 skill 位于 [`skills/git-commit-organizer/`](skills/git-commit-organizer/)。
 
-[Change Plan](docs/skills/change-plan.md) 为明确 change 创建、查询、更新、审阅或归档 `proposal.md`、`design.md` 和 `tasks.md`，把目标范围、当前设计上下文、Readiness 门禁、实施任务和验证任务整理为可交接的临时计划，并随包提供 `list`、`show`、`check` 和 `archive` 基础生命周期 CLI。实际 skill 位于 [`skills/change-plan/`](skills/change-plan/)。
+[Change Plan](docs/skills/change-plan.md) 用 `proposal.md`、`design.md`、`tasks.md` 和 `.change-plan.json` 维护明确 Change 的 draft、plan、implementation 与 shelved 阶段，并通过随包 CLI 提供查询、阶段推进、Git 距离搁置识别和归档。实际 skill 位于 [`skills/change-plan/`](skills/change-plan/)。
 
 [Task Graph](docs/skills/task-graph.md) 为当前工作维护可恢复的非线性任务图。它用权威 JSON 索引显式保存候选、真实父子、依赖、排斥和执行租约，通过事务化 JSON CLI 支持动态追加、并发领取和上下文恢复；只要仍有协调价值，任务就可以持续保留，但持久知识、正式 change 与代理编排继续由各自 owner 承接。实际 skill 位于 [`skills/task-graph/`](skills/task-graph/)。
 

@@ -16,6 +16,25 @@ export type ListPendingChangedPathsOptions = {
   pathScopes?: readonly string[];
 };
 
+export type ListFirstParentRevisionChangesOptions = {
+  /** Excluded revision at the start of the first-parent range. */
+  from: RevisionId;
+  /** Included revision at the end of the range; defaults to the current revision. */
+  to?: RevisionId;
+};
+
+export type VersionControlPathChange = {
+  /** Null counts identify a binary path whose line counts Git cannot provide. */
+  addedLineCount: number | null;
+  deletedLineCount: number | null;
+  path: string;
+};
+
+export type VersionControlRevisionChange = {
+  changes: VersionControlPathChange[];
+  revision: RevisionId;
+};
+
 export type VersionControlFile = {
   data: Uint8Array;
   path: string;
@@ -38,7 +57,11 @@ export type ReplacePendingFilesResult = {
 
 export type VersionControlRepository = {
   readonly rootDirectory: string;
+  getRepositoryRelativePath: (fileSystemPath: string) => string;
   getCurrentRevision: () => Promise<RevisionId | null>;
+  listFirstParentRevisionChanges: (
+    options: ListFirstParentRevisionChangesOptions
+  ) => Promise<VersionControlRevisionChange[]>;
   listChangedPaths: (options: ListChangedPathsOptions) => Promise<string[]>;
   listPendingChangedPaths: (
     options: ListPendingChangedPathsOptions

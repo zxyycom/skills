@@ -1,18 +1,28 @@
 import type { Stats } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { assessChangePlan } from "./assessment.ts";
 import { validateChangePlanArtifact } from "./markdown.ts";
 import {
-  changePlanArtifactNames,
+  ChangePlanMetadataError,
+  readChangePlanMetadata
+} from "./metadata.ts";
+import {
+  changePlanMetadataName,
   type ArtifactStructureContract,
-  type ChangePlanArtifactName,
+  type ChangePlanArtifactCheckResult,
+  type ChangePlanAssessment,
   type ChangePlanCheckResult,
-  type ChangePlanDiagnostic
+  type ChangePlanDiagnostic,
+  type ChangePlanFileName,
+  type ChangePlanMetadata,
+  type ChangePlanStage,
+  type ChangePlanTaskProgress
 } from "./types.ts";
 
 const kebabCasePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 
-const artifactContracts: readonly ArtifactStructureContract[] = [
+const fullArtifactContracts: readonly ArtifactStructureContract[] = [
   {
     file: "proposal.md",
     h1: "Proposal",
@@ -51,9 +61,39 @@ const artifactContracts: readonly ArtifactStructureContract[] = [
   }
 ];
 
-async function statOrNull(targetPath: string): Promise<Stats | null> {
+const draftArtifactContracts: readonly ArtifactStructureContract[] = [
+  {
+    file: "proposal.md",
+    h1: "Proposal",
+    requiredSections: ["Why", "Outcome"]
+  }
+];
+
+type ArtifactProgress = {
+  completedTaskCount: number;
+  taskCount: number;
+  taskProgress: ChangePlanTaskProgress;
+};
+
+function emptyTaskProgress(): ChangePlanTaskProgress {
+  return {
+    implementation: { completedTaskCount: 0, taskCount: 0 },
+    readiness: { completedTaskCount: 0, taskCount: 0 },
+    verification: { completedTaskCount: 0, taskCount: 0 }
+  };
+}
+
+function emptyArtifactProgress(): ArtifactProgress {
+  return {
+    completedTaskCount: 0,
+    taskCount: 0,
+    taskProgress: emptyTaskProgress()
+  };
+}
+
+async function lstatOrNull(targetPath: string): Promise<Stats | null> {
   try {
-    return await fs.stat(targetPath);
+    return await fs.lstat(targetPath);
   } catch (error) {
     if (
       error !== null
@@ -79,7 +119,7 @@ function directoryDiagnostic(
 }
 
 function fileDiagnostic(
-  file: ChangePlanArtifactName,
+  file: ChangePlanFileName,
   code: ChangePlanDiagnostic["code"],
   message: string
 ): ChangePlanDiagnostic {
@@ -97,69 +137,120 @@ function sortDiagnostics(
   ));
 }
 
-function result(
-  changeDirectory: string,
-  diagnostics: readonly ChangePlanDiagnostic[],
-  taskCount: number,
-  completedTaskCount: number
-): ChangePlanCheckResult {
-  const sortedDiagnostics = sortDiagnostics(diagnostics);
-  return {
-    changeDirectory,
-    changeName: path.basename(changeDirectory),
-    completedTaskCount,
-    diagnostics: sortedDiagnostics,
-    taskCount,
-    valid: sortedDiagnostics.length === 0
-  };
+function isArchivedChangeDirectory(changeDirectory: string): boolean {
+  return path.basename(path.dirname(changeDirectory)) === "archive";
 }
 
-export async function checkChangePlanDirectory(
-  changeDirectoryInput: string
-): Promise<ChangePlanCheckResult> {
-  const changeDirectory = path.resolve(changeDirectoryInput);
-  const diagnostics: ChangePlanDiagnostic[] = [];
+function addChangeNameDiagnostic(
+  changeDirectory: string,
+  diagnostics: ChangePlanDiagnostic[]
+): void {
   const changeName = path.basename(changeDirectory);
-  let taskCount = 0;
-  let completedTaskCount = 0;
-
   if (!kebabCasePattern.test(changeName)) {
     diagnostics.push(directoryDiagnostic(
       "invalid-change-name",
       `change directory name must use kebab-case: ${changeName || "<empty>"}`
     ));
   }
+}
 
+async function inspectChangeDirectory(
+  changeDirectory: string,
+  diagnostics: ChangePlanDiagnostic[]
+): Promise<boolean> {
   let directoryStat: Stats | null;
   try {
-    directoryStat = await statOrNull(changeDirectory);
+    directoryStat = await lstatOrNull(changeDirectory);
   } catch (error) {
     diagnostics.push(directoryDiagnostic(
       "change-directory-read-failed",
       `cannot inspect change directory ${changeDirectory}: ${errorMessage(error)}`
     ));
-    return result(changeDirectory, diagnostics, taskCount, completedTaskCount);
+    return false;
   }
   if (directoryStat === null) {
     diagnostics.push(directoryDiagnostic(
       "change-directory-not-found",
       `change directory does not exist: ${changeDirectory}`
     ));
-    return result(changeDirectory, diagnostics, taskCount, completedTaskCount);
+    return false;
   }
-  if (!directoryStat.isDirectory()) {
+  if (directoryStat.isSymbolicLink() || !directoryStat.isDirectory()) {
     diagnostics.push(directoryDiagnostic(
       "change-path-not-directory",
-      `change path must be a directory: ${changeDirectory}`
+      `change path must be a regular directory and not a symbolic link: ${changeDirectory}`
     ));
-    return result(changeDirectory, diagnostics, taskCount, completedTaskCount);
+    return false;
   }
+  return true;
+}
+
+function metadataDiagnostic(error: unknown): ChangePlanDiagnostic {
+  if (!(error instanceof ChangePlanMetadataError)) {
+    return fileDiagnostic(
+      changePlanMetadataName,
+      "file-read-failed",
+      `cannot read ${changePlanMetadataName}: ${errorMessage(error)}`
+    );
+  }
+  switch (error.code) {
+    case "metadata-not-found":
+      return fileDiagnostic(
+        changePlanMetadataName,
+        "missing-required-file",
+        error.message
+      );
+    case "metadata-not-regular-file":
+    case "metadata-symbolic-link":
+      return fileDiagnostic(
+        changePlanMetadataName,
+        "required-path-not-file",
+        error.message
+      );
+    case "metadata-invalid-json":
+    case "metadata-invalid-schema":
+      return fileDiagnostic(
+        changePlanMetadataName,
+        "invalid-metadata",
+        error.message
+      );
+    case "metadata-read-failed":
+    case "metadata-write-failed":
+      return fileDiagnostic(
+        changePlanMetadataName,
+        "file-read-failed",
+        error.message
+      );
+  }
+}
+
+async function readActiveMetadata(
+  changeDirectory: string,
+  diagnostics: ChangePlanDiagnostic[]
+): Promise<ChangePlanMetadata | null> {
+  try {
+    return await readChangePlanMetadata(changeDirectory);
+  } catch (error) {
+    diagnostics.push(metadataDiagnostic(error));
+    return null;
+  }
+}
+
+async function validateArtifacts(
+  changeDirectory: string,
+  stage: ChangePlanStage,
+  diagnostics: ChangePlanDiagnostic[]
+): Promise<ArtifactProgress> {
+  const progress = emptyArtifactProgress();
+  const artifactContracts = stage === "draft"
+    ? draftArtifactContracts
+    : fullArtifactContracts;
 
   for (const contract of artifactContracts) {
     const artifactPath = path.join(changeDirectory, contract.file);
     let artifactStat: Stats | null;
     try {
-      artifactStat = await statOrNull(artifactPath);
+      artifactStat = await lstatOrNull(artifactPath);
     } catch (error) {
       diagnostics.push(fileDiagnostic(
         contract.file,
@@ -176,11 +267,11 @@ export async function checkChangePlanDirectory(
       ));
       continue;
     }
-    if (!artifactStat.isFile()) {
+    if (artifactStat.isSymbolicLink() || !artifactStat.isFile()) {
       diagnostics.push(fileDiagnostic(
         contract.file,
         "required-path-not-file",
-        `${contract.file} must be a regular file`
+        `${contract.file} must be a regular file and not a symbolic link`
       ));
       continue;
     }
@@ -191,8 +282,20 @@ export async function checkChangePlanDirectory(
         contract
       );
       diagnostics.push(...validation.diagnostics);
-      taskCount += validation.taskCount;
-      completedTaskCount += validation.completedTaskCount;
+      progress.taskCount += validation.taskCount;
+      progress.completedTaskCount += validation.completedTaskCount;
+      for (const section of [
+        "readiness",
+        "implementation",
+        "verification"
+      ] as const) {
+        progress.taskProgress[section].taskCount += (
+          validation.taskProgress[section].taskCount
+        );
+        progress.taskProgress[section].completedTaskCount += (
+          validation.taskProgress[section].completedTaskCount
+        );
+      }
     } catch (error) {
       diagnostics.push(fileDiagnostic(
         contract.file,
@@ -201,11 +304,129 @@ export async function checkChangePlanDirectory(
       ));
     }
   }
+  return progress;
+}
 
-  for (const file of changePlanArtifactNames) {
-    if (!artifactContracts.some((contract) => contract.file === file)) {
-      throw new Error(`Missing structure contract for ${file}`);
+function artifactCheckResult(
+  changeDirectory: string,
+  targetStage: ChangePlanStage,
+  diagnostics: readonly ChangePlanDiagnostic[],
+  progress: ArtifactProgress
+): ChangePlanArtifactCheckResult {
+  const sortedDiagnostics = sortDiagnostics(diagnostics);
+  return {
+    changeDirectory,
+    changeName: path.basename(changeDirectory),
+    ...progress,
+    diagnostics: sortedDiagnostics,
+    targetStage,
+    valid: sortedDiagnostics.length === 0
+  };
+}
+
+function checkResult(
+  changeDirectory: string,
+  diagnostics: readonly ChangePlanDiagnostic[],
+  metadata: ChangePlanMetadata | null,
+  assessment: ChangePlanAssessment | null,
+  progress: ArtifactProgress
+): ChangePlanCheckResult {
+  const sortedDiagnostics = sortDiagnostics(diagnostics);
+  return {
+    assessment,
+    changeDirectory,
+    changeName: path.basename(changeDirectory),
+    ...progress,
+    diagnostics: sortedDiagnostics,
+    metadata,
+    stage: metadata?.stage ?? null,
+    valid: sortedDiagnostics.length === 0
+  };
+}
+
+export async function checkChangePlanArtifactsForStage(
+  changeDirectoryInput: string,
+  targetStage: ChangePlanStage
+): Promise<ChangePlanArtifactCheckResult> {
+  const changeDirectory = path.resolve(changeDirectoryInput);
+  const diagnostics: ChangePlanDiagnostic[] = [];
+  addChangeNameDiagnostic(changeDirectory, diagnostics);
+  if (!await inspectChangeDirectory(changeDirectory, diagnostics)) {
+    return artifactCheckResult(
+      changeDirectory,
+      targetStage,
+      diagnostics,
+      emptyArtifactProgress()
+    );
+  }
+  const progress = await validateArtifacts(
+    changeDirectory,
+    targetStage,
+    diagnostics
+  );
+  return artifactCheckResult(
+    changeDirectory,
+    targetStage,
+    diagnostics,
+    progress
+  );
+}
+
+export async function checkChangePlanDirectory(
+  changeDirectoryInput: string
+): Promise<ChangePlanCheckResult> {
+  const changeDirectory = path.resolve(changeDirectoryInput);
+  const diagnostics: ChangePlanDiagnostic[] = [];
+  addChangeNameDiagnostic(changeDirectory, diagnostics);
+  if (!await inspectChangeDirectory(changeDirectory, diagnostics)) {
+    return checkResult(
+      changeDirectory,
+      diagnostics,
+      null,
+      null,
+      emptyArtifactProgress()
+    );
+  }
+
+  const archived = isArchivedChangeDirectory(changeDirectory);
+  const metadata = archived
+    ? null
+    : await readActiveMetadata(changeDirectory, diagnostics);
+  const artifactStage = archived ? "implementation" : metadata?.stage;
+  const progress = artifactStage === undefined
+    ? emptyArtifactProgress()
+    : await validateArtifacts(changeDirectory, artifactStage, diagnostics);
+
+  let assessment: ChangePlanAssessment | null = archived
+    ? { assessment: "not-applicable" }
+    : null;
+  if (!archived && metadata !== null) {
+    try {
+      assessment = await assessChangePlan(changeDirectory, metadata);
+    } catch (error) {
+      assessment = null;
+      diagnostics.push(fileDiagnostic(
+        changePlanMetadataName,
+        "version-control-failed",
+        `cannot assess plan against version control: ${errorMessage(error)}`
+      ));
     }
   }
-  return result(changeDirectory, diagnostics, taskCount, completedTaskCount);
+  if (assessment?.assessment === "plan-review-required") {
+    diagnostics.push(fileDiagnostic(
+      changePlanMetadataName,
+      "plan-review-required",
+      assessment.reason === "base-unavailable"
+        ? "plan baseCommit is unavailable; review the artifacts and confirm a new plan baseline"
+        : "plan artifacts changed after confirmation; review them and confirm a new plan baseline"
+    ));
+  }
+
+  return checkResult(
+    changeDirectory,
+    diagnostics,
+    metadata,
+    assessment,
+    progress
+  );
 }

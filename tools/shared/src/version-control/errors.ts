@@ -5,6 +5,7 @@ export type VersionControlErrorCode =
   | "pending-conflict"
   | "pending-recovery-failed"
   | "pending-replacement-failed"
+  | "revision-not-first-parent"
   | "revision-not-found";
 
 export class VersionControlError extends Error {

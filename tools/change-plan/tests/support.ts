@@ -2,11 +2,22 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { writeChangePlanMetadata } from "../src/metadata.ts";
+import type { ChangePlanMetadata } from "../src/types.ts";
 
 export type PlanOverrides = {
   design?: string;
+  metadata?: ChangePlanMetadata | null;
   proposal?: string;
   tasks?: string;
+};
+
+export const validBaseCommit = "0123456789abcdef0123456789abcdef01234567";
+
+export const validImplementationMetadata: ChangePlanMetadata = {
+  baseCommit: validBaseCommit,
+  schemaVersion: 1,
+  stage: "implementation"
 };
 
 export const validProposal = `# Proposal
@@ -85,6 +96,9 @@ export async function writePlan(
 ): Promise<string> {
   const directory = path.join(root, name);
   await fs.mkdir(directory, { recursive: true });
+  const metadata = overrides.metadata === undefined
+    ? validImplementationMetadata
+    : overrides.metadata;
   await Promise.all([
     fs.writeFile(
       path.join(directory, "proposal.md"),
@@ -100,7 +114,10 @@ export async function writePlan(
       path.join(directory, "tasks.md"),
       overrides.tasks ?? validTasks,
       "utf8"
-    )
+    ),
+    ...(metadata === null
+      ? []
+      : [writeChangePlanMetadata(directory, metadata)])
   ]);
   return directory;
 }
@@ -114,6 +131,14 @@ export const generatedCliPath = path.join(
 export const generatedDeclarationPath = path.join(
   repositoryRoot,
   "skills/change-plan/scripts/change-plan.d.mts"
+);
+export const generatedDeclarationDirectory = path.join(
+  repositoryRoot,
+  "skills/change-plan/scripts/change-plan-sdk"
+);
+export const generatedMetadataSchemaPath = path.join(
+  repositoryRoot,
+  "skills/change-plan/references/schemas/change-plan-metadata.schema.json"
 );
 
 export async function withTempRoot(
