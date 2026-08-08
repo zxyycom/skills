@@ -41,15 +41,14 @@
 
 ### 2. `.change-plan.json` 保存当前阶段所需的最小事实
 
-元数据使用 `schemaVersion: 1` 和 `stage` 判别联合：
+元数据直接使用 `stage` 判别联合，不包含 schema version：
 
 ```ts
 type ChangePlanMetadata =
-  | { schemaVersion: 1; stage: "draft" }
-  | { schemaVersion: 1; stage: "plan"; baseCommit: string | null }
-  | { schemaVersion: 1; stage: "implementation"; baseCommit: string }
+  | { stage: "draft" }
+  | { stage: "plan"; baseCommit: string | null }
+  | { stage: "implementation"; baseCommit: string }
   | {
-      schemaVersion: 1;
       stage: "shelved";
       baseCommit: string;
       shelf:
@@ -67,7 +66,7 @@ type ChangePlanMetadata =
 
 Active Change 必须使用与 stage 对应的字段组合。显式搁置要求非空 reason；机械搁置保存判定时的 commit 数和累计行数。元数据只保存当前状态，不维护完整事件历史。
 
-实现以严格 Valibot 判别 schema 作为运行时类型与校验来源，并由它生成 JSON Schema 和分发 TypeScript 类型。Revision 不含空白，reason 首尾没有空白，距离值为非负安全整数；读取与内部写入使用同一 schema，公共 API 只开放 metadata 解析与读取。
+实现以严格 Valibot 判别 schema 作为运行时类型与校验来源。Revision 不含空白，reason 首尾没有空白，距离值为非负安全整数；读取与内部写入使用同一 schema。`change-plan.mjs` 不配套生成 metadata JSON Schema、`.d.mts` 或 SDK 声明树。
 
 ### 3. artifact 门禁随阶段增加
 
@@ -109,7 +108,7 @@ node <change-plan-cli> resume <change-directory> [--json]
 
 `plan` 命令要求完整 artifacts 已提交且与当前 HEAD 一致，然后把 HEAD 保存为 `baseCommit`。评估 plan 时先确认基线仍可读取、位于当前 HEAD 的 first-parent 历史中，且三个 artifacts 仍与基线一致；无法确认时返回 `plan-review-required`。
 
-[`tools/shared/version-control`](../../tools/shared/version-control.md) 负责领域无关的 first-parent revision 枚举、numstat 解析、仓库相对路径和稳定错误映射。Change Plan 只负责排除当前 Change 路径、聚合提交数与变更行数，并应用 `git-distance-v1` 阈值；不在领域实现中重复解析 Git 输出。
+[`tools/shared/version-control`](../../tools/shared/version-control.md) 以独立的 `listFirstParentRevisionChanges(repository, options)` 操作负责领域无关的 first-parent revision 枚举，并承接 numstat 解析、仓库相对路径和稳定错误映射；该操作不扩张仓库对象接口。Change Plan 只负责排除当前 Change 路径、聚合提交数与变更行数，并应用 `git-distance-v1` 阈值；不在领域实现中重复解析 Git 输出。
 
 从 `baseCommit` 到 HEAD 沿 first-parent 统计：
 
@@ -136,11 +135,15 @@ node <change-plan-cli> resume <change-directory> [--json]
 node <change-plan-cli> list [change-root] [--archived | --all | --stage <stage>] [--json]
 ```
 
-候选条目的普通输出只增加一条摘要，例如 `shelve-candidate: 5 commits / 1524 changed lines since plan`。`show` 和 JSON API 提供 `policy`、`baseCommit`、`headCommit`、`commitCount` 与 `changedLines`，用于复核和自动化。
+候选条目的普通输出只增加一条摘要，例如 `shelve-candidate: 5 commits / 1524 changed lines since plan`。`show` 和 CLI JSON 输出提供 `policy`、`baseCommit`、`headCommit`、`commitCount` 与 `changedLines`，用于复核和自动化。
 
 发现候选不会让 `list`、`show` 或 `check` 失败，但 `implement` 会拒绝候选。候选复核后仍准备实施时运行 `plan` 更新基线；接受机械搁置判定时运行 `reconcile`。结构、metadata 或计划基线无效时继续使用退出码 `1`；成功为 `0`，参数错误为 `2`。
 
-### 7. active Change 一次性迁移到新协议
+### 7. MJS 允许直接调用当前运行时但不建立 SDK
+
+构建器只生成自包含 `change-plan.mjs` 及 source map。MJS 保留来自运行时入口的当前查询、阶段、archive、metadata 解析与 CLI runner 函数，使需要底层复用的调用方可以直接 import；这些导出属于实现表面，不承诺稳定签名或跨版本兼容，也不生成类型声明树。稳定自动化入口仍是 CLI 及其文本和 JSON 契约。
+
+### 8. active Change 一次性迁移到新协议
 
 实施时重新读取 active catalog，并逐项确认阶段：
 

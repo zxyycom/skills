@@ -4,9 +4,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import {
-  assessChangePlan,
-  confirmPlanArtifactsAtHead
+  assessChangePlan
 } from "../src/assessment.ts";
+import { confirmPlanArtifactsAtHead } from "../src/git-distance.ts";
 import type { ChangePlanMetadata } from "../src/types.ts";
 import { withTempRoot } from "./support.ts";
 
@@ -50,7 +50,7 @@ async function createAssessmentFixture(
 }
 
 function planMetadata(baseCommit: string | null): ChangePlanMetadata {
-  return { baseCommit, schemaVersion: 1, stage: "plan" };
+  return { baseCommit, stage: "plan" };
 }
 
 async function commitProjectLines(
@@ -72,17 +72,9 @@ async function commitProjectLines(
 }
 
 test("assessment is not applicable outside active plan stage", async () => {
-  const draft: ChangePlanMetadata = { schemaVersion: 1, stage: "draft" };
+  const draft: ChangePlanMetadata = { stage: "draft" };
   assert.deepEqual(
     await assessChangePlan("not-a-repository", draft),
-    { assessment: "not-applicable" }
-  );
-  assert.deepEqual(
-    await assessChangePlan(
-      "not-a-repository",
-      planMetadata(null),
-      "archived"
-    ),
     { assessment: "not-applicable" }
   );
 });
@@ -272,31 +264,6 @@ test("assessment rejects a base outside the HEAD first-parent history", () => (
         baseCommit: sideCommit,
         headCommit,
         reason: "base-unavailable"
-      }
-    );
-  })
-));
-
-test("assessment returns a candidate with fixed git-distance-v1 evidence", () => (
-  withTempRoot("assessment-candidate", async (tempRoot) => {
-    const fixture = await createAssessmentFixture(tempRoot);
-    await commitProjectLines(fixture, 1, 998);
-    await commitProjectLines(fixture, 2, 1);
-    await commitProjectLines(fixture, 3, 1);
-    await commitProjectLines(fixture, 4, 1);
-    const headCommit = git(fixture.repositoryRoot, ["rev-parse", "HEAD"]);
-    assert.deepEqual(
-      await assessChangePlan(
-        fixture.changeDirectory,
-        planMetadata(fixture.baseCommit)
-      ),
-      {
-        assessment: "shelve-candidate",
-        baseCommit: fixture.baseCommit,
-        changedLines: 1001,
-        commitCount: 4,
-        headCommit,
-        policy: "git-distance-v1"
       }
     );
   })

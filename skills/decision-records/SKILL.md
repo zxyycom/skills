@@ -4,7 +4,7 @@ description: >-
   用于长期决策管理。当用户正在作出可能持续影响后续行为、owner、边界、
   兼容性、风险处理或验收方式的决定，或拟议决定与既有决定冲突时使用。
 metadata:
-  version: "16"
+  version: "17"
 ---
 
 # Decision Records

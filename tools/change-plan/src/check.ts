@@ -10,7 +10,6 @@ import {
 import {
   changePlanMetadataName,
   type ArtifactStructureContract,
-  type ChangePlanArtifactCheckResult,
   type ChangePlanAssessment,
   type ChangePlanCheckResult,
   type ChangePlanDiagnostic,
@@ -194,28 +193,25 @@ function metadataDiagnostic(error: unknown): ChangePlanDiagnostic {
     );
   }
   switch (error.code) {
-    case "metadata-not-found":
+    case "missing":
       return fileDiagnostic(
         changePlanMetadataName,
         "missing-required-file",
         error.message
       );
-    case "metadata-not-regular-file":
-    case "metadata-symbolic-link":
-      return fileDiagnostic(
-        changePlanMetadataName,
-        "required-path-not-file",
-        error.message
-      );
-    case "metadata-invalid-json":
-    case "metadata-invalid-schema":
+    case "invalid":
       return fileDiagnostic(
         changePlanMetadataName,
         "invalid-metadata",
         error.message
       );
-    case "metadata-read-failed":
-    case "metadata-write-failed":
+    case "invalid-path":
+      return fileDiagnostic(
+        changePlanMetadataName,
+        "required-path-not-file",
+        error.message
+      );
+    case "io":
       return fileDiagnostic(
         changePlanMetadataName,
         "file-read-failed",
@@ -307,23 +303,6 @@ async function validateArtifacts(
   return progress;
 }
 
-function artifactCheckResult(
-  changeDirectory: string,
-  targetStage: ChangePlanStage,
-  diagnostics: readonly ChangePlanDiagnostic[],
-  progress: ArtifactProgress
-): ChangePlanArtifactCheckResult {
-  const sortedDiagnostics = sortDiagnostics(diagnostics);
-  return {
-    changeDirectory,
-    changeName: path.basename(changeDirectory),
-    ...progress,
-    diagnostics: sortedDiagnostics,
-    targetStage,
-    valid: sortedDiagnostics.length === 0
-  };
-}
-
 function checkResult(
   changeDirectory: string,
   diagnostics: readonly ChangePlanDiagnostic[],
@@ -344,36 +323,9 @@ function checkResult(
   };
 }
 
-export async function checkChangePlanArtifactsForStage(
-  changeDirectoryInput: string,
-  targetStage: ChangePlanStage
-): Promise<ChangePlanArtifactCheckResult> {
-  const changeDirectory = path.resolve(changeDirectoryInput);
-  const diagnostics: ChangePlanDiagnostic[] = [];
-  addChangeNameDiagnostic(changeDirectory, diagnostics);
-  if (!await inspectChangeDirectory(changeDirectory, diagnostics)) {
-    return artifactCheckResult(
-      changeDirectory,
-      targetStage,
-      diagnostics,
-      emptyArtifactProgress()
-    );
-  }
-  const progress = await validateArtifacts(
-    changeDirectory,
-    targetStage,
-    diagnostics
-  );
-  return artifactCheckResult(
-    changeDirectory,
-    targetStage,
-    diagnostics,
-    progress
-  );
-}
-
 export async function checkChangePlanDirectory(
-  changeDirectoryInput: string
+  changeDirectoryInput: string,
+  artifactStageOverride?: ChangePlanStage
 ): Promise<ChangePlanCheckResult> {
   const changeDirectory = path.resolve(changeDirectoryInput);
   const diagnostics: ChangePlanDiagnostic[] = [];
@@ -392,7 +344,9 @@ export async function checkChangePlanDirectory(
   const metadata = archived
     ? null
     : await readActiveMetadata(changeDirectory, diagnostics);
-  const artifactStage = archived ? "implementation" : metadata?.stage;
+  const artifactStage = archived
+    ? "implementation"
+    : artifactStageOverride ?? metadata?.stage;
   const progress = artifactStage === undefined
     ? emptyArtifactProgress()
     : await validateArtifacts(changeDirectory, artifactStage, diagnostics);

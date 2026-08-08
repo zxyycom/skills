@@ -13,7 +13,7 @@
 - 每个 active Change 使用 `.change-plan.json` 表达 `draft`、`plan`、`implementation` 或 `shelved`。
 - draft 只要求可识别的方向；plan 才要求完整三文件、完成 Readiness 并记录确认计划的 Git commit。
 - plan 可以因明确暂停进入 shelved；命中固定 Git 距离规则后先成为候选，复核时可以用 `plan` 更新基线，或用 `reconcile` 转为 shelved；恢复后必须重新确认 plan。
-- `list`、`show`、`check`、公共 API 和新增阶段命令能够报告、检查并推进同一阶段模型；archive 继续承接终态。
+- `list`、`show`、`check` 和新增阶段命令能够报告、检查并推进同一阶段模型；MJS 保留可直接 import 的当前底层函数，archive 继续承接终态。
 - 实施时为全部 active Change 一次性写入元数据，随后不再接受无元数据的 active 格式；历史 archive 保持原状。
 
 ## Scope
@@ -23,7 +23,7 @@
 - `.change-plan.json`、四个 active 阶段、阶段 artifact 门禁和合法转换。
 - 只适用于 plan 形成后、implementation 开始前的显式或机械搁置。
 - 基于确认计划 commit 的固定 `git-distance-v1` 规则。
-- change-plan CLI、可导入 API、文本和 JSON 输出、检查与 archive 门禁。
+- change-plan CLI、可直接 import 的当前 MJS 运行时、文本和 JSON 输出、检查与 archive 门禁；MJS 导出不建立稳定 SDK 或兼容承诺。
 - active Change 迁移、skill 与固定契约同步、生成制品、版本、测试和测试证据。
 - 实施完成后同步长期决策并将其标记为 aligned。
 
@@ -41,13 +41,13 @@
 - `git-distance-v1` 得到固定结果：`commitCount > 3 && changedLines > 1000`、`commitCount >= 9` 或 `changedLines >= 3000` 时成为 `shelve-candidate`，其余情况保持 current。
 - 项目没有新提交或新提交只修改当前 change 目录时，plan 不会因经过现实时间而成为候选。
 - `reconcile` 只转换候选；显式搁置保存原因；resume 回到待复核 plan，不能直接进入 implementation。
-- 全部 active Change 完成迁移，行为 owner、分发制品、公共 API、测试证据和长期决策通过目标检查与仓库统一检查。
+- 全部 active Change 完成迁移，行为 owner、MJS 分发制品、测试证据和长期决策通过目标检查与仓库统一检查。
 
 ## Affected Owners
 
 - [`skills/change-plan/SKILL.md`](../../skills/change-plan/SKILL.md) 与 [`change-plan-contract.md`](../../skills/change-plan/references/change-plan-contract.md)：阶段流程、元数据、artifact 和 CLI 契约。
-- [`tools/change-plan/`](../../tools/change-plan/) 与 [`scripts/build/change-plan.ts`](../../scripts/build/change-plan.ts)：实现、公共 API、CLI、测试和分发制品。
-- [`docs/tooling.md`](../../docs/tooling.md) 与 [`derive-change-plan-sdk-declarations-from-runtime-source.md`](../../docs/decisions/change-plan/derive-change-plan-sdk-declarations-from-runtime-source.md)：源码、生成声明和 metadata 机器契约的长期 owner 边界。
+- [`tools/change-plan/`](../../tools/change-plan/) 与 [`scripts/build/change-plan.ts`](../../scripts/build/change-plan.ts)：实现、CLI、当前 MJS runtime exports、测试和分发制品。
+- [`docs/tooling.md`](../../docs/tooling.md)：源码、MJS 生成、稳定 CLI 命令与项目自动化的长期 owner 边界。
 - [`tools/shared/version-control.md`](../../tools/shared/version-control.md)、[`tools/shared/src/version-control/`](../../tools/shared/src/version-control/)、[`tools/shared/tests/version-control.test.ts`](../../tools/shared/tests/version-control.test.ts) 与 [`docs/test-evidence/version-control/`](../../docs/test-evidence/version-control/)：领域无关 first-parent revision、numstat、仓库路径和错误语义及其验证证据。
 - [`docs/skills/change-plan.md`](../../docs/skills/change-plan.md)、[`README.md`](../../README.md)、[`AGENTS.md`](../../AGENTS.md) 与 `skills/change-plan/agents/openai.yaml`：发现入口和能力说明。
 - [`docs/test-evidence/change-plan/`](../../docs/test-evidence/change-plan/)：原生测试入口对应的证据 case。

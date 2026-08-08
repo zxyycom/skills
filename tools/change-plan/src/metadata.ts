@@ -45,22 +45,18 @@ const shelfSchema = v.variant("source", [
 
 export const changePlanMetadataSchema = v.variant("stage", [
   v.strictObject({
-    schemaVersion: v.literal(1),
     stage: v.literal("draft")
   }),
   v.strictObject({
     baseCommit: v.nullable(revisionSchema),
-    schemaVersion: v.literal(1),
     stage: v.literal("plan")
   }),
   v.strictObject({
     baseCommit: revisionSchema,
-    schemaVersion: v.literal(1),
     stage: v.literal("implementation")
   }),
   v.strictObject({
     baseCommit: revisionSchema,
-    schemaVersion: v.literal(1),
     shelf: shelfSchema,
     stage: v.literal("shelved")
   })
@@ -71,13 +67,10 @@ export type ChangePlanMetadata = v.InferOutput<
 >;
 
 export type ChangePlanMetadataErrorCode =
-  | "metadata-invalid-json"
-  | "metadata-invalid-schema"
-  | "metadata-not-found"
-  | "metadata-not-regular-file"
-  | "metadata-read-failed"
-  | "metadata-symbolic-link"
-  | "metadata-write-failed";
+  | "invalid"
+  | "invalid-path"
+  | "io"
+  | "missing";
 
 export class ChangePlanMetadataError extends Error {
   readonly code: ChangePlanMetadataErrorCode;
@@ -115,7 +108,7 @@ async function lstatMetadata(metadataPath: string): Promise<Stats | null> {
       return null;
     }
     throw new ChangePlanMetadataError(
-      "metadata-read-failed",
+      "io",
       `cannot inspect ${changePlanMetadataName}: ${errorMessage(error)}`
     );
   }
@@ -125,19 +118,19 @@ async function requireRegularMetadataFile(metadataPath: string): Promise<void> {
   const metadataStat = await lstatMetadata(metadataPath);
   if (metadataStat === null) {
     throw new ChangePlanMetadataError(
-      "metadata-not-found",
+      "missing",
       `${changePlanMetadataName} is required for active changes`
     );
   }
   if (metadataStat.isSymbolicLink()) {
     throw new ChangePlanMetadataError(
-      "metadata-symbolic-link",
+      "invalid-path",
       `${changePlanMetadataName} must not be a symbolic link`
     );
   }
   if (!metadataStat.isFile()) {
     throw new ChangePlanMetadataError(
-      "metadata-not-regular-file",
+      "invalid-path",
       `${changePlanMetadataName} must be a regular file`
     );
   }
@@ -147,7 +140,7 @@ export function parseChangePlanMetadata(value: unknown): ChangePlanMetadata {
   const parsed = v.safeParse(changePlanMetadataSchema, value);
   if (!parsed.success) {
     throw new ChangePlanMetadataError(
-      "metadata-invalid-schema",
+      "invalid",
       `invalid ${changePlanMetadataName}: ${parsed.issues
         .map(schemaIssueMessage)
         .join("; ")}`
@@ -167,7 +160,7 @@ export async function readChangePlanMetadata(
     contents = await fs.readFile(metadataPath, "utf8");
   } catch (error) {
     throw new ChangePlanMetadataError(
-      "metadata-read-failed",
+      "io",
       `cannot read ${changePlanMetadataName}: ${errorMessage(error)}`
     );
   }
@@ -177,7 +170,7 @@ export async function readChangePlanMetadata(
     value = JSON.parse(contents);
   } catch (error) {
     throw new ChangePlanMetadataError(
-      "metadata-invalid-json",
+      "invalid",
       `invalid ${changePlanMetadataName} JSON: ${errorMessage(error)}`
     );
   }
@@ -194,13 +187,13 @@ export async function writeChangePlanMetadata(
   const metadataStat = await lstatMetadata(metadataPath);
   if (metadataStat?.isSymbolicLink()) {
     throw new ChangePlanMetadataError(
-      "metadata-symbolic-link",
+      "invalid-path",
       `${changePlanMetadataName} must not be a symbolic link`
     );
   }
   if (metadataStat !== null && !metadataStat.isFile()) {
     throw new ChangePlanMetadataError(
-      "metadata-not-regular-file",
+      "invalid-path",
       `${changePlanMetadataName} must be a regular file`
     );
   }
@@ -213,7 +206,7 @@ export async function writeChangePlanMetadata(
     );
   } catch (error) {
     throw new ChangePlanMetadataError(
-      "metadata-write-failed",
+      "io",
       `cannot write ${changePlanMetadataName}: ${errorMessage(error)}`
     );
   }

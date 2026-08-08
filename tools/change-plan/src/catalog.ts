@@ -194,7 +194,6 @@ export async function showChangePlanDirectory(
 ): Promise<ChangePlanShowResult> {
   const check = await checkChangePlanDirectory(changeDirectoryInput);
   return {
-    assessment: check.assessment,
     artifacts: await readArtifactContents(check.changeDirectory),
     check,
     status: changePlanStatusFromDirectory(check.changeDirectory)

@@ -22,12 +22,6 @@ export type ChangePlanStage =
 
 export type { ChangePlanMetadata } from "./metadata.ts";
 
-export type ChangePlanAssessmentName =
-  | "not-applicable"
-  | "current"
-  | "shelve-candidate"
-  | "plan-review-required";
-
 export type ChangePlanAssessment =
   | {
     assessment: "not-applicable";
@@ -124,17 +118,6 @@ export type ChangePlanCheckResult = {
   valid: boolean;
 };
 
-export type ChangePlanArtifactCheckResult = {
-  changeDirectory: string;
-  changeName: string;
-  completedTaskCount: number;
-  diagnostics: ChangePlanDiagnostic[];
-  targetStage: ChangePlanStage;
-  taskCount: number;
-  taskProgress: ChangePlanTaskProgress;
-  valid: boolean;
-};
-
 export type ChangePlanStatus = "active" | "archived";
 
 export type ChangePlanListStatus = ChangePlanStatus | "all";
@@ -162,7 +145,6 @@ export type ChangePlanArtifactContents = Record<
 >;
 
 export type ChangePlanShowResult = {
-  assessment: ChangePlanAssessment | null;
   artifacts: ChangePlanArtifactContents;
   check: ChangePlanCheckResult;
   status: ChangePlanStatus;
@@ -187,61 +169,25 @@ export type ChangePlanLifecycleErrorCode =
   | "reason-required"
   | "version-control-failed";
 
-type ChangePlanLifecycleSuccessBase = {
-  assessment: ChangePlanAssessment | null;
-  changeDirectory: string;
-  check: ChangePlanCheckResult;
-  error: null;
-  errorCode: null;
+export type ChangePlanLifecycleSuccess = {
+  action: ChangePlanLifecycleAction;
+  fromStage: ChangePlanStage;
+  metadata: ChangePlanMetadata;
   success: true;
 };
 
-export type ChangePlanLifecycleSuccess = ChangePlanLifecycleSuccessBase & (
-  | {
-    action: "plan";
-    fromStage: "draft" | "plan";
-    toStage: "plan";
-  }
-  | {
-    action: "implement";
-    fromStage: "plan";
-    toStage: "implementation";
-  }
-  | {
-    action: "shelve";
-    fromStage: "plan";
-    toStage: "shelved";
-  }
-  | {
-    action: "reconcile";
-    fromStage: "plan";
-    toStage: "shelved";
-  }
-  | {
-    action: "resume";
-    fromStage: "shelved";
-    toStage: "plan";
-  }
-);
-
-export type ChangePlanLifecycleFailure<
-  Action extends ChangePlanLifecycleAction = ChangePlanLifecycleAction
-> = {
-  action: Action;
-  assessment: ChangePlanAssessment | null;
-  changeDirectory: string;
-  check: ChangePlanArtifactCheckResult | ChangePlanCheckResult | null;
+export type ChangePlanLifecycleFailure = {
+  action: ChangePlanLifecycleAction;
+  diagnostics: ChangePlanDiagnostic[];
   error: string;
   errorCode: ChangePlanLifecycleErrorCode;
   fromStage: ChangePlanStage | null;
   success: false;
-  toStage: null;
 };
 
-export type ChangePlanLifecycleResult<
-  Action extends ChangePlanLifecycleAction = ChangePlanLifecycleAction
-> = Extract<ChangePlanLifecycleSuccess, { action: Action }>
-  | ChangePlanLifecycleFailure<Action>;
+export type ChangePlanLifecycleResult =
+  | ChangePlanLifecycleSuccess
+  | ChangePlanLifecycleFailure;
 
 type ChangePlanArchiveResultBase = {
   archiveDirectory: string;

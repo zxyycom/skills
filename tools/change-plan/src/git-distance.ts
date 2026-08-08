@@ -5,6 +5,12 @@ import {
   type VersionControlRepository
 } from "../../shared/src/version-control/index.ts";
 import {
+  listFirstParentRevisionChanges
+} from "../../shared/src/version-control/git-first-parent.ts";
+import {
+  repositoryRelativePathFromFileSystemPath
+} from "../../shared/src/version-control/repository-relative-path.ts";
+import {
   changePlanArtifactNames,
   type ChangePlanAssessment
 } from "./types.ts";
@@ -49,7 +55,8 @@ async function repositoryContext(
 ): Promise<ChangeRepositoryContext> {
   const repository = await openVersionControl(changeDirectory);
   return {
-    changePath: repository.getRepositoryRelativePath(
+    changePath: repositoryRelativePathFromFileSystemPath(
+      repository.rootDirectory,
       path.resolve(changeDirectory)
     ),
     repository
@@ -112,20 +119,12 @@ async function measureResolvedGitDistance(
   resolvedBase: string,
   headCommit: string
 ): Promise<GitDistanceEvidence | null> {
-  let revisions;
-  try {
-    revisions = await context.repository.listFirstParentRevisionChanges({
-      from: resolvedBase,
-      to: headCommit
-    });
-  } catch (error) {
-    if (
-      error instanceof VersionControlError
-      && error.code === "revision-not-first-parent"
-    ) {
-      return null;
-    }
-    throw error;
+  const revisions = await listFirstParentRevisionChanges(
+    context.repository,
+    { from: resolvedBase, to: headCommit }
+  );
+  if (revisions === null) {
+    return null;
   }
 
   let changedLines = 0;
@@ -199,20 +198,6 @@ export async function inspectPlanVersionControl(
     };
   }
   return { evidence, outcome: "measured" };
-}
-
-export async function measureGitDistance(
-  changeDirectory: string,
-  baseCommit: string
-): Promise<GitDistanceEvidence | null> {
-  const context = await repositoryContext(changeDirectory);
-  const [resolvedBase, headCommit] = await Promise.all([
-    resolveCommit(context.repository, baseCommit),
-    context.repository.getCurrentRevision()
-  ]);
-  return resolvedBase === null || headCommit === null
-    ? null
-    : await measureResolvedGitDistance(context, resolvedBase, headCommit);
 }
 
 export function classifyGitDistance(

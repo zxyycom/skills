@@ -2,22 +2,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { Ajv2020 } from "ajv/dist/2020.js";
 import {
   ChangePlanMetadataError,
   parseChangePlanMetadata,
   readChangePlanMetadata,
   writeChangePlanMetadata
 } from "../src/metadata.ts";
-import {
-  generatedMetadataSchemaPath,
-  validBaseCommit,
-  withTempRoot
-} from "./support.ts";
-
-function isObject(value: unknown): value is object {
-  return value !== null && typeof value === "object";
-}
+import { validBaseCommit, withTempRoot } from "./support.ts";
 
 function runtimeAccepts(value: unknown): boolean {
   try {
@@ -42,22 +33,16 @@ async function assertMetadataError(
   });
 }
 
-test("metadata runtime and generated schema enforce the same strict values", async () => {
-  const schema: unknown = JSON.parse(
-    await fs.readFile(generatedMetadataSchemaPath, "utf8")
-  );
-  assert.ok(isObject(schema));
-  const validateSchema = new Ajv2020({ allErrors: true }).compile(schema);
+test("metadata runtime enforces strict lifecycle values", () => {
   const cases: ReadonlyArray<{ accepted: boolean; value: unknown }> = [
     {
       accepted: true,
-      value: { schemaVersion: 1, stage: "draft" }
+      value: { stage: "draft" }
     },
     {
       accepted: true,
       value: {
         baseCommit: validBaseCommit,
-        schemaVersion: 1,
         shelf: {
           atCommit: validBaseCommit,
           reason: "等待上游\n重新确认",
@@ -68,13 +53,12 @@ test("metadata runtime and generated schema enforce the same strict values", asy
     },
     {
       accepted: false,
-      value: { extra: true, schemaVersion: 1, stage: "draft" }
+      value: { extra: true, stage: "draft" }
     },
     {
       accepted: false,
       value: {
         baseCommit: ` ${validBaseCommit}`,
-        schemaVersion: 1,
         stage: "implementation"
       }
     },
@@ -82,7 +66,6 @@ test("metadata runtime and generated schema enforce the same strict values", asy
       accepted: false,
       value: {
         baseCommit: validBaseCommit,
-        schemaVersion: 1,
         shelf: {
           atCommit: validBaseCommit,
           reason: " 等待上游 ",
@@ -95,7 +78,6 @@ test("metadata runtime and generated schema enforce the same strict values", asy
       accepted: false,
       value: {
         baseCommit: validBaseCommit,
-        schemaVersion: 1,
         shelf: {
           atCommit: validBaseCommit,
           changedLines: Number.MAX_SAFE_INTEGER + 1,
@@ -109,7 +91,6 @@ test("metadata runtime and generated schema enforce the same strict values", asy
 
   for (const metadataCase of cases) {
     assert.equal(runtimeAccepts(metadataCase.value), metadataCase.accepted);
-    assert.equal(validateSchema(metadataCase.value), metadataCase.accepted);
   }
 });
 
@@ -119,7 +100,7 @@ test("metadata reader maps file and parse boundaries to stable error codes", () 
     await fs.mkdir(missingDirectory);
     await assertMetadataError(
       () => readChangePlanMetadata(missingDirectory),
-      "metadata-not-found"
+      "missing"
     );
 
     const nonFileDirectory = path.join(tempRoot, "non-file");
@@ -128,7 +109,7 @@ test("metadata reader maps file and parse boundaries to stable error codes", () 
     });
     await assertMetadataError(
       () => readChangePlanMetadata(nonFileDirectory),
-      "metadata-not-regular-file"
+      "invalid-path"
     );
 
     const invalidJsonDirectory = path.join(tempRoot, "invalid-json");
@@ -140,19 +121,19 @@ test("metadata reader maps file and parse boundaries to stable error codes", () 
     );
     await assertMetadataError(
       () => readChangePlanMetadata(invalidJsonDirectory),
-      "metadata-invalid-json"
+      "invalid"
     );
 
     const invalidSchemaDirectory = path.join(tempRoot, "invalid-schema");
     await fs.mkdir(invalidSchemaDirectory);
     await fs.writeFile(
       path.join(invalidSchemaDirectory, ".change-plan.json"),
-      JSON.stringify({ schemaVersion: 1, stage: "unknown" }),
+      JSON.stringify({ stage: "unknown" }),
       "utf8"
     );
     await assertMetadataError(
       () => readChangePlanMetadata(invalidSchemaDirectory),
-      "metadata-invalid-schema"
+      "invalid"
     );
   })
 ));
@@ -161,7 +142,7 @@ test("metadata reader and writer reject symbolic-link metadata", () => (
   withTempRoot("metadata-symlink", async (tempRoot) => {
     const changeDirectory = path.join(tempRoot, "linked-metadata");
     const targetPath = path.join(tempRoot, "metadata-target.json");
-    const original = `${JSON.stringify({ schemaVersion: 1, stage: "draft" })}\n`;
+    const original = `${JSON.stringify({ stage: "draft" })}\n`;
     await fs.mkdir(changeDirectory);
     await fs.writeFile(targetPath, original, "utf8");
     await fs.symlink(
@@ -172,14 +153,14 @@ test("metadata reader and writer reject symbolic-link metadata", () => (
 
     await assertMetadataError(
       () => readChangePlanMetadata(changeDirectory),
-      "metadata-symbolic-link"
+      "invalid-path"
     );
     await assertMetadataError(
       () => writeChangePlanMetadata(
         changeDirectory,
-        { schemaVersion: 1, stage: "draft" }
+        { stage: "draft" }
       ),
-      "metadata-symbolic-link"
+      "invalid-path"
     );
     assert.equal(await fs.readFile(targetPath, "utf8"), original);
   })

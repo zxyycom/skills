@@ -1,90 +1,45 @@
 import path from "node:path";
-import { confirmPlanArtifactsAtHead } from "./assessment.ts";
-import {
-  checkChangePlanArtifactsForStage,
-  checkChangePlanDirectory
-} from "./check.ts";
+import { checkChangePlanDirectory } from "./check.ts";
+import { confirmPlanArtifactsAtHead } from "./git-distance.ts";
 import { writeChangePlanMetadata } from "./metadata.ts";
 import type {
-  ChangePlanArtifactCheckResult,
   ChangePlanAssessment,
   ChangePlanCheckResult,
+  ChangePlanDiagnostic,
   ChangePlanLifecycleAction,
   ChangePlanLifecycleErrorCode,
   ChangePlanLifecycleFailure,
   ChangePlanLifecycleResult,
-  ChangePlanMetadata
+  ChangePlanMetadata,
+  ChangePlanStage
 } from "./types.ts";
 
-type LifecycleTransition =
-  | {
-    action: "plan";
-    fromStage: "draft" | "plan";
-    metadata: Extract<ChangePlanMetadata, { stage: "plan" }>;
-    toStage: "plan";
-  }
-  | {
-    action: "implement";
-    fromStage: "plan";
-    metadata: Extract<ChangePlanMetadata, { stage: "implementation" }>;
-    toStage: "implementation";
-  }
-  | {
-    action: "shelve";
-    fromStage: "plan";
-    metadata: Extract<ChangePlanMetadata, { stage: "shelved" }>;
-    toStage: "shelved";
-  }
-  | {
-    action: "reconcile";
-    fromStage: "plan";
-    metadata: Extract<ChangePlanMetadata, { stage: "shelved" }>;
-    toStage: "shelved";
-  }
-  | {
-    action: "resume";
-    fromStage: "shelved";
-    metadata: Extract<ChangePlanMetadata, { stage: "plan" }>;
-    toStage: "plan";
-  };
-
-type PersistedLifecycleSuccess<
-  Transition extends LifecycleTransition
-> = Omit<Transition, "metadata"> & {
-  assessment: ChangePlanAssessment | null;
-  changeDirectory: string;
-  check: ChangePlanCheckResult;
-  error: null;
-  errorCode: null;
-  success: true;
+type AssessedPlan = {
+  assessment: Exclude<
+    ChangePlanAssessment,
+    { assessment: "not-applicable" }
+  >;
+  metadata: Extract<ChangePlanMetadata, { stage: "plan" }>;
 };
-
-type PersistedLifecycleResult<
-  Transition extends LifecycleTransition
-> = PersistedLifecycleSuccess<Transition>
-  | ChangePlanLifecycleFailure<Transition["action"]>;
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-function failure<Action extends ChangePlanLifecycleAction>(
-  action: Action,
-  sourceCheck: ChangePlanCheckResult,
+function failure(
+  action: ChangePlanLifecycleAction,
+  sourceCheck: ChangePlanCheckResult | null,
   errorCode: ChangePlanLifecycleErrorCode,
   error: string,
-  reportedCheck: ChangePlanArtifactCheckResult | ChangePlanCheckResult = sourceCheck
-): ChangePlanLifecycleFailure<Action> {
+  diagnostics: readonly ChangePlanDiagnostic[] = sourceCheck?.diagnostics ?? []
+): ChangePlanLifecycleFailure {
   return {
     action,
-    assessment: sourceCheck.assessment,
-    changeDirectory: sourceCheck.changeDirectory,
-    check: reportedCheck,
+    diagnostics: [...diagnostics],
     error,
     errorCode,
-    fromStage: sourceCheck.stage,
-    success: false,
-    toStage: null
+    fromStage: sourceCheck?.stage ?? null,
+    success: false
   };
 }
 
@@ -98,144 +53,148 @@ function checkFailureCode(
     : "change-check-failed";
 }
 
-async function persistMetadata<Transition extends LifecycleTransition>(
-  sourceCheck: ChangePlanCheckResult,
-  transition: Transition
-): Promise<PersistedLifecycleResult<Transition>> {
-  try {
-    await writeChangePlanMetadata(
-      sourceCheck.changeDirectory,
-      transition.metadata
-    );
-  } catch (error) {
-    return failure(
-      transition.action,
-      sourceCheck,
-      "metadata-write-failed",
-      `cannot write lifecycle metadata; inspect ${sourceCheck.changeDirectory}/.change-plan.json and retry: ${errorMessage(error)}`
-    );
-  }
-
-  const updatedCheck = await checkChangePlanDirectory(
-    sourceCheck.changeDirectory
-  );
-  const { metadata: _metadata, ...transitionResult } = transition;
-  return {
-    ...transitionResult,
-    assessment: updatedCheck.assessment,
-    changeDirectory: sourceCheck.changeDirectory,
-    check: updatedCheck,
-    error: null,
-    errorCode: null,
-    success: true
-  };
-}
-
-function hasCompletedReadiness(
-  check: ChangePlanArtifactCheckResult
-): boolean {
+function hasCompletedReadiness(check: ChangePlanCheckResult): boolean {
   const readiness = check.taskProgress.readiness;
   return readiness.taskCount > 0
     && readiness.completedTaskCount === readiness.taskCount;
 }
 
-function hasStartedDelivery(check: ChangePlanArtifactCheckResult): boolean {
+function hasStartedDelivery(check: ChangePlanCheckResult): boolean {
   return check.taskProgress.implementation.completedTaskCount > 0
     || check.taskProgress.verification.completedTaskCount > 0;
 }
 
-async function checkPlanArtifacts<Action extends ChangePlanLifecycleAction>(
-  sourceCheck: ChangePlanCheckResult,
-  action: Action
-): Promise<
-  ChangePlanArtifactCheckResult | ChangePlanLifecycleFailure<Action>
-> {
-  const artifactCheck = await checkChangePlanArtifactsForStage(
-    sourceCheck.changeDirectory,
-    "plan"
+function blockingPlanDiagnostics(
+  check: ChangePlanCheckResult
+): ChangePlanDiagnostic[] {
+  return check.diagnostics.filter(
+    (diagnostic) => diagnostic.code !== "plan-review-required"
   );
-  return artifactCheck.valid
-    ? artifactCheck
-    : failure(
-      action,
-      sourceCheck,
-      "artifact-check-failed",
-      "proposal.md, design.md, and tasks.md must pass plan checks; fix the reported diagnostics and retry",
-      artifactCheck
-    );
 }
 
-function isLifecycleFailure<Action extends ChangePlanLifecycleAction>(
-  value: ChangePlanArtifactCheckResult | ChangePlanLifecycleFailure<Action>
-): value is ChangePlanLifecycleFailure<Action> {
-  return "success" in value && value.success === false;
+function assessedPlan(
+  action: "implement" | "reconcile" | "shelve",
+  check: ChangePlanCheckResult
+): AssessedPlan | ChangePlanLifecycleFailure {
+  if (check.stage !== "plan" || check.metadata?.stage !== "plan") {
+    return failure(
+      action,
+      check,
+      "invalid-source-stage",
+      `${action} requires an active plan; inspect the current stage first`
+    );
+  }
+  if (
+    check.assessment === null
+    || check.assessment.assessment === "not-applicable"
+  ) {
+    return failure(
+      action,
+      check,
+      checkFailureCode(check),
+      "plan assessment is unavailable; restore version-control access and retry"
+    );
+  }
+  const blockingDiagnostics = blockingPlanDiagnostics(check);
+  if (blockingDiagnostics.length > 0) {
+    return failure(
+      action,
+      check,
+      "change-check-failed",
+      "plan artifacts must pass check before the lifecycle can advance; fix the reported diagnostics and retry",
+      blockingDiagnostics
+    );
+  }
+  return { assessment: check.assessment, metadata: check.metadata };
+}
+
+function isLifecycleFailure(
+  result: AssessedPlan | ChangePlanLifecycleFailure
+): result is ChangePlanLifecycleFailure {
+  return "success" in result;
+}
+
+async function persistMetadata(
+  action: ChangePlanLifecycleAction,
+  changeDirectory: string,
+  fromStage: ChangePlanStage,
+  metadata: ChangePlanMetadata,
+  sourceCheck: ChangePlanCheckResult
+): Promise<ChangePlanLifecycleResult> {
+  try {
+    await writeChangePlanMetadata(changeDirectory, metadata);
+  } catch (error) {
+    return failure(
+      action,
+      sourceCheck,
+      "metadata-write-failed",
+      `cannot write lifecycle metadata; inspect ${changeDirectory}/.change-plan.json and retry: ${errorMessage(error)}`
+    );
+  }
+  return { action, fromStage, metadata, success: true };
 }
 
 export async function planChangePlanDirectory(
   changeDirectoryInput: string
-): Promise<ChangePlanLifecycleResult<"plan">> {
+): Promise<ChangePlanLifecycleResult> {
   const action = "plan";
   const changeDirectory = path.resolve(changeDirectoryInput);
-  const sourceCheck = await checkChangePlanDirectory(changeDirectory);
-
-  if (sourceCheck.stage === "draft") {
-    if (!sourceCheck.valid) {
-      return failure(
-        action,
-        sourceCheck,
-        checkFailureCode(sourceCheck),
-        "draft change plan must pass its current check before plan; fix the reported diagnostics and retry"
-      );
-    }
-  } else if (sourceCheck.stage === "plan") {
-    if (sourceCheck.assessment === null) {
-      return failure(
-        action,
-        sourceCheck,
-        checkFailureCode(sourceCheck),
-        "plan assessment is unavailable; restore version-control access and retry"
-      );
-    }
-    if (
-      sourceCheck.assessment.assessment !== "plan-review-required"
-      && sourceCheck.assessment.assessment !== "shelve-candidate"
-    ) {
-      return failure(
-        action,
-        sourceCheck,
-        "invalid-assessment",
-        "plan accepts draft, plan-review-required, or shelve-candidate changes; inspect the current assessment before retrying"
-      );
-    }
-  } else {
+  const check = await checkChangePlanDirectory(changeDirectory, "plan");
+  if (check.stage !== "draft" && check.stage !== "plan") {
     return failure(
       action,
-      sourceCheck,
+      check,
       "invalid-source-stage",
       "plan requires an active draft or plan change; inspect the current stage first"
     );
   }
-
-  const planCheck = await checkPlanArtifacts(sourceCheck, action);
-  if (isLifecycleFailure(planCheck)) {
-    return planCheck;
-  }
-  if (!hasCompletedReadiness(planCheck)) {
+  if (check.stage === "plan" && check.assessment === null) {
     return failure(
       action,
-      sourceCheck,
-      "readiness-incomplete",
-      "all Readiness tasks must be completed before plan; complete them and retry",
-      planCheck
+      check,
+      checkFailureCode(check),
+      "plan assessment is unavailable; restore version-control access and retry"
     );
   }
-  if (hasStartedDelivery(planCheck)) {
+
+  const blockingDiagnostics = check.stage === "plan"
+    ? blockingPlanDiagnostics(check)
+    : check.diagnostics;
+  if (blockingDiagnostics.length > 0) {
     return failure(
       action,
-      sourceCheck,
+      check,
+      "artifact-check-failed",
+      "proposal.md, design.md, and tasks.md must pass plan checks; fix the reported diagnostics and retry",
+      blockingDiagnostics
+    );
+  }
+  if (
+    check.stage === "plan"
+    && check.assessment?.assessment !== "plan-review-required"
+    && check.assessment?.assessment !== "shelve-candidate"
+  ) {
+    return failure(
+      action,
+      check,
+      "invalid-assessment",
+      "plan accepts draft, plan-review-required, or shelve-candidate changes; inspect the current assessment before retrying"
+    );
+  }
+  if (!hasCompletedReadiness(check)) {
+    return failure(
+      action,
+      check,
+      "readiness-incomplete",
+      "all Readiness tasks must be completed before plan; complete them and retry"
+    );
+  }
+  if (hasStartedDelivery(check)) {
+    return failure(
+      action,
+      check,
       "delivery-already-started",
-      "Implementation and Verification tasks must remain unchecked before plan; reconcile task state and retry",
-      planCheck
+      "Implementation and Verification tasks must remain unchecked before plan; reconcile task state and retry"
     );
   }
 
@@ -245,59 +204,39 @@ export async function planChangePlanDirectory(
   } catch (error) {
     return failure(
       action,
-      sourceCheck,
+      check,
       "version-control-failed",
-      `cannot confirm plan artifacts in version control; restore repository access and retry: ${errorMessage(error)}`,
-      planCheck
+      `cannot confirm plan artifacts in version control; restore repository access and retry: ${errorMessage(error)}`
     );
   }
   if (!confirmation.confirmed) {
     return failure(
       action,
-      sourceCheck,
+      check,
       "artifacts-not-confirmed",
-      "proposal.md, design.md, and tasks.md must be committed at HEAD; commit the current artifacts and retry",
-      planCheck
+      "proposal.md, design.md, and tasks.md must be committed at HEAD; commit the current artifacts and retry"
     );
   }
-  return await persistMetadata(sourceCheck, {
+  return await persistMetadata(
     action,
-    fromStage: sourceCheck.stage,
-    metadata: {
-      baseCommit: confirmation.headCommit,
-      schemaVersion: 1,
-      stage: "plan"
-    },
-    toStage: "plan"
-  });
+    changeDirectory,
+    check.stage,
+    { baseCommit: confirmation.headCommit, stage: "plan" },
+    check
+  );
 }
 
 export async function implementChangePlanDirectory(
   changeDirectoryInput: string
-): Promise<ChangePlanLifecycleResult<"implement">> {
+): Promise<ChangePlanLifecycleResult> {
   const action = "implement";
-  const check = await checkChangePlanDirectory(path.resolve(changeDirectoryInput));
-  if (check.stage !== "plan" || check.metadata?.stage !== "plan") {
-    return failure(
-      action,
-      check,
-      "invalid-source-stage",
-      "implement requires an active plan; inspect the current stage first"
-    );
+  const changeDirectory = path.resolve(changeDirectoryInput);
+  const check = await checkChangePlanDirectory(changeDirectory);
+  const plan = assessedPlan(action, check);
+  if (isLifecycleFailure(plan)) {
+    return plan;
   }
-  if (check.assessment === null) {
-    return failure(
-      action,
-      check,
-      checkFailureCode(check),
-      "plan assessment is unavailable; restore version-control access and retry"
-    );
-  }
-  const artifactCheck = await checkPlanArtifacts(check, action);
-  if (isLifecycleFailure(artifactCheck)) {
-    return artifactCheck;
-  }
-  if (check.assessment.assessment === "shelve-candidate") {
+  if (plan.assessment.assessment === "shelve-candidate") {
     return failure(
       action,
       check,
@@ -306,8 +245,8 @@ export async function implementChangePlanDirectory(
     );
   }
   if (
-    check.assessment.assessment !== "current"
-    || check.metadata.baseCommit === null
+    plan.assessment.assessment !== "current"
+    || plan.metadata.baseCommit === null
   ) {
     return failure(
       action,
@@ -316,58 +255,44 @@ export async function implementChangePlanDirectory(
       "plan must be reviewed with plan before implementation; run plan and retry"
     );
   }
-  return await persistMetadata(check, {
+  return await persistMetadata(
     action,
-    fromStage: "plan",
-    metadata: {
-      baseCommit: check.metadata.baseCommit,
-      schemaVersion: 1,
+    changeDirectory,
+    "plan",
+    {
+      baseCommit: plan.metadata.baseCommit,
       stage: "implementation"
     },
-    toStage: "implementation"
-  });
+    check
+  );
 }
 
 export async function shelveChangePlanDirectory(
   changeDirectoryInput: string,
   reasonInput: string
-): Promise<ChangePlanLifecycleResult<"shelve">> {
+): Promise<ChangePlanLifecycleResult> {
   const action = "shelve";
-  const check = await checkChangePlanDirectory(path.resolve(changeDirectoryInput));
   const reason = reasonInput.trim();
   if (reason.length === 0) {
     return failure(
       action,
-      check,
+      null,
       "reason-required",
       "shelve requires a non-empty reason; provide --reason <text> and retry"
     );
   }
-  if (check.stage !== "plan" || check.metadata?.stage !== "plan") {
-    return failure(
-      action,
-      check,
-      "invalid-source-stage",
-      "shelve requires an active plan; inspect the current stage first"
-    );
-  }
-  if (check.assessment === null) {
-    return failure(
-      action,
-      check,
-      checkFailureCode(check),
-      "plan assessment is unavailable; restore version-control access and retry"
-    );
-  }
-  const artifactCheck = await checkPlanArtifacts(check, action);
-  if (isLifecycleFailure(artifactCheck)) {
-    return artifactCheck;
+
+  const changeDirectory = path.resolve(changeDirectoryInput);
+  const check = await checkChangePlanDirectory(changeDirectory);
+  const plan = assessedPlan(action, check);
+  if (isLifecycleFailure(plan)) {
+    return plan;
   }
   if (
-    check.metadata.baseCommit === null
+    plan.metadata.baseCommit === null
     || (
-      check.assessment.assessment !== "current"
-      && check.assessment.assessment !== "shelve-candidate"
+      plan.assessment.assessment !== "current"
+      && plan.assessment.assessment !== "shelve-candidate"
     )
   ) {
     return failure(
@@ -377,49 +302,34 @@ export async function shelveChangePlanDirectory(
       "only a confirmed current or shelve-candidate plan can be shelved; run plan first"
     );
   }
-  return await persistMetadata(check, {
+  return await persistMetadata(
     action,
-    fromStage: "plan",
-    metadata: {
-      baseCommit: check.metadata.baseCommit,
-      schemaVersion: 1,
+    changeDirectory,
+    "plan",
+    {
+      baseCommit: plan.metadata.baseCommit,
       shelf: {
-        atCommit: check.assessment.headCommit,
+        atCommit: plan.assessment.headCommit,
         reason,
         source: "explicit"
       },
       stage: "shelved"
     },
-    toStage: "shelved"
-  });
+    check
+  );
 }
 
 export async function reconcileChangePlanDirectory(
   changeDirectoryInput: string
-): Promise<ChangePlanLifecycleResult<"reconcile">> {
+): Promise<ChangePlanLifecycleResult> {
   const action = "reconcile";
-  const check = await checkChangePlanDirectory(path.resolve(changeDirectoryInput));
-  if (check.stage !== "plan" || check.metadata?.stage !== "plan") {
-    return failure(
-      action,
-      check,
-      "invalid-source-stage",
-      "reconcile requires an active plan; inspect the current stage first"
-    );
+  const changeDirectory = path.resolve(changeDirectoryInput);
+  const check = await checkChangePlanDirectory(changeDirectory);
+  const plan = assessedPlan(action, check);
+  if (isLifecycleFailure(plan)) {
+    return plan;
   }
-  if (check.assessment === null) {
-    return failure(
-      action,
-      check,
-      checkFailureCode(check),
-      "plan assessment is unavailable; restore version-control access and retry"
-    );
-  }
-  const artifactCheck = await checkPlanArtifacts(check, action);
-  if (isLifecycleFailure(artifactCheck)) {
-    return artifactCheck;
-  }
-  if (check.assessment.assessment !== "shelve-candidate") {
+  if (plan.assessment.assessment !== "shelve-candidate") {
     return failure(
       action,
       check,
@@ -427,7 +337,7 @@ export async function reconcileChangePlanDirectory(
       "reconcile only accepts a shelve-candidate; inspect the current assessment first"
     );
   }
-  if (check.metadata.baseCommit === null) {
+  if (plan.metadata.baseCommit === null) {
     return failure(
       action,
       check,
@@ -435,29 +345,30 @@ export async function reconcileChangePlanDirectory(
       "only a confirmed plan can be reconciled; run plan first"
     );
   }
-  return await persistMetadata(check, {
+  return await persistMetadata(
     action,
-    fromStage: "plan",
-    metadata: {
-      baseCommit: check.metadata.baseCommit,
-      schemaVersion: 1,
+    changeDirectory,
+    "plan",
+    {
+      baseCommit: plan.metadata.baseCommit,
       shelf: {
-        atCommit: check.assessment.headCommit,
-        changedLines: check.assessment.changedLines,
-        commitCount: check.assessment.commitCount,
+        atCommit: plan.assessment.headCommit,
+        changedLines: plan.assessment.changedLines,
+        commitCount: plan.assessment.commitCount,
         source: "git-distance-v1"
       },
       stage: "shelved"
     },
-    toStage: "shelved"
-  });
+    check
+  );
 }
 
 export async function resumeChangePlanDirectory(
   changeDirectoryInput: string
-): Promise<ChangePlanLifecycleResult<"resume">> {
+): Promise<ChangePlanLifecycleResult> {
   const action = "resume";
-  const check = await checkChangePlanDirectory(path.resolve(changeDirectoryInput));
+  const changeDirectory = path.resolve(changeDirectoryInput);
+  const check = await checkChangePlanDirectory(changeDirectory);
   if (check.stage !== "shelved") {
     return failure(
       action,
@@ -474,14 +385,11 @@ export async function resumeChangePlanDirectory(
       "shelved change plan must pass check before resume; fix the reported diagnostics and retry"
     );
   }
-  return await persistMetadata(check, {
+  return await persistMetadata(
     action,
-    fromStage: "shelved",
-    metadata: {
-      baseCommit: null,
-      schemaVersion: 1,
-      stage: "plan"
-    },
-    toStage: "plan"
-  });
+    changeDirectory,
+    "shelved",
+    { baseCommit: null, stage: "plan" },
+    check
+  );
 }

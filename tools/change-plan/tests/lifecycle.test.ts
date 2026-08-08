@@ -10,7 +10,6 @@ test("lifecycle returns a stable version-control failure without metadata mutati
     const changeDirectory = await writePlan(tempRoot, "unassessable-plan", {
       metadata: {
         baseCommit: validBaseCommit,
-        schemaVersion: 1,
         stage: "plan"
       }
     });
@@ -21,7 +20,9 @@ test("lifecycle returns a stable version-control failure without metadata mutati
     assert.equal(result.action, "implement");
     assert.equal(result.errorCode, "version-control-failed");
     assert.equal(result.fromStage, "plan");
-    assert.equal(result.toStage, null);
+    assert.ok(result.diagnostics.some(
+      (diagnostic) => diagnostic.code === "version-control-failed"
+    ));
     assert.match(result.error, /restore version-control access and retry/u);
     assert.equal(await fs.readFile(metadataPath, "utf8"), before);
   })

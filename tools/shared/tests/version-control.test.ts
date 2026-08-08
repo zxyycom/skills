@@ -8,8 +8,14 @@ import {
   openVersionControl,
   VersionControlError
 } from "../src/version-control/index.ts";
+import {
+  listFirstParentRevisionChanges
+} from "../src/version-control/git-first-parent.ts";
 import { openGitVersionControl } from "../src/version-control/git.ts";
 import { parseGitFirstParentRevisionChanges } from "../src/version-control/git-numstat.ts";
+import {
+  repositoryRelativePathFromFileSystemPath
+} from "../src/version-control/repository-relative-path.ts";
 
 const gitTestOptions = { timeout: 15_000 };
 
@@ -170,10 +176,10 @@ test("lists first-parent revision changes in order and preserves empty commits",
     const mergeRevision = runGit(repositoryRoot, ["rev-parse", "HEAD"]).trim();
 
     const repository = await openVersionControl(repositoryRoot);
-    const changes = await repository.listFirstParentRevisionChanges({
-      from: baseRevision,
-      to: mergeRevision
-    });
+    const changes = await listFirstParentRevisionChanges(
+      repository,
+      { from: baseRevision, to: mergeRevision }
+    );
     assert.deepEqual(changes, [
       {
         changes: [
@@ -221,17 +227,20 @@ test("lists first-parent revision changes in order and preserves empty commits",
       }
     ]);
     assert.deepEqual(
-      await repository.listFirstParentRevisionChanges({ from: baseRevision }),
+      await listFirstParentRevisionChanges(repository, { from: baseRevision }),
       changes
     );
-    assert.deepEqual(await repository.listFirstParentRevisionChanges({
-      from: mergeRevision,
-      to: mergeRevision
-    }), []);
+    assert.deepEqual(
+      await listFirstParentRevisionChanges(
+        repository,
+        { from: mergeRevision, to: mergeRevision }
+      ),
+      []
+    );
   });
 });
 
-test("rejects revisions outside the first-parent history", gitTestOptions, async () => {
+test("returns null for revisions outside the first-parent history", gitTestOptions, async () => {
   await withTempRoot(async (tempRoot) => {
     const repositoryRoot = path.join(tempRoot, "first-parent-relation");
     await fs.mkdir(repositoryRoot, { recursive: true });
@@ -264,16 +273,12 @@ test("rejects revisions outside the first-parent history", gitTestOptions, async
     ]);
     const mergeRevision = runGit(repositoryRoot, ["rev-parse", "HEAD"]).trim();
 
-    await assert.rejects(
-      (await openVersionControl(repositoryRoot))
-        .listFirstParentRevisionChanges({
-          from: sideRevision,
-          to: mergeRevision
-        }),
-      (error: unknown) => hasVersionControlCode(
-        error,
-        "revision-not-first-parent"
-      )
+    assert.equal(
+      await listFirstParentRevisionChanges(
+        await openVersionControl(repositoryRoot),
+        { from: sideRevision, to: mergeRevision }
+      ),
+      null
     );
   });
 });
@@ -346,11 +351,10 @@ test("maps first-parent Git command failures to operation failures", gitTestOpti
     await fs.writeFile(blobPath, "corrupt Git object", "utf8");
 
     await assert.rejects(
-      (await openVersionControl(repositoryRoot))
-        .listFirstParentRevisionChanges({
-          from: baseRevision,
-          to: currentRevision
-        }),
+      listFirstParentRevisionChanges(
+        await openVersionControl(repositoryRoot),
+        { from: baseRevision, to: currentRevision }
+      ),
       (error: unknown) => error instanceof VersionControlError
         && error.code === "operation-failed"
         && error.message.includes("list first-parent revision changes")
@@ -365,21 +369,29 @@ test("converts absolute descendants to normalized repository paths", gitTestOpti
     initializeRepository(repositoryRoot);
     const repository = await openVersionControl(repositoryRoot);
     assert.equal(
-      repository.getRepositoryRelativePath(
+      repositoryRelativePathFromFileSystemPath(
+        repository.rootDirectory,
         path.join(repositoryRoot, "nested", "file.md")
       ),
       "nested/file.md"
     );
     assert.throws(
-      () => repository.getRepositoryRelativePath("nested/file.md"),
+      () => repositoryRelativePathFromFileSystemPath(
+        repository.rootDirectory,
+        "nested/file.md"
+      ),
       (error: unknown) => hasVersionControlCode(error, "invalid-path")
     );
     assert.throws(
-      () => repository.getRepositoryRelativePath(repositoryRoot),
+      () => repositoryRelativePathFromFileSystemPath(
+        repository.rootDirectory,
+        repositoryRoot
+      ),
       (error: unknown) => hasVersionControlCode(error, "invalid-path")
     );
     assert.throws(
-      () => repository.getRepositoryRelativePath(
+      () => repositoryRelativePathFromFileSystemPath(
+        repository.rootDirectory,
         path.join(repositoryRoot, "..", "outside.md")
       ),
       (error: unknown) => hasVersionControlCode(error, "invalid-path")
@@ -888,14 +900,32 @@ test("reports corrupt revision objects as operation failures", gitTestOptions, a
     await fs.chmod(blobPath, 0o666);
     await fs.writeFile(blobPath, "corrupt Git object", "utf8");
 
+    const repository = await openVersionControl(repositoryRoot);
     await assert.rejects(
-      (await openVersionControl(repositoryRoot)).readRevisionFile(
+      repository.readRevisionFile(
         "HEAD",
         "docs/unreadable.md"
       ),
       (error: unknown) => error instanceof VersionControlError
         && error.code === "operation-failed"
         && error.message.includes("read docs/unreadable.md from revision")
+    );
+
+    const commitId = runGit(repositoryRoot, ["rev-parse", "HEAD"]).trim();
+    const commitPath = path.join(
+      repositoryRoot,
+      ".git",
+      "objects",
+      commitId.slice(0, 2),
+      commitId.slice(2)
+    );
+    await fs.chmod(commitPath, 0o666);
+    await fs.writeFile(commitPath, "corrupt Git object", "utf8");
+    await assert.rejects(
+      repository.resolveRevision("HEAD"),
+      (error: unknown) => error instanceof VersionControlError
+        && error.code === "operation-failed"
+        && error.message.includes("resolve revision HEAD")
     );
   });
 });

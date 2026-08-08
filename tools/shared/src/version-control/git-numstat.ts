@@ -18,7 +18,7 @@ export function parseGitFirstParentRevisionChanges(
   output: string,
   from: RevisionId,
   to: RevisionId
-): VersionControlRevisionChange[] {
+): VersionControlRevisionChange[] | null {
   if (from === to) {
     if (output.length !== 0) {
       throw parseError();
@@ -26,7 +26,7 @@ export function parseGitFirstParentRevisionChanges(
     return [];
   }
   if (output.length === 0) {
-    throw firstParentError(from, to);
+    return null;
   }
   if (output[0] !== "\0" || !output.endsWith("\0")) {
     throw parseError();
@@ -50,7 +50,7 @@ export function parseGitFirstParentRevisionChanges(
       }
       const header = parseRevisionHeader(token);
       if (header.parents[0] !== expectedParent) {
-        throw firstParentError(from, to);
+        return null;
       }
       current = { changes: [], revision: header.revision };
       revisions.push(current);
@@ -91,7 +91,7 @@ export function parseGitFirstParentRevisionChanges(
     throw parseError();
   }
   if (expectedParent !== to) {
-    throw firstParentError(from, to);
+    return null;
   }
   for (const revision of revisions) {
     const seenPaths = new Set<string>();
@@ -175,15 +175,5 @@ function parseError(): VersionControlError {
   return new VersionControlError(
     "operation-failed",
     "Version-control operation failed: parse first-parent revision changes"
-  );
-}
-
-function firstParentError(
-  from: RevisionId,
-  to: RevisionId
-): VersionControlError {
-  return new VersionControlError(
-    "revision-not-first-parent",
-    `Version-control revision ${from} is not on the first-parent history of ${to}`
   );
 }

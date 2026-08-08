@@ -22,6 +22,14 @@ type CliFixture = {
   validDirectory: string;
 };
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object";
+}
+
+function isUnknownArray(value: unknown): value is unknown[] {
+  return Array.isArray(value);
+}
+
 function runCli(arguments_: readonly string[]) {
   return spawnSync("node", [generatedCliPath, ...arguments_], {
     encoding: "utf8"
@@ -170,12 +178,12 @@ function testListLifecycleJson(fixture: CliFixture): void {
     "--json"
   ]);
   assert.equal(stageList.status, 0, stageList.stderr);
-  const stageListResult = JSON.parse(stageList.stdout) as {
-    entries: Array<{ stage: string | null }>;
-  };
+  const stageListResult: unknown = JSON.parse(stageList.stdout);
+  assert.ok(isRecord(stageListResult));
+  assert.ok(isUnknownArray(stageListResult.entries));
   assert.ok(stageListResult.entries.length > 0);
   assert.ok(stageListResult.entries.every(
-    (entry) => entry.stage === "implementation"
+    (entry) => isRecord(entry) && entry.stage === "implementation"
   ));
 }
 
@@ -244,12 +252,12 @@ async function testLifecycleCommands(tempRoot: string): Promise<void> {
   const implementationDirectory = await writePlan(
     changeRoot,
     "implementation-path",
-    { metadata: { schemaVersion: 1, stage: "draft" } }
+    { metadata: { stage: "draft" } }
   );
   const shelvingDirectory = await writePlan(
     changeRoot,
     "shelving-path",
-    { metadata: { schemaVersion: 1, stage: "draft" } }
+    { metadata: { stage: "draft" } }
   );
   runGit(repository, ["add", "."]);
   runGit(repository, ["commit", "-m", "add lifecycle plans"]);
@@ -260,17 +268,17 @@ async function testLifecycleCommands(tempRoot: string): Promise<void> {
     "--json"
   ]);
   assert.equal(plannedImplementation.status, 0, plannedImplementation.stderr);
-  const plannedResult = JSON.parse(plannedImplementation.stdout) as {
-    check: { assessment: { assessment: string }; stage: string };
-    fromStage: string;
-    success: boolean;
-    toStage: string;
-  };
+  const plannedResult: unknown = JSON.parse(plannedImplementation.stdout);
+  assert.ok(isRecord(plannedResult));
+  assert.ok(isRecord(plannedResult.metadata));
   assert.equal(plannedResult.success, true);
   assert.equal(plannedResult.fromStage, "draft");
-  assert.equal(plannedResult.toStage, "plan");
-  assert.equal(plannedResult.check.stage, "plan");
-  assert.equal(plannedResult.check.assessment.assessment, "current");
+  assert.equal(plannedResult.metadata.stage, "plan");
+  assert.ok(typeof plannedResult.metadata.baseCommit === "string");
+  assert.match(plannedResult.metadata.baseCommit, /^[0-9a-f]{40}$/u);
+  assert.equal("check" in plannedResult, false);
+  assert.equal("assessment" in plannedResult, false);
+  assert.equal("changeDirectory" in plannedResult, false);
 
   const implemented = runCli([
     "implement",
@@ -278,10 +286,10 @@ async function testLifecycleCommands(tempRoot: string): Promise<void> {
     "--json"
   ]);
   assert.equal(implemented.status, 0, implemented.stderr);
-  assert.equal(
-    (JSON.parse(implemented.stdout) as { toStage: string }).toStage,
-    "implementation"
-  );
+  const implementedResult: unknown = JSON.parse(implemented.stdout);
+  assert.ok(isRecord(implementedResult));
+  assert.ok(isRecord(implementedResult.metadata));
+  assert.equal(implementedResult.metadata.stage, "implementation");
 
   assert.equal(
     runCli(["plan", shelvingDirectory, "--json"]).status,
@@ -295,35 +303,24 @@ async function testLifecycleCommands(tempRoot: string): Promise<void> {
     "--json"
   ]);
   assert.equal(shelved.status, 0, shelved.stderr);
-  const shelvedResult = JSON.parse(shelved.stdout) as {
-    check: {
-      metadata: {
-        shelf: { reason: string; source: string };
-        stage: string;
-      };
-    };
-  };
-  assert.equal(shelvedResult.check.metadata.stage, "shelved");
-  assert.equal(shelvedResult.check.metadata.shelf.source, "explicit");
-  assert.equal(shelvedResult.check.metadata.shelf.reason, "等待产品方向");
+  const shelvedResult: unknown = JSON.parse(shelved.stdout);
+  assert.ok(isRecord(shelvedResult));
+  assert.ok(isRecord(shelvedResult.metadata));
+  assert.ok(isRecord(shelvedResult.metadata.shelf));
+  assert.equal(shelvedResult.metadata.stage, "shelved");
+  assert.equal(shelvedResult.metadata.shelf.source, "explicit");
+  assert.equal(shelvedResult.metadata.shelf.reason, "等待产品方向");
 
   const resumed = runCli(["resume", shelvingDirectory, "--json"]);
   assert.equal(resumed.status, 0, resumed.stderr);
-  const resumedResult = JSON.parse(resumed.stdout) as {
-    check: {
-      assessment: { assessment: string };
-      metadata: { baseCommit: string | null; stage: string };
-    };
-  };
-  assert.deepEqual(resumedResult.check.metadata, {
+  const resumedResult: unknown = JSON.parse(resumed.stdout);
+  assert.ok(isRecord(resumedResult));
+  assert.ok(isRecord(resumedResult.metadata));
+  assert.deepEqual(resumedResult.metadata, {
     baseCommit: null,
-    schemaVersion: 1,
     stage: "plan"
   });
-  assert.equal(
-    resumedResult.check.assessment.assessment,
-    "plan-review-required"
-  );
+  assert.equal("check" in resumedResult, false);
 
   const directImplement = runCli([
     "implement",
@@ -331,8 +328,11 @@ async function testLifecycleCommands(tempRoot: string): Promise<void> {
     "--json"
   ]);
   assert.equal(directImplement.status, 1);
+  const directImplementResult: unknown = JSON.parse(directImplement.stdout);
+  assert.ok(isRecord(directImplementResult));
+  assert.ok(typeof directImplementResult.error === "string");
   assert.match(
-    (JSON.parse(directImplement.stdout) as { error: string }).error,
+    directImplementResult.error,
     /reviewed with plan/u
   );
 
@@ -340,16 +340,26 @@ async function testLifecycleCommands(tempRoot: string): Promise<void> {
   assert.equal(runCli(["implement", shelvingDirectory]).status, 0);
 }
 
-async function testReconcileCandidate(tempRoot: string): Promise<void> {
-  const repository = path.join(tempRoot, "reconcile-repository");
+async function testCandidateMayBeShelvedOrReconfirmed(
+  tempRoot: string
+): Promise<void> {
+  const repository = path.join(tempRoot, "candidate-repository");
   await initializeGitRepository(repository);
   const changeRoot = path.join(repository, "changes");
-  const candidateDirectory = await writePlan(changeRoot, "candidate-plan", {
-    metadata: { schemaVersion: 1, stage: "draft" }
-  });
+  const shelvedCandidateDirectory = await writePlan(
+    changeRoot,
+    "candidate-to-shelve",
+    { metadata: { stage: "draft" } }
+  );
+  const reconfirmedCandidateDirectory = await writePlan(
+    changeRoot,
+    "candidate-to-reconfirm",
+    { metadata: { stage: "draft" } }
+  );
   runGit(repository, ["add", "."]);
-  runGit(repository, ["commit", "-m", "add candidate plan"]);
-  assert.equal(runCli(["plan", candidateDirectory]).status, 0);
+  runGit(repository, ["commit", "-m", "add candidate plans"]);
+  assert.equal(runCli(["plan", shelvedCandidateDirectory]).status, 0);
+  assert.equal(runCli(["plan", reconfirmedCandidateDirectory]).status, 0);
 
   const progressFile = path.join(repository, "project-progress.txt");
   for (let index = 1; index <= 9; index += 1) {
@@ -358,23 +368,22 @@ async function testReconcileCandidate(tempRoot: string): Promise<void> {
     runGit(repository, ["commit", "-m", `project change ${index}`]);
   }
 
-  const candidateCheck = runCli(["check", candidateDirectory, "--json"]);
+  const candidateCheck = runCli([
+    "check",
+    shelvedCandidateDirectory,
+    "--json"
+  ]);
   assert.equal(candidateCheck.status, 0, candidateCheck.stderr);
-  const candidateCheckResult = JSON.parse(candidateCheck.stdout) as {
-    assessment: {
-      assessment: string;
-      baseCommit: string;
-      changedLines: number;
-      commitCount: number;
-      headCommit: string;
-      policy: string;
-    };
-  };
+  const candidateCheckResult: unknown = JSON.parse(candidateCheck.stdout);
+  assert.ok(isRecord(candidateCheckResult));
+  assert.ok(isRecord(candidateCheckResult.assessment));
   assert.equal(
     candidateCheckResult.assessment.assessment,
     "shelve-candidate"
   );
+  assert.ok(typeof candidateCheckResult.assessment.baseCommit === "string");
   assert.match(candidateCheckResult.assessment.baseCommit, /^[0-9a-f]{40}$/u);
+  assert.ok(typeof candidateCheckResult.assessment.headCommit === "string");
   assert.match(candidateCheckResult.assessment.headCommit, /^[0-9a-f]{40}$/u);
   assert.equal(candidateCheckResult.assessment.commitCount, 9);
   assert.equal(candidateCheckResult.assessment.changedLines, 9);
@@ -387,26 +396,22 @@ async function testReconcileCandidate(tempRoot: string): Promise<void> {
     /shelve-candidate: 9 commits \/ 9 changed lines since plan/u
   );
 
-  const reconciled = runCli(["reconcile", candidateDirectory, "--json"]);
+  const reconciled = runCli([
+    "reconcile",
+    shelvedCandidateDirectory,
+    "--json"
+  ]);
   assert.equal(reconciled.status, 0, reconciled.stderr);
-  const reconciledResult = JSON.parse(reconciled.stdout) as {
-    check: {
-      metadata: {
-        shelf: {
-          changedLines: number;
-          commitCount: number;
-          source: string;
-        };
-        stage: string;
-      };
-    };
-  };
-  assert.equal(reconciledResult.check.metadata.stage, "shelved");
+  const reconciledResult: unknown = JSON.parse(reconciled.stdout);
+  assert.ok(isRecord(reconciledResult));
+  assert.ok(isRecord(reconciledResult.metadata));
+  assert.ok(isRecord(reconciledResult.metadata.shelf));
+  assert.equal(reconciledResult.metadata.stage, "shelved");
   assert.deepEqual(
     {
-      changedLines: reconciledResult.check.metadata.shelf.changedLines,
-      commitCount: reconciledResult.check.metadata.shelf.commitCount,
-      source: reconciledResult.check.metadata.shelf.source
+      changedLines: reconciledResult.metadata.shelf.changedLines,
+      commitCount: reconciledResult.metadata.shelf.commitCount,
+      source: reconciledResult.metadata.shelf.source
     },
     {
       changedLines: 9,
@@ -414,59 +419,34 @@ async function testReconcileCandidate(tempRoot: string): Promise<void> {
       source: "git-distance-v1"
     }
   );
-}
-
-async function testReconfirmCandidate(tempRoot: string): Promise<void> {
-  const repository = path.join(tempRoot, "reconfirm-repository");
-  await initializeGitRepository(repository);
-  const candidateDirectory = await writePlan(
-    path.join(repository, "changes"),
-    "reconfirmed-candidate",
-    { metadata: { schemaVersion: 1, stage: "draft" } }
-  );
-  runGit(repository, ["add", "."]);
-  runGit(repository, ["commit", "-m", "add candidate plan"]);
-  assert.equal(runCli(["plan", candidateDirectory]).status, 0);
-
-  const progressFile = path.join(repository, "project-progress.txt");
-  for (let index = 1; index <= 9; index += 1) {
-    await fs.appendFile(progressFile, `project change ${index}\n`, "utf8");
-    runGit(repository, ["add", "project-progress.txt"]);
-    runGit(repository, ["commit", "-m", `project change ${index}`]);
-  }
-
-  const replanned = runCli(["plan", candidateDirectory, "--json"]);
+  const replanned = runCli([
+    "plan",
+    reconfirmedCandidateDirectory,
+    "--json"
+  ]);
   assert.equal(replanned.status, 0, replanned.stderr);
-  const replannedResult = JSON.parse(replanned.stdout) as {
-    check: {
-      assessment: {
-        assessment: string;
-        commitCount: number;
-        changedLines: number;
-      };
-      stage: string;
-    };
-    fromStage: string;
-    toStage: string;
-  };
+  const replannedResult: unknown = JSON.parse(replanned.stdout);
+  assert.ok(isRecord(replannedResult));
+  assert.ok(isRecord(replannedResult.metadata));
   assert.equal(replannedResult.fromStage, "plan");
-  assert.equal(replannedResult.toStage, "plan");
-  assert.equal(replannedResult.check.stage, "plan");
-  assert.equal(replannedResult.check.assessment.assessment, "current");
-  assert.equal(replannedResult.check.assessment.commitCount, 0);
-  assert.equal(replannedResult.check.assessment.changedLines, 0);
+  assert.equal(replannedResult.metadata.stage, "plan");
+  assert.ok(typeof replannedResult.metadata.baseCommit === "string");
+  assert.match(replannedResult.metadata.baseCommit, /^[0-9a-f]{40}$/u);
 
   const currentPlanAgain = runCli([
     "plan",
-    candidateDirectory,
+    reconfirmedCandidateDirectory,
     "--json"
   ]);
   assert.equal(currentPlanAgain.status, 1);
+  const currentPlanAgainResult: unknown = JSON.parse(currentPlanAgain.stdout);
+  assert.ok(isRecord(currentPlanAgainResult));
+  assert.ok(typeof currentPlanAgainResult.error === "string");
   assert.match(
-    (JSON.parse(currentPlanAgain.stdout) as { error: string }).error,
+    currentPlanAgainResult.error,
     /plan accepts draft, plan-review-required, or shelve-candidate/u
   );
-  assert.equal(runCli(["implement", candidateDirectory]).status, 0);
+  assert.equal(runCli(["implement", reconfirmedCandidateDirectory]).status, 0);
 }
 
 async function testPlanRequiresCommittedArtifacts(
@@ -480,13 +460,16 @@ async function testPlanRequiresCommittedArtifacts(
   const draftDirectory = await writePlan(
     path.join(repository, "changes"),
     "uncommitted-plan",
-    { metadata: { schemaVersion: 1, stage: "draft" } }
+    { metadata: { stage: "draft" } }
   );
 
   const result = runCli(["plan", draftDirectory, "--json"]);
   assert.equal(result.status, 1);
+  const parsedResult: unknown = JSON.parse(result.stdout);
+  assert.ok(isRecord(parsedResult));
+  assert.ok(typeof parsedResult.error === "string");
   assert.match(
-    (JSON.parse(result.stdout) as { error: string }).error,
+    parsedResult.error,
     /must be committed at HEAD/u
   );
 }
@@ -501,7 +484,6 @@ async function testLifecycleOutputChannels(tempRoot: string): Promise<void> {
     {
       metadata: {
         baseCommit: validBaseCommit,
-        schemaVersion: 1,
         shelf: {
           atCommit: validBaseCommit,
           reason: "等待方向",
@@ -517,7 +499,6 @@ async function testLifecycleOutputChannels(tempRoot: string): Promise<void> {
     {
       metadata: {
         baseCommit: validBaseCommit,
-        schemaVersion: 1,
         shelf: {
           atCommit: validBaseCommit,
           reason: "等待方向",
@@ -533,7 +514,6 @@ async function testLifecycleOutputChannels(tempRoot: string): Promise<void> {
     {
       metadata: {
         baseCommit: validBaseCommit,
-        schemaVersion: 1,
         stage: "implementation"
       }
     }
@@ -549,14 +529,16 @@ async function testLifecycleOutputChannels(tempRoot: string): Promise<void> {
   const jsonSuccess = runCli(["resume", jsonSuccessDirectory, "--json"]);
   assert.equal(jsonSuccess.status, 0, jsonSuccess.stderr);
   assert.equal(jsonSuccess.stderr, "");
-  const jsonSuccessResult = JSON.parse(jsonSuccess.stdout) as {
-    check: { valid: boolean };
-    errorCode: null;
-    success: boolean;
-  };
+  const jsonSuccessResult: unknown = JSON.parse(jsonSuccess.stdout);
+  assert.ok(isRecord(jsonSuccessResult));
+  assert.ok(isRecord(jsonSuccessResult.metadata));
   assert.equal(jsonSuccessResult.success, true);
-  assert.equal(jsonSuccessResult.errorCode, null);
-  assert.equal(jsonSuccessResult.check.valid, false);
+  assert.deepEqual(jsonSuccessResult.metadata, {
+    baseCommit: null,
+    stage: "plan"
+  });
+  assert.equal("check" in jsonSuccessResult, false);
+  assert.equal("errorCode" in jsonSuccessResult, false);
 
   const textFailure = runCli(["resume", failureDirectory]);
   assert.equal(textFailure.status, 1);
@@ -567,12 +549,14 @@ async function testLifecycleOutputChannels(tempRoot: string): Promise<void> {
   const jsonFailure = runCli(["resume", failureDirectory, "--json"]);
   assert.equal(jsonFailure.status, 1);
   assert.equal(jsonFailure.stderr, "");
-  const jsonFailureResult = JSON.parse(jsonFailure.stdout) as {
-    errorCode: string;
-    success: boolean;
-  };
+  const jsonFailureResult: unknown = JSON.parse(jsonFailure.stdout);
+  assert.ok(isRecord(jsonFailureResult));
   assert.equal(jsonFailureResult.success, false);
   assert.equal(jsonFailureResult.errorCode, "invalid-source-stage");
+  assert.ok(isUnknownArray(jsonFailureResult.diagnostics));
+  assert.equal("check" in jsonFailureResult, false);
+  assert.equal("assessment" in jsonFailureResult, false);
+  assert.equal("changeDirectory" in jsonFailureResult, false);
 }
 
 async function testArchiveCommands(fixture: CliFixture): Promise<void> {
@@ -692,12 +676,8 @@ test("CLI lifecycle commands enforce legal stage transitions", () => (
   withTempRoot("cli-lifecycle", testLifecycleCommands)
 ));
 
-test("CLI reconcile shelves a Git-distance candidate with evidence", () => (
-  withTempRoot("cli-reconcile", testReconcileCandidate)
-));
-
-test("CLI plan reconfirms a Git-distance candidate", () => (
-  withTempRoot("cli-reconfirm", testReconfirmCandidate)
+test("CLI Git-distance candidate can be shelved or reconfirmed", () => (
+  withTempRoot("cli-candidate", testCandidateMayBeShelvedOrReconfirmed)
 ));
 
 test("CLI plan requires artifacts committed at HEAD", () => (

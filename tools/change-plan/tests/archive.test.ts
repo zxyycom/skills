@@ -2,9 +2,6 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import {
-  archiveChangePlanDirectory as archiveBundledChangePlanDirectory
-} from "../../../skills/change-plan/scripts/change-plan.mjs";
 import { archiveChangePlanDirectory } from "../src/archive.ts";
 import {
   completedTasks,
@@ -45,7 +42,7 @@ async function testContentGates(tempRoot: string): Promise<void> {
     path.join(tempRoot, "draft-stage"),
     "completed-draft",
     {
-      metadata: { schemaVersion: 1, stage: "draft" },
+      metadata: { stage: "draft" },
       tasks: completedTasks
     }
   );
@@ -154,17 +151,6 @@ async function testSuccessfulArchive(tempRoot: string): Promise<void> {
     "验证证据。\n"
   );
 
-  const bundledDirectory = await writePlan(
-    lifecycleRoot,
-    "bundled-plan",
-    { tasks: completedTasks }
-  );
-  const bundledArchive = await archiveBundledChangePlanDirectory(bundledDirectory);
-  assert.equal(bundledArchive.archived, true);
-  assert.equal(
-    await fs.stat(bundledArchive.archivedDirectory).then((stat) => stat.isDirectory()),
-    true
-  );
 }
 
 test("archive rejects plans that fail content gates", () => (

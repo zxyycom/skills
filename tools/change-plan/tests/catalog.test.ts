@@ -4,10 +4,6 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import {
-  listChangePlans as listBundledChangePlans,
-  showChangePlanDirectory as showBundledChangePlanDirectory
-} from "../../../skills/change-plan/scripts/change-plan.mjs";
-import {
   listChangePlans,
   showChangePlanDirectory
 } from "../src/catalog.ts";
@@ -19,6 +15,10 @@ import {
   withTempRoot,
   writePlan
 } from "./support.ts";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object";
+}
 
 async function testListStatuses(tempRoot: string): Promise<void> {
   const lifecycleRoot = path.join(tempRoot, "changes");
@@ -42,11 +42,6 @@ async function testListStatuses(tempRoot: string): Promise<void> {
     entry.stage === "implementation"
     && entry.assessment?.assessment === "not-applicable"
   )));
-  assert.deepEqual(
-    await listBundledChangePlans({ changeRoot: lifecycleRoot }),
-    activeList
-  );
-
   const archivedList = await listChangePlans({
     changeRoot: lifecycleRoot,
     status: "archived"
@@ -79,13 +74,12 @@ async function testListStatuses(tempRoot: string): Promise<void> {
 async function testStageFilter(tempRoot: string): Promise<void> {
   const lifecycleRoot = path.join(tempRoot, "stage-filter");
   await writePlan(lifecycleRoot, "draft-change", {
-    metadata: { schemaVersion: 1, stage: "draft" }
+    metadata: { stage: "draft" }
   });
   await writePlan(lifecycleRoot, "implementation-change");
   await writePlan(lifecycleRoot, "shelved-change", {
     metadata: {
       baseCommit: validBaseCommit,
-      schemaVersion: 1,
       shelf: {
         atCommit: validBaseCommit,
         reason: "等待后续处理",
@@ -185,7 +179,7 @@ async function testChangeRootDiagnostics(tempRoot: string): Promise<void> {
   );
 }
 
-async function testShowStatusAndBundledParity(
+async function testShowStatus(
   tempRoot: string
 ): Promise<void> {
   const lifecycleRoot = path.join(tempRoot, "show-status");
@@ -200,12 +194,6 @@ async function testShowStatusAndBundledParity(
   assert.equal(shownActive.status, "active");
   assert.equal(shownActive.check.valid, true);
   assert.equal(shownActive.artifacts["proposal.md"], validProposal);
-  assert.deepEqual(shownActive.assessment, shownActive.check.assessment);
-  assert.deepEqual(
-    await showBundledChangePlanDirectory(activeDirectory),
-    shownActive
-  );
-
   const shownArchived = await showChangePlanDirectory(archivedDirectory);
   assert.equal(shownArchived.status, "archived");
 }
@@ -268,28 +256,23 @@ async function testShowDoesNotReadSymbolicLinks(
     "file"
   );
 
-  for (const show of [
-    showChangePlanDirectory,
-    showBundledChangePlanDirectory
-  ]) {
-    const linkedDirectoryResult = await show(linkedDirectory);
-    assert.deepEqual(linkedDirectoryResult.artifacts, {
-      "proposal.md": null,
-      "design.md": null,
-      "tasks.md": null
-    });
-    assert.doesNotMatch(
-      JSON.stringify(linkedDirectoryResult),
-      /EXTERNAL-SHOW-MARKER/u
-    );
+  const linkedDirectoryResult = await showChangePlanDirectory(linkedDirectory);
+  assert.deepEqual(linkedDirectoryResult.artifacts, {
+    "proposal.md": null,
+    "design.md": null,
+    "tasks.md": null
+  });
+  assert.doesNotMatch(
+    JSON.stringify(linkedDirectoryResult),
+    /EXTERNAL-SHOW-MARKER/u
+  );
 
-    const linkedArtifactResult = await show(realDirectory);
-    assert.equal(linkedArtifactResult.artifacts["proposal.md"], null);
-    assert.doesNotMatch(
-      JSON.stringify(linkedArtifactResult),
-      /EXTERNAL-SHOW-MARKER/u
-    );
-  }
+  const linkedArtifactResult = await showChangePlanDirectory(realDirectory);
+  assert.equal(linkedArtifactResult.artifacts["proposal.md"], null);
+  assert.doesNotMatch(
+    JSON.stringify(linkedArtifactResult),
+    /EXTERNAL-SHOW-MARKER/u
+  );
 
   for (const changeDirectory of [linkedDirectory, realDirectory]) {
     const cliResult = spawnSync(
@@ -300,9 +283,9 @@ async function testShowDoesNotReadSymbolicLinks(
     assert.equal(cliResult.status, 1);
     assert.equal(cliResult.stderr, "");
     assert.doesNotMatch(cliResult.stdout, /EXTERNAL-SHOW-MARKER/u);
-    const parsed = JSON.parse(cliResult.stdout) as {
-      artifacts: Record<string, string | null>;
-    };
+    const parsed: unknown = JSON.parse(cliResult.stdout);
+    assert.ok(isRecord(parsed));
+    assert.ok(isRecord(parsed.artifacts));
     assert.equal(parsed.artifacts["proposal.md"], null);
   }
 }
@@ -323,8 +306,8 @@ test("catalog reports inaccessible and malformed lifecycle roots", () => (
   withTempRoot("catalog-roots", testChangeRootDiagnostics)
 ));
 
-test("catalog shows lifecycle status with bundled API parity", () => (
-  withTempRoot("catalog-show", testShowStatusAndBundledParity)
+test("catalog shows lifecycle status", () => (
+  withTempRoot("catalog-show", testShowStatus)
 ));
 
 test("catalog does not discover symbolic-link change directories", () => (

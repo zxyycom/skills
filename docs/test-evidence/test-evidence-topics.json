@@ -3,7 +3,7 @@
   "topics": [
     {
       "id": "change-plan",
-      "description": "可持久 change 计划的制品结构、目录查询、检查、生命周期与受门禁归档，以及 CLI 和分发 API 契约。"
+      "description": "可持久 change 计划的制品结构、目录查询、检查、生命周期与受门禁归档，以及 CLI 和可直接导入的当前 MJS 运行时。"
     },
     {
       "id": "decision-records",

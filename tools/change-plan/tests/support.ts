@@ -16,7 +16,6 @@ export const validBaseCommit = "0123456789abcdef0123456789abcdef01234567";
 
 export const validImplementationMetadata: ChangePlanMetadata = {
   baseCommit: validBaseCommit,
-  schemaVersion: 1,
   stage: "implementation"
 };
 
@@ -127,18 +126,6 @@ export const repositoryRoot = path.resolve(testsDirectory, "../../..");
 export const generatedCliPath = path.join(
   repositoryRoot,
   "skills/change-plan/scripts/change-plan.mjs"
-);
-export const generatedDeclarationPath = path.join(
-  repositoryRoot,
-  "skills/change-plan/scripts/change-plan.d.mts"
-);
-export const generatedDeclarationDirectory = path.join(
-  repositoryRoot,
-  "skills/change-plan/scripts/change-plan-sdk"
-);
-export const generatedMetadataSchemaPath = path.join(
-  repositoryRoot,
-  "skills/change-plan/references/schemas/change-plan-metadata.schema.json"
 );
 
 export async function withTempRoot(

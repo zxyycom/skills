@@ -57,11 +57,7 @@ export type ReplacePendingFilesResult = {
 
 export type VersionControlRepository = {
   readonly rootDirectory: string;
-  getRepositoryRelativePath: (fileSystemPath: string) => string;
   getCurrentRevision: () => Promise<RevisionId | null>;
-  listFirstParentRevisionChanges: (
-    options: ListFirstParentRevisionChangesOptions
-  ) => Promise<VersionControlRevisionChange[]>;
   listChangedPaths: (options: ListChangedPathsOptions) => Promise<string[]>;
   listPendingChangedPaths: (
     options: ListPendingChangedPathsOptions

@@ -14,8 +14,8 @@
 2. `plan`、`implement`、`shelve`、`reconcile` 和 `resume` 按固定门禁推进阶段。
 3. `git-distance-v1` 依据确认计划后的 first-parent 提交数和 Change 目录外累计 diff 行数识别 `shelve-candidate`，不使用日历时间。
 4. `archive` 只归档处于 implementation、结构有效且任务全部完成的 Change。
-5. 随包 CLI 与可导入 API 使用同一结构、阶段和查询结果。
-6. `.change-plan.json` 的运行时 schema、JSON Schema 和公开 TypeScript 类型由同一来源生成；生命周期写入边界不作为公共 API。
+5. 随包 MJS 既是 CLI，也可直接 import 当前底层查询与阶段函数；这些导出属于实现表面，不是稳定 SDK。
+6. `.change-plan.json` 直接以 `stage` 判别当前结构，由运行时严格校验，不包含 schema version；Change Plan runtime 不生成 metadata JSON Schema 或 TypeScript 声明树。
 
 ## 能力边界
 
@@ -24,5 +24,6 @@
 3. CLI 只证明 metadata、artifact、任务、Git 基线、阶段转换和目录移动等机械条件，不判断内容正确性、验证充分性或批准状态。
 4. Archived Change 只作为历史；CLI 不提供 restore，也不为其补写 active metadata。
 5. 版本控制操作失败会让 assessment 暂时不可用并产生明确诊断，不会被解释为计划内容需要复核。
+6. 稳定自动化优先使用 CLI 与 `--json` 输出；直接 import MJS 的调用方需要自行跟随当前实现变化。
 
 实际 skill 位于 [`skills/change-plan/`](../../skills/change-plan/)，精确字段、阈值和命令门禁见其固定契约。

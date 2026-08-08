@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import path from "node:path";
 import process from "node:process";
 import { parseArgs } from "node:util";
 import { isMainModule } from "../../shared/src/node/main-module.ts";
@@ -180,7 +181,7 @@ async function runShowCommand(
   console.log(`Change: ${result.check.changeName}`);
   console.log(`Status: ${result.status}`);
   console.log(`Stage: ${result.check.stage ?? "none"}`);
-  const assessment = result.assessment;
+  const assessment = result.check.assessment;
   console.log(`Assessment: ${formatAssessment(assessment)}`);
   if (
     assessment?.assessment === "current"
@@ -246,17 +247,18 @@ async function runLifecycleCommand(
     console.error(
       `Change plan ${result.action} failed [${result.errorCode}]: ${result.error}`
     );
-    if (result.check !== null && result.check.diagnostics.length > 0) {
-      for (const diagnostic of result.check.diagnostics) {
+    if (result.diagnostics.length > 0) {
+      for (const diagnostic of result.diagnostics) {
         console.error(formatDiagnostic(diagnostic));
       }
     }
     return 1;
   }
 
+  const changeName = path.basename(path.resolve(command.changeDirectory));
   console.log(
-    `Change plan ${result.check.changeName}: `
-    + `${result.fromStage} -> ${result.toStage} (${result.action}).`
+    `Change plan ${changeName}: `
+    + `${result.fromStage} -> ${result.metadata.stage} (${result.action}).`
   );
   return 0;
 }
@@ -450,11 +452,9 @@ export {
 };
 export type {
   ChangePlanAssessment,
-  ChangePlanAssessmentName,
   ChangePlanArchiveResult,
   ChangePlanArtifactContents,
   ChangePlanArtifactName,
-  ChangePlanArtifactCheckResult,
   ChangePlanCheckResult,
   ChangePlanDiagnostic,
   ChangePlanDiagnosticCode,

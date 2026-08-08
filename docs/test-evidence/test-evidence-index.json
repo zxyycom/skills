@@ -139,29 +139,6 @@
         "title": "计划基线不可用时要求复核"
       }
     },
-    "CHANGE-PLAN-ASSESS-CANDIDATE-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-ASSESS-CANDIDATE-001 评估返回固定 Git 距离候选证据 已确认 plan 达到固定 Git 距离阈值时，评估必须返回可供机械搁置使用的完整候选证据。 4 个相关提交和 1001 行变更返回 `shelve-candidate`，并包含基线、HEAD 和 `git-distance-v1` 策略。 tools/change-plan/tests/assessment.test.ts > assessment returns a candidate with fixed git-distance-v1 evidence bun test --test-name-pattern=\"^assessment returns a candidate with fixed git-distance-v1 evidence$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/change-plan/tests/assessment.test.ts > assessment returns a candidate with fixed git-distance-v1 evidence",
-          "bun test --test-name-pattern=\"^assessment returns a candidate with fixed git-distance-v1 evidence$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-ASSESS-CANDIDATE-001",
-        "line": 1,
-        "searchText": "评估返回固定 Git 距离候选证据 已确认 plan 达到固定 Git 距离阈值时，评估必须返回可供机械搁置使用的完整候选证据。 4 个相关提交和 1001 行变更返回 `shelve-candidate`，并包含基线、HEAD 和 `git-distance-v1` 策略。 tools/change-plan/tests/assessment.test.ts > assessment returns a candidate with fixed git-distance-v1 evidence bun test --test-name-pattern=\"^assessment returns a candidate with fixed git-distance-v1 evidence$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/assessment-returns-a-candidate-with-fixed-git-distance-evidence.md",
-        "summary": "已确认 plan 达到固定 Git 距离阈值时，评估必须返回可供机械搁置使用的完整候选证据。",
-        "title": "评估返回固定 Git 距离候选证据"
-      }
-    },
     "CHANGE-PLAN-ASSESS-CURRENT-001": {
       "keys": {
         "search": [
@@ -303,7 +280,7 @@
     "CHANGE-PLAN-CATALOG-SHOW-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CATALOG-SHOW-001 Show 保留生命周期与分发 API 一致性 Show 结果必须包含计划生命周期与检查评估，并与 bundled API 输出一致。 源实现和分发实现对同一 Change 返回相同状态、制品、检查结果与评估。 tools/change-plan/tests/catalog.test.ts > catalog shows lifecycle status with bundled API parity bun test --test-name-pattern=\"^catalog shows lifecycle status with bundled API parity$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CATALOG-SHOW-001 Show 返回生命周期状态 `show` 必须按目录位置区分 active 与 archived Change，并为 active Change 返回可读取 artifacts 和检查结果。 Active Change 返回 `active`、有效检查和 proposal 内容；归档目录中的 Change 返回 `archived`。 tools/change-plan/tests/catalog.test.ts > catalog shows lifecycle status bun test --test-name-pattern=\"^catalog shows lifecycle status$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -312,15 +289,15 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/change-plan/tests/catalog.test.ts > catalog shows lifecycle status with bundled API parity",
-          "bun test --test-name-pattern=\"^catalog shows lifecycle status with bundled API parity$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/catalog.test.ts > catalog shows lifecycle status",
+          "bun test --test-name-pattern=\"^catalog shows lifecycle status$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-CATALOG-SHOW-001",
         "line": 1,
-        "searchText": "Show 保留生命周期与分发 API 一致性 Show 结果必须包含计划生命周期与检查评估，并与 bundled API 输出一致。 源实现和分发实现对同一 Change 返回相同状态、制品、检查结果与评估。 tools/change-plan/tests/catalog.test.ts > catalog shows lifecycle status with bundled API parity bun test --test-name-pattern=\"^catalog shows lifecycle status with bundled API parity$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/catalog-shows-lifecycle-status-with-bundled-api-parity.md",
-        "summary": "Show 结果必须包含计划生命周期与检查评估，并与 bundled API 输出一致。",
-        "title": "Show 保留生命周期与分发 API 一致性"
+        "searchText": "Show 返回生命周期状态 `show` 必须按目录位置区分 active 与 archived Change，并为 active Change 返回可读取 artifacts 和检查结果。 Active Change 返回 `active`、有效检查和 proposal 内容；归档目录中的 Change 返回 `archived`。 tools/change-plan/tests/catalog.test.ts > catalog shows lifecycle status bun test --test-name-pattern=\"^catalog shows lifecycle status$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/catalog-shows-lifecycle-status.md",
+        "summary": "`show` 必须按目录位置区分 active 与 archived Change，并为 active Change 返回可读取 artifacts 和检查结果。",
+        "title": "Show 返回生命周期状态"
       }
     },
     "CHANGE-PLAN-CATALOG-STAGE-001": {
@@ -395,7 +372,7 @@
     "CHANGE-PLAN-CHECK-COMPLETE-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CHECK-COMPLETE-001 完整计划通过检查且 API 一致 制品和 implementation 阶段元数据完整的计划应通过源 API 与 bundled API 检查，并返回一致的阶段、评估和任务进度。 两种入口都返回成功且无诊断，并给出相同的元数据、阶段、评估和分阶段任务计数。 tools/change-plan/tests/check.test.ts > check accepts a complete plan with bundled API parity bun test --test-name-pattern=\"^check accepts a complete plan with bundled API parity$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CHECK-COMPLETE-001 完整计划通过检查 制品和 implementation 阶段 metadata 完整的 Change 应通过目录检查，并返回对应阶段、评估和任务进度。 检查结果有效且无诊断，读取到的 metadata 与结果一致，并报告 implementation、`not-applicable` assessment 和三个任务区段的准确计数。 tools/change-plan/tests/check.test.ts > check accepts a complete plan bun test --test-name-pattern=\"^check accepts a complete plan$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -404,15 +381,15 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/change-plan/tests/check.test.ts > check accepts a complete plan with bundled API parity",
-          "bun test --test-name-pattern=\"^check accepts a complete plan with bundled API parity$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/check.test.ts > check accepts a complete plan",
+          "bun test --test-name-pattern=\"^check accepts a complete plan$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-CHECK-COMPLETE-001",
         "line": 1,
-        "searchText": "完整计划通过检查且 API 一致 制品和 implementation 阶段元数据完整的计划应通过源 API 与 bundled API 检查，并返回一致的阶段、评估和任务进度。 两种入口都返回成功且无诊断，并给出相同的元数据、阶段、评估和分阶段任务计数。 tools/change-plan/tests/check.test.ts > check accepts a complete plan with bundled API parity bun test --test-name-pattern=\"^check accepts a complete plan with bundled API parity$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/check-accepts-a-complete-plan-with-bundled-api-parity.md",
-        "summary": "制品和 implementation 阶段元数据完整的计划应通过源 API 与 bundled API 检查，并返回一致的阶段、评估和任务进度。",
-        "title": "完整计划通过检查且 API 一致"
+        "searchText": "完整计划通过检查 制品和 implementation 阶段 metadata 完整的 Change 应通过目录检查，并返回对应阶段、评估和任务进度。 检查结果有效且无诊断，读取到的 metadata 与结果一致，并报告 implementation、`not-applicable` assessment 和三个任务区段的准确计数。 tools/change-plan/tests/check.test.ts > check accepts a complete plan bun test --test-name-pattern=\"^check accepts a complete plan$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/check-accepts-a-complete-plan.md",
+        "summary": "制品和 implementation 阶段 metadata 完整的 Change 应通过目录检查，并返回对应阶段、评估和任务进度。",
+        "title": "完整计划通过检查"
       }
     },
     "CHANGE-PLAN-CHECK-METADATA-001": {
@@ -602,7 +579,7 @@
     "CHANGE-PLAN-CLI-LIFECYCLE-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CLI-LIFECYCLE-001 生命周期 CLI 只执行合法阶段转换 CLI 必须沿 draft 到 plan 到 implementation 的合法路径推进，并以显式原因搁置 plan；恢复后必须重新复核计划，不能直接实施。 合法推进写入对应阶段，显式搁置保存原因，恢复产生空基线的 plan 与 `plan-review-required`，随后直接 implement 被拒绝。 tools/change-plan/tests/cli.test.ts > CLI lifecycle commands enforce legal stage transitions bun test --test-name-pattern=\"^CLI lifecycle commands enforce legal stage transitions$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CLI-LIFECYCLE-001 生命周期 CLI 只执行合法阶段转换 CLI 必须沿 draft 到 plan 到 implementation 的合法路径推进，并以显式原因搁置 plan；恢复后必须重新复核计划，不能直接实施。 合法推进返回并写入对应 metadata，显式搁置保存原因，恢复产生空基线的 plan 且不嵌入额外 check，随后直接 implement 被拒绝。 tools/change-plan/tests/cli.test.ts > CLI lifecycle commands enforce legal stage transitions bun test --test-name-pattern=\"^CLI lifecycle commands enforce legal stage transitions$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -616,7 +593,7 @@
         ],
         "id": "CHANGE-PLAN-CLI-LIFECYCLE-001",
         "line": 1,
-        "searchText": "生命周期 CLI 只执行合法阶段转换 CLI 必须沿 draft 到 plan 到 implementation 的合法路径推进，并以显式原因搁置 plan；恢复后必须重新复核计划，不能直接实施。 合法推进写入对应阶段，显式搁置保存原因，恢复产生空基线的 plan 与 `plan-review-required`，随后直接 implement 被拒绝。 tools/change-plan/tests/cli.test.ts > CLI lifecycle commands enforce legal stage transitions bun test --test-name-pattern=\"^CLI lifecycle commands enforce legal stage transitions$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "生命周期 CLI 只执行合法阶段转换 CLI 必须沿 draft 到 plan 到 implementation 的合法路径推进，并以显式原因搁置 plan；恢复后必须重新复核计划，不能直接实施。 合法推进返回并写入对应 metadata，显式搁置保存原因，恢复产生空基线的 plan 且不嵌入额外 check，随后直接 implement 被拒绝。 tools/change-plan/tests/cli.test.ts > CLI lifecycle commands enforce legal stage transitions bun test --test-name-pattern=\"^CLI lifecycle commands enforce legal stage transitions$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/cli-lifecycle-commands-enforce-legal-stage-transitions.md",
         "summary": "CLI 必须沿 draft 到 plan 到 implementation 的合法路径推进，并以显式原因搁置 plan；恢复后必须重新复核计划，不能直接实施。",
         "title": "生命周期 CLI 只执行合法阶段转换"
@@ -625,7 +602,7 @@
     "CHANGE-PLAN-CLI-LIFECYCLE-OUTPUT-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CLI-LIFECYCLE-OUTPUT-001 生命周期 CLI 保持输出通道与错误码 生命周期命令的文本成功写 stdout、文本失败写 stderr；JSON 成功和失败都写 stdout，并以稳定 `errorCode` 和退出码区分结果。 `resume` 的文本与 JSON 成功均退出 0 且 stderr 为空，成功写入后即使待复核 check 无效仍返回成功；非法来源阶段的文本与 JSON 失败均退出 1，分别在 stderr 和 JSON 中提供 `invalid-source-stage` 及行动提示。 tools/change-plan/tests/cli.test.ts > CLI lifecycle output preserves result channels and error codes bun test --test-name-pattern=\"^CLI lifecycle output preserves result channels and error codes$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CLI-LIFECYCLE-OUTPUT-001 生命周期 CLI 保持输出通道与错误码 生命周期命令的文本成功写 stdout、文本失败写 stderr；JSON 成功和失败都写 stdout。成功结果只返回 action、来源阶段和写入后的 metadata，失败结果返回诊断、稳定 `errorCode` 和错误消息，不嵌入 check 或 assessment。 `resume` 的文本与 JSON 成功均退出 0 且 stderr 为空，JSON 直接返回空基线 plan metadata 且没有 `check` 或 `errorCode`；非法来源阶段的文本与 JSON 失败均退出 1，分别在 stderr 和 JSON 中提供 `invalid-source-stage`、诊断及行动提示，且不返回 check、assessment 或 Change 路径。 tools/change-plan/tests/cli.test.ts > CLI lifecycle output preserves result channels and error codes bun test --test-name-pattern=\"^CLI lifecycle output preserves result channels and error codes$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -639,9 +616,9 @@
         ],
         "id": "CHANGE-PLAN-CLI-LIFECYCLE-OUTPUT-001",
         "line": 1,
-        "searchText": "生命周期 CLI 保持输出通道与错误码 生命周期命令的文本成功写 stdout、文本失败写 stderr；JSON 成功和失败都写 stdout，并以稳定 `errorCode` 和退出码区分结果。 `resume` 的文本与 JSON 成功均退出 0 且 stderr 为空，成功写入后即使待复核 check 无效仍返回成功；非法来源阶段的文本与 JSON 失败均退出 1，分别在 stderr 和 JSON 中提供 `invalid-source-stage` 及行动提示。 tools/change-plan/tests/cli.test.ts > CLI lifecycle output preserves result channels and error codes bun test --test-name-pattern=\"^CLI lifecycle output preserves result channels and error codes$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "生命周期 CLI 保持输出通道与错误码 生命周期命令的文本成功写 stdout、文本失败写 stderr；JSON 成功和失败都写 stdout。成功结果只返回 action、来源阶段和写入后的 metadata，失败结果返回诊断、稳定 `errorCode` 和错误消息，不嵌入 check 或 assessment。 `resume` 的文本与 JSON 成功均退出 0 且 stderr 为空，JSON 直接返回空基线 plan metadata 且没有 `check` 或 `errorCode`；非法来源阶段的文本与 JSON 失败均退出 1，分别在 stderr 和 JSON 中提供 `invalid-source-stage`、诊断及行动提示，且不返回 check、assessment 或 Change 路径。 tools/change-plan/tests/cli.test.ts > CLI lifecycle output preserves result channels and error codes bun test --test-name-pattern=\"^CLI lifecycle output preserves result channels and error codes$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/cli-lifecycle-output-preserves-result-channels-and-error-codes.md",
-        "summary": "生命周期命令的文本成功写 stdout、文本失败写 stderr；JSON 成功和失败都写 stdout，并以稳定 `errorCode` 和退出码区分结果。",
+        "summary": "生命周期命令的文本成功写 stdout、文本失败写 stderr；JSON 成功和失败都写 stdout。成功结果只返回 action、来源阶段和写入后的 metadata，失败结果返回诊断、稳定 `errorCode` 和错误消息，不嵌入 check 或 assessment。",
         "title": "生命周期 CLI 保持输出通道与错误码"
       }
     },
@@ -740,7 +717,7 @@
     "CHANGE-PLAN-CLI-RECONCILE-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CLI-RECONCILE-001 Reconcile CLI 用 Git 距离证据机械搁置候选 活动 plan 达到固定 Git 距离阈值时，查询必须暴露候选证据，`reconcile` 必须据此写入机械搁置状态。 九个低变更提交产生可见的 `shelve-candidate` 证据，reconcile 成功写入 shelved 阶段及相同的 9 提交、9 行和 `git-distance-v1` 证据。 tools/change-plan/tests/cli.test.ts > CLI reconcile shelves a Git-distance candidate with evidence bun test --test-name-pattern=\"^CLI reconcile shelves a Git-distance candidate with evidence$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CLI-RECONCILE-001 Git 距离候选可以机械搁置或重新确认 活动 plan 达到固定 Git 距离阈值时，查询必须暴露候选证据；操作者可以用 `reconcile` 接受机械搁置，也可以用 `plan` 在复核后更新基线并继续实施。 同一组九个低变更提交让两个 plan 成为 `shelve-candidate`；`reconcile` 为其中一个写入 shelved 及相同的 9 提交、9 行和 `git-distance-v1` 证据，`plan` 为另一个更新基线、拒绝重复确认并允许随后进入 implementation。 tools/change-plan/tests/cli.test.ts > CLI Git-distance candidate can be shelved or reconfirmed bun test --test-name-pattern=\"^CLI Git-distance candidate can be shelved or reconfirmed$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -749,38 +726,15 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/change-plan/tests/cli.test.ts > CLI reconcile shelves a Git-distance candidate with evidence",
-          "bun test --test-name-pattern=\"^CLI reconcile shelves a Git-distance candidate with evidence$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/cli.test.ts > CLI Git-distance candidate can be shelved or reconfirmed",
+          "bun test --test-name-pattern=\"^CLI Git-distance candidate can be shelved or reconfirmed$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-CLI-RECONCILE-001",
         "line": 1,
-        "searchText": "Reconcile CLI 用 Git 距离证据机械搁置候选 活动 plan 达到固定 Git 距离阈值时，查询必须暴露候选证据，`reconcile` 必须据此写入机械搁置状态。 九个低变更提交产生可见的 `shelve-candidate` 证据，reconcile 成功写入 shelved 阶段及相同的 9 提交、9 行和 `git-distance-v1` 证据。 tools/change-plan/tests/cli.test.ts > CLI reconcile shelves a Git-distance candidate with evidence bun test --test-name-pattern=\"^CLI reconcile shelves a Git-distance candidate with evidence$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/cli-reconcile-shelves-a-git-distance-candidate-with-evidence.md",
-        "summary": "活动 plan 达到固定 Git 距离阈值时，查询必须暴露候选证据，`reconcile` 必须据此写入机械搁置状态。",
-        "title": "Reconcile CLI 用 Git 距离证据机械搁置候选"
-      }
-    },
-    "CHANGE-PLAN-CLI-RECONFIRM-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-CLI-RECONFIRM-001 Plan CLI 重新确认 Git 距离候选 `shelve-candidate` 经人工复核仍可实施时，`plan` 必须把当前 HEAD 确认为新基线，而不强制先进入 shelved。 九个项目提交产生候选后，`plan` 将其恢复为零距离 `current`；current plan 不能重复确认，重新确认后的 plan 可以进入 implementation。 tools/change-plan/tests/cli.test.ts > CLI plan reconfirms a Git-distance candidate bun test --test-name-pattern=\"^CLI plan reconfirms a Git-distance candidate$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/change-plan/tests/cli.test.ts > CLI plan reconfirms a Git-distance candidate",
-          "bun test --test-name-pattern=\"^CLI plan reconfirms a Git-distance candidate$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-CLI-RECONFIRM-001",
-        "line": 1,
-        "searchText": "Plan CLI 重新确认 Git 距离候选 `shelve-candidate` 经人工复核仍可实施时，`plan` 必须把当前 HEAD 确认为新基线，而不强制先进入 shelved。 九个项目提交产生候选后，`plan` 将其恢复为零距离 `current`；current plan 不能重复确认，重新确认后的 plan 可以进入 implementation。 tools/change-plan/tests/cli.test.ts > CLI plan reconfirms a Git-distance candidate bun test --test-name-pattern=\"^CLI plan reconfirms a Git-distance candidate$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/cli-plan-reconfirms-a-git-distance-candidate.md",
-        "summary": "`shelve-candidate` 经人工复核仍可实施时，`plan` 必须把当前 HEAD 确认为新基线，而不强制先进入 shelved。",
-        "title": "Plan CLI 重新确认 Git 距离候选"
+        "searchText": "Git 距离候选可以机械搁置或重新确认 活动 plan 达到固定 Git 距离阈值时，查询必须暴露候选证据；操作者可以用 `reconcile` 接受机械搁置，也可以用 `plan` 在复核后更新基线并继续实施。 同一组九个低变更提交让两个 plan 成为 `shelve-candidate`；`reconcile` 为其中一个写入 shelved 及相同的 9 提交、9 行和 `git-distance-v1` 证据，`plan` 为另一个更新基线、拒绝重复确认并允许随后进入 implementation。 tools/change-plan/tests/cli.test.ts > CLI Git-distance candidate can be shelved or reconfirmed bun test --test-name-pattern=\"^CLI Git-distance candidate can be shelved or reconfirmed$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/cli-git-distance-candidate-can-be-shelved-or-reconfirmed.md",
+        "summary": "活动 plan 达到固定 Git 距离阈值时，查询必须暴露候选证据；操作者可以用 `reconcile` 接受机械搁置，也可以用 `plan` 在复核后更新基线并继续实施。",
+        "title": "Git 距离候选可以机械搁置或重新确认"
       }
     },
     "CHANGE-PLAN-CLI-SHOW-001": {
@@ -809,7 +763,7 @@
     "CHANGE-PLAN-GENERATED-ARTIFACTS-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-GENERATED-ARTIFACTS-001 生成制品公开 API 与来源信息 Change Plan 分发制品必须从实现和 metadata schema 机械生成公开声明，并携带可移植维护来源；内部 metadata writer 不进入公共 API。 声明入口与可达 SDK 文件公开查询、读取、阶段转换、稳定错误码和目标阶段结果，schema-derived metadata 类型不依赖 Valibot 且不暴露 writer，JSON Schema 保留严格字段、安全整数和规范字符串约束，source map 使用仓库相对源码定位。 tools/change-plan/tests/generated-artifacts.test.ts > generated artifacts expose the public API and portable source metadata bun test --test-name-pattern=\"^generated artifacts expose the public API and portable source metadata$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-GENERATED-ARTIFACTS-001 生成运行时可直接导入且来源信息可移植 Change Plan 的 MJS 分发运行时必须可直接 import 当前底层函数，并携带可移植的维护来源和 source map；这项能力只验证当前实现表面，不建立稳定 SDK 契约。 直接 import MJS 后可取得当前的 archive、查询、metadata 读取和五个阶段命令函数；生成头指向维护源码与重建命令，source map 只使用仓库相对源码定位并覆盖 CLI、生命周期和 metadata 源码。 tools/change-plan/tests/generated-artifacts.test.ts > generated runtime stays directly importable with portable source metadata bun test --test-name-pattern=\"^generated runtime stays directly importable with portable source metadata$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -818,130 +772,15 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/change-plan/tests/generated-artifacts.test.ts > generated artifacts expose the public API and portable source metadata",
-          "bun test --test-name-pattern=\"^generated artifacts expose the public API and portable source metadata$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/generated-artifacts.test.ts > generated runtime stays directly importable with portable source metadata",
+          "bun test --test-name-pattern=\"^generated runtime stays directly importable with portable source metadata$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-GENERATED-ARTIFACTS-001",
         "line": 1,
-        "searchText": "生成制品公开 API 与来源信息 Change Plan 分发制品必须从实现和 metadata schema 机械生成公开声明，并携带可移植维护来源；内部 metadata writer 不进入公共 API。 声明入口与可达 SDK 文件公开查询、读取、阶段转换、稳定错误码和目标阶段结果，schema-derived metadata 类型不依赖 Valibot 且不暴露 writer，JSON Schema 保留严格字段、安全整数和规范字符串约束，source map 使用仓库相对源码定位。 tools/change-plan/tests/generated-artifacts.test.ts > generated artifacts expose the public API and portable source metadata bun test --test-name-pattern=\"^generated artifacts expose the public API and portable source metadata$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/generated-artifacts-expose-the-public-api-and-portable-source-metadata.md",
-        "summary": "Change Plan 分发制品必须从实现和 metadata schema 机械生成公开声明，并携带可移植维护来源；内部 metadata writer 不进入公共 API。",
-        "title": "生成制品公开 API 与来源信息"
-      }
-    },
-    "CHANGE-PLAN-GIT-BOUNDARY-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-GIT-BOUNDARY-001 Git 距离边界保持当前状态 `git-distance-v1` 在恰好 3 个相关提交和 1000 行变更时不得判为搁置候选。 测得的提交数为 3、变更行为 1000，评估结果为 `current`。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 keeps the 3 commit and 1000 line boundary current bun test --test-name-pattern=\"^git-distance-v1 keeps the 3 commit and 1000 line boundary current$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/change-plan/tests/git-distance.test.ts > git-distance-v1 keeps the 3 commit and 1000 line boundary current",
-          "bun test --test-name-pattern=\"^git-distance-v1 keeps the 3 commit and 1000 line boundary current$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-GIT-BOUNDARY-001",
-        "line": 1,
-        "searchText": "Git 距离边界保持当前状态 `git-distance-v1` 在恰好 3 个相关提交和 1000 行变更时不得判为搁置候选。 测得的提交数为 3、变更行为 1000，评估结果为 `current`。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 keeps the 3 commit and 1000 line boundary current bun test --test-name-pattern=\"^git-distance-v1 keeps the 3 commit and 1000 line boundary current$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/git-distance-keeps-the-3-commit-and-1000-line-boundary-current.md",
-        "summary": "`git-distance-v1` 在恰好 3 个相关提交和 1000 行变更时不得判为搁置候选。",
-        "title": "Git 距离边界保持当前状态"
-      }
-    },
-    "CHANGE-PLAN-GIT-CHURN-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-GIT-CHURN-001 Git 距离识别提交数与变更量联合阈值 `git-distance-v1` 在相关提交超过 3 个且累计变更超过 1000 行时判为搁置候选。 4 个相关提交和 1001 行变更得到 `shelve-candidate`。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 selects 4 commits with more than 1000 lines bun test --test-name-pattern=\"^git-distance-v1 selects 4 commits with more than 1000 lines$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/change-plan/tests/git-distance.test.ts > git-distance-v1 selects 4 commits with more than 1000 lines",
-          "bun test --test-name-pattern=\"^git-distance-v1 selects 4 commits with more than 1000 lines$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-GIT-CHURN-001",
-        "line": 1,
-        "searchText": "Git 距离识别提交数与变更量联合阈值 `git-distance-v1` 在相关提交超过 3 个且累计变更超过 1000 行时判为搁置候选。 4 个相关提交和 1001 行变更得到 `shelve-candidate`。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 selects 4 commits with more than 1000 lines bun test --test-name-pattern=\"^git-distance-v1 selects 4 commits with more than 1000 lines$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/git-distance-selects-4-commits-with-more-than-1000-lines.md",
-        "summary": "`git-distance-v1` 在相关提交超过 3 个且累计变更超过 1000 行时判为搁置候选。",
-        "title": "Git 距离识别提交数与变更量联合阈值"
-      }
-    },
-    "CHANGE-PLAN-GIT-COMMITS-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-GIT-COMMITS-001 Git 距离识别九个低变更提交 `git-distance-v1` 在相关提交达到 9 个时，不依赖累计变更量即可判为搁置候选。 9 个各增加一行的相关提交得到 9 行证据和 `shelve-candidate`。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 selects 9 low-churn commits bun test --test-name-pattern=\"^git-distance-v1 selects 9 low-churn commits$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/change-plan/tests/git-distance.test.ts > git-distance-v1 selects 9 low-churn commits",
-          "bun test --test-name-pattern=\"^git-distance-v1 selects 9 low-churn commits$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-GIT-COMMITS-001",
-        "line": 1,
-        "searchText": "Git 距离识别九个低变更提交 `git-distance-v1` 在相关提交达到 9 个时，不依赖累计变更量即可判为搁置候选。 9 个各增加一行的相关提交得到 9 行证据和 `shelve-candidate`。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 selects 9 low-churn commits bun test --test-name-pattern=\"^git-distance-v1 selects 9 low-churn commits$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/git-distance-selects-9-low-churn-commits.md",
-        "summary": "`git-distance-v1` 在相关提交达到 9 个时，不依赖累计变更量即可判为搁置候选。",
-        "title": "Git 距离识别九个低变更提交"
-      }
-    },
-    "CHANGE-PLAN-GIT-DISTANCE-BINARY-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-GIT-DISTANCE-BINARY-001 Git 距离计入二进制提交但不虚构行数 当前 Change 外的二进制提交仍属于项目演进，但 Git 无行数时 additions 与 deletions 只能按零累计。 新增仅含二进制文件的项目提交产生 `commitCount: 1`、`changedLines: 0`，并按固定阈值保持 `current`。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 counts binary-only project commits with zero changed lines bun test --test-name-pattern=\"^git-distance-v1 counts binary-only project commits with zero changed lines$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/change-plan/tests/git-distance.test.ts > git-distance-v1 counts binary-only project commits with zero changed lines",
-          "bun test --test-name-pattern=\"^git-distance-v1 counts binary-only project commits with zero changed lines$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-GIT-DISTANCE-BINARY-001",
-        "line": 1,
-        "searchText": "Git 距离计入二进制提交但不虚构行数 当前 Change 外的二进制提交仍属于项目演进，但 Git 无行数时 additions 与 deletions 只能按零累计。 新增仅含二进制文件的项目提交产生 `commitCount: 1`、`changedLines: 0`，并按固定阈值保持 `current`。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 counts binary-only project commits with zero changed lines bun test --test-name-pattern=\"^git-distance-v1 counts binary-only project commits with zero changed lines$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/git-distance-counts-binary-only-project-commits-with-zero-changed-lines.md",
-        "summary": "当前 Change 外的二进制提交仍属于项目演进，但 Git 无行数时 additions 与 deletions 只能按零累计。",
-        "title": "Git 距离计入二进制提交但不虚构行数"
-      }
-    },
-    "CHANGE-PLAN-GIT-DISTANCE-EMPTY-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-GIT-DISTANCE-EMPTY-001 Git 距离计入无路径变化提交 Base 之后位于 first-parent 链上的无路径变化提交仍表示项目 revision 前进，必须计入 `commitCount`，但不能虚构变更行数。 一个 `--allow-empty` 项目提交产生 `commitCount: 1`、`changedLines: 0`，并按固定阈值保持 `current`。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 counts empty project commits with zero changed lines bun test --test-name-pattern=\"^git-distance-v1 counts empty project commits with zero changed lines$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/change-plan/tests/git-distance.test.ts > git-distance-v1 counts empty project commits with zero changed lines",
-          "bun test --test-name-pattern=\"^git-distance-v1 counts empty project commits with zero changed lines$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-GIT-DISTANCE-EMPTY-001",
-        "line": 1,
-        "searchText": "Git 距离计入无路径变化提交 Base 之后位于 first-parent 链上的无路径变化提交仍表示项目 revision 前进，必须计入 `commitCount`，但不能虚构变更行数。 一个 `--allow-empty` 项目提交产生 `commitCount: 1`、`changedLines: 0`，并按固定阈值保持 `current`。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 counts empty project commits with zero changed lines bun test --test-name-pattern=\"^git-distance-v1 counts empty project commits with zero changed lines$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/git-distance-counts-empty-project-commits-with-zero-changed-lines.md",
-        "summary": "Base 之后位于 first-parent 链上的无路径变化提交仍表示项目 revision 前进，必须计入 `commitCount`，但不能虚构变更行数。",
-        "title": "Git 距离计入无路径变化提交"
+        "searchText": "生成运行时可直接导入且来源信息可移植 Change Plan 的 MJS 分发运行时必须可直接 import 当前底层函数，并携带可移植的维护来源和 source map；这项能力只验证当前实现表面，不建立稳定 SDK 契约。 直接 import MJS 后可取得当前的 archive、查询、metadata 读取和五个阶段命令函数；生成头指向维护源码与重建命令，source map 只使用仓库相对源码定位并覆盖 CLI、生命周期和 metadata 源码。 tools/change-plan/tests/generated-artifacts.test.ts > generated runtime stays directly importable with portable source metadata bun test --test-name-pattern=\"^generated runtime stays directly importable with portable source metadata$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/generated-runtime-stays-directly-importable-with-portable-source-metadata.md",
+        "summary": "Change Plan 的 MJS 分发运行时必须可直接 import 当前底层函数，并携带可移植的维护来源和 source map；这项能力只验证当前实现表面，不建立稳定 SDK 契约。",
+        "title": "生成运行时可直接导入且来源信息可移植"
       }
     },
     "CHANGE-PLAN-GIT-EXCLUDE-001": {
@@ -965,29 +804,6 @@
         "sourcePath": "change-plan/git-distance-excludes-commits-only-changing-the-assessed-directory.md",
         "summary": "`git-distance-v1` 只衡量当前 Change 目录之外的项目推进。",
         "title": "Git 距离排除仅修改当前 Change 的提交"
-      }
-    },
-    "CHANGE-PLAN-GIT-LINES-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-GIT-LINES-001 Git 距离识别单次三千行变更 `git-distance-v1` 在累计变更达到 3000 行时，不依赖提交数即可判为搁置候选。 单个相关提交产生 3000 行变更证据和 `shelve-candidate`。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 selects one commit with 3000 changed lines bun test --test-name-pattern=\"^git-distance-v1 selects one commit with 3000 changed lines$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/change-plan/tests/git-distance.test.ts > git-distance-v1 selects one commit with 3000 changed lines",
-          "bun test --test-name-pattern=\"^git-distance-v1 selects one commit with 3000 changed lines$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-GIT-LINES-001",
-        "line": 1,
-        "searchText": "Git 距离识别单次三千行变更 `git-distance-v1` 在累计变更达到 3000 行时，不依赖提交数即可判为搁置候选。 单个相关提交产生 3000 行变更证据和 `shelve-candidate`。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 selects one commit with 3000 changed lines bun test --test-name-pattern=\"^git-distance-v1 selects one commit with 3000 changed lines$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/git-distance-selects-one-commit-with-3000-changed-lines.md",
-        "summary": "`git-distance-v1` 在累计变更达到 3000 行时，不依赖提交数即可判为搁置候选。",
-        "title": "Git 距离识别单次三千行变更"
       }
     },
     "CHANGE-PLAN-GIT-NUMSTAT-001": {
@@ -1036,33 +852,10 @@
         "title": "Git 距离按目录边界统计混合提交"
       }
     },
-    "CHANGE-PLAN-GIT-ZERO-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-GIT-ZERO-001 项目未推进时 Git 距离为零 HEAD 未越过计划基线时，`git-distance-v1` 必须报告零距离并保持当前状态。 基线等于 HEAD 时提交数和变更行数均为 0，评估结果为 `current`。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 reports zero distance when the project has not advanced bun test --test-name-pattern=\"^git-distance-v1 reports zero distance when the project has not advanced$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/change-plan/tests/git-distance.test.ts > git-distance-v1 reports zero distance when the project has not advanced",
-          "bun test --test-name-pattern=\"^git-distance-v1 reports zero distance when the project has not advanced$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-GIT-ZERO-001",
-        "line": 1,
-        "searchText": "项目未推进时 Git 距离为零 HEAD 未越过计划基线时，`git-distance-v1` 必须报告零距离并保持当前状态。 基线等于 HEAD 时提交数和变更行数均为 0，评估结果为 `current`。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 reports zero distance when the project has not advanced bun test --test-name-pattern=\"^git-distance-v1 reports zero distance when the project has not advanced$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/git-distance-reports-zero-when-the-project-has-not-advanced.md",
-        "summary": "HEAD 未越过计划基线时，`git-distance-v1` 必须报告零距离并保持当前状态。",
-        "title": "项目未推进时 Git 距离为零"
-      }
-    },
     "CHANGE-PLAN-LIFECYCLE-VC-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-LIFECYCLE-VC-001 生命周期版本控制失败不写 metadata 阶段转换依赖 plan assessment 时，版本控制不可用必须返回稳定失败并在任何写入前停止。 非仓库 plan 的 `implement` 返回 `version-control-failed`、保留 `plan -> null` 失败形状和可行动消息，`.change-plan.json` 字节保持不变。 tools/change-plan/tests/lifecycle.test.ts > lifecycle returns a stable version-control failure without metadata mutation bun test --test-name-pattern=\"^lifecycle returns a stable version-control failure without metadata mutation$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-LIFECYCLE-VC-001 生命周期版本控制失败不写 metadata 阶段转换依赖 plan assessment 时，版本控制不可用必须返回稳定失败并在任何写入前停止。 非仓库 plan 的 `implement` 返回 `version-control-failed`、`fromStage: plan`、对应诊断和可行动消息，不返回虚构目标阶段，且 `.change-plan.json` 字节保持不变。 tools/change-plan/tests/lifecycle.test.ts > lifecycle returns a stable version-control failure without metadata mutation bun test --test-name-pattern=\"^lifecycle returns a stable version-control failure without metadata mutation$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -1076,7 +869,7 @@
         ],
         "id": "CHANGE-PLAN-LIFECYCLE-VC-001",
         "line": 1,
-        "searchText": "生命周期版本控制失败不写 metadata 阶段转换依赖 plan assessment 时，版本控制不可用必须返回稳定失败并在任何写入前停止。 非仓库 plan 的 `implement` 返回 `version-control-failed`、保留 `plan -> null` 失败形状和可行动消息，`.change-plan.json` 字节保持不变。 tools/change-plan/tests/lifecycle.test.ts > lifecycle returns a stable version-control failure without metadata mutation bun test --test-name-pattern=\"^lifecycle returns a stable version-control failure without metadata mutation$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "生命周期版本控制失败不写 metadata 阶段转换依赖 plan assessment 时，版本控制不可用必须返回稳定失败并在任何写入前停止。 非仓库 plan 的 `implement` 返回 `version-control-failed`、`fromStage: plan`、对应诊断和可行动消息，不返回虚构目标阶段，且 `.change-plan.json` 字节保持不变。 tools/change-plan/tests/lifecycle.test.ts > lifecycle returns a stable version-control failure without metadata mutation bun test --test-name-pattern=\"^lifecycle returns a stable version-control failure without metadata mutation$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/lifecycle-returns-a-stable-version-control-failure-without-metadata-mutation.md",
         "summary": "阶段转换依赖 plan assessment 时，版本控制不可用必须返回稳定失败并在任何写入前停止。",
         "title": "生命周期版本控制失败不写 metadata"
@@ -1131,7 +924,7 @@
     "CHANGE-PLAN-METADATA-ERRORS-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-METADATA-ERRORS-001 Metadata reader 映射稳定边界错误码 Metadata reader 在 lstat、读取、JSON 和 schema 边界产生稳定可区分的错误码，不向调用方泄漏偶然底层异常形状。 缺失文件、目录占位、无效 JSON 和无效 stage 分别得到 `metadata-not-found`、`metadata-not-regular-file`、`metadata-invalid-json` 与 `metadata-invalid-schema`。 tools/change-plan/tests/metadata.test.ts > metadata reader maps file and parse boundaries to stable error codes bun test --test-name-pattern=\"^metadata reader maps file and parse boundaries to stable error codes$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-METADATA-ERRORS-001 Metadata reader 映射稳定边界错误码 Metadata reader 把文件存在性、路径类型和内容解析失败收口为稳定领域错误码，不向调用方泄漏偶然底层异常形状。 缺失文件得到 `missing`，目录占位得到 `invalid-path`，无效 JSON 与无效 stage 都得到 `invalid`。 tools/change-plan/tests/metadata.test.ts > metadata reader maps file and parse boundaries to stable error codes bun test --test-name-pattern=\"^metadata reader maps file and parse boundaries to stable error codes$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -1145,16 +938,16 @@
         ],
         "id": "CHANGE-PLAN-METADATA-ERRORS-001",
         "line": 1,
-        "searchText": "Metadata reader 映射稳定边界错误码 Metadata reader 在 lstat、读取、JSON 和 schema 边界产生稳定可区分的错误码，不向调用方泄漏偶然底层异常形状。 缺失文件、目录占位、无效 JSON 和无效 stage 分别得到 `metadata-not-found`、`metadata-not-regular-file`、`metadata-invalid-json` 与 `metadata-invalid-schema`。 tools/change-plan/tests/metadata.test.ts > metadata reader maps file and parse boundaries to stable error codes bun test --test-name-pattern=\"^metadata reader maps file and parse boundaries to stable error codes$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Metadata reader 映射稳定边界错误码 Metadata reader 把文件存在性、路径类型和内容解析失败收口为稳定领域错误码，不向调用方泄漏偶然底层异常形状。 缺失文件得到 `missing`，目录占位得到 `invalid-path`，无效 JSON 与无效 stage 都得到 `invalid`。 tools/change-plan/tests/metadata.test.ts > metadata reader maps file and parse boundaries to stable error codes bun test --test-name-pattern=\"^metadata reader maps file and parse boundaries to stable error codes$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/metadata-reader-maps-file-and-parse-boundaries-to-stable-error-codes.md",
-        "summary": "Metadata reader 在 lstat、读取、JSON 和 schema 边界产生稳定可区分的错误码，不向调用方泄漏偶然底层异常形状。",
+        "summary": "Metadata reader 把文件存在性、路径类型和内容解析失败收口为稳定领域错误码，不向调用方泄漏偶然底层异常形状。",
         "title": "Metadata reader 映射稳定边界错误码"
       }
     },
     "CHANGE-PLAN-METADATA-SCHEMA-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-METADATA-SCHEMA-001 Metadata 运行时与生成 schema 同步严格校验 `.change-plan.json` 的 Valibot 运行时 schema 与机械生成 JSON Schema 必须接受和拒绝同一组严格判别联合值。 两个校验入口都接受规范 draft 与显式 shelved 值，并共同拒绝未知字段、含空白 revision、首尾空白 reason 和超出安全整数范围的 Git 距离。 tools/change-plan/tests/metadata.test.ts > metadata runtime and generated schema enforce the same strict values bun test --test-name-pattern=\"^metadata runtime and generated schema enforce the same strict values$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-METADATA-SCHEMA-001 Metadata 运行时严格校验生命周期值 `.change-plan.json` 由运行时严格按 `stage` 判别当前字段组合；metadata 不接受 schema version、未知字段或超出字段约束的值。 运行时接受规范 draft 与显式 shelved 值，并拒绝未知字段、含空白 revision、首尾空白 reason 和超出安全整数范围的 Git 距离。 tools/change-plan/tests/metadata.test.ts > metadata runtime enforces strict lifecycle values bun test --test-name-pattern=\"^metadata runtime enforces strict lifecycle values$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -1163,21 +956,21 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/change-plan/tests/metadata.test.ts > metadata runtime and generated schema enforce the same strict values",
-          "bun test --test-name-pattern=\"^metadata runtime and generated schema enforce the same strict values$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/metadata.test.ts > metadata runtime enforces strict lifecycle values",
+          "bun test --test-name-pattern=\"^metadata runtime enforces strict lifecycle values$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-METADATA-SCHEMA-001",
         "line": 1,
-        "searchText": "Metadata 运行时与生成 schema 同步严格校验 `.change-plan.json` 的 Valibot 运行时 schema 与机械生成 JSON Schema 必须接受和拒绝同一组严格判别联合值。 两个校验入口都接受规范 draft 与显式 shelved 值，并共同拒绝未知字段、含空白 revision、首尾空白 reason 和超出安全整数范围的 Git 距离。 tools/change-plan/tests/metadata.test.ts > metadata runtime and generated schema enforce the same strict values bun test --test-name-pattern=\"^metadata runtime and generated schema enforce the same strict values$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/metadata-runtime-and-generated-schema-enforce-the-same-strict-values.md",
-        "summary": "`.change-plan.json` 的 Valibot 运行时 schema 与机械生成 JSON Schema 必须接受和拒绝同一组严格判别联合值。",
-        "title": "Metadata 运行时与生成 schema 同步严格校验"
+        "searchText": "Metadata 运行时严格校验生命周期值 `.change-plan.json` 由运行时严格按 `stage` 判别当前字段组合；metadata 不接受 schema version、未知字段或超出字段约束的值。 运行时接受规范 draft 与显式 shelved 值，并拒绝未知字段、含空白 revision、首尾空白 reason 和超出安全整数范围的 Git 距离。 tools/change-plan/tests/metadata.test.ts > metadata runtime enforces strict lifecycle values bun test --test-name-pattern=\"^metadata runtime enforces strict lifecycle values$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/metadata-runtime-enforces-strict-lifecycle-values.md",
+        "summary": "`.change-plan.json` 由运行时严格按 `stage` 判别当前字段组合；metadata 不接受 schema version、未知字段或超出字段约束的值。",
+        "title": "Metadata 运行时严格校验生命周期值"
       }
     },
     "CHANGE-PLAN-METADATA-SYMLINK-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-METADATA-SYMLINK-001 Metadata 边界拒绝符号链接 `.change-plan.json` 的读取和内部生命周期写入都只接受普通文件，不跟随符号链接越过 Change 目录边界。 Reader 与 writer 对链接 metadata 均返回 `metadata-symbolic-link`，且链接目标内容保持原样。 tools/change-plan/tests/metadata.test.ts > metadata reader and writer reject symbolic-link metadata bun test --test-name-pattern=\"^metadata reader and writer reject symbolic-link metadata$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-METADATA-SYMLINK-001 Metadata 边界拒绝符号链接 `.change-plan.json` 的读取和内部生命周期写入都只接受普通文件，不跟随符号链接越过 Change 目录边界。 Reader 与 writer 对链接 metadata 均返回 `invalid-path`，且链接目标内容保持原样。 tools/change-plan/tests/metadata.test.ts > metadata reader and writer reject symbolic-link metadata bun test --test-name-pattern=\"^metadata reader and writer reject symbolic-link metadata$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -1191,7 +984,7 @@
         ],
         "id": "CHANGE-PLAN-METADATA-SYMLINK-001",
         "line": 1,
-        "searchText": "Metadata 边界拒绝符号链接 `.change-plan.json` 的读取和内部生命周期写入都只接受普通文件，不跟随符号链接越过 Change 目录边界。 Reader 与 writer 对链接 metadata 均返回 `metadata-symbolic-link`，且链接目标内容保持原样。 tools/change-plan/tests/metadata.test.ts > metadata reader and writer reject symbolic-link metadata bun test --test-name-pattern=\"^metadata reader and writer reject symbolic-link metadata$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Metadata 边界拒绝符号链接 `.change-plan.json` 的读取和内部生命周期写入都只接受普通文件，不跟随符号链接越过 Change 目录边界。 Reader 与 writer 对链接 metadata 均返回 `invalid-path`，且链接目标内容保持原样。 tools/change-plan/tests/metadata.test.ts > metadata reader and writer reject symbolic-link metadata bun test --test-name-pattern=\"^metadata reader and writer reject symbolic-link metadata$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/metadata-reader-and-writer-reject-symbolic-link-metadata.md",
         "summary": "`.change-plan.json` 的读取和内部生命周期写入都只接受普通文件，不跟随符号链接越过 Change 目录边界。",
         "title": "Metadata 边界拒绝符号链接"
@@ -1200,7 +993,7 @@
     "CHANGE-PLAN-SHOW-SYMLINK-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-SHOW-SYMLINK-001 Show 不读取符号链接外部内容 `show` 只能读取真实 Change 目录中的普通 artifact；目录或 artifact 为符号链接时返回空内容，不跟随链接读取 Change 外部数据。 源码 API、分发 API 与 JSON CLI 对链接目录均返回全空 artifacts，对链接 `proposal.md` 返回 `null`，且所有输出都不包含外部 marker。 tools/change-plan/tests/catalog.test.ts > show does not read symbolic-link directories or artifacts bun test --test-name-pattern=\"^show does not read symbolic-link directories or artifacts$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-SHOW-SYMLINK-001 Show 不读取符号链接外部内容 `show` 只能读取真实 Change 目录中的普通 artifact；目录或 artifact 为符号链接时返回空内容，不跟随链接读取 Change 外部数据。 源码函数与 JSON CLI 对链接目录均返回全空 artifacts，对链接 `proposal.md` 返回 `null`，且所有输出都不包含外部 marker。 tools/change-plan/tests/catalog.test.ts > show does not read symbolic-link directories or artifacts bun test --test-name-pattern=\"^show does not read symbolic-link directories or artifacts$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -1214,7 +1007,7 @@
         ],
         "id": "CHANGE-PLAN-SHOW-SYMLINK-001",
         "line": 1,
-        "searchText": "Show 不读取符号链接外部内容 `show` 只能读取真实 Change 目录中的普通 artifact；目录或 artifact 为符号链接时返回空内容，不跟随链接读取 Change 外部数据。 源码 API、分发 API 与 JSON CLI 对链接目录均返回全空 artifacts，对链接 `proposal.md` 返回 `null`，且所有输出都不包含外部 marker。 tools/change-plan/tests/catalog.test.ts > show does not read symbolic-link directories or artifacts bun test --test-name-pattern=\"^show does not read symbolic-link directories or artifacts$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Show 不读取符号链接外部内容 `show` 只能读取真实 Change 目录中的普通 artifact；目录或 artifact 为符号链接时返回空内容，不跟随链接读取 Change 外部数据。 源码函数与 JSON CLI 对链接目录均返回全空 artifacts，对链接 `proposal.md` 返回 `null`，且所有输出都不包含外部 marker。 tools/change-plan/tests/catalog.test.ts > show does not read symbolic-link directories or artifacts bun test --test-name-pattern=\"^show does not read symbolic-link directories or artifacts$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/show-does-not-read-symbolic-link-directories-or-artifacts.md",
         "summary": "`show` 只能读取真实 Change 目录中的普通 artifact；目录或 artifact 为符号链接时返回空内容，不跟随链接读取 Change 外部数据。",
         "title": "Show 不读取符号链接外部内容"
@@ -7525,7 +7318,7 @@
     "VERSION-CONTROL-CORRUPTION-001": {
       "keys": {
         "search": [
-          "VERSION-CONTROL-CORRUPTION-001 将损坏修订对象报告为操作失败 只有 Git 确认文件不存在时才返回空值，对象读取失败必须保留为错误。 损坏 blob 返回带读取上下文的 `operation-failed`，不会被降级为文件缺失。 tools/shared/tests/version-control.test.ts > reports corrupt revision objects as operation failures bun test --test-name-pattern=\"^reports corrupt revision objects as operation failures$\" ./tools/shared/tests/version-control.test.ts"
+          "VERSION-CONTROL-CORRUPTION-001 将损坏修订对象报告为操作失败 只有 Git 明确确认 revision 或文件不存在时才能返回对应缺失语义；Git 查询或对象读取失败必须保留为操作错误。 损坏 blob 读取和损坏 commit 解析都返回带操作上下文的 `operation-failed`；损坏 commit 不会被降级为 `revision-not-found`。 tools/shared/tests/version-control.test.ts > reports corrupt revision objects as operation failures bun test --test-name-pattern=\"^reports corrupt revision objects as operation failures$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "topic": [
           "version-control"
@@ -7539,9 +7332,9 @@
         ],
         "id": "VERSION-CONTROL-CORRUPTION-001",
         "line": 1,
-        "searchText": "将损坏修订对象报告为操作失败 只有 Git 确认文件不存在时才返回空值，对象读取失败必须保留为错误。 损坏 blob 返回带读取上下文的 `operation-failed`，不会被降级为文件缺失。 tools/shared/tests/version-control.test.ts > reports corrupt revision objects as operation failures bun test --test-name-pattern=\"^reports corrupt revision objects as operation failures$\" ./tools/shared/tests/version-control.test.ts",
+        "searchText": "将损坏修订对象报告为操作失败 只有 Git 明确确认 revision 或文件不存在时才能返回对应缺失语义；Git 查询或对象读取失败必须保留为操作错误。 损坏 blob 读取和损坏 commit 解析都返回带操作上下文的 `operation-failed`；损坏 commit 不会被降级为 `revision-not-found`。 tools/shared/tests/version-control.test.ts > reports corrupt revision objects as operation failures bun test --test-name-pattern=\"^reports corrupt revision objects as operation failures$\" ./tools/shared/tests/version-control.test.ts",
         "sourcePath": "version-control/reports-corrupt-revision-objects-as-operation-failures.md",
-        "summary": "只有 Git 确认文件不存在时才返回空值，对象读取失败必须保留为错误。",
+        "summary": "只有 Git 明确确认 revision 或文件不存在时才能返回对应缺失语义；Git 查询或对象读取失败必须保留为操作错误。",
         "title": "将损坏修订对象报告为操作失败"
       }
     },
@@ -7617,7 +7410,7 @@
     "VERSION-CONTROL-FIRST-PARENT-RELATION-001": {
       "keys": {
         "search": [
-          "VERSION-CONTROL-FIRST-PARENT-RELATION-001 拒绝 first-parent 历史外的修订 `from` 必须位于 `to` 的 first-parent 历史中，位于 merge 第二父链不满足该关系。 以 merge 的第二父提交作为 `from` 时返回稳定的 `revision-not-first-parent`，不会降级为空变化。 tools/shared/tests/version-control.test.ts > rejects revisions outside the first-parent history bun test --test-name-pattern=\"^rejects revisions outside the first-parent history$\" ./tools/shared/tests/version-control.test.ts"
+          "VERSION-CONTROL-FIRST-PARENT-RELATION-001 First-parent 历史外的范围不可用 First-parent 变化操作只对 `from` 位于 `to` 的 first-parent 历史中的范围返回 revision 列表；位于 merge 第二父链的 `from` 使该范围不可用。 以 merge 的第二父提交作为 `from` 时返回 `null`，与合法但没有新 revision 的空列表明确区分。 tools/shared/tests/version-control.test.ts > returns null for revisions outside the first-parent history bun test --test-name-pattern=\"^returns null for revisions outside the first-parent history$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "topic": [
           "version-control"
@@ -7626,15 +7419,15 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/shared/tests/version-control.test.ts > rejects revisions outside the first-parent history",
-          "bun test --test-name-pattern=\"^rejects revisions outside the first-parent history$\" ./tools/shared/tests/version-control.test.ts"
+          "tools/shared/tests/version-control.test.ts > returns null for revisions outside the first-parent history",
+          "bun test --test-name-pattern=\"^returns null for revisions outside the first-parent history$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "id": "VERSION-CONTROL-FIRST-PARENT-RELATION-001",
         "line": 1,
-        "searchText": "拒绝 first-parent 历史外的修订 `from` 必须位于 `to` 的 first-parent 历史中，位于 merge 第二父链不满足该关系。 以 merge 的第二父提交作为 `from` 时返回稳定的 `revision-not-first-parent`，不会降级为空变化。 tools/shared/tests/version-control.test.ts > rejects revisions outside the first-parent history bun test --test-name-pattern=\"^rejects revisions outside the first-parent history$\" ./tools/shared/tests/version-control.test.ts",
-        "sourcePath": "version-control/rejects-revisions-outside-the-first-parent-history.md",
-        "summary": "`from` 必须位于 `to` 的 first-parent 历史中，位于 merge 第二父链不满足该关系。",
-        "title": "拒绝 first-parent 历史外的修订"
+        "searchText": "First-parent 历史外的范围不可用 First-parent 变化操作只对 `from` 位于 `to` 的 first-parent 历史中的范围返回 revision 列表；位于 merge 第二父链的 `from` 使该范围不可用。 以 merge 的第二父提交作为 `from` 时返回 `null`，与合法但没有新 revision 的空列表明确区分。 tools/shared/tests/version-control.test.ts > returns null for revisions outside the first-parent history bun test --test-name-pattern=\"^returns null for revisions outside the first-parent history$\" ./tools/shared/tests/version-control.test.ts",
+        "sourcePath": "version-control/returns-null-for-revisions-outside-the-first-parent-history.md",
+        "summary": "First-parent 变化操作只对 `from` 位于 `to` 的 first-parent 历史中的范围返回 revision 列表；位于 merge 第二父链的 `from` 使该范围不可用。",
+        "title": "First-parent 历史外的范围不可用"
       }
     },
     "VERSION-CONTROL-HEAD-001": {
@@ -7950,7 +7743,7 @@
   "metadata": {
     "topics": [
       {
-        "description": "可持久 change 计划的制品结构、目录查询、检查、生命周期与受门禁归档，以及 CLI 和分发 API 契约。",
+        "description": "可持久 change 计划的制品结构、目录查询、检查、生命周期与受门禁归档，以及 CLI 和可直接导入的当前 MJS 运行时。",
         "id": "change-plan"
       },
       {
@@ -8001,18 +7794,17 @@
       "CHANGE-PLAN-ARCHIVE-TARGET-001": "sha256:78a0e71092de8ca5628ab2b8abe212eab4fbcf5462aebb460e0129f2e056968d",
       "CHANGE-PLAN-ASSESS-ARTIFACTS-001": "sha256:08df94e7ddf71e85183395e7d3e437ad73d63787f4ea2d55c427437efa093b36",
       "CHANGE-PLAN-ASSESS-BASE-001": "sha256:ec6f3cca1385f8638db769d955090595f76b6c3e6db7bce471faa4c4a2d2fbd4",
-      "CHANGE-PLAN-ASSESS-CANDIDATE-001": "sha256:ae0772195343493b1c8ea46ba46d223482eecb9622c5d498e6cb3ce7fa672a46",
       "CHANGE-PLAN-ASSESS-CURRENT-001": "sha256:c9814771d9856ca0a47d3fb8faa1c026ec5a4f99287463c937ea3a8a0f054126",
       "CHANGE-PLAN-ASSESS-HISTORY-001": "sha256:00f016427633622e3273951b34d0d3bb60b834b52bed64eb6946a8a9e931e8ec",
       "CHANGE-PLAN-ASSESS-SCOPE-001": "sha256:addc9e4487be8d29e0ae0792369ad03dd8ef534b7fa21bedbc54b9015bf68873",
       "CHANGE-PLAN-CATALOG-INVALID-001": "sha256:61fd1852f86cc38e4c03a5b00d0bdbe1c5004246851ab8d1e23e8f72d77efe03",
       "CHANGE-PLAN-CATALOG-LIFECYCLE-001": "sha256:7c64259344d3dcdc0246148f8ee129a6ca384b1057ac68b7314ba3dff94304bd",
       "CHANGE-PLAN-CATALOG-ROOTS-001": "sha256:74c0e20a9933fabcf6161c842b8b0d311d3b1c3f52893d99a727c38dd5e6b7c6",
-      "CHANGE-PLAN-CATALOG-SHOW-001": "sha256:e0cfc27d9714ef7410cf57519a7b7c4b92f8961be5d76a28994c86575cc76a5a",
+      "CHANGE-PLAN-CATALOG-SHOW-001": "sha256:f2acb18cfe9026fe954defd537879cc802eb7274bb8a125163009487a7a0071e",
       "CHANGE-PLAN-CATALOG-STAGE-001": "sha256:a5b82e9312d12b0949c7451f2241bc41ece9d756c61cdad5806ddad7afd4d2ee",
       "CHANGE-PLAN-CATALOG-SYMLINK-001": "sha256:fc6fef013c71b8d7388e169d77a5b775011eb3c174fa835be2e4f152c019b447",
       "CHANGE-PLAN-CHECK-ARTIFACTS-001": "sha256:627b3d7e4e30b2cffcbb5de0c45f5b26c3a1e77318262b8c904859d985697030",
-      "CHANGE-PLAN-CHECK-COMPLETE-001": "sha256:9418aab91cbfd70e1644cdf9c131ed357a77c76492792b67b245b1ec0bf50e07",
+      "CHANGE-PLAN-CHECK-COMPLETE-001": "sha256:17d4ccf165dbffa7ad726853cd14f56121facc342cf35d47b1901dace17817ce",
       "CHANGE-PLAN-CHECK-METADATA-001": "sha256:e73dbfd307252d29fb952bda4bb9fb0b73f9f0e8533c51978a4411dc67dd8c77",
       "CHANGE-PLAN-CHECK-PATH-001": "sha256:9f4c199d4feeedd15fc677c10c6758c663fd9f95bc0a31915d847e67dadadf2e",
       "CHANGE-PLAN-CHECK-STAGES-001": "sha256:c616da5e970c44e629736362f72dc62f8532b83e8fb565b87c7d8fe731bf1029",
@@ -8021,33 +7813,25 @@
       "CHANGE-PLAN-CLI-ARCHIVE-001": "sha256:8ae3b39eaef7fd4af641a001d19f9eb1ea850ecb740bc63fd3bf9bc93e5d24b0",
       "CHANGE-PLAN-CLI-ARGS-001": "sha256:4cee1a69915df372fd17ad5688b8e15a2482047c8bf5b31d9d44f1956c0dad37",
       "CHANGE-PLAN-CLI-CHECK-001": "sha256:77d0dc65a5414f77e4f36402ceed132306f7c72fbb2686e35c503cdf617acf01",
-      "CHANGE-PLAN-CLI-LIFECYCLE-001": "sha256:e53cbc3f14cabb2ca5a7f8b4e8bdc0609374f0e28ac6f16b9d4cfbddd50232c7",
-      "CHANGE-PLAN-CLI-LIFECYCLE-OUTPUT-001": "sha256:e8aeed186533dc4a5e1cbd57b82d082f35e3523f7dc6abe9544a669a3cf306db",
+      "CHANGE-PLAN-CLI-LIFECYCLE-001": "sha256:968906b2ec45e4dc5885378bcd076b61281d57780b80fda0a1c99a8790091304",
+      "CHANGE-PLAN-CLI-LIFECYCLE-OUTPUT-001": "sha256:675f66f442552839e263add985c4f1abb1036464a8e069d7a3de540264a0a408",
       "CHANGE-PLAN-CLI-LIST-001": "sha256:59ce91adfa9f06dcb23ea6f2d69320aea194906f4603eabdaad7abd7173b9c0c",
       "CHANGE-PLAN-CLI-LIST-ARGS-001": "sha256:1c218739f3b4a92f314c012aa0f6acf5660ebdd576a732ef196c65a57798ca7a",
       "CHANGE-PLAN-CLI-LIST-ROOT-001": "sha256:142d5c70f5012973407aa1c114526abd0bed18f207bf2b5c1e02ba755b00bcd3",
       "CHANGE-PLAN-CLI-PLAN-COMMIT-001": "sha256:318d1b093f19f656c54dcef04c9cf4af052fabf3affcf47d68399ecce9000ee3",
-      "CHANGE-PLAN-CLI-RECONCILE-001": "sha256:b31a39f6cb739b02606a12cafb4e34b3036fb3ca06d1b2092ceae6d61908bb15",
-      "CHANGE-PLAN-CLI-RECONFIRM-001": "sha256:46854a87c9752b2f12abf02ec2098c4d87dce84c2746b38a642e1db866777e0e",
+      "CHANGE-PLAN-CLI-RECONCILE-001": "sha256:c056241e92608802b222c5af0a337bc23577d7fe154ad04a0e1b5a45f708bdff",
       "CHANGE-PLAN-CLI-SHOW-001": "sha256:5071af6ab47a3940c27103f8de22d255d2acea058d6ce4028f34f33cc31499c8",
-      "CHANGE-PLAN-GENERATED-ARTIFACTS-001": "sha256:80276e5d67a4013e9a1b91cdeafa71f833048d65654fa04a0e5c53db885e10af",
-      "CHANGE-PLAN-GIT-BOUNDARY-001": "sha256:ce8cc9d0c93b94f6a57aa894bed46a4871822343fc35e1acff2ce8f51dce46c8",
-      "CHANGE-PLAN-GIT-CHURN-001": "sha256:80e80fc6e09ba1e7b207f674843e7dcf529456a2f8e94f51f429717ff23debf5",
-      "CHANGE-PLAN-GIT-COMMITS-001": "sha256:e0526f7e2891ac7de3e9fb51b88f3814bc28645aa8ade7f0a03596b18e02aece",
-      "CHANGE-PLAN-GIT-DISTANCE-BINARY-001": "sha256:2e0c7b978362a77848cfaaa561fe0dd842f06345dcba73ed99a589122e05a3f5",
-      "CHANGE-PLAN-GIT-DISTANCE-EMPTY-001": "sha256:a9c2f68294fa38b8d891794510f8f5ec400707102e63470d65a8af2b1086f639",
+      "CHANGE-PLAN-GENERATED-ARTIFACTS-001": "sha256:f9bbced373713b77347f935be06c0164d9fcefb9154ff9491634e8d060666a73",
       "CHANGE-PLAN-GIT-EXCLUDE-001": "sha256:e17c639ace50501210ccfa4d4195da514765f89418f57d821f5c5334eb60d36a",
-      "CHANGE-PLAN-GIT-LINES-001": "sha256:41ce79f920cec13d1a3f57109b924beeceda73f4ecabcfd69bd61ac9722bd8d7",
       "CHANGE-PLAN-GIT-NUMSTAT-001": "sha256:40e14624a84992e44c6901bd66becdd0443576c0abd5c0106766b4259d2a3aa3",
       "CHANGE-PLAN-GIT-PATHS-001": "sha256:53086e3edbfab40174d90614b2eee1792fddb0bf73cd8e44d68883992ed085cf",
-      "CHANGE-PLAN-GIT-ZERO-001": "sha256:0f3ad6e8df9706b6a60e7971771727eedc3a53fd029bf14b1a9aa0ca1405e528",
-      "CHANGE-PLAN-LIFECYCLE-VC-001": "sha256:696d59c9829843656c03a561ac0603b2bd92b0a2713813739877ccad0ac6ce73",
+      "CHANGE-PLAN-LIFECYCLE-VC-001": "sha256:3a67a47fbd12e35b43bc02fac045ae8d5e004655dc09da648ff9e52a0c06e7ec",
       "CHANGE-PLAN-MARKDOWN-SEMANTICS-001": "sha256:1cf089a9e0d3c9c42b4bb2ff598b3f171e9cc47878febbead11fdf7aa9231988",
       "CHANGE-PLAN-MARKDOWN-TASKS-001": "sha256:d64961e5a57d6ed00d1b756c32d16f711ae65b0aabda3a666c85f0a05df3a2e6",
-      "CHANGE-PLAN-METADATA-ERRORS-001": "sha256:6b2e3092e52432baf56042969b7df50dbd8272416dd64defd4ed4849840743d7",
-      "CHANGE-PLAN-METADATA-SCHEMA-001": "sha256:9e45d59cc59e19c4671eb1f27bb7c4c7f97abf0052c7534edb2e035a989a54a9",
-      "CHANGE-PLAN-METADATA-SYMLINK-001": "sha256:c304a172fee9f457c11565844d3c64b82afa0edcc592c30406fd0e5c110d0144",
-      "CHANGE-PLAN-SHOW-SYMLINK-001": "sha256:3a57ebfce9290d90a2542e5d553d6afb66c7456e9bb72f7a0dbf85694994fe6c",
+      "CHANGE-PLAN-METADATA-ERRORS-001": "sha256:c47c9718055aad1b74be1f651baadd1e76fbc5544660b1466f77e61201c6cc2c",
+      "CHANGE-PLAN-METADATA-SCHEMA-001": "sha256:7d104ac90654d90a64e9f77c2711654021839a9f98677368b9f912a5dc93ab1a",
+      "CHANGE-PLAN-METADATA-SYMLINK-001": "sha256:449afaef1f42fc55a1a1aa9faba4e9dd9e48445519d587840340dcee03820040",
+      "CHANGE-PLAN-SHOW-SYMLINK-001": "sha256:4596341cd28d7edf40f0d5f743788b0fca3b45989feaf22f29f1bbae57e7962e",
       "CHECK-CLI-CONCURRENCY-001": "sha256:88e976ae0580c8e1c503d0be615d581e0f0ece14dbabe4b0e2664ac419905d46",
       "CHECK-CLI-UNKNOWN-OPTION-001": "sha256:8a48bbbdcf577be8b08b707c5b5d7d6e3de84dea348a472c81e6edec6f4fb8b0",
       "CHECK-DURATION-FORMAT-001": "sha256:5cb7811791d87d8d40a6f6a3f6a3d3e13bb6fc6cc48965ef18cd03be6fd293c0",
@@ -8322,11 +8106,11 @@
       "TEST-EVIDENCE-UPGRADE-V2-001": "sha256:1b0578a03fb83d11d0ff53531dc5ddf323a629421ca5988822d4e942b1b39d88",
       "VERSION-CONTROL-CHANGES-001": "sha256:31254f830340da6e7056305051c59f67bd1252d9ae94f38d4f5ec4754724ecf5",
       "VERSION-CONTROL-CONFLICT-001": "sha256:224755b16beb3ee84e7a4f625d07fbd822caee95d9c5c8b38d88bfcee729dbc9",
-      "VERSION-CONTROL-CORRUPTION-001": "sha256:3ba3ab619f05d603fc3509ca6b4044618b339a13ab87de4525c7b0b26bc86985",
+      "VERSION-CONTROL-CORRUPTION-001": "sha256:b06707123210dd012e181d9c2bc41ac9dad67db2cfc8cb1d25d63a38b6cdbbff",
       "VERSION-CONTROL-DISCOVERY-FAILURE-001": "sha256:98962b6a255620d5f70bdc3bdd6c811b1dc2a0eac420e71bccf812bcf429f884",
       "VERSION-CONTROL-FIRST-PARENT-001": "sha256:54aa1b954c70c7456be3d9e7418030c8b1810080439ddc4c4ab14f6c213ca3e9",
       "VERSION-CONTROL-FIRST-PARENT-FAILURE-001": "sha256:a932264bbf70968e661a976a9f5a45ae85d4c56349df1404202562640c24cbca",
-      "VERSION-CONTROL-FIRST-PARENT-RELATION-001": "sha256:c669523d3e6cfff1b09d4ea641a6d1cf6854b63c86637f5272ace89d0a827ea2",
+      "VERSION-CONTROL-FIRST-PARENT-RELATION-001": "sha256:a3ba2e94b62fe1c4aa578ce7568d634d1fdaa3ed8090e482d5f420b4fa00bfa8",
       "VERSION-CONTROL-HEAD-001": "sha256:713c4c9d45699e35a3a1dbe413a1cbdf474a6a61620c7e43de611b0505e1bbe6",
       "VERSION-CONTROL-NUMSTAT-001": "sha256:cf0ac87ddcf33d9ac9e04a6d70861e63f24e8a7be833d0c4e9510dd11721617c",
       "VERSION-CONTROL-PENDING-CONFLICT-001": "sha256:2d76d0482c630b49e1aa3eb484d66b1ca933de3a12184d4f009aad452572c4b8",
@@ -8341,6 +8125,6 @@
       "VERSION-CONTROL-STATES-001": "sha256:90c39276155ce905d563f9060e14c8cd581e1e7bcbf236b07af4b05401ab41f6",
       "VERSION-CONTROL-WORKTREE-001": "sha256:9ac7f9540e8bd3f19b913fb66ba465f99e43b4274299fb9dbb6a8bfbe311b790"
     },
-    "metadata": "sha256:2d669b276186ea3b74e78c054ef5949631a05b2b252002b557b30db3cdd10e3f"
+    "metadata": "sha256:668bfb7920519485abdf703bd6468496cbadfe50651e89559e71e580723c7c9e"
   }
 }

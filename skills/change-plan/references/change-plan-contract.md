@@ -34,13 +34,12 @@ Active stage 的标准路径是 `draft -> plan -> implementation`。随后执行
 7. 可以增加交付说明或证据文件；附加文件不参与固定结构检查，也不能代替当前 stage 要求的 artifacts。
 8. Catalog 只发现上述两层普通目录，不递归发现更深层 Change，也不把文件或符号链接作为列表成员。
 
-`.change-plan.json` 使用 `schemaVersion: 1` 和 `stage` 判别联合。每个对象只允许对应示例中的字段。
+`.change-plan.json` 直接使用 `stage` 判别联合，不包含 schema version。每个对象只允许对应示例中的字段。
 
 Draft：
 
 ```json
 {
-  "schemaVersion": 1,
   "stage": "draft"
 }
 ```
@@ -49,7 +48,6 @@ Draft：
 
 ```json
 {
-  "schemaVersion": 1,
   "stage": "plan",
   "baseCommit": "<confirmed-head-commit>"
 }
@@ -61,7 +59,6 @@ Implementation：
 
 ```json
 {
-  "schemaVersion": 1,
   "stage": "implementation",
   "baseCommit": "<confirmed-plan-commit>"
 }
@@ -71,7 +68,6 @@ Implementation：
 
 ```json
 {
-  "schemaVersion": 1,
   "stage": "shelved",
   "baseCommit": "<confirmed-plan-commit>",
   "shelf": {
@@ -86,7 +82,6 @@ Implementation：
 
 ```json
 {
-  "schemaVersion": 1,
   "stage": "shelved",
   "baseCommit": "<confirmed-plan-commit>",
   "shelf": {
@@ -100,7 +95,7 @@ Implementation：
 
 `baseCommit` 与 `atCommit` 必须是非空且不含空白的字符串；`reason` 必须非空且首尾没有空白；`commitCount` 和 `changedLines` 必须是非负安全整数。Metadata 只保存当前阶段所需事实，不保存事件历史。
 
-Valibot schema 是运行时 metadata 类型与校验的实现来源，并机械生成 [`change-plan-metadata.schema.json`](schemas/change-plan-metadata.schema.json) 和分发 TypeScript 类型。读取边界按 lstat、读取、JSON parse、schema parse 的顺序完成一次校验；生命周期 writer 使用同一 schema 且不属于公共 API。
+Valibot schema 是运行时 metadata 类型与校验的实现来源。Change Plan 不为 metadata 生成 JSON Schema 或分发类型声明。读取边界按 lstat、读取、JSON parse、schema parse 的顺序完成一次校验；生命周期 writer 使用同一运行时 schema，且只属于内部持久化边界。
 
 ## Artifact 结构
 
@@ -261,9 +256,9 @@ node <change-plan-cli> archive <change-directory> [--json]
 | `reconcile` | Assessment 为 `shelve-candidate` 的 plan。 | 写入 stage `shelved`、`git-distance-v1` 证据和当前 `HEAD`。 |
 | `resume` | 结构有效的 shelved Change。 | 写入 stage `plan` 和 `baseCommit: null`，等待重新审阅与 `plan`。 |
 
-阶段命令接受显式 Change 目录，不进行跨根名称搜索。失败时不写入目标 metadata；失败结果包含稳定 `errorCode` 和可行动消息。`--json` 返回 action、前后 stage、检查、assessment、成功状态、`errorCode` 和错误。
+阶段命令接受显式 Change 目录，不进行跨根名称搜索。失败时不写入目标 metadata。成功结果固定包含 `success: true`、`action`、`fromStage` 和写入后的 `metadata`；失败结果固定包含 `success: false`、`action`、`fromStage`、`diagnostics`、稳定 `errorCode` 和可行动的 `error`。结果不嵌入更新后的 check、assessment 或 Change 路径。
 
-`resume` 成功以 metadata 已写成 `plan`、`baseCommit: null` 为准；返回的更新后 check 会按规则报告 `plan-review-required` 并可为 `valid: false`，这不是阶段写入失败。后续必须审阅、提交 artifacts 并运行 `plan`。
+`resume` 成功以返回且已写入的 metadata 为 `stage: "plan"`、`baseCommit: null` 为准。后续必须重新审阅、提交 artifacts 并运行 `plan`；需要查看更新后的 assessment 时另行执行 `show` 或 `check`。
 
 ### Archive
 
@@ -277,4 +272,8 @@ node <change-plan-cli> archive <change-directory> [--json]
 2. `1`：查询根或目标不可用、结构或 assessment 无效、阶段门禁失败，或 metadata 与归档写入失败。
 3. `2`：CLI 参数无效。
 
-文本模式把成功结果写入 stdout，把诊断和失败写入 stderr，并在生命周期失败中显示 `errorCode`。`--json` 把成功和领域失败的完整结构结果写入 stdout；非法参数始终写入 stderr。公开函数、结果类型与字段由实现机械生成，入口见相邻 `scripts/change-plan.d.mts`。
+文本模式把成功结果写入 stdout，把诊断和失败写入 stderr，并在生命周期失败中显示 `errorCode`。`--json` 把成功和领域失败的结构结果写入 stdout；非法参数始终写入 stderr。
+
+### MJS 直接导入边界
+
+`scripts/change-plan.mjs` 可以作为 ESM 直接 import，当前运行时导出 list、show、check、archive、五个阶段命令、metadata 解析与读取以及 CLI runner 对应的底层函数。该能力用于直接复用当前实现，不建立稳定 SDK：`change-plan.mjs` 不配套生成 `.d.mts`、SDK 声明树或 metadata JSON Schema，也不承诺导出集合和函数签名跨版本兼容。需要稳定交互时使用本节定义的 CLI 与 JSON 输出；直接 import 的调用方需随当前实现同步调整。

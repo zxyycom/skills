@@ -8,18 +8,15 @@ import {
 } from "simple-git";
 import { VersionControlError } from "./errors.ts";
 import { readGitBlobs } from "./git-blob-batch.ts";
-import { parseGitFirstParentRevisionChanges } from "./git-numstat.ts";
 import {
   parseGitTreeEntries,
   type GitTreeEntry
 } from "./git-tree-entry.ts";
 import {
   normalizeRepositoryPath,
-  normalizeRepositoryPaths,
-  repositoryRelativePathFromFileSystemPath
+  normalizeRepositoryPaths
 } from "./repository-path.ts";
 import type {
-  ListFirstParentRevisionChangesOptions,
   ListChangedPathsOptions,
   ListPendingChangedPathsOptions,
   ListVersionControlFilesOptions,
@@ -27,7 +24,6 @@ import type {
   ReplacePendingFilesResult,
   RevisionId,
   VersionControlFile,
-  VersionControlRevisionChange,
   VersionControlRepository
 } from "./types.ts";
 
@@ -166,13 +162,6 @@ class GitVersionControlRepository implements VersionControlRepository {
     this.#hooks = hooks;
   }
 
-  getRepositoryRelativePath(fileSystemPath: string): string {
-    return repositoryRelativePathFromFileSystemPath(
-      this.rootDirectory,
-      fileSystemPath
-    );
-  }
-
   async getCurrentRevision(): Promise<RevisionId | null> {
     try {
       return parseObjectId(await this.#git.revparse([
@@ -221,21 +210,28 @@ class GitVersionControlRepository implements VersionControlRepository {
 
   async resolveRevision(revision: string): Promise<RevisionId> {
     assertRevisionInput(revision);
+    let result: GitCommandExit;
     try {
-      return parseObjectId(await this.#git.revparse([
+      result = await runGitForExitCode(this.rootDirectory, [
+        "rev-parse",
         "--verify",
+        "--quiet",
         "--end-of-options",
         `${revision}^{commit}`
-      ]), `revision ${revision}`);
-    } catch (cause) {
-      if (cause instanceof VersionControlError) {
-        throw cause;
-      }
+      ]);
+    } catch (error) {
+      throw operationError(`resolve revision ${revision}`, error);
+    }
+    if (result.exitCode === 0) {
+      return parseObjectId(result.stdout, `revision ${revision}`);
+    }
+    if (result.exitCode === 1 && result.stderr.trim().length === 0) {
       throw new VersionControlError(
         "revision-not-found",
         `Version-control revision could not be resolved: ${revision}`
       );
     }
+    throw operationError(`resolve revision ${revision}`, result.stderr);
   }
 
   async listRevisionFiles(
@@ -629,52 +625,6 @@ class GitVersionControlRepository implements VersionControlRepository {
     } catch {
       throw operationError("list changed workspace paths");
     }
-  }
-
-  async listFirstParentRevisionChanges(
-    options: ListFirstParentRevisionChangesOptions
-  ): Promise<VersionControlRevisionChange[]> {
-    const from = await this.resolveRevision(options.from);
-    const to = options.to === undefined
-      ? await this.getCurrentRevision()
-      : await this.resolveRevision(options.to);
-    if (to === null) {
-      throw new VersionControlError(
-        "revision-not-found",
-        "The current version-control revision does not exist"
-      );
-    }
-    if (from === to) {
-      return [];
-    }
-
-    let result: GitCommandExit;
-    try {
-      result = await runGitForExitCode(this.rootDirectory, [
-        "log",
-        "--first-parent",
-        "--diff-merges=first-parent",
-        "--reverse",
-        "--format=%x00%H%x09%P%x00",
-        "--numstat",
-        "-z",
-        "--no-renames",
-        `${from}..${to}`,
-        "--"
-      ]);
-    } catch (error) {
-      throw operationError(
-        `list first-parent revision changes from ${from} to ${to}`,
-        error
-      );
-    }
-    if (result.exitCode !== 0) {
-      throw operationError(
-        `list first-parent revision changes from ${from} to ${to}`,
-        result.stderr
-      );
-    }
-    return parseGitFirstParentRevisionChanges(result.stdout, from, to);
   }
 
   async listChangedPaths(options: ListChangedPathsOptions): Promise<string[]> {

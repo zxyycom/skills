@@ -5,14 +5,14 @@ description: >-
   用于用 proposal.md、design.md、tasks.md 和 .change-plan.json 维护明确 change
   的目标、设计、任务、验证与当前生命周期阶段。
 metadata:
-  version: "4"
+  version: "5"
 ---
 
 # Change Plan
 
 ## 目标
 
-让一个明确 change 从可持续改写的 draft 收敛为已确认 plan，再进入 implementation；计划退出当前实施主线时能够被机械识别、显式 shelve，并在 resume 后重新审阅。Active Change 使用可版本化的阶段元数据；归档会保留整个 Change 目录作为历史，但不再把其中的 metadata 解释为 active stage。
+让一个明确 change 从可持续改写的 draft 收敛为已确认 plan，再进入 implementation；计划退出当前实施主线时能够被机械识别、显式 shelve，并在 resume 后重新审阅。Active Change 使用纳入版本控制的阶段元数据；归档会保留整个 Change 目录作为历史，但不再把其中的 metadata 解释为 active stage。
 
 结构检查和阶段命令只证明固定机械条件，不表示方案已经获得实施或归档授权。内容审阅、开放问题、项目约定和当前任务授权仍由执行者确认。
 
@@ -26,7 +26,7 @@ metadata:
 
 1. 本文件承接触发、上下文恢复、内容写作、阶段推进、语义审阅和授权门禁。
 2. [固定结构与 CLI 契约](references/change-plan-contract.md) 唯一承接 change 目录、`.change-plan.json`、artifact 结构、阶段与 assessment、Git 距离规则、命令门禁和退出码；操作 Change 前完整读取。
-3. `scripts/change-plan.mjs` 承接固定契约的机械实现，不判断目标、方案、事实、长期决策、验证证据或授权是否正确。
+3. `scripts/change-plan.mjs` 承接固定契约的 CLI 机械实现，也允许直接 import 当前底层函数；这些导出属于实现表面，不承诺稳定 API、类型声明或跨版本兼容。它不判断目标、方案、事实、长期决策、验证证据或授权是否正确。
 4. 项目文档继续拥有当前稳定事实和行为；项目已有长期决策 owner 时，跨 change 持续有效的理由与方向进入该 owner。Change plan 只拥有当前 change 的临时实施上下文。
 
 ## 工作流程

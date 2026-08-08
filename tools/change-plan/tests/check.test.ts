@@ -3,13 +3,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import {
-  checkChangePlanDirectory as checkBundledChangePlanDirectory
-} from "../../../skills/change-plan/scripts/change-plan.mjs";
-import {
-  checkChangePlanArtifactsForStage,
-  checkChangePlanDirectory,
-} from "../src/check.ts";
+import { checkChangePlanDirectory } from "../src/check.ts";
 import { readChangePlanMetadata } from "../src/metadata.ts";
 import { changePlanMetadataName } from "../src/types.ts";
 import {
@@ -60,15 +54,11 @@ async function testValidPlan(tempRoot: string): Promise<void> {
     readiness: { completedTaskCount: 1, taskCount: 1 },
     verification: { completedTaskCount: 0, taskCount: 1 }
   });
-  assert.deepEqual(
-    await checkBundledChangePlanDirectory(validDirectory),
-    validResult
-  );
 }
 
 async function testStageArtifactContracts(tempRoot: string): Promise<void> {
   const draftDirectory = await writePlan(tempRoot, "draft-change", {
-    metadata: { schemaVersion: 1, stage: "draft" },
+    metadata: { stage: "draft" },
     proposal: minimalDraftProposal
   });
   await Promise.all([
@@ -86,18 +76,18 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
   });
 
   const planTargetDirectory = await writePlan(tempRoot, "plan-target", {
-    metadata: { schemaVersion: 1, stage: "draft" }
+    metadata: { stage: "draft" }
   });
-  const targetResult = await checkChangePlanArtifactsForStage(
+  const targetResult = await checkChangePlanDirectory(
     planTargetDirectory,
     "plan"
   );
   assert.equal(targetResult.valid, true);
-  assert.equal(targetResult.targetStage, "plan");
+  assert.equal(targetResult.stage, "draft");
   assert.equal(targetResult.taskCount, 3);
 
   await fs.rm(path.join(planTargetDirectory, "design.md"));
-  const incompleteTargetResult = await checkChangePlanArtifactsForStage(
+  const incompleteTargetResult = await checkChangePlanDirectory(
     planTargetDirectory,
     "plan"
   );
@@ -110,7 +100,6 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
   const shelvedDirectory = await writePlan(tempRoot, "shelved-change", {
     metadata: {
       baseCommit: validBaseCommit,
-      schemaVersion: 1,
       shelf: {
         atCommit: validBaseCommit,
         reason: "等待上游方向确定",
@@ -129,13 +118,12 @@ async function testMetadataAndArchiveBoundaries(
 ): Promise<void> {
   runGit(tempRoot, ["init", "--quiet", "--initial-branch=main"]);
   const resumedPlanDirectory = await writePlan(tempRoot, "resumed-plan", {
-    metadata: { baseCommit: null, schemaVersion: 1, stage: "plan" }
+    metadata: { baseCommit: null, stage: "plan" }
   });
   const resumedPlanResult = await checkChangePlanDirectory(resumedPlanDirectory);
   assert.equal(resumedPlanResult.stage, "plan");
   assert.deepEqual(resumedPlanResult.metadata, {
     baseCommit: null,
-    schemaVersion: 1,
     stage: "plan"
   });
   assert.equal(
@@ -153,20 +141,9 @@ async function testMetadataAndArchiveBoundaries(
     ),
     false
   );
-  const resumedArtifactResult = await checkChangePlanArtifactsForStage(
-    resumedPlanDirectory,
-    "plan"
-  );
-  assert.equal(resumedArtifactResult.valid, true);
-  assert.equal(
-    resumedArtifactResult.targetStage,
-    "plan"
-  );
-
   const gitShelvedDirectory = await writePlan(tempRoot, "git-shelved", {
     metadata: {
       baseCommit: validBaseCommit,
-      schemaVersion: 1,
       shelf: {
         atCommit: validBaseCommit,
         changedLines: 3000,
@@ -187,7 +164,7 @@ async function testMetadataAndArchiveBoundaries(
   );
   await fs.writeFile(
     path.join(invalidMetadataDirectory, changePlanMetadataName),
-    JSON.stringify({ extra: true, schemaVersion: 1, stage: "draft" }),
+    JSON.stringify({ extra: true, stage: "draft" }),
     "utf8"
   );
   const invalidMetadataResult = await checkChangePlanDirectory(
@@ -229,7 +206,7 @@ async function testMetadataAndArchiveBoundaries(
 
 async function testVersionControlFailure(tempRoot: string): Promise<void> {
   const planDirectory = await writePlan(tempRoot, "unassessable-plan", {
-    metadata: { baseCommit: null, schemaVersion: 1, stage: "plan" }
+    metadata: { baseCommit: null, stage: "plan" }
   });
   const result = await checkChangePlanDirectory(planDirectory);
   assert.equal(result.assessment, null);
@@ -411,17 +388,35 @@ async function testSymbolicLinkDiagnostics(tempRoot: string): Promise<void> {
     path.join(linkedArtifactDirectory, "design.md"),
     "file"
   );
-  const linkedArtifactResult = await checkChangePlanArtifactsForStage(
-    linkedArtifactDirectory,
-    "plan"
+  const linkedArtifactResult = await checkChangePlanDirectory(
+    linkedArtifactDirectory
   );
   assert.ok(linkedArtifactResult.diagnostics.some((diagnostic) => (
     diagnostic.code === "required-path-not-file"
     && diagnostic.file === "design.md"
   )));
+
+  const linkedMetadataDirectory = await writePlan(
+    tempRoot,
+    "linked-metadata"
+  );
+  const metadataPath = path.join(
+    linkedMetadataDirectory,
+    changePlanMetadataName
+  );
+  const metadataTarget = path.join(tempRoot, "metadata-target.json");
+  await fs.rename(metadataPath, metadataTarget);
+  await fs.symlink(metadataTarget, metadataPath, "file");
+  const linkedMetadataResult = await checkChangePlanDirectory(
+    linkedMetadataDirectory
+  );
+  assert.ok(linkedMetadataResult.diagnostics.some((diagnostic) => (
+    diagnostic.code === "required-path-not-file"
+    && diagnostic.file === changePlanMetadataName
+  )));
 }
 
-test("check accepts a complete plan with bundled API parity", () => (
+test("check accepts a complete plan", () => (
   withTempRoot("check-valid", testValidPlan)
 ));
 
