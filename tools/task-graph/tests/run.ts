@@ -1,5 +1,6 @@
 await import("./schema-index.test.ts");
 await import("./graph-projection.test.ts");
+await import("./task-list-renderer.test.ts");
 await import("./lifecycle.test.ts");
 await import("./runtime.test.ts");
 await import("./store.test.ts");

@@ -1,17 +1,21 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  TaskGraphService,
   applyTaskGraphOperations,
   projectTaskGraph,
-  validateTaskIndexGraph
+  validateTaskIndexGraph,
+  type TaskListItem
 } from "../src/index.ts";
 import {
   applyOperations,
   expectTaskGraphError,
   graphIndex,
   initialNow,
+  loadUncontendedNativeLock,
   taskContent,
-  taskOperation
+  taskOperation,
+  withTempWorkspace
 } from "./helpers.ts";
 
 test("graph validation rejects cycles and dangling references", () => {
@@ -132,6 +136,83 @@ test("projection expands ancestor constraints with declaration paths and reverse
     ["task-000001", "task-000002"]
   );
   assert.deepEqual(projection.tasks["task-000001"]!.children, ["task-000002"]);
+});
+
+test("service list projection preserves complete graph semantics and actual task IDs", async () => {
+  await withTempWorkspace(async (root) => {
+    const service = new TaskGraphService({
+      root,
+      clock: () => initialNow,
+      loadNativeLock: loadUncontendedNativeLock,
+      lockRoot: root
+    });
+    await service.init();
+    const created = await service.apply({
+      expectedRevision: 0,
+      operations: [
+        taskOperation("parent", {
+          control: { mode: "paused", reason: "awaiting review" },
+          title: "Parent title"
+        }),
+        taskOperation("child", {
+          parentId: "@parent",
+          title: "Child title"
+        }),
+        taskOperation("dependency", {
+          control: { mode: "queued" },
+          title: "Dependency title"
+        }),
+        taskOperation("excluded", {
+          control: { mode: "queued" },
+          title: "Excluded title"
+        })
+      ]
+    });
+    await service.apply({
+      expectedRevision: created.revision,
+      operations: [
+        {
+          kind: "set-dependency",
+          taskId: "task-000001",
+          dependencyId: "task-000003",
+          present: true
+        },
+        {
+          kind: "set-exclusion",
+          taskId: "task-000001",
+          excludedTaskId: "task-000004",
+          present: true
+        }
+      ]
+    });
+
+    const { data: index } = await service.readIndex();
+    const projection = projectTaskGraph(index, initialNow);
+    const listed = await service.listTasks();
+    const taskIds = Object.keys(index.tasks).sort();
+
+    assert.equal(listed.revision, index.revision);
+    assert.deepEqual(Object.keys(listed.data), taskIds);
+    for (const taskId of taskIds) {
+      const task = index.tasks[taskId];
+      const projected = projection.tasks[taskId];
+      const listedItem = listed.data[taskId];
+      assert.notEqual(task, undefined);
+      assert.notEqual(projected, undefined);
+      assert.notEqual(listedItem, undefined);
+      if (task === undefined || projected === undefined || listedItem === undefined) {
+        continue;
+      }
+      const expected = {
+        ...projected,
+        title: task.content.title,
+        parentId: task.state.relations.parentId,
+        phase: task.state.execution.phase
+      } satisfies TaskListItem;
+      assert.equal(listedItem.taskId, taskId);
+      assert.deepEqual(listedItem, expected);
+    }
+  });
 });
 
 test("nearest local control overrides ancestor soft control without removing hard constraints", () => {

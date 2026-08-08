@@ -7,7 +7,7 @@
  * Rebuild: bun run sync:task-graph-cli
  */
 export declare const taskGraphSchemaVersion: 2;
-export declare const taskGraphVersion: "2.0.0";
+export declare const taskGraphVersion: "3.0.0";
 export declare const defaultTaskGraphIndexPath: "docs/task-graph/task-graph-index.json";
 export declare const taskGraphRuntimeProtocolVersion: 1;
 export declare const taskGraphSupportedNodeRange: "^22.22.2 || ^24.15.0 || >=26.0.0";
@@ -175,6 +175,11 @@ export type TaskProjection = {
     children: string[];
     dependents: string[];
     nextAction: "claim" | "complete" | null;
+};
+export type TaskListItem = TaskProjection & {
+    title: string;
+    parentId: string | null;
+    phase: TaskExecutionPhase;
 };
 export type TaskGraphProjection = {
     revision: number;

@@ -6,7 +6,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/task-graph
  * Rebuild: bun run sync:task-graph-cli
  */
-import type { CancelTaskOptions, ClaimTaskOptions, Clock, CompleteTaskOptions, RemoveTasksOptions, TaskControlInput, TaskEffectiveState, TaskExecutionPhase, TaskGraphApplyRequest, TaskGraphApplyResult, TaskGraphProjection, TaskIndex, TaskIndexInfo } from "./types.mjs";
+import type { CancelTaskOptions, ClaimTaskOptions, Clock, CompleteTaskOptions, RemoveTasksOptions, TaskControlInput, TaskGraphApplyRequest, TaskGraphApplyResult, TaskGraphProjection, TaskIndex, TaskIndexInfo, TaskListItem } from "./types.mjs";
 export type TaskGraphServiceOptions = {
     clock?: Clock;
     indexPath?: string;
@@ -16,14 +16,6 @@ export type ServiceResult<TData> = {
     revision: number;
     data: TData;
 };
-export type TaskSummary = {
-    taskId: string;
-    title: string;
-    parentId: string | null;
-    phase: TaskExecutionPhase;
-    effectiveState: TaskEffectiveState;
-    nextAction: "claim" | "complete" | null;
-};
 export declare class TaskGraphService {
     private readonly clock;
     private readonly leaseIdGenerator;
@@ -32,7 +24,7 @@ export declare class TaskGraphService {
     info(): Promise<ServiceResult<TaskIndexInfo>>;
     readIndex(): Promise<ServiceResult<TaskIndex>>;
     apply(request: TaskGraphApplyRequest): Promise<ServiceResult<TaskGraphApplyResult>>;
-    listTasks(): Promise<ServiceResult<Record<string, TaskSummary>>>;
+    listTasks(): Promise<ServiceResult<Record<string, TaskListItem>>>;
     showTask(taskId: string): Promise<ServiceResult<{
         task: TaskIndex["tasks"][string];
         projection: TaskGraphProjection["tasks"][string];

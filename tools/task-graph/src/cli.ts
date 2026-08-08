@@ -11,6 +11,7 @@ import {
   type RuntimeContextOptions
 } from "./runtime.ts";
 import { parseTaskGraphApplyRequest } from "./schema.ts";
+import { renderTaskListResult } from "./task-list-renderer.ts";
 import {
   TaskGraphService,
   assertTaskGraphMutationRuntime,
@@ -27,6 +28,7 @@ import {
   type TaskContentInput,
   type TaskControlInput,
   type TaskGraphFailure,
+  type TaskListItem,
   type TaskGraphResult,
   type TaskGraphSuccess
 } from "./types.ts";
@@ -42,6 +44,7 @@ export type TaskGraphCliOptions = {
 
 /** @internal */
 export type TaskGraphCliInternalOptions = {
+  columns?: number;
   io?: CliIo;
   runtimeOptions?: RuntimeContextOptions;
   serviceOptions?: Omit<TaskGraphServiceInternalOptions, "root" | "indexPath">;
@@ -50,10 +53,33 @@ export type TaskGraphCliInternalOptions = {
 type GlobalArguments = {
   help: boolean;
   indexPath?: string;
+  json: boolean;
   remaining: string[];
   root: string;
   version: boolean;
 };
+
+type CliInvocation =
+  | {
+      kind: "help";
+      pathTokens: readonly string[];
+    }
+  | {
+      kind: "json-command";
+      tokens: readonly string[];
+    }
+  | {
+      columns: number;
+      kind: "task-list";
+      tokens: readonly string[];
+    }
+  | { kind: "version" };
+
+type TaskListResult = TaskGraphResult<Record<string, TaskListItem>>;
+
+type CliOutput =
+  | { kind: "json"; result: TaskGraphResult }
+  | { columns: number; kind: "task-list"; result: TaskListResult };
 
 type OptionDefinition = {
   kind: "boolean" | "string";
@@ -274,11 +300,15 @@ const commandPaths = Object.keys(commandHelpCatalog).sort();
 
 type CommandPath = keyof typeof commandHelpCatalog;
 
+function isCommandPath(value: string): value is CommandPath {
+  return Object.hasOwn(commandHelpCatalog, value);
+}
+
 function resolveCommandPath(tokens: readonly string[]): CommandPath | null {
   const twoPart = tokens.slice(0, 2).join(" ");
-  if (Object.hasOwn(commandHelpCatalog, twoPart)) return twoPart as CommandPath;
+  if (isCommandPath(twoPart)) return twoPart;
   const onePart = tokens[0] ?? "";
-  return Object.hasOwn(commandHelpCatalog, onePart) ? onePart as CommandPath : null;
+  return isCommandPath(onePart) ? onePart : null;
 }
 
 function requiresMutationRuntime(tokens: readonly string[]): boolean {
@@ -297,13 +327,18 @@ function parseGlobalArguments(argv: readonly string[]): GlobalArguments {
   let root = process.cwd();
   let indexPath: string | undefined;
   let help = false;
+  let json = false;
   let version = false;
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index] ?? "";
     const [name, inline] = token.split(/=(.*)/su, 2);
     if (name === "--root" || name === "--index") {
       const value = inline ?? argv[index + 1];
-      if (value === undefined || value === "") {
+      if (
+        value === undefined
+        || value === ""
+        || (inline === undefined && value.startsWith("--"))
+      ) {
         failArgument(`${name} requires a non-empty path`);
       }
       if (inline === undefined) index += 1;
@@ -319,9 +354,15 @@ function parseGlobalArguments(argv: readonly string[]): GlobalArguments {
       version = true;
       continue;
     }
+    if (name === "--json") {
+      if (inline !== undefined) failArgument("--json does not accept a value");
+      if (json) failArgument("--json must not be repeated");
+      json = true;
+      continue;
+    }
     remaining.push(token);
   }
-  return { help, indexPath, remaining, root: path.resolve(root), version };
+  return { help, indexPath, json, remaining, root: path.resolve(root), version };
 }
 
 function parseCommandOptions(
@@ -494,7 +535,7 @@ function helpData(pathTokens: readonly string[]) {
   return {
     command,
     usage: entry?.usage
-      ?? "task-graph <command> [arguments] [--root <path>] [--index <path>]",
+      ?? "task-graph <command> [arguments] [--root <path>] [--index <path>] [--json]",
     parameters: entry === null
       ? null
       : {
@@ -504,7 +545,8 @@ function helpData(pathTokens: readonly string[]) {
         },
     globalOptions: [
       { name: "--root", required: false, type: "string", default: process.cwd() },
-      { name: "--index", required: false, type: "string", default: defaultTaskGraphIndexPath }
+      { name: "--index", required: false, type: "string", default: defaultTaskGraphIndexPath },
+      { name: "--json", required: false, type: "boolean", default: false }
     ],
     runtimeRequirements: {
       supportedNodeRange: taskGraphSupportedNodeRange,
@@ -545,6 +587,15 @@ async function readJsonRequest(filePath: string | undefined): Promise<unknown> {
       { filePath: filePath ?? "stdin", cause: error }
     );
   }
+}
+
+async function dispatchTaskList(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<ServiceResult<Record<string, TaskListItem>>> {
+  const parsed = parseCommandOptions(tokens.slice(2), {});
+  requirePositionals(parsed, 0, "task-graph task list");
+  return await service.listTasks();
 }
 
 async function dispatch(
@@ -594,9 +645,7 @@ async function dispatch(
       return { revision: applied.revision, data: { taskId } };
     }
     if (second === "list") {
-      const parsed = parseCommandOptions(tokens.slice(2), {});
-      requirePositionals(parsed, 0, "task-graph task list");
-      return await service.listTasks();
+      return await dispatchTaskList(service, tokens);
     }
     if (second === "show") {
       const parsed = parseCommandOptions(tokens.slice(2), {});
@@ -889,8 +938,125 @@ function failure(
   };
 }
 
-function writeResult(io: CliIo, result: TaskGraphResult): void {
+function normalizeRenderColumns(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isInteger(value) && value > 0
+    ? value
+    : undefined;
+}
+
+function resolveRenderColumns(injectedColumns: unknown): number {
+  const injected = normalizeRenderColumns(injectedColumns);
+  if (injected !== undefined) return injected;
+  const ttyColumns = process.stdout.isTTY
+    ? normalizeRenderColumns(process.stdout.columns)
+    : undefined;
+  return ttyColumns ?? 80;
+}
+
+function resolveInvocation(
+  globals: GlobalArguments,
+  injectedColumns: unknown
+): CliInvocation {
+  if (globals.version) return { kind: "version" };
+  const helpCommand = globals.remaining[0] === "help";
+  if (globals.help || helpCommand || globals.remaining.length === 0) {
+    const pathTokens = helpCommand ? globals.remaining.slice(1) : globals.remaining;
+    return {
+      kind: "help",
+      pathTokens
+    };
+  }
+  if (!globals.json && resolveCommandPath(globals.remaining) === "task list") {
+    return {
+      columns: resolveRenderColumns(injectedColumns),
+      kind: "task-list",
+      tokens: globals.remaining
+    };
+  }
+  return {
+    kind: "json-command",
+    tokens: globals.remaining
+  };
+}
+
+function unreachable(value: never): never {
+  throw new Error(`Unsupported CLI branch: ${String(value)}`);
+}
+
+async function executeInvocation(
+  service: TaskGraphService,
+  invocation: CliInvocation,
+  runtimeOptions: RuntimeContextOptions
+): Promise<CliOutput> {
+  switch (invocation.kind) {
+    case "version":
+      return {
+        kind: "json",
+        result: success(service.store.indexPath, null, {
+          name: "task-graph",
+          version: taskGraphVersion
+        })
+      };
+    case "help":
+      return {
+        kind: "json",
+        result: success(
+          service.store.indexPath,
+          null,
+          helpData(invocation.pathTokens)
+        )
+      };
+    case "task-list": {
+      const listed = await dispatchTaskList(service, invocation.tokens);
+      return {
+        columns: invocation.columns,
+        kind: "task-list",
+        result: success(service.store.indexPath, listed.revision, listed.data)
+      };
+    }
+    case "json-command": {
+      if (requiresMutationRuntime(invocation.tokens)) {
+        await assertTaskGraphMutationRuntime(service);
+      }
+      const dispatched = await dispatch(service, invocation.tokens, runtimeOptions);
+      return {
+        kind: "json",
+        result: success(service.store.indexPath, dispatched.revision, dispatched.data)
+      };
+    }
+  }
+  return unreachable(invocation);
+}
+
+function outputFailure(
+  invocation: CliInvocation,
+  result: TaskGraphFailure
+): CliOutput {
+  switch (invocation.kind) {
+    case "task-list":
+      return { columns: invocation.columns, kind: "task-list", result };
+    case "help":
+    case "json-command":
+    case "version":
+      return { kind: "json", result };
+  }
+  return unreachable(invocation);
+}
+
+function writeJsonResult(io: CliIo, result: TaskGraphResult): void {
   io.stdout(`${JSON.stringify(result)}\n`);
+}
+
+function writeOutput(io: CliIo, output: CliOutput): void {
+  switch (output.kind) {
+    case "json":
+      writeJsonResult(io, output.result);
+      return;
+    case "task-list":
+      io.stdout(renderTaskListResult(output.result, { columns: output.columns }));
+      return;
+  }
+  return unreachable(output);
 }
 
 /** @internal */
@@ -913,10 +1079,9 @@ export async function runTaskGraphCli(
   } catch (error) {
     if (!(error instanceof TaskGraphError)) throw error;
     const fallbackPath = path.resolve(process.cwd(), defaultTaskGraphIndexPath);
-    writeResult(io, failure(fallbackPath, null, error));
+    writeJsonResult(io, failure(fallbackPath, null, error));
     return 1;
   }
-
   let service: TaskGraphService;
   try {
     service = new TaskGraphService({
@@ -932,48 +1097,43 @@ export async function runTaskGraphCli(
       globals.root,
       globals.indexPath ?? defaultTaskGraphIndexPath
     );
-    writeResult(io, failure(fallbackPath, null, error));
+    writeJsonResult(io, failure(fallbackPath, null, error));
     return 1;
   }
+  const invocation = resolveInvocation(globals, options.columns);
 
+  let output: CliOutput;
+  let exitCode: 0 | 1;
   try {
-    if (globals.version) {
-      writeResult(io, success(service.store.indexPath, null, {
-        name: "task-graph",
-        version: taskGraphVersion
-      }));
-      return 0;
-    }
-    const helpCommand = globals.remaining[0] === "help";
-    if (globals.help || helpCommand || globals.remaining.length === 0) {
-      writeResult(io, success(
-        service.store.indexPath,
-        null,
-        helpData(helpCommand ? globals.remaining.slice(1) : globals.remaining)
-      ));
-      return 0;
-    }
-    if (requiresMutationRuntime(globals.remaining)) {
-      await assertTaskGraphMutationRuntime(service);
-    }
-    const result = await dispatch(service, globals.remaining, options.runtimeOptions ?? {});
-    writeResult(io, success(service.store.indexPath, result.revision, result.data));
-    return 0;
+    output = await executeInvocation(
+      service,
+      invocation,
+      options.runtimeOptions ?? {}
+    );
+    exitCode = 0;
   } catch (error) {
     if (!(error instanceof TaskGraphError)) throw error;
     const runtimeInvocation = globals.remaining[0] === "runtime"
       || (globals.remaining[0] === "help" && globals.remaining[1] === "runtime");
     let revision: number | null = null;
-    if (!runtimeInvocation && !error.code.startsWith("RUNTIME_")) {
+    if (
+      !runtimeInvocation
+      && !error.code.startsWith("RUNTIME_")
+    ) {
       try {
         revision = (await service.info()).revision;
       } catch {
         // The error envelope still remains valid without a readable index.
       }
     }
-    writeResult(io, failure(service.store.indexPath, revision, error));
-    return 1;
+    output = outputFailure(
+      invocation,
+      failure(service.store.indexPath, revision, error)
+    );
+    exitCode = 1;
   }
+  writeOutput(io, output);
+  return exitCode;
 }
 
 if (isMainModule(import.meta.url)) {

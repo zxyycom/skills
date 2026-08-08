@@ -4130,6 +4130,54 @@
       }
     },
     {
+      "id": "TASK-GRAPH-CLI-COLUMNS-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-CLI-COLUMNS-001 Task-list columns 在 CLI 边界归一化并按优先级选择 CLI 只接受正整数 injected 或 TTY columns；有效 injected 优先于 TTY，无有效值时回退 80。 80 与 79 分别选择 inline 和 block 文本。 有效 TTY=79 被采用，有效 injected=80 覆盖 TTY；零值 injected 继续采用有效 TTY。 零值或小数 TTY、non-TTY 无 injection、以及 non-TTY 的零值或小数 injection 都回退 80。 tools/task-graph/tests/cli.test.ts > CLI task-list columns prefer injection then TTY and otherwise fall back to 80 bun test --test-name-pattern=\"^CLI task-list columns prefer injection then TTY and otherwise fall back to 80$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > CLI task-list columns prefer injection then TTY and otherwise fall back to 80",
+          "bun test --test-name-pattern=\"^CLI task-list columns prefer injection then TTY and otherwise fall back to 80$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-CLI-COLUMNS-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-CLI-COLUMNS-001 Task-list columns 在 CLI 边界归一化并按优先级选择 CLI 只接受正整数 injected 或 TTY columns；有效 injected 优先于 TTY，无有效值时回退 80。 80 与 79 分别选择 inline 和 block 文本。 有效 TTY=79 被采用，有效 injected=80 覆盖 TTY；零值 injected 继续采用有效 TTY。 零值或小数 TTY、non-TTY 无 injection、以及 non-TTY 的零值或小数 injection 都回退 80。 tools/task-graph/tests/cli.test.ts > CLI task-list columns prefer injection then TTY and otherwise fall back to 80 bun test --test-name-pattern=\"^CLI task-list columns prefer injection then TTY and otherwise fall back to 80$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-task-list-columns.md",
+        "summary": "CLI 只接受正整数 injected 或 TTY columns；有效 injected 优先于 TTY，无有效值时回退 80。",
+        "title": "Task-list columns 在 CLI 边界归一化并按优先级选择"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-CLI-CONSTRUCTION-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-CLI-CONSTRUCTION-001 Service 构造 failure 保持全局 JSON 协议 TaskGraphService 尚未成功构造时不存在可执行 task-list route，失败必须使用 revision-null JSON。 越出 root 的 index path 返回 revision null 的 ARGUMENT_INVALID，并逐字节等于单 LF JSON serialization。 tools/task-graph/tests/cli.test.ts > CLI service-construction failures stay on the global JSON protocol bun test --test-name-pattern=\"^CLI service-construction failures stay on the global JSON protocol$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > CLI service-construction failures stay on the global JSON protocol",
+          "bun test --test-name-pattern=\"^CLI service-construction failures stay on the global JSON protocol$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-CLI-CONSTRUCTION-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-CLI-CONSTRUCTION-001 Service 构造 failure 保持全局 JSON 协议 TaskGraphService 尚未成功构造时不存在可执行 task-list route，失败必须使用 revision-null JSON。 越出 root 的 index path 返回 revision null 的 ARGUMENT_INVALID，并逐字节等于单 LF JSON serialization。 tools/task-graph/tests/cli.test.ts > CLI service-construction failures stay on the global JSON protocol bun test --test-name-pattern=\"^CLI service-construction failures stay on the global JSON protocol$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-service-construction-failure.md",
+        "summary": "TaskGraphService 尚未成功构造时不存在可执行 task-list route，失败必须使用 revision-null JSON。",
+        "title": "Service 构造 failure 保持全局 JSON 协议"
+      }
+    },
+    {
       "id": "TASK-GRAPH-CLI-ERRORS-001",
       "keys": {
         "search": [
@@ -4151,6 +4199,174 @@
         "sourcePath": "task-graph/cli-predictable-outcomes-use-one-envelope.md",
         "summary": "CLI 成功及可预期 schema、状态、revision 与文件错误使用统一 envelope；Map/null-prototype 解析不得把保留字或原型属性误当作已有选项或实体。非 runtime 失败可以尽力读取 revision；runtime 命令和 `RUNTIME_*` 失败禁止读取工作区，且绝不重放 mutation。",
         "title": "各结果保持单 JSON、稳定 error code、retryable 与可读取 revision"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-CLI-GLOBAL-FAILURE-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-CLI-GLOBAL-FAILURE-001 全局参数解析 failure 使用 revision-null JSON Invocation route 建立前的全局参数错误统一使用 JSON serializer，revision 为 null。 重复 --json、带值 --json、以及 --root 或 --index 分离值被后续 --json 占位都返回对应 ARGUMENT_INVALID message。 所有结果是单 LF JSON，不能误进入 task-list failure renderer。 tools/task-graph/tests/cli.test.ts > CLI global argument failures use revision-null JSON bun test --test-name-pattern=\"^CLI global argument failures use revision-null JSON$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > CLI global argument failures use revision-null JSON",
+          "bun test --test-name-pattern=\"^CLI global argument failures use revision-null JSON$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-CLI-GLOBAL-FAILURE-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-CLI-GLOBAL-FAILURE-001 全局参数解析 failure 使用 revision-null JSON Invocation route 建立前的全局参数错误统一使用 JSON serializer，revision 为 null。 重复 --json、带值 --json、以及 --root 或 --index 分离值被后续 --json 占位都返回对应 ARGUMENT_INVALID message。 所有结果是单 LF JSON，不能误进入 task-list failure renderer。 tools/task-graph/tests/cli.test.ts > CLI global argument failures use revision-null JSON bun test --test-name-pattern=\"^CLI global argument failures use revision-null JSON$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-global-argument-failures.md",
+        "summary": "Invocation route 建立前的全局参数错误统一使用 JSON serializer，revision 为 null。",
+        "title": "全局参数解析 failure 使用 revision-null JSON"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-CLI-HELP-CATALOG-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-CLI-HELP-CATALOG-001 每个规范命令都有可恢复的结构化 help Root help 中的每个 command 都能独立查询结构化 command help；特殊多值参数和 apply input metadata 保持显式。 23 个 command path 各自返回匹配的 command 名。 Task remove 的多值 --task、task create 的多值 --acceptance 与 apply stdin/file JSON 输入契约逐字段成立。 tools/task-graph/tests/cli.test.ts > CLI command help recovers every command and structured special parameters bun test --test-name-pattern=\"^CLI command help recovers every command and structured special parameters$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > CLI command help recovers every command and structured special parameters",
+          "bun test --test-name-pattern=\"^CLI command help recovers every command and structured special parameters$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-CLI-HELP-CATALOG-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-CLI-HELP-CATALOG-001 每个规范命令都有可恢复的结构化 help Root help 中的每个 command 都能独立查询结构化 command help；特殊多值参数和 apply input metadata 保持显式。 23 个 command path 各自返回匹配的 command 名。 Task remove 的多值 --task、task create 的多值 --acceptance 与 apply stdin/file JSON 输入契约逐字段成立。 tools/task-graph/tests/cli.test.ts > CLI command help recovers every command and structured special parameters bun test --test-name-pattern=\"^CLI command help recovers every command and structured special parameters$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-command-help-catalog.md",
+        "summary": "Root help 中的每个 command 都能独立查询结构化 command help；特殊多值参数和 apply input metadata 保持显式。",
+        "title": "每个规范命令都有可恢复的结构化 help"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-CLI-JSON-FLAG-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-CLI-JSON-FLAG-001 全局 JSON flag 可位于 task list 前后 --json 是全局 boolean flag，合法出现一次时可位于 task list command 前或后。 两种位置都退出 0 并产生逐字节相同的单 LF JSON projection。 tools/task-graph/tests/cli.test.ts > CLI task list --json accepts the global flag before or after the command bun test --test-name-pattern=\"^CLI task list --json accepts the global flag before or after the command$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > CLI task list --json accepts the global flag before or after the command",
+          "bun test --test-name-pattern=\"^CLI task list --json accepts the global flag before or after the command$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-CLI-JSON-FLAG-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-CLI-JSON-FLAG-001 全局 JSON flag 可位于 task list 前后 --json 是全局 boolean flag，合法出现一次时可位于 task list command 前或后。 两种位置都退出 0 并产生逐字节相同的单 LF JSON projection。 tools/task-graph/tests/cli.test.ts > CLI task list --json accepts the global flag before or after the command bun test --test-name-pattern=\"^CLI task list --json accepts the global flag before or after the command$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-json-flag-positions.md",
+        "summary": "--json 是全局 boolean flag，合法出现一次时可位于 task list command 前或后。",
+        "title": "全局 JSON flag 可位于 task list 前后"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-CLI-JSON-ROUTES-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-CLI-JSON-ROUTES-001 Task-list help 与非 list command 保持 JSON route 只有默认实际 task list command 使用文本 renderer；task-list help 与其他 command 的 success/failure 保持 JSON。 Task-list help、task show success 与缺参 task show failure 都可按单 JSON envelope 解析。 tools/task-graph/tests/cli.test.ts > CLI task-list help and non-list commands remain on the JSON protocol bun test --test-name-pattern=\"^CLI task-list help and non-list commands remain on the JSON protocol$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > CLI task-list help and non-list commands remain on the JSON protocol",
+          "bun test --test-name-pattern=\"^CLI task-list help and non-list commands remain on the JSON protocol$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-CLI-JSON-ROUTES-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-CLI-JSON-ROUTES-001 Task-list help 与非 list command 保持 JSON route 只有默认实际 task list command 使用文本 renderer；task-list help 与其他 command 的 success/failure 保持 JSON。 Task-list help、task show success 与缺参 task show failure 都可按单 JSON envelope 解析。 tools/task-graph/tests/cli.test.ts > CLI task-list help and non-list commands remain on the JSON protocol bun test --test-name-pattern=\"^CLI task-list help and non-list commands remain on the JSON protocol$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-non-list-json-routes.md",
+        "summary": "只有默认实际 task list command 使用文本 renderer；task-list help 与其他 command 的 success/failure 保持 JSON。",
+        "title": "Task-list help 与非 list command 保持 JSON route"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-CLI-LIST-FAILURE-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-CLI-LIST-FAILURE-001 Task-list command failure 遵循选定输出协议 Task-list route 建立后的 command-local failure 默认使用 task-list failure renderer；合法 `--json` 把同类 failure 切换到 JSON serializer。 同一多余 positional failure 在两种模式下都退出 1、返回 ARGUMENT_INVALID 与当前 revision 0。 默认文本包含 TASK LIST ERROR 和 actualPositionals detail；JSON 模式产生合法 failure envelope。 tools/task-graph/tests/cli.test.ts > CLI task-list command failures follow the selected output protocol bun test --test-name-pattern=\"^CLI task-list command failures follow the selected output protocol$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > CLI task-list command failures follow the selected output protocol",
+          "bun test --test-name-pattern=\"^CLI task-list command failures follow the selected output protocol$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-CLI-LIST-FAILURE-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-CLI-LIST-FAILURE-001 Task-list command failure 遵循选定输出协议 Task-list route 建立后的 command-local failure 默认使用 task-list failure renderer；合法 `--json` 把同类 failure 切换到 JSON serializer。 同一多余 positional failure 在两种模式下都退出 1、返回 ARGUMENT_INVALID 与当前 revision 0。 默认文本包含 TASK LIST ERROR 和 actualPositionals detail；JSON 模式产生合法 failure envelope。 tools/task-graph/tests/cli.test.ts > CLI task-list command failures follow the selected output protocol bun test --test-name-pattern=\"^CLI task-list command failures follow the selected output protocol$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-list-failure-protocols.md",
+        "summary": "Task-list route 建立后的 command-local failure 默认使用 task-list failure renderer；合法 `--json` 把同类 failure 切换到 JSON serializer。",
+        "title": "Task-list command failure 遵循选定输出协议"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-CLI-LIST-PROJECTION-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-CLI-LIST-PROJECTION-001 Task list JSON 等于程序化完整 projection task list --json 的 data 必须逐字段等于同一索引和时刻的 TaskGraphService.listTasks() data，不得加入 renderer layout 字段。 对包含 parent、dependency、exclusion 和继承 control 的 rich fixture，CLI revision 与完整 data 都和程序化结果直接 deep-equal。 Deep equality 同时证明 CLI 没有自行增加 renderer layout 字段或删减 service projection。 tools/task-graph/tests/cli.test.ts > CLI task list --json data equals the complete programmatic list projection bun test --test-name-pattern=\"^CLI task list --json data equals the complete programmatic list projection$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > CLI task list --json data equals the complete programmatic list projection",
+          "bun test --test-name-pattern=\"^CLI task list --json data equals the complete programmatic list projection$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-CLI-LIST-PROJECTION-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-CLI-LIST-PROJECTION-001 Task list JSON 等于程序化完整 projection task list --json 的 data 必须逐字段等于同一索引和时刻的 TaskGraphService.listTasks() data，不得加入 renderer layout 字段。 对包含 parent、dependency、exclusion 和继承 control 的 rich fixture，CLI revision 与完整 data 都和程序化结果直接 deep-equal。 Deep equality 同时证明 CLI 没有自行增加 renderer layout 字段或删减 service projection。 tools/task-graph/tests/cli.test.ts > CLI task list --json data equals the complete programmatic list projection bun test --test-name-pattern=\"^CLI task list --json data equals the complete programmatic list projection$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-list-json-matches-service.md",
+        "summary": "task list --json 的 data 必须逐字段等于同一索引和时刻的 TaskGraphService.listTasks() data，不得加入 renderer layout 字段。",
+        "title": "Task list JSON 等于程序化完整 projection"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-CLI-LIST-RENDER-PARITY-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-CLI-LIST-RENDER-PARITY-001 默认 CLI 文本直接渲染完整程序化 projection 默认 task list 必须把同一索引和时刻的 `TaskGraphService.listTasks()` 完整 data 直接交给内部 renderer，不能另建删减 projection。 同一 rich fixture 的程序化 list result 经 renderer 产生的完整文本，与默认 CLI columns 80 输出逐字节相同。 Fixture 的输出明确包含 inherited parent、dependency needs、control reason 与 RUN MUTEX，避免单 task projection 的空洞等值。 tools/task-graph/tests/cli.test.ts > CLI default task list renders the complete programmatic projection bun test --test-name-pattern=\"^CLI default task list renders the complete programmatic projection$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > CLI default task list renders the complete programmatic projection",
+          "bun test --test-name-pattern=\"^CLI default task list renders the complete programmatic projection$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-CLI-LIST-RENDER-PARITY-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-CLI-LIST-RENDER-PARITY-001 默认 CLI 文本直接渲染完整程序化 projection 默认 task list 必须把同一索引和时刻的 `TaskGraphService.listTasks()` 完整 data 直接交给内部 renderer，不能另建删减 projection。 同一 rich fixture 的程序化 list result 经 renderer 产生的完整文本，与默认 CLI columns 80 输出逐字节相同。 Fixture 的输出明确包含 inherited parent、dependency needs、control reason 与 RUN MUTEX，避免单 task projection 的空洞等值。 tools/task-graph/tests/cli.test.ts > CLI default task list renders the complete programmatic projection bun test --test-name-pattern=\"^CLI default task list renders the complete programmatic projection$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-list-renderer-matches-service.md",
+        "summary": "默认 task list 必须把同一索引和时刻的 `TaskGraphService.listTasks()` 完整 data 直接交给内部 renderer，不能另建删减 projection。",
+        "title": "默认 CLI 文本直接渲染完整程序化 projection"
       }
     },
     {
@@ -4178,10 +4394,10 @@
       }
     },
     {
-      "id": "TASK-GRAPH-CLI-PROTOCOL-001",
+      "id": "TASK-GRAPH-CLI-PROCESS-PROTOCOL-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-CLI-PROTOCOL-001 每次调用只写一个 LF 结尾 JSON help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。 根 help 枚举全部 23 个命令并逐一查询成功，机器可读地公布固定 Node range、mutation runtime 前置以及安装命令；task create、task remove 与 apply 的参数契约可恢复，其中 acceptance 明确为可选重复参数；每次调用只写一个 LF 结尾 JSON。 tools/task-graph/tests/cli.test.ts > CLI help, version, and usage stay inside the single-JSON LF protocol bun test --test-name-pattern=\"^CLI help, version, and usage stay inside the single-JSON LF protocol$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-CLI-PROCESS-PROTOCOL-001 Process CLI 保持已选择的 stdout 协议与退出状态 真实 Node process wrapper 必须原样传递 in-memory CLI 选择的文本或 JSON stdout、退出状态，并让可预期结果的 stderr 为空。 默认文本 success 与 JSON command failure 两个代表路径都与内存入口保持相同 stdout、空 stderr 和退出状态。 tools/task-graph/tests/cli.test.ts > process CLI preserves selected stdout protocol stderr and exit status bun test --test-name-pattern=\"^process CLI preserves selected stdout protocol stderr and exit status$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -4190,15 +4406,63 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/cli.test.ts > CLI help, version, and usage stay inside the single-JSON LF protocol",
-          "bun test --test-name-pattern=\"^CLI help, version, and usage stay inside the single-JSON LF protocol$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/cli.test.ts > process CLI preserves selected stdout protocol stderr and exit status",
+          "bun test --test-name-pattern=\"^process CLI preserves selected stdout protocol stderr and exit status$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-CLI-PROCESS-PROTOCOL-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-CLI-PROCESS-PROTOCOL-001 Process CLI 保持已选择的 stdout 协议与退出状态 真实 Node process wrapper 必须原样传递 in-memory CLI 选择的文本或 JSON stdout、退出状态，并让可预期结果的 stderr 为空。 默认文本 success 与 JSON command failure 两个代表路径都与内存入口保持相同 stdout、空 stderr 和退出状态。 tools/task-graph/tests/cli.test.ts > process CLI preserves selected stdout protocol stderr and exit status bun test --test-name-pattern=\"^process CLI preserves selected stdout protocol stderr and exit status$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-process-output-protocols.md",
+        "summary": "真实 Node process wrapper 必须原样传递 in-memory CLI 选择的文本或 JSON stdout、退出状态，并让可预期结果的 stderr 为空。",
+        "title": "Process CLI 保持已选择的 stdout 协议与退出状态"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-CLI-PROTOCOL-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-CLI-PROTOCOL-001 Root help 暴露命令目录、runtime 前置与全局 JSON option Root help 通过单个 LF 结尾 JSON 返回规范命令目录、runtime requirements 和默认 false 的全局 --json boolean option。 Root help 的 revision 为 null、usage 以 task-graph 开头且命令数为 23。 Runtime 支持范围、setup/install 来源与 --json 参数结构逐字段可恢复。 tools/task-graph/tests/cli.test.ts > CLI root help exposes commands runtime requirements and the global JSON option bun test --test-name-pattern=\"^CLI root help exposes commands runtime requirements and the global JSON option$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > CLI root help exposes commands runtime requirements and the global JSON option",
+          "bun test --test-name-pattern=\"^CLI root help exposes commands runtime requirements and the global JSON option$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-CLI-PROTOCOL-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-CLI-PROTOCOL-001 每次调用只写一个 LF 结尾 JSON help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。 根 help 枚举全部 23 个命令并逐一查询成功，机器可读地公布固定 Node range、mutation runtime 前置以及安装命令；task create、task remove 与 apply 的参数契约可恢复，其中 acceptance 明确为可选重复参数；每次调用只写一个 LF 结尾 JSON。 tools/task-graph/tests/cli.test.ts > CLI help, version, and usage stay inside the single-JSON LF protocol bun test --test-name-pattern=\"^CLI help, version, and usage stay inside the single-JSON LF protocol$\" ./tools/task-graph/tests/run.ts",
-        "sourcePath": "task-graph/cli-help-version-and-usage-use-json-lf.md",
-        "summary": "help、version 与 usage 属于 JSON-only CLI 协议并遵守统一退出码；每个规范命令都必须有可查询的结构化 usage、positionals、options、类型、必填性、重复性、枚举、默认值或 stdin/file 输入说明。",
-        "title": "每次调用只写一个 LF 结尾 JSON"
+        "searchText": "TASK-GRAPH-CLI-PROTOCOL-001 Root help 暴露命令目录、runtime 前置与全局 JSON option Root help 通过单个 LF 结尾 JSON 返回规范命令目录、runtime requirements 和默认 false 的全局 --json boolean option。 Root help 的 revision 为 null、usage 以 task-graph 开头且命令数为 23。 Runtime 支持范围、setup/install 来源与 --json 参数结构逐字段可恢复。 tools/task-graph/tests/cli.test.ts > CLI root help exposes commands runtime requirements and the global JSON option bun test --test-name-pattern=\"^CLI root help exposes commands runtime requirements and the global JSON option$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-root-help-json-option.md",
+        "summary": "Root help 通过单个 LF 结尾 JSON 返回规范命令目录、runtime requirements 和默认 false 的全局 --json boolean option。",
+        "title": "Root help 暴露命令目录、runtime 前置与全局 JSON option"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-CLI-PROTOTYPE-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-CLI-PROTOTYPE-001 Prototype-like command 和 option 被拒绝 CLI catalog 与 option lookup 不得从对象原型继承伪 command 或伪 option。 help constructor 与 --constructor 都返回 ARGUMENT_INVALID JSON。 tools/task-graph/tests/cli.test.ts > CLI rejects prototype-like command and option names bun test --test-name-pattern=\"^CLI rejects prototype-like command and option names$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > CLI rejects prototype-like command and option names",
+          "bun test --test-name-pattern=\"^CLI rejects prototype-like command and option names$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-CLI-PROTOTYPE-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-CLI-PROTOTYPE-001 Prototype-like command 和 option 被拒绝 CLI catalog 与 option lookup 不得从对象原型继承伪 command 或伪 option。 help constructor 与 --constructor 都返回 ARGUMENT_INVALID JSON。 tools/task-graph/tests/cli.test.ts > CLI rejects prototype-like command and option names bun test --test-name-pattern=\"^CLI rejects prototype-like command and option names$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-rejects-prototype-names.md",
+        "summary": "CLI catalog 与 option lookup 不得从对象原型继承伪 command 或伪 option。",
+        "title": "Prototype-like command 和 option 被拒绝"
       }
     },
     {
@@ -4247,6 +4511,78 @@
         "sourcePath": "task-graph/process-cli-apply-accepts-stdin-json.md",
         "summary": "apply 在未指定 file 时从 stdin 读取完整 JSON request，并保持 JSON-only 进程协议。",
         "title": "apply 从 stdin 接收单个 JSON request"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-CLI-STDOUT-FAULT-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-CLI-STDOUT-FAULT-001 Process CLI 的 stdout fault 只进入 stderr 未处理的 stdout 写入 fault 不得伪装成领域结果或污染 stdout；process 边界负责 stderr 和 exit 2。 模拟 stdout.write 抛错时 stdout 为空、stderr 包含错误且退出 2。 tools/task-graph/tests/cli.test.ts > process CLI reports stdout faults only on stderr with exit two bun test --test-name-pattern=\"^process CLI reports stdout faults only on stderr with exit two$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > process CLI reports stdout faults only on stderr with exit two",
+          "bun test --test-name-pattern=\"^process CLI reports stdout faults only on stderr with exit two$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-CLI-STDOUT-FAULT-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-CLI-STDOUT-FAULT-001 Process CLI 的 stdout fault 只进入 stderr 未处理的 stdout 写入 fault 不得伪装成领域结果或污染 stdout；process 边界负责 stderr 和 exit 2。 模拟 stdout.write 抛错时 stdout 为空、stderr 包含错误且退出 2。 tools/task-graph/tests/cli.test.ts > process CLI reports stdout faults only on stderr with exit two bun test --test-name-pattern=\"^process CLI reports stdout faults only on stderr with exit two$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-process-stdout-fault.md",
+        "summary": "未处理的 stdout 写入 fault 不得伪装成领域结果或污染 stdout；process 边界负责 stderr 和 exit 2。",
+        "title": "Process CLI 的 stdout fault 只进入 stderr"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-CLI-USAGE-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-CLI-USAGE-001 Usage failure 使用 JSON 协议 非 task-list command 的缺参 usage failure 保持全局 JSON error envelope。 缺少 task create 必需参数时退出 1，返回 revision null 的 ARGUMENT_INVALID JSON。 tools/task-graph/tests/cli.test.ts > CLI usage failures use the JSON protocol bun test --test-name-pattern=\"^CLI usage failures use the JSON protocol$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > CLI usage failures use the JSON protocol",
+          "bun test --test-name-pattern=\"^CLI usage failures use the JSON protocol$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-CLI-USAGE-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-CLI-USAGE-001 Usage failure 使用 JSON 协议 非 task-list command 的缺参 usage failure 保持全局 JSON error envelope。 缺少 task create 必需参数时退出 1，返回 revision null 的 ARGUMENT_INVALID JSON。 tools/task-graph/tests/cli.test.ts > CLI usage failures use the JSON protocol bun test --test-name-pattern=\"^CLI usage failures use the JSON protocol$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-usage-failure-json.md",
+        "summary": "非 task-list command 的缺参 usage failure 保持全局 JSON error envelope。",
+        "title": "Usage failure 使用 JSON 协议"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-CLI-VERSION-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-CLI-VERSION-001 Version 使用 JSON 协议报告 3.0.0 --version 使用单个 LF 结尾 JSON success 报告当前 task-graph 版本且不读取 index revision。 结果逐字段为 name task-graph、version 3.0.0 与 revision null。 tools/task-graph/tests/cli.test.ts > CLI version reports 3.0.0 through the JSON protocol bun test --test-name-pattern=\"^CLI version reports 3.0.0 through the JSON protocol$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/cli.test.ts > CLI version reports 3.0.0 through the JSON protocol",
+          "bun test --test-name-pattern=\"^CLI version reports 3.0.0 through the JSON protocol$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-CLI-VERSION-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-CLI-VERSION-001 Version 使用 JSON 协议报告 3.0.0 --version 使用单个 LF 结尾 JSON success 报告当前 task-graph 版本且不读取 index revision。 结果逐字段为 name task-graph、version 3.0.0 与 revision null。 tools/task-graph/tests/cli.test.ts > CLI version reports 3.0.0 through the JSON protocol bun test --test-name-pattern=\"^CLI version reports 3.0.0 through the JSON protocol$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/cli-version-json.md",
+        "summary": "--version 使用单个 LF 结尾 JSON success 报告当前 task-graph 版本且不读取 index revision。",
+        "title": "Version 使用 JSON 协议报告 3.0.0"
       }
     },
     {
@@ -4325,23 +4661,23 @@
       "id": "TASK-GRAPH-DISTRIBUTION-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 task-graph 分发脚本、从公开实现机械派生的声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 bundled/source exports 与 2.0.0 行为一致，公开根级任务投影和批量删除而不暴露 scope API；同名声明入口及其可达声明树可被独立 TypeScript consumer 使用，允许省略 acceptance，且不暴露 native、runner、store、内部注入类型或 Valibot。`write-file-atomic` 已内联、native 包未内联、bundle 无工作区绝对路径；Schema 与运行时共同拒绝长度、格式和错误文本类型等全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 Task-graph 分发脚本、公开声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 生成模块与源码 runtime export 集合和 version 结果一致。 根声明及其可达声明树可被独立 TypeScript consumer 使用，导出 `TaskListItem` 而不保留 `TaskSummary`，且不暴露 native、runner、store、内部注入类型或 Valibot。 Bundle 内联预期依赖、不携带 native package 或工作区绝对路径；source map 使用相对跨平台路径并追踪 task-list renderer 源码。 JSON Schema 与运行时共同拒绝长度、格式和错误文本类型等全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
           "tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata",
           "bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-DISTRIBUTION-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 task-graph 分发脚本、从公开实现机械派生的声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 bundled/source exports 与 2.0.0 行为一致，公开根级任务投影和批量删除而不暴露 scope API；同名声明入口及其可达声明树可被独立 TypeScript consumer 使用，允许省略 acceptance，且不暴露 native、runner、store、内部注入类型或 Valibot。`write-file-atomic` 已内联、native 包未内联、bundle 无工作区绝对路径；Schema 与运行时共同拒绝长度、格式和错误文本类型等全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 Task-graph 分发脚本、公开声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 生成模块与源码 runtime export 集合和 version 结果一致。 根声明及其可达声明树可被独立 TypeScript consumer 使用，导出 `TaskListItem` 而不保留 `TaskSummary`，且不暴露 native、runner、store、内部注入类型或 Valibot。 Bundle 内联预期依赖、不携带 native package 或工作区绝对路径；source map 使用相对跨平台路径并追踪 task-list renderer 源码。 JSON Schema 与运行时共同拒绝长度、格式和错误文本类型等全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/generated-distribution-matches-source-contracts.md",
-        "summary": "task-graph 分发脚本、从公开实现机械派生的声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。",
+        "summary": "Task-graph 分发脚本、公开声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。",
         "title": "分发制品与源码公共契约一致"
       }
     },
@@ -4391,6 +4727,30 @@
         "sourcePath": "task-graph/generated-import-is-side-effect-free.md",
         "summary": "导入生成 ESM 不读取或创建用户 runtime，不加载 addon，不写 stdout/stderr。",
         "title": "生成模块导入在空 tool home 无副作用"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-DISTRIBUTION-LIST-PARITY-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-DISTRIBUTION-LIST-PARITY-001 生成 CLI 的 task list 文本与 JSON 模式均与源码一致 分发 CLI 必须保留源码的默认 task-list renderer 与显式 JSON projection serialization，不能在打包边界产生协议漂移。 同一 fixture 和同一次生成模块 import 下，文本与 JSON 两种调用的退出状态和完整 stdout 都分别与源码逐字节相同。 文本包含 TASK LIST 摘要、实际 task ID 与 title；JSON 可解析为 ok success。 tools/task-graph/tests/generated-artifacts.test.ts > generated CLI task list text and JSON modes match source bun test --test-name-pattern=\"^generated CLI task list text and JSON modes match source$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/generated-artifacts.test.ts > generated CLI task list text and JSON modes match source",
+          "bun test --test-name-pattern=\"^generated CLI task list text and JSON modes match source$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-DISTRIBUTION-LIST-PARITY-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-DISTRIBUTION-LIST-PARITY-001 生成 CLI 的 task list 文本与 JSON 模式均与源码一致 分发 CLI 必须保留源码的默认 task-list renderer 与显式 JSON projection serialization，不能在打包边界产生协议漂移。 同一 fixture 和同一次生成模块 import 下，文本与 JSON 两种调用的退出状态和完整 stdout 都分别与源码逐字节相同。 文本包含 TASK LIST 摘要、实际 task ID 与 title；JSON 可解析为 ok success。 tools/task-graph/tests/generated-artifacts.test.ts > generated CLI task list text and JSON modes match source bun test --test-name-pattern=\"^generated CLI task list text and JSON modes match source$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/generated-task-list-parity.md",
+        "summary": "分发 CLI 必须保留源码的默认 task-list renderer 与显式 JSON projection serialization，不能在打包边界产生协议漂移。",
+        "title": "生成 CLI 的 task list 文本与 JSON 模式均与源码一致"
       }
     },
     {
@@ -4583,6 +4943,390 @@
         "sourcePath": "task-graph/lease-lifecycle-enforces-expiry-and-recovery.md",
         "summary": "租约 ID 在全索引 running task 中唯一；时长、续期和所有权遵守固定状态机；过期 running task 只允许用旧 lease、最新 revision 与原因组成的 claim 恢复三元组写入新 lease。",
         "title": "过期 lease 只通过显式恢复 claim 接管"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-LIST-ACTIVE-MUTEX-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-LIST-ACTIVE-MUTEX-001 Exclusion-running blocker 折叠为 active mutex token exclusion-running blocker 只派生节点 mutex token；重复 endpoint 去重，并按 task ID 排序。 Running 与 recovery-needed endpoint 输出唯一排序 mutex 列表，摘要只将被阻 task 计数一次。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer maps exclusion-running blockers to active mutex tokens bun test --test-name-pattern=\"^task-list renderer maps exclusion-running blockers to active mutex tokens$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer maps exclusion-running blockers to active mutex tokens",
+          "bun test --test-name-pattern=\"^task-list renderer maps exclusion-running blockers to active mutex tokens$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-LIST-ACTIVE-MUTEX-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-LIST-ACTIVE-MUTEX-001 Exclusion-running blocker 折叠为 active mutex token exclusion-running blocker 只派生节点 mutex token；重复 endpoint 去重，并按 task ID 排序。 Running 与 recovery-needed endpoint 输出唯一排序 mutex 列表，摘要只将被阻 task 计数一次。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer maps exclusion-running blockers to active mutex tokens bun test --test-name-pattern=\"^task-list renderer maps exclusion-running blockers to active mutex tokens$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/task-list-renderer-active-mutex-token.md",
+        "summary": "exclusion-running blocker 只派生节点 mutex token；重复 endpoint 去重，并按 task ID 排序。",
+        "title": "Exclusion-running blocker 折叠为 active mutex token"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-LIST-DENSE-RELATIONS-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-LIST-DENSE-RELATIONS-001 任一关系列表超过三个 endpoint 时 node 使用 block form Columns 为 80 时，去重后的 needs、blocked-by 或 active mutex 任一列表超过三个 item，都独立触发 node block form。 Needs、blocked-by 和 mutex 三个矩阵场景都把四个排序后的 item 放入对应 continuation，且不产生其他关系 token。 Mutex 场景同时保留 running、recovery-needed 和 mutex-blocked 摘要计数。 tools/task-graph/tests/task-list-renderer.test.ts > task-list node form switches when any relation list exceeds three endpoints bun test --test-name-pattern=\"^task-list node form switches when any relation list exceeds three endpoints$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/task-list-renderer.test.ts > task-list node form switches when any relation list exceeds three endpoints",
+          "bun test --test-name-pattern=\"^task-list node form switches when any relation list exceeds three endpoints$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-LIST-DENSE-RELATIONS-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-LIST-DENSE-RELATIONS-001 任一关系列表超过三个 endpoint 时 node 使用 block form Columns 为 80 时，去重后的 needs、blocked-by 或 active mutex 任一列表超过三个 item，都独立触发 node block form。 Needs、blocked-by 和 mutex 三个矩阵场景都把四个排序后的 item 放入对应 continuation，且不产生其他关系 token。 Mutex 场景同时保留 running、recovery-needed 和 mutex-blocked 摘要计数。 tools/task-graph/tests/task-list-renderer.test.ts > task-list node form switches when any relation list exceeds three endpoints bun test --test-name-pattern=\"^task-list node form switches when any relation list exceeds three endpoints$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/task-list-renderer-dense-relations.md",
+        "summary": "Columns 为 80 时，去重后的 needs、blocked-by 或 active mutex 任一列表超过三个 item，都独立触发 node block form。",
+        "title": "任一关系列表超过三个 endpoint 时 node 使用 block form"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-LIST-FIELDS-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-LIST-FIELDS-001 Node 显示字段保持固定顺序 Node 显示字段固定按 parent、needs、blocked-by、mutex、reason、next、title 排列。 同时存在全部字段时逐项顺序保持固定，中文与 emoji title 位于最后且保持原值。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer preserves fixed node field order bun test --test-name-pattern=\"^task-list renderer preserves fixed node field order$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer preserves fixed node field order",
+          "bun test --test-name-pattern=\"^task-list renderer preserves fixed node field order$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-LIST-FIELDS-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-LIST-FIELDS-001 Node 显示字段保持固定顺序 Node 显示字段固定按 parent、needs、blocked-by、mutex、reason、next、title 排列。 同时存在全部字段时逐项顺序保持固定，中文与 emoji title 位于最后且保持原值。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer preserves fixed node field order bun test --test-name-pattern=\"^task-list renderer preserves fixed node field order$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/task-list-renderer-field-order.md",
+        "summary": "Node 显示字段固定按 parent、needs、blocked-by、mutex、reason、next、title 排列。",
+        "title": "Node 显示字段保持固定顺序"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-LIST-FOLDING-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-LIST-FOLDING-001 全部补充因果 blocker 确定性进入 blocked-by all-children-cancelled、ancestor-terminal、dependency-cancelled、dependency-failed 与 descendant-lease 都折叠为补充因果 token。 五种 causal blocker 无论输入顺序都按 kind 与 related task ID 确定性输出到 blocked-by。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer displays every causal blocker kind in deterministic order bun test --test-name-pattern=\"^task-list renderer displays every causal blocker kind in deterministic order$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer displays every causal blocker kind in deterministic order",
+          "bun test --test-name-pattern=\"^task-list renderer displays every causal blocker kind in deterministic order$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-LIST-FOLDING-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-LIST-FOLDING-001 全部补充因果 blocker 确定性进入 blocked-by all-children-cancelled、ancestor-terminal、dependency-cancelled、dependency-failed 与 descendant-lease 都折叠为补充因果 token。 五种 causal blocker 无论输入顺序都按 kind 与 related task ID 确定性输出到 blocked-by。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer displays every causal blocker kind in deterministic order bun test --test-name-pattern=\"^task-list renderer displays every causal blocker kind in deterministic order$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/task-list-renderer-folds-causal-tokens.md",
+        "summary": "all-children-cancelled、ancestor-terminal、dependency-cancelled、dependency-failed 与 descendant-lease 都折叠为补充因果 token。",
+        "title": "全部补充因果 blocker 确定性进入 blocked-by"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-LIST-FOLDING-OMIT-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-LIST-FOLDING-OMIT-001 可从全量数据恢复的 blocker 不重复显示 Control、dependency-incomplete 与 child-incomplete 已能从全量节点和关系恢复，不进入 blocked-by 或 mutex token。 control-candidate、control-waiting、control-paused、dependency-incomplete 与 child-incomplete 同时存在时节点仍没有 blocker token。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer omits blockers recoverable from full task data bun test --test-name-pattern=\"^task-list renderer omits blockers recoverable from full task data$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer omits blockers recoverable from full task data",
+          "bun test --test-name-pattern=\"^task-list renderer omits blockers recoverable from full task data$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-LIST-FOLDING-OMIT-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-LIST-FOLDING-OMIT-001 可从全量数据恢复的 blocker 不重复显示 Control、dependency-incomplete 与 child-incomplete 已能从全量节点和关系恢复，不进入 blocked-by 或 mutex token。 control-candidate、control-waiting、control-paused、dependency-incomplete 与 child-incomplete 同时存在时节点仍没有 blocker token。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer omits blockers recoverable from full task data bun test --test-name-pattern=\"^task-list renderer omits blockers recoverable from full task data$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/task-list-renderer-omits-recoverable-blockers.md",
+        "summary": "Control、dependency-incomplete 与 child-incomplete 已能从全量节点和关系恢复，不进入 blocked-by 或 mutex token。",
+        "title": "可从全量数据恢复的 blocker 不重复显示"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-LIST-FORM-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-LIST-FORM-001 Columns 79 与 80 选择固定 block 和 inline form 关系数量允许时，columns 至少为 80 使用 inline node，否则使用 block node；title 字符和 Unicode cell width 不参与选择。 同一长中英文与 emoji title 在 80 columns 为 inline，在 79 columns 为带 next 与 title continuation 的 block。 tools/task-graph/tests/task-list-renderer.test.ts > task-list node form switches at 79 and 80 columns without measuring title width bun test --test-name-pattern=\"^task-list node form switches at 79 and 80 columns without measuring title width$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/task-list-renderer.test.ts > task-list node form switches at 79 and 80 columns without measuring title width",
+          "bun test --test-name-pattern=\"^task-list node form switches at 79 and 80 columns without measuring title width$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-LIST-FORM-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-LIST-FORM-001 Columns 79 与 80 选择固定 block 和 inline form 关系数量允许时，columns 至少为 80 使用 inline node，否则使用 block node；title 字符和 Unicode cell width 不参与选择。 同一长中英文与 emoji title 在 80 columns 为 inline，在 79 columns 为带 next 与 title continuation 的 block。 tools/task-graph/tests/task-list-renderer.test.ts > task-list node form switches at 79 and 80 columns without measuring title width bun test --test-name-pattern=\"^task-list node form switches at 79 and 80 columns without measuring title width$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/task-list-renderer-column-forms.md",
+        "summary": "关系数量允许时，columns 至少为 80 使用 inline node，否则使用 block node；title 字符和 Unicode cell width 不参与选择。",
+        "title": "Columns 79 与 80 选择固定 block 和 inline form"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-LIST-LAYOUT-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-LIST-LAYOUT-001 Track、layer 与 parent path 使用实际 task ID 稳定排序 Parent 与 effective dependency 决定 track 连通分量，只有 dependency 决定 layer；节点按 layer、parent path 和实际 task ID 稳定排序。 分支、汇合、跨 parent dependency、多层 parent 和孤立任务形成确定的两个 track。 相反输入顺序产生逐字节相同输出，重复 dependency endpoint 被去重且每个 task 只出现一次。 tools/task-graph/tests/task-list-renderer.test.ts > task-list layout uses actual IDs with stable track layer and parent-path order bun test --test-name-pattern=\"^task-list layout uses actual IDs with stable track layer and parent-path order$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/task-list-renderer.test.ts > task-list layout uses actual IDs with stable track layer and parent-path order",
+          "bun test --test-name-pattern=\"^task-list layout uses actual IDs with stable track layer and parent-path order$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-LIST-LAYOUT-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-LIST-LAYOUT-001 Track、layer 与 parent path 使用实际 task ID 稳定排序 Parent 与 effective dependency 决定 track 连通分量，只有 dependency 决定 layer；节点按 layer、parent path 和实际 task ID 稳定排序。 分支、汇合、跨 parent dependency、多层 parent 和孤立任务形成确定的两个 track。 相反输入顺序产生逐字节相同输出，重复 dependency endpoint 被去重且每个 task 只出现一次。 tools/task-graph/tests/task-list-renderer.test.ts > task-list layout uses actual IDs with stable track layer and parent-path order bun test --test-name-pattern=\"^task-list layout uses actual IDs with stable track layer and parent-path order$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/task-list-renderer-layout-order.md",
+        "summary": "Parent 与 effective dependency 决定 track 连通分量，只有 dependency 决定 layer；节点按 layer、parent path 和实际 task ID 稳定排序。",
+        "title": "Track、layer 与 parent path 使用实际 task ID 稳定排序"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-LIST-LAYOUT-GUARDS-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-LIST-LAYOUT-GUARDS-001 Renderer 在无效 projection 关系到达 layout 时失败关闭 `TaskGraphService.listTasks()` 负责产生合法全量 projection；若缺失 endpoint、关系环或 self-exclusion 仍到达内部 layout，实际使用点必须失败关闭而不是生成部分文本。 同一矩阵覆盖缺失 parent、dependency、exclusion endpoint，以及 parent cycle、dependency cycle 和 self-exclusion。 每个场景都抛出能够定位相应 endpoint 或关系类别的错误。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer fails closed when invalid projection relations reach layout bun test --test-name-pattern=\"^task-list renderer fails closed when invalid projection relations reach layout$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer fails closed when invalid projection relations reach layout",
+          "bun test --test-name-pattern=\"^task-list renderer fails closed when invalid projection relations reach layout$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-LIST-LAYOUT-GUARDS-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-LIST-LAYOUT-GUARDS-001 Renderer 在无效 projection 关系到达 layout 时失败关闭 `TaskGraphService.listTasks()` 负责产生合法全量 projection；若缺失 endpoint、关系环或 self-exclusion 仍到达内部 layout，实际使用点必须失败关闭而不是生成部分文本。 同一矩阵覆盖缺失 parent、dependency、exclusion endpoint，以及 parent cycle、dependency cycle 和 self-exclusion。 每个场景都抛出能够定位相应 endpoint 或关系类别的错误。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer fails closed when invalid projection relations reach layout bun test --test-name-pattern=\"^task-list renderer fails closed when invalid projection relations reach layout$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/task-list-renderer-layout-guards.md",
+        "summary": "`TaskGraphService.listTasks()` 负责产生合法全量 projection；若缺失 endpoint、关系环或 self-exclusion 仍到达内部 layout，实际使用点必须失败关闭而不是生成部分文本。",
+        "title": "Renderer 在无效 projection 关系到达 layout 时失败关闭"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-LIST-MUTEX-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-LIST-MUTEX-001 不同来源路径的对称 exclusion 规范化为唯一 pair Effective exclusions 按无向 task pair 归一化；相同 endpoint 来自 direct、ancestor inheritance 与对称反向 projection 时仍只显示一次。 包含真实 ancestor、child 与 right endpoint 的完整 fixture 对同一 child-right pair 只输出一次。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer normalizes inherited symmetric exclusions into unique pairs bun test --test-name-pattern=\"^task-list renderer normalizes inherited symmetric exclusions into unique pairs$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer normalizes inherited symmetric exclusions into unique pairs",
+          "bun test --test-name-pattern=\"^task-list renderer normalizes inherited symmetric exclusions into unique pairs$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-LIST-MUTEX-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-LIST-MUTEX-001 不同来源路径的对称 exclusion 规范化为唯一 pair Effective exclusions 按无向 task pair 归一化；相同 endpoint 来自 direct、ancestor inheritance 与对称反向 projection 时仍只显示一次。 包含真实 ancestor、child 与 right endpoint 的完整 fixture 对同一 child-right pair 只输出一次。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer normalizes inherited symmetric exclusions into unique pairs bun test --test-name-pattern=\"^task-list renderer normalizes inherited symmetric exclusions into unique pairs$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/task-list-renderer-mutex-normalization.md",
+        "summary": "Effective exclusions 按无向 task pair 归一化；相同 endpoint 来自 direct、ancestor inheritance 与对称反向 projection 时仍只显示一次。",
+        "title": "不同来源路径的对称 exclusion 规范化为唯一 pair"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-LIST-MUTEX-ENDPOINTS-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-LIST-MUTEX-ENDPOINTS-001 Run mutex 使用实际 endpoint ID 与所在 track label Run mutex 的关系身份始终是实际 task ID；track label 只定位 endpoint 当前所在 track，同一 pair 可以跨 track 或位于同一 track。 跨 track pair 逐字节输出 T01/task-000001 与 T02/task-000002。 Same-track pair 的两个实际 task ID 都使用共享的 T01，且不生成虚假的 T02。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer keeps actual mutex endpoints across same and different tracks bun test --test-name-pattern=\"^task-list renderer keeps actual mutex endpoints across same and different tracks$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer keeps actual mutex endpoints across same and different tracks",
+          "bun test --test-name-pattern=\"^task-list renderer keeps actual mutex endpoints across same and different tracks$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-LIST-MUTEX-ENDPOINTS-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-LIST-MUTEX-ENDPOINTS-001 Run mutex 使用实际 endpoint ID 与所在 track label Run mutex 的关系身份始终是实际 task ID；track label 只定位 endpoint 当前所在 track，同一 pair 可以跨 track 或位于同一 track。 跨 track pair 逐字节输出 T01/task-000001 与 T02/task-000002。 Same-track pair 的两个实际 task ID 都使用共享的 T01，且不生成虚假的 T02。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer keeps actual mutex endpoints across same and different tracks bun test --test-name-pattern=\"^task-list renderer keeps actual mutex endpoints across same and different tracks$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/task-list-renderer-mutex-endpoints.md",
+        "summary": "Run mutex 的关系身份始终是实际 task ID；track label 只定位 endpoint 当前所在 track，同一 pair 可以跨 track 或位于同一 track。",
+        "title": "Run mutex 使用实际 endpoint ID 与所在 track label"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-LIST-MUTEX-FORM-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-LIST-MUTEX-FORM-001 Run mutex group 按 columns 与 endpoint 数量选择 form RUN MUTEX group 在 columns 至少 80 且 right endpoint 不超过三个时使用 inline form；columns 较窄或 endpoint 超过三个时使用 block form。 两个乱序 endpoint 在 columns 80 按 task ID 排序后同行显示，在 columns 79 改为逐 endpoint continuation。 四个乱序 endpoint 即使 columns 80 也按 T02 至 T05 的稳定顺序使用 block continuation。 tools/task-graph/tests/task-list-renderer.test.ts > task-list run-mutex group form uses columns and endpoint count thresholds bun test --test-name-pattern=\"^task-list run-mutex group form uses columns and endpoint count thresholds$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/task-list-renderer.test.ts > task-list run-mutex group form uses columns and endpoint count thresholds",
+          "bun test --test-name-pattern=\"^task-list run-mutex group form uses columns and endpoint count thresholds$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-LIST-MUTEX-FORM-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-LIST-MUTEX-FORM-001 Run mutex group 按 columns 与 endpoint 数量选择 form RUN MUTEX group 在 columns 至少 80 且 right endpoint 不超过三个时使用 inline form；columns 较窄或 endpoint 超过三个时使用 block form。 两个乱序 endpoint 在 columns 80 按 task ID 排序后同行显示，在 columns 79 改为逐 endpoint continuation。 四个乱序 endpoint 即使 columns 80 也按 T02 至 T05 的稳定顺序使用 block continuation。 tools/task-graph/tests/task-list-renderer.test.ts > task-list run-mutex group form uses columns and endpoint count thresholds bun test --test-name-pattern=\"^task-list run-mutex group form uses columns and endpoint count thresholds$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/task-list-renderer-mutex-group-form.md",
+        "summary": "RUN MUTEX group 在 columns 至少 80 且 right endpoint 不超过三个时使用 inline form；columns 较窄或 endpoint 超过三个时使用 block form。",
+        "title": "Run mutex group 按 columns 与 endpoint 数量选择 form"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-LIST-PROJECTION-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-LIST-PROJECTION-001 List projection 保留完整图语义与实际 task ID `listTasks()` 返回以实际 task ID 为键的全量 `TaskListItem` 字典；每项在完整图投影上增加 title、direct parent 与 execution phase，不丢失 control、blocker、关系来源、继承路径或反向关系。 返回 revision 与索引一致，字典键按实际 task ID 排列且每个键等于 item.taskId。 Fixture 同时包含带 reason 的继承 control、dependency、exclusion、children 与 dependents；每个 list item 逐字段等于同一索引的完整图投影加 title、parentId 与 phase。 tools/task-graph/tests/graph-projection.test.ts > service list projection preserves complete graph semantics and actual task IDs bun test --test-name-pattern=\"^service list projection preserves complete graph semantics and actual task IDs$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/graph-projection.test.ts > service list projection preserves complete graph semantics and actual task IDs",
+          "bun test --test-name-pattern=\"^service list projection preserves complete graph semantics and actual task IDs$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-LIST-PROJECTION-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-LIST-PROJECTION-001 List projection 保留完整图语义与实际 task ID `listTasks()` 返回以实际 task ID 为键的全量 `TaskListItem` 字典；每项在完整图投影上增加 title、direct parent 与 execution phase，不丢失 control、blocker、关系来源、继承路径或反向关系。 返回 revision 与索引一致，字典键按实际 task ID 排列且每个键等于 item.taskId。 Fixture 同时包含带 reason 的继承 control、dependency、exclusion、children 与 dependents；每个 list item 逐字段等于同一索引的完整图投影加 title、parentId 与 phase。 tools/task-graph/tests/graph-projection.test.ts > service list projection preserves complete graph semantics and actual task IDs bun test --test-name-pattern=\"^service list projection preserves complete graph semantics and actual task IDs$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/service-list-preserves-full-projection.md",
+        "summary": "`listTasks()` 返回以实际 task ID 为键的全量 `TaskListItem` 字典；每项在完整图投影上增加 title、direct parent 与 execution phase，不丢失 control、blocker、关系来源、继承路径或反向关系。",
+        "title": "List projection 保留完整图语义与实际 task ID"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-LIST-REASON-ESCAPE-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-LIST-REASON-ESCAPE-001 Control reason 使用 JSON string escaping Node 的 control reason 使用 JSON string serialization，不能让换行或引号破坏文本协议结构。 完整 inline node 逐字节包含转义后的换行、双引号与反斜杠，title 保持在 reason token 之后。 完整输出仍只有摘要、空行、track 与一个 node 四个物理行，reason 没有增加 continuation line。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer JSON-escapes control reasons bun test --test-name-pattern=\"^task-list renderer JSON-escapes control reasons$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer JSON-escapes control reasons",
+          "bun test --test-name-pattern=\"^task-list renderer JSON-escapes control reasons$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-LIST-REASON-ESCAPE-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-LIST-REASON-ESCAPE-001 Control reason 使用 JSON string escaping Node 的 control reason 使用 JSON string serialization，不能让换行或引号破坏文本协议结构。 完整 inline node 逐字节包含转义后的换行、双引号与反斜杠，title 保持在 reason token 之后。 完整输出仍只有摘要、空行、track 与一个 node 四个物理行，reason 没有增加 continuation line。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer JSON-escapes control reasons bun test --test-name-pattern=\"^task-list renderer JSON-escapes control reasons$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/task-list-renderer-reason-escaping.md",
+        "summary": "Node 的 control reason 使用 JSON string serialization，不能让换行或引号破坏文本协议结构。",
+        "title": "Control reason 使用 JSON string escaping"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-LIST-RENDER-FAILURE-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-LIST-RENDER-FAILURE-001 Task-list failure 使用排序后的文本协议 Task-list failure 显示稳定 code、revision、retryable、JSON escaped message 与按 key 排序的 details。 换行和引号按 JSON string escaping。 alpha detail 排在 zeta 前，数组和 null 保持 JSON 值格式，结果只以一个 LF 结束。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer serializes failures with sorted JSON details bun test --test-name-pattern=\"^task-list renderer serializes failures with sorted JSON details$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer serializes failures with sorted JSON details",
+          "bun test --test-name-pattern=\"^task-list renderer serializes failures with sorted JSON details$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-LIST-RENDER-FAILURE-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-LIST-RENDER-FAILURE-001 Task-list failure 使用排序后的文本协议 Task-list failure 显示稳定 code、revision、retryable、JSON escaped message 与按 key 排序的 details。 换行和引号按 JSON string escaping。 alpha detail 排在 zeta 前，数组和 null 保持 JSON 值格式，结果只以一个 LF 结束。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer serializes failures with sorted JSON details bun test --test-name-pattern=\"^task-list renderer serializes failures with sorted JSON details$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/task-list-renderer-failure-protocol.md",
+        "summary": "Task-list failure 显示稳定 code、revision、retryable、JSON escaped message 与按 key 排序的 details。",
+        "title": "Task-list failure 使用排序后的文本协议"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-LIST-RENDER-PROTOCOL-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-LIST-RENDER-PROTOCOL-001 空 task list 使用固定零值摘要 空的成功 list 结果只渲染固定六项零值摘要，并以一个 LF 结束。 输出逐字节等于零 tasks、tracks、actionable、running、recovery-needed 与 mutex-blocked 的单行摘要。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer emits the exact empty success protocol bun test --test-name-pattern=\"^task-list renderer emits the exact empty success protocol$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer emits the exact empty success protocol",
+          "bun test --test-name-pattern=\"^task-list renderer emits the exact empty success protocol$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-LIST-RENDER-PROTOCOL-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-LIST-RENDER-PROTOCOL-001 空 task list 使用固定零值摘要 空的成功 list 结果只渲染固定六项零值摘要，并以一个 LF 结束。 输出逐字节等于零 tasks、tracks、actionable、running、recovery-needed 与 mutex-blocked 的单行摘要。 tools/task-graph/tests/task-list-renderer.test.ts > task-list renderer emits the exact empty success protocol bun test --test-name-pattern=\"^task-list renderer emits the exact empty success protocol$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/task-list-renderer-empty-protocol.md",
+        "summary": "空的成功 list 结果只渲染固定六项零值摘要，并以一个 LF 结束。",
+        "title": "空 task list 使用固定零值摘要"
+      }
+    },
+    {
+      "id": "TASK-GRAPH-LIST-TRACKS-001",
+      "keys": {
+        "search": [
+          "TASK-GRAPH-LIST-TRACKS-001 Track label 至少两位且没有两位上限 Track 从 T01 起至少使用两位编号，数量超过 99 时自然增长；完整文本只以一个 LF 结束。 100 个孤立 task 产生 T01 到 T100，最后一个定位实际 task-000100，末尾没有额外空行。 tools/task-graph/tests/task-list-renderer.test.ts > task-list track labels keep at least two digits without a two-digit limit bun test --test-name-pattern=\"^task-list track labels keep at least two digits without a two-digit limit$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/task-graph/tests/task-list-renderer.test.ts > task-list track labels keep at least two digits without a two-digit limit",
+          "bun test --test-name-pattern=\"^task-list track labels keep at least two digits without a two-digit limit$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-LIST-TRACKS-001",
+        "line": 1,
+        "searchText": "TASK-GRAPH-LIST-TRACKS-001 Track label 至少两位且没有两位上限 Track 从 T01 起至少使用两位编号，数量超过 99 时自然增长；完整文本只以一个 LF 结束。 100 个孤立 task 产生 T01 到 T100，最后一个定位实际 task-000100，末尾没有额外空行。 tools/task-graph/tests/task-list-renderer.test.ts > task-list track labels keep at least two digits without a two-digit limit bun test --test-name-pattern=\"^task-list track labels keep at least two digits without a two-digit limit$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/task-list-renderer-track-label-width.md",
+        "summary": "Track 从 T01 起至少使用两位编号，数量超过 99 时自然增长；完整文本只以一个 LF 结束。",
+        "title": "Track label 至少两位且没有两位上限"
       }
     },
     {
@@ -5021,7 +5765,7 @@
       "id": "TASK-GRAPH-RUNTIME-READ-ONLY-001",
       "keys": {
         "search": [
-          "TASK-GRAPH-RUNTIME-READ-ONLY-001 领域只读命令不依赖 native runtime Index、task 与图投影的只读命令不得加载或安装 native runtime。 `index info`、task list/show 和 actionable 四个领域只读 command path 在有效索引和空 tool home 下全部成功，且没有创建 tool home。 tools/task-graph/tests/cli.test.ts > CLI domain read-only commands run without an installed runtime bun test --test-name-pattern=\"^CLI domain read-only commands run without an installed runtime$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-RUNTIME-READ-ONLY-001 领域只读命令不依赖 native runtime Index、task 与图投影的只读命令不得加载或安装 native runtime；本入口以 `task list --json` 验证 list 的机器读取路径。 `index info`、`task list --json`、task show 和 actionable 四个领域只读 command path 在有效索引和空 tool home 下全部成功，且没有创建 tool home。 tools/task-graph/tests/cli.test.ts > CLI domain read-only commands run without an installed runtime bun test --test-name-pattern=\"^CLI domain read-only commands run without an installed runtime$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -5035,9 +5779,9 @@
         ],
         "id": "TASK-GRAPH-RUNTIME-READ-ONLY-001",
         "line": 1,
-        "searchText": "TASK-GRAPH-RUNTIME-READ-ONLY-001 领域只读命令不依赖 native runtime Index、task 与图投影的只读命令不得加载或安装 native runtime。 `index info`、task list/show 和 actionable 四个领域只读 command path 在有效索引和空 tool home 下全部成功，且没有创建 tool home。 tools/task-graph/tests/cli.test.ts > CLI domain read-only commands run without an installed runtime bun test --test-name-pattern=\"^CLI domain read-only commands run without an installed runtime$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "TASK-GRAPH-RUNTIME-READ-ONLY-001 领域只读命令不依赖 native runtime Index、task 与图投影的只读命令不得加载或安装 native runtime；本入口以 `task list --json` 验证 list 的机器读取路径。 `index info`、`task list --json`、task show 和 actionable 四个领域只读 command path 在有效索引和空 tool home 下全部成功，且没有创建 tool home。 tools/task-graph/tests/cli.test.ts > CLI domain read-only commands run without an installed runtime bun test --test-name-pattern=\"^CLI domain read-only commands run without an installed runtime$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/cli-read-only-commands-need-no-runtime.md",
-        "summary": "Index、task 与图投影的只读命令不得加载或安装 native runtime。",
+        "summary": "Index、task 与图投影的只读命令不得加载或安装 native runtime；本入口以 `task list --json` 验证 list 的机器读取路径。",
         "title": "领域只读命令不依赖 native runtime"
       }
     },
@@ -6283,7 +7027,7 @@
         "id": "skill-validator"
       },
       {
-        "description": "任务图的根级索引结构、图投影、生命周期、事务存储、执行租约、JSON CLI、显式任务清理与分发边界。",
+        "description": "任务图的根级索引结构、图投影、生命周期、事务存储、执行租约、JSON serializer 与文本 renderer 输出协议、显式任务清理与分发边界。",
         "id": "task-graph"
       },
       {
@@ -6298,5 +7042,5 @@
   },
   "namespace": "test-evidence",
   "schemaVersion": 2,
-  "sourceRevision": "sha256:d1b743eb06c55c04ddb1ce23b3a9e81d4d8f32f789d5a9c7575bb01cd0627282"
+  "sourceRevision": "sha256:e3b154d9553f49f7bd8cadbe3e22c6418f79eb25869687d7954c968031b0fdc0"
 }

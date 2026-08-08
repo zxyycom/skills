@@ -10,7 +10,7 @@ import type { TaskGraphApplyRequest, TaskIndex } from "./types.mjs";
 export { TaskGraphError } from "./errors.mjs";
 export { applyTaskGraphOperations, cancelTask, claimTask, completeTask, failTask, releaseTask, removeTasks, renewTaskLease, retryTask, type IndexMutation } from "./engine.mjs";
 export { projectTaskGraph, validateTaskIndexGraph } from "./graph.mjs";
-export { TaskGraphService, type ServiceResult, type TaskGraphServiceOptions, type TaskSummary } from "./service.mjs";
+export { TaskGraphService, type ServiceResult, type TaskGraphServiceOptions } from "./service.mjs";
 export * from "./types.mjs";
 export declare function emptyTaskIndex(): TaskIndex;
 export declare function parseTaskGraphApplyRequest(input: unknown): TaskGraphApplyRequest;

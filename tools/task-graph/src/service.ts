@@ -23,13 +23,12 @@ import type {
   CompleteTaskOptions,
   RemoveTasksOptions,
   TaskControlInput,
-  TaskEffectiveState,
-  TaskExecutionPhase,
   TaskGraphApplyRequest,
   TaskGraphApplyResult,
   TaskGraphProjection,
   TaskIndex,
-  TaskIndexInfo
+  TaskIndexInfo,
+  TaskListItem
 } from "./types.ts";
 
 const compareText = (left: string, right: string): number =>
@@ -50,15 +49,6 @@ export type TaskGraphServiceInternalOptions = TaskGraphServiceOptions
 export type ServiceResult<TData> = {
   revision: number;
   data: TData;
-};
-
-export type TaskSummary = {
-  taskId: string;
-  title: string;
-  parentId: string | null;
-  phase: TaskExecutionPhase;
-  effectiveState: TaskEffectiveState;
-  nextAction: "claim" | "complete" | null;
 };
 
 export class TaskGraphService {
@@ -122,23 +112,27 @@ export class TaskGraphService {
     return { revision: transformed.index.revision, data: transformed.data };
   }
 
-  async listTasks(): Promise<ServiceResult<Record<string, TaskSummary>>> {
+  async listTasks(): Promise<ServiceResult<Record<string, TaskListItem>>> {
     const { index } = await this.store.read();
     const projection = projectTaskGraph(index, this.clock());
+    const taskEntries = Object.entries(index.tasks).sort(([left], [right]) =>
+      compareText(left, right)
+    );
     return {
       revision: index.revision,
-      data: Object.fromEntries(Object.keys(index.tasks).sort(compareText).map((taskId) => {
-        const task = index.tasks[taskId];
+      data: Object.fromEntries(taskEntries.map(([taskId, task]) => {
         const effective = projection.tasks[taskId];
-        if (task === undefined || effective === undefined) throw new Error("projection mismatch");
+        if (effective === undefined) {
+          throw new Error(
+            `Task graph projection omitted ${taskId}; inspect projectTaskGraph() task enumeration`
+          );
+        }
         return [taskId, {
-          taskId,
+          ...effective,
           title: task.content.title,
           parentId: task.state.relations.parentId,
-          phase: task.state.execution.phase,
-          effectiveState: effective.effectiveState,
-          nextAction: effective.nextAction
-        } satisfies TaskSummary];
+          phase: task.state.execution.phase
+        } satisfies TaskListItem];
       }))
     };
   }

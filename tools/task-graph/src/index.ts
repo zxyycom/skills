@@ -26,8 +26,7 @@ export { projectTaskGraph, validateTaskIndexGraph } from "./graph.ts";
 export {
   TaskGraphService,
   type ServiceResult,
-  type TaskGraphServiceOptions,
-  type TaskSummary
+  type TaskGraphServiceOptions
 } from "./service.ts";
 export * from "./types.ts";
 

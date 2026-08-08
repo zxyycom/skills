@@ -4,11 +4,13 @@
 
 ## Context
 
-### 当前 owner 事实
+### 设计基线（实施前）
 
-- [`TaskGraphService.listTasks`](../../tools/task-graph/src/service.ts) 当前返回按 task ID 排序的 `Record<string, TaskSummary>`。每项只有 `taskId`、`title`、`parentId`、`phase`、`effectiveState` 和 `nextAction`，不能恢复 effective control reason、dependency 或 exclusion。
+以下事实是本 change 立项时的输入，用于解释设计所解决的问题，不表示实施后的当前 owner 状态：
+
+- 本 change 立项时，[`TaskGraphService.listTasks`](../../tools/task-graph/src/service.ts) 返回按 task ID 排序的 `Record<string, TaskSummary>`。每项只有 `taskId`、`title`、`parentId`、`phase`、`effectiveState` 和 `nextAction`，不能恢复 effective control reason、dependency 或 exclusion。
 - [`TaskProjection`](../../tools/task-graph/src/types.ts) 已拥有 `effectiveControl`、完整 blockers、effective dependencies/exclusions、children、dependents 和 `nextAction`；这些字段由图投影统一推导。
-- [`runTaskGraphCli`](../../tools/task-graph/src/cli.ts) 当前让全部协议内结果经过 `JSON.stringify(result) + LF`；现有全局参数没有 `--json`。
+- 本 change 立项时，[`runTaskGraphCli`](../../tools/task-graph/src/cli.ts) 让全部协议内结果经过 `JSON.stringify(result) + LF`，全局参数没有 `--json`。
 - [`Task Graph`](../../skills/task-graph/SKILL.md) 规定 exclusion 对称且只禁止同时运行，不建立完成顺序。只有对端处于 `running` 或 `recovery-needed` 并形成 `exclusion-running` blocker 时，当前 task 的 claim 才实际受阻。
 - Parent 是结构与完成门禁；dependency 是有向无环执行约束。两者都连接推进上下文，只有 dependency 决定 layer。
 
@@ -51,7 +53,7 @@
 
 Service/dispatch 继续返回结构化 `TaskGraphResult`。CLI 在协议结果写入 stdout 前按以下优先级选择输出函数：
 
-1. 全局参数解析失败：构造 JSON failure envelope 并使用 JSON serializer。
+1. 全局参数解析失败，或 service construction / 全局路径校验在 task-list route 建立前失败：构造 JSON failure envelope 并使用 JSON serializer。
 2. 全局参数合法且包含 `--json`：全部 success/failure、help 和 version 使用 JSON serializer。
 3. 未指定 `--json`，且 router 已识别为实际执行 `task list`：success 和 command-local failure 使用 task-list renderer。
 4. 未指定 `--json` 的 help、version、其他 command 或尚未识别为 `task list` 的 command failure：使用 JSON serializer。

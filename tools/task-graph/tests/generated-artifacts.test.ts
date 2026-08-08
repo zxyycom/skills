@@ -190,6 +190,103 @@ const publicRuntimeExports = [
   "validateTaskIndexGraph"
 ] as const;
 
+type TaskGraphCliRunner = (
+  argv: readonly string[],
+  options: { io: { stdout: (text: string) => void } }
+) => Promise<number>;
+
+function requireGeneratedRunner(module: unknown): TaskGraphCliRunner {
+  if (
+    typeof module !== "object"
+    || module === null
+    || Array.isArray(module)
+    || !("runTaskGraphCli" in module)
+    || typeof module.runTaskGraphCli !== "function"
+  ) {
+    assert.fail("generated module must export a runTaskGraphCli function");
+  }
+  const { runTaskGraphCli } = module;
+  return async (argv, options) => {
+    const result: unknown = await runTaskGraphCli(argv, options);
+    if (typeof result !== "number" || !Number.isInteger(result)) {
+      assert.fail("generated runTaskGraphCli must resolve to an integer exit code");
+    }
+    return result;
+  };
+}
+
+async function invokeTaskGraphCli(
+  root: string,
+  runner: TaskGraphCliRunner,
+  args: string[]
+): Promise<{ exitCode: number; output: string }> {
+  const output: string[] = [];
+  const exitCode = await runner(["--root", root, ...args], {
+    io: { stdout: (text) => output.push(text) }
+  });
+  const onlyOutput = output.length === 1 ? output[0] : undefined;
+  if (onlyOutput === undefined) {
+    assert.fail(`task-graph CLI must write exactly once, received ${output.length} writes`);
+  }
+  return { exitCode, output: onlyOutput };
+}
+
+async function writeDistributedListFixture(root: string): Promise<void> {
+  const indexPath = path.join(root, sourceApi.defaultTaskGraphIndexPath);
+  await fs.mkdir(path.dirname(indexPath), { recursive: true });
+  await fs.writeFile(indexPath, sourceApi.serializeTaskIndex(graphIndex([
+    taskOperation("distributed-list", {
+      control: { mode: "queued" },
+      title: "Distributed list task"
+    })
+  ])), "utf8");
+}
+
+test("generated CLI task list text and JSON modes match source", async () => {
+  const generatedApi: unknown = await import(pathToFileURL(generatedScriptPath).href);
+  const generatedRunner = requireGeneratedRunner(generatedApi);
+  await withTempWorkspace(async (root) => {
+    await writeDistributedListFixture(root);
+    const sourceText = await invokeTaskGraphCli(
+      root,
+      sourceApi.runTaskGraphCli,
+      ["task", "list"]
+    );
+    const generatedText = await invokeTaskGraphCli(
+      root,
+      generatedRunner,
+      ["task", "list"]
+    );
+    assert.deepEqual(generatedText, sourceText);
+    assert.equal(sourceText.exitCode, 0);
+    assert.match(sourceText.output, /^TASK LIST tasks=1 tracks=1 /u);
+    assert.match(sourceText.output, /\[task-000001\].*Distributed list task\n$/u);
+
+    const sourceJson = await invokeTaskGraphCli(
+      root,
+      sourceApi.runTaskGraphCli,
+      ["--json", "task", "list"]
+    );
+    const generatedJson = await invokeTaskGraphCli(
+      root,
+      generatedRunner,
+      ["--json", "task", "list"]
+    );
+    assert.deepEqual(generatedJson, sourceJson);
+    assert.equal(sourceJson.exitCode, 0);
+    const result: unknown = JSON.parse(sourceJson.output);
+    if (
+      typeof result !== "object"
+      || result === null
+      || Array.isArray(result)
+      || !("ok" in result)
+    ) {
+      assert.fail("task-list JSON result must contain an ok field");
+    }
+    assert.equal(result.ok, true);
+  });
+});
+
 test("generated distribution matches source API, schema bytes, and portable metadata", async () => {
   const generatedApi = await import(pathToFileURL(generatedScriptPath).href);
   assert.deepEqual(Object.keys(sourceApi).sort(), [...publicRuntimeExports]);
@@ -234,6 +331,8 @@ test("generated distribution matches source API, schema bytes, and portable meta
     await fs.readFile(path.join(generatedDeclarationDirectory, filename), "utf8")
   )));
   const declarationTree = [declaration, ...declarations].join("\n");
+  assert.match(declarationTree, /export type TaskListItem\b/u);
+  assert.doesNotMatch(declarationTree, /\bTaskSummary\b/u);
   for (const generatedDeclaration of [declaration, ...declarations]) {
     assert.match(generatedDeclaration, /Generated task graph SDK TypeScript declaration/u);
     assert.doesNotMatch(generatedDeclaration, /["']\.\.?\/[^"']+\.ts["']/u);
@@ -299,16 +398,20 @@ test("generated distribution matches source API, schema bytes, and portable meta
     const consumerPath = path.join(root, "consumer.mts");
     await fs.writeFile(consumerPath, [
       "import { TaskGraphService, runTaskGraphCli } from \"./task-graph.mjs\";",
-      "import type { TaskContentInput, TaskGraphCliOptions } from \"./task-graph.mjs\";",
+      "import type { TaskContentInput, TaskGraphCliOptions, TaskListItem } from \"./task-graph.mjs\";",
+      "// @ts-expect-error removed summary alias is not part of the SDK entry",
+      "import type { TaskSummary } from \"./task-graph.mjs\";",
       "// @ts-expect-error internal store is not part of the SDK entry",
       "import type { TaskGraphStore } from \"./task-graph.mjs\";",
       "// @ts-expect-error redundant service factory is not part of the SDK entry",
       "import { createTaskGraphService } from \"./task-graph.mjs\";",
       "const content: TaskContentInput = { title: \"candidate\", goal: \"do work\" };",
       "const options: TaskGraphCliOptions = {};",
+      "const listItem: TaskListItem | null = null;",
       "new TaskGraphService();",
       "void runTaskGraphCli([], options);",
       "void content;",
+      "void listItem;",
       ""
     ].join("\n"), "utf8");
     const compilerRoot = await resolveInstalledPackageRoot(
@@ -328,17 +431,45 @@ test("generated distribution matches source API, schema bytes, and portable meta
     ], { cwd: root, windowsHide: true });
   });
 
-  const sourceMap = JSON.parse(
+  const externalSourceMap: unknown = JSON.parse(
     await fs.readFile(`${generatedScriptPath}.map`, "utf8")
-  ) as {
-    debugId?: unknown;
-    sourceRoot: string;
-    sources: string[];
-    sourcesContent: Array<string | null>;
+  );
+  if (
+    typeof externalSourceMap !== "object"
+    || externalSourceMap === null
+    || Array.isArray(externalSourceMap)
+    || !("sourceRoot" in externalSourceMap)
+    || typeof externalSourceMap.sourceRoot !== "string"
+    || !("sources" in externalSourceMap)
+    || !Array.isArray(externalSourceMap.sources)
+    || !("sourcesContent" in externalSourceMap)
+    || !Array.isArray(externalSourceMap.sourcesContent)
+  ) {
+    assert.fail("generated source map must contain sourceRoot, sources, and sourcesContent");
+  }
+  const sources: string[] = [];
+  for (const source of externalSourceMap.sources) {
+    if (typeof source !== "string") {
+      assert.fail("generated source map sources must contain only strings");
+    }
+    sources.push(source);
+  }
+  const sourcesContent: Array<string | null> = [];
+  for (const sourceContent of externalSourceMap.sourcesContent) {
+    if (sourceContent !== null && typeof sourceContent !== "string") {
+      assert.fail("generated source map sourcesContent must contain strings or null");
+    }
+    sourcesContent.push(sourceContent);
+  }
+  const sourceMap = {
+    sourceRoot: externalSourceMap.sourceRoot,
+    sources,
+    sourcesContent
   };
-  assert.equal(Object.hasOwn(sourceMap, "debugId"), false);
+  assert.equal(Object.hasOwn(externalSourceMap, "debugId"), false);
   assert.equal(sourceMap.sourceRoot, "../../../");
   assert.ok(sourceMap.sources.includes("tools/task-graph/src/cli.ts"));
+  assert.ok(sourceMap.sources.includes("tools/task-graph/src/task-list-renderer.ts"));
   assert.ok(sourceMap.sources.some((source) => source.includes("write-file-atomic")));
   assert.ok(sourceMap.sources.every((source) => !source.includes("fs-native-extensions")));
   assert.ok(sourceMap.sources.every((source) =>

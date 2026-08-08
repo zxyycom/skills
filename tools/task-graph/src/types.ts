@@ -1,5 +1,5 @@
 export const taskGraphSchemaVersion = 2 as const;
-export const taskGraphVersion = "2.0.0" as const;
+export const taskGraphVersion = "3.0.0" as const;
 export const defaultTaskGraphIndexPath =
   "docs/task-graph/task-graph-index.json" as const;
 export const taskGraphRuntimeProtocolVersion = 1 as const;
@@ -195,6 +195,12 @@ export type TaskProjection = {
   children: string[];
   dependents: string[];
   nextAction: "claim" | "complete" | null;
+};
+
+export type TaskListItem = TaskProjection & {
+  title: string;
+  parentId: string | null;
+  phase: TaskExecutionPhase;
 };
 
 export type TaskGraphProjection = {

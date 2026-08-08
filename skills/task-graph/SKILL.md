@@ -6,7 +6,7 @@ description: >-
   选择、领取并收敛任务；少量固定顺序步骤继续使用当前对话计划。
 compatibility: "Requires Node.js ^22.22.2 || ^24.15.0 || >=26.0.0; mutations require a caller-provisioned compatible native runtime."
 metadata:
-  version: "5"
+  version: "6"
 ---
 
 # Task Graph
@@ -34,8 +34,8 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 ## 内容 owner 与工具
 
 1. 本文件承接触发、任务记录判断、调度流程、权限边界、恢复和交接。
-2. `scripts/task-graph.mjs` 同时是 JSON-only CLI 和程序化导入模块。CLI dispatch 直接调用该模块公开的底层能力；程序化调用导入同一份公开导出，以避开进程启动、参数转义和 JSON 往返，不另设 SDK 实现或稳定性层。
-3. `scripts/task-graph.d.mts` 及其包内声明树从同一 TypeScript 实现机械生成。[task index Schema](references/task-graph-index.schema.json) 描述权威索引结构。精确命令、参数、结果和错误以 JSON help、公开声明及 Schema 为准；调用前使用 `help` 或 `help <command-path>` 恢复当前契约。
+2. `scripts/task-graph.mjs` 同时是 CLI 和程序化导入模块。Service 与 dispatch 先产生结构化 raw result object；CLI 再按已识别的操作选择 JSON serializer 或 task-list renderer。程序化调用直接导入同一份公开导出，不经过文本 renderer、JSON 往返或另一套 SDK 实现。
+3. `scripts/task-graph.d.mts` 及其包内声明树从同一 TypeScript 实现机械生成。[task index Schema](references/task-graph-index.schema.json) 描述权威索引结构。精确命令、参数、raw result 和错误结构以 JSON help、公开声明及 Schema 为准；调用前使用 `help` 或 `help <command-path>` 恢复当前契约。
 4. 目标仓库的 `docs/task-graph/task-graph-index.json` 是该工作区任务图的唯一权威索引，只能通过工具事务化修改。系统临时目录中的空锁文件与原子写临时文件都不是事实源。
 
 ## 对象模型
@@ -44,6 +44,16 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 2. Task ID 是字典键和稳定引用身份；创建后必须使用工具返回的实际 ID。Task title 是独立显示文本，可以重名。
 3. Task entry 把 `content` 与 `state` 分开：`content` 保存标题、目标、可选 `acceptance` 完成提示、紧凑上下文、引用和结果；`state.control` 保存候选、排队、等待或暂停意图；`state.execution` 保存尝试、租约和终结状态；`state.relations` 保存父任务、依赖和排斥。`acceptance` 没有状态语义。
 4. 可行动性、有效控制、阻塞原因、继承关系和待恢复状态由查询投影计算，不作为第二份状态写回 task entry。
+
+## Task list 输出与程序化边界
+
+1. 实际执行的 `task list` 默认输出全量静态文本视图；索引中的每个 task 使用实际 `taskId` 恰好出现一次。需要 raw result 的完整 JSON 序列化时，使用一个独立、无值且最多出现一次的全局 `--json`，它可以放在 command 前后。合法 `--json` 对任意协议内 success 或 failure 固定执行 `JSON.stringify(result) + "\n"`；help、version、其他 command、全局参数 failure，以及 task-list route 建立前的 service construction / 全局路径校验 failure 默认也保持 JSON。`task list --help` 属于 help，已识别 list 后的局部参数错误才使用默认 task-list failure 文本。输出路由依据已经识别的操作，不从 argv 前缀或 data shape 猜测。
+2. `TaskGraphService.listTasks()` 返回结果的 `data` 是 `Record<string, TaskListItem>`；字典 key 等于 item 的 `taskId`。`TaskListItem` 直接复用 `TaskProjection` 的 effective control、完整 blockers、effective dependency/exclusion source、children、dependents 和 next action，只增加 title、direct parent 与 execution phase。公开面不保留 `TaskSummary` alias。
+3. Renderer 以全部 list item 为 vertex，在 parent-child 之间和每条 effective dependency 的两端增加无向 track edge；每个弱连通分量是一个 track，孤立 task 自成 track，exclusion 不连接 track。Track 按成员中的最小实际 task ID 排序并从 `T01` 编号。没有 effective dependency 的 task 位于 `L0`，其余 task 的 layer 是全部 dependency layer 的最大值加一；parent 不改变 layer。Track 内依次按 layer、从顶层祖先到 direct parent 的实际 ID path、当前实际 task ID 排序。
+4. 默认 node 始终显示 layer、实际 task ID、effective state 和 title，并按条件显示 direct parent、去重后的 dependency endpoint、blocker、active mutex、非空 control reason 与 next action。`blocked-by` 只保留 `dependency-failed`、`dependency-cancelled`、`ancestor-terminal`、`all-children-cancelled` 和 `descendant-lease`；`dependency-incomplete`、`child-incomplete` 与 control blocker 由同一全量视图中的关系、state 和 reason 表达，`exclusion-running` 转为 `mutex`。Children、dependents、完整 blockers、relation source 和 inheritance path 不在 node 重复展开，但始终保留在程序化 `listTasks()` 与 `task list --json` 中。
+5. Success 摘要分别计数 tasks、tracks、actionable、running、recovery-needed 和 mutex-blocked。全部 effective exclusion pair 规范化为按实际 task ID 排序的无向 pair，对称去重后按较小 endpoint 分组并放在独立 `RUN MUTEX` section；只有已经形成 `exclusion-running` blocker 的对端才同时出现在受阻 node 的 `mutex` token 中。Exclusion 只禁止同时运行，不建立 dependency；track 数也不表示可并行数。
+6. 文本 renderer 使用固定 inline/block form；有效 columns 低于 `80`，或去重后的 `needs`、`blocked-by`、`mutex` 任一超过三个 item 时，node 使用 block form；run mutex group 在 columns 低于 `80` 或右 endpoints 超过三个时使用 block form。缺少有效 columns 时回退到 `80`。Title、reason、task ID 的长度和 Unicode 显示宽度不触发自动换行、截断、隐藏或任务重排。摘要、各 track 与 `RUN MUTEX` 是独立 section，相邻 section 之间一个空行，结果只以一个 LF 结束。Renderer 只消费 raw result 并派生显示结构，不读取索引、不解析 JSON 文本，也不重新推导领域状态。
+7. 当前 CLI 协议版本是 `3.0.0`。默认 `task list` 文本输出和公开 `TaskListItem` 类型都是 major-version 边界；需要原始序列化的 CLI 调用方必须显式使用 `--json`。Task-list renderer、render context、track、layer 与 folded token 保持内部显示边界，不扩展为公开领域 API。
 
 ## 工作流程
 
@@ -61,7 +71,7 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 
 1. 让 shell 当前目录位于目标仓库根目录，并从本 skill 的实际安装路径调用 `scripts/task-graph.mjs`。相对 `--root` 和默认索引路径按目标工作区解析。
 2. 先调用 `index info`，读取 revision、`valid`、`canonical` 和 diagnostics。只有 `valid: true` 且 `canonical: true` 才继续。收到 `INDEX_NOT_FOUND` 时，在 runtime 前置满足后调用 `index init`，再重新查询。其他读取、Schema 或规范化失败必须停止，不能手写、覆盖或隐式迁移索引。
-3. 使用 `task list` 恢复任务清单，使用 `actionable` 恢复当前合法下一动作；按需用 `task show <task-id>` 读取完整任务和投影。索引文件本身已经界定工作区，不再要求额外容器或标签才能定位任务。
+3. 使用默认 `task list` 恢复全量分层任务视图；需要 revision、完整关系来源、完整 blocker 或自动处理时使用 `task list --json` 或程序化 `listTasks()`。使用 `actionable` 恢复当前合法下一动作；按需用 `task show <task-id>` 读取完整任务和投影。索引文件本身已经界定工作区，不再要求额外容器或标签才能定位任务。
 
 ### 2. 记录任务与关系
 
@@ -107,7 +117,7 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 
 ## 错误恢复
 
-1. 正常结果和可预期失败都从 stdout 返回一个 LF 结尾 JSON envelope；读取 `ok`、`error.code`、`retryable`、revision 和结构化 details，不从 message 文本推断协议。
+1. 正常结果和可预期失败都从 stdout 返回一个 LF 结尾的协议结果。默认实际 `task list` 使用固定 task-list success/failure 文本；其他 command、help、version 和全局参数 failure 默认使用 JSON envelope。需要机械读取 list 的 `ok`、`error.code`、`retryable`、revision 和结构化 details 时显式使用合法 `--json`，不要从 message 文本推断协议。
 2. Revision 冲突或领取竞争后重新查询；只有错误明确可重试且当前事实仍支持原意时才重试。
 3. 收到 `WRITE_OUTCOME_UNKNOWN` 时，mutation 可能已经越过原子提交点。先调用 `index info` 并读取目标任务，确认 revision 与结果后再决定下一步，绝不盲目重放。
 4. Node/runtime 不支持、native 锁获取、索引读取、Schema 或完整图校验失败时停止写入，保留诊断并交给对应维护者处理；不得绕过工具直接修 JSON。
@@ -119,3 +129,4 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 3. Revision 或未知写入结果没有被盲目重试，活动与待恢复执行没有被静默覆盖。
 4. 权限判断、代理编排、持久 change 和长期知识仍由各自 owner 承接，没有被 task graph 状态替代。
 5. Mutation runtime 已通过当前平台探针；不再需要的终态任务只有在结果交付、关系闭合并获得显式清理确认后才删除，其余任务可以继续保留。
+6. 默认 `task list` 的 track、dependency layer、folding 与独立 run mutex 没有改变持久拓扑或调度语义；需要完整机器语义的调用方使用同一 raw projection 或显式 `--json`，不从显示布局反推领域状态。
