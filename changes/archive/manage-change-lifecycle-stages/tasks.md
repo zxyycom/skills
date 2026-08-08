@@ -33,4 +33,4 @@
 - [x] 2.5 审阅全部 active Change 的迁移结果，确认 stage、`baseCommit` 和现实工作状态一致，catalog 中没有缺失 metadata 的 active 条目。
 - [x] 2.6 运行 change-plan 原生测试、生成制品检查、skill 验证、测试证据检查、决策严格检查和 `bun run check --full`。
 - [x] 2.7 对照成功标准完成语义审阅；实现、文档、迁移和验证全部成为当前事实后，将既有阶段决策 `mark-aligned`，并将 Git 距离机械搁置候选以 aligned 激活。
-- [ ] 2.8 完成归档前审阅并取得明确归档授权后，勾选本项并运行 change-plan archive。
+- [x] 2.8 完成归档前审阅并取得明确归档授权后，勾选本项并运行 change-plan archive。

@@ -19,7 +19,7 @@
 - [version-control](../../tools/shared/version-control.md)拥有 revision 与 `pending` 文件读取、跨进程写入边界、冲突检查和失败恢复。
 - 接入方拥有领域文件。索引运行时不能从条目 id 推断这些文件，也不负责把它们加入 `pending`。
 
-本 change 以 [`use-id-keyed-state-index`](../use-id-keyed-state-index/) 为前置：schema v3 的 `entries` 和 `sourceRevision.entries` 使用相同的稳定 id 键，`sourceRevision.metadata` 单独表达集合级来源。选择结果可以直接组合选中条目的 state 与来源指纹，不需要重新解析领域源，也不改变普通查询的快速新鲜度路径。
+本 change 以 [`use-id-keyed-state-index`](../archive/use-id-keyed-state-index/) 为前置：schema v3 的 `entries` 和 `sourceRevision.entries` 使用相同的稳定 id 键，`sourceRevision.metadata` 单独表达集合级来源。选择结果可以直接组合选中条目的 state 与来源指纹，不需要重新解析领域源，也不改变普通查询的快速新鲜度路径。
 
 ## Goals / Non-Goals
 

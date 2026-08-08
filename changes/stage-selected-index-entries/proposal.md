@@ -6,7 +6,7 @@
 
 一个 state index 会把一个领域的全部条目聚合到同一个 JSON 文件。多个任务即使分别修改不同条目，也会同时修改这个文件；普通文件级暂存只能暂存整个文件，因而会把其他任务尚未完成的索引变化一起带入。
 
-[`use-id-keyed-state-index`](../use-id-keyed-state-index/) 让 `index-runtime` 直接按稳定 id 管理索引条目和逐条来源指纹。它也能读取当前 revision 中的索引和工作区中的索引，因此调用方不需要重新描述基线、增删改类型、来源 revision 或完整目标内容，只需要说明本次选择哪些 id。
+[`use-id-keyed-state-index`](../archive/use-id-keyed-state-index/) 让 `index-runtime` 直接按稳定 id 管理索引条目和逐条来源指纹。它也能读取当前 revision 中的索引和工作区中的索引，因此调用方不需要重新描述基线、增删改类型、来源 revision 或完整目标内容，只需要说明本次选择哪些 id。
 
 这项能力只解决索引文件自身的独立暂存。条目对应的 Markdown、目录表、topic 表、代码或其他领域文件仍由接入方决定是否以及怎样暂存。
 
@@ -53,7 +53,7 @@
 
 - [`tools/index-runtime/README.md`](../../tools/index-runtime/README.md)、`tools/index-runtime/src/` 与 `tests/`：条目选择、完整索引重建、来源 revision 组合、公共 API、runtime 方法和行为证据。
 - [`tools/shared/version-control.md`](../../tools/shared/version-control.md)、`tools/shared/src/version-control/` 与测试：受锁核对目标索引的既有 `pending` 状态并完成替换。
-- [`use-id-keyed-state-index`](../use-id-keyed-state-index/) 与 [`docs/decisions/index-runtime/use-id-keyed-state-index.md`](../../docs/decisions/index-runtime/use-id-keyed-state-index.md)：提供已经对齐后才能实施的 id 键控和来源 revision 前置契约。
+- [`use-id-keyed-state-index`](../archive/use-id-keyed-state-index/) 与 [`docs/decisions/index-runtime/use-id-keyed-state-index.md`](../../docs/decisions/index-runtime/use-id-keyed-state-index.md)：提供已经对齐后才能实施的 id 键控和来源 revision 前置契约。
 - [`docs/decisions/index-runtime/stage-selected-index-entries-by-id.md`](../../docs/decisions/index-runtime/stage-selected-index-entries-by-id.md) 与统一决策索引：记录并跟踪本能力的长期方向和执行状态。
 - [`stage-selected-investigations`](../stage-selected-investigations/) 与 [`stage-selected-test-evidence`](../stage-selected-test-evidence/)：后续领域接入只向索引运行时传递选中 id，领域文件仍由各自 change 负责。
 - `docs/test-evidence/`：新增或修改最小测试入口的权威 case 与派生索引。
