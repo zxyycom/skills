@@ -154,51 +154,32 @@ async function runStage(args: CliArgsFor<"stage">): Promise<number> {
 }
 
 async function runActivate(args: CliArgsFor<"activate">): Promise<number> {
-  return await runActivation(args);
-}
-
-async function runEvolve(args: CliArgsFor<"evolve">): Promise<number> {
-  return await runActivation(args);
-}
-
-async function runSplit(args: CliArgsFor<"split">): Promise<number> {
   const scan = await loadLifecycleScan(args, {
     allowEmptyDecisionSet: true
   });
   return scan === null
     ? 1
     : await applyLifecycle(args, scan, {
-        action: "split",
+        action: "activate",
+        alignment: args.alignment,
         keepUnrecordedHistory: args.keepUnrecordedHistory,
-        predecessorPath: args.predecessorPath,
-        successors: args.successors
+        recordPath: args.recordPath,
+        relationOverride: args.relationOverride
       });
 }
 
-async function runActivation(
-  args: CliArgsFor<"activate" | "evolve">
-): Promise<number> {
+async function runEvolve(args: CliArgsFor<"evolve">): Promise<number> {
   const scan = await loadLifecycleScan(args, {
     allowEmptyDecisionSet: true
   });
-  if (scan === null) {
-    return 1;
-  }
-  const commonRequest = {
-    alignment: args.alignment,
-    keepUnrecordedHistory: args.keepUnrecordedHistory,
-    recordPath: args.recordPath,
-    relations: args.relations
-  };
-  return args.command === "evolve"
-    ? await applyLifecycle(args, scan, {
-        ...commonRequest,
-        action: args.command,
-        collapseUnrecordedPath: args.collapseUnrecordedPath
-      })
+  return scan === null
+    ? 1
     : await applyLifecycle(args, scan, {
-        ...commonRequest,
-        action: args.command
+        action: "evolve",
+        collapseUnrecordedPath: args.collapseUnrecordedPath,
+        keepUnrecordedHistory: args.keepUnrecordedHistory,
+        relationOverride: args.relationOverride,
+        successors: args.successors
       });
 }
 
@@ -262,7 +243,7 @@ async function applyLifecycle(
   request: DecisionLifecycleRequest
 ): Promise<number> {
   let historyBaseline: DecisionHistoryBaseline | null = null;
-  if (decisionHistoryBaselineRequirement(request) !== "none") {
+  if (decisionHistoryBaselineRequirement(scan, request) !== "none") {
     const loadedBaseline = await loadDecisionHistoryBaseline(scan);
     if (loadedBaseline.status === "error") {
       printDecisionFailure(loadedBaseline);
@@ -336,8 +317,6 @@ async function runCommand(args: CliArgs): Promise<number> {
       return await runShow(args);
     case "show-candidate":
       return await runShowCandidate(args);
-    case "split":
-      return await runSplit(args);
     case "stage":
       return await runStage(args);
     case "sync-index":
@@ -391,9 +370,11 @@ export type {
   DecisionProjection,
   DecisionRecord,
   DecisionRelation,
+  DecisionRelationOverride,
   DecisionRelationType,
   DecisionScan,
   DecisionScanOptions,
+  DecisionSuccessor,
   DecisionStatus,
   EstablishedDecisionStatus,
   DecisionValidationResult

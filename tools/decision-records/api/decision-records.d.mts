@@ -20,6 +20,18 @@ export type DecisionRelation = {
   target: string;
 };
 
+export type DecisionSuccessor = {
+  alignment: DecisionAlignment;
+  recordPath: string;
+};
+
+export type DecisionRelationOverride =
+  | { kind: "source" }
+  | {
+      kind: "replace";
+      relations: DecisionRelation[];
+    };
+
 export type DecisionDomainDefinition = {
   id: string;
   description: string;

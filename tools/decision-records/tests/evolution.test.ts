@@ -3,9 +3,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { applyDecisionChanges } from "../src/decision-transaction.ts";
 import { validateDecisionRecords } from "../src/index.ts";
-import { scanDecisionRecords } from "../src/scan.ts";
 import {
   archivedRelativePath,
   candidateDecisionBody,
@@ -16,464 +14,766 @@ import {
   generatedCliPath,
   initializeGitRepository,
   readIndex,
-  runBundledCli,
   runSourceCli,
-  runSuccessfulCli,
   runSuccessfulSourceCli,
   traceDecision,
   withFixtureWorkspace
 } from "./support.ts";
 
-test("decision evolution validates relation semantics and target states", () => (
-  withFixtureWorkspace("relation-evolution", async (workspaceRoot) => {
+test("candidate relations are checked prospectively without entering the established graph", () => (
+  withFixtureWorkspace("candidate-relation-preview", async (workspaceRoot) => {
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
-  const originalIndexText = await fs.readFile(indexPath, "utf8");
-  const archivedDecisionPath = decisionFilePath(
-    workspaceRoot,
-    archivedRelativePath
-  );
-  const archivedDecision = await fs.readFile(archivedDecisionPath, "utf8");
-
+  const targetCandidateRelativePath =
+    "decision-records/use-candidate-relation-target.md";
   await fs.writeFile(
-    archivedDecisionPath,
-    archivedDecision
-      .replace("status: archived", "status: active")
-      .replace("alignment: null", "alignment: aligned"),
-    "utf8"
-  );
-  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
-    (error) => error.includes("relationship 修订 target must be archived")
-  ));
-  await fs.writeFile(archivedDecisionPath, archivedDecision, "utf8");
-
-  await fs.writeFile(
-    archivedDecisionPath,
-    archivedDecision.replace(
-      "relations: []\n",
-      "relations:\n"
-        + "  - type: 修订\n"
-        + "    target: project-tooling/use-generated-cli.md\n"
-    ),
-    "utf8"
-  );
-  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
-    (error) => error.includes("Decision relations must not form a cycle")
-  ));
-  await fs.writeFile(archivedDecisionPath, archivedDecision, "utf8");
-
-  const activateRelationTarget = await runBundledCli([
-    "activate",
-    archivedRelativePath,
-    "--alignment",
-    "aligned",
-    "--root",
-    workspaceRoot
-  ]);
-  assert.equal(activateRelationTarget.exitCode, 1);
-  assert.match(
-    activateRelationTarget.stderr,
-    /relationship 修订 target must be archived/
-  );
-  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
-  assert.equal(
-    await fs.readFile(archivedDecisionPath, "utf8"),
-    archivedDecision
-  );
-
-  const candidateTargetRelativePath =
-    "decision-records/use-candidate-target.md";
-  const candidateTargetPath = decisionFilePath(
-    workspaceRoot,
-    candidateTargetRelativePath
-  );
-  const candidateSourceRelativePath =
-    "decision-records/use-candidate-source.md";
-  const candidateSourcePath = decisionFilePath(
-    workspaceRoot,
-    candidateSourceRelativePath
-  );
-  await fs.writeFile(
-    candidateTargetPath,
+    decisionFilePath(workspaceRoot, targetCandidateRelativePath),
     candidateDecisionBody(),
     "utf8"
   );
+  const candidateRelativePath =
+    "decision-records/use-forward-looking-relation.md";
   await fs.writeFile(
-    candidateSourcePath,
-    candidateDecisionBody({
-      relationTarget: candidateTargetRelativePath
-    }),
+    decisionFilePath(workspaceRoot, candidateRelativePath),
+    candidateDecisionBody({ relationTarget: targetCandidateRelativePath }),
     "utf8"
   );
-  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
-    (error) => error.includes(
-      "relationship 修订 target must be archived: "
-        + candidateTargetRelativePath
-    )
-  ));
-  await fs.rm(candidateSourcePath);
-  await fs.rm(candidateTargetPath);
 
-  const invalidRelationRelativePath =
-    "decision-records/use-invalid-relations.md";
-  const invalidRelationPath = decisionFilePath(
-    workspaceRoot,
-    invalidRelationRelativePath
-  );
+  const validation = await validateDecisionRecords({ workspaceRoot });
+  assert.deepEqual(validation.errors, []);
+  assert.equal(validation.activationCandidateCount, 2);
+  const index = await readIndex(indexPath);
+  assert.equal(Object.hasOwn(index.entries, candidateRelativePath), false);
+  assert.equal(Object.hasOwn(index.entries, targetCandidateRelativePath), false);
+  assert.equal(findIndexEntry(index, currentRelativePath).status, "active");
+
+  const invalidRelativePath = "decision-records/use-invalid-relation.md";
+  const invalidPath = decisionFilePath(workspaceRoot, invalidRelativePath);
   await fs.writeFile(
-    invalidRelationPath,
+    invalidPath,
     candidateDecisionBody({
       relationTarget: "decision-records/missing-target.md"
     }),
     "utf8"
   );
   assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
-    (error) => error.includes(
-      "target does not exist: decision-records/missing-target.md"
-    )
+    (error) => error.includes("target does not exist")
   ));
 
   await fs.writeFile(
-    invalidRelationPath,
-    candidateDecisionBody({
-      relationTarget: invalidRelationRelativePath
-    }),
+    invalidPath,
+    candidateDecisionBody({ relationTarget: invalidRelativePath }),
     "utf8"
   );
   assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
     (error) => error.includes("must not relate to itself")
   ));
 
-  const duplicateRelationBody = candidateDecisionBody({
-    relationTarget: archivedRelativePath
-  }).replace(
-    "    target: " + archivedRelativePath,
-    "    target: " + archivedRelativePath + "\n"
-      + "  - type: 替代\n"
-      + "    target: " + archivedRelativePath
+  await fs.writeFile(
+    invalidPath,
+    candidateDecisionBody({
+      relations: [
+        { type: "修订", target: currentRelativePath },
+        { type: "替代", target: currentRelativePath }
+      ]
+    }),
+    "utf8"
   );
-  await fs.writeFile(invalidRelationPath, duplicateRelationBody, "utf8");
   assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
     (error) => error.includes("repeats relationship target")
   ));
-  await fs.rm(invalidRelationPath);
   })
 ));
 
-test("activation archives a direct predecessor and traces bounded relations", () => (
-  withFixtureWorkspace("relation-activation", async (workspaceRoot) => {
+test("strict relation checks reject impure splits, open splits, and undersized pure merges", () => (
+  withFixtureWorkspace("relation-static-shapes", async (workspaceRoot) => {
+  const currentPath = decisionFilePath(workspaceRoot, currentRelativePath);
+  const currentText = await fs.readFile(currentPath, "utf8");
+  const secondArchivedRelativePath =
+    "decision-records/use-second-archived-predecessor.md";
+  const secondArchivedPath = decisionFilePath(
+    workspaceRoot,
+    secondArchivedRelativePath
+  );
+  await fs.writeFile(secondArchivedPath, candidateDecisionBody(), "utf8");
+  await runSuccessfulSourceCli([
+    "activate",
+    secondArchivedRelativePath,
+    "--alignment",
+    "aligned",
+    "--root",
+    workspaceRoot
+  ]);
+  await runSuccessfulSourceCli([
+    "archive",
+    secondArchivedRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+
+  const relationMarker = "relations:\n  - type: 修订\n    target: "
+    + archivedRelativePath;
+  assert.ok(currentText.includes(relationMarker));
+
+  await fs.writeFile(
+    currentPath,
+    currentText.replace(
+      relationMarker,
+      "relations:\n  - type: 归并\n    target: " + archivedRelativePath
+    ),
+    "utf8"
+  );
+  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
+    (error) => error.includes("pure 归并 relation set must have at least two")
+  ));
+
+  await fs.writeFile(
+    currentPath,
+    currentText.replace(
+      relationMarker,
+      "relations:\n  - type: 拆分\n    target: " + archivedRelativePath
+    ),
+    "utf8"
+  );
+  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
+    (error) => error.includes("at least two direct 拆分 successors")
+  ));
+
+  await fs.writeFile(
+    currentPath,
+    currentText.replace(
+      relationMarker,
+      "relations:\n"
+        + "  - type: 拆分\n"
+        + "    target: " + archivedRelativePath + "\n"
+        + "  - type: 修订\n"
+        + "    target: " + secondArchivedRelativePath
+    ),
+    "utf8"
+  );
+  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
+    (error) => error.includes(
+      "拆分 successor must have exactly one direct 拆分 relation"
+    )
+  ));
+  })
+));
+
+test("activate establishes candidate source relations and archives their active targets", () => (
+  withFixtureWorkspace("activate-source-relations", async (workspaceRoot) => {
   initializeGitRepository(workspaceRoot);
   commitWorkspace(workspaceRoot);
-  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
-  const indexPath = path.join(decisionsDirectory, "decision-index.json");
-  const successorRelativePath = "project-tooling/use-bundled-cli.md";
-  const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
-  const successorBody = [
-    "---",
-    "title: 使用打包 CLI",
-    "status: candidate",
-    "alignment: null",
-    "createdAt: null",
-    "purpose: 验证单条激活命令能够完成决策演进。",
-    "background: 演进同时改变新记录关系与直接前序生命周期，分步执行会产生无效中间状态。",
-    "decision: 激活新决策时显式提供直接关系，并在同一事务归档前序。",
-    "relations: []",
-    "---",
-    "",
-    "## 目的",
-    "- 验证单条激活命令能够完成决策演进。",
-    "",
-    "## 背景",
-    "- 演进同时改变新记录关系与直接前序生命周期，分步执行会产生无效中间状态。",
-    "",
-    "## 决策",
-    "- 采用: 激活新决策时显式提供直接关系，并在同一事务归档前序。",
-    ""
-  ].join("\n");
-  await fs.writeFile(successorPath, successorBody, "utf8");
-  await runSuccessfulCli([
+  const successorRelativePath =
+    "decision-records/use-candidate-source-relation.md";
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, successorRelativePath),
+    candidateDecisionBody({ relationTarget: currentRelativePath }),
+    "utf8"
+  );
+
+  const strictBefore = await validateDecisionRecords({ workspaceRoot });
+  assert.deepEqual(strictBefore.errors, []);
+  const output = await runSuccessfulSourceCli([
     "activate",
     successorRelativePath,
     "--alignment",
     "aligned",
+    "--root",
+    workspaceRoot
+  ]);
+  assert.match(output, /archived new active predecessors/);
+
+  const index = await readIndex(path.join(
+    workspaceRoot,
+    "docs",
+    "decisions",
+    "decision-index.json"
+  ));
+  assert.equal(findIndexEntry(index, currentRelativePath).status, "archived");
+  assert.deepEqual(findIndexEntry(index, successorRelativePath).relations, [{
+    type: "修订",
+    target: currentRelativePath
+  }]);
+  })
+));
+
+test("activate relation replacement overrides rather than merges candidate relations", () => (
+  withFixtureWorkspace("activate-relation-replace", async (workspaceRoot) => {
+  const parallelRelativePath =
+    "decision-records/use-replacement-predecessor.md";
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, parallelRelativePath),
+    candidateDecisionBody(),
+    "utf8"
+  );
+  await runSuccessfulSourceCli([
+    "activate",
+    parallelRelativePath,
+    "--alignment",
+    "aligned",
+    "--root",
+    workspaceRoot
+  ]);
+  const successorRelativePath =
+    "decision-records/use-replaced-candidate-relations.md";
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, successorRelativePath),
+    candidateDecisionBody({ relationTarget: currentRelativePath }),
+    "utf8"
+  );
+  await runSuccessfulSourceCli([
+    "activate",
+    successorRelativePath,
+    "--alignment",
+    "aligned",
+    "--relation",
+    "替代=" + parallelRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+
+  const index = await readIndex(path.join(
+    workspaceRoot,
+    "docs",
+    "decisions",
+    "decision-index.json"
+  ));
+  assert.equal(findIndexEntry(index, currentRelativePath).status, "active");
+  assert.equal(findIndexEntry(index, parallelRelativePath).status, "archived");
+  assert.deepEqual(findIndexEntry(index, successorRelativePath).relations, [{
+    type: "替代",
+    target: parallelRelativePath
+  }]);
+  })
+));
+
+test("activate clear-relations explicitly replaces candidate relations with an empty set", () => (
+  withFixtureWorkspace("activate-relation-clear", async (workspaceRoot) => {
+  const successorRelativePath =
+    "decision-records/use-cleared-candidate-relations.md";
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, successorRelativePath),
+    candidateDecisionBody({ relationTarget: currentRelativePath }),
+    "utf8"
+  );
+  await runSuccessfulSourceCli([
+    "activate",
+    successorRelativePath,
+    "--alignment",
+    "aligned",
+    "--clear-relations",
+    "--root",
+    workspaceRoot
+  ]);
+
+  const index = await readIndex(path.join(
+    workspaceRoot,
+    "docs",
+    "decisions",
+    "decision-index.json"
+  ));
+  assert.equal(findIndexEntry(index, currentRelativePath).status, "active");
+  assert.deepEqual(findIndexEntry(index, successorRelativePath).relations, []);
+  })
+));
+
+test("evolve establishes one successor while preserving archived predecessors", () => (
+  withFixtureWorkspace("evolve-archived-predecessor", async (workspaceRoot) => {
+  const successorRelativePath =
+    "decision-records/use-active-and-archived-predecessors.md";
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, successorRelativePath),
+    candidateDecisionBody(),
+    "utf8"
+  );
+  await runSuccessfulSourceCli([
+    "evolve",
+    "--successor",
+    "aligned=" + successorRelativePath,
+    "--relation",
+    "修订=" + currentRelativePath,
+    "--relation",
+    "替代=" + archivedRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+
+  const index = await readIndex(path.join(
+    workspaceRoot,
+    "docs",
+    "decisions",
+    "decision-index.json"
+  ));
+  assert.equal(findIndexEntry(index, currentRelativePath).status, "archived");
+  assert.equal(findIndexEntry(index, archivedRelativePath).status, "archived");
+  assert.deepEqual(findIndexEntry(index, successorRelativePath).relations, [
+    { type: "修订", target: currentRelativePath },
+    { type: "替代", target: archivedRelativePath }
+  ]);
+  })
+));
+
+test("evolve replaces established relations while preserving body and lifecycle fields", () => (
+  withFixtureWorkspace("evolve-established-replace", async (workspaceRoot) => {
+  const successorRelativePath =
+    "decision-records/replace-established-relations.md";
+  const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
+  await fs.writeFile(
+    successorPath,
+    candidateDecisionBody({ relationTarget: currentRelativePath }),
+    "utf8"
+  );
+  await runSuccessfulSourceCli([
+    "activate",
+    successorRelativePath,
+    "--alignment",
+    "aligned",
+    "--root",
+    workspaceRoot
+  ]);
+  const activeTargetRelativePath =
+    "decision-records/use-active-replacement-target.md";
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, activeTargetRelativePath),
+    candidateDecisionBody(),
+    "utf8"
+  );
+  await runSuccessfulSourceCli([
+    "activate",
+    activeTargetRelativePath,
+    "--alignment",
+    "aligned",
+    "--root",
+    workspaceRoot
+  ]);
+  const beforeText = await fs.readFile(successorPath, "utf8");
+  const indexPath = path.join(
+    workspaceRoot,
+    "docs",
+    "decisions",
+    "decision-index.json"
+  );
+  const beforeIndex = await readIndex(indexPath);
+  const beforeState = findIndexEntry(beforeIndex, successorRelativePath);
+  const removedTargetBefore = findIndexEntry(beforeIndex, currentRelativePath);
+  assert.equal(removedTargetBefore.status, "archived");
+  assert.equal(findIndexEntry(beforeIndex, activeTargetRelativePath).status, "active");
+
+  await runSuccessfulSourceCli([
+    "evolve",
+    "--successor",
+    "aligned=" + successorRelativePath,
+    "--relation",
+    "替代=" + activeTargetRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+
+  const afterText = await fs.readFile(successorPath, "utf8");
+  const afterIndex = await readIndex(indexPath);
+  const afterState = findIndexEntry(afterIndex, successorRelativePath);
+  assert.equal(afterState.status, beforeState.status);
+  assert.equal(afterState.alignment, beforeState.alignment);
+  assert.equal(afterState.createdAt, beforeState.createdAt);
+  assert.equal(afterState.title, beforeState.title);
+  assert.equal(afterState.purpose, beforeState.purpose);
+  assert.equal(afterState.background, beforeState.background);
+  assert.equal(afterState.decision, beforeState.decision);
+  assert.equal(afterText.slice(afterText.indexOf("## 目的")), beforeText.slice(
+    beforeText.indexOf("## 目的")
+  ));
+  assert.deepEqual(afterState.relations, [{
+    type: "替代",
+    target: activeTargetRelativePath
+  }]);
+  assert.deepEqual(
+    findIndexEntry(afterIndex, currentRelativePath),
+    removedTargetBefore
+  );
+  assert.equal(
+    findIndexEntry(afterIndex, activeTargetRelativePath).status,
+    "archived"
+  );
+  })
+));
+
+test("evolve keeps an archived established successor archived during relation replacement", () => (
+  withFixtureWorkspace("evolve-archived-successor", async (workspaceRoot) => {
+  const successorRelativePath =
+    "decision-records/keep-archived-successor-state.md";
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, successorRelativePath),
+    candidateDecisionBody(),
+    "utf8"
+  );
+  await runSuccessfulSourceCli([
+    "activate",
+    successorRelativePath,
+    "--alignment",
+    "unaligned",
+    "--root",
+    workspaceRoot
+  ]);
+  await runSuccessfulSourceCli([
+    "archive",
+    successorRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+  const indexPath = path.join(
+    workspaceRoot,
+    "docs",
+    "decisions",
+    "decision-index.json"
+  );
+  const before = findIndexEntry(await readIndex(indexPath), successorRelativePath);
+
+  await runSuccessfulSourceCli([
+    "evolve",
+    "--successor",
+    "unaligned=" + successorRelativePath,
+    "--relation",
+    "修订=" + archivedRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+  const after = findIndexEntry(await readIndex(indexPath), successorRelativePath);
+  assert.equal(after.status, "archived");
+  assert.equal(after.alignment, before.alignment);
+  assert.equal(after.createdAt, before.createdAt);
+  assert.deepEqual(after.relations, [{
+    type: "修订",
+    target: archivedRelativePath
+  }]);
+  })
+));
+
+test("evolve rejects established successor alignment mismatches without mutation", () => (
+  withFixtureWorkspace("evolve-alignment-confirmation", async (workspaceRoot) => {
+  const currentPath = decisionFilePath(workspaceRoot, currentRelativePath);
+  const indexPath = path.join(
+    workspaceRoot,
+    "docs",
+    "decisions",
+    "decision-index.json"
+  );
+  const currentBefore = await fs.readFile(currentPath, "utf8");
+  const indexBefore = await fs.readFile(indexPath, "utf8");
+  const rejected = await runSourceCli([
+    "evolve",
+    "--successor",
+    "unaligned=" + currentRelativePath,
+    "--clear-relations",
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(rejected.exitCode, 1);
+  assert.match(rejected.stderr, /alignment confirmation does not match/);
+  assert.equal(await fs.readFile(currentPath, "utf8"), currentBefore);
+  assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
+  })
+));
+
+test("evolve rejects historical archived successors with null alignment", () => (
+  withFixtureWorkspace("evolve-historical-successor", async (workspaceRoot) => {
+  const rejected = await runSourceCli([
+    "evolve",
+    "--successor",
+    "aligned=" + archivedRelativePath,
+    "--clear-relations",
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(rejected.exitCode, 1);
+  assert.match(rejected.stderr, /non-null alignment/);
+  })
+));
+
+test("activate rejects relation replacement for established decisions", () => (
+  withFixtureWorkspace("activate-established-relations", async (workspaceRoot) => {
+  const currentPath = decisionFilePath(workspaceRoot, currentRelativePath);
+  const indexPath = path.join(
+    workspaceRoot,
+    "docs",
+    "decisions",
+    "decision-index.json"
+  );
+  const currentBefore = await fs.readFile(currentPath, "utf8");
+  const indexBefore = await fs.readFile(indexPath, "utf8");
+  for (const relationSelection of [
+    ["--clear-relations"],
+    ["--relation", "替代=" + archivedRelativePath]
+  ]) {
+    const rejected = await runSourceCli([
+      "activate",
+      currentRelativePath,
+      "--alignment",
+      "aligned",
+      ...relationSelection,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(rejected.exitCode, 1);
+    assert.match(rejected.stderr, /apply only when activate establishes/);
+  }
+  assert.equal(await fs.readFile(currentPath, "utf8"), currentBefore);
+  assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
+  })
+));
+
+test("evolve performs a closed split with independently aligned successors", () => (
+  withFixtureWorkspace("evolve-closed-split", async (workspaceRoot) => {
+  const established = await establishClosedSplit(workspaceRoot);
+  const index = await readIndex(established.indexPath);
+  const coarseState = findIndexEntry(index, established.coarseRelativePath);
+  const alignedState = findIndexEntry(index, established.alignedRelativePath);
+  const unalignedState = findIndexEntry(index, established.unalignedRelativePath);
+  assert.equal(coarseState.status, "archived");
+  assert.equal(findIndexEntry(index, currentRelativePath).status, "active");
+  assert.equal(alignedState.alignment, "aligned");
+  assert.equal(unalignedState.alignment, "unaligned");
+  assert.equal(alignedState.createdAt, unalignedState.createdAt);
+  assert.deepEqual(alignedState.relations, [{
+    type: "拆分",
+    target: established.coarseRelativePath
+  }]);
+  assert.deepEqual(unalignedState.relations, [{
+    type: "拆分",
+    target: established.coarseRelativePath
+  }]);
+
+  const traced = await traceDecision(
+    established.coarseRelativePath,
+    ["--direction", "successors", "--depth", "1"],
+    workspaceRoot
+  );
+  assert.match(traced, /keep-current-split-slice/);
+  assert.match(traced, /keep-future-split-slice/);
+  })
+));
+
+test("evolve adds a split successor only when every existing successor is selected", () => (
+  withFixtureWorkspace("evolve-extend-split", async (workspaceRoot) => {
+  const established = await establishClosedSplit(workspaceRoot);
+  const thirdRelativePath = "decision-records/add-third-split-slice.md";
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, thirdRelativePath),
+    candidateDecisionBody(),
+    "utf8"
+  );
+  await runSuccessfulSourceCli([
+    "evolve",
+    "--successor",
+    "aligned=" + established.alignedRelativePath,
+    "--successor",
+    "unaligned=" + established.unalignedRelativePath,
+    "--successor",
+    "aligned=" + thirdRelativePath,
+    "--relation",
+    "拆分=" + established.coarseRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+  const index = await readIndex(established.indexPath);
+  assert.deepEqual(findIndexEntry(index, thirdRelativePath).relations, [{
+    type: "拆分",
+    target: established.coarseRelativePath
+  }]);
+  assert.deepEqual((await validateDecisionRecords({ workspaceRoot })).errors, []);
+  })
+));
+
+test("evolve rejects a split extension that omits an existing successor before writing", () => (
+  withFixtureWorkspace("evolve-omit-split", async (workspaceRoot) => {
+  const established = await establishClosedSplit(workspaceRoot);
+  const thirdRelativePath = "decision-records/omit-existing-split-slice.md";
+  const thirdPath = decisionFilePath(workspaceRoot, thirdRelativePath);
+  const thirdCandidate = candidateDecisionBody();
+  await fs.writeFile(thirdPath, thirdCandidate, "utf8");
+  const indexBefore = await fs.readFile(established.indexPath, "utf8");
+  const rejected = await runSourceCli([
+    "evolve",
+    "--successor",
+    "aligned=" + established.alignedRelativePath,
+    "--successor",
+    "aligned=" + thirdRelativePath,
+    "--relation",
+    "拆分=" + established.coarseRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(rejected.exitCode, 1);
+  assert.match(rejected.stderr, /selected successor set must equal/);
+  assert.match(rejected.stderr, /keep-future-split-slice/);
+  assert.equal(await fs.readFile(thirdPath, "utf8"), thirdCandidate);
+  assert.equal(await fs.readFile(established.indexPath, "utf8"), indexBefore);
+  })
+));
+
+test("evolve rejects one selected split successor", () => (
+  withFixtureWorkspace("evolve-single-split", async (workspaceRoot) => {
+  const successorRelativePath = "decision-records/use-single-split.md";
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, successorRelativePath),
+    candidateDecisionBody({
+      relations: [{ type: "拆分", target: currentRelativePath }]
+    }),
+    "utf8"
+  );
+  const rejected = await runSourceCli([
+    "evolve",
+    "--successor",
+    "aligned=" + successorRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(rejected.exitCode, 1);
+  assert.match(rejected.stderr, /requires at least two explicitly selected/);
+  })
+));
+
+test("evolve rejects duplicate successor members at the CLI boundary", () => (
+  withFixtureWorkspace("evolve-duplicate-successor", async (workspaceRoot) => {
+  const successorRelativePath = "decision-records/use-duplicate-successor.md";
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, successorRelativePath),
+    candidateDecisionBody(),
+    "utf8"
+  );
+  const rejected = spawnSync("node", [
+    generatedCliPath,
+    "evolve",
+    "--successor",
+    "aligned=" + successorRelativePath,
+    "--successor",
+    "aligned=" + successorRelativePath,
+    "--root",
+    workspaceRoot
+  ], { encoding: "utf8" });
+  assert.equal(rejected.status, 2);
+  assert.match(rejected.stderr, /must not repeat a successor decision path/);
+  })
+));
+
+test("evolve rejects repeated relation override targets at the CLI boundary", () => (
+  withFixtureWorkspace("evolve-duplicate-relation", async (workspaceRoot) => {
+  const successorRelativePath = "decision-records/use-duplicate-relation.md";
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, successorRelativePath),
+    candidateDecisionBody(),
+    "utf8"
+  );
+  const rejected = spawnSync("node", [
+    generatedCliPath,
+    "evolve",
+    "--successor",
+    "aligned=" + successorRelativePath,
+    "--relation",
+    "修订=" + currentRelativePath,
     "--relation",
     "替代=" + currentRelativePath,
     "--root",
     workspaceRoot
-  ]);
-  const switched = await validateDecisionRecords({ workspaceRoot });
-  assert.deepEqual(switched.errors, []);
-  assert.equal(switched.activeCount, 1);
-  assert.equal(switched.archivedCount, 2);
-  const switchedIndex = await readIndex(indexPath);
-  const successorEntry = findIndexEntry(switchedIndex, successorRelativePath);
-  assert.equal(successorEntry.status, "active");
-  assert.equal(successorEntry.alignment, "aligned");
-  assert.deepEqual(successorEntry.relations, [{
-    type: "替代",
-    target: currentRelativePath
-  }]);
-  assert.match(
-    successorEntry.createdAt,
-    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
-  );
-  assert.equal(
-    findIndexEntry(switchedIndex, currentRelativePath).status,
-    "archived"
-  );
-  assert.equal(
-    findIndexEntry(switchedIndex, currentRelativePath).alignment,
-    "aligned"
-  );
-  assert.equal(
-    findIndexEntry(switchedIndex, archivedRelativePath).status,
-    "archived"
-  );
-
-  const directPredecessorTrace = await traceDecision(
-    successorRelativePath,
-    ["--direction", "predecessors", "--depth", "1"],
-    workspaceRoot
-  );
-  assert.match(
-    directPredecessorTrace,
-    /project-tooling\/use-generated-cli\.md/
-  );
-  assert.doesNotMatch(directPredecessorTrace, /260710-use-source-cli/);
-
-  const fullPredecessorTrace = await traceDecision(
-    successorRelativePath,
-    ["--direction", "predecessors", "--depth", "2"],
-    workspaceRoot
-  );
-  assert.match(fullPredecessorTrace, /260710-use-source-cli/);
+  ], { encoding: "utf8" });
+  assert.equal(rejected.status, 2);
+  assert.match(rejected.stderr, /must not repeat a direct predecessor target/);
   })
 ));
 
-
-test("evolve rejects duplicate predecessor arguments without mutation", () => (
-  withFixtureWorkspace("evolve-command", async (workspaceRoot) => {
-  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
-  const indexPath = path.join(decisionsDirectory, "decision-index.json");
-  const parallelRelativePath =
-    "decision-records/use-parallel-evolution-predecessor.md";
-  const parallelPath = decisionFilePath(workspaceRoot, parallelRelativePath);
+test("evolve rejects mixed split and non-split successor relations", () => (
+  withFixtureWorkspace("evolve-mixed-split", async (workspaceRoot) => {
+  const splitRelativePath = "decision-records/use-mixed-split.md";
+  const revisionRelativePath = "decision-records/use-mixed-revision.md";
   await fs.writeFile(
-    parallelPath,
-    candidateDecisionBody(),
+    decisionFilePath(workspaceRoot, splitRelativePath),
+    candidateDecisionBody({
+      relations: [{ type: "拆分", target: currentRelativePath }]
+    }),
     "utf8"
   );
-  await runSuccessfulSourceCli([
-    "activate",
-    parallelRelativePath,
-    "--alignment",
-    "aligned",
-    "--root",
-    workspaceRoot
-  ]);
-
-  const mergedRelativePath =
-    "decision-records/merge-direct-predecessors.md";
-  const mergedPath = decisionFilePath(workspaceRoot, mergedRelativePath);
-  const mergedCandidate = candidateDecisionBody();
-  await fs.writeFile(mergedPath, mergedCandidate, "utf8");
-  const indexBeforeRejectedEvolution = await fs.readFile(indexPath, "utf8");
-  const repeatedPredecessor = spawnSync(
-    "node",
-    [
-      generatedCliPath,
-      "evolve",
-      mergedRelativePath,
-      "--alignment",
-      "aligned",
-      "--relation",
-      "归并=" + currentRelativePath,
-      "--relation",
-      "替代=" + currentRelativePath,
-      "--root",
-      workspaceRoot
-    ],
-    { encoding: "utf8" }
-  );
-  assert.equal(repeatedPredecessor.status, 2);
-  assert.match(
-    repeatedPredecessor.stderr,
-    /must not repeat a direct predecessor target/
-  );
-  assert.equal(await fs.readFile(mergedPath, "utf8"), mergedCandidate);
-  assert.equal(
-    await fs.readFile(indexPath, "utf8"),
-    indexBeforeRejectedEvolution
-  );
-  })
-));
-
-test("decision transactions roll back relation validation failures", () => (
-  withFixtureWorkspace("evolve-rollback", async (workspaceRoot) => {
-  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
-  const indexPath = path.join(decisionsDirectory, "decision-index.json");
-  const currentPath = decisionFilePath(workspaceRoot, currentRelativePath);
-  const archivedPath = decisionFilePath(workspaceRoot, archivedRelativePath);
-  const deletedRelativePath =
-    "decision-records/restore-deleted-decision-after-rollback.md";
-  const deletedPath = decisionFilePath(workspaceRoot, deletedRelativePath);
   await fs.writeFile(
-    deletedPath,
-    candidateDecisionBody(),
+    decisionFilePath(workspaceRoot, revisionRelativePath),
+    candidateDecisionBody({ relationTarget: currentRelativePath }),
     "utf8"
   );
-  await runSuccessfulSourceCli([
-    "activate",
-    deletedRelativePath,
-    "--alignment",
-    "aligned",
-    "--root",
-    workspaceRoot
-  ]);
-  const currentBeforeRollback = await fs.readFile(currentPath, "utf8");
-  const archivedBeforeRollback = await fs.readFile(archivedPath, "utf8");
-  const deletedBeforeRollback = await fs.readFile(deletedPath, "utf8");
-  const indexBeforeRollback = await fs.readFile(indexPath, "utf8");
-  const currentInvalidUpdate = currentBeforeRollback.replace(
-    "alignment: aligned",
-    "alignment: unaligned"
-  );
-  const archivedInvalidUpdate = archivedBeforeRollback
-    .replace("status: archived", "status: active")
-    .replace("alignment: null", "alignment: aligned");
-  assert.notEqual(currentInvalidUpdate, currentBeforeRollback);
-  assert.notEqual(archivedInvalidUpdate, archivedBeforeRollback);
-  const rollbackErrors = await applyDecisionChanges({
-    changes: [
-      { decisionPath: deletedPath, nextText: null },
-      { decisionPath: currentPath, nextText: currentInvalidUpdate },
-      { decisionPath: archivedPath, nextText: archivedInvalidUpdate }
-    ],
-    originalScan: await scanDecisionRecords({ workspaceRoot }),
-    scanOptions: { workspaceRoot }
-  });
-  assert.ok(rollbackErrors.some(
-    (error) => /target must be archived/.test(error)
-  ));
-  assert.equal(await fs.readFile(currentPath, "utf8"), currentBeforeRollback);
-  assert.equal(await fs.readFile(archivedPath, "utf8"), archivedBeforeRollback);
-  assert.equal(await fs.readFile(deletedPath, "utf8"), deletedBeforeRollback);
-  assert.equal(await fs.readFile(indexPath, "utf8"), indexBeforeRollback);
-  })
-));
-
-test("evolve rejects archived predecessors without mutation", () => (
-  withFixtureWorkspace("evolve-archived-predecessor", async (workspaceRoot) => {
-  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
-  const indexPath = path.join(decisionsDirectory, "decision-index.json");
-  const mergedRelativePath =
-    "decision-records/merge-direct-predecessors.md";
-  const mergedPath = decisionFilePath(workspaceRoot, mergedRelativePath);
-  const mergedCandidate = candidateDecisionBody();
-  await fs.writeFile(mergedPath, mergedCandidate, "utf8");
-  const indexBeforeRejectedEvolution = await fs.readFile(indexPath, "utf8");
-  const rejectedEvolution = await runSourceCli([
+  const rejected = await runSourceCli([
     "evolve",
-    mergedRelativePath,
-    "--alignment",
-    "aligned",
+    "--successor",
+    "aligned=" + splitRelativePath,
+    "--successor",
+    "aligned=" + revisionRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(rejected.exitCode, 1);
+  assert.match(rejected.stderr, /exactly one 拆分 relation and no other/);
+  })
+));
+
+test("evolve rejects unsupported multi-successor shapes without split relations", () => (
+  withFixtureWorkspace("evolve-unsupported-multiple", async (workspaceRoot) => {
+  const firstRelativePath = "decision-records/use-first-multiple.md";
+  const secondRelativePath = "decision-records/use-second-multiple.md";
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, firstRelativePath),
+    candidateDecisionBody(),
+    "utf8"
+  );
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, secondRelativePath),
+    candidateDecisionBody(),
+    "utf8"
+  );
+  const rejected = await runSourceCli([
+    "evolve",
+    "--successor",
+    "aligned=" + firstRelativePath,
+    "--successor",
+    "aligned=" + secondRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(rejected.exitCode, 1);
+  assert.match(rejected.stderr, /supported only by the closed 拆分 strategy/);
+  })
+));
+
+test("evolve rejects a pure merge with fewer than two predecessors", () => (
+  withFixtureWorkspace("evolve-undersized-merge", async (workspaceRoot) => {
+  const successorRelativePath = "decision-records/use-undersized-merge.md";
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, successorRelativePath),
+    candidateDecisionBody(),
+    "utf8"
+  );
+  const rejected = await runSourceCli([
+    "evolve",
+    "--successor",
+    "aligned=" + successorRelativePath,
     "--relation",
     "归并=" + currentRelativePath,
-    "--relation",
-    "归并=" + archivedRelativePath,
     "--root",
     workspaceRoot
   ]);
-  assert.equal(rejectedEvolution.exitCode, 1);
-  assert.match(rejectedEvolution.stderr, /Evolution predecessor must be active/);
-  assert.equal(await fs.readFile(mergedPath, "utf8"), mergedCandidate);
-  assert.equal(
-    await fs.readFile(indexPath, "utf8"),
-    indexBeforeRejectedEvolution
-  );
+  assert.equal(rejected.exitCode, 1);
+  assert.match(rejected.stderr, /requires at least two predecessors/);
   })
 ));
 
-test("evolve command archives sources and creates the aligned target atomically", () => (
-  withFixtureWorkspace("evolve-command", async (workspaceRoot) => {
-  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
-  const indexPath = path.join(decisionsDirectory, "decision-index.json");
-  const parallelRelativePath =
-    "decision-records/use-parallel-evolution-predecessor.md";
-  const parallelPath = decisionFilePath(workspaceRoot, parallelRelativePath);
-  await fs.writeFile(
-    parallelPath,
-    candidateDecisionBody(),
-    "utf8"
-  );
-  await runSuccessfulSourceCli([
-    "activate",
-    parallelRelativePath,
-    "--alignment",
-    "aligned",
-    "--root",
-    workspaceRoot
-  ]);
-  const mergedRelativePath =
-    "decision-records/merge-direct-predecessors.md";
-  const mergedPath = decisionFilePath(workspaceRoot, mergedRelativePath);
-  await fs.writeFile(
-    mergedPath,
-    candidateDecisionBody(),
-    "utf8"
-  );
-  const evolved = await runSourceCli([
-    "evolve",
-    mergedRelativePath,
-    "--alignment",
-    "aligned",
-    "--relation",
-    "归并=" + currentRelativePath,
-    "--relation",
-    "归并=" + parallelRelativePath,
-    "--root",
-    workspaceRoot
-  ]);
-  assert.equal(evolved.exitCode, 0, evolved.stderr);
-  assert.match(evolved.stdout, /archived direct predecessors/);
+type ClosedSplit = {
+  alignedRelativePath: string;
+  coarseRelativePath: string;
+  indexPath: string;
+  unalignedRelativePath: string;
+};
 
-  const evolvedIndex = await readIndex(indexPath);
-  assert.equal(
-    findIndexEntry(evolvedIndex, currentRelativePath).status,
-    "archived"
-  );
-  assert.equal(
-    findIndexEntry(evolvedIndex, parallelRelativePath).status,
-    "archived"
-  );
-  const mergedState = findIndexEntry(evolvedIndex, mergedRelativePath);
-  assert.equal(mergedState.status, "active");
-  assert.equal(mergedState.alignment, "aligned");
-  assert.deepEqual(mergedState.relations, [
-    { type: "归并", target: currentRelativePath },
-    { type: "归并", target: parallelRelativePath }
-  ]);
-  assert.match(
-    await fs.readFile(mergedPath, "utf8"),
-    /relations:\n  - type: 归并\n    target: project-tooling\/use-generated-cli\.md\n  - type: 归并/
-  );
-  assert.deepEqual(
-    (await validateDecisionRecords({ workspaceRoot })).errors,
-    []
-  );
-  })
-));
-
-test("split atomically replaces one coarse decision with independently aligned successors", () => (
-  withFixtureWorkspace("split-decision", async (workspaceRoot) => {
+async function establishClosedSplit(workspaceRoot: string): Promise<ClosedSplit> {
   initializeGitRepository(workspaceRoot);
   commitWorkspace(workspaceRoot);
-  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
-  const indexPath = path.join(decisionsDirectory, "decision-index.json");
-  const coarseRelativePath = "decision-records/use-coarse-future-direction.md";
-  const coarsePath = decisionFilePath(workspaceRoot, coarseRelativePath);
+  const coarseRelativePath =
+    "decision-records/use-coarse-future-direction.md";
   await fs.writeFile(
-    coarsePath,
+    decisionFilePath(workspaceRoot, coarseRelativePath),
     candidateDecisionBody(),
     "utf8"
   );
@@ -493,104 +793,34 @@ test("split atomically replaces one coarse decision with independently aligned s
     "decision-records/keep-future-split-slice.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, alignedRelativePath),
-    candidateDecisionBody(),
+    candidateDecisionBody({ relationTarget: currentRelativePath }),
     "utf8"
   );
   await fs.writeFile(
     decisionFilePath(workspaceRoot, unalignedRelativePath),
-    candidateDecisionBody(),
+    candidateDecisionBody({ relationTarget: archivedRelativePath }),
     "utf8"
   );
-
-  const output = await runSuccessfulSourceCli([
-    "split",
-    coarseRelativePath,
+  await runSuccessfulSourceCli([
+    "evolve",
     "--successor",
     "aligned=" + alignedRelativePath,
     "--successor",
     "unaligned=" + unalignedRelativePath,
+    "--relation",
+    "拆分=" + coarseRelativePath,
     "--root",
     workspaceRoot
   ]);
-  assert.match(output, /Split .* into aligned .* unaligned/);
-
-  const splitIndex = await readIndex(indexPath);
-  const coarseState = findIndexEntry(splitIndex, coarseRelativePath);
-  const alignedState = findIndexEntry(splitIndex, alignedRelativePath);
-  const unalignedState = findIndexEntry(splitIndex, unalignedRelativePath);
-  assert.equal(coarseState.status, "archived");
-  assert.equal(coarseState.alignment, "unaligned");
-  assert.equal(alignedState.status, "active");
-  assert.equal(alignedState.alignment, "aligned");
-  assert.deepEqual(alignedState.relations, [{
-    type: "拆分",
-    target: coarseRelativePath
-  }]);
-  assert.equal(unalignedState.status, "active");
-  assert.equal(unalignedState.alignment, "unaligned");
-  assert.deepEqual(unalignedState.relations, [{
-    type: "拆分",
-    target: coarseRelativePath
-  }]);
-  assert.equal(alignedState.createdAt, unalignedState.createdAt);
-
-  const traced = await runSuccessfulSourceCli([
-    "trace",
+  return {
+    alignedRelativePath,
     coarseRelativePath,
-    "--direction",
-    "successors",
-    "--depth",
-    "1",
-    "--root",
-    workspaceRoot
-  ]);
-  assert.match(traced, /keep-current-split-slice/);
-  assert.match(traced, /keep-future-split-slice/);
-  assert.deepEqual(
-    (await validateDecisionRecords({ workspaceRoot })).errors,
-    []
-  );
-  })
-));
-
-test("split rejects incomplete successor sets and relationship graphs", () => (
-  withFixtureWorkspace("split-closure", async (workspaceRoot) => {
-  initializeGitRepository(workspaceRoot);
-  commitWorkspace(workspaceRoot);
-  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
-  const indexPath = path.join(decisionsDirectory, "decision-index.json");
-  const successorRelativePath =
-    "decision-records/use-incomplete-split-successor.md";
-  const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
-  const successorCandidate = candidateDecisionBody();
-  await fs.writeFile(successorPath, successorCandidate, "utf8");
-  const predecessorPath = decisionFilePath(workspaceRoot, currentRelativePath);
-  const predecessorBefore = await fs.readFile(predecessorPath, "utf8");
-  const indexBefore = await fs.readFile(indexPath, "utf8");
-
-  const rejected = await runSourceCli([
-    "split",
-    currentRelativePath,
-    "--successor",
-    "aligned=" + successorRelativePath,
-    "--root",
-    workspaceRoot
-  ]);
-  assert.equal(rejected.exitCode, 1);
-  assert.match(rejected.stderr, /at least two --successor values/);
-  assert.equal(await fs.readFile(predecessorPath, "utf8"), predecessorBefore);
-  assert.equal(await fs.readFile(successorPath, "utf8"), successorCandidate);
-  assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
-
-  await fs.writeFile(
-    predecessorPath,
-    predecessorBefore.replace("type: 修订", "type: 拆分"),
-    "utf8"
-  );
-  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
-    (error) => error.includes(
-      "must have at least two direct 拆分 successors"
-    )
-  ));
-  })
-));
+    indexPath: path.join(
+      workspaceRoot,
+      "docs",
+      "decisions",
+      "decision-index.json"
+    ),
+    unalignedRelativePath
+  };
+}

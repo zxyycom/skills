@@ -97,9 +97,8 @@ async function establishUnrecordedIntermediate(
   );
   await runSuccessfulSourceCli([
     "evolve",
-    unrecordedIntermediateRelativePath,
-    "--alignment",
-    "aligned",
+    "--successor",
+    "aligned=" + unrecordedIntermediateRelativePath,
     "--relation",
     "修订=" + currentRelativePath,
     "--root",
@@ -173,6 +172,18 @@ test("evolve collapses an unrecorded intermediate with explicit final relations"
   const { indexPath, intermediatePath } = await establishUnrecordedIntermediate(
     workspaceRoot
   );
+  const beforeCollapse = await readIndex(indexPath);
+  assert.equal(
+    findIndexEntry(beforeCollapse, currentRelativePath).status,
+    "archived"
+  );
+  assert.deepEqual(
+    findIndexEntry(
+      beforeCollapse,
+      unrecordedIntermediateRelativePath
+    ).relations,
+    [{ type: "修订", target: currentRelativePath }]
+  );
   const successorRelativePath =
     "decision-records/use-collapsed-unrecorded-history.md";
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
@@ -183,9 +194,8 @@ test("evolve collapses an unrecorded intermediate with explicit final relations"
   );
   const collapsed = await runSourceCli([
     "evolve",
-    successorRelativePath,
-    "--alignment",
-    "aligned",
+    "--successor",
+    "aligned=" + successorRelativePath,
     "--collapse-unrecorded",
     unrecordedIntermediateRelativePath,
     "--relation",
@@ -212,7 +222,36 @@ test("evolve collapses an unrecorded intermediate with explicit final relations"
   })
 ));
 
-test("evolve collapse accepts an empty final relation set", () => (
+test("evolve collapse rejects an implicit empty final relation selection", () => (
+  withFixtureWorkspace("unrecorded-evolution-implicit-empty", async (workspaceRoot) => {
+  const { indexPath, intermediatePath } = await establishUnrecordedIntermediate(
+    workspaceRoot
+  );
+  const successorRelativePath =
+    "decision-records/reject-implicit-empty-collapse.md";
+  const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
+  const successorCandidate = candidateDecisionBody();
+  await fs.writeFile(successorPath, successorCandidate, "utf8");
+  const intermediateBefore = await fs.readFile(intermediatePath, "utf8");
+  const indexBefore = await fs.readFile(indexPath, "utf8");
+  const rejected = await runSourceCli([
+    "evolve",
+    "--successor",
+    "aligned=" + successorRelativePath,
+    "--collapse-unrecorded",
+    unrecordedIntermediateRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(rejected.exitCode, 1);
+  assert.match(rejected.stderr, /Use --clear-relations/);
+  assert.equal(await fs.readFile(successorPath, "utf8"), successorCandidate);
+  assert.equal(await fs.readFile(intermediatePath, "utf8"), intermediateBefore);
+  assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
+  })
+));
+
+test("evolve collapse accepts an explicitly empty final relation set", () => (
   withFixtureWorkspace("unrecorded-evolution-empty-relations", async (workspaceRoot) => {
   const { indexPath, intermediatePath } = await establishUnrecordedIntermediate(
     workspaceRoot
@@ -227,11 +266,11 @@ test("evolve collapse accepts an empty final relation set", () => (
   );
   const collapsed = await runSourceCli([
     "evolve",
-    successorRelativePath,
-    "--alignment",
-    "aligned",
+    "--successor",
+    "aligned=" + successorRelativePath,
     "--collapse-unrecorded",
     unrecordedIntermediateRelativePath,
+    "--clear-relations",
     "--root",
     workspaceRoot
   ]);
@@ -258,9 +297,8 @@ test("evolve collapse rejects archived relations outside the intermediate bounda
   const indexBefore = await fs.readFile(indexPath, "utf8");
   const rejected = await runSourceCli([
     "evolve",
-    successorRelativePath,
-    "--alignment",
-    "aligned",
+    "--successor",
+    "aligned=" + successorRelativePath,
     "--collapse-unrecorded",
     unrecordedIntermediateRelativePath,
     "--relation",
@@ -271,7 +309,7 @@ test("evolve collapse rejects archived relations outside the intermediate bounda
   assert.equal(rejected.exitCode, 1);
   assert.match(
     rejected.stderr,
-    /unless it is a direct predecessor of the collapsed decision/
+    /must be a direct predecessor of the collapsed decision/
   );
   assert.equal(await fs.readFile(successorPath, "utf8"), successorCandidate);
   assert.equal(await fs.readFile(intermediatePath, "utf8"), intermediateBefore);
@@ -294,9 +332,8 @@ test("evolve collapse rejects a predecessor recorded in Git HEAD", () => (
   const indexBefore = await fs.readFile(indexPath, "utf8");
   const rejected = await runSourceCli([
     "evolve",
-    successorRelativePath,
-    "--alignment",
-    "aligned",
+    "--successor",
+    "aligned=" + successorRelativePath,
     "--collapse-unrecorded",
     unrecordedIntermediateRelativePath,
     "--relation",
@@ -333,9 +370,8 @@ test("evolve collapse rejects a predecessor referenced by another candidate", ()
   const indexBefore = await fs.readFile(indexPath, "utf8");
   const rejected = await runSourceCli([
     "evolve",
-    successorRelativePath,
-    "--alignment",
-    "aligned",
+    "--successor",
+    "aligned=" + successorRelativePath,
     "--collapse-unrecorded",
     unrecordedIntermediateRelativePath,
     "--relation",
@@ -344,7 +380,10 @@ test("evolve collapse rejects a predecessor referenced by another candidate", ()
     workspaceRoot
   ]);
   assert.equal(rejected.exitCode, 1);
-  assert.match(rejected.stderr, /relationship 修订 target must be archived/);
+  assert.match(
+    rejected.stderr,
+    /Cannot collapse decision while it is still referenced/
+  );
   assert.ok(rejected.stderr.includes(referencingRelativePath));
   assert.equal(await fs.readFile(successorPath, "utf8"), successorCandidate);
   assert.equal(await fs.readFile(referencingPath, "utf8"), referencingCandidate);

@@ -184,8 +184,7 @@ test("activation and archive transitions preserve content and index atomicity", 
     relationTarget: currentRelativePath
   });
   await fs.writeFile(rollbackPath, rollbackCandidate, "utf8");
-  const indexBeforeRollback = await fs.readFile(indexPath, "utf8");
-  const failedActivation = await runSourceCli([
+  const relationSourceActivation = await runSourceCli([
     "activate",
     rollbackRelativePath,
     "--alignment",
@@ -193,9 +192,19 @@ test("activation and archive transitions preserve content and index atomicity", 
     "--root",
     workspaceRoot
   ]);
-  assert.equal(failedActivation.exitCode, 1);
-  assert.match(failedActivation.stderr, /target must be archived/);
-  assert.equal(await fs.readFile(rollbackPath, "utf8"), rollbackCandidate);
-  assert.equal(await fs.readFile(indexPath, "utf8"), indexBeforeRollback);
+  assert.equal(
+    relationSourceActivation.exitCode,
+    0,
+    relationSourceActivation.stderr
+  );
+  const relationSourceIndex = await readIndex(indexPath);
+  assert.equal(
+    findIndexEntry(relationSourceIndex, currentRelativePath).status,
+    "archived"
+  );
+  assert.deepEqual(
+    findIndexEntry(relationSourceIndex, rollbackRelativePath).relations,
+    [{ type: "修订", target: currentRelativePath }]
+  );
   })
 ));

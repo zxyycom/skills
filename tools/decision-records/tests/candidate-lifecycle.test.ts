@@ -43,7 +43,7 @@ const unindexedBody = [
   ""
 ].join("\n");
 
-test("discard rejects established, incomplete, or related candidates without mutation", () => (
+test("discard rejects established, incomplete, invalid, or referenced candidates without mutation", () => (
   withFixtureWorkspace("candidate-lifecycle", async (workspaceRoot) => {
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
@@ -149,14 +149,19 @@ test("discard rejects established, incomplete, or related candidates without mut
     }),
     "utf8"
   );
-  await assertRejectedDiscardPreserves({
-    decisionPath: activeTargetSourcePath,
-    expectedError: /target must be archived/,
-    indexPath,
-    relativePath: activeTargetSourceRelativePath,
+  const discardedActiveTargetSource = await runSourceCli([
+    "discard",
+    activeTargetSourceRelativePath,
+    "--root",
     workspaceRoot
-  });
-  await fs.rm(activeTargetSourcePath);
+  ]);
+  assert.equal(
+    discardedActiveTargetSource.exitCode,
+    0,
+    discardedActiveTargetSource.stderr
+  );
+  assert.equal(await fileExists(activeTargetSourcePath), false);
+  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
 
   const discardCandidateTargetRelativePath =
     "decision-records/use-discard-candidate-target.md";
@@ -184,17 +189,27 @@ test("discard rejects established, incomplete, or related candidates without mut
     "utf8"
   );
   await assertRejectedDiscardPreserves({
-    decisionPath: candidateTargetSourcePath,
-    expectedError: /target must be archived/,
+    decisionPath: discardCandidateTargetPath,
+    expectedError: /still referenced/,
     indexPath,
-    relativePath: candidateTargetSourceRelativePath,
+    relativePath: discardCandidateTargetRelativePath,
     workspaceRoot
   });
   assert.equal(
     await fs.readFile(discardCandidateTargetPath, "utf8"),
     discardCandidateTargetText
   );
-  await fs.rm(candidateTargetSourcePath);
+  const discardedCandidateTargetSource = await runSourceCli([
+    "discard",
+    candidateTargetSourceRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(
+    discardedCandidateTargetSource.exitCode,
+    0,
+    discardedCandidateTargetSource.stderr
+  );
   await fs.rm(discardCandidateTargetPath);
 
   const invalidTargetRelativePath =
@@ -223,7 +238,7 @@ test("discard rejects established, incomplete, or related candidates without mut
   );
   await assertRejectedDiscardPreserves({
     decisionPath: invalidTargetSourcePath,
-    expectedError: /target is not a scanned decision/,
+    expectedError: /target is not a valid scanned decision/,
     indexPath,
     relativePath: invalidTargetSourceRelativePath,
     workspaceRoot

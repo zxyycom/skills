@@ -344,6 +344,25 @@ try {
     help.stdout,
     /show-candidate <decision-path>\s+Show one source-discovered candidate/i
   );
+  assert.match(
+    help.stdout,
+    /evolve \[options\]\s+Replace complete successor relations/i
+  );
+  assert.doesNotMatch(help.stdout, /^\s*split(?:\s|$)/m);
+
+  const evolveHelp = spawnSync(
+    "node",
+    [generatedCliPath, "evolve", "--help"],
+    { encoding: "utf8" }
+  );
+  assert.equal(evolveHelp.status, 0);
+  assert.match(evolveHelp.stdout, /--successor <alignment=decision-path>/);
+  assert.match(evolveHelp.stdout, /--clear-relations/);
+  assert.match(
+    evolveHelp.stdout,
+    /resolved source relations or --relation define the complete final set, and --clear-relations selects an explicitly empty set/
+  );
+  assert.doesNotMatch(evolveHelp.stdout, /--alignment <value>/);
 
   const archiveHelp = spawnSync(
     "node",
@@ -426,6 +445,57 @@ try {
   );
   assert.equal(missingActivationAlignment.status, 2);
   assert.match(missingActivationAlignment.stderr, /required option '--alignment <value>'/);
+
+  for (const removedProtocolArguments of [
+    [
+      "split",
+      currentRelativePath,
+      "--successor",
+      "aligned=decision-records/use-successor.md"
+    ],
+    [
+      "evolve",
+      "decision-records/use-successor.md",
+      "--alignment",
+      "aligned",
+      "--relation",
+      "修订=" + currentRelativePath
+    ]
+  ]) {
+    const removed = spawnSync(
+      "node",
+      [generatedCliPath, ...removedProtocolArguments, "--root", fixtureRoot],
+      { encoding: "utf8" }
+    );
+    assert.equal(removed.status, 2);
+  }
+
+  const missingSuccessor = spawnSync(
+    "node",
+    [generatedCliPath, "evolve", "--root", fixtureRoot],
+    { encoding: "utf8" }
+  );
+  assert.equal(missingSuccessor.status, 2);
+  assert.match(missingSuccessor.stderr, /required option '--successor/);
+
+  const conflictingRelationSelection = spawnSync(
+    "node",
+    [
+      generatedCliPath,
+      "activate",
+      currentRelativePath,
+      "--alignment",
+      "aligned",
+      "--relation",
+      "修订=" + archivedRelativePath,
+      "--clear-relations",
+      "--root",
+      fixtureRoot
+    ],
+    { encoding: "utf8" }
+  );
+  assert.equal(conflictingRelationSelection.status, 2);
+  assert.match(conflictingRelationSelection.stderr, /cannot be used with option/);
 } finally {
   await fs.rm(fixtureRoot, { force: true, recursive: true });
 }

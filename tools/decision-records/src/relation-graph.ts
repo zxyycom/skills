@@ -167,6 +167,31 @@ export function decisionRelationConsistencyIssues(
     }
   }
 
+  for (const [sourcePath, sourceEdges] of [...graph.edgesBySource.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))) {
+    const splitEdges = sourceEdges.filter((edge) => edge.type === "拆分");
+    if (splitEdges.length > 0 && sourceEdges.length !== 1) {
+      issues.push({
+        message: "Decision 拆分 successor must have exactly one direct 拆分 "
+          + "relation and no other relations: "
+          + sourcePath,
+        sourcePaths: [sourcePath]
+      });
+    }
+    if (
+      sourceEdges.length > 0
+      && sourceEdges.every((edge) => edge.type === "归并")
+      && sourceEdges.length < 2
+    ) {
+      issues.push({
+        message: "Decision pure 归并 relation set must have at least two direct "
+          + "predecessors: "
+          + sourcePath,
+        sourcePaths: [sourcePath]
+      });
+    }
+  }
+
   for (const [targetPath, targetEdges] of [...graph.edgesByTarget.entries()]
     .sort(([left], [right]) => left.localeCompare(right))) {
     const splitEdges = targetEdges.filter((edge) => edge.type === "拆分");

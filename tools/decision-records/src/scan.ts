@@ -416,7 +416,7 @@ export async function scanDecisionRecords(
   }
   records.sort(compareDecisionRecords);
   const relationshipIssues = decisionRelationConsistencyIssues(
-    records.filter((record) => record.document !== null || record.activationCandidate)
+    records.filter((record) => record.document !== null)
   );
   const recordByPath = new Map(records.map((record) => [
     record.relativePath,
@@ -426,6 +426,24 @@ export async function scanDecisionRecords(
     sourceErrors.push(issue.message);
     for (const sourcePath of issue.sourcePaths) {
       recordByPath.get(sourcePath)?.relationshipErrors.push(issue.message);
+    }
+  }
+  for (const candidate of records.filter((record) => record.activationCandidate)) {
+    for (const relation of candidate.projection.relations) {
+      const target = recordByPath.get(relation.target);
+      if (
+        target !== undefined
+        && (target.document !== null || target.activationCandidate)
+      ) {
+        continue;
+      }
+      const error = candidate.relativePath
+        + " relationship "
+        + relation.type
+        + " target is not a valid scanned decision: "
+        + relation.target;
+      sourceErrors.push(error);
+      candidate.relationshipErrors.push(error);
     }
   }
 

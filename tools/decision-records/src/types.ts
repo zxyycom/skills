@@ -36,10 +36,17 @@ export type DecisionRelation = {
   target: string;
 };
 
-export type DecisionSplitSuccessor = {
+export type DecisionSuccessor = {
   alignment: DecisionAlignment;
   recordPath: string;
 };
+
+export type DecisionRelationOverride =
+  | { kind: "source" }
+  | {
+      kind: "replace";
+      relations: DecisionRelation[];
+    };
 
 export type DecisionProjection = {
   title: string;

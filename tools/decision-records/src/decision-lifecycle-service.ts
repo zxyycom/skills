@@ -17,13 +17,18 @@ import {
   isNewDecisionIdentityPath,
   normalizeDecisionRelativePath
 } from "./decision-path.ts";
+import {
+  decisionRelationConsistencyIssues,
+  type DecisionRelationConsistencyRecord
+} from "./relation-graph.ts";
 import type { DecisionFileChange } from "./decision-transaction.ts";
 import type {
   DecisionAlignment,
   DecisionRecord,
   DecisionRelation,
+  DecisionRelationOverride,
   DecisionScan,
-  DecisionSplitSuccessor
+  DecisionSuccessor
 } from "./types.ts";
 
 export type DecisionLifecycleRequest =
@@ -32,26 +37,19 @@ export type DecisionLifecycleRequest =
       alignment: DecisionAlignment;
       keepUnrecordedHistory: boolean;
       recordPath: string;
-      relations: readonly DecisionRelation[];
+      relationOverride: DecisionRelationOverride;
     }
   | {
       action: "evolve";
-      alignment: DecisionAlignment;
       collapseUnrecordedPath: string | null;
       keepUnrecordedHistory: boolean;
-      recordPath: string;
-      relations: readonly DecisionRelation[];
+      relationOverride: DecisionRelationOverride;
+      successors: readonly DecisionSuccessor[];
     }
   | {
       action: "archive";
       keepUnrecordedHistory: boolean;
       recordPaths: readonly string[];
-    }
-  | {
-      action: "split";
-      keepUnrecordedHistory: boolean;
-      predecessorPath: string;
-      successors: readonly DecisionSplitSuccessor[];
     }
   | {
       action: "discard" | "mark-aligned";
@@ -64,6 +62,7 @@ export type DecisionHistoryBaselineRequirement =
   | "unrecorded-preflight";
 
 export function decisionHistoryBaselineRequirement(
+  scan: DecisionScan,
   request: DecisionLifecycleRequest
 ): DecisionHistoryBaselineRequirement {
   if (
@@ -75,22 +74,23 @@ export function decisionHistoryBaselineRequirement(
   if (
     (request.action === "activate"
       || request.action === "archive"
-      || request.action === "evolve"
-      || request.action === "split")
+      || request.action === "evolve")
     && request.keepUnrecordedHistory
   ) {
     return "none";
   }
-  if (request.action === "archive" || request.action === "split") {
+  if (request.action === "archive") {
     return "unrecorded-preflight";
   }
-  if (
-    (request.action === "activate" || request.action === "evolve")
-    && request.relations.length > 0
-  ) {
-    return "unrecorded-preflight";
+  if (request.action !== "activate" && request.action !== "evolve") {
+    return "none";
   }
-  return "none";
+  const relations = effectiveRequestRelations(scan, request);
+  return relations.some((relation) => (
+    findEstablishedRecord(scan, relation.target)?.status === "active"
+  ))
+    ? "unrecorded-preflight"
+    : "none";
 }
 
 export type DecisionLifecyclePreparation =
@@ -110,7 +110,7 @@ export async function prepareDecisionLifecycle(
     historyBaseline: DecisionHistoryBaseline | null;
   }
 ): Promise<DecisionLifecyclePreparation> {
-  const baselineRequirement = decisionHistoryBaselineRequirement(request);
+  const baselineRequirement = decisionHistoryBaselineRequirement(scan, request);
   if (
     baselineRequirement !== "none"
     && options.historyBaseline === null
@@ -121,8 +121,14 @@ export async function prepareDecisionLifecycle(
   }
   switch (request.action) {
     case "activate":
-    case "evolve":
       return await prepareActivation(
+        scan,
+        request,
+        options.currentTimestamp ?? currentDecisionTimestamp,
+        options.historyBaseline
+      );
+    case "evolve":
+      return await prepareEvolution(
         scan,
         request,
         options.currentTimestamp ?? currentDecisionTimestamp,
@@ -139,37 +145,15 @@ export async function prepareDecisionLifecycle(
       return prepareDiscard(scan, request.recordPath);
     case "mark-aligned":
       return await prepareMarkAligned(scan, request.recordPath);
-    case "split":
-      return await prepareSplit(
-        scan,
-        request,
-        options.currentTimestamp ?? currentDecisionTimestamp,
-        options.historyBaseline
-      );
   }
 }
 
 async function prepareActivation(
   scan: DecisionScan,
-  request: Extract<
-    DecisionLifecycleRequest,
-    { action: "activate" | "evolve" }
-  >,
+  request: Extract<DecisionLifecycleRequest, { action: "activate" }>,
   currentTimestamp: () => string,
   historyBaseline: DecisionHistoryBaseline | null
 ): Promise<DecisionLifecyclePreparation> {
-  const collapseUnrecordedPath = request.action === "evolve"
-    ? request.collapseUnrecordedPath
-    : null;
-  if (
-    request.action === "evolve"
-    && request.relations.length === 0
-    && collapseUnrecordedPath === null
-  ) {
-    return plainFailure(
-      "evolve requires at least one --relation or --collapse-unrecorded."
-    );
-  }
   const record = findRecord(scan, request.recordPath);
   if (record === null) {
     return plainFailure("Decision does not exist: " + request.recordPath);
@@ -177,40 +161,50 @@ async function prepareActivation(
   if (!record.markdownExists) {
     return plainFailure("Decision body does not exist: " + record.relativePath);
   }
-  const currentText = await readDecisionText(record);
-  if (currentText.status === "error") {
-    return currentText;
+
+  if (record.document === null) {
+    const prepared = await prepareRelationTransaction(
+      scan,
+      {
+        collapseUnrecordedPath: null,
+        keepUnrecordedHistory: request.keepUnrecordedHistory,
+        relationOverride: request.relationOverride,
+        successors: [{
+          alignment: request.alignment,
+          recordPath: record.relativePath
+        }]
+      },
+      currentTimestamp,
+      historyBaseline
+    );
+    if (prepared.status !== "ok") {
+      return prepared;
+    }
+    return {
+      changes: prepared.changes,
+      message: relationTransactionMessage(
+        "Activated new decision as " + request.alignment + " " + record.relativePath,
+        prepared
+      ),
+      status: "ok"
+    };
   }
-  const metadataErrors: string[] = [];
-  const parsed = parseDecisionMarkdown({
-    errors: metadataErrors,
-    markdown: currentText.value,
-    relativePath: record.relativePath
-  });
-  if (parsed === null || metadataErrors.length > 0) {
-    return decisionFailure(metadataErrors);
-  }
-  if (
-    (request.relations.length > 0 || collapseUnrecordedPath !== null)
-    && record.document !== null
-  ) {
+
+  if (request.relationOverride.kind === "replace") {
     return plainFailure(
-      "Evolution options can only establish a new decision candidate: "
+      "--relation and --clear-relations apply only when activate establishes "
+        + "a new decision candidate: "
         + record.relativePath
     );
   }
-
-  const activation = activationMetadata(
-    scan,
-    record,
-    parsed.metadata,
-    request.alignment,
-    currentTimestamp
-  );
-  if (activation.status === "error") {
-    return activation;
-  }
-  if (activation.state === "unchanged") {
+  if (record.status === "active") {
+    if (record.alignment !== request.alignment) {
+      return plainFailure(
+        record.alignment === "unaligned"
+          ? "Use mark-aligned to change an active decision from unaligned to aligned."
+          : "An aligned active decision cannot be changed back to unaligned."
+      );
+    }
     return {
       changes: [],
       message: "Decision is already active and "
@@ -221,115 +215,208 @@ async function prepareActivation(
       status: "ok"
     };
   }
-
-  const evolution = await prepareEvolutionPlan(
-    scan,
-    record.relativePath,
-    request,
-    historyBaseline
-  );
-  if (evolution.status !== "ok") {
-    return evolution;
+  if (record.createdAt === null) {
+    return plainFailure(
+      "Established decision createdAt must not be null: " + record.relativePath
+    );
   }
-  const changes = [...evolution.changes];
+  const currentText = await readDecisionText(record);
+  if (currentText.status === "error") {
+    return currentText;
+  }
   const nextText = replaceDecisionFrontmatter(currentText.value, {
     metadata: {
       alignment: request.alignment,
-      createdAt: activation.createdAt,
+      createdAt: record.createdAt,
       status: "active"
-    },
-    relations: request.action === "evolve" || request.relations.length > 0
-      ? [...request.relations]
-      : undefined
+    }
   });
-  if (nextText === null) {
-    return plainFailure(
-      "Decision frontmatter is unavailable: " + record.relativePath
-    );
+  return nextText === null
+    ? plainFailure(
+        "Decision frontmatter is unavailable: " + record.relativePath
+      )
+    : {
+        changes: [{ decisionPath: record.decisionPath, nextText }],
+        message: "Activated as "
+          + request.alignment
+          + " "
+          + record.relativePath
+          + ".",
+        status: "ok"
+      };
+}
+
+async function prepareEvolution(
+  scan: DecisionScan,
+  request: Extract<DecisionLifecycleRequest, { action: "evolve" }>,
+  currentTimestamp: () => string,
+  historyBaseline: DecisionHistoryBaseline | null
+): Promise<DecisionLifecyclePreparation> {
+  const prepared = await prepareRelationTransaction(
+    scan,
+    request,
+    currentTimestamp,
+    historyBaseline
+  );
+  if (prepared.status !== "ok") {
+    return prepared;
   }
-  changes.push({ decisionPath: record.decisionPath, nextText });
-  const evolutionMessage = evolution.predecessors.length === 0
-    ? ""
-    : " and archived direct predecessors "
-      + evolution.predecessors
-        .map((predecessor) => predecessor.relativePath)
-        .join(", ");
-  const collapseMessage = evolution.collapsedRecord === null
-    ? ""
-    : " and collapsed unrecorded predecessor "
-      + evolution.collapsedRecord.relativePath;
   return {
-    changes,
-    message: activation.prefix
-      + " as "
-      + request.alignment
-      + " "
-      + record.relativePath
-      + evolutionMessage
-      + collapseMessage
-      + ".",
+    changes: prepared.changes,
+    message: relationTransactionMessage(
+      "Evolved successors "
+        + prepared.successors.map((successor) => (
+          successor.alignment + " " + successor.record.relativePath
+        )).join(", "),
+      prepared
+    ),
     status: "ok"
   };
 }
 
-type DecisionEvolutionPlan =
+type PreparedSuccessor = {
+  alignment: DecisionAlignment;
+  candidate: boolean;
+  currentText: string;
+  finalRelations: DecisionRelation[];
+  metadata: DecisionSourceMetadata;
+  record: DecisionRecord;
+  sourceRelations: DecisionRelation[];
+};
+
+type RelationTransactionPreparation =
   | DecisionApplicationAttention
   | DecisionApplicationFailure
   | {
+      archivedPredecessors: DecisionRecord[];
       changes: DecisionFileChange[];
       collapsedRecord: DecisionRecord | null;
-      predecessors: DecisionRecord[];
       status: "ok";
+      successors: PreparedSuccessor[];
     };
 
-async function prepareEvolutionPlan(
+async function prepareRelationTransaction(
   scan: DecisionScan,
-  successorPath: string,
-  request: Extract<
-    DecisionLifecycleRequest,
-    { action: "activate" | "evolve" }
-  >,
+  request: {
+    collapseUnrecordedPath: string | null;
+    keepUnrecordedHistory: boolean;
+    relationOverride: DecisionRelationOverride;
+    successors: readonly DecisionSuccessor[];
+  },
+  currentTimestamp: () => string,
   historyBaseline: DecisionHistoryBaseline | null
-): Promise<DecisionEvolutionPlan> {
-  const collapseUnrecordedPath = request.action === "evolve"
-    ? request.collapseUnrecordedPath
-    : null;
+): Promise<RelationTransactionPreparation> {
+  const successors = await prepareSuccessors(
+    scan,
+    request.successors,
+    request.relationOverride,
+    currentTimestamp()
+  );
+  if (successors.status === "error") {
+    return successors;
+  }
+  const strategyErrors = relationStrategyShapeErrors(successors.records);
+  if (strategyErrors.length > 0) {
+    return decisionFailure(strategyErrors);
+  }
+
   const collapsed = prepareCollapsedPredecessor(
     scan,
-    successorPath,
-    collapseUnrecordedPath,
-    request.relations,
+    successors.records,
+    request.collapseUnrecordedPath,
+    request.relationOverride,
     historyBaseline
   );
   if (collapsed.status === "error") {
     return collapsed;
   }
-  const predecessors = evolutionPredecessors(
+  const predecessorSelection = directPredecessors(
     scan,
-    successorPath,
-    request.relations,
+    successors.records,
     collapsed.record
   );
-  if (predecessors.errors.length > 0) {
-    return decisionFailure(predecessors.errors);
+  if (predecessorSelection.errors.length > 0) {
+    return decisionFailure(predecessorSelection.errors);
   }
+
   const unrecordedAttention = prepareUnrecordedHistoryAttention(
-    predecessors.records,
+    predecessorSelection.activeRecords,
     request.keepUnrecordedHistory,
     historyBaseline,
-    true
+    collapsed.record === null
+      && successors.records.length === 1
+      && successors.records[0]?.candidate === true
   );
   if (unrecordedAttention !== null) {
     return unrecordedAttention;
   }
 
+  const collapsedReferenceErrors = collapsed.record === null
+    ? []
+    : collapsedDecisionReferenceErrors(
+        scan,
+        successors.records,
+        collapsed.record
+      );
+  if (collapsedReferenceErrors.length > 0) {
+    return decisionFailure(collapsedReferenceErrors);
+  }
+
+  const previewRecords = buildRelationTransactionPreview(
+    scan,
+    successors.records,
+    predecessorSelection.activeRecords,
+    collapsed.record
+  );
+  const previewIssues = decisionRelationConsistencyIssues(previewRecords);
+  if (previewIssues.length > 0) {
+    return decisionFailure(previewIssues.map((issue) => issue.message));
+  }
+  const splitClosureErrors = splitSuccessorClosureErrors(
+    successors.records,
+    previewRecords
+  );
+  if (splitClosureErrors.length > 0) {
+    return decisionFailure(splitClosureErrors);
+  }
+
   const changes: DecisionFileChange[] = [];
-  for (const predecessor of predecessors.records) {
+  for (const predecessor of predecessorSelection.activeRecords) {
     const prepared = await prepareArchivedDecisionChange(predecessor);
     if (prepared.status === "error") {
       return prepared;
     }
     changes.push(prepared.change);
+  }
+  for (const successor of successors.records) {
+    if (
+      !successor.candidate
+      && relationsEqual(
+        successor.sourceRelations,
+        successor.finalRelations
+      )
+    ) {
+      continue;
+    }
+    const nextText = replaceDecisionFrontmatter(successor.currentText, {
+      metadata: successor.candidate
+        ? {
+            alignment: successor.alignment,
+            createdAt: successors.establishedAt,
+            status: "active"
+          }
+        : successor.metadata,
+      relations: successor.finalRelations
+    });
+    if (nextText === null) {
+      return plainFailure(
+        "Decision frontmatter is unavailable: " + successor.record.relativePath
+      );
+    }
+    changes.push({
+      decisionPath: successor.record.decisionPath,
+      nextText
+    });
   }
   if (collapsed.record !== null) {
     changes.push({
@@ -337,146 +424,50 @@ async function prepareEvolutionPlan(
       nextText: null
     });
   }
+
   return {
+    archivedPredecessors: predecessorSelection.activeRecords,
     changes,
     collapsedRecord: collapsed.record,
-    predecessors: predecessors.records,
-    status: "ok"
+    status: "ok",
+    successors: successors.records
   };
 }
 
-type ActivationMetadata =
+type PreparedSuccessors =
   | DecisionApplicationFailure
   | {
-      createdAt: string;
-      prefix: string;
-      state: "changed";
-      status: "ok";
-    }
-  | {
-      state: "unchanged";
+      establishedAt: string;
+      records: PreparedSuccessor[];
       status: "ok";
     };
 
-function activationMetadata(
+async function prepareSuccessors(
   scan: DecisionScan,
-  record: DecisionRecord,
-  metadata: DecisionSourceMetadata,
-  alignment: DecisionAlignment,
-  currentTimestamp: () => string
-): ActivationMetadata {
-  if (record.document !== null) {
-    if (record.status === "active") {
-      if (record.alignment !== alignment) {
-        return plainFailure(
-          record.alignment === "unaligned"
-            ? "Use mark-aligned to change an active decision from unaligned to aligned."
-            : "An aligned active decision cannot be changed back to unaligned."
-        );
-      }
-      return { state: "unchanged", status: "ok" };
-    }
-    return metadata.createdAt === null
-      ? plainFailure(
-          "Established decision createdAt must not be null: " + record.relativePath
-        )
-      : {
-          createdAt: metadata.createdAt,
-          prefix: "Activated",
-          state: "changed",
-          status: "ok"
-        };
+  requestedSuccessors: readonly DecisionSuccessor[],
+  relationOverride: DecisionRelationOverride,
+  establishedAt: string
+): Promise<PreparedSuccessors> {
+  if (requestedSuccessors.length === 0) {
+    return plainFailure("evolve requires at least one --successor value.");
   }
 
-  if (!isNewDecisionIdentityPath(record.relativePath)) {
-    return decisionFailure([
-      "New decision identity path must use kebab-case semantic slugs "
-        + "without date tokens: "
-        + record.relativePath
-    ]);
-  }
-  if (
-    !record.activationCandidate
-    || !record.bodyValid
-    || metadata.status !== "candidate"
-    || metadata.alignment !== null
-    || metadata.createdAt !== null
-  ) {
-    return decisionFailure(scan.sourceErrors.length > 0
-      ? scan.sourceErrors
-      : [
-          "New decision activation candidate must be a complete current-format "
-            + "record with status: candidate, alignment: null, and "
-            + "createdAt: null: "
-            + record.relativePath
-        ]);
-  }
-  return {
-    createdAt: currentTimestamp(),
-    prefix: "Activated new decision",
-    state: "changed",
-    status: "ok"
-  };
-}
-
-async function prepareSplit(
-  scan: DecisionScan,
-  request: Extract<DecisionLifecycleRequest, { action: "split" }>,
-  currentTimestamp: () => string,
-  historyBaseline: DecisionHistoryBaseline | null
-): Promise<DecisionLifecyclePreparation> {
-  if (request.successors.length < 2) {
-    return plainFailure(
-      "split requires at least two --successor values that form the complete "
-        + "successor set."
-    );
-  }
-
-  const predecessor = findEstablishedRecord(scan, request.predecessorPath);
-  if (predecessor === null || !predecessor.markdownExists) {
-    return plainFailure(
-      "Split predecessor is not an established decision: "
-        + request.predecessorPath
-    );
-  }
-  if (predecessor.status !== "active") {
-    return plainFailure(
-      "Split predecessor must be active: " + predecessor.relativePath
-    );
-  }
-
-  const establishedAt = currentTimestamp();
-  const successorPaths = new Set<string>();
-  const preparedSuccessors: Array<{
-    nextText: string;
-    record: DecisionRecord;
-    successor: DecisionSplitSuccessor;
-  }> = [];
-  for (const successor of request.successors) {
-    const record = findRecord(scan, successor.recordPath);
+  const selectedPaths = new Set<string>();
+  const records: PreparedSuccessor[] = [];
+  for (const requested of requestedSuccessors) {
+    const requestedPath = normalizeDecisionRelativePath(requested.recordPath);
+    const record = findRecord(scan, requestedPath);
     if (record === null || !record.markdownExists) {
       return plainFailure(
-        "Split successor decision does not exist: " + successor.recordPath
+        "Successor decision does not exist: " + requested.recordPath
       );
     }
-    if (record.relativePath === predecessor.relativePath) {
+    if (selectedPaths.has(record.relativePath)) {
       return plainFailure(
-        "Split successor must not be the predecessor itself: "
-          + record.relativePath
+        "Successor decision path is repeated: " + record.relativePath
       );
     }
-    if (successorPaths.has(record.relativePath)) {
-      return plainFailure(
-        "Split successor decision path is repeated: " + record.relativePath
-      );
-    }
-    successorPaths.add(record.relativePath);
-    if (record.document !== null) {
-      return plainFailure(
-        "Split successor must be a new decision candidate: "
-          + record.relativePath
-      );
-    }
+    selectedPaths.add(record.relativePath);
 
     const currentText = await readDecisionText(record);
     if (currentText.status === "error") {
@@ -491,77 +482,394 @@ async function prepareSplit(
     if (parsed === null || metadataErrors.length > 0) {
       return decisionFailure(metadataErrors);
     }
-    if (parsed.projection.relations.length > 0) {
-      return plainFailure(
-        "Split successor candidate must declare relations: [] before the "
-          + "split transaction sets its complete relation list: "
-          + record.relativePath
-      );
+
+    const candidate = record.document === null;
+    if (candidate) {
+      if (
+        !isNewDecisionIdentityPath(record.relativePath)
+        || !record.activationCandidate
+        || !record.bodyValid
+        || parsed.metadata.status !== "candidate"
+        || parsed.metadata.alignment !== null
+        || parsed.metadata.createdAt !== null
+      ) {
+        return decisionFailure(scan.sourceErrors.length > 0
+          ? scan.sourceErrors
+          : [
+              "New decision successor must be a complete current-format "
+                + "candidate with status: candidate, alignment: null, and "
+                + "createdAt: null: "
+                + record.relativePath
+            ]);
+      }
+    } else {
+      if (
+        record.alignment === null
+        || parsed.metadata.status === "candidate"
+      ) {
+        return plainFailure(
+          "Established successor must have a non-null alignment: "
+            + record.relativePath
+        );
+      }
+      if (record.alignment !== requested.alignment) {
+        return plainFailure(
+          "Established successor alignment confirmation does not match "
+            + record.relativePath
+            + ": expected "
+            + record.alignment
+            + "."
+        );
+      }
     }
-    const activation = activationMetadata(
-      scan,
+
+    const sourceRelations = cloneRelations(parsed.projection.relations);
+    const finalRelations = relationOverride.kind === "source"
+      ? cloneRelations(sourceRelations)
+      : cloneRelations(relationOverride.relations);
+    records.push({
+      alignment: requested.alignment,
+      candidate,
+      currentText: currentText.value,
+      finalRelations,
+      metadata: parsed.metadata,
       record,
-      parsed.metadata,
-      successor.alignment,
-      () => establishedAt
-    );
-    if (activation.status === "error") {
-      return activation;
-    }
-    if (activation.state === "unchanged") {
-      return plainFailure(
-        "Split successor must not already be active: " + record.relativePath
-      );
-    }
-    const nextText = replaceDecisionFrontmatter(currentText.value, {
-      metadata: {
-        alignment: successor.alignment,
-        createdAt: activation.createdAt,
-        status: "active"
-      },
-      relations: [{
-        type: "拆分",
-        target: predecessor.relativePath
-      }]
+      sourceRelations
     });
-    if (nextText === null) {
-      return plainFailure(
-        "Decision frontmatter is unavailable: " + record.relativePath
-      );
+  }
+  return { establishedAt, records, status: "ok" };
+}
+
+function relationStrategyShapeErrors(
+  successors: readonly PreparedSuccessor[]
+): string[] {
+  const hasSplit = successors.some((successor) => (
+    successor.finalRelations.some((relation) => relation.type === "拆分")
+  ));
+  if (!hasSplit) {
+    if (successors.length !== 1) {
+      return [
+        "Multiple successors are supported only by the closed 拆分 strategy."
+      ];
     }
-    preparedSuccessors.push({ nextText, record, successor });
+    const relations = successors[0]?.finalRelations ?? [];
+    if (
+      relations.length > 0
+      && relations.every((relation) => relation.type === "归并")
+      && relations.length < 2
+    ) {
+      return ["A pure 归并 relation set requires at least two predecessors."];
+    }
+    return [];
   }
 
-  const unrecordedAttention = prepareUnrecordedHistoryAttention(
-    [predecessor],
-    request.keepUnrecordedHistory,
-    historyBaseline,
-    false
+  if (successors.length < 2) {
+    return [
+      "The 拆分 strategy requires at least two explicitly selected successors."
+    ];
+  }
+  if (successors.some((successor) => (
+    successor.finalRelations.length !== 1
+    || successor.finalRelations[0]?.type !== "拆分"
+  ))) {
+    return [
+      "Every successor in a 拆分 transaction must have exactly one 拆分 "
+        + "relation and no other relations."
+    ];
+  }
+  const splitTargets = new Set(successors.map((successor) => (
+    successor.finalRelations[0]?.target
+  )));
+  return splitTargets.size === 1
+    ? []
+    : ["Every successor in a 拆分 transaction must use the same predecessor."];
+}
+
+function splitSuccessorClosureErrors(
+  successors: readonly PreparedSuccessor[],
+  previewRecords: readonly DecisionRelationConsistencyRecord[]
+): string[] {
+  const splitPredecessor = successors[0]?.finalRelations[0]?.type === "拆分"
+    ? successors[0].finalRelations[0].target
+    : null;
+  if (splitPredecessor === null) {
+    return [];
+  }
+  const selectedPaths = new Set(
+    successors.map((successor) => successor.record.relativePath)
   );
-  if (unrecordedAttention !== null) {
-    return unrecordedAttention;
+  const finalPaths = new Set(previewRecords
+    .filter((record) => record.projection.relations.some((relation) => (
+      relation.type === "拆分" && relation.target === splitPredecessor
+    )))
+    .map((record) => record.relativePath));
+  const omitted = [...finalPaths]
+    .filter((recordPath) => !selectedPaths.has(recordPath))
+    .sort();
+  const absent = [...selectedPaths]
+    .filter((recordPath) => !finalPaths.has(recordPath))
+    .sort();
+  return omitted.length === 0 && absent.length === 0
+    ? []
+    : [
+        "The selected successor set must equal every final direct 拆分 "
+          + "successor of "
+          + splitPredecessor
+          + "."
+          + (omitted.length === 0
+            ? ""
+            : " Omitted: " + omitted.join(", ") + ".")
+          + (absent.length === 0
+            ? ""
+            : " Missing from final graph: " + absent.join(", ") + ".")
+      ];
+}
+
+function directPredecessors(
+  scan: DecisionScan,
+  successors: readonly PreparedSuccessor[],
+  collapsedRecord: DecisionRecord | null
+): { activeRecords: DecisionRecord[]; errors: string[] } {
+  const activeRecords = new Map<string, DecisionRecord>();
+  const collapsedDirectPredecessors = new Set(
+    collapsedRecord?.projection.relations.map((relation) => (
+      normalizeDecisionRelativePath(relation.target)
+    )) ?? []
+  );
+  const errors: string[] = [];
+  for (const successor of successors) {
+    const seenTargets = new Set<string>();
+    for (const relation of successor.finalRelations) {
+      const targetPath = normalizeDecisionRelativePath(relation.target);
+      if (targetPath === successor.record.relativePath) {
+        errors.push(
+          "Decision relation must not target itself: "
+            + successor.record.relativePath
+        );
+        continue;
+      }
+      if (seenTargets.has(targetPath)) {
+        errors.push(
+          "Decision relation target is repeated for "
+            + successor.record.relativePath
+            + ": "
+            + targetPath
+        );
+        continue;
+      }
+      seenTargets.add(targetPath);
+      const predecessor = findEstablishedRecord(scan, targetPath);
+      if (predecessor === null) {
+        errors.push(
+          "Evolution predecessor is not an established decision: " + targetPath
+        );
+        continue;
+      }
+      if (
+        predecessor.status === "archived"
+        && collapsedRecord !== null
+        && !collapsedDirectPredecessors.has(predecessor.relativePath)
+      ) {
+        errors.push(
+          "Archived final relation target must be a direct predecessor of "
+            + "the collapsed decision: "
+            + predecessor.relativePath
+        );
+        continue;
+      }
+      if (predecessor.status === "active") {
+        activeRecords.set(predecessor.relativePath, predecessor);
+      }
+    }
   }
-  const archivedPredecessor = await prepareArchivedDecisionChange(predecessor);
-  if (archivedPredecessor.status === "error") {
-    return archivedPredecessor;
+  return { activeRecords: [...activeRecords.values()], errors };
+}
+
+function buildRelationTransactionPreview(
+  scan: DecisionScan,
+  successors: readonly PreparedSuccessor[],
+  archivedPredecessors: readonly DecisionRecord[],
+  collapsedRecord: DecisionRecord | null
+): DecisionRelationConsistencyRecord[] {
+  const successorByPath = new Map(successors.map((successor) => [
+    successor.record.relativePath,
+    successor
+  ]));
+  const archivedPaths = new Set(
+    archivedPredecessors.map((record) => record.relativePath)
+  );
+  const preview: DecisionRelationConsistencyRecord[] = [];
+  for (const record of scan.records) {
+    if (
+      record.relativePath === collapsedRecord?.relativePath
+      || (record.document === null && !successorByPath.has(record.relativePath))
+    ) {
+      continue;
+    }
+    const successor = successorByPath.get(record.relativePath);
+    const status = successor?.candidate === true
+      ? "active"
+      : archivedPaths.has(record.relativePath)
+        ? "archived"
+        : record.status;
+    if (status === null || status === "candidate") {
+      continue;
+    }
+    preview.push({
+      projection: successor === undefined
+        ? record.document ?? record.projection
+        : {
+            ...record.projection,
+            relations: successor.finalRelations
+          },
+      relativePath: record.relativePath,
+      status
+    });
   }
-  return {
-    changes: [
-      archivedPredecessor.change,
-      ...preparedSuccessors.map(({ nextText, record }) => ({
-        decisionPath: record.decisionPath,
-        nextText
-      }))
-    ],
-    message: "Split "
-      + predecessor.relativePath
-      + " into "
-      + preparedSuccessors.map(({ record, successor }) => (
-        successor.alignment + " " + record.relativePath
-      )).join(", ")
-      + ".",
-    status: "ok"
-  };
+  return preview;
+}
+
+type CollapsedPredecessorPreparation =
+  | DecisionApplicationFailure
+  | {
+      record: DecisionRecord | null;
+      status: "ok";
+    };
+
+function prepareCollapsedPredecessor(
+  scan: DecisionScan,
+  successors: readonly PreparedSuccessor[],
+  collapsedPath: string | null,
+  relationOverride: DecisionRelationOverride,
+  historyBaseline: DecisionHistoryBaseline | null
+): CollapsedPredecessorPreparation {
+  if (collapsedPath === null) {
+    return { record: null, status: "ok" };
+  }
+  if (successors.length !== 1 || successors[0]?.candidate !== true) {
+    return plainFailure(
+      "--collapse-unrecorded requires exactly one new decision candidate successor."
+    );
+  }
+  const successor = successors[0];
+  if (
+    successor.finalRelations.length === 0
+    && relationOverride.kind === "source"
+  ) {
+    return plainFailure(
+      "Use --clear-relations to explicitly select an empty final relation set "
+        + "when collapsing an unrecorded predecessor."
+    );
+  }
+  if (
+    historyBaseline === null
+    || historyBaseline.kind !== "git-head"
+  ) {
+    return plainFailure(
+      "--collapse-unrecorded requires an available Git HEAD baseline."
+    );
+  }
+  const record = findEstablishedRecord(scan, collapsedPath);
+  if (record === null || !record.markdownExists) {
+    return plainFailure(
+      "Collapsed predecessor is not an established decision: " + collapsedPath
+    );
+  }
+  if (record.relativePath === successor.record.relativePath) {
+    return plainFailure(
+      "Collapsed predecessor must not be the successor itself: "
+        + successor.record.relativePath
+    );
+  }
+  if (record.status !== "active") {
+    return plainFailure(
+      "Collapsed predecessor must be active: " + record.relativePath
+    );
+  }
+  if (historyBaseline.recordedDecisionPaths.has(record.relativePath)) {
+    return plainFailure(
+      "Cannot collapse a decision recorded in "
+        + historyBaseline.label
+        + ": "
+        + record.relativePath
+    );
+  }
+  if (successor.finalRelations.some((relation) => (
+    normalizeDecisionRelativePath(relation.target) === record.relativePath
+  ))) {
+    return plainFailure(
+      "The complete final relation list must not retain the collapsed predecessor: "
+        + record.relativePath
+    );
+  }
+  return { record, status: "ok" };
+}
+
+function collapsedDecisionReferenceErrors(
+  scan: DecisionScan,
+  successors: readonly PreparedSuccessor[],
+  collapsedRecord: DecisionRecord
+): string[] {
+  const selectedPaths = new Set(
+    successors.map((successor) => successor.record.relativePath)
+  );
+  const referencingPaths = scan.records
+    .filter((record) => record.relativePath !== collapsedRecord.relativePath)
+    .filter((record) => !selectedPaths.has(record.relativePath))
+    .filter((record) => record.document !== null || record.activationCandidate)
+    .filter((record) => (
+      record.document?.relations ?? record.projection.relations
+    ).some((relation) => relation.target === collapsedRecord.relativePath))
+    .map((record) => record.relativePath)
+    .sort();
+  return referencingPaths.length === 0
+    ? []
+    : [
+        "Cannot collapse decision while it is still referenced: "
+          + collapsedRecord.relativePath,
+        "Remove or replace references from: " + referencingPaths.join(", ")
+      ];
+}
+
+function relationTransactionMessage(
+  prefix: string,
+  prepared: Extract<RelationTransactionPreparation, { status: "ok" }>
+): string {
+  const archived = prepared.archivedPredecessors.length === 0
+    ? ""
+    : " and archived new active predecessors "
+      + prepared.archivedPredecessors
+        .map((record) => record.relativePath)
+        .join(", ");
+  const collapsed = prepared.collapsedRecord === null
+    ? ""
+    : " and collapsed unrecorded predecessor "
+      + prepared.collapsedRecord.relativePath;
+  return prefix + archived + collapsed + ".";
+}
+
+function effectiveRequestRelations(
+  scan: DecisionScan,
+  request: Extract<DecisionLifecycleRequest, { action: "activate" | "evolve" }>
+): DecisionRelation[] {
+  if (request.action === "activate") {
+    const record = findRecord(scan, request.recordPath);
+    if (record === null || record.document !== null) {
+      return [];
+    }
+    return request.relationOverride.kind === "source"
+      ? cloneRelations(record.projection.relations)
+      : cloneRelations(request.relationOverride.relations);
+  }
+  return request.successors.flatMap((successor) => {
+    const record = findRecord(scan, successor.recordPath);
+    if (record === null) {
+      return [];
+    }
+    return request.relationOverride.kind === "source"
+      ? cloneRelations(record.projection.relations)
+      : cloneRelations(request.relationOverride.relations);
+  });
 }
 
 async function prepareMarkAligned(
@@ -676,7 +984,7 @@ function prepareDiscard(
   }
   if (record.relationshipErrors.length > 0) {
     return decisionFailure([
-      "Discard requires the candidate relationship graph to be valid: "
+      "Discard requires the candidate relationships to be structurally valid: "
         + record.relativePath,
       ...record.relationshipErrors
     ]);
@@ -744,69 +1052,6 @@ async function prepareArchivedDecisionChange(
       };
 }
 
-type CollapsedPredecessorPreparation =
-  | DecisionApplicationFailure
-  | {
-      record: DecisionRecord | null;
-      status: "ok";
-    };
-
-function prepareCollapsedPredecessor(
-  scan: DecisionScan,
-  successorPath: string,
-  collapsedPath: string | null,
-  finalRelations: readonly DecisionRelation[],
-  historyBaseline: DecisionHistoryBaseline | null
-): CollapsedPredecessorPreparation {
-  if (collapsedPath === null) {
-    return { record: null, status: "ok" };
-  }
-  if (
-    historyBaseline === null
-    || historyBaseline.kind !== "git-head"
-  ) {
-    return plainFailure(
-      "--collapse-unrecorded requires an available Git HEAD baseline."
-    );
-  }
-  const record = findEstablishedRecord(scan, collapsedPath);
-  if (record === null || !record.markdownExists) {
-    return plainFailure(
-      "Collapsed predecessor is not an established decision: " + collapsedPath
-    );
-  }
-  if (record.relativePath === successorPath) {
-    return plainFailure(
-      "Collapsed predecessor must not be the successor itself: " + successorPath
-    );
-  }
-  if (record.status !== "active") {
-    return plainFailure(
-      "Collapsed predecessor must be active: " + record.relativePath
-    );
-  }
-  if (historyBaseline.recordedDecisionPaths.has(record.relativePath)) {
-    return plainFailure(
-      "Cannot collapse a decision recorded in "
-        + historyBaseline.label
-        + ": "
-        + record.relativePath
-    );
-  }
-  if (
-    finalRelations.some(
-      (relation) => relation.target === record.relativePath
-    )
-  ) {
-    return plainFailure(
-      "The complete final relation list must not retain the collapsed predecessor: "
-        + record.relativePath
-    );
-  }
-
-  return { record, status: "ok" };
-}
-
 function prepareUnrecordedHistoryAttention(
   records: readonly DecisionRecord[],
   keepUnrecordedHistory: boolean,
@@ -838,56 +1083,12 @@ function prepareUnrecordedHistoryAttention(
       + "meaningless evolution history; no files were changed.",
     canCollapse
       ? "Re-run with --keep-unrecorded-history to preserve that history, or use "
-        + "evolve --collapse-unrecorded <decision-path> with the complete final "
-        + "--relation list."
+        + "evolve --collapse-unrecorded <decision-path> with one --successor "
+        + "and the complete final relation selection."
       : "Re-run with --keep-unrecorded-history only after deciding that the "
         + "unrecorded history should be preserved; otherwise resolve it through "
         + "an explicit evolve collapse."
   ]);
-}
-
-function evolutionPredecessors(
-  scan: DecisionScan,
-  successorPath: string,
-  relations: readonly DecisionRelation[],
-  collapsedPredecessor: DecisionRecord | null
-): { errors: string[]; records: DecisionRecord[] } {
-  const errors: string[] = [];
-  const records = new Map<string, DecisionRecord>();
-  const collapsedDirectPredecessors = new Set(
-    collapsedPredecessor?.document?.relations.map(
-      (relation) => relation.target
-    ) ?? []
-  );
-  for (const relation of relations) {
-    if (relation.target === successorPath) {
-      errors.push("Decision relation must not target itself: " + successorPath);
-      continue;
-    }
-    const predecessor = findEstablishedRecord(scan, relation.target);
-    if (predecessor === null) {
-      errors.push(
-        "Evolution predecessor is not an established decision: " + relation.target
-      );
-      continue;
-    }
-    if (predecessor.status !== "active") {
-      if (
-        predecessor.status === "archived"
-        && collapsedDirectPredecessors.has(predecessor.relativePath)
-      ) {
-        continue;
-      }
-      errors.push(
-        "Evolution predecessor must be active, unless it is a direct predecessor "
-          + "of the collapsed decision: "
-          + predecessor.relativePath
-      );
-      continue;
-    }
-    records.set(predecessor.relativePath, predecessor);
-  }
-  return { errors, records: [...records.values()] };
 }
 
 function findRecord(scan: DecisionScan, value: string): DecisionRecord | null {
@@ -901,6 +1102,26 @@ function findEstablishedRecord(
 ): DecisionRecord | null {
   const record = findRecord(scan, value);
   return record?.document !== null ? record : null;
+}
+
+function cloneRelations(
+  relations: readonly DecisionRelation[]
+): DecisionRelation[] {
+  return relations.map(({ type, target }) => ({
+    type,
+    target: normalizeDecisionRelativePath(target)
+  }));
+}
+
+function relationsEqual(
+  left: readonly DecisionRelation[],
+  right: readonly DecisionRelation[]
+): boolean {
+  return left.length === right.length
+    && left.every((relation, index) => (
+      relation.type === right[index]?.type
+      && relation.target === right[index]?.target
+    ));
 }
 
 async function readDecisionText(

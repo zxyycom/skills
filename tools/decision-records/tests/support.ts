@@ -12,7 +12,8 @@ import {
 } from "../src/cli.ts";
 import type {
   DecisionIndex,
-  DecisionIndexState
+  DecisionIndexState,
+  DecisionRelation
 } from "../src/types.ts";
 
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -148,13 +149,20 @@ export function decisionFilePath(
 
 export function candidateDecisionBody(options: {
   relationTarget?: string;
+  relations?: readonly DecisionRelation[];
 } = {}): string {
-  const relations = options.relationTarget === undefined
+  const requestedRelations = options.relations
+    ?? (options.relationTarget === undefined
+      ? []
+      : [{ type: "修订" as const, target: options.relationTarget }]);
+  const relations = requestedRelations.length === 0
     ? ["relations: []"]
     : [
         "relations:",
-        "  - type: 修订",
-        "    target: " + options.relationTarget
+        ...requestedRelations.flatMap((relation) => [
+          "  - type: " + relation.type,
+          "    target: " + relation.target
+        ])
       ];
   return [
     "---",

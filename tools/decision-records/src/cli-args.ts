@@ -12,7 +12,8 @@ import {
   type DecisionListAlignment,
   type DecisionListStatus,
   type DecisionRelation,
-  type DecisionSplitSuccessor,
+  type DecisionRelationOverride,
+  type DecisionSuccessor,
   type DecisionTraceDirection
 } from "./types.ts";
 import {
@@ -32,7 +33,6 @@ export type Command =
   | "mark-aligned"
   | "show"
   | "show-candidate"
-  | "split"
   | "stage"
   | "sync-index"
   | "trace";
@@ -51,7 +51,7 @@ export type CliArgs =
       alignment: DecisionAlignment;
       keepUnrecordedHistory: boolean;
       recordPath: string;
-      relations: DecisionRelation[];
+      relationOverride: DecisionRelationOverride;
     }>
   | LocatedCommand<"archive", {
       keepUnrecordedHistory: boolean;
@@ -62,11 +62,10 @@ export type CliArgs =
   | LocatedCommand<"discard", { recordPath: string }>
   | LocatedCommand<"domains">
   | LocatedCommand<"evolve", {
-      alignment: DecisionAlignment;
       collapseUnrecordedPath: string | null;
       keepUnrecordedHistory: boolean;
-      recordPath: string;
-      relations: DecisionRelation[];
+      relationOverride: DecisionRelationOverride;
+      successors: DecisionSuccessor[];
     }>
   | LocatedCommand<"list", {
       alignment: DecisionListAlignment;
@@ -77,11 +76,6 @@ export type CliArgs =
   | LocatedCommand<"mark-aligned", { recordPath: string }>
   | LocatedCommand<"show", { recordPath: string }>
   | LocatedCommand<"show-candidate", { recordPath: string }>
-  | LocatedCommand<"split", {
-      keepUnrecordedHistory: boolean;
-      predecessorPath: string;
-      successors: DecisionSplitSuccessor[];
-    }>
   | LocatedCommand<"stage", { recordPaths: string[] }>
   | LocatedCommand<"sync-index", { write: boolean }>
   | LocatedCommand<"trace", {
@@ -97,6 +91,7 @@ export type CliArgsFor<TCommand extends Command> = Extract<
 
 type ParsedOptions = {
   alignment?: DecisionListAlignment;
+  clearRelations?: boolean;
   collapseUnrecorded?: string;
   decisionsDir?: string;
   domain?: string;
@@ -107,7 +102,7 @@ type ParsedOptions = {
   relation?: DecisionRelation[];
   root?: string;
   status?: DecisionListStatus;
-  successor?: DecisionSplitSuccessor[];
+  successor?: DecisionSuccessor[];
   write?: boolean;
 };
 
@@ -161,11 +156,6 @@ function parseDecisionRelation(
   }
 
   const relationTypeValue = value.slice(0, separatorIndex);
-  if (relationTypeValue === "拆分") {
-    throw new InvalidArgumentError(
-      "拆分 relations must use the split command"
-    );
-  }
   const relationType = decisionRelationTypes.find(
     (candidate) => candidate === relationTypeValue
   );
@@ -190,10 +180,10 @@ function parseDecisionRelation(
   return [...previous, { type: relationType, target }];
 }
 
-function parseDecisionSplitSuccessor(
+function parseDecisionSuccessor(
   value: string,
-  previous: DecisionSplitSuccessor[] = []
-): DecisionSplitSuccessor[] {
+  previous: DecisionSuccessor[] = []
+): DecisionSuccessor[] {
   const separatorIndex = value.indexOf("=");
   if (separatorIndex <= 0 || separatorIndex === value.length - 1) {
     throw new InvalidArgumentError(
@@ -215,6 +205,17 @@ function parseDecisionSplitSuccessor(
     throw new InvalidArgumentError("must not repeat a successor decision path");
   }
   return [...previous, { alignment: alignmentValue, recordPath }];
+}
+
+function decisionRelationOverride(
+  options: Pick<ParsedOptions, "clearRelations" | "relation">
+): DecisionRelationOverride {
+  if (options.clearRelations === true) {
+    return { kind: "replace", relations: [] };
+  }
+  return options.relation === undefined
+    ? { kind: "source" }
+    : { kind: "replace", relations: options.relation };
 }
 
 function requiredDecisionAlignment(
@@ -245,7 +246,7 @@ function commandArgs(
         command,
         keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
         recordPath,
-        relations: options.relation ?? []
+        relationOverride: decisionRelationOverride(options)
       };
     case "archive":
       return {
@@ -265,23 +266,14 @@ function commandArgs(
       return { ...location, command, recordPath };
     case "stage":
       return { ...location, command, recordPaths };
-    case "split":
-      return {
-        ...location,
-        command,
-        keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
-        predecessorPath: recordPath,
-        successors: options.successor ?? []
-      };
     case "evolve":
       return {
         ...location,
-        alignment: requiredDecisionAlignment(options.alignment),
         collapseUnrecordedPath: options.collapseUnrecorded ?? null,
         command,
         keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
-        recordPath,
-        relations: options.relation ?? []
+        relationOverride: decisionRelationOverride(options),
+        successors: options.successor ?? []
       };
     case "list":
       return {
@@ -318,13 +310,21 @@ function createSubcommand(
     .exitOverride();
 }
 
-function createDecisionRelationOption(required = false): Option {
-  const option = new Option(
+function createDecisionRelationOption(): Option {
+  return new Option(
     "--relation <type=decision-path>",
-    "Set one final direct predecessor relation; active targets are archived. "
-      + "Repeat to set the complete relation list."
-  ).argParser(parseDecisionRelation);
-  return required ? option.makeOptionMandatory() : option;
+    "Replace every selected successor's complete relation list with one final "
+      + "direct predecessor relation. Repeat for the complete replacement."
+  )
+    .argParser(parseDecisionRelation)
+    .conflicts("clearRelations");
+}
+
+function createClearRelationsOption(): Option {
+  return new Option(
+    "--clear-relations",
+    "Replace the complete relation list with an explicit empty set."
+  ).conflicts("relation");
 }
 
 function createKeepUnrecordedHistoryOption(): Option {
@@ -478,31 +478,39 @@ export function createCliProgram(
         .makeOptionMandatory()
     )
     .addOption(createDecisionRelationOption())
+    .addOption(createClearRelationsOption())
     .addOption(createKeepUnrecordedHistoryOption());
   activate.action((recordPath: string) => execute("activate", activate, [recordPath]));
 
   const evolve = createSubcommand(
     program,
-    "evolve <decision-path>",
-    "Activate one new decision, archive explicit active predecessors, and "
-      + "optionally collapse one unrecorded intermediate predecessor in one "
-      + "recoverable transaction."
+    "evolve",
+    "Replace complete successor relations, establish selected candidates, "
+      + "archive new active predecessors, and optionally collapse one "
+      + "unrecorded intermediate predecessor in one recoverable transaction."
   )
     .addOption(
-      new Option("--alignment <value>", "Alignment state for the active decision.")
-        .choices(decisionAlignments)
+      new Option(
+        "--successor <alignment=decision-path>",
+        "Select one successor and confirm its whole-decision alignment. "
+          + "Repeat for the complete successor set."
+      )
+        .argParser(parseDecisionSuccessor)
         .makeOptionMandatory()
     )
     .addOption(createDecisionRelationOption())
+    .addOption(createClearRelationsOption())
     .addOption(createKeepUnrecordedHistoryOption())
     .addOption(
       new Option(
         "--collapse-unrecorded <decision-path>",
-        "Delete one active predecessor absent from Git HEAD; --relation values "
-          + "must declare the complete final relation list."
+        "Delete one active predecessor absent from Git HEAD for one new "
+          + "candidate; resolved source relations or --relation define the "
+          + "complete final set, and --clear-relations selects an explicitly "
+          + "empty set."
       ).argParser(parseSingleDecisionPath)
     );
-  evolve.action((recordPath: string) => execute("evolve", evolve, [recordPath]));
+  evolve.action(() => execute("evolve", evolve));
 
   const markAligned = createSubcommand(
     program,
@@ -514,24 +522,6 @@ export function createCliProgram(
   markAligned.action((recordPath: string) => (
     execute("mark-aligned", markAligned, [recordPath])
   ));
-
-  const split = createSubcommand(
-    program,
-    "split <decision-path>",
-    "Archive one coarse active decision and establish at least two successor "
-      + "candidates with independent alignment in one recoverable transaction."
-  )
-    .addOption(
-      new Option(
-        "--successor <alignment=decision-path>",
-        "Set one successor candidate and its whole-decision alignment. "
-          + "Repeat for the complete successor set."
-      )
-        .argParser(parseDecisionSplitSuccessor)
-        .makeOptionMandatory()
-    )
-    .addOption(createKeepUnrecordedHistoryOption());
-  split.action((recordPath: string) => execute("split", split, [recordPath]));
 
   const archive = createSubcommand(
     program,
