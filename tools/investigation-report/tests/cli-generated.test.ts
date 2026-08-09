@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
@@ -18,12 +19,26 @@ import {
   generatedSchemaPath,
   type ReportInput,
   withTempRoot,
-  writeCollection
+  writeCollection,
+  writeResource
 } from "./support.ts";
 
 async function testBundledApiParity(tempRoot: string): Promise<void> {
   const workspaceRoot = path.join(tempRoot, "bundled-api");
-  await writeCollection(workspaceRoot, createValidReports());
+  const reports = createValidReports();
+  reports[0] = {
+    ...reports[0]!,
+    reports: reports[0]!.reports!.map((report, index) => (
+      index === 1
+        ? {
+            ...report,
+            resources: [{ id: "api/response.json", label: "响应样本" }]
+          }
+        : report
+    ))
+  };
+  await writeResource(workspaceRoot, "api/response.json", '{"ok":true}\n');
+  await writeCollection(workspaceRoot, reports);
 
   const sourceValidation = await validateInvestigationReports({
     workspaceRoot
@@ -50,6 +65,10 @@ async function testBundledApiParity(tempRoot: string): Promise<void> {
         question: "为什么项目 Shell 没有进入可用工具列表？",
         reportCount: 2,
         reportTitles: ["恢复注册入口", "复查当前注册状态"],
+        resourceReferences: [{
+          reportIndex: 1,
+          resourceIds: ["api/response.json"]
+        }],
         status: "调查中",
         title: "项目 Shell 注册调查"
       }],
@@ -75,7 +94,20 @@ async function testBundledApiParity(tempRoot: string): Promise<void> {
 
 async function testGeneratedCheckCommand(tempRoot: string): Promise<void> {
   const validRoot = path.join(tempRoot, "cli-valid");
-  await writeCollection(validRoot, createValidReports());
+  const reports = createValidReports();
+  reports[0] = {
+    ...reports[0]!,
+    reports: reports[0]!.reports!.map((report, index) => (
+      index === 0
+        ? {
+            ...report,
+            resources: [{ id: "cli/check.txt", label: "check 样本" }]
+          }
+        : report
+    ))
+  };
+  await writeResource(validRoot, "cli/check.txt", "check resource\n");
+  await writeCollection(validRoot, reports);
 
   const cliSuccess = spawnSync(
     "node",
@@ -105,6 +137,31 @@ async function testGeneratedCheckCommand(tempRoot: string): Promise<void> {
     /1 of 2 topics checked across 1 categories/
   );
   assert.match(cliFiltered.stdout, /index not checked/);
+
+  await fs.rm(path.join(
+    validRoot,
+    "docs",
+    "investigations",
+    "_resources",
+    "cli",
+    "check.txt"
+  ));
+  const cliFilteredMissingResource = spawnSync(
+    "node",
+    [
+      generatedCheckerPath,
+      "--root",
+      validRoot,
+      "--path",
+      "codex/project-shell-registration.md"
+    ],
+    { encoding: "utf8" }
+  );
+  assert.equal(cliFilteredMissingResource.status, 1);
+  assert.match(
+    cliFilteredMissingResource.stderr,
+    /_resources\/cli\/check\.txt does not exist/u
+  );
 
   const invalidRoot = path.join(tempRoot, "cli-invalid");
   const invalidReport: ReportInput = {
@@ -155,7 +212,18 @@ async function testGeneratedListCommand(tempRoot: string): Promise<void> {
 
 async function testGeneratedSyncCommand(tempRoot: string): Promise<void> {
   const cliSyncRoot = path.join(tempRoot, "cli-sync");
-  await writeCollection(cliSyncRoot, [createValidReports()[0]], false);
+  const report = createValidReports()[0]!;
+  report.reports = report.reports!.map((entry, index) => (
+    index === 0
+      ? {
+          ...entry,
+          resources: [{ id: "sync/sample.bin", label: "同步样本" }]
+        }
+      : entry
+  ));
+  const resource = Uint8Array.from([0, 127, 128, 255]);
+  await writeResource(cliSyncRoot, "sync/sample.bin", resource);
+  await writeCollection(cliSyncRoot, [report], false);
   const cliSync = spawnSync(
     "node",
     [generatedCheckerPath, "sync-index", "--root", cliSyncRoot],
@@ -172,6 +240,50 @@ async function testGeneratedSyncCommand(tempRoot: string): Promise<void> {
     )).then((entry) => entry.isFile()),
     true
   );
+  const index = JSON.parse(await fs.readFile(path.join(
+    cliSyncRoot,
+    "docs",
+    "investigations",
+    investigationIndexFileName
+  ), "utf8")) as {
+    entries: Record<string, { state: { resourceReferences: unknown } }>;
+    metadata: { resources: Array<{ id: string; sha256: string }> };
+  };
+  assert.deepEqual(index.metadata.resources, [{
+    id: "sync/sample.bin",
+    sha256: createHash("sha256").update(resource).digest("hex")
+  }]);
+  assert.deepEqual(
+    index.entries[report.path]!.state.resourceReferences,
+    [{ reportIndex: 0, resourceIds: ["sync/sample.bin"] }]
+  );
+}
+
+async function testGeneratedListRejectsStaleResources(
+  tempRoot: string
+): Promise<void> {
+  const workspaceRoot = path.join(tempRoot, "cli-list-resource-stale");
+  const report: ReportInput = {
+    path: "runtime/resource-list.md",
+    question: "list 是否会拒绝资源内容过期的索引？",
+    reports: [{
+      resources: [{ id: "captures/list.bin", label: "list 样本" }],
+      title: "检查 list 新鲜度"
+    }],
+    title: "list 资源新鲜度调查"
+  };
+  await writeResource(workspaceRoot, "captures/list.bin", Uint8Array.from([1]));
+  await writeCollection(workspaceRoot, [report]);
+  await writeResource(workspaceRoot, "captures/list.bin", Uint8Array.from([2]));
+
+  const cliList = spawnSync(
+    "node",
+    [generatedCheckerPath, "list", "--root", workspaceRoot],
+    { encoding: "utf8" }
+  );
+  assert.equal(cliList.status, 1);
+  assert.match(cliList.stderr, /_resources\/captures\/list\.bin/u);
+  assert.match(cliList.stderr, /resource content changed/u);
 }
 
 async function testGeneratedCliUsage(tempRoot: string): Promise<void> {
@@ -182,10 +294,11 @@ async function testGeneratedCliUsage(tempRoot: string): Promise<void> {
   );
   assert.equal(help.status, 0, help.stderr);
   assert.match(help.stdout, /Usage: check-investigations\.mjs/);
-  assert.match(help.stdout, /self-contained reports/);
+  assert.match(help.stdout, /optional attached resources/);
+  assert.match(help.stdout, /resource pool/);
   assert.match(help.stdout, /full-index freshness/);
   assert.match(help.stdout, /sync-index validates every topic/);
-  assert.match(help.stdout, /list checks index freshness/);
+  assert.match(help.stdout, /list checks topic and resource freshness/);
 
   const validRoot = path.join(tempRoot, "cli-usage");
   await writeCollection(validRoot, createValidReports());
@@ -265,7 +378,7 @@ async function testGeneratedArtifacts(): Promise<void> {
       sourceRevision: { type: string };
     };
   };
-  assert.equal(generatedSchema.properties.definitionVersion.const, 2);
+  assert.equal(generatedSchema.properties.definitionVersion.const, 3);
   assert.equal(generatedSchema.properties.entries.type, "object");
   assert.equal(
     generatedSchema.properties.namespace.const,
@@ -273,6 +386,14 @@ async function testGeneratedArtifacts(): Promise<void> {
   );
   assert.equal(generatedSchema.properties.schemaVersion.const, 3);
   assert.equal(generatedSchema.properties.sourceRevision.type, "object");
+  assert.match(
+    JSON.stringify(generatedSchema),
+    /resourceReferences/u
+  );
+  assert.match(
+    JSON.stringify(generatedSchema),
+    /\^\[0-9a-f\]\{64\}\$/u
+  );
 
   const sourceMap = JSON.parse(
     await fs.readFile(`${generatedCheckerPath}.map`, "utf8")
@@ -308,6 +429,10 @@ test("generated investigation check command preserves validation contracts", () 
 
 test("generated investigation list command filters indexed topics", () => (
   withTempRoot("cli-list", testGeneratedListCommand)
+));
+
+test("generated investigation list rejects stale attached resources", () => (
+  withTempRoot("cli-list-resource-stale", testGeneratedListRejectsStaleResources)
 ));
 
 test("generated investigation sync command writes the full index", () => (

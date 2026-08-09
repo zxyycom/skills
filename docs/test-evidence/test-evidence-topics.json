@@ -15,7 +15,7 @@
     },
     {
       "id": "investigation-report",
-      "description": "调查报告的目录、结构、时间顺序、范围校验、派生索引，以及 CLI 和分发 API 契约。"
+      "description": "调查报告的目录、结构、时间顺序、随附资源、范围校验、派生索引，以及 CLI 和分发 API 契约。"
     },
     {
       "id": "repository-tooling",

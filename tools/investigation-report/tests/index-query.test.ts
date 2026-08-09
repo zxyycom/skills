@@ -47,9 +47,9 @@ async function testValidIndexAndQueries(tempRoot: string): Promise<void> {
     "utf8"
   )) as StateIndex;
   assert.equal(validIndex.schemaVersion, 3);
-  assert.deepEqual(validIndex.metadata, {});
+  assert.deepEqual(validIndex.metadata, { resources: [] });
   assert.equal(validIndex.namespace, "investigations");
-  assert.equal(validIndex.definitionVersion, 2);
+  assert.equal(validIndex.definitionVersion, 3);
   assert.match(
     validIndex.sourceRevision.metadata,
     /^sha256:[0-9a-f]{64}$/u
@@ -77,6 +77,7 @@ async function testValidIndexAndQueries(tempRoot: string): Promise<void> {
     question: "为什么项目 Shell 没有进入可用工具列表？",
     reportCount: 2,
     reportTitles: ["恢复注册入口", "复查当前注册状态"],
+    resourceReferences: [],
     status: "调查中",
     title: "项目 Shell 注册调查"
   });
@@ -115,7 +116,7 @@ async function testValidIndexAndQueries(tempRoot: string): Promise<void> {
       ]
     }
   }));
-  assert.deepEqual(queriedIndex.metadata, {});
+  assert.deepEqual(queriedIndex.metadata, { resources: [] });
   assert.deepEqual(
     queriedIndex.entries.map((entry) => entry.id),
     ["runtime/process-churn.md"]
@@ -244,7 +245,7 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
   const schemaV2 = parseStateIndex({
     definition: createInvestigationStateIndexDefinition(),
     expectation: {
-      definitionVersion: 2,
+      definitionVersion: 3,
       namespace: "investigations"
     },
     sourcePath: investigationIndexFileName,
@@ -269,7 +270,7 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
   const invalidRevision = parseStateIndex({
     definition: createInvestigationStateIndexDefinition(),
     expectation: {
-      definitionVersion: 2,
+      definitionVersion: 3,
       namespace: "investigations"
     },
     sourcePath: investigationIndexFileName,
@@ -290,7 +291,7 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
   const mismatchedPath = parseStateIndex({
     definition: createInvestigationStateIndexDefinition(),
     expectation: {
-      definitionVersion: 2,
+      definitionVersion: 3,
       namespace: "investigations"
     },
     sourcePath: investigationIndexFileName,
@@ -304,7 +305,7 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
   const invalidCount = parseStateIndex({
     definition: createInvestigationStateIndexDefinition(),
     expectation: {
-      definitionVersion: 2,
+      definitionVersion: 3,
       namespace: "investigations"
     },
     sourcePath: investigationIndexFileName,
@@ -319,6 +320,201 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
     )),
     invalidCount.diagnostics.map((entry) => entry.message).join("; ")
   );
+
+  const invalidResourceSha = parseStateIndex({
+    definition: createInvestigationStateIndexDefinition(),
+    expectation: {
+      definitionVersion: 3,
+      namespace: "investigations"
+    },
+    sourcePath: investigationIndexFileName,
+    text: restoredIndex.replace(
+      '"resources": []',
+      '"resources": [{"id": "sample.txt", "sha256": "not-a-sha256"}]'
+    )
+  });
+  assert.equal(invalidResourceSha.status, "error");
+  assert.ok(invalidResourceSha.diagnostics.some((diagnostic) => (
+    diagnostic.message.includes("must be a lowercase SHA-256 digest")
+  )));
+
+  const outOfRangeResourceReference = parseStateIndex({
+    definition: createInvestigationStateIndexDefinition(),
+    expectation: {
+      definitionVersion: 3,
+      namespace: "investigations"
+    },
+    sourcePath: investigationIndexFileName,
+    text: restoredIndex.replace(
+      '"resourceReferences": []',
+      '"resourceReferences": [{"reportIndex": 1, "resourceIds": ["sample.txt"]}]'
+    )
+  });
+  assert.equal(outOfRangeResourceReference.status, "error");
+  assert.ok(outOfRangeResourceReference.diagnostics.some((diagnostic) => (
+    diagnostic.message.includes("reportIndex 1 must be less than reportCount")
+  )));
+
+  type ResourceTamperIndex = {
+    entries: Record<string, {
+      state: {
+        reportCount: number;
+        reportTitles: string[];
+        resourceReferences: Array<{
+          reportIndex: number;
+          resourceIds: string[];
+        }>;
+      };
+    }>;
+    metadata: {
+      resources: Array<{ id: string; sha256: string }>;
+    };
+  };
+  const resourceEntryId = "runtime/added-report.md";
+  const resourceDigest = "0".repeat(64);
+  const parseResourceTamper = (
+    mutate: (index: ResourceTamperIndex) => void
+  ) => {
+    const candidate = JSON.parse(restoredIndex) as ResourceTamperIndex;
+    mutate(candidate);
+    return parseStateIndex({
+      definition: createInvestigationStateIndexDefinition(),
+      expectation: {
+        definitionVersion: 3,
+        namespace: "investigations"
+      },
+      sourcePath: investigationIndexFileName,
+      text: JSON.stringify(candidate)
+    });
+  };
+
+  const unorderedReportIndexes = parseResourceTamper((index) => {
+    const state = index.entries[resourceEntryId]!.state;
+    state.reportCount = 2;
+    state.reportTitles = ["第一份报告", "第二份报告"];
+    state.resourceReferences = [
+      { reportIndex: 1, resourceIds: ["b.txt"] },
+      { reportIndex: 0, resourceIds: ["a.txt"] }
+    ];
+    index.metadata.resources = [
+      { id: "a.txt", sha256: resourceDigest },
+      { id: "b.txt", sha256: resourceDigest }
+    ];
+  });
+  assert.equal(unorderedReportIndexes.status, "error");
+  assert.ok(unorderedReportIndexes.diagnostics.some((diagnostic) => (
+    diagnostic.message.includes(
+      "must use unique reportIndex values in sorted order"
+    )
+  )));
+
+  const duplicateReportIndexes = parseResourceTamper((index) => {
+    index.entries[resourceEntryId]!.state.resourceReferences = [
+      { reportIndex: 0, resourceIds: ["a.txt"] },
+      { reportIndex: 0, resourceIds: ["b.txt"] }
+    ];
+    index.metadata.resources = [
+      { id: "a.txt", sha256: resourceDigest },
+      { id: "b.txt", sha256: resourceDigest }
+    ];
+  });
+  assert.equal(duplicateReportIndexes.status, "error");
+  assert.ok(duplicateReportIndexes.diagnostics.some((diagnostic) => (
+    diagnostic.message.includes(
+      "must use unique reportIndex values in sorted order"
+    )
+  )));
+
+  const unorderedResourceIds = parseResourceTamper((index) => {
+    index.entries[resourceEntryId]!.state.resourceReferences = [{
+      reportIndex: 0,
+      resourceIds: ["b.txt", "a.txt"]
+    }];
+    index.metadata.resources = [
+      { id: "a.txt", sha256: resourceDigest },
+      { id: "b.txt", sha256: resourceDigest }
+    ];
+  });
+  assert.equal(unorderedResourceIds.status, "error");
+  assert.ok(unorderedResourceIds.diagnostics.some((diagnostic) => (
+    diagnostic.message.includes(
+      "must contain unique resource ids in sorted order"
+    )
+  )));
+
+  const duplicateResourceIds = parseResourceTamper((index) => {
+    index.entries[resourceEntryId]!.state.resourceReferences = [{
+      reportIndex: 0,
+      resourceIds: ["a.txt", "a.txt"]
+    }];
+    index.metadata.resources = [
+      { id: "a.txt", sha256: resourceDigest }
+    ];
+  });
+  assert.equal(duplicateResourceIds.status, "error");
+  assert.ok(duplicateResourceIds.diagnostics.some((diagnostic) => (
+    diagnostic.message.includes(
+      "must contain unique resource ids in sorted order"
+    )
+  )));
+
+  const unorderedMetadataIds = parseResourceTamper((index) => {
+    index.metadata.resources = [
+      { id: "b.txt", sha256: resourceDigest },
+      { id: "a.txt", sha256: resourceDigest }
+    ];
+  });
+  assert.equal(unorderedMetadataIds.status, "error");
+  assert.ok(unorderedMetadataIds.diagnostics.some((diagnostic) => (
+    diagnostic.message.includes("must contain unique resources in id order")
+  )));
+
+  const duplicateMetadataIds = parseResourceTamper((index) => {
+    index.metadata.resources = [
+      { id: "a.txt", sha256: resourceDigest },
+      { id: "a.txt", sha256: resourceDigest }
+    ];
+  });
+  assert.equal(duplicateMetadataIds.status, "error");
+  assert.ok(duplicateMetadataIds.diagnostics.some((diagnostic) => (
+    diagnostic.message.includes("must contain unique resources in id order")
+  )));
+
+  const missingResourceMetadata = parseStateIndex({
+    definition: createInvestigationStateIndexDefinition(),
+    expectation: {
+      definitionVersion: 3,
+      namespace: "investigations"
+    },
+    sourcePath: investigationIndexFileName,
+    text: restoredIndex.replace(
+      '"resourceReferences": []',
+      '"resourceReferences": [{"reportIndex": 0, "resourceIds": ["sample.txt"]}]'
+    )
+  });
+  assert.equal(missingResourceMetadata.status, "error");
+  assert.ok(missingResourceMetadata.diagnostics.some((diagnostic) => (
+    diagnostic.message.includes("sample.txt")
+    && diagnostic.message.includes("missing from metadata.resources")
+  )));
+
+  const unreferencedResourceMetadata = parseStateIndex({
+    definition: createInvestigationStateIndexDefinition(),
+    expectation: {
+      definitionVersion: 3,
+      namespace: "investigations"
+    },
+    sourcePath: investigationIndexFileName,
+    text: restoredIndex.replace(
+      '"resources": []',
+      `"resources": [{"id": "sample.txt", "sha256": "${"0".repeat(64)}"}]`
+    )
+  });
+  assert.equal(unreferencedResourceMetadata.status, "error");
+  assert.ok(unreferencedResourceMetadata.diagnostics.some((diagnostic) => (
+    diagnostic.message.includes("metadata resource sample.txt")
+    && diagnostic.message.includes("not referenced")
+  )));
 }
 
 test("index queries return filtered and paginated investigation states", () => (

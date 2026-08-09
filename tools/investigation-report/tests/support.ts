@@ -16,9 +16,15 @@ export type ReportEntryInput = {
   extraSections?: readonly ExtraSection[];
   formedAt?: string;
   purpose?: string;
+  resources?: readonly ResourceLinkInput[];
   resultAndBoundary?: string;
   scopeAndBasis?: string;
   title: string;
+};
+
+export type ResourceLinkInput = {
+  id: string;
+  label: string;
 };
 
 export type ReportInput = {
@@ -132,6 +138,14 @@ export function reportEntryMarkdown(input: ReportEntryInput): string {
   const lines = [
     `### ${input.title}`,
     `- 形成时间: ${input.formedAt ?? "2026-07-21T09:00:00+08:00"}`,
+    ...(input.resources === undefined
+      ? []
+      : [
+          "- 随附资源:",
+          ...input.resources.map((resource) => (
+            `  - [${resource.label}](../_resources/${resource.id})`
+          ))
+        ]),
     "",
     "#### 形成时背景",
     input.background ?? coreSectionCases[0].body,
@@ -195,6 +209,20 @@ export function reportMarkdown(input: ReportInput): string {
 
 export function investigationRoot(workspaceRoot: string): string {
   return path.join(workspaceRoot, "docs", "investigations");
+}
+
+export async function writeResource(
+  workspaceRoot: string,
+  resourceId: string,
+  content: string | Uint8Array
+): Promise<void> {
+  const resourcePath = path.join(
+    investigationRoot(workspaceRoot),
+    "_resources",
+    ...resourceId.split("/")
+  );
+  await fs.mkdir(path.dirname(resourcePath), { recursive: true });
+  await fs.writeFile(resourcePath, content);
 }
 
 export async function writeCollection(
