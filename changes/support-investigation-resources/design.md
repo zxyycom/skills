@@ -8,7 +8,7 @@
 
 - [调查报告固定契约](../../skills/investigation-report/references/investigation-report-contract.md)让每个主题 Markdown 保存一组按形成时间追加的 H3 报告，每份报告以 `形成时间` 开始并包含四项固定核心。
 - [主题级索引决策](../../docs/decisions/investigation-report/maintain-topic-level-investigation-index.md)规定相对主题路径是稳定 ID，每个主题只产生一个索引 entry，Markdown 与领域文件是事实源，`investigation-index.json` 是可删除重建的查询投影。
-- 当前通用索引使用 schema v3：`entries` 与 `sourceRevision.entries` 以主题 ID 键控，`sourceRevision.metadata` 独立指纹化集合级来源；调查领域 definition version 为 `2`，metadata 当前为空。
+- 本 change 开始前的通用索引使用 schema v3：`entries` 与 `sourceRevision.entries` 以主题 ID 键控，`sourceRevision.metadata` 独立指纹化集合级来源；调查领域 definition version 为 `2`，metadata 为空。
 - 一项原始材料可能只支持一份报告，也可能被多份报告或主题共享，因此引用关系必须在报告处声明，不能从资源目录位置猜测。
 - 原始参数、响应、日志、规范摘录和图片需要保留原始字节，但报告正文仍需解释影响结论的关键事实。
 
@@ -84,7 +84,7 @@
 ]
 ```
 
-`reportIndex` 是主题内 H3 报告的零基序号，与 `reportTitles` 同位置；只投影拥有资源的报告。对象按 `reportIndex` 排序，每个 `resourceIds` 去重后按 ID 排序。序号是可重建的主题内投影，不是跨版本持久身份；主题没有资源时保存空数组。
+`reportIndex` 是主题内 H3 报告的零基序号，与 `reportTitles` 同位置；只投影拥有资源的报告。对象按 `reportIndex` 排序，每个 `resourceIds` 彼此唯一并按 ID 排序；同一报告出现重复资源引用时解析失败，不能通过投影时去重接受。序号是可重建的主题内投影，不是跨版本持久身份；主题没有资源时保存空数组。
 
 索引 metadata 新增按 ID 排序的资源摘要表：
 

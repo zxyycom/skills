@@ -1,95 +1,35 @@
 # 调查报告固定契约
 
-本文件只定义 `investigation-report` 的落盘结构、派生索引和 CLI 语义。何时调查、怎样取得证据、哪些场景内容必须补足、何时追加或拆分以及如何判断内容质量，由 [SKILL.md](../SKILL.md) 承接。
+本文件定义 `investigation-report` 的落盘结构、可选资源引用、派生索引和 CLI 语义。报告可以不引用资源；只有报告声明 `随附资源` 时才产生引用关系和对应的资源管理责任。何时保存形成时资源、怎样取得证据、哪些场景内容必须补足、何时追加或拆分以及如何判断内容质量，由 [SKILL.md](../SKILL.md) 承接。
 
 ## Owner 与目录
 
 1. 每个主题 Markdown 是自身标题、核心问题、状态、最新报告时间和全部历史报告的唯一事实源，也是索引的基本单位。
 2. `调查报告` 中每个三级标题是一份形成于特定时点的完整报告。报告是主题内部按形成时间追加的认识记录，不独立成为主索引条目；最后一份报告只表示最近记录，不自动成为累积当前口径。
-3. `investigation-index.json` 是从当前调查根目录内全部主题 Markdown 确定性生成的通用主题索引，只用于发现、过滤、排序和新鲜度检查，不拥有独立事实。
-4. `scripts/check-investigations.mjs` 的 `list` 命令通过通用 keys 查询已经核对新鲜度的索引，默认命令只读检查主题文件和索引；只有显式 `sync-index` 命令可以创建或替换派生索引，不写主题文件。
-5. [investigation-index.schema.json](investigation-index.schema.json) 是随包分发的当前索引 JSON Schema；CLI 继续负责 Schema 无法证明的 Markdown 对应、source revision、id 和 keys 一致性。
+3. 报告 Markdown 中可选的 `随附资源` 是“哪份报告以什么展示文字引用哪些资源”的唯一事实源。没有该字段的报告不拥有资源引用，索引不能为它补造关系。
+4. 调查根目录下可选的 `_resources/` 是统一资源池；其中每个文件的原始字节是该资源内容的事实源。目录位置只定义资源 ID，不表达资源属于哪个主题。
+5. `investigation-index.json` 是从当前调查根目录内全部主题 Markdown 和资源文件确定性生成的通用主题索引，只用于发现、过滤、排序、引用关系投影、资源完整性和新鲜度检查，不拥有独立事实。
+6. `scripts/check-investigations.mjs` 的 `list` 命令通过通用 keys 查询已经核对新鲜度的索引，默认命令只读检查主题、资源和索引；只有显式 `sync-index` 命令可以创建或替换派生索引，不写主题或资源文件。
+7. [investigation-index.schema.json](investigation-index.schema.json) 是随包分发的当前索引 JSON Schema；CLI 继续负责 Schema 无法证明的 Markdown 对应、资源安全、source revision、id、state、metadata 和 keys 一致性。
 
 默认目录：
 
 ```text
 docs/investigations/
 ├── investigation-index.json
+├── _resources/                         # 可选；没有资源引用时不需要创建
+│   └── <resource-id>                   # 可以包含多层目录
 └── <category-id>/
     └── <semantic-slug>.md
 ```
 
-`category-id` 只用于对主题文件做稳定分类，`semantic-slug` 标识分类内的主题文件；两者都使用英文小写、数字与连字符组成的 kebab-case。一个主题文件只承接一个稳定核心问题，路径创建后不因标题、状态或追加报告改变。除派生 JSON 索引外，调查根目录内全部文件都必须是位于一层分类目录中的当前格式 Markdown。
+`category-id` 只用于对主题文件做稳定分类，`semantic-slug` 标识分类内的主题文件；两者都使用英文小写、数字与连字符组成的 kebab-case。一个主题文件只承接一个稳定核心问题，路径创建后不因标题、状态或追加报告改变。除派生索引、可选的 `_resources/` 和一层 category 目录外，调查根目录不接受其他成员；category 目录只直接包含当前格式的主题 Markdown。`_resources/` 中的 Markdown 是资源，不参与主题发现。
 
 可以用 `--investigations-dir` 选择工作区内的其他调查根目录，但同一集合始终使用同一根目录。首次创建主题时先建立主题文件，再运行 `sync-index` 创建索引；不能以空索引代替首份有效主题。
 
-## JSON 通用索引
-
-索引使用通用状态索引外壳，领域 namespace 为 `investigations`，当前 `definitionVersion` 为 `2`：
-
-```json
-{
-  "definitionVersion": 2,
-  "entries": {
-    "codex/project-shell-mcp-registration.md": {
-      "keys": {
-        "category": ["codex"],
-        "latest-report-at": [1784613930000],
-        "status": ["调查中"],
-        "text": [
-          "为什么项目 Shell MCP 没有注册到可用工具列表？",
-          "复查当前注册状态",
-          "恢复注册入口",
-          "项目 Shell MCP 注册调查"
-        ]
-      },
-      "state": {
-        "latestReportAt": "2026-07-21T14:05:30+08:00",
-        "path": "codex/project-shell-mcp-registration.md",
-        "question": "为什么项目 Shell MCP 没有注册到可用工具列表？",
-        "reportCount": 2,
-        "reportTitles": [
-          "恢复注册入口",
-          "复查当前注册状态"
-        ],
-        "status": "调查中",
-        "title": "项目 Shell MCP 注册调查"
-      }
-    }
-  },
-  "keyDefinitions": [
-    { "mode": "exact", "name": "category" },
-    { "mode": "range", "name": "latest-report-at" },
-    { "mode": "exact", "name": "status" },
-    { "mode": "text", "name": "text" }
-  ],
-  "metadata": {},
-  "namespace": "investigations",
-  "schemaVersion": 3,
-  "sourceRevision": {
-    "entries": {
-      "codex/project-shell-mcp-registration.md": "sha256:<64 lowercase hexadecimal characters>"
-    },
-    "metadata": "sha256:<64 lowercase hexadecimal characters>"
-  }
-}
-```
-
-规则：
-
-1. `entries` 是以主题 `id` 为成员键的对象，与合法主题 Markdown 一一对应；stored entry 只保存 `keys` 和 `state`，不重复保存 `id`。同一主题内无论包含多少份 H3 报告都只生成一个 entry，报告不拥有独立 `id`。
-2. 相对调查根目录的主题路径同时作为 `entries` 成员键和 `state.path`，两者必须相等。路径在当前集合中唯一；移动主题会显式产生新 id，不从内容猜测重命名。`category-id` 只派生分类 key，不充当身份。
-3. `state.title`、`state.question` 和 `state.reportTitles` 通过 Markdown AST 提取语义纯文本，去除行内标记并折叠空白；`reportTitles` 保持报告形成顺序，`reportCount` 必须等于其长度。状态和最新报告时间保存解析后的字段文本，state 不保存报告结果摘要、Markdown 展示语法或正文副本。
-4. `category` 和 `status` 是 exact key；`latest-report-at` 把最新报告时间转换为 epoch 毫秒后作为 range key；`text` 聚合主题标题、核心问题和全部报告标题。它不索引报告正文；需要正文级知识检索时应建立独立的报告读取侧，而不是改变主题主索引的粒度。路径查询直接使用保留的 `id`。
-5. 索引覆盖调查根目录内全部合法主题文件，不维护手工成员清单，也不保留归档目录。新增和删除主题文件都通过下一次完整同步改变成员。
-6. `sourceRevision.entries` 与 `entries` 使用相同的 `id` 成员集。每个值只指纹化对应主题的 POSIX 路径和完整 Markdown UTF-8 文本，计算前只把 CRLF 规范化为 LF；单个主题内容变化只改变该主题的指纹，新增、删除或移动主题会改变成员集。`sourceRevision.metadata` 单独指纹化集合级来源；调查领域当前没有集合级来源，所以它保持由当前 revision 协议定义的固定值。
-7. 通用外壳固定使用 `schemaVersion: 3`，调查领域当前没有集合级数据，因而显式保存 `"metadata": {}`；旧 schema 版本或缺失 metadata 的索引不兼容。输入发现顺序不影响确定性输出；key 定义、key 名和 key 值使用固定全序，metadata 与 state 对象键确定性排序，`reportTitles` 保持源顺序。JSON 使用两空格缩进、LF 和文件末尾换行，不保存生成时间。
-8. 索引是可删除重建的派生副本。正常维护不直接编辑它，也不保留 `investigation-index.md` 或其他兼容索引；工具损坏时先恢复当前 CLI，再从主题 Markdown 重建当前 JSON 格式。
-9. `sync-index` 从完整主题快照检查或原子替换索引，写入前再次读取 source revision；源在构建期间变化时拒绝写入。
-
 ## 主题文件
 
-主题文件首个非空行是唯一 H1，前两个 H2 依次固定为 `调查信息` 和 `调查报告`：
+主题文件首个非空行是唯一 H1，前两个 H2 依次固定为 `调查信息` 和 `调查报告`。不引用资源的报告使用以下完整基础结构：
 
 ```markdown
 # <调查主题>
@@ -127,21 +67,127 @@ docs/investigations/
 4. `最新报告时间` 逐字等于最后一份报告的 `形成时间`。状态或纯编辑变化不改变它。
 5. 顶部不保存背景、目的、范围、依据或当前结果摘要，避免形成第二份事实来源。
 
-### 完整报告
+### 完整报告与可选资源引用
 
 1. `调查报告` 只出现一次且至少包含一个 H3。标题概括本轮认识、对象或复查目的，不使用“第一次”“继续调查”等无语义阶段名。
-2. 每份报告首个非空内容固定为 `- 形成时间: <timestamp>`。
-3. 每份报告的前四个 H4 依次固定为 `形成时背景`、`调查目的`、`调查范围与依据` 和 `调查结果与边界`；各出现一次并包含实际内容，CLI 按这些精确标题校验。
-4. 四项核心的内容语义、独立阅读要求和人工审阅标准由 [SKILL.md](../SKILL.md) 承接。
-5. 可选 H4 只能放在四个固定核心之后，不能替代固定核心。
-6. `调查报告` 之后可以增加附录、术语等 H2；它们不替代完整报告。
+2. 每份报告首个非空内容固定为 `- 形成时间: <timestamp>`。报告无需引用资源时，形成时间之后直接开始四个固定 H4，不创建 `随附资源`、占位列表或资源文件。
+3. 报告需要引用资源时，紧接 `形成时间` 声明一次 `随附资源`，且嵌套列表至少包含一个本地 Markdown 链接：
+
+   ```markdown
+   ### 核对用户接口参数
+   - 形成时间: 2026-08-06T16:00:00+08:00
+   - 随附资源:
+     - [接口参数原文](../_resources/api/get-user-parameters.md)
+     - [原始响应样本](../_resources/api/get-user-response.json)
+
+   #### 形成时背景
+   ...
+   ```
+
+4. `随附资源` 的每个子项只包含一个展示文字非空的本地链接，目标精确使用 `../_resources/<resource-id>`。链接不能携带查询、片段、百分号编码、链接外文字或其他 Markdown 节点。
+5. 同一报告不能重复引用同一资源；同一资源可以被不同报告或主题共享。链接中的展示文字只保留在报告 Markdown，派生索引只保存规范化资源 ID。
+6. 每份报告的前四个 H4 依次固定为 `形成时背景`、`调查目的`、`调查范围与依据` 和 `调查结果与边界`；各出现一次并包含实际内容，CLI 按这些精确标题校验。
+7. 四项核心的内容语义、独立阅读要求、资源使用条件和人工审阅标准由 [SKILL.md](../SKILL.md) 承接。资源不能替代固定核心或正文中的关键事实。
+8. 可选 H4 只能放在四个固定核心之后，不能替代固定核心。`调查报告` 之后可以增加附录、术语等 H2；它们也不替代完整报告。
+
+## 资源池与资源 ID
+
+1. 相对 `_resources/` 的规范化 POSIX 文件路径是资源 ID。资源可以平级或嵌套；目录层级只用于组织和身份，不声明主题归属。
+2. 资源 ID 不能是绝对路径，不能包含空段、`.`、`..`、反斜杠、查询、片段或百分号编码。每个路径段只使用小写 ASCII 字母、数字、连字符、下划线和点，并以字母或数字开头和结尾。
+3. 报告文件固定位于一层 category 目录，因此 `../_resources/<resource-id>` 必须按原文还原为唯一资源 ID；实际文件路径的大小写必须与 ID 完全一致。
+4. 资源可以是文本或二进制普通文件。完整发现拒绝资源根、任一路径分量或文件本身为符号链接，也拒绝目录目标、其他非普通文件、缺失目标和越过调查根目录的路径。
+5. `_resources/` 中每个普通文件都必须至少被一份报告声明引用；未引用文件是孤儿并使完整检查失败。这个规则管理资源池中的文件，不要求每份报告都引用资源。
+6. 何时保存资源、正文怎样解释资源以及何时可以原地修改历史资源，由 [SKILL.md](../SKILL.md) 承接。本契约只校验已声明引用、资源文件、SHA-256 和 source revision 的结构与一致性；校验结果不判断资源来源可信、内容安全或历史修改正当性。
+
+## JSON 通用索引
+
+索引使用通用状态索引外壳，领域 namespace 为 `investigations`，当前 `definitionVersion` 为 `3`：
+
+```json
+{
+  "definitionVersion": 3,
+  "entries": {
+    "codex/project-shell-mcp-registration.md": {
+      "keys": {
+        "category": ["codex"],
+        "latest-report-at": [1784613930000],
+        "status": ["调查中"],
+        "text": [
+          "为什么项目 Shell MCP 没有注册到可用工具列表？",
+          "复查当前注册状态",
+          "恢复注册入口",
+          "项目 Shell MCP 注册调查"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-07-21T14:05:30+08:00",
+        "path": "codex/project-shell-mcp-registration.md",
+        "question": "为什么项目 Shell MCP 没有注册到可用工具列表？",
+        "reportCount": 2,
+        "reportTitles": [
+          "恢复注册入口",
+          "复查当前注册状态"
+        ],
+        "resourceReferences": [
+          {
+            "reportIndex": 1,
+            "resourceIds": [
+              "shell/registration-output.txt"
+            ]
+          }
+        ],
+        "status": "调查中",
+        "title": "项目 Shell MCP 注册调查"
+      }
+    }
+  },
+  "keyDefinitions": [
+    { "mode": "exact", "name": "category" },
+    { "mode": "range", "name": "latest-report-at" },
+    { "mode": "exact", "name": "status" },
+    { "mode": "text", "name": "text" }
+  ],
+  "metadata": {
+    "resources": [
+      {
+        "id": "shell/registration-output.txt",
+        "sha256": "<64 lowercase hexadecimal characters>"
+      }
+    ]
+  },
+  "namespace": "investigations",
+  "schemaVersion": 3,
+  "sourceRevision": {
+    "entries": {
+      "codex/project-shell-mcp-registration.md": "sha256:<64 lowercase hexadecimal characters>"
+    },
+    "metadata": "sha256:<64 lowercase hexadecimal characters>"
+  }
+}
+```
+
+规则：
+
+1. `entries` 是以主题 `id` 为成员键的对象，与合法主题 Markdown 一一对应；stored entry 只保存 `keys` 和 `state`，不重复保存 `id`。同一主题内无论包含多少份 H3 报告都只生成一个 entry，报告和资源都不拥有独立主索引 entry。
+2. 相对调查根目录的主题路径同时作为 `entries` 成员键和 `state.path`，两者必须相等。路径在当前集合中唯一；移动主题会显式产生新 id，不从内容猜测重命名。`category-id` 只派生分类 key，不充当身份。
+3. `state.title`、`state.question` 和 `state.reportTitles` 通过 Markdown AST 提取语义纯文本，去除行内标记并折叠空白；`reportTitles` 保持报告形成顺序，`reportCount` 必须等于其长度。状态和最新报告时间保存解析后的字段文本，state 不保存报告结果摘要、资源展示文字、Markdown 展示语法或正文副本。
+4. 每个主题 state 必须包含 `resourceReferences`。它只投影声明了 `随附资源` 的报告；没有资源引用的主题保存空数组。`reportIndex` 是与 `reportTitles` 对应的零基报告序号，对象按 `reportIndex` 排序；每个对象的 `resourceIds` 彼此唯一并按 ID 排序。报告顺序变化会重建这些序号，序号不是跨版本持久身份。
+5. `category` 和 `status` 是 exact key；`latest-report-at` 把最新报告时间转换为 epoch 毫秒后作为 range key；`text` 聚合主题标题、核心问题和全部报告标题。资源 ID、展示文字和资源正文都不进入查询 key；路径查询直接使用保留的主题 `id`。
+6. `metadata.resources` 必须存在；没有资源的集合保存空数组。存在资源时按 ID 排序，每个被引用资源只保存一次规范化 ID 和原始字节的 SHA-256；`sha256` 是 64 位小写十六进制文本。领域校验要求 state 引用的每个资源 ID 在 metadata 中恰好出现一次，且 metadata 中没有未被 state 引用的资源。
+7. `sourceRevision.entries` 与 `entries` 使用相同的主题 `id` 成员集。每个值只指纹化对应主题的 POSIX 路径和完整 Markdown UTF-8 文本，计算前只把 CRLF 规范化为 LF；单个主题内容变化只改变该主题的指纹，新增、删除或移动主题会改变成员集。
+8. `sourceRevision.metadata` 稳定指纹化按 ID 排序的资源 ID 与原始字节 SHA-256；metadata 资源摘要和 metadata revision 来自同一次资源读取。资源新增、删除、重命名或内容变化都会改变集合级 revision。资源原始字节不做文本换行规范化。
+9. 通用外壳固定使用 `schemaVersion: 3`。调查领域 `definitionVersion: 3`、`state.resourceReferences` 和 `metadata.resources` 是当前格式的必需部分；旧 definition version 或缺失这些字段的索引不兼容。
+10. 输入发现顺序不影响确定性输出；key 定义、key 名和 key 值使用固定全序，metadata、state 和资源 ID 确定性排序，`reportTitles` 保持源顺序。JSON 使用两空格缩进、LF 和文件末尾换行，不保存生成时间。
+11. 索引是可删除重建的派生副本。正常维护不直接编辑它，也不保留手写资源 manifest、`investigation-index.md` 或其他兼容索引；工具损坏时先恢复当前 CLI，再从主题 Markdown 和资源文件重建当前 JSON 格式。
+12. `sync-index` 在同一次完整读取中解析报告引用、发现并校验资源、构建 state、metadata 和 source revision；写入前再次读取完整 revision。主题或资源在构建期间变化时拒绝替换索引。
 
 ## 时间与维护
 
 1. `形成时间` 和 `最新报告时间` 使用带显式时区、无小数秒的 RFC 3339 时间戳。报告按形成时间非递减顺序追加。
 2. 追加报告时写在 `调查报告` 容器末尾，并同步主题信息。原地修正或只更新状态时不新增报告，也不改变最新报告时间。
-3. 主题文件不进入物理归档目录；状态、报告序列和 Git 历史共同表达演进。
-4. 创建、更新、删除或移动主题文件后运行 `sync-index`；成功后再运行默认全量 `check`。同步失败不以手工修补 JSON 代替。
+3. 主题文件不进入物理归档目录；状态、报告序列、形成时资源和 Git 历史共同表达演进。
+4. 创建、更新、删除或移动主题文件，新增、修改、删除或移动资源，或改变资源引用后，都运行 `sync-index`；成功后再运行默认全量 `check`。同步失败不以手工修补 JSON 代替。
+5. 移动或重命名资源会成为旧资源 ID 删除和新资源 ID 新增；必须同步更新所有引用该资源的报告，不能让索引或目录位置代替报告声明关系。
 
 ## CLI
 
@@ -181,15 +227,16 @@ node <investigation-report-skill>/scripts/check-investigations.mjs list --root <
 
 默认全量 `check`：
 
-1. 检查调查根目录、分类目录、路径层级和 kebab-case 文件名。
+1. 检查调查根目录、分类目录、主题路径层级、kebab-case 文件名和保留的 `_resources/` 目录。
 2. 检查主题文件 H1、前两个固定 H2、调查信息、状态和至少一份 H3 报告。
-3. 检查每份报告的形成时间、四个固定 H4 的存在、唯一、非空和顺序、报告时间顺序及最新报告时间一致性。
-4. 通过通用索引运行时完整解析来源并检查 JSON 外壳、主题 state、id、keys、source revision、确定性内容、报告聚合字段以及主题 Markdown 与索引一一对应。
+3. 检查每份报告的形成时间、可选 `随附资源` 的位置与精确结构、四个固定 H4 的存在、唯一、非空和顺序、报告时间顺序及最新报告时间一致性。
+4. 发现完整资源池并拒绝非法 ID、路径大小写不一致、符号链接、非普通文件、缺失引用和孤儿资源，同时允许多个报告或主题共享同一资源。
+5. 通过通用索引运行时完整解析来源并检查 JSON 外壳、主题 state、资源 metadata、id、keys、source revision、确定性内容、报告聚合字段、引用关系以及 Markdown、资源与索引的一致性。
 
-带 `--category` 或 `--path` 的 `check` 只检查命中的主题文件结构，不检查全局索引新鲜度；筛选没有命中时失败。这个结果可用于隔离局部格式问题，但不能证明完整集合或索引已经可查询。
+带 `--category` 或 `--path` 的 `check` 只解析命中的主题，并校验这些报告声明的资源 ID 和资源文件；筛选没有命中时失败。局部结果不证明全局孤儿状态、metadata、source revision 或索引可查询。
 
-`list` 先校验索引的通用结构、成员身份、namespace、definition version 和 key definitions，再通过一次来源发现与读取核对当前 source revision，然后查询持久化的主题 state 和 keys；这个快速路径不解析主题 Markdown、不重建 state 或 keys，也不运行完整索引构建与领域深度校验。结果默认按 `latest-report-at` 倒序、相同时间按路径排序，并显示状态、最新报告时间、路径、主题标题、核心问题、报告数量和最新报告标题；没有命中不是错误。索引缺失、失效、定义不匹配或源在读取期间变化时失败，不返回可能过期的结果。
+`list` 先校验索引的通用结构、成员身份、namespace、definition version 和 key definitions，再发现当前主题与资源、读取资源原始字节并核对结构化 source revision。资源集合或内容导致索引陈旧时，诊断区分新增、删除和内容变化并定位资源 ID。这个快速路径不重新解析报告正文、不重建 state 或 keys，也不运行完整索引构建与领域深度校验。结果默认按 `latest-report-at` 倒序、相同时间按路径排序，并显示状态、最新报告时间、路径、主题标题、核心问题、报告数量和最新报告标题；没有命中不是错误。索引缺失、失效、定义不匹配或源在读取期间变化时失败，不返回可能过期的结果。
 
-`sync-index` 不接受筛选。它先验证全部主题文件，再确定性创建或替换 JSON 索引；任一主题无效、根目录不可读、源在同步期间变化或写入验证失败时退出失败。
+`sync-index` 不接受筛选。它先验证全部主题文件和资源，再确定性创建或替换 JSON 索引；任一主题或资源无效、根目录不可读、源在同步期间变化或写入验证失败时退出失败。
 
-CLI 不判断章节语义、证据质量、场景义务、状态选择或拆分判断；这些由 `SKILL.md` 的形成与审阅流程承接。退出状态 `0` 表示成功，`1` 表示结构、索引或同步失败，`2` 表示参数错误。
+CLI 不判断章节语义、证据质量、资源是否值得保存、资源来源可信度、敏感信息、历史修改正当性、场景义务、状态选择或拆分判断；这些由 `SKILL.md` 的形成与审阅流程承接。退出状态 `0` 表示成功，`1` 表示结构、资源、索引或同步失败，`2` 表示参数错误。
