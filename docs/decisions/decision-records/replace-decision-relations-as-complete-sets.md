@@ -1,7 +1,7 @@
 ---
 title: 以完整集合审核和替换决策关系
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-06T11:12:10Z
 purpose: 让候选关系可提前审核，并允许在闭合事务中完整修订错误的已建立关系。
 background: 强制候选关系为空会隐藏演进意图，逐边追加又会绕过完整集合和关系拓扑校验。

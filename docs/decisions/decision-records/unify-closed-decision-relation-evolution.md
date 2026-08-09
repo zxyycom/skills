@@ -1,7 +1,7 @@
 ---
 title: 用 evolve 统一闭合决策关系事务
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-06T11:12:10Z
 purpose: 让所有关系类型共享一个按完整后继集合执行的可恢复事务入口。
 background: evolve、split 和带关系的 activate 分担关系维护，新增关系类型会扩大命令面并留下绕过闭合策略的路径。
