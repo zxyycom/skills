@@ -1,6 +1,6 @@
 ---
 title: 由环境自举建立仓库本地协调入口
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-08T12:37:26Z
 purpose: 让每个 clone 和 linked worktree 在标准自举后获得可恢复且不会分叉的仓库协调入口。

@@ -51,6 +51,10 @@ async function createRepository(parent: string, name: string): Promise<string> {
     path.join(root, "skills", "task-graph", "scripts"),
     { recursive: true }
   );
+  await fs.copyFile(
+    path.join(workspaceRoot, ".gitattributes"),
+    path.join(root, ".gitattributes")
+  );
 
   for (const script of [
     "environment.js",
@@ -292,7 +296,14 @@ test("environment setup enables the pre-commit hook in a fresh clone", async () 
   try {
     const source = await createRepository(tempRoot, "source repository");
     const clone = path.join(tempRoot, "fresh clone");
-    requireSuccess(run("git", ["clone", source, clone], tempRoot), "git clone");
+    requireSuccess(
+      run(
+        "git",
+        ["-c", "core.autocrlf=true", "clone", source, clone],
+        tempRoot
+      ),
+      "git clone"
+    );
     requireSuccess(
       run("git", ["config", "user.name", "Environment Test"], clone),
       "clone user.name"
@@ -311,12 +322,10 @@ test("environment setup enables the pre-commit hook in a fresh clone", async () 
       ".githooks"
     );
     assert.equal(
-      run(
-        "git",
-        ["config", "--local", "--get", "skills.taskGraphRoot"],
-        clone
-      ).stdout.trim(),
-      clone
+      (await fs.readFile(path.join(clone, ".githooks", "pre-commit"), "utf8"))
+        .includes("\r"),
+      false,
+      "the hook must remain LF-only when checkout conversion is enabled"
     );
     await assertHookIsUsable(clone);
 
@@ -353,12 +362,9 @@ test("environment setup is idempotent in a linked worktree and keeps the main ta
       "repeated linked worktree setup"
     );
     assert.equal(
-      run(
-        "git",
-        ["config", "--local", "--get", "skills.taskGraphRoot"],
-        linked
-      ).stdout.trim(),
-      main
+      run("git", ["worktree", "list", "--porcelain"], linked)
+        .stdout.split("\n", 1)[0],
+      `worktree ${main}`
     );
     await assertHookIsUsable(linked);
     assertHookExecutes(linked);
@@ -441,7 +447,7 @@ test("environment check reports missing repository setup without writing it", as
   }
 });
 
-test("task-graph package command requires and injects the configured main root", async () => {
+test("task-graph package command defaults to the main root and accepts an explicit project root", async () => {
   const tempRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), "skills task launcher ")
   );
@@ -472,73 +478,103 @@ test("task-graph package command requires and injects the configured main root",
       cwd: main
     });
 
-    for (const overrideArgs of [
-      ["--root", linked],
-      [`--root=${linked}`],
-      ["--index", linked],
-      [`--index=${linked}`]
+    const alternate = await createRepository(tempRoot, "alternate project");
+    for (const explicitArgs of [
+      ["task", "list", "--root", alternate],
+      [`--root=${path.relative(linked, alternate)}`, "task", "list"]
     ]) {
-      const override = run(
+      const explicit = run(
         "bun",
-        ["run", "task-graph", "--", "task", "list", ...overrideArgs],
+        ["run", "task-graph", "--", ...explicitArgs],
         linked
       );
-      assert.equal(override.status, 1);
-      assert.match(override.stderr, /owns --root and --index/u);
+      requireSuccess(explicit, "task-graph explicit project root");
+      assert.deepEqual(JSON.parse(explicit.stdout), {
+        argv: ["task", "list", "--root", alternate],
+        cwd: alternate
+      });
     }
 
-    requireSuccess(
-      run(
-        "git",
-        ["config", "--local", "--unset-all", "skills.taskGraphRoot"],
+    const nested = path.join(linked, "nested invocation");
+    await fs.mkdir(nested);
+    const direct = run(
+      process.execPath,
+      [
+        path.join(linked, "scripts", "task-graph.js"),
+        "task",
+        "list",
+        "--root",
+        path.relative(linked, alternate)
+      ],
+      nested
+    );
+    requireSuccess(direct, "task-graph explicit root from a nested cwd");
+    assert.deepEqual(JSON.parse(direct.stdout), {
+      argv: ["task", "list", "--root", alternate],
+      cwd: alternate
+    });
+
+    for (const invalidArgs of [
+      ["task", "list", "--root"],
+      ["task", "list", "--root", alternate, `--root=${main}`],
+      ["task", "list", "--index", "alternate.json"],
+      ["task", "list", "--index=alternate.json"]
+    ]) {
+      const invalid = run(
+        "bun",
+        ["run", "task-graph", "--", ...invalidArgs],
         linked
-      ),
-      "unset task root"
-    );
-    const unconfigured = run(
-      "bun",
-      ["run", "task-graph", "--", "task", "list"],
-      linked
-    );
-    assert.equal(unconfigured.status, 1);
-    assert.match(unconfigured.stderr, /is not configured/u);
+      );
+      assert.equal(invalid.status, 1);
+      assert.match(
+        invalid.stderr,
+        /--root requires|--root may be specified only once|owns --index/u
+      );
+    }
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true });
   }
 });
 
-test("task-graph package command rejects a stale configured main root", async () => {
+test("task-graph package command rejects an invalid explicit project root", async () => {
   const tempRoot = await fs.mkdtemp(
-    path.join(os.tmpdir(), "skills stale task root ")
+    path.join(os.tmpdir(), "skills invalid task root ")
   );
   try {
-    const main = await createRepository(tempRoot, "current main repository");
+    const main = await createRepository(tempRoot, "main repository");
     const linked = path.join(tempRoot, "linked worker");
     requireSuccess(
       run("git", ["worktree", "add", "-b", "worker", linked], main),
       "git worktree add"
     );
-    const staleRoot = await createRepository(
-      tempRoot,
-      "former main repository with task index"
-    );
-    requireSuccess(
-      run(
-        "git",
-        ["config", "--local", "skills.taskGraphRoot", staleRoot],
-        linked
-      ),
-      "configure stale task root"
-    );
-
-    const launched = run(
+    const missingRoot = path.join(tempRoot, "missing project");
+    const missing = run(
       "bun",
-      ["run", "task-graph", "--", "task", "list"],
+      ["run", "task-graph", "--", "task", "list", "--root", missingRoot],
       linked
     );
-    assert.equal(launched.status, 1);
-    assert.equal(launched.stdout, "");
-    assert.match(launched.stderr, /does not match the current main worktree/u);
+    assert.equal(missing.status, 1);
+    assert.equal(missing.stdout, "");
+    assert.match(missing.stderr, /selected project has no task index/u);
+
+    const incompleteRoot = path.join(tempRoot, "incomplete project");
+    await fs.mkdir(
+      path.join(incompleteRoot, "docs", "task-graph"),
+      { recursive: true }
+    );
+    await fs.writeFile(
+      path.join(incompleteRoot, "docs", "task-graph", "task-graph-index.json"),
+      "{}\n",
+      "utf8"
+    );
+    const incomplete = run(
+      "bun",
+      ["run", "task-graph", "--", "task", "list", "--root", incompleteRoot],
+      linked
+    );
+    assert.equal(incomplete.status, 1);
+    assert.equal(incomplete.stdout, "");
+    assert.match(incomplete.stderr, /selected project has no task-graph CLI/u);
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true });
   }

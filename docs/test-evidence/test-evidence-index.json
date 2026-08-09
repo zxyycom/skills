@@ -2557,23 +2557,23 @@
     "ENV-CLONE-HOOK-001": {
       "keys": {
         "search": [
-          "ENV-CLONE-HOOK-001 环境 setup 在新 clone 中启用 pre-commit 标准环境 setup 必须让新 clone 的当前 worktree 直接具备可执行且由 Git 使用的 pre-commit hook。 setup 将 `core.hooksPath` 配置为 `.githooks`，并把当前 pre-commit 设为可执行。 随后的真实 `git commit` 会进入 fixture hook 并被该 hook 阻止。 scripts/environment.test.ts > environment setup enables the pre-commit hook in a fresh clone bun test --test-name-pattern=\"^environment setup enables the pre-commit hook in a fresh clone$\" ./scripts/environment.test.ts"
+          "ENV-CLONE-HOOK-001 环境 setup 在新 clone 中启用 pre-commit 标准环境 setup 必须按当前平台建立 Git 可调用的 pre-commit；即使 checkout 启用换行转换，hook 也必须保持 LF。 setup 将 `core.hooksPath` 配置为 `.githooks`；POSIX 还会恢复当前 pre-commit 的执行位。 以 `core.autocrlf=true` clone 后，受 `.gitattributes` 约束的 hook 不含 CR 字符。 随后的真实 `git commit` 会进入 fixture hook 并被该 hook 阻止。 scripts/environment.test.ts > environment setup enables the pre-commit hook in a fresh clone bun test --test-name-pattern=\"^environment setup enables the pre-commit hook in a fresh clone$\" ./scripts/environment.test.ts"
         ],
         "topic": [
           "repository-tooling"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 11,
         "entries": [
           "scripts/environment.test.ts > environment setup enables the pre-commit hook in a fresh clone",
           "bun test --test-name-pattern=\"^environment setup enables the pre-commit hook in a fresh clone$\" ./scripts/environment.test.ts"
         ],
         "id": "ENV-CLONE-HOOK-001",
         "line": 1,
-        "searchText": "环境 setup 在新 clone 中启用 pre-commit 标准环境 setup 必须让新 clone 的当前 worktree 直接具备可执行且由 Git 使用的 pre-commit hook。 setup 将 `core.hooksPath` 配置为 `.githooks`，并把当前 pre-commit 设为可执行。 随后的真实 `git commit` 会进入 fixture hook 并被该 hook 阻止。 scripts/environment.test.ts > environment setup enables the pre-commit hook in a fresh clone bun test --test-name-pattern=\"^environment setup enables the pre-commit hook in a fresh clone$\" ./scripts/environment.test.ts",
+        "searchText": "环境 setup 在新 clone 中启用 pre-commit 标准环境 setup 必须按当前平台建立 Git 可调用的 pre-commit；即使 checkout 启用换行转换，hook 也必须保持 LF。 setup 将 `core.hooksPath` 配置为 `.githooks`；POSIX 还会恢复当前 pre-commit 的执行位。 以 `core.autocrlf=true` clone 后，受 `.gitattributes` 约束的 hook 不含 CR 字符。 随后的真实 `git commit` 会进入 fixture hook 并被该 hook 阻止。 scripts/environment.test.ts > environment setup enables the pre-commit hook in a fresh clone bun test --test-name-pattern=\"^environment setup enables the pre-commit hook in a fresh clone$\" ./scripts/environment.test.ts",
         "sourcePath": "repository-tooling/environment-setup-enables-hook-in-fresh-clone.md",
-        "summary": "标准环境 setup 必须让新 clone 的当前 worktree 直接具备可执行且由 Git 使用的 pre-commit hook。",
+        "summary": "标准环境 setup 必须按当前平台建立 Git 可调用的 pre-commit；即使 checkout 启用换行转换，hook 也必须保持 LF。",
         "title": "环境 setup 在新 clone 中启用 pre-commit"
       }
     },
@@ -2626,7 +2626,7 @@
     "ENV-WORKTREE-SETUP-001": {
       "keys": {
         "search": [
-          "ENV-WORKTREE-SETUP-001 linked worktree 重复 setup 保持中央 task root linked worktree 的标准环境 setup 必须可重复执行，并把 task-graph 协调 root 固定为同仓主 worktree，而不是执行 worktree。 连续两次 setup 都成功，仓库 local config 中的 `skills.taskGraphRoot` 保持主 worktree 绝对路径。 原本不可执行的 linked worktree pre-commit 在 setup 后会被真实 `git commit` 调用。 scripts/environment.test.ts > environment setup is idempotent in a linked worktree and keeps the main task root bun test --test-name-pattern=\"^environment setup is idempotent in a linked worktree and keeps the main task root$\" ./scripts/environment.test.ts"
+          "ENV-WORKTREE-SETUP-001 linked worktree 重复 setup 保持当前项目中央 root linked worktree 的标准环境 setup 必须可重复执行；当前项目默认 task root 必须能从 Git 结构稳定发现为同仓主 worktree，而不是写入或使用执行 worktree。 连续两次 setup 都成功，Git worktree 列表的首个项目根保持主 worktree 绝对路径，无需额外 root 配置。 原本不可执行的 linked worktree pre-commit 在 setup 后会被真实 `git commit` 调用。 scripts/environment.test.ts > environment setup is idempotent in a linked worktree and keeps the main task root bun test --test-name-pattern=\"^environment setup is idempotent in a linked worktree and keeps the main task root$\" ./scripts/environment.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -2640,10 +2640,10 @@
         ],
         "id": "ENV-WORKTREE-SETUP-001",
         "line": 1,
-        "searchText": "linked worktree 重复 setup 保持中央 task root linked worktree 的标准环境 setup 必须可重复执行，并把 task-graph 协调 root 固定为同仓主 worktree，而不是执行 worktree。 连续两次 setup 都成功，仓库 local config 中的 `skills.taskGraphRoot` 保持主 worktree 绝对路径。 原本不可执行的 linked worktree pre-commit 在 setup 后会被真实 `git commit` 调用。 scripts/environment.test.ts > environment setup is idempotent in a linked worktree and keeps the main task root bun test --test-name-pattern=\"^environment setup is idempotent in a linked worktree and keeps the main task root$\" ./scripts/environment.test.ts",
+        "searchText": "linked worktree 重复 setup 保持当前项目中央 root linked worktree 的标准环境 setup 必须可重复执行；当前项目默认 task root 必须能从 Git 结构稳定发现为同仓主 worktree，而不是写入或使用执行 worktree。 连续两次 setup 都成功，Git worktree 列表的首个项目根保持主 worktree 绝对路径，无需额外 root 配置。 原本不可执行的 linked worktree pre-commit 在 setup 后会被真实 `git commit` 调用。 scripts/environment.test.ts > environment setup is idempotent in a linked worktree and keeps the main task root bun test --test-name-pattern=\"^environment setup is idempotent in a linked worktree and keeps the main task root$\" ./scripts/environment.test.ts",
         "sourcePath": "repository-tooling/environment-setup-keeps-main-root-in-linked-worktree.md",
-        "summary": "linked worktree 的标准环境 setup 必须可重复执行，并把 task-graph 协调 root 固定为同仓主 worktree，而不是执行 worktree。",
-        "title": "linked worktree 重复 setup 保持中央 task root"
+        "summary": "linked worktree 的标准环境 setup 必须可重复执行；当前项目默认 task root 必须能从 Git 结构稳定发现为同仓主 worktree，而不是写入或使用执行 worktree。",
+        "title": "linked worktree 重复 setup 保持当前项目中央 root"
       }
     },
     "GENERATED-FILE-DECLARATION-001": {
@@ -3891,7 +3891,30 @@
     "REPO-TASK-ROOT-001": {
       "keys": {
         "search": [
-          "REPO-TASK-ROOT-001 task-graph 短命令注入已配置的中央 root 仓库 task-graph package 命令只向现有领域 CLI 注入已配置的中央协调 root 和唯一索引，不能按当前 worktree 静默猜测或接受第二个 root 或 index。 linked worktree 中的 package 命令实际从主 worktree 运行中央 CLI，并向其传入同一个绝对 `--root`。 调用方传入 `--root`、`--index` 或仓库没有 root 配置时，launcher 在调用领域 CLI 前失败。 scripts/environment.test.ts > task-graph package command requires and injects the configured main root bun test --test-name-pattern=\"^task-graph package command requires and injects the configured main root$\" ./scripts/environment.test.ts"
+          "REPO-TASK-ROOT-001 task-graph 短命令默认中央 root 并允许显式切换项目 仓库 task-graph package 命令默认从 Git 结构发现当前项目中央 root；唯一显式 root 则切换到目标项目自己的 CLI 和 canonical index。 linked worktree 中省略 root 时，package 命令实际从主 worktree 运行中央 CLI，并向其传入同一个绝对 `--root`。 绝对 `--root <path>` 与相对 `--root=<path>` 都会切换到目标项目，并从目标项目运行其 CLI。 即使进程从 worktree 子目录直接调用 launcher，相对 root 仍以 launcher 所在 worktree 为基准。 缺值、重复 root 或任何 `--index` 时，launcher 在调用领域 CLI 前失败。 scripts/environment.test.ts > task-graph package command defaults to the main root and accepts an explicit project root bun test --test-name-pattern=\"^task-graph package command defaults to the main root and accepts an explicit project root$\" ./scripts/environment.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "scripts/environment.test.ts > task-graph package command defaults to the main root and accepts an explicit project root",
+          "bun test --test-name-pattern=\"^task-graph package command defaults to the main root and accepts an explicit project root$\" ./scripts/environment.test.ts"
+        ],
+        "id": "REPO-TASK-ROOT-001",
+        "line": 1,
+        "searchText": "task-graph 短命令默认中央 root 并允许显式切换项目 仓库 task-graph package 命令默认从 Git 结构发现当前项目中央 root；唯一显式 root 则切换到目标项目自己的 CLI 和 canonical index。 linked worktree 中省略 root 时，package 命令实际从主 worktree 运行中央 CLI，并向其传入同一个绝对 `--root`。 绝对 `--root <path>` 与相对 `--root=<path>` 都会切换到目标项目，并从目标项目运行其 CLI。 即使进程从 worktree 子目录直接调用 launcher，相对 root 仍以 launcher 所在 worktree 为基准。 缺值、重复 root 或任何 `--index` 时，launcher 在调用领域 CLI 前失败。 scripts/environment.test.ts > task-graph package command defaults to the main root and accepts an explicit project root bun test --test-name-pattern=\"^task-graph package command defaults to the main root and accepts an explicit project root$\" ./scripts/environment.test.ts",
+        "sourcePath": "repository-tooling/task-graph-package-command-selects-project-root.md",
+        "summary": "仓库 task-graph package 命令默认从 Git 结构发现当前项目中央 root；唯一显式 root 则切换到目标项目自己的 CLI 和 canonical index。",
+        "title": "task-graph 短命令默认中央 root 并允许显式切换项目"
+      }
+    },
+    "REPO-TASK-TARGET-001": {
+      "keys": {
+        "search": [
+          "REPO-TASK-TARGET-001 task-graph 短命令拒绝无效的显式项目 root 仓库 task-graph package 命令接受显式项目 root 前必须确认目标同时拥有 canonical index 入口和项目自己的 task-graph CLI。 显式 root 指向不存在的项目时，launcher 在子进程启动前报告目标缺少 task index。 显式 root 只有 task index 但缺少 CLI 时，launcher 在子进程启动前报告目标缺少 task-graph CLI。 scripts/environment.test.ts > task-graph package command rejects an invalid explicit project root bun test --test-name-pattern=\"^task-graph package command rejects an invalid explicit project root$\" ./scripts/environment.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -3900,38 +3923,15 @@
       "state": {
         "endLine": 10,
         "entries": [
-          "scripts/environment.test.ts > task-graph package command requires and injects the configured main root",
-          "bun test --test-name-pattern=\"^task-graph package command requires and injects the configured main root$\" ./scripts/environment.test.ts"
+          "scripts/environment.test.ts > task-graph package command rejects an invalid explicit project root",
+          "bun test --test-name-pattern=\"^task-graph package command rejects an invalid explicit project root$\" ./scripts/environment.test.ts"
         ],
-        "id": "REPO-TASK-ROOT-001",
+        "id": "REPO-TASK-TARGET-001",
         "line": 1,
-        "searchText": "task-graph 短命令注入已配置的中央 root 仓库 task-graph package 命令只向现有领域 CLI 注入已配置的中央协调 root 和唯一索引，不能按当前 worktree 静默猜测或接受第二个 root 或 index。 linked worktree 中的 package 命令实际从主 worktree 运行中央 CLI，并向其传入同一个绝对 `--root`。 调用方传入 `--root`、`--index` 或仓库没有 root 配置时，launcher 在调用领域 CLI 前失败。 scripts/environment.test.ts > task-graph package command requires and injects the configured main root bun test --test-name-pattern=\"^task-graph package command requires and injects the configured main root$\" ./scripts/environment.test.ts",
-        "sourcePath": "repository-tooling/task-graph-package-command-injects-main-root.md",
-        "summary": "仓库 task-graph package 命令只向现有领域 CLI 注入已配置的中央协调 root 和唯一索引，不能按当前 worktree 静默猜测或接受第二个 root 或 index。",
-        "title": "task-graph 短命令注入已配置的中央 root"
-      }
-    },
-    "REPO-TASK-STALE-001": {
-      "keys": {
-        "search": [
-          "REPO-TASK-STALE-001 task-graph 短命令拒绝陈旧的中央 root 仓库 task-graph package 命令每次调用都必须确认已配置 root 仍是当前 Git 仓库的主 worktree，不能仅凭旧路径仍有 task index 就继续执行。 将 `skills.taskGraphRoot` 指向另一个仍含合法 task index 的仓库时，launcher 在调用领域 CLI 前报告 main-worktree mismatch 并失败。 scripts/environment.test.ts > task-graph package command rejects a stale configured main root bun test --test-name-pattern=\"^task-graph package command rejects a stale configured main root$\" ./scripts/environment.test.ts"
-        ],
-        "topic": [
-          "repository-tooling"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "scripts/environment.test.ts > task-graph package command rejects a stale configured main root",
-          "bun test --test-name-pattern=\"^task-graph package command rejects a stale configured main root$\" ./scripts/environment.test.ts"
-        ],
-        "id": "REPO-TASK-STALE-001",
-        "line": 1,
-        "searchText": "task-graph 短命令拒绝陈旧的中央 root 仓库 task-graph package 命令每次调用都必须确认已配置 root 仍是当前 Git 仓库的主 worktree，不能仅凭旧路径仍有 task index 就继续执行。 将 `skills.taskGraphRoot` 指向另一个仍含合法 task index 的仓库时，launcher 在调用领域 CLI 前报告 main-worktree mismatch 并失败。 scripts/environment.test.ts > task-graph package command rejects a stale configured main root bun test --test-name-pattern=\"^task-graph package command rejects a stale configured main root$\" ./scripts/environment.test.ts",
-        "sourcePath": "repository-tooling/task-graph-package-command-rejects-stale-root.md",
-        "summary": "仓库 task-graph package 命令每次调用都必须确认已配置 root 仍是当前 Git 仓库的主 worktree，不能仅凭旧路径仍有 task index 就继续执行。",
-        "title": "task-graph 短命令拒绝陈旧的中央 root"
+        "searchText": "task-graph 短命令拒绝无效的显式项目 root 仓库 task-graph package 命令接受显式项目 root 前必须确认目标同时拥有 canonical index 入口和项目自己的 task-graph CLI。 显式 root 指向不存在的项目时，launcher 在子进程启动前报告目标缺少 task index。 显式 root 只有 task index 但缺少 CLI 时，launcher 在子进程启动前报告目标缺少 task-graph CLI。 scripts/environment.test.ts > task-graph package command rejects an invalid explicit project root bun test --test-name-pattern=\"^task-graph package command rejects an invalid explicit project root$\" ./scripts/environment.test.ts",
+        "sourcePath": "repository-tooling/task-graph-package-command-rejects-invalid-project-root.md",
+        "summary": "仓库 task-graph package 命令接受显式项目 root 前必须确认目标同时拥有 canonical index 入口和项目自己的 task-graph CLI。",
+        "title": "task-graph 短命令拒绝无效的显式项目 root"
       }
     },
     "SKILL-PACKAGE-HASH-001": {
@@ -8060,10 +8060,10 @@
       "DECISION-UNRECORDED-COLLAPSE-REFERENCE-001": "sha256:b93261aa5527905c3685195a1ba21495ea5324b32f39ace5975332800eb2d04a",
       "DECISION-UNRECORDED-EVOLUTION-001": "sha256:febded1810b231ce8775d25dc6b2460fba9b25c72a3cf7566ae3779d9e0a617a",
       "ENV-CHECK-READONLY-001": "sha256:1cc8bb79619b0886f6166381c90048049dc07658f88f51ca0bd0901ffebb6731",
-      "ENV-CLONE-HOOK-001": "sha256:3bb0b26af6bc8cea1d0cef60418a85ca45bd7ce970ff7c224dfd9fbedf6a7e53",
+      "ENV-CLONE-HOOK-001": "sha256:8ceef40cebeb5559b4eae4eebb6c9d903ded8c629f52abb4ece20145ba657f1d",
       "ENV-LINKED-HASH-HOOK-001": "sha256:13a94db1d55359cb4362c4db760d950fbc1f0b4480ea0db4928da59711cc3f92",
       "ENV-PERMISSION-RULES-001": "sha256:21a124776a169674569296131b473013b83cd4982ea6a91fde7ec22edc11b45a",
-      "ENV-WORKTREE-SETUP-001": "sha256:32917168bd00fc36068993d61b8647b0a3f0a84807987074110a43a2b94e7237",
+      "ENV-WORKTREE-SETUP-001": "sha256:a232485668782b975b6e416528f415886b669450f36394065848a5027441842f",
       "GENERATED-FILE-DECLARATION-001": "sha256:6e1393221dbc7a89eb508e87745a86f801af86a6067ebd39427d34876b660d3a",
       "GENERATED-FILE-DRIFT-001": "sha256:75f8e90a810f0a9bb1d14f9e6c378c6815b3fce9dd7d9217124df59684ff852a",
       "GENERATED-FILE-SOURCE-MAP-001": "sha256:8554388099096f17fa56eab44ac699ce0c23660e8fe15f8ea96ea7e14e3abe08",
@@ -8118,8 +8118,8 @@
       "INVESTIGATION-SOURCE-REVISION-001": "sha256:d7bc684d85b8c31c9e3249fd94cd22271db1cf9fdc8ea806468252e62acd57ad",
       "INVESTIGATION-STRUCTURE-CHRONOLOGY-001": "sha256:c37b58ae1a46e45c4c65521f420c6f373301ce0465e1d5c14ed70abb8a7f0de4",
       "INVESTIGATION-VALIDATION-FILTER-001": "sha256:59fb97585ad6fe441e9bf7a42044f69eb26a826b7c648a25322a8ab2e350e036",
-      "REPO-TASK-ROOT-001": "sha256:486d7cdd654965748ac8210f3198de00bbeff39dda58aa17fab1bb3915386714",
-      "REPO-TASK-STALE-001": "sha256:892ea919b6ee77805fc77ae1563d963db5d1801aa2abd526370648359928167b",
+      "REPO-TASK-ROOT-001": "sha256:6f7f36dab2296b05c02fea40dbb240ca970aeec45b6fb8e809772121bf575df4",
+      "REPO-TASK-TARGET-001": "sha256:0d31dfb2b408a1aede75a8230c2d302d965c3e131109c6fc0808324b1a80f5bd",
       "SKILL-PACKAGE-HASH-001": "sha256:cf44553e22b994bf18ecc1269c2a95e1d58c03eaa247bff8abcc4a6bef099732",
       "SKILL-PACKAGE-HASH-002": "sha256:acd1e290d0b553f438700b71fabd6fab1856c150d9e1d1ad194d3eb1a499f9c3",
       "SKILL-PACKAGE-HASH-003": "sha256:20a11e306f874a30f6bd5dbaefe1e14155caa0aea61574fc5e685b6a253f30fb",

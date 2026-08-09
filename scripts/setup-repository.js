@@ -10,8 +10,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { setupGitHooks } from "./setup-git-hooks.js";
 
-export const taskGraphRootConfigKey = "skills.taskGraphRoot";
-
 function gitResult(cwd, args) {
   return spawnSync("git", args, {
     cwd,
@@ -63,19 +61,8 @@ export function discoverMainWorktreeRoot(cwd) {
   return path.normalize(root);
 }
 
-export function getConfiguredTaskGraphRoot(cwd) {
-  const configured = readGitConfig(cwd, taskGraphRootConfigKey);
-  if (!configured) {
-    throw new Error(
-      `${taskGraphRootConfigKey} is not configured; run node scripts/environment.js setup`
-    );
-  }
-  if (!path.isAbsolute(configured)) {
-    throw new Error(
-      `${taskGraphRootConfigKey} must be an absolute path, received: ${configured}`
-    );
-  }
-  const normalized = path.normalize(configured);
+export function getCurrentTaskGraphRoot(cwd) {
+  const normalized = discoverMainWorktreeRoot(cwd);
   const indexPath = path.join(
     normalized,
     "docs",
@@ -84,13 +71,7 @@ export function getConfiguredTaskGraphRoot(cwd) {
   );
   if (!existsSync(indexPath)) {
     throw new Error(
-      `${taskGraphRootConfigKey} does not contain the task index: ${normalized}`
-    );
-  }
-  const mainRoot = discoverMainWorktreeRoot(cwd);
-  if (path.resolve(normalized) !== path.resolve(mainRoot)) {
-    throw new Error(
-      `${taskGraphRootConfigKey} does not match the current main worktree: ${normalized}`
+      `the current project does not contain the task index: ${normalized}`
     );
   }
   return normalized;
@@ -119,10 +100,10 @@ export function getRepositorySetupStatus(cwd) {
       };
     }
 
-    const configuredRoot = getConfiguredTaskGraphRoot(cwd);
+    const currentRoot = getCurrentTaskGraphRoot(cwd);
 
     return {
-      detail: `hooks enabled; task graph root ${configuredRoot}`,
+      detail: `hooks enabled; task graph root ${currentRoot}`,
       state: "ready"
     };
   } catch (error) {
@@ -134,24 +115,9 @@ export function getRepositorySetupStatus(cwd) {
 }
 
 export function setupRepository(cwd) {
-  const mainRoot = discoverMainWorktreeRoot(cwd);
-  const indexPath = path.join(
-    mainRoot,
-    "docs",
-    "task-graph",
-    "task-graph-index.json"
-  );
-  if (!existsSync(indexPath)) {
-    throw new Error(`main worktree does not contain the task index: ${mainRoot}`);
-  }
+  const mainRoot = getCurrentTaskGraphRoot(cwd);
 
   setupGitHooks(cwd);
-  gitOutput(cwd, [
-    "config",
-    "--local",
-    taskGraphRootConfigKey,
-    mainRoot
-  ]);
   return mainRoot;
 }
 

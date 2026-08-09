@@ -27,7 +27,9 @@ export function setupGitHooks(cwd) {
   if (!fs.existsSync(hookPath)) {
     throw new Error(`pre-commit hook is missing at ${hookPath}`);
   }
-  fs.chmodSync(hookPath, 0o755);
+  if (process.platform !== "win32") {
+    fs.chmodSync(hookPath, 0o755);
+  }
   git(cwd, ["config", "--local", "core.hooksPath", ".githooks"]);
 }
 

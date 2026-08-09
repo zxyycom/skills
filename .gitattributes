@@ -1,3 +1,4 @@
+.githooks/* text eol=lf
 docs/task-graph/task-graph-index.json text eol=lf
 tools/task-graph/references/runtime/package.json text eol=lf
 tools/task-graph/references/runtime/package-lock.json text eol=lf

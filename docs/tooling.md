@@ -49,9 +49,9 @@ node scripts/environment.js setup
 
 仓库本地配置由 `scripts/setup-repository.js` 承接：
 
-1. 当前 worktree 的 `.githooks/pre-commit` 会被设为可执行，仓库 local Git config 的 `core.hooksPath` 会设为 `.githooks`；hook 本身也以可执行 mode 进入版本管理。
-2. `skills.taskGraphRoot` 保存绝对的主 worktree 路径，作用域是当前 Git 仓库，并由同一仓库的 linked worktree 共享。重复 `setup` 会按当前主 worktree 刷新该值。
-3. 每个新 clone 和 linked worktree 都运行标准环境 `setup`；这样当前 worktree 的文件权限会实际落地，不需要再手工 `chmod` 或另跑 hook 命令。
+1. 当前 worktree 的 `core.hooksPath` 会设为 `.githooks`；hook 本身以可执行 mode 进入版本管理，POSIX setup 另外恢复工作区执行位，Windows 使用其原生 Git hook 存在性语义。
+2. 当前项目的默认 task root 每次从 Git worktree 结构发现为主 worktree，不额外持久化绝对路径；因此 linked worktree 与主 worktree 使用同一中央索引。
+3. 每个新 clone 和 linked worktree 都运行标准环境 `setup`；这样 POSIX worktree 的文件权限会实际落地，所有平台的 `hooksPath` 也保持一致。
 
 Codex 工作区在 `.codex/environments/` 提供两个入口：
 
@@ -72,9 +72,9 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run validate` | 校验全部 skill 入口、当前维护的仓库 Markdown 链接和主仓库配置 |
 | `bun run hash:skills` | 从 Git `pending` 快照临时计算 package hash，并校验内容变化的 skill 已相对 `--baseline-ref` 提升 `SKILL.md` 中的 `metadata.version` |
 | `bun run pack:skills` | 从版本管理 `pending` 快照生成每个 skill 的 zip 和 release manifest |
-| `bun run setup-hooks` | 只修复当前 worktree 的 hook 可执行权限与 `core.hooksPath` |
-| `bun run setup-repository` | 配置当前 worktree hook，并为同仓 linked worktree 保存中央 task-graph root |
-| `bun run task-graph -- <arguments>` | 从已配置的中央 root 调用现有 task-graph CLI，并注入同一个 `--root` |
+| `bun run setup-hooks` | 配置当前 worktree 的 `core.hooksPath`，并在 POSIX 文件系统恢复 hook 可执行权限 |
+| `bun run setup-repository` | 配置当前 worktree hook，并确认当前项目的主 worktree 可作为默认 task-graph root |
+| `bun run task-graph -- <arguments>` | 默认从当前项目的中央 root 调用 task-graph，也可用一个显式 `--root` 切换项目 |
 | `bun run check` | 使用 quick 档运行必要快速检查，显式跳过 full 档耗时检查，并在已选检查通过后打包 |
 | `bun run check --full` | 运行 quick 与 full 的全部检查并打包；CI 使用这一完整门禁 |
 
@@ -105,9 +105,10 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 
 ```bash
 bun run task-graph -- task list
+bun run task-graph -- task list --root ../another-project
 ```
 
-这个 package 命令只是仓库拥有的非交互 launcher；领域参数、输出和事务行为仍由中央 root 中现有的 `skills/task-graph/scripts/task-graph.mjs` 负责。launcher 每次调用都必须读到 `skills.taskGraphRoot`，确认其中存在权威索引且仍等于当前 Git 仓库的主 worktree，并拒绝调用方再次传入 `--root` 或 `--index`；配置缺失、陈旧或失效时直接失败，不回退到执行 worktree。其他稳定长命令继续统一使用 `bun run <package-script>`，不依赖交互式 shell alias 或用户级 PATH 修改。需要有意操作其他 task index 时直接调用领域 CLI，并显式传入目标 root。
+这个 package 命令只是仓库拥有的非交互 launcher；领域参数、输出和事务行为由最终选中项目的 `skills/task-graph/scripts/task-graph.mjs` 负责。省略 `--root` 时，launcher 从当前 Git 仓库发现主 worktree，避免 linked worktree 静默形成第二份索引。提供唯一的 `--root <path>` 或 `--root=<path>` 时，相对路径以短入口所在 worktree 为基准解析，并有意切换到该项目自己的 CLI 与 `docs/task-graph/task-graph-index.json`；从 worktree 子目录调用不会改变这个基准。缺值、重复 root、目标项目缺少 CLI 或索引时直接失败。短入口拒绝 `--index`，同一项目若确实需要操作其他索引，应直接调用领域 CLI 并显式承担该选择。其他稳定长命令继续统一使用 `bun run <package-script>`，不依赖交互式 shell alias、用户级 PATH 修改或持久化绝对项目路径。
 
 本仓库使用固定的 `docs/test-evidence/` 根目录、其中的受控 topic 表、
 每个 `<topic>/<slug>.md` 单 case 文件和固定派生索引维护测试账本。账本覆盖
@@ -208,13 +209,15 @@ Skill hash 和 zip 使用相同的版本管理 `pending` 快照，只覆盖最�
 
 ## Git hook
 
-标准 `node scripts/environment.js setup` 已包含 hook 配置。只需要单独修复当前 worktree 的 hook 权限或 `hooksPath` 时运行：
+标准 `node scripts/environment.js setup` 已包含 hook 配置。只需要单独恢复当前 worktree 的平台 hook 条件或 `hooksPath` 时运行：
 
 ```bash
 bun run setup-hooks
 ```
 
 `.githooks/pre-commit` 通过 `hash:skills --quiet` 只读检查 Git index；包内容变化但对应 `metadata.version` 未提升时命令失败。hook 不写文件，也不自动 stage。GitHub Actions 不能修改已经 push 的提交，需要阻止错误提交进入 `main` 时，应由 branch protection 或 ruleset 要求 CI check。
+
+Hook 源文件通过 `.gitattributes` 固定使用 LF，并在 Git index 中保存为 `100755`。POSIX Git 会检查工作区执行位，因此 setup 对当前 worktree 重新执行 `chmod 0755`；原生 Git for Windows 的 `access(X_OK)` 兼容层忽略 `X_OK`，因此 Windows setup 不把 `chmod` 当作启用机制，而是依赖 LF 脚本存在且 `core.hooksPath=.githooks`。环境测试使用真实 `git commit` 验证 hook 被调用，并以启用 checkout 换行转换的 clone 验证 LF 契约；当前完整门禁仍只在 Linux 运行，不能表述为已经完成真实 Windows runner 验证。
 
 Git 调用 hook 时会注入当前 worktree 的 `GIT_DIR`、`GIT_INDEX_FILE` 等 repository-local 环境变量。pre-commit 在取得当前顶层路径后先清除 `git rev-parse --local-env-vars` 声明的变量，再从该顶层运行 hash；这样 hash 内部按 skill 路径执行的 Git 发现会重新识别 linked worktree 及其 index，而不会把单个 skill 目录误判成仓库根。
 
