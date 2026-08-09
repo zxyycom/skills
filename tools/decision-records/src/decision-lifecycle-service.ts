@@ -274,12 +274,20 @@ async function prepareEvolution(
   };
 }
 
-type PreparedSuccessor = {
+type PreparedSuccessorLifecycle =
+  | {
+      candidate: true;
+      metadata: Extract<DecisionSourceMetadata, { status: "candidate" }>;
+    }
+  | {
+      candidate: false;
+      metadata: Exclude<DecisionSourceMetadata, { status: "candidate" }>;
+    };
+
+type PreparedSuccessor = PreparedSuccessorLifecycle & {
   alignment: DecisionAlignment;
-  candidate: boolean;
   currentText: string;
   finalRelations: DecisionRelation[];
-  metadata: DecisionSourceMetadata;
   record: DecisionRecord;
   sourceRelations: DecisionRelation[];
 };
@@ -484,6 +492,7 @@ async function prepareSuccessors(
     }
 
     const candidate = record.document === null;
+    let lifecycle: PreparedSuccessorLifecycle;
     if (candidate) {
       if (
         !isNewDecisionIdentityPath(record.relativePath)
@@ -502,6 +511,7 @@ async function prepareSuccessors(
                 + record.relativePath
             ]);
       }
+      lifecycle = { candidate: true, metadata: parsed.metadata };
     } else {
       if (
         record.alignment === null
@@ -521,18 +531,19 @@ async function prepareSuccessors(
             + "."
         );
       }
+      lifecycle = { candidate: false, metadata: parsed.metadata };
     }
 
     const sourceRelations = cloneRelations(parsed.projection.relations);
-    const finalRelations = relationOverride.kind === "source"
-      ? cloneRelations(sourceRelations)
-      : cloneRelations(relationOverride.relations);
+    const finalRelations = resolveEffectiveRelations(
+      sourceRelations,
+      relationOverride
+    );
     records.push({
       alignment: requested.alignment,
-      candidate,
       currentText: currentText.value,
       finalRelations,
-      metadata: parsed.metadata,
+      ...lifecycle,
       record,
       sourceRelations
     });
@@ -857,18 +868,20 @@ function effectiveRequestRelations(
     if (record === null || record.document !== null) {
       return [];
     }
-    return request.relationOverride.kind === "source"
-      ? cloneRelations(record.projection.relations)
-      : cloneRelations(request.relationOverride.relations);
+    return resolveEffectiveRelations(
+      record.projection.relations,
+      request.relationOverride
+    );
   }
   return request.successors.flatMap((successor) => {
     const record = findRecord(scan, successor.recordPath);
     if (record === null) {
       return [];
     }
-    return request.relationOverride.kind === "source"
-      ? cloneRelations(record.projection.relations)
-      : cloneRelations(request.relationOverride.relations);
+    return resolveEffectiveRelations(
+      record.projection.relations,
+      request.relationOverride
+    );
   });
 }
 
@@ -1111,6 +1124,17 @@ function cloneRelations(
     type,
     target: normalizeDecisionRelativePath(target)
   }));
+}
+
+function resolveEffectiveRelations(
+  sourceRelations: readonly DecisionRelation[],
+  relationOverride: DecisionRelationOverride
+): DecisionRelation[] {
+  return cloneRelations(
+    relationOverride.kind === "source"
+      ? sourceRelations
+      : relationOverride.relations
+  );
 }
 
 function relationsEqual(
