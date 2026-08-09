@@ -177,7 +177,7 @@
       "git-commit-organizer/260702-refine-commit-granularity-types-and-command.md": "sha256:7230c893238dc71d0fc6860d46d962c91d70557561470bba9826a8370ffa2649",
       "git-commit-organizer/260720-treat-commit-format-as-project-style.md": "sha256:10e057cbcbc14332de9d5bb6a571930ca5c0be11864f17be58ea9bd479e51a1d",
       "git-commit-organizer/default-to-current-task-changes.md": "sha256:65e3059bc7b838e27840b329cc8194e8a76bd3238f8cf78b100cfc77624d4427",
-      "index-runtime/stage-selected-index-entries-by-id.md": "sha256:567fdfd91f7e81cf0ba261a0b420b51e58b0e642e7161f34e4682a816c755bd3",
+      "index-runtime/stage-selected-index-entries-by-id.md": "sha256:6c6eda0e4a0901a6ecadf1f64a834e3dbb5405e9fe827456112c24f92a290aa9",
       "index-runtime/stage-selected-index-entries.md": "sha256:2d43831aaff5e122c29ccdd6aedc2f2fb79205617b0cb085a4e53d2a878c01be",
       "index-runtime/use-id-keyed-state-index.md": "sha256:3d15447ba110c39edca56e8594d178829e3d156d0e14772c1f83107de790768b",
       "index-runtime/use-independent-read-side-index-runtime.md": "sha256:041bd0263ff543d6b1cd1e85def33b157a6d0ed1bb1f447565b66ee497a43369",
@@ -2600,14 +2600,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "index-runtime/stage-selected-index-entries-by-id.md",
         "title": "按 ID 键控条目独立暂存状态索引",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-06T09:23:47Z",
         "purpose": "让并行任务只暂存自己选择的索引条目，不带入同一文件中的其他工作区变化。",
         "background": "单文件索引无法按文件边界隔离不同任务，但 ID 键控条目及其来源指纹可以独立组合。",

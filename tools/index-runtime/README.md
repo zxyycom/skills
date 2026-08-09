@@ -30,7 +30,7 @@ Valibot Schema 是索引结构和查询输入的真源。通用层固定使用 `
 - fingerprint 是领域拥有的不透明非空文本；同一 definition 下，相等必须保证对应来源不会产生不同投影。
 - `keyDefinitions`、多值 key、查询 filter/sort、查询结果和领域数组继续使用数组并保留各自的顺序语义。
 
-领域通过 `createStateSourceRevisionSchema` 和 `createStateIndexSchema` 组合自身的 fingerprint、metadata、state、keys 与 key definitions Schema。通用解析边界使用标准 `JSON.parse`，随后校验 schema v3、ID、revision 和成员一致性；不探测 JSON 文本中已经被标准解析覆盖的重复成员。schema v2 使用 `state-index.schema-version-unsupported` 稳定拒绝，不提供兼容读取或自动迁移；领域从权威源重新同步即可。
+领域通过 `createStateSourceRevisionSchema` 和 `createStateIndexSchema` 组合自身的 fingerprint、metadata、state、keys 与 key definitions Schema。`loadStateIndex` 与按条目选择读取的持久化文件先严格解码为 UTF-8，再由通用解析边界使用标准 `JSON.parse`，随后校验 schema v3、ID、revision 和成员一致性；不探测 JSON 文本中已经被标准解析覆盖的重复成员。schema v2 使用 `state-index.schema-version-unsupported` 稳定拒绝，不提供兼容读取或自动迁移；领域从权威源重新同步即可。
 
 所有 ID record 都通过 own-property 或安全构造读取，不依赖原型链。`__proto__`、`constructor` 等符合 ID 文本规则的键可以正常构建、解析、序列化和查询。
 
@@ -48,10 +48,39 @@ Valibot Schema 是索引结构和查询输入的真源。通用层固定使用 `
 1. `read` 与 `readRevision` 对同一来源必须产生相同的结构化清单。任何可能改变 metadata 的输入都必须改变 metadata fingerprint；任何可能改变成员、state 或 keys 的输入都必须改变、增加或删除对应 ID fingerprint。
 2. `readRevision` 只执行一次领域来源发现与内容读取，并在同一遍读取中计算 metadata 与逐 ID fingerprint；它不调用 Markdown/state parser、构造 keys、执行 `validateIndex` 或再次扫描来源。
 3. `syncStateIndex` 从完整 snapshot 检查或重建 JSON，写入前再次读取并核对结构化 revision，在根目录边界内原子替换并读回验证；它不写领域源。
-4. 索引只提供完整同步。选择性 pending 写入由独立协议承接，不能把该职责并入常规 runtime。
+4. 普通同步只处理工作区索引；按 ID 选择性写入 `pending` 由下一节的独立操作承接，
+   两者不共享隐式状态。
 5. 序列化使 `entries` 与 `sourceRevision.entries` 的输出确定且不依赖输入 record 的插入顺序；调用方不应依赖某一种 JSON 对象成员排序算法。key 值按固定全序输出，领域 metadata 和 state 中的数组保持 parser 返回顺序。
 6. metadata 对象始终递归按字段名字典序规范化；默认模式也按相同规则规范化 state 对象，`fieldOrder: "definition"` 则改用通用外壳语义顺序、key 策略声明顺序和 parser 返回的领域字段顺序。
 7. 序列化固定使用 LF；检查时把 Git checkout 可能产生的 CRLF 视为等价。
+
+## 按 ID 选择性写入 Pending
+
+`stageSelectedIndexEntries({ context, definition, indexPath, selectedIds })` 与配置完成的
+`StateIndexRuntime.stageSelectedEntries(selectedIds)` 只接收非空、合法且不重复的稳定 ID
+集合。操作先固定当前 revision 中的目标索引作为基线，再完整读取工作区中的同一路径
+索引作为候选；revision 尚无该文件时使用空基线。两份已有索引都必须通过同一 definition
+的严格解析，操作不会调用领域 `read` 或 `readRevision`，也不会读取或推断领域文件。
+
+每个 ID 使用同一存在性规则选择 state 与 `sourceRevision.entries[id]`：选中且工作区存在
+时采用工作区值，选中且只在 revision 存在时删除，未选中时只保留 revision 值；两边都
+不存在的选中 ID 直接失败。重命名由调用方同时选择旧 ID 和新 ID 表达。revision 已有
+索引时，metadata 与 `sourceRevision.metadata` 必须保持不变；首次建立索引时采用工作区
+的完整集合级值。
+
+组合结果只把所选 state 与逐 ID fingerprint 交给现有完整投影路径，重新执行 metadata
+和 state parser、key 投影、规范化、协议校验、`validateIndex` 与确定性序列化，不复制
+候选索引中的 keys 或对象顺序。合法结果可以为空；选中顺序不影响目标文本。
+
+写入只替换目标索引的 `pending` 普通文件表示。version-control 在同一个互斥写入边界内
+确认 current revision 未变化，并确认目标索引现有 `pending` 仍与 revision 的路径、字节
+和普通文件表示完全相同；首次索引要求该路径不存在。期望不成立时返回
+`pending-conflict`，不会合并或覆盖；目标外 `pending`、工作区索引和领域文件保持不变。
+即使所选条目没有实际变化也会执行这项受锁确认，成功结果才以 `unchanged` 报告。
+
+普通失败的 `changed` 为 `false`。只有 version-control 无法确认恢复完整时返回
+`pending-recovery-failed` 且 `changed` 为 `null`，调用方必须先检查 `pending` 再重试。
+结果和 `StateIndexDiagnostic` 只使用索引与 pending 语义，不暴露底层版本管理实现细节。
 
 ## 依赖与验证
 
@@ -63,4 +92,6 @@ Valibot Schema 是索引结构和查询输入的真源。通用层固定使用 `
 bun run test:index-runtime
 ```
 
-测试覆盖 schema v3、领域 parser 边界、特殊 ID、revision 成员、reader 快照、runtime overlay、查询、确定性同步、快速打开调用计数和一千/五千条规模场景；规模测量只作为接入证据，不定义持续性能 SLO。
+测试覆盖 schema v3、领域 parser 边界、特殊 ID、revision 成员、reader 快照、runtime
+overlay、查询、确定性同步、按 ID 组合与受锁 pending 隔离、快速打开调用计数和一千/
+五千条规模场景；规模测量只作为接入证据，不定义持续性能 SLO。

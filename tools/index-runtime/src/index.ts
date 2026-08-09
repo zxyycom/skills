@@ -22,6 +22,7 @@ export {
   loadStateIndex,
   syncStateIndex
 } from "./storage.ts";
+export { stageSelectedIndexEntries } from "./staging.ts";
 export type {
   JsonObject,
   JsonPrimitive,
@@ -34,6 +35,7 @@ export type {
   StateIndexDefinition,
   StateIndexDiagnostic,
   StateIndexEntry,
+  StateIndexEntryStageResult,
   StateIndexExpectation,
   StateIndexFilter,
   StateIndexKeyDefinition,

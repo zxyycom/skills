@@ -1,7 +1,7 @@
 ---
 title: 按 ID 键控条目独立暂存状态索引
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-06T09:23:47Z
 purpose: 让并行任务只暂存自己选择的索引条目，不带入同一文件中的其他工作区变化。
 background: 单文件索引无法按文件边界隔离不同任务，但 ID 键控条目及其来源指纹可以独立组合。

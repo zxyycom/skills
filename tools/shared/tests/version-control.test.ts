@@ -560,6 +560,167 @@ test("replaces a literal pending range exactly and preserves pending files outsi
   });
 });
 
+test("rejects replacements when expected pending ordinary files differ", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { currentRevision, repositoryRoot } =
+      await createRepositoryFixture(tempRoot);
+    runGit(repositoryRoot, ["reset", "--quiet", "HEAD"]);
+    await writeFile(repositoryRoot, "outside/preserve.md", "outside pending\n");
+    runGit(repositoryRoot, ["add", "outside/preserve.md"]);
+    const expectedFile = {
+      data: Buffer.from("current\n"),
+      path: "docs/tracked.md"
+    };
+    let pendingWrites = 0;
+    const repository = await openGitVersionControl(repositoryRoot, {
+      beforePendingWrite: () => {
+        pendingWrites += 1;
+      }
+    });
+
+    await writeFile(repositoryRoot, "docs/tracked.md", "other pending\n");
+    runGit(repositoryRoot, ["add", "docs/tracked.md"]);
+    await assert.rejects(
+      repository.replacePendingFiles({
+        expectedFiles: [expectedFile],
+        expectedRevision: currentRevision,
+        files: [{
+          data: Buffer.from("replacement\n"),
+          path: "docs/tracked.md"
+        }],
+        pathScope: "docs/tracked.md"
+      }),
+      isPendingConflict
+    );
+    assert.equal(pendingWrites, 0);
+    assert.deepEqual(await readPendingText(repository, "docs/tracked.md"), [{
+      data: "other pending\n",
+      path: "docs/tracked.md"
+    }]);
+
+    runGit(repositoryRoot, ["reset", "--quiet", "HEAD", "--", "docs/tracked.md"]);
+    runGit(repositoryRoot, [
+      "update-index",
+      "--chmod=+x",
+      "docs/tracked.md"
+    ]);
+    await assert.rejects(
+      repository.replacePendingFiles({
+        expectedFiles: [expectedFile],
+        expectedRevision: currentRevision,
+        files: [{
+          data: Buffer.from("replacement\n"),
+          path: "docs/tracked.md"
+        }],
+        pathScope: "docs/tracked.md"
+      }),
+      isPendingConflict
+    );
+    assert.equal(pendingWrites, 0);
+    assert.deepEqual(readPendingModes(repositoryRoot, ["docs/tracked.md"]), [{
+      mode: "100755",
+      path: "docs/tracked.md"
+    }]);
+    assert.deepEqual(await readPendingText(repository, "outside/preserve.md"), [{
+      data: "outside pending\n",
+      path: "outside/preserve.md"
+    }]);
+
+    runGit(repositoryRoot, ["reset", "--hard", "--quiet", "HEAD"]);
+    const primaryBranch = runGit(
+      repositoryRoot,
+      ["branch", "--show-current"]
+    ).trim();
+    runGit(repositoryRoot, ["checkout", "--quiet", "-b", "pending-conflict"]);
+    await writeFile(repositoryRoot, "docs/tracked.md", "side content\n");
+    runGit(repositoryRoot, ["add", "docs/tracked.md"]);
+    runGit(repositoryRoot, ["commit", "--quiet", "--message", "side"]);
+    runGit(repositoryRoot, ["checkout", "--quiet", primaryBranch]);
+    await writeFile(repositoryRoot, "docs/tracked.md", "primary content\n");
+    runGit(repositoryRoot, ["add", "docs/tracked.md"]);
+    runGit(repositoryRoot, ["commit", "--quiet", "--message", "primary"]);
+    assert.throws(() => runGit(repositoryRoot, [
+      "merge",
+      "--no-edit",
+      "pending-conflict"
+    ]));
+    const conflictRevision = await repository.getCurrentRevision();
+    assert.notEqual(conflictRevision, null);
+    const conflictExpected = await repository.readRevisionFile(
+      conflictRevision!,
+      "docs/tracked.md"
+    );
+    assert.notEqual(conflictExpected, null);
+    const unmergedBefore = runGit(repositoryRoot, [
+      "ls-files",
+      "--unmerged",
+      "--",
+      "docs/tracked.md"
+    ]);
+    await assert.rejects(
+      repository.replacePendingFiles({
+        expectedFiles: [conflictExpected!],
+        expectedRevision: conflictRevision,
+        files: [{
+          data: Buffer.from("replacement\n"),
+          path: "docs/tracked.md"
+        }],
+        pathScope: "docs/tracked.md"
+      }),
+      isPendingConflict
+    );
+    assert.equal(pendingWrites, 0);
+    assert.equal(runGit(repositoryRoot, [
+      "ls-files",
+      "--unmerged",
+      "--",
+      "docs/tracked.md"
+    ]), unmergedBefore);
+  });
+});
+
+test("serializes concurrent replacements against expected pending files", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { currentRevision, repositoryRoot } =
+      await createRepositoryFixture(tempRoot);
+    runGit(repositoryRoot, ["reset", "--quiet", "HEAD"]);
+    const expectedFiles = [{
+      data: Buffer.from("current\n"),
+      path: "docs/tracked.md"
+    }];
+    const repositories = await Promise.all([
+      openVersionControl(repositoryRoot),
+      openVersionControl(repositoryRoot)
+    ]);
+    const replacements = ["first target\n", "second target\n"].map(
+      (content, index) => repositories[index]!.replacePendingFiles({
+        expectedFiles,
+        expectedRevision: currentRevision,
+        files: [{
+          data: Buffer.from(content),
+          path: "docs/tracked.md"
+        }],
+        pathScope: "docs/tracked.md"
+      })
+    );
+
+    const results = await Promise.allSettled(replacements);
+    assert.equal(
+      results.filter((result) => result.status === "fulfilled").length,
+      1
+    );
+    const rejected = results.find((result) => result.status === "rejected");
+    assert.ok(rejected?.status === "rejected");
+    assert.equal(isPendingConflict(rejected.reason), true);
+    const pending = await readPendingText(repositories[0]!, "docs/tracked.md");
+    assert.equal(pending.length, 1);
+    assert.ok(
+      pending[0]?.data === "first target\n"
+      || pending[0]?.data === "second target\n"
+    );
+  });
+});
+
 test("rejects invalid pending replacement paths without changing pending files", gitTestOptions, async () => {
   await withTempRoot(async (tempRoot) => {
     const { repositoryRoot } = await createRepositoryFixture(tempRoot);

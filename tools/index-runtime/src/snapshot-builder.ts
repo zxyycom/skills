@@ -52,15 +52,30 @@ export async function buildStateIndex<
   } catch (error) {
     return failure("state-index.source-read-failed", errorText(error));
   }
+  return buildStateIndexFromSnapshot(definition, snapshot);
+}
+
+export function buildStateIndexFromSnapshot<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  definition: StateIndexDefinition<State, Metadata>,
+  snapshot: unknown,
+  sourcePath: string | null = null
+): StateIndexResult<StateIndex<State, Metadata>> {
   if (!isStateSnapshot(snapshot)) {
     return failure(
       "state-index.source-invalid",
       "read must return { sourceRevision, metadata, states } with JSON object "
-      + "metadata and an id-keyed state record"
+      + "metadata and an id-keyed state record",
+      { path: sourcePath }
     );
   }
 
-  const sourceRevision = validateStateSourceRevisionValue(snapshot.sourceRevision);
+  const sourceRevision = validateStateSourceRevisionValue(
+    snapshot.sourceRevision,
+    sourcePath
+  );
   if (sourceRevision.status === "error") {
     return sourceRevision;
   }
@@ -70,17 +85,22 @@ export async function buildStateIndex<
       "state-index.id-invalid",
       `state id ${JSON.stringify(invalidId)} must be non-empty text without surrounding `
         + "whitespace or control characters",
-      { stateId: invalidId }
+      { path: sourcePath, stateId: invalidId }
     );
   }
   if (!sameRecordMembers(snapshot.states, sourceRevision.value.entries)) {
     return failure(
       "state-index.source-revision-members-mismatch",
-      "sourceRevision.entries must contain exactly the same state ids as states"
+      "sourceRevision.entries must contain exactly the same state ids as states",
+      { path: sourcePath }
     );
   }
 
-  const parsedMetadata = parseStateIndexMetadata(definition, snapshot.metadata);
+  const parsedMetadata = parseStateIndexMetadata(
+    definition,
+    snapshot.metadata,
+    sourcePath
+  );
   if (parsedMetadata.status === "error") {
     return parsedMetadata;
   }
@@ -93,7 +113,10 @@ export async function buildStateIndex<
       state,
       createProjectionContext(id, metadata)
     );
-    diagnostics.push(...projected.diagnostics);
+    diagnostics.push(...projected.diagnostics.map((entry) => ({
+      ...entry,
+      path: entry.path ?? sourcePath
+    })));
     if (projected.status === "ok") {
       entries.push([id, projected.value]);
     }
@@ -114,7 +137,7 @@ export async function buildStateIndex<
   const validated = validateStateIndexValue(
     rawIndex,
     expectationOf(definition),
-    "<generated>"
+    sourcePath ?? "<generated>"
   );
   if (validated.index === null) {
     return { diagnostics: validated.diagnostics, status: "error", value: null };
@@ -123,7 +146,7 @@ export async function buildStateIndex<
   return validateCompleteStateIndex(
     definition,
     canonical,
-    "<generated>"
+    sourcePath ?? "<generated>"
   );
 }
 

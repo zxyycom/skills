@@ -21,11 +21,13 @@
 5. 把仓库内绝对后代路径转换为规范化仓库相对路径，并拒绝相对路径、仓库根本身和仓库外路径。
 6. 列出工作区文件和工作区变化。
 7. 按字面仓库相对路径范围读取 `pending` 文件内容。
-8. 通过 `replacePendingFiles({ expectedRevision, pathScope, files })` 用精确目标文件
-   集合完整替换一个字面仓库相对路径范围：取得跨进程写入边界后，当前 revision 必须
-   仍等于 `expectedRevision`；目标集合中缺失的范围内文件视为删除，范围外 `pending`
-   内容保持不变。成功结果返回规范化的 `pathScope`、写入前 `previousPaths` 和写入后
-   `pendingPaths`。
+8. 通过 `replacePendingFiles({ expectedRevision, expectedFiles?, pathScope, files })`
+   用精确目标文件集合完整替换一个字面仓库相对路径范围：取得跨进程写入边界后，当前
+   revision 必须仍等于 `expectedRevision`；传入 `expectedFiles` 时，范围内 `pending`
+   文件必须仍是同一组普通非可执行文件，路径与字节也与该集合完全相同；可执行文件、
+   符号链接或未解决的内容不满足期望。目标集合中缺失的范围内文件视为删除，范围外
+   `pending` 内容保持不变。成功结果返回规范化的
+   `pathScope`、写入前 `previousPaths` 和写入后 `pendingPaths`。
 
 `revision` 表示已经提交的不可变版本；`pending` 表示准备进入下一版本的内容。首个 Git 实现在内部将 `pending` 映射到 index，公共参数、结果和错误不暴露该映射。工作区文件和工作区变化不是版本快照，通过独立查询暴露，三者不能互相替代。
 
@@ -40,10 +42,10 @@
    引号或换行切分。Git 命令、格式、行数或路径记录异常时报告 `operation-failed`，
    不能降级为空结果；只有完整输出表明 `from` 不在 `to` 的 first-parent 历史中时
    返回 `null`。每个 merge revision 相对其 first parent 计算变化。
-7. 范围替换在 Git index 的跨进程互斥边界内保存原范围、核对 revision、应用完整
-   目标并逐路径、逐字节读回。revision 已变化或写入边界正被占用时报告
-   `pending-conflict` 且不写入；其他写入或读回失败丢弃锁定目标并保留原范围，恢复
-   完整后报告 `pending-replacement-failed`，无法确认完整恢复时报告
+7. 范围替换在 Git index 的跨进程互斥边界内保存原范围、核对 revision 与可选的期望
+   文件集合、应用完整目标并逐路径、逐字节读回。revision 或期望文件已变化，或写入
+   边界正被占用时报告 `pending-conflict` 且不写入；其他写入或读回失败丢弃锁定目标
+   并保留原范围，恢复完整后报告 `pending-replacement-failed`，无法确认完整恢复时报告
    `pending-recovery-failed`。调用方必须停止且不能回退到底层命令。
 8. 目标文件统一作为普通文件写入，不沿用原 `pending` 的可执行或符号链接模式；只有
    失败恢复保留写入前快照的原始表示。
@@ -52,7 +54,8 @@
 10. `tools/shared/` 不依赖领域工具；消费者按本文件声明的通用入口或专用共享子模块使用该中间层。
 
 当前直接生产消费者包括 skill 打包 hash、独立版本门禁、change-plan 的 first-parent
-距离评估，以及 decision-records 的 revision 基线读取与 `pending` 决策范围替换。
+距离评估、decision-records 的 revision 基线读取与 `pending` 决策范围替换，以及
+index-runtime 按 ID 暂存时的 revision 基线读取与受期望保护的单索引替换。
 验证入口是：
 
 ```bash

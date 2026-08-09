@@ -41,6 +41,8 @@ export type VersionControlFile = {
 };
 
 export type ReplacePendingFilesOptions = {
+  /** Exact pending file set that must still exist when the replacement lock is held. */
+  expectedFiles?: readonly VersionControlFile[];
   /** Revision that must still be current when the replacement lock is held. */
   expectedRevision: RevisionId | null;
   /** Exact pending file set that must remain within the literal scope. */

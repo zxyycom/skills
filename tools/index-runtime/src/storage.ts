@@ -66,9 +66,9 @@ export async function loadStateIndex<
   if (resolved.status === "error") {
     return resolved;
   }
-  let text: string;
+  let data: Buffer;
   try {
-    text = await fs.readFile(resolved.value, "utf8");
+    data = await fs.readFile(resolved.value);
   } catch (error) {
     return failure(
       isFileSystemError(error, "ENOENT")
@@ -77,6 +77,16 @@ export async function loadStateIndex<
       isFileSystemError(error, "ENOENT")
         ? `${options.indexPath} does not exist`
         : `failed to read ${options.indexPath}: ${errorText(error)}`,
+      { path: options.indexPath }
+    );
+  }
+  let text: string;
+  try {
+    text = new TextDecoder("utf-8", { fatal: true }).decode(data);
+  } catch {
+    return failure(
+      "state-index.index-encoding-invalid",
+      `${options.indexPath} must contain valid UTF-8 text`,
       { path: options.indexPath }
     );
   }
@@ -273,7 +283,7 @@ function normalizeIndexLineEndings(value: string): string {
   return value.replace(/\r\n/g, "\n");
 }
 
-function resolveIndexPath(
+export function resolveIndexPath(
   indexPath: string,
   root: string
 ): StateIndexResult<string> {

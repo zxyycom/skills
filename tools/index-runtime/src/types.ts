@@ -233,3 +233,43 @@ export type StateIndexSyncResult =
     state: "mode-invalid";
     status: "error";
   });
+
+type StateIndexEntryStageBase = {
+  diagnostics: StateIndexDiagnostic[];
+  indexPath: string;
+  namespace: string;
+  selectedIds: string[];
+};
+
+export type StateIndexEntryStageResult =
+  | (StateIndexEntryStageBase & {
+    changed: true;
+    state: "staged";
+    status: "ok";
+  })
+  | (StateIndexEntryStageBase & {
+    changed: false;
+    state: "unchanged";
+    status: "ok";
+  })
+  | (StateIndexEntryStageBase & {
+    changed: false;
+    state:
+      | "collection-changed"
+      | "definition-invalid"
+      | "index-path-invalid"
+      | "operation-aborted"
+      | "pending-conflict"
+      | "pending-write-failed"
+      | "revision-index-invalid"
+      | "revision-read-failed"
+      | "selection-invalid"
+      | "target-invalid"
+      | "workspace-index-invalid";
+    status: "error";
+  })
+  | (StateIndexEntryStageBase & {
+    changed: null;
+    state: "pending-recovery-failed";
+    status: "error";
+  });

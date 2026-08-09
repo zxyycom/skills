@@ -26,6 +26,7 @@ import {
   loadCurrentStateIndex,
   syncStateIndex
 } from "./storage.ts";
+import { stageSelectedIndexEntries } from "./staging.ts";
 import type {
   JsonObject,
   StateIndexContext,
@@ -33,6 +34,7 @@ import type {
   StateIndexDefinition,
   StateIndexDiagnostic,
   StateIndexEntry,
+  StateIndexEntryStageResult,
   StateIndexFilter,
   StateIndex,
   StateIndexQuery,
@@ -86,6 +88,9 @@ export type StateIndexRuntime<
     query?: StateIndexQuery,
     options?: StateIndexQueryOptions<State>
   ) => Promise<StateIndexResult<StateIndexQueryOutput<State, Metadata>>>;
+  stageSelectedEntries: (
+    selectedIds: readonly string[]
+  ) => Promise<StateIndexEntryStageResult>;
   sync: (mode: StateIndexSyncMode) => Promise<StateIndexSyncResult>;
 };
 
@@ -152,6 +157,12 @@ export function createStateIndexRuntime<
     get,
     open,
     query,
+    stageSelectedEntries: (selectedIds) => stageSelectedIndexEntries({
+      context,
+      definition,
+      indexPath: options.indexPath,
+      selectedIds
+    }),
     sync: (mode) => syncStateIndex({
       context,
       definition,

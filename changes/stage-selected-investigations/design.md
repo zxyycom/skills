@@ -4,7 +4,7 @@
 
 ## Context
 
-前置 change [`stage-selected-index-entries`](../stage-selected-index-entries/design.md)完成后，配置好的 `StateIndexRuntime` 只需接收 `selectedIds`，即可从 revision 索引与工作区索引构造并暂存完整目标索引。它不接收或操作领域文件。
+前置 change [`stage-selected-index-entries`](../archive/stage-selected-index-entries/design.md)完成后，配置好的 `StateIndexRuntime` 只需接收 `selectedIds`，即可从 revision 索引与工作区索引构造并暂存完整目标索引。它不接收或操作领域文件。
 
 调查 Markdown 是权威内容，`investigation-index.json` 是完整派生索引。现有 definition 直接使用调查根相对主题路径作为稳定索引 id，因此领域接入不需要增加另一层路径到 id 的映射。主题文件本身可用普通路径暂存，不需要进入索引 API。
 
