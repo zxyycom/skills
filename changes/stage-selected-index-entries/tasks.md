@@ -8,15 +8,15 @@
 - [x] 0.2 确认公共选择输入只有稳定条目 id；revision 索引是基线，工作区索引是候选，新增、修改、删除和显式重命名使用同一存在性规则。
 - [x] 0.3 确认同一索引已有待提交变化时直接拒绝，并在 version-control 写入锁内核对；其他待提交路径保持不变。
 - [x] 0.4 确认条目级操作不选择 metadata、metadata 来源指纹或 definition；目标逐条来源 revision 与 state 使用同一 id 选择规则。
-- [x] 0.5 将原有粗决策闭合拆分为 `use-id-keyed-state-index.md` 与 `stage-selected-index-entries-by-id.md` 两条长期决策并保持 `active + unaligned`；三个 artifact 已按同一主承诺完成 AI-ready 审阅。
-- [ ] 0.6 确认前置 `use-id-keyed-state-index` change 已完成，schema v3 与结构化来源 revision 决策已经对齐，再开始本 change 的实现。
+- [x] 0.5 确认 `use-id-keyed-state-index.md` 与 `stage-selected-index-entries-by-id.md` 是从同一粗决策闭合拆分出的独立长期判断，分别承接前置索引契约与本 change 的选择性暂存方向；三个 artifact 使用同一主承诺和责任边界。
+- [x] 0.6 确认前置 `use-id-keyed-state-index` change 已归档完成，schema v3 与结构化来源 revision 决策为 `active + aligned`，可以开始本 change 的实现。
 
 ## Implementation
 
 - [ ] 1.1 提取从 metadata、id 键控 state 与逐条来源 revision 构造完整目标索引的内部路径，统一复用 parser、key 投影、字段顺序、规范化和完整 `validateIndex`。
 - [ ] 1.2 扩展 version-control 的 `replacePendingFiles`，使它能在既有写入锁内核对目标路径的期望 `pending` 内容，并保持范围外内容、读回验证和失败恢复语义。
 - [ ] 1.3 实现 `stageSelectedIndexEntries`：校验路径和 selectedIds，读取 revision/工作区索引，按 id 同步选择 state 与来源指纹，拒绝集合级变化，重建完整目标并处理稳定诊断。
-- [ ] 1.4 为 `StateIndexRuntime` 增加只接收 selectedIds 的 `stageSelectedEntries`，同步公共类型、导出、README 和必要生成模块。
+- [ ] 1.4 为 `StateIndexRuntime` 增加只接收 selectedIds 的 `stageSelectedEntries`，同步公共类型、导出和 README；通过官方构建入口同步实际漂移的分发模块，并提升包内容发生变化的 skill 版本。
 - [ ] 1.5 在实现、稳定 owner 和事实核对完成后，把 `index-runtime/stage-selected-index-entries-by-id.md` 标记为 `aligned` 并同步统一决策索引。
 
 ## Verification

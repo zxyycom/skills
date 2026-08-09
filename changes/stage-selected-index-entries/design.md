@@ -19,6 +19,8 @@
 - [version-control](../../tools/shared/version-control.md)拥有 revision 与 `pending` 文件读取、跨进程写入边界、冲突检查和失败恢复。
 - 接入方拥有领域文件。索引运行时不能从条目 id 推断这些文件，也不负责把它们加入 `pending`。
 
+`index-runtime` 不独立分发，而是由当前领域构建器内联到自包含模块。共享源码变化后，只通过项目声明的 `sync:*` 入口同步实际发生漂移的生成产物；任何 skill 包内容变化都必须同步提升该 skill 的独立版本。
+
 本 change 以 [`use-id-keyed-state-index`](../archive/use-id-keyed-state-index/) 为前置：schema v3 的 `entries` 和 `sourceRevision.entries` 使用相同的稳定 id 键，`sourceRevision.metadata` 单独表达集合级来源。选择结果可以直接组合选中条目的 state 与来源指纹，不需要重新解析领域源，也不改变普通查询的快速新鲜度路径。
 
 ## Goals / Non-Goals
@@ -90,13 +92,14 @@
 
 ## Risks / Trade-offs
 
-- 本 change 依赖 schema v3 的 id 键控 entries 与结构化来源 revision；前置 change 尚未对齐时不能开始实现选择性暂存。
+- 本 change 依赖 schema v3 的 id 键控 entries 与结构化来源 revision；只有前置 change 已完成且长期决策对齐后才能开始实现选择性暂存。
 - 工作区索引中的逐条来源指纹必须与其 state 同源；本操作只验证索引内部结构，不读取领域源证明工作区索引已经同步，接入方仍需维护自己的领域文件与完整索引。
 - metadata 或 definition 变化不能和少数条目一起暂存；这避免把影响整个集合的变化错误归入选中 id。
 - 选中条目的局部组合可能违反跨条目约束；完整校验会拒绝结果，调用方需要补选共同形成合法集合的条目。
 - 索引与领域文件是独立暂存操作，不承诺跨 owner 原子性；接入方必须检查自己的最终提交范围。
 - 同一索引已有待提交变化时拒绝会让该索引的暂存阶段串行执行，但能避免不同任务混入同一提交或互相覆盖。
 - 每次操作都读取并重建完整索引，成本随索引规模增长；本 change 不建立增量计算或持续性能 SLO。
+- 公共 runtime 方法可能使尚未提供领域暂存命令的分发模块也发生生成漂移；只同步实际漂移的产物并提升对应 skill 版本，不把领域命令实现提前纳入本 change。
 
 ## Open Questions
 
