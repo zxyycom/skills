@@ -72,9 +72,14 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run validate` | 校验全部 skill 入口、当前维护的仓库 Markdown 链接和主仓库配置 |
 | `bun run hash:skills` | 从 Git `pending` 快照临时计算 package hash，并校验内容变化的 skill 已相对 `--baseline-ref` 提升 `SKILL.md` 中的 `metadata.version` |
 | `bun run pack:skills` | 从版本管理 `pending` 快照生成每个 skill 的 zip 和 release manifest |
+| `bun run change-plan -- <arguments>` | 调用 `change-plan` 内置 CLI 维护 change proposal、design、tasks 与生命周期 |
+| `bun run decision-records -- <arguments>` | 调用 `decision-records` 内置 CLI 查询和维护长期决策及其派生索引 |
+| `bun run investigation-report -- <arguments>` | 调用 `investigation-report` 内置 CLI 检查、同步或查询调查报告索引 |
 | `bun run setup-hooks` | 配置当前 worktree 的 `core.hooksPath`，并在 POSIX 文件系统恢复 hook 可执行权限 |
 | `bun run setup-repository` | 配置当前 worktree hook，并确认当前项目的主 worktree 可作为默认 task-graph root |
 | `bun run task-graph -- <arguments>` | 默认从当前项目的中央 root 调用 task-graph，也可用一个显式 `--root` 切换项目 |
+| `bun run test-evidence -- <arguments>` | 调用 `test-evidence-review` 内置 CLI 校验、同步和查询显式测试证据 case |
+| `bun run validate-skill -- <skill-directory>` | 调用 `skill-maintainer` 内置 CLI 校验单个 skill 的可移植结构 |
 | `bun run check` | 使用 quick 档运行必要快速检查，显式跳过 full 档耗时检查，并在已选检查通过后打包 |
 | `bun run check --full` | 运行 quick 与 full 的全部检查并打包；CI 使用这一完整门禁 |
 
@@ -101,14 +106,20 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 
 只有具备独立维护操作、完整检查消费者或生成写入责任的命令才保留为 package script。`scripts/validators/project-config.ts` 检查这些稳定入口仍存在于 `package.json`。
 
-需要协调 task graph 时使用：
+本仓库日常维护统一使用 package 短入口，而不在命令中重复 skill 安装路径：
 
 ```bash
+bun run change-plan -- list
+bun run decision-records -- candidates
+bun run investigation-report -- list
 bun run task-graph -- task list
-bun run task-graph -- task list --root ../another-project
+bun run test-evidence -- topics
+bun run validate-skill -- skills/task-graph
 ```
 
-这个 package 命令只是仓库拥有的非交互 launcher；领域参数、输出和事务行为由最终选中项目的 `skills/task-graph/scripts/task-graph.mjs` 负责。省略 `--root` 时，launcher 从当前 Git 仓库发现主 worktree，避免 linked worktree 静默形成第二份索引。提供唯一的 `--root <path>` 或 `--root=<path>` 时，相对路径以短入口所在 worktree 为基准解析，并有意切换到该项目自己的 CLI 与 `docs/task-graph/task-graph-index.json`；从 worktree 子目录调用不会改变这个基准。缺值、重复 root、目标项目缺少 CLI 或索引时直接失败。短入口拒绝 `--index`，同一项目若确实需要操作其他索引，应直接调用领域 CLI 并显式承担该选择。其他稳定长命令继续统一使用 `bun run <package-script>`，不依赖交互式 shell alias、用户级 PATH 修改或持久化绝对项目路径。
+这些 package scripts 只提供仓库内稳定、非交互且跨 shell 的调用入口，不复制领域参数、输出、退出状态或事务逻辑；除 task-graph 的项目 root 选择外，它们直接委托对应 `skills/*/scripts/` 生成 CLI。项目内 agent 和维护说明优先使用短入口；测试源码与生成制品边界、入口实现调试以及 skill 仓库外分发说明仍可使用完整路径。新增可分发 CLI 时，只有它确实成为本仓库的日常维护入口，才同步增加 package script、本文命令表和项目校验，不能因 skill 内存在脚本就自动暴露别名。
+
+task-graph 的 package 命令另外承担项目 root 选择。省略 `--root` 时，launcher 从当前 Git 仓库发现主 worktree，避免 linked worktree 静默形成第二份索引。提供唯一的 `--root <path>` 或 `--root=<path>` 时，相对路径以短入口所在 worktree 为基准解析，并有意切换到该项目自己的 CLI 与 `docs/task-graph/task-graph-index.json`；从 worktree 子目录调用不会改变这个基准。缺值、重复 root、目标项目缺少 CLI 或索引时直接失败。短入口拒绝 `--index`，同一项目若确实需要操作其他索引，应直接调用领域 CLI 并显式承担该选择。
 
 本仓库使用固定的 `docs/test-evidence/` 根目录、其中的受控 topic 表、
 每个 `<topic>/<slug>.md` 单 case 文件和固定派生索引维护测试账本。账本覆盖

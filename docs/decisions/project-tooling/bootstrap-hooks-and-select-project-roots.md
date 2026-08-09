@@ -1,6 +1,6 @@
 ---
 title: 按平台建立 Hook 并允许短入口显式切换项目
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-09T04:47:47Z
 purpose: 让仓库自举按 Git 平台语义启用 hook，并让短入口在安全默认值之外显式选择其他项目。

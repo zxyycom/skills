@@ -23,9 +23,14 @@ type PermissionRule = {
 
 const requiredPackageScripts = [
   ...checkPackageScripts,
+  "change-plan",
+  "decision-records",
+  "investigation-report",
   "setup-hooks",
   "setup-repository",
   "task-graph",
+  "test-evidence",
+  "validate-skill",
   "sync:skill-updaters",
   "sync:change-plan-cli",
   "sync:skill-validator",

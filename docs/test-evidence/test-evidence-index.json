@@ -3888,6 +3888,29 @@
         "title": "调查校验按类别与路径筛选"
       }
     },
+    "REPO-SHORT-CLI-001": {
+      "keys": {
+        "search": [
+          "REPO-SHORT-CLI-001 仓库维护短命令调用各自领域 CLI 本仓库为实际使用的稳定 skill 维护 CLI 提供 package 短入口，并保持领域实现仍由各自已有 CLI 承接。 六个 `bun run <command> -- --help` 入口均成功退出，并返回对应 change、decision、investigation、task、test-evidence 或 skill-validator CLI 的身份输出。 scripts/environment.test.ts > repository maintenance short commands invoke their owned skill CLIs bun test --test-name-pattern=\"^repository maintenance short commands invoke their owned skill CLIs$\" ./scripts/environment.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "scripts/environment.test.ts > repository maintenance short commands invoke their owned skill CLIs",
+          "bun test --test-name-pattern=\"^repository maintenance short commands invoke their owned skill CLIs$\" ./scripts/environment.test.ts"
+        ],
+        "id": "REPO-SHORT-CLI-001",
+        "line": 1,
+        "searchText": "仓库维护短命令调用各自领域 CLI 本仓库为实际使用的稳定 skill 维护 CLI 提供 package 短入口，并保持领域实现仍由各自已有 CLI 承接。 六个 `bun run <command> -- --help` 入口均成功退出，并返回对应 change、decision、investigation、task、test-evidence 或 skill-validator CLI 的身份输出。 scripts/environment.test.ts > repository maintenance short commands invoke their owned skill CLIs bun test --test-name-pattern=\"^repository maintenance short commands invoke their owned skill CLIs$\" ./scripts/environment.test.ts",
+        "sourcePath": "repository-tooling/repository-maintenance-short-commands-invoke-owned-clis.md",
+        "summary": "本仓库为实际使用的稳定 skill 维护 CLI 提供 package 短入口，并保持领域实现仍由各自已有 CLI 承接。",
+        "title": "仓库维护短命令调用各自领域 CLI"
+      }
+    },
     "REPO-TASK-ROOT-001": {
       "keys": {
         "search": [
@@ -8118,6 +8141,7 @@
       "INVESTIGATION-SOURCE-REVISION-001": "sha256:d7bc684d85b8c31c9e3249fd94cd22271db1cf9fdc8ea806468252e62acd57ad",
       "INVESTIGATION-STRUCTURE-CHRONOLOGY-001": "sha256:c37b58ae1a46e45c4c65521f420c6f373301ce0465e1d5c14ed70abb8a7f0de4",
       "INVESTIGATION-VALIDATION-FILTER-001": "sha256:59fb97585ad6fe441e9bf7a42044f69eb26a826b7c648a25322a8ab2e350e036",
+      "REPO-SHORT-CLI-001": "sha256:447546edd7e612aab36bded43aeb883eb9d90e266e174ad200b8af60ff987b20",
       "REPO-TASK-ROOT-001": "sha256:6f7f36dab2296b05c02fea40dbb240ca970aeec45b6fb8e809772121bf575df4",
       "REPO-TASK-TARGET-001": "sha256:0d31dfb2b408a1aede75a8230c2d302d965c3e131109c6fc0808324b1a80f5bd",
       "SKILL-PACKAGE-HASH-001": "sha256:cf44553e22b994bf18ecc1269c2a95e1d58c03eaa247bff8abcc4a6bef099732",

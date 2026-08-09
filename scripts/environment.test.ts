@@ -447,6 +447,27 @@ test("environment check reports missing repository setup without writing it", as
   }
 });
 
+test("repository maintenance short commands invoke their owned skill CLIs", () => {
+  const commands = [
+    ["change-plan", /Manage the basic lifecycle/u],
+    ["decision-records", /Query and maintain agent-oriented decision records/u],
+    ["investigation-report", /Check investigation topics/u],
+    ["task-graph", /"commands":\[/u],
+    ["test-evidence", /Validate and query indexed test evidence/u],
+    ["validate-skill", /Validate the portable structure contract/u]
+  ] as const;
+
+  for (const [script, expectedOutput] of commands) {
+    const result = run(
+      "bun",
+      ["run", "--silent", script, "--", "--help"],
+      workspaceRoot
+    );
+    requireSuccess(result, `bun run ${script} -- --help`);
+    assert.match(result.stdout, expectedOutput);
+  }
+});
+
 test("task-graph package command defaults to the main root and accepts an explicit project root", async () => {
   const tempRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), "skills task launcher ")

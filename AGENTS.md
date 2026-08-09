@@ -40,13 +40,14 @@
 1. 修改前先检查主仓库状态; 保留无关改动, 目标路径已有改动时先检查 diff, 无法确认能够安全延续时再询问用户。
 2. 编辑前先通过 `docs/navigation.md` 判断内容 owner; 只在当前文件适合承接该信息时修改当前文件。
 3. 理解实现代码结构、符号调用关系或改动影响时, 优先使用当前可用的 CodeGraph 工具; 结果不精确、索引陈旧或工具不可用时, 再用带路径过滤的 `rg` / `rg --files` 补充。CodeGraph 的环境、索引与 MCP 边界见 `docs/tooling.md#环境自举`。
-4. 修改 `scripts/` 或 `tools/` 下的实现代码时, 先读取 `docs/coding-style.md`, 再按任务读取相关行为 owner 和 `docs/tooling.md`。
-5. 修改 skill 本体时进入 `skills/<skill-name>/`; 只修改项目级文档、脚本、CI 或配置时, 不顺手改 skill 本体。
-6. 同时修改 skill 本体和可分发工具源码时, 先确认 `tools/` 源码、`scripts/` 构建适配和 `skills/` 生成产物的 owner 分工, 再让文档和验证入口保持一致。
-7. 新增 skill 时, 在 `skills/<skill-name>/` 放置本体, 在 `SKILL.md` frontmatter 写入初始 `metadata.version`, 按需在 `docs/skills/` 增加人类介绍, 再确认聚合打包和自更新脚本覆盖该 skill。
-8. 新增或调整主仓库自动化时放在 `scripts/`; 新增需要随 skill 分发的工具实现时放在 `tools/`, 真实跨工具运行时能力再进入 `tools/shared/` 或独立协议 owner; skill 专属规则仍留在对应 skill 目录。
-9. 打包产物、依赖目录和 workflow 运行产物不作为长期源文件提交。
-10. 新增、修改、删除或审查测试实现时, 按 `skills/test-evidence-review/SKILL.md` 维护 `docs/test-evidence/test-evidence-topics.json` 与对应 `docs/test-evidence/<topic-id>/<semantic-slug>.md`; 每个文件只保存一个 case, 当前账本覆盖 `test:*` 保留的全部最小原生测试入口, 测试框架不限, 但每个入口必须能被框架独立选择和单独报告; 修改目录后同步统一派生索引。
+4. 在本仓库内调用已经提供 package 短入口的维护 CLI 时, 使用 `docs/tooling.md` 列出的 `bun run <command> -- <arguments>`; 只有验证源码与生成产物边界、调试入口实现或编写仓库外可移植说明时才直接调用 `tools/` 或 `skills/*/scripts/` 路径。
+5. 修改 `scripts/` 或 `tools/` 下的实现代码时, 先读取 `docs/coding-style.md`, 再按任务读取相关行为 owner 和 `docs/tooling.md`。
+6. 修改 skill 本体时进入 `skills/<skill-name>/`; 只修改项目级文档、脚本、CI 或配置时, 不顺手改 skill 本体。
+7. 同时修改 skill 本体和可分发工具源码时, 先确认 `tools/` 源码、`scripts/` 构建适配和 `skills/` 生成产物的 owner 分工, 再让文档和验证入口保持一致。
+8. 新增 skill 时, 在 `skills/<skill-name>/` 放置本体, 在 `SKILL.md` frontmatter 写入初始 `metadata.version`, 按需在 `docs/skills/` 增加人类介绍, 再确认聚合打包和自更新脚本覆盖该 skill。
+9. 新增或调整主仓库自动化时放在 `scripts/`; 新增需要随 skill 分发的工具实现时放在 `tools/`, 真实跨工具运行时能力再进入 `tools/shared/` 或独立协议 owner; skill 专属规则仍留在对应 skill 目录。
+10. 打包产物、依赖目录和 workflow 运行产物不作为长期源文件提交。
+11. 新增、修改、删除或审查测试实现时, 按 `skills/test-evidence-review/SKILL.md` 维护 `docs/test-evidence/test-evidence-topics.json` 与对应 `docs/test-evidence/<topic-id>/<semantic-slug>.md`; 每个文件只保存一个 case, 当前账本覆盖 `test:*` 保留的全部最小原生测试入口, 测试框架不限, 但每个入口必须能被框架独立选择和单独报告; 修改目录后同步统一派生索引。
 
 ## 写作约定
 
