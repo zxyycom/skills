@@ -251,7 +251,7 @@ async function applyLifecycle(
     }
     historyBaseline = loadedBaseline.baseline;
   }
-  const prepared = await prepareDecisionLifecycle(scan, request, {
+  const prepared = prepareDecisionLifecycle(scan, request, {
     historyBaseline
   });
   if (prepared.status === "attention") {
@@ -359,6 +359,7 @@ export { scanDecisionRecords, validateDecisionRecords };
 export type { DecisionDomainDefinition } from "./decision-domain-catalog.ts";
 export type {
   DecisionAlignment,
+  DecisionCandidateDocument,
   DecisionDocument,
   DecisionIndex,
   DecisionIndexEntry,
@@ -369,6 +370,7 @@ export type {
   DecisionMetadata,
   DecisionProjection,
   DecisionRecord,
+  DecisionRecordSource,
   DecisionRelation,
   DecisionRelationOverride,
   DecisionRelationType,

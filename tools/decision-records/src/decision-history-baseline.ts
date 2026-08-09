@@ -4,10 +4,12 @@ import {
   VersionControlError
 } from "../../shared/src/version-control/index.ts";
 import {
+  decisionAttention,
   decisionFailure,
+  type DecisionApplicationAttention,
   type DecisionApplicationFailure
 } from "./application-result.ts";
-import type { DecisionScan } from "./types.ts";
+import type { DecisionRecord, DecisionScan } from "./types.ts";
 
 export type DecisionHistoryBaseline =
   | {
@@ -91,6 +93,45 @@ export async function loadDecisionHistoryBaseline(
   } catch (error) {
     return baselineFailure(error);
   }
+}
+
+export function prepareUnrecordedHistoryAttention(
+  records: readonly DecisionRecord[],
+  keepUnrecordedHistory: boolean,
+  historyBaseline: DecisionHistoryBaseline | null,
+  canCollapse: boolean
+): DecisionApplicationAttention | null {
+  if (
+    keepUnrecordedHistory
+    || historyBaseline === null
+    || historyBaseline.kind !== "git-head"
+  ) {
+    return null;
+  }
+  const unrecordedPaths = records
+    .map((record) => record.relativePath)
+    .filter((recordPath) => (
+      !historyBaseline.recordedDecisionPaths.has(recordPath)
+    ));
+  if (unrecordedPaths.length === 0) {
+    return null;
+  }
+  return decisionAttention([
+    "The following decisions have not entered "
+      + historyBaseline.label
+      + ": "
+      + unrecordedPaths.join(", ")
+      + ".",
+    "Archiving them now may preserve same-change intermediate decisions as "
+      + "meaningless evolution history; no files were changed.",
+    canCollapse
+      ? "Re-run with --keep-unrecorded-history to preserve that history, or use "
+        + "evolve --collapse-unrecorded <decision-path> with one --successor "
+        + "and the complete final relation selection."
+      : "Re-run with --keep-unrecorded-history only after deciding that the "
+        + "unrecorded history should be preserved; otherwise resolve it through "
+        + "an explicit evolve collapse."
+  ]);
 }
 
 function isOutsideRepository(relativePath: string): boolean {

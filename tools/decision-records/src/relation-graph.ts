@@ -1,9 +1,8 @@
 import type {
-  DecisionDocument,
+  EstablishedDecisionStatus,
   DecisionProjection,
   DecisionRecord,
   DecisionRelationType,
-  DecisionStatus,
   DecisionTraceDirection
 } from "./types.ts";
 
@@ -31,10 +30,9 @@ type DecisionRelationGraph = {
 };
 
 export type DecisionRelationConsistencyRecord = {
-  document?: DecisionDocument | null;
   projection: DecisionProjection;
   relativePath: string;
-  status: DecisionStatus | null;
+  status: EstablishedDecisionStatus;
 };
 
 function indexEdges(
@@ -135,17 +133,21 @@ export function traceDecisionRelations(
 export function decisionRelationConsistencyErrors(
   records: readonly DecisionRecord[]
 ): string[] {
-  return decisionRelationConsistencyIssues(records).map((issue) => issue.message);
+  return decisionRelationConsistencyIssues(records.flatMap((record) => (
+    record.source.kind === "established"
+      ? [{
+          projection: record.source.document,
+          relativePath: record.relativePath,
+          status: record.source.document.status
+        }]
+      : []
+  ))).map((issue) => issue.message);
 }
 
 export function decisionRelationConsistencyIssues(
   records: readonly DecisionRelationConsistencyRecord[]
 ): DecisionRelationConsistencyIssue[] {
-  const graph = buildDecisionRelationGraph(records.map((record) => ({
-    ...record,
-    projection: record.document ?? record.projection,
-    status: record.document?.status ?? record.status
-  })));
+  const graph = buildDecisionRelationGraph(records);
   const issues: DecisionRelationConsistencyIssue[] = [];
 
   for (const edge of graph.edges) {

@@ -72,6 +72,33 @@ export type DecisionMetadata =
 
 export type DecisionDocument = DecisionProjection & DecisionMetadata;
 
+export type DecisionCandidateDocument = DecisionProjection & {
+  status: "candidate";
+  alignment: null;
+  createdAt: null;
+};
+
+export type DecisionRecordSource =
+  | {
+      body: string;
+      document: DecisionCandidateDocument;
+      kind: "candidate";
+      text: string;
+    }
+  | {
+      body: string;
+      document: DecisionDocument;
+      kind: "established";
+      text: string;
+    }
+  | {
+      kind: "invalid";
+      text: string;
+    }
+  | {
+      kind: "missing";
+    };
+
 export type DecisionIndexState = DecisionDocument & {
   path: string;
 };
@@ -122,6 +149,7 @@ export type DecisionRecord = {
   projection: DecisionProjection;
   relativePath: string;
   relationshipErrors: string[];
+  source: DecisionRecordSource;
   status: DecisionStatus | null;
 };
 

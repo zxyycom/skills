@@ -15,7 +15,9 @@ import {
   type MarkdownSection
 } from "./types.ts";
 
-export type ValidatedDecisionBody = DecisionProjection & DecisionSourceMetadata;
+export type ValidatedDecisionBody = DecisionProjection
+  & DecisionSourceMetadata
+  & { body: string };
 
 const sectionOrder = [
   "## 目的",
@@ -177,5 +179,5 @@ export async function validateDecisionBody(
     return null;
   }
 
-  return { ...projection, ...metadata };
+  return { ...projection, ...metadata, body };
 }

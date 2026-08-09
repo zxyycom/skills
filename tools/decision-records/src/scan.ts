@@ -97,6 +97,7 @@ function recordFromIndexEntry(options: {
     projection: selectProjection(state),
     relativePath,
     relationshipErrors: [],
+    source: { kind: "missing" },
     status: state.status
   };
 }
@@ -198,6 +199,28 @@ async function scanDomainDirectory(options: {
       && establishedMetadata
       ? { ...selectProjection(sourceDocument), ...establishedMetadata }
       : null;
+    const source = recordErrors.length > 0 || sourceDocument === null
+      ? { kind: "invalid" as const, text: sourceText }
+      : activationCandidate
+        ? {
+            body: sourceDocument.body,
+            document: {
+              ...selectProjection(sourceDocument),
+              alignment: null,
+              createdAt: null,
+              status: "candidate" as const
+            },
+            kind: "candidate" as const,
+            text: sourceText
+          }
+        : document === null
+          ? { kind: "invalid" as const, text: sourceText }
+          : {
+              body: sourceDocument.body,
+              document,
+              kind: "established" as const,
+              text: sourceText
+            };
 
     if (document !== null && !indexEntry) {
       indexErrors.push(unindexedDecisionError(indexRelativePath, relativePath));
@@ -228,6 +251,7 @@ async function scanDomainDirectory(options: {
             },
       relativePath,
       relationshipErrors: [],
+      source,
       status: sourceDocument?.status ?? null
     });
   }
@@ -416,7 +440,13 @@ export async function scanDecisionRecords(
   }
   records.sort(compareDecisionRecords);
   const relationshipIssues = decisionRelationConsistencyIssues(
-    records.filter((record) => record.document !== null)
+    records.flatMap((record) => record.source.kind === "established"
+      ? [{
+          projection: record.source.document,
+          relativePath: record.relativePath,
+          status: record.source.document.status
+        }]
+      : [])
   );
   const recordByPath = new Map(records.map((record) => [
     record.relativePath,

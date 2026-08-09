@@ -12,6 +12,7 @@ import {
 import {
   scanDecisionRecords
 } from "./scan.ts";
+import { displayDecisionPath } from "./decision-path.ts";
 import type {
   DecisionScan,
   DecisionScanOptions
@@ -19,6 +20,7 @@ import type {
 
 export type DecisionFileChange = {
   decisionPath: string;
+  expectedText: string;
   nextText: string | null;
 };
 
@@ -32,17 +34,11 @@ export async function applyDecisionChanges(options: {
     originalScan,
     scanOptions
   } = options;
-  const originalBodies = new Map<string, string>();
-  try {
-    for (const change of changes) {
-      originalBodies.set(
-        change.decisionPath,
-        await fs.readFile(change.decisionPath, "utf8")
-      );
-    }
-  } catch (error) {
-    return ["Failed to read decision before update: " + errorText(error)];
+  const preflight = await preflightDecisionChanges(changes, originalScan);
+  if (preflight.errors.length > 0) {
+    return preflight.errors;
   }
+  const originalBodies = preflight.originalBodies;
 
   try {
     for (const change of changes) {
@@ -117,6 +113,82 @@ export async function applyDecisionChanges(options: {
       ...await restoreDecisionChanges(originalScan, originalBodies)
     ];
   }
+}
+
+async function preflightDecisionChanges(
+  changes: readonly DecisionFileChange[],
+  originalScan: DecisionScan
+): Promise<{
+  errors: string[];
+  originalBodies: Map<string, string>;
+}> {
+  const errors: string[] = [];
+  const originalBodies = new Map<string, string>();
+  for (const change of changes) {
+    const displayPath = displayDecisionPath(
+      originalScan.workspaceRoot,
+      change.decisionPath
+    );
+    if (originalBodies.has(change.decisionPath)) {
+      errors.push(
+        "Decision transaction contains the same source more than once: "
+          + displayPath
+          + ". No files were written."
+      );
+      continue;
+    }
+    try {
+      const currentText = await fs.readFile(change.decisionPath, "utf8");
+      originalBodies.set(change.decisionPath, currentText);
+      if (currentText !== change.expectedText) {
+        errors.push(concurrentChangeError("source", displayPath));
+      }
+    } catch (error) {
+      errors.push(
+        "Failed to verify decision source before update: "
+          + displayPath
+          + ": "
+          + errorText(error)
+          + ". No files were written; review the current files and re-run the command."
+      );
+    }
+  }
+
+  try {
+    const currentIndexText = await fs.readFile(originalScan.indexPath, "utf8");
+    if (!originalScan.indexExists || currentIndexText !== originalScan.indexText) {
+      errors.push(concurrentChangeError(
+        "index",
+        originalScan.indexRelativePath
+      ));
+    }
+  } catch (error) {
+    if (originalScan.indexExists || !isMissingFileError(error)) {
+      errors.push(
+        "Failed to verify decision index before update: "
+          + originalScan.indexRelativePath
+          + ": "
+          + errorText(error)
+          + ". No files were written; review the current files and re-run the command."
+      );
+    }
+  }
+
+  return { errors, originalBodies };
+}
+
+function concurrentChangeError(kind: "index" | "source", filePath: string): string {
+  return "Decision "
+    + kind
+    + " changed after validation: "
+    + filePath
+    + ". No files were written; review the current files and re-run the command.";
+}
+
+function isMissingFileError(error: unknown): boolean {
+  return error instanceof Error
+    && "code" in error
+    && error.code === "ENOENT";
 }
 
 async function removeEmptyDomainDirectory(domainDirectory: string): Promise<void> {

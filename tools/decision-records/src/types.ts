@@ -75,6 +75,33 @@ export type DecisionMetadata =
 
 export type DecisionDocument = DecisionProjection & DecisionMetadata;
 
+export type DecisionCandidateDocument = DecisionProjection & {
+  status: "candidate";
+  alignment: null;
+  createdAt: null;
+};
+
+export type DecisionRecordSource =
+  | {
+      body: string;
+      document: DecisionCandidateDocument;
+      kind: "candidate";
+      text: string;
+    }
+  | {
+      body: string;
+      document: DecisionDocument;
+      kind: "established";
+      text: string;
+    }
+  | {
+      kind: "invalid";
+      text: string;
+    }
+  | {
+      kind: "missing";
+    };
+
 export type DecisionIndexState = DecisionDocument & {
   path: string;
 };
@@ -113,8 +140,30 @@ export type DecisionRecord = {
   projection: DecisionProjection;
   relativePath: string;
   relationshipErrors: string[];
+  source: DecisionRecordSource;
   status: DecisionStatus | null;
 };
+
+type DecisionRecordWithSource<
+  Kind extends DecisionRecordSource["kind"]
+> = Omit<DecisionRecord, "source"> & {
+  source: Extract<DecisionRecordSource, { kind: Kind }>;
+};
+
+export type DecisionCandidateRecord = DecisionRecordWithSource<"candidate">;
+export type EstablishedDecisionRecord = DecisionRecordWithSource<"established">;
+
+export function isDecisionCandidateRecord(
+  record: DecisionRecord
+): record is DecisionCandidateRecord {
+  return record.source.kind === "candidate";
+}
+
+export function isEstablishedDecisionRecord(
+  record: DecisionRecord
+): record is EstablishedDecisionRecord {
+  return record.source.kind === "established";
+}
 
 export function compareDecisionRecords(
   left: Pick<DecisionRecord, "relativePath">,
