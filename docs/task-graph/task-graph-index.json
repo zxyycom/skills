@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "revision": 99,
-  "nextTaskId": 30,
+  "revision": 102,
+  "nextTaskId": 31,
   "tasks": {
     "task-000001": {
       "content": {
@@ -1058,6 +1058,49 @@
         "timestamps": {
           "createdAt": "2026-08-08T12:01:37.160Z",
           "updatedAt": "2026-08-08T12:58:42.152Z"
+        }
+      }
+    },
+    "task-000030": {
+      "content": {
+        "title": "修正跨平台 hook 与 task-graph root 切换契约",
+        "goal": "明确 Git for Windows 与 POSIX 的 hook 启用条件，并让仓库 task-graph 短命令默认当前项目中央 root、同时允许通过唯一显式 --root 切换目标项目。",
+        "acceptance": [
+          "POSIX 依靠已跟踪 executable mode 与 setup chmod；Git for Windows 不把 chmod 当作启用机制，hook 以 LF 检出并通过 hooksPath、文件存在和真实 commit 场景验证。",
+          "短命令省略 --root 时仍使用当前 Git 项目的主 worktree；显式 --root 或 --root=<path> 时校验并切换到目标项目自己的 CLI 和 canonical index，重复或缺失 root 稳定失败。",
+          "短命令继续拒绝 --index，默认与显式行为、失败诊断、决策记录和测试证据保持一致，并通过完整仓库检查。"
+        ],
+        "context": "task-000029 已交付但把 POSIX chmod 表述成跨平台统一机制，并错误禁止显式 root；本任务按用户反馈修订已建立契约。",
+        "references": {
+          "implementation": "104bccd5572fdad0a1afe608539df67e7b4f2948",
+          "predecessor": "task-000029"
+        },
+        "result": {
+          "summary": "按 Git 平台语义修正 hook setup；task-graph 短入口不再持久化绝对 root，默认发现当前项目主工作树并接受唯一显式项目 root，决策、测试证据与完整门禁均已同步。",
+          "references": {
+            "commit": "5b68bacd2ca3c3b3f044e8e76d0288f02f8ab04e",
+            "decision": "docs/decisions/project-tooling/bootstrap-hooks-and-select-project-roots.md",
+            "test": "bun run check --full (28/28)"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-09T04:41:36.422Z",
+          "updatedAt": "2026-08-09T04:56:34.344Z"
         }
       }
     }
