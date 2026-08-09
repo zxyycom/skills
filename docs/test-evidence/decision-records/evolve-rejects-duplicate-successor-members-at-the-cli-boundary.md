@@ -1,6 +1,6 @@
 ### Case DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001: Evolve CLI 拒绝重复后继成员
 Entry:
-- `tools/decision-records/tests/evolution.test.ts > evolve rejects duplicate successor members at the CLI boundary`
+- `tools/decision-records/tests/cli-args.test.ts > evolve rejects duplicate successor members at the CLI boundary`
 - `bun test --test-name-pattern="^evolve rejects duplicate successor members at the CLI boundary$" ./tools/decision-records/tests/run.ts`
 Contract:
 - 一次 evolve 的完整 successor 集合中，每个规范决策路径只能出现一次。

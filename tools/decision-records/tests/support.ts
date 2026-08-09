@@ -148,13 +148,9 @@ export function decisionFilePath(
 }
 
 export function candidateDecisionBody(options: {
-  relationTarget?: string;
   relations?: readonly DecisionRelation[];
 } = {}): string {
-  const requestedRelations = options.relations
-    ?? (options.relationTarget === undefined
-      ? []
-      : [{ type: "修订" as const, target: options.relationTarget }]);
+  const requestedRelations = options.relations ?? [];
   const relations = requestedRelations.length === 0
     ? ["relations: []"]
     : [

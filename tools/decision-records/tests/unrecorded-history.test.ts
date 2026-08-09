@@ -358,7 +358,7 @@ test("evolve collapse rejects a predecessor referenced by another candidate", ()
     "decision-records/reference-unrecorded-intermediate.md";
   const referencingPath = decisionFilePath(workspaceRoot, referencingRelativePath);
   const referencingCandidate = candidateDecisionBody({
-    relationTarget: unrecordedIntermediateRelativePath
+    relations: [{ type: "修订", target: unrecordedIntermediateRelativePath }]
   });
   await fs.writeFile(referencingPath, referencingCandidate, "utf8");
   const successorRelativePath =

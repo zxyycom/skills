@@ -11,7 +11,6 @@ import {
   readIndex,
   runBundledCli,
   runSourceCli,
-  runSuccessfulSourceCli,
   withFixtureWorkspace
 } from "./support.ts";
 
@@ -150,61 +149,5 @@ test("activation and archive transitions preserve content and index atomicity", 
     assert.doesNotMatch(result.stderr, /Git HEAD|pending/i);
   }
 
-  await runSuccessfulSourceCli([
-    "archive",
-    lifecycleRelativePath,
-    "--root",
-    workspaceRoot
-  ]);
-  const relationRelativePath =
-    "decision-records/use-archived-relation-target.md";
-  const relationPath = decisionFilePath(workspaceRoot, relationRelativePath);
-  await fs.writeFile(
-    relationPath,
-    candidateDecisionBody({
-      relationTarget: lifecycleRelativePath
-    }),
-    "utf8"
-  );
-  const relationActivation = await runSourceCli([
-    "activate",
-    relationRelativePath,
-    "--alignment",
-    "aligned",
-    "--root",
-    workspaceRoot
-  ]);
-  assert.equal(relationActivation.exitCode, 0, relationActivation.stderr);
-  findIndexEntry(await readIndex(indexPath), relationRelativePath);
-
-  const rollbackRelativePath =
-    "decision-records/use-active-relation-target.md";
-  const rollbackPath = decisionFilePath(workspaceRoot, rollbackRelativePath);
-  const rollbackCandidate = candidateDecisionBody({
-    relationTarget: currentRelativePath
-  });
-  await fs.writeFile(rollbackPath, rollbackCandidate, "utf8");
-  const relationSourceActivation = await runSourceCli([
-    "activate",
-    rollbackRelativePath,
-    "--alignment",
-    "aligned",
-    "--root",
-    workspaceRoot
-  ]);
-  assert.equal(
-    relationSourceActivation.exitCode,
-    0,
-    relationSourceActivation.stderr
-  );
-  const relationSourceIndex = await readIndex(indexPath);
-  assert.equal(
-    findIndexEntry(relationSourceIndex, currentRelativePath).status,
-    "archived"
-  );
-  assert.deepEqual(
-    findIndexEntry(relationSourceIndex, rollbackRelativePath).relations,
-    [{ type: "修订", target: currentRelativePath }]
-  );
   })
 ));

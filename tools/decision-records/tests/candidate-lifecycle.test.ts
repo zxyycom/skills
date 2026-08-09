@@ -43,49 +43,55 @@ const unindexedBody = [
   ""
 ].join("\n");
 
-test("discard rejects established, incomplete, invalid, or referenced candidates without mutation", () => (
-  withFixtureWorkspace("candidate-lifecycle", async (workspaceRoot) => {
+test("discard rejects established decisions without mutation", () => (
+  withFixtureWorkspace("candidate-discard-established", async (workspaceRoot) => {
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
   const originalIndexText = await fs.readFile(indexPath, "utf8");
   const establishedPath = decisionFilePath(workspaceRoot, currentRelativePath);
   const establishedText = await fs.readFile(establishedPath, "utf8");
 
-  const establishedDiscard = await runSourceCli([
+  const discarded = await runSourceCli([
     "discard",
     currentRelativePath,
     "--root",
     workspaceRoot
   ]);
-  assert.equal(establishedDiscard.exitCode, 1);
-  assert.match(establishedDiscard.stderr, /Cannot discard established decision/);
+  assert.equal(discarded.exitCode, 1);
+  assert.match(discarded.stderr, /Cannot discard established decision/);
   assert.equal(await fs.readFile(establishedPath, "utf8"), establishedText);
   assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
 
-  await fs.writeFile(
-    establishedPath,
-    establishedText
-      .replace("status: active", "status: candidate")
-      .replace("alignment: aligned", "alignment: null")
-      .replace(
-        "createdAt: 2026-07-11T14:15:16+08:00",
-        "createdAt: null"
-      ),
-    "utf8"
-  );
+  const spoofedCandidateText = establishedText
+    .replace("status: active", "status: candidate")
+    .replace("alignment: aligned", "alignment: null")
+    .replace(
+      "createdAt: 2026-07-11T14:15:16+08:00",
+      "createdAt: null"
+    );
+  await fs.writeFile(establishedPath, spoofedCandidateText, "utf8");
   assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
     (error) => error.includes(
       "candidate status is allowed only for a complete, unindexed"
     )
   ));
+  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
   await fs.writeFile(establishedPath, establishedText, "utf8");
+  })
+));
 
+test("discard rejects invalid candidate lifecycle or body without mutation", () => (
+  withFixtureWorkspace("candidate-discard-invalid-body", async (workspaceRoot) => {
+  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+  const indexPath = path.join(decisionsDirectory, "decision-index.json");
+  const originalIndexText = await fs.readFile(indexPath, "utf8");
   const invalidLifecycleRelativePath =
     "decision-records/use-invalid-candidate-lifecycle.md";
   const invalidLifecyclePath = decisionFilePath(
     workspaceRoot,
     invalidLifecycleRelativePath
   );
+
   for (const invalidLifecycleBody of [
     candidateDecisionBody().replace("alignment: null", "alignment: aligned"),
     candidateDecisionBody().replace(
@@ -94,124 +100,42 @@ test("discard rejects established, incomplete, invalid, or referenced candidates
     )
   ]) {
     await fs.writeFile(invalidLifecyclePath, invalidLifecycleBody, "utf8");
-    const invalidLifecycleDiscard = await runSourceCli([
-      "discard",
-      invalidLifecycleRelativePath,
-      "--root",
+    await assertRejectedDiscardPreserves({
+      decisionPath: invalidLifecyclePath,
+      expectedError: /Discard requires a complete reviewable decision candidate/,
+      indexPath,
+      relativePath: invalidLifecycleRelativePath,
       workspaceRoot
-    ]);
-    assert.equal(invalidLifecycleDiscard.exitCode, 1);
-    assert.match(
-      invalidLifecycleDiscard.stderr,
-      /Discard requires a complete reviewable decision candidate/
-    );
-    assert.equal(
-      await fs.readFile(invalidLifecyclePath, "utf8"),
-      invalidLifecycleBody
-    );
-    assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
+    });
   }
   await fs.rm(invalidLifecyclePath);
 
   const invalidRelativePath = "decision-records/use-invalid-candidate.md";
   const invalidPath = decisionFilePath(workspaceRoot, invalidRelativePath);
-  await fs.mkdir(path.dirname(invalidPath), { recursive: true });
-  await fs.writeFile(
-    invalidPath,
-    candidateDecisionBody().replace(
-      "\n## 目的\n- 验证 Markdown 生命周期独立定义候选和已建立状态。\n",
-      "\n"
-    ),
-    "utf8"
+  const invalidBody = candidateDecisionBody().replace(
+    "\n## 目的\n- 验证 Markdown 生命周期独立定义候选和已建立状态。\n",
+    "\n"
   );
-  const invalidDiscard = await runSourceCli([
-    "discard",
-    invalidRelativePath,
-    "--root",
-    workspaceRoot
-  ]);
-  assert.equal(invalidDiscard.exitCode, 1);
-  assert.match(invalidDiscard.stderr, /Discard requires a complete reviewable/);
-  assert.equal(await fileExists(invalidPath), true);
-  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
-  await fs.rm(invalidPath);
-
-  const activeTargetSourceRelativePath =
-    "decision-records/use-active-target-discard-source.md";
-  const activeTargetSourcePath = decisionFilePath(
-    workspaceRoot,
-    activeTargetSourceRelativePath
-  );
-  await fs.writeFile(
-    activeTargetSourcePath,
-    candidateDecisionBody({
-      relationTarget: currentRelativePath
-    }),
-    "utf8"
-  );
-  const discardedActiveTargetSource = await runSourceCli([
-    "discard",
-    activeTargetSourceRelativePath,
-    "--root",
-    workspaceRoot
-  ]);
-  assert.equal(
-    discardedActiveTargetSource.exitCode,
-    0,
-    discardedActiveTargetSource.stderr
-  );
-  assert.equal(await fileExists(activeTargetSourcePath), false);
-  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
-
-  const discardCandidateTargetRelativePath =
-    "decision-records/use-discard-candidate-target.md";
-  const discardCandidateTargetPath = decisionFilePath(
-    workspaceRoot,
-    discardCandidateTargetRelativePath
-  );
-  const discardCandidateTargetText = candidateDecisionBody();
-  await fs.writeFile(
-    discardCandidateTargetPath,
-    discardCandidateTargetText,
-    "utf8"
-  );
-  const candidateTargetSourceRelativePath =
-    "decision-records/use-candidate-target-discard-source.md";
-  const candidateTargetSourcePath = decisionFilePath(
-    workspaceRoot,
-    candidateTargetSourceRelativePath
-  );
-  await fs.writeFile(
-    candidateTargetSourcePath,
-    candidateDecisionBody({
-      relationTarget: discardCandidateTargetRelativePath
-    }),
-    "utf8"
-  );
+  await fs.writeFile(invalidPath, invalidBody, "utf8");
   await assertRejectedDiscardPreserves({
-    decisionPath: discardCandidateTargetPath,
-    expectedError: /still referenced/,
+    decisionPath: invalidPath,
+    expectedError: /Discard requires a complete reviewable/,
     indexPath,
-    relativePath: discardCandidateTargetRelativePath,
+    relativePath: invalidRelativePath,
     workspaceRoot
   });
-  assert.equal(
-    await fs.readFile(discardCandidateTargetPath, "utf8"),
-    discardCandidateTargetText
-  );
-  const discardedCandidateTargetSource = await runSourceCli([
-    "discard",
-    candidateTargetSourceRelativePath,
-    "--root",
-    workspaceRoot
-  ]);
-  assert.equal(
-    discardedCandidateTargetSource.exitCode,
-    0,
-    discardedCandidateTargetSource.stderr
-  );
-  await fs.rm(discardCandidateTargetPath);
+  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
+  })
+));
 
+test("discard rejects candidates with invalid relation targets without mutation", () => (
+  withFixtureWorkspace("candidate-discard-invalid-relation", async (workspaceRoot) => {
+  const indexPath = path.join(
+    workspaceRoot,
+    "docs",
+    "decisions",
+    "decision-index.json"
+  );
   const invalidTargetRelativePath =
     "decision-records/use-invalid-existing-discard-target.md";
   const invalidTargetPath = decisionFilePath(
@@ -223,29 +147,92 @@ test("discard rejects established, incomplete, invalid, or referenced candidates
     "\n"
   );
   await fs.writeFile(invalidTargetPath, invalidTargetText, "utf8");
-  const invalidTargetSourceRelativePath =
+
+  const sourceRelativePath =
     "decision-records/use-invalid-target-discard-source.md";
-  const invalidTargetSourcePath = decisionFilePath(
-    workspaceRoot,
-    invalidTargetSourceRelativePath
-  );
+  const sourcePath = decisionFilePath(workspaceRoot, sourceRelativePath);
   await fs.writeFile(
-    invalidTargetSourcePath,
+    sourcePath,
     candidateDecisionBody({
-      relationTarget: invalidTargetRelativePath
+      relations: [{ type: "修订", target: invalidTargetRelativePath }]
     }),
     "utf8"
   );
+
   await assertRejectedDiscardPreserves({
-    decisionPath: invalidTargetSourcePath,
+    decisionPath: sourcePath,
     expectedError: /target is not a valid scanned decision/,
     indexPath,
-    relativePath: invalidTargetSourceRelativePath,
+    relativePath: sourceRelativePath,
     workspaceRoot
   });
   assert.equal(await fs.readFile(invalidTargetPath, "utf8"), invalidTargetText);
-  await fs.rm(invalidTargetSourcePath);
-  await fs.rm(invalidTargetPath);
+  })
+));
+
+test("discard rejects a candidate that is still referenced without mutation", () => (
+  withFixtureWorkspace("candidate-discard-referenced", async (workspaceRoot) => {
+  const indexPath = path.join(
+    workspaceRoot,
+    "docs",
+    "decisions",
+    "decision-index.json"
+  );
+  const targetRelativePath =
+    "decision-records/use-discard-candidate-target.md";
+  const targetPath = decisionFilePath(workspaceRoot, targetRelativePath);
+  const targetText = candidateDecisionBody();
+  await fs.writeFile(targetPath, targetText, "utf8");
+
+  const sourceRelativePath =
+    "decision-records/use-candidate-target-discard-source.md";
+  const sourcePath = decisionFilePath(workspaceRoot, sourceRelativePath);
+  const sourceText = candidateDecisionBody({
+    relations: [{ type: "修订", target: targetRelativePath }]
+  });
+  await fs.writeFile(sourcePath, sourceText, "utf8");
+
+  await assertRejectedDiscardPreserves({
+    decisionPath: targetPath,
+    expectedError: /still referenced/,
+    indexPath,
+    relativePath: targetRelativePath,
+    workspaceRoot
+  });
+  assert.equal(await fs.readFile(targetPath, "utf8"), targetText);
+  assert.equal(await fs.readFile(sourcePath, "utf8"), sourceText);
+  })
+));
+
+test("discard accepts a candidate with a valid active-target relation", () => (
+  withFixtureWorkspace("candidate-discard-active-target", async (workspaceRoot) => {
+  const indexPath = path.join(
+    workspaceRoot,
+    "docs",
+    "decisions",
+    "decision-index.json"
+  );
+  const originalIndexText = await fs.readFile(indexPath, "utf8");
+  const sourceRelativePath =
+    "decision-records/use-active-target-discard-source.md";
+  const sourcePath = decisionFilePath(workspaceRoot, sourceRelativePath);
+  await fs.writeFile(
+    sourcePath,
+    candidateDecisionBody({
+      relations: [{ type: "修订", target: currentRelativePath }]
+    }),
+    "utf8"
+  );
+
+  const discarded = await runSourceCli([
+    "discard",
+    sourceRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(discarded.exitCode, 0, discarded.stderr);
+  assert.equal(await fileExists(sourcePath), false);
+  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
   })
 ));
 

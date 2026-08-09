@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
@@ -11,7 +10,6 @@ import {
   currentRelativePath,
   decisionFilePath,
   findIndexEntry,
-  generatedCliPath,
   initializeGitRepository,
   readIndex,
   runSourceCli,
@@ -19,145 +17,6 @@ import {
   traceDecision,
   withFixtureWorkspace
 } from "./support.ts";
-
-test("candidate relations are checked prospectively without entering the established graph", () => (
-  withFixtureWorkspace("candidate-relation-preview", async (workspaceRoot) => {
-  const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
-  const indexPath = path.join(decisionsDirectory, "decision-index.json");
-  const targetCandidateRelativePath =
-    "decision-records/use-candidate-relation-target.md";
-  await fs.writeFile(
-    decisionFilePath(workspaceRoot, targetCandidateRelativePath),
-    candidateDecisionBody(),
-    "utf8"
-  );
-  const candidateRelativePath =
-    "decision-records/use-forward-looking-relation.md";
-  await fs.writeFile(
-    decisionFilePath(workspaceRoot, candidateRelativePath),
-    candidateDecisionBody({ relationTarget: targetCandidateRelativePath }),
-    "utf8"
-  );
-
-  const validation = await validateDecisionRecords({ workspaceRoot });
-  assert.deepEqual(validation.errors, []);
-  assert.equal(validation.activationCandidateCount, 2);
-  const index = await readIndex(indexPath);
-  assert.equal(Object.hasOwn(index.entries, candidateRelativePath), false);
-  assert.equal(Object.hasOwn(index.entries, targetCandidateRelativePath), false);
-  assert.equal(findIndexEntry(index, currentRelativePath).status, "active");
-
-  const invalidRelativePath = "decision-records/use-invalid-relation.md";
-  const invalidPath = decisionFilePath(workspaceRoot, invalidRelativePath);
-  await fs.writeFile(
-    invalidPath,
-    candidateDecisionBody({
-      relationTarget: "decision-records/missing-target.md"
-    }),
-    "utf8"
-  );
-  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
-    (error) => error.includes("target does not exist")
-  ));
-
-  await fs.writeFile(
-    invalidPath,
-    candidateDecisionBody({ relationTarget: invalidRelativePath }),
-    "utf8"
-  );
-  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
-    (error) => error.includes("must not relate to itself")
-  ));
-
-  await fs.writeFile(
-    invalidPath,
-    candidateDecisionBody({
-      relations: [
-        { type: "修订", target: currentRelativePath },
-        { type: "替代", target: currentRelativePath }
-      ]
-    }),
-    "utf8"
-  );
-  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
-    (error) => error.includes("repeats relationship target")
-  ));
-  })
-));
-
-test("strict relation checks reject impure splits, open splits, and undersized pure merges", () => (
-  withFixtureWorkspace("relation-static-shapes", async (workspaceRoot) => {
-  const currentPath = decisionFilePath(workspaceRoot, currentRelativePath);
-  const currentText = await fs.readFile(currentPath, "utf8");
-  const secondArchivedRelativePath =
-    "decision-records/use-second-archived-predecessor.md";
-  const secondArchivedPath = decisionFilePath(
-    workspaceRoot,
-    secondArchivedRelativePath
-  );
-  await fs.writeFile(secondArchivedPath, candidateDecisionBody(), "utf8");
-  await runSuccessfulSourceCli([
-    "activate",
-    secondArchivedRelativePath,
-    "--alignment",
-    "aligned",
-    "--root",
-    workspaceRoot
-  ]);
-  await runSuccessfulSourceCli([
-    "archive",
-    secondArchivedRelativePath,
-    "--root",
-    workspaceRoot
-  ]);
-
-  const relationMarker = "relations:\n  - type: 修订\n    target: "
-    + archivedRelativePath;
-  assert.ok(currentText.includes(relationMarker));
-
-  await fs.writeFile(
-    currentPath,
-    currentText.replace(
-      relationMarker,
-      "relations:\n  - type: 归并\n    target: " + archivedRelativePath
-    ),
-    "utf8"
-  );
-  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
-    (error) => error.includes("pure 归并 relation set must have at least two")
-  ));
-
-  await fs.writeFile(
-    currentPath,
-    currentText.replace(
-      relationMarker,
-      "relations:\n  - type: 拆分\n    target: " + archivedRelativePath
-    ),
-    "utf8"
-  );
-  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
-    (error) => error.includes("at least two direct 拆分 successors")
-  ));
-
-  await fs.writeFile(
-    currentPath,
-    currentText.replace(
-      relationMarker,
-      "relations:\n"
-        + "  - type: 拆分\n"
-        + "    target: " + archivedRelativePath + "\n"
-        + "  - type: 修订\n"
-        + "    target: " + secondArchivedRelativePath
-    ),
-    "utf8"
-  );
-  assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
-    (error) => error.includes(
-      "拆分 successor must have exactly one direct 拆分 relation"
-    )
-  ));
-  })
-));
 
 test("activate establishes candidate source relations and archives their active targets", () => (
   withFixtureWorkspace("activate-source-relations", async (workspaceRoot) => {
@@ -167,7 +26,9 @@ test("activate establishes candidate source relations and archives their active 
     "decision-records/use-candidate-source-relation.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, successorRelativePath),
-    candidateDecisionBody({ relationTarget: currentRelativePath }),
+    candidateDecisionBody({
+      relations: [{ type: "修订", target: currentRelativePath }]
+    }),
     "utf8"
   );
 
@@ -218,7 +79,9 @@ test("activate relation replacement overrides rather than merges candidate relat
     "decision-records/use-replaced-candidate-relations.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, successorRelativePath),
-    candidateDecisionBody({ relationTarget: currentRelativePath }),
+    candidateDecisionBody({
+      relations: [{ type: "修订", target: currentRelativePath }]
+    }),
     "utf8"
   );
   await runSuccessfulSourceCli([
@@ -253,7 +116,9 @@ test("activate clear-relations explicitly replaces candidate relations with an e
     "decision-records/use-cleared-candidate-relations.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, successorRelativePath),
-    candidateDecisionBody({ relationTarget: currentRelativePath }),
+    candidateDecisionBody({
+      relations: [{ type: "修订", target: currentRelativePath }]
+    }),
     "utf8"
   );
   await runSuccessfulSourceCli([
@@ -320,7 +185,9 @@ test("evolve replaces established relations while preserving body and lifecycle 
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
   await fs.writeFile(
     successorPath,
-    candidateDecisionBody({ relationTarget: currentRelativePath }),
+    candidateDecisionBody({
+      relations: [{ type: "修订", target: currentRelativePath }]
+    }),
     "utf8"
   );
   await runSuccessfulSourceCli([
@@ -632,54 +499,6 @@ test("evolve rejects one selected split successor", () => (
   })
 ));
 
-test("evolve rejects duplicate successor members at the CLI boundary", () => (
-  withFixtureWorkspace("evolve-duplicate-successor", async (workspaceRoot) => {
-  const successorRelativePath = "decision-records/use-duplicate-successor.md";
-  await fs.writeFile(
-    decisionFilePath(workspaceRoot, successorRelativePath),
-    candidateDecisionBody(),
-    "utf8"
-  );
-  const rejected = spawnSync("node", [
-    generatedCliPath,
-    "evolve",
-    "--successor",
-    "aligned=" + successorRelativePath,
-    "--successor",
-    "aligned=" + successorRelativePath,
-    "--root",
-    workspaceRoot
-  ], { encoding: "utf8" });
-  assert.equal(rejected.status, 2);
-  assert.match(rejected.stderr, /must not repeat a successor decision path/);
-  })
-));
-
-test("evolve rejects repeated relation override targets at the CLI boundary", () => (
-  withFixtureWorkspace("evolve-duplicate-relation", async (workspaceRoot) => {
-  const successorRelativePath = "decision-records/use-duplicate-relation.md";
-  await fs.writeFile(
-    decisionFilePath(workspaceRoot, successorRelativePath),
-    candidateDecisionBody(),
-    "utf8"
-  );
-  const rejected = spawnSync("node", [
-    generatedCliPath,
-    "evolve",
-    "--successor",
-    "aligned=" + successorRelativePath,
-    "--relation",
-    "修订=" + currentRelativePath,
-    "--relation",
-    "替代=" + currentRelativePath,
-    "--root",
-    workspaceRoot
-  ], { encoding: "utf8" });
-  assert.equal(rejected.status, 2);
-  assert.match(rejected.stderr, /must not repeat a direct predecessor target/);
-  })
-));
-
 test("evolve rejects mixed split and non-split successor relations", () => (
   withFixtureWorkspace("evolve-mixed-split", async (workspaceRoot) => {
   const splitRelativePath = "decision-records/use-mixed-split.md";
@@ -693,7 +512,9 @@ test("evolve rejects mixed split and non-split successor relations", () => (
   );
   await fs.writeFile(
     decisionFilePath(workspaceRoot, revisionRelativePath),
-    candidateDecisionBody({ relationTarget: currentRelativePath }),
+    candidateDecisionBody({
+      relations: [{ type: "修订", target: currentRelativePath }]
+    }),
     "utf8"
   );
   const rejected = await runSourceCli([
@@ -793,12 +614,16 @@ async function establishClosedSplit(workspaceRoot: string): Promise<ClosedSplit>
     "decision-records/keep-future-split-slice.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, alignedRelativePath),
-    candidateDecisionBody({ relationTarget: currentRelativePath }),
+    candidateDecisionBody({
+      relations: [{ type: "修订", target: currentRelativePath }]
+    }),
     "utf8"
   );
   await fs.writeFile(
     decisionFilePath(workspaceRoot, unalignedRelativePath),
-    candidateDecisionBody({ relationTarget: archivedRelativePath }),
+    candidateDecisionBody({
+      relations: [{ type: "修订", target: archivedRelativePath }]
+    }),
     "utf8"
   );
   await runSuccessfulSourceCli([

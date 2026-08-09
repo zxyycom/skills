@@ -56,8 +56,16 @@ test("decision transaction restores every changed Markdown file and index after 
   try {
     const errors = await applyDecisionChanges({
       changes: [
-        { decisionPath: currentPath, nextText: currentNext },
-        { decisionPath: archivedPath, nextText: archivedNext }
+        {
+          decisionPath: currentPath,
+          expectedText: currentBefore,
+          nextText: currentNext
+        },
+        {
+          decisionPath: archivedPath,
+          expectedText: archivedBefore,
+          nextText: archivedNext
+        }
       ],
       originalScan: await scanDecisionRecords({ workspaceRoot }),
       scanOptions: { workspaceRoot }
@@ -124,8 +132,16 @@ test("decision transaction stops with recovery diagnostics when a restore write 
   try {
     errors = await applyDecisionChanges({
       changes: [
-        { decisionPath: currentPath, nextText: currentNext },
-        { decisionPath: archivedPath, nextText: archivedBefore }
+        {
+          decisionPath: currentPath,
+          expectedText: currentBefore,
+          nextText: currentNext
+        },
+        {
+          decisionPath: archivedPath,
+          expectedText: archivedBefore,
+          nextText: archivedBefore
+        }
       ],
       originalScan: await scanDecisionRecords({ workspaceRoot }),
       scanOptions: { workspaceRoot }
@@ -143,5 +159,102 @@ test("decision transaction stops with recovery diagnostics when a restore write 
   assert.equal(await fs.readFile(currentPath, "utf8"), currentNext);
   assert.equal(await fs.readFile(archivedPath, "utf8"), archivedBefore);
   assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
+  })
+));
+
+test("decision transaction rejects a changed Markdown source before any write", () => (
+  withFixtureWorkspace("transaction-source-conflict", async (workspaceRoot) => {
+  const currentPath = decisionFilePath(workspaceRoot, currentRelativePath);
+  const archivedPath = decisionFilePath(workspaceRoot, archivedRelativePath);
+  const indexPath = path.join(
+    workspaceRoot,
+    "docs",
+    "decisions",
+    "decision-index.json"
+  );
+  const currentBefore = await fs.readFile(currentPath, "utf8");
+  const archivedBefore = await fs.readFile(archivedPath, "utf8");
+  const indexBefore = await fs.readFile(indexPath, "utf8");
+  const concurrentCurrent = currentBefore.replace(
+    "title: 使用生成 CLI",
+    "title: 并发修改生成 CLI"
+  );
+  const archivedNext = archivedBefore.replace(
+    "title: 使用源码 CLI",
+    "title: 使用源码命令行工具"
+  );
+  assert.notEqual(concurrentCurrent, currentBefore);
+  assert.notEqual(archivedNext, archivedBefore);
+  const originalScan = await scanDecisionRecords({ workspaceRoot });
+  await fs.writeFile(currentPath, concurrentCurrent, "utf8");
+
+  const errors = await applyDecisionChanges({
+    changes: [
+      {
+        decisionPath: currentPath,
+        expectedText: currentBefore,
+        nextText: currentBefore
+      },
+      {
+        decisionPath: archivedPath,
+        expectedText: archivedBefore,
+        nextText: archivedNext
+      }
+    ],
+    originalScan,
+    scanOptions: { workspaceRoot }
+  });
+
+  assert.ok(errors.some((error) => (
+    error.includes("docs/decisions/" + currentRelativePath)
+    && error.includes("changed after validation")
+    && error.includes("re-run the command")
+  )));
+  assert.equal(await fs.readFile(currentPath, "utf8"), concurrentCurrent);
+  assert.equal(await fs.readFile(archivedPath, "utf8"), archivedBefore);
+  assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
+  })
+));
+
+test("decision transaction rejects a changed index before any write", () => (
+  withFixtureWorkspace("transaction-index-conflict", async (workspaceRoot) => {
+  const currentPath = decisionFilePath(workspaceRoot, currentRelativePath);
+  const archivedPath = decisionFilePath(workspaceRoot, archivedRelativePath);
+  const indexPath = path.join(
+    workspaceRoot,
+    "docs",
+    "decisions",
+    "decision-index.json"
+  );
+  const currentBefore = await fs.readFile(currentPath, "utf8");
+  const archivedBefore = await fs.readFile(archivedPath, "utf8");
+  const indexBefore = await fs.readFile(indexPath, "utf8");
+  const currentNext = currentBefore.replace(
+    "title: 使用生成 CLI",
+    "title: 使用生成命令行工具"
+  );
+  const concurrentIndex = indexBefore + "\n";
+  assert.notEqual(currentNext, currentBefore);
+  const originalScan = await scanDecisionRecords({ workspaceRoot });
+  await fs.writeFile(indexPath, concurrentIndex, "utf8");
+
+  const errors = await applyDecisionChanges({
+    changes: [{
+      decisionPath: currentPath,
+      expectedText: currentBefore,
+      nextText: currentNext
+    }],
+    originalScan,
+    scanOptions: { workspaceRoot }
+  });
+
+  assert.ok(errors.some((error) => (
+    error.includes("docs/decisions/decision-index.json")
+    && error.includes("changed after validation")
+    && error.includes("re-run the command")
+  )));
+  assert.equal(await fs.readFile(currentPath, "utf8"), currentBefore);
+  assert.equal(await fs.readFile(archivedPath, "utf8"), archivedBefore);
+  assert.equal(await fs.readFile(indexPath, "utf8"), concurrentIndex);
   })
 ));

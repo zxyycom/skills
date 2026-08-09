@@ -1,9 +1,11 @@
 await import("./generated-artifacts.test.ts");
 await import("./decision-domain-catalog.test.ts");
+await import("./cli-args.test.ts");
 await import("./queries.test.ts");
 await import("./index-maintenance.test.ts");
 await import("./candidate-lifecycle.test.ts");
 await import("./activation-archive.test.ts");
+await import("./relation-validation.test.ts");
 await import("./evolution.test.ts");
 await import("./transaction-recovery.test.ts");
 await import("./unrecorded-history.test.ts");

@@ -1384,23 +1384,23 @@
     "DECISION-ACTIVATION-ARCHIVE-001": {
       "keys": {
         "search": [
-          "DECISION-ACTIVATION-ARCHIVE-001 激活与归档保持内容和索引原子性 决策激活和归档必须同步更新 Markdown 与索引状态，并在归档时保留最后对齐状态；候选来源关系触发的前序归档也进入同一事务边界。 成功转换后文件与索引一致，aligned 记录归档后仍为 aligned，失败路径不会留下半完成状态。 普通 activate 建立带来源关系的候选时，会保存该关系并把其活动直接前序归档。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-ACTIVATION-ARCHIVE-001 激活与归档保持内容和索引原子性 普通决策激活、对齐、归档与重新激活必须同步更新 Markdown 和正式索引；归档及重新激活保留既有 createdAt 与最后对齐状态。 已对齐活动决策不能回退为 unaligned，拒绝后 Markdown 与索引不变。 候选激活写入规范 createdAt，重复激活幂等；缺失或损坏索引可由后续生命周期命令重建。 归档保留 aligned 与 createdAt，重新激活继续保留原 createdAt，源码与打包查询入口均不暴露旧 pending 或 Git HEAD 语义。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 11,
         "entries": [
           "tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity",
           "bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-ACTIVATION-ARCHIVE-001",
         "line": 1,
-        "searchText": "激活与归档保持内容和索引原子性 决策激活和归档必须同步更新 Markdown 与索引状态，并在归档时保留最后对齐状态；候选来源关系触发的前序归档也进入同一事务边界。 成功转换后文件与索引一致，aligned 记录归档后仍为 aligned，失败路径不会留下半完成状态。 普通 activate 建立带来源关系的候选时，会保存该关系并把其活动直接前序归档。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "激活与归档保持内容和索引原子性 普通决策激活、对齐、归档与重新激活必须同步更新 Markdown 和正式索引；归档及重新激活保留既有 createdAt 与最后对齐状态。 已对齐活动决策不能回退为 unaligned，拒绝后 Markdown 与索引不变。 候选激活写入规范 createdAt，重复激活幂等；缺失或损坏索引可由后续生命周期命令重建。 归档保留 aligned 与 createdAt，重新激活继续保留原 createdAt，源码与打包查询入口均不暴露旧 pending 或 Git HEAD 语义。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/activation-and-archive-transitions-preserve-content-and-index-atomicity.md",
-        "summary": "决策激活和归档必须同步更新 Markdown 与索引状态，并在归档时保留最后对齐状态；候选来源关系触发的前序归档也进入同一事务边界。",
+        "summary": "普通决策激活、对齐、归档与重新激活必须同步更新 Markdown 和正式索引；归档及重新激活保留既有 createdAt 与最后对齐状态。",
         "title": "激活与归档保持内容和索引原子性"
       }
     },
@@ -1542,27 +1542,119 @@
         "title": "源码查询发现候选且激活只索引审核目标"
       }
     },
-    "DECISION-CANDIDATE-DISCARD-GATES-001": {
+    "DECISION-CANDIDATE-DISCARD-ACTIVE-TARGET-001": {
       "keys": {
         "search": [
-          "DECISION-CANDIDATE-DISCARD-GATES-001 Discard 拒绝已建立、不完整、无效或仍被引用的候选 Discard 只能删除显式、完整且关系结构合法的未建立候选；目标仍被其他候选引用时必须拒绝。候选指向活动已建立目标本身是合法前瞻关系，不阻止丢弃关系来源候选。 已建立记录、非法生命周期组合、缺少必需正文和指向无效扫描目标的候选均被拒绝，拒绝路径保留文件与索引。 指向活动已建立目标的合法候选可以删除，正式索引保持不变。 被另一个候选引用的候选目标不能删除；删除引用来源后，目标正文保持可继续处理。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects established, incomplete, invalid, or referenced candidates without mutation bun test --test-name-pattern=\"^discard rejects established, incomplete, invalid, or referenced candidates without mutation$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CANDIDATE-DISCARD-ACTIVE-TARGET-001 Discard 接受指向活动目标的合法候选 候选指向活动已建立目标是合法的前瞻关系，不应阻止删除该关系的来源候选。 对带有效活动目标关系的 candidate 执行 discard 成功删除来源文件。 只存在已建立成员的正式索引逐字节不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard accepts a candidate with a valid active-target relation bun test --test-name-pattern=\"^discard accepts a candidate with a valid active-target relation$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 11,
+        "endLine": 10,
         "entries": [
-          "tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects established, incomplete, invalid, or referenced candidates without mutation",
-          "bun test --test-name-pattern=\"^discard rejects established, incomplete, invalid, or referenced candidates without mutation$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > discard accepts a candidate with a valid active-target relation",
+          "bun test --test-name-pattern=\"^discard accepts a candidate with a valid active-target relation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-DISCARD-ACTIVE-TARGET-001",
+        "line": 1,
+        "searchText": "Discard 接受指向活动目标的合法候选 候选指向活动已建立目标是合法的前瞻关系，不应阻止删除该关系的来源候选。 对带有效活动目标关系的 candidate 执行 discard 成功删除来源文件。 只存在已建立成员的正式索引逐字节不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard accepts a candidate with a valid active-target relation bun test --test-name-pattern=\"^discard accepts a candidate with a valid active-target relation$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/discard-accepts-a-candidate-with-a-valid-active-target-relation.md",
+        "summary": "候选指向活动已建立目标是合法的前瞻关系，不应阻止删除该关系的来源候选。",
+        "title": "Discard 接受指向活动目标的合法候选"
+      }
+    },
+    "DECISION-CANDIDATE-DISCARD-GATES-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-DISCARD-GATES-001 Discard 拒绝已建立决策且不写入 Discard 只能删除未建立候选；正式索引中的已建立身份不能通过把 Markdown 生命周期字段改写成 candidate 来规避。 对活动已建立决策执行 discard 返回拒绝诊断，Markdown 与索引逐字节不变。 把同一已索引 Markdown 伪装成 candidate 后，严格检查报告该身份只允许完整且未索引的候选，索引仍不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects established decisions without mutation bun test --test-name-pattern=\"^discard rejects established decisions without mutation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects established decisions without mutation",
+          "bun test --test-name-pattern=\"^discard rejects established decisions without mutation$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-CANDIDATE-DISCARD-GATES-001",
         "line": 1,
-        "searchText": "Discard 拒绝已建立、不完整、无效或仍被引用的候选 Discard 只能删除显式、完整且关系结构合法的未建立候选；目标仍被其他候选引用时必须拒绝。候选指向活动已建立目标本身是合法前瞻关系，不阻止丢弃关系来源候选。 已建立记录、非法生命周期组合、缺少必需正文和指向无效扫描目标的候选均被拒绝，拒绝路径保留文件与索引。 指向活动已建立目标的合法候选可以删除，正式索引保持不变。 被另一个候选引用的候选目标不能删除；删除引用来源后，目标正文保持可继续处理。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects established, incomplete, invalid, or referenced candidates without mutation bun test --test-name-pattern=\"^discard rejects established, incomplete, invalid, or referenced candidates without mutation$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/discard-rejects-established-incomplete-invalid-or-referenced-candidates-without-mutation.md",
-        "summary": "Discard 只能删除显式、完整且关系结构合法的未建立候选；目标仍被其他候选引用时必须拒绝。候选指向活动已建立目标本身是合法前瞻关系，不阻止丢弃关系来源候选。",
-        "title": "Discard 拒绝已建立、不完整、无效或仍被引用的候选"
+        "searchText": "Discard 拒绝已建立决策且不写入 Discard 只能删除未建立候选；正式索引中的已建立身份不能通过把 Markdown 生命周期字段改写成 candidate 来规避。 对活动已建立决策执行 discard 返回拒绝诊断，Markdown 与索引逐字节不变。 把同一已索引 Markdown 伪装成 candidate 后，严格检查报告该身份只允许完整且未索引的候选，索引仍不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects established decisions without mutation bun test --test-name-pattern=\"^discard rejects established decisions without mutation$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/discard-rejects-established-decisions-without-mutation.md",
+        "summary": "Discard 只能删除未建立候选；正式索引中的已建立身份不能通过把 Markdown 生命周期字段改写成 candidate 来规避。",
+        "title": "Discard 拒绝已建立决策且不写入"
+      }
+    },
+    "DECISION-CANDIDATE-DISCARD-INVALID-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-DISCARD-INVALID-001 Discard 拒绝生命周期或正文无效的候选 Discard 只接受生命周期字段与必需正文均完整合法的可审核候选。 带非空 alignment、非空 createdAt 或缺少必需正文的 candidate 均返回不可审核诊断。 每次拒绝都保留目标 Markdown 与正式索引的原始内容。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects invalid candidate lifecycle or body without mutation bun test --test-name-pattern=\"^discard rejects invalid candidate lifecycle or body without mutation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects invalid candidate lifecycle or body without mutation",
+          "bun test --test-name-pattern=\"^discard rejects invalid candidate lifecycle or body without mutation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-DISCARD-INVALID-001",
+        "line": 1,
+        "searchText": "Discard 拒绝生命周期或正文无效的候选 Discard 只接受生命周期字段与必需正文均完整合法的可审核候选。 带非空 alignment、非空 createdAt 或缺少必需正文的 candidate 均返回不可审核诊断。 每次拒绝都保留目标 Markdown 与正式索引的原始内容。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects invalid candidate lifecycle or body without mutation bun test --test-name-pattern=\"^discard rejects invalid candidate lifecycle or body without mutation$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/discard-rejects-invalid-candidate-lifecycle-or-body-without-mutation.md",
+        "summary": "Discard 只接受生命周期字段与必需正文均完整合法的可审核候选。",
+        "title": "Discard 拒绝生命周期或正文无效的候选"
+      }
+    },
+    "DECISION-CANDIDATE-DISCARD-INVALID-RELATION-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-DISCARD-INVALID-RELATION-001 Discard 拒绝关系目标无效的候选 Discard 前必须确认候选的全部关系目标都是可解析的有效决策记录，不能通过删除来源掩盖无效关系。 候选指向缺少必需正文的扫描目标时，discard 返回目标无效诊断。 拒绝后关系来源、无效目标与正式索引均保持不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects candidates with invalid relation targets without mutation bun test --test-name-pattern=\"^discard rejects candidates with invalid relation targets without mutation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects candidates with invalid relation targets without mutation",
+          "bun test --test-name-pattern=\"^discard rejects candidates with invalid relation targets without mutation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-DISCARD-INVALID-RELATION-001",
+        "line": 1,
+        "searchText": "Discard 拒绝关系目标无效的候选 Discard 前必须确认候选的全部关系目标都是可解析的有效决策记录，不能通过删除来源掩盖无效关系。 候选指向缺少必需正文的扫描目标时，discard 返回目标无效诊断。 拒绝后关系来源、无效目标与正式索引均保持不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects candidates with invalid relation targets without mutation bun test --test-name-pattern=\"^discard rejects candidates with invalid relation targets without mutation$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/discard-rejects-candidates-with-invalid-relation-targets-without-mutation.md",
+        "summary": "Discard 前必须确认候选的全部关系目标都是可解析的有效决策记录，不能通过删除来源掩盖无效关系。",
+        "title": "Discard 拒绝关系目标无效的候选"
+      }
+    },
+    "DECISION-CANDIDATE-DISCARD-REFERENCED-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-DISCARD-REFERENCED-001 Discard 拒绝仍被引用的候选 仍被其他候选直接引用的候选目标不能删除，以免留下悬空关系。 对被另一候选修订关系引用的目标执行 discard 返回 still referenced 诊断。 被引用目标、引用来源与正式索引均保持不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects a candidate that is still referenced without mutation bun test --test-name-pattern=\"^discard rejects a candidate that is still referenced without mutation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects a candidate that is still referenced without mutation",
+          "bun test --test-name-pattern=\"^discard rejects a candidate that is still referenced without mutation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-DISCARD-REFERENCED-001",
+        "line": 1,
+        "searchText": "Discard 拒绝仍被引用的候选 仍被其他候选直接引用的候选目标不能删除，以免留下悬空关系。 对被另一候选修订关系引用的目标执行 discard 返回 still referenced 诊断。 被引用目标、引用来源与正式索引均保持不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects a candidate that is still referenced without mutation bun test --test-name-pattern=\"^discard rejects a candidate that is still referenced without mutation$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/discard-rejects-a-candidate-that-is-still-referenced-without-mutation.md",
+        "summary": "仍被其他候选直接引用的候选目标不能删除，以免留下悬空关系。",
+        "title": "Discard 拒绝仍被引用的候选"
       }
     },
     "DECISION-CANDIDATE-DISCARD-SELECTION-001": {
@@ -1611,6 +1703,75 @@
         "title": "丢弃唯一候选仍保留域目录"
       }
     },
+    "DECISION-CANDIDATE-RELATION-MISSING-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-RELATION-MISSING-001 候选关系校验拒绝缺失目标 候选关系的目标必须存在于可扫描的决策集合中。 候选修订关系指向不存在的 Markdown 路径时，严格检查报告 target does not exist。 tools/decision-records/tests/relation-validation.test.ts > candidate relation validation rejects missing targets bun test --test-name-pattern=\"^candidate relation validation rejects missing targets$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/relation-validation.test.ts > candidate relation validation rejects missing targets",
+          "bun test --test-name-pattern=\"^candidate relation validation rejects missing targets$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-RELATION-MISSING-001",
+        "line": 1,
+        "searchText": "候选关系校验拒绝缺失目标 候选关系的目标必须存在于可扫描的决策集合中。 候选修订关系指向不存在的 Markdown 路径时，严格检查报告 target does not exist。 tools/decision-records/tests/relation-validation.test.ts > candidate relation validation rejects missing targets bun test --test-name-pattern=\"^candidate relation validation rejects missing targets$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/candidate-relation-validation-rejects-missing-targets.md",
+        "summary": "候选关系的目标必须存在于可扫描的决策集合中。",
+        "title": "候选关系校验拒绝缺失目标"
+      }
+    },
+    "DECISION-CANDIDATE-RELATION-REPEATED-TARGET-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-RELATION-REPEATED-TARGET-001 候选关系校验拒绝重复目标 同一候选的直接关系集合中，每个目标只能出现一次，即使关系类型不同也不能重复。 同一目标同时以修订和替代关系出现时，严格检查报告 repeats relationship target。 tools/decision-records/tests/relation-validation.test.ts > candidate relation validation rejects repeated targets bun test --test-name-pattern=\"^candidate relation validation rejects repeated targets$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/relation-validation.test.ts > candidate relation validation rejects repeated targets",
+          "bun test --test-name-pattern=\"^candidate relation validation rejects repeated targets$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-RELATION-REPEATED-TARGET-001",
+        "line": 1,
+        "searchText": "候选关系校验拒绝重复目标 同一候选的直接关系集合中，每个目标只能出现一次，即使关系类型不同也不能重复。 同一目标同时以修订和替代关系出现时，严格检查报告 repeats relationship target。 tools/decision-records/tests/relation-validation.test.ts > candidate relation validation rejects repeated targets bun test --test-name-pattern=\"^candidate relation validation rejects repeated targets$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/candidate-relation-validation-rejects-repeated-targets.md",
+        "summary": "同一候选的直接关系集合中，每个目标只能出现一次，即使关系类型不同也不能重复。",
+        "title": "候选关系校验拒绝重复目标"
+      }
+    },
+    "DECISION-CANDIDATE-RELATION-SELF-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-RELATION-SELF-001 候选关系校验拒绝自引用 候选不能以自身决策路径作为关系目标。 候选修订关系指向自身时，严格检查报告 must not relate to itself。 tools/decision-records/tests/relation-validation.test.ts > candidate relation validation rejects self references bun test --test-name-pattern=\"^candidate relation validation rejects self references$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/relation-validation.test.ts > candidate relation validation rejects self references",
+          "bun test --test-name-pattern=\"^candidate relation validation rejects self references$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-RELATION-SELF-001",
+        "line": 1,
+        "searchText": "候选关系校验拒绝自引用 候选不能以自身决策路径作为关系目标。 候选修订关系指向自身时，严格检查报告 must not relate to itself。 tools/decision-records/tests/relation-validation.test.ts > candidate relation validation rejects self references bun test --test-name-pattern=\"^candidate relation validation rejects self references$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/candidate-relation-validation-rejects-self-references.md",
+        "summary": "候选不能以自身决策路径作为关系目标。",
+        "title": "候选关系校验拒绝自引用"
+      }
+    },
     "DECISION-CHECK-PARITY-001": {
       "keys": {
         "search": [
@@ -1634,27 +1795,257 @@
         "title": "决策检查保持源码、分发 API 与进程 CLI 一致"
       }
     },
-    "DECISION-CLI-ARGS-001": {
+    "DECISION-CLI-ACTIVATE-ALIGNMENT-001": {
       "keys": {
         "search": [
-          "DECISION-CLI-ARGS-001 CLI 帮助与参数错误暴露一致命令契约 顶层与子命令帮助必须准确说明默认 check、候选源码查询、正式索引检查/重建和统一 evolve 协议；已移除命令、旧参数形状和非法或冲突参数继续使用退出码 2。 顶层帮助公开 agent-oriented 入口、默认严格检查、候选源码语义和 evolve，且不再列出独立 split 命令。 Evolve 帮助公开重复 `--successor` 与 `--clear-relations`，不再公开旧单后继 `--alignment`。 独立 split、旧 positional evolve、缺失 successor、未知选项、非法深度、非法领域 ID、缺失 activate alignment 以及同时使用 relation 与 clear-relations 均退出 2。 Mark-aligned 与 archive 帮助继续公开事实核对和归档保留 alignment 的长期边界。 tools/decision-records/tests/queries.test.ts > decision CLI help and invalid options expose one consistent contract bun test --test-name-pattern=\"^decision CLI help and invalid options expose one consistent contract$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CLI-ACTIVATE-ALIGNMENT-001 Activate 要求 alignment 参数 Activate 必须由调用方显式提供建立后的 alignment。 未提供 `--alignment` 的 activate 调用退出 2，并报告该必需选项。 tools/decision-records/tests/cli-args.test.ts > activate requires an alignment argument bun test --test-name-pattern=\"^activate requires an alignment argument$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 9,
         "entries": [
-          "tools/decision-records/tests/queries.test.ts > decision CLI help and invalid options expose one consistent contract",
-          "bun test --test-name-pattern=\"^decision CLI help and invalid options expose one consistent contract$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/cli-args.test.ts > activate requires an alignment argument",
+          "bun test --test-name-pattern=\"^activate requires an alignment argument$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-ACTIVATE-ALIGNMENT-001",
+        "line": 1,
+        "searchText": "Activate 要求 alignment 参数 Activate 必须由调用方显式提供建立后的 alignment。 未提供 `--alignment` 的 activate 调用退出 2，并报告该必需选项。 tools/decision-records/tests/cli-args.test.ts > activate requires an alignment argument bun test --test-name-pattern=\"^activate requires an alignment argument$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/activate-requires-an-alignment-argument.md",
+        "summary": "Activate 必须由调用方显式提供建立后的 alignment。",
+        "title": "Activate 要求 alignment 参数"
+      }
+    },
+    "DECISION-CLI-ARCHIVE-HELP-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-ARCHIVE-HELP-001 Archive 帮助承诺保留最后对齐状态 Archive 的公开帮助必须说明归档保留决策最后一次 alignment。 `archive --help` 成功并包含 preserving their last alignment。 tools/decision-records/tests/cli-args.test.ts > archive help promises to preserve the last alignment bun test --test-name-pattern=\"^archive help promises to preserve the last alignment$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > archive help promises to preserve the last alignment",
+          "bun test --test-name-pattern=\"^archive help promises to preserve the last alignment$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-ARCHIVE-HELP-001",
+        "line": 1,
+        "searchText": "Archive 帮助承诺保留最后对齐状态 Archive 的公开帮助必须说明归档保留决策最后一次 alignment。 `archive --help` 成功并包含 preserving their last alignment。 tools/decision-records/tests/cli-args.test.ts > archive help promises to preserve the last alignment bun test --test-name-pattern=\"^archive help promises to preserve the last alignment$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/archive-help-promises-to-preserve-the-last-alignment.md",
+        "summary": "Archive 的公开帮助必须说明归档保留决策最后一次 alignment。",
+        "title": "Archive 帮助承诺保留最后对齐状态"
+      }
+    },
+    "DECISION-CLI-ARGS-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-ARGS-001 CLI 顶层帮助公开当前命令集合 顶层帮助必须准确公开默认 check、候选源码查询、正式索引语义和统一 evolve 协议，且不再公开独立 split 命令。 顶层帮助包含 agent-oriented 入口、默认严格检查、候选源码发现、show-candidate 与 evolve 说明。 顶层命令列表不包含独立 split 命令。 tools/decision-records/tests/cli-args.test.ts > decision CLI top-level help exposes the current command set bun test --test-name-pattern=\"^decision CLI top-level help exposes the current command set$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > decision CLI top-level help exposes the current command set",
+          "bun test --test-name-pattern=\"^decision CLI top-level help exposes the current command set$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-CLI-ARGS-001",
         "line": 1,
-        "searchText": "CLI 帮助与参数错误暴露一致命令契约 顶层与子命令帮助必须准确说明默认 check、候选源码查询、正式索引检查/重建和统一 evolve 协议；已移除命令、旧参数形状和非法或冲突参数继续使用退出码 2。 顶层帮助公开 agent-oriented 入口、默认严格检查、候选源码语义和 evolve，且不再列出独立 split 命令。 Evolve 帮助公开重复 `--successor` 与 `--clear-relations`，不再公开旧单后继 `--alignment`。 独立 split、旧 positional evolve、缺失 successor、未知选项、非法深度、非法领域 ID、缺失 activate alignment 以及同时使用 relation 与 clear-relations 均退出 2。 Mark-aligned 与 archive 帮助继续公开事实核对和归档保留 alignment 的长期边界。 tools/decision-records/tests/queries.test.ts > decision CLI help and invalid options expose one consistent contract bun test --test-name-pattern=\"^decision CLI help and invalid options expose one consistent contract$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/decision-cli-help-and-invalid-options-expose-one-consistent-contract.md",
-        "summary": "顶层与子命令帮助必须准确说明默认 check、候选源码查询、正式索引检查/重建和统一 evolve 协议；已移除命令、旧参数形状和非法或冲突参数继续使用退出码 2。",
-        "title": "CLI 帮助与参数错误暴露一致命令契约"
+        "searchText": "CLI 顶层帮助公开当前命令集合 顶层帮助必须准确公开默认 check、候选源码查询、正式索引语义和统一 evolve 协议，且不再公开独立 split 命令。 顶层帮助包含 agent-oriented 入口、默认严格检查、候选源码发现、show-candidate 与 evolve 说明。 顶层命令列表不包含独立 split 命令。 tools/decision-records/tests/cli-args.test.ts > decision CLI top-level help exposes the current command set bun test --test-name-pattern=\"^decision CLI top-level help exposes the current command set$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-cli-top-level-help-exposes-the-current-command-set.md",
+        "summary": "顶层帮助必须准确公开默认 check、候选源码查询、正式索引语义和统一 evolve 协议，且不再公开独立 split 命令。",
+        "title": "CLI 顶层帮助公开当前命令集合"
+      }
+    },
+    "DECISION-CLI-DOMAIN-ARG-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-DOMAIN-ARG-001 List 拒绝非法领域标识 List 的 domain 过滤参数只接受 kebab-case 领域 ID。 带下划线和大写字母的领域 ID 使 list 退出 2 并报告 kebab-case 约束。 tools/decision-records/tests/cli-args.test.ts > list rejects an invalid domain identifier bun test --test-name-pattern=\"^list rejects an invalid domain identifier$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > list rejects an invalid domain identifier",
+          "bun test --test-name-pattern=\"^list rejects an invalid domain identifier$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-DOMAIN-ARG-001",
+        "line": 1,
+        "searchText": "List 拒绝非法领域标识 List 的 domain 过滤参数只接受 kebab-case 领域 ID。 带下划线和大写字母的领域 ID 使 list 退出 2 并报告 kebab-case 约束。 tools/decision-records/tests/cli-args.test.ts > list rejects an invalid domain identifier bun test --test-name-pattern=\"^list rejects an invalid domain identifier$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/list-rejects-an-invalid-domain-identifier.md",
+        "summary": "List 的 domain 过滤参数只接受 kebab-case 领域 ID。",
+        "title": "List 拒绝非法领域标识"
+      }
+    },
+    "DECISION-CLI-EVOLVE-HELP-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-EVOLVE-HELP-001 Evolve 帮助公开后继与完整关系选择 Evolve 帮助必须公开重复 successor、完整关系覆盖和显式空关系选择，且不再公开旧单后继 alignment 参数。 `evolve --help` 包含 `--successor`、`--clear-relations` 与完整最终关系集语义。 帮助不包含旧 `--alignment <value>` 参数。 tools/decision-records/tests/cli-args.test.ts > evolve help exposes successor and complete relation selection bun test --test-name-pattern=\"^evolve help exposes successor and complete relation selection$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > evolve help exposes successor and complete relation selection",
+          "bun test --test-name-pattern=\"^evolve help exposes successor and complete relation selection$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-EVOLVE-HELP-001",
+        "line": 1,
+        "searchText": "Evolve 帮助公开后继与完整关系选择 Evolve 帮助必须公开重复 successor、完整关系覆盖和显式空关系选择，且不再公开旧单后继 alignment 参数。 `evolve --help` 包含 `--successor`、`--clear-relations` 与完整最终关系集语义。 帮助不包含旧 `--alignment <value>` 参数。 tools/decision-records/tests/cli-args.test.ts > evolve help exposes successor and complete relation selection bun test --test-name-pattern=\"^evolve help exposes successor and complete relation selection$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-help-exposes-successor-and-complete-relation-selection.md",
+        "summary": "Evolve 帮助必须公开重复 successor、完整关系覆盖和显式空关系选择，且不再公开旧单后继 alignment 参数。",
+        "title": "Evolve 帮助公开后继与完整关系选择"
+      }
+    },
+    "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001 Evolve 要求至少一个后继参数 Evolve 必须通过至少一个 `--successor` 明确完整后继集合。 未提供 successor 的 evolve 调用退出 2，并报告 required option `--successor`。 tools/decision-records/tests/cli-args.test.ts > evolve requires at least one successor argument bun test --test-name-pattern=\"^evolve requires at least one successor argument$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > evolve requires at least one successor argument",
+          "bun test --test-name-pattern=\"^evolve requires at least one successor argument$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001",
+        "line": 1,
+        "searchText": "Evolve 要求至少一个后继参数 Evolve 必须通过至少一个 `--successor` 明确完整后继集合。 未提供 successor 的 evolve 调用退出 2，并报告 required option `--successor`。 tools/decision-records/tests/cli-args.test.ts > evolve requires at least one successor argument bun test --test-name-pattern=\"^evolve requires at least one successor argument$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-requires-at-least-one-successor-argument.md",
+        "summary": "Evolve 必须通过至少一个 `--successor` 明确完整后继集合。",
+        "title": "Evolve 要求至少一个后继参数"
+      }
+    },
+    "DECISION-CLI-MARK-ALIGNED-HELP-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-MARK-ALIGNED-HELP-001 Mark-aligned 帮助要求核验当前事实 Mark-aligned 的公开帮助必须把对齐建立在完整方向已成为当前事实并完成相关事实源核验之后。 `mark-aligned --help` 成功并完整包含当前事实与事实源核验前提。 tools/decision-records/tests/cli-args.test.ts > mark-aligned help requires verified current facts bun test --test-name-pattern=\"^mark-aligned help requires verified current facts$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > mark-aligned help requires verified current facts",
+          "bun test --test-name-pattern=\"^mark-aligned help requires verified current facts$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-MARK-ALIGNED-HELP-001",
+        "line": 1,
+        "searchText": "Mark-aligned 帮助要求核验当前事实 Mark-aligned 的公开帮助必须把对齐建立在完整方向已成为当前事实并完成相关事实源核验之后。 `mark-aligned --help` 成功并完整包含当前事实与事实源核验前提。 tools/decision-records/tests/cli-args.test.ts > mark-aligned help requires verified current facts bun test --test-name-pattern=\"^mark-aligned help requires verified current facts$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/mark-aligned-help-requires-verified-current-facts.md",
+        "summary": "Mark-aligned 的公开帮助必须把对齐建立在完整方向已成为当前事实并完成相关事实源核验之后。",
+        "title": "Mark-aligned 帮助要求核验当前事实"
+      }
+    },
+    "DECISION-CLI-RELATION-SELECTION-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-RELATION-SELECTION-001 Relation 与 clear-relations 参数互斥 完整关系覆盖与显式空关系是互斥选择，同一命令不能同时使用 `--relation` 和 `--clear-relations`。 Activate 同时提供两个选项时退出 2，并报告 cannot be used with option。 tools/decision-records/tests/cli-args.test.ts > relation and clear-relations options are mutually exclusive bun test --test-name-pattern=\"^relation and clear-relations options are mutually exclusive$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > relation and clear-relations options are mutually exclusive",
+          "bun test --test-name-pattern=\"^relation and clear-relations options are mutually exclusive$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-RELATION-SELECTION-001",
+        "line": 1,
+        "searchText": "Relation 与 clear-relations 参数互斥 完整关系覆盖与显式空关系是互斥选择，同一命令不能同时使用 `--relation` 和 `--clear-relations`。 Activate 同时提供两个选项时退出 2，并报告 cannot be used with option。 tools/decision-records/tests/cli-args.test.ts > relation and clear-relations options are mutually exclusive bun test --test-name-pattern=\"^relation and clear-relations options are mutually exclusive$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/relation-and-clear-relations-options-are-mutually-exclusive.md",
+        "summary": "完整关系覆盖与显式空关系是互斥选择，同一命令不能同时使用 `--relation` 和 `--clear-relations`。",
+        "title": "Relation 与 clear-relations 参数互斥"
+      }
+    },
+    "DECISION-CLI-REMOVED-PROTOCOLS-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-REMOVED-PROTOCOLS-001 CLI 拒绝已移除的拆分与位置式演进协议 关系演进只接受统一 evolve 协议；已移除的独立 split 命令与旧位置式 evolve 参数形状必须在参数边界失败。 独立 split 调用和带位置后继及旧 alignment 的 evolve 调用都退出 2。 tools/decision-records/tests/cli-args.test.ts > decision CLI rejects removed split and positional evolve protocols bun test --test-name-pattern=\"^decision CLI rejects removed split and positional evolve protocols$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > decision CLI rejects removed split and positional evolve protocols",
+          "bun test --test-name-pattern=\"^decision CLI rejects removed split and positional evolve protocols$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-REMOVED-PROTOCOLS-001",
+        "line": 1,
+        "searchText": "CLI 拒绝已移除的拆分与位置式演进协议 关系演进只接受统一 evolve 协议；已移除的独立 split 命令与旧位置式 evolve 参数形状必须在参数边界失败。 独立 split 调用和带位置后继及旧 alignment 的 evolve 调用都退出 2。 tools/decision-records/tests/cli-args.test.ts > decision CLI rejects removed split and positional evolve protocols bun test --test-name-pattern=\"^decision CLI rejects removed split and positional evolve protocols$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-cli-rejects-removed-split-and-positional-evolve-protocols.md",
+        "summary": "关系演进只接受统一 evolve 协议；已移除的独立 split 命令与旧位置式 evolve 参数形状必须在参数边界失败。",
+        "title": "CLI 拒绝已移除的拆分与位置式演进协议"
+      }
+    },
+    "DECISION-CLI-TRACE-DEPTH-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-TRACE-DEPTH-001 Trace 拒绝负深度 Trace depth 必须是非负整数。 `--depth -1` 使 trace 退出 2 并报告 must be a non-negative integer。 tools/decision-records/tests/cli-args.test.ts > trace rejects a negative depth bun test --test-name-pattern=\"^trace rejects a negative depth$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > trace rejects a negative depth",
+          "bun test --test-name-pattern=\"^trace rejects a negative depth$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-TRACE-DEPTH-001",
+        "line": 1,
+        "searchText": "Trace 拒绝负深度 Trace depth 必须是非负整数。 `--depth -1` 使 trace 退出 2 并报告 must be a non-negative integer。 tools/decision-records/tests/cli-args.test.ts > trace rejects a negative depth bun test --test-name-pattern=\"^trace rejects a negative depth$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/trace-rejects-a-negative-depth.md",
+        "summary": "Trace depth 必须是非负整数。",
+        "title": "Trace 拒绝负深度"
+      }
+    },
+    "DECISION-CLI-UNKNOWN-OPTION-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-UNKNOWN-OPTION-001 CLI 拒绝未知选项 各子命令必须在参数边界拒绝未声明选项并使用参数错误退出码。 List 与 archive 收到 `--unknown-option` 时均退出 2 并报告 unknown option。 tools/decision-records/tests/cli-args.test.ts > decision CLI rejects unknown options bun test --test-name-pattern=\"^decision CLI rejects unknown options$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > decision CLI rejects unknown options",
+          "bun test --test-name-pattern=\"^decision CLI rejects unknown options$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-UNKNOWN-OPTION-001",
+        "line": 1,
+        "searchText": "CLI 拒绝未知选项 各子命令必须在参数边界拒绝未声明选项并使用参数错误退出码。 List 与 archive 收到 `--unknown-option` 时均退出 2 并报告 unknown option。 tools/decision-records/tests/cli-args.test.ts > decision CLI rejects unknown options bun test --test-name-pattern=\"^decision CLI rejects unknown options$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-cli-rejects-unknown-options.md",
+        "summary": "各子命令必须在参数边界拒绝未声明选项并使用参数错误退出码。",
+        "title": "CLI 拒绝未知选项"
       }
     },
     "DECISION-CONFIGURED-ABSOLUTE-DIRECTORY-001": {
@@ -1798,7 +2189,7 @@
     "DECISION-EVOLUTION-RELATIONS-001": {
       "keys": {
         "search": [
-          "DECISION-EVOLUTION-RELATIONS-001 候选关系接受前瞻校验但不进入正式关系图 候选可以预写指向当前可解析记录的关系；候选关系在建立前只接受前瞻性结构校验，不进入正式索引或关系图。 候选指向另一个完整候选时，两者都通过严格检查并被计数，但正式索引仍排除两个候选且既有活动图保持不变。 指向缺失目标、自身或重复声明同一目标的候选关系分别产生可归因的结构诊断。 tools/decision-records/tests/evolution.test.ts > candidate relations are checked prospectively without entering the established graph bun test --test-name-pattern=\"^candidate relations are checked prospectively without entering the established graph$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-EVOLUTION-RELATIONS-001 候选关系接受前瞻校验但不进入正式关系图 候选可以预写指向当前可解析记录的关系；候选关系在建立前只接受前瞻性结构校验，不进入正式索引或关系图。 候选指向另一个完整候选时，两者都通过严格检查并被计数。 正式索引仍排除两个候选，且既有活动图保持不变。 tools/decision-records/tests/relation-validation.test.ts > candidate relations are checked prospectively without entering the established graph bun test --test-name-pattern=\"^candidate relations are checked prospectively without entering the established graph$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1807,12 +2198,12 @@
       "state": {
         "endLine": 10,
         "entries": [
-          "tools/decision-records/tests/evolution.test.ts > candidate relations are checked prospectively without entering the established graph",
+          "tools/decision-records/tests/relation-validation.test.ts > candidate relations are checked prospectively without entering the established graph",
           "bun test --test-name-pattern=\"^candidate relations are checked prospectively without entering the established graph$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-EVOLUTION-RELATIONS-001",
         "line": 1,
-        "searchText": "候选关系接受前瞻校验但不进入正式关系图 候选可以预写指向当前可解析记录的关系；候选关系在建立前只接受前瞻性结构校验，不进入正式索引或关系图。 候选指向另一个完整候选时，两者都通过严格检查并被计数，但正式索引仍排除两个候选且既有活动图保持不变。 指向缺失目标、自身或重复声明同一目标的候选关系分别产生可归因的结构诊断。 tools/decision-records/tests/evolution.test.ts > candidate relations are checked prospectively without entering the established graph bun test --test-name-pattern=\"^candidate relations are checked prospectively without entering the established graph$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "候选关系接受前瞻校验但不进入正式关系图 候选可以预写指向当前可解析记录的关系；候选关系在建立前只接受前瞻性结构校验，不进入正式索引或关系图。 候选指向另一个完整候选时，两者都通过严格检查并被计数。 正式索引仍排除两个候选，且既有活动图保持不变。 tools/decision-records/tests/relation-validation.test.ts > candidate relations are checked prospectively without entering the established graph bun test --test-name-pattern=\"^candidate relations are checked prospectively without entering the established graph$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/candidate-relations-are-checked-prospectively-without-entering-the-established-graph.md",
         "summary": "候选可以预写指向当前可解析记录的关系；候选关系在建立前只接受前瞻性结构校验，不进入正式索引或关系图。",
         "title": "候选关系接受前瞻校验但不进入正式关系图"
@@ -1890,7 +2281,7 @@
     "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001": {
       "keys": {
         "search": [
-          "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001 Evolve CLI 拒绝重复关系覆盖目标 完整关系覆盖中，同一直接前序目标只能出现一次，即使调用方为它声明不同关系类型也不能重复。 两个 `--relation` 使用不同类型但指向同一路径时，生成 CLI 在参数解析期退出 2 并报告重复直接前序目标。 tools/decision-records/tests/evolution.test.ts > evolve rejects repeated relation override targets at the CLI boundary bun test --test-name-pattern=\"^evolve rejects repeated relation override targets at the CLI boundary$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001 Evolve CLI 拒绝重复关系覆盖目标 完整关系覆盖中，同一直接前序目标只能出现一次，即使调用方为它声明不同关系类型也不能重复。 两个 `--relation` 使用不同类型但指向同一路径时，生成 CLI 在参数解析期退出 2 并报告重复直接前序目标。 tools/decision-records/tests/cli-args.test.ts > evolve rejects repeated relation override targets at the CLI boundary bun test --test-name-pattern=\"^evolve rejects repeated relation override targets at the CLI boundary$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1899,12 +2290,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/decision-records/tests/evolution.test.ts > evolve rejects repeated relation override targets at the CLI boundary",
+          "tools/decision-records/tests/cli-args.test.ts > evolve rejects repeated relation override targets at the CLI boundary",
           "bun test --test-name-pattern=\"^evolve rejects repeated relation override targets at the CLI boundary$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001",
         "line": 1,
-        "searchText": "Evolve CLI 拒绝重复关系覆盖目标 完整关系覆盖中，同一直接前序目标只能出现一次，即使调用方为它声明不同关系类型也不能重复。 两个 `--relation` 使用不同类型但指向同一路径时，生成 CLI 在参数解析期退出 2 并报告重复直接前序目标。 tools/decision-records/tests/evolution.test.ts > evolve rejects repeated relation override targets at the CLI boundary bun test --test-name-pattern=\"^evolve rejects repeated relation override targets at the CLI boundary$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Evolve CLI 拒绝重复关系覆盖目标 完整关系覆盖中，同一直接前序目标只能出现一次，即使调用方为它声明不同关系类型也不能重复。 两个 `--relation` 使用不同类型但指向同一路径时，生成 CLI 在参数解析期退出 2 并报告重复直接前序目标。 tools/decision-records/tests/cli-args.test.ts > evolve rejects repeated relation override targets at the CLI boundary bun test --test-name-pattern=\"^evolve rejects repeated relation override targets at the CLI boundary$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/evolve-rejects-repeated-relation-override-targets-at-the-cli-boundary.md",
         "summary": "完整关系覆盖中，同一直接前序目标只能出现一次，即使调用方为它声明不同关系类型也不能重复。",
         "title": "Evolve CLI 拒绝重复关系覆盖目标"
@@ -1913,7 +2304,7 @@
     "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001": {
       "keys": {
         "search": [
-          "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001 Evolve CLI 拒绝重复后继成员 一次 evolve 的完整 successor 集合中，每个规范决策路径只能出现一次。 同一路径重复提供两个 `--successor` 时，生成 CLI 在参数边界退出 2 并报告重复后继路径。 tools/decision-records/tests/evolution.test.ts > evolve rejects duplicate successor members at the CLI boundary bun test --test-name-pattern=\"^evolve rejects duplicate successor members at the CLI boundary$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001 Evolve CLI 拒绝重复后继成员 一次 evolve 的完整 successor 集合中，每个规范决策路径只能出现一次。 同一路径重复提供两个 `--successor` 时，生成 CLI 在参数边界退出 2 并报告重复后继路径。 tools/decision-records/tests/cli-args.test.ts > evolve rejects duplicate successor members at the CLI boundary bun test --test-name-pattern=\"^evolve rejects duplicate successor members at the CLI boundary$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1922,12 +2313,12 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/decision-records/tests/evolution.test.ts > evolve rejects duplicate successor members at the CLI boundary",
+          "tools/decision-records/tests/cli-args.test.ts > evolve rejects duplicate successor members at the CLI boundary",
           "bun test --test-name-pattern=\"^evolve rejects duplicate successor members at the CLI boundary$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001",
         "line": 1,
-        "searchText": "Evolve CLI 拒绝重复后继成员 一次 evolve 的完整 successor 集合中，每个规范决策路径只能出现一次。 同一路径重复提供两个 `--successor` 时，生成 CLI 在参数边界退出 2 并报告重复后继路径。 tools/decision-records/tests/evolution.test.ts > evolve rejects duplicate successor members at the CLI boundary bun test --test-name-pattern=\"^evolve rejects duplicate successor members at the CLI boundary$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Evolve CLI 拒绝重复后继成员 一次 evolve 的完整 successor 集合中，每个规范决策路径只能出现一次。 同一路径重复提供两个 `--successor` 时，生成 CLI 在参数边界退出 2 并报告重复后继路径。 tools/decision-records/tests/cli-args.test.ts > evolve rejects duplicate successor members at the CLI boundary bun test --test-name-pattern=\"^evolve rejects duplicate successor members at the CLI boundary$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/evolve-rejects-duplicate-successor-members-at-the-cli-boundary.md",
         "summary": "一次 evolve 的完整 successor 集合中，每个规范决策路径只能出现一次。",
         "title": "Evolve CLI 拒绝重复后继成员"
@@ -2189,24 +2580,24 @@
     "DECISION-SPLIT-CLOSURE-001": {
       "keys": {
         "search": [
-          "DECISION-SPLIT-CLOSURE-001 严格关系检查拒绝不闭合拓扑 已建立关系图中的纯归并必须至少有两个前序；拆分必须形成至少两个直接后继，且每个拆分后继只保存一条指向同一前序的拆分关系。 只有一个前序的纯归并由严格检查报告数量不足。 只有一个直接后继的拆分和混合拆分与修订关系的后继分别由严格检查报告不闭合或不纯。 tools/decision-records/tests/evolution.test.ts > strict relation checks reject impure splits, open splits, and undersized pure merges bun test --test-name-pattern=\"^strict relation checks reject impure splits, open splits, and undersized pure merges$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-SPLIT-CLOSURE-001 严格关系检查拒绝开放拆分 已建立关系图中的拆分必须形成至少两个指向同一直接前序的后继。 把既有单前序修订改成只有一个直接后继的拆分后，严格检查报告至少需要两个直接拆分后继。 tools/decision-records/tests/relation-validation.test.ts > strict relation checks reject open splits bun test --test-name-pattern=\"^strict relation checks reject open splits$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 9,
         "entries": [
-          "tools/decision-records/tests/evolution.test.ts > strict relation checks reject impure splits, open splits, and undersized pure merges",
-          "bun test --test-name-pattern=\"^strict relation checks reject impure splits, open splits, and undersized pure merges$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/relation-validation.test.ts > strict relation checks reject open splits",
+          "bun test --test-name-pattern=\"^strict relation checks reject open splits$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-SPLIT-CLOSURE-001",
         "line": 1,
-        "searchText": "严格关系检查拒绝不闭合拓扑 已建立关系图中的纯归并必须至少有两个前序；拆分必须形成至少两个直接后继，且每个拆分后继只保存一条指向同一前序的拆分关系。 只有一个前序的纯归并由严格检查报告数量不足。 只有一个直接后继的拆分和混合拆分与修订关系的后继分别由严格检查报告不闭合或不纯。 tools/decision-records/tests/evolution.test.ts > strict relation checks reject impure splits, open splits, and undersized pure merges bun test --test-name-pattern=\"^strict relation checks reject impure splits, open splits, and undersized pure merges$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/strict-relation-checks-reject-impure-splits-open-splits-and-undersized-pure-merges.md",
-        "summary": "已建立关系图中的纯归并必须至少有两个前序；拆分必须形成至少两个直接后继，且每个拆分后继只保存一条指向同一前序的拆分关系。",
-        "title": "严格关系检查拒绝不闭合拓扑"
+        "searchText": "严格关系检查拒绝开放拆分 已建立关系图中的拆分必须形成至少两个指向同一直接前序的后继。 把既有单前序修订改成只有一个直接后继的拆分后，严格检查报告至少需要两个直接拆分后继。 tools/decision-records/tests/relation-validation.test.ts > strict relation checks reject open splits bun test --test-name-pattern=\"^strict relation checks reject open splits$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/strict-relation-checks-reject-open-splits.md",
+        "summary": "已建立关系图中的拆分必须形成至少两个指向同一直接前序的后继。",
+        "title": "严格关系检查拒绝开放拆分"
       }
     },
     "DECISION-SPLIT-EXTENSION-001": {
@@ -2600,6 +2991,52 @@
         "title": "内存与文件系统来源共享确定性索引构造"
       }
     },
+    "DECISION-STATIC-MERGE-MINIMUM-001": {
+      "keys": {
+        "search": [
+          "DECISION-STATIC-MERGE-MINIMUM-001 严格关系检查拒绝前序不足的纯归并 已建立关系图中的纯归并关系集必须至少包含两个直接前序。 把既有单前序修订改成单前序归并后，严格检查报告 pure 归并 relation set 数量不足。 tools/decision-records/tests/relation-validation.test.ts > strict relation checks reject undersized pure merges bun test --test-name-pattern=\"^strict relation checks reject undersized pure merges$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/relation-validation.test.ts > strict relation checks reject undersized pure merges",
+          "bun test --test-name-pattern=\"^strict relation checks reject undersized pure merges$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STATIC-MERGE-MINIMUM-001",
+        "line": 1,
+        "searchText": "严格关系检查拒绝前序不足的纯归并 已建立关系图中的纯归并关系集必须至少包含两个直接前序。 把既有单前序修订改成单前序归并后，严格检查报告 pure 归并 relation set 数量不足。 tools/decision-records/tests/relation-validation.test.ts > strict relation checks reject undersized pure merges bun test --test-name-pattern=\"^strict relation checks reject undersized pure merges$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/strict-relation-checks-reject-undersized-pure-merges.md",
+        "summary": "已建立关系图中的纯归并关系集必须至少包含两个直接前序。",
+        "title": "严格关系检查拒绝前序不足的纯归并"
+      }
+    },
+    "DECISION-STATIC-SPLIT-PURITY-001": {
+      "keys": {
+        "search": [
+          "DECISION-STATIC-SPLIT-PURITY-001 严格关系检查拒绝不纯拆分后继 拆分后继必须恰好保存一条指向同一前序的拆分关系，不能同时混入其他直接关系。 后继同时保存拆分与修订关系时，严格检查报告拆分后继关系集不纯。 tools/decision-records/tests/relation-validation.test.ts > strict relation checks reject impure split successors bun test --test-name-pattern=\"^strict relation checks reject impure split successors$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/relation-validation.test.ts > strict relation checks reject impure split successors",
+          "bun test --test-name-pattern=\"^strict relation checks reject impure split successors$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STATIC-SPLIT-PURITY-001",
+        "line": 1,
+        "searchText": "严格关系检查拒绝不纯拆分后继 拆分后继必须恰好保存一条指向同一前序的拆分关系，不能同时混入其他直接关系。 后继同时保存拆分与修订关系时，严格检查报告拆分后继关系集不纯。 tools/decision-records/tests/relation-validation.test.ts > strict relation checks reject impure split successors bun test --test-name-pattern=\"^strict relation checks reject impure split successors$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/strict-relation-checks-reject-impure-split-successors.md",
+        "summary": "拆分后继必须恰好保存一条指向同一前序的拆分关系，不能同时混入其他直接关系。",
+        "title": "严格关系检查拒绝不纯拆分后继"
+      }
+    },
     "DECISION-TRACE-DIRECTION-001": {
       "keys": {
         "search": [
@@ -2646,10 +3083,56 @@
         "title": "决策事务报告恢复不完整并停止"
       }
     },
+    "DECISION-TRANSACTION-INDEX-PREFLIGHT-001": {
+      "keys": {
+        "search": [
+          "DECISION-TRANSACTION-INDEX-PREFLIGHT-001 决策事务在写入前拒绝已变化的索引 决策事务写入前必须核对 decision-index.json 的已验证快照；索引发生并发变化时应停止且保留并发内容。 索引在扫描后被并发修改时，事务返回包含索引路径、changed after validation 与 re-run 的诊断。 计划 Markdown 更新未执行，其他 Markdown 不变，并发索引内容被完整保留。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed index before any write bun test --test-name-pattern=\"^decision transaction rejects a changed index before any write$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed index before any write",
+          "bun test --test-name-pattern=\"^decision transaction rejects a changed index before any write$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-TRANSACTION-INDEX-PREFLIGHT-001",
+        "line": 1,
+        "searchText": "决策事务在写入前拒绝已变化的索引 决策事务写入前必须核对 decision-index.json 的已验证快照；索引发生并发变化时应停止且保留并发内容。 索引在扫描后被并发修改时，事务返回包含索引路径、changed after validation 与 re-run 的诊断。 计划 Markdown 更新未执行，其他 Markdown 不变，并发索引内容被完整保留。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed index before any write bun test --test-name-pattern=\"^decision transaction rejects a changed index before any write$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-transaction-rejects-a-changed-index-before-any-write.md",
+        "summary": "决策事务写入前必须核对 decision-index.json 的已验证快照；索引发生并发变化时应停止且保留并发内容。",
+        "title": "决策事务在写入前拒绝已变化的索引"
+      }
+    },
+    "DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001": {
+      "keys": {
+        "search": [
+          "DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001 决策事务在写入前拒绝已变化的 Markdown 决策事务写入前必须核对每个 Markdown 的已验证快照；来源发生并发变化时应停止并要求重新运行，而不能覆盖新内容或继续其他计划写入。 当前决策在扫描后被并发修改时，事务返回包含目标路径、changed after validation 与 re-run 的诊断。 并发 Markdown 保持新内容，另一项计划 Markdown 更新未执行，索引保持事务前内容。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed Markdown source before any write bun test --test-name-pattern=\"^decision transaction rejects a changed Markdown source before any write$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed Markdown source before any write",
+          "bun test --test-name-pattern=\"^decision transaction rejects a changed Markdown source before any write$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001",
+        "line": 1,
+        "searchText": "决策事务在写入前拒绝已变化的 Markdown 决策事务写入前必须核对每个 Markdown 的已验证快照；来源发生并发变化时应停止并要求重新运行，而不能覆盖新内容或继续其他计划写入。 当前决策在扫描后被并发修改时，事务返回包含目标路径、changed after validation 与 re-run 的诊断。 并发 Markdown 保持新内容，另一项计划 Markdown 更新未执行，索引保持事务前内容。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed Markdown source before any write bun test --test-name-pattern=\"^decision transaction rejects a changed Markdown source before any write$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-transaction-rejects-a-changed-markdown-source-before-any-write.md",
+        "summary": "决策事务写入前必须核对每个 Markdown 的已验证快照；来源发生并发变化时应停止并要求重新运行，而不能覆盖新内容或继续其他计划写入。",
+        "title": "决策事务在写入前拒绝已变化的 Markdown"
+      }
+    },
     "DECISION-TRANSACTION-WRITE-RECOVERY-001": {
       "keys": {
         "search": [
-          "DECISION-TRANSACTION-WRITE-RECOVERY-001 决策事务在写失败后恢复全部 Markdown 与索引 多文件决策事务遇到可处理的写入失败时，必须报告原始失败并尽力恢复命令前的全部受影响 Markdown 与 decision-index.json。 第二个 Markdown 写入被故障注入拒绝后，事务返回原始写失败诊断。 先前已改写的 Markdown、失败目标和 decision-index.json 均逐字节恢复到事务前内容。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction restores every changed Markdown file and index after a write failure bun test --test-name-pattern=\"^decision transaction restores every changed Markdown file and index after a write failure$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-TRANSACTION-WRITE-RECOVERY-001 决策事务在写失败后恢复全部 Markdown 与索引 多文件决策事务在 decision-index.json 已完成替换后发生可处理写入失败时，必须报告原始失败并恢复命令前的全部受影响 Markdown 与索引。 两个 Markdown 更新完成且新索引已经替换后，故障注入使索引写入路径返回包含原始错误的诊断。 两个 Markdown 与 decision-index.json 最终都逐字节恢复到事务前内容。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction restores every changed Markdown file and index after a write failure bun test --test-name-pattern=\"^decision transaction restores every changed Markdown file and index after a write failure$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2663,9 +3146,9 @@
         ],
         "id": "DECISION-TRANSACTION-WRITE-RECOVERY-001",
         "line": 1,
-        "searchText": "决策事务在写失败后恢复全部 Markdown 与索引 多文件决策事务遇到可处理的写入失败时，必须报告原始失败并尽力恢复命令前的全部受影响 Markdown 与 decision-index.json。 第二个 Markdown 写入被故障注入拒绝后，事务返回原始写失败诊断。 先前已改写的 Markdown、失败目标和 decision-index.json 均逐字节恢复到事务前内容。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction restores every changed Markdown file and index after a write failure bun test --test-name-pattern=\"^decision transaction restores every changed Markdown file and index after a write failure$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "决策事务在写失败后恢复全部 Markdown 与索引 多文件决策事务在 decision-index.json 已完成替换后发生可处理写入失败时，必须报告原始失败并恢复命令前的全部受影响 Markdown 与索引。 两个 Markdown 更新完成且新索引已经替换后，故障注入使索引写入路径返回包含原始错误的诊断。 两个 Markdown 与 decision-index.json 最终都逐字节恢复到事务前内容。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction restores every changed Markdown file and index after a write failure bun test --test-name-pattern=\"^decision transaction restores every changed Markdown file and index after a write failure$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-transaction-restores-every-changed-markdown-file-and-index-after-a-write-failure.md",
-        "summary": "多文件决策事务遇到可处理的写入失败时，必须报告原始失败并尽力恢复命令前的全部受影响 Markdown 与 decision-index.json。",
+        "summary": "多文件决策事务在 decision-index.json 已完成替换后发生可处理写入失败时，必须报告原始失败并恢复命令前的全部受影响 Markdown 与索引。",
         "title": "决策事务在写失败后恢复全部 Markdown 与索引"
       }
     },
@@ -9205,30 +9688,47 @@
       "DECISION-ACTIVATE-ESTABLISHED-RELATIONS-001": "sha256:634fd58b2a7f0eec0309dd91b40d28c453db82b78c1c6d15b91c1ffcba2572f1",
       "DECISION-ACTIVATE-RELATION-CLEAR-001": "sha256:1963603818a2244b4d7b688f4bac2637bc27923bd8a79df4182b3b56c6ceec74",
       "DECISION-ACTIVATE-RELATION-REPLACE-001": "sha256:c45356f6bb40662429000a1198ee5c64addf93515d84bad1e97ef5212741be90",
-      "DECISION-ACTIVATION-ARCHIVE-001": "sha256:feefd65cdb9fe27fb8466bbbcd17ae5c45bd0d74dc64223a7b69e9b8e3cc065c",
+      "DECISION-ACTIVATION-ARCHIVE-001": "sha256:1b5fdca46473ff830137021864c5a75efe6abf2c442372a2f695f71090c2fc8f",
       "DECISION-ACTIVATION-RELATION-001": "sha256:05c5b6d068e60d0135766389f685140c865f1e1036f1733aead2d2b4790382ad",
       "DECISION-BODY-EMPTY-001": "sha256:230f82ffec281090cd9751c31cf1ffb5bf4a6f5e6087d5c1bf0dbee5dd3311b2",
       "DECISION-BODY-PUNCTUATION-001": "sha256:a4f2d60849a569ee98261c718de1bd11d60ea482d25cd4653992c8a443d4a1c4",
       "DECISION-BODY-UNSUPPORTED-001": "sha256:c182ee56911a0fa3b3a545ee8124e38587b2e3bb641fb424790aad15c8fc82e9",
       "DECISION-CANDIDATE-ACTIVATION-INDEX-001": "sha256:67b85883a46fd611452188dba3e21b631e13614461e1e82dfb2962aed74335ee",
       "DECISION-CANDIDATE-ACTIVATION-SELECTION-001": "sha256:59b6351778c79925596849bc82b33bdbb8ab846d0a92572e1564f2a9ee40d335",
-      "DECISION-CANDIDATE-DISCARD-GATES-001": "sha256:68e269fb125616f0ceb80a370e24c346586f5251089c0a142b00ac063740df1b",
+      "DECISION-CANDIDATE-DISCARD-ACTIVE-TARGET-001": "sha256:c0b69beeb225427f4d7a3ff5457f60d26d6effb288dbd06ee93b140662057d28",
+      "DECISION-CANDIDATE-DISCARD-GATES-001": "sha256:4bdbda6483910da355e2e90118ed27e3ef255012a835a97a3960f2eed1d8ece5",
+      "DECISION-CANDIDATE-DISCARD-INVALID-001": "sha256:23a58829f2e0b8246e3e79e8e68f671cc2ccbe50b7331c84bc1920df9421967a",
+      "DECISION-CANDIDATE-DISCARD-INVALID-RELATION-001": "sha256:a5f14897991236a565d839550e955709b8d274c17d72a917b61e36a2c0d15c2a",
+      "DECISION-CANDIDATE-DISCARD-REFERENCED-001": "sha256:6fa84f0e7ede9c669cb66620a81f8accdefa8976351a751523b870c96eebc2e9",
       "DECISION-CANDIDATE-DISCARD-SELECTION-001": "sha256:c5e0606d5f76d78d409ac68690c02e7ac7b59beb3e4829c507042d07c27bc6fd",
       "DECISION-CANDIDATE-ONLY-001": "sha256:1d736f2ffe4b202f99a7418b4ed80629f81ce58de46b5ac138fe2c930cdf2bda",
+      "DECISION-CANDIDATE-RELATION-MISSING-001": "sha256:0b349aff6f2c4278b4f6381c7b9fbe2826de066f0ead377f4bccdd9d8d3be7ae",
+      "DECISION-CANDIDATE-RELATION-REPEATED-TARGET-001": "sha256:18d6d35addf862508e59bb1eb8957c99929edaaefe00849663cdf700c297cbfe",
+      "DECISION-CANDIDATE-RELATION-SELF-001": "sha256:95aafde9200958904ac719082d39af5de6efce181349a72bbf327ce093f06dc2",
       "DECISION-CHECK-PARITY-001": "sha256:71face640359dc024067e0f0c617b9a6af70a5d624fcc67c976686abbb4bfcf0",
-      "DECISION-CLI-ARGS-001": "sha256:589b5f23d58d795bbfc0fe10cecd2de501558725ce0eaebae42113b1f57efb61",
+      "DECISION-CLI-ACTIVATE-ALIGNMENT-001": "sha256:2b60ad9b6a2a8b5bb19aebde19a7887f42927685db108b29b69b44ecb350af68",
+      "DECISION-CLI-ARCHIVE-HELP-001": "sha256:195ae3be4014bc4097234bb838f5bc5ed4bb58660d72175fcee30a42edeb62e0",
+      "DECISION-CLI-ARGS-001": "sha256:a720d4e0d4bc23cc60ef566ca1c97f59103a65569670c6d09adb3a9a2ca06f16",
+      "DECISION-CLI-DOMAIN-ARG-001": "sha256:a8f3ef66c498b9808f2c021273925a0635519fc4722fbbdb33fc05633ef78d76",
+      "DECISION-CLI-EVOLVE-HELP-001": "sha256:569d1990171808e0187aeec62808eb78cc68548f3e34d88f38ec4d41109a8970",
+      "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001": "sha256:28610923594ce003805d9c9a1a853721f5cde444ae0f29e0569a448a287f84c8",
+      "DECISION-CLI-MARK-ALIGNED-HELP-001": "sha256:a0f31da74c2dd5ec39de558a6696137da5d0f3666003ae2c6291864050cfcb97",
+      "DECISION-CLI-RELATION-SELECTION-001": "sha256:9fdc9deed74a62b3578886105bcd61fd5a541edf47ee75587711499632cf1c3d",
+      "DECISION-CLI-REMOVED-PROTOCOLS-001": "sha256:749f518dc523cede3a1f90dac7f3dbbc6e06c6d75e58ab732cda092534039162",
+      "DECISION-CLI-TRACE-DEPTH-001": "sha256:ba8889666c4bfde8ef6f2e52fd67955a280499da542dfdfb979c5bd5e641189a",
+      "DECISION-CLI-UNKNOWN-OPTION-001": "sha256:9f868dbf4976035508ddb0e1c8f61b824d108221aaaf8e36a4438816cc4d4254",
       "DECISION-CONFIGURED-ABSOLUTE-DIRECTORY-001": "sha256:666237bcba499dc5c1abfd183b4671f46284cfcf1f85c2e46850637d156fe048",
       "DECISION-CONFIGURED-RELATIVE-DIRECTORY-001": "sha256:5fb87bdbc2a18d634f362e618dd413aad14aa12865dcccb1b27eb4fb7a409fc4",
       "DECISION-DOMAIN-CATALOG-001": "sha256:6c9f82ec7d93b91ff0acafc79c49499450190766b53b284a6d3be6fb0137435f",
       "DECISION-DOMAIN-CATALOG-QUERY-001": "sha256:60c8fe332641bcadfa6d4e596dae7086ab7ac5ff034d316be8c5dc73d2f83d64",
       "DECISION-DOMAIN-CATALOG-REVISION-001": "sha256:52875c3fb5b3999e8e64dccaad4942dfd6b73991b5a34041ed35824a0c8cd504",
       "DECISION-DOMAIN-CATALOG-STRUCTURE-001": "sha256:1388780529c0c320d8cb2ab402b09c01691e11a613fe17d2e86a3cd857549e25",
-      "DECISION-EVOLUTION-RELATIONS-001": "sha256:cf1acf66ca0e7a7b08406c7dcbb2c9bcf1b6057161a0f40077e66e271d1f1224",
+      "DECISION-EVOLUTION-RELATIONS-001": "sha256:3bc417fcb8ccc884e03096b0a61c5f089dc66352d03d45f25cf9936be0cf29e4",
       "DECISION-EVOLVE-ALIGNMENT-CONFIRMATION-001": "sha256:cdc7a1d0eb5058b3ff4076b0f4b19969284a9fdcc334e1429a09b6c0d4d6f96b",
       "DECISION-EVOLVE-ARCHIVED-SUCCESSOR-001": "sha256:4d186724297c46b154cbd101cc4fe17bc1dd88a5197235d23c8c7db0e50098dc",
       "DECISION-EVOLVE-COMMAND-001": "sha256:e1d910ece5bad2f7de165a91632f5704387937d3bf5bbff6a100ed86b04d788b",
-      "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001": "sha256:0ed06aace4bb38b8cfa1afe0c8e0ed05c495a6255014aa6fee2a19e0b4b9865d",
-      "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001": "sha256:997c41434b38d783d318326b67c985d5a365369516a9a322e10283821dc28603",
+      "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001": "sha256:012ba61e3ef68558605e77f7973a97304da3bb2e4682dc5f9fea504e34423736",
+      "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001": "sha256:621f08d6c375564019aa4aa88b1ad7d1cd6db521d3fb1937a99a4f81b6446af7",
       "DECISION-EVOLVE-ESTABLISHED-REPLACE-001": "sha256:17305233f0e42f3598fa12cfae0f5651ca4391346034e79ea43eeb4c620519ff",
       "DECISION-EVOLVE-HISTORICAL-SUCCESSOR-001": "sha256:fcbd6aa87335f6fb6c3be7ffdedf14209241a792fe3d848aa7761069499d767f",
       "DECISION-EVOLVE-UNSUPPORTED-MULTI-001": "sha256:9a70950d65a76db841d98e34bab8e5c57376c5292bdb108de881eead82418781",
@@ -9240,7 +9740,7 @@
       "DECISION-MERGE-MINIMUM-001": "sha256:9d9808672a6bb7bbfec041dbe3bac03f8b91c6212b4b222e5726e1d14c2338b9",
       "DECISION-QUERY-INDEX-MEMBERSHIP-001": "sha256:ea578dea3fa971d236f0a1f7b4770ad5595fbff9f6d3f10b6db4c0f1326a7737",
       "DECISION-SHOW-OUTPUT-001": "sha256:db4fc23f38b5ff17434eaf78422820621565c18c01b2a7d9f9a189f5cd3b2510",
-      "DECISION-SPLIT-CLOSURE-001": "sha256:e68f0b6910222f304ce2f59280d85853342c02b2e57e6e425b11574aabf8eb89",
+      "DECISION-SPLIT-CLOSURE-001": "sha256:8eca8efac59196c19a855de11f0d0662e1e5449caa9e62c9b9a4f9ba82f614de",
       "DECISION-SPLIT-EXTENSION-001": "sha256:ea347368f16eca94ab22e1365226982d6b761e6b0f21bb13043991869a6fff08",
       "DECISION-SPLIT-MIXED-RELATIONS-001": "sha256:783e8086cedec9915c5cff0188869179aea7bf753fa0955abb599bdcbf5afe3c",
       "DECISION-SPLIT-OMISSION-001": "sha256:51783bd134497363696bcf5e288e5ca7823a29cd1ace0add470c7672d36067ad",
@@ -9258,9 +9758,13 @@
       "DECISION-STATE-MEMORY-RELATION-SOURCE-001": "sha256:ce081881a89b33c0c04f5a1c838d66be6e3f7d6d07fba209ba6750faba35f643",
       "DECISION-STATE-SNAPSHOT-001": "sha256:bd1f11db384341c6dfcab5089c60ca2ff57ec1c79390b9692cfbf6323a65f96b",
       "DECISION-STATE-SOURCE-PARITY-001": "sha256:45f355e18fcb86f7af61169977ed7c68d7bbff18c37d83983d7fbe47b8c277fa",
+      "DECISION-STATIC-MERGE-MINIMUM-001": "sha256:e3f935edc0d5c3b47ee6983577907021532e348993cdc16685c091b955b228f6",
+      "DECISION-STATIC-SPLIT-PURITY-001": "sha256:1fc3cb9ec0c7f3c0a66e23e7101440051e785a4f32884a83a186dd44bafe13ae",
       "DECISION-TRACE-DIRECTION-001": "sha256:0a184e4781cdde6fbad72d4b67ad36ccaed65bee1216269467372775c9314f0f",
       "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001": "sha256:2333a88fa2484590f75e0860bf3c206c0235efa6f4dbb8751cac2f6998281afe",
-      "DECISION-TRANSACTION-WRITE-RECOVERY-001": "sha256:2bb750ec06cb35ae9a640622927f8ffc0b13a696b954df5986c78a2b2c634d37",
+      "DECISION-TRANSACTION-INDEX-PREFLIGHT-001": "sha256:25a055a7f496996bf750f608623eb9271c56417e691c56069f07a6bd2545e3b8",
+      "DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001": "sha256:4cb7a0b289e7dc5a11847361843cb77ba7114fc8e31601708fc74ca918d03dbb",
+      "DECISION-TRANSACTION-WRITE-RECOVERY-001": "sha256:cfdd50dbe596661c5f1a3f3c79b4b778a5c344aa5dcfc79eb9e35a98c2b859e9",
       "DECISION-TYPE-PATH-001": "sha256:f082542f0adc38d157e843fa621b422cc5af3cc8bd3d22e3ec555d07bb25f247",
       "DECISION-UNRECORDED-ARCHIVE-001": "sha256:815a7fdef4052f156d878333755bc5bb232fe99ab03d18804385428541fc2ddf",
       "DECISION-UNRECORDED-COLLAPSE-001": "sha256:e9a35a4b90755f146056f063864d383c95f47541c132323c13fc6e6379ed5286",
