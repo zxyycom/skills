@@ -213,13 +213,16 @@
       "project-tooling/260720-orchestrate-checks-with-conservative-concurrency.md": "sha256:7bff1159274ee84bfc71a5607bc0054f3c4438b6a0ce84ad96dfe99fc633e720",
       "project-tooling/260720-use-prebuilt-git-test-fixtures.md": "sha256:b0840a64780fcb2ee92303f2ee15d8acdfbd872220ba2fed2e25979d4ba6ea65",
       "project-tooling/bootstrap-hooks-and-select-project-roots.md": "sha256:d2d3b76fd33c97ccc35f27cc75c710484efabb563efe1d7af6ec2b34e7f5c8f2",
-      "project-tooling/bootstrap-hooks-and-use-project-short-commands.md": "sha256:4d215e8584a9c35d724454d922a7432382371d6930f01c8c4d41764cf7e91e15",
+      "project-tooling/bootstrap-hooks-and-use-project-short-commands.md": "sha256:3009215c32b710ab31c57c9c6cef61fdca6ee0ee6f21984f22eff6cc0de2c4d7",
+      "project-tooling/bootstrap-platform-git-hooks.md": "sha256:f6fcac972c77b30a2f857a81ed9df120fd81b0025ba758e8e102c212fd4e6a50",
       "project-tooling/bootstrap-repository-coordination-with-owned-launchers.md": "sha256:d75caa94bce5340d5adc0d65126a4be3896b0e5c2c16275057a5eae7baa63f71",
       "project-tooling/default-checks-to-warnings.md": "sha256:223432266726cccdac1cbaec319e139a2af38b2e18de4770581bd7cc40b39ac0",
       "project-tooling/exclude-archived-changes-from-link-validation.md": "sha256:4dd74ead05f2be49de2a176225b159a5248afc2bbb5edb2735b149df97f03fbd",
+      "project-tooling/select-task-graph-project-roots.md": "sha256:0aa754d9614a7e9c1760da0c6e9f1fa214d6e31c577b8cfd84fd07ee1b96850f",
       "project-tooling/separate-distributable-tool-source-from-repository-automation.md": "sha256:878e9070277071510f71ceb604208253809df75124a117ae40e15cf4293446b3",
       "project-tooling/separate-tool-source-and-repository-automation.md": "sha256:93efec40cac5dec9a114ee44a7e33caba51647f74d24e859c7d16ed7ed3af317",
       "project-tooling/use-profiled-concise-checks.md": "sha256:6eb996b07594c447247a455523539cc5df4f989f8a1e5ed1a0ddc9cd533f0b34",
+      "project-tooling/use-project-short-commands-for-maintenance-clis.md": "sha256:85113e74b7df1510ea22c46a6dffa46d6955dd39f0aab2b7bbc421e3bea2514f",
       "repository-model/260702-use-monorepo-skills-directory.md": "sha256:2e103862e5cb2a492dd80635af42ab559e0d831f7dc3bae53f7cb6882d94d0c4",
       "repository-model/centralize-maintenance-and-keep-distribution-lightweight.md": "sha256:162e339b2a957e58e7d8706f228ce4b7c0439f7cde9273bc473071d6afec8cbe",
       "repository-model/use-monorepo-versioned-skill-packages.md": "sha256:2c3bc5c15f86027526cd54f65a7751d1f43dea0a7e3fa12f8095eb7090513c8e",
@@ -3520,7 +3523,7 @@
           "project-tooling"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -3529,7 +3532,7 @@
       "state": {
         "path": "project-tooling/bootstrap-hooks-and-use-project-short-commands.md",
         "title": "按平台建立 Hook 并统一仓库维护短入口",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-09T05:09:37Z",
         "purpose": "让仓库自举按 Git 平台语义启用 hook，并让本仓库通过稳定短入口调用实际使用的 skill 维护 CLI。",
@@ -3539,6 +3542,35 @@
           {
             "type": "修订",
             "target": "project-tooling/bootstrap-hooks-and-select-project-roots.md"
+          }
+        ]
+      }
+    },
+    "project-tooling/bootstrap-platform-git-hooks.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/bootstrap-platform-git-hooks.md",
+        "title": "按 Git 平台建立仓库 Hook",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-09T05:40:36Z",
+        "purpose": "让 clone 和 linked worktree 通过标准环境 setup 获得符合当前 Git 平台的 pre-commit 条件。",
+        "background": "POSIX Git 使用执行位判断 hook 可用性，Git for Windows 使用不同的可执行性兼容语义，但两者都需要稳定脚本换行和 hooksPath。",
+        "decision": "Hook 源固定为 LF 并保留 Git executable mode；setup 始终配置 hooksPath，只在 POSIX 恢复工作区执行位。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "project-tooling/bootstrap-hooks-and-use-project-short-commands.md"
           }
         ]
       }
@@ -3618,6 +3650,35 @@
         "background": "归档会增加目录层级，稳定 owner 后续也可能移动；持续校验历史计划会迫使维护者改写归档内容。",
         "decision": "bun run validate 排除 changes/archive 下的 Markdown，同时继续校验 active change 与当前稳定文档。",
         "relations": []
+      }
+    },
+    "project-tooling/select-task-graph-project-roots.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/select-task-graph-project-roots.md",
+        "title": "为 task-graph 短命令选择项目 Root",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-09T05:40:36Z",
+        "purpose": "让 task-graph 短命令默认使用当前项目中央索引，同时允许调用者显式切换目标项目。",
+        "background": "Linked worktree 按自身目录操作会分叉任务索引，持久化绝对 root 会陈旧，而完全禁止显式 root 会阻止合法的多项目操作。",
+        "decision": "默认从短命令所在 Git 项目发现主 worktree；唯一显式 root 切换到目标项目自己的 CLI 和 canonical index。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "project-tooling/bootstrap-hooks-and-use-project-short-commands.md"
+          }
+        ]
       }
     },
     "project-tooling/separate-distributable-tool-source-from-repository-automation.md": {
@@ -3704,6 +3765,35 @@
           {
             "type": "替代",
             "target": "project-tooling/default-checks-to-warnings.md"
+          }
+        ]
+      }
+    },
+    "project-tooling/use-project-short-commands-for-maintenance-clis.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/use-project-short-commands-for-maintenance-clis.md",
+        "title": "仓库内使用维护 CLI 短命令",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-09T05:40:36Z",
+        "purpose": "让本仓库通过稳定、可发现的 package scripts 调用实际使用的 skill 维护 CLI，而不重复安装路径或领域契约。",
+        "background": "多个随 skill 分发的 CLI 已用于本仓库维护；完整脚本路径泄漏安装布局，交互式 alias、用户级 PATH 和临时环境变量不能覆盖全部运行环境。",
+        "decision": "为实际日常使用的稳定领域 CLI 提供 `bun run` 短命令；项目内优先使用短命令，完整路径只用于明确的实现与分发边界。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "project-tooling/bootstrap-hooks-and-use-project-short-commands.md"
           }
         ]
       }

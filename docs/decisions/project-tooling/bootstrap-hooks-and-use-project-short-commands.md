@@ -1,6 +1,6 @@
 ---
 title: 按平台建立 Hook 并统一仓库维护短入口
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-09T05:09:37Z
 purpose: 让仓库自举按 Git 平台语义启用 hook，并让本仓库通过稳定短入口调用实际使用的 skill 维护 CLI。

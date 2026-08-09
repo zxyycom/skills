@@ -6,6 +6,10 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import {
+  maintenanceCliPackageScripts,
+  type MaintenanceCliCommand
+} from "./validators/project-config.ts";
 
 const workspaceRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -448,16 +452,20 @@ test("environment check reports missing repository setup without writing it", as
 });
 
 test("repository maintenance short commands invoke their owned skill CLIs", () => {
-  const commands = [
-    ["change-plan", /Manage the basic lifecycle/u],
-    ["decision-records", /Query and maintain agent-oriented decision records/u],
-    ["investigation-report", /Check investigation topics/u],
-    ["task-graph", /"commands":\[/u],
-    ["test-evidence", /Validate and query indexed test evidence/u],
-    ["validate-skill", /Validate the portable structure contract/u]
-  ] as const;
+  const commandHelpPatterns = {
+    "change-plan": /Manage the basic lifecycle/u,
+    "decision-records": /Query and maintain agent-oriented decision records/u,
+    "investigation-report": /Check investigation topics/u,
+    "task-graph": /"commands":\[/u,
+    "test-evidence": /Validate and query indexed test evidence/u,
+    "validate-skill": /Validate the portable structure contract/u
+  } satisfies Readonly<Record<MaintenanceCliCommand, RegExp>>;
 
-  for (const [script, expectedOutput] of commands) {
+  const commands = Object.keys(
+    maintenanceCliPackageScripts
+  ) as MaintenanceCliCommand[];
+  for (const script of commands) {
+    const expectedOutput = commandHelpPatterns[script];
     const result = run(
       "bun",
       ["run", "--silent", script, "--", "--help"],

@@ -3888,10 +3888,33 @@
         "title": "调查校验按类别与路径筛选"
       }
     },
+    "REPO-PACKAGE-JSON-001": {
+      "keys": {
+        "search": [
+          "REPO-PACKAGE-JSON-001 项目 package script 校验映射非法 JSON 边界 项目配置校验必须把无法解析的 `package.json` 和非法的 `scripts` 结构转换为可定位诊断，而不是让未经校验的外部值进入脚本清单检查。 无法解析的 JSON 返回带有 `package.json is not valid JSON` 前缀的单条诊断。 `scripts` 为数组时返回要求 object 的稳定诊断。 scripts/validators/project-config.test.ts > project package script validation maps invalid JSON boundaries bun test --test-name-pattern=\"^project package script validation maps invalid JSON boundaries$\" ./scripts/validators/project-config.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "scripts/validators/project-config.test.ts > project package script validation maps invalid JSON boundaries",
+          "bun test --test-name-pattern=\"^project package script validation maps invalid JSON boundaries$\" ./scripts/validators/project-config.test.ts"
+        ],
+        "id": "REPO-PACKAGE-JSON-001",
+        "line": 1,
+        "searchText": "项目 package script 校验映射非法 JSON 边界 项目配置校验必须把无法解析的 `package.json` 和非法的 `scripts` 结构转换为可定位诊断，而不是让未经校验的外部值进入脚本清单检查。 无法解析的 JSON 返回带有 `package.json is not valid JSON` 前缀的单条诊断。 `scripts` 为数组时返回要求 object 的稳定诊断。 scripts/validators/project-config.test.ts > project package script validation maps invalid JSON boundaries bun test --test-name-pattern=\"^project package script validation maps invalid JSON boundaries$\" ./scripts/validators/project-config.test.ts",
+        "sourcePath": "repository-tooling/project-package-script-validation-maps-invalid-json-boundaries.md",
+        "summary": "项目配置校验必须把无法解析的 `package.json` 和非法的 `scripts` 结构转换为可定位诊断，而不是让未经校验的外部值进入脚本清单检查。",
+        "title": "项目 package script 校验映射非法 JSON 边界"
+      }
+    },
     "REPO-SHORT-CLI-001": {
       "keys": {
         "search": [
-          "REPO-SHORT-CLI-001 仓库维护短命令调用各自领域 CLI 本仓库为实际使用的稳定 skill 维护 CLI 提供 package 短入口，并保持领域实现仍由各自已有 CLI 承接。 六个 `bun run <command> -- --help` 入口均成功退出，并返回对应 change、decision、investigation、task、test-evidence 或 skill-validator CLI 的身份输出。 scripts/environment.test.ts > repository maintenance short commands invoke their owned skill CLIs bun test --test-name-pattern=\"^repository maintenance short commands invoke their owned skill CLIs$\" ./scripts/environment.test.ts"
+          "REPO-SHORT-CLI-001 仓库维护短命令调用各自领域 CLI 维护 CLI 的类型化 package script 映射中的每个命令都必须能调用其领域入口。 映射中的每个 `bun run <command> -- --help` 均成功退出，并返回对应领域 CLI 的身份输出。 scripts/environment.test.ts > repository maintenance short commands invoke their owned skill CLIs bun test --test-name-pattern=\"^repository maintenance short commands invoke their owned skill CLIs$\" ./scripts/environment.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -3905,10 +3928,33 @@
         ],
         "id": "REPO-SHORT-CLI-001",
         "line": 1,
-        "searchText": "仓库维护短命令调用各自领域 CLI 本仓库为实际使用的稳定 skill 维护 CLI 提供 package 短入口，并保持领域实现仍由各自已有 CLI 承接。 六个 `bun run <command> -- --help` 入口均成功退出，并返回对应 change、decision、investigation、task、test-evidence 或 skill-validator CLI 的身份输出。 scripts/environment.test.ts > repository maintenance short commands invoke their owned skill CLIs bun test --test-name-pattern=\"^repository maintenance short commands invoke their owned skill CLIs$\" ./scripts/environment.test.ts",
+        "searchText": "仓库维护短命令调用各自领域 CLI 维护 CLI 的类型化 package script 映射中的每个命令都必须能调用其领域入口。 映射中的每个 `bun run <command> -- --help` 均成功退出，并返回对应领域 CLI 的身份输出。 scripts/environment.test.ts > repository maintenance short commands invoke their owned skill CLIs bun test --test-name-pattern=\"^repository maintenance short commands invoke their owned skill CLIs$\" ./scripts/environment.test.ts",
         "sourcePath": "repository-tooling/repository-maintenance-short-commands-invoke-owned-clis.md",
-        "summary": "本仓库为实际使用的稳定 skill 维护 CLI 提供 package 短入口，并保持领域实现仍由各自已有 CLI 承接。",
+        "summary": "维护 CLI 的类型化 package script 映射中的每个命令都必须能调用其领域入口。",
         "title": "仓库维护短命令调用各自领域 CLI"
+      }
+    },
+    "REPO-SHORT-CONFIG-001": {
+      "keys": {
+        "search": [
+          "REPO-SHORT-CONFIG-001 项目配置固定维护短命令委托 每个仓库维护短命令必须保留类型化映射指定的 package script 实现，而不只是保留同名脚本。 当前 `package.json` 的全部维护短命令与映射一致时，项目配置校验没有诊断。 将 `decision-records` 改为其他脚本路径时，校验返回指明期望委托入口的稳定诊断。 scripts/validators/project-config.test.ts > project package scripts preserve maintenance CLI delegations bun test --test-name-pattern=\"^project package scripts preserve maintenance CLI delegations$\" ./scripts/validators/project-config.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "scripts/validators/project-config.test.ts > project package scripts preserve maintenance CLI delegations",
+          "bun test --test-name-pattern=\"^project package scripts preserve maintenance CLI delegations$\" ./scripts/validators/project-config.test.ts"
+        ],
+        "id": "REPO-SHORT-CONFIG-001",
+        "line": 1,
+        "searchText": "项目配置固定维护短命令委托 每个仓库维护短命令必须保留类型化映射指定的 package script 实现，而不只是保留同名脚本。 当前 `package.json` 的全部维护短命令与映射一致时，项目配置校验没有诊断。 将 `decision-records` 改为其他脚本路径时，校验返回指明期望委托入口的稳定诊断。 scripts/validators/project-config.test.ts > project package scripts preserve maintenance CLI delegations bun test --test-name-pattern=\"^project package scripts preserve maintenance CLI delegations$\" ./scripts/validators/project-config.test.ts",
+        "sourcePath": "repository-tooling/project-package-scripts-preserve-maintenance-cli-delegations.md",
+        "summary": "每个仓库维护短命令必须保留类型化映射指定的 package script 实现，而不只是保留同名脚本。",
+        "title": "项目配置固定维护短命令委托"
       }
     },
     "REPO-TASK-ROOT-001": {
@@ -8141,7 +8187,9 @@
       "INVESTIGATION-SOURCE-REVISION-001": "sha256:d7bc684d85b8c31c9e3249fd94cd22271db1cf9fdc8ea806468252e62acd57ad",
       "INVESTIGATION-STRUCTURE-CHRONOLOGY-001": "sha256:c37b58ae1a46e45c4c65521f420c6f373301ce0465e1d5c14ed70abb8a7f0de4",
       "INVESTIGATION-VALIDATION-FILTER-001": "sha256:59fb97585ad6fe441e9bf7a42044f69eb26a826b7c648a25322a8ab2e350e036",
-      "REPO-SHORT-CLI-001": "sha256:447546edd7e612aab36bded43aeb883eb9d90e266e174ad200b8af60ff987b20",
+      "REPO-PACKAGE-JSON-001": "sha256:36724eb3dd100be35650754564a630256b7e0acfa6047ffd892ea44d67692239",
+      "REPO-SHORT-CLI-001": "sha256:fb63421589767622ea425c8bf64abedc60550f9fb003d4b02199043ade8c74c1",
+      "REPO-SHORT-CONFIG-001": "sha256:39b56cd6dce349c3b4b0a28798b96ac1ae38e8b8544a3f395f0337ae5a7f2e7a",
       "REPO-TASK-ROOT-001": "sha256:6f7f36dab2296b05c02fea40dbb240ca970aeec45b6fb8e809772121bf575df4",
       "REPO-TASK-TARGET-001": "sha256:0d31dfb2b408a1aede75a8230c2d302d965c3e131109c6fc0808324b1a80f5bd",
       "SKILL-PACKAGE-HASH-001": "sha256:cf44553e22b994bf18ecc1269c2a95e1d58c03eaa247bff8abcc4a6bef099732",

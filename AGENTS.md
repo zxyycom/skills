@@ -40,7 +40,7 @@
 1. 修改前先检查主仓库状态; 保留无关改动, 目标路径已有改动时先检查 diff, 无法确认能够安全延续时再询问用户。
 2. 编辑前先通过 `docs/navigation.md` 判断内容 owner; 只在当前文件适合承接该信息时修改当前文件。
 3. 理解实现代码结构、符号调用关系或改动影响时, 优先使用当前可用的 CodeGraph 工具; 结果不精确、索引陈旧或工具不可用时, 再用带路径过滤的 `rg` / `rg --files` 补充。CodeGraph 的环境、索引与 MCP 边界见 `docs/tooling.md#环境自举`。
-4. 在本仓库内调用已经提供 package 短入口的维护 CLI 时, 使用 `docs/tooling.md` 列出的 `bun run <command> -- <arguments>`; 只有验证源码与生成产物边界、调试入口实现或编写仓库外可移植说明时才直接调用 `tools/` 或 `skills/*/scripts/` 路径。
+4. 在本仓库内调用领域维护 CLI 时, 按 `docs/tooling.md#仓库维护短命令` 使用已经列出的 `bun run <command> -- <arguments>`; 完整路径只用于该节声明的源码与生成边界验证、入口调试和仓库外可移植说明。
 5. 修改 `scripts/` 或 `tools/` 下的实现代码时, 先读取 `docs/coding-style.md`, 再按任务读取相关行为 owner 和 `docs/tooling.md`。
 6. 修改 skill 本体时进入 `skills/<skill-name>/`; 只修改项目级文档、脚本、CI 或配置时, 不顺手改 skill 本体。
 7. 同时修改 skill 本体和可分发工具源码时, 先确认 `tools/` 源码、`scripts/` 构建适配和 `skills/` 生成产物的 owner 分工, 再让文档和验证入口保持一致。

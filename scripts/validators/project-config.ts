@@ -10,10 +10,6 @@ import {
   skillEntryFileName
 } from "../../tools/skill-package/src/version.ts";
 
-type PackageJson = {
-  scripts?: Record<string, unknown>;
-};
-
 type PermissionDecision = "allow" | "prompt";
 
 type PermissionRule = {
@@ -21,16 +17,21 @@ type PermissionRule = {
   decision: PermissionDecision;
 };
 
+export const maintenanceCliPackageScripts = {
+  "change-plan": "node skills/change-plan/scripts/change-plan.mjs",
+  "decision-records": "node skills/decision-records/scripts/decision-records.mjs",
+  "investigation-report": "node skills/investigation-report/scripts/check-investigations.mjs",
+  "task-graph": "node scripts/task-graph.js",
+  "test-evidence": "node skills/test-evidence-review/scripts/test-evidence-catalog.mjs",
+  "validate-skill": "node skills/skill-maintainer/scripts/validate-skill.mjs"
+} as const satisfies Readonly<Record<string, string>>;
+
+export type MaintenanceCliCommand = keyof typeof maintenanceCliPackageScripts;
+
 const requiredPackageScripts = [
   ...checkPackageScripts,
-  "change-plan",
-  "decision-records",
-  "investigation-report",
   "setup-hooks",
   "setup-repository",
-  "task-graph",
-  "test-evidence",
-  "validate-skill",
   "sync:skill-updaters",
   "sync:change-plan-cli",
   "sync:skill-validator",
@@ -41,6 +42,10 @@ const requiredPackageScripts = [
   "sync:test-evidence-catalog",
   "check"
 ] as const;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
 
 const requiredProjectFiles = [
   "skills",
@@ -96,10 +101,32 @@ export async function validatePackageScripts(
     return;
   }
 
-  const packageJson = JSON.parse(await fs.readFile(packageJsonPath, "utf8")) as PackageJson;
+  let packageJson: unknown;
+  try {
+    packageJson = JSON.parse(await fs.readFile(packageJsonPath, "utf8"));
+  } catch (error) {
+    report(
+      `package.json is not valid JSON: ${error instanceof Error ? error.message : String(error)}`
+    );
+    return;
+  }
+  if (!isRecord(packageJson) || !isRecord(packageJson.scripts)) {
+    report("package.json scripts must be an object");
+    return;
+  }
+
   for (const scriptName of requiredPackageScripts) {
-    if (typeof packageJson.scripts?.[scriptName] !== "string") {
+    if (typeof packageJson.scripts[scriptName] !== "string") {
       report(`package.json is missing script ${scriptName}`);
+    }
+  }
+  for (const [scriptName, expectedCommand] of Object.entries(
+    maintenanceCliPackageScripts
+  )) {
+    if (packageJson.scripts[scriptName] !== expectedCommand) {
+      report(
+        `package.json script ${scriptName} must delegate to ${expectedCommand}`
+      );
     }
   }
 }
