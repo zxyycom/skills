@@ -1,50 +1,53 @@
 # Proposal
 
-建立调查报告随附资源能力的临时实施计划，让报告可以引用高保真原始材料，并由现有主题索引派生引用关系与完整性信息。
+让每份调查报告可以选择性地引用一项或多项随附资源，并由现有调查索引维护这些引用的可发现性与完整性。
 
 ## Why
 
-当前 `investigation-report` 只把一层分类目录中的主题 Markdown 作为调查集合成员。接口参数、原始响应、日志、截图或较长规范如果全部写进正文，会淹没调查主线；如果只保留摘要或把文件随意放在调查目录中，又无法稳定定位、校验和发现内容变化。
+调查报告正文需要独立说明背景、目的、依据、结果与边界，但接口参数、原始响应、日志、截图、规范摘录或二进制样本不适合全部展开在正文中。当前格式没有受控的资源引用位置：把材料塞进正文会淹没调查主线，只写摘要又可能丢失复核所需的原始细节，把文件随意放在调查目录中则无法判断它支持哪一份报告。
 
-调查报告需要把“正文解释结论”和“资源保存细节”分开：报告继续独立说明背景、目的、依据、结果与边界，必要的原始材料放入受控资源池；报告与资源的关系由 Markdown 声明，现有派生索引负责把关系和资源哈希投影成可重建的读取视图。
+本 change 首先解决“报告怎样引用资源”：报告通过固定 Markdown 元数据直接链接调查根目录中的资源，读者可以从报告定位并打开形成时材料。资源关系、SHA-256、索引新鲜度和孤儿检查只用于保证这些引用能够长期恢复和校验，不把资源扩张为独立调查对象或制品系统。
 
 ## Outcome
 
-`investigation-report` 在调查根目录支持可选的统一 `_resources/` 资源池。每份报告可以通过固定元数据引用其中的平级或嵌套资源；主题 Markdown 是引用关系的事实源，`investigation-index.json` 仍以主题为主条目，并派生报告级资源关系、资源 SHA-256 摘要表和覆盖资源快照的 `sourceRevision`。
+`investigation-report` 在调查根目录支持可选的 `_resources/` 资源池。任一 H3 报告可以在 `形成时间` 后声明 `随附资源`，用本地 Markdown 链接引用资源池中的文件；没有资源的报告保持现有格式。
+
+主题 Markdown 是“哪份报告引用哪些资源”的事实源，资源文件是材料内容的事实源。现有 `investigation-index.json` 继续以主题为主条目，只派生报告级资源关系、集合级资源 SHA-256 摘要和覆盖资源变化的 source revision，使缺失、替换、重命名和陈旧索引能够被检查发现。
 
 ## Scope
 
 纳入：
 
-- 定义 `_resources/`、可移植资源 ID、报告级 Markdown 引用语法、共享引用和资源历史维护规则。
-- 扩展调查 Markdown 解析、目录发现、路径安全、引用完整性和孤儿资源校验。
-- 在现有主题 entry 中投影报告到资源的关系，在索引 metadata 中保存每个资源的 SHA-256，并让资源快照参与新鲜度判断。
-- 提升调查索引 definition version，更新 JSON Schema、CLI、类型声明、行为文档、可分发生成产物和 skill 独立版本。
-- 增加成功路径、资源变化和失败分支测试，并同步测试证据账本。
+- 定义报告级 `随附资源` Markdown 语法，以及一份报告引用至少一项资源的最小闭环。
+- 定义调查根目录 `_resources/`、安全可移植的资源 ID、共享引用、孤儿拒绝和历史资源维护规则。
+- 扩展调查 Markdown 解析、资源发现、路径安全、普通文件与符号链接校验。
+- 在主题 state 中投影报告到资源的关系，在索引 metadata 中保存每个资源一次 SHA-256，并让资源集合与内容参与 `sourceRevision.metadata`。
+- 提升调查领域 definition version，更新固定契约、JSON Schema、实现、声明、分发产物、skill 版本、测试证据和当前派生调查索引。
 
 不纳入：
 
-- 不改变 `<category-id>/<semantic-slug>.md` 的主题身份、报告追加模型或主题级主索引粒度。
-- 不建立另一份手写关系源、独立资源 entry、资源全文检索或资源专用生命周期。
-- 不处理远程下载、内容转换、版权管理、密钥保管或大文件后端。
-- 不迁移当前主题正文，也不要求没有资源引用的主题创建 `_resources/` 或占位元数据。
+- 不改变 `<category-id>/<semantic-slug>.md` 的主题身份、报告追加模型、四项固定核心或主题级主索引粒度。
+- 不建立独立资源 entry、资源全文查询、手写 manifest、资源专用生命周期或通用制品仓库。
+- 不处理远程下载、内容转换、版权管理、秘密保管、大文件后端或按资源增量哈希优化。
+- 不迁移当前调查正文，也不要求没有资源引用的报告创建 `_resources/`、占位字段或资源文件。
+- 不在本 change 中实现 Git 暂存能力；资源集合或内容改变时允许调用方按普通文件边界暂存完整调查索引。
 
 ## Success Criteria
 
-- 报告可以选择性使用固定 Markdown 元数据引用一个或多个安全资源，且能够从单份报告原文恢复精确关系并直接打开资源。
-- 默认全量检查拒绝缺失、越界、符号链接、非普通文件和孤儿资源，允许同一资源被多份报告或主题共享。
-- 每个主题仍只生成一个索引 entry；entry 保存报告级资源关系，metadata 对每个被引用资源只保存一次 ID 与 SHA-256。
-- 资源新增、删除、重命名或内容变化会改变完整源快照，使旧索引失效，并产生包含资源 ID 的诊断。
-- 没有资源引用的既有主题 Markdown 继续合法；重新同步后生成新 definition version 的索引，不保留旧索引格式兼容分支。
-- 报告正文仍概括影响结论的关键事实，并说明资源来源、观测条件和支撑作用，不能用附件替代四项固定核心。
-- 相关契约、实现、生成产物、测试证据和主仓库检查全部通过，资源方向与当前事实核对后完成决策对齐。
+- 一份报告可以用固定 `随附资源` 字段引用一项资源，读者能够从报告原文恢复资源 ID 并直接打开对应文件；同一报告也可以引用多项资源。
+- 没有资源的既有报告继续合法；有资源的报告必须使用安全、规范且存在的本地链接。
+- 默认全量检查拒绝缺失、越界、大小写不一致、符号链接、非普通文件和孤儿资源，同时允许同一资源被多份报告或主题共享。
+- 每个主题仍只生成一个索引 entry；`entries[id].state` 保存报告级资源关系，`metadata.resources` 对每个被引用资源只保存一次 ID 与 SHA-256。
+- 资源新增、删除、重命名或内容变化会改变 `sourceRevision.metadata`，使旧索引失效；资源相关诊断能够定位具体资源 ID。
+- 报告正文仍概括影响结论的关键事实，并说明资源来源、观测条件、处理方式和支撑作用，不能用随附资源替代四项固定核心。
+- 契约、实现、生成产物、当前派生索引、测试证据和主仓库检查全部通过；长期资源决策与最终事实逐项一致后才标记为 aligned。
 
 ## Affected Owners
 
-- `skills/investigation-report/SKILL.md`：资源使用条件、正文责任、敏感信息与历史维护语义。
-- `skills/investigation-report/references/investigation-report-contract.md` 与索引 Schema：目录、Markdown 元数据、索引投影、快照和 CLI 固定契约。
-- `tools/investigation-report/`：解析、发现、校验、哈希、索引构建、查询前新鲜度检查和测试源码。
-- `skills/investigation-report/scripts/`、`agents/` 与版本 metadata：自包含分发产物和发现入口。
-- `docs/skills/investigation-report.md`：面向人类的能力说明。
+- `skills/investigation-report/SKILL.md`：何时引用资源、正文责任、敏感信息和历史维护语义。
+- `skills/investigation-report/references/investigation-report-contract.md`：资源目录、报告链接语法、索引投影、source revision 与 CLI 固定契约。
+- `tools/investigation-report/`：Markdown 解析、资源发现、路径校验、哈希、索引构建、新鲜度诊断和测试源码。
+- `tools/investigation-report/api/`、`skills/investigation-report/scripts/` 与索引 Schema：公共声明和自包含分发产物。
+- `docs/skills/investigation-report.md` 与 `docs/investigations/investigation-index.json`：人类说明和当前调查集合的派生索引。
 - `docs/decisions/investigation-report/`：主题级索引基线与随附资源长期方向。
 - `docs/test-evidence/`：新增或修改测试入口对应的证据 case 与派生索引。
