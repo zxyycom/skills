@@ -18,6 +18,7 @@ import {
   validateInvestigationTopicPath
 } from "./report-path.ts";
 import { buildInvestigationTopicState } from "./report-validation.ts";
+import { validateReferencedInvestigationResources } from "./resources.ts";
 import type {
   InvestigationIndexSyncOptions,
   InvestigationIndexSyncResult,
@@ -139,6 +140,7 @@ async function validateInvestigationCollection(
   const selectedPaths = [...candidatePaths]
     .filter((relativePath) => selectionMatches(selection, relativePath))
     .sort(compareText);
+  const selectedResourceIds: string[] = [];
 
   if (selection.active && selectedPaths.length === 0) {
     errors.push("no investigation topics matched the requested filters");
@@ -158,8 +160,19 @@ async function validateInvestigationCollection(
       await fs.readFile(reportPath, "utf8"),
       relativePath
     );
-    errors.push(...buildInvestigationTopicState(relativePath, report).errors);
+    const built = buildInvestigationTopicState(relativePath, report);
+    errors.push(...built.errors);
+    if (built.state !== null) {
+      selectedResourceIds.push(...built.state.resourceReferences.flatMap(
+        (reference) => reference.resourceIds
+      ));
+    }
   }
+
+  errors.push(...await validateReferencedInvestigationResources(
+    investigationRoot,
+    selectedResourceIds
+  ));
 
   let indexChecked = false;
   if (

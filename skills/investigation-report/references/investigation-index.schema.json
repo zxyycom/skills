@@ -1,9 +1,35 @@
 {
-  "$comment": "entry 对象键、state.path、派生 keys、sourceRevision 与调查 Markdown 投影的一致性由调查报告 CLI 检查。",
+  "$comment": "entry 对象键、state.path、派生 keys、资源排序与交叉引用、sourceRevision 与调查事实源的一致性由调查报告 CLI 检查。",
   "$defs": {
     "fingerprint": {
       "pattern": "^sha256:[0-9a-f]{64}$",
       "type": "string"
+    },
+    "resourceId": {
+      "pattern": "^[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?(?:/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)*$",
+      "type": "string"
+    },
+    "resourceReference": {
+      "additionalProperties": false,
+      "properties": {
+        "reportIndex": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "resourceIds": {
+          "items": {
+            "$ref": "#/$defs/resourceId"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "reportIndex",
+        "resourceIds"
+      ],
+      "type": "object"
     },
     "keyValues": {
       "additionalProperties": false,
@@ -92,6 +118,12 @@
           "minItems": 1,
           "type": "array"
         },
+        "resourceReferences": {
+          "items": {
+            "$ref": "#/$defs/resourceReference"
+          },
+          "type": "array"
+        },
         "status": {
           "enum": [
             "调查中",
@@ -112,6 +144,7 @@
         "question",
         "reportCount",
         "reportTitles",
+        "resourceReferences",
         "status",
         "title"
       ],
@@ -123,7 +156,7 @@
   "description": "由调查主题 Markdown 生成的领域状态通用索引。",
   "properties": {
     "definitionVersion": {
-      "const": 2
+      "const": 3
     },
     "entries": {
       "additionalProperties": {
@@ -169,6 +202,31 @@
     },
     "metadata": {
       "additionalProperties": false,
+      "properties": {
+        "resources": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "$ref": "#/$defs/resourceId"
+              },
+              "sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "sha256"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "resources"
+      ],
       "type": "object"
     },
     "namespace": {

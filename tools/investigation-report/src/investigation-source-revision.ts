@@ -1,27 +1,30 @@
 import { createHash } from "node:crypto";
 import type { StateSourceRevision } from "../../index-runtime/src/index.ts";
-import type { InvestigationSource } from "./types.ts";
+import type {
+  InvestigationIndexMetadata,
+  InvestigationResourceSource,
+  InvestigationSource
+} from "./types.ts";
 
 export const investigationSourceFingerprintPatternSource =
   "^sha256:[0-9a-f]{64}$";
 
 type PreparedInvestigationSources = Readonly<{
+  metadata: InvestigationIndexMetadata;
   revision: StateSourceRevision;
   sources: readonly InvestigationSource[];
 }>;
 
-const investigationMetadataRevision = sourceFingerprint(
-  "investigation-index-metadata-v1"
-);
-
 export function investigationSourceRevision(
-  sources: readonly InvestigationSource[]
+  sources: readonly InvestigationSource[],
+  resources: readonly InvestigationResourceSource[] = []
 ): StateSourceRevision {
-  return prepareInvestigationSources(sources).revision;
+  return prepareInvestigationSources(sources, resources).revision;
 }
 
 export function prepareInvestigationSources(
-  sources: readonly InvestigationSource[]
+  sources: readonly InvestigationSource[],
+  resources: readonly InvestigationResourceSource[] = []
 ): PreparedInvestigationSources {
   const orderedSources = sources
     .map(({ path, text }) => ({ path, text }))
@@ -30,10 +33,27 @@ export function prepareInvestigationSources(
   if (sourcePaths.size !== orderedSources.length) {
     throw new Error("investigation sources must use unique paths");
   }
+  const orderedResources = resources
+    .map(({ bytes, id }) => ({ bytes, id }))
+    .sort((left, right) => compareText(left.id, right.id));
+  const resourceIds = new Set(orderedResources.map((resource) => resource.id));
+  if (resourceIds.size !== orderedResources.length) {
+    throw new Error("investigation resources must use unique ids");
+  }
+  const metadata: InvestigationIndexMetadata = {
+    resources: orderedResources.map((resource) => ({
+      id: resource.id,
+      sha256: investigationResourceSha256(resource.bytes)
+    }))
+  };
 
   return {
+    metadata,
     revision: {
-      metadata: investigationMetadataRevision,
+      metadata: sourceFingerprint(
+        "investigation-index-metadata-v2",
+        ...metadata.resources.flatMap(({ id, sha256 }) => [id, sha256])
+      ),
       entries: Object.fromEntries(orderedSources.map((source) => [
         source.path,
         sourceFingerprint(
@@ -45,6 +65,10 @@ export function prepareInvestigationSources(
     },
     sources: orderedSources
   };
+}
+
+function investigationResourceSha256(bytes: Uint8Array): string {
+  return createHash("sha256").update(bytes).digest("hex");
 }
 
 function sourceFingerprint(label: string, ...fields: readonly string[]): string {

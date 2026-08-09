@@ -6,6 +6,7 @@ import {
   investigationKebabCasePatternSource,
   investigationTopicPathPatternSource
 } from "./report-path.ts";
+import { investigationResourceIdPatternSource } from "./resources.ts";
 import { investigationSourceFingerprintPatternSource } from "./investigation-source-revision.ts";
 import { investigationTimestampPatternSource } from "./timestamp.ts";
 import { investigationReportStatuses } from "./types.ts";
@@ -21,11 +22,32 @@ const topicPath = {
 } as const;
 
 export const investigationIndexJsonSchema = {
-  $comment: "entry 对象键、state.path、派生 keys、sourceRevision 与调查 Markdown 投影的一致性由调查报告 CLI 检查。",
+  $comment: "entry 对象键、state.path、派生 keys、资源排序与交叉引用、sourceRevision 与调查事实源的一致性由调查报告 CLI 检查。",
   $defs: {
     fingerprint: {
       pattern: investigationSourceFingerprintPatternSource,
       type: "string"
+    },
+    resourceId: {
+      pattern: investigationResourceIdPatternSource,
+      type: "string"
+    },
+    resourceReference: {
+      additionalProperties: false,
+      properties: {
+        reportIndex: {
+          minimum: 0,
+          type: "integer"
+        },
+        resourceIds: {
+          items: { $ref: "#/$defs/resourceId" },
+          minItems: 1,
+          type: "array",
+          uniqueItems: true
+        }
+      },
+      required: ["reportIndex", "resourceIds"],
+      type: "object"
     },
     keyValues: {
       additionalProperties: false,
@@ -88,6 +110,10 @@ export const investigationIndexJsonSchema = {
           minItems: 1,
           type: "array"
         },
+        resourceReferences: {
+          items: { $ref: "#/$defs/resourceReference" },
+          type: "array"
+        },
         status: {
           enum: investigationReportStatuses,
           type: "string"
@@ -100,6 +126,7 @@ export const investigationIndexJsonSchema = {
         "question",
         "reportCount",
         "reportTitles",
+        "resourceReferences",
         "status",
         "title"
       ],
@@ -134,6 +161,24 @@ export const investigationIndexJsonSchema = {
     },
     metadata: {
       additionalProperties: false,
+      properties: {
+        resources: {
+          items: {
+            additionalProperties: false,
+            properties: {
+              id: { $ref: "#/$defs/resourceId" },
+              sha256: {
+                pattern: "^[0-9a-f]{64}$",
+                type: "string"
+              }
+            },
+            required: ["id", "sha256"],
+            type: "object"
+          },
+          type: "array"
+        }
+      },
+      required: ["resources"],
       type: "object"
     },
     namespace: { const: investigationIndexNamespace },

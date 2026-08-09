@@ -9,12 +9,16 @@ import { parseInvestigationReport } from "./markdown.ts";
 import { isInvestigationTopicPath } from "./report-path.ts";
 import { buildInvestigationTopicState } from "./report-validation.ts";
 import {
+  investigationResourcesDirectoryName,
+  readInvestigationResources
+} from "./resources.ts";
+import {
   investigationSourceRevision,
   prepareInvestigationSources
 } from "./investigation-source-revision.ts";
 import {
-  investigationIndexMetadata,
   type InvestigationIndexMetadata,
+  type InvestigationResourceSource,
   type InvestigationIndexState,
   type InvestigationSource
 } from "./types.ts";
@@ -28,6 +32,7 @@ export async function discoverInvestigationTopicPaths(
     cwd: investigationsDirectory,
     dot: false,
     followSymbolicLinks: false,
+    ignore: [`${investigationResourcesDirectoryName}/**`],
     onlyFiles: true
   }))
     .map((relativePath) => relativePath.replace(/\\/gu, "/"))
@@ -38,11 +43,22 @@ export async function readInvestigationSourceRevision(
   investigationsDirectory: string,
   signal?: AbortSignal
 ): Promise<StateSourceRevision> {
-  const sources = await readInvestigationSources(
+  const collection = await readInvestigationCollection(
     investigationsDirectory,
     signal
   );
-  return investigationSourceRevision(sources);
+  return investigationSourceRevision(collection.sources, collection.resources);
+}
+
+export async function readInvestigationResourceMetadata(
+  investigationsDirectory: string,
+  signal?: AbortSignal
+): Promise<InvestigationIndexMetadata> {
+  const resources = await readInvestigationResources(
+    investigationsDirectory,
+    signal
+  );
+  return prepareInvestigationSources([], resources).metadata;
 }
 
 export async function readInvestigationStateSnapshot(
@@ -52,17 +68,21 @@ export async function readInvestigationStateSnapshot(
   InvestigationIndexState,
   InvestigationIndexMetadata
 >> {
-  const sources = await readInvestigationSources(
+  const collection = await readInvestigationCollection(
     investigationsDirectory,
     signal
   );
-  return buildInvestigationStateSnapshot(sources);
+  return buildInvestigationStateSnapshot(
+    collection.sources,
+    collection.resources
+  );
 }
 
 function buildInvestigationStateSnapshot(
-  sources: readonly InvestigationSource[]
+  sources: readonly InvestigationSource[],
+  resources: readonly InvestigationResourceSource[]
 ): StateSnapshot<InvestigationIndexState, InvestigationIndexMetadata> {
-  const prepared = prepareInvestigationSources(sources);
+  const prepared = prepareInvestigationSources(sources, resources);
   const states = prepared.sources.map((source) => {
     const built = buildInvestigationTopicState(
       source.path,
@@ -73,22 +93,37 @@ function buildInvestigationStateSnapshot(
     }
     return built.state;
   });
+  validateInvestigationResourceCoverage(states, prepared.metadata);
 
   return {
-    metadata: investigationIndexMetadata,
+    metadata: prepared.metadata,
     sourceRevision: prepared.revision,
     states: Object.fromEntries(states.map((state) => [state.path, state]))
   };
+}
+
+async function readInvestigationCollection(
+  investigationsDirectory: string,
+  signal?: AbortSignal
+): Promise<{
+  resources: InvestigationResourceSource[];
+  sources: InvestigationSource[];
+}> {
+  const stat = await fs.stat(investigationsDirectory);
+  if (!stat.isDirectory()) {
+    throw new Error(`${investigationsDirectory} must be a directory`);
+  }
+  const [sources, resources] = await Promise.all([
+    readInvestigationSources(investigationsDirectory, signal),
+    readInvestigationResources(investigationsDirectory, signal)
+  ]);
+  return { resources, sources };
 }
 
 async function readInvestigationSources(
   investigationsDirectory: string,
   signal?: AbortSignal
 ): Promise<InvestigationSource[]> {
-  const stat = await fs.stat(investigationsDirectory);
-  if (!stat.isDirectory()) {
-    throw new Error(`${investigationsDirectory} must be a directory`);
-  }
   const relativePaths = await discoverInvestigationTopicPaths(
     investigationsDirectory
   );
@@ -110,6 +145,27 @@ async function readInvestigationSources(
     ))));
   }
   return sources;
+}
+
+function validateInvestigationResourceCoverage(
+  states: readonly InvestigationIndexState[],
+  metadata: InvestigationIndexMetadata
+): void {
+  const available = new Set(metadata.resources.map((resource) => resource.id));
+  const referenced = new Set(states.flatMap((state) => (
+    state.resourceReferences.flatMap((reference) => reference.resourceIds)
+  )));
+  const errors = [
+    ...[...referenced]
+      .filter((id) => !available.has(id))
+      .map((id) => `${investigationResourcesDirectoryName}/${id} does not exist`),
+    ...[...available]
+      .filter((id) => !referenced.has(id))
+      .map((id) => `${investigationResourcesDirectoryName}/${id} is not referenced by any investigation report`)
+  ];
+  if (errors.length > 0) {
+    throw new Error(errors.sort(compareText).join("; "));
+  }
 }
 
 async function readInvestigationSource(

@@ -121,8 +121,20 @@ export function buildInvestigationTopicState(
       question,
       reportCount: report.reports.length,
       reportTitles: report.reports.map((entry) => entry.title),
+      resourceReferences: report.reports.flatMap((entry, reportIndex) => (
+        entry.resourceIds.length === 0
+          ? []
+          : [{
+            reportIndex,
+            resourceIds: [...entry.resourceIds].sort(compareText)
+          }]
+      )),
       status: status as InvestigationIndexState["status"],
       title
     }
   };
+}
+
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
 }

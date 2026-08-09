@@ -24,11 +24,11 @@ function printHelp(): void {
     "       check-investigations.mjs sync-index [options]",
     "       check-investigations.mjs list [options]",
     "",
-    "Check investigation topics, their self-contained reports, timestamps, and the generated index.",
-    "Without filters, every topic and full-index freshness are checked.",
-    "With --category or --path, only matching topic structure is checked.",
-    "sync-index validates every topic and writes the derived JSON index.",
-    "list checks index freshness, then queries topic state without parsing report bodies.",
+    "Check investigation topics, optional attached resources, timestamps, and the generated index.",
+    "Without filters, every topic, the resource pool, and full-index freshness are checked.",
+    "With --category or --path, matching topics and their referenced resources are checked.",
+    "sync-index validates every topic and resource, then writes the derived JSON index.",
+    "list checks topic and resource freshness, then queries without parsing report bodies.",
     "",
     "Options:",
     "  --root <workspace-root>       Workspace root (default: current directory)",
@@ -268,12 +268,15 @@ export {
 export type {
   InvestigationIndexQueryOptions,
   InvestigationIndexQueryResult,
+  InvestigationIndexMetadata,
   InvestigationIndexState,
   InvestigationIndexSyncOptions,
   InvestigationIndexSyncResult,
   InvestigationReportCheckOptions,
   InvestigationReportCheckResult,
-  InvestigationReportStatus
+  InvestigationReportStatus,
+  InvestigationResourceMetadata,
+  InvestigationResourceReference
 } from "./types.ts";
 
 if (isMainModule(import.meta.url)) {

@@ -53,10 +53,19 @@ export type InvestigationIndexQueryResult = {
   total: number;
 };
 
-export type InvestigationIndexMetadata = Record<string, never>;
+export type InvestigationResourceMetadata = {
+  id: string;
+  sha256: string;
+};
 
-export const investigationIndexMetadata: InvestigationIndexMetadata =
-  Object.freeze({});
+export type InvestigationIndexMetadata = {
+  resources: InvestigationResourceMetadata[];
+};
+
+export type InvestigationResourceReference = {
+  reportIndex: number;
+  resourceIds: string[];
+};
 
 export type InvestigationIndexState = {
   latestReportAt: string;
@@ -64,6 +73,7 @@ export type InvestigationIndexState = {
   question: string;
   reportCount: number;
   reportTitles: string[];
+  resourceReferences: InvestigationResourceReference[];
   status: InvestigationReportStatus;
   title: string;
 };
@@ -71,6 +81,11 @@ export type InvestigationIndexState = {
 export type InvestigationSource = Readonly<{
   path: string;
   text: string;
+}>;
+
+export type InvestigationResourceSource = Readonly<{
+  bytes: Uint8Array;
+  id: string;
 }>;
 
 export type InvestigationReportProjection = {
@@ -83,6 +98,7 @@ export type InvestigationReportProjection = {
 export type InvestigationReportEntryProjection = {
   formedAt: string | null;
   line: number;
+  resourceIds: string[];
   title: string;
 };
 

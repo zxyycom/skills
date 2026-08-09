@@ -1,5 +1,5 @@
 {
-  "definitionVersion": 2,
+  "definitionVersion": 3,
   "entries": {
     "context-management/unified-context-management.md": {
       "keys": {
@@ -26,6 +26,7 @@
         "reportTitles": [
           "现有组合的主要差距位于路由与协作层"
         ],
+        "resourceReferences": [],
         "status": "暂停",
         "title": "现有上下文管理 skills 与统一上下文管理系统的差距调查"
       }
@@ -57,6 +58,7 @@
           "版本基线可发现同一变更内的决策演进候选",
           "采用事前警告与显式单前序折叠"
         ],
+        "resourceReferences": [],
         "status": "已结束",
         "title": "同一变更内决策演进保留边界调查"
       }
@@ -86,6 +88,7 @@
         "reportTitles": [
           "统一选型需要正确性、性能与维护证据"
         ],
+        "resourceReferences": [],
         "status": "暂停",
         "title": "TypeScript Git 库选型调查"
       }
@@ -115,6 +118,7 @@
         "reportTitles": [
           "预装候选的适用价值与依赖边界"
         ],
+        "resourceReferences": [],
         "status": "已结束",
         "title": "TypeScript 函数式工具与专用数据结构库调查"
       }
@@ -144,6 +148,7 @@
         "reportTitles": [
           "确定穷尽匹配与轻量状态机的预装候选"
         ],
+        "resourceReferences": [],
         "status": "已结束",
         "title": "TypeScript 穷尽匹配与轻量状态建模库调查"
       }
@@ -173,6 +178,7 @@
         "reportTitles": [
           "采用 neverthrow 并由项目源码承接 Option"
         ],
+        "resourceReferences": [],
         "status": "已结束",
         "title": "TypeScript Result 与 Option 库调查"
       }
@@ -202,6 +208,7 @@
         "reportTitles": [
           "现名未完整表达能力，并暴露双向触发约束"
         ],
+        "resourceReferences": [],
         "status": "暂停",
         "title": "Prompt Optimize 名称与触发对齐调查"
       }
@@ -235,6 +242,7 @@
           "约束收窄后采用原生锁与原子写库",
           "保留成熟库并删除外围监督协议"
         ],
+        "resourceReferences": [],
         "status": "已结束",
         "title": "Task Graph 文件锁与原子写入 npm 库调查"
       }
@@ -258,7 +266,9 @@
       "mode": "text"
     }
   ],
-  "metadata": {},
+  "metadata": {
+    "resources": []
+  },
   "namespace": "investigations",
   "schemaVersion": 3,
   "sourceRevision": {
@@ -272,6 +282,6 @@
       "prompt-optimize/name-and-trigger-alignment.md": "sha256:3e962c81424f762a619986a4c3d8fc668a84b7ff3e867ca38ee370531ac826db",
       "task-graph/file-lock-and-atomic-write-libraries.md": "sha256:1ef40f9481f4a6a1275f50b5ede4f08d70dd67677d0057852a3c6bf9841c1edb"
     },
-    "metadata": "sha256:931315855b004e2e1a7d21a464b55602aff04ccf765c650c1966077b5e2053c6"
+    "metadata": "sha256:f2eeeea961c759a41e8ff539dcbad3ff02c179a17a9e1028d65131273facf3a9"
   }
 }

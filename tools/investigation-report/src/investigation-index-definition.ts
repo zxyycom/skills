@@ -14,16 +14,16 @@ import {
   isInvestigationTopicPath,
   investigationCategoryOf
 } from "./report-path.ts";
+import { investigationResourceIdPatternSource } from "./resources.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
 import {
-  investigationIndexMetadata,
   investigationReportStatuses,
   type InvestigationIndexMetadata,
   type InvestigationIndexState
 } from "./types.ts";
 
 export const investigationIndexNamespace = "investigations";
-export const investigationIndexDefinitionVersion = 2;
+export const investigationIndexDefinitionVersion = 3;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
@@ -39,6 +39,29 @@ const investigationTopicPathSchema = v.pipe(
     "must use <category-id>/<semantic-slug>.md"
   )
 );
+const investigationResourceIdSchema = v.pipe(
+  v.string("must be a string"),
+  v.regex(
+    new RegExp(investigationResourceIdPatternSource, "u"),
+    "must be a safe, normalized investigation resource id"
+  )
+);
+const investigationResourceSha256Schema = v.pipe(
+  v.string("must be a string"),
+  v.regex(/^[0-9a-f]{64}$/u, "must be a lowercase SHA-256 digest")
+);
+const investigationResourceReferenceSchema = v.strictObject({
+  reportIndex: v.pipe(
+    v.number("must be a number"),
+    v.integer("must be an integer"),
+    v.minValue(0, "must be non-negative")
+  ),
+  resourceIds: v.pipe(
+    v.array(investigationResourceIdSchema, "must be an array"),
+    v.minLength(1, "must contain at least one resource id"),
+    v.check(isStrictlySortedText, "must contain unique resource ids in sorted order")
+  )
+});
 const investigationIndexStateSchema = v.strictObject({
   latestReportAt: v.pipe(
     nonEmptyStringSchema,
@@ -58,10 +81,30 @@ const investigationIndexStateSchema = v.strictObject({
     v.array(nonEmptyStringSchema, "must be an array"),
     v.minLength(1, "must contain at least one report title")
   ),
+  resourceReferences: v.pipe(
+    v.array(investigationResourceReferenceSchema, "must be an array"),
+    v.check(
+      (references) => references.every((reference, index) => (
+        index === 0 || references[index - 1]!.reportIndex < reference.reportIndex
+      )),
+      "must use unique reportIndex values in sorted order"
+    )
+  ),
   status: v.picklist(investigationReportStatuses),
   title: nonEmptyStringSchema
 });
-const investigationIndexMetadataSchema = v.strictObject({});
+const investigationIndexMetadataSchema = v.strictObject({
+  resources: v.pipe(
+    v.array(v.strictObject({
+      id: investigationResourceIdSchema,
+      sha256: investigationResourceSha256Schema
+    }), "must be an array"),
+    v.check(
+      (resources) => isStrictlySortedText(resources.map((resource) => resource.id)),
+      "must contain unique resources in id order"
+    )
+  )
+});
 const sourceFingerprintSchema = v.pipe(
   v.string("must be a string"),
   v.regex(
@@ -122,11 +165,11 @@ export function createInvestigationStateIndexDefinition(
       context.root,
       context.signal
     ),
-    validateIndex: validateInvestigationSourceRevision
+    validateIndex: validateInvestigationIndex
   });
 }
 
-function validateInvestigationSourceRevision(
+function validateInvestigationIndex(
   index: ReadonlyStateIndex<
     InvestigationIndexState,
     InvestigationIndexMetadata
@@ -139,6 +182,28 @@ function validateInvestigationSourceRevision(
   if (!parsed.success) {
     throw new TypeError(parsed.issues.map(formatInvestigationIndexIssue).join("; "));
   }
+  const metadataIds = new Set(index.metadata.resources.map((resource) => resource.id));
+  const referencedIds = new Set<string>();
+  for (const entry of Object.values(index.entries)) {
+    for (const reference of entry.state.resourceReferences) {
+      for (const id of reference.resourceIds) {
+        if (!metadataIds.has(id)) {
+          throw new TypeError(
+            `resource ${id} referenced by ${entry.state.path} is missing from metadata.resources`
+          );
+        }
+        referencedIds.add(id);
+      }
+    }
+  }
+  const unreferenced = index.metadata.resources.find((resource) => (
+    !referencedIds.has(resource.id)
+  ));
+  if (unreferenced !== undefined) {
+    throw new TypeError(
+      `metadata resource ${unreferenced.id} is not referenced by any report state`
+    );
+  }
 }
 
 function parseInvestigationIndexMetadata(
@@ -147,8 +212,7 @@ function parseInvestigationIndexMetadata(
     InvestigationIndexMetadata
   >["parseMetadata"]>[0]
 ): InvestigationIndexMetadata {
-  v.parse(investigationIndexMetadataSchema, input);
-  return investigationIndexMetadata;
+  return v.parse(investigationIndexMetadataSchema, input);
 }
 
 function parseInvestigationIndexState(input: Parameters<
@@ -171,10 +235,24 @@ function parseInvestigationIndexState(input: Parameters<
       "reportCount must equal the number of reportTitles"
     );
   }
+  const invalidReference = parsed.output.resourceReferences.find((reference) => (
+    reference.reportIndex >= parsed.output.reportCount
+  ));
+  if (invalidReference !== undefined) {
+    throw new TypeError(
+      `resourceReferences reportIndex ${invalidReference.reportIndex} must be less than reportCount`
+    );
+  }
   if (parsed.output.path !== context.id) {
     throw new TypeError("state.path must equal the entry id");
   }
   return parsed.output;
+}
+
+function isStrictlySortedText(values: string[]): boolean {
+  return values.every((value, index) => (
+    index === 0 || values[index - 1]! < value
+  ));
 }
 
 function formatInvestigationIndexIssue(issue: v.BaseIssue<unknown>): string {

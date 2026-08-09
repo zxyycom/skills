@@ -5,11 +5,17 @@ import type {
   InvestigationReportProjection,
   ParsedInvestigationReport
 } from "./types.ts";
+import { investigationResourceIdFromLinkTarget } from "./resources.ts";
 
 type RootHeading = {
   depth: number;
   lineIndex: number;
   title: string;
+};
+
+type ReportMetadataProjection = {
+  formedAt: string | null;
+  resourceIds: string[];
 };
 
 const reportInfoFieldLabels = ["核心问题", "状态", "最新报告时间"] as const;
@@ -125,27 +131,18 @@ function parseInvestigationReportEntries(
       && candidate.depth <= 3
     ));
     const reportEnd = nextBoundary?.lineIndex ?? sectionEnd;
-    let firstContentLine = heading.lineIndex + 1;
-    while (
-      firstContentLine < reportEnd
-      && lines[firstContentLine].trim().length === 0
-    ) {
-      firstContentLine += 1;
-    }
-
-    const line = lines[firstContentLine];
-    const match = line?.match(/^- 形成时间:\s*(.*?)\s*$/u) ?? null;
-    if (match === null || match[1].trim().length === 0) {
-      errors.push(
-        `${relativePath}:${heading.lineIndex + 1} report must start with a non-empty "- 形成时间: <timestamp>" field`
-      );
-    }
-
     const reportSections = headings.filter((candidate) => (
       candidate.depth === 4
       && candidate.lineIndex > heading.lineIndex
       && candidate.lineIndex < reportEnd
     ));
+    const metadataEnd = reportSections[0]?.lineIndex ?? reportEnd;
+    const metadata = parseReportMetadata(
+      lines.slice(heading.lineIndex + 1, metadataEnd).join("\n"),
+      heading.lineIndex + 2,
+      relativePath,
+      errors
+    );
     for (const reportSection of reportSections) {
       if (reportSection.title.length === 0) {
         errors.push(
@@ -189,13 +186,143 @@ function parseInvestigationReportEntries(
     }
 
     return {
-      formedAt: match === null || match[1].trim().length === 0
-        ? null
-        : match[1].trim(),
+      formedAt: metadata.formedAt,
       line: heading.lineIndex + 1,
+      resourceIds: metadata.resourceIds,
       title: heading.title
     };
   });
+}
+
+function parseReportMetadata(
+  markdown: string,
+  firstLine: number,
+  relativePath: string,
+  errors: string[]
+): ReportMetadataProjection {
+  const root = fromMarkdown(markdown);
+  const list = root.children.length === 1 && root.children[0]?.type === "list"
+    ? root.children[0]
+    : null;
+  const formedItem = list?.ordered === false ? list.children[0] : undefined;
+  const formedParagraph = formedItem?.children.length === 1
+    && formedItem.children[0]?.type === "paragraph"
+    ? formedItem.children[0]
+    : null;
+  const formedText = formedParagraph?.children.length === 1
+    && formedParagraph.children[0]?.type === "text"
+    ? formedParagraph.children[0].value
+    : null;
+  const formedMatch = formedText?.match(/^形成时间:\s*(.*?)\s*$/u) ?? null;
+  if (formedMatch === null || formedMatch[1].trim().length === 0) {
+    errors.push(
+      `${relativePath}:${firstLine - 1} report must start with a non-empty "- 形成时间: <timestamp>" field`
+    );
+  }
+
+  if (list === null || list.ordered || list.children.length > 2) {
+    errors.push(
+      `${relativePath}:${firstLine} report metadata must contain only "形成时间" and optional "随附资源" fields`
+    );
+    return {
+      formedAt: formedMatch?.[1].trim() || null,
+      resourceIds: []
+    };
+  }
+
+  const resourceItem = list.children[1];
+  if (resourceItem === undefined) {
+    return {
+      formedAt: formedMatch?.[1].trim() || null,
+      resourceIds: []
+    };
+  }
+
+  const resourceLine = firstLine + (resourceItem.position?.start.line ?? 1) - 1;
+  const resourceLabel = resourceItem.children[0];
+  const resourceList = resourceItem.children[1];
+  const validLabel = resourceLabel?.type === "paragraph"
+    && resourceLabel.children.length === 1
+    && resourceLabel.children[0]?.type === "text"
+    && resourceLabel.children[0].value === "随附资源:";
+  if (validLabel && resourceItem.children.length === 1) {
+    errors.push(
+      `${relativePath}:${resourceLine} field "随附资源" must contain at least one resource link`
+    );
+    return {
+      formedAt: formedMatch?.[1].trim() || null,
+      resourceIds: []
+    };
+  }
+  if (
+    !validLabel
+    || resourceItem.children.length !== 2
+    || resourceList?.type !== "list"
+    || resourceList.ordered
+  ) {
+    errors.push(
+      `${relativePath}:${resourceLine} field "随附资源" must contain only a nested unordered list of local Markdown links`
+    );
+    return {
+      formedAt: formedMatch?.[1].trim() || null,
+      resourceIds: []
+    };
+  }
+  const resourceIds: string[] = [];
+  for (const item of resourceList.children) {
+    const itemLine = firstLine + (item.position?.start.line ?? 1) - 1;
+    const paragraph = item.children.length === 1
+      && item.children[0]?.type === "paragraph"
+      ? item.children[0]
+      : null;
+    const link = paragraph?.children.length === 1
+      && paragraph.children[0]?.type === "link"
+      ? paragraph.children[0]
+      : null;
+    if (
+      link === null
+      || link.title !== null
+      || toString(link).trim().length === 0
+    ) {
+      errors.push(
+        `${relativePath}:${itemLine} each "随附资源" item must contain exactly one local Markdown link with non-empty display text`
+      );
+      continue;
+    }
+    const linkEnd = link.position?.end.offset;
+    const labelEnd = link.children.at(-1)?.position?.end.offset;
+    const rawSuffix = linkEnd === undefined || labelEnd === undefined
+      ? null
+      : markdown.slice(labelEnd, linkEnd);
+    const rawTarget = rawSuffix?.startsWith("](") === true
+      && rawSuffix.endsWith(")")
+      ? rawSuffix.slice(2, -1)
+      : null;
+    if (rawTarget === null || rawTarget !== link.url) {
+      errors.push(
+        `${relativePath}:${itemLine} resource link target must be written literally as `
+        + "../_resources/<resource-id> without Markdown escapes or character references"
+      );
+      continue;
+    }
+    const parsed = investigationResourceIdFromLinkTarget(rawTarget);
+    if (parsed.error !== null) {
+      errors.push(`${relativePath}:${itemLine} ${parsed.error}`);
+      continue;
+    }
+    if (resourceIds.includes(parsed.id)) {
+      errors.push(
+        `${relativePath}:${itemLine} report must not reference resource ${parsed.id} more than once`
+      );
+      continue;
+    }
+    resourceIds.push(parsed.id);
+  }
+
+  return {
+    formedAt: formedMatch?.[1].trim() || null,
+    resourceIds
+  };
 }
 
 export function parseInvestigationReport(
