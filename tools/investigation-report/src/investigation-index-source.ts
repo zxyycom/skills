@@ -1,18 +1,24 @@
+import type { Dirent } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
-import fastGlob from "fast-glob";
 import type {
   StateSnapshot,
   StateSourceRevision
 } from "../../index-runtime/src/index.ts";
 import { parseInvestigationReport } from "./markdown.ts";
-import { isInvestigationTopicPath } from "./report-path.ts";
+import {
+  investigationIndexFileName,
+  isInvestigationCategory,
+  isInvestigationTopicPath,
+  validateInvestigationTopicPath
+} from "./report-path.ts";
 import { buildInvestigationTopicState } from "./report-validation.ts";
 import {
-  investigationResourcesDirectoryName,
   readInvestigationResources
 } from "./resources.ts";
+import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import {
+  investigationResourceMetadata,
   investigationSourceRevision,
   prepareInvestigationSources
 } from "./investigation-source-revision.ts";
@@ -25,18 +31,106 @@ import {
 
 const investigationSourceReadConcurrency = 32;
 
+export type InvestigationCollectionLayout = {
+  errors: string[];
+  topicPaths: string[];
+};
+
 export async function discoverInvestigationTopicPaths(
   investigationsDirectory: string
 ): Promise<string[]> {
-  return (await fastGlob("**/*.md", {
-    cwd: investigationsDirectory,
-    dot: false,
-    followSymbolicLinks: false,
-    ignore: [`${investigationResourcesDirectoryName}/**`],
-    onlyFiles: true
-  }))
-    .map((relativePath) => relativePath.replace(/\\/gu, "/"))
-    .sort(compareText);
+  const layout = await inspectInvestigationCollectionLayout(
+    investigationsDirectory
+  );
+  if (layout.errors.length > 0) {
+    throw new Error(layout.errors.join("; "));
+  }
+  return layout.topicPaths;
+}
+
+export async function inspectInvestigationCollectionLayout(
+  investigationsDirectory: string
+): Promise<InvestigationCollectionLayout> {
+  const errors: string[] = [];
+  const topicPaths: string[] = [];
+  let rootEntries: Dirent<string>[];
+  try {
+    rootEntries = await fs.readdir(investigationsDirectory, {
+      withFileTypes: true
+    });
+  } catch (error) {
+    throw new Error(
+      `investigation root could not be read: ${errorText(error)}`,
+      { cause: error }
+    );
+  }
+  rootEntries.sort((left, right) => compareText(left.name, right.name));
+
+  for (const entry of rootEntries) {
+    if (entry.name === investigationResourcesDirectoryName) {
+      continue;
+    }
+    if (entry.name === investigationIndexFileName) {
+      if (entry.isSymbolicLink()) {
+        errors.push(`${investigationIndexFileName} must not be a symbolic link`);
+      } else if (!entry.isFile()) {
+        errors.push(`${investigationIndexFileName} must be a regular file`);
+      }
+      continue;
+    }
+    if (entry.isSymbolicLink()) {
+      errors.push(`${entry.name} must not be a symbolic link`);
+      continue;
+    }
+    if (!entry.isDirectory()) {
+      errors.push(...entry.name.endsWith(".md")
+        ? validateInvestigationTopicPath(entry.name)
+        : [`${entry.name} is not allowed at the investigation root`]);
+      continue;
+    }
+    if (!isInvestigationCategory(entry.name)) {
+      errors.push(`${entry.name} category must use kebab-case`);
+      continue;
+    }
+
+    let categoryEntries: Dirent<string>[];
+    try {
+      categoryEntries = await fs.readdir(
+        path.join(investigationsDirectory, entry.name),
+        { withFileTypes: true }
+      );
+    } catch (error) {
+      errors.push(
+        `${entry.name} category could not be read: ${errorText(error)}`
+      );
+      continue;
+    }
+    categoryEntries.sort((left, right) => compareText(left.name, right.name));
+    for (const topicEntry of categoryEntries) {
+      const relativePath = `${entry.name}/${topicEntry.name}`;
+      if (topicEntry.isSymbolicLink()) {
+        errors.push(`${relativePath} must not be a symbolic link`);
+        continue;
+      }
+      if (!topicEntry.isFile()) {
+        errors.push(
+          `${relativePath} category directories must contain only topic Markdown files`
+        );
+        continue;
+      }
+      const pathErrors = validateInvestigationTopicPath(relativePath);
+      if (pathErrors.length > 0) {
+        errors.push(...pathErrors);
+        continue;
+      }
+      topicPaths.push(relativePath);
+    }
+  }
+
+  return {
+    errors: [...new Set(errors)].sort(compareText),
+    topicPaths: topicPaths.sort(compareText)
+  };
 }
 
 export async function readInvestigationSourceRevision(
@@ -58,7 +152,7 @@ export async function readInvestigationResourceMetadata(
     investigationsDirectory,
     signal
   );
-  return prepareInvestigationSources([], resources).metadata;
+  return investigationResourceMetadata(resources);
 }
 
 export async function readInvestigationStateSnapshot(
@@ -83,16 +177,22 @@ function buildInvestigationStateSnapshot(
   resources: readonly InvestigationResourceSource[]
 ): StateSnapshot<InvestigationIndexState, InvestigationIndexMetadata> {
   const prepared = prepareInvestigationSources(sources, resources);
-  const states = prepared.sources.map((source) => {
+  const errors: string[] = [];
+  const states: InvestigationIndexState[] = [];
+  for (const source of prepared.sources) {
     const built = buildInvestigationTopicState(
       source.path,
       parseInvestigationReport(source.text, source.path)
     );
-    if (built.state === null) {
-      throw new Error(built.errors.join("; "));
+    if (built.status === "invalid") {
+      errors.push(...built.errors);
+    } else {
+      states.push(built.state);
     }
-    return built.state;
-  });
+  }
+  if (errors.length > 0) {
+    throw new Error([...new Set(errors)].sort(compareText).join("; "));
+  }
   validateInvestigationResourceCoverage(states, prepared.metadata);
 
   return {
@@ -109,12 +209,23 @@ async function readInvestigationCollection(
   resources: InvestigationResourceSource[];
   sources: InvestigationSource[];
 }> {
-  const stat = await fs.stat(investigationsDirectory);
-  if (!stat.isDirectory()) {
-    throw new Error(`${investigationsDirectory} must be a directory`);
+  const layout = await inspectInvestigationCollectionLayout(
+    investigationsDirectory
+  );
+  if (layout.errors.length > 0) {
+    throw new Error(layout.errors.join("; "));
+  }
+  if (layout.topicPaths.length === 0) {
+    throw new Error(
+      "investigation collection must contain at least one topic"
+    );
   }
   const [sources, resources] = await Promise.all([
-    readInvestigationSources(investigationsDirectory, signal),
+    readInvestigationSources(
+      investigationsDirectory,
+      layout.topicPaths,
+      signal
+    ),
     readInvestigationResources(investigationsDirectory, signal)
   ]);
   return { resources, sources };
@@ -122,11 +233,9 @@ async function readInvestigationCollection(
 
 async function readInvestigationSources(
   investigationsDirectory: string,
+  relativePaths: readonly string[],
   signal?: AbortSignal
 ): Promise<InvestigationSource[]> {
-  const relativePaths = await discoverInvestigationTopicPaths(
-    investigationsDirectory
-  );
   const sources: InvestigationSource[] = [];
   for (
     let offset = 0;

@@ -5,4 +5,4 @@ Entry:
 Contract:
 - `list` 命令必须组合 status 与 text 条件，并只输出命中的调查主题。
 Proves:
-- 暂停的 runtime 调查被列出，未命中的 codex 调查不会泄漏到结果。
+- 成功结果只写入 stdout 且 stderr 为空；暂停的 runtime 调查被列出，未命中的 codex 调查不会泄漏到结果。

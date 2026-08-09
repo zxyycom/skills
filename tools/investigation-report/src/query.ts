@@ -1,5 +1,13 @@
 import path from "node:path";
 import {
+  err,
+  errAsync,
+  fromThrowable,
+  ok,
+  ResultAsync,
+  type Result
+} from "neverthrow";
+import {
   queryStateIndex,
   stateIndexQueryDefaultLimit,
   stateIndexQueryMaximumLimit,
@@ -11,104 +19,178 @@ import {
   investigationIndexFileName,
   loadCurrentInvestigationIndex
 } from "./investigation-state-index.ts";
+import { parseInvestigationIndexQueryOptions } from "./options.ts";
 import {
+  canonicalizeInvestigationsDirectory,
+  defaultInvestigationsDirectory,
   isInvestigationCategory,
   isInvestigationTopicPath,
   normalizeInvestigationTopicPath,
-  resolveInvestigationsDirectory
+  resolveInvestigationsDirectory,
+  type ResolvedInvestigationsDirectory
 } from "./report-path.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
 import {
-  investigationReportStatuses,
   type InvestigationIndexQueryOptions,
-  type InvestigationIndexQueryResult,
-  type InvestigationReportStatus
+  type InvestigationIndexQueryResult
 } from "./types.ts";
+
+type InvestigationIndexQueryFailure = Readonly<{
+  kind: "invalid-options" | "operation";
+  result: InvestigationIndexQueryResult;
+}>;
+
+type PreparedQuery = Readonly<{
+  indexPath: string;
+  resolved: ResolvedInvestigationsDirectory;
+  validated: ValidatedQueryOptions;
+}>;
 
 export async function queryInvestigationIndex(
   options: InvestigationIndexQueryOptions
 ): Promise<InvestigationIndexQueryResult> {
-  const resolved = resolveInvestigationsDirectory(
-    options.workspaceRoot,
-    options.investigationsDir
+  const executed = await executeInvestigationIndexQuery(options);
+  return executed.match(
+    (result) => result,
+    (failure) => failure.result
   );
+}
+
+export function executeInvestigationIndexQuery(
+  input: unknown
+): ResultAsync<InvestigationIndexQueryResult, InvestigationIndexQueryFailure> {
+  const prepared = prepareQuery(input);
+  if (prepared.isErr()) {
+    return errAsync(prepared.error);
+  }
+
+  return canonicalizeInvestigationsDirectory(prepared.value.resolved)
+    .mapErr((errors) => queryFailure(
+      "operation",
+      errors,
+      prepared.value.indexPath,
+      prepared.value.validated.limit,
+      prepared.value.validated.offset
+    ))
+    .andThen((canonical) => queryValidatedInvestigationIndex(
+      canonical.investigationsDirectory,
+      prepared.value.validated
+    ).mapErr((errors) => queryFailure(
+      "operation",
+      errors,
+      path.join(canonical.investigationsDirectory, investigationIndexFileName),
+      prepared.value.validated.limit,
+      prepared.value.validated.offset
+    )));
+}
+
+function prepareQuery(
+  input: unknown
+): Result<PreparedQuery, InvestigationIndexQueryFailure> {
+  const parsed = parseInvestigationIndexQueryOptions(input);
+  if (parsed.isErr()) {
+    return err(queryFailure(
+      "invalid-options",
+      parsed.error,
+      defaultInvestigationIndexPath(),
+      stateIndexQueryDefaultLimit,
+      0
+    ));
+  }
+
+  const resolved = resolveInvestigationsDirectory(
+    parsed.value.workspaceRoot,
+    parsed.value.investigationsDir
+  );
+  const validated = validateQueryOptions(parsed.value);
+  if (resolved.isErr() || validated.isErr()) {
+    return err(queryFailure(
+      "invalid-options",
+      [
+        ...(resolved.isErr() ? resolved.error : []),
+        ...(validated.isErr() ? validated.error.errors : [])
+      ],
+      investigationIndexPathForOptions(parsed.value),
+      validated.isErr() ? validated.error.limit : validated.value.limit,
+      validated.isErr() ? validated.error.offset : validated.value.offset
+    ));
+  }
+  return ok({
+    indexPath: path.join(
+      resolved.value.investigationsDirectory,
+      investigationIndexFileName
+    ),
+    resolved: resolved.value,
+    validated: validated.value
+  });
+}
+
+function queryValidatedInvestigationIndex(
+  investigationsDirectory: string,
+  validated: ValidatedQueryOptions
+): ResultAsync<InvestigationIndexQueryResult, string[]> {
   const indexPath = path.join(
-    resolved.investigationsDirectory,
+    investigationsDirectory,
     investigationIndexFileName
   );
-  const validated = validateQueryOptions(options);
-  const errors = [...resolved.errors, ...validated.errors];
-  if (errors.length > 0) {
-    return emptyQueryResult(
-      errors,
-      indexPath,
-      validated.limit,
-      validated.offset
-    );
-  }
-
-  const loaded = await loadCurrentInvestigationIndex({
-    investigationsDirectory: resolved.investigationsDirectory
-  });
-  if (loaded.status === "error") {
-    return emptyQueryResult(
-      investigationIndexDiagnosticMessages(
+  return ResultAsync.fromPromise(
+    loadCurrentInvestigationIndex({ investigationsDirectory }),
+    (error) => [
+      `investigation index query could not be completed: ${errorText(error)}`
+    ]
+  ).andThen((loaded) => {
+    if (loaded.status === "error") {
+      return err(investigationIndexDiagnosticMessages(
         loaded.diagnostics,
         indexPath
-      ),
-      indexPath,
-      validated.limit,
-      validated.offset
-    );
-  }
-
-  const queried = queryStateIndex({
-    definition: createInvestigationStateIndexDefinition(),
-    index: loaded.value,
-    query: {
-      filters: validated.filters,
-      limit: validated.limit,
-      offset: validated.offset,
-      sort: [{ direction: "desc", key: "latest-report-at" }]
+      ));
     }
-  });
-  if (queried.status === "error") {
-    return emptyQueryResult(
-      investigationIndexDiagnosticMessages(
+
+    return fromThrowable(
+      () => queryStateIndex({
+        definition: createInvestigationStateIndexDefinition(),
+        index: loaded.value,
+        query: {
+          filters: validated.filters,
+          limit: validated.limit,
+          offset: validated.offset,
+          sort: [{ direction: "desc", key: "latest-report-at" }]
+        }
+      }),
+      (error) => [
+        `investigation index query could not be completed: ${errorText(error)}`
+      ]
+    )().andThen((queried) => queried.status === "error"
+      ? err(investigationIndexDiagnosticMessages(
         queried.diagnostics,
         indexPath
-      ),
-      indexPath,
-      validated.limit,
-      validated.offset
-    );
-  }
-  return {
-    entries: queried.value.entries.map((entry) => entry.state),
-    errors: [],
-    indexPath,
-    limit: queried.value.limit,
-    offset: queried.value.offset,
-    total: queried.value.total
-  };
+      ))
+      : ok({
+        entries: queried.value.entries.map((entry) => entry.state),
+        errors: [],
+        indexPath,
+        limit: queried.value.limit,
+        offset: queried.value.offset,
+        total: queried.value.total
+      }));
+  });
 }
 
-export function investigationIndexQueryOptionErrors(
-  options: InvestigationIndexQueryOptions
-): string[] {
-  return validateQueryOptions(options).errors;
-}
-
-type ValidatedQueryOptions = {
-  errors: string[];
+type ValidatedQueryOptions = Readonly<{
   filters: StateIndexFilter[];
   limit: number;
   offset: number;
-};
+}>;
+
+type QueryOptionValidationFailure = Readonly<{
+  errors: string[];
+  limit: number;
+  offset: number;
+}>;
 
 function validateQueryOptions(
   options: InvestigationIndexQueryOptions
-): ValidatedQueryOptions {
+): Result<ValidatedQueryOptions, QueryOptionValidationFailure> {
   const errors: string[] = [];
   const filters: StateIndexFilter[] = [];
   const limit = options.limit ?? stateIndexQueryDefaultLimit;
@@ -168,13 +250,7 @@ function validateQueryOptions(
   }
 
   const statuses = uniqueSorted(options.statuses ?? []);
-  const invalidStatuses = statuses.filter((status) => (
-    !isInvestigationReportStatus(status)
-  ));
-  for (const status of invalidStatuses) {
-    errors.push(`unknown investigation status: ${status}`);
-  }
-  if (statuses.length > 0 && invalidStatuses.length === 0) {
+  if (statuses.length > 0) {
     filters.push({
       key: "status",
       kind: "exact",
@@ -231,12 +307,10 @@ function validateQueryOptions(
     });
   }
 
-  return {
-    errors: uniqueSorted(errors),
-    filters,
-    limit,
-    offset
-  };
+  const uniqueErrors = uniqueSorted(errors);
+  return uniqueErrors.length > 0
+    ? err({ errors: uniqueErrors, limit, offset })
+    : ok({ filters, limit, offset });
 }
 
 function timestampFilter(
@@ -256,10 +330,17 @@ function timestampFilter(
   return milliseconds;
 }
 
-function isInvestigationReportStatus(
-  value: string
-): value is InvestigationReportStatus {
-  return investigationReportStatuses.some((status) => status === value);
+function queryFailure(
+  kind: InvestigationIndexQueryFailure["kind"],
+  errors: readonly string[],
+  indexPath: string,
+  limit: number,
+  offset: number
+): InvestigationIndexQueryFailure {
+  return {
+    kind,
+    result: emptyQueryResult(errors, indexPath, limit, offset)
+  };
 }
 
 function emptyQueryResult(
@@ -278,6 +359,26 @@ function emptyQueryResult(
   };
 }
 
+function defaultInvestigationIndexPath(): string {
+  return path.join(
+    path.resolve("."),
+    defaultInvestigationsDirectory,
+    investigationIndexFileName
+  );
+}
+
+function investigationIndexPathForOptions(
+  options: InvestigationIndexQueryOptions
+): string {
+  return path.join(
+    path.resolve(
+      options.workspaceRoot,
+      options.investigationsDir ?? defaultInvestigationsDirectory
+    ),
+    investigationIndexFileName
+  );
+}
+
 function uniqueSorted<Value extends string>(
   values: readonly Value[]
 ): Value[] {
@@ -286,4 +387,8 @@ function uniqueSorted<Value extends string>(
 
 function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function errorText(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }

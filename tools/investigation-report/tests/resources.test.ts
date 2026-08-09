@@ -104,10 +104,10 @@ test("resource index projects single multiple and shared attachments", () => (
   withTempRoot("resources-projection", async (workspaceRoot) => {
     const request = "GET /users/42\naccept: application/json\n";
     const response = Uint8Array.from([0, 1, 2, 127, 128, 255]);
-    const context = "# 观测条件\n\n形成时使用 staging 配置。\n";
-    await writeResource(workspaceRoot, "api/request.txt", request);
-    await writeResource(workspaceRoot, "captures/response.bin", response);
+    const context = "# 观测条件\r\n\r\n形成时使用 staging 配置。\r\n";
     await writeResource(workspaceRoot, "shared/context.md", context);
+    await writeResource(workspaceRoot, "captures/response.bin", response);
+    await writeResource(workspaceRoot, "api/request.txt", request);
 
     await writeCollection(workspaceRoot, [
       {
@@ -180,6 +180,10 @@ test("resource index projects single multiple and shared attachments", () => (
 
 test("attached resource field is strict when present", () => (
   withTempRoot("resources-field", async (workspaceRoot) => {
+    const emphasizedLabel = rawResourceFieldReport(
+      "runtime/emphasized-resource-label.md",
+      ["- 随附资源:", "  - [**强调样本**](../_resources/sample.txt)"]
+    );
     const emptyField = rawResourceFieldReport(
       "runtime/empty-resource-field.md",
       ["- 随附资源:"]
@@ -229,6 +233,32 @@ test("attached resource field is strict when present", () => (
         "  - [样本](../_resources/sample.txt) [其他样本](../_resources/other.txt)"
       ]
     );
+    const orderedResourceList = rawResourceFieldReport(
+      "runtime/ordered-resource-list.md",
+      [
+        "- 随附资源:",
+        "  1. [样本](../_resources/sample.txt)"
+      ]
+    );
+    const titledLink = rawResourceFieldReport(
+      "runtime/titled-resource-link.md",
+      [
+        "- 随附资源:",
+        '  - [样本](../_resources/sample.txt "说明")'
+      ]
+    );
+    const referenceStyleLink = rawResourceFieldReport(
+      "runtime/reference-style-resource-link.md",
+      [
+        "- 随附资源:",
+        "  - [样本][sample-resource]"
+      ]
+    );
+    referenceStyleLink.body = [
+      referenceStyleLink.body,
+      "",
+      "[sample-resource]: ../_resources/sample.txt"
+    ].join("\n");
     await writeResource(workspaceRoot, "sample.txt", "sample\n");
     await writeResource(workspaceRoot, "other.txt", "other\n");
     await writeCollection(
@@ -240,9 +270,18 @@ test("attached resource field is strict when present", () => (
         trailingText,
         resourceAfterMetadata,
         duplicateField,
-        multipleLinksInItem
+        multipleLinksInItem,
+        orderedResourceList,
+        titledLink,
+        referenceStyleLink,
+        emphasizedLabel
       ],
       false
+    );
+
+    assert.deepEqual(
+      await validatePath(workspaceRoot, emphasizedLabel.path),
+      []
     );
 
     for (const [report, expected] of [
@@ -260,6 +299,18 @@ test("attached resource field is strict when present", () => (
       ],
       [
         multipleLinksInItem,
+        "exactly one local Markdown link with non-empty display text"
+      ],
+      [
+        orderedResourceList,
+        "must contain only a nested unordered list of local Markdown links"
+      ],
+      [
+        titledLink,
+        "exactly one local Markdown link with non-empty display text"
+      ],
+      [
+        referenceStyleLink,
         "exactly one local Markdown link with non-empty display text"
       ]
     ] as const) {
@@ -347,6 +398,13 @@ test("validation rejects unsafe attached resource paths", () => (
         report: rawResourceFieldReport("runtime/escaped-resource-target.md", [
           "- 随附资源:",
           "  - [转义别名](../_resources/sample\\.txt)"
+        ])
+      },
+      {
+        expected: rawSpellingDiagnostic,
+        report: rawResourceFieldReport("runtime/angle-resource-target.md", [
+          "- 随附资源:",
+          "  - [尖括号别名](<../_resources/sample.txt>)"
         ])
       }
     ];

@@ -1,22 +1,34 @@
 #!/usr/bin/env node
 
-import path from "node:path";
 import process from "node:process";
 import { parseArgs } from "node:util";
 import { isMainModule } from "../../shared/src/node/main-module.ts";
 import {
-  investigationTopicSelectionOptionErrors,
-  synchronizeInvestigationIndex,
-  validateInvestigationReports
-} from "./validation.ts";
-import {
-  investigationIndexQueryOptionErrors,
+  executeInvestigationIndexQuery,
   queryInvestigationIndex
 } from "./query.ts";
 import {
-  investigationReportStatuses,
-  type InvestigationReportStatus
+  executeInvestigationIndexSync,
+  executeInvestigationReportCheck,
+  synchronizeInvestigationIndex,
+  validateInvestigationReports
+} from "./validation.ts";
+import type {
+  InvestigationIndexQueryOptions,
+  InvestigationIndexSyncOptions,
+  InvestigationReportCheckOptions
 } from "./types.ts";
+
+type InvestigationCommand = "check" | "list" | "sync-index";
+type ParsedArguments = ReturnType<typeof parseArgs>;
+type CliInput =
+  | { status: "help" }
+  | { status: "invalid"; error: string }
+  | {
+      status: "command";
+      command: InvestigationCommand;
+      values: ParsedArguments["values"];
+    };
 
 function printHelp(): void {
   console.log([
@@ -46,31 +58,8 @@ function printHelp(): void {
   ].join("\n"));
 }
 
-function optionalString(value: unknown): string | undefined {
-  return typeof value === "string" ? value : undefined;
-}
-
-function optionalStrings(value: unknown): string[] | undefined {
-  if (!Array.isArray(value)) {
-    return undefined;
-  }
-  return value.filter((item): item is string => typeof item === "string");
-}
-
-function optionalNumber(value: unknown): number | undefined {
-  return typeof value === "string" ? Number(value) : undefined;
-}
-
-function isInvestigationReportStatus(
-  value: string
-): value is InvestigationReportStatus {
-  return investigationReportStatuses.some((status) => status === value);
-}
-
-export async function runInvestigationReportCheckCli(
-  argv: readonly string[] = process.argv.slice(2)
-): Promise<number> {
-  let parsed: ReturnType<typeof parseArgs>;
+function parseCliInput(argv: readonly string[]): CliInput {
+  let parsed: ParsedArguments;
   try {
     parsed = parseArgs({
       allowPositionals: true,
@@ -91,161 +80,190 @@ export async function runInvestigationReportCheckCli(
       strict: true
     });
   } catch (error) {
-    console.error(error instanceof Error ? error.message : String(error));
-    return 2;
+    return { error: errorText(error), status: "invalid" };
   }
 
   if (parsed.values.help === true) {
-    printHelp();
-    return 0;
+    return { status: "help" };
   }
-
   if (parsed.positionals.length > 1) {
-    console.error("expected at most one command: check, sync-index, or list");
-    return 2;
+    return {
+      error: "expected at most one command: check, sync-index, or list",
+      status: "invalid"
+    };
   }
   const command = parsed.positionals[0] ?? "check";
+  if (!isInvestigationCommand(command)) {
+    return { error: `unknown command: ${command}`, status: "invalid" };
+  }
+  return { command, status: "command", values: parsed.values };
+}
+
+function isInvestigationCommand(value: string): value is InvestigationCommand {
+  return value === "check" || value === "list" || value === "sync-index";
+}
+
+function optionalString(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
+function optionalStrings(value: unknown): string[] | undefined {
+  return Array.isArray(value) && value.every((item) => typeof item === "string")
+    ? value
+    : undefined;
+}
+
+function optionalNumber(value: unknown): number | undefined {
+  return typeof value === "string" ? Number(value) : undefined;
+}
+
+function commonOptions(
+  values: ParsedArguments["values"]
+): InvestigationIndexSyncOptions {
+  const investigationsDir = optionalString(values["investigations-dir"]);
+  const workspaceRoot = optionalString(values.root) ?? ".";
+  return investigationsDir === undefined
+    ? { workspaceRoot }
+    : { investigationsDir, workspaceRoot };
+}
+
+type CliQueryOptions = Omit<InvestigationIndexQueryOptions, "statuses"> & {
+  statuses?: readonly string[];
+};
+
+function queryOptions(values: ParsedArguments["values"]): CliQueryOptions {
+  const categories = optionalStrings(values.category);
+  const latestReportAtFrom = optionalString(values["latest-from"]);
+  const latestReportAtTo = optionalString(values["latest-to"]);
+  const limit = optionalNumber(values.limit);
+  const offset = optionalNumber(values.offset);
+  const paths = optionalStrings(values.path);
+  const statuses = optionalStrings(values.status);
+  const text = optionalString(values.text);
+  return {
+    ...commonOptions(values),
+    ...(categories === undefined ? {} : { categories }),
+    ...(latestReportAtFrom === undefined ? {} : { latestReportAtFrom }),
+    ...(latestReportAtTo === undefined ? {} : { latestReportAtTo }),
+    ...(limit === undefined ? {} : { limit }),
+    ...(offset === undefined ? {} : { offset }),
+    ...(paths === undefined ? {} : { paths }),
+    ...(statuses === undefined ? {} : { statuses }),
+    ...(text === undefined ? {} : { text })
+  };
+}
+
+function checkOptions(
+  values: ParsedArguments["values"]
+): InvestigationReportCheckOptions {
+  const categories = optionalStrings(values.category);
+  const paths = optionalStrings(values.path);
+  return {
+    ...commonOptions(values),
+    ...(categories === undefined ? {} : { categories }),
+    ...(paths === undefined ? {} : { paths })
+  };
+}
+
+function hasListOnlyOptions(values: ParsedArguments["values"]): boolean {
+  return [
+    values["latest-from"],
+    values["latest-to"],
+    values.limit,
+    values.offset,
+    values.status,
+    values.text
+  ].some((value) => value !== undefined);
+}
+
+async function runSyncCommand(
+  values: ParsedArguments["values"]
+): Promise<number> {
   if (
-    command !== "check"
-    && command !== "sync-index"
-    && command !== "list"
+    optionalStrings(values.category) !== undefined
+    || optionalStrings(values.path) !== undefined
+    || hasListOnlyOptions(values)
   ) {
-    console.error(`unknown command: ${command}`);
+    console.error("sync-index does not accept query filters or pagination");
     return 2;
   }
-
-  const investigationsDir = optionalString(
-    parsed.values["investigations-dir"]
+  const execution = await executeInvestigationIndexSync(commonOptions(values));
+  if (execution.isErr()) {
+    printErrors(
+      execution.error.kind === "invalid-options"
+        ? "Invalid investigation index synchronization options:"
+        : "Investigation index synchronization failed:",
+      execution.error.result.errors
+    );
+    return execution.error.kind === "invalid-options" ? 2 : 1;
+  }
+  const synchronized = execution.value;
+  console.log(
+    synchronized.changed
+      ? "Investigation index synchronized "
+        + `(${synchronized.topicCount} topics across `
+        + `${synchronized.categoryCount} categories).`
+      : "Investigation index is already current "
+        + `(${synchronized.topicCount} topics across `
+        + `${synchronized.categoryCount} categories).`
   );
-  const workspaceRoot = path.resolve(optionalString(parsed.values.root) ?? ".");
-  const hasListOnlyOptions = [
-    parsed.values["latest-from"],
-    parsed.values["latest-to"],
-    parsed.values.limit,
-    parsed.values.offset,
-    parsed.values.status,
-    parsed.values.text
-  ].some((value) => value !== undefined);
-  if (command === "sync-index") {
-    if (
-      optionalStrings(parsed.values.category) !== undefined
-      || optionalStrings(parsed.values.path) !== undefined
-      || hasListOnlyOptions
-    ) {
-      console.error("sync-index does not accept query filters or pagination");
-      return 2;
-    }
-    const synchronized = await synchronizeInvestigationIndex({
-      investigationsDir,
-      workspaceRoot
-    });
-    if (synchronized.errors.length > 0) {
-      console.error("Investigation index synchronization failed:");
-      for (const error of synchronized.errors) {
-        console.error(`- ${error}`);
-      }
-      return 1;
-    }
-    console.log(
-      synchronized.changed
-        ? "Investigation index synchronized "
-          + `(${synchronized.topicCount} topics across `
-          + `${synchronized.categoryCount} categories).`
-        : "Investigation index is already current "
-          + `(${synchronized.topicCount} topics across `
-          + `${synchronized.categoryCount} categories).`
+  return 0;
+}
+
+async function runListCommand(
+  values: ParsedArguments["values"]
+): Promise<number> {
+  const execution = await executeInvestigationIndexQuery(queryOptions(values));
+  if (execution.isErr()) {
+    printErrors(
+      execution.error.kind === "invalid-options"
+        ? "Invalid investigation topic query options:"
+        : "Investigation index query failed:",
+      execution.error.result.errors
     );
+    return execution.error.kind === "invalid-options" ? 2 : 1;
+  }
+  const queried = execution.value;
+  if (queried.entries.length === 0) {
+    console.log("No investigation topics matched.");
     return 0;
   }
-
-  if (command === "list") {
-    const statusValues = optionalStrings(parsed.values.status);
-    const invalidStatuses = (statusValues ?? []).filter((status) => (
-      !isInvestigationReportStatus(status)
-    ));
-    if (invalidStatuses.length > 0) {
-      console.error(
-        `unknown investigation status: ${invalidStatuses.join(", ")}`
-      );
-      return 2;
-    }
-    const queryOptions = {
-      categories: optionalStrings(parsed.values.category),
-      investigationsDir,
-      latestReportAtFrom: optionalString(parsed.values["latest-from"]),
-      latestReportAtTo: optionalString(parsed.values["latest-to"]),
-      limit: optionalNumber(parsed.values.limit),
-      offset: optionalNumber(parsed.values.offset),
-      paths: optionalStrings(parsed.values.path),
-      statuses: statusValues?.filter(isInvestigationReportStatus),
-      text: optionalString(parsed.values.text),
-      workspaceRoot
-    };
-    const optionErrors = investigationIndexQueryOptionErrors(queryOptions);
-    if (optionErrors.length > 0) {
-      console.error("Invalid investigation topic query options:");
-      for (const error of optionErrors) {
-        console.error(`- ${error}`);
-      }
-      return 2;
-    }
-    const queried = await queryInvestigationIndex(queryOptions);
-    if (queried.errors.length > 0) {
-      console.error("Investigation index query failed:");
-      for (const error of queried.errors) {
-        console.error(`- ${error}`);
-      }
-      return 1;
-    }
-    if (queried.entries.length === 0) {
-      console.log("No investigation topics matched.");
-      return 0;
-    }
+  console.log(
+    `Investigation topics (${queried.entries.length} of ${queried.total}, `
+    + `offset ${queried.offset}):`
+  );
+  for (const entry of queried.entries) {
+    console.log(`${entry.status} ${entry.latestReportAt} ${entry.path}`);
+    console.log(`  title: ${entry.title}`);
+    console.log(`  question: ${entry.question}`);
     console.log(
-      `Investigation topics (${queried.entries.length} of ${queried.total}, `
-      + `offset ${queried.offset}):`
+      `  reports: ${entry.reportCount}; latest: ${entry.reportTitles.at(-1)}`
     );
-    for (const entry of queried.entries) {
-      console.log(`${entry.status} ${entry.latestReportAt} ${entry.path}`);
-      console.log(`  title: ${entry.title}`);
-      console.log(`  question: ${entry.question}`);
-      console.log(
-        `  reports: ${entry.reportCount}; latest: ${entry.reportTitles.at(-1)}`
-      );
-    }
-    return 0;
   }
+  return 0;
+}
 
-  if (hasListOnlyOptions) {
+async function runCheckCommand(
+  values: ParsedArguments["values"]
+): Promise<number> {
+  if (hasListOnlyOptions(values)) {
     console.error(
       "check only accepts --category and --path filters; "
       + "use list for indexed queries"
     );
     return 2;
   }
-  const checkOptions = {
-    categories: optionalStrings(parsed.values.category),
-    investigationsDir,
-    paths: optionalStrings(parsed.values.path),
-    workspaceRoot
-  };
-  const optionErrors = investigationTopicSelectionOptionErrors(checkOptions);
-  if (optionErrors.length > 0) {
-    console.error("Invalid investigation topic check options:");
-    for (const error of optionErrors) {
-      console.error(`- ${error}`);
-    }
-    return 2;
+  const execution = await executeInvestigationReportCheck(checkOptions(values));
+  if (execution.isErr()) {
+    printErrors(
+      execution.error.kind === "invalid-options"
+        ? "Invalid investigation topic check options:"
+        : "Investigation report check failed:",
+      execution.error.result.errors
+    );
+    return execution.error.kind === "invalid-options" ? 2 : 1;
   }
-  const result = await validateInvestigationReports(checkOptions);
-  if (result.errors.length > 0) {
-    console.error("Investigation report check failed:");
-    for (const error of result.errors) {
-      console.error(`- ${error}`);
-    }
-    return 1;
-  }
-
+  const result = execution.value;
   console.log(
     "Investigation report check passed ("
     + result.selectedTopicCount
@@ -260,6 +278,41 @@ export async function runInvestigationReportCheckCli(
   return 0;
 }
 
+async function dispatchCommand(input: Extract<
+  CliInput,
+  { status: "command" }
+>): Promise<number> {
+  if (input.command === "sync-index") {
+    return await runSyncCommand(input.values);
+  }
+  if (input.command === "list") {
+    return await runListCommand(input.values);
+  }
+  return await runCheckCommand(input.values);
+}
+
+function printErrors(title: string, errors: readonly string[]): void {
+  console.error(title);
+  for (const error of errors) {
+    console.error(`- ${error}`);
+  }
+}
+
+export async function runInvestigationReportCheckCli(
+  argv: readonly string[] = process.argv.slice(2)
+): Promise<number> {
+  const input = parseCliInput(argv);
+  if (input.status === "help") {
+    printHelp();
+    return 0;
+  }
+  if (input.status === "invalid") {
+    console.error(input.error);
+    return 2;
+  }
+  return await dispatchCommand(input);
+}
+
 export {
   queryInvestigationIndex,
   synchronizeInvestigationIndex,
@@ -268,22 +321,24 @@ export {
 export type {
   InvestigationIndexQueryOptions,
   InvestigationIndexQueryResult,
-  InvestigationIndexMetadata,
   InvestigationIndexState,
   InvestigationIndexSyncOptions,
   InvestigationIndexSyncResult,
   InvestigationReportCheckOptions,
   InvestigationReportCheckResult,
   InvestigationReportStatus,
-  InvestigationResourceMetadata,
   InvestigationResourceReference
 } from "./types.ts";
+
+function errorText(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
 
 if (isMainModule(import.meta.url)) {
   try {
     process.exitCode = await runInvestigationReportCheckCli();
   } catch (error) {
-    console.error(error instanceof Error ? error.message : String(error));
+    console.error(errorText(error));
     process.exitCode = 1;
   }
 }

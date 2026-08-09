@@ -6,7 +6,7 @@ import {
   investigationKebabCasePatternSource,
   investigationTopicPathPatternSource
 } from "./report-path.ts";
-import { investigationResourceIdPatternSource } from "./resources.ts";
+import { investigationResourceIdPatternSource } from "./resource-reference.ts";
 import { investigationSourceFingerprintPatternSource } from "./investigation-source-revision.ts";
 import { investigationTimestampPatternSource } from "./timestamp.ts";
 import { investigationReportStatuses } from "./types.ts";

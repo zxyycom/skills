@@ -1,67 +1,23 @@
-import { constants as fileSystemConstants } from "node:fs";
+import {
+  constants as fileSystemConstants,
+  type Dirent
+} from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import {
   isFileSystemError,
   isPathWithinDirectory
 } from "../../shared/src/node/filesystem.ts";
+import {
+  investigationResourcesDirectoryName,
+  isInvestigationResourceId
+} from "./resource-reference.ts";
 import type { InvestigationResourceSource } from "./types.ts";
-
-export const investigationResourcesDirectoryName = "_resources";
-
-const investigationResourcePathSegmentPatternSource =
-  "[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?";
-
-export const investigationResourceIdPatternSource =
-  `^${investigationResourcePathSegmentPatternSource}`
-  + `(?:/${investigationResourcePathSegmentPatternSource})*$`;
-
-const investigationResourceIdPattern = new RegExp(
-  investigationResourceIdPatternSource,
-  "u"
-);
-
-type ResourceLinkTargetResult =
-  | { error: null; id: string }
-  | { error: string; id: null };
 
 type ResourceWalkResult = {
   errors: string[];
   resources: InvestigationResourceSource[];
 };
-
-function isInvestigationResourceId(value: string): boolean {
-  return investigationResourceIdPattern.test(value);
-}
-
-export function investigationResourceIdFromLinkTarget(
-  target: string
-): ResourceLinkTargetResult {
-  const prefix = `../${investigationResourcesDirectoryName}/`;
-  if (
-    !target.startsWith(prefix)
-    || target.includes("?")
-    || target.includes("#")
-    || target.includes("%")
-    || target.includes("\\")
-  ) {
-    return {
-      error: `resource link target ${JSON.stringify(target)} must use `
-        + `../${investigationResourcesDirectoryName}/<resource-id> without `
-        + "queries, fragments, encoding, or backslashes",
-      id: null
-    };
-  }
-  const id = target.slice(prefix.length);
-  if (!isInvestigationResourceId(id)) {
-    return {
-      error: `resource link target ${JSON.stringify(target)} must contain a safe, `
-        + "normalized resource id",
-      id: null
-    };
-  }
-  return { error: null, id };
-}
 
 export async function readInvestigationResources(
   investigationsDirectory: string,
@@ -71,7 +27,15 @@ export async function readInvestigationResources(
     investigationsDirectory,
     investigationResourcesDirectoryName
   );
-  const rootStat = await lstatOrNull(resourcesRoot);
+  let rootStat: Awaited<ReturnType<typeof fs.lstat>> | null;
+  try {
+    rootStat = await lstatOrNull(resourcesRoot);
+  } catch (error) {
+    throw new Error(
+      `${investigationResourcesDirectoryName} could not be inspected: ${errorText(error)}`,
+      { cause: error }
+    );
+  }
   if (rootStat === null) {
     return [];
   }
@@ -82,10 +46,18 @@ export async function readInvestigationResources(
     throw new Error(`${investigationResourcesDirectoryName} must be a directory`);
   }
 
-  const canonicalResourcesRoot = await verifiedCanonicalResourcesRoot(
-    investigationsDirectory,
-    resourcesRoot
-  );
+  let canonicalResourcesRoot: string;
+  try {
+    canonicalResourcesRoot = await verifiedCanonicalResourcesRoot(
+      investigationsDirectory,
+      resourcesRoot
+    );
+  } catch (error) {
+    throw new Error(
+      `${investigationResourcesDirectoryName} could not be safely resolved: ${errorText(error)}`,
+      { cause: error }
+    );
+  }
   const walked = await walkResourceDirectory(
     canonicalResourcesRoot,
     "",
@@ -120,7 +92,15 @@ export async function validateReferencedInvestigationResources(
     investigationsDirectory,
     investigationResourcesDirectoryName
   );
-  const rootStat = await lstatOrNull(resourcesRoot);
+  let rootStat: Awaited<ReturnType<typeof fs.lstat>> | null;
+  try {
+    rootStat = await lstatOrNull(resourcesRoot);
+  } catch (error) {
+    errors.push(
+      `${investigationResourcesDirectoryName} could not be inspected: ${errorText(error)}`
+    );
+    return uniqueSorted(errors);
+  }
   if (rootStat === null) {
     errors.push(...validIds.map((id) => `${resourcePath(id)} does not exist`));
     return uniqueSorted(errors);
@@ -134,19 +114,31 @@ export async function validateReferencedInvestigationResources(
     return uniqueSorted(errors);
   }
 
-  const canonicalResourcesRoot = await verifiedCanonicalResourcesRoot(
-    investigationsDirectory,
-    resourcesRoot
-  );
+  let canonicalResourcesRoot: string;
+  try {
+    canonicalResourcesRoot = await verifiedCanonicalResourcesRoot(
+      investigationsDirectory,
+      resourcesRoot
+    );
+  } catch (error) {
+    errors.push(
+      `${investigationResourcesDirectoryName} could not be safely resolved: ${errorText(error)}`
+    );
+    return uniqueSorted(errors);
+  }
 
   for (const id of validIds) {
     if (signal?.aborted === true) {
       throw new Error("investigation resource validation was aborted");
     }
-    errors.push(...await validateReferencedResource(
-      canonicalResourcesRoot,
-      id
-    ));
+    try {
+      errors.push(...await validateReferencedResource(
+        canonicalResourcesRoot,
+        id
+      ));
+    } catch (error) {
+      errors.push(`${resourcePath(id)} could not be validated: ${errorText(error)}`);
+    }
   }
   return uniqueSorted(errors);
 }
@@ -162,14 +154,28 @@ async function walkResourceDirectory(
   if (signal?.aborted === true) {
     throw new Error("investigation resource read was aborted");
   }
-  const entries = (await fs.readdir(absoluteDirectory, { withFileTypes: true }))
-    .sort((left, right) => compareText(left.name, right.name));
+  let entries: Dirent<string>[];
+  try {
+    entries = await fs.readdir(absoluteDirectory, { withFileTypes: true });
+  } catch (error) {
+    errors.push(
+      `${resourceDirectoryPath(relativeDirectory)} could not be read: ${errorText(error)}`
+    );
+    return { errors, resources };
+  }
+  entries.sort((left, right) => compareText(left.name, right.name));
   for (const entry of entries) {
     const id = relativeDirectory.length === 0
       ? entry.name
       : `${relativeDirectory}/${entry.name}`;
     const absolutePath = path.join(absoluteDirectory, entry.name);
-    const stat = await fs.lstat(absolutePath);
+    let stat: Awaited<ReturnType<typeof fs.lstat>>;
+    try {
+      stat = await fs.lstat(absolutePath);
+    } catch (error) {
+      errors.push(`${resourcePath(id)} could not be inspected: ${errorText(error)}`);
+      continue;
+    }
     if (stat.isSymbolicLink()) {
       errors.push(`${resourcePath(id)} must not be a symbolic link`);
       continue;
@@ -384,6 +390,12 @@ async function lstatOrNull(targetPath: string): Promise<Awaited<
 
 function resourcePath(id: string): string {
   return `${investigationResourcesDirectoryName}/${id}`;
+}
+
+function resourceDirectoryPath(relativeDirectory: string): string {
+  return relativeDirectory.length === 0
+    ? investigationResourcesDirectoryName
+    : resourcePath(relativeDirectory);
 }
 
 function uniqueSorted(values: readonly string[]): string[] {

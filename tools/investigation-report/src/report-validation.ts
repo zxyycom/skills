@@ -1,6 +1,7 @@
 import { validateInvestigationTopicPath } from "./report-path.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
 import {
+  isInvestigationReportStatus,
   investigationReportStatuses,
   type InvestigationIndexState,
   type InvestigationReportEntryProjection,
@@ -9,7 +10,12 @@ import {
 
 export type InvestigationTopicStateBuildResult = {
   errors: string[];
-  state: InvestigationIndexState | null;
+  state: null;
+  status: "invalid";
+} | {
+  errors: [];
+  state: InvestigationIndexState;
+  status: "valid";
 };
 
 function validateStatusAndLatestReportTime(
@@ -20,7 +26,7 @@ function validateStatusAndLatestReportTime(
 ): void {
   if (
     status !== null
-    && !(investigationReportStatuses as readonly string[]).includes(status)
+    && !isInvestigationReportStatus(status)
   ) {
     errors.push(
       `${source} status must be one of: ${investigationReportStatuses.join(", ")}`
@@ -105,16 +111,18 @@ export function buildInvestigationTopicState(
     || question === null
     || status === null
     || title === null
-    || !(investigationReportStatuses as readonly string[]).includes(status)
+    || !isInvestigationReportStatus(status)
   ) {
     return {
       errors: [...new Set(errors)],
-      state: null
+      state: null,
+      status: "invalid"
     };
   }
 
   return {
     errors: [],
+    status: "valid",
     state: {
       latestReportAt,
       path: relativePath,
@@ -129,7 +137,7 @@ export function buildInvestigationTopicState(
             resourceIds: [...entry.resourceIds].sort(compareText)
           }]
       )),
-      status: status as InvestigationIndexState["status"],
+      status,
       title
     }
   };

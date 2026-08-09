@@ -13,7 +13,8 @@ import {
   investigationIndexFileName,
   loadCurrentInvestigationIndex,
   readInvestigationSourceRevision,
-  readInvestigationStateSnapshot
+  readInvestigationStateSnapshot,
+  syncInvestigationStateIndex
 } from "../src/investigation-state-index.ts";
 import { queryInvestigationIndex } from "../src/query.ts";
 import {
@@ -517,12 +518,84 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
   )));
 }
 
+async function testPrebuiltSnapshotWriteBoundary(tempRoot: string): Promise<void> {
+  const missingIndexWorkspace = path.join(tempRoot, "missing-index");
+  const missingIndexReports = createValidReports();
+  await writeCollection(missingIndexWorkspace, missingIndexReports, false);
+  const missingIndexRoot = investigationRoot(missingIndexWorkspace);
+  const missingIndexPath = path.join(
+    missingIndexRoot,
+    investigationIndexFileName
+  );
+  const missingIndexSnapshot = await readInvestigationStateSnapshot(
+    missingIndexRoot
+  );
+  await fs.appendFile(
+    path.join(missingIndexRoot, ...missingIndexReports[0]!.path.split("/")),
+    "\n<!-- changed after snapshot -->\n",
+    "utf8"
+  );
+
+  const rejectedWrite = await syncInvestigationStateIndex({
+    investigationsDirectory: missingIndexRoot,
+    mode: "write",
+    snapshot: missingIndexSnapshot
+  });
+  assert.equal(rejectedWrite.status, "error");
+  assert.equal(rejectedWrite.state, "source-invalid");
+  assert.equal(rejectedWrite.changed, false);
+  assert.deepEqual(
+    rejectedWrite.diagnostics.map((diagnostic) => diagnostic.code),
+    ["state-index.source-changed"]
+  );
+  assert.equal(
+    await fs.stat(missingIndexPath).then(() => true, () => false),
+    false
+  );
+
+  const existingIndexWorkspace = path.join(tempRoot, "existing-index");
+  const existingIndexReports = createValidReports();
+  await writeCollection(existingIndexWorkspace, existingIndexReports);
+  const existingIndexRoot = investigationRoot(existingIndexWorkspace);
+  const existingIndexPath = path.join(
+    existingIndexRoot,
+    investigationIndexFileName
+  );
+  const originalIndex = await fs.readFile(existingIndexPath, "utf8");
+  const existingIndexSnapshot = await readInvestigationStateSnapshot(
+    existingIndexRoot
+  );
+  await fs.appendFile(
+    path.join(existingIndexRoot, ...existingIndexReports[0]!.path.split("/")),
+    "\n<!-- changed after snapshot -->\n",
+    "utf8"
+  );
+
+  const rejectedReplacement = await syncInvestigationStateIndex({
+    investigationsDirectory: existingIndexRoot,
+    mode: "write",
+    snapshot: existingIndexSnapshot
+  });
+  assert.equal(rejectedReplacement.status, "error");
+  assert.equal(rejectedReplacement.state, "source-invalid");
+  assert.equal(rejectedReplacement.changed, false);
+  assert.deepEqual(
+    rejectedReplacement.diagnostics.map((diagnostic) => diagnostic.code),
+    ["state-index.source-changed"]
+  );
+  assert.equal(await fs.readFile(existingIndexPath, "utf8"), originalIndex);
+}
+
 test("index queries return filtered and paginated investigation states", () => (
   withTempRoot("index-query-valid", testValidIndexAndQueries)
 ));
 
 test("index loading rejects stale and tampered investigation indexes", () => (
   withTempRoot("index-query-stale", testStaleAndTamperedIndexes)
+));
+
+test("prebuilt snapshot synchronization rejects live source changes before index writes", () => (
+  withTempRoot("snapshot-write-boundary", testPrebuiltSnapshotWriteBoundary)
 ));
 
 test("source revisions partition metadata and topic fingerprints without parsing Markdown", () => (

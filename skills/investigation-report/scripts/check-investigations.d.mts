@@ -59,15 +59,6 @@ export type InvestigationIndexQueryResult = {
   total: number;
 };
 
-export type InvestigationResourceMetadata = {
-  id: string;
-  sha256: string;
-};
-
-export type InvestigationIndexMetadata = {
-  resources: InvestigationResourceMetadata[];
-};
-
 export type InvestigationResourceReference = {
   reportIndex: number;
   resourceIds: string[];

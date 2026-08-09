@@ -3,7 +3,8 @@ import {
   createStateSourceRevisionSchema,
   defineStateIndexDefinition,
   type ReadonlyStateIndex,
-  type StateIndexDefinition
+  type StateIndexDefinition,
+  type StateSnapshot
 } from "../../index-runtime/src/index.ts";
 import {
   readInvestigationSourceRevision,
@@ -14,7 +15,7 @@ import {
   isInvestigationTopicPath,
   investigationCategoryOf
 } from "./report-path.ts";
-import { investigationResourceIdPatternSource } from "./resources.ts";
+import { investigationResourceIdPatternSource } from "./resource-reference.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
 import {
   investigationReportStatuses,
@@ -118,10 +119,17 @@ const investigationSourceRevisionSchema = createStateSourceRevisionSchema({
 });
 
 export function createInvestigationStateIndexDefinition(
+  options: {
+    snapshot?: StateSnapshot<
+      InvestigationIndexState,
+      InvestigationIndexMetadata
+    >;
+  } = {}
 ): StateIndexDefinition<
   InvestigationIndexState,
   InvestigationIndexMetadata
 > {
+  const snapshot = options.snapshot;
   return defineStateIndexDefinition({
     definitionVersion: investigationIndexDefinitionVersion,
     keyStrategies: [
@@ -157,10 +165,12 @@ export function createInvestigationStateIndexDefinition(
     namespace: investigationIndexNamespace,
     parseMetadata: parseInvestigationIndexMetadata,
     parseState: parseInvestigationIndexState,
-    read: async (context) => await readInvestigationStateSnapshot(
-      context.root,
-      context.signal
-    ),
+    read: snapshot === undefined
+      ? async (context) => await readInvestigationStateSnapshot(
+        context.root,
+        context.signal
+      )
+      : async () => snapshot,
     readRevision: async (context) => await readInvestigationSourceRevision(
       context.root,
       context.signal

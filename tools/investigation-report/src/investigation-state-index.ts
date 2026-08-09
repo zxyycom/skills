@@ -7,7 +7,8 @@ import {
   type StateIndexDiagnostic,
   type StateIndexResult,
   type StateIndexSyncMode,
-  type StateIndexSyncResult
+  type StateIndexSyncResult,
+  type StateSnapshot
 } from "../../index-runtime/src/index.ts";
 import {
   createInvestigationStateIndexDefinition,
@@ -21,7 +22,8 @@ import {
   readInvestigationStateSnapshot
 } from "./investigation-index-source.ts";
 import { investigationSourceRevision } from "./investigation-source-revision.ts";
-import { investigationResourcesDirectoryName } from "./resources.ts";
+import { investigationResourcesDirectoryName } from "./resource-reference.ts";
+import { investigationIndexFileName } from "./report-path.ts";
 import type {
   InvestigationIndexMetadata,
   InvestigationIndexState,
@@ -33,6 +35,7 @@ export {
   createInvestigationStateIndexDefinition,
   discoverInvestigationTopicPaths,
   investigationIndexDefinitionVersion,
+  investigationIndexFileName,
   investigationIndexNamespace,
   investigationSourceRevision,
   readInvestigationSourceRevision,
@@ -44,8 +47,6 @@ export type {
   InvestigationResourceSource,
   InvestigationSource
 };
-
-export const investigationIndexFileName = "investigation-index.json";
 
 export async function loadCurrentInvestigationIndex(options: {
   investigationsDirectory: string;
@@ -90,12 +91,18 @@ export async function syncInvestigationStateIndex(options: {
   indexPath?: string;
   mode: StateIndexSyncMode;
   signal?: AbortSignal;
+  snapshot?: StateSnapshot<
+    InvestigationIndexState,
+    InvestigationIndexMetadata
+  >;
 }): Promise<StateIndexSyncResult> {
   const context = stateIndexContext(
     options.investigationsDirectory,
     options.signal
   );
-  const definition = createInvestigationStateIndexDefinition();
+  const definition = options.snapshot === undefined
+    ? createInvestigationStateIndexDefinition()
+    : createInvestigationStateIndexDefinition({ snapshot: options.snapshot });
   const indexPath = options.indexPath ?? investigationIndexFileName;
   const synchronized = await syncStateIndex({
     context,
@@ -174,8 +181,13 @@ async function investigationResourceChangeDiagnostics(options: {
       options.context.root,
       options.context.signal
     );
-  } catch {
-    return [];
+  } catch (error) {
+    return [{
+      code: "investigation-resource.read-failed",
+      message: `resource pool could not be read: ${errorText(error)}`,
+      path: investigationResourcesDirectoryName,
+      stateId: null
+    }];
   }
   const indexedById = new Map(
     indexed.value.metadata.resources.map((resource) => [
@@ -233,4 +245,8 @@ function resourceDiagnostic(
 
 function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function errorText(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }

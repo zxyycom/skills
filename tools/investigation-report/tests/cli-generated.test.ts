@@ -115,6 +115,7 @@ async function testGeneratedCheckCommand(tempRoot: string): Promise<void> {
     { encoding: "utf8" }
   );
   assert.equal(cliSuccess.status, 0, cliSuccess.stderr);
+  assert.equal(cliSuccess.stderr, "");
   assert.match(
     cliSuccess.stdout,
     /2 of 2 topics checked across 2 categories/
@@ -132,6 +133,7 @@ async function testGeneratedCheckCommand(tempRoot: string): Promise<void> {
     { encoding: "utf8" }
   );
   assert.equal(cliFiltered.status, 0, cliFiltered.stderr);
+  assert.equal(cliFiltered.stderr, "");
   assert.match(
     cliFiltered.stdout,
     /1 of 2 topics checked across 1 categories/
@@ -158,6 +160,7 @@ async function testGeneratedCheckCommand(tempRoot: string): Promise<void> {
     { encoding: "utf8" }
   );
   assert.equal(cliFilteredMissingResource.status, 1);
+  assert.equal(cliFilteredMissingResource.stdout, "");
   assert.match(
     cliFilteredMissingResource.stderr,
     /_resources\/cli\/check\.txt does not exist/u
@@ -177,6 +180,7 @@ async function testGeneratedCheckCommand(tempRoot: string): Promise<void> {
     { encoding: "utf8" }
   );
   assert.equal(cliFailure.status, 1);
+  assert.equal(cliFailure.stdout, "");
   assert.match(cliFailure.stderr, /Investigation report check failed/);
 }
 
@@ -198,6 +202,7 @@ async function testGeneratedListCommand(tempRoot: string): Promise<void> {
     { encoding: "utf8" }
   );
   assert.equal(cliList.status, 0, cliList.stderr);
+  assert.equal(cliList.stderr, "");
   assert.match(cliList.stdout, /Investigation topics/);
   assert.match(
     cliList.stdout,
@@ -230,6 +235,7 @@ async function testGeneratedSyncCommand(tempRoot: string): Promise<void> {
     { encoding: "utf8" }
   );
   assert.equal(cliSync.status, 0, cliSync.stderr);
+  assert.equal(cliSync.stderr, "");
   assert.match(cliSync.stdout, /Investigation index synchronized/);
   assert.equal(
     await fs.stat(path.join(
@@ -282,6 +288,7 @@ async function testGeneratedListRejectsStaleResources(
     { encoding: "utf8" }
   );
   assert.equal(cliList.status, 1);
+  assert.equal(cliList.stdout, "");
   assert.match(cliList.stderr, /_resources\/captures\/list\.bin/u);
   assert.match(cliList.stderr, /resource content changed/u);
 }
@@ -293,6 +300,7 @@ async function testGeneratedCliUsage(tempRoot: string): Promise<void> {
     { encoding: "utf8" }
   );
   assert.equal(help.status, 0, help.stderr);
+  assert.equal(help.stderr, "");
   assert.match(help.stdout, /Usage: check-investigations\.mjs/);
   assert.match(help.stdout, /optional attached resources/);
   assert.match(help.stdout, /resource pool/);
@@ -308,6 +316,8 @@ async function testGeneratedCliUsage(tempRoot: string): Promise<void> {
     { encoding: "utf8" }
   );
   assert.equal(invalidArgument.status, 2);
+  assert.equal(invalidArgument.stdout, "");
+  assert.match(invalidArgument.stderr, /Unknown option '--unknown'/u);
 
   const invalidLimit = spawnSync(
     "node",
@@ -322,6 +332,7 @@ async function testGeneratedCliUsage(tempRoot: string): Promise<void> {
     { encoding: "utf8" }
   );
   assert.equal(invalidLimit.status, 2);
+  assert.equal(invalidLimit.stdout, "");
   assert.match(invalidLimit.stderr, /limit must be an integer/);
 
   const invalidSyncFilter = spawnSync(
@@ -337,6 +348,11 @@ async function testGeneratedCliUsage(tempRoot: string): Promise<void> {
     { encoding: "utf8" }
   );
   assert.equal(invalidSyncFilter.status, 2);
+  assert.equal(invalidSyncFilter.stdout, "");
+  assert.match(
+    invalidSyncFilter.stderr,
+    /sync-index does not accept query filters or pagination/u
+  );
 }
 
 async function testGeneratedArtifacts(): Promise<void> {

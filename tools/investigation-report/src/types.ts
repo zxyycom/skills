@@ -2,6 +2,12 @@ export const investigationReportStatuses = ["调查中", "暂停", "已结束"] 
 
 export type InvestigationReportStatus = typeof investigationReportStatuses[number];
 
+export function isInvestigationReportStatus(
+  value: string
+): value is InvestigationReportStatus {
+  return investigationReportStatuses.some((status) => status === value);
+}
+
 export type InvestigationReportCheckOptions = {
   categories?: readonly string[];
   investigationsDir?: string;

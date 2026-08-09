@@ -1,11 +1,16 @@
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { toString } from "mdast-util-to-string";
+import {
+  investigationResourceIdFromLinkTarget
+} from "./resource-reference.ts";
 import type {
   InvestigationReportEntryProjection,
   InvestigationReportProjection,
   ParsedInvestigationReport
 } from "./types.ts";
-import { investigationResourceIdFromLinkTarget } from "./resources.ts";
+
+type MarkdownRoot = ReturnType<typeof fromMarkdown>;
+type MarkdownRootContent = MarkdownRoot["children"][number];
 
 type RootHeading = {
   depth: number;
@@ -16,6 +21,12 @@ type RootHeading = {
 type ReportMetadataProjection = {
   formedAt: string | null;
   resourceIds: string[];
+};
+
+type ReportInfoField = {
+  label: string;
+  line: number;
+  value: string;
 };
 
 const reportInfoFieldLabels = ["核心问题", "状态", "最新报告时间"] as const;
@@ -30,31 +41,48 @@ function normalizeNewlines(markdown: string): string {
   return markdown.replace(/\r\n?/g, "\n");
 }
 
-function plainMarkdownText(markdown: string): string {
-  return toString(fromMarkdown(markdown)).trim().replace(/\s+/gu, " ");
+function normalizedNodeText(node: Parameters<typeof toString>[0]): string {
+  return toString(node).trim().replace(/\s+/gu, " ");
 }
 
-function hasSemanticContent(markdown: string): boolean {
-  return fromMarkdown(markdown).children.some((node) => (
-    node.type !== "heading" && toString(node).trim().length > 0
-  ));
-}
-
-function rootHeadings(markdown: string): RootHeading[] {
-  return fromMarkdown(markdown).children.flatMap((node) => {
+function rootHeadings(children: readonly MarkdownRootContent[]): RootHeading[] {
+  return children.flatMap((node) => {
     if (node.type !== "heading" || node.position === undefined) {
       return [];
     }
     return [{
       depth: node.depth,
       lineIndex: node.position.start.line - 1,
-      title: toString(node).trim().replace(/\s+/gu, " ")
+      title: normalizedNodeText(node)
     }];
   });
 }
 
+function rootNodesBetween(
+  children: readonly MarkdownRootContent[],
+  startLineIndex: number,
+  endLineIndex: number
+): MarkdownRootContent[] {
+  return children.filter((node) => {
+    const lineIndex = node.position?.start.line;
+    return lineIndex !== undefined
+      && lineIndex - 1 > startLineIndex
+      && lineIndex - 1 < endLineIndex;
+  });
+}
+
+function hasSemanticContent(
+  children: readonly MarkdownRootContent[],
+  startLineIndex: number,
+  endLineIndex: number
+): boolean {
+  return rootNodesBetween(children, startLineIndex, endLineIndex).some((node) => (
+    node.type !== "heading" && normalizedNodeText(node).length > 0
+  ));
+}
+
 function fieldMap(
-  fields: Array<{ label: string; line: number; value: string }>,
+  fields: readonly ReportInfoField[],
   labels: readonly string[],
   relativePath: string,
   errors: string[]
@@ -77,13 +105,12 @@ function fieldMap(
       );
       continue;
     }
-    const value = plainMarkdownText(field.value);
-    if (value.length === 0) {
+    if (field.value.length === 0) {
       errors.push(`${relativePath}:${field.line} field "${field.label}" must not be empty`);
       values.set(field.label, "");
       continue;
     }
-    values.set(field.label, value);
+    values.set(field.label, field.value);
   }
 
   for (const label of labels) {
@@ -101,8 +128,42 @@ function fieldMap(
   return values;
 }
 
+function semanticFieldValue(
+  children: readonly MarkdownRootContent[],
+  line: number,
+  rawValue: string
+): string {
+  const list = children.find((node) => (
+    node.type === "list"
+    && node.position !== undefined
+    && node.position.start.line <= line
+    && node.position.end.line >= line
+  ));
+  if (list?.type !== "list") {
+    return rawValue.trim();
+  }
+  const item = list.children.find((candidate) => (
+    candidate.position?.start.line === line
+  ));
+  const paragraph = item?.children.length === 1
+    && item.children[0]?.type === "paragraph"
+    ? item.children[0]
+    : null;
+  const rendered = paragraph === null ? null : normalizedNodeText(paragraph);
+  const separator = rendered?.indexOf(":") ?? -1;
+  const semanticValue = separator < 0
+    ? rawValue.trim()
+    : rendered?.slice(separator + 1).trim() ?? rawValue.trim();
+  return semanticValue === rawValue.trim()
+    && /^[*_~`\s]*$/u.test(rawValue)
+    ? ""
+    : semanticValue;
+}
+
 function parseInvestigationReportEntries(
+  source: string,
   lines: readonly string[],
+  children: readonly MarkdownRootContent[],
   headings: readonly RootHeading[],
   section: RootHeading,
   relativePath: string,
@@ -138,8 +199,9 @@ function parseInvestigationReportEntries(
     ));
     const metadataEnd = reportSections[0]?.lineIndex ?? reportEnd;
     const metadata = parseReportMetadata(
-      lines.slice(heading.lineIndex + 1, metadataEnd).join("\n"),
-      heading.lineIndex + 2,
+      source,
+      rootNodesBetween(children, heading.lineIndex, metadataEnd),
+      heading.lineIndex + 1,
       relativePath,
       errors
     );
@@ -170,7 +232,7 @@ function parseInvestigationReportEntries(
         && candidate.depth <= 4
       ));
       const contentEnd = nextSection?.lineIndex ?? reportEnd;
-      if (!hasSemanticContent(lines.slice(requiredSection.lineIndex + 1, contentEnd).join("\n"))) {
+      if (!hasSemanticContent(children, requiredSection.lineIndex, contentEnd)) {
         errors.push(
           `${relativePath}:${requiredSection.lineIndex + 1} report section "${requiredTitle}" must not be empty`
         );
@@ -195,14 +257,14 @@ function parseInvestigationReportEntries(
 }
 
 function parseReportMetadata(
-  markdown: string,
-  firstLine: number,
+  source: string,
+  nodes: readonly MarkdownRootContent[],
+  reportHeadingLine: number,
   relativePath: string,
   errors: string[]
 ): ReportMetadataProjection {
-  const root = fromMarkdown(markdown);
-  const list = root.children.length === 1 && root.children[0]?.type === "list"
-    ? root.children[0]
+  const list = nodes.length === 1 && nodes[0]?.type === "list"
+    ? nodes[0]
     : null;
   const formedItem = list?.ordered === false ? list.children[0] : undefined;
   const formedParagraph = formedItem?.children.length === 1
@@ -216,13 +278,13 @@ function parseReportMetadata(
   const formedMatch = formedText?.match(/^形成时间:\s*(.*?)\s*$/u) ?? null;
   if (formedMatch === null || formedMatch[1].trim().length === 0) {
     errors.push(
-      `${relativePath}:${firstLine - 1} report must start with a non-empty "- 形成时间: <timestamp>" field`
+      `${relativePath}:${reportHeadingLine} report must start with a non-empty "- 形成时间: <timestamp>" field`
     );
   }
 
   if (list === null || list.ordered || list.children.length > 2) {
     errors.push(
-      `${relativePath}:${firstLine} report metadata must contain only "形成时间" and optional "随附资源" fields`
+      `${relativePath}:${reportHeadingLine + 1} report metadata must contain only "形成时间" and optional "随附资源" fields`
     );
     return {
       formedAt: formedMatch?.[1].trim() || null,
@@ -238,7 +300,7 @@ function parseReportMetadata(
     };
   }
 
-  const resourceLine = firstLine + (resourceItem.position?.start.line ?? 1) - 1;
+  const resourceLine = resourceItem.position?.start.line ?? reportHeadingLine + 1;
   const resourceLabel = resourceItem.children[0];
   const resourceList = resourceItem.children[1];
   const validLabel = resourceLabel?.type === "paragraph"
@@ -270,7 +332,7 @@ function parseReportMetadata(
   }
   const resourceIds: string[] = [];
   for (const item of resourceList.children) {
-    const itemLine = firstLine + (item.position?.start.line ?? 1) - 1;
+    const itemLine = item.position?.start.line ?? resourceLine;
     const paragraph = item.children.length === 1
       && item.children[0]?.type === "paragraph"
       ? item.children[0]
@@ -282,7 +344,7 @@ function parseReportMetadata(
     if (
       link === null
       || link.title !== null
-      || toString(link).trim().length === 0
+      || normalizedNodeText(link).length === 0
     ) {
       errors.push(
         `${relativePath}:${itemLine} each "随附资源" item must contain exactly one local Markdown link with non-empty display text`
@@ -293,7 +355,7 @@ function parseReportMetadata(
     const labelEnd = link.children.at(-1)?.position?.end.offset;
     const rawSuffix = linkEnd === undefined || labelEnd === undefined
       ? null
-      : markdown.slice(labelEnd, linkEnd);
+      : source.slice(labelEnd, linkEnd);
     const rawTarget = rawSuffix?.startsWith("](") === true
       && rawSuffix.endsWith(")")
       ? rawSuffix.slice(2, -1)
@@ -306,7 +368,7 @@ function parseReportMetadata(
       continue;
     }
     const parsed = investigationResourceIdFromLinkTarget(rawTarget);
-    if (parsed.error !== null) {
+    if (parsed.status === "invalid") {
       errors.push(`${relativePath}:${itemLine} ${parsed.error}`);
       continue;
     }
@@ -330,10 +392,11 @@ export function parseInvestigationReport(
   relativePath: string
 ): ParsedInvestigationReport {
   const normalized = normalizeNewlines(markdown);
+  const root = fromMarkdown(normalized);
   const lines = normalized.split("\n");
   const errors: string[] = [];
   const firstNonEmptyLine = lines.findIndex((line) => line.trim().length > 0);
-  const headings = rootHeadings(normalized);
+  const headings = rootHeadings(root.children);
   const h1 = headings.filter((heading) => heading.depth === 1);
   if (firstNonEmptyLine < 0 || h1[0]?.lineIndex !== firstNonEmptyLine) {
     errors.push(`${relativePath}:1 first non-empty line must be the report H1`);
@@ -361,7 +424,7 @@ export function parseInvestigationReport(
     errors.push(`${relativePath} must contain exactly one "## 调查报告" section`);
   }
 
-  const fields: Array<{ label: string; line: number; value: string }> = [];
+  const fields: ReportInfoField[] = [];
   const info = infoSections[0];
   if (info !== undefined) {
     const nextH2 = h2.find((section) => section.lineIndex > info.lineIndex);
@@ -378,7 +441,11 @@ export function parseInvestigationReport(
         );
         continue;
       }
-      fields.push({ label: match[1].trim(), line: index + 1, value: match[2] });
+      fields.push({
+        label: match[1].trim(),
+        line: index + 1,
+        value: semanticFieldValue(root.children, index + 1, match[2])
+      });
     }
   }
 
@@ -386,7 +453,9 @@ export function parseInvestigationReport(
   const reports = reportSections[0] === undefined
     ? []
     : parseInvestigationReportEntries(
+      normalized,
       lines,
+      root.children,
       headings,
       reportSections[0],
       relativePath,

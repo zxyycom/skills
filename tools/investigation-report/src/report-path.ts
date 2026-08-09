@@ -1,7 +1,18 @@
+import fs from "node:fs/promises";
 import path from "node:path";
-import { isPathWithinDirectory } from "../../shared/src/node/filesystem.ts";
+import {
+  err,
+  ok,
+  ResultAsync,
+  type Result
+} from "neverthrow";
+import {
+  isFileSystemError,
+  isPathWithinDirectory
+} from "../../shared/src/node/filesystem.ts";
 
 export const defaultInvestigationsDirectory = "docs/investigations";
+export const investigationIndexFileName = "investigation-index.json";
 export const investigationKebabCasePatternSource =
   "[a-z0-9]+(?:-[a-z0-9]+)*";
 export const investigationTopicPathPatternSource =
@@ -17,7 +28,12 @@ const investigationTopicPathPattern = new RegExp(
 );
 
 export type ResolvedInvestigationsDirectory = {
-  errors: string[];
+  investigationsDirectory: string;
+  investigationsDirectoryOption: string;
+  workspaceRoot: string;
+};
+
+export type CanonicalInvestigationsDirectory = {
   investigationsDirectory: string;
   investigationsDirectoryOption: string;
   workspaceRoot: string;
@@ -26,7 +42,7 @@ export type ResolvedInvestigationsDirectory = {
 export function resolveInvestigationsDirectory(
   workspaceRootValue: string,
   investigationsDirectoryValue?: string
-): ResolvedInvestigationsDirectory {
+): Result<ResolvedInvestigationsDirectory, string[]> {
   const workspaceRoot = path.resolve(workspaceRootValue);
   const investigationsDirectoryOption = investigationsDirectoryValue
     ?? defaultInvestigationsDirectory;
@@ -40,12 +56,50 @@ export function resolveInvestigationsDirectory(
   } else if (!isPathWithinDirectory(investigationsDirectory, workspaceRoot)) {
     errors.push("investigations directory must stay within the workspace root");
   }
-  return {
-    errors,
+  return errors.length > 0 ? err(errors) : ok({
     investigationsDirectory,
     investigationsDirectoryOption,
     workspaceRoot
-  };
+  });
+}
+
+export function canonicalizeInvestigationsDirectory(
+  resolved: ResolvedInvestigationsDirectory
+): ResultAsync<CanonicalInvestigationsDirectory, string[]> {
+  return canonicalDirectory("workspace root", resolved.workspaceRoot)
+    .andThen((canonicalWorkspaceRoot) => canonicalDirectory(
+      displayPath(resolved.investigationsDirectoryOption),
+      resolved.investigationsDirectory
+    ).andThen((canonicalInvestigationsDirectory) => {
+      if (!isPathWithinDirectory(
+        canonicalInvestigationsDirectory,
+        canonicalWorkspaceRoot
+      )) {
+        return err([
+          "investigations directory must resolve within the workspace root"
+        ]);
+      }
+      return ok({
+        investigationsDirectory: canonicalInvestigationsDirectory,
+        investigationsDirectoryOption: resolved.investigationsDirectoryOption,
+        workspaceRoot: canonicalWorkspaceRoot
+      });
+    }));
+}
+
+function canonicalDirectory(
+  label: string,
+  directory: string
+): ResultAsync<string, string[]> {
+  return ResultAsync.fromPromise(
+    fs.realpath(directory),
+    (error) => [fileSystemResolutionError(label, error)]
+  ).andThen((canonicalDirectoryPath) => ResultAsync.fromPromise(
+    fs.stat(canonicalDirectoryPath),
+    (error) => [fileSystemResolutionError(label, error)]
+  ).andThen((stats) => stats.isDirectory()
+    ? ok(canonicalDirectoryPath)
+    : err([`${label} must be a directory`])));
 }
 
 export function normalizeInvestigationTopicPath(value: string): string {
@@ -102,4 +156,19 @@ export function validateInvestigationTopicPath(relativePath: string): string[] {
     );
   }
   return errors;
+}
+
+function fileSystemResolutionError(label: string, error: unknown): string {
+  if (isFileSystemError(error, "ENOENT")) {
+    return `${label} does not exist`;
+  }
+  return `${label} could not be resolved: ${errorText(error)}`;
+}
+
+function displayPath(value: string): string {
+  return value.replace(/\\/gu, "/");
+}
+
+function errorText(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }

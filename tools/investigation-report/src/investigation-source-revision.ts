@@ -33,19 +33,7 @@ export function prepareInvestigationSources(
   if (sourcePaths.size !== orderedSources.length) {
     throw new Error("investigation sources must use unique paths");
   }
-  const orderedResources = resources
-    .map(({ bytes, id }) => ({ bytes, id }))
-    .sort((left, right) => compareText(left.id, right.id));
-  const resourceIds = new Set(orderedResources.map((resource) => resource.id));
-  if (resourceIds.size !== orderedResources.length) {
-    throw new Error("investigation resources must use unique ids");
-  }
-  const metadata: InvestigationIndexMetadata = {
-    resources: orderedResources.map((resource) => ({
-      id: resource.id,
-      sha256: investigationResourceSha256(resource.bytes)
-    }))
-  };
+  const metadata = investigationResourceMetadata(resources);
 
   return {
     metadata,
@@ -64,6 +52,24 @@ export function prepareInvestigationSources(
       ]))
     },
     sources: orderedSources
+  };
+}
+
+export function investigationResourceMetadata(
+  resources: readonly InvestigationResourceSource[]
+): InvestigationIndexMetadata {
+  const orderedResources = resources
+    .map(({ bytes, id }) => ({ bytes, id }))
+    .sort((left, right) => compareText(left.id, right.id));
+  const resourceIds = new Set(orderedResources.map((resource) => resource.id));
+  if (resourceIds.size !== orderedResources.length) {
+    throw new Error("investigation resources must use unique ids");
+  }
+  return {
+    resources: orderedResources.map((resource) => ({
+      id: resource.id,
+      sha256: investigationResourceSha256(resource.bytes)
+    }))
   };
 }
 

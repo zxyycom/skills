@@ -2,7 +2,15 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { validateInvestigationReports } from "../src/validation.ts";
+import {
+  investigationIndexFileName,
+  investigationSourceRevision
+} from "../src/investigation-state-index.ts";
+import { queryInvestigationIndex } from "../src/query.ts";
+import {
+  synchronizeInvestigationIndex,
+  validateInvestigationReports
+} from "../src/validation.ts";
 import {
   coreSectionCases,
   createValidReports,
@@ -328,6 +336,180 @@ async function testCompleteReportStructure(tempRoot: string): Promise<void> {
   )));
 }
 
+async function testCanonicalInvestigationRootBoundary(tempRoot: string): Promise<void> {
+  const outsideWorkspace = path.join(tempRoot, "outside-workspace");
+  await writeCollection(outsideWorkspace, createValidReports(), false);
+  const escapingWorkspace = path.join(tempRoot, "escaping-workspace");
+  await fs.mkdir(path.join(escapingWorkspace, "docs"), { recursive: true });
+  await fs.symlink(
+    investigationRoot(outsideWorkspace),
+    investigationRoot(escapingWorkspace),
+    "dir"
+  );
+
+  const escapingCheck = await validateInvestigationReports({
+    workspaceRoot: escapingWorkspace
+  });
+  assert.ok(escapingCheck.errors.some((error) => (
+    error.includes("must resolve within the workspace root")
+  )));
+  const escapingSync = await synchronizeInvestigationIndex({
+    workspaceRoot: escapingWorkspace
+  });
+  assert.ok(escapingSync.errors.some((error) => (
+    error.includes("must resolve within the workspace root")
+  )));
+
+  const containedWorkspace = path.join(tempRoot, "contained-workspace");
+  await writeCollection(containedWorkspace, createValidReports());
+  const originalRoot = investigationRoot(containedWorkspace);
+  const containedRoot = path.join(
+    containedWorkspace,
+    "collections",
+    "investigations"
+  );
+  await fs.mkdir(path.dirname(containedRoot), { recursive: true });
+  await fs.rename(originalRoot, containedRoot);
+  await fs.symlink(containedRoot, originalRoot, "dir");
+  assert.deepEqual(
+    (await validateInvestigationReports({ workspaceRoot: containedWorkspace })).errors,
+    []
+  );
+}
+
+async function testExplicitCollectionLayout(tempRoot: string): Promise<void> {
+  const workspaceRoot = path.join(tempRoot, "layout");
+  const report = createValidReports()[0]!;
+  await writeCollection(workspaceRoot, [report], false);
+  const collectionRoot = investigationRoot(workspaceRoot);
+  await fs.writeFile(path.join(collectionRoot, "notes.txt"), "not allowed\n");
+  await fs.writeFile(path.join(collectionRoot, ".hidden"), "not allowed\n");
+  await fs.writeFile(
+    path.join(collectionRoot, "runtime.txt"),
+    "not a category directory\n"
+  );
+  await fs.mkdir(path.join(collectionRoot, "BadCategory"));
+  await fs.mkdir(path.join(collectionRoot, "codex", "nested"));
+  await fs.writeFile(
+    path.join(collectionRoot, "codex", "draft.txt"),
+    "wrong extension\n"
+  );
+  await fs.symlink(
+    path.join(collectionRoot, ...report.path.split("/")),
+    path.join(collectionRoot, "codex", "linked.md")
+  );
+
+  const full = await validateInvestigationReports({ workspaceRoot });
+  const summary = full.errors.join("\n");
+  assert.match(summary, /\.hidden is not allowed at the investigation root/u);
+  assert.match(summary, /notes\.txt is not allowed at the investigation root/u);
+  assert.match(summary, /runtime\.txt is not allowed at the investigation root/u);
+  assert.match(summary, /BadCategory category must use kebab-case/u);
+  assert.match(summary, /codex\/nested category directories must contain only/u);
+  assert.match(summary, /codex\/draft\.txt filename must use/u);
+  assert.match(summary, /codex\/linked\.md must not be a symbolic link/u);
+
+  const scoped = await validateInvestigationReports({
+    paths: [report.path],
+    workspaceRoot
+  });
+  assert.deepEqual(scoped.errors, []);
+}
+
+async function testEmptyInvestigationCollection(tempRoot: string): Promise<void> {
+  const workspaceRoot = path.join(tempRoot, "empty-collection");
+  const collectionRoot = investigationRoot(workspaceRoot);
+  await fs.mkdir(collectionRoot, { recursive: true });
+
+  const fullValidation = await validateInvestigationReports({ workspaceRoot });
+  assert.deepEqual(fullValidation.errors, [
+    "investigation report check could not be completed: "
+      + "investigation collection must contain at least one topic"
+  ]);
+  assert.equal(fullValidation.selectedTopicCount, 0);
+  assert.equal(fullValidation.availableTopicCount, 0);
+  assert.equal(fullValidation.indexChecked, false);
+
+  const synchronization = await synchronizeInvestigationIndex({ workspaceRoot });
+  assert.deepEqual(synchronization.errors, [
+    "investigation index synchronization could not be completed: "
+      + "investigation collection must contain at least one topic"
+  ]);
+  assert.equal(synchronization.changed, false);
+  assert.equal(synchronization.topicCount, 0);
+  assert.equal(
+    await fs.stat(synchronization.indexPath).then(() => true, () => false),
+    false
+  );
+
+  const templateWorkspace = path.join(tempRoot, "empty-index-template");
+  await writeCollection(templateWorkspace, createValidReports());
+  const templateIndexPath = path.join(
+    investigationRoot(templateWorkspace),
+    investigationIndexFileName
+  );
+  const emptyIndex = JSON.parse(
+    await fs.readFile(templateIndexPath, "utf8")
+  ) as {
+    entries: Record<string, unknown>;
+    metadata: { resources: unknown[] };
+    sourceRevision: ReturnType<typeof investigationSourceRevision>;
+  };
+  emptyIndex.entries = {};
+  emptyIndex.metadata = { resources: [] };
+  emptyIndex.sourceRevision = investigationSourceRevision([]);
+  await fs.writeFile(
+    synchronization.indexPath,
+    `${JSON.stringify(emptyIndex, null, 2)}\n`,
+    "utf8"
+  );
+
+  const query = await queryInvestigationIndex({ workspaceRoot });
+  assert.deepEqual(query.entries, []);
+  assert.equal(query.total, 0);
+  assert.equal(query.errors.length, 1);
+  assert.match(
+    query.errors[0]!,
+    /investigation collection must contain at least one topic/u
+  );
+}
+
+async function testRawPublicApiOptionsAreDiagnosed(
+  tempRoot: string
+): Promise<void> {
+  // @ts-expect-error JavaScript callers can pass arbitrary runtime values.
+  const invalidCheck = await validateInvestigationReports(null);
+  assert.ok(invalidCheck.errors.includes("options must be an object"));
+
+  const invalidSync = await synchronizeInvestigationIndex({
+    // @ts-expect-error JavaScript callers can pass arbitrary runtime values.
+    workspaceRoot: 42
+  });
+  assert.ok(invalidSync.errors.includes("workspaceRoot must be a string"));
+
+  const workspaceRoot = path.join(tempRoot, "public-options");
+  await writeCollection(workspaceRoot, createValidReports());
+  const invalidQuery = await queryInvestigationIndex({
+    // @ts-expect-error JavaScript callers can pass arbitrary runtime values.
+    statuses: ["未知"],
+    workspaceRoot
+  });
+  assert.deepEqual(invalidQuery.errors, [
+    "statuses.0 unknown investigation status: 未知"
+  ]);
+
+  const typoQuery = await queryInvestigationIndex({
+    // @ts-expect-error JavaScript callers can misspell public option names.
+    statues: ["暂停"],
+    workspaceRoot
+  });
+  assert.deepEqual(typoQuery.errors, [
+    "statues is not a supported option"
+  ]);
+  assert.deepEqual(typoQuery.entries, []);
+  assert.equal(typoQuery.total, 0);
+}
+
 test("validation filters reports by category and path", () => (
   withTempRoot("parsing-filters", testFilteredDirectoryValidation)
 ));
@@ -342,4 +524,20 @@ test("validation reports invalid information fields without blocking valid scope
 
 test("validation enforces complete report structure and chronology", () => (
   withTempRoot("parsing-structure", testCompleteReportStructure)
+));
+
+test("validation confines canonical investigation roots to the workspace", () => (
+  withTempRoot("parsing-canonical-root", testCanonicalInvestigationRootBoundary)
+));
+
+test("full validation rejects every unsupported collection layout member", () => (
+  withTempRoot("parsing-layout", testExplicitCollectionLayout)
+));
+
+test("full validation and synchronization reject empty investigation collections", () => (
+  withTempRoot("parsing-empty-collection", testEmptyInvestigationCollection)
+));
+
+test("public APIs diagnose malformed runtime options without throwing", () => (
+  withTempRoot("parsing-public-options", testRawPublicApiOptionsAreDiagnosed)
 ));
