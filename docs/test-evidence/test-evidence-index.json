@@ -1312,50 +1312,119 @@
         "title": "前置失败后显式跳过打包"
       }
     },
-    "DECISION-ACTIVATION-ARCHIVE-001": {
+    "DECISION-ACTIVATE-ESTABLISHED-RELATIONS-001": {
       "keys": {
         "search": [
-          "DECISION-ACTIVATION-ARCHIVE-001 激活与归档保持内容和索引原子性 决策激活和归档必须同步更新内容位置与索引状态，并在归档时保留最后对齐状态。 成功转换后文件与索引一致，aligned 记录归档后仍为 aligned，失败路径不会留下半完成状态。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-ACTIVATE-ESTABLISHED-RELATIONS-001 Activate 不修订已建立记录的关系 `activate --relation` 与 `activate --clear-relations` 只服务于首次建立候选；已建立记录的关系修订必须通过 evolve 表达。 对已建立记录提供非空关系覆盖或显式清空都返回关系输入不适用诊断。 两种拒绝路径均逐字节保留目标 Markdown 和 decision-index.json。 tools/decision-records/tests/evolution.test.ts > activate rejects relation replacement for established decisions bun test --test-name-pattern=\"^activate rejects relation replacement for established decisions$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > activate rejects relation replacement for established decisions",
+          "bun test --test-name-pattern=\"^activate rejects relation replacement for established decisions$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-ACTIVATE-ESTABLISHED-RELATIONS-001",
+        "line": 1,
+        "searchText": "Activate 不修订已建立记录的关系 `activate --relation` 与 `activate --clear-relations` 只服务于首次建立候选；已建立记录的关系修订必须通过 evolve 表达。 对已建立记录提供非空关系覆盖或显式清空都返回关系输入不适用诊断。 两种拒绝路径均逐字节保留目标 Markdown 和 decision-index.json。 tools/decision-records/tests/evolution.test.ts > activate rejects relation replacement for established decisions bun test --test-name-pattern=\"^activate rejects relation replacement for established decisions$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/activate-rejects-relation-replacement-for-established-decisions.md",
+        "summary": "`activate --relation` 与 `activate --clear-relations` 只服务于首次建立候选；已建立记录的关系修订必须通过 evolve 表达。",
+        "title": "Activate 不修订已建立记录的关系"
+      }
+    },
+    "DECISION-ACTIVATE-RELATION-CLEAR-001": {
+      "keys": {
+        "search": [
+          "DECISION-ACTIVATE-RELATION-CLEAR-001 Activate 显式清空候选来源关系 `--clear-relations` 是把新候选完整关系替换为空集合的显式意图，不等同于省略覆盖，也不处理已从最终集合移除的来源目标。 带预写关系的候选通过 activate 建立后拥有空关系集合。 原来源关系指向的活动记录保持 active。 tools/decision-records/tests/evolution.test.ts > activate clear-relations explicitly replaces candidate relations with an empty set bun test --test-name-pattern=\"^activate clear-relations explicitly replaces candidate relations with an empty set$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > activate clear-relations explicitly replaces candidate relations with an empty set",
+          "bun test --test-name-pattern=\"^activate clear-relations explicitly replaces candidate relations with an empty set$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-ACTIVATE-RELATION-CLEAR-001",
+        "line": 1,
+        "searchText": "Activate 显式清空候选来源关系 `--clear-relations` 是把新候选完整关系替换为空集合的显式意图，不等同于省略覆盖，也不处理已从最终集合移除的来源目标。 带预写关系的候选通过 activate 建立后拥有空关系集合。 原来源关系指向的活动记录保持 active。 tools/decision-records/tests/evolution.test.ts > activate clear-relations explicitly replaces candidate relations with an empty set bun test --test-name-pattern=\"^activate clear-relations explicitly replaces candidate relations with an empty set$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/activate-clear-relations-explicitly-replaces-candidate-relations-with-an-empty-set.md",
+        "summary": "`--clear-relations` 是把新候选完整关系替换为空集合的显式意图，不等同于省略覆盖，也不处理已从最终集合移除的来源目标。",
+        "title": "Activate 显式清空候选来源关系"
+      }
+    },
+    "DECISION-ACTIVATE-RELATION-REPLACE-001": {
+      "keys": {
+        "search": [
+          "DECISION-ACTIVATE-RELATION-REPLACE-001 Activate 关系覆盖完整替换候选来源关系 Activate 的重复 `--relation` 表达候选最终关系的完整覆盖，不能与候选来源关系追加或合并。 建立后的候选只保存 CLI 提供的替代关系，不再包含源码中原有的修订关系。 覆盖新增的活动目标被归档，已从最终集合移除的原来源目标保持 active。 tools/decision-records/tests/evolution.test.ts > activate relation replacement overrides rather than merges candidate relations bun test --test-name-pattern=\"^activate relation replacement overrides rather than merges candidate relations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > activate relation replacement overrides rather than merges candidate relations",
+          "bun test --test-name-pattern=\"^activate relation replacement overrides rather than merges candidate relations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-ACTIVATE-RELATION-REPLACE-001",
+        "line": 1,
+        "searchText": "Activate 关系覆盖完整替换候选来源关系 Activate 的重复 `--relation` 表达候选最终关系的完整覆盖，不能与候选来源关系追加或合并。 建立后的候选只保存 CLI 提供的替代关系，不再包含源码中原有的修订关系。 覆盖新增的活动目标被归档，已从最终集合移除的原来源目标保持 active。 tools/decision-records/tests/evolution.test.ts > activate relation replacement overrides rather than merges candidate relations bun test --test-name-pattern=\"^activate relation replacement overrides rather than merges candidate relations$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/activate-relation-replacement-overrides-rather-than-merges-candidate-relations.md",
+        "summary": "Activate 的重复 `--relation` 表达候选最终关系的完整覆盖，不能与候选来源关系追加或合并。",
+        "title": "Activate 关系覆盖完整替换候选来源关系"
+      }
+    },
+    "DECISION-ACTIVATION-ARCHIVE-001": {
+      "keys": {
+        "search": [
+          "DECISION-ACTIVATION-ARCHIVE-001 激活与归档保持内容和索引原子性 决策激活和归档必须同步更新 Markdown 与索引状态，并在归档时保留最后对齐状态；候选来源关系触发的前序归档也进入同一事务边界。 成功转换后文件与索引一致，aligned 记录归档后仍为 aligned，失败路径不会留下半完成状态。 普通 activate 建立带来源关系的候选时，会保存该关系并把其活动直接前序归档。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
         "entries": [
           "tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity",
           "bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-ACTIVATION-ARCHIVE-001",
         "line": 1,
-        "searchText": "激活与归档保持内容和索引原子性 决策激活和归档必须同步更新内容位置与索引状态，并在归档时保留最后对齐状态。 成功转换后文件与索引一致，aligned 记录归档后仍为 aligned，失败路径不会留下半完成状态。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "激活与归档保持内容和索引原子性 决策激活和归档必须同步更新 Markdown 与索引状态，并在归档时保留最后对齐状态；候选来源关系触发的前序归档也进入同一事务边界。 成功转换后文件与索引一致，aligned 记录归档后仍为 aligned，失败路径不会留下半完成状态。 普通 activate 建立带来源关系的候选时，会保存该关系并把其活动直接前序归档。 tools/decision-records/tests/activation-archive.test.ts > activation and archive transitions preserve content and index atomicity bun test --test-name-pattern=\"^activation and archive transitions preserve content and index atomicity$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/activation-and-archive-transitions-preserve-content-and-index-atomicity.md",
-        "summary": "决策激活和归档必须同步更新内容位置与索引状态，并在归档时保留最后对齐状态。",
+        "summary": "决策激活和归档必须同步更新 Markdown 与索引状态，并在归档时保留最后对齐状态；候选来源关系触发的前序归档也进入同一事务边界。",
         "title": "激活与归档保持内容和索引原子性"
       }
     },
     "DECISION-ACTIVATION-RELATION-001": {
       "keys": {
         "search": [
-          "DECISION-ACTIVATION-RELATION-001 激活归档直接前序并支持有界关系追踪 带直接关系审核并激活显式完整候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围；已经进入 Git HEAD 的前序不增加确认调用。 新记录成为 aligned active，直接前序成为 archived 并保留 aligned 对齐状态，关系进入索引。 直接前序已存在于 Git HEAD 时，关系激活一次调用即可完成。 predecessor trace 深度 1 只包含直接前序，深度 2 可继续到更早记录。 tools/decision-records/tests/evolution.test.ts > activation archives a direct predecessor and traces bounded relations bun test --test-name-pattern=\"^activation archives a direct predecessor and traces bounded relations$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-ACTIVATION-RELATION-001 Activate 建立候选来源关系并归档活动目标 新候选未收到 CLI 关系覆盖时，自身保存的完整关系必须成为最终关系，并与候选建立、活动前序归档和索引重建在同一事务中生效。 带来源关系的候选在建立前通过严格检查。 单次 activate 建立候选、保存来源关系，并把关系指向的活动前序归档。 tools/decision-records/tests/evolution.test.ts > activate establishes candidate source relations and archives their active targets bun test --test-name-pattern=\"^activate establishes candidate source relations and archives their active targets$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 11,
+        "endLine": 10,
         "entries": [
-          "tools/decision-records/tests/evolution.test.ts > activation archives a direct predecessor and traces bounded relations",
-          "bun test --test-name-pattern=\"^activation archives a direct predecessor and traces bounded relations$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/evolution.test.ts > activate establishes candidate source relations and archives their active targets",
+          "bun test --test-name-pattern=\"^activate establishes candidate source relations and archives their active targets$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-ACTIVATION-RELATION-001",
         "line": 1,
-        "searchText": "激活归档直接前序并支持有界关系追踪 带直接关系审核并激活显式完整候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围；已经进入 Git HEAD 的前序不增加确认调用。 新记录成为 aligned active，直接前序成为 archived 并保留 aligned 对齐状态，关系进入索引。 直接前序已存在于 Git HEAD 时，关系激活一次调用即可完成。 predecessor trace 深度 1 只包含直接前序，深度 2 可继续到更早记录。 tools/decision-records/tests/evolution.test.ts > activation archives a direct predecessor and traces bounded relations bun test --test-name-pattern=\"^activation archives a direct predecessor and traces bounded relations$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/activation-archives-a-direct-predecessor-and-traces-bounded-relations.md",
-        "summary": "带直接关系审核并激活显式完整候选时必须归档活动前序、保存关系，并让 trace 深度只展开请求范围；已经进入 Git HEAD 的前序不增加确认调用。",
-        "title": "激活归档直接前序并支持有界关系追踪"
+        "searchText": "Activate 建立候选来源关系并归档活动目标 新候选未收到 CLI 关系覆盖时，自身保存的完整关系必须成为最终关系，并与候选建立、活动前序归档和索引重建在同一事务中生效。 带来源关系的候选在建立前通过严格检查。 单次 activate 建立候选、保存来源关系，并把关系指向的活动前序归档。 tools/decision-records/tests/evolution.test.ts > activate establishes candidate source relations and archives their active targets bun test --test-name-pattern=\"^activate establishes candidate source relations and archives their active targets$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/activate-establishes-candidate-source-relations-and-archives-their-active-targets.md",
+        "summary": "新候选未收到 CLI 关系覆盖时，自身保存的完整关系必须成为最终关系，并与候选建立、活动前序归档和索引重建在同一事务中生效。",
+        "title": "Activate 建立候选来源关系并归档活动目标"
       }
     },
     "DECISION-BODY-EMPTY-001": {
@@ -1476,24 +1545,24 @@
     "DECISION-CANDIDATE-DISCARD-GATES-001": {
       "keys": {
         "search": [
-          "DECISION-CANDIDATE-DISCARD-GATES-001 丢弃拒绝已建立、不完整或关系无效的候选 Discard 只能删除显式声明 `status: candidate`、同时使用 `alignment: null` 与 `createdAt: null`、结构完整、未建立且关系目标合法的记录；拒绝路径不得修改决策或索引。 已建立记录不能改写成候选；alignment 或 createdAt 非空、缺少必需正文，以及指向活动、候选或非法目标的候选均被拒绝。 每次拒绝后目标文件、关系目标和索引内容保持不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects established, incomplete, or related candidates without mutation bun test --test-name-pattern=\"^discard rejects established, incomplete, or related candidates without mutation$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CANDIDATE-DISCARD-GATES-001 Discard 拒绝已建立、不完整、无效或仍被引用的候选 Discard 只能删除显式、完整且关系结构合法的未建立候选；目标仍被其他候选引用时必须拒绝。候选指向活动已建立目标本身是合法前瞻关系，不阻止丢弃关系来源候选。 已建立记录、非法生命周期组合、缺少必需正文和指向无效扫描目标的候选均被拒绝，拒绝路径保留文件与索引。 指向活动已建立目标的合法候选可以删除，正式索引保持不变。 被另一个候选引用的候选目标不能删除；删除引用来源后，目标正文保持可继续处理。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects established, incomplete, invalid, or referenced candidates without mutation bun test --test-name-pattern=\"^discard rejects established, incomplete, invalid, or referenced candidates without mutation$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 11,
         "entries": [
-          "tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects established, incomplete, or related candidates without mutation",
-          "bun test --test-name-pattern=\"^discard rejects established, incomplete, or related candidates without mutation$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects established, incomplete, invalid, or referenced candidates without mutation",
+          "bun test --test-name-pattern=\"^discard rejects established, incomplete, invalid, or referenced candidates without mutation$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-CANDIDATE-DISCARD-GATES-001",
         "line": 1,
-        "searchText": "丢弃拒绝已建立、不完整或关系无效的候选 Discard 只能删除显式声明 `status: candidate`、同时使用 `alignment: null` 与 `createdAt: null`、结构完整、未建立且关系目标合法的记录；拒绝路径不得修改决策或索引。 已建立记录不能改写成候选；alignment 或 createdAt 非空、缺少必需正文，以及指向活动、候选或非法目标的候选均被拒绝。 每次拒绝后目标文件、关系目标和索引内容保持不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects established, incomplete, or related candidates without mutation bun test --test-name-pattern=\"^discard rejects established, incomplete, or related candidates without mutation$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/discard-rejects-established-incomplete-or-related-candidates-without-mutation.md",
-        "summary": "Discard 只能删除显式声明 `status: candidate`、同时使用 `alignment: null` 与 `createdAt: null`、结构完整、未建立且关系目标合法的记录；拒绝路径不得修改决策或索引。",
-        "title": "丢弃拒绝已建立、不完整或关系无效的候选"
+        "searchText": "Discard 拒绝已建立、不完整、无效或仍被引用的候选 Discard 只能删除显式、完整且关系结构合法的未建立候选；目标仍被其他候选引用时必须拒绝。候选指向活动已建立目标本身是合法前瞻关系，不阻止丢弃关系来源候选。 已建立记录、非法生命周期组合、缺少必需正文和指向无效扫描目标的候选均被拒绝，拒绝路径保留文件与索引。 指向活动已建立目标的合法候选可以删除，正式索引保持不变。 被另一个候选引用的候选目标不能删除；删除引用来源后，目标正文保持可继续处理。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects established, incomplete, invalid, or referenced candidates without mutation bun test --test-name-pattern=\"^discard rejects established, incomplete, invalid, or referenced candidates without mutation$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/discard-rejects-established-incomplete-invalid-or-referenced-candidates-without-mutation.md",
+        "summary": "Discard 只能删除显式、完整且关系结构合法的未建立候选；目标仍被其他候选引用时必须拒绝。候选指向活动已建立目标本身是合法前瞻关系，不阻止丢弃关系来源候选。",
+        "title": "Discard 拒绝已建立、不完整、无效或仍被引用的候选"
       }
     },
     "DECISION-CANDIDATE-DISCARD-SELECTION-001": {
@@ -1568,23 +1637,23 @@
     "DECISION-CLI-ARGS-001": {
       "keys": {
         "search": [
-          "DECISION-CLI-ARGS-001 CLI 帮助与参数错误暴露一致命令契约 顶层与子命令帮助必须准确说明默认 check、候选源码查询、正式索引检查/重建、只有完整方向成为当前事实并完成核对后才能对齐，以及归档保留对齐状态；非法参数继续使用参数错误退出契约。 帮助文本公开 agent-oriented 入口、默认严格检查、`candidates` 与 `show-candidate` 的源码语义、sync-index 的只检/写入差异、mark-aligned 的事实基线语义和归档保留 alignment；未知选项、非法深度、非法领域 ID 与缺失必需参数均退出 2。 tools/decision-records/tests/queries.test.ts > decision CLI help and invalid options expose one consistent contract bun test --test-name-pattern=\"^decision CLI help and invalid options expose one consistent contract$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CLI-ARGS-001 CLI 帮助与参数错误暴露一致命令契约 顶层与子命令帮助必须准确说明默认 check、候选源码查询、正式索引检查/重建和统一 evolve 协议；已移除命令、旧参数形状和非法或冲突参数继续使用退出码 2。 顶层帮助公开 agent-oriented 入口、默认严格检查、候选源码语义和 evolve，且不再列出独立 split 命令。 Evolve 帮助公开重复 `--successor` 与 `--clear-relations`，不再公开旧单后继 `--alignment`。 独立 split、旧 positional evolve、缺失 successor、未知选项、非法深度、非法领域 ID、缺失 activate alignment 以及同时使用 relation 与 clear-relations 均退出 2。 Mark-aligned 与 archive 帮助继续公开事实核对和归档保留 alignment 的长期边界。 tools/decision-records/tests/queries.test.ts > decision CLI help and invalid options expose one consistent contract bun test --test-name-pattern=\"^decision CLI help and invalid options expose one consistent contract$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 12,
         "entries": [
           "tools/decision-records/tests/queries.test.ts > decision CLI help and invalid options expose one consistent contract",
           "bun test --test-name-pattern=\"^decision CLI help and invalid options expose one consistent contract$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-CLI-ARGS-001",
         "line": 1,
-        "searchText": "CLI 帮助与参数错误暴露一致命令契约 顶层与子命令帮助必须准确说明默认 check、候选源码查询、正式索引检查/重建、只有完整方向成为当前事实并完成核对后才能对齐，以及归档保留对齐状态；非法参数继续使用参数错误退出契约。 帮助文本公开 agent-oriented 入口、默认严格检查、`candidates` 与 `show-candidate` 的源码语义、sync-index 的只检/写入差异、mark-aligned 的事实基线语义和归档保留 alignment；未知选项、非法深度、非法领域 ID 与缺失必需参数均退出 2。 tools/decision-records/tests/queries.test.ts > decision CLI help and invalid options expose one consistent contract bun test --test-name-pattern=\"^decision CLI help and invalid options expose one consistent contract$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "CLI 帮助与参数错误暴露一致命令契约 顶层与子命令帮助必须准确说明默认 check、候选源码查询、正式索引检查/重建和统一 evolve 协议；已移除命令、旧参数形状和非法或冲突参数继续使用退出码 2。 顶层帮助公开 agent-oriented 入口、默认严格检查、候选源码语义和 evolve，且不再列出独立 split 命令。 Evolve 帮助公开重复 `--successor` 与 `--clear-relations`，不再公开旧单后继 `--alignment`。 独立 split、旧 positional evolve、缺失 successor、未知选项、非法深度、非法领域 ID、缺失 activate alignment 以及同时使用 relation 与 clear-relations 均退出 2。 Mark-aligned 与 archive 帮助继续公开事实核对和归档保留 alignment 的长期边界。 tools/decision-records/tests/queries.test.ts > decision CLI help and invalid options expose one consistent contract bun test --test-name-pattern=\"^decision CLI help and invalid options expose one consistent contract$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-cli-help-and-invalid-options-expose-one-consistent-contract.md",
-        "summary": "顶层与子命令帮助必须准确说明默认 check、候选源码查询、正式索引检查/重建、只有完整方向成为当前事实并完成核对后才能对齐，以及归档保留对齐状态；非法参数继续使用参数错误退出契约。",
+        "summary": "顶层与子命令帮助必须准确说明默认 check、候选源码查询、正式索引检查/重建和统一 evolve 协议；已移除命令、旧参数形状和非法或冲突参数继续使用退出码 2。",
         "title": "CLI 帮助与参数错误暴露一致命令契约"
       }
     },
@@ -1729,7 +1798,7 @@
     "DECISION-EVOLUTION-RELATIONS-001": {
       "keys": {
         "search": [
-          "DECISION-EVOLUTION-RELATIONS-001 决策演进验证关系与目标状态 决策演进关系必须指向存在且已归档的直接前序，并禁止环、自指和重复目标。 活动或候选目标、缺失目标、循环、自指和重复关系均被拒绝。 关系激活失败时目标记录和索引保持不变。 tools/decision-records/tests/evolution.test.ts > decision evolution validates relation semantics and target states bun test --test-name-pattern=\"^decision evolution validates relation semantics and target states$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-EVOLUTION-RELATIONS-001 候选关系接受前瞻校验但不进入正式关系图 候选可以预写指向当前可解析记录的关系；候选关系在建立前只接受前瞻性结构校验，不进入正式索引或关系图。 候选指向另一个完整候选时，两者都通过严格检查并被计数，但正式索引仍排除两个候选且既有活动图保持不变。 指向缺失目标、自身或重复声明同一目标的候选关系分别产生可归因的结构诊断。 tools/decision-records/tests/evolution.test.ts > candidate relations are checked prospectively without entering the established graph bun test --test-name-pattern=\"^candidate relations are checked prospectively without entering the established graph$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1738,67 +1807,90 @@
       "state": {
         "endLine": 10,
         "entries": [
-          "tools/decision-records/tests/evolution.test.ts > decision evolution validates relation semantics and target states",
-          "bun test --test-name-pattern=\"^decision evolution validates relation semantics and target states$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/evolution.test.ts > candidate relations are checked prospectively without entering the established graph",
+          "bun test --test-name-pattern=\"^candidate relations are checked prospectively without entering the established graph$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-EVOLUTION-RELATIONS-001",
         "line": 1,
-        "searchText": "决策演进验证关系与目标状态 决策演进关系必须指向存在且已归档的直接前序，并禁止环、自指和重复目标。 活动或候选目标、缺失目标、循环、自指和重复关系均被拒绝。 关系激活失败时目标记录和索引保持不变。 tools/decision-records/tests/evolution.test.ts > decision evolution validates relation semantics and target states bun test --test-name-pattern=\"^decision evolution validates relation semantics and target states$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/decision-evolution-validates-relation-semantics-and-target-states.md",
-        "summary": "决策演进关系必须指向存在且已归档的直接前序，并禁止环、自指和重复目标。",
-        "title": "决策演进验证关系与目标状态"
+        "searchText": "候选关系接受前瞻校验但不进入正式关系图 候选可以预写指向当前可解析记录的关系；候选关系在建立前只接受前瞻性结构校验，不进入正式索引或关系图。 候选指向另一个完整候选时，两者都通过严格检查并被计数，但正式索引仍排除两个候选且既有活动图保持不变。 指向缺失目标、自身或重复声明同一目标的候选关系分别产生可归因的结构诊断。 tools/decision-records/tests/evolution.test.ts > candidate relations are checked prospectively without entering the established graph bun test --test-name-pattern=\"^candidate relations are checked prospectively without entering the established graph$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/candidate-relations-are-checked-prospectively-without-entering-the-established-graph.md",
+        "summary": "候选可以预写指向当前可解析记录的关系；候选关系在建立前只接受前瞻性结构校验，不进入正式索引或关系图。",
+        "title": "候选关系接受前瞻校验但不进入正式关系图"
       }
     },
-    "DECISION-EVOLVE-ARCHIVED-PREDECESSOR-001": {
+    "DECISION-EVOLVE-ALIGNMENT-CONFIRMATION-001": {
       "keys": {
         "search": [
-          "DECISION-EVOLVE-ARCHIVED-PREDECESSOR-001 Evolve 拒绝已归档直接前序 Evolve 只能归档当前活动的直接前序，不得把已归档记录作为待转换来源。 包含已归档前序的演进退出 1 并报告 predecessor 状态错误，候选与索引保持不变。 tools/decision-records/tests/evolution.test.ts > evolve rejects archived predecessors without mutation bun test --test-name-pattern=\"^evolve rejects archived predecessors without mutation$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-EVOLVE-ALIGNMENT-CONFIRMATION-001 Evolve 拒绝已建立后继的错误对齐确认 选择已建立后继时，`--successor` 中的 alignment 只能确认记录现有对齐状态，不能借关系事务改写对齐。 与现状不一致的 alignment 返回明确失败诊断。 拒绝路径逐字节保留目标 Markdown 和 decision-index.json。 tools/decision-records/tests/evolution.test.ts > evolve rejects established successor alignment mismatches without mutation bun test --test-name-pattern=\"^evolve rejects established successor alignment mismatches without mutation$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
         "entries": [
-          "tools/decision-records/tests/evolution.test.ts > evolve rejects archived predecessors without mutation",
-          "bun test --test-name-pattern=\"^evolve rejects archived predecessors without mutation$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/evolution.test.ts > evolve rejects established successor alignment mismatches without mutation",
+          "bun test --test-name-pattern=\"^evolve rejects established successor alignment mismatches without mutation$\" ./tools/decision-records/tests/run.ts"
         ],
-        "id": "DECISION-EVOLVE-ARCHIVED-PREDECESSOR-001",
+        "id": "DECISION-EVOLVE-ALIGNMENT-CONFIRMATION-001",
         "line": 1,
-        "searchText": "Evolve 拒绝已归档直接前序 Evolve 只能归档当前活动的直接前序，不得把已归档记录作为待转换来源。 包含已归档前序的演进退出 1 并报告 predecessor 状态错误，候选与索引保持不变。 tools/decision-records/tests/evolution.test.ts > evolve rejects archived predecessors without mutation bun test --test-name-pattern=\"^evolve rejects archived predecessors without mutation$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/evolve-rejects-archived-predecessors-without-mutation.md",
-        "summary": "Evolve 只能归档当前活动的直接前序，不得把已归档记录作为待转换来源。",
-        "title": "Evolve 拒绝已归档直接前序"
+        "searchText": "Evolve 拒绝已建立后继的错误对齐确认 选择已建立后继时，`--successor` 中的 alignment 只能确认记录现有对齐状态，不能借关系事务改写对齐。 与现状不一致的 alignment 返回明确失败诊断。 拒绝路径逐字节保留目标 Markdown 和 decision-index.json。 tools/decision-records/tests/evolution.test.ts > evolve rejects established successor alignment mismatches without mutation bun test --test-name-pattern=\"^evolve rejects established successor alignment mismatches without mutation$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-rejects-established-successor-alignment-mismatches-without-mutation.md",
+        "summary": "选择已建立后继时，`--successor` 中的 alignment 只能确认记录现有对齐状态，不能借关系事务改写对齐。",
+        "title": "Evolve 拒绝已建立后继的错误对齐确认"
+      }
+    },
+    "DECISION-EVOLVE-ARCHIVED-SUCCESSOR-001": {
+      "keys": {
+        "search": [
+          "DECISION-EVOLVE-ARCHIVED-SUCCESSOR-001 Evolve 修订关系时保持已归档后继的生命周期 拥有非空 alignment 的已归档后继可以通过 evolve 修订完整关系，但不能因此重新激活或改变原 alignment 和 createdAt。 关系替换后目标记录仍为 archived，alignment 与 createdAt 保持事务前值。 目标记录保存新的完整修订关系集合。 tools/decision-records/tests/evolution.test.ts > evolve keeps an archived established successor archived during relation replacement bun test --test-name-pattern=\"^evolve keeps an archived established successor archived during relation replacement$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve keeps an archived established successor archived during relation replacement",
+          "bun test --test-name-pattern=\"^evolve keeps an archived established successor archived during relation replacement$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-EVOLVE-ARCHIVED-SUCCESSOR-001",
+        "line": 1,
+        "searchText": "Evolve 修订关系时保持已归档后继的生命周期 拥有非空 alignment 的已归档后继可以通过 evolve 修订完整关系，但不能因此重新激活或改变原 alignment 和 createdAt。 关系替换后目标记录仍为 archived，alignment 与 createdAt 保持事务前值。 目标记录保存新的完整修订关系集合。 tools/decision-records/tests/evolution.test.ts > evolve keeps an archived established successor archived during relation replacement bun test --test-name-pattern=\"^evolve keeps an archived established successor archived during relation replacement$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-keeps-an-archived-established-successor-archived-during-relation-replacement.md",
+        "summary": "拥有非空 alignment 的已归档后继可以通过 evolve 修订完整关系，但不能因此重新激活或改变原 alignment 和 createdAt。",
+        "title": "Evolve 修订关系时保持已归档后继的生命周期"
       }
     },
     "DECISION-EVOLVE-COMMAND-001": {
       "keys": {
         "search": [
-          "DECISION-EVOLVE-COMMAND-001 Evolve 原子归档来源并创建目标 Evolve 命令必须在一次操作中归档来源决策并创建对齐目标。 成功后全部活动直接前序成为 archived，新目标成为 aligned active 并保存完整关系集合。 tools/decision-records/tests/evolution.test.ts > evolve command archives sources and creates the aligned target atomically bun test --test-name-pattern=\"^evolve command archives sources and creates the aligned target atomically$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-EVOLVE-COMMAND-001 Evolve 建立单后继并保留已归档前序 单后继 evolve 可以使用活动和已归档的合法直接前序；事务只归档新增活动前序，并保存调用方提供的完整最终关系集合。 活动前序在事务后成为 archived，原本已归档的前序继续保持 archived。 新后继成为已建立记录，并按输入顺序保存同时指向两类前序的完整关系。 tools/decision-records/tests/evolution.test.ts > evolve establishes one successor while preserving archived predecessors bun test --test-name-pattern=\"^evolve establishes one successor while preserving archived predecessors$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
         "entries": [
-          "tools/decision-records/tests/evolution.test.ts > evolve command archives sources and creates the aligned target atomically",
-          "bun test --test-name-pattern=\"^evolve command archives sources and creates the aligned target atomically$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/evolution.test.ts > evolve establishes one successor while preserving archived predecessors",
+          "bun test --test-name-pattern=\"^evolve establishes one successor while preserving archived predecessors$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-EVOLVE-COMMAND-001",
         "line": 1,
-        "searchText": "Evolve 原子归档来源并创建目标 Evolve 命令必须在一次操作中归档来源决策并创建对齐目标。 成功后全部活动直接前序成为 archived，新目标成为 aligned active 并保存完整关系集合。 tools/decision-records/tests/evolution.test.ts > evolve command archives sources and creates the aligned target atomically bun test --test-name-pattern=\"^evolve command archives sources and creates the aligned target atomically$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/evolve-command-archives-sources-and-creates-the-aligned-target-atomically.md",
-        "summary": "Evolve 命令必须在一次操作中归档来源决策并创建对齐目标。",
-        "title": "Evolve 原子归档来源并创建目标"
+        "searchText": "Evolve 建立单后继并保留已归档前序 单后继 evolve 可以使用活动和已归档的合法直接前序；事务只归档新增活动前序，并保存调用方提供的完整最终关系集合。 活动前序在事务后成为 archived，原本已归档的前序继续保持 archived。 新后继成为已建立记录，并按输入顺序保存同时指向两类前序的完整关系。 tools/decision-records/tests/evolution.test.ts > evolve establishes one successor while preserving archived predecessors bun test --test-name-pattern=\"^evolve establishes one successor while preserving archived predecessors$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-establishes-one-successor-while-preserving-archived-predecessors.md",
+        "summary": "单后继 evolve 可以使用活动和已归档的合法直接前序；事务只归档新增活动前序，并保存调用方提供的完整最终关系集合。",
+        "title": "Evolve 建立单后继并保留已归档前序"
       }
     },
-    "DECISION-EVOLVE-DUPLICATE-PREDECESSOR-001": {
+    "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001": {
       "keys": {
         "search": [
-          "DECISION-EVOLVE-DUPLICATE-PREDECESSOR-001 Evolve 拒绝重复直接前序参数 Evolve 的关系参数不得对同一直接前序重复声明不同或相同关系。 重复前序参数退出 2 并返回参数诊断，候选正文与索引保持原样。 tools/decision-records/tests/evolution.test.ts > evolve rejects duplicate predecessor arguments without mutation bun test --test-name-pattern=\"^evolve rejects duplicate predecessor arguments without mutation$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001 Evolve CLI 拒绝重复关系覆盖目标 完整关系覆盖中，同一直接前序目标只能出现一次，即使调用方为它声明不同关系类型也不能重复。 两个 `--relation` 使用不同类型但指向同一路径时，生成 CLI 在参数解析期退出 2 并报告重复直接前序目标。 tools/decision-records/tests/evolution.test.ts > evolve rejects repeated relation override targets at the CLI boundary bun test --test-name-pattern=\"^evolve rejects repeated relation override targets at the CLI boundary$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1807,15 +1899,107 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/decision-records/tests/evolution.test.ts > evolve rejects duplicate predecessor arguments without mutation",
-          "bun test --test-name-pattern=\"^evolve rejects duplicate predecessor arguments without mutation$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/evolution.test.ts > evolve rejects repeated relation override targets at the CLI boundary",
+          "bun test --test-name-pattern=\"^evolve rejects repeated relation override targets at the CLI boundary$\" ./tools/decision-records/tests/run.ts"
         ],
-        "id": "DECISION-EVOLVE-DUPLICATE-PREDECESSOR-001",
+        "id": "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001",
         "line": 1,
-        "searchText": "Evolve 拒绝重复直接前序参数 Evolve 的关系参数不得对同一直接前序重复声明不同或相同关系。 重复前序参数退出 2 并返回参数诊断，候选正文与索引保持原样。 tools/decision-records/tests/evolution.test.ts > evolve rejects duplicate predecessor arguments without mutation bun test --test-name-pattern=\"^evolve rejects duplicate predecessor arguments without mutation$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/evolve-rejects-duplicate-predecessor-arguments-without-mutation.md",
-        "summary": "Evolve 的关系参数不得对同一直接前序重复声明不同或相同关系。",
-        "title": "Evolve 拒绝重复直接前序参数"
+        "searchText": "Evolve CLI 拒绝重复关系覆盖目标 完整关系覆盖中，同一直接前序目标只能出现一次，即使调用方为它声明不同关系类型也不能重复。 两个 `--relation` 使用不同类型但指向同一路径时，生成 CLI 在参数解析期退出 2 并报告重复直接前序目标。 tools/decision-records/tests/evolution.test.ts > evolve rejects repeated relation override targets at the CLI boundary bun test --test-name-pattern=\"^evolve rejects repeated relation override targets at the CLI boundary$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-rejects-repeated-relation-override-targets-at-the-cli-boundary.md",
+        "summary": "完整关系覆盖中，同一直接前序目标只能出现一次，即使调用方为它声明不同关系类型也不能重复。",
+        "title": "Evolve CLI 拒绝重复关系覆盖目标"
+      }
+    },
+    "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001": {
+      "keys": {
+        "search": [
+          "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001 Evolve CLI 拒绝重复后继成员 一次 evolve 的完整 successor 集合中，每个规范决策路径只能出现一次。 同一路径重复提供两个 `--successor` 时，生成 CLI 在参数边界退出 2 并报告重复后继路径。 tools/decision-records/tests/evolution.test.ts > evolve rejects duplicate successor members at the CLI boundary bun test --test-name-pattern=\"^evolve rejects duplicate successor members at the CLI boundary$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve rejects duplicate successor members at the CLI boundary",
+          "bun test --test-name-pattern=\"^evolve rejects duplicate successor members at the CLI boundary$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001",
+        "line": 1,
+        "searchText": "Evolve CLI 拒绝重复后继成员 一次 evolve 的完整 successor 集合中，每个规范决策路径只能出现一次。 同一路径重复提供两个 `--successor` 时，生成 CLI 在参数边界退出 2 并报告重复后继路径。 tools/decision-records/tests/evolution.test.ts > evolve rejects duplicate successor members at the CLI boundary bun test --test-name-pattern=\"^evolve rejects duplicate successor members at the CLI boundary$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-rejects-duplicate-successor-members-at-the-cli-boundary.md",
+        "summary": "一次 evolve 的完整 successor 集合中，每个规范决策路径只能出现一次。",
+        "title": "Evolve CLI 拒绝重复后继成员"
+      }
+    },
+    "DECISION-EVOLVE-ESTABLISHED-REPLACE-001": {
+      "keys": {
+        "search": [
+          "DECISION-EVOLVE-ESTABLISHED-REPLACE-001 Evolve 只替换已建立记录的完整关系 Evolve 修订已建立记录时只能完整替换 relations，必须保留正文、status、alignment、createdAt 和摘要字段；移除的旧目标不自动改变生命周期。 关系替换前后的 status、alignment、createdAt、title、purpose、background、decision 与三段正文逐项一致。 最终关系只包含新的替代目标；该新增目标从 active 归档，已移除的旧目标继续保持 archived。 tools/decision-records/tests/evolution.test.ts > evolve replaces established relations while preserving body and lifecycle fields bun test --test-name-pattern=\"^evolve replaces established relations while preserving body and lifecycle fields$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve replaces established relations while preserving body and lifecycle fields",
+          "bun test --test-name-pattern=\"^evolve replaces established relations while preserving body and lifecycle fields$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-EVOLVE-ESTABLISHED-REPLACE-001",
+        "line": 1,
+        "searchText": "Evolve 只替换已建立记录的完整关系 Evolve 修订已建立记录时只能完整替换 relations，必须保留正文、status、alignment、createdAt 和摘要字段；移除的旧目标不自动改变生命周期。 关系替换前后的 status、alignment、createdAt、title、purpose、background、decision 与三段正文逐项一致。 最终关系只包含新的替代目标；该新增目标从 active 归档，已移除的旧目标继续保持 archived。 tools/decision-records/tests/evolution.test.ts > evolve replaces established relations while preserving body and lifecycle fields bun test --test-name-pattern=\"^evolve replaces established relations while preserving body and lifecycle fields$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-replaces-established-relations-while-preserving-body-and-lifecycle-fields.md",
+        "summary": "Evolve 修订已建立记录时只能完整替换 relations，必须保留正文、status、alignment、createdAt 和摘要字段；移除的旧目标不自动改变生命周期。",
+        "title": "Evolve 只替换已建立记录的完整关系"
+      }
+    },
+    "DECISION-EVOLVE-HISTORICAL-SUCCESSOR-001": {
+      "keys": {
+        "search": [
+          "DECISION-EVOLVE-HISTORICAL-SUCCESSOR-001 Evolve 拒绝无可确认对齐状态的历史归档后继 历史 `archived + alignment: null` 记录没有可供 successor 参数确认的完整对齐状态，不进入普通关系修订路径。 选择 alignment 为 null 的归档后继时，evolve 失败并报告必须具有非空 alignment。 tools/decision-records/tests/evolution.test.ts > evolve rejects historical archived successors with null alignment bun test --test-name-pattern=\"^evolve rejects historical archived successors with null alignment$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve rejects historical archived successors with null alignment",
+          "bun test --test-name-pattern=\"^evolve rejects historical archived successors with null alignment$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-EVOLVE-HISTORICAL-SUCCESSOR-001",
+        "line": 1,
+        "searchText": "Evolve 拒绝无可确认对齐状态的历史归档后继 历史 `archived + alignment: null` 记录没有可供 successor 参数确认的完整对齐状态，不进入普通关系修订路径。 选择 alignment 为 null 的归档后继时，evolve 失败并报告必须具有非空 alignment。 tools/decision-records/tests/evolution.test.ts > evolve rejects historical archived successors with null alignment bun test --test-name-pattern=\"^evolve rejects historical archived successors with null alignment$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-rejects-historical-archived-successors-with-null-alignment.md",
+        "summary": "历史 `archived + alignment: null` 记录没有可供 successor 参数确认的完整对齐状态，不进入普通关系修订路径。",
+        "title": "Evolve 拒绝无可确认对齐状态的历史归档后继"
+      }
+    },
+    "DECISION-EVOLVE-UNSUPPORTED-MULTI-001": {
+      "keys": {
+        "search": [
+          "DECISION-EVOLVE-UNSUPPORTED-MULTI-001 Evolve 拒绝未获策略支持的普通多后继形状 当前只有闭合拆分策略允许多后继；空关系或普通非拆分关系不能组成未经定义的多后继事务。 同时选择两个空关系候选时，evolve 在写入前报告多后继只受闭合拆分策略支持。 tools/decision-records/tests/evolution.test.ts > evolve rejects unsupported multi-successor shapes without split relations bun test --test-name-pattern=\"^evolve rejects unsupported multi-successor shapes without split relations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve rejects unsupported multi-successor shapes without split relations",
+          "bun test --test-name-pattern=\"^evolve rejects unsupported multi-successor shapes without split relations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-EVOLVE-UNSUPPORTED-MULTI-001",
+        "line": 1,
+        "searchText": "Evolve 拒绝未获策略支持的普通多后继形状 当前只有闭合拆分策略允许多后继；空关系或普通非拆分关系不能组成未经定义的多后继事务。 同时选择两个空关系候选时，evolve 在写入前报告多后继只受闭合拆分策略支持。 tools/decision-records/tests/evolution.test.ts > evolve rejects unsupported multi-successor shapes without split relations bun test --test-name-pattern=\"^evolve rejects unsupported multi-successor shapes without split relations$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-rejects-unsupported-multi-successor-shapes-without-split-relations.md",
+        "summary": "当前只有闭合拆分策略允许多后继；空关系或普通非拆分关系不能组成未经定义的多后继事务。",
+        "title": "Evolve 拒绝未获策略支持的普通多后继形状"
       }
     },
     "DECISION-FAST-REVISION-001": {
@@ -1867,23 +2051,23 @@
     "DECISION-GENERATED-ARTIFACTS-001": {
       "keys": {
         "search": [
-          "DECISION-GENERATED-ARTIFACTS-001 决策生成制品公开 Schema 与 API 决策分发制品必须包含约定 Schema、API 和可移植来源元数据。 生成脚本、声明及 source map 暴露完整公共契约。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose schemas, APIs, and portable metadata bun test --test-name-pattern=\"^generated decision artifacts expose schemas, APIs, and portable metadata$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-GENERATED-ARTIFACTS-001 决策生成制品公开 Schema 与 API 决策分发制品必须包含约定 Schema、统一关系事务 API 和可移植来源元数据，且不继续公开 split 专属类型。 生成声明公开 `DecisionSuccessor`、`DecisionRelationOverride` 及 source/replace 判别分支，并排除 `DecisionSplitSuccessor`。 生成脚本、Schema、声明和 source map 暴露完整公共契约与可移植来源路径。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose schemas, APIs, and portable metadata bun test --test-name-pattern=\"^generated decision artifacts expose schemas, APIs, and portable metadata$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
         "entries": [
           "tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose schemas, APIs, and portable metadata",
           "bun test --test-name-pattern=\"^generated decision artifacts expose schemas, APIs, and portable metadata$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-GENERATED-ARTIFACTS-001",
         "line": 1,
-        "searchText": "决策生成制品公开 Schema 与 API 决策分发制品必须包含约定 Schema、API 和可移植来源元数据。 生成脚本、声明及 source map 暴露完整公共契约。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose schemas, APIs, and portable metadata bun test --test-name-pattern=\"^generated decision artifacts expose schemas, APIs, and portable metadata$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "决策生成制品公开 Schema 与 API 决策分发制品必须包含约定 Schema、统一关系事务 API 和可移植来源元数据，且不继续公开 split 专属类型。 生成声明公开 `DecisionSuccessor`、`DecisionRelationOverride` 及 source/replace 判别分支，并排除 `DecisionSplitSuccessor`。 生成脚本、Schema、声明和 source map 暴露完整公共契约与可移植来源路径。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose schemas, APIs, and portable metadata bun test --test-name-pattern=\"^generated decision artifacts expose schemas, APIs, and portable metadata$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/generated-decision-artifacts-expose-schemas-apis-and-portable-metadata.md",
-        "summary": "决策分发制品必须包含约定 Schema、API 和可移植来源元数据。",
+        "summary": "决策分发制品必须包含约定 Schema、统一关系事务 API 和可移植来源元数据，且不继续公开 split 专属类型。",
         "title": "决策生成制品公开 Schema 与 API"
       }
     },
@@ -1931,6 +2115,29 @@
         "sourcePath": "decision-records/decision-list-filters-lifecycle-domain-and-alignment-selectors.md",
         "summary": "List CLI 必须从持久索引按生命周期、领域与对齐状态返回紧凑定位信息，并验证领域选择器。",
         "title": "决策列表按生命周期、领域与对齐状态筛选"
+      }
+    },
+    "DECISION-MERGE-MINIMUM-001": {
+      "keys": {
+        "search": [
+          "DECISION-MERGE-MINIMUM-001 Evolve 拒绝前序不足的纯归并 最终关系全部为 `归并` 时必须至少包含两个不同直接前序，单前序不能伪装成归并。 只有一条归并关系的单后继 evolve 在写入前失败并报告至少需要两个前序。 tools/decision-records/tests/evolution.test.ts > evolve rejects a pure merge with fewer than two predecessors bun test --test-name-pattern=\"^evolve rejects a pure merge with fewer than two predecessors$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve rejects a pure merge with fewer than two predecessors",
+          "bun test --test-name-pattern=\"^evolve rejects a pure merge with fewer than two predecessors$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-MERGE-MINIMUM-001",
+        "line": 1,
+        "searchText": "Evolve 拒绝前序不足的纯归并 最终关系全部为 `归并` 时必须至少包含两个不同直接前序，单前序不能伪装成归并。 只有一条归并关系的单后继 evolve 在写入前失败并报告至少需要两个前序。 tools/decision-records/tests/evolution.test.ts > evolve rejects a pure merge with fewer than two predecessors bun test --test-name-pattern=\"^evolve rejects a pure merge with fewer than two predecessors$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-rejects-a-pure-merge-with-fewer-than-two-predecessors.md",
+        "summary": "最终关系全部为 `归并` 时必须至少包含两个不同直接前序，单前序不能伪装成归并。",
+        "title": "Evolve 拒绝前序不足的纯归并"
       }
     },
     "DECISION-QUERY-INDEX-MEMBERSHIP-001": {
@@ -1982,7 +2189,7 @@
     "DECISION-SPLIT-CLOSURE-001": {
       "keys": {
         "search": [
-          "DECISION-SPLIT-CLOSURE-001 拆分拒绝不完整后继集合与关系图 一个决策拆分必须形成至少两个直接后继；单个后继不能冒充闭合的一对多演进，也不能留下孤立的 `拆分` 关系边。 只提供一个 `--successor` 时命令失败，并逐字节保留前序、候选和索引。 权威 Markdown 只包含一条指向某前序的 `拆分` 边时，严格集合校验报告后继数量不足。 tools/decision-records/tests/evolution.test.ts > split rejects incomplete successor sets and relationship graphs bun test --test-name-pattern=\"^split rejects incomplete successor sets and relationship graphs$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-SPLIT-CLOSURE-001 严格关系检查拒绝不闭合拓扑 已建立关系图中的纯归并必须至少有两个前序；拆分必须形成至少两个直接后继，且每个拆分后继只保存一条指向同一前序的拆分关系。 只有一个前序的纯归并由严格检查报告数量不足。 只有一个直接后继的拆分和混合拆分与修订关系的后继分别由严格检查报告不闭合或不纯。 tools/decision-records/tests/evolution.test.ts > strict relation checks reject impure splits, open splits, and undersized pure merges bun test --test-name-pattern=\"^strict relation checks reject impure splits, open splits, and undersized pure merges$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1991,21 +2198,113 @@
       "state": {
         "endLine": 10,
         "entries": [
-          "tools/decision-records/tests/evolution.test.ts > split rejects incomplete successor sets and relationship graphs",
-          "bun test --test-name-pattern=\"^split rejects incomplete successor sets and relationship graphs$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/evolution.test.ts > strict relation checks reject impure splits, open splits, and undersized pure merges",
+          "bun test --test-name-pattern=\"^strict relation checks reject impure splits, open splits, and undersized pure merges$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-SPLIT-CLOSURE-001",
         "line": 1,
-        "searchText": "拆分拒绝不完整后继集合与关系图 一个决策拆分必须形成至少两个直接后继；单个后继不能冒充闭合的一对多演进，也不能留下孤立的 `拆分` 关系边。 只提供一个 `--successor` 时命令失败，并逐字节保留前序、候选和索引。 权威 Markdown 只包含一条指向某前序的 `拆分` 边时，严格集合校验报告后继数量不足。 tools/decision-records/tests/evolution.test.ts > split rejects incomplete successor sets and relationship graphs bun test --test-name-pattern=\"^split rejects incomplete successor sets and relationship graphs$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/split-rejects-incomplete-successor-sets-and-relationship-graphs.md",
-        "summary": "一个决策拆分必须形成至少两个直接后继；单个后继不能冒充闭合的一对多演进，也不能留下孤立的 `拆分` 关系边。",
-        "title": "拆分拒绝不完整后继集合与关系图"
+        "searchText": "严格关系检查拒绝不闭合拓扑 已建立关系图中的纯归并必须至少有两个前序；拆分必须形成至少两个直接后继，且每个拆分后继只保存一条指向同一前序的拆分关系。 只有一个前序的纯归并由严格检查报告数量不足。 只有一个直接后继的拆分和混合拆分与修订关系的后继分别由严格检查报告不闭合或不纯。 tools/decision-records/tests/evolution.test.ts > strict relation checks reject impure splits, open splits, and undersized pure merges bun test --test-name-pattern=\"^strict relation checks reject impure splits, open splits, and undersized pure merges$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/strict-relation-checks-reject-impure-splits-open-splits-and-undersized-pure-merges.md",
+        "summary": "已建立关系图中的纯归并必须至少有两个前序；拆分必须形成至少两个直接后继，且每个拆分后继只保存一条指向同一前序的拆分关系。",
+        "title": "严格关系检查拒绝不闭合拓扑"
+      }
+    },
+    "DECISION-SPLIT-EXTENSION-001": {
+      "keys": {
+        "search": [
+          "DECISION-SPLIT-EXTENSION-001 Evolve 选全既有成员后扩充闭合拆分 已存在闭合拆分时，新增直接后继必须在同一次 evolve 中显式选择全部既有后继和新增候选。 同时选择两个既有后继和第三个候选后，第三个后继建立并保存指向共同粗前序的拆分关系。 扩充后的完整决策集合通过严格检查。 tools/decision-records/tests/evolution.test.ts > evolve adds a split successor only when every existing successor is selected bun test --test-name-pattern=\"^evolve adds a split successor only when every existing successor is selected$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve adds a split successor only when every existing successor is selected",
+          "bun test --test-name-pattern=\"^evolve adds a split successor only when every existing successor is selected$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SPLIT-EXTENSION-001",
+        "line": 1,
+        "searchText": "Evolve 选全既有成员后扩充闭合拆分 已存在闭合拆分时，新增直接后继必须在同一次 evolve 中显式选择全部既有后继和新增候选。 同时选择两个既有后继和第三个候选后，第三个后继建立并保存指向共同粗前序的拆分关系。 扩充后的完整决策集合通过严格检查。 tools/decision-records/tests/evolution.test.ts > evolve adds a split successor only when every existing successor is selected bun test --test-name-pattern=\"^evolve adds a split successor only when every existing successor is selected$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-adds-a-split-successor-only-when-every-existing-successor-is-selected.md",
+        "summary": "已存在闭合拆分时，新增直接后继必须在同一次 evolve 中显式选择全部既有后继和新增候选。",
+        "title": "Evolve 选全既有成员后扩充闭合拆分"
+      }
+    },
+    "DECISION-SPLIT-MIXED-RELATIONS-001": {
+      "keys": {
+        "search": [
+          "DECISION-SPLIT-MIXED-RELATIONS-001 Evolve 拒绝拆分与非拆分后继混合 多后继拆分策略要求每个所选后继都恰好保存一条拆分关系，不能把拆分后继和普通修订后继混入同一事务。 同时选择一个拆分候选和一个修订候选时，evolve 在写入前报告后继关系分布不满足纯拆分策略。 tools/decision-records/tests/evolution.test.ts > evolve rejects mixed split and non-split successor relations bun test --test-name-pattern=\"^evolve rejects mixed split and non-split successor relations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve rejects mixed split and non-split successor relations",
+          "bun test --test-name-pattern=\"^evolve rejects mixed split and non-split successor relations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SPLIT-MIXED-RELATIONS-001",
+        "line": 1,
+        "searchText": "Evolve 拒绝拆分与非拆分后继混合 多后继拆分策略要求每个所选后继都恰好保存一条拆分关系，不能把拆分后继和普通修订后继混入同一事务。 同时选择一个拆分候选和一个修订候选时，evolve 在写入前报告后继关系分布不满足纯拆分策略。 tools/decision-records/tests/evolution.test.ts > evolve rejects mixed split and non-split successor relations bun test --test-name-pattern=\"^evolve rejects mixed split and non-split successor relations$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-rejects-mixed-split-and-non-split-successor-relations.md",
+        "summary": "多后继拆分策略要求每个所选后继都恰好保存一条拆分关系，不能把拆分后继和普通修订后继混入同一事务。",
+        "title": "Evolve 拒绝拆分与非拆分后继混合"
+      }
+    },
+    "DECISION-SPLIT-OMISSION-001": {
+      "keys": {
+        "search": [
+          "DECISION-SPLIT-OMISSION-001 Evolve 在写入前拒绝遗漏既有拆分后继 拆分事务的显式 successor 集合必须等于事务后的全部直接拆分后继，不能遗漏任一既有成员。 省略一个既有后继时，诊断指出选择集合不完整并列出被遗漏路径。 拒绝路径保留新增候选原文和完整 decision-index.json，不产生部分扩充。 tools/decision-records/tests/evolution.test.ts > evolve rejects a split extension that omits an existing successor before writing bun test --test-name-pattern=\"^evolve rejects a split extension that omits an existing successor before writing$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve rejects a split extension that omits an existing successor before writing",
+          "bun test --test-name-pattern=\"^evolve rejects a split extension that omits an existing successor before writing$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SPLIT-OMISSION-001",
+        "line": 1,
+        "searchText": "Evolve 在写入前拒绝遗漏既有拆分后继 拆分事务的显式 successor 集合必须等于事务后的全部直接拆分后继，不能遗漏任一既有成员。 省略一个既有后继时，诊断指出选择集合不完整并列出被遗漏路径。 拒绝路径保留新增候选原文和完整 decision-index.json，不产生部分扩充。 tools/decision-records/tests/evolution.test.ts > evolve rejects a split extension that omits an existing successor before writing bun test --test-name-pattern=\"^evolve rejects a split extension that omits an existing successor before writing$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-rejects-a-split-extension-that-omits-an-existing-successor-before-writing.md",
+        "summary": "拆分事务的显式 successor 集合必须等于事务后的全部直接拆分后继，不能遗漏任一既有成员。",
+        "title": "Evolve 在写入前拒绝遗漏既有拆分后继"
+      }
+    },
+    "DECISION-SPLIT-SINGLE-SUCCESSOR-001": {
+      "keys": {
+        "search": [
+          "DECISION-SPLIT-SINGLE-SUCCESSOR-001 Evolve 拒绝单后继拆分 `拆分` 是至少包含两个显式后继的闭合一对多策略，单后继不能通过来源关系重新挂接粗前序。 只选择一个带拆分来源关系的候选时，evolve 报告至少需要两个显式 successor。 tools/decision-records/tests/evolution.test.ts > evolve rejects one selected split successor bun test --test-name-pattern=\"^evolve rejects one selected split successor$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve rejects one selected split successor",
+          "bun test --test-name-pattern=\"^evolve rejects one selected split successor$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SPLIT-SINGLE-SUCCESSOR-001",
+        "line": 1,
+        "searchText": "Evolve 拒绝单后继拆分 `拆分` 是至少包含两个显式后继的闭合一对多策略，单后继不能通过来源关系重新挂接粗前序。 只选择一个带拆分来源关系的候选时，evolve 报告至少需要两个显式 successor。 tools/decision-records/tests/evolution.test.ts > evolve rejects one selected split successor bun test --test-name-pattern=\"^evolve rejects one selected split successor$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-rejects-one-selected-split-successor.md",
+        "summary": "`拆分` 是至少包含两个显式后继的闭合一对多策略，单后继不能通过来源关系重新挂接粗前序。",
+        "title": "Evolve 拒绝单后继拆分"
       }
     },
     "DECISION-SPLIT-TRANSACTION-001": {
       "keys": {
         "search": [
-          "DECISION-SPLIT-TRANSACTION-001 拆分原子替换粗决策并独立对齐后继 `split` 必须在一次可恢复事务中归档一个活动粗决策，建立至少两个完整后继，并让每条后继保存自己的整条决策对齐状态。 一个未对齐前序被归档后，已成为当前事实的后继为 `aligned`，仍面向未来的后继为 `unaligned`。 两条后继都以 `拆分` 关系指向同一前序，拥有同一次建立时间，并能从前序按后继方向追踪。 完整事务结束后严格决策检查通过。 tools/decision-records/tests/evolution.test.ts > split atomically replaces one coarse decision with independently aligned successors bun test --test-name-pattern=\"^split atomically replaces one coarse decision with independently aligned successors$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-SPLIT-TRANSACTION-001 Evolve 闭合拆分并独立对齐后继 Evolve 必须在一次闭合事务中归档一个活动粗决策、建立至少两个完整后继，并让每个后继独立保存整条决策的 alignment。 粗前序被归档，与拆分无关的活动记录不受候选来源关系影响。 两个后继分别成为 aligned 和 unaligned，拥有同一次建立时间，并各自只保存一条指向同一粗前序的拆分关系。 从粗前序按 successors 方向能够追踪到两个后继。 tools/decision-records/tests/evolution.test.ts > evolve performs a closed split with independently aligned successors bun test --test-name-pattern=\"^evolve performs a closed split with independently aligned successors$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2014,15 +2313,15 @@
       "state": {
         "endLine": 11,
         "entries": [
-          "tools/decision-records/tests/evolution.test.ts > split atomically replaces one coarse decision with independently aligned successors",
-          "bun test --test-name-pattern=\"^split atomically replaces one coarse decision with independently aligned successors$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/evolution.test.ts > evolve performs a closed split with independently aligned successors",
+          "bun test --test-name-pattern=\"^evolve performs a closed split with independently aligned successors$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-SPLIT-TRANSACTION-001",
         "line": 1,
-        "searchText": "拆分原子替换粗决策并独立对齐后继 `split` 必须在一次可恢复事务中归档一个活动粗决策，建立至少两个完整后继，并让每条后继保存自己的整条决策对齐状态。 一个未对齐前序被归档后，已成为当前事实的后继为 `aligned`，仍面向未来的后继为 `unaligned`。 两条后继都以 `拆分` 关系指向同一前序，拥有同一次建立时间，并能从前序按后继方向追踪。 完整事务结束后严格决策检查通过。 tools/decision-records/tests/evolution.test.ts > split atomically replaces one coarse decision with independently aligned successors bun test --test-name-pattern=\"^split atomically replaces one coarse decision with independently aligned successors$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/split-atomically-replaces-one-coarse-decision-with-independently-aligned-successors.md",
-        "summary": "`split` 必须在一次可恢复事务中归档一个活动粗决策，建立至少两个完整后继，并让每条后继保存自己的整条决策对齐状态。",
-        "title": "拆分原子替换粗决策并独立对齐后继"
+        "searchText": "Evolve 闭合拆分并独立对齐后继 Evolve 必须在一次闭合事务中归档一个活动粗决策、建立至少两个完整后继，并让每个后继独立保存整条决策的 alignment。 粗前序被归档，与拆分无关的活动记录不受候选来源关系影响。 两个后继分别成为 aligned 和 unaligned，拥有同一次建立时间，并各自只保存一条指向同一粗前序的拆分关系。 从粗前序按 successors 方向能够追踪到两个后继。 tools/decision-records/tests/evolution.test.ts > evolve performs a closed split with independently aligned successors bun test --test-name-pattern=\"^evolve performs a closed split with independently aligned successors$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-performs-a-closed-split-with-independently-aligned-successors.md",
+        "summary": "Evolve 必须在一次闭合事务中归档一个活动粗决策、建立至少两个完整后继，并让每个后继独立保存整条决策的 alignment。",
+        "title": "Evolve 闭合拆分并独立对齐后继"
       }
     },
     "DECISION-STAGE-BOOTSTRAP-001": {
@@ -2324,10 +2623,10 @@
         "title": "决策追踪遵循前序与后继方向"
       }
     },
-    "DECISION-TRANSACTION-ROLLBACK-001": {
+    "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001": {
       "keys": {
         "search": [
-          "DECISION-TRANSACTION-ROLLBACK-001 决策事务回滚关系验证失败 多记录决策事务在最终关系验证失败时必须恢复全部 Markdown 和索引。 删除一个已建立记录并同时修改活动与归档记录，造成关系目标状态非法时返回验证错误。 被删除记录、两个被修改记录和 decision-index.json 均恢复到事务前内容。 tools/decision-records/tests/evolution.test.ts > decision transactions roll back relation validation failures bun test --test-name-pattern=\"^decision transactions roll back relation validation failures$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001 决策事务报告恢复不完整并停止 原始写入失败后的恢复若再次失败，事务必须停止成功路径并同时保留原始失败与可定位的恢复诊断，不能声称已经原子恢复。 故障注入使第二个更新写入和第一个 Markdown 恢复分别失败，返回结果同时包含原始写失败和 `Failed to restore decision body` 诊断。 未能恢复的 Markdown 保留变更后内容，其他 Markdown 与索引恢复到事务前内容，明确暴露需要人工恢复的现场。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction stops with recovery diagnostics when a restore write also fails bun test --test-name-pattern=\"^decision transaction stops with recovery diagnostics when a restore write also fails$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2336,15 +2635,38 @@
       "state": {
         "endLine": 10,
         "entries": [
-          "tools/decision-records/tests/evolution.test.ts > decision transactions roll back relation validation failures",
-          "bun test --test-name-pattern=\"^decision transactions roll back relation validation failures$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/transaction-recovery.test.ts > decision transaction stops with recovery diagnostics when a restore write also fails",
+          "bun test --test-name-pattern=\"^decision transaction stops with recovery diagnostics when a restore write also fails$\" ./tools/decision-records/tests/run.ts"
         ],
-        "id": "DECISION-TRANSACTION-ROLLBACK-001",
+        "id": "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001",
         "line": 1,
-        "searchText": "决策事务回滚关系验证失败 多记录决策事务在最终关系验证失败时必须恢复全部 Markdown 和索引。 删除一个已建立记录并同时修改活动与归档记录，造成关系目标状态非法时返回验证错误。 被删除记录、两个被修改记录和 decision-index.json 均恢复到事务前内容。 tools/decision-records/tests/evolution.test.ts > decision transactions roll back relation validation failures bun test --test-name-pattern=\"^decision transactions roll back relation validation failures$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/decision-transactions-roll-back-relation-validation-failures.md",
-        "summary": "多记录决策事务在最终关系验证失败时必须恢复全部 Markdown 和索引。",
-        "title": "决策事务回滚关系验证失败"
+        "searchText": "决策事务报告恢复不完整并停止 原始写入失败后的恢复若再次失败，事务必须停止成功路径并同时保留原始失败与可定位的恢复诊断，不能声称已经原子恢复。 故障注入使第二个更新写入和第一个 Markdown 恢复分别失败，返回结果同时包含原始写失败和 `Failed to restore decision body` 诊断。 未能恢复的 Markdown 保留变更后内容，其他 Markdown 与索引恢复到事务前内容，明确暴露需要人工恢复的现场。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction stops with recovery diagnostics when a restore write also fails bun test --test-name-pattern=\"^decision transaction stops with recovery diagnostics when a restore write also fails$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-transaction-stops-with-recovery-diagnostics-when-a-restore-write-also-fails.md",
+        "summary": "原始写入失败后的恢复若再次失败，事务必须停止成功路径并同时保留原始失败与可定位的恢复诊断，不能声称已经原子恢复。",
+        "title": "决策事务报告恢复不完整并停止"
+      }
+    },
+    "DECISION-TRANSACTION-WRITE-RECOVERY-001": {
+      "keys": {
+        "search": [
+          "DECISION-TRANSACTION-WRITE-RECOVERY-001 决策事务在写失败后恢复全部 Markdown 与索引 多文件决策事务遇到可处理的写入失败时，必须报告原始失败并尽力恢复命令前的全部受影响 Markdown 与 decision-index.json。 第二个 Markdown 写入被故障注入拒绝后，事务返回原始写失败诊断。 先前已改写的 Markdown、失败目标和 decision-index.json 均逐字节恢复到事务前内容。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction restores every changed Markdown file and index after a write failure bun test --test-name-pattern=\"^decision transaction restores every changed Markdown file and index after a write failure$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/transaction-recovery.test.ts > decision transaction restores every changed Markdown file and index after a write failure",
+          "bun test --test-name-pattern=\"^decision transaction restores every changed Markdown file and index after a write failure$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-TRANSACTION-WRITE-RECOVERY-001",
+        "line": 1,
+        "searchText": "决策事务在写失败后恢复全部 Markdown 与索引 多文件决策事务遇到可处理的写入失败时，必须报告原始失败并尽力恢复命令前的全部受影响 Markdown 与 decision-index.json。 第二个 Markdown 写入被故障注入拒绝后，事务返回原始写失败诊断。 先前已改写的 Markdown、失败目标和 decision-index.json 均逐字节恢复到事务前内容。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction restores every changed Markdown file and index after a write failure bun test --test-name-pattern=\"^decision transaction restores every changed Markdown file and index after a write failure$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-transaction-restores-every-changed-markdown-file-and-index-after-a-write-failure.md",
+        "summary": "多文件决策事务遇到可处理的写入失败时，必须报告原始失败并尽力恢复命令前的全部受影响 Markdown 与 decision-index.json。",
+        "title": "决策事务在写失败后恢复全部 Markdown 与索引"
       }
     },
     "DECISION-TYPE-PATH-001": {
@@ -2396,21 +2718,21 @@
     "DECISION-UNRECORDED-COLLAPSE-001": {
       "keys": {
         "search": [
-          "DECISION-UNRECORDED-COLLAPSE-001 Evolve 以显式最终关系折叠未提交中间决策 `evolve --collapse-unrecorded` 只删除未进入 Git HEAD 的单个活动已建立中间前序，并把调用者提供的关系作为后继的完整最终关系集合。 合法折叠删除未提交中间记录，并从派生索引移除该记录。 后继只保留调用者显式给出的原中间记录直接上游关系，严格决策检查继续通过。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapses an unrecorded intermediate with explicit final relations bun test --test-name-pattern=\"^evolve collapses an unrecorded intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-UNRECORDED-COLLAPSE-001 Evolve 以显式最终关系折叠未提交中间决策 `evolve --collapse-unrecorded` 只删除未进入 Git HEAD 的单个活动已建立中间前序，并把调用者提供的关系作为后继的完整最终关系集合。 折叠前的最终关系目标已经 archived，且确实是中间记录原有的直接前序。 合法折叠删除未提交中间记录，并从派生索引移除该记录。 后继只保留调用者显式给出的原中间记录直接上游关系，严格决策检查继续通过。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapses an unrecorded intermediate with explicit final relations bun test --test-name-pattern=\"^evolve collapses an unrecorded intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 11,
         "entries": [
           "tools/decision-records/tests/unrecorded-history.test.ts > evolve collapses an unrecorded intermediate with explicit final relations",
           "bun test --test-name-pattern=\"^evolve collapses an unrecorded intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-UNRECORDED-COLLAPSE-001",
         "line": 1,
-        "searchText": "Evolve 以显式最终关系折叠未提交中间决策 `evolve --collapse-unrecorded` 只删除未进入 Git HEAD 的单个活动已建立中间前序，并把调用者提供的关系作为后继的完整最终关系集合。 合法折叠删除未提交中间记录，并从派生索引移除该记录。 后继只保留调用者显式给出的原中间记录直接上游关系，严格决策检查继续通过。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapses an unrecorded intermediate with explicit final relations bun test --test-name-pattern=\"^evolve collapses an unrecorded intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Evolve 以显式最终关系折叠未提交中间决策 `evolve --collapse-unrecorded` 只删除未进入 Git HEAD 的单个活动已建立中间前序，并把调用者提供的关系作为后继的完整最终关系集合。 折叠前的最终关系目标已经 archived，且确实是中间记录原有的直接前序。 合法折叠删除未提交中间记录，并从派生索引移除该记录。 后继只保留调用者显式给出的原中间记录直接上游关系，严格决策检查继续通过。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapses an unrecorded intermediate with explicit final relations bun test --test-name-pattern=\"^evolve collapses an unrecorded intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/evolve-collapses-an-unrecorded-intermediate-with-explicit-final-relations.md",
         "summary": "`evolve --collapse-unrecorded` 只删除未进入 Git HEAD 的单个活动已建立中间前序，并把调用者提供的关系作为后继的完整最终关系集合。",
         "title": "Evolve 以显式最终关系折叠未提交中间决策"
@@ -2419,7 +2741,7 @@
     "DECISION-UNRECORDED-COLLAPSE-BOUNDARY-001": {
       "keys": {
         "search": [
-          "DECISION-UNRECORDED-COLLAPSE-BOUNDARY-001 Evolve 折叠拒绝越过中间决策边界的归档关系 折叠后的已归档关系目标只能来自被折叠记录原有的直接前序，CLI 不跨层推断或合成上游关系。 最终关系引用无关归档决策时命令返回关系边界错误。 拒绝路径逐字节保留后继候选、中间记录和派生索引。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects archived relations outside the intermediate boundary bun test --test-name-pattern=\"^evolve collapse rejects archived relations outside the intermediate boundary$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-UNRECORDED-COLLAPSE-BOUNDARY-001 Evolve 折叠拒绝越过中间决策边界的归档关系 折叠后的已归档关系目标只能来自被折叠记录原有的直接前序，CLI 不跨层推断、合成或接受无关归档关系。 最终关系引用无关已归档决策时，evolve 报告该目标不是被折叠记录的直接前序。 拒绝路径逐字节保留后继候选、中间记录和 decision-index.json。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects archived relations outside the intermediate boundary bun test --test-name-pattern=\"^evolve collapse rejects archived relations outside the intermediate boundary$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2433,16 +2755,16 @@
         ],
         "id": "DECISION-UNRECORDED-COLLAPSE-BOUNDARY-001",
         "line": 1,
-        "searchText": "Evolve 折叠拒绝越过中间决策边界的归档关系 折叠后的已归档关系目标只能来自被折叠记录原有的直接前序，CLI 不跨层推断或合成上游关系。 最终关系引用无关归档决策时命令返回关系边界错误。 拒绝路径逐字节保留后继候选、中间记录和派生索引。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects archived relations outside the intermediate boundary bun test --test-name-pattern=\"^evolve collapse rejects archived relations outside the intermediate boundary$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Evolve 折叠拒绝越过中间决策边界的归档关系 折叠后的已归档关系目标只能来自被折叠记录原有的直接前序，CLI 不跨层推断、合成或接受无关归档关系。 最终关系引用无关已归档决策时，evolve 报告该目标不是被折叠记录的直接前序。 拒绝路径逐字节保留后继候选、中间记录和 decision-index.json。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects archived relations outside the intermediate boundary bun test --test-name-pattern=\"^evolve collapse rejects archived relations outside the intermediate boundary$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/evolve-collapse-rejects-archived-relations-outside-the-intermediate-boundary.md",
-        "summary": "折叠后的已归档关系目标只能来自被折叠记录原有的直接前序，CLI 不跨层推断或合成上游关系。",
+        "summary": "折叠后的已归档关系目标只能来自被折叠记录原有的直接前序，CLI 不跨层推断、合成或接受无关归档关系。",
         "title": "Evolve 折叠拒绝越过中间决策边界的归档关系"
       }
     },
     "DECISION-UNRECORDED-COLLAPSE-EMPTY-001": {
       "keys": {
         "search": [
-          "DECISION-UNRECORDED-COLLAPSE-EMPTY-001 Evolve 折叠接受空的最终关系集合 折叠调用中的零个或多个 `--relation` 共同构成后继的完整最终关系集合；调用者可以明确不承接中间记录的任何上游。 不提供 `--relation` 的显式折叠成功删除未提交中间记录。 建立后的后继关系集合为空，不会自动继承中间记录的上游。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse accepts an empty final relation set bun test --test-name-pattern=\"^evolve collapse accepts an empty final relation set$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-UNRECORDED-COLLAPSE-EMPTY-001 Evolve 折叠接受显式空的最终关系集合 `--clear-relations` 明确表示折叠后的后继不承接中间记录的任何上游，是空最终关系集合的唯一无歧义入口。 带 `--clear-relations` 的单候选折叠成功删除未进入 Git HEAD 的中间记录。 建立后的后继拥有空关系集合。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse accepts an explicitly empty final relation set bun test --test-name-pattern=\"^evolve collapse accepts an explicitly empty final relation set$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2451,15 +2773,38 @@
       "state": {
         "endLine": 10,
         "entries": [
-          "tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse accepts an empty final relation set",
-          "bun test --test-name-pattern=\"^evolve collapse accepts an empty final relation set$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse accepts an explicitly empty final relation set",
+          "bun test --test-name-pattern=\"^evolve collapse accepts an explicitly empty final relation set$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-UNRECORDED-COLLAPSE-EMPTY-001",
         "line": 1,
-        "searchText": "Evolve 折叠接受空的最终关系集合 折叠调用中的零个或多个 `--relation` 共同构成后继的完整最终关系集合；调用者可以明确不承接中间记录的任何上游。 不提供 `--relation` 的显式折叠成功删除未提交中间记录。 建立后的后继关系集合为空，不会自动继承中间记录的上游。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse accepts an empty final relation set bun test --test-name-pattern=\"^evolve collapse accepts an empty final relation set$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/evolve-collapse-accepts-an-empty-final-relation-set.md",
-        "summary": "折叠调用中的零个或多个 `--relation` 共同构成后继的完整最终关系集合；调用者可以明确不承接中间记录的任何上游。",
-        "title": "Evolve 折叠接受空的最终关系集合"
+        "searchText": "Evolve 折叠接受显式空的最终关系集合 `--clear-relations` 明确表示折叠后的后继不承接中间记录的任何上游，是空最终关系集合的唯一无歧义入口。 带 `--clear-relations` 的单候选折叠成功删除未进入 Git HEAD 的中间记录。 建立后的后继拥有空关系集合。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse accepts an explicitly empty final relation set bun test --test-name-pattern=\"^evolve collapse accepts an explicitly empty final relation set$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-collapse-accepts-an-explicitly-empty-final-relation-set.md",
+        "summary": "`--clear-relations` 明确表示折叠后的后继不承接中间记录的任何上游，是空最终关系集合的唯一无歧义入口。",
+        "title": "Evolve 折叠接受显式空的最终关系集合"
+      }
+    },
+    "DECISION-UNRECORDED-COLLAPSE-IMPLICIT-EMPTY-001": {
+      "keys": {
+        "search": [
+          "DECISION-UNRECORDED-COLLAPSE-IMPLICIT-EMPTY-001 Evolve 折叠拒绝隐式空关系选择 折叠未记录中间前序时，省略关系覆盖表示使用候选来源关系；来源关系为空不能被推断为调用方明确放弃全部上游，必须使用 `--clear-relations` 表达该意图。 空关系候选在没有显式覆盖或清空时被拒绝，并得到使用 `--clear-relations` 的可行动诊断。 拒绝路径逐字节保留后继候选、中间记录和 decision-index.json。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects an implicit empty final relation selection bun test --test-name-pattern=\"^evolve collapse rejects an implicit empty final relation selection$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects an implicit empty final relation selection",
+          "bun test --test-name-pattern=\"^evolve collapse rejects an implicit empty final relation selection$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-UNRECORDED-COLLAPSE-IMPLICIT-EMPTY-001",
+        "line": 1,
+        "searchText": "Evolve 折叠拒绝隐式空关系选择 折叠未记录中间前序时，省略关系覆盖表示使用候选来源关系；来源关系为空不能被推断为调用方明确放弃全部上游，必须使用 `--clear-relations` 表达该意图。 空关系候选在没有显式覆盖或清空时被拒绝，并得到使用 `--clear-relations` 的可行动诊断。 拒绝路径逐字节保留后继候选、中间记录和 decision-index.json。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects an implicit empty final relation selection bun test --test-name-pattern=\"^evolve collapse rejects an implicit empty final relation selection$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-collapse-rejects-an-implicit-empty-final-relation-selection.md",
+        "summary": "折叠未记录中间前序时，省略关系覆盖表示使用候选来源关系；来源关系为空不能被推断为调用方明确放弃全部上游，必须使用 `--clear-relations` 表达该意图。",
+        "title": "Evolve 折叠拒绝隐式空关系选择"
       }
     },
     "DECISION-UNRECORDED-COLLAPSE-RECORDED-001": {
@@ -2488,7 +2833,7 @@
     "DECISION-UNRECORDED-COLLAPSE-REFERENCE-001": {
       "keys": {
         "search": [
-          "DECISION-UNRECORDED-COLLAPSE-REFERENCE-001 Evolve 折叠拒绝仍被其他候选引用的前序 被其他决策记录或候选引用的中间前序不能自动折叠，调用者必须先明确处理引用关系。 `evolve` 在关系校验阶段发现另一个候选仍引用活动折叠目标时，返回包含引用路径的失败诊断和退出码 1。 命令失败不会修改后继候选、引用候选、中间记录或派生索引。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects a predecessor referenced by another candidate bun test --test-name-pattern=\"^evolve collapse rejects a predecessor referenced by another candidate$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-UNRECORDED-COLLAPSE-REFERENCE-001 Evolve 折叠拒绝仍被其他候选引用的前序 被其他决策记录或候选引用的中间前序不能自动折叠，调用者必须先明确处理引用关系。 `evolve` 发现另一个候选仍引用折叠目标时，返回明确的不可折叠诊断、引用路径和退出码 1。 命令失败不会修改后继候选、引用候选、中间记录或派生索引。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects a predecessor referenced by another candidate bun test --test-name-pattern=\"^evolve collapse rejects a predecessor referenced by another candidate$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2502,7 +2847,7 @@
         ],
         "id": "DECISION-UNRECORDED-COLLAPSE-REFERENCE-001",
         "line": 1,
-        "searchText": "Evolve 折叠拒绝仍被其他候选引用的前序 被其他决策记录或候选引用的中间前序不能自动折叠，调用者必须先明确处理引用关系。 `evolve` 在关系校验阶段发现另一个候选仍引用活动折叠目标时，返回包含引用路径的失败诊断和退出码 1。 命令失败不会修改后继候选、引用候选、中间记录或派生索引。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects a predecessor referenced by another candidate bun test --test-name-pattern=\"^evolve collapse rejects a predecessor referenced by another candidate$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Evolve 折叠拒绝仍被其他候选引用的前序 被其他决策记录或候选引用的中间前序不能自动折叠，调用者必须先明确处理引用关系。 `evolve` 发现另一个候选仍引用折叠目标时，返回明确的不可折叠诊断、引用路径和退出码 1。 命令失败不会修改后继候选、引用候选、中间记录或派生索引。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects a predecessor referenced by another candidate bun test --test-name-pattern=\"^evolve collapse rejects a predecessor referenced by another candidate$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/evolve-collapse-rejects-a-predecessor-referenced-by-another-candidate.md",
         "summary": "被其他决策记录或候选引用的中间前序不能自动折叠，调用者必须先明确处理引用关系。",
         "title": "Evolve 折叠拒绝仍被其他候选引用的前序"
@@ -8857,37 +9202,50 @@
       "CHECK-SUMMARY-FORMAT-001": "sha256:2999710bc831a9521a5868214c9b9bbb5cade48f43a14fa11fa9fb264803f6fc",
       "CHECK-WORKFLOW-PACKAGE-FAILURE-001": "sha256:ff1b1458a5b4ed251a61aa6a7a78d833c38684d1b0e9e47ae047269edd27f4d0",
       "CHECK-WORKFLOW-PACKAGING-001": "sha256:e6dde5bfe40d5b63bf76cc9a49ebf752c21c6645a878e9ab027498135ffaf23e",
-      "DECISION-ACTIVATION-ARCHIVE-001": "sha256:08784ed270a2e8d5aad6f50a42b04636bebfbc7197d5d35ad2916de56945c1a3",
-      "DECISION-ACTIVATION-RELATION-001": "sha256:92a59dd6029500958d0b7765f7daa9067fa9ef53c6ac56b6980152082b50f401",
+      "DECISION-ACTIVATE-ESTABLISHED-RELATIONS-001": "sha256:634fd58b2a7f0eec0309dd91b40d28c453db82b78c1c6d15b91c1ffcba2572f1",
+      "DECISION-ACTIVATE-RELATION-CLEAR-001": "sha256:1963603818a2244b4d7b688f4bac2637bc27923bd8a79df4182b3b56c6ceec74",
+      "DECISION-ACTIVATE-RELATION-REPLACE-001": "sha256:c45356f6bb40662429000a1198ee5c64addf93515d84bad1e97ef5212741be90",
+      "DECISION-ACTIVATION-ARCHIVE-001": "sha256:feefd65cdb9fe27fb8466bbbcd17ae5c45bd0d74dc64223a7b69e9b8e3cc065c",
+      "DECISION-ACTIVATION-RELATION-001": "sha256:05c5b6d068e60d0135766389f685140c865f1e1036f1733aead2d2b4790382ad",
       "DECISION-BODY-EMPTY-001": "sha256:230f82ffec281090cd9751c31cf1ffb5bf4a6f5e6087d5c1bf0dbee5dd3311b2",
       "DECISION-BODY-PUNCTUATION-001": "sha256:a4f2d60849a569ee98261c718de1bd11d60ea482d25cd4653992c8a443d4a1c4",
       "DECISION-BODY-UNSUPPORTED-001": "sha256:c182ee56911a0fa3b3a545ee8124e38587b2e3bb641fb424790aad15c8fc82e9",
       "DECISION-CANDIDATE-ACTIVATION-INDEX-001": "sha256:67b85883a46fd611452188dba3e21b631e13614461e1e82dfb2962aed74335ee",
       "DECISION-CANDIDATE-ACTIVATION-SELECTION-001": "sha256:59b6351778c79925596849bc82b33bdbb8ab846d0a92572e1564f2a9ee40d335",
-      "DECISION-CANDIDATE-DISCARD-GATES-001": "sha256:7c6cafd3fc7e758c06b51be5a5145e17879147a32d3896b80cf7823e890696c8",
+      "DECISION-CANDIDATE-DISCARD-GATES-001": "sha256:68e269fb125616f0ceb80a370e24c346586f5251089c0a142b00ac063740df1b",
       "DECISION-CANDIDATE-DISCARD-SELECTION-001": "sha256:c5e0606d5f76d78d409ac68690c02e7ac7b59beb3e4829c507042d07c27bc6fd",
       "DECISION-CANDIDATE-ONLY-001": "sha256:1d736f2ffe4b202f99a7418b4ed80629f81ce58de46b5ac138fe2c930cdf2bda",
       "DECISION-CHECK-PARITY-001": "sha256:71face640359dc024067e0f0c617b9a6af70a5d624fcc67c976686abbb4bfcf0",
-      "DECISION-CLI-ARGS-001": "sha256:ad08db23a834b13fb542cc0554c0b90f961110d6e943f113738de6d56f60f2b5",
+      "DECISION-CLI-ARGS-001": "sha256:589b5f23d58d795bbfc0fe10cecd2de501558725ce0eaebae42113b1f57efb61",
       "DECISION-CONFIGURED-ABSOLUTE-DIRECTORY-001": "sha256:666237bcba499dc5c1abfd183b4671f46284cfcf1f85c2e46850637d156fe048",
       "DECISION-CONFIGURED-RELATIVE-DIRECTORY-001": "sha256:5fb87bdbc2a18d634f362e618dd413aad14aa12865dcccb1b27eb4fb7a409fc4",
       "DECISION-DOMAIN-CATALOG-001": "sha256:6c9f82ec7d93b91ff0acafc79c49499450190766b53b284a6d3be6fb0137435f",
       "DECISION-DOMAIN-CATALOG-QUERY-001": "sha256:60c8fe332641bcadfa6d4e596dae7086ab7ac5ff034d316be8c5dc73d2f83d64",
       "DECISION-DOMAIN-CATALOG-REVISION-001": "sha256:52875c3fb5b3999e8e64dccaad4942dfd6b73991b5a34041ed35824a0c8cd504",
       "DECISION-DOMAIN-CATALOG-STRUCTURE-001": "sha256:1388780529c0c320d8cb2ab402b09c01691e11a613fe17d2e86a3cd857549e25",
-      "DECISION-EVOLUTION-RELATIONS-001": "sha256:dfbfdca5ce560047a9dd59d852f67e44d00f31bab82169b14ffccdb71404d17a",
-      "DECISION-EVOLVE-ARCHIVED-PREDECESSOR-001": "sha256:af0b2b16ffd367ef001eeb8dfc9dbf98e035d9bf28c386d4d4bfa634eb1ebb12",
-      "DECISION-EVOLVE-COMMAND-001": "sha256:0e6c1a164de08cfd0b9e2f749af337e5aa1809732d5e352ed7db2e6cc1c8f556",
-      "DECISION-EVOLVE-DUPLICATE-PREDECESSOR-001": "sha256:455d4e4937d73818f9be09c9849476ce6949f1622c945a7dc3c3007bacad1cb7",
+      "DECISION-EVOLUTION-RELATIONS-001": "sha256:cf1acf66ca0e7a7b08406c7dcbb2c9bcf1b6057161a0f40077e66e271d1f1224",
+      "DECISION-EVOLVE-ALIGNMENT-CONFIRMATION-001": "sha256:cdc7a1d0eb5058b3ff4076b0f4b19969284a9fdcc334e1429a09b6c0d4d6f96b",
+      "DECISION-EVOLVE-ARCHIVED-SUCCESSOR-001": "sha256:4d186724297c46b154cbd101cc4fe17bc1dd88a5197235d23c8c7db0e50098dc",
+      "DECISION-EVOLVE-COMMAND-001": "sha256:e1d910ece5bad2f7de165a91632f5704387937d3bf5bbff6a100ed86b04d788b",
+      "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001": "sha256:0ed06aace4bb38b8cfa1afe0c8e0ed05c495a6255014aa6fee2a19e0b4b9865d",
+      "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001": "sha256:997c41434b38d783d318326b67c985d5a365369516a9a322e10283821dc28603",
+      "DECISION-EVOLVE-ESTABLISHED-REPLACE-001": "sha256:17305233f0e42f3598fa12cfae0f5651ca4391346034e79ea43eeb4c620519ff",
+      "DECISION-EVOLVE-HISTORICAL-SUCCESSOR-001": "sha256:fcbd6aa87335f6fb6c3be7ffdedf14209241a792fe3d848aa7761069499d767f",
+      "DECISION-EVOLVE-UNSUPPORTED-MULTI-001": "sha256:9a70950d65a76db841d98e34bab8e5c57376c5292bdb108de881eead82418781",
       "DECISION-FAST-REVISION-001": "sha256:fecd3f35f1a6b2d0ddf7b1f9e513b9325cc2076a80444fb52250062adcdebb68",
       "DECISION-FIRST-ESTABLISHMENT-001": "sha256:3158671f1ccbf96f321a1c253cad57de79c27044a018f3edb4005c9a6590fb3c",
-      "DECISION-GENERATED-ARTIFACTS-001": "sha256:d376959e19ec9a5d5068b1601dedaa321abf641971a63f2a0e9b2d5453ca841c",
+      "DECISION-GENERATED-ARTIFACTS-001": "sha256:c38cc29a7a741f958b71335cf2a7919c1ea6dc7a1ed54b0d38d0fe73923b373a",
       "DECISION-INDEX-MAINTENANCE-001": "sha256:3591e06ce95089ea8bb778442668953fe71274df2adeef05d84a72cd52f0e01a",
       "DECISION-LIST-FILTERS-001": "sha256:232755140cb9edd42deb827d0a1eb43ec4eeb78c99ec3ee40916ed29ad53e622",
+      "DECISION-MERGE-MINIMUM-001": "sha256:9d9808672a6bb7bbfec041dbe3bac03f8b91c6212b4b222e5726e1d14c2338b9",
       "DECISION-QUERY-INDEX-MEMBERSHIP-001": "sha256:ea578dea3fa971d236f0a1f7b4770ad5595fbff9f6d3f10b6db4c0f1326a7737",
       "DECISION-SHOW-OUTPUT-001": "sha256:db4fc23f38b5ff17434eaf78422820621565c18c01b2a7d9f9a189f5cd3b2510",
-      "DECISION-SPLIT-CLOSURE-001": "sha256:7da01afa1f6068abd0cc9abdf5b6a72861f443bd53e33a5e465a193fe33dd27e",
-      "DECISION-SPLIT-TRANSACTION-001": "sha256:9810429c3907edd354bb21c61f6f6dcbb582dbab459ef63774ba5980bdf6b2ad",
+      "DECISION-SPLIT-CLOSURE-001": "sha256:e68f0b6910222f304ce2f59280d85853342c02b2e57e6e425b11574aabf8eb89",
+      "DECISION-SPLIT-EXTENSION-001": "sha256:ea347368f16eca94ab22e1365226982d6b761e6b0f21bb13043991869a6fff08",
+      "DECISION-SPLIT-MIXED-RELATIONS-001": "sha256:783e8086cedec9915c5cff0188869179aea7bf753fa0955abb599bdcbf5afe3c",
+      "DECISION-SPLIT-OMISSION-001": "sha256:51783bd134497363696bcf5e288e5ca7823a29cd1ace0add470c7672d36067ad",
+      "DECISION-SPLIT-SINGLE-SUCCESSOR-001": "sha256:275ecb171aa0247c8b2c05ce0e270dcc9bbf08dc41467cac3247d45de6e1eb8a",
+      "DECISION-SPLIT-TRANSACTION-001": "sha256:35c2d247adee689518f6d66ba95cbe82e452538f5697ab21c5e3bd1a14fce30f",
       "DECISION-STAGE-BOOTSTRAP-001": "sha256:f458864d994234b64b6d1c9daaab28f714e5e7e2ab9b0aa3e06b7a01215e0e1c",
       "DECISION-STAGE-CLI-001": "sha256:98288c3cacb9bf5b2c156eaeea103188cf777eea511dba7d4e9c7427ae492723",
       "DECISION-STAGE-INPUT-001": "sha256:78d1622dd322e675da92aacabfa0ba04b3c4b00d11c1ab03a0571794f77fea35",
@@ -8901,14 +9259,16 @@
       "DECISION-STATE-SNAPSHOT-001": "sha256:bd1f11db384341c6dfcab5089c60ca2ff57ec1c79390b9692cfbf6323a65f96b",
       "DECISION-STATE-SOURCE-PARITY-001": "sha256:45f355e18fcb86f7af61169977ed7c68d7bbff18c37d83983d7fbe47b8c277fa",
       "DECISION-TRACE-DIRECTION-001": "sha256:0a184e4781cdde6fbad72d4b67ad36ccaed65bee1216269467372775c9314f0f",
-      "DECISION-TRANSACTION-ROLLBACK-001": "sha256:8d9bcc100089e678ea80fd76edf49963ab166414b46fa92015dcf586ce0aef55",
+      "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001": "sha256:2333a88fa2484590f75e0860bf3c206c0235efa6f4dbb8751cac2f6998281afe",
+      "DECISION-TRANSACTION-WRITE-RECOVERY-001": "sha256:2bb750ec06cb35ae9a640622927f8ffc0b13a696b954df5986c78a2b2c634d37",
       "DECISION-TYPE-PATH-001": "sha256:f082542f0adc38d157e843fa621b422cc5af3cc8bd3d22e3ec555d07bb25f247",
       "DECISION-UNRECORDED-ARCHIVE-001": "sha256:815a7fdef4052f156d878333755bc5bb232fe99ab03d18804385428541fc2ddf",
-      "DECISION-UNRECORDED-COLLAPSE-001": "sha256:8a6dfea2aaa0c0c4981d2fc338c66261491fb9ae7ebfc69254afaf53e40c77cd",
-      "DECISION-UNRECORDED-COLLAPSE-BOUNDARY-001": "sha256:285420df0eb0025646c53003eb4a7fd91f4495a473b75d736053a00426e05036",
-      "DECISION-UNRECORDED-COLLAPSE-EMPTY-001": "sha256:a8c416c097193cdf483e1fda10941ee34103034f909e12001f6e44faee296159",
+      "DECISION-UNRECORDED-COLLAPSE-001": "sha256:e9a35a4b90755f146056f063864d383c95f47541c132323c13fc6e6379ed5286",
+      "DECISION-UNRECORDED-COLLAPSE-BOUNDARY-001": "sha256:849b3b4ba373da48c1b35db4f1fc87e9485939c592de295ec80e5c10742f33b3",
+      "DECISION-UNRECORDED-COLLAPSE-EMPTY-001": "sha256:a8f8ac8bfca33789deb4c8f4f8d1dff6d97abcaaffd82075e38bd0a784c65246",
+      "DECISION-UNRECORDED-COLLAPSE-IMPLICIT-EMPTY-001": "sha256:74c9a4f96aa79cb0ea0a4847223be0ab0d0608e4dd66b313118f9f64934b2d59",
       "DECISION-UNRECORDED-COLLAPSE-RECORDED-001": "sha256:393424879ded25295580036f42fb925d904f813ee4b8f78145145ef74f577651",
-      "DECISION-UNRECORDED-COLLAPSE-REFERENCE-001": "sha256:b93261aa5527905c3685195a1ba21495ea5324b32f39ace5975332800eb2d04a",
+      "DECISION-UNRECORDED-COLLAPSE-REFERENCE-001": "sha256:935124fad8a31eaad28880889195c198c6ed6a6e7ce512ad6c20b07fba308980",
       "DECISION-UNRECORDED-EVOLUTION-001": "sha256:febded1810b231ce8775d25dc6b2460fba9b25c72a3cf7566ae3779d9e0a617a",
       "ENV-CHECK-READONLY-001": "sha256:1cc8bb79619b0886f6166381c90048049dc07658f88f51ca0bd0901ffebb6731",
       "ENV-CLONE-HOOK-001": "sha256:8ceef40cebeb5559b4eae4eebb6c9d903ded8c629f52abb4ece20145ba657f1d",
