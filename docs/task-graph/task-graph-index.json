@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "revision": 102,
-  "nextTaskId": 31,
+  "revision": 105,
+  "nextTaskId": 32,
   "tasks": {
     "task-000001": {
       "content": {
@@ -1101,6 +1101,49 @@
         "timestamps": {
           "createdAt": "2026-08-09T04:41:36.422Z",
           "updatedAt": "2026-08-09T04:56:34.344Z"
+        }
+      }
+    },
+    "task-000031": {
+      "content": {
+        "title": "为仓库维护 CLI 提供统一短入口",
+        "goal": "把本仓库实际使用的 skill 内置稳定 CLI 暴露为 package 短命令，并在项目协作入口、工具链说明和长期决策中明确仓库内优先使用短命令。",
+        "acceptance": [
+          "package.json 为 change-plan、decision-records、investigation-report、skill validator、task-graph 和 test-evidence 的维护 CLI 提供稳定且可发现的 bun run 入口，直接委托既有领域 CLI。",
+          "AGENTS.md 与 docs/tooling.md 明确本仓库日常维护使用短入口；skill 分发文档继续保留可移植的完整脚本路径，不把项目别名写成分发契约。",
+          "项目校验和命令级测试防止短入口缺失或失效，决策演进与测试证据同步，并通过完整仓库检查。"
+        ],
+        "context": "task-000029/30 只为 task-graph 建立短入口；用户指出其他带内置 CLI 的 skills 也应使用一致的项目入口。",
+        "references": {
+          "predecessor": "task-000030",
+          "tooling": "docs/tooling.md"
+        },
+        "result": {
+          "summary": "为六个实际使用的 skill 维护 CLI 建立 package 短入口；AGENTS、工具链和长期决策明确仓库内优先短命令，分发说明保留完整路径，命令级测试与完整门禁通过。",
+          "references": {
+            "commit": "045982d23968170bb10b5b0ec885a47c25c7ae99",
+            "decision": "docs/decisions/project-tooling/bootstrap-hooks-and-use-project-short-commands.md",
+            "test": "bun run check --full (28/28)"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-09T05:06:58.573Z",
+          "updatedAt": "2026-08-09T05:11:43.884Z"
         }
       }
     }
