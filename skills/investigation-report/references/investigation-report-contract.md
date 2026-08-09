@@ -84,11 +84,12 @@ docs/investigations/
    ...
    ```
 
-4. `随附资源` 的每个子项只包含一个展示文字非空的本地链接，目标精确使用 `../_resources/<resource-id>`。链接不能携带查询、片段、百分号编码、链接外文字或其他 Markdown 节点。
-5. 同一报告不能重复引用同一资源；同一资源可以被不同报告或主题共享。链接中的展示文字只保留在报告 Markdown，派生索引只保存规范化资源 ID。
-6. 每份报告的前四个 H4 依次固定为 `形成时背景`、`调查目的`、`调查范围与依据` 和 `调查结果与边界`；各出现一次并包含实际内容，CLI 按这些精确标题校验。
-7. 四项核心的内容语义、独立阅读要求、资源使用条件和人工审阅标准由 [SKILL.md](../SKILL.md) 承接。资源不能替代固定核心或正文中的关键事实。
-8. 可选 H4 只能放在四个固定核心之后，不能替代固定核心。`调查报告` 之后可以增加附录、术语等 H2；它们也不替代完整报告。
+4. `随附资源` 的每个子项只包含一个无 title 的本地 Markdown 行内链接，链接展示文字按 Markdown AST 提取的文本投影必须非空；展示文字自身可以使用强调等行内标记，子项不能在链接之外包含文字、第二个链接或其他 Markdown 节点。
+5. 链接目标必须在 Markdown 原文中逐字写为 `../_resources/<resource-id>`；不能用 Markdown 转义、字符引用或 `<...>` 包裹形成解析后等价的目标，也不能携带查询、片段、百分号编码或反斜杠。
+6. 同一报告不能重复引用同一资源；同一资源可以被不同报告或主题共享。链接中的展示文字只保留在报告 Markdown，派生索引只保存规范化资源 ID。
+7. 每份报告的前四个 H4 依次固定为 `形成时背景`、`调查目的`、`调查范围与依据` 和 `调查结果与边界`；各出现一次并包含实际内容，CLI 按这些精确标题校验。
+8. 四项核心的内容语义、独立阅读要求、资源使用条件和人工审阅标准由 [SKILL.md](../SKILL.md) 承接。资源不能替代固定核心或正文中的关键事实。
+9. 可选 H4 只能放在四个固定核心之后，不能替代固定核心。`调查报告` 之后可以增加附录、术语等 H2；它们也不替代完整报告。
 
 ## 资源池与资源 ID
 
@@ -174,7 +175,7 @@ docs/investigations/
 3. `state.title`、`state.question` 和 `state.reportTitles` 通过 Markdown AST 提取语义纯文本，去除行内标记并折叠空白；`reportTitles` 保持报告形成顺序，`reportCount` 必须等于其长度。状态和最新报告时间保存解析后的字段文本，state 不保存报告结果摘要、资源展示文字、Markdown 展示语法或正文副本。
 4. 每个主题 state 必须包含 `resourceReferences`。它只投影声明了 `随附资源` 的报告；没有资源引用的主题保存空数组。`reportIndex` 是与 `reportTitles` 对应的零基报告序号，对象按 `reportIndex` 排序；每个对象的 `resourceIds` 彼此唯一并按 ID 排序。报告顺序变化会重建这些序号，序号不是跨版本持久身份。
 5. `category` 和 `status` 是 exact key；`latest-report-at` 把最新报告时间转换为 epoch 毫秒后作为 range key；`text` 聚合主题标题、核心问题和全部报告标题。资源 ID、展示文字和资源正文都不进入查询 key；路径查询直接使用保留的主题 `id`。
-6. `metadata.resources` 必须存在；没有资源的集合保存空数组。存在资源时按 ID 排序，每个被引用资源只保存一次规范化 ID 和原始字节的 SHA-256；`sha256` 是 64 位小写十六进制文本。领域校验要求 state 引用的每个资源 ID 在 metadata 中恰好出现一次，且 metadata 中没有未被 state 引用的资源。
+6. `metadata.resources` 必须存在；没有资源的集合保存空数组。存在资源时按 ID 排序，每个被引用资源只保存一次规范化 ID 和原始字节的 SHA-256；`sha256` 是 64 个小写十六进制字符。领域校验要求 state 引用的每个资源 ID 在 metadata 中恰好出现一次，且 metadata 中没有未被 state 引用的资源。
 7. `sourceRevision.entries` 与 `entries` 使用相同的主题 `id` 成员集。每个值只指纹化对应主题的 POSIX 路径和完整 Markdown UTF-8 文本，计算前只把 CRLF 规范化为 LF；单个主题内容变化只改变该主题的指纹，新增、删除或移动主题会改变成员集。
 8. `sourceRevision.metadata` 稳定指纹化按 ID 排序的资源 ID 与原始字节 SHA-256；metadata 资源摘要和 metadata revision 来自同一次资源读取。资源新增、删除、重命名或内容变化都会改变集合级 revision。资源原始字节不做文本换行规范化。
 9. 通用外壳固定使用 `schemaVersion: 3`。调查领域 `definitionVersion: 3`、`state.resourceReferences` 和 `metadata.resources` 是当前格式的必需部分；旧 definition version 或缺失这些字段的索引不兼容。

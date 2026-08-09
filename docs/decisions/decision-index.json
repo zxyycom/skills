@@ -183,7 +183,7 @@
       "index-runtime/use-independent-read-side-index-runtime.md": "sha256:041bd0263ff543d6b1cd1e85def33b157a6d0ed1bb1f447565b66ee497a43369",
       "index-runtime/use-typed-collection-metadata.md": "sha256:61fe2fe1ecf0adb7821bc73003a8112dd693679e6f2811ec24c64a1daec7b362",
       "investigation-report/append-self-contained-investigation-reports.md": "sha256:9ec28b624b1fe97bca30a5317fd50057d37401f22201b72cfef0f3db49504e5d",
-      "investigation-report/attach-verifiable-resources-to-investigation-reports.md": "sha256:05ddf9a0f37008804e7e7b39b4c1f444f31432082fb4ea0acafdf5d83f84ef84",
+      "investigation-report/attach-verifiable-resources-to-investigation-reports.md": "sha256:bf5d398078b113621683f34ae0915e5adc8053c9b925aa8bbad45e8768ca02f7",
       "investigation-report/generate-query-index-from-topic-files.md": "sha256:637b0aadd380f076be45cb2d13dd507e847207ad002cda74d0269d2e9133a757",
       "investigation-report/maintain-topic-level-investigation-index.md": "sha256:5788503c5b29c34795dc281cc602b6ad39d66b51884a2ce060991113fffb03cf",
       "investigation-report/preserve-comparable-investigation-inputs.md": "sha256:ac753d3ea152903ab36b19f598cd36664b3e7857f32dcd5ce944f7d4ad437847",

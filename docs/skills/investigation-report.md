@@ -50,6 +50,6 @@
 
 主题 Markdown 是主题内容和报告资源关系的事实源，也是索引单位；`_resources/` 文件保存材料的原始字节。每个主题文件无论包含多少份报告都只生成一个通用 JSON 索引项，资源不产生独立 entry。state 除主题标题、核心问题、状态、最新报告时间、报告数量和报告标题外，还投影拥有资源的报告序号与资源 ID；metadata 对每个资源保存一次 ID 与 SHA-256。相对主题路径作为当前集合中的身份，分类、状态、最新报告时间以及主题标题/核心问题/全部报告标题形成查询 key；资源 ID、展示文字、资源正文和报告正文不进入查询 key。
 
-随 skill 分发的 CLI 用 `sync-index` 从主题 Markdown 和资源文件显式重建派生索引。资源成员或原始字节变化会改变集合级 source revision，使旧索引失效；`list` 核对当前主题与资源快照后再按主题路径、category、状态、最新报告时间和文本查询 state。默认命令验证固定核心、可选资源字段、完整资源池、主题投影、资源摘要和新鲜度；内容是否真实、充分，资源是否值得保存、是否安全以及是否遗漏场景义务仍由人工审阅。带 category 或主题路径筛选的检查只校验命中报告声明的资源，不代表全局孤儿状态或完整索引已经新鲜。
+随 skill 分发的 CLI 用 `sync-index` 从主题 Markdown 和资源文件显式重建派生索引。资源成员或原始字节变化会改变集合级 source revision，使旧索引失效；`list` 核对当前主题与资源快照后再按主题路径、category、状态、最新报告时间和文本查询 state。默认命令验证固定核心、可选资源字段、资源 ID、路径与文件类型、完整资源池、主题投影、资源摘要和新鲜度；材料内容是否真实、充分或含有敏感信息，来源是否可信，资源是否值得保存、历史修改是否正当以及是否遗漏场景义务仍由人工审阅。带 category 或主题路径筛选的检查只校验命中报告声明的资源，不代表全局孤儿状态或完整索引已经新鲜。
 
 实际行为入口位于 [`skills/investigation-report/`](../../skills/investigation-report/)，固定存储契约见其中的 [`investigation-report-contract.md`](../../skills/investigation-report/references/investigation-report-contract.md)。

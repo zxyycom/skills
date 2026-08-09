@@ -30,7 +30,7 @@ type ResourceWalkResult = {
   resources: InvestigationResourceSource[];
 };
 
-export function isInvestigationResourceId(value: string): boolean {
+function isInvestigationResourceId(value: string): boolean {
   return investigationResourceIdPattern.test(value);
 }
 
@@ -298,7 +298,7 @@ async function readVerifiedRegularFile(
     if (!sameFileIdentity(openedStat, resolvedStat)) {
       throw new Error("resource path changed while its opened file was being verified");
     }
-    return new Uint8Array(await handle.readFile());
+    return await handle.readFile();
   } finally {
     await handle.close();
   }

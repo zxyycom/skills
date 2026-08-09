@@ -6,7 +6,7 @@ description: >-
   同一核心问题的新认识追加为新的完整报告，并允许报告按需引用和管理随附资源。
   仅在用户明确要求记录、沉淀、维护或审阅调查时使用。
 metadata:
-  version: "6"
+  version: "7"
 ---
 
 # Investigation Report

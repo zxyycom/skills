@@ -6,8 +6,8 @@
 
 已确认事实：
 
-- [调查报告固定契约](../../skills/investigation-report/references/investigation-report-contract.md)让每个主题 Markdown 保存一组按形成时间追加的 H3 报告，每份报告以 `形成时间` 开始并包含四项固定核心。
-- [主题级索引决策](../../docs/decisions/investigation-report/maintain-topic-level-investigation-index.md)规定相对主题路径是稳定 ID，每个主题只产生一个索引 entry，Markdown 与领域文件是事实源，`investigation-index.json` 是可删除重建的查询投影。
+- [调查报告固定契约](../../../skills/investigation-report/references/investigation-report-contract.md)让每个主题 Markdown 保存一组按形成时间追加的 H3 报告，每份报告以 `形成时间` 开始并包含四项固定核心。
+- [主题级索引决策](../../../docs/decisions/investigation-report/maintain-topic-level-investigation-index.md)规定相对主题路径是稳定 ID，每个主题只产生一个索引 entry，Markdown 与领域文件是事实源，`investigation-index.json` 是可删除重建的查询投影。
 - 本 change 开始前的通用索引使用 schema v3：`entries` 与 `sourceRevision.entries` 以主题 ID 键控，`sourceRevision.metadata` 独立指纹化集合级来源；调查领域 definition version 为 `2`，metadata 为空。
 - 一项原始材料可能只支持一份报告，也可能被多份报告或主题共享，因此引用关系必须在报告处声明，不能从资源目录位置猜测。
 - 原始参数、响应、日志、规范摘录和图片需要保留原始字节，但报告正文仍需解释影响结论的关键事实。
@@ -39,7 +39,7 @@
 
 ## Decisions
 
-长期边界由[主题级索引基线](../../docs/decisions/investigation-report/maintain-topic-level-investigation-index.md)和[随附资源方向](../../docs/decisions/investigation-report/attach-verifiable-resources-to-investigation-reports.md)承接；本节只固定当前 change 的引用语法、落盘形状和实现边界。
+长期边界由[主题级索引基线](../../../docs/decisions/investigation-report/maintain-topic-level-investigation-index.md)和[随附资源方向](../../../docs/decisions/investigation-report/attach-verifiable-resources-to-investigation-reports.md)承接；本节只固定当前 change 的引用语法、落盘形状和实现边界。
 
 ### 1. 报告直接声明资源引用
 
