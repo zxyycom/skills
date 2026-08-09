@@ -23,9 +23,10 @@
 7. 按字面仓库相对路径范围读取 `pending` 文件内容。
 8. 通过 `replacePendingFiles({ expectedRevision, expectedFiles?, pathScope, files })`
    用精确目标文件集合完整替换一个字面仓库相对路径范围：取得跨进程写入边界后，当前
-   revision 必须仍等于 `expectedRevision`；传入 `expectedFiles` 时，范围内 `pending`
-   文件必须仍是同一组普通非可执行文件，路径与字节也与该集合完全相同；可执行文件、
-   符号链接或未解决的内容不满足期望。目标集合中缺失的范围内文件视为删除，范围外
+   revision 必须仍等于 `expectedRevision`。省略 `expectedFiles` 表示不设置内容期望；
+   传入时，范围内 `pending` 文件必须仍是同一组普通非可执行文件，路径与字节也与该
+   集合完全相同，其中空集合表示范围内必须没有文件。可执行文件、符号链接、Gitlink
+   或未解决内容等非普通表示不满足期望。目标集合中缺失的范围内文件视为删除，范围外
    `pending` 内容保持不变。成功结果返回规范化的
    `pathScope`、写入前 `previousPaths` 和写入后 `pendingPaths`。
 
@@ -42,16 +43,32 @@
    引号或换行切分。Git 命令、格式、行数或路径记录异常时报告 `operation-failed`，
    不能降级为空结果；只有完整输出表明 `from` 不在 `to` 的 first-parent 历史中时
    返回 `null`。每个 merge revision 相对其 first parent 计算变化。
-7. 范围替换在 Git index 的跨进程互斥边界内保存原范围、核对 revision 与可选的期望
-   文件集合、应用完整目标并逐路径、逐字节读回。revision 或期望文件已变化，或写入
-   边界正被占用时报告 `pending-conflict` 且不写入；其他写入或读回失败丢弃锁定目标
-   并保留原范围，恢复完整后报告 `pending-replacement-failed`，无法确认完整恢复时报告
-   `pending-recovery-failed`。调用方必须停止且不能回退到底层命令。
-8. 目标文件统一作为普通文件写入，不沿用原 `pending` 的可执行或符号链接模式；只有
+7. 范围替换在 Git index 的跨进程互斥边界内依次核对 current revision、保存原范围、
+   核对可选期望集合的成员与普通文件表示、读取并核对字节、创建并应用完整目标、逐路径
+   逐字节读回，最后才发布结果。revision 或期望文件已变化，或写入边界正被占用时报告
+   `pending-conflict`，且在读取非普通表示或创建目标内容前停止；其他写入或读回失败丢弃
+   锁定目标并保留原范围，恢复完整后报告 `pending-replacement-failed`；无法确认完整恢复时
+   报告 `pending-recovery-failed`。`pending-conflict` 是三类冲突条件的统一分类，不承诺
+   指出具体原因；消费者必须重新观察公共 revision 与 `pending` 状态，不得检查底层实现
+   来分流；重新观察后可按最新状态重试。`pending-recovery-failed` 的停止与恢复条件由
+   下文承接；所有失败均不得绕过本层调用底层 Git。
+8. Git 外部记录 parser 只解码并收窄记录形状，不决定公共失败语义。pending 读取遇到
+   未解决、重复或非文件表示时报告 `operation-failed`；带 `expectedFiles` 的替换先核对
+   成员和普通文件表示，不满足时在读取对象字节前报告 `pending-conflict`；未设置该期望的
+   替换若无法读取原范围，则按可恢复替换失败报告 `pending-replacement-failed`。写入后的
+   读回也先核对记录集合，再读取对象字节。外部记录中的路径不能规范化时属于记录解析
+   失败并报告 `operation-failed`；调用方传入的非法 `pathScope` 或文件路径仍报告
+   `invalid-path`。
+9. 目标文件统一作为普通文件写入，不沿用原 `pending` 的可执行或符号链接模式；只有
    失败恢复保留写入前快照的原始表示。
-9. 公共写入参数、结果和错误只表达路径、文件内容、`pending` 替换与恢复状态；Git
+10. 公共写入参数、结果和错误只表达路径、文件内容、`pending` 替换与恢复状态；Git
    命令、index、对象标识、文件模式、锁和第三方实现对象只存在于内部实现。
-10. `tools/shared/` 不依赖领域工具；消费者按本文件声明的通用入口或专用共享子模块使用该中间层。
+11. `tools/shared/` 不依赖领域工具；消费者按本文件声明的通用入口或专用共享子模块使用该中间层。
+
+收到 `pending-recovery-failed` 后，只有目标范围能由本层公共 API 唯一读取，且调用方已经
+把当前内容与原期望和本次目标显式对账或恢复，才能重试。若范围含未解决或其他无法唯一
+读取的表示，或调用方无法判定当前内容，必须停止并交给该范围的 owner；不得调用底层
+Git 命令绕过公共读取和恢复语义。
 
 当前直接生产消费者包括 skill 打包 hash、独立版本门禁、change-plan 的 first-parent
 距离评估、decision-records 的 revision 基线读取与 `pending` 决策范围替换，以及

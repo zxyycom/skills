@@ -36,6 +36,11 @@ import type {
 } from "./types.ts";
 import { validateStateSourceRevisionValue } from "./validation.ts";
 
+type ResolvedIndexPath = Readonly<{
+  canonicalRoot: string;
+  targetPath: string;
+}>;
+
 export async function loadStateIndex<
   State extends object,
   Metadata extends JsonObject
@@ -62,13 +67,53 @@ export async function loadStateIndex<
 }): Promise<
   StateIndexResult<StateIndex | StateIndex<State, Metadata>>
 > {
-  const resolved = resolveIndexPath(options.indexPath, options.context.root);
+  const resolved = await resolveIndexPath(options.indexPath, options.context.root);
   if (resolved.status === "error") {
     return resolved;
   }
+  return options.definition === undefined
+    ? await loadStateIndexAtResolvedPath({
+      expectation: options.expectation,
+      indexPath: options.indexPath,
+      resolved: resolved.value
+    })
+    : await loadStateIndexAtResolvedPath({
+      definition: options.definition,
+      expectation: options.expectation,
+      indexPath: options.indexPath,
+      resolved: resolved.value
+    });
+}
+
+export async function loadStateIndexAtResolvedPath<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
+  definition: StateIndexDefinition<State, Metadata>;
+  expectation: StateIndexExpectation;
+  indexPath: string;
+  resolved: ResolvedIndexPath;
+}): Promise<StateIndexResult<StateIndex<State, Metadata>>>;
+export async function loadStateIndexAtResolvedPath(options: {
+  definition?: undefined;
+  expectation: StateIndexExpectation;
+  indexPath: string;
+  resolved: ResolvedIndexPath;
+}): Promise<StateIndexResult<StateIndex>>;
+export async function loadStateIndexAtResolvedPath<
+  State extends object,
+  Metadata extends JsonObject
+>(options: {
+  definition?: StateIndexDefinition<State, Metadata>;
+  expectation: StateIndexExpectation;
+  indexPath: string;
+  resolved: ResolvedIndexPath;
+}): Promise<
+  StateIndexResult<StateIndex | StateIndex<State, Metadata>>
+> {
   let data: Buffer;
   try {
-    data = await fs.readFile(resolved.value);
+    data = await fs.readFile(options.resolved.targetPath);
   } catch (error) {
     return failure(
       isFileSystemError(error, "ENOENT")
@@ -186,7 +231,7 @@ export async function syncStateIndex<
       status: "error"
     };
   }
-  const resolved = resolveIndexPath(indexPath, context.root);
+  const resolved = await resolveIndexPath(indexPath, context.root);
   if (resolved.status === "error") {
     return failedSync(options, "index-path-invalid", resolved.diagnostics);
   }
@@ -210,7 +255,7 @@ export async function syncStateIndex<
   const expectedText = serializeStateIndex(built.value, definition);
   let currentText: string | null = null;
   try {
-    currentText = await fs.readFile(resolved.value, "utf8");
+    currentText = await fs.readFile(resolved.value.targetPath, "utf8");
   } catch (error) {
     if (!isFileSystemError(error, "ENOENT")) {
       return failedSync(options, "index-read-failed", [diagnostic({
@@ -259,8 +304,11 @@ export async function syncStateIndex<
   }
 
   try {
-    await writeTextAtomically(resolved.value, expectedText);
-    await verifyWrittenText(resolved.value, expectedText);
+    const writtenPath = await writeTextAtomically(
+      resolved.value,
+      expectedText
+    );
+    await verifyWrittenText(writtenPath, expectedText);
     return {
       changed: true,
       diagnostics: [],
@@ -283,10 +331,10 @@ function normalizeIndexLineEndings(value: string): string {
   return value.replace(/\r\n/g, "\n");
 }
 
-export function resolveIndexPath(
+export async function resolveIndexPath(
   indexPath: string,
   root: string
-): StateIndexResult<string> {
+): Promise<StateIndexResult<ResolvedIndexPath>> {
   if (!isNormalizedRelativePosixPath(indexPath)) {
     return failure(
       "state-index.index-path-invalid",
@@ -294,16 +342,63 @@ export function resolveIndexPath(
       { path: indexPath }
     );
   }
-  const resolvedRoot = path.resolve(root);
-  const resolvedPath = path.resolve(resolvedRoot, ...indexPath.split("/"));
-  if (!isPathWithinDirectory(resolvedPath, resolvedRoot)) {
+  let canonicalRoot: string;
+  try {
+    canonicalRoot = await fs.realpath(path.resolve(root));
+    if (!(await fs.stat(canonicalRoot)).isDirectory()) {
+      throw new Error("the index root is not a directory");
+    }
+  } catch (error) {
     return failure(
       "state-index.index-path-invalid",
-      `${indexPath} resolves outside the index root`,
+      `failed to resolve the index root; check that context.root exists, is a directory, `
+        + `and is accessible: ${errorText(error)}`,
       { path: indexPath }
     );
   }
-  return { diagnostics: [], status: "ok", value: resolvedPath };
+
+  return await resolveIndexPathFromCanonicalRoot(indexPath, canonicalRoot);
+}
+
+async function resolveIndexPathFromCanonicalRoot(
+  indexPath: string,
+  canonicalRoot: string
+): Promise<StateIndexResult<ResolvedIndexPath>> {
+  let currentPath = canonicalRoot;
+  const segments = indexPath.split("/");
+  for (const [index, segment] of segments.entries()) {
+    const candidatePath = path.join(currentPath, segment);
+    try {
+      await fs.lstat(candidatePath);
+    } catch (error) {
+      if (isFileSystemError(error, "ENOENT")) {
+        const targetPath = path.join(currentPath, ...segments.slice(index));
+        return { diagnostics: [], status: "ok", value: {
+          canonicalRoot,
+          targetPath
+        } };
+      }
+      return invalidCanonicalIndexPath(indexPath, error);
+    }
+
+    try {
+      currentPath = await fs.realpath(candidatePath);
+    } catch (error) {
+      return invalidCanonicalIndexPath(indexPath, error);
+    }
+    if (!isPathWithinDirectory(currentPath, canonicalRoot)) {
+      return failure(
+        "state-index.index-path-invalid",
+        `${indexPath} passes through a symbolic link outside the index root; `
+          + "choose a target contained by context.root",
+        { path: indexPath }
+      );
+    }
+  }
+  return { diagnostics: [], status: "ok", value: {
+    canonicalRoot,
+    targetPath: currentPath
+  } };
 }
 
 function isNormalizedRelativePosixPath(value: string): boolean {
@@ -315,22 +410,80 @@ function isNormalizedRelativePosixPath(value: string): boolean {
   ));
 }
 
-async function writeTextAtomically(targetPath: string, text: string): Promise<void> {
-  await fs.mkdir(path.dirname(targetPath), { recursive: true });
+async function writeTextAtomically(
+  resolved: ResolvedIndexPath,
+  text: string
+): Promise<string> {
+  const targetPath = await resolveWritableIndexPath(resolved);
+  const canonicalParent = path.dirname(targetPath);
   const temporaryPath = path.join(
-    path.dirname(targetPath),
+    canonicalParent,
     `.${path.basename(targetPath)}.${process.pid}.${randomUUID()}.tmp`
   );
   try {
     await fs.writeFile(temporaryPath, text, { encoding: "utf8", flag: "wx" });
     await fs.rename(temporaryPath, targetPath);
+    return targetPath;
   } catch (error) {
     await fs.rm(temporaryPath, { force: true });
     throw error;
   }
 }
 
-async function verifyWrittenText(targetPath: string, expected: string): Promise<void> {
+async function resolveWritableIndexPath(
+  resolved: ResolvedIndexPath
+): Promise<string> {
+  const relativeParent = path.relative(
+    resolved.canonicalRoot,
+    path.dirname(resolved.targetPath)
+  );
+  if (
+    relativeParent === ".."
+    || relativeParent.startsWith(".." + path.sep)
+    || path.isAbsolute(relativeParent)
+  ) {
+    throw new Error("the index parent resolved outside the configured root");
+  }
+
+  let currentPath = resolved.canonicalRoot;
+  const segments = relativeParent === "" ? [] : relativeParent.split(path.sep);
+  for (const segment of segments) {
+    const candidatePath = path.join(currentPath, segment);
+    try {
+      await fs.mkdir(candidatePath);
+    } catch (error) {
+      if (!isFileSystemError(error, "EEXIST")) {
+        throw error;
+      }
+    }
+    const canonicalPath = await fs.realpath(candidatePath);
+    if (
+      !isPathWithinDirectory(canonicalPath, resolved.canonicalRoot)
+      || !(await fs.stat(canonicalPath)).isDirectory()
+    ) {
+      throw new Error("the index parent resolved outside the configured root");
+    }
+    currentPath = canonicalPath;
+  }
+  return path.join(currentPath, path.basename(resolved.targetPath));
+}
+
+function invalidCanonicalIndexPath(
+  indexPath: string,
+  error: unknown
+): StateIndexResult<ResolvedIndexPath> {
+  return failure(
+    "state-index.index-path-invalid",
+    `failed to resolve ${indexPath} inside the index root; inspect symbolic links and `
+      + `path permissions: ${errorText(error)}`,
+    { path: indexPath }
+  );
+}
+
+async function verifyWrittenText(
+  targetPath: string,
+  expected: string
+): Promise<void> {
   const written = await fs.readFile(targetPath, "utf8");
   if (written !== expected) {
     throw new Error("written index does not match the generated state projection");

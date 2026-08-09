@@ -4,7 +4,7 @@
 
 ## Context
 
-前置 change [`stage-selected-index-entries`](../archive/stage-selected-index-entries/design.md)完成后，配置好的 `StateIndexRuntime` 只需接收 `selectedIds`，即可从 revision 索引与工作区索引构造并暂存完整目标索引。它不接收或操作领域文件。
+已归档的前置 change [`stage-selected-index-entries`](../archive/stage-selected-index-entries/design.md)记录了通用能力的实现；当前行为契约由 [`Index Runtime`](../../tools/index-runtime/README.md) 承接。配置好的 `StateIndexRuntime` 只需接收 `selectedIds`，即可从 revision 索引与工作区索引构造并暂存完整目标索引。它不接收或操作领域文件。
 
 topic 表和 case Markdown 是权威内容，`test-evidence-index.json` 是完整派生索引。现有 definition 直接使用 case id 作为稳定索引 id，因此领域接入不需要增加另一层路径到 id 的映射。topic 表、case 文件和代码都能独立选择，不需要进入索引 API。
 

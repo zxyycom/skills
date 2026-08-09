@@ -6,7 +6,7 @@ description: >-
   多个决策变化同时存在时单独暂存所选变化，并让完整决策索引与待提交集合
   一致时使用。
 metadata:
-  version: "19"
+  version: "20"
 ---
 
 # Decision Records

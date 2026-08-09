@@ -6,7 +6,7 @@
 
 测试证据的 topic 表和 case Markdown 是独立领域文件，却共用一个完整 `test-evidence-index.json`。领域文件和代码可以由调用方分别选择；真正无法用普通文件级暂存隔离的是聚合索引中的 case 条目。
 
-前置 change [`stage-selected-index-entries`](../archive/stage-selected-index-entries/)负责通用索引的按条目暂存。test-evidence 已经使用稳定 case id 作为索引 id，因此本 change 只需提供领域命令并把选中 id 原样交给配置完成的索引运行时。topic 表、case Markdown 和代码是否进入 `pending` 不属于索引暂存入口。
+已归档的前置 change [`stage-selected-index-entries`](../archive/stage-selected-index-entries/)完成了通用索引的按条目暂存；当前行为契约由 [`Index Runtime`](../../tools/index-runtime/README.md) 承接。test-evidence 已经使用稳定 case id 作为索引 id，因此本 change 只需提供领域命令并把选中 id 原样交给配置完成的索引运行时。topic 表、case Markdown 和代码是否进入 `pending` 不属于索引暂存入口。
 
 ## Outcome
 
@@ -41,7 +41,7 @@
 
 ## Affected Owners
 
-- [`stage-selected-index-entries`](../archive/stage-selected-index-entries/)：本 change 的公共能力前置。
+- [`stage-selected-index-entries`](../archive/stage-selected-index-entries/)：本 change 的公共能力前置及历史实现记录，不是当前行为 owner。
 - `tools/test-evidence/` 与 [`skills/test-evidence-review/`](../../skills/test-evidence-review/)：case id 输入、CLI、结果、行为与分发。
 - [`tools/index-runtime/README.md`](../../tools/index-runtime/README.md)：既有按条目暂存契约，本 change 只作为调用方接入。
 - `docs/decisions/test-evidence-review/`、`docs/skills/test-evidence-review.md` 与 `docs/test-evidence/`：长期方向、人类说明和测试证据。

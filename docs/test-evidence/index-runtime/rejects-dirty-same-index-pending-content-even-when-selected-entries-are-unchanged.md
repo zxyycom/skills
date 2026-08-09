@@ -9,4 +9,5 @@ Contract:
 
 Proves:
 - 同索引已有 pending 内容时返回 `pending-conflict`，既有目标内容不被覆盖。
+- 冲突诊断不猜测具体原因，要求重新读取 current revision 与目标 pending、解决同索引既有变化后重试。
 - 目标外 pending、工作区索引和领域文件不受失败影响。

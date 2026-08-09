@@ -20,7 +20,7 @@ import {
   serializeStateIndex
 } from "./snapshot-parser.ts";
 import {
-  loadStateIndex,
+  loadStateIndexAtResolvedPath,
   resolveIndexPath
 } from "./storage.ts";
 import type {
@@ -31,14 +31,18 @@ import type {
   StateIndexDiagnostic,
   StateIndexEntryStageResult,
   StateIndexResult,
-  StateRecord,
-  StateSourceRevision
+  StateSnapshot
 } from "./types.ts";
 
 type EntryStageErrorState = Exclude<Extract<
   StateIndexEntryStageResult,
   { status: "error" }
 >["state"], "pending-recovery-failed">;
+
+type EntryStageResultContext = Readonly<{
+  indexPath: string;
+  namespace: string;
+}>;
 
 type SelectedIdValidation =
   | { diagnostics: StateIndexDiagnostic[]; status: "error" }
@@ -53,56 +57,80 @@ export async function stageSelectedIndexEntries<
   indexPath: string;
   selectedIds: readonly string[];
 }>): Promise<StateIndexEntryStageResult> {
+  const resultContext: EntryStageResultContext = {
+    indexPath: options.indexPath,
+    namespace: options.definition.namespace
+  };
   const definitionErrors = validateStateIndexDefinition(options.definition);
   if (definitionErrors.length > 0) {
-    return failedStage(options, "definition-invalid", [diagnostic({
+    return failedStage(resultContext, "definition-invalid", [diagnostic({
       code: "state-index.definition-invalid",
       message: definitionErrors.join("; "),
       path: options.indexPath
     })]);
   }
   const definition = defineStateIndexDefinition(options.definition);
+  const expectation = expectationOf(definition);
   const selected = validateSelectedIds(options.selectedIds, options.indexPath);
   if (selected.status === "error") {
-    return failedStage(options, "selection-invalid", selected.diagnostics);
+    return failedStage(resultContext, "selection-invalid", selected.diagnostics);
   }
   if (isOperationAborted(options.context)) {
-    return failedStage(options, "operation-aborted", [diagnostic({
-      code: "state-index.operation-aborted",
-      message: "index entry staging was aborted",
-      path: options.indexPath
-    })], selected.selectedIds);
+    return abortedStage(resultContext, selected.selectedIds);
   }
 
-  const absoluteIndexPath = resolveIndexPath(
+  const resolvedIndexPath = await resolveIndexPath(
     options.indexPath,
     options.context.root
   );
-  if (absoluteIndexPath.status === "error") {
+  if (resolvedIndexPath.status === "error") {
     return failedStage(
-      options,
+      resultContext,
       "index-path-invalid",
-      absoluteIndexPath.diagnostics,
+      resolvedIndexPath.diagnostics,
       selected.selectedIds
     );
   }
 
   let repository: Awaited<ReturnType<typeof openVersionControl>>;
-  let revision: string | null;
-  let revisionFile: VersionControlFile | null;
-  let repositoryIndexPath: string;
   try {
     repository = await openVersionControl(options.context.root);
+  } catch (error) {
+    return repositoryOpenFailure(resultContext, error, selected.selectedIds);
+  }
+
+  let repositoryIndexPath: string;
+  try {
     repositoryIndexPath = repositoryRelativePathFromFileSystemPath(
       repository.rootDirectory,
-      absoluteIndexPath.value
+      resolvedIndexPath.value.targetPath
     );
+  } catch {
+    return failedStage(resultContext, "index-path-invalid", [diagnostic({
+      code: "state-index.repository-path-invalid",
+      message: "the resolved index path is not a file in the discovered repository; check "
+        + "context.root and indexPath, then retry",
+      path: options.indexPath
+    })], selected.selectedIds);
+  }
+
+  let revision: string | null;
+  try {
     revision = await repository.getCurrentRevision();
-    revisionFile = revision === null
-      ? null
-      : await repository.readRevisionFile(revision, repositoryIndexPath);
-  } catch (error) {
-    return revisionReadFailure(options, error, selected.selectedIds);
+  } catch {
+    return revisionReadFailure(resultContext, selected.selectedIds);
+  }
+
+  let revisionFile: VersionControlFile | null = null;
+  if (revision !== null) {
+    try {
+      revisionFile = await repository.readRevisionFile(
+        revision,
+        repositoryIndexPath
+      );
+    } catch {
+      return revisionReadFailure(resultContext, selected.selectedIds);
+    }
   }
 
   let revisionIndex: StateIndexResult<StateIndex<State, Metadata>> | null = null;
@@ -113,7 +141,7 @@ export async function stageSelectedIndexEntries<
         revisionFile.data
       );
     } catch {
-      return failedStage(options, "revision-index-invalid", [diagnostic({
+      return failedStage(resultContext, "revision-index-invalid", [diagnostic({
         code: "state-index.revision-index-encoding-invalid",
         message: "the revision index is not valid UTF-8 text",
         path: options.indexPath
@@ -121,14 +149,14 @@ export async function stageSelectedIndexEntries<
     }
     revisionIndex = parseStateIndex({
       definition,
-      expectation: expectationOf(definition),
+      expectation,
       sourcePath: options.indexPath,
       text: revisionText
     });
   }
   if (revisionIndex?.status === "error") {
     return failedStage(
-      options,
+      resultContext,
       "revision-index-invalid",
       revisionIndex.diagnostics,
       selected.selectedIds
@@ -136,15 +164,15 @@ export async function stageSelectedIndexEntries<
   }
 
   const baseline = revisionIndex?.value ?? null;
-  const workspaceIndex = await loadStateIndex({
-    context: options.context,
+  const workspaceIndex = await loadStateIndexAtResolvedPath({
     definition,
-    expectation: expectationOf(definition),
-    indexPath: options.indexPath
+    expectation,
+    indexPath: options.indexPath,
+    resolved: resolvedIndexPath.value
   });
   if (workspaceIndex.status === "error") {
     return failedStage(
-      options,
+      resultContext,
       "workspace-index-invalid",
       workspaceIndex.diagnostics,
       selected.selectedIds
@@ -154,7 +182,7 @@ export async function stageSelectedIndexEntries<
     baseline !== null
     && !sameCollectionContract(baseline, workspaceIndex.value)
   ) {
-    return failedStage(options, "collection-changed", [diagnostic({
+    return failedStage(resultContext, "collection-changed", [diagnostic({
       code: "state-index.stage-collection-changed",
       message: "metadata or its source revision changed; stage the complete index instead",
       path: options.indexPath
@@ -166,7 +194,7 @@ export async function stageSelectedIndexEntries<
     !hasEntry(baseline, id) && !hasEntry(workspaceIndex.value, id)
   ));
   if (missingId !== undefined) {
-    return failedStage(options, "selection-invalid", [diagnostic({
+    return failedStage(resultContext, "selection-invalid", [diagnostic({
       code: "state-index.selected-id-missing",
       message: `selected state id ${JSON.stringify(missingId)} is absent from both indexes`,
       path: options.indexPath,
@@ -186,18 +214,14 @@ export async function stageSelectedIndexEntries<
   );
   if (target.status === "error") {
     return failedStage(
-      options,
+      resultContext,
       "target-invalid",
       target.diagnostics,
       selected.selectedIds
     );
   }
   if (isOperationAborted(options.context)) {
-    return failedStage(options, "operation-aborted", [diagnostic({
-      code: "state-index.operation-aborted",
-      message: "index entry staging was aborted",
-      path: options.indexPath
-    })], selected.selectedIds);
+    return abortedStage(resultContext, selected.selectedIds);
   }
 
   const targetText = serializeStateIndex(target.value, definition);
@@ -212,7 +236,7 @@ export async function stageSelectedIndexEntries<
       pathScope: repositoryIndexPath
     });
   } catch (error) {
-    return pendingFailure(options, error, selected.selectedIds);
+    return pendingFailure(resultContext, error, selected.selectedIds);
   }
 
   const success = {
@@ -291,11 +315,7 @@ function selectTargetSnapshot<
   revision: StateIndex<State, Metadata> | null,
   workspace: StateIndex<State, Metadata>,
   selectedIds: ReadonlySet<string>
-): {
-  metadata: Metadata;
-  sourceRevision: StateSourceRevision;
-  states: StateRecord<State>;
-} {
+): StateSnapshot<State, Metadata> {
   const states: Array<[string, State]> = [];
   const revisions: Array<[string, string]> = [];
   const allIds = new Set([
@@ -332,14 +352,8 @@ function isOperationAborted(context: StateIndexContext): boolean {
   return context.signal?.aborted === true;
 }
 
-function pendingFailure<
-  State extends object,
-  Metadata extends JsonObject
->(
-  options: Readonly<{
-    definition: StateIndexDefinition<State, Metadata>;
-    indexPath: string;
-  }>,
+function pendingFailure(
+  context: EntryStageResultContext,
   error: unknown,
   selectedIds: string[]
 ): StateIndexEntryStageResult {
@@ -347,96 +361,91 @@ function pendingFailure<
     error instanceof VersionControlError
     && error.code === "pending-conflict"
   ) {
-    return failedStage(options, "pending-conflict", [diagnostic({
+    return failedStage(context, "pending-conflict", [diagnostic({
       code: "state-index.pending-conflict",
-      message: "the pending index no longer matches the revision; clear or commit its "
-        + "existing change before retrying",
-      path: options.indexPath
+      message: "the current revision or target pending content may have changed, or the "
+        + "pending write boundary may be busy; reread the current revision and target "
+        + "pending content, resolve any existing pending change for this index, then retry",
+      path: context.indexPath
     })], selectedIds);
   }
   if (
     error instanceof VersionControlError
     && error.code === "pending-recovery-failed"
   ) {
-    return failedRecoveryStage(options, [diagnostic({
+    return failedRecoveryStage(context, [diagnostic({
       code: "state-index.pending-recovery-failed",
-      message: "pending index recovery was incomplete; inspect the pending index before "
-        + "retrying",
-      path: options.indexPath
+      message: "pending recovery was incomplete; read and reconcile the target range through "
+        + "the version-control API before retrying; if it cannot be uniquely read or "
+        + "attributed, stop and ask the range owner",
+      path: context.indexPath
     })], selectedIds);
   }
-  return failedStage(options, "pending-write-failed", [diagnostic({
+  return failedStage(context, "pending-write-failed", [diagnostic({
     code: "state-index.pending-write-failed",
-    message: "failed to replace the pending index; the previous pending range was preserved",
-    path: options.indexPath
+    message: "failed to replace the pending index; the previous pending range was preserved; "
+      + "inspect the target pending content and repository access, then retry",
+    path: context.indexPath
   })], selectedIds);
 }
 
-function revisionReadFailure<
-  State extends object,
-  Metadata extends JsonObject
->(
-  options: Readonly<{
-    definition: StateIndexDefinition<State, Metadata>;
-    indexPath: string;
-  }>,
+function repositoryOpenFailure(
+  context: EntryStageResultContext,
   error: unknown,
   selectedIds: string[]
 ): StateIndexEntryStageResult {
-  const repositoryUnavailable = error instanceof VersionControlError
-    && error.code === "not-repository";
-  const invalidPath = error instanceof VersionControlError
-    && error.code === "invalid-path";
-  return failedStage(
-    options,
-    invalidPath ? "index-path-invalid" : "revision-read-failed",
-    [diagnostic({
-      code: invalidPath
-        ? "state-index.index-path-invalid"
-        : repositoryUnavailable
-          ? "state-index.repository-unavailable"
-          : "state-index.revision-index-read-failed",
-      message: invalidPath
-        ? "the index path is not a repository file path"
-        : repositoryUnavailable
-          ? "the configured root is not inside a version-control repository"
-          : "failed to read the revision index from version control",
-      path: options.indexPath
-    })],
-    selectedIds
-  );
+  if (error instanceof VersionControlError && error.code === "not-repository") {
+    return failedStage(context, "revision-read-failed", [diagnostic({
+      code: "state-index.repository-unavailable",
+      message: "the configured root is not inside a version-control repository; choose a "
+        + "repository-backed root, then retry",
+      path: context.indexPath
+    })], selectedIds);
+  }
+  return revisionReadFailure(context, selectedIds);
 }
 
-function failedRecoveryStage<
-  State extends object,
-  Metadata extends JsonObject
->(
-  options: Readonly<{
-    definition: StateIndexDefinition<State, Metadata>;
-    indexPath: string;
-  }>,
+function revisionReadFailure(
+  context: EntryStageResultContext,
+  selectedIds: string[]
+): StateIndexEntryStageResult {
+  return failedStage(context, "revision-read-failed", [diagnostic({
+    code: "state-index.revision-read-failed",
+    message: "failed to read the current revision or its index file; check repository "
+      + "access and revision integrity, then retry",
+    path: context.indexPath
+  })], selectedIds);
+}
+
+function abortedStage(
+  context: EntryStageResultContext,
+  selectedIds: string[]
+): StateIndexEntryStageResult {
+  return failedStage(context, "operation-aborted", [diagnostic({
+    code: "state-index.operation-aborted",
+    message: "index entry staging was aborted",
+    path: context.indexPath
+  })], selectedIds);
+}
+
+function failedRecoveryStage(
+  context: EntryStageResultContext,
   diagnostics: StateIndexDiagnostic[],
   selectedIds: string[]
 ): StateIndexEntryStageResult {
   return {
     changed: null,
     diagnostics,
-    indexPath: options.indexPath,
-    namespace: options.definition.namespace,
+    indexPath: context.indexPath,
+    namespace: context.namespace,
     selectedIds,
     state: "pending-recovery-failed",
     status: "error"
   };
 }
 
-function failedStage<
-  State extends object,
-  Metadata extends JsonObject
->(
-  options: Readonly<{
-    definition: StateIndexDefinition<State, Metadata>;
-    indexPath: string;
-  }>,
+function failedStage(
+  context: EntryStageResultContext,
   state: EntryStageErrorState,
   diagnostics: StateIndexDiagnostic[],
   selectedIds: string[] = []
@@ -444,8 +453,8 @@ function failedStage<
   return {
     changed: false,
     diagnostics,
-    indexPath: options.indexPath,
-    namespace: options.definition.namespace,
+    indexPath: context.indexPath,
+    namespace: context.namespace,
     selectedIds,
     state,
     status: "error"

@@ -3083,6 +3083,75 @@
         "title": "拒绝配置根目录之外的索引路径"
       }
     },
+    "INDEX-RUNTIME-PATH-SYMLINK-INTERNAL-001": {
+      "keys": {
+        "search": [
+          "INDEX-RUNTIME-PATH-SYMLINK-INTERNAL-001 在稳定符号链接布局中使用根内规范目标 配置根目录自身或路径中的目录可以是符号链接，只要解析后的规范目标仍位于规范根目录内。 符号链接根目录和根内目录符号链接两种稳定布局都把同步结果写入实际的根内目标。 两种布局随后都能从同一规范目标读取完整条目集合。 tools/index-runtime/tests/materialization.test.ts > uses canonical in-root targets through a symlinked root and directory bun test --test-name-pattern=\"^uses canonical in-root targets through a symlinked root and directory$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/index-runtime/tests/materialization.test.ts > uses canonical in-root targets through a symlinked root and directory",
+          "bun test --test-name-pattern=\"^uses canonical in-root targets through a symlinked root and directory$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "id": "INDEX-RUNTIME-PATH-SYMLINK-INTERNAL-001",
+        "line": 1,
+        "searchText": "在稳定符号链接布局中使用根内规范目标 配置根目录自身或路径中的目录可以是符号链接，只要解析后的规范目标仍位于规范根目录内。 符号链接根目录和根内目录符号链接两种稳定布局都把同步结果写入实际的根内目标。 两种布局随后都能从同一规范目标读取完整条目集合。 tools/index-runtime/tests/materialization.test.ts > uses canonical in-root targets through a symlinked root and directory bun test --test-name-pattern=\"^uses canonical in-root targets through a symlinked root and directory$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "index-runtime/uses-canonical-in-root-targets-through-a-symlinked-root-and-directory.md",
+        "summary": "配置根目录自身或路径中的目录可以是符号链接，只要解析后的规范目标仍位于规范根目录内。",
+        "title": "在稳定符号链接布局中使用根内规范目标"
+      }
+    },
+    "INDEX-RUNTIME-PATH-SYMLINK-READ-001": {
+      "keys": {
+        "search": [
+          "INDEX-RUNTIME-PATH-SYMLINK-READ-001 拒绝经符号链接逃逸的索引读取 索引读取必须依据规范路径约束在配置根目录内，不能跟随路径中的符号链接访问根目录外目标。 指向根目录外的中间目录符号链接和最终文件符号链接都返回 `state-index.index-path-invalid`。 根目录外文件保持不变。 tools/index-runtime/tests/materialization.test.ts > rejects index reads through a symlink outside the configured root bun test --test-name-pattern=\"^rejects index reads through a symlink outside the configured root$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/index-runtime/tests/materialization.test.ts > rejects index reads through a symlink outside the configured root",
+          "bun test --test-name-pattern=\"^rejects index reads through a symlink outside the configured root$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "id": "INDEX-RUNTIME-PATH-SYMLINK-READ-001",
+        "line": 1,
+        "searchText": "拒绝经符号链接逃逸的索引读取 索引读取必须依据规范路径约束在配置根目录内，不能跟随路径中的符号链接访问根目录外目标。 指向根目录外的中间目录符号链接和最终文件符号链接都返回 `state-index.index-path-invalid`。 根目录外文件保持不变。 tools/index-runtime/tests/materialization.test.ts > rejects index reads through a symlink outside the configured root bun test --test-name-pattern=\"^rejects index reads through a symlink outside the configured root$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "index-runtime/rejects-index-reads-through-a-symlink-outside-the-configured-root.md",
+        "summary": "索引读取必须依据规范路径约束在配置根目录内，不能跟随路径中的符号链接访问根目录外目标。",
+        "title": "拒绝经符号链接逃逸的索引读取"
+      }
+    },
+    "INDEX-RUNTIME-PATH-SYMLINK-WRITE-001": {
+      "keys": {
+        "search": [
+          "INDEX-RUNTIME-PATH-SYMLINK-WRITE-001 拒绝经符号链接逃逸的索引写入 索引同步必须依据规范路径约束在配置根目录内，不能跟随路径中的符号链接写入根目录外目标。 指向根目录外的中间目录符号链接和最终文件符号链接都返回 `index-path-invalid` 和 `state-index.index-path-invalid`。 根目录外文件保持不变。 tools/index-runtime/tests/materialization.test.ts > rejects index writes through a symlink outside the configured root bun test --test-name-pattern=\"^rejects index writes through a symlink outside the configured root$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/index-runtime/tests/materialization.test.ts > rejects index writes through a symlink outside the configured root",
+          "bun test --test-name-pattern=\"^rejects index writes through a symlink outside the configured root$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "id": "INDEX-RUNTIME-PATH-SYMLINK-WRITE-001",
+        "line": 1,
+        "searchText": "拒绝经符号链接逃逸的索引写入 索引同步必须依据规范路径约束在配置根目录内，不能跟随路径中的符号链接写入根目录外目标。 指向根目录外的中间目录符号链接和最终文件符号链接都返回 `index-path-invalid` 和 `state-index.index-path-invalid`。 根目录外文件保持不变。 tools/index-runtime/tests/materialization.test.ts > rejects index writes through a symlink outside the configured root bun test --test-name-pattern=\"^rejects index writes through a symlink outside the configured root$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "index-runtime/rejects-index-writes-through-a-symlink-outside-the-configured-root.md",
+        "summary": "索引同步必须依据规范路径约束在配置根目录内，不能跟随路径中的符号链接写入根目录外目标。",
+        "title": "拒绝经符号链接逃逸的索引写入"
+      }
+    },
     "INDEX-RUNTIME-PERFORMANCE-001": {
       "keys": {
         "search": [
@@ -3497,6 +3566,29 @@
         "title": "支持首次索引与合法空目标"
       }
     },
+    "INDEX-RUNTIME-STAGING-COLLECTION-001": {
+      "keys": {
+        "search": [
+          "INDEX-RUNTIME-STAGING-COLLECTION-001 不读取领域源并拒绝集合级变化 revision 已有索引时，按 ID 暂存不能选择 metadata 或 metadata 来源 revision。 metadata 内容或 metadata 来源指纹变化都在 pending 写入前返回 `collection-changed`。 失败前不调用领域 `read` 或 `readRevision`，也不改变 pending。 tools/index-runtime/tests/staging.test.ts > rejects collection changes without source reads bun test --test-name-pattern=\"^rejects collection changes without source reads$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/index-runtime/tests/staging.test.ts > rejects collection changes without source reads",
+          "bun test --test-name-pattern=\"^rejects collection changes without source reads$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "id": "INDEX-RUNTIME-STAGING-COLLECTION-001",
+        "line": 1,
+        "searchText": "不读取领域源并拒绝集合级变化 revision 已有索引时，按 ID 暂存不能选择 metadata 或 metadata 来源 revision。 metadata 内容或 metadata 来源指纹变化都在 pending 写入前返回 `collection-changed`。 失败前不调用领域 `read` 或 `readRevision`，也不改变 pending。 tools/index-runtime/tests/staging.test.ts > rejects collection changes without source reads bun test --test-name-pattern=\"^rejects collection changes without source reads$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "index-runtime/rejects-collection-changes-without-source-reads.md",
+        "summary": "revision 已有索引时，按 ID 暂存不能选择 metadata 或 metadata 来源 revision。",
+        "title": "不读取领域源并拒绝集合级变化"
+      }
+    },
     "INDEX-RUNTIME-STAGING-CONCURRENCY-001": {
       "keys": {
         "search": [
@@ -3523,21 +3615,21 @@
     "INDEX-RUNTIME-STAGING-CONFLICT-001": {
       "keys": {
         "search": [
-          "INDEX-RUNTIME-STAGING-CONFLICT-001 无变化选择仍拒绝同索引既有 Pending 即使目标条目与 revision 没有实际差异，选择性暂存仍必须在锁内确认目标索引 pending 干净，不能提前报告成功。 同索引已有 pending 内容时返回 `pending-conflict`，既有目标内容不被覆盖。 目标外 pending、工作区索引和领域文件不受失败影响。 tools/index-runtime/tests/staging.test.ts > rejects dirty same-index pending content even when selected entries are unchanged bun test --test-name-pattern=\"^rejects dirty same-index pending content even when selected entries are unchanged$\" ./tools/index-runtime/tests/run.ts"
+          "INDEX-RUNTIME-STAGING-CONFLICT-001 无变化选择仍拒绝同索引既有 Pending 即使目标条目与 revision 没有实际差异，选择性暂存仍必须在锁内确认目标索引 pending 干净，不能提前报告成功。 同索引已有 pending 内容时返回 `pending-conflict`，既有目标内容不被覆盖。 冲突诊断不猜测具体原因，要求重新读取 current revision 与目标 pending、解决同索引既有变化后重试。 目标外 pending、工作区索引和领域文件不受失败影响。 tools/index-runtime/tests/staging.test.ts > rejects dirty same-index pending content even when selected entries are unchanged bun test --test-name-pattern=\"^rejects dirty same-index pending content even when selected entries are unchanged$\" ./tools/index-runtime/tests/run.ts"
         ],
         "topic": [
           "index-runtime"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 14,
         "entries": [
           "tools/index-runtime/tests/staging.test.ts > rejects dirty same-index pending content even when selected entries are unchanged",
           "bun test --test-name-pattern=\"^rejects dirty same-index pending content even when selected entries are unchanged$\" ./tools/index-runtime/tests/run.ts"
         ],
         "id": "INDEX-RUNTIME-STAGING-CONFLICT-001",
         "line": 1,
-        "searchText": "无变化选择仍拒绝同索引既有 Pending 即使目标条目与 revision 没有实际差异，选择性暂存仍必须在锁内确认目标索引 pending 干净，不能提前报告成功。 同索引已有 pending 内容时返回 `pending-conflict`，既有目标内容不被覆盖。 目标外 pending、工作区索引和领域文件不受失败影响。 tools/index-runtime/tests/staging.test.ts > rejects dirty same-index pending content even when selected entries are unchanged bun test --test-name-pattern=\"^rejects dirty same-index pending content even when selected entries are unchanged$\" ./tools/index-runtime/tests/run.ts",
+        "searchText": "无变化选择仍拒绝同索引既有 Pending 即使目标条目与 revision 没有实际差异，选择性暂存仍必须在锁内确认目标索引 pending 干净，不能提前报告成功。 同索引已有 pending 内容时返回 `pending-conflict`，既有目标内容不被覆盖。 冲突诊断不猜测具体原因，要求重新读取 current revision 与目标 pending、解决同索引既有变化后重试。 目标外 pending、工作区索引和领域文件不受失败影响。 tools/index-runtime/tests/staging.test.ts > rejects dirty same-index pending content even when selected entries are unchanged bun test --test-name-pattern=\"^rejects dirty same-index pending content even when selected entries are unchanged$\" ./tools/index-runtime/tests/run.ts",
         "sourcePath": "index-runtime/rejects-dirty-same-index-pending-content-even-when-selected-entries-are-unchanged.md",
         "summary": "即使目标条目与 revision 没有实际差异，选择性暂存仍必须在锁内确认目标索引 pending 干净，不能提前报告成功。",
         "title": "无变化选择仍拒绝同索引既有 Pending"
@@ -3612,10 +3704,10 @@
         "title": "稳定拒绝非法暂存输入"
       }
     },
-    "INDEX-RUNTIME-STAGING-PROJECTION-001": {
+    "INDEX-RUNTIME-STAGING-PENDING-WRITE-001": {
       "keys": {
         "search": [
-          "INDEX-RUNTIME-STAGING-PROJECTION-001 重投影选择结果并拒绝集合级变化 既有基线下条目级暂存不能选择 metadata 或 metadata 来源 revision；组合后的目标必须重走 parser、key 投影和完整 `validateIndex`，且不得调用领域 `read` 或 `readRevision`。 metadata 内容或 metadata 来源指纹变化都在 pending 写入前返回 `collection-changed`。 单独合法的 revision 与工作区索引合成非法跨条目结果时，完整目标验证返回 `target-invalid`。 调用计数证明目标重新执行 state parser、key derive 与完整验证，同时领域 `read` 和 `readRevision` 保持零次。 tools/index-runtime/tests/staging.test.ts > rejects collection changes and invalid selected projections without source reads bun test --test-name-pattern=\"^rejects collection changes and invalid selected projections without source reads$\" ./tools/index-runtime/tests/run.ts"
+          "INDEX-RUNTIME-STAGING-PENDING-WRITE-001 Pending 替换失败时给出下一步并保留索引 可完整恢复的 pending 替换失败必须报告可执行的失败诊断，并保留写入前的 pending 范围。 损坏的 pending 快照返回 `pending-write-failed` 和 `state-index.pending-write-failed`。 诊断要求检查目标 pending 与仓库访问后重试。 pending 快照与工作区索引都保持不变。 tools/index-runtime/tests/staging.test.ts > reports an actionable pending replacement failure and preserves the index bun test --test-name-pattern=\"^reports an actionable pending replacement failure and preserves the index$\" ./tools/index-runtime/tests/run.ts"
         ],
         "topic": [
           "index-runtime"
@@ -3624,21 +3716,44 @@
       "state": {
         "endLine": 14,
         "entries": [
-          "tools/index-runtime/tests/staging.test.ts > rejects collection changes and invalid selected projections without source reads",
-          "bun test --test-name-pattern=\"^rejects collection changes and invalid selected projections without source reads$\" ./tools/index-runtime/tests/run.ts"
+          "tools/index-runtime/tests/staging.test.ts > reports an actionable pending replacement failure and preserves the index",
+          "bun test --test-name-pattern=\"^reports an actionable pending replacement failure and preserves the index$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "id": "INDEX-RUNTIME-STAGING-PENDING-WRITE-001",
+        "line": 1,
+        "searchText": "Pending 替换失败时给出下一步并保留索引 可完整恢复的 pending 替换失败必须报告可执行的失败诊断，并保留写入前的 pending 范围。 损坏的 pending 快照返回 `pending-write-failed` 和 `state-index.pending-write-failed`。 诊断要求检查目标 pending 与仓库访问后重试。 pending 快照与工作区索引都保持不变。 tools/index-runtime/tests/staging.test.ts > reports an actionable pending replacement failure and preserves the index bun test --test-name-pattern=\"^reports an actionable pending replacement failure and preserves the index$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "index-runtime/reports-an-actionable-pending-replacement-failure-and-preserves-the-index.md",
+        "summary": "可完整恢复的 pending 替换失败必须报告可执行的失败诊断，并保留写入前的 pending 范围。",
+        "title": "Pending 替换失败时给出下一步并保留索引"
+      }
+    },
+    "INDEX-RUNTIME-STAGING-PROJECTION-001": {
+      "keys": {
+        "search": [
+          "INDEX-RUNTIME-STAGING-PROJECTION-001 完整重投影后拒绝非法选择目标 按 ID 组合出的目标必须重新执行完整投影与领域级索引验证，且不能回读领域源。 单独合法的 revision 与工作区索引合成非法跨条目结果时返回 `target-invalid`。 领域验证回调观察到完整的选择目标并以 `state-index.index-validation-failed` 拒绝。 失败前不调用领域 `read` 或 `readRevision`，也不改变 pending。 tools/index-runtime/tests/staging.test.ts > rejects an invalid selected target after complete reprojection without source reads bun test --test-name-pattern=\"^rejects an invalid selected target after complete reprojection without source reads$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/index-runtime/tests/staging.test.ts > rejects an invalid selected target after complete reprojection without source reads",
+          "bun test --test-name-pattern=\"^rejects an invalid selected target after complete reprojection without source reads$\" ./tools/index-runtime/tests/run.ts"
         ],
         "id": "INDEX-RUNTIME-STAGING-PROJECTION-001",
         "line": 1,
-        "searchText": "重投影选择结果并拒绝集合级变化 既有基线下条目级暂存不能选择 metadata 或 metadata 来源 revision；组合后的目标必须重走 parser、key 投影和完整 `validateIndex`，且不得调用领域 `read` 或 `readRevision`。 metadata 内容或 metadata 来源指纹变化都在 pending 写入前返回 `collection-changed`。 单独合法的 revision 与工作区索引合成非法跨条目结果时，完整目标验证返回 `target-invalid`。 调用计数证明目标重新执行 state parser、key derive 与完整验证，同时领域 `read` 和 `readRevision` 保持零次。 tools/index-runtime/tests/staging.test.ts > rejects collection changes and invalid selected projections without source reads bun test --test-name-pattern=\"^rejects collection changes and invalid selected projections without source reads$\" ./tools/index-runtime/tests/run.ts",
-        "sourcePath": "index-runtime/rejects-collection-changes-and-invalid-selected-projections-without-source-reads.md",
-        "summary": "既有基线下条目级暂存不能选择 metadata 或 metadata 来源 revision；组合后的目标必须重走 parser、key 投影和完整 `validateIndex`，且不得调用领域 `read` 或 `readRevision`。",
-        "title": "重投影选择结果并拒绝集合级变化"
+        "searchText": "完整重投影后拒绝非法选择目标 按 ID 组合出的目标必须重新执行完整投影与领域级索引验证，且不能回读领域源。 单独合法的 revision 与工作区索引合成非法跨条目结果时返回 `target-invalid`。 领域验证回调观察到完整的选择目标并以 `state-index.index-validation-failed` 拒绝。 失败前不调用领域 `read` 或 `readRevision`，也不改变 pending。 tools/index-runtime/tests/staging.test.ts > rejects an invalid selected target after complete reprojection without source reads bun test --test-name-pattern=\"^rejects an invalid selected target after complete reprojection without source reads$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "index-runtime/rejects-an-invalid-selected-target-after-complete-reprojection-without-source-reads.md",
+        "summary": "按 ID 组合出的目标必须重新执行完整投影与领域级索引验证，且不能回读领域源。",
+        "title": "完整重投影后拒绝非法选择目标"
       }
     },
-    "INDEX-RUNTIME-STAGING-REVISION-CONFLICT-001": {
+    "INDEX-RUNTIME-STAGING-REPOSITORY-001": {
       "keys": {
         "search": [
-          "INDEX-RUNTIME-STAGING-REVISION-CONFLICT-001 锁内拒绝已变化的 Current Revision 选择目标使用的 current revision 必须在 pending 写入锁内仍是当前 revision。 目标完成投影后 revision 发生变化会返回 `pending-conflict`。 冲突不会写入 pending，也不会修改工作区索引。 tools/index-runtime/tests/staging.test.ts > rejects a revision that changes before the locked pending replacement bun test --test-name-pattern=\"^rejects a revision that changes before the locked pending replacement$\" ./tools/index-runtime/tests/run.ts"
+          "INDEX-RUNTIME-STAGING-REPOSITORY-001 暂存前报告可执行的仓库发现失败 按 ID 暂存依赖可用的版本管理仓库；仓库发现失败必须与 revision 文件读取失败分开诊断并给出下一步。 非仓库根目录返回 `revision-read-failed` 和 `state-index.repository-unavailable`。 诊断要求选择由仓库承载的根目录后重试。 tools/index-runtime/tests/staging.test.ts > reports an actionable repository discovery failure before staging bun test --test-name-pattern=\"^reports an actionable repository discovery failure before staging$\" ./tools/index-runtime/tests/run.ts"
         ],
         "topic": [
           "index-runtime"
@@ -3647,12 +3762,35 @@
       "state": {
         "endLine": 13,
         "entries": [
+          "tools/index-runtime/tests/staging.test.ts > reports an actionable repository discovery failure before staging",
+          "bun test --test-name-pattern=\"^reports an actionable repository discovery failure before staging$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "id": "INDEX-RUNTIME-STAGING-REPOSITORY-001",
+        "line": 1,
+        "searchText": "暂存前报告可执行的仓库发现失败 按 ID 暂存依赖可用的版本管理仓库；仓库发现失败必须与 revision 文件读取失败分开诊断并给出下一步。 非仓库根目录返回 `revision-read-failed` 和 `state-index.repository-unavailable`。 诊断要求选择由仓库承载的根目录后重试。 tools/index-runtime/tests/staging.test.ts > reports an actionable repository discovery failure before staging bun test --test-name-pattern=\"^reports an actionable repository discovery failure before staging$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "index-runtime/reports-an-actionable-repository-discovery-failure-before-staging.md",
+        "summary": "按 ID 暂存依赖可用的版本管理仓库；仓库发现失败必须与 revision 文件读取失败分开诊断并给出下一步。",
+        "title": "暂存前报告可执行的仓库发现失败"
+      }
+    },
+    "INDEX-RUNTIME-STAGING-REVISION-CONFLICT-001": {
+      "keys": {
+        "search": [
+          "INDEX-RUNTIME-STAGING-REVISION-CONFLICT-001 锁内拒绝已变化的 Current Revision 选择目标使用的 current revision 必须在 pending 写入锁内仍是当前 revision。 目标完成投影后 revision 发生变化会返回 `pending-conflict`。 pending 仍干净时，冲突诊断不会要求清除或提交，而是要求重新读取 revision 与目标 pending 后从最新状态重试。 冲突不会写入 pending，也不会修改工作区索引。 tools/index-runtime/tests/staging.test.ts > rejects a revision that changes before the locked pending replacement bun test --test-name-pattern=\"^rejects a revision that changes before the locked pending replacement$\" ./tools/index-runtime/tests/run.ts"
+        ],
+        "topic": [
+          "index-runtime"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
           "tools/index-runtime/tests/staging.test.ts > rejects a revision that changes before the locked pending replacement",
           "bun test --test-name-pattern=\"^rejects a revision that changes before the locked pending replacement$\" ./tools/index-runtime/tests/run.ts"
         ],
         "id": "INDEX-RUNTIME-STAGING-REVISION-CONFLICT-001",
         "line": 1,
-        "searchText": "锁内拒绝已变化的 Current Revision 选择目标使用的 current revision 必须在 pending 写入锁内仍是当前 revision。 目标完成投影后 revision 发生变化会返回 `pending-conflict`。 冲突不会写入 pending，也不会修改工作区索引。 tools/index-runtime/tests/staging.test.ts > rejects a revision that changes before the locked pending replacement bun test --test-name-pattern=\"^rejects a revision that changes before the locked pending replacement$\" ./tools/index-runtime/tests/run.ts",
+        "searchText": "锁内拒绝已变化的 Current Revision 选择目标使用的 current revision 必须在 pending 写入锁内仍是当前 revision。 目标完成投影后 revision 发生变化会返回 `pending-conflict`。 pending 仍干净时，冲突诊断不会要求清除或提交，而是要求重新读取 revision 与目标 pending 后从最新状态重试。 冲突不会写入 pending，也不会修改工作区索引。 tools/index-runtime/tests/staging.test.ts > rejects a revision that changes before the locked pending replacement bun test --test-name-pattern=\"^rejects a revision that changes before the locked pending replacement$\" ./tools/index-runtime/tests/run.ts",
         "sourcePath": "index-runtime/rejects-a-revision-that-changes-before-the-locked-pending-replacement.md",
         "summary": "选择目标使用的 current revision 必须在 pending 写入锁内仍是当前 revision。",
         "title": "锁内拒绝已变化的 Current Revision"
@@ -7939,7 +8077,7 @@
     "VERSION-CONTROL-PENDING-EXPECTATION-001": {
       "keys": {
         "search": [
-          "VERSION-CONTROL-PENDING-EXPECTATION-001 锁内核对期望 Pending 普通文件 `replacePendingFiles` 传入 `expectedFiles` 时，必须在写入锁内且在任何目标写入前核对范围内普通文件的完整路径、字节和普通文件表示。 字节不同、仅可执行模式不同和未解决的同路径内容都返回 `pending-conflict`，不会进入 pending 写入 hook。 目标范围及范围外 pending 内容保持原样。 tools/shared/tests/version-control.test.ts > rejects replacements when expected pending ordinary files differ bun test --test-name-pattern=\"^rejects replacements when expected pending ordinary files differ$\" ./tools/shared/tests/version-control.test.ts"
+          "VERSION-CONTROL-PENDING-EXPECTATION-001 锁内核对期望 Pending 普通文件 `replacePendingFiles` 传入 `expectedFiles` 时，必须在写入锁内且在任何目标写入前核对范围内普通文件的完整路径、字节和普通文件表示。 字节不同、可执行文件、符号链接和未解决的同路径内容都返回 `pending-conflict`，不会进入 pending 写入 hook。 目标范围及范围外 pending 内容保持原样。 tools/shared/tests/version-control.test.ts > rejects replacements when expected pending ordinary files differ bun test --test-name-pattern=\"^rejects replacements when expected pending ordinary files differ$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "topic": [
           "version-control"
@@ -7953,7 +8091,7 @@
         ],
         "id": "VERSION-CONTROL-PENDING-EXPECTATION-001",
         "line": 1,
-        "searchText": "锁内核对期望 Pending 普通文件 `replacePendingFiles` 传入 `expectedFiles` 时，必须在写入锁内且在任何目标写入前核对范围内普通文件的完整路径、字节和普通文件表示。 字节不同、仅可执行模式不同和未解决的同路径内容都返回 `pending-conflict`，不会进入 pending 写入 hook。 目标范围及范围外 pending 内容保持原样。 tools/shared/tests/version-control.test.ts > rejects replacements when expected pending ordinary files differ bun test --test-name-pattern=\"^rejects replacements when expected pending ordinary files differ$\" ./tools/shared/tests/version-control.test.ts",
+        "searchText": "锁内核对期望 Pending 普通文件 `replacePendingFiles` 传入 `expectedFiles` 时，必须在写入锁内且在任何目标写入前核对范围内普通文件的完整路径、字节和普通文件表示。 字节不同、可执行文件、符号链接和未解决的同路径内容都返回 `pending-conflict`，不会进入 pending 写入 hook。 目标范围及范围外 pending 内容保持原样。 tools/shared/tests/version-control.test.ts > rejects replacements when expected pending ordinary files differ bun test --test-name-pattern=\"^rejects replacements when expected pending ordinary files differ$\" ./tools/shared/tests/version-control.test.ts",
         "sourcePath": "version-control/rejects-replacements-when-expected-pending-ordinary-files-differ.md",
         "summary": "`replacePendingFiles` 传入 `expectedFiles` 时，必须在写入锁内且在任何目标写入前核对范围内普通文件的完整路径、字节和普通文件表示。",
         "title": "锁内核对期望 Pending 普通文件"
@@ -7985,24 +8123,24 @@
     "VERSION-CONTROL-PENDING-PATHS-001": {
       "keys": {
         "search": [
-          "VERSION-CONTROL-PENDING-PATHS-001 拒绝非法 pending 替换路径且不产生写入 pending 替换只接受合法字面仓库相对范围、范围内目标路径和规范化后唯一的精确文件集合。 范围外目标、重复目标和越界范围均返回 `invalid-path`，完整 pending 快照保持不变。 tools/shared/tests/version-control.test.ts > rejects invalid pending replacement paths without changing pending files bun test --test-name-pattern=\"^rejects invalid pending replacement paths without changing pending files$\" ./tools/shared/tests/version-control.test.ts"
+          "VERSION-CONTROL-PENDING-PATHS-001 拒绝非法 Pending 替换路径且不产生写入 pending 替换只接受合法字面仓库相对范围、范围内目标路径和规范化后唯一的精确文件集合。 范围外目标、重复目标和越界范围均返回 `invalid-path`。 完整 pending 快照保持不变。 tools/shared/tests/version-control.test.ts > rejects invalid pending replacement paths without changing pending files bun test --test-name-pattern=\"^rejects invalid pending replacement paths without changing pending files$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "topic": [
           "version-control"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 13,
         "entries": [
           "tools/shared/tests/version-control.test.ts > rejects invalid pending replacement paths without changing pending files",
           "bun test --test-name-pattern=\"^rejects invalid pending replacement paths without changing pending files$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "id": "VERSION-CONTROL-PENDING-PATHS-001",
         "line": 1,
-        "searchText": "拒绝非法 pending 替换路径且不产生写入 pending 替换只接受合法字面仓库相对范围、范围内目标路径和规范化后唯一的精确文件集合。 范围外目标、重复目标和越界范围均返回 `invalid-path`，完整 pending 快照保持不变。 tools/shared/tests/version-control.test.ts > rejects invalid pending replacement paths without changing pending files bun test --test-name-pattern=\"^rejects invalid pending replacement paths without changing pending files$\" ./tools/shared/tests/version-control.test.ts",
+        "searchText": "拒绝非法 Pending 替换路径且不产生写入 pending 替换只接受合法字面仓库相对范围、范围内目标路径和规范化后唯一的精确文件集合。 范围外目标、重复目标和越界范围均返回 `invalid-path`。 完整 pending 快照保持不变。 tools/shared/tests/version-control.test.ts > rejects invalid pending replacement paths without changing pending files bun test --test-name-pattern=\"^rejects invalid pending replacement paths without changing pending files$\" ./tools/shared/tests/version-control.test.ts",
         "sourcePath": "version-control/rejects-invalid-pending-replacement-paths-without-changing-pending-files.md",
         "summary": "pending 替换只接受合法字面仓库相对范围、范围内目标路径和规范化后唯一的精确文件集合。",
-        "title": "拒绝非法 pending 替换路径且不产生写入"
+        "title": "拒绝非法 Pending 替换路径且不产生写入"
       }
     },
     "VERSION-CONTROL-PENDING-READBACK-FAILURE-001": {
@@ -8072,6 +8210,29 @@
         "sourcePath": "version-control/replaces-a-literal-pending-range-exactly-and-preserves-pending-files-outside-it.md",
         "summary": "pending 范围替换以精确目标文件集合表达增加、修改和删除，并保持范围外 pending 内容与 workspace 不变。",
         "title": "精确替换字面 pending 范围并保留范围外文件"
+      }
+    },
+    "VERSION-CONTROL-PENDING-UNRESOLVED-001": {
+      "keys": {
+        "search": [
+          "VERSION-CONTROL-PENDING-UNRESOLVED-001 未设期望的未解决 Pending 替换映射为替换失败 未传入 `expectedFiles` 时，无法读取唯一普通文件内容的 pending 范围属于替换失败，而不是期望冲突。 含未解决内容的无期望替换返回 `pending-replacement-failed`。 原有未解决 pending 表示保持不变。 tools/shared/tests/version-control.test.ts > maps an unresolved unguarded pending replacement to a replacement failure bun test --test-name-pattern=\"^maps an unresolved unguarded pending replacement to a replacement failure$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "topic": [
+          "version-control"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/shared/tests/version-control.test.ts > maps an unresolved unguarded pending replacement to a replacement failure",
+          "bun test --test-name-pattern=\"^maps an unresolved unguarded pending replacement to a replacement failure$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "id": "VERSION-CONTROL-PENDING-UNRESOLVED-001",
+        "line": 1,
+        "searchText": "未设期望的未解决 Pending 替换映射为替换失败 未传入 `expectedFiles` 时，无法读取唯一普通文件内容的 pending 范围属于替换失败，而不是期望冲突。 含未解决内容的无期望替换返回 `pending-replacement-failed`。 原有未解决 pending 表示保持不变。 tools/shared/tests/version-control.test.ts > maps an unresolved unguarded pending replacement to a replacement failure bun test --test-name-pattern=\"^maps an unresolved unguarded pending replacement to a replacement failure$\" ./tools/shared/tests/version-control.test.ts",
+        "sourcePath": "version-control/maps-an-unresolved-unguarded-pending-replacement-to-a-replacement-failure.md",
+        "summary": "未传入 `expectedFiles` 时，无法读取唯一普通文件内容的 pending 范围属于替换失败，而不是期望冲突。",
+        "title": "未设期望的未解决 Pending 替换映射为替换失败"
       }
     },
     "VERSION-CONTROL-PENDING-WRITE-FAILURE-001": {
@@ -8405,6 +8566,9 @@
       "INDEX-RUNTIME-NAMESPACE-001": "sha256:3d96b5de464293fb9e53d511d6057bfeafef19c5f6598d87d45ebc251399c099",
       "INDEX-RUNTIME-PAGINATION-001": "sha256:f6205ac10b5ccc0cdf9f3c76330c6e3cad75589aa0747b12ff6dcafbdf3437c7",
       "INDEX-RUNTIME-PATH-001": "sha256:16e9ef3fb34754ddf15edf7bf73dba1ce79e68cf6a74f1a2b0a3d399c5623035",
+      "INDEX-RUNTIME-PATH-SYMLINK-INTERNAL-001": "sha256:eade4f636b6314044f76b7924abe534368fcc8933cd626813059f7b00f074838",
+      "INDEX-RUNTIME-PATH-SYMLINK-READ-001": "sha256:dc2aa71ec91b2caeb7fc070ed345aa890662a3a9450a9e4a216b77d0c125e8a4",
+      "INDEX-RUNTIME-PATH-SYMLINK-WRITE-001": "sha256:53fafa27607bb6cfe72fb4620e45ad61e07f63df525008b425226aea66ef5137",
       "INDEX-RUNTIME-PERFORMANCE-001": "sha256:6ce305ff3852947363aa360dd3db4ac6a297665a891a6b093a7e8fcee9c6ca1d",
       "INDEX-RUNTIME-PERSISTED-SCHEMA-VERSION-001": "sha256:ce438b3e258472bb854aee61255b0dfa9bb39b5b7fe983a2ac086b5dc370f213",
       "INDEX-RUNTIME-PERSISTENCE-001": "sha256:fb0269bdfc942aec47d8efd05d8c9739d5c3ee6739b5d4aef0aa697a7a9e8619",
@@ -8423,13 +8587,16 @@
       "INDEX-RUNTIME-SOURCE-SNAPSHOT-001": "sha256:a34a88e5d485d0517d689f427a44275a73cf51222cf8ddabf9366a9765d01937",
       "INDEX-RUNTIME-SPECIAL-ID-001": "sha256:419cd9b3fa05a840f5d47e34d0bb8268c08d8733899ce1b0bfa558678cb67133",
       "INDEX-RUNTIME-STAGING-BOUNDARY-001": "sha256:6590922062d1ff1e87070bc7a5593b39a0d7120276e64dd99f977353c6ae44b0",
+      "INDEX-RUNTIME-STAGING-COLLECTION-001": "sha256:abb0c6201a0824534b30e6f22ae9fa18964021acc1bb701aaa07cb5a8bc4751e",
       "INDEX-RUNTIME-STAGING-CONCURRENCY-001": "sha256:417c1d896597f638a2f96baf5628f7253d64df72d87311882d8de7ce12ac6dc4",
-      "INDEX-RUNTIME-STAGING-CONFLICT-001": "sha256:e362d166a1f5514e1ec74df75d30fce451af76b2829d07216c4fdd7891a470a6",
+      "INDEX-RUNTIME-STAGING-CONFLICT-001": "sha256:3bd0f852591bda4f14b1bad1fcadc94bd1a70cb949149bb087da296a489e4b3e",
       "INDEX-RUNTIME-STAGING-EXISTENCE-001": "sha256:5bc945a413acc8f3f3868fcd8393d849dc6ef58ff0529ef27eb389fc0f4c179c",
       "INDEX-RUNTIME-STAGING-INDEX-001": "sha256:1e00909598d832274c02d8183f8fcd7649260b864a85c235da302f35f46c942c",
       "INDEX-RUNTIME-STAGING-INPUT-001": "sha256:089d40e4f91399eccd876bf6eea63eda521a0e94ff5f043d993eeb2fbd5de171",
-      "INDEX-RUNTIME-STAGING-PROJECTION-001": "sha256:3e0489e253eb41ae1056635ff6c82328c8ffa9e8c419e050616a73792c8c9989",
-      "INDEX-RUNTIME-STAGING-REVISION-CONFLICT-001": "sha256:d2903c03af202b4af03ed2cb6e08a225f7e1a11456809da9414f5f4ae0810c8c",
+      "INDEX-RUNTIME-STAGING-PENDING-WRITE-001": "sha256:09c60e51866d61d01d00e1b8a7f665ef75f77953f776eae984c791d0db2a4791",
+      "INDEX-RUNTIME-STAGING-PROJECTION-001": "sha256:17952f03eb21edc107dc0ba1da0b9644f77300e21738b77208a8a093bda62ac7",
+      "INDEX-RUNTIME-STAGING-REPOSITORY-001": "sha256:1fef20ec4f53dfe3020bbf49e706ca37d7c8e155e4f267aace3e554206ef89e4",
+      "INDEX-RUNTIME-STAGING-REVISION-CONFLICT-001": "sha256:f9aeb2d09539479d87262a154a889016fdfebcb3f53b1f7d73315c083a737912",
       "INDEX-RUNTIME-STAGING-SELECTION-001": "sha256:520f54687902845427da23e175091020b5c226e35a7ea50431d1e1582cd23a22",
       "INDEX-RUNTIME-SYNC-LIFECYCLE-001": "sha256:4d2164bd605863cc0e79f58c5b6b016127e2d4c424982b540b6fefbdfaf8dda0",
       "INDEX-RUNTIME-SYNC-MODE-001": "sha256:d85b8e471c816408d97f61479b10697db530ca0a5b433dcb4442e47e3238d414",
@@ -8616,12 +8783,13 @@
       "VERSION-CONTROL-HEAD-001": "sha256:713c4c9d45699e35a3a1dbe413a1cbdf474a6a61620c7e43de611b0505e1bbe6",
       "VERSION-CONTROL-NUMSTAT-001": "sha256:cf0ac87ddcf33d9ac9e04a6d70861e63f24e8a7be833d0c4e9510dd11721617c",
       "VERSION-CONTROL-PENDING-CONFLICT-001": "sha256:2d76d0482c630b49e1aa3eb484d66b1ca933de3a12184d4f009aad452572c4b8",
-      "VERSION-CONTROL-PENDING-EXPECTATION-001": "sha256:2eaa80ebd72e783e42421c1a1fdb2adf6da930a47a3d4eb6175c9dae045c32c2",
+      "VERSION-CONTROL-PENDING-EXPECTATION-001": "sha256:5e558c2a5f2fa2e26e198b42edb374a59d8182815a34f5d29b181a44fcf69a16",
       "VERSION-CONTROL-PENDING-EXPECTATION-CONCURRENCY-001": "sha256:6deb5d9a74cee019780ebbc8ae1c5f4ea47e7b091f07f3444dadf7b0924a348e",
-      "VERSION-CONTROL-PENDING-PATHS-001": "sha256:83f4887c0607ad97dc8900ebb999c138cbb6b24e1fbb6254b8deaee69231e2cf",
+      "VERSION-CONTROL-PENDING-PATHS-001": "sha256:8fbe0b7d1bd85f639cb0eeb5226433870a3f48164331f3e58a59ad3493ab9bcd",
       "VERSION-CONTROL-PENDING-READBACK-FAILURE-001": "sha256:39ff7fdab5f80df6acdb89cddfc515066de535e79dca68388d36e71adaae3847",
       "VERSION-CONTROL-PENDING-RECOVERY-FAILURE-001": "sha256:8300ad5e02523c7ec25d8ad57c3f96a2f28a9146f8955b32c6620f0eae1a34ad",
       "VERSION-CONTROL-PENDING-REPLACE-001": "sha256:695861c6fe53449c4f77e0e284cec6989f0ea97b0ed611b8bf6a786ddf457e27",
+      "VERSION-CONTROL-PENDING-UNRESOLVED-001": "sha256:df74f984ab955c11b8a09a2d741fe4fb4053c318ae5c96dfa95c38a6a89805cd",
       "VERSION-CONTROL-PENDING-WRITE-FAILURE-001": "sha256:fe2774c98fc1e1757ae7e7b5d845a23ad9f28d43b4083c84c7f546416e0b00bd",
       "VERSION-CONTROL-REPOSITORY-001": "sha256:bd95ed5c9d2cbd25eba21dc495a6d5602854684c9af6723620efed2af814a8f3",
       "VERSION-CONTROL-REPOSITORY-PATH-001": "sha256:f471abf0ab3d43c6f9e343192e19dd74e3eb61fe615e3e7500327b98d9bbc7a8",

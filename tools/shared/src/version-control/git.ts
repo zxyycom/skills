@@ -39,7 +39,7 @@ type GitIndexEntry = {
   mode: string;
   objectId: string;
   path: string;
-  stage: number;
+  stage: 0 | 1 | 2 | 3;
 };
 
 type GitCommandExit = {
@@ -358,19 +358,21 @@ class GitVersionControlRepository implements VersionControlRepository {
 
       const previousEntries = await this.#listPendingIndexEntries(
         [replacement.pathScope],
-        pendingIndexLockPath,
-        replacement.expectedFiles === null
-          ? undefined
-          : replacement.pathScope
+        { pendingIndexPath: pendingIndexLockPath }
       );
+      if (
+        replacement.expectedFiles !== null
+        && !sameExpectedPendingEntries(
+          previousEntries,
+          replacement.expectedFiles
+        )
+      ) {
+        throw pendingConflictError(replacement.pathScope);
+      }
       const previousFiles = await this.#readPendingIndexEntries(previousEntries);
       if (
         replacement.expectedFiles !== null
-        && !sameExpectedPendingFiles(
-          previousEntries,
-          previousFiles,
-          replacement.expectedFiles
-        )
+        && !sameVersionControlFiles(previousFiles, replacement.expectedFiles)
       ) {
         throw pendingConflictError(replacement.pathScope);
       }
@@ -386,13 +388,13 @@ class GitVersionControlRepository implements VersionControlRepository {
       await this.#hooks.afterPendingWrite?.();
       const writtenEntries = await this.#listPendingIndexEntries(
         [replacement.pathScope],
-        pendingIndexLockPath
+        { pendingIndexPath: pendingIndexLockPath }
       );
+      if (!sameGitIndexEntries(writtenEntries, targetEntries)) {
+        throw pendingReplacementError(replacement.pathScope);
+      }
       const writtenFiles = await this.#readPendingIndexEntries(writtenEntries);
-      if (
-        !sameGitIndexEntries(writtenEntries, targetEntries)
-        || !sameVersionControlFiles(writtenFiles, replacement.files)
-      ) {
+      if (!sameVersionControlFiles(writtenFiles, replacement.files)) {
         throw pendingReplacementError(replacement.pathScope);
       }
 
@@ -459,8 +461,9 @@ class GitVersionControlRepository implements VersionControlRepository {
 
   async #listPendingIndexEntries(
     pathScopes: readonly string[],
-    pendingIndexPath?: string,
-    pendingConflictScope?: string
+    options: Readonly<{
+      pendingIndexPath?: string;
+    }> = {}
   ): Promise<GitIndexEntry[]> {
     const pathspecs = pathScopes.map((scope) => `:(literal)${scope}`);
     try {
@@ -471,21 +474,18 @@ class GitVersionControlRepository implements VersionControlRepository {
         "--",
         ...pathspecs
       ];
-      if (pendingIndexPath === undefined) {
-        return parseGitIndexEntries(
-          await this.#git.raw(args),
-          pendingConflictScope
-        );
+      if (options.pendingIndexPath === undefined) {
+        return parseGitIndexEntries(await this.#git.raw(args));
       }
       const result = await runGitForExitCode(
         this.rootDirectory,
         args,
-        pendingIndexEnvironment(pendingIndexPath)
+        pendingIndexEnvironment(options.pendingIndexPath)
       );
       if (result.exitCode !== 0) {
         throw operationError("list files in the pending snapshot");
       }
-      return parseGitIndexEntries(result.stdout, pendingConflictScope);
+      return parseGitIndexEntries(result.stdout);
     } catch (cause) {
       if (cause instanceof VersionControlError) {
         throw cause;
@@ -497,6 +497,23 @@ class GitVersionControlRepository implements VersionControlRepository {
   async #readPendingIndexEntries(
     entries: readonly GitIndexEntry[]
   ): Promise<VersionControlFile[]> {
+    const conflictedPaths = normalizeRepositoryPaths(
+      entries.filter((entry) => entry.stage !== 0).map((entry) => entry.path)
+    );
+    if (conflictedPaths.length > 0) {
+      throw operationError(
+        `resolve pending content conflicts before reading: ${conflictedPaths.join(", ")}`
+      );
+    }
+
+    const seenPaths = new Set<string>();
+    for (const entry of entries) {
+      if (seenPaths.has(entry.path)) {
+        throw operationError(`read duplicate pending index path ${entry.path}`);
+      }
+      seenPaths.add(entry.path);
+    }
+
     const unsupportedEntry = entries.find((entry) => !gitBlobModes.has(entry.mode));
     if (unsupportedEntry !== undefined) {
       throw operationError(
@@ -708,10 +725,7 @@ function parseObjectId(output: string, source: string): RevisionId {
   return objectId;
 }
 
-function parseGitIndexEntries(
-  output: string,
-  pendingConflictScope?: string
-): GitIndexEntry[] {
+function parseGitIndexEntries(output: string): GitIndexEntry[] {
   const records = output.split("\0");
   if (records.at(-1) === "") {
     records.pop();
@@ -723,44 +737,46 @@ function parseGitIndexEntries(
       ? []
       : record.slice(0, separatorIndex).split(/\s+/u);
     const [mode, objectId, stageText] = metadata;
+    const stage = parseGitIndexStage(stageText);
     if (
       metadata.length !== 3
       || !gitIndexModePattern.test(mode ?? "")
       || !objectIdPattern.test(objectId ?? "")
-      || !/^[0-3]$/u.test(stageText ?? "")
+      || stage === null
     ) {
       throw operationError("parse pending Git index entries");
     }
 
+    let entryPath: string;
+    try {
+      entryPath = normalizeRepositoryPath(record.slice(separatorIndex + 1));
+    } catch {
+      throw operationError("parse pending Git index entries");
+    }
     return {
       mode,
       objectId,
-      path: normalizeRepositoryPath(record.slice(separatorIndex + 1)),
-      stage: Number(stageText)
+      path: entryPath,
+      stage
     };
   });
 
-  const conflictedPaths = normalizeRepositoryPaths(
-    entries.filter((entry) => entry.stage !== 0).map((entry) => entry.path)
-  );
-  if (conflictedPaths.length > 0) {
-    if (pendingConflictScope !== undefined) {
-      throw pendingConflictError(pendingConflictScope);
-    }
-    throw operationError(
-      `resolve pending content conflicts before reading: ${conflictedPaths.join(", ")}`
-    );
-  }
-
-  const seenPaths = new Set<string>();
-  for (const entry of entries) {
-    if (seenPaths.has(entry.path)) {
-      throw operationError(`parse duplicate pending index path ${entry.path}`);
-    }
-    seenPaths.add(entry.path);
-  }
-
   return entries.sort((left, right) => left.path.localeCompare(right.path));
+}
+
+function parseGitIndexStage(value: string | undefined): GitIndexEntry["stage"] | null {
+  switch (value) {
+    case "0":
+      return 0;
+    case "1":
+      return 1;
+    case "2":
+      return 2;
+    case "3":
+      return 3;
+    default:
+      return null;
+  }
 }
 
 function runGitForExitCode(
@@ -1020,9 +1036,8 @@ function sameVersionControlFiles(
   });
 }
 
-function sameExpectedPendingFiles(
+function sameExpectedPendingEntries(
   entries: readonly GitIndexEntry[],
-  files: readonly VersionControlFile[],
   expected: readonly VersionControlFile[]
 ): boolean {
   return entries.length === expected.length
@@ -1030,8 +1045,7 @@ function sameExpectedPendingFiles(
       entry.mode === defaultGitBlobMode
       && entry.stage === 0
       && entry.path === expected[index]?.path
-    ))
-    && sameVersionControlFiles(files, expected);
+    ));
 }
 
 function sameGitIndexEntries(

@@ -6,7 +6,7 @@ description: >-
   再审查契约、证明信号和可靠性，并维护一入口一 case 的可检索账本。
   工程校验、仅运行既有测试或只修改被测对象不使用。
 metadata:
-  version: "9"
+  version: "10"
 ---
 
 # Test Evidence Review

@@ -21,6 +21,14 @@ import { resultValue } from "./support.ts";
 
 const indexPath = "indexes/states.json";
 const testOptions = { timeout: 15_000 };
+const expectedPendingConflictDiagnostic = {
+  code: "state-index.pending-conflict",
+  message: "the current revision or target pending content may have changed, or the pending "
+    + "write boundary may be busy; reread the current revision and target pending content, "
+    + "resolve any existing pending change for this index, then retry",
+  path: indexPath,
+  stateId: null
+} as const;
 
 type TestMetadata = {
   catalog: string;
@@ -32,13 +40,11 @@ type TestState = {
 };
 
 type TestControl = {
-  derives: number;
-  onValidation: ((validation: number) => void) | null;
-  parses: number;
+  onValidation: ((
+    index: ReadonlyStateIndex<TestState, TestMetadata>
+  ) => void) | null;
   reads: number;
-  rejectMixedTarget: boolean;
   revisionReads: number;
-  validations: number;
 };
 
 type TestSource = {
@@ -64,22 +70,15 @@ async function withTempRoot(
 
 function createControl(): TestControl {
   return {
-    derives: 0,
     onValidation: null,
-    parses: 0,
     reads: 0,
-    rejectMixedTarget: false,
-    revisionReads: 0,
-    validations: 0
+    revisionReads: 0
   };
 }
 
 function resetControl(control: TestControl): void {
-  control.derives = 0;
-  control.parses = 0;
   control.reads = 0;
   control.revisionReads = 0;
-  control.validations = 0;
 }
 
 function createDefinition(
@@ -89,10 +88,7 @@ function createDefinition(
   return defineStateIndexDefinition<TestState, TestMetadata>({
     definitionVersion: 1,
     keyStrategies: [{
-      derive: (state) => {
-        control.derives += 1;
-        return state.label;
-      },
+      derive: (state) => state.label,
       mode: "exact",
       name: "label"
     }],
@@ -104,7 +100,6 @@ function createDefinition(
       return { catalog: input.catalog };
     },
     parseState: (input, context) => {
-      control.parses += 1;
       if (
         typeof input.id !== "string"
         || typeof input.label !== "string"
@@ -123,15 +118,7 @@ function createDefinition(
       return source.snapshot.sourceRevision;
     },
     validateIndex: (index) => {
-      control.validations += 1;
-      control.onValidation?.(control.validations);
-      if (
-        control.rejectMixedTarget
-        && index.entries.A?.state.label === "A1"
-        && index.entries.B?.state.label === "B0"
-      ) {
-        throw new TypeError("selected entries violate the complete-index rule");
-      }
+      control.onValidation?.(index);
     }
   });
 }
@@ -157,6 +144,13 @@ function snapshot(
       { id, label: labels[id]! }
     ]))
   };
+}
+
+function isSelectedMixedTarget(
+  index: ReadonlyStateIndex<TestState, TestMetadata>
+): boolean {
+  return index.entries.A?.state.label === "A1"
+    && index.entries.B?.state.label === "B0";
 }
 
 async function buildText(
@@ -447,6 +441,69 @@ test("rejects invalid staging inputs without changing pending content", testOpti
   });
 });
 
+test("reports an actionable repository discovery failure before staging", testOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const workspaceRoot = path.join(tempRoot, "plain-workspace");
+    const control = createControl();
+    const source: TestSource = { snapshot: snapshot({}, "empty") };
+    const definition = createDefinition(source, control);
+    await writeFile(
+      workspaceRoot,
+      indexPath,
+      await buildText(source, definition, snapshot({ A: "A1" }, "workspace"))
+    );
+    resetControl(control);
+
+    const result = await stageSelectedIndexEntries({
+      context: { root: workspaceRoot },
+      definition,
+      indexPath,
+      selectedIds: ["A"]
+    });
+    assert.equal(result.state, "revision-read-failed");
+    assert.equal(result.diagnostics[0]?.code, "state-index.repository-unavailable");
+    assert.match(result.diagnostics[0]?.message ?? "", /repository-backed root.*retry/u);
+  });
+});
+
+test("reports an actionable pending replacement failure and preserves the index", testOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const control = createControl();
+    const source: TestSource = { snapshot: snapshot({}, "empty") };
+    const definition = createDefinition(source, control);
+    const fixture = await createRepositoryFixture({
+      definition,
+      name: "pending-write-failure",
+      revision: snapshot({ A: "A0" }, "revision"),
+      source,
+      tempRoot,
+      workspace: snapshot({ A: "A1" }, "workspace")
+    });
+    const pendingIndexPath = path.join(fixture.repositoryRoot, ".git", "index");
+    const corruptPending = Buffer.from("corrupt pending snapshot", "utf8");
+    await fs.writeFile(pendingIndexPath, corruptPending);
+    resetControl(control);
+
+    const result = await stageSelectedIndexEntries({
+      context: { root: fixture.repositoryRoot },
+      definition,
+      indexPath,
+      selectedIds: ["A"]
+    });
+    assert.equal(result.state, "pending-write-failed");
+    assert.equal(result.diagnostics[0]?.code, "state-index.pending-write-failed");
+    assert.match(
+      result.diagnostics[0]?.message ?? "",
+      /inspect the target pending content and repository access, then retry/u
+    );
+    assert.deepEqual(await fs.readFile(pendingIndexPath), corruptPending);
+    assert.equal(
+      await fs.readFile(path.join(fixture.repositoryRoot, indexPath), "utf8"),
+      fixture.workspaceText
+    );
+  });
+});
+
 test("rejects invalid revision and workspace indexes before pending replacement", testOptions, async () => {
   await withTempRoot(async (tempRoot) => {
     const control = createControl();
@@ -550,7 +607,7 @@ test("rejects invalid revision and workspace indexes before pending replacement"
   });
 });
 
-test("rejects collection changes and invalid selected projections without source reads", testOptions, async () => {
+test("rejects collection changes without source reads", testOptions, async () => {
   await withTempRoot(async (tempRoot) => {
     const collectionKinds = [
       {
@@ -592,9 +649,15 @@ test("rejects collection changes and invalid selected projections without source
         selectedIds: ["A"]
       });
       assert.equal(result.state, "collection-changed");
+      assert.equal(control.reads, 0);
+      assert.equal(control.revisionReads, 0);
       assert.deepEqual(await pendingChangedPaths(fixture.repositoryRoot), []);
     }
+  });
+});
 
+test("rejects an invalid selected target after complete reprojection without source reads", testOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
     const control = createControl();
     const source: TestSource = { snapshot: snapshot({}, "empty") };
     const definition = createDefinition(source, control);
@@ -607,7 +670,13 @@ test("rejects collection changes and invalid selected projections without source
       workspace: snapshot({ A: "A1", B: "B1" }, "workspace")
     });
     resetControl(control);
-    control.rejectMixedTarget = true;
+    let observedSelectedTarget = false;
+    control.onValidation = (index) => {
+      if (isSelectedMixedTarget(index)) {
+        observedSelectedTarget = true;
+        throw new TypeError("selected entries violate the complete-index rule");
+      }
+    };
     const rejected = await stageSelectedIndexEntries({
       context: { root: projection.repositoryRoot },
       definition,
@@ -618,11 +687,9 @@ test("rejects collection changes and invalid selected projections without source
     assert.ok(rejected.diagnostics.some((entry) => (
       entry.code === "state-index.index-validation-failed"
     )));
+    assert.equal(observedSelectedTarget, true);
     assert.equal(control.reads, 0);
     assert.equal(control.revisionReads, 0);
-    assert.equal(control.validations, 3);
-    assert.equal(control.parses, 6);
-    assert.equal(control.derives, 6);
     assert.deepEqual(await pendingChangedPaths(projection.repositoryRoot), []);
   });
 });
@@ -655,6 +722,7 @@ test("rejects dirty same-index pending content even when selected entries are un
     });
     assert.equal(result.state, "pending-conflict");
     assert.equal(result.changed, false);
+    assert.deepEqual(result.diagnostics, [expectedPendingConflictDiagnostic]);
     assert.equal(await pendingIndexText(fixture.repositoryRoot), dirty);
     assert.deepEqual(
       await readPendingText(fixture.repositoryRoot, "outside/keep.md"),
@@ -729,8 +797,8 @@ test("rejects a revision that changes before the locked pending replacement", te
       workspace: snapshot({ A: "A1", B: "B1" }, "workspace")
     });
     resetControl(control);
-    control.onValidation = (validation) => {
-      if (validation === 3) {
+    control.onValidation = (index) => {
+      if (isSelectedMixedTarget(index)) {
         runGit(fixture.repositoryRoot, [
           "commit",
           "--quiet",
@@ -748,6 +816,7 @@ test("rejects a revision that changes before the locked pending replacement", te
       selectedIds: ["A"]
     });
     assert.equal(result.state, "pending-conflict");
+    assert.deepEqual(result.diagnostics, [expectedPendingConflictDiagnostic]);
     assert.deepEqual(await pendingChangedPaths(fixture.repositoryRoot), []);
     assert.equal(
       await fs.readFile(path.join(fixture.repositoryRoot, indexPath), "utf8"),

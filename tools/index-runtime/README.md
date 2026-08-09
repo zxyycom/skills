@@ -34,6 +34,19 @@ Valibot Schema 是索引结构和查询输入的真源。通用层固定使用 `
 
 所有 ID record 都通过 own-property 或安全构造读取，不依赖原型链。`__proto__`、`constructor` 等符合 ID 文本规则的键可以正常构建、解析、序列化和查询。
 
+### 索引路径边界
+
+`indexPath` 必须是规范化的 POSIX 相对路径。Index Runtime 先把 `context.root` 解析为
+规范根目录，再按文件系统身份约束索引目标；因此 `context.root` 自身可以是符号链接。
+路径中的符号链接只有在规范目标仍位于规范根目录内时才可使用，任何指向根目录外的
+中间目录或文件都会在读取、同步写入或按 ID 暂存前返回
+`state-index.index-path-invalid`。
+
+每次操作解析路径时，运行时从规范根目录沿已有组件逐段解析；已有目标使用规范文件路径，
+目标尚不存在时则把剩余路径锚定到最近的已存在规范祖先。同步写入会逐级创建并确认实际
+规范父目录仍在规范根目录内，再原子替换目标并读回实际写入路径。这样允许稳定的根目录
+符号链接和根内目录符号链接布局，同时拒绝解析时已经指向根目录外的目标。
+
 ## 快速打开、完整校验与查询
 
 1. `createStateIndexRuntime(...).open()` 读取持久化索引，校验通用 schema、definition identity、key definitions、ID/revision 成员和一次当前 `readRevision`，再返回绑定该快照的 reader。
@@ -56,30 +69,58 @@ Valibot Schema 是索引结构和查询输入的真源。通用层固定使用 `
 
 ## 按 ID 选择性写入 Pending
 
-`stageSelectedIndexEntries({ context, definition, indexPath, selectedIds })` 与配置完成的
-`StateIndexRuntime.stageSelectedEntries(selectedIds)` 只接收非空、合法且不重复的稳定 ID
-集合。操作先固定当前 revision 中的目标索引作为基线，再完整读取工作区中的同一路径
-索引作为候选；revision 尚无该文件时使用空基线。两份已有索引都必须通过同一 definition
-的严格解析，操作不会调用领域 `read` 或 `readRevision`，也不会读取或推断领域文件。
+独立入口 `stageSelectedIndexEntries({ context, definition, indexPath, selectedIds })` 接收完整
+索引配置；配置完成的 `StateIndexRuntime.stageSelectedEntries(selectedIds)` 只再接收选择
+集合。`indexPath` 遵循前述规范路径边界，`selectedIds` 必须是非空、合法且不重复的稳定
+ID 集合。
 
-每个 ID 使用同一存在性规则选择 state 与 `sourceRevision.entries[id]`：选中且工作区存在
-时采用工作区值，选中且只在 revision 存在时删除，未选中时只保留 revision 值；两边都
-不存在的选中 ID 直接失败。重命名由调用方同时选择旧 ID 和新 ID 表达。revision 已有
-索引时，metadata 与 `sourceRevision.metadata` 必须保持不变；首次建立索引时采用工作区
-的完整集合级值。
+### 读取与目标组合
 
-组合结果只把所选 state 与逐 ID fingerprint 交给现有完整投影路径，重新执行 metadata
-和 state parser、key 投影、规范化、协议校验、`validateIndex` 与确定性序列化，不复制
-候选索引中的 keys 或对象顺序。合法结果可以为空；选中顺序不影响目标文本。
+1. 操作先固定 current revision，并以其中的目标索引为基线；revision 尚无该文件时使用
+   空基线。随后完整读取工作区中的同一路径索引作为候选。两份已有索引都先严格解码为
+   UTF-8，再使用同一 definition 完整解析。操作不调用领域 `read` 或 `readRevision`，也
+   不读取或推断领域文件。
+2. revision 已有索引时，metadata 与 `sourceRevision.metadata` 必须保持不变；首次建立
+   索引时采用工作区的完整集合级值。
+3. 每个 ID 使用同一存在性规则选择 state 与 `sourceRevision.entries[id]`：选中且工作区
+   存在时采用工作区值，选中且只在 revision 存在时删除，未选中时只保留 revision 值；
+   两边都不存在的选中 ID 直接失败。重命名由调用方同时选择旧 ID 和新 ID 表达。
+4. 组合结果只把所选 state 与逐 ID fingerprint 交给现有完整投影路径，重新执行 metadata
+   和 state parser、key 投影、规范化、协议校验、`validateIndex` 与确定性序列化，不复制
+   候选索引中的 keys 或对象顺序。合法结果可以为空；选中顺序不影响目标文本。
 
-写入只替换目标索引的 `pending` 普通文件表示。version-control 在同一个互斥写入边界内
-确认 current revision 未变化，并确认目标索引现有 `pending` 仍与 revision 的路径、字节
-和普通文件表示完全相同；首次索引要求该路径不存在。期望不成立时返回
-`pending-conflict`，不会合并或覆盖；目标外 `pending`、工作区索引和领域文件保持不变。
-即使所选条目没有实际变化也会执行这项受锁确认，成功结果才以 `unchanged` 报告。
+### Pending 替换与结果
 
-普通失败的 `changed` 为 `false`。只有 version-control 无法确认恢复完整时返回
-`pending-recovery-failed` 且 `changed` 为 `null`，调用方必须先检查 `pending` 再重试。
+操作只替换目标索引的 `pending` 普通文件表示。它把固定的 current revision 和目标路径
+在 revision 中的文件状态作为期望，交给
+[版本管理中间层](../shared/version-control.md)执行受锁替换：revision 已有目标索引时，
+同路径 `pending` 必须仍是路径、字节和普通文件表示完全相同的单个文件；首次索引时，
+该路径必须不存在。固定的 revision 已变化、目标 `pending` 不再满足期望或写入边界正被
+占用时，统一返回 `pending-conflict`，不会合并或覆盖。目标外 `pending`、工作区索引和
+领域文件保持不变。即使所选条目没有实际变化，也会执行受锁确认；确认成功后才报告
+`unchanged`。
+
+收到 `pending-conflict` 后，调用方不得猜测上述哪一条件触发。先等待可能的竞争写入
+结束，再重新读取 current revision 与目标路径的 `pending`；若同一索引确有 `pending`
+变化，先解决该内容的归属或目标状态，然后从最新状态重试。
+
+- 目标文本不同且替换成功时，结果为 `staged`，`changed` 为 `true`。
+- 目标文本相同且受锁确认成功时，结果为 `unchanged`，`changed` 为 `false`。
+- 除恢复不完整外的失败不改变目标 `pending`，`changed` 为 `false`。
+- 只有版本管理中间层无法确认恢复完整时，结果为 `pending-recovery-failed`，`changed` 为
+  `null`；调用方不能直接重试。
+
+`pending-recovery-failed` 后，只有目标范围能够通过版本管理公共 API 唯一读取，且调用方
+已经把当前内容与原期望和本次目标显式对账或恢复后，才能重新发起操作。若公共 API 无法
+读取该范围，或调用方无法判定当前内容归属，必须停止并交给对应 owner 处理；不能回退到
+底层版本管理命令猜测或修复状态。
+
+配置根目录不在仓库中时使用 `state-index.repository-unavailable`，要求改用仓库支持的
+根目录。其他仓库打开、current revision 或 revision 文件 I/O 失败统一使用
+`state-index.revision-read-failed`，要求检查仓库访问与 revision 完整性后重试。可完整
+恢复的 pending 替换失败使用 `state-index.pending-write-failed`，要求检查目标 pending
+与仓库访问后重试；诊断不会把这些边界失败混写成索引内容无效。
+
 结果和 `StateIndexDiagnostic` 只使用索引与 pending 语义，不暴露底层版本管理实现细节。
 
 ## 依赖与验证

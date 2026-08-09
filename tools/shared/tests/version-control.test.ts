@@ -598,29 +598,56 @@ test("rejects replacements when expected pending ordinary files differ", gitTest
       path: "docs/tracked.md"
     }]);
 
-    runGit(repositoryRoot, ["reset", "--quiet", "HEAD", "--", "docs/tracked.md"]);
-    runGit(repositoryRoot, [
-      "update-index",
-      "--chmod=+x",
-      "docs/tracked.md"
-    ]);
-    await assert.rejects(
-      repository.replacePendingFiles({
-        expectedFiles: [expectedFile],
-        expectedRevision: currentRevision,
-        files: [{
-          data: Buffer.from("replacement\n"),
-          path: "docs/tracked.md"
-        }],
-        pathScope: "docs/tracked.md"
-      }),
-      isPendingConflict
-    );
+    const revisionBlob = runGit(repositoryRoot, [
+      "rev-parse",
+      `${currentRevision}:docs/tracked.md`
+    ]).trim();
+    const representationScenarios = [
+      {
+        mode: "100755",
+        prepare: () => runGit(repositoryRoot, [
+          "update-index",
+          "--chmod=+x",
+          "docs/tracked.md"
+        ])
+      },
+      {
+        mode: "120000",
+        prepare: () => runGit(repositoryRoot, [
+          "update-index",
+          "--add",
+          "--cacheinfo",
+          `120000,${revisionBlob},docs/tracked.md`
+        ])
+      }
+    ] as const;
+    for (const scenario of representationScenarios) {
+      runGit(repositoryRoot, [
+        "reset",
+        "--quiet",
+        "HEAD",
+        "--",
+        "docs/tracked.md"
+      ]);
+      scenario.prepare();
+      await assert.rejects(
+        repository.replacePendingFiles({
+          expectedFiles: [expectedFile],
+          expectedRevision: currentRevision,
+          files: [{
+            data: Buffer.from("replacement\n"),
+            path: "docs/tracked.md"
+          }],
+          pathScope: "docs/tracked.md"
+        }),
+        isPendingConflict
+      );
+      assert.deepEqual(readPendingModes(repositoryRoot, ["docs/tracked.md"]), [{
+        mode: scenario.mode,
+        path: "docs/tracked.md"
+      }]);
+    }
     assert.equal(pendingWrites, 0);
-    assert.deepEqual(readPendingModes(repositoryRoot, ["docs/tracked.md"]), [{
-      mode: "100755",
-      path: "docs/tracked.md"
-    }]);
     assert.deepEqual(await readPendingText(repository, "outside/preserve.md"), [{
       data: "outside pending\n",
       path: "outside/preserve.md"
@@ -995,39 +1022,10 @@ test("distinguishes unborn heads from broken heads", gitTestOptions, async () =>
 
 test("rejects pending reads while the index contains conflicts", gitTestOptions, async () => {
   await withTempRoot(async (tempRoot) => {
-    const repositoryRoot = path.join(tempRoot, "conflict");
-    await fs.mkdir(repositoryRoot, { recursive: true });
-    initializeRepository(repositoryRoot);
-    await writeFile(repositoryRoot, "conflicted.txt", "base\n");
-    runGit(repositoryRoot, ["add", "conflicted.txt"]);
-    runGit(repositoryRoot, ["commit", "--quiet", "--message", "base"]);
-    const primaryBranch = runGit(
-      repositoryRoot,
-      ["branch", "--show-current"]
-    ).trim();
-    runGit(repositoryRoot, ["checkout", "--quiet", "-b", "conflict-side"]);
-    await writeFile(repositoryRoot, "conflicted.txt", "side\n");
-    runGit(repositoryRoot, [
-      "commit",
-      "--quiet",
-      "--all",
-      "--message",
-      "side"
-    ]);
-    runGit(repositoryRoot, ["checkout", "--quiet", primaryBranch]);
-    await writeFile(repositoryRoot, "conflicted.txt", "primary\n");
-    runGit(repositoryRoot, [
-      "commit",
-      "--quiet",
-      "--all",
-      "--message",
-      "primary"
-    ]);
-    assert.throws(() => runGit(repositoryRoot, [
-      "merge",
-      "--quiet",
-      "conflict-side"
-    ]));
+    const repositoryRoot = await createPendingConflictRepository(
+      tempRoot,
+      "read-conflict"
+    );
 
     const repository = await openVersionControl(repositoryRoot);
     await assert.rejects(
@@ -1036,6 +1034,44 @@ test("rejects pending reads while the index contains conflicts", gitTestOptions,
         && error.code === "operation-failed"
         && error.message.includes("resolve pending content conflicts")
     );
+  });
+});
+
+test("maps an unresolved unguarded pending replacement to a replacement failure", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const repositoryRoot = await createPendingConflictRepository(
+      tempRoot,
+      "replacement-conflict"
+    );
+    const repository = await openVersionControl(repositoryRoot);
+    const revision = await repository.getCurrentRevision();
+    const before = runGit(repositoryRoot, [
+      "ls-files",
+      "--unmerged",
+      "--",
+      "conflicted.txt"
+    ]);
+
+    await assert.rejects(
+      repository.replacePendingFiles({
+        expectedRevision: revision,
+        files: [{
+          data: Buffer.from("replacement\n"),
+          path: "conflicted.txt"
+        }],
+        pathScope: "conflicted.txt"
+      }),
+      (error: unknown) => hasVersionControlCode(
+        error,
+        "pending-replacement-failed"
+      )
+    );
+    assert.equal(runGit(repositoryRoot, [
+      "ls-files",
+      "--unmerged",
+      "--",
+      "conflicted.txt"
+    ]), before);
   });
 });
 
@@ -1122,6 +1158,46 @@ test("reports Git worktree discovery failures as operation failures", gitTestOpt
     );
   });
 });
+
+async function createPendingConflictRepository(
+  tempRoot: string,
+  name: string
+): Promise<string> {
+  const repositoryRoot = path.join(tempRoot, name);
+  await fs.mkdir(repositoryRoot, { recursive: true });
+  initializeRepository(repositoryRoot);
+  await writeFile(repositoryRoot, "conflicted.txt", "base\n");
+  runGit(repositoryRoot, ["add", "conflicted.txt"]);
+  runGit(repositoryRoot, ["commit", "--quiet", "--message", "base"]);
+  const primaryBranch = runGit(
+    repositoryRoot,
+    ["branch", "--show-current"]
+  ).trim();
+  runGit(repositoryRoot, ["checkout", "--quiet", "-b", "conflict-side"]);
+  await writeFile(repositoryRoot, "conflicted.txt", "side\n");
+  runGit(repositoryRoot, [
+    "commit",
+    "--quiet",
+    "--all",
+    "--message",
+    "side"
+  ]);
+  runGit(repositoryRoot, ["checkout", "--quiet", primaryBranch]);
+  await writeFile(repositoryRoot, "conflicted.txt", "primary\n");
+  runGit(repositoryRoot, [
+    "commit",
+    "--quiet",
+    "--all",
+    "--message",
+    "primary"
+  ]);
+  assert.throws(() => runGit(repositoryRoot, [
+    "merge",
+    "--quiet",
+    "conflict-side"
+  ]));
+  return repositoryRoot;
+}
 
 function initializeRepository(repositoryRoot: string): void {
   runGit(repositoryRoot, ["init", "--quiet"]);
