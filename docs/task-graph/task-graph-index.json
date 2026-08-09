@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "revision": 105,
-  "nextTaskId": 32,
+  "revision": 108,
+  "nextTaskId": 33,
   "tasks": {
     "task-000001": {
       "content": {
@@ -1144,6 +1144,48 @@
         "timestamps": {
           "createdAt": "2026-08-09T05:06:58.573Z",
           "updatedAt": "2026-08-09T05:11:43.884Z"
+        }
+      }
+    },
+    "task-000032": {
+      "content": {
+        "title": "审核并收敛仓库维护短命令契约",
+        "goal": "按 ai-ready-docs 与项目编码规范复核 task-000031 的文档和代码，使短命令规则拥有独立 owner、清楚阅读路径、表驱动配置契约及成功与失败证据。",
+        "acceptance": [
+          "短命令政策不再与 Hook 和 task root 判断混为一个不可独立演进的决策，AGENTS 摘要和工具链 owner 能让 agent 直接恢复触发条件、推荐入口与例外。",
+          "维护 CLI 名称到 package script 实现的映射由一个类型化定义承接，项目校验拒绝错误委托，命令级测试覆盖清单中的全部入口。",
+          "新增或修改的原生测试拥有一入口一 case 的证据，派生索引一致，并通过完整仓库检查。"
+        ],
+        "context": "用户明确要求使用 ai-ready-docs 和编码规范审核优化刚完成的仓库维护短入口变更。",
+        "references": {
+          "predecessor": "task-000031"
+        },
+        "result": {
+          "summary": "按 ai-ready-docs 将 Hook、task root 与维护短命令拆为独立决策并重构工具链阅读路径；按编码规范用类型化映射校验精确委托和 JSON 边界，补齐映射驱动及失败测试证据。",
+          "references": {
+            "commit": "0f5af7b8460c7a3be4243a822a48ae17eb46497b",
+            "decision": "docs/decisions/project-tooling/use-project-short-commands-for-maintenance-clis.md",
+            "test": "bun run check --full (28/28)"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-09T05:38:07.269Z",
+          "updatedAt": "2026-08-09T05:43:39.164Z"
         }
       }
     }
