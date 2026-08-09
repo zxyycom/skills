@@ -1,14 +1,14 @@
 # Proposal
 
-本 change 计划把决策关系维护收口为统一、闭合且可恢复的 `evolve` 事务，并保存实施这项破坏性调整所需的临时范围与验收条件。
+本 change 将决策关系的建立与修订收口为统一、闭合且可恢复的 `evolve` 事务，并以明确的 owner、目标协议和验收条件约束实施。
 
-长期语义由两条决策分别承接：[统一闭合决策关系演进](../../docs/decisions/decision-records/unify-closed-decision-relation-evolution.md) 拥有事务入口、关系策略和闭合边界，[以完整集合审核和替换决策关系](../../docs/decisions/decision-records/replace-decision-relations-as-complete-sets.md) 拥有关系来源、覆盖优先级和已建立关系修订边界。本 change 只保存把两条决策落地所需的实施范围、设计映射和验收任务。
+长期语义由两条决策分别承接：[统一闭合决策关系演进](../../docs/decisions/decision-records/unify-closed-decision-relation-evolution.md) 拥有事务入口、关系策略和闭合边界，[以完整集合审核和替换决策关系](../../docs/decisions/decision-records/replace-decision-relations-as-complete-sets.md) 拥有关系来源、覆盖优先级和已建立关系修订边界。Change artifacts 只承接把两条决策落地所需的实施范围、设计映射、任务顺序和验收证据。
 
 ## Why
 
-当前 `evolve` 只建立一个后继，闭合一对多演进由独立 `split` 命令承接，带关系的 `activate` 又提供第三个入口。关系类型继续增长时，这种按拓扑增加命令的方式会扩大公开协议和内部生命周期分支，也无法从命令 owner 上保证所有关系策略都经过同一套闭合校验。
+实现基线同时暴露单后继 `evolve`、闭合一对多 `split` 和带关系 `activate` 三个入口。按拓扑增加命令会继续扩大公开协议和内部生命周期分支，也无法从命令 owner 上保证所有关系策略都经过同一套闭合校验。
 
-候选已经拥有与正式记录相同的 `relations` 结构，但现行事务只把 CLI 关系参数视为演进输入。普通激活不能可靠地把候选中预写的关系、前序归档和后继建立一次完成；最终图校验也只能观察拆分后继数量，不能证明单条新增 `拆分` 边经过了完整后继集合事务。已建立记录中的错误关系同样缺少只修改关系、保留正文和生命周期的闭合修订入口。
+候选已经拥有与正式记录相同的 `relations` 结构，但实现基线只把 CLI 关系参数视为演进输入。普通激活不能可靠地把候选中预写的关系、前序归档和后继建立一次完成；最终图校验也只能观察拆分后继数量，不能证明单条新增 `拆分` 边经过了完整后继集合事务。已建立记录中的错误关系同样缺少只修改关系、保留正文和生命周期的闭合修订入口。
 
 ## Outcome
 

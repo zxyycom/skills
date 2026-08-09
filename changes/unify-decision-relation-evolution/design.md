@@ -4,14 +4,19 @@
 
 ## Context
 
-- 当前 CLI 在 `tools/decision-records/src/cli-args.ts` 中把 `evolve` 定义为单后继命令，并拒绝其中的 `拆分` 关系；独立 `split` 接收重复 `--successor`。
-- 当前 `activate` 与 `evolve` 共享单后继生命周期服务，但只有显式 CLI 关系参与前序归档；候选 Markdown 中已经存在的关系不能自然成为一次建立事务的有效输入。
-- 当前关系图只机械检查归档目标、环路和一个前序不能恰好只有一个直接 `拆分` 后继。最终数量检查不能证明新增边来自同一次完整后继集合事务。
+### 实现基线
+
+- `tools/decision-records/src/cli-args.ts` 把 `evolve` 定义为单后继命令并拒绝其中的 `拆分` 关系；独立 `split` 接收重复 `--successor`。
+- `activate` 与 `evolve` 共享单后继生命周期服务，但只有显式 CLI 关系参与前序归档；候选 Markdown 中已经存在的关系不能自然成为一次建立事务的有效输入。
+- 关系图只机械检查归档目标、环路和一个前序不能恰好只有一个直接 `拆分` 后继。最终数量检查不能证明新增边来自同一次完整后继集合事务。
+
+### 长期约束与 owner
+
 - [统一闭合决策关系演进](../../docs/decisions/decision-records/unify-closed-decision-relation-evolution.md) 拥有统一命令、关系策略和可恢复事务的长期方向。
 - [以完整集合替换决策关系](../../docs/decisions/decision-records/replace-decision-relations-as-complete-sets.md) 拥有候选关系、CLI 完整覆盖和已建立关系修订的长期方向。
 - [闭合拆分](../../docs/decisions/decision-records/use-closed-splits-for-coarse-decisions.md) 继续拥有一对多语义覆盖和每个后继独立对齐的规则；本 change 只改变执行入口。
 - [真实案例触发重组](../../docs/decisions/decision-records/support-reorganization-after-real-evidence.md) 继续阻止在没有实例时提前实现多对多协议。
-- 用户允许破坏性更新，因此无需为已废弃命令、参数形状或 API request 保留迁移层。
+- 兼容性边界是一次性协议切换：目标命令、参数形状和 API request 直接取代旧协议，不保留迁移层或双轨入口。
 
 长期 owner 分工固定为：统一演进决策负责“一个关系事务允许选择哪些成员、必须满足什么拓扑、怎样写入与恢复”，完整集合决策负责“关系从哪里取得、怎样覆盖、哪些已建立字段可以改变”。本 design 只把两者映射为当前实现协议，不另行定义第三套关系语义。
 
@@ -127,9 +132,36 @@ evolve
 - 允许修订已建立关系会改变历史图。通过只允许完整集合替换、禁止正文与生命周期联动、保留旧目标归档状态和最终全图校验，把它限制为显式关系纠正而不是无痕决策改写。
 - 候选关系可以暂时指向活动前序，严格检查不再能仅凭单个候选证明最终生命周期闭合。候选边保持在正式图之外，建立事务必须重新读取并验证全部最终成员。
 - 多后继公共 `--relation` 只适合当前共享同一拆分前序的真实形状。不同后继需要不同覆盖时依赖各自 Markdown；不为尚未出现的多对多重组提前增加复杂 CLI DSL。
-- 直接删除旧 CLI 和 API 会破坏现有调用，但能够避免长期维护两套输入模型；本 change 已获得破坏性更新授权。
+- 一次性切换会破坏依赖旧 CLI 和 API 的调用方。帮助、公开声明、生成制品与协议测试必须只暴露目标形式，避免形成长期双轨维护面。
 - 最终图无法证明历史事务来源。当前选择依赖受控生命周期命令和静态闭合校验，不引入会扩展 schema、索引和迁移面的事务 provenance。
 
 ## Open Questions
 
 无。
+
+## Test Evidence Audit
+
+测试证据继续以 runner 能够独立选择和单独报告的 `test(...)` 为最小入口。实施按下列处置范围维护测试与一入口一 case 账本；文件、suite、脚本、fixture、helper 和断言都不是独立 case。
+
+### 更新或重命名的入口
+
+- 将 `split atomically replaces one coarse decision with independently aligned successors` 改为由统一 `evolve` 完成闭合拆分，并继续证明前序归档、后继独立对齐、共同建立时间和可追踪关系。
+- 将 `split rejects incomplete successor sets and relationship graphs` 改为统一 `evolve` 的拆分策略门禁，并覆盖单后继、遗漏既有后继、重复成员、混合关系和未支持多后继形状。
+- 更新 `evolve command archives sources and creates the aligned target atomically`、重复前序和事务回滚入口，使其使用重复 `--successor` 与完整关系覆盖协议；将 `evolve rejects archived predecessors without mutation` 改为证明合法已归档直接前序保持归档且不会被重复处理。
+- 更新 `activation archives a direct predecessor and traces bounded relations` 与候选生命周期入口，分别证明候选来源关系和 `activate --relation` 都进入同一事务核心。
+- 更新未记录历史与折叠入口以使用新的 successor 形式；`evolve collapse accepts an empty final relation set` 必须改为由 `--clear-relations` 明确表达空集合。
+- 更新 CLI help/非法参数和生成制品入口，证明 `split`、旧 `evolve` request 与 split 专属公开类型不再暴露。
+
+### 新增的入口
+
+- 未提供关系覆盖时，候选来源关系成为该后继的完整最终关系。
+- 公共 `--relation` 完整替换每个所选后继的来源关系，`--clear-relations` 以独立入口证明显式空集合；两者不合并成同一测试意图。
+- 已建立后继可以完整替换关系，同时逐字段保留正文、`status`、`alignment` 与 `createdAt`。
+- 已建立后继移除旧关系目标时，该目标不会重新激活、删除或改变对齐状态。
+- 拆分事务加入新后继时，显式选择全部既有后继和新候选可以成功形成完整集合。
+- 拆分事务遗漏任一既有后继时在写入前失败；重复成员、混合关系和未支持的多后继形状分别由可归因的策略门禁入口证明。
+- 可处理写入失败恢复全部受影响 Markdown 与索引；恢复不完整时由独立故障入口证明维护停止并保留恢复诊断。
+
+### 移除的入口
+
+- 删除只证明独立 `split` 命令、旧 `evolve <decision-path> --alignment ...` 或“省略关系参数等于显式空集合”的原生入口；若其长期契约仍有效，则改名并迁移到上述目标入口，而不是保留旧协议 case。

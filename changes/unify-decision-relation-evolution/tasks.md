@@ -1,13 +1,13 @@
 # Tasks
 
-这些任务先确认长期方向和破坏性边界，再按协议、实现、分发与证据的依赖顺序完成统一关系演进。
+Readiness 审计先固定长期 owner、兼容性边界和测试证据范围；后续任务按协议、实现、分发与证据的依赖顺序完成统一关系演进。
 
 ## Readiness
 
-- [ ] 0.1 完整读取 proposal、design、两条未对齐决策及当前 Decision Records 行为 owner，确认统一演进决策拥有事务与拓扑、完整集合决策拥有关系来源与替换，change 文档没有建立第三套长期语义。
-- [ ] 0.2 检查当前工作区和目标文件 diff，隔离并保留其他 active changes、决策与索引的并行修改。
-- [ ] 0.3 确认 `Open Questions` 仍为“无”，破坏性删除 `split`、旧 `evolve` 形式和旧 API request 已在本次实施授权内。
-- [ ] 0.4 在修改测试前完整读取 `skills/test-evidence-review/SKILL.md` 及本次涉及的测试证据 owner，列出需要新增、更新或移除的最小原生测试入口。
+- [x] 0.1 完整读取 proposal、design、两条未对齐决策及 Decision Records 行为 owner，确认统一演进决策拥有事务与拓扑、完整集合决策拥有关系来源与替换，Change artifacts 没有建立第三套长期语义。
+- [x] 0.2 检查当前 worktree、中央 task graph 和相关 worktree 的状态与目标路径 diff，确认没有需要合并或避让的并行文件改动。
+- [x] 0.3 确认 `Open Questions` 为“无”，兼容性边界是直接删除 `split`、旧 `evolve` 形式和旧 API request，不保留迁移层。
+- [x] 0.4 完整读取 `skills/test-evidence-review/SKILL.md` 和受影响 case，并在 design 的 `Test Evidence Audit` 中列出需要更新、新增或移除的最小原生测试入口。
 
 ## Implementation
 
