@@ -183,7 +183,7 @@
       "index-runtime/use-independent-read-side-index-runtime.md": "sha256:041bd0263ff543d6b1cd1e85def33b157a6d0ed1bb1f447565b66ee497a43369",
       "index-runtime/use-typed-collection-metadata.md": "sha256:61fe2fe1ecf0adb7821bc73003a8112dd693679e6f2811ec24c64a1daec7b362",
       "investigation-report/append-self-contained-investigation-reports.md": "sha256:9ec28b624b1fe97bca30a5317fd50057d37401f22201b72cfef0f3db49504e5d",
-      "investigation-report/attach-verifiable-resources-to-investigation-reports.md": "sha256:15d2bbd7758aa0e39a5b78eb4f8542f4d1b907cf9521b793b87b6405b16b96e2",
+      "investigation-report/attach-verifiable-resources-to-investigation-reports.md": "sha256:05ddf9a0f37008804e7e7b39b4c1f444f31432082fb4ea0acafdf5d83f84ef84",
       "investigation-report/generate-query-index-from-topic-files.md": "sha256:637b0aadd380f076be45cb2d13dd507e847207ad002cda74d0269d2e9133a757",
       "investigation-report/maintain-topic-level-investigation-index.md": "sha256:5788503c5b29c34795dc281cc602b6ad39d66b51884a2ce060991113fffb03cf",
       "investigation-report/preserve-comparable-investigation-inputs.md": "sha256:ac753d3ea152903ab36b19f598cd36664b3e7857f32dcd5ce944f7d4ad437847",
@@ -2758,18 +2758,18 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "investigation-report/attach-verifiable-resources-to-investigation-reports.md",
         "title": "以报告引用和索引哈希维护调查资源",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-06T09:20:30Z",
-        "purpose": "让调查报告可以携带不适合在正文完整展开的形成时材料，并使引用关系、内容变化和索引新鲜度可复核。",
+        "purpose": "允许调查报告按需引用不适合在正文完整展开的形成时材料，并使已声明的引用关系、内容变化和索引新鲜度可复核。",
         "background": "原始参数、响应、日志、规范和二进制材料需要独立保存；目录位置不能表达它支持哪份报告，未纳入索引的文件变化也难以发现。",
-        "decision": "在统一资源池保存材料，由报告 Markdown 声明资源引用；主题索引派生报告关系和资源 SHA-256，并让资源快照参与 source revision。",
+        "decision": "允许报告按需声明统一资源池中的资源引用；主题索引管理已声明的报告关系和资源 SHA-256，并让资源快照参与 source revision。",
         "relations": []
       }
     },
