@@ -1,10 +1,12 @@
 # Design
 
+归档说明：本文保存该 change 在实施时采用的设计映射，不是现行 Decision Records 行为契约。现行 agent 行为由 [`SKILL.md`](../../../skills/decision-records/SKILL.md) 承接，完整领域不变量由 [`decision-record-rules.md`](../../../skills/decision-records/references/decision-record-rules.md) 承接；文中的“实施前基线”、目标式表述和决策对齐前提均保留实施阶段语境，完成状态见 [`tasks.md`](tasks.md)。
+
 本设计用一个共享事务模型兑现统一关系演进，并让候选声明、CLI 覆盖和已建立关系修订都产生可预检的完整最终图。
 
 ## Context
 
-### 实现基线
+### 实施前基线
 
 - `tools/decision-records/src/cli-args.ts` 把 `evolve` 定义为单后继命令并拒绝其中的 `拆分` 关系；独立 `split` 接收重复 `--successor`。
 - `activate` 与 `evolve` 共享单后继生命周期服务，但只有显式 CLI 关系参与前序归档；候选 Markdown 中已经存在的关系不能自然成为一次建立事务的有效输入。
@@ -12,10 +14,10 @@
 
 ### 长期约束与 owner
 
-- [统一闭合决策关系演进](../../docs/decisions/decision-records/unify-closed-decision-relation-evolution.md) 拥有统一命令、关系策略和可恢复事务的长期方向。
-- [以完整集合替换决策关系](../../docs/decisions/decision-records/replace-decision-relations-as-complete-sets.md) 拥有候选关系、CLI 完整覆盖和已建立关系修订的长期方向。
-- [闭合拆分](../../docs/decisions/decision-records/use-closed-splits-for-coarse-decisions.md) 继续拥有一对多语义覆盖和每个后继独立对齐的规则；本 change 只改变执行入口。
-- [真实案例触发重组](../../docs/decisions/decision-records/support-reorganization-after-real-evidence.md) 继续阻止在没有实例时提前实现多对多协议。
+- [统一闭合决策关系演进](../../../docs/decisions/decision-records/unify-closed-decision-relation-evolution.md) 拥有统一命令、关系策略和可恢复事务的长期方向。
+- [以完整集合替换决策关系](../../../docs/decisions/decision-records/replace-decision-relations-as-complete-sets.md) 拥有候选关系、CLI 完整覆盖和已建立关系修订的长期方向。
+- [闭合拆分](../../../docs/decisions/decision-records/use-closed-splits-for-coarse-decisions.md) 继续拥有一对多语义覆盖和每个后继独立对齐的规则；本 change 只改变执行入口。
+- [真实案例触发重组](../../../docs/decisions/decision-records/support-reorganization-after-real-evidence.md) 继续阻止在没有实例时提前实现多对多协议。
 - 兼容性边界是一次性协议切换：目标命令、参数形状和 API request 直接取代旧协议，不保留迁移层或双轨入口。
 
 长期 owner 分工固定为：统一演进决策负责“一个关系事务允许选择哪些成员、必须满足什么拓扑、怎样写入与恢复”，完整集合决策负责“关系从哪里取得、怎样覆盖、哪些已建立字段可以改变”。本 design 只把两者映射为当前实现协议，不另行定义第三套关系语义。

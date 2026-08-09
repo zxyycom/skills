@@ -1,6 +1,8 @@
 # Tasks
 
-Readiness 审计先固定长期 owner、兼容性边界和测试证据范围；后续任务按协议、实现、分发与证据的依赖顺序完成统一关系演进。
+归档说明：本文保存该 change 已完成的准备、实施和验证清单，不是待执行任务来源。现行行为与领域不变量分别由 [`SKILL.md`](../../../skills/decision-records/SKILL.md) 和 [`decision-record-rules.md`](../../../skills/decision-records/references/decision-record-rules.md) 承接。
+
+Readiness 审计先固定了长期 owner、兼容性边界和测试证据范围；实施任务随后按协议、实现、分发与证据的依赖顺序完成统一关系演进。
 
 ## Readiness
 
