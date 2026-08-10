@@ -4,9 +4,10 @@
 
 ## Readiness
 
-- [ ] 0.1 确认 `stage-selected-index-entries` 已完成公共 API、长期决策对齐和全部验证。
+- [x] 0.1 确认 `stage-selected-index-entries` 已完成公共 API、长期决策对齐和全部验证。
 - [x] 0.2 确认调查主题路径本身就是稳定索引 id，本 change 不建立第二套选择身份，也不构造索引基线、state 变化或目标 revision。
 - [x] 0.3 确认调查 Markdown 不由该索引暂存入口处理，同一索引已有待提交变化时直接拒绝；`Open Questions` 为“无”。
+- [x] 0.4 确认随附资源 ID、哈希与 `sourceRevision.metadata` 是集合级契约；资源变化时按主题暂存必须拒绝并改用普通文件级暂存完整索引。
 
 ## Implementation
 
@@ -21,6 +22,6 @@
 
 - [ ] 2.1 覆盖并行 A/B、修改、新增、删除、重命名、首次索引和合法空结果，证明命令只向索引传递选中 id。
 - [ ] 2.2 覆盖重复或非法 id、两份索引都不存在的 id、无仓库、同索引既有 pending、revision 冲突和写入恢复，并回归 check/sync/list。
-- [ ] 2.3 确认命令不修改 filesystem、不读取或暂存调查 Markdown，其他待提交路径保持不变。
+- [ ] 2.3 确认命令不修改 filesystem、不读取或暂存调查 Markdown 与随附资源，其他待提交路径保持不变；资源 metadata 变化时在写入前拒绝。
 - [ ] 2.4 为新增或修改测试入口维护独立测试证据 case，并同步索引。
 - [ ] 2.5 运行 `bun run test:investigation-report-check`、生成漂移、类型检查、严格目录检查与 `bun run check`，审阅最终 diff。
