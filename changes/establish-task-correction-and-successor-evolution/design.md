@@ -1,10 +1,12 @@
 # Design
 
-本 design 选择“保留现有未终态 mutation + 单任务显式终态纠正 + 新任务承接后继演进”，并用 paused 中间态与窄 correction evidence 避免任意改写历史。它描述 `plan` 阶段的目标契约；`correct` 与 `terminalCorrections` 尚未成为当前 runtime 行为。Artifact 的权威分工见 [proposal.md 的 Status and Reading Contract](proposal.md#status-and-reading-contract)。
+本 design 保留搁置前对“现有未终态 mutation + 单任务显式终态纠正 + 新任务承接后继演进”的最近一次完整探索，并用 paused 中间态与窄 correction evidence 避免任意改写历史。Change 当前处于 `shelved`；这里的 `correct` 与 `terminalCorrections` 不是当前 runtime 行为或待实施契约。Artifact 的权威分工和恢复门禁见 [proposal.md 的 Status and Reading Contract](proposal.md#status-and-reading-contract)。
 
 ## Context
 
-### Stable Terms
+本节保存搁置方案形成时使用的概念与事实基线。当前行为必须回到 [proposal 的 Status and Reading Contract](proposal.md#status-and-reading-contract) 所列 owner 核对，不能从本节推断。
+
+### 搁置方案中的稳定术语
 
 | 术语 | 本 Change 中的固定含义 |
 | --- | --- |
@@ -16,24 +18,24 @@
 | 有效 dependent（effective dependent） | 完整 projection 中直接依赖目标 task，或因祖先 dependency 继承而依赖目标 task 的任意 task |
 | 后继演进（successor evolution） | 原终态事实正确，但后来出现新目标、约束或产品方向；由独立新 task 承接 |
 
-### Lifecycle Decision Route
+### 搁置方案的生命周期路由
 
-先依据当前 `execution.phase` 和“原终态事实是否错误”选择路径，再进入对应详细 decision。Control 与 execution 是两组独立状态；`candidate`、`queued`、`waiting`、`paused` 或 `inherit` 都不是 execution phase。
+旧方案先依据 `execution.phase` 和“原终态事实是否错误”选择路径，再进入对应设计章节。Control 与 execution 是两组独立状态；`candidate`、`queued`、`waiting`、`paused` 或 `inherit` 都不是 execution phase。下表只用于恢复旧设计，不是当前运行手册。
 
-| 当前事实 | 必须选择的路径 | 路径完成条件 | 详细 owner |
+| 旧方案处理的状态 | 旧方案选择的路径 | 旧方案完成条件 | 旧方案章节 |
 | --- | --- | --- | --- |
-| `execution.phase` 为 `idle` | 使用已有 content、control 或 relation mutation；继续携带 expected revision | 当前事实修正完成，control 明确 | Decision 1 |
-| `execution.phase` 为 `failed` | 用已有 mutation 修正允许修改的事实；只有准备重新执行时才用 `retry` 回到 idle | 失败 execution 保留自身语义；没有伪装成终态纠正 | Decision 1 |
-| `execution.phase` 为 `running`，且需要修正内容或关系 | 当前 lease owner 先 `release`；lease 过期时先 recover claim，再由新 owner release。真实执行结论仍分别使用 complete、fail 或 cancel | 活动执行在自身 lease 边界内收敛；`correct` 不接管 lease | Decision 1 |
-| `execution.phase` 为 `succeeded` 或 `cancelled`，且该终态在写入时就是错误事实 | 先满足祖先和 effective-dependent 门禁，再调用 `correct`；成功后在 paused idle 中修正事实并显式选择 control | 旧终态成为 evidence，current result 已清除，任务不会自动重跑 | Decisions 2–4、6 |
-| 原终态事实正确，只是后来出现新目标、约束或产品方向 | 创建独立 task，用 stable reference 指向来源；只有真实完成顺序成立时才增加 dependency | 原 task 及其 result、版本锚点不变，新工作拥有独立生命周期 | Decision 5 |
+| `execution.phase` 为 `idle` | 使用已有 content、control 或 relation mutation；继续携带 expected revision | 当前事实修正完成，control 明确 | 搁置方案 1 |
+| `execution.phase` 为 `failed` | 用已有 mutation 修正允许修改的事实；只有准备重新执行时才用 `retry` 回到 idle | 失败 execution 保留自身语义；没有伪装成终态纠正 | 搁置方案 1 |
+| `execution.phase` 为 `running`，且需要修正内容或关系 | 当前 lease owner 先 `release`；lease 过期时先 recover claim，再由新 owner release。真实执行结论仍分别使用 complete、fail 或 cancel | 活动执行在自身 lease 边界内收敛；`correct` 不接管 lease | 搁置方案 1 |
+| `execution.phase` 为 `succeeded` 或 `cancelled`，且该终态在写入时就是错误事实 | 先满足祖先和 effective-dependent 门禁，再调用尚未实现的目标命令 `correct`；成功后在 paused idle 中修正事实并显式选择 control | 旧终态成为 evidence，current result 已清除，任务不会自动重跑 | 搁置方案 2–4、6 |
+| 原终态事实正确，只是后来出现新目标、约束或产品方向 | 创建独立 task，用 stable reference 指向来源；只有真实完成顺序成立时才增加 dependency | 原 task 及其 result、版本锚点不变，新工作拥有独立生命周期 | 搁置方案 5 |
 
 任务图只能提供 phase、lease、关系和 result 等协调事实，不能替业务 owner 判断“原终态在当时是否错误”。这个判断是每次实际纠正的必需输入；无法确认时不得用 `correct` 猜测，应由原任务或结果 owner 先确认。
 
-### 当前状态模型与 mutation 边界
+### 搁置时的状态模型与 mutation 边界
 
 - `candidate`、`queued`、`waiting`、`paused` 和子任务可用的 `inherit` 属于 control；`idle`、`running`、`failed`、`succeeded`、`cancelled` 属于 execution。两者不能放在同一生命周期枚举中比较，candidate task 通常仍是 `execution.phase: idle`。
-- `task update-content` 当前允许 idle 与 failed，拒绝 running、succeeded 和 cancelled，并通过完整 content input 重建 title、goal、acceptance、context、references 与 null result。
+- 搁置时，`task update-content` 允许 idle 与 failed，拒绝 running、succeeded 和 cancelled，并通过完整 content input 重建 title、goal、acceptance、context、references 与 null result。
 - `task update-control` 允许 idle 与 failed；running 只有在有效 control 完全不变时才可能通过，succeeded/cancelled 拒绝。顶层 task 始终不能 inherit。
 - Parent、dependency 和 exclusion mutation 在一个 expected revision 下更新关系，并用 `assertProtectedTopologyUnchanged` 禁止任何直接或间接操作改变 running、succeeded、cancelled task 的有效祖先、children、dependency 或 exclusion evidence。
 - Idle 叶子只有 projection 为 ready 时才能 claim；running task 的 renew、release、complete、fail 和 cancel 都要求当前未过期 lease。过期 lease 只通过携带旧 lease、最新 revision 与原因的 recover claim 接管，不存在 force takeover。
@@ -41,25 +43,27 @@
 - Leaf complete 使用 lease；有 children 的 parent 从不 claim，只有直接 children 全部 succeeded/cancelled、至少一个 succeeded 且没有 descendant lease 时，才用 expected revision complete。
 - Cancel 可以在 lease 或 expected revision 边界内递归取消非终态后代，保留已有 succeeded/cancelled 后代，并在后代持有 lease 时整笔拒绝。
 
-### Result、Git 与后继实例
+### 搁置时的 Result、Git 与后继实例
 
 - `docs/decisions/task-graph/anchor-semantic-task-results-in-index-history.md` 已确定：`content.result` 保存当前终态的语义摘要与稳定 owner 引用；首次包含该终态 entry 的 task index Git 提交提供版本锚点。Workspace mutation 和 `index stage` 都不等于 commit。
 - 同一决策明确不增加 succeeded result metadata 校正命令，并把成功事实撤销交给独立终态纠正机制；failed 继续使用 retry。
 - 中央 `task-000036` 已展示正确后继的当前做法：`task-000033` 正确成功后收到新要求，后续创建独立 task，用 `references.source-task` 指向来源，并在真实顺序成立时使用普通 dependency；原 result 与终态没有被重写。
 
-### 完整图对纠正的现有限制
+### 搁置时完整图对纠正的限制
 
 - Graph validation 已拒绝 running/succeeded task 依赖任何非 succeeded target，因此把一个 succeeded dependency 改回非终态时，仍在 running 或 succeeded 的 effective dependent 会让候选索引非法。
 - Failed 与 cancelled dependent 虽不会被这一通用 invariant 拦截，却已经形成一次 execution 事实；若不先显式收敛就撤销其 dependency success，协调含义会变得含糊。
 - Succeeded/cancelled ancestor 要求后代保持相应终态；纠正 child 前必须先纠正 terminal ancestor。反过来，纠正一个 terminal parent 为 paused idle 可以安全保留已终态 children，再由既有完成门禁决定后续处理。
 - `projectTaskGraph` 已能给出全部 effective dependents，包括由祖先 dependency 继承的 descendants；纠正影响检查不需要持久化反向关系或第二索引。
 
-### 实施基线与重叠 Change
+### 已失效的实施基线与协调快照
 
-- 当前公开 CLI 协议是 `3.1.0`，task index 是 Schema v2，task-graph skill `metadata.version` 由实施时当前主线决定。
-- `changes/support-explicit-task-ids/` 的已确认 plan 和 `changes/add-task-tags-and-find/` 的 draft 都会修改 types、Schema、engine、CLI、生成产物、版本与测试。中央 `task-000037` 已完成设计并由 `task-000044` 承接实施；`task-000044` 与两个重叠任务互斥。后续 Change 必须基于本 Change 的集成结果复核版本和可选字段组合。
+- 搁置时记录的公开 CLI 协议是 `3.1.0`，task index 是 Schema v2；这些版本只解释旧方案，恢复时必须重新读取当前主线。
+- 搁置前曾以 `changes/support-explicit-task-ids/`、`changes/add-task-tags-and-find/` 和中央 `task-000044` 作为重叠协调输入。`task-000044` 已取消，这组关系不是可恢复的实施计划；未来重新计划时必须读取当时任务图、Change 状态、版本和 owner 占用情况。
 
 ## Goals / Non-Goals
+
+以下目标与非目标只描述搁置方案的解空间，不是当前路线图：
 
 目标：
 
@@ -79,14 +83,16 @@
 
 ## Decisions
 
-### Decision 1: 普通修正继续使用现有细粒度 mutation
+以下八项是搁置方案内部已经收敛的设计选择，不是活动长期决策或当前 runtime 契约。当前是否重新探索由[长期延期决策](../../docs/decisions/task-graph/defer-terminal-correction-until-confirmed-recovery-need.md)决定。
+
+### 搁置方案 1: 普通修正继续使用现有细粒度 mutation
 
 - Idle 与 failed task 继续使用 `task update-content`、`task update-control`、relation commands 或原子 `apply` 修正当前内容和拓扑；这些状态尚未形成受保护的成功/取消证据，不需要通用 amend 历史。
 - Running task 的 content 与 topology 不可直接修正。当前 lease owner 先 `release` 到明确 control；失联且过期时仍先 recover claim，再由新 lease owner release、fail 或 cancel。纠正能力不接受 lease，也不提前接管活动执行。
 - Failed 表示一次执行失败而不是不可恢复终态；继续使用 retry，不通过 correct 伪装成错误 success/cancellation。失败原因仍属于该次 failed execution，不增加 failure metadata 编辑。
 - Ordinary mutation 继续携带 expected revision，execution mutation 继续使用 lease 或其现有 revision precondition。不会新增一个同时接受 revision、lease、任意 content 和任意 state 的 `amend`。
 
-### Decision 2: 新增单任务 `correct`，目标固定为 paused idle
+### 搁置方案 2: 新增单任务 `correct`，目标固定为 paused idle
 
 CLI 使用：
 
@@ -101,7 +107,7 @@ task-graph correct <task-id> --expected-revision <n> --reason <text>
 - Parent task 也使用同一 paused idle 目标，不制造非法的 non-leaf failed phase；leaf 与 parent 都不会在 correct 后自动 claim 或 complete。
 - 成功 raw data 固定为 `{ taskId, phase: "idle", control: "paused", correctedFrom, correctionCount }`；`correctedFrom` 是 `"succeeded" | "cancelled"`，`correctionCount` 是追加后的记录总数。普通 JSON envelope、错误码、退出状态与 mutation runtime 前置保持现有协议。
 
-### Decision 3: 用可选 terminal correction evidence 保存异常历史
+### 搁置方案 3: 用可选 terminal correction evidence 保存异常历史
 
 在 `TaskState` 增加可选、存在时非空的 `terminalCorrections`：
 
@@ -126,7 +132,7 @@ type TaskTerminalCorrection = {
 - 这是错误终态专属的窄证据，不是默认 event history。普通 update、retry、lease 和 Git 行为不追加记录；task 通过既有结果交付与关系闭合门禁 remove 时，evidence 随 entry 一起删除。
 - 可选字段让没有纠正历史的现有 Schema v2 index 继续 canonical；新 reader 能读取旧 index。写入 evidence 后旧 runtime 会因 strict schema 拒绝该 entry，因此行为说明明确要求使用包含本能力的 runtime，不建立双 Schema 或迁移命令。
 
-### Decision 4: 在事务内拒绝尚未收敛的祖先与 effective dependents
+### 搁置方案 4: 在事务内拒绝尚未收敛的祖先与 effective dependents
 
 - Correct 先基于锁内最新 candidate 重新计算 ancestors 与 `projectTaskGraph(...).tasks[taskId].dependents`，不能使用调用方先前查询的列表。
 - 任一 ancestor 仍为 succeeded 或 cancelled，或任一 effective dependent 不是 idle 时，统一以 `STATE_CONFLICT` 拒绝。错误 details 固定包含 `taskId`、按 task ID 排序的 `terminalAncestors: Array<{ taskId, phase }>` 和 `nonIdleDependents: Array<{ taskId, phase }>`；没有 blocker 的数组为空。排序只保证确定输出，不表达处理顺序。
@@ -146,7 +152,7 @@ type TaskTerminalCorrection = {
 5. 再读最新 revision 和 projection；所有门禁满足后调用 `correct`。出现 `REVISION_CONFLICT` 或 blocker 变化时回到步骤 2，不盲目重放后续写入。
 6. `correct` 成功后，使用已有 content 或 relation mutation 修正事实，最后在现有约束内显式选择 queued、inherit、waiting、paused 或 candidate control；顶层 task 仍不能 inherit。`index stage` 与 Git commit 仍是独立调用方动作。
 
-### Decision 5: 正确完成后的变化始终创建新 task
+### 搁置方案 5: 正确完成后的变化始终创建新 task
 
 - 判断入口先问“原 terminal fact 在当时是否错误”。若答案是是，使用 correct；若原目标确实完成，只是后来新增目标、约束或产品方向，则创建独立 task。
 - 新 task 的 `references` 使用稳定 key（例如 `source-task`）指向原 task，以便恢复语义来源；reference 不影响调度。
@@ -154,7 +160,7 @@ type TaskTerminalCorrection = {
 - 不增加 successor/supersedes/replaces relation。没有调度语义的边属于 references；若未来确有任务演进查询消费者，应以独立 change 设计，而不是让本 Change 扩张 topology 与 projection。
 - 原 task 的 phase、result、correction evidence 和版本锚点保持不变；新 task 拥有自己的 lease、attempt、result 与版本锚点。
 
-### Decision 6: Result 与 correction evidence 分别形成版本事实
+### 搁置方案 6: Result 与 correction evidence 分别形成版本事实
 
 - `content.result` 始终只表示当前 succeeded terminal result。Correct 在同一 mutation 中先把旧 result 复制到 evidence，再清空 current result，避免旧结果继续满足“当前成功”语义。
 - 原 terminal entry 已形成的 Git 版本锚点不被重写。首次包含新增 correction record 的 task index commit 只证明该仓库版本记录了纠正；不在 record 中复制该 commit SHA。
@@ -162,20 +168,20 @@ type TaskTerminalCorrection = {
 - Task 后续再次 complete 时写入新的 current result；首次包含这一新 terminal entry 的 index commit 成为该次当前结果的版本锚点。Earlier correction evidence 继续可见。
 - `index stage --task <id>` 继续从完整 workspace entry 构造 selected-task pending snapshot，并通过完整候选校验；correct mutation本身不 stage 或 commit。若目标测试发现现有 staging 已能保留 evidence，则不修改 staging source。
 
-### Decision 7: 保持 Schema v2，公开 CLI 做一次 minor bump
+### 搁置方案 7: 保持 Schema v2，公开 CLI 做一次 minor bump
 
 - Optional `terminalCorrections` 扩展现有 state，既有 index 不需迁移，保持 `schemaVersion: 2`。Strict schema、canonical serializer 与生成 JSON Schema 同步表达 optional-nonempty、terminal union 和 result pairing。
 - `correct` command、公开 options/result/evidence types 与 service/engine export 是向后兼容的公开扩展，因此从实施任务 `task-000044` 读取的当前 CLI 协议提升一个 minor。若实施基线仍是 `3.1.0`，目标是 `3.2.0`；如主线先发生其他 protocol bump，实施者使用当时版本的下一个 minor，而不是复用已占用版本。
 - Skill `metadata.version` 从实施时主线当前正整数递增一次；生成 MJS、source map、SDK declaration tree 与 task index JSON Schema 只通过现有同步入口生成。
 - Default task list renderer 不增加 correction token；完整 evidence 通过 `task show` 与 JSON/SDK task entry 获取。该选择避免把异常历史塞进全量调度视图。
 
-### Decision 8: 用新长期决策建立稳定行为，不改写既有记录
+### 搁置方案 8: 用新长期决策建立稳定行为，不改写既有记录
 
 - 实施时新增一份自包含 task-graph decision，说明终态纠正、paused barrier、narrow evidence、dependent/ancestor gate 与 successor task 选择。
 - `anchor-semantic-task-results-in-index-history.md` 已经预留“成功事实撤销是独立问题”，本设计兑现而不改变其 result/版本锚点方向；不为分类引用伪造演进关系，也不直接改写已建立正文。
 - 新 decision 在实现、Schema、行为 owner 和测试均落地后建立为 `active + aligned`，并通过 decision-records 生命周期命令同步索引。若实施审阅发现它实质改变某个当前 decision，再按当时完整直接前序集合使用正式 evolve，而不是在计划中预写无依据关系。
 
-### Rejected Alternatives
+### 搁置方案当时未选择的备选
 
 - 通用 amend 或 arbitrary JSON patch：会把 content、control、relations、execution、result 与 lease precondition 混成一个入口，难以证明哪些历史可以改写。
 - Terminal 直接回 queued：纠正尚未修复内容/拓扑就可被 claim 或 parent complete，扩大竞态并把纠错误当重新执行授权。
@@ -187,15 +193,19 @@ type TaskTerminalCorrection = {
 
 ## Risks / Trade-offs
 
+以下风险只属于搁置方案；恢复时必须重新核对，不能视为完整的当前风险清单：
+
 - Optional field 保持 Schema v2 和旧 index 可读，但一旦写入 evidence，旧 runtime 会 fail closed；生成产物、版本和行为说明必须作为同一交付集成。
 - Correction records 会增加单 task entry 大小。它们只在显式错误终态发生时追加，不记录普通事件；任务失去协调价值后仍可通过既有 remove 门禁整体清理。
 - 两步“correct -> 修正内容/关系 -> update-control”可能留下 paused task。Paused reason 与 task show 能直接解释状态，且比自动重新执行更安全；恢复由调用方显式完成。
 - 要求所有 effective dependents 先回 idle 比通用 graph validation 更保守，但能覆盖 failed/cancelled 已经消费旧 success 的情况。复杂纠正需要按 lease/retry/correct 分别收敛多个 task，代价换取不做隐式 cascade。
 - Parent/child 与 dependency 的纠正顺序不同：terminal parent 先于 child，terminal/failed/running dependent 先于 dependency target。行为说明必须明确处理顺序；错误 details 只提供确定排序的 blocker 集合，不能让调用方把 task ID 顺序当作执行计划。
-- `support-explicit-task-ids` 与 `add-task-tags-and-find` 会修改同一 types/Schema/CLI/版本面。承接实施的 `task-000044` 必须与它们串行；后续 Change 必须在本 Change 集成后重新计划版本、optional fields 和测试合并，不能并行生成产物。
+- 搁置时，`support-explicit-task-ids` 与 `add-task-tags-and-find` 会修改同一 types/Schema/CLI/版本面。原实施任务 `task-000044` 已取消；未来若恢复，必须重新发现重叠工作并规划版本、optional fields 和测试合并，不能沿用旧串行关系。
 
 ## Open Questions
 
-没有阻塞 plan 或 `task-000044` 实施的开放问题。终态来源、目标状态、evidence 最小字段、上下游拒绝条件、lease 边界、result/version anchor、后继任务策略、Schema 与协议版本策略均已收敛。
+搁置前，旧方案内部已收敛终态来源、目标状态、evidence 最小字段、上下游拒绝条件、lease 边界、result/version anchor、后继任务策略、Schema 与协议版本策略；这只说明旧设计当时自洽，不表示它现在可以实施。
 
-每次实际使用 `correct` 时仍需要业务或结果 owner 确认“原终态事实在写入时就是错误的”，并提供原因；这是运行时事实输入，不是本 Change 可以预先替用户决定的产品规则。当前设计明确只保存窄 correction evidence；只有用户新增“脱离 Git 也必须重建纠正前完整 content/relations”的审计要求时，才需要重新打开持久历史范围决策。
+恢复前必须先证明[长期延期决策](../../docs/decisions/task-graph/defer-terminal-correction-until-confirmed-recovery-need.md)的全部重新评估条件成立，再 `resume` 并重新确认：现实案例是否仍需要终态纠正、当前 task 图和消费者要求什么、旧 `correct`/paused/evidence/门禁选择是否仍最小、当前版本与重叠 owner 如何协调，以及由哪个新任务承接实施。已取消的 `task-000044` 不能作为恢复入口。
+
+若重新设计仍保留 `correct`，每次实际使用还需要业务或结果 owner 确认“原终态事实在写入时就是错误的”并提供原因；这是运行时事实输入，不是 Change 可以替用户决定的规则。

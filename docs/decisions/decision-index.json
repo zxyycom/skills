@@ -239,6 +239,7 @@
       "subagent-orchestration/bound-review-and-handoff-by-delivery-impact.md": "sha256:f9a19ed300003b4730bbd8d522947aaa501a99d1be5af61a54b4c385ff36b7a5",
       "task-graph/anchor-semantic-task-results-in-index-history.md": "sha256:182c7fd1302fa657e61834611b76584d823b6da0c7ca96eac294bc50384c267f",
       "task-graph/coordinate-task-execution-with-transactional-claims.md": "sha256:eed05bfa690ee8c16351419d3fe37d65ea9f93fe599bb91f37dac6adf695dded",
+      "task-graph/defer-terminal-correction-until-confirmed-recovery-need.md": "sha256:2656a138f01eea0a2d9b91a00ba181cc70fa25b77f314492389e6b22d0a982ef",
       "task-graph/delegate-native-runtime-installation-to-caller.md": "sha256:287e98cd90491f9acbf5cf1e4deaa5b973875ce615cdfa75e84069d54044743c",
       "task-graph/derive-sdk-declarations-from-runtime-source.md": "sha256:d2fad5e26b872a1ee6a4edf63b6555fe5b4b80de5fbdfdb21d63e38068ef393e",
       "task-graph/install-native-runtime-in-user-tool-home.md": "sha256:12cd7a8ec12bb7db0252b7359deef934a54cdd8415f679041ec3e8994cc1fb3f",
@@ -4227,6 +4228,30 @@
         "purpose": "让多个 agent 在共享索引上领取就绪任务，而不重复执行或违反排斥关系。",
         "background": "查询就绪后再非事务地写入运行状态会产生竞态，执行者异常退出还会留下无法判断归属的运行状态。",
         "decision": "任务工具以 revision 和租约事务化领取、完成、失败与释放，并在每次写入前验证有效状态和完整拓扑。",
+        "relations": []
+      }
+    },
+    "task-graph/defer-terminal-correction-until-confirmed-recovery-need.md": {
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/defer-terminal-correction-until-confirmed-recovery-need.md",
+        "title": "等待真实恢复需要后再设计 Task 终态纠正",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-10T15:13:23Z",
+        "purpose": "在没有可复核误终态实例时保持终态事实与下游协调可信，不为理论完整性增加通用纠正能力。",
+        "background": "当前真实场景分别由后继 task 和语义 result 版本锚点解决，尚未出现必须撤销 succeeded 或 cancelled 才能恢复协调的案例。",
+        "decision": "当前不实现 correct、reopen 或新的 task 演进协议，维持现有终态封闭规则；只有出现后继或修复 task 无法处理的真实错误终态时才重新探索最小纠正机制。",
         "relations": []
       }
     },
