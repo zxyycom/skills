@@ -88,5 +88,5 @@ Case 的产品价值是集中说明、发现和复核“当前测试证明了什
 | [`docs/test-evidence/`](../../docs/test-evidence/) | 只为本 change 触及的测试入口维护现行旧格式 Case 和派生索引；不改变布局 | 暂存整个旧账本，从零建立并验收新账本，遗漏对照后删除旧账本与暂存目录 |
 | [`scripts/build/test-evidence.ts`](../../scripts/build/test-evidence.ts) 与 [`skills/test-evidence-review/`](../../skills/test-evidence-review/) | 不修改 | 一次性切换构建输出、行为契约、默认入口和 skill 版本 |
 | [`maintain-closed-many-to-many-test-case-relations.md`](../../docs/decisions/test-evidence-review/maintain-closed-many-to-many-test-case-relations.md) 与 [`fix-test-evidence-workspace-contract.md`](../../docs/decisions/test-evidence-review/fix-test-evidence-workspace-contract.md) | 前者保持 `unaligned`，后者继续描述当前 Topic 事实 | 新账本成为当前事实后更新并对齐 |
-| [`stage-selected-test-evidence`](../archive/stage-selected-test-evidence/) | 继续后置 | 只有最终 Case 身份与索引生效后才能解除依赖 |
+| [`stage-selected-test-evidence`](../archive/stage-selected-test-evidence/) | 已由独立任务完成并归档，当前入口使用现行 Case ID | 最终切换时按既定范围删除旧 catalog 实现及引用，不保留旧、新入口并存 |
 | 中央 task graph | `task-000026` 拥有机制建设 | `task-000035` 作为依赖前者的独立根任务拥有真实迁移与激活 |

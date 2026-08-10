@@ -353,4 +353,4 @@ Ledger fixture 不复制当前真实 Case，也不把当前 `docs/test-evidence`
 - [`maintain-closed-many-to-many-test-case-relations.md`](../../docs/decisions/test-evidence-review/maintain-closed-many-to-many-test-case-relations.md) 在本 change 完成后仍为 `unaligned`；机制存在不等于真实账本已经闭合。
 - [`fix-test-evidence-workspace-contract.md`](../../docs/decisions/test-evidence-review/fix-test-evidence-workspace-contract.md) 在迁移前继续拥有当前 Topic 布局；`task-000035` 切换 Tag 布局时再修订并对齐。
 - [`260721-separate-test-entry-collection-from-ledger.md`](../../docs/decisions/test-evidence-review/260721-separate-test-entry-collection-from-ledger.md) 与 [`publish-only-layered-test-evidence-interfaces.md`](../../docs/decisions/test-evidence-review/publish-only-layered-test-evidence-interfaces.md) 继续保持归档，只提供分层责任的历史依据；旧 inventory 参数、stdin、marker 和角色不恢复。
-- [`stage-selected-test-evidence`](../archive/stage-selected-test-evidence/) 继续后置到 `task-000035` 完成之后。
+- [`stage-selected-test-evidence`](../archive/stage-selected-test-evidence/) 已由独立任务完成并归档；`task-000035` 最终切换时仍按既定范围删除旧 catalog 实现及引用。

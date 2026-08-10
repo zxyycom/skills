@@ -84,19 +84,27 @@ node scripts/test-evidence-catalog.mjs check --root <workspace-root>
 ## 怎样隔离共享索引的待提交变化
 
 多个 Case 共用一个 `test-evidence-index.json`。同一工作区同时维护 A、B Case，
-但当前提交只选择 A 时，先用 `sync-index --write` 从完整目录重建工作区索引，再运行
-严格 `check`，最后执行：
+但当前提交只选择 A 时，按以下顺序处理：
 
-```text
-bun run test-evidence -- stage-index <A-case-id> --root <workspace-root>
-```
+1. 运行 `sync-index --write`，从完整 topic 表和 Case Markdown 重建工作区索引。
+2. 运行严格 `check`，确认权威目录与重建后的索引一致。
+3. 执行以下命令，只把 A 对应的索引变化写入 `pending`：
 
-该命令只把 A 对应的索引变化写入 `pending`；B 的索引变化仍只存在于工作区索引。
-Case 重命名同时传入旧、新 ID。topic 表属于完整集合的 metadata，成员或描述变化不能
-按 Case 拆分；同一索引已有待提交变化时命令也会拒绝覆盖。
+   ```text
+   bun run test-evidence -- stage-index <A-case-id> --root <workspace-root>
+   ```
 
-`stage-index` 不读取或暂存 topic 表、Case Markdown、测试代码或产品代码。调用方
-必须按实际提交范围另行暂存这些文件，并在提交前核对完整 `pending` 内容。成功只证明
-所选索引条目已经暂存，不证明领域文件已经选择或目录当前有效。
+4. 按当前提交范围另行暂存 topic 表、Case Markdown、测试代码或产品代码，并在提交前
+   核对完整 `pending` 内容。
+
+执行第 3 步后，B 的索引变化仍只存在于工作区索引。Case 重命名同时传入旧、新 ID。
+topic 表属于完整集合的 metadata，成员或描述变化不能按 Case 拆分；同一索引已有
+待提交变化时命令也会拒绝覆盖。
+
+`stage-index` 不读取或暂存 topic 表、Case Markdown、测试代码或产品代码。成功只证明
+所选索引条目已经暂存，不证明领域文件已经选择或目录当前有效。输入、失败结果、
+退出码和 JSON 的精确契约由
+[`catalog-contract.md`](../../skills/test-evidence-review/references/catalog-contract.md)
+承接。
 
 实际行为入口位于 [`skills/test-evidence-review/`](../../skills/test-evidence-review/)。
