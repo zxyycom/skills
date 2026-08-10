@@ -1,0 +1,442 @@
+import fs from "node:fs/promises";
+import path from "node:path";
+import * as v from "valibot";
+import { isFileSystemError } from "../../../shared/src/node/filesystem.ts";
+import { createTestEvidenceDiagnostic } from "./diagnostics.ts";
+import { sha256Fingerprint } from "./entity-index.ts";
+import {
+  testEntityIdSchema,
+  testEvidenceCaseIdPatternSource,
+  testEvidenceLedgerCaseSchema,
+  testEvidenceTagSchema,
+  type TestEvidenceDiagnostic,
+  type TestEvidenceLedgerCase
+} from "./schemas.ts";
+import type { LedgerTextSource } from "./workspace.ts";
+
+export type IdentifiedLedgerCaseSource = LedgerTextSource & {
+  fingerprint: string;
+  id: string;
+  normalizedMarkdown: string;
+  title: string;
+};
+
+export type ParsedLedgerCaseSource = IdentifiedLedgerCaseSource & {
+  case: TestEvidenceLedgerCase;
+};
+
+export type LedgerCaseSourceResult<Value> =
+  | {
+    diagnostics: [];
+    value: Value;
+  }
+  | {
+    diagnostics: TestEvidenceDiagnostic[];
+    value: null;
+  };
+
+const caseHeadingPattern = new RegExp(
+  `^### Case (${testEvidenceCaseIdPatternSource.slice(1, -1)}): (.+)$`,
+  "u"
+);
+const ledgerCaseSourcePathPattern =
+  /^cases\/[a-z0-9]+(?:-[a-z0-9]+)*\.md$/u;
+
+export function identifyLedgerCaseSource(
+  source: LedgerTextSource
+): LedgerCaseSourceResult<IdentifiedLedgerCaseSource> {
+  const normalizedMarkdown = normalizeLedgerCaseMarkdown(source.text);
+  const firstLine = normalizedMarkdown.split("\n", 1)[0] ?? "";
+  const heading = caseHeadingPattern.exec(firstLine);
+  if (heading === null) {
+    return failedCaseSource({
+      code: "case.heading-invalid",
+      line: 1,
+      message: `${source.path} must begin with ### Case <CASE-ID>: <title>`,
+      path: source.path
+    });
+  }
+  const id = heading[1] ?? "";
+  const title = heading[2] ?? "";
+  if (title.trim() !== title || title.length === 0) {
+    return failedCaseSource({
+      caseId: id,
+      code: "case.heading-invalid",
+      line: 1,
+      message: `${source.path} Case title must be non-empty and trimmed`,
+      path: source.path
+    });
+  }
+  return {
+    diagnostics: [],
+    value: {
+      ...source,
+      fingerprint: caseSourceFingerprint(source.path, normalizedMarkdown),
+      id,
+      normalizedMarkdown,
+      title
+    }
+  };
+}
+
+export function parseLedgerCaseSource(
+  source: LedgerTextSource
+): LedgerCaseSourceResult<ParsedLedgerCaseSource> {
+  const identified = identifyLedgerCaseSource(source);
+  if (identified.value === null) {
+    return identified;
+  }
+
+  const diagnostics: TestEvidenceDiagnostic[] = [];
+  const lines = identified.value.normalizedMarkdown.split("\n");
+  let index = skipBlankLines(lines, 1);
+
+  const tests = parseSection({
+    caseId: identified.value.id,
+    diagnostics,
+    header: "Tests:",
+    itemKind: "test",
+    lines,
+    startIndex: index,
+    sourcePath: source.path
+  });
+  index = skipBlankLines(lines, tests.nextIndex);
+
+  let tags: ParsedSection = { items: [], nextIndex: index };
+  if (lines[index] === "Tags:") {
+    tags = parseSection({
+      caseId: identified.value.id,
+      diagnostics,
+      header: "Tags:",
+      itemKind: "tag",
+      lines,
+      startIndex: index,
+      sourcePath: source.path
+    });
+    index = skipBlankLines(lines, tags.nextIndex);
+  }
+
+  const contract = parseSection({
+    caseId: identified.value.id,
+    diagnostics,
+    header: "Contract:",
+    itemKind: "text",
+    lines,
+    startIndex: index,
+    sourcePath: source.path
+  });
+  index = skipBlankLines(lines, contract.nextIndex);
+
+  const proves = parseSection({
+    caseId: identified.value.id,
+    diagnostics,
+    header: "Proves:",
+    itemKind: "text",
+    lines,
+    startIndex: index,
+    sourcePath: source.path
+  });
+  index = skipBlankLines(lines, proves.nextIndex);
+
+  if (index < lines.length) {
+    diagnostics.push(createTestEvidenceDiagnostic({
+      caseId: identified.value.id,
+      category: "case",
+      code: "case.content-unsupported",
+      line: index + 1,
+      message: `${source.path} contains content outside Tests, optional Tags, Contract, and Proves`,
+      path: source.path,
+      severity: "error"
+    }));
+  }
+
+  validateOrderedUniqueTestIds(
+    tests.items,
+    identified.value,
+    diagnostics
+  );
+  validateOrderedUniqueTags(tags.items, identified.value, diagnostics);
+
+  if (diagnostics.length > 0) {
+    return { diagnostics, value: null };
+  }
+
+  const candidate = {
+    id: identified.value.id,
+    title: identified.value.title,
+    sourcePath: identified.value.path,
+    testIds: tests.items,
+    tags: tags.items,
+    contract: contract.items,
+    proves: proves.items
+  };
+  const validated = v.safeParse(testEvidenceLedgerCaseSchema, candidate);
+  if (!validated.success) {
+    return failedCaseSource({
+      caseId: identified.value.id,
+      code: "case.schema-invalid",
+      message: `${source.path} is invalid: ${validated.issues.map((issue) => issue.message).join("; ")}`,
+      path: source.path
+    });
+  }
+  return {
+    diagnostics: [],
+    value: {
+      ...identified.value,
+      case: validated.output
+    }
+  };
+}
+
+export async function readLedgerCaseSource(
+  workspaceRoot: string,
+  sourcePath: string
+): Promise<LedgerCaseSourceResult<ParsedLedgerCaseSource>> {
+  if (!ledgerCaseSourcePathPattern.test(sourcePath)) {
+    return failedCaseSource({
+      code: "case.source-path-invalid",
+      message: `${sourcePath} must be cases/<semantic-slug>.md`,
+      path: sourcePath
+    });
+  }
+  const relativePath = `docs/test-evidence/${sourcePath}`;
+  const absolutePath = path.join(
+    path.resolve(workspaceRoot),
+    ...relativePath.split("/")
+  );
+  try {
+    const stats = await fs.lstat(absolutePath);
+    if (stats.isSymbolicLink() || !stats.isFile()) {
+      return failedCaseSource({
+        code: "case.path-invalid",
+        message: `${relativePath} must be a regular file, not a symbolic link`,
+        path: relativePath
+      });
+    }
+    const data = await fs.readFile(absolutePath);
+    let text: string;
+    try {
+      text = new TextDecoder("utf-8", { fatal: true }).decode(data);
+    } catch {
+      return failedCaseSource({
+        code: "case.encoding-invalid",
+        message: `${relativePath} must contain valid UTF-8 text`,
+        path: relativePath
+      });
+    }
+    return parseLedgerCaseSource({
+      path: sourcePath,
+      text
+    });
+  } catch (error) {
+    return failedCaseSource({
+      code: isFileSystemError(error, "ENOENT")
+        ? "case.missing"
+        : "case.read-failed",
+      message: isFileSystemError(error, "ENOENT")
+        ? `${relativePath} does not exist`
+        : `${relativePath} could not be read: ${errorText(error)}`,
+      path: relativePath
+    });
+  }
+}
+
+export function normalizeLedgerCaseMarkdown(value: string): string {
+  return value.replace(/\r\n/g, "\n");
+}
+
+export function caseSourceFingerprint(
+  sourcePath: string,
+  normalizedMarkdown: string
+): string {
+  return sha256Fingerprint(JSON.stringify([
+    sourcePath,
+    normalizedMarkdown
+  ]));
+}
+
+type ParsedSection = {
+  items: string[];
+  nextIndex: number;
+};
+
+function parseSection(options: {
+  caseId: string;
+  diagnostics: TestEvidenceDiagnostic[];
+  header: "Tests:" | "Tags:" | "Contract:" | "Proves:";
+  itemKind: "test" | "tag" | "text";
+  lines: readonly string[];
+  sourcePath: string;
+  startIndex: number;
+}): ParsedSection {
+  let index = options.startIndex;
+  if (options.lines[index] !== options.header) {
+    options.diagnostics.push(createTestEvidenceDiagnostic({
+      caseId: options.caseId,
+      category: "case",
+      code: "case.section-invalid",
+      line: index + 1,
+      message: `${options.sourcePath} must declare ${options.header} in the fixed section order`,
+      path: options.sourcePath,
+      severity: "error"
+    }));
+    return { items: [], nextIndex: index };
+  }
+  index += 1;
+
+  const items: string[] = [];
+  while (index < options.lines.length) {
+    const line = options.lines[index] ?? "";
+    if (line.length === 0 || !line.startsWith("- ")) {
+      break;
+    }
+    const parsed = parseSectionItem(line, options.itemKind);
+    if (parsed === null) {
+      options.diagnostics.push(createTestEvidenceDiagnostic({
+        caseId: options.caseId,
+        category: options.itemKind === "test" ? "relation" : "case",
+        code: options.itemKind === "test"
+          ? "relation.test-item-invalid"
+          : `case.${options.itemKind}-item-invalid`,
+        line: index + 1,
+        message: `${options.sourcePath}:${index + 1} contains an invalid ${options.header} item`,
+        path: options.sourcePath,
+        severity: "error"
+      }));
+    } else {
+      items.push(parsed);
+    }
+    index += 1;
+  }
+  if (items.length === 0) {
+    options.diagnostics.push(createTestEvidenceDiagnostic({
+      caseId: options.caseId,
+      category: options.itemKind === "test" ? "relation" : "case",
+      code: options.itemKind === "test"
+        ? "relation.tests-empty"
+        : `case.${options.itemKind}s-empty`,
+      line: options.startIndex + 1,
+      message: `${options.sourcePath} ${options.header} must include at least one item`,
+      path: options.sourcePath,
+      severity: "error"
+    }));
+  }
+  return { items, nextIndex: index };
+}
+
+function parseSectionItem(
+  line: string,
+  itemKind: "test" | "tag" | "text"
+): string | null {
+  if (itemKind === "text") {
+    const value = line.slice(2);
+    return value.length > 0 && value.trim() === value ? value : null;
+  }
+  const matched = /^- `([^`]+)`$/u.exec(line);
+  if (matched === null) {
+    return null;
+  }
+  const value = matched[1] ?? "";
+  const schema = itemKind === "test"
+    ? testEntityIdSchema
+    : testEvidenceTagSchema;
+  return v.safeParse(schema, value).success ? value : null;
+}
+
+function validateOrderedUniqueTestIds(
+  testIds: readonly string[],
+  source: IdentifiedLedgerCaseSource,
+  diagnostics: TestEvidenceDiagnostic[]
+): void {
+  const seen = new Set<string>();
+  for (const testId of testIds) {
+    if (seen.has(testId)) {
+      diagnostics.push(createTestEvidenceDiagnostic({
+        caseId: source.id,
+        category: "relation",
+        code: "relation.duplicate",
+        message: `${source.path} repeats the ${source.id} -> ${testId} relation`,
+        path: source.path,
+        severity: "error",
+        testId
+      }));
+    }
+    seen.add(testId);
+  }
+  if (!isStrictlyAscending(testIds)) {
+    diagnostics.push(createTestEvidenceDiagnostic({
+      caseId: source.id,
+      category: "case",
+      code: "case.tests-unsorted",
+      message: `${source.path} Tests must be sorted in ascending lexical order`,
+      path: source.path,
+      severity: "error"
+    }));
+  }
+}
+
+function validateOrderedUniqueTags(
+  tags: readonly string[],
+  source: IdentifiedLedgerCaseSource,
+  diagnostics: TestEvidenceDiagnostic[]
+): void {
+  if (new Set(tags).size !== tags.length) {
+    diagnostics.push(createTestEvidenceDiagnostic({
+      caseId: source.id,
+      category: "case",
+      code: "case.tags-duplicate",
+      message: `${source.path} Tags must be unique`,
+      path: source.path,
+      severity: "error"
+    }));
+  }
+  if (!isStrictlyAscending(tags)) {
+    diagnostics.push(createTestEvidenceDiagnostic({
+      caseId: source.id,
+      category: "case",
+      code: "case.tags-unsorted",
+      message: `${source.path} Tags must be sorted in ascending lexical order`,
+      path: source.path,
+      severity: "error"
+    }));
+  }
+}
+
+function isStrictlyAscending(values: readonly string[]): boolean {
+  return values.every((value, index) => (
+    index === 0 || (values[index - 1] ?? "") < value
+  ));
+}
+
+function skipBlankLines(lines: readonly string[], startIndex: number): number {
+  let index = startIndex;
+  while (index < lines.length && lines[index] === "") {
+    index += 1;
+  }
+  return index;
+}
+
+function failedCaseSource(details: {
+  caseId?: string;
+  code: string;
+  line?: number;
+  message: string;
+  path: string;
+}): LedgerCaseSourceResult<never> {
+  return {
+    diagnostics: [createTestEvidenceDiagnostic({
+      caseId: details.caseId,
+      category: "case",
+      code: details.code,
+      line: details.line,
+      message: details.message,
+      path: details.path,
+      severity: "error"
+    })],
+    value: null
+  };
+}
+
+function errorText(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}

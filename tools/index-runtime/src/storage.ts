@@ -127,7 +127,7 @@ export async function loadStateIndexAtResolvedPath<
   }
   let text: string;
   try {
-    text = new TextDecoder("utf-8", { fatal: true }).decode(data);
+    text = decodeUtf8Text(data);
   } catch {
     return failure(
       "state-index.index-encoding-invalid",
@@ -255,7 +255,18 @@ export async function syncStateIndex<
   const expectedText = serializeStateIndex(built.value, definition);
   let currentText: string | null = null;
   try {
-    currentText = await fs.readFile(resolved.value.targetPath, "utf8");
+    const currentData = await fs.readFile(resolved.value.targetPath);
+    try {
+      currentText = decodeUtf8Text(currentData);
+    } catch {
+      if (mode === "check") {
+        return failedSync(options, "index-invalid", [diagnostic({
+          code: "state-index.index-encoding-invalid",
+          message: `${indexPath} must contain valid UTF-8 text`,
+          path: indexPath
+        })]);
+      }
+    }
   } catch (error) {
     if (!isFileSystemError(error, "ENOENT")) {
       return failedSync(options, "index-read-failed", [diagnostic({
@@ -484,10 +495,14 @@ async function verifyWrittenText(
   targetPath: string,
   expected: string
 ): Promise<void> {
-  const written = await fs.readFile(targetPath, "utf8");
+  const written = decodeUtf8Text(await fs.readFile(targetPath));
   if (written !== expected) {
     throw new Error("written index does not match the generated state projection");
   }
+}
+
+function decodeUtf8Text(data: Uint8Array): string {
+  return new TextDecoder("utf-8", { fatal: true }).decode(data);
 }
 
 async function readSourceRevision<

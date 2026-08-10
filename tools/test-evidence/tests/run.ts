@@ -24,6 +24,11 @@ import {
   createTestEvidenceStateIndexDefinition
 } from "../src/state-index.ts";
 import { testEvidenceSourceRevision } from "../src/source-revision.ts";
+import "./ledger-api.test.ts";
+import "./ledger-cli.test.ts";
+import "./ledger-index.test.ts";
+import "./ledger-relations.test.ts";
+import "./ledger-source.test.ts";
 import "./repository-catalog.test.ts";
 
 const execFileAsync = promisify(execFile);

@@ -415,6 +415,65 @@ test("checks, writes, and reloads current indexes across line endings", async ()
   });
 });
 
+test("sync checks reject invalid UTF-8 indexes and writes repair them", async () => {
+  await withTempRoot(async (tempRoot) => {
+    const { definition, source } = await createDecisionFixture();
+    source.states[0] = {
+      ...source.states[0]!,
+      title: "Replacement character �( stays distinguishable"
+    };
+    const indexPath = "indexes/invalid-utf8.json";
+    const resolvedIndexPath = path.join(tempRoot, ...indexPath.split("/"));
+    assert.equal((await syncStateIndex({
+      context: { root: tempRoot },
+      definition,
+      indexPath,
+      mode: "write"
+    })).state, "written");
+
+    const expected = await fs.readFile(resolvedIndexPath);
+    const validSequence = Buffer.from([0xef, 0xbf, 0xbd, 0x28]);
+    const offset = expected.indexOf(validSequence);
+    assert.notEqual(offset, -1);
+    const invalid = Buffer.concat([
+      expected.subarray(0, offset),
+      Buffer.from([0xc3, 0x28]),
+      expected.subarray(offset + validSequence.length)
+    ]);
+    assert.equal(invalid.toString("utf8"), expected.toString("utf8"));
+    await fs.writeFile(resolvedIndexPath, invalid);
+
+    const checked = await syncStateIndex({
+      context: { root: tempRoot },
+      definition,
+      indexPath,
+      mode: "check"
+    });
+    assert.equal(checked.status, "error");
+    assert.equal(checked.state, "index-invalid");
+    assert.ok(checked.diagnostics.some(
+      (entry) => entry.code === "state-index.index-encoding-invalid"
+    ));
+
+    const repaired = await syncStateIndex({
+      context: { root: tempRoot },
+      definition,
+      indexPath,
+      mode: "write"
+    });
+    assert.equal(repaired.status, "ok");
+    assert.equal(repaired.state, "written");
+    assert.equal(repaired.changed, true);
+    assert.deepEqual(await fs.readFile(resolvedIndexPath), expected);
+    assert.equal((await syncStateIndex({
+      context: { root: tempRoot },
+      definition,
+      indexPath,
+      mode: "check"
+    })).state, "current");
+  });
+});
+
 test("rejects persisted indexes with changed key definitions", async () => {
   await withTempRoot(async (tempRoot) => {
     const { definition } = await createDecisionFixture();
