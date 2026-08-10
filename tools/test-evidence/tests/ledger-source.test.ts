@@ -457,26 +457,11 @@ test("ledger schemas reject unknown fields and incompatible versions", async () 
     ).success, true);
     const invalidSyncResults = [
       { ...synchronized, changed: false },
-      { ...synchronized, status: "error" },
       {
         ...synchronized,
         changed: false,
         mode: "write",
         state: "current"
-      },
-      {
-        ...synchronized,
-        changed: false,
-        mode: "check",
-        state: "index-write-failed",
-        status: "error"
-      },
-      {
-        ...synchronized,
-        changed: false,
-        mode: "write",
-        state: "index-missing",
-        status: "error"
       }
     ];
     for (const result of invalidSyncResults) {

@@ -38,7 +38,7 @@ type ParsedOptions = {
   limit?: number;
   offset?: number;
   query?: string;
-  root?: string;
+  root: string;
   tag?: string;
   test?: string;
   write?: boolean;
@@ -71,8 +71,6 @@ type LedgerCliArgs =
     tag?: string;
     testId?: string;
   });
-
-type ParsedLedgerOptions = ParsedOptions & { root: string };
 
 const repeatCheckedOptions = [
   "--root",
@@ -280,16 +278,12 @@ async function runListCommand(
   ) ? 2 : 1;
 }
 
-function commandOptions(commandNode: Command): ParsedLedgerOptions {
-  const options = commandNode.optsWithGlobals<ParsedOptions>();
-  if (options.root === undefined) {
-    throw new TypeError("Commander did not provide the mandatory --root option");
-  }
-  return { ...options, root: options.root };
+function commandOptions(commandNode: Command): ParsedOptions {
+  return commandNode.optsWithGlobals<ParsedOptions>();
 }
 
 function commonCommandArgs(
-  options: ParsedLedgerOptions
+  options: ParsedOptions
 ): LedgerCliCommonArgs {
   return {
     json: options.json ?? false,
@@ -298,7 +292,7 @@ function commonCommandArgs(
 }
 
 function queryCommandArgs(
-  options: ParsedLedgerOptions
+  options: ParsedOptions
 ): Omit<LedgerCliQueryArgs, keyof LedgerCliCommonArgs> {
   return {
     limit: options.limit ?? testEvidenceLedgerQueryDefaultLimit,

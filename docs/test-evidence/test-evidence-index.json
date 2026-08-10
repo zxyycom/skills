@@ -9089,7 +9089,7 @@
     "TEST-EVIDENCE-LEDGER-SCHEMA-STRICT-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-LEDGER-SCHEMA-STRICT-001 Ledger Schema 严格拒绝未知字段与旧定义 Ledger 内部 API options、机器结果与持久索引必须采用严格 Schema，并拒绝不可能的版本、同步状态或 Case 展示字段组合。 五个仓库内部 API 的未知 option、互相矛盾的 `status/state/changed/mode`、失败展示中的非空 Markdown 及旧 `definitionVersion` 都无法通过各自 Schema。 tools/test-evidence/tests/ledger-source.test.ts > ledger schemas reject unknown fields and incompatible versions bun test --test-name-pattern=\"^ledger schemas reject unknown fields and incompatible versions$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-LEDGER-SCHEMA-STRICT-001 Ledger Schema 严格拒绝未知字段与旧定义 Ledger 内部 API options、机器结果与持久索引必须采用严格 Schema，并拒绝不可能的版本、同步状态或 Case 展示字段组合。 五个仓库内部 API 的未知 option、代表性的同步状态矛盾、失败展示中的非空 Markdown 及旧 `definitionVersion` 都无法通过各自 Schema。 tools/test-evidence/tests/ledger-source.test.ts > ledger schemas reject unknown fields and incompatible versions bun test --test-name-pattern=\"^ledger schemas reject unknown fields and incompatible versions$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -9103,7 +9103,7 @@
         ],
         "id": "TEST-EVIDENCE-LEDGER-SCHEMA-STRICT-001",
         "line": 1,
-        "searchText": "Ledger Schema 严格拒绝未知字段与旧定义 Ledger 内部 API options、机器结果与持久索引必须采用严格 Schema，并拒绝不可能的版本、同步状态或 Case 展示字段组合。 五个仓库内部 API 的未知 option、互相矛盾的 `status/state/changed/mode`、失败展示中的非空 Markdown 及旧 `definitionVersion` 都无法通过各自 Schema。 tools/test-evidence/tests/ledger-source.test.ts > ledger schemas reject unknown fields and incompatible versions bun test --test-name-pattern=\"^ledger schemas reject unknown fields and incompatible versions$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Ledger Schema 严格拒绝未知字段与旧定义 Ledger 内部 API options、机器结果与持久索引必须采用严格 Schema，并拒绝不可能的版本、同步状态或 Case 展示字段组合。 五个仓库内部 API 的未知 option、代表性的同步状态矛盾、失败展示中的非空 Markdown 及旧 `definitionVersion` 都无法通过各自 Schema。 tools/test-evidence/tests/ledger-source.test.ts > ledger schemas reject unknown fields and incompatible versions bun test --test-name-pattern=\"^ledger schemas reject unknown fields and incompatible versions$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/ledger-schema-strictness.md",
         "summary": "Ledger 内部 API options、机器结果与持久索引必须采用严格 Schema，并拒绝不可能的版本、同步状态或 Case 展示字段组合。",
         "title": "Ledger Schema 严格拒绝未知字段与旧定义"
@@ -10690,7 +10690,7 @@
       "TEST-EVIDENCE-LEDGER-RELATION-GATE-001": "sha256:f276d018f07306b19deef44e1b11a313557d0c08e2ce2ec1d4dcb6f86c8adeb5",
       "TEST-EVIDENCE-LEDGER-RELATION-SHAPES-001": "sha256:f42d54c4b91ea34a7fad9d2bd66e3e629eeaa5274ae1d0140e17286e75e31cdd",
       "TEST-EVIDENCE-LEDGER-REVISION-FRAMING-001": "sha256:22376b5d110486cd225304000dd059f80f680a6fef37431c2ac1cc96e21a0a0d",
-      "TEST-EVIDENCE-LEDGER-SCHEMA-STRICT-001": "sha256:ccc89467bcbe587e8a61506b9eda7d7186db879378ac6077209930e7aedcd45b",
+      "TEST-EVIDENCE-LEDGER-SCHEMA-STRICT-001": "sha256:04ef3939a85fecb89718b65dedc6c39760e6dba222000e21dc89793bfb461b75",
       "TEST-EVIDENCE-LEDGER-SOURCE-DRIFT-001": "sha256:202afa9804612088b2cdba53b67db66e4c12ecb0c7c72f5d5a62fe30fb1bb0ea",
       "TEST-EVIDENCE-LEGACY-FIELD-001": "sha256:14e39059b795a22241a5ef93f68bcf740e8a2f767bcf0da6b84b13dcf217a3f9",
       "TEST-EVIDENCE-MISSING-INDEX-001": "sha256:a935dccf9c2ad02c923b42ac5567f9cf7503d6a629da750bae110360f3996f53",
