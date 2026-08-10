@@ -31,7 +31,7 @@ import type {
 
 export type InvestigationIndexStageFailure = Readonly<{
   kind: "invalid-options" | "operation";
-  result: InvestigationIndexStageResult;
+  result: InvestigationIndexStageError;
 }>;
 
 type InvestigationIndexStageSuccess = Extract<
@@ -39,11 +39,37 @@ type InvestigationIndexStageSuccess = Extract<
   { status: "ok" }
 >;
 
-type PreparedStage = Readonly<{
+type InvestigationIndexStageError = Extract<
+  InvestigationIndexStageResult,
+  { status: "error" }
+>;
+
+type InvestigationIndexStageUnchangedError = Extract<
+  InvestigationIndexStageError,
+  { changed: false }
+>;
+
+type InvestigationIndexStageUnchangedErrorState =
+  InvestigationIndexStageUnchangedError["state"];
+
+type PreparedInvestigationIndexStage = Readonly<{
   indexPath: string;
   resolved: ResolvedInvestigationsDirectory;
   topicIds: string[];
 }>;
+
+const investigationStageDiagnosticCodes = {
+  locationInvalid: "investigation-report.stage-location-invalid",
+  optionsInvalid: "investigation-report.stage-options-invalid",
+  topicIdDuplicate: "investigation-report.stage-topic-id-duplicate",
+  topicIdInvalid: "investigation-report.stage-topic-id-invalid",
+  topicIdsEmpty: "investigation-report.stage-topic-ids-empty"
+} as const;
+
+type InvestigationStageDiagnosticCode =
+  typeof investigationStageDiagnosticCodes[
+    keyof typeof investigationStageDiagnosticCodes
+  ];
 
 export async function stageInvestigationIndex(
   options: InvestigationIndexStageOptions
@@ -69,7 +95,7 @@ export function executeInvestigationIndexStage(
       failedStage(
         prepared.value.indexPath,
         diagnosticsFromMessages(
-          "investigation-report.stage-location-invalid",
+          investigationStageDiagnosticCodes.locationInvalid,
           errors,
           prepared.value.indexPath
         ),
@@ -84,7 +110,7 @@ export function executeInvestigationIndexStage(
 
 function prepareStage(
   input: unknown
-): Result<PreparedStage, InvestigationIndexStageFailure> {
+): Result<PreparedInvestigationIndexStage, InvestigationIndexStageFailure> {
   const parsed = parseInvestigationIndexStageOptions(input);
   if (parsed.isErr()) {
     const indexPath = defaultInvestigationIndexPath();
@@ -93,7 +119,7 @@ function prepareStage(
       failedStage(
         indexPath,
         diagnosticsFromMessages(
-          "investigation-report.stage-options-invalid",
+          investigationStageDiagnosticCodes.optionsInvalid,
           parsed.error,
           indexPath
         )
@@ -113,7 +139,7 @@ function prepareStage(
       failedStage(indexPath, [
         ...(resolved.isErr()
           ? diagnosticsFromMessages(
-            "investigation-report.stage-location-invalid",
+            investigationStageDiagnosticCodes.locationInvalid,
             resolved.error,
             indexPath
           )
@@ -134,7 +160,7 @@ function validateTopicIds(
 ): Result<string[], StateIndexDiagnostic[]> {
   if (topicIds.length === 0) {
     return err([stageDiagnostic(
-      "investigation-report.stage-topic-ids-empty",
+      investigationStageDiagnosticCodes.topicIdsEmpty,
       "stage-index requires at least one investigation topic id"
     )]);
   }
@@ -144,7 +170,7 @@ function validateTopicIds(
   for (const topicId of topicIds) {
     if (!isInvestigationTopicPath(topicId)) {
       diagnostics.push(stageDiagnostic(
-        "investigation-report.stage-topic-id-invalid",
+        investigationStageDiagnosticCodes.topicIdInvalid,
         `topic id ${JSON.stringify(topicId)} must use a normalized `
           + "<category-id>/<semantic-slug>.md POSIX path",
         topicId
@@ -153,7 +179,7 @@ function validateTopicIds(
     }
     if (seen.has(topicId)) {
       diagnostics.push(stageDiagnostic(
-        "investigation-report.stage-topic-id-duplicate",
+        investigationStageDiagnosticCodes.topicIdDuplicate,
         `topic id ${JSON.stringify(topicId)} appears more than once`,
         topicId
       ));
@@ -179,12 +205,13 @@ function stageValidatedInvestigationIndex(
     indexPath: investigationIndexFileName,
     root: investigationsDirectory
   });
-  return new ResultAsync(runtime.stageSelectedEntries(topicIds).then((result) => {
-    const mapped = withDisplayIndexPath(result, indexPath);
-    return mapped.status === "error"
-      ? err(stageFailure("operation", mapped))
-      : ok(mapped);
-  }));
+  return ResultAsync.fromSafePromise(runtime.stageSelectedEntries(topicIds))
+    .andThen((result) => {
+      const mapped = withDisplayIndexPath(result, indexPath);
+      return mapped.status === "error"
+        ? err(stageFailure("operation", mapped))
+        : ok(mapped);
+    });
 }
 
 function withDisplayIndexPath(
@@ -208,14 +235,8 @@ function withDisplayIndexPath(
 function failedStage(
   indexPath: string,
   diagnostics: StateIndexDiagnostic[],
-  state: Exclude<Extract<
-    StateIndexEntryStageResult,
-    { status: "error" }
-  >["state"], "pending-recovery-failed"> = "selection-invalid"
-): Extract<
-  InvestigationIndexStageResult,
-  { changed: false; status: "error" }
-> {
+  state: InvestigationIndexStageUnchangedErrorState = "selection-invalid"
+): InvestigationIndexStageUnchangedError {
   return {
     changed: false,
     diagnostics,
@@ -229,13 +250,13 @@ function failedStage(
 
 function stageFailure(
   kind: InvestigationIndexStageFailure["kind"],
-  result: InvestigationIndexStageResult
+  result: InvestigationIndexStageError
 ): InvestigationIndexStageFailure {
   return { kind, result };
 }
 
 function diagnosticsFromMessages(
-  code: string,
+  code: InvestigationStageDiagnosticCode,
   messages: readonly string[],
   indexPath: string
 ): StateIndexDiagnostic[] {
@@ -248,7 +269,7 @@ function diagnosticsFromMessages(
 }
 
 function stageDiagnostic(
-  code: string,
+  code: InvestigationStageDiagnosticCode,
   message: string,
   stateId: string | null = null
 ): StateIndexDiagnostic {

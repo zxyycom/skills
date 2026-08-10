@@ -19,15 +19,16 @@ import {
 } from "./validation.ts";
 import type {
   InvestigationIndexQueryOptions,
-  InvestigationIndexStageDiagnostic,
-  InvestigationIndexStageOptions,
   InvestigationIndexStageResult,
-  InvestigationIndexSyncOptions,
   InvestigationReportCheckOptions
 } from "./types.ts";
 
 type InvestigationCommand = "check" | "list" | "stage-index" | "sync-index";
 type ParsedArguments = ReturnType<typeof parseArgs>;
+type CliLocationOptions = {
+  investigationsDir?: string;
+  workspaceRoot: string;
+};
 type CliInput =
   | { status: "help" }
   | { status: "invalid"; error: string }
@@ -138,9 +139,9 @@ function optionalNumber(value: unknown): number | undefined {
   return typeof value === "string" ? Number(value) : undefined;
 }
 
-function commonOptions(
+function locationOptions(
   values: ParsedArguments["values"]
-): InvestigationIndexSyncOptions {
+): CliLocationOptions {
   const investigationsDir = optionalString(values["investigations-dir"]);
   const workspaceRoot = optionalString(values.root) ?? ".";
   return investigationsDir === undefined
@@ -162,7 +163,7 @@ function queryOptions(values: ParsedArguments["values"]): CliQueryOptions {
   const statuses = optionalStrings(values.status);
   const text = optionalString(values.text);
   return {
-    ...commonOptions(values),
+    ...locationOptions(values),
     ...(categories === undefined ? {} : { categories }),
     ...(latestReportAtFrom === undefined ? {} : { latestReportAtFrom }),
     ...(latestReportAtTo === undefined ? {} : { latestReportAtTo }),
@@ -180,7 +181,7 @@ function checkOptions(
   const categories = optionalStrings(values.category);
   const paths = optionalStrings(values.path);
   return {
-    ...commonOptions(values),
+    ...locationOptions(values),
     ...(categories === undefined ? {} : { categories }),
     ...(paths === undefined ? {} : { paths })
   };
@@ -210,13 +211,13 @@ function hasJsonOutput(values: ParsedArguments["values"]): boolean {
 async function runSyncCommand(
   values: ParsedArguments["values"]
 ): Promise<number> {
-  if (
-    hasQueryOptions(values)
-  ) {
+  if (hasQueryOptions(values)) {
     console.error("sync-index does not accept query filters or pagination");
     return 2;
   }
-  const execution = await executeInvestigationIndexSync(commonOptions(values));
+  const execution = await executeInvestigationIndexSync(
+    locationOptions(values)
+  );
   if (execution.isErr()) {
     printErrors(
       execution.error.kind === "invalid-options"
@@ -248,7 +249,7 @@ async function runStageCommand(
     return 2;
   }
   const execution = await executeInvestigationIndexStage({
-    ...commonOptions(values),
+    ...locationOptions(values),
     topicIds
   });
   if (execution.isErr()) {
@@ -282,7 +283,9 @@ function printStageSuccess(
   console.log("Topic Markdown and attached resources remain outside this operation.");
 }
 
-function printStageErrors(result: InvestigationIndexStageResult): void {
+function printStageErrors(
+  result: Extract<InvestigationIndexStageResult, { status: "error" }>
+): void {
   printErrors(
     "Investigation index entry staging failed "
       + `(state: ${result.state}; changed: ${result.changed}):`,
@@ -374,16 +377,16 @@ async function dispatchCommand(input: Extract<
     console.error("--json is only supported by stage-index");
     return 2;
   }
-  if (input.command === "sync-index") {
-    return await runSyncCommand(input.values);
+  switch (input.command) {
+    case "check":
+      return await runCheckCommand(input.values);
+    case "list":
+      return await runListCommand(input.values);
+    case "stage-index":
+      return await runStageCommand(input.values, input.commandArguments);
+    case "sync-index":
+      return await runSyncCommand(input.values);
   }
-  if (input.command === "list") {
-    return await runListCommand(input.values);
-  }
-  if (input.command === "stage-index") {
-    return await runStageCommand(input.values, input.commandArguments);
-  }
-  return await runCheckCommand(input.values);
 }
 
 function printErrors(title: string, errors: readonly string[]): void {

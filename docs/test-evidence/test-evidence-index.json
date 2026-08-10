@@ -4765,7 +4765,7 @@
     "INVESTIGATION-BUNDLED-PARITY-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-BUNDLED-PARITY-001 Bundled 调查 API 与源码一致 分发的调查 API 必须与维护源码实现保持行为一致，包括随附资源关系、完整性结果和选择性索引暂存入口。 包含资源引用的相同输入在源码与 bundled 入口得到相同验证结果，bundled 查询保留报告级资源关系，且分发面公开 `stageInvestigationIndex`。 tools/investigation-report/tests/cli-generated.test.ts > bundled investigation APIs preserve source implementation parity bun test --test-name-pattern=\"^bundled investigation APIs preserve source implementation parity$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-BUNDLED-PARITY-001 Bundled 调查 API 与源码一致 分发的调查 API 必须与维护源码实现保持行为一致，包括随附资源关系与完整性结果。 包含资源引用的相同输入在源码与 bundled 入口得到相同验证结果，且 bundled 查询保留报告级资源关系。 tools/investigation-report/tests/cli-generated.test.ts > bundled investigation APIs preserve source implementation parity bun test --test-name-pattern=\"^bundled investigation APIs preserve source implementation parity$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -4779,9 +4779,9 @@
         ],
         "id": "INVESTIGATION-BUNDLED-PARITY-001",
         "line": 1,
-        "searchText": "Bundled 调查 API 与源码一致 分发的调查 API 必须与维护源码实现保持行为一致，包括随附资源关系、完整性结果和选择性索引暂存入口。 包含资源引用的相同输入在源码与 bundled 入口得到相同验证结果，bundled 查询保留报告级资源关系，且分发面公开 `stageInvestigationIndex`。 tools/investigation-report/tests/cli-generated.test.ts > bundled investigation APIs preserve source implementation parity bun test --test-name-pattern=\"^bundled investigation APIs preserve source implementation parity$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "Bundled 调查 API 与源码一致 分发的调查 API 必须与维护源码实现保持行为一致，包括随附资源关系与完整性结果。 包含资源引用的相同输入在源码与 bundled 入口得到相同验证结果，且 bundled 查询保留报告级资源关系。 tools/investigation-report/tests/cli-generated.test.ts > bundled investigation APIs preserve source implementation parity bun test --test-name-pattern=\"^bundled investigation APIs preserve source implementation parity$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/bundled-investigation-apis-preserve-source-implementation-parity.md",
-        "summary": "分发的调查 API 必须与维护源码实现保持行为一致，包括随附资源关系、完整性结果和选择性索引暂存入口。",
+        "summary": "分发的调查 API 必须与维护源码实现保持行为一致，包括随附资源关系与完整性结果。",
         "title": "Bundled 调查 API 与源码一致"
       }
     },
@@ -4880,7 +4880,7 @@
     "INVESTIGATION-CLI-USAGE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-USAGE-001 生成 CLI 的帮助与参数错误保留退出契约 帮助请求必须成功展示可选随附资源、完整资源池检查及各命令约束；未知选项、非法 limit、命令禁用筛选、空暂存选择和 `--json` 用错命令必须返回用法错误。 帮助返回 0，只向 stdout 说明局部与完整资源边界、`stage-index` 用法及其领域文件边界，stderr 为空。 未知选项、非法 limit、sync-index/stage-index 过滤参数和非暂存命令使用 `--json` 都返回退出码 2 与可行动诊断；空主题选择以 JSON 返回稳定 `selection-invalid` 结果和退出码 2。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation CLI usage errors preserve exit contracts bun test --test-name-pattern=\"^generated investigation CLI usage errors preserve exit contracts$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-USAGE-001 生成 CLI 的帮助与参数错误保留退出契约 帮助请求必须成功展示可选随附资源、完整资源池检查及各命令约束，未知选项、非法 limit 和 sync-index 过滤参数必须返回用法错误。 帮助返回 0，只向 stdout 说明局部与完整资源边界，stderr 为空。 未知选项、非法 limit 和 sync-index 过滤参数都返回退出码 2、保持 stdout 为空，并分别在 stderr 给出未知选项、整数 limit 或该命令不接受过滤与分页的可行动诊断。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation CLI usage errors preserve exit contracts bun test --test-name-pattern=\"^generated investigation CLI usage errors preserve exit contracts$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -4894,9 +4894,9 @@
         ],
         "id": "INVESTIGATION-CLI-USAGE-001",
         "line": 1,
-        "searchText": "生成 CLI 的帮助与参数错误保留退出契约 帮助请求必须成功展示可选随附资源、完整资源池检查及各命令约束；未知选项、非法 limit、命令禁用筛选、空暂存选择和 `--json` 用错命令必须返回用法错误。 帮助返回 0，只向 stdout 说明局部与完整资源边界、`stage-index` 用法及其领域文件边界，stderr 为空。 未知选项、非法 limit、sync-index/stage-index 过滤参数和非暂存命令使用 `--json` 都返回退出码 2 与可行动诊断；空主题选择以 JSON 返回稳定 `selection-invalid` 结果和退出码 2。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation CLI usage errors preserve exit contracts bun test --test-name-pattern=\"^generated investigation CLI usage errors preserve exit contracts$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "生成 CLI 的帮助与参数错误保留退出契约 帮助请求必须成功展示可选随附资源、完整资源池检查及各命令约束，未知选项、非法 limit 和 sync-index 过滤参数必须返回用法错误。 帮助返回 0，只向 stdout 说明局部与完整资源边界，stderr 为空。 未知选项、非法 limit 和 sync-index 过滤参数都返回退出码 2、保持 stdout 为空，并分别在 stderr 给出未知选项、整数 limit 或该命令不接受过滤与分页的可行动诊断。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation CLI usage errors preserve exit contracts bun test --test-name-pattern=\"^generated investigation CLI usage errors preserve exit contracts$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/generated-investigation-cli-usage-errors-preserve-exit-contracts.md",
-        "summary": "帮助请求必须成功展示可选随附资源、完整资源池检查及各命令约束；未知选项、非法 limit、命令禁用筛选、空暂存选择和 `--json` 用错命令必须返回用法错误。",
+        "summary": "帮助请求必须成功展示可选随附资源、完整资源池检查及各命令约束，未知选项、非法 limit 和 sync-index 过滤参数必须返回用法错误。",
         "title": "生成 CLI 的帮助与参数错误保留退出契约"
       }
     },
@@ -5429,6 +5429,29 @@
         "title": "首次暂存完整保留资源感知索引"
       }
     },
+    "INVESTIGATION-STAGE-CLI-USAGE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-STAGE-CLI-USAGE-001 生成暂存 CLI 保留帮助与参数错误契约 生成 CLI 必须展示 `stage-index` 的主题选择与领域文件边界，并对空选择、禁用的筛选参数及 `--json` 用错命令返回稳定用法错误。 帮助返回 0，只向 stdout 展示 `stage-index` 用法及其领域文件边界，stderr 为空。 空主题选择以 JSON 返回 `selection-invalid` 和退出码 2；`stage-index` 使用筛选参数及非暂存命令使用 `--json` 时返回退出码 2、保持 stdout 为空，并在 stderr 给出可行动诊断。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation stage CLI usage preserves exit contracts bun test --test-name-pattern=\"^generated investigation stage CLI usage preserves exit contracts$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > generated investigation stage CLI usage preserves exit contracts",
+          "bun test --test-name-pattern=\"^generated investigation stage CLI usage preserves exit contracts$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-STAGE-CLI-USAGE-001",
+        "line": 1,
+        "searchText": "生成暂存 CLI 保留帮助与参数错误契约 生成 CLI 必须展示 `stage-index` 的主题选择与领域文件边界，并对空选择、禁用的筛选参数及 `--json` 用错命令返回稳定用法错误。 帮助返回 0，只向 stdout 展示 `stage-index` 用法及其领域文件边界，stderr 为空。 空主题选择以 JSON 返回 `selection-invalid` 和退出码 2；`stage-index` 使用筛选参数及非暂存命令使用 `--json` 时返回退出码 2、保持 stdout 为空，并在 stderr 给出可行动诊断。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation stage CLI usage preserves exit contracts bun test --test-name-pattern=\"^generated investigation stage CLI usage preserves exit contracts$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/generated-investigation-stage-cli-usage-preserves-exit-contracts.md",
+        "summary": "生成 CLI 必须展示 `stage-index` 的主题选择与领域文件边界，并对空选择、禁用的筛选参数及 `--json` 用错命令返回稳定用法错误。",
+        "title": "生成暂存 CLI 保留帮助与参数错误契约"
+      }
+    },
     "INVESTIGATION-STAGE-CONFLICT-001": {
       "keys": {
         "search": [
@@ -5455,7 +5478,7 @@
     "INVESTIGATION-STAGE-INPUT-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-STAGE-INPUT-001 暂存入口在仓库访问前校验规范主题 ID `stage-index` 必须先拒绝空选择、非规范 POSIX 主题路径和重复 ID，再解析调查目录或访问版本仓库。 不存在的工作区分别收到稳定的 `selection-invalid` 诊断，且命令没有创建工作区或继续访问仓库。 tools/investigation-report/tests/staging.test.ts > stage-index validates canonical topic ids before repository access bun test --test-name-pattern=\"^stage-index validates canonical topic ids before repository access$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-STAGE-INPUT-001 暂存入口在仓库访问前校验规范主题 ID `stage-index` 必须先拒绝空选择、非规范 POSIX 主题路径和重复 ID，再规范化调查目录或访问版本仓库。 不存在的工作区分别收到稳定的 `selection-invalid` 诊断，且命令没有创建工作区或继续访问仓库。 tools/investigation-report/tests/staging.test.ts > stage-index validates canonical topic ids before repository access bun test --test-name-pattern=\"^stage-index validates canonical topic ids before repository access$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -5469,9 +5492,9 @@
         ],
         "id": "INVESTIGATION-STAGE-INPUT-001",
         "line": 1,
-        "searchText": "暂存入口在仓库访问前校验规范主题 ID `stage-index` 必须先拒绝空选择、非规范 POSIX 主题路径和重复 ID，再解析调查目录或访问版本仓库。 不存在的工作区分别收到稳定的 `selection-invalid` 诊断，且命令没有创建工作区或继续访问仓库。 tools/investigation-report/tests/staging.test.ts > stage-index validates canonical topic ids before repository access bun test --test-name-pattern=\"^stage-index validates canonical topic ids before repository access$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "暂存入口在仓库访问前校验规范主题 ID `stage-index` 必须先拒绝空选择、非规范 POSIX 主题路径和重复 ID，再规范化调查目录或访问版本仓库。 不存在的工作区分别收到稳定的 `selection-invalid` 诊断，且命令没有创建工作区或继续访问仓库。 tools/investigation-report/tests/staging.test.ts > stage-index validates canonical topic ids before repository access bun test --test-name-pattern=\"^stage-index validates canonical topic ids before repository access$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/stage-index-validates-canonical-topic-ids-before-repository-access.md",
-        "summary": "`stage-index` 必须先拒绝空选择、非规范 POSIX 主题路径和重复 ID，再解析调查目录或访问版本仓库。",
+        "summary": "`stage-index` 必须先拒绝空选择、非规范 POSIX 主题路径和重复 ID，再规范化调查目录或访问版本仓库。",
         "title": "暂存入口在仓库访问前校验规范主题 ID"
       }
     },
@@ -5570,7 +5593,7 @@
     "INVESTIGATION-STAGE-VERSION-CONTROL-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-STAGE-VERSION-CONTROL-001 无版本仓库时稳定失败且不写领域文件 选择性索引暂存需要版本仓库；仓库不可用属于操作失败，不能退化成普通文件写入。 合法调查集合在无仓库目录返回 `revision-read-failed` 与 `state-index.repository-unavailable`，索引和主题 Markdown 字节保持不变。 tools/investigation-report/tests/staging.test.ts > stage-index reports unavailable version control without filesystem writes bun test --test-name-pattern=\"^stage-index reports unavailable version control without filesystem writes$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-STAGE-VERSION-CONTROL-001 无版本仓库时稳定失败且不写工作树 选择性索引暂存需要版本仓库；仓库不可用属于操作失败，不能退化成工作树文件写入。 合法调查集合在无仓库目录返回 `revision-read-failed` 与 `state-index.repository-unavailable`，索引和主题 Markdown 字节保持不变。 tools/investigation-report/tests/staging.test.ts > stage-index reports unavailable version control without working-tree writes bun test --test-name-pattern=\"^stage-index reports unavailable version control without working-tree writes$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -5579,15 +5602,15 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/investigation-report/tests/staging.test.ts > stage-index reports unavailable version control without filesystem writes",
-          "bun test --test-name-pattern=\"^stage-index reports unavailable version control without filesystem writes$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/staging.test.ts > stage-index reports unavailable version control without working-tree writes",
+          "bun test --test-name-pattern=\"^stage-index reports unavailable version control without working-tree writes$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-STAGE-VERSION-CONTROL-001",
         "line": 1,
-        "searchText": "无版本仓库时稳定失败且不写领域文件 选择性索引暂存需要版本仓库；仓库不可用属于操作失败，不能退化成普通文件写入。 合法调查集合在无仓库目录返回 `revision-read-failed` 与 `state-index.repository-unavailable`，索引和主题 Markdown 字节保持不变。 tools/investigation-report/tests/staging.test.ts > stage-index reports unavailable version control without filesystem writes bun test --test-name-pattern=\"^stage-index reports unavailable version control without filesystem writes$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/stage-index-reports-unavailable-version-control-without-filesystem-writes.md",
-        "summary": "选择性索引暂存需要版本仓库；仓库不可用属于操作失败，不能退化成普通文件写入。",
-        "title": "无版本仓库时稳定失败且不写领域文件"
+        "searchText": "无版本仓库时稳定失败且不写工作树 选择性索引暂存需要版本仓库；仓库不可用属于操作失败，不能退化成工作树文件写入。 合法调查集合在无仓库目录返回 `revision-read-failed` 与 `state-index.repository-unavailable`，索引和主题 Markdown 字节保持不变。 tools/investigation-report/tests/staging.test.ts > stage-index reports unavailable version control without working-tree writes bun test --test-name-pattern=\"^stage-index reports unavailable version control without working-tree writes$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/stage-index-reports-unavailable-version-control-without-working-tree-writes.md",
+        "summary": "选择性索引暂存需要版本仓库；仓库不可用属于操作失败，不能退化成工作树文件写入。",
+        "title": "无版本仓库时稳定失败且不写工作树"
       }
     },
     "INVESTIGATION-STRUCTURE-CHRONOLOGY-001": {
@@ -10686,12 +10709,12 @@
       "INDEX-RUNTIME-SYNC-UTF8-001": "sha256:6bd07e1441ed4e5f861530432e1639c040941a5b1b67fe43d6e48b128112d0c9",
       "INDEX-RUNTIME-TEMPORAL-SORT-001": "sha256:c171e76cf05b0b6f1505e25b88d903014dc2ecc917585aff424c19e655df3303",
       "INDEX-RUNTIME-TEXT-SEARCH-001": "sha256:025c697be00a2550ec330872fffefa04d9ca342e1dd6ee497e1e8310781ec8f1",
-      "INVESTIGATION-BUNDLED-PARITY-001": "sha256:3fb278badfac4e587a594d2dbc04cbb1394f061e17db099afc5c44ede8e7b6ed",
+      "INVESTIGATION-BUNDLED-PARITY-001": "sha256:8072eebbaf2692c9e9c21fa38b177857a8fd143d4e761abee54a2d4cda9f9a9b",
       "INVESTIGATION-CLI-CONTRACTS-001": "sha256:88abe2ec2f9d14f1900f32f37cce19b9ed363d95a89d74735e019a56f42308c4",
       "INVESTIGATION-CLI-LIST-001": "sha256:e875cfb1d933f07ed770f8d85428d976dba7665d43462b98da450eb064ba6bc2",
       "INVESTIGATION-CLI-RESOURCE-STALE-001": "sha256:9067b3be24aa2d519e8f5b88c1f5dc6ee9d73bc4291925500a159f6083a09f23",
       "INVESTIGATION-CLI-SYNC-001": "sha256:224d27a5707e7ad1c5364d6f185a68f837aedef2ec5341b783087cf9aa99fc82",
-      "INVESTIGATION-CLI-USAGE-001": "sha256:6fd7e41a58bd73f53913cffc68ae495ad9af23596b90f7769a0a9dac2ee2efe4",
+      "INVESTIGATION-CLI-USAGE-001": "sha256:590848df5d7c1a6b5085a7d1ea5723f0ac16d315e8aa090b9a4b8ca7ec170ff8",
       "INVESTIGATION-COLLECTION-LAYOUT-001": "sha256:6d51963a7da7fa2f812f9439b11b825fbbd302449c05fd72b5186be86ed4145f",
       "INVESTIGATION-DIRECTORY-PATH-001": "sha256:1c1d0fcc7e9050d548d94ab38cf8aaf38269f7b6c6030af53e8da9bda8c2c7f0",
       "INVESTIGATION-EMPTY-COLLECTION-001": "sha256:4d13daa2d59127277610719e9641dddd5943cfb2d5b5fdcbe02885b93c333247",
@@ -10715,13 +10738,14 @@
       "INVESTIGATION-SNAPSHOT-REVISION-001": "sha256:a3a5ae7599771d5425b8cc5a4cdef434c714f946528e7b6b9e08088bbd7bc783",
       "INVESTIGATION-SOURCE-REVISION-001": "sha256:d7bc684d85b8c31c9e3249fd94cd22271db1cf9fdc8ea806468252e62acd57ad",
       "INVESTIGATION-STAGE-BOOTSTRAP-001": "sha256:a13c38e595c2c313ac340b65890d92e3b71613296bc75156e1b7d3d77b82fe19",
+      "INVESTIGATION-STAGE-CLI-USAGE-001": "sha256:9c0616de0d79ce62d27fc244112d54af16c619d82daf29c052542f45c0dc9bc5",
       "INVESTIGATION-STAGE-CONFLICT-001": "sha256:360bd441503e1ed8219a3313abf01d3ef8679ec1b78af175f0e5acd2b1ef9075",
-      "INVESTIGATION-STAGE-INPUT-001": "sha256:bb93c78404e7b68e117a4b61a96ef718c0e4dd2f264c0b9b20425e70b7adcc6d",
+      "INVESTIGATION-STAGE-INPUT-001": "sha256:1da5b5543085840fabb41543a57b56bf04dd434af6b24b3988f5000e429761dc",
       "INVESTIGATION-STAGE-ISOLATION-001": "sha256:49849af919364fbac6d6de7091b8e74bf14d3bcee0ba4aabd433eb5e1b9d254a",
       "INVESTIGATION-STAGE-MISSING-001": "sha256:99bc7c6eb49b7a20fafccee230a31fae491d8f3ec13e350d317a54ca8047f9de",
       "INVESTIGATION-STAGE-OVERLAY-001": "sha256:ed40e1a5df37ce3cf5c7cd73d60e6af603adcbe1ad21e8292d677c554feb387f",
       "INVESTIGATION-STAGE-RESOURCE-METADATA-001": "sha256:28274a241e9f956f16f58eedbfadf9715dd11c5135fd8efe0a5090fa1b79cfc5",
-      "INVESTIGATION-STAGE-VERSION-CONTROL-001": "sha256:253031be47d747d653b2bf2f014835364c7061403fddead44126d46342299598",
+      "INVESTIGATION-STAGE-VERSION-CONTROL-001": "sha256:8079f1845974e8645273f7985cb55e6f387e19bf7e2e560b264a40a487e7b14e",
       "INVESTIGATION-STRUCTURE-CHRONOLOGY-001": "sha256:c37b58ae1a46e45c4c65521f420c6f373301ce0465e1d5c14ed70abb8a7f0de4",
       "INVESTIGATION-VALIDATION-FILTER-001": "sha256:59fb97585ad6fe441e9bf7a42044f69eb26a826b7c648a25322a8ab2e350e036",
       "REPO-PACKAGE-JSON-001": "sha256:36724eb3dd100be35650754564a630256b7e0acfa6047ffd892ea44d67692239",

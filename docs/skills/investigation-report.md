@@ -54,14 +54,23 @@
 
 ## 怎样隔离共享索引的待提交变化
 
-多个主题会共享一个 `investigation-index.json`。同一工作区同时维护 A、B 主题，但本次只需提交 A 时，先用 `sync-index` 从当前完整 filesystem 重建工作区索引并完成默认检查，再按稳定主题 ID 暂存 A 的索引变化：
+多个主题会共享一个 `investigation-index.json`。这里的工作区索引是当前工作树内的该文件，`pending` 是版本管理暂存区中的待提交内容；两者不能互相替代。
+
+同一工作区同时维护 A、B 主题，但本次只需提交 A 时，按以下顺序操作：
+
+1. 完成主题 Markdown 和随附资源的领域修改。
+2. 用 `sync-index` 从当前完整调查目录重建工作区索引。
+3. 运行默认全量检查，确认主题、资源与工作区索引一致。
+4. 按稳定主题 ID 暂存 A 的索引变化：
 
 ```text
-node <investigation-report-skill>/scripts/check-investigations.mjs stage-index runtime/topic-a.md --root <workspace-root>
+bun run investigation-report -- stage-index runtime/topic-a.md --root <workspace-root>
 ```
 
-命令只把选中主题对应的索引组合结果写入版本仓库 `pending`，不读取或暂存主题 Markdown 与随附资源；这些领域文件仍按实际提交范围另行选择。主题重命名同时传旧、新 ID；同一索引已有 pending 时命令拒绝覆盖，其他 pending 路径保持不变。需要机器结果时只为该命令增加 `--json`。
+5. 按实际提交范围另行暂存主题 Markdown 与随附资源，并核对最终 `pending` 中的全部路径和内容。
 
-资源 ID、SHA-256 和资源来源指纹是完整集合的 metadata。随附资源新增、删除、重命名或字节变化时不能按主题拆分索引，命令会拒绝并要求改用普通文件级方式暂存完整索引。首次创建调查索引可以按首个主题 ID 暂存索引，但仍不会连带暂存主题或资源文件。
+`stage-index` 不读取或暂存主题 Markdown 与随附资源，也不重建或验证工作区索引。成功只证明选中主题对应的索引组合结果已进入 `pending`；主题重命名同时传旧、新 ID。同一索引已有 `pending` 时命令拒绝覆盖，其他 `pending` 路径保持不变。需要机器结果时只为该命令增加 `--json`。
+
+资源 ID、SHA-256 和资源来源指纹是完整集合的 metadata。随附资源新增、删除、重命名或字节变化时不能按主题拆分索引，命令会拒绝并要求整体暂存工作区索引。首次创建调查索引可以按首个主题 ID 暂存索引，但仍不会连带暂存主题或资源文件。
 
 实际行为入口位于 [`skills/investigation-report/`](../../skills/investigation-report/)，固定存储契约见其中的 [`investigation-report-contract.md`](../../skills/investigation-report/references/investigation-report-contract.md)。

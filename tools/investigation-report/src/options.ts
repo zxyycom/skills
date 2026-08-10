@@ -14,6 +14,10 @@ const optionalStringArraySchema = v.optional(v.array(
   v.string("must be a string"),
   "must be an array of strings"
 ));
+const requiredStringArraySchema = v.array(
+  v.string("must be a string"),
+  "must be an array of strings"
+);
 
 const investigationReportCheckOptionsSchema = v.strictObject({
   categories: optionalStringArraySchema,
@@ -29,7 +33,7 @@ const investigationIndexSyncOptionsSchema = v.strictObject({
 
 const investigationIndexStageOptionsSchema = v.strictObject({
   investigationsDir: optionalStringSchema,
-  topicIds: v.array(v.string("must be a string"), "must be an array of strings"),
+  topicIds: requiredStringArraySchema,
   workspaceRoot: requiredStringSchema
 });
 

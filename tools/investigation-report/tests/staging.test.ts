@@ -7,9 +7,21 @@ import test from "node:test";
 import {
   stageInvestigationIndex as stageBundledInvestigationIndex
 } from "../../../skills/investigation-report/scripts/check-investigations.mjs";
-import { investigationIndexFileName } from "../src/investigation-state-index.ts";
+import {
+  parseStateIndex,
+  type StateIndex
+} from "../../index-runtime/src/index.ts";
+import {
+  createInvestigationStateIndexDefinition,
+  investigationIndexDefinitionVersion,
+  investigationIndexFileName,
+  investigationIndexNamespace
+} from "../src/investigation-state-index.ts";
 import { stageInvestigationIndex } from "../src/staging.ts";
-import type { InvestigationIndexStageResult } from "../src/types.ts";
+import type {
+  InvestigationIndexMetadata,
+  InvestigationIndexState
+} from "../src/types.ts";
 import {
   commitAll,
   generatedCheckerPath,
@@ -26,30 +38,20 @@ import {
 
 const indexRepositoryPath = `docs/investigations/${investigationIndexFileName}`;
 
-type InvestigationIndexFixture = {
-  entries: Record<string, {
-    state: {
-      resourceReferences: Array<{
-        reportIndex: number;
-        resourceIds: string[];
-      }>;
-      title: string;
-    };
-  }>;
-  metadata: {
-    resources: Array<{ id: string; sha256: string }>;
-  };
-};
+type InvestigationIndexFixture = StateIndex<
+  InvestigationIndexState,
+  InvestigationIndexMetadata
+>;
 
 function topic(
   topicPath: string,
   title: string,
-  resources: ReportInput["reports"] = undefined
+  reports: ReportInput["reports"] = undefined
 ): ReportInput {
   return {
     path: topicPath,
     question: `${title} 的当前结论是什么？`,
-    ...(resources === undefined ? {} : { reports: resources }),
+    ...(reports === undefined ? {} : { reports }),
     title
   };
 }
@@ -64,21 +66,44 @@ function indexPath(workspaceRoot: string): string {
 async function readWorkspaceIndex(
   workspaceRoot: string
 ): Promise<InvestigationIndexFixture> {
-  return JSON.parse(
-    await fs.readFile(indexPath(workspaceRoot), "utf8")
-  ) as InvestigationIndexFixture;
+  const workspaceIndexPath = indexPath(workspaceRoot);
+  return parseInvestigationIndexFixture(
+    await fs.readFile(workspaceIndexPath, "utf8"),
+    workspaceIndexPath
+  );
 }
 
 function readRevisionIndex(workspaceRoot: string): InvestigationIndexFixture {
-  return JSON.parse(
-    runGit(workspaceRoot, ["show", `HEAD:${indexRepositoryPath}`])
-  ) as InvestigationIndexFixture;
+  return parseInvestigationIndexFixture(
+    runGit(workspaceRoot, ["show", `HEAD:${indexRepositoryPath}`]),
+    `HEAD:${indexRepositoryPath}`
+  );
 }
 
 function readPendingIndex(workspaceRoot: string): InvestigationIndexFixture {
-  return JSON.parse(
-    readPendingText(workspaceRoot, indexRepositoryPath)
-  ) as InvestigationIndexFixture;
+  return parseInvestigationIndexFixture(
+    readPendingText(workspaceRoot, indexRepositoryPath),
+    `pending:${indexRepositoryPath}`
+  );
+}
+
+function parseInvestigationIndexFixture(
+  text: string,
+  sourcePath: string
+): InvestigationIndexFixture {
+  const parsed = parseStateIndex({
+    definition: createInvestigationStateIndexDefinition(),
+    expectation: {
+      definitionVersion: investigationIndexDefinitionVersion,
+      namespace: investigationIndexNamespace
+    },
+    sourcePath,
+    text
+  });
+  if (parsed.status === "error") {
+    assert.fail(parsed.diagnostics.map((entry) => entry.message).join("; "));
+  }
+  return parsed.value;
 }
 
 function runGeneratedStage(
@@ -211,7 +236,7 @@ test("stage-index isolates one selected topic without reading or staging domain 
     );
     assert.equal(cli.status, 0, cli.stderr);
     assert.equal(cli.stderr, "");
-    const result = JSON.parse(cli.stdout) as InvestigationIndexStageResult;
+    const result: unknown = JSON.parse(cli.stdout);
     assert.deepEqual(result, {
       changed: true,
       diagnostics: [],
@@ -368,7 +393,7 @@ test("stage-index rejects topic ids missing from both indexes without changing p
   })
 ));
 
-test("stage-index reports unavailable version control without filesystem writes", () => (
+test("stage-index reports unavailable version control without working-tree writes", () => (
   withTempRoot("stage-no-repository", async (tempRoot) => {
     const workspaceRoot = path.join(tempRoot, "workspace");
     const report = topic("runtime/topic.md", "无仓库主题");

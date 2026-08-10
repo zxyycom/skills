@@ -17,7 +17,7 @@
 - 未选择主题的工作区索引变化不进入 `pending`；同一索引已有待提交变化时直接拒绝。
 - 随附资源集合或内容使索引 metadata 变化时拒绝按主题暂存，不把集合级资源变化静默归入选中主题。
 - 命令只报告索引暂存结果，不读取、写入或暂存调查 Markdown。
-- `check`、`sync-index`、`list` 和报告维护继续只操作 filesystem。
+- `check`、`sync-index`、`list` 和报告维护继续只读取或写入工作树中的调查文件。
 
 ## Scope
 
@@ -36,12 +36,12 @@
 
 ## Success Criteria
 
-- filesystem 同时有 A/B 两项调查索引变化时，选择 A 只把 A 的索引变化带入 `pending`，B 仍只存在于工作区索引。
+- 工作区索引同时有 A/B 两项调查变化时，选择 A 只把 A 的索引变化带入 `pending`，B 仍只存在于工作区索引。
 - 调查 CLI 只向配置完成的 index runtime 传递 A 的稳定 id，不提供基线 state、变化对象、metadata、revision 或调查文件。
 - 新增、修改、删除和显式重命名正确；重复、非法或两份索引都不存在的主题 id 在写入前失败。
 - 同一 investigation index 已有待提交变化时直接拒绝，不重置、不累加；其他待提交路径保持不变。
 - 随附资源 metadata 与其来源指纹不变时继续支持主题条目选择；资源集合或内容变化时在写入前拒绝，并要求普通文件级暂存完整索引。
-- 命令不修改 filesystem，也不暂存调查 Markdown；调用方可独立选择对应领域文件。
+- 命令不修改工作树中的调查文件，也不暂存调查 Markdown；调用方可独立选择对应领域文件。
 - 目标测试、生成漂移、类型检查、严格检查与 `bun run check` 通过。
 
 ## Affected Owners

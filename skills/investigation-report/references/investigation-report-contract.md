@@ -9,8 +9,10 @@
 3. 报告 Markdown 中可选的 `随附资源` 是“哪份报告以什么展示文字引用哪些资源”的唯一事实源。没有该字段的报告不拥有资源引用，索引不能为它补造关系。
 4. 调查根目录下可选的 `_resources/` 是统一资源池；其中每个文件的原始字节是该资源内容的事实源。目录位置只定义资源 ID，不表达资源属于哪个主题。
 5. `investigation-index.json` 是从当前调查根目录内全部主题 Markdown 和资源文件确定性生成的通用主题索引，只用于发现、过滤、排序、引用关系投影、资源完整性和新鲜度检查，不拥有独立事实。
-6. `scripts/check-investigations.mjs` 的 `list` 命令通过通用 keys 查询已经核对新鲜度的索引，默认命令只读检查主题、资源和索引；显式 `sync-index` 可以创建或替换工作区派生索引，`stage-index` 可以按主题 ID 替换该索引的版本仓库 `pending` 内容，两者都不写主题或资源文件。
+6. `scripts/check-investigations.mjs` 的 `list` 命令通过通用 keys 查询已经核对新鲜度的索引，默认命令只读检查主题、资源和索引；显式 `sync-index` 可以创建或替换工作树中的派生索引，`stage-index` 可以按主题 ID 对该索引执行受控的版本仓库 `pending` 写入，两者都不写主题或资源文件。
 7. [investigation-index.schema.json](investigation-index.schema.json) 是随包分发的当前索引 JSON Schema；CLI 继续负责 Schema 无法证明的 Markdown 对应、资源安全、source revision、id、state、metadata 和 keys 一致性。
+
+本文中的“工作区索引”指工作树内当前的 `investigation-index.json`；`pending` 指版本管理暂存区中的待提交内容。两者是同一路径在不同版本管理状态下的内容，不能互相替代。
 
 默认目录：
 
@@ -228,8 +230,6 @@ node <investigation-report-skill>/scripts/check-investigations.mjs stage-index <
 
 无显式 command 时默认执行 `check`。`--path` 的值始终是相对调查根目录的主题文件路径；反斜杠会归一化为 POSIX 分隔符。重复参数取并集，同时使用多类筛选时取交集。
 
-`stage-index` 至少接收一个 topic ID，不接受查询筛选或分页参数。每个 ID 必须逐字使用规范且不重复的 `<category-id>/<semantic-slug>.md` POSIX 路径；命令不替调用方 trim、改写反斜杠或推断重命名。移动主题时同时选择旧 ID 与新 ID。`--json` 只适用于该命令，并输出完整的 `status`、`state`、`changed`、`selectedIds`、`indexPath`、`namespace` 和 `diagnostics` 结果。
-
 默认全量 `check`：
 
 1. 检查调查根目录、分类目录、主题路径层级、kebab-case 文件名和保留的 `_resources/` 目录。
@@ -244,8 +244,14 @@ node <investigation-report-skill>/scripts/check-investigations.mjs stage-index <
 
 `sync-index` 不接受筛选。它先验证全部主题文件和资源，再确定性创建或替换 JSON 索引；任一主题或资源无效、根目录不可读、源在同步期间变化或写入验证失败时退出失败。
 
-`stage-index` 不解析主题 Markdown、读取随附资源、重建工作区索引或改写 filesystem。它从 current revision 与已经存在的工作区索引按选中 ID 组合完整目标索引，只替换 `investigation-index.json` 的 `pending` 内容；主题 Markdown、随附资源和其他领域文件必须由调用方另行选择。同一索引已有 pending 时直接失败并保留原内容，目标外的 pending 路径不受影响。合法 ID 在两份索引中都不存在时也在写入前失败。
+### `stage-index`
 
-资源 ID、SHA-256 与 `sourceRevision.metadata` 属于完整集合。相对 current revision 的资源成员、名称或字节变化会使 `stage-index` 返回 `collection-changed`；这类变更必须以普通文件级方式暂存完整索引，不能从主题引用关系推断或拆分集合级 metadata。current revision 尚无调查索引时，首次合法主题选择可以暂存完整工作区索引，但主题和资源文件仍不会随之进入 pending。
+`stage-index` 仅在工作区索引已经由 `sync-index` 从当前主题与资源重建、并通过默认全量 `check` 后使用。命令本身不解析主题 Markdown、不读取随附资源，也不重建或验证工作区索引；成功只证明选中主题对应的索引结果已进入 `pending`，不证明工作区索引新鲜或领域文件有效。
+
+命令至少接收一个 topic ID，不接受查询筛选或分页参数。每个 ID 必须逐字使用规范且不重复的 `<category-id>/<semantic-slug>.md` POSIX 路径；命令不替调用方 trim、改写反斜杠或推断重命名。移动主题时同时选择旧 ID 与新 ID。`--json` 只适用于该命令，并输出完整的 `status`、`state`、`changed`、`selectedIds`、`indexPath`、`namespace` 和 `diagnostics` 结果。
+
+命令从 current revision 与已经存在的工作区索引按选中 ID 组合完整目标索引，在确认 `investigation-index.json` 没有既有 `pending` 后写入该路径的暂存结果；它不改写工作树，也不暂存主题 Markdown、随附资源或其他领域文件，这些文件必须由调用方另行选择。合法 ID 在两份索引中都不存在时在写入前失败。同一索引已有 `pending` 时也直接失败并保留原内容，目标外的 `pending` 路径不受影响。
+
+资源 ID、SHA-256 与 `sourceRevision.metadata` 属于完整集合。相对 current revision 的资源成员、名称或字节变化会使 `stage-index` 返回 `collection-changed`；这类变更必须整体暂存工作区索引，不能从主题引用关系推断或拆分集合级 metadata。current revision 尚无调查索引时，首次合法主题选择可以暂存完整工作区索引，但主题和资源文件仍不会随之进入 `pending`。
 
 CLI 不判断章节语义、证据质量、资源是否值得保存、资源来源可信度、敏感信息、历史修改正当性、场景义务、状态选择或拆分判断；这些由 `SKILL.md` 的形成与审阅流程承接。退出状态 `0` 表示成功，`1` 表示结构、资源、索引、版本仓库、pending 冲突或写入失败，`2` 表示参数错误。

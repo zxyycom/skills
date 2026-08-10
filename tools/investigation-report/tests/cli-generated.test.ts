@@ -7,17 +7,20 @@ import test from "node:test";
 import {
   queryInvestigationIndex as queryBundledInvestigationIndex,
   runInvestigationReportCheckCli,
-  stageInvestigationIndex as stageBundledInvestigationIndex,
   synchronizeInvestigationIndex as synchronizeBundledInvestigationIndex,
   validateInvestigationReports as validateBundledInvestigationReports
 } from "../../../skills/investigation-report/scripts/check-investigations.mjs";
-import { investigationIndexFileName } from "../src/investigation-state-index.ts";
+import {
+  investigationIndexFileName,
+  loadCurrentInvestigationIndex
+} from "../src/investigation-state-index.ts";
 import { validateInvestigationReports } from "../src/validation.ts";
 import {
   createValidReports,
   generatedCheckerPath,
   generatedDeclarationPath,
   generatedSchemaPath,
+  investigationRoot,
   type ReportInput,
   withTempRoot,
   writeCollection,
@@ -50,7 +53,6 @@ async function testBundledApiParity(tempRoot: string): Promise<void> {
   );
   assert.equal(typeof runInvestigationReportCheckCli, "function");
   assert.equal(typeof queryBundledInvestigationIndex, "function");
-  assert.equal(typeof stageBundledInvestigationIndex, "function");
   assert.equal(typeof synchronizeBundledInvestigationIndex, "function");
 
   assert.deepEqual(
@@ -248,15 +250,13 @@ async function testGeneratedSyncCommand(tempRoot: string): Promise<void> {
     )).then((entry) => entry.isFile()),
     true
   );
-  const index = JSON.parse(await fs.readFile(path.join(
-    cliSyncRoot,
-    "docs",
-    "investigations",
-    investigationIndexFileName
-  ), "utf8")) as {
-    entries: Record<string, { state: { resourceReferences: unknown } }>;
-    metadata: { resources: Array<{ id: string; sha256: string }> };
-  };
+  const loaded = await loadCurrentInvestigationIndex({
+    investigationsDirectory: investigationRoot(cliSyncRoot)
+  });
+  if (loaded.status === "error") {
+    assert.fail(loaded.diagnostics.map((entry) => entry.message).join("; "));
+  }
+  const index = loaded.value;
   assert.deepEqual(index.metadata.resources, [{
     id: "sync/sample.bin",
     sha256: createHash("sha256").update(resource).digest("hex")
@@ -309,8 +309,6 @@ async function testGeneratedCliUsage(tempRoot: string): Promise<void> {
   assert.match(help.stdout, /full-index freshness/);
   assert.match(help.stdout, /sync-index validates every topic/);
   assert.match(help.stdout, /list checks topic and resource freshness/);
-  assert.match(help.stdout, /stage-index <topic-id\.\.\.>/u);
-  assert.match(help.stdout, /does not read or stage topic Markdown/u);
 
   const validRoot = path.join(tempRoot, "cli-usage");
   await writeCollection(validRoot, createValidReports());
@@ -357,7 +355,21 @@ async function testGeneratedCliUsage(tempRoot: string): Promise<void> {
     invalidSyncFilter.stderr,
     /sync-index does not accept query filters or pagination/u
   );
+}
 
+async function testGeneratedStageCliUsage(tempRoot: string): Promise<void> {
+  const help = spawnSync(
+    "node",
+    [generatedCheckerPath, "--help"],
+    { encoding: "utf8" }
+  );
+  assert.equal(help.status, 0, help.stderr);
+  assert.equal(help.stderr, "");
+  assert.match(help.stdout, /stage-index <topic-id\.\.\.>/u);
+  assert.match(help.stdout, /does not read or stage topic Markdown/u);
+
+  const validRoot = path.join(tempRoot, "stage-cli-usage");
+  await writeCollection(validRoot, createValidReports());
   const missingStageTopic = spawnSync(
     "node",
     [
@@ -371,12 +383,9 @@ async function testGeneratedCliUsage(tempRoot: string): Promise<void> {
   );
   assert.equal(missingStageTopic.status, 2);
   assert.equal(missingStageTopic.stderr, "");
+  const missingStageTopicResult: unknown = JSON.parse(missingStageTopic.stdout);
   assert.deepEqual(
-    JSON.parse(missingStageTopic.stdout) as {
-      changed: boolean;
-      state: string;
-      status: string;
-    },
+    missingStageTopicResult,
     {
       changed: false,
       diagnostics: [{
@@ -431,6 +440,23 @@ async function testGeneratedCliUsage(tempRoot: string): Promise<void> {
   );
 }
 
+function isUnknownRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function expectRecord(
+  value: unknown,
+  label: string
+): Record<string, unknown> {
+  assert.ok(isUnknownRecord(value), `${label} must be an object`);
+  return value;
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value)
+    && value.every((entry) => typeof entry === "string");
+}
+
 async function testGeneratedArtifacts(): Promise<void> {
   const checkerSource = await fs.readFile(generatedCheckerPath, "utf8");
   assert.match(
@@ -460,63 +486,81 @@ async function testGeneratedArtifacts(): Promise<void> {
   assert.match(declarationSource, /stageInvestigationIndex/);
   assert.match(declarationSource, /runInvestigationReportCheckCli/);
 
-  const generatedSchema = JSON.parse(
+  const generatedSchemaValue: unknown = JSON.parse(
     await fs.readFile(generatedSchemaPath, "utf8")
-  ) as {
-    properties: {
-      definitionVersion: { const: number };
-      entries: { type: string };
-      namespace: { const: string };
-      schemaVersion: { const: number };
-      sourceRevision: { type: string };
-    };
-  };
-  assert.equal(generatedSchema.properties.definitionVersion.const, 3);
-  assert.equal(generatedSchema.properties.entries.type, "object");
+  );
+  const generatedSchema = expectRecord(
+    generatedSchemaValue,
+    "generated schema"
+  );
+  const properties = expectRecord(
+    generatedSchema.properties,
+    "generated schema properties"
+  );
   assert.equal(
-    generatedSchema.properties.namespace.const,
+    expectRecord(
+      properties.definitionVersion,
+      "definitionVersion schema"
+    ).const,
+    3
+  );
+  assert.equal(
+    expectRecord(properties.entries, "entries schema").type,
+    "object"
+  );
+  assert.equal(
+    expectRecord(properties.namespace, "namespace schema").const,
     "investigations"
   );
-  assert.equal(generatedSchema.properties.schemaVersion.const, 3);
-  assert.equal(generatedSchema.properties.sourceRevision.type, "object");
+  assert.equal(
+    expectRecord(properties.schemaVersion, "schemaVersion schema").const,
+    3
+  );
+  assert.equal(
+    expectRecord(properties.sourceRevision, "sourceRevision schema").type,
+    "object"
+  );
   assert.match(
-    JSON.stringify(generatedSchema),
+    JSON.stringify(generatedSchemaValue),
     /resourceReferences/u
   );
   assert.match(
-    JSON.stringify(generatedSchema),
+    JSON.stringify(generatedSchemaValue),
     /\^\[0-9a-f\]\{64\}\$/u
   );
 
-  const sourceMap = JSON.parse(
+  const sourceMapValue: unknown = JSON.parse(
     await fs.readFile(`${generatedCheckerPath}.map`, "utf8")
-  ) as {
-    sourceRoot: string;
-    sources: string[];
-  };
+  );
+  const sourceMap = expectRecord(sourceMapValue, "generated source map");
   assert.equal(sourceMap.sourceRoot, "../../../");
-  assert.ok(sourceMap.sources.includes(
+  assert.ok(
+    isStringArray(sourceMap.sources),
+    "source map sources must be strings"
+  );
+  const sources = sourceMap.sources;
+  assert.ok(sources.includes(
     "tools/investigation-report/src/cli.ts"
   ));
-  assert.ok(sourceMap.sources.includes(
+  assert.ok(sources.includes(
     "tools/investigation-report/src/investigation-state-index.ts"
   ));
-  assert.ok(sourceMap.sources.includes(
+  assert.ok(sources.includes(
     "tools/investigation-report/src/query.ts"
   ));
-  assert.ok(sourceMap.sources.includes(
+  assert.ok(sources.includes(
     "tools/investigation-report/src/staging.ts"
   ));
-  assert.ok(sourceMap.sources.includes(
+  assert.ok(sources.includes(
     "tools/index-runtime/src/staging.ts"
   ));
-  assert.ok(sourceMap.sources.includes(
+  assert.ok(sources.includes(
     "tools/shared/src/version-control/index.ts"
   ));
-  assert.ok(sourceMap.sources.includes(
+  assert.ok(sources.includes(
     "tools/index-runtime/src/storage.ts"
   ));
-  assert.ok(sourceMap.sources.every((source) => (
+  assert.ok(sources.every((source) => (
     !path.isAbsolute(source) && !source.includes("\\")
   )));
 }
@@ -543,6 +587,10 @@ test("generated investigation sync command writes the full index", () => (
 
 test("generated investigation CLI usage errors preserve exit contracts", () => (
   withTempRoot("cli-usage", testGeneratedCliUsage)
+));
+
+test("generated investigation stage CLI usage preserves exit contracts", () => (
+  withTempRoot("stage-cli-usage", testGeneratedStageCliUsage)
 ));
 
 test("generated investigation artifacts expose portable metadata", () => (
