@@ -273,6 +273,7 @@
       "test-evidence-review/read-ledger-contract-on-demand.md": "sha256:94cf0f02e748c00b9cb0cb5f00065f62a6708d27c1c85f333fb90dbe8397ea51",
       "test-evidence-review/register-one-case-per-independent-verification-entry.md": "sha256:43fb6475f81c0b1ac217dff4130c38ee051bb90fa6cddf81bb1bbc05df823e07",
       "test-evidence-review/review-verification-implementations-with-explicit-indexed-cases.md": "sha256:ae61a930af094437bb47d5a1b747b0954c33516a3b311ead23c0e5dc9fd65927",
+      "test-evidence-review/stage-selected-test-evidence-index-entries.md": "sha256:9142f2d9940007beeabb6c3ea9e8682bf0864261cec02cf08d507e0836f1da79",
       "version-control/centralize-version-control-responsibility.md": "sha256:e17340b87ea60b8f18cb3b090c47545180b6f29539b74c168fa2d338d5d92d24",
       "version-control/manage-pending-snapshot-writes.md": "sha256:32011eda08ab497629cfcba677e4214d6703f8687f9bca69014cb86675bf8236"
     },
@@ -5105,6 +5106,30 @@
             "target": "test-evidence-review/read-ledger-contract-on-demand.md"
           }
         ]
+      }
+    },
+    "test-evidence-review/stage-selected-test-evidence-index-entries.md": {
+      "keys": {
+        "domain": [
+          "test-evidence-review"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "test-evidence-review/stage-selected-test-evidence-index-entries.md",
+        "title": "按测试证据 Case ID 独立暂存派生索引条目",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-10T06:42:57Z",
+        "purpose": "让并行测试证据维护只暂存选中 Case 对应的索引变化，同时保持权威目录与派生索引的责任边界。",
+        "background": "多个 Case 共享一个派生索引；公共运行时已经能按稳定 ID 组合条目，但测试证据领域仍需拥有选择输入和文件边界。",
+        "decision": "测试证据入口校验 Case ID 后只把选中 ID 交给索引运行时，topic 表、Case Markdown 和代码均由调用方另行暂存。",
+        "relations": []
       }
     },
     "version-control/centralize-version-control-responsibility.md": {

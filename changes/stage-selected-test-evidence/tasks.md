@@ -10,7 +10,7 @@
 
 ## Implementation
 
-- [ ] 1.1 建立测试证据选择性索引暂存长期决策并保持 `unaligned`。
+- [x] 1.1 建立测试证据选择性索引暂存长期决策并保持 `unaligned`。
 - [ ] 1.2 实现 case id 的格式、非空和去重校验，覆盖新增、删除和显式重命名输入；topic 归属继续由现有 definition 完整校验。
 - [ ] 1.3 实现 `stage-index <case-id...>`，调用配置完成的 `StateIndexRuntime.stageSelectedEntries(selectedIds)` 并输出稳定文本/JSON 结果。
 - [ ] 1.4 更新 test-evidence-review 的行为入口、固定契约、人类说明和独立版本，明确领域文件与代码需另行暂存。
