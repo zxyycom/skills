@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "revision": 298,
-  "nextTaskId": 52,
+  "revision": 300,
+  "nextTaskId": 53,
   "tasks": {
     "task-000001": {
       "content": {
@@ -2140,6 +2140,48 @@
         "timestamps": {
           "createdAt": "2026-08-10T15:47:24.990Z",
           "updatedAt": "2026-08-10T15:47:25.271Z"
+        }
+      }
+    },
+    "task-000052": {
+      "content": {
+        "title": "厘清未来事项在 Decision、Change 与两类 Task 中的承载边界",
+        "goal": "基于现有行为 owner 和仓库中的代表性工作，建立一套可直接用于选择、关联和收敛载体的规则，覆盖 Decision record、Change plan、Task Graph task 与 Change 内 tasks.md 条目。规则必须让执行者根据事项所处阶段和所需结果判断：当前只创建哪一种载体、什么条件下才增加另一种、各载体引用谁且不复制什么、完成或放弃时如何收敛；最终结论归位到最合适的现有 owner，不新增内容不同的统一事实源。",
+        "acceptance": [
+          "从所列 owner 恢复四种载体的当前契约，分别说明用途、权威内容、生命周期、创建门槛、完成含义和明确非目标；把现有事实与本任务提出的调整分开表达。",
+          "形成可直接执行的选择规则，覆盖想法暂存、待调查或待决策方向、跨 owner 的持久实施方案、当前非线性执行协调，以及 Change 内 readiness、implementation、verification 清单；每种情形都能判断当前最小必要载体。",
+          "明确确需多种载体时的单向引用、状态转换和退出规则，特别区分 Task Graph task 与 Change tasks.md 条目的身份和进度语义；同一状态、分解、理由或长期结论只能由一个 owner 完整维护。",
+          "使用仓库中至少一个只需要单一载体的案例和一个确需组合载体的案例验证规则；若规则仍无法唯一指导下一步，保留具体歧义而不补造统一模型。",
+          "把确认后的规则归位到现有 skill 或仓库导航；只有结论达到长期决策或跨 owner 实施计划的既有门槛时，才分别建立 Decision 或 Change。本任务不以合并数据模型、新增元框架或修改 CLI 为默认产出。"
+        ],
+        "context": "触发问题是：同一个尚未实施的未来事项可能同时被记录为 Decision、Change、Task Graph task 和 Change tasks.md 条目，维护者因而难以判断先创建什么、哪个状态可信、何时关闭其他载体。当前 owner 已给出局部边界：Task Graph 保存当前工作的可恢复协调事实；Change Plan 保存明确 change 的跨阶段实施上下文，其 tasks.md 是该 Change 内的 readiness、implementation 与 verification 分解；Decision Records 保存跨 change 长期有效且值得回放的方向与理由；仓库导航负责把任务路由到这些 owner。本任务审计它们之间的选择和交接，不重新定义各工具的数据模型。",
+        "references": {
+          "change-plan": "skills/change-plan/SKILL.md",
+          "change-plan-contract": "skills/change-plan/references/change-plan-contract.md",
+          "decision-record-rules": "skills/decision-records/references/decision-record-rules.md",
+          "decision-records": "skills/decision-records/SKILL.md",
+          "navigation": "docs/navigation.md",
+          "task-graph": "skills/task-graph/SKILL.md"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-10T15:59:13.636Z",
+          "updatedAt": "2026-08-10T16:00:55.422Z"
         }
       }
     }
