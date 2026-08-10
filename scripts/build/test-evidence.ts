@@ -12,6 +12,7 @@ import {
 import { githubRepository, rootDir } from "../lib/project.ts";
 import {
   testEvidenceCaseShowResultSchema,
+  testEvidenceIndexStageResultSchema,
   testEvidenceIndexSyncResultSchema,
   testEvidenceQueryResultSchema,
   testEvidenceReportSchema,
@@ -73,6 +74,13 @@ const schemaSpecs = [
     schema: testEvidenceIndexSyncResultSchema,
     typeName: "TestEvidenceIndexSyncResult",
     typesFileName: "test-evidence-index-sync-result.types.d.mts"
+  },
+  {
+    fileName: "test-evidence-index-stage-result.schema.json",
+    mode: "output" as const,
+    schema: testEvidenceIndexStageResultSchema,
+    typeName: "TestEvidenceIndexStageResult",
+    typesFileName: "test-evidence-index-stage-result.types.d.mts"
   },
   {
     fileName: "test-evidence-state-index.schema.json",

@@ -198,6 +198,7 @@ source revision 成员不一致或通用结构无效
 node scripts/test-evidence-catalog.mjs topics --root <workspace-root> [--json]
 node scripts/test-evidence-catalog.mjs check --root <workspace-root> [--json]
 node scripts/test-evidence-catalog.mjs sync-index [--write] --root <workspace-root> [--json]
+node scripts/test-evidence-catalog.mjs stage-index <case-id...> --root <workspace-root> [--json]
 node scripts/test-evidence-catalog.mjs list --root <workspace-root> [--topic <topic>] [--query <text>] [--limit <n>] [--offset <n>] [--json]
 node scripts/test-evidence-catalog.mjs show <case-id> --root <workspace-root> [--json]
 ```
@@ -209,16 +210,62 @@ node scripts/test-evidence-catalog.mjs show <case-id> --root <workspace-root> [-
 `check` 严格校验 topic 表、全部 case、跨 topic case ID 唯一性和索引新鲜度；
 `sync-index --write` 从完整合法目录原子重建统一索引。CLI 不执行 Entry。
 
+### `stage-index`
+
+`stage-index` 只在工作区索引已经由 `sync-index --write` 从当前 topic 表与 Case
+Markdown 重建、并通过目录 `check` 后使用。命令本身不读取 topic 表、Case
+Markdown、测试代码或产品代码，也不重建或验证工作区索引；成功只证明选中 Case
+对应的索引结果已进入 `pending`，不证明领域文件有效或已经暂存。
+
+命令至少接收一个 Case ID。每个 ID 必须逐字符合固定 Case ID 协议且不得重复；
+命令不 trim、改写或推断重命名。重命名时同时选择旧 ID 与新 ID。test-evidence
+领域层完成格式、非空和去重校验后，只把这些 ID 交给配置完成的
+`StateIndexRuntime.stageSelectedEntries(selectedIds)`；领域层不直接读取 revision
+索引，也不构造基线、变化对象、metadata、来源 revision、目标索引或待提交文件计划。
+
+输入失败在访问版本仓库前完成，并保持以下稳定结果：
+
+1. CLI 缺少必需的 `<case-id...>` 时，由参数解析器向 stderr 输出 usage，退出 `2`；
+   此时尚未进入领域命令，不产生暂存结果 JSON。
+2. 程序化入口收到空 `caseIds` 时，返回 `selection-invalid` 和
+   `test-evidence.stage-case-ids-empty`。
+3. Case ID 不符合固定协议时，返回 `selection-invalid` 和
+   `test-evidence.stage-case-id-invalid`；诊断的 `stateId` 保留原始输入。
+4. 同一 Case ID 重复出现时，返回 `selection-invalid` 和
+   `test-evidence.stage-case-id-duplicate`；诊断的 `stateId` 指向重复 ID。
+
+已经进入领域命令的非法或重复 Case ID 在 CLI 中退出 `2`；使用 `--json` 时，失败
+结果写入 stdout，stderr 为空。
+
+index-runtime 从 current revision 与已经存在的工作区索引按选中 ID 组合完整目标
+索引，在确认 `test-evidence-index.json` 没有既有 `pending` 后写入该路径的暂存结果。
+它不改写工作树，也不暂存 topic 表、Case Markdown、测试代码、产品代码或其他领域
+文件；这些文件必须由调用方另行选择。合法 ID 在两份索引中都不存在时在写入前失败。
+同一索引已有 `pending` 时也直接失败并保留原内容，目标外的 `pending` 路径不受影响。
+
+完整 topic 表及其来源指纹属于集合级 metadata。相对 current revision 的 topic
+成员或描述变化会返回 `collection-changed`；这类变化必须整体暂存工作区索引，不能
+从 Case 的 `sourcePath` 推断或拆分集合级 metadata。current revision 尚无测试证据
+索引时，首次合法 Case 选择可以暂存由工作区集合级 metadata 与所选 Case 组成的索引。
+
+文本结果明确报告 `state`、`changed` 与排序后的 selected IDs，并提醒领域文件位于
+操作范围之外。`--json` 输出完整的 `status`、`state`、`changed`、`selectedIds`、
+`indexPath`、`namespace` 和 `diagnostics`，精确结构由
+[test-evidence-index-stage-result.schema.json](schemas/test-evidence-index-stage-result.schema.json)
+定义。Case ID 参数错误退出 `2`；索引、版本仓库、冲突或写入失败退出 `1`。
+
 其他退出状态：
 
-1. `0`：检查通过、同步成功或查询返回合法结果。
+1. `0`：检查通过、同步或选择性索引暂存成功，或查询返回合法结果。
 2. `1`：存在阻断诊断、索引未同步、目标缺失或执行失败。
 3. `2`：参数错误或未知 topic。
 
-使用 `--json` 时，可预期的目录、索引和查询失败仍向 stdout 写当前命令 Schema，
-stderr 为空。report、query、show、topics 和同步结果使用
+使用 `--json` 且命令已经完成参数解析时，可预期的目录、索引、查询和选择性暂存失败
+仍向 stdout 写当前命令 Schema，stderr 为空。report、query、show、topics 和同步结果使用
 `schemaVersion: 4`；能够读取 topic 定义的结果都提供规范化 `topics` 数组，读取
-失败时该数组为空。调用方使用 `diagnostics[].blocking` 判断完成状态。
+失败时该数组为空。调用方使用 `diagnostics[].blocking` 判断这些目录命令的完成状态。
+选择性暂存结果直接保留 index-runtime 的判别联合和诊断结构，不增加 report
+`schemaVersion` 或 topic 数组。
 
 模块可安全导入且不会执行 CLI，导出：
 
@@ -227,7 +274,8 @@ stderr 为空。report、query、show、topics 和同步结果使用
 3. `syncTestEvidenceIndex(options)`。
 4. `queryTestEvidence(options)`。
 5. `showTestEvidenceCase(options)`。
-6. 对应 Valibot Schema 和 `runTestEvidenceCatalogCli(argv)`。
+6. `stageTestEvidenceIndex(options)`。
+7. 对应 Valibot Schema 和 `runTestEvidenceCatalogCli(argv)`。
 
 相邻 `.d.mts` 提供公共声明；数据类型由 Valibot Schema 生成 JSON Schema，再生成
 `*.types.d.mts`，不维护第二套结构真源。

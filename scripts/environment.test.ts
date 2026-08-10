@@ -457,7 +457,8 @@ test("repository maintenance short commands invoke their owned skill CLIs", () =
     "decision-records": /Query and maintain agent-oriented decision records/u,
     "investigation-report": /Check investigation topics/u,
     "task-graph": /"commands":\[/u,
-    "test-evidence": /Validate and query indexed test evidence/u,
+    "test-evidence":
+      /Validate, query, and selectively stage indexed test evidence/u,
     "validate-skill": /Validate the portable structure contract/u
   } satisfies Readonly<Record<MaintenanceCliCommand, RegExp>>;
 

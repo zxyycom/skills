@@ -1,0 +1,348 @@
+{
+  "anyOf": [
+    {
+      "type": "object",
+      "properties": {
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "minLength": 1
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              },
+              "path": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "stateId": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "code",
+              "message",
+              "path",
+              "stateId"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "indexPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "namespace": {
+          "const": "test-evidence"
+        },
+        "selectedIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
+          }
+        },
+        "changed": {
+          "const": true
+        },
+        "state": {
+          "const": "staged"
+        },
+        "status": {
+          "const": "ok"
+        }
+      },
+      "required": [
+        "diagnostics",
+        "indexPath",
+        "namespace",
+        "selectedIds",
+        "changed",
+        "state",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "minLength": 1
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              },
+              "path": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "stateId": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "code",
+              "message",
+              "path",
+              "stateId"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "indexPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "namespace": {
+          "const": "test-evidence"
+        },
+        "selectedIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
+          }
+        },
+        "changed": {
+          "const": false
+        },
+        "state": {
+          "const": "unchanged"
+        },
+        "status": {
+          "const": "ok"
+        }
+      },
+      "required": [
+        "diagnostics",
+        "indexPath",
+        "namespace",
+        "selectedIds",
+        "changed",
+        "state",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "minLength": 1
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              },
+              "path": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "stateId": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "code",
+              "message",
+              "path",
+              "stateId"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "indexPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "namespace": {
+          "const": "test-evidence"
+        },
+        "selectedIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
+          }
+        },
+        "changed": {
+          "const": false
+        },
+        "state": {
+          "enum": [
+            "collection-changed",
+            "definition-invalid",
+            "index-path-invalid",
+            "operation-aborted",
+            "pending-conflict",
+            "pending-write-failed",
+            "revision-index-invalid",
+            "revision-read-failed",
+            "selection-invalid",
+            "target-invalid",
+            "workspace-index-invalid"
+          ],
+          "type": "string"
+        },
+        "status": {
+          "const": "error"
+        }
+      },
+      "required": [
+        "diagnostics",
+        "indexPath",
+        "namespace",
+        "selectedIds",
+        "changed",
+        "state",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "properties": {
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "minLength": 1
+              },
+              "message": {
+                "type": "string",
+                "minLength": 1
+              },
+              "path": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "stateId": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "code",
+              "message",
+              "path",
+              "stateId"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "indexPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "namespace": {
+          "const": "test-evidence"
+        },
+        "selectedIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$"
+          }
+        },
+        "changed": {
+          "type": "null"
+        },
+        "state": {
+          "const": "pending-recovery-failed"
+        },
+        "status": {
+          "const": "error"
+        }
+      },
+      "required": [
+        "diagnostics",
+        "indexPath",
+        "namespace",
+        "selectedIds",
+        "changed",
+        "state",
+        "status"
+      ],
+      "additionalProperties": false
+    }
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/zxyycom/skills/main/skills/test-evidence-review/references/schemas/test-evidence-index-stage-result.schema.json",
+  "title": "TestEvidenceIndexStageResult"
+}

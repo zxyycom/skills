@@ -11,6 +11,7 @@ import { showTestEvidenceCase } from "./case-show.ts";
 import {
   formatTestEvidenceCaseList,
   formatTestEvidenceCaseShow,
+  formatTestEvidenceIndexStage,
   formatTestEvidenceIndexSync,
   formatTestEvidenceQueryFailure,
   formatTestEvidenceReport,
@@ -24,6 +25,7 @@ import {
 } from "./query.ts";
 import {
   testEvidenceCaseShowResultSchema,
+  testEvidenceIndexStageResultSchema,
   testEvidenceIndexSyncResultSchema,
   testEvidenceQueryResultSchema,
   testEvidenceReportSchema,
@@ -33,6 +35,10 @@ import {
 } from "./schemas.ts";
 import { syncTestEvidenceIndex } from "./state-index.ts";
 import {
+  executeTestEvidenceIndexStage,
+  stageTestEvidenceIndex
+} from "./staging.ts";
+import {
   validateTestEvidence,
   type ValidateTestEvidenceOptions
 } from "./validation.ts";
@@ -41,7 +47,6 @@ import {
   type ListTestEvidenceTopicsOptions
 } from "./topics.ts";
 
-type CatalogCommand = "check" | "list" | "show" | "sync-index" | "topics";
 type ParsedOptions = {
   json?: boolean;
   limit?: number;
@@ -51,17 +56,33 @@ type ParsedOptions = {
   topic?: string;
   write?: boolean;
 };
-type CatalogCliArgs = {
-  caseId: string | null;
-  command: CatalogCommand;
+type CatalogCliBase = Readonly<{
   json: boolean;
-  limit: number;
-  offset: number;
-  query?: string;
-  topic?: string;
   workspaceRoot: string;
-  write: boolean;
-};
+}>;
+type CatalogCliArgs = CatalogCliBase & (
+  | Readonly<{ command: "check" }>
+  | Readonly<{
+    command: "list";
+    limit: number;
+    offset: number;
+    query?: string;
+    topic?: string;
+  }>
+  | Readonly<{
+    caseId: string;
+    command: "show";
+  }>
+  | Readonly<{
+    caseIds: readonly string[];
+    command: "stage-index";
+  }>
+  | Readonly<{
+    command: "sync-index";
+    write: boolean;
+  }>
+  | Readonly<{ command: "topics" }>
+);
 
 export async function runTestEvidenceCatalogCli(
   argv: readonly string[] = process.argv.slice(2)
@@ -70,7 +91,7 @@ export async function runTestEvidenceCatalogCli(
   const program = new Command()
     .name("test-evidence-catalog")
     .description(
-      "Validate and query indexed test evidence."
+      "Validate, query, and selectively stage indexed test evidence."
     )
     .option(
       "--root <path>",
@@ -83,21 +104,13 @@ export async function runTestEvidenceCatalogCli(
       "afterAll",
       "\nExit codes:\n"
         + "  0  Success.\n"
-        + "  1  Blocking validation diagnostic or query failure.\n"
+        + "  1  Validation, query, or operation failure.\n"
         + "  2  Invalid arguments."
     )
     .exitOverride();
 
-  const execute = async (
-    command: CatalogCommand,
-    commandNode: Command,
-    caseId: string | null = null
-  ): Promise<void> => {
-    exitCode = await runCatalogCommand(commandArgs(
-      command,
-      commandNode,
-      caseId
-    ));
+  const execute = async (args: CatalogCliArgs): Promise<void> => {
+    exitCode = await runCatalogCommand(args);
   };
 
   const check = subcommand(
@@ -106,7 +119,10 @@ export async function runTestEvidenceCatalogCli(
     "Strictly validate the catalog and derived index.",
     true
   );
-  check.action(() => execute("check", check));
+  check.action(() => execute({
+    ...commandBase(check),
+    command: "check"
+  }));
 
   const list = subcommand(
     program,
@@ -129,28 +145,50 @@ export async function runTestEvidenceCatalogCli(
       "--topic <topic-id>",
       "Filter cases by one defined test-evidence topic."
     ).argParser(parseSingleTopic));
-  list.action(() => execute("list", list));
+  list.action(() => execute(listCommandArgs(list)));
 
   const topics = subcommand(
     program,
     "topics",
     "List the authoritative test-evidence topic definitions."
   );
-  topics.action(() => execute("topics", topics));
+  topics.action(() => execute({
+    ...commandBase(topics),
+    command: "topics"
+  }));
 
   const show = subcommand(
     program,
     "show <case-id>",
     "Show one case and its original Markdown body."
   );
-  show.action((caseId: string) => execute("show", show, caseId));
+  show.action((caseId: string) => execute({
+    ...commandBase(show),
+    caseId,
+    command: "show"
+  }));
+
+  const stageIndex = subcommand(
+    program,
+    "stage-index <case-ids...>",
+    "Stage only the selected case entries from the current workspace index."
+  );
+  stageIndex.addHelpText(
+    "after",
+    "\nTopic definitions, case Markdown, test code, and product code are not staged."
+  );
+  stageIndex.action((caseIds: string[]) => execute({
+    ...commandBase(stageIndex),
+    caseIds,
+    command: "stage-index"
+  }));
 
   const syncIndex = subcommand(
     program,
     "sync-index",
     "Check or rebuild the derived test-evidence index."
   ).option("--write", "Atomically rebuild the index from the current catalog.");
-  syncIndex.action(() => execute("sync-index", syncIndex));
+  syncIndex.action(() => execute(syncCommandArgs(syncIndex)));
 
   try {
     await program.parseAsync(["node", "test-evidence-catalog.mjs", ...argv]);
@@ -165,6 +203,23 @@ export async function runTestEvidenceCatalogCli(
 }
 
 async function runCatalogCommand(args: CatalogCliArgs): Promise<number> {
+  if (args.command === "stage-index") {
+    const execution = await executeTestEvidenceIndexStage({
+      caseIds: args.caseIds,
+      workspaceRoot: args.workspaceRoot
+    });
+    return execution.match(
+      (result) => {
+        writeOutput(formatTestEvidenceIndexStage(result, args.json));
+        return 0;
+      },
+      (failure) => {
+        writeOutput(formatTestEvidenceIndexStage(failure.result, args.json));
+        return failure.kind === "invalid-arguments" ? 2 : 1;
+      }
+    );
+  }
+
   if (args.command === "sync-index") {
     const result = await syncTestEvidenceIndex({
       mode: args.write ? "write" : "check",
@@ -192,7 +247,7 @@ async function runCatalogCommand(args: CatalogCliArgs): Promise<number> {
 
   if (args.command === "show") {
     const result = await showTestEvidenceCase({
-      caseId: args.caseId ?? "",
+      caseId: args.caseId,
       workspaceRoot: path.resolve(args.workspaceRoot)
     });
     writeOutput(formatTestEvidenceCaseShow(result, args.json));
@@ -216,21 +271,35 @@ async function runCatalogCommand(args: CatalogCliArgs): Promise<number> {
   return 0;
 }
 
-function commandArgs(
-  command: CatalogCommand,
-  commandNode: Command,
-  caseId: string | null
-): CatalogCliArgs {
+function commandBase(commandNode: Command): CatalogCliBase {
   const options = commandNode.optsWithGlobals<ParsedOptions>();
   return {
-    caseId,
-    command,
     json: options.json ?? false,
+    workspaceRoot: options.root ?? process.cwd()
+  };
+}
+
+function listCommandArgs(
+  commandNode: Command
+): Extract<CatalogCliArgs, { command: "list" }> {
+  const options = commandNode.optsWithGlobals<ParsedOptions>();
+  return {
+    ...commandBase(commandNode),
+    command: "list",
     limit: options.limit ?? testEvidenceQueryDefaultLimit,
     offset: options.offset ?? 0,
     query: options.query,
-    topic: options.topic,
-    workspaceRoot: options.root ?? process.cwd(),
+    topic: options.topic
+  };
+}
+
+function syncCommandArgs(
+  commandNode: Command
+): Extract<CatalogCliArgs, { command: "sync-index" }> {
+  const options = commandNode.optsWithGlobals<ParsedOptions>();
+  return {
+    ...commandBase(commandNode),
+    command: "sync-index",
     write: options.write ?? false
   };
 }
@@ -308,9 +377,11 @@ export {
   listTestEvidenceTopics,
   queryTestEvidence,
   showTestEvidenceCase,
+  stageTestEvidenceIndex,
   syncTestEvidenceIndex,
   validateTestEvidence,
   testEvidenceCaseShowResultSchema,
+  testEvidenceIndexStageResultSchema,
   testEvidenceIndexSyncResultSchema,
   testEvidenceQueryResultSchema,
   testEvidenceReportSchema,
@@ -325,6 +396,8 @@ export type {
 export type {
   TestEvidenceCaseShowResult,
   TestEvidenceCaseState,
+  TestEvidenceIndexStageDiagnostic,
+  TestEvidenceIndexStageResult,
   TestEvidenceIndexSyncResult,
   TestEvidenceReport,
   TestEvidenceStateIndex,
@@ -333,6 +406,7 @@ export type {
 } from "./types.ts";
 export type { QueryTestEvidenceOptions } from "./query.ts";
 export type { ShowTestEvidenceCaseOptions } from "./case-show.ts";
+export type { StageTestEvidenceIndexOptions } from "./staging.ts";
 export type {
   SyncTestEvidenceIndexOptions
 } from "./state-index.ts";

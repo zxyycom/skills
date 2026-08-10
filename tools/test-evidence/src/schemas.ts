@@ -44,7 +44,7 @@ const nonNegativeIntegerSchema = v.pipe(
   v.integer("must be an integer"),
   v.minValue(0, "must be at least 0")
 );
-const testEvidenceCaseIdSchema = v.pipe(
+export const testEvidenceCaseIdSchema = v.pipe(
   nonEmptyStringSchema,
   v.regex(
     new RegExp(testEvidenceCaseIdPatternSource, "u"),
@@ -201,6 +201,59 @@ export const testEvidenceIndexSyncResultSchema = v.strictObject({
   topics: v.array(testEvidenceTopicDefinitionSchema)
 });
 
+export const testEvidenceIndexStageDiagnosticSchema = v.strictObject({
+  code: nonEmptyStringSchema,
+  message: nonEmptyStringSchema,
+  path: v.nullable(v.string()),
+  stateId: v.nullable(v.string())
+});
+
+const testEvidenceIndexStageBaseFields = {
+  diagnostics: v.array(testEvidenceIndexStageDiagnosticSchema),
+  indexPath: nonEmptyStringSchema,
+  namespace: v.literal(testEvidenceIndexNamespace),
+  selectedIds: v.array(testEvidenceCaseIdSchema)
+};
+
+export const testEvidenceIndexStageResultSchema = v.union([
+  v.strictObject({
+    ...testEvidenceIndexStageBaseFields,
+    changed: v.literal(true),
+    state: v.literal("staged"),
+    status: v.literal("ok")
+  }),
+  v.strictObject({
+    ...testEvidenceIndexStageBaseFields,
+    changed: v.literal(false),
+    state: v.literal("unchanged"),
+    status: v.literal("ok")
+  }),
+  v.strictObject({
+    ...testEvidenceIndexStageBaseFields,
+    changed: v.literal(false),
+    state: v.picklist([
+      "collection-changed",
+      "definition-invalid",
+      "index-path-invalid",
+      "operation-aborted",
+      "pending-conflict",
+      "pending-write-failed",
+      "revision-index-invalid",
+      "revision-read-failed",
+      "selection-invalid",
+      "target-invalid",
+      "workspace-index-invalid"
+    ]),
+    status: v.literal("error")
+  }),
+  v.strictObject({
+    ...testEvidenceIndexStageBaseFields,
+    changed: v.null(),
+    state: v.literal("pending-recovery-failed"),
+    status: v.literal("error")
+  })
+]);
+
 const testEvidenceIndexKeysSchema = v.strictObject({
   search: v.tuple([stateIndexTextSchema]),
   topic: v.tuple([stateIndexTextSchema])
@@ -275,6 +328,12 @@ export type TestEvidenceTopicsResult = v.InferOutput<
 >;
 export type TestEvidenceIndexSyncResult = v.InferOutput<
   typeof testEvidenceIndexSyncResultSchema
+>;
+export type TestEvidenceIndexStageDiagnostic = v.InferOutput<
+  typeof testEvidenceIndexStageDiagnosticSchema
+>;
+export type TestEvidenceIndexStageResult = v.InferOutput<
+  typeof testEvidenceIndexStageResultSchema
 >;
 export type TestEvidenceStateIndex = v.InferOutput<
   typeof testEvidenceStateIndexSchema

@@ -3,6 +3,8 @@ import type {
   TestEvidenceCaseShowResult,
   TestEvidenceCaseState,
   TestEvidenceDiagnostic,
+  TestEvidenceIndexStageDiagnostic,
+  TestEvidenceIndexStageResult,
   TestEvidenceIndexSyncResult,
   TestEvidenceQueryResult,
   TestEvidenceReport,
@@ -108,6 +110,46 @@ export function formatTestEvidenceIndexSync(
   };
 }
 
+export function formatTestEvidenceIndexStage(
+  result: TestEvidenceIndexStageResult,
+  json: boolean
+): TestEvidenceCliOutput {
+  if (json) {
+    return jsonOutput(result);
+  }
+  if (result.status === "error") {
+    const selectedIds = result.selectedIds.join(", ") || "none";
+    return {
+      stderr: [
+        `Test evidence index entry staging failed (state: ${result.state}; `
+          + `changed: ${String(result.changed)}):`,
+        `selected IDs: ${selectedIds}`,
+        ...result.diagnostics.map((entry) => formatStageDiagnostic(
+          entry,
+          result.indexPath
+        ))
+      ].join("\n") + "\n",
+      stdout: ""
+    };
+  }
+  return {
+    stderr: "",
+    stdout: [
+      result.changed
+        ? `Test evidence index entries staged for ${
+          result.selectedIds.length
+        } selected case(s) in ${result.indexPath}.`
+        : `Test evidence index entries are unchanged for ${
+          result.selectedIds.length
+        } selected case(s) in ${result.indexPath}.`,
+      `state: ${result.state}; changed: ${result.changed}`,
+      `selected IDs: ${result.selectedIds.join(", ")}`,
+      "Topic definitions, case Markdown, test code, and product code "
+        + "remain outside this operation."
+    ].join("\n") + "\n"
+  };
+}
+
 export function formatTestEvidenceQueryFailure(
   result: TestEvidenceQueryResult,
   json: boolean
@@ -139,6 +181,18 @@ function formatDiagnostic(
 ): string {
   return `${diagnostic.blocking ? "blocking" : "non-blocking"} `
     + `${diagnostic.severity} [${diagnostic.code}]: ${diagnostic.message}`;
+}
+
+function formatStageDiagnostic(
+  diagnostic: TestEvidenceIndexStageDiagnostic,
+  indexPath: string
+): string {
+  return [
+    diagnostic.code,
+    diagnostic.path ?? indexPath,
+    diagnostic.stateId === null ? "" : `[${diagnostic.stateId}]`,
+    diagnostic.message
+  ].filter((part) => part.length > 0).join(" ");
 }
 
 function formatCaseListItem(

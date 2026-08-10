@@ -30,6 +30,7 @@ import "./ledger-index.test.ts";
 import "./ledger-relations.test.ts";
 import "./ledger-source.test.ts";
 import "./repository-catalog.test.ts";
+import "./staging.test.ts";
 
 const execFileAsync = promisify(execFile);
 const repositoryRoot = path.resolve(

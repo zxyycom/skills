@@ -1,4 +1,5 @@
 import type { TestEvidenceCaseShowResult } from "./test-evidence-case-show-result.types.mjs";
+import type { TestEvidenceIndexStageResult } from "./test-evidence-index-stage-result.types.mjs";
 import type { TestEvidenceIndexSyncResult } from "./test-evidence-index-sync-result.types.mjs";
 import type { TestEvidenceQueryResult } from "./test-evidence-query-result.types.mjs";
 import type { TestEvidenceReport } from "./test-evidence-report.types.mjs";
@@ -39,11 +40,20 @@ export type SyncTestEvidenceIndexOptions = {
   workspaceRoot: string;
 };
 
+export type StageTestEvidenceIndexOptions = {
+  caseIds: readonly string[];
+  workspaceRoot: string;
+};
+
 export type TestEvidenceCaseState =
   TestEvidenceQueryResult["cases"][number];
 
+export type TestEvidenceIndexStageDiagnostic =
+  TestEvidenceIndexStageResult["diagnostics"][number];
+
 export type {
   TestEvidenceCaseShowResult,
+  TestEvidenceIndexStageResult,
   TestEvidenceIndexSyncResult,
   TestEvidenceQueryResult,
   TestEvidenceReport,
@@ -54,6 +64,8 @@ export type {
 
 export declare const testEvidenceCaseShowResultSchema:
   StandardOutputSchema<TestEvidenceCaseShowResult>;
+export declare const testEvidenceIndexStageResultSchema:
+  StandardOutputSchema<TestEvidenceIndexStageResult>;
 export declare const testEvidenceIndexSyncResultSchema:
   StandardOutputSchema<TestEvidenceIndexSyncResult>;
 export declare const testEvidenceQueryResultSchema:
@@ -78,6 +90,10 @@ export declare function queryTestEvidence(
 export declare function showTestEvidenceCase(
   options: ShowTestEvidenceCaseOptions
 ): Promise<TestEvidenceCaseShowResult>;
+
+export declare function stageTestEvidenceIndex(
+  options: StageTestEvidenceIndexOptions
+): Promise<TestEvidenceIndexStageResult>;
 
 export declare function syncTestEvidenceIndex(
   options: SyncTestEvidenceIndexOptions

@@ -9914,6 +9914,282 @@
         "title": "仓库 Topic Case 可展开权威 Markdown"
       }
     },
+    "TEST-EVIDENCE-STAGE-BOOTSTRAP-001": {
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-STAGE-BOOTSTRAP-001 首次暂存建立所选测试证据索引 current revision 尚无测试证据索引时，首次合法 Case 选择使用工作区集合级 metadata 建立 pending 索引。 pending 索引只包含所选 Case 条目并保留完整 topic metadata。 首次暂存不连带加入 topic 表或 Case Markdown。 分发模块导出的程序化入口与维护源码共享该行为。 tools/test-evidence/tests/staging.test.ts > stage-index bootstraps the first test evidence index bun test --test-name-pattern=\"^stage-index bootstraps the first test evidence index$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "topic": [
+          "test-evidence"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/test-evidence/tests/staging.test.ts > stage-index bootstraps the first test evidence index",
+          "bun test --test-name-pattern=\"^stage-index bootstraps the first test evidence index$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-STAGE-BOOTSTRAP-001",
+        "line": 1,
+        "searchText": "首次暂存建立所选测试证据索引 current revision 尚无测试证据索引时，首次合法 Case 选择使用工作区集合级 metadata 建立 pending 索引。 pending 索引只包含所选 Case 条目并保留完整 topic metadata。 首次暂存不连带加入 topic 表或 Case Markdown。 分发模块导出的程序化入口与维护源码共享该行为。 tools/test-evidence/tests/staging.test.ts > stage-index bootstraps the first test evidence index bun test --test-name-pattern=\"^stage-index bootstraps the first test evidence index$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/stage-index-bootstraps-the-first-test-evidence-index.md",
+        "summary": "current revision 尚无测试证据索引时，首次合法 Case 选择使用工作区集合级 metadata 建立 pending 索引。",
+        "title": "首次暂存建立所选测试证据索引"
+      }
+    },
+    "TEST-EVIDENCE-STAGE-CLI-001": {
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-STAGE-CLI-001 暂存 CLI 保留帮助与机器退出契约 分发 CLI 必须展示 `stage-index` 的 Case 选择与领域文件边界，并区分参数失败与操作失败。 help 显示必需的可变 Case ID 参数、领域文件非目标和退出码语义。 缺少必需参数返回 usage 失败；非法或重复 ID 以退出码 `2` 返回符合结果 Schema 的 JSON 失败。 版本仓库操作失败以退出码 `1` 返回符合结果 Schema 的 JSON 失败，且不向 stderr 混入诊断。 tools/test-evidence/tests/staging.test.ts > stage-index CLI exposes help and schema-valid exit contracts bun test --test-name-pattern=\"^stage-index CLI exposes help and schema-valid exit contracts$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "topic": [
+          "test-evidence"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/test-evidence/tests/staging.test.ts > stage-index CLI exposes help and schema-valid exit contracts",
+          "bun test --test-name-pattern=\"^stage-index CLI exposes help and schema-valid exit contracts$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-STAGE-CLI-001",
+        "line": 1,
+        "searchText": "暂存 CLI 保留帮助与机器退出契约 分发 CLI 必须展示 `stage-index` 的 Case 选择与领域文件边界，并区分参数失败与操作失败。 help 显示必需的可变 Case ID 参数、领域文件非目标和退出码语义。 缺少必需参数返回 usage 失败；非法或重复 ID 以退出码 `2` 返回符合结果 Schema 的 JSON 失败。 版本仓库操作失败以退出码 `1` 返回符合结果 Schema 的 JSON 失败，且不向 stderr 混入诊断。 tools/test-evidence/tests/staging.test.ts > stage-index CLI exposes help and schema-valid exit contracts bun test --test-name-pattern=\"^stage-index CLI exposes help and schema-valid exit contracts$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/stage-index-cli-exposes-help-and-schema-valid-exit-contracts.md",
+        "summary": "分发 CLI 必须展示 `stage-index` 的 Case 选择与领域文件边界，并区分参数失败与操作失败。",
+        "title": "暂存 CLI 保留帮助与机器退出契约"
+      }
+    },
+    "TEST-EVIDENCE-STAGE-CONFLICT-001": {
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-STAGE-CONFLICT-001 同索引既有 Pending 被拒绝并原样保留 目标测试证据索引已有待提交内容时，选择性暂存不得覆盖、累加、清除或绕过该内容。 命令返回 `pending-conflict` 并逐字保留既有 pending 索引。 目标外 pending 路径和工作区索引保持不变。 tools/test-evidence/tests/staging.test.ts > stage-index rejects existing same-index pending content bun test --test-name-pattern=\"^stage-index rejects existing same-index pending content$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "topic": [
+          "test-evidence"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/test-evidence/tests/staging.test.ts > stage-index rejects existing same-index pending content",
+          "bun test --test-name-pattern=\"^stage-index rejects existing same-index pending content$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-STAGE-CONFLICT-001",
+        "line": 1,
+        "searchText": "同索引既有 Pending 被拒绝并原样保留 目标测试证据索引已有待提交内容时，选择性暂存不得覆盖、累加、清除或绕过该内容。 命令返回 `pending-conflict` 并逐字保留既有 pending 索引。 目标外 pending 路径和工作区索引保持不变。 tools/test-evidence/tests/staging.test.ts > stage-index rejects existing same-index pending content bun test --test-name-pattern=\"^stage-index rejects existing same-index pending content$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/stage-index-rejects-existing-same-index-pending-content.md",
+        "summary": "目标测试证据索引已有待提交内容时，选择性暂存不得覆盖、累加、清除或绕过该内容。",
+        "title": "同索引既有 Pending 被拒绝并原样保留"
+      }
+    },
+    "TEST-EVIDENCE-STAGE-EMPTY-001": {
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-STAGE-EMPTY-001 删除最后一个 Case 可形成合法空目标 选中删除 revision 中最后一个 Case 时，完整 topic metadata 与空 entries 可以形成合法目标索引。 暂存成功并在 pending 索引中产生空 entries record。 tools/test-evidence/tests/staging.test.ts > stage-index permits a legal empty target bun test --test-name-pattern=\"^stage-index permits a legal empty target$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "topic": [
+          "test-evidence"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/test-evidence/tests/staging.test.ts > stage-index permits a legal empty target",
+          "bun test --test-name-pattern=\"^stage-index permits a legal empty target$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-STAGE-EMPTY-001",
+        "line": 1,
+        "searchText": "删除最后一个 Case 可形成合法空目标 选中删除 revision 中最后一个 Case 时，完整 topic metadata 与空 entries 可以形成合法目标索引。 暂存成功并在 pending 索引中产生空 entries record。 tools/test-evidence/tests/staging.test.ts > stage-index permits a legal empty target bun test --test-name-pattern=\"^stage-index permits a legal empty target$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/stage-index-permits-a-legal-empty-target.md",
+        "summary": "选中删除 revision 中最后一个 Case 时，完整 topic metadata 与空 entries 可以形成合法目标索引。",
+        "title": "删除最后一个 Case 可形成合法空目标"
+      }
+    },
+    "TEST-EVIDENCE-STAGE-INPUT-001": {
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-STAGE-INPUT-001 暂存入口在仓库访问前校验固定 Case ID `stage-index` 只接受至少一个符合固定协议且不重复的 Case ID，并在访问版本仓库前完成领域校验。 空选择、非法 ID 与重复 ID 返回可区分的 `selection-invalid` 诊断。 执行入口以显式 `invalid-arguments` 失败类型承接 Case ID 输入错误。 输入失败不会创建或读取目标工作区。 tools/test-evidence/tests/staging.test.ts > stage-index validates fixed case ids before repository access bun test --test-name-pattern=\"^stage-index validates fixed case ids before repository access$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "topic": [
+          "test-evidence"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/test-evidence/tests/staging.test.ts > stage-index validates fixed case ids before repository access",
+          "bun test --test-name-pattern=\"^stage-index validates fixed case ids before repository access$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-STAGE-INPUT-001",
+        "line": 1,
+        "searchText": "暂存入口在仓库访问前校验固定 Case ID `stage-index` 只接受至少一个符合固定协议且不重复的 Case ID，并在访问版本仓库前完成领域校验。 空选择、非法 ID 与重复 ID 返回可区分的 `selection-invalid` 诊断。 执行入口以显式 `invalid-arguments` 失败类型承接 Case ID 输入错误。 输入失败不会创建或读取目标工作区。 tools/test-evidence/tests/staging.test.ts > stage-index validates fixed case ids before repository access bun test --test-name-pattern=\"^stage-index validates fixed case ids before repository access$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/stage-index-validates-fixed-case-ids-before-repository-access.md",
+        "summary": "`stage-index` 只接受至少一个符合固定协议且不重复的 Case ID，并在访问版本仓库前完成领域校验。",
+        "title": "暂存入口在仓库访问前校验固定 Case ID"
+      }
+    },
+    "TEST-EVIDENCE-STAGE-ISOLATION-001": {
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-STAGE-ISOLATION-001 单 Case 暂存隔离并保留领域文件边界 A、B Case 同时改变时，选择 A 只把 A 的索引条目带入 `pending`，并保持领域文件与范围外待提交内容不变。 pending 索引使用 A 的工作区条目和 B 的 revision 条目。 topic 表、Case Markdown 与工作区索引即使在同步后失效也不会被暂存入口读取、改写或加入 pending。 JSON 输出符合选择性暂存结果 Schema，目标外 pending 路径保持原样。 tools/test-evidence/tests/staging.test.ts > stage-index isolates one case without reading or staging domain files bun test --test-name-pattern=\"^stage-index isolates one case without reading or staging domain files$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "topic": [
+          "test-evidence"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/test-evidence/tests/staging.test.ts > stage-index isolates one case without reading or staging domain files",
+          "bun test --test-name-pattern=\"^stage-index isolates one case without reading or staging domain files$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-STAGE-ISOLATION-001",
+        "line": 1,
+        "searchText": "单 Case 暂存隔离并保留领域文件边界 A、B Case 同时改变时，选择 A 只把 A 的索引条目带入 `pending`，并保持领域文件与范围外待提交内容不变。 pending 索引使用 A 的工作区条目和 B 的 revision 条目。 topic 表、Case Markdown 与工作区索引即使在同步后失效也不会被暂存入口读取、改写或加入 pending。 JSON 输出符合选择性暂存结果 Schema，目标外 pending 路径保持原样。 tools/test-evidence/tests/staging.test.ts > stage-index isolates one case without reading or staging domain files bun test --test-name-pattern=\"^stage-index isolates one case without reading or staging domain files$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/stage-index-isolates-one-case-without-reading-or-staging-domain-files.md",
+        "summary": "A、B Case 同时改变时，选择 A 只把 A 的索引条目带入 `pending`，并保持领域文件与范围外待提交内容不变。",
+        "title": "单 Case 暂存隔离并保留领域文件边界"
+      }
+    },
+    "TEST-EVIDENCE-STAGE-METADATA-001": {
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-STAGE-METADATA-001 Topic Metadata 变化拒绝按 Case 暂存 完整 topic 表及其来源指纹属于集合级 metadata，不能归入单个 Case ID 的选择。 topic 描述相对 revision 变化时返回 `collection-changed`。 拒绝结果不会产生 pending 路径。 tools/test-evidence/tests/staging.test.ts > stage-index rejects topic metadata changes bun test --test-name-pattern=\"^stage-index rejects topic metadata changes$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "topic": [
+          "test-evidence"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/test-evidence/tests/staging.test.ts > stage-index rejects topic metadata changes",
+          "bun test --test-name-pattern=\"^stage-index rejects topic metadata changes$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-STAGE-METADATA-001",
+        "line": 1,
+        "searchText": "Topic Metadata 变化拒绝按 Case 暂存 完整 topic 表及其来源指纹属于集合级 metadata，不能归入单个 Case ID 的选择。 topic 描述相对 revision 变化时返回 `collection-changed`。 拒绝结果不会产生 pending 路径。 tools/test-evidence/tests/staging.test.ts > stage-index rejects topic metadata changes bun test --test-name-pattern=\"^stage-index rejects topic metadata changes$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/stage-index-rejects-topic-metadata-changes.md",
+        "summary": "完整 topic 表及其来源指纹属于集合级 metadata，不能归入单个 Case ID 的选择。",
+        "title": "Topic Metadata 变化拒绝按 Case 暂存"
+      }
+    },
+    "TEST-EVIDENCE-STAGE-MISSING-001": {
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-STAGE-MISSING-001 两份索引都缺失的 Case ID 在写入前失败 只有至少存在于 revision 索引或工作区索引之一的合法 Case ID 才能参与选择性暂存。 两份索引都缺失的 ID 返回 `state-index.selected-id-missing`。 pending 与工作区索引保持不变。 tools/test-evidence/tests/staging.test.ts > stage-index rejects case ids missing from both indexes bun test --test-name-pattern=\"^stage-index rejects case ids missing from both indexes$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "topic": [
+          "test-evidence"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/test-evidence/tests/staging.test.ts > stage-index rejects case ids missing from both indexes",
+          "bun test --test-name-pattern=\"^stage-index rejects case ids missing from both indexes$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-STAGE-MISSING-001",
+        "line": 1,
+        "searchText": "两份索引都缺失的 Case ID 在写入前失败 只有至少存在于 revision 索引或工作区索引之一的合法 Case ID 才能参与选择性暂存。 两份索引都缺失的 ID 返回 `state-index.selected-id-missing`。 pending 与工作区索引保持不变。 tools/test-evidence/tests/staging.test.ts > stage-index rejects case ids missing from both indexes bun test --test-name-pattern=\"^stage-index rejects case ids missing from both indexes$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/stage-index-rejects-case-ids-missing-from-both-indexes.md",
+        "summary": "只有至少存在于 revision 索引或工作区索引之一的合法 Case ID 才能参与选择性暂存。",
+        "title": "两份索引都缺失的 Case ID 在写入前失败"
+      }
+    },
+    "TEST-EVIDENCE-STAGE-OVERLAY-001": {
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-STAGE-OVERLAY-001 选择性暂存组合新增删除与显式重命名 Case 新增、删除和重命名由选中 ID 在 revision 与工作区索引中的存在状态表达，重命名同时选择旧、新 ID。 选中的新增 Case 进入 pending，选中的旧 ID 与删除 Case 被移除。 未选择 Case 的工作区修改继续使用 revision 基线。 文本结果按稳定顺序报告 selected IDs 并提醒领域文件位于操作范围之外。 tools/test-evidence/tests/staging.test.ts > stage-index applies selected additions deletions and explicit renames bun test --test-name-pattern=\"^stage-index applies selected additions deletions and explicit renames$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "topic": [
+          "test-evidence"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/test-evidence/tests/staging.test.ts > stage-index applies selected additions deletions and explicit renames",
+          "bun test --test-name-pattern=\"^stage-index applies selected additions deletions and explicit renames$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-STAGE-OVERLAY-001",
+        "line": 1,
+        "searchText": "选择性暂存组合新增删除与显式重命名 Case 新增、删除和重命名由选中 ID 在 revision 与工作区索引中的存在状态表达，重命名同时选择旧、新 ID。 选中的新增 Case 进入 pending，选中的旧 ID 与删除 Case 被移除。 未选择 Case 的工作区修改继续使用 revision 基线。 文本结果按稳定顺序报告 selected IDs 并提醒领域文件位于操作范围之外。 tools/test-evidence/tests/staging.test.ts > stage-index applies selected additions deletions and explicit renames bun test --test-name-pattern=\"^stage-index applies selected additions deletions and explicit renames$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/stage-index-applies-selected-additions-deletions-and-explicit-renames.md",
+        "summary": "Case 新增、删除和重命名由选中 ID 在 revision 与工作区索引中的存在状态表达，重命名同时选择旧、新 ID。",
+        "title": "选择性暂存组合新增删除与显式重命名"
+      }
+    },
+    "TEST-EVIDENCE-STAGE-REPOSITORY-001": {
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-STAGE-REPOSITORY-001 无版本仓库时稳定失败且不写工作区 选择性索引暂存依赖可用的版本仓库，仓库不可用不能退化成工作区文件写入。 结果使用 `revision-read-failed` 与 `state-index.repository-unavailable` 诊断。 工作区索引和 Case Markdown 字节保持不变。 tools/test-evidence/tests/staging.test.ts > stage-index reports unavailable version control without workspace writes bun test --test-name-pattern=\"^stage-index reports unavailable version control without workspace writes$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "topic": [
+          "test-evidence"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/test-evidence/tests/staging.test.ts > stage-index reports unavailable version control without workspace writes",
+          "bun test --test-name-pattern=\"^stage-index reports unavailable version control without workspace writes$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-STAGE-REPOSITORY-001",
+        "line": 1,
+        "searchText": "无版本仓库时稳定失败且不写工作区 选择性索引暂存依赖可用的版本仓库，仓库不可用不能退化成工作区文件写入。 结果使用 `revision-read-failed` 与 `state-index.repository-unavailable` 诊断。 工作区索引和 Case Markdown 字节保持不变。 tools/test-evidence/tests/staging.test.ts > stage-index reports unavailable version control without workspace writes bun test --test-name-pattern=\"^stage-index reports unavailable version control without workspace writes$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/stage-index-reports-unavailable-version-control-without-workspace-writes.md",
+        "summary": "选择性索引暂存依赖可用的版本仓库，仓库不可用不能退化成工作区文件写入。",
+        "title": "无版本仓库时稳定失败且不写工作区"
+      }
+    },
+    "TEST-EVIDENCE-STAGE-TOPIC-001": {
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-STAGE-TOPIC-001 未知 Topic 投影在暂存前失败 工作区索引中的每个 Case `sourcePath` 与 topic key 必须属于 metadata 定义的 topic，领域归属由现有 definition 完整校验。 未知 topic 投影返回 `workspace-index-invalid` 与定位到目标 Case 的稳定索引诊断。 无效工作区索引不会进入 pending。 tools/test-evidence/tests/staging.test.ts > stage-index rejects workspace cases projected to an unknown topic bun test --test-name-pattern=\"^stage-index rejects workspace cases projected to an unknown topic$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "topic": [
+          "test-evidence"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/test-evidence/tests/staging.test.ts > stage-index rejects workspace cases projected to an unknown topic",
+          "bun test --test-name-pattern=\"^stage-index rejects workspace cases projected to an unknown topic$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-STAGE-TOPIC-001",
+        "line": 1,
+        "searchText": "未知 Topic 投影在暂存前失败 工作区索引中的每个 Case `sourcePath` 与 topic key 必须属于 metadata 定义的 topic，领域归属由现有 definition 完整校验。 未知 topic 投影返回 `workspace-index-invalid` 与定位到目标 Case 的稳定索引诊断。 无效工作区索引不会进入 pending。 tools/test-evidence/tests/staging.test.ts > stage-index rejects workspace cases projected to an unknown topic bun test --test-name-pattern=\"^stage-index rejects workspace cases projected to an unknown topic$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/stage-index-rejects-workspace-cases-projected-to-an-unknown-topic.md",
+        "summary": "工作区索引中的每个 Case `sourcePath` 与 topic key 必须属于 metadata 定义的 topic，领域归属由现有 definition 完整校验。",
+        "title": "未知 Topic 投影在暂存前失败"
+      }
+    },
+    "TEST-EVIDENCE-STAGE-UNCHANGED-001": {
+      "keys": {
+        "search": [
+          "TEST-EVIDENCE-STAGE-UNCHANGED-001 无变化选择返回 Unchanged 且不制造 Pending 所选 Case 与 revision 完全一致且同索引 pending 干净时，命令返回合法无变化结果。 结果为 `ok + unchanged + changed: false`。 版本仓库不会新增待提交路径。 tools/test-evidence/tests/staging.test.ts > stage-index reports an unchanged selected case bun test --test-name-pattern=\"^stage-index reports an unchanged selected case$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "topic": [
+          "test-evidence"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/test-evidence/tests/staging.test.ts > stage-index reports an unchanged selected case",
+          "bun test --test-name-pattern=\"^stage-index reports an unchanged selected case$\" ./tools/test-evidence/tests/run.ts"
+        ],
+        "id": "TEST-EVIDENCE-STAGE-UNCHANGED-001",
+        "line": 1,
+        "searchText": "无变化选择返回 Unchanged 且不制造 Pending 所选 Case 与 revision 完全一致且同索引 pending 干净时，命令返回合法无变化结果。 结果为 `ok + unchanged + changed: false`。 版本仓库不会新增待提交路径。 tools/test-evidence/tests/staging.test.ts > stage-index reports an unchanged selected case bun test --test-name-pattern=\"^stage-index reports an unchanged selected case$\" ./tools/test-evidence/tests/run.ts",
+        "sourcePath": "test-evidence/stage-index-reports-an-unchanged-selected-case.md",
+        "summary": "所选 Case 与 revision 完全一致且同索引 pending 干净时，命令返回合法无变化结果。",
+        "title": "无变化选择返回 Unchanged 且不制造 Pending"
+      }
+    },
     "TEST-EVIDENCE-STALE-INDEX-001": {
       "keys": {
         "search": [
@@ -11163,6 +11439,18 @@
       "TEST-EVIDENCE-ROOT-MEMBERSHIP-001": "sha256:eb0524bc0bee4227f1b04f5afa179eebae4b3e5188a8a64e1002ad69939ac384",
       "TEST-EVIDENCE-SCHEMA-V3-001": "sha256:41639180c292b38fe2c16537267893772919ab7bdc3850590a623e98b3b2e945",
       "TEST-EVIDENCE-SHOW-REPOSITORY-001": "sha256:06ad49afd0c01bb81322bf25f09a4caca17818c2944285e2037b5d734332ae47",
+      "TEST-EVIDENCE-STAGE-BOOTSTRAP-001": "sha256:2e211fb4edd2ba83776d2dbed82c280e640f8a50b33916475138550dae91030f",
+      "TEST-EVIDENCE-STAGE-CLI-001": "sha256:19eb883d7659407ee18fd9d77ea38e0532bbb0d9c98041ecf21843a60999f26f",
+      "TEST-EVIDENCE-STAGE-CONFLICT-001": "sha256:31222503372f3d68e75ff42b59a6ff6beb25d3e90b0249ddfdbd9d807ab6049f",
+      "TEST-EVIDENCE-STAGE-EMPTY-001": "sha256:585d4943e2f3a64af553bb70adbc923cc97788a70c03e5dc6e0ffd8fd65fad0e",
+      "TEST-EVIDENCE-STAGE-INPUT-001": "sha256:70654acff33ddbe1b26c7c4e1674495da3746603a24fe3ca8ea313f6e3da9042",
+      "TEST-EVIDENCE-STAGE-ISOLATION-001": "sha256:542945a31ecd4e835283d2b6fef3d1c843384269adde2a98c06d4689116fc2a3",
+      "TEST-EVIDENCE-STAGE-METADATA-001": "sha256:a6550296cc03048dfe62e62a0355f6e25178f8b33035010d30d5efcf03542fde",
+      "TEST-EVIDENCE-STAGE-MISSING-001": "sha256:afaf9adfcc21b8b605bc0415b0f7d2b2494640024ca76d5ca8b905f64a4a70b0",
+      "TEST-EVIDENCE-STAGE-OVERLAY-001": "sha256:cac7f1516de28282af227fc66f51e33ab137e079ebdf3032f574008c7edfdae5",
+      "TEST-EVIDENCE-STAGE-REPOSITORY-001": "sha256:e197001413fd925102181963a4c54c380651db89a88b1195904a8569e5bd3529",
+      "TEST-EVIDENCE-STAGE-TOPIC-001": "sha256:41395287847c02bca208bc73a02bc39c7771725abf54fb6fc72cd38db103962f",
+      "TEST-EVIDENCE-STAGE-UNCHANGED-001": "sha256:10d46e6be6853be4ba3b4ce662f48127ae2afb38f2145ce9ac1a4808a81a8ea3",
       "TEST-EVIDENCE-STALE-INDEX-001": "sha256:4caa2aca38a3f674b8c67c8a96707a9a05e6d1265147cfe410c2749f0a4c17db",
       "TEST-EVIDENCE-TOPIC-CLI-001": "sha256:e30b174edf4cadca541a421ef693222d59952f0c0f79b1894c1190ef1a3f2640",
       "TEST-EVIDENCE-TOPIC-DIRECTORY-001": "sha256:1bb37742092266c447906922c99ad4504302d977c0ea54f2be45f2761e56601a",

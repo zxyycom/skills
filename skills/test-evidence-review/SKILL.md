@@ -6,7 +6,7 @@ description: >-
   再审查契约、证明信号和可靠性，并维护一入口一 case 的可检索账本。
   工程校验、仅运行既有测试或只修改被测对象不使用。
 metadata:
-  version: "12"
+  version: "14"
 ---
 
 # Test Evidence Review
@@ -86,8 +86,9 @@ metadata:
 6. [upgrade-from-single-file-catalog.md](references/upgrade-from-single-file-catalog.md)
    只在旧账本仍是单个 Markdown，或根目录直属主题 Markdown 时读取。
 
-`scripts/test-evidence-catalog.mjs` 只校验、同步和查询显式 case。它不扫描源码、
-不执行 `Entry:`、不发现或自动登记测试，也不判断测试粒度或证明价值。
+`scripts/test-evidence-catalog.mjs` 只校验、同步和查询显式 case，或按调用方给出的
+Case ID 暂存派生索引条目。它不扫描源码、不执行 `Entry:`、不发现或自动登记测试，
+也不判断测试粒度或证明价值。
 
 目录不存在时，只读任务报告没有可查询目录；修改任务只有在决定保留至少一个测试
 入口后才初始化目录。
@@ -133,7 +134,11 @@ metadata:
    - 删除测试入口时删除对应 case；只改变定位时更新原 case。
    - 容器和内部环节只在有定位价值时写入所属 case，不独立登记。
 6. **同步索引**：case 正文变化后运行 `sync-index --write`；索引不手工编辑。
-7. **验证结果**：运行目标测试，再运行目录 `check`；按项目要求补充更大范围检查。
+7. **按需隔离索引暂存**：同一工作区有多项 Case 变化、当前提交只选择其中一部分时，
+   在第 6 步同步完整工作区索引后先通过目录 `check`，再用
+   `stage-index <case-id...>` 只暂存所选 Case 的索引条目；topic 表、Case Markdown、
+   测试代码和产品代码仍由调用方按实际范围另行暂存。
+8. **验证结果**：运行目标测试，再运行目录 `check`；按项目要求补充更大范围检查。
 
 ## Case 与查询模型
 
@@ -149,6 +154,11 @@ case。topic 只提供维护、筛选和定位边界，不合并或改变 case �
 和精确 topic 的查询。索引可以删除重建，但不收集、注册或生成 case。精确格式、
 固定路径、CLI 参数和机器结果以目录契约为准。
 
+`stage-index` 只把已经存在于 current revision 或工作区索引中的所选 Case ID 交给
+通用索引运行时。Case 重命名同时选择旧、新 ID；topic 表 metadata 变化不能按 Case
+拆分。同一索引已有 `pending` 时命令拒绝覆盖。成功不表示 topic 表、Case Markdown、
+测试代码或产品代码已经暂存，提交前仍需核对完整 `pending` 范围。
+
 从 skill 目录执行常用事务：
 
 ```text
@@ -157,6 +167,7 @@ node scripts/test-evidence-catalog.mjs list --topic <topic> --root <workspace-ro
 node scripts/test-evidence-catalog.mjs list --query "<contract or entry>" --root <workspace-root>
 node scripts/test-evidence-catalog.mjs show <case-id> --root <workspace-root>
 node scripts/test-evidence-catalog.mjs sync-index --write --root <workspace-root>
+node scripts/test-evidence-catalog.mjs stage-index <case-id...> --root <workspace-root>
 node scripts/test-evidence-catalog.mjs check --root <workspace-root>
 ```
 
@@ -178,6 +189,8 @@ node scripts/test-evidence-catalog.mjs check --root <workspace-root>
 4. 每个 case 位于受控 topic 的独立 Markdown；topic 没有重新集中或改变 case 粒度。
 5. 工程校验没有进入测试证据目录，目录中没有旧字段、marker、角色或状态。
 6. 派生索引已从合法目录同步；目标测试和目录 `check` 已运行，或阻塞边界已说明。
+7. 使用选择性索引暂存时，所选 Case ID、索引结果与另行暂存的领域文件范围已经核对，
+   未选择 Case 的工作区索引变化没有进入本次 `pending`。
 
 ### 交付
 

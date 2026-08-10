@@ -18,6 +18,8 @@ export type {
   TestEvidenceDiagnostic,
   TestEvidenceDiagnosticCategory,
   TestEvidenceDiagnosticSeverity,
+  TestEvidenceIndexStageDiagnostic,
+  TestEvidenceIndexStageResult,
   TestEvidenceIndexSyncResult,
   TestEvidenceIndexMetadata,
   TestEvidenceQueryResult,
