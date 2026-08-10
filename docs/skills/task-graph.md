@@ -12,6 +12,12 @@ Task entry 将目标内容与调度状态分开：内容保存标题、目标、
 
 程序化 `listTasks()` 返回结果的 `data` 是以实际 task ID 为键的 `TaskListItem` 字典；每项复用完整 `TaskProjection`，并增加 title、direct parent 和 execution phase。Track label、dependency layer、折叠 token、缩进和摘要计数只属于 renderer 的临时显示结构，不写回 projection。精确字段和状态转移以实际 [Task Graph skill](../../skills/task-graph/SKILL.md) 与 [task index Schema](../../skills/task-graph/references/task-graph-index.schema.json) 为准。
 
+## Result 与版本锚点
+
+`result` 是 task 终结时的语义结果，默认只保存结果摘要和确有长期价值的稳定 owner 引用。分支、当前提交和 lease 属于执行或集成交接信息；没有定义清楚的长期消费者时，不把 Git commit SHA 复制进 result。
+
+仓库用 Git 管理 task index 时，首次包含终态 entry 的提交构成结果的版本锚点。它只证明该仓库版本已经记录任务结果，不表示 task 唯一对应某个实现提交。工作区 mutation 和 `index stage` 都没有形成 Git 历史锚点；stage、commit 和交付仍由调用方按授权显式完成。完整规则以 [Task Graph skill 的 result 契约](../../skills/task-graph/SKILL.md#task-result-与版本锚点) 为准。
+
 ## 默认任务清单
 
 1. `task list` 默认输出索引中的全部 task，每项使用实际 `taskId` 恰好出现一次；它不做过滤、分页、自动收缩或 `outside-view` 占位。

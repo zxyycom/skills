@@ -237,6 +237,7 @@
       "subagent-orchestration/260718-focus-description-on-trigger-context.md": "sha256:8ba13bfa3fd702f51d52db39ec060fe5879d061463cef6ec5f662f9402770f49",
       "subagent-orchestration/allocate-agents-and-runtime-by-task-slice.md": "sha256:8bd0ceef201c4e90d9c97a6340f6a4e3ef1ee333267b3abc0136b22e1d955605",
       "subagent-orchestration/bound-review-and-handoff-by-delivery-impact.md": "sha256:f9a19ed300003b4730bbd8d522947aaa501a99d1be5af61a54b4c385ff36b7a5",
+      "task-graph/anchor-semantic-task-results-in-index-history.md": "sha256:182c7fd1302fa657e61834611b76584d823b6da0c7ca96eac294bc50384c267f",
       "task-graph/coordinate-task-execution-with-transactional-claims.md": "sha256:eed05bfa690ee8c16351419d3fe37d65ea9f93fe599bb91f37dac6adf695dded",
       "task-graph/delegate-native-runtime-installation-to-caller.md": "sha256:287e98cd90491f9acbf5cf1e4deaa5b973875ce615cdfa75e84069d54044743c",
       "task-graph/derive-sdk-declarations-from-runtime-source.md": "sha256:d2fad5e26b872a1ee6a4edf63b6555fe5b4b80de5fbdfdb21d63e38068ef393e",
@@ -4177,6 +4178,30 @@
         "purpose": "让审查围绕阻断交付的问题收敛，并让子代理只返回主代理决策所需的信息。",
         "background": "不区分问题实质性会制造审查循环，强制填写重复或空字段也会增加成本而不改善交付判断。",
         "decision": "审查只对实质阻断问题触发定向修复；交接只强制结果和证据，改动与重大例外在实际存在时报告。",
+        "relations": []
+      }
+    },
+    "task-graph/anchor-semantic-task-results-in-index-history.md": {
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/anchor-semantic-task-results-in-index-history.md",
+        "title": "以索引历史锚定 task 语义结果",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-10T07:20:56Z",
+        "purpose": "让 task result 保存可维护的语义结果，并由 task index 的版本历史锚定完成时的仓库状态。",
+        "background": "分支 SHA 会被 rebase 改写，而 task 协调没有明确消费者需要在 result 中重复保存具体实现提交。",
+        "decision": "Task result 默认只保存摘要和稳定 owner 引用；完成状态进入 task index 的 Git 历史后锚定仓库版本，不常规记录 commit SHA。",
         "relations": []
       }
     },

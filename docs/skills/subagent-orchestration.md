@@ -8,4 +8,13 @@
 
 主 agent 派发结果导向的任务，并在返回后只审计目标是否达成、范围是否越界、假设是否可靠、验证是否充分以及是否仍有风险或阻塞。等待较长或结果不足时优先缩小范围、补充只读调查或追加审查，不把子代理退化为逐条执行命令的远程终端。
 
+## 与 task graph 协作
+
+只有工作已经通过 `task-graph` 领取, 且 task goal 包含目标主线集成时, 才启用对应的 Git 集成协作。`task-graph` 负责 lease、终态 result 和版本锚点; 本 skill 只负责代理交接、集成所有权和任务切分。项目没有启用 task graph 时, 沿用项目已有流程, 不自行引入这些概念。
+
+- **即时集成**: 主 agent 会立即继续同一 task 时, 子代理完成分支提交和自验证后续租并交回 task、lease、分支、当前提交和验证结果; 主 agent 集成后再收敛 task。
+- **异步集成**: 集成需要等待或由独立所有者负责时, 编排者建立显式依赖的实现 task 与集成 task; 分支、当前提交和验证结果作为交接输入传给集成执行者。
+
+两条路径都把分支提交视为待集成输入, 不把它误当成整个 goal 已经完成。操作顺序和选择条件以实际 [Subagent Orchestration skill](../../skills/subagent-orchestration/SKILL.md#与-task-graph-协作的-git-集成) 为准; result 的内容与 Git 锚点以 [Task Graph skill](../../skills/task-graph/SKILL.md#task-result-与版本锚点) 为准。
+
 实际 skill 位于 [`skills/subagent-orchestration/`](../../skills/subagent-orchestration/)。

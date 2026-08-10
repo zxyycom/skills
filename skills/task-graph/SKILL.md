@@ -6,7 +6,7 @@ description: >-
   选择、领取并收敛任务；少量固定顺序步骤继续使用当前对话计划。
 compatibility: "Requires Node.js ^22.22.2 || ^24.15.0 || >=26.0.0 and Git for pending staging; workspace task-index mutations require a caller-provisioned compatible native runtime."
 metadata:
-  version: "8"
+  version: "9"
 ---
 
 # Task Graph
@@ -44,6 +44,14 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 2. Task ID 是字典键和稳定引用身份；创建后必须使用工具返回的实际 ID。Task title 是独立显示文本，可以重名。
 3. Task entry 把 `content` 与 `state` 分开：`content` 保存标题、目标、可选 `acceptance` 完成提示、紧凑上下文、引用和结果；`state.control` 保存候选、排队、等待或暂停意图；`state.execution` 保存尝试、租约和终结状态；`state.relations` 保存父任务、依赖和排斥。`acceptance` 没有状态语义。
 4. 可行动性、有效控制、阻塞原因、继承关系和待恢复状态由查询投影计算，不作为第二份状态写回 task entry。
+
+## Task result 与版本锚点
+
+1. `content.result` 保存 task 进入终态时的当前语义结果，不保存工作中间态或默认事件历史。
+2. Result 默认只包含结果摘要和确有长期价值的稳定 owner 引用。分支、当前提交和 lease 是执行或集成交接信息；没有定义清楚的长期消费者时，不把 Git commit SHA 复制为 result 引用。
+3. 目标仓库用 Git 管理 task index 时，首次包含该终态 entry 的提交是 task 结果的版本锚点。它只证明“该仓库版本已经记录此终态结果”，不证明 task 唯一对应某个实现提交。
+4. 工作区 task mutation 只改变权威索引，`index stage` 只改变 Git pending。二者都不表示版本锚点已经形成；是否 stage、commit 或交付仍由调用方按当前授权显式决定。
+5. Task result 不是审计日志。成功事实需要撤销时，将其作为独立终态纠正问题处理；当前环境提供对应显式流程时使用该流程。Failed task 再执行使用 `retry`。二者都不通过修改 succeeded result 元数据替代。
 
 ## 按 task ID 分段暂存索引
 
@@ -101,9 +109,10 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 ### 4. 执行与收敛
 
 1. Lease 持有者负责跟踪到期时间；工作可能越过到期时间时，在有效期内主动 `renew`。
-2. 完成、失败、释放或运行中取消必须使用匹配的当前 lease。释放时显式选择下一本地 control；失败后需要继续工作时先 `retry`，再重新查询和领取。
-3. 租约过期后，使用 `task show` 读取最新任务和 revision，再通过 `claim --recover-lease <旧 lease> --expected-revision <最新 revision> --reason <原因>` 原子写入新 lease。恢复三元组缺一不可，活动租约不能提前接管。
-4. 有子任务的父任务只有在直接子任务全部成功或取消、至少一个成功且不存在活动或待恢复后代租约时才能完成。该判断不读取任何 `acceptance`；取消父任务会按门禁递归取消未终结后代，并保留已经终结的结果。
+2. 只有 task goal 已经达到时才写入终态。Goal 包含主线集成、发布或外部确认时，自验证和分支提交只是中间交付，不能提前 `complete`。
+3. 完成、失败、释放或运行中取消必须使用匹配的当前 lease，并遵守“Task result 与版本锚点”。释放时显式选择下一本地 control；失败任务需要继续工作时先 `retry`，再重新查询和领取。
+4. 租约过期后，使用 `task show` 读取最新任务和 revision，再通过 `claim --recover-lease <旧 lease> --expected-revision <最新 revision> --reason <原因>` 原子写入新 lease。恢复三元组缺一不可，活动租约不能提前接管。
+5. 有子任务的父任务只有在直接子任务全部成功或取消、至少一个成功且不存在活动或待恢复后代租约时才能完成。该判断不读取任何 `acceptance`；取消父任务会按门禁递归取消未终结后代，并保留已经终结的结果。
 
 ### 5. 动态追加、恢复与交接
 
@@ -136,7 +145,7 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 ## 完成标准
 
 1. 当前任务图可以从权威索引恢复；task、真实父子、依赖和排斥只包含已经确认的事实。
-2. 每项实际执行都在成功 claim 后进行，并以匹配 lease 完成、失败、释放或取消；过期执行只通过恢复 claim 接管，父任务按完成门禁收敛。
+2. 每项实际执行都在成功 claim 后进行，并以匹配 lease 完成、失败、释放或取消；终态 result 与版本锚点符合本文件的独立契约，task goal 没有在中间交付阶段被提前完成。过期执行只通过恢复 claim 接管，父任务按完成门禁收敛。
 3. 工作区 revision 冲突、工作区未知写入结果或 pending 未知恢复结果没有被盲目重试，活动与待恢复执行没有被静默覆盖。
 4. 权限判断、代理编排、持久 change 和长期知识仍由各自 owner 承接，没有被 task graph 状态替代。
 5. 工作区索引 mutation runtime 已通过当前平台探针；不再需要的终态任务只有在结果交付、关系闭合并获得显式清理确认后才删除，其余任务可以继续保留。
