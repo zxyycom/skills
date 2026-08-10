@@ -28,9 +28,7 @@ import {
 const testOptions = { timeout: 20_000 };
 
 type RepositoryFixture = {
-  candidate: TaskIndex;
   candidateText: string;
-  repositoryRoot: string;
 };
 
 test("stages selected tasks with candidate watermarks while preserving workspace and outside pending paths", testOptions, async () => {
@@ -47,7 +45,7 @@ test("stages selected tasks with candidate watermarks while preserving workspace
       stageOutside: true
     });
 
-    const staged = await new TaskGraphService({ root: repositoryRoot }).stageTasks([
+    const staged = await new TaskGraphService({ root: repositoryRoot }).stageTaskIndex([
       "task-000001"
     ]);
 
@@ -93,7 +91,7 @@ test("forms separate commits from concurrent task changes without modifying the 
     const fixture = await createRepositoryFixture({ baseline, candidate, repositoryRoot });
     const service = new TaskGraphService({ root: repositoryRoot });
 
-    await service.stageTasks(["task-000001"]);
+    await service.stageTaskIndex(["task-000001"]);
     const firstPending = await readPendingTaskIndex(repositoryRoot);
     assert.equal(firstPending.tasks["task-000001"]!.content.title, "alpha workspace");
     assert.equal(
@@ -106,7 +104,7 @@ test("forms separate commits from concurrent task changes without modifying the 
       fixture.candidateText
     );
 
-    await service.stageTasks(["task-000002"]);
+    await service.stageTaskIndex(["task-000002"]);
     runGit(repositoryRoot, ["commit", "--quiet", "--message", "stage bravo"]);
     const firstCommit = parseTaskIndex(JSON.parse(runGit(
       repositoryRoot,
@@ -146,7 +144,7 @@ test("stages selected task additions and deletions with monotonic root watermark
     }).index;
     await createRepositoryFixture({ baseline, candidate, repositoryRoot });
 
-    await new TaskGraphService({ root: repositoryRoot }).stageTasks([
+    await new TaskGraphService({ root: repositoryRoot }).stageTaskIndex([
       "task-000003",
       "task-000002"
     ]);
@@ -155,6 +153,52 @@ test("stages selected task additions and deletions with monotonic root watermark
     assert.equal(pending.nextTaskId, 4);
     assert.equal(pending.revision, 4);
     assert.deepEqual(Object.keys(pending.tasks), ["task-000001", "task-000003"]);
+  });
+});
+
+test("stages a new task index from an empty HEAD baseline", testOptions, async () => {
+  await withTempWorkspace(async (repositoryRoot) => {
+    initializeRepository(repositoryRoot);
+    await writeFile(repositoryRoot, "outside/keep.md", "outside baseline\n");
+    runGit(repositoryRoot, ["add", "."]);
+    runGit(repositoryRoot, ["commit", "--quiet", "--message", "base without index"]);
+    const candidate = graphIndex([
+      taskOperation("alpha", { title: "alpha workspace" })
+    ]);
+    await writeFile(
+      repositoryRoot,
+      defaultTaskGraphIndexPath,
+      serializeTaskIndex(candidate)
+    );
+
+    await new TaskGraphService({ root: repositoryRoot }).stageTaskIndex([
+      "task-000001"
+    ]);
+
+    assert.deepEqual(await readPendingTaskIndex(repositoryRoot), candidate);
+    assert.deepEqual(await pendingChangedPaths(repositoryRoot), [
+      defaultTaskGraphIndexPath
+    ]);
+  });
+});
+
+test("rejects regressing workspace watermarks without changing pending content", testOptions, async () => {
+  await withTempWorkspace(async (repositoryRoot) => {
+    const baseline = baseIndex();
+    const candidate = { ...structuredClone(baseline), revision: baseline.revision - 1 };
+    await createRepositoryFixture({ baseline, candidate, repositoryRoot });
+
+    const error = await expectTaskGraphRejection(
+      async () => await new TaskGraphService({ root: repositoryRoot }).stageTaskIndex([
+        "task-000001"
+      ]),
+      "REVISION_CONFLICT"
+    );
+
+    assert.equal(error.retryable, true);
+    assert.equal(error.details.baselineRevision, baseline.revision);
+    assert.equal(error.details.workspaceRevision, candidate.revision);
+    assert.deepEqual(await pendingChangedPaths(repositoryRoot), []);
   });
 });
 
@@ -170,7 +214,7 @@ test("rejects a selected task set that breaks relation closure without changing 
     const fixture = await createRepositoryFixture({ baseline, candidate, repositoryRoot });
 
     const error = await expectTaskGraphRejection(
-      async () => await new TaskGraphService({ root: repositoryRoot }).stageTasks([
+      async () => await new TaskGraphService({ root: repositoryRoot }).stageTaskIndex([
         "task-000001"
       ]),
       "TOPOLOGY_INVALID"
@@ -194,8 +238,8 @@ test("serializes concurrent selected-task staging without overwriting the winnin
     await createRepositoryFixture({ baseline, candidate, repositoryRoot });
 
     const settled = await Promise.allSettled([
-      new TaskGraphService({ root: repositoryRoot }).stageTasks(["task-000001"]),
-      new TaskGraphService({ root: repositoryRoot }).stageTasks(["task-000002"])
+      new TaskGraphService({ root: repositoryRoot }).stageTaskIndex(["task-000001"]),
+      new TaskGraphService({ root: repositoryRoot }).stageTaskIndex(["task-000002"])
     ]);
     const fulfilled = settled.filter((result) => result.status === "fulfilled");
     const rejected = settled.filter((result) => result.status === "rejected");
@@ -204,6 +248,7 @@ test("serializes concurrent selected-task staging without overwriting the winnin
     const reason = rejected[0]?.reason as unknown;
     assert.ok(reason instanceof TaskGraphError);
     assert.equal(reason.code, "REVISION_CONFLICT");
+    assert.equal(reason.retryable, true);
 
     const selectedTaskId = fulfilled[0]?.status === "fulfilled"
       ? fulfilled[0].value.data.selectedTaskIds[0]
@@ -237,8 +282,8 @@ test("index stage exposes stable text and explicit JSON protocols without native
     assert.equal(textCall.exitCode, 0);
     assert.equal(
       textCall.output,
-      "TASK INDEX STAGE state=staged revision=3 tasks=2 next-task-id=3 "
-        + "selected=[\"task-000001\"]\n"
+      "TASK INDEX STAGE state=staged revision=3 task-count=2 next-task-id=3 "
+        + "selected-task-ids=[\"task-000001\"]\n"
     );
 
     resetPendingPath(repositoryRoot);
@@ -272,6 +317,22 @@ test("index stage exposes stable text and explicit JSON protocols without native
         + "message=\"Selected task id task-000001 appears more than once\"\n"
     );
     assert.deepEqual(await pendingChangedPaths(repositoryRoot), []);
+
+    await fs.writeFile(
+      path.join(repositoryRoot, defaultTaskGraphIndexPath),
+      serializeTaskIndex(baseline),
+      "utf8"
+    );
+    const unchangedCall = await callCli(repositoryRoot, [
+      "index", "stage", "--task", "task-000001"
+    ]);
+    assert.equal(unchangedCall.exitCode, 0);
+    assert.equal(
+      unchangedCall.output,
+      "TASK INDEX STAGE state=unchanged revision=1 task-count=2 next-task-id=3 "
+        + "selected-task-ids=[\"task-000001\"]\n"
+    );
+    assert.deepEqual(await pendingChangedPaths(repositoryRoot), []);
   });
 });
 
@@ -287,7 +348,7 @@ test("rejects a noncanonical workspace index before changing pending content", t
     );
 
     const error = await expectTaskGraphRejection(
-      async () => await new TaskGraphService({ root: repositoryRoot }).stageTasks([
+      async () => await new TaskGraphService({ root: repositoryRoot }).stageTaskIndex([
         "task-000001"
       ]),
       "INDEX_INVALID"
@@ -335,9 +396,7 @@ async function createRepositoryFixture(options: {
     runGit(options.repositoryRoot, ["add", "outside/keep.md"]);
   }
   return {
-    candidate: options.candidate,
-    candidateText,
-    repositoryRoot: options.repositoryRoot
+    candidateText
   };
 }
 
@@ -380,14 +439,16 @@ async function readPendingText(
     pathScopes: [filePath]
   });
   assert.equal(files.length, 1);
-  return Buffer.from(files[0]!.data).toString("utf8");
+  const [file] = files;
+  if (file === undefined) assert.fail(`Pending file is missing: ${filePath}`);
+  return Buffer.from(file.data).toString("utf8");
 }
 
 async function pendingChangedPaths(repositoryRoot: string): Promise<string[]> {
   const repository = await openVersionControl(repositoryRoot);
   const revision = await repository.getCurrentRevision();
-  assert.notEqual(revision, null);
-  return await repository.listPendingChangedPaths({ from: revision! });
+  if (revision === null) assert.fail("Test repository has no HEAD revision");
+  return await repository.listPendingChangedPaths({ from: revision });
 }
 
 function resetPendingPath(repositoryRoot: string): void {
@@ -403,5 +464,7 @@ async function callCli(
     io: { stdout: (text) => chunks.push(text) }
   });
   assert.equal(chunks.length, 1);
-  return { exitCode, output: chunks[0]! };
+  const [output] = chunks;
+  if (output === undefined) assert.fail("CLI did not write a result");
+  return { exitCode, output };
 }

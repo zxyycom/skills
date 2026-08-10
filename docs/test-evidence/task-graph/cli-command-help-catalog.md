@@ -5,8 +5,8 @@ Entry:
 - `bun test --test-name-pattern="^CLI command help recovers every command and structured special parameters$" ./tools/task-graph/tests/run.ts`
 
 Contract:
-- Root help 中的每个 command 都能独立查询结构化 command help；特殊多值参数和 apply input metadata 保持显式。
+- Root help 中的每个 command 都能独立查询结构化 command help，并显式报告是否需要 native runtime；特殊多值参数和 apply input metadata 保持显式。
 
 Proves:
 - 24 个 command path 各自返回匹配的 command 名。
-- Index stage 与 task remove 的多值 --task、task create 的多值 --acceptance 与 apply stdin/file JSON 输入契约逐字段成立。
+- Index stage 的 usage 明确要求为每个 ID 重复 --task，且 `requiresMutationRuntime` 为 false；它与 task remove 的多值 --task、task create 的多值 --acceptance 及 apply stdin/file JSON 输入契约逐字段成立。

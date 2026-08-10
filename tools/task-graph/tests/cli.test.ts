@@ -279,6 +279,7 @@ test("CLI root help exposes commands runtime requirements and the global JSON op
       const commands = requireStrings(data.commands, "root help data.commands");
       const usage = requireString(data.usage, "root help data.usage");
       assert.equal(usage.startsWith("task-graph"), true);
+      assert.equal(data.requiresMutationRuntime, null);
       assert.equal(commands.length, 24);
       assert.ok(commands.includes("index stage"));
       assert.deepEqual(
@@ -315,6 +316,7 @@ test("CLI command help recovers every command and structured special parameters"
       if (commandHelp.result.ok) {
         const data = requireRecord(commandHelp.result.data, `${command} help data`);
         assert.equal(data.command, command);
+        assert.equal(typeof data.requiresMutationRuntime, "boolean");
       }
     }
     const removeHelp = await callCli(root, ["task", "remove", "--help"]);
@@ -335,6 +337,7 @@ test("CLI command help recovers every command and structured special parameters"
     assert.equal(taskCreateHelp.result.ok, true);
     if (taskCreateHelp.result.ok) {
       const data = requireRecord(taskCreateHelp.result.data, "task create help data");
+      assert.equal(data.requiresMutationRuntime, true);
       const parameters = requireRecord(data.parameters, "task create help parameters");
       const options = requireRecords(parameters.options, "task create help options");
       assert.deepEqual(
@@ -347,6 +350,11 @@ test("CLI command help recovers every command and structured special parameters"
     assert.equal(indexStageHelp.result.ok, true);
     if (indexStageHelp.result.ok) {
       const data = requireRecord(indexStageHelp.result.data, "index stage help data");
+      assert.equal(data.requiresMutationRuntime, false);
+      assert.equal(
+        data.usage,
+        "task-graph index stage --task <id> [--task <id>...]"
+      );
       const parameters = requireRecord(data.parameters, "index stage help parameters");
       const options = requireRecords(parameters.options, "index stage help options");
       assert.deepEqual(

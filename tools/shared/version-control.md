@@ -18,7 +18,7 @@
    first-parent 历史中时，整个操作返回 `null` 表示范围不可用。
 3. 列出 revision 文件、两个 revision 之间的路径变化，以及 revision 与 `pending` 之间的路径变化。
 4. 读取 revision 中一个确定文件的内容；只有该 revision 确实不存在目标路径时返回 `null`。
-5. 把仓库内绝对后代路径转换为规范化仓库相对路径，并拒绝相对路径、仓库根本身和仓库外路径。
+5. 通过通用入口导出的 `repositoryRelativePathFromFileSystemPath(rootDirectory, fileSystemPath)`，把仓库内绝对后代路径转换为规范化仓库相对路径，并拒绝相对路径、仓库根本身和仓库外路径。
 6. 列出工作区文件和工作区变化。
 7. 按字面仓库相对路径范围读取 `pending` 文件内容。
 8. 通过 `replacePendingFiles({ expectedRevision, expectedFiles?, pathScope, files })`
@@ -72,7 +72,8 @@ Git 命令绕过公共读取和恢复语义。
 
 当前直接生产消费者包括 skill 打包 hash、独立版本门禁、change-plan 的 first-parent
 距离评估、decision-records 的 revision 基线读取与 `pending` 决策范围替换，以及
-index-runtime 按 ID 暂存时的 revision 基线读取与受期望保护的单索引替换。
+index-runtime 按 ID 暂存和 task-graph 按 task ID 暂存时的 revision 基线读取与受期望
+保护的单索引替换。
 验证入口是：
 
 ```bash

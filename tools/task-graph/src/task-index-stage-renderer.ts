@@ -15,7 +15,7 @@ export function renderTaskIndexStageResult(
   return "TASK INDEX STAGE"
     + ` state=${result.data.state}`
     + ` revision=${String(result.revision)}`
-    + ` tasks=${result.data.taskCount}`
+    + ` task-count=${result.data.taskCount}`
     + ` next-task-id=${result.data.nextTaskId}`
-    + ` selected=${JSON.stringify(result.data.selectedTaskIds)}\n`;
+    + ` selected-task-ids=${JSON.stringify(result.data.selectedTaskIds)}\n`;
 }

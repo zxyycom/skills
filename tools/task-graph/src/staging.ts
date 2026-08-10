@@ -2,12 +2,11 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import {
   openVersionControl,
+  repositoryRelativePathFromFileSystemPath,
   VersionControlError,
-  type VersionControlFile
+  type VersionControlFile,
+  type VersionControlRepository
 } from "../../shared/src/version-control/index.ts";
-import {
-  repositoryRelativePathFromFileSystemPath
-} from "../../shared/src/version-control/repository-relative-path.ts";
 import { TaskGraphError } from "./errors.ts";
 import {
   emptyTaskIndex,
@@ -20,9 +19,14 @@ import type {
   TaskIndexStageResult
 } from "./types.ts";
 
-type TaskSelection = {
-  selectedTaskIds: string[];
-};
+type TaskSelection = Readonly<{
+  selectedTaskIds: readonly string[];
+}>;
+
+type StagingVersionControlOperation =
+  | "discover-repository"
+  | "read-head"
+  | "replace-pending";
 
 export async function stageSelectedTaskIndex(options: Readonly<{
   indexPath: string;
@@ -31,7 +35,7 @@ export async function stageSelectedTaskIndex(options: Readonly<{
   const selection = validateTaskSelection(options.selectedTaskIds);
   const workspace = await readWorkspaceIndex(options.indexPath);
 
-  let repository: Awaited<ReturnType<typeof openVersionControl>>;
+  let repository: VersionControlRepository;
   try {
     repository = await openVersionControl(path.dirname(options.indexPath));
   } catch (error) {
@@ -57,20 +61,20 @@ export async function stageSelectedTaskIndex(options: Readonly<{
     );
   }
 
-  let revision: string | null;
-  let revisionFile: VersionControlFile | null;
+  let headRevision: string | null;
+  let headIndexFile: VersionControlFile | null;
   try {
-    revision = await repository.getCurrentRevision();
-    revisionFile = revision === null
+    headRevision = await repository.getCurrentRevision();
+    headIndexFile = headRevision === null
       ? null
-      : await repository.readRevisionFile(revision, repositoryIndexPath);
+      : await repository.readRevisionFile(headRevision, repositoryIndexPath);
   } catch (error) {
-    throw versionControlFailure(error, "read-revision", selection.selectedTaskIds);
+    throw versionControlFailure(error, "read-head", selection.selectedTaskIds);
   }
 
-  const baseline = revisionFile === null
+  const baseline = headIndexFile === null
     ? emptyTaskIndex()
-    : parseSnapshot(revisionFile.data, options.indexPath, "current revision");
+    : parseSnapshot(headIndexFile.data, options.indexPath, "HEAD");
   assertRootWatermarksDoNotRegress(
     baseline,
     workspace,
@@ -87,13 +91,13 @@ export async function stageSelectedTaskIndex(options: Readonly<{
     selection
   );
   const targetData = Buffer.from(serializeTaskIndex(target), "utf8");
-  const changed = revisionFile === null
-    || !targetData.equals(Buffer.from(revisionFile.data));
+  const differsFromHead = headIndexFile === null
+    || !targetData.equals(Buffer.from(headIndexFile.data));
 
   try {
     await repository.replacePendingFiles({
-      expectedFiles: revisionFile === null ? [] : [revisionFile],
-      expectedRevision: revision,
+      expectedFiles: headIndexFile === null ? [] : [headIndexFile],
+      expectedRevision: headRevision,
       files: [{ data: targetData, path: repositoryIndexPath }],
       pathScope: repositoryIndexPath
     });
@@ -101,19 +105,20 @@ export async function stageSelectedTaskIndex(options: Readonly<{
     throw versionControlFailure(error, "replace-pending", selection.selectedTaskIds);
   }
 
+  const commonResult = {
+    nextTaskId: target.nextTaskId,
+    selectedTaskIds: [...selection.selectedTaskIds],
+    taskCount: Object.keys(target.tasks).length
+  };
   return {
     revision: target.revision,
-    data: {
-      changed,
-      nextTaskId: target.nextTaskId,
-      selectedTaskIds: selection.selectedTaskIds,
-      state: changed ? "staged" : "unchanged",
-      taskCount: Object.keys(target.tasks).length
-    }
+    data: differsFromHead
+      ? { ...commonResult, changed: true, state: "staged" }
+      : { ...commonResult, changed: false, state: "unchanged" }
   };
 }
 
-function validateTaskSelection(input: readonly string[]): TaskSelection {
+function validateTaskSelection(input: unknown): TaskSelection {
   if (!Array.isArray(input) || input.length === 0) {
     throw new TaskGraphError(
       "ARGUMENT_INVALID",
@@ -149,7 +154,7 @@ async function readWorkspaceIndex(indexPath: string): Promise<TaskIndex> {
   try {
     data = await fs.readFile(indexPath);
   } catch (error) {
-    if (isFileSystemError(error, "ENOENT")) {
+    if (isMissingFileError(error)) {
       throw new TaskGraphError(
         "INDEX_NOT_FOUND",
         `Task index does not exist: ${indexPath}`,
@@ -169,7 +174,7 @@ async function readWorkspaceIndex(indexPath: string): Promise<TaskIndex> {
 function parseSnapshot(
   input: Uint8Array,
   indexPath: string,
-  source: "current revision" | "workspace"
+  source: "HEAD" | "workspace"
 ): TaskIndex {
   let text: string;
   try {
@@ -237,7 +242,7 @@ function assertRootWatermarksDoNotRegress(
   ) {
     throw new TaskGraphError(
       "REVISION_CONFLICT",
-      "Workspace task-index watermarks precede the current revision baseline; reread the central index and retry",
+      "Workspace task-index watermarks precede the HEAD baseline; reread the target workspace index and retry",
       {
         baselineNextTaskId: baseline.nextTaskId,
         baselineRevision: baseline.revision,
@@ -261,7 +266,7 @@ function assertSelectedTasksExist(
   if (missingTaskId !== undefined) {
     throw new TaskGraphError(
       "TASK_NOT_FOUND",
-      `Selected task ${missingTaskId} is absent from both the current revision and workspace indexes`,
+      `Selected task ${missingTaskId} is absent from both the Git HEAD and workspace indexes`,
       { taskId: missingTaskId, selectedTaskIds: [...selectedTaskIds] }
     );
   }
@@ -292,7 +297,7 @@ function buildTargetIndex(
     if (!(error instanceof TaskGraphError)) throw error;
     throw new TaskGraphError(
       "TOPOLOGY_INVALID",
-      "Selected task entries do not form a complete valid task index with the current revision baseline",
+      "Selected task entries do not form a complete valid task index with the Git HEAD baseline",
       {
         causeCode: error.code,
         causeDetails: error.details,
@@ -305,7 +310,7 @@ function buildTargetIndex(
 
 function versionControlFailure(
   error: unknown,
-  operation: "discover-repository" | "read-revision" | "replace-pending",
+  operation: StagingVersionControlOperation,
   selectedTaskIds: readonly string[]
 ): TaskGraphError {
   const versionControlCode = error instanceof VersionControlError
@@ -316,48 +321,58 @@ function versionControlFailure(
     selectedTaskIds: [...selectedTaskIds],
     versionControlCode
   };
-  if (versionControlCode === "not-repository" || versionControlCode === "invalid-path") {
-    return new TaskGraphError(
-      "ARGUMENT_INVALID",
-      "Task index staging requires an index inside a version-control repository",
-      details,
-      error instanceof Error ? { cause: error } : undefined
-    );
-  }
-  if (versionControlCode === "pending-conflict") {
-    return new TaskGraphError(
-      "REVISION_CONFLICT",
-      "The current Git revision, task-index pending content, or pending write lock changed; reread HEAD and pending state, then retry",
-      details,
-      error instanceof Error ? { cause: error } : undefined
-    );
-  }
-  if (versionControlCode === "pending-recovery-failed") {
-    return new TaskGraphError(
-      "WRITE_OUTCOME_UNKNOWN",
-      "Task-index pending recovery was incomplete; inspect and reconcile the pending index before continuing",
-      details,
-      error instanceof Error ? { cause: error } : undefined
-    );
+  const options = error instanceof Error ? { cause: error } : undefined;
+  switch (versionControlCode) {
+    case "not-repository":
+    case "invalid-path":
+      return new TaskGraphError(
+        "ARGUMENT_INVALID",
+        "Task index staging requires an index inside a version-control repository",
+        details,
+        options
+      );
+    case "pending-conflict":
+      return new TaskGraphError(
+        "REVISION_CONFLICT",
+        "The Git HEAD commit, task-index pending content, or pending write lock changed; reread HEAD and the pending task-index path, then retry",
+        details,
+        options
+      );
+    case "pending-recovery-failed":
+      return new TaskGraphError(
+        "WRITE_OUTCOME_UNKNOWN",
+        "Task-index pending recovery was incomplete; inspect and reconcile the pending index before continuing",
+        details,
+        options
+      );
   }
   return new TaskGraphError(
     "WRITE_FAILED",
-    operation === "read-revision"
-      ? "Unable to read the current Git revision task index"
-      : operation === "replace-pending"
-        ? "Unable to replace task-index pending content; the previous pending range was preserved"
-        : "Unable to discover the task-index version-control repository",
+    versionControlFailureMessage(operation),
     details,
-    error instanceof Error ? { cause: error } : undefined
+    options
   );
+}
+
+function versionControlFailureMessage(
+  operation: StagingVersionControlOperation
+): string {
+  switch (operation) {
+    case "discover-repository":
+      return "Unable to discover the task-index version-control repository";
+    case "read-head":
+      return "Unable to read the Git HEAD task index";
+    case "replace-pending":
+      return "Unable to replace task-index pending content; the previous pending range was preserved";
+  }
 }
 
 function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
-function isFileSystemError(error: unknown, code: string): boolean {
+function isMissingFileError(error: unknown): boolean {
   return error instanceof Error
     && "code" in error
-    && error.code === code;
+    && error.code === "ENOENT";
 }

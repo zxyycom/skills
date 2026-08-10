@@ -4,9 +4,9 @@ description: >-
   维护当前工作中可恢复的非线性任务图。用于同时存在多个候选任务、动态追加、
   真实父子分解、依赖、并发排斥或跨上下文恢复时，通过权威 JSON 索引查询、
   选择、领取并收敛任务；少量固定顺序步骤继续使用当前对话计划。
-compatibility: "Requires Node.js ^22.22.2 || ^24.15.0 || >=26.0.0 and Git for pending staging; task-index mutations require a caller-provisioned compatible native runtime."
+compatibility: "Requires Node.js ^22.22.2 || ^24.15.0 || >=26.0.0 and Git for pending staging; workspace task-index mutations require a caller-provisioned compatible native runtime."
 metadata:
-  version: "7"
+  version: "8"
 ---
 
 # Task Graph
@@ -35,7 +35,7 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 
 1. 本文件承接触发、任务记录判断、调度流程、权限边界、恢复和交接。
 2. `scripts/task-graph.mjs` 同时是 CLI 和程序化导入模块。Service 与 dispatch 先产生结构化 raw result object；CLI 再按已识别的操作选择 JSON serializer、task-list renderer 或 task-index stage renderer。程序化调用直接导入同一份公开导出，不经过文本 renderer、JSON 往返或另一套 SDK 实现。
-3. `scripts/task-graph.d.mts` 及其包内声明树从同一 TypeScript 实现机械生成。[task index Schema](references/task-graph-index.schema.json) 描述权威索引结构。精确命令、参数、raw result 和错误结构以 JSON help、公开声明及 Schema 为准；调用前使用 `help` 或 `help <command-path>` 恢复当前契约。
+3. `scripts/task-graph.d.mts` 及其包内声明树从同一 TypeScript 实现机械生成。[task index Schema](references/task-graph-index.schema.json) 描述权威索引结构。精确命令、参数、是否需要 native runtime、raw result 和错误结构以 JSON help 的 `requiresMutationRuntime`、公开声明及 Schema 为准；调用前使用 `help` 或 `help <command-path>` 恢复当前契约。
 4. 目标仓库的 `docs/task-graph/task-graph-index.json` 是该工作区任务图的唯一权威索引，只能通过工具事务化修改。系统临时目录中的空锁文件与原子写临时文件都不是事实源。
 
 ## 对象模型
@@ -47,11 +47,13 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 
 ## 按 task ID 分段暂存索引
 
-1. `index stage --task <id>...` 接收至少一个不重复的规范 task ID，只改变 Git `pending` 中的完整 task index，不修改工作区索引、任务状态或索引外路径。程序化调用使用 `TaskGraphService.stageTasks(taskIds)`。
-2. 当前 Git `HEAD` 中的索引是基线，中央工作区索引是候选。选中且候选存在的 task 使用候选条目；选中且只在基线存在的 task 被删除；未选中 task 保持基线条目。指定 task 必须存在于至少一端，新增和删除使用同一规则。
-3. `revision` 与 `nextTaskId` 是整个中央协调状态的水位，不能归属单个 task；目标始终使用候选值，并拒绝相对基线回退。目标随后重新执行完整 Schema、语义、关系闭合和 canonical 校验；父子、依赖、对称排斥、租约或终态证据不能闭合时拒绝，不自动扩大选择集。
-4. 命令在版本管理锁内确认 Git revision 仍是读取基线、该索引的既有 `pending` 仍逐字等于基线，再整体替换这一条 pending 路径。另一批已暂存 task、并发写入或 Git revision 变化会返回冲突，不累加、不合并、不覆盖；索引外 pending 路径保持不变。
-5. 默认实际 `index stage` 使用单行稳定文本结果；显式全局 `--json` 返回同一 raw result。它不需要 task-index mutation native runtime，但需要可发现的 Git 仓库；成功只表示 pending 快照已经写入，不表示已经 commit、push 或交付。
+1. 本节的 Git `pending` 指下一次提交使用的待提交快照，不是工作区 task index 或 task execution state。`index stage` 只替换该快照中的 task index 路径；工作区索引、任务状态和索引外路径保持不变。
+2. CLI 至少提供一次 `--task <id>`，选择多个 task 时为每个 ID 重复该参数，例如 `index stage --task task-000001 --task task-000002`。ID 必须规范且不重复。程序化调用使用 `TaskGraphService.stageTaskIndex(taskIds)`。
+3. 命令读取当前 Git `HEAD` 中的 task index 作为基线；HEAD 尚无该文件时使用当前 Schema 的空索引作为基线。目标工作区中的完整索引是本次候选快照。选中且候选存在的 task 使用候选条目；选中且只在基线存在的 task 被删除；未选中 task 保持基线条目。指定 ID 在两端都不存在时拒绝。
+4. 根级 `revision` 和 `nextTaskId` 描述完整 task index，不能归属单个 task。目标始终使用候选快照的两个水位，并拒绝相对基线回退；即使水位来自未选中 task 的变化，也不从目标中剥离。
+5. 合成目标重新通过完整 Schema、语义和关系校验，再由规范 serializer 产生 canonical JSON。父子、依赖、对称排斥或生命周期约束无法在合成索引中成立时整批拒绝；命令不会为修复关系而自动扩大选择集。
+6. 版本管理锁内同时确认 Git `HEAD` 仍是已读取的 commit，且该索引路径的既有 pending 快照仍逐字等于 HEAD 基线；HEAD 没有该文件时，该路径必须尚未进入 pending。另一批已暂存 task、并发 pending 写入或 HEAD 变化都返回 `REVISION_CONFLICT`，不累加、不合并、不覆盖；索引外 pending 路径保持不变。
+7. 默认实际 `index stage` 使用单行稳定文本；显式全局 `--json` 返回同一 raw result。成功结果的顶层 `revision` 是目标 task index 的根级 revision，`state` 与 `changed` 分别只能组成 `staged`/`true` 或 `unchanged`/`false`。该命令需要可发现的 Git 仓库，但不加载工作区索引 mutation 的 native runtime；成功只证明 pending 快照已写入，不表示已经 commit、push 或交付。
 
 ## Task list 输出与程序化边界
 
@@ -65,15 +67,15 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 
 ## 工作流程
 
-### 0. 仅为 mutation 准备 runtime
+### 0. 仅为工作区索引 mutation 准备 runtime
 
-1. 使用满足 `^22.22.2 || ^24.15.0 || >=26.0.0` 的 Node.js 运行 CLI；Bun 只用于本 skill 源仓库的构建和测试。Help、version、runtime 查询、普通只读查询和模块导入不需要 native runtime。
-2. 在本次上下文第一次 mutation 前调用 `runtime info`。默认 tool home 是 `~/.tools/task-graph`；非空 `TASK_GRAPH_TOOL_HOME` 完整覆盖该目录。
+1. 使用满足 `^22.22.2 || ^24.15.0 || >=26.0.0` 的 Node.js 运行 CLI；Bun 只用于本 skill 源仓库的构建和测试。Help、version、runtime 查询、普通只读查询、`index stage` 和模块导入不需要 native runtime。
+2. 在本次上下文第一次工作区 task index mutation 前调用 `runtime info`。默认 tool home 是 `~/.tools/task-graph`；非空 `TASK_GRAPH_TOOL_HOME` 完整覆盖该目录。
 3. 按返回状态继续：
-   - `compatible`：可以开始 mutation。
+   - `compatible`：可以开始工作区 task index mutation。
    - `missing`：取得用户对 npm 联网和 tool home 写入的明确授权后，将 `installCommand.command` 和完整 `installCommand.args` 原样执行，再重新调用 `runtime info`。
-   - `incompatible`：停止 mutation，报告精确目录和 `reason`；修复或删除既有目录前另行取得授权。
-4. CLI 不静默安装、联网或改写 runtime；只有 `runtime info` 返回 `compatible: true` 才执行 mutation。
+   - `incompatible`：停止工作区 task index mutation，报告精确目录和 `reason`；修复或删除既有目录前另行取得授权。
+4. CLI 不静默安装、联网或改写 runtime；只有 `runtime info` 返回 `compatible: true` 才执行工作区 task index mutation。
 
 ### 1. 恢复索引与任务图
 
@@ -119,23 +121,24 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 ## 权限与并发边界
 
 1. `queued`、`claim`、lease actor 和 task result 都只是协调事实，不授予文件写入、外部系统调用、不可逆操作、子代理创建、提交或发布权限。
-2. Task mutation 只维护工作区 task index，不自动 stage 或 commit。只有调用方显式执行 `index stage --task ...` 时，工具才按本文件的分段暂存契约替换该索引的 Git pending 内容；它不决定其他文件范围，也不 commit。
-3. 短事务锁只保护一次索引 mutation；实际工作期间不持有文件锁。锁位于系统临时目录 `task-graph-locks`，由规范索引绝对路径的 hash 定位并使用操作系统 advisory lock；句柄关闭或进程退出即释放。工具不在目标工作区创建锁，也不读取、创建或修改项目 `.gitignore`。
+2. 工作区 task index mutation 不自动 stage 或 commit。只有调用方显式执行 `index stage --task ...` 时，工具才按本文件的分段暂存契约替换该索引的 Git pending 内容；它不决定其他文件范围，也不 commit。
+3. Native 短事务锁只保护一次工作区 task index mutation；实际工作期间不持有文件锁。该锁位于系统临时目录 `task-graph-locks`，由规范索引绝对路径的 hash 定位并使用操作系统 advisory lock；句柄关闭或进程退出即释放。`index stage` 使用“按 task ID 分段暂存索引”一节定义的独立版本管理 pending 写入锁。两类锁都不在目标工作区创建文件，也不读取、创建或修改项目 `.gitignore`。
 4. Exclusion 只禁止同时运行，不建立先后顺序。多个执行者竞争时，以第一个成功 claim 后的权威索引为准。
 
 ## 错误恢复
 
 1. 正常结果和可预期失败都从 stdout 返回一个 LF 结尾的协议结果。默认实际 `task list` 与 `index stage` 分别使用固定 success/failure 文本；其他 command、help、version 和全局参数 failure 默认使用 JSON envelope。需要机械读取 `ok`、`error.code`、`retryable`、revision 和结构化 details 时显式使用合法 `--json`，不要从 message 文本推断协议。
 2. Revision 冲突或领取竞争后重新查询；只有错误明确可重试且当前事实仍支持原意时才重试。
-3. 收到 `WRITE_OUTCOME_UNKNOWN` 时，mutation 可能已经越过原子提交点。先调用 `index info` 并读取目标任务，确认 revision 与结果后再决定下一步，绝不盲目重放。
-4. Node/runtime 不支持、native 锁获取、索引读取、Schema 或完整图校验失败时停止写入，保留诊断并交给对应维护者处理；不得绕过工具直接修 JSON。
+3. 工作区索引 mutation 返回 `WRITE_OUTCOME_UNKNOWN` 时，写入可能已经越过原子提交点。先调用 `index info` 并读取目标任务，确认工作区 revision 与结果后再决定下一步，绝不盲目重放。
+4. `index stage` 返回 `WRITE_OUTCOME_UNKNOWN` 时，未知对象是 Git pending 中的索引路径，`index info` 只能读取工作区，不能用于判断待提交快照。停止继续暂存，读取并对账该 pending 路径与 HEAD 基线、本次目标；无法唯一确认或恢复时交给该 pending 范围的 owner，不重试也不绕过现有内容。
+5. Node/runtime 不支持、native 锁获取、索引读取、Schema 或完整图校验失败时停止写入，保留诊断并交给对应维护者处理；不得绕过工具直接修 JSON。
 
 ## 完成标准
 
 1. 当前任务图可以从权威索引恢复；task、真实父子、依赖和排斥只包含已经确认的事实。
 2. 每项实际执行都在成功 claim 后进行，并以匹配 lease 完成、失败、释放或取消；过期执行只通过恢复 claim 接管，父任务按完成门禁收敛。
-3. Revision 或未知写入结果没有被盲目重试，活动与待恢复执行没有被静默覆盖。
+3. 工作区 revision 冲突、工作区未知写入结果或 pending 未知恢复结果没有被盲目重试，活动与待恢复执行没有被静默覆盖。
 4. 权限判断、代理编排、持久 change 和长期知识仍由各自 owner 承接，没有被 task graph 状态替代。
-5. Mutation runtime 已通过当前平台探针；不再需要的终态任务只有在结果交付、关系闭合并获得显式清理确认后才删除，其余任务可以继续保留。
+5. 工作区索引 mutation runtime 已通过当前平台探针；不再需要的终态任务只有在结果交付、关系闭合并获得显式清理确认后才删除，其余任务可以继续保留。
 6. 默认 `task list` 的 track、dependency layer、folding 与独立 run mutex 没有改变持久拓扑或调度语义；需要完整机器语义的调用方使用同一 raw projection 或显式 `--json`，不从显示布局反推领域状态。
-7. 分段暂存目标使用候选 root 水位、选中候选 task 与未选中基线 task，并通过完整校验；工作区、索引外 pending 和另一批 task 的 pending 变化没有被覆盖。
+7. 分段暂存目标使用候选索引的根级水位、选中候选 task 与未选中基线 task，并通过完整校验；工作区、索引外 pending 和另一批 task 的 pending 变化没有被覆盖。

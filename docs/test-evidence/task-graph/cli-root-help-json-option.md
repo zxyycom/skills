@@ -5,7 +5,7 @@ Entry:
 - `bun test --test-name-pattern="^CLI root help exposes commands runtime requirements and the global JSON option$" ./tools/task-graph/tests/run.ts`
 
 Contract:
-- Root help 通过单个 LF 结尾 JSON 返回规范命令目录、runtime requirements 和默认 false 的全局 --json boolean option。
+- Root help 通过单个 LF 结尾 JSON 返回规范命令目录、runtime requirements 和默认 false 的全局 --json boolean option；根目录本身不代表具体命令，因此 `requiresMutationRuntime` 为 null。
 
 Proves:
 - Root help 的 revision 为 null、usage 以 task-graph 开头，24 个命令中包含 index stage。

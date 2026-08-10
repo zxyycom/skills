@@ -9,6 +9,6 @@ Contract:
 
 Proves:
 - 生成模块与源码 runtime export 集合和 version 结果一致。
-- 根声明及其可达声明树可被独立 TypeScript consumer 使用，导出 `TaskListItem` 与 `TaskIndexStageResult`、允许调用 `stageTasks()`，不保留 `TaskSummary`，且不暴露 native、runner、store、内部注入类型或 Valibot。
+- 根声明及其可达声明树可被独立 TypeScript consumer 使用，导出 `TaskListItem` 与 `TaskIndexStageResult`、允许调用 `stageTaskIndex()`，并能用 `state` 将 `changed` 收窄为对应布尔字面量；声明不保留 `TaskSummary`，且不暴露 native、runner、store、内部注入类型或 Valibot。
 - Bundle 内联预期依赖、不携带 native package 或工作区绝对路径；source map 使用相对跨平台路径并追踪专用 renderer 源码。
 - JSON Schema 与运行时共同拒绝长度、格式和错误文本类型等全部可表达约束。

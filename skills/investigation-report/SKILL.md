@@ -7,7 +7,7 @@ description: >-
   维护入口管理已经声明的引用关系和对应资源完整性。
   仅在用户明确要求记录、沉淀、维护或审阅调查时使用。
 metadata:
-  version: "12"
+  version: "13"
 ---
 
 # Investigation Report

@@ -5,7 +5,7 @@ Entry:
 - `bun test --test-name-pattern="^forms separate commits from concurrent task changes without modifying the workspace index$" ./tools/task-graph/tests/run.ts`
 
 Contract:
-- 同一中央索引中的多个 task 变化可以依次按 ID 构造 pending 并分别提交，分段命令不改写完整工作区候选。
+- 同一目标索引中的多个 task 变化可以依次按 ID 构造 pending 并分别提交，分段命令不改写完整工作区候选。
 
 Proves:
 - 第一个真实 Git commit 只包含第一个 task 的候选条目，第二个 commit 再加入第二个 task。

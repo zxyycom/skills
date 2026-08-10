@@ -402,7 +402,7 @@ test("generated distribution matches source API, schema bytes, and portable meta
     const consumerPath = path.join(root, "consumer.mts");
     await fs.writeFile(consumerPath, [
       "import { TaskGraphService, runTaskGraphCli } from \"./task-graph.mjs\";",
-      "import type { TaskContentInput, TaskGraphCliOptions, TaskListItem } from \"./task-graph.mjs\";",
+      "import type { TaskContentInput, TaskGraphCliOptions, TaskIndexStageResult, TaskListItem } from \"./task-graph.mjs\";",
       "// @ts-expect-error removed summary alias is not part of the SDK entry",
       "import type { TaskSummary } from \"./task-graph.mjs\";",
       "// @ts-expect-error internal store is not part of the SDK entry",
@@ -413,8 +413,17 @@ test("generated distribution matches source API, schema bytes, and portable meta
       "const options: TaskGraphCliOptions = {};",
       "const listItem: TaskListItem | null = null;",
       "const service = new TaskGraphService();",
-      "void service.stageTasks([\"task-000001\"]);",
+      "void service.stageTaskIndex([\"task-000001\"]);",
+      "function stageChanged(result: TaskIndexStageResult): boolean {",
+      "  if (result.state === \"staged\") {",
+      "    const changed: true = result.changed;",
+      "    return changed;",
+      "  }",
+      "  const changed: false = result.changed;",
+      "  return changed;",
+      "}",
       "void runTaskGraphCli([], options);",
+      "void stageChanged;",
       "void content;",
       "void listItem;",
       ""
@@ -731,8 +740,8 @@ test("generated Node CLI stages selected task entries without native runtime", a
     assert.equal(staged.stderr, "");
     assert.equal(
       staged.stdout,
-      "TASK INDEX STAGE state=staged revision=2 tasks=2 next-task-id=3 "
-        + "selected=[\"task-000001\"]\n"
+      "TASK INDEX STAGE state=staged revision=2 task-count=2 next-task-id=3 "
+        + "selected-task-ids=[\"task-000001\"]\n"
     );
     const pendingText = (await execFileAsync("git", [
       "-C", repositoryRoot, "show", `:${sourceApi.defaultTaskGraphIndexPath}`

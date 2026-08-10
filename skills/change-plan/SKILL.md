@@ -5,7 +5,7 @@ description: >-
   用于用 proposal.md、design.md、tasks.md 和 .change-plan.json 维护明确 change
   的目标、设计、任务、验证与当前生命周期阶段。
 metadata:
-  version: "7"
+  version: "8"
 ---
 
 # Change Plan

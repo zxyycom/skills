@@ -157,7 +157,7 @@ const commandHelpCatalog = {
   },
   "index info": { usage: "task-graph index info", positionals: [], options: [] },
   "index stage": {
-    usage: "task-graph index stage --task <id>...",
+    usage: "task-graph index stage --task <id> [--task <id>...]",
     positionals: [],
     options: [{ name: "--task", required: true, type: "string", multiple: true }]
   },
@@ -547,6 +547,9 @@ function helpData(pathTokens: readonly string[]) {
     : commandHelpCatalog[command];
   return {
     command,
+    requiresMutationRuntime: entry === null
+      ? null
+      : entry.requiresMutationRuntime === true,
     usage: entry?.usage
       ?? "task-graph <command> [arguments] [--root <path>] [--index <path>] [--json]",
     parameters: entry === null
@@ -618,10 +621,14 @@ async function dispatchIndexStage(
   const parsed = parseCommandOptions(tokens.slice(2), {
     task: { kind: "string", multiple: true }
   });
-  requirePositionals(parsed, 0, "task-graph index stage --task <id>...");
+  requirePositionals(
+    parsed,
+    0,
+    "task-graph index stage --task <id> [--task <id>...]"
+  );
   const taskIds = stringsValue(parsed, "task");
   if (taskIds.length === 0) failArgument("--task is required and may be repeated");
-  return await service.stageTasks(taskIds);
+  return await service.stageTaskIndex(taskIds);
 }
 
 async function dispatch(
@@ -993,14 +1000,15 @@ function resolveInvocation(
       pathTokens
     };
   }
-  if (!globals.json && resolveCommandPath(globals.remaining) === "task list") {
+  const command = resolveCommandPath(globals.remaining);
+  if (!globals.json && command === "task list") {
     return {
       columns: resolveRenderColumns(injectedColumns),
       kind: "task-list",
       tokens: globals.remaining
     };
   }
-  if (!globals.json && resolveCommandPath(globals.remaining) === "index stage") {
+  if (!globals.json && command === "index stage") {
     return { kind: "index-stage", tokens: globals.remaining };
   }
   return {

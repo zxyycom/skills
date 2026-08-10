@@ -107,7 +107,7 @@ export class TaskGraphService {
     return { revision: index.revision, data: index };
   }
 
-  async stageTasks(
+  async stageTaskIndex(
     taskIds: readonly string[]
   ): Promise<ServiceResult<TaskIndexStageResult>> {
     return await stageSelectedTaskIndex({

@@ -23,7 +23,7 @@ export declare class TaskGraphService {
     init(): Promise<ServiceResult<TaskIndexInfo>>;
     info(): Promise<ServiceResult<TaskIndexInfo>>;
     readIndex(): Promise<ServiceResult<TaskIndex>>;
-    stageTasks(taskIds: readonly string[]): Promise<ServiceResult<TaskIndexStageResult>>;
+    stageTaskIndex(taskIds: readonly string[]): Promise<ServiceResult<TaskIndexStageResult>>;
     apply(request: TaskGraphApplyRequest): Promise<ServiceResult<TaskGraphApplyResult>>;
     listTasks(): Promise<ServiceResult<Record<string, TaskListItem>>>;
     showTask(taskId: string): Promise<ServiceResult<{

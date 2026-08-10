@@ -6,6 +6,7 @@ import path from "node:path";
 import test from "node:test";
 import {
   openVersionControl,
+  repositoryRelativePathFromFileSystemPath,
   VersionControlError
 } from "../src/version-control/index.ts";
 import {
@@ -13,9 +14,6 @@ import {
 } from "../src/version-control/git-first-parent.ts";
 import { openGitVersionControl } from "../src/version-control/git.ts";
 import { parseGitFirstParentRevisionChanges } from "../src/version-control/git-numstat.ts";
-import {
-  repositoryRelativePathFromFileSystemPath
-} from "../src/version-control/repository-relative-path.ts";
 
 const gitTestOptions = { timeout: 15_000 };
 

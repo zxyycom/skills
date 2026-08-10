@@ -24,11 +24,9 @@ Task entry 将目标内容与调度状态分开：内容保存标题、目标、
 
 ## 按 task ID 分段暂存
 
-`index stage --task <id>...` 用于让一次提交只包含显式选中的 task index 变化。命令以 Git `HEAD` 索引为基线、中央工作区索引为候选，选中 task 取候选条目，未选中 task 保持基线条目；新增和删除也通过同一 ID 选择表达。`revision` 与 `nextTaskId` 属于完整中央协调状态，因此目标使用候选水位且不能相对基线回退。
+`index stage --task <id> [--task <id>...]` 用于从同一工作区索引的并发变化中，只为显式选择的 task 构造下一次 Git 提交使用的完整索引快照。命令以 Git `HEAD` 为基线、目标工作区索引为候选；它不修改工作区，也不把其他文件加入待提交快照。
 
-合成后的完整索引必须重新通过 Schema、语义、关系闭合和 canonical 校验。需要同时变化的父子、依赖或对称排斥端点没有一并选择时，命令拒绝而不会自动扩大提交范围。写入在版本管理锁内核对 `HEAD` 和该索引现有 pending；另一批 task 已经暂存、并发写入或基线变化时不会被覆盖。工作区索引与索引外 pending 路径始终保持原状，commit、其他领域文件和最终提交范围仍由调用方负责。
-
-默认实际 `index stage` 返回稳定单行文本；显式 `--json` 返回同一 raw result。该操作只写 Git pending，不改变任务状态，所以不加载 task-index mutation native runtime，但目标必须位于可用 Git 仓库中。
+选中条目、新增与删除、根级水位、关系闭合、pending 冲突、结果字段和失败恢复的精确契约由 [Task Graph skill 的分段暂存规则](../../skills/task-graph/SKILL.md#按-task-id-分段暂存索引) 统一承接。调用方仍负责其他领域文件、commit 和最终交付范围。
 
 ## 能力边界
 
@@ -42,10 +40,10 @@ Task entry 将目标内容与调度状态分开：内容保存标题、目标、
 
 ## Native runtime
 
-分发 CLI 的 Node.js 范围由 skill frontmatter 声明；Bun 只用于本仓库构建和测试。只读 task-graph 命令、Git pending staging、help 和模块导入不需要 native runtime。Task-index mutation 依赖调用方在用户工具目录准备的原生锁扩展；`runtime info` 是唯一准备入口，负责返回精确目录、兼容状态、诊断和缺失时的 npm argv。调用方取得联网与写入授权后执行该 argv，CLI 本身不运行包管理器。
+分发 CLI 的 Node.js 范围由 skill frontmatter 声明；Bun 只用于本仓库构建和测试。只读 task-graph 命令、`index stage`、help 和模块导入不需要 native runtime。工作区 task index mutation 依赖调用方在用户工具目录准备的原生锁扩展；`runtime info` 是唯一准备入口，负责返回精确目录、兼容状态、诊断和缺失时的 npm argv。调用方取得联网与写入授权后执行该 argv，CLI 本身不运行包管理器。
 
-Mutation 使用系统临时目录 `task-graph-locks` 中按索引绝对路径 hash 定位的稳定空文件和操作系统 advisory lock。锁只覆盖一次索引事务，句柄关闭或进程退出后由操作系统释放；锁文件不保存 owner、heartbeat 或 stale 状态。工具不在工作区创建锁，也不管理项目 `.gitignore`。该边界只承诺受测平台上的同主机本地文件系统；兼容性必须由 `runtime info` 的直接版本、API 和真实探针共同确认。
+工作区 task index mutation 使用系统临时目录 `task-graph-locks` 中按索引绝对路径 hash 定位的稳定空文件和操作系统 advisory lock。锁只覆盖一次索引事务，句柄关闭或进程退出后由操作系统释放；锁文件不保存 owner、heartbeat 或 stale 状态。工具不在工作区创建锁，也不管理项目 `.gitignore`。该边界只承诺受测平台上的同主机本地文件系统；兼容性必须由 `runtime info` 的直接版本、API 和真实探针共同确认。
 
-原子提交由 `write-file-atomic` 完成；resolve 即表示本次调用成功，不执行提交回读。调用 reject 时统一返回 `WRITE_OUTCOME_UNKNOWN`，调用方必须重读索引和目标实体后再判断，不根据磁盘现状猜测能否安全重放。
+工作区 task index 的原子文件写入由 `write-file-atomic` 完成；resolve 即表示本次调用成功，不执行提交回读。调用 reject 时统一返回 `WRITE_OUTCOME_UNKNOWN`，调用方必须重读工作区索引和目标实体后再判断，不根据磁盘现状猜测能否安全重放。
 
 安装授权、失败恢复和完整执行契约位于 [`skills/task-graph/`](../../skills/task-graph/)。

@@ -245,13 +245,18 @@ export type TaskIndexInfo = {
     topTaskCount: number;
     nextTaskId: number;
 };
-export type TaskIndexStageResult = {
-    changed: boolean;
+type TaskIndexStageResultBase = {
     nextTaskId: number;
     selectedTaskIds: string[];
-    state: "staged" | "unchanged";
     taskCount: number;
 };
+export type TaskIndexStageResult = TaskIndexStageResultBase & ({
+    changed: true;
+    state: "staged";
+} | {
+    changed: false;
+    state: "unchanged";
+});
 export type TaskContentInput = {
     title: string;
     goal: string;
