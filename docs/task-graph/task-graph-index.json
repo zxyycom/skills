@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "revision": 256,
-  "nextTaskId": 44,
+  "revision": 298,
+  "nextTaskId": 52,
   "tasks": {
     "task-000001": {
       "content": {
@@ -1755,6 +1755,161 @@
         "timestamps": {
           "createdAt": "2026-08-10T07:53:58.196Z",
           "updatedAt": "2026-08-10T08:01:57.815Z"
+        }
+      }
+    },
+    "task-000048": {
+      "content": {
+        "title": "收敛短生命周期 Task Graph GC 契约",
+        "goal": "协调并收敛短生命周期 task graph 的 GC 契约：由独立子任务分别确定静默清理门禁、自动 Task ID 低水位回收和 revision 回落保证，再统一决定最小 Schema、CLI 与实施边界；父任务不重复承担三个领域问题的详细设计。",
+        "acceptance": [
+          "task-000049 明确 GC 可运行条件、可清理对象与原子事务边界，并成为两个水位任务的共同前置。",
+          "task-000050 与 task-000051 分别交付 Task ID 和 revision 的低水位、默认 1000 隔离窗口及可验证风险边界，不互相代替。",
+          "三个结论在父任务中完成一致性复核，明确共享 Schema 状态、GC CLI、按 task 暂存、SDK、生成产物、测试和决策的唯一 owner，避免出现两套隔离窗口事实。",
+          "依据收敛结论修订 task-000003 与 changes/support-explicit-task-ids，并决定建立一个统一实施 Change 还是按清理、ID、revision 拆分后继实施任务。"
+        ],
+        "context": "用户指出原 task-000048 把已经拆开的三个问题重新揉成一个任务。当前父任务只负责拓扑与最终收敛：先完成 GC 清理契约，再允许 ID 与 revision 两条设计线并行，最后为 task-000003 提供稳定前置。",
+        "references": {
+          "gc-boundary-task": "task-000049",
+          "id-reuse-task": "task-000050",
+          "id-task": "task-000003",
+          "revision-reuse-task": "task-000051"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-10T15:43:52.120Z",
+          "updatedAt": "2026-08-10T15:47:25.423Z"
+        }
+      }
+    },
+    "task-000049": {
+      "content": {
+        "title": "定义静默 GC 的清理门禁与原子事务",
+        "goal": "定义短生命周期 task graph 的 GC 操作边界：确认何时任务图处于可清理的静默状态、哪些 task 已经过期且不再承担协调价值，以及如何复用现有 mutation 锁在一个原子事务内完成选择、复核与删除；本任务不决定 Task ID 或 revision 的具体回落算法。",
+        "acceptance": [
+          "区分没有 active/recovery lease 的图级静默，与 candidate、queued、waiting、paused、idle 等仍有效协调状态；无 lease 或经过时间本身不能成为删除依据。",
+          "定义可清理 task 的终态、结果交付、关系闭合、版本锚点和显式授权门禁，并明确现有 task remove 能复用的部分以及是否需要 gc plan、removable 查询或新的 GC 入口。",
+          "GC 在既有索引 mutation 锁内重新读取并验证 expected revision 与全部门禁，以单次事务删除选中集合；并发 claim 或 mutation 只能在 GC 前或后成功，不增加第二套锁或长期 stop-the-world 协议。",
+          "明确 GC success/failure 输出、整批失败、未知写入结果恢复、Git pending 与提交边界，并形成可供 ID 和 revision 水位子任务直接消费的稳定前置契约。"
+        ],
+        "context": "这是 task-000048 的清理语义子任务。用户所说的所有 task 空闲应恢复成工具可验证的静默条件；本任务只拥有 GC 是否可运行、删除什么和怎样原子删除，不把 ID 与 revision 回落揉入同一判断。",
+        "references": {
+          "parent-task": "task-000048",
+          "removal-owner": "skills/task-graph/SKILL.md#清理不再需要的任务"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "inherit",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": "task-000048",
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-10T15:47:24.699Z",
+          "updatedAt": "2026-08-10T15:47:24.699Z"
+        }
+      }
+    },
+    "task-000050": {
+      "content": {
+        "title": "设计自动 Task ID 低水位回收与隔离窗口",
+        "goal": "在静默 GC 契约确定后，设计自动 Task ID 的可回收分配：GC 清除无效 task 后让分配回到低水位，同时用默认 1000 的编号隔离窗口避免近期 ID 立即复用；显式 ID、存活 task、批量创建和冲突回退继续得到确定性实际 ID。",
+        "acceptance": [
+          "给出隔离窗口的精确定义和全空、部分保留、低于 1000、高位有空洞及低位耗尽的数值示例，明确哪些编号可回收、哪些仍隔离。",
+          "定义单次与批量 apply 的确定性 allocator：一次构造存活与隔离集合，按 operation 顺序寻找合法空位，显式 ID 冲突回退与 alias 始终绑定最终实际 ID，失败事务不消耗或覆盖。",
+          "决定删除、派生或重定义 nextTaskId 及所需的有界隔离状态，避免把隔离高位继续误作只能向上分配的游标；对齐 canonical Schema 与按 task 分段暂存。",
+          "明确 bare Task ID 只在当前 GC 生命周期内有效，并列出 CLI、SDK、生成产物、显式 ID Change、决策、原生测试和测试证据所需调整。"
+        ],
+        "context": "这是 task-000048 的 ID 水位子任务，依赖 GC 门禁子任务。它不决定 revision 是否回落，也不建立历史 task 身份；长期结果继续由稳定 owner 与对应仓库版本承接。",
+        "references": {
+          "current-change": "changes/support-explicit-task-ids/",
+          "id-task": "task-000003",
+          "parent-task": "task-000048"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "inherit",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": "task-000048",
+          "dependsOn": {
+            "task-000049": true
+          },
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-10T15:47:24.852Z",
+          "updatedAt": "2026-08-10T15:47:25.129Z"
+        }
+      }
+    },
+    "task-000051": {
+      "content": {
+        "title": "设计 revision GC 回落与隔离窗口保证",
+        "goal": "在静默 GC 契约确定后，独立设计索引 revision 的回落与复用保证：评估默认 1000 revision 隔离窗口是否足以支持短生命周期协调，明确独占 GC 对旧 snapshot 的失效边界，并与保持单调或引入 GC generation 的方案比较后选择最小契约。",
+        "acceptance": [
+          "用具体 revision 序列定义 GC 回落目标、1000 窗口边界、后续递增和再次 GC 的行为，避免只用低概率措辞代替算法。",
+          "区分 GC 瞬间无锁/无 lease 的独占事实与 GC 前读取后暂停的旧客户端，说明窗口可以阻止的近期命中、超出窗口后仍可能接受的陈旧写入风险及其产品可接受性。",
+          "比较单调 revision、窗口回落复用和 generation/epoch，不默认最高强度方案；若选择窗口风险模型，明确 expected revision、Task ID 复用、lease 与 mutation 类型共同构成的实际门禁。",
+          "确定 Schema、CLI/SDK result、index stage、冲突诊断、未知写入恢复、原生测试与长期决策影响，产出可由父任务收敛的明确结论。"
+        ],
+        "context": "这是 task-000048 的 revision 子任务，依赖 GC 门禁子任务。用户倾向独占 GC 加默认 1000 隔离窗口，认为更早 snapshot 恰好再次命中的风险可以作为短生命周期系统的工程取舍；本任务负责把该保证等级写成可验证契约。",
+        "references": {
+          "current-decision": "docs/decisions/task-graph/use-authoritative-json-index-for-task-coordination.md",
+          "parent-task": "task-000048"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "inherit",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": "task-000048",
+          "dependsOn": {
+            "task-000049": true
+          },
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-10T15:47:24.990Z",
+          "updatedAt": "2026-08-10T15:47:25.271Z"
         }
       }
     }
