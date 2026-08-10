@@ -4,7 +4,7 @@
 
 ## Readiness
 
-- [ ] 0.1 确认 `stage-selected-index-entries` 已完成公共 API、长期决策对齐和全部验证。
+- [x] 0.1 确认 `stage-selected-index-entries` 已完成公共 API、长期决策对齐和全部验证。
 - [x] 0.2 确认 case id 本身就是稳定索引 id，本 change 不建立第二套选择身份，也不构造索引基线、state 变化、目标 metadata 或 revision。
 - [x] 0.3 确认 topic 表、case Markdown 和代码不由该索引暂存入口处理，同一索引已有待提交变化时直接拒绝；`Open Questions` 为“无”。
 
