@@ -1,6 +1,15 @@
 # Design
 
-本 design 是统一 JSON 测试阻断资格的唯一方案说明：它区分当前事实、已确认决定、技术依赖和实施边界，使后续 agent 无需恢复对话历史即可审阅或继续规划。
+本 design 保存统一 JSON 测试阻断资格的一轮探索结果，供未来重启时恢复事实、取舍和待验证边界。它不是当前协议或实施规格。
+
+## 阅读与权威边界
+
+| 内容 | 后续使用方式 |
+| --- | --- |
+| 已确认的长期方向 | 以[长期决策](../../docs/decisions/test-evidence-review/defer-standard-test-result-blocking.md)为唯一 owner；本 design 只解释其方案背景 |
+| “已核实的仓库边界” | 视为调查快照；重新规划前必须用届时仓库事实复核 |
+| 候选 Schema、状态、runner 映射、执行顺序和加固方式 | 只作为比较输入，不是冻结契约或验收标准 |
+| 实施状态 | 当前没有 plan 或实施授权；是否重启以 [`tasks.md`](tasks.md) 的门槛为准 |
 
 ## Context
 
@@ -10,7 +19,7 @@
 - 当前测试使用 `node:test` API；大部分由 Bun 执行，`test:task-graph-cli` 还包含 Node native `--test`。
 - [`scripts/check.ts`](../../scripts/check.ts) 只按聚合进程退出码判断前置检查通过或失败；[`scripts/lib/check-plan.ts`](../../scripts/lib/check-plan.ts) 让测试与 catalog 检查并发运行。现行门禁没有 Test、Case、协议完整性或 runner 故障模型。
 - 现行 [`test-evidence-review`](../../skills/test-evidence-review/SKILL.md) 和 catalog 只维护、校验显式 Case；它们不扫描测试源码、不运行 `Entry:`、不发现真实测试，也不消费测试结果。
-- `task-000026` 已通过提交 `5b1284a0971309e7c0f8617274c1b6ac217b9bc7` 完成内部 Test–Case ledger 机制，但尚未激活当前 public skill 或真实账本。真实 Test ID、locator、测试发现和最终账本切换仍由 `task-000035` 负责。
+- 调查时，提交 `5b1284a0971309e7c0f8617274c1b6ac217b9bc7` 已形成内部 Test–Case ledger 机制，但当时尚未激活 public skill 或真实账本。该提交只证明历史探索结果；未来必须重新核对 Test ID、locator、测试发现和账本切换的当前 owner 与状态。
 - 让 test-evidence 能力拥有 JSON consumer 和正式阻断资格，属于后续明确的 skill/tool 行为扩展，不是当前已有能力。
 
 ### 术语
@@ -29,9 +38,9 @@
 
 Test 实体与 Case 是多对多关系。Runner 的原生结果始终引用 Test 实体；Case ID 只用于解释该 Test 证明的语义，不把 Case 转成 runner 节点或聚合状态。行为通过、行为失败和完整性错误都是一次 invocation 的临时分类，不成为 Test 实体或 Case 的持久状态。
 
-## Goals / Non-Goals
+## 探索目标与边界
 
-目标：
+未来方案需要满足：
 
 - 只有身份完整、关系闭合且来源新鲜的 Test 结果才能形成行为 pass/fail。
 - 用一个版本化 JSON 公约数隔离 Bun、Node 和未来 runner 差异，使 consumer 无需场景知识。
@@ -40,7 +49,7 @@ Test 实体与 Case 是多对多关系。Runner 的原生结果始终引用 Test
 - 让直接 script、quick/full check 与 CI 使用同一分类和诊断。
 - 保存局部删除能够机械发现、完整自洽删除仍需代码审查的能力边界。
 
-非目标：
+本轮探索不处理：
 
 - 不在本 draft 中实现协议、producer、consumer、check 或 CI 变更。
 - 不让 consumer 解析 TAP、JUnit、console 文本或 runner 原生事件。
@@ -49,11 +58,13 @@ Test 实体与 Case 是多对多关系。Runner 的原生结果始终引用 Test
 - 不监控任意外部进程，也不从脚本名称或自然语言日志推断隐藏测试。
 - 不判断完整 Test/Case 删除的产品正当性。
 
-## Decisions
+## 候选设计
+
+以下内容说明统一 JSON 方案如何形成闭环，以及未来需要用真实证据验证什么。除长期决策已经明确的方向外，本节中的字段、名称、顺序和 owner 分工均可在重启时调整。
 
 ### 1. 阻断资格先于行为结果
 
-正式门禁先判断结果是否有资格，再解释 pass/fail。主分类固定如下：
+正式门禁先判断结果是否有资格，再解释 pass/fail。候选主分类如下；最终名称和机器枚举尚未确定：
 
 | 主分类 | 成立条件 | 行为结论 | 整体门禁 |
 | --- | --- | --- | --- |
@@ -73,9 +84,9 @@ Test 实体与 Case 是多对多关系。Runner 的原生结果始终引用 Test
 
 ### 2. Test 实体 ID 与 Case ID 分属不同 owner
 
-以下规则描述 `task-000026/000035` 目标模型，不是当前已激活的 public skill 行为：
+以下规则描述相关账本与发现工作的目标模型，不是当前已激活的 public skill 行为：
 
-- 测试实现或 runner metadata 只声明 Test ID；具体声明、发现和 locator 方式由 `task-000035` 最终确定。
+- 测试实现或 runner metadata 只声明 Test ID；具体声明、发现和 locator 方式由未来重启时确认的 Test 身份 owner 决定。
 - 测试实体索引保存 Test ID 与 locator，不保存 Case ID。
 - Case Markdown 的 `Tests:` 是唯一 Case → Test 可写关系面；ledger 投影负责闭合查询。
 - Producer JSON 完整列出本次实际产生的原生 Test 运行结果；每项只携带 Test ID，不携带 Case ID。
@@ -86,7 +97,7 @@ Test 实体与 Case 是多对多关系。Runner 的原生结果始终引用 Test
 
 ### 3. 一个版本化 JSON 是唯一测试结果协议
 
-统一协议只承接所有 runner 共同具备、且 consumer 必须依赖的语义。具体 JSON Schema 要在 Test ID 契约与真实 runner 事件核对后固定；当前已确认的语义组成如下：
+统一协议只应承接所有 runner 共同具备、且 consumer 必须依赖的语义。具体 JSON Schema 要在 Test ID 契约与真实 runner 事件核对后决定；候选语义组成如下：
 
 | 语义组成 | 必需约束 | 不承担的内容 |
 | --- | --- | --- |
@@ -97,7 +108,7 @@ Test 实体与 Case 是多对多关系。Runner 的原生结果始终引用 Test
 | Producer errors | 表达 producer 已启动后能够结构化报告的 runner/生产故障 | 不把协议非法包装成行为失败 |
 | Diagnostics | 可选地承载 locator、显示名、时长、stack 或原始上下文 | 不参与身份或关系判定 |
 
-传输规则固定如下：
+候选传输边界如下：
 
 1. 正式协议模式的 producer stdout 是 UTF-8 编码的一个完整 JSON 文档；允许末尾换行，不允许 banner、console 日志、多个 JSON 值或 NDJSON。
 2. Runner 日志进入 stderr 或 JSON diagnostics。Consumer 不解析 stderr 来恢复 Test 身份或状态。
@@ -107,7 +118,7 @@ Test 实体与 Case 是多对多关系。Runner 的原生结果始终引用 Test
 
 ### 4. 资格执行使用同一快照闭环
 
-一次正式 invocation 按以下顺序执行：
+候选资格闭环按以下顺序执行：
 
 1. 项目发现 owner 证明测试实体索引相对真实测试全集完整且新鲜。
 2. Ledger 严格检查证明 Test、Case 和关系闭合，并返回实体、Case 与项目 revision 证据。
@@ -130,9 +141,9 @@ Test 实体与 Case 是多对多关系。Runner 的原生结果始终引用 Test
 
 ### 6. Owner 按领域、生产边缘和编排分层
 
-| Owner | 完整责任 | 明确不承担 |
+| 候选 Owner | 未来责任 | 明确不承担 |
 | --- | --- | --- |
-| `task-000035` 的测试实体/发现 owner | Test ID、locator、真实测试发现、新鲜度和 `sourceRevision` | JSON 协议消费与 Case 关系 |
+| Test 身份与发现 owner | Test ID、locator、真实测试发现、新鲜度和 `sourceRevision` | JSON 协议消费与 Case 关系 |
 | Test-evidence skill 及可分发工具 | JSON Schema/版本、严格 consumer、Test → Case 查询、资格分类、固定 reason code 和诊断渲染 | Runner 原生事件读取 |
 | Runner 侧 JSON producer | 原生事件读取、Test ID 取值、统一状态映射、JSON 输出 | Case 查询、Case ID 和项目门禁策略 |
 | 项目 check 编排 | 资格前置、步骤分类、invocation/预期集合传递、producer/consumer 编排、最终退出 | Runner 格式解析和协议 Schema 副本 |
@@ -158,9 +169,9 @@ Test 实体与 Case 是多对多关系。Runner 的原生结果始终引用 Test
 - 只删除测试实现而保留实体或关系，由实体新鲜度或未知端点检查拒绝。
 - 同时删除测试实现、实体和全部关系可以形成新的闭合集合。该变化是否合理属于代码审查；本 change 不增加 tombstone、受保护 Case 列表或第二 manifest。
 
-实施迁移按以下顺序推进：
+未来若重启，可以按以下顺序重新评估迁移：
 
-1. 等待 `task-000035` 固定 Test ID、locator、发现和 revision 契约，并据此重审本 design。
+1. 重新确认 Test ID、locator、发现和 revision 契约已经由当前 owner 提供，并据此重审本 design。
 2. 固定 JSON Schema、版本兼容、状态枚举和 producer error；用 runner-agnostic consumer fixtures 验证共同语义。
 3. 为一个小型、结果稳定的容器建立边缘 producer，先以只读对照证明原生结果与 JSON Test ID 一一对应。
 4. 在试点启用硬资格，验证合法结果、协议非法、身份非法、集合漂移和 producer 故障。
@@ -181,15 +192,15 @@ Test 实体与 Case 是多对多关系。Runner 的原生结果始终引用 Test
 | 测试编写中间态暂时不闭合 | Raw runner 保留本地反馈；只有正式门禁要求完整资格 |
 | 资格前置增加运行成本 | 同一次 check 复用资格快照；单个 script 只处理自身预期集合 |
 | 完整自洽删除可以移除测试约束 | 保留可审阅 diff；若需要机械删除授权，另建明确策略 owner |
-| Test ID 或发现模型继续变化 | Change 保持 draft；`task-000035` 完成后重审 Schema、owner 和迁移计划 |
+| Test ID 或发现模型继续变化 | Change 保持 draft；身份模型稳定只满足重启条件之一，仍需重新审查 Schema、owner 和迁移计划 |
 
 ## Open Questions
 
-产品语义已经闭合：非法测试以 `test-integrity` 硬阻断但不计为行为回归；正式结果使用统一版本化 JSON；test-evidence consumer 不逐 runner 适配。
+长期方向已经确认：非法测试应硬阻断但不计为行为回归；正式结果采用统一版本化 JSON；test-evidence consumer 不逐 runner 适配。具体协议和接入语义仍要在未来重启时按真实证据重新收敛。
 
-进入 plan 前仍需解决两个技术依赖：
+未来若明确重启，至少需要重新核对两个技术依赖：
 
-1. `task-000035` 最终采用什么 Test ID、locator、发现新鲜度和 `sourceRevision` 契约，producer 如何取得并回显该 Test ID？
+1. 届时的 Test 身份 owner 提供什么 Test ID、locator、发现新鲜度和 `sourceRevision` 契约，producer 如何取得并回显该 Test ID？
 2. Bun 与 Node native test 的真实事件如何共同映射为闭合运行结果和 producer error，同时保持 Test 实体与 Case 不承载执行状态？
 
-这两个问题需要真实实现证据，而不是用户继续选择产品方向。它们未完成前，本 change 不运行 `plan`，也不开始实施。
+这两个问题需要真实 runner 和身份模型证据。它们完成并不自动启动工作；只有出现实际需求、优先级和明确实施授权后，本 change 才能重新审阅是否进入 `plan`。

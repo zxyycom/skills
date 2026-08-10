@@ -262,6 +262,7 @@
       "test-evidence-review/260720-organize-proofs-by-shared-execution-chain.md": "sha256:4a0081db6aee627ae118c8aaff210c2cec7f786d0d08031cbec41b9e7524ecbd",
       "test-evidence-review/260721-separate-test-entry-collection-from-ledger.md": "sha256:6d58c4e9683b225a9850ecf196d73e4589a844371f8f2b0f156a9c6618c034ee",
       "test-evidence-review/catalog-minimal-native-test-entries.md": "sha256:c9b915a309a4464f44e088062fe7f6dc4a8277e9a1f4b87f463940b5dec981e3",
+      "test-evidence-review/defer-standard-test-result-blocking.md": "sha256:db18a161ea47c01a46660012405a97097f645d2d5a78c09060edc3fd75dc13fb",
       "test-evidence-review/fix-test-evidence-workspace-contract.md": "sha256:78743d06c85fa906cbfc5831678115d4176076b7660982f3c0f790fc4eb0cad6",
       "test-evidence-review/index-independent-proof-cases-from-current-catalog.md": "sha256:b280fbb91b41c024f47ddaa2d1be8e7b60927ab959d627c4cb3b6dea774a0bba",
       "test-evidence-review/index-ledger-by-stable-case-state.md": "sha256:c151387f1b5b9d627b6af82059a0335b515ade3653176ea2ae2b9c6f726a13a4",
@@ -4822,6 +4823,30 @@
             "target": "test-evidence-review/register-one-case-per-independent-verification-entry.md"
           }
         ]
+      }
+    },
+    "test-evidence-review/defer-standard-test-result-blocking.md": {
+      "keys": {
+        "domain": [
+          "test-evidence-review"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "test-evidence-review/defer-standard-test-result-blocking.md",
+        "title": "长期延期统一测试结果协议与阻断资格",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-10T07:48:30Z",
+        "purpose": "为未来正式测试门禁保留可审计的统一接入方向，同时明确当前不排期、不实施，也不提前冻结协议细节。",
+        "background": "聚合退出码无法区分行为失败与未绑定测试，但完整方案横跨测试身份、运行器、账本、检查和 CI，当前没有近期实施安排。",
+        "decision": "正式测试未来通过统一 JSON 结果协议取得阻断资格，JSON 以 Test ID 标识测试实体，consumer 从账本派生 Case；该方向长期延期，重启前不改变现行门禁或冻结具体接入方案。",
+        "relations": []
       }
     },
     "test-evidence-review/fix-test-evidence-workspace-contract.md": {
