@@ -29,6 +29,59 @@ export type InvestigationIndexSyncResult = {
   topicCount: number;
 };
 
+export type InvestigationIndexStageOptions = {
+  investigationsDir?: string;
+  topicIds: readonly string[];
+  workspaceRoot: string;
+};
+
+export type InvestigationIndexStageDiagnostic = {
+  code: string;
+  message: string;
+  path: string | null;
+  stateId: string | null;
+};
+
+type InvestigationIndexStageBase = {
+  diagnostics: InvestigationIndexStageDiagnostic[];
+  indexPath: string;
+  namespace: string;
+  selectedIds: string[];
+};
+
+export type InvestigationIndexStageResult =
+  | (InvestigationIndexStageBase & {
+      changed: true;
+      state: "staged";
+      status: "ok";
+    })
+  | (InvestigationIndexStageBase & {
+      changed: false;
+      state: "unchanged";
+      status: "ok";
+    })
+  | (InvestigationIndexStageBase & {
+      changed: false;
+      state:
+        | "collection-changed"
+        | "definition-invalid"
+        | "index-path-invalid"
+        | "operation-aborted"
+        | "pending-conflict"
+        | "pending-write-failed"
+        | "revision-index-invalid"
+        | "revision-read-failed"
+        | "selection-invalid"
+        | "target-invalid"
+        | "workspace-index-invalid";
+      status: "error";
+    })
+  | (InvestigationIndexStageBase & {
+      changed: null;
+      state: "pending-recovery-failed";
+      status: "error";
+    });
+
 export type InvestigationIndexQueryOptions = {
   categories?: readonly string[];
   investigationsDir?: string;
@@ -74,6 +127,10 @@ export declare function runInvestigationReportCheckCli(
 export declare function synchronizeInvestigationIndex(
   options: InvestigationIndexSyncOptions
 ): Promise<InvestigationIndexSyncResult>;
+
+export declare function stageInvestigationIndex(
+  options: InvestigationIndexStageOptions
+): Promise<InvestigationIndexStageResult>;
 
 export declare function queryInvestigationIndex(
   options: InvestigationIndexQueryOptions

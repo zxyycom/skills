@@ -7,6 +7,7 @@ import test from "node:test";
 import {
   queryInvestigationIndex as queryBundledInvestigationIndex,
   runInvestigationReportCheckCli,
+  stageInvestigationIndex as stageBundledInvestigationIndex,
   synchronizeInvestigationIndex as synchronizeBundledInvestigationIndex,
   validateInvestigationReports as validateBundledInvestigationReports
 } from "../../../skills/investigation-report/scripts/check-investigations.mjs";
@@ -49,6 +50,7 @@ async function testBundledApiParity(tempRoot: string): Promise<void> {
   );
   assert.equal(typeof runInvestigationReportCheckCli, "function");
   assert.equal(typeof queryBundledInvestigationIndex, "function");
+  assert.equal(typeof stageBundledInvestigationIndex, "function");
   assert.equal(typeof synchronizeBundledInvestigationIndex, "function");
 
   assert.deepEqual(
@@ -307,6 +309,8 @@ async function testGeneratedCliUsage(tempRoot: string): Promise<void> {
   assert.match(help.stdout, /full-index freshness/);
   assert.match(help.stdout, /sync-index validates every topic/);
   assert.match(help.stdout, /list checks topic and resource freshness/);
+  assert.match(help.stdout, /stage-index <topic-id\.\.\.>/u);
+  assert.match(help.stdout, /does not read or stage topic Markdown/u);
 
   const validRoot = path.join(tempRoot, "cli-usage");
   await writeCollection(validRoot, createValidReports());
@@ -353,6 +357,78 @@ async function testGeneratedCliUsage(tempRoot: string): Promise<void> {
     invalidSyncFilter.stderr,
     /sync-index does not accept query filters or pagination/u
   );
+
+  const missingStageTopic = spawnSync(
+    "node",
+    [
+      generatedCheckerPath,
+      "stage-index",
+      "--root",
+      validRoot,
+      "--json"
+    ],
+    { encoding: "utf8" }
+  );
+  assert.equal(missingStageTopic.status, 2);
+  assert.equal(missingStageTopic.stderr, "");
+  assert.deepEqual(
+    JSON.parse(missingStageTopic.stdout) as {
+      changed: boolean;
+      state: string;
+      status: string;
+    },
+    {
+      changed: false,
+      diagnostics: [{
+        code: "investigation-report.stage-topic-ids-empty",
+        message: "stage-index requires at least one investigation topic id",
+        path: null,
+        stateId: null
+      }],
+      indexPath: path.join(
+        validRoot,
+        "docs",
+        "investigations",
+        investigationIndexFileName
+      ),
+      namespace: "investigations",
+      selectedIds: [],
+      state: "selection-invalid",
+      status: "error"
+    }
+  );
+
+  const invalidStageFilter = spawnSync(
+    "node",
+    [
+      generatedCheckerPath,
+      "stage-index",
+      "codex/project-shell-registration.md",
+      "--root",
+      validRoot,
+      "--category",
+      "codex"
+    ],
+    { encoding: "utf8" }
+  );
+  assert.equal(invalidStageFilter.status, 2);
+  assert.equal(invalidStageFilter.stdout, "");
+  assert.match(
+    invalidStageFilter.stderr,
+    /stage-index does not accept query filters or pagination/u
+  );
+
+  const invalidJsonCommand = spawnSync(
+    "node",
+    [generatedCheckerPath, "check", "--root", validRoot, "--json"],
+    { encoding: "utf8" }
+  );
+  assert.equal(invalidJsonCommand.status, 2);
+  assert.equal(invalidJsonCommand.stdout, "");
+  assert.match(
+    invalidJsonCommand.stderr,
+    /--json is only supported by stage-index/u
+  );
 }
 
 async function testGeneratedArtifacts(): Promise<void> {
@@ -381,6 +457,7 @@ async function testGeneratedArtifacts(): Promise<void> {
   assert.match(declarationSource, /validateInvestigationReports/);
   assert.match(declarationSource, /synchronizeInvestigationIndex/);
   assert.match(declarationSource, /queryInvestigationIndex/);
+  assert.match(declarationSource, /stageInvestigationIndex/);
   assert.match(declarationSource, /runInvestigationReportCheckCli/);
 
   const generatedSchema = JSON.parse(
@@ -426,6 +503,15 @@ async function testGeneratedArtifacts(): Promise<void> {
   ));
   assert.ok(sourceMap.sources.includes(
     "tools/investigation-report/src/query.ts"
+  ));
+  assert.ok(sourceMap.sources.includes(
+    "tools/investigation-report/src/staging.ts"
+  ));
+  assert.ok(sourceMap.sources.includes(
+    "tools/index-runtime/src/staging.ts"
+  ));
+  assert.ok(sourceMap.sources.includes(
+    "tools/shared/src/version-control/index.ts"
   ));
   assert.ok(sourceMap.sources.includes(
     "tools/index-runtime/src/storage.ts"

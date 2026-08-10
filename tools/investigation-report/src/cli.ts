@@ -8,6 +8,10 @@ import {
   queryInvestigationIndex
 } from "./query.ts";
 import {
+  executeInvestigationIndexStage,
+  stageInvestigationIndex
+} from "./staging.ts";
+import {
   executeInvestigationIndexSync,
   executeInvestigationReportCheck,
   synchronizeInvestigationIndex,
@@ -15,17 +19,21 @@ import {
 } from "./validation.ts";
 import type {
   InvestigationIndexQueryOptions,
+  InvestigationIndexStageDiagnostic,
+  InvestigationIndexStageOptions,
+  InvestigationIndexStageResult,
   InvestigationIndexSyncOptions,
   InvestigationReportCheckOptions
 } from "./types.ts";
 
-type InvestigationCommand = "check" | "list" | "sync-index";
+type InvestigationCommand = "check" | "list" | "stage-index" | "sync-index";
 type ParsedArguments = ReturnType<typeof parseArgs>;
 type CliInput =
   | { status: "help" }
   | { status: "invalid"; error: string }
   | {
       status: "command";
+      commandArguments: string[];
       command: InvestigationCommand;
       values: ParsedArguments["values"];
     };
@@ -35,12 +43,15 @@ function printHelp(): void {
     "Usage: check-investigations.mjs [check] [options]",
     "       check-investigations.mjs sync-index [options]",
     "       check-investigations.mjs list [options]",
+    "       check-investigations.mjs stage-index <topic-id...> [options]",
     "",
     "Check investigation topics, optional attached resources, timestamps, and the generated index.",
     "Without filters, every topic, the resource pool, and full-index freshness are checked.",
     "With --category or --path, matching topics and their referenced resources are checked.",
     "sync-index validates every topic and resource, then writes the derived JSON index.",
     "list checks topic and resource freshness, then queries without parsing report bodies.",
+    "stage-index stages only selected topic entries from the current workspace index.",
+    "It does not read or stage topic Markdown or attached resources.",
     "",
     "Options:",
     "  --root <workspace-root>       Workspace root (default: current directory)",
@@ -54,6 +65,7 @@ function printHelp(): void {
     "  --latest-to <timestamp>      List topics whose latest report is at or before this timestamp",
     "  --limit <count>              List page size (default: 50, maximum: 1000)",
     "  --offset <count>             List page offset (default: 0)",
+    "  --json                       Emit the stage-index result as JSON",
     "  -h, --help                   Show this help"
   ].join("\n"));
 }
@@ -68,6 +80,7 @@ function parseCliInput(argv: readonly string[]): CliInput {
         category: { multiple: true, type: "string" },
         help: { short: "h", type: "boolean" },
         "investigations-dir": { type: "string" },
+        json: { type: "boolean" },
         "latest-from": { type: "string" },
         "latest-to": { type: "string" },
         limit: { type: "string" },
@@ -86,21 +99,29 @@ function parseCliInput(argv: readonly string[]): CliInput {
   if (parsed.values.help === true) {
     return { status: "help" };
   }
-  if (parsed.positionals.length > 1) {
-    return {
-      error: "expected at most one command: check, sync-index, or list",
-      status: "invalid"
-    };
-  }
-  const command = parsed.positionals[0] ?? "check";
+  const [command = "check", ...commandArguments] = parsed.positionals;
   if (!isInvestigationCommand(command)) {
     return { error: `unknown command: ${command}`, status: "invalid" };
   }
-  return { command, status: "command", values: parsed.values };
+  if (command !== "stage-index" && commandArguments.length > 0) {
+    return {
+      error: `${command} does not accept positional arguments`,
+      status: "invalid"
+    };
+  }
+  return {
+    command,
+    commandArguments,
+    status: "command",
+    values: parsed.values
+  };
 }
 
 function isInvestigationCommand(value: string): value is InvestigationCommand {
-  return value === "check" || value === "list" || value === "sync-index";
+  return value === "check"
+    || value === "list"
+    || value === "stage-index"
+    || value === "sync-index";
 }
 
 function optionalString(value: unknown): string | undefined {
@@ -176,13 +197,21 @@ function hasListOnlyOptions(values: ParsedArguments["values"]): boolean {
   ].some((value) => value !== undefined);
 }
 
+function hasQueryOptions(values: ParsedArguments["values"]): boolean {
+  return optionalStrings(values.category) !== undefined
+    || optionalStrings(values.path) !== undefined
+    || hasListOnlyOptions(values);
+}
+
+function hasJsonOutput(values: ParsedArguments["values"]): boolean {
+  return values.json === true;
+}
+
 async function runSyncCommand(
   values: ParsedArguments["values"]
 ): Promise<number> {
   if (
-    optionalStrings(values.category) !== undefined
-    || optionalStrings(values.path) !== undefined
-    || hasListOnlyOptions(values)
+    hasQueryOptions(values)
   ) {
     console.error("sync-index does not accept query filters or pagination");
     return 2;
@@ -208,6 +237,65 @@ async function runSyncCommand(
         + `${synchronized.categoryCount} categories).`
   );
   return 0;
+}
+
+async function runStageCommand(
+  values: ParsedArguments["values"],
+  topicIds: readonly string[]
+): Promise<number> {
+  if (hasQueryOptions(values)) {
+    console.error("stage-index does not accept query filters or pagination");
+    return 2;
+  }
+  const execution = await executeInvestigationIndexStage({
+    ...commonOptions(values),
+    topicIds
+  });
+  if (execution.isErr()) {
+    if (hasJsonOutput(values)) {
+      console.log(JSON.stringify(execution.error.result));
+    } else {
+      printStageErrors(execution.error.result);
+    }
+    return execution.error.kind === "invalid-options" ? 2 : 1;
+  }
+  if (hasJsonOutput(values)) {
+    console.log(JSON.stringify(execution.value));
+  } else {
+    printStageSuccess(execution.value);
+  }
+  return 0;
+}
+
+function printStageSuccess(
+  result: Extract<InvestigationIndexStageResult, { status: "ok" }>
+): void {
+  console.log(
+    result.changed
+      ? "Investigation index entries staged for "
+        + `${result.selectedIds.length} selected topic(s) in ${result.indexPath}.`
+      : "Investigation index entries are unchanged for "
+        + `${result.selectedIds.length} selected topic(s) in ${result.indexPath}.`
+  );
+  console.log(`state: ${result.state}; changed: ${result.changed}`);
+  console.log(`selected IDs: ${result.selectedIds.join(", ")}`);
+  console.log("Topic Markdown and attached resources remain outside this operation.");
+}
+
+function printStageErrors(result: InvestigationIndexStageResult): void {
+  printErrors(
+    "Investigation index entry staging failed "
+      + `(state: ${result.state}; changed: ${result.changed}):`,
+    [
+      `selected IDs: ${result.selectedIds.join(", ") || "none"}`,
+      ...result.diagnostics.map((diagnostic) => [
+        diagnostic.code,
+        diagnostic.path ?? result.indexPath,
+        diagnostic.stateId === null ? "" : `[${diagnostic.stateId}]`,
+        diagnostic.message
+      ].filter((part) => part.length > 0).join(" "))
+    ]
+  );
 }
 
 async function runListCommand(
@@ -282,11 +370,18 @@ async function dispatchCommand(input: Extract<
   CliInput,
   { status: "command" }
 >): Promise<number> {
+  if (input.command !== "stage-index" && hasJsonOutput(input.values)) {
+    console.error("--json is only supported by stage-index");
+    return 2;
+  }
   if (input.command === "sync-index") {
     return await runSyncCommand(input.values);
   }
   if (input.command === "list") {
     return await runListCommand(input.values);
+  }
+  if (input.command === "stage-index") {
+    return await runStageCommand(input.values, input.commandArguments);
   }
   return await runCheckCommand(input.values);
 }
@@ -315,12 +410,16 @@ export async function runInvestigationReportCheckCli(
 
 export {
   queryInvestigationIndex,
+  stageInvestigationIndex,
   synchronizeInvestigationIndex,
   validateInvestigationReports
 };
 export type {
   InvestigationIndexQueryOptions,
   InvestigationIndexQueryResult,
+  InvestigationIndexStageDiagnostic,
+  InvestigationIndexStageOptions,
+  InvestigationIndexStageResult,
   InvestigationIndexState,
   InvestigationIndexSyncOptions,
   InvestigationIndexSyncResult,

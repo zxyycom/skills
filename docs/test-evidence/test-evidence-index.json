@@ -4765,7 +4765,7 @@
     "INVESTIGATION-BUNDLED-PARITY-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-BUNDLED-PARITY-001 Bundled 调查 API 与源码一致 分发的调查 API 必须与维护源码实现保持行为一致，包括随附资源关系与完整性结果。 包含资源引用的相同输入在源码与 bundled 入口得到相同验证结果，且 bundled 查询保留报告级资源关系。 tools/investigation-report/tests/cli-generated.test.ts > bundled investigation APIs preserve source implementation parity bun test --test-name-pattern=\"^bundled investigation APIs preserve source implementation parity$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-BUNDLED-PARITY-001 Bundled 调查 API 与源码一致 分发的调查 API 必须与维护源码实现保持行为一致，包括随附资源关系、完整性结果和选择性索引暂存入口。 包含资源引用的相同输入在源码与 bundled 入口得到相同验证结果，bundled 查询保留报告级资源关系，且分发面公开 `stageInvestigationIndex`。 tools/investigation-report/tests/cli-generated.test.ts > bundled investigation APIs preserve source implementation parity bun test --test-name-pattern=\"^bundled investigation APIs preserve source implementation parity$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -4779,9 +4779,9 @@
         ],
         "id": "INVESTIGATION-BUNDLED-PARITY-001",
         "line": 1,
-        "searchText": "Bundled 调查 API 与源码一致 分发的调查 API 必须与维护源码实现保持行为一致，包括随附资源关系与完整性结果。 包含资源引用的相同输入在源码与 bundled 入口得到相同验证结果，且 bundled 查询保留报告级资源关系。 tools/investigation-report/tests/cli-generated.test.ts > bundled investigation APIs preserve source implementation parity bun test --test-name-pattern=\"^bundled investigation APIs preserve source implementation parity$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "Bundled 调查 API 与源码一致 分发的调查 API 必须与维护源码实现保持行为一致，包括随附资源关系、完整性结果和选择性索引暂存入口。 包含资源引用的相同输入在源码与 bundled 入口得到相同验证结果，bundled 查询保留报告级资源关系，且分发面公开 `stageInvestigationIndex`。 tools/investigation-report/tests/cli-generated.test.ts > bundled investigation APIs preserve source implementation parity bun test --test-name-pattern=\"^bundled investigation APIs preserve source implementation parity$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/bundled-investigation-apis-preserve-source-implementation-parity.md",
-        "summary": "分发的调查 API 必须与维护源码实现保持行为一致，包括随附资源关系与完整性结果。",
+        "summary": "分发的调查 API 必须与维护源码实现保持行为一致，包括随附资源关系、完整性结果和选择性索引暂存入口。",
         "title": "Bundled 调查 API 与源码一致"
       }
     },
@@ -4880,7 +4880,7 @@
     "INVESTIGATION-CLI-USAGE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-USAGE-001 生成 CLI 的帮助与参数错误保留退出契约 帮助请求必须成功展示可选随附资源、完整资源池检查及各命令约束，未知选项、非法 limit 和 sync-index 过滤参数必须返回用法错误。 帮助返回 0，只向 stdout 说明局部与完整资源边界，stderr 为空。 未知选项、非法 limit 和 sync-index 过滤参数都返回退出码 2、保持 stdout 为空，并分别在 stderr 给出未知选项、整数 limit 或该命令不接受过滤与分页的可行动诊断。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation CLI usage errors preserve exit contracts bun test --test-name-pattern=\"^generated investigation CLI usage errors preserve exit contracts$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-USAGE-001 生成 CLI 的帮助与参数错误保留退出契约 帮助请求必须成功展示可选随附资源、完整资源池检查及各命令约束；未知选项、非法 limit、命令禁用筛选、空暂存选择和 `--json` 用错命令必须返回用法错误。 帮助返回 0，只向 stdout 说明局部与完整资源边界、`stage-index` 用法及其领域文件边界，stderr 为空。 未知选项、非法 limit、sync-index/stage-index 过滤参数和非暂存命令使用 `--json` 都返回退出码 2 与可行动诊断；空主题选择以 JSON 返回稳定 `selection-invalid` 结果和退出码 2。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation CLI usage errors preserve exit contracts bun test --test-name-pattern=\"^generated investigation CLI usage errors preserve exit contracts$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -4894,9 +4894,9 @@
         ],
         "id": "INVESTIGATION-CLI-USAGE-001",
         "line": 1,
-        "searchText": "生成 CLI 的帮助与参数错误保留退出契约 帮助请求必须成功展示可选随附资源、完整资源池检查及各命令约束，未知选项、非法 limit 和 sync-index 过滤参数必须返回用法错误。 帮助返回 0，只向 stdout 说明局部与完整资源边界，stderr 为空。 未知选项、非法 limit 和 sync-index 过滤参数都返回退出码 2、保持 stdout 为空，并分别在 stderr 给出未知选项、整数 limit 或该命令不接受过滤与分页的可行动诊断。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation CLI usage errors preserve exit contracts bun test --test-name-pattern=\"^generated investigation CLI usage errors preserve exit contracts$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "生成 CLI 的帮助与参数错误保留退出契约 帮助请求必须成功展示可选随附资源、完整资源池检查及各命令约束；未知选项、非法 limit、命令禁用筛选、空暂存选择和 `--json` 用错命令必须返回用法错误。 帮助返回 0，只向 stdout 说明局部与完整资源边界、`stage-index` 用法及其领域文件边界，stderr 为空。 未知选项、非法 limit、sync-index/stage-index 过滤参数和非暂存命令使用 `--json` 都返回退出码 2 与可行动诊断；空主题选择以 JSON 返回稳定 `selection-invalid` 结果和退出码 2。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation CLI usage errors preserve exit contracts bun test --test-name-pattern=\"^generated investigation CLI usage errors preserve exit contracts$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/generated-investigation-cli-usage-errors-preserve-exit-contracts.md",
-        "summary": "帮助请求必须成功展示可选随附资源、完整资源池检查及各命令约束，未知选项、非法 limit 和 sync-index 过滤参数必须返回用法错误。",
+        "summary": "帮助请求必须成功展示可选随附资源、完整资源池检查及各命令约束；未知选项、非法 limit、命令禁用筛选、空暂存选择和 `--json` 用错命令必须返回用法错误。",
         "title": "生成 CLI 的帮助与参数错误保留退出契约"
       }
     },
@@ -4972,7 +4972,7 @@
     "INVESTIGATION-GENERATED-METADATA-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-GENERATED-METADATA-001 生成调查制品携带可移植元数据 调查分发制品必须暴露维护来源、当前资源索引 schema，且不包含机器绝对路径。 Banner、声明和 source map 使用仓库可移植路径，definition version 3 schema 包含 resourceReferences 与 SHA-256 约束。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation artifacts expose portable metadata bun test --test-name-pattern=\"^generated investigation artifacts expose portable metadata$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-GENERATED-METADATA-001 生成调查制品携带可移植元数据 调查分发制品必须暴露维护来源、当前资源索引 schema、选择性暂存 API 及其传递依赖，且不包含机器绝对路径。 Banner、声明和 source map 使用仓库可移植路径；声明暴露 `stageInvestigationIndex`，source map 内联领域、公共运行时和版本仓库暂存源码；definition version 3 schema 包含 resourceReferences 与 SHA-256 约束。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation artifacts expose portable metadata bun test --test-name-pattern=\"^generated investigation artifacts expose portable metadata$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -4986,9 +4986,9 @@
         ],
         "id": "INVESTIGATION-GENERATED-METADATA-001",
         "line": 1,
-        "searchText": "生成调查制品携带可移植元数据 调查分发制品必须暴露维护来源、当前资源索引 schema，且不包含机器绝对路径。 Banner、声明和 source map 使用仓库可移植路径，definition version 3 schema 包含 resourceReferences 与 SHA-256 约束。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation artifacts expose portable metadata bun test --test-name-pattern=\"^generated investigation artifacts expose portable metadata$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "生成调查制品携带可移植元数据 调查分发制品必须暴露维护来源、当前资源索引 schema、选择性暂存 API 及其传递依赖，且不包含机器绝对路径。 Banner、声明和 source map 使用仓库可移植路径；声明暴露 `stageInvestigationIndex`，source map 内联领域、公共运行时和版本仓库暂存源码；definition version 3 schema 包含 resourceReferences 与 SHA-256 约束。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation artifacts expose portable metadata bun test --test-name-pattern=\"^generated investigation artifacts expose portable metadata$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/generated-investigation-artifacts-expose-portable-metadata.md",
-        "summary": "调查分发制品必须暴露维护来源、当前资源索引 schema，且不包含机器绝对路径。",
+        "summary": "调查分发制品必须暴露维护来源、当前资源索引 schema、选择性暂存 API 及其传递依赖，且不包含机器绝对路径。",
         "title": "生成调查制品携带可移植元数据"
       }
     },
@@ -5404,6 +5404,190 @@
         "sourcePath": "investigation-report/source-revisions-partition-metadata-and-topic-fingerprints-without-parsing-markdown.md",
         "summary": "调查完整快照与快速读取必须共享结构化 revision；单份报告变化只影响对应路径指纹，快速路径不解析 Markdown。",
         "title": "调查来源 Revision 分离 Metadata 与逐 Topic 指纹"
+      }
+    },
+    "INVESTIGATION-STAGE-BOOTSTRAP-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-STAGE-BOOTSTRAP-001 首次暂存完整保留资源感知索引 revision 尚无调查索引时，合法的首次主题选择可以创建 pending 索引，并保留工作区索引的资源 metadata 与主题资源引用；领域文件不随索引进入 pending。 bundled API 从含二进制随附资源的首个主题生成 pending 索引，SHA-256 与报告级引用正确，pending 路径只有派生索引。 tools/investigation-report/tests/staging.test.ts > stage-index bootstraps the first resource-aware investigation index bun test --test-name-pattern=\"^stage-index bootstraps the first resource-aware investigation index$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/investigation-report/tests/staging.test.ts > stage-index bootstraps the first resource-aware investigation index",
+          "bun test --test-name-pattern=\"^stage-index bootstraps the first resource-aware investigation index$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-STAGE-BOOTSTRAP-001",
+        "line": 1,
+        "searchText": "首次暂存完整保留资源感知索引 revision 尚无调查索引时，合法的首次主题选择可以创建 pending 索引，并保留工作区索引的资源 metadata 与主题资源引用；领域文件不随索引进入 pending。 bundled API 从含二进制随附资源的首个主题生成 pending 索引，SHA-256 与报告级引用正确，pending 路径只有派生索引。 tools/investigation-report/tests/staging.test.ts > stage-index bootstraps the first resource-aware investigation index bun test --test-name-pattern=\"^stage-index bootstraps the first resource-aware investigation index$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/stage-index-bootstraps-the-first-resource-aware-investigation-index.md",
+        "summary": "revision 尚无调查索引时，合法的首次主题选择可以创建 pending 索引，并保留工作区索引的资源 metadata 与主题资源引用；领域文件不随索引进入 pending。",
+        "title": "首次暂存完整保留资源感知索引"
+      }
+    },
+    "INVESTIGATION-STAGE-CONFLICT-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-STAGE-CONFLICT-001 同索引既有 pending 被拒绝并原样保留 目标调查索引已有待提交内容时，`stage-index` 必须拒绝覆盖、累加或清除；目标外的 pending 路径也不能受影响。 既有索引 pending 与更新的工作区索引形成冲突时返回 `pending-conflict`，索引 pending、外部 pending 路径和工作区索引全部保持原样。 tools/investigation-report/tests/staging.test.ts > stage-index rejects existing same-index pending and preserves outside pending files bun test --test-name-pattern=\"^stage-index rejects existing same-index pending and preserves outside pending files$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/investigation-report/tests/staging.test.ts > stage-index rejects existing same-index pending and preserves outside pending files",
+          "bun test --test-name-pattern=\"^stage-index rejects existing same-index pending and preserves outside pending files$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-STAGE-CONFLICT-001",
+        "line": 1,
+        "searchText": "同索引既有 pending 被拒绝并原样保留 目标调查索引已有待提交内容时，`stage-index` 必须拒绝覆盖、累加或清除；目标外的 pending 路径也不能受影响。 既有索引 pending 与更新的工作区索引形成冲突时返回 `pending-conflict`，索引 pending、外部 pending 路径和工作区索引全部保持原样。 tools/investigation-report/tests/staging.test.ts > stage-index rejects existing same-index pending and preserves outside pending files bun test --test-name-pattern=\"^stage-index rejects existing same-index pending and preserves outside pending files$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/stage-index-rejects-existing-same-index-pending.md",
+        "summary": "目标调查索引已有待提交内容时，`stage-index` 必须拒绝覆盖、累加或清除；目标外的 pending 路径也不能受影响。",
+        "title": "同索引既有 pending 被拒绝并原样保留"
+      }
+    },
+    "INVESTIGATION-STAGE-INPUT-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-STAGE-INPUT-001 暂存入口在仓库访问前校验规范主题 ID `stage-index` 必须先拒绝空选择、非规范 POSIX 主题路径和重复 ID，再解析调查目录或访问版本仓库。 不存在的工作区分别收到稳定的 `selection-invalid` 诊断，且命令没有创建工作区或继续访问仓库。 tools/investigation-report/tests/staging.test.ts > stage-index validates canonical topic ids before repository access bun test --test-name-pattern=\"^stage-index validates canonical topic ids before repository access$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/investigation-report/tests/staging.test.ts > stage-index validates canonical topic ids before repository access",
+          "bun test --test-name-pattern=\"^stage-index validates canonical topic ids before repository access$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-STAGE-INPUT-001",
+        "line": 1,
+        "searchText": "暂存入口在仓库访问前校验规范主题 ID `stage-index` 必须先拒绝空选择、非规范 POSIX 主题路径和重复 ID，再解析调查目录或访问版本仓库。 不存在的工作区分别收到稳定的 `selection-invalid` 诊断，且命令没有创建工作区或继续访问仓库。 tools/investigation-report/tests/staging.test.ts > stage-index validates canonical topic ids before repository access bun test --test-name-pattern=\"^stage-index validates canonical topic ids before repository access$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/stage-index-validates-canonical-topic-ids-before-repository-access.md",
+        "summary": "`stage-index` 必须先拒绝空选择、非规范 POSIX 主题路径和重复 ID，再解析调查目录或访问版本仓库。",
+        "title": "暂存入口在仓库访问前校验规范主题 ID"
+      }
+    },
+    "INVESTIGATION-STAGE-ISOLATION-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-STAGE-ISOLATION-001 单主题暂存隔离并保留领域文件边界 A、B 主题同时改变时，选择 A 只能把 A 的索引条目带入 `pending`；主题 Markdown、随附资源、工作区索引和其他待提交路径必须保持原样。 即使 A、B Markdown 在同步后都被改成无效内容，JSON 命令仍只从两份索引组合 A；pending 保留 B 基线和既有外部文件，领域文件字节不变。 tools/investigation-report/tests/staging.test.ts > stage-index isolates one selected topic without reading or staging domain files bun test --test-name-pattern=\"^stage-index isolates one selected topic without reading or staging domain files$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/investigation-report/tests/staging.test.ts > stage-index isolates one selected topic without reading or staging domain files",
+          "bun test --test-name-pattern=\"^stage-index isolates one selected topic without reading or staging domain files$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-STAGE-ISOLATION-001",
+        "line": 1,
+        "searchText": "单主题暂存隔离并保留领域文件边界 A、B 主题同时改变时，选择 A 只能把 A 的索引条目带入 `pending`；主题 Markdown、随附资源、工作区索引和其他待提交路径必须保持原样。 即使 A、B Markdown 在同步后都被改成无效内容，JSON 命令仍只从两份索引组合 A；pending 保留 B 基线和既有外部文件，领域文件字节不变。 tools/investigation-report/tests/staging.test.ts > stage-index isolates one selected topic without reading or staging domain files bun test --test-name-pattern=\"^stage-index isolates one selected topic without reading or staging domain files$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/stage-index-isolates-one-selected-topic-without-reading-or-staging-domain-files.md",
+        "summary": "A、B 主题同时改变时，选择 A 只能把 A 的索引条目带入 `pending`；主题 Markdown、随附资源、工作区索引和其他待提交路径必须保持原样。",
+        "title": "单主题暂存隔离并保留领域文件边界"
+      }
+    },
+    "INVESTIGATION-STAGE-MISSING-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-STAGE-MISSING-001 两份索引都缺失的主题 ID 在写入前失败 只有至少存在于 revision 索引或工作区索引之一的规范主题 ID 才能参与选择性暂存。 缺失 ID 返回带原 ID 的 `state-index.selected-id-missing`，没有创建 pending，工作区索引字节不变。 tools/investigation-report/tests/staging.test.ts > stage-index rejects topic ids missing from both indexes without changing pending bun test --test-name-pattern=\"^stage-index rejects topic ids missing from both indexes without changing pending$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/investigation-report/tests/staging.test.ts > stage-index rejects topic ids missing from both indexes without changing pending",
+          "bun test --test-name-pattern=\"^stage-index rejects topic ids missing from both indexes without changing pending$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-STAGE-MISSING-001",
+        "line": 1,
+        "searchText": "两份索引都缺失的主题 ID 在写入前失败 只有至少存在于 revision 索引或工作区索引之一的规范主题 ID 才能参与选择性暂存。 缺失 ID 返回带原 ID 的 `state-index.selected-id-missing`，没有创建 pending，工作区索引字节不变。 tools/investigation-report/tests/staging.test.ts > stage-index rejects topic ids missing from both indexes without changing pending bun test --test-name-pattern=\"^stage-index rejects topic ids missing from both indexes without changing pending$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/stage-index-rejects-topic-ids-missing-from-both-indexes.md",
+        "summary": "只有至少存在于 revision 索引或工作区索引之一的规范主题 ID 才能参与选择性暂存。",
+        "title": "两份索引都缺失的主题 ID 在写入前失败"
+      }
+    },
+    "INVESTIGATION-STAGE-OVERLAY-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-STAGE-OVERLAY-001 选择性暂存组合新增、删除和显式重命名 主题新增、删除和路径重命名必须由新旧稳定 ID 的选择表达，未选择主题的工作区修改继续使用 revision 基线。 一个目标索引同时删除两个旧 ID、加入重命名后的新 ID 和新增 ID，并保留未选择 A 的基线条目；文本结果稳定报告排序后的选择与变化状态。 tools/investigation-report/tests/staging.test.ts > stage-index applies selected additions deletions and explicit renames bun test --test-name-pattern=\"^stage-index applies selected additions deletions and explicit renames$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/investigation-report/tests/staging.test.ts > stage-index applies selected additions deletions and explicit renames",
+          "bun test --test-name-pattern=\"^stage-index applies selected additions deletions and explicit renames$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-STAGE-OVERLAY-001",
+        "line": 1,
+        "searchText": "选择性暂存组合新增、删除和显式重命名 主题新增、删除和路径重命名必须由新旧稳定 ID 的选择表达，未选择主题的工作区修改继续使用 revision 基线。 一个目标索引同时删除两个旧 ID、加入重命名后的新 ID 和新增 ID，并保留未选择 A 的基线条目；文本结果稳定报告排序后的选择与变化状态。 tools/investigation-report/tests/staging.test.ts > stage-index applies selected additions deletions and explicit renames bun test --test-name-pattern=\"^stage-index applies selected additions deletions and explicit renames$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/stage-index-applies-selected-additions-deletions-and-explicit-renames.md",
+        "summary": "主题新增、删除和路径重命名必须由新旧稳定 ID 的选择表达，未选择主题的工作区修改继续使用 revision 基线。",
+        "title": "选择性暂存组合新增、删除和显式重命名"
+      }
+    },
+    "INVESTIGATION-STAGE-RESOURCE-METADATA-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-STAGE-RESOURCE-METADATA-001 资源 metadata 变化拒绝按主题暂存 随附资源 ID、SHA-256 与 metadata 来源指纹属于完整调查集合；相对 revision 变化时不能归入单个主题 ID。 资源字节变化并重建工作区索引后，主题选择返回 `collection-changed`，不产生 pending，也不改写索引或资源。 tools/investigation-report/tests/staging.test.ts > stage-index rejects attached-resource metadata changes that require full-index staging bun test --test-name-pattern=\"^stage-index rejects attached-resource metadata changes that require full-index staging$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/investigation-report/tests/staging.test.ts > stage-index rejects attached-resource metadata changes that require full-index staging",
+          "bun test --test-name-pattern=\"^stage-index rejects attached-resource metadata changes that require full-index staging$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-STAGE-RESOURCE-METADATA-001",
+        "line": 1,
+        "searchText": "资源 metadata 变化拒绝按主题暂存 随附资源 ID、SHA-256 与 metadata 来源指纹属于完整调查集合；相对 revision 变化时不能归入单个主题 ID。 资源字节变化并重建工作区索引后，主题选择返回 `collection-changed`，不产生 pending，也不改写索引或资源。 tools/investigation-report/tests/staging.test.ts > stage-index rejects attached-resource metadata changes that require full-index staging bun test --test-name-pattern=\"^stage-index rejects attached-resource metadata changes that require full-index staging$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/stage-index-rejects-resource-metadata-changes.md",
+        "summary": "随附资源 ID、SHA-256 与 metadata 来源指纹属于完整调查集合；相对 revision 变化时不能归入单个主题 ID。",
+        "title": "资源 metadata 变化拒绝按主题暂存"
+      }
+    },
+    "INVESTIGATION-STAGE-VERSION-CONTROL-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-STAGE-VERSION-CONTROL-001 无版本仓库时稳定失败且不写领域文件 选择性索引暂存需要版本仓库；仓库不可用属于操作失败，不能退化成普通文件写入。 合法调查集合在无仓库目录返回 `revision-read-failed` 与 `state-index.repository-unavailable`，索引和主题 Markdown 字节保持不变。 tools/investigation-report/tests/staging.test.ts > stage-index reports unavailable version control without filesystem writes bun test --test-name-pattern=\"^stage-index reports unavailable version control without filesystem writes$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/investigation-report/tests/staging.test.ts > stage-index reports unavailable version control without filesystem writes",
+          "bun test --test-name-pattern=\"^stage-index reports unavailable version control without filesystem writes$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-STAGE-VERSION-CONTROL-001",
+        "line": 1,
+        "searchText": "无版本仓库时稳定失败且不写领域文件 选择性索引暂存需要版本仓库；仓库不可用属于操作失败，不能退化成普通文件写入。 合法调查集合在无仓库目录返回 `revision-read-failed` 与 `state-index.repository-unavailable`，索引和主题 Markdown 字节保持不变。 tools/investigation-report/tests/staging.test.ts > stage-index reports unavailable version control without filesystem writes bun test --test-name-pattern=\"^stage-index reports unavailable version control without filesystem writes$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/stage-index-reports-unavailable-version-control-without-filesystem-writes.md",
+        "summary": "选择性索引暂存需要版本仓库；仓库不可用属于操作失败，不能退化成普通文件写入。",
+        "title": "无版本仓库时稳定失败且不写领域文件"
       }
     },
     "INVESTIGATION-STRUCTURE-CHRONOLOGY-001": {
@@ -10502,16 +10686,16 @@
       "INDEX-RUNTIME-SYNC-UTF8-001": "sha256:6bd07e1441ed4e5f861530432e1639c040941a5b1b67fe43d6e48b128112d0c9",
       "INDEX-RUNTIME-TEMPORAL-SORT-001": "sha256:c171e76cf05b0b6f1505e25b88d903014dc2ecc917585aff424c19e655df3303",
       "INDEX-RUNTIME-TEXT-SEARCH-001": "sha256:025c697be00a2550ec330872fffefa04d9ca342e1dd6ee497e1e8310781ec8f1",
-      "INVESTIGATION-BUNDLED-PARITY-001": "sha256:8072eebbaf2692c9e9c21fa38b177857a8fd143d4e761abee54a2d4cda9f9a9b",
+      "INVESTIGATION-BUNDLED-PARITY-001": "sha256:3fb278badfac4e587a594d2dbc04cbb1394f061e17db099afc5c44ede8e7b6ed",
       "INVESTIGATION-CLI-CONTRACTS-001": "sha256:88abe2ec2f9d14f1900f32f37cce19b9ed363d95a89d74735e019a56f42308c4",
       "INVESTIGATION-CLI-LIST-001": "sha256:e875cfb1d933f07ed770f8d85428d976dba7665d43462b98da450eb064ba6bc2",
       "INVESTIGATION-CLI-RESOURCE-STALE-001": "sha256:9067b3be24aa2d519e8f5b88c1f5dc6ee9d73bc4291925500a159f6083a09f23",
       "INVESTIGATION-CLI-SYNC-001": "sha256:224d27a5707e7ad1c5364d6f185a68f837aedef2ec5341b783087cf9aa99fc82",
-      "INVESTIGATION-CLI-USAGE-001": "sha256:590848df5d7c1a6b5085a7d1ea5723f0ac16d315e8aa090b9a4b8ca7ec170ff8",
+      "INVESTIGATION-CLI-USAGE-001": "sha256:6fd7e41a58bd73f53913cffc68ae495ad9af23596b90f7769a0a9dac2ee2efe4",
       "INVESTIGATION-COLLECTION-LAYOUT-001": "sha256:6d51963a7da7fa2f812f9439b11b825fbbd302449c05fd72b5186be86ed4145f",
       "INVESTIGATION-DIRECTORY-PATH-001": "sha256:1c1d0fcc7e9050d548d94ab38cf8aaf38269f7b6c6030af53e8da9bda8c2c7f0",
       "INVESTIGATION-EMPTY-COLLECTION-001": "sha256:4d13daa2d59127277610719e9641dddd5943cfb2d5b5fdcbe02885b93c333247",
-      "INVESTIGATION-GENERATED-METADATA-001": "sha256:465696739385900d049dbb293990fd142538742324f100134f817d45a93f81c1",
+      "INVESTIGATION-GENERATED-METADATA-001": "sha256:2297e41994bf72fb924f25291d0956e618bdb1f848d4d98725187f889bf5b1b3",
       "INVESTIGATION-INDEX-INTEGRITY-001": "sha256:8736ae954501079dbef68d4231ba861ca41a05639175f33f98d837acf3a17368",
       "INVESTIGATION-INDEX-QUERY-001": "sha256:5dd53bb191cfbf1c95cd80dce485ea17ea66d45c3701afa688fec1f1162a025e",
       "INVESTIGATION-INFORMATION-FIELDS-001": "sha256:f1eace758edd23107a291afbf71e04c0c15926f60293d81611fea11dd2e4de90",
@@ -10530,6 +10714,14 @@
       "INVESTIGATION-SCALE-INDEX-001": "sha256:c2bf0c616d8f309a1c85dc24c01febb973b931410e1f43b25b72fb499fe46b56",
       "INVESTIGATION-SNAPSHOT-REVISION-001": "sha256:a3a5ae7599771d5425b8cc5a4cdef434c714f946528e7b6b9e08088bbd7bc783",
       "INVESTIGATION-SOURCE-REVISION-001": "sha256:d7bc684d85b8c31c9e3249fd94cd22271db1cf9fdc8ea806468252e62acd57ad",
+      "INVESTIGATION-STAGE-BOOTSTRAP-001": "sha256:a13c38e595c2c313ac340b65890d92e3b71613296bc75156e1b7d3d77b82fe19",
+      "INVESTIGATION-STAGE-CONFLICT-001": "sha256:360bd441503e1ed8219a3313abf01d3ef8679ec1b78af175f0e5acd2b1ef9075",
+      "INVESTIGATION-STAGE-INPUT-001": "sha256:bb93c78404e7b68e117a4b61a96ef718c0e4dd2f264c0b9b20425e70b7adcc6d",
+      "INVESTIGATION-STAGE-ISOLATION-001": "sha256:49849af919364fbac6d6de7091b8e74bf14d3bcee0ba4aabd433eb5e1b9d254a",
+      "INVESTIGATION-STAGE-MISSING-001": "sha256:99bc7c6eb49b7a20fafccee230a31fae491d8f3ec13e350d317a54ca8047f9de",
+      "INVESTIGATION-STAGE-OVERLAY-001": "sha256:ed40e1a5df37ce3cf5c7cd73d60e6af603adcbe1ad21e8292d677c554feb387f",
+      "INVESTIGATION-STAGE-RESOURCE-METADATA-001": "sha256:28274a241e9f956f16f58eedbfadf9715dd11c5135fd8efe0a5090fa1b79cfc5",
+      "INVESTIGATION-STAGE-VERSION-CONTROL-001": "sha256:253031be47d747d653b2bf2f014835364c7061403fddead44126d46342299598",
       "INVESTIGATION-STRUCTURE-CHRONOLOGY-001": "sha256:c37b58ae1a46e45c4c65521f420c6f373301ce0465e1d5c14ed70abb8a7f0de4",
       "INVESTIGATION-VALIDATION-FILTER-001": "sha256:59fb97585ad6fe441e9bf7a42044f69eb26a826b7c648a25322a8ab2e350e036",
       "REPO-PACKAGE-JSON-001": "sha256:36724eb3dd100be35650754564a630256b7e0acfa6047ffd892ea44d67692239",

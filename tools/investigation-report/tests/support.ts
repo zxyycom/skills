@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { mkdirSync } from "node:fs";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -243,6 +245,53 @@ export async function writeCollection(
     });
     assert.deepEqual(synchronized.errors, []);
   }
+}
+
+export function initializeGitRepository(workspaceRoot: string): void {
+  mkdirSync(workspaceRoot, { recursive: true });
+  runGit(workspaceRoot, ["init", "--quiet"]);
+  runGit(workspaceRoot, ["config", "core.autocrlf", "false"]);
+  runGit(workspaceRoot, [
+    "config",
+    "user.email",
+    "investigation-stage@example.invalid"
+  ]);
+  runGit(workspaceRoot, [
+    "config",
+    "user.name",
+    "Investigation Stage Test"
+  ]);
+}
+
+export function commitAll(workspaceRoot: string, message: string): void {
+  runGit(workspaceRoot, ["add", "--all"]);
+  runGit(workspaceRoot, ["commit", "--quiet", "--message", message]);
+}
+
+export function readPendingText(
+  workspaceRoot: string,
+  repositoryPath: string
+): string {
+  return runGit(workspaceRoot, ["show", `:${repositoryPath}`]);
+}
+
+export function pendingPaths(workspaceRoot: string): string[] {
+  return runGit(workspaceRoot, [
+    "diff",
+    "--cached",
+    "--name-only",
+    "--diff-filter=ACDMRTUXB"
+  ]).trim().split("\n").filter((entry) => entry.length > 0);
+}
+
+export function runGit(
+  workspaceRoot: string,
+  arguments_: readonly string[]
+): string {
+  return execFileSync("git", ["-C", workspaceRoot, ...arguments_], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"]
+  });
 }
 
 export function resultValue<Value>(result: StateIndexResult<Value>): Value {

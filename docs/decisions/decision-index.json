@@ -187,6 +187,7 @@
       "investigation-report/generate-query-index-from-topic-files.md": "sha256:637b0aadd380f076be45cb2d13dd507e847207ad002cda74d0269d2e9133a757",
       "investigation-report/maintain-topic-level-investigation-index.md": "sha256:5788503c5b29c34795dc281cc602b6ad39d66b51884a2ce060991113fffb03cf",
       "investigation-report/preserve-comparable-investigation-inputs.md": "sha256:ac753d3ea152903ab36b19f598cd36664b3e7857f32dcd5ce944f7d4ad437847",
+      "investigation-report/stage-selected-investigation-index-entries.md": "sha256:2e5300c3389d7997e4a06a7265cf2fc70f8fc1b29a646310b11f2b5f85f79965",
       "investigation-report/use-fixed-investigation-record-core.md": "sha256:b734c932f71ba3b33c1e4fc0b9a148c77edf5c7d6423b258ff67eb1dbf001fa6",
       "investigation-report/use-report-oriented-investigation-rounds.md": "sha256:27f07abcc019329318902bc89d0298bd04b12553c2c574874c48376fab045233",
       "minimal-implementation/choose-smallest-correct-maintenance-surface.md": "sha256:4f5999b575d879ada2c7133b8523f33909ce927cc7381edfed45edea0587664e",
@@ -2850,6 +2851,30 @@
             "target": "investigation-report/append-self-contained-investigation-reports.md"
           }
         ]
+      }
+    },
+    "investigation-report/stage-selected-investigation-index-entries.md": {
+      "keys": {
+        "domain": [
+          "investigation-report"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "investigation-report/stage-selected-investigation-index-entries.md",
+        "title": "按调查主题 ID 独立暂存派生索引条目",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-10T03:58:30Z",
+        "purpose": "让并行调查只暂存选中主题对应的索引变化，同时保持事实源与集合级资源边界。",
+        "background": "多个主题共享一个派生索引；公共运行时已经能按稳定 ID 组合条目，但领域仍需拥有选择输入和文件边界。",
+        "decision": "调查入口校验主题路径后只把选中 ID 交给索引运行时，领域文件另行暂存，集合级资源变化拒绝条目级操作。",
+        "relations": []
       }
     },
     "investigation-report/use-fixed-investigation-record-core.md": {

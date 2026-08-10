@@ -52,4 +52,16 @@
 
 随 skill 分发的 CLI 用 `sync-index` 从主题 Markdown 和资源文件显式重建派生索引。资源成员或原始字节变化会改变集合级 source revision，使旧索引失效；`list` 核对当前主题与资源快照后再按主题路径、category、状态、最新报告时间和文本查询 state。默认命令验证固定核心、可选资源字段、资源 ID、路径与文件类型、完整资源池、主题投影、资源摘要和新鲜度；材料内容是否真实、充分或含有敏感信息，来源是否可信，资源是否值得保存、历史修改是否正当以及是否遗漏场景义务仍由人工审阅。带 category 或主题路径筛选的检查只校验命中报告声明的资源，不代表全局孤儿状态或完整索引已经新鲜。
 
+## 怎样隔离共享索引的待提交变化
+
+多个主题会共享一个 `investigation-index.json`。同一工作区同时维护 A、B 主题，但本次只需提交 A 时，先用 `sync-index` 从当前完整 filesystem 重建工作区索引并完成默认检查，再按稳定主题 ID 暂存 A 的索引变化：
+
+```text
+node <investigation-report-skill>/scripts/check-investigations.mjs stage-index runtime/topic-a.md --root <workspace-root>
+```
+
+命令只把选中主题对应的索引组合结果写入版本仓库 `pending`，不读取或暂存主题 Markdown 与随附资源；这些领域文件仍按实际提交范围另行选择。主题重命名同时传旧、新 ID；同一索引已有 pending 时命令拒绝覆盖，其他 pending 路径保持不变。需要机器结果时只为该命令增加 `--json`。
+
+资源 ID、SHA-256 和资源来源指纹是完整集合的 metadata。随附资源新增、删除、重命名或字节变化时不能按主题拆分索引，命令会拒绝并要求改用普通文件级方式暂存完整索引。首次创建调查索引可以按首个主题 ID 暂存索引，但仍不会连带暂存主题或资源文件。
+
 实际行为入口位于 [`skills/investigation-report/`](../../skills/investigation-report/)，固定存储契约见其中的 [`investigation-report-contract.md`](../../skills/investigation-report/references/investigation-report-contract.md)。

@@ -3,6 +3,7 @@ import * as v from "valibot";
 import {
   investigationReportStatuses,
   type InvestigationIndexQueryOptions,
+  type InvestigationIndexStageOptions,
   type InvestigationIndexSyncOptions,
   type InvestigationReportCheckOptions
 } from "./types.ts";
@@ -23,6 +24,12 @@ const investigationReportCheckOptionsSchema = v.strictObject({
 
 const investigationIndexSyncOptionsSchema = v.strictObject({
   investigationsDir: optionalStringSchema,
+  workspaceRoot: requiredStringSchema
+});
+
+const investigationIndexStageOptionsSchema = v.strictObject({
+  investigationsDir: optionalStringSchema,
+  topicIds: v.array(v.string("must be a string"), "must be an array of strings"),
   workspaceRoot: requiredStringSchema
 });
 
@@ -55,6 +62,12 @@ export function parseInvestigationIndexSyncOptions(
   input: unknown
 ): Result<InvestigationIndexSyncOptions, string[]> {
   return parseOptions(investigationIndexSyncOptionsSchema, input);
+}
+
+export function parseInvestigationIndexStageOptions(
+  input: unknown
+): Result<InvestigationIndexStageOptions, string[]> {
+  return parseOptions(investigationIndexStageOptionsSchema, input);
 }
 
 export function parseInvestigationIndexQueryOptions(

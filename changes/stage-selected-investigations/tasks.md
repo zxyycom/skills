@@ -11,17 +11,17 @@
 
 ## Implementation
 
-- [ ] 1.1 建立调查选择性索引暂存长期决策并保持 `unaligned`。
-- [ ] 1.2 实现调查主题 id 的路径规范、非空和去重校验，覆盖新增、删除和显式重命名输入。
-- [ ] 1.3 实现 `stage-index <topic-id...>`，调用配置完成的 `StateIndexRuntime.stageSelectedEntries(selectedIds)` 并输出稳定文本/JSON 结果。
-- [ ] 1.4 更新 investigation-report 的行为入口、固定契约、人类说明和独立版本，明确领域文件需另行暂存。
-- [ ] 1.5 同步公共声明、自包含 CLI 和 source map；验证共享源码正确内联。
-- [ ] 1.6 完成事实核对后把长期决策标记为 `aligned`。
+- [x] 1.1 建立调查选择性索引暂存长期决策并保持 `unaligned`。
+- [x] 1.2 实现调查主题 id 的路径规范、非空和去重校验，覆盖新增、删除和显式重命名输入。
+- [x] 1.3 实现 `stage-index <topic-id...>`，调用配置完成的 `StateIndexRuntime.stageSelectedEntries(selectedIds)` 并输出稳定文本/JSON 结果。
+- [x] 1.4 更新 investigation-report 的行为入口、固定契约、人类说明和独立版本，明确领域文件需另行暂存。
+- [x] 1.5 同步公共声明、自包含 CLI 和 source map；验证共享源码正确内联。
+- [x] 1.6 完成事实核对后把长期决策标记为 `aligned`。
 
 ## Verification
 
-- [ ] 2.1 覆盖并行 A/B、修改、新增、删除、重命名、首次索引和合法空结果，证明命令只向索引传递选中 id。
-- [ ] 2.2 覆盖重复或非法 id、两份索引都不存在的 id、无仓库、同索引既有 pending、revision 冲突和写入恢复，并回归 check/sync/list。
-- [ ] 2.3 确认命令不修改 filesystem、不读取或暂存调查 Markdown 与随附资源，其他待提交路径保持不变；资源 metadata 变化时在写入前拒绝。
-- [ ] 2.4 为新增或修改测试入口维护独立测试证据 case，并同步索引。
-- [ ] 2.5 运行 `bun run test:investigation-report-check`、生成漂移、类型检查、严格目录检查与 `bun run check`，审阅最终 diff。
+- [x] 2.1 以领域测试覆盖并行 A/B、修改、新增、删除、重命名和首次索引，并复用公共测试对合法空目标的证明；调查集合继续由既有契约拒绝空集合。
+- [x] 2.2 以领域测试覆盖重复或非法 id、两份索引都不存在的 id、无仓库和同索引既有 pending；复用公共测试覆盖 revision 冲突与写入恢复，并回归 check/sync/list。
+- [x] 2.3 确认命令不修改 filesystem、不读取或暂存调查 Markdown 与随附资源，其他待提交路径保持不变；资源 metadata 变化时在写入前拒绝。
+- [x] 2.4 为新增或修改测试入口维护独立测试证据 case，并同步索引。
+- [x] 2.5 运行 `bun run test:investigation-report-check`、生成漂移、类型检查、严格目录检查与 `bun run check`，审阅最终 diff。

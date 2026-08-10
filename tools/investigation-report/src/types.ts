@@ -1,3 +1,8 @@
+import type {
+  StateIndexDiagnostic,
+  StateIndexEntryStageResult
+} from "../../index-runtime/src/index.ts";
+
 export const investigationReportStatuses = ["调查中", "暂停", "已结束"] as const;
 
 export type InvestigationReportStatus = typeof investigationReportStatuses[number];
@@ -36,6 +41,16 @@ export type InvestigationIndexSyncResult = {
   indexPath: string;
   topicCount: number;
 };
+
+export type InvestigationIndexStageOptions = {
+  investigationsDir?: string;
+  topicIds: readonly string[];
+  workspaceRoot: string;
+};
+
+export type InvestigationIndexStageDiagnostic = StateIndexDiagnostic;
+
+export type InvestigationIndexStageResult = StateIndexEntryStageResult;
 
 export type InvestigationIndexQueryOptions = {
   categories?: readonly string[];
