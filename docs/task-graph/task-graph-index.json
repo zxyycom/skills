@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "revision": 189,
-  "nextTaskId": 36,
+  "revision": 256,
+  "nextTaskId": 44,
   "tasks": {
     "task-000001": {
       "content": {
@@ -630,16 +630,23 @@
         "references": {
           "change": "changes/stage-selected-test-evidence/"
         },
-        "result": null
+        "result": {
+          "summary": "已建立按 Case ID 选择性暂存 test-evidence 索引的领域契约与入口，补齐分发产物、测试证据和长期决策，并归档对应 Change；主线全量检查通过。",
+          "references": {
+            "change": "changes/archive/stage-selected-test-evidence/",
+            "decision": "docs/decisions/test-evidence-review/stage-selected-test-evidence-index-entries.md",
+            "skill": "skills/test-evidence-review/SKILL.md"
+          }
+        }
       },
       "state": {
         "control": {
-          "mode": "candidate",
+          "mode": "queued",
           "reason": null
         },
         "execution": {
-          "phase": "idle",
-          "attempt": 0
+          "phase": "succeeded",
+          "attempt": 2
         },
         "relations": {
           "parentId": null,
@@ -652,7 +659,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-07T07:38:55.944Z"
+          "updatedAt": "2026-08-10T09:04:20.473Z"
         }
       }
     },
@@ -1330,6 +1337,98 @@
         "timestamps": {
           "createdAt": "2026-08-09T15:29:30.697Z",
           "updatedAt": "2026-08-10T02:22:51.943Z"
+        }
+      }
+    },
+    "task-000037": {
+      "content": {
+        "title": "为 task CLI 增加成功任务的显式重开能力",
+        "goal": "为 task-graph CLI 增加受控的终态纠正操作，使误标为 succeeded 的任务能够在保留审计信息并重新校验任务图一致性的前提下回到可领取状态；比较扩展 retry 与新增 reopen 命令，避免把失败重试和成功撤销混为同一语义。",
+        "acceptance": [
+          "只允许通过显式命令重开 succeeded 任务；命令要求 expected revision 和非空原因，其他状态返回稳定冲突诊断，且不会自动重开或复用旧 lease。",
+          "明确并实现 result、完成时间与历史证据的处理契约：任务一旦不再 succeeded，旧 result 不得继续作为当前成功结果，同时能够追溯原完成信息与本次重开原因。",
+          "重开前校验父子、依赖和下游任务状态；若已有任务基于该成功结果开始或完成，必须拒绝或采用明确且可验证的级联策略，不得留下拓扑与投影不一致。",
+          "重开后的任务按现有 control、依赖和排斥规则投影为 idle/ready 或 blocked，并必须重新 claim；同步 CLI 文本与 JSON 输出、SDK/生成产物、文档、原生测试及对应测试证据。"
+        ],
+        "context": "当前 retryTask 只允许 failed -> idle。实际协调中任务可能被误 complete 为 succeeded，而成功态没有受控纠正入口，只能另建后续任务。该功能应区分终态纠正、失败重试、取消和创建替代任务，不预设最终命令名。",
+        "references": {
+          "engine": "tools/task-graph/src/engine.ts#retryTask",
+          "skill": "skills/task-graph/SKILL.md",
+          "trigger-task": "task-000033",
+          "workaround-task": "task-000036"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {
+            "task-000040": true
+          }
+        },
+        "timestamps": {
+          "createdAt": "2026-08-10T05:52:08.728Z",
+          "updatedAt": "2026-08-10T06:16:49.730Z"
+        }
+      }
+    },
+    "task-000040": {
+      "content": {
+        "title": "让 task result 使用语义结果与索引版本锚点",
+        "goal": "让 task result 只承接可维护的语义结果，并由首次包含终态 entry 的 task index Git 提交锚定结果所在的仓库版本；把 Git 集成交接留给 subagent-orchestration，不为常规 result 复制 commit SHA。",
+        "acceptance": [
+          "task-graph 独立定义 result 内容：默认只有摘要和稳定 owner 引用；分支、提交与 lease 没有明确长期消费者时只作交接信息。",
+          "task-graph 独立定义版本锚点：首次包含终态 entry 的 index 提交只证明该版本记录结果，不唯一对应实现提交；mutation、stage 与 commit 保持边界。",
+          "subagent-orchestration 明确 task-graph 是可选外部前提，并只定义即时集成与异步集成的交接、所有权和 task 切分；未启用 task graph 时不臆造相关语义。",
+          "Goal 包含主线集成时不在分支提交后提前 complete；不新增 succeeded result 校正命令，不回溯清理历史 hash，成功事实撤销与 failed retry 保持独立。",
+          "同步两个 skill、人类说明、长期决策和版本；未改变 CLI、SDK、schema 或原生测试时不制造测试改动，并通过仓库检查。"
+        ],
+        "context": "task-000018 与 task-000028 曾把 rebase 前分支 SHA 保存进 result，暴露了临时 Git 身份在集成后悬空的根因。复盘后决定由 task result 保存语义结果、由 task index 的 Git 历史提供版本锚点。本任务不清理既有历史 result；成功事实撤销仍由 task-000037 承接。",
+        "references": {
+          "affected-task-1": "task-000018",
+          "affected-task-2": "task-000028",
+          "decision": "docs/decisions/task-graph/anchor-semantic-task-results-in-index-history.md",
+          "related-reopen-task": "task-000037",
+          "subagent-skill": "skills/subagent-orchestration/SKILL.md",
+          "task-graph-skill": "skills/task-graph/SKILL.md"
+        },
+        "result": {
+          "summary": "已明确 task result 仅保存语义摘要与稳定 owner 引用，并由首次包含终态 entry 的 task index Git 历史提供版本锚点；同步 task-graph 与 subagent-orchestration 的主线集成边界。",
+          "references": {
+            "decision": "docs/decisions/task-graph/anchor-semantic-task-results-in-index-history.md",
+            "subagent-skill": "skills/subagent-orchestration/SKILL.md",
+            "task-graph-skill": "skills/task-graph/SKILL.md"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 4
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {
+            "task-000037": true
+          }
+        },
+        "timestamps": {
+          "createdAt": "2026-08-10T06:16:43.441Z",
+          "updatedAt": "2026-08-10T09:04:40.974Z"
         }
       }
     }
