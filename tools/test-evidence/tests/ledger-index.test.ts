@@ -8,10 +8,10 @@ import {
   testEvidenceLedgerStateIndexSchema,
   validateTestEvidenceLedger
 } from "../src/ledger/index.ts";
-import { sameTargetRevision } from "../src/ledger/query.ts";
 import {
   readTestEvidenceLedgerRevision,
-  readTestEvidenceLedgerSource
+  readTestEvidenceLedgerSource,
+  sameTargetTestEvidenceLedgerRevision
 } from "../src/ledger/ledger-source.ts";
 import {
   syncLoadedTestEvidenceLedgerIndex,
@@ -21,7 +21,6 @@ import {
   caseMarkdown,
   casesPath,
   entityIndexPath,
-  entityIndexText,
   ledgerIndexPath,
   manyToManyCases,
   manyToManyEntities,
@@ -290,7 +289,7 @@ test("ledger operations reject entity and case drift before returning or writing
     const loaded = await readTestEvidenceLedgerSource(workspaceRoot);
     assert.notEqual(loaded.source, null);
     const sourceRevision = loaded.source!.snapshot.sourceRevision;
-    assert.equal(sameTargetRevision({
+    assert.equal(sameTargetTestEvidenceLedgerRevision({
       caseId: "LEDGER-ALPHA-BETA-001",
       current: sourceRevision,
       observedFingerprint: `sha256:${"0".repeat(64)}`,

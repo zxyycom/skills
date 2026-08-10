@@ -17,8 +17,11 @@ import {
   queryTestEntitiesOptionsSchema,
   queryTestEvidenceCasesOptionsSchema,
   showTestEvidenceCaseOptionsSchema,
+  showTestEvidenceCase,
   syncTestEvidenceLedgerIndexOptionsSchema,
   testEntityIndexSchema,
+  testEvidenceCaseShowResultSchema,
+  testEvidenceLedgerIndexSyncResultSchema,
   testEvidenceLedgerStateIndexSchema,
   validateTestEvidenceLedgerOptionsSchema
 } from "../src/ledger/index.ts";
@@ -448,6 +451,52 @@ test("ledger schemas reject unknown fields and incompatible versions", async () 
       workspaceRoot
     });
     assert.equal(synchronized.status, "ok");
+    assert.equal(v.safeParse(
+      testEvidenceLedgerIndexSyncResultSchema,
+      synchronized
+    ).success, true);
+    const invalidSyncResults = [
+      { ...synchronized, changed: false },
+      { ...synchronized, status: "error" },
+      {
+        ...synchronized,
+        changed: false,
+        mode: "write",
+        state: "current"
+      },
+      {
+        ...synchronized,
+        changed: false,
+        mode: "check",
+        state: "index-write-failed",
+        status: "error"
+      },
+      {
+        ...synchronized,
+        changed: false,
+        mode: "write",
+        state: "index-missing",
+        status: "error"
+      }
+    ];
+    for (const result of invalidSyncResults) {
+      assert.equal(v.safeParse(
+        testEvidenceLedgerIndexSyncResultSchema,
+        result
+      ).success, false);
+    }
+    const missingCase = await showTestEvidenceCase({
+      caseId: "LEDGER-MISSING-CASE-001",
+      workspaceRoot
+    });
+    assert.equal(v.safeParse(
+      testEvidenceCaseShowResultSchema,
+      missingCase
+    ).success, true);
+    assert.equal(v.safeParse(testEvidenceCaseShowResultSchema, {
+      ...missingCase,
+      markdown: "unexpected Markdown"
+    }).success, false);
     const index = await readJsonFile(ledgerIndexPath(workspaceRoot));
     assert.equal(v.safeParse(testEvidenceLedgerStateIndexSchema, index).success, true);
     assert.equal(v.safeParse(testEvidenceLedgerStateIndexSchema, {

@@ -1,34 +1,22 @@
-import path from "node:path";
 import * as v from "valibot";
 import {
-  buildStateIndex,
-  createStateIndexReader,
-  expectationOf,
-  loadStateIndex,
-  stateIndexQueryMaximumLimit,
-  type StateIndexDiagnostic,
-  type StateIndexFilter,
-  type StateIndexReader,
-  type StateSourceRevision
+  type StateIndexFilter
 } from "../../../index-runtime/src/index.ts";
-import { createTestEvidenceDiagnostic } from "./diagnostics.ts";
+import { compareLexicalText } from "./canonicalization.ts";
 import {
-  readTestEvidenceLedgerRevision,
-  readTestEvidenceLedgerSource,
-  sameTestEvidenceLedgerRevision,
-  type TestEvidenceLedgerRevisionSource
-} from "./ledger-source.ts";
-import {
-  createTestEvidenceLedgerStateIndexDefinition,
-  indexCanBeRebuilt,
-  mapStateIndexDiagnostics
-} from "./state-index.ts";
+  createInvalidTestEvidenceOptionsDiagnostic,
+  createTestEvidenceDiagnostic
+} from "./diagnostics.ts";
+import { openTestEvidenceLedgerIndex } from "./index-reader.ts";
+import { mapStateIndexDiagnostics } from "./state-index.ts";
 import {
   queryTestEntitiesOptionsSchema,
   queryTestEvidenceCasesOptionsSchema,
   testEvidenceCaseQueryResultSchema,
   testEvidenceLedgerIndexPath,
   testEvidenceLedgerPath,
+  testEvidenceQueryLimitSchema,
+  testEvidenceQueryOffsetSchema,
   testEvidenceLedgerSchemaVersion,
   testEvidenceTestQueryResultSchema,
   type QueryTestEntitiesOptions,
@@ -36,35 +24,12 @@ import {
   type TestEntity,
   type TestEvidenceCaseQueryResult,
   type TestEvidenceDiagnostic,
-  type TestEvidenceLedgerCaseIndexState,
   type TestEvidenceLedgerCaseSummary,
-  type TestEvidenceLedgerIndexMetadata,
   type TestEvidenceTestQueryItem,
   type TestEvidenceTestQueryResult
 } from "./schemas.ts";
 
 export const testEvidenceLedgerQueryDefaultLimit = 20;
-
-type TestEvidenceLedgerReader = StateIndexReader<
-  TestEvidenceLedgerCaseIndexState,
-  TestEvidenceLedgerIndexMetadata
->;
-
-export type OpenedTestEvidenceLedgerIndex = {
-  diagnostics: TestEvidenceDiagnostic[];
-  reader: TestEvidenceLedgerReader;
-  revisionSource: TestEvidenceLedgerRevisionSource;
-};
-
-export type OpenTestEvidenceLedgerIndexResult =
-  | {
-    diagnostics: TestEvidenceDiagnostic[];
-    opened: OpenedTestEvidenceLedgerIndex;
-  }
-  | {
-    diagnostics: TestEvidenceDiagnostic[];
-    opened: null;
-  };
 
 export async function queryTestEvidenceCases(
   options: QueryTestEvidenceCasesOptions
@@ -75,7 +40,7 @@ export async function queryTestEvidenceCases(
   );
   if (!parsedOptions.success) {
     return caseQueryFailure(
-      [optionsDiagnostic(parsedOptions.issues)],
+      [createInvalidTestEvidenceOptionsDiagnostic(parsedOptions.issues)],
       options
     );
   }
@@ -132,7 +97,7 @@ export async function queryTestEvidenceCases(
       testIds: [...state.testIds],
       tags: [...state.tags]
     })),
-    diagnostics: opened.opened.diagnostics,
+    diagnostics: opened.diagnostics,
     indexPath: testEvidenceLedgerIndexPath,
     ledgerPath: testEvidenceLedgerPath,
     limit: queried.value.limit,
@@ -148,7 +113,7 @@ export async function queryTestEntities(
   const parsedOptions = v.safeParse(queryTestEntitiesOptionsSchema, options);
   if (!parsedOptions.success) {
     return testQueryFailure(
-      [optionsDiagnostic(parsedOptions.issues)],
+      [createInvalidTestEvidenceOptionsDiagnostic(parsedOptions.issues)],
       options
     );
   }
@@ -192,12 +157,14 @@ export async function queryTestEntities(
       id: entity.id,
       name: entity.name,
       locators: [...entity.locators],
-      caseIds: [...(caseIdsByTest.get(entity.id) ?? [])].sort(compareText)
+      caseIds: [...(caseIdsByTest.get(entity.id) ?? [])].sort(
+        compareLexicalText
+      )
     }));
   const limit = normalizedOptions.limit ?? testEvidenceLedgerQueryDefaultLimit;
   const offset = normalizedOptions.offset ?? 0;
   return v.parse(testEvidenceTestQueryResultSchema, {
-    diagnostics: opened.opened.diagnostics,
+    diagnostics: opened.diagnostics,
     indexPath: testEvidenceLedgerIndexPath,
     ledgerPath: testEvidenceLedgerPath,
     limit,
@@ -206,113 +173,6 @@ export async function queryTestEntities(
     tests: filtered.slice(offset, offset + limit),
     total: filtered.length
   });
-}
-
-export async function openTestEvidenceLedgerIndex(
-  workspaceRoot: string
-): Promise<OpenTestEvidenceLedgerIndexResult> {
-  const root = path.resolve(workspaceRoot);
-  const definition = createTestEvidenceLedgerStateIndexDefinition();
-  const loaded = await loadStateIndex({
-    context: { root },
-    definition,
-    expectation: expectationOf(definition),
-    indexPath: testEvidenceLedgerIndexPath
-  });
-
-  let persistentDiagnostics: StateIndexDiagnostic[] = [];
-  if (loaded.status === "ok") {
-    const revision = await readTestEvidenceLedgerRevision(root);
-    if (revision.source === null) {
-      return { diagnostics: revision.diagnostics, opened: null };
-    }
-    if (sameTestEvidenceLedgerRevision(
-      loaded.value.sourceRevision,
-      revision.source.sourceRevision
-    )) {
-      return {
-        diagnostics: [],
-        opened: {
-          diagnostics: [],
-          reader: createStateIndexReader({
-            definition,
-            index: loaded.value,
-            indexPath: testEvidenceLedgerIndexPath
-          }),
-          revisionSource: revision.source
-        }
-      };
-    }
-    persistentDiagnostics = [{
-      code: "state-index.index-stale",
-      message: "index source revision does not match the current ledger source revision",
-      path: testEvidenceLedgerIndexPath,
-      stateId: null
-    }];
-  } else {
-    persistentDiagnostics = loaded.diagnostics;
-  }
-
-  if (
-    persistentDiagnostics.length === 0
-    || !persistentDiagnostics.every((entry) => indexCanBeRebuilt(entry.code))
-  ) {
-    return {
-      diagnostics: mapStateIndexDiagnostics(persistentDiagnostics),
-      opened: null
-    };
-  }
-
-  const source = await readTestEvidenceLedgerSource(root);
-  if (source.source === null) {
-    return { diagnostics: source.diagnostics, opened: null };
-  }
-  const fallbackDefinition = createTestEvidenceLedgerStateIndexDefinition({
-    snapshot: source.source.snapshot
-  });
-  const built = await buildStateIndex(fallbackDefinition, { root });
-  if (built.status === "error") {
-    return {
-      diagnostics: [
-        ...mapStateIndexDiagnostics(persistentDiagnostics),
-        ...mapStateIndexDiagnostics(built.diagnostics)
-      ],
-      opened: null
-    };
-  }
-  const currentRevision = await readTestEvidenceLedgerRevision(root);
-  if (currentRevision.source === null) {
-    return { diagnostics: currentRevision.diagnostics, opened: null };
-  }
-  if (!sameTestEvidenceLedgerRevision(
-    built.value.sourceRevision,
-    currentRevision.source.sourceRevision
-  )) {
-    return {
-      diagnostics: [createTestEvidenceDiagnostic({
-        category: "index",
-        code: "state-index.source-changed",
-        message: "ledger source revision changed while building the in-memory projection; retry after the source is stable",
-        path: testEvidenceLedgerIndexPath,
-        severity: "error"
-      })],
-      opened: null
-    };
-  }
-
-  const warnings = fallbackWarnings(persistentDiagnostics);
-  return {
-    diagnostics: warnings,
-    opened: {
-      diagnostics: warnings,
-      reader: createStateIndexReader({
-        definition: fallbackDefinition,
-        index: built.value,
-        indexPath: testEvidenceLedgerIndexPath
-      }),
-      revisionSource: currentRevision.source
-    }
-  };
 }
 
 function caseQueryFilters(
@@ -344,15 +204,6 @@ function caseQueryFilters(
     });
   }
   return filters;
-}
-
-function fallbackWarnings(
-  diagnostics: readonly StateIndexDiagnostic[]
-): TestEvidenceDiagnostic[] {
-  return mapStateIndexDiagnostics(diagnostics, "warning").map((entry) => ({
-    ...entry,
-    message: `${entry.message}. Used the current ledger sources in memory for this read-only query; run sync-index --write to refresh ${testEvidenceLedgerIndexPath}`
-  }));
 }
 
 function entityMatchesQuery(entity: TestEntity, query?: string): boolean {
@@ -407,50 +258,18 @@ function testQueryFailure(
   });
 }
 
-function optionsDiagnostic(
-  issues: readonly { message: string }[]
-): TestEvidenceDiagnostic {
-  return createTestEvidenceDiagnostic({
-    category: "query",
-    code: "query.options-invalid",
-    message: `Invalid ledger API options: ${issues.map((issue) => issue.message).join("; ")}`,
-    severity: "error"
-  });
-}
-
 function validFailureLimit(value: unknown): number {
-  return typeof value === "number"
-    && Number.isSafeInteger(value)
-    && value >= 1
-    && value <= stateIndexQueryMaximumLimit
-    ? value
+  const parsed = v.safeParse(testEvidenceQueryLimitSchema, value);
+  return parsed.success
+    ? parsed.output
     : testEvidenceLedgerQueryDefaultLimit;
 }
 
 function validFailureOffset(value: unknown): number {
-  return typeof value === "number"
-    && Number.isSafeInteger(value)
-    && value >= 0
-    ? value
-    : 0;
+  const parsed = v.safeParse(testEvidenceQueryOffsetSchema, value);
+  return parsed.success ? parsed.output : 0;
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
-}
-
-function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
-}
-
-export function sameTargetRevision(options: {
-  caseId: string;
-  current: StateSourceRevision;
-  observedFingerprint: string;
-  opened: StateSourceRevision;
-}): boolean {
-  return options.current.metadata === options.opened.metadata
-    && options.observedFingerprint === options.opened.entries[options.caseId]
-    && options.current.entries[options.caseId]
-      === options.observedFingerprint;
 }

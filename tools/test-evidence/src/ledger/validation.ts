@@ -1,7 +1,7 @@
 import path from "node:path";
 import * as v from "valibot";
 import {
-  createTestEvidenceDiagnostic,
+  createInvalidTestEvidenceOptionsDiagnostic,
   sortUniqueTestEvidenceDiagnostics
 } from "./diagnostics.ts";
 import {
@@ -28,12 +28,9 @@ export async function validateTestEvidenceLedger(
   );
   if (!parsedOptions.success) {
     return v.parse(testEvidenceLedgerReportSchema, {
-      diagnostics: [createTestEvidenceDiagnostic({
-        category: "query",
-        code: "query.options-invalid",
-        message: `Invalid ledger API options: ${parsedOptions.issues.map((issue) => issue.message).join("; ")}`,
-        severity: "error"
-      })],
+      diagnostics: [createInvalidTestEvidenceOptionsDiagnostic(
+        parsedOptions.issues
+      )],
       entityIndex: null,
       indexPath: testEvidenceLedgerIndexPath,
       ledgerPath: testEvidenceLedgerPath,

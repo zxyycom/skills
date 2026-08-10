@@ -9,10 +9,14 @@ import {
   type StateIndexSyncMode,
   type StateSnapshot
 } from "../../../index-runtime/src/index.ts";
-import { createTestEvidenceDiagnostic } from "./diagnostics.ts";
+import {
+  createInvalidTestEvidenceOptionsDiagnostic,
+  createTestEvidenceDiagnostic
+} from "./diagnostics.ts";
 import {
   readCurrentTestEvidenceLedgerRevision,
   readTestEvidenceLedgerSource,
+  TestEvidenceLedgerSourceError,
   type LoadedTestEvidenceLedgerSource
 } from "./ledger-source.ts";
 import {
@@ -86,9 +90,7 @@ export function createTestEvidenceLedgerStateIndexDefinition(
       }
       const source = await readTestEvidenceLedgerSource(context.root);
       if (source.source === null) {
-        throw new Error(
-          source.diagnostics.map((entry) => entry.message).join("; ")
-        );
+        throw new TestEvidenceLedgerSourceError(source.diagnostics);
       }
       return source.source.snapshot;
     },
@@ -111,12 +113,9 @@ export async function syncTestEvidenceLedgerIndex(
       ? "write"
       : "check";
     return failedLedgerSyncResult({
-      diagnostics: [createTestEvidenceDiagnostic({
-        category: "query",
-        code: "query.options-invalid",
-        message: `Invalid ledger API options: ${parsedOptions.issues.map((issue) => issue.message).join("; ")}`,
-        severity: "error"
-      })],
+      diagnostics: [createInvalidTestEvidenceOptionsDiagnostic(
+        parsedOptions.issues
+      )],
       entityIndex: null,
       mode: rawMode
     });
@@ -152,7 +151,7 @@ export async function syncLoadedTestEvidenceLedgerIndex(options: {
     root: path.resolve(options.workspaceRoot)
   });
   const synchronized = await runtime.sync(options.mode);
-  const result: TestEvidenceLedgerIndexSyncResult = {
+  const result = {
     changed: synchronized.changed,
     diagnostics: mapStateIndexDiagnostics(
       synchronized.diagnostics,

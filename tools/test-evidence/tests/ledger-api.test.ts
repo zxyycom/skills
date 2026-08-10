@@ -305,10 +305,21 @@ test("ledger APIs return schema-valid machine failures for invalid options", asy
     testEvidenceCaseShowResultSchema,
     testEvidenceTestQueryResultSchema
   ] as const;
+  const invalidFields = [
+    "workspaceRoot",
+    "mode",
+    "limit",
+    "caseId",
+    "query"
+  ] as const;
   results.forEach((result, index) => {
-    assert.ok(result.diagnostics.some(
-      (diagnostic) => diagnostic.code === "query.options-invalid"
-        && diagnostic.blocking
+    const diagnostic = result.diagnostics.find(
+      (entry) => entry.code === "query.options-invalid"
+    );
+    assert.equal(diagnostic?.blocking, true);
+    assert.match(diagnostic?.message ?? "", new RegExp(
+      `${invalidFields[index]}:`,
+      "u"
     ));
     assert.equal(v.safeParse(schemas[index]!, result).success, true);
   });

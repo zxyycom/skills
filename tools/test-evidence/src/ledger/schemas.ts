@@ -6,6 +6,7 @@ import {
   stateIndexSchemaVersion,
   stateIndexTextSchema
 } from "../../../index-runtime/src/index.ts";
+import { isStrictlyAscendingLexical } from "./canonicalization.ts";
 
 export const testEvidenceLedgerSchemaVersion = 5 as const;
 export const testEvidenceLedgerDefinitionVersion = 4 as const;
@@ -62,13 +63,14 @@ const nonNegativeIntegerSchema = v.pipe(
   v.safeInteger("must be a safe integer"),
   v.minValue(0, "must be at least 0")
 );
-const queryLimitSchema = v.pipe(
+export const testEvidenceQueryLimitSchema = v.pipe(
   positiveIntegerSchema,
   v.maxValue(
     stateIndexQueryMaximumLimit,
     `must not exceed ${stateIndexQueryMaximumLimit}`
   )
 );
+export const testEvidenceQueryOffsetSchema = nonNegativeIntegerSchema;
 
 export const testEvidenceCaseIdSchema = v.pipe(
   nonEmptyStringSchema,
@@ -107,7 +109,7 @@ const sortedUniqueLocatorsSchema = v.pipe(
     "locators must be unique"
   ),
   v.check(
-    isStrictlyAscending,
+    (values) => isStrictlyAscendingLexical(values),
     "locators must be sorted in ascending lexical order"
   )
 );
@@ -129,7 +131,7 @@ export const testEntityIndexSchema = v.strictObject({
       "entity ids must be unique"
     ),
     v.check(
-      (entities) => isStrictlyAscending(
+      (entities) => isStrictlyAscendingLexical(
         entities.map((entity) => entity.id)
       ),
       "entities must be sorted by id in ascending lexical order"
@@ -151,7 +153,7 @@ const sortedUniqueTestIdsSchema = v.pipe(
     "Test IDs must be unique"
   ),
   v.check(
-    isStrictlyAscending,
+    (values) => isStrictlyAscendingLexical(values),
     "Test IDs must be sorted in ascending lexical order"
   )
 );
@@ -162,7 +164,7 @@ const sortedUniqueTagsSchema = v.pipe(
     "Tags must be unique"
   ),
   v.check(
-    isStrictlyAscending,
+    (values) => isStrictlyAscendingLexical(values),
     "Tags must be sorted in ascending lexical order"
   )
 );
@@ -220,12 +222,12 @@ const testEvidenceLedgerIndexKeysSchema = v.strictObject({
   tag: v.optional(v.pipe(
     v.array(testEvidenceTagSchema),
     v.minLength(1),
-    v.check(isStrictlyAscending)
+    v.check((values) => isStrictlyAscendingLexical(values))
   )),
   test: v.pipe(
     v.array(testEntityIdSchema),
     v.minLength(1),
-    v.check(isStrictlyAscending)
+    v.check((values) => isStrictlyAscendingLexical(values))
   )
 });
 
@@ -292,10 +294,12 @@ export const testEvidenceLedgerReportSchema = v.strictObject({
   summary: testEvidenceLedgerSummarySchema
 });
 
-export const testEvidenceLedgerIndexSyncStates = [
+const testEvidenceLedgerIndexSyncSuccessStates = [
   "current",
   "unchanged",
-  "written",
+  "written"
+] as const;
+const testEvidenceLedgerIndexSyncErrorStates = [
   "index-invalid",
   "index-missing",
   "index-path-invalid",
@@ -304,43 +308,124 @@ export const testEvidenceLedgerIndexSyncStates = [
   "index-write-failed",
   "source-invalid"
 ] as const;
+const testEvidenceLedgerIndexCheckErrorStates = [
+  "index-invalid",
+  "index-missing",
+  "index-path-invalid",
+  "index-read-failed",
+  "index-stale",
+  "source-invalid"
+] as const;
+const testEvidenceLedgerIndexWriteErrorStates = [
+  "index-path-invalid",
+  "index-read-failed",
+  "index-write-failed",
+  "source-invalid"
+] as const;
+export const testEvidenceLedgerIndexSyncStates = [
+  ...testEvidenceLedgerIndexSyncSuccessStates,
+  ...testEvidenceLedgerIndexSyncErrorStates
+] as const;
 
-export const testEvidenceLedgerIndexSyncResultSchema = v.strictObject({
-  changed: v.boolean(),
-  diagnostics: v.array(testEvidenceDiagnosticSchema),
+const testEvidenceLedgerIndexSyncResultBaseEntries = {
   entityIndex: v.nullable(testEntityIndexIdentitySchema),
   indexPath: v.literal(testEvidenceLedgerIndexPath),
   ledgerPath: v.literal(testEvidenceLedgerPath),
-  mode: v.picklist(["check", "write"]),
   schemaVersion: v.literal(testEvidenceLedgerSchemaVersion),
   sourceRevision: v.nullable(createStateSourceRevisionSchema({
     fingerprint: testEvidenceSourceFingerprintSchema,
     id: testEvidenceCaseIdSchema
-  })),
-  state: v.picklist(testEvidenceLedgerIndexSyncStates),
-  status: v.picklist(["ok", "error"])
-});
+  }))
+};
+
+export const testEvidenceLedgerIndexSyncResultSchema = v.union([
+  v.strictObject({
+    ...testEvidenceLedgerIndexSyncResultBaseEntries,
+    changed: v.literal(false),
+    diagnostics: v.tuple([]),
+    mode: v.literal("check"),
+    state: v.literal("current"),
+    status: v.literal("ok")
+  }),
+  v.strictObject({
+    ...testEvidenceLedgerIndexSyncResultBaseEntries,
+    changed: v.literal(false),
+    diagnostics: v.tuple([]),
+    mode: v.literal("write"),
+    state: v.literal("unchanged"),
+    status: v.literal("ok")
+  }),
+  v.strictObject({
+    ...testEvidenceLedgerIndexSyncResultBaseEntries,
+    changed: v.literal(true),
+    diagnostics: v.tuple([]),
+    mode: v.literal("write"),
+    state: v.literal("written"),
+    status: v.literal("ok")
+  }),
+  v.strictObject({
+    ...testEvidenceLedgerIndexSyncResultBaseEntries,
+    changed: v.literal(false),
+    diagnostics: v.pipe(
+      v.array(testEvidenceDiagnosticSchema),
+      v.minLength(1, "must include at least one diagnostic")
+    ),
+    mode: v.literal("check"),
+    state: v.picklist(testEvidenceLedgerIndexCheckErrorStates),
+    status: v.literal("error")
+  }),
+  v.strictObject({
+    ...testEvidenceLedgerIndexSyncResultBaseEntries,
+    changed: v.literal(false),
+    diagnostics: v.pipe(
+      v.array(testEvidenceDiagnosticSchema),
+      v.minLength(1, "must include at least one diagnostic")
+    ),
+    mode: v.literal("write"),
+    state: v.picklist(testEvidenceLedgerIndexWriteErrorStates),
+    status: v.literal("error")
+  })
+]);
 
 export const testEvidenceCaseQueryResultSchema = v.strictObject({
   cases: v.array(testEvidenceLedgerCaseSummarySchema),
   diagnostics: v.array(testEvidenceDiagnosticSchema),
   indexPath: v.literal(testEvidenceLedgerIndexPath),
   ledgerPath: v.literal(testEvidenceLedgerPath),
-  limit: queryLimitSchema,
-  offset: nonNegativeIntegerSchema,
+  limit: testEvidenceQueryLimitSchema,
+  offset: testEvidenceQueryOffsetSchema,
   schemaVersion: v.literal(testEvidenceLedgerSchemaVersion),
   total: nonNegativeIntegerSchema
 });
 
-export const testEvidenceCaseShowResultSchema = v.strictObject({
-  case: v.nullable(testEvidenceLedgerCaseSchema),
-  diagnostics: v.array(testEvidenceDiagnosticSchema),
+const testEvidenceCaseShowResultBaseEntries = {
   indexPath: v.literal(testEvidenceLedgerIndexPath),
   ledgerPath: v.literal(testEvidenceLedgerPath),
-  markdown: v.nullable(v.string()),
-  schemaVersion: v.literal(testEvidenceLedgerSchemaVersion),
-  tests: v.array(testEntitySchema)
-});
+  schemaVersion: v.literal(testEvidenceLedgerSchemaVersion)
+};
+
+export const testEvidenceCaseShowResultSchema = v.union([
+  v.strictObject({
+    ...testEvidenceCaseShowResultBaseEntries,
+    case: testEvidenceLedgerCaseSchema,
+    diagnostics: v.array(testEvidenceDiagnosticSchema),
+    markdown: v.string(),
+    tests: v.pipe(
+      v.array(testEntitySchema),
+      v.minLength(1, "must include at least one Test entity")
+    )
+  }),
+  v.strictObject({
+    ...testEvidenceCaseShowResultBaseEntries,
+    case: v.null(),
+    diagnostics: v.pipe(
+      v.array(testEvidenceDiagnosticSchema),
+      v.minLength(1, "must include at least one diagnostic")
+    ),
+    markdown: v.null(),
+    tests: v.tuple([])
+  })
+]);
 
 export const testEvidenceTestQueryItemSchema = v.strictObject({
   id: testEntityIdSchema,
@@ -353,7 +438,7 @@ export const testEvidenceTestQueryItemSchema = v.strictObject({
       "Case IDs must be unique"
     ),
     v.check(
-      isStrictlyAscending,
+      (values) => isStrictlyAscendingLexical(values),
       "Case IDs must be sorted in ascending lexical order"
     )
   )
@@ -363,8 +448,8 @@ export const testEvidenceTestQueryResultSchema = v.strictObject({
   diagnostics: v.array(testEvidenceDiagnosticSchema),
   indexPath: v.literal(testEvidenceLedgerIndexPath),
   ledgerPath: v.literal(testEvidenceLedgerPath),
-  limit: queryLimitSchema,
-  offset: nonNegativeIntegerSchema,
+  limit: testEvidenceQueryLimitSchema,
+  offset: testEvidenceQueryOffsetSchema,
   schemaVersion: v.literal(testEvidenceLedgerSchemaVersion),
   tests: v.array(testEvidenceTestQueryItemSchema),
   total: nonNegativeIntegerSchema
@@ -391,8 +476,8 @@ export const queryTestEvidenceCasesOptionsSchema = v.strictObject({
   testId: v.optional(testEntityIdSchema),
   tag: v.optional(testEvidenceTagSchema),
   query: v.optional(queryTextSchema),
-  limit: v.optional(queryLimitSchema),
-  offset: v.optional(nonNegativeIntegerSchema)
+  limit: v.optional(testEvidenceQueryLimitSchema),
+  offset: v.optional(testEvidenceQueryOffsetSchema)
 });
 export const showTestEvidenceCaseOptionsSchema = v.strictObject({
   workspaceRoot: workspaceRootSchema,
@@ -401,8 +486,8 @@ export const showTestEvidenceCaseOptionsSchema = v.strictObject({
 export const queryTestEntitiesOptionsSchema = v.strictObject({
   workspaceRoot: workspaceRootSchema,
   query: v.optional(queryTextSchema),
-  limit: v.optional(queryLimitSchema),
-  offset: v.optional(nonNegativeIntegerSchema)
+  limit: v.optional(testEvidenceQueryLimitSchema),
+  offset: v.optional(testEvidenceQueryOffsetSchema)
 });
 
 export type TestEvidenceDiagnosticCategory =
@@ -468,11 +553,5 @@ export type ShowTestEvidenceCaseOptions = v.InferOutput<
 export type QueryTestEntitiesOptions = v.InferOutput<
   typeof queryTestEntitiesOptionsSchema
 >;
-
-function isStrictlyAscending(values: string[]): boolean {
-  return values.every((value, index) => (
-    index === 0 || (values[index - 1] ?? "") < value
-  ));
-}
 
 export { stateIndexQueryMaximumLimit, stateIndexSchemaVersion };

@@ -1,3 +1,4 @@
+import { compareLexicalText } from "./canonicalization.ts";
 import type {
   TestEvidenceDiagnostic,
   TestEvidenceDiagnosticCategory,
@@ -17,6 +18,11 @@ export type CreateTestEvidenceDiagnosticInput = {
   testId?: string;
 };
 
+export type TestEvidenceValidationIssue = {
+  message: string;
+  path?: readonly { key: unknown }[];
+};
+
 export function createTestEvidenceDiagnostic(
   input: CreateTestEvidenceDiagnosticInput
 ): TestEvidenceDiagnostic {
@@ -24,6 +30,31 @@ export function createTestEvidenceDiagnostic(
     ...input,
     blocking: input.blocking ?? input.severity === "error"
   };
+}
+
+export function createInvalidTestEvidenceOptionsDiagnostic(
+  issues: readonly TestEvidenceValidationIssue[]
+): TestEvidenceDiagnostic {
+  return createTestEvidenceDiagnostic({
+    category: "query",
+    code: "query.options-invalid",
+    message: "Invalid ledger API options: "
+      + formatTestEvidenceValidationIssues(issues),
+    severity: "error"
+  });
+}
+
+export function formatTestEvidenceValidationIssues(
+  issues: readonly TestEvidenceValidationIssue[]
+): string {
+  return issues.map((issue) => {
+    const issuePath = issue.path
+      ?.map((segment) => String(segment.key))
+      .join(".");
+    return issuePath === undefined || issuePath.length === 0
+      ? issue.message
+      : `${issuePath}: ${issue.message}`;
+  }).join("; ");
 }
 
 export function sortUniqueTestEvidenceDiagnostics(
@@ -54,20 +85,20 @@ export function hasBlockingTestEvidenceDiagnostics(
   return diagnostics.some((diagnostic) => diagnostic.blocking);
 }
 
+export function testEvidenceErrorText(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 function compareDiagnostics(
   left: TestEvidenceDiagnostic,
   right: TestEvidenceDiagnostic
 ): number {
-  return compareText(left.path ?? "", right.path ?? "")
+  return compareLexicalText(left.path ?? "", right.path ?? "")
     || (left.line ?? 0) - (right.line ?? 0)
     || (left.column ?? 0) - (right.column ?? 0)
-    || compareText(left.severity, right.severity)
-    || compareText(left.code, right.code)
-    || compareText(left.caseId ?? "", right.caseId ?? "")
-    || compareText(left.testId ?? "", right.testId ?? "")
-    || compareText(left.message, right.message);
-}
-
-function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
+    || compareLexicalText(left.severity, right.severity)
+    || compareLexicalText(left.code, right.code)
+    || compareLexicalText(left.caseId ?? "", right.caseId ?? "")
+    || compareLexicalText(left.testId ?? "", right.testId ?? "")
+    || compareLexicalText(left.message, right.message);
 }

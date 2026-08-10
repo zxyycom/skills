@@ -2,17 +2,28 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import * as v from "valibot";
 import { isFileSystemError } from "../../../shared/src/node/filesystem.ts";
-import { createTestEvidenceDiagnostic } from "./diagnostics.ts";
-import { sha256Fingerprint } from "./entity-index.ts";
+import {
+  isStrictlyAscendingLexical,
+  sha256Fingerprint
+} from "./canonicalization.ts";
+import {
+  createTestEvidenceDiagnostic,
+  formatTestEvidenceValidationIssues,
+  testEvidenceErrorText
+} from "./diagnostics.ts";
 import {
   testEntityIdSchema,
   testEvidenceCaseIdPatternSource,
+  testEvidenceLedgerPath,
   testEvidenceLedgerCaseSchema,
   testEvidenceTagSchema,
   type TestEvidenceDiagnostic,
   type TestEvidenceLedgerCase
 } from "./schemas.ts";
-import type { LedgerTextSource } from "./workspace.ts";
+import {
+  decodeLedgerUtf8Text,
+  type LedgerTextSource
+} from "./text-source.ts";
 
 export type IdentifiedLedgerCaseSource = LedgerTextSource & {
   fingerprint: string;
@@ -175,7 +186,8 @@ export function parseLedgerCaseSource(
     return failedCaseSource({
       caseId: identified.value.id,
       code: "case.schema-invalid",
-      message: `${source.path} is invalid: ${validated.issues.map((issue) => issue.message).join("; ")}`,
+      message: `${source.path} is invalid: `
+        + formatTestEvidenceValidationIssues(validated.issues),
       path: source.path
     });
   }
@@ -199,7 +211,7 @@ export async function readLedgerCaseSource(
       path: sourcePath
     });
   }
-  const relativePath = `docs/test-evidence/${sourcePath}`;
+  const relativePath = `${testEvidenceLedgerPath}/${sourcePath}`;
   const absolutePath = path.join(
     path.resolve(workspaceRoot),
     ...relativePath.split("/")
@@ -216,7 +228,7 @@ export async function readLedgerCaseSource(
     const data = await fs.readFile(absolutePath);
     let text: string;
     try {
-      text = new TextDecoder("utf-8", { fatal: true }).decode(data);
+      text = decodeLedgerUtf8Text(data);
     } catch {
       return failedCaseSource({
         code: "case.encoding-invalid",
@@ -235,7 +247,7 @@ export async function readLedgerCaseSource(
         : "case.read-failed",
       message: isFileSystemError(error, "ENOENT")
         ? `${relativePath} does not exist`
-        : `${relativePath} could not be read: ${errorText(error)}`,
+        : `${relativePath} could not be read: ${testEvidenceErrorText(error)}`,
       path: relativePath
     });
   }
@@ -363,7 +375,7 @@ function validateOrderedUniqueTestIds(
     }
     seen.add(testId);
   }
-  if (!isStrictlyAscending(testIds)) {
+  if (!isStrictlyAscendingLexical(testIds)) {
     diagnostics.push(createTestEvidenceDiagnostic({
       caseId: source.id,
       category: "case",
@@ -390,7 +402,7 @@ function validateOrderedUniqueTags(
       severity: "error"
     }));
   }
-  if (!isStrictlyAscending(tags)) {
+  if (!isStrictlyAscendingLexical(tags)) {
     diagnostics.push(createTestEvidenceDiagnostic({
       caseId: source.id,
       category: "case",
@@ -400,12 +412,6 @@ function validateOrderedUniqueTags(
       severity: "error"
     }));
   }
-}
-
-function isStrictlyAscending(values: readonly string[]): boolean {
-  return values.every((value, index) => (
-    index === 0 || (values[index - 1] ?? "") < value
-  ));
 }
 
 function skipBlankLines(lines: readonly string[], startIndex: number): number {
@@ -435,8 +441,4 @@ function failedCaseSource(details: {
     })],
     value: null
   };
-}
-
-function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }

@@ -1,4 +1,4 @@
-### Case TEST-EVIDENCE-LEDGER-API-SHOW-001: Case 展示 API 重读权威 Markdown 与当前 Test
+### Case TEST-EVIDENCE-LEDGER-API-SHOW-001: Case 展示 API 重读权威 Markdown 并解析当前实体索引中的 Test
 Entry:
 - `tools/test-evidence/tests/ledger-api.test.ts > ledger Case show API rereads authoritative Markdown and resolves current Tests`
 - `bun test --test-name-pattern="^ledger Case show API rereads authoritative Markdown and resolves current Tests$" ./tools/test-evidence/tests/run.ts`

@@ -4696,7 +4696,7 @@
     "INDEX-RUNTIME-SYNC-UTF8-001": {
       "keys": {
         "search": [
-          "INDEX-RUNTIME-SYNC-UTF8-001 同步检查拒绝损坏编码并由写入修复 State index 同步必须用严格 UTF-8 解码区分有效替换字符与产生相同普通字符串的损坏字节。 Check 将解码等价的损坏索引报告为 encoding-invalid，write 通过既有原子路径恢复原字节并使后续 check 成为 current。 tools/index-runtime/tests/materialization.test.ts > sync checks reject invalid UTF-8 indexes and writes repair them bun test --test-name-pattern=\"^sync checks reject invalid UTF-8 indexes and writes repair them$\" ./tools/index-runtime/tests/run.ts"
+          "INDEX-RUNTIME-SYNC-UTF8-001 同步检查拒绝损坏编码并由写入修复 State index 同步必须区分合法的 U+FFFD UTF-8 字节序列与被宽松解码为相同 JavaScript 字符串的非法字节序列。 Check 将宽松解码结果相同的损坏索引报告为 `state-index.index-encoding-invalid`；write 通过原子路径恢复预期 UTF-8 字节，并使下一次 check 返回 `current`。 tools/index-runtime/tests/materialization.test.ts > sync checks reject invalid UTF-8 indexes and writes repair them bun test --test-name-pattern=\"^sync checks reject invalid UTF-8 indexes and writes repair them$\" ./tools/index-runtime/tests/run.ts"
         ],
         "topic": [
           "index-runtime"
@@ -4710,9 +4710,9 @@
         ],
         "id": "INDEX-RUNTIME-SYNC-UTF8-001",
         "line": 1,
-        "searchText": "同步检查拒绝损坏编码并由写入修复 State index 同步必须用严格 UTF-8 解码区分有效替换字符与产生相同普通字符串的损坏字节。 Check 将解码等价的损坏索引报告为 encoding-invalid，write 通过既有原子路径恢复原字节并使后续 check 成为 current。 tools/index-runtime/tests/materialization.test.ts > sync checks reject invalid UTF-8 indexes and writes repair them bun test --test-name-pattern=\"^sync checks reject invalid UTF-8 indexes and writes repair them$\" ./tools/index-runtime/tests/run.ts",
+        "searchText": "同步检查拒绝损坏编码并由写入修复 State index 同步必须区分合法的 U+FFFD UTF-8 字节序列与被宽松解码为相同 JavaScript 字符串的非法字节序列。 Check 将宽松解码结果相同的损坏索引报告为 `state-index.index-encoding-invalid`；write 通过原子路径恢复预期 UTF-8 字节，并使下一次 check 返回 `current`。 tools/index-runtime/tests/materialization.test.ts > sync checks reject invalid UTF-8 indexes and writes repair them bun test --test-name-pattern=\"^sync checks reject invalid UTF-8 indexes and writes repair them$\" ./tools/index-runtime/tests/run.ts",
         "sourcePath": "index-runtime/sync-rejects-invalid-utf8-and-repairs-it.md",
-        "summary": "State index 同步必须用严格 UTF-8 解码区分有效替换字符与产生相同普通字符串的损坏字节。",
+        "summary": "State index 同步必须区分合法的 U+FFFD UTF-8 字节序列与被宽松解码为相同 JavaScript 字符串的非法字节序列。",
         "title": "同步检查拒绝损坏编码并由写入修复"
       }
     },
@@ -8514,7 +8514,7 @@
     "TEST-EVIDENCE-LEDGER-API-OPTIONS-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-LEDGER-API-OPTIONS-001 Ledger API 对无效 options 返回统一机器失败 五个公共 API 不得因 options 无效而泄漏非结构化异常，必须返回各自 Schema v5 结果。 空 root、非法 mode/limit/Case ID 与空白 query 都返回 blocking options-invalid 诊断。 tools/test-evidence/tests/ledger-api.test.ts > ledger APIs return schema-valid machine failures for invalid options bun test --test-name-pattern=\"^ledger APIs return schema-valid machine failures for invalid options$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-LEDGER-API-OPTIONS-001 Ledger 内部 API 对无效 options 返回结构化机器失败 五个仓库内部 API 不得因 options 无效而泄漏非结构化异常，必须返回各自的领域 `schemaVersion: 5` 机器结果。 空 root、非法 mode/limit/Case ID 与空白 query 都返回 blocking `query.options-invalid` 诊断，且 message 标出无效字段。 tools/test-evidence/tests/ledger-api.test.ts > ledger APIs return schema-valid machine failures for invalid options bun test --test-name-pattern=\"^ledger APIs return schema-valid machine failures for invalid options$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -8528,16 +8528,16 @@
         ],
         "id": "TEST-EVIDENCE-LEDGER-API-OPTIONS-001",
         "line": 1,
-        "searchText": "Ledger API 对无效 options 返回统一机器失败 五个公共 API 不得因 options 无效而泄漏非结构化异常，必须返回各自 Schema v5 结果。 空 root、非法 mode/limit/Case ID 与空白 query 都返回 blocking options-invalid 诊断。 tools/test-evidence/tests/ledger-api.test.ts > ledger APIs return schema-valid machine failures for invalid options bun test --test-name-pattern=\"^ledger APIs return schema-valid machine failures for invalid options$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Ledger 内部 API 对无效 options 返回结构化机器失败 五个仓库内部 API 不得因 options 无效而泄漏非结构化异常，必须返回各自的领域 `schemaVersion: 5` 机器结果。 空 root、非法 mode/limit/Case ID 与空白 query 都返回 blocking `query.options-invalid` 诊断，且 message 标出无效字段。 tools/test-evidence/tests/ledger-api.test.ts > ledger APIs return schema-valid machine failures for invalid options bun test --test-name-pattern=\"^ledger APIs return schema-valid machine failures for invalid options$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/ledger-api-options.md",
-        "summary": "五个公共 API 不得因 options 无效而泄漏非结构化异常，必须返回各自 Schema v5 结果。",
-        "title": "Ledger API 对无效 options 返回统一机器失败"
+        "summary": "五个仓库内部 API 不得因 options 无效而泄漏非结构化异常，必须返回各自的领域 `schemaVersion: 5` 机器结果。",
+        "title": "Ledger 内部 API 对无效 options 返回结构化机器失败"
       }
     },
     "TEST-EVIDENCE-LEDGER-API-SHOW-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-LEDGER-API-SHOW-001 Case 展示 API 重读权威 Markdown 与当前 Test show 必须用索引定位后重读 Case 权威来源，并从当前实体索引解析 Test 详情。 陈旧索引回退后返回变更后的 Markdown 与 Test 集，不存在的 Case 返回结构化缺失诊断。 tools/test-evidence/tests/ledger-api.test.ts > ledger Case show API rereads authoritative Markdown and resolves current Tests bun test --test-name-pattern=\"^ledger Case show API rereads authoritative Markdown and resolves current Tests$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-LEDGER-API-SHOW-001 Case 展示 API 重读权威 Markdown 并解析当前实体索引中的 Test show 必须用索引定位后重读 Case 权威来源，并从当前实体索引解析 Test 详情。 陈旧索引回退后返回变更后的 Markdown 与 Test 集，不存在的 Case 返回结构化缺失诊断。 tools/test-evidence/tests/ledger-api.test.ts > ledger Case show API rereads authoritative Markdown and resolves current Tests bun test --test-name-pattern=\"^ledger Case show API rereads authoritative Markdown and resolves current Tests$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -8551,10 +8551,10 @@
         ],
         "id": "TEST-EVIDENCE-LEDGER-API-SHOW-001",
         "line": 1,
-        "searchText": "Case 展示 API 重读权威 Markdown 与当前 Test show 必须用索引定位后重读 Case 权威来源，并从当前实体索引解析 Test 详情。 陈旧索引回退后返回变更后的 Markdown 与 Test 集，不存在的 Case 返回结构化缺失诊断。 tools/test-evidence/tests/ledger-api.test.ts > ledger Case show API rereads authoritative Markdown and resolves current Tests bun test --test-name-pattern=\"^ledger Case show API rereads authoritative Markdown and resolves current Tests$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Case 展示 API 重读权威 Markdown 并解析当前实体索引中的 Test show 必须用索引定位后重读 Case 权威来源，并从当前实体索引解析 Test 详情。 陈旧索引回退后返回变更后的 Markdown 与 Test 集，不存在的 Case 返回结构化缺失诊断。 tools/test-evidence/tests/ledger-api.test.ts > ledger Case show API rereads authoritative Markdown and resolves current Tests bun test --test-name-pattern=\"^ledger Case show API rereads authoritative Markdown and resolves current Tests$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/ledger-api-show.md",
         "summary": "show 必须用索引定位后重读 Case 权威来源，并从当前实体索引解析 Test 详情。",
-        "title": "Case 展示 API 重读权威 Markdown 与当前 Test"
+        "title": "Case 展示 API 重读权威 Markdown 并解析当前实体索引中的 Test"
       }
     },
     "TEST-EVIDENCE-LEDGER-API-SYNC-001": {
@@ -8606,7 +8606,7 @@
     "TEST-EVIDENCE-LEDGER-API-VALIDATE-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-LEDGER-API-VALIDATE-001 校验 API 报告稳定身份、摘要与索引诊断 校验 API 必须返回 Schema v5、实体身份、来源 revision、关系摘要和严格索引诊断。 缺索引时来源事实仍完整，索引同步后诊断清空且身份与摘要保持不变。 tools/test-evidence/tests/ledger-api.test.ts > ledger validation API reports stable source identities summaries and index diagnostics bun test --test-name-pattern=\"^ledger validation API reports stable source identities summaries and index diagnostics$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-LEDGER-API-VALIDATE-001 校验 API 报告稳定身份、摘要与索引诊断 校验 API 必须返回领域 `schemaVersion: 5`、实体身份、来源 revision、关系摘要和严格索引诊断。 缺索引时仍返回实体身份、ledger source revision 和四项计数；索引同步后诊断清空，且这些来源事实保持不变。 tools/test-evidence/tests/ledger-api.test.ts > ledger validation API reports stable source identities summaries and index diagnostics bun test --test-name-pattern=\"^ledger validation API reports stable source identities summaries and index diagnostics$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -8620,9 +8620,9 @@
         ],
         "id": "TEST-EVIDENCE-LEDGER-API-VALIDATE-001",
         "line": 1,
-        "searchText": "校验 API 报告稳定身份、摘要与索引诊断 校验 API 必须返回 Schema v5、实体身份、来源 revision、关系摘要和严格索引诊断。 缺索引时来源事实仍完整，索引同步后诊断清空且身份与摘要保持不变。 tools/test-evidence/tests/ledger-api.test.ts > ledger validation API reports stable source identities summaries and index diagnostics bun test --test-name-pattern=\"^ledger validation API reports stable source identities summaries and index diagnostics$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "校验 API 报告稳定身份、摘要与索引诊断 校验 API 必须返回领域 `schemaVersion: 5`、实体身份、来源 revision、关系摘要和严格索引诊断。 缺索引时仍返回实体身份、ledger source revision 和四项计数；索引同步后诊断清空，且这些来源事实保持不变。 tools/test-evidence/tests/ledger-api.test.ts > ledger validation API reports stable source identities summaries and index diagnostics bun test --test-name-pattern=\"^ledger validation API reports stable source identities summaries and index diagnostics$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/ledger-api-validate.md",
-        "summary": "校验 API 必须返回 Schema v5、实体身份、来源 revision、关系摘要和严格索引诊断。",
+        "summary": "校验 API 必须返回领域 `schemaVersion: 5`、实体身份、来源 revision、关系摘要和严格索引诊断。",
         "title": "校验 API 报告稳定身份、摘要与索引诊断"
       }
     },
@@ -8698,7 +8698,7 @@
     "TEST-EVIDENCE-LEDGER-CLI-CHECK-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-LEDGER-CLI-CHECK-001 Check CLI 输出机器报告并映射校验状态 `check --json` 必须始终输出完整报告，并以退出码区分阻断诊断与成功校验。 索引缺失返回退出码 1，索引当前返回退出码 0 与无诊断 Schema v5 报告。 tools/test-evidence/tests/ledger-cli.test.ts > ledger CLI check emits machine reports and maps validation status to exits bun test --test-name-pattern=\"^ledger CLI check emits machine reports and maps validation status to exits$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-LEDGER-CLI-CHECK-001 Check CLI 输出机器报告并映射校验状态 `check --json` 必须始终输出完整报告，并以退出码区分阻断诊断与成功校验。 索引缺失返回退出码 1；索引当前返回退出码 0 与无诊断的领域 `schemaVersion: 5` 报告。 tools/test-evidence/tests/ledger-cli.test.ts > ledger CLI check emits machine reports and maps validation status to exits bun test --test-name-pattern=\"^ledger CLI check emits machine reports and maps validation status to exits$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -8712,7 +8712,7 @@
         ],
         "id": "TEST-EVIDENCE-LEDGER-CLI-CHECK-001",
         "line": 1,
-        "searchText": "Check CLI 输出机器报告并映射校验状态 `check --json` 必须始终输出完整报告，并以退出码区分阻断诊断与成功校验。 索引缺失返回退出码 1，索引当前返回退出码 0 与无诊断 Schema v5 报告。 tools/test-evidence/tests/ledger-cli.test.ts > ledger CLI check emits machine reports and maps validation status to exits bun test --test-name-pattern=\"^ledger CLI check emits machine reports and maps validation status to exits$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Check CLI 输出机器报告并映射校验状态 `check --json` 必须始终输出完整报告，并以退出码区分阻断诊断与成功校验。 索引缺失返回退出码 1；索引当前返回退出码 0 与无诊断的领域 `schemaVersion: 5` 报告。 tools/test-evidence/tests/ledger-cli.test.ts > ledger CLI check emits machine reports and maps validation status to exits bun test --test-name-pattern=\"^ledger CLI check emits machine reports and maps validation status to exits$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/ledger-cli-check.md",
         "summary": "`check --json` 必须始终输出完整报告，并以退出码区分阻断诊断与成功校验。",
         "title": "Check CLI 输出机器报告并映射校验状态"
@@ -8744,7 +8744,7 @@
     "TEST-EVIDENCE-LEDGER-CLI-SHOW-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-LEDGER-CLI-SHOW-001 Show CLI 以位置参数返回 Case 权威内容 `show <case-id>` 必须返回 Case Markdown 与当前 Test 详情，并结构化表示合法但不存在的 ID。 已知 Case 成功返回两项 Test，不存在 Case 返回退出码 1 和 case-missing。 tools/test-evidence/tests/ledger-cli.test.ts > ledger CLI show accepts one positional Case ID and returns authority or absence bun test --test-name-pattern=\"^ledger CLI show accepts one positional Case ID and returns authority or absence$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-LEDGER-CLI-SHOW-001 Show CLI 以位置参数返回 Case 权威内容 `show <case-id>` 必须返回 Case Markdown 与当前实体索引中的 Test 详情，并结构化表示格式合法但不存在的 Case ID。 已知 Case 成功返回两项 Test，不存在 Case 返回退出码 1 和 case-missing。 tools/test-evidence/tests/ledger-cli.test.ts > ledger CLI show accepts one positional Case ID and returns authority or absence bun test --test-name-pattern=\"^ledger CLI show accepts one positional Case ID and returns authority or absence$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -8758,9 +8758,9 @@
         ],
         "id": "TEST-EVIDENCE-LEDGER-CLI-SHOW-001",
         "line": 1,
-        "searchText": "Show CLI 以位置参数返回 Case 权威内容 `show <case-id>` 必须返回 Case Markdown 与当前 Test 详情，并结构化表示合法但不存在的 ID。 已知 Case 成功返回两项 Test，不存在 Case 返回退出码 1 和 case-missing。 tools/test-evidence/tests/ledger-cli.test.ts > ledger CLI show accepts one positional Case ID and returns authority or absence bun test --test-name-pattern=\"^ledger CLI show accepts one positional Case ID and returns authority or absence$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Show CLI 以位置参数返回 Case 权威内容 `show <case-id>` 必须返回 Case Markdown 与当前实体索引中的 Test 详情，并结构化表示格式合法但不存在的 Case ID。 已知 Case 成功返回两项 Test，不存在 Case 返回退出码 1 和 case-missing。 tools/test-evidence/tests/ledger-cli.test.ts > ledger CLI show accepts one positional Case ID and returns authority or absence bun test --test-name-pattern=\"^ledger CLI show accepts one positional Case ID and returns authority or absence$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/ledger-cli-show.md",
-        "summary": "`show <case-id>` 必须返回 Case Markdown 与当前 Test 详情，并结构化表示合法但不存在的 ID。",
+        "summary": "`show <case-id>` 必须返回 Case Markdown 与当前实体索引中的 Test 详情，并结构化表示格式合法但不存在的 Case ID。",
         "title": "Show CLI 以位置参数返回 Case 权威内容"
       }
     },
@@ -8928,7 +8928,7 @@
     "TEST-EVIDENCE-LEDGER-INDEX-CHECK-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-LEDGER-INDEX-CHECK-001 严格检查阻断陈旧索引并允许重建 严格校验必须把陈旧派生索引视为阻断问题，写入同步可从当前来源恢复一致性。 Case 变化后 check 报 stale，显式 write 重建后 check 无诊断。 tools/test-evidence/tests/ledger-index.test.ts > ledger checks block stale indexes and write sync rebuilds them bun test --test-name-pattern=\"^ledger checks block stale indexes and write sync rebuilds them$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-LEDGER-INDEX-CHECK-001 严格检查阻断陈旧索引并允许重建 严格校验必须把陈旧派生索引视为阻断问题；写入同步必须从当前实体索引与 Case Markdown 重建一致投影。 Case 变化后 check 报 stale，显式 write 重建后 check 无诊断。 tools/test-evidence/tests/ledger-index.test.ts > ledger checks block stale indexes and write sync rebuilds them bun test --test-name-pattern=\"^ledger checks block stale indexes and write sync rebuilds them$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -8942,16 +8942,16 @@
         ],
         "id": "TEST-EVIDENCE-LEDGER-INDEX-CHECK-001",
         "line": 1,
-        "searchText": "严格检查阻断陈旧索引并允许重建 严格校验必须把陈旧派生索引视为阻断问题，写入同步可从当前来源恢复一致性。 Case 变化后 check 报 stale，显式 write 重建后 check 无诊断。 tools/test-evidence/tests/ledger-index.test.ts > ledger checks block stale indexes and write sync rebuilds them bun test --test-name-pattern=\"^ledger checks block stale indexes and write sync rebuilds them$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "严格检查阻断陈旧索引并允许重建 严格校验必须把陈旧派生索引视为阻断问题；写入同步必须从当前实体索引与 Case Markdown 重建一致投影。 Case 变化后 check 报 stale，显式 write 重建后 check 无诊断。 tools/test-evidence/tests/ledger-index.test.ts > ledger checks block stale indexes and write sync rebuilds them bun test --test-name-pattern=\"^ledger checks block stale indexes and write sync rebuilds them$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/ledger-index-check.md",
-        "summary": "严格校验必须把陈旧派生索引视为阻断问题，写入同步可从当前来源恢复一致性。",
+        "summary": "严格校验必须把陈旧派生索引视为阻断问题；写入同步必须从当前实体索引与 Case Markdown 重建一致投影。",
         "title": "严格检查阻断陈旧索引并允许重建"
       }
     },
     "TEST-EVIDENCE-LEDGER-INDEX-FALLBACK-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-LEDGER-INDEX-FALLBACK-001 可恢复索引故障使用当前来源只读回退 缺失、损坏、非法编码、旧定义或陈旧索引不得阻断只读查询，回退结果必须来自当前来源并带警告。 五类可恢复故障都返回当前 Case 集或当前变更，并提示显式重建索引。 tools/test-evidence/tests/ledger-index.test.ts > ledger queries fall back from recoverable index failures with warnings bun test --test-name-pattern=\"^ledger queries fall back from recoverable index failures with warnings$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-LEDGER-INDEX-FALLBACK-001 可恢复索引故障使用当前来源只读回退 缺失、损坏、非法编码、旧定义或陈旧索引不得阻断只读查询；回退结果必须来自当次完整读取的实体索引与 Case Markdown，并携带非阻断 warning。 五类可恢复故障都返回当前 Case 集或当前变更，并提示显式重建索引。 tools/test-evidence/tests/ledger-index.test.ts > ledger queries fall back from recoverable index failures with warnings bun test --test-name-pattern=\"^ledger queries fall back from recoverable index failures with warnings$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -8965,16 +8965,16 @@
         ],
         "id": "TEST-EVIDENCE-LEDGER-INDEX-FALLBACK-001",
         "line": 1,
-        "searchText": "可恢复索引故障使用当前来源只读回退 缺失、损坏、非法编码、旧定义或陈旧索引不得阻断只读查询，回退结果必须来自当前来源并带警告。 五类可恢复故障都返回当前 Case 集或当前变更，并提示显式重建索引。 tools/test-evidence/tests/ledger-index.test.ts > ledger queries fall back from recoverable index failures with warnings bun test --test-name-pattern=\"^ledger queries fall back from recoverable index failures with warnings$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "可恢复索引故障使用当前来源只读回退 缺失、损坏、非法编码、旧定义或陈旧索引不得阻断只读查询；回退结果必须来自当次完整读取的实体索引与 Case Markdown，并携带非阻断 warning。 五类可恢复故障都返回当前 Case 集或当前变更，并提示显式重建索引。 tools/test-evidence/tests/ledger-index.test.ts > ledger queries fall back from recoverable index failures with warnings bun test --test-name-pattern=\"^ledger queries fall back from recoverable index failures with warnings$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/ledger-index-fallback.md",
-        "summary": "缺失、损坏、非法编码、旧定义或陈旧索引不得阻断只读查询，回退结果必须来自当前来源并带警告。",
+        "summary": "缺失、损坏、非法编码、旧定义或陈旧索引不得阻断只读查询；回退结果必须来自当次完整读取的实体索引与 Case Markdown，并携带非阻断 warning。",
         "title": "可恢复索引故障使用当前来源只读回退"
       }
     },
     "TEST-EVIDENCE-LEDGER-INDEX-PROJECTION-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-LEDGER-INDEX-PROJECTION-001 派生索引保存最小可检索投影 定义 v4 索引必须保存 Case 摘要、Test/Tag/search keys 与来源 revision，不持久化反向关系。 写入索引满足 Schema v3、定义 v4、实体 metadata 一致性和最小字段边界。 tools/test-evidence/tests/ledger-index.test.ts > ledger indexes project definition metadata summaries revisions and query keys bun test --test-name-pattern=\"^ledger indexes project definition metadata summaries revisions and query keys$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-LEDGER-INDEX-PROJECTION-001 派生索引保存最小可检索投影 `definitionVersion: 4` 索引必须保存 Case 摘要、Test/Tag/search keys 与来源 revision，不持久化 Test→Cases 反向关系。 写入索引满足通用状态索引 `schemaVersion: 3`、领域 `definitionVersion: 4`、实体 metadata 一致性和最小字段边界。 tools/test-evidence/tests/ledger-index.test.ts > ledger indexes project definition metadata summaries revisions and query keys bun test --test-name-pattern=\"^ledger indexes project definition metadata summaries revisions and query keys$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -8988,9 +8988,9 @@
         ],
         "id": "TEST-EVIDENCE-LEDGER-INDEX-PROJECTION-001",
         "line": 1,
-        "searchText": "派生索引保存最小可检索投影 定义 v4 索引必须保存 Case 摘要、Test/Tag/search keys 与来源 revision，不持久化反向关系。 写入索引满足 Schema v3、定义 v4、实体 metadata 一致性和最小字段边界。 tools/test-evidence/tests/ledger-index.test.ts > ledger indexes project definition metadata summaries revisions and query keys bun test --test-name-pattern=\"^ledger indexes project definition metadata summaries revisions and query keys$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "派生索引保存最小可检索投影 `definitionVersion: 4` 索引必须保存 Case 摘要、Test/Tag/search keys 与来源 revision，不持久化 Test→Cases 反向关系。 写入索引满足通用状态索引 `schemaVersion: 3`、领域 `definitionVersion: 4`、实体 metadata 一致性和最小字段边界。 tools/test-evidence/tests/ledger-index.test.ts > ledger indexes project definition metadata summaries revisions and query keys bun test --test-name-pattern=\"^ledger indexes project definition metadata summaries revisions and query keys$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/ledger-index-projection.md",
-        "summary": "定义 v4 索引必须保存 Case 摘要、Test/Tag/search keys 与来源 revision，不持久化反向关系。",
+        "summary": "`definitionVersion: 4` 索引必须保存 Case 摘要、Test/Tag/search keys 与来源 revision，不持久化 Test→Cases 反向关系。",
         "title": "派生索引保存最小可检索投影"
       }
     },
@@ -9089,7 +9089,7 @@
     "TEST-EVIDENCE-LEDGER-SCHEMA-STRICT-001": {
       "keys": {
         "search": [
-          "TEST-EVIDENCE-LEDGER-SCHEMA-STRICT-001 Ledger Schema 严格拒绝未知字段与旧定义 Ledger API options 与持久索引必须采用严格 Schema 和固定版本组合。 五个公共 API 的未知 option 与旧 definitionVersion 都无法通过对应 Schema。 tools/test-evidence/tests/ledger-source.test.ts > ledger schemas reject unknown fields and incompatible versions bun test --test-name-pattern=\"^ledger schemas reject unknown fields and incompatible versions$\" ./tools/test-evidence/tests/run.ts"
+          "TEST-EVIDENCE-LEDGER-SCHEMA-STRICT-001 Ledger Schema 严格拒绝未知字段与旧定义 Ledger 内部 API options、机器结果与持久索引必须采用严格 Schema，并拒绝不可能的版本、同步状态或 Case 展示字段组合。 五个仓库内部 API 的未知 option、互相矛盾的 `status/state/changed/mode`、失败展示中的非空 Markdown 及旧 `definitionVersion` 都无法通过各自 Schema。 tools/test-evidence/tests/ledger-source.test.ts > ledger schemas reject unknown fields and incompatible versions bun test --test-name-pattern=\"^ledger schemas reject unknown fields and incompatible versions$\" ./tools/test-evidence/tests/run.ts"
         ],
         "topic": [
           "test-evidence"
@@ -9103,9 +9103,9 @@
         ],
         "id": "TEST-EVIDENCE-LEDGER-SCHEMA-STRICT-001",
         "line": 1,
-        "searchText": "Ledger Schema 严格拒绝未知字段与旧定义 Ledger API options 与持久索引必须采用严格 Schema 和固定版本组合。 五个公共 API 的未知 option 与旧 definitionVersion 都无法通过对应 Schema。 tools/test-evidence/tests/ledger-source.test.ts > ledger schemas reject unknown fields and incompatible versions bun test --test-name-pattern=\"^ledger schemas reject unknown fields and incompatible versions$\" ./tools/test-evidence/tests/run.ts",
+        "searchText": "Ledger Schema 严格拒绝未知字段与旧定义 Ledger 内部 API options、机器结果与持久索引必须采用严格 Schema，并拒绝不可能的版本、同步状态或 Case 展示字段组合。 五个仓库内部 API 的未知 option、互相矛盾的 `status/state/changed/mode`、失败展示中的非空 Markdown 及旧 `definitionVersion` 都无法通过各自 Schema。 tools/test-evidence/tests/ledger-source.test.ts > ledger schemas reject unknown fields and incompatible versions bun test --test-name-pattern=\"^ledger schemas reject unknown fields and incompatible versions$\" ./tools/test-evidence/tests/run.ts",
         "sourcePath": "test-evidence/ledger-schema-strictness.md",
-        "summary": "Ledger API options 与持久索引必须采用严格 Schema 和固定版本组合。",
+        "summary": "Ledger 内部 API options、机器结果与持久索引必须采用严格 Schema，并拒绝不可能的版本、同步状态或 Case 展示字段组合。",
         "title": "Ledger Schema 严格拒绝未知字段与旧定义"
       }
     },
@@ -10499,7 +10499,7 @@
       "INDEX-RUNTIME-STAGING-SELECTION-001": "sha256:520f54687902845427da23e175091020b5c226e35a7ea50431d1e1582cd23a22",
       "INDEX-RUNTIME-SYNC-LIFECYCLE-001": "sha256:4d2164bd605863cc0e79f58c5b6b016127e2d4c424982b540b6fefbdfaf8dda0",
       "INDEX-RUNTIME-SYNC-MODE-001": "sha256:d85b8e471c816408d97f61479b10697db530ca0a5b433dcb4442e47e3238d414",
-      "INDEX-RUNTIME-SYNC-UTF8-001": "sha256:a2b631d50c36072c0eb46fdf4446554bd49506769b7abb5679d09111eee748bf",
+      "INDEX-RUNTIME-SYNC-UTF8-001": "sha256:6bd07e1441ed4e5f861530432e1639c040941a5b1b67fe43d6e48b128112d0c9",
       "INDEX-RUNTIME-TEMPORAL-SORT-001": "sha256:c171e76cf05b0b6f1505e25b88d903014dc2ecc917585aff424c19e655df3303",
       "INDEX-RUNTIME-TEXT-SEARCH-001": "sha256:025c697be00a2550ec330872fffefa04d9ca342e1dd6ee497e1e8310781ec8f1",
       "INVESTIGATION-BUNDLED-PARITY-001": "sha256:8072eebbaf2692c9e9c21fa38b177857a8fd143d4e761abee54a2d4cda9f9a9b",
@@ -10665,17 +10665,17 @@
       "TEST-EVIDENCE-INVALID-ROOT-INDEX-001": "sha256:b533ceb335c3f31c7451d0038b1d7cf93c55baee28ed77b0674a39a1b8ff5519",
       "TEST-EVIDENCE-KEYED-ID-001": "sha256:abd2251b33677e3c0ba78baa29b52c0315e9dd378043c205b68510befd6c58ed",
       "TEST-EVIDENCE-LEDGER-API-CASE-QUERY-001": "sha256:b5220c4d92c326aba338e0233fd6a8ff019ff727b9da1a52ae7760f08cba4b67",
-      "TEST-EVIDENCE-LEDGER-API-OPTIONS-001": "sha256:a4239889b43ea7647e6bc0756505cc79cddc805aabc597e79877b2e64be20c74",
-      "TEST-EVIDENCE-LEDGER-API-SHOW-001": "sha256:d2272790ce6fa7fc29e0b2f081db169776055fc433665789111aaa6eb922ae3e",
+      "TEST-EVIDENCE-LEDGER-API-OPTIONS-001": "sha256:7bc691edd0cb6d857688de28d285fc61ef4138c76b1a7992ccc1a2f4bf300dde",
+      "TEST-EVIDENCE-LEDGER-API-SHOW-001": "sha256:cec2f924b4ba274929222aa0987bba1cb8388a00f94df7487663c236d7fdf1a0",
       "TEST-EVIDENCE-LEDGER-API-SYNC-001": "sha256:577304cb86186b0b884641715f1f3a7e0a278db495c9473d36c29def0ad5aa34",
       "TEST-EVIDENCE-LEDGER-API-TEST-QUERY-001": "sha256:757816f3cb6e3201db1a3282102447f712a854eb2f0877231136ab1c16bb5829",
-      "TEST-EVIDENCE-LEDGER-API-VALIDATE-001": "sha256:252a49e726109ddbd101ed866c5cb49c1733fc15869ca8dd94be1eaa4661bbd6",
+      "TEST-EVIDENCE-LEDGER-API-VALIDATE-001": "sha256:237d8ad6ae7806fb08e20492fa3feae4556094e544f47af7158c01057d5a6ba9",
       "TEST-EVIDENCE-LEDGER-CASE-PARSE-001": "sha256:ae80c34c12b8564eaeb97bef7d540fa1e16ce9945f67dd352a9411e211cb4bb7",
       "TEST-EVIDENCE-LEDGER-CASE-SCHEMA-001": "sha256:3132f5b814262b9a7e063ce13aebd41ccba4e7e98db3745a5e301884d302a886",
       "TEST-EVIDENCE-LEDGER-CLI-ARGS-001": "sha256:b5946539dc6cf58e5ba729631348367521aef8327ea0c860f5bf6732f151fb55",
-      "TEST-EVIDENCE-LEDGER-CLI-CHECK-001": "sha256:4cae0b8a07737647e07253fa2a95675e67a50ea3cd2369dcf68cdfbf588685f1",
+      "TEST-EVIDENCE-LEDGER-CLI-CHECK-001": "sha256:b8f5d82f924599264e8a3b1bc0923a462fe5fde53fc8c71d002814e1d867f67f",
       "TEST-EVIDENCE-LEDGER-CLI-LIST-001": "sha256:95a82e50b6e60d0d47e305adf73493e03dcb9438c7ddaf62eb6d2f5c9f6d47cb",
-      "TEST-EVIDENCE-LEDGER-CLI-SHOW-001": "sha256:aba6a9675250121dabcf956847dafeaea05f30b650576b80248fbfa52d210e67",
+      "TEST-EVIDENCE-LEDGER-CLI-SHOW-001": "sha256:906b1f403b9ac7def0961cafee804d29e1ae55fc3bf0d4807f6b072cf79b6295",
       "TEST-EVIDENCE-LEDGER-CLI-SYNC-001": "sha256:684d554adaaad9b831e96fc047bbe2ff92db1ee0496189d5569ee3316a2aaae3",
       "TEST-EVIDENCE-LEDGER-CLI-TESTS-001": "sha256:888486fe22efffb408ee5a74345cbb899e675fbb4470346f6e800f2f532427dd",
       "TEST-EVIDENCE-LEDGER-EMPTY-LEDGER-001": "sha256:5566a284457e3311710c8c22ed6ec73bd2da70a063867f6a6f2e4013e66439ab",
@@ -10683,14 +10683,14 @@
       "TEST-EVIDENCE-LEDGER-ENTITY-SCHEMA-001": "sha256:8c426e03062c3c3fca05bb3a4a3fc0c8297d4f051a82a9968eed573a478e27c7",
       "TEST-EVIDENCE-LEDGER-FILE-IDENTITY-001": "sha256:21004601f1beda7becc007b3edd4b4cb6916bdfbe7d6a1d8762ff7e2352d3898",
       "TEST-EVIDENCE-LEDGER-FIXED-LAYOUT-001": "sha256:6ec3eec215e5e17dcc62f224ec9574c657667314cae7fc626e7bd24784d403ce",
-      "TEST-EVIDENCE-LEDGER-INDEX-CHECK-001": "sha256:564ab6237a5873c514f5d921c95a3ea775a7d5d6e388dfd05978b33dec0c0991",
-      "TEST-EVIDENCE-LEDGER-INDEX-FALLBACK-001": "sha256:9da1138caf5284dbf264b1116c73f79d60054a2361478eb062d045287794de42",
-      "TEST-EVIDENCE-LEDGER-INDEX-PROJECTION-001": "sha256:3ba5a4f7a19851729f116674e6c9ddc112df520a0a176a58130fb41d7d3d4812",
+      "TEST-EVIDENCE-LEDGER-INDEX-CHECK-001": "sha256:cf529e9ec066a1a61883b3631fca33fa280a63b55749c0252de30a6cf8efd5c2",
+      "TEST-EVIDENCE-LEDGER-INDEX-FALLBACK-001": "sha256:7769b491f259119c27d0b20f0a04bc30685f833928b08a6ab537a486bb71d44a",
+      "TEST-EVIDENCE-LEDGER-INDEX-PROJECTION-001": "sha256:3c7a177843bd8d43abd0b055e889f757684d489e5de2508e03faeb7cf234ef3b",
       "TEST-EVIDENCE-LEDGER-INDEX-SYNC-001": "sha256:5daded8bc7e936e3d6e77f331265817e5eed2a1639adb962a4259151d2f4566b",
       "TEST-EVIDENCE-LEDGER-RELATION-GATE-001": "sha256:f276d018f07306b19deef44e1b11a313557d0c08e2ce2ec1d4dcb6f86c8adeb5",
       "TEST-EVIDENCE-LEDGER-RELATION-SHAPES-001": "sha256:f42d54c4b91ea34a7fad9d2bd66e3e629eeaa5274ae1d0140e17286e75e31cdd",
       "TEST-EVIDENCE-LEDGER-REVISION-FRAMING-001": "sha256:22376b5d110486cd225304000dd059f80f680a6fef37431c2ac1cc96e21a0a0d",
-      "TEST-EVIDENCE-LEDGER-SCHEMA-STRICT-001": "sha256:b95195e612933ea25b38f9269c9f8f5d66b76018f4fda53dbee83be25b23b5ac",
+      "TEST-EVIDENCE-LEDGER-SCHEMA-STRICT-001": "sha256:ccc89467bcbe587e8a61506b9eda7d7186db879378ac6077209930e7aedcd45b",
       "TEST-EVIDENCE-LEDGER-SOURCE-DRIFT-001": "sha256:202afa9804612088b2cdba53b67db66e4c12ecb0c7c72f5d5a62fe30fb1bb0ea",
       "TEST-EVIDENCE-LEGACY-FIELD-001": "sha256:14e39059b795a22241a5ef93f68bcf740e8a2f767bcf0da6b84b13dcf217a3f9",
       "TEST-EVIDENCE-MISSING-INDEX-001": "sha256:a935dccf9c2ad02c923b42ac5567f9cf7503d6a629da750bae110360f3996f53",

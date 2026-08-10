@@ -4,6 +4,7 @@ import type {
   StateSnapshot,
   StateSourceRevision
 } from "../../../index-runtime/src/index.ts";
+import { compareLexicalText } from "./canonicalization.ts";
 import {
   identifyLedgerCaseSource,
   parseLedgerCaseSource,
@@ -38,12 +39,19 @@ export type LoadedTestEvidenceLedgerSource = {
   summary: TestEvidenceLedgerSummary;
 };
 
-export type TestEvidenceLedgerSourceResult = {
-  diagnostics: TestEvidenceDiagnostic[];
-  entityIndex: ParsedTestEntityIndex | null;
-  source: LoadedTestEvidenceLedgerSource | null;
-  summary: TestEvidenceLedgerSummary;
-};
+export type TestEvidenceLedgerSourceResult =
+  | {
+    diagnostics: [];
+    entityIndex: ParsedTestEntityIndex;
+    source: LoadedTestEvidenceLedgerSource;
+    summary: TestEvidenceLedgerSummary;
+  }
+  | {
+    diagnostics: TestEvidenceDiagnostic[];
+    entityIndex: ParsedTestEntityIndex | null;
+    source: null;
+    summary: TestEvidenceLedgerSummary;
+  };
 
 export type TestEvidenceLedgerRevisionSource = {
   cases: IdentifiedLedgerCaseSource[];
@@ -51,10 +59,15 @@ export type TestEvidenceLedgerRevisionSource = {
   sourceRevision: StateSourceRevision;
 };
 
-export type TestEvidenceLedgerRevisionResult = {
-  diagnostics: TestEvidenceDiagnostic[];
-  source: TestEvidenceLedgerRevisionSource | null;
-};
+export type TestEvidenceLedgerRevisionResult =
+  | {
+    diagnostics: [];
+    source: TestEvidenceLedgerRevisionSource;
+  }
+  | {
+    diagnostics: TestEvidenceDiagnostic[];
+    source: null;
+  };
 
 export class TestEvidenceLedgerSourceError extends Error {
   readonly diagnostics: TestEvidenceDiagnostic[];
@@ -96,7 +109,7 @@ export async function readTestEvidenceLedgerSource(
     }
   }
   diagnostics.push(...duplicateCaseDiagnostics(cases));
-  cases.sort((left, right) => compareText(left.id, right.id));
+  cases.sort((left, right) => compareLexicalText(left.id, right.id));
 
   const partialSummary: TestEvidenceLedgerSummary = {
     tests: entityIndex?.value.entities.length ?? 0,
@@ -177,7 +190,7 @@ export async function readTestEvidenceLedgerRevision(
     }
   }
   diagnostics.push(...duplicateCaseDiagnostics(cases));
-  cases.sort((left, right) => compareText(left.id, right.id));
+  cases.sort((left, right) => compareLexicalText(left.id, right.id));
 
   if (diagnostics.length > 0 || entityIndex === null) {
     return { diagnostics, source: null };
@@ -209,13 +222,25 @@ export function sameTestEvidenceLedgerRevision(
   if (left.metadata !== right.metadata) {
     return false;
   }
-  const leftIds = Object.keys(left.entries).sort(compareText);
-  const rightIds = Object.keys(right.entries).sort(compareText);
+  const leftIds = Object.keys(left.entries).sort(compareLexicalText);
+  const rightIds = Object.keys(right.entries).sort(compareLexicalText);
   return leftIds.length === rightIds.length
     && leftIds.every((id, index) => (
       id === rightIds[index]
       && left.entries[id] === right.entries[id]
     ));
+}
+
+export function sameTargetTestEvidenceLedgerRevision(options: {
+  caseId: string;
+  current: StateSourceRevision;
+  observedFingerprint: string;
+  opened: StateSourceRevision;
+}): boolean {
+  return options.current.metadata === options.opened.metadata
+    && options.observedFingerprint === options.opened.entries[options.caseId]
+    && options.current.entries[options.caseId]
+      === options.observedFingerprint;
 }
 
 function ledgerSourceRevision(
@@ -279,10 +304,6 @@ function duplicateCaseDiagnostics(
     firstPathById.set(entry.id, entry.path);
   }
   return diagnostics;
-}
-
-function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 export function emptyTestEvidenceLedgerSummary(): TestEvidenceLedgerSummary {

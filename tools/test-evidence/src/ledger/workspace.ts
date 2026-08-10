@@ -1,7 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { isFileSystemError } from "../../../shared/src/node/filesystem.ts";
-import { createTestEvidenceDiagnostic } from "./diagnostics.ts";
+import { compareLexicalText } from "./canonicalization.ts";
+import {
+  createTestEvidenceDiagnostic,
+  testEvidenceErrorText
+} from "./diagnostics.ts";
 import {
   testEntityIndexPath,
   testEvidenceCasesPath,
@@ -10,11 +14,10 @@ import {
   testEvidenceLedgerPath,
   type TestEvidenceDiagnostic
 } from "./schemas.ts";
-
-export type LedgerTextSource = {
-  path: string;
-  text: string;
-};
+import {
+  decodeLedgerUtf8Text,
+  type LedgerTextSource
+} from "./text-source.ts";
 
 export type LedgerWorkspaceSources = {
   caseSources: LedgerTextSource[];
@@ -59,7 +62,7 @@ export async function readLedgerWorkspaceSources(
       }));
     }
     rootEntries = await fs.readdir(ledgerDirectory);
-    rootEntries.sort(compareText);
+    rootEntries.sort(compareLexicalText);
   } catch (error) {
     if (isFileSystemError(error, "ENOENT")) {
       return invalidWorkspaceResult(createTestEvidenceDiagnostic({
@@ -73,7 +76,7 @@ export async function readLedgerWorkspaceSources(
     return invalidWorkspaceResult(createTestEvidenceDiagnostic({
       category: "case",
       code: "case.ledger-root-read-failed",
-      message: `${testEvidenceLedgerPath} could not be read: ${errorText(error)}`,
+      message: `${testEvidenceLedgerPath} could not be read: ${testEvidenceErrorText(error)}`,
       path: testEvidenceLedgerPath,
       severity: "error"
     }));
@@ -146,7 +149,7 @@ async function inspectOptionalIndex(options: {
     options.diagnostics.push(createTestEvidenceDiagnostic({
       category: "index",
       code: "index.path-read-failed",
-      message: `${testEvidenceLedgerIndexPath} could not be inspected: ${errorText(error)}`,
+      message: `${testEvidenceLedgerIndexPath} could not be inspected: ${testEvidenceErrorText(error)}`,
       path: testEvidenceLedgerIndexPath,
       severity: "error"
     }));
@@ -176,12 +179,12 @@ async function readCaseSources(options: {
       return [];
     }
     members = await fs.readdir(casesDirectory);
-    members.sort(compareText);
+    members.sort(compareLexicalText);
   } catch (error) {
     options.diagnostics.push(createTestEvidenceDiagnostic({
       category: "case",
       code: "case.directory-read-failed",
-      message: `${testEvidenceCasesPath} could not be read: ${errorText(error)}`,
+      message: `${testEvidenceCasesPath} could not be read: ${testEvidenceErrorText(error)}`,
       path: testEvidenceCasesPath,
       severity: "error"
     }));
@@ -247,7 +250,7 @@ async function readRequiredRegularFile(options: {
     const data = await fs.readFile(absolutePath);
     let text: string;
     try {
-      text = new TextDecoder("utf-8", { fatal: true }).decode(data);
+      text = decodeLedgerUtf8Text(data);
     } catch {
       options.diagnostics.push(createTestEvidenceDiagnostic({
         category: options.category,
@@ -268,7 +271,7 @@ async function readRequiredRegularFile(options: {
         : `${options.codePrefix}.read-failed`,
       message: missing
         ? `${options.relativePath} does not exist`
-        : `${options.relativePath} could not be read: ${errorText(error)}`,
+        : `${options.relativePath} could not be read: ${testEvidenceErrorText(error)}`,
       path: options.relativePath,
       severity: "error"
     }));
@@ -279,38 +282,41 @@ async function readRequiredRegularFile(options: {
 function identityDiagnostics(
   identities: readonly LedgerFileIdentity[]
 ): TestEvidenceDiagnostic[] {
+  const firstByIdentity = new Map<string, LedgerFileIdentity>();
   const diagnostics: TestEvidenceDiagnostic[] = [];
-  for (let leftIndex = 0; leftIndex < identities.length; leftIndex += 1) {
-    for (
-      let rightIndex = leftIndex + 1;
-      rightIndex < identities.length;
-      rightIndex += 1
-    ) {
-      const left = identities[leftIndex]!;
-      const right = identities[rightIndex]!;
-      if (left.device !== right.device || left.inode !== right.inode) {
-        continue;
-      }
-      const indexInvolved = left.path === testEvidenceLedgerIndexPath
-        || right.path === testEvidenceLedgerIndexPath;
-      const entityInvolved = left.path === testEntityIndexPath
-        || right.path === testEntityIndexPath;
-      diagnostics.push(createTestEvidenceDiagnostic({
-        category: indexInvolved
-          ? "index"
-          : entityInvolved ? "entity-index" : "case",
-        code: indexInvolved
-          ? "index.identity-conflict"
-          : entityInvolved
-            ? "entity-index.identity-conflict"
-            : "case.identity-conflict",
-        message: `${left.path} and ${right.path} must have distinct file-system identities`,
-        path: right.path,
-        severity: "error"
-      }));
+  for (const identity of identities) {
+    const key = `${identity.device}:${identity.inode}`;
+    const first = firstByIdentity.get(key);
+    if (first === undefined) {
+      firstByIdentity.set(key, identity);
+      continue;
     }
+    diagnostics.push(identityConflictDiagnostic(first, identity));
   }
   return diagnostics;
+}
+
+function identityConflictDiagnostic(
+  first: LedgerFileIdentity,
+  duplicate: LedgerFileIdentity
+): TestEvidenceDiagnostic {
+  const indexInvolved = first.path === testEvidenceLedgerIndexPath
+    || duplicate.path === testEvidenceLedgerIndexPath;
+  const entityInvolved = first.path === testEntityIndexPath
+    || duplicate.path === testEntityIndexPath;
+  return createTestEvidenceDiagnostic({
+    category: indexInvolved
+      ? "index"
+      : entityInvolved ? "entity-index" : "case",
+    code: indexInvolved
+      ? "index.identity-conflict"
+      : entityInvolved
+        ? "entity-index.identity-conflict"
+        : "case.identity-conflict",
+    message: `${first.path} and ${duplicate.path} must have distinct file-system identities`,
+    path: duplicate.path,
+    severity: "error"
+  });
 }
 
 function fileIdentity(
@@ -342,12 +348,4 @@ function resolveWorkspacePath(
   relativePath: string
 ): string {
   return path.join(workspaceRoot, ...relativePath.split("/"));
-}
-
-function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
-}
-
-function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }

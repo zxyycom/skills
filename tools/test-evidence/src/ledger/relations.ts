@@ -1,8 +1,10 @@
+import { compareLexicalText } from "./canonicalization.ts";
 import { createTestEvidenceDiagnostic } from "./diagnostics.ts";
-import type {
-  TestEntityIndex,
-  TestEvidenceDiagnostic,
-  TestEvidenceLedgerCase
+import {
+  testEntityIndexPath,
+  type TestEntityIndex,
+  type TestEvidenceDiagnostic,
+  type TestEvidenceLedgerCase
 } from "./schemas.ts";
 
 export type ClosedTestEvidenceRelations = {
@@ -10,10 +12,15 @@ export type ClosedTestEvidenceRelations = {
   testToCaseIds: ReadonlyMap<string, readonly string[]>;
 };
 
-export type ClosedTestEvidenceRelationsResult = {
-  diagnostics: TestEvidenceDiagnostic[];
-  relations: ClosedTestEvidenceRelations | null;
-};
+export type ClosedTestEvidenceRelationsResult =
+  | {
+    diagnostics: [];
+    relations: ClosedTestEvidenceRelations;
+  }
+  | {
+    diagnostics: TestEvidenceDiagnostic[];
+    relations: null;
+  };
 
 export function validateClosedTestEvidenceRelations(
   entityIndex: TestEntityIndex,
@@ -73,13 +80,13 @@ export function validateClosedTestEvidenceRelations(
   }
 
   for (const [testId, caseIds] of testToCaseIds) {
-    caseIds.sort(compareText);
+    caseIds.sort(compareLexicalText);
     if (caseIds.length === 0) {
       diagnostics.push(createTestEvidenceDiagnostic({
         category: "relation",
         code: "relation.test-unreferenced",
         message: `Test entity ${testId} is not referenced by any Case`,
-        path: "docs/test-evidence/test-entity-index.json",
+        path: testEntityIndexPath,
         severity: "error",
         testId
       }));
@@ -95,8 +102,4 @@ export function validateClosedTestEvidenceRelations(
         testToCaseIds
       }
     };
-}
-
-function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
 }

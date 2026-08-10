@@ -1,6 +1,10 @@
-import { createHash } from "node:crypto";
 import * as v from "valibot";
-import { createTestEvidenceDiagnostic } from "./diagnostics.ts";
+import { sha256Fingerprint } from "./canonicalization.ts";
+import {
+  createTestEvidenceDiagnostic,
+  formatTestEvidenceValidationIssues,
+  testEvidenceErrorText
+} from "./diagnostics.ts";
 import {
   testEntityIndexPath,
   testEntityIndexSchema,
@@ -8,7 +12,7 @@ import {
   type TestEntityIndexIdentity,
   type TestEvidenceDiagnostic
 } from "./schemas.ts";
-import type { LedgerTextSource } from "./workspace.ts";
+import type { LedgerTextSource } from "./text-source.ts";
 
 export type ParsedTestEntityIndex = {
   identity: TestEntityIndexIdentity;
@@ -33,23 +37,16 @@ export function parseTestEntityIndex(
     input = JSON.parse(source.text) as unknown;
   } catch (error) {
     return failedEntityIndexParse("entity-index.json-invalid", {
-      message: `${source.path} is not valid JSON: ${errorText(error)}`,
+      message: `${source.path} is not valid JSON: ${testEvidenceErrorText(error)}`,
       path: source.path
     });
   }
 
   const parsed = v.safeParse(testEntityIndexSchema, input);
   if (!parsed.success) {
-    const details = parsed.issues.map((issue) => {
-      const issuePath = issue.path
-        ?.map((segment) => String(segment.key))
-        .join(".");
-      return issuePath === undefined || issuePath.length === 0
-        ? issue.message
-        : `${issuePath}: ${issue.message}`;
-    }).join("; ");
     return failedEntityIndexParse("entity-index.schema-invalid", {
-      message: `${source.path} is invalid: ${details}`,
+      message: `${source.path} is invalid: `
+        + formatTestEvidenceValidationIssues(parsed.issues),
       path: source.path
     });
   }
@@ -69,7 +66,7 @@ export function parseTestEntityIndex(
   };
 }
 
-export function cloneTestEntityIndex(
+function cloneTestEntityIndex(
   value: TestEntityIndex
 ): TestEntityIndex {
   return {
@@ -81,10 +78,6 @@ export function cloneTestEntityIndex(
       locators: [...entity.locators]
     }))
   };
-}
-
-export function sha256Fingerprint(value: string): string {
-  return `sha256:${createHash("sha256").update(value, "utf8").digest("hex")}`;
 }
 
 function failedEntityIndexParse(
@@ -104,8 +97,4 @@ function failedEntityIndexParse(
     })],
     parsed: null
   };
-}
-
-function errorText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }

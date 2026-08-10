@@ -181,7 +181,7 @@ export async function readJsonFile(filePath: string): Promise<unknown> {
 export async function runLedgerCli(
   args: readonly string[]
 ): Promise<{
-  code: number | string | undefined;
+  code: number;
   stderr: string;
   stdout: string;
 }> {
@@ -201,12 +201,11 @@ export async function runLedgerCli(
       && error !== null
       && "stdout" in error
       && "stderr" in error
+      && "code" in error
+      && typeof error.code === "number"
     ) {
       return {
-        code: "code" in error
-          && (typeof error.code === "number" || typeof error.code === "string")
-          ? error.code
-          : undefined,
+        code: error.code,
         stdout: String(error.stdout),
         stderr: String(error.stderr)
       };

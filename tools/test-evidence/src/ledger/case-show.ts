@@ -1,11 +1,14 @@
 import * as v from "valibot";
 import { readLedgerCaseSource } from "./case-source.ts";
-import { createTestEvidenceDiagnostic } from "./diagnostics.ts";
-import { readTestEvidenceLedgerRevision } from "./ledger-source.ts";
 import {
-  openTestEvidenceLedgerIndex,
-  sameTargetRevision
-} from "./query.ts";
+  createInvalidTestEvidenceOptionsDiagnostic,
+  createTestEvidenceDiagnostic
+} from "./diagnostics.ts";
+import { openTestEvidenceLedgerIndex } from "./index-reader.ts";
+import {
+  readTestEvidenceLedgerRevision,
+  sameTargetTestEvidenceLedgerRevision
+} from "./ledger-source.ts";
 import {
   showTestEvidenceCaseOptionsSchema,
   testEvidenceCaseShowResultSchema,
@@ -17,6 +20,7 @@ import {
   type TestEvidenceCaseShowResult,
   type TestEvidenceDiagnostic
 } from "./schemas.ts";
+import { mapStateIndexDiagnostics } from "./state-index.ts";
 
 export async function showTestEvidenceCase(
   options: ShowTestEvidenceCaseOptions
@@ -26,12 +30,9 @@ export async function showTestEvidenceCase(
     options
   );
   if (!parsedOptions.success) {
-    return showFailure([createTestEvidenceDiagnostic({
-      category: "query",
-      code: "query.options-invalid",
-      message: `Invalid ledger API options: ${parsedOptions.issues.map((issue) => issue.message).join("; ")}`,
-      severity: "error"
-    })]);
+    return showFailure([
+      createInvalidTestEvidenceOptionsDiagnostic(parsedOptions.issues)
+    ]);
   }
 
   const opened = await openTestEvidenceLedgerIndex(
@@ -43,20 +44,13 @@ export async function showTestEvidenceCase(
   const found = opened.opened.reader.get(parsedOptions.output.caseId);
   if (found.status === "error") {
     return showFailure([
-      ...opened.opened.diagnostics,
-      ...found.diagnostics.map((entry) => createTestEvidenceDiagnostic({
-        caseId: entry.stateId ?? undefined,
-        category: "index",
-        code: entry.code,
-        message: entry.message,
-        path: entry.path ?? testEvidenceLedgerIndexPath,
-        severity: "error"
-      }))
+      ...opened.diagnostics,
+      ...mapStateIndexDiagnostics(found.diagnostics)
     ]);
   }
   if (found.value === null) {
     return showFailure([
-      ...opened.opened.diagnostics,
+      ...opened.diagnostics,
       createTestEvidenceDiagnostic({
         caseId: parsedOptions.output.caseId,
         category: "query",
@@ -73,13 +67,13 @@ export async function showTestEvidenceCase(
   );
   if (source.value === null) {
     return showFailure([
-      ...opened.opened.diagnostics,
+      ...opened.diagnostics,
       ...source.diagnostics
     ]);
   }
   if (source.value.id !== parsedOptions.output.caseId) {
     return showFailure([
-      ...opened.opened.diagnostics,
+      ...opened.diagnostics,
       createTestEvidenceDiagnostic({
         caseId: parsedOptions.output.caseId,
         category: "index",
@@ -91,37 +85,16 @@ export async function showTestEvidenceCase(
     ]);
   }
 
-  const entityById = new Map(
-    opened.opened.revisionSource.entityIndex.value.entities.map(
-      (entity) => [entity.id, entity]
-    )
-  );
-  const tests: TestEntity[] = [];
-  const relationDiagnostics: TestEvidenceDiagnostic[] = [];
-  for (const testId of source.value.case.testIds) {
-    const entity = entityById.get(testId);
-    if (entity === undefined) {
-      relationDiagnostics.push(createTestEvidenceDiagnostic({
-        caseId: source.value.id,
-        category: "relation",
-        code: "relation.test-unknown",
-        message: `${source.value.id} references unknown Test entity ${testId}`,
-        path: source.value.path,
-        severity: "error",
-        testId
-      }));
-      continue;
-    }
-    tests.push({
-      id: entity.id,
-      name: entity.name,
-      locators: [...entity.locators]
-    });
-  }
-  if (relationDiagnostics.length > 0) {
+  const resolvedTests = resolveCaseTests({
+    caseId: source.value.id,
+    entities: opened.opened.revisionSource.entityIndex.value.entities,
+    sourcePath: source.value.path,
+    testIds: source.value.case.testIds
+  });
+  if (resolvedTests.diagnostics.length > 0) {
     return showFailure([
-      ...opened.opened.diagnostics,
-      ...relationDiagnostics
+      ...opened.diagnostics,
+      ...resolvedTests.diagnostics
     ]);
   }
 
@@ -130,18 +103,18 @@ export async function showTestEvidenceCase(
   );
   if (currentRevision.source === null) {
     return showFailure([
-      ...opened.opened.diagnostics,
+      ...opened.diagnostics,
       ...currentRevision.diagnostics
     ]);
   }
-  if (!sameTargetRevision({
+  if (!sameTargetTestEvidenceLedgerRevision({
     caseId: parsedOptions.output.caseId,
     current: currentRevision.source.sourceRevision,
     observedFingerprint: source.value.fingerprint,
     opened: opened.opened.revisionSource.sourceRevision
   })) {
     return showFailure([
-      ...opened.opened.diagnostics,
+      ...opened.diagnostics,
       createTestEvidenceDiagnostic({
         caseId: parsedOptions.output.caseId,
         category: "index",
@@ -155,13 +128,50 @@ export async function showTestEvidenceCase(
 
   return v.parse(testEvidenceCaseShowResultSchema, {
     case: source.value.case,
-    diagnostics: opened.opened.diagnostics,
+    diagnostics: opened.diagnostics,
     indexPath: testEvidenceLedgerIndexPath,
     ledgerPath: testEvidenceLedgerPath,
     markdown: source.value.normalizedMarkdown,
     schemaVersion: testEvidenceLedgerSchemaVersion,
-    tests
+    tests: resolvedTests.tests
   });
+}
+
+function resolveCaseTests(options: {
+  caseId: string;
+  entities: readonly TestEntity[];
+  sourcePath: string;
+  testIds: readonly string[];
+}): {
+  diagnostics: TestEvidenceDiagnostic[];
+  tests: TestEntity[];
+} {
+  const entityById = new Map(
+    options.entities.map((entity) => [entity.id, entity])
+  );
+  const diagnostics: TestEvidenceDiagnostic[] = [];
+  const tests: TestEntity[] = [];
+  for (const testId of options.testIds) {
+    const entity = entityById.get(testId);
+    if (entity === undefined) {
+      diagnostics.push(createTestEvidenceDiagnostic({
+        caseId: options.caseId,
+        category: "relation",
+        code: "relation.test-unknown",
+        message: `${options.caseId} references unknown Test entity ${testId}`,
+        path: options.sourcePath,
+        severity: "error",
+        testId
+      }));
+      continue;
+    }
+    tests.push({
+      id: entity.id,
+      name: entity.name,
+      locators: [...entity.locators]
+    });
+  }
+  return { diagnostics, tests };
 }
 
 function showFailure(

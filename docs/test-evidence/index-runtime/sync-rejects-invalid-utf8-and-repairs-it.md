@@ -3,6 +3,6 @@ Entry:
 - `tools/index-runtime/tests/materialization.test.ts > sync checks reject invalid UTF-8 indexes and writes repair them`
 - `bun test --test-name-pattern="^sync checks reject invalid UTF-8 indexes and writes repair them$" ./tools/index-runtime/tests/run.ts`
 Contract:
-- State index 同步必须用严格 UTF-8 解码区分有效替换字符与产生相同普通字符串的损坏字节。
+- State index 同步必须区分合法的 U+FFFD UTF-8 字节序列与被宽松解码为相同 JavaScript 字符串的非法字节序列。
 Proves:
-- Check 将解码等价的损坏索引报告为 encoding-invalid，write 通过既有原子路径恢复原字节并使后续 check 成为 current。
+- Check 将宽松解码结果相同的损坏索引报告为 `state-index.index-encoding-invalid`；write 通过原子路径恢复预期 UTF-8 字节，并使下一次 check 返回 `current`。
