@@ -6,7 +6,7 @@
 
 多个调查主题会长期并行演进，但全部主题共用一个完整 `investigation-index.json`。主题 Markdown 本身是独立文件，可以由调用方按路径决定暂存范围；真正无法用普通文件级暂存隔离的是这个聚合索引。
 
-已归档的前置 change [`stage-selected-index-entries`](../archive/stage-selected-index-entries/)完成了通用索引的按条目暂存；当前行为契约由 [`Index Runtime`](../../tools/index-runtime/README.md) 承接。调查索引的稳定 id 已经是调查根相对主题路径，因此本 change 只需提供领域命令并把选中 id 原样交给配置完成的索引运行时。调查 Markdown 是否进入 `pending` 仍由调用方或调查领域的其他流程决定。
+已归档的前置 change [`stage-selected-index-entries`](../stage-selected-index-entries/)完成了通用索引的按条目暂存；当前行为契约由 [`Index Runtime`](../../../tools/index-runtime/README.md) 承接。调查索引的稳定 id 已经是调查根相对主题路径，因此本 change 只需提供领域命令并把选中 id 原样交给配置完成的索引运行时。调查 Markdown 是否进入 `pending` 仍由调用方或调查领域的其他流程决定。
 
 当前调查索引还会在集合级 metadata 中保存随附资源 ID 与 SHA-256，并用 `sourceRevision.metadata` 跟踪资源集合和内容。公共按条目暂存契约不会把这类集合级变化归入某个主题 id；资源集合或内容变化时，领域命令必须保留公共拒绝语义，并提示调用方改用普通文件级方式暂存完整索引。
 
@@ -46,8 +46,8 @@
 
 ## Affected Owners
 
-- [`stage-selected-index-entries`](../archive/stage-selected-index-entries/)：本 change 的公共能力前置及历史实现记录，不是当前行为 owner。
-- `tools/investigation-report/` 与 [`skills/investigation-report/`](../../skills/investigation-report/)：主题 id 输入、CLI、结果、行为与分发。
-- [`tools/index-runtime/README.md`](../../tools/index-runtime/README.md)：既有按条目暂存契约，本 change 只作为调用方接入。
-- [`attach-verifiable-resources-to-investigation-reports`](../../docs/decisions/investigation-report/attach-verifiable-resources-to-investigation-reports.md)：随附资源、索引 metadata 与集合级来源 revision 的当前事实边界。
+- [`stage-selected-index-entries`](../stage-selected-index-entries/)：本 change 的公共能力前置及历史实现记录，不是当前行为 owner。
+- `tools/investigation-report/` 与 [`skills/investigation-report/`](../../../skills/investigation-report/)：主题 id 输入、CLI、结果、行为与分发。
+- [`tools/index-runtime/README.md`](../../../tools/index-runtime/README.md)：既有按条目暂存契约，本 change 只作为调用方接入。
+- [`attach-verifiable-resources-to-investigation-reports`](../../../docs/decisions/investigation-report/attach-verifiable-resources-to-investigation-reports.md)：随附资源、索引 metadata 与集合级来源 revision 的当前事实边界。
 - `docs/decisions/investigation-report/`、`docs/skills/investigation-report.md` 与 `docs/test-evidence/`：长期方向、人类说明和测试证据。
