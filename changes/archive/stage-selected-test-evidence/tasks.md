@@ -15,7 +15,7 @@
 - [x] 1.3 实现 `stage-index <case-id...>`，调用配置完成的 `StateIndexRuntime.stageSelectedEntries(selectedIds)` 并输出稳定文本/JSON 结果。
 - [x] 1.4 更新 test-evidence-review 的行为入口、固定契约、人类说明和独立版本，明确领域文件与代码需另行暂存。
 - [x] 1.5 同步 JSON 结果 Schema、公共声明、自包含 CLI 和 source map。
-- [ ] 1.6 完成事实核对后把长期决策标记为 `aligned`。
+- [x] 1.6 完成事实核对后把长期决策标记为 `aligned`。
 
 ## Verification
 
@@ -23,4 +23,4 @@
 - [x] 2.2 覆盖未知 topic、重复或非法 id、两份索引都不存在的 id、无仓库、同索引既有 pending、revision 冲突和写入恢复，并回归 topics/check/sync/list/show。
 - [x] 2.3 确认命令不修改 filesystem、不读取或暂存 topic 表、case Markdown 或代码，其他待提交路径保持不变。
 - [x] 2.4 为新增或修改测试入口维护独立测试证据 case，并同步索引。
-- [ ] 2.5 运行 `bun run test:test-evidence-cli`、生成漂移、类型检查、严格目录检查与 `bun run check`，审阅最终 diff。
+- [x] 2.5 运行 `bun run test:test-evidence-cli`、生成漂移、类型检查、严格目录检查与 `bun run check`，审阅最终 diff。

@@ -1,7 +1,7 @@
 ---
 title: 按测试证据 Case ID 独立暂存派生索引条目
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-10T06:42:57Z
 purpose: 让并行测试证据维护只暂存选中 Case 对应的索引变化，同时保持权威目录与派生索引的责任边界。
 background: 多个 Case 共享一个派生索引；公共运行时已经能按稳定 ID 组合条目，但测试证据领域仍需拥有选择输入和文件边界。
