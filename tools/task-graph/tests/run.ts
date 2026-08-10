@@ -6,4 +6,5 @@ await import("./runtime.test.ts");
 await import("./store.test.ts");
 await import("./cli.test.ts");
 await import("./task-removal.test.ts");
+await import("./staging.test.ts");
 await import("./generated-artifacts.test.ts");

@@ -10,9 +10,11 @@ import { toJsonSchema } from "@valibot/to-json-schema";
 import { Ajv2020 } from "ajv/dist/2020.js";
 import * as sourceApi from "../src/cli.ts";
 import {
+  applyOperations,
   graphIndex,
   prepareRootNativeRuntime,
   resolveNodeExecutable,
+  taskContent,
   taskOperation,
   withTempWorkspace
 } from "./helpers.ts";
@@ -144,6 +146,7 @@ async function copyTaskGraphBuildCheckout(targetRoot: string): Promise<void> {
       "@typescript/native-preview",
       "@valibot/to-json-schema",
       "fast-glob",
+      "simple-git",
       "valibot",
       "write-file-atomic"
     ],
@@ -357,6 +360,7 @@ test("generated distribution matches source API, schema bytes, and portable meta
     "TaskGraphProjection",
     "TaskContentInput",
     "TaskIndexInfo",
+    "TaskIndexStageResult",
     "TaskGraphServiceOptions",
     "TaskGraphCliOptions"
   ]) {
@@ -408,7 +412,8 @@ test("generated distribution matches source API, schema bytes, and portable meta
       "const content: TaskContentInput = { title: \"candidate\", goal: \"do work\" };",
       "const options: TaskGraphCliOptions = {};",
       "const listItem: TaskListItem | null = null;",
-      "new TaskGraphService();",
+      "const service = new TaskGraphService();",
+      "void service.stageTasks([\"task-000001\"]);",
       "void runTaskGraphCli([], options);",
       "void content;",
       "void listItem;",
@@ -677,6 +682,66 @@ test("generated module import is side-effect free in an empty tool home under su
     });
     assert.equal(imported.stdout, "");
     assert.equal(imported.stderr, "");
+    await assert.rejects(fs.stat(toolHome), { code: "ENOENT" });
+  });
+});
+
+test("generated Node CLI stages selected task entries without native runtime", async () => {
+  await withTempWorkspace(async (root) => {
+    const repositoryRoot = path.join(root, "repository");
+    const toolHome = path.join(root, "empty-tool-home");
+    const indexPath = path.join(repositoryRoot, sourceApi.defaultTaskGraphIndexPath);
+    await fs.mkdir(path.dirname(indexPath), { recursive: true });
+    for (const args of [
+      ["init", "--quiet"],
+      ["config", "core.autocrlf", "false"],
+      ["config", "user.email", "generated-stage@example.invalid"],
+      ["config", "user.name", "Generated Stage Test"]
+    ]) {
+      await execFileAsync("git", ["-C", repositoryRoot, ...args], { windowsHide: true });
+    }
+    const baseline = graphIndex([
+      taskOperation("alpha", { title: "alpha baseline" }),
+      taskOperation("bravo", { title: "bravo baseline" })
+    ]);
+    await fs.writeFile(indexPath, sourceApi.serializeTaskIndex(baseline), "utf8");
+    await execFileAsync("git", ["-C", repositoryRoot, "add", "."], { windowsHide: true });
+    await execFileAsync("git", [
+      "-C", repositoryRoot, "commit", "--quiet", "--message", "base"
+    ], { windowsHide: true });
+    const candidate = applyOperations(baseline, [{
+      kind: "update-task-content",
+      taskId: "task-000001",
+      content: taskContent("alpha workspace")
+    }]);
+    const candidateText = sourceApi.serializeTaskIndex(candidate);
+    await fs.writeFile(indexPath, candidateText, "utf8");
+
+    const staged = await execFileAsync(await resolveNodeExecutable(), [
+      generatedScriptPath,
+      "--root", repositoryRoot,
+      "index", "stage",
+      "--task", "task-000001"
+    ], {
+      cwd: root,
+      env: { ...process.env, TASK_GRAPH_TOOL_HOME: toolHome },
+      windowsHide: true
+    });
+
+    assert.equal(staged.stderr, "");
+    assert.equal(
+      staged.stdout,
+      "TASK INDEX STAGE state=staged revision=2 tasks=2 next-task-id=3 "
+        + "selected=[\"task-000001\"]\n"
+    );
+    const pendingText = (await execFileAsync("git", [
+      "-C", repositoryRoot, "show", `:${sourceApi.defaultTaskGraphIndexPath}`
+    ], { windowsHide: true })).stdout;
+    const pending = sourceApi.parseTaskIndex(JSON.parse(pendingText) as unknown);
+    assert.equal(pending.revision, candidate.revision);
+    assert.equal(pending.tasks["task-000001"]!.content.title, "alpha workspace");
+    assert.equal(pending.tasks["task-000002"]!.content.title, "bravo baseline");
+    assert.equal(await fs.readFile(indexPath, "utf8"), candidateText);
     await assert.rejects(fs.stat(toolHome), { code: "ENOENT" });
   });
 });

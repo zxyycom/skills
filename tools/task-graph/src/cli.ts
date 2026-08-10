@@ -12,6 +12,7 @@ import {
 } from "./runtime.ts";
 import { parseTaskGraphApplyRequest } from "./schema.ts";
 import { renderTaskListResult } from "./task-list-renderer.ts";
+import { renderTaskIndexStageResult } from "./task-index-stage-renderer.ts";
 import {
   TaskGraphService,
   assertTaskGraphMutationRuntime,
@@ -28,6 +29,7 @@ import {
   type TaskContentInput,
   type TaskControlInput,
   type TaskGraphFailure,
+  type TaskIndexStageResult,
   type TaskListItem,
   type TaskGraphResult,
   type TaskGraphSuccess
@@ -65,6 +67,10 @@ type CliInvocation =
       pathTokens: readonly string[];
     }
   | {
+      kind: "index-stage";
+      tokens: readonly string[];
+    }
+  | {
       kind: "json-command";
       tokens: readonly string[];
     }
@@ -76,9 +82,11 @@ type CliInvocation =
   | { kind: "version" };
 
 type TaskListResult = TaskGraphResult<Record<string, TaskListItem>>;
+type TaskIndexStageCliResult = TaskGraphResult<TaskIndexStageResult>;
 
 type CliOutput =
   | { kind: "json"; result: TaskGraphResult }
+  | { kind: "index-stage"; result: TaskIndexStageCliResult }
   | { columns: number; kind: "task-list"; result: TaskListResult };
 
 type OptionDefinition = {
@@ -148,6 +156,11 @@ const commandHelpCatalog = {
     requiresMutationRuntime: true
   },
   "index info": { usage: "task-graph index info", positionals: [], options: [] },
+  "index stage": {
+    usage: "task-graph index stage --task <id>...",
+    positionals: [],
+    options: [{ name: "--task", required: true, type: "string", multiple: true }]
+  },
   "task create": {
     usage: "task-graph task create --title <text> --goal <text> --expected-revision <n> [options]",
     positionals: [],
@@ -598,6 +611,19 @@ async function dispatchTaskList(
   return await service.listTasks();
 }
 
+async function dispatchIndexStage(
+  service: TaskGraphService,
+  tokens: readonly string[]
+): Promise<ServiceResult<TaskIndexStageResult>> {
+  const parsed = parseCommandOptions(tokens.slice(2), {
+    task: { kind: "string", multiple: true }
+  });
+  requirePositionals(parsed, 0, "task-graph index stage --task <id>...");
+  const taskIds = stringsValue(parsed, "task");
+  if (taskIds.length === 0) failArgument("--task is required and may be repeated");
+  return await service.stageTasks(taskIds);
+}
+
 async function dispatch(
   service: TaskGraphService,
   tokens: readonly string[],
@@ -614,11 +640,12 @@ async function dispatch(
     failArgument("runtime command must be info");
   }
   if (first === "index") {
+    if (second === "stage") return await dispatchIndexStage(service, tokens);
     const parsed = parseCommandOptions(tokens.slice(2), {});
     requirePositionals(parsed, 0, `task-graph index ${second ?? "<init|info>"}`);
     if (second === "init") return await service.init();
     if (second === "info") return await service.info();
-    failArgument("index command must be init or info");
+    failArgument("index command must be init, info, or stage");
   }
 
   if (first === "task") {
@@ -973,6 +1000,9 @@ function resolveInvocation(
       tokens: globals.remaining
     };
   }
+  if (!globals.json && resolveCommandPath(globals.remaining) === "index stage") {
+    return { kind: "index-stage", tokens: globals.remaining };
+  }
   return {
     kind: "json-command",
     tokens: globals.remaining
@@ -1006,6 +1036,13 @@ async function executeInvocation(
           helpData(invocation.pathTokens)
         )
       };
+    case "index-stage": {
+      const staged = await dispatchIndexStage(service, invocation.tokens);
+      return {
+        kind: "index-stage",
+        result: success(service.store.indexPath, staged.revision, staged.data)
+      };
+    }
     case "task-list": {
       const listed = await dispatchTaskList(service, invocation.tokens);
       return {
@@ -1033,6 +1070,8 @@ function outputFailure(
   result: TaskGraphFailure
 ): CliOutput {
   switch (invocation.kind) {
+    case "index-stage":
+      return { kind: "index-stage", result };
     case "task-list":
       return { columns: invocation.columns, kind: "task-list", result };
     case "help":
@@ -1051,6 +1090,9 @@ function writeOutput(io: CliIo, output: CliOutput): void {
   switch (output.kind) {
     case "json":
       writeJsonResult(io, output.result);
+      return;
+    case "index-stage":
+      io.stdout(renderTaskIndexStageResult(output.result));
       return;
     case "task-list":
       io.stdout(renderTaskListResult(output.result, { columns: output.columns }));

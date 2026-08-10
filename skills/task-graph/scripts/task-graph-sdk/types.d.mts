@@ -7,7 +7,7 @@
  * Rebuild: bun run sync:task-graph-cli
  */
 export declare const taskGraphSchemaVersion: 2;
-export declare const taskGraphVersion: "3.0.0";
+export declare const taskGraphVersion: "3.1.0";
 export declare const defaultTaskGraphIndexPath: "docs/task-graph/task-graph-index.json";
 export declare const taskGraphRuntimeProtocolVersion: 1;
 export declare const taskGraphSupportedNodeRange: "^22.22.2 || ^24.15.0 || >=26.0.0";
@@ -244,6 +244,13 @@ export type TaskIndexInfo = {
     taskCount: number;
     topTaskCount: number;
     nextTaskId: number;
+};
+export type TaskIndexStageResult = {
+    changed: boolean;
+    nextTaskId: number;
+    selectedTaskIds: string[];
+    state: "staged" | "unchanged";
+    taskCount: number;
 };
 export type TaskContentInput = {
     title: string;

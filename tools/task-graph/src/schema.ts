@@ -128,7 +128,7 @@ const positiveIntegerSchema = v.pipe(
   nonNegativeIntegerSchema,
   v.minValue(1, "must be positive")
 );
-function isCanonicalTaskId(value: string): boolean {
+export function isCanonicalTaskId(value: string): boolean {
   const suffix = value.slice("task-".length);
   const number = Number(suffix);
   return Number.isSafeInteger(number)

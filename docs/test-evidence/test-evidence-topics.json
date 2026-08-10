@@ -31,7 +31,7 @@
     },
     {
       "id": "task-graph",
-      "description": "任务图的根级索引结构、图投影、生命周期、事务存储、执行租约、JSON serializer 与文本 renderer 输出协议、显式任务清理与分发边界。"
+      "description": "任务图的根级索引结构、图投影、生命周期、事务存储、执行租约、按任务 ID 的 pending 暂存、输出协议、显式任务清理与分发边界。"
     },
     {
       "id": "test-evidence",

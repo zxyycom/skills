@@ -6,7 +6,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/task-graph
  * Rebuild: bun run sync:task-graph-cli
  */
-import type { CancelTaskOptions, ClaimTaskOptions, Clock, CompleteTaskOptions, RemoveTasksOptions, TaskControlInput, TaskGraphApplyRequest, TaskGraphApplyResult, TaskGraphProjection, TaskIndex, TaskIndexInfo, TaskListItem } from "./types.mjs";
+import type { CancelTaskOptions, ClaimTaskOptions, Clock, CompleteTaskOptions, RemoveTasksOptions, TaskControlInput, TaskGraphApplyRequest, TaskGraphApplyResult, TaskGraphProjection, TaskIndex, TaskIndexInfo, TaskIndexStageResult, TaskListItem } from "./types.mjs";
 export type TaskGraphServiceOptions = {
     clock?: Clock;
     indexPath?: string;
@@ -23,6 +23,7 @@ export declare class TaskGraphService {
     init(): Promise<ServiceResult<TaskIndexInfo>>;
     info(): Promise<ServiceResult<TaskIndexInfo>>;
     readIndex(): Promise<ServiceResult<TaskIndex>>;
+    stageTasks(taskIds: readonly string[]): Promise<ServiceResult<TaskIndexStageResult>>;
     apply(request: TaskGraphApplyRequest): Promise<ServiceResult<TaskGraphApplyResult>>;
     listTasks(): Promise<ServiceResult<Record<string, TaskListItem>>>;
     showTask(taskId: string): Promise<ServiceResult<{

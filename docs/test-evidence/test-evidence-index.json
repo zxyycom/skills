@@ -6743,7 +6743,7 @@
     "TASK-GRAPH-CLI-HELP-CATALOG-001": {
       "keys": {
         "search": [
-          "TASK-GRAPH-CLI-HELP-CATALOG-001 每个规范命令都有可恢复的结构化 help Root help 中的每个 command 都能独立查询结构化 command help；特殊多值参数和 apply input metadata 保持显式。 23 个 command path 各自返回匹配的 command 名。 Task remove 的多值 --task、task create 的多值 --acceptance 与 apply stdin/file JSON 输入契约逐字段成立。 tools/task-graph/tests/cli.test.ts > CLI command help recovers every command and structured special parameters bun test --test-name-pattern=\"^CLI command help recovers every command and structured special parameters$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-CLI-HELP-CATALOG-001 每个规范命令都有可恢复的结构化 help Root help 中的每个 command 都能独立查询结构化 command help；特殊多值参数和 apply input metadata 保持显式。 24 个 command path 各自返回匹配的 command 名。 Index stage 与 task remove 的多值 --task、task create 的多值 --acceptance 与 apply stdin/file JSON 输入契约逐字段成立。 tools/task-graph/tests/cli.test.ts > CLI command help recovers every command and structured special parameters bun test --test-name-pattern=\"^CLI command help recovers every command and structured special parameters$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -6757,7 +6757,7 @@
         ],
         "id": "TASK-GRAPH-CLI-HELP-CATALOG-001",
         "line": 1,
-        "searchText": "每个规范命令都有可恢复的结构化 help Root help 中的每个 command 都能独立查询结构化 command help；特殊多值参数和 apply input metadata 保持显式。 23 个 command path 各自返回匹配的 command 名。 Task remove 的多值 --task、task create 的多值 --acceptance 与 apply stdin/file JSON 输入契约逐字段成立。 tools/task-graph/tests/cli.test.ts > CLI command help recovers every command and structured special parameters bun test --test-name-pattern=\"^CLI command help recovers every command and structured special parameters$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "每个规范命令都有可恢复的结构化 help Root help 中的每个 command 都能独立查询结构化 command help；特殊多值参数和 apply input metadata 保持显式。 24 个 command path 各自返回匹配的 command 名。 Index stage 与 task remove 的多值 --task、task create 的多值 --acceptance 与 apply stdin/file JSON 输入契约逐字段成立。 tools/task-graph/tests/cli.test.ts > CLI command help recovers every command and structured special parameters bun test --test-name-pattern=\"^CLI command help recovers every command and structured special parameters$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/cli-command-help-catalog.md",
         "summary": "Root help 中的每个 command 都能独立查询结构化 command help；特殊多值参数和 apply input metadata 保持显式。",
         "title": "每个规范命令都有可恢复的结构化 help"
@@ -6789,7 +6789,7 @@
     "TASK-GRAPH-CLI-JSON-ROUTES-001": {
       "keys": {
         "search": [
-          "TASK-GRAPH-CLI-JSON-ROUTES-001 Task-list help 与非 list command 保持 JSON route 只有默认实际 task list command 使用文本 renderer；task-list help 与其他 command 的 success/failure 保持 JSON。 Task-list help、task show success 与缺参 task show failure 都可按单 JSON envelope 解析。 tools/task-graph/tests/cli.test.ts > CLI task-list help and non-list commands remain on the JSON protocol bun test --test-name-pattern=\"^CLI task-list help and non-list commands remain on the JSON protocol$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-CLI-JSON-ROUTES-001 Help 与无专用文本 renderer 的 command 保持 JSON route 默认实际 task list 与 index stage 使用各自文本 renderer；help 和没有专用文本 renderer 的 command 保持 JSON。 Task-list help、task show success 与缺参 task show failure 都可按单 JSON envelope 解析。 tools/task-graph/tests/cli.test.ts > CLI task-list help and commands without text renderers remain on the JSON protocol bun test --test-name-pattern=\"^CLI task-list help and commands without text renderers remain on the JSON protocol$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -6798,15 +6798,15 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/cli.test.ts > CLI task-list help and non-list commands remain on the JSON protocol",
-          "bun test --test-name-pattern=\"^CLI task-list help and non-list commands remain on the JSON protocol$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/cli.test.ts > CLI task-list help and commands without text renderers remain on the JSON protocol",
+          "bun test --test-name-pattern=\"^CLI task-list help and commands without text renderers remain on the JSON protocol$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-CLI-JSON-ROUTES-001",
         "line": 1,
-        "searchText": "Task-list help 与非 list command 保持 JSON route 只有默认实际 task list command 使用文本 renderer；task-list help 与其他 command 的 success/failure 保持 JSON。 Task-list help、task show success 与缺参 task show failure 都可按单 JSON envelope 解析。 tools/task-graph/tests/cli.test.ts > CLI task-list help and non-list commands remain on the JSON protocol bun test --test-name-pattern=\"^CLI task-list help and non-list commands remain on the JSON protocol$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "Help 与无专用文本 renderer 的 command 保持 JSON route 默认实际 task list 与 index stage 使用各自文本 renderer；help 和没有专用文本 renderer 的 command 保持 JSON。 Task-list help、task show success 与缺参 task show failure 都可按单 JSON envelope 解析。 tools/task-graph/tests/cli.test.ts > CLI task-list help and commands without text renderers remain on the JSON protocol bun test --test-name-pattern=\"^CLI task-list help and commands without text renderers remain on the JSON protocol$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/cli-non-list-json-routes.md",
-        "summary": "只有默认实际 task list command 使用文本 renderer；task-list help 与其他 command 的 success/failure 保持 JSON。",
-        "title": "Task-list help 与非 list command 保持 JSON route"
+        "summary": "默认实际 task list 与 index stage 使用各自文本 renderer；help 和没有专用文本 renderer 的 command 保持 JSON。",
+        "title": "Help 与无专用文本 renderer 的 command 保持 JSON route"
       }
     },
     "TASK-GRAPH-CLI-LIST-FAILURE-001": {
@@ -6927,7 +6927,7 @@
     "TASK-GRAPH-CLI-PROTOCOL-001": {
       "keys": {
         "search": [
-          "TASK-GRAPH-CLI-PROTOCOL-001 Root help 暴露命令目录、runtime 前置与全局 JSON option Root help 通过单个 LF 结尾 JSON 返回规范命令目录、runtime requirements 和默认 false 的全局 --json boolean option。 Root help 的 revision 为 null、usage 以 task-graph 开头且命令数为 23。 Runtime 支持范围、setup/install 来源与 --json 参数结构逐字段可恢复。 tools/task-graph/tests/cli.test.ts > CLI root help exposes commands runtime requirements and the global JSON option bun test --test-name-pattern=\"^CLI root help exposes commands runtime requirements and the global JSON option$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-CLI-PROTOCOL-001 Root help 暴露命令目录、runtime 前置与全局 JSON option Root help 通过单个 LF 结尾 JSON 返回规范命令目录、runtime requirements 和默认 false 的全局 --json boolean option。 Root help 的 revision 为 null、usage 以 task-graph 开头，24 个命令中包含 index stage。 Runtime 支持范围、setup/install 来源与 --json 参数结构逐字段可恢复。 tools/task-graph/tests/cli.test.ts > CLI root help exposes commands runtime requirements and the global JSON option bun test --test-name-pattern=\"^CLI root help exposes commands runtime requirements and the global JSON option$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -6941,7 +6941,7 @@
         ],
         "id": "TASK-GRAPH-CLI-PROTOCOL-001",
         "line": 1,
-        "searchText": "Root help 暴露命令目录、runtime 前置与全局 JSON option Root help 通过单个 LF 结尾 JSON 返回规范命令目录、runtime requirements 和默认 false 的全局 --json boolean option。 Root help 的 revision 为 null、usage 以 task-graph 开头且命令数为 23。 Runtime 支持范围、setup/install 来源与 --json 参数结构逐字段可恢复。 tools/task-graph/tests/cli.test.ts > CLI root help exposes commands runtime requirements and the global JSON option bun test --test-name-pattern=\"^CLI root help exposes commands runtime requirements and the global JSON option$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "Root help 暴露命令目录、runtime 前置与全局 JSON option Root help 通过单个 LF 结尾 JSON 返回规范命令目录、runtime requirements 和默认 false 的全局 --json boolean option。 Root help 的 revision 为 null、usage 以 task-graph 开头，24 个命令中包含 index stage。 Runtime 支持范围、setup/install 来源与 --json 参数结构逐字段可恢复。 tools/task-graph/tests/cli.test.ts > CLI root help exposes commands runtime requirements and the global JSON option bun test --test-name-pattern=\"^CLI root help exposes commands runtime requirements and the global JSON option$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/cli-root-help-json-option.md",
         "summary": "Root help 通过单个 LF 结尾 JSON 返回规范命令目录、runtime requirements 和默认 false 的全局 --json boolean option。",
         "title": "Root help 暴露命令目录、runtime 前置与全局 JSON option"
@@ -7065,7 +7065,7 @@
     "TASK-GRAPH-CLI-VERSION-001": {
       "keys": {
         "search": [
-          "TASK-GRAPH-CLI-VERSION-001 Version 使用 JSON 协议报告 3.0.0 --version 使用单个 LF 结尾 JSON success 报告当前 task-graph 版本且不读取 index revision。 结果逐字段为 name task-graph、version 3.0.0 与 revision null。 tools/task-graph/tests/cli.test.ts > CLI version reports 3.0.0 through the JSON protocol bun test --test-name-pattern=\"^CLI version reports 3.0.0 through the JSON protocol$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-CLI-VERSION-001 Version 使用 JSON 协议报告 3.1.0 --version 使用单个 LF 结尾 JSON success 报告当前 task-graph 版本且不读取 index revision。 结果逐字段为 name task-graph、version 3.0.0 与 revision null。 tools/task-graph/tests/cli.test.ts > CLI version reports 3.1.0 through the JSON protocol bun test --test-name-pattern=\"^CLI version reports 3.1.0 through the JSON protocol$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -7074,15 +7074,15 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/cli.test.ts > CLI version reports 3.0.0 through the JSON protocol",
-          "bun test --test-name-pattern=\"^CLI version reports 3.0.0 through the JSON protocol$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/cli.test.ts > CLI version reports 3.1.0 through the JSON protocol",
+          "bun test --test-name-pattern=\"^CLI version reports 3.1.0 through the JSON protocol$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-CLI-VERSION-001",
         "line": 1,
-        "searchText": "Version 使用 JSON 协议报告 3.0.0 --version 使用单个 LF 结尾 JSON success 报告当前 task-graph 版本且不读取 index revision。 结果逐字段为 name task-graph、version 3.0.0 与 revision null。 tools/task-graph/tests/cli.test.ts > CLI version reports 3.0.0 through the JSON protocol bun test --test-name-pattern=\"^CLI version reports 3.0.0 through the JSON protocol$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "Version 使用 JSON 协议报告 3.1.0 --version 使用单个 LF 结尾 JSON success 报告当前 task-graph 版本且不读取 index revision。 结果逐字段为 name task-graph、version 3.0.0 与 revision null。 tools/task-graph/tests/cli.test.ts > CLI version reports 3.1.0 through the JSON protocol bun test --test-name-pattern=\"^CLI version reports 3.1.0 through the JSON protocol$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/cli-version-json.md",
         "summary": "--version 使用单个 LF 结尾 JSON success 报告当前 task-graph 版本且不读取 index revision。",
-        "title": "Version 使用 JSON 协议报告 3.0.0"
+        "title": "Version 使用 JSON 协议报告 3.1.0"
       }
     },
     "TASK-GRAPH-CONCURRENCY-001": {
@@ -7157,7 +7157,7 @@
     "TASK-GRAPH-DISTRIBUTION-001": {
       "keys": {
         "search": [
-          "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 Task-graph 分发脚本、公开声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 生成模块与源码 runtime export 集合和 version 结果一致。 根声明及其可达声明树可被独立 TypeScript consumer 使用，导出 `TaskListItem` 而不保留 `TaskSummary`，且不暴露 native、runner、store、内部注入类型或 Valibot。 Bundle 内联预期依赖、不携带 native package 或工作区绝对路径；source map 使用相对跨平台路径并追踪 task-list renderer 源码。 JSON Schema 与运行时共同拒绝长度、格式和错误文本类型等全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-DISTRIBUTION-001 分发制品与源码公共契约一致 Task-graph 分发脚本、公开声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 生成模块与源码 runtime export 集合和 version 结果一致。 根声明及其可达声明树可被独立 TypeScript consumer 使用，导出 `TaskListItem` 与 `TaskIndexStageResult`、允许调用 `stageTasks()`，不保留 `TaskSummary`，且不暴露 native、runner、store、内部注入类型或 Valibot。 Bundle 内联预期依赖、不携带 native package 或工作区绝对路径；source map 使用相对跨平台路径并追踪专用 renderer 源码。 JSON Schema 与运行时共同拒绝长度、格式和错误文本类型等全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -7171,7 +7171,7 @@
         ],
         "id": "TASK-GRAPH-DISTRIBUTION-001",
         "line": 1,
-        "searchText": "分发制品与源码公共契约一致 Task-graph 分发脚本、公开声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 生成模块与源码 runtime export 集合和 version 结果一致。 根声明及其可达声明树可被独立 TypeScript consumer 使用，导出 `TaskListItem` 而不保留 `TaskSummary`，且不暴露 native、runner、store、内部注入类型或 Valibot。 Bundle 内联预期依赖、不携带 native package 或工作区绝对路径；source map 使用相对跨平台路径并追踪 task-list renderer 源码。 JSON Schema 与运行时共同拒绝长度、格式和错误文本类型等全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "分发制品与源码公共契约一致 Task-graph 分发脚本、公开声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。 生成模块与源码 runtime export 集合和 version 结果一致。 根声明及其可达声明树可被独立 TypeScript consumer 使用，导出 `TaskListItem` 与 `TaskIndexStageResult`、允许调用 `stageTasks()`，不保留 `TaskSummary`，且不暴露 native、runner、store、内部注入类型或 Valibot。 Bundle 内联预期依赖、不携带 native package 或工作区绝对路径；source map 使用相对跨平台路径并追踪专用 renderer 源码。 JSON Schema 与运行时共同拒绝长度、格式和错误文本类型等全部可表达约束。 tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata bun test --test-name-pattern=\"^generated distribution matches source API, schema bytes, and portable metadata$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/generated-distribution-matches-source-contracts.md",
         "summary": "Task-graph 分发脚本、公开声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。",
         "title": "分发制品与源码公共契约一致"
@@ -7290,6 +7290,29 @@
         "sourcePath": "task-graph/distributed-tree-excludes-native-artifacts.md",
         "summary": "Skill 分发只提供 runtime 探测与安装 argv，不包含 runtime manifest、npm lockfile、`.node`、npm cache 或 `.install-*`。",
         "title": "skill 树不携带 runtime 或安装产物"
+      }
+    },
+    "TASK-GRAPH-DISTRIBUTION-STAGE-001": {
+      "keys": {
+        "search": [
+          "TASK-GRAPH-DISTRIBUTION-STAGE-001 分发 CLI 可在无 native runtime 时分段暂存 Task-graph 分发 bundle 必须内含分段暂存所需的版本管理实现，并在受支持 Node.js 下保持与源码相同的 Git pending 契约。 真实生成 MJS 在隔离 Git 仓库中只暂存选中 task，保留未选中 task 的 HEAD 条目与完整工作区候选。 命令输出稳定文本且不创建空 tool home，证明该路径没有加载或安装 native mutation runtime。 tools/task-graph/tests/generated-artifacts.test.ts > generated Node CLI stages selected task entries without native runtime bun test --test-name-pattern=\"^generated Node CLI stages selected task entries without native runtime$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/generated-artifacts.test.ts > generated Node CLI stages selected task entries without native runtime",
+          "bun test --test-name-pattern=\"^generated Node CLI stages selected task entries without native runtime$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-DISTRIBUTION-STAGE-001",
+        "line": 1,
+        "searchText": "分发 CLI 可在无 native runtime 时分段暂存 Task-graph 分发 bundle 必须内含分段暂存所需的版本管理实现，并在受支持 Node.js 下保持与源码相同的 Git pending 契约。 真实生成 MJS 在隔离 Git 仓库中只暂存选中 task，保留未选中 task 的 HEAD 条目与完整工作区候选。 命令输出稳定文本且不创建空 tool home，证明该路径没有加载或安装 native mutation runtime。 tools/task-graph/tests/generated-artifacts.test.ts > generated Node CLI stages selected task entries without native runtime bun test --test-name-pattern=\"^generated Node CLI stages selected task entries without native runtime$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/generated-cli-stages-selected-tasks.md",
+        "summary": "Task-graph 分发 bundle 必须内含分段暂存所需的版本管理实现，并在受支持 Node.js 下保持与源码相同的 Git pending 契约。",
+        "title": "分发 CLI 可在无 native runtime 时分段暂存"
       }
     },
     "TASK-GRAPH-GC-001": {
@@ -8325,6 +8348,167 @@
         "sourcePath": "task-graph/canonical-serialization-keeps-keyed-identity-and-round-trip.md",
         "summary": "task index 以根级 task 字典键承接身份，并使用确定性排序、LF 与尾换行规范序列化。",
         "title": "规范文本按键排序，往返解析不丢失事实且 entry 不重复保存 ID"
+      }
+    },
+    "TASK-GRAPH-STAGE-CANONICAL-001": {
+      "keys": {
+        "search": [
+          "TASK-GRAPH-STAGE-CANONICAL-001 非规范工作区索引在写 pending 前被拒绝 分段暂存的 HEAD 基线、工作区候选与最终目标都必须是完整、有效且 canonical 的 task index。 结构有效但缺少规范缩进与尾换行的工作区候选返回 `INDEX_INVALID`，诊断明确来源为 workspace。 校验失败发生在版本管理写入前，pending 相对 HEAD 没有变化。 tools/task-graph/tests/staging.test.ts > rejects a noncanonical workspace index before changing pending content bun test --test-name-pattern=\"^rejects a noncanonical workspace index before changing pending content$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/staging.test.ts > rejects a noncanonical workspace index before changing pending content",
+          "bun test --test-name-pattern=\"^rejects a noncanonical workspace index before changing pending content$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-STAGE-CANONICAL-001",
+        "line": 1,
+        "searchText": "非规范工作区索引在写 pending 前被拒绝 分段暂存的 HEAD 基线、工作区候选与最终目标都必须是完整、有效且 canonical 的 task index。 结构有效但缺少规范缩进与尾换行的工作区候选返回 `INDEX_INVALID`，诊断明确来源为 workspace。 校验失败发生在版本管理写入前，pending 相对 HEAD 没有变化。 tools/task-graph/tests/staging.test.ts > rejects a noncanonical workspace index before changing pending content bun test --test-name-pattern=\"^rejects a noncanonical workspace index before changing pending content$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/rejects-noncanonical-workspace-before-staging.md",
+        "summary": "分段暂存的 HEAD 基线、工作区候选与最终目标都必须是完整、有效且 canonical 的 task index。",
+        "title": "非规范工作区索引在写 pending 前被拒绝"
+      }
+    },
+    "TASK-GRAPH-STAGE-CLOSURE-001": {
+      "keys": {
+        "search": [
+          "TASK-GRAPH-STAGE-CLOSURE-001 不闭合的选择集整批拒绝 分段暂存不会自动扩大 task 选择集；混合目标必须重新通过完整关系与语义校验。 只选择对称排斥关系的一端返回 `TOPOLOGY_INVALID`，诊断保留调用方的 task ID 集合。 失败后 pending 仍等于 HEAD，工作区候选及其完整对称关系保持不变。 tools/task-graph/tests/staging.test.ts > rejects a selected task set that breaks relation closure without changing pending content bun test --test-name-pattern=\"^rejects a selected task set that breaks relation closure without changing pending content$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/staging.test.ts > rejects a selected task set that breaks relation closure without changing pending content",
+          "bun test --test-name-pattern=\"^rejects a selected task set that breaks relation closure without changing pending content$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-STAGE-CLOSURE-001",
+        "line": 1,
+        "searchText": "不闭合的选择集整批拒绝 分段暂存不会自动扩大 task 选择集；混合目标必须重新通过完整关系与语义校验。 只选择对称排斥关系的一端返回 `TOPOLOGY_INVALID`，诊断保留调用方的 task ID 集合。 失败后 pending 仍等于 HEAD，工作区候选及其完整对称关系保持不变。 tools/task-graph/tests/staging.test.ts > rejects a selected task set that breaks relation closure without changing pending content bun test --test-name-pattern=\"^rejects a selected task set that breaks relation closure without changing pending content$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/rejects-selected-task-sets-that-break-relation-closure.md",
+        "summary": "分段暂存不会自动扩大 task 选择集；混合目标必须重新通过完整关系与语义校验。",
+        "title": "不闭合的选择集整批拒绝"
+      }
+    },
+    "TASK-GRAPH-STAGE-COMMITS-001": {
+      "keys": {
+        "search": [
+          "TASK-GRAPH-STAGE-COMMITS-001 并发 task 变化可形成独立提交 同一中央索引中的多个 task 变化可以依次按 ID 构造 pending 并分别提交，分段命令不改写完整工作区候选。 第一个真实 Git commit 只包含第一个 task 的候选条目，第二个 commit 再加入第二个 task。 两次暂存之间工作区始终保留完整候选；第二次提交后 HEAD 等于候选且工作区无剩余差异。 tools/task-graph/tests/staging.test.ts > forms separate commits from concurrent task changes without modifying the workspace index bun test --test-name-pattern=\"^forms separate commits from concurrent task changes without modifying the workspace index$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/staging.test.ts > forms separate commits from concurrent task changes without modifying the workspace index",
+          "bun test --test-name-pattern=\"^forms separate commits from concurrent task changes without modifying the workspace index$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-STAGE-COMMITS-001",
+        "line": 1,
+        "searchText": "并发 task 变化可形成独立提交 同一中央索引中的多个 task 变化可以依次按 ID 构造 pending 并分别提交，分段命令不改写完整工作区候选。 第一个真实 Git commit 只包含第一个 task 的候选条目，第二个 commit 再加入第二个 task。 两次暂存之间工作区始终保留完整候选；第二次提交后 HEAD 等于候选且工作区无剩余差异。 tools/task-graph/tests/staging.test.ts > forms separate commits from concurrent task changes without modifying the workspace index bun test --test-name-pattern=\"^forms separate commits from concurrent task changes without modifying the workspace index$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/forms-separate-commits-from-concurrent-task-changes.md",
+        "summary": "同一中央索引中的多个 task 变化可以依次按 ID 构造 pending 并分别提交，分段命令不改写完整工作区候选。",
+        "title": "并发 task 变化可形成独立提交"
+      }
+    },
+    "TASK-GRAPH-STAGE-CONCURRENCY-001": {
+      "keys": {
+        "search": [
+          "TASK-GRAPH-STAGE-CONCURRENCY-001 并发分段暂存只有一个赢家 同一 task index 的分段 pending 替换在版本管理锁内核对基线与既有 pending，不合并或覆盖另一批 task。 两个并发选择恰有一个成功，另一个稳定返回可重试 `REVISION_CONFLICT`。 最终 pending 恰好包含赢家 task 的候选条目，输家 task 仍保持 HEAD 基线内容。 tools/task-graph/tests/staging.test.ts > serializes concurrent selected-task staging without overwriting the winning batch bun test --test-name-pattern=\"^serializes concurrent selected-task staging without overwriting the winning batch$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/staging.test.ts > serializes concurrent selected-task staging without overwriting the winning batch",
+          "bun test --test-name-pattern=\"^serializes concurrent selected-task staging without overwriting the winning batch$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-STAGE-CONCURRENCY-001",
+        "line": 1,
+        "searchText": "并发分段暂存只有一个赢家 同一 task index 的分段 pending 替换在版本管理锁内核对基线与既有 pending，不合并或覆盖另一批 task。 两个并发选择恰有一个成功，另一个稳定返回可重试 `REVISION_CONFLICT`。 最终 pending 恰好包含赢家 task 的候选条目，输家 task 仍保持 HEAD 基线内容。 tools/task-graph/tests/staging.test.ts > serializes concurrent selected-task staging without overwriting the winning batch bun test --test-name-pattern=\"^serializes concurrent selected-task staging without overwriting the winning batch$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/serializes-concurrent-selected-task-staging.md",
+        "summary": "同一 task index 的分段 pending 替换在版本管理锁内核对基线与既有 pending，不合并或覆盖另一批 task。",
+        "title": "并发分段暂存只有一个赢家"
+      }
+    },
+    "TASK-GRAPH-STAGE-LIFECYCLE-001": {
+      "keys": {
+        "search": [
+          "TASK-GRAPH-STAGE-LIFECYCLE-001 新增与删除 task 使用同一选择规则 选中且仅存在于候选的 task 表示新增，选中且仅存在于基线的 task 表示删除；nextTaskId 不因删除回退。 同一批选择能够删除基线 task、加入候选 task，并产出通过解析的完整 pending 索引。 目标保留未选择 task，revision 使用候选值且 nextTaskId 保持已分配 ID 之后的单调水位。 tools/task-graph/tests/staging.test.ts > stages selected task additions and deletions with monotonic root watermarks bun test --test-name-pattern=\"^stages selected task additions and deletions with monotonic root watermarks$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/staging.test.ts > stages selected task additions and deletions with monotonic root watermarks",
+          "bun test --test-name-pattern=\"^stages selected task additions and deletions with monotonic root watermarks$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-STAGE-LIFECYCLE-001",
+        "line": 1,
+        "searchText": "新增与删除 task 使用同一选择规则 选中且仅存在于候选的 task 表示新增，选中且仅存在于基线的 task 表示删除；nextTaskId 不因删除回退。 同一批选择能够删除基线 task、加入候选 task，并产出通过解析的完整 pending 索引。 目标保留未选择 task，revision 使用候选值且 nextTaskId 保持已分配 ID 之后的单调水位。 tools/task-graph/tests/staging.test.ts > stages selected task additions and deletions with monotonic root watermarks bun test --test-name-pattern=\"^stages selected task additions and deletions with monotonic root watermarks$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/stages-selected-task-additions-and-deletions.md",
+        "summary": "选中且仅存在于候选的 task 表示新增，选中且仅存在于基线的 task 表示删除；nextTaskId 不因删除回退。",
+        "title": "新增与删除 task 使用同一选择规则"
+      }
+    },
+    "TASK-GRAPH-STAGE-PROTOCOL-001": {
+      "keys": {
+        "search": [
+          "TASK-GRAPH-STAGE-PROTOCOL-001 Index stage 提供专用文本与显式 JSON 协议 实际 `index stage` 默认使用稳定单行文本，显式全局 `--json` 序列化同一 raw result；Git pending staging 不加载 task-index mutation native runtime。 成功文本逐字段报告 state、revision、task 数、nextTaskId 与排序后的选择，JSON route 返回同一结构化数据。 重复 task ID 的本地失败使用专用文本 renderer 和 `ARGUMENT_INVALID`，且不改变 pending。 tools/task-graph/tests/staging.test.ts > index stage exposes stable text and explicit JSON protocols without native runtime bun test --test-name-pattern=\"^index stage exposes stable text and explicit JSON protocols without native runtime$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/staging.test.ts > index stage exposes stable text and explicit JSON protocols without native runtime",
+          "bun test --test-name-pattern=\"^index stage exposes stable text and explicit JSON protocols without native runtime$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-STAGE-PROTOCOL-001",
+        "line": 1,
+        "searchText": "Index stage 提供专用文本与显式 JSON 协议 实际 `index stage` 默认使用稳定单行文本，显式全局 `--json` 序列化同一 raw result；Git pending staging 不加载 task-index mutation native runtime。 成功文本逐字段报告 state、revision、task 数、nextTaskId 与排序后的选择，JSON route 返回同一结构化数据。 重复 task ID 的本地失败使用专用文本 renderer 和 `ARGUMENT_INVALID`，且不改变 pending。 tools/task-graph/tests/staging.test.ts > index stage exposes stable text and explicit JSON protocols without native runtime bun test --test-name-pattern=\"^index stage exposes stable text and explicit JSON protocols without native runtime$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/index-stage-exposes-text-and-json-protocols.md",
+        "summary": "实际 `index stage` 默认使用稳定单行文本，显式全局 `--json` 序列化同一 raw result；Git pending staging 不加载 task-index mutation native runtime。",
+        "title": "Index stage 提供专用文本与显式 JSON 协议"
+      }
+    },
+    "TASK-GRAPH-STAGE-SELECTION-001": {
+      "keys": {
+        "search": [
+          "TASK-GRAPH-STAGE-SELECTION-001 选中 task 使用候选条目与全局水位 Task index 分段暂存以 HEAD 为基线、中央工作区为候选，只替换选中 task 条目；revision 与 nextTaskId 使用不可分割的候选全局水位。 Pending 中选中 task 使用候选内容，未选中既有 task 保持基线，未选中的新增 task 不进入目标。 Pending 的 revision 与 nextTaskId 等于候选值，工作区索引和索引外既有 pending 文件逐字保持不变。 tools/task-graph/tests/staging.test.ts > stages selected tasks with candidate watermarks while preserving workspace and outside pending paths bun test --test-name-pattern=\"^stages selected tasks with candidate watermarks while preserving workspace and outside pending paths$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "topic": [
+          "task-graph"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/task-graph/tests/staging.test.ts > stages selected tasks with candidate watermarks while preserving workspace and outside pending paths",
+          "bun test --test-name-pattern=\"^stages selected tasks with candidate watermarks while preserving workspace and outside pending paths$\" ./tools/task-graph/tests/run.ts"
+        ],
+        "id": "TASK-GRAPH-STAGE-SELECTION-001",
+        "line": 1,
+        "searchText": "选中 task 使用候选条目与全局水位 Task index 分段暂存以 HEAD 为基线、中央工作区为候选，只替换选中 task 条目；revision 与 nextTaskId 使用不可分割的候选全局水位。 Pending 中选中 task 使用候选内容，未选中既有 task 保持基线，未选中的新增 task 不进入目标。 Pending 的 revision 与 nextTaskId 等于候选值，工作区索引和索引外既有 pending 文件逐字保持不变。 tools/task-graph/tests/staging.test.ts > stages selected tasks with candidate watermarks while preserving workspace and outside pending paths bun test --test-name-pattern=\"^stages selected tasks with candidate watermarks while preserving workspace and outside pending paths$\" ./tools/task-graph/tests/run.ts",
+        "sourcePath": "task-graph/stages-selected-tasks-with-candidate-watermarks.md",
+        "summary": "Task index 分段暂存以 HEAD 为基线、中央工作区为候选，只替换选中 task 条目；revision 与 nextTaskId 使用不可分割的候选全局水位。",
+        "title": "选中 task 使用候选条目与全局水位"
       }
     },
     "TASK-GRAPH-TOPOLOGY-001": {
@@ -10485,7 +10669,7 @@
         "id": "skill-validator"
       },
       {
-        "description": "任务图的根级索引结构、图投影、生命周期、事务存储、执行租约、JSON serializer 与文本 renderer 输出协议、显式任务清理与分发边界。",
+        "description": "任务图的根级索引结构、图投影、生命周期、事务存储、执行租约、按任务 ID 的 pending 暂存、输出协议、显式任务清理与分发边界。",
         "id": "task-graph"
       },
       {
@@ -10795,30 +10979,31 @@
       "TASK-GRAPH-CLI-CONSTRUCTION-001": "sha256:838003ea4c808228bd66a97d7ed7bb2fc3e86c81a91fb6ceabbf224d4fd05222",
       "TASK-GRAPH-CLI-ERRORS-001": "sha256:54a50c464bdbbaf5069def0043f161c8075b37b6acdd7ea89791ba8ec78c02eb",
       "TASK-GRAPH-CLI-GLOBAL-FAILURE-001": "sha256:34be66a6b6d684b34c511375ff4d69574fd4c79f6b9b14eb1e064eed9e3f9257",
-      "TASK-GRAPH-CLI-HELP-CATALOG-001": "sha256:851ed210911a2490159aabf987c07a24e1f59daec95db06b1c6cb643b1780ff4",
+      "TASK-GRAPH-CLI-HELP-CATALOG-001": "sha256:98a01e86f27865fd528e9b4cfdeba493773686de03447c9fc5df8c7c18896601",
       "TASK-GRAPH-CLI-JSON-FLAG-001": "sha256:55b95657e014c2e2bfe18c58f6c00c5193ffc1b9d49047c9e8c0daced7c62849",
-      "TASK-GRAPH-CLI-JSON-ROUTES-001": "sha256:f4249a73ba8ccb2d939c537a85b6215a7c3c98b3aed62b23f679a5f26866d6bd",
+      "TASK-GRAPH-CLI-JSON-ROUTES-001": "sha256:cdfc94d1a9fd2502c3ec4dcde897d96856e29fdfb867d3b2d5c371f4f1985a6b",
       "TASK-GRAPH-CLI-LIST-FAILURE-001": "sha256:b6a1595b0e90dc67825d48b7821e2f691637e550294fe74fad00ab464605db0b",
       "TASK-GRAPH-CLI-LIST-PROJECTION-001": "sha256:7279d9454908f4eb5ecd6eaeec89d30b0d2ef2450e19e34eeb62a85fc52d14b5",
       "TASK-GRAPH-CLI-LIST-RENDER-PARITY-001": "sha256:8ef365a58f4543da125d87a2928f608d4b0306e06ae93cc2c9db486f1d495671",
       "TASK-GRAPH-CLI-PATH-001": "sha256:a23b363ab08505ada8dd85a57ef6097bd7c6440d4dc4a63908df65f69581d447",
       "TASK-GRAPH-CLI-PROCESS-PROTOCOL-001": "sha256:2a3c0401e0ab980baef5bceeaf673e6f0420e29a673868f868f8241f0c70611b",
-      "TASK-GRAPH-CLI-PROTOCOL-001": "sha256:995129adbd39d963df1ecef642bac75fed20c5b177aad576568c5cbecc3ae9a7",
+      "TASK-GRAPH-CLI-PROTOCOL-001": "sha256:6bcfc77e5af0b86daea328e9cdf55cc56a39ae2123661174135ba1aa5be45f4e",
       "TASK-GRAPH-CLI-PROTOTYPE-001": "sha256:ef8ab68784cde3e6f9380d3ae67e29f8d80274ec4dbf649f6a5eb99218c65ff3",
       "TASK-GRAPH-CLI-SCHEMA-001": "sha256:51229d258f2bcb0733ad377142554f8a130fd08ead0c92a83984a11c2f534831",
       "TASK-GRAPH-CLI-STDIN-001": "sha256:e8b8b402179151b20d6dfbcc5083cda23228cd07d69129991103461bf1f0c36f",
       "TASK-GRAPH-CLI-STDOUT-FAULT-001": "sha256:4c61136a149de169c2c5d818fd7f90d2f0b0057ae030f836b188db5f9121cca3",
       "TASK-GRAPH-CLI-USAGE-001": "sha256:edb857e0628b1e8dc2ec87c347cefc496f2aac15ec037e2274c6b355f7fd9687",
-      "TASK-GRAPH-CLI-VERSION-001": "sha256:1597926796ebf0f916a73b0c0f8242ef40391ae9e146d82fcb5a8fc87135238f",
+      "TASK-GRAPH-CLI-VERSION-001": "sha256:3eb170a519afb1463f00b50ab9293ce54c903765eaf7820b5f10e8d3c23a5f23",
       "TASK-GRAPH-CONCURRENCY-001": "sha256:fc5996f71d6bc3729a577ea52ac3c8f6dd7aa91fe22ff1c3bc0a35c0f140a81f",
       "TASK-GRAPH-CONTROL-001": "sha256:f849c97211805354acd9359abae315b3f57795641ea916f4a7e2088eb04109be",
       "TASK-GRAPH-DEFAULTS-001": "sha256:9829682d1cbe0f0e27e92ec3f3542b52215c6b57a7c9259999afae531df9e416",
-      "TASK-GRAPH-DISTRIBUTION-001": "sha256:7a70f6e77a4379bd1dfae1b4e30560ce0f445ae42203879c4747c1d3d4c6efcd",
+      "TASK-GRAPH-DISTRIBUTION-001": "sha256:46152b36d758267cda89c6c989f241600d681d42241ef32035b550ca10c54883",
       "TASK-GRAPH-DISTRIBUTION-004": "sha256:d319cca6997734fcaf3788bc4ac3a65ea4802a4a7e0c78e785d3e7b4b8ebe312",
       "TASK-GRAPH-DISTRIBUTION-IMPORT-001": "sha256:a7e047d57c7c3a5c2696eedfa6ff6b5a0084493ee484d137759c531e315f0274",
       "TASK-GRAPH-DISTRIBUTION-LIST-PARITY-001": "sha256:f188effd813c6f79c6010c7e70aa8b30944c5767e724da4cf24faedfec57847c",
       "TASK-GRAPH-DISTRIBUTION-OFFLINE-001": "sha256:472a4e1422ccff06fb1b5b5c01a20f5e83969760caaa7b900fb567db391e02fa",
       "TASK-GRAPH-DISTRIBUTION-PACKAGE-001": "sha256:215be1428132a81d7ed5e97eb323b7be597deb9367858e3566d65bc208c23a98",
+      "TASK-GRAPH-DISTRIBUTION-STAGE-001": "sha256:d3a287f542a99e6e15ee35c156b57f55914764cb543c83e01aefc8308d17910b",
       "TASK-GRAPH-GC-001": "sha256:4683d53f551a0e7fb6581cd9bf803e07f3cdbcaefc51f7d99bc5b30ea9eea208",
       "TASK-GRAPH-GIT-BOUNDARY-001": "sha256:8b3560d7126aa2694af50c643d7f3aa816b94f5e64baac214db65f9efaa3ee91",
       "TASK-GRAPH-ID-001": "sha256:d61841db43c00193309a9fb29ee60e2e0f552fe92e74eb9b9320a44623419ae1",
@@ -10864,6 +11049,13 @@
       "TASK-GRAPH-SCHEMA-001": "sha256:8d0cd07fdce90eb4f9c573a4d6717e78e333cd91a61149d700abba2957e38898",
       "TASK-GRAPH-SCHEMA-V1-001": "sha256:cd63f449b425c78ed3e94bb5b0c182bd551465490c323bae55c30dfbbc9c97ee",
       "TASK-GRAPH-SERIALIZATION-001": "sha256:f25974c1b8110789b29c7e67657470e62dc7b7fdf059e329a856c32f5967c1be",
+      "TASK-GRAPH-STAGE-CANONICAL-001": "sha256:881f5017ee42df9b2d7e81fce72d513e10fa520a93e96fb8f8124c45ab9c23cf",
+      "TASK-GRAPH-STAGE-CLOSURE-001": "sha256:a28bd729a2732519ef3757681962aceec43a84669c373e058cfd3b0e1d41f94e",
+      "TASK-GRAPH-STAGE-COMMITS-001": "sha256:5bde444b3dd381ec34661714a01b03a25cd153ce70ec757d6260a907486e9998",
+      "TASK-GRAPH-STAGE-CONCURRENCY-001": "sha256:fa22f5ca02169e5430b32d4ab0b74abfbb18eecb26325d9c8ad8c001d703ce2c",
+      "TASK-GRAPH-STAGE-LIFECYCLE-001": "sha256:4c75e4ae991bf579b58c022a3097e96622d750c90f712c5b441b5774542a5ee9",
+      "TASK-GRAPH-STAGE-PROTOCOL-001": "sha256:fca0f741a27e30590bb32e3e20d12e94ef159f41a69bb92ffe42e97effbc88ca",
+      "TASK-GRAPH-STAGE-SELECTION-001": "sha256:912a634e0720215312584f6075a72c09aa4c89e1d8688ce8550b2b2779c33d30",
       "TASK-GRAPH-TOPOLOGY-001": "sha256:d93b538720034c562d0e213bff131accde4d46a71ef03b6f3921354513fe4710",
       "TEST-EVIDENCE-CASE-FILE-CARDINALITY-001": "sha256:4e56d64ec64bcfb03270d1c7679010a5ca8f975e4d7fe582d844b7e3d88d9265",
       "TEST-EVIDENCE-CASE-FIRST-LINE-001": "sha256:ce1ee2d700a312b5d7a1d50622c8bbb6d3dbcf412a1ca82a3f65bca1df04a7d7",
@@ -10957,6 +11149,6 @@
       "VERSION-CONTROL-STATES-001": "sha256:90c39276155ce905d563f9060e14c8cd581e1e7bcbf236b07af4b05401ab41f6",
       "VERSION-CONTROL-WORKTREE-001": "sha256:9ac7f9540e8bd3f19b913fb66ba465f99e43b4274299fb9dbb6a8bfbe311b790"
     },
-    "metadata": "sha256:1547ab5e5f4423a37fc57d2681cd0406635621636ef1b2db5f457ef04eca7862"
+    "metadata": "sha256:18907a8cfaadd163680b67ab8bc39bf5227df4c722224412885e60568ad8b686"
   }
 }

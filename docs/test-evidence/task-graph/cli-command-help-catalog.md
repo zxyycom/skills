@@ -8,5 +8,5 @@ Contract:
 - Root help 中的每个 command 都能独立查询结构化 command help；特殊多值参数和 apply input metadata 保持显式。
 
 Proves:
-- 23 个 command path 各自返回匹配的 command 名。
-- Task remove 的多值 --task、task create 的多值 --acceptance 与 apply stdin/file JSON 输入契约逐字段成立。
+- 24 个 command path 各自返回匹配的 command 名。
+- Index stage 与 task remove 的多值 --task、task create 的多值 --acceptance 与 apply stdin/file JSON 输入契约逐字段成立。

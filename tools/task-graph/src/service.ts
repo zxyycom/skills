@@ -12,6 +12,7 @@ import {
   retryTask
 } from "./engine.ts";
 import { projectTaskGraph } from "./graph.ts";
+import { stageSelectedTaskIndex } from "./staging.ts";
 import {
   TaskGraphStore,
   type TaskGraphStoreOptions
@@ -28,6 +29,7 @@ import type {
   TaskGraphProjection,
   TaskIndex,
   TaskIndexInfo,
+  TaskIndexStageResult,
   TaskListItem
 } from "./types.ts";
 
@@ -103,6 +105,15 @@ export class TaskGraphService {
   async readIndex(): Promise<ServiceResult<TaskIndex>> {
     const { index } = await this.store.read();
     return { revision: index.revision, data: index };
+  }
+
+  async stageTasks(
+    taskIds: readonly string[]
+  ): Promise<ServiceResult<TaskIndexStageResult>> {
+    return await stageSelectedTaskIndex({
+      indexPath: this.store.indexPath,
+      selectedTaskIds: taskIds
+    });
   }
 
   async apply(request: TaskGraphApplyRequest): Promise<ServiceResult<TaskGraphApplyResult>> {

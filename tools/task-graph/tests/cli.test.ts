@@ -279,7 +279,8 @@ test("CLI root help exposes commands runtime requirements and the global JSON op
       const commands = requireStrings(data.commands, "root help data.commands");
       const usage = requireString(data.usage, "root help data.usage");
       assert.equal(usage.startsWith("task-graph"), true);
-      assert.equal(commands.length, 23);
+      assert.equal(commands.length, 24);
+      assert.ok(commands.includes("index stage"));
       assert.deepEqual(
         data.runtimeRequirements,
         {
@@ -342,6 +343,18 @@ test("CLI command help recovers every command and structured special parameters"
       );
     }
 
+    const indexStageHelp = await callCli(root, ["index", "stage", "--help"]);
+    assert.equal(indexStageHelp.result.ok, true);
+    if (indexStageHelp.result.ok) {
+      const data = requireRecord(indexStageHelp.result.data, "index stage help data");
+      const parameters = requireRecord(data.parameters, "index stage help parameters");
+      const options = requireRecords(parameters.options, "index stage help options");
+      assert.deepEqual(
+        options.find((option) => option.name === "--task"),
+        { name: "--task", required: true, type: "string", multiple: true }
+      );
+    }
+
     const applyHelp = await callCli(root, ["help", "apply"]);
     assert.equal(applyHelp.result.ok, true);
     if (applyHelp.result.ok) {
@@ -371,12 +384,12 @@ test("CLI rejects prototype-like command and option names", async () => {
   });
 });
 
-test("CLI version reports 3.0.0 through the JSON protocol", async () => {
+test("CLI version reports 3.1.0 through the JSON protocol", async () => {
   await withTempWorkspace(async (root) => {
     const version = await callCli(root, ["--version"]);
     assert.equal(version.result.ok, true);
     if (version.result.ok) {
-      assert.deepEqual(version.result.data, { name: "task-graph", version: "3.0.0" });
+      assert.deepEqual(version.result.data, { name: "task-graph", version: "3.1.0" });
       assert.equal(version.result.revision, null);
     }
   });
@@ -501,7 +514,7 @@ test("CLI default task list renders the complete programmatic projection", async
   });
 });
 
-test("CLI task-list help and non-list commands remain on the JSON protocol", async () => {
+test("CLI task-list help and commands without text renderers remain on the JSON protocol", async () => {
   await withTempWorkspace(async (root) => {
     await callCli(root, ["index", "init"]);
     await callCli(root, [

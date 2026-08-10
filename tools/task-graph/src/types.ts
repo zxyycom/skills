@@ -1,5 +1,5 @@
 export const taskGraphSchemaVersion = 2 as const;
-export const taskGraphVersion = "3.0.0" as const;
+export const taskGraphVersion = "3.1.0" as const;
 export const defaultTaskGraphIndexPath =
   "docs/task-graph/task-graph-index.json" as const;
 export const taskGraphRuntimeProtocolVersion = 1 as const;
@@ -298,6 +298,14 @@ export type TaskIndexInfo = {
   taskCount: number;
   topTaskCount: number;
   nextTaskId: number;
+};
+
+export type TaskIndexStageResult = {
+  changed: boolean;
+  nextTaskId: number;
+  selectedTaskIds: string[];
+  state: "staged" | "unchanged";
+  taskCount: number;
 };
 
 export type TaskContentInput = {
