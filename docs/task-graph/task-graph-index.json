@@ -46,16 +46,21 @@
         "acceptance": [],
         "context": null,
         "references": {},
-        "result": null
+        "result": {
+          "summary": "已完成现有可分发工具的 SDK/CLI 真实调用面审计，并建立可实施的 task-graph 首批 Change；计划明确领域 operation 唯一事实源、CLI 参数与输出适配、直接 import 非独立 SDK 契约，并把其他工具保留为独立后续范围。",
+          "references": {
+            "change": "changes/establish-task-graph-direct-sdk-entry"
+          }
+        }
       },
       "state": {
         "control": {
-          "mode": "candidate",
+          "mode": "queued",
           "reason": null
         },
         "execution": {
-          "phase": "idle",
-          "attempt": 0
+          "phase": "succeeded",
+          "attempt": 1
         },
         "relations": {
           "parentId": null,
@@ -66,17 +71,26 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T05:47:06.077Z",
-          "updatedAt": "2026-08-08T12:01:37.160Z"
+          "updatedAt": "2026-08-10T10:38:10.704Z"
         }
       }
     },
     "task-000003": {
       "content": {
-        "title": "支持有意义的显式 ID 与自动生成回退",
-        "goal": "在根级平铺任务模型中调整 task ID 创建契约：调用方仅在提供具有实际语义的 ID 时主动指定；未指定 ID 或指定值已被占用时，工具自动生成唯一 ID、返回最终采用的 ID，且不得覆盖既有 task。",
-        "acceptance": [],
-        "context": "Task ID 是唯一引用身份；title 是独立显示文本并允许重名。批量 apply 的临时 alias 必须解析到实际创建的最终 ID，使同一事务内的父子、依赖和排斥引用不受冲突回退影响。",
-        "references": {},
+        "title": "支持有意义的显式 ID 与可回收自动 ID",
+        "goal": "调整根级平铺任务模型的 ID 创建契约：显式 ID 只在具有实际语义时由调用方请求；未指定或请求值冲突时，工具依据 task-000048 确定的 GC、水位与隔离窗口规则，返回一个当前合法且未占用的自动 ID。Task ID 是当前协调生命周期内的操作句柄，受控 GC 后允许符合隔离条件的编号重新进入可分配集合；分配不得覆盖存活 task，批量事务必须保持确定性。",
+        "acceptance": [
+          "明确 Task ID 的作用域只覆盖当前权威索引及其协调生命周期；长期结果继续由稳定 owner 与对应仓库版本承接，需要回看历史 task 时使用相应版本与当时的 task ID，不把裸 ID 扩展为跨 GC 周期的永久身份。",
+          "自动分配不再依赖只能增长的下一 ID 游标；只有 task-000048 定义的静默 GC 已清理任务并更新隔离窗口后，符合回收条件的自动编号才重新可用，全空与部分保留索引都按同一确定性规则计算下一合法 ID。",
+          "批量 apply 只构造一次已占用与隔离集合并按 operation 顺序分配，单个事务中的多个创建、显式 ID 冲突回退、alias、父子、依赖和排斥都绑定最终实际 ID，失败事务不留下部分占用或覆盖。",
+          "复用安全完整采用 task-000048 对 revision 回落或代际、隔离窗口、execution lease 与 GC 独占门禁的最终结论；审计全部 mutation，确保旧客户端不能把针对已清理任务的写入错误应用到复用该 ID 的新任务。",
+          "依据 GC 契约重新设计或移除持久 nextTaskId，并同步 Schema、canonicalization、按任务暂存、CLI/SDK、生成产物、显式 ID Change、长期决策、原生测试和测试证据。"
+        ],
+        "context": "现有 changes/support-explicit-task-ids 已明确自动 ID 不复用和 nextTaskId 单调增长，并沿用当前单调 revision/CAS 契约，但没有评估静默 GC 后的 ID 或 revision 回落。用户重新明确 task-graph 是短生命周期协调系统，编号与部分索引状态应在静默 GC 后按隔离窗口回到低水位。task-000048 负责先确定 GC 与 revision 保证等级，本任务不得在其完成前沿用旧 readiness 直接编码。",
+        "references": {
+          "current-change": "changes/support-explicit-task-ids/",
+          "gc-task": "task-000048"
+        },
         "result": null
       },
       "state": {
@@ -92,15 +106,17 @@
           "parentId": null,
           "dependsOn": {
             "task-000005": true,
-            "task-000010": true
+            "task-000010": true,
+            "task-000048": true
           },
           "excludes": {
-            "task-000028": true
+            "task-000028": true,
+            "task-000044": true
           }
         },
         "timestamps": {
           "createdAt": "2026-08-07T05:51:51.650Z",
-          "updatedAt": "2026-08-08T12:01:37.160Z"
+          "updatedAt": "2026-08-10T15:49:53.906Z"
         }
       }
     },
@@ -211,16 +227,21 @@
         "acceptance": [],
         "context": "分别为父子、依赖和排斥定义确定性证据门槛、推断依据表达及冲突后的重新判断。工具继续只校验和写入显式关系；自然语言判断由 skill 与调用 agent 承担，但不要求用户逐条确认已经唯一确定的关系。",
         "references": {},
-        "result": null
+        "result": {
+          "summary": "已明确三类任务关系的确定性记录门槛：已确认事实唯一推出父子、完成依赖或并发排斥时由 agent 主动写入；存在多种合理拓扑或证据不足时才保持不写或按协调需要询问；工具继续只校验并写入显式关系，revision 冲突后基于最新事实重新判断。",
+          "references": {
+            "task-graph-skill": "skills/task-graph/SKILL.md"
+          }
+        }
       },
       "state": {
         "control": {
-          "mode": "candidate",
+          "mode": "queued",
           "reason": null
         },
         "execution": {
-          "phase": "idle",
-          "attempt": 0
+          "phase": "succeeded",
+          "attempt": 1
         },
         "relations": {
           "parentId": null,
@@ -231,7 +252,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T06:10:12.169Z",
-          "updatedAt": "2026-08-08T12:01:37.160Z"
+          "updatedAt": "2026-08-10T10:25:05.201Z"
         }
       }
     },
@@ -260,12 +281,13 @@
             "task-000010": true
           },
           "excludes": {
-            "task-000028": true
+            "task-000028": true,
+            "task-000044": true
           }
         },
         "timestamps": {
           "createdAt": "2026-08-07T06:12:39.308Z",
-          "updatedAt": "2026-08-08T12:01:37.160Z"
+          "updatedAt": "2026-08-10T10:34:44.249Z"
         }
       }
     },
@@ -1424,31 +1446,40 @@
     },
     "task-000037": {
       "content": {
-        "title": "为 task CLI 增加成功任务的显式重开能力",
-        "goal": "为 task-graph CLI 增加受控的终态纠正操作，使误标为 succeeded 的任务能够在保留审计信息并重新校验任务图一致性的前提下回到可领取状态；比较扩展 retry 与新增 reopen 命令，避免把失败重试和成功撤销混为同一语义。",
+        "title": "建立 Task 纠错、重开与后继演进机制",
+        "goal": "为 task-graph 建立受控的任务纠错与演进机制：区分尚未终结任务的内容或关系修正、错误终态的显式纠正，以及原任务正确完成后因新需求产生的后继演进；比较直接修改、amend、correct/reopen 和新建后继任务等方案，在保留当前事实、版本锚点与任务图一致性的前提下选择最小机制，不把任意改写历史作为默认能力。",
         "acceptance": [
-          "只允许通过显式命令重开 succeeded 任务；命令要求 expected revision 和非空原因，其他状态返回稳定冲突诊断，且不会自动重开或复用旧 lease。",
-          "明确并实现 result、完成时间与历史证据的处理契约：任务一旦不再 succeeded，旧 result 不得继续作为当前成功结果，同时能够追溯原完成信息与本次重开原因。",
-          "重开前校验父子、依赖和下游任务状态；若已有任务基于该成功结果开始或完成，必须拒绝或采用明确且可验证的级联策略，不得留下拓扑与投影不一致。",
-          "重开后的任务按现有 control、依赖和排斥规则投影为 idle/ready 或 blocked，并必须重新 claim；同步 CLI 文本与 JSON 输出、SDK/生成产物、文档、原生测试及对应测试证据。"
+          "盘点 title、goal、acceptance、context、references、control、父子、依赖、排斥、execution 与 result 在 candidate、idle、running、failed、cancelled 和 succeeded 各阶段的现有修改边界，明确哪些错误可以原位修正、哪些必须先释放 lease、哪些属于终态纠正。",
+          "为错误终态或错误协调事实定义显式纠正入口：要求 expected revision 和非空原因，不复用旧 lease；旧 result 不得继续冒充当前成功结果，同时必须保留足以追溯原终态与纠正原因的证据。",
+          "区分事实记录错误与真实需求演进：前者通过受控纠正恢复一致状态；后者默认创建新的后继任务并稳定引用原任务，评估是否确有必要增加类似决策修订或替代的演进关系，而不直接重写已经正确交付的结果和 Git 版本锚点。",
+          "纠正前重新校验父子门禁、依赖、排斥及已经基于旧事实开始或完成的上下游任务；存在影响时必须拒绝或采用明确、原子且可验证的处理策略，不留下投影、result 或下游状态互相矛盾的任务图。",
+          "比较通用任意修改与按生命周期分开的最小命令面；最终 CLI、SDK、Schema、文本与 JSON 输出、生成产物、行为说明、原生测试和测试证据保持同一契约，且失败重试、取消、纠错和后继演进不被混成一个模糊操作。"
         ],
-        "context": "当前 retryTask 只允许 failed -> idle。实际协调中任务可能被误 complete 为 succeeded，而成功态没有受控纠正入口，只能另建后续任务。该功能应区分终态纠正、失败重试、取消和创建替代任务，不预设最终命令名。",
+        "context": "现有 retry 只处理 failed 到 idle，update-content 与关系 mutation 也有各自阶段限制；实际协调既可能误写内容或关系，也可能误 complete 为 succeeded，还可能在原任务正确交付后出现新目标。三类情况对历史、result、lease、下游依赖和版本锚点的语义不同，应先在同一任务中划清边界，再决定是否拆成独立实现任务。task-000040 已确定 result 保存当前语义结果，首次包含终态 entry 的 Git 提交提供版本锚点；本任务不得通过静默覆盖绕过该契约。",
         "references": {
           "engine": "tools/task-graph/src/engine.ts#retryTask",
+          "result-contract": "docs/decisions/task-graph/anchor-semantic-task-results-in-index-history.md",
           "skill": "skills/task-graph/SKILL.md",
           "trigger-task": "task-000033",
           "workaround-task": "task-000036"
         },
-        "result": null
+        "result": {
+          "summary": "已盘点 mutation 生命周期并形成 current Change：未终态复用现有细粒度 mutation，running 先按 lease 释放；错误 succeeded/cancelled 通过 expected revision 与非空原因约束的 correct 转为 paused idle 并保存 terminal evidence；正确完成后的新需求创建后继 task。实施已拆为 task-000044，本任务未修改运行时代码。",
+          "references": {
+            "change": "changes/establish-task-correction-and-successor-evolution/",
+            "implementation-task": "task-000044",
+            "result-contract": "docs/decisions/task-graph/anchor-semantic-task-results-in-index-history.md"
+          }
+        }
       },
       "state": {
         "control": {
-          "mode": "candidate",
+          "mode": "queued",
           "reason": null
         },
         "execution": {
-          "phase": "idle",
-          "attempt": 0
+          "phase": "succeeded",
+          "attempt": 1
         },
         "relations": {
           "parentId": null,
@@ -1459,7 +1490,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-10T05:52:08.728Z",
-          "updatedAt": "2026-08-10T06:16:49.730Z"
+          "updatedAt": "2026-08-10T10:35:00.573Z"
         }
       }
     },
@@ -1755,6 +1786,205 @@
         "timestamps": {
           "createdAt": "2026-08-10T07:53:58.196Z",
           "updatedAt": "2026-08-10T08:01:57.815Z"
+        }
+      }
+    },
+    "task-000044": {
+      "content": {
+        "title": "实施 Task 终态纠正与后继演进机制",
+        "goal": "实施 current Change：为 succeeded/cancelled 建立 expected revision 与非空原因约束的 paused-idle correct，保存 terminal correction evidence，执行 ancestor/effective-dependent 门禁，并保持未终态 mutation、lease、retry、result/version anchor 与 successor task 边界一致。",
+        "acceptance": [
+          "按 Change 的状态矩阵保持 idle/failed 普通修正、running lease 释放与 failed retry，新增 correct 只接受 succeeded/cancelled 且不复用 lease。",
+          "Schema v2 用可选 terminal correction evidence 保存 source revision、时间、原因及 previous control/execution/result；current result、重复纠正、canonical serialization 与旧索引兼容符合设计。",
+          "Correct 原子转为 paused idle、清除 current result，并拒绝 terminal ancestor、non-idle direct/inherited dependent、陈旧 revision 与会破坏完整 graph 的候选。",
+          "正确完成后的新需求继续创建独立 task，只在真实完成顺序成立时使用 dependency，不增加 successor relation 或 metadata-only result edit。",
+          "CLI、SDK、Schema、生成产物、行为说明、长期决策、skill/protocol 版本、原生测试与 test-evidence 同步，并通过 Change 要求的目标检查和完整检查。"
+        ],
+        "context": "task-000037 已完成机制探索并形成 current plan；本任务只承接实施与验证。开始前重新核对主线版本和重叠 owner，task-000003 与 task-000008 必须串行。",
+        "references": {
+          "change": "changes/establish-task-correction-and-successor-evolution/",
+          "result-contract": "docs/decisions/task-graph/anchor-semantic-task-results-in-index-history.md",
+          "skill": "skills/task-graph/SKILL.md",
+          "source-task": "task-000037"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "cancelled",
+          "attempt": 0,
+          "reason": "当前没有无法由后继或修复 task 处理的可复核错误终态；终态纠正方向已明确延期，Change 已 shelve，本实施任务不再执行。"
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {
+            "task-000037": true
+          },
+          "excludes": {
+            "task-000003": true,
+            "task-000008": true,
+            "task-000045": true,
+            "task-000046": true
+          }
+        },
+        "timestamps": {
+          "createdAt": "2026-08-10T10:34:44.249Z",
+          "updatedAt": "2026-08-10T15:13:42.098Z"
+        }
+      }
+    },
+    "task-000045": {
+      "content": {
+        "title": "AI-ready 优化 Task 纠正 Change",
+        "goal": "在不改变 task-000037 已确认领域契约的前提下，按 ai-ready-docs 重构 changes/establish-task-correction-and-successor-evolution 的 AI 消费路径：明确当前/目标状态、文档 owner、稳定术语、状态决策入口与实施顺序，并只把真正需要产品选择的缺口交给用户决策。",
+        "acceptance": [
+          "Change 明确标示仍处于 plan、目标命令尚未实现，并说明 proposal、design、tasks 与长期 owner 的权威边界。",
+          "以单一状态路由表区分未终态修正、running lease 处理、错误终态 correct 与正确完成后的后继任务，避免执行者从分散段落自行拼接。",
+          "设计中的术语、纠正前置条件、失败处理、证据边界和后继任务规则可直接转化为实现与测试，不重复或改变既定领域事实。",
+          "Change 重新确认实施基线并通过 change-plan 与仓库检查；交付明确列出是否仍有阻塞决策。"
+        ],
+        "context": "这是 task-000037 正确完成后的文档质量后继工作。task-000044 将实施同一 Change，二者必须互斥；本任务只优化 Change 文档，不实施运行时代码。",
+        "references": {
+          "change": "changes/establish-task-correction-and-successor-evolution/",
+          "implementation-task": "task-000044",
+          "skill": "/home/dev/.codex/skills/ai-ready-docs/SKILL.md",
+          "source-task": "task-000037"
+        },
+        "result": {
+          "summary": "已按 ai-ready-docs 优化任务纠正 Change：显式区分 plan 目标与当前 runtime，建立 artifact owner、稳定术语、五路生命周期入口和纠正恢复顺序，明确 correct 输出、阻断 details、窄 evidence/Git 边界，并将实施协调更新为 task-000044。Change 已重新确认为 current plan；未实施 runtime。",
+          "references": {
+            "artifact-commit": "86177f95183fa898ada99997a20cf9cabb4f69a9",
+            "branch": "codex/task-000037-task-correction-evolution",
+            "change": "changes/establish-task-correction-and-successor-evolution/",
+            "implementation-task": "task-000044",
+            "metadata-commit": "cfd38b3e6c86e0816d5ec1f4fa2f99247e73e592"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {
+            "task-000037": true
+          },
+          "excludes": {
+            "task-000044": true
+          }
+        },
+        "timestamps": {
+          "createdAt": "2026-08-10T12:14:08.396Z",
+          "updatedAt": "2026-08-10T12:21:57.546Z"
+        }
+      }
+    },
+    "task-000046": {
+      "content": {
+        "title": "延期并收口 Task 终态纠正方向",
+        "goal": "把 task-000037 后续方向收口为明确延期：记录长期决策，搁置 current Change，取消未开始的 task-000044，并保持 runtime、Schema、skill 行为和既有终态不变。",
+        "acceptance": [
+          "长期决策说明当前不实现 correct/reopen 或新的 task 演进协议，并给出重新评估的现实触发条件。",
+          "changes/establish-task-correction-and-successor-evolution 退出 current plan，但保留探索历史以供未来复核。",
+          "task-000044 被显式取消；不改 runtime、Schema、skill 行为，也不改任何既有 terminal result。",
+          "决策、Change 生命周期和仓库检查通过，改动提交到 codex/task-000037-task-correction-evolution。"
+        ],
+        "context": "用户确认现有后继 task 已足以处理正确完成后的新需求，当前也没有可复核的错误终态实例，因此决定先放弃实现并延期；本任务只做可审计收口。",
+        "references": {
+          "change": "changes/establish-task-correction-and-successor-evolution/",
+          "doc-task": "task-000045",
+          "implementation-task": "task-000044",
+          "source-task": "task-000037"
+        },
+        "result": {
+          "summary": "已将 Task 终态纠正方向显式延期：建立当前有效的重新评估边界，Change 进入 shelved，未开始的 task-000044 已取消；runtime、Schema、skill 行为和既有终态均未改变。",
+          "references": {
+            "cancelled-task": "task-000044",
+            "change": "changes/establish-task-correction-and-successor-evolution/",
+            "decision": "docs/decisions/task-graph/defer-terminal-correction-until-confirmed-recovery-need.md",
+            "source-task": "task-000037"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {
+            "task-000045": true
+          },
+          "excludes": {
+            "task-000044": true
+          }
+        },
+        "timestamps": {
+          "createdAt": "2026-08-10T15:12:00.506Z",
+          "updatedAt": "2026-08-10T15:15:26.591Z"
+        }
+      }
+    },
+    "task-000047": {
+      "content": {
+        "title": "AI-ready 收敛已搁置的 Task 纠正 Change",
+        "goal": "按 ai-ready-docs 整理 task-000046 收口后的文档消费路径：让 AI 从局部或完整文本都能区分当前决策、shelved 历史方案、生命周期事实和实际 runtime owner，不把已取消实施任务或旧 plan 误作待执行工作。",
+        "acceptance": [
+          "proposal、design 与 tasks 的入口和主要章节显式标识 shelved 方案快照，历史目标、设计、任务和验证不再使用会被解释为当前计划的标题或结论。",
+          "长期决策明确自身只负责延期边界与重新评估条件，并将 Change 阶段和实际行为分别指向 .change-plan.json 与稳定 runtime owner，不复制第二份事实源。",
+          "task-000044 的历史协调信息不再暗示仍可实施；未来恢复必须满足长期决策、resume 后重新 plan，并创建当时适用的实施任务。",
+          "不改变终态纠正产品结论或 runtime；文档生命周期、决策索引和仓库检查通过，并形成独立 Git 提交。"
+        ],
+        "context": "task-000046 已完成延期收口，但 ai-ready 复核发现 shelved artifacts 的下层标题和开放问题仍使用当前实施语气，局部检索可能绕过顶部状态说明。",
+        "references": {
+          "change": "changes/establish-task-correction-and-successor-evolution/",
+          "decision": "docs/decisions/task-graph/defer-terminal-correction-until-confirmed-recovery-need.md",
+          "skill": "/home/dev/.codex/skills/ai-ready-docs/SKILL.md",
+          "source-task": "task-000046"
+        },
+        "result": {
+          "summary": "已按 AI-ready 文档契约收敛 shelved Task 纠正 Change：当前延期决策、Change 阶段、实际 runtime owner 与历史方案各有唯一职责；三个 artifacts 及独立 checklist 条目均能标识为旧方案候选，并明确恢复需满足触发条件、重新 plan 和新建实施任务。产品结论与 runtime 未改变。",
+          "references": {
+            "change": "changes/establish-task-correction-and-successor-evolution/",
+            "decision": "docs/decisions/task-graph/defer-terminal-correction-until-confirmed-recovery-need.md",
+            "source-task": "task-000046"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {
+            "task-000046": true
+          },
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-10T15:18:37.026Z",
+          "updatedAt": "2026-08-10T15:24:48.255Z"
         }
       }
     },
