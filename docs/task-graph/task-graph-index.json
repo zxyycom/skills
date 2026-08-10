@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "revision": 108,
-  "nextTaskId": 33,
+  "revision": 189,
+  "nextTaskId": 36,
   "tasks": {
     "task-000001": {
       "content": {
@@ -547,16 +547,23 @@
           "change": "changes/stage-selected-index-entries/",
           "decision": "docs/decisions/index-runtime/stage-selected-index-entries-by-id.md"
         },
-        "result": null
+        "result": {
+          "summary": "已实现按稳定 ID 选择性暂存完整索引，加入锁内 pending 期望核对与冲突恢复语义；目标测试、证据、生成物、版本和全量 28 项门禁通过，长期决策已对齐，change 已归档并提交。",
+          "references": {
+            "change": "changes/archive/stage-selected-index-entries/",
+            "commit": "d1ff283e5a654e97ec4fbf6ff8f78bb6b888ae2d",
+            "decision": "docs/decisions/index-runtime/stage-selected-index-entries-by-id.md"
+          }
+        }
       },
       "state": {
         "control": {
-          "mode": "candidate",
+          "mode": "queued",
           "reason": null
         },
         "execution": {
-          "phase": "idle",
-          "attempt": 0
+          "phase": "succeeded",
+          "attempt": 1
         },
         "relations": {
           "parentId": null,
@@ -567,7 +574,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-07T07:38:55.944Z"
+          "updatedAt": "2026-08-09T10:49:12.730Z"
         }
       }
     },
@@ -652,27 +659,34 @@
     "task-000020": {
       "content": {
         "title": "推进 support-investigation-resources change",
-        "goal": "实现 investigation-report 统一资源池、报告级引用、索引关系与 SHA-256、新鲜度和验证，在完整事实落地后对齐资源决策并使 change 达到可归档状态。",
+        "goal": "允许 investigation-report 的 H3 报告按需通过固定本地链接引用随附资源，并管理已声明的引用及其文件，包括资源池、安全校验、索引关系、SHA-256、新鲜度和验证；完整落地后对齐资源决策并使 change 达到可归档状态。",
         "acceptance": [
           "change tasks 中契约、实现、生成、证据和验证项全部完成。",
           "investigation-report/attach-verifiable-resources-to-investigation-reports.md 完整核对后 aligned。",
           "change 通过语义审阅并完成获授权的归档。"
         ],
-        "context": "资源面：investigation-report；与选择性 investigation index 暂存 change 修改相同实现与行为 owner。",
+        "context": "核心：允许报告按需引用资源，并管理已声明的引用及其文件；与选择性 investigation index 暂存 change 修改相同 implementation 和 behavior owner。",
         "references": {
           "change": "changes/support-investigation-resources/",
           "decision": "docs/decisions/investigation-report/attach-verifiable-resources-to-investigation-reports.md"
         },
-        "result": null
+        "result": {
+          "summary": "已实现调查报告可选随附资源引用及已声明关系与资源完整性管理；25/25 领域测试和 full profile 28/28 通过，长期决策已对齐，change 已归档。",
+          "references": {
+            "change": "changes/archive/support-investigation-resources",
+            "commit": "feece5c",
+            "decision": "docs/decisions/investigation-report/attach-verifiable-resources-to-investigation-reports.md"
+          }
+        }
       },
       "state": {
         "control": {
-          "mode": "candidate",
+          "mode": "queued",
           "reason": null
         },
         "execution": {
-          "phase": "idle",
-          "attempt": 0
+          "phase": "succeeded",
+          "attempt": 3
         },
         "relations": {
           "parentId": null,
@@ -684,7 +698,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-07T07:38:55.944Z"
+          "updatedAt": "2026-08-09T11:13:46.346Z"
         }
       }
     },
@@ -703,16 +717,24 @@
           "decision-evolve": "docs/decisions/decision-records/unify-closed-decision-relation-evolution.md",
           "decision-relations": "docs/decisions/decision-records/replace-decision-relations-as-complete-sets.md"
         },
-        "result": null
+        "result": {
+          "summary": "统一关系事务与完整集合替换已落地；Decision Records 68/68、仓库 full 28/28 通过，两条长期决策已 aligned，Change 25/25 并归档。",
+          "references": {
+            "change": "changes/archive/unify-decision-relation-evolution/",
+            "closure-commit": "7df3cd4",
+            "evidence-commit": "b3603ad",
+            "implementation-commit": "0d4f14e"
+          }
+        }
       },
       "state": {
         "control": {
-          "mode": "candidate",
+          "mode": "queued",
           "reason": null
         },
         "execution": {
-          "phase": "idle",
-          "attempt": 0
+          "phase": "succeeded",
+          "attempt": 2
         },
         "relations": {
           "parentId": null,
@@ -723,7 +745,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-07T07:38:55.944Z"
+          "updatedAt": "2026-08-09T11:25:14.345Z"
         }
       }
     },
@@ -882,27 +904,32 @@
     },
     "task-000026": {
       "content": {
-        "title": "为测试实体与语义 Case 多对多关系建立并推进 change",
-        "goal": "围绕受控测试实体与语义 Case 的单一闭合多对多关系建立可执行 change，确定事实 owner、schema、CLI、迁移与双向查询，实施验证后对齐长期决策并收敛 change。",
+        "title": "建立测试实体与语义 Case 的多对多账本机制",
+        "goal": "建立项目维护固定测试实体索引、Case Markdown 维护唯一 Test 关系、ledger 维护可重建 Case 元数据索引的闭合多对多机制；本任务交付仓库内部源码 API/CLI、Schema 与 fixture，并按现行规则维护本任务触及测试的旧格式 Case，但不执行真实新账本迁移或形成发布候选。",
         "acceptance": [
-          "实施 change 明确单一关系 owner、无悬空不变量、迁移和双向查询验收。",
-          "测试与 Case 的新增、重命名、拆分、合并和删除能够在同一维护事务中保持闭合。",
-          "test-evidence-review/maintain-closed-many-to-many-test-case-relations.md 在完整事实核对后 aligned，相关 change 完成收敛。"
+          "固定读取 docs/test-evidence/test-entity-index.json；严格 Schema 包含版本、项目 sourceRevision 及按固定词法顺序排列的实体 name/locators，并允许 entities 为空；共享层只校验和计算指纹，不发现、赋 ID、去重或证明新鲜度。",
+          "新模型的 cases/*.md 以非空唯一 Tests 保存唯一关系事实并支持可选多值 Tags；每个 Case 引用已知 Test，每个实体 Test 至少被一个 Case 引用；零 Test/零 Case 是合法默认状态，cases/ 缺失或为空均表示零 Case，添加首个 Case 时再创建目录。",
+          "新模型的 docs/test-evidence/test-evidence-index.json 按 Case ID 保存标题、首条 Proves 摘要、源路径、Test ID、Tag 与 search/test/tag keys，绑定实体指纹和 Case revision，可删除重建且不回写真源；读取和写入按 revision 复核。",
+          "在 tools/test-evidence/src/ledger/ 建立 options-object API、内部 argv CLI、Valibot Schema 和 fixture，覆盖空账本、合法多对多、双方悬空、重复或未知端点、Tag 查询、来源漂移、索引 sync 与双向查询；不修改构建适配、skill 公共面或版本，不生成新 ledger 分发制品。",
+          "本任务新增或修改的每个最小原生测试入口按现行 Topic/Entry 契约维护旧格式 Case，并同步当前 test-evidence-index.json；该维护只满足当前仓库门禁，不作为新 Case 的设计、迁移或完成证据。",
+          "本任务完成后的仓库状态不是发布候选；task-000035 暂存包括本任务新增旧格式 Case 在内的整个旧账本，从真实测试零开始重建和审计全部新 Case，再一次性切换 skill 契约、构建链、生成物、版本和升级路径。最终切换前被迫打包允许失败；下一次正式分发直接使用新机制。"
         ],
-        "context": "资源面：test-evidence；当前没有对应 active change，并与 stage-selected-test-evidence 修改相同实现与行为 owner。",
+        "context": "Change 已按 AI-ready-docs 重构并以提交 1252191c302e841d4df1186a32f58e668449b490 保存于分支 codex/task-000026-test-case-relations。proposal 区分目标产品、本任务交付与后续激活，design 固定两阶段和允许写入范围，tasks 将 8 项实施与 8 项验证逐项映射。两个权威源、闭合多对多、合法空账本、schemaVersion 5 机器结果、现行测试 Case 责任、无中间分发和 updater 升级门禁均可独立恢复；机制尚未实施。",
         "references": {
-          "decision": "docs/decisions/test-evidence-review/maintain-closed-many-to-many-test-case-relations.md"
+          "change": "changes/establish-many-to-many-test-case-relations/",
+          "decision": "docs/decisions/test-evidence-review/maintain-closed-many-to-many-test-case-relations.md",
+          "migration-task": "task-000035"
         },
         "result": null
       },
       "state": {
         "control": {
-          "mode": "candidate",
+          "mode": "queued",
           "reason": null
         },
         "execution": {
           "phase": "idle",
-          "attempt": 0
+          "attempt": 17
         },
         "relations": {
           "parentId": null,
@@ -914,7 +941,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-07T07:38:55.944Z"
+          "updatedAt": "2026-08-10T03:16:04.823Z"
         }
       }
     },
@@ -1186,6 +1213,123 @@
         "timestamps": {
           "createdAt": "2026-08-09T05:38:07.269Z",
           "updatedAt": "2026-08-09T05:43:39.164Z"
+        }
+      }
+    },
+    "task-000033": {
+      "content": {
+        "title": "探索以 Case ID 约束测试阻断资格",
+        "goal": "比较并定义一种仓库级机制：只有能追溯到已登记语义 Case ID 的测试结果才有资格作为行为测试阻断；缺少关联的测试应被诊断为非法测试而不是普通测试失败，同时不预设最终由 skill、测试框架适配、runner wrapper、manifest 或 CI 协议承载。",
+        "acceptance": [
+          "恢复现有 test-evidence 的 Case、最小测试入口、package test:* 与完整门禁边界，明确测试失败、非法测试和门禁失败三者的语义及诊断 owner。",
+          "比较 skill 与 agent 初始化约定、测试代码元数据或伪代码、runner/wrapper、显式 manifest/注册表和 CI 校验等现实候选，选择不建立第二事实源的最小通用方案。",
+          "定义 Case ID 关联的声明位置、可验证性、迁移路径、例外与失败行为，并明确非法测试是否仍阻断整体门禁以及如何防止通过删除关联逃避测试。",
+          "形成可单独审阅和试点的 change 边界与验证计划；本候选任务本身不预先授权实现。"
+        ],
+        "context": "由并行开发中可能随手增加不合理测试却阻断交付的问题触发。重点是阻断资格与可追溯性，不是让无 Case 测试静默通过。它与 task-000026 的测试实体—Case 多对多关系可能共享身份或关系 owner，但是否构成依赖需在方案阶段确认。",
+        "references": {
+          "coding-style": "docs/coding-style.md",
+          "related-task": "task-000026",
+          "test-evidence-owner": "skills/test-evidence-review/SKILL.md"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-09T11:15:04.910Z",
+          "updatedAt": "2026-08-09T11:15:04.910Z"
+        }
+      }
+    },
+    "task-000034": {
+      "content": {
+        "title": "探索分层 Skill 发现与聚合包入口",
+        "goal": "为 skill 数量增长设计可扩展的发现层级：一级发现面只保留真正常用的独立 skill 与聚合入口，聚合入口按编程、产品、前端等场景组织相关能力；比较物理目录分层、聚合 skill、catalog/manifest 和安装 profile 等方案，同时尽量保持单个 skill 的独立行为、版本与分发边界。",
+        "acceptance": [
+          "恢复当前 skills/*/SKILL.md 单层发现契约及校验、打包、更新、安装和外部 Codex 发现入口的真实消费者，明确哪些边界能够改变、哪些需要兼容。",
+          "区分分类发现、组合说明、批量安装、默认启用和运行时路由等不同能力，定义聚合入口是否只负责导航、是否包含成员内容，以及不得静默启用未选择 skill 的权限边界。",
+          "比较嵌套目录、一级聚合 skill、独立 catalog/manifest、collection/profile 等现实候选，评估发现体验、独立版本、更新、依赖、打包、冲突和迁移成本，选择总维护面更小的方案。",
+          "定义常用一级 skill、聚合包和成员 skill 的身份、命名、版本、引用、组合验证与兼容策略，并形成可单独审阅的 change 和长期决策边界；本候选任务不预先授权迁移目录或实施。"
+        ],
+        "context": "当前 skill 数量持续增长，单一平铺发现目录开始降低可发现性。设想按编程、产品、前端等场景提供聚合入口，同时一级目录只暴露常用能力；这里的核心问题是发现与选择层级，不先假定物理目录层级、组合安装或运行时自动启用必须同时改变。",
+        "references": {
+          "repository-model": "docs/repository-model.md",
+          "skill-maintainer": "skills/skill-maintainer/SKILL.md",
+          "tooling": "docs/tooling.md"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-09T15:27:17.220Z",
+          "updatedAt": "2026-08-09T15:27:17.220Z"
+        }
+      }
+    },
+    "task-000035": {
+      "content": {
+        "title": "全量重建、审计并一次性切换测试证据账本",
+        "goal": "在多对多机制完成后，暂存整个旧账本并从真实测试实体零开始重建、审计全部语义 Case；通过旧 Case 遗漏对照后一次性激活新 skill 契约和构建产物，使机制建设后的下一次正式分发直接使用新办法。",
+        "acceptance": [
+          "项目生成并维护真实 test-entity-index.json；新 Case 与测试实体关系闭合，任何 Test 或 Case 都不悬空，实体索引新鲜度满足项目门禁。",
+          "全部 Case 从真实测试与语义 owner 零开始建立并逐一审查，不把旧 Case 或 task-000026 为当前测试门禁新增的旧格式 Case 当作迁移输入；审计发现的问题按事实建立在本任务下的子任务。",
+          "开始真实新账本前，把包括 task-000026 所维护 Case 在内的整个旧账本移入固定根外、受 Git 管理的临时暂存目录；新账本独立通过结构、语义和查询验收后，再用暂存旧 Case 做遗漏对照，确认无遗漏后删除整个暂存目录。",
+          "遗漏对照通过后，在同一次最终切换中改写 SKILL、行为契约与项目文档，切换 scripts/build/test-evidence.ts 和最终生成物，提升 skill 版本，删除旧 catalog 实现及引用，并对齐长期决策；不发布旧、新入口并存的候选版或过渡版。",
+          "同时验证全新安装和从当前已发布版本升级。鉴于 updater 会保留新包未包含的旧本地文件，旧可执行入口和旧行为契约必须由新包覆盖或明确失效；升级后不能继续执行旧 catalog 行为。只有真实账本、最终制品、升级路径和统一检查全部通过，才允许下一次正式分发。"
+        ],
+        "context": "这是依赖 task-000026 的独立迁移与最终激活主任务，不是机制任务的子任务。两项任务之间没有受支持的分发阶段：若最终切换前被迫打包，失败属于预期，不建立兼容层。新旧账本共用固定 docs/test-evidence 根和 test-evidence-index.json，故暂存整个旧账本是确定的迁移前置；暂存只用于遗漏对照，具体路径在执行前固定并最终彻底删除。具体问题子任务只在真实审计发现后创建。",
+        "references": {
+          "decision": "docs/decisions/test-evidence-review/maintain-closed-many-to-many-test-case-relations.md",
+          "mechanism-change": "changes/establish-many-to-many-test-case-relations/",
+          "mechanism-task": "task-000026"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {
+            "task-000026": true
+          },
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-09T15:29:30.697Z",
+          "updatedAt": "2026-08-10T02:22:51.943Z"
         }
       }
     }
