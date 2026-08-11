@@ -96,7 +96,7 @@
     "CHANGE-PLAN-ASSESS-ARTIFACTS-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-ASSESS-ARTIFACTS-001 计划制品偏离基线时要求复核 任一计划制品与元数据记录的基线不同，都必须先复核计划而不能继续进行距离评估。 工作树修改、提交到新 HEAD 的修改，以及 index 已暂存但工作树恢复为 HEAD 的修改，都返回 `plan-review-required` 与 `artifacts-changed` 原因。 tools/change-plan/tests/assessment.test.ts > assessment requires review when an artifact differs from its base bun test --test-name-pattern=\"^assessment requires review when an artifact differs from its base$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-ASSESS-ARTIFACTS-001 计划评估不比较制品与基线内容 `baseCommit` 只作为 Git 距离起点，Plan assessment 不把它解释为三个 artifacts 的内容快照。 工作树修改、只修改 Change 目录的新提交，以及 index 与工作树修改都不触发内容差异复核，评估继续返回 `current` 和 Git 距离证据。 tools/change-plan/tests/assessment.test.ts > assessment ignores artifact differences from its base bun test --test-name-pattern=\"^assessment ignores artifact differences from its base$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -105,21 +105,21 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/change-plan/tests/assessment.test.ts > assessment requires review when an artifact differs from its base",
-          "bun test --test-name-pattern=\"^assessment requires review when an artifact differs from its base$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/assessment.test.ts > assessment ignores artifact differences from its base",
+          "bun test --test-name-pattern=\"^assessment ignores artifact differences from its base$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-ASSESS-ARTIFACTS-001",
         "line": 1,
-        "searchText": "计划制品偏离基线时要求复核 任一计划制品与元数据记录的基线不同，都必须先复核计划而不能继续进行距离评估。 工作树修改、提交到新 HEAD 的修改，以及 index 已暂存但工作树恢复为 HEAD 的修改，都返回 `plan-review-required` 与 `artifacts-changed` 原因。 tools/change-plan/tests/assessment.test.ts > assessment requires review when an artifact differs from its base bun test --test-name-pattern=\"^assessment requires review when an artifact differs from its base$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/assessment-requires-review-when-an-artifact-differs-from-its-base.md",
-        "summary": "任一计划制品与元数据记录的基线不同，都必须先复核计划而不能继续进行距离评估。",
-        "title": "计划制品偏离基线时要求复核"
+        "searchText": "计划评估不比较制品与基线内容 `baseCommit` 只作为 Git 距离起点，Plan assessment 不把它解释为三个 artifacts 的内容快照。 工作树修改、只修改 Change 目录的新提交，以及 index 与工作树修改都不触发内容差异复核，评估继续返回 `current` 和 Git 距离证据。 tools/change-plan/tests/assessment.test.ts > assessment ignores artifact differences from its base bun test --test-name-pattern=\"^assessment ignores artifact differences from its base$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/assessment-ignores-artifact-differences-from-its-base.md",
+        "summary": "`baseCommit` 只作为 Git 距离起点，Plan assessment 不把它解释为三个 artifacts 的内容快照。",
+        "title": "计划评估不比较制品与基线内容"
       }
     },
     "CHANGE-PLAN-ASSESS-BASE-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-ASSESS-BASE-001 计划基线不可用时要求复核 活动 plan 没有已确认基线或基线对象无法解析时，评估必须要求复核。 空基线和不存在的提交均返回 `plan-review-required` 与 `base-unavailable` 原因，并报告当前 HEAD。 tools/change-plan/tests/assessment.test.ts > assessment requires review when the plan base is unavailable bun test --test-name-pattern=\"^assessment requires review when the plan base is unavailable$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-ASSESS-BASE-001 计划基线不可用时要求复核 活动 plan 没有 Git 距离基线或基线对象无法解析时，评估必须要求复核。 空基线和不存在的提交均返回 `plan-review-required` 与 `base-unavailable` 原因，并报告当前 HEAD。 tools/change-plan/tests/assessment.test.ts > assessment requires review when the plan base is unavailable bun test --test-name-pattern=\"^assessment requires review when the plan base is unavailable$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -133,39 +133,39 @@
         ],
         "id": "CHANGE-PLAN-ASSESS-BASE-001",
         "line": 1,
-        "searchText": "计划基线不可用时要求复核 活动 plan 没有已确认基线或基线对象无法解析时，评估必须要求复核。 空基线和不存在的提交均返回 `plan-review-required` 与 `base-unavailable` 原因，并报告当前 HEAD。 tools/change-plan/tests/assessment.test.ts > assessment requires review when the plan base is unavailable bun test --test-name-pattern=\"^assessment requires review when the plan base is unavailable$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "计划基线不可用时要求复核 活动 plan 没有 Git 距离基线或基线对象无法解析时，评估必须要求复核。 空基线和不存在的提交均返回 `plan-review-required` 与 `base-unavailable` 原因，并报告当前 HEAD。 tools/change-plan/tests/assessment.test.ts > assessment requires review when the plan base is unavailable bun test --test-name-pattern=\"^assessment requires review when the plan base is unavailable$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/assessment-requires-review-when-the-plan-base-is-unavailable.md",
-        "summary": "活动 plan 没有已确认基线或基线对象无法解析时，评估必须要求复核。",
+        "summary": "活动 plan 没有 Git 距离基线或基线对象无法解析时，评估必须要求复核。",
         "title": "计划基线不可用时要求复核"
       }
     },
     "CHANGE-PLAN-ASSESS-CURRENT-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-ASSESS-CURRENT-001 已确认且未变化的计划保持当前 Plan 制品按 Git 属性与已确认基线一致且项目没有推进时，评估必须保持 `current`。 制品在 HEAD 得到确认，评估返回相同基线与 HEAD、零距离及固定 `git-distance-v1` 策略。 `core.autocrlf=true` 产生的干净 CRLF 工作树仍由 Git 判定为与 LF blob 一致。 tools/change-plan/tests/assessment.test.ts > assessment keeps a confirmed unchanged plan current bun test --test-name-pattern=\"^assessment keeps a confirmed unchanged plan current$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-ASSESS-CURRENT-001 基线可用的计划保持当前 Plan 的 `baseCommit` 可解析、位于当前 HEAD 的第一父历史且项目没有推进时，评估必须保持 `current`。 评估返回相同基线与 HEAD、零距离及固定 `git-distance-v1` 策略。 tools/change-plan/tests/assessment.test.ts > assessment keeps a plan with an available base current bun test --test-name-pattern=\"^assessment keeps a plan with an available base current$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 9,
         "entries": [
-          "tools/change-plan/tests/assessment.test.ts > assessment keeps a confirmed unchanged plan current",
-          "bun test --test-name-pattern=\"^assessment keeps a confirmed unchanged plan current$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/assessment.test.ts > assessment keeps a plan with an available base current",
+          "bun test --test-name-pattern=\"^assessment keeps a plan with an available base current$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-ASSESS-CURRENT-001",
         "line": 1,
-        "searchText": "已确认且未变化的计划保持当前 Plan 制品按 Git 属性与已确认基线一致且项目没有推进时，评估必须保持 `current`。 制品在 HEAD 得到确认，评估返回相同基线与 HEAD、零距离及固定 `git-distance-v1` 策略。 `core.autocrlf=true` 产生的干净 CRLF 工作树仍由 Git 判定为与 LF blob 一致。 tools/change-plan/tests/assessment.test.ts > assessment keeps a confirmed unchanged plan current bun test --test-name-pattern=\"^assessment keeps a confirmed unchanged plan current$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/assessment-keeps-a-confirmed-unchanged-plan-current.md",
-        "summary": "Plan 制品按 Git 属性与已确认基线一致且项目没有推进时，评估必须保持 `current`。",
-        "title": "已确认且未变化的计划保持当前"
+        "searchText": "基线可用的计划保持当前 Plan 的 `baseCommit` 可解析、位于当前 HEAD 的第一父历史且项目没有推进时，评估必须保持 `current`。 评估返回相同基线与 HEAD、零距离及固定 `git-distance-v1` 策略。 tools/change-plan/tests/assessment.test.ts > assessment keeps a plan with an available base current bun test --test-name-pattern=\"^assessment keeps a plan with an available base current$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/assessment-keeps-a-plan-with-an-available-base-current.md",
+        "summary": "Plan 的 `baseCommit` 可解析、位于当前 HEAD 的第一父历史且项目没有推进时，评估必须保持 `current`。",
+        "title": "基线可用的计划保持当前"
       }
     },
     "CHANGE-PLAN-ASSESS-HISTORY-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-ASSESS-HISTORY-001 评估拒绝第一父历史之外的基线 Plan 基线必须位于当前 HEAD 的第一父历史上，旁支提交不能作为距离起点。 即使当前 artifacts 已与旁支基线不同，合并后以旁支提交为基线仍优先返回 `plan-review-required` 与 `base-unavailable`，不会误报为普通 artifact 变化。 tools/change-plan/tests/assessment.test.ts > assessment rejects a base outside the HEAD first-parent history bun test --test-name-pattern=\"^assessment rejects a base outside the HEAD first-parent history$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-ASSESS-HISTORY-001 评估拒绝第一父历史之外的基线 Plan 基线必须位于当前 HEAD 的第一父历史上，旁支提交不能作为距离起点。 合并后以旁支提交为基线返回 `plan-review-required` 与 `base-unavailable`，不会生成无法成立的 Git 距离证据。 tools/change-plan/tests/assessment.test.ts > assessment rejects a base outside the HEAD first-parent history bun test --test-name-pattern=\"^assessment rejects a base outside the HEAD first-parent history$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -179,7 +179,7 @@
         ],
         "id": "CHANGE-PLAN-ASSESS-HISTORY-001",
         "line": 1,
-        "searchText": "评估拒绝第一父历史之外的基线 Plan 基线必须位于当前 HEAD 的第一父历史上，旁支提交不能作为距离起点。 即使当前 artifacts 已与旁支基线不同，合并后以旁支提交为基线仍优先返回 `plan-review-required` 与 `base-unavailable`，不会误报为普通 artifact 变化。 tools/change-plan/tests/assessment.test.ts > assessment rejects a base outside the HEAD first-parent history bun test --test-name-pattern=\"^assessment rejects a base outside the HEAD first-parent history$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "评估拒绝第一父历史之外的基线 Plan 基线必须位于当前 HEAD 的第一父历史上，旁支提交不能作为距离起点。 合并后以旁支提交为基线返回 `plan-review-required` 与 `base-unavailable`，不会生成无法成立的 Git 距离证据。 tools/change-plan/tests/assessment.test.ts > assessment rejects a base outside the HEAD first-parent history bun test --test-name-pattern=\"^assessment rejects a base outside the HEAD first-parent history$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/assessment-rejects-a-base-outside-the-head-first-parent-history.md",
         "summary": "Plan 基线必须位于当前 HEAD 的第一父历史上，旁支提交不能作为距离起点。",
         "title": "评估拒绝第一父历史之外的基线"
@@ -694,7 +694,7 @@
     "CHANGE-PLAN-CLI-PLAN-COMMIT-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CLI-PLAN-COMMIT-001 Plan CLI 要求制品已提交到 HEAD Draft 进入 plan 前，计划制品必须已经提交并可由当前 HEAD 确认。 尚未提交的完整 Draft 制品被拒绝，JSON 错误明确要求制品位于 HEAD。 tools/change-plan/tests/cli.test.ts > CLI plan requires artifacts committed at HEAD bun test --test-name-pattern=\"^CLI plan requires artifacts committed at HEAD$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CLI-PLAN-COMMIT-001 Plan CLI 记录已有 HEAD 并接受未提交 artifacts `plan` 的版本控制基线取命令运行时已有的 HEAD；artifacts 的 Git 状态不参与这项门禁。 未跟踪的完整 Draft artifacts 能成功进入 plan，写入的 `baseCommit` 等于命令前已有 HEAD，且命令本身不产生新提交。 tools/change-plan/tests/cli.test.ts > CLI plan records existing HEAD without requiring committed artifacts bun test --test-name-pattern=\"^CLI plan records existing HEAD without requiring committed artifacts$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -703,15 +703,38 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/change-plan/tests/cli.test.ts > CLI plan requires artifacts committed at HEAD",
-          "bun test --test-name-pattern=\"^CLI plan requires artifacts committed at HEAD$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/cli.test.ts > CLI plan records existing HEAD without requiring committed artifacts",
+          "bun test --test-name-pattern=\"^CLI plan records existing HEAD without requiring committed artifacts$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-CLI-PLAN-COMMIT-001",
         "line": 1,
-        "searchText": "Plan CLI 要求制品已提交到 HEAD Draft 进入 plan 前，计划制品必须已经提交并可由当前 HEAD 确认。 尚未提交的完整 Draft 制品被拒绝，JSON 错误明确要求制品位于 HEAD。 tools/change-plan/tests/cli.test.ts > CLI plan requires artifacts committed at HEAD bun test --test-name-pattern=\"^CLI plan requires artifacts committed at HEAD$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/cli-plan-requires-artifacts-committed-at-head.md",
-        "summary": "Draft 进入 plan 前，计划制品必须已经提交并可由当前 HEAD 确认。",
-        "title": "Plan CLI 要求制品已提交到 HEAD"
+        "searchText": "Plan CLI 记录已有 HEAD 并接受未提交 artifacts `plan` 的版本控制基线取命令运行时已有的 HEAD；artifacts 的 Git 状态不参与这项门禁。 未跟踪的完整 Draft artifacts 能成功进入 plan，写入的 `baseCommit` 等于命令前已有 HEAD，且命令本身不产生新提交。 tools/change-plan/tests/cli.test.ts > CLI plan records existing HEAD without requiring committed artifacts bun test --test-name-pattern=\"^CLI plan records existing HEAD without requiring committed artifacts$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/cli-plan-records-existing-head-without-requiring-committed-artifacts.md",
+        "summary": "`plan` 的版本控制基线取命令运行时已有的 HEAD；artifacts 的 Git 状态不参与这项门禁。",
+        "title": "Plan CLI 记录已有 HEAD 并接受未提交 artifacts"
+      }
+    },
+    "CHANGE-PLAN-CLI-PLAN-NO-HEAD-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CLI-PLAN-NO-HEAD-001 Plan CLI 拒绝没有 HEAD 的仓库 `plan` 必须从命令运行时已有的 HEAD 取得非空 `baseCommit`，失败时不能写入阶段 metadata。 仓库没有 HEAD 时，JSON 模式在 stdout 返回 `base-commit-unavailable`、保持 stderr 为空，并保持 Draft metadata 字节不变。 tools/change-plan/tests/cli.test.ts > CLI plan rejects a repository without HEAD bun test --test-name-pattern=\"^CLI plan rejects a repository without HEAD$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/change-plan/tests/cli.test.ts > CLI plan rejects a repository without HEAD",
+          "bun test --test-name-pattern=\"^CLI plan rejects a repository without HEAD$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CLI-PLAN-NO-HEAD-001",
+        "line": 1,
+        "searchText": "Plan CLI 拒绝没有 HEAD 的仓库 `plan` 必须从命令运行时已有的 HEAD 取得非空 `baseCommit`，失败时不能写入阶段 metadata。 仓库没有 HEAD 时，JSON 模式在 stdout 返回 `base-commit-unavailable`、保持 stderr 为空，并保持 Draft metadata 字节不变。 tools/change-plan/tests/cli.test.ts > CLI plan rejects a repository without HEAD bun test --test-name-pattern=\"^CLI plan rejects a repository without HEAD$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/cli-plan-rejects-a-repository-without-head.md",
+        "summary": "`plan` 必须从命令运行时已有的 HEAD 取得非空 `baseCommit`，失败时不能写入阶段 metadata。",
+        "title": "Plan CLI 拒绝没有 HEAD 的仓库"
       }
     },
     "CHANGE-PLAN-CLI-RECONCILE-001": {
@@ -11058,10 +11081,10 @@
       "CHANGE-PLAN-ARCHIVE-MOVE-001": "sha256:50f5b357fdf65c4ea1f24f786b80f2fb92894b20470337a0f148c3f0532a2795",
       "CHANGE-PLAN-ARCHIVE-SOURCE-001": "sha256:9dbf7b3d85328039bbe82f8a13fcb749fa5880bd55dc93a506372c1d2a6d3e2e",
       "CHANGE-PLAN-ARCHIVE-TARGET-001": "sha256:78a0e71092de8ca5628ab2b8abe212eab4fbcf5462aebb460e0129f2e056968d",
-      "CHANGE-PLAN-ASSESS-ARTIFACTS-001": "sha256:08df94e7ddf71e85183395e7d3e437ad73d63787f4ea2d55c427437efa093b36",
-      "CHANGE-PLAN-ASSESS-BASE-001": "sha256:ec6f3cca1385f8638db769d955090595f76b6c3e6db7bce471faa4c4a2d2fbd4",
-      "CHANGE-PLAN-ASSESS-CURRENT-001": "sha256:c9814771d9856ca0a47d3fb8faa1c026ec5a4f99287463c937ea3a8a0f054126",
-      "CHANGE-PLAN-ASSESS-HISTORY-001": "sha256:00f016427633622e3273951b34d0d3bb60b834b52bed64eb6946a8a9e931e8ec",
+      "CHANGE-PLAN-ASSESS-ARTIFACTS-001": "sha256:5fa77c4263cac5e2900467f41012fdefdfe143ce29a1e5794c23a3448ba92519",
+      "CHANGE-PLAN-ASSESS-BASE-001": "sha256:ec8498caeb12a43436f1e1455b1a42cf263d72b6ca403e39c6af9e0e495f22cf",
+      "CHANGE-PLAN-ASSESS-CURRENT-001": "sha256:5fa3b52c4a45bfa7aa197c75717eab2b875125f2322fb14b9cb5ac83b65f7e72",
+      "CHANGE-PLAN-ASSESS-HISTORY-001": "sha256:abb9a2552598ad6465ca3a9b906ef000e35a9c721c849e9aec0a3a594a4b1f78",
       "CHANGE-PLAN-ASSESS-SCOPE-001": "sha256:addc9e4487be8d29e0ae0792369ad03dd8ef534b7fa21bedbc54b9015bf68873",
       "CHANGE-PLAN-CATALOG-INVALID-001": "sha256:61fd1852f86cc38e4c03a5b00d0bdbe1c5004246851ab8d1e23e8f72d77efe03",
       "CHANGE-PLAN-CATALOG-LIFECYCLE-001": "sha256:7c64259344d3dcdc0246148f8ee129a6ca384b1057ac68b7314ba3dff94304bd",
@@ -11084,7 +11107,8 @@
       "CHANGE-PLAN-CLI-LIST-001": "sha256:59ce91adfa9f06dcb23ea6f2d69320aea194906f4603eabdaad7abd7173b9c0c",
       "CHANGE-PLAN-CLI-LIST-ARGS-001": "sha256:1c218739f3b4a92f314c012aa0f6acf5660ebdd576a732ef196c65a57798ca7a",
       "CHANGE-PLAN-CLI-LIST-ROOT-001": "sha256:142d5c70f5012973407aa1c114526abd0bed18f207bf2b5c1e02ba755b00bcd3",
-      "CHANGE-PLAN-CLI-PLAN-COMMIT-001": "sha256:318d1b093f19f656c54dcef04c9cf4af052fabf3affcf47d68399ecce9000ee3",
+      "CHANGE-PLAN-CLI-PLAN-COMMIT-001": "sha256:7b4d00faf5c9b83b86c9990a5d03609e7a96ed81c2cbe0e3b54873b6d0955f9d",
+      "CHANGE-PLAN-CLI-PLAN-NO-HEAD-001": "sha256:3807d0a281290da77157fffe53d156bcaa307f018d766b04b8601081e981b4dd",
       "CHANGE-PLAN-CLI-RECONCILE-001": "sha256:c056241e92608802b222c5af0a337bc23577d7fe154ad04a0e1b5a45f708bdff",
       "CHANGE-PLAN-CLI-SHOW-001": "sha256:5071af6ab47a3940c27103f8de22d255d2acea058d6ce4028f34f33cc31499c8",
       "CHANGE-PLAN-GENERATED-ARTIFACTS-001": "sha256:f9bbced373713b77347f935be06c0164d9fcefb9154ff9491634e8d060666a73",

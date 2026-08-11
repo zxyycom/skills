@@ -10,10 +10,7 @@ import {
 import {
   repositoryRelativePathFromFileSystemPath
 } from "../../shared/src/version-control/repository-relative-path.ts";
-import {
-  changePlanArtifactNames,
-  type ChangePlanAssessment
-} from "./types.ts";
+import type { ChangePlanAssessment } from "./types.ts";
 
 export type GitDistanceAssessment = Extract<
   ChangePlanAssessment,
@@ -32,18 +29,9 @@ export type PlanVersionControlInspection =
     outcome: "base-unavailable";
   }
   | {
-    baseCommit: string;
-    headCommit: string;
-    outcome: "artifacts-changed";
-  }
-  | {
     evidence: GitDistanceEvidence;
     outcome: "measured";
   };
-
-export type PlanArtifactConfirmation =
-  | { confirmed: true; headCommit: string }
-  | { confirmed: false; headCommit: string | null };
 
 type ChangeRepositoryContext = {
   changePath: string;
@@ -61,12 +49,6 @@ async function repositoryContext(
     ),
     repository
   };
-}
-
-function artifactPaths(changePath: string): string[] {
-  return changePlanArtifactNames.map(
-    (artifact) => `${changePath}/${artifact}`
-  );
 }
 
 function isInsideChange(file: string, changePath: string): boolean {
@@ -88,30 +70,6 @@ async function resolveCommit(
     }
     throw error;
   }
-}
-
-async function artifactsMatchCommit(
-  context: ChangeRepositoryContext,
-  commit: string
-): Promise<boolean> {
-  const paths = artifactPaths(context.changePath);
-  const [revisionFiles, pendingChanges, workspaceChanges] = await Promise.all([
-    context.repository.listRevisionFiles(commit, { pathScopes: paths }),
-    context.repository.listPendingChangedPaths({
-      from: commit,
-      pathScopes: paths
-    }),
-    context.repository.listWorkspaceChangedPaths()
-  ]);
-  if (
-    revisionFiles.length !== paths.length
-    || paths.some((artifactPath) => !revisionFiles.includes(artifactPath))
-  ) {
-    return false;
-  }
-  const pathSet = new Set(paths);
-  return pendingChanges.length === 0
-    && !workspaceChanges.some((changedPath) => pathSet.has(changedPath));
 }
 
 async function measureResolvedGitDistance(
@@ -155,17 +113,11 @@ async function measureResolvedGitDistance(
   };
 }
 
-export async function confirmPlanArtifactsAtHead(
+export async function readCurrentHeadCommit(
   changeDirectory: string
-): Promise<PlanArtifactConfirmation> {
-  const context = await repositoryContext(changeDirectory);
-  const headCommit = await context.repository.getCurrentRevision();
-  if (headCommit === null) {
-    return { confirmed: false, headCommit };
-  }
-  return await artifactsMatchCommit(context, headCommit)
-    ? { confirmed: true, headCommit }
-    : { confirmed: false, headCommit };
+): Promise<string | null> {
+  const repository = await openVersionControl(changeDirectory);
+  return await repository.getCurrentRevision();
 }
 
 export async function inspectPlanVersionControl(
@@ -189,13 +141,6 @@ export async function inspectPlanVersionControl(
   );
   if (evidence === null) {
     return { baseCommit, headCommit, outcome: "base-unavailable" };
-  }
-  if (!await artifactsMatchCommit(context, resolvedBase)) {
-    return {
-      baseCommit,
-      headCommit,
-      outcome: "artifacts-changed"
-    };
   }
   return { evidence, outcome: "measured" };
 }

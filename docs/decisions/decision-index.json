@@ -103,6 +103,7 @@
       "change-plan/manage-basic-change-lifecycle.md": "sha256:5a3c25dd4d93305d5d71ea6db4ed6959728cc456427e48a6707a88e0b6361782",
       "change-plan/manage-change-lifecycle-stages.md": "sha256:f7d7c057803b8e9e84f6c292af9d945c2f9bdffbae0c2b21de52e8dad05b5c60",
       "change-plan/use-independent-change-plans.md": "sha256:2d32fbd6ed64b1eff7d852fd7ee0e0037c72dcdceb27803d5bb879cddab41f0c",
+      "change-plan/use-plan-base-only-for-git-distance.md": "sha256:27ac2a3a8bf2fb64f0bd7348c9981ede9674959546bb0b4b9704d547022ea30e",
       "common-denominator-design/design-by-scenario-denominators.md": "sha256:218a489e475594152f861a152cf785274ef297e862216fe198191418114619ac",
       "decision-records/260627-establish-decision-record-policy.md": "sha256:afdeb4ca6139a9fe9a5a8e971836690f6893b4dedf5c9e86d2c4a0a7e5c934e4",
       "decision-records/260630-name-decision-root-docs-by-owner.md": "sha256:52247027cefd9a55d8db25635f80724c6df8fe7907863169efa1b4b3912e5668",
@@ -756,6 +757,30 @@
         "purpose": "让项目在不采用完整 specification 生命周期时也能保存可审阅、可交接并带实施门禁的 change 计划。",
         "background": "稳定文档和长期决策已有各自 owner，而 OpenSpec 的 proposal、design 与 tasks 仍提供有价值的 change 级规划结构。",
         "decision": "新增独立 `change-plan`，以三文件临时计划和只读结构检查器承接规划，不拥有稳定事实、长期决策或实施许可。",
+        "relations": []
+      }
+    },
+    "change-plan/use-plan-base-only-for-git-distance.md": {
+      "keys": {
+        "domain": [
+          "change-plan"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "change-plan/use-plan-base-only-for-git-distance.md",
+        "title": "让 Plan 基线只承担 Git 距离定位",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T06:09:13Z",
+        "purpose": "让 Plan 阶段与三个 artifacts 能在同一提交中自包含保存，同时保留命令运行时已有的 Git 距离基线。",
+        "background": "把 baseCommit 同时解释为历史基线与 artifact 内容快照，会迫使 artifacts 和阶段 metadata 分两次提交，也无法形成自包含 Plan 提交。",
+        "decision": "plan 只把命令运行时已有的 HEAD 记录为 Git 距离基线，不比较 artifacts 与该提交的内容；未来若需要内容一致性证明，应建立独立机制而不改变 baseCommit 的职责。",
         "relations": []
       }
     },

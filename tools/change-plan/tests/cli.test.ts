@@ -36,11 +36,12 @@ function runCli(arguments_: readonly string[]) {
   });
 }
 
-function runGit(directory: string, arguments_: readonly string[]): void {
+function runGit(directory: string, arguments_: readonly string[]): string {
   const result = spawnSync("git", ["-C", directory, ...arguments_], {
     encoding: "utf8"
   });
   assert.equal(result.status, 0, result.stderr);
+  return result.stdout.trim();
 }
 
 async function initializeGitRepository(directory: string): Promise<void> {
@@ -449,7 +450,7 @@ async function testCandidateMayBeShelvedOrReconfirmed(
   assert.equal(runCli(["implement", reconfirmedCandidateDirectory]).status, 0);
 }
 
-async function testPlanRequiresCommittedArtifacts(
+async function testPlanRecordsExistingHead(
   tempRoot: string
 ): Promise<void> {
   const repository = path.join(tempRoot, "uncommitted-repository");
@@ -457,21 +458,48 @@ async function testPlanRequiresCommittedArtifacts(
   await fs.writeFile(path.join(repository, "README.md"), "fixture\n", "utf8");
   runGit(repository, ["add", "README.md"]);
   runGit(repository, ["commit", "-m", "initialize repository"]);
+  const previousHead = runGit(repository, ["rev-parse", "HEAD"]);
   const draftDirectory = await writePlan(
     path.join(repository, "changes"),
     "uncommitted-plan",
     { metadata: { stage: "draft" } }
   );
 
+  assert.match(runGit(repository, ["status", "--porcelain"]), /^\?\? changes\//u);
   const result = runCli(["plan", draftDirectory, "--json"]);
-  assert.equal(result.status, 1);
+  assert.equal(result.status, 0, result.stderr);
   const parsedResult: unknown = JSON.parse(result.stdout);
   assert.ok(isRecord(parsedResult));
-  assert.ok(typeof parsedResult.error === "string");
-  assert.match(
-    parsedResult.error,
-    /must be committed at HEAD/u
+  assert.equal(parsedResult.success, true);
+  assert.ok(isRecord(parsedResult.metadata));
+  assert.equal(parsedResult.metadata.stage, "plan");
+  assert.equal(parsedResult.metadata.baseCommit, previousHead);
+  assert.equal(runGit(repository, ["rev-parse", "HEAD"]), previousHead);
+}
+
+async function testPlanRejectsRepositoryWithoutHead(
+  tempRoot: string
+): Promise<void> {
+  const noHeadRepository = path.join(tempRoot, "no-head-repository");
+  await initializeGitRepository(noHeadRepository);
+  const noHeadDraftDirectory = await writePlan(
+    path.join(noHeadRepository, "changes"),
+    "no-head-plan",
+    { metadata: { stage: "draft" } }
   );
+  const metadataPath = path.join(
+    noHeadDraftDirectory,
+    ".change-plan.json"
+  );
+  const metadataBefore = await fs.readFile(metadataPath, "utf8");
+  const noHeadResult = runCli(["plan", noHeadDraftDirectory, "--json"]);
+  assert.equal(noHeadResult.status, 1);
+  assert.equal(noHeadResult.stderr, "");
+  const parsedNoHeadResult: unknown = JSON.parse(noHeadResult.stdout);
+  assert.ok(isRecord(parsedNoHeadResult));
+  assert.equal(parsedNoHeadResult.success, false);
+  assert.equal(parsedNoHeadResult.errorCode, "base-commit-unavailable");
+  assert.equal(await fs.readFile(metadataPath, "utf8"), metadataBefore);
 }
 
 async function testLifecycleOutputChannels(tempRoot: string): Promise<void> {
@@ -680,8 +708,12 @@ test("CLI Git-distance candidate can be shelved or reconfirmed", () => (
   withTempRoot("cli-candidate", testCandidateMayBeShelvedOrReconfirmed)
 ));
 
-test("CLI plan requires artifacts committed at HEAD", () => (
-  withTempRoot("cli-plan-commit", testPlanRequiresCommittedArtifacts)
+test("CLI plan records existing HEAD without requiring committed artifacts", () => (
+  withTempRoot("cli-plan-commit", testPlanRecordsExistingHead)
+));
+
+test("CLI plan rejects a repository without HEAD", () => (
+  withTempRoot("cli-plan-no-head", testPlanRejectsRepositoryWithoutHead)
 ));
 
 test("CLI lifecycle output preserves result channels and error codes", () => (

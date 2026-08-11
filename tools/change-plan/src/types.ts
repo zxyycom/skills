@@ -30,7 +30,7 @@ export type ChangePlanAssessment =
     assessment: "plan-review-required";
     baseCommit: string | null;
     headCommit: string | null;
-    reason: "base-unavailable" | "artifacts-changed";
+    reason: "base-unavailable";
   }
   | {
     assessment: "current" | "shelve-candidate";
@@ -159,7 +159,7 @@ export type ChangePlanLifecycleAction =
 
 export type ChangePlanLifecycleErrorCode =
   | "artifact-check-failed"
-  | "artifacts-not-confirmed"
+  | "base-commit-unavailable"
   | "change-check-failed"
   | "delivery-already-started"
   | "invalid-assessment"

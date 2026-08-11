@@ -6,7 +6,6 @@ import test from "node:test";
 import {
   assessChangePlan
 } from "../src/assessment.ts";
-import { confirmPlanArtifactsAtHead } from "../src/git-distance.ts";
 import type { ChangePlanMetadata } from "../src/types.ts";
 import { withTempRoot } from "./support.ts";
 
@@ -79,12 +78,33 @@ test("assessment is not applicable outside active plan stage", async () => {
   );
 });
 
-test("assessment keeps a confirmed unchanged plan current", () => (
+test("assessment keeps a plan with an available base current", () => (
   withTempRoot("assessment-current", async (tempRoot) => {
     const fixture = await createAssessmentFixture(tempRoot);
     assert.deepEqual(
-      await confirmPlanArtifactsAtHead(fixture.changeDirectory),
-      { confirmed: true, headCommit: fixture.baseCommit }
+      await assessChangePlan(
+        fixture.changeDirectory,
+        planMetadata(fixture.baseCommit)
+      ),
+      {
+        assessment: "current",
+        baseCommit: fixture.baseCommit,
+        changedLines: 0,
+        commitCount: 0,
+        headCommit: fixture.baseCommit,
+        policy: "git-distance-v1"
+      }
+    );
+  })
+));
+
+test("assessment ignores artifact differences from its base", () => (
+  withTempRoot("assessment-artifacts", async (tempRoot) => {
+    const fixture = await createAssessmentFixture(tempRoot);
+    await fs.appendFile(
+      path.join(fixture.changeDirectory, "design.md"),
+      "changed\n",
+      "utf8"
     );
     assert.deepEqual(
       await assessChangePlan(
@@ -101,74 +121,21 @@ test("assessment keeps a confirmed unchanged plan current", () => (
       }
     );
 
-    git(fixture.repositoryRoot, ["config", "core.autocrlf", "true"]);
-    await Promise.all([
-      "proposal.md",
-      "design.md",
-      "tasks.md"
-    ].map((artifact) => fs.rm(path.join(fixture.changeDirectory, artifact))));
-    git(fixture.repositoryRoot, [
-      "checkout",
-      "--",
-      "changes/assessed-change"
-    ]);
-    assert.match(
-      await fs.readFile(
-        path.join(fixture.changeDirectory, "proposal.md"),
-        "utf8"
-      ),
-      /\r\n/u
-    );
-    assert.equal(git(fixture.repositoryRoot, ["status", "--porcelain"]), "");
-    assert.deepEqual(
-      await confirmPlanArtifactsAtHead(fixture.changeDirectory),
-      { confirmed: true, headCommit: fixture.baseCommit }
-    );
-  })
-));
-
-test("assessment requires review when an artifact differs from its base", () => (
-  withTempRoot("assessment-artifacts", async (tempRoot) => {
-    const fixture = await createAssessmentFixture(tempRoot);
-    await fs.appendFile(
-      path.join(fixture.changeDirectory, "design.md"),
-      "changed\n",
-      "utf8"
-    );
-    assert.deepEqual(
-      await confirmPlanArtifactsAtHead(fixture.changeDirectory),
-      { confirmed: false, headCommit: fixture.baseCommit }
-    );
-    assert.deepEqual(
-      await assessChangePlan(
-        fixture.changeDirectory,
-        planMetadata(fixture.baseCommit)
-      ),
-      {
-        assessment: "plan-review-required",
-        baseCommit: fixture.baseCommit,
-        headCommit: fixture.baseCommit,
-        reason: "artifacts-changed"
-      }
-    );
-
     git(fixture.repositoryRoot, ["add", "."]);
     git(fixture.repositoryRoot, ["commit", "--quiet", "-m", "revise design"]);
     const revisedHead = git(fixture.repositoryRoot, ["rev-parse", "HEAD"]);
     assert.deepEqual(
-      await confirmPlanArtifactsAtHead(fixture.changeDirectory),
-      { confirmed: true, headCommit: revisedHead }
-    );
-    assert.deepEqual(
       await assessChangePlan(
         fixture.changeDirectory,
         planMetadata(fixture.baseCommit)
       ),
       {
-        assessment: "plan-review-required",
+        assessment: "current",
         baseCommit: fixture.baseCommit,
+        changedLines: 0,
+        commitCount: 0,
         headCommit: revisedHead,
-        reason: "artifacts-changed"
+        policy: "git-distance-v1"
       }
     );
 
@@ -191,8 +158,18 @@ test("assessment requires review when an artifact differs from its base", () => 
       /^MM changes\/assessed-change\/proposal\.md$/u
     );
     assert.deepEqual(
-      await confirmPlanArtifactsAtHead(fixture.changeDirectory),
-      { confirmed: false, headCommit: revisedHead }
+      await assessChangePlan(
+        fixture.changeDirectory,
+        planMetadata(fixture.baseCommit)
+      ),
+      {
+        assessment: "current",
+        baseCommit: fixture.baseCommit,
+        changedLines: 0,
+        commitCount: 0,
+        headCommit: revisedHead,
+        policy: "git-distance-v1"
+      }
     );
   })
 ));

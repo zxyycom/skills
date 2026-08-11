@@ -1,6 +1,6 @@
 import path from "node:path";
 import { checkChangePlanDirectory } from "./check.ts";
-import { confirmPlanArtifactsAtHead } from "./git-distance.ts";
+import { readCurrentHeadCommit } from "./git-distance.ts";
 import { writeChangePlanMetadata } from "./metadata.ts";
 import type {
   ChangePlanAssessment,
@@ -198,30 +198,30 @@ export async function planChangePlanDirectory(
     );
   }
 
-  let confirmation;
+  let baseCommit: string | null;
   try {
-    confirmation = await confirmPlanArtifactsAtHead(changeDirectory);
+    baseCommit = await readCurrentHeadCommit(changeDirectory);
   } catch (error) {
     return failure(
       action,
       check,
       "version-control-failed",
-      `cannot confirm plan artifacts in version control; restore repository access and retry: ${errorMessage(error)}`
+      `cannot read the current Git revision for the plan baseline; restore repository access and retry: ${errorMessage(error)}`
     );
   }
-  if (!confirmation.confirmed) {
+  if (baseCommit === null) {
     return failure(
       action,
       check,
-      "artifacts-not-confirmed",
-      "proposal.md, design.md, and tasks.md must be committed at HEAD; commit the current artifacts and retry"
+      "base-commit-unavailable",
+      "plan requires an existing HEAD commit to record as baseCommit; create or restore a Git commit and retry"
     );
   }
   return await persistMetadata(
     action,
     changeDirectory,
     check.stage,
-    { baseCommit: confirmation.headCommit, stage: "plan" },
+    { baseCommit, stage: "plan" },
     check
   );
 }

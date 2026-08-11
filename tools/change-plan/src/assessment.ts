@@ -27,13 +27,5 @@ export async function assessChangePlan(
       reason: "base-unavailable"
     };
   }
-  if (inspection.outcome === "artifacts-changed") {
-    return {
-      assessment: "plan-review-required",
-      baseCommit: inspection.baseCommit,
-      headCommit: inspection.headCommit,
-      reason: "artifacts-changed"
-    };
-  }
   return classifyGitDistance(inspection.evidence);
 }

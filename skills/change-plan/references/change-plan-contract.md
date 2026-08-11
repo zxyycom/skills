@@ -49,18 +49,18 @@ Draft：
 ```json
 {
   "stage": "plan",
-  "baseCommit": "<confirmed-head-commit>"
+  "baseCommit": "<plan-baseline-commit>"
 }
 ```
 
-`baseCommit` 为非空字符串时表示最后一次通过 `plan` 确认三个 artifacts 的 Git commit；shelved Change 执行 `resume` 后该字段为 `null`，表示尚待重新确认。
+`baseCommit` 为非空字符串时表示最后一次成功运行 `plan` 时读取的 `HEAD`，只作为后续 Git 距离的起点。Artifacts 的工作树、index 和提交内容不参与设置或评估该基线。Shelved Change 执行 `resume` 后该字段为 `null`，表示尚待重新记录基线。
 
 Implementation：
 
 ```json
 {
   "stage": "implementation",
-  "baseCommit": "<confirmed-plan-commit>"
+  "baseCommit": "<plan-baseline-commit>"
 }
 ```
 
@@ -69,7 +69,7 @@ Implementation：
 ```json
 {
   "stage": "shelved",
-  "baseCommit": "<confirmed-plan-commit>",
+  "baseCommit": "<plan-baseline-commit>",
   "shelf": {
     "source": "explicit",
     "atCommit": "<head-commit>",
@@ -83,7 +83,7 @@ Implementation：
 ```json
 {
   "stage": "shelved",
-  "baseCommit": "<confirmed-plan-commit>",
+  "baseCommit": "<plan-baseline-commit>",
   "shelf": {
     "source": "git-distance-v1",
     "atCommit": "<head-commit>",
@@ -208,7 +208,7 @@ Tasks 规则：
 ## Plan assessment 与 Git 距离
 
 1. Archived Change 和 stage 不是 `plan` 的 active Change 使用 `not-applicable`。
-2. Plan 的 `baseCommit` 为 `null`、不能解析、不是当前 `HEAD` 的 first-parent 祖先，或三个 artifacts 不再与基线内容一致时，assessment 为 `plan-review-required`；`check` 同时失败。
+2. Plan 的 `baseCommit` 为 `null`、不能解析或不是当前 `HEAD` 的 first-parent 祖先时，assessment 为 `plan-review-required`；`check` 同时失败。Artifacts 的工作树、index 和提交内容不参与 assessment。
 3. 可评估的 plan 使用固定 `git-distance-v1`。从 `baseCommit` 到当前 `HEAD` 沿 first-parent 逐个提交统计：
    - Merge revision 的路径与行数变化相对其 first parent 计算。
    - 只修改当前 Change 目录的提交不参与距离。
@@ -221,7 +221,7 @@ Tasks 规则：
    - `changedLines >= 3000`
 5. 其余可评估 plan 为 `current`。`3/1000` 保持 current；项目没有新提交或只有当前 Change 目录发生变化时距离为 `0/0`。
 6. Assessment 不使用日期或文件 mtime，也没有项目级或单 Change 阈值。`shelve-candidate` 本身不使 `check` 失败；查询只报告候选，复核后可以重新运行 `plan` 更新基线。`reconcile` 以 `git-distance-v1` 证据把候选写成 shelved；`shelve --reason` 则以明确原因写入 shelved。
-7. Git 仓库发现、revision 查询或 diff 操作失败时，assessment 为 `null`，`check` 使用 `version-control-failed` 诊断并失败；这类操作故障不转换成 `plan-review-required`。可解析但不在 HEAD first-parent 上的基线仍是 `base-unavailable`，即使 artifacts 同时已经变化。
+7. Git 仓库发现、revision 查询或 diff 操作失败时，assessment 为 `null`，`check` 使用 `version-control-failed` 诊断并失败；这类操作故障不转换成 `plan-review-required`。可解析但不在 HEAD first-parent 上的基线仍是 `base-unavailable`。
 
 ## CLI
 
@@ -250,7 +250,7 @@ node <change-plan-cli> archive <change-directory> [--json]
 
 | 命令 | 源状态与门禁 | 成功结果 |
 | --- | --- | --- |
-| `plan` | draft、`plan-review-required` 或 `shelve-candidate` 的 plan；完整三 artifacts 有效，Readiness checkbox 全部勾选，Implementation 与 Verification 没有已勾选 checkbox，三个 artifacts 已提交且与 `HEAD` 一致。 | 写入 stage `plan` 和当前 `HEAD` 作为 `baseCommit`。 |
+| `plan` | `draft`，或 assessment 为 `plan-review-required`、`shelve-candidate` 的 `plan`；完整三 artifacts 有效，Readiness checkbox 全部勾选，Implementation 与 Verification 没有已勾选 checkbox；版本控制门禁只要求当前仓库存在 `HEAD`。 | 写入 stage `plan` 和命令运行时的 `HEAD` 作为 `baseCommit`。 |
 | `implement` | Assessment 为 `current` 的已确认 plan。 | 沿用 `baseCommit` 并写入 stage `implementation`。 |
 | `shelve --reason` | Assessment 为 `current` 或 `shelve-candidate` 的已确认 plan，reason 非空。 | 写入 stage `shelved`、原因和当前 `HEAD`。 |
 | `reconcile` | Assessment 为 `shelve-candidate` 的 plan。 | 写入 stage `shelved`、`git-distance-v1` 证据和当前 `HEAD`。 |
@@ -258,7 +258,7 @@ node <change-plan-cli> archive <change-directory> [--json]
 
 阶段命令接受显式 Change 目录，不进行跨根名称搜索。失败时不写入目标 metadata。成功结果固定包含 `success: true`、`action`、`fromStage` 和写入后的 `metadata`；失败结果固定包含 `success: false`、`action`、`fromStage`、`diagnostics`、稳定 `errorCode` 和可行动的 `error`。结果不嵌入更新后的 check、assessment 或 Change 路径。
 
-`resume` 成功以返回且已写入的 metadata 为 `stage: "plan"`、`baseCommit: null` 为准。后续必须重新审阅、提交 artifacts 并运行 `plan`；需要查看更新后的 assessment 时另行执行 `show` 或 `check`。
+`resume` 成功以返回且已写入的 metadata 为 `stage: "plan"`、`baseCommit: null` 为准。后续必须重新审阅并运行 `plan`；artifacts 与更新后的 metadata 可以随后进入同一个提交。需要查看更新后的 assessment 时另行执行 `show` 或 `check`。
 
 ### Archive
 

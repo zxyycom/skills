@@ -370,9 +370,7 @@ export async function checkChangePlanDirectory(
     diagnostics.push(fileDiagnostic(
       changePlanMetadataName,
       "plan-review-required",
-      assessment.reason === "base-unavailable"
-        ? "plan baseCommit is unavailable; review the artifacts and confirm a new plan baseline"
-        : "plan artifacts changed after confirmation; review them and confirm a new plan baseline"
+      "plan baseCommit is unavailable; review the plan and record a new Git baseline"
     ));
   }
 
