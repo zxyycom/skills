@@ -1,28 +1,23 @@
 # OpenSpec Skills
 
-`openspec-skills` 是对 OpenSpec skills 的二次开发。它的起点不是重新发明 OpenSpec，而是原有 OpenSpec skill 文本在实际使用中还不够理想：阶段边界不够清楚，指令脉络不够稳定，很多要求需要进一步改写，才能更好地引导 agent 完成 OpenSpec 工作流。
+本仓库当前仍保留四个经过二次整理的 OpenSpec skills，但这组能力已经进入去留观察期。现有入口继续可用；普通问题、文案优化、体验改进和功能扩展默认延期，不据此建立新的 Task 或 Change。观察不表示已经删除或现有行为失效，真实删除仍需要独立授权和完整影响核对。
 
-OpenSpec 本身提供的是规格和变更流程；这个项目关注的是 agent 如何理解并执行这些流程。它要优化的是 skill 文本质量、任务进入姿态、artifact 写作边界、开放问题门禁和阶段之间的交接方式。
+当前维护姿态由[在删除观察期延期 OpenSpec 维护](../decisions/skill-maintainer/defer-openspec-maintenance-during-removal-review.md)承接；四个 skill 的实际行为仍分别以对应 `SKILL.md` 为准。
 
-## 为什么需要它
+## 当前保留的能力
 
-OpenSpec 的工作流天然分阶段：先探索问题，再形成 proposal、design、tasks 和 spec delta，然后执行任务，最后归档 change。对人类来说，这些阶段可以通过经验判断切换；对 agent 来说，如果 skill 文本没有清楚地区分阶段目标、暂停条件和输出位置，就容易提前实现、跳过问题确认、写错 artifact owner，或者把临时讨论带进长期规范。
+OpenSpec 工作流按探索、提案、实施和归档分成四个行为入口：
 
-`openspec-skills` 想解决的正是这一层问题。它把 OpenSpec 的流程重新写成更适合 agent 的工作方式，让每个阶段都有明确的任务姿态：什么时候只探索，什么时候可以生成 change，什么时候可以实现，什么时候可以归档。
+1. `openspec-explore` 澄清问题、调查事实和比较方案，不提前进入实现。
+2. `openspec-propose` 把需求整理为 proposal、design、tasks 和 spec delta 等临时 artifacts。
+3. `openspec-apply-change` 按 Change 任务清单推进实现，并同步任务状态和验证结果。
+4. `openspec-archive-change` 在完成状态核对后归档 Change，并保留可审计摘要。
 
-## 希望形成的能力
+## 观察期边界
 
-这个项目希望形成一组更高质量的 OpenSpec agent skills：
+1. 现有 skill、决策和分发关系在实际删除前继续有效；观察状态不改变使用这些入口时必须遵守的现行契约。
+2. 新发现的普通问题只作为当次判断，不自动沉淀为 backlog、Task、Change 或新的实施承诺。明确重新选择维护后，再按届时事实重新评估。
+3. 如果决定继续保留，只处理重新确认仍有价值的问题，不恢复全部历史改进设想。
+4. 如果决定删除，需要单独核对并同步 skill 目录、`AGENTS.md`、项目入口、打包分发和仓库引用；观察期本身不授权这些修改。
 
-1. Explore 负责澄清问题、调查事实和比较方案，不提前进入实现。
-2. Propose 负责把需求整理成可进入实现阶段的 artifacts。
-3. Apply Change 负责按任务清单推进实现，并同步任务状态和验证结果。
-4. Archive Change 负责在实现和验收完成后归档，并保留可审计摘要。
-
-这些 skill 的重点不是包装 CLI 命令，而是把 OpenSpec 的流程语义转成 agent 可以稳定遵守的文本指令。
-
-## 发展方向
-
-后续的发展重点会放在 OpenSpec skill 文本本身的质量提升上：更清楚的阶段边界，更少的歧义入口，更可靠的开放问题处理，更准确的 artifact owner，以及更稳定的 CLI 和文档协作方式。
-
-长期来看，这个项目希望成为一组适合真实项目使用的 OpenSpec agent 工作流技能。它应该让 agent 更少凭感觉推进流程，更多依据清楚的阶段目标、已确认决策和可验证状态行动。
+本页不维护延期问题清单，也不把可能删除解释为既成事实。

@@ -278,6 +278,7 @@
       "skill-maintainer/260719-own-project-aware-skill-lifecycle.md": "sha256:42f4dd984d6cb6d2b40eff9d52e310ff19c2a776af3add5f5d46246b0d10697e",
       "skill-maintainer/260720-define-skills-by-self-contained-contracts.md": "sha256:78365a69a90ac1b89be69dd238af30cfef409d4148568dab56c081b43c38b3f8",
       "skill-maintainer/260720-use-distribution-unit-boundaries.md": "sha256:bb56ec30eecf88e75fbe53a34239affe72dcd49b8b4525fd541cf0c1db0da026",
+      "skill-maintainer/defer-openspec-maintenance-during-removal-review.md": "sha256:642c27358e31f1251d0ac8e1978056de062ebad53698488790415663fe3e3c4e",
       "skill-maintainer/distinguish-skill-and-distribution-unit-boundaries.md": "sha256:b5201d3e6b0de9d1f9e1e6c428d10602dbc1ff370d0e2fa1efcd273e3441d10a",
       "skill-maintainer/distribute-openspec-as-an-aggregate-unit.md": "sha256:caae46a9a076ae887113ec62a68238a6aa7a5edb4f61b0c67a63cb7ab84b7a0f",
       "skill-maintainer/distribute-openspec-skills-independently.md": "sha256:5374e393c0ca9b0c0c8e6d94d23dc864e60e110d10c6c5d6b2bc099f0bd36eac",
@@ -5458,6 +5459,30 @@
             "target": "skill-maintainer/260720-define-skills-by-self-contained-contracts.md"
           }
         ]
+      }
+    },
+    "skill-maintainer/defer-openspec-maintenance-during-removal-review.md": {
+      "keys": {
+        "domain": [
+          "skill-maintainer"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "skill-maintainer/defer-openspec-maintenance-during-removal-review.md",
+        "title": "在删除观察期延期 OpenSpec 维护",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T06:09:16Z",
+        "purpose": "在 OpenSpec skills 的去留尚未确认时停止继续投入普通改进，同时保留当前使用和最终退出的清楚边界。",
+        "background": "项目正在观察是否整体删除四个 OpenSpec skills；继续修正文案、扩展能力或处理非阻断问题可能增加很快失去价值的维护面。",
+        "decision": "观察期内保留现有 OpenSpec skills，但默认延期普通问题和改进；只有明确重新选择维护或出现阻断安全退出的问题时才恢复处理，实际删除仍需独立授权。",
+        "relations": []
       }
     },
     "skill-maintainer/distinguish-skill-and-distribution-unit-boundaries.md": {
