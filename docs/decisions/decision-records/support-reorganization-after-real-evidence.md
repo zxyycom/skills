@@ -1,6 +1,6 @@
 ---
 title: 在真实案例出现后支持决策重组
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-06T04:01:44Z
 purpose: 为多前序到多后继的真实演进保留明确方向，同时避免在缺少实例时预设协议。

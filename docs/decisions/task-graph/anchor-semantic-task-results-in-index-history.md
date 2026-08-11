@@ -1,6 +1,6 @@
 ---
 title: 以索引历史锚定 task 语义结果
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-10T07:20:56Z
 purpose: 让 task result 保存可维护的语义结果，并由 task index 的版本历史锚定完成时的仓库状态。

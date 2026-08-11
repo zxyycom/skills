@@ -75,7 +75,7 @@
     },
     {
       "id": "test-evidence-review",
-      "description": "以最小原生测试入口为单位审查测试证据，并维护显式 case 与派生索引。"
+      "description": "审查最小原生测试实体的证据，维护 Test–Case 关系、派生索引、runner 结果边界与正式结果资格。"
     },
     {
       "id": "version-control",

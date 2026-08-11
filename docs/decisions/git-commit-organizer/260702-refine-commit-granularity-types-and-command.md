@@ -1,6 +1,6 @@
 ---
 title: 调整 git-commit-organizer 的提交粒度、类型和创建命令
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-02T17:35:51+08:00
 purpose: 让每个提交形成可独立理解、审查和回滚的语义单元，并准确表达 agent 配置改动。

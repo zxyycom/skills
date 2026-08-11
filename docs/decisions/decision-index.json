@@ -77,7 +77,7 @@
         "id": "task-graph"
       },
       {
-        "description": "以最小原生测试入口为单位审查测试证据，并维护显式 case 与派生索引。",
+        "description": "审查最小原生测试实体的证据，维护 Test–Case 关系、派生索引、runner 结果边界与正式结果资格。",
         "id": "test-evidence-review"
       },
       {
@@ -95,11 +95,13 @@
       "ai-ready-docs/260706-move-subagent-guidance-to-dedicated-skill.md": "sha256:a17f7678211442bbf422fc85f8989d738b5504ffe19d067080b204c5a7c8930d",
       "ai-ready-docs/260720-remove-migration-copies.md": "sha256:b9a6098cc649208796b586ed87805011e37019acb8b455d10b3c5aeb8ca5945d",
       "ai-ready-docs/260720-treat-negative-options-as-solution-anchors.md": "sha256:f55b608c9ecf634a0ee6ffd465e2a86bd9265f64a275f70de8a2ea5ce1f7ddaf",
-      "ai-ready-docs/260720-use-controlled-mermaid-flowcharts.md": "sha256:25b009a74b0d9a84865bec942f2c8516793f581a47484982e65ad0c7e956f95a",
+      "ai-ready-docs/260720-use-controlled-mermaid-flowcharts.md": "sha256:aac839dcb8deb42813eca19b9e2f9450ef30ed387150777e9518a54882e67dae",
       "ai-ready-docs/use-ai-ready-docs-identity.md": "sha256:c7ef4248915e21ed551d5864b5f8556777334bf91676b380ed6431eba403075a",
+      "ai-ready-docs/use-explicit-environment-supported-diagrams.md": "sha256:19cd987b05ecd5a3ca0c959d34cea3ee9cd74da86e25c6b2b94ac452e827315c",
       "change-plan/detect-shelved-plans-by-git-distance.md": "sha256:7c1a9b1e21bd1590e43bb0fd67cff53758d3802cec0628fe4bfa460c9023f6ae",
-      "change-plan/manage-basic-change-lifecycle.md": "sha256:86c0318b9b43a533bc2332eaa97c08e756104c2d097e2f745bed2f45988d8b7b",
-      "change-plan/manage-change-lifecycle-stages.md": "sha256:6897ba0a61e9c6c7a0a5098f8ce3ff540e4aa96f8caedea56988c1b5e85e5025",
+      "change-plan/maintain-change-artifact-and-authorization-boundaries.md": "sha256:15d4837a4b32a013b7472793848d4a723776e0f96977ab78eecfda52d0f2751d",
+      "change-plan/manage-basic-change-lifecycle.md": "sha256:5a3c25dd4d93305d5d71ea6db4ed6959728cc456427e48a6707a88e0b6361782",
+      "change-plan/manage-change-lifecycle-stages.md": "sha256:f7d7c057803b8e9e84f6c292af9d945c2f9bdffbae0c2b21de52e8dad05b5c60",
       "change-plan/use-independent-change-plans.md": "sha256:2d32fbd6ed64b1eff7d852fd7ee0e0037c72dcdceb27803d5bb879cddab41f0c",
       "common-denominator-design/design-by-scenario-denominators.md": "sha256:218a489e475594152f861a152cf785274ef297e862216fe198191418114619ac",
       "decision-records/260627-establish-decision-record-policy.md": "sha256:afdeb4ca6139a9fe9a5a8e971836690f6893b4dedf5c9e86d2c4a0a7e5c934e4",
@@ -131,12 +133,14 @@
       "decision-records/260720-use-filtered-decision-queries.md": "sha256:73f353d0c6c8864da633073a8ded326d1b687e569ae2822d1e5ffd31f64c3192",
       "decision-records/260720-use-lifecycle-index-and-semantic-paths.md": "sha256:71681914b79cf4b8c1287c708bf528f8eae2da2d84bb2cf6ef27a798bfa4b782",
       "decision-records/allow-sequential-activation-of-prewritten-candidates.md": "sha256:05fe0687d8e6fd2c5d251167d4b3a59c9e9d676e88e73d97c10c0e823dd97ad5",
+      "decision-records/classify-decisions-by-controlled-domain-path.md": "sha256:0dee3cc1d73c6910dee39055d30c7b83d43c7837b80e2d0a915216d89255cba2",
       "decision-records/complete-current-decision-work-by-task-outcome.md": "sha256:7faef24141b07411dbe82be28457d45a678534e86862a3ed653591e6ef067e12",
       "decision-records/converge-records-before-stable-baseline.md": "sha256:a06978cb5cbb74c6e85c358faa09f012ceccc43127c73394e943b88ce9c9035e",
       "decision-records/define-decision-alignment-semantics.md": "sha256:36b1f6370b84a82ec8ab54b4b52f60713c19785337bdd6ec988b534c5c8a2404",
       "decision-records/derive-establishment-from-markdown-lifecycle.md": "sha256:19a6b0edb7c0d2333f1654c7ef6894c296efbac1057d8f7c7c672d696d61996f",
       "decision-records/derive-pending-from-head-path.md": "sha256:a3c08df72eacc920c749bfaa8c52bdda9864e0d6bc3cd98fa6ec93a7befa556f",
       "decision-records/establish-decisions-with-atomic-evolution.md": "sha256:80ffe60f769725f130bac1091cdb17d13985220c8764dce6fbd60e1ca4d24c67",
+      "decision-records/evaluate-reorganization-from-task-graph-case.md": "sha256:aa02b0c6bf86726f3d54376f9e35db32bb3be7afe7272b31abeee127ea6ac4b3",
       "decision-records/express-alignment-as-field-relation.md": "sha256:faf61e2f53b0c07f56f489ddb3c463c5bb3473319cf9d87d80317392f40fd08f",
       "decision-records/express-decision-alignment-state.md": "sha256:7937c9582dbf462d55a6a6d70022ecd7a7d8ca8a9a695aace912ed7746cd376b",
       "decision-records/generate-index-from-self-contained-decisions.md": "sha256:d36d0135f480c191e2bae9f371ee13ad24df16e3c4851cdd4386d165c30eddc0",
@@ -145,15 +149,20 @@
       "decision-records/notify-before-current-decision-writes.md": "sha256:c2444940a1c325a9f908d156950f3584bd593e124a8a19e36e0339ce84e0d10d",
       "decision-records/package-current-index-json-schema.md": "sha256:eae46f50130d05f4ae1c52eeae4982a158a1d2ae6a63302f999e15f70ee7f525",
       "decision-records/package-index-json-schema.md": "sha256:418e7a8eb311ff07c2bef2e2d8c247a0f90113217ea094c91520f6d7b8f7d328",
+      "decision-records/project-domains-into-decision-queries.md": "sha256:cee0dd97cc5b78c0905320e5f4315b3d3e01f8e9ea2007a5fd94e4cab4987a00",
+      "decision-records/query-candidates-directly-from-source.md": "sha256:db706c64526b3656196fb574ebca02ddd659d19345005bceedfe06be881b6254",
+      "decision-records/query-candidates-resiliently-from-source.md": "sha256:bc41b5e5d2244bdd1dd17f5b670c3e4e896ffd64d4312c0639ef5aab35af521d",
+      "decision-records/query-established-records-through-persistent-index.md": "sha256:56b5cf258733f2ac4f55b9236f039320252ba2b16b19e2d47849e3a4e7c32afb",
       "decision-records/query-projected-decision-metadata.md": "sha256:f9974fe576148ed9a34bcd21fcb4fabd5ff3ea7311486430eef745b03732880c",
       "decision-records/rebuild-index-only-with-current-tools.md": "sha256:001f3420b70f86be19788b56969c5b479b7db9d1e22366b17c90b49558e3deb7",
       "decision-records/recover-current-format-tools-and-index.md": "sha256:d3c896c11e9d50fc7a31c2887c8a487393d3e4bf2cb027aaf67b705772484c32",
       "decision-records/replace-decision-relations-as-complete-sets.md": "sha256:ef0559eec62544a5e87445ade16f9265893856f7e0deb3c8cb28536d473f1c93",
       "decision-records/separate-activation-effect-from-head-pending.md": "sha256:72ecb082053ab0a237331afcf2e7eb4bc1e1c050a803075e044633f240d787a4",
       "decision-records/separate-agent-contract-from-tool-protocol.md": "sha256:c88a6d981b516057dfdf735ee550ea39928e2f35101e983c69cc7638743ce072",
+      "decision-records/separate-candidates-from-established-decisions.md": "sha256:8b67fef61fb243455ad6a026c07f3ac33331b02f67e17aeabe803635e8d359a0",
       "decision-records/stage-selected-decisions.md": "sha256:e31bd34a990cf35147b86cde5e01dd1d8a8ecbd149533fcda5d8845a2237ba91",
       "decision-records/support-degraded-decision-maintenance.md": "sha256:e5f91d459b6acaf0d45d12dd5f9fdc1cf75ddcfaf1a3e156cab72df66323eb3b",
-      "decision-records/support-reorganization-after-real-evidence.md": "sha256:0cdf93822de62c43be235f565574d74d45f5e0f9975ab19bf85144a682a330a3",
+      "decision-records/support-reorganization-after-real-evidence.md": "sha256:a9baa065c5ec44938888f91ac02c8dd16ad48d2b603b39e258be051288b9ce4b",
       "decision-records/track-decision-execution-state.md": "sha256:cd366ed4285f39d89af811baae0102eb068d3366f37e47045e75baaa877c6ace",
       "decision-records/treat-unaligned-as-future-direction.md": "sha256:420cd94412fbcb6ed124d8d20b639c2167f607804e876485067dd0f0e345fccb",
       "decision-records/unify-closed-decision-relation-evolution.md": "sha256:7d951ce43ed7e949ff057f1b50a3a897c902c2d629405a4d3c0fa90a5e4c1c2c",
@@ -161,7 +170,7 @@
       "decision-records/use-alignment-aware-decision-commands.md": "sha256:21f3bc02c81bb53eb32f327a58e4c2d8328f47339169f6f98d8cae747adbdb39",
       "decision-records/use-closed-splits-for-coarse-decisions.md": "sha256:464061c66bbb4c279c84aec8a4b8007fd793bdff843c0764ba537c937331d07e",
       "decision-records/use-configurable-self-contained-decision-root.md": "sha256:533b1989653dd598b677d2f022202d432a8520ba574a272cc6d40d2961cc2384",
-      "decision-records/use-domain-paths-as-primary-classification.md": "sha256:5ce673142f6f9b1db900415006042f8d3d484668875b08786924f10a97e814d0",
+      "decision-records/use-domain-paths-as-primary-classification.md": "sha256:017bf8d2e397333f958d4f1b7334bbfdd4c330a7442e64adb328c5c54efd663b",
       "decision-records/use-error-recovery-reference.md": "sha256:3bd2feea34cb1513b4fa0ba0424c3bef3e9de3736023f088acb31d82ed992655",
       "decision-records/use-explicit-reviewable-candidates.md": "sha256:51746e2e33cafe4338c27b580d72fa13d1a2282357de04dede554e0069a1a996",
       "decision-records/use-field-alignment-commands.md": "sha256:52739a5ecc40ddc2b60b257c9c1ef09c767a7bdede8c436e15b1cc549f5930ee",
@@ -171,17 +180,28 @@
       "decision-records/use-recoverable-decision-lifecycle-transactions.md": "sha256:fb48f8d5bfdc279c0ce811fd8b21a9162fdde221d9e2ac7f5002bf8fb8e9bbfd",
       "decision-records/use-recoverable-evolution-transactions.md": "sha256:b4dc6dad6a53465e57c4fbdd16bcb661e021c954720ae6d34dcc840ad128a4dd",
       "decision-records/use-second-precision-lifecycle-index.md": "sha256:f8cfdc13e809667ed2c4779d3a8c5a43dc2381c752ee8a02f535123a39d9f710",
-      "decision-records/use-source-resilient-reviewable-candidates.md": "sha256:900736c5b44a6c52b6714055681562754e2f689b4953ff10e37e7ea3dea84738",
+      "decision-records/use-source-resilient-reviewable-candidates.md": "sha256:eca5f2bcffe025c9e6c6bfc81b96bcb183284d63faac276d726eb943f9225fa5",
       "decision-records/use-topic-filtered-decision-queries.md": "sha256:cbb3e409147b3211117cde2a9fb6f253b8e98eebd9b104bb62ee023786c4de85",
       "dependency-boundary-design/concentrate-before-generalizing.md": "sha256:97fbcc417daeb80a452d6cd68b94b41cdd4719c27869563bbe450a1824647937",
-      "git-commit-organizer/260702-refine-commit-granularity-types-and-command.md": "sha256:7230c893238dc71d0fc6860d46d962c91d70557561470bba9826a8370ffa2649",
+      "git-commit-organizer/260702-refine-commit-granularity-types-and-command.md": "sha256:369aab9d39cef201767573eef3f77b72f35367a52d61d0fcbbb1bb21c0f2aa64",
       "git-commit-organizer/260720-treat-commit-format-as-project-style.md": "sha256:10e057cbcbc14332de9d5bb6a571930ca5c0be11864f17be58ea9bd479e51a1d",
+      "git-commit-organizer/classify-ai-configuration-commits.md": "sha256:c3d80fda80f2bdeb5130d60e05e35d95a0e72f763decc35396766508a3d33a51",
       "git-commit-organizer/default-to-current-task-changes.md": "sha256:65e3059bc7b838e27840b329cc8194e8a76bd3238f8cf78b100cfc77624d4427",
+      "git-commit-organizer/pass-commit-messages-with-arguments-or-files.md": "sha256:cdbdb9c35a9855996d3d9c13007771b075df79509b242d0ca0e917201e9f7d3f",
+      "git-commit-organizer/split-commits-by-semantic-unit.md": "sha256:f59cca69191ecb8cfd42d34e5e0200dafd5304d7145b81e606a701a7c0128c05",
+      "index-runtime/carry-typed-collection-metadata.md": "sha256:48b4958e1c0e4b33f26b6a751ea06d4bd03fcff53a7cb3043453c6918ff10396",
+      "index-runtime/maintain-rebuildable-read-side-index-boundary.md": "sha256:a6e48b6f4f60be5db54520492c6ac2560b84b25396957864db2f4f2064c29dff",
+      "index-runtime/pass-id-and-metadata-to-projection-strategies.md": "sha256:81dadfc6ea100e1cd72974fffeed00d17a9483f75f65eefcdb49331fd679271d",
+      "index-runtime/propagate-validated-collection-metadata.md": "sha256:a914d11be71010d56657db7be66e364b7083223358bd2a3137b8c67496117728",
       "index-runtime/stage-selected-index-entries-by-id.md": "sha256:6c6eda0e4a0901a6ecadf1f64a834e3dbb5405e9fe827456112c24f92a290aa9",
       "index-runtime/stage-selected-index-entries.md": "sha256:2d43831aaff5e122c29ccdd6aedc2f2fb79205617b0cb085a4e53d2a878c01be",
-      "index-runtime/use-id-keyed-state-index.md": "sha256:3d15447ba110c39edca56e8594d178829e3d156d0e14772c1f83107de790768b",
+      "index-runtime/track-per-id-source-revisions.md": "sha256:01cc1a6fbc92da593829773f8329e60a7f237ea7b73fcceec012521d7a30c79c",
+      "index-runtime/use-fixed-index-query-modes.md": "sha256:e805eeacfc6eb84f4be9ee4f1139fe5ee9127e67c4ee69a96c06cc1511ba99e5",
+      "index-runtime/use-id-keyed-state-index.md": "sha256:c5491fb34ac59765e7f5c5ff5cd9f57149b943d70ac9698b53b2e9a130570ad8",
       "index-runtime/use-independent-read-side-index-runtime.md": "sha256:041bd0263ff543d6b1cd1e85def33b157a6d0ed1bb1f447565b66ee497a43369",
-      "index-runtime/use-typed-collection-metadata.md": "sha256:61fe2fe1ecf0adb7821bc73003a8112dd693679e6f2811ec24c64a1daec7b362",
+      "index-runtime/use-stable-id-keyed-index-identity.md": "sha256:f8c7d22f1f0924d3e91c24f4550bccb682840433b07e8721546d5b075341ef84",
+      "index-runtime/use-typed-collection-metadata.md": "sha256:ded355305f6df4de06c52d7efa7998794b491ca83baa070a62b783ed0d98af21",
+      "index-runtime/version-index-definition-compatibility.md": "sha256:9023fc5d50a4ab2141ba8857df58ae04525ea63de6d18bdae8a4c36170d924df",
       "investigation-report/append-self-contained-investigation-reports.md": "sha256:9ec28b624b1fe97bca30a5317fd50057d37401f22201b72cfef0f3db49504e5d",
       "investigation-report/attach-verifiable-resources-to-investigation-reports.md": "sha256:bf5d398078b113621683f34ae0915e5adc8053c9b925aa8bbad45e8768ca02f7",
       "investigation-report/generate-query-index-from-topic-files.md": "sha256:637b0aadd380f076be45cb2d13dd507e847207ad002cda74d0269d2e9133a757",
@@ -190,13 +210,18 @@
       "investigation-report/stage-selected-investigation-index-entries.md": "sha256:2e5300c3389d7997e4a06a7265cf2fc70f8fc1b29a646310b11f2b5f85f79965",
       "investigation-report/use-fixed-investigation-record-core.md": "sha256:b734c932f71ba3b33c1e4fc0b9a148c77edf5c7d6423b258ff67eb1dbf001fa6",
       "investigation-report/use-report-oriented-investigation-rounds.md": "sha256:27f07abcc019329318902bc89d0298bd04b12553c2c574874c48376fab045233",
-      "minimal-implementation/choose-smallest-correct-maintenance-surface.md": "sha256:4f5999b575d879ada2c7133b8523f33909ce927cc7381edfed45edea0587664e",
-      "openspec/260706-gate-temporary-change-plans.md": "sha256:6b9d7d45f99d32702bd53bc879fda489f5bee97c8c15c0834e5f1dd489f8543e",
+      "minimal-implementation/choose-smallest-correct-maintenance-surface.md": "sha256:d0e6f05367e2685be03433ef67a4c3ec63f43361af458f46baea9d4d9bbf7c18",
+      "minimal-implementation/compare-correct-options-by-total-maintenance-surface.md": "sha256:e0dbbbfb29e004173aa2d160133df292ed9ad1353644b329ea2a9482e074d609",
+      "minimal-implementation/preserve-pinned-upstream-snapshots-for-traceability.md": "sha256:2d22f831647352627d8099c6660b45def8855f406028990ff420290e0427a958",
+      "openspec/260706-gate-temporary-change-plans.md": "sha256:92ab67d626e0f1af9d1c6a21daf0048fa962b0bc2b0ad3e04cdfbb1bc1f1331d",
+      "openspec/gate-change-implementation-by-review.md": "sha256:543889adacee4ac57ea519b5f24b0c717e1070c9eb47cccb67d0c5ffc3226d5b",
+      "openspec/prefer-cli-for-change-state-and-artifact-routing.md": "sha256:9f64eb5196619c8984d384ce40bca4693dbe46243791d51f9391afa98e6eb4c2",
       "product-architecture-judgment/260720-keep-problem-reframing-self-contained.md": "sha256:2e2f4f4e0036cd034bf6b0d4f489a19b0fc3d6d9d603b37874a53ed31468d6df",
       "product-architecture-judgment/260720-separate-framing-from-engineering-landing.md": "sha256:d99f7e26c0fe5738af423c3dd6bb6de33de650f78e29d90514fbbc6f1c6066e3",
       "product-architecture-judgment/260720-unify-product-and-architecture-judgment.md": "sha256:34b16f81dea5f3fc445e0e80a7b6fe4f0b2fd07ff4557840beb8cb77c5fa3896",
       "product-architecture-judgment/260720-use-product-and-architecture-lenses.md": "sha256:e7a588bc65bf9486507f69cc59c26e1e13387a6e33b95ba085542b1c9082e4a7",
       "project-documentation/260718-use-project-coding-style-owner.md": "sha256:2c402eaab3fe16048614adc0a3fc8b57f915b037dec34583c7c827b753fd7554",
+      "project-documentation/route-future-work-by-minimal-carrier.md": "sha256:e89936e330c5f407598043ee894a5f7dc158c714f4a346532ad6328b735039b0",
       "project-documentation/use-document-navigation-owner.md": "sha256:ef5e06f78ce6713e5f4b94c0b9ac6061a9bed4c4dc041d3bf544880c8f9e9f57",
       "project-tooling/260630-publish-skill-package-as-latest-release.md": "sha256:5f0ff7be6a5888d4c323e910fba10bf53f19e6f5529e61cd8f71005ff5012353",
       "project-tooling/260701-add-submodule-release-workflows.md": "sha256:5e4458d2bde2717e7a1ad8e22bf370228ca9312c0a31fac5a3b177b628dd47bc",
@@ -205,7 +230,7 @@
       "project-tooling/260701-gate-latest-release-by-skill-hash.md": "sha256:bac2441d9356def93f94f7277614788d6963efaeba9875bb01dd5e2995d6df1f",
       "project-tooling/260701-publish-versioned-skill-releases.md": "sha256:e4c1a601abcd67fd78d98cc25ff224201ab5621e007c866bbc4eff0c1932860b",
       "project-tooling/260701-update-package-hash-with-git-hooks.md": "sha256:d37e62ee1619e9ccd047f4538ec918f2a9b1fd7028d49b040ab17caf34577ead",
-      "project-tooling/260701-use-libraries-for-common-script-behavior.md": "sha256:8d4a026fcf546973c1506a47ca94a61d3d9ad97c3276d75dca38103def0bf5a9",
+      "project-tooling/260701-use-libraries-for-common-script-behavior.md": "sha256:a09de10ea78267540a1b9e040a87bdd183da2238346b6148aa7beebf595eaad8",
       "project-tooling/260701-use-tsgo-for-typecheck.md": "sha256:8d3a440e1f7fd6c0932d58cdefa1cc630e21181f639c555aa0626f8084e2f2f6",
       "project-tooling/260703-follow-latest-release-for-skill-updater.md": "sha256:789293ae2ef131873846e048af8e2d0f90f3ba44b3d2d4ef9ebc25f78b181b2d",
       "project-tooling/260703-use-per-skill-hash-lock-for-updater.md": "sha256:3919955e6b59e01bb233a61b83d6bc393baa9b35e2fb640948ff3753f8e38075",
@@ -213,50 +238,93 @@
       "project-tooling/260720-expose-importable-skill-modules.md": "sha256:a846beff3ccae6ef8de85c7496b689a0c6852efc0cff04aedae8f87cce0fb17d",
       "project-tooling/260720-orchestrate-checks-with-conservative-concurrency.md": "sha256:7bff1159274ee84bfc71a5607bc0054f3c4438b6a0ce84ad96dfe99fc633e720",
       "project-tooling/260720-use-prebuilt-git-test-fixtures.md": "sha256:b0840a64780fcb2ee92303f2ee15d8acdfbd872220ba2fed2e25979d4ba6ea65",
+      "project-tooling/assign-tool-and-automation-source-owners.md": "sha256:823bb481a9fd6f5b43de24c3d48bbd985e2901b0903d02fa4c15dd1429d0658f",
       "project-tooling/bootstrap-hooks-and-select-project-roots.md": "sha256:d2d3b76fd33c97ccc35f27cc75c710484efabb563efe1d7af6ec2b34e7f5c8f2",
       "project-tooling/bootstrap-hooks-and-use-project-short-commands.md": "sha256:3009215c32b710ab31c57c9c6cef61fdca6ee0ee6f21984f22eff6cc0de2c4d7",
       "project-tooling/bootstrap-platform-git-hooks.md": "sha256:f6fcac972c77b30a2f857a81ed9df120fd81b0025ba758e8e102c212fd4e6a50",
       "project-tooling/bootstrap-repository-coordination-with-owned-launchers.md": "sha256:d75caa94bce5340d5adc0d65126a4be3896b0e5c2c16275057a5eae7baa63f71",
+      "project-tooling/bound-top-level-check-concurrency.md": "sha256:8fc9f59e9aa0434552a1c115b5da79ab29ecf71d5b7b12a14645b2ead31069e8",
+      "project-tooling/build-deterministic-skill-zip-archives.md": "sha256:3f0a157b6fbe059c9b5109c331420eff1f6910a3226b75ddc747d9606729ec4e",
       "project-tooling/default-checks-to-warnings.md": "sha256:223432266726cccdac1cbaec319e139a2af38b2e18de4770581bd7cc40b39ac0",
+      "project-tooling/derive-check-exit-status-from-step-results.md": "sha256:7974ce9ad5ce053afc150aceb917420472bf00e3b5a58bbd5b9ce4e5aada680e",
       "project-tooling/exclude-archived-changes-from-link-validation.md": "sha256:4dd74ead05f2be49de2a176225b159a5248afc2bbb5edb2735b149df97f03fbd",
+      "project-tooling/gate-packaging-on-selected-checks.md": "sha256:d476e7cff4850f30282ace846a04c454a0fed2af0d1f13dd3eb4a10a37627032",
+      "project-tooling/generate-and-check-import-safe-tool-artifacts.md": "sha256:72d8bc1d48ff3f901f0748a1be5ecc99ac9b2c1d644142e5c8fe9e7bee7b23b2",
+      "project-tooling/generate-import-safe-self-contained-tool-artifacts.md": "sha256:ad0049c6b31943093c6fd4d9fdbf09616e355d9a99d65d82bc54b1470ed3df38",
+      "project-tooling/generate-self-contained-tool-distributions.md": "sha256:8a492234a9f5586ab1817cda31c230d62b6b4d6675d14633b4b77f06dc74e3c8",
+      "project-tooling/make-skill-zip-bytes-deterministic.md": "sha256:f3fe229084af4bfb04f6c8d5fd118badd7bd9519f4df74cd50ae51db255fd8fc",
+      "project-tooling/package-skills-from-versioned-pending-snapshot.md": "sha256:40be95b645fd8b8117a567613acf18a4a12ee0d2840199196578d39edffa9b3f",
+      "project-tooling/prefer-mature-libraries-for-common-automation.md": "sha256:8124d4d2e6ca469e4fcf8127fd8613c964b140e6b1a39483c45b256e5a1cafe4",
+      "project-tooling/read-skill-package-inputs-from-versioned-pending-snapshot.md": "sha256:7d455eb822f5c28ef23179aba1db905ff036599979ab728e20283331623363d6",
+      "project-tooling/render-check-results-and-exit-status.md": "sha256:e83cf3dc242b1cacbf50a6be7cbdd637ca4ce59e3d0eb1420898e954b83622ca",
+      "project-tooling/render-check-step-results-concisely.md": "sha256:55ebb331003844fd87a5e569b11ce8246a6273160c5cbfb1ee0d53d718e09410",
+      "project-tooling/report-check-results-concisely.md": "sha256:c454967ca2fa6940f8d5daf0ac5e31017a5e4ebfde98e93982c50ca4947b541f",
+      "project-tooling/run-packaging-after-prerequisite-checks.md": "sha256:461eacfe930e5343373667f1ba42e5a48ceb58ca45345da5ff28a77eee6090df",
+      "project-tooling/schedule-selected-checks-conservatively.md": "sha256:8b97f427a0b1028248ff6757b266d44b581861855e6dfe1c632a910a202c6154",
+      "project-tooling/select-check-tasks-by-profile.md": "sha256:9dd46d8c10bb5d39c3625f3d0b93482582ef3c425024f2c33ceb455c822ddf2f",
+      "project-tooling/select-prerequisite-checks-by-profile.md": "sha256:e4b357981bb3588c8fcf914c6ca50de00ba87ebf57cb97615c724fe7304c6ff7",
       "project-tooling/select-task-graph-project-roots.md": "sha256:0aa754d9614a7e9c1760da0c6e9f1fa214d6e31c577b8cfd84fd07ee1b96850f",
       "project-tooling/separate-distributable-tool-source-from-repository-automation.md": "sha256:878e9070277071510f71ceb604208253809df75124a117ae40e15cf4293446b3",
-      "project-tooling/separate-tool-source-and-repository-automation.md": "sha256:93efec40cac5dec9a114ee44a7e33caba51647f74d24e859c7d16ed7ed3af317",
-      "project-tooling/use-profiled-concise-checks.md": "sha256:6eb996b07594c447247a455523539cc5df4f989f8a1e5ed1a0ddc9cd533f0b34",
+      "project-tooling/separate-tool-source-and-repository-automation.md": "sha256:1ba7c43d760870e28d7e6b23af1041d20dcb3c114ba03a6ce4daa6267e6203d5",
+      "project-tooling/settle-all-selected-checks-under-bounded-concurrency.md": "sha256:c62584211d5ca6af51ed11c80313345ee1d8be264a2ffd3df6af04b0a3a3657c",
+      "project-tooling/use-profiled-concise-checks.md": "sha256:e5c811a35cedc41ff6a1828cfb48f3c26ab68a40038d40c0d3212ca9e74be20d",
       "project-tooling/use-project-short-commands-for-maintenance-clis.md": "sha256:85113e74b7df1510ea22c46a6dffa46d6955dd39f0aab2b7bbc421e3bea2514f",
       "repository-model/260702-use-monorepo-skills-directory.md": "sha256:2e103862e5cb2a492dd80635af42ab559e0d831f7dc3bae53f7cb6882d94d0c4",
       "repository-model/centralize-maintenance-and-keep-distribution-lightweight.md": "sha256:162e339b2a957e58e7d8706f228ce4b7c0439f7cde9273bc473071d6afec8cbe",
       "repository-model/use-monorepo-versioned-skill-packages.md": "sha256:2c3bc5c15f86027526cd54f65a7751d1f43dea0a7e3fa12f8095eb7090513c8e",
       "repository-model/use-versioned-overlay-skill-updates.md": "sha256:86fdc5228e8f91aa2f1267f8698f9940d4e7bd8de6f2eaf2bb4c1baea3063844",
-      "skill-design-discovery/separate-design-discovery-from-lifecycle-maintenance.md": "sha256:745e9da140da172ac632bdeee7deb4436eea427136e38770106199759bb052b1",
+      "skill-design-discovery/discover-skill-behavior-before-lifecycle-implementation.md": "sha256:d20f0bdb926f36fd145888ab29ce24d13c97eb9b70ee4f9e94a537d0250ef0e5",
+      "skill-design-discovery/separate-design-discovery-from-lifecycle-maintenance.md": "sha256:62f97a09b78ec1f8127747896e50769ba8aa4b8285b8f3071bae33aa21b48d25",
       "skill-maintainer/260719-own-project-aware-skill-lifecycle.md": "sha256:42f4dd984d6cb6d2b40eff9d52e310ff19c2a776af3add5f5d46246b0d10697e",
       "skill-maintainer/260720-define-skills-by-self-contained-contracts.md": "sha256:78365a69a90ac1b89be69dd238af30cfef409d4148568dab56c081b43c38b3f8",
-      "skill-maintainer/260720-use-distribution-unit-boundaries.md": "sha256:4f78dcf556bc8c093f870cc182de7be5cc59a30aa3ded0f8880ba3c1f0129302",
+      "skill-maintainer/260720-use-distribution-unit-boundaries.md": "sha256:bb56ec30eecf88e75fbe53a34239affe72dcd49b8b4525fd541cf0c1db0da026",
+      "skill-maintainer/distinguish-skill-and-distribution-unit-boundaries.md": "sha256:b5201d3e6b0de9d1f9e1e6c428d10602dbc1ff370d0e2fa1efcd273e3441d10a",
+      "skill-maintainer/distribute-openspec-as-an-aggregate-unit.md": "sha256:caae46a9a076ae887113ec62a68238a6aa7a5edb4f61b0c67a63cb7ab84b7a0f",
+      "skill-maintainer/distribute-openspec-skills-independently.md": "sha256:5374e393c0ca9b0c0c8e6d94d23dc864e60e110d10c6c5d6b2bc099f0bd36eac",
       "subagent-orchestration/260712-separate-write-ownership-from-read-scope.md": "sha256:bbdc9055b1f0e5ed39420448e9d5f7bb85108f37f2417d2070e8870887095fa3",
       "subagent-orchestration/260718-default-to-minimal-subagent-history.md": "sha256:069394927690d9a99ee5fa50247a2207acb756f08d5cf722da75ce39a18fc741",
       "subagent-orchestration/260718-focus-description-on-trigger-context.md": "sha256:8ba13bfa3fd702f51d52db39ec060fe5879d061463cef6ec5f662f9402770f49",
-      "subagent-orchestration/allocate-agents-and-runtime-by-task-slice.md": "sha256:8bd0ceef201c4e90d9c97a6340f6a4e3ef1ee333267b3abc0136b22e1d955605",
-      "subagent-orchestration/bound-review-and-handoff-by-delivery-impact.md": "sha256:f9a19ed300003b4730bbd8d522947aaa501a99d1be5af61a54b4c385ff36b7a5",
-      "task-graph/anchor-semantic-task-results-in-index-history.md": "sha256:182c7fd1302fa657e61834611b76584d823b6da0c7ca96eac294bc50384c267f",
+      "subagent-orchestration/align-agent-lifecycle-with-task-slices.md": "sha256:5fab3af08db651e08aa2e1388f36fc4d59ac29a7d9a5682f67955329a3eae29e",
+      "subagent-orchestration/allocate-agents-and-runtime-by-task-slice.md": "sha256:1f18cc7c6f0114f5b031d23f5668718126d24ca667b44653048574d93a3b28c9",
+      "subagent-orchestration/bound-review-and-handoff-by-delivery-impact.md": "sha256:3becac856bb13e45f114babf4047984f9aba0a55b0298dceb2572bf9023cc678",
+      "subagent-orchestration/handoff-minimum-results-and-evidence.md": "sha256:e149c834eec0a0781662e88dc9dff5c614910dea4254521334612e5bab2306eb",
+      "subagent-orchestration/repair-only-delivery-blocking-review-findings.md": "sha256:4801751169c857ba661dc55ee34de1521f9a057ebea37a45ec2f698bb7c57fe4",
+      "subagent-orchestration/select-model-before-reasoning-effort.md": "sha256:c2abe1202c077d6f086e8a93fb7565fe6e749738156b76c4e6af30048c422eba",
+      "subagent-orchestration/separate-delivery-and-auxiliary-write-ownership.md": "sha256:eff5fc6569d2cc9b3485898ead7406025885f2d8a617e2e9906f4500dbad1a8a",
+      "task-graph/aggregate-parent-task-completion.md": "sha256:814fe2ea61d19bca04543807566af17d17616c27ed58a31823ff3d49569aa9d3",
+      "task-graph/anchor-semantic-task-results-in-index-history.md": "sha256:2c1bae1460da51a75d326acc7f41152328022ae3f8abc4c2d09c0a8f3b83a11c",
+      "task-graph/anchor-task-results-in-index-history.md": "sha256:076023cd38a32029d5f607e07b1c6008f578dfb75a6c33a688edf94ff3489f14",
+      "task-graph/classify-task-index-transaction-outcomes-conservatively.md": "sha256:fccffe41ac7d259411438d353500ea4e320d03f93b12c8d35d6c25a5a0ed96f6",
+      "task-graph/complete-tasks-after-goal-integration.md": "sha256:08dc1608df2351e748e6c2c9355be0921fead75a444faa26d433d33a7be39e19",
       "task-graph/coordinate-task-execution-with-transactional-claims.md": "sha256:eed05bfa690ee8c16351419d3fe37d65ea9f93fe599bb91f37dac6adf695dded",
-      "task-graph/defer-terminal-correction-until-confirmed-recovery-need.md": "sha256:2656a138f01eea0a2d9b91a00ba181cc70fa25b77f314492389e6b22d0a982ef",
+      "task-graph/defer-terminal-correction-until-confirmed-recovery-need.md": "sha256:d43aa7c4092e46de586cea127abef7ffb965c6dd76fa540cd44410c5ffe9a6f1",
       "task-graph/delegate-native-runtime-installation-to-caller.md": "sha256:287e98cd90491f9acbf5cf1e4deaa5b973875ce615cdfa75e84069d54044743c",
       "task-graph/derive-sdk-declarations-from-runtime-source.md": "sha256:d2fad5e26b872a1ee6a4edf63b6555fe5b4b80de5fbdfdb21d63e38068ef393e",
+      "task-graph/inherit-ancestor-task-constraints.md": "sha256:3ecc259e3440f6c842dceb77c0fd31a793f516727e8a123ab84a87102fbbc7ea",
       "task-graph/install-native-runtime-in-user-tool-home.md": "sha256:12cd7a8ec12bb7db0252b7359deef934a54cdd8415f679041ec3e8994cc1fb3f",
-      "task-graph/keep-task-graph-locks-outside-workspace.md": "sha256:170fb403439cfd00bc29e235b0447acfcf8edc9073a345dd07ce8c633940909f",
+      "task-graph/keep-task-execution-mechanism-neutral.md": "sha256:8b9c7e0e90b343819ed05a2803dbf91abc954d4ee85685dfdf9bc9b39c9766d1",
+      "task-graph/keep-task-graph-locks-outside-workspace.md": "sha256:bd222a146b98786f46e20aec3ce2a55ce1ffa9ccdc9e39c1999148fc4828b2ab",
+      "task-graph/keep-task-results-semantic.md": "sha256:b8f008beee1e5496a49e3f151a9ed0bbc16fc0a46340534fc1f969b285fa5c68",
       "task-graph/key-task-identity-and-separate-content-state-projection.md": "sha256:7682969f3f97266dd4be1d8ac03e2e93c13cb41c2f07ecc54887de9578438f8d",
-      "task-graph/model-task-topology-and-inheritance-explicitly.md": "sha256:05dc43defe36f4013f7fc9a087de500bbb4dcd9f3a66bfa2afda935584af859f",
+      "task-graph/locate-locks-by-task-index-identity.md": "sha256:13d0c33ce204255199bd792c4302f20e70c3dab9a1ad7b49d8668bb5d6bebc1f",
+      "task-graph/model-task-relations-with-distinct-invariants.md": "sha256:1d48e453e6172b3696e55a77b32d125a590480308019c076d919ff0357190066",
+      "task-graph/model-task-topology-and-inheritance-explicitly.md": "sha256:a64374cd37a1395a2ee57b0bc3f5a7d2735739db093c72adfbdbb34bafc98768",
       "task-graph/own-recoverable-task-coordination.md": "sha256:57048a7f6d2630589dc94055cd0d1d206cdb1882a802d2ca2c1225c1002be6bf",
       "task-graph/own-short-lived-task-orchestration.md": "sha256:31bd741db8177fb2951459abb8691c9196c8f5f365f15483ee2c3a4f8869fbd5",
       "task-graph/reclaim-expired-task-leases-through-claim.md": "sha256:efb54ef212ad2cb64710af05480a1f418b45c6604c80766463cc72d7424960eb",
       "task-graph/render-full-task-list-as-layered-dag.md": "sha256:a10ee1a8a77c4a14d6f778165fc84a6eee013120944f74bd8cbf8504e948d989",
+      "task-graph/retain-tasks-by-coordination-value.md": "sha256:0db6359d63a4d9cdd9ade42313e2c18cfbb92d799b791bab057b45908e262d28",
       "task-graph/separate-raw-results-from-output-functions.md": "sha256:d736d63f18acd029ca6720b412f25e2acd5afdfeded60fc9fef5cfea891b5341",
       "task-graph/separate-task-content-state-and-effective-projection.md": "sha256:2cb20d03d5ddd7df090066fa50d3ac94a4fb27a320352584e0edf49692d6b4ba",
-      "task-graph/separate-task-coordination-from-execution-mechanism.md": "sha256:0988b021eb138dd2ad800a244e99a2835c1dd69622cccc18162139d041ffd120",
+      "task-graph/separate-task-coordination-from-execution-mechanism.md": "sha256:dd8d42ad9dc7841dff923b00ae2cabbe1778f0f45f0f9a87b3c1b9000042510d",
       "task-graph/use-authoritative-json-index-for-short-lived-tasks.md": "sha256:65a8dd896fb80e6c062085b6091e74fded821d6df965ae2c28f3977228fc3e53",
-      "task-graph/use-authoritative-json-index-for-task-coordination.md": "sha256:bdeaa3c32d3b88eca87045d607d1cd7a0e43d10df2c6f6dc874b3eb1019ee8e4",
+      "task-graph/use-authoritative-json-index-for-task-coordination.md": "sha256:c1d1285802583bec50092f3401044944e2f4af72c3323f778aaf6b1d43482125",
+      "task-graph/use-conservative-atomic-write-outcomes.md": "sha256:d78edbe61207824060bcf08922ee2a6a2327918c04477649b37e7f4501aaf33a",
+      "task-graph/use-conservative-task-index-write-outcomes.md": "sha256:d52c232166895ab4a471328f64cb6c90ccd031bbd14ee4a136a65fee2eabf8c6",
+      "task-graph/use-json-task-index-as-single-fact-source.md": "sha256:6155aa5f8580c0328de6f24f04d2551341d611f19669534d73520d5b24323969",
       "task-graph/use-native-locks-for-json-transactions.md": "sha256:252cd9df419eeb1c2b54d78170bccfbbe3d68662cac1173d459dd2b7c20a99c4",
-      "task-graph/use-root-task-dictionary.md": "sha256:eff9d0c06c240f76520987ec5aea6afdb8539e6f9e5ba8eb337d3c425fb97b06",
+      "task-graph/use-root-task-dictionary-for-collection-identity.md": "sha256:30f40579711025179c5f5efe27d07ce7d45d31ac67bf5a83722aa1a07a758c28",
+      "task-graph/use-root-task-dictionary.md": "sha256:505d0e1e2e9bad790d3d76711d8d6d4249a042687ee94c78cdf93bcd041bd420",
       "test-evidence-review/260719-model-verification-obligations-and-source-roles.md": "sha256:6a270e8c7ac2618566aafee2003cdc08ad3ea054c2126456067168df7fa55ab0",
       "test-evidence-review/260719-organize-multi-branch-proofs-by-shared-base.md": "sha256:47a8a687316844876412da3ef008a9510c5888040b2ab7affc9c57a0ff84a29b",
       "test-evidence-review/260719-separate-test-value-from-ledger-validation.md": "sha256:94dfe555be0753a50d749299bfbe3420c3805a69365400baef39fd4d75eb439b",
@@ -264,7 +332,7 @@
       "test-evidence-review/260720-organize-proofs-by-shared-execution-chain.md": "sha256:4a0081db6aee627ae118c8aaff210c2cec7f786d0d08031cbec41b9e7524ecbd",
       "test-evidence-review/260721-separate-test-entry-collection-from-ledger.md": "sha256:6d58c4e9683b225a9850ecf196d73e4589a844371f8f2b0f156a9c6618c034ee",
       "test-evidence-review/catalog-minimal-native-test-entries.md": "sha256:c9b915a309a4464f44e088062fe7f6dc4a8277e9a1f4b87f463940b5dec981e3",
-      "test-evidence-review/defer-standard-test-result-blocking.md": "sha256:db18a161ea47c01a46660012405a97097f645d2d5a78c09060edc3fd75dc13fb",
+      "test-evidence-review/defer-standard-test-result-blocking.md": "sha256:50b37e0be9890cf8d5e281e6264b47059909d4b1d77780031af0ab5f7385eda1",
       "test-evidence-review/fix-test-evidence-workspace-contract.md": "sha256:78743d06c85fa906cbfc5831678115d4176076b7660982f3c0f790fc4eb0cad6",
       "test-evidence-review/index-independent-proof-cases-from-current-catalog.md": "sha256:b280fbb91b41c024f47ddaa2d1be8e7b60927ab959d627c4cb3b6dea774a0bba",
       "test-evidence-review/index-ledger-by-stable-case-state.md": "sha256:c151387f1b5b9d627b6af82059a0335b515ade3653176ea2ae2b9c6f726a13a4",
@@ -273,15 +341,19 @@
       "test-evidence-review/organize-native-test-cases-by-responsibility-topic.md": "sha256:d904f498a04bccce2ad10b83bc4176967671c79d2a226c83c21c7465df264ad3",
       "test-evidence-review/organize-test-cases-by-controlled-topic-path.md": "sha256:6907ddad90311b6ec7b960f0f1a9e1334fa0cbffc3c94ff808659a93f7c134b4",
       "test-evidence-review/publish-only-layered-test-evidence-interfaces.md": "sha256:b91286160865899384c46b8ce1c99765791e9e51512b175db85305572b7a1d60",
+      "test-evidence-review/qualify-formal-results-by-evidence-integrity.md": "sha256:1216da2a496870944d361eae518947cf43f9cd88429c3841b8424b045b1b8a95",
+      "test-evidence-review/qualify-formal-test-results-before-behavior-blocking.md": "sha256:7bd430123d37ca69e4c101b668c8cebf7b4ce9765bfa6dc3b7244838e1be265f",
       "test-evidence-review/query-ledger-with-structured-inspection.md": "sha256:6d23198e1d458bce0bcab7b6e6c0e475945ca85b566992452bba6a12ea84b23e",
       "test-evidence-review/read-ledger-contract-on-demand.md": "sha256:94cf0f02e748c00b9cb0cb5f00065f62a6708d27c1c85f333fb90dbe8397ea51",
       "test-evidence-review/register-one-case-per-independent-verification-entry.md": "sha256:43fb6475f81c0b1ac217dff4130c38ee051bb90fa6cddf81bb1bbc05df823e07",
       "test-evidence-review/review-verification-implementations-with-explicit-indexed-cases.md": "sha256:ae61a930af094437bb47d5a1b747b0954c33516a3b311ead23c0e5dc9fd65927",
       "test-evidence-review/stage-selected-test-evidence-index-entries.md": "sha256:c7a2010131636499d4938dbf9fc36e1959c9dcf784dea1e6c0adefe414cc1983",
+      "test-evidence-review/standardize-runner-results-at-producer-boundaries.md": "sha256:8a22c6a4d844761c78574ed8e36a989c164a9a9773c823daf9b0dadc55796110",
+      "test-evidence-review/use-versioned-runner-result-protocol.md": "sha256:21a407bf4248c0b0ccfc46a47cf0fda3346a91c8e3628564ada50c47112f7218",
       "version-control/centralize-version-control-responsibility.md": "sha256:e17340b87ea60b8f18cb3b090c47545180b6f29539b74c168fa2d338d5d92d24",
       "version-control/manage-pending-snapshot-writes.md": "sha256:32011eda08ab497629cfcba677e4214d6703f8687f9bca69014cb86675bf8236"
     },
-    "metadata": "sha256:c1f9e0d434316a49a1cc2d865e3282d026b1cedb1b2c8de9c23eec886444bc0d"
+    "metadata": "sha256:0928a98ab5e2b2c9c47dd5a5454369b8c88afe195b1f87169661b8cab91f5ffd"
   },
   "keyDefinitions": [
     {
@@ -483,7 +555,7 @@
           "ai-ready-docs"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -492,7 +564,7 @@
       "state": {
         "path": "ai-ready-docs/260720-use-controlled-mermaid-flowcharts.md",
         "title": "使用受控 Mermaid flowchart 表达复杂关系",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-20T10:15:36+08:00",
         "purpose": "在保持结构稳定和关系显式的前提下, 提高层级、分支和跨节点内容的可读性。",
@@ -525,6 +597,35 @@
         "relations": []
       }
     },
+    "ai-ready-docs/use-explicit-environment-supported-diagrams.md": {
+      "keys": {
+        "domain": [
+          "ai-ready-docs"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "ai-ready-docs/use-explicit-environment-supported-diagrams.md",
+        "title": "使用环境支持的显式关系图示",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:24:22Z",
+        "purpose": "让图示在确有理解收益时帮助 AI 恢复关系，同时保留不依赖特定渲染器的完整语义路径。",
+        "background": "AI 消费环境对图示语法和渲染支持并不一致，固定方位或版式不能替代文本与图源中的显式关系。",
+        "decision": "按目标环境选择图示格式并显式表达关系，不把 Mermaid 方位、subgraph 或表格列数设为通用要求。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "ai-ready-docs/260720-use-controlled-mermaid-flowcharts.md"
+          }
+        ]
+      }
+    },
     "change-plan/detect-shelved-plans-by-git-distance.md": {
       "keys": {
         "domain": [
@@ -547,6 +648,35 @@
         "background": "日历时间不能区分项目停滞与计划偏离，完全依赖个人判断又难以稳定识别退出当前主线的计划。",
         "decision": "使用固定 Git 演进距离产生候选；查询不改阶段，显式 reconcile 以机械证据写入 shelved。",
         "relations": []
+      }
+    },
+    "change-plan/maintain-change-artifact-and-authorization-boundaries.md": {
+      "keys": {
+        "domain": [
+          "change-plan"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "change-plan/maintain-change-artifact-and-authorization-boundaries.md",
+        "title": "维护 Change Plan 的制品与授权边界",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:23:12Z",
+        "purpose": "让 Change Plan 自包含表达三项制品、临时实施上下文与授权边界，而不与 CLI 或阶段生命周期混合。",
+        "background": "CLI 和阶段记录已经独立演进，但活动决策集合缺少制品职责、稳定 owner 与授权区分的当前基线。",
+        "decision": "Change Plan 以 proposal、design 和 tasks 承接临时变更计划，并让机械就绪、内容审阅和实施授权保持可区分。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "change-plan/use-independent-change-plans.md"
+          }
+        ]
       }
     },
     "change-plan/manage-basic-change-lifecycle.md": {
@@ -572,7 +702,7 @@
         "decision": "在现有 change-plan 中提供 list、show、check 和 archive，并让语义审阅继续负责机械命令无法判断的完成条件。",
         "relations": [
           {
-            "type": "修订",
+            "type": "拆分",
             "target": "change-plan/use-independent-change-plans.md"
           }
         ]
@@ -599,7 +729,12 @@
         "purpose": "让活动 Change 在起草、计划、实施和搁置恢复时只固化当前工作阶段有意义的内容。",
         "background": "起草只需记录任务或方向，计划阶段才固化执行细节；搁置无法总在事前预测，恢复时原计划可能已经过时。",
         "decision": "活动 Change 按起草、计划、实施逐步收敛；计划后、实施前实际暂停时进入搁置，恢复只能回到计划阶段复核。",
-        "relations": []
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "change-plan/use-independent-change-plans.md"
+          }
+        ]
       }
     },
     "change-plan/use-independent-change-plans.md": {
@@ -1372,6 +1507,35 @@
         "relations": []
       }
     },
+    "decision-records/classify-decisions-by-controlled-domain-path.md": {
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/classify-decisions-by-controlled-domain-path.md",
+        "title": "以受控领域路径确定决策身份与归属",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:25:28Z",
+        "purpose": "让领域定义、记录身份和唯一主要归属由目录表与路径共同确定，不维护并行分类字段。",
+        "background": "领域同时存在于 frontmatter、历史分组和物理路径时，同一记录会出现多个可漂移的一级分类来源。",
+        "decision": "领域目录表定义受控身份，路径第一段表达唯一归属；领域重划通过闭合结构迁移而非改写历史完成。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "decision-records/use-domain-paths-as-primary-classification.md"
+          }
+        ]
+      }
+    },
     "decision-records/complete-current-decision-work-by-task-outcome.md": {
       "keys": {
         "domain": [
@@ -1540,6 +1704,35 @@
           {
             "type": "修订",
             "target": "decision-records/derive-establishment-from-markdown-lifecycle.md"
+          }
+        ]
+      }
+    },
+    "decision-records/evaluate-reorganization-from-task-graph-case.md": {
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/evaluate-reorganization-from-task-graph-case.md",
+        "title": "以 Task Graph 重划案例评估决策重组",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-11T04:02:33Z",
+        "purpose": "用已经出现的多前序、多后继边界重划检验现有关系表达，并把协议设计限定在证据证明必要之后。",
+        "background": "Task Graph 决策粒度重建将多个相互重叠的直接前序语义重新分配给多个自包含后继，已满足真实案例门槛。",
+        "decision": "将该案例作为重组评估输入并由独立 Task 承接复核；当前不建立 Change、关系协议或实现。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "decision-records/support-reorganization-after-real-evidence.md"
           }
         ]
       }
@@ -1744,6 +1937,122 @@
         "relations": []
       }
     },
+    "decision-records/project-domains-into-decision-queries.md": {
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/project-domains-into-decision-queries.md",
+        "title": "将决策领域定义投影到查询结果",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:25:28Z",
+        "purpose": "让查询消费者直接取得领域责任定义和记录归属，而不读取第二分类源或猜测路径含义。",
+        "background": "只返回领域 ID 无法解释责任边界，在索引 state 复制领域又会与路径和目录表形成漂移。",
+        "decision": "索引 metadata 投影完整领域目录，记录领域键由路径派生，CLI 查询返回与结果相关的领域定义。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "decision-records/use-domain-paths-as-primary-classification.md"
+          }
+        ]
+      }
+    },
+    "decision-records/query-candidates-directly-from-source.md": {
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/query-candidates-directly-from-source.md",
+        "title": "从源码容错查询决策候选",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:11:05Z",
+        "purpose": "让尚未进入正式索引的完整候选可以被审核，并让单条非法候选不遮蔽其余合法候选。",
+        "background": "候选有意排除在正式索引外，只能从 Markdown 源发现；正式记录的常规查询已有独立持久索引 owner。",
+        "decision": "candidates 与 show-candidate 扫描候选源码并按文件容错，集合边界或显式目标非法时整体失败。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "decision-records/query-established-records-through-persistent-index.md"
+          }
+        ]
+      }
+    },
+    "decision-records/query-candidates-resiliently-from-source.md": {
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/query-candidates-resiliently-from-source.md",
+        "title": "从源码逐文件容错查询决策候选",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:25:27Z",
+        "purpose": "让合法候选即使与单条非法源码并存仍可被发现审核，同时保持严格验收覆盖完整集合。",
+        "background": "候选不进入正式索引，若源码查询遇到任一非法文件即整体失败，会遮蔽其他可处理候选。",
+        "decision": "candidates 和 show-candidate 直接扫描源码并逐文件容错；集合级错误和严格 check 继续阻断。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "decision-records/use-source-resilient-reviewable-candidates.md"
+          }
+        ]
+      }
+    },
+    "decision-records/query-established-records-through-persistent-index.md": {
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/query-established-records-through-persistent-index.md",
+        "title": "区分已建立决策与候选的查询来源",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:02:39Z",
+        "purpose": "让正式查询使用持久索引定位，候选审核继续从源码容错发现，并明确 show 的正文读取边界。",
+        "background": "把 show 概括为只读索引会掩盖其先由索引定位、再读取 Markdown 正文的行为，而候选仍有意留在索引外。",
+        "decision": "已建立决策由索引定位，show 再读取目标 Markdown 正文；候选查询继续逐文件扫描源码。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "decision-records/query-candidates-resiliently-from-source.md"
+          }
+        ]
+      }
+    },
     "decision-records/query-projected-decision-metadata.md": {
       "keys": {
         "domain": [
@@ -1909,6 +2218,35 @@
         ]
       }
     },
+    "decision-records/separate-candidates-from-established-decisions.md": {
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/separate-candidates-from-established-decisions.md",
+        "title": "将可审核候选与已建立决策分离",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:25:27Z",
+        "purpose": "让完整决策方向在正式建立前可收敛、等待审核和安全删除，而不冒充当前决策。",
+        "background": "写成完整记录与确认其进入当前决策集合是两个动作，Git 历史和 pending 都不能替代审核建立。",
+        "decision": "候选使用显式生命周期并留在正式索引外；审核时才选择对齐状态、写入建立时间并进入决策集合。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "decision-records/use-source-resilient-reviewable-candidates.md"
+          }
+        ]
+      }
+    },
     "decision-records/stage-selected-decisions.md": {
       "keys": {
         "domain": [
@@ -1965,7 +2303,7 @@
           "decision-records"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -1974,7 +2312,7 @@
       "state": {
         "path": "decision-records/support-reorganization-after-real-evidence.md",
         "title": "在真实案例出现后支持决策重组",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-06T04:01:44Z",
         "purpose": "为多前序到多后继的真实演进保留明确方向，同时避免在缺少实例时预设协议。",
@@ -2176,7 +2514,7 @@
           "decision-records"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -2185,7 +2523,7 @@
       "state": {
         "path": "decision-records/use-domain-paths-as-primary-classification.md",
         "title": "使用领域路径作为唯一一级分类",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-24T17:06:26Z",
         "purpose": "让领域定义、记录归属和查询视图从同一权威来源确定，消除并行分类语义。",
@@ -2452,7 +2790,7 @@
           "decision-records"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -2461,7 +2799,7 @@
       "state": {
         "path": "decision-records/use-source-resilient-reviewable-candidates.md",
         "title": "使用可逐文件容错的显式完整候选",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-06T08:16:27Z",
         "purpose": "让完整决策记录在正式建立前可等待审核、被可靠发现和直接删除，同时保持正式索引只表达已确认的决策集合。",
@@ -2531,7 +2869,7 @@
           "git-commit-organizer"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -2540,7 +2878,7 @@
       "state": {
         "path": "git-commit-organizer/260702-refine-commit-granularity-types-and-command.md",
         "title": "调整 git-commit-organizer 的提交粒度、类型和创建命令",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-02T17:35:51+08:00",
         "purpose": "让每个提交形成可独立理解、审查和回滚的语义单元，并准确表达 agent 配置改动。",
@@ -2573,6 +2911,35 @@
         "relations": []
       }
     },
+    "git-commit-organizer/classify-ai-configuration-commits.md": {
+      "keys": {
+        "domain": [
+          "git-commit-organizer"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "git-commit-organizer/classify-ai-configuration-commits.md",
+        "title": "只将 AI 配置变化归入 ai 提交类型",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:26:55Z",
+        "purpose": "让提交历史能够单独追踪 AI 和 agent 运行配置，同时避免把相关文档与规格泛化为配置变化。",
+        "background": "AI 能力相关内容既包含运行配置，也包含说明、协作规则、规格和测试；按服务对象分类会掩盖改动的真实语义。",
+        "decision": "只有纯 AI 或 agent 配置变化使用 ai；Skill、协作规则、OpenSpec、schema、示例和测试按实际语义选择类型。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "git-commit-organizer/260702-refine-commit-granularity-types-and-command.md"
+          }
+        ]
+      }
+    },
     "git-commit-organizer/default-to-current-task-changes.md": {
       "keys": {
         "domain": [
@@ -2595,6 +2962,180 @@
         "background": "Git 状态不记录工作区改动的会话归属，而用户常用简短的提交指令表示提交当前任务结果。",
         "decision": "将泛化提交指令的默认范围限定为可由任务上下文可靠归因的改动，并在无法隔离混合改动时停止提交。",
         "relations": []
+      }
+    },
+    "git-commit-organizer/pass-commit-messages-with-arguments-or-files.md": {
+      "keys": {
+        "domain": [
+          "git-commit-organizer"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "git-commit-organizer/pass-commit-messages-with-arguments-or-files.md",
+        "title": "以命令参数或临时文件传递提交信息",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:26:55Z",
+        "purpose": "让提交信息通过可直接审计且兼容受控命令执行的方式传给 Git。",
+        "background": "默认从标准输入传递消息会引入额外 shell 和权限通道，而大多数标题与多行正文可以由 Git 原生命令参数完整表达。",
+        "decision": "优先用重复的 git commit -m 参数传递标题和正文，仅在参数不能可靠表达时使用临时文件和 -F，不默认使用标准输入。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "git-commit-organizer/260702-refine-commit-granularity-types-and-command.md"
+          }
+        ]
+      }
+    },
+    "git-commit-organizer/split-commits-by-semantic-unit.md": {
+      "keys": {
+        "domain": [
+          "git-commit-organizer"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "git-commit-organizer/split-commits-by-semantic-unit.md",
+        "title": "按可独立回滚的语义单元拆分提交",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:26:55Z",
+        "purpose": "让每个提交只承接一个可独立理解、审查和回滚的语义变化。",
+        "background": "文件类型和目录边界不能可靠表示改动之间的行为依赖，机械合并或拆分都会削弱提交历史的可用性。",
+        "decision": "按语义依赖形成提交单元；独立变化分别提交，兑现同一变化所需的代码、测试、文档和示例保持同一单元。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "git-commit-organizer/260702-refine-commit-granularity-types-and-command.md"
+          }
+        ]
+      }
+    },
+    "index-runtime/carry-typed-collection-metadata.md": {
+      "keys": {
+        "domain": [
+          "index-runtime"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "index-runtime/carry-typed-collection-metadata.md",
+        "title": "随索引快照携带类型化集合元数据",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:23:53Z",
+        "purpose": "让集合级信息与条目来自同一索引快照，并在解析、投影、校验和查询边界保持领域类型。",
+        "background": "集合级信息不能总从单条 state 恢复，消费方另读定义源会重复新鲜度、校验和序列化责任。",
+        "decision": "Index Runtime 将不透明 JSON metadata 作为快照组成，并通过分阶段类型化上下文传播而不解释其领域语义。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "index-runtime/use-typed-collection-metadata.md"
+          }
+        ]
+      }
+    },
+    "index-runtime/maintain-rebuildable-read-side-index-boundary.md": {
+      "keys": {
+        "domain": [
+          "index-runtime"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "index-runtime/maintain-rebuildable-read-side-index-boundary.md",
+        "title": "维护可重建的共享读侧索引边界",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:23:51Z",
+        "purpose": "让多个领域复用派生索引的读取、查询、校验与同步，而不把领域事实、写入和语义移入共享运行时。",
+        "background": "多个领域需要相同的可重建查询投影，但它们的来源格式、身份、写入事务和动态语义仍由各自 owner 决定。",
+        "decision": "Index Runtime 只管理可删除重建的读侧投影与通用查询同步，领域继续拥有事实、写入、解析和索引定义。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "index-runtime/use-independent-read-side-index-runtime.md"
+          }
+        ]
+      }
+    },
+    "index-runtime/pass-id-and-metadata-to-projection-strategies.md": {
+      "keys": {
+        "domain": [
+          "index-runtime"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "index-runtime/pass-id-and-metadata-to-projection-strategies.md",
+        "title": "向状态投影传递 ID 与类型化元数据",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:02:46Z",
+        "purpose": "让集合元数据与条目来自同一快照，并只以只读上下文进入 parser 和 key 策略。",
+        "background": "条目 ID 已由外层身份集合提供；若再把 metadata 传给身份回调，会重复身份责任并描述不存在的接口。",
+        "decision": "先校验集合 metadata，再向 parser 和 key 策略传递只读的 ID 与 metadata，不设置身份回调。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "index-runtime/carry-typed-collection-metadata.md"
+          }
+        ]
+      }
+    },
+    "index-runtime/propagate-validated-collection-metadata.md": {
+      "keys": {
+        "domain": [
+          "index-runtime"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "index-runtime/propagate-validated-collection-metadata.md",
+        "title": "在索引快照中传播已校验集合元数据",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:11:06Z",
+        "purpose": "让集合级信息与条目来自同一快照，并在投影、完整校验和查询结果中保持同一领域类型。",
+        "background": "Metadata 不能总从单条 state 恢复；另行读取会重复新鲜度和校验责任，而身份与 revision 已有独立 owner。",
+        "decision": "先校验快照 metadata，再以递归只读值传播到逐条投影和 reader，并在完整投影后执行跨条目校验。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "index-runtime/pass-id-and-metadata-to-projection-strategies.md"
+          }
+        ]
       }
     },
     "index-runtime/stage-selected-index-entries-by-id.md": {
@@ -2650,7 +3191,7 @@
         "relations": []
       }
     },
-    "index-runtime/use-id-keyed-state-index.md": {
+    "index-runtime/track-per-id-source-revisions.md": {
       "keys": {
         "domain": [
           "index-runtime"
@@ -2663,9 +3204,67 @@
         ]
       },
       "state": {
+        "path": "index-runtime/track-per-id-source-revisions.md",
+        "title": "按集合元数据与条目 ID 跟踪来源 Revision",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:24:19Z",
+        "purpose": "让索引能够独立组合条目来源状态，同时保留查询前低成本判断持久投影是否新鲜的能力。",
+        "background": "单一整体摘要不能安全组合部分条目，而以完整 state 投影求摘要会让常规新鲜度检查退化为完整领域解析。",
+        "decision": "来源 revision 分为 metadata 指纹和逐 ID 条目指纹，完整读取与轻量读取返回同一闭合结构。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "index-runtime/use-id-keyed-state-index.md"
+          }
+        ]
+      }
+    },
+    "index-runtime/use-fixed-index-query-modes.md": {
+      "keys": {
+        "domain": [
+          "index-runtime"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "index-runtime/use-fixed-index-query-modes.md",
+        "title": "使用固定索引查询模式",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:02:53Z",
+        "purpose": "让领域以有限 key 模式获得一致的过滤、排序和分页，而不为每个领域重复查询算法。",
+        "background": "多个领域共同需要精确匹配、有序范围和文本包含，但不需要任意查询语言或领域专属执行器。",
+        "decision": "Index Runtime 固定 exact、range 和 text 三类 key 模式，并统一组合过滤、排序与有界分页。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "index-runtime/use-independent-read-side-index-runtime.md"
+          }
+        ]
+      }
+    },
+    "index-runtime/use-id-keyed-state-index.md": {
+      "keys": {
+        "domain": [
+          "index-runtime"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
         "path": "index-runtime/use-id-keyed-state-index.md",
         "title": "以稳定 ID 键控状态索引",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-06T09:23:47Z",
         "purpose": "让索引从领域输入到持久化都直接按稳定 ID 管理条目，并保持低成本的新鲜度检查。",
@@ -2700,7 +3299,7 @@
         "relations": []
       }
     },
-    "index-runtime/use-typed-collection-metadata.md": {
+    "index-runtime/use-stable-id-keyed-index-identity.md": {
       "keys": {
         "domain": [
           "index-runtime"
@@ -2713,9 +3312,38 @@
         ]
       },
       "state": {
+        "path": "index-runtime/use-stable-id-keyed-index-identity.md",
+        "title": "使用稳定 ID 键控索引身份",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:24:19Z",
+        "purpose": "让来源快照、持久条目和运行时覆盖沿用同一稳定身份，并消除从 state 二次推导 ID 的责任。",
+        "background": "领域读取阶段已经知道稳定身份，数组与二次 identify 会重复工作并增加组合、校验和直接读取成本。",
+        "decision": "索引身份集合统一使用安全的 ID 键控对象，对象键是通用边界的唯一权威身份。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "index-runtime/use-id-keyed-state-index.md"
+          }
+        ]
+      }
+    },
+    "index-runtime/use-typed-collection-metadata.md": {
+      "keys": {
+        "domain": [
+          "index-runtime"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
         "path": "index-runtime/use-typed-collection-metadata.md",
         "title": "为通用索引提供类型化集合元数据",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-24T14:34:00Z",
         "purpose": "让领域通过同一索引快照安全携带读取整个集合所需的类型化元数据。",
@@ -2723,7 +3351,36 @@
         "decision": "通用索引要求不透明 JSON metadata，并按元数据、条目投影、完整索引校验的阶段传播类型化上下文。",
         "relations": [
           {
-            "type": "修订",
+            "type": "拆分",
+            "target": "index-runtime/use-independent-read-side-index-runtime.md"
+          }
+        ]
+      }
+    },
+    "index-runtime/version-index-definition-compatibility.md": {
+      "keys": {
+        "domain": [
+          "index-runtime"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "index-runtime/version-index-definition-compatibility.md",
+        "title": "以 definitionVersion 标识索引定义兼容性",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:02:53Z",
+        "purpose": "让持久索引明确区分定义契约变化与普通来源变化，并在投影不兼容时安全重建。",
+        "background": "Source revision 只能证明来源新鲜度，不能判断 parser、metadata、ID 或 key 投影契约是否仍兼容。",
+        "decision": "领域以 definitionVersion 标识完整投影契约；兼容性变化提升版本，失配时拒绝并从权威源重建。",
+        "relations": [
+          {
+            "type": "拆分",
             "target": "index-runtime/use-independent-read-side-index-runtime.md"
           }
         ]
@@ -2938,7 +3595,7 @@
           "minimal-implementation"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -2947,7 +3604,7 @@
       "state": {
         "path": "minimal-implementation/choose-smallest-correct-maintenance-surface.md",
         "title": "以有界候选比较选择最小实现维护面",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-23T07:45:41Z",
         "purpose": "让目标与责任已明确的工程任务在正确候选之间选择更小维护面，并能独立审计过度工程。",
@@ -2956,7 +3613,89 @@
         "relations": []
       }
     },
+    "minimal-implementation/compare-correct-options-by-total-maintenance-surface.md": {
+      "keys": {
+        "domain": [
+          "minimal-implementation"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "minimal-implementation/compare-correct-options-by-total-maintenance-surface.md",
+        "title": "在正确候选之间比较整体维护面",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:27:00Z",
+        "purpose": "让目标和责任明确的工程任务通过有界搜索与正确性门槛选择总维护面更小的方案。",
+        "background": "行数、固定候选顺序和局部抽象数量都不能独立代表长期成本，缺少前置判断时继续简化还会越过相邻 owner。",
+        "decision": "固定目标、契约、owner 和范围后有界搜索现实候选，先验证正确性，再比较依赖、状态、协调、验证和长期责任的总维护面。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "minimal-implementation/choose-smallest-correct-maintenance-surface.md"
+          }
+        ]
+      }
+    },
+    "minimal-implementation/preserve-pinned-upstream-snapshots-for-traceability.md": {
+      "keys": {
+        "domain": [
+          "minimal-implementation"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "minimal-implementation/preserve-pinned-upstream-snapshots-for-traceability.md",
+        "title": "随 Skill 保留固定上游快照与许可证",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:27:00Z",
+        "purpose": "让 minimal-implementation 的行为提炼能够对照固定上游材料，并在分发副本时保留许可来源。",
+        "background": "仅引用可变上游不能稳定回放提炼依据，而把原始材料加入普通执行路径又会扩大上下文并混入非当前契约。",
+        "decision": "将固定版本的上游逐字材料及许可证随 skill 分发，仅在维护、审计提炼或更新固定版本时读取，普通执行不加载。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "minimal-implementation/choose-smallest-correct-maintenance-surface.md"
+          }
+        ]
+      }
+    },
     "openspec/260706-gate-temporary-change-plans.md": {
+      "keys": {
+        "domain": [
+          "openspec"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "openspec/260706-gate-temporary-change-plans.md",
+        "title": "将 OpenSpec change 作为临时计划并设置实现门禁",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-07-06T16:51:26+08:00",
+        "purpose": "允许先保存尚未完成审计的 change 计划，同时阻止它被误当成可直接实施的方案。",
+        "background": "OpenSpec change 可以作为临时计划存在, 类似 issue 或 PR, 通常从用户想法、探索结论、代码事实或已有规范中引申出来。",
+        "decision": "将 active change 视为可暂存的临时计划；创建 change 只表示完成结构化，不代表已经审计或获得实施许可。",
+        "relations": []
+      }
+    },
+    "openspec/gate-change-implementation-by-review.md": {
       "keys": {
         "domain": [
           "openspec"
@@ -2969,15 +3708,49 @@
         ]
       },
       "state": {
-        "path": "openspec/260706-gate-temporary-change-plans.md",
-        "title": "将 OpenSpec change 作为临时计划并设置实现门禁",
+        "path": "openspec/gate-change-implementation-by-review.md",
+        "title": "将 Change 结构完成与实施许可分离",
         "status": "active",
         "alignment": "aligned",
-        "createdAt": "2026-07-06T16:51:26+08:00",
-        "purpose": "允许先保存尚未完成审计的 change 计划，同时阻止它被误当成可直接实施的方案。",
-        "background": "OpenSpec change 可以作为临时计划存在, 类似 issue 或 PR, 通常从用户想法、探索结论、代码事实或已有规范中引申出来。",
-        "decision": "将 active change 视为可暂存的临时计划；创建 change 只表示完成结构化，不代表已经审计或获得实施许可。",
-        "relations": []
+        "createdAt": "2026-08-11T03:26:59Z",
+        "purpose": "允许未成熟的 OpenSpec Change 先形成结构，同时阻止未审计或仍有关键歧义的方案进入实现。",
+        "background": "Artifact 完成只证明满足当前 schema 的结构要求，不能证明方案已经审计、开放问题已经解决或当前任务已经授权实施。",
+        "decision": "Change 可以作为临时计划存在；propose 设置阻塞级实现前审计，apply 在开放问题或关键歧义消除前暂停实现。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "openspec/260706-gate-temporary-change-plans.md"
+          }
+        ]
+      }
+    },
+    "openspec/prefer-cli-for-change-state-and-artifact-routing.md": {
+      "keys": {
+        "domain": [
+          "openspec"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "openspec/prefer-cli-for-change-state-and-artifact-routing.md",
+        "title": "优先用 OpenSpec CLI 恢复 Change 状态与材料路径",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:26:59Z",
+        "purpose": "让 OpenSpec skills 从工具事实源恢复状态、schema、依赖和验证结果，并只在信息不足时读取精确材料。",
+        "background": "直接猜测目录与 artifact 状态会复制 CLI 责任，但 CLI 不一定返回完成当前阶段所需的全部正文或旧行为背景。",
+        "decision": "优先使用 CLI 查询状态、schema、依赖、路径和验证；失败或正文不足时读取精确当前文件，必要时只把旧版参考用于回放安全回退。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "openspec/260706-gate-temporary-change-plans.md"
+          }
+        ]
       }
     },
     "product-architecture-judgment/260720-keep-problem-reframing-self-contained.md": {
@@ -3102,6 +3875,30 @@
         "purpose": "为脚本实现的归属、边界、类型、组织和风险验证提供单一长期 owner。",
         "background": "`AGENTS.md` 已承接项目协作约定，`docs/tooling.md` 已承接脚本工具链，但实现代码的归属、边界、类型、组织和风险验证缺少独立 owner。",
         "decision": "使用 `docs/coding-style.md` 承接 `scripts/` 实现代码的通用质量规则，由 `AGENTS.md` 提供读取入口；行为契约和工具链细节继续留在各自 owner。",
+        "relations": []
+      }
+    },
+    "project-documentation/route-future-work-by-minimal-carrier.md": {
+      "keys": {
+        "domain": [
+          "project-documentation"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-documentation/route-future-work-by-minimal-carrier.md",
+        "title": "按事项状态选择最小持久载体",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:08:21Z",
+        "purpose": "让维护者按事项当前需要保存的结果唯一选择 Decision、Change、Task 或调查载体，避免未来方向被重复保存为长期等待任务或活动草稿。",
+        "background": "仓库已有四类载体的局部边界，但缺少跨 owner 的选择与退出规则，同一未来事项可能被重复保存为长期等待 task 或活动 draft。",
+        "decision": "由仓库导航维护最小载体和单向交接规则；只在独立结果成为当前需要时建立载体，未对齐决策不自动创建 task，失去当前价值的 Change 与 task 按 owner 退出。",
         "relations": []
       }
     },
@@ -3322,7 +4119,7 @@
           "project-tooling"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -3331,7 +4128,7 @@
       "state": {
         "path": "project-tooling/260701-use-libraries-for-common-script-behavior.md",
         "title": "本地脚本的常见行为优先使用成熟库",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-01T10:02:50+08:00",
         "purpose": "降低通用底层能力的自研维护成本和缺陷风险。",
@@ -3518,6 +4315,35 @@
         "relations": []
       }
     },
+    "project-tooling/assign-tool-and-automation-source-owners.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/assign-tool-and-automation-source-owners.md",
+        "title": "分配可分发工具与仓库自动化的源码 owner",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:25:49Z",
+        "purpose": "让源码路径明确表达运行环境、分发责任和允许的依赖方向，避免分发工具反向依赖仓库编排。",
+        "background": "可分发 CLI、仓库脚本和共享协议混在同一层时，独立 skill 会依赖主仓库结构并产生循环 owner。",
+        "decision": "tools 承接分发运行时及真实共享协议，scripts 承接仓库自动化；领域工具只依赖明确的下层能力。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "project-tooling/separate-tool-source-and-repository-automation.md"
+          }
+        ]
+      }
+    },
     "project-tooling/bootstrap-hooks-and-select-project-roots.md": {
       "keys": {
         "domain": [
@@ -3629,6 +4455,64 @@
         "relations": []
       }
     },
+    "project-tooling/bound-top-level-check-concurrency.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/bound-top-level-check-concurrency.md",
+        "title": "保守限制顶层检查任务并发",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:25:48Z",
+        "purpose": "在缩短检查尾部等待的同时限制顶层资源竞争，并允许调用方显式调整安全并发度。",
+        "background": "检查任务内部可能继续启动测试和子进程，默认提高顶层并发会放大 CPU、内存和进程压力。",
+        "decision": "已选前置检查默认最多并发两个，可由正整数配置覆盖，并优先调度 full 档慢任务。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "project-tooling/use-profiled-concise-checks.md"
+          }
+        ]
+      }
+    },
+    "project-tooling/build-deterministic-skill-zip-archives.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/build-deterministic-skill-zip-archives.md",
+        "title": "生成确定性的 skill ZIP 归档",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:25:50Z",
+        "purpose": "让相同版本的打包工具对同一 skill 输入生成不受当前时间和文件遍历顺序影响的 ZIP。",
+        "background": "ZIP entry 顺序和 mtime 若来自运行环境，每次打包都会产生无语义内容变化的不同制品。",
+        "decision": "Skill ZIP 使用稳定文件排序和固定 mtime，并由成熟归档实现生成，不让环境时间进入产物身份。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "project-tooling/260701-use-libraries-for-common-script-behavior.md"
+          }
+        ]
+      }
+    },
     "project-tooling/default-checks-to-warnings.md": {
       "keys": {
         "domain": [
@@ -3658,6 +4542,35 @@
         ]
       }
     },
+    "project-tooling/derive-check-exit-status-from-step-results.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/derive-check-exit-status-from-step-results.md",
+        "title": "从检查步骤结果派生退出状态",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:14:59Z",
+        "purpose": "让调用方仅通过结构化步骤结果和退出码可靠判断整次检查是否成功。",
+        "background": "Warning 文本、日志顺序和 planned skip 都不能替代已执行步骤的成功或失败结果。",
+        "decision": "任一已执行步骤失败或启动参数非法时退出非零；没有失败且仅含计划内跳过时退出零。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "project-tooling/render-check-results-and-exit-status.md"
+          }
+        ]
+      }
+    },
     "project-tooling/exclude-archived-changes-from-link-validation.md": {
       "keys": {
         "domain": [
@@ -3680,6 +4593,436 @@
         "background": "归档会增加目录层级，稳定 owner 后续也可能移动；持续校验历史计划会迫使维护者改写归档内容。",
         "decision": "bun run validate 排除 changes/archive 下的 Markdown，同时继续校验 active change 与当前稳定文档。",
         "relations": []
+      }
+    },
+    "project-tooling/gate-packaging-on-selected-checks.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/gate-packaging-on-selected-checks.md",
+        "title": "只在所选检查通过后执行 skill 打包",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:25:48Z",
+        "purpose": "确保一次检查命令生成的 skill 包建立在本次所选前置门禁全部通过的状态上。",
+        "background": "打包不是 quick 或 full 前置任务；与检查并发或在失败后继续打包会产生未经本次门禁证明的制品。",
+        "decision": "所选前置检查全部完成且通过后才串行运行一次打包；任一失败时显式跳过，打包失败决定整体失败。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "project-tooling/use-profiled-concise-checks.md"
+          }
+        ]
+      }
+    },
+    "project-tooling/generate-and-check-import-safe-tool-artifacts.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/generate-and-check-import-safe-tool-artifacts.md",
+        "title": "生成并核对可独立导入的工具产物",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:14:54Z",
+        "purpose": "让独立 skill 获得不依赖主仓库路径且可安全导入，并能从唯一源码重建核对的工具产物。",
+        "background": "生成检查需要识别真实内容漂移，同时把 CRLF 与 LF 视为同一文本，不能误写成逐字节比较。",
+        "decision": "构建适配生成自包含 ESM 与必要契约；sync 写入规范输出，check 重建后按统一行尾比较文本内容。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "project-tooling/generate-import-safe-self-contained-tool-artifacts.md"
+          }
+        ]
+      }
+    },
+    "project-tooling/generate-import-safe-self-contained-tool-artifacts.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/generate-import-safe-self-contained-tool-artifacts.md",
+        "title": "生成可独立导入的自包含工具产物",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:03:07Z",
+        "purpose": "让独立 skill 获得不依赖主仓库路径且可安全导入的工具产物。",
+        "background": "直接运行仓库源码会破坏独立分发，手工维护多个生成副本又会产生实现漂移。",
+        "decision": "构建适配从 tools 源码生成自包含 ESM，并按稳定接口需要生成声明或 Schema。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "project-tooling/generate-self-contained-tool-distributions.md"
+          }
+        ]
+      }
+    },
+    "project-tooling/generate-self-contained-tool-distributions.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/generate-self-contained-tool-distributions.md",
+        "title": "从工具源码生成自包含分发产物",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:25:49Z",
+        "purpose": "让独立 skill 获得可导入、可验证且不依赖主仓库路径的工具产物，并由根检查覆盖生成漂移。",
+        "background": "直接运行仓库源码或依赖其他 skill 会破坏独立分发，手工维护生成副本又会产生源码漂移。",
+        "decision": "构建适配从同一源码生成自包含 ESM 和必要契约；sync 写入、check 重建比较，根检查覆盖完整链路。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "project-tooling/separate-tool-source-and-repository-automation.md"
+          }
+        ]
+      }
+    },
+    "project-tooling/make-skill-zip-bytes-deterministic.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/make-skill-zip-bytes-deterministic.md",
+        "title": "让 skill ZIP 字节具有确定性",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:03:06Z",
+        "purpose": "让相同显式输入生成不受当前时间和文件遍历顺序影响的 skill ZIP。",
+        "background": "ZIP entry 顺序和 mtime 若来自运行环境，会造成没有源码语义变化的不同制品。",
+        "decision": "归档使用稳定 entry 顺序和固定 mtime，并保证相同工具、配置与输入产生相同字节。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "project-tooling/build-deterministic-skill-zip-archives.md"
+          }
+        ]
+      }
+    },
+    "project-tooling/package-skills-from-versioned-pending-snapshot.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/package-skills-from-versioned-pending-snapshot.md",
+        "title": "从版本管理 pending 快照打包 skill",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:14:58Z",
+        "purpose": "让 skill hash 与 ZIP 只反映准备进入下一版本的稳定分发输入，而不混入工作区临时内容或打包期生成。",
+        "background": "工作区可能包含未选择改动；打包时临时构建又会让制品来源不同于已审阅的待提交内容。",
+        "decision": "Hash 与 pack 共用版本管理 pending 中的 skill 文件快照，pack 不生成或修复输入，只收集已经存在的稳定内容。",
+        "relations": []
+      }
+    },
+    "project-tooling/prefer-mature-libraries-for-common-automation.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/prefer-mature-libraries-for-common-automation.md",
+        "title": "为仓库自动化的常见行为优先选择成熟库",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:25:50Z",
+        "purpose": "降低格式、协议、解析、压缩和归档等通用底层能力的自研维护成本与缺陷风险。",
+        "background": "为减少依赖而手写通用格式细节会扩大辅助脚本维护面，却不会形成项目领域价值。",
+        "decision": "常见底层行为优先选用维护活跃且兼容当前运行时的聚焦库；具体库映射保留为当前实现事实。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "project-tooling/260701-use-libraries-for-common-script-behavior.md"
+          }
+        ]
+      }
+    },
+    "project-tooling/read-skill-package-inputs-from-versioned-pending-snapshot.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/read-skill-package-inputs-from-versioned-pending-snapshot.md",
+        "title": "从版本管理 pending 快照读取 skill 制品输入",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:19:41Z",
+        "purpose": "让 skill hash 与打包读取同一组准备进入下一版本的稳定文件，而不混入工作区临时内容或打包期生成。",
+        "background": "工作区可能包含未选择改动；打包时临时构建又会让制品输入不同于已审阅的待提交内容。",
+        "decision": "Hash 与 pack 共用版本管理 pending 中的 skill 文件快照；pack 不生成或修复输入，只消费已经存在的稳定内容。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "project-tooling/package-skills-from-versioned-pending-snapshot.md"
+          }
+        ]
+      }
+    },
+    "project-tooling/render-check-results-and-exit-status.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/render-check-results-and-exit-status.md",
+        "title": "渲染检查结果并映射最终退出状态",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:03:03Z",
+        "purpose": "让成功路径保持可扫描，失败保留诊断，并以统一摘要和退出码表达计划结果。",
+        "background": "完整成功日志会淹没摘要，而只显示首个失败会遗漏已收敛计划中的其他结果。",
+        "decision": "默认单行报告成功与跳过、完整展开失败，汇总全部步骤并由失败结果映射非零退出。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "project-tooling/report-check-results-concisely.md"
+          }
+        ]
+      }
+    },
+    "project-tooling/render-check-step-results-concisely.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/render-check-step-results-concisely.md",
+        "title": "简洁渲染检查步骤结果",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:14:59Z",
+        "purpose": "让正常检查输出易于扫描，同时为失败和显式 verbose 保留完整诊断。",
+        "background": "默认展开所有成功日志会淹没摘要，而隐藏失败输出会妨碍定位原因。",
+        "decision": "成功与跳过默认单行、失败完整展开、verbose 展开全部，并汇总计划步骤的状态与耗时。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "project-tooling/render-check-results-and-exit-status.md"
+          }
+        ]
+      }
+    },
+    "project-tooling/report-check-results-concisely.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/report-check-results-concisely.md",
+        "title": "按检查结果展开日志并汇总状态",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:25:48Z",
+        "purpose": "让成功路径保持可扫描，失败保留完整诊断，并由统一摘要和退出状态表达整次检查结果。",
+        "background": "成功测试的完整输出会淹没摘要，而遇到首个失败即停止又会延长其余独立问题的发现周期。",
+        "decision": "成功和跳过默认单行报告，失败完整展开但不中止其他检查；verbose 展开全部，最终状态忠实反映失败。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "project-tooling/use-profiled-concise-checks.md"
+          }
+        ]
+      }
+    },
+    "project-tooling/run-packaging-after-prerequisite-checks.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/run-packaging-after-prerequisite-checks.md",
+        "title": "在前置检查收敛后运行 skill 打包",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:03:05Z",
+        "purpose": "让一次检查命令只在本次所选前置门禁全部通过后生成 skill 制品。",
+        "background": "打包不是 profile 前置任务，与检查并发或在失败后执行会产生未经本次门禁证明的制品。",
+        "decision": "等待所选前置检查收敛，全通过时运行一次打包，否则跳过，并产出对应步骤结果。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "project-tooling/gate-packaging-on-selected-checks.md"
+          }
+        ]
+      }
+    },
+    "project-tooling/schedule-selected-checks-conservatively.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/schedule-selected-checks-conservatively.md",
+        "title": "保守调度已选择的前置检查",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:03:04Z",
+        "purpose": "在缩短检查等待的同时限制顶层资源竞争，并保持可预测的任务领取顺序。",
+        "background": "前置检查会继续启动 runner 和子进程，顶层高并发会放大资源压力。",
+        "decision": "已选前置检查默认最多并发两个，允许正整数覆盖，并优先领取 full 档长任务。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "project-tooling/bound-top-level-check-concurrency.md"
+          }
+        ]
+      }
+    },
+    "project-tooling/select-check-tasks-by-profile.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/select-check-tasks-by-profile.md",
+        "title": "按 quick 和 full 档位选择检查任务",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:25:48Z",
+        "purpose": "让日常检查快速覆盖必要门禁，并为 CI、发布和完整验证提供显式全量入口。",
+        "background": "少数高成本集成测试主导等待时间，但直接移出默认路径不能削弱所选检查的可信完成语义。",
+        "decision": "默认 quick 只选择必要快速检查，full 包含 quick 和耗时检查；未选择项显式跳过，CI 使用 full。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "project-tooling/use-profiled-concise-checks.md"
+          }
+        ]
+      }
+    },
+    "project-tooling/select-prerequisite-checks-by-profile.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "project-tooling/select-prerequisite-checks-by-profile.md",
+        "title": "按 quick 与 full 档位选择前置检查",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:03:02Z",
+        "purpose": "让日常检查与完整验收使用明确且可复核的前置任务集合。",
+        "background": "不同场景需要不同检查成本，任务选择必须独立于调度、报告和打包行为。",
+        "decision": "quick 选择必要快速检查，full 选择 quick 与高成本检查，并显式维护任务的最低档位。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "project-tooling/select-check-tasks-by-profile.md"
+          }
+        ]
       }
     },
     "project-tooling/select-task-graph-project-roots.md": {
@@ -3747,7 +5090,7 @@
           "project-tooling"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -3756,7 +5099,7 @@
       "state": {
         "path": "project-tooling/separate-tool-source-and-repository-automation.md",
         "title": "分离工具源码与仓库自动化",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-24T05:56:33Z",
         "purpose": "让可分发工具源码、共享协议、仓库自动化和 skill 产物保持单向 owner 边界。",
@@ -3770,7 +5113,7 @@
         ]
       }
     },
-    "project-tooling/use-profiled-concise-checks.md": {
+    "project-tooling/settle-all-selected-checks-under-bounded-concurrency.md": {
       "keys": {
         "domain": [
           "project-tooling"
@@ -3783,9 +5126,38 @@
         ]
       },
       "state": {
+        "path": "project-tooling/settle-all-selected-checks-under-bounded-concurrency.md",
+        "title": "在有界并发下收敛全部已选检查",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:14:56Z",
+        "purpose": "让已选择的前置检查在保守资源边界内全部形成结果，并在单项失败后继续发现其他独立问题。",
+        "background": "前置检查会启动 runner 和子进程；首个失败即停止会遗漏同一计划中的其他结果。",
+        "decision": "已选检查默认并发两个、允许正整数覆盖并优先长任务；单项失败不取消或停止其余已选检查。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "project-tooling/schedule-selected-checks-conservatively.md"
+          }
+        ]
+      }
+    },
+    "project-tooling/use-profiled-concise-checks.md": {
+      "keys": {
+        "domain": [
+          "project-tooling"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
         "path": "project-tooling/use-profiled-concise-checks.md",
         "title": "按档位运行检查并按结果展开日志",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-05T07:12:40Z",
         "purpose": "让日常检查在保留必要门禁的同时快速反馈，并为完整验证和失败诊断提供显式入口。",
@@ -3960,7 +5332,7 @@
         ]
       }
     },
-    "skill-design-discovery/separate-design-discovery-from-lifecycle-maintenance.md": {
+    "skill-design-discovery/discover-skill-behavior-before-lifecycle-implementation.md": {
       "keys": {
         "domain": [
           "skill-design-discovery"
@@ -3973,9 +5345,38 @@
         ]
       },
       "state": {
+        "path": "skill-design-discovery/discover-skill-behavior-before-lifecycle-implementation.md",
+        "title": "在生命周期实现前独立发现 Skill 行为契约",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:27:01Z",
+        "purpose": "在复杂 Skill 创建或重构前从现实证据恢复流程、判断、约束、权限和验证义务，再交给实现入口落地。",
+        "background": "生命周期维护拥有结构与分发责任，但隐性领域行为需要不同的触发、证据和完成标准；强制所有维护进入深度发现又会制造额外流程。",
+        "decision": "以独立发现行为按复杂度形成轻量或深度设计契约，区分证据强度并交接实现；不拥有结构、分发和发布，也不绑定建立阶段的上游材料。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "skill-design-discovery/separate-design-discovery-from-lifecycle-maintenance.md"
+          }
+        ]
+      }
+    },
+    "skill-design-discovery/separate-design-discovery-from-lifecycle-maintenance.md": {
+      "keys": {
+        "domain": [
+          "skill-design-discovery"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
         "path": "skill-design-discovery/separate-design-discovery-from-lifecycle-maintenance.md",
         "title": "将 Skill 深度设计发现设为独立行为",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-21T02:44:23Z",
         "purpose": "让隐性工作流、潜藏决策和约束在 Skill 实现前成为可验证设计，同时保持生命周期维护职责聚焦。",
@@ -4032,7 +5433,7 @@
           "skill-maintainer"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -4041,7 +5442,7 @@
       "state": {
         "path": "skill-maintainer/260720-use-distribution-unit-boundaries.md",
         "title": "以分发单元定义 skill 的独立交付边界",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-20T10:15:58+08:00",
         "purpose": "让单个 skill 和成套 skills 都能按真实安装与使用方式维护, 同时阻止跨分发单元的隐含依赖。",
@@ -4055,6 +5456,93 @@
           {
             "type": "判定无效",
             "target": "skill-maintainer/260720-define-skills-by-self-contained-contracts.md"
+          }
+        ]
+      }
+    },
+    "skill-maintainer/distinguish-skill-and-distribution-unit-boundaries.md": {
+      "keys": {
+        "domain": [
+          "skill-maintainer"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "skill-maintainer/distinguish-skill-and-distribution-unit-boundaries.md",
+        "title": "区分 Skill 行为单元与分发单元",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:24:20Z",
+        "purpose": "让 skill 的发现和行为契约与安装、更新、兼容及完整交付边界分别按真实责任维护。",
+        "background": "一个分发单元可以包含一个或多个 skill，但仓库位置、主题相近或偶尔协作都不能证明共同安装契约。",
+        "decision": "Skill 作为行为单元独立定义入口，distribution unit 按显式安装与交付契约确定成员和依赖边界。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "skill-maintainer/260720-use-distribution-unit-boundaries.md"
+          }
+        ]
+      }
+    },
+    "skill-maintainer/distribute-openspec-as-an-aggregate-unit.md": {
+      "keys": {
+        "domain": [
+          "skill-maintainer"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "skill-maintainer/distribute-openspec-as-an-aggregate-unit.md",
+        "title": "将 OpenSpec 四阶段组成聚合分发单元",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:03:15Z",
+        "purpose": "让四个阶段以一个聚合分发契约协同交付，同时保持成员制品、版本、更新与选择安装独立。",
+        "background": "共同分发单元描述成员协作与交付关系，并不要求合并为单个物理包或让全部成员成为强制安装集合。",
+        "decision": "四个 OpenSpec skill 共同组成聚合分发单元；每个成员仍有独立制品、版本和 updater，支持按需安装。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "skill-maintainer/distribute-openspec-skills-independently.md"
+          }
+        ]
+      }
+    },
+    "skill-maintainer/distribute-openspec-skills-independently.md": {
+      "keys": {
+        "domain": [
+          "skill-maintainer"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "skill-maintainer/distribute-openspec-skills-independently.md",
+        "title": "将四个 OpenSpec Skill 作为独立分发单元",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:24:20Z",
+        "purpose": "让 OpenSpec 各阶段能力可以分别选择、安装、更新和演进，而不把共同工作流误作成员共存保证。",
+        "background": "四个 skill 围绕同一 OpenSpec 生命周期协作，但各自拥有入口、版本、制品和 updater，且没有组合安装契约。",
+        "decision": "OpenSpec explore、propose、apply 和 archive 分别构成独立分发单元，阶段关系不产生隐含跨 skill 依赖。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "skill-maintainer/260720-use-distribution-unit-boundaries.md"
           }
         ]
       }
@@ -4131,7 +5619,7 @@
         "relations": []
       }
     },
-    "subagent-orchestration/allocate-agents-and-runtime-by-task-slice.md": {
+    "subagent-orchestration/align-agent-lifecycle-with-task-slices.md": {
       "keys": {
         "domain": [
           "subagent-orchestration"
@@ -4144,9 +5632,38 @@
         ]
       },
       "state": {
+        "path": "subagent-orchestration/align-agent-lifecycle-with-task-slices.md",
+        "title": "让子代理生命周期跟随可验收任务切面",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:26:56Z",
+        "purpose": "让每个子代理围绕一个可独立交付和验收的主要责任积累上下文并完成结果。",
+        "background": "按零散动作分派会增加交接成本，跨目标复用同一代理又会混合上下文、责任和验收边界。",
+        "decision": "以最小可独立交付切面分派一个主要责任；同一切面的实现、自验证和定向修复延续原代理，责任或角色改变时建立新代理。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "subagent-orchestration/allocate-agents-and-runtime-by-task-slice.md"
+          }
+        ]
+      }
+    },
+    "subagent-orchestration/allocate-agents-and-runtime-by-task-slice.md": {
+      "keys": {
+        "domain": [
+          "subagent-orchestration"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
         "path": "subagent-orchestration/allocate-agents-and-runtime-by-task-slice.md",
         "title": "按任务切面分配代理与运行能力",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-04T08:06:42Z",
         "purpose": "让每个子代理完成边界清楚且可独立验收的工作，并使代理能力、思考上限和写入边界与切面匹配。",
@@ -4166,7 +5683,7 @@
           "subagent-orchestration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -4175,7 +5692,7 @@
       "state": {
         "path": "subagent-orchestration/bound-review-and-handoff-by-delivery-impact.md",
         "title": "以交付影响收敛审查与交接",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-04T08:16:33Z",
         "purpose": "让审查围绕阻断交付的问题收敛，并让子代理只返回主代理决策所需的信息。",
@@ -4184,7 +5701,123 @@
         "relations": []
       }
     },
-    "task-graph/anchor-semantic-task-results-in-index-history.md": {
+    "subagent-orchestration/handoff-minimum-results-and-evidence.md": {
+      "keys": {
+        "domain": [
+          "subagent-orchestration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "subagent-orchestration/handoff-minimum-results-and-evidence.md",
+        "title": "以最小结果和证据完成子代理交接",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:26:57Z",
+        "purpose": "让主代理获得判断继续、修复或交付所需的信息，不用固定表格和空字段增加交接成本。",
+        "background": "完成程度与证据始终影响后续判断，改动和例外只在实际存在时有价值；强制重复或空占位不会提高可审核性。",
+        "decision": "子代理始终交接完成程度、核心结论和关键证据；正式改动、辅助写入与重大例外按实际存在报告，证据深度随风险调整。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "subagent-orchestration/bound-review-and-handoff-by-delivery-impact.md"
+          }
+        ]
+      }
+    },
+    "subagent-orchestration/repair-only-delivery-blocking-review-findings.md": {
+      "keys": {
+        "domain": [
+          "subagent-orchestration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "subagent-orchestration/repair-only-delivery-blocking-review-findings.md",
+        "title": "只让阻断交付的审查问题进入修复循环",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:26:57Z",
+        "purpose": "让独立审查围绕当前交付目标收敛，不把偏好、可选优化和范围外设想升级为持续修复。",
+        "background": "以发现更多问题为目标会制造无界循环，而每轮重新审查稳定范围也不会增加与风险相称的证据。",
+        "decision": "只有影响目标、正确性、安全权限、范围、集成或必要验证的问题触发定向修复；复核受影响边界并在阻断清除后停止。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "subagent-orchestration/bound-review-and-handoff-by-delivery-impact.md"
+          }
+        ]
+      }
+    },
+    "subagent-orchestration/select-model-before-reasoning-effort.md": {
+      "keys": {
+        "domain": [
+          "subagent-orchestration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "subagent-orchestration/select-model-before-reasoning-effort.md",
+        "title": "先按能力选择子代理模型再配置思考强度",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:26:56Z",
+        "purpose": "区分模型能力与问题所需思考预算，避免用统一档位或代理角色替代切面判断。",
+        "background": "模型决定可用能力，思考强度只调整所选模型的预算上限；把两者绑定会掩盖能力缺口并产生错误升级路径。",
+        "decision": "先按切面的理解、工具和综合能力选择模型，再按推理难度配置思考强度；不规定统一起点，也不按角色固定组合。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "subagent-orchestration/allocate-agents-and-runtime-by-task-slice.md"
+          }
+        ]
+      }
+    },
+    "subagent-orchestration/separate-delivery-and-auxiliary-write-ownership.md": {
+      "keys": {
+        "domain": [
+          "subagent-orchestration"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "subagent-orchestration/separate-delivery-and-auxiliary-write-ownership.md",
+        "title": "区分子代理的交付写入与隔离辅助写入",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:26:56Z",
+        "purpose": "在保持交付状态写入互斥的同时，允许独立调查、验证和审查创建必要且隔离的辅助物。",
+        "background": "独立性要求不修改被评估对象，而不是禁止一切写入；把两者混同会限制验证，也会掩盖真正的共享状态冲突。",
+        "decision": "交付物、共享项目和外部状态的写入所有权保持互斥；独立代理可在明确隔离范围内创建辅助物，但不得修改被评估对象。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "subagent-orchestration/allocate-agents-and-runtime-by-task-slice.md"
+          }
+        ]
+      }
+    },
+    "task-graph/aggregate-parent-task-completion.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4197,15 +5830,131 @@
         ]
       },
       "state": {
+        "path": "task-graph/aggregate-parent-task-completion.md",
+        "title": "由子 task 结果聚合父 task 完成",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:21:57Z",
+        "purpose": "让真实父子分解通过子 task 终态和后代租约形成父 task 的机械完成门禁。",
+        "background": "父 task 若独立宣称完成，会与尚未收敛的子目标或活动后代执行产生矛盾。",
+        "decision": "有子 task 的父项只在直接子项全部收敛、至少一项成功且没有活动后代租约时完成。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "task-graph/model-task-topology-and-inheritance-explicitly.md"
+          }
+        ]
+      }
+    },
+    "task-graph/anchor-semantic-task-results-in-index-history.md": {
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
         "path": "task-graph/anchor-semantic-task-results-in-index-history.md",
         "title": "以索引历史锚定 task 语义结果",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-10T07:20:56Z",
         "purpose": "让 task result 保存可维护的语义结果，并由 task index 的版本历史锚定完成时的仓库状态。",
         "background": "分支 SHA 会被 rebase 改写，而 task 协调没有明确消费者需要在 result 中重复保存具体实现提交。",
         "decision": "Task result 默认只保存摘要和稳定 owner 引用；完成状态进入 task index 的 Git 历史后锚定仓库版本，不常规记录 commit SHA。",
         "relations": []
+      }
+    },
+    "task-graph/anchor-task-results-in-index-history.md": {
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/anchor-task-results-in-index-history.md",
+        "title": "以 task index 历史锚定终态结果版本",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:21:49Z",
+        "purpose": "让终态 task 可追溯到记录该结果的仓库版本，同时不宣称 task 与实现提交一一对应。",
+        "background": "工作区 mutation 和 pending 快照都不是版本历史，只有包含终态 entry 的提交能够形成稳定仓库锚点。",
+        "decision": "首个包含终态 entry 的 task index 提交构成版本锚点；该锚点只证明仓库已记录结果。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "task-graph/anchor-semantic-task-results-in-index-history.md"
+          }
+        ]
+      }
+    },
+    "task-graph/classify-task-index-transaction-outcomes-conservatively.md": {
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/classify-task-index-transaction-outcomes-conservatively.md",
+        "title": "保守判定 task index 写事务结果",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:14:55Z",
+        "purpose": "让完整写事务只有在原子写入与锁释放均成功时报告成功，并为可能已提交的失败提供统一恢复边界。",
+        "background": "原子写 reject 或写入成功后的锁释放失败都无法向调用方证明最终提交状态。",
+        "decision": "完整写事务正常收敛才成功；不确定提交结果统一返回 WRITE_OUTCOME_UNKNOWN，并要求重读权威事实。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "task-graph/use-conservative-task-index-write-outcomes.md"
+          }
+        ]
+      }
+    },
+    "task-graph/complete-tasks-after-goal-integration.md": {
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/complete-tasks-after-goal-integration.md",
+        "title": "只在目标集成完成后收敛 task",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:21:49Z",
+        "purpose": "让 task 的成功终态对应完整目标，而不是分支实现、自验证或提交等中间交付。",
+        "background": "当目标包含主线集成、发布或外部确认时，提前完成会让协调状态错误地宣称目标已经达成。",
+        "decision": "只有完整 goal 达成后才完成 task；即时集成续用同一 task，异步集成使用显式依赖的独立 tasks。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "task-graph/anchor-semantic-task-results-in-index-history.md"
+          }
+        ]
       }
     },
     "task-graph/coordinate-task-execution-with-transactional-claims.md": {
@@ -4253,7 +6002,12 @@
         "purpose": "在没有可复核误终态实例时保持终态事实与下游协调可信，不为理论完整性增加通用纠正能力。",
         "background": "当前真实场景分别由后继 task 和语义 result 版本锚点解决，尚未出现必须撤销 succeeded 或 cancelled 才能恢复协调的案例。",
         "decision": "当前不实现 correct、reopen 或新的 task 演进协议，维持现有终态封闭规则；只有出现后继或修复 task 无法处理的真实错误终态时才重新探索最小纠正机制。",
-        "relations": []
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "task-graph/anchor-semantic-task-results-in-index-history.md"
+          }
+        ]
       }
     },
     "task-graph/delegate-native-runtime-installation-to-caller.md": {
@@ -4309,6 +6063,35 @@
         "relations": []
       }
     },
+    "task-graph/inherit-ancestor-task-constraints.md": {
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/inherit-ancestor-task-constraints.md",
+        "title": "向下继承祖先 task 的控制与约束",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:21:57Z",
+        "purpose": "让子 task 默认遵守祖先控制、依赖和排斥，同时允许局部软控制差异而不删除硬约束。",
+        "background": "完全复制祖先状态会混淆各 task 的实际执行，完全不继承又会让子 task 绕过等待和前置边界。",
+        "decision": "子 task 继承祖先软控制、依赖和排斥，可覆盖软控制并增加局部约束，但实际执行状态保持本地。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "task-graph/model-task-topology-and-inheritance-explicitly.md"
+          }
+        ]
+      }
+    },
     "task-graph/install-native-runtime-in-user-tool-home.md": {
       "keys": {
         "domain": [
@@ -4333,7 +6116,7 @@
         "relations": []
       }
     },
-    "task-graph/keep-task-graph-locks-outside-workspace.md": {
+    "task-graph/keep-task-execution-mechanism-neutral.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4346,9 +6129,38 @@
         ]
       },
       "state": {
+        "path": "task-graph/keep-task-execution-mechanism-neutral.md",
+        "title": "保持 task 协调的执行机制中立",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:22:01Z",
+        "purpose": "让 task-graph 提供统一协调契约，由调用方独立选择执行者和执行方式。",
+        "background": "执行者的选择和配置随调用环境变化，把具体机制写进协调 owner 会使可选能力成为分发前提。",
+        "decision": "Task-graph skill 与状态工具共同分发但不创建或审计执行者；所有执行方式使用同一领取、续租和收敛契约。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "task-graph/separate-task-coordination-from-execution-mechanism.md"
+          }
+        ]
+      }
+    },
+    "task-graph/keep-task-graph-locks-outside-workspace.md": {
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
         "path": "task-graph/keep-task-graph-locks-outside-workspace.md",
         "title": "将 task-graph 短事务锁保留在工作区外",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-07T02:31:25Z",
         "purpose": "保留权威 JSON 与原生短锁，同时让目标仓库只承载任务索引，不承担锁文件和忽略规则管理。",
@@ -4358,6 +6170,35 @@
           {
             "type": "修订",
             "target": "task-graph/use-native-locks-for-json-transactions.md"
+          }
+        ]
+      }
+    },
+    "task-graph/keep-task-results-semantic.md": {
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/keep-task-results-semantic.md",
+        "title": "只在 task result 中保存语义结果",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:21:49Z",
+        "purpose": "让终态 task 保存可恢复的结果含义和稳定 owner 引用，不复制易变的执行或提交身份。",
+        "background": "分支和提交身份会在集成时变化，当前没有长期消费者要求从每个 result 解析唯一实现提交。",
+        "decision": "Task result 默认只保存结果摘要和必要的稳定引用，不保存中间交接信息或常规 commit SHA。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "task-graph/anchor-semantic-task-results-in-index-history.md"
           }
         ]
       }
@@ -4391,7 +6232,7 @@
         ]
       }
     },
-    "task-graph/model-task-topology-and-inheritance-explicitly.md": {
+    "task-graph/locate-locks-by-task-index-identity.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4404,9 +6245,67 @@
         ]
       },
       "state": {
+        "path": "task-graph/locate-locks-by-task-index-identity.md",
+        "title": "按 task index 身份定位工作区外短锁",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:21:59Z",
+        "purpose": "让同一主机上的索引 mutation 共享稳定短锁，同时不在目标工作区创建锁文件或忽略规则。",
+        "background": "Advisory lock 只需遵守协议的写入者打开同一稳定文件，锁位置无需与索引相邻。",
+        "decision": "由规范索引绝对路径的 hash 在系统临时目录定位稳定锁，锁只覆盖本地短事务并不管理工作区路径。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "task-graph/keep-task-graph-locks-outside-workspace.md"
+          }
+        ]
+      }
+    },
+    "task-graph/model-task-relations-with-distinct-invariants.md": {
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/model-task-relations-with-distinct-invariants.md",
+        "title": "以不同不变量维护 task 拓扑关系",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:21:57Z",
+        "purpose": "让父子、完成依赖和并发排斥各自表达唯一调度含义并接受对应的图约束。",
+        "background": "三类关系具有不同方向、基数和闭合条件，混成通用 edge 会让执行者重新猜测调度语义。",
+        "decision": "分别用无环森林、依赖有向无环图和对称无自环集合维护父子、顺序与并发关系。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "task-graph/model-task-topology-and-inheritance-explicitly.md"
+          }
+        ]
+      }
+    },
+    "task-graph/model-task-topology-and-inheritance-explicitly.md": {
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
         "path": "task-graph/model-task-topology-and-inheritance-explicitly.md",
         "title": "显式维护任务层级、依赖与排斥",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-06T06:13:48Z",
         "purpose": "让执行顺序、父子继承和并发互斥由可校验拓扑决定。",
@@ -4521,6 +6420,35 @@
         "relations": []
       }
     },
+    "task-graph/retain-tasks-by-coordination-value.md": {
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/retain-tasks-by-coordination-value.md",
+        "title": "按协调价值保留和清理 task",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:22:00Z",
+        "purpose": "让 task 在仍影响选择、阻塞、交接或执行时持续存在，并只通过显式闭合门禁清理。",
+        "background": "终态或经过时间不能证明协调价值已经消失，自动删除可能丢失仍被关系和结果消费的任务。",
+        "decision": "时间和终态不自动删除 task；仅在结果交付、协调价值消失且关系闭合后显式批量清理，ID 不复用。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "task-graph/use-authoritative-json-index-for-task-coordination.md"
+          }
+        ]
+      }
+    },
     "task-graph/separate-raw-results-from-output-functions.md": {
       "keys": {
         "domain": [
@@ -4575,7 +6503,7 @@
           "task-graph"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -4584,7 +6512,7 @@
       "state": {
         "path": "task-graph/separate-task-coordination-from-execution-mechanism.md",
         "title": "将任务协调与执行机制分离",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-11T02:12:47Z",
         "purpose": "让 task-graph 独立维护可恢复的协调事实，由调用方选择执行者和执行方式，避免可选协作机制成为分发前提。",
@@ -4628,7 +6556,7 @@
           "task-graph"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -4637,7 +6565,7 @@
       "state": {
         "path": "task-graph/use-authoritative-json-index-for-task-coordination.md",
         "title": "使用权威 JSON 索引保存任务协调事实",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-07T07:19:06Z",
         "purpose": "让任务内容、拓扑和执行状态以稳定、可查询的形式存在，而不产生逐任务文档或第二事实源。",
@@ -4647,6 +6575,93 @@
           {
             "type": "修订",
             "target": "task-graph/use-authoritative-json-index-for-short-lived-tasks.md"
+          }
+        ]
+      }
+    },
+    "task-graph/use-conservative-atomic-write-outcomes.md": {
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/use-conservative-atomic-write-outcomes.md",
+        "title": "对 task index 原子写入采用保守结果语义",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:21:59Z",
+        "purpose": "让索引原子写入成功立即收敛，失败统一保留未知结果并阻止调用方盲目重放。",
+        "background": "原子写调用 reject 后的磁盘读回只能观察某个时点，不能证明提交点是否越过或重放是否安全。",
+        "decision": "原子写 resolve 即成功且不回读；reject 统一返回 WRITE_OUTCOME_UNKNOWN，并要求重读索引和目标实体。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "task-graph/keep-task-graph-locks-outside-workspace.md"
+          }
+        ]
+      }
+    },
+    "task-graph/use-conservative-task-index-write-outcomes.md": {
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/use-conservative-task-index-write-outcomes.md",
+        "title": "对 task index 写入采用保守结果语义",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:03:16Z",
+        "purpose": "让原子写入成功立即收敛，失败保留未知结果并阻止调用方盲目重放。",
+        "background": "原子写调用 reject 后的磁盘读回不能证明提交点是否已经越过。",
+        "decision": "原子写 resolve 即成功，reject 返回 WRITE_OUTCOME_UNKNOWN，并要求调用方重读事实后恢复。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "task-graph/use-conservative-atomic-write-outcomes.md"
+          }
+        ]
+      }
+    },
+    "task-graph/use-json-task-index-as-single-fact-source.md": {
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "task-graph/use-json-task-index-as-single-fact-source.md",
+        "title": "以 JSON task index 作为唯一协调事实源",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T03:22:00Z",
+        "purpose": "让 task 身份、内容、状态、拓扑和执行租约只有一个受工具管理的权威表示。",
+        "background": "为每个 task 建立 Markdown 和派生索引会增加发现、同步与新鲜度成本，并形成第二事实源。",
+        "decision": "每个 task 直接作为权威 JSON 索引中的 entry 存在，不建立逐 task 文档、归档目录或默认事件历史。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "task-graph/use-authoritative-json-index-for-task-coordination.md"
           }
         ]
       }
@@ -4675,7 +6690,7 @@
         "relations": []
       }
     },
-    "task-graph/use-root-task-dictionary.md": {
+    "task-graph/use-root-task-dictionary-for-collection-identity.md": {
       "keys": {
         "domain": [
           "task-graph"
@@ -4688,9 +6703,38 @@
         ]
       },
       "state": {
+        "path": "task-graph/use-root-task-dictionary-for-collection-identity.md",
+        "title": "用根级任务字典承接集合身份",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T04:03:17Z",
+        "purpose": "让 task index 以根级字典表达一个平铺任务集合，并让字典键唯一承接任务身份。",
+        "background": "索引文件已界定任务集合，额外 scope 容器只会重复集合与身份边界。",
+        "decision": "索引根级使用 tasks 字典，taskId 键是唯一任务身份，索引文件直接界定集合。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "task-graph/use-root-task-dictionary.md"
+          }
+        ]
+      }
+    },
+    "task-graph/use-root-task-dictionary.md": {
+      "keys": {
+        "domain": [
+          "task-graph"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
         "path": "task-graph/use-root-task-dictionary.md",
         "title": "使用根级任务字典承接唯一身份",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-07T06:40:32Z",
         "purpose": "让索引直接保存平铺任务集合，并只由父任务关系表达层级，删除没有调度价值的 scope 容器。",
@@ -4886,7 +6930,7 @@
           "test-evidence-review"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
@@ -4895,7 +6939,7 @@
       "state": {
         "path": "test-evidence-review/defer-standard-test-result-blocking.md",
         "title": "长期延期统一测试结果协议与阻断资格",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-10T07:48:30Z",
         "purpose": "为未来正式测试门禁保留可审计的统一接入方向，同时明确当前不排期、不实施，也不提前冻结协议细节。",
@@ -5107,6 +7151,64 @@
         ]
       }
     },
+    "test-evidence-review/qualify-formal-results-by-evidence-integrity.md": {
+      "keys": {
+        "domain": [
+          "test-evidence-review"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "test-evidence-review/qualify-formal-results-by-evidence-integrity.md",
+        "title": "按证据完整性判定正式测试结果资格",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-11T04:05:43Z",
+        "purpose": "让正式测试结果只有在身份、集合、来源和 Test–Case 关系完整时才形成行为通过或回归。",
+        "background": "Runner 协议只提供 invocation 级逐 Test 结果；结果资格、账本关系和行为解释需要由消费侧独立判断。",
+        "decision": "先验证正式结果的证据链，再形成行为结论；诊断按 Test 报告并只从权威账本派生 Case 语境。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "test-evidence-review/qualify-formal-test-results-before-behavior-blocking.md"
+          }
+        ]
+      }
+    },
+    "test-evidence-review/qualify-formal-test-results-before-behavior-blocking.md": {
+      "keys": {
+        "domain": [
+          "test-evidence-review"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "test-evidence-review/qualify-formal-test-results-before-behavior-blocking.md",
+        "title": "先确认测试结果资格再形成行为阻断",
+        "status": "archived",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-11T03:24:23Z",
+        "purpose": "让正式测试只有在身份、关系、来源和结果集合完整时才形成有资格约束实现的行为 pass 或 fail。",
+        "background": "无法追溯或关系不闭合的结果说明测试证据自身不完整，若解释成行为回归会混淆故障责任。",
+        "decision": "正式结果先通过 Test 身份、Case 关系与完整性门禁，再按 Test 报告并从权威账本派生 Case。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "test-evidence-review/defer-standard-test-result-blocking.md"
+          }
+        ]
+      }
+    },
     "test-evidence-review/query-ledger-with-structured-inspection.md": {
       "keys": {
         "domain": [
@@ -5235,6 +7337,64 @@
         "background": "多个 Case 共享一个派生索引；公共运行时已经能按稳定 ID 组合条目，但测试证据领域仍需拥有选择输入和文件边界。",
         "decision": "测试证据入口校验 Case ID 后只把选中 ID 交给索引运行时，topic 表、Case Markdown 和代码均由调用方另行暂存。",
         "relations": []
+      }
+    },
+    "test-evidence-review/standardize-runner-results-at-producer-boundaries.md": {
+      "keys": {
+        "domain": [
+          "test-evidence-review"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "test-evidence-review/standardize-runner-results-at-producer-boundaries.md",
+        "title": "在 Runner 生产边界标准化 Test 结果",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-11T04:03:18Z",
+        "purpose": "让 runner 私有事件在生产边缘转换为 invocation 级版本化 envelope，消费核心只依赖稳定 Test 结果协议。",
+        "background": "协议记录若同时承接 Case 派生、资格分类和持久状态，会与正式结果资格判断形成重复 owner。",
+        "decision": "Producer 负责原生解析、Test ID 绑定和版本化 envelope；Case 派生、资格与行为分类留给下游。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "test-evidence-review/use-versioned-runner-result-protocol.md"
+          }
+        ]
+      }
+    },
+    "test-evidence-review/use-versioned-runner-result-protocol.md": {
+      "keys": {
+        "domain": [
+          "test-evidence-review"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "test-evidence-review/use-versioned-runner-result-protocol.md",
+        "title": "使用版本化的测试结果生产者协议",
+        "status": "archived",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-11T03:24:23Z",
+        "purpose": "为未来正式测试提供 runner 无关的逐 Test 结果边界，并阻止消费核心逐个解析 runner 私有格式。",
+        "background": "Runner 原生事件、日志和退出码各不相同，只有生产边缘能可靠绑定稳定 Test ID 并保留完整结果语义。",
+        "decision": "Runner 侧 producer 输出版本化 JSON 与 Test ID，consumer 严格消费共同协议且不从私有格式猜测结果。",
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "test-evidence-review/defer-standard-test-result-blocking.md"
+          }
+        ]
       }
     },
     "version-control/centralize-version-control-responsibility.md": {

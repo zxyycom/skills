@@ -1,6 +1,6 @@
 ---
 title: 分离工具源码与仓库自动化
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-24T05:56:33Z
 purpose: 让可分发工具源码、共享协议、仓库自动化和 skill 产物保持单向 owner 边界。

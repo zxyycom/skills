@@ -7,7 +7,7 @@ purpose: 让独立 change plan 能够发现、读取、检查和归档计划，�
 background: 只读检查器要求 agent 手工扫描和移动计划，已经无法承接实际形成的 active 与 archive 目录状态。
 decision: 在现有 change-plan 中提供 list、show、check 和 archive，并让语义审阅继续负责机械命令无法判断的完成条件。
 relations:
-  - type: 修订
+  - type: 拆分
     target: change-plan/use-independent-change-plans.md
 ---
 

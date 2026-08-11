@@ -1,6 +1,8 @@
 # Proposal
 
-本 change 仍处于 `draft`，对应中央任务 `task-000026`。它只交付可独立验证的 Test–Case 多对多账本机制；真实测试实体登记、全部 Case 重建、最终 skill 激活和正式分发由依赖它的 `task-000035` 完成。本文拥有产品结果、范围和成功标准；[`design.md`](design.md) 拥有精确数据与行为契约，[`tasks.md`](tasks.md) 拥有实施和验证顺序。
+> **归档状态：本 change 已归档。** 归档前 stage 为 `implementation`；中央任务 `task-000026` 已完成，[`tasks.md`](tasks.md) 中的 readiness、implementation 和 verification 项也已全部勾选，证明本 change 限定的仓库内部 Test–Case 多对多账本机制已经交付。归档不表示真实测试实体登记、全部 Case 重建、最终 skill 激活或正式分发已经完成；这些后续边界交给依赖它的 `task-000035`。
+
+本文以下内容保留归档前的 proposal。正文中的“当前”“目标”和“后续”均按归档前的 implementation 边界理解，不作为当前仓库事实；[`design.md`](design.md) 保留当时的精确数据与行为契约，[`tasks.md`](tasks.md) 保留当时已经完成的实施和验证顺序。
 
 ## Why
 
@@ -84,9 +86,9 @@ Case 的产品价值是集中说明、发现和复核“当前测试证明了什
 
 | Owner | 本 change | `task-000035` |
 | --- | --- | --- |
-| [`tools/test-evidence/`](../../tools/test-evidence/) | 新增 ledger 源码、内部 API/CLI、Schema、fixture 和测试 | 让最终构建直接消费已经验证的 ledger 源码，并删除旧实现 |
-| [`docs/test-evidence/`](../../docs/test-evidence/) | 只为本 change 触及的测试入口维护现行旧格式 Case 和派生索引；不改变布局 | 暂存整个旧账本，从零建立并验收新账本，遗漏对照后删除旧账本与暂存目录 |
-| [`scripts/build/test-evidence.ts`](../../scripts/build/test-evidence.ts) 与 [`skills/test-evidence-review/`](../../skills/test-evidence-review/) | 不修改 | 一次性切换构建输出、行为契约、默认入口和 skill 版本 |
-| [`maintain-closed-many-to-many-test-case-relations.md`](../../docs/decisions/test-evidence-review/maintain-closed-many-to-many-test-case-relations.md) 与 [`fix-test-evidence-workspace-contract.md`](../../docs/decisions/test-evidence-review/fix-test-evidence-workspace-contract.md) | 前者保持 `unaligned`，后者继续描述当前 Topic 事实 | 新账本成为当前事实后更新并对齐 |
-| [`stage-selected-test-evidence`](../archive/stage-selected-test-evidence/) | 已由独立任务完成并归档，当前入口使用现行 Case ID | 最终切换时按既定范围删除旧 catalog 实现及引用，不保留旧、新入口并存 |
+| [`tools/test-evidence/`](../../../tools/test-evidence/) | 新增 ledger 源码、内部 API/CLI、Schema、fixture 和测试 | 让最终构建直接消费已经验证的 ledger 源码，并删除旧实现 |
+| [`docs/test-evidence/`](../../../docs/test-evidence/) | 只为本 change 触及的测试入口维护现行旧格式 Case 和派生索引；不改变布局 | 暂存整个旧账本，从零建立并验收新账本，遗漏对照后删除旧账本与暂存目录 |
+| [`scripts/build/test-evidence.ts`](../../../scripts/build/test-evidence.ts) 与 [`skills/test-evidence-review/`](../../../skills/test-evidence-review/) | 不修改 | 一次性切换构建输出、行为契约、默认入口和 skill 版本 |
+| [`maintain-closed-many-to-many-test-case-relations.md`](../../../docs/decisions/test-evidence-review/maintain-closed-many-to-many-test-case-relations.md) 与 [`fix-test-evidence-workspace-contract.md`](../../../docs/decisions/test-evidence-review/fix-test-evidence-workspace-contract.md) | 前者保持 `unaligned`，后者继续描述当前 Topic 事实 | 新账本成为当前事实后更新并对齐 |
+| [`stage-selected-test-evidence`](../stage-selected-test-evidence/) | 已由独立任务完成并归档，当前入口使用现行 Case ID | 最终切换时按既定范围删除旧 catalog 实现及引用，不保留旧、新入口并存 |
 | 中央 task graph | `task-000026` 拥有机制建设 | `task-000035` 作为依赖前者的独立根任务拥有真实迁移与激活 |

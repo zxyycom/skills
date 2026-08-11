@@ -1,6 +1,6 @@
 ---
 title: 长期延期统一测试结果协议与阻断资格
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-10T07:48:30Z
 purpose: 为未来正式测试门禁保留可审计的统一接入方向，同时明确当前不排期、不实施，也不提前冻结协议细节。

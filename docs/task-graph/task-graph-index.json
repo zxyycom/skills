@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "revision": 300,
-  "nextTaskId": 53,
+  "revision": 341,
+  "nextTaskId": 68,
   "tasks": {
     "task-000001": {
       "content": {
@@ -889,8 +889,9 @@
           "reason": "当前尚无可独立复核的多前序到多后继真实案例；决策明确要求等待证据，禁止预设协议。"
         },
         "execution": {
-          "phase": "idle",
-          "attempt": 0
+          "phase": "cancelled",
+          "attempt": 0,
+          "reason": "长期方向已由 active+unaligned 决策完整承接，当前没有已选择的执行目标或可观察外部等待条件，继续保留 waiting task 不产生协调价值。"
         },
         "relations": {
           "parentId": null,
@@ -899,7 +900,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-07T07:38:55.944Z"
+          "updatedAt": "2026-08-11T03:08:28.663Z"
         }
       }
     },
@@ -924,8 +925,9 @@
           "reason": "当前缺少无法由既有结构迁移闭合的可复核维护压力；决策明确要求触发前不创建 change。"
         },
         "execution": {
-          "phase": "idle",
-          "attempt": 0
+          "phase": "cancelled",
+          "attempt": 0,
+          "reason": "领域谱系方向已由 active+unaligned 决策完整承接，当前没有已选择的执行目标或可观察外部等待条件，继续保留 waiting task 不产生协调价值。"
         },
         "relations": {
           "parentId": null,
@@ -934,7 +936,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-07T07:34:06.155Z",
-          "updatedAt": "2026-08-07T07:38:55.944Z"
+          "updatedAt": "2026-08-11T03:08:28.804Z"
         }
       }
     },
@@ -1369,7 +1371,7 @@
         "context": "这是依赖 task-000026 的独立迁移与最终激活主任务，不是机制任务的子任务。两项任务之间没有受支持的分发阶段：若最终切换前被迫打包，失败属于预期，不建立兼容层。新旧账本共用固定 docs/test-evidence 根和 test-evidence-index.json，故暂存整个旧账本是确定的迁移前置；暂存只用于遗漏对照，具体路径在执行前固定并最终彻底删除。具体问题子任务只在真实审计发现后创建。",
         "references": {
           "decision": "docs/decisions/test-evidence-review/maintain-closed-many-to-many-test-case-relations.md",
-          "mechanism-change": "changes/establish-many-to-many-test-case-relations/",
+          "mechanism-change": "changes/archive/establish-many-to-many-test-case-relations/",
           "mechanism-task": "task-000026"
         },
         "result": null
@@ -1392,7 +1394,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-09T15:29:30.697Z",
-          "updatedAt": "2026-08-10T02:22:51.943Z"
+          "updatedAt": "2026-08-11T03:11:10.457Z"
         }
       }
     },
@@ -2145,23 +2147,727 @@
     },
     "task-000052": {
       "content": {
-        "title": "厘清未来事项在 Decision、Change 与两类 Task 中的承载边界",
-        "goal": "基于现有行为 owner 和仓库中的代表性工作，建立一套可直接用于选择、关联和收敛载体的规则，覆盖 Decision record、Change plan、Task Graph task 与 Change 内 tasks.md 条目。规则必须让执行者根据事项所处阶段和所需结果判断：当前只创建哪一种载体、什么条件下才增加另一种、各载体引用谁且不复制什么、完成或放弃时如何收敛；最终结论归位到最合适的现有 owner，不新增内容不同的统一事实源。",
+        "title": "明确 Decision、Change 与 Task 的承载和退出规则",
+        "goal": "在现有 owner 中建立并应用一套最小载体规则，使维护者能按事项状态和预期结果唯一判断应使用 Decision record、Change plan、Task Graph task 还是 Change 内 tasks.md 条目，并能在交接、完成或放弃时收敛重复载体。",
         "acceptance": [
-          "从所列 owner 恢复四种载体的当前契约，分别说明用途、权威内容、生命周期、创建门槛、完成含义和明确非目标；把现有事实与本任务提出的调整分开表达。",
-          "形成可直接执行的选择规则，覆盖想法暂存、待调查或待决策方向、跨 owner 的持久实施方案、当前非线性执行协调，以及 Change 内 readiness、implementation、verification 清单；每种情形都能判断当前最小必要载体。",
-          "明确确需多种载体时的单向引用、状态转换和退出规则，特别区分 Task Graph task 与 Change tasks.md 条目的身份和进度语义；同一状态、分解、理由或长期结论只能由一个 owner 完整维护。",
-          "使用仓库中至少一个只需要单一载体的案例和一个确需组合载体的案例验证规则；若规则仍无法唯一指导下一步，保留具体歧义而不补造统一模型。",
-          "把确认后的规则归位到现有 skill 或仓库导航；只有结论达到长期决策或跨 owner 实施计划的既有门槛时，才分别建立 Decision 或 Change。本任务不以合并数据模型、新增元框架或修改 CLI 为默认产出。"
+          "分别明确四类载体的用途、权威内容、创建门槛、生命周期、完成含义和非目标；active+unaligned 决策只有在已选为当前执行目标或存在已知外部等待条件时才产生 Task Graph task。",
+          "现有 owner 提供覆盖想法暂存、调查或决策方向、跨 owner 持久 Change、当前非线性协调及 Change 内 readiness、implementation、verification 的选择和单向交接规则；同一状态、分解、理由或长期结论只由一个 owner 完整维护。",
+          "按新规则处理 task-000024、task-000025 及两个引用的 draft Change：有当前协调价值或明确等待条件的载体写清依据并保留，其余载体取消或按 owner 规则退出；未达成目标的 task 不标为 succeeded。",
+          "用四条现有 active+unaligned 决策、一个单载体案例和一个组合载体案例验证规则；任何案例都能恢复当前权威状态、引用方向和退出动作，task-000035 的多对多账本迁移职责保持唯一。"
         ],
-        "context": "触发问题是：同一个尚未实施的未来事项可能同时被记录为 Decision、Change、Task Graph task 和 Change tasks.md 条目，维护者因而难以判断先创建什么、哪个状态可信、何时关闭其他载体。当前 owner 已给出局部边界：Task Graph 保存当前工作的可恢复协调事实；Change Plan 保存明确 change 的跨阶段实施上下文，其 tasks.md 是该 Change 内的 readiness、implementation 与 verification 分解；Decision Records 保存跨 change 长期有效且值得回放的方向与理由；仓库导航负责把任务路由到这些 owner。本任务审计它们之间的选择和交接，不重新定义各工具的数据模型。",
+        "context": "本轮全仓审计没有发现 decision candidate，四条 active+unaligned 记录都承载真实未来判断。当前问题是部分长期方向同时存在监测 task 或延期 draft，导致维护者无法唯一判断哪个载体仍有效。",
         "references": {
           "change-plan": "skills/change-plan/SKILL.md",
           "change-plan-contract": "skills/change-plan/references/change-plan-contract.md",
-          "decision-record-rules": "skills/decision-records/references/decision-record-rules.md",
           "decision-records": "skills/decision-records/SKILL.md",
+          "decision-rules": "skills/decision-records/references/decision-record-rules.md",
+          "domain-genealogy-decision": "docs/decisions/decision-records/upgrade-decision-domains-after-real-pressure.md",
           "navigation": "docs/navigation.md",
-          "task-graph": "skills/task-graph/SKILL.md"
+          "reorganization-decision": "docs/decisions/decision-records/support-reorganization-after-real-evidence.md",
+          "task-graph": "skills/task-graph/SKILL.md",
+          "test-blocking-decision": "docs/decisions/test-evidence-review/defer-standard-test-result-blocking.md",
+          "test-blocking-investigation": "docs/investigations/test-evidence/standard-test-result-blocking.md",
+          "test-ledger-change": "changes/archive/establish-many-to-many-test-case-relations/",
+          "test-relations-decision": "docs/decisions/test-evidence-review/maintain-closed-many-to-many-test-case-relations.md"
+        },
+        "result": {
+          "summary": "已建立并验证最小载体与单向退出规则：新增已对齐的项目文档决策，取消两项无当前协调价值的长期监测 task，将延期测试阻断 draft 迁为可复核调查主题，并按 task-000026 的成功证据归档多对多机制 Change；task-000035 继续唯一承接真实迁移。",
+          "references": {
+            "archived-change": "changes/archive/establish-many-to-many-test-case-relations/",
+            "decision": "docs/decisions/project-documentation/route-future-work-by-minimal-carrier.md",
+            "investigation": "docs/investigations/test-evidence/standard-test-result-blocking.md",
+            "navigation": "docs/navigation.md"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 2
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-10T15:59:13.636Z",
+          "updatedAt": "2026-08-11T03:12:31.562Z"
+        }
+      }
+    },
+    "task-000053": {
+      "content": {
+        "title": "恢复 Change Plan 的自包含决策基线",
+        "goal": "通过闭合决策拆分，使 Change Plan 的活动决策集合能够独立恢复 artifact、临时实施上下文、稳定 owner、授权边界、基础 CLI 和阶段生命周期的现行判断；不改变 Change Plan 行为。",
+        "acceptance": [
+          "新增一条 active+aligned 自包含后继，只承接 proposal、design、tasks 的职责，临时实施上下文与稳定事实或长期决策 owner 的边界，以及 readiness、实施授权和机械检查的区别。",
+          "新增后继与 manage-basic-change-lifecycle、manage-change-lifecycle-stages 分别拥有独立判断，并在一次闭合 evolve 事务中共同构成 use-independent-change-plans 的完整拆分后继集合。",
+          "detect-shelved-plans-by-git-distance 保持独立；归档前序继续有效的含义没有丢失，也没有由多个活动记录重复承接。",
+          "仅维护决策结构；现有 SKILL、固定契约和 CLI 行为不变，Decision Records 严格检查与 bun run check 通过。"
+        ],
+        "context": "当前 Change Plan 行为 owner 仍表达完整边界，但归档的 use-independent-change-plans 是唯一完整说明这些边界的决策；现有窄后继不足以让活动决策集合独立恢复该基线。",
+        "references": {
+          "basic-lifecycle": "docs/decisions/change-plan/manage-basic-change-lifecycle.md",
+          "decision-rules": "skills/decision-records/references/decision-record-rules.md",
+          "owner": "skills/change-plan/SKILL.md",
+          "predecessor": "docs/decisions/change-plan/use-independent-change-plans.md",
+          "shelved-detection": "docs/decisions/change-plan/detect-shelved-plans-by-git-distance.md",
+          "stage-lifecycle": "docs/decisions/change-plan/manage-change-lifecycle-stages.md"
+        },
+        "result": {
+          "summary": "已用一次闭合拆分恢复 Change Plan 的活动决策基线：制品与授权边界、基础 CLI、阶段生命周期分别由独立已对齐记录承接；搁置检测保持独立，行为未改。",
+          "references": {
+            "baseline": "docs/decisions/change-plan/maintain-change-artifact-and-authorization-boundaries.md",
+            "cli": "docs/decisions/change-plan/manage-basic-change-lifecycle.md",
+            "stages": "docs/decisions/change-plan/manage-change-lifecycle-stages.md"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-11T02:49:54.057Z",
+          "updatedAt": "2026-08-11T03:25:03.261Z"
+        }
+      }
+    },
+    "task-000054": {
+      "content": {
+        "title": "恢复 Index Runtime 读侧决策基线",
+        "goal": "恢复共享可重建读侧索引与类型化集合 metadata 的自包含活动决策，并通过合法后继移除已经失真的 schema v2 绑定；不改变当前 schema v3 实现。",
+        "acceptance": [
+          "一条自包含活动后继承接共享派生读侧索引边界：领域保留事实与写入，runtime 提供 query、sync、rebuild，且不提供通用领域写入或 federation。",
+          "类型化 metadata 判断由独立后继承接，决策不固定当前 schema 版本；schema v3 继续由 README 和 schema 源码等事实 owner 表达。",
+          "use-independent-read-side-index-runtime 与 use-typed-collection-metadata 的演进关系闭合，活动记录可以脱离归档前序独立使用；ID/revision 和 selected-entry staging 判断保持独立。",
+          "仅维护决策结构；runtime 行为不变，Decision Records 严格检查与 bun run check 通过。"
+        ],
+        "context": "当前 runtime 只实现和接受 schema v3，但活动 metadata 决策仍固定写为 schema v2；同时，归档的 use-independent-read-side-index-runtime 仍是共享读侧边界的唯一完整决策说明。",
+        "references": {
+          "decision-rules": "skills/decision-records/references/decision-record-rules.md",
+          "metadata-decision": "docs/decisions/index-runtime/use-typed-collection-metadata.md",
+          "owner": "tools/index-runtime/README.md",
+          "predecessor": "docs/decisions/index-runtime/use-independent-read-side-index-runtime.md",
+          "schema": "tools/index-runtime/src/schemas.ts"
+        },
+        "result": {
+          "summary": "已把过粗的 Index Runtime 基线重建为可重建读侧边界与类型化 metadata 两条独立脉络，并修订 metadata 判断以去除对特定持久化 schema 版本的长期绑定；当前事实与行为未改。",
+          "references": {
+            "metadata": "docs/decisions/index-runtime/carry-typed-collection-metadata.md",
+            "runtime": "docs/decisions/index-runtime/maintain-rebuildable-read-side-index-boundary.md"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-11T02:49:54.057Z",
+          "updatedAt": "2026-08-11T03:25:03.481Z"
+        }
+      }
+    },
+    "task-000055": {
+      "content": {
+        "title": "拆分 Index Runtime 的 ID 与 Revision 判断",
+        "goal": "将稳定 ID 键控的状态身份与逐 ID source revision、新鲜度读取拆成能够独立演进和对齐的活动决策；不改变 runtime 行为。",
+        "acceptance": [
+          "一个自包含后继只承接 snapshot、entries 和 overlay 的稳定 ID 键控身份及解析边界。",
+          "另一个自包含后继只承接 metadata、逐 ID source revision、成员闭合和快速 readRevision 的新鲜度保证。",
+          "两个后继通过一次闭合拆分完整覆盖 use-id-keyed-state-index 的继续有效含义；具体 schema 版本和实现布局仍由事实 owner 承接。",
+          "runtime 行为不变，Decision Records 严格检查与 bun run check 通过。"
+        ],
+        "context": "use-id-keyed-state-index 同时拥有状态身份和来源新鲜度。两部分由不同变化压力驱动，继续共享一条活动记录会造成部分对齐。",
+        "references": {
+          "decision": "docs/decisions/index-runtime/use-id-keyed-state-index.md",
+          "decision-rules": "skills/decision-records/references/decision-record-rules.md",
+          "owner": "tools/index-runtime/README.md"
+        },
+        "result": {
+          "summary": "已将 ID 键控索引判断闭合拆分为稳定身份与逐 ID 来源 revision 两条已对齐决策，消除身份责任和新鲜度责任的耦合；运行时行为未改。",
+          "references": {
+            "identity": "docs/decisions/index-runtime/use-stable-id-keyed-index-identity.md",
+            "revision": "docs/decisions/index-runtime/track-per-id-source-revisions.md"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-11T02:49:54.057Z",
+          "updatedAt": "2026-08-11T03:25:03.692Z"
+        }
+      }
+    },
+    "task-000056": {
+      "content": {
+        "title": "确定 OpenSpec 分发单元并修订相关决策",
+        "goal": "区分通用 distribution unit 模型与 OpenSpec 的项目特例，确定四个 OpenSpec skill 当前应是一个组合分发单元还是四个独立分发单元，并让决策状态和稳定说明如实反映该选择。",
+        "acceptance": [
+          "从仓库模型、四个 skill 入口、独立版本、打包和 updater 行为恢复当前事实，并区分已经实现的契约与期望方向。",
+          "事实能够唯一支持一个方向时直接采用；事实与既有长期意图冲突且不能唯一选择时请求用户决定，不用现有 aligned 标记代替产品判断。",
+          "通用 distribution unit 判断与 OpenSpec 特例由可独立演进的后继承接，旧记录通过合法闭合演进退出；每条后继的 aligned 或 unaligned 状态与当前事实一致。",
+          "本任务不实现新的组合安装或兼容机制；若选择尚未实现的组合分发单元，另建实施 Change 或 task。同步受当前选择影响的稳定说明后，Decision Records 严格检查与 bun run check 通过。"
+        ],
+        "context": "现有 active+aligned 决策称四个 OpenSpec skill 已组成一个分发单元；当前仓库仍逐 skill 维护版本、zip 和 updater，入口也没有声明组合安装前置。",
+        "references": {
+          "decision": "docs/decisions/skill-maintainer/260720-use-distribution-unit-boundaries.md",
+          "decision-rules": "skills/decision-records/references/decision-record-rules.md",
+          "human-doc": "docs/skills/skill-maintainer.md",
+          "packager": "scripts/pack-skills.ts",
+          "repository-model": "docs/repository-model.md",
+          "skill-owner": "skills/skill-maintainer/SKILL.md",
+          "tooling": "docs/tooling.md"
+        },
+        "result": {
+          "summary": "已将通用 Skill/分发单元模型与 OpenSpec 四个 skill 的独立分发事实闭合拆分；四个 OpenSpec skill 继续各自版本化、打包和更新，不引入组合安装前提。",
+          "references": {
+            "model": "docs/decisions/skill-maintainer/distinguish-skill-and-distribution-unit-boundaries.md",
+            "openspec": "docs/decisions/skill-maintainer/distribute-openspec-skills-independently.md"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-11T02:49:54.057Z",
+          "updatedAt": "2026-08-11T03:25:03.915Z"
+        }
+      }
+    },
+    "task-000057": {
+      "content": {
+        "title": "确定 AI-Ready Docs 图示策略并修订决策",
+        "goal": "确定 AI-Ready Docs 当前采用受控 Mermaid 约束还是通用显式图示原则，并通过决策演进消除 active+aligned 记录与行为 owner 的偏离。",
+        "acceptance": [
+          "根据 AI 的实际消费环境评估 LR/TD、subgraph、Mermaid 支持和三列表格限制是否仍是必要长期约束；旧记录存在本身不构成保留依据。",
+          "若通用显式图示原则是当前方向，建立自包含 aligned 修订后继；若选择尚未落实的精确 Mermaid 约束，建立如实标记为 unaligned 的后继，并另建行为修改 task。证据不能唯一决定时请求用户选择。",
+          "无论选择哪一方向，关键关系都必须由文本、字段或图源显式表达；图示不可用时仍有完整文本路径。",
+          "本任务只恢复真实决策状态，不顺带修改 skill 行为；Decision Records 严格检查与 bun run check 通过。"
+        ],
+        "context": "现有 active+aligned 决策要求具体 Mermaid 结构；当前 SKILL 和 principles 只要求图示在确有收益且环境支持时使用，并要求关键语义不依赖空间布局。",
+        "references": {
+          "decision": "docs/decisions/ai-ready-docs/260720-use-controlled-mermaid-flowcharts.md",
+          "decision-rules": "skills/decision-records/references/decision-record-rules.md",
+          "principles": "skills/ai-ready-docs/references/principles.md",
+          "skill": "skills/ai-ready-docs/SKILL.md"
+        },
+        "result": {
+          "summary": "已用环境支持的显式关系图示原则修订固定 Mermaid 版式判断；关键语义必须可从文本、字段或图源恢复，不再强制 LR、TD、subgraph 或固定表格列数。",
+          "references": {
+            "decision": "docs/decisions/ai-ready-docs/use-explicit-environment-supported-diagrams.md"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-11T02:49:54.057Z",
+          "updatedAt": "2026-08-11T03:25:04.171Z"
+        }
+      }
+    },
+    "task-000058": {
+      "content": {
+        "title": "拆分测试结果协议与阻断资格决策",
+        "goal": "把版本化 runner 结果协议与测试结果阻断资格拆成两个可独立演进的 active+unaligned 决策，同时保留各自的重启条件；不启动协议或门禁实现。",
+        "acceptance": [
+          "一个自包含后继只承接 runner 边缘的版本化 producer/consumer 协议、Test ID 生产，以及项目 consumer 不解析 runner 私有格式的边界，并归入一个明确的主要领域。",
+          "另一个自包含后继只承接正式结果获得行为 pass/fail 资格所需的身份、关系和完整性门禁，以及先报告 Test、再从账本派生 Case 的边界。",
+          "两个后继分别保存适用的重启条件，并通过一次闭合拆分归档 defer-standard-test-result-blocking；延期本身不形成第三条决定或新的实施 task。",
+          "现有测试、check、CI、Test Evidence 行为和 draft Change 不因本任务改变；Decision Records 严格检查与 bun run check 通过。"
+        ],
+        "context": "defer-standard-test-result-blocking 是真实未来方向，但把 runner 数据协议与阻断资格绑在同一生命周期。历史任务和 draft Change 只作为证据，不代表当前实施授权。",
+        "references": {
+          "decision": "docs/decisions/test-evidence-review/defer-standard-test-result-blocking.md",
+          "decision-rules": "skills/decision-records/references/decision-record-rules.md",
+          "investigation": "docs/investigations/test-evidence/standard-test-result-blocking.md",
+          "protocol-task": "task-000038",
+          "qualification-task": "task-000033"
+        },
+        "result": {
+          "summary": "已将测试结果阻断方向闭合拆分为版本化 runner 结果协议与结果资格门禁，两条均保持 active+unaligned；延期调查继续提供实施前证据，未误报为已实现。",
+          "references": {
+            "investigation": "docs/investigations/test-evidence/standard-test-result-blocking.md",
+            "protocol": "docs/decisions/test-evidence-review/use-versioned-runner-result-protocol.md",
+            "qualification": "docs/decisions/test-evidence-review/qualify-formal-test-results-before-behavior-blocking.md"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-11T02:49:54.057Z",
+          "updatedAt": "2026-08-11T03:25:04.387Z"
+        }
+      }
+    },
+    "task-000059": {
+      "content": {
+        "title": "重建 Task Graph 活动决策粒度",
+        "goal": "重建 Task Graph 活动决策集合，使任务结果、版本锚点、终态纠正、拓扑、控制继承、锁、写入结果、JSON 事实源、任务保留和执行器中立分别只有一个可独立演进的 owner。",
+        "acceptance": [
+          "对 anchor-semantic-task-results-in-index-history 建立闭合拆分，分别承接结果内容、版本锚点、集成完成和终态纠正；现有终态纠正记录只有在自包含且完整覆盖时才能复用为后继。",
+          "对 model-task-topology-and-inheritance-explicitly 建立闭合拆分，分别承接关系图不变量和祖先控制继承或完成聚合。",
+          "对 keep-task-graph-locks-outside-workspace 建立闭合拆分，分别承接锁身份与路径安全，以及 atomic resolve/reject、WRITE_OUTCOME_UNKNOWN 等写入结果语义。",
+          "分离 use-authoritative-json-index-for-task-coordination 中的 JSON 唯一事实源和按协调价值保留或清理 task 的判断；separate-task-coordination-from-execution-mechanism 只承接执行器中立与分发边界。",
+          "每个前序使用独立闭合事务，活动记录之间没有重复 owner；runtime 行为不变，Decision Records、Task Graph 与 bun run check 均通过。"
+        ],
+        "context": "本领域多条活动记录存在内部耦合，并在任务保留、终态和执行器边界上互相重叠。任务以消除整个活动集合中的部分对齐和重复 owner 为一个交付，但每个前序仍独立演进。",
+        "references": {
+          "anchor": "docs/decisions/task-graph/anchor-semantic-task-results-in-index-history.md",
+          "decision-rules": "skills/decision-records/references/decision-record-rules.md",
+          "execution": "docs/decisions/task-graph/separate-task-coordination-from-execution-mechanism.md",
+          "locks": "docs/decisions/task-graph/keep-task-graph-locks-outside-workspace.md",
+          "storage": "docs/decisions/task-graph/use-authoritative-json-index-for-task-coordination.md",
+          "topology": "docs/decisions/task-graph/model-task-topology-and-inheritance-explicitly.md"
+        },
+        "result": {
+          "summary": "已将 Task Graph 的结果语义、版本锚点、目标集成、终态纠正、拓扑关系、祖先控制、父任务聚合、锁定位、原子写入结果、JSON 事实源、任务保留与执行器中立拆成各自唯一且已对齐的活动决策；五个直接前序已分别通过闭合演进归档，运行时行为未改。",
+          "references": {
+            "anchor": "docs/decisions/task-graph/anchor-task-results-in-index-history.md",
+            "execution": "docs/decisions/task-graph/keep-task-execution-mechanism-neutral.md",
+            "locks": "docs/decisions/task-graph/locate-locks-by-task-index-identity.md",
+            "storage": "docs/decisions/task-graph/use-json-task-index-as-single-fact-source.md",
+            "topology": "docs/decisions/task-graph/model-task-relations-with-distinct-invariants.md"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-11T02:49:54.057Z",
+          "updatedAt": "2026-08-11T03:22:52.263Z"
+        }
+      }
+    },
+    "task-000060": {
+      "content": {
+        "title": "拆分 Decision Records 的候选与领域决策",
+        "goal": "分别拆分候选生命周期与容错查询、领域身份路径与查询投影，使四类判断能够独立修订和对齐；不改变 Decision Records 行为。",
+        "acceptance": [
+          "use-source-resilient-reviewable-candidates 的闭合后继分别承接候选建立、审阅和删除生命周期，以及 candidates/show-candidate 的逐文件容错与严格 check 边界。",
+          "use-domain-paths-as-primary-classification 的闭合后继分别承接受控领域身份、唯一路径归属和结构迁移，以及 metadata、key 和 CLI 的领域查询投影。",
+          "每条后继自包含且由当前事实证明 aligned；本任务不实现仍等待真实案例的多前序多后继重组或领域谱系能力。",
+          "CLI、Schema 和索引行为不变，Decision Records 严格检查与 bun run check 通过。"
+        ],
+        "context": "两条现有 aligned 记录都把会由不同产品压力驱动的判断放在同一生命周期，后续任何单侧变化都会造成整条记录部分对齐。",
+        "references": {
+          "candidates": "docs/decisions/decision-records/use-source-resilient-reviewable-candidates.md",
+          "decision-rules": "skills/decision-records/references/decision-record-rules.md",
+          "domains": "docs/decisions/decision-records/use-domain-paths-as-primary-classification.md",
+          "owner": "skills/decision-records/SKILL.md"
+        },
+        "result": {
+          "summary": "已把 Decision Records 的候选生命周期、源码容错查询、领域路径身份和查询投影拆成四条已对齐决策；两个过粗前序分别闭合归档，候选与正式索引边界及领域唯一 owner 不再耦合。",
+          "references": {
+            "candidate-lifecycle": "docs/decisions/decision-records/separate-candidates-from-established-decisions.md",
+            "candidate-query": "docs/decisions/decision-records/query-candidates-resiliently-from-source.md",
+            "domain-identity": "docs/decisions/decision-records/classify-decisions-by-controlled-domain-path.md",
+            "domain-query": "docs/decisions/decision-records/project-domains-into-decision-queries.md"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-11T02:49:54.057Z",
+          "updatedAt": "2026-08-11T03:27:54.754Z"
+        }
+      }
+    },
+    "task-000061": {
+      "content": {
+        "title": "拆分 Project Tooling 的检查、分发与库策略决策",
+        "goal": "按稳定 owner 拆分检查档位与输出调度、工具源码与生成分发、库选择政策与确定性打包，使 Project Tooling 的活动决策可以独立演进；不改变工具链行为。",
+        "acceptance": [
+          "use-profiled-concise-checks 的闭合后继分别承接 quick/full 档位及其门禁、结果摘要或日志、并发调度；pack gate 若不能由档位契约完整承接则使用独立后继。",
+          "separate-tool-source-and-repository-automation 的闭合后继分别承接 tools/scripts 源码依赖边界，以及生成、自包含分发和根检查契约。",
+          "260701-use-libraries-for-common-script-behavior 的闭合后继分别承接成熟库选择政策与确定性 ZIP 行为；具体库映射只有达到长期回放门槛时才进入决策。",
+          "已经闭合的 Hook、项目 root 和维护短命令决策保持现状；没有当前影响的历史 alignment:null 关系不在本任务倒改。",
+          "脚本、CI、打包和检查行为不变，Decision Records 严格检查与 bun run check 通过。"
+        ],
+        "context": "三条活动记录分别混合了由不同 owner 和变化压力驱动的判断。任务只重建长期决策边界，不以文档整理为由修改工具实现或历史关系。",
+        "references": {
+          "checks": "docs/decisions/project-tooling/use-profiled-concise-checks.md",
+          "decision-rules": "skills/decision-records/references/decision-record-rules.md",
+          "libraries": "docs/decisions/project-tooling/260701-use-libraries-for-common-script-behavior.md",
+          "owners": "docs/decisions/project-tooling/separate-tool-source-and-repository-automation.md",
+          "tooling": "docs/tooling.md"
+        },
+        "result": {
+          "summary": "已将项目工具链的检查档位、日志报告、并发、打包门禁、源码 owner、生成分发、成熟库政策和确定性 ZIP 拆成八条已对齐决策；具体库映射留在依赖与源码事实 owner，工具行为未改。",
+          "references": {
+            "check-concurrency": "docs/decisions/project-tooling/bound-top-level-check-concurrency.md",
+            "check-profile": "docs/decisions/project-tooling/select-check-tasks-by-profile.md",
+            "check-reporting": "docs/decisions/project-tooling/report-check-results-concisely.md",
+            "distribution": "docs/decisions/project-tooling/generate-self-contained-tool-distributions.md",
+            "library-policy": "docs/decisions/project-tooling/prefer-mature-libraries-for-common-automation.md",
+            "pack-gate": "docs/decisions/project-tooling/gate-packaging-on-selected-checks.md",
+            "source-owner": "docs/decisions/project-tooling/assign-tool-and-automation-source-owners.md",
+            "zip": "docs/decisions/project-tooling/build-deterministic-skill-zip-archives.md"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-11T02:49:54.057Z",
+          "updatedAt": "2026-08-11T03:27:54.938Z"
+        }
+      }
+    },
+    "task-000062": {
+      "content": {
+        "title": "拆分 Git 提交粒度、ai 类型与消息传递决策",
+        "goal": "把语义提交粒度、ai 提交类型及排除边界、提交消息传递方式拆成三条可独立演进和对齐的活动决策；不改变 Git Commit Organizer 行为。",
+        "acceptance": [
+          "三个自包含后继分别只承接语义单元拆分、ai 类型语义、git commit -m/-F 消息传递策略。",
+          "一次闭合拆分完整覆盖 260702-refine-commit-granularity-types-and-command 的继续有效含义；Skill 文档、Agent 规则、schema 和测试不因服务 AI 而自动归入 ai 类型。",
+          "260720-treat-commit-format-as-project-style 与 default-to-current-task-changes 保持独立，且不与新后继重复拥有提交格式或范围判断。",
+          "skill 行为不变，Decision Records 严格检查与 bun run check 通过。"
+        ],
+        "context": "现有记录同时绑定三项由不同原因演进的判断，标题和正文都无法在其中一项变化后继续整体保持 aligned。",
+        "references": {
+          "decision": "docs/decisions/git-commit-organizer/260702-refine-commit-granularity-types-and-command.md",
+          "decision-rules": "skills/decision-records/references/decision-record-rules.md",
+          "skill": "skills/git-commit-organizer/SKILL.md"
+        },
+        "result": {
+          "summary": "已把 Git 提交的语义单元、ai 类型边界和消息传递方式闭合拆分为三条已对齐决策；提交格式与当前任务范围仍由原有独立 owner 承接，行为未改。",
+          "references": {
+            "ai-type": "docs/decisions/git-commit-organizer/classify-ai-configuration-commits.md",
+            "granularity": "docs/decisions/git-commit-organizer/split-commits-by-semantic-unit.md",
+            "message": "docs/decisions/git-commit-organizer/pass-commit-messages-with-arguments-or-files.md"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-11T02:49:54.057Z",
+          "updatedAt": "2026-08-11T03:27:55.120Z"
+        }
+      }
+    },
+    "task-000063": {
+      "content": {
+        "title": "拆分子代理的任务分配、审查与交接决策",
+        "goal": "将子代理任务切面与生命周期、写入所有权、模型能力与 reasoning、审查收敛和结果交接拆成能够独立演进的活动决策；不改变 Subagent Orchestration 行为。",
+        "acceptance": [
+          "allocate-agents-and-runtime-by-task-slice 的闭合后继分别承接任务切面与代理生命周期、交付及辅助写入所有权、模型能力与思考强度选择。",
+          "bound-review-and-handoff-by-delivery-impact 的闭合后继分别承接实质阻断问题与修复循环收敛，以及最小结果交接契约。",
+          "默认最小历史和 description 触发聚焦等现有活动判断不由新后继重复承接；两个前序分别使用独立闭合事务。",
+          "skill 行为不变，Decision Records 严格检查与 bun run check 通过。"
+        ],
+        "context": "两条活动记录各自绑定多个可独立配置或演进的判断，导致局部变化必须整体修订，并与相邻记录产生重复 owner 风险。",
+        "references": {
+          "allocation": "docs/decisions/subagent-orchestration/allocate-agents-and-runtime-by-task-slice.md",
+          "decision-rules": "skills/decision-records/references/decision-record-rules.md",
+          "review": "docs/decisions/subagent-orchestration/bound-review-and-handoff-by-delivery-impact.md",
+          "skill": "skills/subagent-orchestration/SKILL.md"
+        },
+        "result": {
+          "summary": "已通过两个独立闭合事务，把子代理的任务切面、写入所有权、模型与思考强度、审查收敛和最小交接分别建立为五条已对齐决策；相邻上下文策略不重复承接。",
+          "references": {
+            "handoff": "docs/decisions/subagent-orchestration/handoff-minimum-results-and-evidence.md",
+            "lifecycle": "docs/decisions/subagent-orchestration/align-agent-lifecycle-with-task-slices.md",
+            "ownership": "docs/decisions/subagent-orchestration/separate-delivery-and-auxiliary-write-ownership.md",
+            "review": "docs/decisions/subagent-orchestration/repair-only-delivery-blocking-review-findings.md",
+            "runtime": "docs/decisions/subagent-orchestration/select-model-before-reasoning-effort.md"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-11T02:49:54.057Z",
+          "updatedAt": "2026-08-11T03:27:55.301Z"
+        }
+      }
+    },
+    "task-000064": {
+      "content": {
+        "title": "拆分 OpenSpec Change 门禁、读取与写作决策",
+        "goal": "将临时 Change 的实施授权门禁、CLI 与 reference-original 读取策略、artifact 语言和示例政策拆成能够独立判断的活动决策；不改变 OpenSpec skill 行为或分发关系。",
+        "acceptance": [
+          "一个自包含后继承接 artifact 完成不等于审核或实施许可，以及 propose/apply 的阻塞门禁。",
+          "一个自包含后继承接 CLI 作为状态、schema、依赖和验证入口，以及 CLI 失败或正文不足时的受控文件与 reference-original fallback。",
+          "语言和中性示例政策只有达到长期回放门槛时才建立独立后继；否则由当前行为 owner 表达，并在前序演进中明确不再把它保留为长期决定。",
+          "四个 OpenSpec skill 继续共用一个决策领域；是否共同分发由 task-000056 处理。本任务不改变行为，Decision Records 严格检查与 bun run check 通过。"
+        ],
+        "context": "260706-gate-temporary-change-plans 把实施授权、工具读取和写作政策放在同一生命周期；三类判断由不同现实压力驱动，且共同领域不等于共同分发。",
+        "references": {
+          "apply": "skills/openspec-apply-change/SKILL.md",
+          "decision": "docs/decisions/openspec/260706-gate-temporary-change-plans.md",
+          "decision-rules": "skills/decision-records/references/decision-record-rules.md",
+          "distribution-task": "task-000056",
+          "propose": "skills/openspec-propose/SKILL.md"
+        },
+        "result": {
+          "summary": "已将 OpenSpec Change 的实施许可门禁与 CLI/材料读取策略拆成两条已对齐决策；语言与中性示例没有被制造成第三条非决定，明确退回当前行为 owner，四个 skill 的领域与分发边界未改。",
+          "references": {
+            "gate": "docs/decisions/openspec/gate-change-implementation-by-review.md",
+            "routing": "docs/decisions/openspec/prefer-cli-for-change-state-and-artifact-routing.md"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-11T02:49:54.057Z",
+          "updatedAt": "2026-08-11T03:27:55.481Z"
+        }
+      }
+    },
+    "task-000065": {
+      "content": {
+        "title": "分离最小实现行为与上游快照策略",
+        "goal": "让 Minimal Implementation 的核心行为决策不再依赖固定上游快照和许可证分发策略，并判断后者当前是否仍是需要长期回放的独立决定。",
+        "acceptance": [
+          "一个自包含后继只承接触发前提、有界候选、正确性门槛、整体维护面比较、授权出口和相邻 owner 边界。",
+          "单独审阅上游逐字快照与许可证随包追溯策略：仍有独立长期价值时建立第二个后继；只是当前实现事实或已失去价值时，不为覆盖旧记录而保留新的非决定。",
+          "通过合法闭合演进完整说明 choose-smallest-correct-maintenance-surface 中哪些含义继续、哪些被替代；活动记录没有重复 owner。",
+          "本任务不修改 skill 行为或分发内容；若审阅产生行为变更需求，另建 task。Decision Records 严格检查与 bun run check 通过。"
+        ],
+        "context": "现有 aligned 决策把稳定工程判断与可独立退出的上游材料保留策略绑定在一起，使一次性分发选择能够影响核心行为的对齐状态。",
+        "references": {
+          "decision": "docs/decisions/minimal-implementation/choose-smallest-correct-maintenance-surface.md",
+          "decision-rules": "skills/decision-records/references/decision-record-rules.md",
+          "skill": "skills/minimal-implementation/SKILL.md"
+        },
+        "result": {
+          "summary": "已将 Minimal Implementation 的核心维护面判断与固定上游快照/许可证追溯策略闭合拆分为两条已对齐决策；两者可以独立修订或退出，skill 行为与分发内容未改。",
+          "references": {
+            "behavior": "docs/decisions/minimal-implementation/compare-correct-options-by-total-maintenance-surface.md",
+            "snapshot": "docs/decisions/minimal-implementation/preserve-pinned-upstream-snapshots-for-traceability.md"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-11T02:49:54.057Z",
+          "updatedAt": "2026-08-11T03:27:55.659Z"
+        }
+      }
+    },
+    "task-000066": {
+      "content": {
+        "title": "分离 Skill 设计发现行为与上游参考策略",
+        "goal": "让 Skill Design Discovery 的核心行为决策不再依赖固定上游原始 skill、evals 和许可证参考策略，并判断该参考策略当前是否仍是需要长期回放的独立决定。",
+        "acceptance": [
+          "一个自包含后继只承接触发条件、证据来源、流程与判断契约、权限和验证义务、轻量或深度出口，以及与 Skill Maintainer 的交接边界。",
+          "单独审阅 reference-original、evals、许可证和 NOTICE 的保留策略：仍有独立回放与分发价值时建立第二个后继；只是设计未稳定时期的临时事实时，不为覆盖旧记录而保留新的非决定。",
+          "通过合法闭合演进完整说明 separate-design-discovery-from-lifecycle-maintenance 中哪些含义继续、哪些被替代；核心行为身份不再绑定临时设计状态。",
+          "本任务不修改 skill 行为或分发内容；若审阅产生行为变更需求，另建 task。Decision Records 严格检查与 bun run check 通过。"
+        ],
+        "context": "现有 aligned 决策把稳定设计发现能力与可独立退出的上游参考材料策略放在同一生命周期，后者可能只是能力建立阶段的临时选择。",
+        "references": {
+          "decision": "docs/decisions/skill-design-discovery/separate-design-discovery-from-lifecycle-maintenance.md",
+          "decision-rules": "skills/decision-records/references/decision-record-rules.md",
+          "skill": "skills/skill-design-discovery/SKILL.md"
+        },
+        "result": {
+          "summary": "已修订 Skill Design Discovery 的核心行为决策，使其只承接发现与实现交接；建立期上游快照、eval、许可证和 NOTICE 不再绑定行为身份，继续作为当前分发事实而非独立长期决定。",
+          "references": {
+            "decision": "docs/decisions/skill-design-discovery/discover-skill-behavior-before-lifecycle-implementation.md"
+          }
+        }
+      },
+      "state": {
+        "control": {
+          "mode": "queued",
+          "reason": null
+        },
+        "execution": {
+          "phase": "succeeded",
+          "attempt": 1
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-11T02:49:54.057Z",
+          "updatedAt": "2026-08-11T03:27:55.843Z"
+        }
+      }
+    },
+    "task-000067": {
+      "content": {
+        "title": "评估 Task Graph 案例是否需要决策重组协议",
+        "goal": "以后重新选中推进时，以 task-000059 已交付的 Task Graph 决策粒度重建作为真实的多前序到多后继边界重划案例，复原完整前序、后继和语义去向，评估现有决策关系与 evolve 事务能否忠实表达；只有现有能力不足得到证明后，才收敛受该案例约束的重组协议和 Change 边界。",
+        "acceptance": [
+          "复核 task-000059 及其五个直接决策前序、全部自包含后继和语义分配，证明该案例确实是多前序到多后继的边界重划，而不只是多个独立拆分或主题相近。",
+          "逐项验证现有修订、替代、判定无效、归并、拆分和 evolve 完整集合事务；只有证明它们会丢失直接语义、制造无意义中间决策或无法原子闭合完整集合，才认定需要专用重组协议。",
+          "若现有关系足够，记录复核结论并收敛本 Task；若证明确有协议缺口，也只有用户或产品 owner 重新选中本 Task 推进后才建立受案例约束的 Change，本 candidate 不创建 Change 或授权实现。"
+        ],
+        "context": "用户已确认真实 Task Graph 多前序到多后继案例出现，但当前没有推进动力；因此本任务保持 candidate，不进入 queued、waiting 或 claim。当前只保存未来评估入口，不预设关系名、索引格式、CLI 或事务设计。task-000059 的 content.references 和 content.result.references 分别提供直接前序与代表性后继入口；完整集合以 Task Graph 决策目录中的实际演进关系为准。",
+        "references": {
+          "case-decisions": "docs/decisions/task-graph/",
+          "case-task": "task-000059",
+          "decision": "docs/decisions/decision-records/evaluate-reorganization-from-task-graph-case.md"
         },
         "result": null
       },
@@ -2180,8 +2886,8 @@
           "excludes": {}
         },
         "timestamps": {
-          "createdAt": "2026-08-10T15:59:13.636Z",
-          "updatedAt": "2026-08-10T16:00:55.422Z"
+          "createdAt": "2026-08-11T03:59:24.895Z",
+          "updatedAt": "2026-08-11T04:00:38.124Z"
         }
       }
     }

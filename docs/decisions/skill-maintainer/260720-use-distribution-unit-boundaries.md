@@ -1,6 +1,6 @@
 ---
 title: 以分发单元定义 skill 的独立交付边界
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-20T10:15:58+08:00
 purpose: 让单个 skill 和成套 skills 都能按真实安装与使用方式维护, 同时阻止跨分发单元的隐含依赖。

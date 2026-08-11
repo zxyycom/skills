@@ -1,6 +1,6 @@
 ---
 title: 使用可逐文件容错的显式完整候选
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-06T08:16:27Z
 purpose: 让完整决策记录在正式建立前可等待审核、被可靠发现和直接删除，同时保持正式索引只表达已确认的决策集合。

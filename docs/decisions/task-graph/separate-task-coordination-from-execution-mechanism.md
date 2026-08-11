@@ -1,6 +1,6 @@
 ---
 title: 将任务协调与执行机制分离
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-11T02:12:47Z
 purpose: 让 task-graph 独立维护可恢复的协调事实，由调用方选择执行者和执行方式，避免可选协作机制成为分发前提。

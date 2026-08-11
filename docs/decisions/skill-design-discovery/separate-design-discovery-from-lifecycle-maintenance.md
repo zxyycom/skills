@@ -1,6 +1,6 @@
 ---
 title: 将 Skill 深度设计发现设为独立行为
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-21T02:44:23Z
 purpose: 让隐性工作流、潜藏决策和约束在 Skill 实现前成为可验证设计，同时保持生命周期维护职责聚焦。

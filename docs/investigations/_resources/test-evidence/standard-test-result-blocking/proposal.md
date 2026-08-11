@@ -1,18 +1,18 @@
 # Proposal
 
-> **状态与权威性：长期延期的探索 draft。** [长期决策](../../docs/decisions/test-evidence-review/defer-standard-test-result-blocking.md) 是已确认方向和重启边界的唯一 owner。本 change 不授权实施；其中的协议字段、状态、runner 映射、迁移顺序和验证细节只供未来重审。
+> **阅读边界：形成时快照。** 本文件是从已停止维护的 draft Change 迁入调查主题的历史附件，不是当前 Change、plan 或实施授权。当前长期方向分别由[Runner 生产边界结果协议](../../../../../docs/decisions/test-evidence-review/standardize-runner-results-at-producer-boundaries.md)与[正式结果证据资格](../../../../../docs/decisions/test-evidence-review/qualify-formal-results-by-evidence-integrity.md)拥有；旧的[统一测试结果延期决策](../../../../../docs/decisions/test-evidence-review/defer-standard-test-result-blocking.md)已经归档，只是两条当前演进链的共同历史前序。本文中的协议字段、状态、runner 映射、迁移顺序和验证细节均保持形成时的候选含义。
 
-本 change 保存“为什么正式测试需要阻断资格”以及一套可供比较的统一 JSON 方案。未来 agent 只能把它作为调查输入：先核对“重启条件”，再根据届时事实重新形成 plan，不能直接执行本文或 `tasks.md` 中的旧内容。
+本资源保存“为什么正式测试需要阻断资格”以及一套形成时可供比较的统一 JSON 方案。未来 agent 只能把它作为调查输入：先读取当前两个决策 owner 并核对届时事实，再重新形成 plan，不能直接执行本文或 `tasks.md` 中的历史内容。
 
 ## Why
 
-- 现行项目门禁主要消费测试容器的聚合退出码，无法区分可追溯的行为失败、未绑定测试、身份错配和 runner 故障。
+- 形成该材料时，项目门禁主要消费测试容器的聚合退出码，无法区分可追溯的行为失败、未绑定测试、身份错配和 runner 故障。
 - 测试只有在意义可描述、可审计并能关联语义 Case 时，才有资格约束实现；否则测试本身的完整性问题会被误报成行为回归。
 - Bun、Node 和未来 runner 的原生输出不同。让 test-evidence 核心逐个适配会持续扩大公共行为面，因此需要先比较一个 runner 无关的共同结果边界。
 
 ## Outcome
 
-以下内容只是[长期决策](../../docs/decisions/test-evidence-review/defer-standard-test-result-blocking.md)的消费摘要；发生差异时以决策记录为准：
+以下内容是形成时提炼出的方向摘要，不是当前契约；发生差异时，协议边界以[Runner 生产边界结果协议](../../../../../docs/decisions/test-evidence-review/standardize-runner-results-at-producer-boundaries.md)为准，资格与行为阻断边界以[正式结果证据资格](../../../../../docs/decisions/test-evidence-review/qualify-formal-results-by-evidence-integrity.md)为准：
 
 1. 若未来建立正式测试资格门禁，各 runner 在生产边缘输出统一、版本化的 JSON 结果，test-evidence consumer 不解析 runner 原生格式。
 2. JSON 以 Test ID 标识测试实体，不保存 Case ID。Consumer 先汇报有问题的测试实体，再从权威账本关系派生关联 Case ID。
@@ -21,9 +21,9 @@
 
 ## Scope
 
-### 未来重审范围
+### 形成时的未来重审范围
 
-重新启动后可以评估下列内容，但本 draft 不预先确定答案：
+形成该材料时，下列内容被保留给未来重审；这些候选没有预先确定答案：
 
 - JSON Schema、版本兼容、结果和 producer error、传输方式及诊断结构。
 - Test ID、locator、测试发现新鲜度和 revision 证据如何由身份 owner 提供。
@@ -31,7 +31,7 @@
 - 稳定 `test:*`、quick/full check 与 CI 如何在显式试点范围内接入同一资格语义。
 - Test、Case 和关系删除时如何保持闭合，并继续由代码审查判断完整自洽删除是否合理。
 
-### 当前不做
+### 形成时未纳入范围
 
 - 不修改测试框架、producer、consumer、manifest、test-evidence、check 或 CI 行为。
 - 不在测试源码、runner 输出或独立 manifest 中建立第二份 Case 关系真源。
@@ -39,7 +39,7 @@
 - 不给 Case 增加 pass/fail、覆盖率、权重、顺序、AND/OR 或 quorum 等运行聚合语义。
 - 不用任意进程监控或脚本名称推断隐藏测试。
 
-## 重启条件
+## 形成时的重启条件
 
 只有以下条件同时成立，才重新判断是否进入 plan：
 

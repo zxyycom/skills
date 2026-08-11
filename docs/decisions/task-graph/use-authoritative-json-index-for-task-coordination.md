@@ -1,6 +1,6 @@
 ---
 title: 使用权威 JSON 索引保存任务协调事实
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-07T07:19:06Z
 purpose: 让任务内容、拓扑和执行状态以稳定、可查询的形式存在，而不产生逐任务文档或第二事实源。

@@ -246,6 +246,45 @@
         "status": "已结束",
         "title": "Task Graph 文件锁与原子写入 npm 库调查"
       }
+    },
+    "test-evidence/standard-test-result-blocking.md": {
+      "keys": {
+        "category": [
+          "test-evidence"
+        ],
+        "latest-report-at": [
+          1786417716000
+        ],
+        "status": [
+          "已结束"
+        ],
+        "text": [
+          "在尚未获得实施授权时，如何保存 runner 无关结果协议与测试阻断资格的探索认识，以及什么证据足以重新启动规划？",
+          "标准测试结果阻断资格探索",
+          "确认延期方向并退出活动 Change"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-08-11T03:08:36Z",
+        "path": "test-evidence/standard-test-result-blocking.md",
+        "question": "在尚未获得实施授权时，如何保存 runner 无关结果协议与测试阻断资格的探索认识，以及什么证据足以重新启动规划？",
+        "reportCount": 1,
+        "reportTitles": [
+          "确认延期方向并退出活动 Change"
+        ],
+        "resourceReferences": [
+          {
+            "reportIndex": 0,
+            "resourceIds": [
+              "test-evidence/standard-test-result-blocking/design.md",
+              "test-evidence/standard-test-result-blocking/proposal.md",
+              "test-evidence/standard-test-result-blocking/tasks.md"
+            ]
+          }
+        ],
+        "status": "已结束",
+        "title": "标准测试结果阻断资格探索"
+      }
     }
   },
   "keyDefinitions": [
@@ -267,7 +306,20 @@
     }
   ],
   "metadata": {
-    "resources": []
+    "resources": [
+      {
+        "id": "test-evidence/standard-test-result-blocking/design.md",
+        "sha256": "71346324df5a0899bb5996e11c9d452cb02c369fe5ee532a405ff8b9ab6a2442"
+      },
+      {
+        "id": "test-evidence/standard-test-result-blocking/proposal.md",
+        "sha256": "d006792016592c63920f5db18ac3b2a99b66c96471a26df4448d60933e8dd855"
+      },
+      {
+        "id": "test-evidence/standard-test-result-blocking/tasks.md",
+        "sha256": "72d00e0c3db9a12d898ae38c5a37e906090a67362773088947806fa59bd8abb2"
+      }
+    ]
   },
   "namespace": "investigations",
   "schemaVersion": 3,
@@ -280,8 +332,9 @@
       "implementation-libraries/pattern-matching-and-state-modeling-libraries.md": "sha256:3a58606070f5268283b32f37752872012bd05defd4a588b6092e014e62cc79fc",
       "implementation-libraries/result-and-option-libraries.md": "sha256:3700335afd0bf7a4c1e4618a606af6b5fbb9a774d34ab5fdf5dad07eff1ec098",
       "prompt-optimize/name-and-trigger-alignment.md": "sha256:3e962c81424f762a619986a4c3d8fc668a84b7ff3e867ca38ee370531ac826db",
-      "task-graph/file-lock-and-atomic-write-libraries.md": "sha256:1ef40f9481f4a6a1275f50b5ede4f08d70dd67677d0057852a3c6bf9841c1edb"
+      "task-graph/file-lock-and-atomic-write-libraries.md": "sha256:1ef40f9481f4a6a1275f50b5ede4f08d70dd67677d0057852a3c6bf9841c1edb",
+      "test-evidence/standard-test-result-blocking.md": "sha256:d7a0090332a4224c5458233bf824dc70c66c7c1bca8185e17675e96235a078db"
     },
-    "metadata": "sha256:f2eeeea961c759a41e8ff539dcbad3ff02c179a17a9e1028d65131273facf3a9"
+    "metadata": "sha256:ac31882b2593258e349c4bf04cec7275cf17bc3e5ad781b114dd2e534260bdb0"
   }
 }

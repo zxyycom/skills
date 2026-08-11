@@ -1,6 +1,6 @@
 ---
 title: 将 task-graph 短事务锁保留在工作区外
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-07T02:31:25Z
 purpose: 保留权威 JSON 与原生短锁，同时让目标仓库只承载任务索引，不承担锁文件和忽略规则管理。

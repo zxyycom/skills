@@ -6,7 +6,9 @@ createdAt: 2026-08-06T02:22:22Z
 purpose: 让活动 Change 在起草、计划、实施和搁置恢复时只固化当前工作阶段有意义的内容。
 background: 起草只需记录任务或方向，计划阶段才固化执行细节；搁置无法总在事前预测，恢复时原计划可能已经过时。
 decision: 活动 Change 按起草、计划、实施逐步收敛；计划后、实施前实际暂停时进入搁置，恢复只能回到计划阶段复核。
-relations: []
+relations:
+  - type: 拆分
+    target: change-plan/use-independent-change-plans.md
 ---
 
 ## 目的

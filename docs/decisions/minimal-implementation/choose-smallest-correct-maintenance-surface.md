@@ -1,6 +1,6 @@
 ---
 title: 以有界候选比较选择最小实现维护面
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-23T07:45:41Z
 purpose: 让目标与责任已明确的工程任务在正确候选之间选择更小维护面，并能独立审计过度工程。

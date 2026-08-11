@@ -1,6 +1,6 @@
 ---
 title: 显式维护任务层级、依赖与排斥
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-06T06:13:48Z
 purpose: 让执行顺序、父子继承和并发互斥由可校验拓扑决定。

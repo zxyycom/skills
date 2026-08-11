@@ -1,6 +1,6 @@
 ---
 title: 使用受控 Mermaid flowchart 表达复杂关系
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-20T10:15:36+08:00
 purpose: 在保持结构稳定和关系显式的前提下, 提高层级、分支和跨节点内容的可读性。

@@ -4,7 +4,7 @@
 
 ## Context
 
-- 当前 [`test-evidence-review`](../../skills/test-evidence-review/SKILL.md) 与 [`catalog-contract.md`](../../skills/test-evidence-review/references/catalog-contract.md) 仍以 Topic 目录和 `Entry:` 表达“一项最小原生测试入口对应一个 Case”；当前 `docs/test-evidence/test-evidence-index.json` 是现行查询索引。
+- 当前 [`test-evidence-review`](../../../skills/test-evidence-review/SKILL.md) 与 [`catalog-contract.md`](../../../skills/test-evidence-review/references/catalog-contract.md) 仍以 Topic 目录和 `Entry:` 表达“一项最小原生测试入口对应一个 Case”；当前 `docs/test-evidence/test-evidence-index.json` 是现行查询索引。
 - 现行规则要求本 change 新增或修改的每个最小原生测试入口同步维护旧格式 Case。该维护只服务当前仓库门禁，不改变新模型，也不成为后续重建输入。
 - 目标状态由 proposal 固定：项目拥有测试实体索引，Case Markdown 拥有 Case 语义、Tag 和唯一关系事实，最终激活后的 skill 拥有可删除重建的 Case 账本索引。这里的“两个索引”不表示关系双写；可写关系只存在于 Case Markdown。
 - 现有 `index-runtime` 已支持结构化 metadata、逐条目 revision、text key 和多值 exact key；现有 test-evidence 构建链已使用 Valibot 生成 JSON Schema、TypeScript 声明和可分发 bundle。
@@ -350,7 +350,7 @@ Ledger fixture 不复制当前真实 Case，也不把当前 `docs/test-evidence`
 
 ## Decision Alignment
 
-- [`maintain-closed-many-to-many-test-case-relations.md`](../../docs/decisions/test-evidence-review/maintain-closed-many-to-many-test-case-relations.md) 在本 change 完成后仍为 `unaligned`；机制存在不等于真实账本已经闭合。
-- [`fix-test-evidence-workspace-contract.md`](../../docs/decisions/test-evidence-review/fix-test-evidence-workspace-contract.md) 在迁移前继续拥有当前 Topic 布局；`task-000035` 切换 Tag 布局时再修订并对齐。
-- [`260721-separate-test-entry-collection-from-ledger.md`](../../docs/decisions/test-evidence-review/260721-separate-test-entry-collection-from-ledger.md) 与 [`publish-only-layered-test-evidence-interfaces.md`](../../docs/decisions/test-evidence-review/publish-only-layered-test-evidence-interfaces.md) 继续保持归档，只提供分层责任的历史依据；旧 inventory 参数、stdin、marker 和角色不恢复。
-- [`stage-selected-test-evidence`](../archive/stage-selected-test-evidence/) 已由独立任务完成并归档；`task-000035` 最终切换时仍按既定范围删除旧 catalog 实现及引用。
+- [`maintain-closed-many-to-many-test-case-relations.md`](../../../docs/decisions/test-evidence-review/maintain-closed-many-to-many-test-case-relations.md) 在本 change 完成后仍为 `unaligned`；机制存在不等于真实账本已经闭合。
+- [`fix-test-evidence-workspace-contract.md`](../../../docs/decisions/test-evidence-review/fix-test-evidence-workspace-contract.md) 在迁移前继续拥有当前 Topic 布局；`task-000035` 切换 Tag 布局时再修订并对齐。
+- [`260721-separate-test-entry-collection-from-ledger.md`](../../../docs/decisions/test-evidence-review/260721-separate-test-entry-collection-from-ledger.md) 与 [`publish-only-layered-test-evidence-interfaces.md`](../../../docs/decisions/test-evidence-review/publish-only-layered-test-evidence-interfaces.md) 继续保持归档，只提供分层责任的历史依据；旧 inventory 参数、stdin、marker 和角色不恢复。
+- [`stage-selected-test-evidence`](../stage-selected-test-evidence/) 已由独立任务完成并归档；`task-000035` 最终切换时仍按既定范围删除旧 catalog 实现及引用。

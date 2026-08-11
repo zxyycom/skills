@@ -1,6 +1,6 @@
 ---
 title: 以稳定 ID 键控状态索引
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-06T09:23:47Z
 purpose: 让索引从领域输入到持久化都直接按稳定 ID 管理条目，并保持低成本的新鲜度检查。

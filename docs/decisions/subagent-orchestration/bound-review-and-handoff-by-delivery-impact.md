@@ -1,6 +1,6 @@
 ---
 title: 以交付影响收敛审查与交接
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-04T08:16:33Z
 purpose: 让审查围绕阻断交付的问题收敛，并让子代理只返回主代理决策所需的信息。

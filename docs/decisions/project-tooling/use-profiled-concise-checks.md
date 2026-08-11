@@ -1,6 +1,6 @@
 ---
 title: 按档位运行检查并按结果展开日志
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-05T07:12:40Z
 purpose: 让日常检查在保留必要门禁的同时快速反馈，并为完整验证和失败诊断提供显式入口。

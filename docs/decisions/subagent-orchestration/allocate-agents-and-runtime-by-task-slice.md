@@ -1,6 +1,6 @@
 ---
 title: 按任务切面分配代理与运行能力
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-04T08:06:42Z
 purpose: 让每个子代理完成边界清楚且可独立验收的工作，并使代理能力、思考上限和写入边界与切面匹配。

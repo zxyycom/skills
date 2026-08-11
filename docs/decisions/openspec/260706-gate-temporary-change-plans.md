@@ -1,6 +1,6 @@
 ---
 title: 将 OpenSpec change 作为临时计划并设置实现门禁
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-06T16:51:26+08:00
 purpose: 允许先保存尚未完成审计的 change 计划，同时阻止它被误当成可直接实施的方案。

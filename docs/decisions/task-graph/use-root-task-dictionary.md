@@ -1,6 +1,6 @@
 ---
 title: 使用根级任务字典承接唯一身份
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-07T06:40:32Z
 purpose: 让索引直接保存平铺任务集合，并只由父任务关系表达层级，删除没有调度价值的 scope 容器。

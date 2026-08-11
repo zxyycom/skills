@@ -1,30 +1,30 @@
 # Design
 
-本 design 保存统一 JSON 测试阻断资格的一轮探索结果，供未来重启时恢复事实、取舍和待验证边界。它不是当前协议或实施规格。
+本 design 保存统一 JSON 测试阻断资格的一轮形成时探索结果，供未来重启时恢复当时事实、取舍和待验证边界。它不是当前协议或实施规格。
 
 ## 阅读与权威边界
 
 | 内容 | 后续使用方式 |
 | --- | --- |
-| 已确认的长期方向 | 以[长期决策](../../docs/decisions/test-evidence-review/defer-standard-test-result-blocking.md)为唯一 owner；本 design 只解释其方案背景 |
-| “已核实的仓库边界” | 视为调查快照；重新规划前必须用届时仓库事实复核 |
+| 当前长期方向 | 分别以[Runner 生产边界结果协议](../../../../../docs/decisions/test-evidence-review/standardize-runner-results-at-producer-boundaries.md)和[正式结果证据资格](../../../../../docs/decisions/test-evidence-review/qualify-formal-results-by-evidence-integrity.md)为 owner；旧的[统一测试结果延期决策](../../../../../docs/decisions/test-evidence-review/defer-standard-test-result-blocking.md)已归档，只是两条当前演进链的共同历史前序 |
+| “已核实的仓库边界” | 只表示本材料形成时的调查快照；重新规划前必须用届时仓库事实复核 |
 | 候选 Schema、状态、runner 映射、执行顺序和加固方式 | 只作为比较输入，不是冻结契约或验收标准 |
-| 实施状态 | 当前没有 plan 或实施授权；是否重启以 [`tasks.md`](tasks.md) 的门槛为准 |
+| 实施与授权 | 本资源不提供当前 plan 或实施授权；是否重新选择推进应以当前决策 owner、现实需求和届时授权为准，[`tasks.md`](tasks.md) 只保留形成时的重启清单 |
 
 ## Context
 
-### 已核实的仓库边界
+### 形成时核实的仓库边界
 
-- 本 change 调查时，13 个稳定 `test:*` scripts 覆盖 416 个已登记最小原生测试入口 Case。实施前必须重新核对该基线，不能把调查数量当成永久不变量。
-- 当前测试使用 `node:test` API；大部分由 Bun 执行，`test:task-graph-cli` 还包含 Node native `--test`。
-- [`scripts/check.ts`](../../scripts/check.ts) 只按聚合进程退出码判断前置检查通过或失败；[`scripts/lib/check-plan.ts`](../../scripts/lib/check-plan.ts) 让测试与 catalog 检查并发运行。现行门禁没有 Test、Case、协议完整性或 runner 故障模型。
-- 现行 [`test-evidence-review`](../../skills/test-evidence-review/SKILL.md) 和 catalog 只维护、校验显式 Case；它们不扫描测试源码、不运行 `Entry:`、不发现真实测试，也不消费测试结果。
+- 本轮探索形成时，13 个稳定 `test:*` scripts 覆盖 416 个已登记最小原生测试入口 Case。实施前必须重新核对该基线，不能把调查数量当成永久不变量。
+- 形成时的测试使用 `node:test` API；大部分由 Bun 执行，`test:task-graph-cli` 还包含 Node native `--test`。
+- 形成时，[`scripts/check.ts`](../../../../../scripts/check.ts) 只按聚合进程退出码判断前置检查通过或失败，[`scripts/lib/check-plan.ts`](../../../../../scripts/lib/check-plan.ts) 让测试与 catalog 检查并发运行；当时的门禁没有 Test、Case、协议完整性或 runner 故障模型。
+- 形成时，[`test-evidence-review`](../../../../../skills/test-evidence-review/SKILL.md) 和 catalog 只维护、校验显式 Case；它们不扫描测试源码、不运行 `Entry:`、不发现真实测试，也不消费测试结果。
 - 调查时，提交 `5b1284a0971309e7c0f8617274c1b6ac217b9bc7` 已形成内部 Test–Case ledger 机制，但当时尚未激活 public skill 或真实账本。该提交只证明历史探索结果；未来必须重新核对 Test ID、locator、测试发现和账本切换的当前 owner 与状态。
-- 让 test-evidence 能力拥有 JSON consumer 和正式阻断资格，属于后续明确的 skill/tool 行为扩展，不是当前已有能力。
+- 在材料形成时，让 test-evidence 能力拥有 JSON consumer 和正式阻断资格属于后续明确的 skill/tool 行为扩展，不是当时已有能力；当前实现状态仍须从行为 owner 核对。
 
 ### 术语
 
-| 术语 | 本 change 中的唯一含义 |
+| 术语 | 本轮探索中的唯一含义 |
 | --- | --- |
 | Test 实体 | Runner 能独立报告最终结果的最小原生测试入口；由稳定 Test ID 标识，不保存单次执行状态 |
 | Test 运行结果 | 一次 invocation 中对某个 Test ID 的临时结果；只存在于协议消费链路，不回写测试实体或 ledger |
@@ -51,7 +51,7 @@ Test 实体与 Case 是多对多关系。Runner 的原生结果始终引用 Test
 
 本轮探索不处理：
 
-- 不在本 draft 中实现协议、producer、consumer、check 或 CI 变更。
+- 形成时方案不实现协议、producer、consumer、check 或 CI 变更。
 - 不让 consumer 解析 TAP、JUnit、console 文本或 runner 原生事件。
 - 不把 Case ID 写入测试源码、producer JSON、测试实体索引或独立 manifest。
 - 不计算 Case 级 pass/fail、覆盖率、权重、顺序、AND/OR 或 quorum。
@@ -60,7 +60,7 @@ Test 实体与 Case 是多对多关系。Runner 的原生结果始终引用 Test
 
 ## 候选设计
 
-以下内容说明统一 JSON 方案如何形成闭环，以及未来需要用真实证据验证什么。除长期决策已经明确的方向外，本节中的字段、名称、顺序和 owner 分工均可在重启时调整。
+以下内容说明形成时的统一 JSON 方案如何形成闭环，以及未来需要用真实证据验证什么。本节中的字段、名称、顺序和 owner 分工均是历史候选；当前长期方向只由“阅读与权威边界”列出的两个决策 owner 确定。
 
 ### 1. 阻断资格先于行为结果
 
@@ -137,7 +137,7 @@ Test 实体与 Case 是多对多关系。Runner 的原生结果始终引用 Test
 - Check plan 必须显式区分测试步骤和非测试工程检查；测试步骤没有合格 JSON 时不能回退为普通进程退出码。
 - 项目 CI 只调用 `bun run check --full`，并通过项目校验拒绝额外裸测试旁路；workflow 不解析或转换测试协议。
 - Raw runner 仍可供开发者本地调试，但其结果不进入正式门禁。
-- 本 change 只约束项目拥有的正式阻断面。把测试隐藏在伪装工程脚本中仍需要代码审查；若未来需要拦截任意外部进程，应另立产品策略。
+- 形成时方案只约束项目拥有的正式阻断面。把测试隐藏在伪装工程脚本中仍需要代码审查；若未来需要拦截任意外部进程，应另立产品策略。
 
 ### 6. Owner 按领域、生产边缘和编排分层
 
@@ -167,7 +167,7 @@ Test 实体与 Case 是多对多关系。Runner 的原生结果始终引用 Test
 - 只删除 Case 关系会留下无 Case Test，由 ledger 闭合检查拒绝。
 - 只删除实体登记而测试仍存在，由测试发现新鲜度检查拒绝。
 - 只删除测试实现而保留实体或关系，由实体新鲜度或未知端点检查拒绝。
-- 同时删除测试实现、实体和全部关系可以形成新的闭合集合。该变化是否合理属于代码审查；本 change 不增加 tombstone、受保护 Case 列表或第二 manifest。
+- 同时删除测试实现、实体和全部关系可以形成新的闭合集合。该变化是否合理属于代码审查；形成时方案不增加 tombstone、受保护 Case 列表或第二 manifest。
 
 未来若重启，可以按以下顺序重新评估迁移：
 
@@ -192,7 +192,7 @@ Test 实体与 Case 是多对多关系。Runner 的原生结果始终引用 Test
 | 测试编写中间态暂时不闭合 | Raw runner 保留本地反馈；只有正式门禁要求完整资格 |
 | 资格前置增加运行成本 | 同一次 check 复用资格快照；单个 script 只处理自身预期集合 |
 | 完整自洽删除可以移除测试约束 | 保留可审阅 diff；若需要机械删除授权，另建明确策略 owner |
-| Test ID 或发现模型继续变化 | Change 保持 draft；身份模型稳定只满足重启条件之一，仍需重新审查 Schema、owner 和迁移计划 |
+| Test ID 或发现模型继续变化 | 本资源保持形成时方案输入；身份模型稳定只满足重启条件之一，仍需重新审查 Schema、owner 和迁移计划 |
 
 ## Open Questions
 
@@ -203,4 +203,4 @@ Test 实体与 Case 是多对多关系。Runner 的原生结果始终引用 Test
 1. 届时的 Test 身份 owner 提供什么 Test ID、locator、发现新鲜度和 `sourceRevision` 契约，producer 如何取得并回显该 Test ID？
 2. Bun 与 Node native test 的真实事件如何共同映射为闭合运行结果和 producer error，同时保持 Test 实体与 Case 不承载执行状态？
 
-这两个问题需要真实 runner 和身份模型证据。它们完成并不自动启动工作；只有出现实际需求、优先级和明确实施授权后，本 change 才能重新审阅是否进入 `plan`。
+这两个问题需要真实 runner 和身份模型证据。它们完成并不自动启动工作；只有出现实际需求、优先级和明确实施授权后，维护者才能依据当前 owner 重新判断是否建立新的 `plan`。

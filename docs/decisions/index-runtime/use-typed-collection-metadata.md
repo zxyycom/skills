@@ -1,13 +1,13 @@
 ---
 title: 为通用索引提供类型化集合元数据
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-24T14:34:00Z
 purpose: 让领域通过同一索引快照安全携带读取整个集合所需的类型化元数据。
 background: 既有索引只投影条目，消费方若另读集合定义会重复新鲜度、校验和序列化责任。
 decision: 通用索引要求不透明 JSON metadata，并按元数据、条目投影、完整索引校验的阶段传播类型化上下文。
 relations:
-  - type: 修订
+  - type: 拆分
     target: index-runtime/use-independent-read-side-index-runtime.md
 ---
 

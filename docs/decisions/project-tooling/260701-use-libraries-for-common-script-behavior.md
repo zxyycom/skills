@@ -1,6 +1,6 @@
 ---
 title: 本地脚本的常见行为优先使用成熟库
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-01T10:02:50+08:00
 purpose: 降低通用底层能力的自研维护成本和缺陷风险。
