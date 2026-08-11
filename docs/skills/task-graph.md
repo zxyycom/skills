@@ -39,7 +39,7 @@ Task entry 将目标内容与调度状态分开：内容保存标题、目标、
 1. `docs/task-graph/task-graph-index.json` 是工作区当前任务状态的唯一权威索引；根级 `tasks` 字典保存全部任务，复杂状态和反向关系由工具查询投影。
 2. 任务默认平铺；`parentId` 存在时才形成真实父子关系。允许多个互不相连的顶层任务或子图，不使用 scope、group、work 或虚拟 root。
 3. 随 skill 分发的 CLI 负责索引校验、关系约束、revision 事务、执行租约、显式批量任务清理、按 task ID 构造 pending 索引和输出路由。除显式 `index stage` 外，工具不改变 Git；它也不自动推断关系、选择业务优先级、运行包管理器或 commit。Service 与 dispatch 先产生结构化 raw result；JSON serializer 与两个专用文本 renderer 只负责输出。程序化调用直接导入同一模块的公开导出；SDK 不是另一层实现、接口清单或稳定性层，TypeScript 声明也从该实现机械生成。
-4. `change-plan` 继续承接需要持久审阅和交接的明确 change；`subagent-orchestration` 继续承接代理创建、配置和结果审计。Task graph 只向这些 owner 交付紧凑任务事实。
+4. `change-plan` 继续承接需要持久审阅和交接的明确 change；执行者选择、创建、配置和结果审计不属于 task graph。Task graph 只保存紧凑任务事实和执行协调状态。
 5. 任务被排队或领取不等于取得文件、外部系统、不可逆操作、提交或发布权限。
 
 当前 CLI 协议版本是 `3.1.0`。默认 `task list`、`index stage` 文本和公开 `TaskListItem`、`TaskIndexStageResult` 是协议契约，不提供 `TaskSummary` alias；依赖 raw CLI 序列化的调用方必须显式使用 `--json`。Renderer、render context、track、layer 和 folded token 保持内部显示边界，不作为公开领域 API。

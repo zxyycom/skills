@@ -6,7 +6,7 @@ description: >-
   选择、领取并收敛任务；少量固定顺序步骤继续使用当前对话计划。
 compatibility: "Requires Node.js ^22.22.2 || ^24.15.0 || >=26.0.0 and Git for pending staging; workspace task-index mutations require a caller-provisioned compatible native runtime."
 metadata:
-  version: "10"
+  version: "11"
 ---
 
 # Task Graph
@@ -28,7 +28,7 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 
 1. 只有少量按固定顺序执行的步骤；此时继续使用当前对话计划。
 2. 需要长期审阅、正式设计或跨阶段交接的明确 change；此时使用 `change-plan`。
-3. 需要创建、配置或审计代理；task graph 只交付已就绪任务的协调事实，代理编排由 `subagent-orchestration` 承接。
+3. 工作目标只是选择、创建、配置或审计执行者；task graph 只维护任务协调事实，不决定执行者或执行方式。
 4. 个人长期 TODO、项目排期、通知或跨项目任务管理。
 
 ## 内容 owner 与工具
@@ -139,7 +139,7 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 1. 新任务出现时先读取最新 revision 和相关任务详情，再以普通 create 或原子 `apply` 追加；不要用记忆中的旧拓扑直接写入。
 2. 上下文恢复后重新执行 `index info`、`task list` 和 `actionable`。对 `running` 或 `recovery-needed` task 先确认实际执行者和 lease，不能因当前对话不记得它就释放或覆盖。
 3. 需要长篇背景、正式设计、跨阶段任务或稳定理由时，把内容交给 `change-plan`、决策记录或对应事实 owner，并在 task 中只保留紧凑引用。
-4. 需要创建或审计代理时，把已就绪 task 的目标、完成提示、约束和 lease 边界交给 `subagent-orchestration`。没有该 skill 或环境不能创建代理时，在当前 agent 中按同一 claim 与 lease 规则执行。
+4. 调用方决定实际执行者和执行方式；task graph 只向执行者提供目标、完成提示、约束和 lease 边界，并继续按同一 claim、renew 与收敛规则维护协调状态。
 
 ### 6. 清理不再需要的任务
 
@@ -167,7 +167,7 @@ Task graph 是协调事实源，不是长期知识 owner。Task 可以一直保�
 1. 当前任务图可以从权威索引恢复；task、真实父子、依赖和排斥只包含已经确认的事实。
 2. 每项实际执行都在成功 claim 后进行，并以匹配 lease 完成、失败、释放或取消；终态 result 与版本锚点符合本文件的独立契约，task goal 没有在中间交付阶段被提前完成。过期执行只通过恢复 claim 接管，父任务按完成门禁收敛。
 3. 工作区 revision 冲突、工作区未知写入结果或 pending 未知恢复结果没有被盲目重试，活动与待恢复执行没有被静默覆盖。
-4. 权限判断、代理编排、持久 change 和长期知识仍由各自 owner 承接，没有被 task graph 状态替代。
+4. 权限判断、执行者选择、持久 change 和长期知识仍由各自 owner 承接，没有被 task graph 状态替代。
 5. 工作区索引 mutation runtime 已通过当前平台探针；不再需要的终态任务只有在结果交付、关系闭合并获得显式清理确认后才删除，其余任务可以继续保留。
 6. 默认 `task list` 的 track、dependency layer、folding 与独立 run mutex 没有改变持久拓扑或调度语义；需要完整机器语义的调用方使用同一 raw projection 或显式 `--json`，不从显示布局反推领域状态。
 7. 分段暂存目标使用候选索引的根级水位、选中候选 task 与未选中基线 task，并通过完整校验；工作区、索引外 pending 和另一批 task 的 pending 变化没有被覆盖。

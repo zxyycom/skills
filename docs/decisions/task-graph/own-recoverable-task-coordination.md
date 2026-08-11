@@ -1,6 +1,6 @@
 ---
 title: 由 task-graph 承接可恢复的任务协调
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-07T07:19:01Z
 purpose: 让 agent 持续维护仍有协调价值的任务、拓扑和执行边界，而不以存活时间判断任务是否有效。
