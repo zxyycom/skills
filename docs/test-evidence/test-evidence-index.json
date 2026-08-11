@@ -1246,7 +1246,7 @@
     "CHECK-SUMMARY-FORMAT-001": {
       "keys": {
         "search": [
-          "CHECK-SUMMARY-FORMAT-001 检查汇总报告档位与状态计数 最终汇总必须显示整体状态、执行档位、检查总数、各状态计数和总耗时。 汇总根据失败项计算整体失败状态。 passed、skipped、failed 的数量和总数均按报告集合计算。 scripts/check.test.ts > check summary reports profile and status counts bun test --test-name-pattern=\"^check summary reports profile and status counts$\" ./scripts/check.test.ts"
+          "CHECK-SUMMARY-FORMAT-001 检查汇总报告档位与状态计数 最终汇总必须渲染同一次检查工作流已经形成的整体机器状态，并显示执行档位、检查总数、各状态计数和总耗时。 打包失败形成的工作流失败状态被摘要原样渲染，不从报告计数重复派生。 passed、skipped、failed 的数量和总数均按报告集合计算。 scripts/check.test.ts > check summary reports profile and status counts bun test --test-name-pattern=\"^check summary reports profile and status counts$\" ./scripts/check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -1260,9 +1260,9 @@
         ],
         "id": "CHECK-SUMMARY-FORMAT-001",
         "line": 1,
-        "searchText": "检查汇总报告档位与状态计数 最终汇总必须显示整体状态、执行档位、检查总数、各状态计数和总耗时。 汇总根据失败项计算整体失败状态。 passed、skipped、failed 的数量和总数均按报告集合计算。 scripts/check.test.ts > check summary reports profile and status counts bun test --test-name-pattern=\"^check summary reports profile and status counts$\" ./scripts/check.test.ts",
+        "searchText": "检查汇总报告档位与状态计数 最终汇总必须渲染同一次检查工作流已经形成的整体机器状态，并显示执行档位、检查总数、各状态计数和总耗时。 打包失败形成的工作流失败状态被摘要原样渲染，不从报告计数重复派生。 passed、skipped、failed 的数量和总数均按报告集合计算。 scripts/check.test.ts > check summary reports profile and status counts bun test --test-name-pattern=\"^check summary reports profile and status counts$\" ./scripts/check.test.ts",
         "sourcePath": "repository-tooling/check-summary-reports-profile-and-status-counts.md",
-        "summary": "最终汇总必须显示整体状态、执行档位、检查总数、各状态计数和总耗时。",
+        "summary": "最终汇总必须渲染同一次检查工作流已经形成的整体机器状态，并显示执行档位、检查总数、各状态计数和总耗时。",
         "title": "检查汇总报告档位与状态计数"
       }
     },
@@ -5887,6 +5887,52 @@
         "sourcePath": "repository-tooling/reports-corrupt-baseline-skill-blobs-as-operation-failures.md",
         "summary": "基线 skill 文件读取失败不得被解释为文件缺失或新 skill。",
         "title": "将损坏基线 skill blob 报告为操作失败"
+      }
+    },
+    "SKILL-PACKAGE-HASH-006": {
+      "keys": {
+        "search": [
+          "SKILL-PACKAGE-HASH-006 从同一 pending 快照发现 skill 成员与内容 Skill hash 与打包必须从同一版本管理 pending 快照恢复成员集合和包内文件，不能由工作区目录另行决定成员。 已进入 pending、随后从工作区删除的完整 skill 仍被发现，并保留其暂存版本与文件内容。 只存在于工作区而未进入 pending 的 skill 不进入快照、hash 版本集合或版本基线判断。 scripts/lib/skill-package-hash.test.ts > discovers skill membership from the same pending snapshot as its files bun test --test-name-pattern=\"^discovers skill membership from the same pending snapshot as its files$\" ./scripts/lib/skill-package-hash.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "scripts/lib/skill-package-hash.test.ts > discovers skill membership from the same pending snapshot as its files",
+          "bun test --test-name-pattern=\"^discovers skill membership from the same pending snapshot as its files$\" ./scripts/lib/skill-package-hash.test.ts"
+        ],
+        "id": "SKILL-PACKAGE-HASH-006",
+        "line": 1,
+        "searchText": "从同一 pending 快照发现 skill 成员与内容 Skill hash 与打包必须从同一版本管理 pending 快照恢复成员集合和包内文件，不能由工作区目录另行决定成员。 已进入 pending、随后从工作区删除的完整 skill 仍被发现，并保留其暂存版本与文件内容。 只存在于工作区而未进入 pending 的 skill 不进入快照、hash 版本集合或版本基线判断。 scripts/lib/skill-package-hash.test.ts > discovers skill membership from the same pending snapshot as its files bun test --test-name-pattern=\"^discovers skill membership from the same pending snapshot as its files$\" ./scripts/lib/skill-package-hash.test.ts",
+        "sourcePath": "repository-tooling/discovers-skill-membership-from-the-pending-snapshot.md",
+        "summary": "Skill hash 与打包必须从同一版本管理 pending 快照恢复成员集合和包内文件，不能由工作区目录另行决定成员。",
+        "title": "从同一 pending 快照发现 skill 成员与内容"
+      }
+    },
+    "SKILL-PACKAGE-HASH-007": {
+      "keys": {
+        "search": [
+          "SKILL-PACKAGE-HASH-007 版本门禁保留已捕获的 pending 快照 Skill 版本门禁必须把已捕获的 pending 快照与一次解析出的不可变基线 revision 比较，后续 index 变化不能改写本次判断输入。 捕获 alpha 未升版的内容变化后重置 index，基线比较仍识别 alpha 的 v3 基线并报告必须提升版本。 scripts/lib/skill-package-hash.test.ts > version checks retain the captured pending snapshot after the index resets bun test --test-name-pattern=\"^version checks retain the captured pending snapshot after the index resets$\" ./scripts/lib/skill-package-hash.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "scripts/lib/skill-package-hash.test.ts > version checks retain the captured pending snapshot after the index resets",
+          "bun test --test-name-pattern=\"^version checks retain the captured pending snapshot after the index resets$\" ./scripts/lib/skill-package-hash.test.ts"
+        ],
+        "id": "SKILL-PACKAGE-HASH-007",
+        "line": 1,
+        "searchText": "版本门禁保留已捕获的 pending 快照 Skill 版本门禁必须把已捕获的 pending 快照与一次解析出的不可变基线 revision 比较，后续 index 变化不能改写本次判断输入。 捕获 alpha 未升版的内容变化后重置 index，基线比较仍识别 alpha 的 v3 基线并报告必须提升版本。 scripts/lib/skill-package-hash.test.ts > version checks retain the captured pending snapshot after the index resets bun test --test-name-pattern=\"^version checks retain the captured pending snapshot after the index resets$\" ./scripts/lib/skill-package-hash.test.ts",
+        "sourcePath": "repository-tooling/version-checks-retain-the-captured-pending-snapshot.md",
+        "summary": "Skill 版本门禁必须把已捕获的 pending 快照与一次解析出的不可变基线 revision 比较，后续 index 变化不能改写本次判断输入。",
+        "title": "版本门禁保留已捕获的 pending 快照"
       }
     },
     "SKILL-UPDATER-CANONICAL-PATH-001": {
@@ -11062,7 +11108,7 @@
       "CHECK-PLAN-SCRIPTS-001": "sha256:5a4739a2d2922e7e910db081dc3c5b916296bbfdb7a63ec39daaca65dbe41433",
       "CHECK-QUICK-PROFILE-001": "sha256:f6484fdfa0fb290aa3fe1e313a529adfbb42e2376be48010e2d03f2105c1a720",
       "CHECK-RESULT-FORMAT-001": "sha256:a58dbdecc1d689a453e47cca518b0584281b6cc586245f39440ab6a82cef4a58",
-      "CHECK-SUMMARY-FORMAT-001": "sha256:2999710bc831a9521a5868214c9b9bbb5cade48f43a14fa11fa9fb264803f6fc",
+      "CHECK-SUMMARY-FORMAT-001": "sha256:87f3d4a6e2ba7746d43b6418792554a3b6c90fb7f71b2b18babb20a9427ebfa9",
       "CHECK-WORKFLOW-PACKAGE-FAILURE-001": "sha256:ff1b1458a5b4ed251a61aa6a7a78d833c38684d1b0e9e47ae047269edd27f4d0",
       "CHECK-WORKFLOW-PACKAGING-001": "sha256:e6dde5bfe40d5b63bf76cc9a49ebf752c21c6645a878e9ab027498135ffaf23e",
       "DECISION-ACTIVATE-ESTABLISHED-RELATIONS-001": "sha256:634fd58b2a7f0eec0309dd91b40d28c453db82b78c1c6d15b91c1ffcba2572f1",
@@ -11264,6 +11310,8 @@
       "SKILL-PACKAGE-HASH-003": "sha256:20a11e306f874a30f6bd5dbaefe1e14155caa0aea61574fc5e685b6a253f30fb",
       "SKILL-PACKAGE-HASH-004": "sha256:1125c0f1aa797b9ea6794af29462304ff563356cefa8a8618a9456c9b00d8bc1",
       "SKILL-PACKAGE-HASH-005": "sha256:60a60dfd919c85ce28e1eb82719fa87c4b89a0cffbda29cef30b1c654b283f62",
+      "SKILL-PACKAGE-HASH-006": "sha256:a4c82e0ce772f10c55668d528527c306e30ce4139e4a808cd59851b97c91ffdf",
+      "SKILL-PACKAGE-HASH-007": "sha256:2bbc8720532390a943ab064bb290496a0f0ac94fb56d807072752ddeb7dcb422",
       "SKILL-UPDATER-CANONICAL-PATH-001": "sha256:bee0abdcccf5d0c69ea41a7d1afce9eab392dfd6dc008e28f2dd9c5e85c2ed2a",
       "SKILL-UPDATER-CURRENT-CHECK-001": "sha256:1c845cdbf783cb12c0c7f1d96dbfeef631cb12567522959d07999e2e6d8e5854",
       "SKILL-UPDATER-DECLARATIONS-001": "sha256:38733bd045c0e89e46a8bed1bdc0d787eae4919973ec1d4b232df25e0303da43",

@@ -22,7 +22,7 @@ export const githubRepository = "zxyycom/skills";
 export const skillsRootName = "skills";
 export const ignoredDirectoryNames = [".git", "node_modules", "dist"] as const;
 
-function shouldIgnoreDirectoryName(name: string): boolean {
+export function shouldIgnoreDirectoryName(name: string): boolean {
   return name.startsWith(".") || (ignoredDirectoryNames as readonly string[]).includes(name);
 }
 

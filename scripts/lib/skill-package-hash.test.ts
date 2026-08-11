@@ -6,8 +6,11 @@ import path from "node:path";
 import test from "node:test";
 import {
   calculateSkillPackageHash,
+  calculateSkillPackageSnapshotHash,
   collectSkillPackageFileSets,
   getSkillPackageVersionIssues,
+  readPendingSkillPackageSnapshot,
+  readSkillPackageSnapshotVersionBaseline,
   readSkillPackageVersionBaseline,
   readSkillPackageVersion,
   type SkillPackageFile
@@ -140,6 +143,51 @@ test("collects sorted skill files from pending Git content", gitTestOptions, asy
   });
 });
 
+test("discovers skill membership from the same pending snapshot as its files", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const {
+      gammaDirectory,
+      repositoryRoot
+    } = await createSkillRepositoryFixture(tempRoot);
+    const gammaMarkdown = skillMarkdown("gamma", 1, "gamma staged");
+    await fs.mkdir(gammaDirectory, { recursive: true });
+    await fs.writeFile(path.join(gammaDirectory, "SKILL.md"), gammaMarkdown);
+    runGit(repositoryRoot, ["add", "skills/gamma/SKILL.md"]);
+    await fs.rm(gammaDirectory, { force: true, recursive: true });
+
+    const untrackedDirectory = path.join(repositoryRoot, "skills", "untracked");
+    await fs.mkdir(untrackedDirectory, { recursive: true });
+    await fs.writeFile(
+      path.join(untrackedDirectory, "SKILL.md"),
+      skillMarkdown("untracked", 1, "working tree only")
+    );
+
+    const snapshot = await readPendingSkillPackageSnapshot(repositoryRoot);
+    assert.deepEqual(
+      snapshot.skills.map((skill) => skill.name),
+      ["alpha", "beta", "gamma"]
+    );
+    assert.deepEqual([...snapshot.filesBySkill.keys()], ["alpha", "beta", "gamma"]);
+    assert.equal(
+      fileData(snapshot.filesBySkill.get("gamma") ?? [], "SKILL.md").toString("utf8"),
+      gammaMarkdown
+    );
+    assert.deepEqual(calculateSkillPackageSnapshotHash(snapshot).versions, {
+      alpha: 3,
+      beta: 7,
+      gamma: 1
+    });
+    assert.deepEqual(
+      (await readSkillPackageVersionBaseline(
+        snapshot.skills,
+        "HEAD",
+        repositoryRoot
+      )).skills,
+      { alpha: 3, gamma: null }
+    );
+  });
+});
+
 test("reports missing or malformed skill version baselines", gitTestOptions, async () => {
   await withTempRoot(async (tempRoot) => {
     const {
@@ -207,6 +255,38 @@ test("requires changed skills to increase independent versions", gitTestOptions,
   });
 });
 
+test("version checks retain the captured pending snapshot after the index resets", gitTestOptions, async () => {
+  await withTempRoot(async (tempRoot) => {
+    const {
+      alphaDirectory,
+      repositoryRoot
+    } = await createSkillRepositoryFixture(tempRoot);
+    runGit(repositoryRoot, ["reset", "--hard", "HEAD"]);
+    await fs.writeFile(
+      path.join(alphaDirectory, "SKILL.md"),
+      skillMarkdown("alpha", 3, "captured content-only change")
+    );
+    runGit(repositoryRoot, ["add", "skills/alpha/SKILL.md"]);
+    const snapshot = await readPendingSkillPackageSnapshot(repositoryRoot);
+
+    runGit(repositoryRoot, ["reset", "--hard", "HEAD"]);
+
+    const baseline = await readSkillPackageSnapshotVersionBaseline(
+      snapshot,
+      "HEAD",
+      repositoryRoot
+    );
+    assert.deepEqual(baseline.skills, { alpha: 3 });
+    assert.match(
+      getSkillPackageVersionIssues(
+        calculateSkillPackageSnapshotHash(snapshot),
+        baseline
+      )[0] ?? "",
+      /increase skills\/alpha\/SKILL\.md metadata\.version above 3/
+    );
+  });
+});
+
 test("accepts a new skill at initial version one", gitTestOptions, async () => {
   await withTempRoot(async (tempRoot) => {
     const {
@@ -266,7 +346,12 @@ test("reports corrupt baseline skill blobs as operation failures", gitTestOption
     runGit(repositoryRoot, ["add", "."]);
     runGit(repositoryRoot, ["commit", "--quiet", "--message", "base"]);
     await fs.writeFile(path.join(skillDirectory, "changed.txt"), "changed\n");
+    await fs.writeFile(
+      path.join(skillDirectory, "SKILL.md"),
+      skillMarkdown("unreadable", 1, "pending")
+    );
     runGit(repositoryRoot, ["add", "skills/unreadable/changed.txt"]);
+    runGit(repositoryRoot, ["add", "skills/unreadable/SKILL.md"]);
 
     const blobId = runGit(repositoryRoot, [
       "rev-parse",

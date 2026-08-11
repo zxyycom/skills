@@ -1,14 +1,12 @@
 import fs from "node:fs/promises";
 import { parseArgs } from "node:util";
 import {
-  calculateSkillPackageHash,
+  calculateSkillPackageSnapshotHash,
   getSkillPackageVersionIssues,
-  readSkillPackageVersionBaseline
+  readPendingSkillPackageSnapshot,
+  readSkillPackageSnapshotVersionBaseline
 } from "./lib/skill-package-hash.ts";
-import {
-  discoverSkillPackages,
-  rootDir
-} from "./lib/project.ts";
+import { rootDir } from "./lib/project.ts";
 
 const { values: options } = parseArgs({
   args: process.argv.slice(2),
@@ -21,15 +19,11 @@ const { values: options } = parseArgs({
 });
 const baselineRef = options["baseline-ref"] ?? "HEAD";
 
-const discovery = await discoverSkillPackages(rootDir);
-if (discovery.errors.length > 0) {
-  throw new Error(`Cannot hash skills:\n- ${discovery.errors.join("\n- ")}`);
-}
-
-const currentPackage = await calculateSkillPackageHash(discovery.skills);
+const snapshot = await readPendingSkillPackageSnapshot(rootDir);
+const currentPackage = calculateSkillPackageSnapshotHash(snapshot);
 const currentHash = currentPackage.aggregateHash;
-const baseline = await readSkillPackageVersionBaseline(
-  discovery.skills,
+const baseline = await readSkillPackageSnapshotVersionBaseline(
+  snapshot,
   baselineRef,
   rootDir
 );

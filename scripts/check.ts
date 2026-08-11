@@ -60,10 +60,12 @@ type CheckWorkflowResult =
   | {
     exitCode: 0;
     packageStatus: "passed";
+    status: "passed";
   }
   | {
     exitCode: 1;
     packageStatus: "failed" | "skipped";
+    status: "failed";
   };
 
 type PreflightResult = {
@@ -194,6 +196,7 @@ export function formatCheckReport(
 
 export function formatCheckSummary(
   profile: CheckProfile,
+  workflowResult: CheckWorkflowResult,
   reports: readonly CheckReport[],
   durationMilliseconds: number
 ): string {
@@ -205,10 +208,9 @@ export function formatCheckSummary(
   for (const report of reports) {
     counts[report.status] += 1;
   }
-  const status = counts.failed === 0 ? "passed" : "failed";
   return [
     "Summary:",
-    `  status: ${status}`,
+    `  status: ${workflowResult.status}`,
     `  profile: ${profile}`,
     `  total checks: ${reports.length}`,
     `  passed: ${counts.passed}`,
@@ -298,7 +300,8 @@ export async function runCheckWorkflow(
     });
     return {
       exitCode: 1,
-      packageStatus: "skipped"
+      packageStatus: "skipped",
+      status: "failed"
     };
   }
 
@@ -306,8 +309,8 @@ export async function runCheckWorkflow(
   const packageStatus = packageResult.exitCode === 0 ? "passed" : "failed";
   onReport({ result: packageResult, status: packageStatus });
   return packageStatus === "passed"
-    ? { exitCode: 0, packageStatus }
-    : { exitCode: 1, packageStatus };
+    ? { exitCode: 0, packageStatus, status: "passed" }
+    : { exitCode: 1, packageStatus, status: "failed" };
 }
 
 async function main(): Promise<number> {
@@ -341,6 +344,7 @@ async function main(): Promise<number> {
     });
     console.log(`\n${formatCheckSummary(
       options.profile,
+      result,
       reports,
       performance.now() - startedAt
     )}`);

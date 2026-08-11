@@ -189,35 +189,27 @@ test("check report formatting keeps success concise and failures complete", () =
 });
 
 test("check summary reports profile and status counts", () => {
+  const workflowResult = {
+    exitCode: 1,
+    packageStatus: "failed",
+    status: "failed"
+  } as const;
   const reports: CheckReport[] = [
     {
-      result: {
-        capturedOutput: "",
-        durationMilliseconds: 1_100,
-        exitCode: 0,
-        script: "successful"
-      },
+      result: scriptResult("successful"),
       status: "passed"
     },
     {
       reason: "full profile only",
       script: "slow",
       status: "skipped"
-    },
-    {
-      result: {
-        capturedOutput: "failure details\n",
-        durationMilliseconds: 12_000,
-        exitCode: 1,
-        script: "failed"
-      },
-      status: "failed"
     }
   ];
 
   assert.equal(
     formatCheckSummary(
       "quick",
+      workflowResult,
       reports,
       12_000
     ),
@@ -225,10 +217,10 @@ test("check summary reports profile and status counts", () => {
       "Summary:",
       "  status: failed",
       "  profile: quick",
-      "  total checks: 3",
+      "  total checks: 2",
       "  passed: 1",
       "  skipped: 1",
-      "  failed: 1",
+      "  failed: 0",
       "  duration: 12s"
     ].join("\n")
   );
@@ -269,7 +261,8 @@ test("workflow skips full checks in the quick profile", async () => {
 
   assert.deepEqual(result, {
     exitCode: 0,
-    packageStatus: "passed"
+    packageStatus: "passed",
+    status: "passed"
   });
   assert.deepEqual(calls, ["quick", "package"]);
   assert.deepEqual(reports.map((report) => report.status), [
@@ -296,7 +289,8 @@ test("workflow runs every check in the full profile", async () => {
 
   assert.deepEqual(result, {
     exitCode: 0,
-    packageStatus: "passed"
+    packageStatus: "passed",
+    status: "passed"
   });
   assert.deepEqual(calls, ["slow", "quick", "package"]);
   assert.deepEqual(reports.map((report) => report.status), [
@@ -323,7 +317,8 @@ test("workflow skips packaging after preflight failures", async () => {
 
   assert.deepEqual(result, {
     exitCode: 1,
-    packageStatus: "skipped"
+    packageStatus: "skipped",
+    status: "failed"
   });
   assert.deepEqual(calls, ["failure", "after-failure"]);
   assert.deepEqual(reports.map((report) => report.status), [
@@ -347,7 +342,8 @@ test("workflow reports package script failures", async () => {
 
   assert.deepEqual(result, {
     exitCode: 1,
-    packageStatus: "failed"
+    packageStatus: "failed",
+    status: "failed"
   });
   assert.deepEqual(reports.map((report) => report.status), ["passed", "failed"]);
 });

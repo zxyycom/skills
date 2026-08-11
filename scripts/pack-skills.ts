@@ -2,12 +2,11 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { type Zippable, zipSync } from "fflate";
 import {
-  collectSkillPackageFileSets,
+  readPendingSkillPackageSnapshot,
   readSkillPackageVersion,
   type SkillPackageFile
 } from "./lib/skill-package-hash.ts";
 import {
-  discoverSkillPackages,
   rootDir,
   type SkillPackage
 } from "./lib/project.ts";
@@ -34,17 +33,13 @@ function buildZip(
   return Buffer.from(zipSync(entries, zipEntryOptions));
 }
 
-const discovery = await discoverSkillPackages(rootDir);
-if (discovery.errors.length > 0) {
-  throw new Error(`Cannot pack skills:\n- ${discovery.errors.join("\n- ")}`);
-}
+const snapshot = await readPendingSkillPackageSnapshot(rootDir);
 
 await fs.rm(distDir, { force: true, recursive: true });
 await fs.mkdir(distDir, { recursive: true });
 
-const filesBySkill = await collectSkillPackageFileSets(discovery.skills);
-for (const skill of discovery.skills) {
-  const archive = buildZip(skill, filesBySkill.get(skill.name) ?? []);
+for (const skill of snapshot.skills) {
+  const archive = buildZip(skill, snapshot.filesBySkill.get(skill.name) ?? []);
   const outputPath = path.join(distDir, `${skill.name}.zip`);
   await fs.writeFile(outputPath, archive);
   console.log(`Packed ${skill.name} -> ${path.relative(rootDir, outputPath)} (${archive.length} bytes).`);
@@ -52,12 +47,12 @@ for (const skill of discovery.skills) {
 
 const releaseManifest: SkillReleaseManifest = {
   schemaVersion: 1,
-  skills: Object.fromEntries(discovery.skills.map((skill) => [
+  skills: Object.fromEntries(snapshot.skills.map((skill) => [
     skill.name,
     {
       version: readSkillPackageVersion(
         skill.name,
-        filesBySkill.get(skill.name) ?? []
+        snapshot.filesBySkill.get(skill.name) ?? []
       )
     }
   ]))
