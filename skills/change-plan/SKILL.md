@@ -5,7 +5,7 @@ description: >-
   用于用 proposal.md、design.md、tasks.md 和 .change-plan.json 维护明确 change
   的目标、设计、任务、验证与当前生命周期阶段。
 metadata:
-  version: "9"
+  version: "10"
 ---
 
 # Change Plan
@@ -37,13 +37,13 @@ metadata:
 2. 将用户目标压缩成一句结果说明，并确定范围、非目标、成功标准和受影响 owner。
 3. 使用用户指定的 change 目录；未指定时遵循项目已有约定，项目没有约定时使用 `changes/<kebab-case-name>/`。
 4. 需要从现有 Change 中选择目标时先运行 `list`。同名 active 目录已存在时运行 `show`，按其 stage 和 assessment 继续，不覆盖尚未纳入当前请求的内容。
-5. 新建 active Change 时，先写入 stage 为 `draft` 的 `.change-plan.json` 和最小 `proposal.md`。目标、范围或会改变 public contract、架构边界、兼容性和验收的关键选择无法可靠判断时，只询问这一项。
+5. 新建 active Change 时，写入 stage 为 `draft` 的 `.change-plan.json`、最小 `proposal.md` 和初始 `design.md`，此时不创建 `tasks.md`。目标、范围或会改变 public contract、架构边界、兼容性和验收的关键选择无法可靠判断时，只询问这一项。
 
 ### 2. 从 Draft 收敛到 Plan
 
-1. Draft 的 proposal 只需说明 change 目标、`Why` 和 `Outcome`；在方向未稳定时持续修订这些内容，不预填没有执行价值的细节。
-2. 准备确认 plan 时，补全 proposal 的范围、成功标准和 owner；按固定结构写 design，区分事实、约束、当前 change 判断、风险与开放问题；按固定结构写 tasks。
-3. Tasks 的 `Readiness` 位于实施任务之前，至少确认三个 artifacts 指向同一目标、owner 准确、重要假设显式且开放问题不阻塞实施。`Implementation` 和 `Verification` 使用唯一层级数字 ID，并分别覆盖产物与证据。
+1. Draft 的 proposal 说明 change 目标、`Why` 和 `Outcome`；初始 design 说明当前上下文、设计目标、初步方向、已知取舍与开放问题。两者都可以持续修订；把暂定选择明确写成暂定内容，不为填满结构补造事实或无执行价值的细节。
+2. 准备确认 plan 时，补全 proposal 的范围、成功标准和 owner；继续核对并完善 design，使设计判断、风险和开放问题足以支持实施；再从 design 派生 tasks，使实施任务落实设计判断，验证任务覆盖成功标准和相应风险。
+3. Tasks 的 `Readiness` 位于实施任务之前，至少确认三个 artifacts 指向同一目标、owner 准确、重要假设显式、阻塞开放问题已经解决，并且 Implementation 与 Verification 能追溯到 proposal 和 design。`Implementation` 和 `Verification` 使用唯一层级数字 ID，并分别覆盖产物与证据。
 4. 只有存在实际完成证据时才勾选任务。确认 plan 前必须完成全部 Readiness，且 Implementation 和 Verification 中都不能已有勾选项。
 5. 确认仓库已有 `HEAD`。在创建包含本次 Plan 的版本控制提交前运行：
 
@@ -92,7 +92,7 @@ metadata:
 ## 完成标准
 
 1. Active Change 拥有合法 `.change-plan.json`，stage 与当前 artifacts、任务进度和实际工作状态一致；archived Change 位于固定历史目录，其保留的 metadata 只作为历史内容而不产生 stage。
-2. Draft 能清楚表达方向；plan 的 proposal、design 和 tasks 通过完整结构与 Readiness 门禁，且具有可用于 Git 距离评估的基线。
+2. Draft 能用 proposal 和初始 design 清楚表达开展理由、预期结果与当前设计方向；plan 的 proposal 和 design 已继续收敛，tasks 从二者派生，三者通过完整结构与 Readiness 门禁，并具有可用于 Git 距离评估的基线。
 3. 查询结果能够区分 status、stage 和 assessment；查询不自动改变候选，`reconcile` 以 Git 距离证据搁置，`shelve` 以明确原因搁置，resume 后重新确认 plan。
 4. 实施完成时，成功标准、稳定 owner、长期决策和验证证据已同步，所有任务勾选均有事实支持。
 5. 结构检查、语义审阅、实施就绪、阶段转换和归档授权分别汇报，不把任何机械成功误作内容批准。

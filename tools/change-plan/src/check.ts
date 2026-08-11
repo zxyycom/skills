@@ -21,7 +21,19 @@ import {
 
 const kebabCasePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 
-const fullArtifactContracts: readonly ArtifactStructureContract[] = [
+const designArtifactContract = {
+  file: "design.md",
+  h1: "Design",
+  requiredSections: [
+    "Context",
+    "Goals / Non-Goals",
+    "Decisions",
+    "Risks / Trade-offs",
+    "Open Questions"
+  ]
+} as const satisfies ArtifactStructureContract;
+
+const planArtifactContracts = [
   {
     file: "proposal.md",
     h1: "Proposal",
@@ -33,17 +45,7 @@ const fullArtifactContracts: readonly ArtifactStructureContract[] = [
       "Affected Owners"
     ]
   },
-  {
-    file: "design.md",
-    h1: "Design",
-    requiredSections: [
-      "Context",
-      "Goals / Non-Goals",
-      "Decisions",
-      "Risks / Trade-offs",
-      "Open Questions"
-    ]
-  },
+  designArtifactContract,
   {
     file: "tasks.md",
     h1: "Tasks",
@@ -58,15 +60,25 @@ const fullArtifactContracts: readonly ArtifactStructureContract[] = [
       "Verification"
     ]
   }
-];
+] as const satisfies readonly ArtifactStructureContract[];
 
-const draftArtifactContracts: readonly ArtifactStructureContract[] = [
+const draftArtifactContracts = [
   {
     file: "proposal.md",
     h1: "Proposal",
     requiredSections: ["Why", "Outcome"]
-  }
-];
+  },
+  designArtifactContract
+] as const satisfies readonly ArtifactStructureContract[];
+
+const artifactContractsByStage = {
+  draft: draftArtifactContracts,
+  plan: planArtifactContracts,
+  implementation: planArtifactContracts,
+  shelved: planArtifactContracts
+} as const satisfies Readonly<
+  Record<ChangePlanStage, readonly ArtifactStructureContract[]>
+>;
 
 type ArtifactProgress = {
   completedTaskCount: number;
@@ -238,9 +250,7 @@ async function validateArtifacts(
   diagnostics: ChangePlanDiagnostic[]
 ): Promise<ArtifactProgress> {
   const progress = emptyArtifactProgress();
-  const artifactContracts = stage === "draft"
-    ? draftArtifactContracts
-    : fullArtifactContracts;
+  const artifactContracts = artifactContractsByStage[stage];
 
   for (const contract of artifactContracts) {
     const artifactPath = path.join(changeDirectory, contract.file);

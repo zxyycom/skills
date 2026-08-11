@@ -441,21 +441,21 @@
     "CHANGE-PLAN-CHECK-STAGES-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CHECK-STAGES-001 检查按生命周期阶段应用制品契约 Change 检查必须按当前阶段或目标阶段应用对应的制品要求。 Draft 只有最小 proposal 时可以通过，面向 plan 的检查要求完整制品，合法 shelved change 仍可通过检查。 tools/change-plan/tests/check.test.ts > check applies stage-specific artifact contracts bun test --test-name-pattern=\"^check applies stage-specific artifact contracts$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CHECK-STAGES-001 检查按生命周期阶段应用制品契约 Change 检查必须按当前阶段或目标阶段应用对应的制品要求。 普通 Draft 检查接受最小 proposal 和初始 design、但没有 tasks 的目录，并拒绝缺少 design 的目录。 Metadata 仍为 `draft` 时，目标 Plan 检查要求完整 proposal、design 和 tasks；合法 shelved Change 仍可通过检查。 tools/change-plan/tests/check.test.ts > check applies stage-specific artifact contracts bun test --test-name-pattern=\"^check applies stage-specific artifact contracts$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
         "entries": [
           "tools/change-plan/tests/check.test.ts > check applies stage-specific artifact contracts",
           "bun test --test-name-pattern=\"^check applies stage-specific artifact contracts$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-CHECK-STAGES-001",
         "line": 1,
-        "searchText": "检查按生命周期阶段应用制品契约 Change 检查必须按当前阶段或目标阶段应用对应的制品要求。 Draft 只有最小 proposal 时可以通过，面向 plan 的检查要求完整制品，合法 shelved change 仍可通过检查。 tools/change-plan/tests/check.test.ts > check applies stage-specific artifact contracts bun test --test-name-pattern=\"^check applies stage-specific artifact contracts$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "检查按生命周期阶段应用制品契约 Change 检查必须按当前阶段或目标阶段应用对应的制品要求。 普通 Draft 检查接受最小 proposal 和初始 design、但没有 tasks 的目录，并拒绝缺少 design 的目录。 Metadata 仍为 `draft` 时，目标 Plan 检查要求完整 proposal、design 和 tasks；合法 shelved Change 仍可通过检查。 tools/change-plan/tests/check.test.ts > check applies stage-specific artifact contracts bun test --test-name-pattern=\"^check applies stage-specific artifact contracts$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/check-applies-stage-specific-artifact-contracts.md",
         "summary": "Change 检查必须按当前阶段或目标阶段应用对应的制品要求。",
         "title": "检查按生命周期阶段应用制品契约"
@@ -11096,7 +11096,7 @@
       "CHANGE-PLAN-CHECK-COMPLETE-001": "sha256:17d4ccf165dbffa7ad726853cd14f56121facc342cf35d47b1901dace17817ce",
       "CHANGE-PLAN-CHECK-METADATA-001": "sha256:e73dbfd307252d29fb952bda4bb9fb0b73f9f0e8533c51978a4411dc67dd8c77",
       "CHANGE-PLAN-CHECK-PATH-001": "sha256:9f4c199d4feeedd15fc677c10c6758c663fd9f95bc0a31915d847e67dadadf2e",
-      "CHANGE-PLAN-CHECK-STAGES-001": "sha256:c616da5e970c44e629736362f72dc62f8532b83e8fb565b87c7d8fe731bf1029",
+      "CHANGE-PLAN-CHECK-STAGES-001": "sha256:da564ecbc78bf4b416bbfa553ae8dbcf23bfd2307a2483b43826466eebfd0fb1",
       "CHANGE-PLAN-CHECK-SYMLINK-001": "sha256:f3ea489f69f902c111d9fa2b1c091c0b618d06e921bb58f1779d449bcc32cc88",
       "CHANGE-PLAN-CHECK-VC-001": "sha256:46f9b50a8a12067296acdecff1be5f0b78d88fbd4754996609344eb74ff14ecc",
       "CHANGE-PLAN-CLI-ARCHIVE-001": "sha256:8ae3b39eaef7fd4af641a001d19f9eb1ea850ecb740bc63fd3bf9bc93e5d24b0",

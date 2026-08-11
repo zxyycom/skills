@@ -5,4 +5,5 @@ Entry:
 Contract:
 - Change 检查必须按当前阶段或目标阶段应用对应的制品要求。
 Proves:
-- Draft 只有最小 proposal 时可以通过，面向 plan 的检查要求完整制品，合法 shelved change 仍可通过检查。
+- 普通 Draft 检查接受最小 proposal 和初始 design、但没有 tasks 的目录，并拒绝缺少 design 的目录。
+- Metadata 仍为 `draft` 时，目标 Plan 检查要求完整 proposal、design 和 tasks；合法 shelved Change 仍可通过检查。

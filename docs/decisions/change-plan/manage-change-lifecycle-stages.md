@@ -1,6 +1,6 @@
 ---
 title: 按生命周期阶段维护 Change
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-06T02:22:22Z
 purpose: 让活动 Change 在起草、计划、实施和搁置恢复时只固化当前工作阶段有意义的内容。

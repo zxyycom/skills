@@ -99,9 +99,10 @@
       "ai-ready-docs/use-ai-ready-docs-identity.md": "sha256:c7ef4248915e21ed551d5864b5f8556777334bf91676b380ed6431eba403075a",
       "ai-ready-docs/use-explicit-environment-supported-diagrams.md": "sha256:19cd987b05ecd5a3ca0c959d34cea3ee9cd74da86e25c6b2b94ac452e827315c",
       "change-plan/detect-shelved-plans-by-git-distance.md": "sha256:7c1a9b1e21bd1590e43bb0fd67cff53758d3802cec0628fe4bfa460c9023f6ae",
+      "change-plan/form-proposal-and-initial-design-in-draft.md": "sha256:ee5d087e81810f597076e62bb6ba3029f2802344096fec23156a4387c70d7384",
       "change-plan/maintain-change-artifact-and-authorization-boundaries.md": "sha256:15d4837a4b32a013b7472793848d4a723776e0f96977ab78eecfda52d0f2751d",
       "change-plan/manage-basic-change-lifecycle.md": "sha256:5a3c25dd4d93305d5d71ea6db4ed6959728cc456427e48a6707a88e0b6361782",
-      "change-plan/manage-change-lifecycle-stages.md": "sha256:f7d7c057803b8e9e84f6c292af9d945c2f9bdffbae0c2b21de52e8dad05b5c60",
+      "change-plan/manage-change-lifecycle-stages.md": "sha256:57ed6c0cbe761583a6c4c2abee589dcd0d84bb006288c6a7d2c5028cfd8839ce",
       "change-plan/use-independent-change-plans.md": "sha256:2d32fbd6ed64b1eff7d852fd7ee0e0037c72dcdceb27803d5bb879cddab41f0c",
       "change-plan/use-plan-base-only-for-git-distance.md": "sha256:27ac2a3a8bf2fb64f0bd7348c9981ede9674959546bb0b4b9704d547022ea30e",
       "common-denominator-design/design-by-scenario-denominators.md": "sha256:218a489e475594152f861a152cf785274ef297e862216fe198191418114619ac",
@@ -652,6 +653,35 @@
         "relations": []
       }
     },
+    "change-plan/form-proposal-and-initial-design-in-draft.md": {
+      "keys": {
+        "domain": [
+          "change-plan"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "change-plan/form-proposal-and-initial-design-in-draft.md",
+        "title": "在 Draft 中形成初始提案与设计",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T06:44:15Z",
+        "purpose": "让 Change 创建时同时保存开展理由与可继续收敛的初始设计，并让 Plan 专注于完善设计和派生任务。",
+        "background": "Draft 只要求最小 proposal 会把设计方向推迟到 Plan，并让设计形成与任务派生挤在同一次阶段跃迁中。",
+        "decision": "Draft 必须包含最小 proposal 和初始 design；进入 Plan 时继续完善二者并从设计派生 tasks，确认三者一致后再建立可实施计划。",
+        "relations": [
+          {
+            "type": "修订",
+            "target": "change-plan/manage-change-lifecycle-stages.md"
+          }
+        ]
+      }
+    },
     "change-plan/maintain-change-artifact-and-authorization-boundaries.md": {
       "keys": {
         "domain": [
@@ -716,7 +746,7 @@
           "change-plan"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -725,7 +755,7 @@
       "state": {
         "path": "change-plan/manage-change-lifecycle-stages.md",
         "title": "按生命周期阶段维护 Change",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-06T02:22:22Z",
         "purpose": "让活动 Change 在起草、计划、实施和搁置恢复时只固化当前工作阶段有意义的内容。",

@@ -108,9 +108,19 @@ Valibot schema 是运行时 metadata 类型与校验的实现来源。Change Pla
 5. 固定标题使用英文，正文沿用用户输入语言或项目语言。
 6. Checker 统一换行后只解析一次 Markdown AST；HTML 注释不算语义内容，代码围栏和 HTML 注释中的 checklist 相似文本不算任务。
 
-### Draft
+### 阶段与受检制品
 
-Draft 只要求普通文件 `proposal.md`：
+| 检查场景 | `proposal.md` | `design.md` | `tasks.md` |
+| --- | --- | --- | --- |
+| 当前 stage 为 `draft` 时的结构检查 | 使用 Draft Proposal 结构。 | 使用 Design 结构。 | 不参与结构检查。 |
+| `plan` 命令的目标结构 | 使用 Plan Proposal 结构。 | 使用 Design 结构。 | 使用 Tasks 结构。 |
+| `plan`、`implementation` 或 `shelved` 阶段，以及 archived Change | 使用 Plan Proposal 结构。 | 使用 Design 结构。 | 使用 Tasks 结构。 |
+
+准备运行 `plan` 时，metadata 仍为 `draft` 的过渡目录可以包含 `tasks.md`。普通 Draft 结构检查不校验它，`show` 仍按查询契约返回其可读取内容，`plan` 命令则按目标结构检查它；文件的创建时机和派生关系由 `SKILL.md` 承接。
+
+### Draft Proposal
+
+`proposal.md`：
 
 ```markdown
 # Proposal
@@ -126,11 +136,38 @@ Draft 只要求普通文件 `proposal.md`：
 <完成后可以观察到的结果。>
 ```
 
-Draft 中的 `design.md` 和 `tasks.md` 可以不存在；存在时也不参与 draft 检查。进入 plan 前必须补全下面的完整三 artifacts。
+### Design
 
-### Plan、Implementation 与 Shelved
+所有受检场景的 `design.md` 使用同一固定结构：
 
-`plan`、`implementation`、`shelved` 和 archived Change 都使用完整三 artifacts。
+```markdown
+# Design
+
+<一句话说明当前设计方向以及它如何兑现 proposal。>
+
+## Context
+<已确认事实、约束和必要假设；事实引用原 owner。>
+
+## Goals / Non-Goals
+<设计目标与明确不承担的内容。>
+
+## Decisions
+<当前方案、判断状态与影响；明确区分暂定选择和已确认判断。>
+
+## Risks / Trade-offs
+<会改变后续设计、实施、权限或验证的风险与取舍。>
+
+## Open Questions
+<会改变范围、方案、权限或验收且仍需核对的问题；没有时明确写“无”。>
+```
+
+Draft 与 Plan 对 design 内容成熟度的要求、tasks 派生关系和语义审阅由 `SKILL.md` 承接；checker 只验证本节固定结构与非空内容。
+
+需要保存只属于当前 Change 的实施观察时，可以在 `design.md` 的必需序列之后追加 `## Implementation Observations`。
+
+### Plan Proposal 与 Tasks
+
+Plan 及后续检查场景使用扩展后的 `proposal.md` 和完整 `tasks.md`。
 
 `proposal.md`：
 
@@ -154,31 +191,6 @@ Draft 中的 `design.md` 和 `tasks.md` 可以不存在；存在时也不参与 
 ## Affected Owners
 <需要读取、修改或验证的稳定 owner。>
 ```
-
-`design.md`：
-
-```markdown
-# Design
-
-<一句话说明兑现 proposal 的设计方向。>
-
-## Context
-<已确认事实、约束和必要假设；事实引用原 owner。>
-
-## Goals / Non-Goals
-<设计目标与明确不承担的内容。>
-
-## Decisions
-<只影响当前 Change 的方案和影响；没有独立判断时明确写“无”。>
-
-## Risks / Trade-offs
-<会改变实施、权限或验证的风险与取舍。>
-
-## Open Questions
-<会改变范围、方案、权限或验收的未决问题；没有时明确写“无”。>
-```
-
-需要保存只属于当前 Change 的实施观察时，可以在必需序列之后追加 `## Implementation Observations`。
 
 `tasks.md`：
 

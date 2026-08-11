@@ -6,7 +6,7 @@
 
 项目的稳定文档拥有当前行为和接口，长期决策保存跨 Change 的理由，但一次 Change 仍需要临时回答为什么做、做到什么程度、采用什么方案、按什么顺序改以及怎样验证。只把这些信息留在对话中，会让跨会话实施、审阅和交接反复恢复范围。
 
-`change-plan` 让内容承诺随工作成熟度增加：draft 只需最小 proposal；plan 才需要完整 `proposal.md`、`design.md`、`tasks.md`、完成 Readiness 并记录 Git 距离基线；implementation 表示按当前有效计划实施。计划退出当前主线时可以显式搁置，也可以由固定 Git 演进距离识别为候选，再通过 `reconcile` 写入 shelved。恢复只能回到 plan 重新审阅。
+`change-plan` 让内容承诺随工作成熟度增加：draft 用最小 `proposal.md` 和初始 `design.md` 同时保存开展理由与当前设计方向；进入 plan 前继续完善 proposal 和 design，再从设计派生 `tasks.md`、完成 Readiness 并记录 Git 距离基线；implementation 表示按当前有效计划实施。计划退出当前主线时可以显式搁置，也可以由固定 Git 演进距离识别为候选，再通过 `reconcile` 写入 shelved。恢复只能回到 plan 重新审阅。
 
 ## 提供的能力
 

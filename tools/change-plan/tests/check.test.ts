@@ -36,6 +36,31 @@ const minimalDraftProposal = `# Proposal
 方向具备继续收敛为完整计划所需的最小背景。
 `;
 
+const initialDraftDesign = `# Design
+
+本 change 保存进入计划前仍可继续修订的初始设计。
+
+## Context
+
+当前目标已经明确，但实现边界仍需在计划确认前继续核对。
+
+## Goals / Non-Goals
+
+初始目标是确定可行方向；暂不固化实施任务。
+
+## Decisions
+
+当前采用最小可行方向，具体细节仍可随计划收敛。
+
+## Risks / Trade-offs
+
+过早固化细节会增加无效维护，但缺少方向会阻断任务派生。
+
+## Open Questions
+
+计划确认前仍需核对受影响 owner。
+`;
+
 async function testValidPlan(tempRoot: string): Promise<void> {
   const validDirectory = await writePlan(tempRoot, "add-change-plan");
   const validResult = await checkChangePlanDirectory(validDirectory);
@@ -58,13 +83,11 @@ async function testValidPlan(tempRoot: string): Promise<void> {
 
 async function testStageArtifactContracts(tempRoot: string): Promise<void> {
   const draftDirectory = await writePlan(tempRoot, "draft-change", {
+    design: initialDraftDesign,
     metadata: { stage: "draft" },
     proposal: minimalDraftProposal
   });
-  await Promise.all([
-    fs.rm(path.join(draftDirectory, "design.md")),
-    fs.rm(path.join(draftDirectory, "tasks.md"))
-  ]);
+  await fs.rm(path.join(draftDirectory, "tasks.md"));
   const draftResult = await checkChangePlanDirectory(draftDirectory);
   assert.equal(draftResult.valid, true);
   assert.equal(draftResult.stage, "draft");
@@ -74,6 +97,14 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
     readiness: { completedTaskCount: 0, taskCount: 0 },
     verification: { completedTaskCount: 0, taskCount: 0 }
   });
+
+  await fs.rm(path.join(draftDirectory, "design.md"));
+  const incompleteDraftResult = await checkChangePlanDirectory(draftDirectory);
+  assert.equal(incompleteDraftResult.valid, false);
+  assert.ok(incompleteDraftResult.diagnostics.some((diagnostic) => (
+    diagnostic.code === "missing-required-file"
+    && diagnostic.file === "design.md"
+  )));
 
   const planTargetDirectory = await writePlan(tempRoot, "plan-target", {
     metadata: { stage: "draft" }
@@ -86,7 +117,7 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
   assert.equal(targetResult.stage, "draft");
   assert.equal(targetResult.taskCount, 3);
 
-  await fs.rm(path.join(planTargetDirectory, "design.md"));
+  await fs.rm(path.join(planTargetDirectory, "tasks.md"));
   const incompleteTargetResult = await checkChangePlanDirectory(
     planTargetDirectory,
     "plan"
@@ -94,7 +125,7 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
   assert.equal(incompleteTargetResult.valid, false);
   assert.ok(incompleteTargetResult.diagnostics.some((diagnostic) => (
     diagnostic.code === "missing-required-file"
-    && diagnostic.file === "design.md"
+    && diagnostic.file === "tasks.md"
   )));
 
   const shelvedDirectory = await writePlan(tempRoot, "shelved-change", {
