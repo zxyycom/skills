@@ -4,6 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import {
+  checkChangePlanCollection,
   listChangePlans,
   showChangePlanDirectory
 } from "../src/catalog.ts";
@@ -179,6 +180,82 @@ async function testChangeRootDiagnostics(tempRoot: string): Promise<void> {
   );
 }
 
+async function testCollectionCheckAggregation(
+  tempRoot: string
+): Promise<void> {
+  const lifecycleRoot = path.join(tempRoot, "collection-check");
+  await writePlan(lifecycleRoot, "valid-active");
+  const invalidDirectory = path.join(lifecycleRoot, "invalid-active");
+  await fs.mkdir(invalidDirectory, { recursive: true });
+  await fs.writeFile(
+    path.join(invalidDirectory, "proposal.md"),
+    validProposal,
+    "utf8"
+  );
+  await writePlan(path.join(lifecycleRoot, "archive"), "valid-archived", {
+    metadata: null,
+    tasks: completedTasks
+  });
+
+  const activeResult = await checkChangePlanCollection({
+    changeRoot: lifecycleRoot
+  });
+  assert.equal(activeResult.status, "active");
+  assert.equal(activeResult.checkedCount, 2);
+  assert.equal(activeResult.validCount, 1);
+  assert.equal(activeResult.invalidCount, 1);
+  assert.equal(activeResult.valid, false);
+  assert.deepEqual(activeResult.errors, []);
+  assert.ok(activeResult.entries.some((entry) => (
+    entry.changeName === "invalid-active"
+    && !entry.valid
+    && entry.diagnostics.length > 0
+  )));
+
+  const archivedResult = await checkChangePlanCollection({
+    changeRoot: lifecycleRoot,
+    status: "archived"
+  });
+  assert.equal(archivedResult.checkedCount, 1);
+  assert.equal(archivedResult.validCount, 1);
+  assert.equal(archivedResult.invalidCount, 0);
+  assert.equal(archivedResult.valid, true);
+
+  const allResult = await checkChangePlanCollection({
+    changeRoot: lifecycleRoot,
+    status: "all"
+  });
+  assert.equal(allResult.checkedCount, 3);
+  assert.equal(allResult.invalidCount, 1);
+  assert.equal(allResult.valid, false);
+}
+
+async function testCollectionCheckRootOutcomes(
+  tempRoot: string
+): Promise<void> {
+  const emptyRoot = path.join(tempRoot, "empty-collection");
+  await fs.mkdir(emptyRoot);
+  const emptyResult = await checkChangePlanCollection({
+    changeRoot: emptyRoot
+  });
+  assert.equal(emptyResult.checkedCount, 0);
+  assert.equal(emptyResult.valid, true);
+
+  const emptyArchivedResult = await checkChangePlanCollection({
+    changeRoot: emptyRoot,
+    status: "archived"
+  });
+  assert.equal(emptyArchivedResult.checkedCount, 0);
+  assert.equal(emptyArchivedResult.valid, true);
+
+  const missingResult = await checkChangePlanCollection({
+    changeRoot: path.join(tempRoot, "missing-collection")
+  });
+  assert.equal(missingResult.checkedCount, 0);
+  assert.equal(missingResult.valid, false);
+  assert.match(missingResult.errors[0] ?? "", /does not exist/u);
+}
+
 async function testShowStatus(
   tempRoot: string
 ): Promise<void> {
@@ -304,6 +381,14 @@ test("catalog filters active changes by lifecycle stage", () => (
 
 test("catalog reports inaccessible and malformed lifecycle roots", () => (
   withTempRoot("catalog-roots", testChangeRootDiagnostics)
+));
+
+test("collection check aggregates selected change results", () => (
+  withTempRoot("collection-check", testCollectionCheckAggregation)
+));
+
+test("collection check distinguishes empty and unavailable roots", () => (
+  withTempRoot("collection-check-roots", testCollectionCheckRootOutcomes)
 ));
 
 test("catalog shows lifecycle status", () => (

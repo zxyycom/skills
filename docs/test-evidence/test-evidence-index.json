@@ -576,6 +576,75 @@
         "title": "Check CLI 保持文本与 JSON 退出契约"
       }
     },
+    "CHANGE-PLAN-CLI-CHECK-ALL-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CLI-CHECK-ALL-001 Check-all CLI 门禁所选 Change 集合 `check-all` 默认门禁 active Change，允许显式选择 archived 或全部集合，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。 成员失败时文本 stderr 展开逐项诊断，JSON stdout 保留计数、根路径和完整成员结果。 Archived-only 成功退出 `0`，all 选择同时包含 active 与 archived 并在存在无效成员时退出 `1`。 tools/change-plan/tests/cli.test.ts > CLI check-all gates selected change collections bun test --test-name-pattern=\"^CLI check-all gates selected change collections$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/change-plan/tests/cli.test.ts > CLI check-all gates selected change collections",
+          "bun test --test-name-pattern=\"^CLI check-all gates selected change collections$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CLI-CHECK-ALL-001",
+        "line": 1,
+        "searchText": "Check-all CLI 门禁所选 Change 集合 `check-all` 默认门禁 active Change，允许显式选择 archived 或全部集合，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。 成员失败时文本 stderr 展开逐项诊断，JSON stdout 保留计数、根路径和完整成员结果。 Archived-only 成功退出 `0`，all 选择同时包含 active 与 archived 并在存在无效成员时退出 `1`。 tools/change-plan/tests/cli.test.ts > CLI check-all gates selected change collections bun test --test-name-pattern=\"^CLI check-all gates selected change collections$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/cli-check-all-gates-selected-change-collections.md",
+        "summary": "`check-all` 默认门禁 active Change，允许显式选择 archived 或全部集合，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。",
+        "title": "Check-all CLI 门禁所选 Change 集合"
+      }
+    },
+    "CHANGE-PLAN-CLI-CHECK-ALL-OPTIONS-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CLI-CHECK-ALL-OPTIONS-001 Check-all CLI 拒绝不兼容选项 `check-all` 只接受一个集合选择，不接受 stage 过滤，并必须在帮助文本中公开合法调用方式。 同时使用 `--archived` 与 `--all` 或提供 `--stage` 时退出 `2` 并返回对应参数诊断；帮助文本列出 `check-all`。 tools/change-plan/tests/cli.test.ts > CLI check-all rejects incompatible options bun test --test-name-pattern=\"^CLI check-all rejects incompatible options$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/change-plan/tests/cli.test.ts > CLI check-all rejects incompatible options",
+          "bun test --test-name-pattern=\"^CLI check-all rejects incompatible options$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CLI-CHECK-ALL-OPTIONS-001",
+        "line": 1,
+        "searchText": "Check-all CLI 拒绝不兼容选项 `check-all` 只接受一个集合选择，不接受 stage 过滤，并必须在帮助文本中公开合法调用方式。 同时使用 `--archived` 与 `--all` 或提供 `--stage` 时退出 `2` 并返回对应参数诊断；帮助文本列出 `check-all`。 tools/change-plan/tests/cli.test.ts > CLI check-all rejects incompatible options bun test --test-name-pattern=\"^CLI check-all rejects incompatible options$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/cli-check-all-rejects-incompatible-options.md",
+        "summary": "`check-all` 只接受一个集合选择，不接受 stage 过滤，并必须在帮助文本中公开合法调用方式。",
+        "title": "Check-all CLI 拒绝不兼容选项"
+      }
+    },
+    "CHANGE-PLAN-CLI-CHECK-ALL-ROOTS-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CLI-CHECK-ALL-ROOTS-001 Check-all CLI 报告生命周期根目录诊断 `check-all` 遇到不可用 change root 时必须在文本和 JSON 模式中报告根级失败，并使用相同失败退出状态。 JSON stdout 保留根级错误且退出 `1`；文本模式保持 stdout 为空，并把失败摘要和可行动诊断写入 stderr。 tools/change-plan/tests/cli.test.ts > CLI check-all reports lifecycle root diagnostics bun test --test-name-pattern=\"^CLI check-all reports lifecycle root diagnostics$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/change-plan/tests/cli.test.ts > CLI check-all reports lifecycle root diagnostics",
+          "bun test --test-name-pattern=\"^CLI check-all reports lifecycle root diagnostics$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CLI-CHECK-ALL-ROOTS-001",
+        "line": 1,
+        "searchText": "Check-all CLI 报告生命周期根目录诊断 `check-all` 遇到不可用 change root 时必须在文本和 JSON 模式中报告根级失败，并使用相同失败退出状态。 JSON stdout 保留根级错误且退出 `1`；文本模式保持 stdout 为空，并把失败摘要和可行动诊断写入 stderr。 tools/change-plan/tests/cli.test.ts > CLI check-all reports lifecycle root diagnostics bun test --test-name-pattern=\"^CLI check-all reports lifecycle root diagnostics$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/cli-check-all-reports-lifecycle-root-diagnostics.md",
+        "summary": "`check-all` 遇到不可用 change root 时必须在文本和 JSON 模式中报告根级失败，并使用相同失败退出状态。",
+        "title": "Check-all CLI 报告生命周期根目录诊断"
+      }
+    },
     "CHANGE-PLAN-CLI-LIFECYCLE-001": {
       "keys": {
         "search": [
@@ -783,10 +852,56 @@
         "title": "Show CLI 返回制品与无效计划诊断"
       }
     },
+    "CHANGE-PLAN-COLLECTION-CHECK-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-COLLECTION-CHECK-001 集合检查聚合所选 Change 结果 集合检查必须复用 catalog 的 active、archived 与 all 成员选择，并从完整逐项检查结果派生稳定计数和整体有效性。 无效成员会保留诊断并使集合失败，显式 archived 选择可以独立通过，all 会包含两类成员。 tools/change-plan/tests/catalog.test.ts > collection check aggregates selected change results bun test --test-name-pattern=\"^collection check aggregates selected change results$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/change-plan/tests/catalog.test.ts > collection check aggregates selected change results",
+          "bun test --test-name-pattern=\"^collection check aggregates selected change results$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-COLLECTION-CHECK-001",
+        "line": 1,
+        "searchText": "集合检查聚合所选 Change 结果 集合检查必须复用 catalog 的 active、archived 与 all 成员选择，并从完整逐项检查结果派生稳定计数和整体有效性。 无效成员会保留诊断并使集合失败，显式 archived 选择可以独立通过，all 会包含两类成员。 tools/change-plan/tests/catalog.test.ts > collection check aggregates selected change results bun test --test-name-pattern=\"^collection check aggregates selected change results$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/collection-check-aggregates-selected-change-results.md",
+        "summary": "集合检查必须复用 catalog 的 active、archived 与 all 成员选择，并从完整逐项检查结果派生稳定计数和整体有效性。",
+        "title": "集合检查聚合所选 Change 结果"
+      }
+    },
+    "CHANGE-PLAN-COLLECTION-ROOTS-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-COLLECTION-ROOTS-001 集合检查区分空集合与不可用根目录 集合检查必须把可访问的空目标集合与无法访问的 change root 区分为不同结果。 Active 空集合和 archive 容器尚不存在的 archived 空集合都以零计数通过；缺失 change root 保留根级错误并使集合失败。 tools/change-plan/tests/catalog.test.ts > collection check distinguishes empty and unavailable roots bun test --test-name-pattern=\"^collection check distinguishes empty and unavailable roots$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/change-plan/tests/catalog.test.ts > collection check distinguishes empty and unavailable roots",
+          "bun test --test-name-pattern=\"^collection check distinguishes empty and unavailable roots$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-COLLECTION-ROOTS-001",
+        "line": 1,
+        "searchText": "集合检查区分空集合与不可用根目录 集合检查必须把可访问的空目标集合与无法访问的 change root 区分为不同结果。 Active 空集合和 archive 容器尚不存在的 archived 空集合都以零计数通过；缺失 change root 保留根级错误并使集合失败。 tools/change-plan/tests/catalog.test.ts > collection check distinguishes empty and unavailable roots bun test --test-name-pattern=\"^collection check distinguishes empty and unavailable roots$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/collection-check-distinguishes-empty-and-unavailable-roots.md",
+        "summary": "集合检查必须把可访问的空目标集合与无法访问的 change root 区分为不同结果。",
+        "title": "集合检查区分空集合与不可用根目录"
+      }
+    },
     "CHANGE-PLAN-GENERATED-ARTIFACTS-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-GENERATED-ARTIFACTS-001 生成运行时可直接导入且来源信息可移植 Change Plan 的 MJS 分发运行时必须可直接 import 当前底层函数，并携带可移植的维护来源和 source map；这项能力只验证当前实现表面，不建立稳定 SDK 契约。 直接 import MJS 后可取得当前的 archive、查询、metadata 读取和五个阶段命令函数；生成头指向维护源码与重建命令，source map 只使用仓库相对源码定位并覆盖 CLI、生命周期和 metadata 源码。 tools/change-plan/tests/generated-artifacts.test.ts > generated runtime stays directly importable with portable source metadata bun test --test-name-pattern=\"^generated runtime stays directly importable with portable source metadata$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-GENERATED-ARTIFACTS-001 生成运行时可直接导入且来源信息可移植 Change Plan 的 MJS 分发运行时必须可直接 import 当前底层函数，并携带可移植的维护来源和 source map；这项能力只验证当前实现表面，不建立稳定 SDK 契约。 直接 import MJS 后可取得当前的 archive、单项与集合查询、metadata 读取和五个阶段命令函数；生成头指向维护源码与重建命令，source map 只使用仓库相对源码定位并覆盖 CLI、生命周期和 metadata 源码。 tools/change-plan/tests/generated-artifacts.test.ts > generated runtime stays directly importable with portable source metadata bun test --test-name-pattern=\"^generated runtime stays directly importable with portable source metadata$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -800,7 +915,7 @@
         ],
         "id": "CHANGE-PLAN-GENERATED-ARTIFACTS-001",
         "line": 1,
-        "searchText": "生成运行时可直接导入且来源信息可移植 Change Plan 的 MJS 分发运行时必须可直接 import 当前底层函数，并携带可移植的维护来源和 source map；这项能力只验证当前实现表面，不建立稳定 SDK 契约。 直接 import MJS 后可取得当前的 archive、查询、metadata 读取和五个阶段命令函数；生成头指向维护源码与重建命令，source map 只使用仓库相对源码定位并覆盖 CLI、生命周期和 metadata 源码。 tools/change-plan/tests/generated-artifacts.test.ts > generated runtime stays directly importable with portable source metadata bun test --test-name-pattern=\"^generated runtime stays directly importable with portable source metadata$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "生成运行时可直接导入且来源信息可移植 Change Plan 的 MJS 分发运行时必须可直接 import 当前底层函数，并携带可移植的维护来源和 source map；这项能力只验证当前实现表面，不建立稳定 SDK 契约。 直接 import MJS 后可取得当前的 archive、单项与集合查询、metadata 读取和五个阶段命令函数；生成头指向维护源码与重建命令，source map 只使用仓库相对源码定位并覆盖 CLI、生命周期和 metadata 源码。 tools/change-plan/tests/generated-artifacts.test.ts > generated runtime stays directly importable with portable source metadata bun test --test-name-pattern=\"^generated runtime stays directly importable with portable source metadata$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/generated-runtime-stays-directly-importable-with-portable-source-metadata.md",
         "summary": "Change Plan 的 MJS 分发运行时必须可直接 import 当前底层函数，并携带可移植的维护来源和 source map；这项能力只验证当前实现表面，不建立稳定 SDK 契约。",
         "title": "生成运行时可直接导入且来源信息可移植"
@@ -11102,6 +11217,9 @@
       "CHANGE-PLAN-CLI-ARCHIVE-001": "sha256:8ae3b39eaef7fd4af641a001d19f9eb1ea850ecb740bc63fd3bf9bc93e5d24b0",
       "CHANGE-PLAN-CLI-ARGS-001": "sha256:4cee1a69915df372fd17ad5688b8e15a2482047c8bf5b31d9d44f1956c0dad37",
       "CHANGE-PLAN-CLI-CHECK-001": "sha256:77d0dc65a5414f77e4f36402ceed132306f7c72fbb2686e35c503cdf617acf01",
+      "CHANGE-PLAN-CLI-CHECK-ALL-001": "sha256:01a419f68b331493484694ddf96b6a91d7b1a6880b8fa651c737175ce440b58c",
+      "CHANGE-PLAN-CLI-CHECK-ALL-OPTIONS-001": "sha256:b87f763667d5df94cf51f86611a910de340ff04fd8b0effbd86c61c7161b40e6",
+      "CHANGE-PLAN-CLI-CHECK-ALL-ROOTS-001": "sha256:daf00a4af5dd0f8044ad26a1a029fabc0b54b7d3fdad9bb6cab69ec9846c5fc3",
       "CHANGE-PLAN-CLI-LIFECYCLE-001": "sha256:968906b2ec45e4dc5885378bcd076b61281d57780b80fda0a1c99a8790091304",
       "CHANGE-PLAN-CLI-LIFECYCLE-OUTPUT-001": "sha256:675f66f442552839e263add985c4f1abb1036464a8e069d7a3de540264a0a408",
       "CHANGE-PLAN-CLI-LIST-001": "sha256:59ce91adfa9f06dcb23ea6f2d69320aea194906f4603eabdaad7abd7173b9c0c",
@@ -11111,7 +11229,9 @@
       "CHANGE-PLAN-CLI-PLAN-NO-HEAD-001": "sha256:3807d0a281290da77157fffe53d156bcaa307f018d766b04b8601081e981b4dd",
       "CHANGE-PLAN-CLI-RECONCILE-001": "sha256:c056241e92608802b222c5af0a337bc23577d7fe154ad04a0e1b5a45f708bdff",
       "CHANGE-PLAN-CLI-SHOW-001": "sha256:5071af6ab47a3940c27103f8de22d255d2acea058d6ce4028f34f33cc31499c8",
-      "CHANGE-PLAN-GENERATED-ARTIFACTS-001": "sha256:f9bbced373713b77347f935be06c0164d9fcefb9154ff9491634e8d060666a73",
+      "CHANGE-PLAN-COLLECTION-CHECK-001": "sha256:de00eb26b9fd4b50029e147b86f07878314e9e7b0defcbc192e14ab83dcb9366",
+      "CHANGE-PLAN-COLLECTION-ROOTS-001": "sha256:3f6c42628e52aac88ba9c9d4b232721b9a83288b870b911248b758b3ebeb084f",
+      "CHANGE-PLAN-GENERATED-ARTIFACTS-001": "sha256:8c267d3dd48539628ad2a431089dc2783b15d6c761ee2a701daf49dbf1817fe0",
       "CHANGE-PLAN-GIT-EXCLUDE-001": "sha256:e17c639ace50501210ccfa4d4195da514765f89418f57d821f5c5334eb60d36a",
       "CHANGE-PLAN-GIT-NUMSTAT-001": "sha256:40e14624a84992e44c6901bd66becdd0443576c0abd5c0106766b4259d2a3aa3",
       "CHANGE-PLAN-GIT-PATHS-001": "sha256:53086e3edbfab40174d90614b2eee1792fddb0bf73cd8e44d68883992ed085cf",

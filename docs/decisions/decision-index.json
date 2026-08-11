@@ -98,6 +98,7 @@
       "ai-ready-docs/260720-use-controlled-mermaid-flowcharts.md": "sha256:aac839dcb8deb42813eca19b9e2f9450ef30ed387150777e9518a54882e67dae",
       "ai-ready-docs/use-ai-ready-docs-identity.md": "sha256:c7ef4248915e21ed551d5864b5f8556777334bf91676b380ed6431eba403075a",
       "ai-ready-docs/use-explicit-environment-supported-diagrams.md": "sha256:19cd987b05ecd5a3ca0c959d34cea3ee9cd74da86e25c6b2b94ac452e827315c",
+      "change-plan/check-change-plan-collections-as-a-gate.md": "sha256:5d7570d0037ad8e5c0ca73eb830765bb554b094bf01bf4011247b0003fa36e94",
       "change-plan/detect-shelved-plans-by-git-distance.md": "sha256:7c1a9b1e21bd1590e43bb0fd67cff53758d3802cec0628fe4bfa460c9023f6ae",
       "change-plan/form-proposal-and-initial-design-in-draft.md": "sha256:ee5d087e81810f597076e62bb6ba3029f2802344096fec23156a4387c70d7384",
       "change-plan/maintain-change-artifact-and-authorization-boundaries.md": "sha256:15d4837a4b32a013b7472793848d4a723776e0f96977ab78eecfda52d0f2751d",
@@ -627,6 +628,30 @@
             "target": "ai-ready-docs/260720-use-controlled-mermaid-flowcharts.md"
           }
         ]
+      }
+    },
+    "change-plan/check-change-plan-collections-as-a-gate.md": {
+      "keys": {
+        "domain": [
+          "change-plan"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "path": "change-plan/check-change-plan-collections-as-a-gate.md",
+        "title": "把 Change 集合检查作为独立门禁",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-11T07:14:17Z",
+        "purpose": "让调用方一次判断一个 Change 根中的 active Change 是否全部有效，同时保留发现命令对无效成员的可见性。",
+        "background": "单目录 check 无法直接用于仓库门禁，而 list 即使逐项检查也必须在成员无效时继续成功，才能承担发现与修复入口。",
+        "decision": "使用独立 check-all 聚合现有单项检查；默认门禁 active Change，显式选择 archived 或全部集合，根级错误或任一成员无效时整体失败。",
+        "relations": []
       }
     },
     "change-plan/detect-shelved-plans-by-git-distance.md": {

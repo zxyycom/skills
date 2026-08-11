@@ -149,6 +149,110 @@ function testCheckCommands(fixture: CliFixture): void {
   assert.equal(jsonResult.valid, false);
 }
 
+function testCollectionCheckResults(fixture: CliFixture): void {
+  const textFailure = runCli(["check-all", fixture.lifecycleRoot]);
+  assert.equal(textFailure.status, 1);
+  assert.equal(textFailure.stdout, "");
+  assert.match(textFailure.stderr, /collection check failed/u);
+  assert.match(textFailure.stderr, /invalid-plan/u);
+  assert.match(textFailure.stderr, /missing-required-file/u);
+
+  const defaultRootFailure = spawnSync(
+    "node",
+    [generatedCliPath, "check-all", "--json"],
+    { cwd: path.dirname(fixture.lifecycleRoot), encoding: "utf8" }
+  );
+  assert.equal(defaultRootFailure.status, 1);
+  assert.equal(defaultRootFailure.stderr, "");
+  const defaultRootResult: unknown = JSON.parse(defaultRootFailure.stdout);
+  assert.ok(isRecord(defaultRootResult));
+  assert.equal(defaultRootResult.changeRoot, fixture.lifecycleRoot);
+  assert.equal(defaultRootResult.status, "active");
+  assert.equal(defaultRootResult.valid, false);
+  assert.equal(defaultRootResult.checkedCount, 3);
+  assert.equal(defaultRootResult.validCount, 2);
+  assert.equal(defaultRootResult.invalidCount, 1);
+  assert.ok(isUnknownArray(defaultRootResult.entries));
+  assert.ok(defaultRootResult.entries.some((entry) => (
+    isRecord(entry)
+    && entry.changeName === "invalid-plan"
+    && entry.valid === false
+    && isUnknownArray(entry.diagnostics)
+    && entry.diagnostics.length > 0
+  )));
+
+  const archivedSuccess = runCli([
+    "check-all",
+    fixture.lifecycleRoot,
+    "--archived"
+  ]);
+  assert.equal(archivedSuccess.status, 0, archivedSuccess.stderr);
+  assert.match(archivedSuccess.stdout, /1\/1 changes valid/u);
+  assert.equal(archivedSuccess.stderr, "");
+
+  const allFailure = runCli([
+    "check-all",
+    fixture.lifecycleRoot,
+    "--all",
+    "--json"
+  ]);
+  assert.equal(allFailure.status, 1);
+  assert.equal(allFailure.stderr, "");
+  const allResult: unknown = JSON.parse(allFailure.stdout);
+  assert.ok(isRecord(allResult));
+  assert.equal(allResult.status, "all");
+  assert.equal(allResult.checkedCount, 4);
+  assert.equal(allResult.invalidCount, 1);
+}
+
+function testCollectionCheckRootDiagnostics(fixture: CliFixture): void {
+  const rootFailure = runCli([
+    "check-all",
+    fixture.nonDirectoryChangeRoot,
+    "--json"
+  ]);
+  assert.equal(rootFailure.status, 1);
+  assert.equal(rootFailure.stderr, "");
+  const rootFailureResult: unknown = JSON.parse(rootFailure.stdout);
+  assert.ok(isRecord(rootFailureResult));
+  assert.equal(rootFailureResult.valid, false);
+  assert.ok(isUnknownArray(rootFailureResult.errors));
+  assert.match(String(rootFailureResult.errors[0]), /must be a directory/u);
+
+  const textRootFailure = runCli([
+    "check-all",
+    fixture.nonDirectoryChangeRoot
+  ]);
+  assert.equal(textRootFailure.status, 1);
+  assert.equal(textRootFailure.stdout, "");
+  assert.match(textRootFailure.stderr, /collection check failed/u);
+  assert.match(textRootFailure.stderr, /must be a directory/u);
+}
+
+function testCollectionCheckOptions(fixture: CliFixture): void {
+  const optionConflict = runCli([
+    "check-all",
+    fixture.lifecycleRoot,
+    "--archived",
+    "--all"
+  ]);
+  assert.equal(optionConflict.status, 2);
+  assert.match(optionConflict.stderr, /cannot be used together/u);
+
+  const stageConflict = runCli([
+    "check-all",
+    fixture.lifecycleRoot,
+    "--stage",
+    "draft"
+  ]);
+  assert.equal(stageConflict.status, 2);
+  assert.match(stageConflict.stderr, /only valid with list/u);
+
+  const help = runCli(["--help"]);
+  assert.equal(help.status, 0);
+  assert.match(help.stdout, /change-plan\.mjs check-all/u);
+}
+
 function testListLifecycleJson(fixture: CliFixture): void {
   const cliList = spawnSync(
     "node",
@@ -678,6 +782,18 @@ async function withCliFixture(
 
 test("CLI check preserves text and JSON exit contracts", () => (
   withCliFixture("check", testCheckCommands)
+));
+
+test("CLI check-all gates selected change collections", () => (
+  withCliFixture("check-all", testCollectionCheckResults)
+));
+
+test("CLI check-all reports lifecycle root diagnostics", () => (
+  withCliFixture("check-all-roots", testCollectionCheckRootDiagnostics)
+));
+
+test("CLI check-all rejects incompatible options", () => (
+  withCliFixture("check-all-options", testCollectionCheckOptions)
 ));
 
 test("CLI list returns lifecycle-filtered JSON", () => (

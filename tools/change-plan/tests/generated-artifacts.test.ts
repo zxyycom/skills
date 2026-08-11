@@ -28,6 +28,7 @@ test("generated runtime stays directly importable with portable source metadata"
   assert.ok(isRecord(runtime));
   for (const runtimeExport of [
     "archiveChangePlanDirectory",
+    "checkChangePlanCollection",
     "checkChangePlanDirectory",
     "implementChangePlanDirectory",
     "listChangePlans",

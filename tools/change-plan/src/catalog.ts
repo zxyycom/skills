@@ -6,6 +6,8 @@ import {
   changePlanArtifactNames,
   type ChangePlanArtifactContents,
   type ChangePlanCheckResult,
+  type ChangePlanCollectionCheckResult,
+  type ChangePlanCollectionOptions,
   type ChangePlanListEntry,
   type ChangePlanListOptions,
   type ChangePlanListResult,
@@ -147,6 +149,21 @@ export async function listChangePlans(
     );
   }
   return result;
+}
+
+export async function checkChangePlanCollection(
+  options: ChangePlanCollectionOptions = {}
+): Promise<ChangePlanCollectionCheckResult> {
+  const listResult = await listChangePlans(options);
+  const validCount = listResult.entries.filter((entry) => entry.valid).length;
+  const invalidCount = listResult.entries.length - validCount;
+  return {
+    ...listResult,
+    checkedCount: listResult.entries.length,
+    invalidCount,
+    valid: listResult.errors.length === 0 && invalidCount === 0,
+    validCount
+  };
 }
 
 async function readArtifactContents(

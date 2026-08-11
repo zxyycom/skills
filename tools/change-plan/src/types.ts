@@ -120,12 +120,15 @@ export type ChangePlanCheckResult = {
 
 export type ChangePlanStatus = "active" | "archived";
 
-export type ChangePlanListStatus = ChangePlanStatus | "all";
+export type ChangePlanCollectionSelection = ChangePlanStatus | "all";
 
-export type ChangePlanListOptions = {
+export type ChangePlanCollectionOptions = {
   changeRoot?: string;
+  status?: ChangePlanCollectionSelection;
+};
+
+export type ChangePlanListOptions = ChangePlanCollectionOptions & {
   stage?: ChangePlanStage;
-  status?: ChangePlanListStatus;
 };
 
 export type ChangePlanListEntry = ChangePlanCheckResult & {
@@ -136,7 +139,14 @@ export type ChangePlanListResult = {
   changeRoot: string;
   entries: ChangePlanListEntry[];
   errors: string[];
-  status: ChangePlanListStatus;
+  status: ChangePlanCollectionSelection;
+};
+
+export type ChangePlanCollectionCheckResult = ChangePlanListResult & {
+  checkedCount: number;
+  invalidCount: number;
+  valid: boolean;
+  validCount: number;
 };
 
 export type ChangePlanArtifactContents = Record<

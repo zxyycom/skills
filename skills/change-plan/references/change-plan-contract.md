@@ -243,6 +243,7 @@ Tasks 规则：
 node <change-plan-cli> list [change-root] [--archived | --all | --stage <stage>] [--json]
 node <change-plan-cli> show <change-directory> [--json]
 node <change-plan-cli> check <change-directory> [--json]
+node <change-plan-cli> check-all [change-root] [--archived | --all] [--json]
 node <change-plan-cli> plan <change-directory> [--json]
 node <change-plan-cli> implement <change-directory> [--json]
 node <change-plan-cli> shelve <change-directory> --reason <text> [--json]
@@ -257,6 +258,11 @@ node <change-plan-cli> archive <change-directory> [--json]
 2. `list` 每个条目包含 status、stage、assessment、绝对目录、结构有效性和任务进度。无效成员仍列出；Change 根或目标生命周期目录不可查询时命令失败。
 3. `show` 接受显式 Change 目录，返回 status、stage、assessment、检查结果和三个 artifacts；可评估 plan 同时报告 policy、基线、HEAD、提交数与变更行数。结构无效时仍返回可读取内容和诊断，但命令失败。
 4. `check` 按当前 stage 检查目录、metadata、artifacts、任务语法和 plan assessment。文本模式输出结果或诊断；`--json` 返回完整结构结果。
+5. `check-all` 默认检查当前工作目录 `changes/` 下的全部 active Change；可以显式传入 change root。`--archived` 只检查 archived，`--all` 先检查 active 再检查 archived，两者互斥；`check-all` 不接受 `--stage`。
+6. `check-all` 使用与 `list` 相同的直接子目录发现和排序，并对每个成员运行同一个单 Change checker。Archived 只在显式选择时进入集合；普通 active 门禁不会因历史格式演进要求迁移 archive。
+7. `list` 和 `check-all` 结果的顶层 `status` 表示本次选择的集合范围，合法值为 `active`、`archived` 或 `all`，不属于状态模型中的单个 Change status；每个 `entries[].status` 仍只表示该成员的 `active` 或 `archived` 目录状态。
+8. `check-all --json` 返回 `changeRoot`、顶层 `status`、根级 `errors`、完整 `entries`、`checkedCount`、`validCount`、`invalidCount` 和集合 `valid`。每个 entry 与 `list` 条目相同，保留 stage、assessment、绝对目录、任务进度和完整 diagnostics。
+9. 集合 `valid` 仅在根级 `errors` 为空且 `invalidCount` 为零时成立。合法空集合的计数均为零并通过；Change 根不可访问、目标 archive 容器非法或任一成员无效时失败。文本成功只输出集合摘要；文本失败输出失败摘要、根级错误和每个无效成员的完整诊断。
 
 ### 阶段命令
 
@@ -280,12 +286,12 @@ node <change-plan-cli> archive <change-directory> [--json]
 
 ### 退出码与输出
 
-1. `0`：命令成功；`list` 中存在 invalid 成员不使发现操作本身失败。
-2. `1`：查询根或目标不可用、结构或 assessment 无效、阶段门禁失败，或 metadata 与归档写入失败。
+1. `0`：命令成功；`list` 中存在 invalid 成员不使发现操作本身失败；`check-all` 的合法空集合也成功。
+2. `1`：查询根或目标不可用、结构或 assessment 无效、`check-all` 的任一成员无效、阶段门禁失败，或 metadata 与归档写入失败。
 3. `2`：CLI 参数无效。
 
 文本模式把成功结果写入 stdout，把诊断和失败写入 stderr，并在生命周期失败中显示 `errorCode`。`--json` 把成功和领域失败的结构结果写入 stdout；非法参数始终写入 stderr。
 
 ### MJS 直接导入边界
 
-`scripts/change-plan.mjs` 可以作为 ESM 直接 import，当前运行时导出 list、show、check、archive、五个阶段命令、metadata 解析与读取以及 CLI runner 对应的底层函数。该能力用于直接复用当前实现，不建立稳定 SDK：`change-plan.mjs` 不配套生成 `.d.mts`、SDK 声明树或 metadata JSON Schema，也不承诺导出集合和函数签名跨版本兼容。需要稳定交互时使用本节定义的 CLI 与 JSON 输出；直接 import 的调用方需随当前实现同步调整。
+`scripts/change-plan.mjs` 可以作为 ESM 直接 import，当前运行时导出 list、show、单项 check、集合 check、archive、五个阶段命令、metadata 解析与读取以及 CLI runner 对应的底层函数。该能力用于直接复用当前实现，不建立稳定 SDK：`change-plan.mjs` 不配套生成 `.d.mts`、SDK 声明树或 metadata JSON Schema，也不承诺导出集合和函数签名跨版本兼容。需要稳定交互时使用本节定义的 CLI 与 JSON 输出；直接 import 的调用方需随当前实现同步调整。

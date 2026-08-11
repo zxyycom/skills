@@ -5,7 +5,7 @@ description: >-
   用于用 proposal.md、design.md、tasks.md 和 .change-plan.json 维护明确 change
   的目标、设计、任务、验证与当前生命周期阶段。
 metadata:
-  version: "10"
+  version: "11"
 ---
 
 # Change Plan
@@ -53,15 +53,15 @@ metadata:
 
    `plan` 检查 artifacts 与任务门禁，写入 Plan 阶段 metadata，并把命令运行时的 `HEAD` 记录为 `baseCommit`。成功后按项目版本控制流程把三个 artifacts 和阶段 metadata 放入同一个提交。
 
-### 3. 查询并处理 Plan 状态
+### 3. 查询 Change 并处理 Plan 状态
 
-1. 在项目根目录运行 `list`，用 `show <change-directory>` 展开单个 Change，用 `check <change-directory>` 检查当前阶段。相对路径均相对 shell 当前工作目录解析；机器消费时追加 `--json`。
+1. 在项目根目录运行 `list`，用 `show <change-directory>` 展开单个 Change，用 `check <change-directory>` 检查当前阶段。需要确认 change root 中全部 active Change 都通过机械检查时运行 `check-all [change-root]`；只有主动审计历史时才追加 `--archived` 或 `--all`。相对路径均相对 shell 当前工作目录解析；机器消费时追加 `--json`。
 2. 对 active plan 按 assessment 采取动作：
    - `current`：Git 基线可用且项目演进距离未命中搁置规则；结构检查同时通过时可以运行 `implement`。
    - `shelve-candidate`：项目演进距离已经命中固定规则；复核后仍准备实施时重新运行 `plan` 更新基线，接受机械判定为已搁置时运行 `reconcile`，另有明确暂停原因时运行 `shelve --reason <text>`。
    - `plan-review-required`：计划尚未记录可用基线；重新审阅后运行 `plan`。
    - assessment 不可用：版本控制查询失败；先按 `version-control-failed` 诊断恢复仓库访问或 Git 状态，不把操作故障当作计划需要复核。
-3. `list`、`show` 和 `check` 只发现并报告 assessment，不改变 stage。`reconcile` 只接受 `shelve-candidate`。
+3. `list`、`show`、`check` 和 `check-all` 只发现并报告 assessment，不改变 stage。`list` 在成员无效时仍保持发现成功；`check-all` 在任一所选成员无效或根目录不可检查时失败，适合作为集合门禁。`reconcile` 只接受 `shelve-candidate`。
 4. 确认计划需要明确暂停时运行：
 
    ```text
@@ -93,7 +93,7 @@ metadata:
 
 1. Active Change 拥有合法 `.change-plan.json`，stage 与当前 artifacts、任务进度和实际工作状态一致；archived Change 位于固定历史目录，其保留的 metadata 只作为历史内容而不产生 stage。
 2. Draft 能用 proposal 和初始 design 清楚表达开展理由、预期结果与当前设计方向；plan 的 proposal 和 design 已继续收敛，tasks 从二者派生，三者通过完整结构与 Readiness 门禁，并具有可用于 Git 距离评估的基线。
-3. 查询结果能够区分 status、stage 和 assessment；查询不自动改变候选，`reconcile` 以 Git 距离证据搁置，`shelve` 以明确原因搁置，resume 后重新确认 plan。
+3. 单个 Change 查询能够区分目录 status、active stage 和 plan assessment；集合查询另外报告所选的 active、archived 或 all 范围。单项检查能够定位一个 Change，集合检查能够门禁全部 active Change 并保留逐项诊断，archived 只在显式选择时参与。查询不自动改变候选，`reconcile` 以 Git 距离证据搁置，`shelve` 以明确原因搁置，resume 后重新确认 plan。
 4. 实施完成时，成功标准、稳定 owner、长期决策和验证证据已同步，所有任务勾选均有事实支持。
 5. 结构检查、语义审阅、实施就绪、阶段转换和归档授权分别汇报，不把任何机械成功误作内容批准。
 

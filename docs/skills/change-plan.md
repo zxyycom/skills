@@ -10,12 +10,13 @@
 
 ## 提供的能力
 
-1. `list`、`show` 和 `check` 发现 Change，区分目录 status、active stage 与 plan assessment。
-2. `plan`、`implement`、`shelve`、`reconcile` 和 `resume` 按固定门禁推进阶段。
-3. `git-distance-v1` 依据最后一次成功运行 `plan` 时记录的基线，统计后续 first-parent 提交数和 Change 目录外累计 diff 行数，以识别 `shelve-candidate`；该判断不使用日历时间。
-4. `archive` 只归档处于 implementation、结构有效且任务全部完成的 Change。
-5. 随包 MJS 既是 CLI，也可直接 import 当前底层查询与阶段函数；这些导出属于实现表面，不是稳定 SDK。
-6. `.change-plan.json` 直接以 `stage` 判别当前结构，由运行时严格校验，不包含 schema version；Change Plan runtime 不生成 metadata JSON Schema 或 TypeScript 声明树。
+1. `list`、`show` 和单目录 `check` 发现或检查 Change，区分目录 status、active stage 与 plan assessment。
+2. `check-all` 默认门禁一个 change root 中的全部 active Change；历史 Change 只在显式选择 archived 或全部集合时参与。
+3. `plan`、`implement`、`shelve`、`reconcile` 和 `resume` 按固定门禁推进阶段。
+4. `git-distance-v1` 依据最后一次成功运行 `plan` 时记录的基线，统计后续 first-parent 提交数和 Change 目录外累计 diff 行数，以识别 `shelve-candidate`；该判断不使用日历时间。
+5. `archive` 只归档处于 implementation、结构有效且任务全部完成的 Change。
+6. 随包 MJS 既是 CLI，也可直接 import 当前底层查询与阶段函数；这些导出属于实现表面，不是稳定 SDK。
+7. `.change-plan.json` 直接以 `stage` 判别当前结构，由运行时严格校验，不包含 schema version；Change Plan runtime 不生成 metadata JSON Schema 或 TypeScript 声明树。
 
 ## 能力边界
 
@@ -25,5 +26,6 @@
 4. Archived Change 只作为历史；CLI 不提供 restore，也不为其补写 active metadata。
 5. 版本控制操作失败会让 assessment 暂时不可用并产生明确诊断，不会被解释为计划内容需要复核。
 6. 稳定自动化优先使用 CLI 与 `--json` 输出；直接 import MJS 的调用方需要自行跟随当前实现变化。
+7. `list` 在成员无效时仍成功，以便持续发现待修复 Change；`check-all` 才把根级错误或任一无效成员转换为集合失败。合法空集合通过，archived 审计可能暴露不符合当前结构规则的历史内容。
 
 实际 skill 位于 [`skills/change-plan/`](../../skills/change-plan/)，精确字段、阈值和命令门禁见其固定契约。
