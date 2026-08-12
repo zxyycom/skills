@@ -180,6 +180,7 @@
       "decision-records/use-frontmatter-projection-and-semantic-field-order.md": "sha256:4b4846e12841472c69409bc92c94f7a38bd1bddbb65de088b6a4c193f3b9e8ef",
       "decision-records/use-monotonic-alignment-baseline.md": "sha256:e2b48c31f35830149b46e3c99f825a22899087e8dce52306cb3a10e9db88fb68",
       "decision-records/use-persisted-index-for-routine-queries.md": "sha256:495666a860afce34484c965875960d5c7e1155d94a9d1d9b58b7dd299d582f61",
+      "decision-records/use-physical-archive-boundary-for-decision-search.md": "sha256:75ab82daabe19ab2b9f7ffcc77fcb21c48abb288c5dc6b0b77d30d8c7dc982d1",
       "decision-records/use-recoverable-decision-lifecycle-transactions.md": "sha256:fb48f8d5bfdc279c0ce811fd8b21a9162fdde221d9e2ac7f5002bf8fb8e9bbfd",
       "decision-records/use-recoverable-evolution-transactions.md": "sha256:b4dc6dad6a53465e57c4fbdd16bcb661e021c954720ae6d34dcc840ad128a4dd",
       "decision-records/use-second-precision-lifecycle-index.md": "sha256:f8cfdc13e809667ed2c4779d3a8c5a43dc2381c752ee8a02f535123a39d9f710",
@@ -2774,6 +2775,30 @@
         "purpose": "让 agent 在千级决策集合中以稳定成本恢复相关决策，并保留明确可读的集合视图。",
         "background": "常规查询先遍历并解析全部 Markdown 再读取索引，既重复工作，也让派生索引无法发挥读取模型作用。",
         "decision": "list、show 和 trace 直接读取已验证结构的持久索引；完整源一致性由维护事务、check 和 sync-index 负责。",
+        "relations": []
+      }
+    },
+    "decision-records/use-physical-archive-boundary-for-decision-search.md": {
+      "keys": {
+        "domain": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "decision-records/use-physical-archive-boundary-for-decision-search.md",
+        "title": "用统一物理归档边界降低决策搜索干扰",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-12T07:53:46Z",
+        "purpose": "让常规文件搜索能够低成本排除归档决策，并从路径直接识别记录是否属于历史集合。",
+        "background": "归档与活动决策混放在领域目录时，rg 等路径搜索会持续命中大量历史记录，结果路径又不能直接表达生命周期，使用者必须打开文件或回到 CLI 判断状态。",
+        "decision": "归档决策进入统一物理路径边界，使通用文件搜索能够按路径排除和识别历史；具体布局与 CLI 协议由后续设计确定。",
         "relations": []
       }
     },
