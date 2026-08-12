@@ -213,6 +213,36 @@
         "title": "Prompt Optimize 名称与触发对齐调查"
       }
     },
+    "skill-orchestration/operation-time-skill-rerouting.md": {
+      "keys": {
+        "category": [
+          "skill-orchestration"
+        ],
+        "latest-report-at": [
+          1786513181000
+        ],
+        "status": [
+          "暂停"
+        ],
+        "text": [
+          "长任务从一个工作阶段进入具体副作用动作时，怎样重新发现并进入适用的领域 Skill，而不让通用执行 Skill 硬编码其他 Skill 的领域内容？",
+          "长任务跨阶段 Skill 重路由调查",
+          "首次发现改进没有覆盖动作时重路由"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-08-12T05:39:41+00:00",
+        "path": "skill-orchestration/operation-time-skill-rerouting.md",
+        "question": "长任务从一个工作阶段进入具体副作用动作时，怎样重新发现并进入适用的领域 Skill，而不让通用执行 Skill 硬编码其他 Skill 的领域内容？",
+        "reportCount": 1,
+        "reportTitles": [
+          "首次发现改进没有覆盖动作时重路由"
+        ],
+        "resourceReferences": [],
+        "status": "暂停",
+        "title": "长任务跨阶段 Skill 重路由调查"
+      }
+    },
     "task-graph/file-lock-and-atomic-write-libraries.md": {
       "keys": {
         "category": [
@@ -332,6 +362,7 @@
       "implementation-libraries/pattern-matching-and-state-modeling-libraries.md": "sha256:3a58606070f5268283b32f37752872012bd05defd4a588b6092e014e62cc79fc",
       "implementation-libraries/result-and-option-libraries.md": "sha256:3700335afd0bf7a4c1e4618a606af6b5fbb9a774d34ab5fdf5dad07eff1ec098",
       "prompt-optimize/name-and-trigger-alignment.md": "sha256:3e962c81424f762a619986a4c3d8fc668a84b7ff3e867ca38ee370531ac826db",
+      "skill-orchestration/operation-time-skill-rerouting.md": "sha256:7b76a111637042fb8e2abd548e7aeb187e63df2afb522c03051767ee9e3c3af4",
       "task-graph/file-lock-and-atomic-write-libraries.md": "sha256:1ef40f9481f4a6a1275f50b5ede4f08d70dd67677d0057852a3c6bf9841c1edb",
       "test-evidence/standard-test-result-blocking.md": "sha256:d7a0090332a4224c5458233bf824dc70c66c7c1bca8185e17675e96235a078db"
     },

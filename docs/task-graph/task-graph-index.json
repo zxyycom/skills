@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "revision": 341,
-  "nextTaskId": 68,
+  "revision": 342,
+  "nextTaskId": 69,
   "tasks": {
     "task-000001": {
       "content": {
@@ -2888,6 +2888,41 @@
         "timestamps": {
           "createdAt": "2026-08-11T03:59:24.895Z",
           "updatedAt": "2026-08-11T04:00:38.124Z"
+        }
+      }
+    },
+    "task-000068": {
+      "content": {
+        "title": "等待决定跨阶段 Skill 重路由机制",
+        "goal": "收到明确的继续决定后，以调查报告为认识基线，补充跨领域案例并确定动作时 Skill 重路由的责任 owner、保证层级与实施载体；证据不足时继续调查，方向收敛后才建立相应 Change 或长期决策。",
+        "acceptance": [
+          "至少核对两个不同领域、不同副作用阶段的真实或代表性任务，区分首次发现、动作时重路由和领域能力失败。",
+          "所选机制不要求通用执行 Skill 逐项硬编码可选领域 Skill，并明确领域能力缺失、重新读取和降级边界。",
+          "明确提示词级行为保证与机械门禁的责任边界，并据此决定是否建立 Change、长期决策或不实施。"
+        ],
+        "context": "当前只确认了 decision-records 在长任务提交阶段漏用专用 stage 的案例；新领域暂存能力缺口由独立 draft Change 承接，不属于本任务方案。",
+        "references": {
+          "investigation": "docs/investigations/skill-orchestration/operation-time-skill-rerouting.md"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "waiting",
+          "reason": "等待用户或后续维护者明确决定继续，并指定要评估的机制范围与保证层级；在该决定出现前不建立实施 Change。"
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-12T05:41:39.984Z",
+          "updatedAt": "2026-08-12T05:41:39.984Z"
         }
       }
     }
