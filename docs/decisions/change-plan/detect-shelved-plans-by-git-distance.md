@@ -1,6 +1,6 @@
 ---
 title: 按 Git 演进距离识别搁置计划
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-08T02:29:49Z
 purpose: 让已确认但尚未实施的计划获得统一、可复核的机械搁置候选信号。

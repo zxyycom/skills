@@ -1,6 +1,6 @@
 ---
 title: 让 Plan 基线只承担 Git 距离定位
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-11T06:09:13Z
 purpose: 让 Plan 阶段与三个 artifacts 能在同一提交中自包含保存，同时保留命令运行时已有的 Git 距离基线。

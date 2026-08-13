@@ -1,6 +1,6 @@
 ---
 title: 为 Change Plan 提供基础生命周期 CLI
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-25T02:15:47Z
 purpose: 让独立 change plan 能够发现、读取、检查和归档计划，同时保持轻量且不依赖 OpenSpec。

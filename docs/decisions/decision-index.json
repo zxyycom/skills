@@ -99,13 +99,15 @@
       "ai-ready-docs/use-ai-ready-docs-identity.md": "sha256:c7ef4248915e21ed551d5864b5f8556777334bf91676b380ed6431eba403075a",
       "ai-ready-docs/use-explicit-environment-supported-diagrams.md": "sha256:19cd987b05ecd5a3ca0c959d34cea3ee9cd74da86e25c6b2b94ac452e827315c",
       "change-plan/check-change-plan-collections-as-a-gate.md": "sha256:5d7570d0037ad8e5c0ca73eb830765bb554b094bf01bf4011247b0003fa36e94",
-      "change-plan/detect-shelved-plans-by-git-distance.md": "sha256:7c1a9b1e21bd1590e43bb0fd67cff53758d3802cec0628fe4bfa460c9023f6ae",
-      "change-plan/form-proposal-and-initial-design-in-draft.md": "sha256:ee5d087e81810f597076e62bb6ba3029f2802344096fec23156a4387c70d7384",
+      "change-plan/detect-shelved-plans-by-git-distance.md": "sha256:2d85f26a5a948bfbb0f732f5d38cec2c7dfaa913e56c3bf1a5afc8c492c85b14",
+      "change-plan/form-proposal-and-initial-design-in-draft.md": "sha256:89c3086ba544de260785e83b65d413cf26abec0efedf8c329b18ff9151ba9d2d",
       "change-plan/maintain-change-artifact-and-authorization-boundaries.md": "sha256:15d4837a4b32a013b7472793848d4a723776e0f96977ab78eecfda52d0f2751d",
-      "change-plan/manage-basic-change-lifecycle.md": "sha256:5a3c25dd4d93305d5d71ea6db4ed6959728cc456427e48a6707a88e0b6361782",
+      "change-plan/manage-basic-change-lifecycle.md": "sha256:4f39bafa6a9c540baa4648313225654152c611a5ba280ac3172031758b82c0f4",
       "change-plan/manage-change-lifecycle-stages.md": "sha256:57ed6c0cbe761583a6c4c2abee589dcd0d84bb006288c6a7d2c5028cfd8839ce",
+      "change-plan/report-plan-git-distance-as-context.md": "sha256:c977d53c702eee807829631032e520962ab55a6741f0decbea99700a820a981e",
+      "change-plan/simplify-change-lifecycle-to-draft-plan-and-archive.md": "sha256:087c8701844259c17de0c056dadd3df1b7208c7e21575172210fc5ed3deee92c",
       "change-plan/use-independent-change-plans.md": "sha256:2d32fbd6ed64b1eff7d852fd7ee0e0037c72dcdceb27803d5bb879cddab41f0c",
-      "change-plan/use-plan-base-only-for-git-distance.md": "sha256:27ac2a3a8bf2fb64f0bd7348c9981ede9674959546bb0b4b9704d547022ea30e",
+      "change-plan/use-plan-base-only-for-git-distance.md": "sha256:e56736d1e0adfd88f941a3ff5334004f17fa8029f5b30f54fa0ce2b9a433bbd1",
       "common-denominator-design/design-by-scenario-denominators.md": "sha256:218a489e475594152f861a152cf785274ef297e862216fe198191418114619ac",
       "decision-records/260627-establish-decision-record-policy.md": "sha256:afdeb4ca6139a9fe9a5a8e971836690f6893b4dedf5c9e86d2c4a0a7e5c934e4",
       "decision-records/260630-name-decision-root-docs-by-owner.md": "sha256:52247027cefd9a55d8db25635f80724c6df8fe7907863169efa1b4b3912e5668",
@@ -661,7 +663,7 @@
           "change-plan"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -670,7 +672,7 @@
       "state": {
         "path": "change-plan/detect-shelved-plans-by-git-distance.md",
         "title": "按 Git 演进距离识别搁置计划",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-08T02:29:49Z",
         "purpose": "让已确认但尚未实施的计划获得统一、可复核的机械搁置候选信号。",
@@ -685,7 +687,7 @@
           "change-plan"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -694,7 +696,7 @@
       "state": {
         "path": "change-plan/form-proposal-and-initial-design-in-draft.md",
         "title": "在 Draft 中形成初始提案与设计",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-11T06:44:15Z",
         "purpose": "让 Change 创建时同时保存开展理由与可继续收敛的初始设计，并让 Plan 专注于完善设计和派生任务。",
@@ -743,7 +745,7 @@
           "change-plan"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -752,7 +754,7 @@
       "state": {
         "path": "change-plan/manage-basic-change-lifecycle.md",
         "title": "为 Change Plan 提供基础生命周期 CLI",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-25T02:15:47Z",
         "purpose": "让独立 change plan 能够发现、读取、检查和归档计划，同时保持轻量且不依赖 OpenSpec。",
@@ -795,6 +797,72 @@
         ]
       }
     },
+    "change-plan/report-plan-git-distance-as-context.md": {
+      "keys": {
+        "domain": [
+          "change-plan"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "change-plan/report-plan-git-distance-as-context.md",
+        "title": "直接提示 Plan 的 Git 演进距离",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-13T05:35:51Z",
+        "purpose": "让调用方从 Plan 基线后的项目演进事实直接判断是否需要复核当前计划。",
+        "background": "Git 距离能够提示计划上下文可能变化，但不能判断变化是否影响计划；阈值分类会让调用方先解释术语，再恢复原始证据。",
+        "decision": "保留 baseCommit 与 Git 距离计算，查询直接返回距离事实和行动提示；可用距离只提示，基线不可追溯时要求重新审阅 Plan。",
+        "relations": [
+          {
+            "type": "归并",
+            "target": "change-plan/detect-shelved-plans-by-git-distance.md"
+          },
+          {
+            "type": "归并",
+            "target": "change-plan/use-plan-base-only-for-git-distance.md"
+          }
+        ]
+      }
+    },
+    "change-plan/simplify-change-lifecycle-to-draft-plan-and-archive.md": {
+      "keys": {
+        "domain": [
+          "change-plan"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "path": "change-plan/simplify-change-lifecycle-to-draft-plan-and-archive.md",
+        "title": "用 Draft、Plan 与 Archive 维护 Change",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-08-13T05:35:50Z",
+        "purpose": "让 Change 以内容成熟度和归档结果表达生命周期，并让任务进度与 CLI 职责可以直接恢复。",
+        "background": "Draft 与 Plan 具有不同内容契约，tasks 已表达 Plan 内进度；额外阶段没有保存独立事实，却扩大了状态转换和命令表面。",
+        "decision": "Active Change 只使用 Draft 和 Plan，任务推进全部发生在 Plan 内，完成后归档；CLI 只承担发现、检查、Plan 确认和归档。",
+        "relations": [
+          {
+            "type": "归并",
+            "target": "change-plan/form-proposal-and-initial-design-in-draft.md"
+          },
+          {
+            "type": "归并",
+            "target": "change-plan/manage-basic-change-lifecycle.md"
+          }
+        ]
+      }
+    },
     "change-plan/use-independent-change-plans.md": {
       "keys": {
         "domain": [
@@ -822,7 +890,7 @@
           "change-plan"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
@@ -831,7 +899,7 @@
       "state": {
         "path": "change-plan/use-plan-base-only-for-git-distance.md",
         "title": "让 Plan 基线只承担 Git 距离定位",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-11T06:09:13Z",
         "purpose": "让 Plan 阶段与三个 artifacts 能在同一提交中自包含保存，同时保留命令运行时已有的 Git 距离基线。",

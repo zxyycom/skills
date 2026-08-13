@@ -1,6 +1,6 @@
 ---
 title: 在 Draft 中形成初始提案与设计
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-11T06:44:15Z
 purpose: 让 Change 创建时同时保存开展理由与可继续收敛的初始设计，并让 Plan 专注于完善设计和派生任务。
