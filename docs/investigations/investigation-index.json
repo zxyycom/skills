@@ -1,6 +1,46 @@
 {
   "definitionVersion": 3,
   "entries": {
+    "ai-ready-docs/target-boundary-information-and-anchoring.md": {
+      "keys": {
+        "category": [
+          "ai-ready-docs"
+        ],
+        "latest-report-at": [
+          1786612371000
+        ],
+        "status": [
+          "调查中"
+        ],
+        "text": [
+          "AI 文档目标、边界、信息效率与解空间锚定调查",
+          "ai-ready-docs 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+          "从负向描述争议恢复候选概念模型",
+          "区分语义责任与解空间分析层",
+          "区分逻辑剪枝、搜索偏置与路径依赖",
+          "文档投影会反过来参与目标形成",
+          "目标在抽象层完整而在实践层逐步收敛",
+          "目标是层级化且部分可表达的动态意向"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-08-13T09:12:51+00:00",
+        "path": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+        "question": "ai-ready-docs 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+        "reportCount": 6,
+        "reportTitles": [
+          "从负向描述争议恢复候选概念模型",
+          "区分语义责任与解空间分析层",
+          "目标在抽象层完整而在实践层逐步收敛",
+          "目标是层级化且部分可表达的动态意向",
+          "文档投影会反过来参与目标形成",
+          "区分逻辑剪枝、搜索偏置与路径依赖"
+        ],
+        "resourceReferences": [],
+        "status": "调查中",
+        "title": "AI 文档目标、边界、信息效率与解空间锚定调查"
+      }
+    },
     "context-management/unified-context-management.md": {
       "keys": {
         "category": [
@@ -355,6 +395,7 @@
   "schemaVersion": 3,
   "sourceRevision": {
     "entries": {
+      "ai-ready-docs/target-boundary-information-and-anchoring.md": "sha256:f63a49da2c7ceea20626d8d2824de03fe48c074a9e5587a0486e748c47e9bd71",
       "context-management/unified-context-management.md": "sha256:924236b12d95a2df8e645a9b51587591dc626749ff47e8f0676eb862eeef1c2e",
       "decision-records/intra-change-decision-evolution.md": "sha256:ea0534815b78a50f47c871b082a7aaec25c0d6e1b518e6fa2c7c745e435f6e57",
       "git-integration/direct-git-library-selection.md": "sha256:9948dbd4fcf22f71a82702d5d4cecd1008a189fab81c2e3bbcc0375c244ad4c9",
