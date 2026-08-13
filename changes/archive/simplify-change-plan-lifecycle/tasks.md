@@ -30,4 +30,4 @@
 - [x] 2.5 运行 `bun run check` 和 `bun run check --full`，复核工作区中旧 active Change 仍可由新版 list/check-all 发现且不被自动改写，并确认无关改动保持不变。
 - [x] 2.6 在行为 owner、源码、生成产物和验证全部成为当前事实后，将两条 governing decision 标记 aligned；重新运行决策严格检查，并逐项核对 proposal 成功标准。
 - [x] 2.7 使用 AI-ready Docs 审核本次文档，并以 `docs/coding-style.md` 为权威全局审核受影响代码；修复发现的问题、同步测试证据与生成产物，并通过独立复核和完整门禁。
-- [ ] 2.8 获得用户明确归档授权并完成归档前最终审阅；勾选本项后运行 `archive`，并复核 archived 结果。
+- [x] 2.8 获得用户明确归档授权并完成归档前最终审阅；勾选本项后运行 `archive`，并复核 archived 结果。
