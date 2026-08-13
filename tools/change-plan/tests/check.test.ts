@@ -3,7 +3,10 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { checkChangePlanDirectory } from "../src/check.ts";
+import {
+  checkChangePlanDirectory,
+  checkChangePlanDirectoryForPlan
+} from "../src/check.ts";
 import { readChangePlanMetadata } from "../src/metadata.ts";
 import { changePlanMetadataName } from "../src/types.ts";
 import {
@@ -14,14 +17,17 @@ import {
   writePlan
 } from "./support.ts";
 
-function runGit(repositoryRoot: string, arguments_: readonly string[]): void {
+function runGit(repositoryRoot: string, arguments_: readonly string[]): string {
   const result = spawnSync(
     "git",
     ["-C", repositoryRoot, ...arguments_],
     { encoding: "utf8" }
   );
   assert.equal(result.status, 0, result.stderr);
+  return result.stdout.trim();
 }
+
+const runGitForOutput = runGit;
 
 const minimalDraftProposal = `# Proposal
 
@@ -68,12 +74,21 @@ async function testValidPlan(tempRoot: string): Promise<void> {
   assert.deepEqual(validResult.diagnostics, []);
   assert.equal(validResult.taskCount, 3);
   assert.equal(validResult.completedTaskCount, 1);
-  assert.equal(validResult.stage, "implementation");
+  assert.equal(validResult.stage, "plan");
   assert.deepEqual(
     await readChangePlanMetadata(validDirectory),
     validResult.metadata
   );
-  assert.deepEqual(validResult.assessment, { assessment: "not-applicable" });
+  assert.deepEqual(validResult.distance, {
+    baseCommit: validResult.metadata?.stage === "plan"
+      ? validResult.metadata.baseCommit
+      : "",
+    changedLines: 0,
+    commitCount: 0,
+    headCommit: validResult.metadata?.stage === "plan"
+      ? validResult.metadata.baseCommit
+      : ""
+  });
   assert.deepEqual(validResult.taskProgress, {
     implementation: { completedTaskCount: 0, taskCount: 1 },
     readiness: { completedTaskCount: 1, taskCount: 1 },
@@ -109,18 +124,16 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
   const planTargetDirectory = await writePlan(tempRoot, "plan-target", {
     metadata: { stage: "draft" }
   });
-  const targetResult = await checkChangePlanDirectory(
-    planTargetDirectory,
-    "plan"
+  const targetResult = await checkChangePlanDirectoryForPlan(
+    planTargetDirectory
   );
   assert.equal(targetResult.valid, true);
   assert.equal(targetResult.stage, "draft");
   assert.equal(targetResult.taskCount, 3);
 
   await fs.rm(path.join(planTargetDirectory, "tasks.md"));
-  const incompleteTargetResult = await checkChangePlanDirectory(
-    planTargetDirectory,
-    "plan"
+  const incompleteTargetResult = await checkChangePlanDirectoryForPlan(
+    planTargetDirectory
   );
   assert.equal(incompleteTargetResult.valid, false);
   assert.ok(incompleteTargetResult.diagnostics.some((diagnostic) => (
@@ -130,9 +143,9 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
 
   const shelvedDirectory = await writePlan(tempRoot, "shelved-change", {
     metadata: {
-      baseCommit: validBaseCommit,
+      baseCommit: runGitForOutput(tempRoot, ["rev-parse", "HEAD"]),
       shelf: {
-        atCommit: validBaseCommit,
+        atCommit: runGitForOutput(tempRoot, ["rev-parse", "HEAD"]),
         reason: "等待上游方向确定",
         source: "explicit"
       },
@@ -141,29 +154,24 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
   });
   const shelvedResult = await checkChangePlanDirectory(shelvedDirectory);
   assert.equal(shelvedResult.valid, true);
-  assert.equal(shelvedResult.stage, "shelved");
+  assert.equal(shelvedResult.stage, "plan");
+  assert.equal(shelvedResult.metadata?.stage, "plan");
+  assert.equal(shelvedResult.distance?.commitCount, 0);
 }
 
 async function testMetadataAndArchiveBoundaries(
   tempRoot: string
 ): Promise<void> {
-  runGit(tempRoot, ["init", "--quiet", "--initial-branch=main"]);
   const resumedPlanDirectory = await writePlan(tempRoot, "resumed-plan", {
     metadata: { baseCommit: null, stage: "plan" }
   });
   const resumedPlanResult = await checkChangePlanDirectory(resumedPlanDirectory);
   assert.equal(resumedPlanResult.stage, "plan");
-  assert.deepEqual(resumedPlanResult.metadata, {
-    baseCommit: null,
-    stage: "plan"
-  });
-  assert.equal(
-    resumedPlanResult.assessment?.assessment,
-    "plan-review-required"
-  );
+  assert.equal(resumedPlanResult.metadata, null);
+  assert.equal(resumedPlanResult.distance, null);
   assert.equal(resumedPlanResult.valid, false);
   assert.ok(resumedPlanResult.diagnostics.some((diagnostic) => (
-    diagnostic.code === "plan-review-required"
+    diagnostic.code === "base-commit-unavailable"
     && diagnostic.file === changePlanMetadataName
   )));
   assert.equal(
@@ -172,11 +180,23 @@ async function testMetadataAndArchiveBoundaries(
     ),
     false
   );
+  const implementationDirectory = await writePlan(tempRoot, "implementation", {
+    metadata: {
+      baseCommit: runGitForOutput(tempRoot, ["rev-parse", "HEAD"]),
+      stage: "implementation"
+    }
+  });
+  const implementationResult = await checkChangePlanDirectory(
+    implementationDirectory
+  );
+  assert.equal(implementationResult.valid, true);
+  assert.equal(implementationResult.stage, "plan");
+
   const gitShelvedDirectory = await writePlan(tempRoot, "git-shelved", {
     metadata: {
-      baseCommit: validBaseCommit,
+      baseCommit: runGitForOutput(tempRoot, ["rev-parse", "HEAD"]),
       shelf: {
-        atCommit: validBaseCommit,
+        atCommit: runGitForOutput(tempRoot, ["rev-parse", "HEAD"]),
         changedLines: 3000,
         commitCount: 1,
         source: "git-distance-v1"
@@ -230,17 +250,18 @@ async function testMetadataAndArchiveBoundaries(
   assert.equal(archivedResult.valid, true);
   assert.equal(archivedResult.metadata, null);
   assert.equal(archivedResult.stage, null);
-  assert.deepEqual(archivedResult.assessment, {
-    assessment: "not-applicable"
-  });
+  assert.equal(archivedResult.distance, null);
 }
 
 async function testVersionControlFailure(tempRoot: string): Promise<void> {
-  const planDirectory = await writePlan(tempRoot, "unassessable-plan", {
-    metadata: { baseCommit: null, stage: "plan" }
+  const nestedRepository = path.join(tempRoot, "broken-repository");
+  await fs.mkdir(nestedRepository);
+  await fs.writeFile(path.join(nestedRepository, ".git"), "gitdir: missing\n");
+  const planDirectory = await writePlan(nestedRepository, "unassessable-plan", {
+    metadata: { baseCommit: validBaseCommit, stage: "plan" }
   });
   const result = await checkChangePlanDirectory(planDirectory);
-  assert.equal(result.assessment, null);
+  assert.equal(result.distance, null);
   assert.equal(result.valid, false);
   assert.ok(result.diagnostics.some((diagnostic) => (
     diagnostic.code === "version-control-failed"
@@ -248,7 +269,7 @@ async function testVersionControlFailure(tempRoot: string): Promise<void> {
   )));
   assert.equal(
     result.diagnostics.some(
-      (diagnostic) => diagnostic.code === "plan-review-required"
+      (diagnostic) => diagnostic.code === "base-commit-unavailable"
     ),
     false
   );
@@ -402,7 +423,7 @@ async function testSymbolicLinkDiagnostics(tempRoot: string): Promise<void> {
   const linkedDirectoryResult = await checkChangePlanDirectory(
     linkedDirectory
   );
-  assert.equal(linkedDirectoryResult.assessment, null);
+  assert.equal(linkedDirectoryResult.distance, null);
   assert.ok(linkedDirectoryResult.diagnostics.some(
     (diagnostic) => diagnostic.code === "change-path-not-directory"
   ));
@@ -467,7 +488,7 @@ test("check reports proposal and task artifact diagnostics", () => (
   withTempRoot("check-artifacts", testArtifactDiagnostics)
 ));
 
-test("check reports version-control failures without a plan-review assessment", () => (
+test("check reports version-control failures separately from unavailable baselines", () => (
   withTempRoot("check-version-control", testVersionControlFailure)
 ));
 

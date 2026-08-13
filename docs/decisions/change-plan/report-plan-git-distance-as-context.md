@@ -1,7 +1,7 @@
 ---
 title: 直接提示 Plan 的 Git 演进距离
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-13T05:35:51Z
 purpose: 让调用方从 Plan 基线后的项目演进事实直接判断是否需要复核当前计划。
 background: Git 距离能够提示计划上下文可能变化，但不能判断变化是否影响计划；阈值分类会让调用方先解释术语，再恢复原始证据。
@@ -15,7 +15,7 @@ relations:
 
 ## 目的
 
-- 让人和 agent 直接看到 Plan 与当前项目上下文相距多远，以及继续前应检查什么。
+- 让 `skills/change-plan/` 的使用者直接看到 Plan 与当前项目上下文相距多远，以及继续前应检查什么。
 - 让 Git 距离只承担复核提示和可检查证据，不驱动生命周期动作。
 
 ## 背景
@@ -29,6 +29,6 @@ relations:
 
 - 采用: Plan metadata 保留 `baseCommit`，只表示最后一次成功运行 `plan` 时已有的 `HEAD`，不表示 artifacts 内容快照；操作者仍可把三个 artifacts 与 metadata 放入同一个后续提交。
 - 采用: 查询沿 first-parent 计算从 `baseCommit` 到当前 `HEAD` 的提交数，并累计当前 Change 目录外的 additions 与 deletions；只修改当前 Change 目录的提交不计入距离。
-- 采用: 文本结果用一句话报告距离事实和行动提示。存在距离时说明已经过去多少提交、Change 目录外累计变化多少行，并提醒继续前确认变化没有影响当前计划；距离为零时说明计划基线仍是当前 `HEAD`，无需额外复核项目变化。
+- 采用: 文本结果用一句话报告距离事实和行动提示。存在距离时说明已经过去多少提交、Change 目录外累计变化多少行，并提醒继续前确认变化没有影响当前计划；距离为零时说明自计划基线以来未统计到 Change 目录外的项目变化。
 - 采用: 可用 Git 距离无论大小都只作提示，不阻断检查或归档，也不产生阈值、分类或生命周期动作。结构化结果只保留 `baseCommit`、`headCommit`、`commitCount` 与 `changedLines` 等原始证据。
 - 采用: `baseCommit` 缺失、不可解析或不在当前 `HEAD` 的 first-parent 历史上时，检查以可行动诊断阻断，并要求调用方重新审阅 Plan 后运行 `plan` 刷新基线；现有 Plan 也可以在完成语义复核后主动重新运行 `plan`。

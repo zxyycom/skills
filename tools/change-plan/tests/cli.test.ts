@@ -180,6 +180,9 @@ function testCollectionCheckResults(fixture: CliFixture): void {
     && isUnknownArray(entry.diagnostics)
     && entry.diagnostics.length > 0
   )));
+  assert.ok(defaultRootResult.entries.every((entry) => (
+    isRecord(entry) && "distance" in entry
+  )));
 
   const archivedSuccess = runCli([
     "check-all",
@@ -188,6 +191,8 @@ function testCollectionCheckResults(fixture: CliFixture): void {
   ]);
   assert.equal(archivedSuccess.status, 0, archivedSuccess.stderr);
   assert.match(archivedSuccess.stdout, /1\/1 changes valid/u);
+  assert.equal(archivedSuccess.stdout.trim().split("\n").length, 1);
+  assert.doesNotMatch(archivedSuccess.stdout, /计划基线|距离计划/u);
   assert.equal(archivedSuccess.stderr, "");
 
   const allFailure = runCli([
@@ -279,7 +284,7 @@ function testListLifecycleJson(fixture: CliFixture): void {
     "list",
     fixture.lifecycleRoot,
     "--stage",
-    "implementation",
+    "plan",
     "--json"
   ]);
   assert.equal(stageList.status, 0, stageList.stderr);
@@ -288,7 +293,7 @@ function testListLifecycleJson(fixture: CliFixture): void {
   assert.ok(isUnknownArray(stageListResult.entries));
   assert.ok(stageListResult.entries.length > 0);
   assert.ok(stageListResult.entries.every(
-    (entry) => isRecord(entry) && entry.stage === "implementation"
+    (entry) => isRecord(entry) && entry.stage === "plan"
   ));
 }
 
@@ -330,8 +335,11 @@ function testShowCommands(fixture: CliFixture): void {
   );
   assert.equal(cliShow.status, 0, cliShow.stderr);
   assert.match(cliShow.stdout, /Status: active/u);
-  assert.match(cliShow.stdout, /Stage: implementation/u);
-  assert.match(cliShow.stdout, /Assessment: not-applicable/u);
+  assert.match(cliShow.stdout, /Stage: plan/u);
+  assert.match(
+    cliShow.stdout,
+    /自计划基线以来，未统计到 Change 目录外的项目变化。/u
+  );
   assert.match(cliShow.stdout, /--- proposal\.md ---/u);
   assert.equal(cliShow.stderr, "");
 
@@ -350,208 +358,148 @@ function testShowCommands(fixture: CliFixture): void {
   assert.equal(cliInvalidShowResult.artifacts["design.md"], null);
 }
 
-async function testLifecycleCommands(tempRoot: string): Promise<void> {
-  const repository = path.join(tempRoot, "lifecycle-repository");
-  await initializeGitRepository(repository);
-  const changeRoot = path.join(repository, "changes");
-  const implementationDirectory = await writePlan(
-    changeRoot,
-    "implementation-path",
-    { metadata: { stage: "draft" } }
-  );
-  const shelvingDirectory = await writePlan(
-    changeRoot,
-    "shelving-path",
-    { metadata: { stage: "draft" } }
-  );
-  runGit(repository, ["add", "."]);
-  runGit(repository, ["commit", "-m", "add lifecycle plans"]);
-
-  const plannedImplementation = runCli([
-    "plan",
-    implementationDirectory,
-    "--json"
-  ]);
-  assert.equal(plannedImplementation.status, 0, plannedImplementation.stderr);
-  const plannedResult: unknown = JSON.parse(plannedImplementation.stdout);
-  assert.ok(isRecord(plannedResult));
-  assert.ok(isRecord(plannedResult.metadata));
-  assert.equal(plannedResult.success, true);
-  assert.equal(plannedResult.fromStage, "draft");
-  assert.equal(plannedResult.metadata.stage, "plan");
-  assert.ok(typeof plannedResult.metadata.baseCommit === "string");
-  assert.match(plannedResult.metadata.baseCommit, /^[0-9a-f]{40}$/u);
-  assert.equal("check" in plannedResult, false);
-  assert.equal("assessment" in plannedResult, false);
-  assert.equal("changeDirectory" in plannedResult, false);
-
-  const implemented = runCli([
-    "implement",
-    implementationDirectory,
-    "--json"
-  ]);
-  assert.equal(implemented.status, 0, implemented.stderr);
-  const implementedResult: unknown = JSON.parse(implemented.stdout);
-  assert.ok(isRecord(implementedResult));
-  assert.ok(isRecord(implementedResult.metadata));
-  assert.equal(implementedResult.metadata.stage, "implementation");
-
-  assert.equal(
-    runCli(["plan", shelvingDirectory, "--json"]).status,
-    0
-  );
-  const shelved = runCli([
-    "shelve",
-    shelvingDirectory,
-    "--reason",
-    "等待产品方向",
-    "--json"
-  ]);
-  assert.equal(shelved.status, 0, shelved.stderr);
-  const shelvedResult: unknown = JSON.parse(shelved.stdout);
-  assert.ok(isRecord(shelvedResult));
-  assert.ok(isRecord(shelvedResult.metadata));
-  assert.ok(isRecord(shelvedResult.metadata.shelf));
-  assert.equal(shelvedResult.metadata.stage, "shelved");
-  assert.equal(shelvedResult.metadata.shelf.source, "explicit");
-  assert.equal(shelvedResult.metadata.shelf.reason, "等待产品方向");
-
-  const resumed = runCli(["resume", shelvingDirectory, "--json"]);
-  assert.equal(resumed.status, 0, resumed.stderr);
-  const resumedResult: unknown = JSON.parse(resumed.stdout);
-  assert.ok(isRecord(resumedResult));
-  assert.ok(isRecord(resumedResult.metadata));
-  assert.deepEqual(resumedResult.metadata, {
-    baseCommit: null,
-    stage: "plan"
-  });
-  assert.equal("check" in resumedResult, false);
-
-  const directImplement = runCli([
-    "implement",
-    shelvingDirectory,
-    "--json"
-  ]);
-  assert.equal(directImplement.status, 1);
-  const directImplementResult: unknown = JSON.parse(directImplement.stdout);
-  assert.ok(isRecord(directImplementResult));
-  assert.ok(typeof directImplementResult.error === "string");
-  assert.match(
-    directImplementResult.error,
-    /reviewed with plan/u
-  );
-
-  assert.equal(runCli(["plan", shelvingDirectory]).status, 0);
-  assert.equal(runCli(["implement", shelvingDirectory]).status, 0);
-}
-
-async function testCandidateMayBeShelvedOrReconfirmed(
+async function testPlanConfirmsAndReconfirmsSupportedActiveInputs(
   tempRoot: string
 ): Promise<void> {
-  const repository = path.join(tempRoot, "candidate-repository");
+  const repository = path.join(tempRoot, "lifecycle-repository");
   await initializeGitRepository(repository);
+  await fs.writeFile(path.join(repository, "README.md"), "fixture\n", "utf8");
+  runGit(repository, ["add", "README.md"]);
+  runGit(repository, ["commit", "-m", "initialize repository"]);
+  const baseCommit = runGit(repository, ["rev-parse", "HEAD"]);
   const changeRoot = path.join(repository, "changes");
-  const shelvedCandidateDirectory = await writePlan(
-    changeRoot,
-    "candidate-to-shelve",
-    { metadata: { stage: "draft" } }
-  );
-  const reconfirmedCandidateDirectory = await writePlan(
-    changeRoot,
-    "candidate-to-reconfirm",
+  const inputs = [
+    await writePlan(changeRoot, "draft", {
+      metadata: { stage: "draft" },
+      tasks: `# Tasks
+
+本 change 在 Plan 内保存已有进度，不把 checkbox 当作确认门禁。
+
+## Readiness
+
+- [ ] 0.1 准备项尚未完成。
+
+## Implementation
+
+- [x] 1.1 实现证据已经形成。
+
+## Verification
+
+- [x] 2.1 验证证据已经形成。
+`
+    }),
+    await writePlan(changeRoot, "plan", {
+      metadata: { baseCommit, stage: "plan" }
+    }),
+    await writePlan(changeRoot, "implementation", {
+      metadata: { baseCommit, stage: "implementation" }
+    }),
+    await writePlan(changeRoot, "shelved", {
+      metadata: {
+        baseCommit,
+        shelf: {
+          atCommit: baseCommit,
+          reason: "等待方向",
+          source: "explicit"
+        },
+        stage: "shelved"
+      }
+    }),
+    await writePlan(changeRoot, "null-base", {
+      metadata: { baseCommit: null, stage: "plan" }
+    })
+  ];
+
+  for (const [index, directory] of inputs.entries()) {
+    const result = runCli(["plan", directory, "--json"]);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stderr, "");
+    const parsed: unknown = JSON.parse(result.stdout);
+    assert.ok(isRecord(parsed));
+    assert.ok(isRecord(parsed.metadata));
+    assert.equal(parsed.success, true);
+    assert.equal(parsed.action, "plan");
+    assert.equal(parsed.fromStage, index === 0 ? "draft" : "plan");
+    assert.equal(parsed.metadata.stage, "plan");
+    assert.equal(parsed.metadata.baseCommit, baseCommit);
+    assert.deepEqual(Object.keys(parsed.metadata).sort(), [
+      "baseCommit",
+      "stage"
+    ]);
+  }
+}
+
+async function testDistanceEvidenceAndDirectPrompts(
+  tempRoot: string
+): Promise<void> {
+  const repository = path.join(tempRoot, "distance-repository");
+  await initializeGitRepository(repository);
+  const changeDirectory = await writePlan(
+    path.join(repository, "changes"),
+    "distance-plan",
     { metadata: { stage: "draft" } }
   );
   runGit(repository, ["add", "."]);
-  runGit(repository, ["commit", "-m", "add candidate plans"]);
-  assert.equal(runCli(["plan", shelvedCandidateDirectory]).status, 0);
-  assert.equal(runCli(["plan", reconfirmedCandidateDirectory]).status, 0);
+  runGit(repository, ["commit", "-m", "add plan"]);
+  assert.equal(runCli(["plan", changeDirectory]).status, 0);
 
-  const progressFile = path.join(repository, "project-progress.txt");
-  for (let index = 1; index <= 9; index += 1) {
-    await fs.appendFile(progressFile, `project change ${index}\n`, "utf8");
-    runGit(repository, ["add", "project-progress.txt"]);
-    runGit(repository, ["commit", "-m", `project change ${index}`]);
-  }
-
-  const candidateCheck = runCli([
-    "check",
-    shelvedCandidateDirectory,
-    "--json"
-  ]);
-  assert.equal(candidateCheck.status, 0, candidateCheck.stderr);
-  const candidateCheckResult: unknown = JSON.parse(candidateCheck.stdout);
-  assert.ok(isRecord(candidateCheckResult));
-  assert.ok(isRecord(candidateCheckResult.assessment));
-  assert.equal(
-    candidateCheckResult.assessment.assessment,
-    "shelve-candidate"
-  );
-  assert.ok(typeof candidateCheckResult.assessment.baseCommit === "string");
-  assert.match(candidateCheckResult.assessment.baseCommit, /^[0-9a-f]{40}$/u);
-  assert.ok(typeof candidateCheckResult.assessment.headCommit === "string");
-  assert.match(candidateCheckResult.assessment.headCommit, /^[0-9a-f]{40}$/u);
-  assert.equal(candidateCheckResult.assessment.commitCount, 9);
-  assert.equal(candidateCheckResult.assessment.changedLines, 9);
-  assert.equal(candidateCheckResult.assessment.policy, "git-distance-v1");
-
-  const candidateList = runCli(["list", changeRoot]);
-  assert.equal(candidateList.status, 0, candidateList.stderr);
+  const zeroText = runCli(["check", changeDirectory]);
+  assert.equal(zeroText.status, 0, zeroText.stderr);
   assert.match(
-    candidateList.stdout,
-    /shelve-candidate: 9 commits \/ 9 changed lines since plan/u
+    zeroText.stdout,
+    /自计划基线以来，未统计到 Change 目录外的项目变化。/u
   );
+  const zeroJson = runCli(["check", changeDirectory, "--json"]);
+  const zeroResult: unknown = JSON.parse(zeroJson.stdout);
+  assert.ok(isRecord(zeroResult));
+  assert.ok(isRecord(zeroResult.distance));
+  assert.equal(zeroResult.distance.commitCount, 0);
+  assert.equal(zeroResult.distance.changedLines, 0);
+  assert.equal("assessment" in zeroResult, false);
+  assert.equal("policy" in zeroResult.distance, false);
 
-  const reconciled = runCli([
-    "reconcile",
-    shelvedCandidateDirectory,
-    "--json"
-  ]);
-  assert.equal(reconciled.status, 0, reconciled.stderr);
-  const reconciledResult: unknown = JSON.parse(reconciled.stdout);
-  assert.ok(isRecord(reconciledResult));
-  assert.ok(isRecord(reconciledResult.metadata));
-  assert.ok(isRecord(reconciledResult.metadata.shelf));
-  assert.equal(reconciledResult.metadata.stage, "shelved");
-  assert.deepEqual(
-    {
-      changedLines: reconciledResult.metadata.shelf.changedLines,
-      commitCount: reconciledResult.metadata.shelf.commitCount,
-      source: reconciledResult.metadata.shelf.source
-    },
-    {
-      changedLines: 9,
-      commitCount: 9,
-      source: "git-distance-v1"
-    }
+  await fs.writeFile(
+    path.join(changeDirectory, "change-only.md"),
+    "只修改当前 Change 目录。\n",
+    "utf8"
   );
-  const replanned = runCli([
-    "plan",
-    reconfirmedCandidateDirectory,
-    "--json"
-  ]);
-  assert.equal(replanned.status, 0, replanned.stderr);
-  const replannedResult: unknown = JSON.parse(replanned.stdout);
-  assert.ok(isRecord(replannedResult));
-  assert.ok(isRecord(replannedResult.metadata));
-  assert.equal(replannedResult.fromStage, "plan");
-  assert.equal(replannedResult.metadata.stage, "plan");
-  assert.ok(typeof replannedResult.metadata.baseCommit === "string");
-  assert.match(replannedResult.metadata.baseCommit, /^[0-9a-f]{40}$/u);
-
-  const currentPlanAgain = runCli([
-    "plan",
-    reconfirmedCandidateDirectory,
-    "--json"
-  ]);
-  assert.equal(currentPlanAgain.status, 1);
-  const currentPlanAgainResult: unknown = JSON.parse(currentPlanAgain.stdout);
-  assert.ok(isRecord(currentPlanAgainResult));
-  assert.ok(typeof currentPlanAgainResult.error === "string");
+  runGit(repository, ["add", "."]);
+  runGit(repository, ["commit", "-m", "change only the current plan"]);
+  const changeOnlyText = runCli(["check", changeDirectory]);
+  assert.equal(changeOnlyText.status, 0, changeOnlyText.stderr);
   assert.match(
-    currentPlanAgainResult.error,
-    /plan accepts draft, plan-review-required, or shelve-candidate/u
+    changeOnlyText.stdout,
+    /自计划基线以来，未统计到 Change 目录外的项目变化。/u
   );
-  assert.equal(runCli(["implement", reconfirmedCandidateDirectory]).status, 0);
+  const changeOnlyJson = runCli(["check", changeDirectory, "--json"]);
+  const changeOnlyResult: unknown = JSON.parse(changeOnlyJson.stdout);
+  assert.ok(isRecord(changeOnlyResult));
+  assert.ok(isRecord(changeOnlyResult.distance));
+  assert.equal(changeOnlyResult.distance.commitCount, 0);
+  assert.equal(changeOnlyResult.distance.changedLines, 0);
+  assert.notEqual(
+    changeOnlyResult.distance.baseCommit,
+    changeOnlyResult.distance.headCommit
+  );
+
+  await fs.writeFile(path.join(repository, "project.txt"), "one\ntwo\n");
+  runGit(repository, ["add", "project.txt"]);
+  runGit(repository, ["commit", "-m", "change project"]);
+  const changedText = runCli(["check", changeDirectory]);
+  assert.equal(changedText.status, 0, changedText.stderr);
+  assert.match(
+    changedText.stdout,
+    /距离计划基线已过去 1 个提交，Change 目录外累计变化 2 行；继续前请确认这些变化没有影响当前计划。/u
+  );
+  const changedJson = runCli(["check", changeDirectory, "--json"]);
+  const changedResult: unknown = JSON.parse(changedJson.stdout);
+  assert.ok(isRecord(changedResult));
+  assert.deepEqual(changedResult.distance, {
+    baseCommit: zeroResult.distance.baseCommit,
+    changedLines: 2,
+    commitCount: 1,
+    headCommit: runGit(repository, ["rev-parse", "HEAD"])
+  });
 }
 
 async function testPlanRecordsExistingHead(
@@ -604,91 +552,6 @@ async function testPlanRejectsRepositoryWithoutHead(
   assert.equal(parsedNoHeadResult.success, false);
   assert.equal(parsedNoHeadResult.errorCode, "base-commit-unavailable");
   assert.equal(await fs.readFile(metadataPath, "utf8"), metadataBefore);
-}
-
-async function testLifecycleOutputChannels(tempRoot: string): Promise<void> {
-  const repository = path.join(tempRoot, "lifecycle-output-repository");
-  await initializeGitRepository(repository);
-  const changeRoot = path.join(repository, "changes");
-  const textSuccessDirectory = await writePlan(
-    changeRoot,
-    "text-success",
-    {
-      metadata: {
-        baseCommit: validBaseCommit,
-        shelf: {
-          atCommit: validBaseCommit,
-          reason: "等待方向",
-          source: "explicit"
-        },
-        stage: "shelved"
-      }
-    }
-  );
-  const jsonSuccessDirectory = await writePlan(
-    changeRoot,
-    "json-success",
-    {
-      metadata: {
-        baseCommit: validBaseCommit,
-        shelf: {
-          atCommit: validBaseCommit,
-          reason: "等待方向",
-          source: "explicit"
-        },
-        stage: "shelved"
-      }
-    }
-  );
-  const failureDirectory = await writePlan(
-    changeRoot,
-    "invalid-resume",
-    {
-      metadata: {
-        baseCommit: validBaseCommit,
-        stage: "implementation"
-      }
-    }
-  );
-  runGit(repository, ["add", "."]);
-  runGit(repository, ["commit", "-m", "add lifecycle output fixtures"]);
-
-  const textSuccess = runCli(["resume", textSuccessDirectory]);
-  assert.equal(textSuccess.status, 0, textSuccess.stderr);
-  assert.equal(textSuccess.stderr, "");
-  assert.match(textSuccess.stdout, /shelved -> plan \(resume\)/u);
-
-  const jsonSuccess = runCli(["resume", jsonSuccessDirectory, "--json"]);
-  assert.equal(jsonSuccess.status, 0, jsonSuccess.stderr);
-  assert.equal(jsonSuccess.stderr, "");
-  const jsonSuccessResult: unknown = JSON.parse(jsonSuccess.stdout);
-  assert.ok(isRecord(jsonSuccessResult));
-  assert.ok(isRecord(jsonSuccessResult.metadata));
-  assert.equal(jsonSuccessResult.success, true);
-  assert.deepEqual(jsonSuccessResult.metadata, {
-    baseCommit: null,
-    stage: "plan"
-  });
-  assert.equal("check" in jsonSuccessResult, false);
-  assert.equal("errorCode" in jsonSuccessResult, false);
-
-  const textFailure = runCli(["resume", failureDirectory]);
-  assert.equal(textFailure.status, 1);
-  assert.equal(textFailure.stdout, "");
-  assert.match(textFailure.stderr, /\[invalid-source-stage\]/u);
-  assert.match(textFailure.stderr, /inspect the current stage first/u);
-
-  const jsonFailure = runCli(["resume", failureDirectory, "--json"]);
-  assert.equal(jsonFailure.status, 1);
-  assert.equal(jsonFailure.stderr, "");
-  const jsonFailureResult: unknown = JSON.parse(jsonFailure.stdout);
-  assert.ok(isRecord(jsonFailureResult));
-  assert.equal(jsonFailureResult.success, false);
-  assert.equal(jsonFailureResult.errorCode, "invalid-source-stage");
-  assert.ok(isUnknownArray(jsonFailureResult.diagnostics));
-  assert.equal("check" in jsonFailureResult, false);
-  assert.equal("assessment" in jsonFailureResult, false);
-  assert.equal("changeDirectory" in jsonFailureResult, false);
 }
 
 async function testArchiveCommands(fixture: CliFixture): Promise<void> {
@@ -748,12 +611,13 @@ function testUsageCommands(): void {
   assert.match(help.stdout, /change-plan\.mjs list/u);
   assert.match(help.stdout, /change-plan\.mjs show/u);
   assert.match(help.stdout, /change-plan\.mjs check/u);
+  assert.match(help.stdout, /change-plan\.mjs check-all/u);
   assert.match(help.stdout, /change-plan\.mjs plan/u);
-  assert.match(help.stdout, /change-plan\.mjs implement/u);
-  assert.match(help.stdout, /change-plan\.mjs shelve/u);
-  assert.match(help.stdout, /change-plan\.mjs reconcile/u);
-  assert.match(help.stdout, /change-plan\.mjs resume/u);
   assert.match(help.stdout, /change-plan\.mjs archive/u);
+  assert.doesNotMatch(
+    help.stdout,
+    /change-plan\.mjs (?:implement|shelve|reconcile|resume)/u
+  );
   assert.equal(help.stderr, "");
 
   const invalidArgument = spawnSync("node", [generatedCliPath, "check"], {
@@ -762,13 +626,23 @@ function testUsageCommands(): void {
   assert.equal(invalidArgument.status, 2);
   assert.match(invalidArgument.stderr, /Expected:/u);
 
-  const missingReason = runCli(["shelve", "/tmp/example-change"]);
-  assert.equal(missingReason.status, 2);
-  assert.match(missingReason.stderr, /requires a non-empty --reason/u);
+  for (const removedCommand of [
+    "implement",
+    "shelve",
+    "reconcile",
+    "resume"
+  ]) {
+    const removed = runCli([removedCommand, "/tmp/example-change"]);
+    assert.equal(removed.status, 2);
+    assert.match(removed.stderr, /Unknown change-plan command/u);
+  }
 
   const invalidStage = runCli(["list", "--stage", "unknown"]);
   assert.equal(invalidStage.status, 2);
   assert.match(invalidStage.stderr, /--stage must be/u);
+  const legacyStage = runCli(["list", "--stage", "implementation"]);
+  assert.equal(legacyStage.status, 2);
+  assert.match(legacyStage.stderr, /--stage must be draft or plan/u);
 }
 
 async function withCliFixture(
@@ -816,12 +690,12 @@ test("CLI archive enforces gates and moves complete plans", () => (
   withCliFixture("archive", testArchiveCommands)
 ));
 
-test("CLI lifecycle commands enforce legal stage transitions", () => (
-  withTempRoot("cli-lifecycle", testLifecycleCommands)
+test("CLI plan confirms drafts, reconfirms plans, and canonicalizes legacy inputs", () => (
+  withTempRoot("cli-plan-inputs", testPlanConfirmsAndReconfirmsSupportedActiveInputs)
 ));
 
-test("CLI Git-distance candidate can be shelved or reconfirmed", () => (
-  withTempRoot("cli-candidate", testCandidateMayBeShelvedOrReconfirmed)
+test("CLI reports raw distance evidence with direct Chinese prompts", () => (
+  withTempRoot("cli-distance", testDistanceEvidenceAndDirectPrompts)
 ));
 
 test("CLI plan records existing HEAD without requiring committed artifacts", () => (
@@ -832,10 +706,6 @@ test("CLI plan rejects a repository without HEAD", () => (
   withTempRoot("cli-plan-no-head", testPlanRejectsRepositoryWithoutHead)
 ));
 
-test("CLI lifecycle output preserves result channels and error codes", () => (
-  withTempRoot("cli-lifecycle-output", testLifecycleOutputChannels)
-));
-
-test("CLI help and argument errors use stable exit contracts", () => {
+test("CLI exposes only six commands and rejects removed lifecycle commands", () => {
   testUsageCommands();
 });

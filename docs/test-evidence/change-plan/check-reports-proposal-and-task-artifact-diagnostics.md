@@ -3,6 +3,7 @@ Entry:
 - `tools/change-plan/tests/check.test.ts > check reports proposal and task artifact diagnostics`
 - `bun test --test-name-pattern="^check reports proposal and task artifact diagnostics$" ./tools/change-plan/tests/run.ts`
 Contract:
-- Proposal 和 tasks 的必需结构与完成状态必须被逐项检查。
+- Proposal 章节顺序与内容、tasks 的任务语法、ID 唯一性、必需区段和任务所在区段都必须逐项检查。
 Proves:
-- 缺失或无效制品产生对应文件和规则诊断。
+- 顺序错误且内容为空的 proposal 返回 `section-order` 与 `empty-section`。
+- tasks 中的非法语法、重复 ID、空 Verification 区段和额外区段任务分别返回对应诊断。

@@ -14,32 +14,16 @@ export type ChangePlanMetadataName = typeof changePlanMetadataName;
 
 export type ChangePlanFileName = ChangePlanArtifactName | ChangePlanMetadataName;
 
-export type ChangePlanStage =
-  | "draft"
-  | "plan"
-  | "implementation"
-  | "shelved";
+export type ChangePlanStage = "draft" | "plan";
 
 export type { ChangePlanMetadata } from "./metadata.ts";
 
-export type ChangePlanAssessment =
-  | {
-    assessment: "not-applicable";
-  }
-  | {
-    assessment: "plan-review-required";
-    baseCommit: string | null;
-    headCommit: string | null;
-    reason: "base-unavailable";
-  }
-  | {
-    assessment: "current" | "shelve-candidate";
-    baseCommit: string;
-    changedLines: number;
-    commitCount: number;
-    headCommit: string;
-    policy: "git-distance-v1";
-  };
+export type GitDistanceEvidence = {
+  baseCommit: string;
+  changedLines: number;
+  commitCount: number;
+  headCommit: string;
+};
 
 export type ChangePlanTaskSection =
   | "readiness"
@@ -92,7 +76,7 @@ export type ChangePlanDiagnosticCode =
   | "missing-required-file"
   | "missing-section"
   | "missing-task"
-  | "plan-review-required"
+  | "base-commit-unavailable"
   | "required-path-not-file"
   | "section-order"
   | "task-outside-required-section"
@@ -106,11 +90,11 @@ export type ChangePlanDiagnostic = {
 };
 
 export type ChangePlanCheckResult = {
-  assessment: ChangePlanAssessment | null;
   changeDirectory: string;
   changeName: string;
   completedTaskCount: number;
   diagnostics: ChangePlanDiagnostic[];
+  distance: GitDistanceEvidence | null;
   metadata: ChangePlanMetadata | null;
   stage: ChangePlanStage | null;
   taskCount: number;
@@ -160,23 +144,13 @@ export type ChangePlanShowResult = {
   status: ChangePlanStatus;
 };
 
-export type ChangePlanLifecycleAction =
-  | "plan"
-  | "implement"
-  | "shelve"
-  | "reconcile"
-  | "resume";
+export type ChangePlanLifecycleAction = "plan";
 
 export type ChangePlanLifecycleErrorCode =
   | "artifact-check-failed"
   | "base-commit-unavailable"
-  | "change-check-failed"
-  | "delivery-already-started"
-  | "invalid-assessment"
   | "invalid-source-stage"
   | "metadata-write-failed"
-  | "readiness-incomplete"
-  | "reason-required"
   | "version-control-failed";
 
 export type ChangePlanLifecycleSuccess = {

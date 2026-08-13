@@ -2,22 +2,36 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { writeChangePlanMetadata } from "../src/metadata.ts";
 import type { ChangePlanMetadata } from "../src/types.ts";
+
+type LegacyChangePlanMetadata =
+  | { baseCommit: string; stage: "implementation" }
+  | {
+    baseCommit: string;
+    shelf:
+      | {
+        atCommit: string;
+        reason: string;
+        source: "explicit";
+      }
+      | {
+        atCommit: string;
+        changedLines: number;
+        commitCount: number;
+        source: "git-distance-v1";
+      };
+    stage: "shelved";
+  }
+  | { baseCommit: null; stage: "plan" };
 
 export type PlanOverrides = {
   design?: string;
-  metadata?: ChangePlanMetadata | null;
+  metadata?: ChangePlanMetadata | LegacyChangePlanMetadata | null;
   proposal?: string;
   tasks?: string;
 };
 
 export const validBaseCommit = "0123456789abcdef0123456789abcdef01234567";
-
-export const validImplementationMetadata: ChangePlanMetadata = {
-  baseCommit: validBaseCommit,
-  stage: "implementation"
-};
 
 export const validProposal = `# Proposal
 
@@ -96,7 +110,10 @@ export async function writePlan(
   const directory = path.join(root, name);
   await fs.mkdir(directory, { recursive: true });
   const metadata = overrides.metadata === undefined
-    ? validImplementationMetadata
+    ? {
+      baseCommit: await resolveHead(root),
+      stage: "plan" as const
+    }
     : overrides.metadata;
   await Promise.all([
     fs.writeFile(
@@ -116,7 +133,11 @@ export async function writePlan(
     ),
     ...(metadata === null
       ? []
-      : [writeChangePlanMetadata(directory, metadata)])
+      : [fs.writeFile(
+        path.join(directory, ".change-plan.json"),
+        `${JSON.stringify(metadata, null, 2)}\n`,
+        "utf8"
+      )])
   ]);
   return directory;
 }
@@ -136,8 +157,47 @@ export async function withTempRoot(
     path.join(os.tmpdir(), `change-plan-${suiteName}-`)
   );
   try {
+    const { spawnSync } = await import("node:child_process");
+    const initialize = spawnSync(
+      "git",
+      ["-C", tempRoot, "init", "--quiet", "--initial-branch=main"],
+      { encoding: "utf8" }
+    );
+    if (initialize.status !== 0) {
+      throw new Error(initialize.stderr);
+    }
+    for (const arguments_ of [
+      ["config", "user.email", "change-plan@example.invalid"],
+      ["config", "user.name", "Change Plan Tests"],
+      ["commit", "--quiet", "--allow-empty", "-m", "fixture base"]
+    ]) {
+      const result = spawnSync("git", ["-C", tempRoot, ...arguments_], {
+        encoding: "utf8"
+      });
+      if (result.status !== 0) {
+        throw new Error(result.stderr);
+      }
+    }
     await run(tempRoot);
   } finally {
     await fs.rm(tempRoot, { force: true, recursive: true });
+  }
+}
+
+async function resolveHead(directory: string): Promise<string> {
+  const { spawnSync } = await import("node:child_process");
+  let current = path.resolve(directory);
+  while (true) {
+    const result = spawnSync("git", ["-C", current, "rev-parse", "HEAD"], {
+      encoding: "utf8"
+    });
+    if (result.status === 0) {
+      return result.stdout.trim();
+    }
+    const parent = path.dirname(current);
+    if (parent === current) {
+      return validBaseCommit;
+    }
+    current = parent;
   }
 }

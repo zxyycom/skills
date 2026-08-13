@@ -4,7 +4,7 @@ Change Plan 的生命周期收敛为 Draft、Plan 与 Archive，任务在 Plan �
 
 ## Why
 
-Change Plan 只需要持久表达两种 active 内容状态：Draft 保存仍在形成的 proposal 与 design，Plan 保存完整 proposal、design、tasks 及其实际进度。当前 `implementation` 只复制 Plan 的 `baseCommit`，没有增加独立执行事实；`shelved` 也不能形成比 Plan、任务协调 owner 或普通删除更明确的机械边界。额外 stage 因而把计划内推进拆成了不必要的状态转换。
+Change Plan 只需要持久表达两种 active 内容状态：Draft 保存仍在形成的 proposal 与 design，Plan 保存完整 proposal、design、tasks 及其实际进度。变更前的 `implementation` 只复制 Plan 的 `baseCommit`，没有增加独立执行事实；`shelved` 也不能形成比 Plan、任务协调 owner 或普通删除更明确的机械边界。额外 stage 因而把计划内推进拆成了不必要的状态转换。
 
 Git 距离能够说明 Plan 基线后项目演进了多少，却不能判断变化是否影响当前计划。调用方需要直接获得提交数、Change 目录外变化行数和复核建议，而不是先解释 assessment 分类再恢复原始证据。
 
@@ -38,7 +38,7 @@ Git 距离能够说明 Plan 基线后项目演进了多少，却不能判断变�
 1. 规范 metadata 只写 `{ stage: "draft" }` 与具有非空 `baseCommit` 的 `{ stage: "plan" }`；active 查询只报告 draft 或 plan，archived 查询不解释历史 metadata。
 2. 旧 implementation、shelved 与 `baseCommit: null` Plan 保持可发现；兼容读取不会改写文件，`plan` 能把目标写回规范结构。
 3. CLI help、参数解析、程序化导出和行为说明只保留 `list`、`show`、`check`、`check-all`、`plan` 与 `archive`；删除命令返回普通未知命令错误，不保留隐藏别名。
-4. `plan` 对结构有效的 Draft 或现有 Plan 记录当前 `HEAD`，不要求 Readiness 全部完成，也不因 Implementation 或 Verification 已有证据而拒绝；`archive` 只接受结构有效且全部任务完成的 active Plan。
+4. `plan` 对结构有效的 Draft 或现有 Plan 记录当前 `HEAD`，不要求 Readiness 全部完成，也不因 Implementation 或 Verification 已有证据而拒绝；`archive` 只接受结构有效、基线可用且全部任务完成的 active Plan。
 5. Plan 距离可用时，文本结果直接报告提交数、Change 目录外累计变化行数和行动提示；结构化结果只提供基线、HEAD、提交数和变化行数，可用距离不阻断检查或归档。
 6. Plan 基线缺失、不可解析、不在当前 `HEAD` first-parent 历史或版本控制查询失败时，检查返回稳定、可行动的阻断诊断；完成语义复核后可以重新运行 `plan` 刷新基线。
 7. 行为 owner、agent 入口、skill 版本、源码、生成 CLI、测试和 test-evidence case 保持一致；两条新决策在实现与验证完成后标记 aligned，目标测试、目录检查和 `bun run check` 通过。
@@ -50,4 +50,4 @@ Git 距离能够说明 Plan 基线后项目演进了多少，却不能判断变�
 - `tools/change-plan/src/`：metadata 读取与规范写入、阶段类型、兼容投影、Git 距离、查询、生命周期命令、归档和 CLI 输出。
 - `tools/change-plan/tests/` 与 `docs/test-evidence/change-plan/`：每个新增、修改或删除的最小原生测试入口及其唯一测试证据 case。
 - `scripts/build/change-plan.ts` 与 `skills/change-plan/scripts/change-plan.mjs*`：继续通过现有生成入口同步分发 CLI；只有生成边界本身变化时才修改 build owner。
-- `docs/decisions/change-plan/simplify-change-lifecycle-to-draft-plan-and-archive.md`、`report-plan-git-distance-as-context.md` 与决策索引：保存已经确认但尚未对齐实现的长期方向，并在当前事实完整落地后标记 aligned。
+- `docs/decisions/change-plan/simplify-change-lifecycle-to-draft-plan-and-archive.md` 与 `report-plan-git-distance-as-context.md`：保存生命周期和 Git 距离的长期方向与理由；决策索引同步反映它们已经对齐的当前基线。

@@ -11,13 +11,7 @@ import {
   showChangePlanDirectory
 } from "./catalog.ts";
 import { checkChangePlanDirectory } from "./check.ts";
-import {
-  implementChangePlanDirectory,
-  planChangePlanDirectory,
-  reconcileChangePlanDirectory,
-  resumeChangePlanDirectory,
-  shelveChangePlanDirectory
-} from "./lifecycle.ts";
+import { planChangePlanDirectory } from "./lifecycle.ts";
 import {
   ChangePlanMetadataError,
   parseChangePlanMetadata,
@@ -25,33 +19,14 @@ import {
 } from "./metadata.ts";
 import {
   changePlanArtifactNames,
-  type ChangePlanAssessment,
   type ChangePlanCheckResult,
   type ChangePlanCollectionCheckResult,
   type ChangePlanCollectionSelection,
   type ChangePlanDiagnostic,
-  type ChangePlanLifecycleAction,
   type ChangePlanLifecycleResult,
-  type ChangePlanStage
+  type ChangePlanStage,
+  type GitDistanceEvidence
 } from "./types.ts";
-
-type NonShelveLifecycleAction = Exclude<
-  ChangePlanLifecycleAction,
-  "shelve"
->;
-
-type LifecycleCliCommand =
-  | {
-    action: NonShelveLifecycleAction;
-    changeDirectory: string;
-    json: boolean;
-  }
-  | {
-    action: "shelve";
-    changeDirectory: string;
-    json: boolean;
-    reason: string;
-  };
 
 function helpText(): string {
   return [
@@ -61,39 +36,27 @@ function helpText(): string {
     "  change-plan.mjs check <change-directory> [--json]",
     "  change-plan.mjs check-all [change-root] [--archived | --all] [--json]",
     "  change-plan.mjs plan <change-directory> [--json]",
-    "  change-plan.mjs implement <change-directory> [--json]",
-    "  change-plan.mjs shelve <change-directory> --reason <text> [--json]",
-    "  change-plan.mjs reconcile <change-directory> [--json]",
-    "  change-plan.mjs resume <change-directory> [--json]",
     "  change-plan.mjs archive <change-directory> [--json]",
     "",
-    "Manage the basic lifecycle of proposal.md, design.md, and tasks.md change plans.",
+    "Manage Draft and Plan artifacts, checks, Git distance, and archive delivery.",
     "Commands apply mechanical checks only; they do not approve plans or judge semantics.",
     "",
     "Options:",
     "  --archived   Select archived changes for list or check-all",
     "  --all        Select active and archived changes for list or check-all",
-    "  --stage      List active changes in one lifecycle stage",
-    "  --reason     Record why a confirmed plan is explicitly shelved",
+    "  --stage      List active changes in draft or plan stage",
     "  --json       Write the structured result to stdout",
     "  -h, --help   Show this help"
   ].join("\n");
 }
 
-function formatAssessment(assessment: ChangePlanAssessment | null): string {
-  if (assessment === null) {
-    return "unavailable";
+function formatGitDistance(evidence: GitDistanceEvidence): string {
+  if (evidence.commitCount === 0 && evidence.changedLines === 0) {
+    return "自计划基线以来，未统计到 Change 目录外的项目变化。";
   }
-  if (assessment.assessment === "plan-review-required") {
-    return `${assessment.assessment} (${assessment.reason})`;
-  }
-  if (
-    assessment.assessment === "shelve-candidate"
-  ) {
-    return `${assessment.assessment}: ${assessment.commitCount} commits / `
-      + `${assessment.changedLines} changed lines since plan`;
-  }
-  return assessment.assessment;
+  return `距离计划基线已过去 ${evidence.commitCount} 个提交，`
+    + `Change 目录外累计变化 ${evidence.changedLines} 行；`
+    + "继续前请确认这些变化没有影响当前计划。";
 }
 
 function formatDiagnostic(diagnostic: ChangePlanDiagnostic): string {
@@ -113,6 +76,12 @@ function printCheckDiagnostics(
   }
 }
 
+function printDistance(distance: GitDistanceEvidence | null): void {
+  if (distance !== null) {
+    console.log(formatGitDistance(distance));
+  }
+}
+
 async function runCheckCommand(
   changeDirectory: string,
   json: boolean
@@ -126,13 +95,12 @@ async function runCheckCommand(
     printCheckDiagnostics("Change plan check failed", result);
     return 1;
   }
-
   console.log(
     `Change plan check passed (${result.changeName}; `
     + `${result.completedTaskCount}/${result.taskCount} tasks completed; `
-    + `stage ${result.stage ?? "none"}; `
-    + `assessment ${formatAssessment(result.assessment)}).`
+    + `stage ${result.stage ?? "none"}).`
   );
+  printDistance(result.distance);
   return 0;
 }
 
@@ -156,13 +124,11 @@ async function runCollectionCheckCommand(
     console.log(JSON.stringify(result, null, 2));
     return result.valid ? 0 : 1;
   }
-
   const summary = formatCollectionCheckSummary(result);
   if (result.valid) {
     console.log(`Change plan collection check passed (${summary}).`);
     return 0;
   }
-
   console.error(`Change plan collection check failed (${summary}).`);
   for (const error of result.errors) {
     console.error(`- ${error}`);
@@ -181,16 +147,11 @@ async function runListCommand(
   stage: ChangePlanStage | undefined,
   json: boolean
 ): Promise<number> {
-  const result = await listChangePlans({
-    changeRoot,
-    stage,
-    status: selection
-  });
+  const result = await listChangePlans({ changeRoot, stage, status: selection });
   if (json) {
     console.log(JSON.stringify(result, null, 2));
     return result.errors.length === 0 ? 0 : 1;
   }
-
   if (result.errors.length > 0) {
     console.error("Change plan list failed:");
     for (const error of result.errors) {
@@ -198,7 +159,6 @@ async function runListCommand(
     }
     return 1;
   }
-
   console.log(`Changes (${result.status}; ${result.changeRoot}):`);
   if (result.entries.length === 0) {
     console.log("- none");
@@ -208,11 +168,11 @@ async function runListCommand(
     console.log(
       `- ${entry.status} ${entry.changeName} `
       + `stage=${entry.stage ?? "none"} `
-      + `assessment=${formatAssessment(entry.assessment)} `
       + `${entry.completedTaskCount}/${entry.taskCount} `
       + `${entry.valid ? "valid" : "invalid"} `
       + entry.changeDirectory
     );
+    printDistance(entry.distance);
   }
   return 0;
 }
@@ -226,28 +186,16 @@ async function runShowCommand(
     console.log(JSON.stringify(result, null, 2));
     return result.check.valid ? 0 : 1;
   }
-
   console.log(`Change: ${result.check.changeName}`);
   console.log(`Status: ${result.status}`);
   console.log(`Stage: ${result.check.stage ?? "none"}`);
-  const assessment = result.check.assessment;
-  console.log(`Assessment: ${formatAssessment(assessment)}`);
-  if (
-    assessment?.assessment === "current"
-    || assessment?.assessment === "shelve-candidate"
-  ) {
-    console.log(`Policy: ${assessment.policy}`);
-    console.log(`Base commit: ${assessment.baseCommit}`);
-    console.log(`Head commit: ${assessment.headCommit}`);
-    console.log(
-      `Git distance: ${assessment.commitCount} commits / `
-      + `${assessment.changedLines} changed lines`
-    );
+  if (result.check.distance !== null) {
+    console.log(`Base commit: ${result.check.distance.baseCommit}`);
+    console.log(`Head commit: ${result.check.distance.headCommit}`);
+    console.log(formatGitDistance(result.check.distance));
   }
   console.log(`Directory: ${result.check.changeDirectory}`);
-  console.log(
-    `Tasks: ${result.check.completedTaskCount}/${result.check.taskCount}`
-  );
+  console.log(`Tasks: ${result.check.completedTaskCount}/${result.check.taskCount}`);
   console.log(`Check: ${result.check.valid ? "valid" : "invalid"}`);
   for (const artifact of changePlanArtifactNames) {
     console.log("");
@@ -255,7 +203,6 @@ async function runShowCommand(
     const contents = result.artifacts[artifact];
     console.log(contents === null ? "[missing or unreadable]" : contents.trimEnd());
   }
-
   if (!result.check.valid) {
     printCheckDiagnostics("Change plan show completed with diagnostics", result.check);
     return 1;
@@ -263,32 +210,14 @@ async function runShowCommand(
   return 0;
 }
 
-async function runLifecycleCommand(
-  command: LifecycleCliCommand
+async function runPlanCommand(
+  changeDirectory: string,
+  json: boolean
 ): Promise<number> {
-  let result: ChangePlanLifecycleResult;
-  switch (command.action) {
-    case "plan":
-      result = await planChangePlanDirectory(command.changeDirectory);
-      break;
-    case "implement":
-      result = await implementChangePlanDirectory(command.changeDirectory);
-      break;
-    case "shelve":
-      result = await shelveChangePlanDirectory(
-        command.changeDirectory,
-        command.reason
-      );
-      break;
-    case "reconcile":
-      result = await reconcileChangePlanDirectory(command.changeDirectory);
-      break;
-    case "resume":
-      result = await resumeChangePlanDirectory(command.changeDirectory);
-      break;
-  }
-
-  if (command.json) {
+  const result: ChangePlanLifecycleResult = await planChangePlanDirectory(
+    changeDirectory
+  );
+  if (json) {
     console.log(JSON.stringify(result, null, 2));
     return result.success ? 0 : 1;
   }
@@ -296,15 +225,12 @@ async function runLifecycleCommand(
     console.error(
       `Change plan ${result.action} failed [${result.errorCode}]: ${result.error}`
     );
-    if (result.diagnostics.length > 0) {
-      for (const diagnostic of result.diagnostics) {
-        console.error(formatDiagnostic(diagnostic));
-      }
+    for (const diagnostic of result.diagnostics) {
+      console.error(formatDiagnostic(diagnostic));
     }
     return 1;
   }
-
-  const changeName = path.basename(path.resolve(command.changeDirectory));
+  const changeName = path.basename(path.resolve(changeDirectory));
   console.log(
     `Change plan ${changeName}: `
     + `${result.fromStage} -> ${result.metadata.stage} (${result.action}).`
@@ -321,7 +247,6 @@ async function runArchiveCommand(
     console.log(JSON.stringify(result, null, 2));
     return result.archived ? 0 : 1;
   }
-
   if (!result.archived) {
     console.error(`Change plan archive failed: ${result.error}`);
     if (result.check !== null && !result.check.valid) {
@@ -331,7 +256,6 @@ async function runArchiveCommand(
     }
     return 1;
   }
-
   console.log(
     `Archived change plan ${result.check.changeName} to `
     + `${result.archivedDirectory} `
@@ -347,15 +271,7 @@ function invalidArguments(message: string): number {
 }
 
 function parseStage(value: string | undefined): ChangePlanStage | undefined {
-  if (
-    value === "draft"
-    || value === "plan"
-    || value === "implementation"
-    || value === "shelved"
-  ) {
-    return value;
-  }
-  return undefined;
+  return value === "draft" || value === "plan" ? value : undefined;
 }
 
 function parseCollectionSelection(
@@ -384,7 +300,6 @@ export async function runChangePlanCli(
         archived: { type: "boolean" },
         help: { short: "h", type: "boolean" },
         json: { type: "boolean" },
-        reason: { type: "string" },
         stage: { type: "string" }
       },
       strict: true
@@ -393,7 +308,6 @@ export async function runChangePlanCli(
     console.error(error instanceof Error ? error.message : String(error));
     return 2;
   }
-
   if (parsed.values.help === true) {
     console.log(helpText());
     return 0;
@@ -401,50 +315,29 @@ export async function runChangePlanCli(
 
   const [command, ...operands] = parsed.positionals;
   const json = parsed.values.json === true;
-  const reasonValue = parsed.values.reason;
-  const reason = typeof reasonValue === "string" ? reasonValue : undefined;
   const stageValue = parsed.values.stage;
   const stageArgument = typeof stageValue === "string" ? stageValue : undefined;
   if (command === "list") {
     if (operands.length > 1 || operands[0]?.trim().length === 0) {
-      return invalidArguments(
-        "Expected: change-plan.mjs list [change-root] "
-        + "[--archived | --all | --stage <stage>] [--json]"
-      );
-    }
-    if (reasonValue !== undefined) {
-      return invalidArguments("--reason is only valid with shelve.");
+      return invalidArguments("Expected: change-plan.mjs list [change-root] [--archived | --all | --stage <stage>] [--json]");
     }
     const selection = parseCollectionSelection(
       parsed.values.all === true,
       parsed.values.archived === true
     );
-    if (
-      selection === undefined
-      || (stageValue !== undefined && selection !== "active")
-    ) {
-      return invalidArguments(
-        "--archived, --all, and --stage cannot be used together."
-      );
+    if (selection === undefined || (stageValue !== undefined && selection !== "active")) {
+      return invalidArguments("--archived, --all, and --stage cannot be used together.");
     }
     const stage = parseStage(stageArgument);
     if (stageValue !== undefined && stage === undefined) {
-      return invalidArguments(
-        "--stage must be draft, plan, implementation, or shelved."
-      );
+      return invalidArguments("--stage must be draft or plan.");
     }
     return await runListCommand(operands[0], selection, stage, json);
   }
 
   if (command === "check-all") {
     if (operands.length > 1 || operands[0]?.trim().length === 0) {
-      return invalidArguments(
-        "Expected: change-plan.mjs check-all [change-root] "
-        + "[--archived | --all] [--json]"
-      );
-    }
-    if (reasonValue !== undefined) {
-      return invalidArguments("--reason is only valid with shelve.");
+      return invalidArguments("Expected: change-plan.mjs check-all [change-root] [--archived | --all] [--json]");
     }
     if (stageValue !== undefined) {
       return invalidArguments("--stage is only valid with list.");
@@ -456,66 +349,26 @@ export async function runChangePlanCli(
     if (selection === undefined) {
       return invalidArguments("--archived and --all cannot be used together.");
     }
-    return await runCollectionCheckCommand(
-      operands[0],
-      selection,
-      json
-    );
+    return await runCollectionCheckCommand(operands[0], selection, json);
   }
 
-  if (
-    parsed.values.all === true
-    || parsed.values.archived === true
-    || stageValue !== undefined
-  ) {
+  if (parsed.values.all === true || parsed.values.archived === true || stageValue !== undefined) {
     return invalidArguments(
-      "--archived and --all are only valid with list or check-all; "
-      + "--stage is only valid with list."
+      "--archived and --all are only valid with list or check-all; --stage is only valid with list."
     );
   }
   const changeDirectory = operands[0];
-  if (
-    operands.length !== 1
-    || changeDirectory === undefined
-    || changeDirectory.trim().length === 0
-  ) {
-    return invalidArguments(
-      "Expected: one <change-directory> operand."
-    );
+  if (operands.length !== 1 || changeDirectory === undefined || changeDirectory.trim().length === 0) {
+    return invalidArguments("Expected: one <change-directory> operand.");
   }
-
-  if (command === "shelve") {
-    if (reason === undefined || reason.trim().length === 0) {
-      return invalidArguments("shelve requires a non-empty --reason <text>.");
-    }
-    return await runLifecycleCommand({
-      action: "shelve",
-      changeDirectory,
-      json,
-      reason: reason.trim()
-    });
-  }
-  if (reasonValue !== undefined) {
-    return invalidArguments("--reason is only valid with shelve.");
-  }
-
   if (command === "show") {
     return await runShowCommand(changeDirectory, json);
   }
   if (command === "check") {
     return await runCheckCommand(changeDirectory, json);
   }
-  if (
-    command === "plan"
-    || command === "implement"
-    || command === "reconcile"
-    || command === "resume"
-  ) {
-    return await runLifecycleCommand({
-      action: command,
-      changeDirectory,
-      json
-    });
+  if (command === "plan") {
+    return await runPlanCommand(changeDirectory, json);
   }
   if (command === "archive") {
     return await runArchiveCommand(changeDirectory, json);
@@ -527,19 +380,14 @@ export {
   archiveChangePlanDirectory,
   checkChangePlanCollection,
   checkChangePlanDirectory,
-  implementChangePlanDirectory,
   listChangePlans,
   parseChangePlanMetadata,
   planChangePlanDirectory,
   readChangePlanMetadata,
-  reconcileChangePlanDirectory,
-  resumeChangePlanDirectory,
-  shelveChangePlanDirectory,
   showChangePlanDirectory,
   ChangePlanMetadataError
 };
 export type {
-  ChangePlanAssessment,
   ChangePlanArchiveResult,
   ChangePlanArtifactContents,
   ChangePlanArtifactName,
@@ -565,7 +413,8 @@ export type {
   ChangePlanStatus,
   ChangePlanTaskProgress,
   ChangePlanTaskSection,
-  ChangePlanTaskSectionProgress
+  ChangePlanTaskSectionProgress,
+  GitDistanceEvidence
 } from "./types.ts";
 export type { ChangePlanMetadataErrorCode } from "./metadata.ts";
 

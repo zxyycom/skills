@@ -11,7 +11,6 @@ import {
 import {
   completedTasks,
   generatedCliPath,
-  validBaseCommit,
   validProposal,
   withTempRoot,
   writePlan
@@ -40,8 +39,8 @@ async function testListStatuses(tempRoot: string): Promise<void> {
   );
   assert.ok(activeList.entries.every((entry) => entry.status === "active"));
   assert.ok(activeList.entries.every((entry) => (
-    entry.stage === "implementation"
-    && entry.assessment?.assessment === "not-applicable"
+    entry.stage === "plan"
+    && entry.distance?.commitCount === 0
   )));
   const archivedList = await listChangePlans({
     changeRoot: lifecycleRoot,
@@ -53,10 +52,7 @@ async function testListStatuses(tempRoot: string): Promise<void> {
     [["archived", "old-plan"]]
   );
   assert.equal(archivedList.entries[0]?.stage, null);
-  assert.equal(
-    archivedList.entries[0]?.assessment?.assessment,
-    "not-applicable"
-  );
+  assert.equal(archivedList.entries[0]?.distance, null);
 
   const allList = await listChangePlans({
     changeRoot: lifecycleRoot,
@@ -74,15 +70,22 @@ async function testListStatuses(tempRoot: string): Promise<void> {
 
 async function testStageFilter(tempRoot: string): Promise<void> {
   const lifecycleRoot = path.join(tempRoot, "stage-filter");
+  const headCommit = spawnSync(
+    "git",
+    ["-C", tempRoot, "rev-parse", "HEAD"],
+    { encoding: "utf8" }
+  ).stdout.trim();
   await writePlan(lifecycleRoot, "draft-change", {
     metadata: { stage: "draft" }
   });
-  await writePlan(lifecycleRoot, "implementation-change");
+  await writePlan(lifecycleRoot, "implementation-change", {
+    metadata: { baseCommit: headCommit, stage: "implementation" }
+  });
   await writePlan(lifecycleRoot, "shelved-change", {
     metadata: {
-      baseCommit: validBaseCommit,
+      baseCommit: headCommit,
       shelf: {
-        atCommit: validBaseCommit,
+        atCommit: headCommit,
         reason: "等待后续处理",
         source: "explicit"
       },
@@ -98,6 +101,18 @@ async function testStageFilter(tempRoot: string): Promise<void> {
   assert.deepEqual(
     draftList.entries.map((entry) => [entry.changeName, entry.stage]),
     [["draft-change", "draft"]]
+  );
+
+  const planList = await listChangePlans({
+    changeRoot: lifecycleRoot,
+    stage: "plan"
+  });
+  assert.deepEqual(
+    planList.entries.map((entry) => [entry.changeName, entry.stage]),
+    [
+      ["implementation-change", "plan"],
+      ["shelved-change", "plan"]
+    ]
   );
 
   const invalidFilter = await listChangePlans({

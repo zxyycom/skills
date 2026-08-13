@@ -10,17 +10,8 @@ import {
 import {
   repositoryRelativePathFromFileSystemPath
 } from "../../shared/src/version-control/repository-relative-path.ts";
-import type { ChangePlanAssessment } from "./types.ts";
-
-export type GitDistanceAssessment = Extract<
-  ChangePlanAssessment,
-  { assessment: "current" | "shelve-candidate" }
->;
-
-export type GitDistanceEvidence = Omit<
-  GitDistanceAssessment,
-  "assessment"
->;
+import type { GitDistanceEvidence } from "./types.ts";
+export type { GitDistanceEvidence } from "./types.ts";
 
 export type PlanVersionControlInspection =
   | {
@@ -108,8 +99,7 @@ async function measureResolvedGitDistance(
     baseCommit: resolvedBase,
     changedLines,
     commitCount,
-    headCommit,
-    policy: "git-distance-v1"
+    headCommit
   };
 }
 
@@ -143,16 +133,4 @@ export async function inspectPlanVersionControl(
     return { baseCommit, headCommit, outcome: "base-unavailable" };
   }
   return { evidence, outcome: "measured" };
-}
-
-export function classifyGitDistance(
-  evidence: GitDistanceEvidence
-): GitDistanceAssessment {
-  const candidate = (
-    evidence.commitCount > 3 && evidence.changedLines > 1000
-  ) || evidence.commitCount >= 9 || evidence.changedLines >= 3000;
-  return {
-    assessment: candidate ? "shelve-candidate" : "current",
-    ...evidence
-  };
 }

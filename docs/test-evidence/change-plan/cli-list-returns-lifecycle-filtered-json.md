@@ -5,4 +5,4 @@ Entry:
 Contract:
 - List CLI 必须支持按活动/归档状态列出 Change，并允许活动条目继续按生命周期阶段筛选。
 Proves:
-- `--all --json` 同时返回 active 与 archived 条目；`--stage implementation --json` 只返回 implementation 条目。
+- `--all --json` 同时返回 active 与 archived 条目；`--stage plan --json` 只返回 Plan 条目。

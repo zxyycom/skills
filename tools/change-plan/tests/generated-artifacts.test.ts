@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { pathToFileURL } from "node:url";
-import { generatedCliPath } from "./support.ts";
+import { generatedCliPath, repositoryRoot } from "./support.ts";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object";
@@ -21,6 +21,8 @@ test("generated runtime stays directly importable with portable source metadata"
   );
   assert.match(cliSource, /Rebuild: bun run sync:change-plan-cli/u);
   assert.match(cliSource, /sourceMappingURL=change-plan\.mjs\.map/u);
+  assert.equal(cliSource.includes(repositoryRoot), false);
+  assert.equal(cliSource.includes(repositoryRoot.replaceAll("\\", "\\\\")), false);
 
   const runtime: unknown = await import(
     pathToFileURL(generatedCliPath).href
@@ -30,15 +32,11 @@ test("generated runtime stays directly importable with portable source metadata"
     "archiveChangePlanDirectory",
     "checkChangePlanCollection",
     "checkChangePlanDirectory",
-    "implementChangePlanDirectory",
     "listChangePlans",
     "parseChangePlanMetadata",
     "planChangePlanDirectory",
     "readChangePlanMetadata",
-    "reconcileChangePlanDirectory",
-    "resumeChangePlanDirectory",
     "runChangePlanCli",
-    "shelveChangePlanDirectory",
     "showChangePlanDirectory"
   ]) {
     assert.equal(typeof runtime[runtimeExport], "function");
@@ -53,6 +51,17 @@ test("generated runtime stays directly importable with portable source metadata"
   assert.ok(sourceMap.sources.includes("tools/change-plan/src/cli.ts"));
   assert.ok(sourceMap.sources.includes("tools/change-plan/src/lifecycle.ts"));
   assert.ok(sourceMap.sources.includes("tools/change-plan/src/metadata.ts"));
+  assert.ok(isUnknownArray(sourceMap.sourcesContent));
+  assert.equal(sourceMap.sourcesContent.length, sourceMap.sources.length);
+  assert.equal(
+    sourceMap.sources.some(
+      (source) => (
+        typeof source === "string"
+        && source.endsWith("write-file-atomic/lib/index.js")
+      )
+    ),
+    false
+  );
   assert.ok(
     sourceMap.sources.every(
       (source) => (

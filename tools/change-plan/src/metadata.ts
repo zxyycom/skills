@@ -1,8 +1,15 @@
+import { randomUUID } from "node:crypto";
 import type { Stats } from "node:fs";
-import fs from "node:fs/promises";
+import fs, { type FileHandle } from "node:fs/promises";
 import path from "node:path";
 import * as v from "valibot";
 import { changePlanMetadataName } from "./types.ts";
+
+const revisionSchema = v.pipe(
+  v.string("must be a string"),
+  v.nonEmpty("must not be empty"),
+  v.regex(/^\S+$/, "must not contain whitespace")
+);
 
 const normalizedTextSchema = v.pipe(
   v.string("must be a string"),
@@ -13,34 +20,24 @@ const normalizedTextSchema = v.pipe(
   )
 );
 
-const revisionSchema = v.pipe(
-  v.string("must be a string"),
-  v.nonEmpty("must not be empty"),
-  v.regex(/^\S+$/, "must not contain whitespace")
-);
-
 const nonNegativeSafeIntegerSchema = v.pipe(
   v.number("must be a number"),
   v.safeInteger("must be a safe integer"),
   v.minValue(0, "must not be negative")
 );
 
-const explicitShelfSchema = v.strictObject({
-  atCommit: revisionSchema,
-  reason: normalizedTextSchema,
-  source: v.literal("explicit")
-});
-
-const gitDistanceShelfSchema = v.strictObject({
-  atCommit: revisionSchema,
-  changedLines: nonNegativeSafeIntegerSchema,
-  commitCount: nonNegativeSafeIntegerSchema,
-  source: v.literal("git-distance-v1")
-});
-
-const shelfSchema = v.variant("source", [
-  explicitShelfSchema,
-  gitDistanceShelfSchema
+const legacyShelfSchema = v.variant("source", [
+  v.strictObject({
+    atCommit: revisionSchema,
+    reason: normalizedTextSchema,
+    source: v.literal("explicit")
+  }),
+  v.strictObject({
+    atCommit: revisionSchema,
+    changedLines: nonNegativeSafeIntegerSchema,
+    commitCount: nonNegativeSafeIntegerSchema,
+    source: v.literal("git-distance-v1")
+  })
 ]);
 
 export const changePlanMetadataSchema = v.variant("stage", [
@@ -48,7 +45,15 @@ export const changePlanMetadataSchema = v.variant("stage", [
     stage: v.literal("draft")
   }),
   v.strictObject({
-    baseCommit: v.nullable(revisionSchema),
+    baseCommit: revisionSchema,
+    stage: v.literal("plan")
+  })
+]);
+
+const activeChangePlanMetadataSchema = v.variant("stage", [
+  changePlanMetadataSchema,
+  v.strictObject({
+    baseCommit: v.null(),
     stage: v.literal("plan")
   }),
   v.strictObject({
@@ -57,7 +62,7 @@ export const changePlanMetadataSchema = v.variant("stage", [
   }),
   v.strictObject({
     baseCommit: revisionSchema,
-    shelf: shelfSchema,
+    shelf: legacyShelfSchema,
     stage: v.literal("shelved")
   })
 ]);
@@ -65,6 +70,10 @@ export const changePlanMetadataSchema = v.variant("stage", [
 export type ChangePlanMetadata = v.InferOutput<
   typeof changePlanMetadataSchema
 >;
+
+export type ActiveChangePlanMetadata =
+  | ChangePlanMetadata
+  | { baseCommit: null; stage: "plan" };
 
 export type ChangePlanMetadataErrorCode =
   | "invalid"
@@ -93,9 +102,7 @@ function isMissingPathError(error: unknown): boolean {
     && error.code === "ENOENT";
 }
 
-function schemaIssueMessage(
-  issue: v.InferIssue<typeof changePlanMetadataSchema>
-): string {
+function schemaIssueMessage(issue: v.BaseIssue<unknown>): string {
   const issuePath = v.getDotPath(issue);
   return issuePath === null ? issue.message : `${issuePath}: ${issue.message}`;
 }
@@ -136,6 +143,60 @@ async function requireRegularMetadataFile(metadataPath: string): Promise<void> {
   }
 }
 
+async function readMetadataValue(changeDirectory: string): Promise<unknown> {
+  const metadataPath = path.join(changeDirectory, changePlanMetadataName);
+  await requireRegularMetadataFile(metadataPath);
+
+  let contents: string;
+  try {
+    contents = await fs.readFile(metadataPath, "utf8");
+  } catch (error) {
+    throw new ChangePlanMetadataError(
+      "io",
+      `cannot read ${changePlanMetadataName}: ${errorMessage(error)}`
+    );
+  }
+
+  try {
+    return JSON.parse(contents) as unknown;
+  } catch (error) {
+    throw new ChangePlanMetadataError(
+      "invalid",
+      `invalid ${changePlanMetadataName} JSON: ${errorMessage(error)}`
+    );
+  }
+}
+
+async function writeMetadataFile(
+  metadataPath: string,
+  contents: string,
+  mode: number | undefined
+): Promise<void> {
+  const tempPath = `${metadataPath}.${randomUUID()}.tmp`;
+  let tempFile: FileHandle | null = null;
+  let ownsTempPath = false;
+  try {
+    tempFile = await fs.open(tempPath, "wx", mode);
+    ownsTempPath = true;
+    await tempFile.writeFile(contents, "utf8");
+    if (mode !== undefined) {
+      await tempFile.chmod(mode);
+    }
+    await tempFile.sync();
+    await tempFile.close();
+    tempFile = null;
+    await fs.rename(tempPath, metadataPath);
+    ownsTempPath = false;
+  } finally {
+    if (tempFile !== null) {
+      await tempFile.close().catch(() => undefined);
+    }
+    if (ownsTempPath) {
+      await fs.unlink(tempPath).catch(() => undefined);
+    }
+  }
+}
+
 export function parseChangePlanMetadata(value: unknown): ChangePlanMetadata {
   const parsed = v.safeParse(changePlanMetadataSchema, value);
   if (!parsed.success) {
@@ -152,29 +213,32 @@ export function parseChangePlanMetadata(value: unknown): ChangePlanMetadata {
 export async function readChangePlanMetadata(
   changeDirectory: string
 ): Promise<ChangePlanMetadata> {
-  const metadataPath = path.join(changeDirectory, changePlanMetadataName);
-  await requireRegularMetadataFile(metadataPath);
+  return parseChangePlanMetadata(await readMetadataValue(changeDirectory));
+}
 
-  let contents: string;
-  try {
-    contents = await fs.readFile(metadataPath, "utf8");
-  } catch (error) {
-    throw new ChangePlanMetadataError(
-      "io",
-      `cannot read ${changePlanMetadataName}: ${errorMessage(error)}`
-    );
-  }
-
-  let value: unknown;
-  try {
-    value = JSON.parse(contents);
-  } catch (error) {
+/** @internal Active compatibility boundary; canonical readers stay strict. */
+export async function readActiveChangePlanMetadata(
+  changeDirectory: string
+): Promise<ActiveChangePlanMetadata> {
+  const parsed = v.safeParse(
+    activeChangePlanMetadataSchema,
+    await readMetadataValue(changeDirectory)
+  );
+  if (!parsed.success) {
     throw new ChangePlanMetadataError(
       "invalid",
-      `invalid ${changePlanMetadataName} JSON: ${errorMessage(error)}`
+      `invalid ${changePlanMetadataName}: ${parsed.issues
+        .map(schemaIssueMessage)
+        .join("; ")}`
     );
   }
-  return parseChangePlanMetadata(value);
+  if (
+    parsed.output.stage === "implementation"
+    || parsed.output.stage === "shelved"
+  ) {
+    return { baseCommit: parsed.output.baseCommit, stage: "plan" };
+  }
+  return parsed.output;
 }
 
 /** @internal Lifecycle persistence boundary; not part of the public API. */
@@ -199,10 +263,10 @@ export async function writeChangePlanMetadata(
   }
 
   try {
-    await fs.writeFile(
+    await writeMetadataFile(
       metadataPath,
       `${JSON.stringify(normalizedMetadata, null, 2)}\n`,
-      "utf8"
+      metadataStat === null ? undefined : metadataStat.mode & 0o777
     );
   } catch (error) {
     throw new ChangePlanMetadataError(

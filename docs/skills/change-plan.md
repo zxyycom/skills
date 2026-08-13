@@ -1,31 +1,33 @@
 # Change Plan
 
-`change-plan` 为明确 Change 保存可版本化、可审阅和可交接的临时计划，并用 `.change-plan.json` 维护 `draft`、`plan`、`implementation` 和 `shelved` 四个 active 阶段。完成后的 Change 进入 `archive/` 历史目录。
+`change-plan` 为明确 Change 保存可版本化、可审阅和可交接的临时实施上下文。Active Change
+只使用 `draft` 与 `plan` 两种 stage；完成后的 Change 进入 `archive/` 并以 archived 目录
+status 保存历史。
 
 ## 为什么需要它
 
-项目的稳定文档拥有当前行为和接口，长期决策保存跨 Change 的理由，但一次 Change 仍需要临时回答为什么做、做到什么程度、采用什么方案、按什么顺序改以及怎样验证。只把这些信息留在对话中，会让跨会话实施、审阅和交接反复恢复范围。
+项目文档拥有稳定事实和行为，长期决策保存跨 Change 的方向与理由，但一次 Change 仍需要在
+对话之外持续回答为什么做、采用什么设计、按什么顺序实施以及怎样验证。`change-plan` 用
+proposal、design 和 tasks 把这些内容组织成一个可恢复的实施单元。
 
-`change-plan` 让内容承诺随工作成熟度增加：draft 用最小 `proposal.md` 和初始 `design.md` 同时保存开展理由与当前设计方向；进入 plan 前继续完善 proposal 和 design，再从设计派生 `tasks.md`、完成 Readiness 并记录 Git 距离基线；implementation 表示按当前有效计划实施。计划退出当前主线时可以显式搁置，也可以由固定 Git 演进距离识别为候选，再通过 `reconcile` 写入 shelved。恢复只能回到 plan 重新审阅。
+Draft 保存最小 proposal 与初始 design；Plan 保存完整 proposal、design 与 tasks。
+Readiness、Implementation 和 Verification 都在 Plan 内推进，其 checkbox 表达实际任务进度，
+不会派生新的生命周期状态。
 
-## 提供的能力
+## 主要能力
 
-1. `list`、`show` 和单目录 `check` 发现或检查 Change，区分目录 status、active stage 与 plan assessment。
-2. `check-all` 默认门禁一个 change root 中的全部 active Change；历史 Change 只在显式选择 archived 或全部集合时参与。
-3. `plan`、`implement`、`shelve`、`reconcile` 和 `resume` 按固定门禁推进阶段。
-4. `git-distance-v1` 依据最后一次成功运行 `plan` 时记录的基线，统计后续 first-parent 提交数和 Change 目录外累计 diff 行数，以识别 `shelve-candidate`；该判断不使用日历时间。
-5. `archive` 只归档处于 implementation、结构有效且任务全部完成的 Change。
-6. 随包 MJS 既是 CLI，也可直接 import 当前底层查询与阶段函数；这些导出属于实现表面，不是稳定 SDK。
-7. `.change-plan.json` 直接以 `stage` 判别当前结构，由运行时严格校验，不包含 schema version；Change Plan runtime 不生成 metadata JSON Schema 或 TypeScript 声明树。
+1. `list`、`show`、`check` 和 `check-all` 分别承担发现、展开、单项门禁和集合门禁。
+2. `plan` 确认 Draft，或在重新审阅现有 Plan 后刷新 Git 基线；`archive` 归档已经完成的 Plan。
+3. Plan 查询直接提供基线后的 first-parent 提交数和 Change 目录外累计变化行数，帮助操作者决定需要怎样复核当前计划；可用距离只提供上下文，不驱动生命周期。
+4. 旧版 active metadata 保持可发现，并在操作者审阅后通过显式 `plan` 自然收敛；查询不会自动改写目标，archived 历史 metadata 也不参与解释。
+5. 随包 MJS 同时提供 CLI 和随当前实现变化的直接 import 表面；需要稳定交互时使用固定 CLI 契约与 JSON 结果。
 
 ## 能力边界
 
-1. 项目 owner 文档继续拥有稳定事实、行为、接口和验证语义；长期判断进入项目已有决策 owner。
-2. 查询发现候选但不自动改变阶段；复核后可以用 `plan` 更新基线，以 `reconcile` 保存 Git 距离证据并进入 shelved，或用 `shelve` 保存明确原因并进入 shelved。
-3. `baseCommit` 只定位 Git 距离起点，不证明 artifacts 的内容一致性。CLI 的其余机械检查也不判断内容正确性、验证充分性或批准状态。
-4. Archived Change 只作为历史；CLI 不提供 restore，也不为其补写 active metadata。
-5. 版本控制操作失败会让 assessment 暂时不可用并产生明确诊断，不会被解释为计划内容需要复核。
-6. 稳定自动化优先使用 CLI 与 `--json` 输出；直接 import MJS 的调用方需要自行跟随当前实现变化。
-7. `list` 在成员无效时仍成功，以便持续发现待修复 Change；`check-all` 才把根级错误或任一无效成员转换为集合失败。合法空集合通过，archived 审计可能暴露不符合当前结构规则的历史内容。
+项目 owner 继续拥有稳定事实、接口和验证语义，长期判断进入项目已有决策 owner。Change
+artifacts、机械检查、语义审阅与当前任务授权提供不同证据：`plan` 记录基线，`archive` 移动目录，
+两者都不代替实施或归档授权。不再实施的 active Change 通过项目普通文件删除和版本控制流程退出。
 
-实际 skill 位于 [`skills/change-plan/`](../../skills/change-plan/)，精确字段、阈值和命令门禁见其固定契约。
+实际 skill 位于 [`skills/change-plan/`](../../skills/change-plan/)。Agent 行为从
+[`SKILL.md`](../../skills/change-plan/SKILL.md) 进入；字段、兼容边界、六个命令、输出和机械门禁以
+[固定契约](../../skills/change-plan/references/change-plan-contract.md) 为准。

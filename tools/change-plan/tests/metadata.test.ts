@@ -5,6 +5,7 @@ import test from "node:test";
 import {
   ChangePlanMetadataError,
   parseChangePlanMetadata,
+  readActiveChangePlanMetadata,
   readChangePlanMetadata,
   writeChangePlanMetadata
 } from "../src/metadata.ts";
@@ -33,7 +34,7 @@ async function assertMetadataError(
   });
 }
 
-test("metadata runtime enforces strict lifecycle values", () => {
+test("metadata parser accepts only canonical draft and plan values", () => {
   const cases: ReadonlyArray<{ accepted: boolean; value: unknown }> = [
     {
       accepted: true,
@@ -43,12 +44,7 @@ test("metadata runtime enforces strict lifecycle values", () => {
       accepted: true,
       value: {
         baseCommit: validBaseCommit,
-        shelf: {
-          atCommit: validBaseCommit,
-          reason: "等待上游\n重新确认",
-          source: "explicit"
-        },
-        stage: "shelved"
+        stage: "plan"
       }
     },
     {
@@ -59,8 +55,12 @@ test("metadata runtime enforces strict lifecycle values", () => {
       accepted: false,
       value: {
         baseCommit: ` ${validBaseCommit}`,
-        stage: "implementation"
+        stage: "plan"
       }
+    },
+    {
+      accepted: false,
+      value: { baseCommit: null, stage: "plan" }
     },
     {
       accepted: false,
@@ -68,21 +68,8 @@ test("metadata runtime enforces strict lifecycle values", () => {
         baseCommit: validBaseCommit,
         shelf: {
           atCommit: validBaseCommit,
-          reason: " 等待上游 ",
+          reason: "等待上游",
           source: "explicit"
-        },
-        stage: "shelved"
-      }
-    },
-    {
-      accepted: false,
-      value: {
-        baseCommit: validBaseCommit,
-        shelf: {
-          atCommit: validBaseCommit,
-          changedLines: Number.MAX_SAFE_INTEGER + 1,
-          commitCount: 1,
-          source: "git-distance-v1"
         },
         stage: "shelved"
       }
@@ -93,6 +80,77 @@ test("metadata runtime enforces strict lifecycle values", () => {
     assert.equal(runtimeAccepts(metadataCase.value), metadataCase.accepted);
   }
 });
+
+test("metadata writer emits canonical draft and plan JSON", () => (
+  withTempRoot("metadata-writer", async (tempRoot) => {
+    const draftDirectory = path.join(tempRoot, "draft");
+    const planDirectory = path.join(tempRoot, "plan");
+    await Promise.all([fs.mkdir(draftDirectory), fs.mkdir(planDirectory)]);
+
+    await writeChangePlanMetadata(draftDirectory, { stage: "draft" });
+    await writeChangePlanMetadata(planDirectory, {
+      baseCommit: validBaseCommit,
+      stage: "plan"
+    });
+
+    assert.deepEqual(await readChangePlanMetadata(draftDirectory), {
+      stage: "draft"
+    });
+    assert.deepEqual(await readChangePlanMetadata(planDirectory), {
+      baseCommit: validBaseCommit,
+      stage: "plan"
+    });
+    assert.equal(
+      await fs.readFile(path.join(planDirectory, ".change-plan.json"), "utf8"),
+      `${JSON.stringify({
+        baseCommit: validBaseCommit,
+        stage: "plan"
+      }, null, 2)}\n`
+    );
+
+    const failedDirectory = path.join(tempRoot, "rename-failure");
+    const failedMetadataPath = path.join(
+      failedDirectory,
+      ".change-plan.json"
+    );
+    const previousContents = `${JSON.stringify({ stage: "draft" }, null, 2)}\n`;
+    await fs.mkdir(failedDirectory);
+    await fs.writeFile(failedMetadataPath, previousContents, "utf8");
+
+    const originalRename = fs.rename.bind(fs);
+    let renameAttempted = false;
+    Object.defineProperty(fs, "rename", {
+      configurable: true,
+      value: async (...arguments_: Parameters<typeof fs.rename>) => {
+        const [oldPath, newPath] = arguments_;
+        if (String(newPath) === failedMetadataPath) {
+          renameAttempted = true;
+          throw new Error("forced metadata rename failure");
+        }
+        return await originalRename(oldPath, newPath);
+      },
+      writable: true
+    });
+    try {
+      await assertMetadataError(
+        () => writeChangePlanMetadata(failedDirectory, {
+          baseCommit: validBaseCommit,
+          stage: "plan"
+        }),
+        "io"
+      );
+    } finally {
+      Object.defineProperty(fs, "rename", {
+        configurable: true,
+        value: originalRename,
+        writable: true
+      });
+    }
+    assert.equal(renameAttempted, true);
+    assert.equal(await fs.readFile(failedMetadataPath, "utf8"), previousContents);
+    assert.deepEqual(await fs.readdir(failedDirectory), [".change-plan.json"]);
+  })
+));
 
 test("metadata reader maps file and parse boundaries to stable error codes", () => (
   withTempRoot("metadata-errors", async (tempRoot) => {
@@ -135,6 +193,58 @@ test("metadata reader maps file and parse boundaries to stable error codes", () 
       () => readChangePlanMetadata(invalidSchemaDirectory),
       "invalid"
     );
+
+    for (const [name, shelf] of [
+      [
+        "legacy-explicit-shelf",
+        {
+          atCommit: validBaseCommit,
+          reason: "等待上游输入",
+          source: "explicit"
+        }
+      ],
+      [
+        "legacy-distance-shelf",
+        {
+          atCommit: validBaseCommit,
+          changedLines: 100,
+          commitCount: 2,
+          source: "git-distance-v1"
+        }
+      ]
+    ] as const) {
+      const legacyDirectory = path.join(tempRoot, name);
+      await fs.mkdir(legacyDirectory);
+      await fs.writeFile(
+        path.join(legacyDirectory, ".change-plan.json"),
+        JSON.stringify({
+          baseCommit: validBaseCommit,
+          shelf,
+          stage: "shelved"
+        }),
+        "utf8"
+      );
+      assert.deepEqual(
+        await readActiveChangePlanMetadata(legacyDirectory),
+        { baseCommit: validBaseCommit, stage: "plan" }
+      );
+    }
+
+    const damagedShelfDirectory = path.join(tempRoot, "damaged-shelf");
+    await fs.mkdir(damagedShelfDirectory);
+    await fs.writeFile(
+      path.join(damagedShelfDirectory, ".change-plan.json"),
+      JSON.stringify({
+        baseCommit: validBaseCommit,
+        shelf: { reason: "缺少来源与提交" },
+        stage: "shelved"
+      }),
+      "utf8"
+    );
+    await assertMetadataError(
+      () => readActiveChangePlanMetadata(damagedShelfDirectory),
+      "invalid"
+    );
   })
 ));
 
@@ -163,5 +273,58 @@ test("metadata reader and writer reject symbolic-link metadata", () => (
       "invalid-path"
     );
     assert.equal(await fs.readFile(targetPath, "utf8"), original);
+
+    const replacedDirectory = path.join(tempRoot, "replaced-link");
+    const replacedMetadataPath = path.join(
+      replacedDirectory,
+      ".change-plan.json"
+    );
+    const displacedMetadataPath = path.join(
+      replacedDirectory,
+      ".change-plan.original.json"
+    );
+    const externalPath = path.join(tempRoot, "external-target.json");
+    const externalContents = "external target must remain unchanged\n";
+    await fs.mkdir(replacedDirectory);
+    await fs.writeFile(replacedMetadataPath, original, "utf8");
+    await fs.writeFile(externalPath, externalContents, "utf8");
+
+    const originalRename = fs.rename.bind(fs);
+    let linkInserted = false;
+    Object.defineProperty(fs, "rename", {
+      configurable: true,
+      value: async (...arguments_: Parameters<typeof fs.rename>) => {
+        const [oldPath, newPath] = arguments_;
+        if (!linkInserted && String(newPath) === replacedMetadataPath) {
+          linkInserted = true;
+          await originalRename(replacedMetadataPath, displacedMetadataPath);
+          await fs.symlink(externalPath, replacedMetadataPath, "file");
+        }
+        return await originalRename(oldPath, newPath);
+      },
+      writable: true
+    });
+    try {
+      await writeChangePlanMetadata(replacedDirectory, {
+        baseCommit: validBaseCommit,
+        stage: "plan"
+      });
+    } finally {
+      Object.defineProperty(fs, "rename", {
+        configurable: true,
+        value: originalRename,
+        writable: true
+      });
+    }
+
+    assert.equal(linkInserted, true);
+    assert.equal(await fs.readFile(externalPath, "utf8"), externalContents);
+    const finalMetadataStat = await fs.lstat(replacedMetadataPath);
+    assert.equal(finalMetadataStat.isSymbolicLink(), false);
+    assert.equal(finalMetadataStat.isFile(), true);
+    assert.deepEqual(await readChangePlanMetadata(replacedDirectory), {
+      baseCommit: validBaseCommit,
+      stage: "plan"
+    });
   })
 ));

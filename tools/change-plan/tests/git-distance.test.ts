@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { inspectPlanVersionControl } from "../src/git-distance.ts";
-import { withTempRoot } from "./support.ts";
+import { validBaseCommit, withTempRoot } from "./support.ts";
 
 type GitFixture = {
   baseCommit: string;
@@ -59,7 +59,7 @@ async function assertDistance(
   assert.equal(inspection.evidence.changedLines, expectedChangedLines);
 }
 
-test("git-distance-v1 excludes commits that only change the assessed directory", () => (
+test("git-distance excludes commits that only change the assessed directory", () => (
   withTempRoot("git-distance-excluded-change", async (tempRoot) => {
     const fixture = await createGitFixture(tempRoot);
     await fs.writeFile(
@@ -73,7 +73,26 @@ test("git-distance-v1 excludes commits that only change the assessed directory",
   })
 ));
 
-test("git-distance-v1 counts sibling paths and only outside lines in mixed commits", () => (
+test("git-distance reports zero evidence at the plan baseline", () => (
+  withTempRoot("git-distance-zero", async (tempRoot) => {
+    const fixture = await createGitFixture(tempRoot);
+    const inspection = await inspectPlanVersionControl(
+      fixture.changeDirectory,
+      fixture.baseCommit
+    );
+    assert.deepEqual(inspection, {
+      evidence: {
+        baseCommit: fixture.baseCommit,
+        changedLines: 0,
+        commitCount: 0,
+        headCommit: fixture.baseCommit
+      },
+      outcome: "measured"
+    });
+  })
+));
+
+test("git-distance counts sibling paths and only outside lines in mixed commits", () => (
   withTempRoot("git-distance-path-boundary", async (tempRoot) => {
     const fixture = await createGitFixture(tempRoot);
     const siblingDirectory = path.join(
@@ -100,7 +119,7 @@ test("git-distance-v1 counts sibling paths and only outside lines in mixed commi
   })
 ));
 
-test("git-distance-v1 accumulates additions and deletions", () => (
+test("git-distance accumulates additions and deletions", () => (
   withTempRoot("git-distance-additions-deletions", async (tempRoot) => {
     const fixture = await createGitFixture(tempRoot);
     const trackedFile = path.join(fixture.repositoryRoot, "tracked.txt");
@@ -113,3 +132,48 @@ test("git-distance-v1 accumulates additions and deletions", () => (
     await assertDistance(fixture, 2, 8);
   })
 ));
+
+test("git-distance reports unavailable missing and non-first-parent bases", () => (
+  withTempRoot("git-distance-base-unavailable", async (tempRoot) => {
+    const fixture = await createGitFixture(tempRoot);
+    const missingBase = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef";
+    assert.deepEqual(
+      await inspectPlanVersionControl(fixture.changeDirectory, null),
+      {
+        baseCommit: null,
+        headCommit: fixture.baseCommit,
+        outcome: "base-unavailable"
+      }
+    );
+    assert.deepEqual(
+      await inspectPlanVersionControl(fixture.changeDirectory, missingBase),
+      {
+        baseCommit: missingBase,
+        headCommit: fixture.baseCommit,
+        outcome: "base-unavailable"
+      }
+    );
+
+    git(fixture.repositoryRoot, ["switch", "--quiet", "-c", "side"]);
+    await fs.writeFile(path.join(fixture.repositoryRoot, "side.txt"), "side\n");
+    git(fixture.repositoryRoot, ["add", "side.txt"]);
+    git(fixture.repositoryRoot, ["commit", "--quiet", "-m", "side"]);
+    const sideCommit = git(fixture.repositoryRoot, ["rev-parse", "HEAD"]);
+    git(fixture.repositoryRoot, ["switch", "--quiet", "main"]);
+    assert.deepEqual(
+      await inspectPlanVersionControl(fixture.changeDirectory, sideCommit),
+      {
+        baseCommit: sideCommit,
+        headCommit: fixture.baseCommit,
+        outcome: "base-unavailable"
+      }
+    );
+  })
+));
+
+test("git-distance propagates version-control access failures", async () => {
+  await assert.rejects(
+    inspectPlanVersionControl("/path/that/is/not/a/repository", validBaseCommit),
+    /version control|repository|git/u
+  );
+});

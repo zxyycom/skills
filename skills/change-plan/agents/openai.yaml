@@ -1,4 +1,4 @@
 interface:
   display_name: "Change Plan"
-  short_description: "维护可审阅、可搁置并按阶段推进的 Change 计划"
-  default_prompt: "使用 $change-plan 为明确 Change 创建或维护 proposal、design、tasks 与阶段元数据，恢复相关 owner 和决策，按 draft、plan、implementation、shelved 阶段推进；复核 Git 距离产生的搁置候选，再选择重新 plan、显式 shelve 或 reconcile。"
+  short_description: "维护可审阅并在 Plan 内推进的 Change 计划"
+  default_prompt: "使用 $change-plan 为明确 Change 创建或维护 proposal、design、tasks 与 metadata；先恢复项目 owner 和固定契约，按 active/draft -> active/plan -> archived 生命周期工作，在 Plan 内推进 Readiness、Implementation 与 Verification，依据直接 Git 距离证据复核上下文，并把机械结果、语义审阅和当前任务授权分别处理。"

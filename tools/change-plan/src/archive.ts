@@ -8,6 +8,11 @@ import type {
   ChangePlanCheckResult
 } from "./types.ts";
 
+type DirectoryIdentity = {
+  dev: number;
+  ino: number;
+};
+
 function isMissingPathError(error: unknown): boolean {
   return error !== null
     && typeof error === "object"
@@ -28,6 +33,20 @@ async function lstatOrNull(targetPath: string): Promise<Stats | null> {
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function directoryIdentity(stat: Stats): DirectoryIdentity {
+  return { dev: stat.dev, ino: stat.ino };
+}
+
+function hasDirectoryIdentity(
+  stat: Stats,
+  identity: DirectoryIdentity
+): boolean {
+  return !stat.isSymbolicLink()
+    && stat.isDirectory()
+    && stat.dev === identity.dev
+    && stat.ino === identity.ino;
 }
 
 export async function archiveChangePlanDirectory(
@@ -89,6 +108,7 @@ export async function archiveChangePlanDirectory(
       `reserved change archive directory cannot be archived: ${sourceDirectory}`
     );
   }
+  const initialSourceIdentity = directoryIdentity(sourceStat);
 
   let check: ChangePlanCheckResult;
   try {
@@ -101,9 +121,9 @@ export async function archiveChangePlanDirectory(
   if (!check.valid) {
     return failure("change plan must pass check before archive", check);
   }
-  if (check.stage !== "implementation") {
+  if (check.stage !== "plan") {
     return failure(
-      "change plan must be in implementation stage before archive",
+      "change plan must be an active plan before archive",
       check
     );
   }
@@ -115,56 +135,91 @@ export async function archiveChangePlanDirectory(
     );
   }
 
-  try {
-    sourceStat = await lstatOrNull(sourceDirectory);
-  } catch (error) {
-    return failure(
-      `cannot recheck change directory ${sourceDirectory}: ${errorMessage(error)}`,
-      check
-    );
-  }
-  if (sourceStat === null) {
-    return failure(
-      `change directory disappeared before archive: ${sourceDirectory}`,
-      check
-    );
-  }
-  if (sourceStat.isSymbolicLink() || !sourceStat.isDirectory()) {
-    return failure(
-      `change directory changed before archive: ${sourceDirectory}`,
-      check
-    );
-  }
-
   let createdArchiveDirectory = false;
+  let createdArchiveIdentity: DirectoryIdentity | null = null;
   const removeCreatedArchiveDirectory = async (): Promise<void> => {
-    if (!createdArchiveDirectory) {
+    if (!createdArchiveDirectory || createdArchiveIdentity === null) {
       return;
     }
     try {
-      await fs.rmdir(archiveDirectory);
+      const currentArchiveStat = await lstatOrNull(archiveDirectory);
+      if (
+        currentArchiveStat !== null
+        && hasDirectoryIdentity(currentArchiveStat, createdArchiveIdentity)
+      ) {
+        await fs.rmdir(archiveDirectory);
+      }
     } catch {
       // Preserve the original archive failure; the directory may no longer be empty.
     }
   };
   try {
-    const archiveStat = await lstatOrNull(archiveDirectory);
-    if (archiveStat !== null) {
-      if (!archiveStat.isDirectory() || archiveStat.isSymbolicLink()) {
-        return failure(
-          `change archive must be a regular directory: ${archiveDirectory}`,
-          check
-        );
-      }
-    } else {
+    let archiveStat = await lstatOrNull(archiveDirectory);
+    if (archiveStat === null) {
       await fs.mkdir(archiveDirectory);
       createdArchiveDirectory = true;
+      archiveStat = await lstatOrNull(archiveDirectory);
+      if (archiveStat === null) {
+        throw new Error(`created archive directory disappeared: ${archiveDirectory}`);
+      }
+      createdArchiveIdentity = directoryIdentity(archiveStat);
     }
+    if (!archiveStat.isDirectory() || archiveStat.isSymbolicLink()) {
+      await removeCreatedArchiveDirectory();
+      return failure(
+        `change archive must be a regular directory: ${archiveDirectory}`,
+        check
+      );
+    }
+    const initialArchiveIdentity = directoryIdentity(archiveStat);
 
     if (await lstatOrNull(archivedDirectory) !== null) {
       await removeCreatedArchiveDirectory();
       return failure(
         `archive target already exists: ${archivedDirectory}`,
+        check
+      );
+    }
+
+    const currentArchiveStat = await lstatOrNull(archiveDirectory);
+    if (
+      currentArchiveStat === null
+      || !hasDirectoryIdentity(currentArchiveStat, initialArchiveIdentity)
+    ) {
+      await removeCreatedArchiveDirectory();
+      return failure(
+        `change archive directory changed before archive: ${archiveDirectory}`,
+        check
+      );
+    }
+
+    try {
+      sourceStat = await lstatOrNull(sourceDirectory);
+    } catch (error) {
+      await removeCreatedArchiveDirectory();
+      return failure(
+        `cannot recheck change directory ${sourceDirectory}: ${errorMessage(error)}`,
+        check
+      );
+    }
+    if (sourceStat === null) {
+      await removeCreatedArchiveDirectory();
+      return failure(
+        `change directory disappeared before archive: ${sourceDirectory}`,
+        check
+      );
+    }
+    if (!hasDirectoryIdentity(sourceStat, initialSourceIdentity)) {
+      await removeCreatedArchiveDirectory();
+      return failure(
+        `change directory changed before archive: ${sourceDirectory}`,
+        check
+      );
+    }
+    if (await lstatOrNull(archivedDirectory) !== null) {
+      await removeCreatedArchiveDirectory();
+      return failure(
+        `archive target appeared before archive: ${archivedDirectory}`,
         check
       );
     }

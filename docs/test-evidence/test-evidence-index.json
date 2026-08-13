@@ -4,7 +4,7 @@
     "CHANGE-PLAN-ARCHIVE-GATES-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-ARCHIVE-GATES-001 归档拒绝未通过内容门禁的计划 Change 只有处于 implementation 阶段，且 proposal、design 和 tasks 满足内容门禁后才能归档。 未完成的 implementation Change 与任务已完成的 draft Change 都保持在活动目录并返回对应阻断原因。 tools/change-plan/tests/archive.test.ts > archive rejects plans that fail content gates bun test --test-name-pattern=\"^archive rejects plans that fail content gates$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-ARCHIVE-GATES-001 归档拒绝未通过内容门禁的计划 归档只接受结构检查有效、处于 active Plan 且全部 tasks 已完成的 Change。 未完成的 Plan 与任务已完成的 Draft 都保持在活动目录并返回对应阻断原因。 tools/change-plan/tests/archive.test.ts > archive rejects plans that fail content gates bun test --test-name-pattern=\"^archive rejects plans that fail content gates$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -18,194 +18,79 @@
         ],
         "id": "CHANGE-PLAN-ARCHIVE-GATES-001",
         "line": 1,
-        "searchText": "归档拒绝未通过内容门禁的计划 Change 只有处于 implementation 阶段，且 proposal、design 和 tasks 满足内容门禁后才能归档。 未完成的 implementation Change 与任务已完成的 draft Change 都保持在活动目录并返回对应阻断原因。 tools/change-plan/tests/archive.test.ts > archive rejects plans that fail content gates bun test --test-name-pattern=\"^archive rejects plans that fail content gates$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "归档拒绝未通过内容门禁的计划 归档只接受结构检查有效、处于 active Plan 且全部 tasks 已完成的 Change。 未完成的 Plan 与任务已完成的 Draft 都保持在活动目录并返回对应阻断原因。 tools/change-plan/tests/archive.test.ts > archive rejects plans that fail content gates bun test --test-name-pattern=\"^archive rejects plans that fail content gates$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/archive-rejects-plans-that-fail-content-gates.md",
-        "summary": "Change 只有处于 implementation 阶段，且 proposal、design 和 tasks 满足内容门禁后才能归档。",
+        "summary": "归档只接受结构检查有效、处于 active Plan 且全部 tasks 已完成的 Change。",
         "title": "归档拒绝未通过内容门禁的计划"
       }
     },
     "CHANGE-PLAN-ARCHIVE-MOVE-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-ARCHIVE-MOVE-001 完整计划被原子归档 完整计划归档后必须从活动目录移动到归档目录并保持内容。 源目录消失、目标目录存在，三个计划制品内容保持不变。 tools/change-plan/tests/archive.test.ts > archive moves complete plans and preserves their content bun test --test-name-pattern=\"^archive moves complete plans and preserves their content$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-ARCHIVE-MOVE-001 完整计划被原子归档 完整 Plan 归档后移动到同一生命周期根的 archive 目录，并原样保留目录中的全部内容。 成功结果报告目标目录且错误为空，源目录消失、目标目录存在。 随 Plan 保存的 `evidence.md` 在归档目录中保持原始字节。 底层移动失败时保留活动源目录，并清理本次新建且仍可确认身份的空 archive 容器。 tools/change-plan/tests/archive.test.ts > archive moves complete plans and preserves their content bun test --test-name-pattern=\"^archive moves complete plans and preserves their content$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 11,
         "entries": [
           "tools/change-plan/tests/archive.test.ts > archive moves complete plans and preserves their content",
           "bun test --test-name-pattern=\"^archive moves complete plans and preserves their content$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-ARCHIVE-MOVE-001",
         "line": 1,
-        "searchText": "完整计划被原子归档 完整计划归档后必须从活动目录移动到归档目录并保持内容。 源目录消失、目标目录存在，三个计划制品内容保持不变。 tools/change-plan/tests/archive.test.ts > archive moves complete plans and preserves their content bun test --test-name-pattern=\"^archive moves complete plans and preserves their content$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "完整计划被原子归档 完整 Plan 归档后移动到同一生命周期根的 archive 目录，并原样保留目录中的全部内容。 成功结果报告目标目录且错误为空，源目录消失、目标目录存在。 随 Plan 保存的 `evidence.md` 在归档目录中保持原始字节。 底层移动失败时保留活动源目录，并清理本次新建且仍可确认身份的空 archive 容器。 tools/change-plan/tests/archive.test.ts > archive moves complete plans and preserves their content bun test --test-name-pattern=\"^archive moves complete plans and preserves their content$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/archive-moves-complete-plans-and-preserves-their-content.md",
-        "summary": "完整计划归档后必须从活动目录移动到归档目录并保持内容。",
+        "summary": "完整 Plan 归档后移动到同一生命周期根的 archive 目录，并原样保留目录中的全部内容。",
         "title": "完整计划被原子归档"
       }
     },
     "CHANGE-PLAN-ARCHIVE-SOURCE-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-ARCHIVE-SOURCE-001 归档拒绝不安全源路径 归档源必须是受管理活动目录中的安全 change 路径。 越界、别名或不受支持的源路径不会触发文件移动。 tools/change-plan/tests/archive.test.ts > archive rejects unsafe source paths bun test --test-name-pattern=\"^archive rejects unsafe source paths$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-ARCHIVE-SOURCE-001 归档拒绝不安全源路径 归档源必须是当前活动 Change 的真实目录，并在移动前保持与初次检查相同的文件系统身份。 符号链接、已归档目录、普通文件和不可检查路径分别返回源路径诊断且不进入内容检查。 初次检查后被另一目录替换的源路径返回 `changed before archive`，原目录与替换目录均保持存在。 tools/change-plan/tests/archive.test.ts > archive rejects unsafe source paths bun test --test-name-pattern=\"^archive rejects unsafe source paths$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
         "entries": [
           "tools/change-plan/tests/archive.test.ts > archive rejects unsafe source paths",
           "bun test --test-name-pattern=\"^archive rejects unsafe source paths$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-ARCHIVE-SOURCE-001",
         "line": 1,
-        "searchText": "归档拒绝不安全源路径 归档源必须是受管理活动目录中的安全 change 路径。 越界、别名或不受支持的源路径不会触发文件移动。 tools/change-plan/tests/archive.test.ts > archive rejects unsafe source paths bun test --test-name-pattern=\"^archive rejects unsafe source paths$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "归档拒绝不安全源路径 归档源必须是当前活动 Change 的真实目录，并在移动前保持与初次检查相同的文件系统身份。 符号链接、已归档目录、普通文件和不可检查路径分别返回源路径诊断且不进入内容检查。 初次检查后被另一目录替换的源路径返回 `changed before archive`，原目录与替换目录均保持存在。 tools/change-plan/tests/archive.test.ts > archive rejects unsafe source paths bun test --test-name-pattern=\"^archive rejects unsafe source paths$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/archive-rejects-unsafe-source-paths.md",
-        "summary": "归档源必须是受管理活动目录中的安全 change 路径。",
+        "summary": "归档源必须是当前活动 Change 的真实目录，并在移动前保持与初次检查相同的文件系统身份。",
         "title": "归档拒绝不安全源路径"
       }
     },
     "CHANGE-PLAN-ARCHIVE-TARGET-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-ARCHIVE-TARGET-001 归档拒绝无效目标目录 归档目标必须满足生命周期目录与目标命名约束。 冲突或非法目标目录在写入前被拒绝。 tools/change-plan/tests/archive.test.ts > archive rejects invalid target directories bun test --test-name-pattern=\"^archive rejects invalid target directories$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-ARCHIVE-TARGET-001 归档拒绝无效目标目录 归档目标必须是当前 Plan 名称对应的未占用路径，archive 容器必须是普通目录；移动前会再次确认目标仍未出现。 已存在的同名目标、移动前才出现的同名目标和非目录 archive 容器分别返回可定位错误。 每种失败都保留活动源目录，晚出现的目标也保持原位。 tools/change-plan/tests/archive.test.ts > archive rejects invalid target directories bun test --test-name-pattern=\"^archive rejects invalid target directories$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
         "entries": [
           "tools/change-plan/tests/archive.test.ts > archive rejects invalid target directories",
           "bun test --test-name-pattern=\"^archive rejects invalid target directories$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-ARCHIVE-TARGET-001",
         "line": 1,
-        "searchText": "归档拒绝无效目标目录 归档目标必须满足生命周期目录与目标命名约束。 冲突或非法目标目录在写入前被拒绝。 tools/change-plan/tests/archive.test.ts > archive rejects invalid target directories bun test --test-name-pattern=\"^archive rejects invalid target directories$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "归档拒绝无效目标目录 归档目标必须是当前 Plan 名称对应的未占用路径，archive 容器必须是普通目录；移动前会再次确认目标仍未出现。 已存在的同名目标、移动前才出现的同名目标和非目录 archive 容器分别返回可定位错误。 每种失败都保留活动源目录，晚出现的目标也保持原位。 tools/change-plan/tests/archive.test.ts > archive rejects invalid target directories bun test --test-name-pattern=\"^archive rejects invalid target directories$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/archive-rejects-invalid-target-directories.md",
-        "summary": "归档目标必须满足生命周期目录与目标命名约束。",
+        "summary": "归档目标必须是当前 Plan 名称对应的未占用路径，archive 容器必须是普通目录；移动前会再次确认目标仍未出现。",
         "title": "归档拒绝无效目标目录"
-      }
-    },
-    "CHANGE-PLAN-ASSESS-ARTIFACTS-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-ASSESS-ARTIFACTS-001 计划评估不比较制品与基线内容 `baseCommit` 只作为 Git 距离起点，Plan assessment 不把它解释为三个 artifacts 的内容快照。 工作树修改、只修改 Change 目录的新提交，以及 index 与工作树修改都不触发内容差异复核，评估继续返回 `current` 和 Git 距离证据。 tools/change-plan/tests/assessment.test.ts > assessment ignores artifact differences from its base bun test --test-name-pattern=\"^assessment ignores artifact differences from its base$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/change-plan/tests/assessment.test.ts > assessment ignores artifact differences from its base",
-          "bun test --test-name-pattern=\"^assessment ignores artifact differences from its base$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-ASSESS-ARTIFACTS-001",
-        "line": 1,
-        "searchText": "计划评估不比较制品与基线内容 `baseCommit` 只作为 Git 距离起点，Plan assessment 不把它解释为三个 artifacts 的内容快照。 工作树修改、只修改 Change 目录的新提交，以及 index 与工作树修改都不触发内容差异复核，评估继续返回 `current` 和 Git 距离证据。 tools/change-plan/tests/assessment.test.ts > assessment ignores artifact differences from its base bun test --test-name-pattern=\"^assessment ignores artifact differences from its base$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/assessment-ignores-artifact-differences-from-its-base.md",
-        "summary": "`baseCommit` 只作为 Git 距离起点，Plan assessment 不把它解释为三个 artifacts 的内容快照。",
-        "title": "计划评估不比较制品与基线内容"
-      }
-    },
-    "CHANGE-PLAN-ASSESS-BASE-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-ASSESS-BASE-001 计划基线不可用时要求复核 活动 plan 没有 Git 距离基线或基线对象无法解析时，评估必须要求复核。 空基线和不存在的提交均返回 `plan-review-required` 与 `base-unavailable` 原因，并报告当前 HEAD。 tools/change-plan/tests/assessment.test.ts > assessment requires review when the plan base is unavailable bun test --test-name-pattern=\"^assessment requires review when the plan base is unavailable$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/change-plan/tests/assessment.test.ts > assessment requires review when the plan base is unavailable",
-          "bun test --test-name-pattern=\"^assessment requires review when the plan base is unavailable$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-ASSESS-BASE-001",
-        "line": 1,
-        "searchText": "计划基线不可用时要求复核 活动 plan 没有 Git 距离基线或基线对象无法解析时，评估必须要求复核。 空基线和不存在的提交均返回 `plan-review-required` 与 `base-unavailable` 原因，并报告当前 HEAD。 tools/change-plan/tests/assessment.test.ts > assessment requires review when the plan base is unavailable bun test --test-name-pattern=\"^assessment requires review when the plan base is unavailable$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/assessment-requires-review-when-the-plan-base-is-unavailable.md",
-        "summary": "活动 plan 没有 Git 距离基线或基线对象无法解析时，评估必须要求复核。",
-        "title": "计划基线不可用时要求复核"
-      }
-    },
-    "CHANGE-PLAN-ASSESS-CURRENT-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-ASSESS-CURRENT-001 基线可用的计划保持当前 Plan 的 `baseCommit` 可解析、位于当前 HEAD 的第一父历史且项目没有推进时，评估必须保持 `current`。 评估返回相同基线与 HEAD、零距离及固定 `git-distance-v1` 策略。 tools/change-plan/tests/assessment.test.ts > assessment keeps a plan with an available base current bun test --test-name-pattern=\"^assessment keeps a plan with an available base current$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/change-plan/tests/assessment.test.ts > assessment keeps a plan with an available base current",
-          "bun test --test-name-pattern=\"^assessment keeps a plan with an available base current$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-ASSESS-CURRENT-001",
-        "line": 1,
-        "searchText": "基线可用的计划保持当前 Plan 的 `baseCommit` 可解析、位于当前 HEAD 的第一父历史且项目没有推进时，评估必须保持 `current`。 评估返回相同基线与 HEAD、零距离及固定 `git-distance-v1` 策略。 tools/change-plan/tests/assessment.test.ts > assessment keeps a plan with an available base current bun test --test-name-pattern=\"^assessment keeps a plan with an available base current$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/assessment-keeps-a-plan-with-an-available-base-current.md",
-        "summary": "Plan 的 `baseCommit` 可解析、位于当前 HEAD 的第一父历史且项目没有推进时，评估必须保持 `current`。",
-        "title": "基线可用的计划保持当前"
-      }
-    },
-    "CHANGE-PLAN-ASSESS-HISTORY-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-ASSESS-HISTORY-001 评估拒绝第一父历史之外的基线 Plan 基线必须位于当前 HEAD 的第一父历史上，旁支提交不能作为距离起点。 合并后以旁支提交为基线返回 `plan-review-required` 与 `base-unavailable`，不会生成无法成立的 Git 距离证据。 tools/change-plan/tests/assessment.test.ts > assessment rejects a base outside the HEAD first-parent history bun test --test-name-pattern=\"^assessment rejects a base outside the HEAD first-parent history$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/change-plan/tests/assessment.test.ts > assessment rejects a base outside the HEAD first-parent history",
-          "bun test --test-name-pattern=\"^assessment rejects a base outside the HEAD first-parent history$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-ASSESS-HISTORY-001",
-        "line": 1,
-        "searchText": "评估拒绝第一父历史之外的基线 Plan 基线必须位于当前 HEAD 的第一父历史上，旁支提交不能作为距离起点。 合并后以旁支提交为基线返回 `plan-review-required` 与 `base-unavailable`，不会生成无法成立的 Git 距离证据。 tools/change-plan/tests/assessment.test.ts > assessment rejects a base outside the HEAD first-parent history bun test --test-name-pattern=\"^assessment rejects a base outside the HEAD first-parent history$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/assessment-rejects-a-base-outside-the-head-first-parent-history.md",
-        "summary": "Plan 基线必须位于当前 HEAD 的第一父历史上，旁支提交不能作为距离起点。",
-        "title": "评估拒绝第一父历史之外的基线"
-      }
-    },
-    "CHANGE-PLAN-ASSESS-SCOPE-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-ASSESS-SCOPE-001 评估只适用于活动 Plan 阶段 智能搁置评估只作用于活动生命周期中的 `plan` 阶段。 Draft 和归档 plan 均直接返回 `not-applicable`，且不要求所在路径是 Git 仓库。 tools/change-plan/tests/assessment.test.ts > assessment is not applicable outside active plan stage bun test --test-name-pattern=\"^assessment is not applicable outside active plan stage$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/change-plan/tests/assessment.test.ts > assessment is not applicable outside active plan stage",
-          "bun test --test-name-pattern=\"^assessment is not applicable outside active plan stage$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-ASSESS-SCOPE-001",
-        "line": 1,
-        "searchText": "评估只适用于活动 Plan 阶段 智能搁置评估只作用于活动生命周期中的 `plan` 阶段。 Draft 和归档 plan 均直接返回 `not-applicable`，且不要求所在路径是 Git 仓库。 tools/change-plan/tests/assessment.test.ts > assessment is not applicable outside active plan stage bun test --test-name-pattern=\"^assessment is not applicable outside active plan stage$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/assessment-is-not-applicable-outside-active-plan-stage.md",
-        "summary": "智能搁置评估只作用于活动生命周期中的 `plan` 阶段。",
-        "title": "评估只适用于活动 Plan 阶段"
       }
     },
     "CHANGE-PLAN-CATALOG-INVALID-001": {
@@ -234,7 +119,7 @@
     "CHANGE-PLAN-CATALOG-LIFECYCLE-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CATALOG-LIFECYCLE-001 目录按生命周期列出计划 Change catalog 必须支持 active、archived 与 all 生命周期筛选，并在条目中公开适用的阶段和评估。 每种筛选只返回对应生命周期且排序稳定的计划；活动 implementation 条目和无阶段归档历史分别返回 `not-applicable` 评估。 tools/change-plan/tests/catalog.test.ts > catalog lists active, archived, and all change plans bun test --test-name-pattern=\"^catalog lists active, archived, and all change plans$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CATALOG-LIFECYCLE-001 目录按生命周期列出计划 Change catalog 支持 active、archived 与 all 生命周期筛选，并在每个条目中公开适用的阶段与 Git 距离证据。 每种筛选只返回对应生命周期且排序稳定的计划；活动 Plan 返回距离证据，归档历史不解释 metadata 且距离为空。 tools/change-plan/tests/catalog.test.ts > catalog lists active, archived, and all change plans bun test --test-name-pattern=\"^catalog lists active, archived, and all change plans$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -248,9 +133,9 @@
         ],
         "id": "CHANGE-PLAN-CATALOG-LIFECYCLE-001",
         "line": 1,
-        "searchText": "目录按生命周期列出计划 Change catalog 必须支持 active、archived 与 all 生命周期筛选，并在条目中公开适用的阶段和评估。 每种筛选只返回对应生命周期且排序稳定的计划；活动 implementation 条目和无阶段归档历史分别返回 `not-applicable` 评估。 tools/change-plan/tests/catalog.test.ts > catalog lists active, archived, and all change plans bun test --test-name-pattern=\"^catalog lists active, archived, and all change plans$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "目录按生命周期列出计划 Change catalog 支持 active、archived 与 all 生命周期筛选，并在每个条目中公开适用的阶段与 Git 距离证据。 每种筛选只返回对应生命周期且排序稳定的计划；活动 Plan 返回距离证据，归档历史不解释 metadata 且距离为空。 tools/change-plan/tests/catalog.test.ts > catalog lists active, archived, and all change plans bun test --test-name-pattern=\"^catalog lists active, archived, and all change plans$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/catalog-lists-active-archived-and-all-change-plans.md",
-        "summary": "Change catalog 必须支持 active、archived 与 all 生命周期筛选，并在条目中公开适用的阶段和评估。",
+        "summary": "Change catalog 支持 active、archived 与 all 生命周期筛选，并在每个条目中公开适用的阶段与 Git 距离证据。",
         "title": "目录按生命周期列出计划"
       }
     },
@@ -303,21 +188,21 @@
     "CHANGE-PLAN-CATALOG-STAGE-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CATALOG-STAGE-001 Catalog 按活动生命周期阶段筛选 Change 阶段筛选只适用于活动 Change，并只返回匹配该阶段的条目。 Draft 筛选只返回 draft Change；与 `status: all` 组合时返回空条目及明确错误。 tools/change-plan/tests/catalog.test.ts > catalog filters active changes by lifecycle stage bun test --test-name-pattern=\"^catalog filters active changes by lifecycle stage$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CATALOG-STAGE-001 Catalog 按活动生命周期阶段筛选 Change 阶段筛选只适用于活动 Change，并只返回匹配该阶段的条目。 Draft 筛选只返回 draft Change；与 `status: all` 组合时返回空条目及明确错误。 Plan 筛选把历史 `implementation` 与 `shelved` metadata 的兼容投影都作为 Plan 条目返回。 tools/change-plan/tests/catalog.test.ts > catalog filters active changes by lifecycle stage bun test --test-name-pattern=\"^catalog filters active changes by lifecycle stage$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
         "entries": [
           "tools/change-plan/tests/catalog.test.ts > catalog filters active changes by lifecycle stage",
           "bun test --test-name-pattern=\"^catalog filters active changes by lifecycle stage$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-CATALOG-STAGE-001",
         "line": 1,
-        "searchText": "Catalog 按活动生命周期阶段筛选 Change 阶段筛选只适用于活动 Change，并只返回匹配该阶段的条目。 Draft 筛选只返回 draft Change；与 `status: all` 组合时返回空条目及明确错误。 tools/change-plan/tests/catalog.test.ts > catalog filters active changes by lifecycle stage bun test --test-name-pattern=\"^catalog filters active changes by lifecycle stage$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Catalog 按活动生命周期阶段筛选 Change 阶段筛选只适用于活动 Change，并只返回匹配该阶段的条目。 Draft 筛选只返回 draft Change；与 `status: all` 组合时返回空条目及明确错误。 Plan 筛选把历史 `implementation` 与 `shelved` metadata 的兼容投影都作为 Plan 条目返回。 tools/change-plan/tests/catalog.test.ts > catalog filters active changes by lifecycle stage bun test --test-name-pattern=\"^catalog filters active changes by lifecycle stage$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/catalog-filters-active-changes-by-lifecycle-stage.md",
         "summary": "阶段筛选只适用于活动 Change，并只返回匹配该阶段的条目。",
         "title": "Catalog 按活动生命周期阶段筛选 Change"
@@ -349,30 +234,30 @@
     "CHANGE-PLAN-CHECK-ARTIFACTS-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CHECK-ARTIFACTS-001 检查报告 proposal 与 tasks 问题 Proposal 和 tasks 的必需结构与完成状态必须被逐项检查。 缺失或无效制品产生对应文件和规则诊断。 tools/change-plan/tests/check.test.ts > check reports proposal and task artifact diagnostics bun test --test-name-pattern=\"^check reports proposal and task artifact diagnostics$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CHECK-ARTIFACTS-001 检查报告 proposal 与 tasks 问题 Proposal 章节顺序与内容、tasks 的任务语法、ID 唯一性、必需区段和任务所在区段都必须逐项检查。 顺序错误且内容为空的 proposal 返回 `section-order` 与 `empty-section`。 tasks 中的非法语法、重复 ID、空 Verification 区段和额外区段任务分别返回对应诊断。 tools/change-plan/tests/check.test.ts > check reports proposal and task artifact diagnostics bun test --test-name-pattern=\"^check reports proposal and task artifact diagnostics$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
         "entries": [
           "tools/change-plan/tests/check.test.ts > check reports proposal and task artifact diagnostics",
           "bun test --test-name-pattern=\"^check reports proposal and task artifact diagnostics$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-CHECK-ARTIFACTS-001",
         "line": 1,
-        "searchText": "检查报告 proposal 与 tasks 问题 Proposal 和 tasks 的必需结构与完成状态必须被逐项检查。 缺失或无效制品产生对应文件和规则诊断。 tools/change-plan/tests/check.test.ts > check reports proposal and task artifact diagnostics bun test --test-name-pattern=\"^check reports proposal and task artifact diagnostics$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "检查报告 proposal 与 tasks 问题 Proposal 章节顺序与内容、tasks 的任务语法、ID 唯一性、必需区段和任务所在区段都必须逐项检查。 顺序错误且内容为空的 proposal 返回 `section-order` 与 `empty-section`。 tasks 中的非法语法、重复 ID、空 Verification 区段和额外区段任务分别返回对应诊断。 tools/change-plan/tests/check.test.ts > check reports proposal and task artifact diagnostics bun test --test-name-pattern=\"^check reports proposal and task artifact diagnostics$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/check-reports-proposal-and-task-artifact-diagnostics.md",
-        "summary": "Proposal 和 tasks 的必需结构与完成状态必须被逐项检查。",
+        "summary": "Proposal 章节顺序与内容、tasks 的任务语法、ID 唯一性、必需区段和任务所在区段都必须逐项检查。",
         "title": "检查报告 proposal 与 tasks 问题"
       }
     },
     "CHANGE-PLAN-CHECK-COMPLETE-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CHECK-COMPLETE-001 完整计划通过检查 制品和 implementation 阶段 metadata 完整的 Change 应通过目录检查，并返回对应阶段、评估和任务进度。 检查结果有效且无诊断，读取到的 metadata 与结果一致，并报告 implementation、`not-applicable` assessment 和三个任务区段的准确计数。 tools/change-plan/tests/check.test.ts > check accepts a complete plan bun test --test-name-pattern=\"^check accepts a complete plan$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CHECK-COMPLETE-001 完整计划通过检查 制品与 Plan metadata 完整且 Git 基线可用的 Change 应通过目录检查，并返回阶段、距离证据和任务进度。 检查结果有效且无诊断，读取到的 metadata 与结果一致，并报告 Plan 的零距离证据和三个任务区段的准确计数。 tools/change-plan/tests/check.test.ts > check accepts a complete plan bun test --test-name-pattern=\"^check accepts a complete plan$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -386,16 +271,16 @@
         ],
         "id": "CHANGE-PLAN-CHECK-COMPLETE-001",
         "line": 1,
-        "searchText": "完整计划通过检查 制品和 implementation 阶段 metadata 完整的 Change 应通过目录检查，并返回对应阶段、评估和任务进度。 检查结果有效且无诊断，读取到的 metadata 与结果一致，并报告 implementation、`not-applicable` assessment 和三个任务区段的准确计数。 tools/change-plan/tests/check.test.ts > check accepts a complete plan bun test --test-name-pattern=\"^check accepts a complete plan$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "完整计划通过检查 制品与 Plan metadata 完整且 Git 基线可用的 Change 应通过目录检查，并返回阶段、距离证据和任务进度。 检查结果有效且无诊断，读取到的 metadata 与结果一致，并报告 Plan 的零距离证据和三个任务区段的准确计数。 tools/change-plan/tests/check.test.ts > check accepts a complete plan bun test --test-name-pattern=\"^check accepts a complete plan$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/check-accepts-a-complete-plan.md",
-        "summary": "制品和 implementation 阶段 metadata 完整的 Change 应通过目录检查，并返回对应阶段、评估和任务进度。",
+        "summary": "制品与 Plan metadata 完整且 Git 基线可用的 Change 应通过目录检查，并返回阶段、距离证据和任务进度。",
         "title": "完整计划通过检查"
       }
     },
     "CHANGE-PLAN-CHECK-METADATA-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CHECK-METADATA-001 检查区分活动元数据与归档历史 活动 Change 必须具有符合阶段联合类型的 `.change-plan.json`，归档历史则不追补该元数据。 待复核 plan 的空基线会产生阶段诊断而非格式诊断，合法搁置证据可通过，缺失或含未知字段的活动元数据被拒绝，而无元数据的归档历史保持有效。 tools/change-plan/tests/check.test.ts > check validates active metadata and preserves archived history bun test --test-name-pattern=\"^check validates active metadata and preserves archived history$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CHECK-METADATA-001 检查区分活动元数据与归档历史 活动 Change 通过规范或兼容 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不解析活动 metadata。 null-base Plan 产生 `base-commit-unavailable` 而非格式诊断；历史 `implementation` 与 `source: git-distance-v1` shelf 均投影为 Plan，缺失或含未知字段的活动 metadata 被拒绝，而无 metadata 的 archived Change 保持有效。 tools/change-plan/tests/check.test.ts > check validates active metadata and preserves archived history bun test --test-name-pattern=\"^check validates active metadata and preserves archived history$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -409,16 +294,16 @@
         ],
         "id": "CHANGE-PLAN-CHECK-METADATA-001",
         "line": 1,
-        "searchText": "检查区分活动元数据与归档历史 活动 Change 必须具有符合阶段联合类型的 `.change-plan.json`，归档历史则不追补该元数据。 待复核 plan 的空基线会产生阶段诊断而非格式诊断，合法搁置证据可通过，缺失或含未知字段的活动元数据被拒绝，而无元数据的归档历史保持有效。 tools/change-plan/tests/check.test.ts > check validates active metadata and preserves archived history bun test --test-name-pattern=\"^check validates active metadata and preserves archived history$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "检查区分活动元数据与归档历史 活动 Change 通过规范或兼容 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不解析活动 metadata。 null-base Plan 产生 `base-commit-unavailable` 而非格式诊断；历史 `implementation` 与 `source: git-distance-v1` shelf 均投影为 Plan，缺失或含未知字段的活动 metadata 被拒绝，而无 metadata 的 archived Change 保持有效。 tools/change-plan/tests/check.test.ts > check validates active metadata and preserves archived history bun test --test-name-pattern=\"^check validates active metadata and preserves archived history$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/check-validates-active-metadata-and-preserves-archived-history.md",
-        "summary": "活动 Change 必须具有符合阶段联合类型的 `.change-plan.json`，归档历史则不追补该元数据。",
+        "summary": "活动 Change 通过规范或兼容 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不解析活动 metadata。",
         "title": "检查区分活动元数据与归档历史"
       }
     },
     "CHANGE-PLAN-CHECK-PATH-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CHECK-PATH-001 检查报告 change 目录路径问题 Change 目录名称与位置必须满足路径契约。 非法目录身份产生可定位的路径诊断。 tools/change-plan/tests/check.test.ts > check reports change directory path diagnostics bun test --test-name-pattern=\"^check reports change directory path diagnostics$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CHECK-PATH-001 检查报告 change 目录路径问题 Change 检查把名称、目录身份和必需文件位置问题映射为各自稳定诊断。 非 kebab-case 名称、缺失目录、不可读取路径、普通文件路径和缺失 `design.md` 分别产生对应的名称、目录或文件诊断。 tools/change-plan/tests/check.test.ts > check reports change directory path diagnostics bun test --test-name-pattern=\"^check reports change directory path diagnostics$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -432,16 +317,16 @@
         ],
         "id": "CHANGE-PLAN-CHECK-PATH-001",
         "line": 1,
-        "searchText": "检查报告 change 目录路径问题 Change 目录名称与位置必须满足路径契约。 非法目录身份产生可定位的路径诊断。 tools/change-plan/tests/check.test.ts > check reports change directory path diagnostics bun test --test-name-pattern=\"^check reports change directory path diagnostics$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "检查报告 change 目录路径问题 Change 检查把名称、目录身份和必需文件位置问题映射为各自稳定诊断。 非 kebab-case 名称、缺失目录、不可读取路径、普通文件路径和缺失 `design.md` 分别产生对应的名称、目录或文件诊断。 tools/change-plan/tests/check.test.ts > check reports change directory path diagnostics bun test --test-name-pattern=\"^check reports change directory path diagnostics$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/check-reports-change-directory-path-diagnostics.md",
-        "summary": "Change 目录名称与位置必须满足路径契约。",
+        "summary": "Change 检查把名称、目录身份和必需文件位置问题映射为各自稳定诊断。",
         "title": "检查报告 change 目录路径问题"
       }
     },
     "CHANGE-PLAN-CHECK-STAGES-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CHECK-STAGES-001 检查按生命周期阶段应用制品契约 Change 检查必须按当前阶段或目标阶段应用对应的制品要求。 普通 Draft 检查接受最小 proposal 和初始 design、但没有 tasks 的目录，并拒绝缺少 design 的目录。 Metadata 仍为 `draft` 时，目标 Plan 检查要求完整 proposal、design 和 tasks；合法 shelved Change 仍可通过检查。 tools/change-plan/tests/check.test.ts > check applies stage-specific artifact contracts bun test --test-name-pattern=\"^check applies stage-specific artifact contracts$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CHECK-STAGES-001 检查按生命周期阶段应用制品契约 Change 检查必须按当前阶段或目标阶段应用对应的制品要求。 普通 Draft 检查接受最小 proposal 和初始 design、但没有 tasks 的目录，并拒绝缺少 design 的目录。 Metadata 仍为 `draft` 时，目标 Plan 检查要求完整 proposal、design 和 tasks；旧 shelved Change 被投影为 Plan 并可通过检查。 tools/change-plan/tests/check.test.ts > check applies stage-specific artifact contracts bun test --test-name-pattern=\"^check applies stage-specific artifact contracts$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -455,7 +340,7 @@
         ],
         "id": "CHANGE-PLAN-CHECK-STAGES-001",
         "line": 1,
-        "searchText": "检查按生命周期阶段应用制品契约 Change 检查必须按当前阶段或目标阶段应用对应的制品要求。 普通 Draft 检查接受最小 proposal 和初始 design、但没有 tasks 的目录，并拒绝缺少 design 的目录。 Metadata 仍为 `draft` 时，目标 Plan 检查要求完整 proposal、design 和 tasks；合法 shelved Change 仍可通过检查。 tools/change-plan/tests/check.test.ts > check applies stage-specific artifact contracts bun test --test-name-pattern=\"^check applies stage-specific artifact contracts$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "检查按生命周期阶段应用制品契约 Change 检查必须按当前阶段或目标阶段应用对应的制品要求。 普通 Draft 检查接受最小 proposal 和初始 design、但没有 tasks 的目录，并拒绝缺少 design 的目录。 Metadata 仍为 `draft` 时，目标 Plan 检查要求完整 proposal、design 和 tasks；旧 shelved Change 被投影为 Plan 并可通过检查。 tools/change-plan/tests/check.test.ts > check applies stage-specific artifact contracts bun test --test-name-pattern=\"^check applies stage-specific artifact contracts$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/check-applies-stage-specific-artifact-contracts.md",
         "summary": "Change 检查必须按当前阶段或目标阶段应用对应的制品要求。",
         "title": "检查按生命周期阶段应用制品契约"
@@ -464,7 +349,7 @@
     "CHANGE-PLAN-CHECK-SYMLINK-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CHECK-SYMLINK-001 检查拒绝符号链接目录与 artifact Change 目录必须是真实目录，必需 artifact 必须是普通文件；检查器不跟随这些固定路径上的符号链接。 指向 Change 的目录链接得到 `change-path-not-directory`，链接到外部文件的 `design.md` 得到 `required-path-not-file`，且目录不可检查时 assessment 为空。 tools/change-plan/tests/check.test.ts > check rejects symbolic-link change directories and artifacts bun test --test-name-pattern=\"^check rejects symbolic-link change directories and artifacts$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CHECK-SYMLINK-001 检查拒绝符号链接目录与 artifact Change 目录必须是真实目录，必需 artifact 必须是普通文件；检查器不跟随这些固定路径上的符号链接。 指向 Change 的目录链接得到 `change-path-not-directory`，链接到外部文件的 `design.md` 得到 `required-path-not-file`，且目录不可检查时距离证据为空。 tools/change-plan/tests/check.test.ts > check rejects symbolic-link change directories and artifacts bun test --test-name-pattern=\"^check rejects symbolic-link change directories and artifacts$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -478,7 +363,7 @@
         ],
         "id": "CHANGE-PLAN-CHECK-SYMLINK-001",
         "line": 1,
-        "searchText": "检查拒绝符号链接目录与 artifact Change 目录必须是真实目录，必需 artifact 必须是普通文件；检查器不跟随这些固定路径上的符号链接。 指向 Change 的目录链接得到 `change-path-not-directory`，链接到外部文件的 `design.md` 得到 `required-path-not-file`，且目录不可检查时 assessment 为空。 tools/change-plan/tests/check.test.ts > check rejects symbolic-link change directories and artifacts bun test --test-name-pattern=\"^check rejects symbolic-link change directories and artifacts$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "检查拒绝符号链接目录与 artifact Change 目录必须是真实目录，必需 artifact 必须是普通文件；检查器不跟随这些固定路径上的符号链接。 指向 Change 的目录链接得到 `change-path-not-directory`，链接到外部文件的 `design.md` 得到 `required-path-not-file`，且目录不可检查时距离证据为空。 tools/change-plan/tests/check.test.ts > check rejects symbolic-link change directories and artifacts bun test --test-name-pattern=\"^check rejects symbolic-link change directories and artifacts$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/check-rejects-symbolic-link-change-directories-and-artifacts.md",
         "summary": "Change 目录必须是真实目录，必需 artifact 必须是普通文件；检查器不跟随这些固定路径上的符号链接。",
         "title": "检查拒绝符号链接目录与 artifact"
@@ -487,24 +372,24 @@
     "CHANGE-PLAN-CHECK-VC-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CHECK-VC-001 检查区分版本控制故障与计划复核 Plan assessment 只有在版本控制查询成功后才能形成；版本控制操作失败不能伪装成 `plan-review-required` 领域结果。 非仓库中的合法 plan 返回空 assessment、`version-control-failed` 诊断和失败 check，且不产生 `plan-review-required` 诊断。 tools/change-plan/tests/check.test.ts > check reports version-control failures without a plan-review assessment bun test --test-name-pattern=\"^check reports version-control failures without a plan-review assessment$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CHECK-VC-001 检查区分 Git 故障与不可用基线 Plan 检查分别使用 `version-control-failed` 表达 Git 访问故障、使用 `base-commit-unavailable` 表达基线不可用。 损坏的 Git 访问返回 `version-control-failed` 且没有距离证据。 同一结果只包含 Git 访问故障诊断，不包含基线不可用诊断。 tools/change-plan/tests/check.test.ts > check reports version-control failures separately from unavailable baselines bun test --test-name-pattern=\"^check reports version-control failures separately from unavailable baselines$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 12,
         "entries": [
-          "tools/change-plan/tests/check.test.ts > check reports version-control failures without a plan-review assessment",
-          "bun test --test-name-pattern=\"^check reports version-control failures without a plan-review assessment$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/check.test.ts > check reports version-control failures separately from unavailable baselines",
+          "bun test --test-name-pattern=\"^check reports version-control failures separately from unavailable baselines$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-CHECK-VC-001",
         "line": 1,
-        "searchText": "检查区分版本控制故障与计划复核 Plan assessment 只有在版本控制查询成功后才能形成；版本控制操作失败不能伪装成 `plan-review-required` 领域结果。 非仓库中的合法 plan 返回空 assessment、`version-control-failed` 诊断和失败 check，且不产生 `plan-review-required` 诊断。 tools/change-plan/tests/check.test.ts > check reports version-control failures without a plan-review assessment bun test --test-name-pattern=\"^check reports version-control failures without a plan-review assessment$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/check-reports-version-control-failures-without-a-plan-review-assessment.md",
-        "summary": "Plan assessment 只有在版本控制查询成功后才能形成；版本控制操作失败不能伪装成 `plan-review-required` 领域结果。",
-        "title": "检查区分版本控制故障与计划复核"
+        "searchText": "检查区分 Git 故障与不可用基线 Plan 检查分别使用 `version-control-failed` 表达 Git 访问故障、使用 `base-commit-unavailable` 表达基线不可用。 损坏的 Git 访问返回 `version-control-failed` 且没有距离证据。 同一结果只包含 Git 访问故障诊断，不包含基线不可用诊断。 tools/change-plan/tests/check.test.ts > check reports version-control failures separately from unavailable baselines bun test --test-name-pattern=\"^check reports version-control failures separately from unavailable baselines$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/check-reports-version-control-failures-separately-from-unavailable-baselines.md",
+        "summary": "Plan 检查分别使用 `version-control-failed` 表达 Git 访问故障、使用 `base-commit-unavailable` 表达基线不可用。",
+        "title": "检查区分 Git 故障与不可用基线"
       }
     },
     "CHANGE-PLAN-CLI-ARCHIVE-001": {
@@ -528,29 +413,6 @@
         "sourcePath": "change-plan/cli-archive-enforces-gates-and-moves-complete-plans.md",
         "summary": "Archive CLI 必须复用归档门禁并只移动完整计划。",
         "title": "Archive CLI 执行门禁与移动"
-      }
-    },
-    "CHANGE-PLAN-CLI-ARGS-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-CLI-ARGS-001 CLI 帮助与参数错误稳定 帮助请求必须公开完整生命周期命令，生命周期参数错误必须与其他用法错误使用相同退出契约。 Help 成功列出查询、阶段转换和归档命令；缺失路径、空搁置原因及未知阶段以参数错误退出。 tools/change-plan/tests/cli.test.ts > CLI help and argument errors use stable exit contracts bun test --test-name-pattern=\"^CLI help and argument errors use stable exit contracts$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/change-plan/tests/cli.test.ts > CLI help and argument errors use stable exit contracts",
-          "bun test --test-name-pattern=\"^CLI help and argument errors use stable exit contracts$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-CLI-ARGS-001",
-        "line": 1,
-        "searchText": "CLI 帮助与参数错误稳定 帮助请求必须公开完整生命周期命令，生命周期参数错误必须与其他用法错误使用相同退出契约。 Help 成功列出查询、阶段转换和归档命令；缺失路径、空搁置原因及未知阶段以参数错误退出。 tools/change-plan/tests/cli.test.ts > CLI help and argument errors use stable exit contracts bun test --test-name-pattern=\"^CLI help and argument errors use stable exit contracts$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/cli-help-and-argument-errors-use-stable-exit-contracts.md",
-        "summary": "帮助请求必须公开完整生命周期命令，生命周期参数错误必须与其他用法错误使用相同退出契约。",
-        "title": "CLI 帮助与参数错误稳定"
       }
     },
     "CHANGE-PLAN-CLI-CHECK-001": {
@@ -579,21 +441,21 @@
     "CHANGE-PLAN-CLI-CHECK-ALL-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CLI-CHECK-ALL-001 Check-all CLI 门禁所选 Change 集合 `check-all` 默认门禁 active Change，允许显式选择 archived 或全部集合，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。 成员失败时文本 stderr 展开逐项诊断，JSON stdout 保留计数、根路径和完整成员结果。 Archived-only 成功退出 `0`，all 选择同时包含 active 与 archived 并在存在无效成员时退出 `1`。 tools/change-plan/tests/cli.test.ts > CLI check-all gates selected change collections bun test --test-name-pattern=\"^CLI check-all gates selected change collections$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CLI-CHECK-ALL-001 Check-all CLI 门禁所选 Change 集合 `check-all` 默认门禁 active Change，允许显式选择 archived 或全部集合，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。 成员失败时文本 stderr 展开逐项诊断，JSON stdout 保留计数、根路径和完整成员结果。 JSON 中每个成员都公开 `distance` 字段；Archived-only 文本只输出一行集合摘要。 Archived-only 成功退出 `0`，all 选择同时包含 active 与 archived 并在存在无效成员时退出 `1`。 tools/change-plan/tests/cli.test.ts > CLI check-all gates selected change collections bun test --test-name-pattern=\"^CLI check-all gates selected change collections$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 11,
         "entries": [
           "tools/change-plan/tests/cli.test.ts > CLI check-all gates selected change collections",
           "bun test --test-name-pattern=\"^CLI check-all gates selected change collections$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-CLI-CHECK-ALL-001",
         "line": 1,
-        "searchText": "Check-all CLI 门禁所选 Change 集合 `check-all` 默认门禁 active Change，允许显式选择 archived 或全部集合，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。 成员失败时文本 stderr 展开逐项诊断，JSON stdout 保留计数、根路径和完整成员结果。 Archived-only 成功退出 `0`，all 选择同时包含 active 与 archived 并在存在无效成员时退出 `1`。 tools/change-plan/tests/cli.test.ts > CLI check-all gates selected change collections bun test --test-name-pattern=\"^CLI check-all gates selected change collections$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Check-all CLI 门禁所选 Change 集合 `check-all` 默认门禁 active Change，允许显式选择 archived 或全部集合，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。 成员失败时文本 stderr 展开逐项诊断，JSON stdout 保留计数、根路径和完整成员结果。 JSON 中每个成员都公开 `distance` 字段；Archived-only 文本只输出一行集合摘要。 Archived-only 成功退出 `0`，all 选择同时包含 active 与 archived 并在存在无效成员时退出 `1`。 tools/change-plan/tests/cli.test.ts > CLI check-all gates selected change collections bun test --test-name-pattern=\"^CLI check-all gates selected change collections$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/cli-check-all-gates-selected-change-collections.md",
         "summary": "`check-all` 默认门禁 active Change，允许显式选择 archived 或全部集合，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。",
         "title": "Check-all CLI 门禁所选 Change 集合"
@@ -645,56 +507,56 @@
         "title": "Check-all CLI 报告生命周期根目录诊断"
       }
     },
-    "CHANGE-PLAN-CLI-LIFECYCLE-001": {
+    "CHANGE-PLAN-CLI-COMMANDS-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CLI-LIFECYCLE-001 生命周期 CLI 只执行合法阶段转换 CLI 必须沿 draft 到 plan 到 implementation 的合法路径推进，并以显式原因搁置 plan；恢复后必须重新复核计划，不能直接实施。 合法推进返回并写入对应 metadata，显式搁置保存原因，恢复产生空基线的 plan 且不嵌入额外 check，随后直接 implement 被拒绝。 tools/change-plan/tests/cli.test.ts > CLI lifecycle commands enforce legal stage transitions bun test --test-name-pattern=\"^CLI lifecycle commands enforce legal stage transitions$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CLI-COMMANDS-001 CLI 公开固定六命令表面 Change Plan CLI 的完整命令集合是 `list`、`show`、`check`、`check-all`、`plan` 与 `archive`，stage 参数的合法值集合是 `draft` 与 `plan`。 Help 列出完整六命令集合且 stderr 为空。 测试覆盖的四个命令集合外名称均以未知命令和退出码 `2` 反馈。 `list --stage` 对合法集合外的值返回参数错误。 tools/change-plan/tests/cli.test.ts > CLI exposes only six commands and rejects removed lifecycle commands bun test --test-name-pattern=\"^CLI exposes only six commands and rejects removed lifecycle commands$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 13,
         "entries": [
-          "tools/change-plan/tests/cli.test.ts > CLI lifecycle commands enforce legal stage transitions",
-          "bun test --test-name-pattern=\"^CLI lifecycle commands enforce legal stage transitions$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/cli.test.ts > CLI exposes only six commands and rejects removed lifecycle commands",
+          "bun test --test-name-pattern=\"^CLI exposes only six commands and rejects removed lifecycle commands$\" ./tools/change-plan/tests/run.ts"
         ],
-        "id": "CHANGE-PLAN-CLI-LIFECYCLE-001",
+        "id": "CHANGE-PLAN-CLI-COMMANDS-001",
         "line": 1,
-        "searchText": "生命周期 CLI 只执行合法阶段转换 CLI 必须沿 draft 到 plan 到 implementation 的合法路径推进，并以显式原因搁置 plan；恢复后必须重新复核计划，不能直接实施。 合法推进返回并写入对应 metadata，显式搁置保存原因，恢复产生空基线的 plan 且不嵌入额外 check，随后直接 implement 被拒绝。 tools/change-plan/tests/cli.test.ts > CLI lifecycle commands enforce legal stage transitions bun test --test-name-pattern=\"^CLI lifecycle commands enforce legal stage transitions$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/cli-lifecycle-commands-enforce-legal-stage-transitions.md",
-        "summary": "CLI 必须沿 draft 到 plan 到 implementation 的合法路径推进，并以显式原因搁置 plan；恢复后必须重新复核计划，不能直接实施。",
-        "title": "生命周期 CLI 只执行合法阶段转换"
+        "searchText": "CLI 公开固定六命令表面 Change Plan CLI 的完整命令集合是 `list`、`show`、`check`、`check-all`、`plan` 与 `archive`，stage 参数的合法值集合是 `draft` 与 `plan`。 Help 列出完整六命令集合且 stderr 为空。 测试覆盖的四个命令集合外名称均以未知命令和退出码 `2` 反馈。 `list --stage` 对合法集合外的值返回参数错误。 tools/change-plan/tests/cli.test.ts > CLI exposes only six commands and rejects removed lifecycle commands bun test --test-name-pattern=\"^CLI exposes only six commands and rejects removed lifecycle commands$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/cli-exposes-six-command-surface.md",
+        "summary": "Change Plan CLI 的完整命令集合是 `list`、`show`、`check`、`check-all`、`plan` 与 `archive`，stage 参数的合法值集合是 `draft` 与 `plan`。",
+        "title": "CLI 公开固定六命令表面"
       }
     },
-    "CHANGE-PLAN-CLI-LIFECYCLE-OUTPUT-001": {
+    "CHANGE-PLAN-CLI-DISTANCE-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CLI-LIFECYCLE-OUTPUT-001 生命周期 CLI 保持输出通道与错误码 生命周期命令的文本成功写 stdout、文本失败写 stderr；JSON 成功和失败都写 stdout。成功结果只返回 action、来源阶段和写入后的 metadata，失败结果返回诊断、稳定 `errorCode` 和错误消息，不嵌入 check 或 assessment。 `resume` 的文本与 JSON 成功均退出 0 且 stderr 为空，JSON 直接返回空基线 plan metadata 且没有 `check` 或 `errorCode`；非法来源阶段的文本与 JSON 失败均退出 1，分别在 stderr 和 JSON 中提供 `invalid-source-stage`、诊断及行动提示，且不返回 check、assessment 或 Change 路径。 tools/change-plan/tests/cli.test.ts > CLI lifecycle output preserves result channels and error codes bun test --test-name-pattern=\"^CLI lifecycle output preserves result channels and error codes$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CLI-DISTANCE-001 CLI 返回原始距离证据与直接中文提示 Plan 查询的文本模式从 Git 距离证据生成直接中文行动提示；`commitCount` 与 `changedLines` 均为零表示自基线后没有纳入距离的 Change 目录外变化，不表示 `baseCommit` 与 `headCommit` 相等。JSON 模式在 `distance` 中返回固定四字段原始证据。 基线处和仅提交 Change 目录内文件后，文本都输出“自计划基线以来，未统计到 Change 目录外的项目变化。” Change-only 提交后的 JSON 保持 `commitCount: 0`、`changedLines: 0`，同时 `baseCommit` 与 `headCommit` 不同。 非零距离文本直接报告提交数、Change 外变化行数和复核行动。 JSON `distance` 恰好由 `baseCommit`、`headCommit`、`commitCount` 与 `changedLines` 表达零距离和非零距离。 tools/change-plan/tests/cli.test.ts > CLI reports raw distance evidence with direct Chinese prompts bun test --test-name-pattern=\"^CLI reports raw distance evidence with direct Chinese prompts$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 14,
         "entries": [
-          "tools/change-plan/tests/cli.test.ts > CLI lifecycle output preserves result channels and error codes",
-          "bun test --test-name-pattern=\"^CLI lifecycle output preserves result channels and error codes$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/cli.test.ts > CLI reports raw distance evidence with direct Chinese prompts",
+          "bun test --test-name-pattern=\"^CLI reports raw distance evidence with direct Chinese prompts$\" ./tools/change-plan/tests/run.ts"
         ],
-        "id": "CHANGE-PLAN-CLI-LIFECYCLE-OUTPUT-001",
+        "id": "CHANGE-PLAN-CLI-DISTANCE-001",
         "line": 1,
-        "searchText": "生命周期 CLI 保持输出通道与错误码 生命周期命令的文本成功写 stdout、文本失败写 stderr；JSON 成功和失败都写 stdout。成功结果只返回 action、来源阶段和写入后的 metadata，失败结果返回诊断、稳定 `errorCode` 和错误消息，不嵌入 check 或 assessment。 `resume` 的文本与 JSON 成功均退出 0 且 stderr 为空，JSON 直接返回空基线 plan metadata 且没有 `check` 或 `errorCode`；非法来源阶段的文本与 JSON 失败均退出 1，分别在 stderr 和 JSON 中提供 `invalid-source-stage`、诊断及行动提示，且不返回 check、assessment 或 Change 路径。 tools/change-plan/tests/cli.test.ts > CLI lifecycle output preserves result channels and error codes bun test --test-name-pattern=\"^CLI lifecycle output preserves result channels and error codes$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/cli-lifecycle-output-preserves-result-channels-and-error-codes.md",
-        "summary": "生命周期命令的文本成功写 stdout、文本失败写 stderr；JSON 成功和失败都写 stdout。成功结果只返回 action、来源阶段和写入后的 metadata，失败结果返回诊断、稳定 `errorCode` 和错误消息，不嵌入 check 或 assessment。",
-        "title": "生命周期 CLI 保持输出通道与错误码"
+        "searchText": "CLI 返回原始距离证据与直接中文提示 Plan 查询的文本模式从 Git 距离证据生成直接中文行动提示；`commitCount` 与 `changedLines` 均为零表示自基线后没有纳入距离的 Change 目录外变化，不表示 `baseCommit` 与 `headCommit` 相等。JSON 模式在 `distance` 中返回固定四字段原始证据。 基线处和仅提交 Change 目录内文件后，文本都输出“自计划基线以来，未统计到 Change 目录外的项目变化。” Change-only 提交后的 JSON 保持 `commitCount: 0`、`changedLines: 0`，同时 `baseCommit` 与 `headCommit` 不同。 非零距离文本直接报告提交数、Change 外变化行数和复核行动。 JSON `distance` 恰好由 `baseCommit`、`headCommit`、`commitCount` 与 `changedLines` 表达零距离和非零距离。 tools/change-plan/tests/cli.test.ts > CLI reports raw distance evidence with direct Chinese prompts bun test --test-name-pattern=\"^CLI reports raw distance evidence with direct Chinese prompts$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/cli-reports-raw-distance-evidence-with-direct-chinese-prompts.md",
+        "summary": "Plan 查询的文本模式从 Git 距离证据生成直接中文行动提示；`commitCount` 与 `changedLines` 均为零表示自基线后没有纳入距离的 Change 目录外变化，不表示 `baseCommit` 与 `headCommit` 相等。JSON 模式在 `distance` 中返回固定四字段原始证据。",
+        "title": "CLI 返回原始距离证据与直接中文提示"
       }
     },
     "CHANGE-PLAN-CLI-LIST-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CLI-LIST-001 List CLI 返回生命周期筛选后的 JSON List CLI 必须支持按活动/归档状态列出 Change，并允许活动条目继续按生命周期阶段筛选。 `--all --json` 同时返回 active 与 archived 条目；`--stage implementation --json` 只返回 implementation 条目。 tools/change-plan/tests/cli.test.ts > CLI list returns lifecycle-filtered JSON bun test --test-name-pattern=\"^CLI list returns lifecycle-filtered JSON$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CLI-LIST-001 List CLI 返回生命周期筛选后的 JSON List CLI 必须支持按活动/归档状态列出 Change，并允许活动条目继续按生命周期阶段筛选。 `--all --json` 同时返回 active 与 archived 条目；`--stage plan --json` 只返回 Plan 条目。 tools/change-plan/tests/cli.test.ts > CLI list returns lifecycle-filtered JSON bun test --test-name-pattern=\"^CLI list returns lifecycle-filtered JSON$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -708,7 +570,7 @@
         ],
         "id": "CHANGE-PLAN-CLI-LIST-001",
         "line": 1,
-        "searchText": "List CLI 返回生命周期筛选后的 JSON List CLI 必须支持按活动/归档状态列出 Change，并允许活动条目继续按生命周期阶段筛选。 `--all --json` 同时返回 active 与 archived 条目；`--stage implementation --json` 只返回 implementation 条目。 tools/change-plan/tests/cli.test.ts > CLI list returns lifecycle-filtered JSON bun test --test-name-pattern=\"^CLI list returns lifecycle-filtered JSON$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "List CLI 返回生命周期筛选后的 JSON List CLI 必须支持按活动/归档状态列出 Change，并允许活动条目继续按生命周期阶段筛选。 `--all --json` 同时返回 active 与 archived 条目；`--stage plan --json` 只返回 Plan 条目。 tools/change-plan/tests/cli.test.ts > CLI list returns lifecycle-filtered JSON bun test --test-name-pattern=\"^CLI list returns lifecycle-filtered JSON$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/cli-list-returns-lifecycle-filtered-json.md",
         "summary": "List CLI 必须支持按活动/归档状态列出 Change，并允许活动条目继续按生命周期阶段筛选。",
         "title": "List CLI 返回生命周期筛选后的 JSON"
@@ -763,7 +625,7 @@
     "CHANGE-PLAN-CLI-PLAN-COMMIT-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CLI-PLAN-COMMIT-001 Plan CLI 记录已有 HEAD 并接受未提交 artifacts `plan` 的版本控制基线取命令运行时已有的 HEAD；artifacts 的 Git 状态不参与这项门禁。 未跟踪的完整 Draft artifacts 能成功进入 plan，写入的 `baseCommit` 等于命令前已有 HEAD，且命令本身不产生新提交。 tools/change-plan/tests/cli.test.ts > CLI plan records existing HEAD without requiring committed artifacts bun test --test-name-pattern=\"^CLI plan records existing HEAD without requiring committed artifacts$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CLI-PLAN-COMMIT-001 Plan CLI 记录已有 HEAD 并接受未提交 artifacts `plan` 以命令运行时已有的 HEAD 作为版本控制基线，并允许完整 Draft artifacts 处于未跟踪状态。 未跟踪的完整 Draft artifacts 成功进入 Plan，写入的 `baseCommit` 等于命令前已有 HEAD，命令前后的 HEAD 保持相同。 tools/change-plan/tests/cli.test.ts > CLI plan records existing HEAD without requiring committed artifacts bun test --test-name-pattern=\"^CLI plan records existing HEAD without requiring committed artifacts$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -777,10 +639,33 @@
         ],
         "id": "CHANGE-PLAN-CLI-PLAN-COMMIT-001",
         "line": 1,
-        "searchText": "Plan CLI 记录已有 HEAD 并接受未提交 artifacts `plan` 的版本控制基线取命令运行时已有的 HEAD；artifacts 的 Git 状态不参与这项门禁。 未跟踪的完整 Draft artifacts 能成功进入 plan，写入的 `baseCommit` 等于命令前已有 HEAD，且命令本身不产生新提交。 tools/change-plan/tests/cli.test.ts > CLI plan records existing HEAD without requiring committed artifacts bun test --test-name-pattern=\"^CLI plan records existing HEAD without requiring committed artifacts$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Plan CLI 记录已有 HEAD 并接受未提交 artifacts `plan` 以命令运行时已有的 HEAD 作为版本控制基线，并允许完整 Draft artifacts 处于未跟踪状态。 未跟踪的完整 Draft artifacts 成功进入 Plan，写入的 `baseCommit` 等于命令前已有 HEAD，命令前后的 HEAD 保持相同。 tools/change-plan/tests/cli.test.ts > CLI plan records existing HEAD without requiring committed artifacts bun test --test-name-pattern=\"^CLI plan records existing HEAD without requiring committed artifacts$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/cli-plan-records-existing-head-without-requiring-committed-artifacts.md",
-        "summary": "`plan` 的版本控制基线取命令运行时已有的 HEAD；artifacts 的 Git 状态不参与这项门禁。",
+        "summary": "`plan` 以命令运行时已有的 HEAD 作为版本控制基线，并允许完整 Draft artifacts 处于未跟踪状态。",
         "title": "Plan CLI 记录已有 HEAD 并接受未提交 artifacts"
+      }
+    },
+    "CHANGE-PLAN-CLI-PLAN-INPUTS-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CLI-PLAN-INPUTS-001 Plan CLI 确认并规范化活动输入 `plan` 接受 Draft、现有 Plan 与兼容读取支持的历史活动 metadata，并统一写回规范 Plan。 Draft 即使 Readiness 未完成且后续区段已有证据也能确认。 规范 Plan、历史 `implementation`、历史 `shelved` 与 null-base Plan 都能重确认。 每个成功结果的 metadata 恰好包含 `stage: plan` 与当前 `baseCommit`。 tools/change-plan/tests/cli.test.ts > CLI plan confirms drafts, reconfirms plans, and canonicalizes legacy inputs bun test --test-name-pattern=\"^CLI plan confirms drafts, reconfirms plans, and canonicalizes legacy inputs$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/change-plan/tests/cli.test.ts > CLI plan confirms drafts, reconfirms plans, and canonicalizes legacy inputs",
+          "bun test --test-name-pattern=\"^CLI plan confirms drafts, reconfirms plans, and canonicalizes legacy inputs$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CLI-PLAN-INPUTS-001",
+        "line": 1,
+        "searchText": "Plan CLI 确认并规范化活动输入 `plan` 接受 Draft、现有 Plan 与兼容读取支持的历史活动 metadata，并统一写回规范 Plan。 Draft 即使 Readiness 未完成且后续区段已有证据也能确认。 规范 Plan、历史 `implementation`、历史 `shelved` 与 null-base Plan 都能重确认。 每个成功结果的 metadata 恰好包含 `stage: plan` 与当前 `baseCommit`。 tools/change-plan/tests/cli.test.ts > CLI plan confirms drafts, reconfirms plans, and canonicalizes legacy inputs bun test --test-name-pattern=\"^CLI plan confirms drafts, reconfirms plans, and canonicalizes legacy inputs$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/cli-plan-confirms-drafts-reconfirms-plans-and-canonicalizes-legacy-inputs.md",
+        "summary": "`plan` 接受 Draft、现有 Plan 与兼容读取支持的历史活动 metadata，并统一写回规范 Plan。",
+        "title": "Plan CLI 确认并规范化活动输入"
       }
     },
     "CHANGE-PLAN-CLI-PLAN-NO-HEAD-001": {
@@ -806,33 +691,10 @@
         "title": "Plan CLI 拒绝没有 HEAD 的仓库"
       }
     },
-    "CHANGE-PLAN-CLI-RECONCILE-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-CLI-RECONCILE-001 Git 距离候选可以机械搁置或重新确认 活动 plan 达到固定 Git 距离阈值时，查询必须暴露候选证据；操作者可以用 `reconcile` 接受机械搁置，也可以用 `plan` 在复核后更新基线并继续实施。 同一组九个低变更提交让两个 plan 成为 `shelve-candidate`；`reconcile` 为其中一个写入 shelved 及相同的 9 提交、9 行和 `git-distance-v1` 证据，`plan` 为另一个更新基线、拒绝重复确认并允许随后进入 implementation。 tools/change-plan/tests/cli.test.ts > CLI Git-distance candidate can be shelved or reconfirmed bun test --test-name-pattern=\"^CLI Git-distance candidate can be shelved or reconfirmed$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/change-plan/tests/cli.test.ts > CLI Git-distance candidate can be shelved or reconfirmed",
-          "bun test --test-name-pattern=\"^CLI Git-distance candidate can be shelved or reconfirmed$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-CLI-RECONCILE-001",
-        "line": 1,
-        "searchText": "Git 距离候选可以机械搁置或重新确认 活动 plan 达到固定 Git 距离阈值时，查询必须暴露候选证据；操作者可以用 `reconcile` 接受机械搁置，也可以用 `plan` 在复核后更新基线并继续实施。 同一组九个低变更提交让两个 plan 成为 `shelve-candidate`；`reconcile` 为其中一个写入 shelved 及相同的 9 提交、9 行和 `git-distance-v1` 证据，`plan` 为另一个更新基线、拒绝重复确认并允许随后进入 implementation。 tools/change-plan/tests/cli.test.ts > CLI Git-distance candidate can be shelved or reconfirmed bun test --test-name-pattern=\"^CLI Git-distance candidate can be shelved or reconfirmed$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/cli-git-distance-candidate-can-be-shelved-or-reconfirmed.md",
-        "summary": "活动 plan 达到固定 Git 距离阈值时，查询必须暴露候选证据；操作者可以用 `reconcile` 接受机械搁置，也可以用 `plan` 在复核后更新基线并继续实施。",
-        "title": "Git 距离候选可以机械搁置或重新确认"
-      }
-    },
     "CHANGE-PLAN-CLI-SHOW-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CLI-SHOW-001 Show CLI 返回制品与无效计划诊断 Show CLI 必须同时呈现生命周期状态、阶段、评估、计划制品和当前有效性诊断。 有效 Change 的文本输出包含 active、implementation 与 `not-applicable`，无效 Change 的 JSON 仍返回缺失制品及检查失败。 tools/change-plan/tests/cli.test.ts > CLI show returns artifacts and invalid-plan diagnostics bun test --test-name-pattern=\"^CLI show returns artifacts and invalid-plan diagnostics$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CLI-SHOW-001 Show CLI 返回制品与无效计划诊断 Show CLI 同时呈现生命周期状态、阶段、Git 距离提示、计划制品和当前有效性诊断。 有效 Plan 的文本输出包含 active、plan 与“未统计到 Change 目录外的项目变化”提示；无效 Change 的 JSON 仍返回缺失制品及检查失败。 tools/change-plan/tests/cli.test.ts > CLI show returns artifacts and invalid-plan diagnostics bun test --test-name-pattern=\"^CLI show returns artifacts and invalid-plan diagnostics$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -846,9 +708,9 @@
         ],
         "id": "CHANGE-PLAN-CLI-SHOW-001",
         "line": 1,
-        "searchText": "Show CLI 返回制品与无效计划诊断 Show CLI 必须同时呈现生命周期状态、阶段、评估、计划制品和当前有效性诊断。 有效 Change 的文本输出包含 active、implementation 与 `not-applicable`，无效 Change 的 JSON 仍返回缺失制品及检查失败。 tools/change-plan/tests/cli.test.ts > CLI show returns artifacts and invalid-plan diagnostics bun test --test-name-pattern=\"^CLI show returns artifacts and invalid-plan diagnostics$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Show CLI 返回制品与无效计划诊断 Show CLI 同时呈现生命周期状态、阶段、Git 距离提示、计划制品和当前有效性诊断。 有效 Plan 的文本输出包含 active、plan 与“未统计到 Change 目录外的项目变化”提示；无效 Change 的 JSON 仍返回缺失制品及检查失败。 tools/change-plan/tests/cli.test.ts > CLI show returns artifacts and invalid-plan diagnostics bun test --test-name-pattern=\"^CLI show returns artifacts and invalid-plan diagnostics$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/cli-show-returns-artifacts-and-invalid-plan-diagnostics.md",
-        "summary": "Show CLI 必须同时呈现生命周期状态、阶段、评估、计划制品和当前有效性诊断。",
+        "summary": "Show CLI 同时呈现生命周期状态、阶段、Git 距离提示、计划制品和当前有效性诊断。",
         "title": "Show CLI 返回制品与无效计划诊断"
       }
     },
@@ -901,30 +763,53 @@
     "CHANGE-PLAN-GENERATED-ARTIFACTS-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-GENERATED-ARTIFACTS-001 生成运行时可直接导入且来源信息可移植 Change Plan 的 MJS 分发运行时必须可直接 import 当前底层函数，并携带可移植的维护来源和 source map；这项能力只验证当前实现表面，不建立稳定 SDK 契约。 直接 import MJS 后可取得当前的 archive、单项与集合查询、metadata 读取和五个阶段命令函数；生成头指向维护源码与重建命令，source map 只使用仓库相对源码定位并覆盖 CLI、生命周期和 metadata 源码。 tools/change-plan/tests/generated-artifacts.test.ts > generated runtime stays directly importable with portable source metadata bun test --test-name-pattern=\"^generated runtime stays directly importable with portable source metadata$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-GENERATED-ARTIFACTS-001 生成运行时可直接导入且来源信息可移植 Change Plan 的 MJS 分发运行时可直接 import 当前命令与领域函数，并携带不依赖构建机绝对路径的维护来源和 source map；这项能力只验证当前实现表面，不建立稳定 SDK 契约。 直接 import MJS 后可取得 archive、plan、单项与集合检查、list、show、metadata parser/reader 和 CLI 入口共九个函数。 生成头只包含可移植维护来源、重建命令和 source map 引用，不包含当前仓库绝对路径。 Source map 使用仓库相对路径，覆盖 CLI、lifecycle、metadata 及可移植的 `write-file-atomic` source content。 tools/change-plan/tests/generated-artifacts.test.ts > generated runtime stays directly importable with portable source metadata bun test --test-name-pattern=\"^generated runtime stays directly importable with portable source metadata$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 11,
         "entries": [
           "tools/change-plan/tests/generated-artifacts.test.ts > generated runtime stays directly importable with portable source metadata",
           "bun test --test-name-pattern=\"^generated runtime stays directly importable with portable source metadata$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-GENERATED-ARTIFACTS-001",
         "line": 1,
-        "searchText": "生成运行时可直接导入且来源信息可移植 Change Plan 的 MJS 分发运行时必须可直接 import 当前底层函数，并携带可移植的维护来源和 source map；这项能力只验证当前实现表面，不建立稳定 SDK 契约。 直接 import MJS 后可取得当前的 archive、单项与集合查询、metadata 读取和五个阶段命令函数；生成头指向维护源码与重建命令，source map 只使用仓库相对源码定位并覆盖 CLI、生命周期和 metadata 源码。 tools/change-plan/tests/generated-artifacts.test.ts > generated runtime stays directly importable with portable source metadata bun test --test-name-pattern=\"^generated runtime stays directly importable with portable source metadata$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "生成运行时可直接导入且来源信息可移植 Change Plan 的 MJS 分发运行时可直接 import 当前命令与领域函数，并携带不依赖构建机绝对路径的维护来源和 source map；这项能力只验证当前实现表面，不建立稳定 SDK 契约。 直接 import MJS 后可取得 archive、plan、单项与集合检查、list、show、metadata parser/reader 和 CLI 入口共九个函数。 生成头只包含可移植维护来源、重建命令和 source map 引用，不包含当前仓库绝对路径。 Source map 使用仓库相对路径，覆盖 CLI、lifecycle、metadata 及可移植的 `write-file-atomic` source content。 tools/change-plan/tests/generated-artifacts.test.ts > generated runtime stays directly importable with portable source metadata bun test --test-name-pattern=\"^generated runtime stays directly importable with portable source metadata$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/generated-runtime-stays-directly-importable-with-portable-source-metadata.md",
-        "summary": "Change Plan 的 MJS 分发运行时必须可直接 import 当前底层函数，并携带可移植的维护来源和 source map；这项能力只验证当前实现表面，不建立稳定 SDK 契约。",
+        "summary": "Change Plan 的 MJS 分发运行时可直接 import 当前命令与领域函数，并携带不依赖构建机绝对路径的维护来源和 source map；这项能力只验证当前实现表面，不建立稳定 SDK 契约。",
         "title": "生成运行时可直接导入且来源信息可移植"
+      }
+    },
+    "CHANGE-PLAN-GIT-BASE-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-GIT-BASE-001 Git 距离拒绝缺失与非第一父基线 Git 距离的 measured 输入集合是可解析且位于当前 HEAD 第一父历史上的基线；其他基线返回 `base-unavailable` 及其定位证据。 null 与无法解析的 revision 返回 base-unavailable。 侧分支 revision 不在当前第一父历史时返回 base-unavailable，并保留基线与 HEAD。 tools/change-plan/tests/git-distance.test.ts > git-distance reports unavailable missing and non-first-parent bases bun test --test-name-pattern=\"^git-distance reports unavailable missing and non-first-parent bases$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/change-plan/tests/git-distance.test.ts > git-distance reports unavailable missing and non-first-parent bases",
+          "bun test --test-name-pattern=\"^git-distance reports unavailable missing and non-first-parent bases$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-GIT-BASE-001",
+        "line": 1,
+        "searchText": "Git 距离拒绝缺失与非第一父基线 Git 距离的 measured 输入集合是可解析且位于当前 HEAD 第一父历史上的基线；其他基线返回 `base-unavailable` 及其定位证据。 null 与无法解析的 revision 返回 base-unavailable。 侧分支 revision 不在当前第一父历史时返回 base-unavailable，并保留基线与 HEAD。 tools/change-plan/tests/git-distance.test.ts > git-distance reports unavailable missing and non-first-parent bases bun test --test-name-pattern=\"^git-distance reports unavailable missing and non-first-parent bases$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/git-distance-reports-unavailable-missing-and-non-first-parent-bases.md",
+        "summary": "Git 距离的 measured 输入集合是可解析且位于当前 HEAD 第一父历史上的基线；其他基线返回 `base-unavailable` 及其定位证据。",
+        "title": "Git 距离拒绝缺失与非第一父基线"
       }
     },
     "CHANGE-PLAN-GIT-EXCLUDE-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-GIT-EXCLUDE-001 Git 距离排除仅修改当前 Change 的提交 `git-distance-v1` 只衡量当前 Change 目录之外的项目推进。 只修改被评估 Change 制品的提交不增加提交数或变更行数，结果仍为 `current`。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 excludes commits that only change the assessed directory bun test --test-name-pattern=\"^git-distance-v1 excludes commits that only change the assessed directory$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-GIT-EXCLUDE-001 Git 距离排除仅修改当前 Change 的提交 Git 距离只衡量当前 Change 目录之外的项目推进。 只修改被评估 Change 制品的提交不增加提交数或变更行数，返回零提交、零变更行的 measured evidence。 tools/change-plan/tests/git-distance.test.ts > git-distance excludes commits that only change the assessed directory bun test --test-name-pattern=\"^git-distance excludes commits that only change the assessed directory$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -933,21 +818,44 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/change-plan/tests/git-distance.test.ts > git-distance-v1 excludes commits that only change the assessed directory",
-          "bun test --test-name-pattern=\"^git-distance-v1 excludes commits that only change the assessed directory$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/git-distance.test.ts > git-distance excludes commits that only change the assessed directory",
+          "bun test --test-name-pattern=\"^git-distance excludes commits that only change the assessed directory$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-GIT-EXCLUDE-001",
         "line": 1,
-        "searchText": "Git 距离排除仅修改当前 Change 的提交 `git-distance-v1` 只衡量当前 Change 目录之外的项目推进。 只修改被评估 Change 制品的提交不增加提交数或变更行数，结果仍为 `current`。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 excludes commits that only change the assessed directory bun test --test-name-pattern=\"^git-distance-v1 excludes commits that only change the assessed directory$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/git-distance-excludes-commits-only-changing-the-assessed-directory.md",
-        "summary": "`git-distance-v1` 只衡量当前 Change 目录之外的项目推进。",
+        "searchText": "Git 距离排除仅修改当前 Change 的提交 Git 距离只衡量当前 Change 目录之外的项目推进。 只修改被评估 Change 制品的提交不增加提交数或变更行数，返回零提交、零变更行的 measured evidence。 tools/change-plan/tests/git-distance.test.ts > git-distance excludes commits that only change the assessed directory bun test --test-name-pattern=\"^git-distance excludes commits that only change the assessed directory$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/git-distance-excludes-commits-that-only-change-the-assessed-directory.md",
+        "summary": "Git 距离只衡量当前 Change 目录之外的项目推进。",
         "title": "Git 距离排除仅修改当前 Change 的提交"
+      }
+    },
+    "CHANGE-PLAN-GIT-FAILURE-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-GIT-FAILURE-001 Git 距离传播版本控制访问故障 Git 距离模块把仓库访问故障作为版本控制异常传播，`base-unavailable` 只表达可访问仓库中的 revision 不可用。 对非仓库路径执行检查会拒绝 Promise，并返回可观察的版本控制错误信息。 tools/change-plan/tests/git-distance.test.ts > git-distance propagates version-control access failures bun test --test-name-pattern=\"^git-distance propagates version-control access failures$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 11,
+        "entries": [
+          "tools/change-plan/tests/git-distance.test.ts > git-distance propagates version-control access failures",
+          "bun test --test-name-pattern=\"^git-distance propagates version-control access failures$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-GIT-FAILURE-001",
+        "line": 1,
+        "searchText": "Git 距离传播版本控制访问故障 Git 距离模块把仓库访问故障作为版本控制异常传播，`base-unavailable` 只表达可访问仓库中的 revision 不可用。 对非仓库路径执行检查会拒绝 Promise，并返回可观察的版本控制错误信息。 tools/change-plan/tests/git-distance.test.ts > git-distance propagates version-control access failures bun test --test-name-pattern=\"^git-distance propagates version-control access failures$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/git-distance-propagates-version-control-access-failures.md",
+        "summary": "Git 距离模块把仓库访问故障作为版本控制异常传播，`base-unavailable` 只表达可访问仓库中的 revision 不可用。",
+        "title": "Git 距离传播版本控制访问故障"
       }
     },
     "CHANGE-PLAN-GIT-NUMSTAT-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-GIT-NUMSTAT-001 Git 距离累计新增与删除行 `git-distance-v1` 的变更量必须累计相关提交中的新增行与删除行。 新增三行后以两行替换该文件得到 2 个相关提交和累计 8 行变更。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 accumulates additions and deletions bun test --test-name-pattern=\"^git-distance-v1 accumulates additions and deletions$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-GIT-NUMSTAT-001 Git 距离累计新增与删除行 Git 距离的变更量必须累计相关提交中的新增行与删除行。 新增三行后以两行替换该文件得到 2 个相关提交和累计 8 行变更。 tools/change-plan/tests/git-distance.test.ts > git-distance accumulates additions and deletions bun test --test-name-pattern=\"^git-distance accumulates additions and deletions$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -956,21 +864,21 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/change-plan/tests/git-distance.test.ts > git-distance-v1 accumulates additions and deletions",
-          "bun test --test-name-pattern=\"^git-distance-v1 accumulates additions and deletions$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/git-distance.test.ts > git-distance accumulates additions and deletions",
+          "bun test --test-name-pattern=\"^git-distance accumulates additions and deletions$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-GIT-NUMSTAT-001",
         "line": 1,
-        "searchText": "Git 距离累计新增与删除行 `git-distance-v1` 的变更量必须累计相关提交中的新增行与删除行。 新增三行后以两行替换该文件得到 2 个相关提交和累计 8 行变更。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 accumulates additions and deletions bun test --test-name-pattern=\"^git-distance-v1 accumulates additions and deletions$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Git 距离累计新增与删除行 Git 距离的变更量必须累计相关提交中的新增行与删除行。 新增三行后以两行替换该文件得到 2 个相关提交和累计 8 行变更。 tools/change-plan/tests/git-distance.test.ts > git-distance accumulates additions and deletions bun test --test-name-pattern=\"^git-distance accumulates additions and deletions$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/git-distance-accumulates-additions-and-deletions.md",
-        "summary": "`git-distance-v1` 的变更量必须累计相关提交中的新增行与删除行。",
+        "summary": "Git 距离的变更量必须累计相关提交中的新增行与删除行。",
         "title": "Git 距离累计新增与删除行"
       }
     },
     "CHANGE-PLAN-GIT-PATHS-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-GIT-PATHS-001 Git 距离按目录边界统计混合提交 同一提交同时修改当前 Change 与外部路径时，`git-distance-v1` 计入该提交但只累计外部路径行数，名称相近的兄弟目录仍属于外部路径。 混合提交被计为 1 个相关提交，当前目录的一行被排除，兄弟目录的两行被计入。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 counts sibling paths and only outside lines in mixed commits bun test --test-name-pattern=\"^git-distance-v1 counts sibling paths and only outside lines in mixed commits$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-GIT-PATHS-001 Git 距离按目录边界统计混合提交 同一提交同时修改当前 Change 与外部路径时，Git 距离计入该提交但只累计外部路径行数，名称相近的兄弟目录仍属于外部路径。 混合提交被计为 1 个相关提交，当前目录的一行被排除，兄弟目录的两行被计入。 tools/change-plan/tests/git-distance.test.ts > git-distance counts sibling paths and only outside lines in mixed commits bun test --test-name-pattern=\"^git-distance counts sibling paths and only outside lines in mixed commits$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -979,38 +887,130 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/change-plan/tests/git-distance.test.ts > git-distance-v1 counts sibling paths and only outside lines in mixed commits",
-          "bun test --test-name-pattern=\"^git-distance-v1 counts sibling paths and only outside lines in mixed commits$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/git-distance.test.ts > git-distance counts sibling paths and only outside lines in mixed commits",
+          "bun test --test-name-pattern=\"^git-distance counts sibling paths and only outside lines in mixed commits$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-GIT-PATHS-001",
         "line": 1,
-        "searchText": "Git 距离按目录边界统计混合提交 同一提交同时修改当前 Change 与外部路径时，`git-distance-v1` 计入该提交但只累计外部路径行数，名称相近的兄弟目录仍属于外部路径。 混合提交被计为 1 个相关提交，当前目录的一行被排除，兄弟目录的两行被计入。 tools/change-plan/tests/git-distance.test.ts > git-distance-v1 counts sibling paths and only outside lines in mixed commits bun test --test-name-pattern=\"^git-distance-v1 counts sibling paths and only outside lines in mixed commits$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Git 距离按目录边界统计混合提交 同一提交同时修改当前 Change 与外部路径时，Git 距离计入该提交但只累计外部路径行数，名称相近的兄弟目录仍属于外部路径。 混合提交被计为 1 个相关提交，当前目录的一行被排除，兄弟目录的两行被计入。 tools/change-plan/tests/git-distance.test.ts > git-distance counts sibling paths and only outside lines in mixed commits bun test --test-name-pattern=\"^git-distance counts sibling paths and only outside lines in mixed commits$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/git-distance-counts-sibling-paths-and-only-outside-lines-in-mixed-commits.md",
-        "summary": "同一提交同时修改当前 Change 与外部路径时，`git-distance-v1` 计入该提交但只累计外部路径行数，名称相近的兄弟目录仍属于外部路径。",
+        "summary": "同一提交同时修改当前 Change 与外部路径时，Git 距离计入该提交但只累计外部路径行数，名称相近的兄弟目录仍属于外部路径。",
         "title": "Git 距离按目录边界统计混合提交"
+      }
+    },
+    "CHANGE-PLAN-GIT-ZERO-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-GIT-ZERO-001 Git 距离在基线处返回零证据 当前 HEAD 等于 Plan 基线时返回完整的零距离 measured evidence。 commitCount 与 changedLines 都为零，baseCommit 与 headCommit 相同。 tools/change-plan/tests/git-distance.test.ts > git-distance reports zero evidence at the plan baseline bun test --test-name-pattern=\"^git-distance reports zero evidence at the plan baseline$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 11,
+        "entries": [
+          "tools/change-plan/tests/git-distance.test.ts > git-distance reports zero evidence at the plan baseline",
+          "bun test --test-name-pattern=\"^git-distance reports zero evidence at the plan baseline$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-GIT-ZERO-001",
+        "line": 1,
+        "searchText": "Git 距离在基线处返回零证据 当前 HEAD 等于 Plan 基线时返回完整的零距离 measured evidence。 commitCount 与 changedLines 都为零，baseCommit 与 headCommit 相同。 tools/change-plan/tests/git-distance.test.ts > git-distance reports zero evidence at the plan baseline bun test --test-name-pattern=\"^git-distance reports zero evidence at the plan baseline$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/git-distance-reports-zero-evidence-at-the-plan-baseline.md",
+        "summary": "当前 HEAD 等于 Plan 基线时返回完整的零距离 measured evidence。",
+        "title": "Git 距离在基线处返回零证据"
+      }
+    },
+    "CHANGE-PLAN-LIFECYCLE-LEGACY-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-LIFECYCLE-LEGACY-001 Plan 将旧活动 metadata 写回规范结构 兼容读取让历史活动 metadata 在显式运行 `plan` 时收敛为规范 Plan，写入结果统一使用当前结构。 历史 `implementation`、历史 `shelved` 与 null-base Plan 都以 Plan 身份完成重确认。 重确认后的持久 JSON 恰好包含 `stage: plan` 与非空 `baseCommit`。 tools/change-plan/tests/lifecycle.test.ts > plan rewrites legacy active metadata to canonical plan metadata bun test --test-name-pattern=\"^plan rewrites legacy active metadata to canonical plan metadata$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/change-plan/tests/lifecycle.test.ts > plan rewrites legacy active metadata to canonical plan metadata",
+          "bun test --test-name-pattern=\"^plan rewrites legacy active metadata to canonical plan metadata$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-LIFECYCLE-LEGACY-001",
+        "line": 1,
+        "searchText": "Plan 将旧活动 metadata 写回规范结构 兼容读取让历史活动 metadata 在显式运行 `plan` 时收敛为规范 Plan，写入结果统一使用当前结构。 历史 `implementation`、历史 `shelved` 与 null-base Plan 都以 Plan 身份完成重确认。 重确认后的持久 JSON 恰好包含 `stage: plan` 与非空 `baseCommit`。 tools/change-plan/tests/lifecycle.test.ts > plan rewrites legacy active metadata to canonical plan metadata bun test --test-name-pattern=\"^plan rewrites legacy active metadata to canonical plan metadata$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/plan-rewrites-legacy-active-metadata-to-canonical-plan-metadata.md",
+        "summary": "兼容读取让历史活动 metadata 在显式运行 `plan` 时收敛为规范 Plan，写入结果统一使用当前结构。",
+        "title": "Plan 将旧活动 metadata 写回规范结构"
+      }
+    },
+    "CHANGE-PLAN-LIFECYCLE-PLAN-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-LIFECYCLE-PLAN-001 Plan 支持确认 Draft 与重确认已有进度的 Plan `plan` 以完整 Plan artifacts 和当前 Git HEAD 确认内容状态，tasks 中的 checkbox 继续只表达 Plan 内进度。 Draft 成功确认成带非空基线的 Plan。 Readiness 尚未完成且 Implementation、Verification 已有完成证据的 Plan 仍成功重确认成 Plan。 tools/change-plan/tests/lifecycle.test.ts > plan confirms drafts and reconfirms plans without task progress gates bun test --test-name-pattern=\"^plan confirms drafts and reconfirms plans without task progress gates$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/change-plan/tests/lifecycle.test.ts > plan confirms drafts and reconfirms plans without task progress gates",
+          "bun test --test-name-pattern=\"^plan confirms drafts and reconfirms plans without task progress gates$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-LIFECYCLE-PLAN-001",
+        "line": 1,
+        "searchText": "Plan 支持确认 Draft 与重确认已有进度的 Plan `plan` 以完整 Plan artifacts 和当前 Git HEAD 确认内容状态，tasks 中的 checkbox 继续只表达 Plan 内进度。 Draft 成功确认成带非空基线的 Plan。 Readiness 尚未完成且 Implementation、Verification 已有完成证据的 Plan 仍成功重确认成 Plan。 tools/change-plan/tests/lifecycle.test.ts > plan confirms drafts and reconfirms plans without task progress gates bun test --test-name-pattern=\"^plan confirms drafts and reconfirms plans without task progress gates$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/plan-confirms-drafts-and-reconfirms-progressed-plans.md",
+        "summary": "`plan` 以完整 Plan artifacts 和当前 Git HEAD 确认内容状态，tasks 中的 checkbox 继续只表达 Plan 内进度。",
+        "title": "Plan 支持确认 Draft 与重确认已有进度的 Plan"
+      }
+    },
+    "CHANGE-PLAN-LIFECYCLE-REFRESH-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-LIFECYCLE-REFRESH-001 Plan 直接从当前 HEAD 刷新基线 对现有 Plan 运行 `plan` 时，当前 HEAD 是新 `baseCommit` 的权威来源，刷新路径直接以它覆盖现有基线。 携带超长基线 sentinel 的现有 Plan 成功完成 `plan -> plan` 重确认。 成功结果的 `baseCommit` 等于命令运行时的当前 HEAD。 tools/change-plan/tests/lifecycle.test.ts > plan refreshes the baseline without inspecting the old distance bun test --test-name-pattern=\"^plan refreshes the baseline without inspecting the old distance$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/change-plan/tests/lifecycle.test.ts > plan refreshes the baseline without inspecting the old distance",
+          "bun test --test-name-pattern=\"^plan refreshes the baseline without inspecting the old distance$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-LIFECYCLE-REFRESH-001",
+        "line": 1,
+        "searchText": "Plan 直接从当前 HEAD 刷新基线 对现有 Plan 运行 `plan` 时，当前 HEAD 是新 `baseCommit` 的权威来源，刷新路径直接以它覆盖现有基线。 携带超长基线 sentinel 的现有 Plan 成功完成 `plan -> plan` 重确认。 成功结果的 `baseCommit` 等于命令运行时的当前 HEAD。 tools/change-plan/tests/lifecycle.test.ts > plan refreshes the baseline without inspecting the old distance bun test --test-name-pattern=\"^plan refreshes the baseline without inspecting the old distance$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/plan-refreshes-baseline-from-current-head.md",
+        "summary": "对现有 Plan 运行 `plan` 时，当前 HEAD 是新 `baseCommit` 的权威来源，刷新路径直接以它覆盖现有基线。",
+        "title": "Plan 直接从当前 HEAD 刷新基线"
       }
     },
     "CHANGE-PLAN-LIFECYCLE-VC-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-LIFECYCLE-VC-001 生命周期版本控制失败不写 metadata 阶段转换依赖 plan assessment 时，版本控制不可用必须返回稳定失败并在任何写入前停止。 非仓库 plan 的 `implement` 返回 `version-control-failed`、`fromStage: plan`、对应诊断和可行动消息，不返回虚构目标阶段，且 `.change-plan.json` 字节保持不变。 tools/change-plan/tests/lifecycle.test.ts > lifecycle returns a stable version-control failure without metadata mutation bun test --test-name-pattern=\"^lifecycle returns a stable version-control failure without metadata mutation$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-LIFECYCLE-VC-001 Plan 缺少 HEAD 时不写 metadata `plan` 从当前仓库 HEAD 记录基线；仓库尚无 HEAD 时保持现有 Draft metadata。 无 HEAD 时返回 `base-commit-unavailable` 与 `action: plan`。 命令前后的 Draft metadata 字节保持一致。 tools/change-plan/tests/lifecycle.test.ts > plan returns a stable version-control failure without metadata mutation bun test --test-name-pattern=\"^plan returns a stable version-control failure without metadata mutation$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 12,
         "entries": [
-          "tools/change-plan/tests/lifecycle.test.ts > lifecycle returns a stable version-control failure without metadata mutation",
-          "bun test --test-name-pattern=\"^lifecycle returns a stable version-control failure without metadata mutation$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/lifecycle.test.ts > plan returns a stable version-control failure without metadata mutation",
+          "bun test --test-name-pattern=\"^plan returns a stable version-control failure without metadata mutation$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-LIFECYCLE-VC-001",
         "line": 1,
-        "searchText": "生命周期版本控制失败不写 metadata 阶段转换依赖 plan assessment 时，版本控制不可用必须返回稳定失败并在任何写入前停止。 非仓库 plan 的 `implement` 返回 `version-control-failed`、`fromStage: plan`、对应诊断和可行动消息，不返回虚构目标阶段，且 `.change-plan.json` 字节保持不变。 tools/change-plan/tests/lifecycle.test.ts > lifecycle returns a stable version-control failure without metadata mutation bun test --test-name-pattern=\"^lifecycle returns a stable version-control failure without metadata mutation$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/lifecycle-returns-a-stable-version-control-failure-without-metadata-mutation.md",
-        "summary": "阶段转换依赖 plan assessment 时，版本控制不可用必须返回稳定失败并在任何写入前停止。",
-        "title": "生命周期版本控制失败不写 metadata"
+        "searchText": "Plan 缺少 HEAD 时不写 metadata `plan` 从当前仓库 HEAD 记录基线；仓库尚无 HEAD 时保持现有 Draft metadata。 无 HEAD 时返回 `base-commit-unavailable` 与 `action: plan`。 命令前后的 Draft metadata 字节保持一致。 tools/change-plan/tests/lifecycle.test.ts > plan returns a stable version-control failure without metadata mutation bun test --test-name-pattern=\"^plan returns a stable version-control failure without metadata mutation$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/plan-returns-a-stable-version-control-failure-without-metadata-mutation.md",
+        "summary": "`plan` 从当前仓库 HEAD 记录基线；仓库尚无 HEAD 时保持现有 Draft metadata。",
+        "title": "Plan 缺少 HEAD 时不写 metadata"
       }
     },
     "CHANGE-PLAN-MARKDOWN-SEMANTICS-001": {
@@ -1062,70 +1062,93 @@
     "CHANGE-PLAN-METADATA-ERRORS-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-METADATA-ERRORS-001 Metadata reader 映射稳定边界错误码 Metadata reader 把文件存在性、路径类型和内容解析失败收口为稳定领域错误码，不向调用方泄漏偶然底层异常形状。 缺失文件得到 `missing`，目录占位得到 `invalid-path`，无效 JSON 与无效 stage 都得到 `invalid`。 tools/change-plan/tests/metadata.test.ts > metadata reader maps file and parse boundaries to stable error codes bun test --test-name-pattern=\"^metadata reader maps file and parse boundaries to stable error codes$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-METADATA-ERRORS-001 Metadata reader 映射稳定边界错误码 Metadata reader 把文件存在性、路径类型和内容解析失败收口为稳定领域错误码；活动兼容 reader 把受支持的历史 shelf metadata 投影为 Plan。 缺失文件得到 `missing`，目录占位得到 `invalid-path`，无效 JSON 与无效 stage 都得到 `invalid`。 `source: explicit` 与历史 `source: git-distance-v1` 两种旧 shelf 形状都可兼容读取为 Plan，且不会扩大规范 parser 的写入结构。 tools/change-plan/tests/metadata.test.ts > metadata reader maps file and parse boundaries to stable error codes bun test --test-name-pattern=\"^metadata reader maps file and parse boundaries to stable error codes$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
         "entries": [
           "tools/change-plan/tests/metadata.test.ts > metadata reader maps file and parse boundaries to stable error codes",
           "bun test --test-name-pattern=\"^metadata reader maps file and parse boundaries to stable error codes$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-METADATA-ERRORS-001",
         "line": 1,
-        "searchText": "Metadata reader 映射稳定边界错误码 Metadata reader 把文件存在性、路径类型和内容解析失败收口为稳定领域错误码，不向调用方泄漏偶然底层异常形状。 缺失文件得到 `missing`，目录占位得到 `invalid-path`，无效 JSON 与无效 stage 都得到 `invalid`。 tools/change-plan/tests/metadata.test.ts > metadata reader maps file and parse boundaries to stable error codes bun test --test-name-pattern=\"^metadata reader maps file and parse boundaries to stable error codes$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Metadata reader 映射稳定边界错误码 Metadata reader 把文件存在性、路径类型和内容解析失败收口为稳定领域错误码；活动兼容 reader 把受支持的历史 shelf metadata 投影为 Plan。 缺失文件得到 `missing`，目录占位得到 `invalid-path`，无效 JSON 与无效 stage 都得到 `invalid`。 `source: explicit` 与历史 `source: git-distance-v1` 两种旧 shelf 形状都可兼容读取为 Plan，且不会扩大规范 parser 的写入结构。 tools/change-plan/tests/metadata.test.ts > metadata reader maps file and parse boundaries to stable error codes bun test --test-name-pattern=\"^metadata reader maps file and parse boundaries to stable error codes$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/metadata-reader-maps-file-and-parse-boundaries-to-stable-error-codes.md",
-        "summary": "Metadata reader 把文件存在性、路径类型和内容解析失败收口为稳定领域错误码，不向调用方泄漏偶然底层异常形状。",
+        "summary": "Metadata reader 把文件存在性、路径类型和内容解析失败收口为稳定领域错误码；活动兼容 reader 把受支持的历史 shelf metadata 投影为 Plan。",
         "title": "Metadata reader 映射稳定边界错误码"
       }
     },
     "CHANGE-PLAN-METADATA-SCHEMA-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-METADATA-SCHEMA-001 Metadata 运行时严格校验生命周期值 `.change-plan.json` 由运行时严格按 `stage` 判别当前字段组合；metadata 不接受 schema version、未知字段或超出字段约束的值。 运行时接受规范 draft 与显式 shelved 值，并拒绝未知字段、含空白 revision、首尾空白 reason 和超出安全整数范围的 Git 距离。 tools/change-plan/tests/metadata.test.ts > metadata runtime enforces strict lifecycle values bun test --test-name-pattern=\"^metadata runtime enforces strict lifecycle values$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-METADATA-SCHEMA-001 Metadata parser 只接受规范 Draft 与 Plan 公共 metadata parser 的规范 schema 只包含 Draft 与带非空基线的 Plan。 `{ stage: draft }` 与 `{ stage: plan, baseCommit: <non-empty-revision> }` 被接受。 null base、额外字段、带空白 revision 及规范联合之外的 stage 形状被拒绝。 tools/change-plan/tests/metadata.test.ts > metadata parser accepts only canonical draft and plan values bun test --test-name-pattern=\"^metadata parser accepts only canonical draft and plan values$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 12,
         "entries": [
-          "tools/change-plan/tests/metadata.test.ts > metadata runtime enforces strict lifecycle values",
-          "bun test --test-name-pattern=\"^metadata runtime enforces strict lifecycle values$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/metadata.test.ts > metadata parser accepts only canonical draft and plan values",
+          "bun test --test-name-pattern=\"^metadata parser accepts only canonical draft and plan values$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-METADATA-SCHEMA-001",
         "line": 1,
-        "searchText": "Metadata 运行时严格校验生命周期值 `.change-plan.json` 由运行时严格按 `stage` 判别当前字段组合；metadata 不接受 schema version、未知字段或超出字段约束的值。 运行时接受规范 draft 与显式 shelved 值，并拒绝未知字段、含空白 revision、首尾空白 reason 和超出安全整数范围的 Git 距离。 tools/change-plan/tests/metadata.test.ts > metadata runtime enforces strict lifecycle values bun test --test-name-pattern=\"^metadata runtime enforces strict lifecycle values$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/metadata-runtime-enforces-strict-lifecycle-values.md",
-        "summary": "`.change-plan.json` 由运行时严格按 `stage` 判别当前字段组合；metadata 不接受 schema version、未知字段或超出字段约束的值。",
-        "title": "Metadata 运行时严格校验生命周期值"
+        "searchText": "Metadata parser 只接受规范 Draft 与 Plan 公共 metadata parser 的规范 schema 只包含 Draft 与带非空基线的 Plan。 `{ stage: draft }` 与 `{ stage: plan, baseCommit: <non-empty-revision> }` 被接受。 null base、额外字段、带空白 revision 及规范联合之外的 stage 形状被拒绝。 tools/change-plan/tests/metadata.test.ts > metadata parser accepts only canonical draft and plan values bun test --test-name-pattern=\"^metadata parser accepts only canonical draft and plan values$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/metadata-parser-accepts-only-canonical-draft-and-plan-values.md",
+        "summary": "公共 metadata parser 的规范 schema 只包含 Draft 与带非空基线的 Plan。",
+        "title": "Metadata parser 只接受规范 Draft 与 Plan"
       }
     },
     "CHANGE-PLAN-METADATA-SYMLINK-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-METADATA-SYMLINK-001 Metadata 边界拒绝符号链接 `.change-plan.json` 的读取和内部生命周期写入都只接受普通文件，不跟随符号链接越过 Change 目录边界。 Reader 与 writer 对链接 metadata 均返回 `invalid-path`，且链接目标内容保持原样。 tools/change-plan/tests/metadata.test.ts > metadata reader and writer reject symbolic-link metadata bun test --test-name-pattern=\"^metadata reader and writer reject symbolic-link metadata$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-METADATA-SYMLINK-001 Metadata 边界拒绝符号链接 `.change-plan.json` 的读取和内部生命周期写入都只接受普通文件；writer 发布时不解析或写入符号链接的外部目标。 Reader 与 writer 对链接 metadata 均返回 `invalid-path`，且链接目标内容保持原样。 写入检查后 metadata 路径才变为链接时，外部目标保持原样，最终 metadata 是完整普通文件。 tools/change-plan/tests/metadata.test.ts > metadata reader and writer reject symbolic-link metadata bun test --test-name-pattern=\"^metadata reader and writer reject symbolic-link metadata$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
         "entries": [
           "tools/change-plan/tests/metadata.test.ts > metadata reader and writer reject symbolic-link metadata",
           "bun test --test-name-pattern=\"^metadata reader and writer reject symbolic-link metadata$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-METADATA-SYMLINK-001",
         "line": 1,
-        "searchText": "Metadata 边界拒绝符号链接 `.change-plan.json` 的读取和内部生命周期写入都只接受普通文件，不跟随符号链接越过 Change 目录边界。 Reader 与 writer 对链接 metadata 均返回 `invalid-path`，且链接目标内容保持原样。 tools/change-plan/tests/metadata.test.ts > metadata reader and writer reject symbolic-link metadata bun test --test-name-pattern=\"^metadata reader and writer reject symbolic-link metadata$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Metadata 边界拒绝符号链接 `.change-plan.json` 的读取和内部生命周期写入都只接受普通文件；writer 发布时不解析或写入符号链接的外部目标。 Reader 与 writer 对链接 metadata 均返回 `invalid-path`，且链接目标内容保持原样。 写入检查后 metadata 路径才变为链接时，外部目标保持原样，最终 metadata 是完整普通文件。 tools/change-plan/tests/metadata.test.ts > metadata reader and writer reject symbolic-link metadata bun test --test-name-pattern=\"^metadata reader and writer reject symbolic-link metadata$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/metadata-reader-and-writer-reject-symbolic-link-metadata.md",
-        "summary": "`.change-plan.json` 的读取和内部生命周期写入都只接受普通文件，不跟随符号链接越过 Change 目录边界。",
+        "summary": "`.change-plan.json` 的读取和内部生命周期写入都只接受普通文件；writer 发布时不解析或写入符号链接的外部目标。",
         "title": "Metadata 边界拒绝符号链接"
+      }
+    },
+    "CHANGE-PLAN-METADATA-WRITER-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-METADATA-WRITER-001 Metadata writer 只写规范 Draft 与 Plan Metadata writer 通过规范 parser 后，以同目录完整临时文件发布 Draft 或 Plan。 写入后 reader 恢复相同规范对象。 Plan JSON 只包含 baseCommit 与 stage，并使用稳定格式。 发布重命名失败时保留原 metadata，且不遗留本次临时文件。 tools/change-plan/tests/metadata.test.ts > metadata writer emits canonical draft and plan JSON bun test --test-name-pattern=\"^metadata writer emits canonical draft and plan JSON$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/change-plan/tests/metadata.test.ts > metadata writer emits canonical draft and plan JSON",
+          "bun test --test-name-pattern=\"^metadata writer emits canonical draft and plan JSON$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-METADATA-WRITER-001",
+        "line": 1,
+        "searchText": "Metadata writer 只写规范 Draft 与 Plan Metadata writer 通过规范 parser 后，以同目录完整临时文件发布 Draft 或 Plan。 写入后 reader 恢复相同规范对象。 Plan JSON 只包含 baseCommit 与 stage，并使用稳定格式。 发布重命名失败时保留原 metadata，且不遗留本次临时文件。 tools/change-plan/tests/metadata.test.ts > metadata writer emits canonical draft and plan JSON bun test --test-name-pattern=\"^metadata writer emits canonical draft and plan JSON$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/metadata-writer-emits-canonical-draft-and-plan-json.md",
+        "summary": "Metadata writer 通过规范 parser 后，以同目录完整临时文件发布 Draft 或 Plan。",
+        "title": "Metadata writer 只写规范 Draft 与 Plan"
       }
     },
     "CHANGE-PLAN-SHOW-SYMLINK-001": {
@@ -5823,7 +5846,7 @@
     "REPO-SHORT-CLI-001": {
       "keys": {
         "search": [
-          "REPO-SHORT-CLI-001 仓库维护短命令调用各自领域 CLI 维护 CLI 的类型化 package script 映射中的每个命令都必须能调用其领域入口。 映射中的每个 `bun run <command> -- --help` 均成功退出，并返回对应领域 CLI 的身份输出。 scripts/environment.test.ts > repository maintenance short commands invoke their owned skill CLIs bun test --test-name-pattern=\"^repository maintenance short commands invoke their owned skill CLIs$\" ./scripts/environment.test.ts"
+          "REPO-SHORT-CLI-001 仓库维护短命令调用各自领域 CLI 维护 CLI 的类型化 package script 映射中的每个命令都必须能调用其领域入口，并以稳定能力标识确认没有路由到其他工具。 映射中的每个 `bun run <command> -- --help` 均成功退出，并返回对应领域 CLI 的稳定能力标识；Change Plan 以 `check-all` 命令表面识别当前入口。 scripts/environment.test.ts > repository maintenance short commands invoke their owned skill CLIs bun test --test-name-pattern=\"^repository maintenance short commands invoke their owned skill CLIs$\" ./scripts/environment.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5837,9 +5860,9 @@
         ],
         "id": "REPO-SHORT-CLI-001",
         "line": 1,
-        "searchText": "仓库维护短命令调用各自领域 CLI 维护 CLI 的类型化 package script 映射中的每个命令都必须能调用其领域入口。 映射中的每个 `bun run <command> -- --help` 均成功退出，并返回对应领域 CLI 的身份输出。 scripts/environment.test.ts > repository maintenance short commands invoke their owned skill CLIs bun test --test-name-pattern=\"^repository maintenance short commands invoke their owned skill CLIs$\" ./scripts/environment.test.ts",
+        "searchText": "仓库维护短命令调用各自领域 CLI 维护 CLI 的类型化 package script 映射中的每个命令都必须能调用其领域入口，并以稳定能力标识确认没有路由到其他工具。 映射中的每个 `bun run <command> -- --help` 均成功退出，并返回对应领域 CLI 的稳定能力标识；Change Plan 以 `check-all` 命令表面识别当前入口。 scripts/environment.test.ts > repository maintenance short commands invoke their owned skill CLIs bun test --test-name-pattern=\"^repository maintenance short commands invoke their owned skill CLIs$\" ./scripts/environment.test.ts",
         "sourcePath": "repository-tooling/repository-maintenance-short-commands-invoke-owned-clis.md",
-        "summary": "维护 CLI 的类型化 package script 映射中的每个命令都必须能调用其领域入口。",
+        "summary": "维护 CLI 的类型化 package script 映射中的每个命令都必须能调用其领域入口，并以稳定能力标识确认没有路由到其他工具。",
         "title": "仓库维护短命令调用各自领域 CLI"
       }
     },
@@ -11192,55 +11215,56 @@
   "schemaVersion": 3,
   "sourceRevision": {
     "entries": {
-      "CHANGE-PLAN-ARCHIVE-GATES-001": "sha256:a892b35ea1663f9da6dcaefb379be463094579baf891198844df84b7690a9c69",
-      "CHANGE-PLAN-ARCHIVE-MOVE-001": "sha256:50f5b357fdf65c4ea1f24f786b80f2fb92894b20470337a0f148c3f0532a2795",
-      "CHANGE-PLAN-ARCHIVE-SOURCE-001": "sha256:9dbf7b3d85328039bbe82f8a13fcb749fa5880bd55dc93a506372c1d2a6d3e2e",
-      "CHANGE-PLAN-ARCHIVE-TARGET-001": "sha256:78a0e71092de8ca5628ab2b8abe212eab4fbcf5462aebb460e0129f2e056968d",
-      "CHANGE-PLAN-ASSESS-ARTIFACTS-001": "sha256:5fa77c4263cac5e2900467f41012fdefdfe143ce29a1e5794c23a3448ba92519",
-      "CHANGE-PLAN-ASSESS-BASE-001": "sha256:ec8498caeb12a43436f1e1455b1a42cf263d72b6ca403e39c6af9e0e495f22cf",
-      "CHANGE-PLAN-ASSESS-CURRENT-001": "sha256:5fa3b52c4a45bfa7aa197c75717eab2b875125f2322fb14b9cb5ac83b65f7e72",
-      "CHANGE-PLAN-ASSESS-HISTORY-001": "sha256:abb9a2552598ad6465ca3a9b906ef000e35a9c721c849e9aec0a3a594a4b1f78",
-      "CHANGE-PLAN-ASSESS-SCOPE-001": "sha256:addc9e4487be8d29e0ae0792369ad03dd8ef534b7fa21bedbc54b9015bf68873",
+      "CHANGE-PLAN-ARCHIVE-GATES-001": "sha256:ec21828f3574751263a3a227ae153e261a164262664d7c833e669594d87780e5",
+      "CHANGE-PLAN-ARCHIVE-MOVE-001": "sha256:3161971934fd6504cd9177895dd5cbada1f3986c2f290cf812d7849484933ebf",
+      "CHANGE-PLAN-ARCHIVE-SOURCE-001": "sha256:fe8a6b826670a5751b1c702e0af55c9fb0fd7a28a29332195acdb589d1236ad1",
+      "CHANGE-PLAN-ARCHIVE-TARGET-001": "sha256:bf72a27ade75aed5b8f6fffe81ffb08089f3015d940add1d82e44d4ad5683100",
       "CHANGE-PLAN-CATALOG-INVALID-001": "sha256:61fd1852f86cc38e4c03a5b00d0bdbe1c5004246851ab8d1e23e8f72d77efe03",
-      "CHANGE-PLAN-CATALOG-LIFECYCLE-001": "sha256:7c64259344d3dcdc0246148f8ee129a6ca384b1057ac68b7314ba3dff94304bd",
+      "CHANGE-PLAN-CATALOG-LIFECYCLE-001": "sha256:fce5a5ff32c12cc8d825afe0eb92266ca0627ee3332eb076aaed15b046e9fb82",
       "CHANGE-PLAN-CATALOG-ROOTS-001": "sha256:74c0e20a9933fabcf6161c842b8b0d311d3b1c3f52893d99a727c38dd5e6b7c6",
       "CHANGE-PLAN-CATALOG-SHOW-001": "sha256:f2acb18cfe9026fe954defd537879cc802eb7274bb8a125163009487a7a0071e",
-      "CHANGE-PLAN-CATALOG-STAGE-001": "sha256:a5b82e9312d12b0949c7451f2241bc41ece9d756c61cdad5806ddad7afd4d2ee",
+      "CHANGE-PLAN-CATALOG-STAGE-001": "sha256:808409c2aa4654fee747d159e963e08b8296f8fb2e5d1a76735083f6876e56e2",
       "CHANGE-PLAN-CATALOG-SYMLINK-001": "sha256:fc6fef013c71b8d7388e169d77a5b775011eb3c174fa835be2e4f152c019b447",
-      "CHANGE-PLAN-CHECK-ARTIFACTS-001": "sha256:627b3d7e4e30b2cffcbb5de0c45f5b26c3a1e77318262b8c904859d985697030",
-      "CHANGE-PLAN-CHECK-COMPLETE-001": "sha256:17d4ccf165dbffa7ad726853cd14f56121facc342cf35d47b1901dace17817ce",
-      "CHANGE-PLAN-CHECK-METADATA-001": "sha256:e73dbfd307252d29fb952bda4bb9fb0b73f9f0e8533c51978a4411dc67dd8c77",
-      "CHANGE-PLAN-CHECK-PATH-001": "sha256:9f4c199d4feeedd15fc677c10c6758c663fd9f95bc0a31915d847e67dadadf2e",
-      "CHANGE-PLAN-CHECK-STAGES-001": "sha256:da564ecbc78bf4b416bbfa553ae8dbcf23bfd2307a2483b43826466eebfd0fb1",
-      "CHANGE-PLAN-CHECK-SYMLINK-001": "sha256:f3ea489f69f902c111d9fa2b1c091c0b618d06e921bb58f1779d449bcc32cc88",
-      "CHANGE-PLAN-CHECK-VC-001": "sha256:46f9b50a8a12067296acdecff1be5f0b78d88fbd4754996609344eb74ff14ecc",
+      "CHANGE-PLAN-CHECK-ARTIFACTS-001": "sha256:bc8dc15f8d74580f110421b1de4a9bf154e4e1a06f8b78b4652cc93d1b60edb4",
+      "CHANGE-PLAN-CHECK-COMPLETE-001": "sha256:f4ecf5f1ee6186ae7c7f1361c6ac129a338dd4ab54a337408c301015c2479ac1",
+      "CHANGE-PLAN-CHECK-METADATA-001": "sha256:3d4e69f8a91891db5874cda9bd306c68838ce066f68c9df585ca15ff9c3a75d1",
+      "CHANGE-PLAN-CHECK-PATH-001": "sha256:8567cac39f90d4d674a2349a2070aaa243be9764ad93abd1d20684dd4f934762",
+      "CHANGE-PLAN-CHECK-STAGES-001": "sha256:ab23e53efc448f16f6359bcf412679bf2aa636e6cba5fe4ecd7c2bdf0d3141d1",
+      "CHANGE-PLAN-CHECK-SYMLINK-001": "sha256:6a003f12e0fb0e6d35855ca7c9939cb55c5ebf5b7df06146a3adaca8c1595d28",
+      "CHANGE-PLAN-CHECK-VC-001": "sha256:726d3343bc3959cbe4d8f23d0a8d3df6bb106282edb6a50ea83720a7ab8690c5",
       "CHANGE-PLAN-CLI-ARCHIVE-001": "sha256:8ae3b39eaef7fd4af641a001d19f9eb1ea850ecb740bc63fd3bf9bc93e5d24b0",
-      "CHANGE-PLAN-CLI-ARGS-001": "sha256:4cee1a69915df372fd17ad5688b8e15a2482047c8bf5b31d9d44f1956c0dad37",
       "CHANGE-PLAN-CLI-CHECK-001": "sha256:77d0dc65a5414f77e4f36402ceed132306f7c72fbb2686e35c503cdf617acf01",
-      "CHANGE-PLAN-CLI-CHECK-ALL-001": "sha256:01a419f68b331493484694ddf96b6a91d7b1a6880b8fa651c737175ce440b58c",
+      "CHANGE-PLAN-CLI-CHECK-ALL-001": "sha256:933ee01cac21729c9a0f225be0ea471ef76101623469891a20072116f033a889",
       "CHANGE-PLAN-CLI-CHECK-ALL-OPTIONS-001": "sha256:b87f763667d5df94cf51f86611a910de340ff04fd8b0effbd86c61c7161b40e6",
       "CHANGE-PLAN-CLI-CHECK-ALL-ROOTS-001": "sha256:daf00a4af5dd0f8044ad26a1a029fabc0b54b7d3fdad9bb6cab69ec9846c5fc3",
-      "CHANGE-PLAN-CLI-LIFECYCLE-001": "sha256:968906b2ec45e4dc5885378bcd076b61281d57780b80fda0a1c99a8790091304",
-      "CHANGE-PLAN-CLI-LIFECYCLE-OUTPUT-001": "sha256:675f66f442552839e263add985c4f1abb1036464a8e069d7a3de540264a0a408",
-      "CHANGE-PLAN-CLI-LIST-001": "sha256:59ce91adfa9f06dcb23ea6f2d69320aea194906f4603eabdaad7abd7173b9c0c",
+      "CHANGE-PLAN-CLI-COMMANDS-001": "sha256:9c83bb791dc0cde422991626251a9985587fce9676300e73b4a8d53dbdbbd713",
+      "CHANGE-PLAN-CLI-DISTANCE-001": "sha256:c39d7066806466a4bd9e036cb8ced1d4ecc7155e98d971bc9d8ad4f0f5822e7c",
+      "CHANGE-PLAN-CLI-LIST-001": "sha256:5e6c161d13e7132579d4eb27c7eb58fcc61a7dc8218cea87947173de88a445f4",
       "CHANGE-PLAN-CLI-LIST-ARGS-001": "sha256:1c218739f3b4a92f314c012aa0f6acf5660ebdd576a732ef196c65a57798ca7a",
       "CHANGE-PLAN-CLI-LIST-ROOT-001": "sha256:142d5c70f5012973407aa1c114526abd0bed18f207bf2b5c1e02ba755b00bcd3",
-      "CHANGE-PLAN-CLI-PLAN-COMMIT-001": "sha256:7b4d00faf5c9b83b86c9990a5d03609e7a96ed81c2cbe0e3b54873b6d0955f9d",
+      "CHANGE-PLAN-CLI-PLAN-COMMIT-001": "sha256:d9552bc31d6a5e90d4d7fa4eec25319cca966277b52a1520d5b8c520dbad40bf",
+      "CHANGE-PLAN-CLI-PLAN-INPUTS-001": "sha256:a4ac99f6776bc8da1afc0a14fd262da5a51355880d432baef5d217a5ef52983e",
       "CHANGE-PLAN-CLI-PLAN-NO-HEAD-001": "sha256:3807d0a281290da77157fffe53d156bcaa307f018d766b04b8601081e981b4dd",
-      "CHANGE-PLAN-CLI-RECONCILE-001": "sha256:c056241e92608802b222c5af0a337bc23577d7fe154ad04a0e1b5a45f708bdff",
-      "CHANGE-PLAN-CLI-SHOW-001": "sha256:5071af6ab47a3940c27103f8de22d255d2acea058d6ce4028f34f33cc31499c8",
+      "CHANGE-PLAN-CLI-SHOW-001": "sha256:c2f5d2a79082ffd7b5584ef5533fc07304b21a67677f66c7efc446fae7040f3b",
       "CHANGE-PLAN-COLLECTION-CHECK-001": "sha256:de00eb26b9fd4b50029e147b86f07878314e9e7b0defcbc192e14ab83dcb9366",
       "CHANGE-PLAN-COLLECTION-ROOTS-001": "sha256:3f6c42628e52aac88ba9c9d4b232721b9a83288b870b911248b758b3ebeb084f",
-      "CHANGE-PLAN-GENERATED-ARTIFACTS-001": "sha256:8c267d3dd48539628ad2a431089dc2783b15d6c761ee2a701daf49dbf1817fe0",
-      "CHANGE-PLAN-GIT-EXCLUDE-001": "sha256:e17c639ace50501210ccfa4d4195da514765f89418f57d821f5c5334eb60d36a",
-      "CHANGE-PLAN-GIT-NUMSTAT-001": "sha256:40e14624a84992e44c6901bd66becdd0443576c0abd5c0106766b4259d2a3aa3",
-      "CHANGE-PLAN-GIT-PATHS-001": "sha256:53086e3edbfab40174d90614b2eee1792fddb0bf73cd8e44d68883992ed085cf",
-      "CHANGE-PLAN-LIFECYCLE-VC-001": "sha256:3a67a47fbd12e35b43bc02fac045ae8d5e004655dc09da648ff9e52a0c06e7ec",
+      "CHANGE-PLAN-GENERATED-ARTIFACTS-001": "sha256:501b7733efac8e3e550b0f056e4adccc8a510c1a8b41be7033ead46c5e79ebeb",
+      "CHANGE-PLAN-GIT-BASE-001": "sha256:d5cf23fa9168af1c0b1a0b86f0cf4921c6949ddd03db1a89446613f9c194ef56",
+      "CHANGE-PLAN-GIT-EXCLUDE-001": "sha256:284255391ef42b91a26f880eebac5ecb386e76e50cca43066c91380b063117cf",
+      "CHANGE-PLAN-GIT-FAILURE-001": "sha256:b63a296ebcec3dfb40c471cc4dbf593e1fb58bb4daba0261011877e1a317e188",
+      "CHANGE-PLAN-GIT-NUMSTAT-001": "sha256:34c2d39dc544e4a2715427cdec4c7cbeb8b67af0be97e89269ee23affd7bad92",
+      "CHANGE-PLAN-GIT-PATHS-001": "sha256:801af2a004699fff02b68d032db4fce7065673e657471f25b5844f100dfee21d",
+      "CHANGE-PLAN-GIT-ZERO-001": "sha256:185bc84e21ee80a0b7e53879749b1b60ed3012f732f52b5d5daa47eaa5fc4c5e",
+      "CHANGE-PLAN-LIFECYCLE-LEGACY-001": "sha256:ff9f624860e2024c37044c8758a31b7c4a940f9390906ddfee1c18efa87558ad",
+      "CHANGE-PLAN-LIFECYCLE-PLAN-001": "sha256:0e7885bf0e2d9983a0dcc6f12a243c47e8bed74d0c620d22cea8376f72612ae5",
+      "CHANGE-PLAN-LIFECYCLE-REFRESH-001": "sha256:9e78e97b6be06b4529725789f7f9f0d2902dc8115dd6a51a769ba3da7bf75e27",
+      "CHANGE-PLAN-LIFECYCLE-VC-001": "sha256:f2835f70dcb2ccdf4486329e2c8fa1cc272897a26b6a60df0211566fe72cf84d",
       "CHANGE-PLAN-MARKDOWN-SEMANTICS-001": "sha256:1cf089a9e0d3c9c42b4bb2ff598b3f171e9cc47878febbead11fdf7aa9231988",
       "CHANGE-PLAN-MARKDOWN-TASKS-001": "sha256:d64961e5a57d6ed00d1b756c32d16f711ae65b0aabda3a666c85f0a05df3a2e6",
-      "CHANGE-PLAN-METADATA-ERRORS-001": "sha256:c47c9718055aad1b74be1f651baadd1e76fbc5544660b1466f77e61201c6cc2c",
-      "CHANGE-PLAN-METADATA-SCHEMA-001": "sha256:7d104ac90654d90a64e9f77c2711654021839a9f98677368b9f912a5dc93ab1a",
-      "CHANGE-PLAN-METADATA-SYMLINK-001": "sha256:449afaef1f42fc55a1a1aa9faba4e9dd9e48445519d587840340dcee03820040",
+      "CHANGE-PLAN-METADATA-ERRORS-001": "sha256:509ef5fdcc0b45b7b4df3acc005b070f5a3858da7db07822293188a70f44eb8b",
+      "CHANGE-PLAN-METADATA-SCHEMA-001": "sha256:c0bcebdb00dc19491dfe0aed469054779f06e32ec73d4ff2f9349e13a9155fa6",
+      "CHANGE-PLAN-METADATA-SYMLINK-001": "sha256:285e8e752f68addef6433c70d1b8d0bf797b638d196652344ce2f1b40c2c587f",
+      "CHANGE-PLAN-METADATA-WRITER-001": "sha256:447c2a34524432d6d39e7851df432197b4d9461679fb9641e0b202f0316c3cac",
       "CHANGE-PLAN-SHOW-SYMLINK-001": "sha256:4596341cd28d7edf40f0d5f743788b0fca3b45989feaf22f29f1bbae57e7962e",
       "CHECK-CLI-CONCURRENCY-001": "sha256:88e976ae0580c8e1c503d0be615d581e0f0ece14dbabe4b0e2664ac419905d46",
       "CHECK-CLI-UNKNOWN-OPTION-001": "sha256:8a48bbbdcf577be8b08b707c5b5d7d6e3de84dea348a472c81e6edec6f4fb8b0",
@@ -11445,7 +11469,7 @@
       "INVESTIGATION-STRUCTURE-CHRONOLOGY-001": "sha256:c37b58ae1a46e45c4c65521f420c6f373301ce0465e1d5c14ed70abb8a7f0de4",
       "INVESTIGATION-VALIDATION-FILTER-001": "sha256:59fb97585ad6fe441e9bf7a42044f69eb26a826b7c648a25322a8ab2e350e036",
       "REPO-PACKAGE-JSON-001": "sha256:36724eb3dd100be35650754564a630256b7e0acfa6047ffd892ea44d67692239",
-      "REPO-SHORT-CLI-001": "sha256:fb63421589767622ea425c8bf64abedc60550f9fb003d4b02199043ade8c74c1",
+      "REPO-SHORT-CLI-001": "sha256:b65cd8fea69d66bc1ddb39a518ae483789f16e9172df3fd15f2e89257a737e28",
       "REPO-SHORT-CONFIG-001": "sha256:39b56cd6dce349c3b4b0a28798b96ac1ae38e8b8544a3f395f0337ae5a7f2e7a",
       "REPO-TASK-ROOT-001": "sha256:6f7f36dab2296b05c02fea40dbb240ca970aeec45b6fb8e809772121bf575df4",
       "REPO-TASK-TARGET-001": "sha256:0d31dfb2b408a1aede75a8230c2d302d965c3e131109c6fc0808324b1a80f5bd",

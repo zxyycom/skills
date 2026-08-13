@@ -1,21 +1,22 @@
 import type { Stats } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { assessChangePlan } from "./assessment.ts";
+import { inspectPlanVersionControl } from "./git-distance.ts";
 import { validateChangePlanArtifact } from "./markdown.ts";
 import {
   ChangePlanMetadataError,
-  readChangePlanMetadata
+  readActiveChangePlanMetadata,
+  type ActiveChangePlanMetadata
 } from "./metadata.ts";
 import {
   changePlanMetadataName,
   type ArtifactStructureContract,
-  type ChangePlanAssessment,
   type ChangePlanCheckResult,
   type ChangePlanDiagnostic,
   type ChangePlanFileName,
   type ChangePlanMetadata,
   type ChangePlanStage,
+  type GitDistanceEvidence,
   type ChangePlanTaskProgress
 } from "./types.ts";
 
@@ -73,9 +74,7 @@ const draftArtifactContracts = [
 
 const artifactContractsByStage = {
   draft: draftArtifactContracts,
-  plan: planArtifactContracts,
-  implementation: planArtifactContracts,
-  shelved: planArtifactContracts
+  plan: planArtifactContracts
 } as const satisfies Readonly<
   Record<ChangePlanStage, readonly ArtifactStructureContract[]>
 >;
@@ -84,6 +83,11 @@ type ArtifactProgress = {
   completedTaskCount: number;
   taskCount: number;
   taskProgress: ChangePlanTaskProgress;
+};
+
+type ChangePlanCheckOptions = {
+  artifactStage?: ChangePlanStage;
+  inspectGitDistance: boolean;
 };
 
 function emptyTaskProgress(): ChangePlanTaskProgress {
@@ -235,13 +239,25 @@ function metadataDiagnostic(error: unknown): ChangePlanDiagnostic {
 async function readActiveMetadata(
   changeDirectory: string,
   diagnostics: ChangePlanDiagnostic[]
-): Promise<ChangePlanMetadata | null> {
+): Promise<ActiveChangePlanMetadata | null> {
   try {
-    return await readChangePlanMetadata(changeDirectory);
+    return await readActiveChangePlanMetadata(changeDirectory);
   } catch (error) {
     diagnostics.push(metadataDiagnostic(error));
     return null;
   }
+}
+
+function canonicalMetadata(
+  metadata: ActiveChangePlanMetadata | null
+): ChangePlanMetadata | null {
+  if (
+    metadata === null
+    || (metadata.stage === "plan" && metadata.baseCommit === null)
+  ) {
+    return null;
+  }
+  return metadata;
 }
 
 async function validateArtifacts(
@@ -317,25 +333,26 @@ function checkResult(
   changeDirectory: string,
   diagnostics: readonly ChangePlanDiagnostic[],
   metadata: ChangePlanMetadata | null,
-  assessment: ChangePlanAssessment | null,
+  stage: ChangePlanStage | null,
+  distance: GitDistanceEvidence | null,
   progress: ArtifactProgress
 ): ChangePlanCheckResult {
   const sortedDiagnostics = sortDiagnostics(diagnostics);
   return {
-    assessment,
     changeDirectory,
     changeName: path.basename(changeDirectory),
     ...progress,
     diagnostics: sortedDiagnostics,
+    distance,
     metadata,
-    stage: metadata?.stage ?? null,
+    stage,
     valid: sortedDiagnostics.length === 0
   };
 }
 
-export async function checkChangePlanDirectory(
+async function checkChangePlanDirectoryWithOptions(
   changeDirectoryInput: string,
-  artifactStageOverride?: ChangePlanStage
+  options: ChangePlanCheckOptions
 ): Promise<ChangePlanCheckResult> {
   const changeDirectory = path.resolve(changeDirectoryInput);
   const diagnostics: ChangePlanDiagnostic[] = [];
@@ -346,49 +363,77 @@ export async function checkChangePlanDirectory(
       diagnostics,
       null,
       null,
+      null,
       emptyArtifactProgress()
     );
   }
 
   const archived = isArchivedChangeDirectory(changeDirectory);
-  const metadata = archived
+  const activeMetadata: ActiveChangePlanMetadata | null = archived
     ? null
     : await readActiveMetadata(changeDirectory, diagnostics);
+  const stage = archived ? null : activeMetadata?.stage ?? null;
+  const metadata = canonicalMetadata(activeMetadata);
   const artifactStage = archived
-    ? "implementation"
-    : artifactStageOverride ?? metadata?.stage;
+    ? "plan"
+    : options.artifactStage ?? stage ?? undefined;
   const progress = artifactStage === undefined
     ? emptyArtifactProgress()
     : await validateArtifacts(changeDirectory, artifactStage, diagnostics);
 
-  let assessment: ChangePlanAssessment | null = archived
-    ? { assessment: "not-applicable" }
-    : null;
-  if (!archived && metadata !== null) {
+  let distance: GitDistanceEvidence | null = null;
+  if (
+    options.inspectGitDistance
+    && !archived
+    && activeMetadata?.stage === "plan"
+  ) {
     try {
-      assessment = await assessChangePlan(changeDirectory, metadata);
+      const inspection = await inspectPlanVersionControl(
+        changeDirectory,
+        activeMetadata.baseCommit
+      );
+      if (inspection.outcome === "measured") {
+        distance = inspection.evidence;
+      } else {
+        diagnostics.push(fileDiagnostic(
+          changePlanMetadataName,
+          "base-commit-unavailable",
+          "plan baseCommit is unavailable; review the plan and run plan to record a new Git baseline"
+        ));
+      }
     } catch (error) {
-      assessment = null;
       diagnostics.push(fileDiagnostic(
         changePlanMetadataName,
         "version-control-failed",
-        `cannot assess plan against version control: ${errorMessage(error)}`
+        `cannot measure plan distance against version control: ${errorMessage(error)}`
       ));
     }
-  }
-  if (assessment?.assessment === "plan-review-required") {
-    diagnostics.push(fileDiagnostic(
-      changePlanMetadataName,
-      "plan-review-required",
-      "plan baseCommit is unavailable; review the plan and record a new Git baseline"
-    ));
   }
 
   return checkResult(
     changeDirectory,
     diagnostics,
     metadata,
-    assessment,
+    stage,
+    distance,
     progress
   );
+}
+
+export async function checkChangePlanDirectory(
+  changeDirectoryInput: string
+): Promise<ChangePlanCheckResult> {
+  return await checkChangePlanDirectoryWithOptions(changeDirectoryInput, {
+    inspectGitDistance: true
+  });
+}
+
+/** @internal Plan write gate; validates target artifacts without old Git state. */
+export async function checkChangePlanDirectoryForPlan(
+  changeDirectoryInput: string
+): Promise<ChangePlanCheckResult> {
+  return await checkChangePlanDirectoryWithOptions(changeDirectoryInput, {
+    artifactStage: "plan",
+    inspectGitDistance: false
+  });
 }

@@ -453,7 +453,7 @@ test("environment check reports missing repository setup without writing it", as
 
 test("repository maintenance short commands invoke their owned skill CLIs", () => {
   const commandHelpPatterns = {
-    "change-plan": /Manage the basic lifecycle/u,
+    "change-plan": /change-plan\.mjs check-all/u,
     "decision-records": /Query and maintain agent-oriented decision records/u,
     "investigation-report": /Check investigation topics/u,
     "task-graph": /"commands":\[/u,

@@ -104,8 +104,8 @@
       "change-plan/maintain-change-artifact-and-authorization-boundaries.md": "sha256:15d4837a4b32a013b7472793848d4a723776e0f96977ab78eecfda52d0f2751d",
       "change-plan/manage-basic-change-lifecycle.md": "sha256:4f39bafa6a9c540baa4648313225654152c611a5ba280ac3172031758b82c0f4",
       "change-plan/manage-change-lifecycle-stages.md": "sha256:57ed6c0cbe761583a6c4c2abee589dcd0d84bb006288c6a7d2c5028cfd8839ce",
-      "change-plan/report-plan-git-distance-as-context.md": "sha256:c977d53c702eee807829631032e520962ab55a6741f0decbea99700a820a981e",
-      "change-plan/simplify-change-lifecycle-to-draft-plan-and-archive.md": "sha256:087c8701844259c17de0c056dadd3df1b7208c7e21575172210fc5ed3deee92c",
+      "change-plan/report-plan-git-distance-as-context.md": "sha256:99d3be4903a81c9fe2513c90901517e92e603a00323fa7f6e8ced12afc7c2533",
+      "change-plan/simplify-change-lifecycle-to-draft-plan-and-archive.md": "sha256:64a42657279ee6c0388dc8a75f8f6a97e784c99648b7012b44700800391ea15c",
       "change-plan/use-independent-change-plans.md": "sha256:2d32fbd6ed64b1eff7d852fd7ee0e0037c72dcdceb27803d5bb879cddab41f0c",
       "change-plan/use-plan-base-only-for-git-distance.md": "sha256:e56736d1e0adfd88f941a3ff5334004f17fa8029f5b30f54fa0ce2b9a433bbd1",
       "common-denominator-design/design-by-scenario-denominators.md": "sha256:218a489e475594152f861a152cf785274ef297e862216fe198191418114619ac",
@@ -806,14 +806,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "change-plan/report-plan-git-distance-as-context.md",
         "title": "直接提示 Plan 的 Git 演进距离",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-13T05:35:51Z",
         "purpose": "让调用方从 Plan 基线后的项目演进事实直接判断是否需要复核当前计划。",
         "background": "Git 距离能够提示计划上下文可能变化，但不能判断变化是否影响计划；阈值分类会让调用方先解释术语，再恢复原始证据。",
@@ -839,14 +839,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "path": "change-plan/simplify-change-lifecycle-to-draft-plan-and-archive.md",
         "title": "用 Draft、Plan 与 Archive 维护 Change",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-13T05:35:50Z",
         "purpose": "让 Change 以内容成熟度和归档结果表达生命周期，并让任务进度与 CLI 职责可以直接恢复。",
         "background": "Draft 与 Plan 具有不同内容契约，tasks 已表达 Plan 内进度；额外阶段没有保存独立事实，却扩大了状态转换和命令表面。",
