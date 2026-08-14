@@ -415,11 +415,11 @@
     "resources": [
       {
         "id": "ai-ready-docs/target-boundary-information-and-anchoring/conversation-final-dialogue.initial.md",
-        "sha256": "55a319195302b9ce33146adf7fb6c3d9cd43902905b07e201ab1ae6321e8918d"
+        "sha256": "fdb272e85fe065db28085ccde79d1f331175dece3e2081f8fff74c1d2ee6e3e6"
       },
       {
         "id": "ai-ready-docs/target-boundary-information-and-anchoring/conversation-near-full.redacted.jsonl",
-        "sha256": "82ccd911f07e5003dae621bb069b30f48c0fbb6286f6f59fb77ca7b2c15c38c3"
+        "sha256": "3142abcbcdc02aa2d2ef1d228dadde537f3353b9b9e152714110c2761e8a2f88"
       },
       {
         "id": "test-evidence/standard-test-result-blocking/design.md",
@@ -439,7 +439,7 @@
   "schemaVersion": 3,
   "sourceRevision": {
     "entries": {
-      "ai-ready-docs/target-boundary-information-and-anchoring.md": "sha256:c3d59285331ad2b9d93087dc16db426a01eab99e09dac71957cb780aa027761a",
+      "ai-ready-docs/target-boundary-information-and-anchoring.md": "sha256:130eb42772b73a7e08c883c9051c1a71f6782d7392996cb6be8e380061652a3c",
       "context-management/unified-context-management.md": "sha256:924236b12d95a2df8e645a9b51587591dc626749ff47e8f0676eb862eeef1c2e",
       "decision-records/intra-change-decision-evolution.md": "sha256:ea0534815b78a50f47c871b082a7aaec25c0d6e1b518e6fa2c7c745e435f6e57",
       "git-integration/direct-git-library-selection.md": "sha256:9948dbd4fcf22f71a82702d5d4cecd1008a189fab81c2e3bbcc0375c244ad4c9",
@@ -451,6 +451,6 @@
       "task-graph/file-lock-and-atomic-write-libraries.md": "sha256:1ef40f9481f4a6a1275f50b5ede4f08d70dd67677d0057852a3c6bf9841c1edb",
       "test-evidence/standard-test-result-blocking.md": "sha256:d7a0090332a4224c5458233bf824dc70c66c7c1bca8185e17675e96235a078db"
     },
-    "metadata": "sha256:546a5375c01168dc78070977b5f4b893d4d8b47665c43f76680c0c395292d80a"
+    "metadata": "sha256:a6fbb4dcbbef8eff258c740ebe5764574b25855267cc88011509cbaa58c57724"
   }
 }
