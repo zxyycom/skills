@@ -13,6 +13,7 @@ export const checkPreflightTasks = [
   { minimumProfile: "full", script: "test:test-evidence-cli" },
   { minimumProfile: "full", script: "test:task-graph-cli" },
   { minimumProfile: "quick", script: "test:change-plan-cli" },
+  { minimumProfile: "quick", script: "test:skill-release-publisher" },
   { minimumProfile: "quick", script: "test:index-runtime" },
   { minimumProfile: "quick", script: "test:skill-validator" },
   { minimumProfile: "quick", script: "check:investigations" },

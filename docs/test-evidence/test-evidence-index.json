@@ -6165,6 +6165,121 @@
         "title": "版本门禁保留已捕获的 pending 快照"
       }
     },
+    "SKILL-RELEASE-PUBLISH-001": {
+      "keys": {
+        "search": [
+          "SKILL-RELEASE-PUBLISH-001 滚动发布按可恢复顺序同步资产 `skills-latest` 更新先移动并推送滚动 tag，再覆盖 skill zip，最后覆盖 manifest；当前资产可用后才删除旧资产并更新 Release 元数据。 命令序列先执行 Git tag 与 push，再依次上传全部 zip 和 manifest。 不属于当前制品的资产在上传完成后删除，Release 元数据最后更新。 CLI 成功时返回退出状态零并报告已更新的滚动 tag。 scripts/publish-skills.test.ts > rolling publication replaces packages before manifest and removes stale assets bun test --test-name-pattern=\"^rolling publication replaces packages before manifest and removes stale assets$\" ./scripts/publish-skills.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 11,
+        "entries": [
+          "scripts/publish-skills.test.ts > rolling publication replaces packages before manifest and removes stale assets",
+          "bun test --test-name-pattern=\"^rolling publication replaces packages before manifest and removes stale assets$\" ./scripts/publish-skills.test.ts"
+        ],
+        "id": "SKILL-RELEASE-PUBLISH-001",
+        "line": 1,
+        "searchText": "滚动发布按可恢复顺序同步资产 `skills-latest` 更新先移动并推送滚动 tag，再覆盖 skill zip，最后覆盖 manifest；当前资产可用后才删除旧资产并更新 Release 元数据。 命令序列先执行 Git tag 与 push，再依次上传全部 zip 和 manifest。 不属于当前制品的资产在上传完成后删除，Release 元数据最后更新。 CLI 成功时返回退出状态零并报告已更新的滚动 tag。 scripts/publish-skills.test.ts > rolling publication replaces packages before manifest and removes stale assets bun test --test-name-pattern=\"^rolling publication replaces packages before manifest and removes stale assets$\" ./scripts/publish-skills.test.ts",
+        "sourcePath": "repository-tooling/rolling-publication-orders-recoverable-asset-updates.md",
+        "summary": "`skills-latest` 更新先移动并推送滚动 tag，再覆盖 skill zip，最后覆盖 manifest；当前资产可用后才删除旧资产并更新 Release 元数据。",
+        "title": "滚动发布按可恢复顺序同步资产"
+      }
+    },
+    "SKILL-RELEASE-PUBLISH-002": {
+      "keys": {
+        "search": [
+          "SKILL-RELEASE-PUBLISH-002 快照发布创建一次并复用相同资产 不可变快照由 package hash 前 12 位标识；不存在时创建，完整资产名称、字节数和 SHA-256 digest 一致时复用。 首次发布以当前提交为 target 创建非 Latest 快照。 同名快照资产完全一致时只读取远端状态，不执行任何写命令。 scripts/publish-skills.test.ts > snapshot publication creates once and reuses matching digests bun test --test-name-pattern=\"^snapshot publication creates once and reuses matching digests$\" ./scripts/publish-skills.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "scripts/publish-skills.test.ts > snapshot publication creates once and reuses matching digests",
+          "bun test --test-name-pattern=\"^snapshot publication creates once and reuses matching digests$\" ./scripts/publish-skills.test.ts"
+        ],
+        "id": "SKILL-RELEASE-PUBLISH-002",
+        "line": 1,
+        "searchText": "快照发布创建一次并复用相同资产 不可变快照由 package hash 前 12 位标识；不存在时创建，完整资产名称、字节数和 SHA-256 digest 一致时复用。 首次发布以当前提交为 target 创建非 Latest 快照。 同名快照资产完全一致时只读取远端状态，不执行任何写命令。 scripts/publish-skills.test.ts > snapshot publication creates once and reuses matching digests bun test --test-name-pattern=\"^snapshot publication creates once and reuses matching digests$\" ./scripts/publish-skills.test.ts",
+        "sourcePath": "repository-tooling/snapshot-publication-creates-once-and-reuses-matching-assets.md",
+        "summary": "不可变快照由 package hash 前 12 位标识；不存在时创建，完整资产名称、字节数和 SHA-256 digest 一致时复用。",
+        "title": "快照发布创建一次并复用相同资产"
+      }
+    },
+    "SKILL-RELEASE-PUBLISH-003": {
+      "keys": {
+        "search": [
+          "SKILL-RELEASE-PUBLISH-003 快照发布拒绝冲突资产 同名不可变快照的任一资产身份与当前制品不同时，发布必须失败且不得自动覆盖或删除远端内容。 SHA-256 digest 不一致时 CLI 以非零状态退出，并在诊断中指出快照资产冲突和 digest 差异。 冲突路径只读取一次 Release 状态，不执行远端写命令。 scripts/publish-skills.test.ts > snapshot publication rejects conflicting assets without remote writes bun test --test-name-pattern=\"^snapshot publication rejects conflicting assets without remote writes$\" ./scripts/publish-skills.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "scripts/publish-skills.test.ts > snapshot publication rejects conflicting assets without remote writes",
+          "bun test --test-name-pattern=\"^snapshot publication rejects conflicting assets without remote writes$\" ./scripts/publish-skills.test.ts"
+        ],
+        "id": "SKILL-RELEASE-PUBLISH-003",
+        "line": 1,
+        "searchText": "快照发布拒绝冲突资产 同名不可变快照的任一资产身份与当前制品不同时，发布必须失败且不得自动覆盖或删除远端内容。 SHA-256 digest 不一致时 CLI 以非零状态退出，并在诊断中指出快照资产冲突和 digest 差异。 冲突路径只读取一次 Release 状态，不执行远端写命令。 scripts/publish-skills.test.ts > snapshot publication rejects conflicting assets without remote writes bun test --test-name-pattern=\"^snapshot publication rejects conflicting assets without remote writes$\" ./scripts/publish-skills.test.ts",
+        "sourcePath": "repository-tooling/snapshot-publication-rejects-conflicting-assets.md",
+        "summary": "同名不可变快照的任一资产身份与当前制品不同时，发布必须失败且不得自动覆盖或删除远端内容。",
+        "title": "快照发布拒绝冲突资产"
+      }
+    },
+    "SKILL-RELEASE-PUBLISH-004": {
+      "keys": {
+        "search": [
+          "SKILL-RELEASE-PUBLISH-004 发布入口在副作用前拒绝不完整资产 发布输入必须至少包含一个普通 zip 文件和一个普通文件形式的 release manifest；本地资产无效时不得进入 Git 或 GitHub 命令边界。 只有 manifest 而没有 skill zip 时，CLI 返回退出状态 `1`，并向错误通道给出可行动诊断。 资产校验失败时没有执行或读取任何外部命令。 scripts/publish-skills.test.ts > publication CLI rejects incomplete assets before starting commands bun test --test-name-pattern=\"^publication CLI rejects incomplete assets before starting commands$\" ./scripts/publish-skills.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "scripts/publish-skills.test.ts > publication CLI rejects incomplete assets before starting commands",
+          "bun test --test-name-pattern=\"^publication CLI rejects incomplete assets before starting commands$\" ./scripts/publish-skills.test.ts"
+        ],
+        "id": "SKILL-RELEASE-PUBLISH-004",
+        "line": 1,
+        "searchText": "发布入口在副作用前拒绝不完整资产 发布输入必须至少包含一个普通 zip 文件和一个普通文件形式的 release manifest；本地资产无效时不得进入 Git 或 GitHub 命令边界。 只有 manifest 而没有 skill zip 时，CLI 返回退出状态 `1`，并向错误通道给出可行动诊断。 资产校验失败时没有执行或读取任何外部命令。 scripts/publish-skills.test.ts > publication CLI rejects incomplete assets before starting commands bun test --test-name-pattern=\"^publication CLI rejects incomplete assets before starting commands$\" ./scripts/publish-skills.test.ts",
+        "sourcePath": "repository-tooling/publication-cli-rejects-incomplete-assets.md",
+        "summary": "发布输入必须至少包含一个普通 zip 文件和一个普通文件形式的 release manifest；本地资产无效时不得进入 Git 或 GitHub 命令边界。",
+        "title": "发布入口在副作用前拒绝不完整资产"
+      }
+    },
+    "SKILL-RELEASE-PUBLISH-005": {
+      "keys": {
+        "search": [
+          "SKILL-RELEASE-PUBLISH-005 滚动发布可从缺失状态创建 `skills-latest` Release 不存在时，发布入口先确认远端缺失，再推送当前提交对应的 tag，并从完整资产集创建 GitHub Latest。 缺失分支只读检查后依次更新本地 tag、推送远端 tag 和创建 Release。 创建 Release 时要求 tag 已存在、标记 GitHub Latest，并把 manifest 放在资产列表末尾。 scripts/publish-skills.test.ts > rolling publication creates a verified latest release when absent bun test --test-name-pattern=\"^rolling publication creates a verified latest release when absent$\" ./scripts/publish-skills.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "scripts/publish-skills.test.ts > rolling publication creates a verified latest release when absent",
+          "bun test --test-name-pattern=\"^rolling publication creates a verified latest release when absent$\" ./scripts/publish-skills.test.ts"
+        ],
+        "id": "SKILL-RELEASE-PUBLISH-005",
+        "line": 1,
+        "searchText": "滚动发布可从缺失状态创建 `skills-latest` Release 不存在时，发布入口先确认远端缺失，再推送当前提交对应的 tag，并从完整资产集创建 GitHub Latest。 缺失分支只读检查后依次更新本地 tag、推送远端 tag 和创建 Release。 创建 Release 时要求 tag 已存在、标记 GitHub Latest，并把 manifest 放在资产列表末尾。 scripts/publish-skills.test.ts > rolling publication creates a verified latest release when absent bun test --test-name-pattern=\"^rolling publication creates a verified latest release when absent$\" ./scripts/publish-skills.test.ts",
+        "sourcePath": "repository-tooling/rolling-publication-creates-verified-latest-release.md",
+        "summary": "`skills-latest` Release 不存在时，发布入口先确认远端缺失，再推送当前提交对应的 tag，并从完整资产集创建 GitHub Latest。",
+        "title": "滚动发布可从缺失状态创建"
+      }
+    },
     "SKILL-UPDATER-CANONICAL-PATH-001": {
       "keys": {
         "search": [
@@ -11552,6 +11667,11 @@
       "SKILL-PACKAGE-HASH-005": "sha256:60a60dfd919c85ce28e1eb82719fa87c4b89a0cffbda29cef30b1c654b283f62",
       "SKILL-PACKAGE-HASH-006": "sha256:a4c82e0ce772f10c55668d528527c306e30ce4139e4a808cd59851b97c91ffdf",
       "SKILL-PACKAGE-HASH-007": "sha256:2bbc8720532390a943ab064bb290496a0f0ac94fb56d807072752ddeb7dcb422",
+      "SKILL-RELEASE-PUBLISH-001": "sha256:9652a3afad7e6c4b580af3eb01676084f98787dd4d8b2651cc212bc332b3f874",
+      "SKILL-RELEASE-PUBLISH-002": "sha256:b95498a0edb0579f93219f94c462103de2b4ee7453a900d7aa9f6288b070ef9c",
+      "SKILL-RELEASE-PUBLISH-003": "sha256:18570090b05ff91bcdb1c957749a106df9585b5cb9b7c3cfdc78b1db135ee4a7",
+      "SKILL-RELEASE-PUBLISH-004": "sha256:1e8f41845dbd40be1d6b0eda258d710791d0196f16bfccb01b82faae1e0e75d4",
+      "SKILL-RELEASE-PUBLISH-005": "sha256:e035b6f73399eb16ba2cdef1b2e1bf4e58d994abbde027b93d9cfe7ae5b99fc3",
       "SKILL-UPDATER-CANONICAL-PATH-001": "sha256:bee0abdcccf5d0c69ea41a7d1afce9eab392dfd6dc008e28f2dd9c5e85c2ed2a",
       "SKILL-UPDATER-CURRENT-CHECK-001": "sha256:1c845cdbf783cb12c0c7f1d96dbfeef631cb12567522959d07999e2e6d8e5854",
       "SKILL-UPDATER-DECLARATIONS-001": "sha256:38733bd045c0e89e46a8bed1bdc0d787eae4919973ec1d4b232df25e0303da43",

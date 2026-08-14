@@ -49,6 +49,7 @@ test("check plan classifies every package script by minimum profile", () => {
     ["test:test-evidence-cli", "full"],
     ["test:task-graph-cli", "full"],
     ["test:change-plan-cli", "quick"],
+    ["test:skill-release-publisher", "quick"],
     ["test:index-runtime", "quick"],
     ["test:skill-validator", "quick"],
     ["check:investigations", "quick"],

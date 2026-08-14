@@ -72,6 +72,7 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run validate` | 校验全部 skill 入口、当前维护的仓库 Markdown 链接和主仓库配置 |
 | `bun run hash:skills` | 从 Git `pending` 快照临时计算 package hash，并校验内容变化的 skill 已相对 `--baseline-ref` 提升 `SKILL.md` 中的 `metadata.version` |
 | `bun run pack:skills` | 从版本管理 `pending` 快照生成每个 skill 的 zip 和 release manifest |
+| `bun run publish:skills -- <rolling\|snapshot>` | 供发布 workflow 校验 `dist/` 制品并执行滚动发布或不可变快照事务；需要 GitHub Actions 提供的 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH` |
 | `bun run setup-hooks` | 配置当前 worktree 的 `core.hooksPath`，并在 POSIX 文件系统恢复 hook 可执行权限 |
 | `bun run setup-repository` | 配置当前 worktree hook，并确认当前项目的主 worktree 可作为默认 task-graph root |
 | `bun run check` | 使用 quick 档运行必要快速检查，显式跳过 full 档耗时检查，并在已选检查通过后打包 |
@@ -252,9 +253,29 @@ Git 调用 hook 时会注入当前 worktree 的 `GIT_DIR`、`GIT_INDEX_FILE` 等
 1. 安装固定 Bun 和 pnpm，执行 `pnpm install --frozen-lockfile`。
 2. 运行 `bun run check --full`，完成门禁和全部 skill 打包。
 3. 运行 `bun run hash:skills --github-output --baseline-ref <event-baseline>`，校验独立版本并输出本次聚合 hash。
-4. 上传全部 `dist/*` 作为 workflow artifact。
-5. `main` push 的 skill 打包内容变化或手动触发时，发布版本化 release，并更新 `skills-latest` 的 tag 与完整资产集。
+4. 上传全部 `dist/*` 作为保留 7 天的 workflow artifact，供当前 workflow 的发布 job 或短期 PR 核对使用。
 
-版本化 tag 使用 UTC 时间戳和聚合 hash 前 12 位：`<timestamp>-<hash12>`。版本化 release 是真实发布记录并标记为 Latest；固定 `skills-latest` 只提供兼容下载入口，不承接发布时间语义。
+### 发布职责与输入
 
-PR 只校验、打包和上传 artifact。只改项目文档、`tools/` 源码、`scripts/` 或 CI 且未改变 skill 内分发产物时，skill hash 不变，不创建新版本化 release，也不覆盖 `skills-latest`。
+1. workflow YAML 只承接触发条件、权限、job 依赖和运行时准备，不实现发布事务。
+2. `scripts/publish-skills.ts` 是薄 CLI 入口，`scripts/lib/publish-skills.ts` 是唯一发布实现 owner；实现内部按命名单元处理输入、资产、Git/`gh` 边界、GitHub 响应和发布顺序。
+3. 发布 job 从仓库根目录调用 `bun run publish:skills -- <rolling|snapshot>`。CLI 从 `dist/` 读取 zip 与 manifest，并要求 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH`；输入或资产无效时，在执行 Git 或 GitHub 命令前失败。
+
+### 发布触发与结果
+
+发布 job 只在 `main` 上运行，触发与结果如下：
+
+| 触发条件 | 发布结果 |
+| --- | --- |
+| `pull_request` | 不发布 Release；只保留短期 workflow artifact。 |
+| `main` push 且 skill 分发内容变化 | 更新 `skills-latest` 的 tag 与完整资产集，并把该滚动 Release 标记为 GitHub Latest。 |
+| `main` push 且 skill 分发内容未变化 | 不运行发布 job，不覆盖 `skills-latest`。 |
+| `main` 上的 `workflow_dispatch`，`publish_snapshot=false` | 重新发布当前制品到 `skills-latest`，不创建历史快照。 |
+| `main` 上的 `workflow_dispatch`，`publish_snapshot=true` | 更新 `skills-latest`，并为当前聚合 hash 创建或核对一个不可变快照。 |
+| 非 `main` 分支上的 `workflow_dispatch` | 不发布 Release；只保留短期 workflow artifact。 |
+
+### 发布一致性
+
+`skills-latest` 是正式滚动发布入口和 GitHub Latest，updater 默认读取该 Release。更新已有滚动 Release 时先覆盖各 skill zip，最后覆盖 manifest；全部当前资产可用后才删除不再属于当前制品的旧资产并更新 Release 元数据，使失败后的后续运行能够重新同步。updater 会拒绝 zip 版本与 manifest 不一致的制品，不会把发布中断产生的混合资产写入本地 skill。
+
+不可变快照 tag 使用聚合 hash 前 12 位：`skills-<hash12>`。相同制品只对应一个快照；同名快照已存在时，发布脚本逐项核对资产名称、字节数和 GitHub 提供的 SHA-256 digest，一致则复用，任一字段缺失或不同则失败且不修改快照。显式 `--release-tag` 只用于仍被保留的不可变快照或历史 Release。
