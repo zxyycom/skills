@@ -439,7 +439,7 @@
   "schemaVersion": 3,
   "sourceRevision": {
     "entries": {
-      "ai-ready-docs/target-boundary-information-and-anchoring.md": "sha256:b2ca1506130317ad43a74a1f07c7a223caabc115e93d3bbf9f4979e325ee433a",
+      "ai-ready-docs/target-boundary-information-and-anchoring.md": "sha256:c3d59285331ad2b9d93087dc16db426a01eab99e09dac71957cb780aa027761a",
       "context-management/unified-context-management.md": "sha256:924236b12d95a2df8e645a9b51587591dc626749ff47e8f0676eb862eeef1c2e",
       "decision-records/intra-change-decision-evolution.md": "sha256:ea0534815b78a50f47c871b082a7aaec25c0d6e1b518e6fa2c7c745e435f6e57",
       "git-integration/direct-git-library-selection.md": "sha256:9948dbd4fcf22f71a82702d5d4cecd1008a189fab81c2e3bbcc0375c244ad4c9",
