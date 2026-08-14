@@ -7,6 +7,7 @@ import {
   investigationIndexFileName,
   readInvestigationSourceRevision
 } from "../src/investigation-state-index.ts";
+import { isInvestigationResourceId } from "../src/resource-reference.ts";
 import { queryInvestigationIndex } from "../src/query.ts";
 import {
   synchronizeInvestigationIndex,
@@ -14,7 +15,9 @@ import {
 } from "../src/validation.ts";
 import {
   coreSectionCases,
+  commitAll,
   createValidReports,
+  initializeGitRepository,
   investigationRoot,
   reportEntryMarkdown,
   reportMarkdown,
@@ -148,7 +151,7 @@ test("resource index projects single multiple and shared attachments", () => (
       investigationRoot(workspaceRoot),
       investigationIndexFileName
     ), "utf8")) as ResourceIndex;
-    assert.equal(index.definitionVersion, 3);
+    assert.equal(index.definitionVersion, 4);
     assert.deepEqual(index.metadata.resources, [
       { id: "api/request.txt", sha256: resourceHash(request) },
       { id: "captures/response.bin", sha256: resourceHash(response) },
@@ -175,6 +178,105 @@ test("resource index projects single multiple and shared attachments", () => (
       (await validateInvestigationReports({ workspaceRoot })).errors,
       []
     );
+  })
+));
+
+test("resource ID whitelist accepts common names and rejects structural hazards", () => (
+  withTempRoot("resources-readable-ids", async (workspaceRoot) => {
+    const resources = [
+      {
+        id: "接口+响应@v2=ok/截图[1]【终版】(修订(二)).png",
+        label: "接口截图"
+      },
+      {
+        id: "【原始】报告《摘要》-问题：原因，修订！.pdf",
+        label: "原始报告"
+      },
+      { id: "_O'Reilly~摘录().txt", label: "英文摘录" },
+      {
+        id: "白名单._-+@=()（）[]【】《》,!~'，。！、·：？.txt",
+        label: "完整符号样本"
+      }
+    ];
+    await writeResource(workspaceRoot, resources[0]!.id, "response\n");
+    await writeResource(
+      workspaceRoot,
+      resources[1]!.id,
+      Uint8Array.from([0, 1, 2, 255])
+    );
+    await writeResource(workspaceRoot, resources[2]!.id, "excerpt\n");
+    await writeResource(workspaceRoot, resources[3]!.id, "all symbols\n");
+    await writeCollection(workspaceRoot, [{
+      path: "runtime/readable-resource-ids.md",
+      question: "白名单资源名称能否保持可读并安全引用？",
+      reports: [{ resources, title: "核对可读资源名称" }],
+      title: "可读资源名称调查"
+    }]);
+
+    const validation = await validateInvestigationReports({ workspaceRoot });
+    assert.deepEqual(validation.errors, []);
+    const index = JSON.parse(await fs.readFile(path.join(
+      investigationRoot(workspaceRoot),
+      investigationIndexFileName
+    ), "utf8")) as ResourceIndex;
+    assert.deepEqual(
+      index.entries["runtime/readable-resource-ids.md"]!
+        .state.resourceReferences,
+      [{
+        reportIndex: 0,
+        resourceIds: resources.map(({ id }) => id).sort()
+      }]
+    );
+
+    assert.equal(isInvestigationResourceId("响应().json"), true);
+    assert.equal(isInvestigationResourceId("响应(最终).json"), true);
+    for (const allowedInfix of [
+      ".", "_", "-", "+", "@", "=",
+      "()", "（", "）", "[", "]", "【", "】", "《", "》",
+      ",", "!", "~", "'", "，", "。", "！", "、", "·", "：", "？"
+    ]) {
+      assert.equal(
+        isInvestigationResourceId(`甲${allowedInfix}乙.txt`),
+        true,
+        `allowed infix ${JSON.stringify(allowedInfix)}`
+      );
+    }
+    assert.equal(
+      isInvestigationResourceId(
+        `甲${"(".repeat(32)}乙${")".repeat(32)}.txt`
+      ),
+      true
+    );
+    for (const [reason, invalidId] of [
+      ["leading dot", ".env"],
+      ["trailing dot", "报告."],
+      ["reserved name", "CON"],
+      ["reserved name with extension", "nul.txt"],
+      ["reserved COM name", "COM1.json"],
+      ["reserved LPT name", "LPT9"],
+      ["missing identity character", "【】"],
+      ["unclosed parenthesis", "响应(未闭合.txt"],
+      ["unexpected closing parenthesis", "响应最终).txt"],
+      ["parenthesis nesting above 32", `甲${"(".repeat(33)}乙${")".repeat(33)}.txt`],
+      ["whitespace", "中文 文件.txt"],
+      ["ASCII query marker", "响应?.txt"],
+      ["fragment marker", "响应#.txt"],
+      ["percent encoding marker", "响应%.txt"],
+      ["angle brackets", "响应<副本>.txt"],
+      ["ASCII colon", "响应:副本.txt"],
+      ["asterisk", "响应*副本.txt"],
+      ["vertical bar", "响应|副本.txt"],
+      ["double quote", "响应\"副本.txt"],
+      ["ampersand", "响应&副本.txt"],
+      ["backtick", "响应`副本.txt"],
+      ["emoji", "响应🎉.txt"]
+    ]) {
+      assert.equal(
+        isInvestigationResourceId(invalidId),
+        false,
+        `${reason}: ${invalidId}`
+      );
+    }
   })
 ));
 
@@ -380,10 +482,10 @@ test("validation rejects unsafe attached resource paths", () => (
         ])
       },
       {
-        expected: idDiagnostic("../_resources/Sample.txt"),
-        report: rawResourceFieldReport("runtime/uppercase-resource.md", [
+        expected: idDiagnostic("../_resources/sample🎉.txt"),
+        report: rawResourceFieldReport("runtime/unsupported-resource.md", [
           "- 随附资源:",
-          "  - [大写](../_resources/Sample.txt)"
+          "  - [未放行字符](../_resources/sample🎉.txt)"
         ])
       },
       {
@@ -409,7 +511,7 @@ test("validation rejects unsafe attached resource paths", () => (
       }
     ];
     await writeResource(workspaceRoot, "sample.txt", "reachable\n");
-    await writeResource(workspaceRoot, "Sample.txt", "reachable uppercase\n");
+    await writeResource(workspaceRoot, "sample🎉.txt", "reachable emoji\n");
     await fs.writeFile(
       path.join(investigationRoot(workspaceRoot), "outside.txt"),
       "reachable outside resource pool\n"
@@ -557,6 +659,112 @@ test("full validation rejects orphan resources while scoped validation remains l
     const complete = await validateInvestigationReports({ workspaceRoot });
     assert.ok(errorSummary(complete.errors).includes("orphan.txt"));
     assert.match(errorSummary(complete.errors), /not referenced|orphan/u);
+  })
+));
+
+test("Git ignore rules exclude untracked noise but retain tracked resources", () => (
+  withTempRoot("resources-git-ignore", async (workspaceRoot) => {
+    initializeGitRepository(workspaceRoot);
+    const trackedId = "evidence/tracked-then-ignored.txt";
+    const visibleId = "evidence/visible.txt";
+    await writeResource(workspaceRoot, trackedId, "tracked\n");
+    await writeResource(workspaceRoot, visibleId, "visible\n");
+    await writeCollection(workspaceRoot, [{
+      path: "runtime/git-visible-resources.md",
+      question: "Git 忽略规则如何界定受管调查资源？",
+      reports: [{
+        resources: [
+          { id: trackedId, label: "已跟踪资源" },
+          { id: visibleId, label: "可见资源" }
+        ],
+        title: "核对 Git 可见资源"
+      }],
+      title: "Git 可见资源调查"
+    }]);
+    commitAll(workspaceRoot, "base resources");
+    await fs.writeFile(
+      path.join(workspaceRoot, ".gitignore"),
+      [
+        "__pycache__/",
+        "*.pyc",
+        "ignored-untracked.txt",
+        "tracked-then-ignored.txt",
+        ""
+      ].join("\n"),
+      "utf8"
+    );
+    await writeResource(
+      workspaceRoot,
+      "evidence/__pycache__/parser.cpython-313.pyc",
+      Uint8Array.from([1, 2, 3])
+    );
+    await writeResource(
+      workspaceRoot,
+      "evidence/ignored-untracked.txt",
+      "ignored\n"
+    );
+
+    const synchronized = await synchronizeInvestigationIndex({ workspaceRoot });
+    assert.deepEqual(synchronized.errors, []);
+    assert.deepEqual(
+      (await validateInvestigationReports({ workspaceRoot })).errors,
+      []
+    );
+    const before = await readInvestigationSourceRevision(
+      investigationRoot(workspaceRoot)
+    );
+    await writeResource(
+      workspaceRoot,
+      "evidence/__pycache__/parser.cpython-313.pyc",
+      Uint8Array.from([4, 5, 6])
+    );
+    const after = await readInvestigationSourceRevision(
+      investigationRoot(workspaceRoot)
+    );
+    assert.deepEqual(after, before);
+
+    const index = JSON.parse(await fs.readFile(path.join(
+      investigationRoot(workspaceRoot),
+      investigationIndexFileName
+    ), "utf8")) as ResourceIndex;
+    assert.deepEqual(index.metadata.resources.map(({ id }) => id), [
+      trackedId,
+      visibleId
+    ]);
+  })
+));
+
+test("validation rejects explicitly referenced ignored resources", () => (
+  withTempRoot("resources-ignored-reference", async (workspaceRoot) => {
+    initializeGitRepository(workspaceRoot);
+    await fs.writeFile(
+      path.join(workspaceRoot, ".gitignore"),
+      "ignored-response.json\n",
+      "utf8"
+    );
+    const report: ReportInput = {
+      path: "runtime/ignored-resource.md",
+      question: "被忽略的文件能否作为调查证据？",
+      reports: [{
+        resources: [{
+          id: "captures/ignored-response.json",
+          label: "被忽略响应"
+        }],
+        title: "核对被忽略资源"
+      }],
+      title: "被忽略资源调查"
+    };
+    await writeResource(
+      workspaceRoot,
+      "captures/ignored-response.json",
+      "{}\n"
+    );
+    await writeCollection(workspaceRoot, [report], false);
+
+    const errors = await validatePath(workspaceRoot, report.path);
+    const summary = errorSummary(errors);
+    assert.match(summary, /ignored by version-control rules/u);
+    assert.doesNotMatch(summary, /does not exist/u);
   })
 ));
 

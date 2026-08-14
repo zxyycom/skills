@@ -308,7 +308,8 @@ async function testGeneratedCliUsage(tempRoot: string): Promise<void> {
   assert.match(help.stdout, /resource pool/);
   assert.match(help.stdout, /full-index freshness/);
   assert.match(help.stdout, /sync-index validates every topic/);
-  assert.match(help.stdout, /list checks topic and resource freshness/);
+  assert.match(help.stdout, /Git workspaces exclude ignored untracked resources/);
+  assert.match(help.stdout, /list checks topic and managed resource freshness/);
 
   const validRoot = path.join(tempRoot, "cli-usage");
   await writeCollection(validRoot, createValidReports());
@@ -502,7 +503,7 @@ async function testGeneratedArtifacts(): Promise<void> {
       properties.definitionVersion,
       "definitionVersion schema"
     ).const,
-    3
+    4
   );
   assert.equal(
     expectRecord(properties.entries, "entries schema").type,

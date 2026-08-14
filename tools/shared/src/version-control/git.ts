@@ -636,14 +636,20 @@ class GitVersionControlRepository implements VersionControlRepository {
     return path.resolve(this.rootDirectory, indexPath);
   }
 
-  async listWorkspaceFiles(): Promise<string[]> {
+  async listWorkspaceFiles(
+    options: ListVersionControlFilesOptions = {}
+  ): Promise<string[]> {
+    const pathScopes = normalizePathScopes(options.pathScopes ?? []);
+    const pathspecs = pathScopes.map((scope) => `:(literal)${scope}`);
     try {
       return parseNullSeparatedPaths(await this.#git.raw([
         "ls-files",
         "--cached",
         "--others",
         "--exclude-standard",
-        "-z"
+        "-z",
+        "--",
+        ...pathspecs
       ]));
     } catch {
       throw operationError("list version-control-visible workspace files");

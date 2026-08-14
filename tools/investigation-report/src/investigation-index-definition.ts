@@ -15,7 +15,7 @@ import {
   isInvestigationTopicPath,
   investigationCategoryOf
 } from "./report-path.ts";
-import { investigationResourceIdPatternSource } from "./resource-reference.ts";
+import { isInvestigationResourceId } from "./resource-reference.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
 import {
   investigationReportStatuses,
@@ -24,7 +24,7 @@ import {
 } from "./types.ts";
 
 export const investigationIndexNamespace = "investigations";
-export const investigationIndexDefinitionVersion = 3;
+export const investigationIndexDefinitionVersion = 4;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
@@ -42,8 +42,8 @@ const investigationTopicPathSchema = v.pipe(
 );
 const investigationResourceIdSchema = v.pipe(
   v.string("must be a string"),
-  v.regex(
-    new RegExp(investigationResourceIdPatternSource, "u"),
+  v.check(
+    isInvestigationResourceId,
     "must be a safe, normalized investigation resource id"
   )
 );

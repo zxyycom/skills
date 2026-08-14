@@ -6,7 +6,8 @@
       "type": "string"
     },
     "resourceId": {
-      "pattern": "^[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?(?:/[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?)*$",
+      "$comment": "pattern 表达路径段字符白名单、非空路径段和正斜杠分隔；路径段首尾点、至少一个汉字、ASCII 英文字母或 ASCII 数字、Windows 保留设备名和 ASCII 括号平衡由调查报告 CLI 补充校验。",
+      "pattern": "^[A-Za-z0-9\\u3007\\u4e00-\\u9fff._\\-+@=()（）\\[\\]【】《》,!~'，。！、·：？]+(?:/[A-Za-z0-9\\u3007\\u4e00-\\u9fff._\\-+@=()（）\\[\\]【】《》,!~'，。！、·：？]+)*$",
       "type": "string"
     },
     "resourceReference": {
@@ -156,7 +157,7 @@
   "description": "由调查主题 Markdown 生成的领域状态通用索引。",
   "properties": {
     "definitionVersion": {
-      "const": 3
+      "const": 4
     },
     "entries": {
       "additionalProperties": {

@@ -69,7 +69,9 @@ export type VersionControlRepository = {
     options?: ListVersionControlFilesOptions
   ) => Promise<string[]>;
   listWorkspaceChangedPaths: () => Promise<string[]>;
-  listWorkspaceFiles: () => Promise<string[]>;
+  listWorkspaceFiles: (
+    options?: ListVersionControlFilesOptions
+  ) => Promise<string[]>;
   readPendingFiles: (
     options?: ListVersionControlFilesOptions
   ) => Promise<VersionControlFile[]>;

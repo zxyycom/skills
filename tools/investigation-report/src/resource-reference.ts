@@ -1,23 +1,68 @@
 export const investigationResourcesDirectoryName = "_resources";
 
+const investigationResourceIdentityCharacterClassSource =
+  "A-Za-z0-9\\u3007\\u4e00-\\u9fff";
+const investigationResourceAllowedSymbols =
+  "._-+@=()（）[]【】《》,!~'，。！、·：？";
+const investigationResourceAllowedCharacterClassSource =
+  `${investigationResourceIdentityCharacterClassSource}`
+  + escapeRegularExpressionCharacterClass(investigationResourceAllowedSymbols);
 const investigationResourcePathSegmentPatternSource =
-  "[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?";
+  `[${investigationResourceAllowedCharacterClassSource}]+`;
 
-export const investigationResourceIdPatternSource =
+export const investigationResourceIdLexicalPatternSource =
   `^${investigationResourcePathSegmentPatternSource}`
   + `(?:/${investigationResourcePathSegmentPatternSource})*$`;
 
-const investigationResourceIdPattern = new RegExp(
-  investigationResourceIdPatternSource,
+const investigationResourceIdLexicalPattern = new RegExp(
+  investigationResourceIdLexicalPatternSource,
   "u"
 );
+const investigationResourceIdentityCharacterPattern = new RegExp(
+  `[${investigationResourceIdentityCharacterClassSource}]`,
+  "u"
+);
+const windowsReservedResourceSegmentPattern =
+  /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/iu;
+const maximumMarkdownParenthesisDepth = 32;
 
 export type InvestigationResourceLinkTargetResult =
   | { status: "valid"; id: string }
   | { status: "invalid"; error: string };
 
 export function isInvestigationResourceId(value: string): boolean {
-  return investigationResourceIdPattern.test(value);
+  return investigationResourceIdLexicalPattern.test(value)
+    && value.split("/").every(isInvestigationResourcePathSegment);
+}
+
+function isInvestigationResourcePathSegment(segment: string): boolean {
+  return !segment.startsWith(".")
+    && !segment.endsWith(".")
+    && investigationResourceIdentityCharacterPattern.test(segment)
+    && !windowsReservedResourceSegmentPattern.test(segment)
+    && hasSupportedMarkdownParentheses(segment);
+}
+
+function hasSupportedMarkdownParentheses(segment: string): boolean {
+  let depth = 0;
+  for (const character of segment) {
+    if (character === "(") {
+      depth += 1;
+      if (depth > maximumMarkdownParenthesisDepth) {
+        return false;
+      }
+    } else if (character === ")") {
+      depth -= 1;
+      if (depth < 0) {
+        return false;
+      }
+    }
+  }
+  return depth === 0;
+}
+
+function escapeRegularExpressionCharacterClass(value: string): string {
+  return value.replace(/[\\[\]\^-]/gu, "\\$&");
 }
 
 export function investigationResourceIdFromLinkTarget(

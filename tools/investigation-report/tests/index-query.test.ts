@@ -50,7 +50,7 @@ async function testValidIndexAndQueries(tempRoot: string): Promise<void> {
   assert.equal(validIndex.schemaVersion, 3);
   assert.deepEqual(validIndex.metadata, { resources: [] });
   assert.equal(validIndex.namespace, "investigations");
-  assert.equal(validIndex.definitionVersion, 3);
+  assert.equal(validIndex.definitionVersion, 4);
   assert.match(
     validIndex.sourceRevision.metadata,
     /^sha256:[0-9a-f]{64}$/u
@@ -246,7 +246,7 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
   const schemaV2 = parseStateIndex({
     definition: createInvestigationStateIndexDefinition(),
     expectation: {
-      definitionVersion: 3,
+      definitionVersion: 4,
       namespace: "investigations"
     },
     sourcePath: investigationIndexFileName,
@@ -271,7 +271,7 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
   const invalidRevision = parseStateIndex({
     definition: createInvestigationStateIndexDefinition(),
     expectation: {
-      definitionVersion: 3,
+      definitionVersion: 4,
       namespace: "investigations"
     },
     sourcePath: investigationIndexFileName,
@@ -292,7 +292,7 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
   const mismatchedPath = parseStateIndex({
     definition: createInvestigationStateIndexDefinition(),
     expectation: {
-      definitionVersion: 3,
+      definitionVersion: 4,
       namespace: "investigations"
     },
     sourcePath: investigationIndexFileName,
@@ -306,7 +306,7 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
   const invalidCount = parseStateIndex({
     definition: createInvestigationStateIndexDefinition(),
     expectation: {
-      definitionVersion: 3,
+      definitionVersion: 4,
       namespace: "investigations"
     },
     sourcePath: investigationIndexFileName,
@@ -325,7 +325,7 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
   const invalidResourceSha = parseStateIndex({
     definition: createInvestigationStateIndexDefinition(),
     expectation: {
-      definitionVersion: 3,
+      definitionVersion: 4,
       namespace: "investigations"
     },
     sourcePath: investigationIndexFileName,
@@ -342,7 +342,7 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
   const outOfRangeResourceReference = parseStateIndex({
     definition: createInvestigationStateIndexDefinition(),
     expectation: {
-      definitionVersion: 3,
+      definitionVersion: 4,
       namespace: "investigations"
     },
     sourcePath: investigationIndexFileName,
@@ -381,7 +381,7 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
     return parseStateIndex({
       definition: createInvestigationStateIndexDefinition(),
       expectation: {
-        definitionVersion: 3,
+        definitionVersion: 4,
         namespace: "investigations"
       },
       sourcePath: investigationIndexFileName,
@@ -484,7 +484,7 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
   const missingResourceMetadata = parseStateIndex({
     definition: createInvestigationStateIndexDefinition(),
     expectation: {
-      definitionVersion: 3,
+      definitionVersion: 4,
       namespace: "investigations"
     },
     sourcePath: investigationIndexFileName,
@@ -502,7 +502,7 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
   const unreferencedResourceMetadata = parseStateIndex({
     definition: createInvestigationStateIndexDefinition(),
     expectation: {
-      definitionVersion: 3,
+      definitionVersion: 4,
       namespace: "investigations"
     },
     sourcePath: investigationIndexFileName,

@@ -6,7 +6,9 @@ import {
   investigationKebabCasePatternSource,
   investigationTopicPathPatternSource
 } from "./report-path.ts";
-import { investigationResourceIdPatternSource } from "./resource-reference.ts";
+import {
+  investigationResourceIdLexicalPatternSource
+} from "./resource-reference.ts";
 import { investigationSourceFingerprintPatternSource } from "./investigation-source-revision.ts";
 import { investigationTimestampPatternSource } from "./timestamp.ts";
 import { investigationReportStatuses } from "./types.ts";
@@ -29,7 +31,8 @@ export const investigationIndexJsonSchema = {
       type: "string"
     },
     resourceId: {
-      pattern: investigationResourceIdPatternSource,
+      $comment: "pattern 表达路径段字符白名单、非空路径段和正斜杠分隔；路径段首尾点、至少一个汉字、ASCII 英文字母或 ASCII 数字、Windows 保留设备名和 ASCII 括号平衡由调查报告 CLI 补充校验。",
+      pattern: investigationResourceIdLexicalPatternSource,
       type: "string"
     },
     resourceReference: {

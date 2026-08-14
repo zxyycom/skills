@@ -9,15 +9,29 @@ import {
   isPathWithinDirectory
 } from "../../shared/src/node/filesystem.ts";
 import {
+  openVersionControl,
+  repositoryRelativePathFromFileSystemPath,
+  VersionControlError
+} from "../../shared/src/version-control/index.ts";
+import {
   investigationResourcesDirectoryName,
   isInvestigationResourceId
 } from "./resource-reference.ts";
 import type { InvestigationResourceSource } from "./types.ts";
 
 type ResourceWalkResult = {
+  encounteredResourceIds: string[];
   errors: string[];
   resources: InvestigationResourceSource[];
 };
+
+type ManagedResourceMembership =
+  | Readonly<{ mode: "file-system" }>
+  | Readonly<{
+    directories: ReadonlySet<string>;
+    files: ReadonlySet<string>;
+    mode: "version-control";
+  }>;
 
 export async function readInvestigationResources(
   investigationsDirectory: string,
@@ -58,12 +72,25 @@ export async function readInvestigationResources(
       { cause: error }
     );
   }
+  const managedResourceMembership = await readManagedResourceMembership(
+    investigationsDirectory,
+    canonicalResourcesRoot
+  );
   const walked = await walkResourceDirectory(
     canonicalResourcesRoot,
     "",
     canonicalResourcesRoot,
+    managedResourceMembership,
     signal
   );
+  if (managedResourceMembership.mode === "version-control") {
+    const encountered = new Set(walked.encounteredResourceIds);
+    for (const id of managedResourceMembership.files) {
+      if (!encountered.has(id)) {
+        walked.errors.push(`${resourcePath(id)} does not exist`);
+      }
+    }
+  }
   if (walked.errors.length > 0) {
     throw new Error(uniqueSorted(walked.errors).join("; "));
   }
@@ -126,16 +153,38 @@ export async function validateReferencedInvestigationResources(
     );
     return uniqueSorted(errors);
   }
+  let managedResourceMembership: ManagedResourceMembership;
+  try {
+    managedResourceMembership = await readManagedResourceMembership(
+      investigationsDirectory,
+      canonicalResourcesRoot
+    );
+  } catch (error) {
+    errors.push(
+      `${investigationResourcesDirectoryName} membership could not be determined: ${errorText(error)}`
+    );
+    return uniqueSorted(errors);
+  }
 
   for (const id of validIds) {
     if (signal?.aborted === true) {
       throw new Error("investigation resource validation was aborted");
     }
     try {
-      errors.push(...await validateReferencedResource(
+      const resourceErrors = await validateReferencedResource(
         canonicalResourcesRoot,
         id
-      ));
+      );
+      errors.push(...resourceErrors);
+      if (
+        resourceErrors.length === 0
+        && managedResourceMembership.mode === "version-control"
+        && !managedResourceMembership.files.has(id)
+      ) {
+        errors.push(
+          `${resourcePath(id)} is ignored by version-control rules and is not a managed investigation resource`
+        );
+      }
     } catch (error) {
       errors.push(`${resourcePath(id)} could not be validated: ${errorText(error)}`);
     }
@@ -147,8 +196,10 @@ async function walkResourceDirectory(
   absoluteDirectory: string,
   relativeDirectory: string,
   canonicalResourcesRoot: string,
+  managedResourceMembership: ManagedResourceMembership,
   signal: AbortSignal | undefined
 ): Promise<ResourceWalkResult> {
+  const encounteredResourceIds: string[] = [];
   const errors: string[] = [];
   const resources: InvestigationResourceSource[] = [];
   if (signal?.aborted === true) {
@@ -161,13 +212,16 @@ async function walkResourceDirectory(
     errors.push(
       `${resourceDirectoryPath(relativeDirectory)} could not be read: ${errorText(error)}`
     );
-    return { errors, resources };
+    return { encounteredResourceIds, errors, resources };
   }
   entries.sort((left, right) => compareText(left.name, right.name));
   for (const entry of entries) {
     const id = relativeDirectory.length === 0
       ? entry.name
       : `${relativeDirectory}/${entry.name}`;
+    if (!isManagedResourcePath(id, managedResourceMembership)) {
+      continue;
+    }
     const absolutePath = path.join(absoluteDirectory, entry.name);
     let stat: Awaited<ReturnType<typeof fs.lstat>>;
     try {
@@ -177,6 +231,12 @@ async function walkResourceDirectory(
       continue;
     }
     if (stat.isSymbolicLink()) {
+      if (
+        managedResourceMembership.mode === "version-control"
+        && managedResourceMembership.files.has(id)
+      ) {
+        encounteredResourceIds.push(id);
+      }
       errors.push(`${resourcePath(id)} must not be a symbolic link`);
       continue;
     }
@@ -195,12 +255,24 @@ async function walkResourceDirectory(
         canonicalDirectory,
         id,
         canonicalResourcesRoot,
+        managedResourceMembership,
         signal
       );
+      encounteredResourceIds.push(...nested.encounteredResourceIds);
       errors.push(...nested.errors);
       resources.push(...nested.resources);
       continue;
     }
+    if (
+      managedResourceMembership.mode === "version-control"
+      && !managedResourceMembership.files.has(id)
+    ) {
+      errors.push(
+        `${resourcePath(id)} must remain a directory for version-control-visible resources`
+      );
+      continue;
+    }
+    encounteredResourceIds.push(id);
     if (!stat.isFile()) {
       errors.push(`${resourcePath(id)} must be a regular file`);
       continue;
@@ -221,7 +293,54 @@ async function walkResourceDirectory(
       errors.push(`${resourcePath(id)} could not be read as a regular file: ${errorText(error)}`);
     }
   }
-  return { errors, resources };
+  return { encounteredResourceIds, errors, resources };
+}
+
+async function readManagedResourceMembership(
+  investigationsDirectory: string,
+  resourcesRoot: string
+): Promise<ManagedResourceMembership> {
+  let repository: Awaited<ReturnType<typeof openVersionControl>>;
+  try {
+    repository = await openVersionControl(investigationsDirectory);
+  } catch (error) {
+    if (error instanceof VersionControlError && error.code === "not-repository") {
+      return { mode: "file-system" };
+    }
+    throw error;
+  }
+  const resourcePathScope = repositoryRelativePathFromFileSystemPath(
+    repository.rootDirectory,
+    resourcesRoot
+  );
+  const resourcePathPrefix = resourcePathScope + "/";
+  const workspaceFiles = await repository.listWorkspaceFiles({
+    pathScopes: [resourcePathScope]
+  });
+  const files = new Set(workspaceFiles.flatMap((workspacePath) => (
+    workspacePath.startsWith(resourcePathPrefix)
+      ? [workspacePath.slice(resourcePathPrefix.length)]
+      : []
+  )));
+  const directories = new Set<string>();
+  for (const id of files) {
+    const segments = id.split("/");
+    for (let index = 1; index < segments.length; index += 1) {
+      directories.add(segments.slice(0, index).join("/"));
+    }
+  }
+  return { directories, files, mode: "version-control" };
+}
+
+function isManagedResourcePath(
+  id: string,
+  managedResourceMembership: ManagedResourceMembership
+): boolean {
+  if (managedResourceMembership.mode === "file-system") {
+    return true;
+  }
+  return managedResourceMembership.files.has(id)
+    || managedResourceMembership.directories.has(id);
 }
 
 async function validateReferencedResource(

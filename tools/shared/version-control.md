@@ -19,9 +19,10 @@
 3. 列出 revision 文件、两个 revision 之间的路径变化，以及 revision 与 `pending` 之间的路径变化。
 4. 读取 revision 中一个确定文件的内容；只有该 revision 确实不存在目标路径时返回 `null`。
 5. 通过通用入口导出的 `repositoryRelativePathFromFileSystemPath(rootDirectory, fileSystemPath)`，把仓库内绝对后代路径转换为规范化仓库相对路径，并拒绝相对路径、仓库根本身和仓库外路径。
-6. 列出工作区文件和工作区变化。
-7. 按字面仓库相对路径范围读取 `pending` 文件内容。
-8. 通过 `replacePendingFiles({ expectedRevision, expectedFiles?, pathScope, files })`
+6. 通过 `listWorkspaceFiles({ pathScopes? })` 列出工作区中已经跟踪或未被 ignore 排除的未跟踪文件。省略 `pathScopes` 时返回完整集合；提供范围时，每个值都是字面仓库相对文件或目录路径，结果取各范围的并集。已经跟踪的文件即使后来命中 ignore 仍保留在结果中。
+7. 独立列出工作区变化；工作区文件集合与变化集合不互相替代。
+8. 按字面仓库相对路径范围读取 `pending` 文件内容。
+9. 通过 `replacePendingFiles({ expectedRevision, expectedFiles?, pathScope, files })`
    用精确目标文件集合完整替换一个字面仓库相对路径范围：取得跨进程写入边界后，当前
    revision 必须仍等于 `expectedRevision`。省略 `expectedFiles` 表示不设置内容期望；
    传入时，范围内 `pending` 文件必须仍是同一组普通非可执行文件，路径与字节也与该

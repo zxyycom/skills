@@ -5,7 +5,7 @@ Entry:
 - `bun test --test-name-pattern="^full validation rejects orphan resources while scoped validation remains local$" ./tools/investigation-report/tests/run.ts`
 
 Contract:
-- 完整检查必须拒绝未被任何报告引用的资源文件；按路径的局部检查只验证命中报告的引用，不声称全局孤儿或索引新鲜度。
+- 完整检查必须拒绝未被任何报告引用的受管资源文件；按路径的局部检查只验证命中报告的引用，不声称全局孤儿或索引新鲜度。
 
 Proves:
 - 新增孤儿文件后，命中主题的局部检查成功且 `indexChecked` 为 false。

@@ -5041,7 +5041,7 @@
     "INVESTIGATION-CLI-USAGE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-USAGE-001 生成 CLI 的帮助与参数错误保留退出契约 帮助请求必须成功展示可选随附资源、完整资源池检查及各命令约束，未知选项、非法 limit 和 sync-index 过滤参数必须返回用法错误。 帮助返回 0，只向 stdout 说明局部与完整资源边界，stderr 为空。 未知选项、非法 limit 和 sync-index 过滤参数都返回退出码 2、保持 stdout 为空，并分别在 stderr 给出未知选项、整数 limit 或该命令不接受过滤与分页的可行动诊断。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation CLI usage errors preserve exit contracts bun test --test-name-pattern=\"^generated investigation CLI usage errors preserve exit contracts$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-USAGE-001 生成 CLI 的帮助与参数错误保留退出契约 帮助请求必须成功展示可选随附资源、完整受管资源池、Git ignore 边界及各命令约束，未知选项、非法 limit 和 sync-index 过滤参数必须返回用法错误。 帮助返回 0，只向 stdout 说明局部与完整受管资源边界、被忽略未跟踪资源和已跟踪资源的区别，stderr 为空。 未知选项、非法 limit 和 sync-index 过滤参数都返回退出码 2、保持 stdout 为空，并分别在 stderr 给出未知选项、整数 limit 或该命令不接受过滤与分页的可行动诊断。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation CLI usage errors preserve exit contracts bun test --test-name-pattern=\"^generated investigation CLI usage errors preserve exit contracts$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -5055,9 +5055,9 @@
         ],
         "id": "INVESTIGATION-CLI-USAGE-001",
         "line": 1,
-        "searchText": "生成 CLI 的帮助与参数错误保留退出契约 帮助请求必须成功展示可选随附资源、完整资源池检查及各命令约束，未知选项、非法 limit 和 sync-index 过滤参数必须返回用法错误。 帮助返回 0，只向 stdout 说明局部与完整资源边界，stderr 为空。 未知选项、非法 limit 和 sync-index 过滤参数都返回退出码 2、保持 stdout 为空，并分别在 stderr 给出未知选项、整数 limit 或该命令不接受过滤与分页的可行动诊断。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation CLI usage errors preserve exit contracts bun test --test-name-pattern=\"^generated investigation CLI usage errors preserve exit contracts$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "生成 CLI 的帮助与参数错误保留退出契约 帮助请求必须成功展示可选随附资源、完整受管资源池、Git ignore 边界及各命令约束，未知选项、非法 limit 和 sync-index 过滤参数必须返回用法错误。 帮助返回 0，只向 stdout 说明局部与完整受管资源边界、被忽略未跟踪资源和已跟踪资源的区别，stderr 为空。 未知选项、非法 limit 和 sync-index 过滤参数都返回退出码 2、保持 stdout 为空，并分别在 stderr 给出未知选项、整数 limit 或该命令不接受过滤与分页的可行动诊断。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation CLI usage errors preserve exit contracts bun test --test-name-pattern=\"^generated investigation CLI usage errors preserve exit contracts$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/generated-investigation-cli-usage-errors-preserve-exit-contracts.md",
-        "summary": "帮助请求必须成功展示可选随附资源、完整资源池检查及各命令约束，未知选项、非法 limit 和 sync-index 过滤参数必须返回用法错误。",
+        "summary": "帮助请求必须成功展示可选随附资源、完整受管资源池、Git ignore 边界及各命令约束，未知选项、非法 limit 和 sync-index 过滤参数必须返回用法错误。",
         "title": "生成 CLI 的帮助与参数错误保留退出契约"
       }
     },
@@ -5133,7 +5133,7 @@
     "INVESTIGATION-GENERATED-METADATA-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-GENERATED-METADATA-001 生成调查制品携带可移植元数据 调查分发制品必须暴露维护来源、当前资源索引 schema、选择性暂存 API 及其传递依赖，且不包含机器绝对路径。 Banner、声明和 source map 使用仓库可移植路径；声明暴露 `stageInvestigationIndex`，source map 内联领域、公共运行时和版本仓库暂存源码；definition version 3 schema 包含 resourceReferences 与 SHA-256 约束。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation artifacts expose portable metadata bun test --test-name-pattern=\"^generated investigation artifacts expose portable metadata$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-GENERATED-METADATA-001 生成调查制品携带可移植元数据 调查分发制品必须暴露维护来源、当前资源索引 schema、选择性暂存 API 及其传递依赖，且不包含机器绝对路径。 Banner、声明和 source map 使用仓库可移植路径；声明暴露 `stageInvestigationIndex`，source map 内联领域、公共运行时和版本仓库暂存源码；definition version 4 schema 包含 resourceReferences 与 SHA-256 约束。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation artifacts expose portable metadata bun test --test-name-pattern=\"^generated investigation artifacts expose portable metadata$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -5147,7 +5147,7 @@
         ],
         "id": "INVESTIGATION-GENERATED-METADATA-001",
         "line": 1,
-        "searchText": "生成调查制品携带可移植元数据 调查分发制品必须暴露维护来源、当前资源索引 schema、选择性暂存 API 及其传递依赖，且不包含机器绝对路径。 Banner、声明和 source map 使用仓库可移植路径；声明暴露 `stageInvestigationIndex`，source map 内联领域、公共运行时和版本仓库暂存源码；definition version 3 schema 包含 resourceReferences 与 SHA-256 约束。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation artifacts expose portable metadata bun test --test-name-pattern=\"^generated investigation artifacts expose portable metadata$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "生成调查制品携带可移植元数据 调查分发制品必须暴露维护来源、当前资源索引 schema、选择性暂存 API 及其传递依赖，且不包含机器绝对路径。 Banner、声明和 source map 使用仓库可移植路径；声明暴露 `stageInvestigationIndex`，source map 内联领域、公共运行时和版本仓库暂存源码；definition version 4 schema 包含 resourceReferences 与 SHA-256 约束。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation artifacts expose portable metadata bun test --test-name-pattern=\"^generated investigation artifacts expose portable metadata$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/generated-investigation-artifacts-expose-portable-metadata.md",
         "summary": "调查分发制品必须暴露维护来源、当前资源索引 schema、选择性暂存 API 及其传递依赖，且不包含机器绝对路径。",
         "title": "生成调查制品携带可移植元数据"
@@ -5291,6 +5291,52 @@
         "title": "随附资源字段存在时使用严格语法"
       }
     },
+    "INVESTIGATION-RESOURCE-IGNORE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RESOURCE-IGNORE-001 Git ignore 排除未跟踪噪声但保留已跟踪资源 Git 工作区只把版本控制可见文件作为受管调查资源；ignore 排除的未跟踪文件不参与孤儿检查、metadata 或 source revision，已跟踪文件即使后来命中 ignore 仍继续受管。 `__pycache__/*.pyc` 与另一个被 ignore 的未跟踪资源不会导致完整检查失败，也不会进入资源 metadata。 已提交后才命中 ignore 的资源与普通可见资源继续进入 metadata；只改变被忽略缓存的字节不会改变结构化来源 revision。 tools/investigation-report/tests/resources.test.ts > Git ignore rules exclude untracked noise but retain tracked resources bun test --test-name-pattern=\"^Git ignore rules exclude untracked noise but retain tracked resources$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/resources.test.ts > Git ignore rules exclude untracked noise but retain tracked resources",
+          "bun test --test-name-pattern=\"^Git ignore rules exclude untracked noise but retain tracked resources$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RESOURCE-IGNORE-001",
+        "line": 1,
+        "searchText": "Git ignore 排除未跟踪噪声但保留已跟踪资源 Git 工作区只把版本控制可见文件作为受管调查资源；ignore 排除的未跟踪文件不参与孤儿检查、metadata 或 source revision，已跟踪文件即使后来命中 ignore 仍继续受管。 `__pycache__/*.pyc` 与另一个被 ignore 的未跟踪资源不会导致完整检查失败，也不会进入资源 metadata。 已提交后才命中 ignore 的资源与普通可见资源继续进入 metadata；只改变被忽略缓存的字节不会改变结构化来源 revision。 tools/investigation-report/tests/resources.test.ts > Git ignore rules exclude untracked noise but retain tracked resources bun test --test-name-pattern=\"^Git ignore rules exclude untracked noise but retain tracked resources$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/git-ignore-excludes-untracked-noise-but-retains-tracked-resources.md",
+        "summary": "Git 工作区只把版本控制可见文件作为受管调查资源；ignore 排除的未跟踪文件不参与孤儿检查、metadata 或 source revision，已跟踪文件即使后来命中 ignore 仍继续受管。",
+        "title": "Git ignore 排除未跟踪噪声但保留已跟踪资源"
+      }
+    },
+    "INVESTIGATION-RESOURCE-IGNORE-REFERENCE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RESOURCE-IGNORE-REFERENCE-001 显式引用 ignore 排除的未跟踪资源时失败 报告不能把 Git ignore 排除的未跟踪本地文件作为可分发调查证据；存在但不受管的目标必须与真正缺失资源区分诊断。 局部检查对磁盘上存在且被 ignore 的 JSON 资源返回版本控制忽略诊断。 同一结果不包含 `does not exist`，证明失败来自受管成员边界而不是文件缺失。 tools/investigation-report/tests/resources.test.ts > validation rejects explicitly referenced ignored resources bun test --test-name-pattern=\"^validation rejects explicitly referenced ignored resources$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/resources.test.ts > validation rejects explicitly referenced ignored resources",
+          "bun test --test-name-pattern=\"^validation rejects explicitly referenced ignored resources$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RESOURCE-IGNORE-REFERENCE-001",
+        "line": 1,
+        "searchText": "显式引用 ignore 排除的未跟踪资源时失败 报告不能把 Git ignore 排除的未跟踪本地文件作为可分发调查证据；存在但不受管的目标必须与真正缺失资源区分诊断。 局部检查对磁盘上存在且被 ignore 的 JSON 资源返回版本控制忽略诊断。 同一结果不包含 `does not exist`，证明失败来自受管成员边界而不是文件缺失。 tools/investigation-report/tests/resources.test.ts > validation rejects explicitly referenced ignored resources bun test --test-name-pattern=\"^validation rejects explicitly referenced ignored resources$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/validation-rejects-explicitly-referenced-ignored-resources.md",
+        "summary": "报告不能把 Git ignore 排除的未跟踪本地文件作为可分发调查证据；存在但不受管的目标必须与真正缺失资源区分诊断。",
+        "title": "显式引用 ignore 排除的未跟踪资源时失败"
+      }
+    },
     "INVESTIGATION-RESOURCE-MISSING-001": {
       "keys": {
         "search": [
@@ -5312,6 +5358,29 @@
         "sourcePath": "investigation-report/validation-reports-missing-attached-resources.md",
         "summary": "报告声明的每个规范资源 ID 都必须在统一资源池中存在。",
         "title": "缺失的随附资源被定位"
+      }
+    },
+    "INVESTIGATION-RESOURCE-NAME-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RESOURCE-NAME-001 白名单接受常用可读名称并拒绝结构隐患 资源 ID 只接受固定契约列出的汉字、ASCII 英文、数字与常用符号；路径段不得使用首尾点、纯符号名称或 Windows 保留设备名，ASCII 括号允许空内容和最多 32 层的成对嵌套。 包含中文目录、大小写英文、数字和契约列出的每一种符号的四条资源 ID 均通过完整校验并原样进入索引。 `响应().json` 与 32 层嵌套括号合法；隐藏名、尾点、Windows 保留设备名、纯符号段、不成对或 33 层括号、空白、URL/路径控制符、`&`、反引号和 emoji 均被拒绝。 tools/investigation-report/tests/resources.test.ts > resource ID whitelist accepts common names and rejects structural hazards bun test --test-name-pattern=\"^resource ID whitelist accepts common names and rejects structural hazards$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/resources.test.ts > resource ID whitelist accepts common names and rejects structural hazards",
+          "bun test --test-name-pattern=\"^resource ID whitelist accepts common names and rejects structural hazards$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RESOURCE-NAME-001",
+        "line": 1,
+        "searchText": "白名单接受常用可读名称并拒绝结构隐患 资源 ID 只接受固定契约列出的汉字、ASCII 英文、数字与常用符号；路径段不得使用首尾点、纯符号名称或 Windows 保留设备名，ASCII 括号允许空内容和最多 32 层的成对嵌套。 包含中文目录、大小写英文、数字和契约列出的每一种符号的四条资源 ID 均通过完整校验并原样进入索引。 `响应().json` 与 32 层嵌套括号合法；隐藏名、尾点、Windows 保留设备名、纯符号段、不成对或 33 层括号、空白、URL/路径控制符、`&`、反引号和 emoji 均被拒绝。 tools/investigation-report/tests/resources.test.ts > resource ID whitelist accepts common names and rejects structural hazards bun test --test-name-pattern=\"^resource ID whitelist accepts common names and rejects structural hazards$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/validation-accepts-whitelisted-readable-resource-ids.md",
+        "summary": "资源 ID 只接受固定契约列出的汉字、ASCII 英文、数字与常用符号；路径段不得使用首尾点、纯符号名称或 Windows 保留设备名，ASCII 括号允许空内容和最多 32 层的成对嵌套。",
+        "title": "白名单接受常用可读名称并拒绝结构隐患"
       }
     },
     "INVESTIGATION-RESOURCE-OPTIONAL-001": {
@@ -5340,7 +5409,7 @@
     "INVESTIGATION-RESOURCE-PATH-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RESOURCE-PATH-001 不安全的随附资源路径被拒绝 报告资源链接只能原样书写为 `../_resources/<resource-id>`，不能借助 Markdown 转义或字符实体形成解码别名；资源 ID 必须是小写、规范、不越界且不含查询、片段或百分号编码。 上级路径与大写 ID 分别命中包含原链接目标的非规范 ID 诊断，绝对路径、query、fragment、百分号编码和反斜杠分别命中包含原链接目标的固定前缀诊断。 字符实体解码目标、Markdown 转义目标与尖括号包裹目标均命中原始目标必须按字面书写的专用诊断。 已布置可达的同名目标，且断言拒绝 `does not exist` 诊断，防止路径语法校验失效被后续缺失检查掩盖。 tools/investigation-report/tests/resources.test.ts > validation rejects unsafe attached resource paths bun test --test-name-pattern=\"^validation rejects unsafe attached resource paths$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RESOURCE-PATH-001 不安全的随附资源路径被拒绝 报告资源链接只能原样书写为 `../_resources/<resource-id>`，不能借助 Markdown 转义或字符实体形成解码别名；资源 ID 必须命中显式字符白名单、保持规范、不越界且不含查询、片段或百分号编码。 上级路径与未放行的 emoji 分别命中包含原链接目标的非规范 ID 诊断，绝对路径、query、fragment、百分号编码和反斜杠分别命中包含原链接目标的固定前缀诊断。 字符实体解码目标、Markdown 转义目标与尖括号包裹目标均命中原始目标必须按字面书写的专用诊断。 已布置可达的同名目标，且断言拒绝 `does not exist` 诊断，防止路径语法校验失效被后续缺失检查掩盖。 tools/investigation-report/tests/resources.test.ts > validation rejects unsafe attached resource paths bun test --test-name-pattern=\"^validation rejects unsafe attached resource paths$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -5354,9 +5423,9 @@
         ],
         "id": "INVESTIGATION-RESOURCE-PATH-001",
         "line": 1,
-        "searchText": "不安全的随附资源路径被拒绝 报告资源链接只能原样书写为 `../_resources/<resource-id>`，不能借助 Markdown 转义或字符实体形成解码别名；资源 ID 必须是小写、规范、不越界且不含查询、片段或百分号编码。 上级路径与大写 ID 分别命中包含原链接目标的非规范 ID 诊断，绝对路径、query、fragment、百分号编码和反斜杠分别命中包含原链接目标的固定前缀诊断。 字符实体解码目标、Markdown 转义目标与尖括号包裹目标均命中原始目标必须按字面书写的专用诊断。 已布置可达的同名目标，且断言拒绝 `does not exist` 诊断，防止路径语法校验失效被后续缺失检查掩盖。 tools/investigation-report/tests/resources.test.ts > validation rejects unsafe attached resource paths bun test --test-name-pattern=\"^validation rejects unsafe attached resource paths$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "不安全的随附资源路径被拒绝 报告资源链接只能原样书写为 `../_resources/<resource-id>`，不能借助 Markdown 转义或字符实体形成解码别名；资源 ID 必须命中显式字符白名单、保持规范、不越界且不含查询、片段或百分号编码。 上级路径与未放行的 emoji 分别命中包含原链接目标的非规范 ID 诊断，绝对路径、query、fragment、百分号编码和反斜杠分别命中包含原链接目标的固定前缀诊断。 字符实体解码目标、Markdown 转义目标与尖括号包裹目标均命中原始目标必须按字面书写的专用诊断。 已布置可达的同名目标，且断言拒绝 `does not exist` 诊断，防止路径语法校验失效被后续缺失检查掩盖。 tools/investigation-report/tests/resources.test.ts > validation rejects unsafe attached resource paths bun test --test-name-pattern=\"^validation rejects unsafe attached resource paths$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/validation-rejects-unsafe-attached-resource-paths.md",
-        "summary": "报告资源链接只能原样书写为 `../_resources/<resource-id>`，不能借助 Markdown 转义或字符实体形成解码别名；资源 ID 必须是小写、规范、不越界且不含查询、片段或百分号编码。",
+        "summary": "报告资源链接只能原样书写为 `../_resources/<resource-id>`，不能借助 Markdown 转义或字符实体形成解码别名；资源 ID 必须命中显式字符白名单、保持规范、不越界且不含查询、片段或百分号编码。",
         "title": "不安全的随附资源路径被拒绝"
       }
     },
@@ -5409,7 +5478,7 @@
     "INVESTIGATION-RESOURCE-SCOPE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RESOURCE-SCOPE-001 完整检查拒绝孤儿资源而局部检查保持局部 完整检查必须拒绝未被任何报告引用的资源文件；按路径的局部检查只验证命中报告的引用，不声称全局孤儿或索引新鲜度。 新增孤儿文件后，命中主题的局部检查成功且 `indexChecked` 为 false。 同一集合的完整检查返回包含孤儿资源 ID 的阻断诊断。 tools/investigation-report/tests/resources.test.ts > full validation rejects orphan resources while scoped validation remains local bun test --test-name-pattern=\"^full validation rejects orphan resources while scoped validation remains local$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RESOURCE-SCOPE-001 完整检查拒绝孤儿资源而局部检查保持局部 完整检查必须拒绝未被任何报告引用的受管资源文件；按路径的局部检查只验证命中报告的引用，不声称全局孤儿或索引新鲜度。 新增孤儿文件后，命中主题的局部检查成功且 `indexChecked` 为 false。 同一集合的完整检查返回包含孤儿资源 ID 的阻断诊断。 tools/investigation-report/tests/resources.test.ts > full validation rejects orphan resources while scoped validation remains local bun test --test-name-pattern=\"^full validation rejects orphan resources while scoped validation remains local$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -5423,9 +5492,9 @@
         ],
         "id": "INVESTIGATION-RESOURCE-SCOPE-001",
         "line": 1,
-        "searchText": "完整检查拒绝孤儿资源而局部检查保持局部 完整检查必须拒绝未被任何报告引用的资源文件；按路径的局部检查只验证命中报告的引用，不声称全局孤儿或索引新鲜度。 新增孤儿文件后，命中主题的局部检查成功且 `indexChecked` 为 false。 同一集合的完整检查返回包含孤儿资源 ID 的阻断诊断。 tools/investigation-report/tests/resources.test.ts > full validation rejects orphan resources while scoped validation remains local bun test --test-name-pattern=\"^full validation rejects orphan resources while scoped validation remains local$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "完整检查拒绝孤儿资源而局部检查保持局部 完整检查必须拒绝未被任何报告引用的受管资源文件；按路径的局部检查只验证命中报告的引用，不声称全局孤儿或索引新鲜度。 新增孤儿文件后，命中主题的局部检查成功且 `indexChecked` 为 false。 同一集合的完整检查返回包含孤儿资源 ID 的阻断诊断。 tools/investigation-report/tests/resources.test.ts > full validation rejects orphan resources while scoped validation remains local bun test --test-name-pattern=\"^full validation rejects orphan resources while scoped validation remains local$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/full-validation-rejects-orphans-while-scoped-validation-remains-local.md",
-        "summary": "完整检查必须拒绝未被任何报告引用的资源文件；按路径的局部检查只验证命中报告的引用，不声称全局孤儿或索引新鲜度。",
+        "summary": "完整检查必须拒绝未被任何报告引用的受管资源文件；按路径的局部检查只验证命中报告的引用，不声称全局孤儿或索引新鲜度。",
         "title": "完整检查拒绝孤儿资源而局部检查保持局部"
       }
     },
@@ -11113,23 +11182,23 @@
     "VERSION-CONTROL-STATES-001": {
       "keys": {
         "search": [
-          "VERSION-CONTROL-STATES-001 分离读取 pending 索引内容与 workspace 状态 pending 内容取自 Git 索引，workspace 文件与变化列表反映工作树且排除忽略项。 staged 文本和二进制保持索引内容与稳定顺序，未跟踪文件只出现在 workspace 视图。 tools/shared/tests/version-control.test.ts > reads pending index content separately from workspace state bun test --test-name-pattern=\"^reads pending index content separately from workspace state$\" ./tools/shared/tests/version-control.test.ts"
+          "VERSION-CONTROL-STATES-001 分离读取 pending 索引内容与 workspace 状态 pending 内容取自 Git 索引，workspace 文件与变化列表反映工作树、排除忽略项并支持字面路径范围。 staged 文本和二进制保持索引内容与稳定顺序，未跟踪文件只出现在 workspace 视图。 多个字面文件范围只返回范围内的已跟踪或未忽略工作区文件。 越过仓库根的工作区文件范围在执行 Git 查询前以 `invalid-path` 拒绝。 tools/shared/tests/version-control.test.ts > reads pending index content separately from workspace state bun test --test-name-pattern=\"^reads pending index content separately from workspace state$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "topic": [
           "version-control"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 11,
         "entries": [
           "tools/shared/tests/version-control.test.ts > reads pending index content separately from workspace state",
           "bun test --test-name-pattern=\"^reads pending index content separately from workspace state$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "id": "VERSION-CONTROL-STATES-001",
         "line": 1,
-        "searchText": "分离读取 pending 索引内容与 workspace 状态 pending 内容取自 Git 索引，workspace 文件与变化列表反映工作树且排除忽略项。 staged 文本和二进制保持索引内容与稳定顺序，未跟踪文件只出现在 workspace 视图。 tools/shared/tests/version-control.test.ts > reads pending index content separately from workspace state bun test --test-name-pattern=\"^reads pending index content separately from workspace state$\" ./tools/shared/tests/version-control.test.ts",
+        "searchText": "分离读取 pending 索引内容与 workspace 状态 pending 内容取自 Git 索引，workspace 文件与变化列表反映工作树、排除忽略项并支持字面路径范围。 staged 文本和二进制保持索引内容与稳定顺序，未跟踪文件只出现在 workspace 视图。 多个字面文件范围只返回范围内的已跟踪或未忽略工作区文件。 越过仓库根的工作区文件范围在执行 Git 查询前以 `invalid-path` 拒绝。 tools/shared/tests/version-control.test.ts > reads pending index content separately from workspace state bun test --test-name-pattern=\"^reads pending index content separately from workspace state$\" ./tools/shared/tests/version-control.test.ts",
         "sourcePath": "version-control/reads-pending-index-content-separately-from-workspace-state.md",
-        "summary": "pending 内容取自 Git 索引，workspace 文件与变化列表反映工作树且排除忽略项。",
+        "summary": "pending 内容取自 Git 索引，workspace 文件与变化列表反映工作树、排除忽略项并支持字面路径范围。",
         "title": "分离读取 pending 索引内容与 workspace 状态"
       }
     },
@@ -11434,23 +11503,26 @@
       "INVESTIGATION-CLI-LIST-001": "sha256:e875cfb1d933f07ed770f8d85428d976dba7665d43462b98da450eb064ba6bc2",
       "INVESTIGATION-CLI-RESOURCE-STALE-001": "sha256:9067b3be24aa2d519e8f5b88c1f5dc6ee9d73bc4291925500a159f6083a09f23",
       "INVESTIGATION-CLI-SYNC-001": "sha256:224d27a5707e7ad1c5364d6f185a68f837aedef2ec5341b783087cf9aa99fc82",
-      "INVESTIGATION-CLI-USAGE-001": "sha256:590848df5d7c1a6b5085a7d1ea5723f0ac16d315e8aa090b9a4b8ca7ec170ff8",
+      "INVESTIGATION-CLI-USAGE-001": "sha256:19126e1c0afb410a1bb69e8e9ad0f1cebcfa72fd4a905cd3eba36c755d221353",
       "INVESTIGATION-COLLECTION-LAYOUT-001": "sha256:6d51963a7da7fa2f812f9439b11b825fbbd302449c05fd72b5186be86ed4145f",
       "INVESTIGATION-DIRECTORY-PATH-001": "sha256:1c1d0fcc7e9050d548d94ab38cf8aaf38269f7b6c6030af53e8da9bda8c2c7f0",
       "INVESTIGATION-EMPTY-COLLECTION-001": "sha256:4d13daa2d59127277610719e9641dddd5943cfb2d5b5fdcbe02885b93c333247",
-      "INVESTIGATION-GENERATED-METADATA-001": "sha256:2297e41994bf72fb924f25291d0956e618bdb1f848d4d98725187f889bf5b1b3",
+      "INVESTIGATION-GENERATED-METADATA-001": "sha256:515c9bb828e848660b57482fcd116b1e291fd8ece629a721ac524f55a89a85e1",
       "INVESTIGATION-INDEX-INTEGRITY-001": "sha256:8736ae954501079dbef68d4231ba861ca41a05639175f33f98d837acf3a17368",
       "INVESTIGATION-INDEX-QUERY-001": "sha256:5dd53bb191cfbf1c95cd80dce485ea17ea66d45c3701afa688fec1f1162a025e",
       "INVESTIGATION-INFORMATION-FIELDS-001": "sha256:f1eace758edd23107a291afbf71e04c0c15926f60293d81611fea11dd2e4de90",
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:697be80001ab72ae5e092884156139f46896dc90a54965a79f9f98c65a67ffe1",
       "INVESTIGATION-RESOURCE-CASE-001": "sha256:885153fd1dad8dfe9b8ed2a2a4e31f9eb1488012e4348584ac64bd3de2339b3b",
       "INVESTIGATION-RESOURCE-FIELD-001": "sha256:9cd1aa6994f920db15bcfd27a82e9a8a9073257d35342ced495c8ac34278142a",
+      "INVESTIGATION-RESOURCE-IGNORE-001": "sha256:4fd4e7568dd1d1802f2d658dcb926f20a1db95c7e22cfb76b1cc11cd1e52eef5",
+      "INVESTIGATION-RESOURCE-IGNORE-REFERENCE-001": "sha256:38cd42618ea6feadf47ff8a3eeada43c47d6477aa3e14cec0488f2bab1021c7c",
       "INVESTIGATION-RESOURCE-MISSING-001": "sha256:cfb16270a4541ad444bc0be7cea40ffb38ea2ed45001cf80c8d02154e7be09c6",
+      "INVESTIGATION-RESOURCE-NAME-001": "sha256:ab0afa8043f1d6b80399a29d17b9ba38d60fc7dc50ddee4da5929a09b02a91c2",
       "INVESTIGATION-RESOURCE-OPTIONAL-001": "sha256:c1f6032454a5ceae9ac1c55c8542fbd8eac368f8dcd1f6d79b1ba184152e1093",
-      "INVESTIGATION-RESOURCE-PATH-001": "sha256:e4e8072cc89c639c1da41ed2e104c55cebf89158961d983018e567b54cba34b6",
+      "INVESTIGATION-RESOURCE-PATH-001": "sha256:ddde3d89472f4486303d7e25a72ebdf7cb00e4203d1f56f88e7ceae006eb5b0a",
       "INVESTIGATION-RESOURCE-PROJECTION-001": "sha256:220b5051bcdb7dec0786644b7689efa4c2d7e972842bb23f862fe7986c751203",
       "INVESTIGATION-RESOURCE-REVISION-001": "sha256:28a06e8705d93d20e6766f3669ca955ca369acddf4ec6a310d13c673865f5d2b",
-      "INVESTIGATION-RESOURCE-SCOPE-001": "sha256:6abc09fff8276802d95c4d46c0745d0dd00d3c7fbf651007094023f47caca3bb",
+      "INVESTIGATION-RESOURCE-SCOPE-001": "sha256:70402ef860bf66e528b3e1a43c72e7b57f64b4b6eac7856c26f002533ec93524",
       "INVESTIGATION-RESOURCE-SYMLINK-001": "sha256:1d5caca3e90b76a10ab7cf18b639a6b291ce2aecbb8edb2f37a3bbb9c0021de3",
       "INVESTIGATION-RESOURCE-TYPE-001": "sha256:a2ae05a8df29f4ebb34e5deb73df2225ac187271538cc0246f8e71df91935685",
       "INVESTIGATION-ROOT-CONFINEMENT-001": "sha256:6dbd37fe69ed78f2f202659e7e17a06ab0a6dd2c723d978f68677add45a20f55",
@@ -11698,7 +11770,7 @@
       "VERSION-CONTROL-REPOSITORY-001": "sha256:bd95ed5c9d2cbd25eba21dc495a6d5602854684c9af6723620efed2af814a8f3",
       "VERSION-CONTROL-REPOSITORY-PATH-001": "sha256:47456f3b29a000c855fc212f228c5bd7272cef01d23f6f9810592b7dc39d31a6",
       "VERSION-CONTROL-REVISION-001": "sha256:a03d1dfa9987689debcd3a3140e7ea394eb6d4e015f845e92539bc3c39a81092",
-      "VERSION-CONTROL-STATES-001": "sha256:90c39276155ce905d563f9060e14c8cd581e1e7bcbf236b07af4b05401ab41f6",
+      "VERSION-CONTROL-STATES-001": "sha256:5de8e31678bc717f6da89e3590791e55aa6318cfec899c3196498616b346aff0",
       "VERSION-CONTROL-WORKTREE-001": "sha256:9ac7f9540e8bd3f19b913fb66ba465f99e43b4274299fb9dbb6a8bfbe311b790"
     },
     "metadata": "sha256:18907a8cfaadd163680b67ab8bc39bf5227df4c722224412885e60568ad8b686"

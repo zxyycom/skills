@@ -451,6 +451,16 @@ test("reads pending index content separately from workspace state", gitTestOptio
       "docs/tracked.md",
       "docs/untracked.md"
     ]);
+    assert.deepEqual(
+      await repository.listWorkspaceFiles({
+        pathScopes: ["docs/current-only.md", "docs/staged.bin"]
+      }),
+      ["docs/current-only.md", "docs/staged.bin"]
+    );
+    await assert.rejects(
+      repository.listWorkspaceFiles({ pathScopes: ["../outside.md"] }),
+      (error: unknown) => hasVersionControlCode(error, "invalid-path")
+    );
     assert.deepEqual(await repository.listWorkspaceChangedPaths(), [
       "docs/staged-copy.bin",
       "docs/staged.bin",
