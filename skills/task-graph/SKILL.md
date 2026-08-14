@@ -6,7 +6,7 @@ description: >-
   选择、领取并收敛任务；少量固定顺序步骤继续使用当前对话计划。
 compatibility: "Requires Node.js ^22.22.2 || ^24.15.0 || >=26.0.0 and Git for pending staging; workspace task-index mutations require a caller-provisioned compatible native runtime."
 metadata:
-  version: "11"
+  version: "12"
 ---
 
 # Task Graph
