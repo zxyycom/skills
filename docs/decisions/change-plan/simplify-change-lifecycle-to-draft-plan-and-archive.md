@@ -1,6 +1,6 @@
 ---
 title: 用 Draft、Plan 与 Archive 维护 Change
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-13T05:35:50Z
 purpose: 让 Change 以内容成熟度和归档结果表达生命周期，并让任务进度与 CLI 职责可以直接恢复。

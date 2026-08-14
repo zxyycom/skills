@@ -5,7 +5,6 @@ import test from "node:test";
 import {
   ChangePlanMetadataError,
   parseChangePlanMetadata,
-  readActiveChangePlanMetadata,
   readChangePlanMetadata,
   writeChangePlanMetadata
 } from "../src/metadata.ts";
@@ -61,6 +60,10 @@ test("metadata parser accepts only canonical draft and plan values", () => {
     {
       accepted: false,
       value: { baseCommit: null, stage: "plan" }
+    },
+    {
+      accepted: false,
+      value: { baseCommit: validBaseCommit, stage: "implementation" }
     },
     {
       accepted: false,
@@ -182,69 +185,44 @@ test("metadata reader maps file and parse boundaries to stable error codes", () 
       "invalid"
     );
 
-    const invalidSchemaDirectory = path.join(tempRoot, "invalid-schema");
-    await fs.mkdir(invalidSchemaDirectory);
-    await fs.writeFile(
-      path.join(invalidSchemaDirectory, ".change-plan.json"),
-      JSON.stringify({ stage: "unknown" }),
-      "utf8"
-    );
-    await assertMetadataError(
-      () => readChangePlanMetadata(invalidSchemaDirectory),
-      "invalid"
-    );
-
-    for (const [name, shelf] of [
+    for (const [name, metadata] of [
       [
-        "legacy-explicit-shelf",
+        "unknown-stage",
+        { stage: "unknown" }
+      ],
+      [
+        "implementation-stage",
+        { baseCommit: validBaseCommit, stage: "implementation" }
+      ],
+      [
+        "shelved-stage",
         {
-          atCommit: validBaseCommit,
-          reason: "等待上游输入",
-          source: "explicit"
+          baseCommit: validBaseCommit,
+          shelf: {
+            atCommit: validBaseCommit,
+            reason: "等待上游输入",
+            source: "explicit"
+          },
+          stage: "shelved"
         }
       ],
       [
-        "legacy-distance-shelf",
-        {
-          atCommit: validBaseCommit,
-          changedLines: 100,
-          commitCount: 2,
-          source: "git-distance-v1"
-        }
+        "null-base-plan",
+        { baseCommit: null, stage: "plan" }
       ]
     ] as const) {
-      const legacyDirectory = path.join(tempRoot, name);
-      await fs.mkdir(legacyDirectory);
+      const invalidDirectory = path.join(tempRoot, name);
+      await fs.mkdir(invalidDirectory);
       await fs.writeFile(
-        path.join(legacyDirectory, ".change-plan.json"),
-        JSON.stringify({
-          baseCommit: validBaseCommit,
-          shelf,
-          stage: "shelved"
-        }),
+        path.join(invalidDirectory, ".change-plan.json"),
+        JSON.stringify(metadata),
         "utf8"
       );
-      assert.deepEqual(
-        await readActiveChangePlanMetadata(legacyDirectory),
-        { baseCommit: validBaseCommit, stage: "plan" }
+      await assertMetadataError(
+        () => readChangePlanMetadata(invalidDirectory),
+        "invalid"
       );
     }
-
-    const damagedShelfDirectory = path.join(tempRoot, "damaged-shelf");
-    await fs.mkdir(damagedShelfDirectory);
-    await fs.writeFile(
-      path.join(damagedShelfDirectory, ".change-plan.json"),
-      JSON.stringify({
-        baseCommit: validBaseCommit,
-        shelf: { reason: "缺少来源与提交" },
-        stage: "shelved"
-      }),
-      "utf8"
-    );
-    await assertMetadataError(
-      () => readActiveChangePlanMetadata(damagedShelfDirectory),
-      "invalid"
-    );
   })
 ));
 

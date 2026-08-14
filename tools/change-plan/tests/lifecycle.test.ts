@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { planChangePlanDirectory } from "../src/lifecycle.ts";
-import { withTempRoot, writePlan } from "./support.ts";
+import { validBaseCommit, withTempRoot, writePlan } from "./support.ts";
 
 test("plan confirms drafts and reconfirms plans without task progress gates", () => (
   withTempRoot("lifecycle-plan", async (tempRoot) => {
@@ -49,52 +49,47 @@ test("plan confirms drafts and reconfirms plans without task progress gates", ()
   })
 ));
 
-test("plan rewrites legacy active metadata to canonical plan metadata", () => (
-  withTempRoot("lifecycle-legacy", async (tempRoot) => {
+test("plan rejects noncanonical metadata without mutation", () => (
+  withTempRoot("lifecycle-noncanonical", async (tempRoot) => {
     const changesRoot = path.join(tempRoot, "changes");
-    const implementationDirectory = await writePlan(
-      changesRoot,
-      "implementation",
-      {
-        metadata: {
-          baseCommit: "0123456789abcdef0123456789abcdef01234567",
+    const invalidInputs = [
+      [
+        "implementation",
+        {
+          baseCommit: validBaseCommit,
           stage: "implementation"
         }
-      }
-    );
-    const shelvedDirectory = await writePlan(changesRoot, "shelved", {
-      metadata: {
-        baseCommit: "0123456789abcdef0123456789abcdef01234567",
-        shelf: {
-          atCommit: "0123456789abcdef0123456789abcdef01234567",
-          reason: "等待外部输入",
-          source: "explicit"
-        },
-        stage: "shelved"
-      }
-    });
-    const nullBaseDirectory = await writePlan(changesRoot, "null-base", {
-      metadata: { baseCommit: null, stage: "plan" }
-    });
+      ],
+      [
+        "shelved",
+        {
+          baseCommit: validBaseCommit,
+          shelf: {
+            atCommit: validBaseCommit,
+            reason: "等待外部输入",
+            source: "explicit"
+          },
+          stage: "shelved"
+        }
+      ],
+      ["null-base", { baseCommit: null, stage: "plan" }]
+    ] as const;
 
-    for (const directory of [
-      implementationDirectory,
-      shelvedDirectory,
-      nullBaseDirectory
-    ]) {
+    for (const [name, metadata] of invalidInputs) {
+      const directory = await writePlan(changesRoot, name, { metadata });
+      const metadataPath = path.join(directory, ".change-plan.json");
+      const before = await fs.readFile(metadataPath, "utf8");
       const result = await planChangePlanDirectory(directory);
-      assert.equal(result.success, true);
-      assert.equal(result.fromStage, "plan");
-      const persisted: unknown = JSON.parse(await fs.readFile(
-        path.join(directory, ".change-plan.json"),
-        "utf8"
+      assert.equal(result.success, false);
+      if (result.success) {
+        assert.fail("expected noncanonical metadata to fail");
+      }
+      assert.equal(result.errorCode, "invalid-source-stage");
+      assert.equal(result.fromStage, null);
+      assert.ok(result.diagnostics.some(
+        (diagnostic) => diagnostic.code === "invalid-metadata"
       ));
-      assert.deepEqual(persisted, result.metadata);
-      assert.deepEqual(Object.keys(persisted as object).sort(), [
-        "baseCommit",
-        "stage"
-      ]);
-      assert.equal((persisted as { stage: string }).stage, "plan");
+      assert.equal(await fs.readFile(metadataPath, "utf8"), before);
     }
   })
 ));

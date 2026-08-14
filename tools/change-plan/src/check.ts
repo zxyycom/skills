@@ -5,8 +5,7 @@ import { inspectPlanVersionControl } from "./git-distance.ts";
 import { validateChangePlanArtifact } from "./markdown.ts";
 import {
   ChangePlanMetadataError,
-  readActiveChangePlanMetadata,
-  type ActiveChangePlanMetadata
+  readChangePlanMetadata
 } from "./metadata.ts";
 import {
   changePlanMetadataName,
@@ -239,25 +238,13 @@ function metadataDiagnostic(error: unknown): ChangePlanDiagnostic {
 async function readActiveMetadata(
   changeDirectory: string,
   diagnostics: ChangePlanDiagnostic[]
-): Promise<ActiveChangePlanMetadata | null> {
+): Promise<ChangePlanMetadata | null> {
   try {
-    return await readActiveChangePlanMetadata(changeDirectory);
+    return await readChangePlanMetadata(changeDirectory);
   } catch (error) {
     diagnostics.push(metadataDiagnostic(error));
     return null;
   }
-}
-
-function canonicalMetadata(
-  metadata: ActiveChangePlanMetadata | null
-): ChangePlanMetadata | null {
-  if (
-    metadata === null
-    || (metadata.stage === "plan" && metadata.baseCommit === null)
-  ) {
-    return null;
-  }
-  return metadata;
 }
 
 async function validateArtifacts(
@@ -369,11 +356,10 @@ async function checkChangePlanDirectoryWithOptions(
   }
 
   const archived = isArchivedChangeDirectory(changeDirectory);
-  const activeMetadata: ActiveChangePlanMetadata | null = archived
+  const activeMetadata: ChangePlanMetadata | null = archived
     ? null
     : await readActiveMetadata(changeDirectory, diagnostics);
   const stage = archived ? null : activeMetadata?.stage ?? null;
-  const metadata = canonicalMetadata(activeMetadata);
   const artifactStage = archived
     ? "plan"
     : options.artifactStage ?? stage ?? undefined;
@@ -413,7 +399,7 @@ async function checkChangePlanDirectoryWithOptions(
   return checkResult(
     changeDirectory,
     diagnostics,
-    metadata,
+    activeMetadata,
     stage,
     distance,
     progress

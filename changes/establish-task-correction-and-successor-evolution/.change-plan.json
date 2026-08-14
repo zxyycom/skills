@@ -1,9 +1,4 @@
 {
   "baseCommit": "055e2687974b49ecee4f3ff6debe6217d5272ccc",
-  "shelf": {
-    "atCommit": "d67dd28eb0a669f11edcea341ae10dd57d181b6d",
-    "reason": "当前没有无法由后继或修复 task 处理的可复核错误终态；用户决定放弃本轮实施，等待真实恢复需要后再重新评估。",
-    "source": "explicit"
-  },
-  "stage": "shelved"
+  "stage": "plan"
 }

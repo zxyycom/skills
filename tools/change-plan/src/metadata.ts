@@ -11,35 +11,6 @@ const revisionSchema = v.pipe(
   v.regex(/^\S+$/, "must not contain whitespace")
 );
 
-const normalizedTextSchema = v.pipe(
-  v.string("must be a string"),
-  v.nonEmpty("must not be empty"),
-  v.regex(
-    /^\S(?:[\s\S]*\S)?$/,
-    "must not start or end with whitespace"
-  )
-);
-
-const nonNegativeSafeIntegerSchema = v.pipe(
-  v.number("must be a number"),
-  v.safeInteger("must be a safe integer"),
-  v.minValue(0, "must not be negative")
-);
-
-const legacyShelfSchema = v.variant("source", [
-  v.strictObject({
-    atCommit: revisionSchema,
-    reason: normalizedTextSchema,
-    source: v.literal("explicit")
-  }),
-  v.strictObject({
-    atCommit: revisionSchema,
-    changedLines: nonNegativeSafeIntegerSchema,
-    commitCount: nonNegativeSafeIntegerSchema,
-    source: v.literal("git-distance-v1")
-  })
-]);
-
 export const changePlanMetadataSchema = v.variant("stage", [
   v.strictObject({
     stage: v.literal("draft")
@@ -50,30 +21,9 @@ export const changePlanMetadataSchema = v.variant("stage", [
   })
 ]);
 
-const activeChangePlanMetadataSchema = v.variant("stage", [
-  changePlanMetadataSchema,
-  v.strictObject({
-    baseCommit: v.null(),
-    stage: v.literal("plan")
-  }),
-  v.strictObject({
-    baseCommit: revisionSchema,
-    stage: v.literal("implementation")
-  }),
-  v.strictObject({
-    baseCommit: revisionSchema,
-    shelf: legacyShelfSchema,
-    stage: v.literal("shelved")
-  })
-]);
-
 export type ChangePlanMetadata = v.InferOutput<
   typeof changePlanMetadataSchema
 >;
-
-export type ActiveChangePlanMetadata =
-  | ChangePlanMetadata
-  | { baseCommit: null; stage: "plan" };
 
 export type ChangePlanMetadataErrorCode =
   | "invalid"
@@ -214,31 +164,6 @@ export async function readChangePlanMetadata(
   changeDirectory: string
 ): Promise<ChangePlanMetadata> {
   return parseChangePlanMetadata(await readMetadataValue(changeDirectory));
-}
-
-/** @internal Active compatibility boundary; canonical readers stay strict. */
-export async function readActiveChangePlanMetadata(
-  changeDirectory: string
-): Promise<ActiveChangePlanMetadata> {
-  const parsed = v.safeParse(
-    activeChangePlanMetadataSchema,
-    await readMetadataValue(changeDirectory)
-  );
-  if (!parsed.success) {
-    throw new ChangePlanMetadataError(
-      "invalid",
-      `invalid ${changePlanMetadataName}: ${parsed.issues
-        .map(schemaIssueMessage)
-        .join("; ")}`
-    );
-  }
-  if (
-    parsed.output.stage === "implementation"
-    || parsed.output.stage === "shelved"
-  ) {
-    return { baseCommit: parsed.output.baseCommit, stage: "plan" };
-  }
-  return parsed.output;
 }
 
 /** @internal Lifecycle persistence boundary; not part of the public API. */

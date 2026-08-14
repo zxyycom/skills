@@ -1,7 +1,7 @@
 # Change Plan 固定结构与 CLI 契约
 
-本文件是 Change 目录、`.change-plan.json`、artifact 结构、合法 stage、旧版 active metadata
-兼容读取、Git 距离和 CLI 机械行为的唯一精确契约。`SKILL.md` 负责内容写作、语义审阅和
+本文件是 Change 目录、`.change-plan.json`、artifact 结构、合法 stage、严格 active metadata、
+Git 距离和 CLI 机械行为的唯一精确契约。`SKILL.md` 负责内容写作、语义审阅和
 授权门禁；本文件只固定工具能够确定性执行的边界。
 
 ## 状态模型
@@ -31,7 +31,7 @@ Readiness、Implementation 和 Verification 的 checkbox 只表达 Plan 内任�
    ```
 
 4. Active Change 及当前检查所需的文件都必须位于真实 Change 目录中并且是普通文件；目录、`.change-plan.json` 或 artifact 为符号链接时检查失败且不会跟随链接。
-5. Active Change 必须包含 `.change-plan.json`。缺失、无法读取、规范字段组合不合法或存在未定义字段时检查失败；旧版 active metadata 按“兼容读取”处理。
+5. Active Change 必须包含 `.change-plan.json`。缺失、无法读取、规范字段组合不合法或存在未定义字段时检查失败，不投影或自动迁移无效输入。
 6. Archived Change 保留完整三个 artifacts；归档时随目录保留的 `.change-plan.json` 只作为历史文件，checker 不要求、读取或解释它，stage 为 `null`。
 7. 可以增加交付说明或证据文件；附加文件不参与固定结构检查，也不能代替当前 stage 要求的 artifacts。
 8. Catalog 只发现上述两层普通目录，不递归发现更深层 Change，也不把文件或符号链接作为列表成员。
@@ -62,53 +62,10 @@ Plan：
 `baseCommit` 是不含空白的非空字符串，表示最后一次成功运行 `plan` 时读取的 `HEAD`，只作为
 后续 Git 距离起点。Artifacts 的工作树、index 和提交内容不参与设置或解释此基线。
 
-### 兼容读取
-
-Active metadata 的读取边界额外接受下列旧形状，并只投影为查询、检查、`plan` 与 `archive`
-所需的 Plan 输入：
-
-| 旧 metadata | 只读投影 |
-| --- | --- |
-| `implementation` 加有效 `baseCommit` | `plan`，保留基线。 |
-| `shelved` 加有效 `baseCommit` 与旧 `shelf` | `plan`，保留基线；`shelf` 不产生新语义。 |
-| `plan` 加 `baseCommit: null` | 可发现的 `plan`，但基线不可用。 |
-
-旧 `shelved` metadata 的 `shelf` 只接受以下两个严格对象。
-
-显式原因：
-
-```json
-{
-  "source": "explicit",
-  "atCommit": "<revision>",
-  "reason": "<首尾无空白的非空文本>"
-}
-```
-
-Git 距离证据：
-
-```json
-{
-  "source": "git-distance-v1",
-  "atCommit": "<revision>",
-  "changedLines": 0,
-  "commitCount": 0
-}
-```
-
-`atCommit` 与 `baseCommit` 使用同一 revision 约束：非空且不含空白。第二种对象中的
-`changedLines` 和 `commitCount` 分别接受任意非负安全整数；示例中的 `0` 是合法下界。
-两个 `shelf` 对象都拒绝额外字段。
-
-兼容 reader 不写文件、不增加公共 stage 值，也不读取 archived metadata。旧 `shelf` 只用于
-识别输入形状，不产生暂停或其他控制语义。`list`、`show` 和 checker 将前两种旧形状报告为
-`plan`；只要基线可用，它们不因旧形状单独失败。`baseCommit: null` 没有距离证据，`check`
-返回基线不可用诊断，`list` 和 `show` 仍可发现目标。操作者完成语义复核并显式运行 `plan` 后，
-writer 才以当前 `HEAD` 写回规范 Plan metadata。
-
-读取边界按 lstat、读取、JSON parse、schema parse 的顺序完成一次校验；writer 使用规范 runtime
-schema，在同目录完成整个临时文件后直接发布到 metadata 路径，不解析或写入符号链接的外部目标。
-Writer 只属于内部持久化边界。Change Plan 不生成 metadata JSON Schema 或分发类型声明。
+Active reader、规范 parser 与 writer 使用同一个 runtime schema。读取边界按 lstat、读取、JSON
+parse、schema parse 的顺序完成一次校验；writer 在同目录完成整个临时文件后直接发布到 metadata
+路径，不解析或写入符号链接的外部目标。Writer 只属于内部持久化边界。Change Plan 不生成
+metadata JSON Schema 或分发类型声明。
 
 ## Artifact 结构
 
@@ -249,11 +206,11 @@ Plan 使用 `baseCommit` 到当前 `HEAD` 的 first-parent Git 距离。可用�
 - `commitCount` 与 `changedLines` 均为零：`自计划基线以来，未统计到 Change 目录外的项目变化。`
 - `commitCount` 非零：`距离计划基线已过去 <commitCount> 个提交，Change 目录外累计变化 <changedLines> 行；继续前请确认这些变化没有影响当前计划。`
 
-可用距离只提示复核，不阻断 `check` 或 `archive`。基线缺失、无法解析、不在当前 `HEAD`
+可用距离只提示复核，不阻断 `check` 或 `archive`。基线无法解析、不在当前 `HEAD`
 first-parent 历史上、当前仓库没有 `HEAD` 或版本控制操作失败时，检查返回稳定、可行动的阻断诊断；
 完成语义复核后重新运行 `plan` 可以刷新基线。
 
-基线缺失、不可解析、不在 first-parent 历史上或仓库没有 `HEAD` 使用
+基线不可解析、不在 first-parent 历史上或仓库没有 `HEAD` 使用
 `base-commit-unavailable`；仓库发现、revision 查询或 diff 操作失败使用
 `version-control-failed`。两者都使 Plan check 失败；`plan` 可以忽略目标现有 Plan 的这两类基线诊断，
 但仍会重新验证当前仓库存在 `HEAD` 后才写入新基线。
@@ -280,7 +237,7 @@ node <change-plan-cli> archive <change-directory> [--json]
 
 | 命令 | 选择与机械结果 |
 | --- | --- |
-| `list` | 默认发现当前工作目录 `changes/` 的 active Change；`--archived` 只选 archived，`--all` 选择两者，`--stage` 只筛选 active `draft` 或 `plan`。三个选项互斥。旧版 active metadata 按兼容投影参与 `plan` 筛选。无效成员保持可见，不使发现操作失败。 |
+| `list` | 默认发现当前工作目录 `changes/` 的 active Change；`--archived` 只选 archived，`--all` 选择两者，`--stage` 只筛选 active `draft` 或 `plan`。三个选项互斥。无效成员保持可见但没有合法 stage，不使发现操作失败。 |
 | `show` | 展开一个显式 Change 目录的 status、检查结果和三个 artifacts。结构无效时仍返回可读取内容与诊断，并以领域失败退出。 |
 | `check` | 按当前 stage 检查一个显式 Change 目录、metadata、artifacts、任务语法和 Plan 基线。 |
 | `check-all` | 默认门禁当前工作目录 `changes/` 的全部 active Change；`--archived` 只选 archived，`--all` 选择两者。根错误或任一成员无效时集合失败；合法空集合通过。 |
@@ -296,7 +253,7 @@ node <change-plan-cli> archive <change-directory> [--json]
 | 字段 | 含义 |
 | --- | --- |
 | `changeDirectory`、`changeName` | 规范化后的绝对目录与 Change 名称。 |
-| `stage`、`metadata` | Active Change 的投影 stage 与可用规范 metadata；archived 的两者均为 `null`，null-base Plan 的 `metadata` 为 `null` 而 `stage` 仍为 `plan`。 |
+| `stage`、`metadata` | 规范 Active Change 的 stage 与 metadata；active metadata 无效或 Change 已 archived 时两者均为 `null`。 |
 | `taskCount`、`completedTaskCount`、`taskProgress` | 整体任务计数，以及 readiness、implementation、verification 三个区段各自的计数。 |
 | `distance` | 可用 Plan 的 `GitDistanceEvidence`；其他场景为 `null`。 |
 | `diagnostics`、`valid` | 稳定诊断数组；仅当数组为空时 `valid` 为 `true`。 |
@@ -340,12 +297,12 @@ version-control-failed
 
 | 命令 | 源状态与门禁 | 成功结果 |
 | --- | --- | --- |
-| `plan` | Draft、规范 Plan 或兼容读取识别的旧 active Plan；目标 Plan 的三个 artifacts 结构有效，当前仓库存在 `HEAD`。不以任何 checkbox 进度为门禁。 | 原子写入 `{ "stage": "plan", "baseCommit": "<当前 HEAD>" }`。 |
+| `plan` | 规范 Draft 或 Plan；目标 Plan 的三个 artifacts 结构有效，当前仓库存在 `HEAD`。不以任何 checkbox 进度为门禁。 | 原子写入 `{ "stage": "plan", "baseCommit": "<当前 HEAD>" }`。 |
 | `archive` | 结构有效、基线可用且全部 checkbox 已完成的 active Plan。 | 把整个 Change 目录移动到同级 `archive/<change-name>/`，目标存在时不覆盖。 |
 
 两个命令都接受显式 Change 目录，不进行跨根名称搜索。失败时不写入 metadata，也不移动 Change
 目录。
-`plan` 的现有 Plan 与旧版输入必须先由操作者完成语义复核，刷新基线只记录调用时的
+`plan` 的现有 Plan 必须先由操作者完成语义复核，刷新基线只记录调用时的
 `HEAD`，不证明审阅、实施或授权已经完成。`archive` 在稳定的命名空间前提下，于移动前重验文件系统
 身份和目标冲突；它不判断 proposal 成功标准、开放问题、稳定 owner、长期决策、验证证据或归档授权
 是否已经完成。

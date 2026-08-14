@@ -138,14 +138,6 @@ test("git-distance reports unavailable missing and non-first-parent bases", () =
     const fixture = await createGitFixture(tempRoot);
     const missingBase = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef";
     assert.deepEqual(
-      await inspectPlanVersionControl(fixture.changeDirectory, null),
-      {
-        baseCommit: null,
-        headCommit: fixture.baseCommit,
-        outcome: "base-unavailable"
-      }
-    );
-    assert.deepEqual(
       await inspectPlanVersionControl(fixture.changeDirectory, missingBase),
       {
         baseCommit: missingBase,

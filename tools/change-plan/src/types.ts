@@ -14,7 +14,7 @@ export type ChangePlanMetadataName = typeof changePlanMetadataName;
 
 export type ChangePlanFileName = ChangePlanArtifactName | ChangePlanMetadataName;
 
-export type ChangePlanStage = "draft" | "plan";
+export type ChangePlanStage = ChangePlanMetadata["stage"];
 
 export type { ChangePlanMetadata } from "./metadata.ts";
 

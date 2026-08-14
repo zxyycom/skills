@@ -15,7 +15,7 @@ export type { GitDistanceEvidence } from "./types.ts";
 
 export type PlanVersionControlInspection =
   | {
-    baseCommit: string | null;
+    baseCommit: string;
     headCommit: string | null;
     outcome: "base-unavailable";
   }
@@ -112,11 +112,11 @@ export async function readCurrentHeadCommit(
 
 export async function inspectPlanVersionControl(
   changeDirectory: string,
-  baseCommit: string | null
+  baseCommit: string
 ): Promise<PlanVersionControlInspection> {
   const context = await repositoryContext(changeDirectory);
   const headCommit = await context.repository.getCurrentRevision();
-  if (baseCommit === null || headCommit === null) {
+  if (headCommit === null) {
     return { baseCommit, headCommit, outcome: "base-unavailable" };
   }
 

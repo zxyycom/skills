@@ -2,31 +2,10 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import type { ChangePlanMetadata } from "../src/types.ts";
-
-type LegacyChangePlanMetadata =
-  | { baseCommit: string; stage: "implementation" }
-  | {
-    baseCommit: string;
-    shelf:
-      | {
-        atCommit: string;
-        reason: string;
-        source: "explicit";
-      }
-      | {
-        atCommit: string;
-        changedLines: number;
-        commitCount: number;
-        source: "git-distance-v1";
-      };
-    stage: "shelved";
-  }
-  | { baseCommit: null; stage: "plan" };
-
 export type PlanOverrides = {
   design?: string;
-  metadata?: ChangePlanMetadata | LegacyChangePlanMetadata | null;
+  /** Raw JSON fixture value; invalid-schema tests intentionally pass unknown. */
+  metadata?: unknown;
   proposal?: string;
   tasks?: string;
 };

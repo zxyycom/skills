@@ -188,21 +188,21 @@
     "CHANGE-PLAN-CATALOG-STAGE-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CATALOG-STAGE-001 Catalog 按活动生命周期阶段筛选 Change 阶段筛选只适用于活动 Change，并只返回匹配该阶段的条目。 Draft 筛选只返回 draft Change；与 `status: all` 组合时返回空条目及明确错误。 Plan 筛选把历史 `implementation` 与 `shelved` metadata 的兼容投影都作为 Plan 条目返回。 tools/change-plan/tests/catalog.test.ts > catalog filters active changes by lifecycle stage bun test --test-name-pattern=\"^catalog filters active changes by lifecycle stage$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CATALOG-STAGE-001 Catalog 按活动生命周期阶段筛选 Change 阶段筛选只适用于活动 Change，并只返回匹配该阶段的条目。 Draft 筛选只返回 draft Change；与 `status: all` 组合时返回空条目及明确错误。 Plan 筛选只返回规范 Plan；使用旧 `implementation` metadata 的目录不会被投影进阶段筛选。 不带阶段筛选的 active catalog 仍发现该无效目录，并报告空 stage、失败结果与 `invalid-metadata` 诊断。 tools/change-plan/tests/catalog.test.ts > catalog filters active changes by lifecycle stage bun test --test-name-pattern=\"^catalog filters active changes by lifecycle stage$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 11,
         "entries": [
           "tools/change-plan/tests/catalog.test.ts > catalog filters active changes by lifecycle stage",
           "bun test --test-name-pattern=\"^catalog filters active changes by lifecycle stage$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-CATALOG-STAGE-001",
         "line": 1,
-        "searchText": "Catalog 按活动生命周期阶段筛选 Change 阶段筛选只适用于活动 Change，并只返回匹配该阶段的条目。 Draft 筛选只返回 draft Change；与 `status: all` 组合时返回空条目及明确错误。 Plan 筛选把历史 `implementation` 与 `shelved` metadata 的兼容投影都作为 Plan 条目返回。 tools/change-plan/tests/catalog.test.ts > catalog filters active changes by lifecycle stage bun test --test-name-pattern=\"^catalog filters active changes by lifecycle stage$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Catalog 按活动生命周期阶段筛选 Change 阶段筛选只适用于活动 Change，并只返回匹配该阶段的条目。 Draft 筛选只返回 draft Change；与 `status: all` 组合时返回空条目及明确错误。 Plan 筛选只返回规范 Plan；使用旧 `implementation` metadata 的目录不会被投影进阶段筛选。 不带阶段筛选的 active catalog 仍发现该无效目录，并报告空 stage、失败结果与 `invalid-metadata` 诊断。 tools/change-plan/tests/catalog.test.ts > catalog filters active changes by lifecycle stage bun test --test-name-pattern=\"^catalog filters active changes by lifecycle stage$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/catalog-filters-active-changes-by-lifecycle-stage.md",
         "summary": "阶段筛选只适用于活动 Change，并只返回匹配该阶段的条目。",
         "title": "Catalog 按活动生命周期阶段筛选 Change"
@@ -280,23 +280,23 @@
     "CHANGE-PLAN-CHECK-METADATA-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CHECK-METADATA-001 检查区分活动元数据与归档历史 活动 Change 通过规范或兼容 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不解析活动 metadata。 null-base Plan 产生 `base-commit-unavailable` 而非格式诊断；历史 `implementation` 与 `source: git-distance-v1` shelf 均投影为 Plan，缺失或含未知字段的活动 metadata 被拒绝，而无 metadata 的 archived Change 保持有效。 tools/change-plan/tests/check.test.ts > check validates active metadata and preserves archived history bun test --test-name-pattern=\"^check validates active metadata and preserves archived history$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CHECK-METADATA-001 检查区分活动元数据与归档历史 Active Change 只通过规范 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不解析 active metadata。 null-base Plan、`implementation`、`shelved` 与含未知字段的 Draft 都得到 `invalid-metadata`，其 stage、metadata 与距离为空。 缺失 active metadata 得到缺失文件诊断，而无 metadata 的 archived Change 保持有效。 tools/change-plan/tests/check.test.ts > check validates active metadata and preserves archived history bun test --test-name-pattern=\"^check validates active metadata and preserves archived history$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
         "entries": [
           "tools/change-plan/tests/check.test.ts > check validates active metadata and preserves archived history",
           "bun test --test-name-pattern=\"^check validates active metadata and preserves archived history$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-CHECK-METADATA-001",
         "line": 1,
-        "searchText": "检查区分活动元数据与归档历史 活动 Change 通过规范或兼容 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不解析活动 metadata。 null-base Plan 产生 `base-commit-unavailable` 而非格式诊断；历史 `implementation` 与 `source: git-distance-v1` shelf 均投影为 Plan，缺失或含未知字段的活动 metadata 被拒绝，而无 metadata 的 archived Change 保持有效。 tools/change-plan/tests/check.test.ts > check validates active metadata and preserves archived history bun test --test-name-pattern=\"^check validates active metadata and preserves archived history$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "检查区分活动元数据与归档历史 Active Change 只通过规范 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不解析 active metadata。 null-base Plan、`implementation`、`shelved` 与含未知字段的 Draft 都得到 `invalid-metadata`，其 stage、metadata 与距离为空。 缺失 active metadata 得到缺失文件诊断，而无 metadata 的 archived Change 保持有效。 tools/change-plan/tests/check.test.ts > check validates active metadata and preserves archived history bun test --test-name-pattern=\"^check validates active metadata and preserves archived history$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/check-validates-active-metadata-and-preserves-archived-history.md",
-        "summary": "活动 Change 通过规范或兼容 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不解析活动 metadata。",
+        "summary": "Active Change 只通过规范 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不解析 active metadata。",
         "title": "检查区分活动元数据与归档历史"
       }
     },
@@ -326,7 +326,7 @@
     "CHANGE-PLAN-CHECK-STAGES-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CHECK-STAGES-001 检查按生命周期阶段应用制品契约 Change 检查必须按当前阶段或目标阶段应用对应的制品要求。 普通 Draft 检查接受最小 proposal 和初始 design、但没有 tasks 的目录，并拒绝缺少 design 的目录。 Metadata 仍为 `draft` 时，目标 Plan 检查要求完整 proposal、design 和 tasks；旧 shelved Change 被投影为 Plan 并可通过检查。 tools/change-plan/tests/check.test.ts > check applies stage-specific artifact contracts bun test --test-name-pattern=\"^check applies stage-specific artifact contracts$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CHECK-STAGES-001 检查按生命周期阶段应用制品契约 Change 检查必须按当前阶段或目标阶段应用对应的制品要求。 普通 Draft 检查接受最小 proposal 和初始 design、但没有 tasks 的目录，并拒绝缺少 design 的目录。 Metadata 仍为 `draft` 时，目标 Plan 检查要求完整 proposal、design 和 tasks；缺少 tasks 时报告对应诊断。 tools/change-plan/tests/check.test.ts > check applies stage-specific artifact contracts bun test --test-name-pattern=\"^check applies stage-specific artifact contracts$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -340,7 +340,7 @@
         ],
         "id": "CHANGE-PLAN-CHECK-STAGES-001",
         "line": 1,
-        "searchText": "检查按生命周期阶段应用制品契约 Change 检查必须按当前阶段或目标阶段应用对应的制品要求。 普通 Draft 检查接受最小 proposal 和初始 design、但没有 tasks 的目录，并拒绝缺少 design 的目录。 Metadata 仍为 `draft` 时，目标 Plan 检查要求完整 proposal、design 和 tasks；旧 shelved Change 被投影为 Plan 并可通过检查。 tools/change-plan/tests/check.test.ts > check applies stage-specific artifact contracts bun test --test-name-pattern=\"^check applies stage-specific artifact contracts$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "检查按生命周期阶段应用制品契约 Change 检查必须按当前阶段或目标阶段应用对应的制品要求。 普通 Draft 检查接受最小 proposal 和初始 design、但没有 tasks 的目录，并拒绝缺少 design 的目录。 Metadata 仍为 `draft` 时，目标 Plan 检查要求完整 proposal、design 和 tasks；缺少 tasks 时报告对应诊断。 tools/change-plan/tests/check.test.ts > check applies stage-specific artifact contracts bun test --test-name-pattern=\"^check applies stage-specific artifact contracts$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/check-applies-stage-specific-artifact-contracts.md",
         "summary": "Change 检查必须按当前阶段或目标阶段应用对应的制品要求。",
         "title": "检查按生命周期阶段应用制品契约"
@@ -622,6 +622,29 @@
         "title": "List CLI 返回结构化生命周期根诊断"
       }
     },
+    "CHANGE-PLAN-CLI-PLAN-CANONICAL-INPUTS-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CLI-PLAN-CANONICAL-INPUTS-001 Plan CLI 确认规范 Draft 与 Plan `plan` 接受规范 Draft 与现有规范 Plan，并统一写入调用时的当前 Git 基线；checkbox 进度不构成确认门禁。 Draft 即使 Readiness 未完成且后续区段已有证据也能确认，现有 Plan 也能重确认。 每个成功结果的 metadata 恰好包含 `stage: plan` 与当前 `baseCommit`。 tools/change-plan/tests/cli.test.ts > CLI plan confirms drafts and reconfirms plans bun test --test-name-pattern=\"^CLI plan confirms drafts and reconfirms plans$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/change-plan/tests/cli.test.ts > CLI plan confirms drafts and reconfirms plans",
+          "bun test --test-name-pattern=\"^CLI plan confirms drafts and reconfirms plans$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CLI-PLAN-CANONICAL-INPUTS-001",
+        "line": 1,
+        "searchText": "Plan CLI 确认规范 Draft 与 Plan `plan` 接受规范 Draft 与现有规范 Plan，并统一写入调用时的当前 Git 基线；checkbox 进度不构成确认门禁。 Draft 即使 Readiness 未完成且后续区段已有证据也能确认，现有 Plan 也能重确认。 每个成功结果的 metadata 恰好包含 `stage: plan` 与当前 `baseCommit`。 tools/change-plan/tests/cli.test.ts > CLI plan confirms drafts and reconfirms plans bun test --test-name-pattern=\"^CLI plan confirms drafts and reconfirms plans$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/cli-plan-confirms-drafts-and-reconfirms-plans.md",
+        "summary": "`plan` 接受规范 Draft 与现有规范 Plan，并统一写入调用时的当前 Git 基线；checkbox 进度不构成确认门禁。",
+        "title": "Plan CLI 确认规范 Draft 与 Plan"
+      }
+    },
     "CHANGE-PLAN-CLI-PLAN-COMMIT-001": {
       "keys": {
         "search": [
@@ -643,29 +666,6 @@
         "sourcePath": "change-plan/cli-plan-records-existing-head-without-requiring-committed-artifacts.md",
         "summary": "`plan` 以命令运行时已有的 HEAD 作为版本控制基线，并允许完整 Draft artifacts 处于未跟踪状态。",
         "title": "Plan CLI 记录已有 HEAD 并接受未提交 artifacts"
-      }
-    },
-    "CHANGE-PLAN-CLI-PLAN-INPUTS-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-CLI-PLAN-INPUTS-001 Plan CLI 确认并规范化活动输入 `plan` 接受 Draft、现有 Plan 与兼容读取支持的历史活动 metadata，并统一写回规范 Plan。 Draft 即使 Readiness 未完成且后续区段已有证据也能确认。 规范 Plan、历史 `implementation`、历史 `shelved` 与 null-base Plan 都能重确认。 每个成功结果的 metadata 恰好包含 `stage: plan` 与当前 `baseCommit`。 tools/change-plan/tests/cli.test.ts > CLI plan confirms drafts, reconfirms plans, and canonicalizes legacy inputs bun test --test-name-pattern=\"^CLI plan confirms drafts, reconfirms plans, and canonicalizes legacy inputs$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 13,
-        "entries": [
-          "tools/change-plan/tests/cli.test.ts > CLI plan confirms drafts, reconfirms plans, and canonicalizes legacy inputs",
-          "bun test --test-name-pattern=\"^CLI plan confirms drafts, reconfirms plans, and canonicalizes legacy inputs$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-CLI-PLAN-INPUTS-001",
-        "line": 1,
-        "searchText": "Plan CLI 确认并规范化活动输入 `plan` 接受 Draft、现有 Plan 与兼容读取支持的历史活动 metadata，并统一写回规范 Plan。 Draft 即使 Readiness 未完成且后续区段已有证据也能确认。 规范 Plan、历史 `implementation`、历史 `shelved` 与 null-base Plan 都能重确认。 每个成功结果的 metadata 恰好包含 `stage: plan` 与当前 `baseCommit`。 tools/change-plan/tests/cli.test.ts > CLI plan confirms drafts, reconfirms plans, and canonicalizes legacy inputs bun test --test-name-pattern=\"^CLI plan confirms drafts, reconfirms plans, and canonicalizes legacy inputs$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/cli-plan-confirms-drafts-reconfirms-plans-and-canonicalizes-legacy-inputs.md",
-        "summary": "`plan` 接受 Draft、现有 Plan 与兼容读取支持的历史活动 metadata，并统一写回规范 Plan。",
-        "title": "Plan CLI 确认并规范化活动输入"
       }
     },
     "CHANGE-PLAN-CLI-PLAN-NO-HEAD-001": {
@@ -786,7 +786,7 @@
     "CHANGE-PLAN-GIT-BASE-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-GIT-BASE-001 Git 距离拒绝缺失与非第一父基线 Git 距离的 measured 输入集合是可解析且位于当前 HEAD 第一父历史上的基线；其他基线返回 `base-unavailable` 及其定位证据。 null 与无法解析的 revision 返回 base-unavailable。 侧分支 revision 不在当前第一父历史时返回 base-unavailable，并保留基线与 HEAD。 tools/change-plan/tests/git-distance.test.ts > git-distance reports unavailable missing and non-first-parent bases bun test --test-name-pattern=\"^git-distance reports unavailable missing and non-first-parent bases$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-GIT-BASE-001 Git 距离拒绝缺失与非第一父基线 Git 距离的 measured 输入集合是可解析且位于当前 HEAD 第一父历史上的基线；其他基线返回 `base-unavailable` 及其定位证据。 无法解析的 revision 返回 base-unavailable。 侧分支 revision 不在当前第一父历史时返回 base-unavailable，并保留基线与 HEAD。 tools/change-plan/tests/git-distance.test.ts > git-distance reports unavailable missing and non-first-parent bases bun test --test-name-pattern=\"^git-distance reports unavailable missing and non-first-parent bases$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -800,7 +800,7 @@
         ],
         "id": "CHANGE-PLAN-GIT-BASE-001",
         "line": 1,
-        "searchText": "Git 距离拒绝缺失与非第一父基线 Git 距离的 measured 输入集合是可解析且位于当前 HEAD 第一父历史上的基线；其他基线返回 `base-unavailable` 及其定位证据。 null 与无法解析的 revision 返回 base-unavailable。 侧分支 revision 不在当前第一父历史时返回 base-unavailable，并保留基线与 HEAD。 tools/change-plan/tests/git-distance.test.ts > git-distance reports unavailable missing and non-first-parent bases bun test --test-name-pattern=\"^git-distance reports unavailable missing and non-first-parent bases$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Git 距离拒绝缺失与非第一父基线 Git 距离的 measured 输入集合是可解析且位于当前 HEAD 第一父历史上的基线；其他基线返回 `base-unavailable` 及其定位证据。 无法解析的 revision 返回 base-unavailable。 侧分支 revision 不在当前第一父历史时返回 base-unavailable，并保留基线与 HEAD。 tools/change-plan/tests/git-distance.test.ts > git-distance reports unavailable missing and non-first-parent bases bun test --test-name-pattern=\"^git-distance reports unavailable missing and non-first-parent bases$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/git-distance-reports-unavailable-missing-and-non-first-parent-bases.md",
         "summary": "Git 距离的 measured 输入集合是可解析且位于当前 HEAD 第一父历史上的基线；其他基线返回 `base-unavailable` 及其定位证据。",
         "title": "Git 距离拒绝缺失与非第一父基线"
@@ -921,29 +921,6 @@
         "title": "Git 距离在基线处返回零证据"
       }
     },
-    "CHANGE-PLAN-LIFECYCLE-LEGACY-001": {
-      "keys": {
-        "search": [
-          "CHANGE-PLAN-LIFECYCLE-LEGACY-001 Plan 将旧活动 metadata 写回规范结构 兼容读取让历史活动 metadata 在显式运行 `plan` 时收敛为规范 Plan，写入结果统一使用当前结构。 历史 `implementation`、历史 `shelved` 与 null-base Plan 都以 Plan 身份完成重确认。 重确认后的持久 JSON 恰好包含 `stage: plan` 与非空 `baseCommit`。 tools/change-plan/tests/lifecycle.test.ts > plan rewrites legacy active metadata to canonical plan metadata bun test --test-name-pattern=\"^plan rewrites legacy active metadata to canonical plan metadata$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "topic": [
-          "change-plan"
-        ]
-      },
-      "state": {
-        "endLine": 12,
-        "entries": [
-          "tools/change-plan/tests/lifecycle.test.ts > plan rewrites legacy active metadata to canonical plan metadata",
-          "bun test --test-name-pattern=\"^plan rewrites legacy active metadata to canonical plan metadata$\" ./tools/change-plan/tests/run.ts"
-        ],
-        "id": "CHANGE-PLAN-LIFECYCLE-LEGACY-001",
-        "line": 1,
-        "searchText": "Plan 将旧活动 metadata 写回规范结构 兼容读取让历史活动 metadata 在显式运行 `plan` 时收敛为规范 Plan，写入结果统一使用当前结构。 历史 `implementation`、历史 `shelved` 与 null-base Plan 都以 Plan 身份完成重确认。 重确认后的持久 JSON 恰好包含 `stage: plan` 与非空 `baseCommit`。 tools/change-plan/tests/lifecycle.test.ts > plan rewrites legacy active metadata to canonical plan metadata bun test --test-name-pattern=\"^plan rewrites legacy active metadata to canonical plan metadata$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/plan-rewrites-legacy-active-metadata-to-canonical-plan-metadata.md",
-        "summary": "兼容读取让历史活动 metadata 在显式运行 `plan` 时收敛为规范 Plan，写入结果统一使用当前结构。",
-        "title": "Plan 将旧活动 metadata 写回规范结构"
-      }
-    },
     "CHANGE-PLAN-LIFECYCLE-PLAN-001": {
       "keys": {
         "search": [
@@ -988,6 +965,29 @@
         "sourcePath": "change-plan/plan-refreshes-baseline-from-current-head.md",
         "summary": "对现有 Plan 运行 `plan` 时，当前 HEAD 是新 `baseCommit` 的权威来源，刷新路径直接以它覆盖现有基线。",
         "title": "Plan 直接从当前 HEAD 刷新基线"
+      }
+    },
+    "CHANGE-PLAN-LIFECYCLE-STRICT-METADATA-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-LIFECYCLE-STRICT-METADATA-001 Plan 拒绝非规范 metadata 且不改写目标 `plan` 只接受规范 Draft 或 Plan；无效 active metadata 使用既有失败通道，不提供自动迁移或隐藏写回。 `implementation`、`shelved` 与 null-base Plan 都返回 `invalid-source-stage`，并携带 `invalid-metadata` 诊断。 每个失败目标的 `.change-plan.json` 字节保持不变。 tools/change-plan/tests/lifecycle.test.ts > plan rejects noncanonical metadata without mutation bun test --test-name-pattern=\"^plan rejects noncanonical metadata without mutation$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/change-plan/tests/lifecycle.test.ts > plan rejects noncanonical metadata without mutation",
+          "bun test --test-name-pattern=\"^plan rejects noncanonical metadata without mutation$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-LIFECYCLE-STRICT-METADATA-001",
+        "line": 1,
+        "searchText": "Plan 拒绝非规范 metadata 且不改写目标 `plan` 只接受规范 Draft 或 Plan；无效 active metadata 使用既有失败通道，不提供自动迁移或隐藏写回。 `implementation`、`shelved` 与 null-base Plan 都返回 `invalid-source-stage`，并携带 `invalid-metadata` 诊断。 每个失败目标的 `.change-plan.json` 字节保持不变。 tools/change-plan/tests/lifecycle.test.ts > plan rejects noncanonical metadata without mutation bun test --test-name-pattern=\"^plan rejects noncanonical metadata without mutation$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/plan-rejects-noncanonical-metadata-without-mutation.md",
+        "summary": "`plan` 只接受规范 Draft 或 Plan；无效 active metadata 使用既有失败通道，不提供自动迁移或隐藏写回。",
+        "title": "Plan 拒绝非规范 metadata 且不改写目标"
       }
     },
     "CHANGE-PLAN-LIFECYCLE-VC-001": {
@@ -1062,7 +1062,7 @@
     "CHANGE-PLAN-METADATA-ERRORS-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-METADATA-ERRORS-001 Metadata reader 映射稳定边界错误码 Metadata reader 把文件存在性、路径类型和内容解析失败收口为稳定领域错误码；活动兼容 reader 把受支持的历史 shelf metadata 投影为 Plan。 缺失文件得到 `missing`，目录占位得到 `invalid-path`，无效 JSON 与无效 stage 都得到 `invalid`。 `source: explicit` 与历史 `source: git-distance-v1` 两种旧 shelf 形状都可兼容读取为 Plan，且不会扩大规范 parser 的写入结构。 tools/change-plan/tests/metadata.test.ts > metadata reader maps file and parse boundaries to stable error codes bun test --test-name-pattern=\"^metadata reader maps file and parse boundaries to stable error codes$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-METADATA-ERRORS-001 Metadata reader 映射稳定边界错误码 Metadata reader 把文件存在性、路径类型、JSON 解析和 strict schema 失败收口为稳定领域错误码。 缺失文件得到 `missing`，目录占位得到 `invalid-path`，无效 JSON 得到 `invalid`。 未知 stage、`implementation`、`shelved` 与 null-base Plan 都由同一规范 reader 返回 `invalid`。 tools/change-plan/tests/metadata.test.ts > metadata reader maps file and parse boundaries to stable error codes bun test --test-name-pattern=\"^metadata reader maps file and parse boundaries to stable error codes$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -1076,9 +1076,9 @@
         ],
         "id": "CHANGE-PLAN-METADATA-ERRORS-001",
         "line": 1,
-        "searchText": "Metadata reader 映射稳定边界错误码 Metadata reader 把文件存在性、路径类型和内容解析失败收口为稳定领域错误码；活动兼容 reader 把受支持的历史 shelf metadata 投影为 Plan。 缺失文件得到 `missing`，目录占位得到 `invalid-path`，无效 JSON 与无效 stage 都得到 `invalid`。 `source: explicit` 与历史 `source: git-distance-v1` 两种旧 shelf 形状都可兼容读取为 Plan，且不会扩大规范 parser 的写入结构。 tools/change-plan/tests/metadata.test.ts > metadata reader maps file and parse boundaries to stable error codes bun test --test-name-pattern=\"^metadata reader maps file and parse boundaries to stable error codes$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Metadata reader 映射稳定边界错误码 Metadata reader 把文件存在性、路径类型、JSON 解析和 strict schema 失败收口为稳定领域错误码。 缺失文件得到 `missing`，目录占位得到 `invalid-path`，无效 JSON 得到 `invalid`。 未知 stage、`implementation`、`shelved` 与 null-base Plan 都由同一规范 reader 返回 `invalid`。 tools/change-plan/tests/metadata.test.ts > metadata reader maps file and parse boundaries to stable error codes bun test --test-name-pattern=\"^metadata reader maps file and parse boundaries to stable error codes$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/metadata-reader-maps-file-and-parse-boundaries-to-stable-error-codes.md",
-        "summary": "Metadata reader 把文件存在性、路径类型和内容解析失败收口为稳定领域错误码；活动兼容 reader 把受支持的历史 shelf metadata 投影为 Plan。",
+        "summary": "Metadata reader 把文件存在性、路径类型、JSON 解析和 strict schema 失败收口为稳定领域错误码。",
         "title": "Metadata reader 映射稳定边界错误码"
       }
     },
@@ -11223,13 +11223,13 @@
       "CHANGE-PLAN-CATALOG-LIFECYCLE-001": "sha256:fce5a5ff32c12cc8d825afe0eb92266ca0627ee3332eb076aaed15b046e9fb82",
       "CHANGE-PLAN-CATALOG-ROOTS-001": "sha256:74c0e20a9933fabcf6161c842b8b0d311d3b1c3f52893d99a727c38dd5e6b7c6",
       "CHANGE-PLAN-CATALOG-SHOW-001": "sha256:f2acb18cfe9026fe954defd537879cc802eb7274bb8a125163009487a7a0071e",
-      "CHANGE-PLAN-CATALOG-STAGE-001": "sha256:808409c2aa4654fee747d159e963e08b8296f8fb2e5d1a76735083f6876e56e2",
+      "CHANGE-PLAN-CATALOG-STAGE-001": "sha256:08299bf6a651cb5fb771111ec470724bb866c3140a6140a55e37aa516bf3aa6c",
       "CHANGE-PLAN-CATALOG-SYMLINK-001": "sha256:fc6fef013c71b8d7388e169d77a5b775011eb3c174fa835be2e4f152c019b447",
       "CHANGE-PLAN-CHECK-ARTIFACTS-001": "sha256:bc8dc15f8d74580f110421b1de4a9bf154e4e1a06f8b78b4652cc93d1b60edb4",
       "CHANGE-PLAN-CHECK-COMPLETE-001": "sha256:f4ecf5f1ee6186ae7c7f1361c6ac129a338dd4ab54a337408c301015c2479ac1",
-      "CHANGE-PLAN-CHECK-METADATA-001": "sha256:3d4e69f8a91891db5874cda9bd306c68838ce066f68c9df585ca15ff9c3a75d1",
+      "CHANGE-PLAN-CHECK-METADATA-001": "sha256:8c2489db8e878c35c98ac294b94b72e0b0ab0f9e5f4fd8eb8e3ea5a9d55d8be9",
       "CHANGE-PLAN-CHECK-PATH-001": "sha256:8567cac39f90d4d674a2349a2070aaa243be9764ad93abd1d20684dd4f934762",
-      "CHANGE-PLAN-CHECK-STAGES-001": "sha256:ab23e53efc448f16f6359bcf412679bf2aa636e6cba5fe4ecd7c2bdf0d3141d1",
+      "CHANGE-PLAN-CHECK-STAGES-001": "sha256:beee88026ed3f62d35567f0a90ea4ef3885705a95a267454754d099f768f5429",
       "CHANGE-PLAN-CHECK-SYMLINK-001": "sha256:6a003f12e0fb0e6d35855ca7c9939cb55c5ebf5b7df06146a3adaca8c1595d28",
       "CHANGE-PLAN-CHECK-VC-001": "sha256:726d3343bc3959cbe4d8f23d0a8d3df6bb106282edb6a50ea83720a7ab8690c5",
       "CHANGE-PLAN-CLI-ARCHIVE-001": "sha256:8ae3b39eaef7fd4af641a001d19f9eb1ea850ecb740bc63fd3bf9bc93e5d24b0",
@@ -11242,26 +11242,26 @@
       "CHANGE-PLAN-CLI-LIST-001": "sha256:5e6c161d13e7132579d4eb27c7eb58fcc61a7dc8218cea87947173de88a445f4",
       "CHANGE-PLAN-CLI-LIST-ARGS-001": "sha256:1c218739f3b4a92f314c012aa0f6acf5660ebdd576a732ef196c65a57798ca7a",
       "CHANGE-PLAN-CLI-LIST-ROOT-001": "sha256:142d5c70f5012973407aa1c114526abd0bed18f207bf2b5c1e02ba755b00bcd3",
+      "CHANGE-PLAN-CLI-PLAN-CANONICAL-INPUTS-001": "sha256:79e6cf72f6e2b509efd6c53d8227100159f672f395abeb1046b9bf8b9877e796",
       "CHANGE-PLAN-CLI-PLAN-COMMIT-001": "sha256:d9552bc31d6a5e90d4d7fa4eec25319cca966277b52a1520d5b8c520dbad40bf",
-      "CHANGE-PLAN-CLI-PLAN-INPUTS-001": "sha256:a4ac99f6776bc8da1afc0a14fd262da5a51355880d432baef5d217a5ef52983e",
       "CHANGE-PLAN-CLI-PLAN-NO-HEAD-001": "sha256:3807d0a281290da77157fffe53d156bcaa307f018d766b04b8601081e981b4dd",
       "CHANGE-PLAN-CLI-SHOW-001": "sha256:c2f5d2a79082ffd7b5584ef5533fc07304b21a67677f66c7efc446fae7040f3b",
       "CHANGE-PLAN-COLLECTION-CHECK-001": "sha256:de00eb26b9fd4b50029e147b86f07878314e9e7b0defcbc192e14ab83dcb9366",
       "CHANGE-PLAN-COLLECTION-ROOTS-001": "sha256:3f6c42628e52aac88ba9c9d4b232721b9a83288b870b911248b758b3ebeb084f",
       "CHANGE-PLAN-GENERATED-ARTIFACTS-001": "sha256:501b7733efac8e3e550b0f056e4adccc8a510c1a8b41be7033ead46c5e79ebeb",
-      "CHANGE-PLAN-GIT-BASE-001": "sha256:d5cf23fa9168af1c0b1a0b86f0cf4921c6949ddd03db1a89446613f9c194ef56",
+      "CHANGE-PLAN-GIT-BASE-001": "sha256:7d8fa2ee2cbf6b1f641d416906587dac107e66ba88d653bd7f9ecf2234cf43c8",
       "CHANGE-PLAN-GIT-EXCLUDE-001": "sha256:284255391ef42b91a26f880eebac5ecb386e76e50cca43066c91380b063117cf",
       "CHANGE-PLAN-GIT-FAILURE-001": "sha256:b63a296ebcec3dfb40c471cc4dbf593e1fb58bb4daba0261011877e1a317e188",
       "CHANGE-PLAN-GIT-NUMSTAT-001": "sha256:34c2d39dc544e4a2715427cdec4c7cbeb8b67af0be97e89269ee23affd7bad92",
       "CHANGE-PLAN-GIT-PATHS-001": "sha256:801af2a004699fff02b68d032db4fce7065673e657471f25b5844f100dfee21d",
       "CHANGE-PLAN-GIT-ZERO-001": "sha256:185bc84e21ee80a0b7e53879749b1b60ed3012f732f52b5d5daa47eaa5fc4c5e",
-      "CHANGE-PLAN-LIFECYCLE-LEGACY-001": "sha256:ff9f624860e2024c37044c8758a31b7c4a940f9390906ddfee1c18efa87558ad",
       "CHANGE-PLAN-LIFECYCLE-PLAN-001": "sha256:0e7885bf0e2d9983a0dcc6f12a243c47e8bed74d0c620d22cea8376f72612ae5",
       "CHANGE-PLAN-LIFECYCLE-REFRESH-001": "sha256:9e78e97b6be06b4529725789f7f9f0d2902dc8115dd6a51a769ba3da7bf75e27",
+      "CHANGE-PLAN-LIFECYCLE-STRICT-METADATA-001": "sha256:03c1f678f38f184aea84f4f11757c5abb8d25a118451dbcfd85685b6e890ebe6",
       "CHANGE-PLAN-LIFECYCLE-VC-001": "sha256:f2835f70dcb2ccdf4486329e2c8fa1cc272897a26b6a60df0211566fe72cf84d",
       "CHANGE-PLAN-MARKDOWN-SEMANTICS-001": "sha256:1cf089a9e0d3c9c42b4bb2ff598b3f171e9cc47878febbead11fdf7aa9231988",
       "CHANGE-PLAN-MARKDOWN-TASKS-001": "sha256:d64961e5a57d6ed00d1b756c32d16f711ae65b0aabda3a666c85f0a05df3a2e6",
-      "CHANGE-PLAN-METADATA-ERRORS-001": "sha256:509ef5fdcc0b45b7b4df3acc005b070f5a3858da7db07822293188a70f44eb8b",
+      "CHANGE-PLAN-METADATA-ERRORS-001": "sha256:dc32034ec6df6b286c35fd9b20bd759ea2703ae64255e5cc66b53b7b8a0958c3",
       "CHANGE-PLAN-METADATA-SCHEMA-001": "sha256:c0bcebdb00dc19491dfe0aed469054779f06e32ec73d4ff2f9349e13a9155fa6",
       "CHANGE-PLAN-METADATA-SYMLINK-001": "sha256:285e8e752f68addef6433c70d1b8d0bf797b638d196652344ce2f1b40c2c587f",
       "CHANGE-PLAN-METADATA-WRITER-001": "sha256:447c2a34524432d6d39e7851df432197b4d9461679fb9641e0b202f0316c3cac",

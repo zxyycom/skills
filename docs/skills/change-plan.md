@@ -19,7 +19,7 @@ Readiness、Implementation 和 Verification 都在 Plan 内推进，其 checkbox
 1. `list`、`show`、`check` 和 `check-all` 分别承担发现、展开、单项门禁和集合门禁。
 2. `plan` 确认 Draft，或在重新审阅现有 Plan 后刷新 Git 基线；`archive` 归档已经完成的 Plan。
 3. Plan 查询直接提供基线后的 first-parent 提交数和 Change 目录外累计变化行数，帮助操作者决定需要怎样复核当前计划；可用距离只提供上下文，不驱动生命周期。
-4. 旧版 active metadata 保持可发现，并在操作者审阅后通过显式 `plan` 自然收敛；查询不会自动改写目标，archived 历史 metadata 也不参与解释。
+4. Active metadata 只接受规范 Draft 或具有非空 Git 基线的规范 Plan；无效 metadata 所在目录仍可发现，但不能投影为合法 stage 或由写入命令自动迁移。Archived 历史 metadata 不参与解释。
 5. 随包 MJS 同时提供 CLI 和随当前实现变化的直接 import 表面；需要稳定交互时使用固定 CLI 契约与 JSON 结果。
 
 ## 能力边界
@@ -29,5 +29,5 @@ artifacts、机械检查、语义审阅与当前任务授权提供不同证据�
 两者都不代替实施或归档授权。不再实施的 active Change 通过项目普通文件删除和版本控制流程退出。
 
 实际 skill 位于 [`skills/change-plan/`](../../skills/change-plan/)。Agent 行为从
-[`SKILL.md`](../../skills/change-plan/SKILL.md) 进入；字段、兼容边界、六个命令、输出和机械门禁以
+[`SKILL.md`](../../skills/change-plan/SKILL.md) 进入；字段、严格 metadata 边界、六个命令、输出和机械门禁以
 [固定契约](../../skills/change-plan/references/change-plan-contract.md) 为准。

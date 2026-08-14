@@ -27,8 +27,6 @@ function runGit(repositoryRoot: string, arguments_: readonly string[]): string {
   return result.stdout.trim();
 }
 
-const runGitForOutput = runGit;
-
 const minimalDraftProposal = `# Proposal
 
 本 change 记录一个仍在起草的方向。
@@ -140,93 +138,47 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
     diagnostic.code === "missing-required-file"
     && diagnostic.file === "tasks.md"
   )));
-
-  const shelvedDirectory = await writePlan(tempRoot, "shelved-change", {
-    metadata: {
-      baseCommit: runGitForOutput(tempRoot, ["rev-parse", "HEAD"]),
-      shelf: {
-        atCommit: runGitForOutput(tempRoot, ["rev-parse", "HEAD"]),
-        reason: "等待上游方向确定",
-        source: "explicit"
-      },
-      stage: "shelved"
-    }
-  });
-  const shelvedResult = await checkChangePlanDirectory(shelvedDirectory);
-  assert.equal(shelvedResult.valid, true);
-  assert.equal(shelvedResult.stage, "plan");
-  assert.equal(shelvedResult.metadata?.stage, "plan");
-  assert.equal(shelvedResult.distance?.commitCount, 0);
 }
 
 async function testMetadataAndArchiveBoundaries(
   tempRoot: string
 ): Promise<void> {
-  const resumedPlanDirectory = await writePlan(tempRoot, "resumed-plan", {
-    metadata: { baseCommit: null, stage: "plan" }
-  });
-  const resumedPlanResult = await checkChangePlanDirectory(resumedPlanDirectory);
-  assert.equal(resumedPlanResult.stage, "plan");
-  assert.equal(resumedPlanResult.metadata, null);
-  assert.equal(resumedPlanResult.distance, null);
-  assert.equal(resumedPlanResult.valid, false);
-  assert.ok(resumedPlanResult.diagnostics.some((diagnostic) => (
-    diagnostic.code === "base-commit-unavailable"
-    && diagnostic.file === changePlanMetadataName
-  )));
-  assert.equal(
-    resumedPlanResult.diagnostics.some(
-      (diagnostic) => diagnostic.code === "invalid-metadata"
-    ),
-    false
-  );
-  const implementationDirectory = await writePlan(tempRoot, "implementation", {
-    metadata: {
-      baseCommit: runGitForOutput(tempRoot, ["rev-parse", "HEAD"]),
-      stage: "implementation"
-    }
-  });
-  const implementationResult = await checkChangePlanDirectory(
-    implementationDirectory
-  );
-  assert.equal(implementationResult.valid, true);
-  assert.equal(implementationResult.stage, "plan");
-
-  const gitShelvedDirectory = await writePlan(tempRoot, "git-shelved", {
-    metadata: {
-      baseCommit: runGitForOutput(tempRoot, ["rev-parse", "HEAD"]),
-      shelf: {
-        atCommit: runGitForOutput(tempRoot, ["rev-parse", "HEAD"]),
-        changedLines: 3000,
-        commitCount: 1,
-        source: "git-distance-v1"
-      },
-      stage: "shelved"
-    }
-  });
-  assert.equal(
-    (await checkChangePlanDirectory(gitShelvedDirectory)).valid,
-    true
-  );
-
-  const invalidMetadataDirectory = await writePlan(
-    tempRoot,
-    "invalid-metadata"
-  );
-  await fs.writeFile(
-    path.join(invalidMetadataDirectory, changePlanMetadataName),
-    JSON.stringify({ extra: true, stage: "draft" }),
-    "utf8"
-  );
-  const invalidMetadataResult = await checkChangePlanDirectory(
-    invalidMetadataDirectory
-  );
-  assert.equal(invalidMetadataResult.valid, false);
-  assert.equal(invalidMetadataResult.stage, null);
-  assert.ok(invalidMetadataResult.diagnostics.some((diagnostic) => (
-    diagnostic.code === "invalid-metadata"
-    && diagnostic.file === changePlanMetadataName
-  )));
+  const headCommit = runGit(tempRoot, ["rev-parse", "HEAD"]);
+  const invalidCases = [
+    ["null-base", { baseCommit: null, stage: "plan" }],
+    [
+      "implementation",
+      {
+        baseCommit: headCommit,
+        stage: "implementation"
+      }
+    ],
+    [
+      "shelved",
+      {
+        baseCommit: headCommit,
+        shelf: {
+          atCommit: headCommit,
+          reason: "等待上游方向确定",
+          source: "explicit"
+        },
+        stage: "shelved"
+      }
+    ],
+    ["extra-field", { extra: true, stage: "draft" }]
+  ] as const;
+  for (const [name, metadata] of invalidCases) {
+    const directory = await writePlan(tempRoot, name, { metadata });
+    const result = await checkChangePlanDirectory(directory);
+    assert.equal(result.valid, false);
+    assert.equal(result.stage, null);
+    assert.equal(result.metadata, null);
+    assert.equal(result.distance, null);
+    assert.ok(result.diagnostics.some((diagnostic) => (
+      diagnostic.code === "invalid-metadata"
+      && diagnostic.file === changePlanMetadataName
+    )));
+  }
 
   const missingMetadataDirectory = await writePlan(
     tempRoot,

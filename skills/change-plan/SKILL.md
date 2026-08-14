@@ -5,7 +5,7 @@ description: >-
   design.md、tasks.md 和 .change-plan.json 维护明确 Change 的目标、设计、任务、
   验证、draft/plan active stage 与 archived 目录状态。
 metadata:
-  version: "12"
+  version: "13"
 ---
 
 # Change Plan
@@ -28,7 +28,7 @@ Change artifacts、机械检查、内容审阅和当前任务授权分别提供�
 ## 内容 owner 与读取路径
 
 1. 本文件承接触发、上下文恢复、内容写作、Plan 内任务推进、语义审阅和授权门禁。
-2. [固定结构与 CLI 契约](references/change-plan-contract.md) 唯一承接 Change 目录、`.change-plan.json`、artifact 结构、合法 stage、旧版 active metadata 兼容、Git 距离、六个命令、结构化输出和退出码。操作 Change 前完整读取。
+2. [固定结构与 CLI 契约](references/change-plan-contract.md) 唯一承接 Change 目录、`.change-plan.json`、artifact 结构、合法 stage、严格 active metadata、Git 距离、六个命令、结构化输出和退出码。操作 Change 前完整读取。
 3. `scripts/change-plan.mjs` 实现固定契约，也允许直接 import 当前底层函数；这些导出是随当前实现变化的复用表面，不是稳定 SDK。脚本不判断目标、方案、事实、长期决策、验证证据或授权是否正确。
 4. 项目文档继续拥有当前稳定事实和行为；项目已有长期决策 owner 时，跨 Change 持续有效的理由与方向进入该 owner。Change Plan 只拥有当前 Change 的临时实施上下文。
 
@@ -65,7 +65,7 @@ Change artifacts、机械检查、内容审阅和当前任务授权分别提供�
 2. 使用 `show` 恢复单个 Change，使用 `check` 门禁单项结构与基线，使用 `list` 发现集合，使用 `check-all` 门禁所选集合。查询命令只报告结果；写入只由显式 `plan` 或 `archive` 完成。
 3. Plan 距离可用时，根据从 `baseCommit` 到当前 `HEAD` 的 first-parent 提交数和 Change 目录外累计变化行数判断复核深度。零距离只表示自计划基线以来未统计到 Change 目录外的项目变化；非零距离表示继续前需要确认这些项目变化未影响当前计划。可用距离本身不阻断检查或归档。
 4. Plan 基线不可追溯时，重新审阅当前 Plan 后运行 `plan` 刷新基线；版本控制查询失败时，先恢复仓库访问或 Git 状态，再执行同一审阅路径。现有 Plan 主动刷新基线时也先完成语义复核。
-5. 旧版 active metadata 由固定契约定义的只读兼容边界投影为 Plan。查询不会改写它；目标经过语义复核并显式运行 `plan` 后，才收敛为规范 Plan metadata。
+5. Active metadata 只接受固定契约中的规范 Draft 与 Plan。目录存在但 metadata 无效时仍可由集合查询发现，但 stage 不成立且检查失败；先通过普通文件与版本控制流程显式修复 metadata，再进入正常 `plan` 或 `archive` 流程。
 6. 新发现只影响本次实施时进入 design 或 tasks；改变稳定事实时更新对应项目 owner；形成跨 Change 长期方向时交给项目已有决策 owner。附加说明和证据可以放在 Change 目录，但不能替代固定 artifacts。
 
 ### 4. 完成并归档
@@ -84,7 +84,7 @@ Change artifacts、机械检查、内容审阅和当前任务授权分别提供�
 
 1. Draft 或 Plan 的 artifacts 共同表达同一目标，并符合固定结构；active metadata 和 archived 目录 status 与当前内容成熟度一致。
 2. Plan 内每项任务的状态都有事实支持，成功标准、稳定 owner、长期决策和验证证据已按实际结果同步。
-3. 查询结果中的任务进度、Git 距离或阻断诊断已得到处理；兼容输入只在显式运行 `plan` 后发生规范写回。
+3. 查询结果中的任务进度、Git 距离或阻断诊断已得到处理；active metadata 已通过严格规范解析，无效输入已通过普通文件与版本控制流程显式修复。
 4. 机械检查、内容审阅、实施授权和归档授权在交付中分别说明，没有用 metadata、checkbox 或命令成功代替授权。
 
 ## 交付

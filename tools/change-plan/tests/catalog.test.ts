@@ -78,19 +78,11 @@ async function testStageFilter(tempRoot: string): Promise<void> {
   await writePlan(lifecycleRoot, "draft-change", {
     metadata: { stage: "draft" }
   });
-  await writePlan(lifecycleRoot, "implementation-change", {
-    metadata: { baseCommit: headCommit, stage: "implementation" }
+  await writePlan(lifecycleRoot, "plan-change", {
+    metadata: { baseCommit: headCommit, stage: "plan" }
   });
-  await writePlan(lifecycleRoot, "shelved-change", {
-    metadata: {
-      baseCommit: headCommit,
-      shelf: {
-        atCommit: headCommit,
-        reason: "等待后续处理",
-        source: "explicit"
-      },
-      stage: "shelved"
-    }
+  await writePlan(lifecycleRoot, "legacy-change", {
+    metadata: { baseCommit: headCommit, stage: "implementation" }
   });
 
   const draftList = await listChangePlans({
@@ -109,11 +101,18 @@ async function testStageFilter(tempRoot: string): Promise<void> {
   });
   assert.deepEqual(
     planList.entries.map((entry) => [entry.changeName, entry.stage]),
-    [
-      ["implementation-change", "plan"],
-      ["shelved-change", "plan"]
-    ]
+    [["plan-change", "plan"]]
   );
+
+  const activeList = await listChangePlans({ changeRoot: lifecycleRoot });
+  const legacyEntry = activeList.entries.find(
+    (entry) => entry.changeName === "legacy-change"
+  );
+  assert.equal(legacyEntry?.stage, null);
+  assert.equal(legacyEntry?.valid, false);
+  assert.ok(legacyEntry?.diagnostics.some(
+    (diagnostic) => diagnostic.code === "invalid-metadata"
+  ));
 
   const invalidFilter = await listChangePlans({
     changeRoot: lifecycleRoot,

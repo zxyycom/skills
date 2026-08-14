@@ -358,7 +358,7 @@ function testShowCommands(fixture: CliFixture): void {
   assert.equal(cliInvalidShowResult.artifacts["design.md"], null);
 }
 
-async function testPlanConfirmsAndReconfirmsSupportedActiveInputs(
+async function testPlanConfirmsAndReconfirmsCanonicalInputs(
   tempRoot: string
 ): Promise<void> {
   const repository = path.join(tempRoot, "lifecycle-repository");
@@ -390,23 +390,6 @@ async function testPlanConfirmsAndReconfirmsSupportedActiveInputs(
     }),
     await writePlan(changeRoot, "plan", {
       metadata: { baseCommit, stage: "plan" }
-    }),
-    await writePlan(changeRoot, "implementation", {
-      metadata: { baseCommit, stage: "implementation" }
-    }),
-    await writePlan(changeRoot, "shelved", {
-      metadata: {
-        baseCommit,
-        shelf: {
-          atCommit: baseCommit,
-          reason: "等待方向",
-          source: "explicit"
-        },
-        stage: "shelved"
-      }
-    }),
-    await writePlan(changeRoot, "null-base", {
-      metadata: { baseCommit: null, stage: "plan" }
     })
   ];
 
@@ -690,8 +673,8 @@ test("CLI archive enforces gates and moves complete plans", () => (
   withCliFixture("archive", testArchiveCommands)
 ));
 
-test("CLI plan confirms drafts, reconfirms plans, and canonicalizes legacy inputs", () => (
-  withTempRoot("cli-plan-inputs", testPlanConfirmsAndReconfirmsSupportedActiveInputs)
+test("CLI plan confirms drafts and reconfirms plans", () => (
+  withTempRoot("cli-plan-inputs", testPlanConfirmsAndReconfirmsCanonicalInputs)
 ));
 
 test("CLI reports raw distance evidence with direct Chinese prompts", () => (
