@@ -7,7 +7,7 @@
           "ai-ready-docs"
         ],
         "latest-report-at": [
-          1786674708000
+          1786630078000
         ],
         "status": [
           "调查中"
@@ -17,7 +17,6 @@
           "ai-ready-docs 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
           "人与 AI 具有不同的抽象默认偏差",
           "从负向描述争议恢复候选概念模型",
-          "以脱敏双版本保存形成时会话",
           "关联激活邻域不等于任务有效解集合",
           "分离解空间定位与上下文搜索锚定",
           "区分内容保真、目标符合与目标显化",
@@ -38,10 +37,10 @@
         ]
       },
       "state": {
-        "latestReportAt": "2026-08-14T02:31:48+00:00",
+        "latestReportAt": "2026-08-13T14:07:58+00:00",
         "path": "ai-ready-docs/target-boundary-information-and-anchoring.md",
         "question": "ai-ready-docs 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
-        "reportCount": 20,
+        "reportCount": 19,
         "reportTitles": [
           "从负向描述争议恢复候选概念模型",
           "区分语义责任与解空间分析层",
@@ -61,20 +60,49 @@
           "区分框架重构与框架内修补两种策略",
           "收回框架重构旁支并恢复正负描述主线",
           "正负极性依赖描述层级与参照对象",
-          "安全主线可以由负向规则具体化",
-          "以脱敏双版本保存形成时会话"
+          "安全主线可以由负向规则具体化"
+        ],
+        "resourceReferences": [],
+        "status": "调查中",
+        "title": "AI 文档目标、边界、信息效率与解空间锚定调查"
+      }
+    },
+    "codex/conversation-preservation-and-redaction.md": {
+      "keys": {
+        "category": [
+          "codex"
+        ],
+        "latest-report-at": [
+          1786676231000
+        ],
+        "status": [
+          "暂停"
+        ],
+        "text": [
+          "Codex 会话双版本保存与脱敏调查",
+          "当一段重要 Codex 会话的原始 JSONL 同时包含应长期保存的公开讨论与不宜入库的本机、运行时和内部数据时，怎样形成可审计的近全量语义档案与可阅读对话版本，并明确二者相对原件的保留、转换和删减边界？",
+          "形成脱敏近全量档案与机械对话初稿"
+        ]
+      },
+      "state": {
+        "latestReportAt": "2026-08-14T02:57:11+00:00",
+        "path": "codex/conversation-preservation-and-redaction.md",
+        "question": "当一段重要 Codex 会话的原始 JSONL 同时包含应长期保存的公开讨论与不宜入库的本机、运行时和内部数据时，怎样形成可审计的近全量语义档案与可阅读对话版本，并明确二者相对原件的保留、转换和删减边界？",
+        "reportCount": 1,
+        "reportTitles": [
+          "形成脱敏近全量档案与机械对话初稿"
         ],
         "resourceReferences": [
           {
-            "reportIndex": 19,
+            "reportIndex": 0,
             "resourceIds": [
-              "ai-ready-docs/target-boundary-information-and-anchoring/conversation-final-dialogue.initial.md",
-              "ai-ready-docs/target-boundary-information-and-anchoring/conversation-near-full.redacted.jsonl"
+              "codex/conversation-preservation-and-redaction/conversation-final-dialogue.initial.md",
+              "codex/conversation-preservation-and-redaction/conversation-near-full.redacted.jsonl"
             ]
           }
         ],
-        "status": "调查中",
-        "title": "AI 文档目标、边界、信息效率与解空间锚定调查"
+        "status": "暂停",
+        "title": "Codex 会话双版本保存与脱敏调查"
       }
     },
     "context-management/unified-context-management.md": {
@@ -414,11 +442,11 @@
   "metadata": {
     "resources": [
       {
-        "id": "ai-ready-docs/target-boundary-information-and-anchoring/conversation-final-dialogue.initial.md",
+        "id": "codex/conversation-preservation-and-redaction/conversation-final-dialogue.initial.md",
         "sha256": "fdb272e85fe065db28085ccde79d1f331175dece3e2081f8fff74c1d2ee6e3e6"
       },
       {
-        "id": "ai-ready-docs/target-boundary-information-and-anchoring/conversation-near-full.redacted.jsonl",
+        "id": "codex/conversation-preservation-and-redaction/conversation-near-full.redacted.jsonl",
         "sha256": "3142abcbcdc02aa2d2ef1d228dadde537f3353b9b9e152714110c2761e8a2f88"
       },
       {
@@ -439,7 +467,8 @@
   "schemaVersion": 3,
   "sourceRevision": {
     "entries": {
-      "ai-ready-docs/target-boundary-information-and-anchoring.md": "sha256:130eb42772b73a7e08c883c9051c1a71f6782d7392996cb6be8e380061652a3c",
+      "ai-ready-docs/target-boundary-information-and-anchoring.md": "sha256:82ee33aca99791d5718757cbd279aeccf36b7dab56e51ef3e685101edd697615",
+      "codex/conversation-preservation-and-redaction.md": "sha256:818abcdb4142a37db2c1864064f42ed3e5dbfc234fc862d805c6f81ec33666fe",
       "context-management/unified-context-management.md": "sha256:924236b12d95a2df8e645a9b51587591dc626749ff47e8f0676eb862eeef1c2e",
       "decision-records/intra-change-decision-evolution.md": "sha256:ea0534815b78a50f47c871b082a7aaec25c0d6e1b518e6fa2c7c745e435f6e57",
       "git-integration/direct-git-library-selection.md": "sha256:9948dbd4fcf22f71a82702d5d4cecd1008a189fab81c2e3bbcc0375c244ad4c9",
@@ -451,6 +480,6 @@
       "task-graph/file-lock-and-atomic-write-libraries.md": "sha256:1ef40f9481f4a6a1275f50b5ede4f08d70dd67677d0057852a3c6bf9841c1edb",
       "test-evidence/standard-test-result-blocking.md": "sha256:d7a0090332a4224c5458233bf824dc70c66c7c1bca8185e17675e96235a078db"
     },
-    "metadata": "sha256:a6fbb4dcbbef8eff258c740ebe5764574b25855267cc88011509cbaa58c57724"
+    "metadata": "sha256:b25b64772b2f2fa2c485c258f7776e508fadac24d3d1342586592257fdb027b7"
   }
 }
