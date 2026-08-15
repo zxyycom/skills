@@ -16,7 +16,7 @@
 
 新的真实案例表明，首次发现不是唯一问题：agent 在任务前期已经读取并使用 `decision-records`，后期进入 Git 暂存与提交阶段后却把当前动作重新归类为通用工作区隔离，只进入 `git-commit-organizer`，没有再次读取领域 Skill。通用 Git 手段能够继续工作，因此没有失败信号迫使 agent 返回专用能力；直到用户提醒后，agent 才重新读取 `decision-records` 并发现 `stage`。
 
-同一案例还暴露了 `stage` 不能原子处理“新领域及其首批决策”的独立能力缺口，该事项已由 [`stage-new-decision-domains-with-initial-records`](../../../changes/stage-new-decision-domains-with-initial-records/) draft Change 记录。本调查不把该工具边界当作漏用专用能力的原因，也不负责确定其实现方案。
+同一案例还暴露了 `stage` 不能原子处理“新领域及其首批决策”的独立能力缺口；该事项当时另由 `changes/stage-new-decision-domains-with-initial-records/` Draft Change 记录。本调查不把该工具边界当作漏用专用能力的原因，也不负责确定其实现方案。
 
 针对漏用问题，曾提出在 `git-commit-organizer` 中识别决策路径、强制重新读取 `decision-records` 并优先调用 `stage`。用户指出，这会让通用 Git Skill 混入其他 Skill 的具体内容，而且需要类似交接的领域和动作不只这一种，不能用逐个硬编码特例解决。
 
