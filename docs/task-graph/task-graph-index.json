@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "revision": 345,
-  "nextTaskId": 69,
+  "revision": 349,
+  "nextTaskId": 70,
   "tasks": {
     "task-000001": {
       "content": {
@@ -2923,6 +2923,47 @@
         "timestamps": {
           "createdAt": "2026-08-12T05:41:39.984Z",
           "updatedAt": "2026-08-12T05:41:39.984Z"
+        }
+      }
+    },
+    "task-000069": {
+      "content": {
+        "title": "评估并准备 Skill 单轴 SemVer 迁移",
+        "goal": "评估并准备将 metadata.version 从正整数发布序号一次性迁移为 canonical SemVer 字符串，以单一版本同时承接更新排序和 major/minor/patch 变化语义；明确接受旧 updater 与旧 manifest 协议被破坏，形成可直接进入实施 Change 的迁移设计、改造范围与验证要求，但本候选任务本身不实施迁移。",
+        "acceptance": [
+          "定义 canonical SemVer 格式、比较规则，以及 major、minor、patch 与不承载版本变化的明确提升门槛。",
+          "确定现有每个 skill 从整数版本迁入初始 SemVer 的映射规则、一次性切换顺序和聚合发布边界。",
+          "列出 parser、validator、hash 门禁、release manifest、pack、updater、生成的 updater、文档、决策、测试证据及全部 skill frontmatter 的完整改造面。",
+          "明确旧 updater 和旧 manifest 不再兼容时的预期失败方式、使用者重新安装路径与发布说明责任，不引入双轴兼容字段。",
+          "产出足以创建实施 Change 的设计结论、任务拆分、风险和验收命令，评估阶段不提前修改版本协议。"
+        ],
+        "context": "用户确认接受破坏性迁移，并选择单轴完整 SemVer，不再采用整数发布修订号加 compatibilityVersion 的双轴方案。package hash 和不可变 release tag 继续承接制品字节身份；只要发布的 skill 制品发生承载版本的变化，至少提升 patch。旧 updater 当前只接受整数 manifest 与整数 metadata.version，切换后允许其失败，迁移准备必须明确重新安装和发布边界。",
+        "references": {
+          "current-decision": "docs/decisions/use-monorepo-versioned-skill-packages.md",
+          "repository-model": "docs/repository-model.md",
+          "tooling": "docs/tooling.md",
+          "update-decision": "docs/decisions/use-versioned-overlay-skill-updates.md",
+          "version-carrying-decision": "docs/decisions/separate-package-byte-identity-from-version-carrying-changes.md"
+        },
+        "result": null
+      },
+      "state": {
+        "control": {
+          "mode": "candidate",
+          "reason": null
+        },
+        "execution": {
+          "phase": "idle",
+          "attempt": 0
+        },
+        "relations": {
+          "parentId": null,
+          "dependsOn": {},
+          "excludes": {}
+        },
+        "timestamps": {
+          "createdAt": "2026-08-15T12:13:49.247Z",
+          "updatedAt": "2026-08-15T13:31:27.426Z"
         }
       }
     }
