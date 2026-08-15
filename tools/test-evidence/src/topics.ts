@@ -23,10 +23,12 @@ export async function listTestEvidenceTopics(
   });
 }
 
-export function createTopicsResult(options: {
-  diagnostics?: readonly TestEvidenceDiagnostic[];
-  topics?: readonly TestEvidenceTopicDefinition[];
-} = {}): TestEvidenceTopicsResult {
+export function createTopicsResult(
+  options: {
+    diagnostics?: readonly TestEvidenceDiagnostic[];
+    topics?: readonly TestEvidenceTopicDefinition[];
+  } = {}
+): TestEvidenceTopicsResult {
   return {
     catalogPath: testEvidenceCatalogPath,
     diagnostics: [...(options.diagnostics ?? [])],

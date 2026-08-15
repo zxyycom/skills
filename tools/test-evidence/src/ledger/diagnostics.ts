@@ -38,8 +38,9 @@ export function createInvalidTestEvidenceOptionsDiagnostic(
   return createTestEvidenceDiagnostic({
     category: "query",
     code: "query.options-invalid",
-    message: "Invalid ledger API options: "
-      + formatTestEvidenceValidationIssues(issues),
+    message:
+      "Invalid ledger API options: " +
+      formatTestEvidenceValidationIssues(issues),
     severity: "error"
   });
 }
@@ -47,14 +48,16 @@ export function createInvalidTestEvidenceOptionsDiagnostic(
 export function formatTestEvidenceValidationIssues(
   issues: readonly TestEvidenceValidationIssue[]
 ): string {
-  return issues.map((issue) => {
-    const issuePath = issue.path
-      ?.map((segment) => String(segment.key))
-      .join(".");
-    return issuePath === undefined || issuePath.length === 0
-      ? issue.message
-      : `${issuePath}: ${issue.message}`;
-  }).join("; ");
+  return issues
+    .map((issue) => {
+      const issuePath = issue.path
+        ?.map((segment) => String(segment.key))
+        .join(".");
+      return issuePath === undefined || issuePath.length === 0
+        ? issue.message
+        : `${issuePath}: ${issue.message}`;
+    })
+    .join("; ");
 }
 
 export function sortUniqueTestEvidenceDiagnostics(
@@ -93,12 +96,14 @@ function compareDiagnostics(
   left: TestEvidenceDiagnostic,
   right: TestEvidenceDiagnostic
 ): number {
-  return compareLexicalText(left.path ?? "", right.path ?? "")
-    || (left.line ?? 0) - (right.line ?? 0)
-    || (left.column ?? 0) - (right.column ?? 0)
-    || compareLexicalText(left.severity, right.severity)
-    || compareLexicalText(left.code, right.code)
-    || compareLexicalText(left.caseId ?? "", right.caseId ?? "")
-    || compareLexicalText(left.testId ?? "", right.testId ?? "")
-    || compareLexicalText(left.message, right.message);
+  return (
+    compareLexicalText(left.path ?? "", right.path ?? "") ||
+    (left.line ?? 0) - (right.line ?? 0) ||
+    (left.column ?? 0) - (right.column ?? 0) ||
+    compareLexicalText(left.severity, right.severity) ||
+    compareLexicalText(left.code, right.code) ||
+    compareLexicalText(left.caseId ?? "", right.caseId ?? "") ||
+    compareLexicalText(left.testId ?? "", right.testId ?? "") ||
+    compareLexicalText(left.message, right.message)
+  );
 }

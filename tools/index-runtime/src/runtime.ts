@@ -13,19 +13,10 @@ import {
   readonlyStateIndexMetadata,
   validateCompleteStateIndex
 } from "./projection.ts";
-import {
-  queryStateIndex,
-  stateIndexEntryOf
-} from "./query.ts";
+import { queryStateIndex, stateIndexEntryOf } from "./query.ts";
 import { isPlainRecord } from "./record.ts";
-import {
-  isStateIndexText,
-  stateIndexQueryMaximumLimit
-} from "./schemas.ts";
-import {
-  loadCurrentStateIndex,
-  syncStateIndex
-} from "./storage.ts";
+import { isStateIndexText, stateIndexQueryMaximumLimit } from "./schemas.ts";
+import { loadCurrentStateIndex, syncStateIndex } from "./storage.ts";
 import { stageSelectedIndexEntries } from "./staging.ts";
 import type {
   JsonObject,
@@ -157,18 +148,20 @@ export function createStateIndexRuntime<
     get,
     open,
     query,
-    stageSelectedEntries: (selectedIds) => stageSelectedIndexEntries({
-      context,
-      definition,
-      indexPath: options.indexPath,
-      selectedIds
-    }),
-    sync: (mode) => syncStateIndex({
-      context,
-      definition,
-      indexPath: options.indexPath,
-      mode
-    })
+    stageSelectedEntries: (selectedIds) =>
+      stageSelectedIndexEntries({
+        context,
+        definition,
+        indexPath: options.indexPath,
+        selectedIds
+      }),
+    sync: (mode) =>
+      syncStateIndex({
+        context,
+        definition,
+        indexPath: options.indexPath,
+        mode
+      })
   });
 }
 
@@ -214,12 +207,12 @@ function createStateIndexReaderFromSnapshot<
     return queried.status === "ok"
       ? queried
       : {
-        ...queried,
-        diagnostics: queried.diagnostics.map((entry) => ({
-          ...entry,
-          path: entry.path ?? options.indexPath
-        }))
-      };
+          ...queried,
+          diagnostics: queried.diagnostics.map((entry) => ({
+            ...entry,
+            path: entry.path ?? options.indexPath
+          }))
+        };
   }
 
   function get(
@@ -227,31 +220,39 @@ function createStateIndexReaderFromSnapshot<
     getOptions: StateIndexQueryOptions<State> = {}
   ): StateIndexResult<StateIndexEntry<State> | null> {
     if (!isStateIndexText(stateId)) {
-      return withIndexPath({
-        diagnostics: [diagnostic({
-          code: "state-index.query-invalid",
-          message: "state id must be non-empty text without surrounding whitespace or "
-            + "control characters"
-        })],
-        status: "error",
-        value: null
-      }, options.indexPath);
+      return withIndexPath(
+        {
+          diagnostics: [
+            diagnostic({
+              code: "state-index.query-invalid",
+              message:
+                "state id must be non-empty text without surrounding whitespace or " +
+                "control characters"
+            })
+          ],
+          status: "error",
+          value: null
+        },
+        options.indexPath
+      );
     }
     const runtimeStates = getOptions.runtimeStates;
     if (runtimeStates !== undefined && !isPlainRecord(runtimeStates)) {
-      return withIndexPath({
-        diagnostics: [diagnostic({
-          code: "state-index.runtime-states-invalid",
-          message: "runtimeStates must be an object keyed by state id"
-        })],
-        status: "error",
-        value: null
-      }, options.indexPath);
+      return withIndexPath(
+        {
+          diagnostics: [
+            diagnostic({
+              code: "state-index.runtime-states-invalid",
+              message: "runtimeStates must be an object keyed by state id"
+            })
+          ],
+          status: "error",
+          value: null
+        },
+        options.indexPath
+      );
     }
-    if (
-      runtimeStates !== undefined
-      && Object.hasOwn(runtimeStates, stateId)
-    ) {
+    if (runtimeStates !== undefined && Object.hasOwn(runtimeStates, stateId)) {
       const projected = projectStateIndexEntry(
         options.definition,
         runtimeStates[stateId],
@@ -283,21 +284,21 @@ function createStateIndexReaderFromSnapshot<
     const entries: StateIndexEntry<State>[] = [];
     let offset = 0;
     while (true) {
-      const queried = query({
-        filters: input.filters === undefined ? [] : [...input.filters],
-        limit: stateIndexQueryMaximumLimit,
-        offset,
-        ...(input.sort === undefined ? {} : { sort: [...input.sort] })
-      }, queryOptions);
+      const queried = query(
+        {
+          filters: input.filters === undefined ? [] : [...input.filters],
+          limit: stateIndexQueryMaximumLimit,
+          offset,
+          ...(input.sort === undefined ? {} : { sort: [...input.sort] })
+        },
+        queryOptions
+      );
       if (queried.status === "error") {
         return queried;
       }
       entries.push(...queried.value.entries);
       offset += queried.value.entries.length;
-      if (
-        offset >= queried.value.total
-        || queried.value.entries.length === 0
-      ) {
+      if (offset >= queried.value.total || queried.value.entries.length === 0) {
         return { diagnostics: [], status: "ok", value: entries };
       }
     }
@@ -318,12 +319,12 @@ function withIndexPath<Value>(
   return result.status === "ok"
     ? result
     : {
-      ...result,
-      diagnostics: result.diagnostics.map((entry) => ({
-        ...entry,
-        path: entry.path ?? indexPath
-      }))
-    };
+        ...result,
+        diagnostics: result.diagnostics.map((entry) => ({
+          ...entry,
+          path: entry.path ?? indexPath
+        }))
+      };
 }
 
 function createReaderSnapshot<
@@ -342,15 +343,19 @@ function createReaderSnapshot<
   if (validated.index === null) {
     throw invalidReaderError(validated.diagnostics);
   }
-  if (!sameKeyDefinitions(
-    validated.index.keyDefinitions,
-    keyDefinitionsOf(options.definition)
-  )) {
-    throw invalidReaderError([diagnostic({
-      code: "state-index.definition-mismatch",
-      message: "index key definitions do not match the runtime definition",
-      path: options.indexPath
-    })]);
+  if (
+    !sameKeyDefinitions(
+      validated.index.keyDefinitions,
+      keyDefinitionsOf(options.definition)
+    )
+  ) {
+    throw invalidReaderError([
+      diagnostic({
+        code: "state-index.definition-mismatch",
+        message: "index key definitions do not match the runtime definition",
+        path: options.indexPath
+      })
+    ]);
   }
   const normalized = normalizeStateIndex(
     validated.index,

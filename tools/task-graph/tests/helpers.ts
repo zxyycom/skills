@@ -83,7 +83,8 @@ async function copyPackageClosure(
       // Continue toward the package root.
     }
     const parent = path.dirname(packageRoot);
-    if (parent === packageRoot) throw new Error(`Unable to locate package root for ${packageName}`);
+    if (parent === packageRoot)
+      throw new Error(`Unable to locate package root for ${packageName}`);
     packageRoot = parent;
   }
   copied.add(packageName);
@@ -93,17 +94,26 @@ async function copyPackageClosure(
   );
   const packageRequire = createRequire(path.join(packageRoot, "package.json"));
   for (const dependencyName of Object.keys(manifest.dependencies ?? {})) {
-    await copyPackageClosure(dependencyName, packageRequire, runtimePath, copied);
+    await copyPackageClosure(
+      dependencyName,
+      packageRequire,
+      runtimePath,
+      copied
+    );
   }
 }
 
-export async function prepareRootNativeRuntime(toolHome: string): Promise<void> {
+export async function prepareRootNativeRuntime(
+  toolHome: string
+): Promise<void> {
   const options = {
     environment: { TASK_GRAPH_TOOL_HOME: toolHome },
     nodeVersion: await resolveNodeVersion()
   };
   const info = await getTaskGraphRuntimeInfo(options);
-  await fs.mkdir(path.join(info.runtimePath, "node_modules"), { recursive: true });
+  await fs.mkdir(path.join(info.runtimePath, "node_modules"), {
+    recursive: true
+  });
   await copyPackageClosure(
     "fs-native-extensions",
     createRequire(import.meta.url),
@@ -150,10 +160,14 @@ export function applyOperations(
   operations: TaskGraphRevisionOperation[],
   now: Date = initialNow
 ): TaskIndex {
-  return applyTaskGraphOperations(current, {
-    expectedRevision: current.revision,
-    operations
-  }, now).index;
+  return applyTaskGraphOperations(
+    current,
+    {
+      expectedRevision: current.revision,
+      operations
+    },
+    now
+  ).index;
 }
 
 export function graphIndex(
@@ -166,7 +180,8 @@ export function graphIndex(
 export function taskOperation(
   alias: string,
   options: {
-    control?: { mode: "inherit" | "candidate" | "queued"; reason?: null }
+    control?:
+      | { mode: "inherit" | "candidate" | "queued"; reason?: null }
       | { mode: "waiting" | "paused"; reason: string };
     parentId?: string | null;
     title?: string;

@@ -23,7 +23,9 @@ const gitTestOptions = { timeout: 15_000 };
 async function withTempRoot(
   run: (tempRoot: string) => Promise<void>
 ): Promise<void> {
-  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "skill-package-hash-test-"));
+  const tempRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), "skill-package-hash-test-")
+  );
   try {
     await run(tempRoot);
   } finally {
@@ -57,7 +59,10 @@ async function createSkillRepositoryFixture(tempRoot: string) {
     "--message",
     "malformed baseline"
   ]);
-  const malformedRevision = runGit(repositoryRoot, ["rev-parse", "HEAD"]).trim();
+  const malformedRevision = runGit(repositoryRoot, [
+    "rev-parse",
+    "HEAD"
+  ]).trim();
 
   await fs.writeFile(path.join(alphaDirectory, "SKILL.md"), alphaCommitted);
   await fs.writeFile(path.join(alphaDirectory, "deleted.txt"), "delete me\n");
@@ -86,7 +91,10 @@ async function createSkillRepositoryFixture(tempRoot: string) {
     path.join(betaDirectory, "SKILL.md"),
     skillMarkdown("beta", 8, "beta working")
   );
-  await fs.writeFile(path.join(alphaDirectory, "untracked.txt"), "not staged\n");
+  await fs.writeFile(
+    path.join(alphaDirectory, "untracked.txt"),
+    "not staged\n"
+  );
 
   const skills: SkillPackage[] = [
     { directory: betaDirectory, name: "beta" },
@@ -104,197 +112,494 @@ async function createSkillRepositoryFixture(tempRoot: string) {
   };
 }
 
-test("collects sorted skill files from pending Git content", gitTestOptions, async () => {
-  await withTempRoot(async (tempRoot) => {
-    const {
-      alphaStaged,
-      betaCommitted,
-      skills,
-      stagedBinary
-    } = await createSkillRepositoryFixture(tempRoot);
-    const filesBySkill = await collectSkillPackageFileSets(skills);
-    const alphaFiles = filesBySkill.get("alpha") ?? [];
-    const betaFiles = filesBySkill.get("beta") ?? [];
+test(
+  "collects sorted skill files from pending Git content",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (tempRoot) => {
+      const { alphaStaged, betaCommitted, skills, stagedBinary } =
+        await createSkillRepositoryFixture(tempRoot);
+      const filesBySkill = await collectSkillPackageFileSets(skills);
+      const alphaFiles = filesBySkill.get("alpha") ?? [];
+      const betaFiles = filesBySkill.get("beta") ?? [];
 
-    assert.deepEqual(
-      alphaFiles.map((file) => file.path),
-      sortedPaths(["SKILL.md", "binary.bin", "nested/file with space.txt"])
-    );
-    assert.equal(
-      fileData(alphaFiles, "SKILL.md").toString("utf8"),
-      alphaStaged
-    );
-    assert.deepEqual(fileData(alphaFiles, "binary.bin"), stagedBinary);
-    assert.equal(
-      fileData(alphaFiles, "nested/file with space.txt").toString("utf8"),
-      "nested staged\n"
-    );
-    assert.equal(alphaFiles.some((file) => file.path === "deleted.txt"), false);
-    assert.equal(alphaFiles.some((file) => file.path === "untracked.txt"), false);
-    assert.equal(readSkillPackageVersion("alpha", alphaFiles), 3);
+      assert.deepEqual(
+        alphaFiles.map((file) => file.path),
+        sortedPaths(["SKILL.md", "binary.bin", "nested/file with space.txt"])
+      );
+      assert.equal(
+        fileData(alphaFiles, "SKILL.md").toString("utf8"),
+        alphaStaged
+      );
+      assert.deepEqual(fileData(alphaFiles, "binary.bin"), stagedBinary);
+      assert.equal(
+        fileData(alphaFiles, "nested/file with space.txt").toString("utf8"),
+        "nested staged\n"
+      );
+      assert.equal(
+        alphaFiles.some((file) => file.path === "deleted.txt"),
+        false
+      );
+      assert.equal(
+        alphaFiles.some((file) => file.path === "untracked.txt"),
+        false
+      );
+      assert.equal(readSkillPackageVersion("alpha", alphaFiles), 3);
 
-    assert.deepEqual(betaFiles.map((file) => file.path), ["SKILL.md"]);
-    assert.equal(
-      fileData(betaFiles, "SKILL.md").toString("utf8"),
-      betaCommitted
-    );
-    assert.equal(readSkillPackageVersion("beta", betaFiles), 7);
-    assert.equal((await collectSkillPackageFileSets([])).size, 0);
-  });
-});
-
-test("discovers skill membership from the same pending snapshot as its files", gitTestOptions, async () => {
-  await withTempRoot(async (tempRoot) => {
-    const {
-      gammaDirectory,
-      repositoryRoot
-    } = await createSkillRepositoryFixture(tempRoot);
-    const gammaMarkdown = skillMarkdown("gamma", 1, "gamma staged");
-    await fs.mkdir(gammaDirectory, { recursive: true });
-    await fs.writeFile(path.join(gammaDirectory, "SKILL.md"), gammaMarkdown);
-    runGit(repositoryRoot, ["add", "skills/gamma/SKILL.md"]);
-    await fs.rm(gammaDirectory, { force: true, recursive: true });
-
-    const untrackedDirectory = path.join(repositoryRoot, "skills", "untracked");
-    await fs.mkdir(untrackedDirectory, { recursive: true });
-    await fs.writeFile(
-      path.join(untrackedDirectory, "SKILL.md"),
-      skillMarkdown("untracked", 1, "working tree only")
-    );
-
-    const snapshot = await readPendingSkillPackageSnapshot(repositoryRoot);
-    assert.deepEqual(
-      snapshot.skills.map((skill) => skill.name),
-      ["alpha", "beta", "gamma"]
-    );
-    assert.deepEqual([...snapshot.filesBySkill.keys()], ["alpha", "beta", "gamma"]);
-    assert.equal(
-      fileData(snapshot.filesBySkill.get("gamma") ?? [], "SKILL.md").toString("utf8"),
-      gammaMarkdown
-    );
-    assert.deepEqual(calculateSkillPackageSnapshotHash(snapshot).versions, {
-      alpha: 3,
-      beta: 7,
-      gamma: 1
+      assert.deepEqual(
+        betaFiles.map((file) => file.path),
+        ["SKILL.md"]
+      );
+      assert.equal(
+        fileData(betaFiles, "SKILL.md").toString("utf8"),
+        betaCommitted
+      );
+      assert.equal(readSkillPackageVersion("beta", betaFiles), 7);
+      assert.equal((await collectSkillPackageFileSets([])).size, 0);
     });
-    assert.deepEqual(
-      (await readSkillPackageVersionBaseline(
-        snapshot.skills,
+  }
+);
+
+test(
+  "discovers skill membership from the same pending snapshot as its files",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (tempRoot) => {
+      const { gammaDirectory, repositoryRoot } =
+        await createSkillRepositoryFixture(tempRoot);
+      const gammaMarkdown = skillMarkdown("gamma", 1, "gamma staged");
+      await fs.mkdir(gammaDirectory, { recursive: true });
+      await fs.writeFile(path.join(gammaDirectory, "SKILL.md"), gammaMarkdown);
+      runGit(repositoryRoot, ["add", "skills/gamma/SKILL.md"]);
+      await fs.rm(gammaDirectory, { force: true, recursive: true });
+
+      const untrackedDirectory = path.join(
+        repositoryRoot,
+        "skills",
+        "untracked"
+      );
+      await fs.mkdir(untrackedDirectory, { recursive: true });
+      await fs.writeFile(
+        path.join(untrackedDirectory, "SKILL.md"),
+        skillMarkdown("untracked", 1, "working tree only")
+      );
+
+      const snapshot = await readPendingSkillPackageSnapshot(repositoryRoot);
+      assert.deepEqual(
+        snapshot.skills.map((skill) => skill.name),
+        ["alpha", "beta", "gamma"]
+      );
+      assert.deepEqual(
+        [...snapshot.filesBySkill.keys()],
+        ["alpha", "beta", "gamma"]
+      );
+      assert.equal(
+        fileData(snapshot.filesBySkill.get("gamma") ?? [], "SKILL.md").toString(
+          "utf8"
+        ),
+        gammaMarkdown
+      );
+      assert.deepEqual(calculateSkillPackageSnapshotHash(snapshot).versions, {
+        alpha: 3,
+        beta: 7,
+        gamma: 1
+      });
+      assert.deepEqual(
+        (
+          await readSkillPackageVersionBaseline(
+            snapshot.skills,
+            "HEAD",
+            repositoryRoot
+          )
+        ).skills,
+        { alpha: 3, gamma: null }
+      );
+    });
+  }
+);
+
+test(
+  "reports missing or malformed skill version baselines",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (tempRoot) => {
+      const { malformedRevision, repositoryRoot, skills } =
+        await createSkillRepositoryFixture(tempRoot);
+      await assert.rejects(
+        readSkillPackageVersionBaseline(
+          skills,
+          "missing-baseline",
+          repositoryRoot
+        ),
+        (error: unknown) =>
+          error instanceof VersionControlError &&
+          error.code === "revision-not-found" &&
+          error.message.includes("missing-baseline")
+      );
+      await assert.rejects(
+        readSkillPackageVersionBaseline(
+          skills,
+          malformedRevision,
+          repositoryRoot
+        ),
+        (error: unknown) =>
+          error instanceof Error &&
+          error.message.includes("frontmatter metadata.version") &&
+          error.message.includes(
+            "must be a string containing one positive integer"
+          )
+      );
+    });
+  }
+);
+
+test(
+  "requires changed skills to increase independent versions",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (tempRoot) => {
+      const { alphaDirectory, repositoryRoot, skills } =
+        await createSkillRepositoryFixture(tempRoot);
+      const baseline = await readSkillPackageVersionBaseline(
+        skills,
         "HEAD",
         repositoryRoot
-      )).skills,
-      { alpha: 3, gamma: null }
-    );
+      );
+      assert.equal(baseline.revision.length, 40);
+      assert.deepEqual(baseline.skills, { alpha: 3 });
+      assert.match(
+        getSkillPackageVersionIssues(
+          await calculateSkillPackageHash(skills),
+          baseline
+        )[0] ?? "",
+        /increase skills\/alpha\/SKILL\.md metadata\.version above 3/
+      );
+
+      await fs.writeFile(
+        path.join(alphaDirectory, "SKILL.md"),
+        skillMarkdown("alpha", 4, "alpha staged")
+      );
+      runGit(repositoryRoot, ["add", "skills/alpha/SKILL.md"]);
+      assert.deepEqual(
+        getSkillPackageVersionIssues(
+          await calculateSkillPackageHash(skills),
+          baseline
+        ),
+        []
+      );
+    });
+  }
+);
+
+test(
+  "does not require a version for linked source map edits, additions, or deletions",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (tempRoot) => {
+      const { repositoryRoot, skillDirectory, skills } =
+        await createVersionGateRepositoryFixture(tempRoot);
+      const mapPath = path.join(skillDirectory, "scripts", "cli.mjs.map");
+      await fs.writeFile(mapPath, "edited source map\n");
+      runGit(repositoryRoot, ["add", "skills/alpha/scripts/cli.mjs.map"]);
+      assert.deepEqual(
+        getSkillPackageVersionIssues(
+          await calculateSkillPackageHash(skills),
+          await readSkillPackageVersionBaseline(skills, "HEAD", repositoryRoot)
+        ),
+        []
+      );
+
+      await fs.rm(mapPath);
+      runGit(repositoryRoot, ["add", "-A"]);
+      assert.deepEqual(
+        getSkillPackageVersionIssues(
+          await calculateSkillPackageHash(skills),
+          await readSkillPackageVersionBaseline(skills, "HEAD", repositoryRoot)
+        ),
+        []
+      );
+
+      await fs.writeFile(mapPath, "replacement source map\n");
+      runGit(repositoryRoot, ["add", "skills/alpha/scripts/cli.mjs.map"]);
+      assert.deepEqual(
+        getSkillPackageVersionIssues(
+          await calculateSkillPackageHash(skills),
+          await readSkillPackageVersionBaseline(skills, "HEAD", repositoryRoot)
+        ),
+        []
+      );
+
+      const addedMapFixture = await createVersionGateRepositoryFixture(
+        tempRoot,
+        {
+          fixtureName: "version-gate-no-source-map",
+          includeCliSourceMap: false
+        }
+      );
+      await fs.writeFile(
+        path.join(addedMapFixture.skillDirectory, "scripts", "cli.mjs.map"),
+        "new source map\n"
+      );
+      runGit(addedMapFixture.repositoryRoot, [
+        "add",
+        "skills/alpha/scripts/cli.mjs.map"
+      ]);
+      assert.deepEqual(
+        getSkillPackageVersionIssues(
+          await calculateSkillPackageHash(addedMapFixture.skills),
+          await readSkillPackageVersionBaseline(
+            addedMapFixture.skills,
+            "HEAD",
+            addedMapFixture.repositoryRoot
+          )
+        ),
+        []
+      );
+
+      runGit(repositoryRoot, ["reset", "--hard", "HEAD"]);
+      await fs.writeFile(
+        path.join(skillDirectory, "debug.mjs.map"),
+        "edited non-script source map\n"
+      );
+      runGit(repositoryRoot, ["add", "skills/alpha/debug.mjs.map"]);
+      assert.equal(
+        getSkillPackageVersionIssues(
+          await calculateSkillPackageHash(skills),
+          await readSkillPackageVersionBaseline(skills, "HEAD", repositoryRoot)
+        ).length,
+        1
+      );
+
+      runGit(repositoryRoot, ["reset", "--hard", "HEAD"]);
+      await fs.writeFile(
+        path.join(skillDirectory, "scripts", "template.mjs.map"),
+        "edited template pseudo-reference source map\n"
+      );
+      runGit(repositoryRoot, ["add", "skills/alpha/scripts/template.mjs.map"]);
+      assert.equal(
+        getSkillPackageVersionIssues(
+          await calculateSkillPackageHash(skills),
+          await readSkillPackageVersionBaseline(skills, "HEAD", repositoryRoot)
+        ).length,
+        1
+      );
+
+      runGit(repositoryRoot, ["reset", "--hard", "HEAD"]);
+      await fs.writeFile(
+        path.join(skillDirectory, "scripts", "fake.mjs.map"),
+        "edited pseudo-reference source map\n"
+      );
+      runGit(repositoryRoot, ["add", "skills/alpha/scripts/fake.mjs.map"]);
+      assert.equal(
+        getSkillPackageVersionIssues(
+          await calculateSkillPackageHash(skills),
+          await readSkillPackageVersionBaseline(skills, "HEAD", repositoryRoot)
+        ).length,
+        1
+      );
+    });
+  }
+);
+
+test(
+  "requires a version for runtime and declaration semantic package changes",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (tempRoot) => {
+      const { repositoryRoot, skillDirectory, skills } =
+        await createVersionGateRepositoryFixture(tempRoot);
+      await fs.writeFile(
+        path.join(skillDirectory, "scripts", "cli.mjs"),
+        "export const v = 2;\n//# sourceMappingURL=cli.mjs.map\n"
+      );
+      runGit(repositoryRoot, ["add", "skills/alpha/scripts/cli.mjs"]);
+      assert.equal(
+        getSkillPackageVersionIssues(
+          await calculateSkillPackageHash(skills),
+          await readSkillPackageVersionBaseline(skills, "HEAD", repositoryRoot)
+        ).length,
+        1
+      );
+
+      runGit(repositoryRoot, ["reset", "--hard", "HEAD"]);
+      await fs.writeFile(
+        path.join(skillDirectory, "api.d.mts"),
+        "export declare const value: number;\n"
+      );
+      runGit(repositoryRoot, ["add", "skills/alpha/api.d.mts"]);
+      assert.equal(
+        getSkillPackageVersionIssues(
+          await calculateSkillPackageHash(skills),
+          await readSkillPackageVersionBaseline(skills, "HEAD", repositoryRoot)
+        ).length,
+        1
+      );
+    });
+  }
+);
+
+test(
+  "ignores declaration formatting but not declaration semantics for versioning",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (tempRoot) => {
+      const { repositoryRoot, skillDirectory, skills } =
+        await createVersionGateRepositoryFixture(tempRoot);
+      const declarationPath = path.join(skillDirectory, "api.d.mts");
+      await fs.writeFile(
+        declarationPath,
+        "export type Item = ( typeof values )[ number ];\n"
+      );
+      runGit(repositoryRoot, ["add", "skills/alpha/api.d.mts"]);
+      assert.deepEqual(
+        getSkillPackageVersionIssues(
+          await calculateSkillPackageHash(skills),
+          await readSkillPackageVersionBaseline(skills, "HEAD", repositoryRoot)
+        ),
+        []
+      );
+
+      await fs.writeFile(
+        declarationPath,
+        "export type Item = (typeof values)[number | string];\n"
+      );
+      runGit(repositoryRoot, ["add", "skills/alpha/api.d.mts"]);
+      assert.equal(
+        getSkillPackageVersionIssues(
+          await calculateSkillPackageHash(skills),
+          await readSkillPackageVersionBaseline(skills, "HEAD", repositoryRoot)
+        ).length,
+        1
+      );
+    });
+  }
+);
+
+test("aggregate hashes retain raw source map and declaration bytes", () => {
+  const baseSnapshot = skillPackageSnapshot({
+    "api.d.mts": "export type Item = (typeof values)[number];\n",
+    "scripts/cli.mjs":
+      "export const value = 1;\n//# sourceMappingURL=cli.mjs.map\n",
+    "scripts/cli.mjs.map": '{"version":3,"mappings":"AAAA"}\n',
+    "SKILL.md": skillMarkdown("alpha", 3, "unchanged")
   });
+  const changedMapSnapshot = skillPackageSnapshot({
+    "api.d.mts": "export type Item = (typeof values)[number];\n",
+    "scripts/cli.mjs":
+      "export const value = 1;\n//# sourceMappingURL=cli.mjs.map\n",
+    "scripts/cli.mjs.map": '{"version":3,"mappings":"AAAB"}\n',
+    "SKILL.md": skillMarkdown("alpha", 3, "unchanged")
+  });
+  const reformattedDeclarationSnapshot = skillPackageSnapshot({
+    "api.d.mts": "export type Item = ( typeof values )[ number ];\n",
+    "scripts/cli.mjs":
+      "export const value = 1;\n//# sourceMappingURL=cli.mjs.map\n",
+    "scripts/cli.mjs.map": '{"version":3,"mappings":"AAAA"}\n',
+    "SKILL.md": skillMarkdown("alpha", 3, "unchanged")
+  });
+
+  const baseHash =
+    calculateSkillPackageSnapshotHash(baseSnapshot).aggregateHash;
+  assert.notEqual(
+    calculateSkillPackageSnapshotHash(changedMapSnapshot).aggregateHash,
+    baseHash
+  );
+  assert.notEqual(
+    calculateSkillPackageSnapshotHash(reformattedDeclarationSnapshot)
+      .aggregateHash,
+    baseHash
+  );
 });
 
-test("reports missing or malformed skill version baselines", gitTestOptions, async () => {
-  await withTempRoot(async (tempRoot) => {
-    const {
-      malformedRevision,
-      repositoryRoot,
-      skills
-    } = await createSkillRepositoryFixture(tempRoot);
-    await assert.rejects(
-      readSkillPackageVersionBaseline(
-        skills,
-        "missing-baseline",
+test(
+  "version checks retain the captured pending snapshot after the index resets",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (tempRoot) => {
+      const { alphaDirectory, repositoryRoot } =
+        await createSkillRepositoryFixture(tempRoot);
+      runGit(repositoryRoot, ["reset", "--hard", "HEAD"]);
+      await fs.writeFile(
+        path.join(alphaDirectory, "SKILL.md"),
+        skillMarkdown("alpha", 3, "captured content-only change")
+      );
+      runGit(repositoryRoot, ["add", "skills/alpha/SKILL.md"]);
+      const snapshot = await readPendingSkillPackageSnapshot(repositoryRoot);
+
+      runGit(repositoryRoot, ["reset", "--hard", "HEAD"]);
+
+      const baseline = await readSkillPackageSnapshotVersionBaseline(
+        snapshot,
+        "HEAD",
         repositoryRoot
-      ),
-      (error: unknown) => error instanceof VersionControlError
-        && error.code === "revision-not-found"
-        && error.message.includes("missing-baseline")
-    );
-    await assert.rejects(
-      readSkillPackageVersionBaseline(
-        skills,
-        malformedRevision,
+      );
+      assert.deepEqual(baseline.skills, { alpha: 3 });
+      assert.match(
+        getSkillPackageVersionIssues(
+          calculateSkillPackageSnapshotHash(snapshot),
+          baseline
+        )[0] ?? "",
+        /increase skills\/alpha\/SKILL\.md metadata\.version above 3/
+      );
+    });
+  }
+);
+
+test(
+  "version checks stop reading baseline blobs after the first ordinary change",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (tempRoot) => {
+      const { repositoryRoot, skillDirectory } =
+        await createVersionGateRepositoryFixture(tempRoot);
+      await fs.writeFile(
+        path.join(skillDirectory, "z-unreadable.txt"),
+        "base\n"
+      );
+      runGit(repositoryRoot, ["add", "skills/alpha/z-unreadable.txt"]);
+      runGit(repositoryRoot, ["commit", "--quiet", "--message", "extra blob"]);
+      await fs.writeFile(
+        path.join(skillDirectory, "a-changed.txt"),
+        "changed\n"
+      );
+      runGit(repositoryRoot, ["add", "skills/alpha/a-changed.txt"]);
+      const snapshot = await readPendingSkillPackageSnapshot(repositoryRoot);
+
+      const blobId = runGit(repositoryRoot, [
+        "rev-parse",
+        "HEAD:skills/alpha/z-unreadable.txt"
+      ]).trim();
+      const blobPath = path.join(
+        repositoryRoot,
+        ".git",
+        "objects",
+        blobId.slice(0, 2),
+        blobId.slice(2)
+      );
+      await fs.chmod(blobPath, 0o666);
+      await fs.writeFile(blobPath, "corrupt Git object", "utf8");
+
+      const baseline = await readSkillPackageSnapshotVersionBaseline(
+        snapshot,
+        "HEAD",
         repositoryRoot
-      ),
-      (error: unknown) => error instanceof Error
-        && error.message.includes("frontmatter metadata.version")
-        && error.message.includes("must be a string containing one positive integer")
-    );
-  });
-});
-
-test("requires changed skills to increase independent versions", gitTestOptions, async () => {
-  await withTempRoot(async (tempRoot) => {
-    const {
-      alphaDirectory,
-      repositoryRoot,
-      skills
-    } = await createSkillRepositoryFixture(tempRoot);
-    const baseline = await readSkillPackageVersionBaseline(
-      skills,
-      "HEAD",
-      repositoryRoot
-    );
-    assert.equal(baseline.revision.length, 40);
-    assert.deepEqual(baseline.skills, { alpha: 3 });
-    assert.match(
-      getSkillPackageVersionIssues(
-        await calculateSkillPackageHash(skills),
-        baseline
-      )[0] ?? "",
-      /increase skills\/alpha\/SKILL\.md metadata\.version above 3/
-    );
-
-    await fs.writeFile(
-      path.join(alphaDirectory, "SKILL.md"),
-      skillMarkdown("alpha", 4, "alpha staged")
-    );
-    runGit(repositoryRoot, ["add", "skills/alpha/SKILL.md"]);
-    assert.deepEqual(
-      getSkillPackageVersionIssues(
-        await calculateSkillPackageHash(skills),
-        baseline
-      ),
-      []
-    );
-  });
-});
-
-test("version checks retain the captured pending snapshot after the index resets", gitTestOptions, async () => {
-  await withTempRoot(async (tempRoot) => {
-    const {
-      alphaDirectory,
-      repositoryRoot
-    } = await createSkillRepositoryFixture(tempRoot);
-    runGit(repositoryRoot, ["reset", "--hard", "HEAD"]);
-    await fs.writeFile(
-      path.join(alphaDirectory, "SKILL.md"),
-      skillMarkdown("alpha", 3, "captured content-only change")
-    );
-    runGit(repositoryRoot, ["add", "skills/alpha/SKILL.md"]);
-    const snapshot = await readPendingSkillPackageSnapshot(repositoryRoot);
-
-    runGit(repositoryRoot, ["reset", "--hard", "HEAD"]);
-
-    const baseline = await readSkillPackageSnapshotVersionBaseline(
-      snapshot,
-      "HEAD",
-      repositoryRoot
-    );
-    assert.deepEqual(baseline.skills, { alpha: 3 });
-    assert.match(
-      getSkillPackageVersionIssues(
-        calculateSkillPackageSnapshotHash(snapshot),
-        baseline
-      )[0] ?? "",
-      /increase skills\/alpha\/SKILL\.md metadata\.version above 3/
-    );
-  });
-});
+      );
+      assert.deepEqual(baseline.skills, { alpha: 3 });
+      assert.match(
+        getSkillPackageVersionIssues(
+          calculateSkillPackageSnapshotHash(snapshot),
+          baseline
+        )[0] ?? "",
+        /increase skills\/alpha\/SKILL\.md metadata\.version above 3/
+      );
+    });
+  }
+);
 
 test("accepts a new skill at initial version one", gitTestOptions, async () => {
   await withTempRoot(async (tempRoot) => {
-    const {
-      alphaDirectory,
-      gammaDirectory,
-      repositoryRoot,
-      skills
-    } = await createSkillRepositoryFixture(tempRoot);
+    const { alphaDirectory, gammaDirectory, repositoryRoot, skills } =
+      await createSkillRepositoryFixture(tempRoot);
     await fs.writeFile(
       path.join(alphaDirectory, "SKILL.md"),
       skillMarkdown("alpha", 4, "alpha staged")
@@ -329,58 +634,59 @@ test("accepts a new skill at initial version one", gitTestOptions, async () => {
   });
 });
 
-test("reports corrupt baseline skill blobs as operation failures", gitTestOptions, async () => {
-  await withTempRoot(async (tempRoot) => {
-    const repositoryRoot = path.join(tempRoot, "unreadable-repository");
-    const skillDirectory = path.join(
-      repositoryRoot,
-      "skills",
-      "unreadable"
-    );
-    await fs.mkdir(skillDirectory, { recursive: true });
-    initializeRepository(repositoryRoot);
-    await fs.writeFile(
-      path.join(skillDirectory, "SKILL.md"),
-      skillMarkdown("unreadable", 1, "committed")
-    );
-    runGit(repositoryRoot, ["add", "."]);
-    runGit(repositoryRoot, ["commit", "--quiet", "--message", "base"]);
-    await fs.writeFile(path.join(skillDirectory, "changed.txt"), "changed\n");
-    await fs.writeFile(
-      path.join(skillDirectory, "SKILL.md"),
-      skillMarkdown("unreadable", 1, "pending")
-    );
-    runGit(repositoryRoot, ["add", "skills/unreadable/changed.txt"]);
-    runGit(repositoryRoot, ["add", "skills/unreadable/SKILL.md"]);
+test(
+  "reports corrupt baseline skill blobs as operation failures",
+  gitTestOptions,
+  async () => {
+    await withTempRoot(async (tempRoot) => {
+      const repositoryRoot = path.join(tempRoot, "unreadable-repository");
+      const skillDirectory = path.join(repositoryRoot, "skills", "unreadable");
+      await fs.mkdir(skillDirectory, { recursive: true });
+      initializeRepository(repositoryRoot);
+      await fs.writeFile(
+        path.join(skillDirectory, "SKILL.md"),
+        skillMarkdown("unreadable", 1, "committed")
+      );
+      runGit(repositoryRoot, ["add", "."]);
+      runGit(repositoryRoot, ["commit", "--quiet", "--message", "base"]);
+      await fs.writeFile(path.join(skillDirectory, "changed.txt"), "changed\n");
+      await fs.writeFile(
+        path.join(skillDirectory, "SKILL.md"),
+        skillMarkdown("unreadable", 1, "pending")
+      );
+      runGit(repositoryRoot, ["add", "skills/unreadable/changed.txt"]);
+      runGit(repositoryRoot, ["add", "skills/unreadable/SKILL.md"]);
 
-    const blobId = runGit(repositoryRoot, [
-      "rev-parse",
-      "HEAD:skills/unreadable/SKILL.md"
-    ]).trim();
-    const blobPath = path.join(
-      repositoryRoot,
-      ".git",
-      "objects",
-      blobId.slice(0, 2),
-      blobId.slice(2)
-    );
-    await fs.chmod(blobPath, 0o666);
-    await fs.writeFile(blobPath, "corrupt Git object", "utf8");
+      const blobId = runGit(repositoryRoot, [
+        "rev-parse",
+        "HEAD:skills/unreadable/SKILL.md"
+      ]).trim();
+      const blobPath = path.join(
+        repositoryRoot,
+        ".git",
+        "objects",
+        blobId.slice(0, 2),
+        blobId.slice(2)
+      );
+      await fs.chmod(blobPath, 0o666);
+      await fs.writeFile(blobPath, "corrupt Git object", "utf8");
 
-    await assert.rejects(
-      readSkillPackageVersionBaseline(
-        [{ directory: skillDirectory, name: "unreadable" }],
-        "HEAD",
-        repositoryRoot
-      ),
-      (error: unknown) => error instanceof VersionControlError
-        && error.code === "operation-failed"
-        && error.message.includes(
-          "read skills/unreadable/SKILL.md from revision"
-        )
-    );
-  });
-});
+      await assert.rejects(
+        readSkillPackageVersionBaseline(
+          [{ directory: skillDirectory, name: "unreadable" }],
+          "HEAD",
+          repositoryRoot
+        ),
+        (error: unknown) =>
+          error instanceof VersionControlError &&
+          error.code === "operation-failed" &&
+          error.message.includes(
+            "read skills/unreadable/SKILL.md from revision"
+          )
+      );
+    });
+  }
+);
 
 function skillMarkdown(name: string, version: number, body: string): string {
   return [
@@ -396,7 +702,107 @@ function skillMarkdown(name: string, version: number, body: string): string {
   ].join("\n");
 }
 
-function fileData(files: readonly SkillPackageFile[], filePath: string): Buffer {
+async function createVersionGateRepositoryFixture(
+  tempRoot: string,
+  options: {
+    fixtureName?: string;
+    includeCliSourceMap?: boolean;
+  } = {}
+): Promise<{
+  repositoryRoot: string;
+  skillDirectory: string;
+  skills: SkillPackage[];
+}> {
+  const repositoryRoot = path.join(
+    tempRoot,
+    options.fixtureName ?? "version-gate-repository"
+  );
+  const skillDirectory = path.join(repositoryRoot, "skills", "alpha");
+  await fs.mkdir(path.join(skillDirectory, "scripts"), { recursive: true });
+  await fs.copyFile(
+    path.join(process.cwd(), ".oxfmtrc.json"),
+    path.join(repositoryRoot, ".oxfmtrc.json")
+  );
+  initializeRepository(repositoryRoot);
+  await fs.writeFile(
+    path.join(skillDirectory, "SKILL.md"),
+    skillMarkdown("alpha", 3, "unchanged")
+  );
+  await fs.writeFile(
+    path.join(skillDirectory, "scripts", "cli.mjs"),
+    "export const v = 1;\n//# sourceMappingURL=cli.mjs.map\n"
+  );
+  if (options.includeCliSourceMap !== false) {
+    await fs.writeFile(
+      path.join(skillDirectory, "scripts", "cli.mjs.map"),
+      "initial source map\n"
+    );
+  }
+  await fs.writeFile(
+    path.join(skillDirectory, "debug.mjs"),
+    "export const debug = 1;\n//# sourceMappingURL=debug.mjs.map\n"
+  );
+  await fs.writeFile(
+    path.join(skillDirectory, "debug.mjs.map"),
+    "initial debug source map\n"
+  );
+  await fs.writeFile(
+    path.join(skillDirectory, "scripts", "fake.mjs"),
+    'export const fake = "sourceMappingURL=fake.mjs.map";\n'
+  );
+  await fs.writeFile(
+    path.join(skillDirectory, "scripts", "fake.mjs.map"),
+    "initial pseudo-reference source map\n"
+  );
+  await fs.writeFile(
+    path.join(skillDirectory, "scripts", "template.mjs"),
+    "export const template = `\n//# sourceMappingURL=template.mjs.map\n`;\n"
+  );
+  await fs.writeFile(
+    path.join(skillDirectory, "scripts", "template.mjs.map"),
+    "initial template pseudo-reference source map\n"
+  );
+  await fs.writeFile(
+    path.join(skillDirectory, "api.d.mts"),
+    "export type Item = (typeof values)[number];\n"
+  );
+  runGit(repositoryRoot, ["add", "."]);
+  runGit(repositoryRoot, ["commit", "--quiet", "--message", "base"]);
+
+  return {
+    repositoryRoot,
+    skillDirectory,
+    skills: [{ directory: skillDirectory, name: "alpha" }]
+  };
+}
+
+function skillPackageSnapshot(
+  files: Readonly<Record<string, string>>
+): ReturnType<typeof createSkillPackageSnapshot> {
+  return createSkillPackageSnapshot(
+    Object.entries(files).map(([filePath, contents]) => ({
+      data: Buffer.from(contents),
+      path: filePath
+    }))
+  );
+}
+
+function createSkillPackageSnapshot(files: SkillPackageFile[]) {
+  return {
+    filesBySkill: new Map([["alpha", files]]),
+    skills: [
+      {
+        directory: path.join("/unused", "alpha"),
+        name: "alpha"
+      }
+    ]
+  };
+}
+
+function fileData(
+  files: readonly SkillPackageFile[],
+  filePath: string
+): Buffer {
   const file = files.find((candidate) => candidate.path === filePath);
   if (file === undefined) {
     throw new Error(`${filePath} should be present`);
@@ -420,9 +826,8 @@ function initializeRepository(repositoryRoot: string): void {
 }
 
 function runGit(workingDirectory: string, args: readonly string[]): string {
-  return execFileSync(
-    "git",
-    ["-C", workingDirectory, ...args],
-    { encoding: "utf8", windowsHide: true }
-  );
+  return execFileSync("git", ["-C", workingDirectory, ...args], {
+    encoding: "utf8",
+    windowsHide: true
+  });
 }

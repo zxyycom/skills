@@ -5,15 +5,18 @@ const fieldSeparatorPattern = "[:：]";
 
 export function parseSections(body: string): MarkdownSection[] {
   const marker = "##";
-  const matches = [...body.matchAll(new RegExp("^" + marker + " ([^\\n]+)$", "gm"))];
+  const matches = [
+    ...body.matchAll(new RegExp("^" + marker + " ([^\\n]+)$", "gm"))
+  ];
   return matches.map((match, index) => {
     const heading = marker + " " + match[1].trim();
     const headingIndex = match.index ?? 0;
     const lineEnd = body.indexOf("\n", headingIndex);
     const contentStart = lineEnd >= 0 ? lineEnd + 1 : body.length;
-    const contentEnd = index + 1 < matches.length
-      ? (matches[index + 1].index ?? body.length)
-      : body.length;
+    const contentEnd =
+      index + 1 < matches.length
+        ? (matches[index + 1].index ?? body.length)
+        : body.length;
 
     return {
       content: body.slice(contentStart, contentEnd).trim(),
@@ -25,8 +28,7 @@ export function parseSections(body: string): MarkdownSection[] {
 
 function fieldValues(sectionContent: string, label: string): string[] {
   const escapedLabel = label.replace(/[.*+?^$()|[\]\\]/g, "\\$&");
-  const fieldPrefixPattern =
-    `${unorderedListMarkerPattern} ${escapedLabel}${fieldSeparatorPattern}`;
+  const fieldPrefixPattern = `${unorderedListMarkerPattern} ${escapedLabel}${fieldSeparatorPattern}`;
   const pattern = new RegExp(
     `^${fieldPrefixPattern}[\\t ]*(.*?)[\\t ]*$`,
     "gmu"
@@ -42,6 +44,8 @@ export function requireNonEmptyField(
 ): void {
   const values = fieldValues(sectionContent, label);
   if (values.length === 0 || values.every((value) => value.length === 0)) {
-    errors.push(relativePath + " must include non-empty field \"- " + label + ": <value>\"");
+    errors.push(
+      relativePath + ' must include non-empty field "- ' + label + ': <value>"'
+    );
   }
 }

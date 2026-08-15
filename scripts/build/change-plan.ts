@@ -42,10 +42,12 @@ async function buildArtifacts(): Promise<GeneratedArtifact[]> {
   }
   const serializedWorkspacePath = JSON.stringify(rootDir).slice(1, -1);
   if (
-    bundle.code.includes(rootDir)
-    || bundle.code.includes(serializedWorkspacePath)
+    bundle.code.includes(rootDir) ||
+    bundle.code.includes(serializedWorkspacePath)
   ) {
-    throw new Error("Change plan CLI bundle contains an absolute workspace path");
+    throw new Error(
+      "Change plan CLI bundle contains an absolute workspace path"
+    );
   }
 
   const outputPath = path.join(rootDir, outputRelativePath);

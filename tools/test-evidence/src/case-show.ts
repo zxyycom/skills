@@ -43,40 +43,48 @@ export async function showTestEvidenceCase(
       "utf8"
     );
   } catch (error) {
-    return createShowFailureResult([
-      createDiagnostic({
-        caseId: entry.id,
-        category: "catalog",
-        code: "catalog.read-failed",
-        message: `${entry.sourcePath} could not be read: ${errorText(error)}`,
-        path: entry.sourcePath,
-        severity: "error"
-      })
-    ], {
-      topic: found.topic
-    });
+    return createShowFailureResult(
+      [
+        createDiagnostic({
+          caseId: entry.id,
+          category: "catalog",
+          code: "catalog.read-failed",
+          message: `${entry.sourcePath} could not be read: ${errorText(error)}`,
+          path: entry.sourcePath,
+          severity: "error"
+        })
+      ],
+      {
+        topic: found.topic
+      }
+    );
   }
 
   const lines = text.split(/\r\n?|\n/u);
-  const markdown = lines.slice(entry.line - 1, entry.endLine)
+  const markdown = lines
+    .slice(entry.line - 1, entry.endLine)
     .join("\n")
     .trimEnd();
   const expectedHeading = `### Case ${entry.id}: ${entry.title}`;
   if (markdown.split("\n", 1)[0] !== expectedHeading) {
-    return createShowFailureResult([
-      createDiagnostic({
-        caseId: entry.id,
-        category: "index",
-        code: "state-index.index-stale",
-        line: entry.line,
-        message: `${found.indexPath} no longer locates ${entry.id} in `
-          + `${entry.sourcePath}. Run sync-index --write to rebuild the index`,
-        path: found.indexPath,
-        severity: "error"
-      })
-    ], {
-      topic: found.topic
-    });
+    return createShowFailureResult(
+      [
+        createDiagnostic({
+          caseId: entry.id,
+          category: "index",
+          code: "state-index.index-stale",
+          line: entry.line,
+          message:
+            `${found.indexPath} no longer locates ${entry.id} in ` +
+            `${entry.sourcePath}. Run sync-index --write to rebuild the index`,
+          path: found.indexPath,
+          severity: "error"
+        })
+      ],
+      {
+        topic: found.topic
+      }
+    );
   }
 
   return {

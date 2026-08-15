@@ -4,9 +4,7 @@ import { createRequire } from "node:module";
 import os from "node:os";
 import path from "node:path";
 import { parseArgs, promisify } from "node:util";
-import {
-  isFileSystemError
-} from "../../tools/shared/src/node/filesystem.ts";
+import { isFileSystemError } from "../../tools/shared/src/node/filesystem.ts";
 
 export type GeneratedFileMode = "check" | "write";
 
@@ -120,10 +118,13 @@ type BunBuild = (options: {
 }) => Promise<BunBuildResult>;
 
 function isSourceContentArray(value: unknown): value is Array<string | null> {
-  return Array.isArray(value)
-    && value.every(
-      (sourceContent) => sourceContent === null || typeof sourceContent === "string"
-    );
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (sourceContent) =>
+        sourceContent === null || typeof sourceContent === "string"
+    )
+  );
 }
 
 export function parseGeneratedFileMode(argv: string[]): GeneratedFileMode {
@@ -153,36 +154,41 @@ export function normalizeSourceMap(
   } = options;
   const parsed: unknown = JSON.parse(text);
   if (
-    parsed === null
-    || typeof parsed !== "object"
-    || !("sources" in parsed)
-    || !Array.isArray(parsed.sources)
-    || !parsed.sources.every((source) => typeof source === "string")
+    parsed === null ||
+    typeof parsed !== "object" ||
+    !("sources" in parsed) ||
+    !Array.isArray(parsed.sources) ||
+    !parsed.sources.every((source) => typeof source === "string")
   ) {
     throw new Error("Bun source map must contain a string sources array");
   }
   let normalizedSourcesContent: Array<string | null> | undefined;
   if ("sourcesContent" in parsed) {
     if (
-      !isSourceContentArray(parsed.sourcesContent)
-      || parsed.sourcesContent.length !== parsed.sources.length
+      !isSourceContentArray(parsed.sourcesContent) ||
+      parsed.sourcesContent.length !== parsed.sources.length
     ) {
       throw new Error(
         "Bun source map sourcesContent must align with sources and contain strings or null"
       );
     }
-    normalizedSourcesContent = parsed.sourcesContent.map((sourceContent) => (
+    normalizedSourcesContent = parsed.sourcesContent.map((sourceContent) =>
       sourceContent === null ? null : sourceContent.replace(/\r\n?/g, "\n")
-    ));
+    );
   }
 
   return `${JSON.stringify({
     ...parsed,
     sources: parsed.sources.map((source) => {
-      const absoluteSourcePath = path.resolve(generatedSourceMapDirectory, source);
+      const absoluteSourcePath = path.resolve(
+        generatedSourceMapDirectory,
+        source
+      );
       const relativePath = path.relative(workspaceRoot, absoluteSourcePath);
       if (relativePath === ".." || relativePath.startsWith(`..${path.sep}`)) {
-        throw new Error(`Bun source map contains a source outside the workspace: ${source}`);
+        throw new Error(
+          `Bun source map contains a source outside the workspace: ${source}`
+        );
       }
       return relativePath.replace(/\\/g, "/");
     }),
@@ -193,11 +199,15 @@ export function normalizeSourceMap(
   })}\n`;
 }
 
-export async function bundleWithBun(options: BunBundleOptions): Promise<BunBundleResult> {
+export async function bundleWithBun(
+  options: BunBundleOptions
+): Promise<BunBundleResult> {
   const sourceMapBaseDirectory = options.sourceMapBaseDirectory;
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "skills-bundle-"));
   const outputPath = path.join(tempDir, options.outputFileName);
-  const entryHasShebang = (await fs.readFile(options.entryPath, "utf8")).startsWith("#!");
+  const entryHasShebang = (
+    await fs.readFile(options.entryPath, "utf8")
+  ).startsWith("#!");
   const banner = [
     ...(entryHasShebang ? [] : ["#!/usr/bin/env node"]),
     ...(options.banner === undefined ? [] : [options.banner])
@@ -226,9 +236,11 @@ export async function bundleWithBun(options: BunBundleOptions): Promise<BunBundl
         ? await fs.readFile(`${outputPath}.map`, "utf8")
         : null;
     } else {
-      const bun = (globalThis as typeof globalThis & {
-        Bun?: { build: BunBuild };
-      }).Bun;
+      const bun = (
+        globalThis as typeof globalThis & {
+          Bun?: { build: BunBuild };
+        }
+      ).Bun;
       if (bun === undefined) {
         throw new Error("Bundling with plugins requires the Bun runtime");
       }
@@ -246,7 +258,9 @@ export async function bundleWithBun(options: BunBundleOptions): Promise<BunBundl
         target: "node"
       });
       if (!result.success) {
-        throw new Error(`Bun bundle failed: ${result.logs.map(String).join("\n")}`);
+        throw new Error(
+          `Bun bundle failed: ${result.logs.map(String).join("\n")}`
+        );
       }
       const codeOutput = result.outputs.find(
         (output) => path.resolve(output.path) === path.resolve(outputPath)
@@ -257,31 +271,35 @@ export async function bundleWithBun(options: BunBundleOptions): Promise<BunBundl
       code = await codeOutput.text();
       if (options.sourceMap) {
         const sourceMapOutput = result.outputs.find(
-          (output) => path.resolve(output.path) === path.resolve(`${outputPath}.map`)
+          (output) =>
+            path.resolve(output.path) === path.resolve(`${outputPath}.map`)
         );
         if (sourceMapOutput === undefined) {
-          throw new Error(`Bun bundle did not produce ${options.outputFileName}.map`);
+          throw new Error(
+            `Bun bundle did not produce ${options.outputFileName}.map`
+          );
         }
         generatedSourceMap = await sourceMapOutput.text();
       }
     }
     if (!code.startsWith("#!")) {
-      throw new Error(`Bundled executable ${options.outputFileName} must start with a shebang`);
+      throw new Error(
+        `Bundled executable ${options.outputFileName} must start with a shebang`
+      );
     }
 
     let sourceMap: string | null = null;
     if (options.sourceMap) {
       if (sourceMapBaseDirectory === undefined) {
-        throw new Error("sourceMapBaseDirectory is required when sourceMap is enabled");
+        throw new Error(
+          "sourceMapBaseDirectory is required when sourceMap is enabled"
+        );
       }
-      sourceMap = normalizeSourceMap(
-        generatedSourceMap ?? "",
-        {
-          generatedSourceMapDirectory: path.dirname(outputPath),
-          publishedSourceMapDirectory: sourceMapBaseDirectory,
-          workspaceRoot: options.cwd
-        }
-      );
+      sourceMap = normalizeSourceMap(generatedSourceMap ?? "", {
+        generatedSourceMapDirectory: path.dirname(outputPath),
+        publishedSourceMapDirectory: sourceMapBaseDirectory,
+        workspaceRoot: options.cwd
+      });
     }
 
     return {
@@ -296,8 +314,10 @@ export async function bundleWithBun(options: BunBundleOptions): Promise<BunBundl
 export async function buildGeneratedDeclaration(
   options: GeneratedDeclarationOptions
 ): Promise<string> {
-  const declaration = (await fs.readFile(options.sourcePath, "utf8"))
-    .replace(/\r\n?/g, "\n");
+  const declaration = (await fs.readFile(options.sourcePath, "utf8")).replace(
+    /\r\n?/g,
+    "\n"
+  );
   return `${options.banner}\n${declaration.endsWith("\n") ? declaration : `${declaration}\n`}`;
 }
 
@@ -332,15 +352,19 @@ function generatedDeclarationDependencies(
     ...declaration.matchAll(/\bimport\s*\(\s*["']([^"']+)["']\s*\)/gu),
     ...declaration.matchAll(/^\s*import\s+["']([^"']+)["'];?\s*$/gmu)
   ].map((match) => match[1] ?? "");
-  return [...new Set(specifiers.map((specifier) => {
-    const match = /^\.\/([^/\\]+)\.mjs$/u.exec(specifier);
-    if (match === null) {
-      throw new Error(
-        `${filename} exposes unsupported declaration dependency ${specifier}`
-      );
-    }
-    return `${match[1]}.d.ts`;
-  }))];
+  return [
+    ...new Set(
+      specifiers.map((specifier) => {
+        const match = /^\.\/([^/\\]+)\.mjs$/u.exec(specifier);
+        if (match === null) {
+          throw new Error(
+            `${filename} exposes unsupported declaration dependency ${specifier}`
+          );
+        }
+        return `${match[1]}.d.ts`;
+      })
+    )
+  ];
 }
 
 export async function buildGeneratedTypeScriptDeclarationArtifacts(
@@ -363,16 +387,23 @@ export async function buildGeneratedTypeScriptDeclarationArtifacts(
         "--declaration",
         "--emitDeclarationOnly",
         "--stripInternal",
-        "--target", "ES2024",
-        "--module", "NodeNext",
-        "--moduleResolution", "NodeNext",
+        "--target",
+        "ES2024",
+        "--module",
+        "NodeNext",
+        "--moduleResolution",
+        "NodeNext",
         "--allowImportingTsExtensions",
         "--strict",
         "--verbatimModuleSyntax",
-        "--skipLibCheck", "false",
-        "--types", "node",
-        "--rootDir", ".",
-        "--outDir", temporaryDirectory,
+        "--skipLibCheck",
+        "false",
+        "--types",
+        "node",
+        "--rootDir",
+        ".",
+        "--outDir",
+        temporaryDirectory,
         options.entrySourcePath
       ],
       {
@@ -386,7 +417,8 @@ export async function buildGeneratedTypeScriptDeclarationArtifacts(
       temporaryDirectory,
       path.dirname(options.entrySourcePath)
     );
-    const entryDeclarationFilename = path.basename(options.entrySourcePath)
+    const entryDeclarationFilename = path
+      .basename(options.entrySourcePath)
       .replace(/\.ts$/u, ".d.ts");
     const emittedFiles = (await fs.readdir(emittedDirectory))
       .filter((filename) => filename.endsWith(".d.ts"))
@@ -417,22 +449,30 @@ export async function buildGeneratedTypeScriptDeclarationArtifacts(
         throw new Error(`Missing emitted declaration dependency ${filename}`);
       }
       reachableFiles.add(filename);
-      for (const dependency of generatedDeclarationDependencies(declaration, filename)) {
+      for (const dependency of generatedDeclarationDependencies(
+        declaration,
+        filename
+      )) {
         if (!reachableFiles.has(dependency)) pendingFiles.push(dependency);
       }
     }
 
     const sourceDirectory = path.posix.dirname(options.entrySourcePath);
-    const entryModuleName = entryDeclarationFilename.replace(/\.d\.ts$/u, ".mjs");
-    const artifacts: GeneratedArtifact[] = [{
-      content: `${generatedDeclarationHeader(
-        options,
-        options.entrySourcePath,
-        `${options.declarationArtifactName} entry`
-      )}\nexport * from "./${path.basename(options.declarationOutputDirectory)}/${entryModuleName}";\n`,
-      path: options.declarationEntryOutputPath,
-      sourcePath: options.entrySourcePath
-    }];
+    const entryModuleName = entryDeclarationFilename.replace(
+      /\.d\.ts$/u,
+      ".mjs"
+    );
+    const artifacts: GeneratedArtifact[] = [
+      {
+        content: `${generatedDeclarationHeader(
+          options,
+          options.entrySourcePath,
+          `${options.declarationArtifactName} entry`
+        )}\nexport * from "./${path.basename(options.declarationOutputDirectory)}/${entryModuleName}";\n`,
+        path: options.declarationEntryOutputPath,
+        sourcePath: options.entrySourcePath
+      }
+    ];
     for (const filename of [...reachableFiles].sort()) {
       const declaration = declarations.get(filename);
       if (declaration === undefined) {
@@ -474,7 +514,9 @@ function unsupportedDeclarationArtifact(
   relativePath: string,
   reason: string
 ): void {
-  console.error(`${relativePath} must be removed or relocated manually: ${reason}`);
+  console.error(
+    `${relativePath} must be removed or relocated manually: ${reason}`
+  );
 }
 
 export async function removeStaleGeneratedTypeScriptDeclarations(
@@ -499,7 +541,8 @@ export async function removeStaleGeneratedTypeScriptDeclarations(
     if (options.expectedPaths.has(entryPath)) continue;
 
     changed = true;
-    const relativePath = path.relative(options.workspaceRoot, entryPath)
+    const relativePath = path
+      .relative(options.workspaceRoot, entryPath)
       .replace(/\\/gu, "/");
     if (!entry.isFile() || !entry.name.endsWith(".d.mts")) {
       hasUnsupportedEntries = true;
@@ -513,7 +556,7 @@ export async function removeStaleGeneratedTypeScriptDeclarations(
     let declaration: string;
     try {
       declaration = await fs.readFile(entryPath, "utf8");
-    } catch (error) {
+    } catch {
       hasUnsupportedEntries = true;
       unsupportedDeclarationArtifact(
         relativePath,
@@ -521,10 +564,12 @@ export async function removeStaleGeneratedTypeScriptDeclarations(
       );
       continue;
     }
-    if (!isGeneratedTypeScriptDeclaration(
-      declaration,
-      options.declarationArtifactName
-    )) {
+    if (
+      !isGeneratedTypeScriptDeclaration(
+        declaration,
+        options.declarationArtifactName
+      )
+    ) {
       hasUnsupportedEntries = true;
       unsupportedDeclarationArtifact(
         relativePath,
@@ -547,11 +592,15 @@ function normalizeGeneratedTextLineEndings(text: string): string {
   return text.replace(/\r\n/g, "\n");
 }
 
-async function hasRegularGeneratedArtifact(outputPath: string): Promise<boolean> {
+async function hasRegularGeneratedArtifact(
+  outputPath: string
+): Promise<boolean> {
   try {
     const status = await fs.lstat(outputPath);
     if (!status.isFile()) {
-      throw new Error(`Generated artifact path must be a regular file: ${outputPath}`);
+      throw new Error(
+        `Generated artifact path must be a regular file: ${outputPath}`
+      );
     }
     return true;
   } catch (error) {
@@ -570,8 +619,8 @@ export async function syncGeneratedFile(
   if (await hasRegularGeneratedArtifact(outputPath)) {
     const actual = await fs.readFile(outputPath, "utf8");
     if (
-      normalizeGeneratedTextLineEndings(actual)
-      === normalizeGeneratedTextLineEndings(expected)
+      normalizeGeneratedTextLineEndings(actual) ===
+      normalizeGeneratedTextLineEndings(expected)
     ) {
       return "current";
     }
@@ -595,16 +644,24 @@ export async function syncGeneratedArtifacts(
 ): Promise<boolean> {
   let changed = false;
   for (const artifact of artifacts) {
-    const result = await syncGeneratedFile(artifact.path, artifact.content, mode);
+    const result = await syncGeneratedFile(
+      artifact.path,
+      artifact.content,
+      mode
+    );
     if (result === "current") {
       continue;
     }
 
     changed = true;
-    const relativePath = path.relative(workspaceRoot, artifact.path).replace(/\\/g, "/");
+    const relativePath = path
+      .relative(workspaceRoot, artifact.path)
+      .replace(/\\/g, "/");
     const artifactSourcePath = artifact.sourcePath ?? sourcePath;
     if (result === "stale") {
-      console.error(`${relativePath} is missing or not generated from ${artifactSourcePath}`);
+      console.error(
+        `${relativePath} is missing or not generated from ${artifactSourcePath}`
+      );
     } else {
       console.log(`Wrote ${relativePath}`);
     }
@@ -612,7 +669,9 @@ export async function syncGeneratedArtifacts(
   return changed;
 }
 
-export function buildGeneratedFileHeader(options: GeneratedFileHeaderOptions): string {
+export function buildGeneratedFileHeader(
+  options: GeneratedFileHeaderOptions
+): string {
   const repositoryUrl = `https://github.com/${options.repository}`;
   const headerLines = [
     "/*",
@@ -622,7 +681,9 @@ export function buildGeneratedFileHeader(options: GeneratedFileHeaderOptions): s
     ` * Source path: ${options.sourcePath}`,
     ...(options.skillSourcePath === undefined
       ? []
-      : [` * Skill source directory: ${repositoryUrl}/tree/main/${options.skillSourcePath}`]),
+      : [
+          ` * Skill source directory: ${repositoryUrl}/tree/main/${options.skillSourcePath}`
+        ]),
     ` * Rebuild: ${options.rebuildCommand}`,
     ...(options.additionalLines ?? []).map((line) => ` * ${line}`),
     " */"

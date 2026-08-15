@@ -84,7 +84,7 @@ test("metadata parser accepts only canonical draft and plan values", () => {
   }
 });
 
-test("metadata writer emits canonical draft and plan JSON", () => (
+test("metadata writer emits canonical draft and plan JSON", () =>
   withTempRoot("metadata-writer", async (tempRoot) => {
     const draftDirectory = path.join(tempRoot, "draft");
     const planDirectory = path.join(tempRoot, "plan");
@@ -105,17 +105,18 @@ test("metadata writer emits canonical draft and plan JSON", () => (
     });
     assert.equal(
       await fs.readFile(path.join(planDirectory, ".change-plan.json"), "utf8"),
-      `${JSON.stringify({
-        baseCommit: validBaseCommit,
-        stage: "plan"
-      }, null, 2)}\n`
+      `${JSON.stringify(
+        {
+          baseCommit: validBaseCommit,
+          stage: "plan"
+        },
+        null,
+        2
+      )}\n`
     );
 
     const failedDirectory = path.join(tempRoot, "rename-failure");
-    const failedMetadataPath = path.join(
-      failedDirectory,
-      ".change-plan.json"
-    );
+    const failedMetadataPath = path.join(failedDirectory, ".change-plan.json");
     const previousContents = `${JSON.stringify({ stage: "draft" }, null, 2)}\n`;
     await fs.mkdir(failedDirectory);
     await fs.writeFile(failedMetadataPath, previousContents, "utf8");
@@ -136,10 +137,11 @@ test("metadata writer emits canonical draft and plan JSON", () => (
     });
     try {
       await assertMetadataError(
-        () => writeChangePlanMetadata(failedDirectory, {
-          baseCommit: validBaseCommit,
-          stage: "plan"
-        }),
+        () =>
+          writeChangePlanMetadata(failedDirectory, {
+            baseCommit: validBaseCommit,
+            stage: "plan"
+          }),
         "io"
       );
     } finally {
@@ -150,12 +152,14 @@ test("metadata writer emits canonical draft and plan JSON", () => (
       });
     }
     assert.equal(renameAttempted, true);
-    assert.equal(await fs.readFile(failedMetadataPath, "utf8"), previousContents);
+    assert.equal(
+      await fs.readFile(failedMetadataPath, "utf8"),
+      previousContents
+    );
     assert.deepEqual(await fs.readdir(failedDirectory), [".change-plan.json"]);
-  })
-));
+  }));
 
-test("metadata reader maps file and parse boundaries to stable error codes", () => (
+test("metadata reader maps file and parse boundaries to stable error codes", () =>
   withTempRoot("metadata-errors", async (tempRoot) => {
     const missingDirectory = path.join(tempRoot, "missing");
     await fs.mkdir(missingDirectory);
@@ -186,10 +190,7 @@ test("metadata reader maps file and parse boundaries to stable error codes", () 
     );
 
     for (const [name, metadata] of [
-      [
-        "unknown-stage",
-        { stage: "unknown" }
-      ],
+      ["unknown-stage", { stage: "unknown" }],
       [
         "implementation-stage",
         { baseCommit: validBaseCommit, stage: "implementation" }
@@ -206,10 +207,7 @@ test("metadata reader maps file and parse boundaries to stable error codes", () 
           stage: "shelved"
         }
       ],
-      [
-        "null-base-plan",
-        { baseCommit: null, stage: "plan" }
-      ]
+      ["null-base-plan", { baseCommit: null, stage: "plan" }]
     ] as const) {
       const invalidDirectory = path.join(tempRoot, name);
       await fs.mkdir(invalidDirectory);
@@ -223,10 +221,9 @@ test("metadata reader maps file and parse boundaries to stable error codes", () 
         "invalid"
       );
     }
-  })
-));
+  }));
 
-test("metadata reader and writer reject symbolic-link metadata", () => (
+test("metadata reader and writer reject symbolic-link metadata", () =>
   withTempRoot("metadata-symlink", async (tempRoot) => {
     const changeDirectory = path.join(tempRoot, "linked-metadata");
     const targetPath = path.join(tempRoot, "metadata-target.json");
@@ -244,10 +241,7 @@ test("metadata reader and writer reject symbolic-link metadata", () => (
       "invalid-path"
     );
     await assertMetadataError(
-      () => writeChangePlanMetadata(
-        changeDirectory,
-        { stage: "draft" }
-      ),
+      () => writeChangePlanMetadata(changeDirectory, { stage: "draft" }),
       "invalid-path"
     );
     assert.equal(await fs.readFile(targetPath, "utf8"), original);
@@ -304,5 +298,4 @@ test("metadata reader and writer reject symbolic-link metadata", () => (
       baseCommit: validBaseCommit,
       stage: "plan"
     });
-  })
-));
+  }));

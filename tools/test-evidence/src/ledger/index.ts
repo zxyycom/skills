@@ -1,12 +1,7 @@
 export { showTestEvidenceCase } from "./case-show.ts";
 export { runTestEvidenceLedgerCli } from "./cli.ts";
-export {
-  queryTestEntities,
-  queryTestEvidenceCases
-} from "./query.ts";
-export {
-  syncTestEvidenceLedgerIndex
-} from "./state-index.ts";
+export { queryTestEntities, queryTestEvidenceCases } from "./query.ts";
+export { syncTestEvidenceLedgerIndex } from "./state-index.ts";
 export { validateTestEvidenceLedger } from "./validation.ts";
 
 export {

@@ -25,36 +25,48 @@ test("graph validation rejects cycles and dangling references", () => {
     taskOperation("other")
   ]);
   const parentCycle = structuredClone(base);
-  parentCycle.tasks["task-000001"]!
-    .state.relations.parentId = "task-000002";
-  assert.ok(validateTaskIndexGraph(parentCycle).some((issue) =>
-    issue.includes("parent cycle")
-  ));
+  parentCycle.tasks["task-000001"]!.state.relations.parentId = "task-000002";
+  assert.ok(
+    validateTaskIndexGraph(parentCycle).some((issue) =>
+      issue.includes("parent cycle")
+    )
+  );
 
-  expectTaskGraphError(() => applyTaskGraphOperations(base, {
-    expectedRevision: base.revision,
-    operations: [
-      {
-        kind: "set-dependency",
-        taskId: "task-000001",
-        dependencyId: "task-000003",
-        present: true
-      },
-      {
-        kind: "set-dependency",
-        taskId: "task-000003",
-        dependencyId: "task-000002",
-        present: true
-      }
-    ]
-  }, initialNow), "INDEX_INVALID");
+  expectTaskGraphError(
+    () =>
+      applyTaskGraphOperations(
+        base,
+        {
+          expectedRevision: base.revision,
+          operations: [
+            {
+              kind: "set-dependency",
+              taskId: "task-000001",
+              dependencyId: "task-000003",
+              present: true
+            },
+            {
+              kind: "set-dependency",
+              taskId: "task-000003",
+              dependencyId: "task-000002",
+              present: true
+            }
+          ]
+        },
+        initialNow
+      ),
+    "INDEX_INVALID"
+  );
 
   const dangling = structuredClone(base);
-  dangling.tasks["task-000003"]!
-    .state.relations.dependsOn = { "task-999999": true };
-  assert.ok(validateTaskIndexGraph(dangling).some((issue) =>
-    issue.includes("is missing")
-  ));
+  dangling.tasks["task-000003"]!.state.relations.dependsOn = {
+    "task-999999": true
+  };
+  assert.ok(
+    validateTaskIndexGraph(dangling).some((issue) =>
+      issue.includes("is missing")
+    )
+  );
 });
 
 test("relations enforce symmetric exclusions and reject conflicting inherited pairs", () => {
@@ -63,36 +75,59 @@ test("relations enforce symmetric exclusions and reject conflicting inherited pa
     taskOperation("child", { parentId: "@parent" }),
     taskOperation("other", { control: { mode: "queued" } })
   ]);
-  index = applyOperations(index, [{
-    kind: "set-exclusion",
-    taskId: "task-000001",
-    excludedTaskId: "task-000003",
-    present: true
-  }]);
+  index = applyOperations(index, [
+    {
+      kind: "set-exclusion",
+      taskId: "task-000001",
+      excludedTaskId: "task-000003",
+      present: true
+    }
+  ]);
   const tasks = index.tasks;
-  assert.equal(tasks["task-000001"]!.state.relations.excludes["task-000003"], true);
-  assert.equal(tasks["task-000003"]!.state.relations.excludes["task-000001"], true);
+  assert.equal(
+    tasks["task-000001"]!.state.relations.excludes["task-000003"],
+    true
+  );
+  assert.equal(
+    tasks["task-000003"]!.state.relations.excludes["task-000001"],
+    true
+  );
 
   const asymmetric = structuredClone(index);
-  delete asymmetric.tasks["task-000003"]!
-    .state.relations.excludes["task-000001"];
-  assert.ok(validateTaskIndexGraph(asymmetric).some((issue) =>
-    issue.includes("is not symmetric")
-  ));
+  delete asymmetric.tasks["task-000003"]!.state.relations.excludes[
+    "task-000001"
+  ];
+  assert.ok(
+    validateTaskIndexGraph(asymmetric).some((issue) =>
+      issue.includes("is not symmetric")
+    )
+  );
 
-  expectTaskGraphError(() => applyOperations(index, [{
-    kind: "set-dependency",
-    taskId: "task-000002",
-    dependencyId: "task-000003",
-    present: true
-  }]), "INDEX_INVALID");
+  expectTaskGraphError(
+    () =>
+      applyOperations(index, [
+        {
+          kind: "set-dependency",
+          taskId: "task-000002",
+          dependencyId: "task-000003",
+          present: true
+        }
+      ]),
+    "INDEX_INVALID"
+  );
 
-  expectTaskGraphError(() => applyOperations(index, [{
-    kind: "set-exclusion",
-    taskId: "task-000001",
-    excludedTaskId: "task-000002",
-    present: true
-  }]), "INDEX_INVALID");
+  expectTaskGraphError(
+    () =>
+      applyOperations(index, [
+        {
+          kind: "set-exclusion",
+          taskId: "task-000001",
+          excludedTaskId: "task-000002",
+          present: true
+        }
+      ]),
+    "INDEX_INVALID"
+  );
 });
 
 test("projection expands ancestor constraints with declaration paths and reverse links", () => {
@@ -119,22 +154,27 @@ test("projection expands ancestor constraints with declaration paths and reverse
   const projection = projectTaskGraph(index, initialNow);
   const child = projection.tasks["task-000002"]!;
 
-  assert.deepEqual(child.dependencies, [{
-    targetTaskId: "task-000003",
-    sourceTaskId: "task-000001",
-    inheritancePath: ["task-000002", "task-000001"],
-    declaredTargetTaskId: "task-000003",
-    targetInheritancePath: ["task-000003"]
-  }]);
-  assert.ok(child.exclusions.some((source) =>
-    source.targetTaskId === "task-000004"
-    && source.sourceTaskId === "task-000001"
-    && source.inheritancePath.join("/") === "task-000002/task-000001"
-  ));
-  assert.deepEqual(
-    projection.tasks["task-000003"]!.dependents,
-    ["task-000001", "task-000002"]
+  assert.deepEqual(child.dependencies, [
+    {
+      targetTaskId: "task-000003",
+      sourceTaskId: "task-000001",
+      inheritancePath: ["task-000002", "task-000001"],
+      declaredTargetTaskId: "task-000003",
+      targetInheritancePath: ["task-000003"]
+    }
+  ]);
+  assert.ok(
+    child.exclusions.some(
+      (source) =>
+        source.targetTaskId === "task-000004" &&
+        source.sourceTaskId === "task-000001" &&
+        source.inheritancePath.join("/") === "task-000002/task-000001"
+    )
   );
+  assert.deepEqual(projection.tasks["task-000003"]!.dependents, [
+    "task-000001",
+    "task-000002"
+  ]);
   assert.deepEqual(projection.tasks["task-000001"]!.children, ["task-000002"]);
 });
 
@@ -200,7 +240,11 @@ test("service list projection preserves complete graph semantics and actual task
       assert.notEqual(task, undefined);
       assert.notEqual(projected, undefined);
       assert.notEqual(listedItem, undefined);
-      if (task === undefined || projected === undefined || listedItem === undefined) {
+      if (
+        task === undefined ||
+        projected === undefined ||
+        listedItem === undefined
+      ) {
         continue;
       }
       const expected = {
@@ -226,14 +270,15 @@ test("nearest local control overrides ancestor soft control without removing har
     }),
     taskOperation("dependency", { control: { mode: "queued" } })
   ]);
-  index = applyOperations(index, [{
-    kind: "set-dependency",
-    taskId: "task-000001",
-    dependencyId: "task-000003",
-    present: true
-  }]);
-  const child = projectTaskGraph(index, initialNow)
-    .tasks["task-000002"]!;
+  index = applyOperations(index, [
+    {
+      kind: "set-dependency",
+      taskId: "task-000001",
+      dependencyId: "task-000003",
+      present: true
+    }
+  ]);
+  const child = projectTaskGraph(index, initialNow).tasks["task-000002"]!;
 
   assert.deepEqual(child.effectiveControl, {
     mode: "queued",
@@ -242,10 +287,13 @@ test("nearest local control overrides ancestor soft control without removing har
     inheritancePath: ["task-000002"]
   });
   assert.equal(child.effectiveState, "waiting");
-  assert.ok(child.blockers.some((blocker) =>
-    blocker.kind === "dependency-incomplete"
-    && blocker.sourceTaskId === "task-000001"
-  ));
+  assert.ok(
+    child.blockers.some(
+      (blocker) =>
+        blocker.kind === "dependency-incomplete" &&
+        blocker.sourceTaskId === "task-000001"
+    )
+  );
 });
 
 test("topology edits cannot rewrite running or terminal execution evidence", () => {
@@ -253,12 +301,14 @@ test("topology edits cannot rewrite running or terminal execution evidence", () 
     taskOperation("protected", { control: { mode: "queued" } }),
     taskOperation("other", { control: { mode: "queued" } })
   ]);
-  index = applyOperations(index, [{
-    kind: "set-exclusion",
-    taskId: "task-000001",
-    excludedTaskId: "task-000002",
-    present: true
-  }]);
+  index = applyOperations(index, [
+    {
+      kind: "set-exclusion",
+      taskId: "task-000001",
+      excludedTaskId: "task-000002",
+      present: true
+    }
+  ]);
   index.tasks["task-000001"]!.state.execution = {
     phase: "running",
     attempt: 1,
@@ -270,18 +320,30 @@ test("topology edits cannot rewrite running or terminal execution evidence", () 
       expiresAt: "2026-08-06T08:30:00.000Z"
     }
   };
-  expectTaskGraphError(() => applyOperations(index, [{
-    kind: "set-dependency",
-    taskId: "task-000001",
-    dependencyId: "task-000002",
-    present: true
-  }]), "STATE_CONFLICT");
+  expectTaskGraphError(
+    () =>
+      applyOperations(index, [
+        {
+          kind: "set-dependency",
+          taskId: "task-000001",
+          dependencyId: "task-000002",
+          present: true
+        }
+      ]),
+    "STATE_CONFLICT"
+  );
   const beforeRunningChild = structuredClone(index);
-  expectTaskGraphError(() => applyOperations(index, [{
-    kind: "create-task",
-    parentId: "task-000002",
-    content: taskContent("new excluded descendant")
-  }]), "STATE_CONFLICT");
+  expectTaskGraphError(
+    () =>
+      applyOperations(index, [
+        {
+          kind: "create-task",
+          parentId: "task-000002",
+          content: taskContent("new excluded descendant")
+        }
+      ]),
+    "STATE_CONFLICT"
+  );
   assert.deepEqual(index, beforeRunningChild);
 
   const terminal = structuredClone(index);
@@ -293,16 +355,28 @@ test("topology edits cannot rewrite running or terminal execution evidence", () 
     summary: "done",
     references: {}
   };
-  expectTaskGraphError(() => applyOperations(terminal, [{
-    kind: "set-parent",
-    taskId: "task-000002",
-    parentId: "task-000001"
-  }]), "STATE_CONFLICT");
+  expectTaskGraphError(
+    () =>
+      applyOperations(terminal, [
+        {
+          kind: "set-parent",
+          taskId: "task-000002",
+          parentId: "task-000001"
+        }
+      ]),
+    "STATE_CONFLICT"
+  );
   const beforeTerminalChild = structuredClone(terminal);
-  expectTaskGraphError(() => applyOperations(terminal, [{
-    kind: "create-task",
-    parentId: "task-000002",
-    content: taskContent("new terminal exclusion descendant")
-  }]), "STATE_CONFLICT");
+  expectTaskGraphError(
+    () =>
+      applyOperations(terminal, [
+        {
+          kind: "create-task",
+          parentId: "task-000002",
+          content: taskContent("new terminal exclusion descendant")
+        }
+      ]),
+    "STATE_CONFLICT"
+  );
   assert.deepEqual(terminal, beforeTerminalChild);
 });

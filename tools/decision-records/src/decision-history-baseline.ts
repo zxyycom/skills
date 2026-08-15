@@ -41,7 +41,10 @@ export async function loadDecisionHistoryBaseline(
   try {
     repository = await openVersionControl(scan.decisionsDirectory);
   } catch (error) {
-    if (error instanceof VersionControlError && error.code === "not-repository") {
+    if (
+      error instanceof VersionControlError &&
+      error.code === "not-repository"
+    ) {
       return {
         baseline: { kind: "outside-git-worktree" },
         status: "ok"
@@ -75,18 +78,21 @@ export async function loadDecisionHistoryBaseline(
     }
 
     const directoryScope = toRepositoryPath(relativeDirectory);
-    const revisionFiles = directoryScope.length === 0
-      ? await repository.listRevisionFiles(revision)
-      : await repository.listRevisionFiles(revision, {
-          pathScopes: [directoryScope]
-        });
+    const revisionFiles =
+      directoryScope.length === 0
+        ? await repository.listRevisionFiles(revision)
+        : await repository.listRevisionFiles(revision, {
+            pathScopes: [directoryScope]
+          });
     const prefix = directoryScope.length === 0 ? "" : directoryScope + "/";
     const recordedDecisionIds = new Set<DecisionId>();
     for (const filePath of revisionFiles) {
       if (!filePath.startsWith(prefix)) {
         continue;
       }
-      const decisionId = decisionIdFromSourcePath(filePath.slice(prefix.length));
+      const decisionId = decisionIdFromSourcePath(
+        filePath.slice(prefix.length)
+      );
       if (decisionId !== null) {
         recordedDecisionIds.add(decisionId);
       }
@@ -111,42 +117,44 @@ export function prepareUnrecordedHistoryAttention(
   canCollapse: boolean
 ): DecisionApplicationAttention | null {
   if (
-    keepUnrecordedHistory
-    || historyBaseline === null
-    || historyBaseline.kind !== "git-head"
+    keepUnrecordedHistory ||
+    historyBaseline === null ||
+    historyBaseline.kind !== "git-head"
   ) {
     return null;
   }
   const unrecordedIds = records
     .map((record) => record.decisionId)
-    .filter((decisionId) => (
-      !historyBaseline.recordedDecisionIds.has(decisionId)
-    ));
+    .filter(
+      (decisionId) => !historyBaseline.recordedDecisionIds.has(decisionId)
+    );
   if (unrecordedIds.length === 0) {
     return null;
   }
   return decisionAttention([
-    "The following decisions have not entered "
-      + historyBaseline.label
-      + ": "
-      + unrecordedIds.join(", ")
-      + ".",
-    "Archiving them now may preserve same-change intermediate decisions as "
-      + "meaningless evolution history; no files were changed.",
+    "The following decisions have not entered " +
+      historyBaseline.label +
+      ": " +
+      unrecordedIds.join(", ") +
+      ".",
+    "Archiving them now may preserve same-change intermediate decisions as " +
+      "meaningless evolution history; no files were changed.",
     canCollapse
-      ? "Re-run with --keep-unrecorded-history to preserve that history, or use "
-        + "evolve --collapse-unrecorded <decision-id> with one --successor "
-        + "and the complete final relation selection."
-      : "Re-run with --keep-unrecorded-history only after deciding that the "
-        + "unrecorded history should be preserved; otherwise resolve it through "
-        + "an explicit evolve collapse."
+      ? "Re-run with --keep-unrecorded-history to preserve that history, or use " +
+        "evolve --collapse-unrecorded <decision-id> with one --successor " +
+        "and the complete final relation selection."
+      : "Re-run with --keep-unrecorded-history only after deciding that the " +
+        "unrecorded history should be preserved; otherwise resolve it through " +
+        "an explicit evolve collapse."
   ]);
 }
 
 function isOutsideRepository(relativePath: string): boolean {
-  return path.isAbsolute(relativePath)
-    || relativePath === ".."
-    || relativePath.startsWith(".." + path.sep);
+  return (
+    path.isAbsolute(relativePath) ||
+    relativePath === ".." ||
+    relativePath.startsWith(".." + path.sep)
+  );
 }
 
 function toRepositoryPath(filePath: string): string {
@@ -154,10 +162,13 @@ function toRepositoryPath(filePath: string): string {
 }
 
 function baselineFailure(error: unknown): DecisionApplicationFailure {
-  return decisionFailure([
-    "Failed to inspect Git HEAD before changing decision history: "
-      + errorText(error)
-  ], { presentation: "plain" });
+  return decisionFailure(
+    [
+      "Failed to inspect Git HEAD before changing decision history: " +
+        errorText(error)
+    ],
+    { presentation: "plain" }
+  );
 }
 
 function errorText(error: unknown): string {

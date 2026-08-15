@@ -1,8 +1,5 @@
 import * as v from "valibot";
-import type {
-  StateIndexDiagnostic,
-  StateIndexResult
-} from "./types.ts";
+import type { StateIndexDiagnostic, StateIndexResult } from "./types.ts";
 
 export function diagnostic(options: {
   code: string;

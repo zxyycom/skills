@@ -4,25 +4,21 @@ import {
   VersionControlError,
   type VersionControlRepository
 } from "../../shared/src/version-control/index.ts";
-import {
-  listFirstParentRevisionChanges
-} from "../../shared/src/version-control/git-first-parent.ts";
-import {
-  repositoryRelativePathFromFileSystemPath
-} from "../../shared/src/version-control/repository-relative-path.ts";
+import { listFirstParentRevisionChanges } from "../../shared/src/version-control/git-first-parent.ts";
+import { repositoryRelativePathFromFileSystemPath } from "../../shared/src/version-control/repository-relative-path.ts";
 import type { GitDistanceEvidence } from "./types.ts";
 export type { GitDistanceEvidence } from "./types.ts";
 
 export type PlanVersionControlInspection =
   | {
-    baseCommit: string;
-    headCommit: string | null;
-    outcome: "base-unavailable";
-  }
+      baseCommit: string;
+      headCommit: string | null;
+      outcome: "base-unavailable";
+    }
   | {
-    evidence: GitDistanceEvidence;
-    outcome: "measured";
-  };
+      evidence: GitDistanceEvidence;
+      outcome: "measured";
+    };
 
 type ChangeRepositoryContext = {
   changePath: string;
@@ -54,8 +50,8 @@ async function resolveCommit(
     return await repository.resolveRevision(commit);
   } catch (error) {
     if (
-      error instanceof VersionControlError
-      && error.code === "revision-not-found"
+      error instanceof VersionControlError &&
+      error.code === "revision-not-found"
     ) {
       return null;
     }
@@ -68,10 +64,10 @@ async function measureResolvedGitDistance(
   resolvedBase: string,
   headCommit: string
 ): Promise<GitDistanceEvidence | null> {
-  const revisions = await listFirstParentRevisionChanges(
-    context.repository,
-    { from: resolvedBase, to: headCommit }
-  );
+  const revisions = await listFirstParentRevisionChanges(context.repository, {
+    from: resolvedBase,
+    to: headCommit
+  });
   if (revisions === null) {
     return null;
   }
@@ -82,16 +78,16 @@ async function measureResolvedGitDistance(
     const outsideChanges = revision.changes.filter(
       (change) => !isInsideChange(change.path, context.changePath)
     );
-    const onlyChangesCurrentChange = revision.changes.length > 0
-      && outsideChanges.length === 0;
+    const onlyChangesCurrentChange =
+      revision.changes.length > 0 && outsideChanges.length === 0;
     if (onlyChangesCurrentChange) {
       continue;
     }
 
     commitCount += 1;
     for (const change of outsideChanges) {
-      changedLines += (change.addedLineCount ?? 0)
-        + (change.deletedLineCount ?? 0);
+      changedLines +=
+        (change.addedLineCount ?? 0) + (change.deletedLineCount ?? 0);
     }
   }
 

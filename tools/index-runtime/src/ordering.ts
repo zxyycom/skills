@@ -39,8 +39,11 @@ export function compareDefinitionKeyNames(
 
 function scalarTypeOrder(value: StateIndexKeyScalar): number {
   switch (typeof value) {
-    case "boolean": return 0;
-    case "number": return 1;
-    case "string": return 2;
+    case "boolean":
+      return 0;
+    case "number":
+      return 1;
+    case "string":
+      return 2;
   }
 }

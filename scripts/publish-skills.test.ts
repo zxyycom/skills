@@ -41,44 +41,41 @@ type TestHarness = {
   ) => Promise<PublisherRun>;
 };
 
-test(
-  "rolling publication replaces packages before manifest and removes stale assets",
-  async () => {
-    await withHarness("complete", async ({ root, run }) => {
-      const result = await run("rolling", {
-        "skills-latest": [
-          { digest: null, name: "alpha.zip", size: 1 },
-          { digest: null, name: "removed.zip", size: 2 },
-          { digest: null, name: "skill-release-manifest.json", size: 3 }
-        ]
-      });
-
-      assert.equal(result.status, 0);
-      assert.match(result.stdout, /Skill Release updated: skills-latest/u);
-      assert.deepEqual(result.commands.map(commandAction), [
-        "gh:view",
-        "git:tag",
-        "git:push",
-        "gh:upload",
-        "gh:upload",
-        "gh:delete-asset",
-        "gh:edit"
-      ]);
-
-      const uploads = result.commands.filter(
-        (command) => commandAction(command) === "gh:upload"
-      );
-      assert.deepEqual(assetNames(uploads[0], root), ["alpha.zip", "beta.zip"]);
-      assert.deepEqual(assetNames(uploads[1], root), [
-        "skill-release-manifest.json"
-      ]);
-      const deleted = result.commands.find(
-        (command) => commandAction(command) === "gh:delete-asset"
-      );
-      assert.equal(deleted?.arguments.includes("removed.zip"), true);
+test("rolling publication replaces packages before manifest and removes stale assets", async () => {
+  await withHarness("complete", async ({ root, run }) => {
+    const result = await run("rolling", {
+      "skills-latest": [
+        { digest: null, name: "alpha.zip", size: 1 },
+        { digest: null, name: "removed.zip", size: 2 },
+        { digest: null, name: "skill-release-manifest.json", size: 3 }
+      ]
     });
-  }
-);
+
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Skill Release updated: skills-latest/u);
+    assert.deepEqual(result.commands.map(commandAction), [
+      "gh:view",
+      "git:tag",
+      "git:push",
+      "gh:upload",
+      "gh:upload",
+      "gh:delete-asset",
+      "gh:edit"
+    ]);
+
+    const uploads = result.commands.filter(
+      (command) => commandAction(command) === "gh:upload"
+    );
+    assert.deepEqual(assetNames(uploads[0], root), ["alpha.zip", "beta.zip"]);
+    assert.deepEqual(assetNames(uploads[1], root), [
+      "skill-release-manifest.json"
+    ]);
+    const deleted = result.commands.find(
+      (command) => commandAction(command) === "gh:delete-asset"
+    );
+    assert.equal(deleted?.arguments.includes("removed.zip"), true);
+  });
+});
 
 test("rolling publication creates a verified latest release when absent", async () => {
   await withHarness("complete", async ({ root, run }) => {
@@ -108,7 +105,10 @@ test("snapshot publication creates once and reuses matching digests", async () =
     const tag = `skills-${packageHash.slice(0, 12)}`;
     const created = await run("snapshot");
     assert.equal(created.status, 0);
-    assert.deepEqual(created.commands.map(commandAction), ["gh:view", "gh:create"]);
+    assert.deepEqual(created.commands.map(commandAction), [
+      "gh:view",
+      "gh:create"
+    ]);
     const create = created.commands.at(-1);
     assert.equal(create?.arguments.includes("--latest=false"), true);
     assert.equal(optionValue(create, "--target"), commitSha);
@@ -117,49 +117,46 @@ test("snapshot publication creates once and reuses matching digests", async () =
       [tag]: await publishedAssets(root)
     });
     assert.equal(reused.status, 0);
-    assert.match(reused.stdout, new RegExp(`Skill Release reused: ${tag}`, "u"));
+    assert.match(
+      reused.stdout,
+      new RegExp(`Skill Release reused: ${tag}`, "u")
+    );
     assert.deepEqual(reused.commands.map(commandAction), ["gh:view"]);
   });
 });
 
-test(
-  "snapshot publication rejects conflicting assets without remote writes",
-  async () => {
-    await withHarness("complete", async ({ root, run }) => {
-      const tag = `skills-${packageHash.slice(0, 12)}`;
-      const assets = await publishedAssets(root);
-      const first = assets[0];
-      if (first === undefined) {
-        assert.fail("Expected fixture assets");
-      }
+test("snapshot publication rejects conflicting assets without remote writes", async () => {
+  await withHarness("complete", async ({ root, run }) => {
+    const tag = `skills-${packageHash.slice(0, 12)}`;
+    const assets = await publishedAssets(root);
+    const first = assets[0];
+    if (first === undefined) {
+      assert.fail("Expected fixture assets");
+    }
 
-      const result = await run("snapshot", {
-        [tag]: [
-          { ...first, digest: `sha256:${"0".repeat(64)}` },
-          ...assets.slice(1)
-        ]
-      });
-
-      assert.equal(result.status, 1);
-      assert.match(result.stderr, /exists with different assets/u);
-      assert.match(result.stderr, /digest/u);
-      assert.deepEqual(result.commands.map(commandAction), ["gh:view"]);
+    const result = await run("snapshot", {
+      [tag]: [
+        { ...first, digest: `sha256:${"0".repeat(64)}` },
+        ...assets.slice(1)
+      ]
     });
-  }
-);
 
-test(
-  "publication CLI rejects incomplete assets before starting commands",
-  async () => {
-    await withHarness("manifest-only", async ({ run }) => {
-      const result = await run("rolling");
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /exists with different assets/u);
+    assert.match(result.stderr, /digest/u);
+    assert.deepEqual(result.commands.map(commandAction), ["gh:view"]);
+  });
+});
 
-      assert.equal(result.status, 1);
-      assert.match(result.stderr, /at least one skill zip/u);
-      assert.deepEqual(result.commands, []);
-    });
-  }
-);
+test("publication CLI rejects incomplete assets before starting commands", async () => {
+  await withHarness("manifest-only", async ({ run }) => {
+    const result = await run("rolling");
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /at least one skill zip/u);
+    assert.deepEqual(result.commands, []);
+  });
+});
 
 async function withHarness(
   fixture: "complete" | "manifest-only",
@@ -213,7 +210,7 @@ async function writeFixture(
   await fs.mkdir(dist);
   await fs.writeFile(
     path.join(dist, "skill-release-manifest.json"),
-    "{\"skills\":{}}\n"
+    '{"skills":{}}\n'
   );
   if (fixture === "complete") {
     await Promise.all([
@@ -227,19 +224,23 @@ async function writeFakeTools(root: string): Promise<string> {
   const bin = path.join(root, "bin");
   await fs.mkdir(bin);
   const dispatcher = path.join(bin, "fake-tool.mjs");
-  await fs.writeFile(dispatcher, [
-    'import fs from "node:fs";',
-    'const [tool, ...arguments_] = process.argv.slice(2);',
-    'fs.appendFileSync(process.env.FAKE_COMMAND_LOG, JSON.stringify({ tool, arguments: arguments_ }) + "\\n");',
-    'if (tool === "gh" && arguments_[0] === "release" && arguments_[1] === "view") {',
-    '  const tag = arguments_[2];',
-    '  const releases = JSON.parse(fs.readFileSync(process.env.FAKE_RELEASE_STATE, "utf8"));',
-    '  const assets = releases[tag];',
-    '  if (assets === undefined) { console.error("release not found"); process.exit(1); }',
-    '  console.log(JSON.stringify({ tagName: tag, assets }));',
-    '}',
-    ""
-  ].join("\n"), "utf8");
+  await fs.writeFile(
+    dispatcher,
+    [
+      'import fs from "node:fs";',
+      "const [tool, ...arguments_] = process.argv.slice(2);",
+      'fs.appendFileSync(process.env.FAKE_COMMAND_LOG, JSON.stringify({ tool, arguments: arguments_ }) + "\\n");',
+      'if (tool === "gh" && arguments_[0] === "release" && arguments_[1] === "view") {',
+      "  const tag = arguments_[2];",
+      '  const releases = JSON.parse(fs.readFileSync(process.env.FAKE_RELEASE_STATE, "utf8"));',
+      "  const assets = releases[tag];",
+      '  if (assets === undefined) { console.error("release not found"); process.exit(1); }',
+      "  console.log(JSON.stringify({ tagName: tag, assets }));",
+      "}",
+      ""
+    ].join("\n"),
+    "utf8"
+  );
 
   for (const tool of ["gh", "git"] as const) {
     if (process.platform === "win32") {
@@ -268,14 +269,16 @@ async function writeFakeTools(root: string): Promise<string> {
 async function publishedAssets(root: string): Promise<PublishedAsset[]> {
   const dist = path.join(root, "dist");
   const names = (await fs.readdir(dist)).sort();
-  return Promise.all(names.map(async (name) => {
-    const data = await fs.readFile(path.join(dist, name));
-    return {
-      digest: `sha256:${createHash("sha256").update(data).digest("hex")}`,
-      name,
-      size: data.byteLength
-    };
-  }));
+  return Promise.all(
+    names.map(async (name) => {
+      const data = await fs.readFile(path.join(dist, name));
+      return {
+        digest: `sha256:${createHash("sha256").update(data).digest("hex")}`,
+        name,
+        size: data.byteLength
+      };
+    })
+  );
 }
 
 async function readCommandLog(logPath: string): Promise<LoggedCommand[]> {

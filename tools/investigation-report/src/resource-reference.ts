@@ -5,14 +5,13 @@ const investigationResourceIdentityCharacterClassSource =
 const investigationResourceAllowedSymbols =
   "._-+@=()（）[]【】《》,!~'，。！、·：？";
 const investigationResourceAllowedCharacterClassSource =
-  `${investigationResourceIdentityCharacterClassSource}`
-  + escapeRegularExpressionCharacterClass(investigationResourceAllowedSymbols);
-const investigationResourcePathSegmentPatternSource =
-  `[${investigationResourceAllowedCharacterClassSource}]+`;
+  `${investigationResourceIdentityCharacterClassSource}` +
+  escapeRegularExpressionCharacterClass(investigationResourceAllowedSymbols);
+const investigationResourcePathSegmentPatternSource = `[${investigationResourceAllowedCharacterClassSource}]+`;
 
 export const investigationResourceIdLexicalPatternSource =
-  `^${investigationResourcePathSegmentPatternSource}`
-  + `(?:/${investigationResourcePathSegmentPatternSource})*$`;
+  `^${investigationResourcePathSegmentPatternSource}` +
+  `(?:/${investigationResourcePathSegmentPatternSource})*$`;
 
 const investigationResourceIdLexicalPattern = new RegExp(
   investigationResourceIdLexicalPatternSource,
@@ -31,16 +30,20 @@ export type InvestigationResourceLinkTargetResult =
   | { status: "invalid"; error: string };
 
 export function isInvestigationResourceId(value: string): boolean {
-  return investigationResourceIdLexicalPattern.test(value)
-    && value.split("/").every(isInvestigationResourcePathSegment);
+  return (
+    investigationResourceIdLexicalPattern.test(value) &&
+    value.split("/").every(isInvestigationResourcePathSegment)
+  );
 }
 
 function isInvestigationResourcePathSegment(segment: string): boolean {
-  return !segment.startsWith(".")
-    && !segment.endsWith(".")
-    && investigationResourceIdentityCharacterPattern.test(segment)
-    && !windowsReservedResourceSegmentPattern.test(segment)
-    && hasSupportedMarkdownParentheses(segment);
+  return (
+    !segment.startsWith(".") &&
+    !segment.endsWith(".") &&
+    investigationResourceIdentityCharacterPattern.test(segment) &&
+    !windowsReservedResourceSegmentPattern.test(segment) &&
+    hasSupportedMarkdownParentheses(segment)
+  );
 }
 
 function hasSupportedMarkdownParentheses(segment: string): boolean {
@@ -70,24 +73,26 @@ export function investigationResourceIdFromLinkTarget(
 ): InvestigationResourceLinkTargetResult {
   const prefix = `../${investigationResourcesDirectoryName}/`;
   if (
-    !target.startsWith(prefix)
-    || target.includes("?")
-    || target.includes("#")
-    || target.includes("%")
-    || target.includes("\\")
+    !target.startsWith(prefix) ||
+    target.includes("?") ||
+    target.includes("#") ||
+    target.includes("%") ||
+    target.includes("\\")
   ) {
     return {
-      error: `resource link target ${JSON.stringify(target)} must use `
-        + `../${investigationResourcesDirectoryName}/<resource-id> without `
-        + "queries, fragments, encoding, or backslashes",
+      error:
+        `resource link target ${JSON.stringify(target)} must use ` +
+        `../${investigationResourcesDirectoryName}/<resource-id> without ` +
+        "queries, fragments, encoding, or backslashes",
       status: "invalid"
     };
   }
   const id = target.slice(prefix.length);
   if (!isInvestigationResourceId(id)) {
     return {
-      error: `resource link target ${JSON.stringify(target)} must contain a safe, `
-        + "normalized resource id",
+      error:
+        `resource link target ${JSON.stringify(target)} must contain a safe, ` +
+        "normalized resource id",
       status: "invalid"
     };
   }

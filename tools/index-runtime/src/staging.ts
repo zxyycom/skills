@@ -3,9 +3,7 @@ import {
   VersionControlError,
   type VersionControlFile
 } from "../../shared/src/version-control/index.ts";
-import {
-  repositoryRelativePathFromFileSystemPath
-} from "../../shared/src/version-control/repository-relative-path.ts";
+import { repositoryRelativePathFromFileSystemPath } from "../../shared/src/version-control/repository-relative-path.ts";
 import {
   defineStateIndexDefinition,
   expectationOf,
@@ -15,14 +13,8 @@ import { diagnostic } from "./diagnostics.ts";
 import { compareIndexText } from "./ordering.ts";
 import { isStateIndexText } from "./schemas.ts";
 import { buildStateIndexFromSnapshot } from "./snapshot-builder.ts";
-import {
-  parseStateIndex,
-  serializeStateIndex
-} from "./snapshot-parser.ts";
-import {
-  loadStateIndexAtResolvedPath,
-  resolveIndexPath
-} from "./storage.ts";
+import { parseStateIndex, serializeStateIndex } from "./snapshot-parser.ts";
+import { loadStateIndexAtResolvedPath, resolveIndexPath } from "./storage.ts";
 import type {
   JsonObject,
   StateIndex,
@@ -34,10 +26,10 @@ import type {
   StateSnapshot
 } from "./types.ts";
 
-type EntryStageErrorState = Exclude<Extract<
-  StateIndexEntryStageResult,
-  { status: "error" }
->["state"], "pending-recovery-failed">;
+type EntryStageErrorState = Exclude<
+  Extract<StateIndexEntryStageResult, { status: "error" }>["state"],
+  "pending-recovery-failed"
+>;
 
 type EntryStageResultContext = Readonly<{
   indexPath: string;
@@ -51,29 +43,37 @@ type SelectedIdValidation =
 export async function stageSelectedIndexEntries<
   State extends object,
   Metadata extends JsonObject
->(options: Readonly<{
-  context: StateIndexContext;
-  definition: StateIndexDefinition<State, Metadata>;
-  indexPath: string;
-  selectedIds: readonly string[];
-}>): Promise<StateIndexEntryStageResult> {
+>(
+  options: Readonly<{
+    context: StateIndexContext;
+    definition: StateIndexDefinition<State, Metadata>;
+    indexPath: string;
+    selectedIds: readonly string[];
+  }>
+): Promise<StateIndexEntryStageResult> {
   const resultContext: EntryStageResultContext = {
     indexPath: options.indexPath,
     namespace: options.definition.namespace
   };
   const definitionErrors = validateStateIndexDefinition(options.definition);
   if (definitionErrors.length > 0) {
-    return failedStage(resultContext, "definition-invalid", [diagnostic({
-      code: "state-index.definition-invalid",
-      message: definitionErrors.join("; "),
-      path: options.indexPath
-    })]);
+    return failedStage(resultContext, "definition-invalid", [
+      diagnostic({
+        code: "state-index.definition-invalid",
+        message: definitionErrors.join("; "),
+        path: options.indexPath
+      })
+    ]);
   }
   const definition = defineStateIndexDefinition(options.definition);
   const expectation = expectationOf(definition);
   const selected = validateSelectedIds(options.selectedIds, options.indexPath);
   if (selected.status === "error") {
-    return failedStage(resultContext, "selection-invalid", selected.diagnostics);
+    return failedStage(
+      resultContext,
+      "selection-invalid",
+      selected.diagnostics
+    );
   }
   if (isOperationAborted(options.context)) {
     return abortedStage(resultContext, selected.selectedIds);
@@ -106,12 +106,20 @@ export async function stageSelectedIndexEntries<
       resolvedIndexPath.value.targetPath
     );
   } catch {
-    return failedStage(resultContext, "index-path-invalid", [diagnostic({
-      code: "state-index.repository-path-invalid",
-      message: "the resolved index path is not a file in the discovered repository; check "
-        + "context.root and indexPath, then retry",
-      path: options.indexPath
-    })], selected.selectedIds);
+    return failedStage(
+      resultContext,
+      "index-path-invalid",
+      [
+        diagnostic({
+          code: "state-index.repository-path-invalid",
+          message:
+            "the resolved index path is not a file in the discovered repository; check " +
+            "context.root and indexPath, then retry",
+          path: options.indexPath
+        })
+      ],
+      selected.selectedIds
+    );
   }
 
   let revision: string | null;
@@ -133,7 +141,8 @@ export async function stageSelectedIndexEntries<
     }
   }
 
-  let revisionIndex: StateIndexResult<StateIndex<State, Metadata>> | null = null;
+  let revisionIndex: StateIndexResult<StateIndex<State, Metadata>> | null =
+    null;
   if (revisionFile !== null) {
     let revisionText: string;
     try {
@@ -141,11 +150,18 @@ export async function stageSelectedIndexEntries<
         revisionFile.data
       );
     } catch {
-      return failedStage(resultContext, "revision-index-invalid", [diagnostic({
-        code: "state-index.revision-index-encoding-invalid",
-        message: "the revision index is not valid UTF-8 text",
-        path: options.indexPath
-      })], selected.selectedIds);
+      return failedStage(
+        resultContext,
+        "revision-index-invalid",
+        [
+          diagnostic({
+            code: "state-index.revision-index-encoding-invalid",
+            message: "the revision index is not valid UTF-8 text",
+            path: options.indexPath
+          })
+        ],
+        selected.selectedIds
+      );
     }
     revisionIndex = parseStateIndex({
       definition,
@@ -179,27 +195,42 @@ export async function stageSelectedIndexEntries<
     );
   }
   if (
-    baseline !== null
-    && !sameCollectionContract(baseline, workspaceIndex.value)
+    baseline !== null &&
+    !sameCollectionContract(baseline, workspaceIndex.value)
   ) {
-    return failedStage(resultContext, "collection-changed", [diagnostic({
-      code: "state-index.stage-collection-changed",
-      message: "metadata or its source revision changed; stage the complete index instead",
-      path: options.indexPath
-    })], selected.selectedIds);
+    return failedStage(
+      resultContext,
+      "collection-changed",
+      [
+        diagnostic({
+          code: "state-index.stage-collection-changed",
+          message:
+            "metadata or its source revision changed; stage the complete index instead",
+          path: options.indexPath
+        })
+      ],
+      selected.selectedIds
+    );
   }
 
   const selectedIds = new Set(selected.selectedIds);
-  const missingId = selected.selectedIds.find((id) => (
-    !hasEntry(baseline, id) && !hasEntry(workspaceIndex.value, id)
-  ));
+  const missingId = selected.selectedIds.find(
+    (id) => !hasEntry(baseline, id) && !hasEntry(workspaceIndex.value, id)
+  );
   if (missingId !== undefined) {
-    return failedStage(resultContext, "selection-invalid", [diagnostic({
-      code: "state-index.selected-id-missing",
-      message: `selected state id ${JSON.stringify(missingId)} is absent from both indexes`,
-      path: options.indexPath,
-      stateId: missingId
-    })], selected.selectedIds);
+    return failedStage(
+      resultContext,
+      "selection-invalid",
+      [
+        diagnostic({
+          code: "state-index.selected-id-missing",
+          message: `selected state id ${JSON.stringify(missingId)} is absent from both indexes`,
+          path: options.indexPath,
+          stateId: missingId
+        })
+      ],
+      selected.selectedIds
+    );
   }
 
   const targetSnapshot = selectTargetSnapshot(
@@ -226,8 +257,8 @@ export async function stageSelectedIndexEntries<
 
   const targetText = serializeStateIndex(target.value, definition);
   const targetData = Buffer.from(targetText, "utf8");
-  const changed = revisionFile === null
-    || !targetData.equals(Buffer.from(revisionFile.data));
+  const changed =
+    revisionFile === null || !targetData.equals(Buffer.from(revisionFile.data));
   try {
     await repository.replacePendingFiles({
       expectedFiles: revisionFile === null ? [] : [revisionFile],
@@ -257,11 +288,13 @@ function validateSelectedIds(
 ): SelectedIdValidation {
   if (!Array.isArray(input) || input.length === 0) {
     return {
-      diagnostics: [diagnostic({
-        code: "state-index.selected-ids-invalid",
-        message: "selectedIds must be a non-empty array of unique state ids",
-        path: indexPath
-      })],
+      diagnostics: [
+        diagnostic({
+          code: "state-index.selected-ids-invalid",
+          message: "selectedIds must be a non-empty array of unique state ids",
+          path: indexPath
+        })
+      ],
       status: "error"
     };
   }
@@ -270,24 +303,29 @@ function validateSelectedIds(
   for (const id of input) {
     if (typeof id !== "string" || !isStateIndexText(id)) {
       return {
-        diagnostics: [diagnostic({
-          code: "state-index.selected-id-invalid",
-          message: "selected state ids must be non-empty text without surrounding "
-            + "whitespace or control characters",
-          path: indexPath,
-          stateId: typeof id === "string" ? id : null
-        })],
+        diagnostics: [
+          diagnostic({
+            code: "state-index.selected-id-invalid",
+            message:
+              "selected state ids must be non-empty text without surrounding " +
+              "whitespace or control characters",
+            path: indexPath,
+            stateId: typeof id === "string" ? id : null
+          })
+        ],
         status: "error"
       };
     }
     if (seen.has(id)) {
       return {
-        diagnostics: [diagnostic({
-          code: "state-index.selected-id-duplicate",
-          message: `selected state id ${JSON.stringify(id)} appears more than once`,
-          path: indexPath,
-          stateId: id
-        })],
+        diagnostics: [
+          diagnostic({
+            code: "state-index.selected-id-duplicate",
+            message: `selected state id ${JSON.stringify(id)} appears more than once`,
+            path: indexPath,
+            stateId: id
+          })
+        ],
         status: "error"
       };
     }
@@ -304,8 +342,10 @@ function sameCollectionContract<
   revision: StateIndex<State, Metadata>,
   workspace: StateIndex<State, Metadata>
 ): boolean {
-  return JSON.stringify(revision.metadata) === JSON.stringify(workspace.metadata)
-    && revision.sourceRevision.metadata === workspace.sourceRevision.metadata;
+  return (
+    JSON.stringify(revision.metadata) === JSON.stringify(workspace.metadata) &&
+    revision.sourceRevision.metadata === workspace.sourceRevision.metadata
+  );
 }
 
 function selectTargetSnapshot<
@@ -334,8 +374,8 @@ function selectTargetSnapshot<
     metadata: revision?.metadata ?? workspace.metadata,
     sourceRevision: {
       entries: Object.fromEntries(revisions),
-      metadata: revision?.sourceRevision.metadata
-        ?? workspace.sourceRevision.metadata
+      metadata:
+        revision?.sourceRevision.metadata ?? workspace.sourceRevision.metadata
     },
     states: Object.fromEntries(states)
   };
@@ -358,35 +398,58 @@ function pendingFailure(
   selectedIds: string[]
 ): StateIndexEntryStageResult {
   if (
-    error instanceof VersionControlError
-    && error.code === "pending-conflict"
+    error instanceof VersionControlError &&
+    error.code === "pending-conflict"
   ) {
-    return failedStage(context, "pending-conflict", [diagnostic({
-      code: "state-index.pending-conflict",
-      message: "the current revision or target pending content may have changed, or the "
-        + "pending write boundary may be busy; reread the current revision and target "
-        + "pending content, resolve any existing pending change for this index, then retry",
-      path: context.indexPath
-    })], selectedIds);
+    return failedStage(
+      context,
+      "pending-conflict",
+      [
+        diagnostic({
+          code: "state-index.pending-conflict",
+          message:
+            "the current revision or target pending content may have changed, or the " +
+            "pending write boundary may be busy; reread the current revision and target " +
+            "pending content, resolve any existing pending change for this index, then retry",
+          path: context.indexPath
+        })
+      ],
+      selectedIds
+    );
   }
   if (
-    error instanceof VersionControlError
-    && error.code === "pending-recovery-failed"
+    error instanceof VersionControlError &&
+    error.code === "pending-recovery-failed"
   ) {
-    return failedRecoveryStage(context, [diagnostic({
-      code: "state-index.pending-recovery-failed",
-      message: "pending recovery was incomplete; read and reconcile the target range through "
-        + "the version-control API before retrying; if it cannot be uniquely read or "
-        + "attributed, stop and ask the range owner",
-      path: context.indexPath
-    })], selectedIds);
+    return failedRecoveryStage(
+      context,
+      [
+        diagnostic({
+          code: "state-index.pending-recovery-failed",
+          message:
+            "pending recovery was incomplete; read and reconcile the target range through " +
+            "the version-control API before retrying; if it cannot be uniquely read or " +
+            "attributed, stop and ask the range owner",
+          path: context.indexPath
+        })
+      ],
+      selectedIds
+    );
   }
-  return failedStage(context, "pending-write-failed", [diagnostic({
-    code: "state-index.pending-write-failed",
-    message: "failed to replace the pending index; the previous pending range was preserved; "
-      + "inspect the target pending content and repository access, then retry",
-    path: context.indexPath
-  })], selectedIds);
+  return failedStage(
+    context,
+    "pending-write-failed",
+    [
+      diagnostic({
+        code: "state-index.pending-write-failed",
+        message:
+          "failed to replace the pending index; the previous pending range was preserved; " +
+          "inspect the target pending content and repository access, then retry",
+        path: context.indexPath
+      })
+    ],
+    selectedIds
+  );
 }
 
 function repositoryOpenFailure(
@@ -395,12 +458,20 @@ function repositoryOpenFailure(
   selectedIds: string[]
 ): StateIndexEntryStageResult {
   if (error instanceof VersionControlError && error.code === "not-repository") {
-    return failedStage(context, "revision-read-failed", [diagnostic({
-      code: "state-index.repository-unavailable",
-      message: "the configured root is not inside a version-control repository; choose a "
-        + "repository-backed root, then retry",
-      path: context.indexPath
-    })], selectedIds);
+    return failedStage(
+      context,
+      "revision-read-failed",
+      [
+        diagnostic({
+          code: "state-index.repository-unavailable",
+          message:
+            "the configured root is not inside a version-control repository; choose a " +
+            "repository-backed root, then retry",
+          path: context.indexPath
+        })
+      ],
+      selectedIds
+    );
   }
   return revisionReadFailure(context, selectedIds);
 }
@@ -409,23 +480,38 @@ function revisionReadFailure(
   context: EntryStageResultContext,
   selectedIds: string[]
 ): StateIndexEntryStageResult {
-  return failedStage(context, "revision-read-failed", [diagnostic({
-    code: "state-index.revision-read-failed",
-    message: "failed to read the current revision or its index file; check repository "
-      + "access and revision integrity, then retry",
-    path: context.indexPath
-  })], selectedIds);
+  return failedStage(
+    context,
+    "revision-read-failed",
+    [
+      diagnostic({
+        code: "state-index.revision-read-failed",
+        message:
+          "failed to read the current revision or its index file; check repository " +
+          "access and revision integrity, then retry",
+        path: context.indexPath
+      })
+    ],
+    selectedIds
+  );
 }
 
 function abortedStage(
   context: EntryStageResultContext,
   selectedIds: string[]
 ): StateIndexEntryStageResult {
-  return failedStage(context, "operation-aborted", [diagnostic({
-    code: "state-index.operation-aborted",
-    message: "index entry staging was aborted",
-    path: context.indexPath
-  })], selectedIds);
+  return failedStage(
+    context,
+    "operation-aborted",
+    [
+      diagnostic({
+        code: "state-index.operation-aborted",
+        message: "index entry staging was aborted",
+        path: context.indexPath
+      })
+    ],
+    selectedIds
+  );
 }
 
 function failedRecoveryStage(

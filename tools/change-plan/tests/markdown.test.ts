@@ -27,9 +27,11 @@ test("Markdown semantics normalize CRLF and ignore HTML comments as content", ()
     "# Proposal\r\n\r\n<!-- 摘要 -->\r\n\r\n## Why\r\n\r\n<!-- 原因 -->\r\n\r\n## Outcome\r\n\r\n<!-- 结果 -->\r\n",
     proposalContract
   );
-  assert.ok(commentsOnly.diagnostics.some(
-    (diagnostic) => diagnostic.code === "empty-introduction"
-  ));
+  assert.ok(
+    commentsOnly.diagnostics.some(
+      (diagnostic) => diagnostic.code === "empty-introduction"
+    )
+  );
   assert.equal(
     commentsOnly.diagnostics.filter(
       (diagnostic) => diagnostic.code === "empty-section"

@@ -19,7 +19,9 @@ import {
 
 const execFileAsync = promisify(execFile);
 
-async function runtimeOptions(toolHome: string): Promise<RuntimeContextOptions> {
+async function runtimeOptions(
+  toolHome: string
+): Promise<RuntimeContextOptions> {
   return {
     environment: { TASK_GRAPH_TOOL_HOME: toolHome },
     nodeVersion: await resolveNodeVersion()
@@ -43,7 +45,10 @@ test("runtime info returns deterministic installation argv without persistent wr
     });
 
     assert.equal(defaultInfo.runtimeId, "fs-native-extensions-1.5.0");
-    assert.equal(defaultInfo.toolHome, path.join(defaultHome, ".tools", "task-graph"));
+    assert.equal(
+      defaultInfo.toolHome,
+      path.join(defaultHome, ".tools", "task-graph")
+    );
     assert.equal(defaultInfo.toolHomeSource, "default");
     assert.equal(environmentInfo.toolHome, path.resolve(environmentHome));
     assert.equal(environmentInfo.toolHomeSource, "environment");
@@ -94,7 +99,10 @@ test("runtime missing and incompatible states fail closed", async () => {
       () => loadNativeLockBinding(options),
       "RUNTIME_MISSING"
     );
-    assert.deepEqual(missingError.details.installCommand, missing.installCommand);
+    assert.deepEqual(
+      missingError.details.installCommand,
+      missing.installCommand
+    );
 
     const packageRoot = path.join(
       missing.runtimePath,
@@ -131,11 +139,15 @@ test("runtime loads the exact direct package and passes a real native lock probe
       "const binding=await runtime.loadNativeLockBinding(options)",
       "process.stdout.write(JSON.stringify({info,tryLock:typeof binding.tryLock,unlock:typeof binding.unlock}))"
     ].join(";");
-    const result = JSON.parse((await execFileAsync(
-      await resolveNodeExecutable(),
-      ["--input-type=module", "-e", script],
-      { windowsHide: true }
-    )).stdout) as {
+    const result = JSON.parse(
+      (
+        await execFileAsync(
+          await resolveNodeExecutable(),
+          ["--input-type=module", "-e", script],
+          { windowsHide: true }
+        )
+      ).stdout
+    ) as {
       info: Awaited<ReturnType<typeof getTaskGraphRuntimeInfo>>;
       tryLock: string;
       unlock: string;

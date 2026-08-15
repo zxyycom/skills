@@ -1,20 +1,17 @@
 import { freezeObject } from "./frozen-json.ts";
 import { compareStateIndexKeyScalars } from "./ordering.ts";
 import { isStateIndexText } from "./schemas.ts";
-import type {
-  StateIndexKeyDefinition,
-  StateIndexKeyScalar
-} from "./types.ts";
+import type { StateIndexKeyDefinition, StateIndexKeyScalar } from "./types.ts";
 
 export type StateIndexKeyValuesResult =
   | {
-    status: "error";
-    message: string;
-  }
+      status: "error";
+      message: string;
+    }
   | {
-    status: "ok";
-    values: StateIndexKeyScalar[];
-  };
+      status: "ok";
+      values: StateIndexKeyScalar[];
+    };
 
 export function normalizeStateIndexKeyValues(
   input: unknown,
@@ -28,8 +25,9 @@ export function normalizeStateIndexKeyValues(
   for (const value of inputs) {
     if (!isStateIndexKeyScalar(value)) {
       return {
-        message: "derive must return a boolean, finite number, non-empty string, "
-          + "or an array of them",
+        message:
+          "derive must return a boolean, finite number, non-empty string, " +
+          "or an array of them",
         status: "error"
       };
     }
@@ -43,17 +41,20 @@ export function normalizeStateIndexKeyValues(
   }
   return {
     status: "ok",
-    values: [...new Map(values.map((value) => [scalarIdentity(value), value])).values()]
-      .sort(compareStateIndexKeyScalars)
+    values: [
+      ...new Map(values.map((value) => [scalarIdentity(value), value])).values()
+    ].sort(compareStateIndexKeyScalars)
   };
 }
 
 export function isStateIndexKeyScalar(
   value: unknown
 ): value is StateIndexKeyScalar {
-  return typeof value === "boolean"
-    || (typeof value === "number" && Number.isFinite(value))
-    || (typeof value === "string" && isStateIndexText(value));
+  return (
+    typeof value === "boolean" ||
+    (typeof value === "number" && Number.isFinite(value)) ||
+    (typeof value === "string" && isStateIndexText(value))
+  );
 }
 
 export function keyValueMatchesMode(

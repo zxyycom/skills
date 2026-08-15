@@ -20,7 +20,12 @@ export type MarkdownLinkReporter = (error: string) => void;
 type NormalizedMarkdownTarget =
   | { kind: "empty"; target: string }
   | { kind: "external"; target: string }
-  | { anchor: string | null; kind: "internal"; pathTarget: string | null; target: string };
+  | {
+      anchor: string | null;
+      kind: "internal";
+      pathTarget: string | null;
+      target: string;
+    };
 
 type MarkdownNode = {
   children?: MarkdownNode[];
@@ -37,7 +42,10 @@ function normalizeIdentifier(identifier: string): string {
   return identifier.trim().replace(/\s+/g, " ").toUpperCase();
 }
 
-function visitMarkdownNode(node: MarkdownNode, visit: (node: MarkdownNode) => void): void {
+function visitMarkdownNode(
+  node: MarkdownNode,
+  visit: (node: MarkdownNode) => void
+): void {
   visit(node);
 
   for (const child of node.children ?? []) {
@@ -57,7 +65,10 @@ export function extractMarkdownLinks(markdown: string): MarkdownLinkExtraction {
     }
 
     if (targetNodeTypes.has(node.type) && typeof node.url === "string") {
-      targets.push({ kind: node.type as MarkdownLinkTarget["kind"], target: node.url });
+      targets.push({
+        kind: node.type as MarkdownLinkTarget["kind"],
+        target: node.url
+      });
 
       if (node.type === "definition" && typeof node.identifier === "string") {
         definitionIdentifiers.add(normalizeIdentifier(node.identifier));
@@ -65,7 +76,10 @@ export function extractMarkdownLinks(markdown: string): MarkdownLinkExtraction {
       return;
     }
 
-    if (referenceNodeTypes.has(node.type) && typeof node.identifier === "string") {
+    if (
+      referenceNodeTypes.has(node.type) &&
+      typeof node.identifier === "string"
+    ) {
       references.push({
         identifier: normalizeIdentifier(node.identifier),
         label: typeof node.label === "string" ? node.label : node.identifier
@@ -151,7 +165,9 @@ export async function validateMarkdownLinks(
     const relativeFilePath = toPosix(path.relative(workspaceRoot, filePath));
 
     for (const label of missingReferenceLabels) {
-      report(`${relativeFilePath} has an undefined markdown reference link: ${label}`);
+      report(
+        `${relativeFilePath} has an undefined markdown reference link: ${label}`
+      );
     }
 
     for (const { target } of targets) {
@@ -170,15 +186,17 @@ export async function validateMarkdownLinks(
         : filePath;
       const relativeToRoot = path.relative(workspaceRoot, resolved);
       if (
-        relativeToRoot === ".."
-        || relativeToRoot.startsWith(`..${path.sep}`)
-        || path.isAbsolute(relativeToRoot)
+        relativeToRoot === ".." ||
+        relativeToRoot.startsWith(`..${path.sep}`) ||
+        path.isAbsolute(relativeToRoot)
       ) {
-        report(`${relativeFilePath} links outside the validation root: ${target}`);
+        report(
+          `${relativeFilePath} links outside the validation root: ${target}`
+        );
         continue;
       }
 
-      if (!await pathExists(resolved)) {
+      if (!(await pathExists(resolved))) {
         report(`${relativeFilePath} has a missing link target: ${target}`);
         continue;
       }
@@ -194,13 +212,17 @@ export async function validateMarkdownLinks(
       }
 
       if (path.extname(resolved) !== ".md") {
-        report(`${relativeFilePath} uses an anchor on a non-markdown target: ${target}`);
+        report(
+          `${relativeFilePath} uses an anchor on a non-markdown target: ${target}`
+        );
         continue;
       }
 
       const anchors = await getHeadingAnchors(resolved);
       if (!anchors.has(decodedAnchor)) {
-        report(`${relativeFilePath} links to a missing markdown heading anchor: ${target}`);
+        report(
+          `${relativeFilePath} links to a missing markdown heading anchor: ${target}`
+        );
       }
     }
   }

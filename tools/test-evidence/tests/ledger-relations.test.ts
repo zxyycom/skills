@@ -48,10 +48,10 @@ test("ledger relation graphs close empty one-to-many many-to-one and many-to-man
     const loaded = await readTestEvidenceLedgerSource(workspaceRoot);
     assert.notEqual(loaded.source, null);
     assert.equal(loaded.summary.relations, 6);
-    assert.deepEqual(
-      loaded.source?.relations.testToCaseIds.get("test.alpha"),
-      ["LEDGER-ALPHA-BETA-001", "LEDGER-ALPHA-GAMMA-001"]
-    );
+    assert.deepEqual(loaded.source?.relations.testToCaseIds.get("test.alpha"), [
+      "LEDGER-ALPHA-BETA-001",
+      "LEDGER-ALPHA-GAMMA-001"
+    ]);
   });
 });
 
@@ -64,10 +64,13 @@ test("ledger relation gates reject empty duplicate unknown and unreferenced endp
     });
     const loaded = await readTestEvidenceLedgerSource(workspaceRoot);
     assert.equal(loaded.source, null);
-    assert.ok(loaded.diagnostics.some(
-      (diagnostic) => diagnostic.code === "relation.test-unreferenced"
-        && diagnostic.testId === "test.alpha"
-    ));
+    assert.ok(
+      loaded.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "relation.test-unreferenced" &&
+          diagnostic.testId === "test.alpha"
+      )
+    );
   }, "empty");
 
   await withLedgerWorkspace(async (workspaceRoot) => {
@@ -84,11 +87,14 @@ test("ledger relation gates reject empty duplicate unknown and unreferenced endp
     });
     const loaded = await readTestEvidenceLedgerSource(workspaceRoot);
     assert.equal(loaded.source, null);
-    assert.ok(loaded.diagnostics.some(
-      (diagnostic) => diagnostic.code === "relation.test-unknown"
-        && diagnostic.caseId === unknownCase.id
-        && diagnostic.testId === "test.unknown"
-    ));
+    assert.ok(
+      loaded.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "relation.test-unknown" &&
+          diagnostic.caseId === unknownCase.id &&
+          diagnostic.testId === "test.unknown"
+      )
+    );
   }, "empty");
 
   await withLedgerWorkspace(async (workspaceRoot) => {
@@ -103,9 +109,11 @@ test("ledger relation gates reject empty duplicate unknown and unreferenced endp
     );
     const loaded = await readTestEvidenceLedgerSource(workspaceRoot);
     assert.equal(loaded.source, null);
-    assert.ok(loaded.diagnostics.some(
-      (diagnostic) => diagnostic.code === "relation.duplicate"
-    ));
+    assert.ok(
+      loaded.diagnostics.some(
+        (diagnostic) => diagnostic.code === "relation.duplicate"
+      )
+    );
   }, "empty");
 
   await withLedgerWorkspace(async (workspaceRoot) => {
@@ -120,9 +128,11 @@ test("ledger relation gates reject empty duplicate unknown and unreferenced endp
     );
     const loaded = await readTestEvidenceLedgerSource(workspaceRoot);
     assert.equal(loaded.source, null);
-    assert.ok(loaded.diagnostics.some(
-      (diagnostic) => diagnostic.code === "relation.tests-empty"
-    ));
+    assert.ok(
+      loaded.diagnostics.some(
+        (diagnostic) => diagnostic.code === "relation.tests-empty"
+      )
+    );
   }, "empty");
 });
 

@@ -148,26 +148,42 @@ const controlHelp = [
 ] as const satisfies readonly HelpParameter[];
 
 const commandHelpCatalog = {
-  "runtime info": { usage: "task-graph runtime info", positionals: [], options: [] },
+  "runtime info": {
+    usage: "task-graph runtime info",
+    positionals: [],
+    options: []
+  },
   "index init": {
     usage: "task-graph index init",
     positionals: [],
     options: [],
     requiresMutationRuntime: true
   },
-  "index info": { usage: "task-graph index info", positionals: [], options: [] },
+  "index info": {
+    usage: "task-graph index info",
+    positionals: [],
+    options: []
+  },
   "index stage": {
     usage: "task-graph index stage --task <id> [--task <id>...]",
     positionals: [],
-    options: [{ name: "--task", required: true, type: "string", multiple: true }]
+    options: [
+      { name: "--task", required: true, type: "string", multiple: true }
+    ]
   },
   "task create": {
-    usage: "task-graph task create --title <text> --goal <text> --expected-revision <n> [options]",
+    usage:
+      "task-graph task create --title <text> --goal <text> --expected-revision <n> [options]",
     positionals: [],
     options: [
       ...contentHelp,
       { name: "--parent", required: false, type: "string", default: null },
-      { name: "--control", required: false, type: "string", enum: taskControlModes },
+      {
+        name: "--control",
+        required: false,
+        type: "string",
+        enum: taskControlModes
+      },
       { name: "--reason", required: false, type: "string" },
       expectedRevisionHelp
     ],
@@ -175,26 +191,31 @@ const commandHelpCatalog = {
   },
   "task list": {
     usage: "task-graph task list",
-    positionals: [], options: []
+    positionals: [],
+    options: []
   },
   "task show": {
     usage: "task-graph task show <task-id>",
-    positionals: [positional("task-id")], options: []
+    positionals: [positional("task-id")],
+    options: []
   },
   "task update-content": {
-    usage: "task-graph task update-content <task-id> --title <text> --goal <text> --expected-revision <n> [options]",
+    usage:
+      "task-graph task update-content <task-id> --title <text> --goal <text> --expected-revision <n> [options]",
     positionals: [positional("task-id")],
     options: [...contentHelp, expectedRevisionHelp],
     requiresMutationRuntime: true
   },
   "task update-control": {
-    usage: "task-graph task update-control <task-id> --control <mode> --expected-revision <n> [--reason <text>]",
+    usage:
+      "task-graph task update-control <task-id> --control <mode> --expected-revision <n> [--reason <text>]",
     positionals: [positional("task-id")],
     options: [...controlHelp, expectedRevisionHelp],
     requiresMutationRuntime: true
   },
   "task remove": {
-    usage: "task-graph task remove --task <id>... --expected-revision <n> --results-delivered",
+    usage:
+      "task-graph task remove --task <id>... --expected-revision <n> --results-delivered",
     positionals: [],
     options: [
       { name: "--task", required: true, type: "string", multiple: true },
@@ -204,41 +225,48 @@ const commandHelpCatalog = {
     requiresMutationRuntime: true
   },
   "relation parent": {
-    usage: "task-graph relation parent <task-id> <parent-id|null> --expected-revision <n>",
+    usage:
+      "task-graph relation parent <task-id> <parent-id|null> --expected-revision <n>",
     positionals: [positional("task-id"), positional("parent-id|null")],
     options: [expectedRevisionHelp],
     requiresMutationRuntime: true
   },
   "relation dependency-add": {
-    usage: "task-graph relation dependency-add <task-id> <dependency-id> --expected-revision <n>",
+    usage:
+      "task-graph relation dependency-add <task-id> <dependency-id> --expected-revision <n>",
     positionals: [positional("task-id"), positional("dependency-id")],
     options: [expectedRevisionHelp],
     requiresMutationRuntime: true
   },
   "relation dependency-remove": {
-    usage: "task-graph relation dependency-remove <task-id> <dependency-id> --expected-revision <n>",
+    usage:
+      "task-graph relation dependency-remove <task-id> <dependency-id> --expected-revision <n>",
     positionals: [positional("task-id"), positional("dependency-id")],
     options: [expectedRevisionHelp],
     requiresMutationRuntime: true
   },
   "relation exclusion-add": {
-    usage: "task-graph relation exclusion-add <task-id> <excluded-id> --expected-revision <n>",
+    usage:
+      "task-graph relation exclusion-add <task-id> <excluded-id> --expected-revision <n>",
     positionals: [positional("task-id"), positional("excluded-id")],
     options: [expectedRevisionHelp],
     requiresMutationRuntime: true
   },
   "relation exclusion-remove": {
-    usage: "task-graph relation exclusion-remove <task-id> <excluded-id> --expected-revision <n>",
+    usage:
+      "task-graph relation exclusion-remove <task-id> <excluded-id> --expected-revision <n>",
     positionals: [positional("task-id"), positional("excluded-id")],
     options: [expectedRevisionHelp],
     requiresMutationRuntime: true
   },
   actionable: {
     usage: "task-graph actionable",
-    positionals: [], options: []
+    positionals: [],
+    options: []
   },
   claim: {
-    usage: "task-graph claim <task-id> --actor <actor> [--duration <seconds>] [--recover-lease <id> --expected-revision <n> --reason <text>]",
+    usage:
+      "task-graph claim <task-id> --actor <actor> [--duration <seconds>] [--recover-lease <id> --expected-revision <n> --reason <text>]",
     positionals: [positional("task-id")],
     options: [
       { name: "--actor", required: true, type: "string" },
@@ -259,17 +287,27 @@ const commandHelpCatalog = {
     requiresMutationRuntime: true
   },
   release: {
-    usage: "task-graph release <task-id> --lease <id> --control <mode> [--reason <text>]",
+    usage:
+      "task-graph release <task-id> --lease <id> --control <mode> [--reason <text>]",
     positionals: [positional("task-id")],
-    options: [{ name: "--lease", required: true, type: "string" }, ...controlHelp],
+    options: [
+      { name: "--lease", required: true, type: "string" },
+      ...controlHelp
+    ],
     requiresMutationRuntime: true
   },
   complete: {
-    usage: "task-graph complete <task-id> --result-summary <text> (--lease <id>|--expected-revision <n>) [--result-reference <kind=value> ...]",
+    usage:
+      "task-graph complete <task-id> --result-summary <text> (--lease <id>|--expected-revision <n>) [--result-reference <kind=value> ...]",
     positionals: [positional("task-id")],
     options: [
       { name: "--result-summary", required: true, type: "string" },
-      { name: "--result-reference", required: false, type: "key-value", multiple: true },
+      {
+        name: "--result-reference",
+        required: false,
+        type: "key-value",
+        multiple: true
+      },
       { name: "--lease", required: false, type: "string" },
       { ...expectedRevisionHelp, required: false }
     ],
@@ -291,7 +329,8 @@ const commandHelpCatalog = {
     requiresMutationRuntime: true
   },
   cancel: {
-    usage: "task-graph cancel <task-id> --reason <text> (--lease <id>|--expected-revision <n>)",
+    usage:
+      "task-graph cancel <task-id> --reason <text> (--lease <id>|--expected-revision <n>)",
     positionals: [positional("task-id")],
     options: [
       { name: "--reason", required: true, type: "string" },
@@ -303,7 +342,9 @@ const commandHelpCatalog = {
   apply: {
     usage: "task-graph apply [--file <path>]",
     positionals: [],
-    options: [{ name: "--file", required: false, type: "string", default: "stdin" }],
+    options: [
+      { name: "--file", required: false, type: "string", default: "stdin" }
+    ],
     input: { default: "stdin", fileOption: "--file", format: "json" },
     requiresMutationRuntime: true
   }
@@ -348,9 +389,9 @@ function parseGlobalArguments(argv: readonly string[]): GlobalArguments {
     if (name === "--root" || name === "--index") {
       const value = inline ?? argv[index + 1];
       if (
-        value === undefined
-        || value === ""
-        || (inline === undefined && value.startsWith("--"))
+        value === undefined ||
+        value === "" ||
+        (inline === undefined && value.startsWith("--"))
       ) {
         failArgument(`${name} requires a non-empty path`);
       }
@@ -375,7 +416,14 @@ function parseGlobalArguments(argv: readonly string[]): GlobalArguments {
     }
     remaining.push(token);
   }
-  return { help, indexPath, json, remaining, root: path.resolve(root), version };
+  return {
+    help,
+    indexPath,
+    json,
+    remaining,
+    root: path.resolve(root),
+    version
+  };
 }
 
 function parseCommandOptions(
@@ -383,7 +431,10 @@ function parseCommandOptions(
   definitions: Record<string, OptionDefinition>
 ): ParsedCommandOptions {
   const positionals: string[] = [];
-  const values = Object.create(null) as Record<string, string | string[] | true>;
+  const values = Object.create(null) as Record<
+    string,
+    string | string[] | true
+  >;
   for (let index = 0; index < tokens.length; index += 1) {
     const token = tokens[index] ?? "";
     if (!token.startsWith("--")) {
@@ -398,13 +449,19 @@ function parseCommandOptions(
       : undefined;
     if (definition === undefined) failArgument(`Unknown option --${rawName}`);
     if (definition.kind === "boolean") {
-      if (inline !== undefined) failArgument(`--${rawName} does not accept a value`);
-      if (values[rawName ?? ""] !== undefined) failArgument(`--${rawName} must not be repeated`);
+      if (inline !== undefined)
+        failArgument(`--${rawName} does not accept a value`);
+      if (values[rawName ?? ""] !== undefined)
+        failArgument(`--${rawName} must not be repeated`);
       values[rawName ?? ""] = true;
       continue;
     }
     const value = inline ?? tokens[index + 1];
-    if (value === undefined || value === "" || (inline === undefined && value.startsWith("--"))) {
+    if (
+      value === undefined ||
+      value === "" ||
+      (inline === undefined && value.startsWith("--"))
+    ) {
       failArgument(`--${rawName} requires a non-empty value`);
     }
     if (inline === undefined) index += 1;
@@ -415,7 +472,8 @@ function parseCommandOptions(
         value
       ];
     } else {
-      if (values[rawName ?? ""] !== undefined) failArgument(`--${rawName} must not be repeated`);
+      if (values[rawName ?? ""] !== undefined)
+        failArgument(`--${rawName} must not be repeated`);
       values[rawName ?? ""] = value;
     }
   }
@@ -454,9 +512,9 @@ function integerValue(
   }
   const number = Number(value);
   if (
-    !Number.isSafeInteger(number)
-    || (options.minimum !== undefined && number < options.minimum)
-    || (options.maximum !== undefined && number > options.maximum)
+    !Number.isSafeInteger(number) ||
+    (options.minimum !== undefined && number < options.minimum) ||
+    (options.maximum !== undefined && number > options.maximum)
   ) {
     failArgument(`--${name} is outside its supported integer range`);
   }
@@ -477,7 +535,10 @@ function requirePositionals(
   return parsed.positionals;
 }
 
-function keyValueDictionary(values: string[], label: string): Record<string, string> {
+function keyValueDictionary(
+  values: string[],
+  label: string
+): Record<string, string> {
   const entries = new Map<string, string>();
   for (const value of values) {
     const separator = value.indexOf("=");
@@ -489,7 +550,9 @@ function keyValueDictionary(values: string[], label: string): Record<string, str
     entries.set(key, value.slice(separator + 1));
   }
   return Object.fromEntries(
-    [...entries.entries()].sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)
+    [...entries.entries()].sort(([left], [right]) =>
+      left < right ? -1 : left > right ? 1 : 0
+    )
   );
 }
 
@@ -508,10 +571,12 @@ function controlInput(
     failArgument(`--control must be one of ${taskControlModes.join(", ")}`);
   }
   if (mode === "waiting" || mode === "paused") {
-    if (reason === undefined) failArgument(`--reason is required for ${mode} control`);
+    if (reason === undefined)
+      failArgument(`--reason is required for ${mode} control`);
     return { mode, reason };
   }
-  if (reason !== undefined) failArgument(`--reason is only valid for waiting or paused control`);
+  if (reason !== undefined)
+    failArgument(`--reason is only valid for waiting or paused control`);
   return { mode: mode as "inherit" | "candidate" | "queued" };
 }
 
@@ -523,7 +588,10 @@ function contentInput(parsed: ParsedCommandOptions): TaskContentInput {
     goal,
     acceptance: stringsValue(parsed, "acceptance"),
     context: stringValue(parsed, "context") ?? null,
-    references: keyValueDictionary(stringsValue(parsed, "reference"), "--reference")
+    references: keyValueDictionary(
+      stringsValue(parsed, "reference"),
+      "--reference"
+    )
   };
 }
 
@@ -542,26 +610,36 @@ function helpData(pathTokens: readonly string[]) {
       command: pathTokens.slice(0, 2).join(" ")
     });
   }
-  const entry: CommandHelp | null = command === null
-    ? null
-    : commandHelpCatalog[command];
+  const entry: CommandHelp | null =
+    command === null ? null : commandHelpCatalog[command];
   return {
     command,
-    requiresMutationRuntime: entry === null
-      ? null
-      : entry.requiresMutationRuntime === true,
-    usage: entry?.usage
-      ?? "task-graph <command> [arguments] [--root <path>] [--index <path>] [--json]",
-    parameters: entry === null
-      ? null
-      : {
-          positionals: entry.positionals,
-          options: entry.options,
-          ...(entry.input === undefined ? {} : { input: entry.input })
-        },
+    requiresMutationRuntime:
+      entry === null ? null : entry.requiresMutationRuntime === true,
+    usage:
+      entry?.usage ??
+      "task-graph <command> [arguments] [--root <path>] [--index <path>] [--json]",
+    parameters:
+      entry === null
+        ? null
+        : {
+            positionals: entry.positionals,
+            options: entry.options,
+            ...(entry.input === undefined ? {} : { input: entry.input })
+          },
     globalOptions: [
-      { name: "--root", required: false, type: "string", default: process.cwd() },
-      { name: "--index", required: false, type: "string", default: defaultTaskGraphIndexPath },
+      {
+        name: "--root",
+        required: false,
+        type: "string",
+        default: process.cwd()
+      },
+      {
+        name: "--index",
+        required: false,
+        type: "string",
+        default: defaultTaskGraphIndexPath
+      },
       { name: "--json", required: false, type: "boolean", default: false }
     ],
     runtimeRequirements: {
@@ -627,7 +705,8 @@ async function dispatchIndexStage(
     "task-graph index stage --task <id> [--task <id>...]"
   );
   const taskIds = stringsValue(parsed, "task");
-  if (taskIds.length === 0) failArgument("--task is required and may be repeated");
+  if (taskIds.length === 0)
+    failArgument("--task is required and may be repeated");
   return await service.stageTaskIndex(taskIds);
 }
 
@@ -635,21 +714,30 @@ async function dispatch(
   service: TaskGraphService,
   tokens: readonly string[],
   runtimeOptions: RuntimeContextOptions
-): Promise<ServiceResult<unknown> | { revision: number | null; data: unknown }> {
+): Promise<
+  ServiceResult<unknown> | { revision: number | null; data: unknown }
+> {
   const first = tokens[0];
   const second = tokens[1];
   if (first === "runtime") {
     const parsed = parseCommandOptions(tokens.slice(2), {});
     requirePositionals(parsed, 0, `task-graph runtime ${second ?? "<info>"}`);
     if (second === "info") {
-      return { revision: null, data: await getTaskGraphRuntimeInfo(runtimeOptions) };
+      return {
+        revision: null,
+        data: await getTaskGraphRuntimeInfo(runtimeOptions)
+      };
     }
     failArgument("runtime command must be info");
   }
   if (first === "index") {
     if (second === "stage") return await dispatchIndexStage(service, tokens);
     const parsed = parseCommandOptions(tokens.slice(2), {});
-    requirePositionals(parsed, 0, `task-graph index ${second ?? "<init|info>"}`);
+    requirePositionals(
+      parsed,
+      0,
+      `task-graph index ${second ?? "<init|info>"}`
+    );
     if (second === "init") return await service.init();
     if (second === "info") return await service.info();
     failArgument("index command must be init, info, or stage");
@@ -666,16 +754,23 @@ async function dispatch(
       });
       requirePositionals(parsed, 0, "task-graph task create [options]");
       const applied = await service.apply({
-        expectedRevision: integerValue(parsed, "expected-revision", { required: true }) ?? 0,
-        operations: [{
-          kind: "create-task",
-          content: contentInput(parsed),
-          parentId: stringValue(parsed, "parent"),
-          control: controlInput(stringValue(parsed, "control"), stringValue(parsed, "reason"))
-        }]
+        expectedRevision:
+          integerValue(parsed, "expected-revision", { required: true }) ?? 0,
+        operations: [
+          {
+            kind: "create-task",
+            content: contentInput(parsed),
+            parentId: stringValue(parsed, "parent"),
+            control: controlInput(
+              stringValue(parsed, "control"),
+              stringValue(parsed, "reason")
+            )
+          }
+        ]
       });
       const taskId = applied.data.createdTaskIds[0];
-      if (taskId === undefined) throw new Error("create-task mutation returned no task id");
+      if (taskId === undefined)
+        throw new Error("create-task mutation returned no task id");
       return { revision: applied.revision, data: { taskId } };
     }
     if (second === "list") {
@@ -683,7 +778,11 @@ async function dispatch(
     }
     if (second === "show") {
       const parsed = parseCommandOptions(tokens.slice(2), {});
-      const [taskId = ""] = requirePositionals(parsed, 1, "task-graph task show <task-id>");
+      const [taskId = ""] = requirePositionals(
+        parsed,
+        1,
+        "task-graph task show <task-id>"
+      );
       return await service.showTask(taskId);
     }
     if (second === "update-content") {
@@ -691,14 +790,21 @@ async function dispatch(
         ...contentOptionDefinitions,
         "expected-revision": { kind: "string" }
       });
-      const [taskId = ""] = requirePositionals(parsed, 1, "task-graph task update-content <task-id> [options]");
+      const [taskId = ""] = requirePositionals(
+        parsed,
+        1,
+        "task-graph task update-content <task-id> [options]"
+      );
       const applied = await service.apply({
-        expectedRevision: integerValue(parsed, "expected-revision", { required: true }) ?? 0,
-        operations: [{
-          kind: "update-task-content",
-          taskId,
-          content: contentInput(parsed)
-        }]
+        expectedRevision:
+          integerValue(parsed, "expected-revision", { required: true }) ?? 0,
+        operations: [
+          {
+            kind: "update-task-content",
+            taskId,
+            content: contentInput(parsed)
+          }
+        ]
       });
       return { revision: applied.revision, data: { taskId } };
     }
@@ -708,14 +814,19 @@ async function dispatch(
         reason: { kind: "string" },
         "expected-revision": { kind: "string" }
       });
-      const [taskId = ""] = requirePositionals(parsed, 1, "task-graph task update-control <task-id> [options]");
+      const [taskId = ""] = requirePositionals(
+        parsed,
+        1,
+        "task-graph task update-control <task-id> [options]"
+      );
       const control = controlInput(
         stringValue(parsed, "control", { required: true }),
         stringValue(parsed, "reason")
       );
       if (control === undefined) failArgument("--control is required");
       const applied = await service.apply({
-        expectedRevision: integerValue(parsed, "expected-revision", { required: true }) ?? 0,
+        expectedRevision:
+          integerValue(parsed, "expected-revision", { required: true }) ?? 0,
         operations: [{ kind: "update-task-control", taskId, control }]
       });
       return { revision: applied.revision, data: { taskId } };
@@ -732,13 +843,15 @@ async function dispatch(
         "task-graph task remove --task <id>... --expected-revision <n> --results-delivered"
       );
       const taskIds = stringsValue(parsed, "task");
-      if (taskIds.length === 0) failArgument("--task is required and may be repeated");
+      if (taskIds.length === 0)
+        failArgument("--task is required and may be repeated");
       if (!booleanValue(parsed, "results-delivered")) {
         failArgument("--results-delivered is required");
       }
       return await service.removeTasks({
         taskIds,
-        expectedRevision: integerValue(parsed, "expected-revision", { required: true }) ?? 0,
+        expectedRevision:
+          integerValue(parsed, "expected-revision", { required: true }) ?? 0,
         resultsDelivered: true
       });
     }
@@ -749,42 +862,61 @@ async function dispatch(
     const parsed = parseCommandOptions(tokens.slice(2), {
       "expected-revision": { kind: "string" }
     });
-    const expectedRevision = integerValue(parsed, "expected-revision", { required: true }) ?? 0;
+    const expectedRevision =
+      integerValue(parsed, "expected-revision", { required: true }) ?? 0;
     if (second === "parent") {
-      const [taskId = "", parent = ""] = requirePositionals(parsed, 2, "task-graph relation parent <task-id> <parent-id|null> --expected-revision <n>");
+      const [taskId = "", parent = ""] = requirePositionals(
+        parsed,
+        2,
+        "task-graph relation parent <task-id> <parent-id|null> --expected-revision <n>"
+      );
       const applied = await service.apply({
         expectedRevision,
-        operations: [{
-          kind: "set-parent",
-          taskId,
-          parentId: parent === "null" ? null : parent
-        }]
+        operations: [
+          {
+            kind: "set-parent",
+            taskId,
+            parentId: parent === "null" ? null : parent
+          }
+        ]
       });
       return { revision: applied.revision, data: { taskId } };
     }
     if (second === "dependency-add" || second === "dependency-remove") {
-      const [taskId = "", dependencyId = ""] = requirePositionals(parsed, 2, `task-graph relation ${second} <task-id> <dependency-id> --expected-revision <n>`);
+      const [taskId = "", dependencyId = ""] = requirePositionals(
+        parsed,
+        2,
+        `task-graph relation ${second} <task-id> <dependency-id> --expected-revision <n>`
+      );
       const applied = await service.apply({
         expectedRevision,
-        operations: [{
-          kind: "set-dependency",
-          taskId,
-          dependencyId,
-          present: second === "dependency-add"
-        }]
+        operations: [
+          {
+            kind: "set-dependency",
+            taskId,
+            dependencyId,
+            present: second === "dependency-add"
+          }
+        ]
       });
       return { revision: applied.revision, data: { taskId } };
     }
     if (second === "exclusion-add" || second === "exclusion-remove") {
-      const [taskId = "", excludedTaskId = ""] = requirePositionals(parsed, 2, `task-graph relation ${second} <task-id> <excluded-id> --expected-revision <n>`);
+      const [taskId = "", excludedTaskId = ""] = requirePositionals(
+        parsed,
+        2,
+        `task-graph relation ${second} <task-id> <excluded-id> --expected-revision <n>`
+      );
       const applied = await service.apply({
         expectedRevision,
-        operations: [{
-          kind: "set-exclusion",
-          taskId,
-          excludedTaskId,
-          present: second === "exclusion-add"
-        }]
+        operations: [
+          {
+            kind: "set-exclusion",
+            taskId,
+            excludedTaskId,
+            present: second === "exclusion-add"
+          }
+        ]
       });
       return { revision: applied.revision, data: { taskId, excludedTaskId } };
     }
@@ -812,8 +944,11 @@ async function dispatch(
     const recoverLeaseId = stringValue(parsed, "recover-lease");
     const expectedRevision = integerValue(parsed, "expected-revision");
     const reason = stringValue(parsed, "reason");
-    const recoveryValueCount = [recoverLeaseId, expectedRevision, reason]
-      .filter((value) => value !== undefined).length;
+    const recoveryValueCount = [
+      recoverLeaseId,
+      expectedRevision,
+      reason
+    ].filter((value) => value !== undefined).length;
     if (recoveryValueCount !== 0 && recoveryValueCount !== 3) {
       failArgument(
         "--recover-lease, --expected-revision, and --reason must be provided together"
@@ -822,7 +957,10 @@ async function dispatch(
     const common = {
       taskId,
       actor: stringValue(parsed, "actor", { required: true }) ?? "",
-      durationSeconds: integerValue(parsed, "duration", { minimum: 60, maximum: 86_400 })
+      durationSeconds: integerValue(parsed, "duration", {
+        minimum: 60,
+        maximum: 86_400
+      })
     };
     return recoverLeaseId === undefined
       ? await service.claim(common)
@@ -838,11 +976,18 @@ async function dispatch(
       lease: { kind: "string" },
       duration: { kind: "string" }
     });
-    const [taskId = ""] = requirePositionals(parsed, 1, "task-graph renew <task-id> --lease <id> [--duration <seconds>]");
+    const [taskId = ""] = requirePositionals(
+      parsed,
+      1,
+      "task-graph renew <task-id> --lease <id> [--duration <seconds>]"
+    );
     return await service.renew({
       taskId,
       leaseId: stringValue(parsed, "lease", { required: true }) ?? "",
-      durationSeconds: integerValue(parsed, "duration", { minimum: 60, maximum: 86_400 })
+      durationSeconds: integerValue(parsed, "duration", {
+        minimum: 60,
+        maximum: 86_400
+      })
     });
   }
   if (first === "release") {
@@ -851,7 +996,11 @@ async function dispatch(
       control: { kind: "string" },
       reason: { kind: "string" }
     });
-    const [taskId = ""] = requirePositionals(parsed, 1, "task-graph release <task-id> --lease <id> --control <mode>");
+    const [taskId = ""] = requirePositionals(
+      parsed,
+      1,
+      "task-graph release <task-id> --lease <id> --control <mode>"
+    );
     const control = controlInput(
       stringValue(parsed, "control", { required: true }),
       stringValue(parsed, "reason")
@@ -870,7 +1019,11 @@ async function dispatch(
       "result-summary": { kind: "string" },
       "result-reference": { kind: "string", multiple: true }
     });
-    const [taskId = ""] = requirePositionals(parsed, 1, "task-graph complete <task-id> --result-summary <text> [--lease <id>|--expected-revision <n>]");
+    const [taskId = ""] = requirePositionals(
+      parsed,
+      1,
+      "task-graph complete <task-id> --result-summary <text> [--lease <id>|--expected-revision <n>]"
+    );
     const leaseId = stringValue(parsed, "lease");
     const expectedRevision = integerValue(parsed, "expected-revision");
     if (leaseId !== undefined && expectedRevision !== undefined) {
@@ -882,20 +1035,30 @@ async function dispatch(
     const common = {
       taskId,
       result: {
-        summary: stringValue(parsed, "result-summary", { required: true }) ?? "",
-        references: keyValueDictionary(stringsValue(parsed, "result-reference"), "--result-reference")
+        summary:
+          stringValue(parsed, "result-summary", { required: true }) ?? "",
+        references: keyValueDictionary(
+          stringsValue(parsed, "result-reference"),
+          "--result-reference"
+        )
       }
     };
-    return await service.complete(leaseId !== undefined
-      ? { ...common, leaseId }
-      : { ...common, expectedRevision: expectedRevision ?? 0 });
+    return await service.complete(
+      leaseId !== undefined
+        ? { ...common, leaseId }
+        : { ...common, expectedRevision: expectedRevision ?? 0 }
+    );
   }
   if (first === "fail") {
     const parsed = parseCommandOptions(tokens.slice(1), {
       lease: { kind: "string" },
       reason: { kind: "string" }
     });
-    const [taskId = ""] = requirePositionals(parsed, 1, "task-graph fail <task-id> --lease <id> --reason <text>");
+    const [taskId = ""] = requirePositionals(
+      parsed,
+      1,
+      "task-graph fail <task-id> --lease <id> --reason <text>"
+    );
     return await service.fail({
       taskId,
       leaseId: stringValue(parsed, "lease", { required: true }) ?? "",
@@ -906,10 +1069,15 @@ async function dispatch(
     const parsed = parseCommandOptions(tokens.slice(1), {
       "expected-revision": { kind: "string" }
     });
-    const [taskId = ""] = requirePositionals(parsed, 1, "task-graph retry <task-id> --expected-revision <n>");
+    const [taskId = ""] = requirePositionals(
+      parsed,
+      1,
+      "task-graph retry <task-id> --expected-revision <n>"
+    );
     return await service.retry({
       taskId,
-      expectedRevision: integerValue(parsed, "expected-revision", { required: true }) ?? 0
+      expectedRevision:
+        integerValue(parsed, "expected-revision", { required: true }) ?? 0
     });
   }
   if (first === "cancel") {
@@ -918,7 +1086,11 @@ async function dispatch(
       "expected-revision": { kind: "string" },
       reason: { kind: "string" }
     });
-    const [taskId = ""] = requirePositionals(parsed, 1, "task-graph cancel <task-id> --reason <text> [--lease <id>|--expected-revision <n>]");
+    const [taskId = ""] = requirePositionals(
+      parsed,
+      1,
+      "task-graph cancel <task-id> --reason <text> [--lease <id>|--expected-revision <n>]"
+    );
     const leaseId = stringValue(parsed, "lease");
     const expectedRevision = integerValue(parsed, "expected-revision");
     if (leaseId !== undefined && expectedRevision !== undefined) {
@@ -931,12 +1103,16 @@ async function dispatch(
       taskId,
       reason: stringValue(parsed, "reason", { required: true }) ?? ""
     };
-    return await service.cancel(leaseId !== undefined
-      ? { ...common, leaseId }
-      : { ...common, expectedRevision: expectedRevision ?? 0 });
+    return await service.cancel(
+      leaseId !== undefined
+        ? { ...common, leaseId }
+        : { ...common, expectedRevision: expectedRevision ?? 0 }
+    );
   }
   if (first === "apply") {
-    const parsed = parseCommandOptions(tokens.slice(1), { file: { kind: "string" } });
+    const parsed = parseCommandOptions(tokens.slice(1), {
+      file: { kind: "string" }
+    });
     requirePositionals(parsed, 0, "task-graph apply [--file <path>|stdin]");
     const request = parseTaskGraphApplyRequest(
       await readJsonRequest(stringValue(parsed, "file"))
@@ -994,7 +1170,9 @@ function resolveInvocation(
   if (globals.version) return { kind: "version" };
   const helpCommand = globals.remaining[0] === "help";
   if (globals.help || helpCommand || globals.remaining.length === 0) {
-    const pathTokens = helpCommand ? globals.remaining.slice(1) : globals.remaining;
+    const pathTokens = helpCommand
+      ? globals.remaining.slice(1)
+      : globals.remaining;
     return {
       kind: "help",
       pathTokens
@@ -1063,10 +1241,18 @@ async function executeInvocation(
       if (requiresMutationRuntime(invocation.tokens)) {
         await assertTaskGraphMutationRuntime(service);
       }
-      const dispatched = await dispatch(service, invocation.tokens, runtimeOptions);
+      const dispatched = await dispatch(
+        service,
+        invocation.tokens,
+        runtimeOptions
+      );
       return {
         kind: "json",
-        result: success(service.store.indexPath, dispatched.revision, dispatched.data)
+        result: success(
+          service.store.indexPath,
+          dispatched.revision,
+          dispatched.data
+        )
       };
     }
   }
@@ -1103,7 +1289,9 @@ function writeOutput(io: CliIo, output: CliOutput): void {
       io.stdout(renderTaskIndexStageResult(output.result));
       return;
     case "task-list":
-      io.stdout(renderTaskListResult(output.result, { columns: output.columns }));
+      io.stdout(
+        renderTaskListResult(output.result, { columns: output.columns })
+      );
       return;
   }
   return unreachable(output);
@@ -1122,7 +1310,9 @@ export async function runTaskGraphCli(
   argv: readonly string[] = process.argv.slice(2),
   options: TaskGraphCliInternalOptions = {}
 ): Promise<number> {
-  const io = options.io ?? { stdout: (text: string) => process.stdout.write(text) };
+  const io = options.io ?? {
+    stdout: (text: string) => process.stdout.write(text)
+  };
   let globals: GlobalArguments;
   try {
     globals = parseGlobalArguments(argv);
@@ -1138,8 +1328,9 @@ export async function runTaskGraphCli(
       ...(options.serviceOptions ?? {}),
       root: globals.root,
       indexPath: globals.indexPath,
-      loadNativeLock: options.serviceOptions?.loadNativeLock
-        ?? (() => loadNativeLockBinding(options.runtimeOptions))
+      loadNativeLock:
+        options.serviceOptions?.loadNativeLock ??
+        (() => loadNativeLockBinding(options.runtimeOptions))
     });
   } catch (error) {
     if (!(error instanceof TaskGraphError)) throw error;
@@ -1163,13 +1354,11 @@ export async function runTaskGraphCli(
     exitCode = 0;
   } catch (error) {
     if (!(error instanceof TaskGraphError)) throw error;
-    const runtimeInvocation = globals.remaining[0] === "runtime"
-      || (globals.remaining[0] === "help" && globals.remaining[1] === "runtime");
+    const runtimeInvocation =
+      globals.remaining[0] === "runtime" ||
+      (globals.remaining[0] === "help" && globals.remaining[1] === "runtime");
     let revision: number | null = null;
-    if (
-      !runtimeInvocation
-      && !error.code.startsWith("RUNTIME_")
-    ) {
+    if (!runtimeInvocation && !error.code.startsWith("RUNTIME_")) {
       try {
         revision = (await service.info()).revision;
       } catch {

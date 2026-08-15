@@ -8,9 +8,7 @@ import {
   type BunBundleResult
 } from "../lib/generated-file.ts";
 import { githubRepository, rootDir } from "../lib/project.ts";
-import {
-  investigationIndexJsonSchema
-} from "../../tools/investigation-report/src/investigation-index-json-schema.ts";
+import { investigationIndexJsonSchema } from "../../tools/investigation-report/src/investigation-index-json-schema.ts";
 
 const sourceRelativePath = "tools/investigation-report/src/cli.ts";
 const declarationSourceRelativePath =
@@ -39,7 +37,9 @@ async function buildArtifact(): Promise<BunBundleResult> {
     keepNames: true,
     minify: true,
     outputFileName: path.basename(outputRelativePath),
-    sourceMapBaseDirectory: path.dirname(path.join(rootDir, outputRelativePath)),
+    sourceMapBaseDirectory: path.dirname(
+      path.join(rootDir, outputRelativePath)
+    ),
     sourceMap: true
   });
 }
@@ -60,7 +60,9 @@ async function main(): Promise<void> {
   });
   const expectedSchema = `${JSON.stringify(investigationIndexJsonSchema, null, 2)}\n`;
   if (expected.sourceMap === null) {
-    throw new Error("Investigation report checker bundle must include a source map");
+    throw new Error(
+      "Investigation report checker bundle must include a source map"
+    );
   }
 
   const changed = await syncGeneratedArtifacts(
@@ -87,7 +89,9 @@ async function main(): Promise<void> {
     process.exit(1);
   }
   if (!changed) {
-    console.log("Investigation report checker generated artifacts are current.");
+    console.log(
+      "Investigation report checker generated artifacts are current."
+    );
   }
 }
 

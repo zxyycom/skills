@@ -20,9 +20,7 @@ import {
   type TestEvidenceTopicCatalog,
   validateTestEvidence
 } from "../src/cli.ts";
-import {
-  createTestEvidenceStateIndexDefinition
-} from "../src/state-index.ts";
+import { createTestEvidenceStateIndexDefinition } from "../src/state-index.ts";
 import { testEvidenceSourceRevision } from "../src/source-revision.ts";
 import "./ledger-api.test.ts";
 import "./ledger-cli.test.ts";
@@ -46,29 +44,33 @@ const distributedScript = path.join(
   "scripts",
   "test-evidence-catalog.mjs"
 );
-const topicCatalog = `${JSON.stringify({
-  schemaVersion: 1,
-  topics: [
-    {
-      id: "access-control",
-      description: "Access-control contract tests."
-    },
-    {
-      id: "future-work",
-      description: "Reserved future test responsibilities."
-    },
-    {
-      id: "sessions",
-      description: "Session lifecycle contract tests."
-    }
-  ]
-}, null, 2)}\n`;
+const topicCatalog = `${JSON.stringify(
+  {
+    schemaVersion: 1,
+    topics: [
+      {
+        id: "access-control",
+        description: "Access-control contract tests."
+      },
+      {
+        id: "future-work",
+        description: "Reserved future test responsibilities."
+      },
+      {
+        id: "sessions",
+        description: "Session lifecycle contract tests."
+      }
+    ]
+  },
+  null,
+  2
+)}\n`;
 const accessCatalog = [
   "### Case AUTH-ROLE-ACCESS-001: Access tests cover role outcomes",
   "",
   "Entry:",
   "- `tests/access.test.ts > enforces role outcomes`",
-  "- `bun test tests/access.test.ts --test-name-pattern \"enforces role outcomes\"`",
+  '- `bun test tests/access.test.ts --test-name-pattern "enforces role outcomes"`',
   "",
   "Contract:",
   "- Resource mutation follows the caller role boundary.",
@@ -88,7 +90,7 @@ const sessionCatalog = [
   "",
   "Entry:",
   "- `tests/session-expiry.test.ts > rejects expired sessions`",
-  "- `bun test tests/session-expiry.test.ts --test-name-pattern \"rejects expired sessions\"`",
+  '- `bun test tests/session-expiry.test.ts --test-name-pattern "rejects expired sessions"`',
   "",
   "Contract:",
   "- Expired sessions cannot access protected resources.",
@@ -103,17 +105,23 @@ test("catalog ignores legacy config files and rejects config arguments", async (
     await writeWorkspaceFile(
       tempRoot,
       ".test-evidence.json",
-      `${JSON.stringify({
-        schemaVersion: 3,
-        catalogPath: "elsewhere",
-        indexPath: "elsewhere/index.json",
-        caseIdPattern: "^CUSTOM$"
-      }, null, 2)}\n`
+      `${JSON.stringify(
+        {
+          schemaVersion: 3,
+          catalogPath: "elsewhere",
+          indexPath: "elsewhere/index.json",
+          caseIdPattern: "^CUSTOM$"
+        },
+        null,
+        2
+      )}\n`
     );
-    await writeTopicCatalog(tempRoot, "elsewhere", [{
-      id: "ignored",
-      description: "Ignored legacy configuration target."
-    }]);
+    await writeTopicCatalog(tempRoot, "elsewhere", [
+      {
+        id: "ignored",
+        description: "Ignored legacy configuration target."
+      }
+    ]);
 
     const queried = await queryTestEvidence({ workspaceRoot: tempRoot });
     assert.equal(queried.total, 2);
@@ -140,36 +148,43 @@ test("catalog enforces the fixed case ID pattern", async () => {
     await writeWorkspaceFile(
       tempRoot,
       "docs/test-evidence/access-control/access-role.md",
-      accessCatalog.replace(
-        "AUTH-ROLE-ACCESS-001",
-        "INVALID-001"
-      )
+      accessCatalog.replace("AUTH-ROLE-ACCESS-001", "INVALID-001")
     );
     const report = await validateTestEvidence({
       workspaceRoot: tempRoot
     });
-    assert.ok(report.diagnostics.some((entry) => (
-      entry.code === "catalog.invalid"
-      && entry.message.includes("must include a valid case ID")
-    )));
+    assert.ok(
+      report.diagnostics.some(
+        (entry) =>
+          entry.code === "catalog.invalid" &&
+          entry.message.includes("must include a valid case ID")
+      )
+    );
   });
 });
 
 test("missing indexes fall back to the catalog for validation and queries", async () => {
   await withWorkspace(async (tempRoot) => {
-    const initialCheck = await validateTestEvidence({ workspaceRoot: tempRoot });
+    const initialCheck = await validateTestEvidence({
+      workspaceRoot: tempRoot
+    });
     assert.equal(initialCheck.summary.testCases, 2);
-    assert.ok(initialCheck.diagnostics.some(
-      (entry) => entry.code === "state-index.index-missing"
-    ));
+    assert.ok(
+      initialCheck.diagnostics.some(
+        (entry) => entry.code === "state-index.index-missing"
+      )
+    );
 
     const initialQuery = await queryTestEvidence({ workspaceRoot: tempRoot });
     assert.equal(initialQuery.total, 2);
-    assert.ok(initialQuery.diagnostics.some(
-      (entry) => entry.code === "state-index.index-missing"
-        && entry.severity === "warning"
-        && !entry.blocking
-    ));
+    assert.ok(
+      initialQuery.diagnostics.some(
+        (entry) =>
+          entry.code === "state-index.index-missing" &&
+          entry.severity === "warning" &&
+          !entry.blocking
+      )
+    );
   });
 });
 
@@ -196,18 +211,25 @@ test("damaged indexes fall back to the catalog and can be rebuilt", async () => 
       "{ invalid json\n"
     );
 
-    const damagedIndexQuery = await queryTestEvidence({ workspaceRoot: tempRoot });
+    const damagedIndexQuery = await queryTestEvidence({
+      workspaceRoot: tempRoot
+    });
     assert.equal(damagedIndexQuery.total, 2);
-    assert.ok(damagedIndexQuery.diagnostics.some(
-      (entry) => entry.code === "state-index.json-invalid"
-        && entry.severity === "warning"
-        && !entry.blocking
-    ));
+    assert.ok(
+      damagedIndexQuery.diagnostics.some(
+        (entry) =>
+          entry.code === "state-index.json-invalid" &&
+          entry.severity === "warning" &&
+          !entry.blocking
+      )
+    );
     assert.equal(
-      (await syncTestEvidenceIndex({
-        mode: "write",
-        workspaceRoot: tempRoot
-      })).status,
+      (
+        await syncTestEvidenceIndex({
+          mode: "write",
+          workspaceRoot: tempRoot
+        })
+      ).status,
       "ok"
     );
   });
@@ -224,10 +246,7 @@ test("catalog queries list, search, and show exact cases", async () => {
     );
     assert.deepEqual(
       allCases.cases.map((entry) => entry.sourcePath),
-      [
-        "access-control/access-role.md",
-        "sessions/session-expiry.md"
-      ]
+      ["access-control/access-role.md", "sessions/session-expiry.md"]
     );
 
     const searched = await queryTestEvidence({
@@ -264,10 +283,7 @@ test("catalog queries list, search, and show exact cases", async () => {
       workspaceRoot: tempRoot
     });
     assert.equal(shown.case?.id, "AUTH-ROLE-ACCESS-001");
-    assert.equal(
-      shown.case?.sourcePath,
-      "access-control/access-role.md"
-    );
+    assert.equal(shown.case?.sourcePath, "access-control/access-role.md");
     assert.match(shown.markdown ?? "", /Guests are denied\./u);
     assert.doesNotMatch(shown.markdown ?? "", /Session tests cover expiry/u);
   });
@@ -337,7 +353,6 @@ test("catalog validation requires one non-empty unique entry list", async () => 
       ].join("\n"),
       /duplicates Entry/u
     );
-
   });
 });
 
@@ -371,11 +386,14 @@ test("full and fast source reads reject duplicate case IDs across topics", async
 
     const report = await validateTestEvidence({ workspaceRoot: tempRoot });
 
-    assert.ok(report.diagnostics.some((entry) => (
-      entry.code === "catalog.case-id-duplicate"
-      && entry.message.includes("first/duplicate-case.md")
-      && entry.message.includes("second/duplicate-case.md")
-    )));
+    assert.ok(
+      report.diagnostics.some(
+        (entry) =>
+          entry.code === "catalog.case-id-duplicate" &&
+          entry.message.includes("first/duplicate-case.md") &&
+          entry.message.includes("second/duplicate-case.md")
+      )
+    );
     await assert.rejects(
       createTestEvidenceStateIndexDefinition().readRevision({
         root: tempRoot
@@ -397,7 +415,9 @@ test("defined topics may be empty but existing topic directories may not", async
       workspaceRoot: tempRoot
     });
     assert.equal(synchronized.status, "ok");
-    const emptySetReport = await validateTestEvidence({ workspaceRoot: tempRoot });
+    const emptySetReport = await validateTestEvidence({
+      workspaceRoot: tempRoot
+    });
     assert.deepEqual(emptySetReport.diagnostics, []);
     assert.equal(emptySetReport.summary.testCases, 0);
 
@@ -405,10 +425,13 @@ test("defined topics may be empty but existing topic directories may not", async
     const emptyDirectoryReport = await validateTestEvidence({
       workspaceRoot: tempRoot
     });
-    assert.ok(emptyDirectoryReport.diagnostics.some((entry) => (
-      entry.code === "catalog.topic-directory-empty"
-      && entry.path === `${emptyCatalogPath}/future-work`
-    )));
+    assert.ok(
+      emptyDirectoryReport.diagnostics.some(
+        (entry) =>
+          entry.code === "catalog.topic-directory-empty" &&
+          entry.path === `${emptyCatalogPath}/future-work`
+      )
+    );
   });
 });
 
@@ -423,22 +446,28 @@ test("stale indexes fall back to current catalog content", async () => {
 
     const staleQuery = await queryTestEvidence({ workspaceRoot: tempRoot });
     assert.equal(staleQuery.total, 2);
-    assert.ok(staleQuery.diagnostics.some(
-      (entry) => entry.code === "state-index.index-stale"
-        && entry.severity === "warning"
-        && !entry.blocking
-    ));
+    assert.ok(
+      staleQuery.diagnostics.some(
+        (entry) =>
+          entry.code === "state-index.index-stale" &&
+          entry.severity === "warning" &&
+          !entry.blocking
+      )
+    );
 
     const staleShow = await showTestEvidenceCase({
       caseId: "AUTH-ROLE-ACCESS-001",
       workspaceRoot: tempRoot
     });
     assert.match(staleShow.markdown ?? "", /Guests are denied\./u);
-    assert.ok(staleShow.diagnostics.some(
-      (entry) => entry.code === "state-index.index-stale"
-        && entry.severity === "warning"
-        && !entry.blocking
-    ));
+    assert.ok(
+      staleShow.diagnostics.some(
+        (entry) =>
+          entry.code === "state-index.index-stale" &&
+          entry.severity === "warning" &&
+          !entry.blocking
+      )
+    );
   });
 });
 
@@ -451,17 +480,11 @@ test("topics read the authoritative sorted table without an index", async () => 
       ["access-control", "future-work", "sessions"]
     );
     await assert.rejects(
-      fs.stat(path.join(
-        tempRoot,
-        "docs",
-        "test-evidence",
-        "test-evidence-index.json"
-      )),
-      (error: unknown) => (
-        error instanceof Error
-        && "code" in error
-        && error.code === "ENOENT"
-      )
+      fs.stat(
+        path.join(tempRoot, "docs", "test-evidence", "test-evidence-index.json")
+      ),
+      (error: unknown) =>
+        error instanceof Error && "code" in error && error.code === "ENOENT"
     );
   });
 });
@@ -486,11 +509,13 @@ test("topic tables reject missing, malformed, unknown, duplicate, unsorted, and 
       {
         content: `${JSON.stringify({
           schemaVersion: 1,
-          topics: [{
-            id: "valid-topic",
-            description: "Valid topic description.",
-            unknown: true
-          }]
+          topics: [
+            {
+              id: "valid-topic",
+              description: "Valid topic description.",
+              unknown: true
+            }
+          ]
         })}\n`,
         expectedCode: "catalog.topics-schema-invalid",
         name: "unknown-field"
@@ -520,10 +545,12 @@ test("topic tables reject missing, malformed, unknown, duplicate, unsorted, and 
       {
         content: `${JSON.stringify({
           schemaVersion: 1,
-          topics: [{
-            id: "Invalid_Topic",
-            description: " bad\n"
-          }]
+          topics: [
+            {
+              id: "Invalid_Topic",
+              description: " bad\n"
+            }
+          ]
         })}\n`,
         expectedCode: "catalog.topics-schema-invalid",
         name: "invalid-values"
@@ -531,10 +558,12 @@ test("topic tables reject missing, malformed, unknown, duplicate, unsorted, and 
       {
         content: `${JSON.stringify({
           schemaVersion: 1,
-          topics: [{
-            id: "short-description",
-            description: "abc"
-          }]
+          topics: [
+            {
+              id: "short-description",
+              description: "abc"
+            }
+          ]
         })}\n`,
         expectedCode: "catalog.topics-schema-invalid",
         name: "short-description"
@@ -542,10 +571,12 @@ test("topic tables reject missing, malformed, unknown, duplicate, unsorted, and 
       {
         content: `${JSON.stringify({
           schemaVersion: 1,
-          topics: [{
-            id: "long-description",
-            description: "😀".repeat(201)
-          }]
+          topics: [
+            {
+              id: "long-description",
+              description: "😀".repeat(201)
+            }
+          ]
         })}\n`,
         expectedCode: "catalog.topics-schema-invalid",
         name: "long-description"
@@ -570,19 +601,19 @@ test("topic tables reject missing, malformed, unknown, duplicate, unsorted, and 
       });
       assert.deepEqual(result.topics, [], variant.name);
       assert.ok(
-        result.diagnostics.some(
-          (entry) => entry.code === variant.expectedCode
-        ),
+        result.diagnostics.some((entry) => entry.code === variant.expectedCode),
         variant.name
       );
     }
 
     await resetTestEvidenceCatalog(tempRoot);
     const unicodeCatalogPath = "docs/test-evidence";
-    await writeTopicCatalog(tempRoot, unicodeCatalogPath, [{
-      id: "unicode-description",
-      description: "😀".repeat(200)
-    }]);
+    await writeTopicCatalog(tempRoot, unicodeCatalogPath, [
+      {
+        id: "unicode-description",
+        description: "😀".repeat(200)
+      }
+    ]);
     const unicodeResult = await listTestEvidenceTopics({
       workspaceRoot: tempRoot
     });
@@ -606,12 +637,14 @@ test("catalog roots reject unknown topic directories and unsupported root files"
       "unsupported\n"
     );
     const report = await validateTestEvidence({ workspaceRoot: tempRoot });
-    assert.ok(report.diagnostics.some(
-      (entry) => entry.code === "catalog.topic-unknown"
-    ));
-    assert.ok(report.diagnostics.some(
-      (entry) => entry.code === "catalog.root-file-unsupported"
-    ));
+    assert.ok(
+      report.diagnostics.some((entry) => entry.code === "catalog.topic-unknown")
+    );
+    assert.ok(
+      report.diagnostics.some(
+        (entry) => entry.code === "catalog.root-file-unsupported"
+      )
+    );
   });
 });
 
@@ -688,9 +721,11 @@ test("topic directories reject nested, non-Markdown, and symbolic-link members",
       "file"
     );
     const report = await validateTestEvidence({ workspaceRoot: tempRoot });
-    assert.ok(report.diagnostics.filter(
-      (entry) => entry.code === "catalog.topic-entry-unsupported"
-    ).length >= 3);
+    assert.ok(
+      report.diagnostics.filter(
+        (entry) => entry.code === "catalog.topic-entry-unsupported"
+      ).length >= 3
+    );
   });
 });
 
@@ -703,21 +738,19 @@ test("fixed index cannot hard-link to authoritative sources", async () => {
     await withWorkspace(async (tempRoot) => {
       await fs.link(
         path.join(tempRoot, ...candidate.split("/")),
-        path.join(
-          tempRoot,
-          "docs",
-          "test-evidence",
-          "test-evidence-index.json"
-        )
+        path.join(tempRoot, "docs", "test-evidence", "test-evidence-index.json")
       );
       const result = await syncTestEvidenceIndex({
         mode: "write",
         workspaceRoot: tempRoot
       });
       assert.equal(result.status, "error", candidate);
-      assert.ok(result.diagnostics.some((entry) => (
-        entry.code === "catalog.index-file-conflict"
-      )), candidate);
+      assert.ok(
+        result.diagnostics.some(
+          (entry) => entry.code === "catalog.index-file-conflict"
+        ),
+        candidate
+      );
     });
   }
 });
@@ -733,10 +766,7 @@ test("indexes project sorted topic metadata and path-derived topic keys", async 
       ["access-control", "future-work", "sessions"]
     );
     const ids = Object.keys(index.entries);
-    assert.deepEqual(ids, [
-      "AUTH-ROLE-ACCESS-001",
-      "AUTH-SESSION-EXPIRY-001"
-    ]);
+    assert.deepEqual(ids, ["AUTH-ROLE-ACCESS-001", "AUTH-SESSION-EXPIRY-001"]);
     assert.deepEqual(Object.keys(index.sourceRevision.entries), ids);
     assert.match(index.sourceRevision.metadata, /^sha256:[0-9a-f]{64}$/u);
     assert.deepEqual(
@@ -745,10 +775,7 @@ test("indexes project sorted topic metadata and path-derived topic keys", async 
     );
     assert.deepEqual(
       ids.map((id) => index.entries[id]?.state.sourcePath),
-      [
-        "access-control/access-role.md",
-        "sessions/session-expiry.md"
-      ]
+      ["access-control/access-role.md", "sessions/session-expiry.md"]
     );
     assert.equal("id" in (index.entries[ids[0] ?? ""] ?? {}), false);
   });
@@ -760,14 +787,16 @@ test("state index schemas reject invalid case IDs used as record keys", async ()
     const index = await readTestEvidenceStateIndex(tempRoot);
     const generatedSchema = v.parse(
       v.record(v.string(), v.unknown()),
-      await readJsonFile(path.join(
-        repositoryRoot,
-        "skills",
-        "test-evidence-review",
-        "references",
-        "schemas",
-        "test-evidence-state-index.schema.json"
-      ))
+      await readJsonFile(
+        path.join(
+          repositoryRoot,
+          "skills",
+          "test-evidence-review",
+          "references",
+          "schemas",
+          "test-evidence-state-index.schema.json"
+        )
+      )
     );
     const validateGeneratedIndex = new Ajv2020({
       allErrors: true,
@@ -783,14 +812,10 @@ test("state index schemas reject invalid case IDs used as record keys", async ()
     const validEntry = invalidEntryId.entries["AUTH-ROLE-ACCESS-001"];
     assert.ok(validEntry);
     invalidEntryId.entries["not-a-case-id"] = validEntry;
-    Reflect.deleteProperty(
-      invalidEntryId.entries,
-      "AUTH-ROLE-ACCESS-001"
-    );
+    Reflect.deleteProperty(invalidEntryId.entries, "AUTH-ROLE-ACCESS-001");
     const invalidRevisionId = structuredClone(index);
-    const validRevision = invalidRevisionId.sourceRevision.entries[
-      "AUTH-ROLE-ACCESS-001"
-    ];
+    const validRevision =
+      invalidRevisionId.sourceRevision.entries["AUTH-ROLE-ACCESS-001"];
     assert.ok(validRevision);
     invalidRevisionId.sourceRevision.entries["not-a-case-id"] = validRevision;
     Reflect.deleteProperty(
@@ -834,10 +859,13 @@ test("schema v2 indexes are rejected and rebuilt as keyed schema v3", async () =
 
     const queried = await queryTestEvidence({ workspaceRoot: tempRoot });
     assert.equal(queried.total, 2);
-    assert.ok(queried.diagnostics.some((entry) => (
-      entry.severity === "warning"
-      && entry.code === "state-index.schema-version-unsupported"
-    )));
+    assert.ok(
+      queried.diagnostics.some(
+        (entry) =>
+          entry.severity === "warning" &&
+          entry.code === "state-index.schema-version-unsupported"
+      )
+    );
 
     const rebuilt = await syncTestEvidenceIndex({
       mode: "write",
@@ -859,8 +887,7 @@ test("topic descriptions change only the metadata source revision", async () => 
     const changedTopics = parseTopicCatalogFixture();
     const accessTopic = changedTopics.topics[0];
     assert.ok(accessTopic);
-    accessTopic.description =
-      "Changed access-control contract tests.";
+    accessTopic.description = "Changed access-control contract tests.";
     await writeWorkspaceFile(
       tempRoot,
       "docs/test-evidence/test-evidence-topics.json",
@@ -885,20 +912,11 @@ test("case moves change only their entry revision and preserve identity", async 
         "access-control",
         "access-role.md"
       ),
-      path.join(
-        tempRoot,
-        "docs",
-        "test-evidence",
-        "sessions",
-        "access-role.md"
-      )
+      path.join(tempRoot, "docs", "test-evidence", "sessions", "access-role.md")
     );
-    await fs.rmdir(path.join(
-      tempRoot,
-      "docs",
-      "test-evidence",
-      "access-control"
-    ));
+    await fs.rmdir(
+      path.join(tempRoot, "docs", "test-evidence", "access-control")
+    );
     const movedSync = await syncTestEvidenceIndex({
       mode: "write",
       workspaceRoot: tempRoot
@@ -941,27 +959,33 @@ test("revision framing normalizes line endings and topic JSON formatting", async
       ""
     ].join("\n");
     const lfRevision = testEvidenceSourceRevision({
-      sources: [{
-        id: "AUTH-ROLE-ACCESS-001",
-        path: "access-control/case.md",
-        text: revisionCase
-      }],
+      sources: [
+        {
+          id: "AUTH-ROLE-ACCESS-001",
+          path: "access-control/case.md",
+          text: revisionCase
+        }
+      ],
       topicCatalog: parsedTopics
     });
     const crlfRevision = testEvidenceSourceRevision({
-      sources: [{
-        id: "AUTH-ROLE-ACCESS-001",
-        path: "access-control/case.md",
-        text: revisionCase.replace(/\n/gu, "\r\n")
-      }],
+      sources: [
+        {
+          id: "AUTH-ROLE-ACCESS-001",
+          path: "access-control/case.md",
+          text: revisionCase.replace(/\n/gu, "\r\n")
+        }
+      ],
       topicCatalog: parsedTopics
     });
     const bareCrRevision = testEvidenceSourceRevision({
-      sources: [{
-        id: "AUTH-ROLE-ACCESS-001",
-        path: "access-control/case.md",
-        text: revisionCase.replace(/\n/gu, "\r")
-      }],
+      sources: [
+        {
+          id: "AUTH-ROLE-ACCESS-001",
+          path: "access-control/case.md",
+          text: revisionCase.replace(/\n/gu, "\r")
+        }
+      ],
       topicCatalog: parsedTopics
     });
     assert.deepEqual(lfRevision, crlfRevision);
@@ -1025,13 +1049,17 @@ test("domain parsing treats the record key as the authoritative case id", async 
       id
     );
     assert.throws(
-      () => definition.parseState({
-        ...state,
-        id: "AUTH-SESSION-EXPIRY-001"
-      }, {
-        id,
-        metadata: snapshot.metadata
-      }),
+      () =>
+        definition.parseState(
+          {
+            ...state,
+            id: "AUTH-SESSION-EXPIRY-001"
+          },
+          {
+            id,
+            metadata: snapshot.metadata
+          }
+        ),
       /state id must match its index key/u
     );
   });
@@ -1048,9 +1076,9 @@ test("query results use record keys as authoritative case identities", async () 
 
     const queried = await queryTestEvidence({ workspaceRoot: tempRoot });
     assert.deepEqual(queried.diagnostics, []);
-    const accessCase = queried.cases.find((entry) => (
-      entry.sourcePath === "access-control/access-role.md"
-    ));
+    const accessCase = queried.cases.find(
+      (entry) => entry.sourcePath === "access-control/access-role.md"
+    );
     assert.equal(accessCase?.id, "AUTH-ROLE-ACCESS-001");
   });
 });
@@ -1094,19 +1122,16 @@ test("case membership changes only add or remove matching revision entries", asy
       initial.entries["AUTH-SESSION-EXPIRY-001"]
     );
 
-    await fs.rm(path.join(
-      tempRoot,
-      "docs",
-      "test-evidence",
-      "sessions",
-      "session-expiry.md"
-    ));
-    await fs.rmdir(path.join(
-      tempRoot,
-      "docs",
-      "test-evidence",
-      "sessions"
-    ));
+    await fs.rm(
+      path.join(
+        tempRoot,
+        "docs",
+        "test-evidence",
+        "sessions",
+        "session-expiry.md"
+      )
+    );
+    await fs.rmdir(path.join(tempRoot, "docs", "test-evidence", "sessions"));
     const removed = await definition.readRevision({ root: tempRoot });
     assert.equal(removed.metadata, added.metadata);
     assert.deepEqual(Object.keys(removed.entries), [
@@ -1178,9 +1203,7 @@ test("one index open performs one fast source read and reader calls reuse it", a
         calls.read += 1;
         return await base.read(...args);
       },
-      readRevision: async (
-        ...args: Parameters<typeof base.readRevision>
-      ) => {
+      readRevision: async (...args: Parameters<typeof base.readRevision>) => {
         calls.readRevision += 1;
         const revision = await base.readRevision(...args);
         await fs.mkdir(sourceBackup);
@@ -1241,23 +1264,26 @@ test("strict checks cross-validate persisted source paths and topic keys", async
     accessEntry.keys.topic = ["sessions"];
     await writeTestEvidenceStateIndex(tempRoot, index);
     const keyMismatch = await validateTestEvidence({ workspaceRoot: tempRoot });
-    assert.ok(keyMismatch.diagnostics.some((entry) => (
-      entry.blocking
-      && entry.code.startsWith("state-index.")
-    )));
+    assert.ok(
+      keyMismatch.diagnostics.some(
+        (entry) => entry.blocking && entry.code.startsWith("state-index.")
+      )
+    );
 
     await syncTestEvidenceIndex({ mode: "write", workspaceRoot: tempRoot });
     const rebuilt = await readTestEvidenceStateIndex(tempRoot);
     const rebuiltAccessEntry = rebuilt.entries["AUTH-ROLE-ACCESS-001"];
     assert.ok(rebuiltAccessEntry);
-    rebuiltAccessEntry.state.sourcePath =
-      "unknown-topic/access-role.md";
+    rebuiltAccessEntry.state.sourcePath = "unknown-topic/access-role.md";
     await writeTestEvidenceStateIndex(tempRoot, rebuilt);
-    const pathMismatch = await validateTestEvidence({ workspaceRoot: tempRoot });
-    assert.ok(pathMismatch.diagnostics.some((entry) => (
-      entry.blocking
-      && entry.code.startsWith("state-index.")
-    )));
+    const pathMismatch = await validateTestEvidence({
+      workspaceRoot: tempRoot
+    });
+    assert.ok(
+      pathMismatch.diagnostics.some(
+        (entry) => entry.blocking && entry.code.startsWith("state-index.")
+      )
+    );
   });
 });
 
@@ -1290,10 +1316,7 @@ test("topic filters return matching and defined-empty results with topic definit
       workspaceRoot: tempRoot
     });
     assert.equal(shown.topic?.id, "sessions");
-    assert.equal(
-      shown.topic?.description,
-      "Session lifecycle contract tests."
-    );
+    assert.equal(shown.topic?.description, "Session lifecycle contract tests.");
   });
 });
 
@@ -1305,9 +1328,11 @@ test("unknown and repeated topic CLI arguments fail deterministically", async ()
       workspaceRoot: tempRoot
     });
     assert.deepEqual(publicFailure.cases, []);
-    assert.ok(publicFailure.diagnostics.some(
-      (entry) => entry.code === "query.topic-unknown"
-    ));
+    assert.ok(
+      publicFailure.diagnostics.some(
+        (entry) => entry.code === "query.topic-unknown"
+      )
+    );
 
     const unknown = await runDistributedCliFailure([
       "list",
@@ -1323,9 +1348,11 @@ test("unknown and repeated topic CLI arguments fail deterministically", async ()
       schemaVersion: number;
     };
     assert.equal(unknownResult.schemaVersion, 4);
-    assert.ok(unknownResult.diagnostics.some(
-      (entry) => entry.code === "query.topic-unknown"
-    ));
+    assert.ok(
+      unknownResult.diagnostics.some(
+        (entry) => entry.code === "query.topic-unknown"
+      )
+    );
 
     const repeated = await runDistributedCliFailure([
       "list",
@@ -1352,18 +1379,22 @@ test("queries reject newly invalid root layouts instead of trusting a previous i
     const result = await queryTestEvidence({ workspaceRoot: tempRoot });
     assert.equal(result.total, 0);
     assert.deepEqual(result.cases, []);
-    assert.ok(result.diagnostics.some((entry) => (
-      entry.blocking
-      && entry.code === "state-index.revision-read-failed"
-    )));
+    assert.ok(
+      result.diagnostics.some(
+        (entry) =>
+          entry.blocking && entry.code === "state-index.revision-read-failed"
+      )
+    );
     const synchronized = await syncTestEvidenceIndex({
       mode: "write",
       workspaceRoot: tempRoot
     });
     assert.equal(synchronized.status, "error");
-    assert.ok(synchronized.diagnostics.some(
-      (entry) => entry.code === "catalog.root-file-unsupported"
-    ));
+    assert.ok(
+      synchronized.diagnostics.some(
+        (entry) => entry.code === "catalog.root-file-unsupported"
+      )
+    );
   });
 });
 
@@ -1377,7 +1408,9 @@ test("unreadable indexes remain blocking for list and show operations", async ()
     );
     await fs.mkdir(unreadableIndexPath, { recursive: true });
 
-    const unreadableQuery = await queryTestEvidence({ workspaceRoot: tempRoot });
+    const unreadableQuery = await queryTestEvidence({
+      workspaceRoot: tempRoot
+    });
     assert.equal(unreadableQuery.total, 0);
     assert.deepEqual(unreadableQuery.cases, []);
     assertUnrecoverableIndexReadFailure(unreadableQuery.diagnostics);
@@ -1408,7 +1441,9 @@ for (const legacyVersion of [1, 2] as const) {
 async function withWorkspace(
   operation: (workspaceRoot: string) => Promise<void>
 ): Promise<void> {
-  const workspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "test-evidence-"));
+  const workspaceRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), "test-evidence-")
+  );
   try {
     await writeWorkspaceFile(
       workspaceRoot,
@@ -1431,13 +1466,11 @@ async function withWorkspace(
   }
 }
 
-async function resetTestEvidenceCatalog(
-  workspaceRoot: string
-): Promise<void> {
-  await fs.rm(
-    path.join(workspaceRoot, "docs", "test-evidence"),
-    { force: true, recursive: true }
-  );
+async function resetTestEvidenceCatalog(workspaceRoot: string): Promise<void> {
+  await fs.rm(path.join(workspaceRoot, "docs", "test-evidence"), {
+    force: true,
+    recursive: true
+  });
 }
 
 function assertUnrecoverableIndexReadFailure(
@@ -1448,9 +1481,9 @@ function assertUnrecoverableIndexReadFailure(
     severity: "error" | "warning";
   }[]
 ): void {
-  const failure = diagnostics.find((entry) => (
-    entry.code === "state-index.index-read-failed"
-  ));
+  const failure = diagnostics.find(
+    (entry) => entry.code === "state-index.index-read-failed"
+  );
   assert.ok(failure);
   assert.equal(failure.blocking, true);
   assert.equal(failure.severity, "error");
@@ -1529,20 +1562,11 @@ async function assertDistributedModuleParity(
   );
   await fs.rm(indexPath);
   await fs.mkdir(indexPath);
-  for (const command of [
-    ["list"],
-    ["show", "AUTH-ROLE-ACCESS-001"]
-  ]) {
+  for (const command of [["list"], ["show", "AUTH-ROLE-ACCESS-001"]]) {
     try {
       await execFileAsync(
         "node",
-        [
-          distributedScript,
-          ...command,
-          "--root",
-          workspaceRoot,
-          "--json"
-        ],
+        [distributedScript, ...command, "--root", workspaceRoot, "--json"],
         {
           encoding: "utf8",
           windowsHide: true
@@ -1574,13 +1598,13 @@ async function rehearseLegacyConsumerUpgrade(
   const workspaceRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), `test-evidence-v${legacyVersion}-upgrade-`)
   );
-  const legacyCatalogPath = legacyVersion === 1
-    ? "docs/test-evidence.md"
-    : "docs/test-evidence/cases";
+  const legacyCatalogPath =
+    legacyVersion === 1 ? "docs/test-evidence.md" : "docs/test-evidence/cases";
   const stagedCatalogPath = "docs/test-evidence-next";
-  const retainedLegacyCatalogPath = legacyVersion === 1
-    ? legacyCatalogPath
-    : "docs/legacy-test-evidence-v2/cases";
+  const retainedLegacyCatalogPath =
+    legacyVersion === 1
+      ? legacyCatalogPath
+      : "docs/legacy-test-evidence-v2/cases";
 
   try {
     if (legacyVersion === 1) {
@@ -1604,11 +1628,15 @@ async function rehearseLegacyConsumerUpgrade(
     await writeWorkspaceFile(
       workspaceRoot,
       ".test-evidence.json",
-      `${JSON.stringify({
-        schemaVersion: legacyVersion,
-        catalogPath: legacyCatalogPath,
-        indexPath: "docs/legacy-test-evidence-index.json"
-      }, null, 2)}\n`
+      `${JSON.stringify(
+        {
+          schemaVersion: legacyVersion,
+          catalogPath: legacyCatalogPath,
+          indexPath: "docs/legacy-test-evidence-index.json"
+        },
+        null,
+        2
+      )}\n`
     );
 
     const legacyFailure = await runDistributedCliFailure([
@@ -1689,27 +1717,24 @@ async function rehearseLegacyConsumerUpgrade(
       "--json"
     ]);
     assert.equal(listed.total, 1);
-    assert.deepEqual(listed.cases.map(({ id, sourcePath }) => ({
-      id,
-      sourcePath
-    })), [
-      {
-        id: "AUTH-ROLE-ACCESS-001",
-        sourcePath: "access-control/access-role.md"
-      }
-    ]);
+    assert.deepEqual(
+      listed.cases.map(({ id, sourcePath }) => ({
+        id,
+        sourcePath
+      })),
+      [
+        {
+          id: "AUTH-ROLE-ACCESS-001",
+          sourcePath: "access-control/access-role.md"
+        }
+      ]
+    );
 
     const shown = await runDistributedCliJson<{
       case: { id: string; sourcePath: string } | null;
       markdown: string | null;
       topic: { id: string } | null;
-    }>([
-      "show",
-      "AUTH-SESSION-EXPIRY-001",
-      "--root",
-      workspaceRoot,
-      "--json"
-    ]);
+    }>(["show", "AUTH-SESSION-EXPIRY-001", "--root", workspaceRoot, "--json"]);
     assert.equal(shown.case?.sourcePath, "sessions/session-expiry.md");
     assert.equal(shown.topic?.id, "sessions");
     assert.match(shown.markdown ?? "", /Expired sessions are rejected\./u);
@@ -1787,19 +1812,16 @@ async function readIndexRevision(
   return index.sourceRevision;
 }
 
-async function runDistributedCliFailure(
-  args: readonly string[]
-): Promise<{
+async function runDistributedCliFailure(args: readonly string[]): Promise<{
   code: number | string | undefined;
   stderr: string;
   stdout: string;
 }> {
   try {
-    await execFileAsync(
-      "node",
-      [distributedScript, ...args],
-      { encoding: "utf8", windowsHide: true }
-    );
+    await execFileAsync("node", [distributedScript, ...args], {
+      encoding: "utf8",
+      windowsHide: true
+    });
   } catch (error) {
     const failure = error as Error & {
       code?: number | string;
@@ -1818,11 +1840,10 @@ async function runDistributedCliFailure(
 async function runDistributedCliJson<T = unknown>(
   args: readonly string[]
 ): Promise<T> {
-  const child = await execFileAsync(
-    "node",
-    [distributedScript, ...args],
-    { encoding: "utf8", windowsHide: true }
-  );
+  const child = await execFileAsync("node", [distributedScript, ...args], {
+    encoding: "utf8",
+    windowsHide: true
+  });
   return JSON.parse(String(child.stdout)) as T;
 }
 

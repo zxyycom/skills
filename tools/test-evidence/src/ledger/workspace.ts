@@ -14,10 +14,7 @@ import {
   testEvidenceLedgerPath,
   type TestEvidenceDiagnostic
 } from "./schemas.ts";
-import {
-  decodeLedgerUtf8Text,
-  type LedgerTextSource
-} from "./text-source.ts";
+import { decodeLedgerUtf8Text, type LedgerTextSource } from "./text-source.ts";
 
 export type LedgerWorkspaceSources = {
   caseSources: LedgerTextSource[];
@@ -36,10 +33,7 @@ const allowedRootMembers = new Set([
   path.posix.basename(testEvidenceLedgerIndexPath),
   path.posix.basename(testEvidenceCasesPath)
 ]);
-const caseFilePattern = new RegExp(
-  testEvidenceCaseFilePatternSource,
-  "u"
-);
+const caseFilePattern = new RegExp(testEvidenceCaseFilePatternSource, "u");
 
 export async function readLedgerWorkspaceSources(
   workspaceRoot: string
@@ -53,44 +47,52 @@ export async function readLedgerWorkspaceSources(
   try {
     const rootStats = await fs.lstat(ledgerDirectory);
     if (rootStats.isSymbolicLink() || !rootStats.isDirectory()) {
-      return invalidWorkspaceResult(createTestEvidenceDiagnostic({
-        category: "case",
-        code: "case.ledger-root-invalid",
-        message: `${testEvidenceLedgerPath} must be a regular directory, not a symbolic link`,
-        path: testEvidenceLedgerPath,
-        severity: "error"
-      }));
+      return invalidWorkspaceResult(
+        createTestEvidenceDiagnostic({
+          category: "case",
+          code: "case.ledger-root-invalid",
+          message: `${testEvidenceLedgerPath} must be a regular directory, not a symbolic link`,
+          path: testEvidenceLedgerPath,
+          severity: "error"
+        })
+      );
     }
     rootEntries = await fs.readdir(ledgerDirectory);
     rootEntries.sort(compareLexicalText);
   } catch (error) {
     if (isFileSystemError(error, "ENOENT")) {
-      return invalidWorkspaceResult(createTestEvidenceDiagnostic({
-        category: "entity-index",
-        code: "entity-index.missing",
-        message: `${testEntityIndexPath} does not exist`,
-        path: testEntityIndexPath,
-        severity: "error"
-      }));
+      return invalidWorkspaceResult(
+        createTestEvidenceDiagnostic({
+          category: "entity-index",
+          code: "entity-index.missing",
+          message: `${testEntityIndexPath} does not exist`,
+          path: testEntityIndexPath,
+          severity: "error"
+        })
+      );
     }
-    return invalidWorkspaceResult(createTestEvidenceDiagnostic({
-      category: "case",
-      code: "case.ledger-root-read-failed",
-      message: `${testEvidenceLedgerPath} could not be read: ${testEvidenceErrorText(error)}`,
-      path: testEvidenceLedgerPath,
-      severity: "error"
-    }));
+    return invalidWorkspaceResult(
+      createTestEvidenceDiagnostic({
+        category: "case",
+        code: "case.ledger-root-read-failed",
+        message: `${testEvidenceLedgerPath} could not be read: ${testEvidenceErrorText(error)}`,
+        path: testEvidenceLedgerPath,
+        severity: "error"
+      })
+    );
   }
 
   for (const member of rootEntries) {
     if (!allowedRootMembers.has(member)) {
-      diagnostics.push(createTestEvidenceDiagnostic({
-        category: "case",
-        code: "case.root-member-unsupported",
-        message: `${testEvidenceLedgerPath}/${member} is not part of the fixed ledger layout`,
-        path: `${testEvidenceLedgerPath}/${member}`,
-        severity: "error"
-      }));
+      diagnostics.push(
+        createTestEvidenceDiagnostic({
+          category: "case",
+          code: "case.root-member-unsupported",
+          message: `${testEvidenceLedgerPath}/${member} is not part of the fixed ledger layout`,
+          path: `${testEvidenceLedgerPath}/${member}`,
+          severity: "error"
+        })
+      );
     }
   }
 
@@ -111,12 +113,14 @@ export async function readLedgerWorkspaceSources(
     });
   }
 
-  const caseSources = rootEntries.includes(path.posix.basename(testEvidenceCasesPath))
+  const caseSources = rootEntries.includes(
+    path.posix.basename(testEvidenceCasesPath)
+  )
     ? await readCaseSources({
-      diagnostics,
-      identities,
-      workspaceRoot: root
-    })
+        diagnostics,
+        identities,
+        workspaceRoot: root
+      })
     : [];
 
   diagnostics.push(...identityDiagnostics(identities));
@@ -135,24 +139,28 @@ async function inspectOptionalIndex(options: {
   try {
     const stats = await fs.lstat(absolutePath, { bigint: true });
     if (stats.isSymbolicLink() || !stats.isFile()) {
-      options.diagnostics.push(createTestEvidenceDiagnostic({
-        category: "index",
-        code: "index.path-invalid",
-        message: `${testEvidenceLedgerIndexPath} must be a regular file when it exists`,
-        path: testEvidenceLedgerIndexPath,
-        severity: "error"
-      }));
+      options.diagnostics.push(
+        createTestEvidenceDiagnostic({
+          category: "index",
+          code: "index.path-invalid",
+          message: `${testEvidenceLedgerIndexPath} must be a regular file when it exists`,
+          path: testEvidenceLedgerIndexPath,
+          severity: "error"
+        })
+      );
       return;
     }
     options.identities.push(fileIdentity(testEvidenceLedgerIndexPath, stats));
   } catch (error) {
-    options.diagnostics.push(createTestEvidenceDiagnostic({
-      category: "index",
-      code: "index.path-read-failed",
-      message: `${testEvidenceLedgerIndexPath} could not be inspected: ${testEvidenceErrorText(error)}`,
-      path: testEvidenceLedgerIndexPath,
-      severity: "error"
-    }));
+    options.diagnostics.push(
+      createTestEvidenceDiagnostic({
+        category: "index",
+        code: "index.path-read-failed",
+        message: `${testEvidenceLedgerIndexPath} could not be inspected: ${testEvidenceErrorText(error)}`,
+        path: testEvidenceLedgerIndexPath,
+        severity: "error"
+      })
+    );
   }
 }
 
@@ -169,25 +177,29 @@ async function readCaseSources(options: {
   try {
     const stats = await fs.lstat(casesDirectory);
     if (stats.isSymbolicLink() || !stats.isDirectory()) {
-      options.diagnostics.push(createTestEvidenceDiagnostic({
-        category: "case",
-        code: "case.directory-invalid",
-        message: `${testEvidenceCasesPath} must be a regular directory, not a symbolic link`,
-        path: testEvidenceCasesPath,
-        severity: "error"
-      }));
+      options.diagnostics.push(
+        createTestEvidenceDiagnostic({
+          category: "case",
+          code: "case.directory-invalid",
+          message: `${testEvidenceCasesPath} must be a regular directory, not a symbolic link`,
+          path: testEvidenceCasesPath,
+          severity: "error"
+        })
+      );
       return [];
     }
     members = await fs.readdir(casesDirectory);
     members.sort(compareLexicalText);
   } catch (error) {
-    options.diagnostics.push(createTestEvidenceDiagnostic({
-      category: "case",
-      code: "case.directory-read-failed",
-      message: `${testEvidenceCasesPath} could not be read: ${testEvidenceErrorText(error)}`,
-      path: testEvidenceCasesPath,
-      severity: "error"
-    }));
+    options.diagnostics.push(
+      createTestEvidenceDiagnostic({
+        category: "case",
+        code: "case.directory-read-failed",
+        message: `${testEvidenceCasesPath} could not be read: ${testEvidenceErrorText(error)}`,
+        path: testEvidenceCasesPath,
+        severity: "error"
+      })
+    );
     return [];
   }
 
@@ -195,13 +207,15 @@ async function readCaseSources(options: {
   for (const member of members) {
     const relativePath = `${testEvidenceCasesPath}/${member}`;
     if (!caseFilePattern.test(member)) {
-      options.diagnostics.push(createTestEvidenceDiagnostic({
-        category: "case",
-        code: "case.member-unsupported",
-        message: `${relativePath} must be a direct kebab-case Markdown Case file`,
-        path: relativePath,
-        severity: "error"
-      }));
+      options.diagnostics.push(
+        createTestEvidenceDiagnostic({
+          category: "case",
+          code: "case.member-unsupported",
+          message: `${relativePath} must be a direct kebab-case Markdown Case file`,
+          path: relativePath,
+          severity: "error"
+        })
+      );
       continue;
     }
     const source = await readRequiredRegularFile({
@@ -237,13 +251,15 @@ async function readRequiredRegularFile(options: {
   try {
     const stats = await fs.lstat(absolutePath, { bigint: true });
     if (stats.isSymbolicLink() || !stats.isFile()) {
-      options.diagnostics.push(createTestEvidenceDiagnostic({
-        category: options.category,
-        code: `${options.codePrefix}.path-invalid`,
-        message: `${options.relativePath} must be a regular file, not a symbolic link`,
-        path: options.relativePath,
-        severity: "error"
-      }));
+      options.diagnostics.push(
+        createTestEvidenceDiagnostic({
+          category: options.category,
+          code: `${options.codePrefix}.path-invalid`,
+          message: `${options.relativePath} must be a regular file, not a symbolic link`,
+          path: options.relativePath,
+          severity: "error"
+        })
+      );
       return null;
     }
     options.identities.push(fileIdentity(options.relativePath, stats));
@@ -252,29 +268,33 @@ async function readRequiredRegularFile(options: {
     try {
       text = decodeLedgerUtf8Text(data);
     } catch {
-      options.diagnostics.push(createTestEvidenceDiagnostic({
-        category: options.category,
-        code: `${options.codePrefix}.encoding-invalid`,
-        message: `${options.relativePath} must contain valid UTF-8 text`,
-        path: options.relativePath,
-        severity: "error"
-      }));
+      options.diagnostics.push(
+        createTestEvidenceDiagnostic({
+          category: options.category,
+          code: `${options.codePrefix}.encoding-invalid`,
+          message: `${options.relativePath} must contain valid UTF-8 text`,
+          path: options.relativePath,
+          severity: "error"
+        })
+      );
       return null;
     }
     return { path: options.relativePath, text };
   } catch (error) {
     const missing = isFileSystemError(error, "ENOENT");
-    options.diagnostics.push(createTestEvidenceDiagnostic({
-      category: options.category,
-      code: missing
-        ? `${options.codePrefix}.missing`
-        : `${options.codePrefix}.read-failed`,
-      message: missing
-        ? `${options.relativePath} does not exist`
-        : `${options.relativePath} could not be read: ${testEvidenceErrorText(error)}`,
-      path: options.relativePath,
-      severity: "error"
-    }));
+    options.diagnostics.push(
+      createTestEvidenceDiagnostic({
+        category: options.category,
+        code: missing
+          ? `${options.codePrefix}.missing`
+          : `${options.codePrefix}.read-failed`,
+        message: missing
+          ? `${options.relativePath} does not exist`
+          : `${options.relativePath} could not be read: ${testEvidenceErrorText(error)}`,
+        path: options.relativePath,
+        severity: "error"
+      })
+    );
     return null;
   }
 }
@@ -300,14 +320,18 @@ function identityConflictDiagnostic(
   first: LedgerFileIdentity,
   duplicate: LedgerFileIdentity
 ): TestEvidenceDiagnostic {
-  const indexInvolved = first.path === testEvidenceLedgerIndexPath
-    || duplicate.path === testEvidenceLedgerIndexPath;
-  const entityInvolved = first.path === testEntityIndexPath
-    || duplicate.path === testEntityIndexPath;
+  const indexInvolved =
+    first.path === testEvidenceLedgerIndexPath ||
+    duplicate.path === testEvidenceLedgerIndexPath;
+  const entityInvolved =
+    first.path === testEntityIndexPath ||
+    duplicate.path === testEntityIndexPath;
   return createTestEvidenceDiagnostic({
     category: indexInvolved
       ? "index"
-      : entityInvolved ? "entity-index" : "case",
+      : entityInvolved
+        ? "entity-index"
+        : "case",
     code: indexInvolved
       ? "index.identity-conflict"
       : entityInvolved

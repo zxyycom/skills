@@ -1,12 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import {
-  err,
-  errAsync,
-  ok,
-  ResultAsync,
-  type Result
-} from "neverthrow";
+import { err, errAsync, ok, ResultAsync, type Result } from "neverthrow";
 import type { StateSnapshot } from "../../index-runtime/src/index.ts";
 import {
   inspectInvestigationCollectionLayout,
@@ -102,8 +96,8 @@ function prepareSelection(
   for (const topicPath of paths) {
     if (!isInvestigationTopicPath(topicPath)) {
       errors.push(
-        "path filter must use <category-id>/<semantic-slug>.md: "
-        + (topicPath || "<empty>")
+        "path filter must use <category-id>/<semantic-slug>.md: " +
+          (topicPath || "<empty>")
       );
     }
   }
@@ -112,20 +106,18 @@ function prepareSelection(
   return uniqueErrors.length > 0
     ? err(uniqueErrors)
     : ok({
-      active: categories.size > 0 || paths.size > 0,
-      categories,
-      paths
-    });
+        active: categories.size > 0 || paths.size > 0,
+        categories,
+        paths
+      });
 }
 
 function selectionMatches(selection: Selection, relativePath: string): boolean {
   const category = investigationCategoryOf(relativePath);
   return (
-    selection.categories.size === 0
-    || (category !== null && selection.categories.has(category))
-  ) && (
-    selection.paths.size === 0
-    || selection.paths.has(relativePath)
+    (selection.categories.size === 0 ||
+      (category !== null && selection.categories.has(category))) &&
+    (selection.paths.size === 0 || selection.paths.has(relativePath))
   );
 }
 
@@ -141,19 +133,18 @@ export function executeInvestigationReportCheck(
   }
 
   return canonicalizeInvestigationsDirectory(prepared.value.resolved)
-    .mapErr((errors) => checkFailure(
-      "operation",
-      emptyResult(errors, prepared.value.indexPath)
-    ))
+    .mapErr((errors) =>
+      checkFailure("operation", emptyResult(errors, prepared.value.indexPath))
+    )
     .andThen((canonical) => {
       const checked = prepared.value.selection.active
         ? validateScopedInvestigationCollection(
-          canonical.investigationsDirectory,
-          prepared.value.selection
-        )
+            canonical.investigationsDirectory,
+            prepared.value.selection
+          )
         : validateFullInvestigationCollection(
-          canonical.investigationsDirectory
-        );
+            canonical.investigationsDirectory
+          );
       return checked.mapErr((result) => checkFailure("operation", result));
     });
 }
@@ -163,10 +154,12 @@ function prepareCheck(
 ): Result<PreparedCheck, InvestigationReportCheckFailure> {
   const parsed = parseInvestigationReportCheckOptions(input);
   if (parsed.isErr()) {
-    return err(checkFailure(
-      "invalid-options",
-      emptyResult(parsed.error, defaultInvestigationIndexPath())
-    ));
+    return err(
+      checkFailure(
+        "invalid-options",
+        emptyResult(parsed.error, defaultInvestigationIndexPath())
+      )
+    );
   }
 
   const resolved = resolveInvestigationsDirectory(
@@ -175,16 +168,18 @@ function prepareCheck(
   );
   const selection = prepareSelection(parsed.value);
   if (resolved.isErr() || selection.isErr()) {
-    return err(checkFailure(
-      "invalid-options",
-      emptyResult(
-        [
-          ...(resolved.isErr() ? resolved.error : []),
-          ...(selection.isErr() ? selection.error : [])
-        ],
-        investigationIndexPathForOptions(parsed.value)
+    return err(
+      checkFailure(
+        "invalid-options",
+        emptyResult(
+          [
+            ...(resolved.isErr() ? resolved.error : []),
+            ...(selection.isErr() ? selection.error : [])
+          ],
+          investigationIndexPathForOptions(parsed.value)
+        )
       )
-    ));
+    );
   }
   return ok({
     indexPath: path.join(
@@ -198,35 +193,28 @@ function prepareCheck(
 
 function validateFullInvestigationCollection(
   investigationRoot: string
-): ResultAsync<
-  InvestigationReportCheckResult,
-  InvestigationReportCheckResult
-> {
+): ResultAsync<InvestigationReportCheckResult, InvestigationReportCheckResult> {
   const indexPath = path.join(investigationRoot, investigationIndexFileName);
   return ResultAsync.fromPromise(
     readInvestigationStateSnapshot(investigationRoot),
-    (error) => emptyResult(
-      [
-        "investigation report check could not be completed: "
-        + errorText(error)
-      ],
-      indexPath
-    )
-  ).andThen((snapshot) => checkInvestigationSnapshot(
-    investigationRoot,
-    indexPath,
-    snapshot
-  ));
+    (error) =>
+      emptyResult(
+        [
+          "investigation report check could not be completed: " +
+            errorText(error)
+        ],
+        indexPath
+      )
+  ).andThen((snapshot) =>
+    checkInvestigationSnapshot(investigationRoot, indexPath, snapshot)
+  );
 }
 
 function checkInvestigationSnapshot(
   investigationRoot: string,
   indexPath: string,
   snapshot: InvestigationSnapshot
-): ResultAsync<
-  InvestigationReportCheckResult,
-  InvestigationReportCheckResult
-> {
+): ResultAsync<InvestigationReportCheckResult, InvestigationReportCheckResult> {
   const counts = snapshotCounts(snapshot);
   return ResultAsync.fromPromise(
     syncInvestigationStateIndex({
@@ -234,26 +222,28 @@ function checkInvestigationSnapshot(
       mode: "check",
       snapshot
     }),
-    (error) => checkResult(
-      counts,
-      [
-        "investigation report check could not be completed: "
-        + errorText(error)
-      ],
-      false,
-      indexPath
-    )
+    (error) =>
+      checkResult(
+        counts,
+        [
+          "investigation report check could not be completed: " +
+            errorText(error)
+        ],
+        false,
+        indexPath
+      )
   ).andThen((synchronized) => {
-    const errors = synchronized.status === "error"
-      ? investigationIndexDiagnosticMessages(synchronized.diagnostics)
-      : [];
+    const errors =
+      synchronized.status === "error"
+        ? investigationIndexDiagnosticMessages(synchronized.diagnostics)
+        : [];
     const result = checkResult(
       counts,
       errors,
-      synchronized.status === "ok"
-        || !synchronized.diagnostics.some((diagnostic) => (
-          diagnostic.code === "state-index.source-read-failed"
-        )),
+      synchronized.status === "ok" ||
+        !synchronized.diagnostics.some(
+          (diagnostic) => diagnostic.code === "state-index.source-read-failed"
+        ),
       indexPath
     );
     return errors.length > 0 ? err(result) : ok(result);
@@ -263,21 +253,19 @@ function checkInvestigationSnapshot(
 function validateScopedInvestigationCollection(
   investigationRoot: string,
   selection: Selection
-): ResultAsync<
-  InvestigationReportCheckResult,
-  InvestigationReportCheckResult
-> {
+): ResultAsync<InvestigationReportCheckResult, InvestigationReportCheckResult> {
   const indexPath = path.join(investigationRoot, investigationIndexFileName);
   return ResultAsync.fromPromise(
     collectScopedInvestigationResult(investigationRoot, selection),
-    (error) => emptyResult(
-      [
-        "investigation report check could not be completed: "
-        + errorText(error)
-      ],
-      indexPath
-    )
-  ).andThen((result) => result.errors.length > 0 ? err(result) : ok(result));
+    (error) =>
+      emptyResult(
+        [
+          "investigation report check could not be completed: " +
+            errorText(error)
+        ],
+        indexPath
+      )
+  ).andThen((result) => (result.errors.length > 0 ? err(result) : ok(result)));
 }
 
 async function collectScopedInvestigationResult(
@@ -287,10 +275,7 @@ async function collectScopedInvestigationResult(
   const errors: string[] = [];
   const layout = await inspectInvestigationCollectionLayout(investigationRoot);
   const fileSet = new Set(layout.topicPaths);
-  const candidatePaths = new Set([
-    ...layout.topicPaths,
-    ...selection.paths
-  ]);
+  const candidatePaths = new Set([...layout.topicPaths, ...selection.paths]);
   const selectedPaths = [...candidatePaths]
     .filter((relativePath) => selectionMatches(selection, relativePath))
     .sort(compareText);
@@ -303,44 +288,39 @@ async function collectScopedInvestigationResult(
     errors.push(...validateInvestigationTopicPath(relativePath));
     if (!fileSet.has(relativePath)) {
       const category = investigationCategoryOf(relativePath);
-      const layoutError = layout.errors.find((error) => (
-        error.startsWith(`${relativePath} `)
-        || (category !== null && error.startsWith(`${category} `))
-      ));
-      errors.push(
-        layoutError ?? `${relativePath} topic file does not exist`
+      const layoutError = layout.errors.find(
+        (error) =>
+          error.startsWith(`${relativePath} `) ||
+          (category !== null && error.startsWith(`${category} `))
       );
+      errors.push(layoutError ?? `${relativePath} topic file does not exist`);
       continue;
     }
-    const reportPath = path.join(
-      investigationRoot,
-      ...relativePath.split("/")
-    );
+    const reportPath = path.join(investigationRoot, ...relativePath.split("/"));
     let markdown: string;
     try {
       markdown = await fs.readFile(reportPath, "utf8");
     } catch (error) {
-      errors.push(
-        `${relativePath} could not be read: ${errorText(error)}`
-      );
+      errors.push(`${relativePath} could not be read: ${errorText(error)}`);
       continue;
     }
-    const report = parseInvestigationReport(
-      markdown,
-      relativePath
-    );
+    const report = parseInvestigationReport(markdown, relativePath);
     const built = buildInvestigationTopicState(relativePath, report);
     errors.push(...built.errors);
     if (built.status === "valid") {
-      selectedResourceIds.push(...built.state.resourceReferences.flatMap(
-        (reference) => reference.resourceIds
-      ));
+      selectedResourceIds.push(
+        ...built.state.resourceReferences.flatMap(
+          (reference) => reference.resourceIds
+        )
+      );
     }
   }
-  errors.push(...await validateReferencedInvestigationResources(
-    investigationRoot,
-    selectedResourceIds
-  ));
+  errors.push(
+    ...(await validateReferencedInvestigationResources(
+      investigationRoot,
+      selectedResourceIds
+    ))
+  );
 
   return {
     availableTopicCount: layout.topicPaths.length,
@@ -371,13 +351,17 @@ export function executeInvestigationIndexSync(
   }
 
   return canonicalizeInvestigationsDirectory(prepared.value.resolved)
-    .mapErr((errors) => syncFailure(
-      "operation",
-      emptySyncResult(errors, prepared.value.indexPath)
-    ))
-    .andThen((canonical) => synchronizeFullInvestigationCollection(
-      canonical.investigationsDirectory
-    ).mapErr((result) => syncFailure("operation", result)));
+    .mapErr((errors) =>
+      syncFailure(
+        "operation",
+        emptySyncResult(errors, prepared.value.indexPath)
+      )
+    )
+    .andThen((canonical) =>
+      synchronizeFullInvestigationCollection(
+        canonical.investigationsDirectory
+      ).mapErr((result) => syncFailure("operation", result))
+    );
 }
 
 function prepareSync(
@@ -385,23 +369,27 @@ function prepareSync(
 ): Result<PreparedSync, InvestigationIndexSyncFailure> {
   const parsed = parseInvestigationIndexSyncOptions(input);
   if (parsed.isErr()) {
-    return err(syncFailure(
-      "invalid-options",
-      emptySyncResult(parsed.error, defaultInvestigationIndexPath())
-    ));
+    return err(
+      syncFailure(
+        "invalid-options",
+        emptySyncResult(parsed.error, defaultInvestigationIndexPath())
+      )
+    );
   }
   const resolved = resolveInvestigationsDirectory(
     parsed.value.workspaceRoot,
     parsed.value.investigationsDir
   );
   if (resolved.isErr()) {
-    return err(syncFailure(
-      "invalid-options",
-      emptySyncResult(
-        resolved.error,
-        investigationIndexPathForOptions(parsed.value)
+    return err(
+      syncFailure(
+        "invalid-options",
+        emptySyncResult(
+          resolved.error,
+          investigationIndexPathForOptions(parsed.value)
+        )
       )
-    ));
+    );
   }
   return ok({
     indexPath: path.join(
@@ -418,18 +406,17 @@ function synchronizeFullInvestigationCollection(
   const indexPath = path.join(investigationRoot, investigationIndexFileName);
   return ResultAsync.fromPromise(
     readInvestigationStateSnapshot(investigationRoot),
-    (error) => emptySyncResult(
-      [
-        "investigation index synchronization could not be completed: "
-        + errorText(error)
-      ],
-      indexPath
-    )
-  ).andThen((snapshot) => synchronizeInvestigationSnapshot(
-    investigationRoot,
-    indexPath,
-    snapshot
-  ));
+    (error) =>
+      emptySyncResult(
+        [
+          "investigation index synchronization could not be completed: " +
+            errorText(error)
+        ],
+        indexPath
+      )
+  ).andThen((snapshot) =>
+    synchronizeInvestigationSnapshot(investigationRoot, indexPath, snapshot)
+  );
 }
 
 function synchronizeInvestigationSnapshot(
@@ -444,25 +431,22 @@ function synchronizeInvestigationSnapshot(
       mode: "write",
       snapshot
     }),
-    (error) => syncResult(
-      counts,
-      false,
-      [
-        "investigation index synchronization could not be completed: "
-        + errorText(error)
-      ],
-      indexPath
-    )
+    (error) =>
+      syncResult(
+        counts,
+        false,
+        [
+          "investigation index synchronization could not be completed: " +
+            errorText(error)
+        ],
+        indexPath
+      )
   ).andThen((synchronized) => {
-    const errors = synchronized.status === "error"
-      ? investigationIndexDiagnosticMessages(synchronized.diagnostics)
-      : [];
-    const result = syncResult(
-      counts,
-      synchronized.changed,
-      errors,
-      indexPath
-    );
+    const errors =
+      synchronized.status === "error"
+        ? investigationIndexDiagnosticMessages(synchronized.diagnostics)
+        : [];
+    const result = syncResult(counts, synchronized.changed, errors, indexPath);
     return errors.length > 0 ? err(result) : ok(result);
   });
 }
@@ -579,10 +563,12 @@ function investigationIndexPathForOptions(options: {
 }
 
 function categoriesOf(paths: readonly string[]): Set<string> {
-  return new Set(paths.flatMap((relativePath) => {
-    const category = investigationCategoryOf(relativePath);
-    return category === null ? [] : [category];
-  }));
+  return new Set(
+    paths.flatMap((relativePath) => {
+      const category = investigationCategoryOf(relativePath);
+      return category === null ? [] : [category];
+    })
+  );
 }
 
 function uniqueSorted(values: readonly string[]): string[] {

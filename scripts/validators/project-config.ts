@@ -1,6 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { checkPackageScripts } from "../lib/check-plan.ts";
+import {
+  formatPackageScripts,
+  validateOxcConfigurationFiles
+} from "../lib/oxc-config.ts";
 import { rootDir } from "../lib/project.ts";
 import type { SkillPackage } from "../lib/project.ts";
 import type { ReportValidationError } from "../lib/validation.ts";
@@ -19,17 +23,23 @@ type PermissionRule = {
 
 export const maintenanceCliPackageScripts = {
   "change-plan": "node skills/change-plan/scripts/change-plan.mjs",
-  "decision-records": "node skills/decision-records/scripts/decision-records.mjs",
-  "investigation-report": "node skills/investigation-report/scripts/check-investigations.mjs",
+  "decision-records":
+    "node skills/decision-records/scripts/decision-records.mjs",
+  "investigation-report":
+    "node skills/investigation-report/scripts/check-investigations.mjs",
   "task-graph": "node scripts/task-graph.js",
-  "test-evidence": "node skills/test-evidence-review/scripts/test-evidence-catalog.mjs",
+  "test-evidence":
+    "node skills/test-evidence-review/scripts/test-evidence-catalog.mjs",
   "validate-skill": "node skills/skill-maintainer/scripts/validate-skill.mjs"
 } as const satisfies Readonly<Record<string, string>>;
 
 export type MaintenanceCliCommand = keyof typeof maintenanceCliPackageScripts;
 
-const requiredPackageScripts = [
+export const requiredPackageScripts = [
   ...checkPackageScripts,
+  "fix",
+  "format",
+  "lint:fix",
   "setup-hooks",
   "setup-repository",
   "sync:skill-updaters",
@@ -96,8 +106,10 @@ export async function validatePackageScripts(
   workspaceRoot: string = rootDir
 ): Promise<void> {
   const packageJsonPath = path.join(workspaceRoot, "package.json");
-  if (!await pathExists(packageJsonPath)) {
-    report("package.json is required for local validation and packaging scripts");
+  if (!(await pathExists(packageJsonPath))) {
+    report(
+      "package.json is required for local validation and packaging scripts"
+    );
     return;
   }
 
@@ -129,6 +141,16 @@ export async function validatePackageScripts(
       );
     }
   }
+  for (const [scriptName, expectedCommand] of Object.entries(
+    formatPackageScripts
+  )) {
+    if (packageJson.scripts[scriptName] !== expectedCommand) {
+      report(
+        `package.json script ${scriptName} must be ${expectedCommand}; ` +
+          "restore the repository Oxfmt command"
+      );
+    }
+  }
 }
 
 export async function validateRequiredProjectFiles(
@@ -136,7 +158,7 @@ export async function validateRequiredProjectFiles(
   workspaceRoot: string = rootDir
 ): Promise<void> {
   for (const relativePath of requiredProjectFiles) {
-    if (!await pathExists(path.join(workspaceRoot, relativePath))) {
+    if (!(await pathExists(path.join(workspaceRoot, relativePath)))) {
       report(`${relativePath} is required`);
     }
   }
@@ -150,6 +172,8 @@ export async function validateRequiredProjectFiles(
   }
 }
 
+export { validateOxcConfigurationFiles };
+
 function permissionRuleSource(rule: PermissionRule): string {
   const pattern = rule.command.map((part) => JSON.stringify(part)).join(", ");
   return `prefix_rule(pattern=[${pattern}], decision="${rule.decision}")`;
@@ -161,16 +185,14 @@ export async function validateRepositoryPermissionRules(
 ): Promise<void> {
   const relativePath = ".codex/rules/bun.rules";
   const rulesPath = path.join(workspaceRoot, relativePath);
-  if (!await pathExists(rulesPath)) {
+  if (!(await pathExists(rulesPath))) {
     return;
   }
 
   const source = await fs.readFile(rulesPath, "utf8");
   for (const rule of requiredPermissionRules) {
     if (!source.includes(permissionRuleSource(rule))) {
-      report(
-        `${relativePath} must ${rule.decision} ${rule.command.join(" ")}`
-      );
+      report(`${relativePath} must ${rule.decision} ${rule.command.join(" ")}`);
     }
   }
   for (const reference of forbiddenPermissionRuleReferences) {
@@ -196,7 +218,7 @@ export async function validateSkillPackageVersions(
   for (const skill of skills) {
     const relativePath = `skills/${skill.name}/${skillEntryFileName}`;
     const skillEntryPath = path.join(skill.directory, skillEntryFileName);
-    if (!await pathExists(skillEntryPath)) {
+    if (!(await pathExists(skillEntryPath))) {
       report(`${relativePath} is required`);
       continue;
     }

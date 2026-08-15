@@ -29,14 +29,17 @@ import {
 
 type ResourceIndex = {
   definitionVersion: number;
-  entries: Record<string, {
-    state: {
-      resourceReferences: Array<{
-        reportIndex: number;
-        resourceIds: string[];
-      }>;
-    };
-  }>;
+  entries: Record<
+    string,
+    {
+      state: {
+        resourceReferences: Array<{
+          reportIndex: number;
+          resourceIds: string[];
+        }>;
+      };
+    }
+  >;
   metadata: {
     resources: Array<{
       id: string;
@@ -78,13 +81,15 @@ async function validatePath(
   workspaceRoot: string,
   reportPath: string
 ): Promise<string[]> {
-  return (await validateInvestigationReports({
-    paths: [reportPath],
-    workspaceRoot
-  })).errors;
+  return (
+    await validateInvestigationReports({
+      paths: [reportPath],
+      workspaceRoot
+    })
+  ).errors;
 }
 
-test("validation keeps reports without attached resources valid", () => (
+test("validation keeps reports without attached resources valid", () =>
   withTempRoot("resources-optional", async (workspaceRoot) => {
     const reports = createValidReports();
     await writeCollection(workspaceRoot, reports);
@@ -92,18 +97,19 @@ test("validation keeps reports without attached resources valid", () => (
     const validation = await validateInvestigationReports({ workspaceRoot });
     assert.deepEqual(validation.errors, []);
 
-    const index = JSON.parse(await fs.readFile(path.join(
-      investigationRoot(workspaceRoot),
-      investigationIndexFileName
-    ), "utf8")) as ResourceIndex;
+    const index = JSON.parse(
+      await fs.readFile(
+        path.join(investigationRoot(workspaceRoot), investigationIndexFileName),
+        "utf8"
+      )
+    ) as ResourceIndex;
     assert.deepEqual(index.metadata.resources, []);
     for (const entry of Object.values(index.entries)) {
       assert.deepEqual(entry.state.resourceReferences, []);
     }
-  })
-));
+  }));
 
-test("resource index projects single multiple and shared attachments", () => (
+test("resource index projects single multiple and shared attachments", () =>
   withTempRoot("resources-projection", async (workspaceRoot) => {
     const request = "GET /users/42\naccept: application/json\n";
     const response = Uint8Array.from([0, 1, 2, 127, 128, 255]);
@@ -136,21 +142,25 @@ test("resource index projects single multiple and shared attachments", () => (
       {
         path: "runtime/shared-response.md",
         question: "共享响应在另一主题中如何复核？",
-        reports: [{
-          resources: [
-            { id: "captures/response.bin", label: "共享响应" },
-            { id: "shared/context.md", label: "共享观测条件" }
-          ],
-          title: "复核共享响应"
-        }],
+        reports: [
+          {
+            resources: [
+              { id: "captures/response.bin", label: "共享响应" },
+              { id: "shared/context.md", label: "共享观测条件" }
+            ],
+            title: "复核共享响应"
+          }
+        ],
         title: "共享响应调查"
       }
     ]);
 
-    const index = JSON.parse(await fs.readFile(path.join(
-      investigationRoot(workspaceRoot),
-      investigationIndexFileName
-    ), "utf8")) as ResourceIndex;
+    const index = JSON.parse(
+      await fs.readFile(
+        path.join(investigationRoot(workspaceRoot), investigationIndexFileName),
+        "utf8"
+      )
+    ) as ResourceIndex;
     assert.equal(index.definitionVersion, 4);
     assert.deepEqual(index.metadata.resources, [
       { id: "api/request.txt", sha256: resourceHash(request) },
@@ -169,19 +179,20 @@ test("resource index projects single multiple and shared attachments", () => (
     );
     assert.deepEqual(
       index.entries["runtime/shared-response.md"]!.state.resourceReferences,
-      [{
-        reportIndex: 0,
-        resourceIds: ["captures/response.bin", "shared/context.md"]
-      }]
+      [
+        {
+          reportIndex: 0,
+          resourceIds: ["captures/response.bin", "shared/context.md"]
+        }
+      ]
     );
     assert.deepEqual(
       (await validateInvestigationReports({ workspaceRoot })).errors,
       []
     );
-  })
-));
+  }));
 
-test("resource ID whitelist accepts common names and rejects structural hazards", () => (
+test("resource ID whitelist accepts common names and rejects structural hazards", () =>
   withTempRoot("resources-readable-ids", async (workspaceRoot) => {
     const resources = [
       {
@@ -206,34 +217,63 @@ test("resource ID whitelist accepts common names and rejects structural hazards"
     );
     await writeResource(workspaceRoot, resources[2]!.id, "excerpt\n");
     await writeResource(workspaceRoot, resources[3]!.id, "all symbols\n");
-    await writeCollection(workspaceRoot, [{
-      path: "runtime/readable-resource-ids.md",
-      question: "白名单资源名称能否保持可读并安全引用？",
-      reports: [{ resources, title: "核对可读资源名称" }],
-      title: "可读资源名称调查"
-    }]);
+    await writeCollection(workspaceRoot, [
+      {
+        path: "runtime/readable-resource-ids.md",
+        question: "白名单资源名称能否保持可读并安全引用？",
+        reports: [{ resources, title: "核对可读资源名称" }],
+        title: "可读资源名称调查"
+      }
+    ]);
 
     const validation = await validateInvestigationReports({ workspaceRoot });
     assert.deepEqual(validation.errors, []);
-    const index = JSON.parse(await fs.readFile(path.join(
-      investigationRoot(workspaceRoot),
-      investigationIndexFileName
-    ), "utf8")) as ResourceIndex;
+    const index = JSON.parse(
+      await fs.readFile(
+        path.join(investigationRoot(workspaceRoot), investigationIndexFileName),
+        "utf8"
+      )
+    ) as ResourceIndex;
     assert.deepEqual(
-      index.entries["runtime/readable-resource-ids.md"]!
-        .state.resourceReferences,
-      [{
-        reportIndex: 0,
-        resourceIds: resources.map(({ id }) => id).sort()
-      }]
+      index.entries["runtime/readable-resource-ids.md"]!.state
+        .resourceReferences,
+      [
+        {
+          reportIndex: 0,
+          resourceIds: resources.map(({ id }) => id).sort()
+        }
+      ]
     );
 
     assert.equal(isInvestigationResourceId("响应().json"), true);
     assert.equal(isInvestigationResourceId("响应(最终).json"), true);
     for (const allowedInfix of [
-      ".", "_", "-", "+", "@", "=",
-      "()", "（", "）", "[", "]", "【", "】", "《", "》",
-      ",", "!", "~", "'", "，", "。", "！", "、", "·", "：", "？"
+      ".",
+      "_",
+      "-",
+      "+",
+      "@",
+      "=",
+      "()",
+      "（",
+      "）",
+      "[",
+      "]",
+      "【",
+      "】",
+      "《",
+      "》",
+      ",",
+      "!",
+      "~",
+      "'",
+      "，",
+      "。",
+      "！",
+      "、",
+      "·",
+      "：",
+      "？"
     ]) {
       assert.equal(
         isInvestigationResourceId(`甲${allowedInfix}乙.txt`),
@@ -242,9 +282,7 @@ test("resource ID whitelist accepts common names and rejects structural hazards"
       );
     }
     assert.equal(
-      isInvestigationResourceId(
-        `甲${"(".repeat(32)}乙${")".repeat(32)}.txt`
-      ),
+      isInvestigationResourceId(`甲${"(".repeat(32)}乙${")".repeat(32)}.txt`),
       true
     );
     for (const [reason, invalidId] of [
@@ -257,7 +295,10 @@ test("resource ID whitelist accepts common names and rejects structural hazards"
       ["missing identity character", "【】"],
       ["unclosed parenthesis", "响应(未闭合.txt"],
       ["unexpected closing parenthesis", "响应最终).txt"],
-      ["parenthesis nesting above 32", `甲${"(".repeat(33)}乙${")".repeat(33)}.txt`],
+      [
+        "parenthesis nesting above 32",
+        `甲${"(".repeat(33)}乙${")".repeat(33)}.txt`
+      ],
       ["whitespace", "中文 文件.txt"],
       ["ASCII query marker", "响应?.txt"],
       ["fragment marker", "响应#.txt"],
@@ -266,7 +307,7 @@ test("resource ID whitelist accepts common names and rejects structural hazards"
       ["ASCII colon", "响应:副本.txt"],
       ["asterisk", "响应*副本.txt"],
       ["vertical bar", "响应|副本.txt"],
-      ["double quote", "响应\"副本.txt"],
+      ["double quote", '响应"副本.txt'],
       ["ampersand", "响应&副本.txt"],
       ["backtick", "响应`副本.txt"],
       ["emoji", "响应🎉.txt"]
@@ -277,10 +318,9 @@ test("resource ID whitelist accepts common names and rejects structural hazards"
         `${reason}: ${invalidId}`
       );
     }
-  })
-));
+  }));
 
-test("attached resource field is strict when present", () => (
+test("attached resource field is strict when present", () =>
   withTempRoot("resources-field", async (workspaceRoot) => {
     const emphasizedLabel = rawResourceFieldReport(
       "runtime/emphasized-resource-label.md",
@@ -294,20 +334,14 @@ test("attached resource field is strict when present", () => (
       "runtime/empty-resource-label.md",
       ["- 随附资源:", "  - [](../_resources/sample.txt)"]
     );
-    const duplicate = rawResourceFieldReport(
-      "runtime/duplicate-resource.md",
-      [
-        "- 随附资源:",
-        "  - [样本](../_resources/sample.txt)",
-        "  - [重复样本](../_resources/sample.txt)"
-      ]
-    );
+    const duplicate = rawResourceFieldReport("runtime/duplicate-resource.md", [
+      "- 随附资源:",
+      "  - [样本](../_resources/sample.txt)",
+      "  - [重复样本](../_resources/sample.txt)"
+    ]);
     const trailingText = rawResourceFieldReport(
       "runtime/resource-link-trailing-text.md",
-      [
-        "- 随附资源:",
-        "  - [样本](../_resources/sample.txt) 额外文字"
-      ]
+      ["- 随附资源:", "  - [样本](../_resources/sample.txt) 额外文字"]
     );
     const resourceAfterMetadata = rawResourceFieldReport(
       "runtime/resource-field-after-metadata.md",
@@ -337,24 +371,15 @@ test("attached resource field is strict when present", () => (
     );
     const orderedResourceList = rawResourceFieldReport(
       "runtime/ordered-resource-list.md",
-      [
-        "- 随附资源:",
-        "  1. [样本](../_resources/sample.txt)"
-      ]
+      ["- 随附资源:", "  1. [样本](../_resources/sample.txt)"]
     );
     const titledLink = rawResourceFieldReport(
       "runtime/titled-resource-link.md",
-      [
-        "- 随附资源:",
-        '  - [样本](../_resources/sample.txt "说明")'
-      ]
+      ["- 随附资源:", '  - [样本](../_resources/sample.txt "说明")']
     );
     const referenceStyleLink = rawResourceFieldReport(
       "runtime/reference-style-resource-link.md",
-      [
-        "- 随附资源:",
-        "  - [样本][sample-resource]"
-      ]
+      ["- 随附资源:", "  - [样本][sample-resource]"]
     );
     referenceStyleLink.body = [
       referenceStyleLink.body,
@@ -388,9 +413,15 @@ test("attached resource field is strict when present", () => (
 
     for (const [report, expected] of [
       [emptyField, "must contain at least one resource link"],
-      [emptyLabel, "exactly one local Markdown link with non-empty display text"],
+      [
+        emptyLabel,
+        "exactly one local Markdown link with non-empty display text"
+      ],
       [duplicate, "must not reference resource sample.txt more than once"],
-      [trailingText, "exactly one local Markdown link with non-empty display text"],
+      [
+        trailingText,
+        "exactly one local Markdown link with non-empty display text"
+      ],
       [
         resourceAfterMetadata,
         'report metadata must contain only "形成时间" and optional "随附资源" fields'
@@ -421,23 +452,21 @@ test("attached resource field is strict when present", () => (
       assert.ok(summary.includes(report.path), summary);
       assert.ok(summary.includes(expected), summary);
     }
-  })
-));
+  }));
 
-test("validation rejects unsafe attached resource paths", () => (
+test("validation rejects unsafe attached resource paths", () =>
   withTempRoot("resources-paths", async (workspaceRoot) => {
-    const prefixDiagnostic = (target: string): string => (
-      `resource link target ${JSON.stringify(target)} must use `
-      + "../_resources/<resource-id> without queries, fragments, encoding, "
-      + "or backslashes"
-    );
-    const idDiagnostic = (target: string): string => (
-      `resource link target ${JSON.stringify(target)} must contain a safe, `
-      + "normalized resource id"
-    );
-    const rawSpellingDiagnostic = "resource link target must be written "
-      + "literally as ../_resources/<resource-id> without Markdown escapes "
-      + "or character references";
+    const prefixDiagnostic = (target: string): string =>
+      `resource link target ${JSON.stringify(target)} must use ` +
+      "../_resources/<resource-id> without queries, fragments, encoding, " +
+      "or backslashes";
+    const idDiagnostic = (target: string): string =>
+      `resource link target ${JSON.stringify(target)} must contain a safe, ` +
+      "normalized resource id";
+    const rawSpellingDiagnostic =
+      "resource link target must be written " +
+      "literally as ../_resources/<resource-id> without Markdown escapes " +
+      "or character references";
     const cases = [
       {
         expected: idDiagnostic("../_resources/../outside.txt"),
@@ -529,18 +558,19 @@ test("validation rejects unsafe attached resource paths", () => (
       assert.ok(summary.includes(expected), summary);
       assert.doesNotMatch(summary, /does not exist/u);
     }
-  })
-));
+  }));
 
-test("validation reports missing attached resources", () => (
+test("validation reports missing attached resources", () =>
   withTempRoot("resources-missing", async (workspaceRoot) => {
     const report: ReportInput = {
       path: "runtime/missing-resource.md",
       question: "缺失资源是否会被定位？",
-      reports: [{
-        resources: [{ id: "missing/sample.txt", label: "缺失样本" }],
-        title: "检查缺失资源"
-      }],
+      reports: [
+        {
+          resources: [{ id: "missing/sample.txt", label: "缺失样本" }],
+          title: "检查缺失资源"
+        }
+      ],
       title: "缺失资源调查"
     };
     await writeCollection(workspaceRoot, [report], false);
@@ -548,18 +578,19 @@ test("validation reports missing attached resources", () => (
     const errors = await validatePath(workspaceRoot, report.path);
     assert.ok(errorSummary(errors).includes("missing/sample.txt"));
     assert.match(errorSummary(errors), /does not exist|missing/u);
-  })
-));
+  }));
 
-test("validation reports attached resource case mismatches", () => (
+test("validation reports attached resource case mismatches", () =>
   withTempRoot("resources-case", async (workspaceRoot) => {
     const report: ReportInput = {
       path: "runtime/resource-case.md",
       question: "资源大小写不一致是否会被定位？",
-      reports: [{
-        resources: [{ id: "case/sample.txt", label: "大小写样本" }],
-        title: "检查大小写"
-      }],
+      reports: [
+        {
+          resources: [{ id: "case/sample.txt", label: "大小写样本" }],
+          title: "检查大小写"
+        }
+      ],
       title: "资源大小写调查"
     };
     await writeResource(workspaceRoot, "case/Sample.txt", "sample\n");
@@ -567,26 +598,31 @@ test("validation reports attached resource case mismatches", () => (
 
     const errors = await validatePath(workspaceRoot, report.path);
     const summary = errorSummary(errors);
-    assert.ok(summary.includes(
-      '_resources/case/sample.txt must match actual path casing; found "Sample.txt"'
-    ), summary);
+    assert.ok(
+      summary.includes(
+        '_resources/case/sample.txt must match actual path casing; found "Sample.txt"'
+      ),
+      summary
+    );
     assert.doesNotMatch(summary, /does not exist/u);
-  })
-));
+  }));
 
-test("validation rejects symbolic links in attached resource paths", () => (
+test("validation rejects symbolic links in attached resource paths", () =>
   withTempRoot("resources-symlink", async (tempRoot) => {
     const cases = ["root", "component", "file"] as const;
     for (const kind of cases) {
       const workspaceRoot = path.join(tempRoot, kind);
-      const resourceId = kind === "component" ? "linked/sample.txt" : "sample.txt";
+      const resourceId =
+        kind === "component" ? "linked/sample.txt" : "sample.txt";
       const report: ReportInput = {
         path: `runtime/${kind}-symlink.md`,
         question: "符号链接资源是否会被拒绝？",
-        reports: [{
-          resources: [{ id: resourceId, label: "符号链接样本" }],
-          title: "检查符号链接"
-        }],
+        reports: [
+          {
+            resources: [{ id: resourceId, label: "符号链接样本" }],
+            title: "检查符号链接"
+          }
+        ],
         title: "符号链接资源调查"
       };
       await writeCollection(workspaceRoot, [report], false);
@@ -612,38 +648,40 @@ test("validation rejects symbolic links in attached resource paths", () => (
 
       const errors = await validatePath(workspaceRoot, report.path);
       if (kind !== "root") {
-        assert.ok(errorSummary(errors).includes(resourceId), errorSummary(errors));
+        assert.ok(
+          errorSummary(errors).includes(resourceId),
+          errorSummary(errors)
+        );
       }
       assert.match(errorSummary(errors), /symbolic link/u);
     }
-  })
-));
+  }));
 
-test("validation rejects attached resource targets that are not regular files", () => (
+test("validation rejects attached resource targets that are not regular files", () =>
   withTempRoot("resources-file-type", async (workspaceRoot) => {
     const report: ReportInput = {
       path: "runtime/directory-resource.md",
       question: "资源目标是否必须是普通文件？",
-      reports: [{
-        resources: [{ id: "directory", label: "目录目标" }],
-        title: "检查资源类型"
-      }],
+      reports: [
+        {
+          resources: [{ id: "directory", label: "目录目标" }],
+          title: "检查资源类型"
+        }
+      ],
       title: "资源类型调查"
     };
     await writeCollection(workspaceRoot, [report], false);
-    await fs.mkdir(path.join(
-      investigationRoot(workspaceRoot),
-      "_resources",
-      "directory"
-    ), { recursive: true });
+    await fs.mkdir(
+      path.join(investigationRoot(workspaceRoot), "_resources", "directory"),
+      { recursive: true }
+    );
 
     const errors = await validatePath(workspaceRoot, report.path);
     assert.ok(errorSummary(errors).includes("directory"), errorSummary(errors));
     assert.match(errorSummary(errors), /regular file/u);
-  })
-));
+  }));
 
-test("full validation rejects orphan resources while scoped validation remains local", () => (
+test("full validation rejects orphan resources while scoped validation remains local", () =>
   withTempRoot("resources-scope", async (workspaceRoot) => {
     const report = createValidReports()[0]!;
     await writeCollection(workspaceRoot, [report]);
@@ -659,28 +697,31 @@ test("full validation rejects orphan resources while scoped validation remains l
     const complete = await validateInvestigationReports({ workspaceRoot });
     assert.ok(errorSummary(complete.errors).includes("orphan.txt"));
     assert.match(errorSummary(complete.errors), /not referenced|orphan/u);
-  })
-));
+  }));
 
-test("Git ignore rules exclude untracked noise but retain tracked resources", () => (
+test("Git ignore rules exclude untracked noise but retain tracked resources", () =>
   withTempRoot("resources-git-ignore", async (workspaceRoot) => {
     initializeGitRepository(workspaceRoot);
     const trackedId = "evidence/tracked-then-ignored.txt";
     const visibleId = "evidence/visible.txt";
     await writeResource(workspaceRoot, trackedId, "tracked\n");
     await writeResource(workspaceRoot, visibleId, "visible\n");
-    await writeCollection(workspaceRoot, [{
-      path: "runtime/git-visible-resources.md",
-      question: "Git 忽略规则如何界定受管调查资源？",
-      reports: [{
-        resources: [
-          { id: trackedId, label: "已跟踪资源" },
-          { id: visibleId, label: "可见资源" }
+    await writeCollection(workspaceRoot, [
+      {
+        path: "runtime/git-visible-resources.md",
+        question: "Git 忽略规则如何界定受管调查资源？",
+        reports: [
+          {
+            resources: [
+              { id: trackedId, label: "已跟踪资源" },
+              { id: visibleId, label: "可见资源" }
+            ],
+            title: "核对 Git 可见资源"
+          }
         ],
-        title: "核对 Git 可见资源"
-      }],
-      title: "Git 可见资源调查"
-    }]);
+        title: "Git 可见资源调查"
+      }
+    ]);
     commitAll(workspaceRoot, "base resources");
     await fs.writeFile(
       path.join(workspaceRoot, ".gitignore"),
@@ -723,18 +764,19 @@ test("Git ignore rules exclude untracked noise but retain tracked resources", ()
     );
     assert.deepEqual(after, before);
 
-    const index = JSON.parse(await fs.readFile(path.join(
-      investigationRoot(workspaceRoot),
-      investigationIndexFileName
-    ), "utf8")) as ResourceIndex;
-    assert.deepEqual(index.metadata.resources.map(({ id }) => id), [
-      trackedId,
-      visibleId
-    ]);
-  })
-));
+    const index = JSON.parse(
+      await fs.readFile(
+        path.join(investigationRoot(workspaceRoot), investigationIndexFileName),
+        "utf8"
+      )
+    ) as ResourceIndex;
+    assert.deepEqual(
+      index.metadata.resources.map(({ id }) => id),
+      [trackedId, visibleId]
+    );
+  }));
 
-test("validation rejects explicitly referenced ignored resources", () => (
+test("validation rejects explicitly referenced ignored resources", () =>
   withTempRoot("resources-ignored-reference", async (workspaceRoot) => {
     initializeGitRepository(workspaceRoot);
     await fs.writeFile(
@@ -745,13 +787,17 @@ test("validation rejects explicitly referenced ignored resources", () => (
     const report: ReportInput = {
       path: "runtime/ignored-resource.md",
       question: "被忽略的文件能否作为调查证据？",
-      reports: [{
-        resources: [{
-          id: "captures/ignored-response.json",
-          label: "被忽略响应"
-        }],
-        title: "核对被忽略资源"
-      }],
+      reports: [
+        {
+          resources: [
+            {
+              id: "captures/ignored-response.json",
+              label: "被忽略响应"
+            }
+          ],
+          title: "核对被忽略资源"
+        }
+      ],
       title: "被忽略资源调查"
     };
     await writeResource(
@@ -765,29 +811,32 @@ test("validation rejects explicitly referenced ignored resources", () => (
     const summary = errorSummary(errors);
     assert.match(summary, /ignored by version-control rules/u);
     assert.doesNotMatch(summary, /does not exist/u);
-  })
-));
+  }));
 
-test("resource changes invalidate source revision and list results", () => (
+test("resource changes invalidate source revision and list results", () =>
   withTempRoot("resources-revision", async (workspaceRoot) => {
     const originalId = "captures/response.bin";
     const renamedId = "captures/renamed-response.bin";
     const report = (resourceId: string): ReportInput => ({
       path: "runtime/resource-revision.md",
       question: "资源变化是否会使旧索引失效？",
-      reports: [{
-        resources: [{ id: resourceId, label: "响应样本" }],
-        title: "检查资源 revision"
-      }],
+      reports: [
+        {
+          resources: [{ id: resourceId, label: "响应样本" }],
+          title: "检查资源 revision"
+        }
+      ],
       title: "资源 revision 调查"
     });
     await writeResource(workspaceRoot, originalId, Uint8Array.from([1, 2, 3]));
     await writeCollection(workspaceRoot, [report(originalId)]);
 
     const collectionRoot = investigationRoot(workspaceRoot);
-    const initialRevision = await readInvestigationSourceRevision(collectionRoot);
+    const initialRevision =
+      await readInvestigationSourceRevision(collectionRoot);
     await writeResource(workspaceRoot, originalId, Uint8Array.from([1, 2, 4]));
-    const contentRevision = await readInvestigationSourceRevision(collectionRoot);
+    const contentRevision =
+      await readInvestigationSourceRevision(collectionRoot);
     assert.notEqual(contentRevision.metadata, initialRevision.metadata);
     assert.deepEqual(contentRevision.entries, initialRevision.entries);
 
@@ -814,7 +863,8 @@ test("resource changes invalidate source revision and list results", () => (
       path.join(collectionRoot, "_resources", ...renamedId.split("/"))
     );
     await writeCollection(workspaceRoot, [report(renamedId)], false);
-    const renamedRevision = await readInvestigationSourceRevision(collectionRoot);
+    const renamedRevision =
+      await readInvestigationSourceRevision(collectionRoot);
     assert.notEqual(renamedRevision.metadata, contentRevision.metadata);
     assert.notDeepEqual(renamedRevision.entries, contentRevision.entries);
 
@@ -834,5 +884,4 @@ test("resource changes invalidate source revision and list results", () => (
       (await queryInvestigationIndex({ workspaceRoot })).errors,
       []
     );
-  })
-));
+  }));

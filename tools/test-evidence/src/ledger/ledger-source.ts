@@ -41,17 +41,17 @@ export type LoadedTestEvidenceLedgerSource = {
 
 export type TestEvidenceLedgerSourceResult =
   | {
-    diagnostics: [];
-    entityIndex: ParsedTestEntityIndex;
-    source: LoadedTestEvidenceLedgerSource;
-    summary: TestEvidenceLedgerSummary;
-  }
+      diagnostics: [];
+      entityIndex: ParsedTestEntityIndex;
+      source: LoadedTestEvidenceLedgerSource;
+      summary: TestEvidenceLedgerSummary;
+    }
   | {
-    diagnostics: TestEvidenceDiagnostic[];
-    entityIndex: ParsedTestEntityIndex | null;
-    source: null;
-    summary: TestEvidenceLedgerSummary;
-  };
+      diagnostics: TestEvidenceDiagnostic[];
+      entityIndex: ParsedTestEntityIndex | null;
+      source: null;
+      summary: TestEvidenceLedgerSummary;
+    };
 
 export type TestEvidenceLedgerRevisionSource = {
   cases: IdentifiedLedgerCaseSource[];
@@ -61,13 +61,13 @@ export type TestEvidenceLedgerRevisionSource = {
 
 export type TestEvidenceLedgerRevisionResult =
   | {
-    diagnostics: [];
-    source: TestEvidenceLedgerRevisionSource;
-  }
+      diagnostics: [];
+      source: TestEvidenceLedgerRevisionSource;
+    }
   | {
-    diagnostics: TestEvidenceDiagnostic[];
-    source: null;
-  };
+      diagnostics: TestEvidenceDiagnostic[];
+      source: null;
+    };
 
 export class TestEvidenceLedgerSourceError extends Error {
   readonly diagnostics: TestEvidenceDiagnostic[];
@@ -92,9 +92,10 @@ export async function readTestEvidenceLedgerSource(
   const root = path.resolve(workspaceRoot);
   const workspace = await readLedgerWorkspaceSources(root);
   const diagnostics = [...workspace.diagnostics];
-  const entityResult = workspace.entitySource === null
-    ? null
-    : parseTestEntityIndex(workspace.entitySource);
+  const entityResult =
+    workspace.entitySource === null
+      ? null
+      : parseTestEntityIndex(workspace.entitySource);
   if (entityResult !== null) {
     diagnostics.push(...entityResult.diagnostics);
   }
@@ -173,9 +174,10 @@ export async function readTestEvidenceLedgerRevision(
     path.resolve(workspaceRoot)
   );
   const diagnostics = [...workspace.diagnostics];
-  const entityResult = workspace.entitySource === null
-    ? null
-    : parseTestEntityIndex(workspace.entitySource);
+  const entityResult =
+    workspace.entitySource === null
+      ? null
+      : parseTestEntityIndex(workspace.entitySource);
   if (entityResult !== null) {
     diagnostics.push(...entityResult.diagnostics);
   }
@@ -224,11 +226,13 @@ export function sameTestEvidenceLedgerRevision(
   }
   const leftIds = Object.keys(left.entries).sort(compareLexicalText);
   const rightIds = Object.keys(right.entries).sort(compareLexicalText);
-  return leftIds.length === rightIds.length
-    && leftIds.every((id, index) => (
-      id === rightIds[index]
-      && left.entries[id] === right.entries[id]
-    ));
+  return (
+    leftIds.length === rightIds.length &&
+    leftIds.every(
+      (id, index) =>
+        id === rightIds[index] && left.entries[id] === right.entries[id]
+    )
+  );
 }
 
 export function sameTargetTestEvidenceLedgerRevision(options: {
@@ -237,10 +241,11 @@ export function sameTargetTestEvidenceLedgerRevision(options: {
   observedFingerprint: string;
   opened: StateSourceRevision;
 }): boolean {
-  return options.current.metadata === options.opened.metadata
-    && options.observedFingerprint === options.opened.entries[options.caseId]
-    && options.current.entries[options.caseId]
-      === options.observedFingerprint;
+  return (
+    options.current.metadata === options.opened.metadata &&
+    options.observedFingerprint === options.opened.entries[options.caseId] &&
+    options.current.entries[options.caseId] === options.observedFingerprint
+  );
 }
 
 function ledgerSourceRevision(
@@ -291,14 +296,16 @@ function duplicateCaseDiagnostics(
   for (const entry of cases) {
     const firstPath = firstPathById.get(entry.id);
     if (firstPath !== undefined) {
-      diagnostics.push(createTestEvidenceDiagnostic({
-        caseId: entry.id,
-        category: "case",
-        code: "case.id-duplicate",
-        message: `${entry.id} appears in both ${firstPath} and ${entry.path}`,
-        path: entry.path,
-        severity: "error"
-      }));
+      diagnostics.push(
+        createTestEvidenceDiagnostic({
+          caseId: entry.id,
+          category: "case",
+          code: "case.id-duplicate",
+          message: `${entry.id} appears in both ${firstPath} and ${entry.path}`,
+          path: entry.path,
+          severity: "error"
+        })
+      );
       continue;
     }
     firstPathById.set(entry.id, entry.path);

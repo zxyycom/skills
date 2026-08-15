@@ -42,14 +42,16 @@ export function prepareInvestigationSources(
         "investigation-index-metadata-v2",
         ...metadata.resources.flatMap(({ id, sha256 }) => [id, sha256])
       ),
-      entries: Object.fromEntries(orderedSources.map((source) => [
-        source.path,
-        sourceFingerprint(
-          "investigation-index-entry-v1",
+      entries: Object.fromEntries(
+        orderedSources.map((source) => [
           source.path,
-          normalizeSourceText(source.text)
-        )
-      ]))
+          sourceFingerprint(
+            "investigation-index-entry-v1",
+            source.path,
+            normalizeSourceText(source.text)
+          )
+        ])
+      )
     },
     sources: orderedSources
   };
@@ -77,7 +79,10 @@ function investigationResourceSha256(bytes: Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
-function sourceFingerprint(label: string, ...fields: readonly string[]): string {
+function sourceFingerprint(
+  label: string,
+  ...fields: readonly string[]
+): string {
   const hash = createHash("sha256");
   hash.update(label + "\0");
   for (const field of fields) {

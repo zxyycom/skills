@@ -1,7 +1,4 @@
-import {
-  isDecisionId,
-  isDecisionSourcePath
-} from "./decision-path.ts";
+import { isDecisionId, isDecisionSourcePath } from "./decision-path.ts";
 
 export const decisionRelationTypes = [
   "修订",
@@ -11,23 +8,23 @@ export const decisionRelationTypes = [
   "拆分"
 ] as const;
 
-export type DecisionRelationType = typeof decisionRelationTypes[number];
+export type DecisionRelationType = (typeof decisionRelationTypes)[number];
 
 export type DecisionTraceDirection = "both" | "predecessors" | "successors";
 
 export const decisionStatuses = ["candidate", "active", "archived"] as const;
 
-export type DecisionStatus = typeof decisionStatuses[number];
+export type DecisionStatus = (typeof decisionStatuses)[number];
 
 export const establishedDecisionStatuses = ["active", "archived"] as const;
 
 export type EstablishedDecisionStatus =
-  typeof establishedDecisionStatuses[number];
+  (typeof establishedDecisionStatuses)[number];
 export type DecisionListStatus = EstablishedDecisionStatus | "all";
 
 export const decisionAlignments = ["aligned", "unaligned"] as const;
 
-export type DecisionAlignment = typeof decisionAlignments[number];
+export type DecisionAlignment = (typeof decisionAlignments)[number];
 export type DecisionListAlignment = DecisionAlignment | "all";
 
 declare const decisionIdBrand: unique symbol;
@@ -62,9 +59,9 @@ export type DecisionSuccessor = {
 export type DecisionRelationOverride =
   | { kind: "source" }
   | {
-    kind: "replace";
-    relations: DecisionRelation[];
-  };
+      kind: "replace";
+      relations: DecisionRelation[];
+    };
 
 export type DecisionProjection = {
   title: string;
@@ -80,28 +77,31 @@ export type DecisionTags = {
 
 export type DecisionMetadata =
   | {
-    status: "active";
-    alignment: "aligned";
-    createdAt: string;
-  }
+      status: "active";
+      alignment: "aligned";
+      createdAt: string;
+    }
   | {
-    status: "active";
-    alignment: "unaligned";
-    createdAt: string;
-  }
+      status: "active";
+      alignment: "unaligned";
+      createdAt: string;
+    }
   | {
-    status: "archived";
-    alignment: DecisionAlignment | null;
-    createdAt: string;
+      status: "archived";
+      alignment: DecisionAlignment | null;
+      createdAt: string;
+    };
+
+export type DecisionDocument = DecisionProjection &
+  DecisionTags &
+  DecisionMetadata;
+
+export type DecisionCandidateDocument = DecisionProjection &
+  DecisionTags & {
+    status: "candidate";
+    alignment: null;
+    createdAt: null;
   };
-
-export type DecisionDocument = DecisionProjection & DecisionTags & DecisionMetadata;
-
-export type DecisionCandidateDocument = DecisionProjection & DecisionTags & {
-  status: "candidate";
-  alignment: null;
-  createdAt: null;
-};
 
 export type DecisionRecordSource =
   | {
@@ -193,9 +193,10 @@ export type DecisionRecord = {
   tags: DecisionTag[];
 };
 
-type DecisionRecordWithSource<
-  Kind extends DecisionRecordSource["kind"]
-> = Omit<DecisionRecord, "source"> & {
+type DecisionRecordWithSource<Kind extends DecisionRecordSource["kind"]> = Omit<
+  DecisionRecord,
+  "source"
+> & {
   decisionId: DecisionId;
   sourcePath: DecisionSourcePath;
   source: Extract<DecisionRecordSource, { kind: Kind }>;
@@ -213,17 +214,21 @@ export function isActivationCandidateRecord(
 export function isDecisionCandidateRecord(
   record: DecisionRecord
 ): record is DecisionCandidateRecord {
-  return record.source.kind === "candidate"
-    && isDecisionId(record.decisionId)
-    && isDecisionSourcePath(record.sourcePath);
+  return (
+    record.source.kind === "candidate" &&
+    isDecisionId(record.decisionId) &&
+    isDecisionSourcePath(record.sourcePath)
+  );
 }
 
 export function isEstablishedDecisionRecord(
   record: DecisionRecord
 ): record is EstablishedDecisionRecord {
-  return record.source.kind === "established"
-    && isDecisionId(record.decisionId)
-    && isDecisionSourcePath(record.sourcePath);
+  return (
+    record.source.kind === "established" &&
+    isDecisionId(record.decisionId) &&
+    isDecisionSourcePath(record.sourcePath)
+  );
 }
 
 export function compareDecisionRecords(

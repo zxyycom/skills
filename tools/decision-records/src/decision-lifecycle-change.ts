@@ -19,15 +19,17 @@ export function prepareArchivedDecisionChange(
 ): PreparedDecisionChange {
   const source = record.source;
   if (source.document.alignment === null) {
-    return decisionFailure([
-      "Active decision alignment is unavailable: " + record.sourcePath
-    ], { presentation: "plain" });
+    return decisionFailure(
+      ["Active decision alignment is unavailable: " + record.sourcePath],
+      { presentation: "plain" }
+    );
   }
-  const nextText = serializeDecisionFrontmatter(source.document, source.document.tags, {
-    alignment: source.document.alignment,
-    createdAt: source.document.createdAt,
-    status: "archived"
-  }) + source.body;
+  const nextText =
+    serializeDecisionFrontmatter(source.document, source.document.tags, {
+      alignment: source.document.alignment,
+      createdAt: source.document.createdAt,
+      status: "archived"
+    }) + source.body;
   return {
     change: {
       decisionPath: record.decisionPath,

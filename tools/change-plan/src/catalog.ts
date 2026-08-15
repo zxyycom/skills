@@ -16,10 +16,12 @@ import {
 } from "./types.ts";
 
 function isMissingPathError(error: unknown): boolean {
-  return error !== null
-    && typeof error === "object"
-    && "code" in error
-    && error.code === "ENOENT";
+  return (
+    error !== null &&
+    typeof error === "object" &&
+    "code" in error &&
+    error.code === "ENOENT"
+  );
 }
 
 async function lstatOrNull(targetPath: string): Promise<Stats | null> {
@@ -40,7 +42,8 @@ function errorMessage(error: unknown): string {
 export function changePlanStatusFromDirectory(
   changeDirectory: string
 ): ChangePlanStatus {
-  return path.basename(path.dirname(path.resolve(changeDirectory))) === "archive"
+  return path.basename(path.dirname(path.resolve(changeDirectory))) ===
+    "archive"
     ? "archived"
     : "active";
 }
@@ -58,18 +61,22 @@ async function listDirectoryEntries(
 ): Promise<ChangePlanListEntry[]> {
   const entries = await fs.readdir(directory, { withFileTypes: true });
   const directoryNames = entries
-    .filter((entry) => entry.isDirectory() && (
-      status === "archived" || entry.name !== "archive"
-    ))
+    .filter(
+      (entry) =>
+        entry.isDirectory() &&
+        (status === "archived" || entry.name !== "archive")
+    )
     .map((entry) => entry.name)
     .sort((left, right) => left.localeCompare(right));
 
-  return await Promise.all(directoryNames.map(async (name) => (
-    listEntry(
-      await checkChangePlanDirectory(path.join(directory, name)),
-      status
+  return await Promise.all(
+    directoryNames.map(async (name) =>
+      listEntry(
+        await checkChangePlanDirectory(path.join(directory, name)),
+        status
+      )
     )
-  )));
+  );
 }
 
 export async function listChangePlans(
@@ -109,7 +116,9 @@ export async function listChangePlans(
 
   if (status === "active" || status === "all") {
     try {
-      result.entries.push(...await listDirectoryEntries(changeRoot, "active"));
+      result.entries.push(
+        ...(await listDirectoryEntries(changeRoot, "active"))
+      );
     } catch (error) {
       result.errors.push(
         `cannot list active changes in ${changeRoot}: ${errorMessage(error)}`
@@ -128,7 +137,7 @@ export async function listChangePlans(
           );
         } else {
           result.entries.push(
-            ...await listDirectoryEntries(archiveDirectory, "archived")
+            ...(await listDirectoryEntries(archiveDirectory, "archived"))
           );
         }
       }
@@ -139,10 +148,11 @@ export async function listChangePlans(
     }
   }
 
-  result.entries.sort((left, right) => (
-    (left.status === right.status ? 0 : left.status === "active" ? -1 : 1)
-    || left.changeName.localeCompare(right.changeName)
-  ));
+  result.entries.sort(
+    (left, right) =>
+      (left.status === right.status ? 0 : left.status === "active" ? -1 : 1) ||
+      left.changeName.localeCompare(right.changeName)
+  );
   if (options.stage !== undefined) {
     result.entries = result.entries.filter(
       (entry) => entry.stage === options.stage
@@ -181,28 +191,30 @@ async function readArtifactContents(
     return artifacts;
   }
   if (
-    directoryStat === null
-    || directoryStat.isSymbolicLink()
-    || !directoryStat.isDirectory()
+    directoryStat === null ||
+    directoryStat.isSymbolicLink() ||
+    !directoryStat.isDirectory()
   ) {
     return artifacts;
   }
 
-  await Promise.all(changePlanArtifactNames.map(async (artifact) => {
-    const artifactPath = path.join(changeDirectory, artifact);
-    try {
-      const artifactStat = await lstatOrNull(artifactPath);
-      if (
-        artifactStat !== null
-        && artifactStat.isFile()
-        && !artifactStat.isSymbolicLink()
-      ) {
-        artifacts[artifact] = await fs.readFile(artifactPath, "utf8");
+  await Promise.all(
+    changePlanArtifactNames.map(async (artifact) => {
+      const artifactPath = path.join(changeDirectory, artifact);
+      try {
+        const artifactStat = await lstatOrNull(artifactPath);
+        if (
+          artifactStat !== null &&
+          artifactStat.isFile() &&
+          !artifactStat.isSymbolicLink()
+        ) {
+          artifacts[artifact] = await fs.readFile(artifactPath, "utf8");
+        }
+      } catch {
+        artifacts[artifact] = null;
       }
-    } catch {
-      artifacts[artifact] = null;
-    }
-  }));
+    })
+  );
   return artifacts;
 }
 

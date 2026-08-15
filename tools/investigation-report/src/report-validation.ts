@@ -8,15 +8,17 @@ import {
   type ParsedInvestigationReport
 } from "./types.ts";
 
-export type InvestigationTopicStateBuildResult = {
-  errors: string[];
-  state: null;
-  status: "invalid";
-} | {
-  errors: [];
-  state: InvestigationIndexState;
-  status: "valid";
-};
+export type InvestigationTopicStateBuildResult =
+  | {
+      errors: string[];
+      state: null;
+      status: "invalid";
+    }
+  | {
+      errors: [];
+      state: InvestigationIndexState;
+      status: "valid";
+    };
 
 function validateStatusAndLatestReportTime(
   source: string,
@@ -24,17 +26,14 @@ function validateStatusAndLatestReportTime(
   latestReportAt: string | null,
   errors: string[]
 ): void {
-  if (
-    status !== null
-    && !isInvestigationReportStatus(status)
-  ) {
+  if (status !== null && !isInvestigationReportStatus(status)) {
     errors.push(
       `${source} status must be one of: ${investigationReportStatuses.join(", ")}`
     );
   }
   if (
-    latestReportAt !== null
-    && investigationTimestampMilliseconds(latestReportAt) === null
+    latestReportAt !== null &&
+    investigationTimestampMilliseconds(latestReportAt) === null
   ) {
     errors.push(
       `${source} latest report time must use an RFC 3339 timestamp with timezone and second precision`
@@ -53,7 +52,9 @@ function validateReportEntryTimestamps(
     if (report.formedAt === null) {
       continue;
     }
-    const formedMilliseconds = investigationTimestampMilliseconds(report.formedAt);
+    const formedMilliseconds = investigationTimestampMilliseconds(
+      report.formedAt
+    );
     if (formedMilliseconds === null) {
       errors.push(
         `${source}:${report.line} report formed time must use an RFC 3339 timestamp with timezone and second precision`
@@ -61,8 +62,8 @@ function validateReportEntryTimestamps(
       continue;
     }
     if (
-      previousFormedMilliseconds !== null
-      && formedMilliseconds < previousFormedMilliseconds
+      previousFormedMilliseconds !== null &&
+      formedMilliseconds < previousFormedMilliseconds
     ) {
       errors.push(
         `${source}:${report.line} report formed time must not be earlier than the previous report`
@@ -72,10 +73,10 @@ function validateReportEntryTimestamps(
   }
   const lastReport = reports.at(-1);
   if (
-    latestReportAt !== null
-    && lastReport?.formedAt !== null
-    && lastReport?.formedAt !== undefined
-    && latestReportAt !== lastReport.formedAt
+    latestReportAt !== null &&
+    lastReport?.formedAt !== null &&
+    lastReport?.formedAt !== undefined &&
+    latestReportAt !== lastReport.formedAt
   ) {
     errors.push(
       `${source} latest report time must exactly match the last report formed time`
@@ -106,12 +107,12 @@ export function buildInvestigationTopicState(
 
   const { latestReportAt, question, status, title } = report.projection;
   if (
-    errors.length > 0
-    || latestReportAt === null
-    || question === null
-    || status === null
-    || title === null
-    || !isInvestigationReportStatus(status)
+    errors.length > 0 ||
+    latestReportAt === null ||
+    question === null ||
+    status === null ||
+    title === null ||
+    !isInvestigationReportStatus(status)
   ) {
     return {
       errors: [...new Set(errors)],
@@ -129,14 +130,16 @@ export function buildInvestigationTopicState(
       question,
       reportCount: report.reports.length,
       reportTitles: report.reports.map((entry) => entry.title),
-      resourceReferences: report.reports.flatMap((entry, reportIndex) => (
+      resourceReferences: report.reports.flatMap((entry, reportIndex) =>
         entry.resourceIds.length === 0
           ? []
-          : [{
-            reportIndex,
-            resourceIds: [...entry.resourceIds].sort(compareText)
-          }]
-      )),
+          : [
+              {
+                reportIndex,
+                resourceIds: [...entry.resourceIds].sort(compareText)
+              }
+            ]
+      ),
       status,
       title
     }

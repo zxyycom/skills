@@ -76,14 +76,10 @@ export function createTestEvidenceLedgerStateIndexDefinition(
       }
     ],
     namespace: testEvidenceLedgerNamespace,
-    parseMetadata: (input) => v.parse(
-      testEvidenceLedgerIndexMetadataSchema,
-      input
-    ),
-    parseState: (input) => v.parse(
-      testEvidenceLedgerCaseIndexStateSchema,
-      input
-    ),
+    parseMetadata: (input) =>
+      v.parse(testEvidenceLedgerIndexMetadataSchema, input),
+    parseState: (input) =>
+      v.parse(testEvidenceLedgerCaseIndexStateSchema, input),
     read: async (context) => {
       if (options.snapshot !== undefined) {
         return options.snapshot;
@@ -94,8 +90,7 @@ export function createTestEvidenceLedgerStateIndexDefinition(
       }
       return source.source.snapshot;
     },
-    readRevision: options.readRevision
-      ?? readCurrentTestEvidenceLedgerRevision,
+    readRevision: options.readRevision ?? readCurrentTestEvidenceLedgerRevision,
     validateIndex: validateLedgerStateIndex
   });
 }
@@ -108,14 +103,17 @@ export async function syncTestEvidenceLedgerIndex(
     options
   );
   if (!parsedOptions.success) {
-    const rawMode = typeof options === "object" && options !== null
-      && "mode" in options && options.mode === "write"
-      ? "write"
-      : "check";
+    const rawMode =
+      typeof options === "object" &&
+      options !== null &&
+      "mode" in options &&
+      options.mode === "write"
+        ? "write"
+        : "check";
     return failedLedgerSyncResult({
-      diagnostics: [createInvalidTestEvidenceOptionsDiagnostic(
-        parsedOptions.issues
-      )],
+      diagnostics: [
+        createInvalidTestEvidenceOptionsDiagnostic(parsedOptions.issues)
+      ],
       entityIndex: null,
       mode: rawMode
     });
@@ -163,12 +161,11 @@ export async function syncLoadedTestEvidenceLedgerIndex(options: {
     ledgerPath: testEvidenceLedgerPath,
     mode: options.mode,
     schemaVersion: testEvidenceLedgerSchemaVersion,
-    sourceRevision: cloneSourceRevision(
-      options.source.snapshot.sourceRevision
-    ),
-    state: synchronized.state === "mode-invalid"
-      ? "source-invalid"
-      : synchronized.state,
+    sourceRevision: cloneSourceRevision(options.source.snapshot.sourceRevision),
+    state:
+      synchronized.state === "mode-invalid"
+        ? "source-invalid"
+        : synchronized.state,
     status: synchronized.status
   };
   return v.parse(testEvidenceLedgerIndexSyncResultSchema, result);
@@ -179,20 +176,24 @@ export function mapStateIndexDiagnostics(
   severity: "error" | "warning" = "error",
   includeSyncHint = false
 ): TestEvidenceDiagnostic[] {
-  return diagnostics.map((entry) => createTestEvidenceDiagnostic({
-    caseId: entry.stateId !== null
-      && v.safeParse(testEvidenceCaseIdSchema, entry.stateId).success
-      ? entry.stateId
-      : undefined,
-    blocking: severity === "error",
-    category: "index",
-    code: entry.code,
-    message: includeSyncHint && indexCanBeRebuilt(entry.code)
-      ? `${entry.message}. Run sync-index --write to rebuild ${testEvidenceLedgerIndexPath}`
-      : entry.message,
-    path: entry.path ?? testEvidenceLedgerIndexPath,
-    severity
-  }));
+  return diagnostics.map((entry) =>
+    createTestEvidenceDiagnostic({
+      caseId:
+        entry.stateId !== null &&
+        v.safeParse(testEvidenceCaseIdSchema, entry.stateId).success
+          ? entry.stateId
+          : undefined,
+      blocking: severity === "error",
+      category: "index",
+      code: entry.code,
+      message:
+        includeSyncHint && indexCanBeRebuilt(entry.code)
+          ? `${entry.message}. Run sync-index --write to rebuild ${testEvidenceLedgerIndexPath}`
+          : entry.message,
+      path: entry.path ?? testEvidenceLedgerIndexPath,
+      severity
+    })
+  );
 }
 
 const rebuildableIndexCodes: ReadonlySet<string> = new Set([
@@ -235,8 +236,7 @@ function validateLedgerStateIndex(
 ): void {
   v.parse(testEvidenceLedgerStateIndexSchema, index);
   if (
-    index.metadata.entityIndex.fingerprint
-    !== index.sourceRevision.metadata
+    index.metadata.entityIndex.fingerprint !== index.sourceRevision.metadata
   ) {
     throw new TypeError(
       "metadata.entityIndex.fingerprint must equal sourceRevision.metadata"

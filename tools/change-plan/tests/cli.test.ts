@@ -79,11 +79,9 @@ async function createCliFixture(tempRoot: string): Promise<CliFixture> {
 
   const lifecycleRoot = path.join(tempRoot, "changes");
   const activeDirectory = await writePlan(lifecycleRoot, "active-plan");
-  await writePlan(
-    path.join(lifecycleRoot, "archive"),
-    "old-plan",
-    { tasks: completedTasks }
-  );
+  await writePlan(path.join(lifecycleRoot, "archive"), "old-plan", {
+    tasks: completedTasks
+  });
 
   const invalidListedDirectory = path.join(lifecycleRoot, "invalid-plan");
   await fs.mkdir(invalidListedDirectory);
@@ -173,16 +171,21 @@ function testCollectionCheckResults(fixture: CliFixture): void {
   assert.equal(defaultRootResult.validCount, 2);
   assert.equal(defaultRootResult.invalidCount, 1);
   assert.ok(isUnknownArray(defaultRootResult.entries));
-  assert.ok(defaultRootResult.entries.some((entry) => (
-    isRecord(entry)
-    && entry.changeName === "invalid-plan"
-    && entry.valid === false
-    && isUnknownArray(entry.diagnostics)
-    && entry.diagnostics.length > 0
-  )));
-  assert.ok(defaultRootResult.entries.every((entry) => (
-    isRecord(entry) && "distance" in entry
-  )));
+  assert.ok(
+    defaultRootResult.entries.some(
+      (entry) =>
+        isRecord(entry) &&
+        entry.changeName === "invalid-plan" &&
+        entry.valid === false &&
+        isUnknownArray(entry.diagnostics) &&
+        entry.diagnostics.length > 0
+    )
+  );
+  assert.ok(
+    defaultRootResult.entries.every(
+      (entry) => isRecord(entry) && "distance" in entry
+    )
+  );
 
   const archivedSuccess = runCli([
     "check-all",
@@ -224,10 +227,7 @@ function testCollectionCheckRootDiagnostics(fixture: CliFixture): void {
   assert.ok(isUnknownArray(rootFailureResult.errors));
   assert.match(String(rootFailureResult.errors[0]), /must be a directory/u);
 
-  const textRootFailure = runCli([
-    "check-all",
-    fixture.nonDirectoryChangeRoot
-  ]);
+  const textRootFailure = runCli(["check-all", fixture.nonDirectoryChangeRoot]);
   assert.equal(textRootFailure.status, 1);
   assert.equal(textRootFailure.stdout, "");
   assert.match(textRootFailure.stderr, /collection check failed/u);
@@ -292,9 +292,11 @@ function testListLifecycleJson(fixture: CliFixture): void {
   assert.ok(isRecord(stageListResult));
   assert.ok(isUnknownArray(stageListResult.entries));
   assert.ok(stageListResult.entries.length > 0);
-  assert.ok(stageListResult.entries.every(
-    (entry) => isRecord(entry) && entry.stage === "plan"
-  ));
+  assert.ok(
+    stageListResult.entries.every(
+      (entry) => isRecord(entry) && entry.stage === "plan"
+    )
+  );
 }
 
 function testListRootDiagnostics(fixture: CliFixture): void {
@@ -314,13 +316,7 @@ function testListRootDiagnostics(fixture: CliFixture): void {
 function testListOptionConflicts(fixture: CliFixture): void {
   const conflictingListOptions = spawnSync(
     "node",
-    [
-      generatedCliPath,
-      "list",
-      fixture.lifecycleRoot,
-      "--archived",
-      "--all"
-    ],
+    [generatedCliPath, "list", fixture.lifecycleRoot, "--archived", "--all"],
     { encoding: "utf8" }
   );
   assert.equal(conflictingListOptions.status, 2);
@@ -485,9 +481,7 @@ async function testDistanceEvidenceAndDirectPrompts(
   });
 }
 
-async function testPlanRecordsExistingHead(
-  tempRoot: string
-): Promise<void> {
+async function testPlanRecordsExistingHead(tempRoot: string): Promise<void> {
   const repository = path.join(tempRoot, "uncommitted-repository");
   await initializeGitRepository(repository);
   await fs.writeFile(path.join(repository, "README.md"), "fixture\n", "utf8");
@@ -500,7 +494,10 @@ async function testPlanRecordsExistingHead(
     { metadata: { stage: "draft" } }
   );
 
-  assert.match(runGit(repository, ["status", "--porcelain"]), /^\?\? changes\//u);
+  assert.match(
+    runGit(repository, ["status", "--porcelain"]),
+    /^\?\? changes\//u
+  );
   const result = runCli(["plan", draftDirectory, "--json"]);
   assert.equal(result.status, 0, result.stderr);
   const parsedResult: unknown = JSON.parse(result.stdout);
@@ -522,10 +519,7 @@ async function testPlanRejectsRepositoryWithoutHead(
     "no-head-plan",
     { metadata: { stage: "draft" } }
   );
-  const metadataPath = path.join(
-    noHeadDraftDirectory,
-    ".change-plan.json"
-  );
+  const metadataPath = path.join(noHeadDraftDirectory, ".change-plan.json");
   const metadataBefore = await fs.readFile(metadataPath, "utf8");
   const noHeadResult = runCli(["plan", noHeadDraftDirectory, "--json"]);
   assert.equal(noHeadResult.status, 1);
@@ -572,7 +566,9 @@ async function testArchiveCommands(fixture: CliFixture): Promise<void> {
   };
   assert.equal(cliArchiveResult.archived, true);
   assert.equal(
-    await fs.stat(cliArchiveResult.archivedDirectory).then((stat) => stat.isDirectory()),
+    await fs
+      .stat(cliArchiveResult.archivedDirectory)
+      .then((stat) => stat.isDirectory()),
     true
   );
 
@@ -609,12 +605,7 @@ function testUsageCommands(): void {
   assert.equal(invalidArgument.status, 2);
   assert.match(invalidArgument.stderr, /Expected:/u);
 
-  for (const removedCommand of [
-    "implement",
-    "shelve",
-    "reconcile",
-    "resume"
-  ]) {
+  for (const removedCommand of ["implement", "shelve", "reconcile", "resume"]) {
     const removed = runCli([removedCommand, "/tmp/example-change"]);
     assert.equal(removed.status, 2);
     assert.match(removed.stderr, /Unknown change-plan command/u);
@@ -637,57 +628,47 @@ async function withCliFixture(
   });
 }
 
-test("CLI check preserves text and JSON exit contracts", () => (
-  withCliFixture("check", testCheckCommands)
-));
+test("CLI check preserves text and JSON exit contracts", () =>
+  withCliFixture("check", testCheckCommands));
 
-test("CLI check-all gates selected change collections", () => (
-  withCliFixture("check-all", testCollectionCheckResults)
-));
+test("CLI check-all gates selected change collections", () =>
+  withCliFixture("check-all", testCollectionCheckResults));
 
-test("CLI check-all reports lifecycle root diagnostics", () => (
-  withCliFixture("check-all-roots", testCollectionCheckRootDiagnostics)
-));
+test("CLI check-all reports lifecycle root diagnostics", () =>
+  withCliFixture("check-all-roots", testCollectionCheckRootDiagnostics));
 
-test("CLI check-all rejects incompatible options", () => (
-  withCliFixture("check-all-options", testCollectionCheckOptions)
-));
+test("CLI check-all rejects incompatible options", () =>
+  withCliFixture("check-all-options", testCollectionCheckOptions));
 
-test("CLI list returns lifecycle-filtered JSON", () => (
-  withCliFixture("list-lifecycle", testListLifecycleJson)
-));
+test("CLI list returns lifecycle-filtered JSON", () =>
+  withCliFixture("list-lifecycle", testListLifecycleJson));
 
-test("CLI list returns structured lifecycle root diagnostics", () => (
-  withCliFixture("list-root", testListRootDiagnostics)
-));
+test("CLI list returns structured lifecycle root diagnostics", () =>
+  withCliFixture("list-root", testListRootDiagnostics));
 
-test("CLI list rejects conflicting lifecycle options", () => (
-  withCliFixture("list-options", testListOptionConflicts)
-));
+test("CLI list rejects conflicting lifecycle options", () =>
+  withCliFixture("list-options", testListOptionConflicts));
 
-test("CLI show returns artifacts and invalid-plan diagnostics", () => (
-  withCliFixture("show", testShowCommands)
-));
+test("CLI show returns artifacts and invalid-plan diagnostics", () =>
+  withCliFixture("show", testShowCommands));
 
-test("CLI archive enforces gates and moves complete plans", () => (
-  withCliFixture("archive", testArchiveCommands)
-));
+test("CLI archive enforces gates and moves complete plans", () =>
+  withCliFixture("archive", testArchiveCommands));
 
-test("CLI plan confirms drafts and reconfirms plans", () => (
-  withTempRoot("cli-plan-inputs", testPlanConfirmsAndReconfirmsCanonicalInputs)
-));
+test("CLI plan confirms drafts and reconfirms plans", () =>
+  withTempRoot(
+    "cli-plan-inputs",
+    testPlanConfirmsAndReconfirmsCanonicalInputs
+  ));
 
-test("CLI reports raw distance evidence with direct Chinese prompts", () => (
-  withTempRoot("cli-distance", testDistanceEvidenceAndDirectPrompts)
-));
+test("CLI reports raw distance evidence with direct Chinese prompts", () =>
+  withTempRoot("cli-distance", testDistanceEvidenceAndDirectPrompts));
 
-test("CLI plan records existing HEAD without requiring committed artifacts", () => (
-  withTempRoot("cli-plan-commit", testPlanRecordsExistingHead)
-));
+test("CLI plan records existing HEAD without requiring committed artifacts", () =>
+  withTempRoot("cli-plan-commit", testPlanRecordsExistingHead));
 
-test("CLI plan rejects a repository without HEAD", () => (
-  withTempRoot("cli-plan-no-head", testPlanRejectsRepositoryWithoutHead)
-));
+test("CLI plan rejects a repository without HEAD", () =>
+  withTempRoot("cli-plan-no-head", testPlanRejectsRepositoryWithoutHead));
 
 test("CLI exposes only six commands and rejects removed lifecycle commands", () => {
   testUsageCommands();

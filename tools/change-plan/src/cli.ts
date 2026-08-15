@@ -54,15 +54,18 @@ function formatGitDistance(evidence: GitDistanceEvidence): string {
   if (evidence.commitCount === 0 && evidence.changedLines === 0) {
     return "自计划基线以来，未统计到 Change 目录外的项目变化。";
   }
-  return `距离计划基线已过去 ${evidence.commitCount} 个提交，`
-    + `Change 目录外累计变化 ${evidence.changedLines} 行；`
-    + "继续前请确认这些变化没有影响当前计划。";
+  return (
+    `距离计划基线已过去 ${evidence.commitCount} 个提交，` +
+    `Change 目录外累计变化 ${evidence.changedLines} 行；` +
+    "继续前请确认这些变化没有影响当前计划。"
+  );
 }
 
 function formatDiagnostic(diagnostic: ChangePlanDiagnostic): string {
-  const location = diagnostic.file === null
-    ? ""
-    : `${diagnostic.file}${diagnostic.line === undefined ? "" : `:${diagnostic.line}`}: `;
+  const location =
+    diagnostic.file === null
+      ? ""
+      : `${diagnostic.file}${diagnostic.line === undefined ? "" : `:${diagnostic.line}`}: `;
   return `- ${location}[${diagnostic.code}] ${diagnostic.message}`;
 }
 
@@ -96,9 +99,9 @@ async function runCheckCommand(
     return 1;
   }
   console.log(
-    `Change plan check passed (${result.changeName}; `
-    + `${result.completedTaskCount}/${result.taskCount} tasks completed; `
-    + `stage ${result.stage ?? "none"}).`
+    `Change plan check passed (${result.changeName}; ` +
+      `${result.completedTaskCount}/${result.taskCount} tasks completed; ` +
+      `stage ${result.stage ?? "none"}).`
   );
   printDistance(result.distance);
   return 0;
@@ -107,8 +110,10 @@ async function runCheckCommand(
 function formatCollectionCheckSummary(
   result: ChangePlanCollectionCheckResult
 ): string {
-  return `${result.status}; ${result.changeRoot}; `
-    + `${result.validCount}/${result.checkedCount} changes valid`;
+  return (
+    `${result.status}; ${result.changeRoot}; ` +
+    `${result.validCount}/${result.checkedCount} changes valid`
+  );
 }
 
 async function runCollectionCheckCommand(
@@ -147,7 +152,11 @@ async function runListCommand(
   stage: ChangePlanStage | undefined,
   json: boolean
 ): Promise<number> {
-  const result = await listChangePlans({ changeRoot, stage, status: selection });
+  const result = await listChangePlans({
+    changeRoot,
+    stage,
+    status: selection
+  });
   if (json) {
     console.log(JSON.stringify(result, null, 2));
     return result.errors.length === 0 ? 0 : 1;
@@ -166,11 +175,11 @@ async function runListCommand(
   }
   for (const entry of result.entries) {
     console.log(
-      `- ${entry.status} ${entry.changeName} `
-      + `stage=${entry.stage ?? "none"} `
-      + `${entry.completedTaskCount}/${entry.taskCount} `
-      + `${entry.valid ? "valid" : "invalid"} `
-      + entry.changeDirectory
+      `- ${entry.status} ${entry.changeName} ` +
+        `stage=${entry.stage ?? "none"} ` +
+        `${entry.completedTaskCount}/${entry.taskCount} ` +
+        `${entry.valid ? "valid" : "invalid"} ` +
+        entry.changeDirectory
     );
     printDistance(entry.distance);
   }
@@ -195,16 +204,23 @@ async function runShowCommand(
     console.log(formatGitDistance(result.check.distance));
   }
   console.log(`Directory: ${result.check.changeDirectory}`);
-  console.log(`Tasks: ${result.check.completedTaskCount}/${result.check.taskCount}`);
+  console.log(
+    `Tasks: ${result.check.completedTaskCount}/${result.check.taskCount}`
+  );
   console.log(`Check: ${result.check.valid ? "valid" : "invalid"}`);
   for (const artifact of changePlanArtifactNames) {
     console.log("");
     console.log(`--- ${artifact} ---`);
     const contents = result.artifacts[artifact];
-    console.log(contents === null ? "[missing or unreadable]" : contents.trimEnd());
+    console.log(
+      contents === null ? "[missing or unreadable]" : contents.trimEnd()
+    );
   }
   if (!result.check.valid) {
-    printCheckDiagnostics("Change plan show completed with diagnostics", result.check);
+    printCheckDiagnostics(
+      "Change plan show completed with diagnostics",
+      result.check
+    );
     return 1;
   }
   return 0;
@@ -214,9 +230,8 @@ async function runPlanCommand(
   changeDirectory: string,
   json: boolean
 ): Promise<number> {
-  const result: ChangePlanLifecycleResult = await planChangePlanDirectory(
-    changeDirectory
-  );
+  const result: ChangePlanLifecycleResult =
+    await planChangePlanDirectory(changeDirectory);
   if (json) {
     console.log(JSON.stringify(result, null, 2));
     return result.success ? 0 : 1;
@@ -232,8 +247,8 @@ async function runPlanCommand(
   }
   const changeName = path.basename(path.resolve(changeDirectory));
   console.log(
-    `Change plan ${changeName}: `
-    + `${result.fromStage} -> ${result.metadata.stage} (${result.action}).`
+    `Change plan ${changeName}: ` +
+      `${result.fromStage} -> ${result.metadata.stage} (${result.action}).`
   );
   return 0;
 }
@@ -257,9 +272,9 @@ async function runArchiveCommand(
     return 1;
   }
   console.log(
-    `Archived change plan ${result.check.changeName} to `
-    + `${result.archivedDirectory} `
-    + `(${result.check.completedTaskCount}/${result.check.taskCount} tasks completed).`
+    `Archived change plan ${result.check.changeName} to ` +
+      `${result.archivedDirectory} ` +
+      `(${result.check.completedTaskCount}/${result.check.taskCount} tasks completed).`
   );
   return 0;
 }
@@ -319,14 +334,21 @@ export async function runChangePlanCli(
   const stageArgument = typeof stageValue === "string" ? stageValue : undefined;
   if (command === "list") {
     if (operands.length > 1 || operands[0]?.trim().length === 0) {
-      return invalidArguments("Expected: change-plan.mjs list [change-root] [--archived | --all | --stage <stage>] [--json]");
+      return invalidArguments(
+        "Expected: change-plan.mjs list [change-root] [--archived | --all | --stage <stage>] [--json]"
+      );
     }
     const selection = parseCollectionSelection(
       parsed.values.all === true,
       parsed.values.archived === true
     );
-    if (selection === undefined || (stageValue !== undefined && selection !== "active")) {
-      return invalidArguments("--archived, --all, and --stage cannot be used together.");
+    if (
+      selection === undefined ||
+      (stageValue !== undefined && selection !== "active")
+    ) {
+      return invalidArguments(
+        "--archived, --all, and --stage cannot be used together."
+      );
     }
     const stage = parseStage(stageArgument);
     if (stageValue !== undefined && stage === undefined) {
@@ -337,7 +359,9 @@ export async function runChangePlanCli(
 
   if (command === "check-all") {
     if (operands.length > 1 || operands[0]?.trim().length === 0) {
-      return invalidArguments("Expected: change-plan.mjs check-all [change-root] [--archived | --all] [--json]");
+      return invalidArguments(
+        "Expected: change-plan.mjs check-all [change-root] [--archived | --all] [--json]"
+      );
     }
     if (stageValue !== undefined) {
       return invalidArguments("--stage is only valid with list.");
@@ -352,13 +376,21 @@ export async function runChangePlanCli(
     return await runCollectionCheckCommand(operands[0], selection, json);
   }
 
-  if (parsed.values.all === true || parsed.values.archived === true || stageValue !== undefined) {
+  if (
+    parsed.values.all === true ||
+    parsed.values.archived === true ||
+    stageValue !== undefined
+  ) {
     return invalidArguments(
       "--archived and --all are only valid with list or check-all; --stage is only valid with list."
     );
   }
   const changeDirectory = operands[0];
-  if (operands.length !== 1 || changeDirectory === undefined || changeDirectory.trim().length === 0) {
+  if (
+    operands.length !== 1 ||
+    changeDirectory === undefined ||
+    changeDirectory.trim().length === 0
+  ) {
     return invalidArguments("Expected: one <change-directory> operand.");
   }
   if (command === "show") {
@@ -373,7 +405,9 @@ export async function runChangePlanCli(
   if (command === "archive") {
     return await runArchiveCommand(changeDirectory, json);
   }
-  return invalidArguments(`Unknown change-plan command: ${command ?? "<missing>"}`);
+  return invalidArguments(
+    `Unknown change-plan command: ${command ?? "<missing>"}`
+  );
 }
 
 export {

@@ -1,12 +1,7 @@
-export const testEvidenceTopicCatalogFileName =
-  "test-evidence-topics.json";
+export const testEvidenceTopicCatalogFileName = "test-evidence-topics.json";
 
-export const testEvidenceTopicIdPatternSource =
-  "^[a-z0-9]+(?:-[a-z0-9]+)*$";
-const topicIdPattern = new RegExp(
-  testEvidenceTopicIdPatternSource,
-  "u"
-);
+export const testEvidenceTopicIdPatternSource = "^[a-z0-9]+(?:-[a-z0-9]+)*$";
+const topicIdPattern = new RegExp(testEvidenceTopicIdPatternSource, "u");
 const caseFileNamePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*\.md$/u;
 
 export function isTestEvidenceTopicId(value: string): boolean {
@@ -22,9 +17,9 @@ export function testEvidenceTopicIdFromSourcePath(
 ): string | null {
   const segments = sourcePath.split("/");
   if (
-    segments.length !== 2
-    || !isTestEvidenceTopicId(segments[0] ?? "")
-    || !isTestEvidenceCaseFileName(segments[1] ?? "")
+    segments.length !== 2 ||
+    !isTestEvidenceTopicId(segments[0] ?? "") ||
+    !isTestEvidenceCaseFileName(segments[1] ?? "")
   ) {
     return null;
   }

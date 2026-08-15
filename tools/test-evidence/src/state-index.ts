@@ -36,15 +36,14 @@ export type SyncTestEvidenceIndexOptions = {
   workspaceRoot: string;
 };
 
-export function createTestEvidenceStateIndexDefinition(options: {
-  snapshot?: StateSnapshot<
-    TestEvidenceCaseIndexState,
-    TestEvidenceIndexMetadata
-  >;
-} = {}): StateIndexDefinition<
-  TestEvidenceCaseIndexState,
-  TestEvidenceIndexMetadata
-> {
+export function createTestEvidenceStateIndexDefinition(
+  options: {
+    snapshot?: StateSnapshot<
+      TestEvidenceCaseIndexState,
+      TestEvidenceIndexMetadata
+    >;
+  } = {}
+): StateIndexDefinition<TestEvidenceCaseIndexState, TestEvidenceIndexMetadata> {
   return defineStateIndexDefinition({
     definitionVersion: testEvidenceIndexDefinitionVersion,
     keyStrategies: [
@@ -54,25 +53,18 @@ export function createTestEvidenceStateIndexDefinition(options: {
         name: "search"
       },
       {
-        derive: (state, context) => topicFromIndexState(
-          state,
-          context.metadata
-        ),
+        derive: (state, context) =>
+          topicFromIndexState(state, context.metadata),
         mode: "exact",
         name: "topic"
       }
     ],
     namespace: testEvidenceIndexNamespace,
-    parseMetadata: (input) => v.parse(
-      testEvidenceIndexMetadataSchema,
-      input
-    ),
+    parseMetadata: (input) => v.parse(testEvidenceIndexMetadataSchema, input),
     parseState: (input, context) => {
       const state = v.parse(testEvidenceCaseIndexStateSchema, input);
       if (state.id !== context.id) {
-        throw new TypeError(
-          `state id must match its index key: ${context.id}`
-        );
+        throw new TypeError(`state id must match its index key: ${context.id}`);
       }
       topicFromIndexState(state, context.metadata);
       return state;
@@ -93,10 +85,7 @@ export function createTestEvidenceStateIndexDefinition(options: {
   });
 }
 
-function caseSearchText(
-  state: TestEvidenceCaseIndexState,
-  id: string
-): string {
+function caseSearchText(state: TestEvidenceCaseIndexState, id: string): string {
   return `${id} ${state.searchText}`;
 }
 
@@ -111,9 +100,7 @@ function topicFromIndexState(
   const topicId = testEvidenceTopicIdFromSourcePath(state.sourcePath);
   if (topicId === null) {
     throw new TypeError(
-      `sourcePath must use <topic-id>/<semantic-slug>.md: ${
-        state.sourcePath
-      }`
+      `sourcePath must use <topic-id>/<semantic-slug>.md: ${state.sourcePath}`
     );
   }
   if (!metadata.topics.some((topic) => topic.id === topicId)) {
@@ -156,9 +143,10 @@ export async function syncTestEvidenceIndex(
     indexPath: testEvidenceIndexPath,
     mode: options.mode,
     schemaVersion: testEvidenceReportSchemaVersion,
-    state: synchronized.state === "mode-invalid"
-      ? "source-invalid"
-      : synchronized.state,
+    state:
+      synchronized.state === "mode-invalid"
+        ? "source-invalid"
+        : synchronized.state,
     status: synchronized.status,
     topics: cloneTopicDefinitions(source.topics)
   };
@@ -169,16 +157,19 @@ export function mapStateIndexDiagnostics(
   indexPath: string,
   includeSyncHint = true
 ): TestEvidenceDiagnostic[] {
-  return diagnostics.map((entry) => createDiagnostic({
-    caseId: entry.stateId ?? undefined,
-    category: "index",
-    code: entry.code,
-    message: includeSyncHint && indexCanBeRebuilt(entry.code)
-      ? `${entry.message}. Run sync-index --write to rebuild ${indexPath}`
-      : entry.message,
-    path: entry.path ?? indexPath,
-    severity: "error"
-  }));
+  return diagnostics.map((entry) =>
+    createDiagnostic({
+      caseId: entry.stateId ?? undefined,
+      category: "index",
+      code: entry.code,
+      message:
+        includeSyncHint && indexCanBeRebuilt(entry.code)
+          ? `${entry.message}. Run sync-index --write to rebuild ${indexPath}`
+          : entry.message,
+      path: entry.path ?? indexPath,
+      severity: "error"
+    })
+  );
 }
 
 function failedSyncResult(options: {

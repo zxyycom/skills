@@ -26,25 +26,41 @@ async function createTask(
 ) {
   return await service.apply({
     expectedRevision,
-    operations: [{ kind: "create-task", content: { title, goal: `${title} goal` } }]
+    operations: [
+      { kind: "create-task", content: { title, goal: `${title} goal` } }
+    ]
   });
 }
 
 test("store serializes concurrent native mutations and preserves revision compare-and-swap", async () => {
   await withTempWorkspace(async (root) => {
     const lockRoot = path.join(root, "test-locks");
-    const first = new TaskGraphService({ root, lockRoot, loadNativeLock: loadRootNativeLock });
-    const second = new TaskGraphService({ root, lockRoot, loadNativeLock: loadRootNativeLock });
+    const first = new TaskGraphService({
+      root,
+      lockRoot,
+      loadNativeLock: loadRootNativeLock
+    });
+    const second = new TaskGraphService({
+      root,
+      lockRoot,
+      loadNativeLock: loadRootNativeLock
+    });
     await first.init();
     const settled = await Promise.allSettled([
       createTask(first, 0, "first"),
       createTask(second, 0, "second")
     ]);
-    assert.equal(settled.filter((result) => result.status === "fulfilled").length, 1);
+    assert.equal(
+      settled.filter((result) => result.status === "fulfilled").length,
+      1
+    );
     const rejected = settled.find((result) => result.status === "rejected");
     assert.equal(rejected?.status, "rejected");
     if (rejected?.status === "rejected") {
-      assert.equal((rejected.reason as { code?: string }).code, "REVISION_CONFLICT");
+      assert.equal(
+        (rejected.reason as { code?: string }).code,
+        "REVISION_CONFLICT"
+      );
     }
     assert.equal((await first.info()).revision, 1);
   });
@@ -118,15 +134,19 @@ test("operating system releases a child process native lock without stale metada
       "fs.writeFileSync(process.argv[2],'ready')",
       "setInterval(()=>{},1000)"
     ].join(";");
-    const child = spawn(node, ["-e", script, service.store.lockPath, readyPath], {
-      cwd: repositoryRoot,
-      stdio: "ignore",
-      windowsHide: true
-    });
+    const child = spawn(
+      node,
+      ["-e", script, service.store.lockPath, readyPath],
+      {
+        cwd: repositoryRoot,
+        stdio: "ignore",
+        windowsHide: true
+      }
+    );
     try {
       for (let attempt = 0; attempt < 100; attempt += 1) {
         try {
-          if (await fs.readFile(readyPath, "utf8") === "ready") break;
+          if ((await fs.readFile(readyPath, "utf8")) === "ready") break;
         } catch {
           await new Promise<void>((resolve) => setTimeout(resolve, 10));
         }
@@ -141,7 +161,8 @@ test("operating system releases a child process native lock without stale metada
       assert.equal(created.revision, 1);
       assert.equal(await fs.readFile(service.store.lockPath, "utf8"), "");
     } finally {
-      if (child.exitCode === null && child.signalCode === null) child.kill("SIGKILL");
+      if (child.exitCode === null && child.signalCode === null)
+        child.kill("SIGKILL");
     }
   });
 });

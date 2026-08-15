@@ -60,7 +60,10 @@ function cloneIndex(index: TaskIndex): TaskIndex {
   return structuredClone(index);
 }
 
-function requireExpectedRevision(index: TaskIndex, expectedRevision: number): void {
+function requireExpectedRevision(
+  index: TaskIndex,
+  expectedRevision: number
+): void {
   if (index.revision !== expectedRevision) {
     throw new TaskGraphError(
       "REVISION_CONFLICT",
@@ -71,7 +74,9 @@ function requireExpectedRevision(index: TaskIndex, expectedRevision: number): vo
 }
 
 function requireTask(index: TaskIndex, taskId: string) {
-  const task = Object.hasOwn(index.tasks, taskId) ? index.tasks[taskId] : undefined;
+  const task = Object.hasOwn(index.tasks, taskId)
+    ? index.tasks[taskId]
+    : undefined;
   if (task === undefined) {
     throw new TaskGraphError(
       "TASK_NOT_FOUND",
@@ -84,7 +89,10 @@ function requireTask(index: TaskIndex, taskId: string) {
 
 function canonicalNow(now: Date): string {
   if (Number.isNaN(now.valueOf())) {
-    throw new TaskGraphError("ARGUMENT_INVALID", "Clock returned an invalid date");
+    throw new TaskGraphError(
+      "ARGUMENT_INVALID",
+      "Clock returned an invalid date"
+    );
   }
   return now.toISOString();
 }
@@ -100,10 +108,10 @@ function boundedString(
   }
   const length = Array.from(value).length;
   if (
-    length < 1
-    || length > maximum
-    || value.trim() !== value
-    || (options.singleLine === true && /[\r\n]/u.test(value))
+    length < 1 ||
+    length > maximum ||
+    value.trim() !== value ||
+    (options.singleLine === true && /[\r\n]/u.test(value))
   ) {
     throw new TaskGraphError(
       "ARGUMENT_INVALID",
@@ -145,11 +153,12 @@ function createTask(
       );
     }
   }
-  const control = operation.control === undefined
-    ? parentId === null
-      ? { mode: "candidate" as const, reason: null }
-      : { mode: "inherit" as const, reason: null }
-    : parseControl(operation.control);
+  const control =
+    operation.control === undefined
+      ? parentId === null
+        ? { mode: "candidate" as const, reason: null }
+        : { mode: "inherit" as const, reason: null }
+      : parseControl(operation.control);
   if (parentId === null && control.mode === "inherit") {
     throw new TaskGraphError(
       "STATE_CONFLICT",
@@ -173,7 +182,10 @@ function createTask(
 
 function updateTaskContent(
   index: TaskIndex,
-  operation: Extract<TaskGraphRevisionOperation, { kind: "update-task-content" }>,
+  operation: Extract<
+    TaskGraphRevisionOperation,
+    { kind: "update-task-content" }
+  >,
   now: string
 ): void {
   const task = requireTask(index, operation.taskId);
@@ -191,12 +203,18 @@ function updateTaskContent(
 
 function updateTaskControl(
   index: TaskIndex,
-  operation: Extract<TaskGraphRevisionOperation, { kind: "update-task-control" }>,
+  operation: Extract<
+    TaskGraphRevisionOperation,
+    { kind: "update-task-control" }
+  >,
   now: string
 ): void {
   const before = structuredClone(index);
   const task = requireTask(index, operation.taskId);
-  if (task.state.execution.phase === "succeeded" || task.state.execution.phase === "cancelled") {
+  if (
+    task.state.execution.phase === "succeeded" ||
+    task.state.execution.phase === "cancelled"
+  ) {
     throw new TaskGraphError(
       "STATE_CONFLICT",
       `Control for terminal task ${operation.taskId} cannot change`
@@ -273,7 +291,10 @@ function setExclusion(
   updateTaskTime(index, operation.excludedTaskId, now);
 }
 
-function resolveTaskReference(value: string, aliases: ReadonlyMap<string, string>): string {
+function resolveTaskReference(
+  value: string,
+  aliases: ReadonlyMap<string, string>
+): string {
   if (!value.startsWith("@")) {
     return value;
   }
@@ -297,20 +318,25 @@ function resolveOperationAliases(
     case "create-task":
       return {
         ...operation,
-        parentId: operation.parentId === undefined || operation.parentId === null
-          ? operation.parentId
-          : resolveTaskReference(operation.parentId, aliases)
+        parentId:
+          operation.parentId === undefined || operation.parentId === null
+            ? operation.parentId
+            : resolveTaskReference(operation.parentId, aliases)
       };
     case "update-task-content":
     case "update-task-control":
-      return { ...operation, taskId: resolveTaskReference(operation.taskId, aliases) };
+      return {
+        ...operation,
+        taskId: resolveTaskReference(operation.taskId, aliases)
+      };
     case "set-parent":
       return {
         ...operation,
         taskId: resolveTaskReference(operation.taskId, aliases),
-        parentId: operation.parentId === null
-          ? null
-          : resolveTaskReference(operation.parentId, aliases)
+        parentId:
+          operation.parentId === null
+            ? null
+            : resolveTaskReference(operation.parentId, aliases)
       };
     case "set-dependency":
       return {
@@ -380,7 +406,9 @@ export function applyTaskGraphOperations(
     index,
     data: {
       aliases: Object.fromEntries(
-        [...aliases.entries()].sort(([left], [right]) => compareText(left, right))
+        [...aliases.entries()].sort(([left], [right]) =>
+          compareText(left, right)
+        )
       ),
       createdTaskIds
     }
@@ -404,9 +432,9 @@ function mutateExecution<TData>(
 
 function leaseDurationMilliseconds(durationSeconds: number): number {
   if (
-    !Number.isInteger(durationSeconds)
-    || durationSeconds < 60
-    || durationSeconds > 86_400
+    !Number.isInteger(durationSeconds) ||
+    durationSeconds < 60 ||
+    durationSeconds > 86_400
   ) {
     throw new TaskGraphError(
       "ARGUMENT_INVALID",
@@ -419,7 +447,11 @@ function leaseDurationMilliseconds(durationSeconds: number): number {
 
 function canonicalLeaseId(value: string): string {
   const id = value.startsWith("lease-") ? value : `lease-${value}`;
-  if (!/^lease-[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u.test(id)) {
+  if (
+    !/^lease-[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/u.test(
+      id
+    )
+  ) {
     throw new TaskGraphError(
       "ARGUMENT_INVALID",
       "Lease generator returned a non-canonical UUID",
@@ -461,14 +493,21 @@ export function claimTask(
   now: Date
 ): IndexMutation<{ taskId: string; leaseId: string; expiresAt: string }> {
   const duration = leaseDurationMilliseconds(options.durationSeconds ?? 1800);
-  const actor = boundedString(options.actor, "actor", 200, { singleLine: true });
+  const actor = boundedString(options.actor, "actor", 200, {
+    singleLine: true
+  });
   const recoveryValues = [
     options.recoverLeaseId,
     options.expectedRevision,
     options.reason
   ];
-  const recoveryValueCount = recoveryValues.filter((value) => value !== undefined).length;
-  if (recoveryValueCount !== 0 && recoveryValueCount !== recoveryValues.length) {
+  const recoveryValueCount = recoveryValues.filter(
+    (value) => value !== undefined
+  ).length;
+  if (
+    recoveryValueCount !== 0 &&
+    recoveryValueCount !== recoveryValues.length
+  ) {
     throw new TaskGraphError(
       "ARGUMENT_INVALID",
       "Expired lease recovery requires recoverLeaseId, expectedRevision, and reason together"
@@ -476,93 +515,115 @@ export function claimTask(
   }
   const recovering = recoveryValueCount === recoveryValues.length;
   if (recovering) boundedString(options.reason ?? "", "recovery reason", 1000);
-  return mutateExecution(current, options.taskId, now, (candidate, timestamp) => {
-    const task = requireTask(candidate, options.taskId);
-    const projection = projectTaskGraph(candidate, now).tasks[options.taskId];
-    const execution = task.state.execution;
-    if (execution.phase === "idle") {
-      if (recovering) {
-        throw new TaskGraphError(
-          "ARGUMENT_INVALID",
-          "An idle task claim does not accept lease recovery arguments"
-        );
-      }
-      if (projection?.effectiveState !== "ready" || projection.nextAction !== "claim") {
+  return mutateExecution(
+    current,
+    options.taskId,
+    now,
+    (candidate, timestamp) => {
+      const task = requireTask(candidate, options.taskId);
+      const projection = projectTaskGraph(candidate, now).tasks[options.taskId];
+      const execution = task.state.execution;
+      if (execution.phase === "idle") {
+        if (recovering) {
+          throw new TaskGraphError(
+            "ARGUMENT_INVALID",
+            "An idle task claim does not accept lease recovery arguments"
+          );
+        }
+        if (
+          projection?.effectiveState !== "ready" ||
+          projection.nextAction !== "claim"
+        ) {
+          throw new TaskGraphError(
+            "STATE_CONFLICT",
+            `Task ${options.taskId} is not claimable`,
+            { projection }
+          );
+        }
+      } else if (execution.phase === "running") {
+        if (new Date(execution.lease.expiresAt) > now) {
+          throw new TaskGraphError(
+            "LEASE_CONFLICT",
+            `Task ${options.taskId} still has an active lease`,
+            {
+              leaseId: execution.lease.id,
+              expiresAt: execution.lease.expiresAt
+            }
+          );
+        }
+        if (!recovering) {
+          throw new TaskGraphError(
+            "LEASE_EXPIRED",
+            `Task ${options.taskId} requires explicit expired lease recovery`,
+            {
+              leaseId: execution.lease.id,
+              expiresAt: execution.lease.expiresAt
+            }
+          );
+        }
+        requireExpectedRevision(candidate, options.expectedRevision ?? -1);
+        if (execution.lease.id !== options.recoverLeaseId) {
+          throw new TaskGraphError(
+            "LEASE_CONFLICT",
+            `Lease ${options.recoverLeaseId ?? ""} does not own task ${options.taskId}`,
+            {
+              expectedLeaseId: execution.lease.id,
+              recoverLeaseId: options.recoverLeaseId ?? ""
+            }
+          );
+        }
+        if (
+          projection?.effectiveState !== "recovery-needed" ||
+          projection.nextAction !== "claim"
+        ) {
+          throw new TaskGraphError(
+            "STATE_CONFLICT",
+            `Task ${options.taskId} is not recoverable through claim`,
+            { projection }
+          );
+        }
+      } else {
         throw new TaskGraphError(
           "STATE_CONFLICT",
           `Task ${options.taskId} is not claimable`,
           { projection }
         );
       }
-    } else if (execution.phase === "running") {
-      if (new Date(execution.lease.expiresAt) > now) {
-        throw new TaskGraphError(
-          "LEASE_CONFLICT",
-          `Task ${options.taskId} still has an active lease`,
-          { leaseId: execution.lease.id, expiresAt: execution.lease.expiresAt }
-        );
+      const leaseId = canonicalLeaseId(options.leaseUuid);
+      for (const [candidateTaskId, candidateTask] of Object.entries(
+        candidate.tasks
+      )) {
+        const candidateExecution = candidateTask.state.execution;
+        if (
+          candidateExecution.phase === "running" &&
+          candidateExecution.lease.id === leaseId
+        ) {
+          throw new TaskGraphError(
+            "LEASE_CONFLICT",
+            `Lease ${leaseId} is already assigned to another running task`,
+            {
+              leaseId,
+              ownerTaskId: candidateTaskId,
+              requestedTaskId: options.taskId
+            }
+          );
+        }
       }
-      if (!recovering) {
-        throw new TaskGraphError(
-          "LEASE_EXPIRED",
-          `Task ${options.taskId} requires explicit expired lease recovery`,
-          { leaseId: execution.lease.id, expiresAt: execution.lease.expiresAt }
-        );
-      }
-      requireExpectedRevision(candidate, options.expectedRevision ?? -1);
-      if (execution.lease.id !== options.recoverLeaseId) {
-        throw new TaskGraphError(
-          "LEASE_CONFLICT",
-          `Lease ${options.recoverLeaseId ?? ""} does not own task ${options.taskId}`,
-          {
-            expectedLeaseId: execution.lease.id,
-            recoverLeaseId: options.recoverLeaseId ?? ""
-          }
-        );
-      }
-      if (projection?.effectiveState !== "recovery-needed" || projection.nextAction !== "claim") {
-        throw new TaskGraphError(
-          "STATE_CONFLICT",
-          `Task ${options.taskId} is not recoverable through claim`,
-          { projection }
-        );
-      }
-    } else {
-      throw new TaskGraphError(
-        "STATE_CONFLICT",
-        `Task ${options.taskId} is not claimable`,
-        { projection }
-      );
+      const expiresAt = new Date(now.valueOf() + duration).toISOString();
+      task.state.execution = {
+        phase: "running",
+        attempt: task.state.execution.attempt + 1,
+        lease: {
+          id: leaseId,
+          actor,
+          claimedAt: timestamp,
+          renewedAt: timestamp,
+          expiresAt
+        }
+      };
+      return { taskId: options.taskId, leaseId, expiresAt };
     }
-    const leaseId = canonicalLeaseId(options.leaseUuid);
-    for (const [candidateTaskId, candidateTask] of Object.entries(candidate.tasks)) {
-      const candidateExecution = candidateTask.state.execution;
-      if (candidateExecution.phase === "running" && candidateExecution.lease.id === leaseId) {
-        throw new TaskGraphError(
-          "LEASE_CONFLICT",
-          `Lease ${leaseId} is already assigned to another running task`,
-          {
-            leaseId,
-            ownerTaskId: candidateTaskId,
-            requestedTaskId: options.taskId
-          }
-        );
-      }
-    }
-    const expiresAt = new Date(now.valueOf() + duration).toISOString();
-    task.state.execution = {
-      phase: "running",
-      attempt: task.state.execution.attempt + 1,
-      lease: {
-        id: leaseId,
-        actor,
-        claimedAt: timestamp,
-        renewedAt: timestamp,
-        expiresAt
-      }
-    };
-    return { taskId: options.taskId, leaseId, expiresAt };
-  });
+  );
 }
 
 export function renewTaskLease(
@@ -575,19 +636,24 @@ export function renewTaskLease(
   now: Date
 ): IndexMutation<{ taskId: string; leaseId: string; expiresAt: string }> {
   const duration = leaseDurationMilliseconds(options.durationSeconds ?? 1800);
-  return mutateExecution(current, options.taskId, now, (candidate, timestamp) => {
-    const execution = requireRunningLease(
-      candidate,
-      options.taskId,
-      options.leaseId,
-      now,
-      false
-    );
-    const expiresAt = new Date(now.valueOf() + duration).toISOString();
-    execution.lease.renewedAt = timestamp;
-    execution.lease.expiresAt = expiresAt;
-    return { taskId: options.taskId, leaseId: options.leaseId, expiresAt };
-  });
+  return mutateExecution(
+    current,
+    options.taskId,
+    now,
+    (candidate, timestamp) => {
+      const execution = requireRunningLease(
+        candidate,
+        options.taskId,
+        options.leaseId,
+        now,
+        false
+      );
+      const expiresAt = new Date(now.valueOf() + duration).toISOString();
+      execution.lease.renewedAt = timestamp;
+      execution.lease.expiresAt = expiresAt;
+      return { taskId: options.taskId, leaseId: options.leaseId, expiresAt };
+    }
+  );
 }
 
 export function releaseTask(
@@ -626,7 +692,10 @@ export function completeTask(
   options: CompleteTaskOptions,
   now: Date
 ): IndexMutation<{ taskId: string; phase: "succeeded" }> {
-  if ((options.leaseId === undefined) === (options.expectedRevision === undefined)) {
+  if (
+    (options.leaseId === undefined) ===
+    (options.expectedRevision === undefined)
+  ) {
     throw new TaskGraphError(
       "ARGUMENT_INVALID",
       "Task completion requires exactly one of leaseId or expectedRevision"
@@ -665,9 +734,9 @@ export function completeTask(
     } else {
       const projection = projectTaskGraph(candidate, now).tasks[options.taskId];
       if (
-        task.state.execution.phase !== "idle"
-        || projection?.effectiveState !== "ready"
-        || projection.nextAction !== "complete"
+        task.state.execution.phase !== "idle" ||
+        projection?.effectiveState !== "ready" ||
+        projection.nextAction !== "complete"
       ) {
         throw new TaskGraphError(
           "STATE_CONFLICT",
@@ -737,7 +806,10 @@ export function cancelTask(
   options: CancelTaskOptions,
   now: Date
 ): IndexMutation<{ taskId: string; cancelledTaskIds: string[] }> {
-  if ((options.leaseId === undefined) === (options.expectedRevision === undefined)) {
+  if (
+    (options.leaseId === undefined) ===
+    (options.expectedRevision === undefined)
+  ) {
     throw new TaskGraphError(
       "ARGUMENT_INVALID",
       "Task cancellation requires exactly one of leaseId or expectedRevision"
@@ -761,65 +833,77 @@ export function cancelTask(
     }
     requireExpectedRevision(current, options.expectedRevision);
   }
-  return mutateExecution(current, options.taskId, now, (candidate, timestamp) => {
-    const task = requireTask(candidate, options.taskId);
-    if (task.state.execution.phase === "succeeded" || task.state.execution.phase === "cancelled") {
-      throw new TaskGraphError(
-        "STATE_CONFLICT",
-        `Terminal task ${options.taskId} cannot be cancelled again`
-      );
-    }
-    if (task.state.execution.phase === "running") {
-      requireRunningLease(
-        candidate,
+  return mutateExecution(
+    current,
+    options.taskId,
+    now,
+    (candidate, timestamp) => {
+      const task = requireTask(candidate, options.taskId);
+      if (
+        task.state.execution.phase === "succeeded" ||
+        task.state.execution.phase === "cancelled"
+      ) {
+        throw new TaskGraphError(
+          "STATE_CONFLICT",
+          `Terminal task ${options.taskId} cannot be cancelled again`
+        );
+      }
+      if (task.state.execution.phase === "running") {
+        requireRunningLease(
+          candidate,
+          options.taskId,
+          options.leaseId ?? "",
+          now,
+          false
+        );
+      }
+      const targets = [
         options.taskId,
-        options.leaseId ?? "",
-        now,
-        false
-      );
-    }
-    const targets = [options.taskId, ...descendantIds(candidate, options.taskId)];
-    for (const targetId of targets) {
-      if (candidate.tasks[targetId]?.state.execution.phase === "running") {
-        if (targetId !== options.taskId) {
-          throw new TaskGraphError(
-            "STATE_CONFLICT",
-            `Descendant ${targetId} has an active or recovery lease`,
-            { taskId: targetId }
-          );
+        ...descendantIds(candidate, options.taskId)
+      ];
+      for (const targetId of targets) {
+        if (candidate.tasks[targetId]?.state.execution.phase === "running") {
+          if (targetId !== options.taskId) {
+            throw new TaskGraphError(
+              "STATE_CONFLICT",
+              `Descendant ${targetId} has an active or recovery lease`,
+              { taskId: targetId }
+            );
+          }
         }
       }
+      const cancelledTaskIds: string[] = [];
+      for (const targetId of targets) {
+        const target = candidate.tasks[targetId];
+        if (target === undefined) continue;
+        const phase = target.state.execution.phase;
+        if (phase === "succeeded" || phase === "cancelled") continue;
+        target.state.execution = {
+          phase: "cancelled",
+          attempt: target.state.execution.attempt,
+          reason
+        };
+        target.content.result = null;
+        target.state.timestamps.updatedAt = timestamp;
+        cancelledTaskIds.push(targetId);
+      }
+      cancelledTaskIds.sort(compareText);
+      return { taskId: options.taskId, cancelledTaskIds };
     }
-    const cancelledTaskIds: string[] = [];
-    for (const targetId of targets) {
-      const target = candidate.tasks[targetId];
-      if (target === undefined) continue;
-      const phase = target.state.execution.phase;
-      if (phase === "succeeded" || phase === "cancelled") continue;
-      target.state.execution = {
-        phase: "cancelled",
-        attempt: target.state.execution.attempt,
-        reason
-      };
-      target.content.result = null;
-      target.state.timestamps.updatedAt = timestamp;
-      cancelledTaskIds.push(targetId);
-    }
-    cancelledTaskIds.sort(compareText);
-    return { taskId: options.taskId, cancelledTaskIds };
-  });
+  );
 }
 
 type TaskRemovalBlocker =
   | { kind: "task-not-terminal"; taskId: string; phase: TaskExecutionPhase }
   | {
-    kind: "parent-crosses-selection"
-      | "child-crosses-selection"
-      | "dependency-crosses-selection"
-      | "exclusion-crosses-selection";
-    taskId: string;
-    relatedTaskId: string;
-  };
+      kind:
+        | "parent-crosses-selection"
+        | "child-crosses-selection"
+        | "dependency-crosses-selection"
+        | "exclusion-crosses-selection";
+      taskId: string;
+      relatedTaskId: string;
+    };
 
 export function removeTasks(
   current: TaskIndex,
@@ -858,7 +942,11 @@ export function removeTasks(
     }
     const parentId = task.state.relations.parentId;
     if (parentId !== null && !selected.has(parentId)) {
-      blockers.push({ kind: "parent-crosses-selection", taskId, relatedTaskId: parentId });
+      blockers.push({
+        kind: "parent-crosses-selection",
+        taskId,
+        relatedTaskId: parentId
+      });
     }
     for (const dependencyId of Object.keys(task.state.relations.dependsOn)) {
       if (!selected.has(dependencyId)) {
@@ -883,7 +971,11 @@ export function removeTasks(
     if (selected.has(taskId)) continue;
     const parentId = task.state.relations.parentId;
     if (parentId !== null && selected.has(parentId)) {
-      blockers.push({ kind: "child-crosses-selection", taskId: parentId, relatedTaskId: taskId });
+      blockers.push({
+        kind: "child-crosses-selection",
+        taskId: parentId,
+        relatedTaskId: taskId
+      });
     }
     for (const dependencyId of Object.keys(task.state.relations.dependsOn)) {
       if (selected.has(dependencyId)) {
@@ -895,10 +987,14 @@ export function removeTasks(
       }
     }
   }
-  blockers.sort((left, right) =>
-    compareText(left.taskId, right.taskId)
-    || compareText(left.kind, right.kind)
-    || compareText("relatedTaskId" in left ? left.relatedTaskId : "", "relatedTaskId" in right ? right.relatedTaskId : "")
+  blockers.sort(
+    (left, right) =>
+      compareText(left.taskId, right.taskId) ||
+      compareText(left.kind, right.kind) ||
+      compareText(
+        "relatedTaskId" in left ? left.relatedTaskId : "",
+        "relatedTaskId" in right ? right.relatedTaskId : ""
+      )
   );
   if (blockers.length > 0) {
     throw new TaskGraphError(

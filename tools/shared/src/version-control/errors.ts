@@ -10,10 +10,7 @@ export type VersionControlErrorCode =
 export class VersionControlError extends Error {
   readonly code: VersionControlErrorCode;
 
-  constructor(
-    code: VersionControlErrorCode,
-    message: string
-  ) {
+  constructor(code: VersionControlErrorCode, message: string) {
     super(message);
     this.name = "VersionControlError";
     this.code = code;

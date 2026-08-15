@@ -38,10 +38,11 @@ async function testListStatuses(tempRoot: string): Promise<void> {
     ["active-plan", "completed-plan"]
   );
   assert.ok(activeList.entries.every((entry) => entry.status === "active"));
-  assert.ok(activeList.entries.every((entry) => (
-    entry.stage === "plan"
-    && entry.distance?.commitCount === 0
-  )));
+  assert.ok(
+    activeList.entries.every(
+      (entry) => entry.stage === "plan" && entry.distance?.commitCount === 0
+    )
+  );
   const archivedList = await listChangePlans({
     changeRoot: lifecycleRoot,
     status: "archived"
@@ -70,11 +71,9 @@ async function testListStatuses(tempRoot: string): Promise<void> {
 
 async function testStageFilter(tempRoot: string): Promise<void> {
   const lifecycleRoot = path.join(tempRoot, "stage-filter");
-  const headCommit = spawnSync(
-    "git",
-    ["-C", tempRoot, "rev-parse", "HEAD"],
-    { encoding: "utf8" }
-  ).stdout.trim();
+  const headCommit = spawnSync("git", ["-C", tempRoot, "rev-parse", "HEAD"], {
+    encoding: "utf8"
+  }).stdout.trim();
   await writePlan(lifecycleRoot, "draft-change", {
     metadata: { stage: "draft" }
   });
@@ -110,9 +109,11 @@ async function testStageFilter(tempRoot: string): Promise<void> {
   );
   assert.equal(legacyEntry?.stage, null);
   assert.equal(legacyEntry?.valid, false);
-  assert.ok(legacyEntry?.diagnostics.some(
-    (diagnostic) => diagnostic.code === "invalid-metadata"
-  ));
+  assert.ok(
+    legacyEntry?.diagnostics.some(
+      (diagnostic) => diagnostic.code === "invalid-metadata"
+    )
+  );
 
   const invalidFilter = await listChangePlans({
     changeRoot: lifecycleRoot,
@@ -177,13 +178,19 @@ async function testChangeRootDiagnostics(tempRoot: string): Promise<void> {
     changeRoot: inaccessibleChangeRoot
   });
   assert.equal(inaccessibleRootList.entries.length, 0);
-  assert.match(inaccessibleRootList.errors[0] ?? "", /cannot access change root/u);
+  assert.match(
+    inaccessibleRootList.errors[0] ?? "",
+    /cannot access change root/u
+  );
 
   const blockedArchiveRoot = path.join(tempRoot, "blocked-archive-root");
   await writePlan(blockedArchiveRoot, "blocked-plan", {
     tasks: completedTasks
   });
-  await fs.writeFile(path.join(blockedArchiveRoot, "archive"), "not a directory");
+  await fs.writeFile(
+    path.join(blockedArchiveRoot, "archive"),
+    "not a directory"
+  );
   const blockedArchivedList = await listChangePlans({
     changeRoot: blockedArchiveRoot,
     status: "archived"
@@ -194,9 +201,7 @@ async function testChangeRootDiagnostics(tempRoot: string): Promise<void> {
   );
 }
 
-async function testCollectionCheckAggregation(
-  tempRoot: string
-): Promise<void> {
+async function testCollectionCheckAggregation(tempRoot: string): Promise<void> {
   const lifecycleRoot = path.join(tempRoot, "collection-check");
   await writePlan(lifecycleRoot, "valid-active");
   const invalidDirectory = path.join(lifecycleRoot, "invalid-active");
@@ -220,11 +225,14 @@ async function testCollectionCheckAggregation(
   assert.equal(activeResult.invalidCount, 1);
   assert.equal(activeResult.valid, false);
   assert.deepEqual(activeResult.errors, []);
-  assert.ok(activeResult.entries.some((entry) => (
-    entry.changeName === "invalid-active"
-    && !entry.valid
-    && entry.diagnostics.length > 0
-  )));
+  assert.ok(
+    activeResult.entries.some(
+      (entry) =>
+        entry.changeName === "invalid-active" &&
+        !entry.valid &&
+        entry.diagnostics.length > 0
+    )
+  );
 
   const archivedResult = await checkChangePlanCollection({
     changeRoot: lifecycleRoot,
@@ -270,9 +278,7 @@ async function testCollectionCheckRootOutcomes(
   assert.match(missingResult.errors[0] ?? "", /does not exist/u);
 }
 
-async function testShowStatus(
-  tempRoot: string
-): Promise<void> {
+async function testShowStatus(tempRoot: string): Promise<void> {
   const lifecycleRoot = path.join(tempRoot, "show-status");
   const activeDirectory = await writePlan(lifecycleRoot, "active-plan");
   const archivedDirectory = await writePlan(
@@ -305,9 +311,13 @@ async function testSymbolicLinksAreNotDiscovered(
     process.platform === "win32" ? "junction" : "dir"
   );
 
-  const listWithLinkedPlan = await listChangePlans({ changeRoot: lifecycleRoot });
+  const listWithLinkedPlan = await listChangePlans({
+    changeRoot: lifecycleRoot
+  });
   assert.equal(
-    listWithLinkedPlan.entries.some((entry) => entry.changeName === "linked-plan"),
+    listWithLinkedPlan.entries.some(
+      (entry) => entry.changeName === "linked-plan"
+    ),
     false
   );
   const linkedRootList = await listChangePlans({
@@ -322,15 +332,15 @@ async function testShowDoesNotReadSymbolicLinks(
   const externalMarker = "EXTERNAL-SHOW-MARKER";
   const externalDirectory = path.join(tempRoot, "external-change");
   await fs.mkdir(externalDirectory);
-  await Promise.all([
-    "proposal.md",
-    "design.md",
-    "tasks.md"
-  ].map((artifact) => fs.writeFile(
-    path.join(externalDirectory, artifact),
-    `${externalMarker}:${artifact}\n`,
-    "utf8"
-  )));
+  await Promise.all(
+    ["proposal.md", "design.md", "tasks.md"].map((artifact) =>
+      fs.writeFile(
+        path.join(externalDirectory, artifact),
+        `${externalMarker}:${artifact}\n`,
+        "utf8"
+      )
+    )
+  );
 
   const linkedDirectory = path.join(tempRoot, "linked-change");
   await fs.symlink(
@@ -381,38 +391,29 @@ async function testShowDoesNotReadSymbolicLinks(
   }
 }
 
-test("catalog lists active, archived, and all change plans", () => (
-  withTempRoot("catalog-statuses", testListStatuses)
-));
+test("catalog lists active, archived, and all change plans", () =>
+  withTempRoot("catalog-statuses", testListStatuses));
 
-test("catalog keeps invalid change entries discoverable", () => (
-  withTempRoot("catalog-invalid", testInvalidEntriesRemainDiscoverable)
-));
+test("catalog keeps invalid change entries discoverable", () =>
+  withTempRoot("catalog-invalid", testInvalidEntriesRemainDiscoverable));
 
-test("catalog filters active changes by lifecycle stage", () => (
-  withTempRoot("catalog-stage", testStageFilter)
-));
+test("catalog filters active changes by lifecycle stage", () =>
+  withTempRoot("catalog-stage", testStageFilter));
 
-test("catalog reports inaccessible and malformed lifecycle roots", () => (
-  withTempRoot("catalog-roots", testChangeRootDiagnostics)
-));
+test("catalog reports inaccessible and malformed lifecycle roots", () =>
+  withTempRoot("catalog-roots", testChangeRootDiagnostics));
 
-test("collection check aggregates selected change results", () => (
-  withTempRoot("collection-check", testCollectionCheckAggregation)
-));
+test("collection check aggregates selected change results", () =>
+  withTempRoot("collection-check", testCollectionCheckAggregation));
 
-test("collection check distinguishes empty and unavailable roots", () => (
-  withTempRoot("collection-check-roots", testCollectionCheckRootOutcomes)
-));
+test("collection check distinguishes empty and unavailable roots", () =>
+  withTempRoot("collection-check-roots", testCollectionCheckRootOutcomes));
 
-test("catalog shows lifecycle status", () => (
-  withTempRoot("catalog-show", testShowStatus)
-));
+test("catalog shows lifecycle status", () =>
+  withTempRoot("catalog-show", testShowStatus));
 
-test("catalog does not discover symbolic-link change directories", () => (
-  withTempRoot("catalog-links", testSymbolicLinksAreNotDiscovered)
-));
+test("catalog does not discover symbolic-link change directories", () =>
+  withTempRoot("catalog-links", testSymbolicLinksAreNotDiscovered));
 
-test("show does not read symbolic-link directories or artifacts", () => (
-  withTempRoot("catalog-show-links", testShowDoesNotReadSymbolicLinks)
-));
+test("show does not read symbolic-link directories or artifacts", () =>
+  withTempRoot("catalog-show-links", testShowDoesNotReadSymbolicLinks));

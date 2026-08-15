@@ -1,9 +1,5 @@
 import { canonicalizeStateIndex } from "./canonicalization.ts";
-import {
-  errorText,
-  failure,
-  diagnostic
-} from "./diagnostics.ts";
+import { errorText, failure, diagnostic } from "./diagnostics.ts";
 import {
   canonicalizeTypedJsonObject,
   cloneAndFreezeTypedJsonObject,
@@ -17,10 +13,7 @@ import {
   scalarIdentity
 } from "./key-values.ts";
 import { compareIndexText } from "./ordering.ts";
-import {
-  isStateIndexText,
-  stateIndexSchemaVersion
-} from "./schemas.ts";
+import { isStateIndexText, stateIndexSchemaVersion } from "./schemas.ts";
 import type {
   DeepReadonly,
   JsonObject,
@@ -60,11 +53,9 @@ export function projectStateIndexEntry<
   try {
     state = definition.parseState(input, context);
   } catch (error) {
-    return failure(
-      "state-index.state-parse-failed",
-      errorText(error),
-      { stateId: context.id }
-    );
+    return failure("state-index.state-parse-failed", errorText(error), {
+      stateId: context.id
+    });
   }
   if (!isJsonObject(state)) {
     return failure(
@@ -156,15 +147,18 @@ export function normalizeStateIndex<
   return {
     diagnostics: [],
     status: "ok",
-    value: canonicalizeStateIndex({
-      definitionVersion: index.definitionVersion,
-      entries: Object.fromEntries(entries),
-      keyDefinitions: [...index.keyDefinitions],
-      metadata,
-      namespace: index.namespace,
-      schemaVersion: stateIndexSchemaVersion,
-      sourceRevision: index.sourceRevision
-    }, definition)
+    value: canonicalizeStateIndex(
+      {
+        definitionVersion: index.definitionVersion,
+        entries: Object.fromEntries(entries),
+        keyDefinitions: [...index.keyDefinitions],
+        metadata,
+        namespace: index.namespace,
+        schemaVersion: stateIndexSchemaVersion,
+        sourceRevision: index.sourceRevision
+      },
+      definition
+    )
   };
 }
 
@@ -187,11 +181,9 @@ export function parseStateIndexMetadata<
   try {
     metadata = definition.parseMetadata(input);
   } catch (error) {
-    return failure(
-      "state-index.metadata-parse-failed",
-      errorText(error),
-      { path: sourcePath }
-    );
+    return failure("state-index.metadata-parse-failed", errorText(error), {
+      path: sourcePath
+    });
   }
   if (!isJsonObject(metadata)) {
     return failure(
@@ -216,9 +208,7 @@ export function createProjectionContext<Metadata extends JsonObject>(
 export function readonlyStateIndexMetadata<
   State extends object,
   Metadata extends JsonObject
->(
-  index: StateIndex<State, Metadata>
-): DeepReadonly<Metadata> {
+>(index: StateIndex<State, Metadata>): DeepReadonly<Metadata> {
   return deeplyReadonlyFrozenValue(index.metadata);
 }
 
@@ -237,11 +227,13 @@ export function validateCompleteStateIndex<
     definition.validateIndex(readonlyFrozenStateIndex(index));
   } catch (error) {
     return {
-      diagnostics: [diagnostic({
-        code: "state-index.index-validation-failed",
-        message: errorText(error),
-        path: sourcePath
-      })],
+      diagnostics: [
+        diagnostic({
+          code: "state-index.index-validation-failed",
+          message: errorText(error),
+          path: sourcePath
+        })
+      ],
       status: "error",
       value: null
     };
@@ -255,18 +247,24 @@ function sameKeyMaps(
 ): boolean {
   const leftNames = Object.keys(left).sort(compareIndexText);
   const rightNames = Object.keys(right).sort(compareIndexText);
-  return leftNames.length === rightNames.length
-    && leftNames.every((name, index) => {
+  return (
+    leftNames.length === rightNames.length &&
+    leftNames.every((name, index) => {
       if (name !== rightNames[index]) {
         return false;
       }
       const leftValues = left[name] ?? [];
       const rightValues = right[name] ?? [];
-      return leftValues.length === rightValues.length
-        && leftValues.every((value, valueIndex) => {
+      return (
+        leftValues.length === rightValues.length &&
+        leftValues.every((value, valueIndex) => {
           const rightValue = rightValues[valueIndex];
-          return rightValue !== undefined
-            && scalarIdentity(value) === scalarIdentity(rightValue);
-        });
-    });
+          return (
+            rightValue !== undefined &&
+            scalarIdentity(value) === scalarIdentity(rightValue)
+          );
+        })
+      );
+    })
+  );
 }

@@ -4,7 +4,7 @@ import test from "node:test";
 import {
   archivedRelativePath,
   currentRelativePath,
-  generatedCliPath,
+  generatedCliPath
 } from "./support.ts";
 
 function runGeneratedCli(args: readonly string[]) {
@@ -16,28 +16,28 @@ test("decision CLI top-level help exposes the current command set", () => {
   assert.equal(help.status, 0);
   assert.match(
     help.stdout,
-    /Query and maintain agent-oriented decision records/,
+    /Query and maintain agent-oriented decision records/
   );
   assert.match(help.stdout, /This is the default command/);
   assert.match(
     help.stdout,
-    /Check the JSON index against established\s+Markdown/,
+    /Check the JSON index against established\s+Markdown/
   );
   assert.match(
     help.stdout,
-    /candidates remain outside the index and are queried from source/i,
+    /candidates remain outside the index and are queried from source/i
   );
   assert.match(
     help.stdout,
-    /candidates\s+Discover complete reviewable candidates/i,
+    /candidates\s+Discover complete reviewable candidates/i
   );
   assert.match(
     help.stdout,
-    /show-candidate <decision-id>\s+Show one source-discovered candidate/i,
+    /show-candidate <decision-id>\s+Show one source-discovered candidate/i
   );
   assert.match(
     help.stdout,
-    /evolve \[options\]\s+Replace complete successor relations/i,
+    /evolve \[options\]\s+Replace complete successor relations/i
   );
   assert.doesNotMatch(help.stdout, /^\s*split(?:\s|$)/m);
 });
@@ -53,7 +53,7 @@ test("mark-aligned help requires verified current facts", () => {
   assert.equal(help.status, 0);
   assert.match(
     help.stdout,
-    /only after its complete\s+direction\s+has become current fact\s+and been verified against the relevant\s+fact sources/,
+    /only after its complete\s+direction\s+has become current fact\s+and been verified against the relevant\s+fact sources/
   );
 });
 
@@ -64,7 +64,7 @@ test("evolve help exposes successor and complete relation selection", () => {
   assert.match(help.stdout, /--clear-relations/);
   assert.match(
     help.stdout,
-    /resolved\s+source relations or --relation define the\s+complete final set, and --clear-relations\s+selects an explicitly empty set/,
+    /resolved\s+source relations or --relation define the\s+complete final set, and --clear-relations\s+selects an explicitly empty set/
   );
   assert.doesNotMatch(help.stdout, /--alignment <value>/);
 });
@@ -78,8 +78,8 @@ test("decision CLI rejects removed split and positional evolve protocols", () =>
       "--alignment",
       "aligned",
       "--relation",
-      "修订=" + currentRelativePath,
-    ],
+      "修订=" + currentRelativePath
+    ]
   ]) {
     assert.equal(runGeneratedCli(args).status, 2);
   }
@@ -99,7 +99,7 @@ test("relation and clear-relations options are mutually exclusive", () => {
     "aligned",
     "--relation",
     "修订=" + archivedRelativePath,
-    "--clear-relations",
+    "--clear-relations"
   ]);
   assert.equal(result.status, 2);
   assert.match(result.stderr, /cannot be used with option/);
@@ -108,7 +108,7 @@ test("relation and clear-relations options are mutually exclusive", () => {
 test("decision CLI rejects unknown options", () => {
   for (const args of [
     ["list", "--unknown-option"],
-    ["archive", currentRelativePath, "--unknown-option"],
+    ["archive", currentRelativePath, "--unknown-option"]
   ]) {
     const result = runGeneratedCli(args);
     assert.equal(result.status, 2);
@@ -121,7 +121,7 @@ test("trace rejects a negative depth", () => {
     "trace",
     archivedRelativePath,
     "--depth",
-    "-1",
+    "-1"
   ]);
   assert.equal(result.status, 2);
   assert.match(result.stderr, /must be a non-negative integer/);
@@ -146,7 +146,7 @@ test("evolve rejects duplicate successor members at the CLI boundary", () => {
     "--successor",
     "aligned=" + successorRelativePath,
     "--successor",
-    "aligned=" + successorRelativePath,
+    "aligned=" + successorRelativePath
   ]);
   assert.equal(result.status, 2);
   assert.match(result.stderr, /must not repeat a successor Decision ID/);
@@ -160,7 +160,7 @@ test("evolve rejects repeated relation override targets at the CLI boundary", ()
     "--relation",
     "修订=" + currentRelativePath,
     "--relation",
-    "替代=" + currentRelativePath,
+    "替代=" + currentRelativePath
   ]);
   assert.equal(result.status, 2);
   assert.match(result.stderr, /must not repeat a direct predecessor target/);
@@ -174,20 +174,32 @@ test("decision CLI rejects removed domain and path query protocols", () => {
     { args: ["domains"], stderr: /too many arguments/ },
     {
       args: ["list", "--domain", "decision-records"],
-      stderr: /unknown option/,
+      stderr: /unknown option/
     },
     {
       args: ["show", "archive/use-generated-cli.md"],
-      stderr: /Decision ID is invalid/,
+      stderr: /Decision ID is invalid/
     },
     {
-      args: ["list", "--tag", "decision-records", "--tag-or", "project-tooling"],
-      stderr: /unknown option/,
+      args: [
+        "list",
+        "--tag",
+        "decision-records",
+        "--tag-or",
+        "project-tooling"
+      ],
+      stderr: /unknown option/
     },
     {
-      args: ["list", "--tag", "decision-records", "--not-tag", "project-tooling"],
-      stderr: /unknown option/,
-    },
+      args: [
+        "list",
+        "--tag",
+        "decision-records",
+        "--not-tag",
+        "project-tooling"
+      ],
+      stderr: /unknown option/
+    }
   ]) {
     const result = runGeneratedCli(args);
     assert.equal(result.status, 2, args.join(" "));
@@ -205,7 +217,7 @@ test("positional Decision IDs are validated at every CLI command boundary", () =
     ["show", "invalid_name.md"],
     ["show-candidate", "invalid_name.md"],
     ["stage", "invalid_name.md"],
-    ["trace", "invalid_name.md"],
+    ["trace", "invalid_name.md"]
   ]) {
     const result = runGeneratedCli(args);
     assert.equal(result.status, 2, args.join(" "));
@@ -213,7 +225,7 @@ test("positional Decision IDs are validated at every CLI command boundary", () =
     assert.match(
       result.stderr,
       /Decision ID is invalid; must be a basename ending in \.md/,
-      args.join(" "),
+      args.join(" ")
     );
   }
 });

@@ -43,15 +43,17 @@ export async function testPerformance(): Promise<void> {
     `build growth is unexpectedly superlinear: ${JSON.stringify({ oneThousand, fiveThousand })}`
   );
 
-  console.log("Index runtime scale:", JSON.stringify({
-    fiveThousand,
-    oneThousand
-  }));
+  console.log(
+    "Index runtime scale:",
+    JSON.stringify({
+      fiveThousand,
+      oneThousand
+    })
+  );
 }
 
-test("runtime materializes and queries large state collections within bounds", () => (
-  testPerformance()
-));
+test("runtime materializes and queries large state collections within bounds", () =>
+  testPerformance());
 
 async function benchmark(count: number): Promise<BenchmarkResult> {
   const states = Array.from({ length: count }, (_, index): ScaleState => ({
@@ -62,12 +64,13 @@ async function benchmark(count: number): Promise<BenchmarkResult> {
     tags: [`group-${index % 20}`, `bucket-${index % 7}`],
     title: `Indexed state ${index}`
   }));
-  const stateRecord = Object.fromEntries(states.map((state) => [state.id, state]));
+  const stateRecord = Object.fromEntries(
+    states.map((state) => [state.id, state])
+  );
   const sourceRevision = {
-    entries: Object.fromEntries(states.map((state) => [
-      state.id,
-      `scale-${count}:${state.id}`
-    ])),
+    entries: Object.fromEntries(
+      states.map((state) => [state.id, `scale-${count}:${state.id}`])
+    ),
     metadata: `scale-${count}:metadata`
   };
   const definition = defineStateIndexDefinition<ScaleState>({
@@ -95,28 +98,32 @@ async function benchmark(count: number): Promise<BenchmarkResult> {
   const text = serializeStateIndex(index, definition);
 
   const parseStart = performance.now();
-  const parsed = resultValue(parseStateIndex({
-    definition,
-    expectation: { definitionVersion: 1, namespace: "scale" },
-    sourcePath: "scale.json",
-    text
-  }));
+  const parsed = resultValue(
+    parseStateIndex({
+      definition,
+      expectation: { definitionVersion: 1, namespace: "scale" },
+      sourcePath: "scale.json",
+      text
+    })
+  );
   const parseMs = performance.now() - parseStart;
 
   const queryStart = performance.now();
-  const queried = resultValue(queryStateIndex({
-    definition,
-    index: parsed,
-    query: {
-      filters: [
-        { key: "status", kind: "exact", operator: "all", values: ["active"] },
-        { key: "tag", kind: "exact", operator: "all", values: ["group-3"] },
-        { key: "text", kind: "text", operator: "all", text: "project scale" }
-      ],
-      limit: 50,
-      sort: [{ direction: "desc", key: "created-at" }]
-    }
-  }));
+  const queried = resultValue(
+    queryStateIndex({
+      definition,
+      index: parsed,
+      query: {
+        filters: [
+          { key: "status", kind: "exact", operator: "all", values: ["active"] },
+          { key: "tag", kind: "exact", operator: "all", values: ["group-3"] },
+          { key: "text", kind: "text", operator: "all", text: "project scale" }
+        ],
+        limit: 50,
+        sort: [{ direction: "desc", key: "created-at" }]
+      }
+    })
+  );
   const queryMs = performance.now() - queryStart;
   assert.ok(queried.total > 0);
   assert.ok(queried.entries.length <= 50);

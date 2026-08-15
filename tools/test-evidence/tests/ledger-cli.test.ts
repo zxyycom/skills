@@ -9,15 +9,13 @@ import {
   testEvidenceLedgerReportSchema,
   testEvidenceTestQueryResultSchema
 } from "../src/ledger/index.ts";
-import {
-  runLedgerCli,
-  withLedgerWorkspace
-} from "./ledger-fixture.ts";
+import { runLedgerCli, withLedgerWorkspace } from "./ledger-fixture.ts";
 
 test("ledger CLI check emits machine reports and maps validation status to exits", async () => {
   await withLedgerWorkspace(async (workspaceRoot) => {
     const missing = await runLedgerCli([
-      "--root", workspaceRoot,
+      "--root",
+      workspaceRoot,
       "--json",
       "check"
     ]);
@@ -28,13 +26,16 @@ test("ledger CLI check emits machine reports and maps validation status to exits
       JSON.parse(missing.stdout)
     );
     assert.equal(missingReport.schemaVersion, 5);
-    assert.ok(missingReport.diagnostics.some(
-      (diagnostic) => diagnostic.code === "state-index.index-missing"
-    ));
+    assert.ok(
+      missingReport.diagnostics.some(
+        (diagnostic) => diagnostic.code === "state-index.index-missing"
+      )
+    );
 
     await syncTestEvidenceLedgerIndex({ mode: "write", workspaceRoot });
     const current = await runLedgerCli([
-      "--root", workspaceRoot,
+      "--root",
+      workspaceRoot,
       "--json",
       "check"
     ]);
@@ -57,7 +58,8 @@ test("ledger CLI check emits machine reports and maps validation status to exits
 test("ledger CLI sync-index separates check from explicit atomic writes", async () => {
   await withLedgerWorkspace(async (workspaceRoot) => {
     const checked = await runLedgerCli([
-      "--root", workspaceRoot,
+      "--root",
+      workspaceRoot,
       "--json",
       "sync-index"
     ]);
@@ -70,7 +72,8 @@ test("ledger CLI sync-index separates check from explicit atomic writes", async 
     assert.equal(checkedResult.state, "index-missing");
 
     const written = await runLedgerCli([
-      "--root", workspaceRoot,
+      "--root",
+      workspaceRoot,
       "--json",
       "sync-index",
       "--write"
@@ -84,10 +87,7 @@ test("ledger CLI sync-index separates check from explicit atomic writes", async 
     assert.equal(writtenResult.state, "written");
     assert.equal(writtenResult.changed, true);
 
-    const current = await runLedgerCli([
-      "--root", workspaceRoot,
-      "sync-index"
-    ]);
+    const current = await runLedgerCli(["--root", workspaceRoot, "sync-index"]);
     assert.equal(current.code, 0);
     assert.match(current.stdout, /index is current/u);
   });
@@ -97,14 +97,20 @@ test("ledger CLI list composes filters pagination JSON and unknown-Test exits", 
   await withLedgerWorkspace(async (workspaceRoot) => {
     await syncTestEvidenceLedgerIndex({ mode: "write", workspaceRoot });
     const listed = await runLedgerCli([
-      "--root", workspaceRoot,
+      "--root",
+      workspaceRoot,
       "--json",
       "list",
-      "--test", "test.beta",
-      "--tag", "shared",
-      "--query", "alpha shared",
-      "--limit", "1",
-      "--offset", "0"
+      "--test",
+      "test.beta",
+      "--tag",
+      "shared",
+      "--query",
+      "alpha shared",
+      "--limit",
+      "1",
+      "--offset",
+      "0"
     ]);
     assert.equal(listed.code, 0);
     assert.equal(listed.stderr, "");
@@ -119,10 +125,12 @@ test("ledger CLI list composes filters pagination JSON and unknown-Test exits", 
     );
 
     const unknown = await runLedgerCli([
-      "--root", workspaceRoot,
+      "--root",
+      workspaceRoot,
       "--json",
       "list",
-      "--test", "test.unknown"
+      "--test",
+      "test.unknown"
     ]);
     assert.equal(unknown.code, 2);
     assert.equal(unknown.stderr, "");
@@ -130,32 +138,39 @@ test("ledger CLI list composes filters pagination JSON and unknown-Test exits", 
       testEvidenceCaseQueryResultSchema,
       JSON.parse(unknown.stdout)
     );
-    assert.ok(unknownResult.diagnostics.some(
-      (diagnostic) => diagnostic.code === "query.test-unknown"
-    ));
+    assert.ok(
+      unknownResult.diagnostics.some(
+        (diagnostic) => diagnostic.code === "query.test-unknown"
+      )
+    );
 
     const defaults = await runLedgerCli([
       "list",
-      "--root", workspaceRoot,
+      "--root",
+      workspaceRoot,
       "--json"
     ]);
     assert.equal(defaults.code, 0);
-    assert.equal(v.parse(
-      testEvidenceCaseQueryResultSchema,
-      JSON.parse(defaults.stdout)
-    ).limit, 20);
+    assert.equal(
+      v.parse(testEvidenceCaseQueryResultSchema, JSON.parse(defaults.stdout))
+        .limit,
+      20
+    );
 
     const maximum = await runLedgerCli([
       "list",
-      "--root", workspaceRoot,
+      "--root",
+      workspaceRoot,
       "--json",
-      "--limit", "1000"
+      "--limit",
+      "1000"
     ]);
     assert.equal(maximum.code, 0);
-    assert.equal(v.parse(
-      testEvidenceCaseQueryResultSchema,
-      JSON.parse(maximum.stdout)
-    ).limit, 1000);
+    assert.equal(
+      v.parse(testEvidenceCaseQueryResultSchema, JSON.parse(maximum.stdout))
+        .limit,
+      1000
+    );
   });
 });
 
@@ -163,7 +178,8 @@ test("ledger CLI show accepts one positional Case ID and returns authority or ab
   await withLedgerWorkspace(async (workspaceRoot) => {
     await syncTestEvidenceLedgerIndex({ mode: "write", workspaceRoot });
     const shown = await runLedgerCli([
-      "--root", workspaceRoot,
+      "--root",
+      workspaceRoot,
       "--json",
       "show",
       "LEDGER-ALPHA-BETA-001"
@@ -181,7 +197,8 @@ test("ledger CLI show accepts one positional Case ID and returns authority or ab
     assert.match(result.markdown ?? "", /^### Case LEDGER-ALPHA-BETA-001:/u);
 
     const missing = await runLedgerCli([
-      "--root", workspaceRoot,
+      "--root",
+      workspaceRoot,
       "--json",
       "show",
       "LEDGER-MISSING-CASE-001"
@@ -192,9 +209,11 @@ test("ledger CLI show accepts one positional Case ID and returns authority or ab
       JSON.parse(missing.stdout)
     );
     assert.equal(missingResult.case, null);
-    assert.ok(missingResult.diagnostics.some(
-      (diagnostic) => diagnostic.code === "query.case-missing"
-    ));
+    assert.ok(
+      missingResult.diagnostics.some(
+        (diagnostic) => diagnostic.code === "query.case-missing"
+      )
+    );
   });
 });
 
@@ -202,11 +221,14 @@ test("ledger CLI tests searches authority and exposes derived reverse membership
   await withLedgerWorkspace(async (workspaceRoot) => {
     await syncTestEvidenceLedgerIndex({ mode: "write", workspaceRoot });
     const queried = await runLedgerCli([
-      "--root", workspaceRoot,
+      "--root",
+      workspaceRoot,
       "--json",
       "tests",
-      "--query", "gamma behavior",
-      "--limit", "1"
+      "--query",
+      "gamma behavior",
+      "--limit",
+      "1"
     ]);
     assert.equal(queried.code, 0);
     const result = v.parse(
@@ -236,7 +258,15 @@ test("ledger CLI rejects missing repeated malformed and excess arguments with us
       ["--root", workspaceRoot, "list", "--offset", "0", "--offset", "1"],
       ["--root", workspaceRoot, "list", "--tag", "Bad Tag"],
       ["--root", workspaceRoot, "list", "--tag", "shared", "--tag", "mutation"],
-      ["--root", workspaceRoot, "list", "--test", "test.alpha", "--test", "test.beta"],
+      [
+        "--root",
+        workspaceRoot,
+        "list",
+        "--test",
+        "test.alpha",
+        "--test",
+        "test.beta"
+      ],
       ["--root", workspaceRoot, "list", "--query", "   "],
       ["--root", workspaceRoot, "list", "--query", "alpha", "--query", "beta"],
       ["--root", workspaceRoot, "show", "bad"],

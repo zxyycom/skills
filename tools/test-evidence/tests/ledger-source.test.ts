@@ -7,12 +7,8 @@ import {
   parseLedgerCaseSource,
   readLedgerCaseSource
 } from "../src/ledger/case-source.ts";
-import {
-  parseTestEntityIndex
-} from "../src/ledger/entity-index.ts";
-import {
-  readTestEvidenceLedgerSource
-} from "../src/ledger/ledger-source.ts";
+import { parseTestEntityIndex } from "../src/ledger/entity-index.ts";
+import { readTestEvidenceLedgerSource } from "../src/ledger/ledger-source.ts";
 import {
   queryTestEntitiesOptionsSchema,
   queryTestEvidenceCasesOptionsSchema,
@@ -68,18 +64,24 @@ test("entity indexes parse canonical empty and populated sources with stable fin
     path: "docs/test-evidence/test-entity-index.json",
     text: entityIndexText(manyToManyEntities, "revision-v2")
   });
-  assert.notEqual(changed.parsed?.identity.fingerprint, populated.parsed?.identity.fingerprint);
+  assert.notEqual(
+    changed.parsed?.identity.fingerprint,
+    populated.parsed?.identity.fingerprint
+  );
 
   const reusedRevision = parseTestEntityIndex({
     path: "docs/test-evidence/test-entity-index.json",
-    text: entityIndexText([
-      {
-        ...manyToManyEntities[0]!,
-        name: "Changed alpha behavior",
-        locators: ["tests/alpha-renamed.test.ts > changed alpha behavior"]
-      },
-      ...manyToManyEntities.slice(1)
-    ], "revision-v1")
+    text: entityIndexText(
+      [
+        {
+          ...manyToManyEntities[0]!,
+          name: "Changed alpha behavior",
+          locators: ["tests/alpha-renamed.test.ts > changed alpha behavior"]
+        },
+        ...manyToManyEntities.slice(1)
+      ],
+      "revision-v1"
+    )
   });
   assert.notEqual(
     reusedRevision.parsed?.identity.fingerprint,
@@ -120,29 +122,35 @@ test("entity indexes reject invalid schemas ordering identities and locators", a
     {
       schemaVersion: 1,
       sourceRevision: "revision-v1",
-      entities: [{
-        id: "bad id",
-        name: "Bad ID",
-        locators: ["tests/bad.test.ts > bad"]
-      }]
+      entities: [
+        {
+          id: "bad id",
+          name: "Bad ID",
+          locators: ["tests/bad.test.ts > bad"]
+        }
+      ]
     },
     {
       schemaVersion: 1,
       sourceRevision: "revision-v1",
-      entities: [{
-        id: "test.bad",
-        name: "Duplicate locators",
-        locators: ["same locator", "same locator"]
-      }]
+      entities: [
+        {
+          id: "test.bad",
+          name: "Duplicate locators",
+          locators: ["same locator", "same locator"]
+        }
+      ]
     },
     {
       schemaVersion: 1,
       sourceRevision: "revision-v1",
-      entities: [{
-        id: "test.bad",
-        name: "Bad locators",
-        locators: ["z locator", "a locator"]
-      }]
+      entities: [
+        {
+          id: "test.bad",
+          name: "Bad locators",
+          locators: ["z locator", "a locator"]
+        }
+      ]
     }
   ];
   for (const value of invalidValues) {
@@ -151,16 +159,21 @@ test("entity indexes reject invalid schemas ordering identities and locators", a
       text: JSON.stringify(value)
     });
     assert.equal(result.parsed, null);
-    assert.ok(result.diagnostics.some(
-      (diagnostic) => diagnostic.category === "entity-index"
-    ));
+    assert.ok(
+      result.diagnostics.some(
+        (diagnostic) => diagnostic.category === "entity-index"
+      )
+    );
   }
-  assert.equal(v.safeParse(testEntityIndexSchema, {
-    schemaVersion: 1,
-    sourceRevision: "revision-v1",
-    entities: [],
-    extra: true
-  }).success, false);
+  assert.equal(
+    v.safeParse(testEntityIndexSchema, {
+      schemaVersion: 1,
+      sourceRevision: "revision-v1",
+      entities: [],
+      extra: true
+    }).success,
+    false
+  );
 
   await withLedgerWorkspace(async (workspaceRoot) => {
     await fs.writeFile(
@@ -172,9 +185,11 @@ test("entity indexes reject invalid schemas ordering identities and locators", a
     );
     const loaded = await readTestEvidenceLedgerSource(workspaceRoot);
     assert.equal(loaded.source, null);
-    assert.ok(loaded.diagnostics.some(
-      (diagnostic) => diagnostic.code === "entity-index.encoding-invalid"
-    ));
+    assert.ok(
+      loaded.diagnostics.some(
+        (diagnostic) => diagnostic.code === "entity-index.encoding-invalid"
+      )
+    );
     const synchronized = await syncTestEvidenceLedgerIndex({
       mode: "write",
       workspaceRoot
@@ -192,25 +207,26 @@ test("ledger roots enforce the fixed flat regular-file layout", async () => {
       "{}\n"
     );
     let loaded = await readTestEvidenceLedgerSource(workspaceRoot);
-    assert.ok(loaded.diagnostics.some(
-      (diagnostic) => diagnostic.code === "case.root-member-unsupported"
-    ));
+    assert.ok(
+      loaded.diagnostics.some(
+        (diagnostic) => diagnostic.code === "case.root-member-unsupported"
+      )
+    );
 
-    await fs.rm(path.join(
-      workspaceRoot,
-      "docs",
-      "test-evidence",
-      "unsupported.json"
-    ));
+    await fs.rm(
+      path.join(workspaceRoot, "docs", "test-evidence", "unsupported.json")
+    );
     await writeWorkspaceFile(
       workspaceRoot,
       "docs/test-evidence/cases/nested/case.md",
       caseMarkdown(manyToManyCases[0]!)
     );
     loaded = await readTestEvidenceLedgerSource(workspaceRoot);
-    assert.ok(loaded.diagnostics.some(
-      (diagnostic) => diagnostic.code === "case.member-unsupported"
-    ));
+    assert.ok(
+      loaded.diagnostics.some(
+        (diagnostic) => diagnostic.code === "case.member-unsupported"
+      )
+    );
 
     await writeWorkspaceFile(
       workspaceRoot,
@@ -222,14 +238,20 @@ test("ledger roots enforce the fixed flat regular-file layout", async () => {
       path.join(casesPath(workspaceRoot), "linked.md")
     );
     loaded = await readTestEvidenceLedgerSource(workspaceRoot);
-    assert.ok(loaded.diagnostics.some(
-      (diagnostic) => diagnostic.code === "case.member-unsupported"
-        && diagnostic.path?.endsWith("readme.txt")
-    ));
-    assert.ok(loaded.diagnostics.some(
-      (diagnostic) => diagnostic.code === "case.path-invalid"
-        && diagnostic.path?.endsWith("linked.md")
-    ));
+    assert.ok(
+      loaded.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "case.member-unsupported" &&
+          diagnostic.path?.endsWith("readme.txt")
+      )
+    );
+    assert.ok(
+      loaded.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "case.path-invalid" &&
+          diagnostic.path?.endsWith("linked.md")
+      )
+    );
   }, "empty");
 });
 
@@ -246,9 +268,11 @@ test("ledger source files reject filesystem identity collisions", async () => {
       ledgerIndexPath(workspaceRoot)
     );
     const loaded = await readTestEvidenceLedgerSource(workspaceRoot);
-    assert.ok(loaded.diagnostics.some(
-      (diagnostic) => diagnostic.code === "index.identity-conflict"
-    ));
+    assert.ok(
+      loaded.diagnostics.some(
+        (diagnostic) => diagnostic.code === "index.identity-conflict"
+      )
+    );
   });
 
   await withLedgerWorkspace(async (workspaceRoot) => {
@@ -259,9 +283,11 @@ test("ledger source files reject filesystem identity collisions", async () => {
       ledgerIndexPath(workspaceRoot)
     );
     const loaded = await readTestEvidenceLedgerSource(workspaceRoot);
-    assert.ok(loaded.diagnostics.some(
-      (diagnostic) => diagnostic.code === "index.identity-conflict"
-    ));
+    assert.ok(
+      loaded.diagnostics.some(
+        (diagnostic) => diagnostic.code === "index.identity-conflict"
+      )
+    );
   });
 
   await withLedgerWorkspace(async (workspaceRoot) => {
@@ -270,9 +296,11 @@ test("ledger source files reject filesystem identity collisions", async () => {
     await fs.rm(alphaGamma);
     await fs.link(alphaBeta, alphaGamma);
     const loaded = await readTestEvidenceLedgerSource(workspaceRoot);
-    assert.ok(loaded.diagnostics.some(
-      (diagnostic) => diagnostic.code === "case.identity-conflict"
-    ));
+    assert.ok(
+      loaded.diagnostics.some(
+        (diagnostic) => diagnostic.code === "case.identity-conflict"
+      )
+    );
   });
 
   await withLedgerWorkspace(async (workspaceRoot) => {
@@ -280,9 +308,11 @@ test("ledger source files reject filesystem identity collisions", async () => {
     await fs.rm(alphaBeta);
     await fs.link(entityIndexPath(workspaceRoot), alphaBeta);
     const loaded = await readTestEvidenceLedgerSource(workspaceRoot);
-    assert.ok(loaded.diagnostics.some(
-      (diagnostic) => diagnostic.code === "entity-index.identity-conflict"
-    ));
+    assert.ok(
+      loaded.diagnostics.some(
+        (diagnostic) => diagnostic.code === "entity-index.identity-conflict"
+      )
+    );
   });
 });
 
@@ -340,39 +370,54 @@ test("case sources reject invalid headings sections tests tags and paths", async
   const variants = [
     { path: baseCase.sourcePath, text: `\n${base}` },
     { path: baseCase.sourcePath, text: base.replace("Tests:", "Unknown:") },
-    { path: baseCase.sourcePath, text: base.replace(
-      "- `test.alpha`\n- `test.beta`",
-      "- `test.beta`\n- `test.alpha`"
-    ) },
-    { path: baseCase.sourcePath, text: base.replace(
-      "- `test.alpha`\n- `test.beta`",
-      "- `test.alpha`\n- `test.alpha`"
-    ) },
+    {
+      path: baseCase.sourcePath,
+      text: base.replace(
+        "- `test.alpha`\n- `test.beta`",
+        "- `test.beta`\n- `test.alpha`"
+      )
+    },
+    {
+      path: baseCase.sourcePath,
+      text: base.replace(
+        "- `test.alpha`\n- `test.beta`",
+        "- `test.alpha`\n- `test.alpha`"
+      )
+    },
     { path: baseCase.sourcePath, text: base.replace("`shared`", "`Bad Tag`") },
-    { path: baseCase.sourcePath, text: base.replace(
-      "- `shared`",
-      "- `shared`\n- `shared`"
-    ) },
+    {
+      path: baseCase.sourcePath,
+      text: base.replace("- `shared`", "- `shared`\n- `shared`")
+    },
     { path: baseCase.sourcePath, text: base.replace("- `shared`\n", "") },
-    { path: baseCase.sourcePath, text: twoTags.replace(
-      "- `alpha`\n- `shared`",
-      "- `shared`\n- `alpha`"
-    ) },
+    {
+      path: baseCase.sourcePath,
+      text: twoTags.replace("- `alpha`\n- `shared`", "- `shared`\n- `alpha`")
+    },
     { path: baseCase.sourcePath, text: base.replace("Contract:", "Unknown:") },
-    { path: baseCase.sourcePath, text: base.replace(
-      "- Alpha and beta jointly support one semantic conclusion.\n",
-      ""
-    ) },
+    {
+      path: baseCase.sourcePath,
+      text: base.replace(
+        "- Alpha and beta jointly support one semantic conclusion.\n",
+        ""
+      )
+    },
     { path: baseCase.sourcePath, text: base.replace("Proves:", "Unknown:") },
-    { path: baseCase.sourcePath, text: base.replace(
-      "- The shared alpha-beta result is observable.\n",
-      ""
-    ) },
-    { path: baseCase.sourcePath, text: base.replace(
-      "Contract:\n- Alpha and beta jointly support one semantic conclusion.\n\nProves:\n- The shared alpha-beta result is observable.",
-      "Proves:\n- The shared alpha-beta result is observable.\n\nContract:\n- Alpha and beta jointly support one semantic conclusion."
-    ) },
-    { path: baseCase.sourcePath, text: `${base}### Case LEDGER-EXTRA-CASE-001: Extra Case\n` },
+    {
+      path: baseCase.sourcePath,
+      text: base.replace("- The shared alpha-beta result is observable.\n", "")
+    },
+    {
+      path: baseCase.sourcePath,
+      text: base.replace(
+        "Contract:\n- Alpha and beta jointly support one semantic conclusion.\n\nProves:\n- The shared alpha-beta result is observable.",
+        "Proves:\n- The shared alpha-beta result is observable.\n\nContract:\n- Alpha and beta jointly support one semantic conclusion."
+      )
+    },
+    {
+      path: baseCase.sourcePath,
+      text: `${base}### Case LEDGER-EXTRA-CASE-001: Extra Case\n`
+    },
     { path: baseCase.sourcePath, text: `${base}Extra body\n` },
     { path: "cases/Bad-Name.md", text: base }
   ];
@@ -394,10 +439,13 @@ test("case sources reject invalid headings sections tests tags and paths", async
       base
     );
     const loaded = await readTestEvidenceLedgerSource(workspaceRoot);
-    assert.ok(loaded.diagnostics.some(
-      (diagnostic) => diagnostic.code === "case.id-duplicate"
-        && diagnostic.caseId === baseCase.id
-    ));
+    assert.ok(
+      loaded.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "case.id-duplicate" &&
+          diagnostic.caseId === baseCase.id
+      )
+    );
   }, "empty");
 
   await withLedgerWorkspace(async (workspaceRoot) => {
@@ -413,17 +461,21 @@ test("case sources reject invalid headings sections tests tags and paths", async
     );
     const loaded = await readTestEvidenceLedgerSource(workspaceRoot);
     assert.equal(loaded.source, null);
-    assert.ok(loaded.diagnostics.some(
-      (diagnostic) => diagnostic.code === "case.encoding-invalid"
-    ));
+    assert.ok(
+      loaded.diagnostics.some(
+        (diagnostic) => diagnostic.code === "case.encoding-invalid"
+      )
+    );
     const direct = await readLedgerCaseSource(
       workspaceRoot,
       "cases/alpha-beta.md"
     );
     assert.equal(direct.value, null);
-    assert.ok(direct.diagnostics.some(
-      (diagnostic) => diagnostic.code === "case.encoding-invalid"
-    ));
+    assert.ok(
+      direct.diagnostics.some(
+        (diagnostic) => diagnostic.code === "case.encoding-invalid"
+      )
+    );
     const synchronized = await syncTestEvidenceLedgerIndex({
       mode: "write",
       workspaceRoot
@@ -435,11 +487,30 @@ test("case sources reject invalid headings sections tests tags and paths", async
 
 test("ledger schemas reject unknown fields and incompatible versions", async () => {
   const invalidOptions: Array<[unknown, Parameters<typeof v.safeParse>[0]]> = [
-    [{ workspaceRoot: "/tmp/example", unknown: true }, validateTestEvidenceLedgerOptionsSchema],
-    [{ workspaceRoot: "/tmp/example", mode: "check", unknown: true }, syncTestEvidenceLedgerIndexOptionsSchema],
-    [{ workspaceRoot: "/tmp/example", unknown: true }, queryTestEvidenceCasesOptionsSchema],
-    [{ workspaceRoot: "/tmp/example", caseId: "LEDGER-VALID-CASE-001", unknown: true }, showTestEvidenceCaseOptionsSchema],
-    [{ workspaceRoot: "/tmp/example", unknown: true }, queryTestEntitiesOptionsSchema]
+    [
+      { workspaceRoot: "/tmp/example", unknown: true },
+      validateTestEvidenceLedgerOptionsSchema
+    ],
+    [
+      { workspaceRoot: "/tmp/example", mode: "check", unknown: true },
+      syncTestEvidenceLedgerIndexOptionsSchema
+    ],
+    [
+      { workspaceRoot: "/tmp/example", unknown: true },
+      queryTestEvidenceCasesOptionsSchema
+    ],
+    [
+      {
+        workspaceRoot: "/tmp/example",
+        caseId: "LEDGER-VALID-CASE-001",
+        unknown: true
+      },
+      showTestEvidenceCaseOptionsSchema
+    ],
+    [
+      { workspaceRoot: "/tmp/example", unknown: true },
+      queryTestEntitiesOptionsSchema
+    ]
   ];
   for (const [input, schema] of invalidOptions) {
     assert.equal(v.safeParse(schema, input).success, false);
@@ -451,10 +522,11 @@ test("ledger schemas reject unknown fields and incompatible versions", async () 
       workspaceRoot
     });
     assert.equal(synchronized.status, "ok");
-    assert.equal(v.safeParse(
-      testEvidenceLedgerIndexSyncResultSchema,
-      synchronized
-    ).success, true);
+    assert.equal(
+      v.safeParse(testEvidenceLedgerIndexSyncResultSchema, synchronized)
+        .success,
+      true
+    );
     const invalidSyncResults = [
       { ...synchronized, changed: false },
       {
@@ -465,29 +537,38 @@ test("ledger schemas reject unknown fields and incompatible versions", async () 
       }
     ];
     for (const result of invalidSyncResults) {
-      assert.equal(v.safeParse(
-        testEvidenceLedgerIndexSyncResultSchema,
-        result
-      ).success, false);
+      assert.equal(
+        v.safeParse(testEvidenceLedgerIndexSyncResultSchema, result).success,
+        false
+      );
     }
     const missingCase = await showTestEvidenceCase({
       caseId: "LEDGER-MISSING-CASE-001",
       workspaceRoot
     });
-    assert.equal(v.safeParse(
-      testEvidenceCaseShowResultSchema,
-      missingCase
-    ).success, true);
-    assert.equal(v.safeParse(testEvidenceCaseShowResultSchema, {
-      ...missingCase,
-      markdown: "unexpected Markdown"
-    }).success, false);
+    assert.equal(
+      v.safeParse(testEvidenceCaseShowResultSchema, missingCase).success,
+      true
+    );
+    assert.equal(
+      v.safeParse(testEvidenceCaseShowResultSchema, {
+        ...missingCase,
+        markdown: "unexpected Markdown"
+      }).success,
+      false
+    );
     const index = await readJsonFile(ledgerIndexPath(workspaceRoot));
-    assert.equal(v.safeParse(testEvidenceLedgerStateIndexSchema, index).success, true);
-    assert.equal(v.safeParse(testEvidenceLedgerStateIndexSchema, {
-      ...(index as Record<string, unknown>),
-      definitionVersion: 3
-    }).success, false);
+    assert.equal(
+      v.safeParse(testEvidenceLedgerStateIndexSchema, index).success,
+      true
+    );
+    assert.equal(
+      v.safeParse(testEvidenceLedgerStateIndexSchema, {
+        ...(index as Record<string, unknown>),
+        definitionVersion: 3
+      }).success,
+      false
+    );
   }, "empty");
 });
 

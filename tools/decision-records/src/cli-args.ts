@@ -45,41 +45,56 @@ type LocatedCommand<
 };
 
 export type CliArgs =
-  | LocatedCommand<"activate", {
-      alignment: DecisionAlignment;
-      decisionId: DecisionId;
-      keepUnrecordedHistory: boolean;
-      relationOverride: DecisionRelationOverride;
-    }>
-  | LocatedCommand<"archive", {
-      decisionIds: DecisionId[];
-      keepUnrecordedHistory: boolean;
-    }>
+  | LocatedCommand<
+      "activate",
+      {
+        alignment: DecisionAlignment;
+        decisionId: DecisionId;
+        keepUnrecordedHistory: boolean;
+        relationOverride: DecisionRelationOverride;
+      }
+    >
+  | LocatedCommand<
+      "archive",
+      {
+        decisionIds: DecisionId[];
+        keepUnrecordedHistory: boolean;
+      }
+    >
   | LocatedCommand<"candidates">
   | LocatedCommand<"check">
   | LocatedCommand<"discard", { decisionId: DecisionId }>
-  | LocatedCommand<"evolve", {
-      collapseUnrecordedId: DecisionId | null;
-      keepUnrecordedHistory: boolean;
-      relationOverride: DecisionRelationOverride;
-      successors: DecisionSuccessor[];
-    }>
-  | LocatedCommand<"list", {
-      alignment: DecisionListAlignment;
-      fullTime: boolean;
-      status: DecisionListStatus;
-      tags: DecisionTag[];
-    }>
+  | LocatedCommand<
+      "evolve",
+      {
+        collapseUnrecordedId: DecisionId | null;
+        keepUnrecordedHistory: boolean;
+        relationOverride: DecisionRelationOverride;
+        successors: DecisionSuccessor[];
+      }
+    >
+  | LocatedCommand<
+      "list",
+      {
+        alignment: DecisionListAlignment;
+        fullTime: boolean;
+        status: DecisionListStatus;
+        tags: DecisionTag[];
+      }
+    >
   | LocatedCommand<"mark-aligned", { decisionId: DecisionId }>
   | LocatedCommand<"show", { decisionId: DecisionId }>
   | LocatedCommand<"show-candidate", { decisionId: DecisionId }>
   | LocatedCommand<"stage", { decisionIds: DecisionId[] }>
   | LocatedCommand<"sync-index", { write: boolean }>
-  | LocatedCommand<"trace", {
-      decisionId: DecisionId;
-      traceDepth: number | null;
-      traceDirection: DecisionTraceDirection;
-    }>;
+  | LocatedCommand<
+      "trace",
+      {
+        decisionId: DecisionId;
+        traceDepth: number | null;
+        traceDirection: DecisionTraceDirection;
+      }
+    >;
 
 export type CliArgsFor<TCommand extends Command> = Extract<
   CliArgs,
@@ -160,14 +175,20 @@ function parseDecisionRelation(
     (candidate) => candidate === relationTypeValue
   );
   if (relationType === undefined) {
-    throw new InvalidArgumentError("type must be " + decisionRelationTypes.join(", "));
+    throw new InvalidArgumentError(
+      "type must be " + decisionRelationTypes.join(", ")
+    );
   }
   const target = value.slice(separatorIndex + 1);
   if (!isDecisionId(target)) {
-    throw new InvalidArgumentError("target must be a Decision ID basename ending in .md");
+    throw new InvalidArgumentError(
+      "target must be a Decision ID basename ending in .md"
+    );
   }
   if (previous.some((relation) => relation.target === target)) {
-    throw new InvalidArgumentError("must not repeat a direct predecessor target");
+    throw new InvalidArgumentError(
+      "must not repeat a direct predecessor target"
+    );
   }
   return [...previous, { type: relationType, target }];
 }
@@ -186,7 +207,9 @@ function parseDecisionSuccessor(
   }
   const decisionId = value.slice(separatorIndex + 1);
   if (!isDecisionId(decisionId)) {
-    throw new InvalidArgumentError("decision ID must be a basename ending in .md");
+    throw new InvalidArgumentError(
+      "decision ID must be a basename ending in .md"
+    );
   }
   if (previous.some((successor) => successor.decisionId === decisionId)) {
     throw new InvalidArgumentError("must not repeat a successor Decision ID");
@@ -323,8 +346,8 @@ function createSubcommand(
 function createDecisionRelationOption(): Option {
   return new Option(
     "--relation <type=decision-id>",
-    "Replace every selected successor's complete relation list with one final "
-      + "direct predecessor relation. Repeat for the complete replacement."
+    "Replace every selected successor's complete relation list with one final " +
+      "direct predecessor relation. Repeat for the complete replacement."
   )
     .argParser(parseDecisionRelation)
     .conflicts("clearRelations");
@@ -350,7 +373,9 @@ export function createCliProgram(
 ): CommanderCommand {
   const program = new CommanderCommand()
     .name("decision-records")
-    .description("Query and maintain agent-oriented decision records and their lifecycle state.")
+    .description(
+      "Query and maintain agent-oriented decision records and their lifecycle state."
+    )
     .configureHelp({ showGlobalOptions: true })
     .option("--root <path>", "Workspace root.", process.cwd())
     .option(
@@ -361,11 +386,11 @@ export function createCliProgram(
     .showHelpAfterError()
     .addHelpText(
       "afterAll",
-      "\nDecision IDs are stable Markdown basenames, for example use-semantic-title.md.\n"
-      + "Reviewable candidates remain outside the index and are queried from source.\n"
-      + "Exit codes: 0 success (queries and scoped maintenance may report warnings), "
-      + "1 paused lifecycle choice, blocking validation, or index failure, "
-      + "2 invalid arguments."
+      "\nDecision IDs are stable Markdown basenames, for example use-semantic-title.md.\n" +
+        "Reviewable candidates remain outside the index and are queried from source.\n" +
+        "Exit codes: 0 success (queries and scoped maintenance may report warnings), " +
+        "1 paused lifecycle choice, blocking validation, or index failure, " +
+        "2 invalid arguments."
     )
     .exitOverride();
 
@@ -380,8 +405,8 @@ export function createCliProgram(
   const check = createSubcommand(
     program,
     "check",
-    "Strictly validate Markdown metadata, tags, source locations, alignment, relations, "
-      + "reviewable candidates, and the JSON index. This is the default command.",
+    "Strictly validate Markdown metadata, tags, source locations, alignment, relations, " +
+      "reviewable candidates, and the JSON index. This is the default command.",
     { isDefault: true }
   );
   check.action(() => execute("check", check));
@@ -389,8 +414,8 @@ export function createCliProgram(
   const candidates = createSubcommand(
     program,
     "candidates",
-    "Discover complete reviewable candidates directly from decision Markdown "
-      + "without adding them to the persisted decision index."
+    "Discover complete reviewable candidates directly from decision Markdown " +
+      "without adding them to the persisted decision index."
   );
   candidates.action(() => execute("candidates", candidates));
 
@@ -400,7 +425,10 @@ export function createCliProgram(
     "List the persisted active decision snapshot by default, or filter its indexed state."
   )
     .addOption(
-      new Option("--alignment <value>", "Alignment filter for indexed decisions.")
+      new Option(
+        "--alignment <value>",
+        "Alignment filter for indexed decisions."
+      )
         .choices([...decisionAlignments, "all"])
         .default("all")
     )
@@ -410,10 +438,15 @@ export function createCliProgram(
         .default("active")
     )
     .addOption(
-      new Option("--tag <tag>", "Require one tag. Repeat for AND filtering.")
-        .argParser(parseDecisionTag)
+      new Option(
+        "--tag <tag>",
+        "Require one tag. Repeat for AND filtering."
+      ).argParser(parseDecisionTag)
     )
-    .option("--full-time", "Show the full createdAt timestamp instead of its date.");
+    .option(
+      "--full-time",
+      "Show the full createdAt timestamp instead of its date."
+    );
   list.action(() => execute("list", list));
 
   const show = createSubcommand(
@@ -436,9 +469,9 @@ export function createCliProgram(
     "Stable Decision ID basename.",
     parseSingleDecisionId
   );
-  showCandidate.action((decisionId: DecisionId) => (
+  showCandidate.action((decisionId: DecisionId) =>
     execute("show-candidate", showCandidate, [decisionId])
-  ));
+  );
 
   const trace = createSubcommand(
     program,
@@ -456,37 +489,41 @@ export function createCliProgram(
         .default("both")
     )
     .addOption(
-      new Option("--depth <n>", "Maximum relation hops.")
-        .argParser(parseTraceDepth)
+      new Option("--depth <n>", "Maximum relation hops.").argParser(
+        parseTraceDepth
+      )
     );
-  trace.action((decisionId: DecisionId) => execute("trace", trace, [decisionId]));
+  trace.action((decisionId: DecisionId) =>
+    execute("trace", trace, [decisionId])
+  );
 
   const syncIndex = createSubcommand(
     program,
     "sync-index",
     "Check the JSON index against established Markdown; use --write to rebuild it."
-  )
-    .option("--write", "Write the index rebuilt from established decisions.");
+  ).option("--write", "Write the index rebuilt from established decisions.");
   syncIndex.action(() => execute("sync-index", syncIndex));
 
   const stage = createSubcommand(
     program,
     "stage",
-    "Build a complete pending decision snapshot from the current revision and "
-      + "the explicitly selected filesystem Decision IDs."
+    "Build a complete pending decision snapshot from the current revision and " +
+      "the explicitly selected filesystem Decision IDs."
   ).argument(
     "<decision-id...>",
     "Stable Decision ID basenames.",
     parseDecisionIdList
   );
-  stage.action((decisionIds: DecisionId[]) => execute("stage", stage, decisionIds));
+  stage.action((decisionIds: DecisionId[]) =>
+    execute("stage", stage, decisionIds)
+  );
 
   const activate = createSubcommand(
     program,
     "activate",
-    "Establish one new decision candidate or reactivate one archived decision; "
-      + "new candidates may record direct evolution relations and archive their "
-      + "predecessors in the same transaction."
+    "Establish one new decision candidate or reactivate one archived decision; " +
+      "new candidates may record direct evolution relations and archive their " +
+      "predecessors in the same transaction."
   )
     .argument(
       "<decision-id>",
@@ -494,29 +531,32 @@ export function createCliProgram(
       parseSingleDecisionId
     )
     .addOption(
-      new Option("--alignment <value>", "Alignment state for the active decision.")
+      new Option(
+        "--alignment <value>",
+        "Alignment state for the active decision."
+      )
         .choices(decisionAlignments)
         .makeOptionMandatory()
     )
     .addOption(createDecisionRelationOption())
     .addOption(createClearRelationsOption())
     .addOption(createKeepUnrecordedHistoryOption());
-  activate.action((decisionId: DecisionId) => (
+  activate.action((decisionId: DecisionId) =>
     execute("activate", activate, [decisionId])
-  ));
+  );
 
   const evolve = createSubcommand(
     program,
     "evolve",
-    "Replace complete successor relations, establish selected candidates, "
-      + "archive new active predecessors, and optionally collapse one "
-      + "unrecorded intermediate predecessor in one recoverable transaction."
+    "Replace complete successor relations, establish selected candidates, " +
+      "archive new active predecessors, and optionally collapse one " +
+      "unrecorded intermediate predecessor in one recoverable transaction."
   )
     .addOption(
       new Option(
         "--successor <alignment=decision-id>",
-        "Select one successor and confirm its whole-decision alignment. "
-          + "Repeat for the complete successor set."
+        "Select one successor and confirm its whole-decision alignment. " +
+          "Repeat for the complete successor set."
       )
         .argParser(parseDecisionSuccessor)
         .makeOptionMandatory()
@@ -527,10 +567,10 @@ export function createCliProgram(
     .addOption(
       new Option(
         "--collapse-unrecorded <decision-id>",
-        "Delete one active predecessor absent from Git HEAD for one new "
-          + "candidate; resolved source relations or --relation define the "
-          + "complete final set, and --clear-relations selects an explicitly "
-          + "empty set."
+        "Delete one active predecessor absent from Git HEAD for one new " +
+          "candidate; resolved source relations or --relation define the " +
+          "complete final set, and --clear-relations selects an explicitly " +
+          "empty set."
       ).argParser(parseSingleDecisionId)
     );
   evolve.action(() => execute("evolve", evolve));
@@ -538,17 +578,17 @@ export function createCliProgram(
   const markAligned = createSubcommand(
     program,
     "mark-aligned",
-    "Mark an active unaligned decision as aligned only after its complete "
-      + "direction has become current fact and been verified against the relevant "
-      + "fact sources."
+    "Mark an active unaligned decision as aligned only after its complete " +
+      "direction has become current fact and been verified against the relevant " +
+      "fact sources."
   ).argument(
     "<decision-id>",
     "Stable Decision ID basename.",
     parseSingleDecisionId
   );
-  markAligned.action((decisionId: DecisionId) => (
+  markAligned.action((decisionId: DecisionId) =>
     execute("mark-aligned", markAligned, [decisionId])
-  ));
+  );
 
   const archive = createSubcommand(
     program,
@@ -561,9 +601,9 @@ export function createCliProgram(
       parseDecisionIdList
     )
     .addOption(createKeepUnrecordedHistoryOption());
-  archive.action((decisionIds: DecisionId[]) => (
+  archive.action((decisionIds: DecisionId[]) =>
     execute("archive", archive, decisionIds)
-  ));
+  );
 
   const discard = createSubcommand(
     program,
@@ -574,9 +614,9 @@ export function createCliProgram(
     "Stable Decision ID basename.",
     parseSingleDecisionId
   );
-  discard.action((decisionId: DecisionId) => (
+  discard.action((decisionId: DecisionId) =>
     execute("discard", discard, [decisionId])
-  ));
+  );
 
   return program;
 }

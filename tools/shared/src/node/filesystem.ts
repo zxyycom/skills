@@ -1,7 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-export function isFileSystemError(error: unknown, code: string): error is NodeJS.ErrnoException {
+export function isFileSystemError(
+  error: unknown,
+  code: string
+): error is NodeJS.ErrnoException {
   return error instanceof Error && "code" in error && error.code === code;
 }
 
@@ -21,10 +24,18 @@ export function toPosix(targetPath: string): string {
   return targetPath.split(path.sep).join("/");
 }
 
-export function isPathWithinDirectory(candidate: string, directory: string): boolean {
-  const relativePath = path.relative(path.resolve(directory), path.resolve(candidate));
-  return relativePath === ""
-    || (relativePath !== ".."
-      && !relativePath.startsWith(".." + path.sep)
-      && !path.isAbsolute(relativePath));
+export function isPathWithinDirectory(
+  candidate: string,
+  directory: string
+): boolean {
+  const relativePath = path.relative(
+    path.resolve(directory),
+    path.resolve(candidate)
+  );
+  return (
+    relativePath === "" ||
+    (relativePath !== ".." &&
+      !relativePath.startsWith(".." + path.sep) &&
+      !path.isAbsolute(relativePath))
+  );
 }

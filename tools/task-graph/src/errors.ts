@@ -1,8 +1,4 @@
-import type {
-  JsonObject,
-  JsonValue,
-  TaskGraphErrorCode
-} from "./types.ts";
+import type { JsonObject, JsonValue, TaskGraphErrorCode } from "./types.ts";
 
 const retryableCodes = new Set<TaskGraphErrorCode>([
   "INDEX_READ_FAILED",
@@ -13,13 +9,21 @@ const retryableCodes = new Set<TaskGraphErrorCode>([
 ]);
 
 function jsonValue(value: unknown, seen: Set<object>): JsonValue {
-  if (value === null || typeof value === "string" || typeof value === "boolean") {
+  if (
+    value === null ||
+    typeof value === "string" ||
+    typeof value === "boolean"
+  ) {
     return value;
   }
   if (typeof value === "number") {
     return Number.isFinite(value) ? value : String(value);
   }
-  if (typeof value === "bigint" || typeof value === "symbol" || typeof value === "function") {
+  if (
+    typeof value === "bigint" ||
+    typeof value === "symbol" ||
+    typeof value === "function"
+  ) {
     return String(value);
   }
   if (value === undefined) {
@@ -53,9 +57,9 @@ function jsonValue(value: unknown, seen: Set<object>): JsonValue {
 
 function jsonObject(value: unknown): JsonObject {
   const normalized = jsonValue(value, new Set());
-  return typeof normalized === "object"
-    && normalized !== null
-    && !Array.isArray(normalized)
+  return typeof normalized === "object" &&
+    normalized !== null &&
+    !Array.isArray(normalized)
     ? normalized
     : { value: normalized };
 }

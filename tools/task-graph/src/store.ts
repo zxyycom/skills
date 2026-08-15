@@ -5,10 +5,7 @@ import path from "node:path";
 import { performance } from "node:perf_hooks";
 import writeFileAtomic from "write-file-atomic";
 import { TaskGraphError } from "./errors.ts";
-import {
-  loadNativeLockBinding,
-  type NativeLockBinding
-} from "./runtime.ts";
+import { loadNativeLockBinding, type NativeLockBinding } from "./runtime.ts";
 import {
   emptyTaskIndex,
   parseTaskIndex,
@@ -59,10 +56,10 @@ const defaultAtomicWrite: AtomicWrite = async (target, text, options) => {
 };
 
 function getErrnoCode(error: unknown): string | null {
-  return error instanceof Error
-    && "code" in error
-    && typeof (error as NodeJS.ErrnoException).code === "string"
-    ? (error as NodeJS.ErrnoException).code ?? null
+  return error instanceof Error &&
+    "code" in error &&
+    typeof (error as NodeJS.ErrnoException).code === "string"
+    ? ((error as NodeJS.ErrnoException).code ?? null)
     : null;
 }
 
@@ -95,7 +92,9 @@ function throwFileBoundaryError(
   throw error instanceof Error ? error : new Error(String(error));
 }
 
-async function lstatOrNull(target: string): Promise<Awaited<ReturnType<typeof fs.lstat>> | null> {
+async function lstatOrNull(
+  target: string
+): Promise<Awaited<ReturnType<typeof fs.lstat>> | null> {
   try {
     return await fs.lstat(target);
   } catch (error) {
@@ -109,7 +108,11 @@ function resolveIndexPath(root: string, configured?: string): string {
   if (path.isAbsolute(candidate)) return path.resolve(candidate);
   const resolved = path.resolve(root, candidate);
   const relative = path.relative(root, resolved);
-  if (relative === ".." || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+  if (
+    relative === ".." ||
+    relative.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relative)
+  ) {
     throw new TaskGraphError(
       "ARGUMENT_INVALID",
       "Relative task index path must stay inside --root",
@@ -137,9 +140,10 @@ export class TaskGraphStore {
     this.lockRoot = path.resolve(
       options.lockRoot ?? path.join(os.tmpdir(), "task-graph-locks")
     );
-    const normalizedIndexPath = process.platform === "win32"
-      ? this.indexPath.toLowerCase()
-      : this.indexPath;
+    const normalizedIndexPath =
+      process.platform === "win32"
+        ? this.indexPath.toLowerCase()
+        : this.indexPath;
     const lockName = createHash("sha256")
       .update(normalizedIndexPath, "utf8")
       .digest("hex");
@@ -151,10 +155,10 @@ export class TaskGraphStore {
     this.monotonicClock = options.monotonicClock ?? (() => performance.now());
     this.sleep = options.sleep ?? defaultSleep;
     if (
-      !Number.isFinite(this.lockPollMilliseconds)
-      || this.lockPollMilliseconds <= 0
-      || !Number.isFinite(this.lockWaitMilliseconds)
-      || this.lockWaitMilliseconds < 0
+      !Number.isFinite(this.lockPollMilliseconds) ||
+      this.lockPollMilliseconds <= 0 ||
+      !Number.isFinite(this.lockWaitMilliseconds) ||
+      this.lockWaitMilliseconds < 0
     ) {
       throw new TaskGraphError(
         "ARGUMENT_INVALID",
@@ -207,10 +211,13 @@ export class TaskGraphStore {
       canonical,
       diagnostics: canonical
         ? []
-        : [{
-            code: "index-not-canonical",
-            message: "Task index must use canonical field order, LF, and trailing newline"
-          }],
+        : [
+            {
+              code: "index-not-canonical",
+              message:
+                "Task index must use canonical field order, LF, and trailing newline"
+            }
+          ],
       revision: index.revision,
       schemaVersion: index.schemaVersion,
       taskCount: Object.keys(index.tasks).length,
@@ -239,35 +246,44 @@ export class TaskGraphStore {
         indexDirectory
       );
     }
-    return await this.withLock(async () => {
-      await this.assertIndexMissing();
-      const index = emptyTaskIndex();
-      await this.commit(index);
-      return index;
-    }, (index) => index.revision);
+    return await this.withLock(
+      async () => {
+        await this.assertIndexMissing();
+        const index = emptyTaskIndex();
+        await this.commit(index);
+        return index;
+      },
+      (index) => index.revision
+    );
   }
 
   async mutate<TData>(
-    transform: (index: TaskIndex) => Promise<{ index: TaskIndex; data: TData }>
+    transform: (
+      index: TaskIndex
+    ) =>
+      | Promise<{ index: TaskIndex; data: TData }>
       | { index: TaskIndex; data: TData }
   ): Promise<{ index: TaskIndex; data: TData }> {
-    return await this.withLock(async () => {
-      const current = await this.read();
-      const transformed = await transform(structuredClone(current.index));
-      const candidate = parseTaskIndex(transformed.index);
-      if (candidate.revision !== current.index.revision + 1) {
-        throw new TaskGraphError(
-          "STATE_CONFLICT",
-          "Every mutation must increase revision exactly once",
-          {
-            currentRevision: current.index.revision,
-            candidateRevision: candidate.revision
-          }
-        );
-      }
-      await this.commit(candidate);
-      return { index: candidate, data: transformed.data };
-    }, (result) => result.index.revision);
+    return await this.withLock(
+      async () => {
+        const current = await this.read();
+        const transformed = await transform(structuredClone(current.index));
+        const candidate = parseTaskIndex(transformed.index);
+        if (candidate.revision !== current.index.revision + 1) {
+          throw new TaskGraphError(
+            "STATE_CONFLICT",
+            "Every mutation must increase revision exactly once",
+            {
+              currentRevision: current.index.revision,
+              candidateRevision: candidate.revision
+            }
+          );
+        }
+        await this.commit(candidate);
+        return { index: candidate, data: transformed.data };
+      },
+      (result) => result.index.revision
+    );
   }
 
   private async getNativeBinding(): Promise<NativeLockBinding> {
@@ -280,7 +296,8 @@ export class TaskGraphStore {
       this.nativeBindingPromise = Promise.resolve(binding);
       return binding;
     } catch (error) {
-      if (this.nativeBindingPromise === pending) this.nativeBindingPromise = null;
+      if (this.nativeBindingPromise === pending)
+        this.nativeBindingPromise = null;
       throw error;
     }
   }
@@ -326,7 +343,8 @@ export class TaskGraphStore {
       releaseError = error;
     }
     if (operationError !== undefined) throw operationError;
-    if (result === undefined) throw new Error("Task graph transaction returned no result");
+    if (result === undefined)
+      throw new Error("Task graph transaction returned no result");
     if (releaseError !== undefined) {
       const revision = committedRevision(result);
       throw this.writeOutcomeUnknown(revision, releaseError, "lock-release");
@@ -385,13 +403,15 @@ export class TaskGraphStore {
         throw new TaskGraphError(
           "LOCK_TIMEOUT",
           `Timed out waiting ${this.lockWaitMilliseconds}ms for task graph lock`,
-          { lockPath: this.lockPath, waitMilliseconds: this.lockWaitMilliseconds }
+          {
+            lockPath: this.lockPath,
+            waitMilliseconds: this.lockWaitMilliseconds
+          }
         );
       }
-      await this.sleep(Math.min(
-        this.lockPollMilliseconds,
-        this.lockWaitMilliseconds - elapsed
-      ));
+      await this.sleep(
+        Math.min(this.lockPollMilliseconds, this.lockWaitMilliseconds - elapsed)
+      );
     }
   }
 
@@ -413,11 +433,10 @@ export class TaskGraphStore {
   private async commit(candidate: TaskIndex): Promise<void> {
     const candidateText = serializeTaskIndex(candidate);
     try {
-      await this.atomicWrite(
-        this.indexPath,
-        candidateText,
-        { encoding: "utf8", fsync: true }
-      );
+      await this.atomicWrite(this.indexPath, candidateText, {
+        encoding: "utf8",
+        fsync: true
+      });
     } catch (error) {
       throw this.writeOutcomeUnknown(candidate.revision, error);
     }

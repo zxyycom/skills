@@ -75,9 +75,14 @@ function sortedUniqueTaskIds(taskIds: Iterable<string>): string[] {
   return [...new Set(taskIds)].sort(compareText);
 }
 
-function compareDisplayBlockers(left: DisplayBlocker, right: DisplayBlocker): number {
-  return compareText(left.kind, right.kind)
-    || compareText(left.relatedTaskId, right.relatedTaskId);
+function compareDisplayBlockers(
+  left: DisplayBlocker,
+  right: DisplayBlocker
+): number {
+  return (
+    compareText(left.kind, right.kind) ||
+    compareText(left.relatedTaskId, right.relatedTaskId)
+  );
 }
 
 function sortedUniqueDisplayBlockers(
@@ -86,7 +91,10 @@ function sortedUniqueDisplayBlockers(
   const unique: DisplayBlocker[] = [];
   for (const blocker of [...blockers].sort(compareDisplayBlockers)) {
     const previous = unique.at(-1);
-    if (previous === undefined || compareDisplayBlockers(previous, blocker) !== 0) {
+    if (
+      previous === undefined ||
+      compareDisplayBlockers(previous, blocker) !== 0
+    ) {
       unique.push(blocker);
     }
   }
@@ -97,8 +105,8 @@ function serializeJsonValue(value: JsonValue): string {
   const serialized = JSON.stringify(value);
   if (serialized === undefined) {
     throw new Error(
-      "Task list renderer received a value outside JsonValue; "
-      + "inspect task-list result construction"
+      "Task list renderer received a value outside JsonValue; " +
+        "inspect task-list result construction"
     );
   }
   return serialized;
@@ -106,8 +114,8 @@ function serializeJsonValue(value: JsonValue): string {
 
 function unsupportedBlocker(blocker: never): never {
   throw new Error(
-    `Task list renderer has no folding rule for blocker ${JSON.stringify(blocker)}; `
-    + "add an explicit foldBlockers() case"
+    `Task list renderer has no folding rule for blocker ${JSON.stringify(blocker)}; ` +
+      "add an explicit foldBlockers() case"
   );
 }
 
@@ -121,7 +129,10 @@ function foldBlockers(blockers: readonly TaskBlocker[]): FoldedBlockers {
       case "dependency-cancelled":
       case "dependency-failed":
       case "descendant-lease":
-        blockedBy.push({ kind: blocker.kind, relatedTaskId: blocker.relatedTaskId });
+        blockedBy.push({
+          kind: blocker.kind,
+          relatedTaskId: blocker.relatedTaskId
+        });
         break;
       case "exclusion-running":
         mutex.push(blocker.relatedTaskId);
@@ -143,7 +154,9 @@ function foldBlockers(blockers: readonly TaskBlocker[]): FoldedBlockers {
 }
 
 function dependencyEndpoints(item: TaskListItem): string[] {
-  return sortedUniqueTaskIds(item.dependencies.map((source) => source.targetTaskId));
+  return sortedUniqueTaskIds(
+    item.dependencies.map((source) => source.targetTaskId)
+  );
 }
 
 function requireTask(
@@ -184,8 +197,8 @@ function parentPath(
   while (parentId !== null) {
     if (visited.has(parentId)) {
       throw new Error(
-        `Task list projection contains a parent cycle at ${parentId}; `
-        + "inspect the projected parent relationships"
+        `Task list projection contains a parent cycle at ${parentId}; ` +
+          "inspect the projected parent relationships"
       );
     }
     visited.add(parentId);
@@ -195,7 +208,10 @@ function parentPath(
   return path.reverse();
 }
 
-function compareParentPaths(left: readonly string[], right: readonly string[]): number {
+function compareParentPaths(
+  left: readonly string[],
+  right: readonly string[]
+): number {
   for (const [index, leftTaskId] of left.entries()) {
     const rightTaskId = right[index];
     if (rightTaskId === undefined) return 1;
@@ -217,8 +233,8 @@ function taskLayers(
     if (known !== undefined) return known;
     if (visiting.has(taskId)) {
       throw new Error(
-        `Task list projection contains a dependency cycle at ${taskId}; `
-        + "inspect the projected effective dependencies"
+        `Task list projection contains a dependency cycle at ${taskId}; ` +
+          "inspect the projected effective dependencies"
       );
     }
     visiting.add(taskId);
@@ -245,8 +261,8 @@ function trackComponents(tasks: readonly DisplayTask[]): string[][] {
     const right = adjacency.get(rightTaskId);
     if (left === undefined || right === undefined) {
       throw new Error(
-        `Task list layout cannot connect ${leftTaskId} and ${rightTaskId}; `
-        + "inspect task-list projection reference validation"
+        `Task list layout cannot connect ${leftTaskId} and ${rightTaskId}; ` +
+          "inspect task-list projection reference validation"
       );
     }
     left.add(rightTaskId);
@@ -268,8 +284,8 @@ function trackComponents(tasks: readonly DisplayTask[]): string[][] {
       const taskId = pending.pop();
       if (taskId === undefined) {
         throw new Error(
-          `Task list layout could not pop the non-empty traversal stack rooted at `
-          + `${item.taskId}; inspect track traversal`
+          `Task list layout could not pop the non-empty traversal stack rooted at ` +
+            `${item.taskId}; inspect track traversal`
         );
       }
       members.push(taskId);
@@ -295,14 +311,14 @@ function mutexGroups(tasks: readonly DisplayTask[]): MutexGroup[] {
       const targetTaskId = exclusion.targetTaskId;
       if (item.taskId === targetTaskId) {
         throw new Error(
-          `Task list projection contains a self exclusion at ${item.taskId}; `
-          + "inspect the projected effective exclusions"
+          `Task list projection contains a self exclusion at ${item.taskId}; ` +
+            "inspect the projected effective exclusions"
         );
       }
-      const leftTaskId = compareText(item.taskId, targetTaskId) < 0
-        ? item.taskId
-        : targetTaskId;
-      const rightTaskId = leftTaskId === item.taskId ? targetTaskId : item.taskId;
+      const leftTaskId =
+        compareText(item.taskId, targetTaskId) < 0 ? item.taskId : targetTaskId;
+      const rightTaskId =
+        leftTaskId === item.taskId ? targetTaskId : item.taskId;
       const rightTaskIds = grouped.get(leftTaskId) ?? new Set<string>();
       rightTaskIds.add(rightTaskId);
       grouped.set(leftTaskId, rightTaskIds);
@@ -324,25 +340,28 @@ function layoutTaskList(data: Record<string, TaskListItem>): TaskListLayout {
   const trackLabels = new Map<string, string>();
   const tracks = components.map((taskIds, index): Track => {
     const label = `T${String(index + 1).padStart(minimumTrackLabelDigits, "0")}`;
-    const nodes = taskIds.map((taskId): DisplayNode => {
-      const task = requireTask(tasksById, taskId);
-      const layer = layers.get(taskId);
-      if (layer === undefined) {
-        throw new Error(
-          `Task list layout cannot locate a dependency layer for ${taskId}; `
-          + "inspect dependency layer construction"
-        );
-      }
-      return {
-        ...task,
-        layer,
-        parentPath: parentPath(task, tasksById)
-      };
-    }).sort((left, right) =>
-      left.layer - right.layer
-      || compareParentPaths(left.parentPath, right.parentPath)
-      || compareText(left.item.taskId, right.item.taskId)
-    );
+    const nodes = taskIds
+      .map((taskId): DisplayNode => {
+        const task = requireTask(tasksById, taskId);
+        const layer = layers.get(taskId);
+        if (layer === undefined) {
+          throw new Error(
+            `Task list layout cannot locate a dependency layer for ${taskId}; ` +
+              "inspect dependency layer construction"
+          );
+        }
+        return {
+          ...task,
+          layer,
+          parentPath: parentPath(task, tasksById)
+        };
+      })
+      .sort(
+        (left, right) =>
+          left.layer - right.layer ||
+          compareParentPaths(left.parentPath, right.parentPath) ||
+          compareText(left.item.taskId, right.item.taskId)
+      );
     for (const taskId of taskIds) trackLabels.set(taskId, label);
     return { label, nodes };
   });
@@ -352,7 +371,8 @@ function layoutTaskList(data: Record<string, TaskListItem>): TaskListLayout {
       tasks: tasks.length,
       tracks: tracks.length,
       actionable: tasks.filter((task) => task.item.nextAction !== null).length,
-      running: tasks.filter((task) => task.item.effectiveState === "running").length,
+      running: tasks.filter((task) => task.item.effectiveState === "running")
+        .length,
       recoveryNeeded: tasks.filter(
         (task) => task.item.effectiveState === "recovery-needed"
       ).length,
@@ -368,25 +388,24 @@ function renderNode(node: DisplayNode, columns: number): string {
   const { item } = node;
   const indent = blockIndent.repeat(node.parentPath.length);
   const detailIndent = `${indent}${blockIndent}`;
-  const blockedBy = node.blockedBy.map((blocker) =>
-    `${blocker.kind}@${blocker.relatedTaskId}`
+  const blockedBy = node.blockedBy.map(
+    (blocker) => `${blocker.kind}@${blocker.relatedTaskId}`
   );
   const tokens = [
     ...(item.parentId === null ? [] : [`parent:[${item.parentId}]`]),
     ...(node.needs.length === 0 ? [] : [`needs:[${node.needs.join(",")}]`]),
-    ...(blockedBy.length === 0
-      ? []
-      : [`blocked-by:[${blockedBy.join(",")}]`]),
+    ...(blockedBy.length === 0 ? [] : [`blocked-by:[${blockedBy.join(",")}]`]),
     ...(node.mutex.length === 0 ? [] : [`mutex:[${node.mutex.join(",")}]`]),
     ...(item.effectiveControl.reason === null
       ? []
       : [`reason:${serializeJsonValue(item.effectiveControl.reason)}`]),
     ...(item.nextAction === null ? [] : [`next:${item.nextAction}`])
   ];
-  const inline = columns >= minimumInlineColumns
-    && node.needs.length <= maximumInlineItems
-    && blockedBy.length <= maximumInlineItems
-    && node.mutex.length <= maximumInlineItems;
+  const inline =
+    columns >= minimumInlineColumns &&
+    node.needs.length <= maximumInlineItems &&
+    blockedBy.length <= maximumInlineItems &&
+    node.mutex.length <= maximumInlineItems;
   if (inline) {
     return [
       `${indent}L${node.layer}`,
@@ -410,8 +429,8 @@ function requireTrackLabel(
   const trackLabel = trackLabels.get(taskId);
   if (trackLabel === undefined) {
     throw new Error(
-      `Task list layout cannot locate a track for mutex endpoint ${taskId}; `
-      + "inspect track label construction"
+      `Task list layout cannot locate a track for mutex endpoint ${taskId}; ` +
+        "inspect track label construction"
     );
   }
   return trackLabel;
@@ -423,8 +442,8 @@ function renderMutexGroup(
   columns: number
 ): string {
   const left = `${requireTrackLabel(trackLabels, group.leftTaskId)} [${group.leftTaskId}]`;
-  const right = group.rightTaskIds.map((taskId) =>
-    `${requireTrackLabel(trackLabels, taskId)} [${taskId}]`
+  const right = group.rightTaskIds.map(
+    (taskId) => `${requireTrackLabel(trackLabels, taskId)} [${taskId}]`
   );
   if (columns >= minimumInlineColumns && right.length <= maximumInlineItems) {
     return `${left} mutex ${right.join(", ")}`;
@@ -450,31 +469,37 @@ function renderSuccess(
       `recovery-needed=${summary.recoveryNeeded}`,
       `mutex-blocked=${summary.mutexBlocked}`
     ].join(" "),
-    ...layout.tracks.map((track) => [
-      `TRACK ${track.label} tasks=${track.nodes.length}`,
-      ...track.nodes.map((node) => renderNode(node, columns))
-    ].join("\n"))
+    ...layout.tracks.map((track) =>
+      [
+        `TRACK ${track.label} tasks=${track.nodes.length}`,
+        ...track.nodes.map((node) => renderNode(node, columns))
+      ].join("\n")
+    )
   ];
   if (layout.mutexGroups.length > 0) {
-    sections.push([
-      "RUN MUTEX - cannot run at the same time",
-      ...layout.mutexGroups.map((group) =>
-        renderMutexGroup(group, layout.trackLabels, columns)
-      )
-    ].join("\n"));
+    sections.push(
+      [
+        "RUN MUTEX - cannot run at the same time",
+        ...layout.mutexGroups.map((group) =>
+          renderMutexGroup(group, layout.trackLabels, columns)
+        )
+      ].join("\n")
+    );
   }
   return `${sections.join("\n\n")}\n`;
 }
 
 function renderFailure(result: TaskGraphFailure): string {
-  const lines = [[
-    `TASK LIST ERROR code=${result.error.code}`,
-    `revision=${result.revision}`,
-    `retryable=${result.error.retryable}`,
-    `message=${serializeJsonValue(result.error.message)}`
-  ].join(" ")];
-  for (const [key, value] of Object.entries(result.error.details).sort(([left], [right]) =>
-    compareText(left, right)
+  const lines = [
+    [
+      `TASK LIST ERROR code=${result.error.code}`,
+      `revision=${result.revision}`,
+      `retryable=${result.error.retryable}`,
+      `message=${serializeJsonValue(result.error.message)}`
+    ].join(" ")
+  ];
+  for (const [key, value] of Object.entries(result.error.details).sort(
+    ([left], [right]) => compareText(left, right)
   )) {
     lines.push(`  detail ${key}=${serializeJsonValue(value)}`);
   }

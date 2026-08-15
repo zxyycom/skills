@@ -38,13 +38,13 @@ export type OpenedTestEvidenceLedgerIndex = {
 
 export type OpenTestEvidenceLedgerIndexResult =
   | {
-    diagnostics: TestEvidenceDiagnostic[];
-    opened: OpenedTestEvidenceLedgerIndex;
-  }
+      diagnostics: TestEvidenceDiagnostic[];
+      opened: OpenedTestEvidenceLedgerIndex;
+    }
   | {
-    diagnostics: TestEvidenceDiagnostic[];
-    opened: null;
-  };
+      diagnostics: TestEvidenceDiagnostic[];
+      opened: null;
+    };
 
 export async function openTestEvidenceLedgerIndex(
   workspaceRoot: string
@@ -64,10 +64,12 @@ export async function openTestEvidenceLedgerIndex(
     if (revision.source === null) {
       return { diagnostics: revision.diagnostics, opened: null };
     }
-    if (sameTestEvidenceLedgerRevision(
-      loaded.value.sourceRevision,
-      revision.source.sourceRevision
-    )) {
+    if (
+      sameTestEvidenceLedgerRevision(
+        loaded.value.sourceRevision,
+        revision.source.sourceRevision
+      )
+    ) {
       return {
         diagnostics: [],
         opened: {
@@ -80,19 +82,22 @@ export async function openTestEvidenceLedgerIndex(
         }
       };
     }
-    persistentDiagnostics = [{
-      code: "state-index.index-stale",
-      message: "index source revision does not match the current ledger source revision",
-      path: testEvidenceLedgerIndexPath,
-      stateId: null
-    }];
+    persistentDiagnostics = [
+      {
+        code: "state-index.index-stale",
+        message:
+          "index source revision does not match the current ledger source revision",
+        path: testEvidenceLedgerIndexPath,
+        stateId: null
+      }
+    ];
   } else {
     persistentDiagnostics = loaded.diagnostics;
   }
 
   if (
-    persistentDiagnostics.length === 0
-    || !persistentDiagnostics.every((entry) => indexCanBeRebuilt(entry.code))
+    persistentDiagnostics.length === 0 ||
+    !persistentDiagnostics.every((entry) => indexCanBeRebuilt(entry.code))
   ) {
     return {
       diagnostics: mapStateIndexDiagnostics(persistentDiagnostics),
@@ -121,18 +126,23 @@ export async function openTestEvidenceLedgerIndex(
   if (currentRevision.source === null) {
     return { diagnostics: currentRevision.diagnostics, opened: null };
   }
-  if (!sameTestEvidenceLedgerRevision(
-    built.value.sourceRevision,
-    currentRevision.source.sourceRevision
-  )) {
+  if (
+    !sameTestEvidenceLedgerRevision(
+      built.value.sourceRevision,
+      currentRevision.source.sourceRevision
+    )
+  ) {
     return {
-      diagnostics: [createTestEvidenceDiagnostic({
-        category: "index",
-        code: "state-index.source-changed",
-        message: "ledger source revision changed while building the in-memory projection; retry after the source is stable",
-        path: testEvidenceLedgerIndexPath,
-        severity: "error"
-      })],
+      diagnostics: [
+        createTestEvidenceDiagnostic({
+          category: "index",
+          code: "state-index.source-changed",
+          message:
+            "ledger source revision changed while building the in-memory projection; retry after the source is stable",
+          path: testEvidenceLedgerIndexPath,
+          severity: "error"
+        })
+      ],
       opened: null
     };
   }

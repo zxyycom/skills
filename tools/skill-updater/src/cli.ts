@@ -36,26 +36,28 @@ export function getUpdaterLinks(config: UpdaterConfig): UpdaterLinks {
 
 export function printHelp(config: UpdaterConfig, scriptPath: string): void {
   const links = getUpdaterLinks(config);
-  console.log([
-    `Usage: node ${path.basename(scriptPath)} [--check] [--yes] [--target-dir <dir>] [--release-tag <tag>]`,
-    "",
-    `Checks and updates ${config.skillName} from ${config.repo} release assets.`,
-    "",
-    "Maintenance:",
-    `  Repository: ${links.sourceRepositoryUrl}`,
-    `  Updater source: ${links.updaterSourceUrl}`,
-    `  Skill source directory: ${links.skillSourceDirectoryUrl}`,
-    `  Default release: ${links.latestReleaseUrl}`,
-    `  Release manifest asset: ${links.releaseManifestAssetUrl}`,
-    `  Skill zip asset: ${links.releaseAssetUrl}`,
-    "",
-    "Options:",
-    "  --check             Check whether the installed version differs from the remote version, without updating.",
-    "  --yes, -y           Update without prompting.",
-    "  --target-dir <dir>  Skill directory to check or update. Defaults to this script's parent skill directory.",
-    "  --release-tag <tag> GitHub release tag to read from. Defaults to the latest release.",
-    "  --help, -h          Show this help."
-  ].join("\n"));
+  console.log(
+    [
+      `Usage: node ${path.basename(scriptPath)} [--check] [--yes] [--target-dir <dir>] [--release-tag <tag>]`,
+      "",
+      `Checks and updates ${config.skillName} from ${config.repo} release assets.`,
+      "",
+      "Maintenance:",
+      `  Repository: ${links.sourceRepositoryUrl}`,
+      `  Updater source: ${links.updaterSourceUrl}`,
+      `  Skill source directory: ${links.skillSourceDirectoryUrl}`,
+      `  Default release: ${links.latestReleaseUrl}`,
+      `  Release manifest asset: ${links.releaseManifestAssetUrl}`,
+      `  Skill zip asset: ${links.releaseAssetUrl}`,
+      "",
+      "Options:",
+      "  --check             Check whether the installed version differs from the remote version, without updating.",
+      "  --yes, -y           Update without prompting.",
+      "  --target-dir <dir>  Skill directory to check or update. Defaults to this script's parent skill directory.",
+      "  --release-tag <tag> GitHub release tag to read from. Defaults to the latest release.",
+      "  --help, -h          Show this help."
+    ].join("\n")
+  );
 }
 
 export function parseCliOptions(
@@ -79,7 +81,9 @@ export function parseCliOptions(
     check: values.check ?? false,
     help: values.help ?? false,
     releaseTag: values["release-tag"] ?? null,
-    targetDir: path.resolve(values["target-dir"] ?? defaultTargetDir(scriptPath)),
+    targetDir: path.resolve(
+      values["target-dir"] ?? defaultTargetDir(scriptPath)
+    ),
     yes: values.yes ?? false
   };
 }
@@ -90,7 +94,9 @@ export async function confirmUpdate(options: CliOptions): Promise<boolean> {
   }
 
   if (!process.stdin.isTTY) {
-    console.error("Update available. Run again with --yes to update without an interactive prompt.");
+    console.error(
+      "Update available. Run again with --yes to update without an interactive prompt."
+    );
     return false;
   }
 
@@ -100,7 +106,9 @@ export async function confirmUpdate(options: CliOptions): Promise<boolean> {
   });
 
   try {
-    const answer = await rl.question("Apply these file replacements now? [y/N] ");
+    const answer = await rl.question(
+      "Apply these file replacements now? [y/N] "
+    );
     return /^y(es)?$/i.test(answer.trim());
   } finally {
     rl.close();

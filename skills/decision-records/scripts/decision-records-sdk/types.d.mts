@@ -7,15 +7,15 @@
  * Rebuild: bun run sync:decision-records-cli
  */
 export declare const decisionRelationTypes: readonly ["修订", "替代", "判定无效", "归并", "拆分"];
-export type DecisionRelationType = typeof decisionRelationTypes[number];
+export type DecisionRelationType = (typeof decisionRelationTypes)[number];
 export type DecisionTraceDirection = "both" | "predecessors" | "successors";
 export declare const decisionStatuses: readonly ["candidate", "active", "archived"];
-export type DecisionStatus = typeof decisionStatuses[number];
+export type DecisionStatus = (typeof decisionStatuses)[number];
 export declare const establishedDecisionStatuses: readonly ["active", "archived"];
-export type EstablishedDecisionStatus = typeof establishedDecisionStatuses[number];
+export type EstablishedDecisionStatus = (typeof establishedDecisionStatuses)[number];
 export type DecisionListStatus = EstablishedDecisionStatus | "all";
 export declare const decisionAlignments: readonly ["aligned", "unaligned"];
-export type DecisionAlignment = typeof decisionAlignments[number];
+export type DecisionAlignment = (typeof decisionAlignments)[number];
 export type DecisionListAlignment = DecisionAlignment | "all";
 declare const decisionIdBrand: unique symbol;
 declare const decisionSourcePathBrand: unique symbol;

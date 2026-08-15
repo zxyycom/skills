@@ -26,7 +26,8 @@ type ChecklistCandidate = {
 };
 
 const taskLinePrefixPattern = /^- \[[^\]]*\]/u;
-const taskLinePattern = /^- \[([ xX])\] ([0-9]+\.[0-9]+(?:\.[0-9]+)*) (.+\S|\S)$/u;
+const taskLinePattern =
+  /^- \[([ xX])\] ([0-9]+\.[0-9]+(?:\.[0-9]+)*) (.+\S|\S)$/u;
 const taskSectionByHeading: Readonly<
   Record<ChangePlanTaskHeading, ChangePlanTaskSection>
 > = {
@@ -52,18 +53,22 @@ function rootHeadings(root: MarkdownRoot): RootHeading[] {
     if (node.type !== "heading" || node.position === undefined) {
       return [];
     }
-    return [{
-      depth: node.depth,
-      lineIndex: node.position.start.line - 1,
-      title: toString(node).trim().replace(/\s+/gu, " ")
-    }];
+    return [
+      {
+        depth: node.depth,
+        lineIndex: node.position.start.line - 1,
+        title: toString(node).trim().replace(/\s+/gu, " ")
+      }
+    ];
   });
 }
 
 function isSemanticNode(node: RootContent): boolean {
-  return node.type !== "heading"
-    && node.type !== "html"
-    && toString(node).trim().length > 0;
+  return (
+    node.type !== "heading" &&
+    node.type !== "html" &&
+    toString(node).trim().length > 0
+  );
 }
 
 function hasSemanticContent(
@@ -73,10 +78,12 @@ function hasSemanticContent(
 ): boolean {
   return root.children.some((node) => {
     const lineIndex = node.position?.start.line;
-    return lineIndex !== undefined
-      && lineIndex - 1 >= startLineIndex
-      && lineIndex - 1 < endLineIndex
-      && isSemanticNode(node);
+    return (
+      lineIndex !== undefined &&
+      lineIndex - 1 >= startLineIndex &&
+      lineIndex - 1 < endLineIndex &&
+      isSemanticNode(node)
+    );
   });
 }
 
@@ -126,67 +133,75 @@ function validateHeadings(
   const firstNonEmptyLine = lines.findIndex((line) => line.trim().length > 0);
   const h1 = headings.filter((heading) => heading.depth === 1);
   if (
-    firstNonEmptyLine < 0
-    || h1[0]?.lineIndex !== firstNonEmptyLine
-    || h1[0]?.title !== contract.h1
-    || h1.length !== 1
+    firstNonEmptyLine < 0 ||
+    h1[0]?.lineIndex !== firstNonEmptyLine ||
+    h1[0]?.title !== contract.h1 ||
+    h1.length !== 1
   ) {
-    diagnostics.push(diagnostic(
-      contract.file,
-      "invalid-h1",
-      `first non-empty line must be the only "# ${contract.h1}" heading`,
-      firstNonEmptyLine < 0 ? 1 : firstNonEmptyLine + 1
-    ));
+    diagnostics.push(
+      diagnostic(
+        contract.file,
+        "invalid-h1",
+        `first non-empty line must be the only "# ${contract.h1}" heading`,
+        firstNonEmptyLine < 0 ? 1 : firstNonEmptyLine + 1
+      )
+    );
   }
 
   const h2 = headings.filter((heading) => heading.depth === 2);
   for (const [index, title] of contract.requiredSections.entries()) {
     const matches = h2.filter((heading) => heading.title === title);
     if (matches.length === 0) {
-      diagnostics.push(diagnostic(
-        contract.file,
-        "missing-section",
-        `missing required "## ${title}" section`
-      ));
+      diagnostics.push(
+        diagnostic(
+          contract.file,
+          "missing-section",
+          `missing required "## ${title}" section`
+        )
+      );
       continue;
     }
     if (matches.length > 1) {
-      diagnostics.push(diagnostic(
-        contract.file,
-        "duplicate-section",
-        `"## ${title}" must appear exactly once`,
-        matches[1]?.lineIndex === undefined
-          ? undefined
-          : matches[1].lineIndex + 1
-      ));
+      diagnostics.push(
+        diagnostic(
+          contract.file,
+          "duplicate-section",
+          `"## ${title}" must appear exactly once`,
+          matches[1]?.lineIndex === undefined
+            ? undefined
+            : matches[1].lineIndex + 1
+        )
+      );
     }
     if (h2[index]?.title !== title) {
-      diagnostics.push(diagnostic(
-        contract.file,
-        "section-order",
-        `H2 sections must start with: ${contract.requiredSections.join(", ")}`,
-        h2[index]?.lineIndex === undefined ? undefined : h2[index].lineIndex + 1
-      ));
+      diagnostics.push(
+        diagnostic(
+          contract.file,
+          "section-order",
+          `H2 sections must start with: ${contract.requiredSections.join(", ")}`,
+          h2[index]?.lineIndex === undefined
+            ? undefined
+            : h2[index].lineIndex + 1
+        )
+      );
     }
   }
 
   const firstH2 = h2[0];
   const firstH1 = h1[0];
   if (
-    firstH1 !== undefined
-    && firstH2 !== undefined
-    && !hasSemanticContent(
-      root,
-      firstH1.lineIndex + 1,
-      firstH2.lineIndex
-    )
+    firstH1 !== undefined &&
+    firstH2 !== undefined &&
+    !hasSemanticContent(root, firstH1.lineIndex + 1, firstH2.lineIndex)
   ) {
-    diagnostics.push(diagnostic(
-      contract.file,
-      "empty-introduction",
-      "artifact must contain a non-empty change summary between H1 and the first H2",
-      firstH1.lineIndex + 1
-    ));
+    diagnostics.push(
+      diagnostic(
+        contract.file,
+        "empty-introduction",
+        "artifact must contain a non-empty change summary between H1 and the first H2",
+        firstH1.lineIndex + 1
+      )
+    );
   }
 
   for (const title of contract.requiredSections) {
@@ -197,12 +212,14 @@ function validateHeadings(
     const nextH2 = h2.find((heading) => heading.lineIndex > section.lineIndex);
     const sectionEnd = nextH2?.lineIndex ?? lines.length;
     if (!hasSemanticContent(root, section.lineIndex + 1, sectionEnd)) {
-      diagnostics.push(diagnostic(
-        contract.file,
-        "empty-section",
-        `"## ${title}" must not be empty`,
-        section.lineIndex + 1
-      ));
+      diagnostics.push(
+        diagnostic(
+          contract.file,
+          "empty-section",
+          `"## ${title}" must not be empty`,
+          section.lineIndex + 1
+        )
+      );
     }
   }
 
@@ -213,8 +230,9 @@ function isTaskHeading(
   heading: string,
   taskSections: ReadonlySet<string>
 ): heading is ChangePlanTaskHeading {
-  return taskSections.has(heading)
-    && Object.hasOwn(taskSectionByHeading, heading);
+  return (
+    taskSections.has(heading) && Object.hasOwn(taskSectionByHeading, heading)
+  );
 }
 
 function validateTasks(
@@ -241,23 +259,27 @@ function validateTasks(
       (heading) => heading.lineIndex < candidate.lineIndex
     )?.title;
     if (section === undefined || !isTaskHeading(section, taskSections)) {
-      diagnostics.push(diagnostic(
-        contract.file,
-        "task-outside-required-section",
-        "checklist tasks must be inside Readiness, Implementation, or Verification",
-        candidate.lineIndex + 1
-      ));
+      diagnostics.push(
+        diagnostic(
+          contract.file,
+          "task-outside-required-section",
+          "checklist tasks must be inside Readiness, Implementation, or Verification",
+          candidate.lineIndex + 1
+        )
+      );
       continue;
     }
 
     const match = taskLinePattern.exec(candidate.line);
     if (match === null) {
-      diagnostics.push(diagnostic(
-        contract.file,
-        "invalid-task-syntax",
-        "task must use '- [ ] <numeric-id> <description>' or '- [x] <numeric-id> <description>'",
-        candidate.lineIndex + 1
-      ));
+      diagnostics.push(
+        diagnostic(
+          contract.file,
+          "invalid-task-syntax",
+          "task must use '- [ ] <numeric-id> <description>' or '- [x] <numeric-id> <description>'",
+          candidate.lineIndex + 1
+        )
+      );
       continue;
     }
 
@@ -268,12 +290,14 @@ function validateTasks(
     }
     const previousLine = seenTaskIds.get(taskId);
     if (previousLine !== undefined) {
-      diagnostics.push(diagnostic(
-        contract.file,
-        "duplicate-task-id",
-        `task id ${taskId} duplicates line ${previousLine}`,
-        candidate.lineIndex + 1
-      ));
+      diagnostics.push(
+        diagnostic(
+          contract.file,
+          "duplicate-task-id",
+          `task id ${taskId} duplicates line ${previousLine}`,
+          candidate.lineIndex + 1
+        )
+      );
     } else {
       seenTaskIds.set(taskId, candidate.lineIndex + 1);
     }
@@ -289,11 +313,13 @@ function validateTasks(
 
   for (const section of taskSections) {
     if ((taskCounts.get(section) ?? 0) === 0) {
-      diagnostics.push(diagnostic(
-        contract.file,
-        "missing-task",
-        `"## ${section}" must contain at least one valid checklist task`
-      ));
+      diagnostics.push(
+        diagnostic(
+          contract.file,
+          "missing-task",
+          `"## ${section}" must contain at least one valid checklist task`
+        )
+      );
     }
   }
 
@@ -310,13 +336,14 @@ export function validateChangePlanArtifact(
   const diagnostics: ChangePlanDiagnostic[] = [];
   const headings = rootHeadings(root);
   const h2 = validateHeadings(root, lines, headings, contract, diagnostics);
-  const tasks = contract.taskSections === undefined
-    ? {
-      completedTaskCount: 0,
-      taskCount: 0,
-      taskProgress: emptyTaskProgress()
-    }
-    : validateTasks(root, lines, h2, contract, diagnostics);
+  const tasks =
+    contract.taskSections === undefined
+      ? {
+          completedTaskCount: 0,
+          taskCount: 0,
+          taskProgress: emptyTaskProgress()
+        }
+      : validateTasks(root, lines, h2, contract, diagnostics);
 
   return {
     ...tasks,

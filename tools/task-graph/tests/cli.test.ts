@@ -32,7 +32,13 @@ const repositoryRoot = path.resolve(
   "..",
   ".."
 );
-const cliSourcePath = path.join(repositoryRoot, "tools", "task-graph", "src", "cli.ts");
+const cliSourcePath = path.join(
+  repositoryRoot,
+  "tools",
+  "task-graph",
+  "src",
+  "cli.ts"
+);
 
 type RawCliCall = {
   exitCode: number;
@@ -62,7 +68,9 @@ type CliCall = RawCliCall & {
   result: ParsedCliResult;
 };
 
-type CliServiceOptions = NonNullable<TaskGraphCliInternalOptions["serviceOptions"]>;
+type CliServiceOptions = NonNullable<
+  TaskGraphCliInternalOptions["serviceOptions"]
+>;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -105,7 +113,8 @@ function requireStrings(value: unknown, label: string): readonly string[] {
 
 function requireRevision(value: unknown): number | null {
   assert.ok(
-    value === null || (typeof value === "number" && Number.isSafeInteger(value)),
+    value === null ||
+      (typeof value === "number" && Number.isSafeInteger(value)),
     "result.revision must be a safe integer or null"
   );
   return value;
@@ -140,9 +149,10 @@ async function callRawCli(
   return { exitCode, output };
 }
 
-function parseJsonCall(
-  call: { exitCode: number | null; output: string }
-): ParsedCliResult {
+function parseJsonCall(call: {
+  exitCode: number | null;
+  output: string;
+}): ParsedCliResult {
   assert.equal(call.output.endsWith("\n"), true);
   assert.equal(call.output.slice(0, -1).includes("\n"), false);
   const externalResult: unknown = JSON.parse(call.output);
@@ -263,7 +273,12 @@ async function writeRichListProjectionFixture(
       present: true
     }
   ]);
-  const indexPath = path.join(root, "docs", "task-graph", "task-graph-index.json");
+  const indexPath = path.join(
+    root,
+    "docs",
+    "task-graph",
+    "task-graph-index.json"
+  );
   await fs.mkdir(path.dirname(indexPath), { recursive: true });
   await fs.writeFile(indexPath, serializeTaskIndex(index), "utf8");
   return new TaskGraphService({ root, clock: () => initialNow });
@@ -282,15 +297,12 @@ test("CLI root help exposes commands runtime requirements and the global JSON op
       assert.equal(data.requiresMutationRuntime, null);
       assert.equal(commands.length, 24);
       assert.ok(commands.includes("index stage"));
-      assert.deepEqual(
-        data.runtimeRequirements,
-        {
-          supportedNodeRange: "^22.22.2 || ^24.15.0 || >=26.0.0",
-          mutationPrerequisite: "compatible-runtime",
-          setupCommand: ["runtime", "info"],
-          installCommandSource: "runtime info data.installCommand"
-        }
-      );
+      assert.deepEqual(data.runtimeRequirements, {
+        supportedNodeRange: "^22.22.2 || ^24.15.0 || >=26.0.0",
+        mutationPrerequisite: "compatible-runtime",
+        setupCommand: ["runtime", "info"],
+        installCommandSource: "runtime info data.installCommand"
+      });
       const globalOptions = requireRecords(
         data.globalOptions,
         "root help data.globalOptions"
@@ -309,12 +321,21 @@ test("CLI command help recovers every command and structured special parameters"
     assert.equal(rootHelp.result.ok, true);
     if (!rootHelp.result.ok) return;
     const rootHelpData = requireRecord(rootHelp.result.data, "root help data");
-    const commands = requireStrings(rootHelpData.commands, "root help data.commands");
+    const commands = requireStrings(
+      rootHelpData.commands,
+      "root help data.commands"
+    );
     for (const command of commands) {
-      const commandHelp = await callCli(root, [...command.split(" "), "--help"]);
+      const commandHelp = await callCli(root, [
+        ...command.split(" "),
+        "--help"
+      ]);
       assert.equal(commandHelp.result.ok, true);
       if (commandHelp.result.ok) {
-        const data = requireRecord(commandHelp.result.data, `${command} help data`);
+        const data = requireRecord(
+          commandHelp.result.data,
+          `${command} help data`
+        );
         assert.equal(data.command, command);
         assert.equal(typeof data.requiresMutationRuntime, "boolean");
       }
@@ -322,11 +343,23 @@ test("CLI command help recovers every command and structured special parameters"
     const removeHelp = await callCli(root, ["task", "remove", "--help"]);
     assert.equal(removeHelp.result.ok, true);
     if (removeHelp.result.ok) {
-      const data = requireRecord(removeHelp.result.data, "task remove help data");
-      const parameters = requireRecord(data.parameters, "task remove help parameters");
-      const options = requireRecords(parameters.options, "task remove help options");
+      const data = requireRecord(
+        removeHelp.result.data,
+        "task remove help data"
+      );
+      const parameters = requireRecord(
+        data.parameters,
+        "task remove help parameters"
+      );
+      const options = requireRecords(
+        parameters.options,
+        "task remove help options"
+      );
       assert.equal(data.command, "task remove");
-      assert.match(requireString(data.usage, "task remove help usage"), /--expected-revision/u);
+      assert.match(
+        requireString(data.usage, "task remove help usage"),
+        /--expected-revision/u
+      );
       assert.deepEqual(
         options.find((option) => option.name === "--task"),
         { name: "--task", required: true, type: "string", multiple: true }
@@ -336,27 +369,50 @@ test("CLI command help recovers every command and structured special parameters"
     const taskCreateHelp = await callCli(root, ["task", "create", "--help"]);
     assert.equal(taskCreateHelp.result.ok, true);
     if (taskCreateHelp.result.ok) {
-      const data = requireRecord(taskCreateHelp.result.data, "task create help data");
+      const data = requireRecord(
+        taskCreateHelp.result.data,
+        "task create help data"
+      );
       assert.equal(data.requiresMutationRuntime, true);
-      const parameters = requireRecord(data.parameters, "task create help parameters");
-      const options = requireRecords(parameters.options, "task create help options");
+      const parameters = requireRecord(
+        data.parameters,
+        "task create help parameters"
+      );
+      const options = requireRecords(
+        parameters.options,
+        "task create help options"
+      );
       assert.deepEqual(
         options.find((option) => option.name === "--acceptance"),
-        { name: "--acceptance", required: false, type: "string", multiple: true }
+        {
+          name: "--acceptance",
+          required: false,
+          type: "string",
+          multiple: true
+        }
       );
     }
 
     const indexStageHelp = await callCli(root, ["index", "stage", "--help"]);
     assert.equal(indexStageHelp.result.ok, true);
     if (indexStageHelp.result.ok) {
-      const data = requireRecord(indexStageHelp.result.data, "index stage help data");
+      const data = requireRecord(
+        indexStageHelp.result.data,
+        "index stage help data"
+      );
       assert.equal(data.requiresMutationRuntime, false);
       assert.equal(
         data.usage,
         "task-graph index stage --task <id> [--task <id>...]"
       );
-      const parameters = requireRecord(data.parameters, "index stage help parameters");
-      const options = requireRecords(parameters.options, "index stage help options");
+      const parameters = requireRecord(
+        data.parameters,
+        "index stage help parameters"
+      );
+      const options = requireRecords(
+        parameters.options,
+        "index stage help options"
+      );
       assert.deepEqual(
         options.find((option) => option.name === "--task"),
         { name: "--task", required: true, type: "string", multiple: true }
@@ -367,7 +423,10 @@ test("CLI command help recovers every command and structured special parameters"
     assert.equal(applyHelp.result.ok, true);
     if (applyHelp.result.ok) {
       const data = requireRecord(applyHelp.result.data, "apply help data");
-      const parameters = requireRecord(data.parameters, "apply help parameters");
+      const parameters = requireRecord(
+        data.parameters,
+        "apply help parameters"
+      );
       assert.deepEqual(parameters.input, {
         default: "stdin",
         fileOption: "--file",
@@ -397,7 +456,10 @@ test("CLI version reports 3.1.0 through the JSON protocol", async () => {
     const version = await callCli(root, ["--version"]);
     assert.equal(version.result.ok, true);
     if (version.result.ok) {
-      assert.deepEqual(version.result.data, { name: "task-graph", version: "3.1.0" });
+      assert.deepEqual(version.result.data, {
+        name: "task-graph",
+        version: "3.1.0"
+      });
       assert.equal(version.result.revision, null);
     }
   });
@@ -419,15 +481,25 @@ test("CLI task-list columns prefer injection then TTY and otherwise fall back to
   await withTempWorkspace(async (root) => {
     await callCli(root, ["index", "init"]);
     await callCli(root, [
-      "task", "create",
-      "--title", "route task",
-      "--goal", "exercise columns",
-      "--expected-revision", "0"
+      "task",
+      "create",
+      "--title",
+      "route task",
+      "--goal",
+      "exercise columns",
+      "--expected-revision",
+      "0"
     ]);
     const inline = await callRawCli(root, ["task", "list"], { columns: 80 });
     const block = await callRawCli(root, ["task", "list"], { columns: 79 });
-    assert.match(inline.output, /\nL0 \[task-000001\] candidate route task\n$/u);
-    assert.match(block.output, /\nL0 \[task-000001\] candidate\n  title:route task\n$/u);
+    assert.match(
+      inline.output,
+      /\nL0 \[task-000001\] candidate route task\n$/u
+    );
+    assert.match(
+      block.output,
+      /\nL0 \[task-000001\] candidate\n  title:route task\n$/u
+    );
 
     const stdout = process.stdout;
     const originalIsTty = Object.getOwnPropertyDescriptor(stdout, "isTTY");
@@ -437,7 +509,10 @@ test("CLI task-list columns prefer injection then TTY and otherwise fall back to
         isTTY: { configurable: true, value: true },
         columns: { configurable: true, value: 79 }
       });
-      assert.equal((await callRawCli(root, ["task", "list"])).output, block.output);
+      assert.equal(
+        (await callRawCli(root, ["task", "list"])).output,
+        block.output
+      );
       assert.equal(
         (await callRawCli(root, ["task", "list"], { columns: 80 })).output,
         inline.output
@@ -452,26 +527,35 @@ test("CLI task-list columns prefer injection then TTY and otherwise fall back to
           configurable: true,
           value: invalidTtyColumns
         });
-        assert.equal((await callRawCli(root, ["task", "list"])).output, inline.output);
+        assert.equal(
+          (await callRawCli(root, ["task", "list"])).output,
+          inline.output
+        );
       }
 
       Object.defineProperties(stdout, {
         isTTY: { configurable: true, value: false },
         columns: { configurable: true, value: 79 }
       });
-      assert.equal((await callRawCli(root, ["task", "list"])).output, inline.output);
+      assert.equal(
+        (await callRawCli(root, ["task", "list"])).output,
+        inline.output
+      );
       for (const invalidInjectedColumns of [0, 79.5]) {
         assert.equal(
-          (await callRawCli(root, ["task", "list"], {
-            columns: invalidInjectedColumns
-          })).output,
+          (
+            await callRawCli(root, ["task", "list"], {
+              columns: invalidInjectedColumns
+            })
+          ).output,
           inline.output
         );
       }
     } finally {
       if (originalIsTty === undefined) Reflect.deleteProperty(stdout, "isTTY");
       else Object.defineProperty(stdout, "isTTY", originalIsTty);
-      if (originalColumns === undefined) Reflect.deleteProperty(stdout, "columns");
+      if (originalColumns === undefined)
+        Reflect.deleteProperty(stdout, "columns");
       else Object.defineProperty(stdout, "columns", originalColumns);
     }
   });
@@ -506,18 +590,26 @@ test("CLI default task list renders the complete programmatic projection", async
   await withTempWorkspace(async (root) => {
     const service = await writeRichListProjectionFixture(root);
     const listed = await service.listTasks();
-    const programmaticText = renderTaskListResult({
-      ok: true,
-      indexPath: path.join(root, "docs", "task-graph", "task-graph-index.json"),
-      revision: listed.revision,
-      data: listed.data
-    }, { columns: 80 });
+    const programmaticText = renderTaskListResult(
+      {
+        ok: true,
+        indexPath: path.join(
+          root,
+          "docs",
+          "task-graph",
+          "task-graph-index.json"
+        ),
+        revision: listed.revision,
+        data: listed.data
+      },
+      { columns: 80 }
+    );
     const cliText = await callRawCli(root, ["task", "list"], { columns: 80 });
     assert.equal(cliText.exitCode, 0);
     assert.equal(cliText.output, programmaticText);
     assert.match(programmaticText, /parent:\[task-000001\]/u);
     assert.match(programmaticText, /needs:\[task-000003\]/u);
-    assert.ok(programmaticText.includes("reason:\"awaiting review\""));
+    assert.ok(programmaticText.includes('reason:"awaiting review"'));
     assert.match(programmaticText, /RUN MUTEX - cannot run at the same time/u);
   });
 });
@@ -526,10 +618,14 @@ test("CLI task-list help and commands without text renderers remain on the JSON 
   await withTempWorkspace(async (root) => {
     await callCli(root, ["index", "init"]);
     await callCli(root, [
-      "task", "create",
-      "--title", "route task",
-      "--goal", "exercise JSON routes",
-      "--expected-revision", "0"
+      "task",
+      "create",
+      "--title",
+      "route task",
+      "--goal",
+      "exercise JSON routes",
+      "--expected-revision",
+      "0"
     ]);
     for (const { args, ok } of [
       { args: ["task", "list", "--help"], ok: true },
@@ -552,10 +648,12 @@ test("CLI task-list command failures follow the selected output protocol", async
     );
     assert.match(textFailure.output, /\n  detail actualPositionals=1\n/u);
 
-    const jsonFailure = await callRawCli(
-      root,
-      ["task", "list", "unexpected", "--json"]
-    );
+    const jsonFailure = await callRawCli(root, [
+      "task",
+      "list",
+      "unexpected",
+      "--json"
+    ]);
     const result = parseJsonCall(jsonFailure);
     assert.equal(result.ok, false);
     if (!result.ok) {
@@ -600,7 +698,10 @@ test("CLI global argument failures use revision-null JSON", async () => {
 test("CLI service-construction failures stay on the global JSON protocol", async () => {
   await withTempWorkspace(async (root) => {
     const failure = await callRawCli(root, [
-      "task", "list", "--index", "../outside.json"
+      "task",
+      "list",
+      "--index",
+      "../outside.json"
     ]);
     const result = parseJsonCall(failure);
     assert.equal(result.ok, false);
@@ -615,10 +716,14 @@ test("process CLI preserves selected stdout protocol stderr and exit status", as
   await withTempWorkspace(async (root) => {
     await callCli(root, ["index", "init"]);
     await callCli(root, [
-      "task", "create",
-      "--title", "route task",
-      "--goal", "exercise process transport",
-      "--expected-revision", "0"
+      "task",
+      "create",
+      "--title",
+      "route task",
+      "--goal",
+      "exercise process transport",
+      "--expected-revision",
+      "0"
     ]);
     const calls = [
       {
@@ -627,7 +732,12 @@ test("process CLI preserves selected stdout protocol stderr and exit status", as
       },
       {
         args: ["task", "list", "unexpected", "--json", "--root", root],
-        expected: await callRawCli(root, ["task", "list", "unexpected", "--json"])
+        expected: await callRawCli(root, [
+          "task",
+          "list",
+          "unexpected",
+          "--json"
+        ])
       }
     ];
     for (const { args, expected } of calls) {
@@ -647,17 +757,15 @@ test("process CLI reports stdout faults only on stderr with exit two", async () 
       "process.stdout.write = () => { throw new Error('simulated stdout fault'); };\n",
       "utf8"
     );
-    const fault = await callProcessCli(
-      ["--version", "--root", root],
-      "",
-      {
-        ...process.env,
-        NODE_OPTIONS: [
-          process.env.NODE_OPTIONS,
-          `--import=${pathToFileURL(preloadPath).href}`
-        ].filter((value) => value !== undefined && value !== "").join(" ")
-      }
-    );
+    const fault = await callProcessCli(["--version", "--root", root], "", {
+      ...process.env,
+      NODE_OPTIONS: [
+        process.env.NODE_OPTIONS,
+        `--import=${pathToFileURL(preloadPath).href}`
+      ]
+        .filter((value) => value !== undefined && value !== "")
+        .join(" ")
+    });
     assert.equal(fault.exitCode, 2);
     assert.equal(fault.stdout, "");
     assert.match(fault.stderr, /simulated stdout fault/u);
@@ -668,12 +776,19 @@ test("CLI gates every mutation before argument parsing or apply request and inde
   await withTempWorkspace(async (root) => {
     const toolHome = path.join(root, "missing-tool-home");
     const requestPath = path.join(root, "observable-request.json");
-    const indexPath = path.join(root, "docs", "task-graph", "task-graph-index.json");
-    const nodeVersion = (await execFileAsync(
-      await resolveNodeExecutable(),
-      ["-p", "process.version"],
-      { windowsHide: true }
-    )).stdout.trim();
+    const indexPath = path.join(
+      root,
+      "docs",
+      "task-graph",
+      "task-graph-index.json"
+    );
+    const nodeVersion = (
+      await execFileAsync(
+        await resolveNodeExecutable(),
+        ["-p", "process.version"],
+        { windowsHide: true }
+      )
+    ).stdout.trim();
     await fs.writeFile(requestPath, "{not-json", "utf8");
     const originalReadFile = fs.readFile;
     let requestReads = 0;
@@ -711,7 +826,12 @@ test("CLI gates every mutation before argument parsing or apply request and inde
         ["apply", "--file", requestPath]
       ];
       for (const args of mutationInvocations) {
-        const failure = await callCliWithMissingRuntime(root, args, toolHome, nodeVersion);
+        const failure = await callCliWithMissingRuntime(
+          root,
+          args,
+          toolHome,
+          nodeVersion
+        );
         assert.equal(failure.exitCode, 1);
         assert.equal(failure.output.endsWith("\n"), true);
         assert.equal(failure.output.slice(0, -1).includes("\n"), false);
@@ -737,25 +857,37 @@ test("CLI domain read-only commands run without an installed runtime", async () 
   await withTempWorkspace(async (root) => {
     await callCli(root, ["index", "init"]);
     await callCli(root, [
-      "task", "create",
-      "--title", "read-only task",
-      "--goal", "query without runtime",
-      "--acceptance", "all read-only commands succeed",
-      "--expected-revision", "0"
+      "task",
+      "create",
+      "--title",
+      "read-only task",
+      "--goal",
+      "query without runtime",
+      "--acceptance",
+      "all read-only commands succeed",
+      "--expected-revision",
+      "0"
     ]);
     const toolHome = path.join(root, "missing-tool-home");
-    const nodeVersion = (await execFileAsync(
-      await resolveNodeExecutable(),
-      ["-p", "process.version"],
-      { windowsHide: true }
-    )).stdout.trim();
+    const nodeVersion = (
+      await execFileAsync(
+        await resolveNodeExecutable(),
+        ["-p", "process.version"],
+        { windowsHide: true }
+      )
+    ).stdout.trim();
     for (const args of [
       ["index", "info"],
       ["task", "list", "--json"],
       ["task", "show", "task-000001"],
       ["actionable"]
     ]) {
-      const result = await callCliWithMissingRuntime(root, args, toolHome, nodeVersion);
+      const result = await callCliWithMissingRuntime(
+        root,
+        args,
+        toolHome,
+        nodeVersion
+      );
       assert.equal(result.exitCode, 0, args.join(" "));
       assert.equal(result.result.ok, true, args.join(" "));
     }
@@ -767,9 +899,11 @@ test("CLI runtime info reports missing and compatible states without index acces
   await withTempWorkspace(async (root) => {
     const toolHome = path.join(root, "tool-home");
     const node = await resolveNodeExecutable();
-    const nodeVersion = (await execFileAsync(node, ["-p", "process.version"], {
-      windowsHide: true
-    })).stdout.trim();
+    const nodeVersion = (
+      await execFileAsync(node, ["-p", "process.version"], {
+        windowsHide: true
+      })
+    ).stdout.trim();
     const invoke = async (args: string[]): Promise<CliCall> => {
       const chunks: string[] = [];
       const exitCode = await runTaskGraphCli(["--root", root, ...args], {
@@ -820,34 +954,46 @@ test("CLI success and predictable schema, state, conflict, and file failures use
     assert.equal(initialized.result.revision, 0);
 
     const task = await callCli(root, [
-      "task", "create",
-      "--title", "candidate",
-      "--goal", "candidate goal",
-      "--reference", "thread=supported",
-      "--expected-revision", "0"
+      "task",
+      "create",
+      "--title",
+      "candidate",
+      "--goal",
+      "candidate goal",
+      "--reference",
+      "thread=supported",
+      "--expected-revision",
+      "0"
     ]);
     assert.equal(task.result.ok, true);
     assert.equal(task.result.revision, 1);
 
-    const shownTask = await callCli(root, [
-      "task", "show", "task-000001"
-    ]);
+    const shownTask = await callCli(root, ["task", "show", "task-000001"]);
     assert.equal(shownTask.result.ok, true);
     if (shownTask.result.ok) {
       const data = requireRecord(shownTask.result.data, "task show data");
       const taskData = requireRecord(data.task, "task show data.task");
-      const content = requireRecord(taskData.content, "task show data.task.content");
+      const content = requireRecord(
+        taskData.content,
+        "task show data.task.content"
+      );
       assert.deepEqual(content.acceptance, []);
       assert.deepEqual(content.references, { thread: "supported" });
     }
 
     const reservedReference = await callCli(root, [
-      "task", "create",
-      "--title", "reserved reference",
-      "--goal", "reserved reference goal",
-      "--acceptance", "reserved reference accepted",
-      "--reference", "prototype=blocked",
-      "--expected-revision", "1"
+      "task",
+      "create",
+      "--title",
+      "reserved reference",
+      "--goal",
+      "reserved reference goal",
+      "--acceptance",
+      "reserved reference accepted",
+      "--reference",
+      "prototype=blocked",
+      "--expected-revision",
+      "1"
     ]);
     assert.equal(reservedReference.result.ok, false);
     if (!reservedReference.result.ok) {
@@ -855,12 +1001,18 @@ test("CLI success and predictable schema, state, conflict, and file failures use
     }
 
     const prototypeReference = await callCli(root, [
-      "task", "create",
-      "--title", "invalid prototype",
-      "--goal", "invalid prototype goal",
-      "--acceptance", "invalid prototype accepted",
-      "--reference", "__proto__=blocked",
-      "--expected-revision", "1"
+      "task",
+      "create",
+      "--title",
+      "invalid prototype",
+      "--goal",
+      "invalid prototype goal",
+      "--acceptance",
+      "invalid prototype accepted",
+      "--reference",
+      "__proto__=blocked",
+      "--expected-revision",
+      "1"
     ]);
     assert.equal(prototypeReference.result.ok, false);
     if (!prototypeReference.result.ok) {
@@ -876,7 +1028,10 @@ test("CLI success and predictable schema, state, conflict, and file failures use
     }
 
     const stateFailure = await callCli(root, [
-      "claim", "task-000001", "--actor", "worker"
+      "claim",
+      "task-000001",
+      "--actor",
+      "worker"
     ]);
     assert.equal(stateFailure.result.ok, false);
     if (!stateFailure.result.ok) {
@@ -885,10 +1040,14 @@ test("CLI success and predictable schema, state, conflict, and file failures use
     }
 
     const conflict = await callCli(root, [
-      "task", "create",
-      "--title", "stale",
-      "--goal", "stale revision",
-      "--expected-revision", "0"
+      "task",
+      "create",
+      "--title",
+      "stale",
+      "--goal",
+      "stale revision",
+      "--expected-revision",
+      "0"
     ]);
     assert.equal(conflict.result.ok, false);
     if (!conflict.result.ok) {
@@ -897,18 +1056,30 @@ test("CLI success and predictable schema, state, conflict, and file failures use
     }
 
     const invalidRequestPath = path.join(root, "invalid-request.json");
-    await fs.writeFile(invalidRequestPath, JSON.stringify({
-      expectedRevision: 1,
-      operations: [{ kind: "create-task", content: taskContent("invalid"), extra: true }]
-    }), "utf8");
-    const schemaFailure = await callCli(root, ["apply", "--file", invalidRequestPath]);
+    await fs.writeFile(
+      invalidRequestPath,
+      JSON.stringify({
+        expectedRevision: 1,
+        operations: [
+          { kind: "create-task", content: taskContent("invalid"), extra: true }
+        ]
+      }),
+      "utf8"
+    );
+    const schemaFailure = await callCli(root, [
+      "apply",
+      "--file",
+      invalidRequestPath
+    ]);
     assert.equal(schemaFailure.result.ok, false);
     if (!schemaFailure.result.ok) {
       assert.equal(schemaFailure.result.error.code, "REQUEST_INVALID");
     }
 
     const missingFile = await callCli(root, [
-      "apply", "--file", path.join(root, "missing.json")
+      "apply",
+      "--file",
+      path.join(root, "missing.json")
     ]);
     assert.equal(missingFile.result.ok, false);
     if (!missingFile.result.ok) {
@@ -924,17 +1095,25 @@ test("CLI success and predictable schema, state, conflict, and file failures use
 
   await withTempWorkspace(async (root) => {
     await callCli(root, ["index", "init"]);
-    const unknown = await callCli(root, [
-      "task", "create",
-      "--title", "committed but response lost",
-      "--goal", "exercise write outcome",
-      "--expected-revision", "0"
-    ], {
-      atomicWrite: async (target) => {
-        await fs.writeFile(target, "{corrupt", "utf8");
-        throw new Error("simulated different replacement");
+    const unknown = await callCli(
+      root,
+      [
+        "task",
+        "create",
+        "--title",
+        "committed but response lost",
+        "--goal",
+        "exercise write outcome",
+        "--expected-revision",
+        "0"
+      ],
+      {
+        atomicWrite: async (target) => {
+          await fs.writeFile(target, "{corrupt", "utf8");
+          throw new Error("simulated different replacement");
+        }
       }
-    });
+    );
     assert.equal(unknown.result.ok, false);
     if (!unknown.result.ok) {
       assert.equal(unknown.result.error.code, "WRITE_OUTCOME_UNKNOWN");
@@ -945,16 +1124,24 @@ test("CLI success and predictable schema, state, conflict, and file failures use
 
   await withTempWorkspace(async (root) => {
     await callCli(root, ["index", "init"]);
-    const unknown = await callCli(root, [
-      "task", "create",
-      "--title", "committed then unreadable",
-      "--goal", "exercise missing readback",
-      "--expected-revision", "0"
-    ], {
-      atomicWrite: async (target) => {
-        await fs.unlink(target);
+    const unknown = await callCli(
+      root,
+      [
+        "task",
+        "create",
+        "--title",
+        "committed then unreadable",
+        "--goal",
+        "exercise missing readback",
+        "--expected-revision",
+        "0"
+      ],
+      {
+        atomicWrite: async (target) => {
+          await fs.unlink(target);
+        }
       }
-    });
+    );
     assert.equal(unknown.result.ok, true);
     assert.equal(unknown.result.revision, 1);
   });
@@ -962,14 +1149,27 @@ test("CLI success and predictable schema, state, conflict, and file failures use
 
 test("CLI index info preserves the unsupported schema error code", async () => {
   await withTempWorkspace(async (root) => {
-    const indexPath = path.join(root, "docs", "task-graph", "task-graph-index.json");
+    const indexPath = path.join(
+      root,
+      "docs",
+      "task-graph",
+      "task-graph-index.json"
+    );
     await fs.mkdir(path.dirname(indexPath), { recursive: true });
-    await fs.writeFile(indexPath, `${JSON.stringify({
-      schemaVersion: 1,
-      revision: 0,
-      nextIds: { scope: 1, task: 1 },
-      scopes: {}
-    }, null, 2)}\n`, "utf8");
+    await fs.writeFile(
+      indexPath,
+      `${JSON.stringify(
+        {
+          schemaVersion: 1,
+          revision: 0,
+          nextIds: { scope: 1, task: 1 },
+          scopes: {}
+        },
+        null,
+        2
+      )}\n`,
+      "utf8"
+    );
     const checked = await callCli(root, ["index", "info"]);
     assert.equal(checked.exitCode, 1);
     assert.equal(checked.result.ok, false);
@@ -985,11 +1185,11 @@ test("process CLI maps path failures to JSON exit one with empty stderr", async 
     const rootFile = path.join(root, "not-a-directory");
     await fs.writeFile(rootFile, "ordinary file\n", "utf8");
     try {
-      await execFileAsync(await resolveNodeExecutable(), [
-        cliSourcePath,
-        "index", "info",
-        "--root", rootFile
-      ], { encoding: "utf8", windowsHide: true });
+      await execFileAsync(
+        await resolveNodeExecutable(),
+        [cliSourcePath, "index", "info", "--root", rootFile],
+        { encoding: "utf8", windowsHide: true }
+      );
       assert.fail("CLI should fail when --root is an ordinary file");
     } catch (error) {
       const failure = requireRecord(error, "execFile failure");
@@ -1002,28 +1202,36 @@ test("process CLI maps path failures to JSON exit one with empty stderr", async 
       assert.equal(result.ok, false);
       if (!result.ok) {
         assert.ok(
-          result.error.code === "INDEX_NOT_FOUND"
-          || result.error.code === "INDEX_READ_FAILED"
+          result.error.code === "INDEX_NOT_FOUND" ||
+            result.error.code === "INDEX_READ_FAILED"
         );
       }
     }
   });
-
 });
 
 test("CLI rejects ambiguous lease and revision pairs plus invalid control reasons", async () => {
   await withTempWorkspace(async (root) => {
     await callCli(root, ["index", "init"]);
     await callCli(root, [
-      "task", "create",
-      "--title", "running",
-      "--goal", "running goal",
-      "--acceptance", "running accepted",
-      "--control", "queued",
-      "--expected-revision", "0"
+      "task",
+      "create",
+      "--title",
+      "running",
+      "--goal",
+      "running goal",
+      "--acceptance",
+      "running accepted",
+      "--control",
+      "queued",
+      "--expected-revision",
+      "0"
     ]);
     const claimed = await callCli(root, [
-      "claim", "task-000001", "--actor", "worker"
+      "claim",
+      "task-000001",
+      "--actor",
+      "worker"
     ]);
     assert.equal(claimed.result.ok, true);
     if (!claimed.result.ok) return;
@@ -1031,21 +1239,32 @@ test("CLI rejects ambiguous lease and revision pairs plus invalid control reason
     const leaseId = requireString(claimData.leaseId, "claim data.leaseId");
     for (const args of [
       [
-        "complete", "task-000001",
-        "--lease", leaseId,
-        "--expected-revision", "3",
-        "--result-summary", "ambiguous"
+        "complete",
+        "task-000001",
+        "--lease",
+        leaseId,
+        "--expected-revision",
+        "3",
+        "--result-summary",
+        "ambiguous"
       ],
       [
-        "cancel", "task-000001",
-        "--lease", leaseId,
-        "--expected-revision", "3",
-        "--reason", "ambiguous"
+        "cancel",
+        "task-000001",
+        "--lease",
+        leaseId,
+        "--expected-revision",
+        "3",
+        "--reason",
+        "ambiguous"
       ],
       [
-        "claim", "task-000001",
-        "--actor", "replacement",
-        "--recover-lease", leaseId
+        "claim",
+        "task-000001",
+        "--actor",
+        "replacement",
+        "--recover-lease",
+        leaseId
       ]
     ]) {
       const failure = await callCli(root, args);
@@ -1057,13 +1276,12 @@ test("CLI rejects ambiguous lease and revision pairs plus invalid control reason
 
     for (const args of [
       [
-        "complete", "task-000001",
-        "--result-summary", "missing mutation precondition"
+        "complete",
+        "task-000001",
+        "--result-summary",
+        "missing mutation precondition"
       ],
-      [
-        "cancel", "task-000001",
-        "--reason", "missing mutation precondition"
-      ]
+      ["cancel", "task-000001", "--reason", "missing mutation precondition"]
     ]) {
       const failure = await callCli(root, args);
       assert.equal(failure.result.ok, false);
@@ -1078,11 +1296,16 @@ test("CLI rejects ambiguous lease and revision pairs plus invalid control reason
       ["--reason", "orphaned"]
     ]) {
       const failure = await callCli(root, [
-        "task", "create",
-        "--title", "invalid control",
-        "--goal", "invalid control goal",
-        "--acceptance", "invalid control accepted",
-        "--expected-revision", "3",
+        "task",
+        "create",
+        "--title",
+        "invalid control",
+        "--goal",
+        "invalid control goal",
+        "--acceptance",
+        "invalid control accepted",
+        "--expected-revision",
+        "3",
         ...controlArgs
       ]);
       assert.equal(failure.result.ok, false);
@@ -1097,65 +1320,95 @@ test("CLI apply resolves aliases and rolls back every operation when one fails",
   await withTempWorkspace(async (root) => {
     await callCli(root, ["index", "init"]);
     const validRequestPath = path.join(root, "valid-apply.json");
-    await fs.writeFile(validRequestPath, `${JSON.stringify({
-      expectedRevision: 0,
-      operations: [
+    await fs.writeFile(
+      validRequestPath,
+      `${JSON.stringify(
         {
-          kind: "create-task",
-          alias: "constructor",
-          content: taskContent("parent"),
-          control: { mode: "queued" }
+          expectedRevision: 0,
+          operations: [
+            {
+              kind: "create-task",
+              alias: "constructor",
+              content: taskContent("parent"),
+              control: { mode: "queued" }
+            },
+            {
+              kind: "create-task",
+              alias: "child",
+              parentId: "@constructor",
+              content: taskContent("child")
+            }
+          ]
         },
-        {
-          kind: "create-task",
-          alias: "child",
-          parentId: "@constructor",
-          content: taskContent("child")
-        }
-      ]
-    }, null, 2)}\n`, "utf8");
+        null,
+        2
+      )}\n`,
+      "utf8"
+    );
     const applied = await callCli(root, ["apply", "--file", validRequestPath]);
     assert.equal(applied.result.ok, true);
     if (applied.result.ok) {
       const data = requireRecord(applied.result.data, "apply data");
       assert.equal(applied.result.revision, 1);
-      assert.deepEqual(
-        data.aliases,
-        { child: "task-000002", constructor: "task-000001" }
-      );
+      assert.deepEqual(data.aliases, {
+        child: "task-000002",
+        constructor: "task-000001"
+      });
     }
 
     const duplicateAliasPath = path.join(root, "duplicate-alias.json");
-    await fs.writeFile(duplicateAliasPath, `${JSON.stringify({
-      expectedRevision: 1,
-      operations: [
+    await fs.writeFile(
+      duplicateAliasPath,
+      `${JSON.stringify(
         {
-          kind: "create-task",
-          alias: "constructor",
-          content: taskContent("first duplicate")
+          expectedRevision: 1,
+          operations: [
+            {
+              kind: "create-task",
+              alias: "constructor",
+              content: taskContent("first duplicate")
+            },
+            {
+              kind: "create-task",
+              alias: "constructor",
+              content: taskContent("second duplicate")
+            }
+          ]
         },
-        {
-          kind: "create-task",
-          alias: "constructor",
-          content: taskContent("second duplicate")
-        }
-      ]
-    }, null, 2)}\n`, "utf8");
-    const duplicateAlias = await callCli(root, ["apply", "--file", duplicateAliasPath]);
+        null,
+        2
+      )}\n`,
+      "utf8"
+    );
+    const duplicateAlias = await callCli(root, [
+      "apply",
+      "--file",
+      duplicateAliasPath
+    ]);
     assert.equal(duplicateAlias.result.ok, false);
     if (!duplicateAlias.result.ok) {
       assert.equal(duplicateAlias.result.error.code, "REQUEST_INVALID");
     }
 
     const longAliasPath = path.join(root, "long-alias.json");
-    await fs.writeFile(longAliasPath, `${JSON.stringify({
-      expectedRevision: 1,
-      operations: [{
-        kind: "create-task",
-        alias: "a".repeat(81),
-        content: taskContent("long alias")
-      }]
-    }, null, 2)}\n`, "utf8");
+    await fs.writeFile(
+      longAliasPath,
+      `${JSON.stringify(
+        {
+          expectedRevision: 1,
+          operations: [
+            {
+              kind: "create-task",
+              alias: "a".repeat(81),
+              content: taskContent("long alias")
+            }
+          ]
+        },
+        null,
+        2
+      )}\n`,
+      "utf8"
+    );
     const longAlias = await callCli(root, ["apply", "--file", longAliasPath]);
     assert.equal(longAlias.result.ok, false);
     if (!longAlias.result.ok) {
@@ -1163,23 +1416,35 @@ test("CLI apply resolves aliases and rolls back every operation when one fails",
     }
 
     const invalidRequestPath = path.join(root, "rollback-apply.json");
-    await fs.writeFile(invalidRequestPath, `${JSON.stringify({
-      expectedRevision: 1,
-      operations: [
+    await fs.writeFile(
+      invalidRequestPath,
+      `${JSON.stringify(
         {
-          kind: "create-task",
-          alias: "temporary",
-          content: taskContent("temporary")
+          expectedRevision: 1,
+          operations: [
+            {
+              kind: "create-task",
+              alias: "temporary",
+              content: taskContent("temporary")
+            },
+            {
+              kind: "set-dependency",
+              taskId: "@temporary",
+              dependencyId: "task-999999",
+              present: true
+            }
+          ]
         },
-        {
-          kind: "set-dependency",
-          taskId: "@temporary",
-          dependencyId: "task-999999",
-          present: true
-        }
-      ]
-    }, null, 2)}\n`, "utf8");
-    const rejected = await callCli(root, ["apply", "--file", invalidRequestPath]);
+        null,
+        2
+      )}\n`,
+      "utf8"
+    );
+    const rejected = await callCli(root, [
+      "apply",
+      "--file",
+      invalidRequestPath
+    ]);
     assert.equal(rejected.result.ok, false);
     if (!rejected.result.ok) {
       assert.equal(rejected.result.error.code, "TASK_NOT_FOUND");
@@ -1201,17 +1466,19 @@ test("process CLI apply accepts a JSON request from stdin without extra output",
     await callCli(root, ["index", "init"]);
     const request = `${JSON.stringify({
       expectedRevision: 0,
-      operations: [{
-        kind: "create-task",
-        alias: "stdin-task",
-        content: taskContent("stdin task"),
-        control: { mode: "queued" }
-      }]
+      operations: [
+        {
+          kind: "create-task",
+          alias: "stdin-task",
+          content: taskContent("stdin task"),
+          control: { mode: "queued" }
+        }
+      ]
     })}\n`;
-    const invoked = await callProcessCli([
-      "apply",
-      "--root", root
-    ], request, { ...process.env, TASK_GRAPH_TOOL_HOME: toolHome });
+    const invoked = await callProcessCli(["apply", "--root", root], request, {
+      ...process.env,
+      TASK_GRAPH_TOOL_HOME: toolHome
+    });
     assert.equal(invoked.exitCode, 0);
     assert.equal(invoked.stderr, "");
     assert.ok(invoked.stdout.endsWith("\n"));
@@ -1224,10 +1491,7 @@ test("process CLI apply accepts a JSON request from stdin without extra output",
     if (result.ok) {
       const data = requireRecord(result.data, "apply data");
       assert.equal(result.revision, 1);
-      assert.deepEqual(
-        data.aliases,
-        { "stdin-task": "task-000001" }
-      );
+      assert.deepEqual(data.aliases, { "stdin-task": "task-000001" });
     }
   });
 });
@@ -1238,43 +1502,51 @@ test("independent Node CLI claims serialize and only one excluded task wins", as
     await prepareRootNativeRuntime(toolHome);
     await callCli(root, ["index", "init"]);
     const requestPath = path.join(root, "excluded-tasks.json");
-    await fs.writeFile(requestPath, `${JSON.stringify({
-      expectedRevision: 0,
-      operations: [
+    await fs.writeFile(
+      requestPath,
+      `${JSON.stringify(
         {
-          kind: "create-task",
-          alias: "left",
-          content: taskContent("left"),
-          control: { mode: "queued" }
+          expectedRevision: 0,
+          operations: [
+            {
+              kind: "create-task",
+              alias: "left",
+              content: taskContent("left"),
+              control: { mode: "queued" }
+            },
+            {
+              kind: "create-task",
+              alias: "right",
+              content: taskContent("right"),
+              control: { mode: "queued" }
+            },
+            {
+              kind: "set-exclusion",
+              taskId: "@left",
+              excludedTaskId: "@right",
+              present: true
+            }
+          ]
         },
-        {
-          kind: "create-task",
-          alias: "right",
-          content: taskContent("right"),
-          control: { mode: "queued" }
-        },
-        {
-          kind: "set-exclusion",
-          taskId: "@left",
-          excludedTaskId: "@right",
-          present: true
-        }
-      ]
-    }, null, 2)}\n`, "utf8");
+        null,
+        2
+      )}\n`,
+      "utf8"
+    );
     const applied = await callCli(root, ["apply", "--file", requestPath]);
     assert.equal(applied.result.ok, true);
     const environment = { ...process.env, TASK_GRAPH_TOOL_HOME: toolHome };
     const claims = await Promise.all([
-      callProcessCli([
-        "claim", "task-000001",
-        "--actor", "left-worker",
-        "--root", root
-      ], "", environment),
-      callProcessCli([
-        "claim", "task-000002",
-        "--actor", "right-worker",
-        "--root", root
-      ], "", environment)
+      callProcessCli(
+        ["claim", "task-000001", "--actor", "left-worker", "--root", root],
+        "",
+        environment
+      ),
+      callProcessCli(
+        ["claim", "task-000002", "--actor", "right-worker", "--root", root],
+        "",
+        environment
+      )
     ]);
     assert.equal(claims.filter(({ exitCode }) => exitCode === 0).length, 1);
     assert.equal(claims.filter(({ exitCode }) => exitCode === 1).length, 1);

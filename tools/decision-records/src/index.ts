@@ -18,9 +18,7 @@ export type DecisionValidationContext = {
 export type DecisionValidationOptions = {
   allowEmptyDecisionSet?: boolean;
   checkIndexText?: boolean;
-  scanErrorPolicy?:
-    | "omit"
-    | "source-only";
+  scanErrorPolicy?: "omit" | "source-only";
 };
 
 export type EstablishedDecisionIdSelection = {
@@ -63,21 +61,23 @@ export async function validateDecisionScan(
   scan: DecisionScan,
   options: DecisionValidationOptions = {}
 ): Promise<DecisionValidationResult> {
-  const errors = options.scanErrorPolicy === "omit"
-    ? []
-    : options.scanErrorPolicy === "source-only"
-      ? [...scan.sourceErrors]
-      : [...scan.errors];
+  const errors =
+    options.scanErrorPolicy === "omit"
+      ? []
+      : options.scanErrorPolicy === "source-only"
+        ? [...scan.sourceErrors]
+        : [...scan.errors];
   const hasEstablishedDecision = scan.records.some(isEstablishedDecisionRecord);
-  const selection = options.allowEmptyDecisionSet && !hasEstablishedDecision
-    ? { decisionIds: [], errors: [] }
-    : selectEstablishedDecisionIds(scan);
+  const selection =
+    options.allowEmptyDecisionSet && !hasEstablishedDecision
+      ? { decisionIds: [], errors: [] }
+      : selectEstablishedDecisionIds(scan);
   errors.push(...selection.errors);
 
   if (
-    options.checkIndexText !== false
-    && selection.decisionIds.length > 0
-    && scan.sourceErrors.length === 0
+    options.checkIndexText !== false &&
+    selection.decisionIds.length > 0 &&
+    scan.sourceErrors.length === 0
   ) {
     const checked = await syncDecisionIndex({
       decisionsDirectory: scan.decisionsDirectory,
@@ -86,41 +86,46 @@ export async function validateDecisionScan(
     });
     if (checked.status === "error") {
       if (
-        checked.state === "index-invalid"
-        || checked.state === "index-missing"
-        || checked.state === "index-stale"
+        checked.state === "index-invalid" ||
+        checked.state === "index-missing" ||
+        checked.state === "index-stale"
       ) {
         errors.push(
-          scan.indexRelativePath
-          + " is out of sync; run sync-index --write"
+          scan.indexRelativePath + " is out of sync; run sync-index --write"
         );
       } else {
-        errors.push(...decisionIndexDiagnosticMessages(
-          checked.diagnostics,
-          scan.indexRelativePath
-        ));
+        errors.push(
+          ...decisionIndexDiagnosticMessages(
+            checked.diagnostics,
+            scan.indexRelativePath
+          )
+        );
       }
     }
   }
 
-  const establishedRecords = scan.records.filter((record) => record.document !== null);
+  const establishedRecords = scan.records.filter(
+    (record) => record.document !== null
+  );
 
   return {
     activationCandidateCount: scan.records.filter(
       (record) => record.activationCandidate
     ).length,
-    activeCount: establishedRecords.filter((record) => record.status === "active").length,
-    alignedCount: establishedRecords.filter((record) => (
-      record.status === "active" && record.alignment === "aligned"
-    )).length,
+    activeCount: establishedRecords.filter(
+      (record) => record.status === "active"
+    ).length,
+    alignedCount: establishedRecords.filter(
+      (record) => record.status === "active" && record.alignment === "aligned"
+    ).length,
     archivedCount: establishedRecords.filter(
       (record) => record.status === "archived"
     ).length,
     decisionCount: establishedRecords.length,
     errors,
     scan,
-    unalignedCount: establishedRecords.filter((record) => (
-      record.status === "active" && record.alignment === "unaligned"
-    )).length
+    unalignedCount: establishedRecords.filter(
+      (record) => record.status === "active" && record.alignment === "unaligned"
+    ).length
   };
 }

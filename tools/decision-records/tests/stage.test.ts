@@ -16,7 +16,7 @@ import {
   runGit,
   runSourceCli,
   withFixtureWorkspace,
-  writeDecision,
+  writeDecision
 } from "./support.ts";
 
 test("stage selects one Decision ID when its sourcePath moves between root and archive", () =>
@@ -26,7 +26,7 @@ test("stage selects one Decision ID when its sourcePath moves between root and a
     const currentPath = decisionFilePath(workspaceRoot, currentSourcePath);
     const archivedPath = decisionFilePath(
       workspaceRoot,
-      `archive/${currentDecisionId}`,
+      `archive/${currentDecisionId}`
     );
     await fs.mkdir(path.dirname(archivedPath), { recursive: true });
     await fs.rename(currentPath, archivedPath);
@@ -34,28 +34,28 @@ test("stage selects one Decision ID when its sourcePath moves between root and a
       archivedPath,
       (await fs.readFile(archivedPath, "utf8")).replace(
         "status: active",
-        "status: archived",
+        "status: archived"
       ),
-      "utf8",
+      "utf8"
     );
 
     const staged = await runSourceCli([
       "stage",
       currentDecisionId,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(staged.exitCode, 0, staged.stderr);
     const pendingPaths = runGit(workspaceRoot, [
       "diff",
       "--cached",
-      "--name-status",
+      "--name-status"
     ]);
     assert.match(
       pendingPaths,
       new RegExp(
-        `R\\d+\\tdocs/decisions/${currentDecisionId}\\tdocs/decisions/archive/${currentDecisionId}`,
-      ),
+        `R\\d+\\tdocs/decisions/${currentDecisionId}\\tdocs/decisions/archive/${currentDecisionId}`
+      )
     );
     assert.match(pendingPaths, /docs\/decisions\/decision-index\.json/);
   }));
@@ -71,17 +71,17 @@ test("stage treats a selected new ID as an addition and preserves an unselected 
       candidateDecisionBody({ title: "新增稳定 ID" })
         .replace("status: candidate", "status: active")
         .replace("alignment: null", "alignment: aligned")
-        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z"),
+        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
     );
     const staged = await runSourceCli([
       "stage",
       addedId,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(staged.exitCode, 0, staged.stderr);
     const pending = JSON.parse(
-      runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"]),
+      runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"])
     );
     assert.ok(pending.entries[currentDecisionId]);
     assert.ok(pending.entries[addedId]);
@@ -95,26 +95,26 @@ test("stage expresses a basename identity rename by selecting both IDs", () =>
     const renamedPath = decisionFilePath(workspaceRoot, renamedId);
     await fs.rename(
       decisionFilePath(workspaceRoot, currentSourcePath),
-      renamedPath,
+      renamedPath
     );
     await fs.writeFile(
       renamedPath,
       (await fs.readFile(renamedPath, "utf8")).replace(
         "使用生成 CLI",
-        "重命名后编辑 CLI",
+        "重命名后编辑 CLI"
       ),
-      "utf8",
+      "utf8"
     );
     const staged = await runSourceCli([
       "stage",
       currentDecisionId,
       renamedId,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(staged.exitCode, 0, staged.stderr);
     const pending = JSON.parse(
-      runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"]),
+      runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"])
     );
     assert.equal(pending.entries[currentDecisionId], undefined);
     assert.equal(pending.entries[renamedId].state.title, "重命名后编辑 CLI");
@@ -135,14 +135,14 @@ test("stage does not bind unrelated identical deletion and addition as a rename"
       oldId,
       newId,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(staged.exitCode, 0, staged.stderr);
     const status = runGit(workspaceRoot, [
       "diff",
       "--cached",
       "--name-status",
-      "--no-renames",
+      "--no-renames"
     ]);
     assert.match(status, new RegExp(`D\\tdocs/decisions/${oldId}`));
     assert.match(status, new RegExp(`A\\tdocs/decisions/${newId}`));
@@ -158,13 +158,13 @@ test("stage isolates unselected filesystem changes", () =>
     await writeDecision(
       workspaceRoot,
       unselectedId,
-      candidateDecisionBody({ title: "未选择的暂存变更" }),
+      candidateDecisionBody({ title: "未选择的暂存变更" })
     );
     const staged = await runSourceCli([
       "stage",
       selectedId,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(staged.exitCode, 0, staged.stderr);
     const pending = runGit(workspaceRoot, ["diff", "--cached", "--name-only"]);
@@ -182,14 +182,14 @@ test("stage rejects an existing pending decision index", () =>
       "stage",
       selectedId,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(first.exitCode, 0, first.stderr);
     const second = await runSourceCli([
       "stage",
       selectedId,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.notEqual(second.exitCode, 0);
     assert.match(second.stderr, /pending snapshot already contains files/);
@@ -204,12 +204,12 @@ test("stage rejects an old domain revision before changing pending files", () =>
     await fs.writeFile(
       `${decisionsRoot}/decision-domains.json`,
       '{"schemaVersion":1,"domains":[]}',
-      "utf8",
+      "utf8"
     );
     await fs.writeFile(
       `${decisionsRoot}/decision-records/${currentDecisionId}`,
       candidateDecisionBody(),
-      "utf8",
+      "utf8"
     );
     commitWorkspace(workspaceRoot);
 
@@ -217,18 +217,18 @@ test("stage rejects an old domain revision before changing pending files", () =>
     await writeDecision(
       workspaceRoot,
       currentDecisionId,
-      candidateDecisionBody(),
+      candidateDecisionBody()
     );
     const staged = await runSourceCli([
       "stage",
       currentDecisionId,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.notEqual(staged.exitCode, 0);
     assert.equal(
       runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
-      "",
+      ""
     );
   }));
 
@@ -245,9 +245,9 @@ test("stage applies selected additions modifications deletions and explicit rena
         .replace("使用生成 CLI", "使用修改 CLI")
         .replace(
           "relations:\n  - type: 修订\n    target: 260710-use-source-cli.md",
-          "relations: []",
+          "relations: []"
         ),
-      "utf8",
+      "utf8"
     );
     await fs.rm(deleted);
     await writeDecision(
@@ -256,7 +256,7 @@ test("stage applies selected additions modifications deletions and explicit rena
       candidateDecisionBody({ title: "使用新增 Stage" })
         .replace("status: candidate", "status: active")
         .replace("alignment: null", "alignment: aligned")
-        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z"),
+        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
     );
     const staged = await runSourceCli([
       "stage",
@@ -264,7 +264,7 @@ test("stage applies selected additions modifications deletions and explicit rena
       archivedDecisionId,
       addedId,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(staged.exitCode, 0, staged.stderr);
     const pending = runGit(workspaceRoot, ["diff", "--cached", "--name-only"]);
@@ -280,7 +280,7 @@ test("stage bootstraps the first pending decision collection", () =>
     await fs.writeFile(
       path.join(workspaceRoot, "README.md"),
       "baseline\n",
-      "utf8",
+      "utf8"
     );
     commitWorkspace(workspaceRoot);
     const id = "use-first-stage.md";
@@ -290,7 +290,7 @@ test("stage bootstraps the first pending decision collection", () =>
       candidateDecisionBody()
         .replace("status: candidate", "status: active")
         .replace("alignment: null", "alignment: aligned")
-        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z"),
+        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
     );
     const staged = await runSourceCli(["stage", id, "--root", workspaceRoot]);
     assert.equal(staged.exitCode, 0, staged.stderr);
@@ -306,25 +306,25 @@ test("stage rejects invalid duplicate and missing paths without changing pending
     await fs.writeFile(
       path.join(workspaceRoot, "README.md"),
       "pending\n",
-      "utf8",
+      "utf8"
     );
     runGit(workspaceRoot, ["add", "README.md"]);
     const before = runGit(workspaceRoot, ["diff", "--cached", "--name-only"]);
     for (const ids of [
       [currentDecisionId, currentDecisionId],
       ["use-missing-stage.md"],
-      ["../outside.md"],
+      ["../outside.md"]
     ]) {
       const result = await runSourceCli([
         "stage",
         ...ids,
         "--root",
-        workspaceRoot,
+        workspaceRoot
       ]);
       assert.notEqual(result.exitCode, 0);
       assert.equal(
         runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
-        before,
+        before
       );
     }
   }));
@@ -338,19 +338,19 @@ test("stage rejects invalid candidate relation targets before pending writes", (
       workspaceRoot,
       invalid,
       candidateDecisionBody({
-        relations: [{ type: "修订", target: "use-missing-target.md" }],
-      }),
+        relations: [{ type: "修订", target: "use-missing-target.md" }]
+      })
     );
     const result = await runSourceCli([
       "stage",
       invalid,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.notEqual(result.exitCode, 0);
     assert.equal(
       runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
-      "",
+      ""
     );
   }));
 
@@ -363,7 +363,7 @@ test("stage reports unavailable version control without writing filesystem state
       candidateDecisionBody()
         .replace("status: candidate", "status: active")
         .replace("alignment: null", "alignment: aligned")
-        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z"),
+        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
     );
     const source = decisionFilePath(workspaceRoot, id);
     const before = await fs.readFile(source, "utf8");
@@ -376,7 +376,7 @@ test("stage reports unavailable version control without writing filesystem state
 test("help exposes stage independently without adding lifecycle stage options", () => {
   const program = createCliProgram(
     async () => 0,
-    () => undefined,
+    () => undefined
   );
   assert.match(program.helpInformation(), /stage <decision-id\.\.\.>/);
   for (const command of [
@@ -384,10 +384,10 @@ test("help exposes stage independently without adding lifecycle stage options", 
     "evolve",
     "archive",
     "mark-aligned",
-    "discard",
+    "discard"
   ]) {
     const entry = program.commands.find(
-      (candidate) => candidate.name() === command,
+      (candidate) => candidate.name() === command
     );
     assert.ok(entry);
     assert.doesNotMatch(entry.helpInformation(), /--stage/);
@@ -400,7 +400,7 @@ test("stage preserves concurrent pending bytes discovered by the replacement CAS
     commitWorkspace(workspaceRoot);
     const concurrentId = "use-concurrent-pending.md";
     const concurrentBody = candidateDecisionBody({
-      title: "并发 pending 决策",
+      title: "并发 pending 决策"
     });
     const selectedPath = decisionFilePath(workspaceRoot, currentSourcePath);
     const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
@@ -411,7 +411,7 @@ test("stage preserves concurrent pending bytes discovered by the replacement CAS
       ...descriptor,
       value: async (
         filePath: string,
-        encoding: BufferEncoding,
+        encoding: BufferEncoding
       ): Promise<string> => {
         if (!injected && path.resolve(filePath) === selectedPath) {
           injected = true;
@@ -419,14 +419,14 @@ test("stage preserves concurrent pending bytes discovered by the replacement CAS
           runGit(workspaceRoot, ["add", `docs/decisions/${concurrentId}`]);
         }
         return await readFile(filePath, encoding);
-      },
+      }
     });
     try {
       const staged = await runSourceCli([
         "stage",
         currentDecisionId,
         "--root",
-        workspaceRoot,
+        workspaceRoot
       ]);
       assert.notEqual(staged.exitCode, 0);
       assert.match(staged.stderr, /Pending snapshot replacement conflicted/);
@@ -436,7 +436,7 @@ test("stage preserves concurrent pending bytes discovered by the replacement CAS
     assert.equal(injected, true);
     assert.equal(
       runGit(workspaceRoot, ["show", `:docs/decisions/${concurrentId}`]),
-      concurrentBody,
+      concurrentBody
     );
   }));
 
@@ -457,7 +457,7 @@ test("stage rejects selected source drift before replacing the pending snapshot"
           ...descriptor,
           value: async (
             filePath: string,
-            encoding: BufferEncoding,
+            encoding: BufferEncoding
           ): Promise<string> => {
             if (path.resolve(filePath) === sourcePath && ++reads === 2) {
               injected = true;
@@ -466,9 +466,9 @@ test("stage rejects selected source drift before replacing the pending snapshot"
                   sourcePath,
                   (await readFile(sourcePath, "utf8")).replace(
                     "使用生成 CLI",
-                    "并发改写 CLI",
+                    "并发改写 CLI"
                   ),
-                  "utf8",
+                  "utf8"
                 );
               } else if (mutation === "delete") {
                 await fs.rm(sourcePath);
@@ -477,25 +477,25 @@ test("stage rejects selected source drift before replacing the pending snapshot"
                   sourcePath,
                   decisionFilePath(
                     workspaceRoot,
-                    `archive/${currentDecisionId}`,
-                  ),
+                    `archive/${currentDecisionId}`
+                  )
                 );
               }
             }
             return await readFile(filePath, encoding);
-          },
+          }
         });
         try {
           const staged = await runSourceCli([
             "stage",
             currentDecisionId,
             "--root",
-            workspaceRoot,
+            workspaceRoot
           ]);
           assert.notEqual(staged.exitCode, 0, mutation);
           assert.match(
             staged.stderr,
-            /changed before staging|changed after snapshot|failed to verify selected/i,
+            /changed before staging|changed after snapshot|failed to verify selected/i
           );
         } finally {
           Object.defineProperty(fs, "readFile", descriptor);
@@ -503,9 +503,9 @@ test("stage rejects selected source drift before replacing the pending snapshot"
         assert.equal(injected, true, mutation);
         assert.equal(
           runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
-          "",
+          ""
         );
-      },
+      }
     );
   }
 });
@@ -516,26 +516,26 @@ test("stage rejects a missing ID when bootstrapping without a revision", () =>
     await fs.writeFile(
       path.join(workspaceRoot, "README.md"),
       "baseline\n",
-      "utf8",
+      "utf8"
     );
     commitWorkspace(workspaceRoot);
     await fs.mkdir(path.join(workspaceRoot, "docs", "decisions"), {
-      recursive: true,
+      recursive: true
     });
     const staged = await runSourceCli([
       "stage",
       "use-missing-bootstrap.md",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.notEqual(staged.exitCode, 0);
     assert.match(
       staged.stderr,
-      /does not exist|must produce at least one established/i,
+      /does not exist|must produce at least one established/i
     );
     assert.equal(
       runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
-      "",
+      ""
     );
   }));
 
@@ -550,21 +550,21 @@ test("stage isolates unselected invalid filesystem content from a selected revis
       selectedPath,
       (await fs.readFile(selectedPath, "utf8")).replace(
         "使用生成 CLI",
-        "选择的合法修改",
+        "选择的合法修改"
       ),
-      "utf8",
+      "utf8"
     );
     const staged = await runSourceCli([
       "stage",
       currentDecisionId,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(staged.exitCode, 0, staged.stderr);
     const pendingPaths = runGit(workspaceRoot, [
       "diff",
       "--cached",
-      "--name-only",
+      "--name-only"
     ]);
     assert.match(pendingPaths, new RegExp(currentDecisionId));
     assert.doesNotMatch(pendingPaths, new RegExp(invalidName));
@@ -582,24 +582,24 @@ test("stage treats a selected old ID as a deletion without inferring a rename", 
       candidateDecisionBody({ title: "未选择的替代记录" })
         .replace("status: candidate", "status: active")
         .replace("alignment: null", "alignment: aligned")
-        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z"),
+        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
     );
     const staged = await runSourceCli([
       "stage",
       currentDecisionId,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(staged.exitCode, 0, staged.stderr);
     const pendingPaths = runGit(workspaceRoot, [
       "diff",
       "--cached",
       "--name-status",
-      "--no-renames",
+      "--no-renames"
     ]);
     assert.match(
       pendingPaths,
-      new RegExp(`D\\tdocs/decisions/${currentDecisionId}`),
+      new RegExp(`D\\tdocs/decisions/${currentDecisionId}`)
     );
     assert.doesNotMatch(pendingPaths, new RegExp(replacementId));
   }));
@@ -615,7 +615,7 @@ test("stage rejects a selected symlink source outside the decision root", async 
       await fs.writeFile(
         outsidePath,
         await fs.readFile(selectedPath, "utf8"),
-        "utf8",
+        "utf8"
       );
       await fs.rm(selectedPath);
       try {
@@ -635,14 +635,14 @@ test("stage rejects a selected symlink source outside the decision root", async 
         "stage",
         currentDecisionId,
         "--root",
-        workspaceRoot,
+        workspaceRoot
       ]);
       assert.notEqual(staged.exitCode, 0);
       assert.match(staged.stderr, /unsupported|non-regular|symlink/i);
       assert.equal(
         runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
-        "",
+        ""
       );
-    },
+    }
   );
 });

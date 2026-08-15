@@ -18,7 +18,7 @@ import {
   withFixtureWorkspace,
   withTemporaryWorkspace,
   writeDecision,
-  writeIndex,
+  writeIndex
 } from "./support.ts";
 
 const unindexedBody = [
@@ -43,7 +43,7 @@ const unindexedBody = [
   "",
   "## 决策",
   "- 采用: 单次只激活目标，索引排除其他候选并允许等待审核。",
-  "",
+  ""
 ].join("\n");
 
 test("discard rejects established decisions without mutation", () =>
@@ -55,7 +55,7 @@ test("discard rejects established decisions without mutation", () =>
       const originalIndexText = await fs.readFile(indexPath, "utf8");
       const establishedPath = decisionFilePath(
         workspaceRoot,
-        currentRelativePath,
+        currentRelativePath
       );
       const establishedText = await fs.readFile(establishedPath, "utf8");
 
@@ -63,7 +63,7 @@ test("discard rejects established decisions without mutation", () =>
         "discard",
         currentRelativePath,
         "--root",
-        workspaceRoot,
+        workspaceRoot
       ]);
       assert.equal(discarded.exitCode, 1);
       assert.match(discarded.stderr, /Cannot discard established decision/);
@@ -79,13 +79,13 @@ test("discard rejects established decisions without mutation", () =>
         (await validateDecisionRecords({ workspaceRoot })).errors.some(
           (error) =>
             error.includes(
-              "candidate status is allowed only for a complete, unindexed",
-            ),
-        ),
+              "candidate status is allowed only for a complete, unindexed"
+            )
+        )
       );
       assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
       await fs.writeFile(establishedPath, establishedText, "utf8");
-    },
+    }
   ));
 
 test("discard rejects invalid candidate lifecycle or body without mutation", () =>
@@ -98,18 +98,18 @@ test("discard rejects invalid candidate lifecycle or body without mutation", () 
       const invalidLifecycleRelativePath = "use-invalid-candidate-lifecycle.md";
       const invalidLifecyclePath = decisionFilePath(
         workspaceRoot,
-        invalidLifecycleRelativePath,
+        invalidLifecycleRelativePath
       );
 
       for (const invalidLifecycleBody of [
         candidateDecisionBody().replace(
           "alignment: null",
-          "alignment: aligned",
+          "alignment: aligned"
         ),
         candidateDecisionBody().replace(
           "createdAt: null",
-          "createdAt: 2026-08-06T10:20:30Z",
-        ),
+          "createdAt: 2026-08-06T10:20:30Z"
+        )
       ]) {
         await fs.writeFile(invalidLifecyclePath, invalidLifecycleBody, "utf8");
         await assertRejectedDiscardPreserves({
@@ -118,7 +118,7 @@ test("discard rejects invalid candidate lifecycle or body without mutation", () 
             /Discard requires a complete reviewable decision candidate/,
           indexPath,
           relativePath: invalidLifecycleRelativePath,
-          workspaceRoot,
+          workspaceRoot
         });
       }
       await fs.rm(invalidLifecyclePath);
@@ -127,7 +127,7 @@ test("discard rejects invalid candidate lifecycle or body without mutation", () 
       const invalidPath = decisionFilePath(workspaceRoot, invalidRelativePath);
       const invalidBody = candidateDecisionBody().replace(
         "\n## 目的\n- 验证 Markdown 生命周期独立定义候选和已建立状态。\n",
-        "\n",
+        "\n"
       );
       await fs.writeFile(invalidPath, invalidBody, "utf8");
       await assertRejectedDiscardPreserves({
@@ -135,10 +135,10 @@ test("discard rejects invalid candidate lifecycle or body without mutation", () 
         expectedError: /Discard requires a complete reviewable/,
         indexPath,
         relativePath: invalidRelativePath,
-        workspaceRoot,
+        workspaceRoot
       });
       assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
-    },
+    }
   ));
 
 test("discard rejects candidates with invalid relation targets without mutation", () =>
@@ -149,17 +149,17 @@ test("discard rejects candidates with invalid relation targets without mutation"
         workspaceRoot,
         "docs",
         "decisions",
-        "decision-index.json",
+        "decision-index.json"
       );
       const invalidTargetRelativePath =
         "use-invalid-existing-discard-target.md";
       const invalidTargetPath = decisionFilePath(
         workspaceRoot,
-        invalidTargetRelativePath,
+        invalidTargetRelativePath
       );
       const invalidTargetText = candidateDecisionBody().replace(
         "\n## 目的\n- 验证 Markdown 生命周期独立定义候选和已建立状态。\n",
-        "\n",
+        "\n"
       );
       await fs.writeFile(invalidTargetPath, invalidTargetText, "utf8");
 
@@ -168,9 +168,9 @@ test("discard rejects candidates with invalid relation targets without mutation"
       await fs.writeFile(
         sourcePath,
         candidateDecisionBody({
-          relations: [{ type: "修订", target: invalidTargetRelativePath }],
+          relations: [{ type: "修订", target: invalidTargetRelativePath }]
         }),
-        "utf8",
+        "utf8"
       );
 
       await assertRejectedDiscardPreserves({
@@ -178,13 +178,13 @@ test("discard rejects candidates with invalid relation targets without mutation"
         expectedError: /target is not a valid scanned decision/,
         indexPath,
         relativePath: sourceRelativePath,
-        workspaceRoot,
+        workspaceRoot
       });
       assert.equal(
         await fs.readFile(invalidTargetPath, "utf8"),
-        invalidTargetText,
+        invalidTargetText
       );
-    },
+    }
   ));
 
 test("discard rejects a candidate that is still referenced without mutation", () =>
@@ -195,7 +195,7 @@ test("discard rejects a candidate that is still referenced without mutation", ()
         workspaceRoot,
         "docs",
         "decisions",
-        "decision-index.json",
+        "decision-index.json"
       );
       const targetRelativePath = "use-discard-candidate-target.md";
       const targetPath = decisionFilePath(workspaceRoot, targetRelativePath);
@@ -205,7 +205,7 @@ test("discard rejects a candidate that is still referenced without mutation", ()
       const sourceRelativePath = "use-candidate-target-discard-source.md";
       const sourcePath = decisionFilePath(workspaceRoot, sourceRelativePath);
       const sourceText = candidateDecisionBody({
-        relations: [{ type: "修订", target: targetRelativePath }],
+        relations: [{ type: "修订", target: targetRelativePath }]
       });
       await fs.writeFile(sourcePath, sourceText, "utf8");
 
@@ -214,11 +214,11 @@ test("discard rejects a candidate that is still referenced without mutation", ()
         expectedError: /still referenced/,
         indexPath,
         relativePath: targetRelativePath,
-        workspaceRoot,
+        workspaceRoot
       });
       assert.equal(await fs.readFile(targetPath, "utf8"), targetText);
       assert.equal(await fs.readFile(sourcePath, "utf8"), sourceText);
-    },
+    }
   ));
 
 test("discard accepts a candidate with a valid active-target relation", () =>
@@ -229,7 +229,7 @@ test("discard accepts a candidate with a valid active-target relation", () =>
         workspaceRoot,
         "docs",
         "decisions",
-        "decision-index.json",
+        "decision-index.json"
       );
       const originalIndexText = await fs.readFile(indexPath, "utf8");
       const sourceRelativePath = "use-active-target-discard-source.md";
@@ -237,21 +237,21 @@ test("discard accepts a candidate with a valid active-target relation", () =>
       await fs.writeFile(
         sourcePath,
         candidateDecisionBody({
-          relations: [{ type: "修订", target: currentRelativePath }],
+          relations: [{ type: "修订", target: currentRelativePath }]
         }),
-        "utf8",
+        "utf8"
       );
 
       const discarded = await runSourceCli([
         "discard",
         sourceRelativePath,
         "--root",
-        workspaceRoot,
+        workspaceRoot
       ]);
       assert.equal(discarded.exitCode, 0, discarded.stderr);
       assert.equal(await fileExists(sourcePath), false);
       assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
-    },
+    }
   ));
 
 test("discard removes only the selected candidate and preserves siblings", () =>
@@ -262,14 +262,14 @@ test("discard removes only the selected candidate and preserves siblings", () =>
     const otherCandidateRelativePath = "use-other-valid-candidate.md";
     const otherCandidatePath = decisionFilePath(
       workspaceRoot,
-      otherCandidateRelativePath,
+      otherCandidateRelativePath
     );
     const otherCandidateText = candidateDecisionBody();
     await fs.writeFile(otherCandidatePath, otherCandidateText, "utf8");
     const discardedRelativePath = "use-discarded-candidate.md";
     const discardedPath = decisionFilePath(
       workspaceRoot,
-      discardedRelativePath,
+      discardedRelativePath
     );
     await fs.writeFile(discardedPath, candidateDecisionBody(), "utf8");
     initializeGitRepository(workspaceRoot);
@@ -277,7 +277,7 @@ test("discard removes only the selected candidate and preserves siblings", () =>
     const candidateCheck = await runSourceCli([
       "check",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(candidateCheck.exitCode, 0, candidateCheck.stderr);
     assert.equal(candidateCheck.stderr, "");
@@ -286,7 +286,7 @@ test("discard removes only the selected candidate and preserves siblings", () =>
       "discard",
       discardedRelativePath,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(discarded.exitCode, 0, discarded.stderr);
     assert.match(discarded.stdout, /Discarded decision candidate/);
@@ -294,7 +294,7 @@ test("discard removes only the selected candidate and preserves siblings", () =>
     assert.equal(await fileExists(discardedPath), false);
     assert.equal(
       await fs.readFile(otherCandidatePath, "utf8"),
-      otherCandidateText,
+      otherCandidateText
     );
     assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
     await fs.rm(otherCandidatePath);
@@ -311,11 +311,11 @@ test("candidate queries discover source records while activation indexes only re
       const secondUnindexedRelativePath = "use-second-unindexed.md";
       const firstUnindexedPath = decisionFilePath(
         workspaceRoot,
-        firstUnindexedRelativePath,
+        firstUnindexedRelativePath
       );
       const secondUnindexedPath = decisionFilePath(
         workspaceRoot,
-        secondUnindexedRelativePath,
+        secondUnindexedRelativePath
       );
       await fs.writeFile(firstUnindexedPath, unindexedBody, "utf8");
       await fs.writeFile(secondUnindexedPath, unindexedBody, "utf8");
@@ -324,38 +324,38 @@ test("candidate queries discover source records while activation indexes only re
       await fs.writeFile(
         invalidPath,
         candidateDecisionBody().replace("\n## 决策\n", "\n## 非法章节\n"),
-        "utf8",
+        "utf8"
       );
       const discoveredCandidates = await runSourceCli([
         "candidates",
         "--root",
-        workspaceRoot,
+        workspaceRoot
       ]);
       assert.equal(
         discoveredCandidates.exitCode,
         0,
-        discoveredCandidates.stderr,
+        discoveredCandidates.stderr
       );
       assert.match(
         discoveredCandidates.stderr,
-        /query completed with warnings/i,
+        /query completed with warnings/i
       );
       assert.match(
         discoveredCandidates.stderr,
-        /use-invalid-source-candidate\.md/,
+        /use-invalid-source-candidate\.md/
       );
       assert.match(discoveredCandidates.stdout, /Candidates:/);
       assert.match(discoveredCandidates.stdout, /use-first-unindexed\.md/);
       assert.match(discoveredCandidates.stdout, /use-second-unindexed\.md/);
       assert.doesNotMatch(
         discoveredCandidates.stdout,
-        /use-invalid-source-candidate\.md/,
+        /use-invalid-source-candidate\.md/
       );
       const shownCandidate = await runSourceCli([
         "show-candidate",
         secondUnindexedRelativePath,
         "--root",
-        workspaceRoot,
+        workspaceRoot
       ]);
       assert.equal(shownCandidate.exitCode, 0, shownCandidate.stderr);
       assert.match(shownCandidate.stderr, /use-invalid-source-candidate\.md/);
@@ -366,27 +366,27 @@ test("candidate queries discover source records while activation indexes only re
         "show-candidate",
         invalidRelativePath,
         "--root",
-        workspaceRoot,
+        workspaceRoot
       ]);
       assert.equal(invalidCandidate.exitCode, 1);
       assert.match(
         invalidCandidate.stderr,
-        /not a valid reviewable candidate.*use-invalid-source-candidate\.md/i,
+        /not a valid reviewable candidate.*use-invalid-source-candidate\.md/i
       );
       assert.match(
         invalidCandidate.stderr,
-        /has unsupported section ## 非法章节/,
+        /has unsupported section ## 非法章节/
       );
       await fs.rm(invalidPath);
       const candidateCheckBeforeActivation = await runSourceCli([
         "check",
         "--root",
-        workspaceRoot,
+        workspaceRoot
       ]);
       assert.equal(
         candidateCheckBeforeActivation.exitCode,
         0,
-        candidateCheckBeforeActivation.stderr,
+        candidateCheckBeforeActivation.stderr
       );
       assert.match(candidateCheckBeforeActivation.stdout, /2 candidates/);
       const multipleUnindexedActivation = await runSourceCli([
@@ -395,48 +395,48 @@ test("candidate queries discover source records while activation indexes only re
         "--alignment",
         "aligned",
         "--root",
-        workspaceRoot,
+        workspaceRoot
       ]);
       assert.equal(multipleUnindexedActivation.exitCode, 0);
       assert.match(
         multipleUnindexedActivation.stdout,
-        /Activated new decision as aligned use-first-unindexed\.md\./,
+        /Activated new decision as aligned use-first-unindexed\.md\./
       );
       assert.match(
         multipleUnindexedActivation.stderr,
-        /Reviewable decision candidate remains: use-second-unindexed\.md/,
+        /Reviewable decision candidate remains: use-second-unindexed\.md/
       );
       assert.doesNotMatch(
         multipleUnindexedActivation.stderr,
-        /Reviewable decision candidate remains: use-first-unindexed\.md/,
+        /Reviewable decision candidate remains: use-first-unindexed\.md/
       );
       const firstActivationIndex = await readIndex(indexPath);
       findIndexEntry(firstActivationIndex, firstUnindexedRelativePath);
       assert.equal(
         Object.hasOwn(
           firstActivationIndex.entries,
-          secondUnindexedRelativePath,
+          secondUnindexedRelativePath
         ),
-        false,
+        false
       );
 
       const remainingCandidateCheck = await runSourceCli([
         "check",
         "--root",
-        workspaceRoot,
+        workspaceRoot
       ]);
       assert.equal(remainingCandidateCheck.exitCode, 0);
       assert.equal(remainingCandidateCheck.stderr, "");
       assert.match(remainingCandidateCheck.stdout, /1 candidates/);
       const candidateValidation = await validateDecisionRecords({
-        workspaceRoot,
+        workspaceRoot
       });
       assert.equal(candidateValidation.activationCandidateCount, 1);
 
       const candidateList = await runSourceCli([
         "list",
         "--root",
-        workspaceRoot,
+        workspaceRoot
       ]);
       assert.equal(candidateList.exitCode, 0);
       assert.equal(candidateList.stderr, "");
@@ -447,7 +447,7 @@ test("candidate queries discover source records while activation indexes only re
         "sync-index",
         "--write",
         "--root",
-        workspaceRoot,
+        workspaceRoot
       ]);
       assert.equal(candidateSync.exitCode, 0);
       assert.match(candidateSync.stdout, /Decision index is up to date/);
@@ -459,7 +459,7 @@ test("candidate queries discover source records while activation indexes only re
         "--alignment",
         "aligned",
         "--root",
-        workspaceRoot,
+        workspaceRoot
       ]);
       assert.match(secondActivation, /Activated new decision as aligned/);
       const completeCandidateIndex = await readIndex(indexPath);
@@ -469,7 +469,7 @@ test("candidate queries discover source records while activation indexes only re
       await fs.rm(firstUnindexedPath);
       await fs.rm(secondUnindexedPath);
       await fs.writeFile(indexPath, originalIndexText, "utf8");
-    },
+    }
   ));
 
 test("activation reconciles unindexed established records before committing a candidate", () =>
@@ -480,7 +480,7 @@ test("activation reconciles unindexed established records before committing a ca
     const orphanRelativePath = "use-orphan-established.md";
     const targetCandidatePath = decisionFilePath(
       workspaceRoot,
-      targetCandidateRelativePath,
+      targetCandidateRelativePath
     );
     const orphanPath = decisionFilePath(workspaceRoot, orphanRelativePath);
     await fs.writeFile(targetCandidatePath, unindexedBody, "utf8");
@@ -490,22 +490,22 @@ test("activation reconciles unindexed established records before committing a ca
         .replace("status: candidate", "status: active")
         .replace("alignment: null", "alignment: aligned")
         .replace("createdAt: null", "createdAt: 2026-07-22T10:20:30+08:00"),
-      "utf8",
+      "utf8"
     );
     for (const staleQueryArgs of [
       ["list", "--root", workspaceRoot],
       ["show", currentRelativePath, "--root", workspaceRoot],
-      ["trace", currentRelativePath, "--root", workspaceRoot],
+      ["trace", currentRelativePath, "--root", workspaceRoot]
     ]) {
       const staleQueryWithOrphan = await runSourceCli(staleQueryArgs);
       assert.equal(
         staleQueryWithOrphan.exitCode,
         0,
-        staleQueryWithOrphan.stderr,
+        staleQueryWithOrphan.stderr
       );
       assert.doesNotMatch(
         staleQueryWithOrphan.stdout,
-        /use-orphan-established\.md/,
+        /use-orphan-established\.md/
       );
     }
 
@@ -513,7 +513,7 @@ test("activation reconciles unindexed established records before committing a ca
       "sync-index",
       "--write",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(syncWithOrphan.exitCode, 0);
     assert.match(syncWithOrphan.stderr, /use-target-candidate\.md/);
@@ -525,12 +525,12 @@ test("activation reconciles unindexed established records before committing a ca
       "--alignment",
       "aligned",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(activationWithOrphan.exitCode, 0);
     assert.match(
       await fs.readFile(targetCandidatePath, "utf8"),
-      /createdAt: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/,
+      /createdAt: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/
     );
     const indexWithEstablishedAdditions = await readIndex(indexPath);
     findIndexEntry(indexWithEstablishedAdditions, targetCandidateRelativePath);
@@ -548,17 +548,17 @@ test("discarding the only candidate leaves no established decision index", () =>
       "discard",
       relativePath,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(discarded.exitCode, 0, discarded.stderr);
     assert.equal(await fileExists(decisionPath), false);
     assert.equal(
       await fileExists(path.join(decisionsDirectory, "decision-index.json")),
-      false,
+      false
     );
     assert.equal(
       await fileExists(path.join(decisionsDirectory, "decision-index.json")),
-      false,
+      false
     );
   }));
 
@@ -575,7 +575,7 @@ async function assertRejectedDiscardPreserves(options: {
     "discard",
     options.relativePath,
     "--root",
-    options.workspaceRoot,
+    options.workspaceRoot
   ]);
   assert.equal(result.exitCode, 1);
   assert.equal(result.stdout, "");
@@ -593,7 +593,7 @@ test("candidate collection requires a current valid index when established recor
           workspaceRoot,
           "docs",
           "decisions",
-          "decision-index.json",
+          "decision-index.json"
         );
         if (indexState === "missing") {
           await fs.rm(indexPath);
@@ -602,25 +602,25 @@ test("candidate collection requires a current valid index when established recor
         } else {
           const sourcePath = decisionFilePath(
             workspaceRoot,
-            currentRelativePath,
+            currentRelativePath
           );
           await fs.writeFile(
             sourcePath,
             (await fs.readFile(sourcePath, "utf8")).replace(
               "使用生成 CLI",
-              "过期索引来源",
+              "过期索引来源"
             ),
-            "utf8",
+            "utf8"
           );
         }
         const candidates = await runSourceCli([
           "candidates",
           "--root",
-          workspaceRoot,
+          workspaceRoot
         ]);
         assert.notEqual(candidates.exitCode, 0, indexState);
         assert.equal(candidates.stdout, "", indexState);
-      },
+      }
     );
   }
 });
@@ -632,7 +632,7 @@ test("first candidate discovery succeeds with no established records and no inde
     const candidates = await runSourceCli([
       "candidates",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(candidates.exitCode, 0, candidates.stderr);
     assert.match(candidates.stdout, new RegExp(candidateId));
@@ -652,8 +652,8 @@ test("candidate collection rejects an empty index when only candidates remain", 
       entries: {},
       sourceRevision: {
         ...indexedState.sourceRevision,
-        entries: {},
-      },
+        entries: {}
+      }
     };
     await writeIndex(indexPath, emptyIndex);
 

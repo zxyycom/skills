@@ -42,17 +42,20 @@ type ResolvedDecisionLocation = {
 export async function loadDecisionQueryContext(
   location: DecisionLocation
 ): Promise<DecisionApplicationFailure | DecisionQueryContext> {
-  const { decisionsDirectory, workspaceRoot } = resolveDecisionLocation(location);
+  const { decisionsDirectory, workspaceRoot } =
+    resolveDecisionLocation(location);
   const indexPath = path.join(decisionsDirectory, decisionIndexFileName);
   const indexRelativePath = displayDecisionPath(workspaceRoot, indexPath);
   const currentIndex = await loadDecisionIndex({
     decisionsDirectory
   });
   if (currentIndex.status === "error") {
-    return decisionFailure(decisionIndexDiagnosticMessages(
-      currentIndex.diagnostics,
-      indexRelativePath
-    ));
+    return decisionFailure(
+      decisionIndexDiagnosticMessages(
+        currentIndex.diagnostics,
+        indexRelativePath
+      )
+    );
   }
   return {
     decisionsDirectory,

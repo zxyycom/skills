@@ -127,20 +127,24 @@ export function createDecisionStateIndexDefinition(
     namespace: decisionIndexNamespace,
     parseMetadata: parseDecisionIndexMetadata,
     parseState: parseDecisionIndexState,
-    read: decisionIds === undefined
-      ? unavailableRead
-      : async (context) => await readDecisionStateSnapshot(
-        context.root,
-        decisionIds,
-        context.signal
-      ),
-    readRevision: decisionIds === undefined
-      ? unavailableRevisionRead
-      : async (context) => await readDecisionSourceRevision(
-        context.root,
-        decisionIds,
-        context.signal
-      ),
+    read:
+      decisionIds === undefined
+        ? unavailableRead
+        : async (context) =>
+            await readDecisionStateSnapshot(
+              context.root,
+              decisionIds,
+              context.signal
+            ),
+    readRevision:
+      decisionIds === undefined
+        ? unavailableRevisionRead
+        : async (context) =>
+            await readDecisionSourceRevision(
+              context.root,
+              decisionIds,
+              context.signal
+            ),
     validateIndex: validateDecisionSourceRevision
   });
 }
@@ -148,25 +152,29 @@ export function createDecisionStateIndexDefinition(
 function validateDecisionSourceRevision(
   index: ReadonlyStateIndex<DecisionIndexState, DecisionIndexMetadata>
 ): void {
-  const parsed = v.safeParse(decisionSourceRevisionSchema, index.sourceRevision);
+  const parsed = v.safeParse(
+    decisionSourceRevisionSchema,
+    index.sourceRevision
+  );
   if (!parsed.success) {
-    throw new TypeError(
-      parsed.issues.map(formatDecisionIndexIssue).join("; ")
-    );
+    throw new TypeError(parsed.issues.map(formatDecisionIndexIssue).join("; "));
   }
 }
 
-function parseDecisionIndexState(input: Parameters<
-  StateIndexDefinition<
-    DecisionIndexState,
-    DecisionIndexMetadata
-  >["parseState"]
->[0], context: Parameters<
-  StateIndexDefinition<
-    DecisionIndexState,
-    DecisionIndexMetadata
-  >["parseState"]
->[1]): DecisionIndexState {
+function parseDecisionIndexState(
+  input: Parameters<
+    StateIndexDefinition<
+      DecisionIndexState,
+      DecisionIndexMetadata
+    >["parseState"]
+  >[0],
+  context: Parameters<
+    StateIndexDefinition<
+      DecisionIndexState,
+      DecisionIndexMetadata
+    >["parseState"]
+  >[1]
+): DecisionIndexState {
   const parsed = v.safeParse(decisionIndexStateSchema, input);
   if (!parsed.success) {
     throw new TypeError(parsed.issues.map(formatDecisionIndexIssue).join("; "));
@@ -180,25 +188,28 @@ function parseDecisionIndexState(input: Parameters<
     throw new TypeError("state.sourcePath must be a decision source path");
   }
   if (state.sourcePath !== sourcePathForDecision(context.id, state.status)) {
-    throw new TypeError("state.sourcePath must match the Decision ID and lifecycle status");
+    throw new TypeError(
+      "state.sourcePath must match the Decision ID and lifecycle status"
+    );
   }
   if (!isDecisionTimestamp(state.createdAt)) {
     throw new TypeError(
-      "createdAt must be an RFC 3339 timestamp precise to seconds "
-      + "with an explicit timezone"
+      "createdAt must be an RFC 3339 timestamp precise to seconds " +
+        "with an explicit timezone"
     );
   }
-  const metadata: DecisionMetadata = state.status === "active"
-    ? {
-        status: "active",
-        alignment: activeAlignment(state.alignment),
-        createdAt: state.createdAt
-      }
-    : {
-        status: "archived",
-        alignment: state.alignment,
-        createdAt: state.createdAt
-      };
+  const metadata: DecisionMetadata =
+    state.status === "active"
+      ? {
+          status: "active",
+          alignment: activeAlignment(state.alignment),
+          createdAt: state.createdAt
+        }
+      : {
+          status: "archived",
+          alignment: state.alignment,
+          createdAt: state.createdAt
+        };
 
   for (const field of ["title", "purpose", "background", "decision"] as const) {
     const issue = projectionTextIssue(state[field]);
@@ -221,7 +232,9 @@ function parseDecisionIndexState(input: Parameters<
   const relationTargets = new Set<DecisionId>();
   for (const relation of state.relations) {
     if (!isDecisionId(relation.target)) {
-      throw new TypeError("relation target must be a stable Decision ID basename");
+      throw new TypeError(
+        "relation target must be a stable Decision ID basename"
+      );
     }
     if (relationTargets.has(relation.target)) {
       throw new TypeError(`repeats relationship target ${relation.target}`);
@@ -259,22 +272,25 @@ function activeAlignment(
 }
 
 function parseDecisionIndexMetadata(
-  input: Parameters<StateIndexDefinition<
-    DecisionIndexState,
-    DecisionIndexMetadata
-  >["parseMetadata"]>[0]
+  input: Parameters<
+    StateIndexDefinition<
+      DecisionIndexState,
+      DecisionIndexMetadata
+    >["parseMetadata"]
+  >[0]
 ): DecisionIndexMetadata {
   return v.parse(decisionIndexMetadataSchema, input);
 }
 
 function strictlyAscendingUnique(values: readonly string[]): boolean {
-  return values.every((value, index) => index === 0 || values[index - 1]! < value);
+  return values.every(
+    (value, index) => index === 0 || values[index - 1]! < value
+  );
 }
 
-async function unavailableRead(): Promise<StateSnapshot<
-  DecisionIndexState,
-  DecisionIndexMetadata
->> {
+async function unavailableRead(): Promise<
+  StateSnapshot<DecisionIndexState, DecisionIndexMetadata>
+> {
   throw new Error("decision state reader is unavailable in this operation");
 }
 

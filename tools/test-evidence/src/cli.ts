@@ -19,10 +19,7 @@ import {
   type TestEvidenceCliOutput
 } from "./cli-output.ts";
 import { hasBlockingDiagnostics } from "./diagnostics.ts";
-import {
-  queryTestEvidence,
-  testEvidenceQueryDefaultLimit
-} from "./query.ts";
+import { queryTestEvidence, testEvidenceQueryDefaultLimit } from "./query.ts";
 import {
   testEvidenceCaseShowResultSchema,
   testEvidenceIndexStageResultSchema,
@@ -60,29 +57,30 @@ type CatalogCliBase = Readonly<{
   json: boolean;
   workspaceRoot: string;
 }>;
-type CatalogCliArgs = CatalogCliBase & (
-  | Readonly<{ command: "check" }>
-  | Readonly<{
-    command: "list";
-    limit: number;
-    offset: number;
-    query?: string;
-    topic?: string;
-  }>
-  | Readonly<{
-    caseId: string;
-    command: "show";
-  }>
-  | Readonly<{
-    caseIds: readonly string[];
-    command: "stage-index";
-  }>
-  | Readonly<{
-    command: "sync-index";
-    write: boolean;
-  }>
-  | Readonly<{ command: "topics" }>
-);
+type CatalogCliArgs = CatalogCliBase &
+  (
+    | Readonly<{ command: "check" }>
+    | Readonly<{
+        command: "list";
+        limit: number;
+        offset: number;
+        query?: string;
+        topic?: string;
+      }>
+    | Readonly<{
+        caseId: string;
+        command: "show";
+      }>
+    | Readonly<{
+        caseIds: readonly string[];
+        command: "stage-index";
+      }>
+    | Readonly<{
+        command: "sync-index";
+        write: boolean;
+      }>
+    | Readonly<{ command: "topics" }>
+  );
 
 export async function runTestEvidenceCatalogCli(
   argv: readonly string[] = process.argv.slice(2)
@@ -102,10 +100,10 @@ export async function runTestEvidenceCatalogCli(
     .showHelpAfterError()
     .addHelpText(
       "afterAll",
-      "\nExit codes:\n"
-        + "  0  Success.\n"
-        + "  1  Validation, query, or operation failure.\n"
-        + "  2  Invalid arguments."
+      "\nExit codes:\n" +
+        "  0  Success.\n" +
+        "  1  Validation, query, or operation failure.\n" +
+        "  2  Invalid arguments."
     )
     .exitOverride();
 
@@ -119,32 +117,40 @@ export async function runTestEvidenceCatalogCli(
     "Strictly validate the catalog and derived index.",
     true
   );
-  check.action(() => execute({
-    ...commandBase(check),
-    command: "check"
-  }));
+  check.action(() =>
+    execute({
+      ...commandBase(check),
+      command: "check"
+    })
+  );
 
   const list = subcommand(
     program,
     "list",
     "List compact case summaries from the current catalog."
   )
-    .addOption(new Option(
-      "--limit <count>",
-      "Maximum cases to return."
-    ).argParser(parsePositiveInteger).default(testEvidenceQueryDefaultLimit))
-    .addOption(new Option(
-      "--offset <count>",
-      "Cases to skip before returning results."
-    ).argParser(parseNonNegativeInteger).default(0))
-    .addOption(new Option(
-      "--query <text>",
-      "Search case ID, title, Contract, Proves, or Entry text."
-    ).argParser(parseNonEmptyText))
-    .addOption(new Option(
-      "--topic <topic-id>",
-      "Filter cases by one defined test-evidence topic."
-    ).argParser(parseSingleTopic));
+    .addOption(
+      new Option("--limit <count>", "Maximum cases to return.")
+        .argParser(parsePositiveInteger)
+        .default(testEvidenceQueryDefaultLimit)
+    )
+    .addOption(
+      new Option("--offset <count>", "Cases to skip before returning results.")
+        .argParser(parseNonNegativeInteger)
+        .default(0)
+    )
+    .addOption(
+      new Option(
+        "--query <text>",
+        "Search case ID, title, Contract, Proves, or Entry text."
+      ).argParser(parseNonEmptyText)
+    )
+    .addOption(
+      new Option(
+        "--topic <topic-id>",
+        "Filter cases by one defined test-evidence topic."
+      ).argParser(parseSingleTopic)
+    );
   list.action(() => execute(listCommandArgs(list)));
 
   const topics = subcommand(
@@ -152,21 +158,25 @@ export async function runTestEvidenceCatalogCli(
     "topics",
     "List the authoritative test-evidence topic definitions."
   );
-  topics.action(() => execute({
-    ...commandBase(topics),
-    command: "topics"
-  }));
+  topics.action(() =>
+    execute({
+      ...commandBase(topics),
+      command: "topics"
+    })
+  );
 
   const show = subcommand(
     program,
     "show <case-id>",
     "Show one case and its original Markdown body."
   );
-  show.action((caseId: string) => execute({
-    ...commandBase(show),
-    caseId,
-    command: "show"
-  }));
+  show.action((caseId: string) =>
+    execute({
+      ...commandBase(show),
+      caseId,
+      command: "show"
+    })
+  );
 
   const stageIndex = subcommand(
     program,
@@ -177,11 +187,13 @@ export async function runTestEvidenceCatalogCli(
     "after",
     "\nTopic definitions, case Markdown, test code, and product code are not staged."
   );
-  stageIndex.action((caseIds: string[]) => execute({
-    ...commandBase(stageIndex),
-    caseIds,
-    command: "stage-index"
-  }));
+  stageIndex.action((caseIds: string[]) =>
+    execute({
+      ...commandBase(stageIndex),
+      caseIds,
+      command: "stage-index"
+    })
+  );
 
   const syncIndex = subcommand(
     program,
@@ -265,7 +277,9 @@ async function runCatalogCommand(args: CatalogCliArgs): Promise<number> {
     writeOutput(formatTestEvidenceQueryFailure(result, args.json));
     return result.diagnostics.some(
       (entry) => entry.code === "query.topic-unknown"
-    ) ? 2 : 1;
+    )
+      ? 2
+      : 1;
   }
   writeOutput(formatTestEvidenceCaseList(result, args.json));
   return 0;
@@ -336,17 +350,12 @@ function parseNonNegativeInteger(value: string): number {
 function parseNonEmptyText(value: string): string {
   const parsed = value.trim();
   if (parsed.length === 0) {
-    throw new InvalidArgumentError(
-      "must contain a non-whitespace character"
-    );
+    throw new InvalidArgumentError("must contain a non-whitespace character");
   }
   return parsed;
 }
 
-function parseSingleTopic(
-  value: string,
-  previous: string | undefined
-): string {
+function parseSingleTopic(value: string, previous: string | undefined): string {
   if (previous !== undefined) {
     throw new InvalidArgumentError("may only be specified once");
   }
@@ -389,10 +398,7 @@ export {
   testEvidenceTopicCatalogSchema,
   testEvidenceTopicsResultSchema
 };
-export type {
-  ListTestEvidenceTopicsOptions,
-  ValidateTestEvidenceOptions
-};
+export type { ListTestEvidenceTopicsOptions, ValidateTestEvidenceOptions };
 export type {
   TestEvidenceCaseShowResult,
   TestEvidenceCaseState,
@@ -407,9 +413,7 @@ export type {
 export type { QueryTestEvidenceOptions } from "./query.ts";
 export type { ShowTestEvidenceCaseOptions } from "./case-show.ts";
 export type { StageTestEvidenceIndexOptions } from "./staging.ts";
-export type {
-  SyncTestEvidenceIndexOptions
-} from "./state-index.ts";
+export type { SyncTestEvidenceIndexOptions } from "./state-index.ts";
 
 if (isMainModule(import.meta.url)) {
   process.exitCode = await runTestEvidenceCatalogCli();

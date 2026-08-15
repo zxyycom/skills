@@ -58,19 +58,19 @@ type LedgerCliQueryArgs = LedgerCliCommonArgs & {
 type LedgerCliArgs =
   | (LedgerCliCommonArgs & { command: "check" })
   | (LedgerCliCommonArgs & {
-    command: "sync-index";
-    write: boolean;
-  })
+      command: "sync-index";
+      write: boolean;
+    })
   | (LedgerCliCommonArgs & {
-    caseId: string;
-    command: "show";
-  })
+      caseId: string;
+      command: "show";
+    })
   | (LedgerCliQueryArgs & { command: "tests" })
   | (LedgerCliQueryArgs & {
-    command: "list";
-    tag?: string;
-    testId?: string;
-  });
+      command: "list";
+      tag?: string;
+      testId?: string;
+    });
 
 const repeatCheckedOptions = [
   "--root",
@@ -88,7 +88,9 @@ export async function runTestEvidenceLedgerCli(
 ): Promise<number> {
   const repeated = repeatedOption(argv);
   if (repeated !== null) {
-    process.stderr.write(`error: option '${repeated}' may only be specified once\n`);
+    process.stderr.write(
+      `error: option '${repeated}' may only be specified once\n`
+    );
     return 2;
   }
 
@@ -98,10 +100,14 @@ export async function runTestEvidenceLedgerCli(
     .description("Validate and query the Test–Case evidence ledger.")
     .allowExcessArguments(false)
     .exitOverride()
-    .addOption(new Option(
-      "--root <workspace-root>",
-      `Workspace root containing ${testEvidenceLedgerPath}.`
-    ).makeOptionMandatory().argParser(parseNonEmptyText))
+    .addOption(
+      new Option(
+        "--root <workspace-root>",
+        `Workspace root containing ${testEvidenceLedgerPath}.`
+      )
+        .makeOptionMandatory()
+        .argParser(parseNonEmptyText)
+    )
     .option("--json", "Write the command result as JSON.")
     .configureOutput({
       writeErr: (text) => process.stderr.write(text),
@@ -117,10 +123,12 @@ export async function runTestEvidenceLedgerCli(
     "check",
     "Strictly validate the ledger sources and derived index."
   );
-  check.action(() => execute({
-    ...commonCommandArgs(commandOptions(check)),
-    command: "check"
-  }));
+  check.action(() =>
+    execute({
+      ...commonCommandArgs(commandOptions(check)),
+      command: "check"
+    })
+  );
 
   const syncIndex = subcommand(
     program,
@@ -136,19 +144,18 @@ export async function runTestEvidenceLedgerCli(
     });
   });
 
-  const list = addQueryOptions(subcommand(
-    program,
-    "list",
-    "List compact Case summaries."
-  ))
-    .addOption(new Option(
-      "--test <test-id>",
-      "Filter Cases by one known Test ID."
-    ).argParser(parseTestId))
-    .addOption(new Option(
-      "--tag <tag>",
-      "Filter Cases by one Tag."
-    ).argParser(parseTag));
+  const list = addQueryOptions(
+    subcommand(program, "list", "List compact Case summaries.")
+  )
+    .addOption(
+      new Option(
+        "--test <test-id>",
+        "Filter Cases by one known Test ID."
+      ).argParser(parseTestId)
+    )
+    .addOption(
+      new Option("--tag <tag>", "Filter Cases by one Tag.").argParser(parseTag)
+    );
   list.action(() => {
     const options = commandOptions(list);
     return execute({
@@ -164,22 +171,22 @@ export async function runTestEvidenceLedgerCli(
     program,
     "show",
     "Show one authoritative Case and its current Test details."
-  ).argument(
-    "<case-id>",
-    "Case ID to show.",
-    parseCaseId
+  ).argument("<case-id>", "Case ID to show.", parseCaseId);
+  show.action((caseId: string) =>
+    execute({
+      ...commonCommandArgs(commandOptions(show)),
+      caseId,
+      command: "show"
+    })
   );
-  show.action((caseId: string) => execute({
-    ...commonCommandArgs(commandOptions(show)),
-    caseId,
-    command: "show"
-  }));
 
-  const tests = addQueryOptions(subcommand(
-    program,
-    "tests",
-    "List Test entities and derived Case memberships."
-  ));
+  const tests = addQueryOptions(
+    subcommand(
+      program,
+      "tests",
+      "List Test entities and derived Case memberships."
+    )
+  );
   tests.action(() => {
     const options = commandOptions(tests);
     return execute({
@@ -275,16 +282,16 @@ async function runListCommand(
   }
   return result.diagnostics.some(
     (diagnostic) => diagnostic.code === "query.test-unknown"
-  ) ? 2 : 1;
+  )
+    ? 2
+    : 1;
 }
 
 function commandOptions(commandNode: Command): ParsedOptions {
   return commandNode.optsWithGlobals<ParsedOptions>();
 }
 
-function commonCommandArgs(
-  options: ParsedOptions
-): LedgerCliCommonArgs {
+function commonCommandArgs(options: ParsedOptions): LedgerCliCommonArgs {
   return {
     json: options.json ?? false,
     workspaceRoot: path.resolve(options.root)
@@ -315,18 +322,22 @@ function subcommand(
 
 function addQueryOptions(command: Command): Command {
   return command
-    .addOption(new Option(
-      "--limit <count>",
-      "Maximum items to return."
-    ).argParser(parsePositiveInteger).default(testEvidenceLedgerQueryDefaultLimit))
-    .addOption(new Option(
-      "--offset <count>",
-      "Items to skip before returning results."
-    ).argParser(parseNonNegativeInteger).default(0))
-    .addOption(new Option(
-      "--query <text>",
-      "Require every search term to match."
-    ).argParser(parseNonEmptyText));
+    .addOption(
+      new Option("--limit <count>", "Maximum items to return.")
+        .argParser(parsePositiveInteger)
+        .default(testEvidenceLedgerQueryDefaultLimit)
+    )
+    .addOption(
+      new Option("--offset <count>", "Items to skip before returning results.")
+        .argParser(parseNonNegativeInteger)
+        .default(0)
+    )
+    .addOption(
+      new Option(
+        "--query <text>",
+        "Require every search term to match."
+      ).argParser(parseNonEmptyText)
+    );
 }
 
 function parsePositiveInteger(value: string): number {
@@ -361,9 +372,7 @@ function parseCliInteger(value: string): number {
 function parseNonEmptyText(value: string): string {
   const parsed = value.trim();
   if (parsed.length === 0) {
-    throw new InvalidArgumentError(
-      "must contain a non-whitespace character"
-    );
+    throw new InvalidArgumentError("must contain a non-whitespace character");
   }
   return parsed;
 }
@@ -381,7 +390,8 @@ function parseCaseId(value: string): string {
 }
 
 function parseSchemaValue(
-  schema: typeof testEntityIdSchema
+  schema:
+    | typeof testEntityIdSchema
     | typeof testEvidenceTagSchema
     | typeof testEvidenceCaseIdSchema,
   value: string,
@@ -398,9 +408,9 @@ function parseSchemaValue(
 
 function repeatedOption(argv: readonly string[]): string | null {
   for (const option of repeatCheckedOptions) {
-    const occurrences = argv.filter((argument) => (
-      argument === option || argument.startsWith(`${option}=`)
-    )).length;
+    const occurrences = argv.filter(
+      (argument) => argument === option || argument.startsWith(`${option}=`)
+    ).length;
     if (occurrences > 1) {
       return option;
     }

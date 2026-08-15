@@ -43,28 +43,26 @@ async function testValidIndexAndQueries(tempRoot: string): Promise<void> {
   assert.equal(valid.categoryCount, 2);
 
   const collectionRoot = investigationRoot(workspaceRoot);
-  const validIndex = JSON.parse(await fs.readFile(
-    path.join(collectionRoot, investigationIndexFileName),
-    "utf8"
-  )) as StateIndex;
+  const validIndex = JSON.parse(
+    await fs.readFile(
+      path.join(collectionRoot, investigationIndexFileName),
+      "utf8"
+    )
+  ) as StateIndex;
   assert.equal(validIndex.schemaVersion, 3);
   assert.deepEqual(validIndex.metadata, { resources: [] });
   assert.equal(validIndex.namespace, "investigations");
   assert.equal(validIndex.definitionVersion, 4);
-  assert.match(
-    validIndex.sourceRevision.metadata,
-    /^sha256:[0-9a-f]{64}$/u
+  assert.match(validIndex.sourceRevision.metadata, /^sha256:[0-9a-f]{64}$/u);
+  assert.ok(
+    Object.values(validIndex.sourceRevision.entries).every((fingerprint) =>
+      /^sha256:[0-9a-f]{64}$/u.test(fingerprint)
+    )
   );
-  assert.ok(Object.values(validIndex.sourceRevision.entries).every(
-    (fingerprint) => /^sha256:[0-9a-f]{64}$/u.test(fingerprint)
-  ));
-  assert.deepEqual(
-    Object.keys(validIndex.entries),
-    [
-      "codex/project-shell-registration.md",
-      "runtime/process-churn.md"
-    ]
-  );
+  assert.deepEqual(Object.keys(validIndex.entries), [
+    "codex/project-shell-registration.md",
+    "runtime/process-churn.md"
+  ]);
   assert.deepEqual(
     Object.keys(validIndex.sourceRevision.entries),
     Object.keys(validIndex.entries)
@@ -94,29 +92,33 @@ async function testValidIndexAndQueries(tempRoot: string): Promise<void> {
     Date.parse("2026-07-21T09:00:00+08:00")
   ]);
 
-  const loadedIndex = resultValue(await loadCurrentInvestigationIndex({
-    investigationsDirectory: collectionRoot
-  }));
-  const queriedIndex = resultValue(queryStateIndex({
-    definition: createInvestigationStateIndexDefinition(),
-    index: loadedIndex,
-    query: {
-      filters: [
-        {
-          key: "status",
-          kind: "exact",
-          operator: "all",
-          values: ["暂停"]
-        },
-        {
-          key: "text",
-          kind: "text",
-          operator: "all",
-          text: "进程 抖动"
-        }
-      ]
-    }
-  }));
+  const loadedIndex = resultValue(
+    await loadCurrentInvestigationIndex({
+      investigationsDirectory: collectionRoot
+    })
+  );
+  const queriedIndex = resultValue(
+    queryStateIndex({
+      definition: createInvestigationStateIndexDefinition(),
+      index: loadedIndex,
+      query: {
+        filters: [
+          {
+            key: "status",
+            kind: "exact",
+            operator: "all",
+            values: ["暂停"]
+          },
+          {
+            key: "text",
+            kind: "text",
+            operator: "all",
+            text: "进程 抖动"
+          }
+        ]
+      }
+    })
+  );
   assert.deepEqual(queriedIndex.metadata, { resources: [] });
   assert.deepEqual(
     queriedIndex.entries.map((entry) => entry.id),
@@ -176,24 +178,26 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
     investigationRoot(workspaceRoot),
     ...addedStaleReport.path.split("/")
   );
-  await fs.writeFile(
-    addedStalePath,
-    reportMarkdown(addedStaleReport),
-    "utf8"
-  );
+  await fs.writeFile(addedStalePath, reportMarkdown(addedStaleReport), "utf8");
 
   const stale = await validateInvestigationReports({ workspaceRoot });
   assert.equal(stale.indexChecked, true);
-  assert.ok(stale.errors.some((error) => (
-    error.includes(investigationIndexFileName)
-    && error.includes("does not match the current state projection")
-  )));
+  assert.ok(
+    stale.errors.some(
+      (error) =>
+        error.includes(investigationIndexFileName) &&
+        error.includes("does not match the current state projection")
+    )
+  );
 
   const staleQuery = await queryInvestigationIndex({ workspaceRoot });
-  assert.ok(staleQuery.errors.some((error) => (
-    error.includes(investigationIndexFileName)
-    && error.includes("does not match the current source revision")
-  )));
+  assert.ok(
+    staleQuery.errors.some(
+      (error) =>
+        error.includes(investigationIndexFileName) &&
+        error.includes("does not match the current source revision")
+    )
+  );
   assert.deepEqual(staleQuery.entries, []);
 
   const isolatedAddedReport = await validateInvestigationReports({
@@ -212,13 +216,15 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
     (await validateInvestigationReports({ workspaceRoot })).errors,
     []
   );
-  const resynchronizedIndex = resultValue(await loadCurrentInvestigationIndex({
-    investigationsDirectory: investigationRoot(workspaceRoot)
-  }));
-  assert.deepEqual(
-    Object.keys(resynchronizedIndex.entries),
-    ["runtime/added-report.md", "runtime/first-report.md"]
+  const resynchronizedIndex = resultValue(
+    await loadCurrentInvestigationIndex({
+      investigationsDirectory: investigationRoot(workspaceRoot)
+    })
   );
+  assert.deepEqual(Object.keys(resynchronizedIndex.entries), [
+    "runtime/added-report.md",
+    "runtime/first-report.md"
+  ]);
 
   const indexPath = path.join(
     investigationRoot(workspaceRoot),
@@ -231,12 +237,13 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
     "utf8"
   );
   const tampered = await validateInvestigationReports({ workspaceRoot });
-  assert.ok(tampered.errors.some((error) => (
-    error.includes(investigationIndexFileName)
-    && error.includes(
-      "does not match its keys under the runtime definition"
+  assert.ok(
+    tampered.errors.some(
+      (error) =>
+        error.includes(investigationIndexFileName) &&
+        error.includes("does not match its keys under the runtime definition")
     )
-  )));
+  );
   assert.equal(
     (await synchronizeInvestigationIndex({ workspaceRoot })).changed,
     true
@@ -250,15 +257,14 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
       namespace: "investigations"
     },
     sourcePath: investigationIndexFileName,
-    text: restoredIndex.replace(
-      "\"schemaVersion\": 3",
-      "\"schemaVersion\": 2"
-    )
+    text: restoredIndex.replace('"schemaVersion": 3', '"schemaVersion": 2')
   });
   assert.equal(schemaV2.status, "error");
-  assert.ok(schemaV2.diagnostics.some((diagnostic) => (
-    diagnostic.message.includes("schema version 2 is unsupported; expected 3")
-  )));
+  assert.ok(
+    schemaV2.diagnostics.some((diagnostic) =>
+      diagnostic.message.includes("schema version 2 is unsupported; expected 3")
+    )
+  );
 
   const invalidRevisionIndex = JSON.parse(restoredIndex) as StateIndex;
   invalidRevisionIndex.sourceRevision = {
@@ -278,11 +284,14 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
     text: JSON.stringify(invalidRevisionIndex)
   });
   assert.equal(invalidRevision.status, "error");
-  assert.ok(invalidRevision.diagnostics.some((diagnostic) => (
-    diagnostic.message.includes(
-      "must be a sha256 investigation source fingerprint"
-    )
-  )), invalidRevision.diagnostics.map((entry) => entry.message).join("; "));
+  assert.ok(
+    invalidRevision.diagnostics.some((diagnostic) =>
+      diagnostic.message.includes(
+        "must be a sha256 investigation source fingerprint"
+      )
+    ),
+    invalidRevision.diagnostics.map((entry) => entry.message).join("; ")
+  );
 
   const mismatchedPathIndex = JSON.parse(restoredIndex) as {
     entries: Record<string, { state: { path: string } }>;
@@ -299,9 +308,11 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
     text: JSON.stringify(mismatchedPathIndex)
   });
   assert.equal(mismatchedPath.status, "error");
-  assert.ok(mismatchedPath.diagnostics.some((diagnostic) => (
-    diagnostic.message.includes("state.path must equal the entry id")
-  )));
+  assert.ok(
+    mismatchedPath.diagnostics.some((diagnostic) =>
+      diagnostic.message.includes("state.path must equal the entry id")
+    )
+  );
 
   const invalidCount = parseStateIndex({
     definition: createInvestigationStateIndexDefinition(),
@@ -310,15 +321,15 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
       namespace: "investigations"
     },
     sourcePath: investigationIndexFileName,
-    text: restoredIndex.replace("\"reportCount\": 1", "\"reportCount\": 2")
+    text: restoredIndex.replace('"reportCount": 1', '"reportCount": 2')
   });
   assert.equal(invalidCount.status, "error");
   assert.ok(
-    invalidCount.diagnostics.some((diagnostic) => (
+    invalidCount.diagnostics.some((diagnostic) =>
       diagnostic.message.includes(
         "reportCount must equal the number of reportTitles"
       )
-    )),
+    ),
     invalidCount.diagnostics.map((entry) => entry.message).join("; ")
   );
 
@@ -335,9 +346,11 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
     )
   });
   assert.equal(invalidResourceSha.status, "error");
-  assert.ok(invalidResourceSha.diagnostics.some((diagnostic) => (
-    diagnostic.message.includes("must be a lowercase SHA-256 digest")
-  )));
+  assert.ok(
+    invalidResourceSha.diagnostics.some((diagnostic) =>
+      diagnostic.message.includes("must be a lowercase SHA-256 digest")
+    )
+  );
 
   const outOfRangeResourceReference = parseStateIndex({
     definition: createInvestigationStateIndexDefinition(),
@@ -352,21 +365,26 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
     )
   });
   assert.equal(outOfRangeResourceReference.status, "error");
-  assert.ok(outOfRangeResourceReference.diagnostics.some((diagnostic) => (
-    diagnostic.message.includes("reportIndex 1 must be less than reportCount")
-  )));
+  assert.ok(
+    outOfRangeResourceReference.diagnostics.some((diagnostic) =>
+      diagnostic.message.includes("reportIndex 1 must be less than reportCount")
+    )
+  );
 
   type ResourceTamperIndex = {
-    entries: Record<string, {
-      state: {
-        reportCount: number;
-        reportTitles: string[];
-        resourceReferences: Array<{
-          reportIndex: number;
-          resourceIds: string[];
-        }>;
-      };
-    }>;
+    entries: Record<
+      string,
+      {
+        state: {
+          reportCount: number;
+          reportTitles: string[];
+          resourceReferences: Array<{
+            reportIndex: number;
+            resourceIds: string[];
+          }>;
+        };
+      }
+    >;
     metadata: {
       resources: Array<{ id: string; sha256: string }>;
     };
@@ -403,11 +421,13 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
     ];
   });
   assert.equal(unorderedReportIndexes.status, "error");
-  assert.ok(unorderedReportIndexes.diagnostics.some((diagnostic) => (
-    diagnostic.message.includes(
-      "must use unique reportIndex values in sorted order"
+  assert.ok(
+    unorderedReportIndexes.diagnostics.some((diagnostic) =>
+      diagnostic.message.includes(
+        "must use unique reportIndex values in sorted order"
+      )
     )
-  )));
+  );
 
   const duplicateReportIndexes = parseResourceTamper((index) => {
     index.entries[resourceEntryId]!.state.resourceReferences = [
@@ -420,44 +440,52 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
     ];
   });
   assert.equal(duplicateReportIndexes.status, "error");
-  assert.ok(duplicateReportIndexes.diagnostics.some((diagnostic) => (
-    diagnostic.message.includes(
-      "must use unique reportIndex values in sorted order"
+  assert.ok(
+    duplicateReportIndexes.diagnostics.some((diagnostic) =>
+      diagnostic.message.includes(
+        "must use unique reportIndex values in sorted order"
+      )
     )
-  )));
+  );
 
   const unorderedResourceIds = parseResourceTamper((index) => {
-    index.entries[resourceEntryId]!.state.resourceReferences = [{
-      reportIndex: 0,
-      resourceIds: ["b.txt", "a.txt"]
-    }];
+    index.entries[resourceEntryId]!.state.resourceReferences = [
+      {
+        reportIndex: 0,
+        resourceIds: ["b.txt", "a.txt"]
+      }
+    ];
     index.metadata.resources = [
       { id: "a.txt", sha256: resourceDigest },
       { id: "b.txt", sha256: resourceDigest }
     ];
   });
   assert.equal(unorderedResourceIds.status, "error");
-  assert.ok(unorderedResourceIds.diagnostics.some((diagnostic) => (
-    diagnostic.message.includes(
-      "must contain unique resource ids in sorted order"
+  assert.ok(
+    unorderedResourceIds.diagnostics.some((diagnostic) =>
+      diagnostic.message.includes(
+        "must contain unique resource ids in sorted order"
+      )
     )
-  )));
+  );
 
   const duplicateResourceIds = parseResourceTamper((index) => {
-    index.entries[resourceEntryId]!.state.resourceReferences = [{
-      reportIndex: 0,
-      resourceIds: ["a.txt", "a.txt"]
-    }];
-    index.metadata.resources = [
-      { id: "a.txt", sha256: resourceDigest }
+    index.entries[resourceEntryId]!.state.resourceReferences = [
+      {
+        reportIndex: 0,
+        resourceIds: ["a.txt", "a.txt"]
+      }
     ];
+    index.metadata.resources = [{ id: "a.txt", sha256: resourceDigest }];
   });
   assert.equal(duplicateResourceIds.status, "error");
-  assert.ok(duplicateResourceIds.diagnostics.some((diagnostic) => (
-    diagnostic.message.includes(
-      "must contain unique resource ids in sorted order"
+  assert.ok(
+    duplicateResourceIds.diagnostics.some((diagnostic) =>
+      diagnostic.message.includes(
+        "must contain unique resource ids in sorted order"
+      )
     )
-  )));
+  );
 
   const unorderedMetadataIds = parseResourceTamper((index) => {
     index.metadata.resources = [
@@ -466,9 +494,11 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
     ];
   });
   assert.equal(unorderedMetadataIds.status, "error");
-  assert.ok(unorderedMetadataIds.diagnostics.some((diagnostic) => (
-    diagnostic.message.includes("must contain unique resources in id order")
-  )));
+  assert.ok(
+    unorderedMetadataIds.diagnostics.some((diagnostic) =>
+      diagnostic.message.includes("must contain unique resources in id order")
+    )
+  );
 
   const duplicateMetadataIds = parseResourceTamper((index) => {
     index.metadata.resources = [
@@ -477,9 +507,11 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
     ];
   });
   assert.equal(duplicateMetadataIds.status, "error");
-  assert.ok(duplicateMetadataIds.diagnostics.some((diagnostic) => (
-    diagnostic.message.includes("must contain unique resources in id order")
-  )));
+  assert.ok(
+    duplicateMetadataIds.diagnostics.some((diagnostic) =>
+      diagnostic.message.includes("must contain unique resources in id order")
+    )
+  );
 
   const missingResourceMetadata = parseStateIndex({
     definition: createInvestigationStateIndexDefinition(),
@@ -494,10 +526,13 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
     )
   });
   assert.equal(missingResourceMetadata.status, "error");
-  assert.ok(missingResourceMetadata.diagnostics.some((diagnostic) => (
-    diagnostic.message.includes("sample.txt")
-    && diagnostic.message.includes("missing from metadata.resources")
-  )));
+  assert.ok(
+    missingResourceMetadata.diagnostics.some(
+      (diagnostic) =>
+        diagnostic.message.includes("sample.txt") &&
+        diagnostic.message.includes("missing from metadata.resources")
+    )
+  );
 
   const unreferencedResourceMetadata = parseStateIndex({
     definition: createInvestigationStateIndexDefinition(),
@@ -512,13 +547,18 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
     )
   });
   assert.equal(unreferencedResourceMetadata.status, "error");
-  assert.ok(unreferencedResourceMetadata.diagnostics.some((diagnostic) => (
-    diagnostic.message.includes("metadata resource sample.txt")
-    && diagnostic.message.includes("not referenced")
-  )));
+  assert.ok(
+    unreferencedResourceMetadata.diagnostics.some(
+      (diagnostic) =>
+        diagnostic.message.includes("metadata resource sample.txt") &&
+        diagnostic.message.includes("not referenced")
+    )
+  );
 }
 
-async function testPrebuiltSnapshotWriteBoundary(tempRoot: string): Promise<void> {
+async function testPrebuiltSnapshotWriteBoundary(
+  tempRoot: string
+): Promise<void> {
   const missingIndexWorkspace = path.join(tempRoot, "missing-index");
   const missingIndexReports = createValidReports();
   await writeCollection(missingIndexWorkspace, missingIndexReports, false);
@@ -527,9 +567,8 @@ async function testPrebuiltSnapshotWriteBoundary(tempRoot: string): Promise<void
     missingIndexRoot,
     investigationIndexFileName
   );
-  const missingIndexSnapshot = await readInvestigationStateSnapshot(
-    missingIndexRoot
-  );
+  const missingIndexSnapshot =
+    await readInvestigationStateSnapshot(missingIndexRoot);
   await fs.appendFile(
     path.join(missingIndexRoot, ...missingIndexReports[0]!.path.split("/")),
     "\n<!-- changed after snapshot -->\n",
@@ -549,7 +588,10 @@ async function testPrebuiltSnapshotWriteBoundary(tempRoot: string): Promise<void
     ["state-index.source-changed"]
   );
   assert.equal(
-    await fs.stat(missingIndexPath).then(() => true, () => false),
+    await fs.stat(missingIndexPath).then(
+      () => true,
+      () => false
+    ),
     false
   );
 
@@ -562,9 +604,8 @@ async function testPrebuiltSnapshotWriteBoundary(tempRoot: string): Promise<void
     investigationIndexFileName
   );
   const originalIndex = await fs.readFile(existingIndexPath, "utf8");
-  const existingIndexSnapshot = await readInvestigationStateSnapshot(
-    existingIndexRoot
-  );
+  const existingIndexSnapshot =
+    await readInvestigationStateSnapshot(existingIndexRoot);
   await fs.appendFile(
     path.join(existingIndexRoot, ...existingIndexReports[0]!.path.split("/")),
     "\n<!-- changed after snapshot -->\n",
@@ -586,19 +627,16 @@ async function testPrebuiltSnapshotWriteBoundary(tempRoot: string): Promise<void
   assert.equal(await fs.readFile(existingIndexPath, "utf8"), originalIndex);
 }
 
-test("index queries return filtered and paginated investigation states", () => (
-  withTempRoot("index-query-valid", testValidIndexAndQueries)
-));
+test("index queries return filtered and paginated investigation states", () =>
+  withTempRoot("index-query-valid", testValidIndexAndQueries));
 
-test("index loading rejects stale and tampered investigation indexes", () => (
-  withTempRoot("index-query-stale", testStaleAndTamperedIndexes)
-));
+test("index loading rejects stale and tampered investigation indexes", () =>
+  withTempRoot("index-query-stale", testStaleAndTamperedIndexes));
 
-test("prebuilt snapshot synchronization rejects live source changes before index writes", () => (
-  withTempRoot("snapshot-write-boundary", testPrebuiltSnapshotWriteBoundary)
-));
+test("prebuilt snapshot synchronization rejects live source changes before index writes", () =>
+  withTempRoot("snapshot-write-boundary", testPrebuiltSnapshotWriteBoundary));
 
-test("source revisions partition metadata and topic fingerprints without parsing Markdown", () => (
+test("source revisions partition metadata and topic fingerprints without parsing Markdown", () =>
   withTempRoot("source-revision", async (tempRoot) => {
     const workspaceRoot = path.join(tempRoot, "source-revision");
     const reports = createValidReports();
@@ -608,9 +646,10 @@ test("source revisions partition metadata and topic fingerprints without parsing
     const snapshot = await readInvestigationStateSnapshot(collectionRoot);
     const revision = await readInvestigationSourceRevision(collectionRoot);
     assert.deepEqual(snapshot.sourceRevision, revision);
-    assert.deepEqual(Object.keys(snapshot.states), reports.map(
-      (report) => report.path
-    ).sort());
+    assert.deepEqual(
+      Object.keys(snapshot.states),
+      reports.map((report) => report.path).sort()
+    );
 
     const sources = reports.map((report) => ({
       path: report.path,
@@ -619,19 +658,23 @@ test("source revisions partition metadata and topic fingerprints without parsing
     const reversed = investigationSourceRevision([...sources].reverse());
     assert.deepEqual(reversed, revision);
     assert.deepEqual(
-      investigationSourceRevision(sources.map((source) => ({
-        ...source,
-        text: source.text.replace(/\n/gu, "\r\n")
-      }))),
+      investigationSourceRevision(
+        sources.map((source) => ({
+          ...source,
+          text: source.text.replace(/\n/gu, "\r\n")
+        }))
+      ),
       revision
     );
 
     const changedPath = reports[0]!.path;
-    const changedRevision = investigationSourceRevision(sources.map((source) => (
-      source.path === changedPath
-        ? { ...source, text: source.text + "not projected\n" }
-        : source
-    )));
+    const changedRevision = investigationSourceRevision(
+      sources.map((source) =>
+        source.path === changedPath
+          ? { ...source, text: source.text + "not projected\n" }
+          : source
+      )
+    );
     assert.equal(changedRevision.metadata, revision.metadata);
     assert.notEqual(
       changedRevision.entries[changedPath],
@@ -658,9 +701,8 @@ test("source revisions partition metadata and topic fingerprints without parsing
 
     const invalidPath = path.join(collectionRoot, ...changedPath.split("/"));
     await fs.writeFile(invalidPath, "not a report\n", "utf8");
-    const unparsedRevision = await readInvestigationSourceRevision(
-      collectionRoot
-    );
+    const unparsedRevision =
+      await readInvestigationSourceRevision(collectionRoot);
     assert.match(
       unparsedRevision.entries[changedPath]!,
       /^sha256:[0-9a-f]{64}$/u
@@ -669,5 +711,4 @@ test("source revisions partition metadata and topic fingerprints without parsing
       readInvestigationStateSnapshot(collectionRoot),
       /must contain exactly one H1/
     );
-  })
-));
+  }));

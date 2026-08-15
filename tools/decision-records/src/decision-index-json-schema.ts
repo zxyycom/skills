@@ -39,7 +39,8 @@ const tag = {
 } as const;
 
 export const decisionIndexJsonSchema = {
-  $comment: "entry Decision ID、state.sourcePath、派生 keys、sourceRevision 与 Markdown 投影的一致性由 CLI check 检查。",
+  $comment:
+    "entry Decision ID、state.sourcePath、派生 keys、sourceRevision 与 Markdown 投影的一致性由 CLI check 检查。",
   $defs: {
     decisionId,
     decisionSourcePath,

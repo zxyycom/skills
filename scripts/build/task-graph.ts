@@ -1,8 +1,6 @@
-import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
-import { promisify } from "node:util";
 import { toJsonSchema } from "@valibot/to-json-schema";
 import {
   buildGeneratedFileHeader,
@@ -24,7 +22,11 @@ const rebuildCommand = "bun run sync:task-graph-cli";
 const skillSourcePath = "skills/task-graph";
 const cliSourcePath = "tools/task-graph/src/cli.ts";
 const schemaSourcePath = "tools/task-graph/src/schema.ts";
-const publishedScriptsDirectory = path.join(rootDir, skillSourcePath, "scripts");
+const publishedScriptsDirectory = path.join(
+  rootDir,
+  skillSourcePath,
+  "scripts"
+);
 const cliOutputPath = path.join(publishedScriptsDirectory, "task-graph.mjs");
 const declarationOutputDirectory = path.join(
   publishedScriptsDirectory,
@@ -37,8 +39,8 @@ const schemaOutputPath = path.join(
   "task-graph-index.schema.json"
 );
 
-const portableWriteFileAtomicFilename = "node_modules/write-file-atomic/lib/index.js";
-const execFileAsync = promisify(execFile);
+const portableWriteFileAtomicFilename =
+  "node_modules/write-file-atomic/lib/index.js";
 
 function createPortableWriteFileAtomicPlugin(): {
   assertApplied(): void;
@@ -48,7 +50,9 @@ function createPortableWriteFileAtomicPlugin(): {
   return {
     assertApplied() {
       if (loadCount !== 1) {
-        throw new Error(`Expected one write-file-atomic transform, received ${loadCount}`);
+        throw new Error(
+          `Expected one write-file-atomic transform, received ${loadCount}`
+        );
       }
     },
     plugin: {
@@ -59,18 +63,33 @@ function createPortableWriteFileAtomicPlugin(): {
           async ({ path: sourcePath }) => {
             loadCount += 1;
             if (loadCount !== 1) {
-              throw new Error("write-file-atomic transform matched more than one module");
+              throw new Error(
+                "write-file-atomic transform matched more than one module"
+              );
             }
             const realSourcePath = await fs.realpath(sourcePath);
-            if (!/[\\/]write-file-atomic[\\/]lib[\\/]index\.js$/u.test(realSourcePath)) {
-              throw new Error("write-file-atomic transform received an unexpected real path");
+            if (
+              !/[\\/]write-file-atomic[\\/]lib[\\/]index\.js$/u.test(
+                realSourcePath
+              )
+            ) {
+              throw new Error(
+                "write-file-atomic transform received an unexpected real path"
+              );
             }
-            const manifest = JSON.parse(await fs.readFile(
-              path.join(path.dirname(realSourcePath), "..", "package.json"),
-              "utf8"
-            )) as { name?: unknown; version?: unknown };
-            if (manifest.name !== "write-file-atomic" || manifest.version !== "8.0.0") {
-              throw new Error("write-file-atomic transform received an unexpected package");
+            const manifest = JSON.parse(
+              await fs.readFile(
+                path.join(path.dirname(realSourcePath), "..", "package.json"),
+                "utf8"
+              )
+            ) as { name?: unknown; version?: unknown };
+            if (
+              manifest.name !== "write-file-atomic" ||
+              manifest.version !== "8.0.0"
+            ) {
+              throw new Error(
+                "write-file-atomic transform received an unexpected package"
+              );
             }
             const source = await fs.readFile(realSourcePath, "utf8");
             const filenameMatches = source.match(/\b__filename\b/gu) ?? [];
@@ -97,9 +116,14 @@ function removeBundleDebugId(
   code: string,
   sourceMapText: string
 ): { code: string; sourceMap: string } {
-  const debugIdMatch = /\/\/# debugId=([A-F0-9]{32})\r?\n\/\/# sourceMappingURL=task-graph\.mjs\.map\r?\n?$/u.exec(code);
+  const debugIdMatch =
+    /\/\/# debugId=([A-F0-9]{32})\r?\n\/\/# sourceMappingURL=task-graph\.mjs\.map\r?\n?$/u.exec(
+      code
+    );
   if (debugIdMatch === null) {
-    throw new Error("Task graph CLI bundle must end with paired debugId and source map lines");
+    throw new Error(
+      "Task graph CLI bundle must end with paired debugId and source map lines"
+    );
   }
   const sourceMap = JSON.parse(sourceMapText) as Record<string, unknown>;
   if (sourceMap.debugId !== debugIdMatch[1]) {
@@ -107,7 +131,10 @@ function removeBundleDebugId(
   }
   delete sourceMap.debugId;
   return {
-    code: code.replace(/\/\/# debugId=[A-F0-9]{32}\r?\n(?=\/\/# sourceMappingURL=task-graph\.mjs\.map\r?\n?$)/u, ""),
+    code: code.replace(
+      /\/\/# debugId=[A-F0-9]{32}\r?\n(?=\/\/# sourceMappingURL=task-graph\.mjs\.map\r?\n?$)/u,
+      ""
+    ),
     sourceMap: `${JSON.stringify(sourceMap)}\n`
   };
 }
@@ -139,25 +166,28 @@ async function buildArtifacts(): Promise<GeneratedArtifact[]> {
   const portableBundle = removeBundleDebugId(bundle.code, bundle.sourceMap);
   const serializedWorkspacePath = JSON.stringify(rootDir).slice(1, -1);
   if (
-    portableBundle.code.includes(rootDir)
-    || portableBundle.code.includes(serializedWorkspacePath)
+    portableBundle.code.includes(rootDir) ||
+    portableBundle.code.includes(serializedWorkspacePath)
   ) {
-    throw new Error("Task graph CLI bundle contains an absolute workspace path");
+    throw new Error(
+      "Task graph CLI bundle contains an absolute workspace path"
+    );
   }
 
-  const declarationArtifacts = await buildGeneratedTypeScriptDeclarationArtifacts({
-    declarationArtifactName: "task graph SDK TypeScript declaration",
-    declarationEntryOutputPath: path.join(
-      publishedScriptsDirectory,
-      "task-graph.d.mts"
-    ),
-    declarationOutputDirectory,
-    entrySourcePath: cliSourcePath,
-    rebuildCommand,
-    repository: githubRepository,
-    skillSourcePath,
-    workspaceRoot: rootDir
-  });
+  const declarationArtifacts =
+    await buildGeneratedTypeScriptDeclarationArtifacts({
+      declarationArtifactName: "task graph SDK TypeScript declaration",
+      declarationEntryOutputPath: path.join(
+        publishedScriptsDirectory,
+        "task-graph.d.mts"
+      ),
+      declarationOutputDirectory,
+      entrySourcePath: cliSourcePath,
+      rebuildCommand,
+      repository: githubRepository,
+      skillSourcePath,
+      workspaceRoot: rootDir
+    });
   const convertedSchema = toJsonSchema(taskIndexSchema, {
     errorMode: "ignore",
     overrideAction: taskGraphJsonSchemaOverrideAction,
@@ -166,12 +196,13 @@ async function buildArtifacts(): Promise<GeneratedArtifact[]> {
   });
   const jsonSchema = {
     ...convertedSchema,
-    $id: `https://raw.githubusercontent.com/${githubRepository}/main/`
-      + `${skillSourcePath}/references/task-graph-index.schema.json`,
+    $id:
+      `https://raw.githubusercontent.com/${githubRepository}/main/` +
+      `${skillSourcePath}/references/task-graph-index.schema.json`,
     $comment:
-      "Safe-integer ID suffixes, real RFC 3339 instants, cross-field, topology, "
-      + "revision, lease, and canonical-form invariants are validated by the "
-      + "task-graph CLI info command.",
+      "Safe-integer ID suffixes, real RFC 3339 instants, cross-field, topology, " +
+      "revision, lease, and canonical-form invariants are validated by the " +
+      "task-graph CLI info command.",
     title: "TaskGraphIndex"
   };
   return [
@@ -206,7 +237,10 @@ async function main(): Promise<void> {
   const expectedDeclarationPaths = new Set(
     artifacts
       .map((artifact) => artifact.path)
-      .filter((artifactPath) => path.dirname(artifactPath) === declarationOutputDirectory)
+      .filter(
+        (artifactPath) =>
+          path.dirname(artifactPath) === declarationOutputDirectory
+      )
   );
   const staleDeclarations = await removeStaleGeneratedTypeScriptDeclarations({
     declarationArtifactName: "task graph SDK TypeScript declaration",
@@ -217,7 +251,10 @@ async function main(): Promise<void> {
     workspaceRoot: rootDir
   });
   const changed = changedArtifacts || staleDeclarations.changed;
-  if (staleDeclarations.hasUnsupportedEntries || (mode === "check" && changed)) {
+  if (
+    staleDeclarations.hasUnsupportedEntries ||
+    (mode === "check" && changed)
+  ) {
     process.exit(1);
   }
   if (!changed) {

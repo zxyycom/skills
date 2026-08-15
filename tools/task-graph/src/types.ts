@@ -150,27 +150,31 @@ type TaskBlockerBase = {
   inheritancePath: string[];
 };
 
-export type TaskBlocker = TaskBlockerBase & (
-  | { kind: "control-candidate"; state: "candidate" }
-  | { kind: "control-waiting"; state: "waiting" }
-  | { kind: "control-paused"; state: "paused" }
-  | { kind: "dependency-failed"; state: "failed" }
-  | { kind: "dependency-cancelled"; state: "cancelled" }
-  | {
-      kind: "dependency-incomplete";
-      state: Exclude<TaskEffectiveState, "succeeded" | "failed" | "cancelled">;
-    }
-  | {
-      kind: "child-incomplete";
-      state: Exclude<TaskEffectiveState, "succeeded" | "cancelled">;
-    }
-  | {
-      kind: "exclusion-running" | "descendant-lease";
-      state: "running" | "recovery-needed";
-    }
-  | { kind: "ancestor-terminal"; state: "succeeded" | "cancelled" }
-  | { kind: "all-children-cancelled"; state: "cancelled" }
-);
+export type TaskBlocker = TaskBlockerBase &
+  (
+    | { kind: "control-candidate"; state: "candidate" }
+    | { kind: "control-waiting"; state: "waiting" }
+    | { kind: "control-paused"; state: "paused" }
+    | { kind: "dependency-failed"; state: "failed" }
+    | { kind: "dependency-cancelled"; state: "cancelled" }
+    | {
+        kind: "dependency-incomplete";
+        state: Exclude<
+          TaskEffectiveState,
+          "succeeded" | "failed" | "cancelled"
+        >;
+      }
+    | {
+        kind: "child-incomplete";
+        state: Exclude<TaskEffectiveState, "succeeded" | "cancelled">;
+      }
+    | {
+        kind: "exclusion-running" | "descendant-lease";
+        state: "running" | "recovery-needed";
+      }
+    | { kind: "ancestor-terminal"; state: "succeeded" | "cancelled" }
+    | { kind: "all-children-cancelled"; state: "cancelled" }
+  );
 
 export type TaskConstraintSource = {
   targetTaskId: string;
@@ -306,13 +310,17 @@ type TaskIndexStageResultBase = {
   taskCount: number;
 };
 
-export type TaskIndexStageResult = TaskIndexStageResultBase & ({
-  changed: true;
-  state: "staged";
-} | {
-  changed: false;
-  state: "unchanged";
-});
+export type TaskIndexStageResult = TaskIndexStageResultBase &
+  (
+    | {
+        changed: true;
+        state: "staged";
+      }
+    | {
+        changed: false;
+        state: "unchanged";
+      }
+  );
 
 export type TaskContentInput = {
   title: string;

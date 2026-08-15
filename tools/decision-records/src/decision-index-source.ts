@@ -5,10 +5,7 @@ import type {
   StateSourceRevision
 } from "../../index-runtime/src/index.ts";
 import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
-import {
-  isDecisionId,
-  sourcePathForDecision
-} from "./decision-path.ts";
+import { isDecisionId, sourcePathForDecision } from "./decision-path.ts";
 import { decisionSourceRevision } from "./decision-source-revision.ts";
 import { buildDecisionStateSnapshotFromSources } from "./decision-state-snapshot.ts";
 import type {
@@ -25,11 +22,9 @@ export async function readDecisionSourceRevision(
   decisionIds: readonly string[],
   signal?: AbortSignal
 ): Promise<StateSourceRevision> {
-  return decisionSourceRevision(await readDecisionSources(
-    decisionsDirectory,
-    decisionIds,
-    signal
-  ));
+  return decisionSourceRevision(
+    await readDecisionSources(decisionsDirectory, decisionIds, signal)
+  );
 }
 
 export async function readDecisionStateSnapshot(
@@ -70,9 +65,14 @@ async function readDecisionSources(
       throw new Error("decision source read was aborted");
     }
     const batch = ids.slice(offset, offset + decisionSourceReadConcurrency);
-    sources.push(...await Promise.all(batch.map(async (decisionId) => (
-      await readDecisionSource(decisionsDirectory, decisionId, signal)
-    ))));
+    sources.push(
+      ...(await Promise.all(
+        batch.map(
+          async (decisionId) =>
+            await readDecisionSource(decisionsDirectory, decisionId, signal)
+        )
+      ))
+    );
   }
   return sources;
 }

@@ -1,11 +1,5 @@
 import path from "node:path";
-import {
-  err,
-  errAsync,
-  ok,
-  ResultAsync,
-  type Result
-} from "neverthrow";
+import { err, errAsync, ok, ResultAsync, type Result } from "neverthrow";
 import * as v from "valibot";
 import {
   createStateIndexRuntime,
@@ -48,9 +42,7 @@ const testEvidenceStageDiagnosticCodes = {
 } as const;
 
 type TestEvidenceStageDiagnosticCode =
-  typeof testEvidenceStageDiagnosticCodes[
-    keyof typeof testEvidenceStageDiagnosticCodes
-  ];
+  (typeof testEvidenceStageDiagnosticCodes)[keyof typeof testEvidenceStageDiagnosticCodes];
 
 export async function stageTestEvidenceIndex(
   options: StageTestEvidenceIndexOptions
@@ -64,16 +56,12 @@ export async function stageTestEvidenceIndex(
 
 export function executeTestEvidenceIndexStage(
   options: StageTestEvidenceIndexOptions
-): ResultAsync<
-  TestEvidenceIndexStageSuccess,
-  TestEvidenceIndexStageFailure
-> {
+): ResultAsync<TestEvidenceIndexStageSuccess, TestEvidenceIndexStageFailure> {
   const validatedIds = validateCaseIds(options.caseIds);
   if (validatedIds.isErr()) {
-    return errAsync(stageFailure(
-      "invalid-arguments",
-      failedStage(validatedIds.error)
-    ));
+    return errAsync(
+      stageFailure("invalid-arguments", failedStage(validatedIds.error))
+    );
   }
 
   const runtime = createStateIndexRuntime({
@@ -83,56 +71,58 @@ export function executeTestEvidenceIndexStage(
   });
   return ResultAsync.fromSafePromise(
     runtime.stageSelectedEntries(validatedIds.value)
-  ).andThen((runtimeResult): Result<
-    TestEvidenceIndexStageSuccess,
-    TestEvidenceIndexStageFailure
-  > => {
-    const result = v.parse(
-      testEvidenceIndexStageResultSchema,
+  ).andThen(
+    (
       runtimeResult
-    );
-    return result.status === "error"
-      ? err(stageFailure("operation", result))
-      : ok(result);
-  });
+    ): Result<TestEvidenceIndexStageSuccess, TestEvidenceIndexStageFailure> => {
+      const result = v.parse(testEvidenceIndexStageResultSchema, runtimeResult);
+      return result.status === "error"
+        ? err(stageFailure("operation", result))
+        : ok(result);
+    }
+  );
 }
 
 function validateCaseIds(
   caseIds: readonly string[]
 ): Result<string[], StateIndexDiagnostic[]> {
   if (caseIds.length === 0) {
-    return err([stageDiagnostic(
-      testEvidenceStageDiagnosticCodes.caseIdsEmpty,
-      "stage-index requires at least one test evidence case ID"
-    )]);
+    return err([
+      stageDiagnostic(
+        testEvidenceStageDiagnosticCodes.caseIdsEmpty,
+        "stage-index requires at least one test evidence case ID"
+      )
+    ]);
   }
 
   const diagnostics: StateIndexDiagnostic[] = [];
   const seen = new Set<string>();
   for (const caseId of caseIds) {
     if (!v.safeParse(testEvidenceCaseIdSchema, caseId).success) {
-      diagnostics.push(stageDiagnostic(
-        testEvidenceStageDiagnosticCodes.caseIdInvalid,
-        `case ID ${JSON.stringify(caseId)} must match ${
-          testEvidenceCaseIdPatternSource
-        }`,
-        caseId
-      ));
+      diagnostics.push(
+        stageDiagnostic(
+          testEvidenceStageDiagnosticCodes.caseIdInvalid,
+          `case ID ${JSON.stringify(caseId)} must match ${
+            testEvidenceCaseIdPatternSource
+          }`,
+          caseId
+        )
+      );
       continue;
     }
     if (seen.has(caseId)) {
-      diagnostics.push(stageDiagnostic(
-        testEvidenceStageDiagnosticCodes.caseIdDuplicate,
-        `case ID ${JSON.stringify(caseId)} appears more than once`,
-        caseId
-      ));
+      diagnostics.push(
+        stageDiagnostic(
+          testEvidenceStageDiagnosticCodes.caseIdDuplicate,
+          `case ID ${JSON.stringify(caseId)} appears more than once`,
+          caseId
+        )
+      );
       continue;
     }
     seen.add(caseId);
   }
-  return diagnostics.length > 0
-    ? err(diagnostics)
-    : ok([...caseIds]);
+  return diagnostics.length > 0 ? err(diagnostics) : ok([...caseIds]);
 }
 
 function stageFailure(

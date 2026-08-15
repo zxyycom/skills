@@ -6,9 +6,7 @@ import {
   testEvidenceCaseIdPatternSource,
   type TestEvidenceTopicCatalog
 } from "./schemas.ts";
-import {
-  normalizeTestEvidenceTopicCatalog
-} from "./topic-catalog.ts";
+import { normalizeTestEvidenceTopicCatalog } from "./topic-catalog.ts";
 
 export type IdentifiedTestEvidenceCatalogSource = Readonly<{
   id: string;
@@ -39,9 +37,9 @@ export function testEvidenceSourceRevision(options: {
   topicCatalog: TestEvidenceTopicCatalog;
 }): StateSourceRevision {
   const entries: Record<string, string> = Object.create(null);
-  const sortedSources = [...options.sources].sort((left, right) => (
+  const sortedSources = [...options.sources].sort((left, right) =>
     compareText(left.path, right.path)
-  ));
+  );
   for (const source of sortedSources) {
     if (Object.hasOwn(entries, source.id)) {
       throw new TypeError(`duplicate test evidence case id: ${source.id}`);

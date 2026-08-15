@@ -14,7 +14,10 @@ import {
   setupRepository
 } from "./setup-repository.js";
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const repoRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  ".."
+);
 const manifestPath = path.join(repoRoot, "package.json");
 const lockfilePath = path.join(repoRoot, "pnpm-lock.yaml");
 const maxBuffer = 64 * 1024 * 1024;
@@ -64,9 +67,8 @@ function readEnvironmentConfig() {
     );
   }
 
-  const bunRange = typeof manifest.engines?.bun === "string"
-    ? manifest.engines.bun
-    : "";
+  const bunRange =
+    typeof manifest.engines?.bun === "string" ? manifest.engines.bun : "";
   const bunMinimumMatch = /^>=(\d+\.\d+(?:\.\d+)?)$/u.exec(bunRange);
   if (!bunMinimumMatch) {
     throw new Error("package.json engines.bun must use a simple >= version");
@@ -95,7 +97,9 @@ function dependencyNamesFrom(record) {
       names.add(name);
     }
   }
-  return [...names].sort();
+  return [...names].sort((left, right) =>
+    left < right ? -1 : left > right ? 1 : 0
+  );
 }
 
 function parseVersion(value) {
@@ -125,12 +129,10 @@ function resolveCommand(command) {
   const directories = hasDirectory
     ? [""]
     : (process.env.PATH ?? "").split(path.delimiter);
-  const extensions = process.platform === "win32" && path.extname(command) === ""
-    ? [
-        ...(process.env.PATHEXT ?? ".COM;.EXE;.BAT;.CMD").split(";"),
-        ""
-      ]
-    : [""];
+  const extensions =
+    process.platform === "win32" && path.extname(command) === ""
+      ? [...(process.env.PATHEXT ?? ".COM;.EXE;.BAT;.CMD").split(";"), ""]
+      : [""];
 
   for (const directory of directories) {
     if (!hasDirectory && directory.length === 0) {
@@ -158,7 +160,7 @@ function quoteWindowsCommandArgument(value) {
   if (/[\r\n%]/u.test(value)) {
     throw new Error(`unsupported Windows command argument: ${value}`);
   }
-  return `"${value.replaceAll("\"", "\"\"")}"`;
+  return `"${value.replaceAll('"', '""')}"`;
 }
 
 function runCommand(command, args, { inherit = false } = {}) {
@@ -171,10 +173,10 @@ function runCommand(command, args, { inherit = false } = {}) {
     };
   }
 
-  const isWindowsBatch = process.platform === "win32"
-    && /\.(?:bat|cmd)$/iu.test(resolvedCommand);
+  const isWindowsBatch =
+    process.platform === "win32" && /\.(?:bat|cmd)$/iu.test(resolvedCommand);
   const executable = isWindowsBatch
-    ? process.env.ComSpec ?? "cmd.exe"
+    ? (process.env.ComSpec ?? "cmd.exe")
     : resolvedCommand;
   const commandArgs = isWindowsBatch
     ? [
@@ -207,8 +209,8 @@ function runCommand(command, args, { inherit = false } = {}) {
     exitCode: result.status,
     output,
     resolutionError: result.error?.message ?? null,
-    stderr: inherit ? "" : result.stderr?.trim() ?? "",
-    stdout: inherit ? "" : result.stdout?.trim() ?? ""
+    stderr: inherit ? "" : (result.stderr?.trim() ?? ""),
+    stdout: inherit ? "" : (result.stdout?.trim() ?? "")
   };
 }
 
@@ -258,8 +260,8 @@ function getToolStatus(requirement) {
     };
   }
   if (
-    requirement.exactVersion
-    && compareVersions(version, requirement.exactVersion) !== 0
+    requirement.exactVersion &&
+    compareVersions(version, requirement.exactVersion) !== 0
   ) {
     return {
       detail: `expected ${requirement.exactVersion.text}`,
@@ -270,8 +272,8 @@ function getToolStatus(requirement) {
     };
   }
   if (
-    requirement.minimumVersion
-    && compareVersions(version, requirement.minimumVersion) < 0
+    requirement.minimumVersion &&
+    compareVersions(version, requirement.minimumVersion) < 0
   ) {
     return {
       detail: `requires >= ${requirement.minimumVersion.text}`,
@@ -300,12 +302,7 @@ function getDependencyStatus(config, toolStatuses) {
     };
   }
 
-  const listResult = runCommand("pnpm", [
-    "list",
-    "--depth",
-    "0",
-    "--json"
-  ]);
+  const listResult = runCommand("pnpm", ["list", "--depth", "0", "--json"]);
   if (listResult.resolutionError || listResult.exitCode !== 0) {
     return {
       detail: `pnpm list failed: ${
@@ -350,7 +347,8 @@ function getCodeGraphIndexStatus(toolStatuses) {
   const toolStatus = toolStatuses.find(({ name }) => name === "codegraph");
   if (toolStatus?.state !== "ready") {
     return {
-      detail: "the global codegraph command must be ready before its index can be checked",
+      detail:
+        "the global codegraph command must be ready before its index can be checked",
       state: "blocked"
     };
   }
@@ -375,9 +373,9 @@ function getCodeGraphIndexStatus(toolStatuses) {
     };
   }
   if (
-    typeof status !== "object"
-    || status === null
-    || typeof status.initialized !== "boolean"
+    typeof status !== "object" ||
+    status === null ||
+    typeof status.initialized !== "boolean"
   ) {
     return {
       detail: "codegraph status returned no initialized state",
@@ -391,10 +389,10 @@ function getCodeGraphIndexStatus(toolStatuses) {
     };
   }
 
-  const lastIndexed = typeof status.lastIndexed === "string"
-    && status.lastIndexed.length > 0
-    ? `; last indexed ${status.lastIndexed}`
-    : "";
+  const lastIndexed =
+    typeof status.lastIndexed === "string" && status.lastIndexed.length > 0
+      ? `; last indexed ${status.lastIndexed}`
+      : "";
   return {
     detail: `repository index is initialized${lastIndexed}`,
     state: "ready"
@@ -417,20 +415,22 @@ function getEnvironmentStatus(config) {
   const dependencies = getDependencyStatus(config, tools);
   const codegraphIndex = getCodeGraphIndexStatus(tools);
   const gitStatus = tools.find(({ name }) => name === "git");
-  const repository = gitStatus?.state === "ready"
-    ? getRepositorySetupStatus(repoRoot)
-    : {
-        detail: "git must be ready before repository setup can be checked",
-        state: "blocked"
-      };
+  const repository =
+    gitStatus?.state === "ready"
+      ? getRepositorySetupStatus(repoRoot)
+      : {
+          detail: "git must be ready before repository setup can be checked",
+          state: "blocked"
+        };
   return {
     codegraphIndex,
     dependencies,
     repository,
-    ready: tools.every(({ state }) => state === "ready")
-      && dependencies.state === "ready"
-      && codegraphIndex.state === "ready"
-      && repository.state === "ready",
+    ready:
+      tools.every(({ state }) => state === "ready") &&
+      dependencies.state === "ready" &&
+      codegraphIndex.state === "ready" &&
+      repository.state === "ready",
     tools
   };
 }
@@ -442,9 +442,7 @@ function printEnvironmentStatus(status) {
       console.log(`[ok]       ${tool.name} ${tool.version.text}`);
     } else {
       const version = tool.version ? ` ${tool.version.text}` : "";
-      console.log(
-        `[${tool.state}] ${tool.name}${version} - ${tool.detail}`
-      );
+      console.log(`[${tool.state}] ${tool.name}${version} - ${tool.detail}`);
     }
   }
 
@@ -459,9 +457,7 @@ function printEnvironmentStatus(status) {
   }
 
   if (status.codegraphIndex.state === "ready") {
-    console.log(
-      `[ok]       codegraph index - ${status.codegraphIndex.detail}`
-    );
+    console.log(`[ok]       codegraph index - ${status.codegraphIndex.detail}`);
   } else {
     console.log(
       `[${status.codegraphIndex.state}] codegraph index - ${status.codegraphIndex.detail}`
@@ -469,9 +465,7 @@ function printEnvironmentStatus(status) {
   }
 
   if (status.repository.state === "ready") {
-    console.log(
-      `[ok]       repository setup - ${status.repository.detail}`
-    );
+    console.log(`[ok]       repository setup - ${status.repository.detail}`);
   } else {
     console.log(
       `[${status.repository.state}] repository setup - ${status.repository.detail}`
@@ -481,16 +475,14 @@ function printEnvironmentStatus(status) {
   if (status.ready) {
     console.log("Environment is ready.");
   } else {
-    const codegraphTool = status.tools.find(
-      ({ name }) => name === "codegraph"
-    );
+    const codegraphTool = status.tools.find(({ name }) => name === "codegraph");
     if (codegraphTool?.state !== "ready") {
       console.log(
         "CodeGraph is a global prerequisite and is not installed by this script."
       );
       console.log(
-        "Environment is not ready. Make codegraph available on PATH, "
-          + "then run: node scripts/environment.js setup"
+        "Environment is not ready. Make codegraph available on PATH, " +
+          "then run: node scripts/environment.js setup"
       );
     } else {
       console.log(
@@ -531,7 +523,8 @@ function installPnpm(version) {
 function setupEnvironment(config) {
   let toolStatuses = getToolStatuses(config);
   const bootstrapFailures = toolStatuses.filter(
-    ({ name, state }) => (name === "git" || name === "node") && state !== "ready"
+    ({ name, state }) =>
+      (name === "git" || name === "node") && state !== "ready"
   );
   if (bootstrapFailures.length > 0) {
     throw new Error(
@@ -541,7 +534,9 @@ function setupEnvironment(config) {
     );
   }
 
-  console.log("Configuring repository-local hooks and task coordination root...");
+  console.log(
+    "Configuring repository-local hooks and task coordination root..."
+  );
   setupRepository(repoRoot);
 
   const bunStatus = toolStatuses.find(({ name }) => name === "bun");
@@ -574,9 +569,7 @@ function setupEnvironment(config) {
   console.log("Installing project dependencies from pnpm-lock.yaml...");
   requireSuccessfulCommand("pnpm", ["install", "--frozen-lockfile"]);
 
-  const codegraphStatus = toolStatuses.find(
-    ({ name }) => name === "codegraph"
-  );
+  const codegraphStatus = toolStatuses.find(({ name }) => name === "codegraph");
   if (codegraphStatus?.state !== "ready") {
     throw new Error(
       `the global codegraph command is required and is not installed by this script: ${
@@ -592,9 +585,7 @@ function setupEnvironment(config) {
   const finalStatus = getEnvironmentStatus(config);
   printEnvironmentStatus(finalStatus);
   if (!finalStatus.ready) {
-    throw new Error(
-      "setup completed but the final environment check failed"
-    );
+    throw new Error("setup completed but the final environment check failed");
   }
 }
 

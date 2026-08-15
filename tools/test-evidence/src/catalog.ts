@@ -41,7 +41,8 @@ export function collectTestEvidenceCases(
   const lines = text.split(/\r?\n/u);
   const ignoredLines = collectCodeLines(tree.children);
   const headings = tree.children.filter(
-    (node): node is MarkdownHeading => node.type === "heading" && node.depth <= 3
+    (node): node is MarkdownHeading =>
+      node.type === "heading" && node.depth <= 3
   );
   const entries: ParsedTestEvidenceCase[] = [];
 
@@ -56,13 +57,15 @@ export function collectTestEvidenceCases(
 
     const headingLine = lines[(heading.position?.start.line ?? 1) - 1] ?? "";
     const match = headingLine.match(testEvidenceCaseHeadingPattern);
-    const candidateId = match?.[1]
-      ?? headingText.split(/\s+/u)[1]
-      ?? "<invalid>";
+    const candidateId =
+      match?.[1] ?? headingText.split(/\s+/u)[1] ?? "<invalid>";
     const line = heading.position?.start.line ?? 1;
-    const nextHeading = headings.slice(index + 1).find((candidate) =>
-      (candidate.position?.start.line ?? Number.POSITIVE_INFINITY) > line
-    );
+    const nextHeading = headings
+      .slice(index + 1)
+      .find(
+        (candidate) =>
+          (candidate.position?.start.line ?? Number.POSITIVE_INFINITY) > line
+      );
     const endLine = (nextHeading?.position?.start.line ?? lines.length + 1) - 1;
     const entry = createCase({
       caseIdIsValid: match !== null && caseIdPattern.test(candidateId),

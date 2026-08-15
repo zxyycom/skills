@@ -65,23 +65,32 @@ export function executeInvestigationIndexQuery(
   }
 
   return canonicalizeInvestigationsDirectory(prepared.value.resolved)
-    .mapErr((errors) => queryFailure(
-      "operation",
-      errors,
-      prepared.value.indexPath,
-      prepared.value.validated.limit,
-      prepared.value.validated.offset
-    ))
-    .andThen((canonical) => queryValidatedInvestigationIndex(
-      canonical.investigationsDirectory,
-      prepared.value.validated
-    ).mapErr((errors) => queryFailure(
-      "operation",
-      errors,
-      path.join(canonical.investigationsDirectory, investigationIndexFileName),
-      prepared.value.validated.limit,
-      prepared.value.validated.offset
-    )));
+    .mapErr((errors) =>
+      queryFailure(
+        "operation",
+        errors,
+        prepared.value.indexPath,
+        prepared.value.validated.limit,
+        prepared.value.validated.offset
+      )
+    )
+    .andThen((canonical) =>
+      queryValidatedInvestigationIndex(
+        canonical.investigationsDirectory,
+        prepared.value.validated
+      ).mapErr((errors) =>
+        queryFailure(
+          "operation",
+          errors,
+          path.join(
+            canonical.investigationsDirectory,
+            investigationIndexFileName
+          ),
+          prepared.value.validated.limit,
+          prepared.value.validated.offset
+        )
+      )
+    );
 }
 
 function prepareQuery(
@@ -89,13 +98,15 @@ function prepareQuery(
 ): Result<PreparedQuery, InvestigationIndexQueryFailure> {
   const parsed = parseInvestigationIndexQueryOptions(input);
   if (parsed.isErr()) {
-    return err(queryFailure(
-      "invalid-options",
-      parsed.error,
-      defaultInvestigationIndexPath(),
-      stateIndexQueryDefaultLimit,
-      0
-    ));
+    return err(
+      queryFailure(
+        "invalid-options",
+        parsed.error,
+        defaultInvestigationIndexPath(),
+        stateIndexQueryDefaultLimit,
+        0
+      )
+    );
   }
 
   const resolved = resolveInvestigationsDirectory(
@@ -104,16 +115,18 @@ function prepareQuery(
   );
   const validated = validateQueryOptions(parsed.value);
   if (resolved.isErr() || validated.isErr()) {
-    return err(queryFailure(
-      "invalid-options",
-      [
-        ...(resolved.isErr() ? resolved.error : []),
-        ...(validated.isErr() ? validated.error.errors : [])
-      ],
-      investigationIndexPathForOptions(parsed.value),
-      validated.isErr() ? validated.error.limit : validated.value.limit,
-      validated.isErr() ? validated.error.offset : validated.value.offset
-    ));
+    return err(
+      queryFailure(
+        "invalid-options",
+        [
+          ...(resolved.isErr() ? resolved.error : []),
+          ...(validated.isErr() ? validated.error.errors : [])
+        ],
+        investigationIndexPathForOptions(parsed.value),
+        validated.isErr() ? validated.error.limit : validated.value.limit,
+        validated.isErr() ? validated.error.offset : validated.value.offset
+      )
+    );
   }
   return ok({
     indexPath: path.join(
@@ -140,39 +153,40 @@ function queryValidatedInvestigationIndex(
     ]
   ).andThen((loaded) => {
     if (loaded.status === "error") {
-      return err(investigationIndexDiagnosticMessages(
-        loaded.diagnostics,
-        indexPath
-      ));
+      return err(
+        investigationIndexDiagnosticMessages(loaded.diagnostics, indexPath)
+      );
     }
 
     return fromThrowable(
-      () => queryStateIndex({
-        definition: createInvestigationStateIndexDefinition(),
-        index: loaded.value,
-        query: {
-          filters: validated.filters,
-          limit: validated.limit,
-          offset: validated.offset,
-          sort: [{ direction: "desc", key: "latest-report-at" }]
-        }
-      }),
+      () =>
+        queryStateIndex({
+          definition: createInvestigationStateIndexDefinition(),
+          index: loaded.value,
+          query: {
+            filters: validated.filters,
+            limit: validated.limit,
+            offset: validated.offset,
+            sort: [{ direction: "desc", key: "latest-report-at" }]
+          }
+        }),
       (error) => [
         `investigation index query could not be completed: ${errorText(error)}`
       ]
-    )().andThen((queried) => queried.status === "error"
-      ? err(investigationIndexDiagnosticMessages(
-        queried.diagnostics,
-        indexPath
-      ))
-      : ok({
-        entries: queried.value.entries.map((entry) => entry.state),
-        errors: [],
-        indexPath,
-        limit: queried.value.limit,
-        offset: queried.value.offset,
-        total: queried.value.total
-      }));
+    )().andThen((queried) =>
+      queried.status === "error"
+        ? err(
+            investigationIndexDiagnosticMessages(queried.diagnostics, indexPath)
+          )
+        : ok({
+            entries: queried.value.entries.map((entry) => entry.state),
+            errors: [],
+            indexPath,
+            limit: queried.value.limit,
+            offset: queried.value.offset,
+            total: queried.value.total
+          })
+    );
   });
 }
 
@@ -196,9 +210,9 @@ function validateQueryOptions(
   const limit = options.limit ?? stateIndexQueryDefaultLimit;
   const offset = options.offset ?? 0;
   if (
-    !Number.isSafeInteger(limit)
-    || limit < 1
-    || limit > stateIndexQueryMaximumLimit
+    !Number.isSafeInteger(limit) ||
+    limit < 1 ||
+    limit > stateIndexQueryMaximumLimit
   ) {
     errors.push(
       `limit must be an integer from 1 to ${stateIndexQueryMaximumLimit}`
@@ -211,13 +225,13 @@ function validateQueryOptions(
   const paths = uniqueSorted(
     (options.paths ?? []).map(normalizeInvestigationTopicPath)
   );
-  const invalidPaths = paths.filter((topicPath) => (
-    !isInvestigationTopicPath(topicPath)
-  ));
+  const invalidPaths = paths.filter(
+    (topicPath) => !isInvestigationTopicPath(topicPath)
+  );
   for (const topicPath of invalidPaths) {
     errors.push(
-      `path filter must use <category-id>/<semantic-slug>.md: `
-      + (topicPath || "<empty>")
+      `path filter must use <category-id>/<semantic-slug>.md: ` +
+        (topicPath || "<empty>")
     );
   }
   if (paths.length > 0 && invalidPaths.length === 0) {
@@ -229,9 +243,9 @@ function validateQueryOptions(
     });
   }
 
-  const categories = uniqueSorted((options.categories ?? []).map((category) => (
-    category.trim()
-  )));
+  const categories = uniqueSorted(
+    (options.categories ?? []).map((category) => category.trim())
+  );
   const invalidCategories = categories.filter(
     (category) => !isInvestigationCategory(category)
   );
@@ -281,14 +295,8 @@ function validateQueryOptions(
     "latest report upper bound",
     errors
   );
-  if (
-    latestFrom !== null
-    && latestTo !== null
-    && latestFrom > latestTo
-  ) {
-    errors.push(
-      "latest report lower bound must not be after the upper bound"
-    );
+  if (latestFrom !== null && latestTo !== null && latestFrom > latestTo) {
+    errors.push("latest report lower bound must not be after the upper bound");
   }
   if (latestFrom !== null) {
     filters.push({
@@ -379,9 +387,7 @@ function investigationIndexPathForOptions(
   );
 }
 
-function uniqueSorted<Value extends string>(
-  values: readonly Value[]
-): Value[] {
+function uniqueSorted<Value extends string>(values: readonly Value[]): Value[] {
   return [...new Set(values)].sort(compareText);
 }
 

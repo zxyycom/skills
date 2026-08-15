@@ -107,9 +107,10 @@ export function effectiveDependencySources(
       });
     }
   }
-  return sources.sort((left, right) =>
-    compareText(left.targetTaskId, right.targetTaskId)
-      || compareText(left.sourceTaskId, right.sourceTaskId)
+  return sources.sort(
+    (left, right) =>
+      compareText(left.targetTaskId, right.targetTaskId) ||
+      compareText(left.sourceTaskId, right.sourceTaskId)
   );
 }
 
@@ -163,11 +164,12 @@ export function effectiveExclusionSources(
       source
     );
   }
-  return [...unique.values()].sort((left, right) =>
-    compareText(left.targetTaskId, right.targetTaskId)
-      || compareText(left.sourceTaskId, right.sourceTaskId)
-      || compareText(left.declaredTargetTaskId, right.declaredTargetTaskId)
-      || compareText(
+  return [...unique.values()].sort(
+    (left, right) =>
+      compareText(left.targetTaskId, right.targetTaskId) ||
+      compareText(left.sourceTaskId, right.sourceTaskId) ||
+      compareText(left.declaredTargetTaskId, right.declaredTargetTaskId) ||
+      compareText(
         left.targetInheritancePath.join("/"),
         right.targetInheritancePath.join("/")
       )
@@ -196,34 +198,45 @@ function directEffectiveState(
       break;
   }
   const control = effectiveControl(index, taskId);
-  if (control.mode === "candidate" || control.mode === "waiting" || control.mode === "paused") {
+  if (
+    control.mode === "candidate" ||
+    control.mode === "waiting" ||
+    control.mode === "paused"
+  ) {
     return control.mode;
   }
   const dependencyBlocked = effectiveDependencySources(index, taskId).some(
-    (source) => index.tasks[source.targetTaskId]?.state.execution.phase !== "succeeded"
+    (source) =>
+      index.tasks[source.targetTaskId]?.state.execution.phase !== "succeeded"
   );
   const taskChildren = childrenByTask(index).get(taskId) ?? [];
-  const exclusionBlocked = taskChildren.length === 0
-    && effectiveExclusionSources(index, taskId).some(
-      (source) => index.tasks[source.targetTaskId]?.state.execution.phase === "running"
+  const exclusionBlocked =
+    taskChildren.length === 0 &&
+    effectiveExclusionSources(index, taskId).some(
+      (source) =>
+        index.tasks[source.targetTaskId]?.state.execution.phase === "running"
     );
   const ancestorBlocked = ancestorIds(index, taskId).some((ancestorId) => {
     const phase = index.tasks[ancestorId]?.state.execution.phase;
     return phase === "succeeded" || phase === "cancelled";
   });
-  const childBlocked = taskChildren.length > 0 && (
-    !taskChildren.every((childId) => {
+  const childBlocked =
+    taskChildren.length > 0 &&
+    (!taskChildren.every((childId) => {
       const phase = index.tasks[childId]?.state.execution.phase;
       return phase === "succeeded" || phase === "cancelled";
-    })
-    || !taskChildren.some(
-      (childId) => index.tasks[childId]?.state.execution.phase === "succeeded"
-    )
-    || descendantIds(index, taskId).some(
-      (descendantId) => index.tasks[descendantId]?.state.execution.phase === "running"
-    )
-  );
-  return dependencyBlocked || exclusionBlocked || ancestorBlocked || childBlocked
+    }) ||
+      !taskChildren.some(
+        (childId) => index.tasks[childId]?.state.execution.phase === "succeeded"
+      ) ||
+      descendantIds(index, taskId).some(
+        (descendantId) =>
+          index.tasks[descendantId]?.state.execution.phase === "running"
+      ));
+  return dependencyBlocked ||
+    exclusionBlocked ||
+    ancestorBlocked ||
+    childBlocked
     ? "waiting"
     : "ready";
 }
@@ -259,7 +272,11 @@ function blocker(
       if (state === "cancelled") return { ...base, kind, state };
       break;
     case "dependency-incomplete":
-      if (state !== "succeeded" && state !== "failed" && state !== "cancelled") {
+      if (
+        state !== "succeeded" &&
+        state !== "failed" &&
+        state !== "cancelled"
+      ) {
         return { ...base, kind, state };
       }
       break;
@@ -293,15 +310,20 @@ function sortBlockers(blockers: TaskBlocker[]): TaskBlocker[] {
   const unique = new Map<string, TaskBlocker>();
   for (const item of blockers) {
     unique.set(
-      [item.kind, item.relatedTaskId, item.sourceTaskId, item.inheritancePath.join("/")]
-        .join("\0"),
+      [
+        item.kind,
+        item.relatedTaskId,
+        item.sourceTaskId,
+        item.inheritancePath.join("/")
+      ].join("\0"),
       item
     );
   }
-  return [...unique.values()].sort((left, right) =>
-    compareText(left.kind, right.kind)
-      || compareText(left.relatedTaskId, right.relatedTaskId)
-      || compareText(left.sourceTaskId, right.sourceTaskId)
+  return [...unique.values()].sort(
+    (left, right) =>
+      compareText(left.kind, right.kind) ||
+      compareText(left.relatedTaskId, right.relatedTaskId) ||
+      compareText(left.sourceTaskId, right.sourceTaskId)
   );
 }
 
@@ -312,7 +334,9 @@ function projectOneTask(
   children: Map<string, string[]>,
   dependents: Map<string, string[]>
 ): TaskProjection {
-  const task = Object.hasOwn(index.tasks, taskId) ? index.tasks[taskId] : undefined;
+  const task = Object.hasOwn(index.tasks, taskId)
+    ? index.tasks[taskId]
+    : undefined;
   if (task === undefined) {
     throw new TaskGraphError("TASK_NOT_FOUND", `Task ${taskId} does not exist`);
   }
@@ -341,32 +365,38 @@ function projectOneTask(
   const blockers: TaskBlocker[] = [];
 
   if (control.mode === "candidate") {
-    blockers.push(blocker(
-      "control-candidate",
-      taskId,
-      control.sourceTaskId,
-      control.sourceTaskId,
-      control.inheritancePath,
-      control.mode
-    ));
+    blockers.push(
+      blocker(
+        "control-candidate",
+        taskId,
+        control.sourceTaskId,
+        control.sourceTaskId,
+        control.inheritancePath,
+        control.mode
+      )
+    );
   } else if (control.mode === "waiting") {
-    blockers.push(blocker(
-      "control-waiting",
-      taskId,
-      control.sourceTaskId,
-      control.sourceTaskId,
-      control.inheritancePath,
-      control.mode
-    ));
+    blockers.push(
+      blocker(
+        "control-waiting",
+        taskId,
+        control.sourceTaskId,
+        control.sourceTaskId,
+        control.inheritancePath,
+        control.mode
+      )
+    );
   } else if (control.mode === "paused") {
-    blockers.push(blocker(
-      "control-paused",
-      taskId,
-      control.sourceTaskId,
-      control.sourceTaskId,
-      control.inheritancePath,
-      control.mode
-    ));
+    blockers.push(
+      blocker(
+        "control-paused",
+        taskId,
+        control.sourceTaskId,
+        control.sourceTaskId,
+        control.inheritancePath,
+        control.mode
+      )
+    );
   }
 
   if (control.mode !== "queued") {
@@ -384,18 +414,20 @@ function projectOneTask(
       continue;
     }
     const phase = target.state.execution.phase;
-    blockers.push(blocker(
-      phase === "failed"
-        ? "dependency-failed"
-        : phase === "cancelled"
-          ? "dependency-cancelled"
-          : "dependency-incomplete",
-      taskId,
-      dependency.targetTaskId,
-      dependency.sourceTaskId,
-      dependency.inheritancePath,
-      directEffectiveState(index, dependency.targetTaskId, now)
-    ));
+    blockers.push(
+      blocker(
+        phase === "failed"
+          ? "dependency-failed"
+          : phase === "cancelled"
+            ? "dependency-cancelled"
+            : "dependency-incomplete",
+        taskId,
+        dependency.targetTaskId,
+        dependency.sourceTaskId,
+        dependency.inheritancePath,
+        directEffectiveState(index, dependency.targetTaskId, now)
+      )
+    );
   }
 
   for (const exclusion of taskChildren.length === 0 ? exclusions : []) {
@@ -403,28 +435,35 @@ function projectOneTask(
     if (target?.state.execution.phase !== "running") {
       continue;
     }
-    blockers.push(blocker(
-      "exclusion-running",
-      taskId,
-      exclusion.targetTaskId,
-      exclusion.sourceTaskId,
-      exclusion.inheritancePath,
-      directEffectiveState(index, exclusion.targetTaskId, now)
-    ));
+    blockers.push(
+      blocker(
+        "exclusion-running",
+        taskId,
+        exclusion.targetTaskId,
+        exclusion.sourceTaskId,
+        exclusion.inheritancePath,
+        directEffectiveState(index, exclusion.targetTaskId, now)
+      )
+    );
   }
 
   for (const ancestorId of ancestorIds(index, taskId)) {
     const ancestor = index.tasks[ancestorId];
     const phase = ancestor?.state.execution.phase;
     if (phase === "succeeded" || phase === "cancelled") {
-      blockers.push(blocker(
-        "ancestor-terminal",
-        taskId,
-        ancestorId,
-        ancestorId,
-        lineage(index, taskId).slice(0, lineage(index, taskId).indexOf(ancestorId) + 1),
-        phase
-      ));
+      blockers.push(
+        blocker(
+          "ancestor-terminal",
+          taskId,
+          ancestorId,
+          ancestorId,
+          lineage(index, taskId).slice(
+            0,
+            lineage(index, taskId).indexOf(ancestorId) + 1
+          ),
+          phase
+        )
+      );
     }
   }
 
@@ -432,43 +471,51 @@ function projectOneTask(
     for (const childId of taskChildren) {
       const child = index.tasks[childId];
       if (
-        child !== undefined
-        && child.state.execution.phase !== "succeeded"
-        && child.state.execution.phase !== "cancelled"
+        child !== undefined &&
+        child.state.execution.phase !== "succeeded" &&
+        child.state.execution.phase !== "cancelled"
       ) {
-        blockers.push(blocker(
-          "child-incomplete",
-          taskId,
-          childId,
-          taskId,
-          [taskId],
-          directEffectiveState(index, childId, now)
-        ));
+        blockers.push(
+          blocker(
+            "child-incomplete",
+            taskId,
+            childId,
+            taskId,
+            [taskId],
+            directEffectiveState(index, childId, now)
+          )
+        );
       }
     }
-    if (taskChildren.every(
-      (childId) => index.tasks[childId]?.state.execution.phase === "cancelled"
-    )) {
-      blockers.push(blocker(
-        "all-children-cancelled",
-        taskId,
-        taskId,
-        taskId,
-        [taskId],
-        "cancelled"
-      ));
+    if (
+      taskChildren.every(
+        (childId) => index.tasks[childId]?.state.execution.phase === "cancelled"
+      )
+    ) {
+      blockers.push(
+        blocker(
+          "all-children-cancelled",
+          taskId,
+          taskId,
+          taskId,
+          [taskId],
+          "cancelled"
+        )
+      );
     }
     for (const descendantId of descendantIds(index, taskId)) {
       const descendant = index.tasks[descendantId];
       if (descendant?.state.execution.phase === "running") {
-        blockers.push(blocker(
-          "descendant-lease",
-          taskId,
-          descendantId,
-          taskId,
-          [taskId],
-          directEffectiveState(index, descendantId, now)
-        ));
+        blockers.push(
+          blocker(
+            "descendant-lease",
+            taskId,
+            descendantId,
+            taskId,
+            [taskId],
+            directEffectiveState(index, descendantId, now)
+          )
+        );
       }
     }
   }
@@ -605,7 +652,9 @@ export function validateTaskIndexGraph(index: TaskIndex): string[] {
       if (leaseOwner === undefined) {
         leaseOwners.set(execution.lease.id, taskId);
       } else {
-        issues.push(`${taskId} duplicates lease ${execution.lease.id} from ${leaseOwner}`);
+        issues.push(
+          `${taskId} duplicates lease ${execution.lease.id} from ${leaseOwner}`
+        );
       }
       const claimedAt = new Date(execution.lease.claimedAt).valueOf();
       const renewedAt = new Date(execution.lease.renewedAt).valueOf();
@@ -616,21 +665,26 @@ export function validateTaskIndexGraph(index: TaskIndex): string[] {
     }
     const taskChildren = children.get(taskId) ?? [];
     if (
-      taskChildren.length > 0
-      && (execution.phase === "running" || execution.phase === "failed")
+      taskChildren.length > 0 &&
+      (execution.phase === "running" || execution.phase === "failed")
     ) {
       issues.push(`${taskId} non-leaf task cannot be ${execution.phase}`);
     }
     if (execution.phase === "succeeded" && taskChildren.length > 0) {
-      if (!taskChildren.some(
-        (childId) => index.tasks[childId]?.state.execution.phase === "succeeded"
-      )) {
+      if (
+        !taskChildren.some(
+          (childId) =>
+            index.tasks[childId]?.state.execution.phase === "succeeded"
+        )
+      ) {
         issues.push(`${taskId} succeeded parent needs a succeeded child`);
       }
-      if (!taskChildren.every((childId) => {
-        const phase = index.tasks[childId]?.state.execution.phase;
-        return phase === "succeeded" || phase === "cancelled";
-      })) {
+      if (
+        !taskChildren.every((childId) => {
+          const phase = index.tasks[childId]?.state.execution.phase;
+          return phase === "succeeded" || phase === "cancelled";
+        })
+      ) {
         issues.push(`${taskId} succeeded parent has incomplete children`);
       }
     }
@@ -642,12 +696,13 @@ export function validateTaskIndexGraph(index: TaskIndex): string[] {
   }
 
   for (const [taskId, task] of Object.entries(index.tasks)) {
-    if (task.state.execution.phase === "cancelled" && descendantIds(index, taskId).some(
-      (descendantId) => {
+    if (
+      task.state.execution.phase === "cancelled" &&
+      descendantIds(index, taskId).some((descendantId) => {
         const phase = index.tasks[descendantId]?.state.execution.phase;
         return phase !== "succeeded" && phase !== "cancelled";
-      }
-    )) {
+      })
+    ) {
       issues.push(`${taskId} cancelled parent has non-terminal descendants`);
     }
   }
@@ -657,8 +712,13 @@ export function validateTaskIndexGraph(index: TaskIndex): string[] {
     for (const excludedId of Object.keys(
       index.tasks[taskId]?.state.relations.excludes ?? {}
     )) {
-      if (ancestors.has(excludedId) || ancestorIds(index, excludedId).includes(taskId)) {
-        issues.push(`${taskId} cannot exclude ancestor or descendant ${excludedId}`);
+      if (
+        ancestors.has(excludedId) ||
+        ancestorIds(index, excludedId).includes(taskId)
+      ) {
+        issues.push(
+          `${taskId} cannot exclude ancestor or descendant ${excludedId}`
+        );
       }
     }
   }
@@ -674,10 +734,14 @@ export function validateTaskIndexGraph(index: TaskIndex): string[] {
       dependencyEdges.get(taskId)?.add(childId);
     }
     const effectiveDependencies = new Set(
-      effectiveDependencySources(index, taskId).map((source) => source.targetTaskId)
+      effectiveDependencySources(index, taskId).map(
+        (source) => source.targetTaskId
+      )
     );
     const effectiveExclusions = new Set(
-      effectiveExclusionSources(index, taskId).map((source) => source.targetTaskId)
+      effectiveExclusionSources(index, taskId).map(
+        (source) => source.targetTaskId
+      )
     );
     for (const targetId of effectiveDependencies) {
       if (targetId === taskId) {
@@ -699,12 +763,16 @@ export function validateTaskIndexGraph(index: TaskIndex): string[] {
     const phase = task.state.execution.phase;
     const taskChildren = children.get(taskId) ?? [];
     const dependencies = new Set(
-      effectiveDependencySources(index, taskId).map((source) => source.targetTaskId)
+      effectiveDependencySources(index, taskId).map(
+        (source) => source.targetTaskId
+      )
     );
     if (phase === "running" || phase === "succeeded") {
       for (const dependencyId of dependencies) {
         if (index.tasks[dependencyId]?.state.execution.phase !== "succeeded") {
-          issues.push(`${taskId} ${phase} evidence has incomplete dependency ${dependencyId}`);
+          issues.push(
+            `${taskId} ${phase} evidence has incomplete dependency ${dependencyId}`
+          );
         }
       }
     }
@@ -713,28 +781,41 @@ export function validateTaskIndexGraph(index: TaskIndex): string[] {
         (sourceId) => index.tasks[sourceId]?.state.control.mode !== "inherit"
       );
       if (!hasControlSource) {
-        issues.push(`${taskId} running evidence has no effective control source`);
+        issues.push(
+          `${taskId} running evidence has no effective control source`
+        );
       } else if (effectiveControl(index, taskId).mode !== "queued") {
-        issues.push(`${taskId} running evidence requires effective queued control`);
+        issues.push(
+          `${taskId} running evidence requires effective queued control`
+        );
       }
-      if (ancestorIds(index, taskId).some((ancestorId) => {
-        const ancestorPhase = index.tasks[ancestorId]?.state.execution.phase;
-        return ancestorPhase === "succeeded" || ancestorPhase === "cancelled";
-      })) {
+      if (
+        ancestorIds(index, taskId).some((ancestorId) => {
+          const ancestorPhase = index.tasks[ancestorId]?.state.execution.phase;
+          return ancestorPhase === "succeeded" || ancestorPhase === "cancelled";
+        })
+      ) {
         issues.push(`${taskId} running evidence is behind a terminal ancestor`);
       }
       for (const exclusion of effectiveExclusionSources(index, taskId)) {
-        if (index.tasks[exclusion.targetTaskId]?.state.execution.phase === "running") {
-          issues.push(`${taskId} and ${exclusion.targetTaskId} cannot both be running`);
+        if (
+          index.tasks[exclusion.targetTaskId]?.state.execution.phase ===
+          "running"
+        ) {
+          issues.push(
+            `${taskId} and ${exclusion.targetTaskId} cannot both be running`
+          );
         }
       }
     }
     if (
-      phase === "succeeded"
-      && taskChildren.length === 0
-      && task.state.execution.attempt < 1
+      phase === "succeeded" &&
+      taskChildren.length === 0 &&
+      task.state.execution.attempt < 1
     ) {
-      issues.push(`${taskId} succeeded leaf requires at least one claim attempt`);
+      issues.push(
+        `${taskId} succeeded leaf requires at least one claim attempt`
+      );
     }
   }
   return [...new Set(issues)].sort(compareText);
@@ -755,16 +836,12 @@ export function assertProtectedTopologyUnchanged(
 ): void {
   for (const [taskId, task] of Object.entries(before.tasks)) {
     const phase = task.state.execution.phase;
-    if (
-      phase !== "running"
-      && phase !== "succeeded"
-      && phase !== "cancelled"
-    ) {
+    if (phase !== "running" && phase !== "succeeded" && phase !== "cancelled") {
       continue;
     }
     if (
-      after.tasks[taskId] === undefined
-      || topologySignature(before, taskId) !== topologySignature(after, taskId)
+      after.tasks[taskId] === undefined ||
+      topologySignature(before, taskId) !== topologySignature(after, taskId)
     ) {
       throw new TaskGraphError(
         "STATE_CONFLICT",
@@ -784,9 +861,9 @@ export function assertRunningControlUnchanged(
       continue;
     }
     if (
-      after.tasks[taskId] === undefined
-      || JSON.stringify(effectiveControl(before, taskId))
-        !== JSON.stringify(effectiveControl(after, taskId))
+      after.tasks[taskId] === undefined ||
+      JSON.stringify(effectiveControl(before, taskId)) !==
+        JSON.stringify(effectiveControl(after, taskId))
     ) {
       throw new TaskGraphError(
         "STATE_CONFLICT",

@@ -25,10 +25,7 @@ import { mapStateIndexDiagnostics } from "./state-index.ts";
 export async function showTestEvidenceCase(
   options: ShowTestEvidenceCaseOptions
 ): Promise<TestEvidenceCaseShowResult> {
-  const parsedOptions = v.safeParse(
-    showTestEvidenceCaseOptionsSchema,
-    options
-  );
+  const parsedOptions = v.safeParse(showTestEvidenceCaseOptionsSchema, options);
   if (!parsedOptions.success) {
     return showFailure([
       createInvalidTestEvidenceOptionsDiagnostic(parsedOptions.issues)
@@ -66,10 +63,7 @@ export async function showTestEvidenceCase(
     found.value.state.sourcePath
   );
   if (source.value === null) {
-    return showFailure([
-      ...opened.diagnostics,
-      ...source.diagnostics
-    ]);
+    return showFailure([...opened.diagnostics, ...source.diagnostics]);
   }
   if (source.value.id !== parsedOptions.output.caseId) {
     return showFailure([
@@ -92,34 +86,31 @@ export async function showTestEvidenceCase(
     testIds: source.value.case.testIds
   });
   if (resolvedTests.diagnostics.length > 0) {
-    return showFailure([
-      ...opened.diagnostics,
-      ...resolvedTests.diagnostics
-    ]);
+    return showFailure([...opened.diagnostics, ...resolvedTests.diagnostics]);
   }
 
   const currentRevision = await readTestEvidenceLedgerRevision(
     parsedOptions.output.workspaceRoot
   );
   if (currentRevision.source === null) {
-    return showFailure([
-      ...opened.diagnostics,
-      ...currentRevision.diagnostics
-    ]);
+    return showFailure([...opened.diagnostics, ...currentRevision.diagnostics]);
   }
-  if (!sameTargetTestEvidenceLedgerRevision({
-    caseId: parsedOptions.output.caseId,
-    current: currentRevision.source.sourceRevision,
-    observedFingerprint: source.value.fingerprint,
-    opened: opened.opened.revisionSource.sourceRevision
-  })) {
+  if (
+    !sameTargetTestEvidenceLedgerRevision({
+      caseId: parsedOptions.output.caseId,
+      current: currentRevision.source.sourceRevision,
+      observedFingerprint: source.value.fingerprint,
+      opened: opened.opened.revisionSource.sourceRevision
+    })
+  ) {
     return showFailure([
       ...opened.diagnostics,
       createTestEvidenceDiagnostic({
         caseId: parsedOptions.output.caseId,
         category: "index",
         code: "state-index.source-changed",
-        message: "the entity index or target Case changed while composing the show result; retry after the source is stable",
+        message:
+          "the entity index or target Case changed while composing the show result; retry after the source is stable",
         path: found.value.state.sourcePath,
         severity: "error"
       })
@@ -154,15 +145,17 @@ function resolveCaseTests(options: {
   for (const testId of options.testIds) {
     const entity = entityById.get(testId);
     if (entity === undefined) {
-      diagnostics.push(createTestEvidenceDiagnostic({
-        caseId: options.caseId,
-        category: "relation",
-        code: "relation.test-unknown",
-        message: `${options.caseId} references unknown Test entity ${testId}`,
-        path: options.sourcePath,
-        severity: "error",
-        testId
-      }));
+      diagnostics.push(
+        createTestEvidenceDiagnostic({
+          caseId: options.caseId,
+          category: "relation",
+          code: "relation.test-unknown",
+          message: `${options.caseId} references unknown Test entity ${testId}`,
+          path: options.sourcePath,
+          severity: "error",
+          testId
+        })
+      );
       continue;
     }
     tests.push({

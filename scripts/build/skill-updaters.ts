@@ -15,15 +15,13 @@ import {
   rootDir,
   type SkillPackage
 } from "../lib/project.ts";
-import {
-  pathExists,
-  toPosix
-} from "../../tools/shared/src/node/filesystem.ts";
+import { pathExists, toPosix } from "../../tools/shared/src/node/filesystem.ts";
 import { skillReleaseManifestFileName } from "../../tools/skill-package/src/release-manifest.ts";
 import type { UpdaterConfig } from "../../tools/skill-updater/src/types.ts";
 
 const templateRelativePath = "tools/skill-updater/src/index.ts";
-const declarationSourceRelativePath = "tools/skill-updater/api/update-skill.d.mts";
+const declarationSourceRelativePath =
+  "tools/skill-updater/api/update-skill.d.mts";
 const updaterRelativePath = path.join("scripts", "update-skill.mjs");
 const declarationRelativePath = path.join("scripts", "update-skill.d.mts");
 const skillNameTemplateToken = "__CODEX_SKILL_NAME__";
@@ -73,7 +71,9 @@ async function buildUpdater(
     keepNames: true,
     minify: true,
     outputFileName: path.basename(updaterRelativePath),
-    sourceMapBaseDirectory: path.dirname(path.join(skill.directory, updaterRelativePath)),
+    sourceMapBaseDirectory: path.dirname(
+      path.join(skill.directory, updaterRelativePath)
+    ),
     sourceMap: true
   });
   const declaration = await buildGeneratedDeclaration({
@@ -98,9 +98,10 @@ function renderUpdater(
   return {
     bundle: {
       code: render(template.bundle.code),
-      sourceMap: template.bundle.sourceMap === null
-        ? null
-        : render(template.bundle.sourceMap)
+      sourceMap:
+        template.bundle.sourceMap === null
+          ? null
+          : render(template.bundle.sourceMap)
     },
     declaration: render(template.declaration)
   };
@@ -116,47 +117,55 @@ async function syncSkillUpdater(
 
   for (const legacyRelativePath of legacyUpdaterRelativePaths) {
     const legacyOutputPath = path.join(skill.directory, legacyRelativePath);
-    if (!await pathExists(legacyOutputPath)) {
+    if (!(await pathExists(legacyOutputPath))) {
       continue;
     }
 
     if (mode === "check") {
       console.error(
-        `${toPosix(path.relative(rootDir, legacyOutputPath))} should be removed; `
-        + "updater modules are generated as update-skill.mjs"
+        `${toPosix(path.relative(rootDir, legacyOutputPath))} should be removed; ` +
+          "updater modules are generated as update-skill.mjs"
       );
       changed = true;
     } else {
       await fs.rm(legacyOutputPath);
-      console.log(`Removed ${toPosix(path.relative(rootDir, legacyOutputPath))}`);
+      console.log(
+        `Removed ${toPosix(path.relative(rootDir, legacyOutputPath))}`
+      );
       changed = true;
     }
   }
 
   if (expected.bundle.sourceMap === null) {
-    throw new Error(`Bundled ${templateRelativePath} must include a source map`);
+    throw new Error(
+      `Bundled ${templateRelativePath} must include a source map`
+    );
   }
 
-  return await syncGeneratedArtifacts(
-    [
-      { content: expected.bundle.code, path: outputPath },
-      { content: expected.bundle.sourceMap, path: `${outputPath}.map` },
-      {
-        content: expected.declaration,
-        path: path.join(skill.directory, declarationRelativePath),
-        sourcePath: declarationSourceRelativePath
-      }
-    ],
-    mode,
-    rootDir,
-    templateRelativePath
-  ) || changed;
+  return (
+    (await syncGeneratedArtifacts(
+      [
+        { content: expected.bundle.code, path: outputPath },
+        { content: expected.bundle.sourceMap, path: `${outputPath}.map` },
+        {
+          content: expected.declaration,
+          path: path.join(skill.directory, declarationRelativePath),
+          sourcePath: declarationSourceRelativePath
+        }
+      ],
+      mode,
+      rootDir,
+      templateRelativePath
+    )) || changed
+  );
 }
 
 const mode = parseGeneratedFileMode(process.argv.slice(2));
 const discovery = await discoverSkillPackages(rootDir);
 if (discovery.errors.length > 0) {
-  throw new Error(`Cannot sync skill updaters:\n- ${discovery.errors.join("\n- ")}`);
+  throw new Error(
+    `Cannot sync skill updaters:\n- ${discovery.errors.join("\n- ")}`
+  );
 }
 
 let changed = false;
@@ -171,7 +180,7 @@ const updaterTemplate = await buildUpdater(
 
 for (const skill of discovery.skills) {
   const expected = renderUpdater(updaterTemplate, skill.name);
-  changed = await syncSkillUpdater(skill, expected, mode) || changed;
+  changed = (await syncSkillUpdater(skill, expected, mode)) || changed;
 }
 
 if (mode === "check" && changed) {

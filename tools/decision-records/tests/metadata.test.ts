@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   parseDecisionMarkdown,
-  replaceDecisionFrontmatter,
+  replaceDecisionFrontmatter
 } from "../src/decision-metadata.ts";
 import { validateDecisionBody } from "../src/record.ts";
 import { candidateDecisionBody } from "./support.ts";
@@ -13,18 +13,18 @@ test("decision Markdown requires sorted unique tag tokens", async () => {
     "tags:\nrelations: []",
     "tags:\n  - invalid_tag\nrelations: []",
     "tags:\n  - zeta\n  - alpha\nrelations: []",
-    "tags:\n  - alpha\n  - alpha\nrelations: []",
+    "tags:\n  - alpha\n  - alpha\nrelations: []"
   ]) {
     const errors: string[] = [];
     await validateDecisionBody({
       body: candidateDecisionBody().replace(
         "tags:\n  - decision-records\nrelations: []",
-        replacement,
+        replacement
       ),
       errors,
       decisionId: "use-tags.md",
       sourcePath: "use-tags.md",
-      targetExists: () => false,
+      targetExists: () => false
     });
     assert.notEqual(errors.length, 0, replacement);
   }
@@ -33,12 +33,12 @@ test("decision Markdown requires sorted unique tag tokens", async () => {
 test("decision Markdown parses canonical tags and round-trips its semantic fields", () => {
   const errors: string[] = [];
   const markdown = candidateDecisionBody({
-    tags: ["decision-records", "project-tooling"],
+    tags: ["decision-records", "project-tooling"]
   });
   const parsed = parseDecisionMarkdown({
     errors,
     markdown,
-    relativePath: "use-tags.md",
+    relativePath: "use-tags.md"
   });
 
   assert.deepEqual(errors, []);
@@ -48,14 +48,14 @@ test("decision Markdown parses canonical tags and round-trips its semantic field
   assert.equal(parsed.body, markdown.slice(markdown.indexOf("## 目的")));
 
   const serialized = replaceDecisionFrontmatter(markdown, {
-    metadata: { status: "candidate", alignment: null, createdAt: null },
+    metadata: { status: "candidate", alignment: null, createdAt: null }
   });
   assert.ok(serialized);
   const roundTripErrors: string[] = [];
   const roundTripped = parseDecisionMarkdown({
     errors: roundTripErrors,
     markdown: serialized,
-    relativePath: "use-tags.md",
+    relativePath: "use-tags.md"
   });
   assert.deepEqual(roundTripErrors, []);
   assert.ok(roundTripped);
@@ -68,7 +68,7 @@ test("decision Markdown rejects removed domain fields and unknown frontmatter", 
   for (const line of [
     "domain: decision-records",
     "domains: []",
-    "extra: value",
+    "extra: value"
   ]) {
     const errors: string[] = [];
     await validateDecisionBody({
@@ -76,7 +76,7 @@ test("decision Markdown rejects removed domain fields and unknown frontmatter", 
       errors,
       decisionId: "use-tags.md",
       sourcePath: "use-tags.md",
-      targetExists: () => false,
+      targetExists: () => false
     });
     assert.notEqual(errors.length, 0, line);
   }

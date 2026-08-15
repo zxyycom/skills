@@ -6,7 +6,7 @@ import test from "node:test";
 import { planChangePlanDirectory } from "../src/lifecycle.ts";
 import { validBaseCommit, withTempRoot, writePlan } from "./support.ts";
 
-test("plan confirms drafts and reconfirms plans without task progress gates", () => (
+test("plan confirms drafts and reconfirms plans without task progress gates", () =>
   withTempRoot("lifecycle-plan", async (tempRoot) => {
     const changesRoot = path.join(tempRoot, "changes");
     const draftDirectory = await writePlan(changesRoot, "draft", {
@@ -46,10 +46,9 @@ test("plan confirms drafts and reconfirms plans without task progress gates", ()
     assert.equal(planResult.fromStage, "plan");
     assert.equal(planResult.metadata?.stage, "plan");
     assert.ok(planResult.metadata?.baseCommit);
-  })
-));
+  }));
 
-test("plan rejects noncanonical metadata without mutation", () => (
+test("plan rejects noncanonical metadata without mutation", () =>
   withTempRoot("lifecycle-noncanonical", async (tempRoot) => {
     const changesRoot = path.join(tempRoot, "changes");
     const invalidInputs = [
@@ -86,15 +85,16 @@ test("plan rejects noncanonical metadata without mutation", () => (
       }
       assert.equal(result.errorCode, "invalid-source-stage");
       assert.equal(result.fromStage, null);
-      assert.ok(result.diagnostics.some(
-        (diagnostic) => diagnostic.code === "invalid-metadata"
-      ));
+      assert.ok(
+        result.diagnostics.some(
+          (diagnostic) => diagnostic.code === "invalid-metadata"
+        )
+      );
       assert.equal(await fs.readFile(metadataPath, "utf8"), before);
     }
-  })
-));
+  }));
 
-test("plan refreshes the baseline without inspecting the old distance", () => (
+test("plan refreshes the baseline without inspecting the old distance", () =>
   withTempRoot("lifecycle-distance-failure", async (tempRoot) => {
     const changeDirectory = await writePlan(
       path.join(tempRoot, "changes"),
@@ -119,10 +119,9 @@ test("plan refreshes the baseline without inspecting the old distance", () => (
       result.metadata?.stage === "plan" ? result.metadata.baseCommit : null,
       head.stdout.trim()
     );
-  })
-));
+  }));
 
-test("plan returns a stable version-control failure without metadata mutation", () => (
+test("plan returns a stable version-control failure without metadata mutation", () =>
   withTempRoot("lifecycle-version-control", async (tempRoot) => {
     const repository = path.join(tempRoot, "repository-without-head");
     await fs.mkdir(repository);
@@ -144,5 +143,4 @@ test("plan returns a stable version-control failure without metadata mutation", 
     assert.equal(result.action, "plan");
     assert.equal(result.errorCode, "base-commit-unavailable");
     assert.equal(await fs.readFile(metadataPath, "utf8"), before);
-  })
-));
+  }));

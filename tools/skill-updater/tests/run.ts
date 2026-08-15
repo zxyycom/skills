@@ -100,59 +100,63 @@ function runUpdater(
   return result;
 }
 
-const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "skill-updater-test-"));
+const tempRoot = await fs.mkdtemp(
+  path.join(os.tmpdir(), "skill-updater-test-")
+);
 after(async () => {
   await fs.rm(tempRoot, { force: true, recursive: true });
 });
 
-  const mockFetchPath = path.join(tempRoot, "mock-fetch.cjs");
-  await fs.writeFile(
-    mockFetchPath,
-    [
-      "const fs = require('node:fs');",
-      "const releaseJson = process.env.SKILLS_TEST_RELEASE_JSON;",
-      "const manifestJson = process.env.SKILLS_TEST_MANIFEST_JSON;",
-      "const zipBase64 = process.env.SKILLS_TEST_ZIP_BASE64;",
-      "const fetchMarkerPath = process.env.SKILLS_TEST_FETCH_MARKER_PATH;",
-      "globalThis.fetch = async (input) => {",
-      "  const url = String(input);",
-      "  if (fetchMarkerPath) fs.writeFileSync(fetchMarkerPath, url, 'utf8');",
-      "  if (url.startsWith('https://api.github.com/repos/')) {",
-      "    return new Response(releaseJson, { status: 200 });",
-      "  }",
-      `  if (url === ${JSON.stringify(manifestAssetUrl)}) {`,
-      "    return new Response(manifestJson, { status: 200 });",
-      "  }",
-      `  if (url === ${JSON.stringify(zipAssetUrl)}) {`,
-      "    return new Response(Buffer.from(zipBase64, 'base64'), { status: 200 });",
-      "  }",
-      "  return new Response('not found', { status: 404 });",
-      "};",
-      ""
-    ].join("\n"),
-    "utf8"
-  );
+const mockFetchPath = path.join(tempRoot, "mock-fetch.cjs");
+await fs.writeFile(
+  mockFetchPath,
+  [
+    "const fs = require('node:fs');",
+    "const releaseJson = process.env.SKILLS_TEST_RELEASE_JSON;",
+    "const manifestJson = process.env.SKILLS_TEST_MANIFEST_JSON;",
+    "const zipBase64 = process.env.SKILLS_TEST_ZIP_BASE64;",
+    "const fetchMarkerPath = process.env.SKILLS_TEST_FETCH_MARKER_PATH;",
+    "globalThis.fetch = async (input) => {",
+    "  const url = String(input);",
+    "  if (fetchMarkerPath) fs.writeFileSync(fetchMarkerPath, url, 'utf8');",
+    "  if (url.startsWith('https://api.github.com/repos/')) {",
+    "    return new Response(releaseJson, { status: 200 });",
+    "  }",
+    `  if (url === ${JSON.stringify(manifestAssetUrl)}) {`,
+    "    return new Response(manifestJson, { status: 200 });",
+    "  }",
+    `  if (url === ${JSON.stringify(zipAssetUrl)}) {`,
+    "    return new Response(Buffer.from(zipBase64, 'base64'), { status: 200 });",
+    "  }",
+    "  return new Response('not found', { status: 404 });",
+    "};",
+    ""
+  ].join("\n"),
+  "utf8"
+);
 
-  const remoteSkillMarkdown = skillMarkdown(2, "# Updated AI-ready docs");
-  const remoteFiles = [
-    {
-      data: Buffer.from(remoteSkillMarkdown, "utf8"),
-      path: "SKILL.md"
-    },
-    {
-      data: Buffer.from("# Current reference\n", "utf8"),
-      path: "references/current.md"
-    }
-  ];
-  const zipData = zipSync(Object.fromEntries(
+const remoteSkillMarkdown = skillMarkdown(2, "# Updated AI-ready docs");
+const remoteFiles = [
+  {
+    data: Buffer.from(remoteSkillMarkdown, "utf8"),
+    path: "SKILL.md"
+  },
+  {
+    data: Buffer.from("# Current reference\n", "utf8"),
+    path: "references/current.md"
+  }
+];
+const zipData = zipSync(
+  Object.fromEntries(
     remoteFiles.map((file) => [`${skillName}/${file.path}`, file.data])
-  ));
-  const validManifest = {
-    schemaVersion: 1,
-    skills: {
-      [skillName]: { version: 2 }
-    }
-  };
+  )
+);
+const validManifest = {
+  schemaVersion: 1,
+  skills: {
+    [skillName]: { version: 2 }
+  }
+};
 
 test("updater configuration exposes the public contract", () => {
   assert.equal(skillUpdaterConfig.skillName, skillName);
@@ -175,11 +179,17 @@ test("updater help exposes the public CLI contract", async () => {
     console.log = originalConsoleLog;
   }
   assert.match(helpOutput.join("\n"), /Usage: node update-skill\.mjs/);
-  assert.match(helpOutput.join("\n"), /installed version differs from the remote version/);
+  assert.match(
+    helpOutput.join("\n"),
+    /installed version differs from the remote version/
+  );
 });
 
 test("updater declarations expose the public API contract", async () => {
-  const generatedDeclaration = await fs.readFile(generatedDeclarationPath, "utf8");
+  const generatedDeclaration = await fs.readFile(
+    generatedDeclarationPath,
+    "utf8"
+  );
   assert.match(
     generatedDeclaration,
     /Maintained source: https:\/\/github\.com\/zxyycom\/skills\/blob\/main\/tools\/skill-updater\/api\/update-skill\.d\.mts/
@@ -201,7 +211,11 @@ test("updater replaces packaged files and preserves local custom files", async (
     skillMarkdown(1, "# Old skill"),
     "utf8"
   );
-  await fs.writeFile(path.join(successTarget, "stale.md"), "# Keep this customization\n", "utf8");
+  await fs.writeFile(
+    path.join(successTarget, "stale.md"),
+    "# Keep this customization\n",
+    "utf8"
+  );
 
   const success = runUpdater(mockFetchPath, {
     args: ["--yes"],
@@ -227,7 +241,10 @@ test("updater replaces packaged files and preserves local custom files", async (
 });
 
 test("updater check treats a matching installed version as current", async () => {
-  const customizedCurrentTarget = path.join(tempRoot, "customized-current-target");
+  const customizedCurrentTarget = path.join(
+    tempRoot,
+    "customized-current-target"
+  );
   await fs.mkdir(customizedCurrentTarget);
   await fs.writeFile(
     path.join(customizedCurrentTarget, "SKILL.md"),
@@ -372,7 +389,10 @@ test("updater check reports an unversioned installed skill", async () => {
   });
   assert.equal(unversioned.status, 1);
   assert.match(unversioned.stdout, /Local version: \(unversioned\)/);
-  assert.match(unversioned.stdout, /Status: update available \(local version unknown\)/);
+  assert.match(
+    unversioned.stdout,
+    /Status: update available \(local version unknown\)/
+  );
 });
 
 test("updater rejects a manifest version that differs from the package", async () => {
@@ -396,7 +416,10 @@ test("updater rejects a manifest version that differs from the package", async (
     zipData
   });
   assert.equal(mismatch.status, 1);
-  assert.match(mismatch.stderr, /does not match skill-release-manifest\.json version/);
+  assert.match(
+    mismatch.stderr,
+    /does not match skill-release-manifest\.json version/
+  );
   assert.equal(
     await fs.readFile(path.join(mismatchTarget, "SKILL.md"), "utf8"),
     mismatchSkillMarkdown
@@ -493,6 +516,9 @@ test("updater reports invalid manifest payloads", () => {
     zipData
   });
   assert.equal(invalidManifest.status, 1);
-  assert.match(invalidManifest.stderr, /contains invalid skill-release-manifest\.json/);
+  assert.match(
+    invalidManifest.stderr,
+    /contains invalid skill-release-manifest\.json/
+  );
   assert.match(invalidManifest.stderr, /schemaVersion/);
 });

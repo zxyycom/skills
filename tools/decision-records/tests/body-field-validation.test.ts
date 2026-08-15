@@ -5,8 +5,8 @@ import { validateDecisionBody } from "../src/record.ts";
 const sourcePath = "accept-equivalent-punctuation.md";
 const listMarkers = ["-", "*", "+"] as const;
 const fieldSeparators = [":", "："] as const;
-const missingFieldError = sourcePath
-  + " must include non-empty field \"- 采用: <value>\"";
+const missingFieldError =
+  sourcePath + ' must include non-empty field "- 采用: <value>"';
 
 function decisionBody(fieldLine: string): string {
   return [

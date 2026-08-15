@@ -15,15 +15,13 @@ export const testEntityIndexSchemaVersion = 1 as const;
 
 export const testEvidenceLedgerPath = "docs/test-evidence";
 export const testEvidenceCasesPath = "docs/test-evidence/cases";
-export const testEntityIndexPath =
-  "docs/test-evidence/test-entity-index.json";
+export const testEntityIndexPath = "docs/test-evidence/test-entity-index.json";
 export const testEvidenceLedgerIndexPath =
   "docs/test-evidence/test-evidence-index.json";
 
 export const testEvidenceCaseIdPatternSource =
   "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+){2,}-\\d{3}$";
-export const testEvidenceTagPatternSource =
-  "^[a-z0-9]+(?:-[a-z0-9]+)*$";
+export const testEvidenceTagPatternSource = "^[a-z0-9]+(?:-[a-z0-9]+)*$";
 export const testEvidenceCaseFilePatternSource =
   "^[a-z0-9]+(?:-[a-z0-9]+)*\\.md$";
 
@@ -34,10 +32,7 @@ export const testEvidenceDiagnosticCategories = [
   "index",
   "query"
 ] as const;
-export const testEvidenceDiagnosticSeverities = [
-  "error",
-  "warning"
-] as const;
+export const testEvidenceDiagnosticSeverities = ["error", "warning"] as const;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
@@ -95,10 +90,7 @@ export const testEntityIdSchema = v.pipe(
 );
 export const testEvidenceSourceFingerprintSchema = v.pipe(
   v.string("must be a string"),
-  v.regex(
-    /^sha256:[0-9a-f]{64}$/u,
-    "must be a sha256 source fingerprint"
-  )
+  v.regex(/^sha256:[0-9a-f]{64}$/u, "must be a sha256 source fingerprint")
 );
 
 const sortedUniqueLocatorsSchema = v.pipe(
@@ -126,14 +118,13 @@ export const testEntityIndexSchema = v.strictObject({
   entities: v.pipe(
     v.array(testEntitySchema),
     v.check(
-      (entities) => new Set(entities.map((entity) => entity.id)).size
-        === entities.length,
+      (entities) =>
+        new Set(entities.map((entity) => entity.id)).size === entities.length,
       "entity ids must be unique"
     ),
     v.check(
-      (entities) => isStrictlyAscendingLexical(
-        entities.map((entity) => entity.id)
-      ),
+      (entities) =>
+        isStrictlyAscendingLexical(entities.map((entity) => entity.id)),
       "entities must be sorted by id in ascending lexical order"
     )
   )
@@ -219,11 +210,13 @@ export const testEvidenceLedgerIndexMetadataSchema = v.strictObject({
 
 const testEvidenceLedgerIndexKeysSchema = v.strictObject({
   search: v.tuple([stateIndexTextSchema]),
-  tag: v.optional(v.pipe(
-    v.array(testEvidenceTagSchema),
-    v.minLength(1),
-    v.check((values) => isStrictlyAscendingLexical(values))
-  )),
+  tag: v.optional(
+    v.pipe(
+      v.array(testEvidenceTagSchema),
+      v.minLength(1),
+      v.check((values) => isStrictlyAscendingLexical(values))
+    )
+  ),
   test: v.pipe(
     v.array(testEntityIdSchema),
     v.minLength(1),
@@ -287,10 +280,12 @@ export const testEvidenceLedgerReportSchema = v.strictObject({
   indexPath: v.literal(testEvidenceLedgerIndexPath),
   ledgerPath: v.literal(testEvidenceLedgerPath),
   schemaVersion: v.literal(testEvidenceLedgerSchemaVersion),
-  sourceRevision: v.nullable(createStateSourceRevisionSchema({
-    fingerprint: testEvidenceSourceFingerprintSchema,
-    id: testEvidenceCaseIdSchema
-  })),
+  sourceRevision: v.nullable(
+    createStateSourceRevisionSchema({
+      fingerprint: testEvidenceSourceFingerprintSchema,
+      id: testEvidenceCaseIdSchema
+    })
+  ),
   summary: testEvidenceLedgerSummarySchema
 });
 
@@ -332,10 +327,12 @@ const testEvidenceLedgerIndexSyncResultBaseEntries = {
   indexPath: v.literal(testEvidenceLedgerIndexPath),
   ledgerPath: v.literal(testEvidenceLedgerPath),
   schemaVersion: v.literal(testEvidenceLedgerSchemaVersion),
-  sourceRevision: v.nullable(createStateSourceRevisionSchema({
-    fingerprint: testEvidenceSourceFingerprintSchema,
-    id: testEvidenceCaseIdSchema
-  }))
+  sourceRevision: v.nullable(
+    createStateSourceRevisionSchema({
+      fingerprint: testEvidenceSourceFingerprintSchema,
+      id: testEvidenceCaseIdSchema
+    })
+  )
 };
 
 export const testEvidenceLedgerIndexSyncResultSchema = v.union([

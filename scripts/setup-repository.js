@@ -1,11 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
-import {
-  accessSync,
-  constants as fsConstants,
-  existsSync
-} from "node:fs";
+import { accessSync, constants as fsConstants, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { setupGitHooks } from "./setup-git-hooks.js";

@@ -14,10 +14,7 @@ import {
   parseTaskIndex,
   serializeTaskIndex
 } from "./schema.ts";
-import type {
-  TaskIndex,
-  TaskIndexStageResult
-} from "./types.ts";
+import type { TaskIndex, TaskIndexStageResult } from "./types.ts";
 
 type TaskSelection = Readonly<{
   selectedTaskIds: readonly string[];
@@ -28,10 +25,12 @@ type StagingVersionControlOperation =
   | "read-head"
   | "replace-pending";
 
-export async function stageSelectedTaskIndex(options: Readonly<{
-  indexPath: string;
-  selectedTaskIds: readonly string[];
-}>): Promise<{ revision: number; data: TaskIndexStageResult }> {
+export async function stageSelectedTaskIndex(
+  options: Readonly<{
+    indexPath: string;
+    selectedTaskIds: readonly string[];
+  }>
+): Promise<{ revision: number; data: TaskIndexStageResult }> {
   const selection = validateTaskSelection(options.selectedTaskIds);
   const workspace = await readWorkspaceIndex(options.indexPath);
 
@@ -39,7 +38,11 @@ export async function stageSelectedTaskIndex(options: Readonly<{
   try {
     repository = await openVersionControl(path.dirname(options.indexPath));
   } catch (error) {
-    throw versionControlFailure(error, "discover-repository", selection.selectedTaskIds);
+    throw versionControlFailure(
+      error,
+      "discover-repository",
+      selection.selectedTaskIds
+    );
   }
 
   let repositoryIndexPath: string;
@@ -65,34 +68,29 @@ export async function stageSelectedTaskIndex(options: Readonly<{
   let headIndexFile: VersionControlFile | null;
   try {
     headRevision = await repository.getCurrentRevision();
-    headIndexFile = headRevision === null
-      ? null
-      : await repository.readRevisionFile(headRevision, repositoryIndexPath);
+    headIndexFile =
+      headRevision === null
+        ? null
+        : await repository.readRevisionFile(headRevision, repositoryIndexPath);
   } catch (error) {
     throw versionControlFailure(error, "read-head", selection.selectedTaskIds);
   }
 
-  const baseline = headIndexFile === null
-    ? emptyTaskIndex()
-    : parseSnapshot(headIndexFile.data, options.indexPath, "HEAD");
+  const baseline =
+    headIndexFile === null
+      ? emptyTaskIndex()
+      : parseSnapshot(headIndexFile.data, options.indexPath, "HEAD");
   assertRootWatermarksDoNotRegress(
     baseline,
     workspace,
     selection.selectedTaskIds
   );
-  assertSelectedTasksExist(
-    baseline,
-    workspace,
-    selection.selectedTaskIds
-  );
-  const target = buildTargetIndex(
-    baseline,
-    workspace,
-    selection
-  );
+  assertSelectedTasksExist(baseline, workspace, selection.selectedTaskIds);
+  const target = buildTargetIndex(baseline, workspace, selection);
   const targetData = Buffer.from(serializeTaskIndex(target), "utf8");
-  const differsFromHead = headIndexFile === null
-    || !targetData.equals(Buffer.from(headIndexFile.data));
+  const differsFromHead =
+    headIndexFile === null ||
+    !targetData.equals(Buffer.from(headIndexFile.data));
 
   try {
     await repository.replacePendingFiles({
@@ -102,7 +100,11 @@ export async function stageSelectedTaskIndex(options: Readonly<{
       pathScope: repositoryIndexPath
     });
   } catch (error) {
-    throw versionControlFailure(error, "replace-pending", selection.selectedTaskIds);
+    throw versionControlFailure(
+      error,
+      "replace-pending",
+      selection.selectedTaskIds
+    );
   }
 
   const commonResult = {
@@ -224,7 +226,8 @@ function parseSnapshot(
       {
         indexPath,
         source,
-        requirement: "canonical field order, two-space JSON, LF, and one trailing newline"
+        requirement:
+          "canonical field order, two-space JSON, LF, and one trailing newline"
       }
     );
   }
@@ -237,8 +240,8 @@ function assertRootWatermarksDoNotRegress(
   selectedTaskIds: readonly string[]
 ): void {
   if (
-    workspace.revision < baseline.revision
-    || workspace.nextTaskId < baseline.nextTaskId
+    workspace.revision < baseline.revision ||
+    workspace.nextTaskId < baseline.nextTaskId
   ) {
     throw new TaskGraphError(
       "REVISION_CONFLICT",
@@ -259,10 +262,11 @@ function assertSelectedTasksExist(
   workspace: TaskIndex,
   selectedTaskIds: readonly string[]
 ): void {
-  const missingTaskId = selectedTaskIds.find((taskId) => (
-    !Object.hasOwn(baseline.tasks, taskId)
-    && !Object.hasOwn(workspace.tasks, taskId)
-  ));
+  const missingTaskId = selectedTaskIds.find(
+    (taskId) =>
+      !Object.hasOwn(baseline.tasks, taskId) &&
+      !Object.hasOwn(workspace.tasks, taskId)
+  );
   if (missingTaskId !== undefined) {
     throw new TaskGraphError(
       "TASK_NOT_FOUND",
@@ -313,9 +317,8 @@ function versionControlFailure(
   operation: StagingVersionControlOperation,
   selectedTaskIds: readonly string[]
 ): TaskGraphError {
-  const versionControlCode = error instanceof VersionControlError
-    ? error.code
-    : null;
+  const versionControlCode =
+    error instanceof VersionControlError ? error.code : null;
   const details = {
     operation,
     selectedTaskIds: [...selectedTaskIds],
@@ -372,7 +375,5 @@ function compareText(left: string, right: string): number {
 }
 
 function isMissingFileError(error: unknown): boolean {
-  return error instanceof Error
-    && "code" in error
-    && error.code === "ENOENT";
+  return error instanceof Error && "code" in error && error.code === "ENOENT";
 }

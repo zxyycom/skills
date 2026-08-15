@@ -48,26 +48,31 @@ export function parseStateIndex<
     const definitionErrors = validateStateIndexDefinition(options.definition);
     if (definitionErrors.length > 0) {
       return {
-        diagnostics: [diagnostic({
-          code: "state-index.definition-invalid",
-          message: definitionErrors.join("; "),
-          path: options.sourcePath
-        })],
+        diagnostics: [
+          diagnostic({
+            code: "state-index.definition-invalid",
+            message: definitionErrors.join("; "),
+            path: options.sourcePath
+          })
+        ],
         status: "error",
         value: null
       };
     }
     const definitionExpectation = expectationOf(options.definition);
     if (
-      definitionExpectation.namespace !== options.expectation.namespace
-      || definitionExpectation.definitionVersion !== options.expectation.definitionVersion
+      definitionExpectation.namespace !== options.expectation.namespace ||
+      definitionExpectation.definitionVersion !==
+        options.expectation.definitionVersion
     ) {
       return {
-        diagnostics: [diagnostic({
-          code: "state-index.definition-mismatch",
-          message: "parse expectation does not match the runtime definition",
-          path: options.sourcePath
-        })],
+        diagnostics: [
+          diagnostic({
+            code: "state-index.definition-mismatch",
+            message: "parse expectation does not match the runtime definition",
+            path: options.sourcePath
+          })
+        ],
         status: "error",
         value: null
       };
@@ -79,11 +84,13 @@ export function parseStateIndex<
     value = JSON.parse(options.text);
   } catch (error) {
     return {
-      diagnostics: [diagnostic({
-        code: "state-index.json-invalid",
-        message: errorText(error),
-        path: options.sourcePath
-      })],
+      diagnostics: [
+        diagnostic({
+          code: "state-index.json-invalid",
+          message: errorText(error),
+          path: options.sourcePath
+        })
+      ],
       status: "error",
       value: null
     };
@@ -99,18 +106,20 @@ export function parseStateIndex<
   }
 
   if (
-    options.definition !== undefined
-    && !sameKeyDefinitions(
+    options.definition !== undefined &&
+    !sameKeyDefinitions(
       validated.index.keyDefinitions,
       keyDefinitionsOf(options.definition)
     )
   ) {
     return {
-      diagnostics: [diagnostic({
-        code: "state-index.definition-mismatch",
-        message: "index key definitions do not match the runtime definition",
-        path: options.sourcePath
-      })],
+      diagnostics: [
+        diagnostic({
+          code: "state-index.definition-mismatch",
+          message: "index key definitions do not match the runtime definition",
+          path: options.sourcePath
+        })
+      ],
       status: "error",
       value: null
     };

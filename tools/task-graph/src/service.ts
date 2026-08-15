@@ -13,10 +13,7 @@ import {
 } from "./engine.ts";
 import { projectTaskGraph } from "./graph.ts";
 import { stageSelectedTaskIndex } from "./staging.ts";
-import {
-  TaskGraphStore,
-  type TaskGraphStoreOptions
-} from "./store.ts";
+import { TaskGraphStore, type TaskGraphStoreOptions } from "./store.ts";
 import type {
   CancelTaskOptions,
   ClaimTaskOptions,
@@ -43,10 +40,10 @@ export type TaskGraphServiceOptions = {
 };
 
 /** @internal */
-export type TaskGraphServiceInternalOptions = TaskGraphServiceOptions
-& Omit<TaskGraphStoreOptions, "indexPath" | "root"> & {
-  leaseIdGenerator?: () => string;
-};
+export type TaskGraphServiceInternalOptions = TaskGraphServiceOptions &
+  Omit<TaskGraphStoreOptions, "indexPath" | "root"> & {
+    leaseIdGenerator?: () => string;
+  };
 
 export type ServiceResult<TData> = {
   revision: number;
@@ -116,7 +113,9 @@ export class TaskGraphService {
     });
   }
 
-  async apply(request: TaskGraphApplyRequest): Promise<ServiceResult<TaskGraphApplyResult>> {
+  async apply(
+    request: TaskGraphApplyRequest
+  ): Promise<ServiceResult<TaskGraphApplyResult>> {
     const transformed = await this.store.mutate((index) =>
       applyTaskGraphOperations(index, request, this.clock())
     );
@@ -131,41 +130,57 @@ export class TaskGraphService {
     );
     return {
       revision: index.revision,
-      data: Object.fromEntries(taskEntries.map(([taskId, task]) => {
-        const effective = projection.tasks[taskId];
-        if (effective === undefined) {
-          throw new Error(
-            `Task graph projection omitted ${taskId}; inspect projectTaskGraph() task enumeration`
-          );
-        }
-        return [taskId, {
-          ...effective,
-          title: task.content.title,
-          parentId: task.state.relations.parentId,
-          phase: task.state.execution.phase
-        } satisfies TaskListItem];
-      }))
+      data: Object.fromEntries(
+        taskEntries.map(([taskId, task]) => {
+          const effective = projection.tasks[taskId];
+          if (effective === undefined) {
+            throw new Error(
+              `Task graph projection omitted ${taskId}; inspect projectTaskGraph() task enumeration`
+            );
+          }
+          return [
+            taskId,
+            {
+              ...effective,
+              title: task.content.title,
+              parentId: task.state.relations.parentId,
+              phase: task.state.execution.phase
+            } satisfies TaskListItem
+          ];
+        })
+      )
     };
   }
 
-  async showTask(taskId: string): Promise<ServiceResult<{
-    task: TaskIndex["tasks"][string];
-    projection: TaskGraphProjection["tasks"][string];
-  }>> {
+  async showTask(taskId: string): Promise<
+    ServiceResult<{
+      task: TaskIndex["tasks"][string];
+      projection: TaskGraphProjection["tasks"][string];
+    }>
+  > {
     const { index } = await this.store.read();
-    const task = Object.hasOwn(index.tasks, taskId) ? index.tasks[taskId] : undefined;
+    const task = Object.hasOwn(index.tasks, taskId)
+      ? index.tasks[taskId]
+      : undefined;
     const projectedTasks = projectTaskGraph(index, this.clock()).tasks;
-    const projection = Object.hasOwn(projectedTasks, taskId) ? projectedTasks[taskId] : undefined;
+    const projection = Object.hasOwn(projectedTasks, taskId)
+      ? projectedTasks[taskId]
+      : undefined;
     if (task === undefined || projection === undefined) {
-      throw new TaskGraphError("TASK_NOT_FOUND", `Task ${taskId} does not exist`);
+      throw new TaskGraphError(
+        "TASK_NOT_FOUND",
+        `Task ${taskId} does not exist`
+      );
     }
     return { revision: index.revision, data: { task, projection } };
   }
 
-  async actionable(): Promise<ServiceResult<{
-    tasks: TaskGraphProjection["actionable"];
-    order: string[];
-  }>> {
+  async actionable(): Promise<
+    ServiceResult<{
+      tasks: TaskGraphProjection["actionable"];
+      order: string[];
+    }>
+  > {
     const { index } = await this.store.read();
     const projection = projectTaskGraph(index, this.clock());
     return {
@@ -175,10 +190,16 @@ export class TaskGraphService {
   }
 
   async claim(options: ClaimTaskOptions) {
-    return await this.executionMutation((index) => claimTask(index, {
-      ...options,
-      leaseUuid: this.leaseIdGenerator()
-    }, this.clock()));
+    return await this.executionMutation((index) =>
+      claimTask(
+        index,
+        {
+          ...options,
+          leaseUuid: this.leaseIdGenerator()
+        },
+        this.clock()
+      )
+    );
   }
 
   async renew(options: {
@@ -186,7 +207,9 @@ export class TaskGraphService {
     leaseId: string;
     durationSeconds?: number;
   }) {
-    return await this.executionMutation((index) => renewTaskLease(index, options, this.clock()));
+    return await this.executionMutation((index) =>
+      renewTaskLease(index, options, this.clock())
+    );
   }
 
   async release(options: {
@@ -194,27 +217,39 @@ export class TaskGraphService {
     leaseId: string;
     control: TaskControlInput;
   }) {
-    return await this.executionMutation((index) => releaseTask(index, options, this.clock()));
+    return await this.executionMutation((index) =>
+      releaseTask(index, options, this.clock())
+    );
   }
 
   async complete(options: CompleteTaskOptions) {
-    return await this.executionMutation((index) => completeTask(index, options, this.clock()));
+    return await this.executionMutation((index) =>
+      completeTask(index, options, this.clock())
+    );
   }
 
   async fail(options: { taskId: string; leaseId: string; reason: string }) {
-    return await this.executionMutation((index) => failTask(index, options, this.clock()));
+    return await this.executionMutation((index) =>
+      failTask(index, options, this.clock())
+    );
   }
 
   async retry(options: { taskId: string; expectedRevision: number }) {
-    return await this.executionMutation((index) => retryTask(index, options, this.clock()));
+    return await this.executionMutation((index) =>
+      retryTask(index, options, this.clock())
+    );
   }
 
   async cancel(options: CancelTaskOptions) {
-    return await this.executionMutation((index) => cancelTask(index, options, this.clock()));
+    return await this.executionMutation((index) =>
+      cancelTask(index, options, this.clock())
+    );
   }
 
   async removeTasks(options: RemoveTasksOptions) {
-    return await this.executionMutation((index) => removeTaskEntries(index, options));
+    return await this.executionMutation((index) =>
+      removeTaskEntries(index, options)
+    );
   }
 
   private async executionMutation<TData>(

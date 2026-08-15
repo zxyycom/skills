@@ -95,9 +95,7 @@ export async function scanDecisionRecords(
     addCollectionError(
       collectionErrors,
       sourceErrors,
-      location.decisionsLabel
-        + " could not be read: "
-        + errorText(error)
+      location.decisionsLabel + " could not be read: " + errorText(error)
     );
   }
 
@@ -120,10 +118,7 @@ export async function scanDecisionRecords(
     location,
     indexErrors
   );
-  if (
-    !loadedIndex.indexExists
-    && records.some(isEstablishedDecisionRecord)
-  ) {
+  if (!loadedIndex.indexExists && records.some(isEstablishedDecisionRecord)) {
     indexErrors.push(decisionIndexRequiredError(location.indexRelativePath));
   }
 
@@ -175,9 +170,9 @@ async function inspectDecisionsDirectory(
   } catch (error) {
     return isFileSystemError(error, "ENOENT")
       ? location.decisionsLabel + " is required"
-      : location.decisionsLabel
-        + " could not be inspected: "
-        + errorText(error);
+      : location.decisionsLabel +
+          " could not be inspected: " +
+          errorText(error);
   }
 }
 
@@ -214,15 +209,17 @@ async function loadDecisionIndexForScan(
       return { index: null, indexExists: false, indexText: "" };
     }
     indexErrors.push(
-      location.indexRelativePath + " could not be inspected: " + errorText(error)
+      location.indexRelativePath +
+        " could not be inspected: " +
+        errorText(error)
     );
     return { index: null, indexExists: false, indexText: "" };
   }
 
   if (entry.isSymbolicLink() || !entry.isFile()) {
     indexErrors.push(
-      location.indexRelativePath
-        + " must be a regular non-symbolic-link JSON file"
+      location.indexRelativePath +
+        " must be a regular non-symbolic-link JSON file"
     );
     return { index: null, indexExists: true, indexText: "" };
   }
@@ -238,10 +235,12 @@ async function loadDecisionIndexForScan(
   }
   const parsed = parseDecisionIndex(indexText, location.indexRelativePath);
   if (parsed.status === "error") {
-    indexErrors.push(...decisionIndexDiagnosticMessages(
-      parsed.diagnostics,
-      location.indexRelativePath
-    ));
+    indexErrors.push(
+      ...decisionIndexDiagnosticMessages(
+        parsed.diagnostics,
+        location.indexRelativePath
+      )
+    );
     return { index: null, indexExists: true, indexText };
   }
   return { index: parsed.value, indexExists: true, indexText };
@@ -253,14 +252,12 @@ async function collectSourceFiles(options: {
   decisionsLabel: string;
   sourceErrors: string[];
 }): Promise<SourceFile[]> {
-  const {
-    collectionErrors,
-    decisionsDirectory,
-    decisionsLabel,
-    sourceErrors
-  } = options;
+  const { collectionErrors, decisionsDirectory, decisionsLabel, sourceErrors } =
+    options;
   const sources: SourceFile[] = [];
-  const rootEntries = await fs.readdir(decisionsDirectory, { withFileTypes: true });
+  const rootEntries = await fs.readdir(decisionsDirectory, {
+    withFileTypes: true
+  });
   rootEntries.sort((left, right) => left.name.localeCompare(right.name));
   for (const entry of rootEntries) {
     const entryPath = path.join(decisionsDirectory, entry.name);
@@ -365,8 +362,8 @@ function validateSourceMembership(
       addCollectionError(
         collectionErrors,
         sourceErrors,
-        "Decision source must use a stable kebab-case Decision ID basename: "
-          + members[0].sourcePath
+        "Decision source must use a stable kebab-case Decision ID basename: " +
+          members[0].sourcePath
       );
     } else if (members.length === 1) {
       availableDecisionIds.add(decisionId);
@@ -375,11 +372,11 @@ function validateSourceMembership(
       addCollectionError(
         collectionErrors,
         sourceErrors,
-        "Decision ID occurs in more than one source path: "
-          + decisionId
-          + " ("
-          + members.map((member) => member.sourcePath).join(", ")
-          + ")"
+        "Decision ID occurs in more than one source path: " +
+          decisionId +
+          " (" +
+          members.map((member) => member.sourcePath).join(", ") +
+          ")"
       );
     }
   }
@@ -414,18 +411,18 @@ async function scanSourceFile(
   const decisionId = isDecisionId(sourceFile.decisionId)
     ? sourceFile.decisionId
     : null;
-  const indexEntry = context.index !== null
-    && decisionId !== null
-    && Object.hasOwn(context.index.entries, decisionId)
-    ? context.index.entries[decisionId]
-    : null;
+  const indexEntry =
+    context.index !== null &&
+    decisionId !== null &&
+    Object.hasOwn(context.index.entries, decisionId)
+      ? context.index.entries[decisionId]
+      : null;
   let sourceText: string;
   try {
     sourceText = await fs.readFile(sourceFile.decisionPath, "utf8");
   } catch (error) {
-    const readError = sourceFile.sourcePath
-      + " could not be read: "
-      + errorText(error);
+    const readError =
+      sourceFile.sourcePath + " could not be read: " + errorText(error);
     context.sourceErrors.push(readError);
     return invalidDecisionRecord(sourceFile, indexEntry, "");
   }
@@ -439,78 +436,83 @@ async function scanSourceFile(
     targetExists: (targetId) => context.availableDecisionIds.has(targetId)
   });
   const validDecisionId = isDecisionId(sourceFile.decisionId);
-  const expectedSourcePath = sourceDocument === null || !validDecisionId
-    ? null
-    : sourcePathForDecision(sourceFile.decisionId, sourceDocument.status);
+  const expectedSourcePath =
+    sourceDocument === null || !validDecisionId
+      ? null
+      : sourcePathForDecision(sourceFile.decisionId, sourceDocument.status);
   if (expectedSourcePath !== sourceFile.sourcePath) {
     recordErrors.push(
       sourceFile.sourcePath + " status must match its physical sourcePath"
     );
   }
-  const activationCandidate = validDecisionId
-    && recordErrors.length === 0
-    && indexEntry === null
-    && sourceDocument?.status === "candidate"
-    && sourceDocument.alignment === null
-    && sourceDocument.createdAt === null;
+  const activationCandidate =
+    validDecisionId &&
+    recordErrors.length === 0 &&
+    indexEntry === null &&
+    sourceDocument?.status === "candidate" &&
+    sourceDocument.alignment === null &&
+    sourceDocument.createdAt === null;
   if (sourceDocument?.status === "candidate" && !activationCandidate) {
     recordErrors.push(
-      sourceFile.sourcePath + " candidate status is allowed only for a complete, "
-        + "unindexed, current-format new Decision ID"
+      sourceFile.sourcePath +
+        " candidate status is allowed only for a complete, " +
+        "unindexed, current-format new Decision ID"
     );
   }
 
-  const establishedMetadata = sourceDocument === null
-    ? null
-    : establishedDecisionMetadataFromSource(sourceDocument);
-  const document = recordErrors.length === 0
-    && sourceDocument !== null
-    && establishedMetadata !== null
-    ? {
-        ...selectProjection(sourceDocument),
-        tags: [...sourceDocument.tags],
-        ...establishedMetadata
-      }
-    : null;
-  const source = recordErrors.length > 0 || sourceDocument === null
-    ? { kind: "invalid" as const, text: sourceText }
-    : activationCandidate
+  const establishedMetadata =
+    sourceDocument === null
+      ? null
+      : establishedDecisionMetadataFromSource(sourceDocument);
+  const document =
+    recordErrors.length === 0 &&
+    sourceDocument !== null &&
+    establishedMetadata !== null
       ? {
-          body: sourceDocument.body,
-          document: {
-            ...selectProjection(sourceDocument),
-            tags: [...sourceDocument.tags],
-            alignment: null,
-            createdAt: null,
-            status: "candidate" as const
-          },
-          kind: "candidate" as const,
-          text: sourceText
+          ...selectProjection(sourceDocument),
+          tags: [...sourceDocument.tags],
+          ...establishedMetadata
         }
-      : document === null
-        ? { kind: "invalid" as const, text: sourceText }
-        : {
+      : null;
+  const source =
+    recordErrors.length > 0 || sourceDocument === null
+      ? { kind: "invalid" as const, text: sourceText }
+      : activationCandidate
+        ? {
             body: sourceDocument.body,
-            document,
-            kind: "established" as const,
+            document: {
+              ...selectProjection(sourceDocument),
+              tags: [...sourceDocument.tags],
+              alignment: null,
+              createdAt: null,
+              status: "candidate" as const
+            },
+            kind: "candidate" as const,
             text: sourceText
-          };
+          }
+        : document === null
+          ? { kind: "invalid" as const, text: sourceText }
+          : {
+              body: sourceDocument.body,
+              document,
+              kind: "established" as const,
+              text: sourceText
+            };
 
   if (document !== null && indexEntry === null) {
-    context.indexErrors.push(unindexedDecisionError(
-      context.indexRelativePath,
-      sourceFile.decisionId
-    ));
+    context.indexErrors.push(
+      unindexedDecisionError(context.indexRelativePath, sourceFile.decisionId)
+    );
   }
   if (
-    document !== null
-    && indexEntry !== null
-    && indexEntry.state.sourcePath !== sourceFile.sourcePath
+    document !== null &&
+    indexEntry !== null &&
+    indexEntry.state.sourcePath !== sourceFile.sourcePath
   ) {
     context.indexErrors.push(
-      context.indexRelativePath
-        + " sourcePath does not match Decision ID "
-        + sourceFile.decisionId
+      context.indexRelativePath +
+        " sourcePath does not match Decision ID " +
+        sourceFile.decisionId
     );
   }
   context.sourceErrors.push(...recordErrors);
@@ -522,11 +524,12 @@ async function scanSourceFile(
     decisionPath: sourceFile.decisionPath,
     document,
     markdownExists: true,
-    projection: sourceDocument === null
-      ? indexEntry === null
-        ? emptyDecisionProjection()
-        : selectProjection(indexEntry.state)
-      : selectProjection(sourceDocument),
+    projection:
+      sourceDocument === null
+        ? indexEntry === null
+          ? emptyDecisionProjection()
+          : selectProjection(indexEntry.state)
+        : selectProjection(sourceDocument),
     relationshipErrors: [],
     source,
     sourcePath: sourceFile.sourcePath,
@@ -548,9 +551,10 @@ function invalidDecisionRecord(
     decisionPath: sourceFile.decisionPath,
     document: null,
     markdownExists: true,
-    projection: indexEntry === null
-      ? emptyDecisionProjection()
-      : selectProjection(indexEntry.state),
+    projection:
+      indexEntry === null
+        ? emptyDecisionProjection()
+        : selectProjection(indexEntry.state),
     relationshipErrors: [],
     source: { kind: "invalid", text: sourceText },
     sourcePath: sourceFile.sourcePath,
@@ -575,21 +579,22 @@ function appendMissingIndexedRecords(
     }
     if (!isDecisionId(rawDecisionId)) {
       indexErrors.push(
-        location.indexRelativePath
-          + " contains invalid Decision ID "
-          + rawDecisionId
+        location.indexRelativePath +
+          " contains invalid Decision ID " +
+          rawDecisionId
       );
       continue;
     }
-    indexErrors.push(missingIndexedDecisionError(
-      location.indexRelativePath,
-      rawDecisionId
-    ));
-    records.push(recordFromIndexEntry({
-      decisionsDirectory: location.decisionsDirectory,
-      decisionId: rawDecisionId,
-      entry: storedEntry
-    }));
+    indexErrors.push(
+      missingIndexedDecisionError(location.indexRelativePath, rawDecisionId)
+    );
+    records.push(
+      recordFromIndexEntry({
+        decisionsDirectory: location.decisionsDirectory,
+        decisionId: rawDecisionId,
+        entry: storedEntry
+      })
+    );
   }
 }
 
@@ -622,36 +627,45 @@ function validateScannedRelationships(
   sourceErrors: string[]
 ): void {
   const relationshipIssues = decisionRelationConsistencyIssues(
-    records.flatMap((record) => isEstablishedDecisionRecord(record)
-      ? [{
-          decisionId: record.decisionId,
-          projection: record.source.document,
-          sourcePath: record.sourcePath,
-          status: record.source.document.status
-        }]
-      : [])
+    records.flatMap((record) =>
+      isEstablishedDecisionRecord(record)
+        ? [
+            {
+              decisionId: record.decisionId,
+              projection: record.source.document,
+              sourcePath: record.sourcePath,
+              status: record.source.document.status
+            }
+          ]
+        : []
+    )
   );
-  const recordById = new Map(records.map((record) => [record.decisionId, record]));
+  const recordById = new Map(
+    records.map((record) => [record.decisionId, record])
+  );
   for (const issue of relationshipIssues) {
     sourceErrors.push(issue.message);
     for (const decisionId of issue.sourceIds) {
       recordById.get(decisionId)?.relationshipErrors.push(issue.message);
     }
   }
-  for (const candidate of records.filter((record) => record.activationCandidate)) {
+  for (const candidate of records.filter(
+    (record) => record.activationCandidate
+  )) {
     for (const relation of candidate.projection.relations) {
       const target = recordById.get(relation.target);
       if (
-        target !== undefined
-        && (isEstablishedDecisionRecord(target) || target.activationCandidate)
+        target !== undefined &&
+        (isEstablishedDecisionRecord(target) || target.activationCandidate)
       ) {
         continue;
       }
-      const error = candidate.sourcePath
-        + " relationship "
-        + relation.type
-        + " target is not a valid scanned decision: "
-        + relation.target;
+      const error =
+        candidate.sourcePath +
+        " relationship " +
+        relation.type +
+        " target is not a valid scanned decision: " +
+        relation.target;
       sourceErrors.push(error);
       candidate.relationshipErrors.push(error);
     }

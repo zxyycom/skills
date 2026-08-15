@@ -17,13 +17,17 @@ import type {
 function safeJoin(root: string, relativePath: string): string {
   const fullPath = path.resolve(root, relativePath);
   if (!isPathWithinDirectory(fullPath, root)) {
-    throw new Error(`Refusing to write outside target directory: ${relativePath}`);
+    throw new Error(
+      `Refusing to write outside target directory: ${relativePath}`
+    );
   }
 
   return fullPath;
 }
 
-async function lstatOrNull(targetPath: string): Promise<Awaited<ReturnType<typeof fs.lstat>> | null> {
+async function lstatOrNull(
+  targetPath: string
+): Promise<Awaited<ReturnType<typeof fs.lstat>> | null> {
   try {
     return await fs.lstat(targetPath);
   } catch (error) {
@@ -40,7 +44,9 @@ async function assertTargetDirectory(targetDir: string): Promise<boolean> {
     return false;
   }
   if (stats.isSymbolicLink() || !stats.isDirectory()) {
-    throw new Error(`Target path exists but is not a regular directory: ${targetDir}`);
+    throw new Error(
+      `Target path exists but is not a regular directory: ${targetDir}`
+    );
   }
 
   return true;
@@ -49,8 +55,8 @@ async function assertTargetDirectory(targetDir: string): Promise<boolean> {
 async function assertEmptyTargetDirectory(targetDir: string): Promise<void> {
   if ((await fs.readdir(targetDir)).length > 0) {
     throw new Error(
-      `Target directory is not empty and does not contain ${skillEntryFileName}: ${targetDir}. `
-      + "Use --target-dir with an empty directory or the matching installed skill directory."
+      `Target directory is not empty and does not contain ${skillEntryFileName}: ${targetDir}. ` +
+        "Use --target-dir with an empty directory or the matching installed skill directory."
     );
   }
 }
@@ -65,8 +71,8 @@ async function assertParentDirectories(
     const stats = await lstatOrNull(parentPath);
     if (stats !== null && (stats.isSymbolicLink() || !stats.isDirectory())) {
       throw new Error(
-        `Cannot update ${relativePath}; parent path is not a regular directory: `
-        + segments.slice(0, index).join("/")
+        `Cannot update ${relativePath}; parent path is not a regular directory: ` +
+          segments.slice(0, index).join("/")
       );
     }
   }
@@ -76,7 +82,7 @@ export async function localSkillState(
   targetDir: string,
   expectedSkillName: string
 ): Promise<LocalSkillState> {
-  if (!await assertTargetDirectory(targetDir)) {
+  if (!(await assertTargetDirectory(targetDir))) {
     return { state: "missing" };
   }
 
@@ -98,9 +104,9 @@ export async function localSkillState(
   );
   if (identity.name !== expectedSkillName) {
     throw new Error(
-      `${skillEntryPath} identifies skill ${JSON.stringify(identity.name)}, but this updater expects `
-      + `${JSON.stringify(expectedSkillName)}. Use --target-dir with the matching skill directory `
-      + "or an empty directory."
+      `${skillEntryPath} identifies skill ${JSON.stringify(identity.name)}, but this updater expects ` +
+        `${JSON.stringify(expectedSkillName)}. Use --target-dir with the matching skill directory ` +
+        "or an empty directory."
     );
   }
 
@@ -114,8 +120,8 @@ export async function planSkillUpdate(
   targetDir: string
 ): Promise<SkillUpdatePlanEntry[]> {
   if (
-    await assertTargetDirectory(targetDir)
-    && await lstatOrNull(safeJoin(targetDir, skillEntryFileName)) === null
+    (await assertTargetDirectory(targetDir)) &&
+    (await lstatOrNull(safeJoin(targetDir, skillEntryFileName))) === null
   ) {
     await assertEmptyTargetDirectory(targetDir);
   }
@@ -124,7 +130,9 @@ export async function planSkillUpdate(
 
   for (const file of files) {
     if (seenPaths.has(file.path)) {
-      throw new Error(`Remote release contains duplicate skill path: ${file.path}`);
+      throw new Error(
+        `Remote release contains duplicate skill path: ${file.path}`
+      );
     }
     seenPaths.add(file.path);
 
@@ -221,8 +229,10 @@ export async function installSkillFiles(
         await restoreAppliedFiles(applied, backupDir, targetDir);
       } catch (rollbackError) {
         throw new Error(
-          "Skill update failed and rollback did not complete: "
-          + (rollbackError instanceof Error ? rollbackError.message : String(rollbackError)),
+          "Skill update failed and rollback did not complete: " +
+            (rollbackError instanceof Error
+              ? rollbackError.message
+              : String(rollbackError)),
           { cause: error }
         );
       }

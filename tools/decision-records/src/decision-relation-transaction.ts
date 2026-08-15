@@ -35,14 +35,14 @@ type PreparedSuccessorFields = {
 };
 
 type PreparedSuccessor =
-  | PreparedSuccessorFields & {
+  | (PreparedSuccessorFields & {
       candidate: true;
       record: DecisionCandidateRecord;
-    }
-  | PreparedSuccessorFields & {
+    })
+  | (PreparedSuccessorFields & {
       candidate: false;
       record: EstablishedDecisionRecord;
-    };
+    });
 
 export type DecisionRelationTransactionPreparation =
   | DecisionApplicationAttention
@@ -105,21 +105,22 @@ export function prepareDecisionRelationTransaction(
     predecessorSelection.activeRecords,
     request.keepUnrecordedHistory,
     historyBaseline,
-    collapsed.record === null
-      && successors.records.length === 1
-      && successors.records[0]?.candidate === true
+    collapsed.record === null &&
+      successors.records.length === 1 &&
+      successors.records[0]?.candidate === true
   );
   if (unrecordedAttention !== null) {
     return unrecordedAttention;
   }
 
-  const collapsedReferenceErrors = collapsed.record === null
-    ? []
-    : collapsedDecisionReferenceErrors(
-        scan,
-        successors.records,
-        collapsed.record
-      );
+  const collapsedReferenceErrors =
+    collapsed.record === null
+      ? []
+      : collapsedDecisionReferenceErrors(
+          scan,
+          successors.records,
+          collapsed.record
+        );
   if (collapsedReferenceErrors.length > 0) {
     return decisionFailure(collapsedReferenceErrors);
   }
@@ -152,11 +153,8 @@ export function prepareDecisionRelationTransaction(
   }
   for (const successor of successors.records) {
     if (
-      !successor.candidate
-      && relationsEqual(
-        successor.sourceRelations,
-        successor.finalRelations
-      )
+      !successor.candidate &&
+      relationsEqual(successor.sourceRelations, successor.finalRelations)
     ) {
       continue;
     }
@@ -172,10 +170,10 @@ export function prepareDecisionRelationTransaction(
           status: "active"
         }) + source.body
       : serializeDecisionFrontmatter(
-        nextProjection,
-        nextProjection.tags,
-        source.document
-      ) + source.body;
+          nextProjection,
+          nextProjection.tags,
+          source.document
+        ) + source.body;
     changes.push({
       decisionPath: successor.record.decisionPath,
       expectedText: source.text,
@@ -249,25 +247,27 @@ function prepareSuccessors(
       continue;
     }
     if (!isEstablishedDecisionRecord(record)) {
-      return decisionFailure(scan.sourceErrors.length > 0
-        ? scan.sourceErrors
-        : ["Validated successor source is unavailable: " + record.decisionId]);
+      return decisionFailure(
+        scan.sourceErrors.length > 0
+          ? scan.sourceErrors
+          : ["Validated successor source is unavailable: " + record.decisionId]
+      );
     }
 
     const source = record.source;
     if (source.document.alignment === null) {
       return plainFailure(
-        "Established successor must have a non-null alignment: "
-          + record.decisionId
+        "Established successor must have a non-null alignment: " +
+          record.decisionId
       );
     }
     if (source.document.alignment !== requested.alignment) {
       return plainFailure(
-        "Established successor alignment confirmation does not match "
-          + record.decisionId
-          + ": expected "
-          + source.document.alignment
-          + "."
+        "Established successor alignment confirmation does not match " +
+          record.decisionId +
+          ": expected " +
+          source.document.alignment +
+          "."
       );
     }
 
@@ -290,9 +290,9 @@ function prepareSuccessors(
 function relationStrategyShapeErrors(
   successors: readonly PreparedSuccessor[]
 ): string[] {
-  const hasSplit = successors.some((successor) => (
+  const hasSplit = successors.some((successor) =>
     successor.finalRelations.some((relation) => relation.type === "拆分")
-  ));
+  );
   if (!hasSplit) {
     if (successors.length !== 1) {
       return [
@@ -301,9 +301,9 @@ function relationStrategyShapeErrors(
     }
     const relations = successors[0]?.finalRelations ?? [];
     if (
-      relations.length > 0
-      && relations.every((relation) => relation.type === "归并")
-      && relations.length < 2
+      relations.length > 0 &&
+      relations.every((relation) => relation.type === "归并") &&
+      relations.length < 2
     ) {
       return ["A pure 归并 relation set requires at least two predecessors."];
     }
@@ -315,18 +315,21 @@ function relationStrategyShapeErrors(
       "The 拆分 strategy requires at least two explicitly selected successors."
     ];
   }
-  if (successors.some((successor) => (
-    successor.finalRelations.length !== 1
-    || successor.finalRelations[0]?.type !== "拆分"
-  ))) {
+  if (
+    successors.some(
+      (successor) =>
+        successor.finalRelations.length !== 1 ||
+        successor.finalRelations[0]?.type !== "拆分"
+    )
+  ) {
     return [
-      "Every successor in a 拆分 transaction must have exactly one 拆分 "
-        + "relation and no other relations."
+      "Every successor in a 拆分 transaction must have exactly one 拆分 " +
+        "relation and no other relations."
     ];
   }
-  const splitTargets = new Set(successors.map((successor) => (
-    successor.finalRelations[0]?.target
-  )));
+  const splitTargets = new Set(
+    successors.map((successor) => successor.finalRelations[0]?.target)
+  );
   return splitTargets.size === 1
     ? []
     : ["Every successor in a 拆分 transaction must use the same predecessor."];
@@ -336,20 +339,26 @@ function splitSuccessorClosureErrors(
   successors: readonly PreparedSuccessor[],
   previewRecords: readonly DecisionRelationConsistencyRecord[]
 ): string[] {
-  const splitPredecessor = successors[0]?.finalRelations[0]?.type === "拆分"
-    ? successors[0].finalRelations[0].target
-    : null;
+  const splitPredecessor =
+    successors[0]?.finalRelations[0]?.type === "拆分"
+      ? successors[0].finalRelations[0].target
+      : null;
   if (splitPredecessor === null) {
     return [];
   }
   const selectedIds = new Set(
     successors.map((successor) => successor.record.decisionId)
   );
-  const finalIds = new Set(previewRecords
-    .filter((record) => record.projection.relations.some((relation) => (
-      relation.type === "拆分" && relation.target === splitPredecessor
-    )))
-    .map((record) => record.decisionId));
+  const finalIds = new Set(
+    previewRecords
+      .filter((record) =>
+        record.projection.relations.some(
+          (relation) =>
+            relation.type === "拆分" && relation.target === splitPredecessor
+        )
+      )
+      .map((record) => record.decisionId)
+  );
   const omitted = [...finalIds]
     .filter((decisionId) => !selectedIds.has(decisionId))
     .sort();
@@ -359,14 +368,14 @@ function splitSuccessorClosureErrors(
   return omitted.length === 0 && absent.length === 0
     ? []
     : [
-        "The selected successor set must equal every final direct 拆分 "
-          + "successor of "
-          + splitPredecessor
-          + "."
-          + (omitted.length === 0
+        "The selected successor set must equal every final direct 拆分 " +
+          "successor of " +
+          splitPredecessor +
+          "." +
+          (omitted.length === 0
             ? ""
-            : " Omitted: " + omitted.join(", ") + ".")
-          + (absent.length === 0
+            : " Omitted: " + omitted.join(", ") + ".") +
+          (absent.length === 0
             ? ""
             : " Missing from final graph: " + absent.join(", ") + ".")
       ];
@@ -379,9 +388,9 @@ function directPredecessors(
 ): { activeRecords: EstablishedDecisionRecord[]; errors: string[] } {
   const activeRecords = new Map<DecisionId, EstablishedDecisionRecord>();
   const collapsedDirectPredecessors = new Set(
-    collapsedRecord?.source.document.relations.map((relation) => (
-      relation.target
-    )) ?? []
+    collapsedRecord?.source.document.relations.map(
+      (relation) => relation.target
+    ) ?? []
   );
   const errors: string[] = [];
   for (const successor of successors) {
@@ -390,17 +399,17 @@ function directPredecessors(
       const targetId = relation.target;
       if (targetId === successor.record.decisionId) {
         errors.push(
-          "Decision relation must not target itself: "
-            + successor.record.decisionId
+          "Decision relation must not target itself: " +
+            successor.record.decisionId
         );
         continue;
       }
       if (seenTargets.has(targetId)) {
         errors.push(
-          "Decision relation target is repeated for "
-            + successor.record.decisionId
-            + ": "
-            + targetId
+          "Decision relation target is repeated for " +
+            successor.record.decisionId +
+            ": " +
+            targetId
         );
         continue;
       }
@@ -413,14 +422,14 @@ function directPredecessors(
         continue;
       }
       if (
-        predecessor.source.document.status === "archived"
-        && collapsedRecord !== null
-        && !collapsedDirectPredecessors.has(predecessor.decisionId)
+        predecessor.source.document.status === "archived" &&
+        collapsedRecord !== null &&
+        !collapsedDirectPredecessors.has(predecessor.decisionId)
       ) {
         errors.push(
-          "Archived final relation target must be a direct predecessor of "
-            + "the collapsed decision: "
-            + predecessor.decisionId
+          "Archived final relation target must be a direct predecessor of " +
+            "the collapsed decision: " +
+            predecessor.decisionId
         );
         continue;
       }
@@ -438,52 +447,54 @@ function buildRelationTransactionPreview(
   archivedPredecessors: readonly EstablishedDecisionRecord[],
   collapsedRecord: EstablishedDecisionRecord | null
 ): DecisionRelationConsistencyRecord[] {
-  const successorById = new Map<DecisionId, PreparedSuccessor>(successors.map((successor) => [
-    successor.record.decisionId,
-    successor
-  ]));
+  const successorById = new Map<DecisionId, PreparedSuccessor>(
+    successors.map((successor) => [successor.record.decisionId, successor])
+  );
   const archivedIds = new Set<DecisionId>(
     archivedPredecessors.map((record) => record.decisionId)
   );
   const preview: DecisionRelationConsistencyRecord[] = [];
   for (const record of scan.records) {
-    const domainRecord = isDecisionCandidateRecord(record)
-      || isEstablishedDecisionRecord(record)
-      ? record
-      : null;
-    const successor = domainRecord === null
-      ? undefined
-      : successorById.get(domainRecord.decisionId);
+    const domainRecord =
+      isDecisionCandidateRecord(record) || isEstablishedDecisionRecord(record)
+        ? record
+        : null;
+    const successor =
+      domainRecord === null
+        ? undefined
+        : successorById.get(domainRecord.decisionId);
     const establishedRecord = isEstablishedDecisionRecord(record)
       ? record
       : null;
     if (
-      record.decisionId === collapsedRecord?.decisionId
-      || (establishedRecord === null && successor === undefined)
+      record.decisionId === collapsedRecord?.decisionId ||
+      (establishedRecord === null && successor === undefined)
     ) {
       continue;
     }
-    const status = successor?.candidate === true
-      ? "active"
-      : domainRecord !== null && archivedIds.has(domainRecord.decisionId)
-        ? "archived"
-        : successor?.candidate === false
-          ? successor.record.source.document.status
-          : establishedRecord?.source.document.status;
+    const status =
+      successor?.candidate === true
+        ? "active"
+        : domainRecord !== null && archivedIds.has(domainRecord.decisionId)
+          ? "archived"
+          : successor?.candidate === false
+            ? successor.record.source.document.status
+            : establishedRecord?.source.document.status;
     if (status === undefined) {
       continue;
     }
-    const projection = successor === undefined
-      ? establishedRecord?.source.document
-      : {
-          ...successor.record.source.document,
-          relations: successor.finalRelations
-        };
+    const projection =
+      successor === undefined
+        ? establishedRecord?.source.document
+        : {
+            ...successor.record.source.document,
+            relations: successor.finalRelations
+          };
     if (projection === undefined) {
       continue;
     }
-    const decisionId = successor?.record.decisionId
-      ?? establishedRecord?.decisionId;
+    const decisionId =
+      successor?.record.decisionId ?? establishedRecord?.decisionId;
     if (decisionId === undefined) {
       continue;
     }
@@ -521,18 +532,15 @@ function prepareCollapsedPredecessor(
   }
   const successor = successors[0];
   if (
-    successor.finalRelations.length === 0
-    && relationOverride.kind === "source"
+    successor.finalRelations.length === 0 &&
+    relationOverride.kind === "source"
   ) {
     return plainFailure(
-      "Use --clear-relations to explicitly select an empty final relation set "
-        + "when collapsing an unrecorded predecessor."
+      "Use --clear-relations to explicitly select an empty final relation set " +
+        "when collapsing an unrecorded predecessor."
     );
   }
-  if (
-    historyBaseline === null
-    || historyBaseline.kind !== "git-head"
-  ) {
+  if (historyBaseline === null || historyBaseline.kind !== "git-head") {
     return plainFailure(
       "--collapse-unrecorded requires an available Git HEAD baseline."
     );
@@ -545,8 +553,8 @@ function prepareCollapsedPredecessor(
   }
   if (record.decisionId === successor.record.decisionId) {
     return plainFailure(
-      "Collapsed predecessor must not be the successor itself: "
-        + successor.record.decisionId
+      "Collapsed predecessor must not be the successor itself: " +
+        successor.record.decisionId
     );
   }
   if (record.source.document.status !== "active") {
@@ -556,18 +564,20 @@ function prepareCollapsedPredecessor(
   }
   if (historyBaseline.recordedDecisionIds.has(record.decisionId)) {
     return plainFailure(
-      "Cannot collapse a decision recorded in "
-        + historyBaseline.label
-        + ": "
-        + record.decisionId
+      "Cannot collapse a decision recorded in " +
+        historyBaseline.label +
+        ": " +
+        record.decisionId
     );
   }
-  if (successor.finalRelations.some((relation) => (
-    relation.target === record.decisionId
-  ))) {
+  if (
+    successor.finalRelations.some(
+      (relation) => relation.target === record.decisionId
+    )
+  ) {
     return plainFailure(
-      "The complete final relation list must not retain the collapsed predecessor: "
-        + record.decisionId
+      "The complete final relation list must not retain the collapsed predecessor: " +
+        record.decisionId
     );
   }
   return { record, status: "ok" };
@@ -584,16 +594,16 @@ function collapsedDecisionReferenceErrors(
   const referencingIds = scan.records
     .flatMap((record) => {
       if (
-        (!isDecisionCandidateRecord(record)
-          && !isEstablishedDecisionRecord(record))
-        || record.decisionId === collapsedRecord.decisionId
-        || selectedIds.has(record.decisionId)
+        (!isDecisionCandidateRecord(record) &&
+          !isEstablishedDecisionRecord(record)) ||
+        record.decisionId === collapsedRecord.decisionId ||
+        selectedIds.has(record.decisionId)
       ) {
         return [];
       }
-      return record.source.document.relations.some((relation) => (
-        relation.target === collapsedRecord.decisionId
-      ))
+      return record.source.document.relations.some(
+        (relation) => relation.target === collapsedRecord.decisionId
+      )
         ? [record.decisionId]
         : [];
     })
@@ -601,8 +611,8 @@ function collapsedDecisionReferenceErrors(
   return referencingIds.length === 0
     ? []
     : [
-        "Cannot collapse decision while it is still referenced: "
-          + collapsedRecord.decisionId,
+        "Cannot collapse decision while it is still referenced: " +
+          collapsedRecord.decisionId,
         "Remove or replace references from: " + referencingIds.join(", ")
       ];
 }
@@ -611,16 +621,18 @@ export function decisionRelationTransactionMessage(
   prefix: string,
   prepared: Extract<DecisionRelationTransactionPreparation, { status: "ok" }>
 ): string {
-  const archived = prepared.archivedPredecessors.length === 0
-    ? ""
-    : " and archived new active predecessors "
-      + prepared.archivedPredecessors
-        .map((record) => record.decisionId)
-        .join(", ");
-  const collapsed = prepared.collapsedRecord === null
-    ? ""
-    : " and collapsed unrecorded predecessor "
-      + prepared.collapsedRecord.decisionId;
+  const archived =
+    prepared.archivedPredecessors.length === 0
+      ? ""
+      : " and archived new active predecessors " +
+        prepared.archivedPredecessors
+          .map((record) => record.decisionId)
+          .join(", ");
+  const collapsed =
+    prepared.collapsedRecord === null
+      ? ""
+      : " and collapsed unrecorded predecessor " +
+        prepared.collapsedRecord.decisionId;
   return prefix + archived + collapsed + ".";
 }
 
@@ -631,9 +643,9 @@ export function decisionRelationTransactionRequiresHistoryBaseline(
   const relations = request.successors.flatMap((successor) => {
     const record = findRecord(scan, successor.decisionId);
     if (
-      record === null
-      || (record.source.kind !== "candidate"
-        && record.source.kind !== "established")
+      record === null ||
+      (record.source.kind !== "candidate" &&
+        record.source.kind !== "established")
     ) {
       return [];
     }
@@ -642,12 +654,17 @@ export function decisionRelationTransactionRequiresHistoryBaseline(
       request.relationOverride
     );
   });
-  return relations.some((relation) => (
-    findEstablishedRecord(scan, relation.target)?.source.document.status === "active"
-  ));
+  return relations.some(
+    (relation) =>
+      findEstablishedRecord(scan, relation.target)?.source.document.status ===
+      "active"
+  );
 }
 
-function findRecord(scan: DecisionScan, value: DecisionId): DecisionRecord | null {
+function findRecord(
+  scan: DecisionScan,
+  value: DecisionId
+): DecisionRecord | null {
   return scan.records.find((record) => record.decisionId === value) ?? null;
 }
 
@@ -683,11 +700,14 @@ function relationsEqual(
   left: readonly DecisionRelation[],
   right: readonly DecisionRelation[]
 ): boolean {
-  return left.length === right.length
-    && left.every((relation, index) => (
-      relation.type === right[index]?.type
-      && relation.target === right[index]?.target
-    ));
+  return (
+    left.length === right.length &&
+    left.every(
+      (relation, index) =>
+        relation.type === right[index]?.type &&
+        relation.target === right[index]?.target
+    )
+  );
 }
 
 function plainFailure(error: string): DecisionApplicationFailure {

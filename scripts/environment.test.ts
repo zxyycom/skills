@@ -41,7 +41,10 @@ function requireSuccess(result: CommandResult, label: string): void {
   );
 }
 
-async function writeExecutable(filePath: string, source: string): Promise<void> {
+async function writeExecutable(
+  filePath: string,
+  source: string
+): Promise<void> {
   await fs.writeFile(filePath, source, "utf8");
   await fs.chmod(filePath, 0o755);
 }
@@ -51,10 +54,9 @@ async function createRepository(parent: string, name: string): Promise<string> {
   await fs.mkdir(path.join(root, "scripts"), { recursive: true });
   await fs.mkdir(path.join(root, ".githooks"), { recursive: true });
   await fs.mkdir(path.join(root, "docs", "task-graph"), { recursive: true });
-  await fs.mkdir(
-    path.join(root, "skills", "task-graph", "scripts"),
-    { recursive: true }
-  );
+  await fs.mkdir(path.join(root, "skills", "task-graph", "scripts"), {
+    recursive: true
+  });
   await fs.copyFile(
     path.join(workspaceRoot, ".gitattributes"),
     path.join(root, ".gitattributes")
@@ -74,15 +76,19 @@ async function createRepository(parent: string, name: string): Promise<string> {
 
   await fs.writeFile(
     path.join(root, "package.json"),
-    `${JSON.stringify({
-      engines: { bun: ">=1.3" },
-      packageManager: "pnpm@11.7.0",
-      private: true,
-      scripts: {
-        "task-graph": "node scripts/task-graph.js"
+    `${JSON.stringify(
+      {
+        engines: { bun: ">=1.3" },
+        packageManager: "pnpm@11.7.0",
+        private: true,
+        scripts: {
+          "task-graph": "node scripts/task-graph.js"
+        },
+        type: "module"
       },
-      type: "module"
-    }, null, 2)}\n`,
+      null,
+      2
+    )}\n`,
     "utf8"
   );
   await fs.writeFile(
@@ -146,8 +152,10 @@ async function createHashHookRepository(
   await fs.mkdir(root, { recursive: true });
   for (const relativePath of [
     "scripts/hash-skills.ts",
+    "scripts/lib/oxc-config.ts",
     "scripts/lib/project.ts",
     "scripts/lib/skill-package-hash.ts",
+    "scripts/lib/skill-package-versioning.ts",
     "tools/shared/src/markdown/frontmatter.ts",
     "tools/shared/src/node/filesystem.ts",
     "tools/shared/src/version-control",
@@ -169,11 +177,15 @@ async function createHashHookRepository(
   await fs.chmod(path.join(root, ".githooks", "pre-commit"), 0o755);
   await fs.writeFile(
     path.join(root, "package.json"),
-    `${JSON.stringify({
-      private: true,
-      scripts: { "hash:skills": "bun scripts/hash-skills.ts" },
-      type: "module"
-    }, null, 2)}\n`,
+    `${JSON.stringify(
+      {
+        private: true,
+        scripts: { "hash:skills": "bun scripts/hash-skills.ts" },
+        type: "module"
+      },
+      null,
+      2
+    )}\n`,
     "utf8"
   );
   await fs.writeFile(
@@ -189,7 +201,7 @@ async function createHashHookRepository(
       "name: alpha",
       "description: Linked worktree hook regression fixture.",
       "metadata:",
-      "  version: \"1\"",
+      '  version: "1"',
       "---",
       "",
       "# Alpha",
@@ -238,7 +250,7 @@ async function createFakeToolPath(parent: string): Promise<string> {
   for (const tool of ["pnpm", "codegraph"]) {
     if (process.platform === "win32") {
       const quoteBatch = (value: string): string =>
-        `"${value.replaceAll("%", "%%").replaceAll("\"", "\"\"")}"`;
+        `"${value.replaceAll("%", "%%").replaceAll('"', '""')}"`;
       await fs.writeFile(
         path.join(bin, `${tool}.cmd`),
         `@${quoteBatch(process.execPath)} ${quoteBatch(dispatcherPath)} ${tool} %*\r\n`,
@@ -246,7 +258,7 @@ async function createFakeToolPath(parent: string): Promise<string> {
       );
     } else {
       const quoteShell = (value: string): string =>
-        `'${value.replaceAll("'", `'\"'\"'`)}'`;
+        `'${value.replaceAll("'", `'"'"'`)}'`;
       await writeExecutable(
         path.join(bin, tool),
         [
@@ -281,7 +293,11 @@ function runEnvironment(
 }
 
 function assertHookExecutes(root: string): void {
-  const result = run("git", ["commit", "--allow-empty", "-m", "hook check"], root);
+  const result = run(
+    "git",
+    ["commit", "--allow-empty", "-m", "hook check"],
+    root
+  );
   assert.notEqual(result.status, 0, "the fixture hook must block the commit");
 }
 
@@ -313,7 +329,11 @@ test("environment setup enables the pre-commit hook in a fresh clone", async () 
       "clone user.name"
     );
     requireSuccess(
-      run("git", ["config", "user.email", "environment@example.invalid"], clone),
+      run(
+        "git",
+        ["config", "user.email", "environment@example.invalid"],
+        clone
+      ),
       "clone user.email"
     );
     const fakeTools = await createFakeToolPath(tempRoot);
@@ -321,13 +341,17 @@ test("environment setup enables the pre-commit hook in a fresh clone", async () 
     const setup = runEnvironment(clone, "setup", fakeTools);
     requireSuccess(setup, "environment setup");
     assert.equal(
-      run("git", ["config", "--local", "--get", "core.hooksPath"], clone)
-        .stdout.trim(),
+      run(
+        "git",
+        ["config", "--local", "--get", "core.hooksPath"],
+        clone
+      ).stdout.trim(),
       ".githooks"
     );
     assert.equal(
-      (await fs.readFile(path.join(clone, ".githooks", "pre-commit"), "utf8"))
-        .includes("\r"),
+      (
+        await fs.readFile(path.join(clone, ".githooks", "pre-commit"), "utf8")
+      ).includes("\r"),
       false,
       "the hook must remain LF-only when checkout conversion is enabled"
     );
@@ -366,8 +390,10 @@ test("environment setup is idempotent in a linked worktree and keeps the main ta
       "repeated linked worktree setup"
     );
     assert.equal(
-      run("git", ["worktree", "list", "--porcelain"], linked)
-        .stdout.split("\n", 1)[0],
+      run("git", ["worktree", "list", "--porcelain"], linked).stdout.split(
+        "\n",
+        1
+      )[0],
       `worktree ${main}`
     );
     await assertHookIsUsable(linked);
@@ -428,10 +454,14 @@ test("environment check reports missing repository setup without writing it", as
   try {
     const root = await createRepository(tempRoot, "unchecked repository");
     const fakeTools = await createFakeToolPath(tempRoot);
-    const configBefore = run("git", ["config", "--local", "--list"], root)
-      .stdout;
-    const modeBefore = (await fs.stat(path.join(root, ".githooks", "pre-commit")))
-      .mode;
+    const configBefore = run(
+      "git",
+      ["config", "--local", "--list"],
+      root
+    ).stdout;
+    const modeBefore = (
+      await fs.stat(path.join(root, ".githooks", "pre-commit"))
+    ).mode;
 
     const check = runEnvironment(root, "check", fakeTools);
 
@@ -588,10 +618,9 @@ test("task-graph package command rejects an invalid explicit project root", asyn
     assert.match(missing.stderr, /selected project has no task index/u);
 
     const incompleteRoot = path.join(tempRoot, "incomplete project");
-    await fs.mkdir(
-      path.join(incompleteRoot, "docs", "task-graph"),
-      { recursive: true }
-    );
+    await fs.mkdir(path.join(incompleteRoot, "docs", "task-graph"), {
+      recursive: true
+    });
     await fs.writeFile(
       path.join(incompleteRoot, "docs", "task-graph", "task-graph-index.json"),
       "{}\n",

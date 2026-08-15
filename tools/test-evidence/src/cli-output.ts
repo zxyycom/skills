@@ -29,9 +29,9 @@ export function formatTestEvidenceReport(
   return {
     stderr: formatDiagnostics(report.diagnostics),
     stdout:
-      `Test evidence check ${failed ? "failed" : "passed"}: `
-      + `${report.topics.length} topic(s), `
-      + `${summary.testCases} test case(s).\n`
+      `Test evidence check ${failed ? "failed" : "passed"}: ` +
+      `${report.topics.length} topic(s), ` +
+      `${summary.testCases} test case(s).\n`
   };
 }
 
@@ -45,13 +45,15 @@ export function formatTestEvidenceCaseList(
   const lines = result.cases.flatMap((entry) =>
     formatCaseListItem(entry, result.catalogPath, result.topics)
   );
-  const page = `Showing ${result.cases.length} of ${result.total} case(s) `
-    + `from offset ${result.offset}.`;
+  const page =
+    `Showing ${result.cases.length} of ${result.total} case(s) ` +
+    `from offset ${result.offset}.`;
   return {
     stderr: formatDiagnostics(result.diagnostics),
-    stdout: lines.length === 0
-      ? `No test cases matched. ${page}\n`
-      : `${lines.join("\n")}\n${page}\n`
+    stdout:
+      lines.length === 0
+        ? `No test cases matched. ${page}\n`
+        : `${lines.join("\n")}\n${page}\n`
   };
 }
 
@@ -65,16 +67,17 @@ export function formatTestEvidenceCaseShow(
   const entry = result.case;
   return {
     stderr: formatDiagnostics(result.diagnostics),
-    stdout: entry === null || result.markdown === null
-      ? ""
-      : [
-        caseHeading(entry),
-        `Topic: ${formatTopic(result.topic)}`,
-        `Catalog: ${result.catalogPath}/${entry.sourcePath}:${entry.line}`,
-        `Summary: ${entry.summary}`,
-        "",
-        result.markdown
-      ].join("\n") + "\n"
+    stdout:
+      entry === null || result.markdown === null
+        ? ""
+        : [
+            caseHeading(entry),
+            `Topic: ${formatTopic(result.topic)}`,
+            `Catalog: ${result.catalogPath}/${entry.sourcePath}:${entry.line}`,
+            `Summary: ${entry.summary}`,
+            "",
+            result.markdown
+          ].join("\n") + "\n"
   };
 }
 
@@ -87,9 +90,10 @@ export function formatTestEvidenceTopics(
   }
   return {
     stderr: formatDiagnostics(result.diagnostics),
-    stdout: result.topics.length === 0
-      ? ""
-      : `${result.topics.map((topic) => formatTopic(topic)).join("\n")}\n`
+    stdout:
+      result.topics.length === 0
+        ? ""
+        : `${result.topics.map((topic) => formatTopic(topic)).join("\n")}\n`
   };
 }
 
@@ -102,11 +106,12 @@ export function formatTestEvidenceIndexSync(
   }
   return {
     stderr: formatDiagnostics(result.diagnostics),
-    stdout: result.status === "error"
-      ? ""
-      : result.state === "written"
-        ? `Rebuilt ${result.indexPath} from ${result.catalogPath}.\n`
-        : `Test evidence index is up to date: ${result.indexPath}.\n`
+    stdout:
+      result.status === "error"
+        ? ""
+        : result.state === "written"
+          ? `Rebuilt ${result.indexPath} from ${result.catalogPath}.\n`
+          : `Test evidence index is up to date: ${result.indexPath}.\n`
   };
 }
 
@@ -120,33 +125,34 @@ export function formatTestEvidenceIndexStage(
   if (result.status === "error") {
     const selectedIds = result.selectedIds.join(", ") || "none";
     return {
-      stderr: [
-        `Test evidence index entry staging failed (state: ${result.state}; `
-          + `changed: ${String(result.changed)}):`,
-        `selected IDs: ${selectedIds}`,
-        ...result.diagnostics.map((entry) => formatStageDiagnostic(
-          entry,
-          result.indexPath
-        ))
-      ].join("\n") + "\n",
+      stderr:
+        [
+          `Test evidence index entry staging failed (state: ${result.state}; ` +
+            `changed: ${String(result.changed)}):`,
+          `selected IDs: ${selectedIds}`,
+          ...result.diagnostics.map((entry) =>
+            formatStageDiagnostic(entry, result.indexPath)
+          )
+        ].join("\n") + "\n",
       stdout: ""
     };
   }
   return {
     stderr: "",
-    stdout: [
-      result.changed
-        ? `Test evidence index entries staged for ${
-          result.selectedIds.length
-        } selected case(s) in ${result.indexPath}.`
-        : `Test evidence index entries are unchanged for ${
-          result.selectedIds.length
-        } selected case(s) in ${result.indexPath}.`,
-      `state: ${result.state}; changed: ${result.changed}`,
-      `selected IDs: ${result.selectedIds.join(", ")}`,
-      "Topic definitions, case Markdown, test code, and product code "
-        + "remain outside this operation."
-    ].join("\n") + "\n"
+    stdout:
+      [
+        result.changed
+          ? `Test evidence index entries staged for ${
+              result.selectedIds.length
+            } selected case(s) in ${result.indexPath}.`
+          : `Test evidence index entries are unchanged for ${
+              result.selectedIds.length
+            } selected case(s) in ${result.indexPath}.`,
+        `state: ${result.state}; changed: ${result.changed}`,
+        `selected IDs: ${result.selectedIds.join(", ")}`,
+        "Topic definitions, case Markdown, test code, and product code " +
+          "remain outside this operation."
+      ].join("\n") + "\n"
   };
 }
 
@@ -154,10 +160,12 @@ export function formatTestEvidenceQueryFailure(
   result: TestEvidenceQueryResult,
   json: boolean
 ): TestEvidenceCliOutput {
-  return json ? jsonOutput(result) : {
-    stderr: formatDiagnostics(result.diagnostics),
-    stdout: ""
-  };
+  return json
+    ? jsonOutput(result)
+    : {
+        stderr: formatDiagnostics(result.diagnostics),
+        stdout: ""
+      };
 }
 
 function jsonOutput(value: unknown): TestEvidenceCliOutput {
@@ -176,11 +184,11 @@ function formatDiagnostics(
   return `${diagnostics.map(formatDiagnostic).join("\n")}\n`;
 }
 
-function formatDiagnostic(
-  diagnostic: TestEvidenceDiagnostic
-): string {
-  return `${diagnostic.blocking ? "blocking" : "non-blocking"} `
-    + `${diagnostic.severity} [${diagnostic.code}]: ${diagnostic.message}`;
+function formatDiagnostic(diagnostic: TestEvidenceDiagnostic): string {
+  return (
+    `${diagnostic.blocking ? "blocking" : "non-blocking"} ` +
+    `${diagnostic.severity} [${diagnostic.code}]: ${diagnostic.message}`
+  );
 }
 
 function formatStageDiagnostic(
@@ -192,7 +200,9 @@ function formatStageDiagnostic(
     diagnostic.path ?? indexPath,
     diagnostic.stateId === null ? "" : `[${diagnostic.stateId}]`,
     diagnostic.message
-  ].filter((part) => part.length > 0).join(" ");
+  ]
+    .filter((part) => part.length > 0)
+    .join(" ");
 }
 
 function formatCaseListItem(
@@ -218,6 +228,5 @@ function formatTopic(topic: TestEvidenceTopicDefinition | null): string {
 }
 
 function caseHeading(entry: TestEvidenceCaseState): string {
-  return `${entry.id || "<missing-id>"} `
-    + (entry.title || "<untitled>");
+  return `${entry.id || "<missing-id>"} ` + (entry.title || "<untitled>");
 }

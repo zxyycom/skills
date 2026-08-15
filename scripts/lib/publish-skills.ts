@@ -49,9 +49,10 @@ export async function runPublishSkills(): Promise<number> {
   try {
     const request = parseRequest(process.argv.slice(2), process.env);
     const assets = await collectAssets();
-    const result = request.mode === "rolling"
-      ? publishRolling(request, assets)
-      : publishSnapshot(request, assets);
+    const result =
+      request.mode === "rolling"
+        ? publishRolling(request, assets)
+        : publishSnapshot(request, assets);
     console.log(`Skill Release ${result.action}: ${result.tag}`);
     return 0;
   } catch (error) {
@@ -65,18 +66,12 @@ function parseRequest(
   environment: NodeJS.ProcessEnv
 ): PublishRequest {
   const mode = arguments_[0];
-  if (
-    arguments_.length !== 1
-    || (mode !== "rolling" && mode !== "snapshot")
-  ) {
+  if (arguments_.length !== 1 || (mode !== "rolling" && mode !== "snapshot")) {
     throw new Error("Usage: bun run publish:skills -- <rolling|snapshot>");
   }
 
   const packageHash = environment.PACKAGE_HASH;
-  if (
-    typeof packageHash !== "string"
-    || !/^[0-9a-f]{64}$/u.test(packageHash)
-  ) {
+  if (typeof packageHash !== "string" || !/^[0-9a-f]{64}$/u.test(packageHash)) {
     throw new Error(
       "PACKAGE_HASH must be a 64-character lowercase hexadecimal hash"
     );
@@ -84,16 +79,16 @@ function parseRequest(
 
   const commitSha = environment.GITHUB_SHA;
   if (
-    typeof commitSha !== "string"
-    || !/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/u.test(commitSha)
+    typeof commitSha !== "string" ||
+    !/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/u.test(commitSha)
   ) {
     throw new Error(
       "GITHUB_SHA must be a 40- or 64-character lowercase hexadecimal commit ID"
     );
   }
   if (
-    typeof environment.GH_TOKEN !== "string"
-    || environment.GH_TOKEN.length === 0
+    typeof environment.GH_TOKEN !== "string" ||
+    environment.GH_TOKEN.length === 0
   ) {
     throw new Error("GH_TOKEN is required to publish skill releases");
   }
@@ -230,11 +225,13 @@ function publishSnapshot(
   if (existing !== undefined) {
     const differences = assetDifferences(assets.ordered, existing.assets);
     if (differences.length > 0) {
-      throw new Error([
-        `Snapshot ${tag} exists with different assets:`,
-        ...differences.map((difference) => `- ${difference}`),
-        "Remove the conflicting snapshot explicitly before retrying."
-      ].join("\n"));
+      throw new Error(
+        [
+          `Snapshot ${tag} exists with different assets:`,
+          ...differences.map((difference) => `- ${difference}`),
+          "Remove the conflicting snapshot explicitly before retrying."
+        ].join("\n")
+      );
     }
     return { action: "reused", tag };
   }
@@ -262,9 +259,11 @@ function findRelease(tag: string): PublishedRelease | undefined {
   if (result.status === 0) {
     return parseRelease(result.stdout, tag);
   }
-  if (/(?:release not found|HTTP 404|404 Not Found)/iu.test(
-    `${result.stdout}\n${result.stderr}`
-  )) {
+  if (
+    /(?:release not found|HTTP 404|404 Not Found)/iu.test(
+      `${result.stdout}\n${result.stderr}`
+    )
+  ) {
     return undefined;
   }
   throw new Error(commandFailure(`Inspect GitHub Release ${tag}`, result));
@@ -280,9 +279,9 @@ function parseRelease(source: string, expectedTag: string): PublishedRelease {
     );
   }
   if (
-    !isRecord(value)
-    || value.tagName !== expectedTag
-    || !Array.isArray(value.assets)
+    !isRecord(value) ||
+    value.tagName !== expectedTag ||
+    !Array.isArray(value.assets)
   ) {
     throw new Error(
       `GitHub Release ${expectedTag} returned invalid tagName or assets`
@@ -293,18 +292,18 @@ function parseRelease(source: string, expectedTag: string): PublishedRelease {
   const names = new Set<string>();
   for (const asset of value.assets) {
     if (
-      !isRecord(asset)
-      || typeof asset.name !== "string"
-      || asset.name.length === 0
-      || typeof asset.size !== "number"
-      || !Number.isSafeInteger(asset.size)
-      || asset.size < 0
-      || !(
-        asset.digest === null
-        || asset.digest === undefined
-        || typeof asset.digest === "string"
-      )
-      || names.has(asset.name)
+      !isRecord(asset) ||
+      typeof asset.name !== "string" ||
+      asset.name.length === 0 ||
+      typeof asset.size !== "number" ||
+      !Number.isSafeInteger(asset.size) ||
+      asset.size < 0 ||
+      !(
+        asset.digest === null ||
+        asset.digest === undefined ||
+        typeof asset.digest === "string"
+      ) ||
+      names.has(asset.name)
     ) {
       throw new Error(
         `GitHub Release ${expectedTag} returned an invalid asset record`
@@ -325,7 +324,9 @@ function assetDifferences(
   published: readonly PublishedAsset[]
 ): string[] {
   const expectedByName = new Map(expected.map((asset) => [asset.name, asset]));
-  const publishedByName = new Map(published.map((asset) => [asset.name, asset]));
+  const publishedByName = new Map(
+    published.map((asset) => [asset.name, asset])
+  );
   const differences: string[] = [];
 
   for (const asset of expected) {
@@ -396,7 +397,11 @@ function createRelease(options: {
   execute("gh", arguments_, `Create GitHub Release ${options.tag}`);
 }
 
-function execute(command: string, arguments_: readonly string[], label: string): void {
+function execute(
+  command: string,
+  arguments_: readonly string[],
+  label: string
+): void {
   const result = spawnSync(command, arguments_, {
     cwd: workspaceRoot,
     env: process.env,
@@ -407,11 +412,16 @@ function execute(command: string, arguments_: readonly string[], label: string):
     throw new Error(`${label} could not start: ${result.error.message}`);
   }
   if (result.status !== 0) {
-    throw new Error(`${label} failed with exit status ${String(result.status)}`);
+    throw new Error(
+      `${label} failed with exit status ${String(result.status)}`
+    );
   }
 }
 
-function inspect(command: string, arguments_: readonly string[]): CommandResult {
+function inspect(
+  command: string,
+  arguments_: readonly string[]
+): CommandResult {
   const result = spawnSync(command, arguments_, {
     cwd: workspaceRoot,
     encoding: "utf8",
@@ -430,10 +440,13 @@ function inspect(command: string, arguments_: readonly string[]): CommandResult 
 }
 
 function commandFailure(label: string, result: CommandResult): string {
-  const detail = [result.stderr.trim(), result.stdout.trim()]
-    .find((candidate) => candidate.length > 0);
-  return `${label} failed with exit status ${String(result.status)}`
-    + (detail === undefined ? "" : `: ${detail}`);
+  const detail = [result.stderr.trim(), result.stdout.trim()].find(
+    (candidate) => candidate.length > 0
+  );
+  return (
+    `${label} failed with exit status ${String(result.status)}` +
+    (detail === undefined ? "" : `: ${detail}`)
+  );
 }
 
 function releaseNotes(request: PublishRequest): string {

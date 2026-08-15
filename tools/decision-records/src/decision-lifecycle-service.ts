@@ -8,9 +8,7 @@ import {
   prepareUnrecordedHistoryAttention,
   type DecisionHistoryBaseline
 } from "./decision-history-baseline.ts";
-import {
-  prepareArchivedDecisionChange
-} from "./decision-lifecycle-change.ts";
+import { prepareArchivedDecisionChange } from "./decision-lifecycle-change.ts";
 import { serializeDecisionFrontmatter } from "./decision-metadata.ts";
 import {
   decisionRelationTransactionMessage,
@@ -65,17 +63,14 @@ export function decisionHistoryBaselineRequirement(
   scan: DecisionScan,
   request: DecisionLifecycleRequest
 ): DecisionHistoryBaselineRequirement {
-  if (
-    request.action === "evolve"
-    && request.collapseUnrecordedId !== null
-  ) {
+  if (request.action === "evolve" && request.collapseUnrecordedId !== null) {
     return "collapse-proof";
   }
   if (
-    (request.action === "activate"
-      || request.action === "archive"
-      || request.action === "evolve")
-    && request.keepUnrecordedHistory
+    (request.action === "activate" ||
+      request.action === "archive" ||
+      request.action === "evolve") &&
+    request.keepUnrecordedHistory
   ) {
     return "none";
   }
@@ -85,14 +80,12 @@ export function decisionHistoryBaselineRequirement(
   if (request.action !== "activate" && request.action !== "evolve") {
     return "none";
   }
-  const transactionRequest = request.action === "activate"
-    ? activationRelationTransactionRequest(scan, request)
-    : request;
-  return transactionRequest !== null
-    && decisionRelationTransactionRequiresHistoryBaseline(
-      scan,
-      transactionRequest
-    )
+  const transactionRequest =
+    request.action === "activate"
+      ? activationRelationTransactionRequest(scan, request)
+      : request;
+  return transactionRequest !== null &&
+    decisionRelationTransactionRequiresHistoryBaseline(scan, transactionRequest)
     ? "unrecorded-preflight"
     : "none";
 }
@@ -109,10 +102,12 @@ function activationRelationTransactionRequest(
     collapseUnrecordedId: null,
     keepUnrecordedHistory: request.keepUnrecordedHistory,
     relationOverride: request.relationOverride,
-    successors: [{
-      alignment: request.alignment,
-      decisionId: record.decisionId
-    }]
+    successors: [
+      {
+        alignment: request.alignment,
+        decisionId: record.decisionId
+      }
+    ]
   };
 }
 
@@ -134,10 +129,7 @@ export function prepareDecisionLifecycle(
   }
 ): DecisionLifecyclePreparation {
   const baselineRequirement = decisionHistoryBaselineRequirement(scan, request);
-  if (
-    baselineRequirement !== "none"
-    && options.historyBaseline === null
-  ) {
+  if (baselineRequirement !== "none" && options.historyBaseline === null) {
     return plainFailure(
       "Decision history baseline was not loaded before " + request.action + "."
     );
@@ -186,7 +178,10 @@ function prepareActivation(
   }
 
   if (record.source.kind === "candidate") {
-    const transactionRequest = activationRelationTransactionRequest(scan, request);
+    const transactionRequest = activationRelationTransactionRequest(
+      scan,
+      request
+    );
     if (transactionRequest === null) {
       return plainFailure(
         "Validated decision candidate is unavailable: " + record.sourcePath
@@ -204,7 +199,10 @@ function prepareActivation(
     return {
       changes: prepared.changes,
       message: decisionRelationTransactionMessage(
-        "Activated new decision as " + request.alignment + " " + record.sourcePath,
+        "Activated new decision as " +
+          request.alignment +
+          " " +
+          record.sourcePath,
         prepared
       ),
       status: "ok"
@@ -220,9 +218,9 @@ function prepareActivation(
 
   if (request.relationOverride.kind === "replace") {
     return plainFailure(
-      "--relation and --clear-relations apply only when activate establishes "
-        + "a new decision candidate: "
-        + record.sourcePath
+      "--relation and --clear-relations apply only when activate establishes " +
+        "a new decision candidate: " +
+        record.sourcePath
     );
   }
   if (source.document.status === "active") {
@@ -235,35 +233,36 @@ function prepareActivation(
     }
     return {
       changes: [],
-      message: "Decision is already active and "
-        + request.alignment
-        + ": "
-        + record.sourcePath
-        + ".",
+      message:
+        "Decision is already active and " +
+        request.alignment +
+        ": " +
+        record.sourcePath +
+        ".",
       status: "ok"
     };
   }
-  const nextText = serializeDecisionFrontmatter(source.document, source.document.tags, {
-    alignment: request.alignment,
-    createdAt: source.document.createdAt,
-    status: "active"
-  }) + source.body;
+  const nextText =
+    serializeDecisionFrontmatter(source.document, source.document.tags, {
+      alignment: request.alignment,
+      createdAt: source.document.createdAt,
+      status: "active"
+    }) + source.body;
   return {
-    changes: [{
-      decisionPath: record.decisionPath,
-      expectedText: source.text,
-      nextText,
-      targetPath: path.resolve(
-        path.dirname(record.decisionPath),
-        "..",
-        record.decisionId
-      )
-    }],
-    message: "Activated as "
-      + request.alignment
-      + " "
-      + record.sourcePath
-      + ".",
+    changes: [
+      {
+        decisionPath: record.decisionPath,
+        expectedText: source.text,
+        nextText,
+        targetPath: path.resolve(
+          path.dirname(record.decisionPath),
+          "..",
+          record.decisionId
+        )
+      }
+    ],
+    message:
+      "Activated as " + request.alignment + " " + record.sourcePath + ".",
     status: "ok"
   };
 }
@@ -286,10 +285,13 @@ function prepareEvolution(
   return {
     changes: prepared.changes,
     message: decisionRelationTransactionMessage(
-      "Evolved successors "
-        + prepared.successors.map((successor) => (
-          successor.alignment + " " + successor.record.sourcePath
-        )).join(", "),
+      "Evolved successors " +
+        prepared.successors
+          .map(
+            (successor) =>
+              successor.alignment + " " + successor.record.sourcePath
+          )
+          .join(", "),
       prepared
     ),
     status: "ok"
@@ -306,24 +308,27 @@ function prepareMarkAligned(
   }
   const source = record.source;
   if (
-    source.document.status !== "active"
-    || source.document.alignment !== "unaligned"
+    source.document.status !== "active" ||
+    source.document.alignment !== "unaligned"
   ) {
     return plainFailure(
       "mark-aligned requires an active unaligned decision: " + record.sourcePath
     );
   }
-  const nextText = serializeDecisionFrontmatter(source.document, source.document.tags, {
-    alignment: "aligned",
-    createdAt: source.document.createdAt,
-    status: "active"
-  }) + source.body;
+  const nextText =
+    serializeDecisionFrontmatter(source.document, source.document.tags, {
+      alignment: "aligned",
+      createdAt: source.document.createdAt,
+      status: "active"
+    }) + source.body;
   return {
-    changes: [{
-      decisionPath: record.decisionPath,
-      expectedText: source.text,
-      nextText
-    }],
+    changes: [
+      {
+        decisionPath: record.decisionPath,
+        expectedText: source.text,
+        nextText
+      }
+    ],
     message: "Marked aligned " + record.sourcePath + ".",
     status: "ok"
   };
@@ -394,49 +399,57 @@ function prepareDiscard(
   }
   if (record.source.kind !== "candidate") {
     return decisionFailure([
-      "Discard requires a complete reviewable decision candidate with a new "
-        + "identity path, current format, status: candidate, alignment: null, "
-        + "and createdAt: null: "
-        + record.sourcePath
+      "Discard requires a complete reviewable decision candidate with a new " +
+        "identity path, current format, status: candidate, alignment: null, " +
+        "and createdAt: null: " +
+        record.sourcePath
     ]);
   }
   if (record.relationshipErrors.length > 0) {
     return decisionFailure([
-      "Discard requires the candidate relationships to be structurally valid: "
-        + record.sourcePath,
+      "Discard requires the candidate relationships to be structurally valid: " +
+        record.sourcePath,
       ...record.relationshipErrors
     ]);
   }
   const referencingIds = scan.records
     .filter((candidate) => candidate.decisionId !== record.decisionId)
-    .filter((candidate) => (
-      candidate.source.kind === "candidate"
-      || candidate.source.kind === "established"
-    ) && candidate.source.document.relations.some((relation) => (
-      relation.target === record.decisionId
-    )))
+    .filter(
+      (candidate) =>
+        (candidate.source.kind === "candidate" ||
+          candidate.source.kind === "established") &&
+        candidate.source.document.relations.some(
+          (relation) => relation.target === record.decisionId
+        )
+    )
     .map((candidate) => candidate.decisionId);
   if (referencingIds.length > 0) {
     return decisionFailure([
-      "Cannot discard decision file while it is still referenced: "
-        + record.sourcePath,
+      "Cannot discard decision file while it is still referenced: " +
+        record.sourcePath,
       "Remove references from: " + referencingIds.join(", ")
     ]);
   }
   return {
-    changes: [{
-      decisionPath: record.decisionPath,
-      expectedText: record.source.text,
-      nextText: null
-    }],
-    message: "Discarded decision candidate "
-      + record.sourcePath
-      + " before it entered the decision index.",
+    changes: [
+      {
+        decisionPath: record.decisionPath,
+        expectedText: record.source.text,
+        nextText: null
+      }
+    ],
+    message:
+      "Discarded decision candidate " +
+      record.sourcePath +
+      " before it entered the decision index.",
     status: "ok"
   };
 }
 
-function findRecord(scan: DecisionScan, value: DecisionId): DecisionRecord | null {
+function findRecord(
+  scan: DecisionScan,
+  value: DecisionId
+): DecisionRecord | null {
   return scan.records.find((record) => record.decisionId === value) ?? null;
 }
 

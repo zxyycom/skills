@@ -31,7 +31,9 @@ export function parseSkillVersion(
   source: string = skillVersionMetadataPath
 ): number {
   if (typeof value !== "string" || !skillVersionPattern.test(value)) {
-    throw new Error(`${source} must be a string containing one positive integer`);
+    throw new Error(
+      `${source} must be a string containing one positive integer`
+    );
   }
 
   const version = Number(value);
@@ -96,7 +98,10 @@ export function readOptionalSkillVersionFromMarkdown(
   markdown: string,
   source: string = skillEntryFileName
 ): number | null {
-  return readOptionalSkillVersion(readSkillFrontmatter(markdown, source), source);
+  return readOptionalSkillVersion(
+    readSkillFrontmatter(markdown, source),
+    source
+  );
 }
 
 export function readSkillVersionFromMarkdown(
@@ -105,7 +110,9 @@ export function readSkillVersionFromMarkdown(
 ): number {
   const version = readOptionalSkillVersionFromMarkdown(markdown, source);
   if (version === null) {
-    throw new Error(`${source} frontmatter ${skillVersionMetadataPath} is required`);
+    throw new Error(
+      `${source} frontmatter ${skillVersionMetadataPath} is required`
+    );
   }
 
   return version;

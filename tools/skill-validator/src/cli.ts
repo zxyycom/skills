@@ -5,15 +5,17 @@ import { isMainModule } from "../../shared/src/node/main-module.ts";
 import { validateSkillDirectory } from "./validation.ts";
 
 function printHelp(): void {
-  console.log([
-    "Usage: validate-skill.mjs [skill-directory]",
-    "",
-    "Validate the portable structure contract of a Codex skill.",
-    "The current directory is used when skill-directory is omitted.",
-    "",
-    "Options:",
-    "  -h, --help  Show this help"
-  ].join("\n"));
+  console.log(
+    [
+      "Usage: validate-skill.mjs [skill-directory]",
+      "",
+      "Validate the portable structure contract of a Codex skill.",
+      "The current directory is used when skill-directory is omitted.",
+      "",
+      "Options:",
+      "  -h, --help  Show this help"
+    ].join("\n")
+  );
 }
 
 export async function runSkillValidatorCli(
@@ -46,7 +48,9 @@ export async function runSkillValidatorCli(
   const skillDirectory = path.resolve(parsed.positionals[0] ?? ".");
   const result = await validateSkillDirectory(skillDirectory);
   if (result.errors.length > 0) {
-    console.error(`Skill structure validation failed: ${result.skillDirectory}`);
+    console.error(
+      `Skill structure validation failed: ${result.skillDirectory}`
+    );
     for (const error of result.errors) {
       console.error(`- ${error}`);
     }
@@ -54,8 +58,8 @@ export async function runSkillValidatorCli(
   }
 
   console.log(
-    `Skill structure validation passed: ${result.skillDirectory} `
-    + `(${result.markdownFileCount} markdown files checked).`
+    `Skill structure validation passed: ${result.skillDirectory} ` +
+      `(${result.markdownFileCount} markdown files checked).`
   );
   return 0;
 }

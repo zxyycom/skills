@@ -18,16 +18,17 @@ export function parseGitTreeEntries(output: string): GitTreeEntry[] {
 
   return records.map((record) => {
     const separatorIndex = record.indexOf("\t");
-    const metadata = separatorIndex === -1
-      ? []
-      : record.slice(0, separatorIndex).split(/\s+/u);
+    const metadata =
+      separatorIndex === -1
+        ? []
+        : record.slice(0, separatorIndex).split(/\s+/u);
     const [mode, objectType, objectId] = metadata;
     if (
-      metadata.length !== 3
-      || !gitTreeModePattern.test(mode ?? "")
-      || objectType === undefined
-      || objectType.length === 0
-      || !objectIdPattern.test(objectId ?? "")
+      metadata.length !== 3 ||
+      !gitTreeModePattern.test(mode ?? "") ||
+      objectType === undefined ||
+      objectType.length === 0 ||
+      !objectIdPattern.test(objectId ?? "")
     ) {
       throw new Error("Invalid Git tree entry");
     }

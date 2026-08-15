@@ -96,11 +96,9 @@ async function testPathGates(tempRoot: string): Promise<void> {
   assert.equal(inaccessibleArchive.check, null);
   assert.match(inaccessibleArchive.error, /cannot inspect change directory/u);
 
-  const replacedDirectory = await writePlan(
-    lifecycleRoot,
-    "replaced-plan",
-    { tasks: completedTasks }
-  );
+  const replacedDirectory = await writePlan(lifecycleRoot, "replaced-plan", {
+    tasks: completedTasks
+  });
   const originalDirectory = `${replacedDirectory}-original`;
   const originalLstat = fs.lstat.bind(fs);
   let sourceInspectionCount = 0;
@@ -138,11 +136,9 @@ async function testPathGates(tempRoot: string): Promise<void> {
 async function testTargetGates(tempRoot: string): Promise<void> {
   const lifecycleRoot = path.join(tempRoot, "target-gates");
   const archiveRoot = path.join(lifecycleRoot, "archive");
-  const collisionDirectory = await writePlan(
-    lifecycleRoot,
-    "collision-plan",
-    { tasks: completedTasks }
-  );
+  const collisionDirectory = await writePlan(lifecycleRoot, "collision-plan", {
+    tasks: completedTasks
+  });
   await writePlan(archiveRoot, "collision-plan", { tasks: completedTasks });
   const collisionArchive = await archiveChangePlanDirectory(collisionDirectory);
   assert.equal(collisionArchive.archived, false);
@@ -186,18 +182,22 @@ async function testTargetGates(tempRoot: string): Promise<void> {
     });
   }
   assert.equal(observedCollisionArchive.archived, false);
-  assert.match(observedCollisionArchive.error, /target appeared before archive/u);
+  assert.match(
+    observedCollisionArchive.error,
+    /target appeared before archive/u
+  );
   assert.equal(targetInspectionCount, 2);
   assert.equal((await fs.stat(observedCollisionDirectory)).isDirectory(), true);
   assert.equal((await fs.stat(observedArchivedDirectory)).isDirectory(), true);
 
   const blockedArchiveRoot = path.join(tempRoot, "blocked-archive-root");
-  const blockedDirectory = await writePlan(
-    blockedArchiveRoot,
-    "blocked-plan",
-    { tasks: completedTasks }
+  const blockedDirectory = await writePlan(blockedArchiveRoot, "blocked-plan", {
+    tasks: completedTasks
+  });
+  await fs.writeFile(
+    path.join(blockedArchiveRoot, "archive"),
+    "not a directory"
   );
-  await fs.writeFile(path.join(blockedArchiveRoot, "archive"), "not a directory");
   const blockedArchive = await archiveChangePlanDirectory(blockedDirectory);
   assert.equal(blockedArchive.archived, false);
   assert.match(blockedArchive.error ?? "", /regular directory/u);
@@ -205,11 +205,9 @@ async function testTargetGates(tempRoot: string): Promise<void> {
 
 async function testSuccessfulArchive(tempRoot: string): Promise<void> {
   const lifecycleRoot = path.join(tempRoot, "successful-archive");
-  const completedDirectory = await writePlan(
-    lifecycleRoot,
-    "completed-plan",
-    { tasks: completedTasks }
-  );
+  const completedDirectory = await writePlan(lifecycleRoot, "completed-plan", {
+    tasks: completedTasks
+  });
   await fs.writeFile(
     path.join(completedDirectory, "evidence.md"),
     "验证证据。\n",
@@ -220,7 +218,9 @@ async function testSuccessfulArchive(tempRoot: string): Promise<void> {
   assert.equal(completedArchive.error, null);
   await assert.rejects(fs.stat(completedDirectory), { code: "ENOENT" });
   assert.equal(
-    await fs.stat(completedArchive.archivedDirectory).then((stat) => stat.isDirectory()),
+    await fs
+      .stat(completedArchive.archivedDirectory)
+      .then((stat) => stat.isDirectory()),
     true
   );
   assert.equal(
@@ -232,11 +232,9 @@ async function testSuccessfulArchive(tempRoot: string): Promise<void> {
   );
 
   const recoveryRoot = path.join(tempRoot, "rename-recovery");
-  const recoveryDirectory = await writePlan(
-    recoveryRoot,
-    "completed-plan",
-    { tasks: completedTasks }
-  );
+  const recoveryDirectory = await writePlan(recoveryRoot, "completed-plan", {
+    tasks: completedTasks
+  });
   const recoveryArchiveDirectory = path.join(recoveryRoot, "archive");
   const recoveryTargetDirectory = path.join(
     recoveryArchiveDirectory,
@@ -249,8 +247,8 @@ async function testSuccessfulArchive(tempRoot: string): Promise<void> {
     value: async (...arguments_: Parameters<typeof fs.rename>) => {
       const [oldPath, newPath] = arguments_;
       if (
-        String(oldPath) === recoveryDirectory
-        && String(newPath) === recoveryTargetDirectory
+        String(oldPath) === recoveryDirectory &&
+        String(newPath) === recoveryTargetDirectory
       ) {
         renameAttempted = true;
         throw new Error("forced archive rename failure");
@@ -276,18 +274,14 @@ async function testSuccessfulArchive(tempRoot: string): Promise<void> {
   await assert.rejects(fs.lstat(recoveryArchiveDirectory), { code: "ENOENT" });
 }
 
-test("archive rejects plans that fail content gates", () => (
-  withTempRoot("archive-content", testContentGates)
-));
+test("archive rejects plans that fail content gates", () =>
+  withTempRoot("archive-content", testContentGates));
 
-test("archive rejects unsafe source paths", () => (
-  withTempRoot("archive-paths", testPathGates)
-));
+test("archive rejects unsafe source paths", () =>
+  withTempRoot("archive-paths", testPathGates));
 
-test("archive rejects invalid target directories", () => (
-  withTempRoot("archive-targets", testTargetGates)
-));
+test("archive rejects invalid target directories", () =>
+  withTempRoot("archive-targets", testTargetGates));
 
-test("archive moves complete plans and preserves their content", () => (
-  withTempRoot("archive-success", testSuccessfulArchive)
-));
+test("archive moves complete plans and preserves their content", () =>
+  withTempRoot("archive-success", testSuccessfulArchive));

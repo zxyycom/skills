@@ -28,9 +28,9 @@ export async function validateTestEvidenceLedger(
   );
   if (!parsedOptions.success) {
     return v.parse(testEvidenceLedgerReportSchema, {
-      diagnostics: [createInvalidTestEvidenceOptionsDiagnostic(
-        parsedOptions.issues
-      )],
+      diagnostics: [
+        createInvalidTestEvidenceOptionsDiagnostic(parsedOptions.issues)
+      ],
       entityIndex: null,
       indexPath: testEvidenceLedgerIndexPath,
       ledgerPath: testEvidenceLedgerPath,
@@ -54,18 +54,18 @@ export async function validateTestEvidenceLedger(
 
   return v.parse(testEvidenceLedgerReportSchema, {
     diagnostics: sortUniqueTestEvidenceDiagnostics(diagnostics),
-    entityIndex: source.entityIndex === null
-      ? null
-      : { ...source.entityIndex.identity },
+    entityIndex:
+      source.entityIndex === null ? null : { ...source.entityIndex.identity },
     indexPath: testEvidenceLedgerIndexPath,
     ledgerPath: testEvidenceLedgerPath,
     schemaVersion: testEvidenceLedgerSchemaVersion,
-    sourceRevision: source.source === null
-      ? null
-      : {
-        entries: { ...source.source.snapshot.sourceRevision.entries },
-        metadata: source.source.snapshot.sourceRevision.metadata
-      },
+    sourceRevision:
+      source.source === null
+        ? null
+        : {
+            entries: { ...source.source.snapshot.sourceRevision.entries },
+            metadata: source.source.snapshot.sourceRevision.metadata
+          },
     summary: { ...source.summary }
   });
 }

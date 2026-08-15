@@ -7,7 +7,7 @@ import {
   readIndex,
   runSourceCli,
   withTemporaryWorkspace,
-  writeDecision,
+  writeDecision
 } from "./support.ts";
 
 test("first establishment creates a root Decision ID and definition-six index", () =>
@@ -20,7 +20,7 @@ test("first establishment creates a root Decision ID and definition-six index", 
       "--alignment",
       "aligned",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(activated.exitCode, 0, activated.stderr);
     const index = await readIndex(workspaceRoot);
@@ -30,7 +30,7 @@ test("first establishment creates a root Decision ID and definition-six index", 
     assert.equal(findIndexEntry(index, decisionId).status, "active");
     assert.equal(
       path.basename(findIndexEntry(index, decisionId).sourcePath),
-      decisionId,
+      decisionId
     );
   }));
 
@@ -40,12 +40,12 @@ test("date-shaped IDs and titles remain valid candidates and can be activated", 
     await writeDecision(
       workspaceRoot,
       decisionId,
-      candidateDecisionBody({ title: "2026-08-15 日期样式标题" }),
+      candidateDecisionBody({ title: "2026-08-15 日期样式标题" })
     );
     const candidates = await runSourceCli([
       "candidates",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(candidates.exitCode, 0, candidates.stderr);
     assert.match(candidates.stdout, new RegExp(decisionId));
@@ -55,11 +55,11 @@ test("date-shaped IDs and titles remain valid candidates and can be activated", 
       "--alignment",
       "aligned",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(activated.exitCode, 0, activated.stderr);
     assert.equal(
       findIndexEntry(await readIndex(workspaceRoot), decisionId).title,
-      "2026-08-15 日期样式标题",
+      "2026-08-15 日期样式标题"
     );
   }));

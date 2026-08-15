@@ -22,11 +22,12 @@ test("generated runtime stays directly importable with portable source metadata"
   assert.match(cliSource, /Rebuild: bun run sync:change-plan-cli/u);
   assert.match(cliSource, /sourceMappingURL=change-plan\.mjs\.map/u);
   assert.equal(cliSource.includes(repositoryRoot), false);
-  assert.equal(cliSource.includes(repositoryRoot.replaceAll("\\", "\\\\")), false);
-
-  const runtime: unknown = await import(
-    pathToFileURL(generatedCliPath).href
+  assert.equal(
+    cliSource.includes(repositoryRoot.replaceAll("\\", "\\\\")),
+    false
   );
+
+  const runtime: unknown = await import(pathToFileURL(generatedCliPath).href);
   assert.ok(isRecord(runtime));
   for (const runtimeExport of [
     "archiveChangePlanDirectory",
@@ -55,20 +56,18 @@ test("generated runtime stays directly importable with portable source metadata"
   assert.equal(sourceMap.sourcesContent.length, sourceMap.sources.length);
   assert.equal(
     sourceMap.sources.some(
-      (source) => (
-        typeof source === "string"
-        && source.endsWith("write-file-atomic/lib/index.js")
-      )
+      (source) =>
+        typeof source === "string" &&
+        source.endsWith("write-file-atomic/lib/index.js")
     ),
     false
   );
   assert.ok(
     sourceMap.sources.every(
-      (source) => (
-        typeof source === "string"
-        && !path.isAbsolute(source)
-        && !source.includes("\\")
-      )
+      (source) =>
+        typeof source === "string" &&
+        !path.isAbsolute(source) &&
+        !source.includes("\\")
     )
   );
 });

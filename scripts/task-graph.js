@@ -6,7 +6,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { getCurrentTaskGraphRoot } from "./setup-repository.js";
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const repoRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  ".."
+);
 
 function parseArguments(argv) {
   const forwarded = [];
@@ -31,9 +34,9 @@ function parseArguments(argv) {
         value = argument.slice("--root=".length);
       }
       if (
-        typeof value !== "string"
-        || value.length === 0
-        || value.startsWith("--")
+        typeof value !== "string" ||
+        value.length === 0 ||
+        value.startsWith("--")
       ) {
         throw new Error("--root requires a project path");
       }

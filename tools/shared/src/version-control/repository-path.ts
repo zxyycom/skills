@@ -5,12 +5,14 @@ export function normalizeRepositoryPath(value: string): string {
   const normalized = value.replaceAll("\\", "/");
   const segments = normalized.split("/");
   if (
-    normalized.length === 0
-    || normalized.includes("\0")
-    || path.posix.isAbsolute(normalized)
-    || path.win32.isAbsolute(value)
-    || /^[A-Za-z]:/u.test(normalized)
-    || segments.some((segment) => segment === "" || segment === "." || segment === "..")
+    normalized.length === 0 ||
+    normalized.includes("\0") ||
+    path.posix.isAbsolute(normalized) ||
+    path.win32.isAbsolute(value) ||
+    /^[A-Za-z]:/u.test(normalized) ||
+    segments.some(
+      (segment) => segment === "" || segment === "." || segment === ".."
+    )
   ) {
     throw new VersionControlError(
       "invalid-path",

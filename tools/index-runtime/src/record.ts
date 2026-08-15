@@ -2,13 +2,17 @@ import * as v from "valibot";
 
 const encodedKeyPrefix = ":";
 
-export function isPlainRecord(value: unknown): value is Record<string, unknown> {
+export function isPlainRecord(
+  value: unknown
+): value is Record<string, unknown> {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
     return false;
   }
   const prototype = Object.getPrototypeOf(value);
-  return (prototype === Object.prototype || prototype === null)
-    && Object.getOwnPropertySymbols(value).length === 0;
+  return (
+    (prototype === Object.prototype || prototype === null) &&
+    Object.getOwnPropertySymbols(value).length === 0
+  );
 }
 
 export function sameRecordMembers(
@@ -16,19 +20,17 @@ export function sameRecordMembers(
   right: Readonly<Record<string, unknown>>
 ): boolean {
   const leftKeys = Object.keys(left);
-  return leftKeys.length === Object.keys(right).length
-    && leftKeys.every((key) => Object.hasOwn(right, key));
+  return (
+    leftKeys.length === Object.keys(right).length &&
+    leftKeys.every((key) => Object.hasOwn(right, key))
+  );
 }
 
 export function createSafeRecordSchema<
   const KeySchema extends v.GenericSchema<string, string>,
   const ValueSchema extends v.GenericSchema,
   const Message extends string
->(
-  keySchema: KeySchema,
-  valueSchema: ValueSchema,
-  message: Message
-) {
+>(keySchema: KeySchema, valueSchema: ValueSchema, message: Message) {
   const encodedKeySchema = v.pipe(
     v.string(),
     v.transform(decodeRecordKey),
@@ -37,9 +39,10 @@ export function createSafeRecordSchema<
   );
   const schema = v.record(keySchema, valueSchema, message);
   const runtimeRecordSchema = v.record(encodedKeySchema, valueSchema, message);
-  const decodeKeys = v.transform((record: v.InferOutput<typeof runtimeRecordSchema>) => (
-    mapRecordKeys(record, decodeRecordKey)
-  ));
+  const decodeKeys = v.transform(
+    (record: v.InferOutput<typeof runtimeRecordSchema>) =>
+      mapRecordKeys(record, decodeRecordKey)
+  );
   const runtimeSchema = v.pipe(
     v.custom<Record<string, v.InferInput<ValueSchema>>>(isPlainRecord, message),
     v.transform((record) => mapRecordKeys(record, encodeRecordKey)),
@@ -65,8 +68,8 @@ export function createSafeRecordSchema<
           const originalKey = decodeRecordKey(pathItem.key);
           Reflect.set(pathItem, "key", originalKey);
           if (
-            isPlainRecord(originalRecord)
-            && Object.hasOwn(originalRecord, originalKey)
+            isPlainRecord(originalRecord) &&
+            Object.hasOwn(originalRecord, originalKey)
           ) {
             Reflect.set(pathItem, "input", originalRecord);
             Reflect.set(pathItem, "value", originalRecord[originalKey]);
@@ -83,10 +86,7 @@ export function createSafeRecordSchema<
 function mapRecordKeys<RecordValue extends object>(
   record: RecordValue,
   map: (key: string) => string
-): Record<
-  string,
-  RecordValue[Extract<keyof RecordValue, string>]
-> {
+): Record<string, RecordValue[Extract<keyof RecordValue, string>]> {
   return Object.fromEntries(
     Object.entries(record).map(([key, value]) => [map(key), value])
   );

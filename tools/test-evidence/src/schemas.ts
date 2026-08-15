@@ -7,24 +7,16 @@ import {
 } from "../../index-runtime/src/index.ts";
 import { testEvidenceTopicIdPatternSource } from "./topic.ts";
 
-export const testEvidenceDiagnosticCategories = [
-  "catalog",
-  "index"
-] as const;
-export const testEvidenceDiagnosticSeverities = [
-  "error",
-  "warning"
-] as const;
+export const testEvidenceDiagnosticCategories = ["catalog", "index"] as const;
+export const testEvidenceDiagnosticSeverities = ["error", "warning"] as const;
 
 export const testEvidenceReportSchemaVersion = 4 as const;
 export const testEvidenceIndexSchemaVersion = stateIndexSchemaVersion;
 export const testEvidenceIndexDefinitionVersion = 3 as const;
-export const testEvidenceIndexNamespace =
-  "test-evidence" as const;
+export const testEvidenceIndexNamespace = "test-evidence" as const;
 export const testEvidenceTopicCatalogSchemaVersion = 1 as const;
 
-export const testEvidenceCatalogPath =
-  "docs/test-evidence";
+export const testEvidenceCatalogPath = "docs/test-evidence";
 export const testEvidenceIndexPath =
   "docs/test-evidence/test-evidence-index.json";
 export const testEvidenceCaseIdPatternSource =
@@ -61,13 +53,10 @@ const topicIdSchema = v.pipe(
 );
 const topicDescriptionSchema = v.pipe(
   v.string("must be a string"),
-  v.check(
-    (value) => {
-      const length = Array.from(value).length;
-      return length >= 4 && length <= 200;
-    },
-    "must contain 4 to 200 Unicode code points"
-  ),
+  v.check((value) => {
+    const length = Array.from(value).length;
+    return length >= 4 && length <= 200;
+  }, "must contain 4 to 200 Unicode code points"),
   v.regex(/^[^\r\n]*$/u, "must be a single line"),
   v.check(
     (value) => value.trim() === value,
@@ -87,9 +76,11 @@ export const testEvidenceTopicDefinitionsSchema = v.pipe(
     "topic ids must be unique"
   ),
   v.check(
-    (topics) => topics.every((topic, index) => (
-      index === 0 || (topics[index - 1]?.id ?? "") < topic.id
-    )),
+    (topics) =>
+      topics.every(
+        (topic, index) =>
+          index === 0 || (topics[index - 1]?.id ?? "") < topic.id
+      ),
     "topics must be sorted by id in ascending lexical order"
   )
 );
@@ -308,9 +299,7 @@ export type TestEvidenceIndexMetadata = v.InferOutput<
 export type TestEvidenceSummary = v.InferOutput<
   typeof testEvidenceSummarySchema
 >;
-export type TestEvidenceReport = v.InferOutput<
-  typeof testEvidenceReportSchema
->;
+export type TestEvidenceReport = v.InferOutput<typeof testEvidenceReportSchema>;
 export type TestEvidenceCaseState = v.InferOutput<
   typeof testEvidenceCaseStateSchema
 >;

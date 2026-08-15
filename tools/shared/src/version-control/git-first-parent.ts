@@ -21,9 +21,10 @@ export async function listFirstParentRevisionChanges(
   options: ListFirstParentRevisionChangesOptions
 ): Promise<VersionControlRevisionChange[] | null> {
   const from = await repository.resolveRevision(options.from);
-  const to = options.to === undefined
-    ? await repository.getCurrentRevision()
-    : await repository.resolveRevision(options.to);
+  const to =
+    options.to === undefined
+      ? await repository.getCurrentRevision()
+      : await repository.resolveRevision(options.to);
   if (to === null) {
     throw new VersionControlError(
       "revision-not-found",
@@ -98,8 +99,8 @@ function firstParentOperationError(
   const detailText = operationErrorDetail(detail);
   return new VersionControlError(
     "operation-failed",
-    `Version-control operation failed: list first-parent revision changes from ${from} to ${to}`
-      + (detailText === null ? "" : ": " + detailText)
+    `Version-control operation failed: list first-parent revision changes from ${from} to ${to}` +
+      (detailText === null ? "" : ": " + detailText)
   );
 }
 

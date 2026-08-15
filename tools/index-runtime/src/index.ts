@@ -60,10 +60,7 @@ export type {
   StateSnapshot,
   StateSourceRevision
 } from "./types.ts";
-export {
-  isJsonObject,
-  isJsonValue
-} from "./json.ts";
+export { isJsonObject, isJsonValue } from "./json.ts";
 export {
   createStateIndexSchema,
   createStateSourceRevisionSchema,

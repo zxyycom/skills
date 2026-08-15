@@ -18,11 +18,9 @@ import {
 } from "./support.ts";
 
 function runGit(repositoryRoot: string, arguments_: readonly string[]): string {
-  const result = spawnSync(
-    "git",
-    ["-C", repositoryRoot, ...arguments_],
-    { encoding: "utf8" }
-  );
+  const result = spawnSync("git", ["-C", repositoryRoot, ...arguments_], {
+    encoding: "utf8"
+  });
   assert.equal(result.status, 0, result.stderr);
   return result.stdout.trim();
 }
@@ -78,14 +76,16 @@ async function testValidPlan(tempRoot: string): Promise<void> {
     validResult.metadata
   );
   assert.deepEqual(validResult.distance, {
-    baseCommit: validResult.metadata?.stage === "plan"
-      ? validResult.metadata.baseCommit
-      : "",
+    baseCommit:
+      validResult.metadata?.stage === "plan"
+        ? validResult.metadata.baseCommit
+        : "",
     changedLines: 0,
     commitCount: 0,
-    headCommit: validResult.metadata?.stage === "plan"
-      ? validResult.metadata.baseCommit
-      : ""
+    headCommit:
+      validResult.metadata?.stage === "plan"
+        ? validResult.metadata.baseCommit
+        : ""
   });
   assert.deepEqual(validResult.taskProgress, {
     implementation: { completedTaskCount: 0, taskCount: 1 },
@@ -114,30 +114,34 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
   await fs.rm(path.join(draftDirectory, "design.md"));
   const incompleteDraftResult = await checkChangePlanDirectory(draftDirectory);
   assert.equal(incompleteDraftResult.valid, false);
-  assert.ok(incompleteDraftResult.diagnostics.some((diagnostic) => (
-    diagnostic.code === "missing-required-file"
-    && diagnostic.file === "design.md"
-  )));
+  assert.ok(
+    incompleteDraftResult.diagnostics.some(
+      (diagnostic) =>
+        diagnostic.code === "missing-required-file" &&
+        diagnostic.file === "design.md"
+    )
+  );
 
   const planTargetDirectory = await writePlan(tempRoot, "plan-target", {
     metadata: { stage: "draft" }
   });
-  const targetResult = await checkChangePlanDirectoryForPlan(
-    planTargetDirectory
-  );
+  const targetResult =
+    await checkChangePlanDirectoryForPlan(planTargetDirectory);
   assert.equal(targetResult.valid, true);
   assert.equal(targetResult.stage, "draft");
   assert.equal(targetResult.taskCount, 3);
 
   await fs.rm(path.join(planTargetDirectory, "tasks.md"));
-  const incompleteTargetResult = await checkChangePlanDirectoryForPlan(
-    planTargetDirectory
-  );
+  const incompleteTargetResult =
+    await checkChangePlanDirectoryForPlan(planTargetDirectory);
   assert.equal(incompleteTargetResult.valid, false);
-  assert.ok(incompleteTargetResult.diagnostics.some((diagnostic) => (
-    diagnostic.code === "missing-required-file"
-    && diagnostic.file === "tasks.md"
-  )));
+  assert.ok(
+    incompleteTargetResult.diagnostics.some(
+      (diagnostic) =>
+        diagnostic.code === "missing-required-file" &&
+        diagnostic.file === "tasks.md"
+    )
+  );
 }
 
 async function testMetadataAndArchiveBoundaries(
@@ -174,10 +178,13 @@ async function testMetadataAndArchiveBoundaries(
     assert.equal(result.stage, null);
     assert.equal(result.metadata, null);
     assert.equal(result.distance, null);
-    assert.ok(result.diagnostics.some((diagnostic) => (
-      diagnostic.code === "invalid-metadata"
-      && diagnostic.file === changePlanMetadataName
-    )));
+    assert.ok(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "invalid-metadata" &&
+          diagnostic.file === changePlanMetadataName
+      )
+    );
   }
 
   const missingMetadataDirectory = await writePlan(
@@ -188,10 +195,13 @@ async function testMetadataAndArchiveBoundaries(
   const missingMetadataResult = await checkChangePlanDirectory(
     missingMetadataDirectory
   );
-  assert.ok(missingMetadataResult.diagnostics.some((diagnostic) => (
-    diagnostic.code === "missing-required-file"
-    && diagnostic.file === changePlanMetadataName
-  )));
+  assert.ok(
+    missingMetadataResult.diagnostics.some(
+      (diagnostic) =>
+        diagnostic.code === "missing-required-file" &&
+        diagnostic.file === changePlanMetadataName
+    )
+  );
 
   const archivedDirectory = await writePlan(
     path.join(tempRoot, "archive"),
@@ -215,10 +225,13 @@ async function testVersionControlFailure(tempRoot: string): Promise<void> {
   const result = await checkChangePlanDirectory(planDirectory);
   assert.equal(result.distance, null);
   assert.equal(result.valid, false);
-  assert.ok(result.diagnostics.some((diagnostic) => (
-    diagnostic.code === "version-control-failed"
-    && diagnostic.file === changePlanMetadataName
-  )));
+  assert.ok(
+    result.diagnostics.some(
+      (diagnostic) =>
+        diagnostic.code === "version-control-failed" &&
+        diagnostic.file === changePlanMetadataName
+    )
+  );
   assert.equal(
     result.diagnostics.some(
       (diagnostic) => diagnostic.code === "base-commit-unavailable"
@@ -229,7 +242,8 @@ async function testVersionControlFailure(tempRoot: string): Promise<void> {
 
 async function testDirectoryDiagnostics(tempRoot: string): Promise<void> {
   const invalidNameDirectory = await writePlan(tempRoot, "Invalid_Name");
-  const invalidNameResult = await checkChangePlanDirectory(invalidNameDirectory);
+  const invalidNameResult =
+    await checkChangePlanDirectory(invalidNameDirectory);
   assert.equal(invalidNameResult.valid, false);
   assert.ok(
     invalidNameResult.diagnostics.some(
@@ -239,13 +253,13 @@ async function testDirectoryDiagnostics(tempRoot: string): Promise<void> {
 
   const missingFileDirectory = await writePlan(tempRoot, "missing-design");
   await fs.rm(path.join(missingFileDirectory, "design.md"));
-  const missingFileResult = await checkChangePlanDirectory(missingFileDirectory);
+  const missingFileResult =
+    await checkChangePlanDirectory(missingFileDirectory);
   assert.ok(
     missingFileResult.diagnostics.some(
-      (diagnostic) => (
-        diagnostic.code === "missing-required-file"
-        && diagnostic.file === "design.md"
-      )
+      (diagnostic) =>
+        diagnostic.code === "missing-required-file" &&
+        diagnostic.file === "design.md"
     )
   );
 
@@ -277,8 +291,11 @@ async function testDirectoryDiagnostics(tempRoot: string): Promise<void> {
 }
 
 async function testArtifactDiagnostics(tempRoot: string): Promise<void> {
-  const invalidProposalDirectory = await writePlan(tempRoot, "invalid-proposal", {
-    proposal: `# Proposal
+  const invalidProposalDirectory = await writePlan(
+    tempRoot,
+    "invalid-proposal",
+    {
+      proposal: `# Proposal
 
 本 change 的 proposal 结构无效。
 
@@ -300,7 +317,8 @@ async function testArtifactDiagnostics(tempRoot: string): Promise<void> {
 
 ## Affected Owners
 `
-  });
+    }
+  );
   const invalidProposalResult = await checkChangePlanDirectory(
     invalidProposalDirectory
   );
@@ -311,10 +329,8 @@ async function testArtifactDiagnostics(tempRoot: string): Promise<void> {
   );
   assert.ok(
     invalidProposalResult.diagnostics.some(
-      (diagnostic) => (
-        diagnostic.code === "empty-section"
-        && diagnostic.file === "proposal.md"
-      )
+      (diagnostic) =>
+        diagnostic.code === "empty-section" && diagnostic.file === "proposal.md"
     )
   );
 
@@ -341,7 +357,9 @@ async function testArtifactDiagnostics(tempRoot: string): Promise<void> {
 - [ ] 3.1 任务不能放在额外章节。
 `
   });
-  const invalidTasksResult = await checkChangePlanDirectory(invalidTasksDirectory);
+  const invalidTasksResult = await checkChangePlanDirectory(
+    invalidTasksDirectory
+  );
   assert.ok(
     invalidTasksResult.diagnostics.some(
       (diagnostic) => diagnostic.code === "invalid-task-syntax"
@@ -372,18 +390,15 @@ async function testSymbolicLinkDiagnostics(tempRoot: string): Promise<void> {
     linkedDirectory,
     process.platform === "win32" ? "junction" : "dir"
   );
-  const linkedDirectoryResult = await checkChangePlanDirectory(
-    linkedDirectory
-  );
+  const linkedDirectoryResult = await checkChangePlanDirectory(linkedDirectory);
   assert.equal(linkedDirectoryResult.distance, null);
-  assert.ok(linkedDirectoryResult.diagnostics.some(
-    (diagnostic) => diagnostic.code === "change-path-not-directory"
-  ));
-
-  const linkedArtifactDirectory = await writePlan(
-    tempRoot,
-    "linked-artifact"
+  assert.ok(
+    linkedDirectoryResult.diagnostics.some(
+      (diagnostic) => diagnostic.code === "change-path-not-directory"
+    )
   );
+
+  const linkedArtifactDirectory = await writePlan(tempRoot, "linked-artifact");
   const designTarget = path.join(tempRoot, "design-target.md");
   await fs.writeFile(designTarget, validDesign, "utf8");
   await fs.rm(path.join(linkedArtifactDirectory, "design.md"));
@@ -395,15 +410,15 @@ async function testSymbolicLinkDiagnostics(tempRoot: string): Promise<void> {
   const linkedArtifactResult = await checkChangePlanDirectory(
     linkedArtifactDirectory
   );
-  assert.ok(linkedArtifactResult.diagnostics.some((diagnostic) => (
-    diagnostic.code === "required-path-not-file"
-    && diagnostic.file === "design.md"
-  )));
-
-  const linkedMetadataDirectory = await writePlan(
-    tempRoot,
-    "linked-metadata"
+  assert.ok(
+    linkedArtifactResult.diagnostics.some(
+      (diagnostic) =>
+        diagnostic.code === "required-path-not-file" &&
+        diagnostic.file === "design.md"
+    )
   );
+
+  const linkedMetadataDirectory = await writePlan(tempRoot, "linked-metadata");
   const metadataPath = path.join(
     linkedMetadataDirectory,
     changePlanMetadataName
@@ -414,36 +429,32 @@ async function testSymbolicLinkDiagnostics(tempRoot: string): Promise<void> {
   const linkedMetadataResult = await checkChangePlanDirectory(
     linkedMetadataDirectory
   );
-  assert.ok(linkedMetadataResult.diagnostics.some((diagnostic) => (
-    diagnostic.code === "required-path-not-file"
-    && diagnostic.file === changePlanMetadataName
-  )));
+  assert.ok(
+    linkedMetadataResult.diagnostics.some(
+      (diagnostic) =>
+        diagnostic.code === "required-path-not-file" &&
+        diagnostic.file === changePlanMetadataName
+    )
+  );
 }
 
-test("check accepts a complete plan", () => (
-  withTempRoot("check-valid", testValidPlan)
-));
+test("check accepts a complete plan", () =>
+  withTempRoot("check-valid", testValidPlan));
 
-test("check applies stage-specific artifact contracts", () => (
-  withTempRoot("check-stages", testStageArtifactContracts)
-));
+test("check applies stage-specific artifact contracts", () =>
+  withTempRoot("check-stages", testStageArtifactContracts));
 
-test("check validates active metadata and preserves archived history", () => (
-  withTempRoot("check-metadata", testMetadataAndArchiveBoundaries)
-));
+test("check validates active metadata and preserves archived history", () =>
+  withTempRoot("check-metadata", testMetadataAndArchiveBoundaries));
 
-test("check reports change directory path diagnostics", () => (
-  withTempRoot("check-paths", testDirectoryDiagnostics)
-));
+test("check reports change directory path diagnostics", () =>
+  withTempRoot("check-paths", testDirectoryDiagnostics));
 
-test("check reports proposal and task artifact diagnostics", () => (
-  withTempRoot("check-artifacts", testArtifactDiagnostics)
-));
+test("check reports proposal and task artifact diagnostics", () =>
+  withTempRoot("check-artifacts", testArtifactDiagnostics));
 
-test("check reports version-control failures separately from unavailable baselines", () => (
-  withTempRoot("check-version-control", testVersionControlFailure)
-));
+test("check reports version-control failures separately from unavailable baselines", () =>
+  withTempRoot("check-version-control", testVersionControlFailure));
 
-test("check rejects symbolic-link change directories and artifacts", () => (
-  withTempRoot("check-symbolic-links", testSymbolicLinkDiagnostics)
-));
+test("check rejects symbolic-link change directories and artifacts", () =>
+  withTempRoot("check-symbolic-links", testSymbolicLinkDiagnostics));

@@ -3,10 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { inspectPlanVersionControl } from "./git-distance.ts";
 import { validateChangePlanArtifact } from "./markdown.ts";
-import {
-  ChangePlanMetadataError,
-  readChangePlanMetadata
-} from "./metadata.ts";
+import { ChangePlanMetadataError, readChangePlanMetadata } from "./metadata.ts";
 import {
   changePlanMetadataName,
   type ArtifactStructureContract,
@@ -49,16 +46,8 @@ const planArtifactContracts = [
   {
     file: "tasks.md",
     h1: "Tasks",
-    requiredSections: [
-      "Readiness",
-      "Implementation",
-      "Verification"
-    ],
-    taskSections: [
-      "Readiness",
-      "Implementation",
-      "Verification"
-    ]
+    requiredSections: ["Readiness", "Implementation", "Verification"],
+    taskSections: ["Readiness", "Implementation", "Verification"]
   }
 ] as const satisfies readonly ArtifactStructureContract[];
 
@@ -110,10 +99,10 @@ async function lstatOrNull(targetPath: string): Promise<Stats | null> {
     return await fs.lstat(targetPath);
   } catch (error) {
     if (
-      error !== null
-      && typeof error === "object"
-      && "code" in error
-      && error.code === "ENOENT"
+      error !== null &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === "ENOENT"
     ) {
       return null;
     }
@@ -143,12 +132,13 @@ function fileDiagnostic(
 function sortDiagnostics(
   diagnostics: readonly ChangePlanDiagnostic[]
 ): ChangePlanDiagnostic[] {
-  return [...diagnostics].sort((left, right) => (
-    (left.file ?? "").localeCompare(right.file ?? "")
-    || (left.line ?? 0) - (right.line ?? 0)
-    || left.code.localeCompare(right.code)
-    || left.message.localeCompare(right.message)
-  ));
+  return [...diagnostics].sort(
+    (left, right) =>
+      (left.file ?? "").localeCompare(right.file ?? "") ||
+      (left.line ?? 0) - (right.line ?? 0) ||
+      left.code.localeCompare(right.code) ||
+      left.message.localeCompare(right.message)
+  );
 }
 
 function isArchivedChangeDirectory(changeDirectory: string): boolean {
@@ -161,10 +151,12 @@ function addChangeNameDiagnostic(
 ): void {
   const changeName = path.basename(changeDirectory);
   if (!kebabCasePattern.test(changeName)) {
-    diagnostics.push(directoryDiagnostic(
-      "invalid-change-name",
-      `change directory name must use kebab-case: ${changeName || "<empty>"}`
-    ));
+    diagnostics.push(
+      directoryDiagnostic(
+        "invalid-change-name",
+        `change directory name must use kebab-case: ${changeName || "<empty>"}`
+      )
+    );
   }
 }
 
@@ -176,24 +168,30 @@ async function inspectChangeDirectory(
   try {
     directoryStat = await lstatOrNull(changeDirectory);
   } catch (error) {
-    diagnostics.push(directoryDiagnostic(
-      "change-directory-read-failed",
-      `cannot inspect change directory ${changeDirectory}: ${errorMessage(error)}`
-    ));
+    diagnostics.push(
+      directoryDiagnostic(
+        "change-directory-read-failed",
+        `cannot inspect change directory ${changeDirectory}: ${errorMessage(error)}`
+      )
+    );
     return false;
   }
   if (directoryStat === null) {
-    diagnostics.push(directoryDiagnostic(
-      "change-directory-not-found",
-      `change directory does not exist: ${changeDirectory}`
-    ));
+    diagnostics.push(
+      directoryDiagnostic(
+        "change-directory-not-found",
+        `change directory does not exist: ${changeDirectory}`
+      )
+    );
     return false;
   }
   if (directoryStat.isSymbolicLink() || !directoryStat.isDirectory()) {
-    diagnostics.push(directoryDiagnostic(
-      "change-path-not-directory",
-      `change path must be a regular directory and not a symbolic link: ${changeDirectory}`
-    ));
+    diagnostics.push(
+      directoryDiagnostic(
+        "change-path-not-directory",
+        `change path must be a regular directory and not a symbolic link: ${changeDirectory}`
+      )
+    );
     return false;
   }
   return true;
@@ -261,27 +259,33 @@ async function validateArtifacts(
     try {
       artifactStat = await lstatOrNull(artifactPath);
     } catch (error) {
-      diagnostics.push(fileDiagnostic(
-        contract.file,
-        "file-read-failed",
-        `cannot inspect ${contract.file}: ${errorMessage(error)}`
-      ));
+      diagnostics.push(
+        fileDiagnostic(
+          contract.file,
+          "file-read-failed",
+          `cannot inspect ${contract.file}: ${errorMessage(error)}`
+        )
+      );
       continue;
     }
     if (artifactStat === null) {
-      diagnostics.push(fileDiagnostic(
-        contract.file,
-        "missing-required-file",
-        `${contract.file} is required`
-      ));
+      diagnostics.push(
+        fileDiagnostic(
+          contract.file,
+          "missing-required-file",
+          `${contract.file} is required`
+        )
+      );
       continue;
     }
     if (artifactStat.isSymbolicLink() || !artifactStat.isFile()) {
-      diagnostics.push(fileDiagnostic(
-        contract.file,
-        "required-path-not-file",
-        `${contract.file} must be a regular file and not a symbolic link`
-      ));
+      diagnostics.push(
+        fileDiagnostic(
+          contract.file,
+          "required-path-not-file",
+          `${contract.file} must be a regular file and not a symbolic link`
+        )
+      );
       continue;
     }
 
@@ -298,19 +302,19 @@ async function validateArtifacts(
         "implementation",
         "verification"
       ] as const) {
-        progress.taskProgress[section].taskCount += (
-          validation.taskProgress[section].taskCount
-        );
-        progress.taskProgress[section].completedTaskCount += (
-          validation.taskProgress[section].completedTaskCount
-        );
+        progress.taskProgress[section].taskCount +=
+          validation.taskProgress[section].taskCount;
+        progress.taskProgress[section].completedTaskCount +=
+          validation.taskProgress[section].completedTaskCount;
       }
     } catch (error) {
-      diagnostics.push(fileDiagnostic(
-        contract.file,
-        "file-read-failed",
-        `cannot read or parse ${contract.file}: ${errorMessage(error)}`
-      ));
+      diagnostics.push(
+        fileDiagnostic(
+          contract.file,
+          "file-read-failed",
+          `cannot read or parse ${contract.file}: ${errorMessage(error)}`
+        )
+      );
     }
   }
   return progress;
@@ -344,7 +348,7 @@ async function checkChangePlanDirectoryWithOptions(
   const changeDirectory = path.resolve(changeDirectoryInput);
   const diagnostics: ChangePlanDiagnostic[] = [];
   addChangeNameDiagnostic(changeDirectory, diagnostics);
-  if (!await inspectChangeDirectory(changeDirectory, diagnostics)) {
+  if (!(await inspectChangeDirectory(changeDirectory, diagnostics))) {
     return checkResult(
       changeDirectory,
       diagnostics,
@@ -359,19 +363,20 @@ async function checkChangePlanDirectoryWithOptions(
   const activeMetadata: ChangePlanMetadata | null = archived
     ? null
     : await readActiveMetadata(changeDirectory, diagnostics);
-  const stage = archived ? null : activeMetadata?.stage ?? null;
+  const stage = archived ? null : (activeMetadata?.stage ?? null);
   const artifactStage = archived
     ? "plan"
-    : options.artifactStage ?? stage ?? undefined;
-  const progress = artifactStage === undefined
-    ? emptyArtifactProgress()
-    : await validateArtifacts(changeDirectory, artifactStage, diagnostics);
+    : (options.artifactStage ?? stage ?? undefined);
+  const progress =
+    artifactStage === undefined
+      ? emptyArtifactProgress()
+      : await validateArtifacts(changeDirectory, artifactStage, diagnostics);
 
   let distance: GitDistanceEvidence | null = null;
   if (
-    options.inspectGitDistance
-    && !archived
-    && activeMetadata?.stage === "plan"
+    options.inspectGitDistance &&
+    !archived &&
+    activeMetadata?.stage === "plan"
   ) {
     try {
       const inspection = await inspectPlanVersionControl(
@@ -381,18 +386,22 @@ async function checkChangePlanDirectoryWithOptions(
       if (inspection.outcome === "measured") {
         distance = inspection.evidence;
       } else {
-        diagnostics.push(fileDiagnostic(
-          changePlanMetadataName,
-          "base-commit-unavailable",
-          "plan baseCommit is unavailable; review the plan and run plan to record a new Git baseline"
-        ));
+        diagnostics.push(
+          fileDiagnostic(
+            changePlanMetadataName,
+            "base-commit-unavailable",
+            "plan baseCommit is unavailable; review the plan and run plan to record a new Git baseline"
+          )
+        );
       }
     } catch (error) {
-      diagnostics.push(fileDiagnostic(
-        changePlanMetadataName,
-        "version-control-failed",
-        `cannot measure plan distance against version control: ${errorMessage(error)}`
-      ));
+      diagnostics.push(
+        fileDiagnostic(
+          changePlanMetadataName,
+          "version-control-failed",
+          `cannot measure plan distance against version control: ${errorMessage(error)}`
+        )
+      );
     }
   }
 

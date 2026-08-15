@@ -2,10 +2,7 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import {
-  queryTestEvidence,
-  showTestEvidenceCase
-} from "../src/cli.ts";
+import { queryTestEvidence, showTestEvidenceCase } from "../src/cli.ts";
 
 const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -43,13 +40,11 @@ test("shows the authoritative Markdown for a repository case", async () => {
   );
   assert.deepEqual(result.topic, {
     id: "test-evidence",
-    description: "测试证据目录的固定路径与 case 结构、统一索引同步与回退、"
-      + "查询展示，以及 CLI 和分发 API 契约。"
+    description:
+      "测试证据目录的固定路径与 case 结构、统一索引同步与回退、" +
+      "查询展示，以及 CLI 和分发 API 契约。"
   });
-  assert.match(
-    result.markdown ?? "",
-    /CLI 对 `--config` 返回未知参数错误/u
-  );
+  assert.match(result.markdown ?? "", /CLI 对 `--config` 返回未知参数错误/u);
   assert.doesNotMatch(
     result.markdown ?? "",
     /TEST-EVIDENCE-QUERY-REPOSITORY-001/u

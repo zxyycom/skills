@@ -20,17 +20,18 @@ export function decisionIndexState(
   sourcePath: DecisionSourcePath,
   document: DecisionDocument
 ): DecisionIndexState {
-  const metadata: DecisionMetadata = document.status === "active"
-    ? {
-        status: "active",
-        alignment: document.alignment,
-        createdAt: document.createdAt
-      }
-    : {
-        status: "archived",
-        alignment: document.alignment,
-        createdAt: document.createdAt
-      };
+  const metadata: DecisionMetadata =
+    document.status === "active"
+      ? {
+          status: "active",
+          alignment: document.alignment,
+          createdAt: document.createdAt
+        }
+      : {
+          status: "archived",
+          alignment: document.alignment,
+          createdAt: document.createdAt
+        };
   return {
     sourcePath,
     title: document.title,
@@ -48,7 +49,8 @@ export async function buildDecisionStateSnapshotFromSources(
   signal?: AbortSignal
 ): Promise<StateSnapshot<DecisionIndexState, DecisionIndexMetadata>> {
   const prepared = prepareDecisionSources(sources);
-  const states: Array<{ decisionId: DecisionId; state: DecisionIndexState }> = [];
+  const states: Array<{ decisionId: DecisionId; state: DecisionIndexState }> =
+    [];
   for (
     let offset = 0;
     offset < prepared.sources.length;
@@ -57,19 +59,28 @@ export async function buildDecisionStateSnapshotFromSources(
     if (signal?.aborted === true) {
       throw new Error("decision state projection was aborted");
     }
-    const batch = prepared.sources.slice(offset, offset + decisionSourceParseConcurrency);
-    states.push(...await Promise.all(batch.map(async (source) => ({
-      decisionId: source.decisionId,
-      state: await parseDecisionSource(source, prepared.decisionIds)
-    }))));
+    const batch = prepared.sources.slice(
+      offset,
+      offset + decisionSourceParseConcurrency
+    );
+    states.push(
+      ...(await Promise.all(
+        batch.map(async (source) => ({
+          decisionId: source.decisionId,
+          state: await parseDecisionSource(source, prepared.decisionIds)
+        }))
+      ))
+    );
   }
 
-  const relationIssues = decisionRelationConsistencyIssues(states.map(({ decisionId, state }) => ({
-    decisionId,
-    projection: state,
-    sourcePath: state.sourcePath,
-    status: state.status
-  })));
+  const relationIssues = decisionRelationConsistencyIssues(
+    states.map(({ decisionId, state }) => ({
+      decisionId,
+      projection: state,
+      sourcePath: state.sourcePath,
+      status: state.status
+    }))
+  );
   if (relationIssues.length > 0) {
     throw new Error(relationIssues.map((issue) => issue.message).join("; "));
   }
@@ -77,7 +88,9 @@ export async function buildDecisionStateSnapshotFromSources(
   return {
     metadata: {},
     sourceRevision: prepared.revision,
-    states: Object.fromEntries(states.map(({ decisionId, state }) => [decisionId, state]))
+    states: Object.fromEntries(
+      states.map(({ decisionId, state }) => [decisionId, state])
+    )
   };
 }
 
@@ -93,9 +106,10 @@ async function parseDecisionSource(
     sourcePath: source.sourcePath,
     targetExists: (targetId) => decisionIds.has(targetId)
   });
-  const metadata = candidate === null
-    ? null
-    : establishedDecisionMetadataFromSource(candidate);
+  const metadata =
+    candidate === null
+      ? null
+      : establishedDecisionMetadataFromSource(candidate);
   if (candidate === null || metadata === null || errors.length > 0) {
     throw new Error(
       errors.length > 0

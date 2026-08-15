@@ -18,14 +18,8 @@ import type {
   StateIndexResult,
   StateIndexStoredEntry
 } from "./types.ts";
-import {
-  isPlainRecord,
-  sameRecordMembers
-} from "./record.ts";
-import {
-  isStateIndexText,
-  stateIndexSchemaVersion
-} from "./schemas.ts";
+import { isPlainRecord, sameRecordMembers } from "./record.ts";
+import { isStateIndexText, stateIndexSchemaVersion } from "./schemas.ts";
 import {
   validateStateSourceRevisionValue,
   validateStateIndexValue
@@ -40,10 +34,16 @@ export async function buildStateIndex<
 ): Promise<StateIndexResult<StateIndex<State, Metadata>>> {
   const definitionErrors = validateStateIndexDefinition(definition);
   if (definitionErrors.length > 0) {
-    return failure("state-index.definition-invalid", definitionErrors.join("; "));
+    return failure(
+      "state-index.definition-invalid",
+      definitionErrors.join("; ")
+    );
   }
   if (context.signal?.aborted === true) {
-    return failure("state-index.operation-aborted", "state index build was aborted");
+    return failure(
+      "state-index.operation-aborted",
+      "state index build was aborted"
+    );
   }
 
   let snapshot: unknown;
@@ -66,8 +66,8 @@ export function buildStateIndexFromSnapshot<
   if (!isStateSnapshot(snapshot)) {
     return failure(
       "state-index.source-invalid",
-      "read must return { sourceRevision, metadata, states } with JSON object "
-      + "metadata and an id-keyed state record",
+      "read must return { sourceRevision, metadata, states } with JSON object " +
+        "metadata and an id-keyed state record",
       { path: sourcePath }
     );
   }
@@ -79,12 +79,14 @@ export function buildStateIndexFromSnapshot<
   if (sourceRevision.status === "error") {
     return sourceRevision;
   }
-  const invalidId = Object.keys(snapshot.states).find((id) => !isStateIndexText(id));
+  const invalidId = Object.keys(snapshot.states).find(
+    (id) => !isStateIndexText(id)
+  );
   if (invalidId !== undefined) {
     return failure(
       "state-index.id-invalid",
-      `state id ${JSON.stringify(invalidId)} must be non-empty text without surrounding `
-        + "whitespace or control characters",
+      `state id ${JSON.stringify(invalidId)} must be non-empty text without surrounding ` +
+        "whitespace or control characters",
       { path: sourcePath, stateId: invalidId }
     );
   }
@@ -113,10 +115,12 @@ export function buildStateIndexFromSnapshot<
       state,
       createProjectionContext(id, metadata)
     );
-    diagnostics.push(...projected.diagnostics.map((entry) => ({
-      ...entry,
-      path: entry.path ?? sourcePath
-    })));
+    diagnostics.push(
+      ...projected.diagnostics.map((entry) => ({
+        ...entry,
+        path: entry.path ?? sourcePath
+      }))
+    );
     if (projected.status === "ok") {
       entries.push([id, projected.value]);
     }
@@ -128,7 +132,10 @@ export function buildStateIndexFromSnapshot<
   const rawIndex: StateIndex<State, Metadata> = {
     definitionVersion: definition.definitionVersion,
     entries: Object.fromEntries(entries),
-    keyDefinitions: definition.keyStrategies.map(({ mode, name }) => ({ mode, name })),
+    keyDefinitions: definition.keyStrategies.map(({ mode, name }) => ({
+      mode,
+      name
+    })),
     metadata,
     namespace: definition.namespace,
     schemaVersion: stateIndexSchemaVersion,
@@ -150,9 +157,7 @@ export function buildStateIndexFromSnapshot<
   );
 }
 
-function isStateSnapshot(
-  value: unknown
-): value is {
+function isStateSnapshot(value: unknown): value is {
   metadata: JsonObject;
   sourceRevision: unknown;
   states: Record<string, unknown>;
@@ -160,7 +165,9 @@ function isStateSnapshot(
   if (!isPlainRecord(value)) {
     return false;
   }
-  return isJsonObject(value.metadata)
-    && isPlainRecord(value.states)
-    && value.sourceRevision !== undefined;
+  return (
+    isJsonObject(value.metadata) &&
+    isPlainRecord(value.states) &&
+    value.sourceRevision !== undefined
+  );
 }

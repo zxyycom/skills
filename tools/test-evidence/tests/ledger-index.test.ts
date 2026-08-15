@@ -69,15 +69,19 @@ test("ledger revisions normalize formatting and line endings while tracking sema
     assert.notEqual(initial.source, null);
     const initialRevision = initial.source!.sourceRevision;
 
-    await fs.writeFile(entityIndexPath(workspaceRoot), JSON.stringify({
-      entities: manyToManyEntities.map((entity) => ({
-        locators: entity.locators,
-        id: entity.id,
-        name: entity.name
-      })),
-      sourceRevision: "many-to-many-v1",
-      schemaVersion: 1
-    }), "utf8");
+    await fs.writeFile(
+      entityIndexPath(workspaceRoot),
+      JSON.stringify({
+        entities: manyToManyEntities.map((entity) => ({
+          locators: entity.locators,
+          id: entity.id,
+          name: entity.name
+        })),
+        sourceRevision: "many-to-many-v1",
+        schemaVersion: 1
+      }),
+      "utf8"
+    );
     const reformatted = await readTestEvidenceLedgerRevision(workspaceRoot);
     assert.deepEqual(reformatted.source?.sourceRevision, initialRevision);
 
@@ -91,10 +95,16 @@ test("ledger revisions normalize formatting and line endings while tracking sema
     const crlf = await readTestEvidenceLedgerRevision(workspaceRoot);
     assert.deepEqual(crlf.source?.sourceRevision, initialRevision);
 
-    const movedPath = path.join(casesPath(workspaceRoot), "alpha-beta-moved.md");
+    const movedPath = path.join(
+      casesPath(workspaceRoot),
+      "alpha-beta-moved.md"
+    );
     await fs.rename(alphaBetaPath, movedPath);
     const moved = await readTestEvidenceLedgerRevision(workspaceRoot);
-    assert.equal(moved.source?.sourceRevision.metadata, initialRevision.metadata);
+    assert.equal(
+      moved.source?.sourceRevision.metadata,
+      initialRevision.metadata
+    );
     assert.notEqual(
       moved.source?.sourceRevision.entries["LEDGER-ALPHA-BETA-001"],
       initialRevision.entries["LEDGER-ALPHA-BETA-001"]
@@ -145,19 +155,25 @@ test("ledger queries fall back from recoverable index failures with warnings", a
   await withLedgerWorkspace(async (workspaceRoot) => {
     let queried = await queryTestEvidenceCases({ workspaceRoot });
     assert.equal(queried.total, 3);
-    assert.ok(queried.diagnostics.some(
-      (diagnostic) => diagnostic.code === "state-index.index-missing"
-        && diagnostic.severity === "warning"
-        && !diagnostic.blocking
-    ));
+    assert.ok(
+      queried.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "state-index.index-missing" &&
+          diagnostic.severity === "warning" &&
+          !diagnostic.blocking
+      )
+    );
 
     await fs.writeFile(ledgerIndexPath(workspaceRoot), "{bad json", "utf8");
     queried = await queryTestEvidenceCases({ workspaceRoot });
     assert.equal(queried.total, 3);
-    assert.ok(queried.diagnostics.some(
-      (diagnostic) => diagnostic.code === "state-index.json-invalid"
-        && diagnostic.severity === "warning"
-    ));
+    assert.ok(
+      queried.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "state-index.json-invalid" &&
+          diagnostic.severity === "warning"
+      )
+    );
 
     await fs.writeFile(
       ledgerIndexPath(workspaceRoot),
@@ -165,17 +181,23 @@ test("ledger queries fall back from recoverable index failures with warnings", a
     );
     queried = await queryTestEvidenceCases({ workspaceRoot });
     assert.equal(queried.total, 3);
-    assert.ok(queried.diagnostics.some(
-      (diagnostic) => diagnostic.code === "state-index.index-encoding-invalid"
-        && diagnostic.severity === "warning"
-    ));
+    assert.ok(
+      queried.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "state-index.index-encoding-invalid" &&
+          diagnostic.severity === "warning"
+      )
+    );
     const invalidEncodingCheck = await validateTestEvidenceLedger({
       workspaceRoot
     });
-    assert.ok(invalidEncodingCheck.diagnostics.some(
-      (diagnostic) => diagnostic.code === "state-index.index-encoding-invalid"
-        && diagnostic.blocking
-    ));
+    assert.ok(
+      invalidEncodingCheck.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "state-index.index-encoding-invalid" &&
+          diagnostic.blocking
+      )
+    );
     const repairedEncoding = await syncTestEvidenceLedgerIndex({
       mode: "write",
       workspaceRoot
@@ -183,21 +205,18 @@ test("ledger queries fall back from recoverable index failures with warnings", a
     assert.equal(repairedEncoding.status, "ok");
     assert.equal(repairedEncoding.state, "written");
 
-    const invalidIdIndex = await readJsonFile(
+    const invalidIdIndex = (await readJsonFile(
       ledgerIndexPath(workspaceRoot)
-    ) as {
+    )) as {
       entries: Record<string, unknown>;
       sourceRevision: { entries: Record<string, unknown> };
     };
-    invalidIdIndex.entries.bad = invalidIdIndex.entries[
-      "LEDGER-ALPHA-BETA-001"
-    ];
+    invalidIdIndex.entries.bad =
+      invalidIdIndex.entries["LEDGER-ALPHA-BETA-001"];
     delete invalidIdIndex.entries["LEDGER-ALPHA-BETA-001"];
     invalidIdIndex.sourceRevision.entries.bad =
       invalidIdIndex.sourceRevision.entries["LEDGER-ALPHA-BETA-001"];
-    delete invalidIdIndex.sourceRevision.entries[
-      "LEDGER-ALPHA-BETA-001"
-    ];
+    delete invalidIdIndex.sourceRevision.entries["LEDGER-ALPHA-BETA-001"];
     await fs.writeFile(
       ledgerIndexPath(workspaceRoot),
       `${JSON.stringify(invalidIdIndex, null, 2)}\n`,
@@ -205,16 +224,19 @@ test("ledger queries fall back from recoverable index failures with warnings", a
     );
     queried = await queryTestEvidenceCases({ workspaceRoot });
     assert.equal(queried.total, 3);
-    assert.ok(queried.diagnostics.some(
-      (diagnostic) => diagnostic.code === "state-index.definition-mismatch"
-        && diagnostic.severity === "warning"
-        && diagnostic.caseId === undefined
-    ));
+    assert.ok(
+      queried.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "state-index.definition-mismatch" &&
+          diagnostic.severity === "warning" &&
+          diagnostic.caseId === undefined
+      )
+    );
 
     await syncTestEvidenceLedgerIndex({ mode: "write", workspaceRoot });
-    const oldDefinition = await readJsonFile(
+    const oldDefinition = (await readJsonFile(
       ledgerIndexPath(workspaceRoot)
-    ) as Record<string, unknown>;
+    )) as Record<string, unknown>;
     oldDefinition.definitionVersion = 3;
     await fs.writeFile(
       ledgerIndexPath(workspaceRoot),
@@ -223,10 +245,13 @@ test("ledger queries fall back from recoverable index failures with warnings", a
     );
     queried = await queryTestEvidenceCases({ workspaceRoot });
     assert.equal(queried.total, 3);
-    assert.ok(queried.diagnostics.some(
-      (diagnostic) => diagnostic.code === "state-index.definition-version-mismatch"
-        && diagnostic.severity === "warning"
-    ));
+    assert.ok(
+      queried.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "state-index.definition-version-mismatch" &&
+          diagnostic.severity === "warning"
+      )
+    );
 
     await syncTestEvidenceLedgerIndex({ mode: "write", workspaceRoot });
     const changed = {
@@ -247,10 +272,13 @@ test("ledger queries fall back from recoverable index failures with warnings", a
       queried.cases[0]?.summary,
       "The changed alpha-beta result is observable."
     );
-    assert.ok(queried.diagnostics.some(
-      (diagnostic) => diagnostic.code === "state-index.index-stale"
-        && diagnostic.severity === "warning"
-    ));
+    assert.ok(
+      queried.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "state-index.index-stale" &&
+          diagnostic.severity === "warning"
+      )
+    );
   });
 });
 
@@ -267,10 +295,12 @@ test("ledger checks block stale indexes and write sync rebuilds them", async () 
       caseMarkdown(changed)
     );
     const stale = await validateTestEvidenceLedger({ workspaceRoot });
-    assert.ok(stale.diagnostics.some(
-      (diagnostic) => diagnostic.code === "state-index.index-stale"
-        && diagnostic.blocking
-    ));
+    assert.ok(
+      stale.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "state-index.index-stale" && diagnostic.blocking
+      )
+    );
     const rebuilt = await syncTestEvidenceLedgerIndex({
       mode: "write",
       workspaceRoot
@@ -289,12 +319,15 @@ test("ledger operations reject entity and case drift before returning or writing
     const loaded = await readTestEvidenceLedgerSource(workspaceRoot);
     assert.notEqual(loaded.source, null);
     const sourceRevision = loaded.source!.snapshot.sourceRevision;
-    assert.equal(sameTargetTestEvidenceLedgerRevision({
-      caseId: "LEDGER-ALPHA-BETA-001",
-      current: sourceRevision,
-      observedFingerprint: `sha256:${"0".repeat(64)}`,
-      opened: sourceRevision
-    }), false);
+    assert.equal(
+      sameTargetTestEvidenceLedgerRevision({
+        caseId: "LEDGER-ALPHA-BETA-001",
+        current: sourceRevision,
+        observedFingerprint: `sha256:${"0".repeat(64)}`,
+        opened: sourceRevision
+      }),
+      false
+    );
     const entityDriftedRevision = {
       entries: { ...loaded.source!.snapshot.sourceRevision.entries },
       metadata: `sha256:${"0".repeat(64)}`
@@ -307,9 +340,11 @@ test("ledger operations reject entity and case drift before returning or writing
     });
     assert.equal(entityDrifted.status, "error");
     assert.equal(entityDrifted.changed, false);
-    assert.ok(entityDrifted.diagnostics.some(
-      (diagnostic) => diagnostic.code === "state-index.source-changed"
-    ));
+    assert.ok(
+      entityDrifted.diagnostics.some(
+        (diagnostic) => diagnostic.code === "state-index.source-changed"
+      )
+    );
     assert.equal(await exists(ledgerIndexPath(workspaceRoot)), false);
 
     const driftedRevision = {
@@ -327,9 +362,11 @@ test("ledger operations reject entity and case drift before returning or writing
     });
     assert.equal(synchronized.status, "error");
     assert.equal(synchronized.changed, false);
-    assert.ok(synchronized.diagnostics.some(
-      (diagnostic) => diagnostic.code === "state-index.source-changed"
-    ));
+    assert.ok(
+      synchronized.diagnostics.some(
+        (diagnostic) => diagnostic.code === "state-index.source-changed"
+      )
+    );
     assert.equal(await exists(ledgerIndexPath(workspaceRoot)), false);
   });
 });

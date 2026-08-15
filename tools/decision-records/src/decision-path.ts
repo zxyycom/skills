@@ -1,21 +1,18 @@
 import path from "node:path";
 import { toPosix } from "../../shared/src/node/filesystem.ts";
-import type {
-  DecisionId,
-  DecisionSourcePath,
-  DecisionTag
-} from "./types.ts";
+import type { DecisionId, DecisionSourcePath, DecisionTag } from "./types.ts";
 
 const decisionIdPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 const tagPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-export const decisionKebabCaseIdPatternSource =
-  "^[a-z0-9]+(?:-[a-z0-9]+)*$";
-export const decisionIdPatternSource =
-  "^[a-z0-9]+(?:-[a-z0-9]+)*\\.md$";
+export const decisionKebabCaseIdPatternSource = "^[a-z0-9]+(?:-[a-z0-9]+)*$";
+export const decisionIdPatternSource = "^[a-z0-9]+(?:-[a-z0-9]+)*\\.md$";
 export const decisionSourcePathPatternSource =
   "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.md|archive/[a-z0-9]+(?:-[a-z0-9]+)*\\.md)$";
-const decisionSourcePathPattern = new RegExp(decisionSourcePathPatternSource, "u");
+const decisionSourcePathPattern = new RegExp(
+  decisionSourcePathPatternSource,
+  "u"
+);
 export function isDecisionId(value: unknown): value is DecisionId {
   return typeof value === "string" && decisionIdPattern.test(value);
 }
@@ -39,9 +36,11 @@ export function decisionIdFromSourcePath(value: string): DecisionId | null {
 export function isArchivedDecisionSourcePath(
   value: unknown
 ): value is DecisionSourcePath {
-  return typeof value === "string"
-    && value.startsWith("archive/")
-    && isDecisionSourcePath(value);
+  return (
+    typeof value === "string" &&
+    value.startsWith("archive/") &&
+    isDecisionSourcePath(value)
+  );
 }
 
 export function sourcePathForDecision(
@@ -51,9 +50,8 @@ export function sourcePathForDecision(
   if (!isDecisionId(decisionId)) {
     throw new Error("cannot derive a source path from an invalid Decision ID");
   }
-  const sourcePath = status === "archived"
-    ? "archive/" + decisionId
-    : decisionId;
+  const sourcePath =
+    status === "archived" ? "archive/" + decisionId : decisionId;
   if (!isDecisionSourcePath(sourcePath)) {
     throw new Error("derived decision source path is invalid: " + sourcePath);
   }
@@ -69,9 +67,9 @@ export function displayDecisionPath(
     return ".";
   }
   if (
-    relativePath === ".."
-    || relativePath.startsWith(".." + path.sep)
-    || path.isAbsolute(relativePath)
+    relativePath === ".." ||
+    relativePath.startsWith(".." + path.sep) ||
+    path.isAbsolute(relativePath)
   ) {
     return targetPath;
   }

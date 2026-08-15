@@ -1338,23 +1338,23 @@
     "CHECK-PLAN-SCRIPTS-001": {
       "keys": {
         "search": [
-          "CHECK-PLAN-SCRIPTS-001 检查计划声明每个脚本的最低档位 检查计划必须显式列出全部 package script，并为每个前置任务声明最低运行档位。 实际任务名称、最低档位和打包入口与仓库声明完全一致。 quick 任务在 quick 与 full 档运行，full 任务只在 full 档运行。 scripts/check.test.ts > check plan classifies every package script by minimum profile bun test --test-name-pattern=\"^check plan classifies every package script by minimum profile$\" ./scripts/check.test.ts"
+          "CHECK-PLAN-SCRIPTS-001 检查计划声明每个脚本的最低档位 检查计划必须显式列出全部门禁 package script，并为每个前置任务声明最低运行档位。 实际任务名称、最低档位和打包入口与仓库声明完全一致。 `lint` 与 `format:check` 作为 quick 前置任务同时进入 quick 和 full 门禁。 quick 任务在 quick 与 full 档运行，full 任务只在 full 档运行。 scripts/check.test.ts > check plan classifies every package script by minimum profile bun test --test-name-pattern=\"^check plan classifies every package script by minimum profile$\" ./scripts/check.test.ts"
         ],
         "topic": [
           "repository-tooling"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 11,
         "entries": [
           "scripts/check.test.ts > check plan classifies every package script by minimum profile",
           "bun test --test-name-pattern=\"^check plan classifies every package script by minimum profile$\" ./scripts/check.test.ts"
         ],
         "id": "CHECK-PLAN-SCRIPTS-001",
         "line": 1,
-        "searchText": "检查计划声明每个脚本的最低档位 检查计划必须显式列出全部 package script，并为每个前置任务声明最低运行档位。 实际任务名称、最低档位和打包入口与仓库声明完全一致。 quick 任务在 quick 与 full 档运行，full 任务只在 full 档运行。 scripts/check.test.ts > check plan classifies every package script by minimum profile bun test --test-name-pattern=\"^check plan classifies every package script by minimum profile$\" ./scripts/check.test.ts",
+        "searchText": "检查计划声明每个脚本的最低档位 检查计划必须显式列出全部门禁 package script，并为每个前置任务声明最低运行档位。 实际任务名称、最低档位和打包入口与仓库声明完全一致。 `lint` 与 `format:check` 作为 quick 前置任务同时进入 quick 和 full 门禁。 quick 任务在 quick 与 full 档运行，full 任务只在 full 档运行。 scripts/check.test.ts > check plan classifies every package script by minimum profile bun test --test-name-pattern=\"^check plan classifies every package script by minimum profile$\" ./scripts/check.test.ts",
         "sourcePath": "repository-tooling/check-plan-classifies-every-package-script-by-minimum-profile.md",
-        "summary": "检查计划必须显式列出全部 package script，并为每个前置任务声明最低运行档位。",
+        "summary": "检查计划必须显式列出全部门禁 package script，并为每个前置任务声明最低运行档位。",
         "title": "检查计划声明每个脚本的最低档位"
       }
     },
@@ -6969,6 +6969,52 @@
         "title": "主 Markdown 收集排除形成时字节"
       }
     },
+    "REPO-FORMAT-SCRIPTS-001": {
+      "keys": {
+        "search": [
+          "REPO-FORMAT-SCRIPTS-001 格式化命令覆盖全部维护源码 package script 校验必须拒绝偏离正式 Oxfmt 写入命令的配置；该命令覆盖 `scripts/` 的 TypeScript/JavaScript 和 `tools/` 的 TypeScript 源码，后者包含维护的 `.d.mts` 声明源。 偏离正式 `format` 或 `format:check` 命令的 package JSON 会分别得到可行动的校验诊断。 写入与只读格式化命令都不能退化为只覆盖主仓库脚本。 scripts/validators/project-config.test.ts > format scripts cover repository automation and distributable tool sources bun test --test-name-pattern=\"^format scripts cover repository automation and distributable tool sources$\" ./scripts/validators/project-config.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/validators/project-config.test.ts > format scripts cover repository automation and distributable tool sources",
+          "bun test --test-name-pattern=\"^format scripts cover repository automation and distributable tool sources$\" ./scripts/validators/project-config.test.ts"
+        ],
+        "id": "REPO-FORMAT-SCRIPTS-001",
+        "line": 1,
+        "searchText": "格式化命令覆盖全部维护源码 package script 校验必须拒绝偏离正式 Oxfmt 写入命令的配置；该命令覆盖 `scripts/` 的 TypeScript/JavaScript 和 `tools/` 的 TypeScript 源码，后者包含维护的 `.d.mts` 声明源。 偏离正式 `format` 或 `format:check` 命令的 package JSON 会分别得到可行动的校验诊断。 写入与只读格式化命令都不能退化为只覆盖主仓库脚本。 scripts/validators/project-config.test.ts > format scripts cover repository automation and distributable tool sources bun test --test-name-pattern=\"^format scripts cover repository automation and distributable tool sources$\" ./scripts/validators/project-config.test.ts",
+        "sourcePath": "repository-tooling/package-format-scripts-cover-scripts-and-tools.md",
+        "summary": "package script 校验必须拒绝偏离正式 Oxfmt 写入命令的配置；该命令覆盖 `scripts/` 的 TypeScript/JavaScript 和 `tools/` 的 TypeScript 源码，后者包含维护的 `.d.mts` 声明源。",
+        "title": "格式化命令覆盖全部维护源码"
+      }
+    },
+    "REPO-OXC-CONFIG-001": {
+      "keys": {
+        "search": [
+          "REPO-OXC-CONFIG-001 项目配置要求 Oxc 配置文件 项目配置校验必须解析并按安装的 Oxc schema 校验根目录 Oxlint 与 Oxfmt 配置，避免维护命令和正式门禁接受无效配置。 缺少根目录配置的项目会分别报告 `.oxlintrc.json` 与 `.oxfmtrc.json` 路径和恢复动作。 字段类型错误或根结构错误的配置会在正式校验中被拒绝。 scripts/validators/project-config.test.ts > project configuration requires Oxc configuration files bun test --test-name-pattern=\"^project configuration requires Oxc configuration files$\" ./scripts/validators/project-config.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/validators/project-config.test.ts > project configuration requires Oxc configuration files",
+          "bun test --test-name-pattern=\"^project configuration requires Oxc configuration files$\" ./scripts/validators/project-config.test.ts"
+        ],
+        "id": "REPO-OXC-CONFIG-001",
+        "line": 1,
+        "searchText": "项目配置要求 Oxc 配置文件 项目配置校验必须解析并按安装的 Oxc schema 校验根目录 Oxlint 与 Oxfmt 配置，避免维护命令和正式门禁接受无效配置。 缺少根目录配置的项目会分别报告 `.oxlintrc.json` 与 `.oxfmtrc.json` 路径和恢复动作。 字段类型错误或根结构错误的配置会在正式校验中被拒绝。 scripts/validators/project-config.test.ts > project configuration requires Oxc configuration files bun test --test-name-pattern=\"^project configuration requires Oxc configuration files$\" ./scripts/validators/project-config.test.ts",
+        "sourcePath": "repository-tooling/project-configuration-requires-oxc-configuration-files.md",
+        "summary": "项目配置校验必须解析并按安装的 Oxc schema 校验根目录 Oxlint 与 Oxfmt 配置，避免维护命令和正式门禁接受无效配置。",
+        "title": "项目配置要求 Oxc 配置文件"
+      }
+    },
     "REPO-PACKAGE-JSON-001": {
       "keys": {
         "search": [
@@ -7018,7 +7064,7 @@
     "REPO-SHORT-CONFIG-001": {
       "keys": {
         "search": [
-          "REPO-SHORT-CONFIG-001 项目配置固定维护短命令委托 每个仓库维护短命令必须保留类型化映射指定的 package script 实现，而不只是保留同名脚本。 当前 `package.json` 的全部维护短命令与映射一致时，项目配置校验没有诊断。 将 `decision-records` 改为其他脚本路径时，校验返回指明期望委托入口的稳定诊断。 scripts/validators/project-config.test.ts > project package scripts preserve maintenance CLI delegations bun test --test-name-pattern=\"^project package scripts preserve maintenance CLI delegations$\" ./scripts/validators/project-config.test.ts"
+          "REPO-SHORT-CONFIG-001 项目配置校验固定维护短命令委托 每个仓库维护短命令必须保留类型化映射指定的 package script 实现，而不只是保留同名脚本。 完整的最小 package script 集合与映射一致时，项目配置校验没有诊断。 将 `decision-records` 改为其他脚本路径时，校验返回指明期望委托入口的稳定诊断。 scripts/validators/project-config.test.ts > project package script validation preserves maintenance CLI delegations bun test --test-name-pattern=\"^project package script validation preserves maintenance CLI delegations$\" ./scripts/validators/project-config.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -7027,15 +7073,130 @@
       "state": {
         "endLine": 10,
         "entries": [
-          "scripts/validators/project-config.test.ts > project package scripts preserve maintenance CLI delegations",
-          "bun test --test-name-pattern=\"^project package scripts preserve maintenance CLI delegations$\" ./scripts/validators/project-config.test.ts"
+          "scripts/validators/project-config.test.ts > project package script validation preserves maintenance CLI delegations",
+          "bun test --test-name-pattern=\"^project package script validation preserves maintenance CLI delegations$\" ./scripts/validators/project-config.test.ts"
         ],
         "id": "REPO-SHORT-CONFIG-001",
         "line": 1,
-        "searchText": "项目配置固定维护短命令委托 每个仓库维护短命令必须保留类型化映射指定的 package script 实现，而不只是保留同名脚本。 当前 `package.json` 的全部维护短命令与映射一致时，项目配置校验没有诊断。 将 `decision-records` 改为其他脚本路径时，校验返回指明期望委托入口的稳定诊断。 scripts/validators/project-config.test.ts > project package scripts preserve maintenance CLI delegations bun test --test-name-pattern=\"^project package scripts preserve maintenance CLI delegations$\" ./scripts/validators/project-config.test.ts",
+        "searchText": "项目配置校验固定维护短命令委托 每个仓库维护短命令必须保留类型化映射指定的 package script 实现，而不只是保留同名脚本。 完整的最小 package script 集合与映射一致时，项目配置校验没有诊断。 将 `decision-records` 改为其他脚本路径时，校验返回指明期望委托入口的稳定诊断。 scripts/validators/project-config.test.ts > project package script validation preserves maintenance CLI delegations bun test --test-name-pattern=\"^project package script validation preserves maintenance CLI delegations$\" ./scripts/validators/project-config.test.ts",
         "sourcePath": "repository-tooling/project-package-scripts-preserve-maintenance-cli-delegations.md",
         "summary": "每个仓库维护短命令必须保留类型化映射指定的 package script 实现，而不只是保留同名脚本。",
-        "title": "项目配置固定维护短命令委托"
+        "title": "项目配置校验固定维护短命令委托"
+      }
+    },
+    "REPO-SKILL-HASH-001": {
+      "keys": {
+        "search": [
+          "REPO-SKILL-HASH-001 Linked source map changes do not require a version `scripts/` 内由相邻包内 `.mjs` 的最后一个非空行中完整 `//# sourceMappingURL=<basename>` 指令链接的生成 `.mjs.map` 调试元数据，单独编辑、新增或删除时不承载 skill 版本；其他位置、普通字符串或跨行模板伪引用的 map 继续承载版本。 真实指令链接的 `scripts/` source map 编辑、基线无 map 的新增与删除都不会产生 metadata.version 提升诊断。 包根 linked source map 的变化仍会产生 metadata.version 提升诊断。 `scripts/` 内仅作为普通字符串出现的伪引用，其 source map 变化仍会产生 metadata.version 提升诊断。 `scripts/` 内多行模板字符串中的精确文本，其 source map 变化仍会产生 metadata.version 提升诊断。 scripts/lib/skill-package-hash.test.ts > does not require a version for linked source map edits, additions, or deletions bun test --test-name-pattern=\"^does not require a version for linked source map edits, additions, or deletions$\" ./scripts/lib/skill-package-hash.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "scripts/lib/skill-package-hash.test.ts > does not require a version for linked source map edits, additions, or deletions",
+          "bun test --test-name-pattern=\"^does not require a version for linked source map edits, additions, or deletions$\" ./scripts/lib/skill-package-hash.test.ts"
+        ],
+        "id": "REPO-SKILL-HASH-001",
+        "line": 1,
+        "searchText": "Linked source map changes do not require a version `scripts/` 内由相邻包内 `.mjs` 的最后一个非空行中完整 `//# sourceMappingURL=<basename>` 指令链接的生成 `.mjs.map` 调试元数据，单独编辑、新增或删除时不承载 skill 版本；其他位置、普通字符串或跨行模板伪引用的 map 继续承载版本。 真实指令链接的 `scripts/` source map 编辑、基线无 map 的新增与删除都不会产生 metadata.version 提升诊断。 包根 linked source map 的变化仍会产生 metadata.version 提升诊断。 `scripts/` 内仅作为普通字符串出现的伪引用，其 source map 变化仍会产生 metadata.version 提升诊断。 `scripts/` 内多行模板字符串中的精确文本，其 source map 变化仍会产生 metadata.version 提升诊断。 scripts/lib/skill-package-hash.test.ts > does not require a version for linked source map edits, additions, or deletions bun test --test-name-pattern=\"^does not require a version for linked source map edits, additions, or deletions$\" ./scripts/lib/skill-package-hash.test.ts",
+        "sourcePath": "repository-tooling/linked-source-map-changes-do-not-require-version.md",
+        "summary": "`scripts/` 内由相邻包内 `.mjs` 的最后一个非空行中完整 `//# sourceMappingURL=<basename>` 指令链接的生成 `.mjs.map` 调试元数据，单独编辑、新增或删除时不承载 skill 版本；其他位置、普通字符串或跨行模板伪引用的 map 继续承载版本。",
+        "title": "Linked source map changes do not require a version"
+      }
+    },
+    "REPO-SKILL-HASH-002": {
+      "keys": {
+        "search": [
+          "REPO-SKILL-HASH-002 Runtime and declaration semantic changes require a version 运行时 `.mjs` 内容变化，以及已有 `.d.mts` 声明的语义变化，仍然承载 skill 版本。 两类 pending 变化在未提升 metadata.version 时都会产生版本门禁诊断。 scripts/lib/skill-package-hash.test.ts > requires a version for runtime and declaration semantic package changes bun test --test-name-pattern=\"^requires a version for runtime and declaration semantic package changes$\" ./scripts/lib/skill-package-hash.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "scripts/lib/skill-package-hash.test.ts > requires a version for runtime and declaration semantic package changes",
+          "bun test --test-name-pattern=\"^requires a version for runtime and declaration semantic package changes$\" ./scripts/lib/skill-package-hash.test.ts"
+        ],
+        "id": "REPO-SKILL-HASH-002",
+        "line": 1,
+        "searchText": "Runtime and declaration semantic changes require a version 运行时 `.mjs` 内容变化，以及已有 `.d.mts` 声明的语义变化，仍然承载 skill 版本。 两类 pending 变化在未提升 metadata.version 时都会产生版本门禁诊断。 scripts/lib/skill-package-hash.test.ts > requires a version for runtime and declaration semantic package changes bun test --test-name-pattern=\"^requires a version for runtime and declaration semantic package changes$\" ./scripts/lib/skill-package-hash.test.ts",
+        "sourcePath": "repository-tooling/runtime-and-declaration-semantic-changes-require-version.md",
+        "summary": "运行时 `.mjs` 内容变化，以及已有 `.d.mts` 声明的语义变化，仍然承载 skill 版本。",
+        "title": "Runtime and declaration semantic changes require a version"
+      }
+    },
+    "REPO-SKILL-HASH-003": {
+      "keys": {
+        "search": [
+          "REPO-SKILL-HASH-003 Declaration formatting does not require a version 成对存在的 `.d.mts` 以根目录 `.oxfmtrc.json` 的 Oxfmt 配置规范化后确定版本承载；纯格式差异不承载版本，语义差异承载版本。 可规范化为同一声明的差异不产生版本门禁诊断。 声明类型语义变化在未提升 metadata.version 时产生版本门禁诊断。 scripts/lib/skill-package-hash.test.ts > ignores declaration formatting but not declaration semantics for versioning bun test --test-name-pattern=\"^ignores declaration formatting but not declaration semantics for versioning$\" ./scripts/lib/skill-package-hash.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/lib/skill-package-hash.test.ts > ignores declaration formatting but not declaration semantics for versioning",
+          "bun test --test-name-pattern=\"^ignores declaration formatting but not declaration semantics for versioning$\" ./scripts/lib/skill-package-hash.test.ts"
+        ],
+        "id": "REPO-SKILL-HASH-003",
+        "line": 1,
+        "searchText": "Declaration formatting does not require a version 成对存在的 `.d.mts` 以根目录 `.oxfmtrc.json` 的 Oxfmt 配置规范化后确定版本承载；纯格式差异不承载版本，语义差异承载版本。 可规范化为同一声明的差异不产生版本门禁诊断。 声明类型语义变化在未提升 metadata.version 时产生版本门禁诊断。 scripts/lib/skill-package-hash.test.ts > ignores declaration formatting but not declaration semantics for versioning bun test --test-name-pattern=\"^ignores declaration formatting but not declaration semantics for versioning$\" ./scripts/lib/skill-package-hash.test.ts",
+        "sourcePath": "repository-tooling/declaration-formatting-does-not-require-version.md",
+        "summary": "成对存在的 `.d.mts` 以根目录 `.oxfmtrc.json` 的 Oxfmt 配置规范化后确定版本承载；纯格式差异不承载版本，语义差异承载版本。",
+        "title": "Declaration formatting does not require a version"
+      }
+    },
+    "REPO-SKILL-HASH-004": {
+      "keys": {
+        "search": [
+          "REPO-SKILL-HASH-004 Aggregate hash retains raw package bytes 聚合 hash 是完整 skill 包原始字节的身份，不复用版本门禁对调试元数据和声明格式的例外。 source map 原始字节变化与纯格式的声明字节变化都会得到不同聚合 hash。 scripts/lib/skill-package-hash.test.ts > aggregate hashes retain raw source map and declaration bytes bun test --test-name-pattern=\"^aggregate hashes retain raw source map and declaration bytes$\" ./scripts/lib/skill-package-hash.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "scripts/lib/skill-package-hash.test.ts > aggregate hashes retain raw source map and declaration bytes",
+          "bun test --test-name-pattern=\"^aggregate hashes retain raw source map and declaration bytes$\" ./scripts/lib/skill-package-hash.test.ts"
+        ],
+        "id": "REPO-SKILL-HASH-004",
+        "line": 1,
+        "searchText": "Aggregate hash retains raw package bytes 聚合 hash 是完整 skill 包原始字节的身份，不复用版本门禁对调试元数据和声明格式的例外。 source map 原始字节变化与纯格式的声明字节变化都会得到不同聚合 hash。 scripts/lib/skill-package-hash.test.ts > aggregate hashes retain raw source map and declaration bytes bun test --test-name-pattern=\"^aggregate hashes retain raw source map and declaration bytes$\" ./scripts/lib/skill-package-hash.test.ts",
+        "sourcePath": "repository-tooling/aggregate-hash-retains-raw-package-bytes.md",
+        "summary": "聚合 hash 是完整 skill 包原始字节的身份，不复用版本门禁对调试元数据和声明格式的例外。",
+        "title": "Aggregate hash retains raw package bytes"
+      }
+    },
+    "REPO-SKILL-HASH-005": {
+      "keys": {
+        "search": [
+          "REPO-SKILL-HASH-005 Version check stops reading after the first ordinary change version gate 在发现普通包内容变化后立即判定版本承载，不读取无关的后续基线 blob。 首个普通 pending 变化在未提升 metadata.version 时产生版本提升诊断。 后续损坏但与该判定无关的基线 blob 不会阻断版本基线读取。 scripts/lib/skill-package-hash.test.ts > version checks stop reading baseline blobs after the first ordinary change bun test --test-name-pattern=\"^version checks stop reading baseline blobs after the first ordinary change$\" ./scripts/lib/skill-package-hash.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/lib/skill-package-hash.test.ts > version checks stop reading baseline blobs after the first ordinary change",
+          "bun test --test-name-pattern=\"^version checks stop reading baseline blobs after the first ordinary change$\" ./scripts/lib/skill-package-hash.test.ts"
+        ],
+        "id": "REPO-SKILL-HASH-005",
+        "line": 1,
+        "searchText": "Version check stops reading after the first ordinary change version gate 在发现普通包内容变化后立即判定版本承载，不读取无关的后续基线 blob。 首个普通 pending 变化在未提升 metadata.version 时产生版本提升诊断。 后续损坏但与该判定无关的基线 blob 不会阻断版本基线读取。 scripts/lib/skill-package-hash.test.ts > version checks stop reading baseline blobs after the first ordinary change bun test --test-name-pattern=\"^version checks stop reading baseline blobs after the first ordinary change$\" ./scripts/lib/skill-package-hash.test.ts",
+        "sourcePath": "repository-tooling/version-check-stops-reading-after-first-ordinary-change.md",
+        "summary": "version gate 在发现普通包内容变化后立即判定版本承载，不读取无关的后续基线 blob。",
+        "title": "Version check stops reading after the first ordinary change"
       }
     },
     "REPO-TASK-ROOT-001": {
@@ -12537,7 +12698,7 @@
       "CHECK-FULL-PROFILE-001": "sha256:5b14ea48c505e30e9094e65b44bb3c031cb9ab6f19254203e581a5007b7ef060",
       "CHECK-MODE-OPTIONS-001": "sha256:9d2a1d20cfdcd69a7ec69a0053154e6aa9cd9e4b27393eb1a6063982cb4daead",
       "CHECK-OPTIONS-MODES-001": "sha256:eae3ee917438a3c764961ebedf5f4b07b83bb2cb28d0b13522b5559506981935",
-      "CHECK-PLAN-SCRIPTS-001": "sha256:5a4739a2d2922e7e910db081dc3c5b916296bbfdb7a63ec39daaca65dbe41433",
+      "CHECK-PLAN-SCRIPTS-001": "sha256:91001b330447582421348a13618e361b064b39f38a31d5dd007abb530c454514",
       "CHECK-QUICK-PROFILE-001": "sha256:f6484fdfa0fb290aa3fe1e313a529adfbb42e2376be48010e2d03f2105c1a720",
       "CHECK-RESULT-FORMAT-001": "sha256:a58dbdecc1d689a453e47cca518b0584281b6cc586245f39440ab6a82cef4a58",
       "CHECK-SUMMARY-FORMAT-001": "sha256:87f3d4a6e2ba7746d43b6418792554a3b6c90fb7f71b2b18babb20a9427ebfa9",
@@ -12782,9 +12943,16 @@
       "INVESTIGATION-STRUCTURE-CHRONOLOGY-001": "sha256:c37b58ae1a46e45c4c65521f420c6f373301ce0465e1d5c14ed70abb8a7f0de4",
       "INVESTIGATION-VALIDATION-FILTER-001": "sha256:59fb97585ad6fe441e9bf7a42044f69eb26a826b7c648a25322a8ab2e350e036",
       "PROJECT-MARKDOWN-SCOPE-001": "sha256:c81887aeeaff27a4a175363abe07d51f222bfdb46e785dc0c436e790aa82832c",
+      "REPO-FORMAT-SCRIPTS-001": "sha256:2f52e8e3653f91fad9f12010ebaee9b5beec800eb99609bd48b28a284618794d",
+      "REPO-OXC-CONFIG-001": "sha256:2a46d49b8ef92e3c1fc8ac34a68c9288ffd848976612d1d7069c171d93af75da",
       "REPO-PACKAGE-JSON-001": "sha256:36724eb3dd100be35650754564a630256b7e0acfa6047ffd892ea44d67692239",
       "REPO-SHORT-CLI-001": "sha256:b65cd8fea69d66bc1ddb39a518ae483789f16e9172df3fd15f2e89257a737e28",
-      "REPO-SHORT-CONFIG-001": "sha256:39b56cd6dce349c3b4b0a28798b96ac1ae38e8b8544a3f395f0337ae5a7f2e7a",
+      "REPO-SHORT-CONFIG-001": "sha256:a3072037101a9d2e465b91fc5b723ca5893a1d21a1e7dd108aab85eca2ece10f",
+      "REPO-SKILL-HASH-001": "sha256:905e1aa1871259fb48d905b8699654133e2fbfae4693d2df1843020008be97b1",
+      "REPO-SKILL-HASH-002": "sha256:501bb6b33a2dd0e08cdaf6d0d79d73e6420e23991558671a1c94954395820dd3",
+      "REPO-SKILL-HASH-003": "sha256:c0397b6aa968c3ded8a1acc2b5f85316e11e7e7f91fce1068e065bbd33799674",
+      "REPO-SKILL-HASH-004": "sha256:63294fac0e9b0107d6854e2abe8b5553c03b5ab98b5f5868be1fa12e59290f6d",
+      "REPO-SKILL-HASH-005": "sha256:2b0ab2896400b2e2d028c50486d984dd4cea03d6946b4ea2c84aede0de7cd7f8",
       "REPO-TASK-ROOT-001": "sha256:6f7f36dab2296b05c02fea40dbb240ca970aeec45b6fb8e809772121bf575df4",
       "REPO-TASK-TARGET-001": "sha256:0d31dfb2b408a1aede75a8230c2d302d965c3e131109c6fc0808324b1a80f5bd",
       "SKILL-PACKAGE-HASH-001": "sha256:cf44553e22b994bf18ecc1269c2a95e1d58c03eaa247bff8abcc4a6bef099732",

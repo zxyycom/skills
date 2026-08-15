@@ -34,7 +34,8 @@ function findReservedOwnKey(
   path = "$",
   seen = new WeakSet<object>()
 ): { key: string; path: string } | null {
-  if (input === null || typeof input !== "object" || seen.has(input)) return null;
+  if (input === null || typeof input !== "object" || seen.has(input))
+    return null;
   seen.add(input);
   for (const key of Object.keys(input)) {
     if (reservedObjectKeys.has(key)) return { key, path };
@@ -57,7 +58,9 @@ function rejectReservedOwnKey(
   throw new TaskGraphError(
     code,
     `Reserved object key ${found.key} is not allowed`,
-    { issues: [`${found.path}: reserved object key ${found.key} is not allowed`] }
+    {
+      issues: [`${found.path}: reserved object key ${found.key} is not allowed`]
+    }
   );
 }
 
@@ -76,12 +79,14 @@ function boundedTextPattern(singleLine: boolean): string {
 
 export function taskGraphJsonSchemaOverrideAction(context: {
   valibotAction: object;
-}): {
-  type: "string";
-  minLength: number;
-  maxLength: number;
-  pattern: string;
-} | undefined {
+}):
+  | {
+      type: "string";
+      minLength: number;
+      maxLength: number;
+      pattern: string;
+    }
+  | undefined {
   const constraint = boundedTextConstraints.get(context.valibotAction);
   if (constraint === undefined) return undefined;
   return {
@@ -104,18 +109,16 @@ function boundedText(
     pattern: boundedTextPattern(options.singleLine === true)
   } satisfies BoundedTextConstraint;
   const runtimeConstraint = v.check(
-    (value: string) => unicodeLength(value) >= minimum
-      && unicodeLength(value) <= maximum
-      && value.trim() === value
-      && (options.singleLine !== true || !/[\r\n]/u.test(value)),
-    `${label} must contain ${minimum} to ${maximum} Unicode code points, `
-      + "have no surrounding whitespace, and satisfy its line policy"
+    (value: string) =>
+      unicodeLength(value) >= minimum &&
+      unicodeLength(value) <= maximum &&
+      value.trim() === value &&
+      (options.singleLine !== true || !/[\r\n]/u.test(value)),
+    `${label} must contain ${minimum} to ${maximum} Unicode code points, ` +
+      "have no surrounding whitespace, and satisfy its line policy"
   );
   boundedTextConstraints.set(runtimeConstraint, constraint);
-  return v.pipe(
-    v.string(`${label} must be a string`),
-    runtimeConstraint
-  );
+  return v.pipe(v.string(`${label} must be a string`), runtimeConstraint);
 }
 
 const nonNegativeIntegerSchema = v.pipe(
@@ -131,9 +134,11 @@ const positiveIntegerSchema = v.pipe(
 export function isCanonicalTaskId(value: string): boolean {
   const suffix = value.slice("task-".length);
   const number = Number(suffix);
-  return Number.isSafeInteger(number)
-    && number >= 1
-    && `task-${String(number).padStart(6, "0")}` === value;
+  return (
+    Number.isSafeInteger(number) &&
+    number >= 1 &&
+    `task-${String(number).padStart(6, "0")}` === value
+  );
 }
 const taskIdSchema = v.pipe(
   v.string("task id must be a string"),
@@ -171,13 +176,10 @@ const timestampSchema = v.pipe(
     new RegExp(timestampPatternSource, "u"),
     "must be a millisecond UTC RFC 3339 timestamp"
   ),
-  v.check(
-    (value) => {
-      const date = new Date(value);
-      return !Number.isNaN(date.valueOf()) && date.toISOString() === value;
-    },
-    "must be a real canonical UTC instant"
-  )
+  v.check((value) => {
+    const date = new Date(value);
+    return !Number.isNaN(date.valueOf()) && date.toISOString() === value;
+  }, "must be a real canonical UTC instant")
 );
 const reasonSchema = boundedText("reason", 1, 1000);
 const referenceValueSchema = boundedText("reference", 1, 500);
@@ -206,10 +208,12 @@ export const taskContentSchema = v.strictObject({
 export const taskContentInputSchema = v.strictObject({
   title: boundedText("task title", 1, 120, { singleLine: true }),
   goal: boundedText("task goal", 1, 1000),
-  acceptance: v.optional(v.pipe(
-    v.array(boundedText("acceptance item", 1, 300)),
-    v.maxLength(20, "acceptance must contain at most 20 items")
-  )),
+  acceptance: v.optional(
+    v.pipe(
+      v.array(boundedText("acceptance item", 1, 300)),
+      v.maxLength(20, "acceptance must contain at most 20 items")
+    )
+  ),
   context: v.optional(v.nullable(boundedText("task context", 1, 2000))),
   references: v.optional(referenceDictionarySchema)
 });
@@ -253,7 +257,10 @@ export const taskControlInputSchema = v.variant("mode", [
 export const taskLeaseSchema = v.strictObject({
   id: v.pipe(
     v.string("lease id must be a string"),
-    v.regex(new RegExp(leaseIdPatternSource, "u"), "must be a canonical lease id")
+    v.regex(
+      new RegExp(leaseIdPatternSource, "u"),
+      "must be a canonical lease id"
+    )
   ),
   actor: boundedText("actor", 1, 200, { singleLine: true }),
   claimedAt: timestampSchema,
@@ -262,7 +269,10 @@ export const taskLeaseSchema = v.strictObject({
 });
 
 export const taskExecutionSchema = v.variant("phase", [
-  v.strictObject({ phase: v.literal("idle"), attempt: nonNegativeIntegerSchema }),
+  v.strictObject({
+    phase: v.literal("idle"),
+    attempt: nonNegativeIntegerSchema
+  }),
   v.strictObject({
     phase: v.literal("running"),
     attempt: positiveIntegerSchema,
@@ -321,11 +331,16 @@ export const taskIndexSchema = v.pipe(
 
 const createTaskOperationSchema = v.strictObject({
   kind: v.literal("create-task"),
-  alias: v.optional(v.pipe(
-    v.string("alias must be a string"),
-    v.regex(new RegExp(aliasPatternSource, "u"), "must be a kebab-case alias"),
-    v.maxLength(80, "alias must be at most 80 characters")
-  )),
+  alias: v.optional(
+    v.pipe(
+      v.string("alias must be a string"),
+      v.regex(
+        new RegExp(aliasPatternSource, "u"),
+        "must be a kebab-case alias"
+      ),
+      v.maxLength(80, "alias must be at most 80 characters")
+    )
+  ),
   content: taskContentInputSchema,
   parentId: v.optional(v.nullable(taskReferenceSchema)),
   control: v.optional(taskControlInputSchema)
@@ -361,14 +376,16 @@ const setExclusionOperationSchema = v.strictObject({
 export const taskGraphApplyRequestSchema = v.strictObject({
   expectedRevision: nonNegativeIntegerSchema,
   operations: v.pipe(
-    v.array(v.variant("kind", [
-      createTaskOperationSchema,
-      updateTaskContentOperationSchema,
-      updateTaskControlOperationSchema,
-      setParentOperationSchema,
-      setDependencyOperationSchema,
-      setExclusionOperationSchema
-    ])),
+    v.array(
+      v.variant("kind", [
+        createTaskOperationSchema,
+        updateTaskContentOperationSchema,
+        updateTaskControlOperationSchema,
+        setParentOperationSchema,
+        setDependencyOperationSchema,
+        setExclusionOperationSchema
+      ])
+    ),
     v.minLength(1, "apply must include at least one operation"),
     v.maxLength(200, "apply must include at most 200 operations")
   )
@@ -414,10 +431,11 @@ function formatValibotIssue(issue: v.BaseIssue<unknown>): string {
 
 export function parseTaskIndex(input: unknown): TaskIndex {
   if (
-    typeof input === "object"
-    && input !== null
-    && Object.hasOwn(input, "schemaVersion")
-    && (input as { schemaVersion?: unknown }).schemaVersion !== taskGraphSchemaVersion
+    typeof input === "object" &&
+    input !== null &&
+    Object.hasOwn(input, "schemaVersion") &&
+    (input as { schemaVersion?: unknown }).schemaVersion !==
+      taskGraphSchemaVersion
   ) {
     throw new TaskGraphError(
       "SCHEMA_UNSUPPORTED",
@@ -444,7 +462,9 @@ export function parseTaskIndex(input: unknown): TaskIndex {
   return structural.output;
 }
 
-export function parseTaskGraphApplyRequest(input: unknown): TaskGraphApplyRequest {
+export function parseTaskGraphApplyRequest(
+  input: unknown
+): TaskGraphApplyRequest {
   rejectReservedOwnKey(input, "REQUEST_INVALID");
   const parsed = v.safeParse(taskGraphApplyRequestSchema, input);
   if (!parsed.success) {
@@ -541,13 +561,14 @@ function canonicalTask(task: TaskEntry): TaskEntry {
       result: canonicalResult(task.content.result)
     },
     state: {
-      control: task.state.control.mode === "waiting"
-        || task.state.control.mode === "paused"
-        ? {
-            mode: task.state.control.mode,
-            reason: task.state.control.reason
-          }
-        : { mode: task.state.control.mode, reason: null },
+      control:
+        task.state.control.mode === "waiting" ||
+        task.state.control.mode === "paused"
+          ? {
+              mode: task.state.control.mode,
+              reason: task.state.control.reason
+            }
+          : { mode: task.state.control.mode, reason: null },
       execution: canonicalExecution(task.state.execution),
       relations: {
         parentId: task.state.relations.parentId,
@@ -569,7 +590,7 @@ export function canonicalTaskIndex(index: TaskIndex): TaskIndex {
     nextTaskId: index.nextTaskId,
     tasks: Object.fromEntries(
       Object.entries(index.tasks)
-        .sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)
+        .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
         .map(([taskId, task]) => [taskId, canonicalTask(task)])
     )
   };
@@ -588,9 +609,4 @@ export function emptyTaskIndex(): TaskIndex {
   };
 }
 
-export type {
-  TaskContent,
-  TaskControl,
-  TaskEntry,
-  TaskIndex
-};
+export type { TaskContent, TaskControl, TaskEntry, TaskIndex };

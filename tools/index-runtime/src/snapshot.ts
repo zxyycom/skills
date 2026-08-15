@@ -10,7 +10,4 @@ export {
   readonlyStateIndexMetadata
 } from "./projection.ts";
 export { buildStateIndex } from "./snapshot-builder.ts";
-export {
-  parseStateIndex,
-  serializeStateIndex
-} from "./snapshot-parser.ts";
+export { parseStateIndex, serializeStateIndex } from "./snapshot-parser.ts";

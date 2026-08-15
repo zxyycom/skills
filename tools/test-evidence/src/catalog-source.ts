@@ -17,16 +17,12 @@ import {
   type TestEvidenceDiagnostic,
   type TestEvidenceTopicCatalog
 } from "./schemas.ts";
-import {
-  loadTestEvidenceTopicCatalog
-} from "./topic-catalog.ts";
+import { loadTestEvidenceTopicCatalog } from "./topic-catalog.ts";
 import {
   isTestEvidenceCaseFileName,
   testEvidenceTopicCatalogFileName
 } from "./topic.ts";
-import {
-  workspaceRelativePathsAreDistinct
-} from "./workspace-path.ts";
+import { workspaceRelativePathsAreDistinct } from "./workspace-path.ts";
 
 export type TestEvidenceCatalogSource = {
   path: string;
@@ -64,18 +60,22 @@ export async function loadTestEvidenceCatalog(
   for (const source of sourceResult.sources) {
     const parsedCases = collectTestEvidenceCases(source.text, caseIdPattern);
     const firstCase = parsedCases[0];
-    const startsWithValidCaseHeading = firstCase?.line === 1
-      && firstCase.headingFormatIsValid
-      && firstCase.caseIdIsValid;
+    const startsWithValidCaseHeading =
+      firstCase?.line === 1 &&
+      firstCase.headingFormatIsValid &&
+      firstCase.caseIdIsValid;
     if (!startsWithValidCaseHeading) {
-      diagnostics.push(createDiagnostic({
-        category: "catalog",
-        code: "catalog.invalid",
-        message: `${source.path} must start on line 1 with `
-          + "### Case <CASE-ID>: <title>",
-        path: source.path,
-        severity: "error"
-      }));
+      diagnostics.push(
+        createDiagnostic({
+          category: "catalog",
+          code: "catalog.invalid",
+          message:
+            `${source.path} must start on line 1 with ` +
+            "### Case <CASE-ID>: <title>",
+          path: source.path,
+          severity: "error"
+        })
+      );
     }
     for (const entry of parsedCases) {
       if (entry.headingFormatIsValid && entry.caseIdIsValid) {
@@ -86,14 +86,17 @@ export async function loadTestEvidenceCatalog(
     }
 
     if (parsedCases.length !== 1) {
-      diagnostics.push(createDiagnostic({
-        category: "catalog",
-        code: "catalog.case-count-invalid",
-        message: `${source.path} must contain exactly one test evidence case; `
-          + `found ${parsedCases.length}`,
-        path: source.path,
-        severity: "error"
-      }));
+      diagnostics.push(
+        createDiagnostic({
+          category: "catalog",
+          code: "catalog.case-count-invalid",
+          message:
+            `${source.path} must contain exactly one test evidence case; ` +
+            `found ${parsedCases.length}`,
+          path: source.path,
+          severity: "error"
+        })
+      );
       continue;
     }
 
@@ -102,13 +105,17 @@ export async function loadTestEvidenceCatalog(
       continue;
     }
     const validated = validateTestEvidenceCase(parsed, source.path);
-    diagnostics.push(...validated.errors.map((message) => createDiagnostic({
-      category: "catalog",
-      code: "catalog.invalid",
-      message,
-      path: source.path,
-      severity: "error"
-    })));
+    diagnostics.push(
+      ...validated.errors.map((message) =>
+        createDiagnostic({
+          category: "catalog",
+          code: "catalog.invalid",
+          message,
+          path: source.path,
+          severity: "error"
+        })
+      )
+    );
     if (validated.case !== null && startsWithValidCaseHeading) {
       cases.push({
         parsed,
@@ -122,18 +129,18 @@ export async function loadTestEvidenceCatalog(
     if (locations.length <= 1) {
       continue;
     }
-    diagnostics.push(createDiagnostic({
-      caseId,
-      category: "catalog",
-      code: "catalog.case-id-duplicate",
-      message: `duplicate case ID across catalog: ${caseId} (${
-        locations
+    diagnostics.push(
+      createDiagnostic({
+        caseId,
+        category: "catalog",
+        code: "catalog.case-id-duplicate",
+        message: `duplicate case ID across catalog: ${caseId} (${locations
           .map((entry) => `${entry.sourcePath}:${entry.line}`)
-          .join(", ")
-      })`,
-      path: testEvidenceCatalogPath,
-      severity: "error"
-    }));
+          .join(", ")})`,
+        path: testEvidenceCatalogPath,
+        severity: "error"
+      })
+    );
   }
 
   return {
@@ -163,9 +170,7 @@ export async function readTestEvidenceCatalogSources(
     };
   }
 
-  const loadedTopics = await loadTestEvidenceTopicCatalog(
-    workspaceRoot
-  );
+  const loadedTopics = await loadTestEvidenceTopicCatalog(workspaceRoot);
   const diagnostics = [...loadedTopics.diagnostics];
   const topicCatalog = loadedTopics.catalog;
   if (topicCatalog === null) {
@@ -183,13 +188,15 @@ export async function readTestEvidenceCatalogSources(
     entries = await fs.readdir(catalogDirectory, { withFileTypes: true });
     entries.sort((left, right) => compareText(left.name, right.name));
   } catch (error) {
-    diagnostics.push(createDiagnostic({
-      category: "catalog",
-      code: "catalog.read-failed",
-      message: `${testEvidenceCatalogPath} could not be read: ${errorText(error)}`,
-      path: testEvidenceCatalogPath,
-      severity: "error"
-    }));
+    diagnostics.push(
+      createDiagnostic({
+        category: "catalog",
+        code: "catalog.read-failed",
+        message: `${testEvidenceCatalogPath} could not be read: ${errorText(error)}`,
+        path: testEvidenceCatalogPath,
+        severity: "error"
+      })
+    );
     return { diagnostics, sources: [], topicCatalog };
   }
 
@@ -197,40 +204,46 @@ export async function readTestEvidenceCatalogSources(
   for (const entry of entries) {
     if (entry.isFile()) {
       if (!allowedRootFiles.has(entry.name)) {
-        diagnostics.push(createDiagnostic({
-          category: "catalog",
-          code: "catalog.root-file-unsupported",
-          message: `${testEvidenceCatalogPath} root contains unsupported file ${
-            entry.name
-          }`,
-          path: path.posix.join(testEvidenceCatalogPath, entry.name),
-          severity: "error"
-        }));
+        diagnostics.push(
+          createDiagnostic({
+            category: "catalog",
+            code: "catalog.root-file-unsupported",
+            message: `${testEvidenceCatalogPath} root contains unsupported file ${
+              entry.name
+            }`,
+            path: path.posix.join(testEvidenceCatalogPath, entry.name),
+            severity: "error"
+          })
+        );
       }
       continue;
     }
     if (!entry.isDirectory()) {
-      diagnostics.push(createDiagnostic({
+      diagnostics.push(
+        createDiagnostic({
           category: "catalog",
           code: "catalog.root-entry-unsupported",
           message: `${testEvidenceCatalogPath} contains unsupported entry ${
             entry.name
           }`,
           path: path.posix.join(testEvidenceCatalogPath, entry.name),
-        severity: "error"
-      }));
+          severity: "error"
+        })
+      );
       continue;
     }
     if (!topicIds.has(entry.name)) {
-      diagnostics.push(createDiagnostic({
-        category: "catalog",
-        code: "catalog.topic-unknown",
-        message: `topic directory is not defined in ${
-          testEvidenceTopicCatalogFileName
-        }: ${entry.name}`,
-        path: path.posix.join(testEvidenceCatalogPath, entry.name),
-        severity: "error"
-      }));
+      diagnostics.push(
+        createDiagnostic({
+          category: "catalog",
+          code: "catalog.topic-unknown",
+          message: `topic directory is not defined in ${
+            testEvidenceTopicCatalogFileName
+          }: ${entry.name}`,
+          path: path.posix.join(testEvidenceCatalogPath, entry.name),
+          severity: "error"
+        })
+      );
       continue;
     }
     const topicSources = await readTopicDirectory({
@@ -242,10 +255,12 @@ export async function readTestEvidenceCatalogSources(
     sources.push(...topicSources.sources);
   }
 
-  diagnostics.push(...await indexIdentityDiagnostics({
-    sources,
-    workspaceRoot
-  }));
+  diagnostics.push(
+    ...(await indexIdentityDiagnostics({
+      sources,
+      workspaceRoot
+    }))
+  );
   sources.sort((left, right) => compareText(left.path, right.path));
   return { diagnostics, sources, topicCatalog };
 }
@@ -294,13 +309,15 @@ async function readTopicDirectory(options: {
     entries.sort((left, right) => compareText(left.name, right.name));
   } catch (error) {
     return {
-      diagnostics: [createDiagnostic({
-        category: "catalog",
-        code: "catalog.topic-read-failed",
-        message: `${topicPath} could not be read: ${errorText(error)}`,
-        path: topicPath,
-        severity: "error"
-      })],
+      diagnostics: [
+        createDiagnostic({
+          category: "catalog",
+          code: "catalog.topic-read-failed",
+          message: `${topicPath} could not be read: ${errorText(error)}`,
+          path: topicPath,
+          severity: "error"
+        })
+      ],
       sources: []
     };
   }
@@ -309,42 +326,45 @@ async function readTopicDirectory(options: {
   for (const entry of entries) {
     const sourcePath = path.posix.join(options.topicId, entry.name);
     if (!entry.isFile() || !isTestEvidenceCaseFileName(entry.name)) {
-      diagnostics.push(createDiagnostic({
-        category: "catalog",
-        code: "catalog.topic-entry-unsupported",
-        message: `${sourcePath} must be a direct semantic-slug.md case file`,
-        path: path.posix.join(options.catalogPath, sourcePath),
-        severity: "error"
-      }));
+      diagnostics.push(
+        createDiagnostic({
+          category: "catalog",
+          code: "catalog.topic-entry-unsupported",
+          message: `${sourcePath} must be a direct semantic-slug.md case file`,
+          path: path.posix.join(options.catalogPath, sourcePath),
+          severity: "error"
+        })
+      );
       continue;
     }
     try {
       sources.push({
         path: sourcePath,
-        text: await fs.readFile(
-          path.join(topicDirectory, entry.name),
-          "utf8"
-        )
+        text: await fs.readFile(path.join(topicDirectory, entry.name), "utf8")
       });
     } catch (error) {
-      diagnostics.push(createDiagnostic({
-        category: "catalog",
-        code: "catalog.read-failed",
-        message: `${sourcePath} could not be read: ${errorText(error)}`,
-        path: path.posix.join(options.catalogPath, sourcePath),
-        severity: "error"
-      }));
+      diagnostics.push(
+        createDiagnostic({
+          category: "catalog",
+          code: "catalog.read-failed",
+          message: `${sourcePath} could not be read: ${errorText(error)}`,
+          path: path.posix.join(options.catalogPath, sourcePath),
+          severity: "error"
+        })
+      );
     }
   }
 
   if (sources.length === 0) {
-    diagnostics.push(createDiagnostic({
-      category: "catalog",
-      code: "catalog.topic-directory-empty",
-      message: `${topicPath} must contain at least one direct case Markdown`,
-      path: topicPath,
-      severity: "error"
-    }));
+    diagnostics.push(
+      createDiagnostic({
+        category: "catalog",
+        code: "catalog.topic-directory-empty",
+        message: `${topicPath} must contain at least one direct case Markdown`,
+        path: topicPath,
+        severity: "error"
+      })
+    );
   }
   return { diagnostics, sources };
 }
@@ -354,47 +374,49 @@ async function indexIdentityDiagnostics(options: {
   workspaceRoot: string;
 }): Promise<TestEvidenceDiagnostic[]> {
   const candidates = [
-    path.posix.join(
-      testEvidenceCatalogPath,
-      testEvidenceTopicCatalogFileName
-    ),
-    ...options.sources.map((source) => path.posix.join(
-      testEvidenceCatalogPath,
-      source.path
-    ))
+    path.posix.join(testEvidenceCatalogPath, testEvidenceTopicCatalogFileName),
+    ...options.sources.map((source) =>
+      path.posix.join(testEvidenceCatalogPath, source.path)
+    )
   ];
   const conflicts: string[] = [];
   try {
     for (const candidate of candidates) {
-      if (!await workspaceRelativePathsAreDistinct(
-        options.workspaceRoot,
-        [testEvidenceIndexPath, candidate]
-      )) {
+      if (
+        !(await workspaceRelativePathsAreDistinct(options.workspaceRoot, [
+          testEvidenceIndexPath,
+          candidate
+        ]))
+      ) {
         conflicts.push(candidate);
       }
     }
   } catch (error) {
-    return [createDiagnostic({
-      category: "catalog",
-      code: "catalog.index-identity-inspection-failed",
-      message: `The fixed index file identity could not be inspected: ${
-        errorText(error)
-      }`,
-      path: testEvidenceIndexPath,
-      severity: "error"
-    })];
+    return [
+      createDiagnostic({
+        category: "catalog",
+        code: "catalog.index-identity-inspection-failed",
+        message: `The fixed index file identity could not be inspected: ${errorText(
+          error
+        )}`,
+        path: testEvidenceIndexPath,
+        severity: "error"
+      })
+    ];
   }
   return conflicts.length === 0
     ? []
-    : [createDiagnostic({
-        category: "catalog",
-        code: "catalog.index-file-conflict",
-        message: `The fixed index file must not share a filesystem identity with: ${
-          conflicts.join(", ")
-        }`,
-        path: testEvidenceIndexPath,
-        severity: "error"
-      })];
+    : [
+        createDiagnostic({
+          category: "catalog",
+          code: "catalog.index-file-conflict",
+          message: `The fixed index file must not share a filesystem identity with: ${conflicts.join(
+            ", "
+          )}`,
+          path: testEvidenceIndexPath,
+          severity: "error"
+        })
+      ];
 }
 
 function compareText(left: string, right: string): number {

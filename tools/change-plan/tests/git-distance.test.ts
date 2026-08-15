@@ -13,11 +13,9 @@ type GitFixture = {
 };
 
 function git(repositoryRoot: string, arguments_: readonly string[]): string {
-  const result = spawnSync(
-    "git",
-    ["-C", repositoryRoot, ...arguments_],
-    { encoding: "utf8" }
-  );
+  const result = spawnSync("git", ["-C", repositoryRoot, ...arguments_], {
+    encoding: "utf8"
+  });
   assert.equal(result.status, 0, result.stderr);
   return result.stdout.trim();
 }
@@ -59,7 +57,7 @@ async function assertDistance(
   assert.equal(inspection.evidence.changedLines, expectedChangedLines);
 }
 
-test("git-distance excludes commits that only change the assessed directory", () => (
+test("git-distance excludes commits that only change the assessed directory", () =>
   withTempRoot("git-distance-excluded-change", async (tempRoot) => {
     const fixture = await createGitFixture(tempRoot);
     await fs.writeFile(
@@ -70,10 +68,9 @@ test("git-distance excludes commits that only change the assessed directory", ()
     git(fixture.repositoryRoot, ["add", "."]);
     git(fixture.repositoryRoot, ["commit", "--quiet", "-m", "edit plan"]);
     await assertDistance(fixture, 0, 0);
-  })
-));
+  }));
 
-test("git-distance reports zero evidence at the plan baseline", () => (
+test("git-distance reports zero evidence at the plan baseline", () =>
   withTempRoot("git-distance-zero", async (tempRoot) => {
     const fixture = await createGitFixture(tempRoot);
     const inspection = await inspectPlanVersionControl(
@@ -89,10 +86,9 @@ test("git-distance reports zero evidence at the plan baseline", () => (
       },
       outcome: "measured"
     });
-  })
-));
+  }));
 
-test("git-distance counts sibling paths and only outside lines in mixed commits", () => (
+test("git-distance counts sibling paths and only outside lines in mixed commits", () =>
   withTempRoot("git-distance-path-boundary", async (tempRoot) => {
     const fixture = await createGitFixture(tempRoot);
     const siblingDirectory = path.join(
@@ -116,10 +112,9 @@ test("git-distance counts sibling paths and only outside lines in mixed commits"
     git(fixture.repositoryRoot, ["add", "."]);
     git(fixture.repositoryRoot, ["commit", "--quiet", "-m", "mixed paths"]);
     await assertDistance(fixture, 1, 2);
-  })
-));
+  }));
 
-test("git-distance accumulates additions and deletions", () => (
+test("git-distance accumulates additions and deletions", () =>
   withTempRoot("git-distance-additions-deletions", async (tempRoot) => {
     const fixture = await createGitFixture(tempRoot);
     const trackedFile = path.join(fixture.repositoryRoot, "tracked.txt");
@@ -130,10 +125,9 @@ test("git-distance accumulates additions and deletions", () => (
     git(fixture.repositoryRoot, ["add", "."]);
     git(fixture.repositoryRoot, ["commit", "--quiet", "-m", "replace tracked"]);
     await assertDistance(fixture, 2, 8);
-  })
-));
+  }));
 
-test("git-distance reports unavailable missing and non-first-parent bases", () => (
+test("git-distance reports unavailable missing and non-first-parent bases", () =>
   withTempRoot("git-distance-base-unavailable", async (tempRoot) => {
     const fixture = await createGitFixture(tempRoot);
     const missingBase = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef";
@@ -160,12 +154,14 @@ test("git-distance reports unavailable missing and non-first-parent bases", () =
         outcome: "base-unavailable"
       }
     );
-  })
-));
+  }));
 
 test("git-distance propagates version-control access failures", async () => {
   await assert.rejects(
-    inspectPlanVersionControl("/path/that/is/not/a/repository", validBaseCommit),
+    inspectPlanVersionControl(
+      "/path/that/is/not/a/repository",
+      validBaseCommit
+    ),
     /version control|repository|git/u
   );
 });

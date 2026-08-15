@@ -8,11 +8,13 @@ export const changePlanArtifactNames = [
 
 export const changePlanMetadataName = ".change-plan.json" as const;
 
-export type ChangePlanArtifactName = typeof changePlanArtifactNames[number];
+export type ChangePlanArtifactName = (typeof changePlanArtifactNames)[number];
 
 export type ChangePlanMetadataName = typeof changePlanMetadataName;
 
-export type ChangePlanFileName = ChangePlanArtifactName | ChangePlanMetadataName;
+export type ChangePlanFileName =
+  | ChangePlanArtifactName
+  | ChangePlanMetadataName;
 
 export type ChangePlanStage = ChangePlanMetadata["stage"];
 
@@ -179,18 +181,19 @@ type ChangePlanArchiveResultBase = {
   sourceDirectory: string;
 };
 
-export type ChangePlanArchiveResult = ChangePlanArchiveResultBase & (
-  | {
-    archived: true;
-    check: ChangePlanCheckResult;
-    error: null;
-  }
-  | {
-    archived: false;
-    check: ChangePlanCheckResult | null;
-    error: string;
-  }
-);
+export type ChangePlanArchiveResult = ChangePlanArchiveResultBase &
+  (
+    | {
+        archived: true;
+        check: ChangePlanCheckResult;
+        error: null;
+      }
+    | {
+        archived: false;
+        check: ChangePlanCheckResult | null;
+        error: string;
+      }
+  );
 
 export type ArtifactStructureContract = {
   file: ChangePlanArtifactName;

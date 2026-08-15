@@ -35,9 +35,8 @@ function checkTask(
 
 function scriptResult(script: string, exitCode = 0) {
   return {
-    capturedOutput: exitCode === 0
-      ? `${script} details\n`
-      : `${script} failure\n`,
+    capturedOutput:
+      exitCode === 0 ? `${script} details\n` : `${script} failure\n`,
     durationMilliseconds: 1,
     exitCode,
     script
@@ -45,7 +44,9 @@ function scriptResult(script: string, exitCode = 0) {
 }
 
 test("main Markdown collection excludes archived changes and investigation resources", async () => {
-  const workspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "skills-markdown-"));
+  const workspaceRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), "skills-markdown-")
+  );
   try {
     const paths = [
       "README.md",
@@ -54,18 +55,23 @@ test("main Markdown collection excludes archived changes and investigation resou
       "docs/investigations/current-topic/report.md",
       "docs/investigations/_resources/source/report.md"
     ];
-    await Promise.all(paths.map(async (relativePath) => {
-      const targetPath = path.join(workspaceRoot, relativePath);
-      await fs.mkdir(path.dirname(targetPath), { recursive: true });
-      await fs.writeFile(targetPath, "# test\n", "utf8");
-    }));
+    await Promise.all(
+      paths.map(async (relativePath) => {
+        const targetPath = path.join(workspaceRoot, relativePath);
+        await fs.mkdir(path.dirname(targetPath), { recursive: true });
+        await fs.writeFile(targetPath, "# test\n", "utf8");
+      })
+    );
 
     const markdownFiles = await collectMainMarkdownFiles(workspaceRoot);
-    assert.deepEqual(markdownFiles.map((filePath) => path.relative(workspaceRoot, filePath)), [
-      "changes/active-change/proposal.md",
-      "docs/investigations/current-topic/report.md",
-      "README.md"
-    ]);
+    assert.deepEqual(
+      markdownFiles.map((filePath) => path.relative(workspaceRoot, filePath)),
+      [
+        "changes/active-change/proposal.md",
+        "docs/investigations/current-topic/report.md",
+        "README.md"
+      ]
+    );
   } finally {
     await fs.rm(workspaceRoot, { force: true, recursive: true });
   }
@@ -96,6 +102,8 @@ test("check plan classifies every package script by minimum profile", () => {
     ["check:task-graph-index", "quick"],
     ["check:task-graph-cli", "quick"],
     ["typecheck", "quick"],
+    ["lint", "quick"],
+    ["format:check", "quick"],
     ["check:skill-updaters", "quick"],
     ["test:check", "quick"],
     ["test:environment", "quick"],
@@ -106,10 +114,10 @@ test("check plan classifies every package script by minimum profile", () => {
     checkPreflightTasks.map((task) => [task.script, task.minimumProfile]),
     expectedCheckTasks
   );
-  assert.deepEqual(
-    checkPackageScripts,
-    [...expectedCheckTasks.map(([script]) => script), "pack:skills"]
-  );
+  assert.deepEqual(checkPackageScripts, [
+    ...expectedCheckTasks.map(([script]) => script),
+    "pack:skills"
+  ]);
   assert.equal(checkPackageScript, "pack:skills");
   assert.equal(checkTaskScript(checkTask("script")), "script");
   assert.equal(checkTaskRunsInProfile(checkTask("quick"), "quick"), true);
@@ -122,27 +130,37 @@ test("check plan classifies every package script by minimum profile", () => {
 });
 
 test("check concurrency resolves defaults, caps, and invalid values", () => {
-  assert.equal(resolveConcurrency({
-    availableParallelism: 8,
-    configured: undefined,
-    taskCount: 5
-  }), 2);
-  assert.equal(resolveConcurrency({
-    availableParallelism: 1,
-    configured: undefined,
-    taskCount: 5
-  }), 1);
-  assert.equal(resolveConcurrency({
-    availableParallelism: 1,
-    configured: "4",
-    taskCount: 3
-  }), 3);
-  assert.throws(
-    () => resolveConcurrency({
+  assert.equal(
+    resolveConcurrency({
       availableParallelism: 8,
-      configured: "0",
+      configured: undefined,
       taskCount: 5
     }),
+    2
+  );
+  assert.equal(
+    resolveConcurrency({
+      availableParallelism: 1,
+      configured: undefined,
+      taskCount: 5
+    }),
+    1
+  );
+  assert.equal(
+    resolveConcurrency({
+      availableParallelism: 1,
+      configured: "4",
+      taskCount: 3
+    }),
+    3
+  );
+  assert.throws(
+    () =>
+      resolveConcurrency({
+        availableParallelism: 8,
+        configured: "0",
+        taskCount: 5
+      }),
     /CHECK_CONCURRENCY must be a positive integer/
   );
 });
@@ -239,12 +257,7 @@ test("check summary reports profile and status counts", () => {
   ];
 
   assert.equal(
-    formatCheckSummary(
-      "quick",
-      workflowResult,
-      reports,
-      12_000
-    ),
+    formatCheckSummary("quick", workflowResult, reports, 12_000),
     [
       "Summary:",
       "  status: failed",
@@ -273,7 +286,10 @@ test("preflight scheduling continues after failures", async () => {
 
   assert.deepEqual(result, { hasFailures: true });
   assert.deepEqual(calls, ["failure", "after-failure"]);
-  assert.deepEqual(reports.map((report) => report.status), ["failed", "passed"]);
+  assert.deepEqual(
+    reports.map((report) => report.status),
+    ["failed", "passed"]
+  );
 });
 
 test("workflow skips full checks in the quick profile", async () => {
@@ -297,11 +313,10 @@ test("workflow skips full checks in the quick profile", async () => {
     status: "passed"
   });
   assert.deepEqual(calls, ["quick", "package"]);
-  assert.deepEqual(reports.map((report) => report.status), [
-    "skipped",
-    "passed",
-    "passed"
-  ]);
+  assert.deepEqual(
+    reports.map((report) => report.status),
+    ["skipped", "passed", "passed"]
+  );
 });
 
 test("workflow runs every check in the full profile", async () => {
@@ -325,11 +340,10 @@ test("workflow runs every check in the full profile", async () => {
     status: "passed"
   });
   assert.deepEqual(calls, ["slow", "quick", "package"]);
-  assert.deepEqual(reports.map((report) => report.status), [
-    "passed",
-    "passed",
-    "passed"
-  ]);
+  assert.deepEqual(
+    reports.map((report) => report.status),
+    ["passed", "passed", "passed"]
+  );
 });
 
 test("workflow skips packaging after preflight failures", async () => {
@@ -353,11 +367,10 @@ test("workflow skips packaging after preflight failures", async () => {
     status: "failed"
   });
   assert.deepEqual(calls, ["failure", "after-failure"]);
-  assert.deepEqual(reports.map((report) => report.status), [
-    "failed",
-    "passed",
-    "skipped"
-  ]);
+  assert.deepEqual(
+    reports.map((report) => report.status),
+    ["failed", "passed", "skipped"]
+  );
 });
 
 test("workflow reports package script failures", async () => {
@@ -377,7 +390,10 @@ test("workflow reports package script failures", async () => {
     packageStatus: "failed",
     status: "failed"
   });
-  assert.deepEqual(reports.map((report) => report.status), ["passed", "failed"]);
+  assert.deepEqual(
+    reports.map((report) => report.status),
+    ["passed", "failed"]
+  );
 });
 
 test("CLI reports invalid concurrency without starting checks", () => {

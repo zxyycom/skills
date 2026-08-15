@@ -99,21 +99,24 @@ export function createValidReports(): ReportInput[] {
         {
           formedAt: "2026-07-20T09:00:00+08:00",
           purpose: "确认注册入口是否工作，并查清当前可用工具状态。",
-          resultAndBoundary: "初步确认注册入口没有产生可用工具，尚未验证启动环境。",
+          resultAndBoundary:
+            "初步确认注册入口没有产生可用工具，尚未验证启动环境。",
           title: "恢复注册入口"
         },
         {
-          extraSections: [{
-            body: [
-              "~~~markdown",
-              "# 围栏中的示例标题",
-              "## 调查信息",
-              "### 围栏中的报告",
-              "#### 形成时背景",
-              "~~~"
-            ].join("\n"),
-            title: "证据"
-          }],
+          extraSections: [
+            {
+              body: [
+                "~~~markdown",
+                "# 围栏中的示例标题",
+                "## 调查信息",
+                "### 围栏中的报告",
+                "#### 形成时背景",
+                "~~~"
+              ].join("\n"),
+              title: "证据"
+            }
+          ],
           formedAt: "2026-07-21T09:00:00+08:00",
           purpose: "重新确认注册链状态和启动环境边界。",
           resultAndBoundary: "当前注册链已经恢复，但结论仍受启动环境约束。",
@@ -126,10 +129,12 @@ export function createValidReports(): ReportInput[] {
     {
       path: "runtime/process-churn.md",
       question: "哪些运行阶段会形成进程抖动？",
-      reports: [{
-        formedAt: "2026-07-19T09:00:00+08:00",
-        title: "定位进程抖动阶段"
-      }],
+      reports: [
+        {
+          formedAt: "2026-07-19T09:00:00+08:00",
+          title: "定位进程抖动阶段"
+        }
+      ],
       status: "暂停",
       title: "运行时进程抖动调查"
     }
@@ -144,9 +149,10 @@ export function reportEntryMarkdown(input: ReportEntryInput): string {
       ? []
       : [
           "- 随附资源:",
-          ...input.resources.map((resource) => (
-            `  - [${resource.label}](../_resources/${resource.id})`
-          ))
+          ...input.resources.map(
+            (resource) =>
+              `  - [${resource.label}](../_resources/${resource.id})`
+          )
         ]),
     "",
     "#### 形成时背景",
@@ -187,8 +193,7 @@ export function reportBodyWithSections(
 
 export function reportMarkdown(input: ReportInput): string {
   const reports = input.reports ?? [{ title: "当前状态调查" }];
-  const lastFormedAt = reports.at(-1)?.formedAt
-    ?? "2026-07-21T09:00:00+08:00";
+  const lastFormedAt = reports.at(-1)?.formedAt ?? "2026-07-21T09:00:00+08:00";
   return [
     `# ${input.title}`,
     "",
@@ -197,14 +202,15 @@ export function reportMarkdown(input: ReportInput): string {
     `- 状态: ${input.status ?? "调查中"}`,
     `- 最新报告时间: ${input.latestReportAt ?? lastFormedAt}`,
     "",
-    input.body ?? [
-      "## 调查报告",
-      "",
-      ...reports.flatMap((report, index) => [
-        reportEntryMarkdown(report),
-        ...(index === reports.length - 1 ? [] : [""])
-      ])
-    ].join("\n"),
+    input.body ??
+      [
+        "## 调查报告",
+        "",
+        ...reports.flatMap((report, index) => [
+          reportEntryMarkdown(report),
+          ...(index === reports.length - 1 ? [] : [""])
+        ])
+      ].join("\n"),
     ""
   ].join("\n");
 }
@@ -256,11 +262,7 @@ export function initializeGitRepository(workspaceRoot: string): void {
     "user.email",
     "investigation-stage@example.invalid"
   ]);
-  runGit(workspaceRoot, [
-    "config",
-    "user.name",
-    "Investigation Stage Test"
-  ]);
+  runGit(workspaceRoot, ["config", "user.name", "Investigation Stage Test"]);
 }
 
 export function commitAll(workspaceRoot: string, message: string): void {
@@ -281,7 +283,10 @@ export function pendingPaths(workspaceRoot: string): string[] {
     "--cached",
     "--name-only",
     "--diff-filter=ACDMRTUXB"
-  ]).trim().split("\n").filter((entry) => entry.length > 0);
+  ])
+    .trim()
+    .split("\n")
+    .filter((entry) => entry.length > 0);
 }
 
 export function runGit(
@@ -307,10 +312,9 @@ export async function withTempRoot(
   suiteName: string,
   run: (tempRoot: string) => Promise<void>
 ): Promise<void> {
-  const tempRoot = await fs.mkdtemp(path.join(
-    os.tmpdir(),
-    `investigation-report-${suiteName}-`
-  ));
+  const tempRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), `investigation-report-${suiteName}-`)
+  );
   try {
     await run(tempRoot);
   } finally {

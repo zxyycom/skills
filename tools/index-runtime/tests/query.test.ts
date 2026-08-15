@@ -23,10 +23,9 @@ async function buildDecisionFixture() {
     states: await decisionStates()
   };
   return {
-    index: resultValue(await buildStateIndex(
-      decisionDefinition(source),
-      { root: "." }
-    )),
+    index: resultValue(
+      await buildStateIndex(decisionDefinition(source), { root: "." })
+    ),
     source
   };
 }
@@ -55,12 +54,14 @@ test("filters decision states and finds entries by stable identity", async () =>
   const text = queryStateIndex({
     index,
     query: {
-      filters: [{
-        key: "text",
-        kind: "text",
-        operator: "all",
-        text: "共享 缓存"
-      }]
+      filters: [
+        {
+          key: "text",
+          kind: "text",
+          operator: "all",
+          text: "共享 缓存"
+        }
+      ]
     }
   });
   assert.deepEqual(
@@ -71,12 +72,14 @@ test("filters decision states and finds entries by stable identity", async () =>
   const range = queryStateIndex({
     index,
     query: {
-      filters: [{
-        key: "created-at",
-        kind: "range",
-        operator: "gte",
-        value: Date.parse("2026-07-21T00:00:00Z")
-      }]
+      filters: [
+        {
+          key: "created-at",
+          kind: "range",
+          operator: "gte",
+          value: Date.parse("2026-07-21T00:00:00Z")
+        }
+      ]
     }
   });
   assert.deepEqual(
@@ -87,12 +90,14 @@ test("filters decision states and finds entries by stable identity", async () =>
   const exact = queryStateIndex({
     index,
     query: {
-      filters: [{
-        key: "alignment",
-        kind: "exact",
-        operator: "none",
-        values: ["aligned"]
-      }]
+      filters: [
+        {
+          key: "alignment",
+          kind: "exact",
+          operator: "none",
+          values: ["aligned"]
+        }
+      ]
     }
   });
   assert.deepEqual(
@@ -100,7 +105,8 @@ test("filters decision states and finds entries by stable identity", async () =>
     ["architecture/shared-id.md"]
   );
   assert.equal(
-    resultValue(findStateIndexEntry(index, "architecture/shared-id.md"))?.state.title,
+    resultValue(findStateIndexEntry(index, "architecture/shared-id.md"))?.state
+      .title,
     "共享身份决策"
   );
 });
@@ -122,10 +128,9 @@ test("sorts temporal keys by instants across timezone offsets", async () => {
       }
     ]
   };
-  const index = resultValue(await buildStateIndex(
-    decisionDefinition(temporalSource),
-    { root: "." }
-  ));
+  const index = resultValue(
+    await buildStateIndex(decisionDefinition(temporalSource), { root: "." })
+  );
   const result = queryStateIndex({
     index,
     query: { sort: [{ direction: "asc", key: "created-at" }] }
@@ -141,19 +146,22 @@ test("searches text keys across investigation and test-evidence states", async (
     revision: "investigation-revision-1",
     states: await investigationStates()
   };
-  const investigationIndex = resultValue(await buildStateIndex(
-    investigationDefinition(investigationSource),
-    { root: "." }
-  ));
+  const investigationIndex = resultValue(
+    await buildStateIndex(investigationDefinition(investigationSource), {
+      root: "."
+    })
+  );
   const investigation = queryStateIndex({
     index: investigationIndex,
     query: {
-      filters: [{
-        key: "text",
-        kind: "text",
-        operator: "all",
-        text: "怎样 快速"
-      }]
+      filters: [
+        {
+          key: "text",
+          kind: "text",
+          operator: "all",
+          text: "怎样 快速"
+        }
+      ]
     }
   });
   assert.deepEqual(
@@ -162,19 +170,18 @@ test("searches text keys across investigation and test-evidence states", async (
   );
 
   const { index } = await buildTestEvidenceFixture();
-  assert.deepEqual(
-    Object.keys(index.entries),
-    ["read-error", "state-query"]
-  );
+  assert.deepEqual(Object.keys(index.entries), ["read-error", "state-query"]);
   const searched = queryStateIndex({
     index,
     query: {
-      filters: [{
-        key: "search",
-        kind: "text",
-        operator: "all",
-        text: "state query"
-      }]
+      filters: [
+        {
+          key: "search",
+          kind: "text",
+          operator: "all",
+          text: "state query"
+        }
+      ]
     }
   });
   assert.deepEqual(
@@ -196,19 +203,18 @@ test("requires the domain source to reject duplicate identities", async () => {
     { root: "." }
   );
   assert.equal(result.status, "error");
-  assert.ok(result.diagnostics.some((entry) => (
-    entry.code === "state-index.source-read-failed"
-    && entry.message.includes("duplicate state id")
-  )));
+  assert.ok(
+    result.diagnostics.some(
+      (entry) =>
+        entry.code === "state-index.source-read-failed" &&
+        entry.message.includes("duplicate state id")
+    )
+  );
 });
 
 test("merges runtime states without mutating persisted index entries", async () => {
-  const {
-    definition,
-    index,
-    originalStates,
-    staticStates
-  } = await buildTestEvidenceFixture();
+  const { definition, index, originalStates, staticStates } =
+    await buildTestEvidenceFixture();
   const runtimeState: TestEvidenceState = {
     ...staticStates[0]!,
     trigger: originalStates[0]!.trigger
@@ -217,12 +223,14 @@ test("merges runtime states without mutating persisted index entries", async () 
     definition,
     index,
     query: {
-      filters: [{
-        key: "review-triggered",
-        kind: "exact",
-        operator: "all",
-        values: [true]
-      }]
+      filters: [
+        {
+          key: "review-triggered",
+          kind: "exact",
+          operator: "all",
+          values: [true]
+        }
+      ]
     },
     runtimeStates: { [runtimeState.caseId]: runtimeState }
   });
@@ -230,7 +238,10 @@ test("merges runtime states without mutating persisted index entries", async () 
     resultValue(result).entries.map((entry) => entry.id),
     ["state-query"]
   );
-  assert.equal(index.entries["state-query"]?.keys["review-triggered"], undefined);
+  assert.equal(
+    index.entries["state-query"]?.keys["review-triggered"],
+    undefined
+  );
 
   const invalidOverlay = queryStateIndex({
     definition,
@@ -263,18 +274,22 @@ test("rejects unknown, mode-mismatched, and multivalued sort keys", async () => 
   const wrongMode = queryStateIndex({
     index,
     query: {
-      filters: [{
-        key: "status",
-        kind: "text",
-        operator: "all",
-        text: "active"
-      }]
+      filters: [
+        {
+          key: "status",
+          kind: "text",
+          operator: "all",
+          text: "active"
+        }
+      ]
     }
   });
   assert.equal(wrongMode.status, "error");
-  assert.ok(wrongMode.diagnostics.some((entry) => (
-    entry.code === "state-index.query-key-mode-mismatch"
-  )));
+  assert.ok(
+    wrongMode.diagnostics.some(
+      (entry) => entry.code === "state-index.query-key-mode-mismatch"
+    )
+  );
 
   const unknownKey = queryStateIndex({
     index,
@@ -289,7 +304,9 @@ test("rejects unknown, mode-mismatched, and multivalued sort keys", async () => 
     query: { sort: [{ direction: "asc", key: "text" }] }
   });
   assert.equal(multivaluedSort.status, "error");
-  assert.ok(multivaluedSort.diagnostics.some((entry) => (
-    entry.code === "state-index.sort-key-multivalued"
-  )));
+  assert.ok(
+    multivaluedSort.diagnostics.some(
+      (entry) => entry.code === "state-index.sort-key-multivalued"
+    )
+  );
 });

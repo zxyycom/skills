@@ -29,6 +29,8 @@ export const checkPreflightTasks = [
   { minimumProfile: "quick", script: "check:task-graph-index" },
   { minimumProfile: "quick", script: "check:task-graph-cli" },
   { minimumProfile: "quick", script: "typecheck" },
+  { minimumProfile: "quick", script: "lint" },
+  { minimumProfile: "quick", script: "format:check" },
   { minimumProfile: "quick", script: "check:skill-updaters" },
   { minimumProfile: "quick", script: "test:check" },
   { minimumProfile: "quick", script: "test:environment" },

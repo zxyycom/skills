@@ -10,16 +10,22 @@ export function projectionTextIssue(value: string): string | null {
   const length = unicodeCodePointLength(trimmed);
 
   if (/[\r\n]/.test(value)) {
-    return "must be single-line text (actual length " + length + " Unicode code points)";
+    return (
+      "must be single-line text (actual length " +
+      length +
+      " Unicode code points)"
+    );
   }
   if (length < projectionMinimumLength || length > projectionMaximumLength) {
-    return "must contain "
-      + projectionMinimumLength
-      + " to "
-      + projectionMaximumLength
-      + " Unicode code points (actual "
-      + length
-      + ")";
+    return (
+      "must contain " +
+      projectionMinimumLength +
+      " to " +
+      projectionMaximumLength +
+      " Unicode code points (actual " +
+      length +
+      ")"
+    );
   }
 
   return null;

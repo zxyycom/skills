@@ -35,10 +35,7 @@ const nonEmptyStringSchema = v.pipe(
 );
 const investigationTopicPathSchema = v.pipe(
   nonEmptyStringSchema,
-  v.check(
-    isInvestigationTopicPath,
-    "must use <category-id>/<semantic-slug>.md"
-  )
+  v.check(isInvestigationTopicPath, "must use <category-id>/<semantic-slug>.md")
 );
 const investigationResourceIdSchema = v.pipe(
   v.string("must be a string"),
@@ -60,7 +57,10 @@ const investigationResourceReferenceSchema = v.strictObject({
   resourceIds: v.pipe(
     v.array(investigationResourceIdSchema, "must be an array"),
     v.minLength(1, "must contain at least one resource id"),
-    v.check(isStrictlySortedText, "must contain unique resource ids in sorted order")
+    v.check(
+      isStrictlySortedText,
+      "must contain unique resource ids in sorted order"
+    )
   )
 });
 const investigationIndexStateSchema = v.strictObject({
@@ -85,9 +85,12 @@ const investigationIndexStateSchema = v.strictObject({
   resourceReferences: v.pipe(
     v.array(investigationResourceReferenceSchema, "must be an array"),
     v.check(
-      (references) => references.every((reference, index) => (
-        index === 0 || references[index - 1]!.reportIndex < reference.reportIndex
-      )),
+      (references) =>
+        references.every(
+          (reference, index) =>
+            index === 0 ||
+            references[index - 1]!.reportIndex < reference.reportIndex
+        ),
       "must use unique reportIndex values in sorted order"
     )
   ),
@@ -96,12 +99,16 @@ const investigationIndexStateSchema = v.strictObject({
 });
 const investigationIndexMetadataSchema = v.strictObject({
   resources: v.pipe(
-    v.array(v.strictObject({
-      id: investigationResourceIdSchema,
-      sha256: investigationResourceSha256Schema
-    }), "must be an array"),
+    v.array(
+      v.strictObject({
+        id: investigationResourceIdSchema,
+        sha256: investigationResourceSha256Schema
+      }),
+      "must be an array"
+    ),
     v.check(
-      (resources) => isStrictlySortedText(resources.map((resource) => resource.id)),
+      (resources) =>
+        isStrictlySortedText(resources.map((resource) => resource.id)),
       "must contain unique resources in id order"
     )
   )
@@ -125,18 +132,14 @@ export function createInvestigationStateIndexDefinition(
       InvestigationIndexMetadata
     >;
   } = {}
-): StateIndexDefinition<
-  InvestigationIndexState,
-  InvestigationIndexMetadata
-> {
+): StateIndexDefinition<InvestigationIndexState, InvestigationIndexMetadata> {
   const snapshot = options.snapshot;
   return defineStateIndexDefinition({
     definitionVersion: investigationIndexDefinitionVersion,
     keyStrategies: [
       {
-        derive: (state) => investigationTimestampMilliseconds(
-          state.latestReportAt
-        ) ?? undefined,
+        derive: (state) =>
+          investigationTimestampMilliseconds(state.latestReportAt) ?? undefined,
         mode: "range",
         name: "latest-report-at"
       },
@@ -146,18 +149,13 @@ export function createInvestigationStateIndexDefinition(
         name: "status"
       },
       {
-        derive: (state) => [
-          state.title,
-          state.question,
-          ...state.reportTitles
-        ],
+        derive: (state) => [state.title, state.question, ...state.reportTitles],
         mode: "text",
         name: "text"
       },
       {
-        derive: (_state, context) => (
-          investigationCategoryOf(context.id) ?? undefined
-        ),
+        derive: (_state, context) =>
+          investigationCategoryOf(context.id) ?? undefined,
         mode: "exact",
         name: "category"
       }
@@ -165,34 +163,32 @@ export function createInvestigationStateIndexDefinition(
     namespace: investigationIndexNamespace,
     parseMetadata: parseInvestigationIndexMetadata,
     parseState: parseInvestigationIndexState,
-    read: snapshot === undefined
-      ? async (context) => await readInvestigationStateSnapshot(
-        context.root,
-        context.signal
-      )
-      : async () => snapshot,
-    readRevision: async (context) => await readInvestigationSourceRevision(
-      context.root,
-      context.signal
-    ),
+    read:
+      snapshot === undefined
+        ? async (context) =>
+            await readInvestigationStateSnapshot(context.root, context.signal)
+        : async () => snapshot,
+    readRevision: async (context) =>
+      await readInvestigationSourceRevision(context.root, context.signal),
     validateIndex: validateInvestigationIndex
   });
 }
 
 function validateInvestigationIndex(
-  index: ReadonlyStateIndex<
-    InvestigationIndexState,
-    InvestigationIndexMetadata
-  >
+  index: ReadonlyStateIndex<InvestigationIndexState, InvestigationIndexMetadata>
 ): void {
   const parsed = v.safeParse(
     investigationSourceRevisionSchema,
     index.sourceRevision
   );
   if (!parsed.success) {
-    throw new TypeError(parsed.issues.map(formatInvestigationIndexIssue).join("; "));
+    throw new TypeError(
+      parsed.issues.map(formatInvestigationIndexIssue).join("; ")
+    );
   }
-  const metadataIds = new Set(index.metadata.resources.map((resource) => resource.id));
+  const metadataIds = new Set(
+    index.metadata.resources.map((resource) => resource.id)
+  );
   const referencedIds = new Set<string>();
   for (const entry of Object.values(index.entries)) {
     for (const reference of entry.state.resourceReferences) {
@@ -206,9 +202,9 @@ function validateInvestigationIndex(
       }
     }
   }
-  const unreferenced = index.metadata.resources.find((resource) => (
-    !referencedIds.has(resource.id)
-  ));
+  const unreferenced = index.metadata.resources.find(
+    (resource) => !referencedIds.has(resource.id)
+  );
   if (unreferenced !== undefined) {
     throw new TypeError(
       `metadata resource ${unreferenced.id} is not referenced by any report state`
@@ -217,23 +213,30 @@ function validateInvestigationIndex(
 }
 
 function parseInvestigationIndexMetadata(
-  input: Parameters<StateIndexDefinition<
-    InvestigationIndexState,
-    InvestigationIndexMetadata
-  >["parseMetadata"]>[0]
+  input: Parameters<
+    StateIndexDefinition<
+      InvestigationIndexState,
+      InvestigationIndexMetadata
+    >["parseMetadata"]
+  >[0]
 ): InvestigationIndexMetadata {
   return v.parse(investigationIndexMetadataSchema, input);
 }
 
-function parseInvestigationIndexState(input: Parameters<
-  StateIndexDefinition<
-    InvestigationIndexState,
-    InvestigationIndexMetadata
-  >["parseState"]
->[0], context: Parameters<StateIndexDefinition<
-  InvestigationIndexState,
-  InvestigationIndexMetadata
->["parseState"]>[1]): InvestigationIndexState {
+function parseInvestigationIndexState(
+  input: Parameters<
+    StateIndexDefinition<
+      InvestigationIndexState,
+      InvestigationIndexMetadata
+    >["parseState"]
+  >[0],
+  context: Parameters<
+    StateIndexDefinition<
+      InvestigationIndexState,
+      InvestigationIndexMetadata
+    >["parseState"]
+  >[1]
+): InvestigationIndexState {
   const parsed = v.safeParse(investigationIndexStateSchema, input);
   if (!parsed.success) {
     throw new TypeError(
@@ -241,13 +244,11 @@ function parseInvestigationIndexState(input: Parameters<
     );
   }
   if (parsed.output.reportCount !== parsed.output.reportTitles.length) {
-    throw new TypeError(
-      "reportCount must equal the number of reportTitles"
-    );
+    throw new TypeError("reportCount must equal the number of reportTitles");
   }
-  const invalidReference = parsed.output.resourceReferences.find((reference) => (
-    reference.reportIndex >= parsed.output.reportCount
-  ));
+  const invalidReference = parsed.output.resourceReferences.find(
+    (reference) => reference.reportIndex >= parsed.output.reportCount
+  );
   if (invalidReference !== undefined) {
     throw new TypeError(
       `resourceReferences reportIndex ${invalidReference.reportIndex} must be less than reportCount`
@@ -260,9 +261,9 @@ function parseInvestigationIndexState(input: Parameters<
 }
 
 function isStrictlySortedText(values: string[]): boolean {
-  return values.every((value, index) => (
-    index === 0 || values[index - 1]! < value
-  ));
+  return values.every(
+    (value, index) => index === 0 || values[index - 1]! < value
+  );
 }
 
 function formatInvestigationIndexIssue(issue: v.BaseIssue<unknown>): string {

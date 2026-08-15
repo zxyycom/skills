@@ -88,12 +88,13 @@ export async function writePlan(
 ): Promise<string> {
   const directory = path.join(root, name);
   await fs.mkdir(directory, { recursive: true });
-  const metadata = overrides.metadata === undefined
-    ? {
-      baseCommit: await resolveHead(root),
-      stage: "plan" as const
-    }
-    : overrides.metadata;
+  const metadata =
+    overrides.metadata === undefined
+      ? {
+          baseCommit: await resolveHead(root),
+          stage: "plan" as const
+        }
+      : overrides.metadata;
   await Promise.all([
     fs.writeFile(
       path.join(directory, "proposal.md"),
@@ -112,11 +113,13 @@ export async function writePlan(
     ),
     ...(metadata === null
       ? []
-      : [fs.writeFile(
-        path.join(directory, ".change-plan.json"),
-        `${JSON.stringify(metadata, null, 2)}\n`,
-        "utf8"
-      )])
+      : [
+          fs.writeFile(
+            path.join(directory, ".change-plan.json"),
+            `${JSON.stringify(metadata, null, 2)}\n`,
+            "utf8"
+          )
+        ])
   ]);
   return directory;
 }

@@ -77,17 +77,12 @@ export function parseGitFirstParentRevisionChanges(
       throw parseError();
     }
 
-    const record = current.changes.length === 0
-      ? removeFirstChangePrefix(token)
-      : token;
+    const record =
+      current.changes.length === 0 ? removeFirstChangePrefix(token) : token;
     current.changes.push(parseNumstatRecord(record));
   }
 
-  if (
-    expectingHeader
-    || expectingChangeSeparator
-    || revisions.length === 0
-  ) {
+  if (expectingHeader || expectingChangeSeparator || revisions.length === 0) {
     throw parseError();
   }
   if (expectedParent !== to) {
@@ -115,9 +110,9 @@ function parseRevisionHeader(token: string): RevisionHeader {
   const parentText = token.slice(separatorIndex + 1);
   const parents = parentText.length === 0 ? [] : parentText.split(" ");
   if (
-    !objectIdPattern.test(revision)
-    || parents.some((parent) => !objectIdPattern.test(parent))
-    || new Set(parents).size !== parents.length
+    !objectIdPattern.test(revision) ||
+    parents.some((parent) => !objectIdPattern.test(parent)) ||
+    new Set(parents).size !== parents.length
   ) {
     throw parseError();
   }

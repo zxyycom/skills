@@ -32,10 +32,7 @@ import {
   resolveDecisionLocation,
   type DecisionLocation
 } from "./decision-query-context.ts";
-import type {
-  DecisionId,
-  DecisionSource
-} from "./types.ts";
+import type { DecisionId, DecisionSource } from "./types.ts";
 
 const revisionReadConcurrency = 32;
 const utf8Decoder = new TextDecoder("utf-8", { fatal: true });
@@ -70,7 +67,10 @@ export async function stageDecisionRecords(options: {
   try {
     repository = await openVersionControl(location.decisionsDirectory);
   } catch (error) {
-    return versionControlFailure("open the version-controlled decision workspace", error);
+    return versionControlFailure(
+      "open the version-controlled decision workspace",
+      error
+    );
   }
   const decisionScope = decisionRepositoryScope(
     repository.rootDirectory,
@@ -78,8 +78,9 @@ export async function stageDecisionRecords(options: {
   );
   if (decisionScope === null) {
     return decisionFailure([
-      "Decision directory must be inside, and below the root of, its version-controlled "
-        + "repository: " + location.decisionsDirectory
+      "Decision directory must be inside, and below the root of, its version-controlled " +
+        "repository: " +
+        location.decisionsDirectory
     ]);
   }
   let expectedPendingFiles: VersionControlFile[];
@@ -89,23 +90,28 @@ export async function stageDecisionRecords(options: {
     expectedPendingFiles = await repository.readPendingFiles({
       pathScopes: [decisionScope]
     });
-    const existingPending = pendingRevision === null
-      ? []
-      : await repository.listPendingChangedPaths({
-        from: pendingRevision,
-        pathScopes: [decisionScope]
-      });
-    if (existingPending.length > 0 || (
-      pendingRevision === null && expectedPendingFiles.length > 0
-    )) {
+    const existingPending =
+      pendingRevision === null
+        ? []
+        : await repository.listPendingChangedPaths({
+            from: pendingRevision,
+            pathScopes: [decisionScope]
+          });
+    if (
+      existingPending.length > 0 ||
+      (pendingRevision === null && expectedPendingFiles.length > 0)
+    ) {
       return decisionFailure([
-        "Decision pending snapshot already contains files in "
-          + decisionScope
-          + "; inspect or resolve it before staging another decision set."
+        "Decision pending snapshot already contains files in " +
+          decisionScope +
+          "; inspect or resolve it before staging another decision set."
       ]);
     }
   } catch (error) {
-    return versionControlFailure("inspect the pending decision snapshot", error);
+    return versionControlFailure(
+      "inspect the pending decision snapshot",
+      error
+    );
   }
 
   let target: DecisionStageTarget;
@@ -156,7 +162,8 @@ export async function stageDecisionRecords(options: {
     );
   } catch (error) {
     return decisionFailure([
-      "Selected decision filesystem source changed before staging: " + errorText(error)
+      "Selected decision filesystem source changed before staging: " +
+        errorText(error)
     ]);
   }
   let pendingFileCount: number;
@@ -169,7 +176,10 @@ export async function stageDecisionRecords(options: {
     });
     pendingFileCount = replaced.pendingPaths.length;
   } catch (error) {
-    return versionControlFailure("replace the pending decision snapshot", error);
+    return versionControlFailure(
+      "replace the pending decision snapshot",
+      error
+    );
   }
   return {
     command: "stage",
@@ -221,8 +231,8 @@ async function buildDecisionStageTarget(options: {
     for (const selectedSource of selectedSources) {
       if (selectedSource.source === null) {
         throw new DecisionStageInputError(
-          "Selected Decision ID does not exist in the filesystem: "
-            + selectedSource.decisionId
+          "Selected Decision ID does not exist in the filesystem: " +
+            selectedSource.decisionId
         );
       }
     }
@@ -230,19 +240,24 @@ async function buildDecisionStageTarget(options: {
       sourceById.set(source.source.decisionId, source);
     }
   } else {
-    selectedSources = await Promise.all(options.selectedIds.map(async (decisionId) => ({
-      decisionId,
-      source: await readFilesystemDecisionSource(
-        options.decisionsDirectory,
-        options.decisionScope,
-        decisionId
-      )
-    })));
+    selectedSources = await Promise.all(
+      options.selectedIds.map(async (decisionId) => ({
+        decisionId,
+        source: await readFilesystemDecisionSource(
+          options.decisionsDirectory,
+          options.decisionScope,
+          decisionId
+        )
+      }))
+    );
     for (const selectedSource of selectedSources) {
-      if (selectedSource.source === null && !sourceById.has(selectedSource.decisionId)) {
+      if (
+        selectedSource.source === null &&
+        !sourceById.has(selectedSource.decisionId)
+      ) {
         throw new DecisionStageInputError(
-          "Selected Decision ID does not exist in the revision or filesystem: "
-            + selectedSource.decisionId
+          "Selected Decision ID does not exist in the revision or filesystem: " +
+            selectedSource.decisionId
         );
       }
       if (selectedSource.source === null) {
@@ -252,8 +267,9 @@ async function buildDecisionStageTarget(options: {
       }
     }
   }
-  const sources = [...sourceById.values()]
-    .sort((left, right) => compareText(left.source.decisionId, right.source.decisionId));
+  const sources = [...sourceById.values()].sort((left, right) =>
+    compareText(left.source.decisionId, right.source.decisionId)
+  );
   return {
     revision: options.revision,
     selectedSources,
@@ -280,20 +296,31 @@ async function readDecisionBaseline(options: {
   }
   const sourcePaths: string[] = [];
   for (const repositoryFilePath of revisionPaths) {
-    const sourcePath = decisionRelativePath(options.decisionScope, repositoryFilePath);
+    const sourcePath = decisionRelativePath(
+      options.decisionScope,
+      repositoryFilePath
+    );
     if (sourcePath === decisionIndexFileName) {
       continue;
     }
     if (decisionIdFromSourcePath(sourcePath) === null) {
-      throw new Error("revision decision scope contains unsupported file: " + sourcePath);
+      throw new Error(
+        "revision decision scope contains unsupported file: " + sourcePath
+      );
     }
     sourcePaths.push(repositoryFilePath);
   }
-  const files = await readRevisionFiles(options.repository, options.revision, sourcePaths);
-  return files.map((file) => stageSourceFromFile(
-    file,
-    decisionRelativePath(options.decisionScope, file.path)
-  ));
+  const files = await readRevisionFiles(
+    options.repository,
+    options.revision,
+    sourcePaths
+  );
+  return files.map((file) =>
+    stageSourceFromFile(
+      file,
+      decisionRelativePath(options.decisionScope, file.path)
+    )
+  );
 }
 
 async function readFilesystemDecisionSources(
@@ -304,20 +331,33 @@ async function readFilesystemDecisionSources(
   const addSource = async (sourcePath: string): Promise<void> => {
     const decisionId = decisionIdFromSourcePath(sourcePath);
     if (decisionId === null) {
-      throw new Error("filesystem decision scope contains unsupported file: " + sourcePath);
+      throw new Error(
+        "filesystem decision scope contains unsupported file: " + sourcePath
+      );
     }
     if (sources.has(decisionId)) {
-      throw new Error("Decision ID occurs in more than one filesystem source path: " + decisionId);
+      throw new Error(
+        "Decision ID occurs in more than one filesystem source path: " +
+          decisionId
+      );
     }
     const data = await fs.readFile(
       path.join(decisionsDirectory, ...sourcePath.split("/"))
     );
-    sources.set(decisionId, stageSourceFromFile({
-      data,
-      path: repositoryPath(decisionScope, sourcePath)
-    }, sourcePath));
+    sources.set(
+      decisionId,
+      stageSourceFromFile(
+        {
+          data,
+          path: repositoryPath(decisionScope, sourcePath)
+        },
+        sourcePath
+      )
+    );
   };
-  const rootEntries = await fs.readdir(decisionsDirectory, { withFileTypes: true });
+  const rootEntries = await fs.readdir(decisionsDirectory, {
+    withFileTypes: true
+  });
   for (const entry of rootEntries) {
     if (entry.isFile() && entry.name.endsWith(".md")) {
       await addSource(entry.name);
@@ -328,12 +368,17 @@ async function readFilesystemDecisionSources(
       );
       for (const archivedEntry of archivedEntries) {
         if (!archivedEntry.isFile() || !archivedEntry.name.endsWith(".md")) {
-          throw new Error("filesystem archive contains unsupported entry: " + archivedEntry.name);
+          throw new Error(
+            "filesystem archive contains unsupported entry: " +
+              archivedEntry.name
+          );
         }
         await addSource("archive/" + archivedEntry.name);
       }
     } else if (entry.name !== decisionIndexFileName) {
-      throw new Error("filesystem decision scope contains unsupported entry: " + entry.name);
+      throw new Error(
+        "filesystem decision scope contains unsupported entry: " + entry.name
+      );
     }
   }
   return sources;
@@ -354,10 +399,12 @@ async function verifySelectedFilesystemSources(
       continue;
     }
     if (
-      selectedSource.source === null
-      || current === null
-      || selectedSource.source.source.sourcePath !== current.source.sourcePath
-      || !Buffer.from(selectedSource.source.file.data).equals(Buffer.from(current.file.data))
+      selectedSource.source === null ||
+      current === null ||
+      selectedSource.source.source.sourcePath !== current.source.sourcePath ||
+      !Buffer.from(selectedSource.source.file.data).equals(
+        Buffer.from(current.file.data)
+      )
     ) {
       throw new Error(selectedSource.decisionId);
     }
@@ -372,7 +419,10 @@ async function readFilesystemDecisionSource(
   const sourcePaths = [decisionId, "archive/" + decisionId];
   const sources: DecisionStageSource[] = [];
   for (const sourcePath of sourcePaths) {
-    const filesystemPath = path.join(decisionsDirectory, ...sourcePath.split("/"));
+    const filesystemPath = path.join(
+      decisionsDirectory,
+      ...sourcePath.split("/")
+    );
     let entry;
     try {
       entry = await fs.lstat(filesystemPath);
@@ -383,16 +433,26 @@ async function readFilesystemDecisionSource(
       throw error;
     }
     if (!entry.isFile() || entry.isSymbolicLink()) {
-      throw new Error("Decision source must be a regular non-symlink file: " + sourcePath);
+      throw new Error(
+        "Decision source must be a regular non-symlink file: " + sourcePath
+      );
     }
     const data = await fs.readFile(filesystemPath);
-    sources.push(stageSourceFromFile({
-      data,
-      path: repositoryPath(decisionScope, sourcePath)
-    }, sourcePath));
+    sources.push(
+      stageSourceFromFile(
+        {
+          data,
+          path: repositoryPath(decisionScope, sourcePath)
+        },
+        sourcePath
+      )
+    );
   }
   if (sources.length > 1) {
-    throw new Error("Decision ID occurs in more than one filesystem source path: " + decisionId);
+    throw new Error(
+      "Decision ID occurs in more than one filesystem source path: " +
+        decisionId
+    );
   }
   return sources[0] ?? null;
 }
@@ -427,13 +487,19 @@ async function readRevisionFiles(
     offset += revisionReadConcurrency
   ) {
     const batch = filePaths.slice(offset, offset + revisionReadConcurrency);
-    files.push(...await Promise.all(batch.map(async (filePath) => {
-      const file = await repository.readRevisionFile(revision, filePath);
-      if (file === null) {
-        throw new Error("revision file disappeared while reading: " + filePath);
-      }
-      return file;
-    })));
+    files.push(
+      ...(await Promise.all(
+        batch.map(async (filePath) => {
+          const file = await repository.readRevisionFile(revision, filePath);
+          if (file === null) {
+            throw new Error(
+              "revision file disappeared while reading: " + filePath
+            );
+          }
+          return file;
+        })
+      ))
+    );
   }
   return files.sort(compareVersionControlFiles);
 }
@@ -446,30 +512,37 @@ async function buildDecisionIndexText(
   if (establishedSources.length === 0) {
     throw new Error("selected source contains no established decision");
   }
-  const snapshot = await buildDecisionStateSnapshotFromSources(establishedSources);
+  const snapshot =
+    await buildDecisionStateSnapshotFromSources(establishedSources);
   const built = await buildDecisionIndexFromSnapshot(snapshot);
   if (built.status === "error") {
-    throw new Error(decisionIndexDiagnosticMessages(
-      built.diagnostics,
-      indexRelativePath
-    ).join("; "));
+    throw new Error(
+      decisionIndexDiagnosticMessages(
+        built.diagnostics,
+        indexRelativePath
+      ).join("; ")
+    );
   }
   const indexText = serializeDecisionIndex(built.value);
   const parsed = parseDecisionIndex(indexText, indexRelativePath);
   if (parsed.status === "error") {
-    throw new Error(decisionIndexDiagnosticMessages(
-      parsed.diagnostics,
-      indexRelativePath
-    ).join("; "));
+    throw new Error(
+      decisionIndexDiagnosticMessages(
+        parsed.diagnostics,
+        indexRelativePath
+      ).join("; ")
+    );
   }
   if (
-    !isDeepStrictEqual(parsed.value.sourceRevision, snapshot.sourceRevision)
-    || !sameIds(
+    !isDeepStrictEqual(parsed.value.sourceRevision, snapshot.sourceRevision) ||
+    !sameIds(
       Object.keys(parsed.value.entries),
       establishedSources.map((source) => source.decisionId)
     )
   ) {
-    throw new Error("generated index does not match the complete selected decision source");
+    throw new Error(
+      "generated index does not match the complete selected decision source"
+    );
   }
   return indexText;
 }
@@ -530,10 +603,10 @@ function decisionRepositoryScope(
 ): string | null {
   const relativePath = path.relative(repositoryRoot, decisionsDirectory);
   if (
-    relativePath.length === 0
-    || path.isAbsolute(relativePath)
-    || relativePath === ".."
-    || relativePath.startsWith(".." + path.sep)
+    relativePath.length === 0 ||
+    path.isAbsolute(relativePath) ||
+    relativePath === ".." ||
+    relativePath.startsWith(".." + path.sep)
   ) {
     return null;
   }
@@ -544,7 +617,10 @@ function repositoryPath(scope: string, relativePath: string): string {
   return path.posix.join(scope, relativePath);
 }
 
-function decisionRelativePath(scope: string, repositoryFilePath: string): string {
+function decisionRelativePath(
+  scope: string,
+  repositoryFilePath: string
+): string {
   const prefix = scope + "/";
   if (!repositoryFilePath.startsWith(prefix)) {
     throw new Error(
@@ -558,15 +634,19 @@ function decodeUtf8(data: Uint8Array, displayPath: string): string {
   try {
     return utf8Decoder.decode(data);
   } catch (error) {
-    throw new Error(`${displayPath} must contain valid UTF-8`, { cause: error });
+    throw new Error(`${displayPath} must contain valid UTF-8`, {
+      cause: error
+    });
   }
 }
 
 function sameIds(left: readonly string[], right: readonly string[]): boolean {
   const orderedLeft = [...left].sort(compareText);
   const orderedRight = [...right].sort(compareText);
-  return orderedLeft.length === orderedRight.length
-    && orderedLeft.every((entry, index) => entry === orderedRight[index]);
+  return (
+    orderedLeft.length === orderedRight.length &&
+    orderedLeft.every((entry, index) => entry === orderedRight[index])
+  );
 }
 
 function compareVersionControlFiles(
@@ -584,9 +664,7 @@ function versionControlFailure(
   action: string,
   error: unknown
 ): DecisionApplicationFailure {
-  return decisionFailure([
-    `Failed to ${action}: ${errorText(error)}`
-  ]);
+  return decisionFailure([`Failed to ${action}: ${errorText(error)}`]);
 }
 
 class DecisionStageInputError extends Error {}

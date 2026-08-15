@@ -23,10 +23,7 @@ export async function loadTestEvidenceTopicCatalog(
     testEvidenceCatalogPath,
     testEvidenceTopicCatalogFileName
   );
-  const absolutePath = path.join(
-    workspaceRoot,
-    ...relativePath.split("/")
-  );
+  const absolutePath = path.join(workspaceRoot, ...relativePath.split("/"));
 
   let stats: Awaited<ReturnType<typeof fs.lstat>>;
   try {
@@ -76,13 +73,15 @@ export async function loadTestEvidenceTopicCatalog(
   if (!parsed.success) {
     return {
       catalog: null,
-      diagnostics: parsed.issues.map((issue) => createDiagnostic({
-        category: "catalog",
-        code: "catalog.topics-schema-invalid",
-        message: `${relativePath} ${formatIssue(issue)}`,
-        path: relativePath,
-        severity: "error"
-      })),
+      diagnostics: parsed.issues.map((issue) =>
+        createDiagnostic({
+          category: "catalog",
+          code: "catalog.topics-schema-invalid",
+          message: `${relativePath} ${formatIssue(issue)}`,
+          path: relativePath,
+          severity: "error"
+        })
+      ),
       path: relativePath
     };
   }
@@ -112,13 +111,15 @@ function failedTopicCatalog(
 ): LoadedTestEvidenceTopicCatalog {
   return {
     catalog: null,
-    diagnostics: [createDiagnostic({
-      category: "catalog",
-      code,
-      message,
-      path: relativePath,
-      severity: "error"
-    })],
+    diagnostics: [
+      createDiagnostic({
+        category: "catalog",
+        code,
+        message,
+        path: relativePath,
+        severity: "error"
+      })
+    ],
     path: relativePath
   };
 }

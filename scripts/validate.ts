@@ -8,6 +8,7 @@ import { validateMarkdownLinks } from "../tools/shared/src/markdown/links.ts";
 import { validateSkillDirectory } from "../tools/skill-validator/src/validation.ts";
 import {
   validatePackageScripts,
+  validateOxcConfigurationFiles,
   validateRepositoryPermissionRules,
   validateRequiredProjectFiles,
   validateSkillPackageVersions
@@ -17,10 +18,18 @@ const reporter = new ValidationReporter();
 const discovery = await discoverSkillPackages(rootDir);
 reporter.addAll(discovery.errors);
 
-const allowedFrontmatterKeys = ["name", "description", "license", "compatibility", "metadata"];
+const allowedFrontmatterKeys = [
+  "name",
+  "description",
+  "license",
+  "compatibility",
+  "metadata"
+];
 let skillMarkdownFileCount = 0;
 for (const skill of discovery.skills) {
-  const result = await validateSkillDirectory(skill.directory, { allowedFrontmatterKeys });
+  const result = await validateSkillDirectory(skill.directory, {
+    allowedFrontmatterKeys
+  });
   skillMarkdownFileCount += result.markdownFileCount;
   for (const error of result.errors) {
     reporter.report(`skills/${skill.name}/${error}`);
@@ -32,6 +41,7 @@ await validateMarkdownLinks(mainMarkdownFiles, reporter.report, rootDir);
 
 await validatePackageScripts(reporter.report, rootDir);
 await validateRequiredProjectFiles(reporter.report, rootDir);
+await validateOxcConfigurationFiles(reporter.report, rootDir);
 await validateRepositoryPermissionRules(reporter.report, rootDir);
 await validateSkillPackageVersions(reporter.report, discovery.skills);
 
@@ -44,6 +54,6 @@ if (reporter.hasErrors()) {
 }
 
 console.log(
-  `Validation passed (${discovery.skills.length} skills, `
-  + `${mainMarkdownFiles.length + skillMarkdownFileCount} markdown files checked).`
+  `Validation passed (${discovery.skills.length} skills, ` +
+    `${mainMarkdownFiles.length + skillMarkdownFileCount} markdown files checked).`
 );

@@ -10,7 +10,7 @@ import {
   currentSourcePath,
   decisionFilePath,
   fileExists,
-  withFixtureWorkspace,
+  withFixtureWorkspace
 } from "./support.ts";
 
 test("transaction recovery restores source path target path and index after a post-write failure", () =>
@@ -18,13 +18,13 @@ test("transaction recovery restores source path target path and index after a po
     const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
     const targetPath = decisionFilePath(
       workspaceRoot,
-      `archive/${currentDecisionId}`,
+      `archive/${currentDecisionId}`
     );
     const indexPath = path.join(
       workspaceRoot,
       "docs",
       "decisions",
-      "decision-index.json",
+      "decision-index.json"
     );
     const sourceBefore = await fs.readFile(sourcePath, "utf8");
     const indexBefore = await fs.readFile(indexPath, "utf8");
@@ -40,7 +40,7 @@ test("transaction recovery restores source path target path and index after a po
           failedAfterIndexWrite = true;
           throw new Error("simulated index replacement failure");
         }
-      },
+      }
     });
     try {
       const errors = await applyDecisionChanges({
@@ -50,19 +50,19 @@ test("transaction recovery restores source path target path and index after a po
             expectedText: sourceBefore,
             nextText: sourceBefore.replace(
               "status: active",
-              "status: archived",
+              "status: archived"
             ),
-            targetPath,
-          },
+            targetPath
+          }
         ],
         originalScan: await scanDecisionRecords({ workspaceRoot }),
-        scanOptions: { workspaceRoot },
+        scanOptions: { workspaceRoot }
       });
       assert.equal(failedAfterIndexWrite, true);
       assert.ok(
         errors.some((error) =>
-          error.includes("simulated index replacement failure"),
-        ),
+          error.includes("simulated index replacement failure")
+        )
       );
     } finally {
       Object.defineProperty(fs, "rename", descriptor);
@@ -79,13 +79,13 @@ test("decision transaction restores every changed Markdown file and index after 
     const currentPath = decisionFilePath(workspaceRoot, currentSourcePath);
     const archivedPath = decisionFilePath(
       workspaceRoot,
-      `archive/${archivedDecisionId}`,
+      `archive/${archivedDecisionId}`
     );
     const indexPath = path.join(
       workspaceRoot,
       "docs",
       "decisions",
-      "decision-index.json",
+      "decision-index.json"
     );
     const currentBefore = await fs.readFile(currentPath, "utf8");
     const archivedBefore = await fs.readFile(archivedPath, "utf8");
@@ -102,7 +102,7 @@ test("decision transaction restores every changed Markdown file and index after 
           failed = true;
           throw new Error("simulated index failure after replacement");
         }
-      },
+      }
     });
     try {
       const errors = await applyDecisionChanges({
@@ -112,26 +112,26 @@ test("decision transaction restores every changed Markdown file and index after 
             expectedText: currentBefore,
             nextText: currentBefore.replace(
               "使用生成 CLI",
-              "使用生成命令行工具",
-            ),
+              "使用生成命令行工具"
+            )
           },
           {
             decisionPath: archivedPath,
             expectedText: archivedBefore,
             nextText: archivedBefore.replace(
               "使用源码 CLI",
-              "使用源码命令行工具",
-            ),
-          },
+              "使用源码命令行工具"
+            )
+          }
         ],
         originalScan: await scanDecisionRecords({ workspaceRoot }),
-        scanOptions: { workspaceRoot },
+        scanOptions: { workspaceRoot }
       });
       assert.equal(failed, true);
       assert.ok(
         errors.some((error) =>
-          error.includes("simulated index failure after replacement"),
-        ),
+          error.includes("simulated index failure after replacement")
+        )
       );
     } finally {
       Object.defineProperty(fs, "rename", descriptor);
@@ -148,13 +148,13 @@ test("decision transaction stops with recovery diagnostics when a restore write 
       const currentPath = decisionFilePath(workspaceRoot, currentSourcePath);
       const archivedPath = decisionFilePath(
         workspaceRoot,
-        `archive/${archivedDecisionId}`,
+        `archive/${archivedDecisionId}`
       );
       const indexPath = path.join(
         workspaceRoot,
         "docs",
         "decisions",
-        "decision-index.json",
+        "decision-index.json"
       );
       const currentBefore = await fs.readFile(currentPath, "utf8");
       const archivedBefore = await fs.readFile(archivedPath, "utf8");
@@ -180,7 +180,7 @@ test("decision transaction stops with recovery diagnostics when a restore write 
             throw new Error("simulated restore write failure");
           }
           await writeFile(file, data, encoding);
-        },
+        }
       });
       let errors: string[];
       try {
@@ -191,37 +191,37 @@ test("decision transaction stops with recovery diagnostics when a restore write 
               expectedText: currentBefore,
               nextText: currentBefore.replace(
                 "使用生成 CLI",
-                "使用生成命令行工具",
-              ),
+                "使用生成命令行工具"
+              )
             },
             {
               decisionPath: archivedPath,
               expectedText: archivedBefore,
-              nextText: archivedBefore,
-            },
+              nextText: archivedBefore
+            }
           ],
           originalScan: await scanDecisionRecords({ workspaceRoot }),
-          scanOptions: { workspaceRoot },
+          scanOptions: { workspaceRoot }
         });
       } finally {
         Object.defineProperty(fs, "writeFile", descriptor);
       }
       assert.ok(
         errors!.some((error) =>
-          error.includes("simulated transaction write failure"),
-        ),
+          error.includes("simulated transaction write failure")
+        )
       );
       assert.ok(
         errors!.some(
           (error) =>
             error.includes("Failed to restore decision body") &&
-            error.includes("simulated restore write failure"),
-        ),
+            error.includes("simulated restore write failure")
+        )
       );
       assert.notEqual(await fs.readFile(currentPath, "utf8"), currentBefore);
       assert.equal(await fs.readFile(archivedPath, "utf8"), archivedBefore);
       assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
-    },
+    }
   ));
 
 test("decision transaction rejects a changed Markdown source before any write", () =>
@@ -229,20 +229,20 @@ test("decision transaction rejects a changed Markdown source before any write", 
     const currentPath = decisionFilePath(workspaceRoot, currentSourcePath);
     const archivedPath = decisionFilePath(
       workspaceRoot,
-      `archive/${archivedDecisionId}`,
+      `archive/${archivedDecisionId}`
     );
     const indexPath = path.join(
       workspaceRoot,
       "docs",
       "decisions",
-      "decision-index.json",
+      "decision-index.json"
     );
     const currentBefore = await fs.readFile(currentPath, "utf8");
     const archivedBefore = await fs.readFile(archivedPath, "utf8");
     const indexBefore = await fs.readFile(indexPath, "utf8");
     const concurrent = currentBefore.replace(
       "使用生成 CLI",
-      "并发修改生成 CLI",
+      "并发修改生成 CLI"
     );
     const scan = await scanDecisionRecords({ workspaceRoot });
     await fs.writeFile(currentPath, concurrent, "utf8");
@@ -251,26 +251,23 @@ test("decision transaction rejects a changed Markdown source before any write", 
         {
           decisionPath: currentPath,
           expectedText: currentBefore,
-          nextText: currentBefore,
+          nextText: currentBefore
         },
         {
           decisionPath: archivedPath,
           expectedText: archivedBefore,
-          nextText: archivedBefore.replace(
-            "使用源码 CLI",
-            "使用源码命令行工具",
-          ),
-        },
+          nextText: archivedBefore.replace("使用源码 CLI", "使用源码命令行工具")
+        }
       ],
       originalScan: scan,
-      scanOptions: { workspaceRoot },
+      scanOptions: { workspaceRoot }
     });
     assert.ok(
       errors.some(
         (error) =>
           error.includes("changed after validation") &&
-          error.includes("re-run the command"),
-      ),
+          error.includes("re-run the command")
+      )
     );
     assert.equal(await fs.readFile(currentPath, "utf8"), concurrent);
     assert.equal(await fs.readFile(archivedPath, "utf8"), archivedBefore);
@@ -284,7 +281,7 @@ test("decision transaction rejects a changed index before any write", () =>
       workspaceRoot,
       "docs",
       "decisions",
-      "decision-index.json",
+      "decision-index.json"
     );
     const currentBefore = await fs.readFile(currentPath, "utf8");
     const indexBefore = await fs.readFile(indexPath, "utf8");
@@ -295,18 +292,18 @@ test("decision transaction rejects a changed index before any write", () =>
         {
           decisionPath: currentPath,
           expectedText: currentBefore,
-          nextText: currentBefore.replace("使用生成 CLI", "使用生成命令行工具"),
-        },
+          nextText: currentBefore.replace("使用生成 CLI", "使用生成命令行工具")
+        }
       ],
       originalScan: scan,
-      scanOptions: { workspaceRoot },
+      scanOptions: { workspaceRoot }
     });
     assert.ok(
       errors.some(
         (error) =>
           error.includes("decision-index.json") &&
-          error.includes("changed after validation"),
-      ),
+          error.includes("changed after validation")
+      )
     );
     assert.equal(await fs.readFile(currentPath, "utf8"), currentBefore);
     assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore + "\n");

@@ -13,9 +13,7 @@ import {
   validateInvestigationTopicPath
 } from "./report-path.ts";
 import { buildInvestigationTopicState } from "./report-validation.ts";
-import {
-  readInvestigationResources
-} from "./resources.ts";
+import { readInvestigationResources } from "./resources.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import {
   investigationResourceMetadata,
@@ -72,7 +70,9 @@ export async function inspectInvestigationCollectionLayout(
     }
     if (entry.name === investigationIndexFileName) {
       if (entry.isSymbolicLink()) {
-        errors.push(`${investigationIndexFileName} must not be a symbolic link`);
+        errors.push(
+          `${investigationIndexFileName} must not be a symbolic link`
+        );
       } else if (!entry.isFile()) {
         errors.push(`${investigationIndexFileName} must be a regular file`);
       }
@@ -83,9 +83,11 @@ export async function inspectInvestigationCollectionLayout(
       continue;
     }
     if (!entry.isDirectory()) {
-      errors.push(...entry.name.endsWith(".md")
-        ? validateInvestigationTopicPath(entry.name)
-        : [`${entry.name} is not allowed at the investigation root`]);
+      errors.push(
+        ...(entry.name.endsWith(".md")
+          ? validateInvestigationTopicPath(entry.name)
+          : [`${entry.name} is not allowed at the investigation root`])
+      );
       continue;
     }
     if (!isInvestigationCategory(entry.name)) {
@@ -158,10 +160,7 @@ export async function readInvestigationResourceMetadata(
 export async function readInvestigationStateSnapshot(
   investigationsDirectory: string,
   signal?: AbortSignal
-): Promise<StateSnapshot<
-  InvestigationIndexState,
-  InvestigationIndexMetadata
->> {
+): Promise<StateSnapshot<InvestigationIndexState, InvestigationIndexMetadata>> {
   const collection = await readInvestigationCollection(
     investigationsDirectory,
     signal
@@ -216,9 +215,7 @@ async function readInvestigationCollection(
     throw new Error(layout.errors.join("; "));
   }
   if (layout.topicPaths.length === 0) {
-    throw new Error(
-      "investigation collection must contain at least one topic"
-    );
+    throw new Error("investigation collection must contain at least one topic");
   }
   const [sources, resources] = await Promise.all([
     readInvestigationSources(
@@ -249,9 +246,14 @@ async function readInvestigationSources(
       offset,
       offset + investigationSourceReadConcurrency
     );
-    sources.push(...await Promise.all(batch.map(async (relativePath) => (
-      await readInvestigationSource(investigationsDirectory, relativePath)
-    ))));
+    sources.push(
+      ...(await Promise.all(
+        batch.map(
+          async (relativePath) =>
+            await readInvestigationSource(investigationsDirectory, relativePath)
+        )
+      ))
+    );
   }
   return sources;
 }
@@ -261,16 +263,23 @@ function validateInvestigationResourceCoverage(
   metadata: InvestigationIndexMetadata
 ): void {
   const available = new Set(metadata.resources.map((resource) => resource.id));
-  const referenced = new Set(states.flatMap((state) => (
-    state.resourceReferences.flatMap((reference) => reference.resourceIds)
-  )));
+  const referenced = new Set(
+    states.flatMap((state) =>
+      state.resourceReferences.flatMap((reference) => reference.resourceIds)
+    )
+  );
   const errors = [
     ...[...referenced]
       .filter((id) => !available.has(id))
-      .map((id) => `${investigationResourcesDirectoryName}/${id} does not exist`),
+      .map(
+        (id) => `${investigationResourcesDirectoryName}/${id} does not exist`
+      ),
     ...[...available]
       .filter((id) => !referenced.has(id))
-      .map((id) => `${investigationResourcesDirectoryName}/${id} is not referenced by any investigation report`)
+      .map(
+        (id) =>
+          `${investigationResourcesDirectoryName}/${id} is not referenced by any investigation report`
+      )
   ];
   if (errors.length > 0) {
     throw new Error(errors.sort(compareText).join("; "));

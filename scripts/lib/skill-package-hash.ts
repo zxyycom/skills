@@ -16,6 +16,12 @@ import {
   readSkillVersionFromMarkdown,
   skillEntryFileName
 } from "../../tools/skill-package/src/version.ts";
+import { format, type FormatConfig } from "oxfmt";
+import { loadOxfmtFormatConfig } from "./oxc-config.ts";
+import {
+  classifyPackageVersionChange,
+  isLinkedSourceMap
+} from "./skill-package-versioning.ts";
 
 export type SkillPackageHash = {
   aggregateHash: string;
@@ -42,6 +48,106 @@ export type SkillPackageSnapshot = {
   skills: SkillPackage[];
 };
 
+async function formatDeclarationForVersionGate(
+  filePath: string,
+  contents: Buffer,
+  formatConfig: FormatConfig
+): Promise<string> {
+  const result = await format(
+    filePath,
+    contents.toString("utf8"),
+    formatConfig
+  );
+  if (result.errors.length > 0) {
+    const messages = result.errors.map((error) => error.message).join("; ");
+    throw new Error(
+      `Could not canonicalize declaration ${filePath} for skill version validation: ${messages}`
+    );
+  }
+
+  return result.code;
+}
+
+async function haveVersionBearingSkillPackageChanges(
+  currentFiles: readonly SkillPackageFile[],
+  baselinePaths: readonly string[],
+  readBaselineFile: (filePath: string) => Promise<SkillPackageFile | undefined>,
+  workspaceRoot: string
+): Promise<boolean> {
+  const currentFilesByPath = new Map(
+    currentFiles.map((file) => [file.path, file])
+  );
+  const baselinePathsSet = new Set(baselinePaths);
+  const currentPaths = new Set(currentFiles.map((file) => file.path));
+  let formatConfig: Promise<FormatConfig> | undefined;
+
+  async function isLinkedSourceMapChange(filePath: string): Promise<boolean> {
+    return (
+      (await isLinkedSourceMap(filePath, async (bundlePath) =>
+        currentFilesByPath.get(bundlePath)
+      )) || (await isLinkedSourceMap(filePath, readBaselineFile))
+    );
+  }
+
+  for (const currentFile of currentFiles) {
+    const changeKind = classifyPackageVersionChange(currentFile.path);
+    if (changeKind === "linked-source-map-candidate") {
+      if (await isLinkedSourceMapChange(currentFile.path)) {
+        continue;
+      }
+      const baselineFile = baselinePathsSet.has(currentFile.path)
+        ? await readBaselineFile(currentFile.path)
+        : undefined;
+      if (
+        baselineFile === undefined ||
+        !currentFile.data.equals(baselineFile.data)
+      ) {
+        return true;
+      }
+      continue;
+    }
+
+    const baselineFile = baselinePathsSet.has(currentFile.path)
+      ? await readBaselineFile(currentFile.path)
+      : undefined;
+    if (baselineFile === undefined) {
+      return true;
+    }
+    if (currentFile.data.equals(baselineFile.data)) {
+      continue;
+    }
+    if (changeKind === "ordinary") {
+      return true;
+    }
+    formatConfig ??= loadOxfmtFormatConfig(workspaceRoot);
+    const loadedFormatConfig = await formatConfig;
+    if (
+      (await formatDeclarationForVersionGate(
+        currentFile.path,
+        currentFile.data,
+        loadedFormatConfig
+      )) !==
+      (await formatDeclarationForVersionGate(
+        baselineFile.path,
+        baselineFile.data,
+        loadedFormatConfig
+      ))
+    ) {
+      return true;
+    }
+  }
+
+  for (const baselinePath of baselinePaths) {
+    if (currentPaths.has(baselinePath)) {
+      continue;
+    }
+    if (!(await isLinkedSourceMapChange(baselinePath))) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function readSkillPackageVersion(
   skillName: string,
   files: readonly SkillPackageFile[]
@@ -63,10 +169,10 @@ function resolveRepositoryTreePath(
 ): string {
   const relativePath = path.relative(repositoryRoot, directory);
   if (
-    relativePath === ""
-    || relativePath === ".."
-    || relativePath.startsWith(`..${path.sep}`)
-    || path.isAbsolute(relativePath)
+    relativePath === "" ||
+    relativePath === ".." ||
+    relativePath.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relativePath)
   ) {
     throw new Error(
       `${directory} must be inside version-control repository ${repositoryRoot}`
@@ -167,16 +273,22 @@ export async function readPendingSkillPackageSnapshot(
     });
 
   if (skills.length === 0) {
-    errors.push(`No skill packages discovered under ${skillsRootName}/ directories`);
+    errors.push(
+      `No skill packages discovered under ${skillsRootName}/ directories`
+    );
   }
   if (errors.length > 0) {
-    throw new Error(`Pending skill package snapshot is invalid:\n- ${errors.join("\n- ")}`);
+    throw new Error(
+      `Pending skill package snapshot is invalid:\n- ${errors.join("\n- ")}`
+    );
   }
 
   return { filesBySkill, skills };
 }
 
-export async function collectSkillPackageFiles(skill: SkillPackage): Promise<SkillPackageFile[]> {
+export async function collectSkillPackageFiles(
+  skill: SkillPackage
+): Promise<SkillPackageFile[]> {
   return (await collectSkillPackageFileSets([skill])).get(skill.name) ?? [];
 }
 
@@ -279,22 +391,24 @@ export function getSkillPackageVersionIssues(
   currentPackage: SkillPackageHash,
   baseline: SkillPackageVersionBaseline
 ): string[] {
-  return Object.entries(baseline.skills).flatMap(([skillName, baselineVersion]) => {
-    const currentVersion = currentPackage.versions[skillName];
-    if (
-      baselineVersion === null
-      || currentVersion === undefined
-      || currentVersion > baselineVersion
-    ) {
-      return [];
-    }
+  return Object.entries(baseline.skills).flatMap(
+    ([skillName, baselineVersion]) => {
+      const currentVersion = currentPackage.versions[skillName];
+      if (
+        baselineVersion === null ||
+        currentVersion === undefined ||
+        currentVersion > baselineVersion
+      ) {
+        return [];
+      }
 
-    return [
-      `${skillName} package content changed at version ${currentVersion}; `
-      + `increase skills/${skillName}/${skillEntryFileName} `
-      + `metadata.version above ${baselineVersion}`
-    ];
-  });
+      return [
+        `${skillName} package content changed at version ${currentVersion}; ` +
+          `increase skills/${skillName}/${skillEntryFileName} ` +
+          `metadata.version above ${baselineVersion}`
+      ];
+    }
+  );
 }
 
 async function readCachedRevisionFile(
@@ -337,9 +451,10 @@ export async function readSkillPackageSnapshotVersionBaseline(
     trees.map((tree) => [tree.skillName, []])
   );
   for (const baselinePath of baselinePaths) {
-    const tree = treesByLongestPath.find((candidate) =>
-      baselinePath === candidate.treePath
-      || baselinePath.startsWith(`${candidate.treePath}/`)
+    const tree = treesByLongestPath.find(
+      (candidate) =>
+        baselinePath === candidate.treePath ||
+        baselinePath.startsWith(`${candidate.treePath}/`)
     );
     if (tree === undefined) {
       throw new Error(
@@ -347,9 +462,10 @@ export async function readSkillPackageSnapshotVersionBaseline(
       );
     }
 
-    const relativePath = baselinePath === tree.treePath
-      ? ""
-      : baselinePath.slice(`${tree.treePath}/`.length);
+    const relativePath =
+      baselinePath === tree.treePath
+        ? ""
+        : baselinePath.slice(`${tree.treePath}/`.length);
     baselinePathsBySkill.get(tree.skillName)?.push(relativePath);
   }
   for (const skillPaths of baselinePathsBySkill.values()) {
@@ -361,32 +477,40 @@ export async function readSkillPackageSnapshotVersionBaseline(
 
   for (const tree of trees) {
     const currentFiles = snapshot.filesBySkill.get(tree.skillName) ?? [];
-    const currentPaths = currentFiles.map((file) => file.path);
     const skillBaselinePaths = baselinePathsBySkill.get(tree.skillName) ?? [];
-    let changed = currentPaths.length !== skillBaselinePaths.length
-      || currentPaths.some((filePath, index) => filePath !== skillBaselinePaths[index]);
-
-    if (!changed) {
-      for (const currentFile of currentFiles) {
-        const baselinePath = `${tree.treePath}/${currentFile.path}`;
-        const baselineFile = await readCachedRevisionFile(
-          repository,
-          revision,
-          baselinePath,
-          revisionFileCache
-        );
-        if (baselineFile === null) {
-          throw new Error(
-            `Baseline revision ${revision} did not return listed file ${baselinePath}`
-          );
-        }
-        if (!currentFile.data.equals(Buffer.from(baselineFile.data))) {
-          changed = true;
-          break;
-        }
+    const baselinePathsSet = new Set(skillBaselinePaths);
+    async function readBaselineSkillFile(
+      skillBaselinePath: string
+    ): Promise<SkillPackageFile | undefined> {
+      if (!baselinePathsSet.has(skillBaselinePath)) {
+        return undefined;
       }
+      const baselinePath = `${tree.treePath}/${skillBaselinePath}`;
+      const baselineFile = await readCachedRevisionFile(
+        repository,
+        revision,
+        baselinePath,
+        revisionFileCache
+      );
+      if (baselineFile === null) {
+        throw new Error(
+          `Baseline revision ${revision} did not return listed file ${baselinePath}`
+        );
+      }
+      return {
+        data: Buffer.from(baselineFile.data),
+        path: skillBaselinePath
+      };
     }
-    if (!changed) {
+
+    if (
+      !(await haveVersionBearingSkillPackageChanges(
+        currentFiles,
+        skillBaselinePaths,
+        readBaselineSkillFile,
+        workspaceRoot
+      ))
+    ) {
       continue;
     }
 

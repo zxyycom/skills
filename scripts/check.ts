@@ -27,14 +27,14 @@ type CheckSkipReason = "failed preflight checks" | "full profile only";
 
 export type CheckReport =
   | {
-    result: ScriptResult;
-    status: "failed" | "passed";
-  }
+      result: ScriptResult;
+      status: "failed" | "passed";
+    }
   | {
-    reason: CheckSkipReason;
-    script: string;
-    status: "skipped";
-  };
+      reason: CheckSkipReason;
+      script: string;
+      status: "skipped";
+    };
 
 type CheckReportOutput = {
   details: string;
@@ -58,15 +58,15 @@ type CheckWorkflowOptions = {
 
 type CheckWorkflowResult =
   | {
-    exitCode: 0;
-    packageStatus: "passed";
-    status: "passed";
-  }
+      exitCode: 0;
+      packageStatus: "passed";
+      status: "passed";
+    }
   | {
-    exitCode: 1;
-    packageStatus: "failed" | "skipped";
-    status: "failed";
-  };
+      exitCode: 1;
+      packageStatus: "failed" | "skipped";
+      status: "failed";
+    };
 
 type PreflightResult = {
   hasFailures: boolean;
@@ -78,9 +78,7 @@ type ResolveConcurrencyOptions = {
   taskCount: number;
 };
 
-export function resolveConcurrency(
-  options: ResolveConcurrencyOptions
-): number {
+export function resolveConcurrency(options: ResolveConcurrencyOptions): number {
   const { availableParallelism, configured, taskCount } = options;
   if (configured === undefined) {
     return Math.min(defaultConcurrencyLimit, availableParallelism, taskCount);
@@ -115,15 +113,11 @@ export function resolveCheckOptions(argv: readonly string[]): CheckOptions {
 async function runWorkspaceScript(script: string): Promise<ScriptResult> {
   const startedAt = performance.now();
   try {
-    const child = spawn(
-      process.execPath,
-      ["run", "--silent", script],
-      {
-        cwd: rootDir,
-        stdio: ["ignore", "pipe", "pipe"],
-        windowsHide: true
-      }
-    );
+    const child = spawn(process.execPath, ["run", "--silent", script], {
+      cwd: rootDir,
+      stdio: ["ignore", "pipe", "pipe"],
+      windowsHide: true
+    });
     const capturedOutput: string[] = [];
     child.stdout.setEncoding("utf8");
     child.stderr.setEncoding("utf8");
@@ -185,12 +179,12 @@ export function formatCheckReport(
   }
 
   return {
-    details: report.status === "failed" || verbose
-      ? report.result.capturedOutput
-      : "",
+    details:
+      report.status === "failed" || verbose ? report.result.capturedOutput : "",
     script: report.result.script,
-    summary: `  ${report.status}: ${report.result.script} `
-      + `(${formatDuration(report.result.durationMilliseconds)})`
+    summary:
+      `  ${report.status}: ${report.result.script} ` +
+      `(${formatDuration(report.result.durationMilliseconds)})`
   };
 }
 
@@ -254,9 +248,8 @@ export async function runPreflightTasks(
   }
 
   await Promise.all(
-    Array.from(
-      { length: Math.min(concurrency, tasks.length) },
-      () => runWorker()
+    Array.from({ length: Math.min(concurrency, tasks.length) }, () =>
+      runWorker()
     )
   );
   return { hasFailures };
@@ -342,12 +335,14 @@ async function main(): Promise<number> {
       },
       runScript: runWorkspaceScript
     });
-    console.log(`\n${formatCheckSummary(
-      options.profile,
-      result,
-      reports,
-      performance.now() - startedAt
-    )}`);
+    console.log(
+      `\n${formatCheckSummary(
+        options.profile,
+        result,
+        reports,
+        performance.now() - startedAt
+      )}`
+    );
     return result.exitCode;
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));

@@ -17,20 +17,22 @@ import {
 } from "./helpers.ts";
 
 test("strict schema rejects unknown fields, illegal state unions, and duplicate leases", () => {
-  const base = graphIndex([
-    taskOperation("first"),
-    taskOperation("second")
-  ]);
+  const base = graphIndex([taskOperation("first"), taskOperation("second")]);
 
-  const unknownRoot = structuredClone(base) as unknown as Record<string, unknown>;
+  const unknownRoot = structuredClone(base) as unknown as Record<
+    string,
+    unknown
+  >;
   unknownRoot.extra = true;
   expectTaskGraphError(() => parseTaskIndex(unknownRoot), "INDEX_INVALID");
 
   const illegalControl = structuredClone(base);
-  (illegalControl.tasks["task-000001"]!.state.control as {
-    mode: string;
-    reason: string | null;
-  }).reason = "candidate cannot carry a reason";
+  (
+    illegalControl.tasks["task-000001"]!.state.control as {
+      mode: string;
+      reason: string | null;
+    }
+  ).reason = "candidate cannot carry a reason";
   expectTaskGraphError(() => parseTaskIndex(illegalControl), "INDEX_INVALID");
 
   const duplicateLeases = structuredClone(base);
@@ -50,28 +52,35 @@ test("strict schema rejects unknown fields, illegal state unions, and duplicate 
   expectTaskGraphError(() => parseTaskIndex(duplicateLeases), "INDEX_INVALID");
 
   const reservedReference = structuredClone(base);
-  reservedReference.tasks["task-000001"]!.content.references = Object.fromEntries([
-    ["constructor", "reserved"]
-  ]);
-  expectTaskGraphError(() => parseTaskIndex(reservedReference), "INDEX_INVALID");
+  reservedReference.tasks["task-000001"]!.content.references =
+    Object.fromEntries([["constructor", "reserved"]]);
+  expectTaskGraphError(
+    () => parseTaskIndex(reservedReference),
+    "INDEX_INVALID"
+  );
 
-  expectTaskGraphError(() => parseTaskGraphApplyRequest({
-    expectedRevision: 0,
-    operations: [{ kind: "create-task", content: taskContent("strict"), extra: true }]
-  }), "REQUEST_INVALID");
+  expectTaskGraphError(
+    () =>
+      parseTaskGraphApplyRequest({
+        expectedRevision: 0,
+        operations: [
+          { kind: "create-task", content: taskContent("strict"), extra: true }
+        ]
+      }),
+    "REQUEST_INVALID"
+  );
 });
 
 test("canonical serialization keeps root task identity, sorting, LF, and round trip", () => {
-  let index = graphIndex([
-    taskOperation("left"),
-    taskOperation("right")
+  let index = graphIndex([taskOperation("left"), taskOperation("right")]);
+  index = applyOperations(index, [
+    {
+      kind: "set-exclusion",
+      taskId: "task-000001",
+      excludedTaskId: "task-000002",
+      present: true
+    }
   ]);
-  index = applyOperations(index, [{
-    kind: "set-exclusion",
-    taskId: "task-000001",
-    excludedTaskId: "task-000002",
-    present: true
-  }]);
   index.tasks["task-000001"]!.content.references = {
     zebra: "last",
     alpha: "first"
@@ -91,25 +100,35 @@ test("canonical serialization keeps root task identity, sorting, LF, and round t
 test("nextTaskId stays monotonic beyond six digits and failed apply consumes nothing", () => {
   const extended = emptyTaskIndex();
   extended.nextTaskId = 1_000_000;
-  const allocated = applyOperations(extended, [{
-    kind: "create-task",
-    content: taskContent("large task")
-  }]);
+  const allocated = applyOperations(extended, [
+    {
+      kind: "create-task",
+      content: taskContent("large task")
+    }
+  ]);
   assert.ok(allocated.tasks["task-1000000"]);
   assert.equal(allocated.nextTaskId, 1_000_001);
 
   const beforeFailure = structuredClone(allocated);
-  expectTaskGraphError(() => applyTaskGraphOperations(allocated, {
-    expectedRevision: allocated.revision,
-    operations: [
-      { kind: "create-task", content: taskContent("rolled back") },
-      {
-        kind: "update-task-control",
-        taskId: "task-999999",
-        control: { mode: "queued" }
-      }
-    ]
-  }, initialNow), "TASK_NOT_FOUND");
+  expectTaskGraphError(
+    () =>
+      applyTaskGraphOperations(
+        allocated,
+        {
+          expectedRevision: allocated.revision,
+          operations: [
+            { kind: "create-task", content: taskContent("rolled back") },
+            {
+              kind: "update-task-control",
+              taskId: "task-999999",
+              control: { mode: "queued" }
+            }
+          ]
+        },
+        initialNow
+      ),
+    "TASK_NOT_FOUND"
+  );
   assert.deepEqual(allocated, beforeFailure);
 
   const invalidCounter = structuredClone(allocated);
@@ -118,12 +137,16 @@ test("nextTaskId stays monotonic beyond six digits and failed apply consumes not
 });
 
 test("scope-shaped schema v1 is unsupported without a compatibility path", () => {
-  expectTaskGraphError(() => parseTaskIndex({
-    schemaVersion: 1,
-    revision: 0,
-    nextIds: { scope: 1, task: 1 },
-    scopes: {}
-  }), "SCHEMA_UNSUPPORTED");
+  expectTaskGraphError(
+    () =>
+      parseTaskIndex({
+        schemaVersion: 1,
+        revision: 0,
+        nextIds: { scope: 1, task: 1 },
+        scopes: {}
+      }),
+    "SCHEMA_UNSUPPORTED"
+  );
 });
 
 test("task creation applies safe top-level and child defaults", () => {

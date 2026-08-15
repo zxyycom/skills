@@ -32,10 +32,7 @@ import type {
 } from "./types.ts";
 
 type TestEvidenceReader = Pick<
-  StateIndexReader<
-    TestEvidenceCaseIndexState,
-    TestEvidenceIndexMetadata
-  >,
+  StateIndexReader<TestEvidenceCaseIndexState, TestEvidenceIndexMetadata>,
   "get" | "metadata" | "query"
 >;
 
@@ -61,15 +58,21 @@ export async function queryTestEvidence(
   options: QueryTestEvidenceOptions
 ): Promise<TestEvidenceQueryResult> {
   if (options.query !== undefined && options.query.trim().length === 0) {
-    return createQueryFailureResult([createDiagnostic({
-      category: "index",
-      code: "query.text-invalid",
-      message: "query text must contain at least one non-whitespace character",
-      severity: "error"
-    })], {
-      limit: options.limit,
-      offset: options.offset
-    });
+    return createQueryFailureResult(
+      [
+        createDiagnostic({
+          category: "index",
+          code: "query.text-invalid",
+          message:
+            "query text must contain at least one non-whitespace character",
+          severity: "error"
+        })
+      ],
+      {
+        limit: options.limit,
+        offset: options.offset
+      }
+    );
   }
   const opened = await openTestEvidenceIndex(options);
   if (opened.status === "error") {
@@ -79,24 +82,25 @@ export async function queryTestEvidence(
     });
   }
   if (
-    options.topic !== undefined
-    && !opened.reader.metadata.topics.some(
-      (topic) => topic.id === options.topic
-    )
+    options.topic !== undefined &&
+    !opened.reader.metadata.topics.some((topic) => topic.id === options.topic)
   ) {
-    return createQueryFailureResult([
-      ...opened.diagnostics,
-      createDiagnostic({
-        category: "catalog",
-        code: "query.topic-unknown",
-        message: `Unknown test evidence topic: ${options.topic}`,
-        severity: "error"
-      })
-    ], {
-      limit: options.limit,
-      offset: options.offset,
-      topics: opened.reader.metadata.topics
-    });
+    return createQueryFailureResult(
+      [
+        ...opened.diagnostics,
+        createDiagnostic({
+          category: "catalog",
+          code: "query.topic-unknown",
+          message: `Unknown test evidence topic: ${options.topic}`,
+          severity: "error"
+        })
+      ],
+      {
+        limit: options.limit,
+        offset: options.offset,
+        topics: opened.reader.metadata.topics
+      }
+    );
   }
 
   const queried = opened.reader.query({
@@ -106,17 +110,17 @@ export async function queryTestEvidence(
     sort: [{ direction: "asc", key: "id" }]
   });
   if (queried.status === "error") {
-    return createQueryFailureResult([
-      ...opened.diagnostics,
-      ...mapStateIndexDiagnostics(
-        queried.diagnostics,
-        testEvidenceIndexPath
-      )
-    ], {
-      limit: options.limit,
-      offset: options.offset,
-      topics: opened.reader.metadata.topics
-    });
+    return createQueryFailureResult(
+      [
+        ...opened.diagnostics,
+        ...mapStateIndexDiagnostics(queried.diagnostics, testEvidenceIndexPath)
+      ],
+      {
+        limit: options.limit,
+        offset: options.offset,
+        topics: opened.reader.metadata.topics
+      }
+    );
   }
 
   return {
@@ -153,10 +157,7 @@ export async function getTestEvidenceCaseState(options: {
       catalogPath: testEvidenceCatalogPath,
       diagnostics: [
         ...opened.diagnostics,
-        ...mapStateIndexDiagnostics(
-          found.diagnostics,
-          testEvidenceIndexPath
-        )
+        ...mapStateIndexDiagnostics(found.diagnostics, testEvidenceIndexPath)
       ],
       indexPath: testEvidenceIndexPath,
       topic: null
@@ -196,16 +197,16 @@ async function openTestEvidenceIndex(options: {
   workspaceRoot: string;
 }): Promise<
   | {
-    catalogPath: string;
-    diagnostics: TestEvidenceDiagnostic[];
-    indexPath: string;
-    status: "error";
-  }
+      catalogPath: string;
+      diagnostics: TestEvidenceDiagnostic[];
+      indexPath: string;
+      status: "error";
+    }
   | {
-    diagnostics: TestEvidenceDiagnostic[];
-    reader: TestEvidenceReader;
-    status: "ok";
-  }
+      diagnostics: TestEvidenceDiagnostic[];
+      reader: TestEvidenceReader;
+      status: "ok";
+    }
 > {
   const workspaceRoot = path.resolve(options.workspaceRoot);
   const definition = createTestEvidenceStateIndexDefinition();
@@ -217,8 +218,8 @@ async function openTestEvidenceIndex(options: {
   const opened = await runtime.open();
   if (opened.status === "error") {
     if (
-      opened.diagnostics.length === 0
-      || !opened.diagnostics.every((entry) => indexCanBeRebuilt(entry.code))
+      opened.diagnostics.length === 0 ||
+      !opened.diagnostics.every((entry) => indexCanBeRebuilt(entry.code))
     ) {
       return {
         catalogPath: testEvidenceCatalogPath,
@@ -274,20 +275,24 @@ function mapIndexFallbackDiagnostics(
   catalogPath: string,
   indexPath: string
 ): TestEvidenceDiagnostic[] {
-  return diagnostics.map((entry) => createDiagnostic({
-    caseId: entry.stateId ?? undefined,
-    category: "index",
-    code: entry.code,
-    message: `${entry.message}. Used current ${catalogPath} in memory for this `
-      + `read-only query; run sync-index --write to refresh ${indexPath}`,
-    path: entry.path ?? indexPath,
-    severity: "warning"
-  }));
+  return diagnostics.map((entry) =>
+    createDiagnostic({
+      caseId: entry.stateId ?? undefined,
+      category: "index",
+      code: entry.code,
+      message:
+        `${entry.message}. Used current ${catalogPath} in memory for this ` +
+        `read-only query; run sync-index --write to refresh ${indexPath}`,
+      path: entry.path ?? indexPath,
+      severity: "warning"
+    })
+  );
 }
 
-function publicCaseState(
-  { id, state }: StateIndexEntry<TestEvidenceCaseIndexState>
-): TestEvidenceCaseState {
+function publicCaseState({
+  id,
+  state
+}: StateIndexEntry<TestEvidenceCaseIndexState>): TestEvidenceCaseState {
   return {
     endLine: state.endLine,
     entries: [...state.entries],
@@ -321,10 +326,10 @@ export function createQueryFailureResult(
 }
 
 function validFailureLimit(value: number | undefined): number {
-  return value !== undefined
-    && Number.isSafeInteger(value)
-    && value >= 1
-    && value <= stateIndexQueryMaximumLimit
+  return value !== undefined &&
+    Number.isSafeInteger(value) &&
+    value >= 1 &&
+    value <= stateIndexQueryMaximumLimit
     ? value
     : testEvidenceQueryDefaultLimit;
 }
@@ -335,9 +340,7 @@ function validFailureOffset(value: number | undefined): number {
     : 0;
 }
 
-function queryFilters(
-  options: QueryTestEvidenceOptions
-): StateIndexFilter[] {
+function queryFilters(options: QueryTestEvidenceOptions): StateIndexFilter[] {
   const filters: StateIndexFilter[] = [];
   if (options.query !== undefined) {
     filters.push({
@@ -363,13 +366,14 @@ function topicDefinition(
   topics: readonly TestEvidenceTopicDefinition[]
 ): TestEvidenceTopicDefinition {
   const topicId = testEvidenceTopicIdFromSourcePath(sourcePath);
-  const topic = topicId === null
-    ? undefined
-    : topics.find((candidate) => candidate.id === topicId);
+  const topic =
+    topicId === null
+      ? undefined
+      : topics.find((candidate) => candidate.id === topicId);
   if (topic === undefined) {
-    throw new TypeError(`Indexed sourcePath has no topic definition: ${
-      sourcePath
-    }`);
+    throw new TypeError(
+      `Indexed sourcePath has no topic definition: ${sourcePath}`
+    );
   }
   return { id: topic.id, description: topic.description };
 }

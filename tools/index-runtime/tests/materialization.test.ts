@@ -26,7 +26,9 @@ import {
 async function withTempRoot(
   run: (tempRoot: string) => Promise<void>
 ): Promise<void> {
-  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "state-index-store-"));
+  const tempRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), "state-index-store-")
+  );
   try {
     await run(tempRoot);
   } finally {
@@ -45,9 +47,11 @@ async function createDecisionFixture() {
 test("serializes deterministic indexes independent of source order", async () => {
   await withTempRoot(async (tempRoot) => {
     const { definition, source } = await createDecisionFixture();
-    const firstIndex = resultValue(await buildStateIndex(definition, {
-      root: tempRoot
-    }));
+    const firstIndex = resultValue(
+      await buildStateIndex(definition, {
+        root: tempRoot
+      })
+    );
     assert.deepEqual(firstIndex.keyDefinitions, keyDefinitionsOf(definition));
     const firstText = serializeStateIndex(firstIndex, definition);
 
@@ -108,14 +112,14 @@ test("preserves definition field and key order through serialization", async () 
         calls.parses += 1;
         const summary = input.summary;
         if (
-          typeof input.path !== "string"
-          || typeof input.title !== "string"
-          || typeof input.status !== "string"
-          || summary === null
-          || typeof summary !== "object"
-          || Array.isArray(summary)
-          || typeof summary.purpose !== "string"
-          || typeof summary.background !== "string"
+          typeof input.path !== "string" ||
+          typeof input.title !== "string" ||
+          typeof input.status !== "string" ||
+          summary === null ||
+          typeof summary !== "object" ||
+          Array.isArray(summary) ||
+          typeof summary.purpose !== "string" ||
+          typeof summary.background !== "string"
         ) {
           throw new TypeError("invalid semantic state");
         }
@@ -167,16 +171,21 @@ test("preserves definition field and key order through serialization", async () 
         calls.validations += 1;
       }
     });
-    const index = resultValue(await buildStateIndex(definition, {
-      root: tempRoot
-    }));
+    const index = resultValue(
+      await buildStateIndex(definition, {
+        root: tempRoot
+      })
+    );
     assert.deepEqual(index.keyDefinitions, keyDefinitionsOf(definition));
     const text = serializeStateIndex(index, definition);
     const value = JSON.parse(text) as {
-      entries: Record<string, {
-        keys: Record<string, unknown>;
-        state: { summary: Record<string, unknown> };
-      }>;
+      entries: Record<
+        string,
+        {
+          keys: Record<string, unknown>;
+          state: { summary: Record<string, unknown> };
+        }
+      >;
       keyDefinitions: Array<Record<string, unknown>>;
     };
     assert.deepEqual(Object.keys(value), [
@@ -190,13 +199,16 @@ test("preserves definition field and key order through serialization", async () 
     ]);
     assert.deepEqual(
       value.keyDefinitions.map((entry) => Object.values(entry)),
-      [["topic", "exact"], ["status", "exact"]]
+      [
+        ["topic", "exact"],
+        ["status", "exact"]
+      ]
     );
-    assert.deepEqual(
-      Object.keys(value.entries),
-      ["topic/a.md", "topic/z.md"]
-    );
-    assert.deepEqual(Object.keys(value.entries["topic/a.md"]!.keys), ["topic", "status"]);
+    assert.deepEqual(Object.keys(value.entries), ["topic/a.md", "topic/z.md"]);
+    assert.deepEqual(Object.keys(value.entries["topic/a.md"]!.keys), [
+      "topic",
+      "status"
+    ]);
     assert.deepEqual(Object.keys(value.entries["topic/a.md"]!.state), [
       "path",
       "title",
@@ -216,11 +228,13 @@ test("preserves definition field and key order through serialization", async () 
     calls.parses = 0;
     calls.revisionReads = 0;
     calls.validations = 0;
-    const current = resultValue(await loadCurrentStateIndex({
-      context: { root: tempRoot },
-      definition,
-      indexPath
-    }));
+    const current = resultValue(
+      await loadCurrentStateIndex({
+        context: { root: tempRoot },
+        definition,
+        indexPath
+      })
+    );
     assert.deepEqual(current.keyDefinitions, keyDefinitionsOf(definition));
     assert.deepEqual(Object.keys(current.entries["topic/a.md"]!.state), [
       "path",
@@ -228,10 +242,10 @@ test("preserves definition field and key order through serialization", async () 
       "status",
       "summary"
     ]);
-    assert.deepEqual(Object.keys(current.entries["topic/a.md"]!.state.summary), [
-      "purpose",
-      "background"
-    ]);
+    assert.deepEqual(
+      Object.keys(current.entries["topic/a.md"]!.state.summary),
+      ["purpose", "background"]
+    );
     assert.deepEqual(calls, {
       derives: 0,
       metadataParses: 0,
@@ -291,9 +305,11 @@ test("preserves definition field and key order through serialization", async () 
       text: JSON.stringify(reordered)
     });
     assert.equal(rejected.status, "error");
-    assert.ok(rejected.diagnostics.some((entry) => (
-      entry.code === "state-index.definition-mismatch"
-    )));
+    assert.ok(
+      rejected.diagnostics.some(
+        (entry) => entry.code === "state-index.definition-mismatch"
+      )
+    );
   });
 });
 
@@ -304,11 +320,14 @@ test("rejects persisted indexes from another namespace", async () => {
       resultValue(await buildStateIndex(definition, { root: tempRoot })),
       definition
     );
-    assert.equal(parseStateIndex({
-      expectation: { definitionVersion: 1, namespace: "decisions" },
-      sourcePath: "indexes/decisions.json",
-      text
-    }).status, "ok");
+    assert.equal(
+      parseStateIndex({
+        expectation: { definitionVersion: 1, namespace: "decisions" },
+        sourcePath: "indexes/decisions.json",
+        text
+      }).status,
+      "ok"
+    );
 
     const mismatched = parseStateIndex({
       expectation: { definitionVersion: 1, namespace: "investigations" },
@@ -316,9 +335,11 @@ test("rejects persisted indexes from another namespace", async () => {
       text
     });
     assert.equal(mismatched.status, "error");
-    assert.ok(mismatched.diagnostics.some((entry) => (
-      entry.code === "state-index.namespace-mismatch"
-    )));
+    assert.ok(
+      mismatched.diagnostics.some(
+        (entry) => entry.code === "state-index.namespace-mismatch"
+      )
+    );
   });
 });
 
@@ -335,8 +356,10 @@ test("rejects invalid sync modes without writing an index", async () => {
     assert.equal(result.state, "mode-invalid");
     assert.equal(result.mode, null);
     assert.equal(
-      await fs.access(path.join(tempRoot, ...indexPath.split("/")))
-        .then(() => true, () => false),
+      await fs.access(path.join(tempRoot, ...indexPath.split("/"))).then(
+        () => true,
+        () => false
+      ),
       false
     );
   });
@@ -358,9 +381,11 @@ test("rejects a source revision that changes during synchronization", async () =
       mode: "write"
     });
     assert.equal(result.state, "source-invalid");
-    assert.ok(result.diagnostics.some((entry) => (
-      entry.code === "state-index.source-changed"
-    )));
+    assert.ok(
+      result.diagnostics.some(
+        (entry) => entry.code === "state-index.source-changed"
+      )
+    );
   });
 });
 
@@ -368,24 +393,39 @@ test("checks, writes, and reloads current indexes across line endings", async ()
   await withTempRoot(async (tempRoot) => {
     const { definition, source } = await createDecisionFixture();
     const indexPath = "indexes/decisions.json";
-    assert.equal((await syncStateIndex({
-      context: { root: tempRoot },
-      definition,
-      indexPath,
-      mode: "check"
-    })).state, "index-missing");
-    assert.equal((await syncStateIndex({
-      context: { root: tempRoot },
-      definition,
-      indexPath,
-      mode: "write"
-    })).state, "written");
-    assert.equal((await syncStateIndex({
-      context: { root: tempRoot },
-      definition,
-      indexPath,
-      mode: "check"
-    })).state, "current");
+    assert.equal(
+      (
+        await syncStateIndex({
+          context: { root: tempRoot },
+          definition,
+          indexPath,
+          mode: "check"
+        })
+      ).state,
+      "index-missing"
+    );
+    assert.equal(
+      (
+        await syncStateIndex({
+          context: { root: tempRoot },
+          definition,
+          indexPath,
+          mode: "write"
+        })
+      ).state,
+      "written"
+    );
+    assert.equal(
+      (
+        await syncStateIndex({
+          context: { root: tempRoot },
+          definition,
+          indexPath,
+          mode: "check"
+        })
+      ).state,
+      "current"
+    );
 
     const resolvedIndexPath = path.join(tempRoot, ...indexPath.split("/"));
     await fs.writeFile(
@@ -393,12 +433,17 @@ test("checks, writes, and reloads current indexes across line endings", async ()
       (await fs.readFile(resolvedIndexPath, "utf8")).replace(/\n/g, "\r\n"),
       "utf8"
     );
-    assert.equal((await syncStateIndex({
-      context: { root: tempRoot },
-      definition,
-      indexPath,
-      mode: "check"
-    })).state, "current");
+    assert.equal(
+      (
+        await syncStateIndex({
+          context: { root: tempRoot },
+          definition,
+          indexPath,
+          mode: "check"
+        })
+      ).state,
+      "current"
+    );
 
     const loaded = await loadStateIndex({
       context: { root: tempRoot },
@@ -406,12 +451,20 @@ test("checks, writes, and reloads current indexes across line endings", async ()
       expectation: { definitionVersion: 1, namespace: "decisions" },
       indexPath
     });
-    assert.equal(Object.keys(resultValue(loaded).entries).length, source.states.length);
-    assert.equal((await loadCurrentStateIndex({
-      context: { root: tempRoot },
-      definition,
-      indexPath
-    })).status, "ok");
+    assert.equal(
+      Object.keys(resultValue(loaded).entries).length,
+      source.states.length
+    );
+    assert.equal(
+      (
+        await loadCurrentStateIndex({
+          context: { root: tempRoot },
+          definition,
+          indexPath
+        })
+      ).status,
+      "ok"
+    );
   });
 });
 
@@ -424,12 +477,17 @@ test("sync checks reject invalid UTF-8 indexes and writes repair them", async ()
     };
     const indexPath = "indexes/invalid-utf8.json";
     const resolvedIndexPath = path.join(tempRoot, ...indexPath.split("/"));
-    assert.equal((await syncStateIndex({
-      context: { root: tempRoot },
-      definition,
-      indexPath,
-      mode: "write"
-    })).state, "written");
+    assert.equal(
+      (
+        await syncStateIndex({
+          context: { root: tempRoot },
+          definition,
+          indexPath,
+          mode: "write"
+        })
+      ).state,
+      "written"
+    );
 
     const expected = await fs.readFile(resolvedIndexPath);
     const validSequence = Buffer.from([0xef, 0xbf, 0xbd, 0x28]);
@@ -451,9 +509,11 @@ test("sync checks reject invalid UTF-8 indexes and writes repair them", async ()
     });
     assert.equal(checked.status, "error");
     assert.equal(checked.state, "index-invalid");
-    assert.ok(checked.diagnostics.some(
-      (entry) => entry.code === "state-index.index-encoding-invalid"
-    ));
+    assert.ok(
+      checked.diagnostics.some(
+        (entry) => entry.code === "state-index.index-encoding-invalid"
+      )
+    );
 
     const repaired = await syncStateIndex({
       context: { root: tempRoot },
@@ -465,12 +525,17 @@ test("sync checks reject invalid UTF-8 indexes and writes repair them", async ()
     assert.equal(repaired.state, "written");
     assert.equal(repaired.changed, true);
     assert.deepEqual(await fs.readFile(resolvedIndexPath), expected);
-    assert.equal((await syncStateIndex({
-      context: { root: tempRoot },
-      definition,
-      indexPath,
-      mode: "check"
-    })).state, "current");
+    assert.equal(
+      (
+        await syncStateIndex({
+          context: { root: tempRoot },
+          definition,
+          indexPath,
+          mode: "check"
+        })
+      ).state,
+      "current"
+    );
   });
 });
 
@@ -488,18 +553,20 @@ test("rejects persisted indexes with changed key definitions", async () => {
       context: { root: tempRoot },
       definition: {
         ...definition,
-        keyStrategies: definition.keyStrategies.map((strategy) => (
+        keyStrategies: definition.keyStrategies.map((strategy) =>
           strategy.name === "status"
             ? { ...strategy, name: "lifecycle" }
             : strategy
-        ))
+        )
       },
       indexPath
     });
     assert.equal(result.status, "error");
-    assert.ok(result.diagnostics.some((entry) => (
-      entry.code === "state-index.definition-mismatch"
-    )));
+    assert.ok(
+      result.diagnostics.some(
+        (entry) => entry.code === "state-index.definition-mismatch"
+      )
+    );
   });
 });
 
@@ -525,26 +592,40 @@ test("detects stale sources and refreshes changed or removed states", async () =
       indexPath
     });
     assert.equal(staleLoad.status, "error");
-    assert.ok(staleLoad.diagnostics.some((entry) => (
-      entry.code === "state-index.index-stale"
-    )));
-    assert.equal((await syncStateIndex({
-      context: { root: tempRoot },
-      definition,
-      indexPath,
-      mode: "check"
-    })).state, "index-stale");
-    assert.equal((await syncStateIndex({
-      context: { root: tempRoot },
-      definition,
-      indexPath,
-      mode: "write"
-    })).state, "written");
-    const refreshed = resultValue(await loadCurrentStateIndex({
-      context: { root: tempRoot },
-      definition,
-      indexPath
-    }));
+    assert.ok(
+      staleLoad.diagnostics.some(
+        (entry) => entry.code === "state-index.index-stale"
+      )
+    );
+    assert.equal(
+      (
+        await syncStateIndex({
+          context: { root: tempRoot },
+          definition,
+          indexPath,
+          mode: "check"
+        })
+      ).state,
+      "index-stale"
+    );
+    assert.equal(
+      (
+        await syncStateIndex({
+          context: { root: tempRoot },
+          definition,
+          indexPath,
+          mode: "write"
+        })
+      ).state,
+      "written"
+    );
+    const refreshed = resultValue(
+      await loadCurrentStateIndex({
+        context: { root: tempRoot },
+        definition,
+        indexPath
+      })
+    );
     assert.equal(
       refreshed.entries[source.states[0]!.path]?.state.title,
       "Changed decision title"
@@ -553,17 +634,29 @@ test("detects stale sources and refreshes changed or removed states", async () =
     const removed = source.states.pop();
     assert.ok(removed);
     source.revision = "decision-revision-3";
-    assert.equal((await syncStateIndex({
-      context: { root: tempRoot },
-      definition,
-      indexPath,
-      mode: "write"
-    })).state, "written");
-    assert.equal(Object.keys(resultValue(await loadCurrentStateIndex({
-      context: { root: tempRoot },
-      definition,
-      indexPath
-    })).entries).length, source.states.length);
+    assert.equal(
+      (
+        await syncStateIndex({
+          context: { root: tempRoot },
+          definition,
+          indexPath,
+          mode: "write"
+        })
+      ).state,
+      "written"
+    );
+    assert.equal(
+      Object.keys(
+        resultValue(
+          await loadCurrentStateIndex({
+            context: { root: tempRoot },
+            definition,
+            indexPath
+          })
+        ).entries
+      ).length,
+      source.states.length
+    );
   });
 });
 
@@ -583,7 +676,10 @@ test("rejects index paths outside the configured root", async () => {
 test("rejects index reads through a symlink outside the configured root", async () => {
   await withTempRoot(async (tempRoot) => {
     const { definition } = await createDecisionFixture();
-    for (const linkPosition of ["intermediate-directory", "final-file"] as const) {
+    for (const linkPosition of [
+      "intermediate-directory",
+      "final-file"
+    ] as const) {
       const root = path.join(tempRoot, `read-root-${linkPosition}`);
       const outside = path.join(tempRoot, `read-outside-${linkPosition}`);
       await fs.mkdir(root, { recursive: true });
@@ -608,8 +704,14 @@ test("rejects index reads through a symlink outside the configured root", async 
         indexPath: "indexes/states.json"
       });
       assert.equal(result.status, "error");
-      assert.equal(result.diagnostics[0]?.code, "state-index.index-path-invalid");
-      assert.equal(await fs.readFile(outsidePath, "utf8"), "outside sentinel\n");
+      assert.equal(
+        result.diagnostics[0]?.code,
+        "state-index.index-path-invalid"
+      );
+      assert.equal(
+        await fs.readFile(outsidePath, "utf8"),
+        "outside sentinel\n"
+      );
     }
   });
 });
@@ -617,7 +719,10 @@ test("rejects index reads through a symlink outside the configured root", async 
 test("rejects index writes through a symlink outside the configured root", async () => {
   await withTempRoot(async (tempRoot) => {
     const { definition } = await createDecisionFixture();
-    for (const linkPosition of ["intermediate-directory", "final-file"] as const) {
+    for (const linkPosition of [
+      "intermediate-directory",
+      "final-file"
+    ] as const) {
       const root = path.join(tempRoot, `write-root-${linkPosition}`);
       const outside = path.join(tempRoot, `write-outside-${linkPosition}`);
       await fs.mkdir(root, { recursive: true });
@@ -642,8 +747,14 @@ test("rejects index writes through a symlink outside the configured root", async
         mode: "write"
       });
       assert.equal(result.state, "index-path-invalid");
-      assert.equal(result.diagnostics[0]?.code, "state-index.index-path-invalid");
-      assert.equal(await fs.readFile(outsidePath, "utf8"), "outside sentinel\n");
+      assert.equal(
+        result.diagnostics[0]?.code,
+        "state-index.index-path-invalid"
+      );
+      assert.equal(
+        await fs.readFile(outsidePath, "utf8"),
+        "outside sentinel\n"
+      );
     }
   });
 });
@@ -693,12 +804,20 @@ test("uses canonical in-root targets through a symlinked root and directory", as
         ),
         layout.name
       );
-      assert.equal(Object.keys(resultValue(await loadStateIndex({
-        context: { root },
-        definition,
-        expectation: { definitionVersion: 1, namespace: "decisions" },
-        indexPath
-      })).entries).length, source.states.length, layout.name);
+      assert.equal(
+        Object.keys(
+          resultValue(
+            await loadStateIndex({
+              context: { root },
+              definition,
+              expectation: { definitionVersion: 1, namespace: "decisions" },
+              indexPath
+            })
+          ).entries
+        ).length,
+        source.states.length,
+        layout.name
+      );
     }
   });
 });

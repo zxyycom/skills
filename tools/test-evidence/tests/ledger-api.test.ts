@@ -38,23 +38,21 @@ test("legal empty ledgers pass validation and queries without creating Case dire
       (await validateTestEvidenceLedger({ workspaceRoot })).diagnostics,
       []
     );
-    assert.equal(
-      (await queryTestEvidenceCases({ workspaceRoot })).total,
-      0
-    );
+    assert.equal((await queryTestEvidenceCases({ workspaceRoot })).total, 0);
     assert.equal((await queryTestEntities({ workspaceRoot })).total, 0);
     const missing = await showTestEvidenceCase({
       workspaceRoot,
       caseId: "LEDGER-MISSING-CASE-001"
     });
-    assert.ok(missing.diagnostics.some(
-      (diagnostic) => diagnostic.code === "query.case-missing"
-    ));
+    assert.ok(
+      missing.diagnostics.some(
+        (diagnostic) => diagnostic.code === "query.case-missing"
+      )
+    );
     await assert.rejects(
       fs.stat(casesPath(workspaceRoot)),
-      (error: unknown) => error instanceof Error
-        && "code" in error
-        && error.code === "ENOENT"
+      (error: unknown) =>
+        error instanceof Error && "code" in error && error.code === "ENOENT"
     );
   }, "empty");
 });
@@ -62,10 +60,10 @@ test("legal empty ledgers pass validation and queries without creating Case dire
 test("ledger validation API reports stable source identities summaries and index diagnostics", async () => {
   await withLedgerWorkspace(async (workspaceRoot) => {
     const missingIndex = await validateTestEvidenceLedger({ workspaceRoot });
-    assert.equal(v.safeParse(
-      testEvidenceLedgerReportSchema,
-      missingIndex
-    ).success, true);
+    assert.equal(
+      v.safeParse(testEvidenceLedgerReportSchema, missingIndex).success,
+      true
+    );
     assert.equal(missingIndex.schemaVersion, 5);
     assert.deepEqual(missingIndex.summary, {
       tests: 3,
@@ -74,11 +72,16 @@ test("ledger validation API reports stable source identities summaries and index
       tags: 2
     });
     assert.equal(missingIndex.entityIndex?.schemaVersion, 1);
-    assert.equal(missingIndex.sourceRevision?.metadata, missingIndex.entityIndex?.fingerprint);
-    assert.ok(missingIndex.diagnostics.some(
-      (diagnostic) => diagnostic.code === "state-index.index-missing"
-        && diagnostic.blocking
-    ));
+    assert.equal(
+      missingIndex.sourceRevision?.metadata,
+      missingIndex.entityIndex?.fingerprint
+    );
+    assert.ok(
+      missingIndex.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "state-index.index-missing" && diagnostic.blocking
+      )
+    );
 
     await syncTestEvidenceLedgerIndex({ mode: "write", workspaceRoot });
     const current = await validateTestEvidenceLedger({ workspaceRoot });
@@ -94,10 +97,10 @@ test("ledger sync API distinguishes check write current and unchanged states", a
       mode: "check",
       workspaceRoot
     });
-    assert.equal(v.safeParse(
-      testEvidenceLedgerIndexSyncResultSchema,
-      missing
-    ).success, true);
+    assert.equal(
+      v.safeParse(testEvidenceLedgerIndexSyncResultSchema, missing).success,
+      true
+    );
     assert.equal(missing.status, "error");
     assert.equal(missing.state, "index-missing");
     assert.equal(missing.mode, "check");
@@ -146,10 +149,10 @@ test("ledger Case query API intersects filters and applies stable pagination", a
       limit: 1,
       offset: 1
     });
-    assert.equal(v.safeParse(
-      testEvidenceCaseQueryResultSchema,
-      page
-    ).success, true);
+    assert.equal(
+      v.safeParse(testEvidenceCaseQueryResultSchema, page).success,
+      true
+    );
     assert.equal(page.total, 3);
     assert.deepEqual(
       page.cases.map((entry) => entry.id),
@@ -180,10 +183,13 @@ test("ledger Case query API intersects filters and applies stable pagination", a
       testId: "test.unknown"
     });
     assert.equal(unknownTest.total, 0);
-    assert.ok(unknownTest.diagnostics.some(
-      (diagnostic) => diagnostic.code === "query.test-unknown"
-        && diagnostic.testId === "test.unknown"
-    ));
+    assert.ok(
+      unknownTest.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "query.test-unknown" &&
+          diagnostic.testId === "test.unknown"
+      )
+    );
   });
 });
 
@@ -205,20 +211,23 @@ test("ledger Case show API rereads authoritative Markdown and resolves current T
       workspaceRoot,
       caseId: changedCase.id
     });
-    assert.equal(v.safeParse(
-      testEvidenceCaseShowResultSchema,
-      shown
-    ).success, true);
+    assert.equal(
+      v.safeParse(testEvidenceCaseShowResultSchema, shown).success,
+      true
+    );
     assert.equal(shown.case?.title, changedCase.title);
     assert.match(shown.markdown ?? "", /authoritative current result/u);
     assert.deepEqual(
       shown.tests.map((entry) => entry.id),
       ["test.alpha", "test.beta"]
     );
-    assert.ok(shown.diagnostics.some(
-      (diagnostic) => diagnostic.code === "state-index.index-stale"
-        && diagnostic.severity === "warning"
-    ));
+    assert.ok(
+      shown.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "state-index.index-stale" &&
+          diagnostic.severity === "warning"
+      )
+    );
 
     const missing = await showTestEvidenceCase({
       workspaceRoot,
@@ -227,9 +236,11 @@ test("ledger Case show API rereads authoritative Markdown and resolves current T
     assert.equal(missing.case, null);
     assert.equal(missing.markdown, null);
     assert.deepEqual(missing.tests, []);
-    assert.ok(missing.diagnostics.some(
-      (diagnostic) => diagnostic.code === "query.case-missing"
-    ));
+    assert.ok(
+      missing.diagnostics.some(
+        (diagnostic) => diagnostic.code === "query.case-missing"
+      )
+    );
   });
 });
 
@@ -240,33 +251,45 @@ test("ledger Test query API derives reverse Case memberships and searches entity
       workspaceRoot,
       query: "gamma behavior"
     });
-    assert.equal(v.safeParse(
-      testEvidenceTestQueryResultSchema,
-      queried
-    ).success, true);
+    assert.equal(
+      v.safeParse(testEvidenceTestQueryResultSchema, queried).success,
+      true
+    );
     assert.equal(queried.total, 1);
     assert.deepEqual(queried.tests[0], {
       id: "test.gamma",
       name: "Gamma behavior",
       locators: ["tests/gamma.test.ts > gamma behavior"],
-      caseIds: [
-        "LEDGER-ALPHA-GAMMA-001",
-        "LEDGER-BETA-GAMMA-001"
-      ]
+      caseIds: ["LEDGER-ALPHA-GAMMA-001", "LEDGER-BETA-GAMMA-001"]
     });
     assert.equal((await queryTestEntities({ workspaceRoot })).limit, 20);
-    assert.equal((await queryTestEntities({
-      workspaceRoot,
-      limit: 1000
-    })).limit, 1000);
-    assert.equal((await queryTestEntities({
-      workspaceRoot,
-      query: "test.gamma"
-    })).tests[0]?.id, "test.gamma");
-    assert.equal((await queryTestEntities({
-      workspaceRoot,
-      query: "tests/gamma.test.ts"
-    })).tests[0]?.id, "test.gamma");
+    assert.equal(
+      (
+        await queryTestEntities({
+          workspaceRoot,
+          limit: 1000
+        })
+      ).limit,
+      1000
+    );
+    assert.equal(
+      (
+        await queryTestEntities({
+          workspaceRoot,
+          query: "test.gamma"
+        })
+      ).tests[0]?.id,
+      "test.gamma"
+    );
+    assert.equal(
+      (
+        await queryTestEntities({
+          workspaceRoot,
+          query: "tests/gamma.test.ts"
+        })
+      ).tests[0]?.id,
+      "test.gamma"
+    );
 
     const page = await queryTestEntities({
       workspaceRoot,
@@ -274,7 +297,10 @@ test("ledger Test query API derives reverse Case memberships and searches entity
       offset: 1
     });
     assert.equal(page.total, 3);
-    assert.deepEqual(page.tests.map((entry) => entry.id), ["test.beta"]);
+    assert.deepEqual(
+      page.tests.map((entry) => entry.id),
+      ["test.beta"]
+    );
   });
 });
 
@@ -317,10 +343,10 @@ test("ledger APIs return schema-valid machine failures for invalid options", asy
       (entry) => entry.code === "query.options-invalid"
     );
     assert.equal(diagnostic?.blocking, true);
-    assert.match(diagnostic?.message ?? "", new RegExp(
-      `${invalidFields[index]}:`,
-      "u"
-    ));
+    assert.match(
+      diagnostic?.message ?? "",
+      new RegExp(`${invalidFields[index]}:`, "u")
+    );
     assert.equal(v.safeParse(schemas[index]!, result).success, true);
   });
 });

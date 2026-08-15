@@ -2,10 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fg from "fast-glob";
-import {
-  pathExists,
-  toPosix
-} from "../../tools/shared/src/node/filesystem.ts";
+import { pathExists, toPosix } from "../../tools/shared/src/node/filesystem.ts";
 
 export type SkillPackage = {
   name: string;
@@ -17,11 +14,16 @@ export type SkillDiscoveryResult = {
   skills: SkillPackage[];
 };
 
-export const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+export const rootDir = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../.."
+);
 export const githubRepository = "zxyycom/skills";
 export const skillsRootName = "skills";
 export const ignoredDirectoryNames = [".git", "node_modules", "dist"] as const;
-const ignoredDirectoryNameSet: ReadonlySet<string> = new Set(ignoredDirectoryNames);
+const ignoredDirectoryNameSet: ReadonlySet<string> = new Set(
+  ignoredDirectoryNames
+);
 const mainMarkdownIgnoredPaths = [
   "changes/archive/**",
   "docs/investigations/_resources/**"
@@ -31,13 +33,15 @@ export function shouldIgnoreDirectoryName(name: string): boolean {
   return name.startsWith(".") || ignoredDirectoryNameSet.has(name);
 }
 
-export async function discoverSkillPackages(workspaceRoot: string = rootDir): Promise<SkillDiscoveryResult> {
+export async function discoverSkillPackages(
+  workspaceRoot: string = rootDir
+): Promise<SkillDiscoveryResult> {
   const skills: SkillPackage[] = [];
   const errors: string[] = [];
   const seenNames = new Set<string>();
   const skillsRoot = path.join(workspaceRoot, skillsRootName);
 
-  if (!await pathExists(skillsRoot)) {
+  if (!(await pathExists(skillsRoot))) {
     return {
       errors: [`${skillsRootName}/ is required for the monorepo skill layout`],
       skills: []
@@ -56,8 +60,10 @@ export async function discoverSkillPackages(workspaceRoot: string = rootDir): Pr
 
     const skillDir = path.join(skillsRoot, entry.name);
     const skillMdPath = path.join(skillDir, "SKILL.md");
-    if (!await pathExists(skillMdPath)) {
-      errors.push(`${toPosix(path.relative(workspaceRoot, skillDir))} must contain SKILL.md`);
+    if (!(await pathExists(skillMdPath))) {
+      errors.push(
+        `${toPosix(path.relative(workspaceRoot, skillDir))} must contain SKILL.md`
+      );
       continue;
     }
 
@@ -71,7 +77,9 @@ export async function discoverSkillPackages(workspaceRoot: string = rootDir): Pr
   }
 
   if (skills.length === 0) {
-    errors.push(`No skill packages discovered under ${skillsRootName}/ directories`);
+    errors.push(
+      `No skill packages discovered under ${skillsRootName}/ directories`
+    );
   }
 
   return {
@@ -88,10 +96,14 @@ export async function collectFiles(directory: string): Promise<string[]> {
     onlyFiles: true
   });
 
-  return files.sort((a, b) => a.localeCompare(b)).map((filePath) => path.join(directory, filePath));
+  return files
+    .sort((a, b) => a.localeCompare(b))
+    .map((filePath) => path.join(directory, filePath));
 }
 
-export async function collectSkillFiles(skillDirectory: string): Promise<string[]> {
+export async function collectSkillFiles(
+  skillDirectory: string
+): Promise<string[]> {
   const files = await fg("**/*", {
     cwd: skillDirectory,
     dot: true,
@@ -101,7 +113,9 @@ export async function collectSkillFiles(skillDirectory: string): Promise<string[
   return files.sort((a, b) => a.localeCompare(b));
 }
 
-export async function collectMainMarkdownFiles(workspaceRoot: string = rootDir): Promise<string[]> {
+export async function collectMainMarkdownFiles(
+  workspaceRoot: string = rootDir
+): Promise<string[]> {
   const ignoredPaths = [
     `${skillsRootName}/**`,
     ...mainMarkdownIgnoredPaths,

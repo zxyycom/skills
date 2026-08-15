@@ -29,11 +29,11 @@ export async function readGitBlobs(
     const [objectId, objectType, sizeText, ...extraFields] = header.split(" ");
     const size = Number(sizeText);
     if (
-      extraFields.length > 0
-      || objectId !== expectedObjectId
-      || objectType !== "blob"
-      || !Number.isSafeInteger(size)
-      || size < 0
+      extraFields.length > 0 ||
+      objectId !== expectedObjectId ||
+      objectType !== "blob" ||
+      !Number.isSafeInteger(size) ||
+      size < 0
     ) {
       throw new Error(`Unexpected Git blob header for ${expectedObjectId}`);
     }

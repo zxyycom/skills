@@ -1,7 +1,4 @@
-import {
-  constants as fileSystemConstants,
-  type Dirent
-} from "node:fs";
+import { constants as fileSystemConstants, type Dirent } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import {
@@ -28,10 +25,10 @@ type ResourceWalkResult = {
 type ManagedResourceMembership =
   | Readonly<{ mode: "file-system" }>
   | Readonly<{
-    directories: ReadonlySet<string>;
-    files: ReadonlySet<string>;
-    mode: "version-control";
-  }>;
+      directories: ReadonlySet<string>;
+      files: ReadonlySet<string>;
+      mode: "version-control";
+    }>;
 
 export async function readInvestigationResources(
   investigationsDirectory: string,
@@ -54,10 +51,14 @@ export async function readInvestigationResources(
     return [];
   }
   if (rootStat.isSymbolicLink()) {
-    throw new Error(`${investigationResourcesDirectoryName} must not be a symbolic link`);
+    throw new Error(
+      `${investigationResourcesDirectoryName} must not be a symbolic link`
+    );
   }
   if (!rootStat.isDirectory()) {
-    throw new Error(`${investigationResourcesDirectoryName} must be a directory`);
+    throw new Error(
+      `${investigationResourcesDirectoryName} must be a directory`
+    );
   }
 
   let canonicalResourcesRoot: string;
@@ -112,7 +113,9 @@ export async function validateReferencedInvestigationResources(
     if (isInvestigationResourceId(id)) {
       return true;
     }
-    errors.push(`resource ${JSON.stringify(id)} must use a safe, normalized resource id`);
+    errors.push(
+      `resource ${JSON.stringify(id)} must use a safe, normalized resource id`
+    );
     return false;
   });
   const resourcesRoot = path.join(
@@ -133,7 +136,9 @@ export async function validateReferencedInvestigationResources(
     return uniqueSorted(errors);
   }
   if (rootStat.isSymbolicLink()) {
-    errors.push(`${investigationResourcesDirectoryName} must not be a symbolic link`);
+    errors.push(
+      `${investigationResourcesDirectoryName} must not be a symbolic link`
+    );
     return uniqueSorted(errors);
   }
   if (!rootStat.isDirectory()) {
@@ -177,16 +182,18 @@ export async function validateReferencedInvestigationResources(
       );
       errors.push(...resourceErrors);
       if (
-        resourceErrors.length === 0
-        && managedResourceMembership.mode === "version-control"
-        && !managedResourceMembership.files.has(id)
+        resourceErrors.length === 0 &&
+        managedResourceMembership.mode === "version-control" &&
+        !managedResourceMembership.files.has(id)
       ) {
         errors.push(
           `${resourcePath(id)} is ignored by version-control rules and is not a managed investigation resource`
         );
       }
     } catch (error) {
-      errors.push(`${resourcePath(id)} could not be validated: ${errorText(error)}`);
+      errors.push(
+        `${resourcePath(id)} could not be validated: ${errorText(error)}`
+      );
     }
   }
   return uniqueSorted(errors);
@@ -216,9 +223,10 @@ async function walkResourceDirectory(
   }
   entries.sort((left, right) => compareText(left.name, right.name));
   for (const entry of entries) {
-    const id = relativeDirectory.length === 0
-      ? entry.name
-      : `${relativeDirectory}/${entry.name}`;
+    const id =
+      relativeDirectory.length === 0
+        ? entry.name
+        : `${relativeDirectory}/${entry.name}`;
     if (!isManagedResourcePath(id, managedResourceMembership)) {
       continue;
     }
@@ -227,13 +235,15 @@ async function walkResourceDirectory(
     try {
       stat = await fs.lstat(absolutePath);
     } catch (error) {
-      errors.push(`${resourcePath(id)} could not be inspected: ${errorText(error)}`);
+      errors.push(
+        `${resourcePath(id)} could not be inspected: ${errorText(error)}`
+      );
       continue;
     }
     if (stat.isSymbolicLink()) {
       if (
-        managedResourceMembership.mode === "version-control"
-        && managedResourceMembership.files.has(id)
+        managedResourceMembership.mode === "version-control" &&
+        managedResourceMembership.files.has(id)
       ) {
         encounteredResourceIds.push(id);
       }
@@ -248,7 +258,9 @@ async function walkResourceDirectory(
           canonicalResourcesRoot
         );
       } catch (error) {
-        errors.push(`${resourcePath(id)} could not be safely traversed: ${errorText(error)}`);
+        errors.push(
+          `${resourcePath(id)} could not be safely traversed: ${errorText(error)}`
+        );
         continue;
       }
       const nested = await walkResourceDirectory(
@@ -264,8 +276,8 @@ async function walkResourceDirectory(
       continue;
     }
     if (
-      managedResourceMembership.mode === "version-control"
-      && !managedResourceMembership.files.has(id)
+      managedResourceMembership.mode === "version-control" &&
+      !managedResourceMembership.files.has(id)
     ) {
       errors.push(
         `${resourcePath(id)} must remain a directory for version-control-visible resources`
@@ -278,7 +290,9 @@ async function walkResourceDirectory(
       continue;
     }
     if (!isInvestigationResourceId(id)) {
-      errors.push(`${resourcePath(id)} must use a safe, normalized resource id`);
+      errors.push(
+        `${resourcePath(id)} must use a safe, normalized resource id`
+      );
       continue;
     }
     try {
@@ -290,7 +304,9 @@ async function walkResourceDirectory(
         id
       });
     } catch (error) {
-      errors.push(`${resourcePath(id)} could not be read as a regular file: ${errorText(error)}`);
+      errors.push(
+        `${resourcePath(id)} could not be read as a regular file: ${errorText(error)}`
+      );
     }
   }
   return { encounteredResourceIds, errors, resources };
@@ -304,7 +320,10 @@ async function readManagedResourceMembership(
   try {
     repository = await openVersionControl(investigationsDirectory);
   } catch (error) {
-    if (error instanceof VersionControlError && error.code === "not-repository") {
+    if (
+      error instanceof VersionControlError &&
+      error.code === "not-repository"
+    ) {
       return { mode: "file-system" };
     }
     throw error;
@@ -317,11 +336,13 @@ async function readManagedResourceMembership(
   const workspaceFiles = await repository.listWorkspaceFiles({
     pathScopes: [resourcePathScope]
   });
-  const files = new Set(workspaceFiles.flatMap((workspacePath) => (
-    workspacePath.startsWith(resourcePathPrefix)
-      ? [workspacePath.slice(resourcePathPrefix.length)]
-      : []
-  )));
+  const files = new Set(
+    workspaceFiles.flatMap((workspacePath) =>
+      workspacePath.startsWith(resourcePathPrefix)
+        ? [workspacePath.slice(resourcePathPrefix.length)]
+        : []
+    )
+  );
   const directories = new Set<string>();
   for (const id of files) {
     const segments = id.split("/");
@@ -339,8 +360,10 @@ function isManagedResourcePath(
   if (managedResourceMembership.mode === "file-system") {
     return true;
   }
-  return managedResourceMembership.files.has(id)
-    || managedResourceMembership.directories.has(id);
+  return (
+    managedResourceMembership.files.has(id) ||
+    managedResourceMembership.directories.has(id)
+  );
 }
 
 async function validateReferencedResource(
@@ -354,25 +377,31 @@ async function validateReferencedResource(
     const entries = await fs.readdir(currentDirectory, { withFileTypes: true });
     const exact = entries.find((entry) => entry.name === segment);
     if (exact === undefined) {
-      const caseMismatch = entries.find((entry) => (
-        entry.name.toLowerCase() === segment.toLowerCase()
-      ));
-      errors.push(caseMismatch === undefined
-        ? `${resourcePath(id)} does not exist`
-        : `${resourcePath(id)} must match actual path casing; found ${JSON.stringify(caseMismatch.name)}`);
+      const caseMismatch = entries.find(
+        (entry) => entry.name.toLowerCase() === segment.toLowerCase()
+      );
+      errors.push(
+        caseMismatch === undefined
+          ? `${resourcePath(id)} does not exist`
+          : `${resourcePath(id)} must match actual path casing; found ${JSON.stringify(caseMismatch.name)}`
+      );
       return errors;
     }
 
     const absolutePath = path.join(currentDirectory, exact.name);
     const stat = await fs.lstat(absolutePath);
     if (stat.isSymbolicLink()) {
-      errors.push(`${resourcePath(id)} must not traverse or target a symbolic link`);
+      errors.push(
+        `${resourcePath(id)} must not traverse or target a symbolic link`
+      );
       return errors;
     }
     const isLast = index === segments.length - 1;
     if (!isLast) {
       if (!stat.isDirectory()) {
-        errors.push(`${resourcePath(id)} has a non-directory path component ${JSON.stringify(segment)}`);
+        errors.push(
+          `${resourcePath(id)} has a non-directory path component ${JSON.stringify(segment)}`
+        );
         return errors;
       }
       try {
@@ -381,7 +410,9 @@ async function validateReferencedResource(
           canonicalResourcesRoot
         );
       } catch (error) {
-        errors.push(`${resourcePath(id)} could not be safely traversed: ${errorText(error)}`);
+        errors.push(
+          `${resourcePath(id)} could not be safely traversed: ${errorText(error)}`
+        );
         return errors;
       }
       continue;
@@ -393,7 +424,9 @@ async function validateReferencedResource(
     try {
       await readVerifiedRegularFile(absolutePath, canonicalResourcesRoot);
     } catch (error) {
-      errors.push(`${resourcePath(id)} could not be read as a regular file: ${errorText(error)}`);
+      errors.push(
+        `${resourcePath(id)} could not be read as a regular file: ${errorText(error)}`
+      );
     }
   }
   return errors;
@@ -417,11 +450,15 @@ async function readVerifiedRegularFile(
       throw new Error("opened target resolves outside the resource root");
     }
     const resolvedStat = await fs.stat(canonicalTarget, { bigint: true });
-    if (await fs.realpath(absolutePath) !== canonicalTarget) {
-      throw new Error("resource path changed while its opened file was being verified");
+    if ((await fs.realpath(absolutePath)) !== canonicalTarget) {
+      throw new Error(
+        "resource path changed while its opened file was being verified"
+      );
     }
     if (!sameFileIdentity(openedStat, resolvedStat)) {
-      throw new Error("resource path changed while its opened file was being verified");
+      throw new Error(
+        "resource path changed while its opened file was being verified"
+      );
     }
     return await handle.readFile();
   } finally {
@@ -448,7 +485,7 @@ async function verifiedCanonicalResourceDirectory(
   if (!sameFileIdentity(verifiedStat, canonicalStat)) {
     throw new Error("directory identity changed while being verified");
   }
-  if (await fs.realpath(directoryPath) !== canonicalDirectory) {
+  if ((await fs.realpath(directoryPath)) !== canonicalDirectory) {
     throw new Error("directory changed while being verified");
   }
   return canonicalDirectory;
@@ -462,27 +499,39 @@ async function verifiedCanonicalResourcesRoot(
     investigationsDirectory
   );
   const canonicalResourcesRoot = await fs.realpath(resourcesRoot);
-  if (!isPathWithinDirectory(
-    canonicalResourcesRoot,
-    canonicalInvestigationsDirectory
-  )) {
-    throw new Error(`${investigationResourcesDirectoryName} resolves outside the investigation root`);
+  if (
+    !isPathWithinDirectory(
+      canonicalResourcesRoot,
+      canonicalInvestigationsDirectory
+    )
+  ) {
+    throw new Error(
+      `${investigationResourcesDirectoryName} resolves outside the investigation root`
+    );
   }
   const verifiedRootStat = await fs.lstat(resourcesRoot, { bigint: true });
   if (verifiedRootStat.isSymbolicLink()) {
-    throw new Error(`${investigationResourcesDirectoryName} must not be a symbolic link`);
+    throw new Error(
+      `${investigationResourcesDirectoryName} must not be a symbolic link`
+    );
   }
   if (!verifiedRootStat.isDirectory()) {
-    throw new Error(`${investigationResourcesDirectoryName} must be a directory`);
+    throw new Error(
+      `${investigationResourcesDirectoryName} must be a directory`
+    );
   }
   const canonicalRootStat = await fs.stat(canonicalResourcesRoot, {
     bigint: true
   });
   if (!sameFileIdentity(verifiedRootStat, canonicalRootStat)) {
-    throw new Error(`${investigationResourcesDirectoryName} identity changed while being verified`);
+    throw new Error(
+      `${investigationResourcesDirectoryName} identity changed while being verified`
+    );
   }
-  if (await fs.realpath(resourcesRoot) !== canonicalResourcesRoot) {
-    throw new Error(`${investigationResourcesDirectoryName} changed while being verified`);
+  if ((await fs.realpath(resourcesRoot)) !== canonicalResourcesRoot) {
+    throw new Error(
+      `${investigationResourcesDirectoryName} changed while being verified`
+    );
   }
   return canonicalResourcesRoot;
 }
@@ -494,9 +543,9 @@ function sameFileIdentity(
   return left.dev === right.dev && left.ino === right.ino;
 }
 
-async function lstatOrNull(targetPath: string): Promise<Awaited<
-  ReturnType<typeof fs.lstat>
-> | null> {
+async function lstatOrNull(
+  targetPath: string
+): Promise<Awaited<ReturnType<typeof fs.lstat>> | null> {
   try {
     return await fs.lstat(targetPath);
   } catch (error) {

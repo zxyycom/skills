@@ -14,10 +14,10 @@ export function repositoryRelativePathFromFileSystemPath(
     path.resolve(fileSystemPath)
   );
   if (
-    relativePath.length === 0
-    || path.isAbsolute(relativePath)
-    || relativePath === ".."
-    || relativePath.startsWith(".." + path.sep)
+    relativePath.length === 0 ||
+    path.isAbsolute(relativePath) ||
+    relativePath === ".." ||
+    relativePath.startsWith(".." + path.sep)
   ) {
     throw invalidFileSystemPath(fileSystemPath);
   }

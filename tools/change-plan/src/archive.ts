@@ -14,10 +14,12 @@ type DirectoryIdentity = {
 };
 
 function isMissingPathError(error: unknown): boolean {
-  return error !== null
-    && typeof error === "object"
-    && "code" in error
-    && error.code === "ENOENT";
+  return (
+    error !== null &&
+    typeof error === "object" &&
+    "code" in error &&
+    error.code === "ENOENT"
+  );
 }
 
 async function lstatOrNull(targetPath: string): Promise<Stats | null> {
@@ -43,10 +45,12 @@ function hasDirectoryIdentity(
   stat: Stats,
   identity: DirectoryIdentity
 ): boolean {
-  return !stat.isSymbolicLink()
-    && stat.isDirectory()
-    && stat.dev === identity.dev
-    && stat.ino === identity.ino;
+  return (
+    !stat.isSymbolicLink() &&
+    stat.isDirectory() &&
+    stat.dev === identity.dev &&
+    stat.ino === identity.ino
+  );
 }
 
 export async function archiveChangePlanDirectory(
@@ -72,9 +76,7 @@ export async function archiveChangePlanDirectory(
     check,
     error
   });
-  const success = (
-    check: ChangePlanCheckResult
-  ): ChangePlanArchiveResult => ({
+  const success = (check: ChangePlanCheckResult): ChangePlanArchiveResult => ({
     ...baseResult,
     archived: true,
     check,
@@ -122,15 +124,12 @@ export async function archiveChangePlanDirectory(
     return failure("change plan must pass check before archive", check);
   }
   if (check.stage !== "plan") {
-    return failure(
-      "change plan must be an active plan before archive",
-      check
-    );
+    return failure("change plan must be an active plan before archive", check);
   }
   if (check.completedTaskCount !== check.taskCount) {
     return failure(
-      `all tasks must be completed before archive: `
-        + `${check.completedTaskCount}/${check.taskCount}`,
+      `all tasks must be completed before archive: ` +
+        `${check.completedTaskCount}/${check.taskCount}`,
       check
     );
   }
@@ -144,8 +143,8 @@ export async function archiveChangePlanDirectory(
     try {
       const currentArchiveStat = await lstatOrNull(archiveDirectory);
       if (
-        currentArchiveStat !== null
-        && hasDirectoryIdentity(currentArchiveStat, createdArchiveIdentity)
+        currentArchiveStat !== null &&
+        hasDirectoryIdentity(currentArchiveStat, createdArchiveIdentity)
       ) {
         await fs.rmdir(archiveDirectory);
       }
@@ -160,7 +159,9 @@ export async function archiveChangePlanDirectory(
       createdArchiveDirectory = true;
       archiveStat = await lstatOrNull(archiveDirectory);
       if (archiveStat === null) {
-        throw new Error(`created archive directory disappeared: ${archiveDirectory}`);
+        throw new Error(
+          `created archive directory disappeared: ${archiveDirectory}`
+        );
       }
       createdArchiveIdentity = directoryIdentity(archiveStat);
     }
@@ -173,7 +174,7 @@ export async function archiveChangePlanDirectory(
     }
     const initialArchiveIdentity = directoryIdentity(archiveStat);
 
-    if (await lstatOrNull(archivedDirectory) !== null) {
+    if ((await lstatOrNull(archivedDirectory)) !== null) {
       await removeCreatedArchiveDirectory();
       return failure(
         `archive target already exists: ${archivedDirectory}`,
@@ -183,8 +184,8 @@ export async function archiveChangePlanDirectory(
 
     const currentArchiveStat = await lstatOrNull(archiveDirectory);
     if (
-      currentArchiveStat === null
-      || !hasDirectoryIdentity(currentArchiveStat, initialArchiveIdentity)
+      currentArchiveStat === null ||
+      !hasDirectoryIdentity(currentArchiveStat, initialArchiveIdentity)
     ) {
       await removeCreatedArchiveDirectory();
       return failure(
@@ -216,7 +217,7 @@ export async function archiveChangePlanDirectory(
         check
       );
     }
-    if (await lstatOrNull(archivedDirectory) !== null) {
+    if ((await lstatOrNull(archivedDirectory)) !== null) {
       await removeCreatedArchiveDirectory();
       return failure(
         `archive target appeared before archive: ${archivedDirectory}`,

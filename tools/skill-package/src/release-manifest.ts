@@ -21,7 +21,9 @@ export const skillReleaseManifestSchema = v.object({
   )
 });
 
-export type SkillReleaseManifest = v.InferOutput<typeof skillReleaseManifestSchema>;
+export type SkillReleaseManifest = v.InferOutput<
+  typeof skillReleaseManifestSchema
+>;
 
 export type SkillReleaseManifestValidation =
   | {

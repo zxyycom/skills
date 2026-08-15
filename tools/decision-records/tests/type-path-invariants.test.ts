@@ -5,7 +5,7 @@ import {
   isDecisionId,
   isDecisionSourcePath,
   isDecisionTag,
-  sourcePathForDecision,
+  sourcePathForDecision
 } from "../src/decision-path.ts";
 import { decisionSourceRevision } from "../src/decision-state-index.ts";
 import type { DecisionIndexMetadata } from "../src/types.ts";
@@ -27,26 +27,26 @@ test("decision types and paths preserve stable ID tag and sourcePath invariants"
   assert.equal(isDecisionSourcePath("legacy/use-semantic-paths.md"), false);
   assert.equal(
     decisionIdFromSourcePath("archive/use-semantic-paths.md"),
-    "use-semantic-paths.md",
+    "use-semantic-paths.md"
   );
   assert.equal(
     sourcePathForDecision("use-semantic-paths.md", "archived"),
-    "archive/use-semantic-paths.md",
+    "archive/use-semantic-paths.md"
   );
 
   const sourceRevision = decisionSourceRevision([
     { decisionId: "use-a.md", sourcePath: "use-a.md", text: "a\n" },
-    { decisionId: "use-b.md", sourcePath: "archive/use-b.md", text: "b\n" },
+    { decisionId: "use-b.md", sourcePath: "archive/use-b.md", text: "b\n" }
   ]);
   assert.deepEqual(Object.keys(sourceRevision.entries), [
     "use-a.md",
-    "use-b.md",
+    "use-b.md"
   ]);
   assert.notEqual(
     decisionSourceRevision([
       { decisionId: "use-a.md", sourcePath: "archive/use-a.md", text: "a\n" },
-      { decisionId: "use-b.md", sourcePath: "archive/use-b.md", text: "b\n" },
+      { decisionId: "use-b.md", sourcePath: "archive/use-b.md", text: "b\n" }
     ]).entries["use-a.md"],
-    sourceRevision.entries["use-a.md"],
+    sourceRevision.entries["use-a.md"]
   );
 });

@@ -55,11 +55,7 @@ export function parseDecisionMarkdown(options: {
   markdown: string;
   relativePath: string;
 }): ParsedDecisionMarkdown | null {
-  const {
-    errors,
-    markdown: rawMarkdown,
-    relativePath
-  } = options;
+  const { errors, markdown: rawMarkdown, relativePath } = options;
   const markdown = rawMarkdown.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
   const frontmatterMatch = markdown.match(frontmatterPattern);
   if (!frontmatterMatch) {
@@ -82,9 +78,9 @@ export function parseDecisionMarkdown(options: {
   );
   if (unsupportedKeys.length > 0) {
     errors.push(
-      relativePath
-      + " frontmatter has unsupported keys: "
-      + unsupportedKeys.join(", ")
+      relativePath +
+        " frontmatter has unsupported keys: " +
+        unsupportedKeys.join(", ")
     );
   }
   for (const key of frontmatterKeys) {
@@ -94,13 +90,18 @@ export function parseDecisionMarkdown(options: {
   }
   if (!sameFieldOrder(frontmatter.keys, frontmatterKeys)) {
     errors.push(
-      relativePath
-      + " frontmatter fields must use order: "
-      + frontmatterKeys.join(", ")
+      relativePath +
+        " frontmatter fields must use order: " +
+        frontmatterKeys.join(", ")
     );
   }
 
-  const title = projectionField(frontmatter.values.title, "title", relativePath, errors);
+  const title = projectionField(
+    frontmatter.values.title,
+    "title",
+    relativePath,
+    errors
+  );
   const purpose = projectionField(
     frontmatter.values.purpose,
     "purpose",
@@ -120,7 +121,11 @@ export function parseDecisionMarkdown(options: {
     errors
   );
   const tags = parseTags(frontmatter.values.tags, relativePath, errors);
-  const relations = parseRelations(frontmatter.values.relations, relativePath, errors);
+  const relations = parseRelations(
+    frontmatter.values.relations,
+    relativePath,
+    errors
+  );
   const metadata = parseLifecycleMetadata({
     alignment: frontmatter.values.alignment,
     createdAt: frontmatter.values.createdAt,
@@ -129,13 +134,13 @@ export function parseDecisionMarkdown(options: {
     status: frontmatter.values.status
   });
   if (
-    title === null
-    || purpose === null
-    || background === null
-    || decision === null
-    || tags === null
-    || relations === null
-    || metadata === null
+    title === null ||
+    purpose === null ||
+    background === null ||
+    decision === null ||
+    tags === null ||
+    relations === null ||
+    metadata === null
   ) {
     return null;
   }
@@ -179,13 +184,20 @@ export function replaceDecisionFrontmatter(
   if (parsed === null || errors.length > 0) {
     return null;
   }
-  const projection: DecisionProjection = options.relations === undefined
-    ? parsed.projection
-    : {
-        ...parsed.projection,
-        relations: options.relations.map(({ type, target }) => ({ type, target }))
-      };
-  return serializeDecisionFrontmatter(projection, parsed.tags, options.metadata) + parsed.body;
+  const projection: DecisionProjection =
+    options.relations === undefined
+      ? parsed.projection
+      : {
+          ...parsed.projection,
+          relations: options.relations.map(({ type, target }) => ({
+            type,
+            target
+          }))
+        };
+  return (
+    serializeDecisionFrontmatter(projection, parsed.tags, options.metadata) +
+    parsed.body
+  );
 }
 
 export function serializeDecisionFrontmatter(
@@ -202,7 +214,10 @@ export function serializeDecisionFrontmatter(
     background: projection.background,
     decision: projection.decision,
     tags: [...tags],
-    relations: projection.relations.map(({ type, target }) => ({ type, target }))
+    relations: projection.relations.map(({ type, target }) => ({
+      type,
+      target
+    }))
   };
   return [
     "---",
@@ -259,7 +274,9 @@ function parseTags(
     tags.push(tag);
   }
   if (!usesLexicalAscendingOrder(tags)) {
-    errors.push(relativePath + " frontmatter tags must use lexical ascending order");
+    errors.push(
+      relativePath + " frontmatter tags must use lexical ascending order"
+    );
     valid = false;
   }
   return valid ? tags : null;
@@ -280,16 +297,18 @@ function parseRelations(
   let valid = true;
   for (const [index, candidate] of value.entries()) {
     if (!isRecord(candidate)) {
-      errors.push(relativePath + ` frontmatter relations[${index}] must be an object`);
+      errors.push(
+        relativePath + ` frontmatter relations[${index}] must be an object`
+      );
       valid = false;
       continue;
     }
     const keys = Object.keys(candidate);
     if (!sameFieldOrder(keys, relationKeys)) {
       errors.push(
-        relativePath
-        + ` frontmatter relations[${index}] fields must use order: `
-        + relationKeys.join(", ")
+        relativePath +
+          ` frontmatter relations[${index}] fields must use order: ` +
+          relationKeys.join(", ")
       );
       valid = false;
     }
@@ -297,24 +316,23 @@ function parseRelations(
     const target = candidate.target;
     if (!isDecisionRelationType(type)) {
       errors.push(
-        relativePath
-        + ` frontmatter relations[${index}].type must be `
-        + decisionRelationTypes.join(", ")
+        relativePath +
+          ` frontmatter relations[${index}].type must be ` +
+          decisionRelationTypes.join(", ")
       );
       valid = false;
       continue;
     }
     if (!isDecisionId(target)) {
       errors.push(
-        relativePath + ` frontmatter relations[${index}].target must be a Decision ID`
+        relativePath +
+          ` frontmatter relations[${index}].target must be a Decision ID`
       );
       valid = false;
       continue;
     }
     if (seenTargets.has(target)) {
-      errors.push(
-        relativePath + " repeats relationship target " + target
-      );
+      errors.push(relativePath + " repeats relationship target " + target);
       valid = false;
       continue;
     }
@@ -328,8 +346,10 @@ function sameFieldOrder(
   actual: readonly string[],
   expected: readonly string[]
 ): boolean {
-  return actual.length === expected.length
-    && actual.every((value, index) => value === expected[index]);
+  return (
+    actual.length === expected.length &&
+    actual.every((value, index) => value === expected[index])
+  );
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -346,26 +366,28 @@ function parseLifecycleMetadata(options: {
   const { alignment, createdAt, errors, relativePath, status } = options;
   const statusValid = isDecisionStatus(status);
   const alignmentValid = alignment === null || isDecisionAlignment(alignment);
-  const createdAtValid = createdAt === null
-    || (typeof createdAt === "string" && isDecisionTimestamp(createdAt));
+  const createdAtValid =
+    createdAt === null ||
+    (typeof createdAt === "string" && isDecisionTimestamp(createdAt));
   let lifecycleValid = statusValid && alignmentValid && createdAtValid;
 
   if (!statusValid) {
     errors.push(
-      relativePath
-      + " frontmatter status must be candidate, active, or archived"
+      relativePath +
+        " frontmatter status must be candidate, active, or archived"
     );
   }
   if (!alignmentValid) {
     errors.push(
-      relativePath + " frontmatter alignment must be aligned, unaligned, or null"
+      relativePath +
+        " frontmatter alignment must be aligned, unaligned, or null"
     );
   }
   if (!createdAtValid) {
     errors.push(
-      relativePath
-      + " frontmatter createdAt must be an RFC 3339 timestamp precise to seconds "
-      + "with an explicit timezone"
+      relativePath +
+        " frontmatter createdAt must be an RFC 3339 timestamp precise to seconds " +
+        "with an explicit timezone"
     );
   }
   if (status === "candidate" && alignment !== null) {
@@ -383,15 +405,16 @@ function parseLifecycleMetadata(options: {
   if (status === "active" && !isDecisionAlignment(alignment)) {
     lifecycleValid = false;
     errors.push(
-      relativePath + " active decision frontmatter alignment must be aligned or unaligned"
+      relativePath +
+        " active decision frontmatter alignment must be aligned or unaligned"
     );
   }
   if (status === "active" && createdAt === null) {
     lifecycleValid = false;
     errors.push(
-      relativePath
-      + " active decision frontmatter createdAt must not be null; use status: "
-      + "candidate with alignment: null for a reviewable candidate"
+      relativePath +
+        " active decision frontmatter createdAt must not be null; use status: " +
+        "candidate with alignment: null for a reviewable candidate"
     );
   }
   if (status === "archived" && createdAt === null) {
@@ -408,18 +431,18 @@ function parseLifecycleMetadata(options: {
     return { alignment, createdAt, status };
   }
   if (
-    status === "active"
-    && isDecisionAlignment(alignment)
-    && typeof createdAt === "string"
-    && isDecisionTimestamp(createdAt)
+    status === "active" &&
+    isDecisionAlignment(alignment) &&
+    typeof createdAt === "string" &&
+    isDecisionTimestamp(createdAt)
   ) {
     return { alignment, createdAt, status };
   }
   if (
-    status === "archived"
-    && (alignment === null || isDecisionAlignment(alignment))
-    && typeof createdAt === "string"
-    && isDecisionTimestamp(createdAt)
+    status === "archived" &&
+    (alignment === null || isDecisionAlignment(alignment)) &&
+    typeof createdAt === "string" &&
+    isDecisionTimestamp(createdAt)
   ) {
     return { alignment, createdAt, status };
   }
@@ -442,7 +465,11 @@ function usesLexicalAscendingOrder(values: readonly string[]): boolean {
   for (let index = 1; index < values.length; index += 1) {
     const previous = values[index - 1];
     const current = values[index];
-    if (previous === undefined || current === undefined || previous >= current) {
+    if (
+      previous === undefined ||
+      current === undefined ||
+      previous >= current
+    ) {
       return false;
     }
   }

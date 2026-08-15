@@ -13,7 +13,8 @@ import { githubRepository, rootDir } from "../lib/project.ts";
 import { decisionIndexJsonSchema } from "../../tools/decision-records/src/decision-index-json-schema.ts";
 
 const sourceRelativePath = "tools/decision-records/src/cli.ts";
-const outputRelativePath = "skills/decision-records/scripts/decision-records.mjs";
+const outputRelativePath =
+  "skills/decision-records/scripts/decision-records.mjs";
 const declarationOutputRelativePath =
   "skills/decision-records/scripts/decision-records.d.mts";
 const declarationOutputDirectory = path.join(
@@ -40,7 +41,9 @@ async function buildArtifact(): Promise<BunBundleResult> {
     keepNames: true,
     minify: true,
     outputFileName: path.basename(outputRelativePath),
-    sourceMapBaseDirectory: path.dirname(path.join(rootDir, outputRelativePath)),
+    sourceMapBaseDirectory: path.dirname(
+      path.join(rootDir, outputRelativePath)
+    ),
     sourceMap: true
   });
 }
@@ -49,16 +52,20 @@ async function main(): Promise<void> {
   const mode = parseGeneratedFileMode(process.argv.slice(2));
   const outputPath = path.join(rootDir, outputRelativePath);
   const expected = await buildArtifact();
-  const declarationArtifacts = await buildGeneratedTypeScriptDeclarationArtifacts({
-    declarationArtifactName: "decision records TypeScript declaration",
-    declarationEntryOutputPath: path.join(rootDir, declarationOutputRelativePath),
-    declarationOutputDirectory,
-    entrySourcePath: sourceRelativePath,
-    rebuildCommand: "bun run sync:decision-records-cli",
-    repository: githubRepository,
-    skillSourcePath: "skills/decision-records",
-    workspaceRoot: rootDir
-  });
+  const declarationArtifacts =
+    await buildGeneratedTypeScriptDeclarationArtifacts({
+      declarationArtifactName: "decision records TypeScript declaration",
+      declarationEntryOutputPath: path.join(
+        rootDir,
+        declarationOutputRelativePath
+      ),
+      declarationOutputDirectory,
+      entrySourcePath: sourceRelativePath,
+      rebuildCommand: "bun run sync:decision-records-cli",
+      repository: githubRepository,
+      skillSourcePath: "skills/decision-records",
+      workspaceRoot: rootDir
+    });
   const expectedSchema = `${JSON.stringify(decisionIndexJsonSchema, null, 2)}\n`;
   if (expected.sourceMap === null) {
     throw new Error("Decision records CLI bundle must include a source map");
@@ -83,7 +90,8 @@ async function main(): Promise<void> {
     declarationArtifacts
       .map((artifact) => artifact.path)
       .filter(
-        (artifactPath) => path.dirname(artifactPath) === declarationOutputDirectory
+        (artifactPath) =>
+          path.dirname(artifactPath) === declarationOutputDirectory
       )
   );
   const staleDeclarations = await removeStaleGeneratedTypeScriptDeclarations({
@@ -96,7 +104,10 @@ async function main(): Promise<void> {
   });
   const changed = changedArtifacts || staleDeclarations.changed;
 
-  if (staleDeclarations.hasUnsupportedEntries || (mode === "check" && changed)) {
+  if (
+    staleDeclarations.hasUnsupportedEntries ||
+    (mode === "check" && changed)
+  ) {
     process.exit(1);
   }
 

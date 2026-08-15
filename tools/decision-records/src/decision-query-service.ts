@@ -291,22 +291,27 @@ async function showDecisionCandidate(
   if (context.status === "error") {
     return context;
   }
-  const record = candidateRecords(context.scan).find(
-    (candidate) => candidate.decisionId === request.decisionId
-  ) ?? null;
-  if (record === null) {
-    const sourceRecord = context.scan.records.find(
+  const record =
+    candidateRecords(context.scan).find(
       (candidate) => candidate.decisionId === request.decisionId
-        && candidate.markdownExists
     ) ?? null;
-    const targetWarnings = sourceRecord === null
-      ? []
-      : sourceWarningsForRecord(context.warnings, sourceRecord);
+  if (record === null) {
+    const sourceRecord =
+      context.scan.records.find(
+        (candidate) =>
+          candidate.decisionId === request.decisionId &&
+          candidate.markdownExists
+      ) ?? null;
+    const targetWarnings =
+      sourceRecord === null
+        ? []
+        : sourceWarningsForRecord(context.warnings, sourceRecord);
     return decisionFailure(
       sourceRecord === null
         ? ["Decision candidate does not exist: " + request.decisionId]
         : [
-            "Decision source is not a valid reviewable candidate: " + request.decisionId,
+            "Decision source is not a valid reviewable candidate: " +
+              request.decisionId,
             ...targetWarnings
           ],
       { presentation: "plain" }
@@ -354,15 +359,19 @@ async function traceDecisionRecord(
     return indexFailure(queried, context.indexRelativePath);
   }
   const records = indexedRecords(queried.value);
-  const trace = traceDecisionRelations(records.map((record) => ({
-    decisionId: record.decisionId,
-    projection: record.projection,
-    sourcePath: record.sourcePath,
-    status: record.status
-  })), request.decisionId, {
-    direction: request.direction,
-    maxDepth: request.maxDepth
-  });
+  const trace = traceDecisionRelations(
+    records.map((record) => ({
+      decisionId: record.decisionId,
+      projection: record.projection,
+      sourcePath: record.sourcePath,
+      status: record.status
+    })),
+    request.decisionId,
+    {
+      direction: request.direction,
+      maxDepth: request.maxDepth
+    }
+  );
   return {
     command: "trace",
     edges: trace.edges,
@@ -398,20 +407,28 @@ async function synchronizeDecisionIndex(
     decisionIds: selection.decisionIds
   });
   if (synchronized.status === "error") {
-    if (!request.write && (
-      synchronized.state === "index-invalid"
-      || synchronized.state === "index-missing"
-      || synchronized.state === "index-stale"
-    )) {
-      return decisionFailure([
-        "Decision index is out of sync.",
-        "Run sync-index --write to update " + result.scan.indexRelativePath + "."
-      ], { presentation: "plain" });
+    if (
+      !request.write &&
+      (synchronized.state === "index-invalid" ||
+        synchronized.state === "index-missing" ||
+        synchronized.state === "index-stale")
+    ) {
+      return decisionFailure(
+        [
+          "Decision index is out of sync.",
+          "Run sync-index --write to update " +
+            result.scan.indexRelativePath +
+            "."
+        ],
+        { presentation: "plain" }
+      );
     }
-    return decisionFailure(decisionIndexDiagnosticMessages(
-      synchronized.diagnostics,
-      result.scan.indexRelativePath
-    ));
+    return decisionFailure(
+      decisionIndexDiagnosticMessages(
+        synchronized.diagnostics,
+        result.scan.indexRelativePath
+      )
+    );
   }
   return {
     command: "sync-index",
@@ -454,9 +471,7 @@ function indexedRecords(
   return entries.map(indexedRecord);
 }
 
-function indexedRecord(
-  entry: IndexedDecisionState
-): IndexedDecisionRecord {
+function indexedRecord(entry: IndexedDecisionState): IndexedDecisionRecord {
   const state = entry.state;
   if (!isDecisionId(entry.id)) {
     throw new TypeError("indexed decision entry uses an invalid Decision ID");
@@ -499,9 +514,7 @@ function candidateRecords(scan: DecisionScan): CandidateDecisionRecord[] {
     }));
 }
 
-async function loadCandidateQueryContext(
-  location: DecisionLocation
-): Promise<
+async function loadCandidateQueryContext(location: DecisionLocation): Promise<
   | DecisionApplicationFailure
   | {
       scan: DecisionScan;
@@ -520,15 +533,15 @@ async function loadCandidateQueryContext(
     (record) => record.source.kind === "established"
   );
   if (
-    scan.indexErrors.length > 0
-    && (hasEstablishedRecord || scan.indexExists)
+    scan.indexErrors.length > 0 &&
+    (hasEstablishedRecord || scan.indexExists)
   ) {
     return decisionFailure(scan.indexErrors);
   }
   if (!hasEstablishedRecord && scan.indexExists) {
     return decisionFailure([
-      scan.indexRelativePath
-      + " must be absent until the first established decision is indexed"
+      scan.indexRelativePath +
+        " must be absent until the first established decision is indexed"
     ]);
   }
   if (hasEstablishedRecord) {
@@ -542,9 +555,9 @@ async function loadCandidateQueryContext(
       mode: "check"
     });
     if (checked.status === "error") {
-      return checked.state === "index-invalid"
-        || checked.state === "index-missing"
-        || checked.state === "index-stale"
+      return checked.state === "index-invalid" ||
+        checked.state === "index-missing" ||
+        checked.state === "index-stale"
         ? decisionFailure([
             scan.indexRelativePath + " is out of sync; run sync-index --write"
           ])
@@ -564,29 +577,31 @@ function sourceWarningsForRecord(
   warnings: readonly string[],
   record: DecisionRecord
 ): string[] {
-  return [...new Set([
-    ...warnings.filter((warning) => warning.startsWith(record.sourcePath + " ")),
-    ...record.relationshipErrors
-  ])];
+  return [
+    ...new Set([
+      ...warnings.filter((warning) =>
+        warning.startsWith(record.sourcePath + " ")
+      ),
+      ...record.relationshipErrors
+    ])
+  ];
 }
 
 function indexFailure(
-  result: { diagnostics: Parameters<typeof decisionIndexDiagnosticMessages>[0] },
+  result: {
+    diagnostics: Parameters<typeof decisionIndexDiagnosticMessages>[0];
+  },
   indexRelativePath: string
 ): DecisionApplicationFailure {
-  return decisionFailure(decisionIndexDiagnosticMessages(
-    result.diagnostics,
-    indexRelativePath
-  ));
+  return decisionFailure(
+    decisionIndexDiagnosticMessages(result.diagnostics, indexRelativePath)
+  );
 }
 
 async function readDecisionBody(
   decisionsDirectory: string,
   record: CandidateDecisionRecord | IndexedDecisionRecord
-): Promise<
-  | DecisionApplicationFailure
-  | { status: "ok"; value: string }
-> {
+): Promise<DecisionApplicationFailure | { status: "ok"; value: string }> {
   try {
     const sourceFilePath = path.join(
       decisionsDirectory,
@@ -602,10 +617,10 @@ async function readDecisionBody(
     };
   } catch (error) {
     return decisionFailure([
-      "Failed to read decision body "
-        + record.sourcePath
-        + ": "
-        + errorText(error)
+      "Failed to read decision body " +
+        record.sourcePath +
+        ": " +
+        errorText(error)
     ]);
   }
 }

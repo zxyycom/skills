@@ -129,11 +129,15 @@ export function entityIndexText(
   entities: readonly TestEntity[],
   sourceRevision = "fixture-v1"
 ): string {
-  return `${JSON.stringify({
-    schemaVersion: 1,
-    sourceRevision,
-    entities
-  }, null, 2)}\n`;
+  return `${JSON.stringify(
+    {
+      schemaVersion: 1,
+      sourceRevision,
+      entities
+    },
+    null,
+    2
+  )}\n`;
 }
 
 export function caseMarkdown(
@@ -146,11 +150,9 @@ export function caseMarkdown(
     "Tests:",
     ...ledgerCase.testIds.map((testId) => `- \`${testId}\``),
     "",
-    ...(ledgerCase.tags.length === 0 ? [] : [
-      "Tags:",
-      ...ledgerCase.tags.map((tag) => `- \`${tag}\``),
-      ""
-    ]),
+    ...(ledgerCase.tags.length === 0
+      ? []
+      : ["Tags:", ...ledgerCase.tags.map((tag) => `- \`${tag}\``), ""]),
     "Contract:",
     ...ledgerCase.contract.map((entry) => `- ${entry}`),
     "",
@@ -166,10 +168,7 @@ export async function writeWorkspaceFile(
   relativePath: string,
   content: string
 ): Promise<void> {
-  const targetPath = path.join(
-    workspaceRoot,
-    ...relativePath.split("/")
-  );
+  const targetPath = path.join(workspaceRoot, ...relativePath.split("/"));
   await fs.mkdir(path.dirname(targetPath), { recursive: true });
   await fs.writeFile(targetPath, content, "utf8");
 }
@@ -178,9 +177,7 @@ export async function readJsonFile(filePath: string): Promise<unknown> {
   return JSON.parse(await fs.readFile(filePath, "utf8")) as unknown;
 }
 
-export async function runLedgerCli(
-  args: readonly string[]
-): Promise<{
+export async function runLedgerCli(args: readonly string[]): Promise<{
   code: number;
   stderr: string;
   stdout: string;
@@ -197,12 +194,12 @@ export async function runLedgerCli(
     return { code: 0, stderr: result.stderr, stdout: result.stdout };
   } catch (error) {
     if (
-      typeof error === "object"
-      && error !== null
-      && "stdout" in error
-      && "stderr" in error
-      && "code" in error
-      && typeof error.code === "number"
+      typeof error === "object" &&
+      error !== null &&
+      "stdout" in error &&
+      "stderr" in error &&
+      "code" in error &&
+      typeof error.code === "number"
     ) {
       return {
         code: error.code,

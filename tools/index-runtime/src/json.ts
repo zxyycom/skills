@@ -16,14 +16,13 @@ export type ReadonlyJsonObject = {
   readonly [key: string]: ReadonlyJsonValue;
 };
 
-export type DeepReadonly<Value> =
-  Value extends JsonPrimitive
-    ? Value
-    : Value extends readonly unknown[]
+export type DeepReadonly<Value> = Value extends JsonPrimitive
+  ? Value
+  : Value extends readonly unknown[]
+    ? { readonly [Key in keyof Value]: DeepReadonly<Value[Key]> }
+    : Value extends object
       ? { readonly [Key in keyof Value]: DeepReadonly<Value[Key]> }
-      : Value extends object
-        ? { readonly [Key in keyof Value]: DeepReadonly<Value[Key]> }
-        : Value;
+      : Value;
 
 export function isJsonValue(value: unknown): value is JsonValue {
   return isJsonValueInternal(value, new Set<object>());
@@ -33,11 +32,14 @@ export function isJsonObject(value: unknown): value is JsonObject {
   return isJsonObjectInternal(value, new Set<object>());
 }
 
-function isJsonValueInternal(value: unknown, ancestors: Set<object>): value is JsonValue {
+function isJsonValueInternal(
+  value: unknown,
+  ancestors: Set<object>
+): value is JsonValue {
   if (
-    value === null
-    || typeof value === "boolean"
-    || typeof value === "string"
+    value === null ||
+    typeof value === "boolean" ||
+    typeof value === "string"
   ) {
     return true;
   }

@@ -148,13 +148,16 @@ export async function buildDecisionIndexFromSnapshot(
   signal?: AbortSignal
 ): Promise<StateIndexResult<DecisionIndex>> {
   const definition = createDecisionStateIndexDefinition();
-  const built = await buildStateIndex({
-    ...definition,
-    read: async () => snapshot
-  }, {
-    root: ".",
-    ...(signal === undefined ? {} : { signal })
-  });
+  const built = await buildStateIndex(
+    {
+      ...definition,
+      read: async () => snapshot
+    },
+    {
+      root: ".",
+      ...(signal === undefined ? {} : { signal })
+    }
+  );
   return built.status === "error"
     ? built
     : validateDecisionIndex(built.value, decisionIndexFileName);
@@ -169,16 +172,19 @@ export function decisionIndexDiagnosticMessages(
   displayPath?: string
 ): string[] {
   return diagnostics.map((diagnostic) => {
-    const source = diagnostic.path === null
-      ? displayPath
-      : displayPath === undefined || diagnostic.path !== decisionIndexFileName
-        ? diagnostic.path
-        : displayPath;
+    const source =
+      diagnostic.path === null
+        ? displayPath
+        : displayPath === undefined || diagnostic.path !== decisionIndexFileName
+          ? diagnostic.path
+          : displayPath;
     return [
       ...(source === undefined ? [] : [source]),
       diagnostic.stateId === null ? "" : `[${diagnostic.stateId}]`,
       diagnostic.message
-    ].filter((part) => part.length > 0).join(" ");
+    ]
+      .filter((part) => part.length > 0)
+      .join(" ");
   });
 }
 
@@ -190,10 +196,8 @@ function validateDecisionIndexMembership(
   const expectedIds = [...new Set(decisionIds)].sort(compareText);
   const indexedIds = Object.keys(index.entries).sort(compareText);
   if (
-    expectedIds.length === indexedIds.length
-    && expectedIds.every((entry, entryIndex) => (
-      entry === indexedIds[entryIndex]
-    ))
+    expectedIds.length === indexedIds.length &&
+    expectedIds.every((entry, entryIndex) => entry === indexedIds[entryIndex])
   ) {
     return { diagnostics: [], status: "ok", value: index };
   }
@@ -203,17 +207,15 @@ function validateDecisionIndexMembership(
   const missingIds = expectedIds.filter((entry) => !indexedIdSet.has(entry));
   const unexpectedIds = indexedIds.filter((entry) => !expectedIdSet.has(entry));
   const details = [
-    ...(missingIds.length === 0
-      ? []
-      : ["missing: " + missingIds.join(", ")]),
+    ...(missingIds.length === 0 ? [] : ["missing: " + missingIds.join(", ")]),
     ...(unexpectedIds.length === 0
       ? []
       : ["unexpected: " + unexpectedIds.join(", ")])
   ];
   return failure(
     "decision-index.membership-mismatch",
-    "index entries do not match the complete established Markdown set"
-      + (details.length === 0 ? "" : "; " + details.join("; ")),
+    "index entries do not match the complete established Markdown set" +
+      (details.length === 0 ? "" : "; " + details.join("; ")),
     sourcePath
   );
 }
@@ -260,12 +262,14 @@ function failure<Value>(
   sourcePath: string
 ): StateIndexResult<Value> {
   return {
-    diagnostics: [{
-      code,
-      message,
-      path: sourcePath,
-      stateId: null
-    }],
+    diagnostics: [
+      {
+        code,
+        message,
+        path: sourcePath,
+        stateId: null
+      }
+    ],
     status: "error",
     value: null
   };

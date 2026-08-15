@@ -1,11 +1,7 @@
 import path from "node:path";
 import { loadTestEvidenceCatalog } from "./catalog-source.ts";
-import {
-  sortUniqueDiagnostics
-} from "./diagnostics.ts";
-import {
-  testEvidenceReportSchemaVersion
-} from "./schemas.ts";
+import { sortUniqueDiagnostics } from "./diagnostics.ts";
+import { testEvidenceReportSchemaVersion } from "./schemas.ts";
 import { syncTestEvidenceIndex } from "./state-index.ts";
 import { cloneTopicDefinitions } from "./topics.ts";
 import type {

@@ -5,13 +5,13 @@ import {
   isActivationCandidateRecord,
   isDecisionCandidateRecord,
   isEstablishedDecisionRecord,
-  type DecisionRecord,
+  type DecisionRecord
 } from "../src/types.ts";
 import {
   candidateDecisionBody,
   currentDecisionId,
   withFixtureWorkspace,
-  writeDecision,
+  writeDecision
 } from "./support.ts";
 
 test("record type guards reject invalid identity fields from real candidate and established scans", () =>
@@ -20,10 +20,10 @@ test("record type guards reject invalid identity fields from real candidate and 
     await writeDecision(workspaceRoot, candidateId, candidateDecisionBody());
     const scan = await scanDecisionRecords({ workspaceRoot });
     const candidate = scan.records.find(
-      (record) => record.decisionId === candidateId,
+      (record) => record.decisionId === candidateId
     );
     const established = scan.records.find(
-      (record) => record.decisionId === currentDecisionId,
+      (record) => record.decisionId === currentDecisionId
     );
     assert.ok(candidate);
     assert.ok(established);
@@ -43,6 +43,6 @@ test("record type guards reject invalid identity fields from real candidate and 
 function invalidIdentityRecords(record: DecisionRecord): DecisionRecord[] {
   return [
     { ...record, decisionId: "invalid_name.md" },
-    { ...record, sourcePath: "nested/invalid-path.md" },
+    { ...record, sourcePath: "nested/invalid-path.md" }
   ];
 }

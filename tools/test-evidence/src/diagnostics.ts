@@ -56,12 +56,14 @@ function compareDiagnostics(
   left: TestEvidenceDiagnostic,
   right: TestEvidenceDiagnostic
 ): number {
-  return compareText(left.path ?? "", right.path ?? "")
-    || (left.line ?? 0) - (right.line ?? 0)
-    || (left.column ?? 0) - (right.column ?? 0)
-    || compareText(left.severity, right.severity)
-    || compareText(left.code, right.code)
-    || compareText(left.message, right.message);
+  return (
+    compareText(left.path ?? "", right.path ?? "") ||
+    (left.line ?? 0) - (right.line ?? 0) ||
+    (left.column ?? 0) - (right.column ?? 0) ||
+    compareText(left.severity, right.severity) ||
+    compareText(left.code, right.code) ||
+    compareText(left.message, right.message)
+  );
 }
 
 function compareText(left: string, right: string): number {

@@ -11,8 +11,7 @@ import type {
   DecisionSourceInput
 } from "./types.ts";
 
-export const decisionSourceFingerprintPatternSource =
-  "^sha256:[0-9a-f]{64}$";
+export const decisionSourceFingerprintPatternSource = "^sha256:[0-9a-f]{64}$";
 
 type PreparedDecisionSources = Readonly<{
   decisionIds: ReadonlySet<DecisionId>;
@@ -29,13 +28,18 @@ export function decisionSourceRevision(
 export function prepareDecisionSources(
   sources: readonly DecisionSourceInput[]
 ): PreparedDecisionSources {
-  const orderedSources = sources.map(parseDecisionSourceInput)
+  const orderedSources = sources
+    .map(parseDecisionSourceInput)
     .sort((left, right) => compareText(left.decisionId, right.decisionId));
-  const decisionIds = new Set(orderedSources.map((source) => source.decisionId));
+  const decisionIds = new Set(
+    orderedSources.map((source) => source.decisionId)
+  );
   if (decisionIds.size !== orderedSources.length) {
     throw new Error("decision sources must use unique Decision IDs");
   }
-  const sourcePaths = new Set(orderedSources.map((source) => source.sourcePath));
+  const sourcePaths = new Set(
+    orderedSources.map((source) => source.sourcePath)
+  );
   if (sourcePaths.size !== orderedSources.length) {
     throw new Error("decision sources must use unique source paths");
   }
@@ -43,15 +47,17 @@ export function prepareDecisionSources(
     decisionIds,
     revision: {
       metadata: sourceFingerprint("decision-index-metadata-v2", "{}"),
-      entries: Object.fromEntries(orderedSources.map((source) => [
-        source.decisionId,
-        sourceFingerprint(
-          "decision-index-entry-v2",
+      entries: Object.fromEntries(
+        orderedSources.map((source) => [
           source.decisionId,
-          source.sourcePath,
-          normalizeDecisionSourceText(source.text)
-        )
-      ]))
+          sourceFingerprint(
+            "decision-index-entry-v2",
+            source.decisionId,
+            source.sourcePath,
+            normalizeDecisionSourceText(source.text)
+          )
+        ])
+      )
     },
     sources: orderedSources
   };
@@ -70,10 +76,10 @@ function parseDecisionSourceInput(source: DecisionSourceInput): DecisionSource {
   }
   if (decisionIdFromSourcePath(source.sourcePath) !== source.decisionId) {
     throw new TypeError(
-      "decision source path does not match Decision ID "
-        + source.decisionId
-        + ": "
-        + source.sourcePath
+      "decision source path does not match Decision ID " +
+        source.decisionId +
+        ": " +
+        source.sourcePath
     );
   }
   return {
@@ -83,7 +89,10 @@ function parseDecisionSourceInput(source: DecisionSourceInput): DecisionSource {
   };
 }
 
-function sourceFingerprint(label: string, ...fields: readonly string[]): string {
+function sourceFingerprint(
+  label: string,
+  ...fields: readonly string[]
+): string {
   const hash = createHash("sha256");
   hash.update(label + "\0");
   for (const field of fields) {

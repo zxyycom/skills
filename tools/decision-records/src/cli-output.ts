@@ -28,9 +28,7 @@ export function printDecisionAttention(
   }
 }
 
-export function printDecisionQuerySuccess(
-  result: DecisionQuerySuccess
-): void {
+export function printDecisionQuerySuccess(result: DecisionQuerySuccess): void {
   printQueryWarnings(result.warnings);
   switch (result.command) {
     case "candidates":
@@ -63,15 +61,18 @@ function printCandidates(
     return;
   }
   for (const record of records) {
-    printRecordHeader("candidate", record.decisionId, record.sourcePath, record.tags);
+    printRecordHeader(
+      "candidate",
+      record.decisionId,
+      record.sourcePath,
+      record.tags
+    );
     console.log("  title: " + record.projection.title);
     console.log("  purpose: " + record.projection.purpose);
   }
 }
 
-export function printCandidateWarnings(
-  sourcePaths: readonly string[]
-): void {
+export function printCandidateWarnings(sourcePaths: readonly string[]): void {
   if (sourcePaths.length === 0) {
     return;
   }
@@ -80,8 +81,8 @@ export function printCandidateWarnings(
     console.error("- Reviewable decision candidate remains: " + sourcePath);
   }
   console.error(
-    "- Candidates remain outside the decision index; use candidates to review "
-      + "them, then activate or discard them explicitly."
+    "- Candidates remain outside the decision index; use candidates to review " +
+      "them, then activate or discard them explicitly."
   );
 }
 
@@ -99,13 +100,19 @@ function printCheck(
   summary: Extract<DecisionQuerySuccess, { command: "check" }>["summary"]
 ): void {
   console.log(
-    "Decision records check passed ("
-      + summary.decisionCount + " decisions, "
-      + summary.activeCount + " active, "
-      + summary.alignedCount + " aligned, "
-      + summary.unalignedCount + " unaligned, "
-      + summary.archivedCount + " archived, "
-      + summary.activationCandidateCount + " candidates)."
+    "Decision records check passed (" +
+      summary.decisionCount +
+      " decisions, " +
+      summary.activeCount +
+      " active, " +
+      summary.alignedCount +
+      " aligned, " +
+      summary.unalignedCount +
+      " unaligned, " +
+      summary.archivedCount +
+      " archived, " +
+      summary.activationCandidateCount +
+      " candidates)."
   );
 }
 
@@ -121,9 +128,14 @@ function printList(
   for (const record of records) {
     const timestamp = record.createdAt ?? "unknown";
     console.log(
-      "- " + record.status + " " + (record.alignment ?? "null") + " "
-        + (fullTime ? timestamp : timestamp.slice(0, 10)) + " "
-        + record.decisionId
+      "- " +
+        record.status +
+        " " +
+        (record.alignment ?? "null") +
+        " " +
+        (fullTime ? timestamp : timestamp.slice(0, 10)) +
+        " " +
+        record.decisionId
     );
     console.log("  sourcePath: " + record.sourcePath);
     console.log("  tags: " + record.tags.join(", "));
@@ -166,9 +178,16 @@ function printTrace(
   } else {
     for (const record of records) {
       console.log(
-        "- " + record.status + " " + (record.alignment ?? "null") + " "
-          + record.decisionId + " [" + record.sourcePath + "] - "
-          + record.projection.title
+        "- " +
+          record.status +
+          " " +
+          (record.alignment ?? "null") +
+          " " +
+          record.decisionId +
+          " [" +
+          record.sourcePath +
+          "] - " +
+          record.projection.title
       );
       console.log("  tags: " + record.tags.join(", "));
     }
@@ -178,7 +197,9 @@ function printTrace(
     console.log("- none");
   } else {
     for (const edge of edges) {
-      console.log("- " + edge.source + " --" + edge.type + "--> " + edge.target);
+      console.log(
+        "- " + edge.source + " --" + edge.type + "--> " + edge.target
+      );
     }
   }
 }

@@ -40,36 +40,38 @@ type CliInput =
     };
 
 function printHelp(): void {
-  console.log([
-    "Usage: check-investigations.mjs [check] [options]",
-    "       check-investigations.mjs sync-index [options]",
-    "       check-investigations.mjs list [options]",
-    "       check-investigations.mjs stage-index <topic-id...> [options]",
-    "",
-    "Check investigation topics, optional attached resources, timestamps, and the generated index.",
-    "Without filters, every topic, the managed resource pool, and full-index freshness are checked.",
-    "With --category or --path, matching topics and their referenced resources are checked.",
-    "Git workspaces exclude ignored untracked resources; tracked resources remain managed.",
-    "sync-index validates every topic and managed resource, then writes the derived JSON index.",
-    "list checks topic and managed resource freshness, then queries without parsing report bodies.",
-    "stage-index stages only selected topic entries from the current workspace index.",
-    "It does not read or stage topic Markdown or attached resources.",
-    "",
-    "Options:",
-    "  --root <workspace-root>       Workspace root (default: current directory)",
-    "  --investigations-dir <path>  Investigation root relative to workspace",
-    "                               (default: docs/investigations)",
-    "  --category <category-id>     Filter one topic category in check or list; repeatable",
-    "  --path <relative-path>       Filter one topic path in check or list; repeatable",
-    "  --status <status>            List one status; repeatable",
-    "  --text <terms>               List topic titles, questions, or report titles containing all terms",
-    "  --latest-from <timestamp>    List topics whose latest report is at or after this timestamp",
-    "  --latest-to <timestamp>      List topics whose latest report is at or before this timestamp",
-    "  --limit <count>              List page size (default: 50, maximum: 1000)",
-    "  --offset <count>             List page offset (default: 0)",
-    "  --json                       Emit the stage-index result as JSON",
-    "  -h, --help                   Show this help"
-  ].join("\n"));
+  console.log(
+    [
+      "Usage: check-investigations.mjs [check] [options]",
+      "       check-investigations.mjs sync-index [options]",
+      "       check-investigations.mjs list [options]",
+      "       check-investigations.mjs stage-index <topic-id...> [options]",
+      "",
+      "Check investigation topics, optional attached resources, timestamps, and the generated index.",
+      "Without filters, every topic, the managed resource pool, and full-index freshness are checked.",
+      "With --category or --path, matching topics and their referenced resources are checked.",
+      "Git workspaces exclude ignored untracked resources; tracked resources remain managed.",
+      "sync-index validates every topic and managed resource, then writes the derived JSON index.",
+      "list checks topic and managed resource freshness, then queries without parsing report bodies.",
+      "stage-index stages only selected topic entries from the current workspace index.",
+      "It does not read or stage topic Markdown or attached resources.",
+      "",
+      "Options:",
+      "  --root <workspace-root>       Workspace root (default: current directory)",
+      "  --investigations-dir <path>  Investigation root relative to workspace",
+      "                               (default: docs/investigations)",
+      "  --category <category-id>     Filter one topic category in check or list; repeatable",
+      "  --path <relative-path>       Filter one topic path in check or list; repeatable",
+      "  --status <status>            List one status; repeatable",
+      "  --text <terms>               List topic titles, questions, or report titles containing all terms",
+      "  --latest-from <timestamp>    List topics whose latest report is at or after this timestamp",
+      "  --latest-to <timestamp>      List topics whose latest report is at or before this timestamp",
+      "  --limit <count>              List page size (default: 50, maximum: 1000)",
+      "  --offset <count>             List page offset (default: 0)",
+      "  --json                       Emit the stage-index result as JSON",
+      "  -h, --help                   Show this help"
+    ].join("\n")
+  );
 }
 
 function parseCliInput(argv: readonly string[]): CliInput {
@@ -120,10 +122,12 @@ function parseCliInput(argv: readonly string[]): CliInput {
 }
 
 function isInvestigationCommand(value: string): value is InvestigationCommand {
-  return value === "check"
-    || value === "list"
-    || value === "stage-index"
-    || value === "sync-index";
+  return (
+    value === "check" ||
+    value === "list" ||
+    value === "stage-index" ||
+    value === "sync-index"
+  );
 }
 
 function optionalString(value: unknown): string | undefined {
@@ -200,9 +204,11 @@ function hasListOnlyOptions(values: ParsedArguments["values"]): boolean {
 }
 
 function hasQueryOptions(values: ParsedArguments["values"]): boolean {
-  return optionalStrings(values.category) !== undefined
-    || optionalStrings(values.path) !== undefined
-    || hasListOnlyOptions(values);
+  return (
+    optionalStrings(values.category) !== undefined ||
+    optionalStrings(values.path) !== undefined ||
+    hasListOnlyOptions(values)
+  );
 }
 
 function hasJsonOutput(values: ParsedArguments["values"]): boolean {
@@ -231,12 +237,12 @@ async function runSyncCommand(
   const synchronized = execution.value;
   console.log(
     synchronized.changed
-      ? "Investigation index synchronized "
-        + `(${synchronized.topicCount} topics across `
-        + `${synchronized.categoryCount} categories).`
-      : "Investigation index is already current "
-        + `(${synchronized.topicCount} topics across `
-        + `${synchronized.categoryCount} categories).`
+      ? "Investigation index synchronized " +
+          `(${synchronized.topicCount} topics across ` +
+          `${synchronized.categoryCount} categories).`
+      : "Investigation index is already current " +
+          `(${synchronized.topicCount} topics across ` +
+          `${synchronized.categoryCount} categories).`
   );
   return 0;
 }
@@ -274,30 +280,36 @@ function printStageSuccess(
 ): void {
   console.log(
     result.changed
-      ? "Investigation index entries staged for "
-        + `${result.selectedIds.length} selected topic(s) in ${result.indexPath}.`
-      : "Investigation index entries are unchanged for "
-        + `${result.selectedIds.length} selected topic(s) in ${result.indexPath}.`
+      ? "Investigation index entries staged for " +
+          `${result.selectedIds.length} selected topic(s) in ${result.indexPath}.`
+      : "Investigation index entries are unchanged for " +
+          `${result.selectedIds.length} selected topic(s) in ${result.indexPath}.`
   );
   console.log(`state: ${result.state}; changed: ${result.changed}`);
   console.log(`selected IDs: ${result.selectedIds.join(", ")}`);
-  console.log("Topic Markdown and attached resources remain outside this operation.");
+  console.log(
+    "Topic Markdown and attached resources remain outside this operation."
+  );
 }
 
 function printStageErrors(
   result: Extract<InvestigationIndexStageResult, { status: "error" }>
 ): void {
   printErrors(
-    "Investigation index entry staging failed "
-      + `(state: ${result.state}; changed: ${result.changed}):`,
+    "Investigation index entry staging failed " +
+      `(state: ${result.state}; changed: ${result.changed}):`,
     [
       `selected IDs: ${result.selectedIds.join(", ") || "none"}`,
-      ...result.diagnostics.map((diagnostic) => [
-        diagnostic.code,
-        diagnostic.path ?? result.indexPath,
-        diagnostic.stateId === null ? "" : `[${diagnostic.stateId}]`,
-        diagnostic.message
-      ].filter((part) => part.length > 0).join(" "))
+      ...result.diagnostics.map((diagnostic) =>
+        [
+          diagnostic.code,
+          diagnostic.path ?? result.indexPath,
+          diagnostic.stateId === null ? "" : `[${diagnostic.stateId}]`,
+          diagnostic.message
+        ]
+          .filter((part) => part.length > 0)
+          .join(" ")
+      )
     ]
   );
 }
@@ -321,8 +333,8 @@ async function runListCommand(
     return 0;
   }
   console.log(
-    `Investigation topics (${queried.entries.length} of ${queried.total}, `
-    + `offset ${queried.offset}):`
+    `Investigation topics (${queried.entries.length} of ${queried.total}, ` +
+      `offset ${queried.offset}):`
   );
   for (const entry of queried.entries) {
     console.log(`${entry.status} ${entry.latestReportAt} ${entry.path}`);
@@ -340,8 +352,8 @@ async function runCheckCommand(
 ): Promise<number> {
   if (hasListOnlyOptions(values)) {
     console.error(
-      "check only accepts --category and --path filters; "
-      + "use list for indexed queries"
+      "check only accepts --category and --path filters; " +
+        "use list for indexed queries"
     );
     return 2;
   }
@@ -357,23 +369,22 @@ async function runCheckCommand(
   }
   const result = execution.value;
   console.log(
-    "Investigation report check passed ("
-    + result.selectedTopicCount
-    + " of "
-    + result.availableTopicCount
-    + " topics checked across "
-    + result.categoryCount
-    + " categories"
-    + (result.indexChecked ? "; full index current" : "; index not checked")
-    + ")."
+    "Investigation report check passed (" +
+      result.selectedTopicCount +
+      " of " +
+      result.availableTopicCount +
+      " topics checked across " +
+      result.categoryCount +
+      " categories" +
+      (result.indexChecked ? "; full index current" : "; index not checked") +
+      ")."
   );
   return 0;
 }
 
-async function dispatchCommand(input: Extract<
-  CliInput,
-  { status: "command" }
->): Promise<number> {
+async function dispatchCommand(
+  input: Extract<CliInput, { status: "command" }>
+): Promise<number> {
   if (input.command !== "stage-index" && hasJsonOutput(input.values)) {
     console.error("--json is only supported by stage-index");
     return 2;

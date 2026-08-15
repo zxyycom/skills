@@ -24,13 +24,12 @@ import {
 const rebuildCommand = "bun run sync:test-evidence-cli";
 const schemaSourcePath = "tools/test-evidence/src/schemas.ts";
 const skillSourcePath = "skills/test-evidence-review";
-const sourceApiDirectory = path.join(
+const sourceApiDirectory = path.join(rootDir, "tools", "test-evidence", "api");
+const publishedScriptsDirectory = path.join(
   rootDir,
-  "tools",
-  "test-evidence",
-  "api"
+  skillSourcePath,
+  "scripts"
 );
-const publishedScriptsDirectory = path.join(rootDir, skillSourcePath, "scripts");
 const publishedSchemasDirectory = path.join(
   rootDir,
   skillSourcePath,
@@ -40,8 +39,7 @@ const publishedSchemasDirectory = path.join(
 
 const bundleSpec = {
   artifactName: "test evidence catalog CLI",
-  declarationSource:
-    "tools/test-evidence/api/test-evidence-catalog.d.mts",
+  declarationSource: "tools/test-evidence/api/test-evidence-catalog.d.mts",
   entrySource: "tools/test-evidence/src/cli.ts",
   outputName: "test-evidence-catalog.mjs"
 } as const;
@@ -124,7 +122,9 @@ async function buildBundle(): Promise<GeneratedArtifact[]> {
     sourceMap: true
   });
   if (bundle.sourceMap === null) {
-    throw new Error(`${bundleSpec.outputName} bundle must include a source map`);
+    throw new Error(
+      `${bundleSpec.outputName} bundle must include a source map`
+    );
   }
   const outputPath = path.join(
     publishedScriptsDirectory,
@@ -172,8 +172,9 @@ async function buildSchemaArtifacts(): Promise<GeneratedArtifact[]> {
     const schemaPath = path.join(publishedSchemasDirectory, spec.fileName);
     const schema = {
       ...converted,
-      $id: `https://raw.githubusercontent.com/${githubRepository}/main/`
-        + `${skillSourcePath}/references/schemas/${spec.fileName}`,
+      $id:
+        `https://raw.githubusercontent.com/${githubRepository}/main/` +
+        `${skillSourcePath}/references/schemas/${spec.fileName}`,
       title: spec.typeName
     };
     artifacts.push({
@@ -199,8 +200,7 @@ async function buildSchemaArtifacts(): Promise<GeneratedArtifact[]> {
         unknownAny: true
       }
     );
-    const artifactName =
-      `${spec.typeName} schema-derived TypeScript declarations`;
+    const artifactName = `${spec.typeName} schema-derived TypeScript declarations`;
     const declarationBody = `${declaration.trim()}\n`;
     artifacts.push(
       {
@@ -232,8 +232,8 @@ async function buildSchemaArtifacts(): Promise<GeneratedArtifact[]> {
 async function main(): Promise<void> {
   const mode = parseGeneratedFileMode(process.argv.slice(2));
   const artifacts = [
-    ...await buildBundle(),
-    ...await buildSchemaArtifacts()
+    ...(await buildBundle()),
+    ...(await buildSchemaArtifacts())
   ];
   const changed = await syncGeneratedArtifacts(
     artifacts,

@@ -10,26 +10,23 @@ import {
   skillEntryFileName,
   skillVersionMetadataPath
 } from "../../skill-package/src/version.ts";
-import type {
-  RemoteSkillPackage,
-  SkillFile,
-  UpdaterConfig
-} from "./types.ts";
+import type { RemoteSkillPackage, SkillFile, UpdaterConfig } from "./types.ts";
 
 const releaseStringSchema = v.pipe(
   v.string("must be a string"),
   v.minLength(1, "must not be empty")
 );
-const githubReleaseSchema = v.object(
-  {
-    assets: v.array(v.object({
+const githubReleaseSchema = v.object({
+  assets: v.array(
+    v.object({
       name: releaseStringSchema,
       url: releaseStringSchema
-    }), "must be an array"),
-    html_url: releaseStringSchema,
-    tag_name: releaseStringSchema
-  }
-);
+    }),
+    "must be an array"
+  ),
+  html_url: releaseStringSchema,
+  tag_name: releaseStringSchema
+});
 
 type GitHubRelease = v.InferOutput<typeof githubReleaseSchema>;
 
@@ -60,7 +57,9 @@ function findReleaseAsset(
   release: GitHubRelease,
   assetName: string
 ): GitHubRelease["assets"][number] | null {
-  return release.assets.find((candidate) => candidate.name === assetName) ?? null;
+  return (
+    release.assets.find((candidate) => candidate.name === assetName) ?? null
+  );
 }
 
 async function fetchReleaseAsset(
@@ -69,7 +68,8 @@ async function fetchReleaseAsset(
 ): Promise<Uint8Array> {
   const asset = findReleaseAsset(release, assetName);
   if (!asset) {
-    const availableAssets = release.assets.map((candidate) => candidate.name).join(", ") || "(none)";
+    const availableAssets =
+      release.assets.map((candidate) => candidate.name).join(", ") || "(none)";
     throw new Error(
       `Release ${release.tag_name} does not contain ${assetName}. Available assets: ${availableAssets}`
     );
@@ -92,10 +92,12 @@ export async function fetchGitHubRelease(
   releaseTag: string | null
 ): Promise<GitHubRelease> {
   const encodedRepo = config.repo.split("/").map(encodeURIComponent).join("/");
-  const encodedTag = releaseTag === null ? null : encodeURIComponent(releaseTag);
-  const releaseApiUrl = encodedTag === null
-    ? `https://api.github.com/repos/${encodedRepo}/releases/latest`
-    : `https://api.github.com/repos/${encodedRepo}/releases/tags/${encodedTag}`;
+  const encodedTag =
+    releaseTag === null ? null : encodeURIComponent(releaseTag);
+  const releaseApiUrl =
+    encodedTag === null
+      ? `https://api.github.com/repos/${encodedRepo}/releases/latest`
+      : `https://api.github.com/repos/${encodedRepo}/releases/tags/${encodedTag}`;
   const response = await fetch(releaseApiUrl, {
     headers: githubHeaders("application/vnd.github+json")
   });
@@ -111,16 +113,16 @@ export async function fetchGitHubRelease(
     parsed = await response.json();
   } catch (error) {
     throw new Error(
-      `GitHub release response for ${config.repo} must contain valid JSON: `
-      + (error instanceof Error ? error.message : String(error))
+      `GitHub release response for ${config.repo} must contain valid JSON: ` +
+        (error instanceof Error ? error.message : String(error))
     );
   }
 
   const validation = v.safeParse(githubReleaseSchema, parsed);
   if (!validation.success) {
     throw new Error(
-      `GitHub release response for ${config.repo} is invalid:\n- `
-      + formatReleaseIssues(validation.issues).join("\n- ")
+      `GitHub release response for ${config.repo} is invalid:\n- ` +
+        formatReleaseIssues(validation.issues).join("\n- ")
     );
   }
 
@@ -131,7 +133,10 @@ async function fetchReleaseManifest(
   config: UpdaterConfig,
   release: GitHubRelease
 ): Promise<SkillReleaseManifest> {
-  const data = await fetchReleaseAsset(release, config.releaseManifestAssetName);
+  const data = await fetchReleaseAsset(
+    release,
+    config.releaseManifestAssetName
+  );
   let parsed: unknown;
   try {
     parsed = JSON.parse(Buffer.from(data).toString("utf8"));
@@ -144,8 +149,8 @@ async function fetchReleaseManifest(
   const validation = validateSkillReleaseManifest(parsed);
   if (!validation.success) {
     throw new Error(
-      `Release ${release.tag_name} contains invalid ${config.releaseManifestAssetName}:\n- `
-      + validation.issues.join("\n- ")
+      `Release ${release.tag_name} contains invalid ${config.releaseManifestAssetName}:\n- ` +
+        validation.issues.join("\n- ")
     );
   }
 
@@ -156,7 +161,9 @@ function extractSkillFiles(
   config: UpdaterConfig,
   zipData: Uint8Array
 ): SkillFile[] {
-  const sourcePath = config.skillName.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+  const sourcePath = config.skillName
+    .replace(/\\/g, "/")
+    .replace(/^\/+|\/+$/g, "");
   const sourcePrefix = `${sourcePath}/`;
   const seenTargets = new Map<string, string>();
   const skillFiles = Object.entries(unzipSync(zipData))
@@ -170,19 +177,23 @@ function extractSkillFiles(
       const previousPath = seenTargets.get(targetIdentity);
       if (previousPath !== undefined) {
         throw new Error(
-          `Remote release paths ${JSON.stringify(previousPath)} and `
-          + `${JSON.stringify(relativePath)} target the same local skill file`
+          `Remote release paths ${JSON.stringify(previousPath)} and ` +
+            `${JSON.stringify(relativePath)} target the same local skill file`
         );
       }
       seenTargets.set(targetIdentity, relativePath);
-      return [{
-        data: Buffer.from(data),
-        path: relativePath
-      }];
+      return [
+        {
+          data: Buffer.from(data),
+          path: relativePath
+        }
+      ];
     });
 
   if (!skillFiles.some((file) => file.path === "SKILL.md")) {
-    throw new Error(`Remote release asset does not contain ${sourcePath}/SKILL.md`);
+    throw new Error(
+      `Remote release asset does not contain ${sourcePath}/SKILL.md`
+    );
   }
 
   return skillFiles;
@@ -198,12 +209,12 @@ function skillArchiveFilePath(
   const relativePath = entryPath.slice(sourcePrefix.length);
   const segments = relativePath.split("/");
   if (
-    relativePath.length === 0
-    || relativePath.includes("\\")
-    || relativePath.includes("\0")
-    || segments.some((segment) => (
-      segment.length === 0 || segment === "." || segment === ".."
-    ))
+    relativePath.length === 0 ||
+    relativePath.includes("\\") ||
+    relativePath.includes("\0") ||
+    segments.some(
+      (segment) => segment.length === 0 || segment === "." || segment === ".."
+    )
   ) {
     throw new Error(
       `Remote release asset contains non-canonical skill path: ${entryPath}`
@@ -263,9 +274,9 @@ export async function loadRemoteSkillFiles(
   );
   if (packageIdentity.name !== config.skillName) {
     throw new Error(
-      `Release asset ${config.releaseAssetName} identifies skill `
-      + `${JSON.stringify(packageIdentity.name)} in ${skillEntryFileName}, but this updater expects `
-      + `${JSON.stringify(config.skillName)}. Use the matching updater or publish a corrected asset.`
+      `Release asset ${config.releaseAssetName} identifies skill ` +
+        `${JSON.stringify(packageIdentity.name)} in ${skillEntryFileName}, but this updater expects ` +
+        `${JSON.stringify(config.skillName)}. Use the matching updater or publish a corrected asset.`
     );
   }
   if (packageIdentity.version === null) {
@@ -275,8 +286,8 @@ export async function loadRemoteSkillFiles(
   }
   if (packageIdentity.version !== remotePackage.version) {
     throw new Error(
-      `Release asset ${config.releaseAssetName} version ${packageIdentity.version}`
-      + ` does not match ${config.releaseManifestAssetName} version ${remotePackage.version}`
+      `Release asset ${config.releaseAssetName} version ${packageIdentity.version}` +
+        ` does not match ${config.releaseManifestAssetName} version ${remotePackage.version}`
     );
   }
 

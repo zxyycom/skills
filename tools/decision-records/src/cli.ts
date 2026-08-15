@@ -3,14 +3,8 @@
 import process from "node:process";
 import { CommanderError } from "commander";
 import { isMainModule } from "../../shared/src/node/main-module.ts";
-import {
-  decisionFailure
-} from "./application-result.ts";
-import {
-  createCliProgram,
-  type CliArgs,
-  type CliArgsFor
-} from "./cli-args.ts";
+import { decisionFailure } from "./application-result.ts";
+import { createCliProgram, type CliArgs, type CliArgsFor } from "./cli-args.ts";
 import {
   printCandidateWarnings,
   printDecisionAttention,
@@ -31,9 +25,7 @@ import {
   type DecisionLocation,
   type DecisionQueryRequest
 } from "./decision-query-service.ts";
-import {
-  applyDecisionChanges
-} from "./decision-transaction.ts";
+import { applyDecisionChanges } from "./decision-transaction.ts";
 import { stageDecisionRecords } from "./decision-stage-service.ts";
 import {
   loadDecisionValidationContext,
@@ -115,9 +107,7 @@ async function runTrace(args: CliArgsFor<"trace">): Promise<number> {
   });
 }
 
-async function runSyncIndex(
-  args: CliArgsFor<"sync-index">
-): Promise<number> {
+async function runSyncIndex(args: CliArgsFor<"sync-index">): Promise<number> {
   return await runQuery({
     command: "sync-index",
     location: decisionLocation(args),
@@ -135,13 +125,13 @@ async function runStage(args: CliArgsFor<"stage">): Promise<number> {
     return result.exitCode;
   }
   console.log(
-    "Staged a complete pending decision snapshot for "
-      + result.selectedIds.length
-      + " selected Decision ID(s), including "
-      + result.indexRelativePath
-      + " ("
-      + result.pendingFileCount
-      + " files in the pending decision scope)."
+    "Staged a complete pending decision snapshot for " +
+      result.selectedIds.length +
+      " selected Decision ID(s), including " +
+      result.indexRelativePath +
+      " (" +
+      result.pendingFileCount +
+      " files in the pending decision scope)."
   );
   return 0;
 }
@@ -321,12 +311,9 @@ export async function runDecisionRecordsCli(
   argv: readonly string[] = process.argv.slice(2)
 ): Promise<number> {
   let exitCode = 0;
-  const program = createCliProgram(
-    runCommand,
-    (value) => {
-      exitCode = value;
-    }
-  );
+  const program = createCliProgram(runCommand, (value) => {
+    exitCode = value;
+  });
 
   try {
     await program.parseAsync(["node", "decision-records.mjs", ...argv]);
@@ -334,9 +321,11 @@ export async function runDecisionRecordsCli(
     if (error instanceof CommanderError) {
       return error.exitCode === 0 ? 0 : 2;
     }
-    printDecisionFailure(decisionFailure([
-      "Unexpected decision records command failure: " + errorText(error)
-    ]));
+    printDecisionFailure(
+      decisionFailure([
+        "Unexpected decision records command failure: " + errorText(error)
+      ])
+    );
     return 1;
   }
   return exitCode;

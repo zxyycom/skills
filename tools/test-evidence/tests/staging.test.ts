@@ -5,9 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import * as v from "valibot";
-import {
-  stageTestEvidenceIndex as stageBundledTestEvidenceIndex
-} from "../../../skills/test-evidence-review/scripts/test-evidence-catalog.mjs";
+import { stageTestEvidenceIndex as stageBundledTestEvidenceIndex } from "../../../skills/test-evidence-review/scripts/test-evidence-catalog.mjs";
 import {
   stageTestEvidenceIndex,
   syncTestEvidenceIndex,
@@ -196,12 +194,10 @@ test("stage-index applies selected additions deletions and explicit renames", as
     assert.match(cli.stdout, /state: staged; changed: true/u);
     assert.match(
       cli.stdout,
-      new RegExp(`selected IDs: ${[
-        caseB.id,
-        caseC.id,
-        caseD.id,
-        caseE.id
-      ].join(", ")}`, "u")
+      new RegExp(
+        `selected IDs: ${[caseB.id, caseC.id, caseD.id, caseE.id].join(", ")}`,
+        "u"
+      )
     );
     assert.match(
       cli.stdout,
@@ -209,7 +205,11 @@ test("stage-index applies selected additions deletions and explicit renames", as
     );
 
     const pending = readPendingIndex(workspaceRoot);
-    assert.deepEqual(Object.keys(pending.entries), [caseA.id, caseD.id, caseE.id]);
+    assert.deepEqual(Object.keys(pending.entries), [
+      caseA.id,
+      caseD.id,
+      caseE.id
+    ]);
     assert.deepEqual(pending.entries[caseA.id], baseline.entries[caseA.id]);
     assert.deepEqual(pending.entries[caseD.id], workspace.entries[caseD.id]);
     assert.deepEqual(pending.entries[caseE.id], workspace.entries[caseE.id]);
@@ -332,7 +332,9 @@ test("stage-index rejects existing same-index pending content", async () => {
     await fs.writeFile(path.join(workspaceRoot, "outside.txt"), "outside\n");
     runGit(workspaceRoot, ["add", "outside.txt"]);
     const pendingBefore = readPendingText(workspaceRoot);
-    await writeCatalog(workspaceRoot, [{ ...caseA, title: "Workspace version" }]);
+    await writeCatalog(workspaceRoot, [
+      { ...caseA, title: "Workspace version" }
+    ]);
     const workspaceBefore = await fs.readFile(indexPath(workspaceRoot));
 
     const result = await stageTestEvidenceIndex({
@@ -341,16 +343,16 @@ test("stage-index rejects existing same-index pending content", async () => {
     });
     assert.equal(result.status, "error");
     assert.equal(result.state, "pending-conflict");
-    assert.equal(
-      result.diagnostics[0]?.code,
-      "state-index.pending-conflict"
-    );
+    assert.equal(result.diagnostics[0]?.code, "state-index.pending-conflict");
     assert.equal(readPendingText(workspaceRoot), pendingBefore);
     assert.deepEqual(
       pendingPaths(workspaceRoot).sort(),
       [indexRepositoryPath, "outside.txt"].sort()
     );
-    assert.deepEqual(await fs.readFile(indexPath(workspaceRoot)), workspaceBefore);
+    assert.deepEqual(
+      await fs.readFile(indexPath(workspaceRoot)),
+      workspaceBefore
+    );
   });
 });
 
@@ -401,10 +403,13 @@ test("stage-index rejects workspace cases projected to an unknown topic", async 
     });
     assert.equal(result.status, "error");
     assert.equal(result.state, "workspace-index-invalid");
-    assert.ok(result.diagnostics.some((diagnostic) => (
-      diagnostic.stateId === caseA.id
-      && diagnostic.code.startsWith("state-index.")
-    )));
+    assert.ok(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.stateId === caseA.id &&
+          diagnostic.code.startsWith("state-index.")
+      )
+    );
     assert.deepEqual(pendingPaths(workspaceRoot), []);
   });
 });
@@ -418,17 +423,12 @@ test("stage-index CLI exposes help and schema-valid exit contracts", async () =>
     );
     assert.equal(help.status, 0, help.stderr);
     assert.equal(help.stderr, "");
-    assert.match(
-      help.stdout,
-      /stage-index \[options\] <case-ids\.\.\.>/u
-    );
+    assert.match(help.stdout, /stage-index \[options\] <case-ids\.\.\.>/u);
     assert.match(help.stdout, /case Markdown, test code, and product code/u);
 
-    const rootHelp = spawnSync(
-      "node",
-      [distributedScript, "--help"],
-      { encoding: "utf8" }
-    );
+    const rootHelp = spawnSync("node", [distributedScript, "--help"], {
+      encoding: "utf8"
+    });
     assert.equal(rootHelp.status, 0, rootHelp.stderr);
     assert.match(
       rootHelp.stdout,
@@ -440,10 +440,7 @@ test("stage-index CLI exposes help and schema-valid exit contracts", async () =>
     assert.equal(missing.stdout, "");
     assert.match(missing.stderr, /missing required argument 'case-ids'/u);
 
-    for (const caseIds of [
-      ["INVALID-001"],
-      [caseA.id, caseA.id]
-    ]) {
+    for (const caseIds of [["INVALID-001"], [caseA.id, caseA.id]]) {
       const failure = runGeneratedStage(tempRoot, caseIds, true);
       assert.equal(failure.status, 2, failure.stderr);
       assert.equal(failure.stderr, "");
@@ -455,11 +452,7 @@ test("stage-index CLI exposes help and schema-valid exit contracts", async () =>
       assert.equal(result.state, "selection-invalid");
     }
 
-    const operationFailure = runGeneratedStage(
-      tempRoot,
-      [caseA.id],
-      true
-    );
+    const operationFailure = runGeneratedStage(tempRoot, [caseA.id], true);
     assert.equal(operationFailure.status, 1, operationFailure.stderr);
     assert.equal(operationFailure.stderr, "");
     const operationResult = v.parse(
@@ -497,10 +490,14 @@ async function writeCatalog(
   await writeWorkspaceFile(
     workspaceRoot,
     topicCatalogPath,
-    `${JSON.stringify({
-      schemaVersion: 1,
-      topics: [{ description: topicDescription, id: "runtime" }]
-    }, null, 2)}\n`
+    `${JSON.stringify(
+      {
+        schemaVersion: 1,
+        topics: [{ description: topicDescription, id: "runtime" }]
+      },
+      null,
+      2
+    )}\n`
   );
   for (const fixture of cases) {
     await writeWorkspaceFile(
@@ -548,11 +545,10 @@ function commitAll(workspaceRoot: string, message: string): void {
 }
 
 function runGit(workspaceRoot: string, arguments_: readonly string[]): string {
-  return execFileSync(
-    "git",
-    ["-C", workspaceRoot, ...arguments_],
-    { encoding: "utf8", windowsHide: true }
-  );
+  return execFileSync("git", ["-C", workspaceRoot, ...arguments_], {
+    encoding: "utf8",
+    windowsHide: true
+  });
 }
 
 function runGeneratedStage(
@@ -601,7 +597,9 @@ function parseIndex(text: string, source: string): TestEvidenceStateIndex {
   try {
     return v.parse(testEvidenceStateIndexSchema, JSON.parse(text) as unknown);
   } catch (error) {
-    assert.fail(`${source} is not a valid test evidence index: ${String(error)}`);
+    assert.fail(
+      `${source} is not a valid test evidence index: ${String(error)}`
+    );
   }
 }
 
@@ -619,10 +617,7 @@ function indexPath(workspaceRoot: string): string {
   return path.join(workspaceRoot, ...indexRepositoryPath.split("/"));
 }
 
-function caseFilePath(
-  workspaceRoot: string,
-  fixture: CaseFixture
-): string {
+function caseFilePath(workspaceRoot: string, fixture: CaseFixture): string {
   return path.join(
     workspaceRoot,
     ...`${catalogPath}/runtime/${fixture.slug}.md`.split("/")

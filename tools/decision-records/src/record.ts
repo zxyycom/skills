@@ -1,7 +1,4 @@
-import {
-  parseSections,
-  requireNonEmptyField
-} from "./markdown.ts";
+import { parseSections, requireNonEmptyField } from "./markdown.ts";
 import {
   parseDecisionMarkdown,
   type DecisionSourceMetadata
@@ -15,16 +12,11 @@ import {
   type MarkdownSection
 } from "./types.ts";
 
-export type ValidatedDecisionBody = DecisionProjection
-  & DecisionTags
-  & DecisionSourceMetadata
-  & { body: string };
+export type ValidatedDecisionBody = DecisionProjection &
+  DecisionTags &
+  DecisionSourceMetadata & { body: string };
 
-const sectionOrder = [
-  "## 目的",
-  "## 背景",
-  "## 决策"
-];
+const sectionOrder = ["## 目的", "## 背景", "## 决策"];
 const requiredSections = new Set(sectionOrder);
 
 type DecisionRelationTargetExists = (
@@ -38,46 +30,33 @@ async function validateDecisionRelations(options: {
   sourcePath: string;
   targetExists: DecisionRelationTargetExists;
 }): Promise<void> {
-  const {
-    decisionId,
-    errors,
-    relations,
-    sourcePath,
-    targetExists
-  } = options;
+  const { decisionId, errors, relations, sourcePath, targetExists } = options;
 
   for (const relation of relations) {
     if (relation.target === decisionId) {
       errors.push(sourcePath + " must not relate to itself");
       continue;
     }
-    if (!await targetExists(relation.target)) {
+    if (!(await targetExists(relation.target))) {
       errors.push(
-        sourcePath
-        + " relationship "
-        + relation.type
-        + " target does not exist: "
-        + relation.target
+        sourcePath +
+          " relationship " +
+          relation.type +
+          " target does not exist: " +
+          relation.target
       );
     }
   }
 }
 
-export async function validateDecisionBody(
-  options: {
-    body: string;
-    decisionId: string;
-    errors: string[];
-    sourcePath: string;
-    targetExists: DecisionRelationTargetExists;
-  }
-): Promise<ValidatedDecisionBody | null> {
-  const {
-    body: rawBody,
-    decisionId,
-    sourcePath,
-    errors
-  } = options;
+export async function validateDecisionBody(options: {
+  body: string;
+  decisionId: string;
+  errors: string[];
+  sourcePath: string;
+  targetExists: DecisionRelationTargetExists;
+}): Promise<ValidatedDecisionBody | null> {
+  const { body: rawBody, decisionId, sourcePath, errors } = options;
   const errorCountBeforeValidation = errors.length;
   const parsedMarkdown = parseDecisionMarkdown({
     errors,
@@ -89,10 +68,12 @@ export async function validateDecisionBody(
   const projection = parsedMarkdown?.projection ?? null;
 
   if (!isDecisionId(decisionId)) {
-    errors.push(sourcePath + " must use a stable kebab-case Decision ID basename");
+    errors.push(
+      sourcePath + " must use a stable kebab-case Decision ID basename"
+    );
   }
   if (!body.startsWith("## 目的\n")) {
-    errors.push(sourcePath + " body must start with \"## 目的\"");
+    errors.push(sourcePath + ' body must start with "## 目的"');
   }
 
   const sections = parseSections(body);
@@ -103,7 +84,7 @@ export async function validateDecisionBody(
       continue;
     }
     sectionMap.set(section.heading, [
-      ...sectionMap.get(section.heading) ?? [],
+      ...(sectionMap.get(section.heading) ?? []),
       section
     ]);
   }
@@ -116,11 +97,15 @@ export async function validateDecisionBody(
 
   for (const [sectionHeading, entries] of sectionMap) {
     if (entries.length > 1) {
-      errors.push(sourcePath + " contains section " + sectionHeading + " more than once");
+      errors.push(
+        sourcePath + " contains section " + sectionHeading + " more than once"
+      );
     }
     for (const entry of entries) {
       if (entry.content.length === 0) {
-        errors.push(sourcePath + " section " + sectionHeading + " must not be empty");
+        errors.push(
+          sourcePath + " section " + sectionHeading + " must not be empty"
+        );
       }
     }
   }
@@ -154,10 +139,10 @@ export async function validateDecisionBody(
   }
 
   if (
-    parsedMarkdown === null
-    || metadata === null
-    || projection === null
-    || errors.length > errorCountBeforeValidation
+    parsedMarkdown === null ||
+    metadata === null ||
+    projection === null ||
+    errors.length > errorCountBeforeValidation
   ) {
     return null;
   }

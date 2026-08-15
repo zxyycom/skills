@@ -31,7 +31,9 @@ async function createTask(
 ) {
   return await service.apply({
     expectedRevision,
-    operations: [{ kind: "create-task", content: { title, goal: `${title} goal` } }]
+    operations: [
+      { kind: "create-task", content: { title, goal: `${title} goal` } }
+    ]
   });
 }
 
@@ -40,7 +42,9 @@ test("lock release failure reports a committed mutation as outcome unknown", asy
     await initialize(root);
     const binding: NativeLockBinding = {
       tryLock: () => true,
-      unlock: () => { throw new Error("unlock failed"); }
+      unlock: () => {
+        throw new Error("unlock failed");
+      }
     };
     const service = new TaskGraphService({
       root,
@@ -118,7 +122,9 @@ test("resolved atomic write succeeds without commit readback", async () => {
 test("store info reports canonical drift without a separate check operation", async () => {
   await withTempWorkspace(async (root) => {
     const service = await initialize(root);
-    const parsed = JSON.parse(await fs.readFile(service.store.indexPath, "utf8")) as unknown;
+    const parsed = JSON.parse(
+      await fs.readFile(service.store.indexPath, "utf8")
+    ) as unknown;
     await fs.writeFile(service.store.indexPath, JSON.stringify(parsed), "utf8");
     const info = await service.info();
     assert.equal(info.data.valid, true);
@@ -132,20 +138,38 @@ test("lock path is a deterministic temp hash and index init leaves gitignore cal
     const indexDirectory = path.join(root, "docs", "task-graph");
     const ignorePath = path.join(indexDirectory, ".gitignore");
     await fs.mkdir(indexDirectory, { recursive: true });
-    await fs.writeFile(ignorePath, "# caller-owned\r\n/custom-rule\r\n", "utf8");
-    const service = new TaskGraphService({ root, loadNativeLock: loadUncontendedNativeLock });
+    await fs.writeFile(
+      ignorePath,
+      "# caller-owned\r\n/custom-rule\r\n",
+      "utf8"
+    );
+    const service = new TaskGraphService({
+      root,
+      loadNativeLock: loadUncontendedNativeLock
+    });
     const same = new TaskGraphStore({ root });
-    const other = new TaskGraphStore({ root, indexPath: "docs/task-graph/other.json" });
+    const other = new TaskGraphStore({
+      root,
+      indexPath: "docs/task-graph/other.json"
+    });
     assert.equal(service.store.lockPath, same.lockPath);
     assert.notEqual(service.store.lockPath, other.lockPath);
-    assert.equal(path.dirname(service.store.lockPath), path.join(os.tmpdir(), "task-graph-locks"));
-    assert.match(path.basename(service.store.lockPath), /^[a-f0-9]{64}\.lock$/u);
+    assert.equal(
+      path.dirname(service.store.lockPath),
+      path.join(os.tmpdir(), "task-graph-locks")
+    );
+    assert.match(
+      path.basename(service.store.lockPath),
+      /^[a-f0-9]{64}\.lock$/u
+    );
     await service.init();
     assert.equal(
       await fs.readFile(ignorePath, "utf8"),
       "# caller-owned\r\n/custom-rule\r\n"
     );
-    await assert.rejects(fs.stat(`${service.store.indexPath}.lock`), { code: "ENOENT" });
+    await assert.rejects(fs.stat(`${service.store.indexPath}.lock`), {
+      code: "ENOENT"
+    });
     await fs.unlink(service.store.lockPath);
   });
 });

@@ -10,7 +10,8 @@ import {
 import { githubRepository, rootDir } from "../lib/project.ts";
 
 const sourceRelativePath = "tools/skill-validator/src/cli.ts";
-const declarationSourceRelativePath = "tools/skill-validator/api/validate-skill.d.mts";
+const declarationSourceRelativePath =
+  "tools/skill-validator/api/validate-skill.d.mts";
 const outputRelativePath = "skills/skill-maintainer/scripts/validate-skill.mjs";
 const declarationOutputRelativePath =
   "skills/skill-maintainer/scripts/validate-skill.d.mts";
@@ -30,7 +31,9 @@ async function buildArtifact(): Promise<BunBundleResult> {
     keepNames: true,
     minify: true,
     outputFileName: path.basename(outputRelativePath),
-    sourceMapBaseDirectory: path.dirname(path.join(rootDir, outputRelativePath)),
+    sourceMapBaseDirectory: path.dirname(
+      path.join(rootDir, outputRelativePath)
+    ),
     sourceMap: true
   });
 }
@@ -50,7 +53,9 @@ async function main(): Promise<void> {
     sourcePath: path.join(rootDir, declarationSourceRelativePath)
   });
   if (expected.sourceMap === null) {
-    throw new Error("Skill structure validator bundle must include a source map");
+    throw new Error(
+      "Skill structure validator bundle must include a source map"
+    );
   }
 
   const changed = await syncGeneratedArtifacts(

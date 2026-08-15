@@ -20,10 +20,7 @@ import {
   type TestEvidenceDiagnostic,
   type TestEvidenceLedgerCase
 } from "./schemas.ts";
-import {
-  decodeLedgerUtf8Text,
-  type LedgerTextSource
-} from "./text-source.ts";
+import { decodeLedgerUtf8Text, type LedgerTextSource } from "./text-source.ts";
 
 export type IdentifiedLedgerCaseSource = LedgerTextSource & {
   fingerprint: string;
@@ -38,20 +35,19 @@ export type ParsedLedgerCaseSource = IdentifiedLedgerCaseSource & {
 
 export type LedgerCaseSourceResult<Value> =
   | {
-    diagnostics: [];
-    value: Value;
-  }
+      diagnostics: [];
+      value: Value;
+    }
   | {
-    diagnostics: TestEvidenceDiagnostic[];
-    value: null;
-  };
+      diagnostics: TestEvidenceDiagnostic[];
+      value: null;
+    };
 
 const caseHeadingPattern = new RegExp(
   `^### Case (${testEvidenceCaseIdPatternSource.slice(1, -1)}): (.+)$`,
   "u"
 );
-const ledgerCaseSourcePathPattern =
-  /^cases\/[a-z0-9]+(?:-[a-z0-9]+)*\.md$/u;
+const ledgerCaseSourcePathPattern = /^cases\/[a-z0-9]+(?:-[a-z0-9]+)*\.md$/u;
 
 export function identifyLedgerCaseSource(
   source: LedgerTextSource
@@ -150,22 +146,20 @@ export function parseLedgerCaseSource(
   index = skipBlankLines(lines, proves.nextIndex);
 
   if (index < lines.length) {
-    diagnostics.push(createTestEvidenceDiagnostic({
-      caseId: identified.value.id,
-      category: "case",
-      code: "case.content-unsupported",
-      line: index + 1,
-      message: `${source.path} contains content outside Tests, optional Tags, Contract, and Proves`,
-      path: source.path,
-      severity: "error"
-    }));
+    diagnostics.push(
+      createTestEvidenceDiagnostic({
+        caseId: identified.value.id,
+        category: "case",
+        code: "case.content-unsupported",
+        line: index + 1,
+        message: `${source.path} contains content outside Tests, optional Tags, Contract, and Proves`,
+        path: source.path,
+        severity: "error"
+      })
+    );
   }
 
-  validateOrderedUniqueTestIds(
-    tests.items,
-    identified.value,
-    diagnostics
-  );
+  validateOrderedUniqueTestIds(tests.items, identified.value, diagnostics);
   validateOrderedUniqueTags(tags.items, identified.value, diagnostics);
 
   if (diagnostics.length > 0) {
@@ -186,8 +180,9 @@ export function parseLedgerCaseSource(
     return failedCaseSource({
       caseId: identified.value.id,
       code: "case.schema-invalid",
-      message: `${source.path} is invalid: `
-        + formatTestEvidenceValidationIssues(validated.issues),
+      message:
+        `${source.path} is invalid: ` +
+        formatTestEvidenceValidationIssues(validated.issues),
       path: source.path
     });
   }
@@ -261,10 +256,7 @@ export function caseSourceFingerprint(
   sourcePath: string,
   normalizedMarkdown: string
 ): string {
-  return sha256Fingerprint(JSON.stringify([
-    sourcePath,
-    normalizedMarkdown
-  ]));
+  return sha256Fingerprint(JSON.stringify([sourcePath, normalizedMarkdown]));
 }
 
 type ParsedSection = {
@@ -283,15 +275,17 @@ function parseSection(options: {
 }): ParsedSection {
   let index = options.startIndex;
   if (options.lines[index] !== options.header) {
-    options.diagnostics.push(createTestEvidenceDiagnostic({
-      caseId: options.caseId,
-      category: "case",
-      code: "case.section-invalid",
-      line: index + 1,
-      message: `${options.sourcePath} must declare ${options.header} in the fixed section order`,
-      path: options.sourcePath,
-      severity: "error"
-    }));
+    options.diagnostics.push(
+      createTestEvidenceDiagnostic({
+        caseId: options.caseId,
+        category: "case",
+        code: "case.section-invalid",
+        line: index + 1,
+        message: `${options.sourcePath} must declare ${options.header} in the fixed section order`,
+        path: options.sourcePath,
+        severity: "error"
+      })
+    );
     return { items: [], nextIndex: index };
   }
   index += 1;
@@ -304,34 +298,40 @@ function parseSection(options: {
     }
     const parsed = parseSectionItem(line, options.itemKind);
     if (parsed === null) {
-      options.diagnostics.push(createTestEvidenceDiagnostic({
-        caseId: options.caseId,
-        category: options.itemKind === "test" ? "relation" : "case",
-        code: options.itemKind === "test"
-          ? "relation.test-item-invalid"
-          : `case.${options.itemKind}-item-invalid`,
-        line: index + 1,
-        message: `${options.sourcePath}:${index + 1} contains an invalid ${options.header} item`,
-        path: options.sourcePath,
-        severity: "error"
-      }));
+      options.diagnostics.push(
+        createTestEvidenceDiagnostic({
+          caseId: options.caseId,
+          category: options.itemKind === "test" ? "relation" : "case",
+          code:
+            options.itemKind === "test"
+              ? "relation.test-item-invalid"
+              : `case.${options.itemKind}-item-invalid`,
+          line: index + 1,
+          message: `${options.sourcePath}:${index + 1} contains an invalid ${options.header} item`,
+          path: options.sourcePath,
+          severity: "error"
+        })
+      );
     } else {
       items.push(parsed);
     }
     index += 1;
   }
   if (items.length === 0) {
-    options.diagnostics.push(createTestEvidenceDiagnostic({
-      caseId: options.caseId,
-      category: options.itemKind === "test" ? "relation" : "case",
-      code: options.itemKind === "test"
-        ? "relation.tests-empty"
-        : `case.${options.itemKind}s-empty`,
-      line: options.startIndex + 1,
-      message: `${options.sourcePath} ${options.header} must include at least one item`,
-      path: options.sourcePath,
-      severity: "error"
-    }));
+    options.diagnostics.push(
+      createTestEvidenceDiagnostic({
+        caseId: options.caseId,
+        category: options.itemKind === "test" ? "relation" : "case",
+        code:
+          options.itemKind === "test"
+            ? "relation.tests-empty"
+            : `case.${options.itemKind}s-empty`,
+        line: options.startIndex + 1,
+        message: `${options.sourcePath} ${options.header} must include at least one item`,
+        path: options.sourcePath,
+        severity: "error"
+      })
+    );
   }
   return { items, nextIndex: index };
 }
@@ -349,9 +349,8 @@ function parseSectionItem(
     return null;
   }
   const value = matched[1] ?? "";
-  const schema = itemKind === "test"
-    ? testEntityIdSchema
-    : testEvidenceTagSchema;
+  const schema =
+    itemKind === "test" ? testEntityIdSchema : testEvidenceTagSchema;
   return v.safeParse(schema, value).success ? value : null;
 }
 
@@ -363,27 +362,31 @@ function validateOrderedUniqueTestIds(
   const seen = new Set<string>();
   for (const testId of testIds) {
     if (seen.has(testId)) {
-      diagnostics.push(createTestEvidenceDiagnostic({
-        caseId: source.id,
-        category: "relation",
-        code: "relation.duplicate",
-        message: `${source.path} repeats the ${source.id} -> ${testId} relation`,
-        path: source.path,
-        severity: "error",
-        testId
-      }));
+      diagnostics.push(
+        createTestEvidenceDiagnostic({
+          caseId: source.id,
+          category: "relation",
+          code: "relation.duplicate",
+          message: `${source.path} repeats the ${source.id} -> ${testId} relation`,
+          path: source.path,
+          severity: "error",
+          testId
+        })
+      );
     }
     seen.add(testId);
   }
   if (!isStrictlyAscendingLexical(testIds)) {
-    diagnostics.push(createTestEvidenceDiagnostic({
-      caseId: source.id,
-      category: "case",
-      code: "case.tests-unsorted",
-      message: `${source.path} Tests must be sorted in ascending lexical order`,
-      path: source.path,
-      severity: "error"
-    }));
+    diagnostics.push(
+      createTestEvidenceDiagnostic({
+        caseId: source.id,
+        category: "case",
+        code: "case.tests-unsorted",
+        message: `${source.path} Tests must be sorted in ascending lexical order`,
+        path: source.path,
+        severity: "error"
+      })
+    );
   }
 }
 
@@ -393,24 +396,28 @@ function validateOrderedUniqueTags(
   diagnostics: TestEvidenceDiagnostic[]
 ): void {
   if (new Set(tags).size !== tags.length) {
-    diagnostics.push(createTestEvidenceDiagnostic({
-      caseId: source.id,
-      category: "case",
-      code: "case.tags-duplicate",
-      message: `${source.path} Tags must be unique`,
-      path: source.path,
-      severity: "error"
-    }));
+    diagnostics.push(
+      createTestEvidenceDiagnostic({
+        caseId: source.id,
+        category: "case",
+        code: "case.tags-duplicate",
+        message: `${source.path} Tags must be unique`,
+        path: source.path,
+        severity: "error"
+      })
+    );
   }
   if (!isStrictlyAscendingLexical(tags)) {
-    diagnostics.push(createTestEvidenceDiagnostic({
-      caseId: source.id,
-      category: "case",
-      code: "case.tags-unsorted",
-      message: `${source.path} Tags must be sorted in ascending lexical order`,
-      path: source.path,
-      severity: "error"
-    }));
+    diagnostics.push(
+      createTestEvidenceDiagnostic({
+        caseId: source.id,
+        category: "case",
+        code: "case.tags-unsorted",
+        message: `${source.path} Tags must be sorted in ascending lexical order`,
+        path: source.path,
+        severity: "error"
+      })
+    );
   }
 }
 
@@ -430,15 +437,17 @@ function failedCaseSource(details: {
   path: string;
 }): LedgerCaseSourceResult<never> {
   return {
-    diagnostics: [createTestEvidenceDiagnostic({
-      caseId: details.caseId,
-      category: "case",
-      code: details.code,
-      line: details.line,
-      message: details.message,
-      path: details.path,
-      severity: "error"
-    })],
+    diagnostics: [
+      createTestEvidenceDiagnostic({
+        caseId: details.caseId,
+        category: "case",
+        code: details.code,
+        line: details.line,
+        message: details.message,
+        path: details.path,
+        severity: "error"
+      })
+    ],
     value: null
   };
 }

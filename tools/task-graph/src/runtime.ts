@@ -42,14 +42,16 @@ type RuntimeInspection = {
 };
 
 function isErrno(error: unknown, code: string): boolean {
-  return error instanceof Error
-    && "code" in error
-    && (error as NodeJS.ErrnoException).code === code;
+  return (
+    error instanceof Error &&
+    "code" in error &&
+    (error as NodeJS.ErrnoException).code === code
+  );
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return typeof value === "object" && value !== null && !Array.isArray(value)
-    ? value as Record<string, unknown>
+    ? (value as Record<string, unknown>)
     : null;
 }
 
@@ -69,15 +71,19 @@ function isSupportedNodeVersion(nodeVersion: string): boolean {
   return major === 22 && (minor > 22 || (minor === 22 && patch >= 2));
 }
 
-function createRuntimeContext(options: RuntimeContextOptions = {}): RuntimeContext {
+function createRuntimeContext(
+  options: RuntimeContextOptions = {}
+): RuntimeContext {
   const environment = options.environment ?? process.env;
   const configuredHome = environment.TASK_GRAPH_TOOL_HOME;
-  const toolHomeSource = configuredHome === undefined || configuredHome.length === 0
-    ? "default"
-    : "environment";
-  const toolHome = toolHomeSource === "environment"
-    ? path.resolve(configuredHome ?? "")
-    : path.join((options.homedir ?? os.homedir)(), ".tools", "task-graph");
+  const toolHomeSource =
+    configuredHome === undefined || configuredHome.length === 0
+      ? "default"
+      : "environment";
+  const toolHome =
+    toolHomeSource === "environment"
+      ? path.resolve(configuredHome ?? "")
+      : path.join((options.homedir ?? os.homedir)(), ".tools", "task-graph");
   return {
     arch: options.arch ?? process.arch,
     nodeVersion: currentNodeVersion(options),
@@ -102,7 +108,9 @@ function assertSupportedNode(context: RuntimeContext): void {
   );
 }
 
-function installCommand(context: RuntimeContext): TaskGraphRuntimeInstallCommand {
+function installCommand(
+  context: RuntimeContext
+): TaskGraphRuntimeInstallCommand {
   return {
     command: "npm",
     args: [
@@ -141,7 +149,10 @@ function runtimeInfo(
 
 function narrowNativeBinding(input: unknown): NativeLockBinding {
   const value = asRecord(input);
-  if (typeof value?.tryLock !== "function" || typeof value.unlock !== "function") {
+  if (
+    typeof value?.tryLock !== "function" ||
+    typeof value.unlock !== "function"
+  ) {
     throw new Error("native addon does not expose tryLock and unlock");
   }
   const tryLock = value.tryLock;
@@ -160,7 +171,9 @@ function narrowNativeBinding(input: unknown): NativeLockBinding {
   };
 }
 
-async function loadBinding(context: RuntimeContext): Promise<NativeLockBinding> {
+async function loadBinding(
+  context: RuntimeContext
+): Promise<NativeLockBinding> {
   const packageRoot = path.join(
     context.runtimePath,
     "node_modules",
@@ -172,19 +185,24 @@ async function loadBinding(context: RuntimeContext): Promise<NativeLockBinding> 
   if (asRecord(packageInput)?.version !== nativePackageVersion) {
     throw new Error(`native package version is not ${nativePackageVersion}`);
   }
-  const runtimeRequire = createRequire(path.join(context.runtimePath, "package.json"));
+  const runtimeRequire = createRequire(
+    path.join(context.runtimePath, "package.json")
+  );
   return narrowNativeBinding(runtimeRequire(packageRoot) as unknown);
 }
 
 async function probeNativeBinding(binding: NativeLockBinding): Promise<void> {
-  const probeDirectory = await fs.mkdtemp(path.join(os.tmpdir(), "task-graph-native-probe-"));
+  const probeDirectory = await fs.mkdtemp(
+    path.join(os.tmpdir(), "task-graph-native-probe-")
+  );
   const probePath = path.join(probeDirectory, "lock");
   let handle: fs.FileHandle | null = null;
   let locked = false;
   try {
     handle = await fs.open(probePath, "w+");
     locked = binding.tryLock(handle.fd);
-    if (!locked) throw new Error("native lock probe did not acquire an uncontended file");
+    if (!locked)
+      throw new Error("native lock probe did not acquire an uncontended file");
     binding.unlock(handle.fd);
     locked = false;
   } finally {
@@ -196,7 +214,9 @@ async function probeNativeBinding(binding: NativeLockBinding): Promise<void> {
       }
     }
     await handle?.close().catch(() => undefined);
-    await fs.rm(probeDirectory, { force: true, recursive: true }).catch(() => undefined);
+    await fs
+      .rm(probeDirectory, { force: true, recursive: true })
+      .catch(() => undefined);
   }
 }
 
@@ -206,14 +226,20 @@ function failureReason(error: unknown): string {
     : "native runtime could not be loaded and probed";
 }
 
-async function inspectRuntime(context: RuntimeContext): Promise<RuntimeInspection> {
+async function inspectRuntime(
+  context: RuntimeContext
+): Promise<RuntimeInspection> {
   assertSupportedNode(context);
   try {
     const stat = await fs.stat(context.runtimePath);
     if (!stat.isDirectory()) {
       return {
         binding: null,
-        info: runtimeInfo(context, "incompatible", "runtime path is not a directory")
+        info: runtimeInfo(
+          context,
+          "incompatible",
+          "runtime path is not a directory"
+        )
       };
     }
   } catch (error) {

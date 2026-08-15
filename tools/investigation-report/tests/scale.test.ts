@@ -56,9 +56,11 @@ async function testScaleEvidence(): Promise<void> {
     assert.equal(synchronized.topicCount, scaleTopicCount);
 
     const readStartedAt = performance.now();
-    const index = resultValue(await loadCurrentInvestigationIndex({
-      investigationsDirectory: investigationRoot(workspaceRoot)
-    }));
+    const index = resultValue(
+      await loadCurrentInvestigationIndex({
+        investigationsDirectory: investigationRoot(workspaceRoot)
+      })
+    );
     const readMilliseconds = performance.now() - readStartedAt;
     assert.equal(Object.keys(index.entries).length, scaleTopicCount);
 
@@ -74,14 +76,13 @@ async function testScaleEvidence(): Promise<void> {
     assert.equal(query.entries.length, 10);
 
     console.log(
-      "Investigation index scale evidence: "
-      + `${scaleTopicCount} topics synchronized in ${syncMilliseconds.toFixed(1)} ms, `
-      + `freshness-read in ${readMilliseconds.toFixed(1)} ms, `
-      + `freshness-query in ${queryMilliseconds.toFixed(1)} ms.`
+      "Investigation index scale evidence: " +
+        `${scaleTopicCount} topics synchronized in ${syncMilliseconds.toFixed(1)} ms, ` +
+        `freshness-read in ${readMilliseconds.toFixed(1)} ms, ` +
+        `freshness-query in ${queryMilliseconds.toFixed(1)} ms.`
     );
   });
 }
 
-test("index synchronizes and queries one thousand investigation reports", () => (
-  testScaleEvidence()
-));
+test("index synchronizes and queries one thousand investigation reports", () =>
+  testScaleEvidence());

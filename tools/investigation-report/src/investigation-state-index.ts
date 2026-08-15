@@ -52,10 +52,11 @@ export async function loadCurrentInvestigationIndex(options: {
   investigationsDirectory: string;
   indexPath?: string;
   signal?: AbortSignal;
-}): Promise<StateIndexResult<StateIndex<
-  InvestigationIndexState,
-  InvestigationIndexMetadata
->>> {
+}): Promise<
+  StateIndexResult<
+    StateIndex<InvestigationIndexState, InvestigationIndexMetadata>
+  >
+> {
   const context = stateIndexContext(
     options.investigationsDirectory,
     options.signal
@@ -68,8 +69,10 @@ export async function loadCurrentInvestigationIndex(options: {
     indexPath
   });
   if (
-    loaded.status === "ok"
-    || !loaded.diagnostics.some((entry) => entry.code === "state-index.index-stale")
+    loaded.status === "ok" ||
+    !loaded.diagnostics.some(
+      (entry) => entry.code === "state-index.index-stale"
+    )
   ) {
     return loaded;
   }
@@ -77,11 +80,11 @@ export async function loadCurrentInvestigationIndex(options: {
     ...loaded,
     diagnostics: [
       ...loaded.diagnostics,
-      ...await investigationResourceChangeDiagnostics({
+      ...(await investigationResourceChangeDiagnostics({
         context,
         definition,
         indexPath
-      })
+      }))
     ]
   };
 }
@@ -91,18 +94,16 @@ export async function syncInvestigationStateIndex(options: {
   indexPath?: string;
   mode: StateIndexSyncMode;
   signal?: AbortSignal;
-  snapshot?: StateSnapshot<
-    InvestigationIndexState,
-    InvestigationIndexMetadata
-  >;
+  snapshot?: StateSnapshot<InvestigationIndexState, InvestigationIndexMetadata>;
 }): Promise<StateIndexSyncResult> {
   const context = stateIndexContext(
     options.investigationsDirectory,
     options.signal
   );
-  const definition = options.snapshot === undefined
-    ? createInvestigationStateIndexDefinition()
-    : createInvestigationStateIndexDefinition({ snapshot: options.snapshot });
+  const definition =
+    options.snapshot === undefined
+      ? createInvestigationStateIndexDefinition()
+      : createInvestigationStateIndexDefinition({ snapshot: options.snapshot });
   const indexPath = options.indexPath ?? investigationIndexFileName;
   const synchronized = await syncStateIndex({
     context,
@@ -111,8 +112,10 @@ export async function syncInvestigationStateIndex(options: {
     mode: options.mode
   });
   if (
-    synchronized.status === "ok"
-    || !synchronized.diagnostics.some((entry) => entry.code === "state-index.index-stale")
+    synchronized.status === "ok" ||
+    !synchronized.diagnostics.some(
+      (entry) => entry.code === "state-index.index-stale"
+    )
   ) {
     return synchronized;
   }
@@ -120,11 +123,11 @@ export async function syncInvestigationStateIndex(options: {
     ...synchronized,
     diagnostics: [
       ...synchronized.diagnostics,
-      ...await investigationResourceChangeDiagnostics({
+      ...(await investigationResourceChangeDiagnostics({
         context,
         definition,
         indexPath
-      })
+      }))
     ]
   };
 }
@@ -134,16 +137,19 @@ export function investigationIndexDiagnosticMessages(
   displayPath: string = investigationIndexFileName
 ): string[] {
   return diagnostics.map((diagnostic) => {
-    const source = diagnostic.path === null
-      ? displayPath
-      : diagnostic.path === investigationIndexFileName
+    const source =
+      diagnostic.path === null
         ? displayPath
-        : diagnostic.path;
+        : diagnostic.path === investigationIndexFileName
+          ? displayPath
+          : diagnostic.path;
     return [
       source,
       diagnostic.stateId === null ? "" : `[${diagnostic.stateId}]`,
       diagnostic.message
-    ].filter((part) => part.length > 0).join(" ");
+    ]
+      .filter((part) => part.length > 0)
+      .join(" ");
   });
 }
 
@@ -182,12 +188,14 @@ async function investigationResourceChangeDiagnostics(options: {
       options.context.signal
     );
   } catch (error) {
-    return [{
-      code: "investigation-resource.read-failed",
-      message: `resource pool could not be read: ${errorText(error)}`,
-      path: investigationResourcesDirectoryName,
-      stateId: null
-    }];
+    return [
+      {
+        code: "investigation-resource.read-failed",
+        message: `resource pool could not be read: ${errorText(error)}`,
+        path: investigationResourcesDirectoryName,
+        stateId: null
+      }
+    ];
   }
   const indexedById = new Map(
     indexed.value.metadata.resources.map((resource) => [
@@ -195,38 +203,42 @@ async function investigationResourceChangeDiagnostics(options: {
       resource.sha256
     ])
   );
-  const currentById = new Map(current.resources.map((resource) => [
-    resource.id,
-    resource.sha256
-  ]));
-  const ids = [...new Set([
-    ...indexedById.keys(),
-    ...currentById.keys()
-  ])].sort(compareText);
+  const currentById = new Map(
+    current.resources.map((resource) => [resource.id, resource.sha256])
+  );
+  const ids = [...new Set([...indexedById.keys(), ...currentById.keys()])].sort(
+    compareText
+  );
   return ids.flatMap((id) => {
     const indexedSha256 = indexedById.get(id);
     const currentSha256 = currentById.get(id);
     if (indexedSha256 === undefined) {
-      return [resourceDiagnostic(
-        "investigation-resource.added",
-        id,
-        "resource was added since the index was generated"
-      )];
+      return [
+        resourceDiagnostic(
+          "investigation-resource.added",
+          id,
+          "resource was added since the index was generated"
+        )
+      ];
     }
     if (currentSha256 === undefined) {
-      return [resourceDiagnostic(
-        "investigation-resource.removed",
-        id,
-        "resource was removed since the index was generated"
-      )];
+      return [
+        resourceDiagnostic(
+          "investigation-resource.removed",
+          id,
+          "resource was removed since the index was generated"
+        )
+      ];
     }
     return indexedSha256 === currentSha256
       ? []
-      : [resourceDiagnostic(
-        "investigation-resource.changed",
-        id,
-        "resource content changed since the index was generated"
-      )];
+      : [
+          resourceDiagnostic(
+            "investigation-resource.changed",
+            id,
+            "resource content changed since the index was generated"
+          )
+        ];
   });
 }
 

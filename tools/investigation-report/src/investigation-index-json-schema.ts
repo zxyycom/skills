@@ -6,9 +6,7 @@ import {
   investigationKebabCasePatternSource,
   investigationTopicPathPatternSource
 } from "./report-path.ts";
-import {
-  investigationResourceIdLexicalPatternSource
-} from "./resource-reference.ts";
+import { investigationResourceIdLexicalPatternSource } from "./resource-reference.ts";
 import { investigationSourceFingerprintPatternSource } from "./investigation-source-revision.ts";
 import { investigationTimestampPatternSource } from "./timestamp.ts";
 import { investigationReportStatuses } from "./types.ts";
@@ -24,14 +22,16 @@ const topicPath = {
 } as const;
 
 export const investigationIndexJsonSchema = {
-  $comment: "entry 对象键、state.path、派生 keys、资源排序与交叉引用、sourceRevision 与调查事实源的一致性由调查报告 CLI 检查。",
+  $comment:
+    "entry 对象键、state.path、派生 keys、资源排序与交叉引用、sourceRevision 与调查事实源的一致性由调查报告 CLI 检查。",
   $defs: {
     fingerprint: {
       pattern: investigationSourceFingerprintPatternSource,
       type: "string"
     },
     resourceId: {
-      $comment: "pattern 表达路径段字符白名单、非空路径段和正斜杠分隔；路径段首尾点、至少一个汉字、ASCII 英文字母或 ASCII 数字、Windows 保留设备名和 ASCII 括号平衡由调查报告 CLI 补充校验。",
+      $comment:
+        "pattern 表达路径段字符白名单、非空路径段和正斜杠分隔；路径段首尾点、至少一个汉字、ASCII 英文字母或 ASCII 数字、Windows 保留设备名和 ASCII 括号平衡由调查报告 CLI 补充校验。",
       pattern: investigationResourceIdLexicalPatternSource,
       type: "string"
     },

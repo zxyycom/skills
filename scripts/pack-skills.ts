@@ -6,10 +6,7 @@ import {
   readSkillPackageVersion,
   type SkillPackageFile
 } from "./lib/skill-package-hash.ts";
-import {
-  rootDir,
-  type SkillPackage
-} from "./lib/project.ts";
+import { rootDir, type SkillPackage } from "./lib/project.ts";
 import {
   skillReleaseManifestFileName,
   stringifySkillReleaseManifest,
@@ -42,20 +39,24 @@ for (const skill of snapshot.skills) {
   const archive = buildZip(skill, snapshot.filesBySkill.get(skill.name) ?? []);
   const outputPath = path.join(distDir, `${skill.name}.zip`);
   await fs.writeFile(outputPath, archive);
-  console.log(`Packed ${skill.name} -> ${path.relative(rootDir, outputPath)} (${archive.length} bytes).`);
+  console.log(
+    `Packed ${skill.name} -> ${path.relative(rootDir, outputPath)} (${archive.length} bytes).`
+  );
 }
 
 const releaseManifest: SkillReleaseManifest = {
   schemaVersion: 1,
-  skills: Object.fromEntries(snapshot.skills.map((skill) => [
-    skill.name,
-    {
-      version: readSkillPackageVersion(
-        skill.name,
-        snapshot.filesBySkill.get(skill.name) ?? []
-      )
-    }
-  ]))
+  skills: Object.fromEntries(
+    snapshot.skills.map((skill) => [
+      skill.name,
+      {
+        version: readSkillPackageVersion(
+          skill.name,
+          snapshot.filesBySkill.get(skill.name) ?? []
+        )
+      }
+    ])
+  )
 };
 const manifestOutputPath = path.join(distDir, skillReleaseManifestFileName);
 await fs.writeFile(

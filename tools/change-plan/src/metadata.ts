@@ -21,9 +21,7 @@ export const changePlanMetadataSchema = v.variant("stage", [
   })
 ]);
 
-export type ChangePlanMetadata = v.InferOutput<
-  typeof changePlanMetadataSchema
->;
+export type ChangePlanMetadata = v.InferOutput<typeof changePlanMetadataSchema>;
 
 export type ChangePlanMetadataErrorCode =
   | "invalid"
@@ -46,10 +44,12 @@ function errorMessage(error: unknown): string {
 }
 
 function isMissingPathError(error: unknown): boolean {
-  return error !== null
-    && typeof error === "object"
-    && "code" in error
-    && error.code === "ENOENT";
+  return (
+    error !== null &&
+    typeof error === "object" &&
+    "code" in error &&
+    error.code === "ENOENT"
+  );
 }
 
 function schemaIssueMessage(issue: v.BaseIssue<unknown>): string {

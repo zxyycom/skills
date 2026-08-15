@@ -1,8 +1,5 @@
 import { compareIndexText } from "./ordering.ts";
-import {
-  isStateIndexKeyName,
-  isStateIndexNamespace
-} from "./schemas.ts";
+import { isStateIndexKeyName, isStateIndexNamespace } from "./schemas.ts";
 import type {
   JsonObject,
   StateIndexDefinition,
@@ -19,36 +16,34 @@ export function defineStateIndexDefinition<
   const errors = validateStateIndexDefinition(definition);
   if (errors.length > 0) {
     throw new TypeError(
-      `Invalid state index definition ${definition.namespace || "<missing-namespace>"}: `
-      + errors.join("; ")
+      `Invalid state index definition ${definition.namespace || "<missing-namespace>"}: ` +
+        errors.join("; ")
     );
   }
-  const keyStrategies = definition.keyStrategies.map((strategy) => (
+  const keyStrategies = definition.keyStrategies.map((strategy) =>
     Object.freeze({ ...strategy })
-  ));
+  );
   return Object.freeze({ ...definition, keyStrategies });
 }
 
 export function validateStateIndexDefinition<
   State extends object,
   Metadata extends JsonObject
->(
-  definition: StateIndexDefinition<State, Metadata>
-): string[] {
+>(definition: StateIndexDefinition<State, Metadata>): string[] {
   const errors: string[] = [];
   if (!isStateIndexNamespace(definition.namespace)) {
     errors.push("namespace must be a kebab-case identifier");
   }
   if (
-    !Number.isSafeInteger(definition.definitionVersion)
-    || definition.definitionVersion < 1
+    !Number.isSafeInteger(definition.definitionVersion) ||
+    definition.definitionVersion < 1
   ) {
     errors.push("definitionVersion must be a positive safe integer");
   }
   if (
-    definition.fieldOrder !== undefined
-    && definition.fieldOrder !== "definition"
-    && definition.fieldOrder !== "lexicographic"
+    definition.fieldOrder !== undefined &&
+    definition.fieldOrder !== "definition" &&
+    definition.fieldOrder !== "lexicographic"
   ) {
     errors.push("fieldOrder must be definition or lexicographic");
   }
@@ -65,12 +60,15 @@ export function validateStateIndexDefinition<
     errors.push("parseState must be a function");
   }
   if (
-    definition.validateIndex !== undefined
-    && typeof definition.validateIndex !== "function"
+    definition.validateIndex !== undefined &&
+    typeof definition.validateIndex !== "function"
   ) {
     errors.push("validateIndex must be a function");
   }
-  if (!Array.isArray(definition.keyStrategies) || definition.keyStrategies.length === 0) {
+  if (
+    !Array.isArray(definition.keyStrategies) ||
+    definition.keyStrategies.length === 0
+  ) {
     errors.push("keyStrategies must contain at least one strategy");
     return errors;
   }
@@ -87,7 +85,11 @@ export function validateStateIndexDefinition<
       errors.push(`key strategy ${strategy.name} appears more than once`);
     }
     names.add(strategy.name);
-    if (strategy.mode !== "exact" && strategy.mode !== "range" && strategy.mode !== "text") {
+    if (
+      strategy.mode !== "exact" &&
+      strategy.mode !== "range" &&
+      strategy.mode !== "text"
+    ) {
       errors.push(`keyStrategies[${index}].mode must be exact, range, or text`);
     }
     if (typeof strategy.derive !== "function") {
@@ -100,9 +102,7 @@ export function validateStateIndexDefinition<
 export function expectationOf<
   State extends object,
   Metadata extends JsonObject
->(
-  definition: StateIndexDefinition<State, Metadata>
-): StateIndexExpectation {
+>(definition: StateIndexDefinition<State, Metadata>): StateIndexExpectation {
   return {
     definitionVersion: definition.definitionVersion,
     namespace: definition.namespace
@@ -127,9 +127,11 @@ export function sameKeyDefinitions(
   left: readonly StateIndexKeyDefinition[],
   right: readonly StateIndexKeyDefinition[]
 ): boolean {
-  return left.length === right.length
-    && left.every((entry, index) => (
-      entry.name === right[index]?.name
-      && entry.mode === right[index]?.mode
-    ));
+  return (
+    left.length === right.length &&
+    left.every(
+      (entry, index) =>
+        entry.name === right[index]?.name && entry.mode === right[index]?.mode
+    )
+  );
 }

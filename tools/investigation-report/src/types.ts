@@ -3,9 +3,14 @@ import type {
   StateIndexEntryStageResult
 } from "../../index-runtime/src/index.ts";
 
-export const investigationReportStatuses = ["调查中", "暂停", "已结束"] as const;
+export const investigationReportStatuses = [
+  "调查中",
+  "暂停",
+  "已结束"
+] as const;
 
-export type InvestigationReportStatus = typeof investigationReportStatuses[number];
+export type InvestigationReportStatus =
+  (typeof investigationReportStatuses)[number];
 
 export function isInvestigationReportStatus(
   value: string

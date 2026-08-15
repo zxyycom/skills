@@ -13,7 +13,7 @@ import {
   runSourceCli,
   runSuccessfulSourceCli,
   withFixtureWorkspace,
-  writeDecision,
+  writeDecision
 } from "./support.ts";
 
 test("decision check validates tagged root and archive records", () =>
@@ -31,7 +31,7 @@ test("decision show returns tagged Markdown by stable ID", () =>
       "show",
       currentDecisionId,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.match(shown, /tags:/);
   }));
@@ -42,7 +42,7 @@ test("decision trace follows stable ID relations", () =>
       "trace",
       currentDecisionId,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.match(traced, new RegExp(archivedDecisionId));
   }));
@@ -54,16 +54,16 @@ test("check detects tagged source drift and sync-index accepts it", () =>
       source,
       (await fs.readFile(source, "utf8")).replace(
         "  - project-tooling",
-        "  - decision-records\n  - project-tooling",
+        "  - decision-records\n  - project-tooling"
       ),
-      "utf8",
+      "utf8"
     );
     const check = await runSourceCli(["check", "--root", workspaceRoot]);
     assert.notEqual(check.exitCode, 0);
     assert.equal(
       (await runSourceCli(["sync-index", "--write", "--root", workspaceRoot]))
         .exitCode,
-      0,
+      0
     );
   }));
 
@@ -73,7 +73,7 @@ test("decision check preserves source, bundled API, and process CLI parity", () 
     const bundled =
       await import("../../../skills/decision-records/scripts/decision-records.mjs");
     const bundledResult = await bundled.validateDecisionRecords({
-      workspaceRoot,
+      workspaceRoot
     });
     assert.deepEqual(bundledResult, source);
     const output = execFileSync(
@@ -82,9 +82,9 @@ test("decision check preserves source, bundled API, and process CLI parity", () 
         "skills/decision-records/scripts/decision-records.mjs",
         "check",
         "--root",
-        workspaceRoot,
+        workspaceRoot
       ],
-      { cwd: process.cwd(), encoding: "utf8" },
+      { cwd: process.cwd(), encoding: "utf8" }
     );
     assert.match(output, /Decision records check passed/);
   }));
@@ -98,7 +98,7 @@ test("decision list filters lifecycle and tag selectors", () =>
       "--tag",
       "project-tooling",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.match(active, new RegExp(currentDecisionId));
     assert.doesNotMatch(active, new RegExp(archivedDecisionId));
@@ -109,7 +109,7 @@ test("decision list filters lifecycle and tag selectors", () =>
       "--tag",
       "decision-records",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.match(archived, new RegExp(archivedDecisionId));
     assert.doesNotMatch(archived, new RegExp(currentDecisionId));
@@ -121,7 +121,7 @@ test("decision show returns metadata and reports body read failures", () =>
       "show",
       currentDecisionId,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.match(shown, /^id: use-generated-cli\.md$/m);
     assert.match(shown, /^sourcePath: use-generated-cli\.md$/m);
@@ -138,20 +138,20 @@ test("decision show returns metadata and reports body read failures", () =>
           throw new Error("simulated decision body read failure");
         }
         return await readFile(file, encoding);
-      },
+      }
     });
     try {
       const failed = await runSourceCli([
         "show",
         currentDecisionId,
         "--root",
-        workspaceRoot,
+        workspaceRoot
       ]);
       assert.notEqual(failed.exitCode, 0);
       assert.equal(failed.stdout, "");
       assert.match(
         failed.stderr,
-        /Failed to read decision body.*simulated decision body read failure/,
+        /Failed to read decision body.*simulated decision body read failure/
       );
       assert.equal(reads, 1);
     } finally {
@@ -167,7 +167,7 @@ test("decision trace follows predecessor and successor directions", () =>
       "--direction",
       "predecessors",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.match(predecessors, new RegExp(archivedDecisionId));
     const successors = await runSuccessfulSourceCli([
@@ -176,7 +176,7 @@ test("decision trace follows predecessor and successor directions", () =>
       "--direction",
       "successors",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.match(successors, new RegExp(currentDecisionId));
     const none = await runSuccessfulSourceCli([
@@ -185,7 +185,7 @@ test("decision trace follows predecessor and successor directions", () =>
       "--direction",
       "predecessors",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.doesNotMatch(none, new RegExp(currentDecisionId));
   }));
@@ -196,22 +196,22 @@ test("decision queries use persisted snapshots while check detects source drift"
     await fs.rm(source);
     assert.match(
       await runSuccessfulSourceCli(["list", "--root", workspaceRoot]),
-      new RegExp(currentDecisionId),
+      new RegExp(currentDecisionId)
     );
     assert.match(
       await runSuccessfulSourceCli([
         "trace",
         currentDecisionId,
         "--root",
-        workspaceRoot,
+        workspaceRoot
       ]),
-      new RegExp(archivedDecisionId),
+      new RegExp(archivedDecisionId)
     );
     const shown = await runSourceCli([
       "show",
       currentDecisionId,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.notEqual(shown.exitCode, 0);
     assert.match(shown.stderr, /Failed to read decision body/);
@@ -227,16 +227,16 @@ test("decision list combines repeated tag selectors with AND semantics", () =>
       bothId,
       candidateDecisionBody({
         tags: ["decision-records", "project-tooling"],
-        title: "同时属于两个标签",
+        title: "同时属于两个标签"
       })
         .replace("status: candidate", "status: active")
         .replace("alignment: null", "alignment: aligned")
-        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z"),
+        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
     );
     assert.equal(
       (await runSourceCli(["sync-index", "--write", "--root", workspaceRoot]))
         .exitCode,
-      0,
+      0
     );
     const listed = await runSuccessfulSourceCli([
       "list",
@@ -247,7 +247,7 @@ test("decision list combines repeated tag selectors with AND semantics", () =>
       "--tag",
       "project-tooling",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.match(listed, new RegExp(bothId));
     assert.doesNotMatch(listed, new RegExp(currentDecisionId));
@@ -263,19 +263,19 @@ test("decision list filters records by alignment selector", () =>
       candidateDecisionBody({ title: "未对齐索引记录" })
         .replace("status: candidate", "status: active")
         .replace("alignment: null", "alignment: unaligned")
-        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z"),
+        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
     );
     assert.equal(
       (await runSourceCli(["sync-index", "--write", "--root", workspaceRoot]))
         .exitCode,
-      0,
+      0
     );
     const listed = await runSuccessfulSourceCli([
       "list",
       "--alignment",
       "unaligned",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.match(listed, new RegExp(unalignedId));
     assert.doesNotMatch(listed, new RegExp(currentDecisionId));
@@ -287,7 +287,7 @@ test("decision list defaults to active records without archived results", () =>
     const listed = await runSuccessfulSourceCli([
       "list",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.match(listed, new RegExp(currentDecisionId));
     assert.doesNotMatch(listed, new RegExp(archivedDecisionId));
@@ -301,7 +301,7 @@ test("decision list status all includes both lifecycles and full timestamps", ()
       "all",
       "--full-time",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.match(listed, new RegExp(currentDecisionId));
     assert.match(listed, new RegExp(archivedDecisionId));
@@ -316,7 +316,7 @@ test("decision list reports empty results for unmatched tag and alignment filter
       "--tag",
       "unmatched-tag",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.match(unmatchedTag, /- none/);
     const unmatchedAlignment = await runSuccessfulSourceCli([
@@ -324,7 +324,7 @@ test("decision list reports empty results for unmatched tag and alignment filter
       "--alignment",
       "unaligned",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.match(unmatchedAlignment, /- none/);
   }));

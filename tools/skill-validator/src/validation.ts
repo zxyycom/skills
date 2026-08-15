@@ -52,7 +52,9 @@ function validateFrontmatter(
     const allowedKeys = new Set(options.allowedFrontmatterKeys);
     const unknownKeys = frontmatter.keys.filter((key) => !allowedKeys.has(key));
     if (unknownKeys.length > 0) {
-      report(`SKILL.md frontmatter has unsupported keys: ${unknownKeys.join(", ")}`);
+      report(
+        `SKILL.md frontmatter has unsupported keys: ${unknownKeys.join(", ")}`
+      );
     }
   }
 
@@ -71,23 +73,33 @@ function validateFrontmatter(
         report("SKILL.md frontmatter name must use kebab-case");
       }
       if (name !== directoryName) {
-        report(`SKILL.md frontmatter name must match directory name ${directoryName}`);
+        report(
+          `SKILL.md frontmatter name must match directory name ${directoryName}`
+        );
       }
     }
   }
 
   const description = frontmatter.values.description;
   if (
-    frontmatter.keys.includes("description")
-    && (typeof description !== "string" || description.trim().length === 0)
+    frontmatter.keys.includes("description") &&
+    (typeof description !== "string" || description.trim().length === 0)
   ) {
     report("SKILL.md frontmatter description must be a non-empty string");
   }
 }
 
-function validateBody(markdown: string, report: (message: string) => void): void {
-  const frontmatterMatch = markdown.match(/^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/);
-  if (frontmatterMatch !== null && markdown.slice(frontmatterMatch[0].length).trim().length === 0) {
+function validateBody(
+  markdown: string,
+  report: (message: string) => void
+): void {
+  const frontmatterMatch = markdown.match(
+    /^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/
+  );
+  if (
+    frontmatterMatch !== null &&
+    markdown.slice(frontmatterMatch[0].length).trim().length === 0
+  ) {
     report("SKILL.md body must contain executable guidance");
   }
 }
@@ -120,7 +132,12 @@ export async function validateSkillDirectory(
     report("SKILL.md must be a file");
   } else {
     const markdown = await fs.readFile(skillMdPath, "utf8");
-    validateFrontmatter(markdown, path.basename(skillDirectory), options, report);
+    validateFrontmatter(
+      markdown,
+      path.basename(skillDirectory),
+      options,
+      report
+    );
     validateBody(markdown, report);
   }
 
@@ -132,14 +149,16 @@ export async function validateSkillDirectory(
     }
   }
 
-  const markdownFiles = (await fastGlob("**/*.md", {
-    absolute: true,
-    cwd: skillDirectory,
-    dot: true,
-    followSymbolicLinks: false,
-    ignore: ["**/.git/**", "**/node_modules/**"],
-    onlyFiles: true
-  })).sort((left, right) => left.localeCompare(right));
+  const markdownFiles = (
+    await fastGlob("**/*.md", {
+      absolute: true,
+      cwd: skillDirectory,
+      dot: true,
+      followSymbolicLinks: false,
+      ignore: ["**/.git/**", "**/node_modules/**"],
+      onlyFiles: true
+    })
+  ).sort((left, right) => left.localeCompare(right));
   await validateMarkdownLinks(markdownFiles, report, skillDirectory);
 
   return {

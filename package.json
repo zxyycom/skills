@@ -9,6 +9,9 @@
   },
   "scripts": {
     "typecheck": "tsgo --noEmit",
+    "lint": "oxlint --type-aware --deny-warnings scripts tools",
+    "format": "oxfmt --write '{scripts/**/*.{ts,js},tools/**/*.ts}'",
+    "format:check": "oxfmt --check '{scripts/**/*.{ts,js},tools/**/*.ts}'",
     "validate": "bun scripts/validate.ts",
     "test:change-plan-cli": "bun test ./tools/change-plan/tests/run.ts",
     "test:decision-records-cli": "bun test ./tools/decision-records/tests/run.ts",
@@ -54,7 +57,9 @@
     "check:test-evidence-catalog": "node skills/test-evidence-review/scripts/test-evidence-catalog.mjs check --root .",
     "sync:skill-updaters": "bun scripts/build/skill-updaters.ts --write",
     "check:skill-updaters": "bun scripts/build/skill-updaters.ts --check",
-    "check": "bun scripts/check.ts"
+    "check": "bun scripts/check.ts",
+    "lint:fix": "oxlint --type-aware --deny-warnings --fix scripts tools",
+    "fix": "bun run lint:fix && bun run format"
   },
   "devDependencies": {
     "@types/node": "^26.0.1",
@@ -73,6 +78,9 @@
     "mdast-util-to-string": "^4.0.0",
     "mnemonist": "0.40.4",
     "neverthrow": "8.2.0",
+    "oxfmt": "0.63.0",
+    "oxlint": "1.78.0",
+    "oxlint-tsgolint": "7.0.2001",
     "picomatch": "4.0.5",
     "remeda": "2.39.0",
     "simple-git": "3.36.0",

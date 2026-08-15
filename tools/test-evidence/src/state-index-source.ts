@@ -22,18 +22,18 @@ import type {
 
 export type TestEvidenceIndexSourceResult =
   | {
-    diagnostics: [];
-    snapshot: StateSnapshot<
-      TestEvidenceCaseIndexState,
-      TestEvidenceIndexMetadata
-    >;
-    topics: TestEvidenceIndexMetadata["topics"];
-  }
+      diagnostics: [];
+      snapshot: StateSnapshot<
+        TestEvidenceCaseIndexState,
+        TestEvidenceIndexMetadata
+      >;
+      topics: TestEvidenceIndexMetadata["topics"];
+    }
   | {
-    diagnostics: TestEvidenceDiagnostic[];
-    snapshot: null;
-    topics: TestEvidenceIndexMetadata["topics"];
-  };
+      diagnostics: TestEvidenceDiagnostic[];
+      snapshot: null;
+      topics: TestEvidenceIndexMetadata["topics"];
+    };
 
 export async function readTestEvidenceIndexSource(
   context: StateIndexContext
@@ -94,7 +94,9 @@ export async function readCurrentTestEvidenceSourceRevision(
     );
   }
   if (source.topicCatalog === null) {
-    throw new TypeError("validated catalog source must include a topic catalog");
+    throw new TypeError(
+      "validated catalog source must include a topic catalog"
+    );
   }
   return testEvidenceSourceRevision({
     sources: source.sources.map(identifyTestEvidenceCatalogSource),

@@ -4,10 +4,7 @@ import {
   parseTaskIndex as parseIndex,
   serializeTaskIndex as serializeIndex
 } from "./schema.ts";
-import type {
-  TaskGraphApplyRequest,
-  TaskIndex
-} from "./types.ts";
+import type { TaskGraphApplyRequest, TaskIndex } from "./types.ts";
 
 export { TaskGraphError } from "./errors.ts";
 export {
@@ -35,7 +32,9 @@ export function emptyTaskIndex(): TaskIndex {
   return createEmptyTaskIndex();
 }
 
-export function parseTaskGraphApplyRequest(input: unknown): TaskGraphApplyRequest {
+export function parseTaskGraphApplyRequest(
+  input: unknown
+): TaskGraphApplyRequest {
   return parseApplyRequest(input);
 }
 

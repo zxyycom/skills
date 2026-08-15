@@ -79,7 +79,9 @@ export async function runSkillUpdaterCli(
   console.log(`Updater source: ${links.updaterSourceUrl}`);
   console.log(`Skill source directory: ${links.skillSourceDirectoryUrl}`);
   console.log(`Release: ${options.releaseTag ?? "latest"}`);
-  console.log(`Release manifest asset: ${skillUpdaterConfig.releaseManifestAssetName}`);
+  console.log(
+    `Release manifest asset: ${skillUpdaterConfig.releaseManifestAssetName}`
+  );
   console.log(`Release asset: ${skillUpdaterConfig.releaseAssetName}`);
   console.log(`Target: ${options.targetDir}`);
 
@@ -87,16 +89,22 @@ export async function runSkillUpdaterCli(
     options.targetDir,
     skillUpdaterConfig.skillName
   );
-  const release = await fetchGitHubRelease(skillUpdaterConfig, options.releaseTag);
+  const release = await fetchGitHubRelease(
+    skillUpdaterConfig,
+    options.releaseTag
+  );
   console.log(`Resolved release: ${release.tag_name} (${release.html_url})`);
 
-  const remotePackage = await resolveRemoteSkillPackage(skillUpdaterConfig, release);
+  const remotePackage = await resolveRemoteSkillPackage(
+    skillUpdaterConfig,
+    release
+  );
   console.log(`Remote version: ${remotePackage.version}`);
   console.log(`Local version: ${formatLocalVersion(currentState)}`);
 
   if (
-    currentState.state === "versioned"
-    && currentState.version === remotePackage.version
+    currentState.state === "versioned" &&
+    currentState.version === remotePackage.version
   ) {
     console.log("Status: current");
     return 0;
@@ -123,7 +131,7 @@ export async function runSkillUpdaterCli(
   const updatePlan = await planSkillUpdate(remoteFiles, options.targetDir);
   printUpdatePlan(updatePlan);
 
-  if (!await confirmUpdate(options)) {
+  if (!(await confirmUpdate(options))) {
     return 1;
   }
 

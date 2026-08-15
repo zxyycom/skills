@@ -38,15 +38,15 @@ export type {
   StateIndexSort
 } from "./schemas.ts";
 
-export type StateIndexEntry<
-  State extends object = JsonObject
-> = StateIndexStoredEntry<State> & {
-  id: string;
-};
+export type StateIndexEntry<State extends object = JsonObject> =
+  StateIndexStoredEntry<State> & {
+    id: string;
+  };
 
-export type StateIndexStoredEntry<
-  State extends object = JsonObject
-> = Omit<StateIndexStoredEntryValue, "state"> & {
+export type StateIndexStoredEntry<State extends object = JsonObject> = Omit<
+  StateIndexStoredEntryValue,
+  "state"
+> & {
   state: State;
 };
 
@@ -155,13 +155,9 @@ export type StateIndexDefinition<
     state: JsonObject,
     context: StateIndexProjectionContext<Metadata>
   ) => State;
-  read: (
-    context: StateIndexContext
-  ) => Promise<StateSnapshot<State, Metadata>>;
+  read: (context: StateIndexContext) => Promise<StateSnapshot<State, Metadata>>;
   readRevision: (context: StateIndexContext) => Promise<StateSourceRevision>;
-  validateIndex?: (
-    index: ReadonlyStateIndex<State, Metadata>
-  ) => void;
+  validateIndex?: (index: ReadonlyStateIndex<State, Metadata>) => void;
 };
 
 export type StateIndexExpectation = {
@@ -171,15 +167,15 @@ export type StateIndexExpectation = {
 
 export type StateIndexResult<Value> =
   | {
-    diagnostics: StateIndexDiagnostic[];
-    status: "ok";
-    value: Value;
-  }
+      diagnostics: StateIndexDiagnostic[];
+      status: "ok";
+      value: Value;
+    }
   | {
-    diagnostics: StateIndexDiagnostic[];
-    status: "error";
-    value: null;
-  };
+      diagnostics: StateIndexDiagnostic[];
+      status: "error";
+      value: null;
+    };
 
 export type StateIndexQueryOutput<
   State extends object = JsonObject,
@@ -203,36 +199,36 @@ type StateIndexSyncBase = {
 
 export type StateIndexSyncResult =
   | (StateIndexSyncBase & {
-    changed: false;
-    mode: StateIndexSyncMode;
-    state: "current" | "unchanged";
-    status: "ok";
-  })
+      changed: false;
+      mode: StateIndexSyncMode;
+      state: "current" | "unchanged";
+      status: "ok";
+    })
   | (StateIndexSyncBase & {
-    changed: true;
-    mode: StateIndexSyncMode;
-    state: "written";
-    status: "ok";
-  })
+      changed: true;
+      mode: StateIndexSyncMode;
+      state: "written";
+      status: "ok";
+    })
   | (StateIndexSyncBase & {
-    changed: false;
-    mode: StateIndexSyncMode;
-    state:
-      | "index-invalid"
-      | "index-missing"
-      | "index-path-invalid"
-      | "index-read-failed"
-      | "index-stale"
-      | "index-write-failed"
-      | "source-invalid";
-    status: "error";
-  })
+      changed: false;
+      mode: StateIndexSyncMode;
+      state:
+        | "index-invalid"
+        | "index-missing"
+        | "index-path-invalid"
+        | "index-read-failed"
+        | "index-stale"
+        | "index-write-failed"
+        | "source-invalid";
+      status: "error";
+    })
   | (StateIndexSyncBase & {
-    changed: false;
-    mode: null;
-    state: "mode-invalid";
-    status: "error";
-  });
+      changed: false;
+      mode: null;
+      state: "mode-invalid";
+      status: "error";
+    });
 
 type StateIndexEntryStageBase = {
   diagnostics: StateIndexDiagnostic[];
@@ -243,33 +239,33 @@ type StateIndexEntryStageBase = {
 
 export type StateIndexEntryStageResult =
   | (StateIndexEntryStageBase & {
-    changed: true;
-    state: "staged";
-    status: "ok";
-  })
+      changed: true;
+      state: "staged";
+      status: "ok";
+    })
   | (StateIndexEntryStageBase & {
-    changed: false;
-    state: "unchanged";
-    status: "ok";
-  })
+      changed: false;
+      state: "unchanged";
+      status: "ok";
+    })
   | (StateIndexEntryStageBase & {
-    changed: false;
-    state:
-      | "collection-changed"
-      | "definition-invalid"
-      | "index-path-invalid"
-      | "operation-aborted"
-      | "pending-conflict"
-      | "pending-write-failed"
-      | "revision-index-invalid"
-      | "revision-read-failed"
-      | "selection-invalid"
-      | "target-invalid"
-      | "workspace-index-invalid";
-    status: "error";
-  })
+      changed: false;
+      state:
+        | "collection-changed"
+        | "definition-invalid"
+        | "index-path-invalid"
+        | "operation-aborted"
+        | "pending-conflict"
+        | "pending-write-failed"
+        | "revision-index-invalid"
+        | "revision-read-failed"
+        | "selection-invalid"
+        | "target-invalid"
+        | "workspace-index-invalid";
+      status: "error";
+    })
   | (StateIndexEntryStageBase & {
-    changed: null;
-    state: "pending-recovery-failed";
-    status: "error";
-  });
+      changed: null;
+      state: "pending-recovery-failed";
+      status: "error";
+    });

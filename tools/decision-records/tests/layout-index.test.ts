@@ -14,7 +14,7 @@ import {
   readIndex,
   runSourceCli,
   withFixtureWorkspace,
-  writeDecision,
+  writeDecision
 } from "./support.ts";
 
 test("scanner accepts root active records and archive archived records with unique IDs", () =>
@@ -27,12 +27,12 @@ test("scanner accepts root active records and archive archived records with uniq
     assert.deepEqual(
       validation.scan.records.map((record) => [
         record.decisionId,
-        record.sourcePath,
+        record.sourcePath
       ]),
       [
         [archivedDecisionId, archivedSourcePath],
-        [currentDecisionId, currentSourcePath],
-      ],
+        [currentDecisionId, currentSourcePath]
+      ]
     );
   }));
 
@@ -43,35 +43,35 @@ test("scanner rejects status-position mismatches nested paths and duplicate deci
       archivedPath,
       (await fs.readFile(archivedPath, "utf8")).replace(
         "status: archived",
-        "status: active",
+        "status: active"
       ),
-      "utf8",
+      "utf8"
     );
     await writeDecision(
       workspaceRoot,
       `nested/${currentDecisionId}`,
-      candidateDecisionBody(),
+      candidateDecisionBody()
     );
     await writeDecision(
       workspaceRoot,
       archivedDecisionId,
-      candidateDecisionBody(),
+      candidateDecisionBody()
     );
     const validation = await validateDecisionRecords({ workspaceRoot });
     assert.ok(
       validation.errors.some((error) =>
-        error.includes("status must match its physical sourcePath"),
-      ),
+        error.includes("status must match its physical sourcePath")
+      )
     );
     assert.ok(
       validation.errors.some((error) =>
-        error.includes("root contains unsupported directory nested"),
-      ),
+        error.includes("root contains unsupported directory nested")
+      )
     );
     assert.ok(
       validation.errors.some((error) =>
-        error.includes("Decision ID occurs in more than one source path"),
-      ),
+        error.includes("Decision ID occurs in more than one source path")
+      )
     );
   }));
 
@@ -85,22 +85,22 @@ test("decision index is ID-keyed with empty metadata and deterministic tag keys"
     assert.deepEqual(index.keyDefinitions, [
       { name: "tag", mode: "exact" },
       { name: "status", mode: "exact" },
-      { name: "alignment", mode: "exact" },
+      { name: "alignment", mode: "exact" }
     ]);
     assert.deepEqual(Object.keys(index.entries), [
       archivedDecisionId,
-      currentDecisionId,
+      currentDecisionId
     ]);
     assert.equal(
       findIndexEntry(index, currentDecisionId).sourcePath,
-      currentSourcePath,
+      currentSourcePath
     );
     assert.deepEqual(findIndexEntry(index, currentDecisionId).tags, [
-      "project-tooling",
+      "project-tooling"
     ]);
     assert.deepEqual(Object.keys(index.sourceRevision.entries), [
       archivedDecisionId,
-      currentDecisionId,
+      currentDecisionId
     ]);
   }));
 
@@ -111,9 +111,9 @@ test("index revision detects tag and sourcePath changes before accepting a rebui
       currentPath,
       (await fs.readFile(currentPath, "utf8")).replace(
         "  - project-tooling",
-        "  - decision-records\n  - project-tooling",
+        "  - decision-records\n  - project-tooling"
       ),
-      "utf8",
+      "utf8"
     );
     const stale = await validateDecisionRecords({ workspaceRoot });
     assert.notEqual(stale.errors.length, 0);
@@ -122,13 +122,13 @@ test("index revision detects tag and sourcePath changes before accepting a rebui
       "sync-index",
       "--write",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(synced.exitCode, 0, synced.stderr);
     const rebuilt = await readIndex(workspaceRoot);
     assert.deepEqual(findIndexEntry(rebuilt, currentDecisionId).tags, [
       "decision-records",
-      "project-tooling",
+      "project-tooling"
     ]);
   }));
 
@@ -140,19 +140,19 @@ test("decision index parser and check reject obsolete definition version", () =>
       workspaceRoot,
       "docs",
       "decisions",
-      "decision-index.json",
+      "decision-index.json"
     );
     const { parseDecisionIndex } =
       await import("../src/decision-state-index.ts");
     const parsed = parseDecisionIndex(
       JSON.stringify(index),
-      "decision-index.json",
+      "decision-index.json"
     );
     assert.equal(parsed.status, "error");
     await fs.writeFile(
       indexPath,
       JSON.stringify(index, null, 2) + "\n",
-      "utf8",
+      "utf8"
     );
     const checked = await runSourceCli(["check", "--root", workspaceRoot]);
     assert.notEqual(checked.exitCode, 0);

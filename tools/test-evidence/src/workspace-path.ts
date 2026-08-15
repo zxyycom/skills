@@ -12,28 +12,36 @@ export async function workspaceRelativePathsAreDistinct(
   relativePaths: readonly string[],
   platform: NodeJS.Platform = process.platform
 ): Promise<boolean> {
-  const paths = await Promise.all(relativePaths.map(async (relativePath) => ({
-    identity: await readWorkspaceFileIdentity(workspaceRoot, relativePath),
-    relativePath
-  })));
+  const paths = await Promise.all(
+    relativePaths.map(async (relativePath) => ({
+      identity: await readWorkspaceFileIdentity(workspaceRoot, relativePath),
+      relativePath
+    }))
+  );
   for (let leftIndex = 0; leftIndex < paths.length; leftIndex += 1) {
-    for (let rightIndex = leftIndex + 1; rightIndex < paths.length; rightIndex += 1) {
+    for (
+      let rightIndex = leftIndex + 1;
+      rightIndex < paths.length;
+      rightIndex += 1
+    ) {
       const left = paths[leftIndex]!;
       const right = paths[rightIndex]!;
       if (left.identity !== null && right.identity !== null) {
         if (
-          left.identity.device === right.identity.device
-          && left.identity.inode === right.identity.inode
+          left.identity.device === right.identity.device &&
+          left.identity.inode === right.identity.inode
         ) {
           return false;
         }
         continue;
       }
-      if (sameUnresolvedWorkspacePath(
-        left.relativePath,
-        right.relativePath,
-        platform
-      )) {
+      if (
+        sameUnresolvedWorkspacePath(
+          left.relativePath,
+          right.relativePath,
+          platform
+        )
+      ) {
         return false;
       }
     }
@@ -53,8 +61,8 @@ async function readWorkspaceFileIdentity(
     return { device: stats.dev, inode: stats.ino };
   } catch (error) {
     if (
-      isFileSystemError(error, "ENOENT")
-      || isFileSystemError(error, "ENOTDIR")
+      isFileSystemError(error, "ENOENT") ||
+      isFileSystemError(error, "ENOTDIR")
     ) {
       return null;
     }

@@ -4,100 +4,106 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { validateDecisionRecords } from "../src/index.ts";
-import {
-  fixtureRoot,
-  runSuccessfulSourceCli
-} from "./support.ts";
+import { fixtureRoot, runSuccessfulSourceCli } from "./support.ts";
 
 test("relative decision directories resolve from the workspace root", async () => {
-const fixtureDecisionsDirectory = path.join(fixtureRoot, "docs", "decisions");
+  const fixtureDecisionsDirectory = path.join(fixtureRoot, "docs", "decisions");
 
-const relativeConfigurationRoot = await fs.mkdtemp(
-  path.join(os.tmpdir(), "decision-records-relative-directory-")
-);
-try {
-  const configuredPath = path.join("configuration", "decision-memory");
-  const decisionsDirectory = path.join(relativeConfigurationRoot, configuredPath);
-  await fs.mkdir(path.dirname(decisionsDirectory), { recursive: true });
-  await fs.cp(fixtureDecisionsDirectory, decisionsDirectory, { recursive: true });
-  await runSuccessfulSourceCli([
-    "sync-index",
-    "--write",
-    "--decisions-dir",
-    configuredPath,
-    "--root",
-    relativeConfigurationRoot
-  ]);
-
-  const validation = await validateDecisionRecords({
-    decisionsDir: configuredPath,
-    workspaceRoot: relativeConfigurationRoot
-  });
-  assert.deepEqual(validation.errors, []);
-  assert.equal(validation.scan.decisionsDirectory, decisionsDirectory);
-  assert.equal(
-    validation.scan.indexRelativePath,
-    "configuration/decision-memory/decision-index.json"
+  const relativeConfigurationRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), "decision-records-relative-directory-")
   );
-  assert.match(
+  try {
+    const configuredPath = path.join("configuration", "decision-memory");
+    const decisionsDirectory = path.join(
+      relativeConfigurationRoot,
+      configuredPath
+    );
+    await fs.mkdir(path.dirname(decisionsDirectory), { recursive: true });
+    await fs.cp(fixtureDecisionsDirectory, decisionsDirectory, {
+      recursive: true
+    });
     await runSuccessfulSourceCli([
-      "check",
+      "sync-index",
+      "--write",
       "--decisions-dir",
       configuredPath,
       "--root",
       relativeConfigurationRoot
-    ]),
-    /Decision records check passed/
-  );
-} finally {
-  await fs.rm(relativeConfigurationRoot, { force: true, recursive: true });
-}
+    ]);
+
+    const validation = await validateDecisionRecords({
+      decisionsDir: configuredPath,
+      workspaceRoot: relativeConfigurationRoot
+    });
+    assert.deepEqual(validation.errors, []);
+    assert.equal(validation.scan.decisionsDirectory, decisionsDirectory);
+    assert.equal(
+      validation.scan.indexRelativePath,
+      "configuration/decision-memory/decision-index.json"
+    );
+    assert.match(
+      await runSuccessfulSourceCli([
+        "check",
+        "--decisions-dir",
+        configuredPath,
+        "--root",
+        relativeConfigurationRoot
+      ]),
+      /Decision records check passed/
+    );
+  } finally {
+    await fs.rm(relativeConfigurationRoot, { force: true, recursive: true });
+  }
 });
 
 test("absolute decision directories remain outside the workspace root", async () => {
-const fixtureDecisionsDirectory = path.join(fixtureRoot, "docs", "decisions");
-const absoluteConfigurationRoot = await fs.mkdtemp(
-  path.join(os.tmpdir(), "decision-records-absolute-directory-")
-);
-try {
-  const workspaceRoot = path.join(absoluteConfigurationRoot, "workspace");
-  const decisionsDirectory = path.join(
-    absoluteConfigurationRoot,
-    "shared-decision-memory"
+  const fixtureDecisionsDirectory = path.join(fixtureRoot, "docs", "decisions");
+  const absoluteConfigurationRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), "decision-records-absolute-directory-")
   );
-  await fs.mkdir(workspaceRoot, { recursive: true });
-  await fs.cp(fixtureDecisionsDirectory, decisionsDirectory, { recursive: true });
-  await runSuccessfulSourceCli([
-    "sync-index",
-    "--write",
-    "--decisions-dir",
-    decisionsDirectory,
-    "--root",
-    workspaceRoot
-  ]);
-  assert.ok(path.relative(workspaceRoot, decisionsDirectory).startsWith(".."));
-
-  const validation = await validateDecisionRecords({
-    decisionsDir: decisionsDirectory,
-    workspaceRoot
-  });
-  assert.deepEqual(validation.errors, []);
-  assert.equal(validation.scan.decisionsDirectory, decisionsDirectory);
-  assert.equal(
-    validation.scan.indexRelativePath,
-    path.join(decisionsDirectory, "decision-index.json")
-  );
-  assert.match(
+  try {
+    const workspaceRoot = path.join(absoluteConfigurationRoot, "workspace");
+    const decisionsDirectory = path.join(
+      absoluteConfigurationRoot,
+      "shared-decision-memory"
+    );
+    await fs.mkdir(workspaceRoot, { recursive: true });
+    await fs.cp(fixtureDecisionsDirectory, decisionsDirectory, {
+      recursive: true
+    });
     await runSuccessfulSourceCli([
-      "check",
+      "sync-index",
+      "--write",
       "--decisions-dir",
       decisionsDirectory,
       "--root",
       workspaceRoot
-    ]),
-    /Decision records check passed/
-  );
-} finally {
-  await fs.rm(absoluteConfigurationRoot, { force: true, recursive: true });
-}
+    ]);
+    assert.ok(
+      path.relative(workspaceRoot, decisionsDirectory).startsWith("..")
+    );
+
+    const validation = await validateDecisionRecords({
+      decisionsDir: decisionsDirectory,
+      workspaceRoot
+    });
+    assert.deepEqual(validation.errors, []);
+    assert.equal(validation.scan.decisionsDirectory, decisionsDirectory);
+    assert.equal(
+      validation.scan.indexRelativePath,
+      path.join(decisionsDirectory, "decision-index.json")
+    );
+    assert.match(
+      await runSuccessfulSourceCli([
+        "check",
+        "--decisions-dir",
+        decisionsDirectory,
+        "--root",
+        workspaceRoot
+      ]),
+      /Decision records check passed/
+    );
+  } finally {
+    await fs.rm(absoluteConfigurationRoot, { force: true, recursive: true });
+  }
 });

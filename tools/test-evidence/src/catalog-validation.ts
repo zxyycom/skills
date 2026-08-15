@@ -1,7 +1,4 @@
-import type {
-  CatalogSectionName,
-  ParsedTestEvidenceCase
-} from "./catalog.ts";
+import type { CatalogSectionName, ParsedTestEvidenceCase } from "./catalog.ts";
 
 export type TestEvidenceCase = {
   entries: string[];
@@ -29,8 +26,8 @@ export function validateTestEvidenceCase(
   const location = `${catalogPath}:${entry.line} ${entry.id}`;
   if (!entry.headingFormatIsValid) {
     errors.push(
-      `${catalogPath}:${entry.line} case heading must use exactly: `
-      + "### Case <CASE-ID>: <title>"
+      `${catalogPath}:${entry.line} case heading must use exactly: ` +
+        "### Case <CASE-ID>: <title>"
     );
     return { case: null, errors };
   }
@@ -52,8 +49,8 @@ export function validateTestEvidenceCase(
   const implementationEntries = parseEntries(entry, catalogPath, errors);
 
   if (
-    errors.length !== initialErrorCount
-    || implementationEntries.length === 0
+    errors.length !== initialErrorCount ||
+    implementationEntries.length === 0
   ) {
     return { case: null, errors };
   }
@@ -77,8 +74,8 @@ function requireListSections(
     const section = entry.sections[name];
     if (section.declarations !== 1 || section.items.length === 0) {
       errors.push(
-        `${catalogPath}:${entry.line} ${entry.id} must include exactly one `
-        + `non-empty ${sectionLabels[name]} list`
+        `${catalogPath}:${entry.line} ${entry.id} must include exactly one ` +
+          `non-empty ${sectionLabels[name]} list`
       );
     }
   }
@@ -95,8 +92,8 @@ function parseEntries(
     const value = match?.[1]?.trim() ?? "";
     if (value.length === 0) {
       errors.push(
-        `${catalogPath}:${entry.line} ${entry.id} Entry item must be one `
-        + `non-empty backticked implementation locator: ${item}`
+        `${catalogPath}:${entry.line} ${entry.id} Entry item must be one ` +
+          `non-empty backticked implementation locator: ${item}`
       );
       continue;
     }

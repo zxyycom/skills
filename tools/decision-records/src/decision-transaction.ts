@@ -1,10 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
-import {
-  selectEstablishedDecisionIds,
-  validateDecisionScan
-} from "./index.ts";
+import { selectEstablishedDecisionIds, validateDecisionScan } from "./index.ts";
 import {
   decisionIndexDiagnosticMessages,
   decisionIndexFileName,
@@ -12,10 +9,7 @@ import {
 } from "./decision-state-index.ts";
 import { scanDecisionRecords } from "./scan.ts";
 import { displayDecisionPath } from "./decision-path.ts";
-import type {
-  DecisionScan,
-  DecisionScanOptions
-} from "./types.ts";
+import type { DecisionScan, DecisionScanOptions } from "./types.ts";
 
 export type DecisionFileChange = {
   decisionPath: string;
@@ -58,7 +52,7 @@ export async function applyDecisionChanges(options: {
     if (sourceValidation.errors.length > 0) {
       return [
         ...sourceValidation.errors,
-        ...await restoreDecisionChanges(originalScan, preflight)
+        ...(await restoreDecisionChanges(originalScan, preflight))
       ];
     }
 
@@ -69,7 +63,7 @@ export async function applyDecisionChanges(options: {
       if (selection.errors.length > 0) {
         return [
           ...selection.errors,
-          ...await restoreDecisionChanges(originalScan, preflight)
+          ...(await restoreDecisionChanges(originalScan, preflight))
         ];
       }
       const synchronized = await syncDecisionIndex({
@@ -84,7 +78,7 @@ export async function applyDecisionChanges(options: {
             synchronized.diagnostics,
             candidateScan.indexRelativePath
           ),
-          ...await restoreDecisionChanges(originalScan, preflight)
+          ...(await restoreDecisionChanges(originalScan, preflight))
         ];
       }
     }
@@ -96,14 +90,14 @@ export async function applyDecisionChanges(options: {
     if (validation.errors.length > 0) {
       return [
         ...validation.errors,
-        ...await restoreDecisionChanges(originalScan, preflight)
+        ...(await restoreDecisionChanges(originalScan, preflight))
       ];
     }
     return [];
   } catch (error) {
     return [
       "Failed to update decision files and index: " + errorText(error),
-      ...await restoreDecisionChanges(originalScan, preflight)
+      ...(await restoreDecisionChanges(originalScan, preflight))
     ];
   }
 }
@@ -123,9 +117,9 @@ async function preflightDecisionChanges(
     );
     if (originalBodies.has(change.decisionPath)) {
       errors.push(
-        "Decision transaction contains the same source more than once: "
-          + displayPath
-          + ". No files were written."
+        "Decision transaction contains the same source more than once: " +
+          displayPath +
+          ". No files were written."
       );
       continue;
     }
@@ -137,19 +131,22 @@ async function preflightDecisionChanges(
       }
     } catch (error) {
       errors.push(
-        "Failed to verify decision source before update: "
-          + displayPath
-          + ": "
-          + errorText(error)
-          + ". No files were written; review the current files and re-run the command."
+        "Failed to verify decision source before update: " +
+          displayPath +
+          ": " +
+          errorText(error) +
+          ". No files were written; review the current files and re-run the command."
       );
     }
-    if (change.targetPath !== undefined && change.targetPath !== change.decisionPath) {
+    if (
+      change.targetPath !== undefined &&
+      change.targetPath !== change.decisionPath
+    ) {
       if (moveTargetPaths.has(change.targetPath)) {
         errors.push(
-          "Decision transaction contains the same move target more than once: "
-            + displayDecisionPath(originalScan.workspaceRoot, change.targetPath)
-            + ". No files were written."
+          "Decision transaction contains the same move target more than once: " +
+            displayDecisionPath(originalScan.workspaceRoot, change.targetPath) +
+            ". No files were written."
         );
         continue;
       }
@@ -157,18 +154,22 @@ async function preflightDecisionChanges(
       try {
         await fs.lstat(change.targetPath);
         errors.push(
-          "Decision move target already exists: "
-            + displayDecisionPath(originalScan.workspaceRoot, change.targetPath)
-            + ". No files were written."
+          "Decision move target already exists: " +
+            displayDecisionPath(originalScan.workspaceRoot, change.targetPath) +
+            ". No files were written."
         );
       } catch (error) {
         if (isFileSystemError(error, "ENOENT")) {
           continue;
         } else {
           errors.push(
-            "Failed to verify decision move target before update: "
-              + displayDecisionPath(originalScan.workspaceRoot, change.targetPath)
-              + ": " + errorText(error)
+            "Failed to verify decision move target before update: " +
+              displayDecisionPath(
+                originalScan.workspaceRoot,
+                change.targetPath
+              ) +
+              ": " +
+              errorText(error)
           );
         }
       }
@@ -176,17 +177,25 @@ async function preflightDecisionChanges(
   }
 
   try {
-    const currentIndexText = await readRegularDecisionFile(originalScan.indexPath);
-    if (!originalScan.indexExists || currentIndexText !== originalScan.indexText) {
-      errors.push(concurrentChangeError("index", originalScan.indexRelativePath));
+    const currentIndexText = await readRegularDecisionFile(
+      originalScan.indexPath
+    );
+    if (
+      !originalScan.indexExists ||
+      currentIndexText !== originalScan.indexText
+    ) {
+      errors.push(
+        concurrentChangeError("index", originalScan.indexRelativePath)
+      );
     }
   } catch (error) {
     if (originalScan.indexExists || !isFileSystemError(error, "ENOENT")) {
       errors.push(
-        "Failed to verify decision index before update: "
-          + originalScan.indexRelativePath
-          + ": " + errorText(error)
-          + ". No files were written; review the current files and re-run the command."
+        "Failed to verify decision index before update: " +
+          originalScan.indexRelativePath +
+          ": " +
+          errorText(error) +
+          ". No files were written; review the current files and re-run the command."
       );
     }
   }
@@ -197,7 +206,10 @@ async function applyDecisionChange(
   change: DecisionFileChange,
   createdTargetPaths: Set<string>
 ): Promise<void> {
-  if (change.targetPath !== undefined && change.targetPath !== change.decisionPath) {
+  if (
+    change.targetPath !== undefined &&
+    change.targetPath !== change.decisionPath
+  ) {
     if (change.nextText === null) {
       throw new Error("a decision move requires replacement text");
     }
@@ -220,9 +232,17 @@ async function applyDecisionChange(
   await fs.writeFile(change.decisionPath, change.nextText, "utf8");
 }
 
-function concurrentChangeError(kind: "index" | "source", filePath: string): string {
-  return "Decision " + kind + " changed after validation: " + filePath
-    + ". No files were written; review the current files and re-run the command.";
+function concurrentChangeError(
+  kind: "index" | "source",
+  filePath: string
+): string {
+  return (
+    "Decision " +
+    kind +
+    " changed after validation: " +
+    filePath +
+    ". No files were written; review the current files and re-run the command."
+  );
 }
 
 async function restoreDecisionChanges(
@@ -234,7 +254,12 @@ async function restoreDecisionChanges(
     try {
       await fs.rm(targetPath, { force: true });
     } catch (error) {
-      errors.push("Failed to restore decision move target " + targetPath + ": " + errorText(error));
+      errors.push(
+        "Failed to restore decision move target " +
+          targetPath +
+          ": " +
+          errorText(error)
+      );
     }
   }
   for (const [decisionPath, body] of preflight.originalBodies) {
@@ -242,20 +267,30 @@ async function restoreDecisionChanges(
       await fs.mkdir(path.dirname(decisionPath), { recursive: true });
       await fs.writeFile(decisionPath, body, "utf8");
     } catch (error) {
-      errors.push("Failed to restore decision body " + decisionPath + ": " + errorText(error));
+      errors.push(
+        "Failed to restore decision body " +
+          decisionPath +
+          ": " +
+          errorText(error)
+      );
     }
   }
   try {
     if (originalScan.indexExists) {
-      await fs.writeFile(originalScan.indexPath, originalScan.indexText, "utf8");
+      await fs.writeFile(
+        originalScan.indexPath,
+        originalScan.indexText,
+        "utf8"
+      );
     } else {
       await fs.rm(originalScan.indexPath, { force: true });
     }
   } catch (error) {
     errors.push(
-      "Failed to restore decision index "
-        + originalScan.indexRelativePath
-        + ": " + errorText(error)
+      "Failed to restore decision index " +
+        originalScan.indexRelativePath +
+        ": " +
+        errorText(error)
     );
   }
   return errors;

@@ -6,25 +6,15 @@ import {
   validateStateIndexDefinition
 } from "./definition.ts";
 import { canonicalizeStateIndex } from "./canonicalization.ts";
-import {
-  diagnostic,
-  failure,
-  formatValibotIssue
-} from "./diagnostics.ts";
+import { diagnostic, failure, formatValibotIssue } from "./diagnostics.ts";
 import {
   createProjectionContext,
   projectStateIndexEntry,
   readonlyStateIndexMetadata
 } from "./projection.ts";
-import {
-  compareIndexText,
-  compareStateIndexKeyScalars
-} from "./ordering.ts";
+import { compareIndexText, compareStateIndexKeyScalars } from "./ordering.ts";
 import { isPlainRecord } from "./record.ts";
-import {
-  isStateIndexText,
-  stateIndexQuerySchema
-} from "./schemas.ts";
+import { isStateIndexText, stateIndexQuerySchema } from "./schemas.ts";
 import { scalarIdentity } from "./key-values.ts";
 import type {
   JsonObject,
@@ -70,7 +60,11 @@ export function queryStateIndex<
 }): StateIndexResult<
   StateIndexQueryOutput | StateIndexQueryOutput<State, Metadata>
 > {
-  const validatedIndex = validateStateIndexValue(options.index, null, "<memory>");
+  const validatedIndex = validateStateIndexValue(
+    options.index,
+    null,
+    "<memory>"
+  );
   if (validatedIndex.index === null) {
     return {
       diagnostics: validatedIndex.diagnostics,
@@ -146,13 +140,17 @@ function queryValidatedStateIndex<
   if (entriesResult.status === "error") {
     return entriesResult;
   }
-  const semanticDiagnostics = validateQuerySemantics(query, index.keyDefinitions);
+  const semanticDiagnostics = validateQuerySemantics(
+    query,
+    index.keyDefinitions
+  );
   if (semanticDiagnostics.length > 0) {
     return { diagnostics: semanticDiagnostics, status: "error", value: null };
   }
 
-  const entries = entriesResult.value
-    .filter((entry) => query.filters.every((filter) => matchesFilter(entry, filter)));
+  const entries = entriesResult.value.filter((entry) =>
+    query.filters.every((filter) => matchesFilter(entry, filter))
+  );
   const sort = effectiveSort(query);
   const sortDiagnostics = validateSortCardinality(entries, sort);
   if (sortDiagnostics.length > 0) {
@@ -177,9 +175,9 @@ function rawEntries(index: StateIndex): StateIndexResult<StateIndexEntry[]> {
   return {
     diagnostics: [],
     status: "ok",
-    value: Object.entries(index.entries).map(([id, entry]) => (
+    value: Object.entries(index.entries).map(([id, entry]) =>
       stateIndexEntryOf(id, entry)
-    ))
+    )
   };
 }
 
@@ -199,17 +197,22 @@ function effectiveEntries<
     );
   }
   if (
-    options.index.namespace !== options.definition.namespace
-    || options.index.definitionVersion !== options.definition.definitionVersion
+    options.index.namespace !== options.definition.namespace ||
+    options.index.definitionVersion !== options.definition.definitionVersion
   ) {
     const expectation = expectationOf(options.definition);
     return failure(
       "state-index.definition-mismatch",
-      `index ${options.index.namespace}@${options.index.definitionVersion} does not match `
-      + `${expectation.namespace}@${expectation.definitionVersion}`
+      `index ${options.index.namespace}@${options.index.definitionVersion} does not match ` +
+        `${expectation.namespace}@${expectation.definitionVersion}`
     );
   }
-  if (!sameKeyDefinitions(options.index.keyDefinitions, keyDefinitionsOf(options.definition))) {
+  if (
+    !sameKeyDefinitions(
+      options.index.keyDefinitions,
+      keyDefinitionsOf(options.definition)
+    )
+  ) {
     return failure(
       "state-index.definition-mismatch",
       "index key definitions do not match the runtime definition"
@@ -221,7 +224,10 @@ function effectiveEntries<
     byId.set(id, stateIndexEntryOf(id, entry));
   }
 
-  if (options.runtimeStates !== undefined && !isPlainRecord(options.runtimeStates)) {
+  if (
+    options.runtimeStates !== undefined &&
+    !isPlainRecord(options.runtimeStates)
+  ) {
     return failure(
       "state-index.runtime-states-invalid",
       "runtimeStates must be an object keyed by state id"
@@ -252,47 +258,59 @@ function validateQuerySemantics(
   query: StateIndexQueryValue,
   definitions: readonly StateIndexKeyDefinition[]
 ): ReturnType<typeof diagnostic>[] {
-  const byName = new Map(definitions.map((definition) => [definition.name, definition]));
+  const byName = new Map(
+    definitions.map((definition) => [definition.name, definition])
+  );
   const diagnostics: StateIndexDiagnostic[] = [];
   for (const filter of query.filters) {
     if (filter.key === "id") {
       if (filter.kind !== "exact" && filter.kind !== "exists") {
-        diagnostics.push(diagnostic({
-          code: "state-index.query-key-mode-mismatch",
-          message: `reserved id key does not support ${filter.kind} filters`
-        }));
+        diagnostics.push(
+          diagnostic({
+            code: "state-index.query-key-mode-mismatch",
+            message: `reserved id key does not support ${filter.kind} filters`
+          })
+        );
       } else if (
-        filter.kind === "exact"
-        && filter.values.some((value) => typeof value !== "string")
+        filter.kind === "exact" &&
+        filter.values.some((value) => typeof value !== "string")
       ) {
-        diagnostics.push(diagnostic({
-          code: "state-index.query-key-value-invalid",
-          message: "reserved id key only accepts string values"
-        }));
+        diagnostics.push(
+          diagnostic({
+            code: "state-index.query-key-value-invalid",
+            message: "reserved id key only accepts string values"
+          })
+        );
       }
       continue;
     }
     const definition = byName.get(filter.key);
     if (definition === undefined) {
-      diagnostics.push(diagnostic({
-        code: "state-index.query-key-unknown",
-        message: `query references undeclared key ${filter.key}`
-      }));
+      diagnostics.push(
+        diagnostic({
+          code: "state-index.query-key-unknown",
+          message: `query references undeclared key ${filter.key}`
+        })
+      );
       continue;
     }
     if (filter.kind !== "exists" && filter.kind !== definition.mode) {
-      diagnostics.push(diagnostic({
-        code: "state-index.query-key-mode-mismatch",
-        message: `key ${filter.key} uses ${definition.mode} mode, not ${filter.kind}`
-      }));
+      diagnostics.push(
+        diagnostic({
+          code: "state-index.query-key-mode-mismatch",
+          message: `key ${filter.key} uses ${definition.mode} mode, not ${filter.kind}`
+        })
+      );
     }
   }
   for (const sort of query.sort ?? []) {
     if (sort.key !== "id" && !byName.has(sort.key)) {
-      diagnostics.push(diagnostic({
-        code: "state-index.query-key-unknown",
-        message: `sort references undeclared key ${sort.key}`
-      }));
+      diagnostics.push(
+        diagnostic({
+          code: "state-index.query-key-unknown",
+          message: `sort references undeclared key ${sort.key}`
+        })
+      );
     }
   }
   return diagnostics;
@@ -301,14 +319,18 @@ function validateQuerySemantics(
 function normalizeQuery(query: StateIndexQueryValue): StateIndexQueryValue {
   return {
     ...query,
-    filters: query.filters.map((filter) => filter.kind === "exact"
-      ? {
-        ...filter,
-        values: [...new Map(filter.values.map((value) => (
-          [scalarIdentity(value), value]
-        ))).values()]
-      }
-      : filter),
+    filters: query.filters.map((filter) =>
+      filter.kind === "exact"
+        ? {
+            ...filter,
+            values: [
+              ...new Map(
+                filter.values.map((value) => [scalarIdentity(value), value])
+              ).values()
+            ]
+          }
+        : filter
+    ),
     sort: query.sort
   };
 }
@@ -320,20 +342,24 @@ function validateStateIndexQueryValue(input: unknown): {
   const parsed = v.safeParse(stateIndexQuerySchema, input);
   if (!parsed.success) {
     return {
-      diagnostics: parsed.issues.map((issue) => diagnostic({
-        code: "state-index.query-invalid",
-        message: formatValibotIssue(issue)
-      })),
+      diagnostics: parsed.issues.map((issue) =>
+        diagnostic({
+          code: "state-index.query-invalid",
+          message: formatValibotIssue(issue)
+        })
+      ),
       query: null
     };
   }
   const sortKeys = parsed.output.sort?.map((entry) => entry.key) ?? [];
   if (new Set(sortKeys).size !== sortKeys.length) {
     return {
-      diagnostics: [diagnostic({
-        code: "state-index.query-invalid",
-        message: "sort rules must not repeat a key"
-      })],
+      diagnostics: [
+        diagnostic({
+          code: "state-index.query-invalid",
+          message: "sort rules must not repeat a key"
+        })
+      ],
       query: null
     };
   }
@@ -344,31 +370,46 @@ function matchesFilter(
   entry: StateIndexEntry<object>,
   filter: StateIndexFilter
 ): boolean {
-  const actual = filter.key === "id" ? [entry.id] : (entry.keys[filter.key] ?? []);
+  const actual =
+    filter.key === "id" ? [entry.id] : (entry.keys[filter.key] ?? []);
   if (filter.kind === "exists") {
-    return (actual.length > 0) === filter.value;
+    return actual.length > 0 === filter.value;
   }
   if (filter.kind === "exact") {
     const identities = new Set(actual.map(scalarIdentity));
     switch (filter.operator) {
       case "all":
-        return filter.values.every((value) => identities.has(scalarIdentity(value)));
+        return filter.values.every((value) =>
+          identities.has(scalarIdentity(value))
+        );
       case "any":
-        return filter.values.some((value) => identities.has(scalarIdentity(value)));
+        return filter.values.some((value) =>
+          identities.has(scalarIdentity(value))
+        );
       case "none":
-        return filter.values.every((value) => !identities.has(scalarIdentity(value)));
+        return filter.values.every(
+          (value) => !identities.has(scalarIdentity(value))
+        );
     }
   }
   if (filter.kind === "range") {
-    return actual.some((value) => matchesRange(value, filter.operator, filter.value));
+    return actual.some((value) =>
+      matchesRange(value, filter.operator, filter.value)
+    );
   }
-  const terms = unique(normalizeText(filter.text).split(/\s+/u).filter(Boolean));
+  const terms = unique(
+    normalizeText(filter.text).split(/\s+/u).filter(Boolean)
+  );
   const candidates = actual
     .filter((value): value is string => typeof value === "string")
     .map(normalizeText);
   return filter.operator === "all"
-    ? terms.every((term) => candidates.some((candidate) => candidate.includes(term)))
-    : terms.some((term) => candidates.some((candidate) => candidate.includes(term)));
+    ? terms.every((term) =>
+        candidates.some((candidate) => candidate.includes(term))
+      )
+    : terms.some((term) =>
+        candidates.some((candidate) => candidate.includes(term))
+      );
 }
 
 function matchesRange(
@@ -379,15 +420,21 @@ function matchesRange(
   if (typeof actual !== typeof expected || typeof actual === "boolean") {
     return false;
   }
-  const comparison = typeof actual === "number" && typeof expected === "number"
-    ? actual - expected
-    : compareIndexText(String(actual), String(expected));
+  const comparison =
+    typeof actual === "number" && typeof expected === "number"
+      ? actual - expected
+      : compareIndexText(String(actual), String(expected));
   switch (operator) {
-    case "eq": return comparison === 0;
-    case "gt": return comparison > 0;
-    case "gte": return comparison >= 0;
-    case "lt": return comparison < 0;
-    case "lte": return comparison <= 0;
+    case "eq":
+      return comparison === 0;
+    case "gt":
+      return comparison > 0;
+    case "gte":
+      return comparison >= 0;
+    case "lt":
+      return comparison < 0;
+    case "lte":
+      return comparison <= 0;
   }
 }
 
@@ -405,13 +452,17 @@ function validateSortCardinality(
     if (sort.key === "id") {
       continue;
     }
-    const multivalued = entries.find((entry) => (entry.keys[sort.key]?.length ?? 0) > 1);
+    const multivalued = entries.find(
+      (entry) => (entry.keys[sort.key]?.length ?? 0) > 1
+    );
     if (multivalued !== undefined) {
-      return [diagnostic({
-        code: "state-index.sort-key-multivalued",
-        message: `key ${sort.key} has multiple values for state ${multivalued.id}`,
-        stateId: multivalued.id
-      })];
+      return [
+        diagnostic({
+          code: "state-index.sort-key-multivalued",
+          message: `key ${sort.key} has multiple values for state ${multivalued.id}`,
+          stateId: multivalued.id
+        })
+      ];
     }
   }
   return [];
@@ -425,7 +476,11 @@ function compareEntries(
   for (const sort of sorts) {
     const leftValue = sort.key === "id" ? left.id : left.keys[sort.key]?.[0];
     const rightValue = sort.key === "id" ? right.id : right.keys[sort.key]?.[0];
-    const comparison = compareOptionalScalars(leftValue, rightValue, sort.direction);
+    const comparison = compareOptionalScalars(
+      leftValue,
+      rightValue,
+      sort.direction
+    );
     if (comparison !== 0) {
       return comparison;
     }

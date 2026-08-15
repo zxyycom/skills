@@ -5,10 +5,7 @@ import {
   type JsonValue
 } from "./json.ts";
 import { compareIndexText } from "./ordering.ts";
-import type {
-  ReadonlyStateIndex,
-  StateIndex
-} from "./types.ts";
+import type { ReadonlyStateIndex, StateIndex } from "./types.ts";
 
 export function canonicalizeTypedJsonObject<Value extends object>(
   value: Value
@@ -46,9 +43,7 @@ export function deeplyReadonlyFrozenValue<Value>(
 export function readonlyFrozenStateIndex<
   State extends object,
   Metadata extends JsonObject
->(
-  index: StateIndex<State, Metadata>
-): ReadonlyStateIndex<State, Metadata> {
+>(index: StateIndex<State, Metadata>): ReadonlyStateIndex<State, Metadata> {
   if (!isDeeplyFrozen(index)) {
     throw new TypeError("complete state index must be recursively frozen");
   }
@@ -66,12 +61,14 @@ function cloneAndFreezeJsonObject(
   if (sortKeys) {
     entries.sort(([left], [right]) => compareIndexText(left, right));
   }
-  return freezeObject(Object.fromEntries(
-    entries.map(([key, child]) => [
-      key,
-      cloneAndFreezeJsonValue(child, sortKeys)
-    ])
-  ));
+  return freezeObject(
+    Object.fromEntries(
+      entries.map(([key, child]) => [
+        key,
+        cloneAndFreezeJsonValue(child, sortKeys)
+      ])
+    )
+  );
 }
 
 function cloneAndFreezeJsonValue(
@@ -79,9 +76,9 @@ function cloneAndFreezeJsonValue(
   sortKeys: boolean
 ): JsonValue {
   if (Array.isArray(value)) {
-    return freezeObject(value.map((entry) => (
-      cloneAndFreezeJsonValue(entry, sortKeys)
-    )));
+    return freezeObject(
+      value.map((entry) => cloneAndFreezeJsonValue(entry, sortKeys))
+    );
   }
   if (value !== null && typeof value === "object") {
     return cloneAndFreezeJsonObject(value, sortKeys);
@@ -103,7 +100,7 @@ function isDeeplyFrozen(
     return false;
   }
   seen.add(value);
-  return Reflect.ownKeys(value).every((key) => (
+  return Reflect.ownKeys(value).every((key) =>
     isDeeplyFrozen(Reflect.get(value, key), seen)
-  ));
+  );
 }

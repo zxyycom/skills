@@ -12,61 +12,76 @@ import type { StateIndexKeyScalar } from "../src/types.ts";
 
 test("orders key scalars and compares ordered key definitions", () => {
   const scalars: StateIndexKeyScalar[] = ["alpha", 10, true, 2, false, "beta"];
-  assert.deepEqual(
-    scalars.sort(compareStateIndexKeyScalars),
-    [false, true, 2, 10, "alpha", "beta"]
-  );
+  assert.deepEqual(scalars.sort(compareStateIndexKeyScalars), [
+    false,
+    true,
+    2,
+    10,
+    "alpha",
+    "beta"
+  ]);
 
   const definitions = [
     { mode: "exact" as const, name: "status" },
     { mode: "range" as const, name: "created-at" }
   ];
   assert.equal(sameKeyDefinitions(definitions, [...definitions]), true);
-  assert.equal(sameKeyDefinitions(definitions, [...definitions].reverse()), false);
-  assert.equal(sameKeyDefinitions(definitions, [
-    definitions[0]!,
-    { mode: "text", name: "created-at" }
-  ]), false);
+  assert.equal(
+    sameKeyDefinitions(definitions, [...definitions].reverse()),
+    false
+  );
+  assert.equal(
+    sameKeyDefinitions(definitions, [
+      definitions[0]!,
+      { mode: "text", name: "created-at" }
+    ]),
+    false
+  );
 });
 
 test("rejects duplicate, reserved, or missing key definition inputs", () => {
   assert.throws(
-    () => defineStateIndexDefinition({
-      definitionVersion: 1,
-      keyStrategies: [
-        { derive: () => "a", mode: "exact", name: "status" },
-        { derive: () => "b", mode: "exact", name: "status" }
-      ],
-      namespace: "duplicate-keys",
-      parseMetadata: (metadata) => metadata,
-      parseState: (state) => state,
-      read: async () => snapshot("state", {}),
-      readRevision: async () => revision("state")
-    }),
+    () =>
+      defineStateIndexDefinition({
+        definitionVersion: 1,
+        keyStrategies: [
+          { derive: () => "a", mode: "exact", name: "status" },
+          { derive: () => "b", mode: "exact", name: "status" }
+        ],
+        namespace: "duplicate-keys",
+        parseMetadata: (metadata) => metadata,
+        parseState: (state) => state,
+        read: async () => snapshot("state", {}),
+        readRevision: async () => revision("state")
+      }),
     /appears more than once/u
   );
   assert.throws(
-    () => defineStateIndexDefinition({
-      definitionVersion: 1,
-      keyStrategies: [{ derive: () => "state", mode: "exact", name: "id" }],
-      namespace: "reserved-key",
-      parseMetadata: (metadata) => metadata,
-      parseState: (state) => state,
-      read: async () => snapshot("state", {}),
-      readRevision: async () => revision("state")
-    }),
+    () =>
+      defineStateIndexDefinition({
+        definitionVersion: 1,
+        keyStrategies: [{ derive: () => "state", mode: "exact", name: "id" }],
+        namespace: "reserved-key",
+        parseMetadata: (metadata) => metadata,
+        parseState: (state) => state,
+        read: async () => snapshot("state", {}),
+        readRevision: async () => revision("state")
+      }),
     /reserved id/u
   );
   assert.throws(
-    () => defineStateIndexDefinition({
-      definitionVersion: 1,
-      keyStrategies: [{ derive: () => "active", mode: "exact", name: "status" }],
-      namespace: "missing-parser",
-      parseMetadata: (metadata) => metadata,
-      parseState: null as never,
-      read: async () => snapshot("state", {}),
-      readRevision: async () => revision("state")
-    }),
+    () =>
+      defineStateIndexDefinition({
+        definitionVersion: 1,
+        keyStrategies: [
+          { derive: () => "active", mode: "exact", name: "status" }
+        ],
+        namespace: "missing-parser",
+        parseMetadata: (metadata) => metadata,
+        parseState: null as never,
+        read: async () => snapshot("state", {}),
+        readRevision: async () => revision("state")
+      }),
     /parseState/u
   );
 });
@@ -117,21 +132,29 @@ test("rejects non-JSON states and parser outputs", async () => {
     ...baseDefinition("invalid-state"),
     read: async () => snapshot("invalid", { value: Number.NaN })
   });
-  const invalidState = await buildStateIndex(invalidStateDefinition, { root: "." });
+  const invalidState = await buildStateIndex(invalidStateDefinition, {
+    root: "."
+  });
   assert.equal(invalidState.status, "error");
-  assert.ok(invalidState.diagnostics.some((entry) => (
-    entry.code === "state-index.state-invalid"
-  )));
+  assert.ok(
+    invalidState.diagnostics.some(
+      (entry) => entry.code === "state-index.state-invalid"
+    )
+  );
 
   const invalidParserOutput = defineStateIndexDefinition<JsonObject>({
     ...baseDefinition("invalid-parser-output"),
     parseState: () => new Date() as never
   });
-  const invalidParsedState = await buildStateIndex(invalidParserOutput, { root: "." });
+  const invalidParsedState = await buildStateIndex(invalidParserOutput, {
+    root: "."
+  });
   assert.equal(invalidParsedState.status, "error");
-  assert.ok(invalidParsedState.diagnostics.some((entry) => (
-    entry.code === "state-index.state-parse-invalid"
-  )));
+  assert.ok(
+    invalidParsedState.diagnostics.some(
+      (entry) => entry.code === "state-index.state-parse-invalid"
+    )
+  );
 
   const invalidMetadataParserOutput = defineStateIndexDefinition<JsonObject>({
     ...baseDefinition("invalid-metadata-parser-output"),
@@ -142,9 +165,11 @@ test("rejects non-JSON states and parser outputs", async () => {
     { root: "." }
   );
   assert.equal(invalidParsedMetadata.status, "error");
-  assert.ok(invalidParsedMetadata.diagnostics.some((entry) => (
-    entry.code === "state-index.metadata-parse-invalid"
-  )));
+  assert.ok(
+    invalidParsedMetadata.diagnostics.some(
+      (entry) => entry.code === "state-index.metadata-parse-invalid"
+    )
+  );
 });
 
 test("rejects key values incompatible with the declared mode", async () => {
@@ -154,9 +179,11 @@ test("rejects key values incompatible with the declared mode", async () => {
   });
   const result = await buildStateIndex(definition, { root: "." });
   assert.equal(result.status, "error");
-  assert.ok(result.diagnostics.some((entry) => (
-    entry.code === "state-index.key-value-invalid"
-  )));
+  assert.ok(
+    result.diagnostics.some(
+      (entry) => entry.code === "state-index.key-value-invalid"
+    )
+  );
 });
 
 test("materializes an empty state and source-revision record", async () => {
@@ -193,15 +220,19 @@ test("honors an already-aborted build signal", async () => {
     signal: controller.signal
   });
   assert.equal(result.status, "error");
-  assert.ok(result.diagnostics.some((entry) => (
-    entry.code === "state-index.operation-aborted"
-  )));
+  assert.ok(
+    result.diagnostics.some(
+      (entry) => entry.code === "state-index.operation-aborted"
+    )
+  );
 });
 
 function baseDefinition(namespace: string) {
   return {
     definitionVersion: 1,
-    keyStrategies: [{ derive: () => "active", mode: "exact" as const, name: "status" }],
+    keyStrategies: [
+      { derive: () => "active", mode: "exact" as const, name: "status" }
+    ],
     namespace,
     parseMetadata: (metadata: JsonObject) => metadata,
     parseState: (state: JsonObject) => state,

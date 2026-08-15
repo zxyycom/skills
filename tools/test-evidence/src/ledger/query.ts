@@ -1,7 +1,5 @@
 import * as v from "valibot";
-import {
-  type StateIndexFilter
-} from "../../../index-runtime/src/index.ts";
+import { type StateIndexFilter } from "../../../index-runtime/src/index.ts";
 import { compareLexicalText } from "./canonicalization.ts";
 import {
   createInvalidTestEvidenceOptionsDiagnostic,
@@ -58,21 +56,24 @@ export async function queryTestEvidenceCases(
   }
 
   if (
-    normalizedOptions.testId !== undefined
-    && !opened.opened.revisionSource.entityIndex.value.entities.some(
+    normalizedOptions.testId !== undefined &&
+    !opened.opened.revisionSource.entityIndex.value.entities.some(
       (entity) => entity.id === normalizedOptions.testId
     )
   ) {
-    return caseQueryFailure([
-      ...opened.diagnostics,
-      createTestEvidenceDiagnostic({
-        category: "query",
-        code: "query.test-unknown",
-        message: `Unknown Test entity: ${normalizedOptions.testId}`,
-        severity: "error",
-        testId: normalizedOptions.testId
-      })
-    ], normalizedOptions);
+    return caseQueryFailure(
+      [
+        ...opened.diagnostics,
+        createTestEvidenceDiagnostic({
+          category: "query",
+          code: "query.test-unknown",
+          message: `Unknown Test entity: ${normalizedOptions.testId}`,
+          severity: "error",
+          testId: normalizedOptions.testId
+        })
+      ],
+      normalizedOptions
+    );
   }
 
   const queried = opened.opened.reader.query({
@@ -82,10 +83,10 @@ export async function queryTestEvidenceCases(
     sort: [{ direction: "asc", key: "id" }]
   });
   if (queried.status === "error") {
-    return caseQueryFailure([
-      ...opened.diagnostics,
-      ...mapStateIndexDiagnostics(queried.diagnostics)
-    ], normalizedOptions);
+    return caseQueryFailure(
+      [...opened.diagnostics, ...mapStateIndexDiagnostics(queried.diagnostics)],
+      normalizedOptions
+    );
   }
 
   return v.parse(testEvidenceCaseQueryResultSchema, {
@@ -134,10 +135,13 @@ export async function queryTestEntities(
     sort: [{ direction: "asc", key: "id" }]
   });
   if (allCases.status === "error") {
-    return testQueryFailure([
-      ...opened.diagnostics,
-      ...mapStateIndexDiagnostics(allCases.diagnostics)
-    ], normalizedOptions);
+    return testQueryFailure(
+      [
+        ...opened.diagnostics,
+        ...mapStateIndexDiagnostics(allCases.diagnostics)
+      ],
+      normalizedOptions
+    );
   }
   const caseIdsByTest = new Map<string, string[]>();
   for (const entry of allCases.value) {
@@ -210,11 +214,9 @@ function entityMatchesQuery(entity: TestEntity, query?: string): boolean {
   if (query === undefined) {
     return true;
   }
-  const text = normalizeSearchText([
-    entity.id,
-    entity.name,
-    ...entity.locators
-  ].join(" "));
+  const text = normalizeSearchText(
+    [entity.id, entity.name, ...entity.locators].join(" ")
+  );
   return normalizeSearchText(query)
     .split(/\s+/u)
     .every((term) => text.includes(term));
@@ -260,9 +262,7 @@ function testQueryFailure(
 
 function validFailureLimit(value: unknown): number {
   const parsed = v.safeParse(testEvidenceQueryLimitSchema, value);
-  return parsed.success
-    ? parsed.output
-    : testEvidenceLedgerQueryDefaultLimit;
+  return parsed.success ? parsed.output : testEvidenceLedgerQueryDefaultLimit;
 }
 
 function validFailureOffset(value: unknown): number {

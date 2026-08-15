@@ -17,40 +17,38 @@ import {
   readIndex,
   runSourceCli,
   withFixtureWorkspace,
-  writeDecision,
+  writeDecision
 } from "./support.ts";
 
 test("archive and reactivate move one Decision ID while preserving its Markdown semantics", () =>
   withFixtureWorkspace("lifecycle-move", async (workspaceRoot) => {
     const before = await fs.readFile(
       decisionFilePath(workspaceRoot, currentSourcePath),
-      "utf8",
+      "utf8"
     );
     const archived = await runSourceCli([
       "archive",
       currentDecisionId,
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(archived.exitCode, 0, archived.stderr);
     const archivedPath = decisionFilePath(
       workspaceRoot,
-      `archive/${currentDecisionId}`,
+      `archive/${currentDecisionId}`
     );
     assert.equal(
       await fileExists(decisionFilePath(workspaceRoot, currentSourcePath)),
-      false,
+      false
     );
     assert.equal(
       await fs.readFile(archivedPath, "utf8"),
-      before.replace("status: active", "status: archived"),
+      before.replace("status: active", "status: archived")
     );
     assert.equal(
-      findIndexEntry(
-        await readIndex(workspaceRoot),
-        currentDecisionId
-      ).sourcePath,
-      `archive/${currentDecisionId}`,
+      findIndexEntry(await readIndex(workspaceRoot), currentDecisionId)
+        .sourcePath,
+      `archive/${currentDecisionId}`
     );
 
     const reactivated = await runSourceCli([
@@ -59,22 +57,20 @@ test("archive and reactivate move one Decision ID while preserving its Markdown 
       "--alignment",
       "aligned",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(reactivated.exitCode, 0, reactivated.stderr);
     assert.equal(
       await fs.readFile(
         decisionFilePath(workspaceRoot, currentSourcePath),
-        "utf8",
+        "utf8"
       ),
-      before,
+      before
     );
     assert.equal(
-      findIndexEntry(
-        await readIndex(workspaceRoot),
-        currentDecisionId
-      ).sourcePath,
-      currentSourcePath,
+      findIndexEntry(await readIndex(workspaceRoot), currentDecisionId)
+        .sourcePath,
+      currentSourcePath
     );
   }));
 
@@ -87,8 +83,8 @@ test("relations resolve stable IDs across active and archived locations", () =>
       workspaceRoot,
       candidateId,
       candidateDecisionBody({
-        relations: [{ type: "修订", target: currentDecisionId }],
-      }),
+        relations: [{ type: "修订", target: currentDecisionId }]
+      })
     );
     const activated = await runSourceCli([
       "activate",
@@ -96,20 +92,20 @@ test("relations resolve stable IDs across active and archived locations", () =>
       "--alignment",
       "unaligned",
       "--root",
-      workspaceRoot,
+      workspaceRoot
     ]);
     assert.equal(activated.exitCode, 0, activated.stderr);
     const index = await readIndex(workspaceRoot);
     assert.equal(findIndexEntry(index, currentDecisionId).status, "archived");
     assert.equal(
       findIndexEntry(index, currentDecisionId).sourcePath,
-      `archive/${currentDecisionId}`,
+      `archive/${currentDecisionId}`
     );
     assert.deepEqual(findIndexEntry(index, candidateId).relations, [
       {
         type: "修订",
-        target: currentDecisionId,
-      },
+        target: currentDecisionId
+      }
     ]);
   }));
 
@@ -121,7 +117,7 @@ test("lifecycle rejects a source changed after its prewrite scan before moving e
     await fs.writeFile(
       currentPath,
       originalText.replace("使用生成 CLI", "已漂移的生成 CLI"),
-      "utf8",
+      "utf8"
     );
     const errors = await applyDecisionChanges({
       changes: [
@@ -131,26 +127,24 @@ test("lifecycle rejects a source changed after its prewrite scan before moving e
           nextText: originalText.replace("status: active", "status: archived"),
           targetPath: decisionFilePath(
             workspaceRoot,
-            `archive/${currentDecisionId}`,
-          ),
-        },
+            `archive/${currentDecisionId}`
+          )
+        }
       ],
       originalScan,
-      scanOptions: { workspaceRoot },
+      scanOptions: { workspaceRoot }
     });
     assert.notEqual(errors.length, 0);
     assert.equal(await fileExists(currentPath), true);
     assert.equal(
       await fileExists(
-        decisionFilePath(workspaceRoot, `archive/${currentDecisionId}`),
+        decisionFilePath(workspaceRoot, `archive/${currentDecisionId}`)
       ),
-      false,
+      false
     );
     assert.equal(
-      findIndexEntry(
-        await readIndex(workspaceRoot),
-        archivedDecisionId
-      ).sourcePath,
-      archivedSourcePath,
+      findIndexEntry(await readIndex(workspaceRoot), archivedDecisionId)
+        .sourcePath,
+      archivedSourcePath
     );
   }));

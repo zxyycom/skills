@@ -23,9 +23,10 @@ export function formatLedgerReport(
   const failed = hasBlockingTestEvidenceDiagnostics(report.diagnostics);
   return {
     stderr: formatDiagnostics(report.diagnostics),
-    stdout: `Test evidence ledger check ${failed ? "failed" : "passed"}: `
-      + `${report.summary.tests} Test(s), ${report.summary.cases} Case(s), `
-      + `${report.summary.relations} relation(s), ${report.summary.tags} Tag(s).\n`
+    stdout:
+      `Test evidence ledger check ${failed ? "failed" : "passed"}: ` +
+      `${report.summary.tests} Test(s), ${report.summary.cases} Case(s), ` +
+      `${report.summary.relations} relation(s), ${report.summary.tags} Tag(s).\n`
   };
 }
 
@@ -38,11 +39,12 @@ export function formatLedgerSync(
   }
   return {
     stderr: formatDiagnostics(result.diagnostics),
-    stdout: result.status === "error"
-      ? ""
-      : result.state === "written"
-        ? `Rebuilt ${result.indexPath} from ${result.ledgerPath}.\n`
-        : `Test evidence ledger index is current: ${result.indexPath}.\n`
+    stdout:
+      result.status === "error"
+        ? ""
+        : result.state === "written"
+          ? `Rebuilt ${result.indexPath} from ${result.ledgerPath}.\n`
+          : `Test evidence ledger index is current: ${result.indexPath}.\n`
   };
 }
 
@@ -63,9 +65,10 @@ export function formatLedgerCaseQuery(
   const page = `Showing ${result.cases.length} of ${result.total} Case(s) from offset ${result.offset}.`;
   return {
     stderr: formatDiagnostics(result.diagnostics),
-    stdout: lines.length === 0
-      ? `No Cases matched. ${page}\n`
-      : `${lines.join("\n")}\n${page}\n`
+    stdout:
+      lines.length === 0
+        ? `No Cases matched. ${page}\n`
+        : `${lines.join("\n")}\n${page}\n`
   };
 }
 
@@ -78,15 +81,16 @@ export function formatLedgerCaseShow(
   }
   return {
     stderr: formatDiagnostics(result.diagnostics),
-    stdout: result.case === null || result.markdown === null
-      ? ""
-      : [
-        `${result.case.id} ${result.case.title}`,
-        `Source: ${result.ledgerPath}/${result.case.sourcePath}`,
-        `Tests: ${result.tests.map((entry) => entry.id).join(", ")}`,
-        "",
-        result.markdown.trimEnd()
-      ].join("\n") + "\n"
+    stdout:
+      result.case === null || result.markdown === null
+        ? ""
+        : [
+            `${result.case.id} ${result.case.title}`,
+            `Source: ${result.ledgerPath}/${result.case.sourcePath}`,
+            `Tests: ${result.tests.map((entry) => entry.id).join(", ")}`,
+            "",
+            result.markdown.trimEnd()
+          ].join("\n") + "\n"
   };
 }
 
@@ -105,9 +109,10 @@ export function formatLedgerTestQuery(
   const page = `Showing ${result.tests.length} of ${result.total} Test(s) from offset ${result.offset}.`;
   return {
     stderr: formatDiagnostics(result.diagnostics),
-    stdout: lines.length === 0
-      ? `No Tests matched. ${page}\n`
-      : `${lines.join("\n")}\n${page}\n`
+    stdout:
+      lines.length === 0
+        ? `No Tests matched. ${page}\n`
+        : `${lines.join("\n")}\n${page}\n`
   };
 }
 
@@ -124,8 +129,11 @@ function formatDiagnostics(
   if (diagnostics.length === 0) {
     return "";
   }
-  return `${diagnostics.map((diagnostic) => (
-    `${diagnostic.blocking ? "blocking" : "non-blocking"} `
-      + `${diagnostic.severity} [${diagnostic.code}]: ${diagnostic.message}`
-  )).join("\n")}\n`;
+  return `${diagnostics
+    .map(
+      (diagnostic) =>
+        `${diagnostic.blocking ? "blocking" : "non-blocking"} ` +
+        `${diagnostic.severity} [${diagnostic.code}]: ${diagnostic.message}`
+    )
+    .join("\n")}\n`;
 }

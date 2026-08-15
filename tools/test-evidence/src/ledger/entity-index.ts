@@ -21,13 +21,13 @@ export type ParsedTestEntityIndex = {
 
 export type TestEntityIndexParseResult =
   | {
-    diagnostics: [];
-    parsed: ParsedTestEntityIndex;
-  }
+      diagnostics: [];
+      parsed: ParsedTestEntityIndex;
+    }
   | {
-    diagnostics: TestEvidenceDiagnostic[];
-    parsed: null;
-  };
+      diagnostics: TestEvidenceDiagnostic[];
+      parsed: null;
+    };
 
 export function parseTestEntityIndex(
   source: LedgerTextSource
@@ -45,8 +45,9 @@ export function parseTestEntityIndex(
   const parsed = v.safeParse(testEntityIndexSchema, input);
   if (!parsed.success) {
     return failedEntityIndexParse("entity-index.schema-invalid", {
-      message: `${source.path} is invalid: `
-        + formatTestEvidenceValidationIssues(parsed.issues),
+      message:
+        `${source.path} is invalid: ` +
+        formatTestEvidenceValidationIssues(parsed.issues),
       path: source.path
     });
   }
@@ -66,9 +67,7 @@ export function parseTestEntityIndex(
   };
 }
 
-function cloneTestEntityIndex(
-  value: TestEntityIndex
-): TestEntityIndex {
+function cloneTestEntityIndex(value: TestEntityIndex): TestEntityIndex {
   return {
     schemaVersion: value.schemaVersion,
     sourceRevision: value.sourceRevision,
@@ -88,13 +87,15 @@ function failedEntityIndexParse(
   }
 ): TestEntityIndexParseResult {
   return {
-    diagnostics: [createTestEvidenceDiagnostic({
-      category: "entity-index",
-      code,
-      message: details.message,
-      path: details.path ?? testEntityIndexPath,
-      severity: "error"
-    })],
+    diagnostics: [
+      createTestEvidenceDiagnostic({
+        category: "entity-index",
+        code,
+        message: details.message,
+        path: details.path ?? testEntityIndexPath,
+        severity: "error"
+      })
+    ],
     parsed: null
   };
 }

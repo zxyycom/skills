@@ -4,9 +4,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  runDecisionRecordsCli as runSourceDecisionRecordsCli
-} from "../src/cli.ts";
+import { runDecisionRecordsCli as runSourceDecisionRecordsCli } from "../src/cli.ts";
 import { parseDecisionIndex } from "../src/decision-state-index.ts";
 import { isDecisionId } from "../src/decision-path.ts";
 import type {
@@ -14,9 +12,7 @@ import type {
   DecisionIndex,
   DecisionIndexState
 } from "../src/types.ts";
-import {
-  runDecisionRecordsCli as runBundledDecisionRecordsCli
-} from "../../../skills/decision-records/scripts/decision-records.mjs";
+import { runDecisionRecordsCli as runBundledDecisionRecordsCli } from "../../../skills/decision-records/scripts/decision-records.mjs";
 
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const rootDirectory = path.resolve(testsDirectory, "../../..");
@@ -69,14 +65,21 @@ export function decisionFilePath(
   workspaceRoot: string,
   sourcePath: string
 ): string {
-  return path.join(workspaceRoot, "docs", "decisions", ...sourcePath.split("/"));
+  return path.join(
+    workspaceRoot,
+    "docs",
+    "decisions",
+    ...sourcePath.split("/")
+  );
 }
 
-export function candidateDecisionBody(options: {
-  relations?: readonly { target: string; type: string }[];
-  tags?: readonly string[];
-  title?: string;
-} = {}): string {
+export function candidateDecisionBody(
+  options: {
+    relations?: readonly { target: string; type: string }[];
+    tags?: readonly string[];
+    title?: string;
+  } = {}
+): string {
   const relations = options.relations ?? [];
   return [
     "---",
@@ -89,9 +92,7 @@ export function candidateDecisionBody(options: {
     "decision: 使用显式 candidate 状态区分候选与已建立决策。",
     "tags:",
     ...(options.tags ?? ["decision-records"]).map((tag) => `  - ${tag}`),
-    relations.length === 0
-      ? "relations: []"
-      : "relations:",
+    relations.length === 0 ? "relations: []" : "relations:",
     ...relations.flatMap((relation) => [
       `  - type: ${relation.type}`,
       `    target: ${relation.target}`
@@ -245,7 +246,12 @@ export async function readIndex(
 ): Promise<DecisionIndex> {
   const indexPath = workspaceRootOrIndexPath.endsWith(".json")
     ? workspaceRootOrIndexPath
-    : path.join(workspaceRootOrIndexPath, "docs", "decisions", "decision-index.json");
+    : path.join(
+        workspaceRootOrIndexPath,
+        "docs",
+        "decisions",
+        "decision-index.json"
+      );
   const parsed = parseDecisionIndex(
     await fs.readFile(indexPath, "utf8"),
     indexPath
@@ -284,11 +290,18 @@ export function decisionIdForTest(value: string): DecisionId {
 export function initializeGitRepository(workspaceRoot: string): void {
   runGit(workspaceRoot, ["init", "--quiet"]);
   runGit(workspaceRoot, ["config", "core.autocrlf", "false"]);
-  runGit(workspaceRoot, ["config", "user.email", "decision-records@example.invalid"]);
+  runGit(workspaceRoot, [
+    "config",
+    "user.email",
+    "decision-records@example.invalid"
+  ]);
   runGit(workspaceRoot, ["config", "user.name", "Decision Records Test"]);
 }
 
-export function commitWorkspace(workspaceRoot: string, message = "baseline"): void {
+export function commitWorkspace(
+  workspaceRoot: string,
+  message = "baseline"
+): void {
   runGit(workspaceRoot, ["add", "."]);
   runGit(workspaceRoot, ["commit", "--quiet", "--message", message]);
 }

@@ -30,15 +30,17 @@ const baseline = await readSkillPackageSnapshotVersionBaseline(
 const versionIssues = getSkillPackageVersionIssues(currentPackage, baseline);
 if (versionIssues.length > 0) {
   throw new Error(
-    `Skill package versions are invalid against ${baselineRef}:\n- `
-    + versionIssues.join("\n- ")
+    `Skill package versions are invalid against ${baselineRef}:\n- ` +
+      versionIssues.join("\n- ")
   );
 }
 
 if (!options.quiet) {
   console.log(`Current skill package hash: ${currentHash}`);
   console.log(`Skill version baseline: ${baselineRef} (${baseline.revision})`);
-  console.log(`Changed skill versions checked: ${Object.keys(baseline.skills).length}`);
+  console.log(
+    `Changed skill versions checked: ${Object.keys(baseline.skills).length}`
+  );
 }
 
 if (options["github-output"]) {
@@ -49,9 +51,7 @@ if (options["github-output"]) {
 
   await fs.appendFile(
     outputPath,
-    [
-      `current_hash=${currentHash}`
-    ].join("\n") + "\n",
+    [`current_hash=${currentHash}`].join("\n") + "\n",
     "utf8"
   );
 }
