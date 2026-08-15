@@ -1,5 +1,3 @@
-import path from "node:path";
-import { pathExists } from "../../shared/src/node/filesystem.ts";
 import {
   parseSections,
   requireNonEmptyField
@@ -8,14 +6,16 @@ import {
   parseDecisionMarkdown,
   type DecisionSourceMetadata
 } from "./decision-metadata.ts";
-import { isDecisionFileName } from "./decision-path.ts";
+import { isDecisionId } from "./decision-path.ts";
 import {
   type DecisionProjection,
   type DecisionRelation,
+  type DecisionTags,
   type MarkdownSection
 } from "./types.ts";
 
 export type ValidatedDecisionBody = DecisionProjection
+  & DecisionTags
   & DecisionSourceMetadata
   & { body: string };
 
@@ -27,40 +27,32 @@ const sectionOrder = [
 const requiredSections = new Set(sectionOrder);
 
 type DecisionRelationTargetExists = (
-  relativePath: string
+  decisionId: string
 ) => boolean | Promise<boolean>;
 
-type DecisionRelationTargetSource =
-  | {
-      decisionsDirectory: string;
-      targetExists?: never;
-    }
-  | {
-      decisionsDirectory?: never;
-      targetExists: DecisionRelationTargetExists;
-    };
-
 async function validateDecisionRelations(options: {
+  decisionId: string;
   errors: string[];
   relations: readonly DecisionRelation[];
-  relativePath: string;
+  sourcePath: string;
   targetExists: DecisionRelationTargetExists;
 }): Promise<void> {
   const {
+    decisionId,
     errors,
     relations,
-    relativePath,
+    sourcePath,
     targetExists
   } = options;
 
   for (const relation of relations) {
-    if (relation.target === relativePath) {
-      errors.push(relativePath + " must not relate to itself");
+    if (relation.target === decisionId) {
+      errors.push(sourcePath + " must not relate to itself");
       continue;
     }
     if (!await targetExists(relation.target)) {
       errors.push(
-        relativePath
+        sourcePath
         + " relationship "
         + relation.type
         + " target does not exist: "
@@ -70,50 +62,36 @@ async function validateDecisionRelations(options: {
   }
 }
 
-function resolveDecisionRelationTargetExists(
-  source: DecisionRelationTargetSource
-): DecisionRelationTargetExists {
-  if (source.targetExists !== undefined) {
-    return source.targetExists;
-  }
-  return (relativePath) => pathExists(path.join(
-    source.decisionsDirectory,
-    ...relativePath.split("/")
-  ));
-}
-
 export async function validateDecisionBody(
   options: {
     body: string;
+    decisionId: string;
     errors: string[];
-    fileName: string;
-    relativePath: string;
-  } & DecisionRelationTargetSource
+    sourcePath: string;
+    targetExists: DecisionRelationTargetExists;
+  }
 ): Promise<ValidatedDecisionBody | null> {
   const {
     body: rawBody,
-    fileName,
-    relativePath,
+    decisionId,
+    sourcePath,
     errors
   } = options;
   const errorCountBeforeValidation = errors.length;
   const parsedMarkdown = parseDecisionMarkdown({
     errors,
     markdown: rawBody,
-    relativePath
+    relativePath: sourcePath
   });
   const body = parsedMarkdown?.body ?? "";
   const metadata = parsedMarkdown?.metadata ?? null;
   const projection = parsedMarkdown?.projection ?? null;
 
-  if (!isDecisionFileName(fileName)) {
-    errors.push(relativePath + " must use semantic file name format short-title.md");
-  }
-  if (projection && /^\d{4}-\d{2}-\d{2}\s+-\s+/.test(projection.title)) {
-    errors.push(relativePath + " semantic decision title must not include a date prefix");
+  if (!isDecisionId(decisionId)) {
+    errors.push(sourcePath + " must use a stable kebab-case Decision ID basename");
   }
   if (!body.startsWith("## 目的\n")) {
-    errors.push(relativePath + " body must start with \"## 目的\"");
+    errors.push(sourcePath + " body must start with \"## 目的\"");
   }
 
   const sections = parseSections(body);
@@ -122,7 +100,7 @@ export async function validateDecisionBody(
 
   for (const section of sections) {
     if (!expectedSections.has(section.heading)) {
-      errors.push(relativePath + " has unsupported section " + section.heading);
+      errors.push(sourcePath + " has unsupported section " + section.heading);
       continue;
     }
     sectionMap.set(section.heading, [
@@ -133,17 +111,17 @@ export async function validateDecisionBody(
 
   for (const sectionHeading of requiredSections) {
     if (!sectionMap.has(sectionHeading)) {
-      errors.push(relativePath + " is missing section " + sectionHeading);
+      errors.push(sourcePath + " is missing section " + sectionHeading);
     }
   }
 
   for (const [sectionHeading, entries] of sectionMap) {
     if (entries.length > 1) {
-      errors.push(relativePath + " contains section " + sectionHeading + " more than once");
+      errors.push(sourcePath + " contains section " + sectionHeading + " more than once");
     }
     for (const entry of entries) {
       if (entry.content.length === 0) {
-        errors.push(relativePath + " section " + sectionHeading + " must not be empty");
+        errors.push(sourcePath + " section " + sectionHeading + " must not be empty");
       }
     }
   }
@@ -155,7 +133,7 @@ export async function validateDecisionBody(
       continue;
     }
     if (currentOrder < previousOrder) {
-      errors.push(relativePath + " has sections out of order");
+      errors.push(sourcePath + " has sections out of order");
       break;
     }
     previousOrder = currentOrder;
@@ -163,15 +141,16 @@ export async function validateDecisionBody(
 
   const decisionSection = sectionMap.get("## 决策")?.[0]?.content;
   if (decisionSection) {
-    requireNonEmptyField(relativePath, decisionSection, "采用", errors);
+    requireNonEmptyField(sourcePath, decisionSection, "采用", errors);
   }
 
   if (projection) {
     await validateDecisionRelations({
       errors,
       relations: projection.relations,
-      relativePath,
-      targetExists: resolveDecisionRelationTargetExists(options)
+      decisionId,
+      sourcePath,
+      targetExists: options.targetExists
     });
   }
 
@@ -179,5 +158,5 @@ export async function validateDecisionBody(
     return null;
   }
 
-  return { ...projection, ...metadata, body };
+  return { ...projection, tags: [...parsedMarkdown!.tags], ...metadata, body };
 }

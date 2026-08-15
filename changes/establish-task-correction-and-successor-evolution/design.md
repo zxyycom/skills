@@ -45,7 +45,7 @@
 
 ### 搁置时的 Result、Git 与后继实例
 
-- `docs/decisions/task-graph/anchor-semantic-task-results-in-index-history.md` 已确定：`content.result` 保存当前终态的语义摘要与稳定 owner 引用；首次包含该终态 entry 的 task index Git 提交提供版本锚点。Workspace mutation 和 `index stage` 都不等于 commit。
+- `docs/decisions/archive/anchor-semantic-task-results-in-index-history.md` 已确定：`content.result` 保存当前终态的语义摘要与稳定 owner 引用；首次包含该终态 entry 的 task index Git 提交提供版本锚点。Workspace mutation 和 `index stage` 都不等于 commit。
 - 同一决策明确不增加 succeeded result metadata 校正命令，并把成功事实撤销交给独立终态纠正机制；failed 继续使用 retry。
 - 中央 `task-000036` 已展示正确后继的当前做法：`task-000033` 正确成功后收到新要求，后续创建独立 task，用 `references.source-task` 指向来源，并在真实顺序成立时使用普通 dependency；原 result 与终态没有被重写。
 
@@ -83,7 +83,7 @@
 
 ## Decisions
 
-以下八项是搁置方案内部已经收敛的设计选择，不是活动长期决策或当前 runtime 契约。当前是否重新探索由[长期延期决策](../../docs/decisions/task-graph/defer-terminal-correction-until-confirmed-recovery-need.md)决定。
+以下八项是搁置方案内部已经收敛的设计选择，不是活动长期决策或当前 runtime 契约。当前是否重新探索由[长期延期决策](../../docs/decisions/defer-terminal-correction-until-confirmed-recovery-need.md)决定。
 
 ### 搁置方案 1: 普通修正继续使用现有细粒度 mutation
 
@@ -206,6 +206,6 @@ type TaskTerminalCorrection = {
 
 搁置前，旧方案内部已收敛终态来源、目标状态、evidence 最小字段、上下游拒绝条件、lease 边界、result/version anchor、后继任务策略、Schema 与协议版本策略；这只说明旧设计当时自洽，不表示它现在可以实施。
 
-恢复前必须先证明[长期延期决策](../../docs/decisions/task-graph/defer-terminal-correction-until-confirmed-recovery-need.md)的全部重新评估条件成立，再 `resume` 并重新确认：现实案例是否仍需要终态纠正、当前 task 图和消费者要求什么、旧 `correct`/paused/evidence/门禁选择是否仍最小、当前版本与重叠 owner 如何协调，以及由哪个新任务承接实施。已取消的 `task-000044` 不能作为恢复入口。
+恢复前必须先证明[长期延期决策](../../docs/decisions/defer-terminal-correction-until-confirmed-recovery-need.md)的全部重新评估条件成立，再 `resume` 并重新确认：现实案例是否仍需要终态纠正、当前 task 图和消费者要求什么、旧 `correct`/paused/evidence/门禁选择是否仍最小、当前版本与重叠 owner 如何协调，以及由哪个新任务承接实施。已取消的 `task-000044` 不能作为恢复入口。
 
 若重新设计仍保留 `correct`，每次实际使用还需要业务或结果 owner 确认“原终态事实在写入时就是错误的”并提供原因；这是运行时事实输入，不是 Change 可以替用户决定的规则。

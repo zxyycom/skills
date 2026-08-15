@@ -8,8 +8,8 @@ import {
   decisionFilePath,
   findIndexEntry,
   readIndex,
-  runBundledCli,
-  runSuccessfulCli,
+  runSourceCli,
+  runSuccessfulSourceCli,
   withFixtureWorkspace,
   writeIndex
 } from "./support.ts";
@@ -35,7 +35,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
   const withCopiedContract = await validateDecisionRecords({ workspaceRoot });
   assert.ok(withCopiedContract.errors.some(
     (error) => error.includes(
-      "root contains unsupported file decision-record-rules.md"
+      "decision-record-rules.md must start with YAML frontmatter"
     )
   ));
   await fs.rm(copiedContractPath);
@@ -65,7 +65,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
   assert.ok(withUnsupportedSchemaVersion.errors.some(
     (error) => error.includes("schema version 2 is unsupported; expected 3")
   ));
-  const listWithInvalidIndex = await runBundledCli([
+  const listWithInvalidIndex = await runSourceCli([
     "list",
     "--root",
     workspaceRoot
@@ -81,11 +81,11 @@ test("index maintenance detects drift and synchronizes canonical decision states
   ));
 
   const mismatchedPathIndex = structuredClone(originalIndex);
-  mismatchedPathIndex.entries[firstEntryId]!.state.path =
-    "project-tooling/mismatched-id.md";
+  mismatchedPathIndex.entries[firstEntryId]!.state.sourcePath =
+    "mismatched-id.md";
   await writeIndex(indexPath, mismatchedPathIndex);
   assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
-    (error) => error.includes("state.path must equal the entry id")
+    (error) => error.includes("sourcePath")
   ));
 
   const invalidRevisionIndex = structuredClone(originalIndex);
@@ -137,7 +137,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
   await fs.writeFile(indexPath, originalIndexText, "utf8");
   await fs.rm(indexPath);
   assert.match(
-    await runSuccessfulCli([
+    await runSuccessfulSourceCli([
       "sync-index",
       "--write",
       "--root",
@@ -175,7 +175,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
     ordinaryUnalignedDecision,
     "utf8"
   );
-  await runSuccessfulCli([
+  await runSuccessfulSourceCli([
     "sync-index",
     "--write",
     "--root",
@@ -197,21 +197,21 @@ test("index maintenance detects drift and synchronizes canonical decision states
     ),
     "utf8"
   );
-  const listWithInvalidRecord = await runBundledCli([
+  const listWithInvalidRecord = await runSourceCli([
     "list",
     "--root",
     workspaceRoot
   ]);
   assert.equal(listWithInvalidRecord.exitCode, 0, listWithInvalidRecord.stderr);
-  assert.match(listWithInvalidRecord.stdout, /project-tooling\/use-generated-cli\.md/);
-  const traceWithInvalidRecord = await runBundledCli([
+  assert.match(listWithInvalidRecord.stdout, /use-generated-cli\.md/);
+  const traceWithInvalidRecord = await runSourceCli([
     "trace",
     currentRelativePath,
     "--root",
     workspaceRoot
   ]);
   assert.equal(traceWithInvalidRecord.exitCode, 0, traceWithInvalidRecord.stderr);
-  assert.match(traceWithInvalidRecord.stdout, /decision-records\/260710-use-source-cli\.md/);
+  assert.match(traceWithInvalidRecord.stdout, /260710-use-source-cli\.md/);
   assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
     (error) => error.includes(currentRelativePath)
       && error.includes('body must start with "## 目的"')
@@ -234,21 +234,21 @@ test("index maintenance detects drift and synchronizes canonical decision states
     currentDecision.replace(
       "relations:\n"
         + "  - type: 修订\n"
-        + "    target: decision-records/260710-use-source-cli.md\n",
+        + "    target: 260710-use-source-cli.md\n",
       "relations: []\n"
     ),
     "utf8"
   );
-  const traceWithRelationDrift = await runBundledCli([
+  const traceWithRelationDrift = await runSourceCli([
     "trace",
-    "decision-records/260710-use-source-cli.md",
+    "260710-use-source-cli.md",
     "--root",
     workspaceRoot
   ]);
   assert.equal(traceWithRelationDrift.exitCode, 0, traceWithRelationDrift.stderr);
   assert.match(
     traceWithRelationDrift.stdout,
-    /project-tooling\/use-generated-cli\.md --修订--> decision-records\/260710-use-source-cli\.md/
+    /use-generated-cli\.md --修订--> 260710-use-source-cli\.md/
   );
   assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
     (error) => error.includes("out of sync")
@@ -260,7 +260,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
     "title: 使用同步后的生成 CLI"
   );
   await fs.writeFile(currentDecisionPath, driftedDecision, "utf8");
-  const driftedList = await runBundledCli([
+  const driftedList = await runSourceCli([
     "list",
     "--root",
     workspaceRoot
@@ -268,7 +268,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
   assert.equal(driftedList.exitCode, 0, driftedList.stderr);
   assert.match(driftedList.stdout, /title: 使用生成 CLI/);
   assert.doesNotMatch(driftedList.stdout, /title: 使用同步后的生成 CLI/);
-  await runSuccessfulCli([
+  await runSuccessfulSourceCli([
     "sync-index",
     "--write",
     "--root",

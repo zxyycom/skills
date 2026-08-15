@@ -4,8 +4,8 @@
 
 ## Context
 
-- [`maintain-topic-level-investigation-index`](../../docs/decisions/investigation-report/maintain-topic-level-investigation-index.md) 当前把 `<category-id>/<semantic-slug>.md` 定义为 topic ID，并由索引投影 category、status、latest 和全文检索信息。
-- [`stage-selected-investigation-index-entries`](../../docs/decisions/investigation-report/stage-selected-investigation-index-entries.md) 当前按路径 topic ID 选择暂存目标，资源目录的聚合 metadata 仍有独立选择边界。
+- [`maintain-topic-level-investigation-index`](../../docs/decisions/maintain-topic-level-investigation-index.md) 当前把 `<category-id>/<semantic-slug>.md` 定义为 topic ID，并由索引投影 category、status、latest 和全文检索信息。
+- [`stage-selected-investigation-index-entries`](../../docs/decisions/stage-selected-investigation-index-entries.md) 当前按路径 topic ID 选择暂存目标，资源目录的聚合 metadata 仍有独立选择边界。
 - 本 Change 与 [`adopt-tagged-decision-records`](../adopt-tagged-decision-records/design.md)、[`adopt-tagged-test-evidence-cases`](../adopt-tagged-test-evidence-cases/design.md) 组成同一组 draft，并暂用同一工作定义：目标资源文件是 274 条 Decision Records、12 个 Investigation Report topic（不含 `_resources/`）和 493 个 Test Evidence case，共 779 个权威 Markdown；“全局文件名唯一”指这些文件的 basename（含 `.md`）在合并集合中不重复，不包含派生索引、说明文件和调查附件。大小写与 Unicode 规范化规则仍待确定，这一定义也不是长期 owner。
 - 当前 12 个 topic 的 basename 在合并集合中没有冲突；`_resources/` 另有 4 个 Markdown 附件，它们不是 topic、不参与 topic 身份迁移，也不进入本组文件名门禁。
 - topic Markdown 可以链接 `docs/investigations/_resources/` 中的证据附件。文件从 category 子目录平铺到根目录会改变相对路径深度，迁移必须同步核对附件引用，但附件 ID 和资源目录不因此变成 topic tag。

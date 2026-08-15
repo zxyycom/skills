@@ -1,6 +1,6 @@
 # Tasks
 
-本任务清单保留 Change 搁置前确认的实施与验证顺序，不表示当前仍准备执行。Change 阶段以 [.change-plan.json](.change-plan.json) 为准，是否重新探索以[长期延期决策](../../docs/decisions/task-graph/defer-terminal-correction-until-confirmed-recovery-need.md)为准。`Implementation` 与 `Verification` 中的未勾选项没有实施，不是 backlog，也不能据此声称当前 runtime 已支持 `correct`。
+本任务清单保留 Change 搁置前确认的实施与验证顺序，不表示当前仍准备执行。Change 阶段以 [.change-plan.json](.change-plan.json) 为准，是否重新探索以[长期延期决策](../../docs/decisions/defer-terminal-correction-until-confirmed-recovery-need.md)为准。`Implementation` 与 `Verification` 中的未勾选项没有实施，不是 backlog，也不能据此声称当前 runtime 已支持 `correct`。
 
 ## Readiness
 

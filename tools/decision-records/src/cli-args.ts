@@ -16,10 +16,7 @@ import {
   type DecisionSuccessor,
   type DecisionTraceDirection
 } from "./types.ts";
-import {
-  isDecisionDomainId,
-  isDecisionRelativePath
-} from "./decision-path.ts";
+import { isDecisionId, isDecisionTag } from "./decision-path.ts";
 
 export type Command =
   | "activate"
@@ -27,7 +24,6 @@ export type Command =
   | "candidates"
   | "check"
   | "discard"
-  | "domains"
   | "evolve"
   | "list"
   | "mark-aligned"
@@ -49,37 +45,36 @@ type LocatedCommand<
 export type CliArgs =
   | LocatedCommand<"activate", {
       alignment: DecisionAlignment;
+      decisionId: string;
       keepUnrecordedHistory: boolean;
-      recordPath: string;
       relationOverride: DecisionRelationOverride;
     }>
   | LocatedCommand<"archive", {
+      decisionIds: string[];
       keepUnrecordedHistory: boolean;
-      recordPaths: string[];
     }>
   | LocatedCommand<"candidates">
   | LocatedCommand<"check">
-  | LocatedCommand<"discard", { recordPath: string }>
-  | LocatedCommand<"domains">
+  | LocatedCommand<"discard", { decisionId: string }>
   | LocatedCommand<"evolve", {
-      collapseUnrecordedPath: string | null;
+      collapseUnrecordedId: string | null;
       keepUnrecordedHistory: boolean;
       relationOverride: DecisionRelationOverride;
       successors: DecisionSuccessor[];
     }>
   | LocatedCommand<"list", {
       alignment: DecisionListAlignment;
-      domain: string | null;
       fullTime: boolean;
       status: DecisionListStatus;
+      tags: string[];
     }>
-  | LocatedCommand<"mark-aligned", { recordPath: string }>
-  | LocatedCommand<"show", { recordPath: string }>
-  | LocatedCommand<"show-candidate", { recordPath: string }>
-  | LocatedCommand<"stage", { recordPaths: string[] }>
+  | LocatedCommand<"mark-aligned", { decisionId: string }>
+  | LocatedCommand<"show", { decisionId: string }>
+  | LocatedCommand<"show-candidate", { decisionId: string }>
+  | LocatedCommand<"stage", { decisionIds: string[] }>
   | LocatedCommand<"sync-index", { write: boolean }>
   | LocatedCommand<"trace", {
-      recordPath: string;
+      decisionId: string;
       traceDepth: number | null;
       traceDirection: DecisionTraceDirection;
     }>;
@@ -94,7 +89,6 @@ type ParsedOptions = {
   clearRelations?: boolean;
   collapseUnrecorded?: string;
   decisionsDir?: string;
-  domain?: string;
   depth?: number;
   direction?: DecisionTraceDirection;
   fullTime?: boolean;
@@ -103,6 +97,7 @@ type ParsedOptions = {
   root?: string;
   status?: DecisionListStatus;
   successor?: DecisionSuccessor[];
+  tag?: string[];
   write?: boolean;
 };
 
@@ -113,30 +108,16 @@ function parseTraceDepth(value: string): number {
   if (!/^(0|[1-9]\d*)$/.test(value)) {
     throw new InvalidArgumentError("must be a non-negative integer");
   }
-
   const depth = Number(value);
   if (!Number.isSafeInteger(depth)) {
     throw new InvalidArgumentError("must be a safe non-negative integer");
   }
-
   return depth;
 }
 
-function parseSingleDomainId(value: string, previous?: string): string {
-  if (!isDecisionDomainId(value)) {
-    throw new InvalidArgumentError("must be a kebab-case domain id");
-  }
-  if (previous !== undefined) {
-    throw new InvalidArgumentError("must not be repeated");
-  }
-  return value;
-}
-
-function parseSingleDecisionPath(value: string, previous?: string): string {
-  if (!isDecisionRelativePath(value)) {
-    throw new InvalidArgumentError(
-      "must be a decision-root-relative POSIX path"
-    );
+function parseSingleDecisionId(value: string, previous?: string): string {
+  if (!isDecisionId(value)) {
+    throw new InvalidArgumentError("must be a Decision ID basename ending in .md");
   }
   if (previous !== undefined) {
     throw new InvalidArgumentError("must not be repeated");
@@ -150,33 +131,22 @@ function parseDecisionRelation(
 ): DecisionRelation[] {
   const separatorIndex = value.indexOf("=");
   if (separatorIndex <= 0 || separatorIndex === value.length - 1) {
-    throw new InvalidArgumentError(
-      "must use <type>=<decision-path>"
-    );
+    throw new InvalidArgumentError("must use <type>=<decision-id>");
   }
-
   const relationTypeValue = value.slice(0, separatorIndex);
   const relationType = decisionRelationTypes.find(
     (candidate) => candidate === relationTypeValue
   );
   if (relationType === undefined) {
-    throw new InvalidArgumentError(
-      "type must be " + decisionRelationTypes.join(", ")
-    );
+    throw new InvalidArgumentError("type must be " + decisionRelationTypes.join(", "));
   }
-
   const target = value.slice(separatorIndex + 1);
-  if (!isDecisionRelativePath(target)) {
-    throw new InvalidArgumentError(
-      "target must be a decision-root-relative POSIX path"
-    );
+  if (!isDecisionId(target)) {
+    throw new InvalidArgumentError("target must be a Decision ID basename ending in .md");
   }
   if (previous.some((relation) => relation.target === target)) {
-    throw new InvalidArgumentError(
-      "must not repeat a direct predecessor target"
-    );
+    throw new InvalidArgumentError("must not repeat a direct predecessor target");
   }
-
   return [...previous, { type: relationType, target }];
 }
 
@@ -186,25 +156,30 @@ function parseDecisionSuccessor(
 ): DecisionSuccessor[] {
   const separatorIndex = value.indexOf("=");
   if (separatorIndex <= 0 || separatorIndex === value.length - 1) {
-    throw new InvalidArgumentError(
-      "must use <alignment>=<decision-path>"
-    );
+    throw new InvalidArgumentError("must use <alignment>=<decision-id>");
   }
-
   const alignmentValue = value.slice(0, separatorIndex);
   if (alignmentValue !== "aligned" && alignmentValue !== "unaligned") {
     throw new InvalidArgumentError("alignment must be aligned or unaligned");
   }
-  const recordPath = value.slice(separatorIndex + 1);
-  if (!isDecisionRelativePath(recordPath)) {
-    throw new InvalidArgumentError(
-      "decision path must be a decision-root-relative POSIX path"
-    );
+  const decisionId = value.slice(separatorIndex + 1);
+  if (!isDecisionId(decisionId)) {
+    throw new InvalidArgumentError("decision ID must be a basename ending in .md");
   }
-  if (previous.some((successor) => successor.recordPath === recordPath)) {
-    throw new InvalidArgumentError("must not repeat a successor decision path");
+  if (previous.some((successor) => successor.decisionId === decisionId)) {
+    throw new InvalidArgumentError("must not repeat a successor Decision ID");
   }
-  return [...previous, { alignment: alignmentValue, recordPath }];
+  return [...previous, { alignment: alignmentValue, decisionId }];
+}
+
+function parseDecisionTag(value: string, previous: string[] = []): string[] {
+  if (!isDecisionTag(value)) {
+    throw new InvalidArgumentError("must be a kebab-case tag");
+  }
+  if (previous.includes(value)) {
+    throw new InvalidArgumentError("must not repeat a tag");
+  }
+  return [...previous, value];
 }
 
 function decisionRelationOverride(
@@ -230,46 +205,45 @@ function requiredDecisionAlignment(
 function commandArgs(
   command: Command,
   commanderCommand: CommanderCommand,
-  recordPaths: string[] = []
+  decisionIds: string[] = []
 ): CliArgs {
   const options = commanderCommand.optsWithGlobals<ParsedOptions>();
   const location = {
     decisionsDir: options.decisionsDir ?? "docs/decisions",
     workspaceRoot: options.root ?? process.cwd()
   };
-  const recordPath = recordPaths[0] ?? "";
+  const decisionId = decisionIds[0] ?? "";
   switch (command) {
     case "activate":
       return {
         ...location,
         alignment: requiredDecisionAlignment(options.alignment),
         command,
+        decisionId,
         keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
-        recordPath,
         relationOverride: decisionRelationOverride(options)
       };
     case "archive":
       return {
         ...location,
         command,
-        keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
-        recordPaths
+        decisionIds,
+        keepUnrecordedHistory: options.keepUnrecordedHistory ?? false
       };
     case "candidates":
     case "check":
-    case "domains":
       return { ...location, command };
     case "discard":
     case "mark-aligned":
     case "show":
     case "show-candidate":
-      return { ...location, command, recordPath };
+      return { ...location, command, decisionId };
     case "stage":
-      return { ...location, command, recordPaths };
+      return { ...location, command, decisionIds };
     case "evolve":
       return {
         ...location,
-        collapseUnrecordedPath: options.collapseUnrecorded ?? null,
+        collapseUnrecordedId: options.collapseUnrecorded ?? null,
         command,
         keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
         relationOverride: decisionRelationOverride(options),
@@ -280,9 +254,9 @@ function commandArgs(
         ...location,
         alignment: options.alignment ?? "all",
         command,
-        domain: options.domain ?? null,
         fullTime: options.fullTime ?? false,
-        status: options.status ?? "active"
+        status: options.status ?? "active",
+        tags: options.tag ?? []
       };
     case "sync-index":
       return { ...location, command, write: options.write ?? false };
@@ -290,7 +264,7 @@ function commandArgs(
       return {
         ...location,
         command,
-        recordPath,
+        decisionId,
         traceDepth: options.depth ?? null,
         traceDirection: options.direction ?? "both"
       };
@@ -312,7 +286,7 @@ function createSubcommand(
 
 function createDecisionRelationOption(): Option {
   return new Option(
-    "--relation <type=decision-path>",
+    "--relation <type=decision-id>",
     "Replace every selected successor's complete relation list with one final "
       + "direct predecessor relation. Repeat for the complete replacement."
   )
@@ -351,8 +325,7 @@ export function createCliProgram(
     .showHelpAfterError()
     .addHelpText(
       "afterAll",
-      "\nDecision paths are relative to the decision directory, for example "
-      + "domain-id/use-semantic-title.md.\n"
+      "\nDecision IDs are stable Markdown basenames, for example use-semantic-title.md.\n"
       + "Reviewable candidates remain outside the index and are queried from source.\n"
       + "Exit codes: 0 success (queries and scoped maintenance may report warnings), "
       + "1 paused lifecycle choice, blocking validation, or index failure, "
@@ -363,26 +336,19 @@ export function createCliProgram(
   async function execute(
     command: Command,
     commanderCommand: CommanderCommand,
-    recordPaths: string[] = []
+    decisionIds: string[] = []
   ): Promise<void> {
-    setExitCode(await run(commandArgs(command, commanderCommand, recordPaths)));
+    setExitCode(await run(commandArgs(command, commanderCommand, decisionIds)));
   }
 
   const check = createSubcommand(
     program,
     "check",
-    "Strictly validate the domain catalog, Markdown metadata, alignment, relations, "
+    "Strictly validate Markdown metadata, tags, source locations, alignment, relations, "
       + "reviewable candidates, and the JSON index. This is the default command.",
     { isDefault: true }
   );
   check.action(() => execute("check", check));
-
-  const domains = createSubcommand(
-    program,
-    "domains",
-    "List the complete decision domain catalog without reading the decision index."
-  );
-  domains.action(() => execute("domains", domains));
 
   const candidates = createSubcommand(
     program,
@@ -408,34 +374,31 @@ export function createCliProgram(
         .default("active")
     )
     .addOption(
-      new Option(
-        "--domain <domain-id>",
-        "Filter by one catalog domain id."
-      )
-        .argParser(parseSingleDomainId)
+      new Option("--tag <tag>", "Require one tag. Repeat for AND filtering.")
+        .argParser(parseDecisionTag)
     )
     .option("--full-time", "Show the full createdAt timestamp instead of its date.");
   list.action(() => execute("list", list));
 
   const show = createSubcommand(
     program,
-    "show <decision-path>",
+    "show <decision-id>",
     "Show decision metadata followed by the original Markdown body."
   );
-  show.action((recordPath: string) => execute("show", show, [recordPath]));
+  show.action((decisionId: string) => execute("show", show, [decisionId]));
 
   const showCandidate = createSubcommand(
     program,
-    "show-candidate <decision-path>",
+    "show-candidate <decision-id>",
     "Show one source-discovered candidate for semantic review before activation."
   );
-  showCandidate.action((recordPath: string) => (
-    execute("show-candidate", showCandidate, [recordPath])
+  showCandidate.action((decisionId: string) => (
+    execute("show-candidate", showCandidate, [decisionId])
   ));
 
   const trace = createSubcommand(
     program,
-    "trace <decision-path>",
+    "trace <decision-id>",
     "Trace available predecessors, successors, or both."
   )
     .addOption(
@@ -447,7 +410,7 @@ export function createCliProgram(
       new Option("--depth <n>", "Maximum relation hops.")
         .argParser(parseTraceDepth)
     );
-  trace.action((recordPath: string) => execute("trace", trace, [recordPath]));
+  trace.action((decisionId: string) => execute("trace", trace, [decisionId]));
 
   const syncIndex = createSubcommand(
     program,
@@ -459,15 +422,15 @@ export function createCliProgram(
 
   const stage = createSubcommand(
     program,
-    "stage <decision-path...>",
+    "stage <decision-id...>",
     "Build a complete pending decision snapshot from the current revision and "
-      + "the explicitly selected filesystem decision paths."
+      + "the explicitly selected filesystem Decision IDs."
   );
-  stage.action((recordPaths: string[]) => execute("stage", stage, recordPaths));
+  stage.action((decisionIds: string[]) => execute("stage", stage, decisionIds));
 
   const activate = createSubcommand(
     program,
-    "activate <decision-path>",
+    "activate <decision-id>",
     "Establish one new decision candidate or reactivate one archived decision; "
       + "new candidates may record direct evolution relations and archive their "
       + "predecessors in the same transaction."
@@ -480,7 +443,7 @@ export function createCliProgram(
     .addOption(createDecisionRelationOption())
     .addOption(createClearRelationsOption())
     .addOption(createKeepUnrecordedHistoryOption());
-  activate.action((recordPath: string) => execute("activate", activate, [recordPath]));
+  activate.action((decisionId: string) => execute("activate", activate, [decisionId]));
 
   const evolve = createSubcommand(
     program,
@@ -491,7 +454,7 @@ export function createCliProgram(
   )
     .addOption(
       new Option(
-        "--successor <alignment=decision-path>",
+        "--successor <alignment=decision-id>",
         "Select one successor and confirm its whole-decision alignment. "
           + "Repeat for the complete successor set."
       )
@@ -503,39 +466,39 @@ export function createCliProgram(
     .addOption(createKeepUnrecordedHistoryOption())
     .addOption(
       new Option(
-        "--collapse-unrecorded <decision-path>",
+        "--collapse-unrecorded <decision-id>",
         "Delete one active predecessor absent from Git HEAD for one new "
           + "candidate; resolved source relations or --relation define the "
           + "complete final set, and --clear-relations selects an explicitly "
           + "empty set."
-      ).argParser(parseSingleDecisionPath)
+      ).argParser(parseSingleDecisionId)
     );
   evolve.action(() => execute("evolve", evolve));
 
   const markAligned = createSubcommand(
     program,
-    "mark-aligned <decision-path>",
+    "mark-aligned <decision-id>",
     "Mark an active unaligned decision as aligned only after its complete "
       + "direction has become current fact and been verified against the relevant "
       + "fact sources."
   );
-  markAligned.action((recordPath: string) => (
-    execute("mark-aligned", markAligned, [recordPath])
+  markAligned.action((decisionId: string) => (
+    execute("mark-aligned", markAligned, [decisionId])
   ));
 
   const archive = createSubcommand(
     program,
-    "archive <decision-path...>",
+    "archive <decision-id...>",
     "Archive active decisions while preserving their last alignment and relations."
   ).addOption(createKeepUnrecordedHistoryOption());
-  archive.action((recordPaths: string[]) => execute("archive", archive, recordPaths));
+  archive.action((decisionIds: string[]) => execute("archive", archive, decisionIds));
 
   const discard = createSubcommand(
     program,
-    "discard <decision-path>",
+    "discard <decision-id>",
     "Delete a complete reviewable decision candidate and rebuild the index."
   );
-  discard.action((recordPath: string) => execute("discard", discard, [recordPath]));
+  discard.action((decisionId: string) => execute("discard", discard, [decisionId]));
 
   return program;
 }

@@ -1,12 +1,11 @@
-### Case DECISION-STAGE-INPUT-001: Stage 拒绝非法重复和缺失路径且保持 pending
+### Case DECISION-STAGE-INPUT-001: Stage 拒绝无效、重复和缺失 ID
 
 Entry:
 - `tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing pending`
-- `bun test --test-name-pattern="^stage rejects invalid duplicate and missing paths without changing pending$" ./tools/decision-records/tests/stage.test.ts`
+- `bun test --test-name-pattern="^stage rejects invalid duplicate and missing paths without changing pending$" ./tools/decision-records/tests/run.ts`
 
 Contract:
-- `stage` 只接受唯一、合法且至少存在于 revision 或 filesystem 一处的决策根相对 POSIX Markdown 路径。
+- stage 在暂存前拒绝重复、缺失和越界 ID，不改变已有 pending。
 
 Proves:
-- 越界路径、重复路径和两处都缺失的路径均以参数失败退出且不产生成功输出。
-- 每次失败后完整 pending 条目保持调用前状态。
+- 三类非法输入均失败，已有 README pending 保持不变。

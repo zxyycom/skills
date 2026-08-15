@@ -1,6 +1,6 @@
 import { stringify as stringifyYaml } from "yaml";
 import { parseYamlFrontmatter } from "../../shared/src/markdown/frontmatter.ts";
-import { isDecisionRelativePath } from "./decision-path.ts";
+import { isDecisionId, isDecisionTag } from "./decision-path.ts";
 import { isDecisionTimestamp } from "./decision-timestamp.ts";
 import { projectionTextIssue } from "./projection.ts";
 import {
@@ -22,6 +22,7 @@ const frontmatterKeys = [
   "purpose",
   "background",
   "decision",
+  "tags",
   "relations"
 ] as const;
 const relationKeys = ["type", "target"] as const;
@@ -41,6 +42,7 @@ export type ParsedDecisionMarkdown = {
   body: string;
   metadata: DecisionSourceMetadata;
   projection: DecisionProjection;
+  tags: string[];
 };
 
 export function parseDecisionMarkdown(options: {
@@ -112,6 +114,7 @@ export function parseDecisionMarkdown(options: {
     relativePath,
     errors
   );
+  const tags = parseTags(frontmatter.values.tags, relativePath, errors);
   const relations = parseRelations(frontmatter.values.relations, relativePath, errors);
   const status = frontmatter.values.status;
   const alignment = frontmatter.values.alignment;
@@ -178,6 +181,7 @@ export function parseDecisionMarkdown(options: {
     || purpose === null
     || background === null
     || decision === null
+    || tags === null
     || relations === null
     || !lifecycleValid
   ) {
@@ -197,7 +201,8 @@ export function parseDecisionMarkdown(options: {
       background,
       decision,
       relations
-    }
+    },
+    tags
   };
 }
 
@@ -232,11 +237,12 @@ export function replaceDecisionFrontmatter(
         ...parsed.projection,
         relations: options.relations.map(({ type, target }) => ({ type, target }))
       };
-  return serializeDecisionFrontmatter(projection, options.metadata) + parsed.body;
+  return serializeDecisionFrontmatter(projection, parsed.tags, options.metadata) + parsed.body;
 }
 
 export function serializeDecisionFrontmatter(
   projection: DecisionProjection,
+  tags: readonly string[],
   metadata: DecisionSourceMetadata
 ): string {
   const frontmatter = {
@@ -247,6 +253,7 @@ export function serializeDecisionFrontmatter(
     purpose: projection.purpose,
     background: projection.background,
     decision: projection.decision,
+    tags: [...tags],
     relations: projection.relations.map(({ type, target }) => ({ type, target }))
   };
   return [
@@ -273,6 +280,41 @@ function projectionField(
     errors.push(relativePath + " " + field + " projection " + issue);
   }
   return value;
+}
+
+function parseTags(
+  value: unknown,
+  relativePath: string,
+  errors: string[]
+): string[] | null {
+  if (!Array.isArray(value) || value.length === 0) {
+    errors.push(relativePath + " frontmatter tags must be a non-empty array");
+    return null;
+  }
+  const tags: string[] = [];
+  const seen = new Set<string>();
+  let valid = true;
+  for (const [index, tag] of value.entries()) {
+    if (typeof tag !== "string" || !isDecisionTag(tag)) {
+      errors.push(
+        relativePath + ` frontmatter tags[${index}] must be a kebab-case tag`
+      );
+      valid = false;
+      continue;
+    }
+    if (seen.has(tag)) {
+      errors.push(relativePath + " repeats tag " + tag);
+      valid = false;
+      continue;
+    }
+    seen.add(tag);
+    tags.push(tag);
+  }
+  if (!tags.every((tag, index) => index === 0 || tags[index - 1]! < tag)) {
+    errors.push(relativePath + " frontmatter tags must use lexical ascending order");
+    valid = false;
+  }
+  return valid ? tags : null;
 }
 
 function parseRelations(
@@ -314,10 +356,9 @@ function parseRelations(
       valid = false;
       continue;
     }
-    if (typeof target !== "string" || !isDecisionRelativePath(target)) {
+    if (typeof target !== "string" || !isDecisionId(target)) {
       errors.push(
-        relativePath
-        + ` frontmatter relations[${index}].target must be a decision-root-relative path`
+        relativePath + ` frontmatter relations[${index}].target must be a Decision ID`
       );
       valid = false;
       continue;

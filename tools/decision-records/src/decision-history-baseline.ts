@@ -9,13 +9,14 @@ import {
   type DecisionApplicationAttention,
   type DecisionApplicationFailure
 } from "./application-result.ts";
+import { decisionIdFromSourcePath } from "./decision-path.ts";
 import type { DecisionRecord, DecisionScan } from "./types.ts";
 
 export type DecisionHistoryBaseline =
   | {
       kind: "git-head";
       label: "Git HEAD";
-      recordedDecisionPaths: ReadonlySet<string>;
+      recordedDecisionIds: ReadonlySet<string>;
     }
   | {
       kind: "outside-git-worktree";
@@ -62,7 +63,7 @@ export async function loadDecisionHistoryBaseline(
         baseline: {
           kind: "git-head",
           label: "Git HEAD",
-          recordedDecisionPaths: new Set<string>()
+          recordedDecisionIds: new Set<string>()
         },
         status: "ok"
       };
@@ -75,18 +76,21 @@ export async function loadDecisionHistoryBaseline(
           pathScopes: [directoryScope]
         });
     const prefix = directoryScope.length === 0 ? "" : directoryScope + "/";
-    const recordedDecisionPaths = new Set<string>();
+    const recordedDecisionIds = new Set<string>();
     for (const filePath of revisionFiles) {
-      if (!filePath.startsWith(prefix) || !filePath.endsWith(".md")) {
+      if (!filePath.startsWith(prefix)) {
         continue;
       }
-      recordedDecisionPaths.add(filePath.slice(prefix.length));
+      const decisionId = decisionIdFromSourcePath(filePath.slice(prefix.length));
+      if (decisionId !== null) {
+        recordedDecisionIds.add(decisionId);
+      }
     }
     return {
       baseline: {
         kind: "git-head",
         label: "Git HEAD",
-        recordedDecisionPaths
+        recordedDecisionIds
       },
       status: "ok"
     };
@@ -108,25 +112,25 @@ export function prepareUnrecordedHistoryAttention(
   ) {
     return null;
   }
-  const unrecordedPaths = records
-    .map((record) => record.relativePath)
-    .filter((recordPath) => (
-      !historyBaseline.recordedDecisionPaths.has(recordPath)
+  const unrecordedIds = records
+    .map((record) => record.decisionId)
+    .filter((decisionId) => (
+      !historyBaseline.recordedDecisionIds.has(decisionId)
     ));
-  if (unrecordedPaths.length === 0) {
+  if (unrecordedIds.length === 0) {
     return null;
   }
   return decisionAttention([
     "The following decisions have not entered "
       + historyBaseline.label
       + ": "
-      + unrecordedPaths.join(", ")
+      + unrecordedIds.join(", ")
       + ".",
     "Archiving them now may preserve same-change intermediate decisions as "
       + "meaningless evolution history; no files were changed.",
     canCollapse
       ? "Re-run with --keep-unrecorded-history to preserve that history, or use "
-        + "evolve --collapse-unrecorded <decision-path> with one --successor "
+        + "evolve --collapse-unrecorded <decision-id> with one --successor "
         + "and the complete final relation selection."
       : "Re-run with --keep-unrecorded-history only after deciding that the "
         + "unrecorded history should be preserved; otherwise resolve it through "

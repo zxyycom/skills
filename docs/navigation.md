@@ -16,7 +16,7 @@
 | 调整仓库定位、skill 选择与启用边界或通用分发边界 | [仓库模型](repository-model.md) | 涉及具体打包、发布或 updater 机制时读 [项目工具链](tooling.md)；只影响特定 skill 时读其行为 owner |
 | 修改项目级 agent 协作约定 | [AGENTS](../AGENTS.md) | 改变任务路由或内容 owner 时读本文；需要让文档更适合 AI 阅读和使用时读 [AI-Ready Docs](../skills/ai-ready-docs/SKILL.md) |
 | 修改工具源码、项目脚本、校验、打包、CI 或 updater | [项目工具链](tooling.md)、[编码规范](coding-style.md) | 修改 `tools/<tool-name>/` 时补读该目录的局部契约；工具服务特定 skill 时再读其行为 owner；改变通用分发边界时读 [仓库模型](repository-model.md) |
-| 恢复、审阅或维护长期决策 | [决策索引](decisions/decision-index.json)、[Decision Records](../skills/decision-records/SKILL.md) | 相关决策 Markdown；写入或结构审阅前按 skill 读取决策领域契约 |
+| 恢复、审阅或维护长期决策 | [决策索引](decisions/decision-index.json)、[Decision Records](../skills/decision-records/SKILL.md) | 相关根目录或 `archive/` 中的决策 Markdown；写入或结构审阅前按 skill 读取决策记录规则 |
 | 创建、更新或审阅调查报告 | [调查索引](investigations/investigation-index.json)、[Investigation Report](../skills/investigation-report/SKILL.md) | 相关调查报告；创建、更新、拆分或结构审阅前按 skill 读取固定契约 |
 | 整理并创建 Git 提交 | [Git Commit Organizer](../skills/git-commit-organizer/SKILL.md) | 当前 Git 状态、diff 和目标改动的验证结果 |
 
@@ -53,7 +53,7 @@
 | 可分发工具源码 | `tools/<tool-name>/` | 随 skill 分发的源码、声明、测试、fixture 和局部组件契约；`tools/shared/` 承接跨工具运行时不变量，`tools/skill-package/` 承接发布端与 updater 共用的分发协议 |
 | 主仓库自动化与共享交付 | 主仓库根目录、`scripts/` 和 CI 配置 | 命令编排、生成适配、共享校验、打包、聚合发布、依赖入口、Git 和 CI 自动化；不承接随 skill 分发工具的运行时源码 |
 | 调查报告 | `docs/investigations/<category-id>/<semantic-slug>.md`、`docs/investigations/investigation-index.json` | 主题 Markdown 承接可独立复核的报告；`skills/investigation-report/references/investigation-report-contract.md` 是格式与维护事务的固定契约，JSON 是派生索引 |
-| 长期决策 | `docs/decisions/decision-domains.json`、`docs/decisions/<domain-id>/*.md`、`docs/decisions/decision-index.json` | 领域目录表承接允许使用的领域及其边界，路径第一段承接唯一领域归属，决策 Markdown 承接生命周期、对齐状态和完整语义；`skills/decision-records/SKILL.md` 是 agent 行为入口，`references/decision-record-rules.md` 承接决策语义与维护不变量，JSON Schema 承接索引精确结构，索引 JSON 是查询投影 |
+| 长期决策 | `docs/decisions/*.md`、`docs/decisions/archive/*.md`、`docs/decisions/decision-index.json` | Markdown basename 是稳定 Decision ID，frontmatter 的非空 tags 承接分类，status 决定根目录或 `archive/` 位置；Markdown 承接生命周期、对齐状态和完整语义。`skills/decision-records/SKILL.md` 是 agent 行为入口，`references/decision-record-rules.md` 承接决策语义与维护不变量，JSON Schema 承接索引精确结构，索引 JSON 是查询投影 |
 
 ## 维护规则
 

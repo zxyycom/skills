@@ -8,7 +8,7 @@
 
 本 Change 以 [.change-plan.json](.change-plan.json) 为阶段事实源，当前处于 `shelved`。本文、[design.md](design.md) 和 [tasks.md](tasks.md) 只保存搁置前最近一次确认的方案；其中的 `correct`、`terminalCorrections` 与相关输出既不是当前 runtime 行为，也不是待执行契约。
 
-是否重新探索终态纠正，只由[长期延期决策](../../docs/decisions/task-graph/defer-terminal-correction-until-confirmed-recovery-need.md)中的触发条件决定。实际 task-graph 行为以 [task-graph skill](../../skills/task-graph/SKILL.md)、[人类说明](../../docs/skills/task-graph.md)和 [`tools/task-graph/src/`](../../tools/task-graph/src/) 为准。未来即使满足重新评估条件，也必须先 `resume`、按当时事实重新确认 `plan`，再决定是否形成新的实施任务；不能直接按本 Change 实施。
+是否重新探索终态纠正，只由[长期延期决策](../../docs/decisions/defer-terminal-correction-until-confirmed-recovery-need.md)中的触发条件决定。实际 task-graph 行为以 [task-graph skill](../../skills/task-graph/SKILL.md)、[人类说明](../../docs/skills/task-graph.md)和 [`tools/task-graph/src/`](../../tools/task-graph/src/) 为准。未来即使满足重新评估条件，也必须先 `resume`、按当时事实重新确认 `plan`，再决定是否形成新的实施任务；不能直接按本 Change 实施。
 
 三个 artifact 的职责如下：
 
@@ -86,5 +86,5 @@
 - `tools/task-graph/src/staging.ts`：原则上复用完整候选校验；只有目标测试发现 correction evidence 无法按现有 selected-task 语义暂存时才修改。
 - `scripts/build/task-graph.ts`、`skills/task-graph/scripts/` 与 `skills/task-graph/references/task-graph-index.schema.json`：现有生成边界及其机械产物；不直接手改生成文件。
 - `tools/task-graph/tests/` 与 `docs/test-evidence/task-graph/`：最小原生测试入口、现有终态封闭 case 的语义修订、新 correction cases 与统一派生索引。
-- `docs/decisions/task-graph/` 与 `docs/decisions/decision-index.json`：若未来实际实施，再保存“错误终态显式纠正、当前 result 与 correction evidence 分离、正确完成后使用新 task”的长期判断；当前这里只引用已生效的延期决策。
+- `docs/decisions/` 与 `docs/decisions/decision-index.json`：若未来实际实施，再保存“错误终态显式纠正、当前 result 与 correction evidence 分离、正确完成后使用新 task”的长期判断；当前这里只引用已生效的延期决策。
 - `changes/support-explicit-task-ids/` 与 `changes/add-task-tags-and-find/`：搁置前只作为共享 owner 的协调输入。旧实施任务 `task-000044` 已取消；未来计划必须重新确认相关 Change 是否仍存在、CLI minor、skill version 与 Schema/type 如何组合。

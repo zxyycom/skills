@@ -25,7 +25,7 @@ test("archive pauses before preserving an unrecorded established decision", () =
   const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
   const unrecordedRelativePath =
-    "decision-records/use-unrecorded-archive-target.md";
+    "use-unrecorded-archive-target.md";
   const unrecordedPath = decisionFilePath(workspaceRoot, unrecordedRelativePath);
   await fs.writeFile(
     unrecordedPath,
@@ -78,7 +78,7 @@ test("archive pauses before preserving an unrecorded established decision", () =
   })
 ));
 const unrecordedIntermediateRelativePath =
-  "decision-records/use-unrecorded-intermediate.md";
+  "use-unrecorded-intermediate.md";
 
 async function establishUnrecordedIntermediate(
   workspaceRoot: string
@@ -116,7 +116,7 @@ test("unrecorded decision evolution pauses until history is explicitly preserved
     workspaceRoot
   );
   const successorRelativePath =
-    "decision-records/use-preserved-unrecorded-history.md";
+    "use-preserved-unrecorded-history.md";
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
   const successorCandidate = candidateDecisionBody();
   await fs.writeFile(successorPath, successorCandidate, "utf8");
@@ -185,7 +185,7 @@ test("evolve collapses an unrecorded intermediate with explicit final relations"
     [{ type: "修订", target: currentRelativePath }]
   );
   const successorRelativePath =
-    "decision-records/use-collapsed-unrecorded-history.md";
+    "use-collapsed-unrecorded-history.md";
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
   await fs.writeFile(
     successorPath,
@@ -228,7 +228,7 @@ test("evolve collapse rejects an implicit empty final relation selection", () =>
     workspaceRoot
   );
   const successorRelativePath =
-    "decision-records/reject-implicit-empty-collapse.md";
+    "reject-implicit-empty-collapse.md";
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
   const successorCandidate = candidateDecisionBody();
   await fs.writeFile(successorPath, successorCandidate, "utf8");
@@ -257,7 +257,7 @@ test("evolve collapse accepts an explicitly empty final relation set", () => (
     workspaceRoot
   );
   const successorRelativePath =
-    "decision-records/drop-collapsed-upstream-history.md";
+    "drop-collapsed-upstream-history.md";
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
   await fs.writeFile(
     successorPath,
@@ -289,7 +289,7 @@ test("evolve collapse rejects archived relations outside the intermediate bounda
     workspaceRoot
   );
   const successorRelativePath =
-    "decision-records/reject-unrelated-collapsed-upstream.md";
+    "reject-unrelated-collapsed-upstream.md";
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
   const successorCandidate = candidateDecisionBody();
   await fs.writeFile(successorPath, successorCandidate, "utf8");
@@ -324,7 +324,7 @@ test("evolve collapse rejects a predecessor recorded in Git HEAD", () => (
   );
   commitWorkspace(workspaceRoot, "record intermediate decision");
   const successorRelativePath =
-    "decision-records/reject-recorded-collapse.md";
+    "reject-recorded-collapse.md";
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
   const successorCandidate = candidateDecisionBody();
   await fs.writeFile(successorPath, successorCandidate, "utf8");
@@ -355,14 +355,14 @@ test("evolve collapse rejects a predecessor referenced by another candidate", ()
     workspaceRoot
   );
   const referencingRelativePath =
-    "decision-records/reference-unrecorded-intermediate.md";
+    "reference-unrecorded-intermediate.md";
   const referencingPath = decisionFilePath(workspaceRoot, referencingRelativePath);
   const referencingCandidate = candidateDecisionBody({
     relations: [{ type: "修订", target: unrecordedIntermediateRelativePath }]
   });
   await fs.writeFile(referencingPath, referencingCandidate, "utf8");
   const successorRelativePath =
-    "decision-records/reject-referenced-collapse.md";
+    "reject-referenced-collapse.md";
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
   const successorCandidate = candidateDecisionBody();
   await fs.writeFile(successorPath, successorCandidate, "utf8");

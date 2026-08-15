@@ -34,7 +34,7 @@
 
 - `skills/decision-records/SKILL.md` 的 description、主动读取策略和“构造待提交决策快照”流程，确认当前入口已经明确覆盖多个决策变化的独立暂存。
 - `skills/git-commit-organizer/SKILL.md` 的范围恢复、快照隔离和提交工作流，确认它只提供通用 Git 手段，没有领域 owner 的重新解析协议。
-- `docs/decisions/decision-records/make-independent-decision-staging-discoverable.md`、Task Graph 中已成功的 `task-000023` 及其引用的集成提交 `8ee1eecc2aaa2b4d89b46187ff831e88531b7f17`。该提交只修改了 `decision-records` description、Skill 版本、决策对齐状态和派生索引；没有修改 `git-commit-organizer` 或建立其他运行时交接入口。
+- `docs/decisions/make-independent-decision-staging-discoverable.md`、Task Graph 中已成功的 `task-000023` 及其引用的集成提交 `8ee1eecc2aaa2b4d89b46187ff831e88531b7f17`。该提交只修改了 `decision-records` description、Skill 版本、决策对齐状态和派生索引；没有修改 `git-commit-organizer` 或建立其他运行时交接入口。
 - `skills/skill-maintainer/SKILL.md` 的 Skill 发现、真实依赖与缺失路径要求，以及 `skills/ai-ready-docs/` 对 AI 实际获得文本、owner 归位和外部召回缺口的原则。
 - 用户对本次实际执行路径、漏用时点以及硬编码跨 Skill 内容不可扩展的说明。
 

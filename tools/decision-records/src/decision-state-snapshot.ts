@@ -1,10 +1,4 @@
-import path from "node:path";
 import type { StateSnapshot } from "../../index-runtime/src/index.ts";
-import {
-  decisionDomainCatalogFileName,
-  type DecisionDomainCatalog
-} from "./decision-domain-catalog.ts";
-import { decisionDomainFromRelativePath } from "./decision-path.ts";
 import { establishedDecisionMetadataFromSource } from "./decision-metadata.ts";
 import { validateDecisionBody } from "./record.ts";
 import { decisionRelationConsistencyIssues } from "./relation-graph.ts";
@@ -20,7 +14,7 @@ import type {
 const decisionSourceParseConcurrency = 32;
 
 export function decisionIndexState(
-  relativePath: string,
+  sourcePath: string,
   document: DecisionDocument
 ): DecisionIndexState {
   const metadata: DecisionMetadata = document.status === "active"
@@ -35,24 +29,23 @@ export function decisionIndexState(
         createdAt: document.createdAt
       };
   return {
-    path: relativePath,
+    sourcePath,
     title: document.title,
     ...metadata,
     purpose: document.purpose,
     background: document.background,
     decision: document.decision,
+    tags: [...document.tags],
     relations: document.relations.map(({ type, target }) => ({ type, target }))
   };
 }
 
 export async function buildDecisionStateSnapshotFromSources(
-  catalog: DecisionDomainCatalog,
   sources: readonly DecisionSource[],
   signal?: AbortSignal
 ): Promise<StateSnapshot<DecisionIndexState, DecisionIndexMetadata>> {
-  const prepared = prepareDecisionSources(catalog, sources);
-  const domainIds = new Set(catalog.domains.map((domain) => domain.id));
-  const states: DecisionIndexState[] = [];
+  const prepared = prepareDecisionSources(sources);
+  const states: Array<{ decisionId: string; state: DecisionIndexState }> = [];
   for (
     let offset = 0;
     offset < prepared.sources.length;
@@ -61,18 +54,17 @@ export async function buildDecisionStateSnapshotFromSources(
     if (signal?.aborted === true) {
       throw new Error("decision state projection was aborted");
     }
-    const batch = prepared.sources.slice(
-      offset,
-      offset + decisionSourceParseConcurrency
-    );
-    states.push(...await Promise.all(batch.map(async (source) => (
-      await parseDecisionSource(source, domainIds, prepared.sourcePaths)
-    ))));
+    const batch = prepared.sources.slice(offset, offset + decisionSourceParseConcurrency);
+    states.push(...await Promise.all(batch.map(async (source) => ({
+      decisionId: source.decisionId,
+      state: await parseDecisionSource(source, prepared.decisionIds)
+    }))));
   }
 
-  const relationIssues = decisionRelationConsistencyIssues(states.map((state) => ({
+  const relationIssues = decisionRelationConsistencyIssues(states.map(({ decisionId, state }) => ({
+    decisionId,
     projection: state,
-    relativePath: state.path,
+    sourcePath: state.sourcePath,
     status: state.status
   })));
   if (relationIssues.length > 0) {
@@ -80,33 +72,23 @@ export async function buildDecisionStateSnapshotFromSources(
   }
 
   return {
-    metadata: {
-      domains: catalog.domains.map(({ id, description }) => ({ id, description }))
-    },
+    metadata: {},
     sourceRevision: prepared.revision,
-    states: Object.fromEntries(states.map((state) => [state.path, state]))
+    states: Object.fromEntries(states.map(({ decisionId, state }) => [decisionId, state]))
   };
 }
 
 async function parseDecisionSource(
   source: DecisionSource,
-  domainIds: ReadonlySet<string>,
-  sourcePaths: ReadonlySet<string>
+  decisionIds: ReadonlySet<string>
 ): Promise<DecisionIndexState> {
   const errors: string[] = [];
-  const domain = decisionDomainFromRelativePath(source.path);
-  if (domain === null || !domainIds.has(domain)) {
-    errors.push(
-      `${source.path} path domain is not defined in `
-      + `${decisionDomainCatalogFileName}: ${domain ?? "<invalid>"}`
-    );
-  }
   const candidate = await validateDecisionBody({
     body: source.text,
+    decisionId: source.decisionId,
     errors,
-    fileName: path.posix.basename(source.path),
-    relativePath: source.path,
-    targetExists: (targetPath) => sourcePaths.has(targetPath)
+    sourcePath: source.sourcePath,
+    targetExists: (targetId) => decisionIds.has(targetId)
   });
   const metadata = candidate === null
     ? null
@@ -115,15 +97,16 @@ async function parseDecisionSource(
     throw new Error(
       errors.length > 0
         ? errors.join("; ")
-        : `${source.path} does not contain established decision metadata`
+        : `${source.sourcePath} does not contain established decision metadata`
     );
   }
 
-  return decisionIndexState(source.path, {
+  return decisionIndexState(source.sourcePath, {
     title: candidate.title,
     purpose: candidate.purpose,
     background: candidate.background,
     decision: candidate.decision,
+    tags: candidate.tags,
     relations: candidate.relations,
     ...metadata
   });

@@ -42,7 +42,7 @@ Change Plan 只接受规范 Draft 与 Plan metadata，当前仓库中的旧 acti
 ## Affected Owners
 
 - `skills/change-plan/SKILL.md`、`skills/change-plan/references/change-plan-contract.md` 与 `docs/skills/change-plan.md`：严格 active metadata 契约、失败行为和维护流程。
-- `docs/decisions/change-plan/`：以完整后继修订生命周期决策中的兼容方向。
+- `docs/decisions/`：以完整后继修订生命周期决策中的兼容方向。
 - `tools/change-plan/src/`：metadata schema/reader、checker、Git distance 与生命周期输入边界。
 - `tools/change-plan/tests/` 与 `docs/test-evidence/change-plan/`：旧输入拒绝、集合可发现性、写入不变性及现有规范行为的证据。
 - `skills/change-plan/scripts/change-plan.mjs*`：从工具源码重新生成的分发 CLI。

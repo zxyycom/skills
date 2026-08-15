@@ -1,43 +1,26 @@
 {
-  "$comment": "entry 对象键、state.path、派生 keys、sourceRevision 与 Markdown 投影的一致性由 CLI check 检查。",
+  "$comment": "entry Decision ID、state.sourcePath、派生 keys、sourceRevision 与 Markdown 投影的一致性由 CLI check 检查。",
   "$defs": {
-    "decisionPath": {
-      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*/[a-z0-9]+(?:-[a-z0-9]+)*\\.md$",
+    "decisionId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*\\.md$",
+      "type": "string"
+    },
+    "decisionSourcePath": {
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.md|archive/[a-z0-9]+(?:-[a-z0-9]+)*\\.md)$",
       "type": "string"
     },
     "fingerprint": {
       "pattern": "^sha256:[0-9a-f]{64}$",
       "type": "string"
     },
-    "domainDefinition": {
-      "additionalProperties": false,
-      "properties": {
-        "id": {
-          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-          "type": "string"
-        },
-        "description": {
-          "maxLength": 200,
-          "minLength": 4,
-          "pattern": "^[^\\r\\n]+$",
-          "type": "string"
-        }
-      },
-      "required": [
-        "id",
-        "description"
-      ],
-      "type": "object"
-    },
     "keyValues": {
       "additionalProperties": false,
       "properties": {
-        "domain": {
+        "tag": {
           "items": {
             "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
             "type": "string"
           },
-          "maxItems": 1,
           "minItems": 1,
           "type": "array",
           "uniqueItems": true
@@ -70,7 +53,7 @@
         }
       },
       "required": [
-        "domain",
+        "tag",
         "status"
       ],
       "type": "object"
@@ -89,7 +72,7 @@
           "type": "string"
         },
         "target": {
-          "$ref": "#/$defs/decisionPath"
+          "$ref": "#/$defs/decisionId"
         }
       },
       "required": [
@@ -125,8 +108,8 @@
         }
       ],
       "properties": {
-        "path": {
-          "$ref": "#/$defs/decisionPath"
+        "sourcePath": {
+          "$ref": "#/$defs/decisionSourcePath"
         },
         "title": {
           "maxLength": 100,
@@ -174,6 +157,15 @@
           "pattern": "^[^\\r\\n]+$",
           "type": "string"
         },
+        "tags": {
+          "items": {
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
         "relations": {
           "items": {
             "$ref": "#/$defs/relation"
@@ -183,7 +175,7 @@
         }
       },
       "required": [
-        "path",
+        "sourcePath",
         "title",
         "status",
         "alignment",
@@ -191,6 +183,7 @@
         "purpose",
         "background",
         "decision",
+        "tags",
         "relations"
       ],
       "type": "object"
@@ -207,23 +200,11 @@
       "const": "decisions"
     },
     "definitionVersion": {
-      "const": 5
+      "const": 6
     },
     "metadata": {
       "additionalProperties": false,
-      "properties": {
-        "domains": {
-          "items": {
-            "$ref": "#/$defs/domainDefinition"
-          },
-          "minItems": 1,
-          "type": "array",
-          "uniqueItems": true
-        }
-      },
-      "required": [
-        "domains"
-      ],
+      "properties": {},
       "type": "object"
     },
     "sourceRevision": {
@@ -237,7 +218,7 @@
             "$ref": "#/$defs/fingerprint"
           },
           "propertyNames": {
-            "$ref": "#/$defs/decisionPath"
+            "$ref": "#/$defs/decisionId"
           },
           "type": "object"
         }
@@ -251,7 +232,7 @@
     "keyDefinitions": {
       "const": [
         {
-          "name": "domain",
+          "name": "tag",
           "mode": "exact"
         },
         {
@@ -282,7 +263,7 @@
         "type": "object"
       },
       "propertyNames": {
-        "$ref": "#/$defs/decisionPath"
+        "$ref": "#/$defs/decisionId"
       },
       "type": "object"
     }

@@ -2,10 +2,7 @@ import type {
   DecisionApplicationAttention,
   DecisionApplicationFailure
 } from "./application-result.ts";
-import type {
-  DecisionQuerySuccess
-} from "./decision-query-service.ts";
-import type { DecisionDomainDefinition } from "./decision-domain-catalog.ts";
+import type { DecisionQuerySuccess } from "./decision-query-service.ts";
 
 export function printDecisionFailure(
   failure: DecisionApplicationFailure
@@ -37,60 +34,50 @@ export function printDecisionQuerySuccess(
   printQueryWarnings(result.warnings);
   switch (result.command) {
     case "candidates":
-      printCandidates(result.domains, result.records);
+      printCandidates(result.records);
       return;
     case "check":
       printCheck(result.summary);
       return;
-    case "domains":
-      printDomainDefinitions(result.domains);
-      return;
     case "list":
-      printList(result.domains, result.records, result.fullTime);
+      printList(result.records, result.fullTime);
       return;
     case "show":
-      printShow(result);
-      return;
     case "show-candidate":
-      printShowCandidate(result);
+      printShow(result);
       return;
     case "sync-index":
       printSyncIndex(result);
       return;
     case "trace":
-      printTrace(result.domains, result.records, result.edges);
+      printTrace(result.records, result.edges);
   }
 }
 
 function printCandidates(
-  domains: readonly DecisionDomainDefinition[],
-  records: Extract<
-    DecisionQuerySuccess,
-    { command: "candidates" }
-  >["records"]
+  records: Extract<DecisionQuerySuccess, { command: "candidates" }>["records"]
 ): void {
-  printDomainDefinitions(domains);
   console.log("Candidates:");
   if (records.length === 0) {
     console.log("- none");
     return;
   }
   for (const record of records) {
-    console.log("- candidate " + record.relativePath);
+    printRecordHeader("candidate", record.decisionId, record.sourcePath, record.tags);
     console.log("  title: " + record.projection.title);
     console.log("  purpose: " + record.projection.purpose);
   }
 }
 
 export function printCandidateWarnings(
-  relativePaths: readonly string[]
+  sourcePaths: readonly string[]
 ): void {
-  if (relativePaths.length === 0) {
+  if (sourcePaths.length === 0) {
     return;
   }
   console.error("Decision records command completed with warnings:");
-  for (const relativePath of relativePaths) {
-    console.error("- Reviewable decision candidate remains: " + relativePath);
+  for (const sourcePath of sourcePaths) {
+    console.error("- Reviewable decision candidate remains: " + sourcePath);
   }
   console.error(
     "- Candidates remain outside the decision index; use candidates to review "
@@ -109,39 +96,23 @@ function printQueryWarnings(warnings: readonly string[]): void {
 }
 
 function printCheck(
-  summary: Extract<
-    DecisionQuerySuccess,
-    { command: "check" }
-  >["summary"]
+  summary: Extract<DecisionQuerySuccess, { command: "check" }>["summary"]
 ): void {
   console.log(
     "Decision records check passed ("
-      + summary.domainCount
-      + " domains, "
-      + summary.decisionCount
-      + " decisions, "
-      + summary.activeCount
-      + " active, "
-      + summary.alignedCount
-      + " aligned, "
-      + summary.unalignedCount
-      + " unaligned, "
-      + summary.archivedCount
-      + " archived, "
-      + summary.activationCandidateCount
-      + " candidates)."
+      + summary.decisionCount + " decisions, "
+      + summary.activeCount + " active, "
+      + summary.alignedCount + " aligned, "
+      + summary.unalignedCount + " unaligned, "
+      + summary.archivedCount + " archived, "
+      + summary.activationCandidateCount + " candidates)."
   );
 }
 
 function printList(
-  domains: readonly DecisionDomainDefinition[],
-  records: Extract<
-    DecisionQuerySuccess,
-    { command: "list" }
-  >["records"],
+  records: Extract<DecisionQuerySuccess, { command: "list" }>["records"],
   fullTime: boolean
 ): void {
-  printDomainDefinitions(domains);
   console.log("Decisions:");
   if (records.length === 0) {
     console.log("- none");
@@ -150,42 +121,26 @@ function printList(
   for (const record of records) {
     const timestamp = record.createdAt ?? "unknown";
     console.log(
-      "- "
-        + record.status
-        + " "
-        + (record.alignment ?? "null")
-        + " "
-        + (fullTime ? timestamp : timestamp.slice(0, 10))
-        + " "
-        + record.relativePath
+      "- " + record.status + " " + (record.alignment ?? "null") + " "
+        + (fullTime ? timestamp : timestamp.slice(0, 10)) + " "
+        + record.decisionId
     );
+    console.log("  sourcePath: " + record.sourcePath);
+    console.log("  tags: " + record.tags.join(", "));
     console.log("  title: " + record.projection.title);
     console.log("  purpose: " + record.projection.purpose);
   }
 }
 
 function printShow(
-  result: Extract<DecisionQuerySuccess, { command: "show" }>
+  result: Extract<DecisionQuerySuccess, { command: "show" | "show-candidate" }>
 ): void {
-  console.log("path: " + result.record.relativePath);
-  console.log("domain: " + result.domain.id);
-  console.log("domainDescription: " + result.domain.description);
+  console.log("id: " + result.record.decisionId);
+  console.log("sourcePath: " + result.record.sourcePath);
+  console.log("tags: " + result.record.tags.join(", "));
   console.log("status: " + result.record.status);
   console.log("alignment: " + result.record.alignment);
   console.log("createdAt: " + result.record.createdAt);
-  console.log("");
-  console.log(result.body.trimEnd());
-}
-
-function printShowCandidate(
-  result: Extract<DecisionQuerySuccess, { command: "show-candidate" }>
-): void {
-  console.log("path: " + result.record.relativePath);
-  console.log("domain: " + result.domain.id);
-  console.log("domainDescription: " + result.domain.description);
-  console.log("status: candidate");
-  console.log("alignment: null");
-  console.log("createdAt: null");
   console.log("");
   console.log(result.body.trimEnd());
 }
@@ -195,45 +150,27 @@ function printSyncIndex(
 ): void {
   console.log(
     result.state === "written"
-      ? "Rebuilt "
-        + result.indexRelativePath
-        + " from decision Markdown files ("
-        + result.domainCount
-        + " domains)."
-      : "Decision index is up to date ("
-        + result.domainCount
-        + " domains)."
+      ? "Rebuilt " + result.indexRelativePath + " from decision Markdown files."
+      : "Decision index is up to date."
   );
   printCandidateWarnings(result.unactivatedPaths);
 }
 
 function printTrace(
-  domains: readonly DecisionDomainDefinition[],
-  records: Extract<
-    DecisionQuerySuccess,
-    { command: "trace" }
-  >["records"],
-  edges: Extract<
-    DecisionQuerySuccess,
-    { command: "trace" }
-  >["edges"]
+  records: Extract<DecisionQuerySuccess, { command: "trace" }>["records"],
+  edges: Extract<DecisionQuerySuccess, { command: "trace" }>["edges"]
 ): void {
-  printDomainDefinitions(domains);
   console.log("Decisions:");
   if (records.length === 0) {
     console.log("- none");
   } else {
     for (const record of records) {
       console.log(
-        "- "
-          + record.status
-          + " "
-          + (record.alignment ?? "null")
-          + " "
-          + record.relativePath
-          + " - "
+        "- " + record.status + " " + (record.alignment ?? "null") + " "
+          + record.decisionId + " [" + record.sourcePath + "] - "
           + record.projection.title
       );
+      console.log("  tags: " + record.tags.join(", "));
     }
   }
   console.log("Relations:");
@@ -241,22 +178,18 @@ function printTrace(
     console.log("- none");
   } else {
     for (const edge of edges) {
-      console.log(
-        "- " + edge.source + " --" + edge.type + "--> " + edge.target
-      );
+      console.log("- " + edge.source + " --" + edge.type + "--> " + edge.target);
     }
   }
 }
 
-function printDomainDefinitions(
-  domains: readonly DecisionDomainDefinition[]
+function printRecordHeader(
+  status: string,
+  decisionId: string,
+  sourcePath: string,
+  tags: readonly string[]
 ): void {
-  console.log("Domains:");
-  if (domains.length === 0) {
-    console.log("- none");
-    return;
-  }
-  for (const domain of domains) {
-    console.log("- " + domain.id + ": " + domain.description);
-  }
+  console.log("- " + status + " " + decisionId);
+  console.log("  sourcePath: " + sourcePath);
+  console.log("  tags: " + tags.join(", "));
 }

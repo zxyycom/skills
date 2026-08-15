@@ -50,4 +50,4 @@
 - `tools/task-graph/src/types.ts`、`schema.ts`、`engine.ts`、`service.ts`、`cli.ts` 与 `staging.ts`：公开类型、运行时校验、分配事务、命令和 Git staging 实现。
 - `skills/task-graph/references/task-graph-index.schema.json`、`skills/task-graph/scripts/task-graph.mjs`、source map 与 `task-graph-sdk/`：从源码机械生成的分发契约。
 - `tools/task-graph/tests/` 与 `docs/test-evidence/task-graph/`：原生测试入口及其权威测试证据；派生测试证据索引由统一同步命令维护。
-- `docs/decisions/task-graph/` 与决策索引：以新的完整决策收窄既有“任务 ID 不复用”规则，保留权威 JSON 索引和受控删除方向，同时区分自动 ID 不复用与显式 ID 当前索引唯一；不直接改写既有已建立决策正文。
+- `docs/decisions/` 与决策索引：以新的完整决策收窄既有“任务 ID 不复用”规则，保留权威 JSON 索引和受控删除方向，同时区分自动 ID 不复用与显式 ID 当前索引唯一；不直接改写既有已建立决策正文。

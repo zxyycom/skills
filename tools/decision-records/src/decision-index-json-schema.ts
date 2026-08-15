@@ -1,6 +1,7 @@
 import {
+  decisionIdPatternSource,
   decisionKebabCaseIdPatternSource,
-  decisionRelativePathPatternSource
+  decisionSourcePathPatternSource
 } from "./decision-path.ts";
 import {
   decisionIndexDefinitionVersion,
@@ -24,45 +25,33 @@ const projectionText = {
   pattern: "^[^\\r\\n]+$",
   type: "string"
 } as const;
-const decisionPath = {
-  pattern: decisionRelativePathPatternSource,
+const decisionId = {
+  pattern: decisionIdPatternSource,
   type: "string"
 } as const;
-const decisionDomainId = {
+const decisionSourcePath = {
+  pattern: decisionSourcePathPatternSource,
+  type: "string"
+} as const;
+const tag = {
   pattern: decisionKebabCaseIdPatternSource,
   type: "string"
 } as const;
 
 export const decisionIndexJsonSchema = {
-  $comment: "entry 对象键、state.path、派生 keys、sourceRevision 与 Markdown 投影的一致性由 CLI check 检查。",
+  $comment: "entry Decision ID、state.sourcePath、派生 keys、sourceRevision 与 Markdown 投影的一致性由 CLI check 检查。",
   $defs: {
-    decisionPath,
+    decisionId,
+    decisionSourcePath,
     fingerprint: {
       pattern: decisionSourceFingerprintPatternSource,
       type: "string"
     },
-    domainDefinition: {
-      additionalProperties: false,
-      properties: {
-        id: decisionDomainId,
-        description: {
-          maxLength: 200,
-          minLength: 4,
-          pattern: "^[^\\r\\n]+$",
-          type: "string"
-        }
-      },
-      required: ["id", "description"],
-      type: "object"
-    },
     keyValues: {
       additionalProperties: false,
       properties: {
-        domain: {
-          items: {
-            ...decisionDomainId
-          },
-          maxItems: 1,
+        tag: {
+          items: tag,
           minItems: 1,
           type: "array",
           uniqueItems: true
@@ -82,14 +71,14 @@ export const decisionIndexJsonSchema = {
           uniqueItems: true
         }
       },
-      required: ["domain", "status"],
+      required: ["tag", "status"],
       type: "object"
     },
     relation: {
       additionalProperties: false,
       properties: {
         type: { enum: decisionRelationTypes, type: "string" },
-        target: { $ref: "#/$defs/decisionPath" }
+        target: { $ref: "#/$defs/decisionId" }
       },
       required: ["type", "target"],
       type: "object"
@@ -108,7 +97,7 @@ export const decisionIndexJsonSchema = {
         }
       ],
       properties: {
-        path: { $ref: "#/$defs/decisionPath" },
+        sourcePath: { $ref: "#/$defs/decisionSourcePath" },
         title: projectionText,
         status: { enum: establishedDecisionStatuses, type: "string" },
         alignment: {
@@ -122,6 +111,12 @@ export const decisionIndexJsonSchema = {
         purpose: projectionText,
         background: projectionText,
         decision: projectionText,
+        tags: {
+          items: tag,
+          minItems: 1,
+          type: "array",
+          uniqueItems: true
+        },
         relations: {
           items: { $ref: "#/$defs/relation" },
           type: "array",
@@ -129,7 +124,7 @@ export const decisionIndexJsonSchema = {
         }
       },
       required: [
-        "path",
+        "sourcePath",
         "title",
         "status",
         "alignment",
@@ -137,6 +132,7 @@ export const decisionIndexJsonSchema = {
         "purpose",
         "background",
         "decision",
+        "tags",
         "relations"
       ],
       type: "object"
@@ -151,15 +147,7 @@ export const decisionIndexJsonSchema = {
     definitionVersion: { const: decisionIndexDefinitionVersion },
     metadata: {
       additionalProperties: false,
-      properties: {
-        domains: {
-          items: { $ref: "#/$defs/domainDefinition" },
-          minItems: 1,
-          type: "array",
-          uniqueItems: true
-        }
-      },
-      required: ["domains"],
+      properties: {},
       type: "object"
     },
     sourceRevision: {
@@ -168,7 +156,7 @@ export const decisionIndexJsonSchema = {
         metadata: { $ref: "#/$defs/fingerprint" },
         entries: {
           additionalProperties: { $ref: "#/$defs/fingerprint" },
-          propertyNames: { $ref: "#/$defs/decisionPath" },
+          propertyNames: { $ref: "#/$defs/decisionId" },
           type: "object"
         }
       },
@@ -177,7 +165,7 @@ export const decisionIndexJsonSchema = {
     },
     keyDefinitions: {
       const: [
-        { name: "domain", mode: "exact" },
+        { name: "tag", mode: "exact" },
         { name: "status", mode: "exact" },
         { name: "alignment", mode: "exact" }
       ]
@@ -192,7 +180,7 @@ export const decisionIndexJsonSchema = {
         required: ["keys", "state"],
         type: "object"
       },
-      propertyNames: { $ref: "#/$defs/decisionPath" },
+      propertyNames: { $ref: "#/$defs/decisionId" },
       type: "object"
     }
   },

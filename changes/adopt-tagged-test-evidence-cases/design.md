@@ -4,8 +4,8 @@
 
 ## Context
 
-- [`fix-test-evidence-workspace-contract`](../../docs/decisions/test-evidence-review/fix-test-evidence-workspace-contract.md) 当前固定了测试证据根目录、受控 topic catalog、topic 目录和统一派生索引；本 Change 必须通过后继决策演进该契约。
-- [`stage-selected-test-evidence-index-entries`](../../docs/decisions/test-evidence-review/stage-selected-test-evidence-index-entries.md) 已经让选择性暂存按 Case ID 选择条目。Case ID 因而应继续作为测试证据的语义身份，而不是被文件路径或 tag 替代。
+- [`fix-test-evidence-workspace-contract`](../../docs/decisions/fix-test-evidence-workspace-contract.md) 当前固定了测试证据根目录、受控 topic catalog、topic 目录和统一派生索引；本 Change 必须通过后继决策演进该契约。
+- [`stage-selected-test-evidence-index-entries`](../../docs/decisions/stage-selected-test-evidence-index-entries.md) 已经让选择性暂存按 Case ID 选择条目。Case ID 因而应继续作为测试证据的语义身份，而不是被文件路径或 tag 替代。
 - 本 Change 与 [`adopt-tagged-decision-records`](../adopt-tagged-decision-records/design.md)、[`adopt-tagged-investigation-topics`](../adopt-tagged-investigation-topics/design.md) 组成同一组 draft，并暂用同一工作定义：目标资源文件是 274 条 Decision Records、12 个 Investigation Report topic（不含 `_resources/`）和 493 个 Test Evidence case，共 779 个权威 Markdown；“全局文件名唯一”指这些文件的 basename（含 `.md`）在合并集合中不重复，不包含派生索引、说明文件和调查附件。大小写与 Unicode 规范化规则仍待确定，这一定义也不是长期 owner。
 - 当前 493 个 case 中存在合并集合内唯一一组同名文件：`docs/test-evidence/test-evidence/stage-index-applies-selected-additions-deletions-and-explicit-renames.md` 与 `docs/test-evidence/investigation-report/stage-index-applies-selected-additions-deletions-and-explicit-renames.md`。两者都是 Test Evidence case，只是位于不同 topic；平铺和全局门禁启用前必须重命名其中一个文件，但 Case ID 保持不变。
 - 当前 topic catalog 提供分类元数据，topic 目录提供物理分组；topic catalog 的集合级变化会妨碍只按 Case ID 选择单个 index entry 的纯局部暂存。

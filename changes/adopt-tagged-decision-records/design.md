@@ -5,14 +5,14 @@
 ## Context
 
 - [`docs/repository-model.md`](../../docs/repository-model.md) 要求单个 skill 的行为、产物与验收由对应 skill owner 承接。本 Change 只改造 Decision Records，不建立跨资源公共模型。
-- 当前 Decision Records 以 `docs/decisions/<domain-id>/<semantic-slug>.md` 组织。`decision-domains.json` 定义 20 个领域；路径第一段同时参与记录身份、关系目标、查询投影和选择性暂存。
-- 当前严格检查通过，共有 274 条已建立记录，其中 113 条 active、161 条 archived，当前没有 candidate。274 条记录的 basename 都符合小写 ASCII kebab-case，并在 Decision Records 集合内唯一，因此能够在不改 basename 的前提下映射为目标 Decision ID；逐项输入和漂移指纹由 [`readiness-audit.md`](readiness-audit.md) 与 [`readiness-inventory.json`](readiness-inventory.json) 承接。
-- [`classify-decisions-by-controlled-domain-path`](../../docs/decisions/decision-records/classify-decisions-by-controlled-domain-path.md)、[`project-domains-into-decision-queries`](../../docs/decisions/decision-records/project-domains-into-decision-queries.md)、[`use-persisted-index-for-routine-queries`](../../docs/decisions/decision-records/use-persisted-index-for-routine-queries.md) 与 [`query-candidates-directly-from-source`](../../docs/decisions/decision-records/query-candidates-directly-from-source.md) 是会被目标身份、分类、索引或集合边界实质改变的现行已对齐基线。标签化不能原地改写这些记录，必须通过最小自包含后继集合和合法关系事务演进。
-- [`upgrade-decision-domains-after-real-pressure`](../../docs/decisions/decision-records/upgrade-decision-domains-after-real-pressure.md) 是 active + unaligned 的领域演进方向；[`use-physical-archive-boundary-for-decision-search`](../../docs/decisions/decision-records/use-physical-archive-boundary-for-decision-search.md) 是 active + unaligned 的物理归档方向。本 Change 需要明确前者的后继或退出关系，并完整落实后者的身份、定位、事务与搜索边界。
-- 当前工具把 `<domain-id>/<semantic-slug>.md` 写入 `relations[].target`、索引 entry ID 与 state path、CLI 参数、查询结果、stage 选择和来源 revision。路径语法影响 parser、扫描、索引、查询、生命周期、关系事务、stage、Schema、生成产物与测试，不能只移动 Markdown 而不迁移行为契约。
-- 当前索引使用通用 `schemaVersion: 3` 和 Decision Records `definitionVersion: 5`，以相对路径作为 entry/source-revision ID，以 `metadata.domains` 保存领域表，并提供 `domain`、`status`、`alignment` keys。目标仍复用通用索引外壳，但必须提升领域 definition version 并替换这些 Decision Records 专属字段。
+- Plan 基线中的 Decision Records 以 `docs/decisions/<domain-id>/<semantic-slug>.md` 组织。`decision-domains.json` 定义 20 个领域；路径第一段同时参与记录身份、关系目标、查询投影和选择性暂存。
+- Plan 基线严格检查通过，共有 274 条已建立记录，其中 113 条 active、161 条 archived，当前没有 candidate。274 条记录的 basename 都符合小写 ASCII kebab-case，并在 Decision Records 集合内唯一，因此能够在不改 basename 的前提下映射为目标 Decision ID；逐项输入和漂移指纹由 [`readiness-audit.md`](readiness-audit.md) 与 [`readiness-inventory.json`](readiness-inventory.json) 承接。
+- [`classify-decisions-by-controlled-domain-path`](../../docs/decisions/archive/classify-decisions-by-controlled-domain-path.md)、[`project-domains-into-decision-queries`](../../docs/decisions/archive/project-domains-into-decision-queries.md)、[`use-persisted-index-for-routine-queries`](../../docs/decisions/archive/use-persisted-index-for-routine-queries.md) 与 [`query-candidates-directly-from-source`](../../docs/decisions/archive/query-candidates-directly-from-source.md) 是会被目标身份、分类、索引或集合边界实质改变的现行已对齐基线。标签化不能原地改写这些记录，必须通过最小自包含后继集合和合法关系事务演进。
+- [`upgrade-decision-domains-after-real-pressure`](../../docs/decisions/archive/upgrade-decision-domains-after-real-pressure.md) 是 active + unaligned 的领域演进方向；[`use-physical-archive-boundary-for-decision-search`](../../docs/decisions/use-physical-archive-boundary-for-decision-search.md) 是 active + unaligned 的物理归档方向。本 Change 需要明确前者的后继或退出关系，并完整落实后者的身份、定位、事务与搜索边界。
+- Plan 基线工具把 `<domain-id>/<semantic-slug>.md` 写入 `relations[].target`、索引 entry ID 与 state path、CLI 参数、查询结果、stage 选择和来源 revision。路径语法影响 parser、扫描、索引、查询、生命周期、关系事务、stage、Schema、生成产物与测试，不能只移动 Markdown 而不迁移行为契约。
+- Plan 基线索引使用通用 `schemaVersion: 3` 和 Decision Records `definitionVersion: 5`，以相对路径作为 entry/source-revision ID，以 `metadata.domains` 保存领域表，并提供 `domain`、`status`、`alignment` keys。目标仍复用通用索引外壳，但必须提升领域 definition version 并替换这些 Decision Records 专属字段。
 - 当前 `list` 默认筛选 active，只有显式 `--status archived|all` 才返回历史；candidate 由独立源码查询发现。目标模型保留这条消费行为。
-- [`stage-selected-decisions`](../../docs/decisions/decision-records/stage-selected-decisions.md) 继续拥有完整索引、显式选择和单次替换 pending 决策范围的不变量。标签化只移除其中对领域表和领域路径的依赖。
+- [`stage-selected-decisions`](../../docs/decisions/archive/stage-selected-decisions.md) 继续拥有完整索引、显式选择和单次替换 pending 决策范围的不变量。标签化只移除其中对领域表和领域路径的依赖。
 
 ## Goals / Non-Goals
 
@@ -82,9 +82,9 @@ docs/decisions/
 ### 选择性暂存与身份变化
 
 1. `stage <decision-id...>` 按 Decision ID 选择目标；普通目录移动不要求调用方同时提供旧、新路径。同一 ID 在 `revision` 与 `filesystem` 中具有不同 `sourcePath` 时，目标 pending 把旧位置删除和新位置增加作为一次移动。
-2. basename 改名会产生旧、新两个 Decision ID，调用方必须同时显式选择两个 ID；旧 ID 只存在于 `revision` 表示删除，新 ID 只存在于 `filesystem` 表示新增。
-3. 已有新模型基线时，未选择记录继续使用 `revision` 的 Markdown 与 `sourcePath`；首次建立集合时从 `filesystem` 构造完整合法新模型。stage 从目标 Markdown 重建统一索引，不读取 filesystem 或 pending 索引作为权威输入。
-4. 最后一次成功 stage 仍完整替换 pending 中的 Decision Records 范围并保留范围外 pending 内容。无效 ID、选择不闭合、目标新模型不合法、revision 漂移或 pending 冲突都在写入前失败；不提供旧 domain revision 的读取或转换分支。
+2. stage 不从差异推断 basename 改名意图。只选择新 ID 是新增，只选择旧 ID 是删除；调用方同时显式选择旧、新 ID 时，目标快照才表达改名。
+3. 已有新模型基线时，未选择记录继续使用 `revision` 的 Markdown 与 `sourcePath`；stage 只读取所选 ID 的 filesystem 来源，首次建立集合时才从完整 `filesystem` 构造合法新模型。目标 Markdown 重建统一索引；写入前复核所选来源的存在性、位置和字节未漂移。
+4. 最后一次成功 stage 仍完整替换 pending 中的 Decision Records 范围并保留范围外 pending 内容。无效 ID、目标新模型不合法、所选来源、revision 或 pending 漂移都在写入前失败；不提供旧 domain revision 的读取或转换分支。
 5. 本仓库的一次性权威切换以旧 domain revision 为基线，因而不能使用只接受新模型的目标 stage。该批变更通过普通版本控制文件选择整体进入 pending，并在提交前核对完整 Decision Records 范围；新模型进入 revision 后，后续选择性暂存才使用目标 stage。
 
 ### 稳定引用与普通链接

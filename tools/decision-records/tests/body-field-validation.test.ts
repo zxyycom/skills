@@ -1,13 +1,11 @@
 import assert from "node:assert/strict";
-import path from "node:path";
 import test from "node:test";
 import { validateDecisionBody } from "../src/record.ts";
 
-const relativePath = "decision-records/accept-equivalent-punctuation.md";
-const decisionsDirectory = path.resolve("decision-records-test-data");
+const sourcePath = "accept-equivalent-punctuation.md";
 const listMarkers = ["-", "*", "+"] as const;
 const fieldSeparators = [":", "："] as const;
-const missingFieldError = relativePath
+const missingFieldError = sourcePath
   + " must include non-empty field \"- 采用: <value>\"";
 
 function decisionBody(fieldLine: string): string {
@@ -20,6 +18,8 @@ function decisionBody(fieldLine: string): string {
     "purpose: 避免常见等价符号阻断决策正文的基础结构校验。",
     "background: 人工编写的 Markdown 可能使用不同的等价列表标记或冒号。",
     "decision: 校验接受明确列出的等价符号，同时保持字段语义严格。",
+    "tags:",
+    "  - decision-records",
     "relations: []",
     "---",
     "",
@@ -39,10 +39,10 @@ async function validateFieldLine(fieldLine: string) {
   const errors: string[] = [];
   const document = await validateDecisionBody({
     body: decisionBody(fieldLine),
-    decisionsDirectory,
+    decisionId: "accept-equivalent-punctuation.md",
     errors,
-    fileName: "accept-equivalent-punctuation.md",
-    relativePath
+    sourcePath,
+    targetExists: () => false
   });
   return { document, errors };
 }

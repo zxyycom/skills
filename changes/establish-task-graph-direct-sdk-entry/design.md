@@ -10,7 +10,7 @@
 - [`tools/task-graph/src/cli.ts`](../../tools/task-graph/src/cli.ts) 当前完成 argv 解析、runtime gate、Service dispatch、`TaskGraphError` envelope、JSON serializer 和两个专用 renderer；CLI 领域命令没有通过子进程或 JSON round trip 调用 Service。
 - [`tools/task-graph/src/index.ts`](../../tools/task-graph/src/index.ts) 当前导出 Service、领域纯操作、projection、错误、类型与 parse/serialize 能力；`cli.ts` 在文件末尾 `export * from "./index.ts"`，所以源码和生成声明仍以 CLI 入口拥有这组导出。
 - [`scripts/build/task-graph.ts`](../../scripts/build/task-graph.ts) 以 `cli.ts` 同时作为 bundle 与 TypeScript 声明根，只保留编译器发出的可达声明闭包；分发根模块运行时导出和声明已经由测试逐项核对。
-- 活动决策 [`derive-sdk-declarations-from-runtime-source`](../../docs/decisions/task-graph/derive-sdk-declarations-from-runtime-source.md) 已拒绝独立 SDK 实现和手写声明，但仍把 `cli.ts` 的公开导出称为共同接口事实源；本 Change 的单向责任会改变这项长期判断，不能直接编辑既有已建立记录。
+- 活动决策 [`derive-sdk-declarations-from-runtime-source`](../../docs/decisions/derive-sdk-declarations-from-runtime-source.md) 已拒绝独立 SDK 实现和手写声明，但仍把 `cli.ts` 的公开导出称为共同接口事实源；本 Change 的单向责任会改变这项长期判断，不能直接编辑既有已建立记录。
 - [`docs/tooling.md`](../../docs/tooling.md) 当前把生成 `.d.mts` 与“稳定程序化接口”绑定；本任务只需要可类型检查的直接调用，不由声明文件自动产生独立稳定性或版本承诺。
 
 ### 术语与责任

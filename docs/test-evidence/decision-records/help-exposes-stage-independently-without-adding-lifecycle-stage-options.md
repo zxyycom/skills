@@ -2,11 +2,10 @@
 
 Entry:
 - `tools/decision-records/tests/stage.test.ts > help exposes stage independently without adding lifecycle stage options`
-- `bun test --test-name-pattern="^help exposes stage independently without adding lifecycle stage options$" ./tools/decision-records/tests/stage.test.ts`
+- `bun test --test-name-pattern="^help exposes stage independently without adding lifecycle stage options$" ./tools/decision-records/tests/run.ts`
 
 Contract:
-- 指定决策进入 pending 使用独立 `stage <decision-path...>` 命令，生命周期命令保持 filesystem 责任且不提供 `--stage`。
+- stage 是独立命令，生命周期命令不应接受 --stage。
 
 Proves:
-- 顶层 CLI 帮助列出接受一个或多个显式路径的 `stage` 命令。
-- `activate`、`evolve`、`archive`、`mark-aligned` 和 `discard` 的帮助均不包含 `--stage`。
+- 根帮助包含 stage，生命周期子命令帮助均不含 --stage。

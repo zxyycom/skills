@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "revision": 342,
+  "revision": 345,
   "nextTaskId": 69,
   "tasks": {
     "task-000001": {
@@ -1370,7 +1370,7 @@
         ],
         "context": "这是依赖 task-000026 的独立迁移与最终激活主任务，不是机制任务的子任务。两项任务之间没有受支持的分发阶段：若最终切换前被迫打包，失败属于预期，不建立兼容层。新旧账本共用固定 docs/test-evidence 根和 test-evidence-index.json，故暂存整个旧账本是确定的迁移前置；暂存只用于遗漏对照，具体路径在执行前固定并最终彻底删除。具体问题子任务只在真实审计发现后创建。",
         "references": {
-          "decision": "docs/decisions/test-evidence-review/maintain-closed-many-to-many-test-case-relations.md",
+          "decision": "docs/decisions/maintain-closed-many-to-many-test-case-relations.md",
           "mechanism-change": "changes/archive/establish-many-to-many-test-case-relations/",
           "mechanism-task": "task-000026"
         },
@@ -1394,7 +1394,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-09T15:29:30.697Z",
-          "updatedAt": "2026-08-11T03:11:10.457Z"
+          "updatedAt": "2026-08-15T03:34:52.146Z"
         }
       }
     },
@@ -2118,7 +2118,7 @@
         ],
         "context": "这是 task-000048 的 revision 子任务，依赖 GC 门禁子任务。用户倾向独占 GC 加默认 1000 隔离窗口，认为更早 snapshot 恰好再次命中的风险可以作为短生命周期系统的工程取舍；本任务负责把该保证等级写成可验证契约。",
         "references": {
-          "current-decision": "docs/decisions/task-graph/use-authoritative-json-index-for-task-coordination.md",
+          "current-decision": "docs/decisions/archive/use-authoritative-json-index-for-task-coordination.md",
           "parent-task": "task-000048"
         },
         "result": null
@@ -2141,7 +2141,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-10T15:47:24.990Z",
-          "updatedAt": "2026-08-10T15:47:25.271Z"
+          "updatedAt": "2026-08-15T03:34:52.326Z"
         }
       }
     },
@@ -2865,9 +2865,9 @@
         ],
         "context": "用户已确认真实 Task Graph 多前序到多后继案例出现，但当前没有推进动力；因此本任务保持 candidate，不进入 queued、waiting 或 claim。当前只保存未来评估入口，不预设关系名、索引格式、CLI 或事务设计。task-000059 的 content.references 和 content.result.references 分别提供直接前序与代表性后继入口；完整集合以 Task Graph 决策目录中的实际演进关系为准。",
         "references": {
-          "case-decisions": "docs/decisions/task-graph/",
+          "case-decisions": "docs/decisions/",
           "case-task": "task-000059",
-          "decision": "docs/decisions/decision-records/evaluate-reorganization-from-task-graph-case.md"
+          "decision": "docs/decisions/evaluate-reorganization-from-task-graph-case.md"
         },
         "result": null
       },
@@ -2887,7 +2887,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-11T03:59:24.895Z",
-          "updatedAt": "2026-08-11T04:00:38.124Z"
+          "updatedAt": "2026-08-15T03:34:52.505Z"
         }
       }
     },

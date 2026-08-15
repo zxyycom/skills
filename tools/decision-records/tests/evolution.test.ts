@@ -23,7 +23,7 @@ test("activate establishes candidate source relations and archives their active 
   initializeGitRepository(workspaceRoot);
   commitWorkspace(workspaceRoot);
   const successorRelativePath =
-    "decision-records/use-candidate-source-relation.md";
+    "use-candidate-source-relation.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, successorRelativePath),
     candidateDecisionBody({
@@ -61,7 +61,7 @@ test("activate establishes candidate source relations and archives their active 
 test("activate relation replacement overrides rather than merges candidate relations", () => (
   withFixtureWorkspace("activate-relation-replace", async (workspaceRoot) => {
   const parallelRelativePath =
-    "decision-records/use-replacement-predecessor.md";
+    "use-replacement-predecessor.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, parallelRelativePath),
     candidateDecisionBody(),
@@ -76,7 +76,7 @@ test("activate relation replacement overrides rather than merges candidate relat
     workspaceRoot
   ]);
   const successorRelativePath =
-    "decision-records/use-replaced-candidate-relations.md";
+    "use-replaced-candidate-relations.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, successorRelativePath),
     candidateDecisionBody({
@@ -113,7 +113,7 @@ test("activate relation replacement overrides rather than merges candidate relat
 test("activate clear-relations explicitly replaces candidate relations with an empty set", () => (
   withFixtureWorkspace("activate-relation-clear", async (workspaceRoot) => {
   const successorRelativePath =
-    "decision-records/use-cleared-candidate-relations.md";
+    "use-cleared-candidate-relations.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, successorRelativePath),
     candidateDecisionBody({
@@ -145,7 +145,7 @@ test("activate clear-relations explicitly replaces candidate relations with an e
 test("evolve establishes one successor while preserving archived predecessors", () => (
   withFixtureWorkspace("evolve-archived-predecessor", async (workspaceRoot) => {
   const successorRelativePath =
-    "decision-records/use-active-and-archived-predecessors.md";
+    "use-active-and-archived-predecessors.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, successorRelativePath),
     candidateDecisionBody(),
@@ -181,7 +181,7 @@ test("evolve establishes one successor while preserving archived predecessors", 
 test("evolve replaces established relations while preserving body and lifecycle fields", () => (
   withFixtureWorkspace("evolve-established-replace", async (workspaceRoot) => {
   const successorRelativePath =
-    "decision-records/replace-established-relations.md";
+    "replace-established-relations.md";
   const successorPath = decisionFilePath(workspaceRoot, successorRelativePath);
   await fs.writeFile(
     successorPath,
@@ -199,7 +199,7 @@ test("evolve replaces established relations while preserving body and lifecycle 
     workspaceRoot
   ]);
   const activeTargetRelativePath =
-    "decision-records/use-active-replacement-target.md";
+    "use-active-replacement-target.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, activeTargetRelativePath),
     candidateDecisionBody(),
@@ -267,7 +267,7 @@ test("evolve replaces established relations while preserving body and lifecycle 
 test("evolve keeps an archived established successor archived during relation replacement", () => (
   withFixtureWorkspace("evolve-archived-successor", async (workspaceRoot) => {
   const successorRelativePath =
-    "decision-records/keep-archived-successor-state.md";
+    "keep-archived-successor-state.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, successorRelativePath),
     candidateDecisionBody(),
@@ -422,7 +422,7 @@ test("evolve performs a closed split with independently aligned successors", () 
 test("evolve adds a split successor only when every existing successor is selected", () => (
   withFixtureWorkspace("evolve-extend-split", async (workspaceRoot) => {
   const established = await establishClosedSplit(workspaceRoot);
-  const thirdRelativePath = "decision-records/add-third-split-slice.md";
+  const thirdRelativePath = "add-third-split-slice.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, thirdRelativePath),
     candidateDecisionBody(),
@@ -453,7 +453,7 @@ test("evolve adds a split successor only when every existing successor is select
 test("evolve rejects a split extension that omits an existing successor before writing", () => (
   withFixtureWorkspace("evolve-omit-split", async (workspaceRoot) => {
   const established = await establishClosedSplit(workspaceRoot);
-  const thirdRelativePath = "decision-records/omit-existing-split-slice.md";
+  const thirdRelativePath = "omit-existing-split-slice.md";
   const thirdPath = decisionFilePath(workspaceRoot, thirdRelativePath);
   const thirdCandidate = candidateDecisionBody();
   await fs.writeFile(thirdPath, thirdCandidate, "utf8");
@@ -479,7 +479,7 @@ test("evolve rejects a split extension that omits an existing successor before w
 
 test("evolve rejects one selected split successor", () => (
   withFixtureWorkspace("evolve-single-split", async (workspaceRoot) => {
-  const successorRelativePath = "decision-records/use-single-split.md";
+  const successorRelativePath = "use-single-split.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, successorRelativePath),
     candidateDecisionBody({
@@ -501,8 +501,8 @@ test("evolve rejects one selected split successor", () => (
 
 test("evolve rejects mixed split and non-split successor relations", () => (
   withFixtureWorkspace("evolve-mixed-split", async (workspaceRoot) => {
-  const splitRelativePath = "decision-records/use-mixed-split.md";
-  const revisionRelativePath = "decision-records/use-mixed-revision.md";
+  const splitRelativePath = "use-mixed-split.md";
+  const revisionRelativePath = "use-mixed-revision.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, splitRelativePath),
     candidateDecisionBody({
@@ -533,8 +533,8 @@ test("evolve rejects mixed split and non-split successor relations", () => (
 
 test("evolve rejects unsupported multi-successor shapes without split relations", () => (
   withFixtureWorkspace("evolve-unsupported-multiple", async (workspaceRoot) => {
-  const firstRelativePath = "decision-records/use-first-multiple.md";
-  const secondRelativePath = "decision-records/use-second-multiple.md";
+  const firstRelativePath = "use-first-multiple.md";
+  const secondRelativePath = "use-second-multiple.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, firstRelativePath),
     candidateDecisionBody(),
@@ -561,7 +561,7 @@ test("evolve rejects unsupported multi-successor shapes without split relations"
 
 test("evolve rejects a pure merge with fewer than two predecessors", () => (
   withFixtureWorkspace("evolve-undersized-merge", async (workspaceRoot) => {
-  const successorRelativePath = "decision-records/use-undersized-merge.md";
+  const successorRelativePath = "use-undersized-merge.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, successorRelativePath),
     candidateDecisionBody(),
@@ -592,7 +592,7 @@ async function establishClosedSplit(workspaceRoot: string): Promise<ClosedSplit>
   initializeGitRepository(workspaceRoot);
   commitWorkspace(workspaceRoot);
   const coarseRelativePath =
-    "decision-records/use-coarse-future-direction.md";
+    "use-coarse-future-direction.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, coarseRelativePath),
     candidateDecisionBody(),
@@ -609,9 +609,9 @@ async function establishClosedSplit(workspaceRoot: string): Promise<ClosedSplit>
   commitWorkspace(workspaceRoot, "record coarse future direction");
 
   const alignedRelativePath =
-    "decision-records/keep-current-split-slice.md";
+    "keep-current-split-slice.md";
   const unalignedRelativePath =
-    "decision-records/keep-future-split-slice.md";
+    "keep-future-split-slice.md";
   await fs.writeFile(
     decisionFilePath(workspaceRoot, alignedRelativePath),
     candidateDecisionBody({

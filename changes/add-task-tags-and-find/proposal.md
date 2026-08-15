@@ -61,6 +61,6 @@ Tags 只解决人工分类和任务发现。它们必须在 task entry 被移除
 | [`tools/task-graph/tests/`](../../tools/task-graph/tests/) | 源码、CLI、SDK、分发模块和兼容行为证据 |
 | [`scripts/build/task-graph.ts`](../../scripts/build/task-graph.ts) | 从运行时源码机械生成 bundle、source map、SDK 声明和 index JSON Schema；只有生成边界确需变化时修改源码 |
 | [`skills/task-graph/SKILL.md`](../../skills/task-graph/SKILL.md) 与 [`docs/skills/task-graph.md`](../../docs/skills/task-graph.md) | AI 行为入口与人类说明中的当前 tags/find 契约、CLI/SDK 边界和版本 |
-| [`docs/decisions/task-graph/`](../../docs/decisions/task-graph/) 与 [`docs/decisions/decision-index.json`](../../docs/decisions/decision-index.json) | 保存“tags 只用于发现、find 直接扫描权威索引”的长期架构理由及索引状态 |
+| [`docs/decisions/`](../../docs/decisions/) 与 [`docs/decisions/decision-index.json`](../../docs/decisions/decision-index.json) | 保存“tags 只用于发现、find 直接扫描权威索引”的长期架构理由及索引状态 |
 | [`docs/test-evidence/`](../../docs/test-evidence/) | 为本 change 新增或修改的每个最小原生测试入口维护一个可检索 case，并同步派生索引 |
 | `task-000008` | 中央 task graph 中的执行状态、依赖、排斥和结果；本 change 不 claim 或改写该任务 |

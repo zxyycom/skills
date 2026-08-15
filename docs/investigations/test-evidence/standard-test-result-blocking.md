@@ -16,7 +16,7 @@
 
 #### 形成时背景
 
-仓库曾以 active draft Change 探索统一测试结果 JSON、Test ID、runner producer、test-evidence consumer、阻断资格和 Test → Case 派生。该 Change 后来明确标注为长期延期且不授权实施；长期方向已经由 `docs/decisions/test-evidence-review/defer-standard-test-result-blocking.md` 承接。当前 Task Graph 另由 `task-000035` 负责真实多对多账本迁移，尚未选择测试结果协议或阻断资格实施。
+仓库曾以 active draft Change 探索统一测试结果 JSON、Test ID、runner producer、test-evidence consumer、阻断资格和 Test → Case 派生。该 Change 后来明确标注为长期延期且不授权实施；长期方向已经由 `docs/decisions/archive/defer-standard-test-result-blocking.md` 承接。当前 Task Graph 另由 `task-000035` 负责真实多对多账本迁移，尚未选择测试结果协议或阻断资格实施。
 
 本轮全仓决策与载体审计发现，继续把探索材料保存在 active Change 会同时复制长期决策、维持虚假的当前实施入口，并让维护者误以为历史 Schema 和任务清单仍可直接执行。原始材料包含真实的候选比较和重启依据，仍具有独立复核价值，因此不能只删除。
 

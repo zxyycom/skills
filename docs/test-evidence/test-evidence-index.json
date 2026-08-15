@@ -1703,6 +1703,29 @@
         "title": "源码查询发现候选且激活只索引审核目标"
       }
     },
+    "DECISION-CANDIDATE-DATE-IDENTITY-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-DATE-IDENTITY-001 日期样式 ID 与标题可建立 仅满足当前 ID token 语法的年份/日期样式 basename 与标题不受旧身份禁令影响，可发现并激活为 candidate。 `2026-choice.md` 和日期样式标题出现在 candidates 查询中，并可激活写入索引。 tools/decision-records/tests/first-establishment.test.ts > date-shaped IDs and titles remain valid candidates and can be activated bun test --test-name-pattern=\"^date-shaped IDs and titles remain valid candidates and can be activated$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/first-establishment.test.ts > date-shaped IDs and titles remain valid candidates and can be activated",
+          "bun test --test-name-pattern=\"^date-shaped IDs and titles remain valid candidates and can be activated$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-DATE-IDENTITY-001",
+        "line": 1,
+        "searchText": "日期样式 ID 与标题可建立 仅满足当前 ID token 语法的年份/日期样式 basename 与标题不受旧身份禁令影响，可发现并激活为 candidate。 `2026-choice.md` 和日期样式标题出现在 candidates 查询中，并可激活写入索引。 tools/decision-records/tests/first-establishment.test.ts > date-shaped IDs and titles remain valid candidates and can be activated bun test --test-name-pattern=\"^date-shaped IDs and titles remain valid candidates and can be activated$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/date-shaped-candidate-identity.md",
+        "summary": "仅满足当前 ID token 语法的年份/日期样式 basename 与标题不受旧身份禁令影响，可发现并激活为 candidate。",
+        "title": "日期样式 ID 与标题可建立"
+      }
+    },
     "DECISION-CANDIDATE-DISCARD-ACTIVE-TARGET-001": {
       "keys": {
         "search": [
@@ -1841,27 +1864,96 @@
         "title": "丢弃只删除选定候选并保留同级候选"
       }
     },
-    "DECISION-CANDIDATE-ONLY-001": {
+    "DECISION-CANDIDATE-EMPTY-INDEX-001": {
       "keys": {
         "search": [
-          "DECISION-CANDIDATE-ONLY-001 丢弃唯一候选仍保留域目录 决策域不应因最后一个结构完整的显式候选被丢弃而失去目录定义。 候选删除后 domain catalog 仍存在且有效。 tools/decision-records/tests/candidate-lifecycle.test.ts > discarding the only candidate preserves the domain catalog bun test --test-name-pattern=\"^discarding the only candidate preserves the domain catalog$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CANDIDATE-EMPTY-INDEX-001 空索引阻断唯一候选的查询 仅 candidate 但存在结构有效的空 decision-index 时，collection 不是首次发现；`candidates` 和 `show-candidate` 都必须在 collection 层失败。只有 index 缺失时才允许首次候选发现。 删除全部 established 后写入空 entries/sourceRevision index，两个查询均非零、无 stdout 并报告 index 问题。 tools/decision-records/tests/candidate-lifecycle.test.ts > candidate collection rejects an empty index when only candidates remain bun test --test-name-pattern=\"^candidate collection rejects an empty index when only candidates remain$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 12,
         "entries": [
-          "tools/decision-records/tests/candidate-lifecycle.test.ts > discarding the only candidate preserves the domain catalog",
-          "bun test --test-name-pattern=\"^discarding the only candidate preserves the domain catalog$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > candidate collection rejects an empty index when only candidates remain",
+          "bun test --test-name-pattern=\"^candidate collection rejects an empty index when only candidates remain$\" ./tools/decision-records/tests/run.ts"
         ],
-        "id": "DECISION-CANDIDATE-ONLY-001",
+        "id": "DECISION-CANDIDATE-EMPTY-INDEX-001",
         "line": 1,
-        "searchText": "丢弃唯一候选仍保留域目录 决策域不应因最后一个结构完整的显式候选被丢弃而失去目录定义。 候选删除后 domain catalog 仍存在且有效。 tools/decision-records/tests/candidate-lifecycle.test.ts > discarding the only candidate preserves the domain catalog bun test --test-name-pattern=\"^discarding the only candidate preserves the domain catalog$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/discarding-the-only-candidate-preserves-the-domain-catalog.md",
-        "summary": "决策域不应因最后一个结构完整的显式候选被丢弃而失去目录定义。",
-        "title": "丢弃唯一候选仍保留域目录"
+        "searchText": "空索引阻断唯一候选的查询 仅 candidate 但存在结构有效的空 decision-index 时，collection 不是首次发现；`candidates` 和 `show-candidate` 都必须在 collection 层失败。只有 index 缺失时才允许首次候选发现。 删除全部 established 后写入空 entries/sourceRevision index，两个查询均非零、无 stdout 并报告 index 问题。 tools/decision-records/tests/candidate-lifecycle.test.ts > candidate collection rejects an empty index when only candidates remain bun test --test-name-pattern=\"^candidate collection rejects an empty index when only candidates remain$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/candidate-empty-index-blocks-discovery.md",
+        "summary": "仅 candidate 但存在结构有效的空 decision-index 时，collection 不是首次发现；`candidates` 和 `show-candidate` 都必须在 collection 层失败。只有 index 缺失时才允许首次候选发现。",
+        "title": "空索引阻断唯一候选的查询"
+      }
+    },
+    "DECISION-CANDIDATE-FIRST-DISCOVERY-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-FIRST-DISCOVERY-001 首个候选无需既有索引即可发现 真正没有 established records 且没有 index 时，首个完整 candidate 仍可从来源发现。 仅有一条 candidate 的 workspace 返回该候选。 tools/decision-records/tests/candidate-lifecycle.test.ts > first candidate discovery succeeds with no established records and no index bun test --test-name-pattern=\"^first candidate discovery succeeds with no established records and no index$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > first candidate discovery succeeds with no established records and no index",
+          "bun test --test-name-pattern=\"^first candidate discovery succeeds with no established records and no index$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-FIRST-DISCOVERY-001",
+        "line": 1,
+        "searchText": "首个候选无需既有索引即可发现 真正没有 established records 且没有 index 时，首个完整 candidate 仍可从来源发现。 仅有一条 candidate 的 workspace 返回该候选。 tools/decision-records/tests/candidate-lifecycle.test.ts > first candidate discovery succeeds with no established records and no index bun test --test-name-pattern=\"^first candidate discovery succeeds with no established records and no index$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/first-candidate-no-index.md",
+        "summary": "真正没有 established records 且没有 index 时，首个完整 candidate 仍可从来源发现。",
+        "title": "首个候选无需既有索引即可发现"
+      }
+    },
+    "DECISION-CANDIDATE-INDEX-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-INDEX-001 丢弃唯一候选不创建索引 丢弃最后一条完整候选后，不存在任何 established record 时必须移除而非保留空的 decision-index。 discard 成功后候选文件与 decision-index 均不存在。 tools/decision-records/tests/candidate-lifecycle.test.ts > discarding the only candidate leaves no established decision index bun test --test-name-pattern=\"^discarding the only candidate leaves no established decision index$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > discarding the only candidate leaves no established decision index",
+          "bun test --test-name-pattern=\"^discarding the only candidate leaves no established decision index$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-INDEX-001",
+        "line": 1,
+        "searchText": "丢弃唯一候选不创建索引 丢弃最后一条完整候选后，不存在任何 established record 时必须移除而非保留空的 decision-index。 discard 成功后候选文件与 decision-index 均不存在。 tools/decision-records/tests/candidate-lifecycle.test.ts > discarding the only candidate leaves no established decision index bun test --test-name-pattern=\"^discarding the only candidate leaves no established decision index$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/discard-only-candidate-index.md",
+        "summary": "丢弃最后一条完整候选后，不存在任何 established record 时必须移除而非保留空的 decision-index。",
+        "title": "丢弃唯一候选不创建索引"
+      }
+    },
+    "DECISION-CANDIDATE-INDEX-CONTEXT-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-INDEX-CONTEXT-001 已建立记录要求当前有效索引 已存在 established records 时，candidates collection 必须拒绝缺失、无效或来源漂移的 index。 三种 index 状态均失败且不输出候选结果。 tools/decision-records/tests/candidate-lifecycle.test.ts > candidate collection requires a current valid index when established records exist bun test --test-name-pattern=\"^candidate collection requires a current valid index when established records exist$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > candidate collection requires a current valid index when established records exist",
+          "bun test --test-name-pattern=\"^candidate collection requires a current valid index when established records exist$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-INDEX-CONTEXT-001",
+        "line": 1,
+        "searchText": "已建立记录要求当前有效索引 已存在 established records 时，candidates collection 必须拒绝缺失、无效或来源漂移的 index。 三种 index 状态均失败且不输出候选结果。 tools/decision-records/tests/candidate-lifecycle.test.ts > candidate collection requires a current valid index when established records exist bun test --test-name-pattern=\"^candidate collection requires a current valid index when established records exist$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/candidates-require-current-index.md",
+        "summary": "已存在 established records 时，candidates collection 必须拒绝缺失、无效或来源漂移的 index。",
+        "title": "已建立记录要求当前有效索引"
       }
     },
     "DECISION-CANDIDATE-RELATION-MISSING-001": {
@@ -1936,24 +2028,24 @@
     "DECISION-CHECK-PARITY-001": {
       "keys": {
         "search": [
-          "DECISION-CHECK-PARITY-001 决策检查保持源码、分发 API 与进程 CLI 一致 决策集合的严格检查必须在源码 API、分发 API、默认 CLI 与独立 Node 进程入口中返回一致成功结果。 合法 fixture 的正式决策、生命周期和候选计数一致，分发 API 和源码 API 返回相同报告。 默认命令与显式 check 命令都以成功输出完成。 tools/decision-records/tests/queries.test.ts > decision check preserves source, bundled API, and process CLI parity bun test --test-name-pattern=\"^decision check preserves source, bundled API, and process CLI parity$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CHECK-PARITY-001 Check 保持源码、bundle 与进程 CLI 一致 同一 workspace 的源码 API、分发 API 与 Node 进程 CLI 必须保持 check 结果一致。 比较两个 API 结果并运行分发 CLI。 tools/decision-records/tests/queries.test.ts > decision check preserves source, bundled API, and process CLI parity bun test --test-name-pattern=\"^decision check preserves source, bundled API, and process CLI parity$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 12,
         "entries": [
           "tools/decision-records/tests/queries.test.ts > decision check preserves source, bundled API, and process CLI parity",
           "bun test --test-name-pattern=\"^decision check preserves source, bundled API, and process CLI parity$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-CHECK-PARITY-001",
         "line": 1,
-        "searchText": "决策检查保持源码、分发 API 与进程 CLI 一致 决策集合的严格检查必须在源码 API、分发 API、默认 CLI 与独立 Node 进程入口中返回一致成功结果。 合法 fixture 的正式决策、生命周期和候选计数一致，分发 API 和源码 API 返回相同报告。 默认命令与显式 check 命令都以成功输出完成。 tools/decision-records/tests/queries.test.ts > decision check preserves source, bundled API, and process CLI parity bun test --test-name-pattern=\"^decision check preserves source, bundled API, and process CLI parity$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Check 保持源码、bundle 与进程 CLI 一致 同一 workspace 的源码 API、分发 API 与 Node 进程 CLI 必须保持 check 结果一致。 比较两个 API 结果并运行分发 CLI。 tools/decision-records/tests/queries.test.ts > decision check preserves source, bundled API, and process CLI parity bun test --test-name-pattern=\"^decision check preserves source, bundled API, and process CLI parity$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-check-preserves-source-bundled-api-and-process-cli-parity.md",
-        "summary": "决策集合的严格检查必须在源码 API、分发 API、默认 CLI 与独立 Node 进程入口中返回一致成功结果。",
-        "title": "决策检查保持源码、分发 API 与进程 CLI 一致"
+        "summary": "同一 workspace 的源码 API、分发 API 与 Node 进程 CLI 必须保持 check 结果一致。",
+        "title": "Check 保持源码、bundle 与进程 CLI 一致"
       }
     },
     "DECISION-CLI-ACTIVATE-ALIGNMENT-001": {
@@ -2023,29 +2115,6 @@
         "sourcePath": "decision-records/decision-cli-top-level-help-exposes-the-current-command-set.md",
         "summary": "顶层帮助必须准确公开默认 check、候选源码查询、正式索引语义和统一 evolve 协议，且不再公开独立 split 命令。",
         "title": "CLI 顶层帮助公开当前命令集合"
-      }
-    },
-    "DECISION-CLI-DOMAIN-ARG-001": {
-      "keys": {
-        "search": [
-          "DECISION-CLI-DOMAIN-ARG-001 List 拒绝非法领域标识 List 的 domain 过滤参数只接受 kebab-case 领域 ID。 带下划线和大写字母的领域 ID 使 list 退出 2 并报告 kebab-case 约束。 tools/decision-records/tests/cli-args.test.ts > list rejects an invalid domain identifier bun test --test-name-pattern=\"^list rejects an invalid domain identifier$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "topic": [
-          "decision-records"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/decision-records/tests/cli-args.test.ts > list rejects an invalid domain identifier",
-          "bun test --test-name-pattern=\"^list rejects an invalid domain identifier$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "id": "DECISION-CLI-DOMAIN-ARG-001",
-        "line": 1,
-        "searchText": "List 拒绝非法领域标识 List 的 domain 过滤参数只接受 kebab-case 领域 ID。 带下划线和大写字母的领域 ID 使 list 退出 2 并报告 kebab-case 约束。 tools/decision-records/tests/cli-args.test.ts > list rejects an invalid domain identifier bun test --test-name-pattern=\"^list rejects an invalid domain identifier$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/list-rejects-an-invalid-domain-identifier.md",
-        "summary": "List 的 domain 过滤参数只接受 kebab-case 领域 ID。",
-        "title": "List 拒绝非法领域标识"
       }
     },
     "DECISION-CLI-EVOLVE-HELP-001": {
@@ -2140,6 +2209,29 @@
         "title": "Relation 与 clear-relations 参数互斥"
       }
     },
+    "DECISION-CLI-REMOVED-PROTOCOL-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-REMOVED-PROTOCOL-001 CLI 拒绝移除的领域和路径查询协议 当前 CLI 不公开 `domains`、`--domain`、路径式 record ID 或 tag OR/NOT 选择器。 帮助不含领域协议，五种已移除调用均以非零退出。 tools/decision-records/tests/cli-args.test.ts > decision CLI rejects removed domain and path query protocols bun test --test-name-pattern=\"^decision CLI rejects removed domain and path query protocols$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > decision CLI rejects removed domain and path query protocols",
+          "bun test --test-name-pattern=\"^decision CLI rejects removed domain and path query protocols$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-REMOVED-PROTOCOL-001",
+        "line": 1,
+        "searchText": "CLI 拒绝移除的领域和路径查询协议 当前 CLI 不公开 `domains`、`--domain`、路径式 record ID 或 tag OR/NOT 选择器。 帮助不含领域协议，五种已移除调用均以非零退出。 tools/decision-records/tests/cli-args.test.ts > decision CLI rejects removed domain and path query protocols bun test --test-name-pattern=\"^decision CLI rejects removed domain and path query protocols$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/cli-rejects-removed-query-protocols.md",
+        "summary": "当前 CLI 不公开 `domains`、`--domain`、路径式 record ID 或 tag OR/NOT 选择器。",
+        "title": "CLI 拒绝移除的领域和路径查询协议"
+      }
+    },
     "DECISION-CLI-REMOVED-PROTOCOLS-001": {
       "keys": {
         "search": [
@@ -2161,6 +2253,28 @@
         "sourcePath": "decision-records/decision-cli-rejects-removed-split-and-positional-evolve-protocols.md",
         "summary": "关系演进只接受统一 evolve 协议；已移除的独立 split 命令与旧位置式 evolve 参数形状必须在参数边界失败。",
         "title": "CLI 拒绝已移除的拆分与位置式演进协议"
+      }
+    },
+    "DECISION-CLI-TAG-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-TAG-001 list rejects an invalid tag token `--tag` only accepts one kebab-case tag token. An invalid tag exits with the CLI parameter error. tools/decision-records/tests/cli-args.test.ts > list rejects an invalid tag token"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 11,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > list rejects an invalid tag token"
+        ],
+        "id": "DECISION-CLI-TAG-001",
+        "line": 1,
+        "searchText": "list rejects an invalid tag token `--tag` only accepts one kebab-case tag token. An invalid tag exits with the CLI parameter error. tools/decision-records/tests/cli-args.test.ts > list rejects an invalid tag token",
+        "sourcePath": "decision-records/list-rejects-an-invalid-tag-token.md",
+        "summary": "`--tag` only accepts one kebab-case tag token.",
+        "title": "list rejects an invalid tag token"
       }
     },
     "DECISION-CLI-TRACE-DEPTH-001": {
@@ -2253,98 +2367,6 @@
         "sourcePath": "decision-records/relative-decision-directories-resolve-from-the-workspace-root.md",
         "summary": "相对 decisionsDir 必须以 workspace 根为解析基准，并保持工作区相对索引路径。",
         "title": "相对决策目录从 workspace 根解析"
-      }
-    },
-    "DECISION-DOMAIN-CATALOG-001": {
-      "keys": {
-        "search": [
-          "DECISION-DOMAIN-CATALOG-001 决策域目录验证 owner 与成员关系 决策域目录必须唯一声明 owner，并只接纳属于该域的决策。 常规 list 不遍历来源并继续返回索引快照；候选源码查询遇到未知领域或空领域目录时整体失败；严格验证对缺失已使用领域、记录内冗余 domain 字段、显式候选所属未知领域和非空约束违反产生定位诊断。 tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog validates ownership and domain membership bun test --test-name-pattern=\"^decision domain catalog validates ownership and domain membership$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "topic": [
-          "decision-records"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog validates ownership and domain membership",
-          "bun test --test-name-pattern=\"^decision domain catalog validates ownership and domain membership$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "id": "DECISION-DOMAIN-CATALOG-001",
-        "line": 1,
-        "searchText": "决策域目录验证 owner 与成员关系 决策域目录必须唯一声明 owner，并只接纳属于该域的决策。 常规 list 不遍历来源并继续返回索引快照；候选源码查询遇到未知领域或空领域目录时整体失败；严格验证对缺失已使用领域、记录内冗余 domain 字段、显式候选所属未知领域和非空约束违反产生定位诊断。 tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog validates ownership and domain membership bun test --test-name-pattern=\"^decision domain catalog validates ownership and domain membership$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/decision-domain-catalog-validates-ownership-and-domain-membership.md",
-        "summary": "决策域目录必须唯一声明 owner，并只接纳属于该域的决策。",
-        "title": "决策域目录验证 owner 与成员关系"
-      }
-    },
-    "DECISION-DOMAIN-CATALOG-QUERY-001": {
-      "keys": {
-        "search": [
-          "DECISION-DOMAIN-CATALOG-QUERY-001 Domains 命令无需决策索引即可读取目录 Domains 查询直接读取权威领域目录表，不依赖派生决策索引。 删除 decision-index.json 后命令仍退出 0，并列出全部定义领域。 tools/decision-records/tests/decision-domain-catalog.test.ts > domains command reads the catalog without a decision index bun test --test-name-pattern=\"^domains command reads the catalog without a decision index$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "topic": [
-          "decision-records"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/decision-records/tests/decision-domain-catalog.test.ts > domains command reads the catalog without a decision index",
-          "bun test --test-name-pattern=\"^domains command reads the catalog without a decision index$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "id": "DECISION-DOMAIN-CATALOG-QUERY-001",
-        "line": 1,
-        "searchText": "Domains 命令无需决策索引即可读取目录 Domains 查询直接读取权威领域目录表，不依赖派生决策索引。 删除 decision-index.json 后命令仍退出 0，并列出全部定义领域。 tools/decision-records/tests/decision-domain-catalog.test.ts > domains command reads the catalog without a decision index bun test --test-name-pattern=\"^domains command reads the catalog without a decision index$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/domains-command-reads-the-catalog-without-a-decision-index.md",
-        "summary": "Domains 查询直接读取权威领域目录表，不依赖派生决策索引。",
-        "title": "Domains 命令无需决策索引即可读取目录"
-      }
-    },
-    "DECISION-DOMAIN-CATALOG-REVISION-001": {
-      "keys": {
-        "search": [
-          "DECISION-DOMAIN-CATALOG-REVISION-001 领域目录 revision 忽略格式并跟踪描述 决策索引 revision 由规范领域值决定；常规列表读取持久快照，严格检查仍必须识别领域描述漂移。 压缩 JSON 后 list 仍成功；修改描述后 domains 立即读取新目录值，list 保持旧快照，严格检查报告索引失效。 tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog revision ignores formatting but tracks descriptions bun test --test-name-pattern=\"^decision domain catalog revision ignores formatting but tracks descriptions$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "topic": [
-          "decision-records"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog revision ignores formatting but tracks descriptions",
-          "bun test --test-name-pattern=\"^decision domain catalog revision ignores formatting but tracks descriptions$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "id": "DECISION-DOMAIN-CATALOG-REVISION-001",
-        "line": 1,
-        "searchText": "领域目录 revision 忽略格式并跟踪描述 决策索引 revision 由规范领域值决定；常规列表读取持久快照，严格检查仍必须识别领域描述漂移。 压缩 JSON 后 list 仍成功；修改描述后 domains 立即读取新目录值，list 保持旧快照，严格检查报告索引失效。 tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog revision ignores formatting but tracks descriptions bun test --test-name-pattern=\"^decision domain catalog revision ignores formatting but tracks descriptions$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/decision-domain-catalog-revision-ignores-formatting-but-tracks-descriptions.md",
-        "summary": "决策索引 revision 由规范领域值决定；常规列表读取持久快照，严格检查仍必须识别领域描述漂移。",
-        "title": "领域目录 revision 忽略格式并跟踪描述"
-      }
-    },
-    "DECISION-DOMAIN-CATALOG-STRUCTURE-001": {
-      "keys": {
-        "search": [
-          "DECISION-DOMAIN-CATALOG-STRUCTURE-001 决策领域目录要求必需、有序且唯一的条目 decision-domains.json 必须存在，领域 ID 按词法排序且唯一，描述保持单行。 缺失目录表、逆序条目、重复 ID 与多行描述分别产生对应验证诊断。 tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog enforces required sorted unique entries bun test --test-name-pattern=\"^decision domain catalog enforces required sorted unique entries$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "topic": [
-          "decision-records"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog enforces required sorted unique entries",
-          "bun test --test-name-pattern=\"^decision domain catalog enforces required sorted unique entries$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "id": "DECISION-DOMAIN-CATALOG-STRUCTURE-001",
-        "line": 1,
-        "searchText": "决策领域目录要求必需、有序且唯一的条目 decision-domains.json 必须存在，领域 ID 按词法排序且唯一，描述保持单行。 缺失目录表、逆序条目、重复 ID 与多行描述分别产生对应验证诊断。 tools/decision-records/tests/decision-domain-catalog.test.ts > decision domain catalog enforces required sorted unique entries bun test --test-name-pattern=\"^decision domain catalog enforces required sorted unique entries$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/decision-domain-catalog-enforces-required-sorted-unique-entries.md",
-        "summary": "decision-domains.json 必须存在，领域 ID 按词法排序且唯一，描述保持单行。",
-        "title": "决策领域目录要求必需、有序且唯一的条目"
       }
     },
     "DECISION-EVOLUTION-RELATIONS-001": {
@@ -2557,7 +2579,7 @@
     "DECISION-FAST-REVISION-001": {
       "keys": {
         "search": [
-          "DECISION-FAST-REVISION-001 快速决策 Revision 不解析无效 Markdown 决策快速 revision 读取必须直接指纹化已发现来源，不调用决策 Markdown parser 或完整快照构建。 无效决策 Markdown 仍产生对应路径的 SHA-256 来源指纹，而完整状态快照读取拒绝该文档。 tools/decision-records/tests/state-snapshot.test.ts > fast decision revisions fingerprint invalid Markdown without parsing it bun test --test-name-pattern=\"^fast decision revisions fingerprint invalid Markdown without parsing it$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+          "DECISION-FAST-REVISION-001 快速来源 revision 跟踪无效 Markdown 与来源路径 快速 revision 可以对原始 Markdown 取指纹而不解析其合法性，并必须将 `sourcePath` 纳入身份。 相同无效正文从根目录移动到 archive 后得到不同 entry revision。 tools/decision-records/tests/state-snapshot.test.ts > source revisions fingerprint invalid Markdown and sourcePath without parsing it bun test --test-name-pattern=\"^source\\ revisions\\ fingerprint\\ invalid\\ Markdown\\ and\\ sourcePath\\ without\\ parsing\\ it$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2566,67 +2588,182 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/decision-records/tests/state-snapshot.test.ts > fast decision revisions fingerprint invalid Markdown without parsing it",
-          "bun test --test-name-pattern=\"^fast decision revisions fingerprint invalid Markdown without parsing it$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+          "tools/decision-records/tests/state-snapshot.test.ts > source revisions fingerprint invalid Markdown and sourcePath without parsing it",
+          "bun test --test-name-pattern=\"^source\\ revisions\\ fingerprint\\ invalid\\ Markdown\\ and\\ sourcePath\\ without\\ parsing\\ it$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-FAST-REVISION-001",
         "line": 1,
-        "searchText": "快速决策 Revision 不解析无效 Markdown 决策快速 revision 读取必须直接指纹化已发现来源，不调用决策 Markdown parser 或完整快照构建。 无效决策 Markdown 仍产生对应路径的 SHA-256 来源指纹，而完整状态快照读取拒绝该文档。 tools/decision-records/tests/state-snapshot.test.ts > fast decision revisions fingerprint invalid Markdown without parsing it bun test --test-name-pattern=\"^fast decision revisions fingerprint invalid Markdown without parsing it$\" ./tools/decision-records/tests/state-snapshot.test.ts",
+        "searchText": "快速来源 revision 跟踪无效 Markdown 与来源路径 快速 revision 可以对原始 Markdown 取指纹而不解析其合法性，并必须将 `sourcePath` 纳入身份。 相同无效正文从根目录移动到 archive 后得到不同 entry revision。 tools/decision-records/tests/state-snapshot.test.ts > source revisions fingerprint invalid Markdown and sourcePath without parsing it bun test --test-name-pattern=\"^source\\ revisions\\ fingerprint\\ invalid\\ Markdown\\ and\\ sourcePath\\ without\\ parsing\\ it$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/fast-decision-revisions-fingerprint-invalid-markdown-without-parsing-it.md",
-        "summary": "决策快速 revision 读取必须直接指纹化已发现来源，不调用决策 Markdown parser 或完整快照构建。",
-        "title": "快速决策 Revision 不解析无效 Markdown"
+        "summary": "快速 revision 可以对原始 Markdown 取指纹而不解析其合法性，并必须将 `sourcePath` 纳入身份。",
+        "title": "快速来源 revision 跟踪无效 Markdown 与来源路径"
       }
     },
     "DECISION-FIRST-ESTABLISHMENT-001": {
       "keys": {
         "search": [
-          "DECISION-FIRST-ESTABLISHMENT-001 首次建立创建决策域与当前索引 空 workspace 中首次审核并建立显式候选必须创建 domain 定义和当前索引，其他合法候选可以继续等待审核。 首个候选激活后产生 definitionVersion 5、schema v3 的 ID-keyed 索引；stored entry 不重复保存 ID，且 entries 与逐路径 revision 成员一致。 首个决策可立即查询，剩余候选被计数且不阻断严格检查。 第二个候选激活后两条记录都进入正式索引。 tools/decision-records/tests/first-establishment.test.ts > first establishment creates a decision domain and current index bun test --test-name-pattern=\"^first establishment creates a decision domain and current index$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-FIRST-ESTABLISHMENT-001 首次建立创建根目录 Decision ID 与定义六索引 空 workspace 首次建立候选时必须在根目录创建活动 Decision ID，并生成 definition version 6 的 ID 键索引。 首次建立后记录位于根目录，索引使用当前定义版本及稳定 ID 键。 tools/decision-records/tests/first-establishment.test.ts > first establishment creates a root Decision ID and definition-six index bun test --test-name-pattern=\"^first\\ establishment\\ creates\\ a\\ root\\ Decision\\ ID\\ and\\ definition\\-six\\ index$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 11,
+        "endLine": 12,
         "entries": [
-          "tools/decision-records/tests/first-establishment.test.ts > first establishment creates a decision domain and current index",
-          "bun test --test-name-pattern=\"^first establishment creates a decision domain and current index$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/first-establishment.test.ts > first establishment creates a root Decision ID and definition-six index",
+          "bun test --test-name-pattern=\"^first\\ establishment\\ creates\\ a\\ root\\ Decision\\ ID\\ and\\ definition\\-six\\ index$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-FIRST-ESTABLISHMENT-001",
         "line": 1,
-        "searchText": "首次建立创建决策域与当前索引 空 workspace 中首次审核并建立显式候选必须创建 domain 定义和当前索引，其他合法候选可以继续等待审核。 首个候选激活后产生 definitionVersion 5、schema v3 的 ID-keyed 索引；stored entry 不重复保存 ID，且 entries 与逐路径 revision 成员一致。 首个决策可立即查询，剩余候选被计数且不阻断严格检查。 第二个候选激活后两条记录都进入正式索引。 tools/decision-records/tests/first-establishment.test.ts > first establishment creates a decision domain and current index bun test --test-name-pattern=\"^first establishment creates a decision domain and current index$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "首次建立创建根目录 Decision ID 与定义六索引 空 workspace 首次建立候选时必须在根目录创建活动 Decision ID，并生成 definition version 6 的 ID 键索引。 首次建立后记录位于根目录，索引使用当前定义版本及稳定 ID 键。 tools/decision-records/tests/first-establishment.test.ts > first establishment creates a root Decision ID and definition-six index bun test --test-name-pattern=\"^first\\ establishment\\ creates\\ a\\ root\\ Decision\\ ID\\ and\\ definition\\-six\\ index$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/first-establishment-creates-a-decision-domain-and-current-index.md",
-        "summary": "空 workspace 中首次审核并建立显式候选必须创建 domain 定义和当前索引，其他合法候选可以继续等待审核。",
-        "title": "首次建立创建决策域与当前索引"
+        "summary": "空 workspace 首次建立候选时必须在根目录创建活动 Decision ID，并生成 definition version 6 的 ID 键索引。",
+        "title": "首次建立创建根目录 Decision ID 与定义六索引"
       }
     },
     "DECISION-GENERATED-ARTIFACTS-001": {
       "keys": {
         "search": [
-          "DECISION-GENERATED-ARTIFACTS-001 决策生成制品公开 Schema 与 API 决策分发制品必须包含约定 Schema、统一关系事务 API 和可移植来源元数据，且不继续公开 split 专属类型。 生成声明公开 `DecisionSuccessor`、`DecisionRelationOverride` 及 source/replace 判别分支，并排除 `DecisionSplitSuccessor`。 生成脚本、Schema、声明和 source map 暴露完整公共契约与可移植来源路径。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose schemas, APIs, and portable metadata bun test --test-name-pattern=\"^generated decision artifacts expose schemas, APIs, and portable metadata$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-GENERATED-ARTIFACTS-001 生成制品公开带标签的 ID 契约与可移植元数据 分发制品的 Schema、API 与可移植元数据必须公开稳定 ID、tags 和 sourcePath 契约，并排除已移除的分类字段。 生成模块与元数据均包含当前 ID/标签/路径字段并保持可导入。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose the tagged ID contract and portable metadata bun test --test-name-pattern=\"^generated\\ decision\\ artifacts\\ expose\\ the\\ tagged\\ ID\\ contract\\ and\\ portable\\ metadata$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 12,
         "entries": [
-          "tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose schemas, APIs, and portable metadata",
-          "bun test --test-name-pattern=\"^generated decision artifacts expose schemas, APIs, and portable metadata$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose the tagged ID contract and portable metadata",
+          "bun test --test-name-pattern=\"^generated\\ decision\\ artifacts\\ expose\\ the\\ tagged\\ ID\\ contract\\ and\\ portable\\ metadata$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-GENERATED-ARTIFACTS-001",
         "line": 1,
-        "searchText": "决策生成制品公开 Schema 与 API 决策分发制品必须包含约定 Schema、统一关系事务 API 和可移植来源元数据，且不继续公开 split 专属类型。 生成声明公开 `DecisionSuccessor`、`DecisionRelationOverride` 及 source/replace 判别分支，并排除 `DecisionSplitSuccessor`。 生成脚本、Schema、声明和 source map 暴露完整公共契约与可移植来源路径。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose schemas, APIs, and portable metadata bun test --test-name-pattern=\"^generated decision artifacts expose schemas, APIs, and portable metadata$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "生成制品公开带标签的 ID 契约与可移植元数据 分发制品的 Schema、API 与可移植元数据必须公开稳定 ID、tags 和 sourcePath 契约，并排除已移除的分类字段。 生成模块与元数据均包含当前 ID/标签/路径字段并保持可导入。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose the tagged ID contract and portable metadata bun test --test-name-pattern=\"^generated\\ decision\\ artifacts\\ expose\\ the\\ tagged\\ ID\\ contract\\ and\\ portable\\ metadata$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/generated-decision-artifacts-expose-schemas-apis-and-portable-metadata.md",
-        "summary": "决策分发制品必须包含约定 Schema、统一关系事务 API 和可移植来源元数据，且不继续公开 split 专属类型。",
-        "title": "决策生成制品公开 Schema 与 API"
+        "summary": "分发制品的 Schema、API 与可移植元数据必须公开稳定 ID、tags 和 sourcePath 契约，并排除已移除的分类字段。",
+        "title": "生成制品公开带标签的 ID 契约与可移植元数据"
+      }
+    },
+    "DECISION-ID-INDEX-001": {
+      "keys": {
+        "search": [
+          "DECISION-ID-INDEX-001 ID 键索引与确定标签键 索引 entries 和 sourceRevision 必须以稳定 Decision ID 为键，metadata 为空对象，并定义 tag/status/alignment 精确键。 fixture 的 definitionVersion、keyDefinitions、ID 顺序、sourcePath 与 tags 投影均精确匹配。 tools/decision-records/tests/layout-index.test.ts > decision index is ID-keyed with empty metadata and deterministic tag keys bun test --test-name-pattern=\"^decision index is ID-keyed with empty metadata and deterministic tag keys$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/layout-index.test.ts > decision index is ID-keyed with empty metadata and deterministic tag keys",
+          "bun test --test-name-pattern=\"^decision index is ID-keyed with empty metadata and deterministic tag keys$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-ID-INDEX-001",
+        "line": 1,
+        "searchText": "ID 键索引与确定标签键 索引 entries 和 sourceRevision 必须以稳定 Decision ID 为键，metadata 为空对象，并定义 tag/status/alignment 精确键。 fixture 的 definitionVersion、keyDefinitions、ID 顺序、sourcePath 与 tags 投影均精确匹配。 tools/decision-records/tests/layout-index.test.ts > decision index is ID-keyed with empty metadata and deterministic tag keys bun test --test-name-pattern=\"^decision index is ID-keyed with empty metadata and deterministic tag keys$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/id-keyed-index-projection.md",
+        "summary": "索引 entries 和 sourceRevision 必须以稳定 Decision ID 为键，metadata 为空对象，并定义 tag/status/alignment 精确键。",
+        "title": "ID 键索引与确定标签键"
+      }
+    },
+    "DECISION-ID-QUERY-001": {
+      "keys": {
+        "search": [
+          "DECISION-ID-QUERY-001 稳定 ID 的 Show show 通过稳定 ID 从持久索引定位记录，并返回其带 tags 的原始 Markdown。 show 输出包含 tags frontmatter。 tools/decision-records/tests/queries.test.ts > decision show returns tagged Markdown by stable ID bun test --test-name-pattern=\"^decision show returns tagged Markdown by stable ID$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > decision show returns tagged Markdown by stable ID",
+          "bun test --test-name-pattern=\"^decision show returns tagged Markdown by stable ID$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-ID-QUERY-001",
+        "line": 1,
+        "searchText": "稳定 ID 的 Show show 通过稳定 ID 从持久索引定位记录，并返回其带 tags 的原始 Markdown。 show 输出包含 tags frontmatter。 tools/decision-records/tests/queries.test.ts > decision show returns tagged Markdown by stable ID bun test --test-name-pattern=\"^decision show returns tagged Markdown by stable ID$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/id-show-and-trace.md",
+        "summary": "show 通过稳定 ID 从持久索引定位记录，并返回其带 tags 的原始 Markdown。",
+        "title": "稳定 ID 的 Show"
+      }
+    },
+    "DECISION-ID-RELATION-001": {
+      "keys": {
+        "search": [
+          "DECISION-ID-RELATION-001 关系跨根目录和归档解析 关系 target 使用稳定 ID，不依赖 root/archive 物理位置，并能跨两种位置解析。 激活 candidate 后原 active 归档，索引保留 candidate 到该 ID 的 relation。 tools/decision-records/tests/lifecycle-relations.test.ts > relations resolve stable IDs across active and archived locations bun test --test-name-pattern=\"^relations resolve stable IDs across active and archived locations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/lifecycle-relations.test.ts > relations resolve stable IDs across active and archived locations",
+          "bun test --test-name-pattern=\"^relations resolve stable IDs across active and archived locations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-ID-RELATION-001",
+        "line": 1,
+        "searchText": "关系跨根目录和归档解析 关系 target 使用稳定 ID，不依赖 root/archive 物理位置，并能跨两种位置解析。 激活 candidate 后原 active 归档，索引保留 candidate 到该 ID 的 relation。 tools/decision-records/tests/lifecycle-relations.test.ts > relations resolve stable IDs across active and archived locations bun test --test-name-pattern=\"^relations resolve stable IDs across active and archived locations$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/relations-across-layouts.md",
+        "summary": "关系 target 使用稳定 ID，不依赖 root/archive 物理位置，并能跨两种位置解析。",
+        "title": "关系跨根目录和归档解析"
+      }
+    },
+    "DECISION-ID-TRACE-001": {
+      "keys": {
+        "search": [
+          "DECISION-ID-TRACE-001 稳定 ID 的 Trace 关系 trace 按稳定 ID 解析活动与归档记录的关系。 活动记录的 trace 输出归档关系目标。 tools/decision-records/tests/queries.test.ts > decision trace follows stable ID relations bun test --test-name-pattern=\"^decision trace follows stable ID relations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > decision trace follows stable ID relations",
+          "bun test --test-name-pattern=\"^decision trace follows stable ID relations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-ID-TRACE-001",
+        "line": 1,
+        "searchText": "稳定 ID 的 Trace 关系 trace 按稳定 ID 解析活动与归档记录的关系。 活动记录的 trace 输出归档关系目标。 tools/decision-records/tests/queries.test.ts > decision trace follows stable ID relations bun test --test-name-pattern=\"^decision trace follows stable ID relations$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/id-trace-relations.md",
+        "summary": "trace 按稳定 ID 解析活动与归档记录的关系。",
+        "title": "稳定 ID 的 Trace 关系"
+      }
+    },
+    "DECISION-INDEX-DEFINITION-001": {
+      "keys": {
+        "search": [
+          "DECISION-INDEX-DEFINITION-001 索引拒绝旧 definitionVersion 当前 ID 键索引只接受 definitionVersion 6，不能兼容 version 5。 parser 返回 error，写入 version 5 后 strict check 非零并报告版本诊断。 tools/decision-records/tests/layout-index.test.ts > decision index parser and check reject obsolete definition version bun test --test-name-pattern=\"^decision index parser and check reject obsolete definition version$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/layout-index.test.ts > decision index parser and check reject obsolete definition version",
+          "bun test --test-name-pattern=\"^decision index parser and check reject obsolete definition version$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-INDEX-DEFINITION-001",
+        "line": 1,
+        "searchText": "索引拒绝旧 definitionVersion 当前 ID 键索引只接受 definitionVersion 6，不能兼容 version 5。 parser 返回 error，写入 version 5 后 strict check 非零并报告版本诊断。 tools/decision-records/tests/layout-index.test.ts > decision index parser and check reject obsolete definition version bun test --test-name-pattern=\"^decision index parser and check reject obsolete definition version$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/index-rejects-obsolete-definition.md",
+        "summary": "当前 ID 键索引只接受 definitionVersion 6，不能兼容 version 5。",
+        "title": "索引拒绝旧 definitionVersion"
       }
     },
     "DECISION-INDEX-MAINTENANCE-001": {
       "keys": {
         "search": [
-          "DECISION-INDEX-MAINTENANCE-001 索引维护识别漂移并同步规范状态 常规查询必须稳定读取 schema v3 持久快照，严格检查必须识别 ID-keyed state、结构化 revision 与领域投影漂移，同步必须从规范源重建状态。 Schema v2、非法 entry fingerprint、state/path 身份不一致及领域字段篡改均被严格验证拒绝。 Markdown 结构、关系或投影漂移时 list 与 trace 继续返回旧快照；写入同步后 schema v3 索引采用规范来源并再次检查通过。 tools/decision-records/tests/index-maintenance.test.ts > index maintenance detects drift and synchronizes canonical decision states bun test --test-name-pattern=\"^index maintenance detects drift and synchronizes canonical decision states$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-INDEX-MAINTENANCE-001 索引维护识别漂移并同步规范状态 常规查询必须稳定读取 schema v3 持久快照，严格检查必须识别 ID-keyed state、结构化 revision 与标签投影漂移，同步必须从规范源重建状态。 Schema v2、非法 entry fingerprint、state/path 身份不一致及标签字段篡改均被严格验证拒绝。 Markdown 结构、关系或投影漂移时 list 与 trace 继续返回旧快照；写入同步后 schema v3 索引采用规范来源并再次检查通过。 tools/decision-records/tests/index-maintenance.test.ts > index maintenance detects drift and synchronizes canonical decision states bun test --test-name-pattern=\"^index maintenance detects drift and synchronizes canonical decision states$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2640,33 +2777,263 @@
         ],
         "id": "DECISION-INDEX-MAINTENANCE-001",
         "line": 1,
-        "searchText": "索引维护识别漂移并同步规范状态 常规查询必须稳定读取 schema v3 持久快照，严格检查必须识别 ID-keyed state、结构化 revision 与领域投影漂移，同步必须从规范源重建状态。 Schema v2、非法 entry fingerprint、state/path 身份不一致及领域字段篡改均被严格验证拒绝。 Markdown 结构、关系或投影漂移时 list 与 trace 继续返回旧快照；写入同步后 schema v3 索引采用规范来源并再次检查通过。 tools/decision-records/tests/index-maintenance.test.ts > index maintenance detects drift and synchronizes canonical decision states bun test --test-name-pattern=\"^index maintenance detects drift and synchronizes canonical decision states$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "索引维护识别漂移并同步规范状态 常规查询必须稳定读取 schema v3 持久快照，严格检查必须识别 ID-keyed state、结构化 revision 与标签投影漂移，同步必须从规范源重建状态。 Schema v2、非法 entry fingerprint、state/path 身份不一致及标签字段篡改均被严格验证拒绝。 Markdown 结构、关系或投影漂移时 list 与 trace 继续返回旧快照；写入同步后 schema v3 索引采用规范来源并再次检查通过。 tools/decision-records/tests/index-maintenance.test.ts > index maintenance detects drift and synchronizes canonical decision states bun test --test-name-pattern=\"^index maintenance detects drift and synchronizes canonical decision states$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/index-maintenance-detects-drift-and-synchronizes-canonical-decision-states.md",
-        "summary": "常规查询必须稳定读取 schema v3 持久快照，严格检查必须识别 ID-keyed state、结构化 revision 与领域投影漂移，同步必须从规范源重建状态。",
+        "summary": "常规查询必须稳定读取 schema v3 持久快照，严格检查必须识别 ID-keyed state、结构化 revision 与标签投影漂移，同步必须从规范源重建状态。",
         "title": "索引维护识别漂移并同步规范状态"
       }
     },
-    "DECISION-LIST-FILTERS-001": {
+    "DECISION-INDEX-REVISION-001": {
       "keys": {
         "search": [
-          "DECISION-LIST-FILTERS-001 决策列表按生命周期、领域与对齐状态筛选 List CLI 必须从持久索引按生命周期、领域与对齐状态返回紧凑定位信息，并验证领域选择器。 active、archived、all、full-time、domain 和 alignment 选择器产生匹配集合；默认只展开 title 与 purpose，不重复 background 和 decision。 空领域返回合法空集合，重复或未知领域选择器产生参数诊断。 tools/decision-records/tests/queries.test.ts > decision list filters lifecycle, domain, and alignment selectors bun test --test-name-pattern=\"^decision list filters lifecycle, domain, and alignment selectors$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-INDEX-REVISION-001 索引 revision 跟踪标签和 sourcePath 标签或 sourcePath 变化必须使持久索引 revision 失效；只有重建后才接受新快照。 改 tags 后严格验证失败；sync-index 后索引含排序后的新 tags。 tools/decision-records/tests/layout-index.test.ts > index revision detects tag and sourcePath changes before accepting a rebuilt snapshot bun test --test-name-pattern=\"^index revision detects tag and sourcePath changes before accepting a rebuilt snapshot$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 12,
         "entries": [
-          "tools/decision-records/tests/queries.test.ts > decision list filters lifecycle, domain, and alignment selectors",
-          "bun test --test-name-pattern=\"^decision list filters lifecycle, domain, and alignment selectors$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/layout-index.test.ts > index revision detects tag and sourcePath changes before accepting a rebuilt snapshot",
+          "bun test --test-name-pattern=\"^index revision detects tag and sourcePath changes before accepting a rebuilt snapshot$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-INDEX-REVISION-001",
+        "line": 1,
+        "searchText": "索引 revision 跟踪标签和 sourcePath 标签或 sourcePath 变化必须使持久索引 revision 失效；只有重建后才接受新快照。 改 tags 后严格验证失败；sync-index 后索引含排序后的新 tags。 tools/decision-records/tests/layout-index.test.ts > index revision detects tag and sourcePath changes before accepting a rebuilt snapshot bun test --test-name-pattern=\"^index revision detects tag and sourcePath changes before accepting a rebuilt snapshot$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/index-revision-tags-sourcepath.md",
+        "summary": "标签或 sourcePath 变化必须使持久索引 revision 失效；只有重建后才接受新快照。",
+        "title": "索引 revision 跟踪标签和 sourcePath"
+      }
+    },
+    "DECISION-LAYOUT-INVALID-001": {
+      "keys": {
+        "search": [
+          "DECISION-LAYOUT-INVALID-001 扫描器拒绝无效物理布局 扫描器必须同时拒绝状态与物理 sourcePath 不匹配、根目录嵌套目录以及跨位置重复 Decision ID。 断言三类输入分别产生 status/sourcePath、unsupported nested directory 和 duplicate ID 诊断。 tools/decision-records/tests/layout-index.test.ts > scanner rejects status-position mismatches nested paths and duplicate decision IDs bun test --test-name-pattern=\"^scanner rejects status-position mismatches nested paths and duplicate decision IDs$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/layout-index.test.ts > scanner rejects status-position mismatches nested paths and duplicate decision IDs",
+          "bun test --test-name-pattern=\"^scanner rejects status-position mismatches nested paths and duplicate decision IDs$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-LAYOUT-INVALID-001",
+        "line": 1,
+        "searchText": "扫描器拒绝无效物理布局 扫描器必须同时拒绝状态与物理 sourcePath 不匹配、根目录嵌套目录以及跨位置重复 Decision ID。 断言三类输入分别产生 status/sourcePath、unsupported nested directory 和 duplicate ID 诊断。 tools/decision-records/tests/layout-index.test.ts > scanner rejects status-position mismatches nested paths and duplicate decision IDs bun test --test-name-pattern=\"^scanner rejects status-position mismatches nested paths and duplicate decision IDs$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/layout-invalid-records.md",
+        "summary": "扫描器必须同时拒绝状态与物理 sourcePath 不匹配、根目录嵌套目录以及跨位置重复 Decision ID。",
+        "title": "扫描器拒绝无效物理布局"
+      }
+    },
+    "DECISION-LAYOUT-VALID-001": {
+      "keys": {
+        "search": [
+          "DECISION-LAYOUT-VALID-001 扫描器接受根目录和归档布局 根目录仅承载 active、archive 仅承载 archived，且两处 basename 全局唯一。 fixture 扫描为一个 active、一个 archived，并返回确定的 ID/sourcePath 对。 tools/decision-records/tests/layout-index.test.ts > scanner accepts root active records and archive archived records with unique IDs bun test --test-name-pattern=\"^scanner accepts root active records and archive archived records with unique IDs$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/layout-index.test.ts > scanner accepts root active records and archive archived records with unique IDs",
+          "bun test --test-name-pattern=\"^scanner accepts root active records and archive archived records with unique IDs$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-LAYOUT-VALID-001",
+        "line": 1,
+        "searchText": "扫描器接受根目录和归档布局 根目录仅承载 active、archive 仅承载 archived，且两处 basename 全局唯一。 fixture 扫描为一个 active、一个 archived，并返回确定的 ID/sourcePath 对。 tools/decision-records/tests/layout-index.test.ts > scanner accepts root active records and archive archived records with unique IDs bun test --test-name-pattern=\"^scanner accepts root active records and archive archived records with unique IDs$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/layout-valid-records.md",
+        "summary": "根目录仅承载 active、archive 仅承载 archived，且两处 basename 全局唯一。",
+        "title": "扫描器接受根目录和归档布局"
+      }
+    },
+    "DECISION-LIFECYCLE-MOVE-001": {
+      "keys": {
+        "search": [
+          "DECISION-LIFECYCLE-MOVE-001 归档与重新激活保持 Markdown 语义 archive/reactivate 只能移动同一 ID 的 root/archive sourcePath，并保留 Markdown 语义和索引投影。 归档后 root 消失且 index 指向 archive；重新激活后正文和 sourcePath 恢复。 tools/decision-records/tests/lifecycle-relations.test.ts > archive and reactivate move one Decision ID while preserving its Markdown semantics bun test --test-name-pattern=\"^archive and reactivate move one Decision ID while preserving its Markdown semantics$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/lifecycle-relations.test.ts > archive and reactivate move one Decision ID while preserving its Markdown semantics",
+          "bun test --test-name-pattern=\"^archive and reactivate move one Decision ID while preserving its Markdown semantics$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-LIFECYCLE-MOVE-001",
+        "line": 1,
+        "searchText": "归档与重新激活保持 Markdown 语义 archive/reactivate 只能移动同一 ID 的 root/archive sourcePath，并保留 Markdown 语义和索引投影。 归档后 root 消失且 index 指向 archive；重新激活后正文和 sourcePath 恢复。 tools/decision-records/tests/lifecycle-relations.test.ts > archive and reactivate move one Decision ID while preserving its Markdown semantics bun test --test-name-pattern=\"^archive and reactivate move one Decision ID while preserving its Markdown semantics$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/lifecycle-move-semantics.md",
+        "summary": "archive/reactivate 只能移动同一 ID 的 root/archive sourcePath，并保留 Markdown 语义和索引投影。",
+        "title": "归档与重新激活保持 Markdown 语义"
+      }
+    },
+    "DECISION-LIFECYCLE-PREFLIGHT-001": {
+      "keys": {
+        "search": [
+          "DECISION-LIFECYCLE-PREFLIGHT-001 生命周期预写入拒绝来源漂移 生命周期事务在预写入 scan 后必须核验来源仍未变化，避免移动或覆盖并发内容。 来源改写后事务报错，原路径仍在、目标路径未创建、既有归档 index 不变。 tools/decision-records/tests/lifecycle-relations.test.ts > lifecycle rejects a source changed after its prewrite scan before moving either path bun test --test-name-pattern=\"^lifecycle rejects a source changed after its prewrite scan before moving either path$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/lifecycle-relations.test.ts > lifecycle rejects a source changed after its prewrite scan before moving either path",
+          "bun test --test-name-pattern=\"^lifecycle rejects a source changed after its prewrite scan before moving either path$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-LIFECYCLE-PREFLIGHT-001",
+        "line": 1,
+        "searchText": "生命周期预写入拒绝来源漂移 生命周期事务在预写入 scan 后必须核验来源仍未变化，避免移动或覆盖并发内容。 来源改写后事务报错，原路径仍在、目标路径未创建、既有归档 index 不变。 tools/decision-records/tests/lifecycle-relations.test.ts > lifecycle rejects a source changed after its prewrite scan before moving either path bun test --test-name-pattern=\"^lifecycle rejects a source changed after its prewrite scan before moving either path$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/lifecycle-source-prewrite.md",
+        "summary": "生命周期事务在预写入 scan 后必须核验来源仍未变化，避免移动或覆盖并发内容。",
+        "title": "生命周期预写入拒绝来源漂移"
+      }
+    },
+    "DECISION-LIST-ALIGNMENT-001": {
+      "keys": {
+        "search": [
+          "DECISION-LIST-ALIGNMENT-001 List 按 alignment 筛选 alignment 选择器必须从持久索引返回对应状态。 unaligned 查询仅返回 unaligned 活动记录。 tools/decision-records/tests/queries.test.ts > decision list filters records by alignment selector bun test --test-name-pattern=\"^decision list filters records by alignment selector$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > decision list filters records by alignment selector",
+          "bun test --test-name-pattern=\"^decision list filters records by alignment selector$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-LIST-ALIGNMENT-001",
+        "line": 1,
+        "searchText": "List 按 alignment 筛选 alignment 选择器必须从持久索引返回对应状态。 unaligned 查询仅返回 unaligned 活动记录。 tools/decision-records/tests/queries.test.ts > decision list filters records by alignment selector bun test --test-name-pattern=\"^decision list filters records by alignment selector$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/list-alignment-selector.md",
+        "summary": "alignment 选择器必须从持久索引返回对应状态。",
+        "title": "List 按 alignment 筛选"
+      }
+    },
+    "DECISION-LIST-ALL-001": {
+      "keys": {
+        "search": [
+          "DECISION-LIST-ALL-001 List all 返回两种生命周期及完整时间 `--status all` 返回活动与归档记录；`--full-time` 保留完整 `createdAt` 时间戳。 输出包含两个 ID 和两个带时区的 fixture 时间戳。 tools/decision-records/tests/queries.test.ts > decision list status all includes both lifecycles and full timestamps bun test --test-name-pattern=\"^decision list status all includes both lifecycles and full timestamps$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > decision list status all includes both lifecycles and full timestamps",
+          "bun test --test-name-pattern=\"^decision list status all includes both lifecycles and full timestamps$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-LIST-ALL-001",
+        "line": 1,
+        "searchText": "List all 返回两种生命周期及完整时间 `--status all` 返回活动与归档记录；`--full-time` 保留完整 `createdAt` 时间戳。 输出包含两个 ID 和两个带时区的 fixture 时间戳。 tools/decision-records/tests/queries.test.ts > decision list status all includes both lifecycles and full timestamps bun test --test-name-pattern=\"^decision list status all includes both lifecycles and full timestamps$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/list-all-full-time.md",
+        "summary": "`--status all` 返回活动与归档记录；`--full-time` 保留完整 `createdAt` 时间戳。",
+        "title": "List all 返回两种生命周期及完整时间"
+      }
+    },
+    "DECISION-LIST-DEFAULT-001": {
+      "keys": {
+        "search": [
+          "DECISION-LIST-DEFAULT-001 List 默认仅返回活动记录 未指定 `--status` 时，list 读取活动快照，不能混入 archived 记录。 默认输出包含活动 ID 而不含归档 ID。 tools/decision-records/tests/queries.test.ts > decision list defaults to active records without archived results bun test --test-name-pattern=\"^decision list defaults to active records without archived results$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > decision list defaults to active records without archived results",
+          "bun test --test-name-pattern=\"^decision list defaults to active records without archived results$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-LIST-DEFAULT-001",
+        "line": 1,
+        "searchText": "List 默认仅返回活动记录 未指定 `--status` 时，list 读取活动快照，不能混入 archived 记录。 默认输出包含活动 ID 而不含归档 ID。 tools/decision-records/tests/queries.test.ts > decision list defaults to active records without archived results bun test --test-name-pattern=\"^decision list defaults to active records without archived results$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/list-default-active.md",
+        "summary": "未指定 `--status` 时，list 读取活动快照，不能混入 archived 记录。",
+        "title": "List 默认仅返回活动记录"
+      }
+    },
+    "DECISION-LIST-EMPTY-001": {
+      "keys": {
+        "search": [
+          "DECISION-LIST-EMPTY-001 List 对无匹配 tag 或 alignment 返回空结果 不匹配的 tag 或 alignment 是成功的空查询，不得返回无关记录。 两类选择器均输出 `none`。 tools/decision-records/tests/queries.test.ts > decision list reports empty results for unmatched tag and alignment filters bun test --test-name-pattern=\"^decision list reports empty results for unmatched tag and alignment filters$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > decision list reports empty results for unmatched tag and alignment filters",
+          "bun test --test-name-pattern=\"^decision list reports empty results for unmatched tag and alignment filters$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-LIST-EMPTY-001",
+        "line": 1,
+        "searchText": "List 对无匹配 tag 或 alignment 返回空结果 不匹配的 tag 或 alignment 是成功的空查询，不得返回无关记录。 两类选择器均输出 `none`。 tools/decision-records/tests/queries.test.ts > decision list reports empty results for unmatched tag and alignment filters bun test --test-name-pattern=\"^decision list reports empty results for unmatched tag and alignment filters$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/list-empty-filters.md",
+        "summary": "不匹配的 tag 或 alignment 是成功的空查询，不得返回无关记录。",
+        "title": "List 对无匹配 tag 或 alignment 返回空结果"
+      }
+    },
+    "DECISION-LIST-FILTERS-001": {
+      "keys": {
+        "search": [
+          "DECISION-LIST-FILTERS-001 决策列表按生命周期、标签与对齐状态筛选 List 从持久索引按生命周期、AND 标签和对齐状态选择记录；使用标签选择器。 活动 project-tooling 与归档 decision-records 查询各只返回匹配 ID。 tools/decision-records/tests/queries.test.ts > decision list filters lifecycle and tag selectors bun test --test-name-pattern=\"^decision list filters lifecycle and tag selectors$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > decision list filters lifecycle and tag selectors",
+          "bun test --test-name-pattern=\"^decision list filters lifecycle and tag selectors$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-LIST-FILTERS-001",
         "line": 1,
-        "searchText": "决策列表按生命周期、领域与对齐状态筛选 List CLI 必须从持久索引按生命周期、领域与对齐状态返回紧凑定位信息，并验证领域选择器。 active、archived、all、full-time、domain 和 alignment 选择器产生匹配集合；默认只展开 title 与 purpose，不重复 background 和 decision。 空领域返回合法空集合，重复或未知领域选择器产生参数诊断。 tools/decision-records/tests/queries.test.ts > decision list filters lifecycle, domain, and alignment selectors bun test --test-name-pattern=\"^decision list filters lifecycle, domain, and alignment selectors$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "决策列表按生命周期、标签与对齐状态筛选 List 从持久索引按生命周期、AND 标签和对齐状态选择记录；使用标签选择器。 活动 project-tooling 与归档 decision-records 查询各只返回匹配 ID。 tools/decision-records/tests/queries.test.ts > decision list filters lifecycle and tag selectors bun test --test-name-pattern=\"^decision list filters lifecycle and tag selectors$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-list-filters-lifecycle-domain-and-alignment-selectors.md",
-        "summary": "List CLI 必须从持久索引按生命周期、领域与对齐状态返回紧凑定位信息，并验证领域选择器。",
-        "title": "决策列表按生命周期、领域与对齐状态筛选"
+        "summary": "List 从持久索引按生命周期、AND 标签和对齐状态选择记录；使用标签选择器。",
+        "title": "决策列表按生命周期、标签与对齐状态筛选"
+      }
+    },
+    "DECISION-LIST-TAG-AND-001": {
+      "keys": {
+        "search": [
+          "DECISION-LIST-TAG-AND-001 List 对重复标签采用 AND 筛选 重复 `--tag` 选择器必须取交集，而不是并集。 A、A+B、B 三条记录中，双 tag 仅返回 A+B。 tools/decision-records/tests/queries.test.ts > decision list combines repeated tag selectors with AND semantics bun test --test-name-pattern=\"^decision list combines repeated tag selectors with AND semantics$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > decision list combines repeated tag selectors with AND semantics",
+          "bun test --test-name-pattern=\"^decision list combines repeated tag selectors with AND semantics$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-LIST-TAG-AND-001",
+        "line": 1,
+        "searchText": "List 对重复标签采用 AND 筛选 重复 `--tag` 选择器必须取交集，而不是并集。 A、A+B、B 三条记录中，双 tag 仅返回 A+B。 tools/decision-records/tests/queries.test.ts > decision list combines repeated tag selectors with AND semantics bun test --test-name-pattern=\"^decision list combines repeated tag selectors with AND semantics$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/list-tags-and.md",
+        "summary": "重复 `--tag` 选择器必须取交集，而不是并集。",
+        "title": "List 对重复标签采用 AND 筛选"
       }
     },
     "DECISION-MERGE-MINIMUM-001": {
@@ -2692,50 +3059,73 @@
         "title": "Evolve 拒绝前序不足的纯归并"
       }
     },
-    "DECISION-QUERY-INDEX-MEMBERSHIP-001": {
+    "DECISION-METADATA-REMOVED-001": {
       "keys": {
         "search": [
-          "DECISION-QUERY-INDEX-MEMBERSHIP-001 常规查询读取持久快照且严格检查识别来源漂移 List 与 trace 必须直接使用结构有效的持久索引；show 只读取目标正文；完整来源一致性由严格 check 验证。 删除已索引 Markdown 后，list 与 trace 仍返回最近快照，show 因目标正文缺失而失败，check 报告来源与索引不一致。 tools/decision-records/tests/queries.test.ts > decision queries use persisted snapshots while check detects source drift bun test --test-name-pattern=\"^decision queries use persisted snapshots while check detects source drift$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-METADATA-REMOVED-001 拒绝移除领域字段与未知 frontmatter 当前 frontmatter 只接受定义字段；已移除的 domain/domains 及未知字段必须失败。 对 domain、domains、extra 三种字段均产生验证错误。 tools/decision-records/tests/metadata.test.ts > decision Markdown rejects removed domain fields and unknown frontmatter bun test --test-name-pattern=\"^decision Markdown rejects removed domain fields and unknown frontmatter$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/metadata.test.ts > decision Markdown rejects removed domain fields and unknown frontmatter",
+          "bun test --test-name-pattern=\"^decision Markdown rejects removed domain fields and unknown frontmatter$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-METADATA-REMOVED-001",
+        "line": 1,
+        "searchText": "拒绝移除领域字段与未知 frontmatter 当前 frontmatter 只接受定义字段；已移除的 domain/domains 及未知字段必须失败。 对 domain、domains、extra 三种字段均产生验证错误。 tools/decision-records/tests/metadata.test.ts > decision Markdown rejects removed domain fields and unknown frontmatter bun test --test-name-pattern=\"^decision Markdown rejects removed domain fields and unknown frontmatter$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/metadata-removed-fields.md",
+        "summary": "当前 frontmatter 只接受定义字段；已移除的 domain/domains 及未知字段必须失败。",
+        "title": "拒绝移除领域字段与未知 frontmatter"
+      }
+    },
+    "DECISION-QUERY-INDEX-MEMBERSHIP-001": {
+      "keys": {
+        "search": [
+          "DECISION-QUERY-INDEX-MEMBERSHIP-001 查询读取持久快照且 Check 检测来源漂移 list/trace 读取持久索引快照，show 读取正文，严格 check 检测来源漂移。 删除正文后 list/trace 仍从快照返回，show/check 失败。 tools/decision-records/tests/queries.test.ts > decision queries use persisted snapshots while check detects source drift bun test --test-name-pattern=\"^decision queries use persisted snapshots while check detects source drift$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
         "entries": [
           "tools/decision-records/tests/queries.test.ts > decision queries use persisted snapshots while check detects source drift",
           "bun test --test-name-pattern=\"^decision queries use persisted snapshots while check detects source drift$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-QUERY-INDEX-MEMBERSHIP-001",
         "line": 1,
-        "searchText": "常规查询读取持久快照且严格检查识别来源漂移 List 与 trace 必须直接使用结构有效的持久索引；show 只读取目标正文；完整来源一致性由严格 check 验证。 删除已索引 Markdown 后，list 与 trace 仍返回最近快照，show 因目标正文缺失而失败，check 报告来源与索引不一致。 tools/decision-records/tests/queries.test.ts > decision queries use persisted snapshots while check detects source drift bun test --test-name-pattern=\"^decision queries use persisted snapshots while check detects source drift$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "查询读取持久快照且 Check 检测来源漂移 list/trace 读取持久索引快照，show 读取正文，严格 check 检测来源漂移。 删除正文后 list/trace 仍从快照返回，show/check 失败。 tools/decision-records/tests/queries.test.ts > decision queries use persisted snapshots while check detects source drift bun test --test-name-pattern=\"^decision queries use persisted snapshots while check detects source drift$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-queries-use-persisted-snapshots-while-check-detects-source-drift.md",
-        "summary": "List 与 trace 必须直接使用结构有效的持久索引；show 只读取目标正文；完整来源一致性由严格 check 验证。",
-        "title": "常规查询读取持久快照且严格检查识别来源漂移"
+        "summary": "list/trace 读取持久索引快照，show 读取正文，严格 check 检测来源漂移。",
+        "title": "查询读取持久快照且 Check 检测来源漂移"
       }
     },
     "DECISION-SHOW-OUTPUT-001": {
       "keys": {
         "search": [
-          "DECISION-SHOW-OUTPUT-001 决策展示返回元数据并报告正文读取失败 Show CLI 必须从持久索引定位元数据、只读取目标 Markdown，并在正文读取失败时停止输出部分结果。 成功结果包含路径、领域说明、状态、对齐、建立时间和正文标题。 模拟目标正文第一次读取即失败时只发生一次目标读取，退出码为 1、stdout 为空且 stderr 定位目标决策。 tools/decision-records/tests/queries.test.ts > decision show returns metadata and reports body read failures bun test --test-name-pattern=\"^decision show returns metadata and reports body read failures$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-SHOW-OUTPUT-001 Show 返回元数据并报告正文读取失败 show 返回稳定 ID/sourcePath 元数据；正文读取失败时不输出部分结果。 模拟读取失败，断言空 stdout、定位诊断和单次读取。 tools/decision-records/tests/queries.test.ts > decision show returns metadata and reports body read failures bun test --test-name-pattern=\"^decision show returns metadata and reports body read failures$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 12,
         "entries": [
           "tools/decision-records/tests/queries.test.ts > decision show returns metadata and reports body read failures",
           "bun test --test-name-pattern=\"^decision show returns metadata and reports body read failures$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-SHOW-OUTPUT-001",
         "line": 1,
-        "searchText": "决策展示返回元数据并报告正文读取失败 Show CLI 必须从持久索引定位元数据、只读取目标 Markdown，并在正文读取失败时停止输出部分结果。 成功结果包含路径、领域说明、状态、对齐、建立时间和正文标题。 模拟目标正文第一次读取即失败时只发生一次目标读取，退出码为 1、stdout 为空且 stderr 定位目标决策。 tools/decision-records/tests/queries.test.ts > decision show returns metadata and reports body read failures bun test --test-name-pattern=\"^decision show returns metadata and reports body read failures$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Show 返回元数据并报告正文读取失败 show 返回稳定 ID/sourcePath 元数据；正文读取失败时不输出部分结果。 模拟读取失败，断言空 stdout、定位诊断和单次读取。 tools/decision-records/tests/queries.test.ts > decision show returns metadata and reports body read failures bun test --test-name-pattern=\"^decision show returns metadata and reports body read failures$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-show-returns-metadata-and-reports-body-read-failures.md",
-        "summary": "Show CLI 必须从持久索引定位元数据、只读取目标 Markdown，并在正文读取失败时停止输出部分结果。",
-        "title": "决策展示返回元数据并报告正文读取失败"
+        "summary": "show 返回稳定 ID/sourcePath 元数据；正文读取失败时不输出部分结果。",
+        "title": "Show 返回元数据并报告正文读取失败"
       }
     },
     "DECISION-SPLIT-CLOSURE-001": {
@@ -2876,171 +3266,447 @@
         "title": "Evolve 闭合拆分并独立对齐后继"
       }
     },
-    "DECISION-STAGE-BOOTSTRAP-001": {
+    "DECISION-STAGE-ADDITION-001": {
       "keys": {
         "search": [
-          "DECISION-STAGE-BOOTSTRAP-001 Stage 引导首个 pending 决策集合 revision 尚无决策范围时，`stage` 使用完整合法的 filesystem 领域目录表与显式选择的已建立决策构造首个 pending 集合。 `HEAD` 已由决策范围外的提交建立，但其 `docs/decisions` 范围为空，首次决策集合仍从完整合法的 filesystem 领域目录表引导。 pending 同时包含 filesystem 领域目录表、所选决策和由该来源生成的完整索引。 索引只含所选首条决策且 `sourceRevision` 与 pending 来源一致，filesystem 不新增索引文件。 tools/decision-records/tests/stage.test.ts > stage bootstraps the first pending decision collection bun test --test-name-pattern=\"^stage bootstraps the first pending decision collection$\" ./tools/decision-records/tests/stage.test.ts"
+          "DECISION-STAGE-ADDITION-001 单选新 ID 表达 addition 而非改名 单选 new ID 只能表达 addition，工具不从磁盘差异推断 rename。 pending index 同时保留未选择的 old ID 与新增 ID。 tools/decision-records/tests/stage.test.ts > stage treats a selected new ID as an addition and preserves an unselected old ID bun test --test-name-pattern=\"^stage treats a selected new ID as an addition and preserves an unselected old ID$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 14,
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage treats a selected new ID as an addition and preserves an unselected old ID",
+          "bun test --test-name-pattern=\"^stage treats a selected new ID as an addition and preserves an unselected old ID$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STAGE-ADDITION-001",
+        "line": 1,
+        "searchText": "单选新 ID 表达 addition 而非改名 单选 new ID 只能表达 addition，工具不从磁盘差异推断 rename。 pending index 同时保留未选择的 old ID 与新增 ID。 tools/decision-records/tests/stage.test.ts > stage treats a selected new ID as an addition and preserves an unselected old ID bun test --test-name-pattern=\"^stage treats a selected new ID as an addition and preserves an unselected old ID$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/stage-selected-addition.md",
+        "summary": "单选 new ID 只能表达 addition，工具不从磁盘差异推断 rename。",
+        "title": "单选新 ID 表达 addition 而非改名"
+      }
+    },
+    "DECISION-STAGE-BOOTSTRAP-001": {
+      "keys": {
+        "search": [
+          "DECISION-STAGE-BOOTSTRAP-001 Stage 建立第一份 pending 决策集合 没有既有决策目录时 stage 暂存首个记录及新索引。 空 Git workspace 暂存首个 root ID 和 index。 tools/decision-records/tests/stage.test.ts > stage bootstraps the first pending decision collection bun test --test-name-pattern=\"^stage bootstraps the first pending decision collection$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
         "entries": [
           "tools/decision-records/tests/stage.test.ts > stage bootstraps the first pending decision collection",
-          "bun test --test-name-pattern=\"^stage bootstraps the first pending decision collection$\" ./tools/decision-records/tests/stage.test.ts"
+          "bun test --test-name-pattern=\"^stage bootstraps the first pending decision collection$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-STAGE-BOOTSTRAP-001",
         "line": 1,
-        "searchText": "Stage 引导首个 pending 决策集合 revision 尚无决策范围时，`stage` 使用完整合法的 filesystem 领域目录表与显式选择的已建立决策构造首个 pending 集合。 `HEAD` 已由决策范围外的提交建立，但其 `docs/decisions` 范围为空，首次决策集合仍从完整合法的 filesystem 领域目录表引导。 pending 同时包含 filesystem 领域目录表、所选决策和由该来源生成的完整索引。 索引只含所选首条决策且 `sourceRevision` 与 pending 来源一致，filesystem 不新增索引文件。 tools/decision-records/tests/stage.test.ts > stage bootstraps the first pending decision collection bun test --test-name-pattern=\"^stage bootstraps the first pending decision collection$\" ./tools/decision-records/tests/stage.test.ts",
+        "searchText": "Stage 建立第一份 pending 决策集合 没有既有决策目录时 stage 暂存首个记录及新索引。 空 Git workspace 暂存首个 root ID 和 index。 tools/decision-records/tests/stage.test.ts > stage bootstraps the first pending decision collection bun test --test-name-pattern=\"^stage bootstraps the first pending decision collection$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/stage-bootstraps-the-first-pending-decision-collection.md",
-        "summary": "revision 尚无决策范围时，`stage` 使用完整合法的 filesystem 领域目录表与显式选择的已建立决策构造首个 pending 集合。",
-        "title": "Stage 引导首个 pending 决策集合"
+        "summary": "没有既有决策目录时 stage 暂存首个记录及新索引。",
+        "title": "Stage 建立第一份 pending 决策集合"
+      }
+    },
+    "DECISION-STAGE-BOOTSTRAP-MISSING-001": {
+      "keys": {
+        "search": [
+          "DECISION-STAGE-BOOTSTRAP-MISSING-001 无 revision 的 Stage 拒绝不存在 ID 没有 revision/baseline 的 bootstrap 不能把不存在的选择 ID 解释为空集合或写入 pending。 空决策目录中的不存在 ID 失败，暂存区保持为空。 tools/decision-records/tests/stage.test.ts > stage rejects a missing ID when bootstrapping without a revision bun test --test-name-pattern=\"^stage rejects a missing ID when bootstrapping without a revision$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage rejects a missing ID when bootstrapping without a revision",
+          "bun test --test-name-pattern=\"^stage rejects a missing ID when bootstrapping without a revision$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STAGE-BOOTSTRAP-MISSING-001",
+        "line": 1,
+        "searchText": "无 revision 的 Stage 拒绝不存在 ID 没有 revision/baseline 的 bootstrap 不能把不存在的选择 ID 解释为空集合或写入 pending。 空决策目录中的不存在 ID 失败，暂存区保持为空。 tools/decision-records/tests/stage.test.ts > stage rejects a missing ID when bootstrapping without a revision bun test --test-name-pattern=\"^stage rejects a missing ID when bootstrapping without a revision$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/stage-bootstrap-missing-id.md",
+        "summary": "没有 revision/baseline 的 bootstrap 不能把不存在的选择 ID 解释为空集合或写入 pending。",
+        "title": "无 revision 的 Stage 拒绝不存在 ID"
       }
     },
     "DECISION-STAGE-CLI-001": {
       "keys": {
         "search": [
-          "DECISION-STAGE-CLI-001 CLI 独立公开 Stage 且不扩展生命周期选项 指定决策进入 pending 使用独立 `stage <decision-path...>` 命令，生命周期命令保持 filesystem 责任且不提供 `--stage`。 顶层 CLI 帮助列出接受一个或多个显式路径的 `stage` 命令。 `activate`、`evolve`、`archive`、`mark-aligned` 和 `discard` 的帮助均不包含 `--stage`。 tools/decision-records/tests/stage.test.ts > help exposes stage independently without adding lifecycle stage options bun test --test-name-pattern=\"^help exposes stage independently without adding lifecycle stage options$\" ./tools/decision-records/tests/stage.test.ts"
+          "DECISION-STAGE-CLI-001 CLI 独立公开 Stage 且不扩展生命周期选项 stage 是独立命令，生命周期命令不应接受 --stage。 根帮助包含 stage，生命周期子命令帮助均不含 --stage。 tools/decision-records/tests/stage.test.ts > help exposes stage independently without adding lifecycle stage options bun test --test-name-pattern=\"^help exposes stage independently without adding lifecycle stage options$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 12,
         "entries": [
           "tools/decision-records/tests/stage.test.ts > help exposes stage independently without adding lifecycle stage options",
-          "bun test --test-name-pattern=\"^help exposes stage independently without adding lifecycle stage options$\" ./tools/decision-records/tests/stage.test.ts"
+          "bun test --test-name-pattern=\"^help exposes stage independently without adding lifecycle stage options$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-STAGE-CLI-001",
         "line": 1,
-        "searchText": "CLI 独立公开 Stage 且不扩展生命周期选项 指定决策进入 pending 使用独立 `stage <decision-path...>` 命令，生命周期命令保持 filesystem 责任且不提供 `--stage`。 顶层 CLI 帮助列出接受一个或多个显式路径的 `stage` 命令。 `activate`、`evolve`、`archive`、`mark-aligned` 和 `discard` 的帮助均不包含 `--stage`。 tools/decision-records/tests/stage.test.ts > help exposes stage independently without adding lifecycle stage options bun test --test-name-pattern=\"^help exposes stage independently without adding lifecycle stage options$\" ./tools/decision-records/tests/stage.test.ts",
+        "searchText": "CLI 独立公开 Stage 且不扩展生命周期选项 stage 是独立命令，生命周期命令不应接受 --stage。 根帮助包含 stage，生命周期子命令帮助均不含 --stage。 tools/decision-records/tests/stage.test.ts > help exposes stage independently without adding lifecycle stage options bun test --test-name-pattern=\"^help exposes stage independently without adding lifecycle stage options$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/help-exposes-stage-independently-without-adding-lifecycle-stage-options.md",
-        "summary": "指定决策进入 pending 使用独立 `stage <decision-path...>` 命令，生命周期命令保持 filesystem 责任且不提供 `--stage`。",
+        "summary": "stage 是独立命令，生命周期命令不应接受 --stage。",
         "title": "CLI 独立公开 Stage 且不扩展生命周期选项"
+      }
+    },
+    "DECISION-STAGE-DELETION-001": {
+      "keys": {
+        "search": [
+          "DECISION-STAGE-DELETION-001 选择旧 ID 表达删除而非改名 单选 new ID 是 addition，单选 old ID 是 deletion；只有显式 old+new 同选才表达 rename，工具不从内容推断身份。 选择旧 ID 后只暂存删除，未选择的替代文件不进入 pending。 tools/decision-records/tests/stage.test.ts > stage treats a selected old ID as a deletion without inferring a rename bun test --test-name-pattern=\"^stage treats a selected old ID as a deletion without inferring a rename$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage treats a selected old ID as a deletion without inferring a rename",
+          "bun test --test-name-pattern=\"^stage treats a selected old ID as a deletion without inferring a rename$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STAGE-DELETION-001",
+        "line": 1,
+        "searchText": "选择旧 ID 表达删除而非改名 单选 new ID 是 addition，单选 old ID 是 deletion；只有显式 old+new 同选才表达 rename，工具不从内容推断身份。 选择旧 ID 后只暂存删除，未选择的替代文件不进入 pending。 tools/decision-records/tests/stage.test.ts > stage treats a selected old ID as a deletion without inferring a rename bun test --test-name-pattern=\"^stage treats a selected old ID as a deletion without inferring a rename$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/stage-selected-deletion.md",
+        "summary": "单选 new ID 是 addition，单选 old ID 是 deletion；只有显式 old+new 同选才表达 rename，工具不从内容推断身份。",
+        "title": "选择旧 ID 表达删除而非改名"
       }
     },
     "DECISION-STAGE-INPUT-001": {
       "keys": {
         "search": [
-          "DECISION-STAGE-INPUT-001 Stage 拒绝非法重复和缺失路径且保持 pending `stage` 只接受唯一、合法且至少存在于 revision 或 filesystem 一处的决策根相对 POSIX Markdown 路径。 越界路径、重复路径和两处都缺失的路径均以参数失败退出且不产生成功输出。 每次失败后完整 pending 条目保持调用前状态。 tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing pending bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing pending$\" ./tools/decision-records/tests/stage.test.ts"
+          "DECISION-STAGE-INPUT-001 Stage 拒绝无效、重复和缺失 ID stage 在暂存前拒绝重复、缺失和越界 ID，不改变已有 pending。 三类非法输入均失败，已有 README pending 保持不变。 tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing pending bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing pending$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 12,
         "entries": [
           "tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing pending",
-          "bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing pending$\" ./tools/decision-records/tests/stage.test.ts"
+          "bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing pending$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-STAGE-INPUT-001",
         "line": 1,
-        "searchText": "Stage 拒绝非法重复和缺失路径且保持 pending `stage` 只接受唯一、合法且至少存在于 revision 或 filesystem 一处的决策根相对 POSIX Markdown 路径。 越界路径、重复路径和两处都缺失的路径均以参数失败退出且不产生成功输出。 每次失败后完整 pending 条目保持调用前状态。 tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing pending bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing pending$\" ./tools/decision-records/tests/stage.test.ts",
+        "searchText": "Stage 拒绝无效、重复和缺失 ID stage 在暂存前拒绝重复、缺失和越界 ID，不改变已有 pending。 三类非法输入均失败，已有 README pending 保持不变。 tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing pending bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing pending$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/stage-rejects-invalid-duplicate-and-missing-paths-without-changing-pending.md",
-        "summary": "`stage` 只接受唯一、合法且至少存在于 revision 或 filesystem 一处的决策根相对 POSIX Markdown 路径。",
-        "title": "Stage 拒绝非法重复和缺失路径且保持 pending"
+        "summary": "stage 在暂存前拒绝重复、缺失和越界 ID，不改变已有 pending。",
+        "title": "Stage 拒绝无效、重复和缺失 ID"
       }
     },
     "DECISION-STAGE-ISOLATION-001": {
       "keys": {
         "search": [
-          "DECISION-STAGE-ISOLATION-001 Stage 隔离显式选择并重建完整 pending 索引 `stage` 只把显式选择的 filesystem 决策叠加到 revision 基线，以同一目标来源重建完整 ID-keyed pending 索引，并整体替换 pending 决策范围。 选择 A 后，pending 包含 filesystem A 与 revision B，先前 pending 中的 filesystem B 被移出决策范围。 Pending 索引对象键包含完整 A/B 集合，且结构化 `sourceRevision` 与同一 pending 领域目录和逐路径 Markdown 来源一致。 决策范围外的 pending 文件和完整 filesystem 决策范围保持不变。 tools/decision-records/tests/stage.test.ts > stage isolates one selected filesystem decision and rebuilds the complete pending index bun test --test-name-pattern=\"^stage isolates one selected filesystem decision and rebuilds the complete pending index$\" ./tools/decision-records/tests/stage.test.ts"
+          "DECISION-STAGE-ISOLATION-001 Stage 隔离未选择的文件系统变更 Stage 仅暂存选择的 Decision ID 与派生索引，不携带未选择的 filesystem 变更。 未选 candidate 不进入暂存区。 tools/decision-records/tests/stage.test.ts > stage isolates unselected filesystem changes bun test --test-name-pattern=\"^stage isolates unselected filesystem changes$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 14,
+        "endLine": 12,
         "entries": [
-          "tools/decision-records/tests/stage.test.ts > stage isolates one selected filesystem decision and rebuilds the complete pending index",
-          "bun test --test-name-pattern=\"^stage isolates one selected filesystem decision and rebuilds the complete pending index$\" ./tools/decision-records/tests/stage.test.ts"
+          "tools/decision-records/tests/stage.test.ts > stage isolates unselected filesystem changes",
+          "bun test --test-name-pattern=\"^stage isolates unselected filesystem changes$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-STAGE-ISOLATION-001",
         "line": 1,
-        "searchText": "Stage 隔离显式选择并重建完整 pending 索引 `stage` 只把显式选择的 filesystem 决策叠加到 revision 基线，以同一目标来源重建完整 ID-keyed pending 索引，并整体替换 pending 决策范围。 选择 A 后，pending 包含 filesystem A 与 revision B，先前 pending 中的 filesystem B 被移出决策范围。 Pending 索引对象键包含完整 A/B 集合，且结构化 `sourceRevision` 与同一 pending 领域目录和逐路径 Markdown 来源一致。 决策范围外的 pending 文件和完整 filesystem 决策范围保持不变。 tools/decision-records/tests/stage.test.ts > stage isolates one selected filesystem decision and rebuilds the complete pending index bun test --test-name-pattern=\"^stage isolates one selected filesystem decision and rebuilds the complete pending index$\" ./tools/decision-records/tests/stage.test.ts",
+        "searchText": "Stage 隔离未选择的文件系统变更 Stage 仅暂存选择的 Decision ID 与派生索引，不携带未选择的 filesystem 变更。 未选 candidate 不进入暂存区。 tools/decision-records/tests/stage.test.ts > stage isolates unselected filesystem changes bun test --test-name-pattern=\"^stage isolates unselected filesystem changes$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/stage-isolates-one-selected-filesystem-decision-and-rebuilds-the-complete-pending-index.md",
-        "summary": "`stage` 只把显式选择的 filesystem 决策叠加到 revision 基线，以同一目标来源重建完整 ID-keyed pending 索引，并整体替换 pending 决策范围。",
-        "title": "Stage 隔离显式选择并重建完整 pending 索引"
+        "summary": "Stage 仅暂存选择的 Decision ID 与派生索引，不携带未选择的 filesystem 变更。",
+        "title": "Stage 隔离未选择的文件系统变更"
+      }
+    },
+    "DECISION-STAGE-LEGACY-001": {
+      "keys": {
+        "search": [
+          "DECISION-STAGE-LEGACY-001 Stage 拒绝旧领域基线 当前 Stage 不能把旧领域目录 revision 与当前 ID/布局来源混合为 pending snapshot。 旧领域基线下 stage 失败且暂存区为空。 tools/decision-records/tests/stage.test.ts > stage rejects an old domain revision before changing pending files bun test --test-name-pattern=\"^stage rejects an old domain revision before changing pending files$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage rejects an old domain revision before changing pending files",
+          "bun test --test-name-pattern=\"^stage rejects an old domain revision before changing pending files$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STAGE-LEGACY-001",
+        "line": 1,
+        "searchText": "Stage 拒绝旧领域基线 当前 Stage 不能把旧领域目录 revision 与当前 ID/布局来源混合为 pending snapshot。 旧领域基线下 stage 失败且暂存区为空。 tools/decision-records/tests/stage.test.ts > stage rejects an old domain revision before changing pending files bun test --test-name-pattern=\"^stage rejects an old domain revision before changing pending files$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/stage-legacy-baseline.md",
+        "summary": "当前 Stage 不能把旧领域目录 revision 与当前 ID/布局来源混合为 pending snapshot。",
+        "title": "Stage 拒绝旧领域基线"
+      }
+    },
+    "DECISION-STAGE-MOVE-001": {
+      "keys": {
+        "search": [
+          "DECISION-STAGE-MOVE-001 按 sourcePath 暂存选择的 ID 移动 选择同一 ID 时，root 到 archive 的 sourcePath 变化必须作为该 ID 的移动和派生 index 暂存。 stage 输出包含 root→archive rename 和 decision-index。 tools/decision-records/tests/stage.test.ts > stage selects one Decision ID when its sourcePath moves between root and archive bun test --test-name-pattern=\"^stage selects one Decision ID when its sourcePath moves between root and archive$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage selects one Decision ID when its sourcePath moves between root and archive",
+          "bun test --test-name-pattern=\"^stage selects one Decision ID when its sourcePath moves between root and archive$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STAGE-MOVE-001",
+        "line": 1,
+        "searchText": "按 sourcePath 暂存选择的 ID 移动 选择同一 ID 时，root 到 archive 的 sourcePath 变化必须作为该 ID 的移动和派生 index 暂存。 stage 输出包含 root→archive rename 和 decision-index。 tools/decision-records/tests/stage.test.ts > stage selects one Decision ID when its sourcePath moves between root and archive bun test --test-name-pattern=\"^stage selects one Decision ID when its sourcePath moves between root and archive$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/stage-selected-move.md",
+        "summary": "选择同一 ID 时，root 到 archive 的 sourcePath 变化必须作为该 ID 的移动和派生 index 暂存。",
+        "title": "按 sourcePath 暂存选择的 ID 移动"
+      }
+    },
+    "DECISION-STAGE-NO-INFERENCE-001": {
+      "keys": {
+        "search": [
+          "DECISION-STAGE-NO-INFERENCE-001 Stage 不把无关的相同删除/新增绑定为改名 CLI 不从文本相同的删除/新增推断身份改名。 暂存条目保持独立 D/A，而非 rename。 tools/decision-records/tests/stage.test.ts > stage does not bind unrelated identical deletion and addition as a rename bun test --test-name-pattern=\"^stage does not bind unrelated identical deletion and addition as a rename$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage does not bind unrelated identical deletion and addition as a rename",
+          "bun test --test-name-pattern=\"^stage does not bind unrelated identical deletion and addition as a rename$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STAGE-NO-INFERENCE-001",
+        "line": 1,
+        "searchText": "Stage 不把无关的相同删除/新增绑定为改名 CLI 不从文本相同的删除/新增推断身份改名。 暂存条目保持独立 D/A，而非 rename。 tools/decision-records/tests/stage.test.ts > stage does not bind unrelated identical deletion and addition as a rename bun test --test-name-pattern=\"^stage does not bind unrelated identical deletion and addition as a rename$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/stage-unrelated-identical-add-delete.md",
+        "summary": "CLI 不从文本相同的删除/新增推断身份改名。",
+        "title": "Stage 不把无关的相同删除/新增绑定为改名"
       }
     },
     "DECISION-STAGE-OVERLAY-001": {
       "keys": {
         "search": [
-          "DECISION-STAGE-OVERLAY-001 Stage 应用显式增加修改删除与重命名 所选路径在 revision 与 filesystem 中的存在状态分别表达增加、修改和删除；重命名由旧路径删除与新路径增加共同显式表达。 pending 精确应用所选增加、修改和删除，并移除显式选择的旧名称路径。 重建索引只包含最终目标路径集合，且 `sourceRevision` 与同一 pending 来源一致。 tools/decision-records/tests/stage.test.ts > stage applies selected additions modifications deletions and explicit renames bun test --test-name-pattern=\"^stage applies selected additions modifications deletions and explicit renames$\" ./tools/decision-records/tests/stage.test.ts"
+          "DECISION-STAGE-OVERLAY-001 Stage 应用选择的新增、修改与删除 stage 将选择的新增、修改、删除和派生索引作为完整 pending 快照暂存；改名只由显式选择表达。 修改、删除和新增记录后，断言对应路径及 index 暂存。 tools/decision-records/tests/stage.test.ts > stage applies selected additions modifications deletions and explicit renames bun test --test-name-pattern=\"^stage applies selected additions modifications deletions and explicit renames$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 12,
         "entries": [
           "tools/decision-records/tests/stage.test.ts > stage applies selected additions modifications deletions and explicit renames",
-          "bun test --test-name-pattern=\"^stage applies selected additions modifications deletions and explicit renames$\" ./tools/decision-records/tests/stage.test.ts"
+          "bun test --test-name-pattern=\"^stage applies selected additions modifications deletions and explicit renames$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-STAGE-OVERLAY-001",
         "line": 1,
-        "searchText": "Stage 应用显式增加修改删除与重命名 所选路径在 revision 与 filesystem 中的存在状态分别表达增加、修改和删除；重命名由旧路径删除与新路径增加共同显式表达。 pending 精确应用所选增加、修改和删除，并移除显式选择的旧名称路径。 重建索引只包含最终目标路径集合，且 `sourceRevision` 与同一 pending 来源一致。 tools/decision-records/tests/stage.test.ts > stage applies selected additions modifications deletions and explicit renames bun test --test-name-pattern=\"^stage applies selected additions modifications deletions and explicit renames$\" ./tools/decision-records/tests/stage.test.ts",
+        "searchText": "Stage 应用选择的新增、修改与删除 stage 将选择的新增、修改、删除和派生索引作为完整 pending 快照暂存；改名只由显式选择表达。 修改、删除和新增记录后，断言对应路径及 index 暂存。 tools/decision-records/tests/stage.test.ts > stage applies selected additions modifications deletions and explicit renames bun test --test-name-pattern=\"^stage applies selected additions modifications deletions and explicit renames$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/stage-applies-selected-additions-modifications-deletions-and-explicit-renames.md",
-        "summary": "所选路径在 revision 与 filesystem 中的存在状态分别表达增加、修改和删除；重命名由旧路径删除与新路径增加共同显式表达。",
-        "title": "Stage 应用显式增加修改删除与重命名"
+        "summary": "stage 将选择的新增、修改、删除和派生索引作为完整 pending 快照暂存；改名只由显式选择表达。",
+        "title": "Stage 应用选择的新增、修改与删除"
+      }
+    },
+    "DECISION-STAGE-PENDING-CAS-001": {
+      "keys": {
+        "search": [
+          "DECISION-STAGE-PENDING-CAS-001 Stage 保留并发 pending 内容 Stage 的预检与 pending 替换之间若出现并发 pending 文件，锁内 CAS 必须拒绝替换，不能覆盖他人的暂存字节。 在构造目标后注入并暂存另一份决策，stage 报告冲突，且该暂存文件字节保持不变。 tools/decision-records/tests/stage.test.ts > stage preserves concurrent pending bytes discovered by the replacement CAS bun test --test-name-pattern=\"^stage preserves concurrent pending bytes discovered by the replacement CAS$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage preserves concurrent pending bytes discovered by the replacement CAS",
+          "bun test --test-name-pattern=\"^stage preserves concurrent pending bytes discovered by the replacement CAS$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STAGE-PENDING-CAS-001",
+        "line": 1,
+        "searchText": "Stage 保留并发 pending 内容 Stage 的预检与 pending 替换之间若出现并发 pending 文件，锁内 CAS 必须拒绝替换，不能覆盖他人的暂存字节。 在构造目标后注入并暂存另一份决策，stage 报告冲突，且该暂存文件字节保持不变。 tools/decision-records/tests/stage.test.ts > stage preserves concurrent pending bytes discovered by the replacement CAS bun test --test-name-pattern=\"^stage preserves concurrent pending bytes discovered by the replacement CAS$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/stage-pending-cas-race.md",
+        "summary": "Stage 的预检与 pending 替换之间若出现并发 pending 文件，锁内 CAS 必须拒绝替换，不能覆盖他人的暂存字节。",
+        "title": "Stage 保留并发 pending 内容"
+      }
+    },
+    "DECISION-STAGE-PENDING-EXISTING-001": {
+      "keys": {
+        "search": [
+          "DECISION-STAGE-PENDING-EXISTING-001 Stage 拒绝已有 pending index 已有决策 pending snapshot 时，新的 Stage 不得合并或覆盖。 首次 stage 后再次执行失败并报告 pending snapshot。 tools/decision-records/tests/stage.test.ts > stage rejects an existing pending decision index bun test --test-name-pattern=\"^stage rejects an existing pending decision index$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage rejects an existing pending decision index",
+          "bun test --test-name-pattern=\"^stage rejects an existing pending decision index$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STAGE-PENDING-EXISTING-001",
+        "line": 1,
+        "searchText": "Stage 拒绝已有 pending index 已有决策 pending snapshot 时，新的 Stage 不得合并或覆盖。 首次 stage 后再次执行失败并报告 pending snapshot。 tools/decision-records/tests/stage.test.ts > stage rejects an existing pending decision index bun test --test-name-pattern=\"^stage rejects an existing pending decision index$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/stage-existing-pending-index.md",
+        "summary": "已有决策 pending snapshot 时，新的 Stage 不得合并或覆盖。",
+        "title": "Stage 拒绝已有 pending index"
+      }
+    },
+    "DECISION-STAGE-RENAME-001": {
+      "keys": {
+        "search": [
+          "DECISION-STAGE-RENAME-001 Stage 仅以显式 old+new ID 表达 basename 改名 只有显式同时选择 old+new ID 才表达 basename rename；新正文编辑与 identity 变更一同进入 pending index，工具不猜测。 暂存后旧 ID 消失，新 ID 具有编辑后的标题。 tools/decision-records/tests/stage.test.ts > stage expresses a basename identity rename by selecting both IDs bun test --test-name-pattern=\"^stage expresses a basename identity rename by selecting both IDs$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage expresses a basename identity rename by selecting both IDs",
+          "bun test --test-name-pattern=\"^stage expresses a basename identity rename by selecting both IDs$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STAGE-RENAME-001",
+        "line": 1,
+        "searchText": "Stage 仅以显式 old+new ID 表达 basename 改名 只有显式同时选择 old+new ID 才表达 basename rename；新正文编辑与 identity 变更一同进入 pending index，工具不猜测。 暂存后旧 ID 消失，新 ID 具有编辑后的标题。 tools/decision-records/tests/stage.test.ts > stage expresses a basename identity rename by selecting both IDs bun test --test-name-pattern=\"^stage expresses a basename identity rename by selecting both IDs$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/stage-explicit-rename.md",
+        "summary": "只有显式同时选择 old+new ID 才表达 basename rename；新正文编辑与 identity 变更一同进入 pending index，工具不猜测。",
+        "title": "Stage 仅以显式 old+new ID 表达 basename 改名"
+      }
+    },
+    "DECISION-STAGE-SELECTED-MEMBER-TYPE-001": {
+      "keys": {
+        "search": [
+          "DECISION-STAGE-SELECTED-MEMBER-TYPE-001 Stage 拒绝指向决策根外的选择 symlink revision 模式下，选择的 ID 必须对应决策根内的普通 Markdown 文件；symlink 等非普通来源不得读取其外部字节或写入 pending。 将已选择记录替换为指向根外合法 Markdown 的 symlink 后，stage 失败且暂存区为空；平台不支持 symlink 时按测试框架标记跳过。 tools/decision-records/tests/stage.test.ts > stage rejects a selected symlink source outside the decision root bun test --test-name-pattern=\"^stage rejects a selected symlink source outside the decision root$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage rejects a selected symlink source outside the decision root",
+          "bun test --test-name-pattern=\"^stage rejects a selected symlink source outside the decision root$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STAGE-SELECTED-MEMBER-TYPE-001",
+        "line": 1,
+        "searchText": "Stage 拒绝指向决策根外的选择 symlink revision 模式下，选择的 ID 必须对应决策根内的普通 Markdown 文件；symlink 等非普通来源不得读取其外部字节或写入 pending。 将已选择记录替换为指向根外合法 Markdown 的 symlink 后，stage 失败且暂存区为空；平台不支持 symlink 时按测试框架标记跳过。 tools/decision-records/tests/stage.test.ts > stage rejects a selected symlink source outside the decision root bun test --test-name-pattern=\"^stage rejects a selected symlink source outside the decision root$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/stage-selected-symlink.md",
+        "summary": "revision 模式下，选择的 ID 必须对应决策根内的普通 Markdown 文件；symlink 等非普通来源不得读取其外部字节或写入 pending。",
+        "title": "Stage 拒绝指向决策根外的选择 symlink"
+      }
+    },
+    "DECISION-STAGE-SOURCE-PREFLIGHT-001": {
+      "keys": {
+        "search": [
+          "DECISION-STAGE-SOURCE-PREFLIGHT-001 Stage 拒绝选择来源在快照后的漂移 选择的 filesystem source 在初次快照后、pending replace 前发生字节修改、删除或移动时，Stage 必须拒绝且不写入 pending。 受控第二次 source read 分别注入三种漂移，均报告预写入失败且暂存区为空。 tools/decision-records/tests/stage.test.ts > stage rejects selected source drift before replacing the pending snapshot bun test --test-name-pattern=\"^stage rejects selected source drift before replacing the pending snapshot$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage rejects selected source drift before replacing the pending snapshot",
+          "bun test --test-name-pattern=\"^stage rejects selected source drift before replacing the pending snapshot$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STAGE-SOURCE-PREFLIGHT-001",
+        "line": 1,
+        "searchText": "Stage 拒绝选择来源在快照后的漂移 选择的 filesystem source 在初次快照后、pending replace 前发生字节修改、删除或移动时，Stage 必须拒绝且不写入 pending。 受控第二次 source read 分别注入三种漂移，均报告预写入失败且暂存区为空。 tools/decision-records/tests/stage.test.ts > stage rejects selected source drift before replacing the pending snapshot bun test --test-name-pattern=\"^stage rejects selected source drift before replacing the pending snapshot$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/stage-selected-source-drift.md",
+        "summary": "选择的 filesystem source 在初次快照后、pending replace 前发生字节修改、删除或移动时，Stage 必须拒绝且不写入 pending。",
+        "title": "Stage 拒绝选择来源在快照后的漂移"
       }
     },
     "DECISION-STAGE-TARGET-VALIDATION-001": {
       "keys": {
         "search": [
-          "DECISION-STAGE-TARGET-VALIDATION-001 Stage 在写入前拒绝非法目标集合 `stage` 必须在 pending 写入前完整验证目标来源的建立状态、revision 领域目录归属和关系目标集合，不自动扩大选择集。 所选候选和未进入目标来源的关系目标均导致行为失败。 filesystem 领域目录表即使合法新增领域，已有决策基线仍使用不含该领域的 revision 目录表；所选新领域决策在任何 pending 写入前失败。 每种目标校验失败都保持完整 pending 条目不变。 tools/decision-records/tests/stage.test.ts > stage rejects invalid candidate domain and relationship targets before pending writes bun test --test-name-pattern=\"^stage rejects invalid candidate domain and relationship targets before pending writes$\" ./tools/decision-records/tests/stage.test.ts"
+          "DECISION-STAGE-TARGET-VALIDATION-001 Stage 拒绝关系目标无效的候选 候选的关系目标无效时 stage 不得写入 pending。 候选引用不存在的稳定 ID 后失败且暂存区为空。 tools/decision-records/tests/stage.test.ts > stage rejects invalid candidate relation targets before pending writes bun test --test-name-pattern=\"^stage rejects invalid candidate relation targets before pending writes$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 14,
+        "endLine": 12,
         "entries": [
-          "tools/decision-records/tests/stage.test.ts > stage rejects invalid candidate domain and relationship targets before pending writes",
-          "bun test --test-name-pattern=\"^stage rejects invalid candidate domain and relationship targets before pending writes$\" ./tools/decision-records/tests/stage.test.ts"
+          "tools/decision-records/tests/stage.test.ts > stage rejects invalid candidate relation targets before pending writes",
+          "bun test --test-name-pattern=\"^stage rejects invalid candidate relation targets before pending writes$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-STAGE-TARGET-VALIDATION-001",
         "line": 1,
-        "searchText": "Stage 在写入前拒绝非法目标集合 `stage` 必须在 pending 写入前完整验证目标来源的建立状态、revision 领域目录归属和关系目标集合，不自动扩大选择集。 所选候选和未进入目标来源的关系目标均导致行为失败。 filesystem 领域目录表即使合法新增领域，已有决策基线仍使用不含该领域的 revision 目录表；所选新领域决策在任何 pending 写入前失败。 每种目标校验失败都保持完整 pending 条目不变。 tools/decision-records/tests/stage.test.ts > stage rejects invalid candidate domain and relationship targets before pending writes bun test --test-name-pattern=\"^stage rejects invalid candidate domain and relationship targets before pending writes$\" ./tools/decision-records/tests/stage.test.ts",
+        "searchText": "Stage 拒绝关系目标无效的候选 候选的关系目标无效时 stage 不得写入 pending。 候选引用不存在的稳定 ID 后失败且暂存区为空。 tools/decision-records/tests/stage.test.ts > stage rejects invalid candidate relation targets before pending writes bun test --test-name-pattern=\"^stage rejects invalid candidate relation targets before pending writes$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/stage-rejects-invalid-candidate-domain-and-relationship-targets-before-pending-writes.md",
-        "summary": "`stage` 必须在 pending 写入前完整验证目标来源的建立状态、revision 领域目录归属和关系目标集合，不自动扩大选择集。",
-        "title": "Stage 在写入前拒绝非法目标集合"
+        "summary": "候选的关系目标无效时 stage 不得写入 pending。",
+        "title": "Stage 拒绝关系目标无效的候选"
+      }
+    },
+    "DECISION-STAGE-UNSELECTED-INVALID-001": {
+      "keys": {
+        "search": [
+          "DECISION-STAGE-UNSELECTED-INVALID-001 Stage 隔离未选择的无效来源 有 revision 时，未选择的非法 filesystem 内容不能阻断合法选择，也不能进入 pending；bootstrap 仍不放宽完整扫描。 根目录中的非法 basename 保持未暂存，合法已修改 ID 和派生 index 正常进入 pending。 tools/decision-records/tests/stage.test.ts > stage isolates unselected invalid filesystem content from a selected revision ID bun test --test-name-pattern=\"^stage isolates unselected invalid filesystem content from a selected revision ID$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage isolates unselected invalid filesystem content from a selected revision ID",
+          "bun test --test-name-pattern=\"^stage isolates unselected invalid filesystem content from a selected revision ID$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STAGE-UNSELECTED-INVALID-001",
+        "line": 1,
+        "searchText": "Stage 隔离未选择的无效来源 有 revision 时，未选择的非法 filesystem 内容不能阻断合法选择，也不能进入 pending；bootstrap 仍不放宽完整扫描。 根目录中的非法 basename 保持未暂存，合法已修改 ID 和派生 index 正常进入 pending。 tools/decision-records/tests/stage.test.ts > stage isolates unselected invalid filesystem content from a selected revision ID bun test --test-name-pattern=\"^stage isolates unselected invalid filesystem content from a selected revision ID$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/stage-isolates-unselected-invalid-source.md",
+        "summary": "有 revision 时，未选择的非法 filesystem 内容不能阻断合法选择，也不能进入 pending；bootstrap 仍不放宽完整扫描。",
+        "title": "Stage 隔离未选择的无效来源"
       }
     },
     "DECISION-STAGE-VERSION-CONTROL-001": {
       "keys": {
         "search": [
-          "DECISION-STAGE-VERSION-CONTROL-001 Stage 在版本管理不可用时保持 filesystem `stage` 需要可用的版本管理决策工作区；环境不可用时必须通过稳定领域诊断失败，不能退化为 filesystem 写入。 无可用版本管理工作区时命令以行为失败退出且不产生成功输出。 领域目录、所选决策和 filesystem 索引状态与调用前完全一致。 tools/decision-records/tests/stage.test.ts > stage reports unavailable version control without writing filesystem state bun test --test-name-pattern=\"^stage reports unavailable version control without writing filesystem state$\" ./tools/decision-records/tests/stage.test.ts"
+          "DECISION-STAGE-VERSION-CONTROL-001 Stage 在无版本控制时不写入来源 stage 需要受版本控制的 workspace；不可用时不改动决策来源。 无 Git workspace 返回诊断且正文不变。 tools/decision-records/tests/stage.test.ts > stage reports unavailable version control without writing filesystem state bun test --test-name-pattern=\"^stage reports unavailable version control without writing filesystem state$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 12,
         "entries": [
           "tools/decision-records/tests/stage.test.ts > stage reports unavailable version control without writing filesystem state",
-          "bun test --test-name-pattern=\"^stage reports unavailable version control without writing filesystem state$\" ./tools/decision-records/tests/stage.test.ts"
+          "bun test --test-name-pattern=\"^stage reports unavailable version control without writing filesystem state$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-STAGE-VERSION-CONTROL-001",
         "line": 1,
-        "searchText": "Stage 在版本管理不可用时保持 filesystem `stage` 需要可用的版本管理决策工作区；环境不可用时必须通过稳定领域诊断失败，不能退化为 filesystem 写入。 无可用版本管理工作区时命令以行为失败退出且不产生成功输出。 领域目录、所选决策和 filesystem 索引状态与调用前完全一致。 tools/decision-records/tests/stage.test.ts > stage reports unavailable version control without writing filesystem state bun test --test-name-pattern=\"^stage reports unavailable version control without writing filesystem state$\" ./tools/decision-records/tests/stage.test.ts",
+        "searchText": "Stage 在无版本控制时不写入来源 stage 需要受版本控制的 workspace；不可用时不改动决策来源。 无 Git workspace 返回诊断且正文不变。 tools/decision-records/tests/stage.test.ts > stage reports unavailable version control without writing filesystem state bun test --test-name-pattern=\"^stage reports unavailable version control without writing filesystem state$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/stage-reports-unavailable-version-control-without-writing-filesystem-state.md",
-        "summary": "`stage` 需要可用的版本管理决策工作区；环境不可用时必须通过稳定领域诊断失败，不能退化为 filesystem 写入。",
-        "title": "Stage 在版本管理不可用时保持 filesystem"
+        "summary": "stage 需要受版本控制的 workspace；不可用时不改动决策来源。",
+        "title": "Stage 在无版本控制时不写入来源"
       }
     },
     "DECISION-STATE-MEMORY-ACTIVE-TARGET-001": {
       "keys": {
         "search": [
-          "DECISION-STATE-MEMORY-ACTIVE-TARGET-001 内存快照拒绝活动关系目标 决策演进关系的直接目标必须在同一目标快照中处于归档状态，内存来源不能绕过该生命周期约束。 把关系目标改为活动且已对齐后，内存快照以目标必须归档的诊断拒绝构造。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots reject active relationship targets bun test --test-name-pattern=\"^memory source snapshots reject active relationship targets$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+          "DECISION-STATE-MEMORY-ACTIVE-TARGET-001 内存来源拒绝活动关系目标 修订关系目标必须是归档记录，内存来源同样执行此图约束。 把关系目标改为 active 后构造快照，断言拒绝。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots reject active relationship targets bun test --test-name-pattern=\"^memory source snapshots reject active relationship targets$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -3050,20 +3716,20 @@
         "endLine": 12,
         "entries": [
           "tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots reject active relationship targets",
-          "bun test --test-name-pattern=\"^memory source snapshots reject active relationship targets$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+          "bun test --test-name-pattern=\"^memory source snapshots reject active relationship targets$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-STATE-MEMORY-ACTIVE-TARGET-001",
         "line": 1,
-        "searchText": "内存快照拒绝活动关系目标 决策演进关系的直接目标必须在同一目标快照中处于归档状态，内存来源不能绕过该生命周期约束。 把关系目标改为活动且已对齐后，内存快照以目标必须归档的诊断拒绝构造。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots reject active relationship targets bun test --test-name-pattern=\"^memory source snapshots reject active relationship targets$\" ./tools/decision-records/tests/state-snapshot.test.ts",
+        "searchText": "内存来源拒绝活动关系目标 修订关系目标必须是归档记录，内存来源同样执行此图约束。 把关系目标改为 active 后构造快照，断言拒绝。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots reject active relationship targets bun test --test-name-pattern=\"^memory source snapshots reject active relationship targets$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/memory-source-snapshots-reject-active-relationship-targets.md",
-        "summary": "决策演进关系的直接目标必须在同一目标快照中处于归档状态，内存来源不能绕过该生命周期约束。",
-        "title": "内存快照拒绝活动关系目标"
+        "summary": "修订关系目标必须是归档记录，内存来源同样执行此图约束。",
+        "title": "内存来源拒绝活动关系目标"
       }
     },
     "DECISION-STATE-MEMORY-CYCLE-001": {
       "keys": {
         "search": [
-          "DECISION-STATE-MEMORY-CYCLE-001 内存快照拒绝决策关系环 从内存来源构造的完整决策关系图必须保持无环，与文件系统索引构造使用相同关系不变量。 两条内存决策来源形成闭环时，快照以关系不得成环的诊断拒绝构造。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots reject relationship cycles bun test --test-name-pattern=\"^memory source snapshots reject relationship cycles$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+          "DECISION-STATE-MEMORY-CYCLE-001 内存来源拒绝关系环 快照构造必须拒绝闭环关系图。 构造两记录的互相修订，断言 cycle 错误。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots reject relationship cycles bun test --test-name-pattern=\"^memory source snapshots reject relationship cycles$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -3073,20 +3739,20 @@
         "endLine": 12,
         "entries": [
           "tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots reject relationship cycles",
-          "bun test --test-name-pattern=\"^memory source snapshots reject relationship cycles$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+          "bun test --test-name-pattern=\"^memory source snapshots reject relationship cycles$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-STATE-MEMORY-CYCLE-001",
         "line": 1,
-        "searchText": "内存快照拒绝决策关系环 从内存来源构造的完整决策关系图必须保持无环，与文件系统索引构造使用相同关系不变量。 两条内存决策来源形成闭环时，快照以关系不得成环的诊断拒绝构造。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots reject relationship cycles bun test --test-name-pattern=\"^memory source snapshots reject relationship cycles$\" ./tools/decision-records/tests/state-snapshot.test.ts",
+        "searchText": "内存来源拒绝关系环 快照构造必须拒绝闭环关系图。 构造两记录的互相修订，断言 cycle 错误。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots reject relationship cycles bun test --test-name-pattern=\"^memory source snapshots reject relationship cycles$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/memory-source-snapshots-reject-relationship-cycles.md",
-        "summary": "从内存来源构造的完整决策关系图必须保持无环，与文件系统索引构造使用相同关系不变量。",
-        "title": "内存快照拒绝决策关系环"
+        "summary": "快照构造必须拒绝闭环关系图。",
+        "title": "内存来源拒绝关系环"
       }
     },
     "DECISION-STATE-MEMORY-RELATION-SOURCE-001": {
       "keys": {
         "search": [
-          "DECISION-STATE-MEMORY-RELATION-SOURCE-001 内存快照关系只解析同一来源集合 内存决策快照的关系目标只能由同一内存来源集合提供，磁盘上的同名决策不得补足目标集合。 从内存来源移除关系目标后，即使文件系统仍有同名决策，快照仍以目标不存在拒绝构造。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots ignore same-name filesystem relation targets bun test --test-name-pattern=\"^memory source snapshots ignore same-name filesystem relation targets$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+          "DECISION-STATE-MEMORY-RELATION-SOURCE-001 内存来源拒绝缺失的关系目标 内存快照只能以传入 source 集合解析关系，缺失 ID 目标不得由磁盘文件补足。 移除归档目标 source 后构造快照，断言关系目标不存在。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots ignore same-name filesystem relation targets bun test --test-name-pattern=\"^memory source snapshots ignore same-name filesystem relation targets$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -3096,14 +3762,14 @@
         "endLine": 12,
         "entries": [
           "tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots ignore same-name filesystem relation targets",
-          "bun test --test-name-pattern=\"^memory source snapshots ignore same-name filesystem relation targets$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+          "bun test --test-name-pattern=\"^memory source snapshots ignore same-name filesystem relation targets$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-STATE-MEMORY-RELATION-SOURCE-001",
         "line": 1,
-        "searchText": "内存快照关系只解析同一来源集合 内存决策快照的关系目标只能由同一内存来源集合提供，磁盘上的同名决策不得补足目标集合。 从内存来源移除关系目标后，即使文件系统仍有同名决策，快照仍以目标不存在拒绝构造。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots ignore same-name filesystem relation targets bun test --test-name-pattern=\"^memory source snapshots ignore same-name filesystem relation targets$\" ./tools/decision-records/tests/state-snapshot.test.ts",
+        "searchText": "内存来源拒绝缺失的关系目标 内存快照只能以传入 source 集合解析关系，缺失 ID 目标不得由磁盘文件补足。 移除归档目标 source 后构造快照，断言关系目标不存在。 tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots ignore same-name filesystem relation targets bun test --test-name-pattern=\"^memory source snapshots ignore same-name filesystem relation targets$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/memory-source-snapshots-ignore-same-name-filesystem-relation-targets.md",
-        "summary": "内存决策快照的关系目标只能由同一内存来源集合提供，磁盘上的同名决策不得补足目标集合。",
-        "title": "内存快照关系只解析同一来源集合"
+        "summary": "内存快照只能以传入 source 集合解析关系，缺失 ID 目标不得由磁盘文件补足。",
+        "title": "内存来源拒绝缺失的关系目标"
       }
     },
     "DECISION-STATE-SNAPSHOT-001": {
@@ -3132,24 +3798,24 @@
     "DECISION-STATE-SOURCE-PARITY-001": {
       "keys": {
         "search": [
-          "DECISION-STATE-SOURCE-PARITY-001 内存与文件系统来源共享确定性索引构造 相同领域目录与已建立决策来源必须通过同一 ID-keyed 快照、结构化 source revision 和索引物化语义产生确定性结果，不受来源介质或输入顺序影响。 内存来源与文件系统来源构造出相同快照，完整与快速读取的 revision 等于同一来源集合的 metadata/逐路径规范指纹。 反转内存来源顺序后生成的完整索引与文件系统索引序列化结果相同。 tools/decision-records/tests/state-snapshot.test.ts > memory and filesystem sources share deterministic index construction bun test --test-name-pattern=\"^memory and filesystem sources share deterministic index construction$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+          "DECISION-STATE-SOURCE-PARITY-001 内存来源按稳定 ID 确定性构造索引 同一组内存来源无论输入顺序如何，都必须构造相同的 ID 键决策快照。 正反顺序的两条根目录/归档来源产生深度相等的快照。 tools/decision-records/tests/state-snapshot.test.ts > memory sources share deterministic ID-keyed index construction bun test --test-name-pattern=\"^memory\\ sources\\ share\\ deterministic\\ ID\\-keyed\\ index\\ construction$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 12,
         "entries": [
-          "tools/decision-records/tests/state-snapshot.test.ts > memory and filesystem sources share deterministic index construction",
-          "bun test --test-name-pattern=\"^memory and filesystem sources share deterministic index construction$\" ./tools/decision-records/tests/state-snapshot.test.ts"
+          "tools/decision-records/tests/state-snapshot.test.ts > memory sources share deterministic ID-keyed index construction",
+          "bun test --test-name-pattern=\"^memory\\ sources\\ share\\ deterministic\\ ID\\-keyed\\ index\\ construction$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-STATE-SOURCE-PARITY-001",
         "line": 1,
-        "searchText": "内存与文件系统来源共享确定性索引构造 相同领域目录与已建立决策来源必须通过同一 ID-keyed 快照、结构化 source revision 和索引物化语义产生确定性结果，不受来源介质或输入顺序影响。 内存来源与文件系统来源构造出相同快照，完整与快速读取的 revision 等于同一来源集合的 metadata/逐路径规范指纹。 反转内存来源顺序后生成的完整索引与文件系统索引序列化结果相同。 tools/decision-records/tests/state-snapshot.test.ts > memory and filesystem sources share deterministic index construction bun test --test-name-pattern=\"^memory and filesystem sources share deterministic index construction$\" ./tools/decision-records/tests/state-snapshot.test.ts",
+        "searchText": "内存来源按稳定 ID 确定性构造索引 同一组内存来源无论输入顺序如何，都必须构造相同的 ID 键决策快照。 正反顺序的两条根目录/归档来源产生深度相等的快照。 tools/decision-records/tests/state-snapshot.test.ts > memory sources share deterministic ID-keyed index construction bun test --test-name-pattern=\"^memory\\ sources\\ share\\ deterministic\\ ID\\-keyed\\ index\\ construction$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/memory-and-filesystem-sources-share-deterministic-index-construction.md",
-        "summary": "相同领域目录与已建立决策来源必须通过同一 ID-keyed 快照、结构化 source revision 和索引物化语义产生确定性结果，不受来源介质或输入顺序影响。",
-        "title": "内存与文件系统来源共享确定性索引构造"
+        "summary": "同一组内存来源无论输入顺序如何，都必须构造相同的 ID 键决策快照。",
+        "title": "内存来源按稳定 ID 确定性构造索引"
       }
     },
     "DECISION-STATIC-MERGE-MINIMUM-001": {
@@ -3198,142 +3864,257 @@
         "title": "严格关系检查拒绝不纯拆分后继"
       }
     },
-    "DECISION-TRACE-DIRECTION-001": {
+    "DECISION-TAG-METADATA-001": {
       "keys": {
         "search": [
-          "DECISION-TRACE-DIRECTION-001 决策追踪遵循前序与后继方向 Trace CLI 必须按默认、predecessors 与 successors 方向返回真实直接演进关系。 默认追踪显示关系类型和两端领域，前序与后继筛选只包含对应方向的记录。 tools/decision-records/tests/queries.test.ts > decision trace follows predecessor and successor directions bun test --test-name-pattern=\"^decision trace follows predecessor and successor directions$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-TAG-METADATA-001 标签 Markdown 往返解析 序列化 frontmatter 后重新解析必须保留 candidate 的 tags、投影字段和正文边界。 序列化→解析后 tags、title、正文与原解析结果一致。 tools/decision-records/tests/metadata.test.ts > decision Markdown parses canonical tags and round-trips its semantic fields bun test --test-name-pattern=\"^decision Markdown parses canonical tags and round-trips its semantic fields$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/metadata.test.ts > decision Markdown parses canonical tags and round-trips its semantic fields",
+          "bun test --test-name-pattern=\"^decision Markdown parses canonical tags and round-trips its semantic fields$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-TAG-METADATA-001",
+        "line": 1,
+        "searchText": "标签 Markdown 往返解析 序列化 frontmatter 后重新解析必须保留 candidate 的 tags、投影字段和正文边界。 序列化→解析后 tags、title、正文与原解析结果一致。 tools/decision-records/tests/metadata.test.ts > decision Markdown parses canonical tags and round-trips its semantic fields bun test --test-name-pattern=\"^decision Markdown parses canonical tags and round-trips its semantic fields$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/tagged-metadata-roundtrip.md",
+        "summary": "序列化 frontmatter 后重新解析必须保留 candidate 的 tags、投影字段和正文边界。",
+        "title": "标签 Markdown 往返解析"
+      }
+    },
+    "DECISION-TAG-SOURCE-DRIFT-001": {
+      "keys": {
+        "search": [
+          "DECISION-TAG-SOURCE-DRIFT-001 Check 检测标签来源漂移并由同步接受 标签来源漂移使 strict check 失败；sync-index --write 重建后接受当前来源。 添加 tag 后 check 非零，随后同步索引成功。 tools/decision-records/tests/queries.test.ts > check detects tagged source drift and sync-index accepts it bun test --test-name-pattern=\"^check detects tagged source drift and sync-index accepts it$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > check detects tagged source drift and sync-index accepts it",
+          "bun test --test-name-pattern=\"^check detects tagged source drift and sync-index accepts it$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-TAG-SOURCE-DRIFT-001",
+        "line": 1,
+        "searchText": "Check 检测标签来源漂移并由同步接受 标签来源漂移使 strict check 失败；sync-index --write 重建后接受当前来源。 添加 tag 后 check 非零，随后同步索引成功。 tools/decision-records/tests/queries.test.ts > check detects tagged source drift and sync-index accepts it bun test --test-name-pattern=\"^check detects tagged source drift and sync-index accepts it$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/tagged-source-drift-sync.md",
+        "summary": "标签来源漂移使 strict check 失败；sync-index --write 重建后接受当前来源。",
+        "title": "Check 检测标签来源漂移并由同步接受"
+      }
+    },
+    "DECISION-TAG-VALIDATION-001": {
+      "keys": {
+        "search": [
+          "DECISION-TAG-VALIDATION-001 标签必需、有序且唯一 每条决策 tags 非空、合法、词法有序且唯一。 缺失、空、非法、逆序、重复 tags 分别被正文验证拒绝。 tools/decision-records/tests/metadata.test.ts > decision Markdown requires sorted unique tag tokens bun test --test-name-pattern=\"^decision Markdown requires sorted unique tag tokens$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/metadata.test.ts > decision Markdown requires sorted unique tag tokens",
+          "bun test --test-name-pattern=\"^decision Markdown requires sorted unique tag tokens$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-TAG-VALIDATION-001",
+        "line": 1,
+        "searchText": "标签必需、有序且唯一 每条决策 tags 非空、合法、词法有序且唯一。 缺失、空、非法、逆序、重复 tags 分别被正文验证拒绝。 tools/decision-records/tests/metadata.test.ts > decision Markdown requires sorted unique tag tokens bun test --test-name-pattern=\"^decision Markdown requires sorted unique tag tokens$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/tag-validation.md",
+        "summary": "每条决策 tags 非空、合法、词法有序且唯一。",
+        "title": "标签必需、有序且唯一"
+      }
+    },
+    "DECISION-TAGGED-LAYOUT-CHECK-001": {
+      "keys": {
+        "search": [
+          "DECISION-TAGGED-LAYOUT-CHECK-001 标签化根目录与归档记录的严格 Check 严格 check 接受当前标签化 root/archive fixture，并统计 established 生命周期。 API 验证无错误，计数为两条决策、一 active、一 archived。 tools/decision-records/tests/queries.test.ts > decision check validates tagged root and archive records bun test --test-name-pattern=\"^decision check validates tagged root and archive records$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/queries.test.ts > decision check validates tagged root and archive records",
+          "bun test --test-name-pattern=\"^decision check validates tagged root and archive records$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-TAGGED-LAYOUT-CHECK-001",
+        "line": 1,
+        "searchText": "标签化根目录与归档记录的严格 Check 严格 check 接受当前标签化 root/archive fixture，并统计 established 生命周期。 API 验证无错误，计数为两条决策、一 active、一 archived。 tools/decision-records/tests/queries.test.ts > decision check validates tagged root and archive records bun test --test-name-pattern=\"^decision check validates tagged root and archive records$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/tagged-layout-check.md",
+        "summary": "严格 check 接受当前标签化 root/archive fixture，并统计 established 生命周期。",
+        "title": "标签化根目录与归档记录的严格 Check"
+      }
+    },
+    "DECISION-TRACE-DIRECTION-001": {
+      "keys": {
+        "search": [
+          "DECISION-TRACE-DIRECTION-001 Trace 遵循前序与后继方向 trace 按 predecessors/successors 方向遍历稳定 ID 关系。 断言活动记录前序、归档记录后继及无前序边界。 tools/decision-records/tests/queries.test.ts > decision trace follows predecessor and successor directions bun test --test-name-pattern=\"^decision trace follows predecessor and successor directions$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
         "entries": [
           "tools/decision-records/tests/queries.test.ts > decision trace follows predecessor and successor directions",
           "bun test --test-name-pattern=\"^decision trace follows predecessor and successor directions$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-TRACE-DIRECTION-001",
         "line": 1,
-        "searchText": "决策追踪遵循前序与后继方向 Trace CLI 必须按默认、predecessors 与 successors 方向返回真实直接演进关系。 默认追踪显示关系类型和两端领域，前序与后继筛选只包含对应方向的记录。 tools/decision-records/tests/queries.test.ts > decision trace follows predecessor and successor directions bun test --test-name-pattern=\"^decision trace follows predecessor and successor directions$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Trace 遵循前序与后继方向 trace 按 predecessors/successors 方向遍历稳定 ID 关系。 断言活动记录前序、归档记录后继及无前序边界。 tools/decision-records/tests/queries.test.ts > decision trace follows predecessor and successor directions bun test --test-name-pattern=\"^decision trace follows predecessor and successor directions$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-trace-follows-predecessor-and-successor-directions.md",
-        "summary": "Trace CLI 必须按默认、predecessors 与 successors 方向返回真实直接演进关系。",
-        "title": "决策追踪遵循前序与后继方向"
+        "summary": "trace 按 predecessors/successors 方向遍历稳定 ID 关系。",
+        "title": "Trace 遵循前序与后继方向"
       }
     },
     "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001": {
       "keys": {
         "search": [
-          "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001 决策事务报告恢复不完整并停止 原始写入失败后的恢复若再次失败，事务必须停止成功路径并同时保留原始失败与可定位的恢复诊断，不能声称已经原子恢复。 故障注入使第二个更新写入和第一个 Markdown 恢复分别失败，返回结果同时包含原始写失败和 `Failed to restore decision body` 诊断。 未能恢复的 Markdown 保留变更后内容，其他 Markdown 与索引恢复到事务前内容，明确暴露需要人工恢复的现场。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction stops with recovery diagnostics when a restore write also fails bun test --test-name-pattern=\"^decision transaction stops with recovery diagnostics when a restore write also fails$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001 决策事务报告恢复写入失败 恢复步骤再次失败时必须报告原始写入失败和定位的恢复诊断。 模拟更新与恢复写入各失败一次，断言两个诊断及残留状态。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction stops with recovery diagnostics when a restore write also fails bun test --test-name-pattern=\"^decision transaction stops with recovery diagnostics when a restore write also fails$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 12,
         "entries": [
           "tools/decision-records/tests/transaction-recovery.test.ts > decision transaction stops with recovery diagnostics when a restore write also fails",
           "bun test --test-name-pattern=\"^decision transaction stops with recovery diagnostics when a restore write also fails$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001",
         "line": 1,
-        "searchText": "决策事务报告恢复不完整并停止 原始写入失败后的恢复若再次失败，事务必须停止成功路径并同时保留原始失败与可定位的恢复诊断，不能声称已经原子恢复。 故障注入使第二个更新写入和第一个 Markdown 恢复分别失败，返回结果同时包含原始写失败和 `Failed to restore decision body` 诊断。 未能恢复的 Markdown 保留变更后内容，其他 Markdown 与索引恢复到事务前内容，明确暴露需要人工恢复的现场。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction stops with recovery diagnostics when a restore write also fails bun test --test-name-pattern=\"^decision transaction stops with recovery diagnostics when a restore write also fails$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "决策事务报告恢复写入失败 恢复步骤再次失败时必须报告原始写入失败和定位的恢复诊断。 模拟更新与恢复写入各失败一次，断言两个诊断及残留状态。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction stops with recovery diagnostics when a restore write also fails bun test --test-name-pattern=\"^decision transaction stops with recovery diagnostics when a restore write also fails$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-transaction-stops-with-recovery-diagnostics-when-a-restore-write-also-fails.md",
-        "summary": "原始写入失败后的恢复若再次失败，事务必须停止成功路径并同时保留原始失败与可定位的恢复诊断，不能声称已经原子恢复。",
-        "title": "决策事务报告恢复不完整并停止"
+        "summary": "恢复步骤再次失败时必须报告原始写入失败和定位的恢复诊断。",
+        "title": "决策事务报告恢复写入失败"
       }
     },
     "DECISION-TRANSACTION-INDEX-PREFLIGHT-001": {
       "keys": {
         "search": [
-          "DECISION-TRANSACTION-INDEX-PREFLIGHT-001 决策事务在写入前拒绝已变化的索引 决策事务写入前必须核对 decision-index.json 的已验证快照；索引发生并发变化时应停止且保留并发内容。 索引在扫描后被并发修改时，事务返回包含索引路径、changed after validation 与 re-run 的诊断。 计划 Markdown 更新未执行，其他 Markdown 不变，并发索引内容被完整保留。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed index before any write bun test --test-name-pattern=\"^decision transaction rejects a changed index before any write$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-TRANSACTION-INDEX-PREFLIGHT-001 决策事务拒绝并发变化的索引 事务预检拒绝验证后变化的索引，保留并发索引文本。 在 scan 后改写 index，断言不写 Markdown 且 index 保持并发版本。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed index before any write bun test --test-name-pattern=\"^decision transaction rejects a changed index before any write$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 12,
         "entries": [
           "tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed index before any write",
           "bun test --test-name-pattern=\"^decision transaction rejects a changed index before any write$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-TRANSACTION-INDEX-PREFLIGHT-001",
         "line": 1,
-        "searchText": "决策事务在写入前拒绝已变化的索引 决策事务写入前必须核对 decision-index.json 的已验证快照；索引发生并发变化时应停止且保留并发内容。 索引在扫描后被并发修改时，事务返回包含索引路径、changed after validation 与 re-run 的诊断。 计划 Markdown 更新未执行，其他 Markdown 不变，并发索引内容被完整保留。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed index before any write bun test --test-name-pattern=\"^decision transaction rejects a changed index before any write$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "决策事务拒绝并发变化的索引 事务预检拒绝验证后变化的索引，保留并发索引文本。 在 scan 后改写 index，断言不写 Markdown 且 index 保持并发版本。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed index before any write bun test --test-name-pattern=\"^decision transaction rejects a changed index before any write$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-transaction-rejects-a-changed-index-before-any-write.md",
-        "summary": "决策事务写入前必须核对 decision-index.json 的已验证快照；索引发生并发变化时应停止且保留并发内容。",
-        "title": "决策事务在写入前拒绝已变化的索引"
+        "summary": "事务预检拒绝验证后变化的索引，保留并发索引文本。",
+        "title": "决策事务拒绝并发变化的索引"
       }
     },
     "DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001": {
       "keys": {
         "search": [
-          "DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001 决策事务在写入前拒绝已变化的 Markdown 决策事务写入前必须核对每个 Markdown 的已验证快照；来源发生并发变化时应停止并要求重新运行，而不能覆盖新内容或继续其他计划写入。 当前决策在扫描后被并发修改时，事务返回包含目标路径、changed after validation 与 re-run 的诊断。 并发 Markdown 保持新内容，另一项计划 Markdown 更新未执行，索引保持事务前内容。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed Markdown source before any write bun test --test-name-pattern=\"^decision transaction rejects a changed Markdown source before any write$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001 决策事务拒绝并发变化的 Markdown 事务预检拒绝验证后变化的 Markdown，不覆盖并发内容或其他文件。 在 scan 后修改源，断言错误和全部文件状态。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed Markdown source before any write bun test --test-name-pattern=\"^decision transaction rejects a changed Markdown source before any write$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 12,
         "entries": [
           "tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed Markdown source before any write",
           "bun test --test-name-pattern=\"^decision transaction rejects a changed Markdown source before any write$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001",
         "line": 1,
-        "searchText": "决策事务在写入前拒绝已变化的 Markdown 决策事务写入前必须核对每个 Markdown 的已验证快照；来源发生并发变化时应停止并要求重新运行，而不能覆盖新内容或继续其他计划写入。 当前决策在扫描后被并发修改时，事务返回包含目标路径、changed after validation 与 re-run 的诊断。 并发 Markdown 保持新内容，另一项计划 Markdown 更新未执行，索引保持事务前内容。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed Markdown source before any write bun test --test-name-pattern=\"^decision transaction rejects a changed Markdown source before any write$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "决策事务拒绝并发变化的 Markdown 事务预检拒绝验证后变化的 Markdown，不覆盖并发内容或其他文件。 在 scan 后修改源，断言错误和全部文件状态。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction rejects a changed Markdown source before any write bun test --test-name-pattern=\"^decision transaction rejects a changed Markdown source before any write$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-transaction-rejects-a-changed-markdown-source-before-any-write.md",
-        "summary": "决策事务写入前必须核对每个 Markdown 的已验证快照；来源发生并发变化时应停止并要求重新运行，而不能覆盖新内容或继续其他计划写入。",
-        "title": "决策事务在写入前拒绝已变化的 Markdown"
+        "summary": "事务预检拒绝验证后变化的 Markdown，不覆盖并发内容或其他文件。",
+        "title": "决策事务拒绝并发变化的 Markdown"
       }
     },
-    "DECISION-TRANSACTION-WRITE-RECOVERY-001": {
+    "DECISION-TRANSACTION-MOVE-001": {
       "keys": {
         "search": [
-          "DECISION-TRANSACTION-WRITE-RECOVERY-001 决策事务在写失败后恢复全部 Markdown 与索引 多文件决策事务在 decision-index.json 已完成替换后发生可处理写入失败时，必须报告原始失败并恢复命令前的全部受影响 Markdown 与索引。 两个 Markdown 更新完成且新索引已经替换后，故障注入使索引写入路径返回包含原始错误的诊断。 两个 Markdown 与 decision-index.json 最终都逐字节恢复到事务前内容。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction restores every changed Markdown file and index after a write failure bun test --test-name-pattern=\"^decision transaction restores every changed Markdown file and index after a write failure$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-TRANSACTION-MOVE-001 移动事务在索引替换失败后恢复 移动事务在索引替换后的写入失败中必须恢复源路径、目标路径与原索引。 模拟 index rename 失败后源文件和原 index 恢复，archive 目标不存在。 tools/decision-records/tests/transaction-recovery.test.ts > transaction recovery restores source path target path and index after a post-write failure bun test --test-name-pattern=\"^transaction recovery restores source path target path and index after a post-write failure$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/transaction-recovery.test.ts > transaction recovery restores source path target path and index after a post-write failure",
+          "bun test --test-name-pattern=\"^transaction recovery restores source path target path and index after a post-write failure$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-TRANSACTION-MOVE-001",
+        "line": 1,
+        "searchText": "移动事务在索引替换失败后恢复 移动事务在索引替换后的写入失败中必须恢复源路径、目标路径与原索引。 模拟 index rename 失败后源文件和原 index 恢复，archive 目标不存在。 tools/decision-records/tests/transaction-recovery.test.ts > transaction recovery restores source path target path and index after a post-write failure bun test --test-name-pattern=\"^transaction recovery restores source path target path and index after a post-write failure$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/transaction-move-recovery.md",
+        "summary": "移动事务在索引替换后的写入失败中必须恢复源路径、目标路径与原索引。",
+        "title": "移动事务在索引替换失败后恢复"
+      }
+    },
+    "DECISION-TRANSACTION-WRITE-RECOVERY-001": {
+      "keys": {
+        "search": [
+          "DECISION-TRANSACTION-WRITE-RECOVERY-001 决策事务在写失败后恢复全部 Markdown 与索引 多文件事务替换索引后失败时恢复全部受影响 Markdown 和索引。 模拟索引替换后失败，两个正文和索引均恢复。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction restores every changed Markdown file and index after a write failure bun test --test-name-pattern=\"^decision transaction restores every changed Markdown file and index after a write failure$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
         "entries": [
           "tools/decision-records/tests/transaction-recovery.test.ts > decision transaction restores every changed Markdown file and index after a write failure",
           "bun test --test-name-pattern=\"^decision transaction restores every changed Markdown file and index after a write failure$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-TRANSACTION-WRITE-RECOVERY-001",
         "line": 1,
-        "searchText": "决策事务在写失败后恢复全部 Markdown 与索引 多文件决策事务在 decision-index.json 已完成替换后发生可处理写入失败时，必须报告原始失败并恢复命令前的全部受影响 Markdown 与索引。 两个 Markdown 更新完成且新索引已经替换后，故障注入使索引写入路径返回包含原始错误的诊断。 两个 Markdown 与 decision-index.json 最终都逐字节恢复到事务前内容。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction restores every changed Markdown file and index after a write failure bun test --test-name-pattern=\"^decision transaction restores every changed Markdown file and index after a write failure$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "决策事务在写失败后恢复全部 Markdown 与索引 多文件事务替换索引后失败时恢复全部受影响 Markdown 和索引。 模拟索引替换后失败，两个正文和索引均恢复。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction restores every changed Markdown file and index after a write failure bun test --test-name-pattern=\"^decision transaction restores every changed Markdown file and index after a write failure$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-transaction-restores-every-changed-markdown-file-and-index-after-a-write-failure.md",
-        "summary": "多文件决策事务在 decision-index.json 已完成替换后发生可处理写入失败时，必须报告原始失败并恢复命令前的全部受影响 Markdown 与索引。",
+        "summary": "多文件事务替换索引后失败时恢复全部受影响 Markdown 和索引。",
         "title": "决策事务在写失败后恢复全部 Markdown 与索引"
       }
     },
     "DECISION-TYPE-PATH-001": {
       "keys": {
         "search": [
-          "DECISION-TYPE-PATH-001 决策类型与路径保持身份不变量 决策 ID、生命周期类型、alignment、domain、文件路径与结构化来源 revision 必须相互对齐。 active 类型保证非空 alignment，archived 类型同时兼容保留值与历史 null；不匹配身份被拒绝，合法路径可稳定还原决策身份。 来源顺序、LF/CRLF 不改变 revision；单条正文、领域目录 metadata 和成员删除只改变契约对应的指纹或 ID 集合。 tools/decision-records/tests/type-path-invariants.test.ts > decision types and paths preserve identity and alignment invariants bun test --test-name-pattern=\"^decision types and paths preserve identity and alignment invariants$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-TYPE-PATH-001 稳定 ID、标签与来源路径不变量 决策类型与路径必须以 Markdown basename 作为稳定 ID，并使标签、`sourcePath` 与生命周期位置保持一致。 类型和路径辅助函数拒绝不符合稳定 ID 或物理布局的值，并保留可序列化的标签和来源路径。 tools/decision-records/tests/type-path-invariants.test.ts > decision types and paths preserve stable ID tag and sourcePath invariants bun test --test-name-pattern=\"^decision\\ types\\ and\\ paths\\ preserve\\ stable\\ ID\\ tag\\ and\\ sourcePath\\ invariants$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 12,
         "entries": [
-          "tools/decision-records/tests/type-path-invariants.test.ts > decision types and paths preserve identity and alignment invariants",
-          "bun test --test-name-pattern=\"^decision types and paths preserve identity and alignment invariants$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/type-path-invariants.test.ts > decision types and paths preserve stable ID tag and sourcePath invariants",
+          "bun test --test-name-pattern=\"^decision\\ types\\ and\\ paths\\ preserve\\ stable\\ ID\\ tag\\ and\\ sourcePath\\ invariants$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-TYPE-PATH-001",
         "line": 1,
-        "searchText": "决策类型与路径保持身份不变量 决策 ID、生命周期类型、alignment、domain、文件路径与结构化来源 revision 必须相互对齐。 active 类型保证非空 alignment，archived 类型同时兼容保留值与历史 null；不匹配身份被拒绝，合法路径可稳定还原决策身份。 来源顺序、LF/CRLF 不改变 revision；单条正文、领域目录 metadata 和成员删除只改变契约对应的指纹或 ID 集合。 tools/decision-records/tests/type-path-invariants.test.ts > decision types and paths preserve identity and alignment invariants bun test --test-name-pattern=\"^decision types and paths preserve identity and alignment invariants$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "稳定 ID、标签与来源路径不变量 决策类型与路径必须以 Markdown basename 作为稳定 ID，并使标签、`sourcePath` 与生命周期位置保持一致。 类型和路径辅助函数拒绝不符合稳定 ID 或物理布局的值，并保留可序列化的标签和来源路径。 tools/decision-records/tests/type-path-invariants.test.ts > decision types and paths preserve stable ID tag and sourcePath invariants bun test --test-name-pattern=\"^decision\\ types\\ and\\ paths\\ preserve\\ stable\\ ID\\ tag\\ and\\ sourcePath\\ invariants$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-types-and-paths-preserve-identity-and-alignment-invariants.md",
-        "summary": "决策 ID、生命周期类型、alignment、domain、文件路径与结构化来源 revision 必须相互对齐。",
-        "title": "决策类型与路径保持身份不变量"
+        "summary": "决策类型与路径必须以 Markdown basename 作为稳定 ID，并使标签、`sourcePath` 与生命周期位置保持一致。",
+        "title": "稳定 ID、标签与来源路径不变量"
       }
     },
     "DECISION-UNRECORDED-ARCHIVE-001": {
@@ -5887,6 +6668,29 @@
         "sourcePath": "investigation-report/validation-filters-reports-by-category-and-path.md",
         "summary": "调查校验必须按 category 和目录路径限制目标报告。",
         "title": "调查校验按类别与路径筛选"
+      }
+    },
+    "PROJECT-MARKDOWN-SCOPE-001": {
+      "keys": {
+        "search": [
+          "PROJECT-MARKDOWN-SCOPE-001 主 Markdown 收集排除形成时字节 主仓库链接校验只收集 active 与当前维护 Markdown，不把归档 Change 或 Investigation Report 的形成时资源纳入持续链接义务。 active Change、当前 investigation topic 与根 README 被收集。 archived Change 和 `_resources` 下的 Markdown 被排除。 scripts/check.test.ts > main Markdown collection excludes archived changes and investigation resources bun test --test-name-pattern=\"^main Markdown collection excludes archived changes and investigation resources$\" ./scripts/check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/check.test.ts > main Markdown collection excludes archived changes and investigation resources",
+          "bun test --test-name-pattern=\"^main Markdown collection excludes archived changes and investigation resources$\" ./scripts/check.test.ts"
+        ],
+        "id": "PROJECT-MARKDOWN-SCOPE-001",
+        "line": 1,
+        "searchText": "主 Markdown 收集排除形成时字节 主仓库链接校验只收集 active 与当前维护 Markdown，不把归档 Change 或 Investigation Report 的形成时资源纳入持续链接义务。 active Change、当前 investigation topic 与根 README 被收集。 archived Change 和 `_resources` 下的 Markdown 被排除。 scripts/check.test.ts > main Markdown collection excludes archived changes and investigation resources bun test --test-name-pattern=\"^main Markdown collection excludes archived changes and investigation resources$\" ./scripts/check.test.ts",
+        "sourcePath": "repository-tooling/main-markdown-collection-excludes-historical-byte-scopes.md",
+        "summary": "主仓库链接校验只收集 active 与当前维护 Markdown，不把归档 Change 或 Investigation Report 的形成时资源纳入持续链接义务。",
+        "title": "主 Markdown 收集排除形成时字节"
       }
     },
     "REPO-PACKAGE-JSON-001": {
@@ -11358,7 +12162,7 @@
         "id": "change-plan"
       },
       {
-        "description": "长期决策的领域目录、身份与路径、生命周期、演进关系、索引维护，以及 CLI 和分发 API 契约。",
+        "description": "长期决策的稳定 ID、tags、位置投影、生命周期、演进关系、索引维护，以及 CLI 和分发 API 契约。",
         "id": "decision-records"
       },
       {
@@ -11473,34 +12277,35 @@
       "DECISION-BODY-UNSUPPORTED-001": "sha256:c182ee56911a0fa3b3a545ee8124e38587b2e3bb641fb424790aad15c8fc82e9",
       "DECISION-CANDIDATE-ACTIVATION-INDEX-001": "sha256:67b85883a46fd611452188dba3e21b631e13614461e1e82dfb2962aed74335ee",
       "DECISION-CANDIDATE-ACTIVATION-SELECTION-001": "sha256:59b6351778c79925596849bc82b33bdbb8ab846d0a92572e1564f2a9ee40d335",
+      "DECISION-CANDIDATE-DATE-IDENTITY-001": "sha256:62d4093cd5a9e3b0b60c9b8fb15a64b246aa4622c566f8162de77b0a60fc6aed",
       "DECISION-CANDIDATE-DISCARD-ACTIVE-TARGET-001": "sha256:c0b69beeb225427f4d7a3ff5457f60d26d6effb288dbd06ee93b140662057d28",
       "DECISION-CANDIDATE-DISCARD-GATES-001": "sha256:4bdbda6483910da355e2e90118ed27e3ef255012a835a97a3960f2eed1d8ece5",
       "DECISION-CANDIDATE-DISCARD-INVALID-001": "sha256:23a58829f2e0b8246e3e79e8e68f671cc2ccbe50b7331c84bc1920df9421967a",
       "DECISION-CANDIDATE-DISCARD-INVALID-RELATION-001": "sha256:a5f14897991236a565d839550e955709b8d274c17d72a917b61e36a2c0d15c2a",
       "DECISION-CANDIDATE-DISCARD-REFERENCED-001": "sha256:6fa84f0e7ede9c669cb66620a81f8accdefa8976351a751523b870c96eebc2e9",
       "DECISION-CANDIDATE-DISCARD-SELECTION-001": "sha256:c5e0606d5f76d78d409ac68690c02e7ac7b59beb3e4829c507042d07c27bc6fd",
-      "DECISION-CANDIDATE-ONLY-001": "sha256:1d736f2ffe4b202f99a7418b4ed80629f81ce58de46b5ac138fe2c930cdf2bda",
+      "DECISION-CANDIDATE-EMPTY-INDEX-001": "sha256:84c4b3cb3bda36a50545a7c9ab8ef785acd5645b915f3fa4e7307a2fc82ee94a",
+      "DECISION-CANDIDATE-FIRST-DISCOVERY-001": "sha256:1a1b6b17ab6deb4ceb50044e561283b8d610358d2635007f9a6bbf44991db51d",
+      "DECISION-CANDIDATE-INDEX-001": "sha256:5f0a539542009ad43aa2a2a7721f6bd4024b90699276353a8162e94de926535c",
+      "DECISION-CANDIDATE-INDEX-CONTEXT-001": "sha256:988cbcb9df5e998cff8bc053dcb08e76bc55754c884d53c509dec47d069b4078",
       "DECISION-CANDIDATE-RELATION-MISSING-001": "sha256:0b349aff6f2c4278b4f6381c7b9fbe2826de066f0ead377f4bccdd9d8d3be7ae",
       "DECISION-CANDIDATE-RELATION-REPEATED-TARGET-001": "sha256:18d6d35addf862508e59bb1eb8957c99929edaaefe00849663cdf700c297cbfe",
       "DECISION-CANDIDATE-RELATION-SELF-001": "sha256:95aafde9200958904ac719082d39af5de6efce181349a72bbf327ce093f06dc2",
-      "DECISION-CHECK-PARITY-001": "sha256:71face640359dc024067e0f0c617b9a6af70a5d624fcc67c976686abbb4bfcf0",
+      "DECISION-CHECK-PARITY-001": "sha256:a2c6a0d773920c1492abb6064a51004b9c7eca20ab9c928278ad28dfc3223388",
       "DECISION-CLI-ACTIVATE-ALIGNMENT-001": "sha256:2b60ad9b6a2a8b5bb19aebde19a7887f42927685db108b29b69b44ecb350af68",
       "DECISION-CLI-ARCHIVE-HELP-001": "sha256:195ae3be4014bc4097234bb838f5bc5ed4bb58660d72175fcee30a42edeb62e0",
       "DECISION-CLI-ARGS-001": "sha256:a720d4e0d4bc23cc60ef566ca1c97f59103a65569670c6d09adb3a9a2ca06f16",
-      "DECISION-CLI-DOMAIN-ARG-001": "sha256:a8f3ef66c498b9808f2c021273925a0635519fc4722fbbdb33fc05633ef78d76",
       "DECISION-CLI-EVOLVE-HELP-001": "sha256:569d1990171808e0187aeec62808eb78cc68548f3e34d88f38ec4d41109a8970",
       "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001": "sha256:28610923594ce003805d9c9a1a853721f5cde444ae0f29e0569a448a287f84c8",
       "DECISION-CLI-MARK-ALIGNED-HELP-001": "sha256:a0f31da74c2dd5ec39de558a6696137da5d0f3666003ae2c6291864050cfcb97",
       "DECISION-CLI-RELATION-SELECTION-001": "sha256:9fdc9deed74a62b3578886105bcd61fd5a541edf47ee75587711499632cf1c3d",
+      "DECISION-CLI-REMOVED-PROTOCOL-001": "sha256:24ab4d68561c3adb72f7339f02de600e3b8c71af13091fc0052c5cf2a2e512ff",
       "DECISION-CLI-REMOVED-PROTOCOLS-001": "sha256:749f518dc523cede3a1f90dac7f3dbbc6e06c6d75e58ab732cda092534039162",
+      "DECISION-CLI-TAG-001": "sha256:e47638364fad59b8e6037ceb934cc0ab324a16604bef0e18d244554698be9350",
       "DECISION-CLI-TRACE-DEPTH-001": "sha256:ba8889666c4bfde8ef6f2e52fd67955a280499da542dfdfb979c5bd5e641189a",
       "DECISION-CLI-UNKNOWN-OPTION-001": "sha256:9f868dbf4976035508ddb0e1c8f61b824d108221aaaf8e36a4438816cc4d4254",
       "DECISION-CONFIGURED-ABSOLUTE-DIRECTORY-001": "sha256:666237bcba499dc5c1abfd183b4671f46284cfcf1f85c2e46850637d156fe048",
       "DECISION-CONFIGURED-RELATIVE-DIRECTORY-001": "sha256:5fb87bdbc2a18d634f362e618dd413aad14aa12865dcccb1b27eb4fb7a409fc4",
-      "DECISION-DOMAIN-CATALOG-001": "sha256:6c9f82ec7d93b91ff0acafc79c49499450190766b53b284a6d3be6fb0137435f",
-      "DECISION-DOMAIN-CATALOG-QUERY-001": "sha256:60c8fe332641bcadfa6d4e596dae7086ab7ac5ff034d316be8c5dc73d2f83d64",
-      "DECISION-DOMAIN-CATALOG-REVISION-001": "sha256:52875c3fb5b3999e8e64dccaad4942dfd6b73991b5a34041ed35824a0c8cd504",
-      "DECISION-DOMAIN-CATALOG-STRUCTURE-001": "sha256:1388780529c0c320d8cb2ab402b09c01691e11a613fe17d2e86a3cd857549e25",
       "DECISION-EVOLUTION-RELATIONS-001": "sha256:3bc417fcb8ccc884e03096b0a61c5f089dc66352d03d45f25cf9936be0cf29e4",
       "DECISION-EVOLVE-ALIGNMENT-CONFIRMATION-001": "sha256:cdc7a1d0eb5058b3ff4076b0f4b19969284a9fdcc334e1429a09b6c0d4d6f96b",
       "DECISION-EVOLVE-ARCHIVED-SUCCESSOR-001": "sha256:4d186724297c46b154cbd101cc4fe17bc1dd88a5197235d23c8c7db0e50098dc",
@@ -11510,40 +12315,73 @@
       "DECISION-EVOLVE-ESTABLISHED-REPLACE-001": "sha256:17305233f0e42f3598fa12cfae0f5651ca4391346034e79ea43eeb4c620519ff",
       "DECISION-EVOLVE-HISTORICAL-SUCCESSOR-001": "sha256:fcbd6aa87335f6fb6c3be7ffdedf14209241a792fe3d848aa7761069499d767f",
       "DECISION-EVOLVE-UNSUPPORTED-MULTI-001": "sha256:9a70950d65a76db841d98e34bab8e5c57376c5292bdb108de881eead82418781",
-      "DECISION-FAST-REVISION-001": "sha256:fecd3f35f1a6b2d0ddf7b1f9e513b9325cc2076a80444fb52250062adcdebb68",
-      "DECISION-FIRST-ESTABLISHMENT-001": "sha256:3158671f1ccbf96f321a1c253cad57de79c27044a018f3edb4005c9a6590fb3c",
-      "DECISION-GENERATED-ARTIFACTS-001": "sha256:c38cc29a7a741f958b71335cf2a7919c1ea6dc7a1ed54b0d38d0fe73923b373a",
-      "DECISION-INDEX-MAINTENANCE-001": "sha256:3591e06ce95089ea8bb778442668953fe71274df2adeef05d84a72cd52f0e01a",
-      "DECISION-LIST-FILTERS-001": "sha256:232755140cb9edd42deb827d0a1eb43ec4eeb78c99ec3ee40916ed29ad53e622",
+      "DECISION-FAST-REVISION-001": "sha256:ba2b7345890ca50c915022321bd470dbc1c4cf9deb4ec367c73f13979f46fe58",
+      "DECISION-FIRST-ESTABLISHMENT-001": "sha256:d5cfabda96a99227ba2f641624dd4a20b9a6f5342bad0b8c7cb5f1ae734b1fc3",
+      "DECISION-GENERATED-ARTIFACTS-001": "sha256:28e8e5de2d9df6a13a6eedea0ca4a9265efc9aa12508b37e7cca549855521401",
+      "DECISION-ID-INDEX-001": "sha256:d27fbe7fe4843bbbc7747c7630f73463493509ce4892c269866da86c92ab6272",
+      "DECISION-ID-QUERY-001": "sha256:7d33b8e779d42a2de8343d0d71662dafa53690d3698f9a407b75ab190727488c",
+      "DECISION-ID-RELATION-001": "sha256:3c5293a5dbc1b290b8bc4a4ffa08422901878a0ab6285193d3c44e1a1155bf9e",
+      "DECISION-ID-TRACE-001": "sha256:2d09053c5525cd28f43a40a702734acf9b8afa6472ae614affe77f3f70226b22",
+      "DECISION-INDEX-DEFINITION-001": "sha256:8ba8775387ffa6b612ac51b9e1237b3a4ab0773a11d3d4408705a3ae2ea8971a",
+      "DECISION-INDEX-MAINTENANCE-001": "sha256:fdc33103d941d66b6e4440495c74a5bc00891b933ea194d2a94221e3395b31ee",
+      "DECISION-INDEX-REVISION-001": "sha256:e8e07b1c678fe6c4e0fccf7212983c20c3d0bb025f5faf5a6ed64f23c48b54f0",
+      "DECISION-LAYOUT-INVALID-001": "sha256:0188be2e16bd90ff273b1d6ef019c88bdd7069bd3c978c717c36ef21a1dd5610",
+      "DECISION-LAYOUT-VALID-001": "sha256:68c531d7af9831e8f7da3752526fb8903870ba9a13076efe5bd30a39a8c57aea",
+      "DECISION-LIFECYCLE-MOVE-001": "sha256:601fdaa8bfb471b473d24e0609cdf876bc8d242d2a63da4f3da93cf4be6ff76d",
+      "DECISION-LIFECYCLE-PREFLIGHT-001": "sha256:4aba1cdeb26b3f4583ef9f59f6386c733310af89754978196a93fb06cb00f483",
+      "DECISION-LIST-ALIGNMENT-001": "sha256:c313036ec6fd33236be311f94f547a2f2af46970cd8c9494aba743f8b90440ff",
+      "DECISION-LIST-ALL-001": "sha256:5c497820cab1d9b7613750c8b3b1f9cdf0b8f74110691d7896bef0b23b67c4af",
+      "DECISION-LIST-DEFAULT-001": "sha256:5978676da336bfba34c48122739e28f3e590a84d76c8b808dc21a6c4a2efa53b",
+      "DECISION-LIST-EMPTY-001": "sha256:0801c59b2452c6b15cc314529fc5e3f0d055e91bc7636a251b4c0e2121547eed",
+      "DECISION-LIST-FILTERS-001": "sha256:6aa723d7d50b25006bc037b01cf6947e0f1770048efc5928e8b02b2455fa191c",
+      "DECISION-LIST-TAG-AND-001": "sha256:c534ffaf2fea9605e5d0c2432f1ff76da61847d9a477225ed6d484f0c6fb4089",
       "DECISION-MERGE-MINIMUM-001": "sha256:9d9808672a6bb7bbfec041dbe3bac03f8b91c6212b4b222e5726e1d14c2338b9",
-      "DECISION-QUERY-INDEX-MEMBERSHIP-001": "sha256:ea578dea3fa971d236f0a1f7b4770ad5595fbff9f6d3f10b6db4c0f1326a7737",
-      "DECISION-SHOW-OUTPUT-001": "sha256:db4fc23f38b5ff17434eaf78422820621565c18c01b2a7d9f9a189f5cd3b2510",
+      "DECISION-METADATA-REMOVED-001": "sha256:acf1d41ba428423573e46332b0b03bcc68c1ad1112445b11d43d9dacae2b591d",
+      "DECISION-QUERY-INDEX-MEMBERSHIP-001": "sha256:9be8324d65bc1f3f24199487d7f338d0e126a3388fd49469ef8d71b935bf23cf",
+      "DECISION-SHOW-OUTPUT-001": "sha256:a6c556c13e2756b76f7019231afd5763ab95cbff56963d914132de0763548fa6",
       "DECISION-SPLIT-CLOSURE-001": "sha256:8eca8efac59196c19a855de11f0d0662e1e5449caa9e62c9b9a4f9ba82f614de",
       "DECISION-SPLIT-EXTENSION-001": "sha256:ea347368f16eca94ab22e1365226982d6b761e6b0f21bb13043991869a6fff08",
       "DECISION-SPLIT-MIXED-RELATIONS-001": "sha256:783e8086cedec9915c5cff0188869179aea7bf753fa0955abb599bdcbf5afe3c",
       "DECISION-SPLIT-OMISSION-001": "sha256:51783bd134497363696bcf5e288e5ca7823a29cd1ace0add470c7672d36067ad",
       "DECISION-SPLIT-SINGLE-SUCCESSOR-001": "sha256:275ecb171aa0247c8b2c05ce0e270dcc9bbf08dc41467cac3247d45de6e1eb8a",
       "DECISION-SPLIT-TRANSACTION-001": "sha256:35c2d247adee689518f6d66ba95cbe82e452538f5697ab21c5e3bd1a14fce30f",
-      "DECISION-STAGE-BOOTSTRAP-001": "sha256:f458864d994234b64b6d1c9daaab28f714e5e7e2ab9b0aa3e06b7a01215e0e1c",
-      "DECISION-STAGE-CLI-001": "sha256:98288c3cacb9bf5b2c156eaeea103188cf777eea511dba7d4e9c7427ae492723",
-      "DECISION-STAGE-INPUT-001": "sha256:78d1622dd322e675da92aacabfa0ba04b3c4b00d11c1ab03a0571794f77fea35",
-      "DECISION-STAGE-ISOLATION-001": "sha256:d7a33edb13602713a0677a9a8869ae29ec96cce509ce83ea6b885a620c0fdef6",
-      "DECISION-STAGE-OVERLAY-001": "sha256:f3a81a5004827a044ca16bf527dcd897b7f39e574a4442a673e80c3e42e4c4dc",
-      "DECISION-STAGE-TARGET-VALIDATION-001": "sha256:34bae0032c98bb71fe92cf88fb359412ca884bbcb9f0f737289117b63633a77a",
-      "DECISION-STAGE-VERSION-CONTROL-001": "sha256:2feead6c01bdbe2038bac8147907801fc8396da967012e9f81944204c76ef8cc",
-      "DECISION-STATE-MEMORY-ACTIVE-TARGET-001": "sha256:e65dd04272798699c71c67455273235794809716963d4e36b5ae4bb052cb357f",
-      "DECISION-STATE-MEMORY-CYCLE-001": "sha256:7f03d0a584ba5cc7c6c3a5d766de996c69136c418a563e6ba4af03734ac962d7",
-      "DECISION-STATE-MEMORY-RELATION-SOURCE-001": "sha256:ce081881a89b33c0c04f5a1c838d66be6e3f7d6d07fba209ba6750faba35f643",
+      "DECISION-STAGE-ADDITION-001": "sha256:57b5a9ad14e2edb80a0fb970fa1dc4c0902346ae24b42f9d58b8d55a3e73ea79",
+      "DECISION-STAGE-BOOTSTRAP-001": "sha256:c9d62b5b03599227d118b9f1b23045e8cbf458fb5712c4c45e5b208d07d58826",
+      "DECISION-STAGE-BOOTSTRAP-MISSING-001": "sha256:7b15942812b0cc8534fdd2ac56da1ab2530ae03e5daa29b29398eb365f0a8587",
+      "DECISION-STAGE-CLI-001": "sha256:a918b118ed2286916963510e2f5978b9a703f66a8c6c72d1598a801caea17488",
+      "DECISION-STAGE-DELETION-001": "sha256:00f4686ac156a9ffe345f5f02cb0202c8ba1d5aa07596ac9ce5f2b84ae7282ca",
+      "DECISION-STAGE-INPUT-001": "sha256:8e90a9377b2a03355b1335e39d0e6ded67b0b2bb8afab807a42c62f0977f5b15",
+      "DECISION-STAGE-ISOLATION-001": "sha256:4879eae2934654b4cf960f25a42ce3fbfe138418f6404bdb2416cc8bcf408dfb",
+      "DECISION-STAGE-LEGACY-001": "sha256:f18acc06b062f0ae7ba5e472b780cb6728535697800c4957f4df271633b779f6",
+      "DECISION-STAGE-MOVE-001": "sha256:b436a41eac14a96e782508da470865bd7531f868710952ff80d36ba9d71e8a48",
+      "DECISION-STAGE-NO-INFERENCE-001": "sha256:5a31e34092e649813a967815c01c7c45c22d78014623fd2c86d2171b3d27c62d",
+      "DECISION-STAGE-OVERLAY-001": "sha256:2a7a3daee0059a774e9584a01440ba8850a6839e828a2848efd2bfc5f6e178b8",
+      "DECISION-STAGE-PENDING-CAS-001": "sha256:6f30e94c914e11a3817a094c6fc14370ef1453c6448df11ea7ab8808c01823ae",
+      "DECISION-STAGE-PENDING-EXISTING-001": "sha256:ec5eb9988d241d4f15d1151e8cc53e0ca739b7e24efe531e524286a65d82179a",
+      "DECISION-STAGE-RENAME-001": "sha256:8b820084e3961d6814f77d7b474c19ef3a5aae9f5e497591793ff640a93a09b8",
+      "DECISION-STAGE-SELECTED-MEMBER-TYPE-001": "sha256:0bcdc55423c6035a935ff2f35eafce9ffce4d9c304e6a0a2ce9cdc5944b39a89",
+      "DECISION-STAGE-SOURCE-PREFLIGHT-001": "sha256:85d5dcd06ec8c394c451539ab8a46a82813c90294e3661fe29f452cc2d5bf958",
+      "DECISION-STAGE-TARGET-VALIDATION-001": "sha256:ec88ff03f358d539016789064cf30b9673d8a4851575e9c757d5b43c51ccdb2b",
+      "DECISION-STAGE-UNSELECTED-INVALID-001": "sha256:16e5ce0aaca519dcf73c7b9a1012a6452b54cc409ded653d1fbfa1561aa78ece",
+      "DECISION-STAGE-VERSION-CONTROL-001": "sha256:a0206bc1b92a2601320ebffe96f2df70bf30b05397a4fcfabaf7ba3bd7c4febe",
+      "DECISION-STATE-MEMORY-ACTIVE-TARGET-001": "sha256:780749ed61abf72982f327c41bf1fb9630dd2d405702026832b2177fbc5145dc",
+      "DECISION-STATE-MEMORY-CYCLE-001": "sha256:782767049fb77753a8ec159ce5f1dec500378efcac7514b4cb2c3ae7f5649321",
+      "DECISION-STATE-MEMORY-RELATION-SOURCE-001": "sha256:6f310ffd357508dadfa733c2e1a193e18f265e3805cef0efdf7482bfcda5f5a0",
       "DECISION-STATE-SNAPSHOT-001": "sha256:bd1f11db384341c6dfcab5089c60ca2ff57ec1c79390b9692cfbf6323a65f96b",
-      "DECISION-STATE-SOURCE-PARITY-001": "sha256:45f355e18fcb86f7af61169977ed7c68d7bbff18c37d83983d7fbe47b8c277fa",
+      "DECISION-STATE-SOURCE-PARITY-001": "sha256:17220671efb9427c9b716e717980066bdf4a3bd31a85534c96c9fb2d91094c10",
       "DECISION-STATIC-MERGE-MINIMUM-001": "sha256:e3f935edc0d5c3b47ee6983577907021532e348993cdc16685c091b955b228f6",
       "DECISION-STATIC-SPLIT-PURITY-001": "sha256:1fc3cb9ec0c7f3c0a66e23e7101440051e785a4f32884a83a186dd44bafe13ae",
-      "DECISION-TRACE-DIRECTION-001": "sha256:0a184e4781cdde6fbad72d4b67ad36ccaed65bee1216269467372775c9314f0f",
-      "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001": "sha256:2333a88fa2484590f75e0860bf3c206c0235efa6f4dbb8751cac2f6998281afe",
-      "DECISION-TRANSACTION-INDEX-PREFLIGHT-001": "sha256:25a055a7f496996bf750f608623eb9271c56417e691c56069f07a6bd2545e3b8",
-      "DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001": "sha256:4cb7a0b289e7dc5a11847361843cb77ba7114fc8e31601708fc74ca918d03dbb",
-      "DECISION-TRANSACTION-WRITE-RECOVERY-001": "sha256:cfdd50dbe596661c5f1a3f3c79b4b778a5c344aa5dcfc79eb9e35a98c2b859e9",
-      "DECISION-TYPE-PATH-001": "sha256:f082542f0adc38d157e843fa621b422cc5af3cc8bd3d22e3ec555d07bb25f247",
+      "DECISION-TAG-METADATA-001": "sha256:3254f457575ab9cf789a3aeba69142caa7157e456032981afd309dd318c13f0f",
+      "DECISION-TAG-SOURCE-DRIFT-001": "sha256:ac6366e92af6a0c1625f302fb7467e97b788b8746cc4d33a71264725e97e554b",
+      "DECISION-TAG-VALIDATION-001": "sha256:5c803b887fc0d762909b59a06ce6b858ddf6e0eae2f1a90d8a70ee519fe21500",
+      "DECISION-TAGGED-LAYOUT-CHECK-001": "sha256:0b87254d195004fde9d0547fe68ef5e17f5d6efc42cfeea08aee9bec98f091f8",
+      "DECISION-TRACE-DIRECTION-001": "sha256:751c43325ab28ab6712d7d347fabfb698c3e5da4703679da748f2806815cfeec",
+      "DECISION-TRANSACTION-INCOMPLETE-RECOVERY-001": "sha256:a3a318c3336daee55329c65fb08cc1b16f03de13fde50c33a809c7008f5fe28b",
+      "DECISION-TRANSACTION-INDEX-PREFLIGHT-001": "sha256:640b71cc0c171543152bb472d5b0c441510a87cab0a3f18b5f32df474b5f3f00",
+      "DECISION-TRANSACTION-MARKDOWN-PREFLIGHT-001": "sha256:38bb7d50179e3deff69aea2ca5b23a5357425a9a567c7a6147b8570637876b28",
+      "DECISION-TRANSACTION-MOVE-001": "sha256:439a70b022f662b28ba2e373ddaf1351a98352e623ca602467680b3d04e69ff7",
+      "DECISION-TRANSACTION-WRITE-RECOVERY-001": "sha256:e4ba39cf8c04ccec3719882f42273fa3bae2acf920fd6e3e2105d16e247b4fde",
+      "DECISION-TYPE-PATH-001": "sha256:a497c584f58d77b8eba6552fcaff741261cb3776df69d296c4a3931549de51ac",
       "DECISION-UNRECORDED-ARCHIVE-001": "sha256:815a7fdef4052f156d878333755bc5bb232fe99ab03d18804385428541fc2ddf",
       "DECISION-UNRECORDED-COLLAPSE-001": "sha256:e9a35a4b90755f146056f063864d383c95f47541c132323c13fc6e6379ed5286",
       "DECISION-UNRECORDED-COLLAPSE-BOUNDARY-001": "sha256:849b3b4ba373da48c1b35db4f1fc87e9485939c592de295ec80e5c10742f33b3",
@@ -11655,6 +12493,7 @@
       "INVESTIGATION-STAGE-VERSION-CONTROL-001": "sha256:8079f1845974e8645273f7985cb55e6f387e19bf7e2e560b264a40a487e7b14e",
       "INVESTIGATION-STRUCTURE-CHRONOLOGY-001": "sha256:c37b58ae1a46e45c4c65521f420c6f373301ce0465e1d5c14ed70abb8a7f0de4",
       "INVESTIGATION-VALIDATION-FILTER-001": "sha256:59fb97585ad6fe441e9bf7a42044f69eb26a826b7c648a25322a8ab2e350e036",
+      "PROJECT-MARKDOWN-SCOPE-001": "sha256:c81887aeeaff27a4a175363abe07d51f222bfdb46e785dc0c436e790aa82832c",
       "REPO-PACKAGE-JSON-001": "sha256:36724eb3dd100be35650754564a630256b7e0acfa6047ffd892ea44d67692239",
       "REPO-SHORT-CLI-001": "sha256:b65cd8fea69d66bc1ddb39a518ae483789f16e9172df3fd15f2e89257a737e28",
       "REPO-SHORT-CONFIG-001": "sha256:39b56cd6dce349c3b4b0a28798b96ac1ae38e8b8544a3f395f0337ae5a7f2e7a",
@@ -11893,6 +12732,6 @@
       "VERSION-CONTROL-STATES-001": "sha256:5de8e31678bc717f6da89e3590791e55aa6318cfec899c3196498616b346aff0",
       "VERSION-CONTROL-WORKTREE-001": "sha256:9ac7f9540e8bd3f19b913fb66ba465f99e43b4274299fb9dbb6a8bfbe311b790"
     },
-    "metadata": "sha256:18907a8cfaadd163680b67ab8bc39bf5227df4c722224412885e60568ad8b686"
+    "metadata": "sha256:d252cc1f7abae176df7a527cb848707ed631f9a6d940c9dc5250550eadcf3ea5"
   }
 }

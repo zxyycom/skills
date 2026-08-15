@@ -47,5 +47,5 @@
 - [`tools/change-plan/`](../../tools/change-plan/)：聚合结果、目录发现复用、CLI 实现和原生测试。
 - [`docs/skills/change-plan.md`](../../docs/skills/change-plan.md)：面向人类的能力摘要。
 - [`docs/test-evidence/change-plan/`](../../docs/test-evidence/change-plan/)：新增或调整原生测试入口的证据 case。
-- [`docs/decisions/change-plan/`](../../docs/decisions/change-plan/)：聚合门禁的长期方向。
+- [`docs/decisions/`](../../docs/decisions/)：聚合门禁的长期方向。
 - [`skills/change-plan/scripts/`](../../skills/change-plan/scripts/)：从工具源码生成的可分发运行时。

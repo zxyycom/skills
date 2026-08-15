@@ -63,6 +63,7 @@
 3. 项目级决策只在改变长期维护契约、目录边界、自动化交付方式或跨文件 owner 时记录。
 4. 单个 skill 专属决策要写明适用 skill 和当前 `skills/<skill-name>/` 路径, 避免写成全部 skill 的通用规则。
 5. 普通文字修正、格式调整、链接修复和按既有规则执行的一次性细节不记录。
+6. Decision Records 的当前集合以 Decision ID、记录级非空 tags 和 status 派生的根目录或 `archive/` 位置维护；具体格式、事务与查询规则只由 `skills/decision-records/` 承接。
 
 ## 验证与交付
 

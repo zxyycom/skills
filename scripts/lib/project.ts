@@ -100,6 +100,7 @@ export async function collectMainMarkdownFiles(workspaceRoot: string = rootDir):
   const ignoredPaths = [
     `${skillsRootName}/**`,
     "changes/archive/**",
+    "docs/investigations/_resources/**",
     ...ignoredDirectoryNames.map((directoryName) => `${directoryName}/**`)
   ];
 

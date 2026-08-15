@@ -3,16 +3,11 @@ import path from "node:path";
 import process from "node:process";
 import { pathExists, toPosix } from "../../shared/src/node/filesystem.ts";
 import {
-  decisionDomainFromRelativePath,
+  decisionIdFromSourcePath,
   displayDecisionPath,
-  isDecisionDomainId,
-  isNewDecisionIdentityPath
+  isDecisionId,
+  sourcePathForDecision
 } from "./decision-path.ts";
-import {
-  decisionDomainCatalogFileName,
-  loadDecisionDomainCatalog,
-  type DecisionDomainDefinition
-} from "./decision-domain-catalog.ts";
 import {
   decisionIndexDiagnosticMessages,
   decisionIndexFileName,
@@ -32,16 +27,19 @@ import {
 
 type DecisionStoredIndexEntry = DecisionIndex["entries"][string];
 
-const allowedRootFiles = new Set([
-  decisionDomainCatalogFileName,
-  decisionIndexFileName
-]);
+type SourceFile = {
+  decisionId: string;
+  decisionPath: string;
+  sourcePath: string;
+};
+
+const allowedRootFiles = new Set([decisionIndexFileName]);
 
 export function unindexedDecisionError(
   indexRelativePath: string,
-  relativePath: string
+  decisionId: string
 ): string {
-  return indexRelativePath + " does not include decision " + relativePath;
+  return indexRelativePath + " does not include Decision ID " + decisionId;
 }
 
 export function decisionIndexRequiredError(indexRelativePath: string): string {
@@ -50,9 +48,9 @@ export function decisionIndexRequiredError(indexRelativePath: string): string {
 
 export function missingIndexedDecisionError(
   indexRelativePath: string,
-  relativePath: string
+  decisionId: string
 ): string {
-  return indexRelativePath + " references missing decision " + relativePath;
+  return indexRelativePath + " references missing Decision ID " + decisionId;
 }
 
 function selectProjection(source: DecisionProjection): DecisionProjection {
@@ -76,217 +74,100 @@ function addCollectionError(
 
 function recordFromIndexEntry(options: {
   decisionsDirectory: string;
+  decisionId: string;
   entry: DecisionStoredIndexEntry;
-  relativePath: string;
 }): DecisionRecord {
-  const { decisionsDirectory, entry, relativePath } = options;
+  const { decisionsDirectory, decisionId, entry } = options;
   const state = entry.state;
-  const pathParts = relativePath.split("/");
-  const fileName = pathParts.at(-1) ?? relativePath;
   return {
     activationCandidate: false,
     alignment: state.alignment,
     bodyValid: false,
     createdAt: state.createdAt,
-    decisionPath: path.join(decisionsDirectory, ...pathParts),
+    decisionId,
+    decisionPath: path.join(decisionsDirectory, ...state.sourcePath.split("/")),
     document: null,
-    domain: decisionDomainFromRelativePath(relativePath) ?? "",
-    fileName,
     indexed: true,
     markdownExists: false,
     projection: selectProjection(state),
-    relativePath,
     relationshipErrors: [],
     source: { kind: "missing" },
-    status: state.status
+    sourcePath: state.sourcePath,
+    status: state.status,
+    tags: [...state.tags]
   };
 }
 
-async function scanDomainDirectory(options: {
+async function collectSourceFiles(options: {
   collectionErrors: string[];
   decisionsDirectory: string;
-  domainId: string;
-  domainPath: string;
-  indexEntryByPath: DecisionIndex["entries"] | null;
-  indexErrors: string[];
-  indexRelativePath: string;
-  records: DecisionRecord[];
+  decisionsLabel: string;
   sourceErrors: string[];
-}): Promise<void> {
+}): Promise<SourceFile[]> {
   const {
     collectionErrors,
     decisionsDirectory,
-    domainId,
-    domainPath,
-    indexEntryByPath,
-    indexErrors,
-    indexRelativePath,
-    records,
+    decisionsLabel,
     sourceErrors
   } = options;
-  const domainEntries = await fs.readdir(domainPath, { withFileTypes: true });
-  domainEntries.sort((left, right) => left.name.localeCompare(right.name));
-
-  if (!domainEntries.some((entry) => (
-    entry.isFile() && entry.name.endsWith(".md")
-  ))) {
-    addCollectionError(
-      collectionErrors,
-      sourceErrors,
-      "Decision domain directory must contain at least one decision file: " + domainId
-    );
-  }
-
-  for (const entry of domainEntries) {
-    const decisionPath = path.join(domainPath, entry.name);
-    const relativePath = toPosix(path.relative(decisionsDirectory, decisionPath));
-    if (entry.isDirectory()) {
+  const sources: SourceFile[] = [];
+  const rootEntries = await fs.readdir(decisionsDirectory, { withFileTypes: true });
+  rootEntries.sort((left, right) => left.name.localeCompare(right.name));
+  for (const entry of rootEntries) {
+    const entryPath = path.join(decisionsDirectory, entry.name);
+    if (entry.isFile()) {
+      if (entry.name.endsWith(".md")) {
+        sources.push({
+          decisionId: entry.name,
+          decisionPath: entryPath,
+          sourcePath: entry.name
+        });
+      } else if (!allowedRootFiles.has(entry.name)) {
+        addCollectionError(
+          collectionErrors,
+          sourceErrors,
+          decisionsLabel + " root contains unsupported file " + entry.name
+        );
+      }
+      continue;
+    }
+    if (!entry.isDirectory()) {
       addCollectionError(
         collectionErrors,
         sourceErrors,
-        "Decision domain directory must not contain nested directories: " + relativePath
+        decisionsLabel + " contains unsupported entry " + entry.name
       );
       continue;
     }
-    if (!entry.isFile()) {
+    if (entry.name !== "archive") {
       addCollectionError(
         collectionErrors,
         sourceErrors,
-        "Decision domain directory contains unsupported entry: " + relativePath
+        decisionsLabel + " root contains unsupported directory " + entry.name
       );
       continue;
     }
-    if (!entry.name.endsWith(".md")) {
-      addCollectionError(
-        collectionErrors,
-        sourceErrors,
-        "Decision domain directory must contain only Markdown files: " + relativePath
-      );
-      continue;
+    const archivedEntries = await fs.readdir(entryPath, { withFileTypes: true });
+    archivedEntries.sort((left, right) => left.name.localeCompare(right.name));
+    for (const archivedEntry of archivedEntries) {
+      const archivedPath = path.join(entryPath, archivedEntry.name);
+      const sourcePath = "archive/" + archivedEntry.name;
+      if (!archivedEntry.isFile() || !archivedEntry.name.endsWith(".md")) {
+        addCollectionError(
+          collectionErrors,
+          sourceErrors,
+          "Decision archive must contain only Markdown files: " + sourcePath
+        );
+        continue;
+      }
+      sources.push({
+        decisionId: archivedEntry.name,
+        decisionPath: archivedPath,
+        sourcePath
+      });
     }
-
-    const indexEntry = indexEntryByPath !== null
-      && Object.hasOwn(indexEntryByPath, relativePath)
-      ? indexEntryByPath[relativePath]
-      : null;
-    const recordErrors: string[] = [];
-    const sourceText = await fs.readFile(decisionPath, "utf8");
-    const sourceDocument = await validateDecisionBody({
-      body: sourceText,
-      decisionsDirectory,
-      errors: recordErrors,
-      fileName: entry.name,
-      relativePath
-    });
-    const activationCandidate = recordErrors.length === 0
-      && isNewDecisionIdentityPath(relativePath)
-      && indexEntry === null
-      && sourceDocument?.status === "candidate"
-      && sourceDocument.alignment === null
-      && sourceDocument.createdAt === null;
-    if (sourceDocument?.status === "candidate" && !activationCandidate) {
-      recordErrors.push(
-        relativePath
-        + " candidate status is allowed only for a complete, unindexed, "
-        + "current-format new decision identity"
-      );
-    }
-    const establishedMetadata = sourceDocument
-      ? establishedDecisionMetadataFromSource(sourceDocument)
-      : null;
-    const document = recordErrors.length === 0
-      && sourceDocument
-      && establishedMetadata
-      ? { ...selectProjection(sourceDocument), ...establishedMetadata }
-      : null;
-    const source = recordErrors.length > 0 || sourceDocument === null
-      ? { kind: "invalid" as const, text: sourceText }
-      : activationCandidate
-        ? {
-            body: sourceDocument.body,
-            document: {
-              ...selectProjection(sourceDocument),
-              alignment: null,
-              createdAt: null,
-              status: "candidate" as const
-            },
-            kind: "candidate" as const,
-            text: sourceText
-          }
-        : document === null
-          ? { kind: "invalid" as const, text: sourceText }
-          : {
-              body: sourceDocument.body,
-              document,
-              kind: "established" as const,
-              text: sourceText
-            };
-
-    if (document !== null && !indexEntry) {
-      indexErrors.push(unindexedDecisionError(indexRelativePath, relativePath));
-    }
-    sourceErrors.push(...recordErrors);
-
-    records.push({
-      activationCandidate,
-      alignment: sourceDocument?.alignment ?? null,
-      bodyValid: recordErrors.length === 0,
-      createdAt: sourceDocument?.createdAt ?? null,
-      decisionPath,
-      document,
-      domain: domainId,
-      fileName: entry.name,
-      indexed: indexEntry !== null,
-      markdownExists: true,
-      projection: sourceDocument
-        ? selectProjection(sourceDocument)
-        : indexEntry
-          ? selectProjection(indexEntry.state)
-          : {
-              background: "",
-              decision: "",
-              purpose: "",
-              relations: [],
-              title: ""
-            },
-      relativePath,
-      relationshipErrors: [],
-      source,
-      status: sourceDocument?.status ?? null
-    });
   }
-}
-
-function addMissingIndexRecords(options: {
-  decisionsDirectory: string;
-  indexErrors: string[];
-  index: DecisionIndex | null;
-  indexRelativePath: string;
-  records: DecisionRecord[];
-}): void {
-  const {
-    decisionsDirectory,
-    indexErrors,
-    index,
-    indexRelativePath,
-    records
-  } = options;
-  if (!index) {
-    return;
-  }
-
-  const recordPaths = new Set(records.map((record) => record.relativePath));
-  for (const [id, storedEntry] of Object.entries(index.entries)) {
-    if (recordPaths.has(id)) {
-      continue;
-    }
-    indexErrors.push(missingIndexedDecisionError(indexRelativePath, id));
-    records.push(recordFromIndexEntry({
-      decisionsDirectory,
-      entry: storedEntry,
-      relativePath: id
-    }));
-  }
+  return sources;
 }
 
 export async function scanDecisionRecords(
@@ -299,9 +180,6 @@ export async function scanDecisionRecords(
     : path.resolve(workspaceRoot, configuredDecisionDirectory);
   const activationCandidateErrors: string[] = [];
   const collectionErrors: string[] = [];
-  const domainDefinitions: DecisionDomainDefinition[] = [];
-  const domainErrors: string[] = [];
-  const domainIds = new Set<string>();
   const indexErrors: string[] = [];
   const sourceErrors: string[] = [];
   const records: DecisionRecord[] = [];
@@ -313,9 +191,6 @@ export async function scanDecisionRecords(
     collectionErrors: [error],
     decisionsDirectoryAvailable: false,
     decisionsDirectory,
-    domainDefinitions,
-    domainErrors,
-    domainIds,
     errors: [error],
     indexErrors,
     index: null,
@@ -335,32 +210,6 @@ export async function scanDecisionRecords(
     return unavailableScan(decisionsLabel + " must be a directory");
   }
 
-  const domainCatalogPath = path.join(
-    decisionsDirectory,
-    decisionDomainCatalogFileName
-  );
-  const domainCatalogRelativePath = displayDecisionPath(
-    workspaceRoot,
-    domainCatalogPath
-  );
-  const loadedDomainCatalog = await loadDecisionDomainCatalog(
-    domainCatalogPath,
-    domainCatalogRelativePath
-  );
-  if (loadedDomainCatalog.status === "error") {
-    domainErrors.push(...loadedDomainCatalog.errors);
-    collectionErrors.push(...loadedDomainCatalog.errors);
-    sourceErrors.push(...loadedDomainCatalog.errors);
-  } else {
-    domainDefinitions.push(...loadedDomainCatalog.value.domains);
-    for (const domain of loadedDomainCatalog.value.domains) {
-      domainIds.add(domain.id);
-    }
-  }
-  const knownDomainIds = loadedDomainCatalog.status === "error"
-    ? null
-    : domainIds;
-
   const indexExists = await pathExists(indexPath);
   const indexText = indexExists ? await fs.readFile(indexPath, "utf8") : "";
   const parsedIndex = indexText.length > 0
@@ -373,68 +222,162 @@ export async function scanDecisionRecords(
     ));
   }
   const index = parsedIndex?.status === "ok" ? parsedIndex.value : null;
-  const indexEntryByPath = index?.entries ?? null;
-  const rootEntries = await fs.readdir(decisionsDirectory, { withFileTypes: true });
-  rootEntries.sort((left, right) => left.name.localeCompare(right.name));
-
-  for (const entry of rootEntries) {
-    const entryPath = path.join(decisionsDirectory, entry.name);
-    if (entry.isFile()) {
-      if (!allowedRootFiles.has(entry.name)) {
-        addCollectionError(
-          collectionErrors,
-          sourceErrors,
-          decisionsLabel + " root contains unsupported file " + entry.name
-        );
-      }
-      continue;
-    }
-    if (!entry.isDirectory()) {
+  const sourceFiles = await collectSourceFiles({
+    collectionErrors,
+    decisionsDirectory,
+    decisionsLabel,
+    sourceErrors
+  });
+  const sourceFilesById = new Map<string, SourceFile[]>();
+  for (const sourceFile of sourceFiles) {
+    sourceFilesById.set(sourceFile.decisionId, [
+      ...sourceFilesById.get(sourceFile.decisionId) ?? [],
+      sourceFile
+    ]);
+  }
+  for (const [decisionId, members] of sourceFilesById) {
+    if (!isDecisionId(decisionId)) {
       addCollectionError(
         collectionErrors,
         sourceErrors,
-        decisionsLabel + " contains unsupported entry " + entry.name
+        "Decision source must use a stable kebab-case Decision ID basename: "
+          + members[0]!.sourcePath
       );
-      continue;
     }
-
-    if (!isDecisionDomainId(entry.name)) {
+    if (members.length > 1) {
       addCollectionError(
         collectionErrors,
         sourceErrors,
-        "Decision domain directory must use kebab-case: " + entry.name
+        "Decision ID occurs in more than one source path: "
+          + decisionId
+          + " ("
+          + members.map((member) => member.sourcePath).join(", ")
+          + ")"
       );
     }
-    if (knownDomainIds !== null && !knownDomainIds.has(entry.name)) {
-      const error = (
-        "Decision domain directory is not defined in "
-        + decisionDomainCatalogFileName
-        + ": "
-        + entry.name
+  }
+  const availableDecisionIds = new Set(
+    [...sourceFilesById.entries()]
+      .filter(([decisionId, members]) => isDecisionId(decisionId) && members.length === 1)
+      .map(([decisionId]) => decisionId)
+  );
+
+  for (const sourceFile of sourceFiles) {
+    const indexEntry = index !== null && Object.hasOwn(index.entries, sourceFile.decisionId)
+      ? index.entries[sourceFile.decisionId]
+      : null;
+    const recordErrors: string[] = [];
+    const sourceText = await fs.readFile(sourceFile.decisionPath, "utf8");
+    const sourceDocument = await validateDecisionBody({
+      body: sourceText,
+      decisionId: sourceFile.decisionId,
+      errors: recordErrors,
+      sourcePath: sourceFile.sourcePath,
+      targetExists: (targetId) => availableDecisionIds.has(targetId)
+    });
+    const expectedSourcePath = sourceDocument === null
+      ? null
+      : sourcePathForDecision(sourceFile.decisionId, sourceDocument.status);
+    if (expectedSourcePath !== sourceFile.sourcePath) {
+      recordErrors.push(
+        sourceFile.sourcePath + " status must match its physical sourcePath"
       );
-      domainErrors.push(error);
-      addCollectionError(collectionErrors, sourceErrors, error);
     }
-    await scanDomainDirectory({
-      collectionErrors,
-      decisionsDirectory,
-      domainId: entry.name,
-      domainPath: entryPath,
-      indexErrors,
-      indexEntryByPath,
-      indexRelativePath,
-      records,
-      sourceErrors
+    const activationCandidate = recordErrors.length === 0
+      && indexEntry === null
+      && sourceDocument?.status === "candidate"
+      && sourceDocument.alignment === null
+      && sourceDocument.createdAt === null;
+    if (sourceDocument?.status === "candidate" && !activationCandidate) {
+      recordErrors.push(
+        sourceFile.sourcePath + " candidate status is allowed only for a complete, "
+          + "unindexed, current-format new Decision ID"
+      );
+    }
+    const establishedMetadata = sourceDocument
+      ? establishedDecisionMetadataFromSource(sourceDocument)
+      : null;
+    const document = recordErrors.length === 0
+      && sourceDocument
+      && establishedMetadata
+      ? { ...selectProjection(sourceDocument), tags: [...sourceDocument.tags], ...establishedMetadata }
+      : null;
+    const source = recordErrors.length > 0 || sourceDocument === null
+      ? { kind: "invalid" as const, text: sourceText }
+      : activationCandidate
+        ? {
+            body: sourceDocument.body,
+            document: {
+              ...selectProjection(sourceDocument),
+              tags: [...sourceDocument.tags],
+              alignment: null,
+              createdAt: null,
+              status: "candidate" as const
+            },
+            kind: "candidate" as const,
+            text: sourceText
+          }
+        : document === null
+          ? { kind: "invalid" as const, text: sourceText }
+          : {
+              body: sourceDocument.body,
+              document,
+              kind: "established" as const,
+              text: sourceText
+            };
+
+    if (document !== null && indexEntry === null) {
+      indexErrors.push(unindexedDecisionError(indexRelativePath, sourceFile.decisionId));
+    }
+    if (document !== null && indexEntry !== null && indexEntry.state.sourcePath !== sourceFile.sourcePath) {
+      indexErrors.push(
+        indexRelativePath + " sourcePath does not match Decision ID " + sourceFile.decisionId
+      );
+    }
+    sourceErrors.push(...recordErrors);
+    records.push({
+      activationCandidate,
+      alignment: sourceDocument?.alignment ?? null,
+      bodyValid: recordErrors.length === 0,
+      createdAt: sourceDocument?.createdAt ?? null,
+      decisionId: sourceFile.decisionId,
+      decisionPath: sourceFile.decisionPath,
+      document,
+      indexed: indexEntry !== null,
+      markdownExists: true,
+      projection: sourceDocument
+        ? selectProjection(sourceDocument)
+        : indexEntry
+          ? selectProjection(indexEntry.state)
+          : {
+              background: "",
+              decision: "",
+              purpose: "",
+              relations: [],
+              title: ""
+            },
+      relationshipErrors: [],
+      source,
+      sourcePath: sourceFile.sourcePath,
+      status: sourceDocument?.status ?? null,
+      tags: sourceDocument?.tags ?? indexEntry?.state.tags ?? []
     });
   }
 
-  addMissingIndexRecords({
-    decisionsDirectory,
-    indexErrors,
-    index,
-    indexRelativePath,
-    records
-  });
+  if (index !== null) {
+    const recordIds = new Set(records.map((record) => record.decisionId));
+    for (const [decisionId, storedEntry] of Object.entries(index.entries)) {
+      if (recordIds.has(decisionId)) {
+        continue;
+      }
+      indexErrors.push(missingIndexedDecisionError(indexRelativePath, decisionId));
+      records.push(recordFromIndexEntry({
+        decisionsDirectory,
+        decisionId,
+        entry: storedEntry
+      }));
+    }
+  }
   if (!indexExists && records.some((record) => record.document !== null)) {
     indexErrors.push(decisionIndexRequiredError(indexRelativePath));
   }
@@ -442,32 +385,30 @@ export async function scanDecisionRecords(
   const relationshipIssues = decisionRelationConsistencyIssues(
     records.flatMap((record) => record.source.kind === "established"
       ? [{
+          decisionId: record.decisionId,
           projection: record.source.document,
-          relativePath: record.relativePath,
+          sourcePath: record.sourcePath,
           status: record.source.document.status
         }]
       : [])
   );
-  const recordByPath = new Map(records.map((record) => [
-    record.relativePath,
-    record
-  ]));
+  const recordById = new Map(records.map((record) => [record.decisionId, record]));
   for (const issue of relationshipIssues) {
     sourceErrors.push(issue.message);
-    for (const sourcePath of issue.sourcePaths) {
-      recordByPath.get(sourcePath)?.relationshipErrors.push(issue.message);
+    for (const decisionId of issue.sourceIds) {
+      recordById.get(decisionId)?.relationshipErrors.push(issue.message);
     }
   }
   for (const candidate of records.filter((record) => record.activationCandidate)) {
     for (const relation of candidate.projection.relations) {
-      const target = recordByPath.get(relation.target);
+      const target = recordById.get(relation.target);
       if (
         target !== undefined
         && (target.document !== null || target.activationCandidate)
       ) {
         continue;
       }
-      const error = candidate.relativePath
+      const error = candidate.sourcePath
         + " relationship "
         + relation.type
         + " target is not a valid scanned decision: "
@@ -478,15 +419,11 @@ export async function scanDecisionRecords(
   }
 
   const errors = [...sourceErrors, ...indexErrors];
-
   return {
     activationCandidateErrors,
     collectionErrors,
     decisionsDirectoryAvailable: true,
     decisionsDirectory,
-    domainDefinitions,
-    domainErrors,
-    domainIds,
     errors,
     indexErrors,
     index,

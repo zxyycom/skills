@@ -7,7 +7,7 @@
     },
     {
       "id": "decision-records",
-      "description": "长期决策的领域目录、身份与路径、生命周期、演进关系、索引维护，以及 CLI 和分发 API 契约。"
+      "description": "长期决策的稳定 ID、tags、位置投影、生命周期、演进关系、索引维护，以及 CLI 和分发 API 契约。"
     },
     {
       "id": "index-runtime",

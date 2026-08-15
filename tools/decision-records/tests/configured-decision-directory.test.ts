@@ -20,6 +20,14 @@ try {
   const decisionsDirectory = path.join(relativeConfigurationRoot, configuredPath);
   await fs.mkdir(path.dirname(decisionsDirectory), { recursive: true });
   await fs.cp(fixtureDecisionsDirectory, decisionsDirectory, { recursive: true });
+  await runSuccessfulSourceCli([
+    "sync-index",
+    "--write",
+    "--decisions-dir",
+    configuredPath,
+    "--root",
+    relativeConfigurationRoot
+  ]);
 
   const validation = await validateDecisionRecords({
     decisionsDir: configuredPath,
@@ -59,6 +67,14 @@ try {
   );
   await fs.mkdir(workspaceRoot, { recursive: true });
   await fs.cp(fixtureDecisionsDirectory, decisionsDirectory, { recursive: true });
+  await runSuccessfulSourceCli([
+    "sync-index",
+    "--write",
+    "--decisions-dir",
+    decisionsDirectory,
+    "--root",
+    workspaceRoot
+  ]);
   assert.ok(path.relative(workspaceRoot, decisionsDirectory).startsWith(".."));
 
   const validation = await validateDecisionRecords({

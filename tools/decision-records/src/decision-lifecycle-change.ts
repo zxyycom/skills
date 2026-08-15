@@ -3,6 +3,7 @@ import {
   type DecisionApplicationFailure
 } from "./application-result.ts";
 import { serializeDecisionFrontmatter } from "./decision-metadata.ts";
+import { sourcePathForDecision } from "./decision-path.ts";
 import type { DecisionFileChange } from "./decision-transaction.ts";
 import type { EstablishedDecisionRecord } from "./types.ts";
 
@@ -19,10 +20,10 @@ export function prepareArchivedDecisionChange(
   const source = record.source;
   if (source.document.alignment === null) {
     return decisionFailure([
-      "Active decision alignment is unavailable: " + record.relativePath
+      "Active decision alignment is unavailable: " + record.sourcePath
     ], { presentation: "plain" });
   }
-  const nextText = serializeDecisionFrontmatter(source.document, {
+  const nextText = serializeDecisionFrontmatter(source.document, source.document.tags, {
     alignment: source.document.alignment,
     createdAt: source.document.createdAt,
     status: "archived"
@@ -31,7 +32,11 @@ export function prepareArchivedDecisionChange(
     change: {
       decisionPath: record.decisionPath,
       expectedText: source.text,
-      nextText
+      nextText,
+      targetPath: record.decisionPath.replace(
+        /[^/\\]+$/u,
+        sourcePathForDecision(record.decisionId, "archived")
+      )
     },
     status: "ok"
   };

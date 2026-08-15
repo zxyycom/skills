@@ -470,15 +470,15 @@
       "ai-ready-docs/target-boundary-information-and-anchoring.md": "sha256:82ee33aca99791d5718757cbd279aeccf36b7dab56e51ef3e685101edd697615",
       "codex/conversation-preservation-and-redaction.md": "sha256:818abcdb4142a37db2c1864064f42ed3e5dbfc234fc862d805c6f81ec33666fe",
       "context-management/unified-context-management.md": "sha256:924236b12d95a2df8e645a9b51587591dc626749ff47e8f0676eb862eeef1c2e",
-      "decision-records/intra-change-decision-evolution.md": "sha256:ea0534815b78a50f47c871b082a7aaec25c0d6e1b518e6fa2c7c745e435f6e57",
+      "decision-records/intra-change-decision-evolution.md": "sha256:3470b024980a9932889c90ebf0a9c7cc35d6d91cfbbed96c40a2e2731f2b8823",
       "git-integration/direct-git-library-selection.md": "sha256:9948dbd4fcf22f71a82702d5d4cecd1008a189fab81c2e3bbcc0375c244ad4c9",
       "implementation-libraries/functional-utilities-and-data-structures.md": "sha256:6bf7e428f3ad5573d3f6de2b6dbfc13c9dff95bc0b073409fb95351455c72ffd",
       "implementation-libraries/pattern-matching-and-state-modeling-libraries.md": "sha256:3a58606070f5268283b32f37752872012bd05defd4a588b6092e014e62cc79fc",
       "implementation-libraries/result-and-option-libraries.md": "sha256:3700335afd0bf7a4c1e4618a606af6b5fbb9a774d34ab5fdf5dad07eff1ec098",
       "prompt-optimize/name-and-trigger-alignment.md": "sha256:3e962c81424f762a619986a4c3d8fc668a84b7ff3e867ca38ee370531ac826db",
-      "skill-orchestration/operation-time-skill-rerouting.md": "sha256:899da3678b7828b93229b1fa700008be23bcd650fd8a635f2cc198b6eb1176fc",
+      "skill-orchestration/operation-time-skill-rerouting.md": "sha256:ae7d8ac02ca2dfbe31e2eb53784cbd2333998902d8db3ca0040f97a0f391121a",
       "task-graph/file-lock-and-atomic-write-libraries.md": "sha256:1ef40f9481f4a6a1275f50b5ede4f08d70dd67677d0057852a3c6bf9841c1edb",
-      "test-evidence/standard-test-result-blocking.md": "sha256:d7a0090332a4224c5458233bf824dc70c66c7c1bca8185e17675e96235a078db"
+      "test-evidence/standard-test-result-blocking.md": "sha256:9342822bb3eb67e35299264cd653743e64858b648c6d0feab2937491f6981dc2"
     },
     "metadata": "sha256:b25b64772b2f2fa2c485c258f7776e508fadac24d3d1342586592257fdb027b7"
   }

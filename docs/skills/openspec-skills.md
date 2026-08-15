@@ -2,7 +2,7 @@
 
 本仓库当前仍保留四个经过二次整理的 OpenSpec skills，但这组能力已经进入去留观察期。现有入口继续可用；普通问题、文案优化、体验改进和功能扩展默认延期，不据此建立新的 Task 或 Change。观察不表示已经删除或现有行为失效，真实删除仍需要独立授权和完整影响核对。
 
-当前维护姿态由[在删除观察期延期 OpenSpec 维护](../decisions/skill-maintainer/defer-openspec-maintenance-during-removal-review.md)承接；四个 skill 的实际行为仍分别以对应 `SKILL.md` 为准。
+当前维护姿态由[在删除观察期延期 OpenSpec 维护](../decisions/defer-openspec-maintenance-during-removal-review.md)承接；四个 skill 的实际行为仍分别以对应 `SKILL.md` 为准。
 
 ## 当前保留的能力
 

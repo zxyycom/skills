@@ -33,9 +33,9 @@
 本轮以提交 `090c1bc4db13b23e2241530f610363f87aee53a1` 的干净工作区为事实基线，检查了以下材料：
 
 - [`decision-records` 行为入口](../../../skills/decision-records/SKILL.md)及其[领域契约](../../../skills/decision-records/references/decision-record-rules.md)，用于确认候选、激活、对齐、归档、丢弃和语义修订的现行边界。
-- [将对齐状态定义为单向基线](../../decisions/decision-records/use-monotonic-alignment-baseline.md)，用于确认 `active` 已经生效、`aligned` 不可退回以及长期方向改变时应形成新决策。
+- [将对齐状态定义为单向基线](../../decisions/archive/use-monotonic-alignment-baseline.md)，用于确认 `active` 已经生效、`aligned` 不可退回以及长期方向改变时应形成新决策。
 - [`decision-lifecycle-service.ts`](../../../tools/decision-records/src/decision-lifecycle-service.ts)，用于确认当前 `activate`、`evolve`、`archive`、`discard` 和 `mark-aligned` 的生命周期入口，以及演进时归档直接前序并激活新候选的事务行为。
-- [集中版本管理责任](../../decisions/version-control/centralize-version-control-responsibility.md)和[`VersionControlRepository` 接口](../../../tools/shared/src/version-control/types.ts)，用于确认项目已经区分已提交修订、pending 快照和工作区变化，并能查询修订中的路径或文件。
+- [集中版本管理责任](../../decisions/archive/centralize-version-control-responsibility.md)和[`VersionControlRepository` 接口](../../../tools/shared/src/version-control/types.ts)，用于确认项目已经区分已提交修订、pending 快照和工作区变化，并能查询修订中的路径或文件。
 
 本轮只做文档、决策和实现结构审阅，没有构造临时仓库复现生命周期事务，没有验证部分暂存、多 worktree、并行 agent 或非 Git 工作区，也没有测试关系折叠算法。场景本身来自设计讨论，并非当前工作区已经存在的故障样本。
 

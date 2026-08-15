@@ -1,51 +1,50 @@
 import { createHash } from "node:crypto";
 import type { StateSourceRevision } from "../../index-runtime/src/index.ts";
-import type { DecisionDomainCatalog } from "./decision-domain-catalog.ts";
 import type { DecisionSource } from "./types.ts";
 
 export const decisionSourceFingerprintPatternSource =
   "^sha256:[0-9a-f]{64}$";
 
 type PreparedDecisionSources = Readonly<{
+  decisionIds: ReadonlySet<string>;
   revision: StateSourceRevision;
-  sourcePaths: ReadonlySet<string>;
   sources: readonly DecisionSource[];
 }>;
 
 export function decisionSourceRevision(
-  catalog: DecisionDomainCatalog,
   sources: readonly DecisionSource[]
 ): StateSourceRevision {
-  return prepareDecisionSources(catalog, sources).revision;
+  return prepareDecisionSources(sources).revision;
 }
 
 export function prepareDecisionSources(
-  catalog: DecisionDomainCatalog,
   sources: readonly DecisionSource[]
 ): PreparedDecisionSources {
   const orderedSources = sources
-    .map(({ path, text }) => ({ path, text }))
-    .sort((left, right) => compareText(left.path, right.path));
-  const paths = new Set(orderedSources.map((source) => source.path));
-  if (paths.size !== orderedSources.length) {
-    throw new Error("decision sources must use unique paths");
+    .map(({ decisionId, sourcePath, text }) => ({ decisionId, sourcePath, text }))
+    .sort((left, right) => compareText(left.decisionId, right.decisionId));
+  const decisionIds = new Set(orderedSources.map((source) => source.decisionId));
+  if (decisionIds.size !== orderedSources.length) {
+    throw new Error("decision sources must use unique Decision IDs");
+  }
+  const sourcePaths = new Set(orderedSources.map((source) => source.sourcePath));
+  if (sourcePaths.size !== orderedSources.length) {
+    throw new Error("decision sources must use unique source paths");
   }
   return {
+    decisionIds,
     revision: {
-      metadata: sourceFingerprint(
-        "decision-index-metadata-v1",
-        normalizeDecisionDomainCatalog(catalog)
-      ),
+      metadata: sourceFingerprint("decision-index-metadata-v2", "{}"),
       entries: Object.fromEntries(orderedSources.map((source) => [
-        source.path,
+        source.decisionId,
         sourceFingerprint(
-          "decision-index-entry-v1",
-          source.path,
+          "decision-index-entry-v2",
+          source.decisionId,
+          source.sourcePath,
           normalizeDecisionSourceText(source.text)
         )
       ]))
     },
-    sourcePaths: paths,
     sources: orderedSources
   };
 }
@@ -68,13 +67,6 @@ function hashField(hash: ReturnType<typeof createHash>, value: string): void {
 
 function normalizeDecisionSourceText(value: string): string {
   return value.replace(/\r\n/g, "\n");
-}
-
-function normalizeDecisionDomainCatalog(catalog: DecisionDomainCatalog): string {
-  return JSON.stringify({
-    schemaVersion: catalog.schemaVersion,
-    domains: catalog.domains.map(({ id, description }) => ({ id, description }))
-  });
 }
 
 function compareText(left: string, right: string): number {

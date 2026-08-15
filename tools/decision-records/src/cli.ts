@@ -62,13 +62,6 @@ async function runQuery(request: DecisionQueryRequest): Promise<number> {
   return 0;
 }
 
-async function runDomains(args: CliArgsFor<"domains">): Promise<number> {
-  return await runQuery({
-    command: "domains",
-    location: decisionLocation(args)
-  });
-}
-
 async function runCheck(args: CliArgsFor<"check">): Promise<number> {
   return await runQuery({
     command: "check",
@@ -87,10 +80,10 @@ async function runList(args: CliArgsFor<"list">): Promise<number> {
   return await runQuery({
     alignment: args.alignment,
     command: "list",
-    domain: args.domain,
     fullTime: args.fullTime,
     location: decisionLocation(args),
-    status: args.status
+    status: args.status,
+    tags: args.tags
   });
 }
 
@@ -98,7 +91,7 @@ async function runShow(args: CliArgsFor<"show">): Promise<number> {
   return await runQuery({
     command: "show",
     location: decisionLocation(args),
-    recordPath: args.recordPath
+    decisionId: args.decisionId
   });
 }
 
@@ -108,7 +101,7 @@ async function runShowCandidate(
   return await runQuery({
     command: "show-candidate",
     location: decisionLocation(args),
-    recordPath: args.recordPath
+    decisionId: args.decisionId
   });
 }
 
@@ -118,7 +111,7 @@ async function runTrace(args: CliArgsFor<"trace">): Promise<number> {
     direction: args.traceDirection,
     location: decisionLocation(args),
     maxDepth: args.traceDepth,
-    recordPath: args.recordPath
+    decisionId: args.decisionId
   });
 }
 
@@ -135,7 +128,7 @@ async function runSyncIndex(
 async function runStage(args: CliArgsFor<"stage">): Promise<number> {
   const result = await stageDecisionRecords({
     location: decisionLocation(args),
-    recordPaths: args.recordPaths
+    decisionIds: args.decisionIds
   });
   if (result.status === "error") {
     printDecisionFailure(result);
@@ -143,8 +136,8 @@ async function runStage(args: CliArgsFor<"stage">): Promise<number> {
   }
   console.log(
     "Staged a complete pending decision snapshot for "
-      + result.selectedPaths.length
-      + " selected decision path(s), including "
+      + result.selectedIds.length
+      + " selected Decision ID(s), including "
       + result.indexRelativePath
       + " ("
       + result.pendingFileCount
@@ -163,7 +156,7 @@ async function runActivate(args: CliArgsFor<"activate">): Promise<number> {
         action: "activate",
         alignment: args.alignment,
         keepUnrecordedHistory: args.keepUnrecordedHistory,
-        recordPath: args.recordPath,
+        decisionId: args.decisionId,
         relationOverride: args.relationOverride
       });
 }
@@ -176,7 +169,7 @@ async function runEvolve(args: CliArgsFor<"evolve">): Promise<number> {
     ? 1
     : await applyLifecycle(args, scan, {
         action: "evolve",
-        collapseUnrecordedPath: args.collapseUnrecordedPath,
+        collapseUnrecordedId: args.collapseUnrecordedId,
         keepUnrecordedHistory: args.keepUnrecordedHistory,
         relationOverride: args.relationOverride,
         successors: args.successors
@@ -188,7 +181,7 @@ async function runMarkAligned(
 ): Promise<number> {
   return await runValidatedMaintenance(args, {
     action: "mark-aligned",
-    recordPath: args.recordPath
+    decisionId: args.decisionId
   });
 }
 
@@ -196,7 +189,7 @@ async function runArchive(args: CliArgsFor<"archive">): Promise<number> {
   return await runValidatedMaintenance(args, {
     action: "archive",
     keepUnrecordedHistory: args.keepUnrecordedHistory,
-    recordPaths: args.recordPaths
+    decisionIds: args.decisionIds
   });
 }
 
@@ -218,7 +211,7 @@ async function runDiscard(args: CliArgsFor<"discard">): Promise<number> {
   );
   return await applyLifecycle(args, result.scan, {
     action: "discard",
-    recordPath: args.recordPath
+    decisionId: args.decisionId
   });
 }
 
@@ -277,7 +270,7 @@ async function applyLifecycle(
     updatedScan.records
       .filter((record) => record.activationCandidate)
       .sort(compareDecisionRecords)
-      .map((record) => record.relativePath)
+      .map((record) => record.sourcePath)
   );
   return 0;
 }
@@ -305,8 +298,6 @@ async function runCommand(args: CliArgs): Promise<number> {
       return await runCheck(args);
     case "discard":
       return await runDiscard(args);
-    case "domains":
-      return await runDomains(args);
     case "evolve":
       return await runEvolve(args);
     case "list":
@@ -356,11 +347,11 @@ function errorText(error: unknown): string {
 }
 
 export { scanDecisionRecords, validateDecisionRecords };
-export type { DecisionDomainDefinition } from "./decision-domain-catalog.ts";
 export type {
   DecisionAlignment,
   DecisionCandidateDocument,
   DecisionDocument,
+  DecisionId,
   DecisionIndex,
   DecisionIndexEntry,
   DecisionIndexMetadata,
@@ -377,6 +368,7 @@ export type {
   DecisionScan,
   DecisionScanOptions,
   DecisionSuccessor,
+  DecisionTags,
   DecisionStatus,
   EstablishedDecisionStatus,
   DecisionValidationResult

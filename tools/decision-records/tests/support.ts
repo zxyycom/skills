@@ -5,16 +5,11 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  runDecisionRecordsCli
-} from "../../../skills/decision-records/scripts/decision-records.mjs";
-import {
   runDecisionRecordsCli as runSourceDecisionRecordsCli
 } from "../src/cli.ts";
-import type {
-  DecisionIndex,
-  DecisionIndexState,
-  DecisionRelation
-} from "../src/types.ts";
+import {
+  runDecisionRecordsCli as runBundledDecisionRecordsCli
+} from "../../../skills/decision-records/scripts/decision-records.mjs";
 
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const rootDirectory = path.resolve(testsDirectory, "../../..");
@@ -49,9 +44,14 @@ export const generatedUpdaterPath = path.join(
   "update-skill.mjs"
 );
 
-export const currentRelativePath = "project-tooling/use-generated-cli.md";
-export const archivedRelativePath = "decision-records/260710-use-source-cli.md";
-export const testDomainId = "decision-records";
+export const currentDecisionId = "use-generated-cli.md";
+export const archivedDecisionId = "260710-use-source-cli.md";
+export const currentSourcePath = currentDecisionId;
+export const archivedSourcePath = `archive/${archivedDecisionId}`;
+// Compatibility aliases keep still-being-migrated test files type-checkable while
+// their test intents are rewritten around stable IDs.
+export const currentRelativePath = currentDecisionId;
+export const archivedRelativePath = archivedDecisionId;
 
 export type CliExecution = {
   exitCode: number;
@@ -59,54 +59,64 @@ export type CliExecution = {
   stdout: string;
 };
 
-export async function writeTestDomainCatalog(
-  decisionsDirectory: string
-): Promise<void> {
-  await fs.mkdir(decisionsDirectory, { recursive: true });
-  await fs.writeFile(
-    path.join(decisionsDirectory, "decision-domains.json"),
-    JSON.stringify({
-      schemaVersion: 1,
-      domains: [{
-        id: testDomainId,
-        description: "维护长期决策的记录契约、生命周期、索引、查询与演进关系。"
-      }]
-    }, null, 2) + "\n",
-    "utf8"
-  );
+export function decisionFilePath(
+  workspaceRoot: string,
+  sourcePath: string
+): string {
+  return path.join(workspaceRoot, "docs", "decisions", ...sourcePath.split("/"));
 }
 
-export async function createFixtureWorkspace(
-  label = "query"
-): Promise<string> {
+export function candidateDecisionBody(options: {
+  relations?: readonly { target: string; type: string }[];
+  tags?: readonly string[];
+  title?: string;
+} = {}): string {
+  const relations = options.relations ?? [];
+  return [
+    "---",
+    `title: ${options.title ?? "使用 Markdown 建立状态"}`,
+    "status: candidate",
+    "alignment: null",
+    "createdAt: null",
+    "purpose: 验证 Markdown 生命周期独立定义候选和已建立状态。",
+    "background: 索引和版本历史不应共同承担决策成员身份。",
+    "decision: 使用显式 candidate 状态区分候选与已建立决策。",
+    "tags:",
+    ...(options.tags ?? ["decision-records"]).map((tag) => `  - ${tag}`),
+    relations.length === 0
+      ? "relations: []"
+      : "relations:",
+    ...relations.flatMap((relation) => [
+      `  - type: ${relation.type}`,
+      `    target: ${relation.target}`
+    ]),
+    "---",
+    "",
+    "## 目的",
+    "- 验证 Markdown 生命周期独立定义候选和已建立状态。",
+    "",
+    "## 背景",
+    "- 索引和版本历史不应共同承担决策成员身份。",
+    "",
+    "## 决策",
+    "- 采用: 使用显式 candidate 状态区分候选与已建立决策。",
+    ""
+  ].join("\n");
+}
+
+export async function createFixtureWorkspace(label: string): Promise<string> {
   const workspaceRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), `decision-records-${label}-`)
   );
   await fs.cp(fixtureRoot, workspaceRoot, { recursive: true });
+  const synced = await runSourceCli([
+    "sync-index",
+    "--write",
+    "--root",
+    workspaceRoot
+  ]);
+  assert.equal(synced.exitCode, 0, synced.stderr);
   return workspaceRoot;
-}
-
-export function initializeGitRepository(workspaceRoot: string): void {
-  runGit(workspaceRoot, ["init", "--quiet"]);
-  runGit(workspaceRoot, ["config", "core.autocrlf", "false"]);
-  runGit(workspaceRoot, [
-    "config",
-    "user.email",
-    "decision-records@example.invalid"
-  ]);
-  runGit(workspaceRoot, [
-    "config",
-    "user.name",
-    "Decision Records Test"
-  ]);
-}
-
-export function commitWorkspace(
-  workspaceRoot: string,
-  message = "decision baseline"
-): void {
-  runGit(workspaceRoot, ["add", "."]);
-  runGit(workspaceRoot, ["commit", "--quiet", "--message", message]);
 }
 
 export async function withFixtureWorkspace<T>(
@@ -135,64 +145,6 @@ export async function withTemporaryWorkspace<T>(
   }
 }
 
-export function decisionFilePath(
-  workspaceRoot: string,
-  relativePath: string
-): string {
-  return path.join(
-    workspaceRoot,
-    "docs",
-    "decisions",
-    ...relativePath.split("/")
-  );
-}
-
-export function candidateDecisionBody(options: {
-  relations?: readonly DecisionRelation[];
-} = {}): string {
-  const requestedRelations = options.relations ?? [];
-  const relations = requestedRelations.length === 0
-    ? ["relations: []"]
-    : [
-        "relations:",
-        ...requestedRelations.flatMap((relation) => [
-          "  - type: " + relation.type,
-          "    target: " + relation.target
-        ])
-      ];
-  return [
-    "---",
-    "title: 使用 Markdown 建立状态",
-    "status: candidate",
-    "alignment: null",
-    "createdAt: null",
-    "purpose: 验证 Markdown 生命周期独立定义候选和已建立状态。",
-    "background: 索引和版本历史不应共同承担决策成员身份。",
-    "decision: 使用显式 candidate 状态区分候选与已建立决策。",
-    ...relations,
-    "---",
-    "",
-    "## 目的",
-    "- 验证 Markdown 生命周期独立定义候选和已建立状态。",
-    "",
-    "## 背景",
-    "- 索引和版本历史不应共同承担决策成员身份。",
-    "",
-    "## 决策",
-    "- 采用: 使用显式 candidate 状态区分候选与已建立决策。",
-    ""
-  ].join("\n");
-}
-
-export async function fileExists(filePath: string): Promise<boolean> {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 async function captureCliExecution(
   runner: (args: readonly string[]) => Promise<number>,
   args: readonly string[]
@@ -207,7 +159,6 @@ async function captureCliExecution(
   console.error = (...values: unknown[]) => {
     stderr.push(`${values.map(String).join(" ")}\n`);
   };
-
   try {
     return {
       exitCode: await runner(args),
@@ -220,25 +171,16 @@ async function captureCliExecution(
   }
 }
 
-export async function runBundledCli(
-  args: readonly string[]
-): Promise<CliExecution> {
-  return await captureCliExecution(runDecisionRecordsCli, args);
-}
-
 export async function runSourceCli(
   args: readonly string[]
 ): Promise<CliExecution> {
   return await captureCliExecution(runSourceDecisionRecordsCli, args);
 }
 
-export async function runSuccessfulCli(
+export async function runBundledCli(
   args: readonly string[]
-): Promise<string> {
-  const result = await runBundledCli(args);
-  assert.equal(result.exitCode, 0, result.stderr);
-  assert.equal(result.stderr, "");
-  return result.stdout;
+): Promise<CliExecution> {
+  return await captureCliExecution(runBundledDecisionRecordsCli, args);
 }
 
 export async function runSuccessfulSourceCli(
@@ -250,42 +192,82 @@ export async function runSuccessfulSourceCli(
   return result.stdout;
 }
 
+export async function runSuccessfulCli(
+  args: readonly string[]
+): Promise<string> {
+  const result = await runBundledCli(args);
+  assert.equal(result.exitCode, 0, result.stderr);
+  assert.equal(result.stderr, "");
+  return result.stdout;
+}
+
 export async function traceDecision(
-  decisionPath: string,
+  decisionId: string,
   options: string[] = [],
   workspaceRoot = fixtureRoot
 ): Promise<string> {
   return await runSuccessfulCli([
     "trace",
-    decisionPath,
+    decisionId,
     ...options,
     "--root",
     workspaceRoot
   ]);
 }
 
-export async function readIndex(indexPath: string): Promise<DecisionIndex> {
-  return JSON.parse(await fs.readFile(indexPath, "utf8")) as DecisionIndex;
+export async function writeDecision(
+  workspaceRoot: string,
+  sourcePath: string,
+  markdown: string
+): Promise<void> {
+  const targetPath = decisionFilePath(workspaceRoot, sourcePath);
+  await fs.mkdir(path.dirname(targetPath), { recursive: true });
+  await fs.writeFile(targetPath, markdown, "utf8");
 }
 
-export async function writeIndex(
-  indexPath: string,
-  index: DecisionIndex
-): Promise<void> {
+export async function fileExists(filePath: string): Promise<boolean> {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function readIndex(workspaceRootOrIndexPath: string): Promise<any> {
+  const indexPath = workspaceRootOrIndexPath.endsWith(".json")
+    ? workspaceRootOrIndexPath
+    : path.join(workspaceRootOrIndexPath, "docs", "decisions", "decision-index.json");
+  return JSON.parse(await fs.readFile(
+    indexPath,
+    "utf8"
+  ));
+}
+
+export async function writeIndex(indexPath: string, index: unknown): Promise<void> {
   await fs.writeFile(indexPath, JSON.stringify(index, null, 2) + "\n", "utf8");
 }
 
-export function findIndexEntry(
-  index: DecisionIndex,
-  decisionPath: string
-): DecisionIndexState {
-  const entry = index.entries[decisionPath];
-  assert.ok(entry, "Expected indexed decision " + decisionPath);
+export function findIndexEntry(index: any, decisionId: string): any {
+  const entry = index.entries[decisionId];
+  assert.ok(entry, `Expected indexed decision ${decisionId}`);
   return entry.state;
 }
 
-function runGit(workingDirectory: string, args: readonly string[]): string {
-  return execFileSync("git", ["-C", workingDirectory, ...args], {
+export function initializeGitRepository(workspaceRoot: string): void {
+  runGit(workspaceRoot, ["init", "--quiet"]);
+  runGit(workspaceRoot, ["config", "core.autocrlf", "false"]);
+  runGit(workspaceRoot, ["config", "user.email", "decision-records@example.invalid"]);
+  runGit(workspaceRoot, ["config", "user.name", "Decision Records Test"]);
+}
+
+export function commitWorkspace(workspaceRoot: string, message = "baseline"): void {
+  runGit(workspaceRoot, ["add", "."]);
+  runGit(workspaceRoot, ["commit", "--quiet", "--message", message]);
+}
+
+export function runGit(workspaceRoot: string, args: readonly string[]): string {
+  return execFileSync("git", ["-C", workspaceRoot, ...args], {
     encoding: "utf8",
     windowsHide: true
   });

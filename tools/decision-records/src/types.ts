@@ -2,7 +2,6 @@ import type {
   StateIndex,
   StateIndexEntry
 } from "../../index-runtime/src/index.ts";
-import type { DecisionDomainDefinition } from "./decision-domain-catalog.ts";
 
 export const decisionRelationTypes = [
   "修订",
@@ -31,22 +30,25 @@ export const decisionAlignments = ["aligned", "unaligned"] as const;
 export type DecisionAlignment = typeof decisionAlignments[number];
 export type DecisionListAlignment = DecisionAlignment | "all";
 
+/** A stable Markdown basename such as `use-stable-ids.md`. */
+export type DecisionId = string;
+
 export type DecisionRelation = {
   type: DecisionRelationType;
-  target: string;
+  target: DecisionId;
 };
 
 export type DecisionSuccessor = {
   alignment: DecisionAlignment;
-  recordPath: string;
+  decisionId: DecisionId;
 };
 
 export type DecisionRelationOverride =
   | { kind: "source" }
   | {
-      kind: "replace";
-      relations: DecisionRelation[];
-    };
+    kind: "replace";
+    relations: DecisionRelation[];
+  };
 
 export type DecisionProjection = {
   title: string;
@@ -54,6 +56,10 @@ export type DecisionProjection = {
   background: string;
   decision: string;
   relations: DecisionRelation[];
+};
+
+export type DecisionTags = {
+  tags: string[];
 };
 
 export type DecisionMetadata =
@@ -73,9 +79,9 @@ export type DecisionMetadata =
     createdAt: string;
   };
 
-export type DecisionDocument = DecisionProjection & DecisionMetadata;
+export type DecisionDocument = DecisionProjection & DecisionTags & DecisionMetadata;
 
-export type DecisionCandidateDocument = DecisionProjection & {
+export type DecisionCandidateDocument = DecisionProjection & DecisionTags & {
   status: "candidate";
   alignment: null;
   createdAt: null;
@@ -103,25 +109,24 @@ export type DecisionRecordSource =
     };
 
 export type DecisionIndexState = DecisionDocument & {
-  path: string;
+  sourcePath: string;
 };
 
 export type DecisionSource = Readonly<{
-  path: string;
+  decisionId: DecisionId;
+  sourcePath: string;
   text: string;
 }>;
 
 export type DecisionIndexEntry = StateIndexEntry<DecisionIndexState>;
 
-export type DecisionIndexMetadata = {
-  domains: DecisionDomainDefinition[];
-};
+export type DecisionIndexMetadata = Record<string, never>;
 
 export type DecisionIndex = Omit<
   StateIndex<DecisionIndexState, DecisionIndexMetadata>,
   "definitionVersion" | "namespace"
 > & {
-  definitionVersion: 5;
+  definitionVersion: 6;
   namespace: "decisions";
 };
 
@@ -131,17 +136,17 @@ export type DecisionRecord = {
   alignment: DecisionAlignment | null;
   bodyValid: boolean;
   createdAt: string | null;
+  decisionId: DecisionId;
   decisionPath: string;
   document: DecisionDocument | null;
-  domain: string;
-  fileName: string;
   indexed: boolean;
   markdownExists: boolean;
   projection: DecisionProjection;
-  relativePath: string;
   relationshipErrors: string[];
   source: DecisionRecordSource;
+  sourcePath: string;
   status: DecisionStatus | null;
+  tags: string[];
 };
 
 type DecisionRecordWithSource<
@@ -166,10 +171,10 @@ export function isEstablishedDecisionRecord(
 }
 
 export function compareDecisionRecords(
-  left: Pick<DecisionRecord, "relativePath">,
-  right: Pick<DecisionRecord, "relativePath">
+  left: Pick<DecisionRecord, "sourcePath">,
+  right: Pick<DecisionRecord, "sourcePath">
 ): number {
-  return left.relativePath.localeCompare(right.relativePath);
+  return left.sourcePath.localeCompare(right.sourcePath);
 }
 
 export type DecisionScanOptions = {
@@ -184,10 +189,6 @@ export type DecisionScan = {
   collectionErrors: string[];
   decisionsDirectoryAvailable: boolean;
   decisionsDirectory: string;
-  /** Validated domain catalog definitions from the same source scan. */
-  domainDefinitions: DecisionDomainDefinition[];
-  domainErrors: string[];
-  domainIds: Set<string>;
   errors: string[];
   indexErrors: string[];
   index: DecisionIndex | null;
@@ -207,7 +208,6 @@ export type DecisionValidationResult = {
   alignedCount: number;
   archivedCount: number;
   decisionCount: number;
-  domainCount: number;
   errors: string[];
   scan: DecisionScan;
   unalignedCount: number;

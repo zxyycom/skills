@@ -95,7 +95,7 @@ export async function loadDecisionIndex(options: {
 export async function loadCurrentDecisionIndex(options: {
   decisionsDirectory: string;
   indexPath?: string;
-  relativePaths: readonly string[];
+  decisionIds: readonly string[];
   signal?: AbortSignal;
 }): Promise<StateIndexResult<DecisionIndex>> {
   const indexPath = options.indexPath ?? decisionIndexFileName;
@@ -104,7 +104,7 @@ export async function loadCurrentDecisionIndex(options: {
     ...(options.signal === undefined ? {} : { signal: options.signal })
   };
   const definition = createDecisionStateIndexDefinition({
-    relativePaths: options.relativePaths
+    decisionIds: options.decisionIds
   });
   const current = await loadCurrentStateIndex({
     context,
@@ -120,7 +120,7 @@ export async function loadCurrentDecisionIndex(options: {
   }
   return validateDecisionIndexMembership(
     validated.value,
-    options.relativePaths,
+    options.decisionIds,
     indexPath
   );
 }
@@ -129,11 +129,11 @@ export async function syncDecisionIndex(options: {
   decisionsDirectory: string;
   indexPath?: string;
   mode: StateIndexSyncMode;
-  relativePaths: readonly string[];
+  decisionIds: readonly string[];
   signal?: AbortSignal;
 }): Promise<StateIndexSyncResult> {
   const definition = createDecisionStateIndexDefinition({
-    relativePaths: options.relativePaths
+    decisionIds: options.decisionIds
   });
   return await syncStateIndex({
     context: {
@@ -187,10 +187,10 @@ export function decisionIndexDiagnosticMessages(
 
 function validateDecisionIndexMembership(
   index: DecisionIndex,
-  relativePaths: readonly string[],
+  decisionIds: readonly string[],
   sourcePath: string
 ): StateIndexResult<DecisionIndex> {
-  const expectedPaths = [...new Set(relativePaths)].sort(compareText);
+  const expectedPaths = [...new Set(decisionIds)].sort(compareText);
   const indexedPaths = Object.keys(index.entries).sort(compareText);
   if (
     expectedPaths.length === indexedPaths.length

@@ -41,7 +41,7 @@ test("activation and archive transitions preserve content and index atomicity", 
   assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
 
   const lifecycleRelativePath =
-    "decision-records/use-markdown-establishment.md";
+    "use-markdown-establishment.md";
   const lifecyclePath = decisionFilePath(
     workspaceRoot,
     lifecycleRelativePath

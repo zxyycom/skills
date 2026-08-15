@@ -16,33 +16,33 @@
 
 ## Implementation
 
-- [ ] 1.1 实施开始时重新运行严格检查、CodeGraph 影响检查、active Change 查询、Git 状态与 [`readiness-inventory.json`](readiness-inventory.json) 漂移核对；若数量、ID、指纹、版本、生成入口或写入所有权变化，先更新审计附件和 Plan。事实未漂移后，使用当前 Decision Records 生命周期入口建立 `use-stable-decision-ids-tags-and-location-index.md` 与 `stage-selected-decisions-by-stable-id.md` 两个自包含后继，按 Readiness 关系预览让旧 domain 身份、查询、升级和 stage 基线合法退出，并让两个新方向保持 unaligned 直到完整事实落地。
-- [ ] 1.2 在 `tools/decision-records/src/types.ts`、`decision-path.ts`、`decision-metadata.ts` 及直接 owner 中建立唯一 `Decision ID`、`sourcePath` 与非空 tags 契约；更新 frontmatter 解析、字段顺序、序列化和公共类型，删除 domain catalog 类型、路径身份解析和 domain 派生字段，并让旧 frontmatter、旧路径 ID 与混合模型严格失败。
-- [ ] 1.3 重构来源发现、记录扫描、状态快照、来源 revision 和索引定义：只发现根目录 candidate/active 与 `archive/` archived Markdown，拒绝状态—位置不一致和跨位置重复 ID；把 definition version 提升到 6、metadata 固定为空对象、entry/revision 以 ID 为键、state 保存 `sourcePath` 与 tags，并用 tag/status/alignment keys 构造统一索引。
-- [ ] 1.4 更新查询 context、service、CLI args/output 和手写 API 声明源：删除 `domains` 与 `--domain`，让 record 参数只接收 Decision ID，增加可重复 `--tag` 的 AND 过滤，并让 list/show/trace/candidates 返回 ID、`sourcePath` 和 tags；保留默认 active、显式 archived/all、候选源码容错和 show 单正文读取边界。
-- [ ] 1.5 更新 lifecycle、relation graph、history baseline 与文件事务：关系目标只使用 Decision ID；archive/重新激活在同一可恢复事务中移动源、改变 status 并重建索引；预检和回滚同时保护旧/新位置、Markdown 与索引，Git `HEAD` 历史判断通过 ID 和实际 revision 位置解析，不把位置重新当成身份。
-- [ ] 1.6 更新 `stageDecisionRecords` 及版本控制组合：按 Decision ID 比较 revision 与 filesystem，同 ID 不同 `sourcePath` 形成一次移动，basename 改名要求旧/新 ID 同时选择；未选择成员使用 revision，新集合从 filesystem 引导，目标 Markdown 重建完整统一索引，且无效选择、漂移或 pending 冲突在写入前失败。
-- [ ] 1.7 按 [`readiness-inventory.json`](readiness-inventory.json) 逐项修改权威 Decision Markdown：为每条记录写入至少一个初始 tag，将 candidate/active 移至根目录、archived 移至 `archive/`，把全部 `relations[].target` 改为 Decision ID；使用目标 `sync-index --write` 从合法来源重建索引，不直接编辑索引，也不编写批量迁移、临时转换或兼容脚本。由于 revision 仍是旧模型，本次整体切换通过普通版本控制文件选择进入 pending，不调用目标 stage；新模型提交后才恢复专用选择性暂存。
-- [ ] 1.8 按 [`readiness-audit.md`](readiness-audit.md) 已确认的 owner 处置删除 `decision-domains.json`：20 条 description 均已有稳定 owner，无需迁写；不复制成 tag catalog、迁移 manifest 或第二事实源。
-- [ ] 1.9 按各 owner 手工更新当前维护链接、路径示例和结构化引用，包括 active Change、项目导航、协作说明与当前调查主题；不重写 archived Change、调查随附资源或其他形成时字节，纯历史文本保持可辨识的形成时语境，并同步任何受影响的派生调查索引。
-- [ ] 1.10 重写 `skills/decision-records/SKILL.md`、`decision-record-rules.md`、`maintenance-recovery.md` 与 `docs/skills/decision-records.md`，只说明目标 ID/tags/layout/query/lifecycle/stage 契约；同步 `AGENTS.md`、`docs/navigation.md` 和必要项目说明，并提升 Decision Records skill 独立版本。
-- [ ] 1.11 更新 `scripts/build/decision-records.ts` 的声明/Schema输入与 `tools/decision-records/api/decision-records.d.mts`，通过 `bun run sync:decision-records-cli` 生成 CLI bundle、source map、声明和 definition-6 JSON Schema；只修改源码或声明 owner，不直接实现生成产物中的行为。
-- [ ] 1.12 重组 Decision Records fixtures 与最小原生测试入口，删除只证明 domain catalog/领域路径的旧入口，保留仍成立的生命周期、关系、查询、恢复与 pending 隔离证据，并新增 tags、稳定 ID、统一布局、位置事务和 ID-based stage 的成功及失败覆盖。
-- [ ] 1.13 按 `test-evidence-review` 契约为每个新增、修改、重命名或删除的最小原生测试入口逐项同步 `docs/test-evidence/decision-records/` case，并通过统一命令重建派生 Test Evidence 索引；不把聚合 runner、fixture 或内部断言记录为独立 Test。
-- [ ] 1.14 在目标实现、仓库手工切换、owner 和测试全部通过后，使用 Decision Records 生命周期命令把核心后继、stage 后继及 `use-physical-archive-boundary-for-decision-search` 按实际事实标记 aligned，并同步索引；未完整落地的判断保持 unaligned，不以 Plan 任务状态代替对齐证据。
+- [x] 1.1 已从实施时最新 `HEAD` 复核严格检查、CodeGraph 影响、active Change、Git 状态及 [`readiness-inventory.json`](readiness-inventory.json) 的 274 条输入，确认既有记录与 Plan 基线无漂移；随后使用现行生命周期入口建立 `use-stable-decision-ids-tags-and-location-index.md` 与 `stage-selected-decisions-by-stable-id.md` 两个 active + unaligned 后继，按 Readiness 关系预览合法归档六个直接前序。事务后严格检查通过，共 276 条记录、109 条 active、167 条 archived、0 条 candidate；物理归档方向继续 active + unaligned。
+- [x] 1.2 在 `tools/decision-records/src/types.ts`、`decision-path.ts`、`decision-metadata.ts` 及直接 owner 中建立唯一 `Decision ID`、`sourcePath` 与非空 tags 契约；更新 frontmatter 解析、字段顺序、序列化和公共类型，删除 domain catalog 类型、路径身份解析和 domain 派生字段，并让旧 frontmatter、旧路径 ID 与混合模型严格失败。
+- [x] 1.3 重构来源发现、记录扫描、状态快照、来源 revision 和索引定义：只发现根目录 candidate/active 与 `archive/` archived Markdown，拒绝状态—位置不一致和跨位置重复 ID；把 definition version 提升到 6、metadata 固定为空对象、entry/revision 以 ID 为键、state 保存 `sourcePath` 与 tags，并用 tag/status/alignment keys 构造统一索引。
+- [x] 1.4 更新查询 context、service、CLI args/output 和手写 API 声明源：删除 `domains` 与 `--domain`，让 record 参数只接收 Decision ID，增加可重复 `--tag` 的 AND 过滤，并让 list/show/trace/candidates 返回 ID、`sourcePath` 和 tags；保留默认 active、显式 archived/all、候选源码容错和 show 单正文读取边界。
+- [x] 1.5 更新 lifecycle、relation graph、history baseline 与文件事务：关系目标只使用 Decision ID；archive/重新激活在同一可恢复事务中移动源、改变 status 并重建索引；预检和回滚同时保护旧/新位置、Markdown 与索引，Git `HEAD` 历史判断通过 ID 和实际 revision 位置解析，不把位置重新当成身份。
+- [x] 1.6 更新 `stageDecisionRecords` 及版本控制组合：按 Decision ID 比较 revision 与 filesystem，同 ID 不同 `sourcePath` 形成一次移动；stage 不推断改名意图，只选新/旧 ID 分别表达新增/删除，同时选择旧/新 ID 才表达改名。已有基线时未选择成员使用 revision，stage 只读取所选 filesystem 来源；新集合从完整 filesystem 引导，目标 Markdown 重建完整统一索引，且无效选择、所选来源、revision 或 pending 漂移在写入前失败。
+- [x] 1.7 按 [`readiness-inventory.json`](readiness-inventory.json) 逐项修改权威 Decision Markdown：为每条记录写入至少一个初始 tag，将 candidate/active 移至根目录、archived 移至 `archive/`，把全部 `relations[].target` 改为 Decision ID；使用目标 `sync-index --write` 从合法来源重建索引，不直接编辑索引，也不编写批量迁移、临时转换或兼容脚本。由于 revision 仍是旧模型，本次整体切换通过普通版本控制文件选择进入 pending，不调用目标 stage；新模型提交后才恢复专用选择性暂存。
+- [x] 1.8 按 [`readiness-audit.md`](readiness-audit.md) 已确认的 owner 处置删除 `decision-domains.json`：20 条 description 均已有稳定 owner，无需迁写；不复制成 tag catalog、迁移 manifest 或第二事实源。
+- [x] 1.9 按各 owner 手工更新当前维护链接、路径示例和结构化引用，包括 active Change、项目导航、协作说明与当前调查主题；不重写 archived Change、调查随附资源或其他形成时字节，纯历史文本保持可辨识的形成时语境，并同步任何受影响的派生调查索引。
+- [x] 1.10 重写 `skills/decision-records/SKILL.md`、`decision-record-rules.md`、`maintenance-recovery.md` 与 `docs/skills/decision-records.md`，只说明目标 ID/tags/layout/query/lifecycle/stage 契约；同步 `AGENTS.md`、`docs/navigation.md` 和必要项目说明，并提升 Decision Records skill 独立版本。
+- [x] 1.11 更新 `scripts/build/decision-records.ts` 的声明/Schema输入与 `tools/decision-records/api/decision-records.d.mts`，通过 `bun run sync:decision-records-cli` 生成 CLI bundle、source map、声明和 definition-6 JSON Schema；只修改源码或声明 owner，不直接实现生成产物中的行为。
+- [x] 1.12 重组 Decision Records fixtures 与最小原生测试入口，删除只证明 domain catalog/领域路径的旧入口，保留仍成立的生命周期、关系、查询、恢复与 pending 隔离证据，并新增 tags、稳定 ID、统一布局、位置事务和 ID-based stage 的成功及失败覆盖。
+- [x] 1.13 按 `test-evidence-review` 契约为每个新增、修改、重命名或删除的最小原生测试入口逐项同步 `docs/test-evidence/decision-records/` case，并通过统一命令重建派生 Test Evidence 索引；不把聚合 runner、fixture 或内部断言记录为独立 Test。
+- [x] 1.14 在目标实现、仓库手工切换、owner 和测试全部通过后，使用 Decision Records 生命周期命令把核心后继、stage 后继及 `use-physical-archive-boundary-for-decision-search` 按实际事实标记 aligned，并同步索引；未完整落地的判断保持 unaligned，不以 Plan 任务状态代替对齐证据。
 
 ## Verification
 
-- [ ] 2.1 用最小原生 parser/Schema 测试证明 tags 必填非空、token 语法、去重与确定性排序成立，Decision ID 只取合法 basename，旧 domain frontmatter/路径/metadata 和未知字段严格失败，规范 Markdown 能 round trip。
-- [ ] 2.2 用扫描、快照和索引测试证明 root 与 `archive/` 的成员边界、status—位置一致性、全集合 ID 唯一、definition 6、严格空 metadata、ID-keyed source revision、`sourcePath` 指纹和 tag/status/alignment keys 均确定且可重建。
-- [ ] 2.3 用查询与 CLI 测试证明默认 active、显式 archived/all、单 tag 与重复 tag AND、空结果、ID/sourcePath/tags 输出、候选容错和 show 正文读取成立；`domains`、`--domain`、路径 ID、OR/NOT 与旧定义均明确拒绝或不存在。
-- [ ] 2.4 用 lifecycle、关系、Git-history 和 transaction-recovery 测试证明 archive/重新激活保持 ID 与正文语义、移动位置并同步 status/index，关系按 ID 解析 active/archived 前序；并发源或索引漂移在写前拒绝，任一步失败可恢复旧/新位置、Markdown 和索引组合。
-- [ ] 2.5 用 stage 测试证明同 ID 跨位置移动只需选择一次、basename 改名必须选择旧/新 ID、增加/修改/删除与首次集合仍可表达，未选择 filesystem 变化保持隔离，完整 pending 索引与 Markdown 同源，revision/pending 漂移及旧 domain 基线无写入失败。
-- [ ] 2.6 以 [`readiness-inventory.json`](readiness-inventory.json)、其映射摘要和 Git diff 人工核对 274 条既有记录一一映射，除获批身份改名外 basename 不变，title/purpose/background/decision/body、status、alignment、createdAt 与关系图语义保持；新增后继另行计数，20 条描述都有明确去向且没有混合新旧模型。
-- [ ] 2.7 运行仓库链接检查并逐类复核引用：当前维护链接全部指向新位置，结构化 Decision Records 引用全部使用 ID，形成时资源与 archived Change 未被重写，调查主题的链接修正及派生索引符合 Investigation Report owner，仓库外旧路径不被伪装为兼容。
-- [ ] 2.8 运行 `bun run test:decision-records-cli`、`bun run check:decision-records-cli` 与 `bun run validate-skill -- skills/decision-records`，确认源码、CLI bundle、source map、声明、definition-6 Schema、skill version 和帮助文本一致。
-- [ ] 2.9 运行 `bun run decision-records -- check --root .`，并用 list/show/trace/candidates、tag AND、archive/重新激活和 stage 的代表性真实工作区操作核对新模型；涉及可逆生命周期验证时使用专用 fixture 或临时仓库，不在权威集合制造测试副作用。
-- [ ] 2.10 运行受影响的 Test Evidence 同步与严格检查，确认原生入口与 case 一一对应、删除项退出账本、重命名关系可追踪且派生索引新鲜；同时运行 Investigation Report 检查确认链接修正后的主题与索引一致。
-- [ ] 2.11 以 `rg`、生成 diff 和包内容审计确认 `decision-domains.json`、domain catalog/parser、`domains`、`--domain`、旧 index metadata、旧路径关系目标、兼容 reader、双写分支、迁移命令和任何辅助升级脚本均未残留在当前源码、稳定 owner 或分发物中；历史快照命中需明确归类而不是机械改写。
-- [ ] 2.12 运行 `bun run typecheck`、`bun run validate` 与 `bun run check --full`，记录每项实际结果；若并行工作导致无关失败，保留精确诊断并继续证明本 Change 的目标入口，不降低最终完整门禁。
-- [ ] 2.13 逐项复核 proposal 的成功标准、长期后继关系与 alignment、生成物、skill 版本、当前链接和手工更新清单；仅向未参与设计的实施审阅者提供 proposal、design、tasks、Readiness 审计及其按需清单和稳定 owner，确认其能恢复目标模型、手工边界、任务顺序和验收证据，无需本次对话补充判断后再申请归档。
+- [x] 2.1 用最小原生 parser/Schema 测试证明 tags 必填非空、token 语法、去重与确定性排序成立，Decision ID 只取合法 basename，旧 domain frontmatter/路径/metadata 和未知字段严格失败，规范 Markdown 能 round trip。
+- [x] 2.2 用扫描、快照和索引测试证明 root 与 `archive/` 的成员边界、status—位置一致性、全集合 ID 唯一、definition 6、严格空 metadata、ID-keyed source revision、`sourcePath` 指纹和 tag/status/alignment keys 均确定且可重建。
+- [x] 2.3 用查询与 CLI 测试证明默认 active、显式 archived/all、单 tag 与重复 tag AND、空结果、ID/sourcePath/tags 输出、候选容错和 show 正文读取成立；`domains`、`--domain`、路径 ID、OR/NOT 与旧定义均明确拒绝或不存在。
+- [x] 2.4 用 lifecycle、关系、Git-history 和 transaction-recovery 测试证明 archive/重新激活保持 ID 与正文语义、移动位置并同步 status/index，关系按 ID 解析 active/archived 前序；并发源或索引漂移在写前拒绝，任一步失败可恢复旧/新位置、Markdown 和索引组合。
+- [x] 2.5 用 stage 测试证明同 ID 跨位置移动只需选择一次、只选新/旧 ID 分别表达新增/删除、同时选择旧/新 ID 表达 basename 改名，增加/修改/删除与首次集合仍可表达，未选择 filesystem 变化保持隔离，完整 pending 索引与 Markdown 同源，所选来源、revision/pending 漂移及旧 domain 基线无写入失败。
+- [x] 2.6 以 [`readiness-inventory.json`](readiness-inventory.json)、其映射摘要和 Git diff 人工核对 274 条既有记录一一映射，除获批身份改名外 basename 不变，title/purpose/background/decision/body、status、alignment、createdAt 与关系图语义保持；新增后继另行计数，20 条描述都有明确去向且没有混合新旧模型。
+- [x] 2.7 运行仓库链接检查并逐类复核引用：当前维护链接全部指向新位置，结构化 Decision Records 引用全部使用 ID，形成时资源与 archived Change 未被重写，调查主题的链接修正及派生索引符合 Investigation Report owner，仓库外旧路径不被伪装为兼容。持续链接范围按 [`exclude-formation-time-link-bytes-from-validation.md`](../../docs/decisions/exclude-formation-time-link-bytes-from-validation.md) 排除归档 Change 与调查 `_resources` 的形成时字节，并分别保留 Change Plan 与 Investigation Report 门禁。
+- [x] 2.8 运行 `bun run test:decision-records-cli`、`bun run check:decision-records-cli` 与 `bun run validate-skill -- skills/decision-records`，确认源码、CLI bundle、source map、声明、definition-6 Schema、skill version 和帮助文本一致。
+- [x] 2.9 运行 `bun run decision-records -- check --root .`，并用 list/show/trace/candidates、tag AND、archive/重新激活和 stage 的代表性真实工作区操作核对新模型；涉及可逆生命周期验证时使用专用 fixture 或临时仓库，不在权威集合制造测试副作用。
+- [x] 2.10 运行受影响的 Test Evidence 同步与严格检查，确认原生入口与 case 一一对应、删除项退出账本、重命名关系可追踪且派生索引新鲜；同时运行 Investigation Report 检查确认链接修正后的主题与索引一致。
+- [x] 2.11 以 `rg`、生成 diff 和包内容审计确认 `decision-domains.json`、domain catalog/parser、`domains`、`--domain`、旧 index metadata、旧路径关系目标、兼容 reader、双写分支、迁移命令和任何辅助升级脚本均未残留在当前源码、稳定 owner 或分发物中；历史快照命中需明确归类而不是机械改写。
+- [x] 2.12 运行 `bun run typecheck`、`bun run validate` 与 `bun run check --full`，记录每项实际结果；若并行工作导致无关失败，保留精确诊断并继续证明本 Change 的目标入口，不降低最终完整门禁。
+- [x] 2.13 逐项复核 proposal 的成功标准、长期后继关系与 alignment、生成物、skill 版本、当前链接和手工更新清单；仅向未参与设计的实施审阅者提供 proposal、design、tasks、Readiness 审计及其按需清单和稳定 owner，确认其能恢复目标模型、手工边界、任务顺序和验收证据，无需本次对话补充判断后再申请归档。

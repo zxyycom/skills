@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
@@ -21,6 +24,7 @@ import {
   type CheckProfile,
   type CheckTask
 } from "./lib/check-plan.ts";
+import { collectMainMarkdownFiles } from "./lib/project.ts";
 
 function checkTask(
   script: string,
@@ -39,6 +43,33 @@ function scriptResult(script: string, exitCode = 0) {
     script
   };
 }
+
+test("main Markdown collection excludes archived changes and investigation resources", async () => {
+  const workspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "skills-markdown-"));
+  try {
+    const paths = [
+      "README.md",
+      "changes/active-change/proposal.md",
+      "changes/archive/completed-change/proposal.md",
+      "docs/investigations/current-topic/report.md",
+      "docs/investigations/_resources/source/report.md"
+    ];
+    await Promise.all(paths.map(async (relativePath) => {
+      const targetPath = path.join(workspaceRoot, relativePath);
+      await fs.mkdir(path.dirname(targetPath), { recursive: true });
+      await fs.writeFile(targetPath, "# test\n", "utf8");
+    }));
+
+    const markdownFiles = await collectMainMarkdownFiles(workspaceRoot);
+    assert.deepEqual(markdownFiles.map((filePath) => path.relative(workspaceRoot, filePath)), [
+      "changes/active-change/proposal.md",
+      "docs/investigations/current-topic/report.md",
+      "README.md"
+    ]);
+  } finally {
+    await fs.rm(workspaceRoot, { force: true, recursive: true });
+  }
+});
 
 test("check plan classifies every package script by minimum profile", () => {
   const expectedCheckTasks = [

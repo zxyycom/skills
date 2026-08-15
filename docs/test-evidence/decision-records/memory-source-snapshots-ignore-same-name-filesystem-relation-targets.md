@@ -1,11 +1,11 @@
-### Case DECISION-STATE-MEMORY-RELATION-SOURCE-001: 内存快照关系只解析同一来源集合
+### Case DECISION-STATE-MEMORY-RELATION-SOURCE-001: 内存来源拒绝缺失的关系目标
 
 Entry:
 - `tools/decision-records/tests/state-snapshot.test.ts > memory source snapshots ignore same-name filesystem relation targets`
-- `bun test --test-name-pattern="^memory source snapshots ignore same-name filesystem relation targets$" ./tools/decision-records/tests/state-snapshot.test.ts`
+- `bun test --test-name-pattern="^memory source snapshots ignore same-name filesystem relation targets$" ./tools/decision-records/tests/run.ts`
 
 Contract:
-- 内存决策快照的关系目标只能由同一内存来源集合提供，磁盘上的同名决策不得补足目标集合。
+- 内存快照只能以传入 source 集合解析关系，缺失 ID 目标不得由磁盘文件补足。
 
 Proves:
-- 从内存来源移除关系目标后，即使文件系统仍有同名决策，快照仍以目标不存在拒绝构造。
+- 移除归档目标 source 后构造快照，断言关系目标不存在。

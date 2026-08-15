@@ -15,14 +15,17 @@ export type DecisionAlignment = "aligned" | "unaligned";
 
 export type DecisionListAlignment = DecisionAlignment | "all";
 
+/** A stable Markdown basename such as `use-stable-ids.md`. */
+export type DecisionId = string;
+
 export type DecisionRelation = {
   type: DecisionRelationType;
-  target: string;
+  target: DecisionId;
 };
 
 export type DecisionSuccessor = {
   alignment: DecisionAlignment;
-  recordPath: string;
+  decisionId: DecisionId;
 };
 
 export type DecisionRelationOverride =
@@ -32,17 +35,16 @@ export type DecisionRelationOverride =
       relations: DecisionRelation[];
     };
 
-export type DecisionDomainDefinition = {
-  id: string;
-  description: string;
-};
-
 export type DecisionProjection = {
   title: string;
   purpose: string;
   background: string;
   decision: string;
   relations: DecisionRelation[];
+};
+
+export type DecisionTags = {
+  tags: string[];
 };
 
 export type DecisionMetadata =
@@ -62,9 +64,9 @@ export type DecisionMetadata =
     createdAt: string;
   };
 
-export type DecisionDocument = DecisionProjection & DecisionMetadata;
+export type DecisionDocument = DecisionProjection & DecisionTags & DecisionMetadata;
 
-export type DecisionCandidateDocument = DecisionProjection & {
+export type DecisionCandidateDocument = DecisionProjection & DecisionTags & {
   status: "candidate";
   alignment: null;
   createdAt: null;
@@ -92,7 +94,7 @@ export type DecisionRecordSource =
     };
 
 export type DecisionIndexState = DecisionDocument & {
-  path: string;
+  sourcePath: string;
 };
 
 export type DecisionIndexStoredEntry = {
@@ -101,29 +103,28 @@ export type DecisionIndexStoredEntry = {
 };
 
 export type DecisionIndexEntry = DecisionIndexStoredEntry & {
-  id: string;
+  id: DecisionId;
 };
 
-export type DecisionIndexMetadata = {
-  domains: DecisionDomainDefinition[];
-};
+/** The index has no independently maintained metadata. */
+export type DecisionIndexMetadata = Record<string, never>;
 
 export type DecisionSourceRevision = {
   metadata: string;
-  entries: Record<string, string>;
+  entries: Record<DecisionId, string>;
 };
 
 export type DecisionIndex = {
   schemaVersion: 3;
   namespace: "decisions";
-  definitionVersion: 5;
+  definitionVersion: 6;
   metadata: DecisionIndexMetadata;
   sourceRevision: DecisionSourceRevision;
   keyDefinitions: Array<{
     name: string;
     mode: "exact" | "range" | "text";
   }>;
-  entries: Record<string, DecisionIndexStoredEntry>;
+  entries: Record<DecisionId, DecisionIndexStoredEntry>;
 };
 
 export type DecisionRecord = {
@@ -132,17 +133,17 @@ export type DecisionRecord = {
   alignment: DecisionAlignment | null;
   bodyValid: boolean;
   createdAt: string | null;
+  decisionId: DecisionId;
   decisionPath: string;
   document: DecisionDocument | null;
-  domain: string;
-  fileName: string;
   indexed: boolean;
   markdownExists: boolean;
   projection: DecisionProjection;
-  relativePath: string;
   relationshipErrors: string[];
   source: DecisionRecordSource;
+  sourcePath: string;
   status: DecisionStatus | null;
+  tags: string[];
 };
 
 export type DecisionScanOptions = {
@@ -157,10 +158,6 @@ export type DecisionScan = {
   collectionErrors: string[];
   decisionsDirectoryAvailable: boolean;
   decisionsDirectory: string;
-  /** Validated domain catalog definitions from the same source scan. */
-  domainDefinitions: DecisionDomainDefinition[];
-  domainErrors: string[];
-  domainIds: Set<string>;
   errors: string[];
   index: DecisionIndex | null;
   indexErrors: string[];
@@ -180,7 +177,6 @@ export type DecisionValidationResult = {
   alignedCount: number;
   archivedCount: number;
   decisionCount: number;
-  domainCount: number;
   errors: string[];
   scan: DecisionScan;
   unalignedCount: number;

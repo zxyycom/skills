@@ -7,10 +7,11 @@ import {
   type StateSnapshot,
   type StateSourceRevision
 } from "../../index-runtime/src/index.ts";
-import { decisionDomainDefinitionsSchema } from "./decision-domain-catalog.ts";
 import {
-  decisionDomainFromRelativePath,
-  isDecisionRelativePath
+  isDecisionId,
+  isDecisionSourcePath,
+  isDecisionTag,
+  sourcePathForDecision
 } from "./decision-path.ts";
 import {
   readDecisionSourceRevision,
@@ -31,22 +32,30 @@ import {
 } from "./types.ts";
 
 export const decisionIndexNamespace = "decisions";
-export const decisionIndexDefinitionVersion = 5;
+export const decisionIndexDefinitionVersion = 6;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
   v.check((value) => value.trim().length > 0, "must be non-empty")
 );
-const decisionPathSchema = v.pipe(
+const decisionIdSchema = v.pipe(
   nonEmptyStringSchema,
-  v.check(isDecisionRelativePath, "must be a decision Markdown path")
+  v.check(isDecisionId, "must be a stable Decision ID basename")
+);
+const sourcePathSchema = v.pipe(
+  nonEmptyStringSchema,
+  v.check(isDecisionSourcePath, "must be a decision source path")
+);
+const tagSchema = v.pipe(
+  nonEmptyStringSchema,
+  v.check(isDecisionTag, "must be a kebab-case tag")
 );
 const decisionRelationSchema = v.strictObject({
   type: v.picklist(decisionRelationTypes),
-  target: decisionPathSchema
+  target: decisionIdSchema
 });
 const decisionIndexStateSchema = v.strictObject({
-  path: decisionPathSchema,
+  sourcePath: sourcePathSchema,
   title: nonEmptyStringSchema,
   status: v.picklist(establishedDecisionStatuses),
   alignment: v.union([v.picklist(decisionAlignments), v.null()]),
@@ -54,11 +63,10 @@ const decisionIndexStateSchema = v.strictObject({
   purpose: nonEmptyStringSchema,
   background: nonEmptyStringSchema,
   decision: nonEmptyStringSchema,
+  tags: v.pipe(v.array(tagSchema), v.minLength(1)),
   relations: v.array(decisionRelationSchema)
 });
-const decisionIndexMetadataSchema = v.strictObject({
-  domains: decisionDomainDefinitionsSchema
-});
+const decisionIndexMetadataSchema = v.strictObject({});
 const sourceFingerprintSchema = v.pipe(
   v.string("must be a string"),
   v.regex(
@@ -68,28 +76,25 @@ const sourceFingerprintSchema = v.pipe(
 );
 const decisionSourceRevisionSchema = createStateSourceRevisionSchema({
   fingerprint: sourceFingerprintSchema,
-  id: decisionPathSchema
+  id: decisionIdSchema
 });
 
 type DecisionIndexDefinitionOptions = {
-  relativePaths?: readonly string[];
+  decisionIds?: readonly string[];
 };
 
 export function createDecisionStateIndexDefinition(
   options: DecisionIndexDefinitionOptions = {}
 ): StateIndexDefinition<DecisionIndexState, DecisionIndexMetadata> {
-  const relativePaths = options.relativePaths;
+  const decisionIds = options.decisionIds;
   return defineStateIndexDefinition({
     definitionVersion: decisionIndexDefinitionVersion,
     fieldOrder: "definition",
     keyStrategies: [
       {
-        derive: (_state, context) => decisionDomainFromIndexPath(
-          context.id,
-          context.metadata
-        ),
+        derive: (state) => state.tags,
         mode: "exact",
-        name: "domain"
+        name: "tag"
       },
       {
         derive: (state) => state.status,
@@ -105,18 +110,18 @@ export function createDecisionStateIndexDefinition(
     namespace: decisionIndexNamespace,
     parseMetadata: parseDecisionIndexMetadata,
     parseState: parseDecisionIndexState,
-    read: relativePaths === undefined
+    read: decisionIds === undefined
       ? unavailableRead
       : async (context) => await readDecisionStateSnapshot(
         context.root,
-        relativePaths,
+        decisionIds,
         context.signal
       ),
-    readRevision: relativePaths === undefined
+    readRevision: decisionIds === undefined
       ? unavailableRevisionRead
       : async (context) => await readDecisionSourceRevision(
         context.root,
-        relativePaths,
+        decisionIds,
         context.signal
       ),
     validateIndex: validateDecisionSourceRevision
@@ -151,10 +156,12 @@ function parseDecisionIndexState(input: Parameters<
   }
 
   const state = parsed.output;
-  if (state.path !== context.id) {
-    throw new TypeError("state.path must equal the entry id");
+  if (!isDecisionId(context.id)) {
+    throw new TypeError("entry id must be a stable Decision ID basename");
   }
-  decisionDomainFromIndexPath(context.id, context.metadata);
+  if (state.sourcePath !== sourcePathForDecision(context.id, state.status)) {
+    throw new TypeError("state.sourcePath must match the Decision ID and lifecycle status");
+  }
   if (!isDecisionTimestamp(state.createdAt)) {
     throw new TypeError(
       "createdAt must be an RFC 3339 timestamp precise to seconds "
@@ -179,40 +186,28 @@ function parseDecisionIndexState(input: Parameters<
       throw new TypeError(`${field} ${issue}`);
     }
   }
-
-  const relationKeys = new Set<string>();
-  for (const relation of state.relations) {
-    const key = `${relation.type}\u0000${relation.target}`;
-    if (relationKeys.has(key)) {
-      throw new TypeError(
-        `repeats relationship ${relation.type} target ${relation.target}`
-      );
-    }
-    relationKeys.add(key);
+  if (!strictlyAscendingUnique(state.tags)) {
+    throw new TypeError("tags must be unique and lexical ascending");
   }
 
-  const document: DecisionDocument = metadata.status === "active"
-    ? {
-        title: state.title,
-        status: "active",
-        alignment: metadata.alignment,
-        createdAt: metadata.createdAt,
-        purpose: state.purpose,
-        background: state.background,
-        decision: state.decision,
-        relations: state.relations
-      }
-    : {
-        title: state.title,
-        status: "archived",
-        alignment: metadata.alignment,
-        createdAt: metadata.createdAt,
-        purpose: state.purpose,
-        background: state.background,
-        decision: state.decision,
-        relations: state.relations
-      };
-  return decisionIndexState(state.path, document);
+  const relationTargets = new Set<string>();
+  for (const relation of state.relations) {
+    if (relationTargets.has(relation.target)) {
+      throw new TypeError(`repeats relationship target ${relation.target}`);
+    }
+    relationTargets.add(relation.target);
+  }
+
+  const document: DecisionDocument = {
+    title: state.title,
+    ...metadata,
+    purpose: state.purpose,
+    background: state.background,
+    decision: state.decision,
+    tags: state.tags,
+    relations: state.relations
+  };
+  return decisionIndexState(state.sourcePath, document);
 }
 
 function formatDecisionIndexIssue(issue: v.BaseIssue<unknown>): string {
@@ -240,6 +235,10 @@ function parseDecisionIndexMetadata(
   return v.parse(decisionIndexMetadataSchema, input);
 }
 
+function strictlyAscendingUnique(values: readonly string[]): boolean {
+  return values.every((value, index) => index === 0 || values[index - 1]! < value);
+}
+
 async function unavailableRead(): Promise<StateSnapshot<
   DecisionIndexState,
   DecisionIndexMetadata
@@ -249,24 +248,4 @@ async function unavailableRead(): Promise<StateSnapshot<
 
 async function unavailableRevisionRead(): Promise<StateSourceRevision> {
   throw new Error("decision revision reader is unavailable in this operation");
-}
-
-function decisionDomainFromIndexPath(
-  relativePath: string,
-  metadata: {
-    readonly domains: readonly {
-      readonly id: string;
-    }[];
-  }
-): string {
-  const domain = decisionDomainFromRelativePath(relativePath);
-  if (domain === null) {
-    throw new TypeError(`path must identify a decision domain: ${relativePath}`);
-  }
-  if (!metadata.domains.some((definition) => definition.id === domain)) {
-    throw new TypeError(
-      `path domain is not defined in metadata.domains: ${domain}`
-    );
-  }
-  return domain;
 }

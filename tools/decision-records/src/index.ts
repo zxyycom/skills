@@ -22,23 +22,23 @@ export type DecisionValidationOptions = {
 };
 
 export type DecisionIndexSourceSelection = {
+  decisionIds: string[];
   errors: string[];
-  relativePaths: string[];
 };
 
 export function selectDecisionIndexSourcePaths(
   scan: DecisionScan
 ): DecisionIndexSourceSelection {
   const errors: string[] = [];
-  const relativePaths = scan.records
+  const decisionIds = scan.records
     .filter((record) => record.markdownExists && record.document !== null)
-    .map((record) => record.relativePath);
+    .map((record) => record.decisionId);
 
-  if (relativePaths.length === 0) {
+  if (decisionIds.length === 0) {
     errors.push("Cannot generate an empty decision index");
   }
 
-  return { errors, relativePaths };
+  return { decisionIds, errors };
 }
 
 export async function validateDecisionRecords(
@@ -70,19 +70,19 @@ export async function validateDecisionScan(
     (record) => record.markdownExists && record.document !== null
   );
   const selection = options.allowEmptyDecisionSet && !hasEstablishedDecision
-    ? { errors: [], relativePaths: [] }
+    ? { decisionIds: [], errors: [] }
     : selectDecisionIndexSourcePaths(scan);
   errors.push(...selection.errors);
 
   if (
     options.checkIndexText !== false
-    && selection.relativePaths.length > 0
+    && selection.decisionIds.length > 0
     && scan.sourceErrors.length === 0
   ) {
     const checked = await syncDecisionIndex({
       decisionsDirectory: scan.decisionsDirectory,
       mode: "check",
-      relativePaths: selection.relativePaths
+      decisionIds: selection.decisionIds
     });
     if (checked.status === "error") {
       if (
@@ -117,7 +117,6 @@ export async function validateDecisionScan(
       (record) => record.status === "archived"
     ).length,
     decisionCount: establishedRecords.length,
-    domainCount: scan.domainIds.size,
     errors,
     scan,
     unalignedCount: establishedRecords.filter((record) => (

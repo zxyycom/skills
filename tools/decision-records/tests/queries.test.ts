@@ -1,329 +1,330 @@
 import assert from "node:assert/strict";
-import { execFileSync, spawnSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import {
-  runDecisionRecordsCli,
-  validateDecisionRecords as validateBundledDecisionRecords
-} from "../../../skills/decision-records/scripts/decision-records.mjs";
 import { validateDecisionRecords } from "../src/index.ts";
 import {
-  archivedRelativePath,
-  createFixtureWorkspace,
-  currentRelativePath,
-  generatedCliPath,
-  runBundledCli,
+  archivedDecisionId,
+  candidateDecisionBody,
+  currentDecisionId,
+  currentSourcePath,
+  decisionFilePath,
   runSourceCli,
-  runSuccessfulCli,
-  traceDecision
+  runSuccessfulSourceCli,
+  withFixtureWorkspace,
+  writeDecision,
 } from "./support.ts";
 
-test("decision check preserves source, bundled API, and process CLI parity", async () => {
-const fixtureRoot = await createFixtureWorkspace("query-check");
-try {
-  const validation = await validateDecisionRecords({ workspaceRoot: fixtureRoot });
-  assert.deepEqual(validation.errors, []);
-  assert.equal(validation.domainCount, 3);
-  assert.equal(validation.decisionCount, 2);
-  assert.equal(validation.activeCount, 1);
-  assert.equal(validation.alignedCount, 1);
-  assert.equal(validation.unalignedCount, 0);
-  assert.equal(validation.archivedCount, 1);
-  assert.deepEqual(
-    await validateBundledDecisionRecords({ workspaceRoot: fixtureRoot }),
-    validation
-  );
-  assert.equal(typeof runDecisionRecordsCli, "function");
+test("decision check validates tagged root and archive records", () =>
+  withFixtureWorkspace("query-check", async (workspaceRoot) => {
+    const validation = await validateDecisionRecords({ workspaceRoot });
+    assert.deepEqual(validation.errors, []);
+    assert.equal(validation.decisionCount, 2);
+    assert.equal(validation.activeCount, 1);
+    assert.equal(validation.archivedCount, 1);
+  }));
 
-  // Keep one real Node success smoke; detailed behavior uses the same bundled export.
-  const cliOutput = execFileSync(
-    "node",
-    [generatedCliPath, "check", "--root", fixtureRoot],
-    { encoding: "utf8" }
-  );
-  assert.match(
-    cliOutput,
-    /Decision records check passed \(3 domains, 2 decisions, 1 active, 1 aligned, 0 unaligned, 1 archived, 0 candidates\)\./
-  );
+test("decision show returns tagged Markdown by stable ID", () =>
+  withFixtureWorkspace("query-show", async (workspaceRoot) => {
+    const shown = await runSuccessfulSourceCli([
+      "show",
+      currentDecisionId,
+      "--root",
+      workspaceRoot,
+    ]);
+    assert.match(shown, /tags:/);
+  }));
 
-  const defaultCliOutput = await runSuccessfulCli(["--root", fixtureRoot]);
-  assert.match(defaultCliOutput, /Decision records check passed/);
-} finally {
-  await fs.rm(fixtureRoot, { force: true, recursive: true });
-}
-});
+test("decision trace follows stable ID relations", () =>
+  withFixtureWorkspace("query-trace", async (workspaceRoot) => {
+    const traced = await runSuccessfulSourceCli([
+      "trace",
+      currentDecisionId,
+      "--root",
+      workspaceRoot,
+    ]);
+    assert.match(traced, new RegExp(archivedDecisionId));
+  }));
 
-test("decision list filters lifecycle, domain, and alignment selectors", async () => {
-const fixtureRoot = await createFixtureWorkspace("query-list");
-try {
-  const activeList = await runSuccessfulCli(["list", "--root", fixtureRoot]);
-  assert.match(activeList, /^Domains:$/m);
-  assert.match(activeList, /project-tooling: 维护仓库校验、生成、打包、发布和更新工具链。/);
-  assert.match(
-    activeList,
-    /active aligned 2026-07-11 project-tooling\/use-generated-cli\.md/
-  );
-  assert.doesNotMatch(activeList, /^\s+domain:/m);
-  assert.match(activeList, /title: 使用生成 CLI/);
-  assert.match(activeList, /purpose: 确保生成后的 CLI/);
-  assert.doesNotMatch(activeList, /^\s+background:/m);
-  assert.doesNotMatch(activeList, /^\s+decision:/m);
-  assert.doesNotMatch(activeList, /260710-use-source-cli/);
-  assert.doesNotMatch(activeList, /relations/);
+test("check detects tagged source drift and sync-index accepts it", () =>
+  withFixtureWorkspace("query-drift", async (workspaceRoot) => {
+    const source = decisionFilePath(workspaceRoot, currentSourcePath);
+    await fs.writeFile(
+      source,
+      (await fs.readFile(source, "utf8")).replace(
+        "  - project-tooling",
+        "  - decision-records\n  - project-tooling",
+      ),
+      "utf8",
+    );
+    const check = await runSourceCli(["check", "--root", workspaceRoot]);
+    assert.notEqual(check.exitCode, 0);
+    assert.equal(
+      (await runSourceCli(["sync-index", "--write", "--root", workspaceRoot]))
+        .exitCode,
+      0,
+    );
+  }));
 
-  const archivedList = await runSuccessfulCli([
-    "list",
-    "--status",
-    "archived",
-    "--root",
-    fixtureRoot
-  ]);
-  assert.match(
-    archivedList,
-    /archived null 2026-07-10 decision-records\/260710-use-source-cli\.md/
-  );
-  assert.doesNotMatch(archivedList, /project-tooling\/use-generated-cli\.md/);
-
-  const completeList = await runSuccessfulCli([
-    "list",
-    "--status",
-    "all",
-    "--full-time",
-    "--root",
-    fixtureRoot
-  ]);
-  assert.match(completeList, /2026-07-10T09:10:11\+08:00/);
-  assert.match(completeList, /2026-07-11T14:15:16\+08:00/);
-
-  const decisionDomainList = await runSuccessfulCli([
-    "list",
-    "--domain",
-    "decision-records",
-    "--status",
-    "all",
-    "--root",
-    fixtureRoot
-  ]);
-  assert.match(
-    decisionDomainList,
-    /decision-records\/260710-use-source-cli\.md/
-  );
-  assert.doesNotMatch(
-    decisionDomainList,
-    /project-tooling\/use-generated-cli\.md/
-  );
-
-  for (const repeatedDomain of ["decision-records", "project-tooling"]) {
-    const repeatedDomainList = spawnSync(
+test("decision check preserves source, bundled API, and process CLI parity", () =>
+  withFixtureWorkspace("query-parity", async (workspaceRoot) => {
+    const source = await validateDecisionRecords({ workspaceRoot });
+    const bundled =
+      await import("../../../skills/decision-records/scripts/decision-records.mjs");
+    const bundledResult = await bundled.validateDecisionRecords({
+      workspaceRoot,
+    });
+    assert.deepEqual(bundledResult, source);
+    const output = execFileSync(
       "node",
       [
-        generatedCliPath,
-        "list",
-        "--domain",
-        "decision-records",
-        "--domain",
-        repeatedDomain,
-        "--status",
-        "all",
+        "skills/decision-records/scripts/decision-records.mjs",
+        "check",
         "--root",
-        fixtureRoot
+        workspaceRoot,
       ],
-      { encoding: "utf8" }
+      { cwd: process.cwd(), encoding: "utf8" },
     );
-    assert.equal(repeatedDomainList.status, 2);
-    assert.match(repeatedDomainList.stderr, /must not be repeated/);
-  }
+    assert.match(output, /Decision records check passed/);
+  }));
 
-  const emptyDomainList = await runSuccessfulCli([
-    "list",
-    "--domain",
-    "change-plan",
-    "--root",
-    fixtureRoot
-  ]);
-  assert.equal(
-    emptyDomainList,
-    "Domains:\n"
-      + "- change-plan: 维护明确变更的提案、设计、任务分解与结构检查。\n"
-      + "Decisions:\n"
-      + "- none\n"
-  );
-
-  const unknownDomain = await runBundledCli([
-    "list",
-    "--domain",
-    "unrelated-domain",
-    "--root",
-    fixtureRoot
-  ]);
-  assert.equal(unknownDomain.exitCode, 2);
-  assert.match(unknownDomain.stderr, /Unknown decision domain/);
-
-  const unalignedList = await runSuccessfulCli([
-    "list",
-    "--alignment",
-    "unaligned",
-    "--root",
-    fixtureRoot
-  ]);
-  assert.equal(
-    unalignedList,
-    "Domains:\n- none\nDecisions:\n- none\n"
-  );
-} finally {
-  await fs.rm(fixtureRoot, { force: true, recursive: true });
-}
-});
-
-test("decision show returns metadata and reports body read failures", async () => {
-const fixtureRoot = await createFixtureWorkspace("query-show");
-try {
-  const shownDecision = await runSuccessfulCli([
-    "show",
-    currentRelativePath,
-    "--root",
-    fixtureRoot
-  ]);
-  assert.match(
-    shownDecision,
-    /^path: project-tooling\/use-generated-cli\.md/m
-  );
-  assert.match(shownDecision, /^domain: project-tooling$/m);
-  assert.match(
-    shownDecision,
-    /^domainDescription: 维护仓库校验、生成、打包、发布和更新工具链。$/m
-  );
-  assert.match(shownDecision, /^status: active$/m);
-  assert.match(shownDecision, /^alignment: aligned$/m);
-  assert.doesNotMatch(shownDecision, /^pending:/m);
-  assert.match(
-    shownDecision,
-    /^createdAt: 2026-07-11T14:15:16\+08:00$/m
-  );
-  assert.match(shownDecision, /^title: 使用生成 CLI$/m);
-  assert.doesNotMatch(shownDecision, /^# /m);
-
-  const shownDecisionPath = path.join(
-    fixtureRoot,
-    "docs",
-    "decisions",
-    ...currentRelativePath.split("/")
-  );
-  const originalReadFileDescriptor = Object.getOwnPropertyDescriptor(
-    fs,
-    "readFile"
-  );
-  assert.ok(originalReadFileDescriptor);
-  const originalReadFile = fs.readFile.bind(fs);
-  let shownDecisionReadCount = 0;
-  Object.defineProperty(fs, "readFile", {
-    ...originalReadFileDescriptor,
-    value: async (
-      filePath: string,
-      encoding: BufferEncoding
-    ): Promise<string> => {
-      if (path.resolve(filePath) === shownDecisionPath) {
-        shownDecisionReadCount += 1;
-        throw new Error("simulated decision body read failure");
-      }
-      return await originalReadFile(filePath, encoding);
-    }
-  });
-  try {
-    const failedShow = await runSourceCli([
-      "show",
-      currentRelativePath,
+test("decision list filters lifecycle and tag selectors", () =>
+  withFixtureWorkspace("query-list", async (workspaceRoot) => {
+    const active = await runSuccessfulSourceCli([
+      "list",
+      "--status",
+      "active",
+      "--tag",
+      "project-tooling",
       "--root",
-      fixtureRoot
+      workspaceRoot,
     ]);
-    assert.equal(failedShow.exitCode, 1);
-    assert.equal(failedShow.stdout, "");
+    assert.match(active, new RegExp(currentDecisionId));
+    assert.doesNotMatch(active, new RegExp(archivedDecisionId));
+    const archived = await runSuccessfulSourceCli([
+      "list",
+      "--status",
+      "archived",
+      "--tag",
+      "decision-records",
+      "--root",
+      workspaceRoot,
+    ]);
+    assert.match(archived, new RegExp(archivedDecisionId));
+    assert.doesNotMatch(archived, new RegExp(currentDecisionId));
+  }));
+
+test("decision show returns metadata and reports body read failures", () =>
+  withFixtureWorkspace("query-show-read", async (workspaceRoot) => {
+    const shown = await runSuccessfulSourceCli([
+      "show",
+      currentDecisionId,
+      "--root",
+      workspaceRoot,
+    ]);
+    assert.match(shown, /^id: use-generated-cli\.md$/m);
+    assert.match(shown, /^sourcePath: use-generated-cli\.md$/m);
+    const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
+    const descriptor = Object.getOwnPropertyDescriptor(fs, "readFile");
+    assert.ok(descriptor);
+    const readFile = fs.readFile.bind(fs);
+    let reads = 0;
+    Object.defineProperty(fs, "readFile", {
+      ...descriptor,
+      value: async (file: string, encoding: BufferEncoding) => {
+        if (path.resolve(file) === sourcePath) {
+          reads += 1;
+          throw new Error("simulated decision body read failure");
+        }
+        return await readFile(file, encoding);
+      },
+    });
+    try {
+      const failed = await runSourceCli([
+        "show",
+        currentDecisionId,
+        "--root",
+        workspaceRoot,
+      ]);
+      assert.notEqual(failed.exitCode, 0);
+      assert.equal(failed.stdout, "");
+      assert.match(
+        failed.stderr,
+        /Failed to read decision body.*simulated decision body read failure/,
+      );
+      assert.equal(reads, 1);
+    } finally {
+      Object.defineProperty(fs, "readFile", descriptor);
+    }
+  }));
+
+test("decision trace follows predecessor and successor directions", () =>
+  withFixtureWorkspace("query-trace-direction", async (workspaceRoot) => {
+    const predecessors = await runSuccessfulSourceCli([
+      "trace",
+      currentDecisionId,
+      "--direction",
+      "predecessors",
+      "--root",
+      workspaceRoot,
+    ]);
+    assert.match(predecessors, new RegExp(archivedDecisionId));
+    const successors = await runSuccessfulSourceCli([
+      "trace",
+      archivedDecisionId,
+      "--direction",
+      "successors",
+      "--root",
+      workspaceRoot,
+    ]);
+    assert.match(successors, new RegExp(currentDecisionId));
+    const none = await runSuccessfulSourceCli([
+      "trace",
+      archivedDecisionId,
+      "--direction",
+      "predecessors",
+      "--root",
+      workspaceRoot,
+    ]);
+    assert.doesNotMatch(none, new RegExp(currentDecisionId));
+  }));
+
+test("decision queries use persisted snapshots while check detects source drift", () =>
+  withFixtureWorkspace("query-snapshot", async (workspaceRoot) => {
+    const source = decisionFilePath(workspaceRoot, currentSourcePath);
+    await fs.rm(source);
     assert.match(
-      failedShow.stderr,
-      /Failed to read decision body project-tooling\/use-generated-cli\.md: simulated decision body read failure/
+      await runSuccessfulSourceCli(["list", "--root", workspaceRoot]),
+      new RegExp(currentDecisionId),
     );
-    assert.equal(shownDecisionReadCount, 1);
-  } finally {
-    Object.defineProperty(fs, "readFile", originalReadFileDescriptor);
-  }
-} finally {
-  await fs.rm(fixtureRoot, { force: true, recursive: true });
-}
-});
+    assert.match(
+      await runSuccessfulSourceCli([
+        "trace",
+        currentDecisionId,
+        "--root",
+        workspaceRoot,
+      ]),
+      new RegExp(archivedDecisionId),
+    );
+    const shown = await runSourceCli([
+      "show",
+      currentDecisionId,
+      "--root",
+      workspaceRoot,
+    ]);
+    assert.notEqual(shown.exitCode, 0);
+    assert.match(shown.stderr, /Failed to read decision body/);
+    const checked = await runSourceCli(["check", "--root", workspaceRoot]);
+    assert.notEqual(checked.exitCode, 0);
+  }));
 
-test("decision trace follows predecessor and successor directions", async () => {
-const fixtureRoot = await createFixtureWorkspace("query-trace");
-try {
-  const relationTrace = await traceDecision(archivedRelativePath, [], fixtureRoot);
-  assert.match(
-    relationTrace,
-    /project-tooling\/use-generated-cli\.md --修订--> decision-records\/260710-use-source-cli\.md/
-  );
-  assert.match(relationTrace, /^Domains:$/m);
-  assert.match(relationTrace, /decision-records: 维护长期决策/);
-  assert.match(relationTrace, /project-tooling: 维护仓库校验/);
+test("decision list combines repeated tag selectors with AND semantics", () =>
+  withFixtureWorkspace("query-tags-and", async (workspaceRoot) => {
+    const bothId = "use-both-tags.md";
+    await writeDecision(
+      workspaceRoot,
+      bothId,
+      candidateDecisionBody({
+        tags: ["decision-records", "project-tooling"],
+        title: "同时属于两个标签",
+      })
+        .replace("status: candidate", "status: active")
+        .replace("alignment: null", "alignment: aligned")
+        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z"),
+    );
+    assert.equal(
+      (await runSourceCli(["sync-index", "--write", "--root", workspaceRoot]))
+        .exitCode,
+      0,
+    );
+    const listed = await runSuccessfulSourceCli([
+      "list",
+      "--status",
+      "all",
+      "--tag",
+      "decision-records",
+      "--tag",
+      "project-tooling",
+      "--root",
+      workspaceRoot,
+    ]);
+    assert.match(listed, new RegExp(bothId));
+    assert.doesNotMatch(listed, new RegExp(currentDecisionId));
+    assert.doesNotMatch(listed, new RegExp(archivedDecisionId));
+  }));
 
-  const predecessorTrace = await traceDecision(
-    currentRelativePath,
-    ["--direction", "predecessors"],
-    fixtureRoot
-  );
-  assert.match(
-    predecessorTrace,
-    /decision-records\/260710-use-source-cli\.md/
-  );
+test("decision list filters records by alignment selector", () =>
+  withFixtureWorkspace("query-alignment", async (workspaceRoot) => {
+    const unalignedId = "use-unaligned.md";
+    await writeDecision(
+      workspaceRoot,
+      unalignedId,
+      candidateDecisionBody({ title: "未对齐索引记录" })
+        .replace("status: candidate", "status: active")
+        .replace("alignment: null", "alignment: unaligned")
+        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z"),
+    );
+    assert.equal(
+      (await runSourceCli(["sync-index", "--write", "--root", workspaceRoot]))
+        .exitCode,
+      0,
+    );
+    const listed = await runSuccessfulSourceCli([
+      "list",
+      "--alignment",
+      "unaligned",
+      "--root",
+      workspaceRoot,
+    ]);
+    assert.match(listed, new RegExp(unalignedId));
+    assert.doesNotMatch(listed, new RegExp(currentDecisionId));
+    assert.doesNotMatch(listed, new RegExp(archivedDecisionId));
+  }));
 
-  const noPredecessorTrace = await traceDecision(
-    archivedRelativePath,
-    ["--direction", "predecessors"],
-    fixtureRoot
-  );
-  assert.doesNotMatch(noPredecessorTrace, /use-generated-cli/);
+test("decision list defaults to active records without archived results", () =>
+  withFixtureWorkspace("query-list-default", async (workspaceRoot) => {
+    const listed = await runSuccessfulSourceCli([
+      "list",
+      "--root",
+      workspaceRoot,
+    ]);
+    assert.match(listed, new RegExp(currentDecisionId));
+    assert.doesNotMatch(listed, new RegExp(archivedDecisionId));
+  }));
 
-  const successorTrace = await traceDecision(
-    archivedRelativePath,
-    ["--direction", "successors"],
-    fixtureRoot
-  );
-  assert.match(
-    successorTrace,
-    /project-tooling\/use-generated-cli\.md/
-  );
-} finally {
-  await fs.rm(fixtureRoot, { force: true, recursive: true });
-}
-});
+test("decision list status all includes both lifecycles and full timestamps", () =>
+  withFixtureWorkspace("query-list-all", async (workspaceRoot) => {
+    const listed = await runSuccessfulSourceCli([
+      "list",
+      "--status",
+      "all",
+      "--full-time",
+      "--root",
+      workspaceRoot,
+    ]);
+    assert.match(listed, new RegExp(currentDecisionId));
+    assert.match(listed, new RegExp(archivedDecisionId));
+    assert.match(listed, /2026-07-11T14:15:16\+08:00/);
+    assert.match(listed, /2026-07-10T09:10:11\+08:00/);
+  }));
 
-test("decision queries use persisted snapshots while check detects source drift", async () => {
-const fixtureRoot = await createFixtureWorkspace("query-index-snapshot");
-try {
-  const decisionPath = path.join(
-    fixtureRoot,
-    "docs",
-    "decisions",
-    ...currentRelativePath.split("/")
-  );
-  await fs.rm(decisionPath);
-
-  const listed = await runSuccessfulCli(["list", "--root", fixtureRoot]);
-  assert.match(listed, /project-tooling\/use-generated-cli\.md/);
-  const traced = await traceDecision(currentRelativePath, [], fixtureRoot);
-  assert.match(traced, /decision-records\/260710-use-source-cli\.md/);
-
-  const shown = await runBundledCli([
-    "show",
-    currentRelativePath,
-    "--root",
-    fixtureRoot
-  ]);
-  assert.equal(shown.exitCode, 1);
-  assert.match(shown.stderr, /Failed to read decision body/);
-
-  const checked = await runBundledCli(["check", "--root", fixtureRoot]);
-  assert.equal(checked.exitCode, 1);
-  assert.match(checked.stderr, /out of sync|references missing decision/);
-} finally {
-  await fs.rm(fixtureRoot, { force: true, recursive: true });
-}
-});
+test("decision list reports empty results for unmatched tag and alignment filters", () =>
+  withFixtureWorkspace("query-list-empty", async (workspaceRoot) => {
+    const unmatchedTag = await runSuccessfulSourceCli([
+      "list",
+      "--tag",
+      "unmatched-tag",
+      "--root",
+      workspaceRoot,
+    ]);
+    assert.match(unmatchedTag, /- none/);
+    const unmatchedAlignment = await runSuccessfulSourceCli([
+      "list",
+      "--alignment",
+      "unaligned",
+      "--root",
+      workspaceRoot,
+    ]);
+    assert.match(unmatchedAlignment, /- none/);
+  }));
