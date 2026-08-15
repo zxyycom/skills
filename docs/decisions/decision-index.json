@@ -265,7 +265,7 @@
       "use-monotonic-alignment-baseline.md": "sha256:b093a0204566b741fe7efbb97efb4b45549b7daadacd875fc924990a662ce8e2",
       "use-native-locks-for-json-transactions.md": "sha256:64ef5d12dc865922f715dc2831b23f979a421e167299530f8d06ef51839004e6",
       "use-persisted-index-for-routine-queries.md": "sha256:5b6d4f024f11fc52a93937211a12a018a3da4c4c1d593ff5767abc64fbb69808",
-      "use-physical-archive-boundary-for-decision-search.md": "sha256:cbf565885a27ce0604218f2e3d200c602f7aac0b3ba15903e715a5fdd74f7f62",
+      "use-physical-archive-boundary-for-decision-search.md": "sha256:bd079276e126a84298cc9fe202ba2c10b0d8e6c78b7d5a8a4d65456775eaea64",
       "use-plan-base-only-for-git-distance.md": "sha256:13933964ea3368150d336920705fb800ff06ae8ddfe1a01c613c8a131c401d2f",
       "use-profiled-concise-checks.md": "sha256:9e619f77ae8610f5a14d3743961b09ace5d5bdeb51fc096fc4c0898587406f7a",
       "use-project-short-commands-for-maintenance-clis.md": "sha256:af6c8c17acc8291a17354ccc81eef1b8239c1d3a5bda2cf785beffef92fbbe3c",

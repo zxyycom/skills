@@ -1,21 +1,19 @@
 # Decision Records
 
-`decision-records` 帮助 agent 恢复、审阅和维护会持续影响后续选择的长期判断。每条记录以稳定 Decision ID 标识，记录级 tags 分类，生命周期决定当前位置，持久 JSON 索引提供当前查询快照。
+`decision-records` 用于恢复、形成和演进会长期影响后续选择的判断。它保存采用方向、理由、生命周期与演进关系，让后续工作能够区分当前基线、已确认的未来方向与历史判断；它不保存任务进度、执行日志或当前实现快照。
 
-## 当前模型
+## 何时使用
 
-1. Decision ID 是含 `.md` 的合法 basename；移动位置不改变 ID，改 basename 才是身份变化。
-2. 每条 Markdown 都有非空、唯一、有序的 `tags`。tags 只分类，不表示状态、对齐、关系或当前事实，也没有集中 tag catalog。
-3. candidate 与 active 记录直属 `docs/decisions/`；archived 记录直属 `docs/decisions/archive/`。`status` 是权威，位置和索引的 `sourcePath` 必须与其一致。
-4. 统一索引以 Decision ID 为键，覆盖 active 和 archived 记录。候选由根目录源码发现，始终排除在正式索引外。
-5. `list` 默认只返回 active；重复 `--tag` 按 AND 过滤。`show`、`trace`、关系、生命周期与 stage 都使用 Decision ID，输出同时显示 `sourcePath`。
-6. lifecycle、关系和 stage 保留完整预检、并发漂移拒绝、原子替换、失败恢复和索引读回校验。stage 选择同一 ID 的位置移动一次即可；它不推断 basename 改名意图，只选新/旧 ID 分别表示新增/删除，同时选择两者才表达改名。
-7. 当前分发物只支持这一模型，不提供其他格式的读取、转换、双写、迁移或升级命令。
+当一项判断会持续影响行为、owner、边界、兼容性、风险处理或验收，且缺少记录将使后续维护难以恢复取舍理由时，使用 Decision Records。普通事实、一次性任务、进度和执行结果不属于它的记录对象。
 
-## 使用与维护
+最小模型如下：
 
-普通恢复先读 `list`，按需使用 `--status`、`--alignment` 与重复 `--tag`；需要完整理由时 `show <decision-id>`，需要演进关系时 `trace <decision-id>`。只有审核未建立方向时才运行 `candidates` 或 `show-candidate <decision-id>`。
+1. `candidate` 是内容完整、等待审核的候选判断，尚未进入正式集合。
+2. `active + aligned` 是已核对并成为当前事实的基线。
+3. `active + unaligned` 是已确认但尚未成为当前事实的未来方向。这是正常状态，不表示失败、待办或实施授权；只有当前任务明确纳入相应交付时才实施。
+4. `archived` 退出当前依据，但保留最后对齐状态和演进历史。
+5. 持久索引只是从已建立 Markdown 重建的查询辅助；它不定义或替代决策事实，候选也不进入其中。
 
-写入、修改 tags、生命周期、关系或 pending 快照前，agent 读取 [Skill 入口](../../skills/decision-records/SKILL.md) 与 [决策记录规则](../../skills/decision-records/references/decision-record-rules.md)。精确 CLI 参数以 `scripts/decision-records.mjs --help` 为准；索引字段和版本由 [JSON Schema](../../skills/decision-records/references/decision-index.schema.json) 承接。
+## 入口
 
-手工修改 Markdown 后运行 `sync-index --write`，维护或验收前运行严格 `check`。CLI、索引或事务恢复无法由普通诊断解决时，按 [维护恢复](../../skills/decision-records/references/maintenance-recovery.md) 处理。
+agent 的触发、读取路径、动作选择与验收由 [Skill 入口](../../skills/decision-records/SKILL.md) 承接。写入、生命周期、关系、对齐和索引维护的语义规则由 [决策记录规则](../../skills/decision-records/references/decision-record-rules.md) 承接；CLI 的当前参数与输出通过 `bun run decision-records -- --help` 查询，索引或写入异常按 [维护恢复](../../skills/decision-records/references/maintenance-recovery.md) 处理。
