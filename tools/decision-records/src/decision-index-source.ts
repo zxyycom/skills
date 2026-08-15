@@ -4,12 +4,17 @@ import type {
   StateSnapshot,
   StateSourceRevision
 } from "../../index-runtime/src/index.ts";
-import { isDecisionId } from "./decision-path.ts";
+import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
+import {
+  isDecisionId,
+  sourcePathForDecision
+} from "./decision-path.ts";
 import { decisionSourceRevision } from "./decision-source-revision.ts";
 import { buildDecisionStateSnapshotFromSources } from "./decision-state-snapshot.ts";
 import type {
   DecisionIndexMetadata,
   DecisionIndexState,
+  DecisionId,
   DecisionSource
 } from "./types.ts";
 
@@ -43,14 +48,16 @@ async function readDecisionSources(
   decisionIds: readonly string[],
   signal?: AbortSignal
 ): Promise<DecisionSource[]> {
-  const ids = [...decisionIds].sort(compareText);
-  if (new Set(ids).size !== ids.length) {
+  const sortedInputs = [...decisionIds].sort(compareText);
+  if (new Set(sortedInputs).size !== sortedInputs.length) {
     throw new Error("decision sources must use unique Decision IDs");
   }
-  for (const decisionId of ids) {
+  const ids: DecisionId[] = [];
+  for (const decisionId of sortedInputs) {
     if (!isDecisionId(decisionId)) {
       throw new Error(`invalid indexed Decision ID ${decisionId}`);
     }
+    ids.push(decisionId);
   }
 
   const sources: DecisionSource[] = [];
@@ -72,7 +79,7 @@ async function readDecisionSources(
 
 async function readDecisionSource(
   decisionsDirectory: string,
-  decisionId: string,
+  decisionId: DecisionId,
   signal?: AbortSignal
 ): Promise<DecisionSource> {
   if (signal?.aborted === true) {
@@ -80,9 +87,11 @@ async function readDecisionSource(
   }
   const currentPath = path.join(decisionsDirectory, decisionId);
   const archivedPath = path.join(decisionsDirectory, "archive", decisionId);
+  const currentSourcePath = sourcePathForDecision(decisionId, "active");
+  const archivedSourcePath = sourcePathForDecision(decisionId, "archived");
   const [currentExists, archivedExists] = await Promise.all([
-    exists(currentPath),
-    exists(archivedPath)
+    decisionFileExists(currentPath, currentSourcePath),
+    decisionFileExists(archivedPath, archivedSourcePath)
   ]);
   if (currentExists === archivedExists) {
     throw new Error(
@@ -91,7 +100,7 @@ async function readDecisionSource(
         : `Decision ID does not resolve to a source path: ${decisionId}`
     );
   }
-  const sourcePath = archivedExists ? "archive/" + decisionId : decisionId;
+  const sourcePath = archivedExists ? archivedSourcePath : currentSourcePath;
   const sourceFilePath = archivedExists ? archivedPath : currentPath;
   try {
     return {
@@ -107,11 +116,20 @@ async function readDecisionSource(
   }
 }
 
-async function exists(filePath: string): Promise<boolean> {
+async function decisionFileExists(
+  filePath: string,
+  sourcePath: string
+): Promise<boolean> {
   try {
-    return (await fs.stat(filePath)).isFile();
+    const entry = await fs.lstat(filePath);
+    if (entry.isSymbolicLink() || !entry.isFile()) {
+      throw new Error(
+        `decision source must be a regular non-symbolic-link file: ${sourcePath}`
+      );
+    }
+    return true;
   } catch (error) {
-    if (isMissingFileError(error)) {
+    if (isFileSystemError(error, "ENOENT")) {
       return false;
     }
     throw error;
@@ -120,10 +138,6 @@ async function exists(filePath: string): Promise<boolean> {
 
 function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
-}
-
-function isMissingFileError(error: unknown): boolean {
-  return error instanceof Error && "code" in error && error.code === "ENOENT";
 }
 
 function errorText(error: unknown): string {

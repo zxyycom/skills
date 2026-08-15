@@ -2,6 +2,7 @@ import { Buffer } from "node:buffer";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
+import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
 import {
   openVersionControl,
   type RevisionId,
@@ -18,19 +19,23 @@ import {
   decisionIndexDiagnosticMessages,
   decisionIndexFileName,
   parseDecisionIndex,
-  serializeDecisionIndex,
-  type DecisionSource
+  serializeDecisionIndex
 } from "./decision-state-index.ts";
 import {
   decisionIdFromSourcePath,
   displayDecisionPath,
-  isDecisionId
+  isDecisionId,
+  isDecisionSourcePath
 } from "./decision-path.ts";
 import { validateDecisionBody } from "./record.ts";
 import {
   resolveDecisionLocation,
   type DecisionLocation
 } from "./decision-query-context.ts";
+import type {
+  DecisionId,
+  DecisionSource
+} from "./types.ts";
 
 const revisionReadConcurrency = 32;
 const utf8Decoder = new TextDecoder("utf-8", { fatal: true });
@@ -39,7 +44,7 @@ export type DecisionStageSuccess = {
   command: "stage";
   indexRelativePath: string;
   pendingFileCount: number;
-  selectedIds: string[];
+  selectedIds: DecisionId[];
   status: "ok";
 };
 
@@ -183,7 +188,7 @@ type DecisionStageTarget = {
 };
 
 type SelectedFilesystemSource = {
-  decisionId: string;
+  decisionId: DecisionId;
   source: DecisionStageSource | null;
 };
 
@@ -192,7 +197,7 @@ async function buildDecisionStageTarget(options: {
   decisionScope: string;
   repository: VersionControlRepository;
   revision: RevisionId | null;
-  selectedIds: readonly string[];
+  selectedIds: readonly DecisionId[];
 }): Promise<DecisionStageTarget> {
   const baseline = await readDecisionBaseline({
     decisionsDirectory: options.decisionsDirectory,
@@ -294,8 +299,8 @@ async function readDecisionBaseline(options: {
 async function readFilesystemDecisionSources(
   decisionsDirectory: string,
   decisionScope: string
-): Promise<Map<string, DecisionStageSource>> {
-  const sources = new Map<string, DecisionStageSource>();
+): Promise<Map<DecisionId, DecisionStageSource>> {
+  const sources = new Map<DecisionId, DecisionStageSource>();
   const addSource = async (sourcePath: string): Promise<void> => {
     const decisionId = decisionIdFromSourcePath(sourcePath);
     if (decisionId === null) {
@@ -362,7 +367,7 @@ async function verifySelectedFilesystemSources(
 async function readFilesystemDecisionSource(
   decisionsDirectory: string,
   decisionScope: string,
-  decisionId: string
+  decisionId: DecisionId
 ): Promise<DecisionStageSource | null> {
   const sourcePaths = [decisionId, "archive/" + decisionId];
   const sources: DecisionStageSource[] = [];
@@ -372,7 +377,7 @@ async function readFilesystemDecisionSource(
     try {
       entry = await fs.lstat(filesystemPath);
     } catch (error) {
-      if (isMissingFileError(error)) {
+      if (isFileSystemError(error, "ENOENT")) {
         continue;
       }
       throw error;
@@ -397,7 +402,7 @@ function stageSourceFromFile(
   sourcePath: string
 ): DecisionStageSource {
   const decisionId = decisionIdFromSourcePath(sourcePath);
-  if (decisionId === null) {
+  if (decisionId === null || !isDecisionSourcePath(sourcePath)) {
     throw new Error("invalid decision source path: " + sourcePath);
   }
   return {
@@ -495,10 +500,10 @@ async function selectEstablishedSources(
 
 function validateSelectedIds(
   decisionIds: readonly string[]
-): DecisionApplicationFailure | { status: "ok"; value: string[] } {
+): DecisionApplicationFailure | { status: "ok"; value: DecisionId[] } {
   const errors: string[] = [];
-  const values: string[] = [];
-  const seen = new Set<string>();
+  const values: DecisionId[] = [];
+  const seen = new Set<DecisionId>();
   if (decisionIds.length === 0) {
     errors.push("stage requires at least one Decision ID");
   }
@@ -585,10 +590,6 @@ function versionControlFailure(
 }
 
 class DecisionStageInputError extends Error {}
-
-function isMissingFileError(error: unknown): boolean {
-  return error instanceof Error && "code" in error && error.code === "ENOENT";
-}
 
 function errorText(error: unknown): string {
   return error instanceof Error ? error.message : String(error);

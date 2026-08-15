@@ -75,6 +75,37 @@ test("source revisions fingerprint invalid Markdown and sourcePath without parsi
   );
 });
 
+test("in-memory decision sources reject invalid IDs and source paths before deriving revisions", () => {
+  for (const { source, expected } of [
+    {
+      source: {
+        decisionId: "invalid_name.md",
+        sourcePath: "invalid-name.md",
+        text: "source\n",
+      },
+      expected: /invalid Decision ID/,
+    },
+    {
+      source: {
+        decisionId: "use-valid.md",
+        sourcePath: "nested/use-valid.md",
+        text: "source\n",
+      },
+      expected: /invalid source path/,
+    },
+    {
+      source: {
+        decisionId: "use-valid.md",
+        sourcePath: "archive/use-other.md",
+        text: "source\n",
+      },
+      expected: /path does not match Decision ID/,
+    },
+  ]) {
+    assert.throws(() => decisionSourceRevision([source]), expected);
+  }
+});
+
 async function fixtureSources(): Promise<
   Array<{ decisionId: string; sourcePath: string; text: string }>
 > {

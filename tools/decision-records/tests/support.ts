@@ -7,6 +7,8 @@ import { fileURLToPath } from "node:url";
 import {
   runDecisionRecordsCli as runSourceDecisionRecordsCli
 } from "../src/cli.ts";
+import { parseDecisionIndex } from "../src/decision-state-index.ts";
+import type { DecisionIndex, DecisionIndexState } from "../src/types.ts";
 import {
   runDecisionRecordsCli as runBundledDecisionRecordsCli
 } from "../../../skills/decision-records/scripts/decision-records.mjs";
@@ -234,21 +236,37 @@ export async function fileExists(filePath: string): Promise<boolean> {
   }
 }
 
-export async function readIndex(workspaceRootOrIndexPath: string): Promise<any> {
+export async function readIndex(
+  workspaceRootOrIndexPath: string
+): Promise<DecisionIndex> {
   const indexPath = workspaceRootOrIndexPath.endsWith(".json")
     ? workspaceRootOrIndexPath
     : path.join(workspaceRootOrIndexPath, "docs", "decisions", "decision-index.json");
-  return JSON.parse(await fs.readFile(
-    indexPath,
-    "utf8"
-  ));
+  const parsed = parseDecisionIndex(
+    await fs.readFile(indexPath, "utf8"),
+    indexPath
+  );
+  if (parsed.status === "error") {
+    throw new Error(
+      `Expected a valid decision index at ${indexPath}: ${parsed.diagnostics
+        .map((diagnostic) => diagnostic.message)
+        .join("; ")}`
+    );
+  }
+  return parsed.value;
 }
 
-export async function writeIndex(indexPath: string, index: unknown): Promise<void> {
+export async function writeIndex(
+  indexPath: string,
+  index: unknown
+): Promise<void> {
   await fs.writeFile(indexPath, JSON.stringify(index, null, 2) + "\n", "utf8");
 }
 
-export function findIndexEntry(index: any, decisionId: string): any {
+export function findIndexEntry(
+  index: DecisionIndex,
+  decisionId: string
+): DecisionIndexState {
   const entry = index.entries[decisionId];
   assert.ok(entry, `Expected indexed decision ${decisionId}`);
   return entry.state;

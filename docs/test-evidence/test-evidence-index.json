@@ -2186,6 +2186,29 @@
         "title": "Mark-aligned 帮助要求核验当前事实"
       }
     },
+    "DECISION-CLI-POSITIONAL-ID-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-POSITIONAL-ID-001 CLI 在位置参数边界验证 Decision ID 所有接受位置式 Decision ID 的 CLI 命令必须在 Commander 参数边界拒绝非法 basename。 `activate`、`archive`、`discard`、`mark-aligned`、`show`、`show-candidate`、`stage` 和 `trace` 对非法 ID 均以退出码 `2` 结束、不写 stdout，并在 stderr 说明 ID 无效。 tools/decision-records/tests/cli-args.test.ts > positional Decision IDs are validated at every CLI command boundary bun test --test-name-pattern=\"^positional\\ Decision\\ IDs\\ are\\ validated\\ at\\ every\\ CLI\\ command\\ boundary$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > positional Decision IDs are validated at every CLI command boundary",
+          "bun test --test-name-pattern=\"^positional\\ Decision\\ IDs\\ are\\ validated\\ at\\ every\\ CLI\\ command\\ boundary$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-POSITIONAL-ID-001",
+        "line": 1,
+        "searchText": "CLI 在位置参数边界验证 Decision ID 所有接受位置式 Decision ID 的 CLI 命令必须在 Commander 参数边界拒绝非法 basename。 `activate`、`archive`、`discard`、`mark-aligned`、`show`、`show-candidate`、`stage` 和 `trace` 对非法 ID 均以退出码 `2` 结束、不写 stdout，并在 stderr 说明 ID 无效。 tools/decision-records/tests/cli-args.test.ts > positional Decision IDs are validated at every CLI command boundary bun test --test-name-pattern=\"^positional\\ Decision\\ IDs\\ are\\ validated\\ at\\ every\\ CLI\\ command\\ boundary$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/cli-positional-decision-id-validation.md",
+        "summary": "所有接受位置式 Decision ID 的 CLI 命令必须在 Commander 参数边界拒绝非法 basename。",
+        "title": "CLI 在位置参数边界验证 Decision ID"
+      }
+    },
     "DECISION-CLI-RELATION-SELECTION-001": {
       "keys": {
         "search": [
@@ -2212,7 +2235,7 @@
     "DECISION-CLI-REMOVED-PROTOCOL-001": {
       "keys": {
         "search": [
-          "DECISION-CLI-REMOVED-PROTOCOL-001 CLI 拒绝移除的领域和路径查询协议 当前 CLI 不公开 `domains`、`--domain`、路径式 record ID 或 tag OR/NOT 选择器。 帮助不含领域协议，五种已移除调用均以非零退出。 tools/decision-records/tests/cli-args.test.ts > decision CLI rejects removed domain and path query protocols bun test --test-name-pattern=\"^decision CLI rejects removed domain and path query protocols$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CLI-REMOVED-PROTOCOL-001 CLI 拒绝移除的领域和路径查询协议 当前 CLI 不公开 `domains`、`--domain`、路径式 record ID 或 tag OR/NOT 选择器。 帮助不含领域协议，五种已移除调用均以参数错误码 `2` 退出、不写 stdout，并在 stderr 报告多余位置参数、未知选项或无效 Decision ID。 tools/decision-records/tests/cli-args.test.ts > decision CLI rejects removed domain and path query protocols bun test --test-name-pattern=\"^decision CLI rejects removed domain and path query protocols$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2226,7 +2249,7 @@
         ],
         "id": "DECISION-CLI-REMOVED-PROTOCOL-001",
         "line": 1,
-        "searchText": "CLI 拒绝移除的领域和路径查询协议 当前 CLI 不公开 `domains`、`--domain`、路径式 record ID 或 tag OR/NOT 选择器。 帮助不含领域协议，五种已移除调用均以非零退出。 tools/decision-records/tests/cli-args.test.ts > decision CLI rejects removed domain and path query protocols bun test --test-name-pattern=\"^decision CLI rejects removed domain and path query protocols$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "CLI 拒绝移除的领域和路径查询协议 当前 CLI 不公开 `domains`、`--domain`、路径式 record ID 或 tag OR/NOT 选择器。 帮助不含领域协议，五种已移除调用均以参数错误码 `2` 退出、不写 stdout，并在 stderr 报告多余位置参数、未知选项或无效 Decision ID。 tools/decision-records/tests/cli-args.test.ts > decision CLI rejects removed domain and path query protocols bun test --test-name-pattern=\"^decision CLI rejects removed domain and path query protocols$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/cli-rejects-removed-query-protocols.md",
         "summary": "当前 CLI 不公开 `domains`、`--domain`、路径式 record ID 或 tag OR/NOT 选择器。",
         "title": "CLI 拒绝移除的领域和路径查询协议"
@@ -2599,6 +2622,121 @@
         "title": "快速来源 revision 跟踪无效 Markdown 与来源路径"
       }
     },
+    "DECISION-FILESYSTEM-INDEX-SOURCE-001": {
+      "keys": {
+        "search": [
+          "DECISION-FILESYSTEM-INDEX-SOURCE-001 索引源读取拒绝非普通决策文件 建立索引时，Decision ID 对应的 root 或 archive 源必须是普通非符号链接文件。 源读取对目录和指向决策目录外文件的符号链接均在读取前失败，外部文件内容保持不变。 tools/decision-records/tests/filesystem-boundaries.test.ts > indexed source loading rejects symlink and non-regular decision files before reading them bun test --test-name-pattern=\"^indexed\\ source\\ loading\\ rejects\\ symlink\\ and\\ non-regular\\ decision\\ files\\ before\\ reading\\ them$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/filesystem-boundaries.test.ts > indexed source loading rejects symlink and non-regular decision files before reading them",
+          "bun test --test-name-pattern=\"^indexed\\ source\\ loading\\ rejects\\ symlink\\ and\\ non-regular\\ decision\\ files\\ before\\ reading\\ them$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-FILESYSTEM-INDEX-SOURCE-001",
+        "line": 1,
+        "searchText": "索引源读取拒绝非普通决策文件 建立索引时，Decision ID 对应的 root 或 archive 源必须是普通非符号链接文件。 源读取对目录和指向决策目录外文件的符号链接均在读取前失败，外部文件内容保持不变。 tools/decision-records/tests/filesystem-boundaries.test.ts > indexed source loading rejects symlink and non-regular decision files before reading them bun test --test-name-pattern=\"^indexed\\ source\\ loading\\ rejects\\ symlink\\ and\\ non-regular\\ decision\\ files\\ before\\ reading\\ them$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/indexed-source-loading-rejects-unsafe-files.md",
+        "summary": "建立索引时，Decision ID 对应的 root 或 archive 源必须是普通非符号链接文件。",
+        "title": "索引源读取拒绝非普通决策文件"
+      }
+    },
+    "DECISION-FILESYSTEM-QUERY-BODY-001": {
+      "keys": {
+        "search": [
+          "DECISION-FILESYSTEM-QUERY-BODY-001 查询正文拒绝非普通决策文件 `show` 读取已索引正文前必须重新确认目标为普通非符号链接文件。 `show` 对目录和指向决策目录外文件的符号链接均返回读取失败，且外部文件内容保持不变。 tools/decision-records/tests/filesystem-boundaries.test.ts > decision show rejects symlink and non-regular bodies without reading outside the decisions directory bun test --test-name-pattern=\"^decision\\ show\\ rejects\\ symlink\\ and\\ non-regular\\ bodies\\ without\\ reading\\ outside\\ the\\ decisions\\ directory$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/filesystem-boundaries.test.ts > decision show rejects symlink and non-regular bodies without reading outside the decisions directory",
+          "bun test --test-name-pattern=\"^decision\\ show\\ rejects\\ symlink\\ and\\ non-regular\\ bodies\\ without\\ reading\\ outside\\ the\\ decisions\\ directory$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-FILESYSTEM-QUERY-BODY-001",
+        "line": 1,
+        "searchText": "查询正文拒绝非普通决策文件 `show` 读取已索引正文前必须重新确认目标为普通非符号链接文件。 `show` 对目录和指向决策目录外文件的符号链接均返回读取失败，且外部文件内容保持不变。 tools/decision-records/tests/filesystem-boundaries.test.ts > decision show rejects symlink and non-regular bodies without reading outside the decisions directory bun test --test-name-pattern=\"^decision\\ show\\ rejects\\ symlink\\ and\\ non-regular\\ bodies\\ without\\ reading\\ outside\\ the\\ decisions\\ directory$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/show-rejects-unsafe-decision-bodies.md",
+        "summary": "`show` 读取已索引正文前必须重新确认目标为普通非符号链接文件。",
+        "title": "查询正文拒绝非普通决策文件"
+      }
+    },
+    "DECISION-FILESYSTEM-SCAN-EMPTY-INDEX-001": {
+      "keys": {
+        "search": [
+          "DECISION-FILESYSTEM-SCAN-EMPTY-INDEX-001 Scan 报告空索引诊断 空的决策索引文本必须被记录为包含索引路径的 JSON 解析诊断，而不是当作索引缺失。 Scan 保留 `indexExists`，并在 index errors 中给出 `decision-index.json` 的 EOF JSON 解析原因。 tools/decision-records/tests/filesystem-boundaries.test.ts > scan reports an empty decision index as an actionable index diagnostic bun test --test-name-pattern=\"^scan\\ reports\\ an\\ empty\\ decision\\ index\\ as\\ an\\ actionable\\ index\\ diagnostic$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/filesystem-boundaries.test.ts > scan reports an empty decision index as an actionable index diagnostic",
+          "bun test --test-name-pattern=\"^scan\\ reports\\ an\\ empty\\ decision\\ index\\ as\\ an\\ actionable\\ index\\ diagnostic$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-FILESYSTEM-SCAN-EMPTY-INDEX-001",
+        "line": 1,
+        "searchText": "Scan 报告空索引诊断 空的决策索引文本必须被记录为包含索引路径的 JSON 解析诊断，而不是当作索引缺失。 Scan 保留 `indexExists`，并在 index errors 中给出 `decision-index.json` 的 EOF JSON 解析原因。 tools/decision-records/tests/filesystem-boundaries.test.ts > scan reports an empty decision index as an actionable index diagnostic bun test --test-name-pattern=\"^scan\\ reports\\ an\\ empty\\ decision\\ index\\ as\\ an\\ actionable\\ index\\ diagnostic$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/scan-reports-empty-index-diagnostic.md",
+        "summary": "空的决策索引文本必须被记录为包含索引路径的 JSON 解析诊断，而不是当作索引缺失。",
+        "title": "Scan 报告空索引诊断"
+      }
+    },
+    "DECISION-FILESYSTEM-SCAN-READ-FAILURES-001": {
+      "keys": {
+        "search": [
+          "DECISION-FILESYSTEM-SCAN-READ-FAILURES-001 Scan 报告文件系统读取失败 Scan 遇到决策根、archive、索引或决策源的读取失败时，必须在相应错误集合中保留可定位路径和底层原因。 注入的四种读取失败分别报告根目录、archive、`decision-index.json` 或 `use-generated-cli.md`，且包含模拟失败原因。 tools/decision-records/tests/filesystem-boundaries.test.ts > scan reports root archive index and source read failures with their actionable paths bun test --test-name-pattern=\"^scan\\ reports\\ root\\ archive\\ index\\ and\\ source\\ read\\ failures\\ with\\ their\\ actionable\\ paths$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/filesystem-boundaries.test.ts > scan reports root archive index and source read failures with their actionable paths",
+          "bun test --test-name-pattern=\"^scan\\ reports\\ root\\ archive\\ index\\ and\\ source\\ read\\ failures\\ with\\ their\\ actionable\\ paths$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-FILESYSTEM-SCAN-READ-FAILURES-001",
+        "line": 1,
+        "searchText": "Scan 报告文件系统读取失败 Scan 遇到决策根、archive、索引或决策源的读取失败时，必须在相应错误集合中保留可定位路径和底层原因。 注入的四种读取失败分别报告根目录、archive、`decision-index.json` 或 `use-generated-cli.md`，且包含模拟失败原因。 tools/decision-records/tests/filesystem-boundaries.test.ts > scan reports root archive index and source read failures with their actionable paths bun test --test-name-pattern=\"^scan\\ reports\\ root\\ archive\\ index\\ and\\ source\\ read\\ failures\\ with\\ their\\ actionable\\ paths$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/scan-reports-filesystem-read-failures.md",
+        "summary": "Scan 遇到决策根、archive、索引或决策源的读取失败时，必须在相应错误集合中保留可定位路径和底层原因。",
+        "title": "Scan 报告文件系统读取失败"
+      }
+    },
+    "DECISION-FILESYSTEM-TRANSACTION-001": {
+      "keys": {
+        "search": [
+          "DECISION-FILESYSTEM-TRANSACTION-001 事务预检拒绝非普通决策文件 生命周期文件事务必须在写入前确认每个源是普通非符号链接文件。 目录和指向决策目录外文件的符号链接均使预检报告无写入失败；索引、外部文件和不安全源入口保持原状。 tools/decision-records/tests/filesystem-boundaries.test.ts > decision transactions reject symlink and non-regular sources before writing any target bun test --test-name-pattern=\"^decision\\ transactions\\ reject\\ symlink\\ and\\ non-regular\\ sources\\ before\\ writing\\ any\\ target$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/filesystem-boundaries.test.ts > decision transactions reject symlink and non-regular sources before writing any target",
+          "bun test --test-name-pattern=\"^decision\\ transactions\\ reject\\ symlink\\ and\\ non-regular\\ sources\\ before\\ writing\\ any\\ target$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-FILESYSTEM-TRANSACTION-001",
+        "line": 1,
+        "searchText": "事务预检拒绝非普通决策文件 生命周期文件事务必须在写入前确认每个源是普通非符号链接文件。 目录和指向决策目录外文件的符号链接均使预检报告无写入失败；索引、外部文件和不安全源入口保持原状。 tools/decision-records/tests/filesystem-boundaries.test.ts > decision transactions reject symlink and non-regular sources before writing any target bun test --test-name-pattern=\"^decision\\ transactions\\ reject\\ symlink\\ and\\ non-regular\\ sources\\ before\\ writing\\ any\\ target$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/transactions-reject-unsafe-decision-sources.md",
+        "summary": "生命周期文件事务必须在写入前确认每个源是普通非符号链接文件。",
+        "title": "事务预检拒绝非普通决策文件"
+      }
+    },
     "DECISION-FIRST-ESTABLISHMENT-001": {
       "keys": {
         "search": [
@@ -2625,7 +2763,7 @@
     "DECISION-GENERATED-ARTIFACTS-001": {
       "keys": {
         "search": [
-          "DECISION-GENERATED-ARTIFACTS-001 生成制品公开带标签的 ID 契约与可移植元数据 分发制品的 Schema、API 与可移植元数据必须公开稳定 ID、tags 和 sourcePath 契约，并排除已移除的分类字段。 生成模块与元数据均包含当前 ID/标签/路径字段并保持可导入。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose the tagged ID contract and portable metadata bun test --test-name-pattern=\"^generated\\ decision\\ artifacts\\ expose\\ the\\ tagged\\ ID\\ contract\\ and\\ portable\\ metadata$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-GENERATED-ARTIFACTS-001 生成制品公开带标签的 ID 契约与可移植元数据 分发制品的 Schema、API 与可移植元数据必须公开稳定 ID、经验证的 `DecisionTag[]`、sourcePath 契约，并排除已移除的分类字段。 生成声明公开 `DecisionId`、`DecisionTag` 和 `tags: DecisionTag[]`，模块与元数据保持可导入。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose the tagged ID contract and portable metadata bun test --test-name-pattern=\"^generated\\ decision\\ artifacts\\ expose\\ the\\ tagged\\ ID\\ contract\\ and\\ portable\\ metadata$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2639,9 +2777,9 @@
         ],
         "id": "DECISION-GENERATED-ARTIFACTS-001",
         "line": 1,
-        "searchText": "生成制品公开带标签的 ID 契约与可移植元数据 分发制品的 Schema、API 与可移植元数据必须公开稳定 ID、tags 和 sourcePath 契约，并排除已移除的分类字段。 生成模块与元数据均包含当前 ID/标签/路径字段并保持可导入。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose the tagged ID contract and portable metadata bun test --test-name-pattern=\"^generated\\ decision\\ artifacts\\ expose\\ the\\ tagged\\ ID\\ contract\\ and\\ portable\\ metadata$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "生成制品公开带标签的 ID 契约与可移植元数据 分发制品的 Schema、API 与可移植元数据必须公开稳定 ID、经验证的 `DecisionTag[]`、sourcePath 契约，并排除已移除的分类字段。 生成声明公开 `DecisionId`、`DecisionTag` 和 `tags: DecisionTag[]`，模块与元数据保持可导入。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose the tagged ID contract and portable metadata bun test --test-name-pattern=\"^generated\\ decision\\ artifacts\\ expose\\ the\\ tagged\\ ID\\ contract\\ and\\ portable\\ metadata$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/generated-decision-artifacts-expose-schemas-apis-and-portable-metadata.md",
-        "summary": "分发制品的 Schema、API 与可移植元数据必须公开稳定 ID、tags 和 sourcePath 契约，并排除已移除的分类字段。",
+        "summary": "分发制品的 Schema、API 与可移植元数据必须公开稳定 ID、经验证的 `DecisionTag[]`、sourcePath 契约，并排除已移除的分类字段。",
         "title": "生成制品公开带标签的 ID 契约与可移植元数据"
       }
     },
@@ -3036,6 +3174,29 @@
         "title": "List 对重复标签采用 AND 筛选"
       }
     },
+    "DECISION-MEMORY-SOURCE-BOUNDARY-001": {
+      "keys": {
+        "search": [
+          "DECISION-MEMORY-SOURCE-BOUNDARY-001 内存决策源在派生前验证身份与路径 内存输入的决策源在生成 revision 或状态快照前必须验证 Decision ID、sourcePath 格式及两者身份一致性。 非法 ID、非法 sourcePath 和 ID/path 不匹配均在 revision 派生入口抛出对应类型错误。 tools/decision-records/tests/state-snapshot.test.ts > in-memory decision sources reject invalid IDs and source paths before deriving revisions bun test --test-name-pattern=\"^in-memory\\ decision\\ sources\\ reject\\ invalid\\ IDs\\ and\\ source\\ paths\\ before\\ deriving\\ revisions$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/state-snapshot.test.ts > in-memory decision sources reject invalid IDs and source paths before deriving revisions",
+          "bun test --test-name-pattern=\"^in-memory\\ decision\\ sources\\ reject\\ invalid\\ IDs\\ and\\ source\\ paths\\ before\\ deriving\\ revisions$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-MEMORY-SOURCE-BOUNDARY-001",
+        "line": 1,
+        "searchText": "内存决策源在派生前验证身份与路径 内存输入的决策源在生成 revision 或状态快照前必须验证 Decision ID、sourcePath 格式及两者身份一致性。 非法 ID、非法 sourcePath 和 ID/path 不匹配均在 revision 派生入口抛出对应类型错误。 tools/decision-records/tests/state-snapshot.test.ts > in-memory decision sources reject invalid IDs and source paths before deriving revisions bun test --test-name-pattern=\"^in-memory\\ decision\\ sources\\ reject\\ invalid\\ IDs\\ and\\ source\\ paths\\ before\\ deriving\\ revisions$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/in-memory-decision-source-boundaries.md",
+        "summary": "内存输入的决策源在生成 revision 或状态快照前必须验证 Decision ID、sourcePath 格式及两者身份一致性。",
+        "title": "内存决策源在派生前验证身份与路径"
+      }
+    },
     "DECISION-MERGE-MINIMUM-001": {
       "keys": {
         "search": [
@@ -3103,6 +3264,29 @@
         "sourcePath": "decision-records/decision-queries-use-persisted-snapshots-while-check-detects-source-drift.md",
         "summary": "list/trace 读取持久索引快照，show 读取正文，严格 check 检测来源漂移。",
         "title": "查询读取持久快照且 Check 检测来源漂移"
+      }
+    },
+    "DECISION-RECORD-GUARD-IDENTITY-001": {
+      "keys": {
+        "search": [
+          "DECISION-RECORD-GUARD-IDENTITY-001 Record 类型守卫拒绝无效身份字段 公开的 candidate、established 和 activation record 类型守卫除 source kind 外，必须验证 Decision ID 与 sourcePath 的格式。 从真实 scan 获得的 candidate/established record 在身份字段有效时分别通过相应守卫；伪造的非法 ID 或非法 sourcePath 均被拒绝，activation 守卫也不会接受该 candidate。 tools/decision-records/tests/record-guards.test.ts > record type guards reject invalid identity fields from real candidate and established scans bun test --test-name-pattern=\"^record\\ type\\ guards\\ reject\\ invalid\\ identity\\ fields\\ from\\ real\\ candidate\\ and\\ established\\ scans$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/record-guards.test.ts > record type guards reject invalid identity fields from real candidate and established scans",
+          "bun test --test-name-pattern=\"^record\\ type\\ guards\\ reject\\ invalid\\ identity\\ fields\\ from\\ real\\ candidate\\ and\\ established\\ scans$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-RECORD-GUARD-IDENTITY-001",
+        "line": 1,
+        "searchText": "Record 类型守卫拒绝无效身份字段 公开的 candidate、established 和 activation record 类型守卫除 source kind 外，必须验证 Decision ID 与 sourcePath 的格式。 从真实 scan 获得的 candidate/established record 在身份字段有效时分别通过相应守卫；伪造的非法 ID 或非法 sourcePath 均被拒绝，activation 守卫也不会接受该 candidate。 tools/decision-records/tests/record-guards.test.ts > record type guards reject invalid identity fields from real candidate and established scans bun test --test-name-pattern=\"^record\\ type\\ guards\\ reject\\ invalid\\ identity\\ fields\\ from\\ real\\ candidate\\ and\\ established\\ scans$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/record-type-guards-reject-invalid-identities.md",
+        "summary": "公开的 candidate、established 和 activation record 类型守卫除 source kind 外，必须验证 Decision ID 与 sourcePath 的格式。",
+        "title": "Record 类型守卫拒绝无效身份字段"
       }
     },
     "DECISION-SHOW-OUTPUT-001": {
@@ -12298,8 +12482,9 @@
       "DECISION-CLI-EVOLVE-HELP-001": "sha256:569d1990171808e0187aeec62808eb78cc68548f3e34d88f38ec4d41109a8970",
       "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001": "sha256:28610923594ce003805d9c9a1a853721f5cde444ae0f29e0569a448a287f84c8",
       "DECISION-CLI-MARK-ALIGNED-HELP-001": "sha256:a0f31da74c2dd5ec39de558a6696137da5d0f3666003ae2c6291864050cfcb97",
+      "DECISION-CLI-POSITIONAL-ID-001": "sha256:e7098c9b0e0c70ca4619896b6257301a6f7909b731c91a9bf5fb7e48690d9f3a",
       "DECISION-CLI-RELATION-SELECTION-001": "sha256:9fdc9deed74a62b3578886105bcd61fd5a541edf47ee75587711499632cf1c3d",
-      "DECISION-CLI-REMOVED-PROTOCOL-001": "sha256:24ab4d68561c3adb72f7339f02de600e3b8c71af13091fc0052c5cf2a2e512ff",
+      "DECISION-CLI-REMOVED-PROTOCOL-001": "sha256:aff69d9c99943524e2b6addccb9fe92465e8b3f5cfe35ee0d0761b8cf97b775b",
       "DECISION-CLI-REMOVED-PROTOCOLS-001": "sha256:749f518dc523cede3a1f90dac7f3dbbc6e06c6d75e58ab732cda092534039162",
       "DECISION-CLI-TAG-001": "sha256:e47638364fad59b8e6037ceb934cc0ab324a16604bef0e18d244554698be9350",
       "DECISION-CLI-TRACE-DEPTH-001": "sha256:ba8889666c4bfde8ef6f2e52fd67955a280499da542dfdfb979c5bd5e641189a",
@@ -12316,8 +12501,13 @@
       "DECISION-EVOLVE-HISTORICAL-SUCCESSOR-001": "sha256:fcbd6aa87335f6fb6c3be7ffdedf14209241a792fe3d848aa7761069499d767f",
       "DECISION-EVOLVE-UNSUPPORTED-MULTI-001": "sha256:9a70950d65a76db841d98e34bab8e5c57376c5292bdb108de881eead82418781",
       "DECISION-FAST-REVISION-001": "sha256:ba2b7345890ca50c915022321bd470dbc1c4cf9deb4ec367c73f13979f46fe58",
+      "DECISION-FILESYSTEM-INDEX-SOURCE-001": "sha256:99d38298a0bea3c2a3f7e9724c05575b23d99ff0fea783489bc6c2ac1f2e0296",
+      "DECISION-FILESYSTEM-QUERY-BODY-001": "sha256:b86a3378df12ee9814118f6c2ff1521a84910c31bc3852f11aecfe567648f10b",
+      "DECISION-FILESYSTEM-SCAN-EMPTY-INDEX-001": "sha256:40c90b81741857ff12a8489bf4e1ddfcde6f3f43995349eba8ddccc5c7b2184b",
+      "DECISION-FILESYSTEM-SCAN-READ-FAILURES-001": "sha256:899de702d15ae0a7ed87168ac45d6308fd544c4ca01b38bd9ad8a3a0835a0d9f",
+      "DECISION-FILESYSTEM-TRANSACTION-001": "sha256:78c796f1837a3a0c4dc5b7e1b7b38e868fe053af1bfdfbcebf98d490a52cb2c4",
       "DECISION-FIRST-ESTABLISHMENT-001": "sha256:d5cfabda96a99227ba2f641624dd4a20b9a6f5342bad0b8c7cb5f1ae734b1fc3",
-      "DECISION-GENERATED-ARTIFACTS-001": "sha256:28e8e5de2d9df6a13a6eedea0ca4a9265efc9aa12508b37e7cca549855521401",
+      "DECISION-GENERATED-ARTIFACTS-001": "sha256:d783f4cd7281d0bdd129cab917476100d4baec44bcbedf150357b1ee1e96da30",
       "DECISION-ID-INDEX-001": "sha256:d27fbe7fe4843bbbc7747c7630f73463493509ce4892c269866da86c92ab6272",
       "DECISION-ID-QUERY-001": "sha256:7d33b8e779d42a2de8343d0d71662dafa53690d3698f9a407b75ab190727488c",
       "DECISION-ID-RELATION-001": "sha256:3c5293a5dbc1b290b8bc4a4ffa08422901878a0ab6285193d3c44e1a1155bf9e",
@@ -12335,9 +12525,11 @@
       "DECISION-LIST-EMPTY-001": "sha256:0801c59b2452c6b15cc314529fc5e3f0d055e91bc7636a251b4c0e2121547eed",
       "DECISION-LIST-FILTERS-001": "sha256:6aa723d7d50b25006bc037b01cf6947e0f1770048efc5928e8b02b2455fa191c",
       "DECISION-LIST-TAG-AND-001": "sha256:c534ffaf2fea9605e5d0c2432f1ff76da61847d9a477225ed6d484f0c6fb4089",
+      "DECISION-MEMORY-SOURCE-BOUNDARY-001": "sha256:83bc736e80ba5c13c380e5ab00601d8bc47113dac1a5f61813ec5d73900e4cab",
       "DECISION-MERGE-MINIMUM-001": "sha256:9d9808672a6bb7bbfec041dbe3bac03f8b91c6212b4b222e5726e1d14c2338b9",
       "DECISION-METADATA-REMOVED-001": "sha256:acf1d41ba428423573e46332b0b03bcc68c1ad1112445b11d43d9dacae2b591d",
       "DECISION-QUERY-INDEX-MEMBERSHIP-001": "sha256:9be8324d65bc1f3f24199487d7f338d0e126a3388fd49469ef8d71b935bf23cf",
+      "DECISION-RECORD-GUARD-IDENTITY-001": "sha256:c456fb7f6e3c6c6f4d64bdcb14bdd77ee338aff8cd1e0ffb783a78ca1c181175",
       "DECISION-SHOW-OUTPUT-001": "sha256:a6c556c13e2756b76f7019231afd5763ab95cbff56963d914132de0763548fa6",
       "DECISION-SPLIT-CLOSURE-001": "sha256:8eca8efac59196c19a855de11f0d0662e1e5449caa9e62c9b9a4f9ba82f614de",
       "DECISION-SPLIT-EXTENSION-001": "sha256:ea347368f16eca94ab22e1365226982d6b761e6b0f21bb13043991869a6fff08",

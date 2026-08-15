@@ -5,16 +5,19 @@ import { decisionRelationConsistencyIssues } from "./relation-graph.ts";
 import { prepareDecisionSources } from "./decision-source-revision.ts";
 import type {
   DecisionDocument,
+  DecisionId,
   DecisionIndexMetadata,
   DecisionIndexState,
   DecisionMetadata,
-  DecisionSource
+  DecisionSource,
+  DecisionSourceInput,
+  DecisionSourcePath
 } from "./types.ts";
 
 const decisionSourceParseConcurrency = 32;
 
 export function decisionIndexState(
-  sourcePath: string,
+  sourcePath: DecisionSourcePath,
   document: DecisionDocument
 ): DecisionIndexState {
   const metadata: DecisionMetadata = document.status === "active"
@@ -41,11 +44,11 @@ export function decisionIndexState(
 }
 
 export async function buildDecisionStateSnapshotFromSources(
-  sources: readonly DecisionSource[],
+  sources: readonly DecisionSourceInput[],
   signal?: AbortSignal
 ): Promise<StateSnapshot<DecisionIndexState, DecisionIndexMetadata>> {
   const prepared = prepareDecisionSources(sources);
-  const states: Array<{ decisionId: string; state: DecisionIndexState }> = [];
+  const states: Array<{ decisionId: DecisionId; state: DecisionIndexState }> = [];
   for (
     let offset = 0;
     offset < prepared.sources.length;
@@ -80,7 +83,7 @@ export async function buildDecisionStateSnapshotFromSources(
 
 async function parseDecisionSource(
   source: DecisionSource,
-  decisionIds: ReadonlySet<string>
+  decisionIds: ReadonlySet<DecisionSource["decisionId"]>
 ): Promise<DecisionIndexState> {
   const errors: string[] = [];
   const candidate = await validateDecisionBody({

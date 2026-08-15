@@ -133,8 +133,8 @@ test("index revision detects tag and sourcePath changes before accepting a rebui
 
 test("decision index parser and check reject obsolete definition version", () =>
   withFixtureWorkspace("index-obsolete-definition", async (workspaceRoot) => {
-    const index = await readIndex(workspaceRoot);
-    index.definitionVersion = 5;
+    const establishedIndex = await readIndex(workspaceRoot);
+    const index = { ...establishedIndex, definitionVersion: 5 };
     const indexPath = path.join(
       workspaceRoot,
       "docs",

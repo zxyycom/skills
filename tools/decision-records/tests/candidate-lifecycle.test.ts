@@ -646,9 +646,15 @@ test("candidate collection rejects an empty index when only candidates remain", 
     await fs.rm(decisionFilePath(workspaceRoot, archivedSourcePath));
     await writeDecision(workspaceRoot, candidateId, candidateDecisionBody());
     const indexPath = path.join(decisionsDirectory, "decision-index.json");
-    const emptyIndex = await readIndex(workspaceRoot);
-    emptyIndex.entries = {};
-    emptyIndex.sourceRevision.entries = {};
+    const indexedState = await readIndex(workspaceRoot);
+    const emptyIndex = {
+      ...indexedState,
+      entries: {},
+      sourceRevision: {
+        ...indexedState.sourceRevision,
+        entries: {},
+      },
+    };
     await writeIndex(indexPath, emptyIndex);
 
     for (const args of [["candidates"], ["show-candidate", candidateId]]) {

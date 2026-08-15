@@ -4,6 +4,8 @@ import {
 } from "./decision-state-index.ts";
 import { scanDecisionRecords } from "./scan.ts";
 import {
+  isEstablishedDecisionRecord,
+  type DecisionId,
   type DecisionScan,
   type DecisionScanOptions,
   type DecisionValidationResult
@@ -21,17 +23,17 @@ export type DecisionValidationOptions = {
     | "source-only";
 };
 
-export type DecisionIndexSourceSelection = {
-  decisionIds: string[];
+export type EstablishedDecisionIdSelection = {
+  decisionIds: DecisionId[];
   errors: string[];
 };
 
-export function selectDecisionIndexSourcePaths(
+export function selectEstablishedDecisionIds(
   scan: DecisionScan
-): DecisionIndexSourceSelection {
+): EstablishedDecisionIdSelection {
   const errors: string[] = [];
   const decisionIds = scan.records
-    .filter((record) => record.markdownExists && record.document !== null)
+    .filter(isEstablishedDecisionRecord)
     .map((record) => record.decisionId);
 
   if (decisionIds.length === 0) {
@@ -66,12 +68,10 @@ export async function validateDecisionScan(
     : options.scanErrorPolicy === "source-only"
       ? [...scan.sourceErrors]
       : [...scan.errors];
-  const hasEstablishedDecision = scan.records.some(
-    (record) => record.markdownExists && record.document !== null
-  );
+  const hasEstablishedDecision = scan.records.some(isEstablishedDecisionRecord);
   const selection = options.allowEmptyDecisionSet && !hasEstablishedDecision
     ? { decisionIds: [], errors: [] }
-    : selectDecisionIndexSourcePaths(scan);
+    : selectEstablishedDecisionIds(scan);
   errors.push(...selection.errors);
 
   if (

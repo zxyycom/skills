@@ -15,8 +15,24 @@ export type DecisionAlignment = "aligned" | "unaligned";
 
 export type DecisionListAlignment = DecisionAlignment | "all";
 
-/** A stable Markdown basename such as `use-stable-ids.md`. */
-export type DecisionId = string;
+declare const decisionIdBrand: unique symbol;
+declare const decisionSourcePathBrand: unique symbol;
+declare const decisionTagBrand: unique symbol;
+
+/** A validated stable Markdown basename such as `use-stable-ids.md`. */
+export type DecisionId = string & {
+  readonly [decisionIdBrand]: "DecisionId";
+};
+
+/** A validated root or archive path for one decision Markdown source. */
+export type DecisionSourcePath = string & {
+  readonly [decisionSourcePathBrand]: "DecisionSourcePath";
+};
+
+/** A validated kebab-case decision tag. */
+export type DecisionTag = string & {
+  readonly [decisionTagBrand]: "DecisionTag";
+};
 
 export type DecisionRelation = {
   type: DecisionRelationType;
@@ -44,7 +60,7 @@ export type DecisionProjection = {
 };
 
 export type DecisionTags = {
-  tags: string[];
+  tags: DecisionTag[];
 };
 
 export type DecisionMetadata =
@@ -94,11 +110,15 @@ export type DecisionRecordSource =
     };
 
 export type DecisionIndexState = DecisionDocument & {
-  sourcePath: string;
+  sourcePath: DecisionSourcePath;
 };
 
 export type DecisionIndexStoredEntry = {
-  keys: Record<string, Array<boolean | number | string>>;
+  keys: {
+    tag: DecisionTag[];
+    status: [EstablishedDecisionStatus];
+    alignment?: [DecisionAlignment];
+  };
   state: DecisionIndexState;
 };
 
@@ -120,10 +140,11 @@ export type DecisionIndex = {
   definitionVersion: 6;
   metadata: DecisionIndexMetadata;
   sourceRevision: DecisionSourceRevision;
-  keyDefinitions: Array<{
-    name: string;
-    mode: "exact" | "range" | "text";
-  }>;
+  keyDefinitions: [
+    { name: "tag"; mode: "exact" },
+    { name: "status"; mode: "exact" },
+    { name: "alignment"; mode: "exact" }
+  ];
   entries: Record<DecisionId, DecisionIndexStoredEntry>;
 };
 
@@ -131,19 +152,17 @@ export type DecisionRecord = {
   /** Whether the source is a complete candidate eligible for activation. */
   activationCandidate: boolean;
   alignment: DecisionAlignment | null;
-  bodyValid: boolean;
   createdAt: string | null;
-  decisionId: DecisionId;
+  decisionId: string;
   decisionPath: string;
   document: DecisionDocument | null;
-  indexed: boolean;
   markdownExists: boolean;
   projection: DecisionProjection;
   relationshipErrors: string[];
   source: DecisionRecordSource;
   sourcePath: string;
   status: DecisionStatus | null;
-  tags: string[];
+  tags: DecisionTag[];
 };
 
 export type DecisionScanOptions = {
@@ -152,8 +171,6 @@ export type DecisionScanOptions = {
 };
 
 export type DecisionScan = {
-  /** @deprecated Candidates no longer produce validation errors; always empty. */
-  activationCandidateErrors: string[];
   /** Source collection errors that prevent returning a partial candidate query. */
   collectionErrors: string[];
   decisionsDirectoryAvailable: boolean;

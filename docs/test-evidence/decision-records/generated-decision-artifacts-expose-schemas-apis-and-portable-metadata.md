@@ -5,7 +5,7 @@ Entry:
 - `bun test --test-name-pattern="^generated\ decision\ artifacts\ expose\ the\ tagged\ ID\ contract\ and\ portable\ metadata$" ./tools/decision-records/tests/run.ts`
 
 Contract:
-- 分发制品的 Schema、API 与可移植元数据必须公开稳定 ID、tags 和 sourcePath 契约，并排除已移除的分类字段。
+- 分发制品的 Schema、API 与可移植元数据必须公开稳定 ID、经验证的 `DecisionTag[]`、sourcePath 契约，并排除已移除的分类字段。
 
 Proves:
-- 生成模块与元数据均包含当前 ID/标签/路径字段并保持可导入。
+- 生成声明公开 `DecisionId`、`DecisionTag` 和 `tags: DecisionTag[]`，模块与元数据保持可导入。

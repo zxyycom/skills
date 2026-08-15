@@ -2,6 +2,10 @@ import type {
   StateIndex,
   StateIndexEntry
 } from "../../index-runtime/src/index.ts";
+import {
+  isDecisionId,
+  isDecisionSourcePath
+} from "./decision-path.ts";
 
 export const decisionRelationTypes = [
   "修订",
@@ -30,8 +34,24 @@ export const decisionAlignments = ["aligned", "unaligned"] as const;
 export type DecisionAlignment = typeof decisionAlignments[number];
 export type DecisionListAlignment = DecisionAlignment | "all";
 
-/** A stable Markdown basename such as `use-stable-ids.md`. */
-export type DecisionId = string;
+declare const decisionIdBrand: unique symbol;
+declare const decisionSourcePathBrand: unique symbol;
+declare const decisionTagBrand: unique symbol;
+
+/** A validated stable Markdown basename such as `use-stable-ids.md`. */
+export type DecisionId = string & {
+  readonly [decisionIdBrand]: "DecisionId";
+};
+
+/** A validated root or archive path for one decision Markdown source. */
+export type DecisionSourcePath = string & {
+  readonly [decisionSourcePathBrand]: "DecisionSourcePath";
+};
+
+/** A validated kebab-case decision tag. */
+export type DecisionTag = string & {
+  readonly [decisionTagBrand]: "DecisionTag";
+};
 
 export type DecisionRelation = {
   type: DecisionRelationType;
@@ -59,7 +79,7 @@ export type DecisionProjection = {
 };
 
 export type DecisionTags = {
-  tags: string[];
+  tags: DecisionTag[];
 };
 
 export type DecisionMetadata =
@@ -109,11 +129,18 @@ export type DecisionRecordSource =
     };
 
 export type DecisionIndexState = DecisionDocument & {
-  sourcePath: string;
+  sourcePath: DecisionSourcePath;
 };
 
 export type DecisionSource = Readonly<{
   decisionId: DecisionId;
+  sourcePath: DecisionSourcePath;
+  text: string;
+}>;
+
+/** Raw in-memory source input that must be validated before domain use. */
+export type DecisionSourceInput = Readonly<{
+  decisionId: string;
   sourcePath: string;
   text: string;
 }>;
@@ -134,40 +161,51 @@ export type DecisionRecord = {
   /** Whether the source is a complete candidate eligible for activation. */
   activationCandidate: boolean;
   alignment: DecisionAlignment | null;
-  bodyValid: boolean;
   createdAt: string | null;
-  decisionId: DecisionId;
+  /** Raw basename for invalid sources; validated on candidate/established records. */
+  decisionId: string;
   decisionPath: string;
   document: DecisionDocument | null;
-  indexed: boolean;
   markdownExists: boolean;
   projection: DecisionProjection;
   relationshipErrors: string[];
   source: DecisionRecordSource;
   sourcePath: string;
   status: DecisionStatus | null;
-  tags: string[];
+  tags: DecisionTag[];
 };
 
 type DecisionRecordWithSource<
   Kind extends DecisionRecordSource["kind"]
 > = Omit<DecisionRecord, "source"> & {
+  decisionId: DecisionId;
+  sourcePath: DecisionSourcePath;
   source: Extract<DecisionRecordSource, { kind: Kind }>;
 };
 
 export type DecisionCandidateRecord = DecisionRecordWithSource<"candidate">;
 export type EstablishedDecisionRecord = DecisionRecordWithSource<"established">;
 
+export function isActivationCandidateRecord(
+  record: DecisionRecord
+): record is DecisionCandidateRecord {
+  return record.activationCandidate && isDecisionCandidateRecord(record);
+}
+
 export function isDecisionCandidateRecord(
   record: DecisionRecord
 ): record is DecisionCandidateRecord {
-  return record.source.kind === "candidate";
+  return record.source.kind === "candidate"
+    && isDecisionId(record.decisionId)
+    && isDecisionSourcePath(record.sourcePath);
 }
 
 export function isEstablishedDecisionRecord(
   record: DecisionRecord
 ): record is EstablishedDecisionRecord {
-  return record.source.kind === "established";
+  return record.source.kind === "established"
+    && isDecisionId(record.decisionId)
+    && isDecisionSourcePath(record.sourcePath);
 }
 
 export function compareDecisionRecords(
@@ -183,8 +221,6 @@ export type DecisionScanOptions = {
 };
 
 export type DecisionScan = {
-  /** @deprecated Candidates no longer produce validation errors; always empty. */
-  activationCandidateErrors: string[];
   /** Source collection errors that prevent returning a partial candidate query. */
   collectionErrors: string[];
   decisionsDirectoryAvailable: boolean;

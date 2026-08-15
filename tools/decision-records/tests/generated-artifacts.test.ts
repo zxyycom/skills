@@ -18,8 +18,9 @@ test("generated decision artifacts expose the tagged ID contract and portable me
 
   const declarationSource = await fs.readFile(generatedDeclarationPath, "utf8");
   assert.match(declarationSource, /DecisionId/);
+  assert.match(declarationSource, /DecisionTag/);
   assert.match(declarationSource, /sourcePath: string/);
-  assert.match(declarationSource, /tags: string\[\]/);
+  assert.match(declarationSource, /tags: DecisionTag\[\]/);
   assert.match(
     declarationSource,
     /DecisionIndexMetadata = Record<string, never>/,

@@ -26,9 +26,12 @@ import {
   decisionRelationTypes,
   establishedDecisionStatuses,
   type DecisionDocument,
+  type DecisionId,
   type DecisionIndexMetadata,
   type DecisionIndexState,
-  type DecisionMetadata
+  type DecisionMetadata,
+  type DecisionSourcePath,
+  type DecisionTag
 } from "./types.ts";
 
 export const decisionIndexNamespace = "decisions";
@@ -40,15 +43,15 @@ const nonEmptyStringSchema = v.pipe(
 );
 const decisionIdSchema = v.pipe(
   nonEmptyStringSchema,
-  v.check(isDecisionId, "must be a stable Decision ID basename")
+  v.check(isDecisionIdString, "must be a stable Decision ID basename")
 );
 const sourcePathSchema = v.pipe(
   nonEmptyStringSchema,
-  v.check(isDecisionSourcePath, "must be a decision source path")
+  v.check(isDecisionSourcePathString, "must be a decision source path")
 );
 const tagSchema = v.pipe(
   nonEmptyStringSchema,
-  v.check(isDecisionTag, "must be a kebab-case tag")
+  v.check(isDecisionTagString, "must be a kebab-case tag")
 );
 const decisionRelationSchema = v.strictObject({
   type: v.picklist(decisionRelationTypes),
@@ -78,6 +81,20 @@ const decisionSourceRevisionSchema = createStateSourceRevisionSchema({
   fingerprint: sourceFingerprintSchema,
   id: decisionIdSchema
 });
+
+function isDecisionIdString(value: string): value is DecisionId {
+  return isDecisionId(value);
+}
+
+function isDecisionSourcePathString(
+  value: string
+): value is DecisionSourcePath {
+  return isDecisionSourcePath(value);
+}
+
+function isDecisionTagString(value: string): value is DecisionTag {
+  return isDecisionTag(value);
+}
 
 type DecisionIndexDefinitionOptions = {
   decisionIds?: readonly string[];
@@ -159,6 +176,9 @@ function parseDecisionIndexState(input: Parameters<
   if (!isDecisionId(context.id)) {
     throw new TypeError("entry id must be a stable Decision ID basename");
   }
+  if (!isDecisionSourcePath(state.sourcePath)) {
+    throw new TypeError("state.sourcePath must be a decision source path");
+  }
   if (state.sourcePath !== sourcePathForDecision(context.id, state.status)) {
     throw new TypeError("state.sourcePath must match the Decision ID and lifecycle status");
   }
@@ -186,16 +206,28 @@ function parseDecisionIndexState(input: Parameters<
       throw new TypeError(`${field} ${issue}`);
     }
   }
-  if (!strictlyAscendingUnique(state.tags)) {
+  const tags: DecisionTag[] = [];
+  for (const tag of state.tags) {
+    if (!isDecisionTag(tag)) {
+      throw new TypeError("tags must contain only kebab-case decision tags");
+    }
+    tags.push(tag);
+  }
+  if (!strictlyAscendingUnique(tags)) {
     throw new TypeError("tags must be unique and lexical ascending");
   }
 
-  const relationTargets = new Set<string>();
+  const relations: DecisionDocument["relations"] = [];
+  const relationTargets = new Set<DecisionId>();
   for (const relation of state.relations) {
+    if (!isDecisionId(relation.target)) {
+      throw new TypeError("relation target must be a stable Decision ID basename");
+    }
     if (relationTargets.has(relation.target)) {
       throw new TypeError(`repeats relationship target ${relation.target}`);
     }
     relationTargets.add(relation.target);
+    relations.push({ target: relation.target, type: relation.type });
   }
 
   const document: DecisionDocument = {
@@ -204,8 +236,8 @@ function parseDecisionIndexState(input: Parameters<
     purpose: state.purpose,
     background: state.background,
     decision: state.decision,
-    tags: state.tags,
-    relations: state.relations
+    tags,
+    relations
   };
   return decisionIndexState(state.sourcePath, document);
 }

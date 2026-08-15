@@ -6,7 +6,7 @@ description: >-
   多个决策变化同时存在时单独暂存所选变化，并让完整决策索引与待提交集合
   一致时使用。
 metadata:
-  version: "26"
+  version: "27"
 ---
 
 # Decision Records
@@ -69,7 +69,7 @@ metadata:
 1. 关系、查询、生命周期和 `stage` 一律接收 Decision ID，不用 `sourcePath` 作为身份输入。`sourcePath` 只用于定位和展示。
 2. `activate <decision-id> --alignment ...` 建立一个候选，或重新激活一个 archived 记录。`evolve` 是建立关系、完整关系修订和闭合多后继演进的统一入口；重复 `--successor <alignment=decision-id>` 显式给出完整后继集合，关系覆盖要么完整替换、要么显式为空，绝不追加或猜测。
 3. `archive <decision-id...>` 将 active 记录移动到 `archive/` 并保留最后对齐状态与关系；重新激活反向移动到根目录。所有生命周期和关系事务都必须预检完整组合、拒绝并发漂移、同步索引、读回检查，并在可处理失败时恢复 Markdown 与索引组合。
-4. tags 是非语义分类。修改 tags 不改变 Decision ID、正文语义、生命周期或关系；修改后重建索引并通过严格检查。tags 不表示状态、对齐、关系类型或当前事实。
+4. tags 只承接记录级分类。修改 tags 不改变 Decision ID、正文语义、生命周期或关系；修改后重建索引并通过严格检查。tags 不承接状态、对齐、关系类型或当前事实。
 5. 已建立记录的判断语义变化通过新记录和真实关系表达；编辑性文字修正可直接改权威 Markdown。不得直接编辑派生索引制造状态。
 6. 当前契约只接受本文件与规则定义的 ID、tags 和物理布局；不提供旧格式读取、路径别名、重定向、双写、迁移或升级命令。
 

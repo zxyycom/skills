@@ -20,8 +20,10 @@ import {
 } from "./decision-relation-transaction.ts";
 import type { DecisionFileChange } from "./decision-transaction.ts";
 import {
+  isDecisionCandidateRecord,
   isEstablishedDecisionRecord,
   type DecisionAlignment,
+  type DecisionId,
   type EstablishedDecisionRecord,
   type DecisionRecord,
   type DecisionRelationOverride,
@@ -34,12 +36,12 @@ export type DecisionLifecycleRequest =
       action: "activate";
       alignment: DecisionAlignment;
       keepUnrecordedHistory: boolean;
-      decisionId: string;
+      decisionId: DecisionId;
       relationOverride: DecisionRelationOverride;
     }
   | {
       action: "evolve";
-      collapseUnrecordedId: string | null;
+      collapseUnrecordedId: DecisionId | null;
       keepUnrecordedHistory: boolean;
       relationOverride: DecisionRelationOverride;
       successors: readonly DecisionSuccessor[];
@@ -47,11 +49,11 @@ export type DecisionLifecycleRequest =
   | {
       action: "archive";
       keepUnrecordedHistory: boolean;
-      decisionIds: readonly string[];
+      decisionIds: readonly DecisionId[];
     }
   | {
       action: "discard" | "mark-aligned";
-      decisionId: string;
+      decisionId: DecisionId;
     };
 
 export type DecisionHistoryBaselineRequirement =
@@ -100,7 +102,7 @@ function activationRelationTransactionRequest(
   request: Extract<DecisionLifecycleRequest, { action: "activate" }>
 ): DecisionRelationTransactionRequest | null {
   const record = findRecord(scan, request.decisionId);
-  if (record?.source.kind !== "candidate") {
+  if (record === null || !isDecisionCandidateRecord(record)) {
     return null;
   }
   return {
@@ -296,7 +298,7 @@ function prepareEvolution(
 
 function prepareMarkAligned(
   scan: DecisionScan,
-  decisionId: string
+  decisionId: DecisionId
 ): DecisionLifecyclePreparation {
   const record = findEstablishedRecord(scan, decisionId);
   if (record === null) {
@@ -329,14 +331,14 @@ function prepareMarkAligned(
 
 function prepareArchive(
   scan: DecisionScan,
-  decisionIds: readonly string[],
+  decisionIds: readonly DecisionId[],
   keepUnrecordedHistory: boolean,
   historyBaseline: DecisionHistoryBaseline | null
 ): DecisionLifecyclePreparation {
   if (decisionIds.length === 0) {
-    return plainFailure("At least one established decision path is required.");
+    return plainFailure("At least one established Decision ID is required.");
   }
-  const archivedIds = new Set<string>();
+  const archivedIds = new Set<DecisionId>();
   const records: EstablishedDecisionRecord[] = [];
   for (const decisionId of decisionIds) {
     const record = findEstablishedRecord(scan, decisionId);
@@ -378,7 +380,7 @@ function prepareArchive(
 
 function prepareDiscard(
   scan: DecisionScan,
-  decisionId: string
+  decisionId: DecisionId
 ): DecisionLifecyclePreparation {
   const record = findRecord(scan, decisionId);
   if (record === null || !record.markdownExists) {
@@ -405,7 +407,7 @@ function prepareDiscard(
       ...record.relationshipErrors
     ]);
   }
-  const referencingPaths = scan.records
+  const referencingIds = scan.records
     .filter((candidate) => candidate.decisionId !== record.decisionId)
     .filter((candidate) => (
       candidate.source.kind === "candidate"
@@ -414,11 +416,11 @@ function prepareDiscard(
       relation.target === record.decisionId
     )))
     .map((candidate) => candidate.decisionId);
-  if (referencingPaths.length > 0) {
+  if (referencingIds.length > 0) {
     return decisionFailure([
       "Cannot discard decision file while it is still referenced: "
         + record.sourcePath,
-      "Remove references from: " + referencingPaths.join(", ")
+      "Remove references from: " + referencingIds.join(", ")
     ]);
   }
   return {
@@ -434,13 +436,13 @@ function prepareDiscard(
   };
 }
 
-function findRecord(scan: DecisionScan, value: string): DecisionRecord | null {
+function findRecord(scan: DecisionScan, value: DecisionId): DecisionRecord | null {
   return scan.records.find((record) => record.decisionId === value) ?? null;
 }
 
 function findEstablishedRecord(
   scan: DecisionScan,
-  value: string
+  value: DecisionId
 ): EstablishedDecisionRecord | null {
   const record = findRecord(scan, value);
   return record !== null && isEstablishedDecisionRecord(record) ? record : null;

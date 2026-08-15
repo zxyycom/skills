@@ -80,9 +80,19 @@ test("index maintenance detects drift and synchronizes canonical decision states
     (error) => error.includes("createdAt must be an RFC 3339 timestamp")
   ));
 
-  const mismatchedPathIndex = structuredClone(originalIndex);
-  mismatchedPathIndex.entries[firstEntryId]!.state.sourcePath =
-    "mismatched-id.md";
+  const mismatchedPathIndex = {
+    ...originalIndex,
+    entries: {
+      ...originalIndex.entries,
+      [firstEntryId]: {
+        ...originalIndex.entries[firstEntryId]!,
+        state: {
+          ...originalIndex.entries[firstEntryId]!.state,
+          sourcePath: "mismatched-id.md"
+        }
+      }
+    }
+  };
   await writeIndex(indexPath, mismatchedPathIndex);
   assert.ok((await validateDecisionRecords({ workspaceRoot })).errors.some(
     (error) => error.includes("sourcePath")

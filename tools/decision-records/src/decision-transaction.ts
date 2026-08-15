@@ -1,7 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { isFileSystemError } from "../../shared/src/node/filesystem.ts";
 import {
-  selectDecisionIndexSourcePaths,
+  selectEstablishedDecisionIds,
   validateDecisionScan
 } from "./index.ts";
 import {
@@ -25,9 +26,9 @@ export type DecisionFileChange = {
 };
 
 type DecisionChangePreflight = {
+  createdTargetPaths: Set<string>;
   errors: string[];
   originalBodies: Map<string, string>;
-  originalTargets: Map<string, string | null>;
 };
 
 export async function applyDecisionChanges(options: {
@@ -43,7 +44,7 @@ export async function applyDecisionChanges(options: {
 
   try {
     for (const change of changes) {
-      await applyDecisionChange(change);
+      await applyDecisionChange(change, preflight.createdTargetPaths);
     }
     const candidateScan = await scanDecisionRecords(scanOptions);
     const hasEstablishedDecision = candidateScan.records.some(
@@ -64,7 +65,7 @@ export async function applyDecisionChanges(options: {
     if (!hasEstablishedDecision) {
       await fs.rm(candidateScan.indexPath, { force: true });
     } else {
-      const selection = selectDecisionIndexSourcePaths(candidateScan);
+      const selection = selectEstablishedDecisionIds(candidateScan);
       if (selection.errors.length > 0) {
         return [
           ...selection.errors,
@@ -112,8 +113,9 @@ async function preflightDecisionChanges(
   originalScan: DecisionScan
 ): Promise<DecisionChangePreflight> {
   const errors: string[] = [];
+  const createdTargetPaths = new Set<string>();
+  const moveTargetPaths = new Set<string>();
   const originalBodies = new Map<string, string>();
-  const originalTargets = new Map<string, string | null>();
   for (const change of changes) {
     const displayPath = displayDecisionPath(
       originalScan.workspaceRoot,
@@ -128,7 +130,7 @@ async function preflightDecisionChanges(
       continue;
     }
     try {
-      const currentText = await fs.readFile(change.decisionPath, "utf8");
+      const currentText = await readRegularDecisionFile(change.decisionPath);
       originalBodies.set(change.decisionPath, currentText);
       if (currentText !== change.expectedText) {
         errors.push(concurrentChangeError("source", displayPath));
@@ -143,7 +145,7 @@ async function preflightDecisionChanges(
       );
     }
     if (change.targetPath !== undefined && change.targetPath !== change.decisionPath) {
-      if (originalTargets.has(change.targetPath)) {
+      if (moveTargetPaths.has(change.targetPath)) {
         errors.push(
           "Decision transaction contains the same move target more than once: "
             + displayDecisionPath(originalScan.workspaceRoot, change.targetPath)
@@ -151,16 +153,17 @@ async function preflightDecisionChanges(
         );
         continue;
       }
+      moveTargetPaths.add(change.targetPath);
       try {
-        originalTargets.set(change.targetPath, await fs.readFile(change.targetPath, "utf8"));
+        await fs.lstat(change.targetPath);
         errors.push(
           "Decision move target already exists: "
             + displayDecisionPath(originalScan.workspaceRoot, change.targetPath)
             + ". No files were written."
         );
       } catch (error) {
-        if (isMissingFileError(error)) {
-          originalTargets.set(change.targetPath, null);
+        if (isFileSystemError(error, "ENOENT")) {
+          continue;
         } else {
           errors.push(
             "Failed to verify decision move target before update: "
@@ -173,12 +176,12 @@ async function preflightDecisionChanges(
   }
 
   try {
-    const currentIndexText = await fs.readFile(originalScan.indexPath, "utf8");
+    const currentIndexText = await readRegularDecisionFile(originalScan.indexPath);
     if (!originalScan.indexExists || currentIndexText !== originalScan.indexText) {
       errors.push(concurrentChangeError("index", originalScan.indexRelativePath));
     }
   } catch (error) {
-    if (originalScan.indexExists || !isMissingFileError(error)) {
+    if (originalScan.indexExists || !isFileSystemError(error, "ENOENT")) {
       errors.push(
         "Failed to verify decision index before update: "
           + originalScan.indexRelativePath
@@ -187,16 +190,25 @@ async function preflightDecisionChanges(
       );
     }
   }
-  return { errors, originalBodies, originalTargets };
+  return { createdTargetPaths, errors, originalBodies };
 }
 
-async function applyDecisionChange(change: DecisionFileChange): Promise<void> {
+async function applyDecisionChange(
+  change: DecisionFileChange,
+  createdTargetPaths: Set<string>
+): Promise<void> {
   if (change.targetPath !== undefined && change.targetPath !== change.decisionPath) {
     if (change.nextText === null) {
       throw new Error("a decision move requires replacement text");
     }
     await fs.mkdir(path.dirname(change.targetPath), { recursive: true });
-    await fs.writeFile(change.targetPath, change.nextText, "utf8");
+    const target = await fs.open(change.targetPath, "wx");
+    createdTargetPaths.add(change.targetPath);
+    try {
+      await target.writeFile(change.nextText, "utf8");
+    } finally {
+      await target.close();
+    }
     await fs.rm(change.decisionPath);
     return;
   }
@@ -204,6 +216,7 @@ async function applyDecisionChange(change: DecisionFileChange): Promise<void> {
     await fs.rm(change.decisionPath);
     return;
   }
+  await ensureRegularDecisionFile(change.decisionPath);
   await fs.writeFile(change.decisionPath, change.nextText, "utf8");
 }
 
@@ -212,23 +225,14 @@ function concurrentChangeError(kind: "index" | "source", filePath: string): stri
     + ". No files were written; review the current files and re-run the command.";
 }
 
-function isMissingFileError(error: unknown): boolean {
-  return error instanceof Error && "code" in error && error.code === "ENOENT";
-}
-
 async function restoreDecisionChanges(
   originalScan: DecisionScan,
   preflight: DecisionChangePreflight
 ): Promise<string[]> {
   const errors: string[] = [];
-  for (const [targetPath, targetText] of preflight.originalTargets) {
+  for (const targetPath of preflight.createdTargetPaths) {
     try {
-      if (targetText === null) {
-        await fs.rm(targetPath, { force: true });
-      } else {
-        await fs.mkdir(path.dirname(targetPath), { recursive: true });
-        await fs.writeFile(targetPath, targetText, "utf8");
-      }
+      await fs.rm(targetPath, { force: true });
     } catch (error) {
       errors.push("Failed to restore decision move target " + targetPath + ": " + errorText(error));
     }
@@ -255,6 +259,18 @@ async function restoreDecisionChanges(
     );
   }
   return errors;
+}
+
+async function readRegularDecisionFile(filePath: string): Promise<string> {
+  await ensureRegularDecisionFile(filePath);
+  return await fs.readFile(filePath, "utf8");
+}
+
+async function ensureRegularDecisionFile(filePath: string): Promise<void> {
+  const entry = await fs.lstat(filePath);
+  if (entry.isSymbolicLink() || !entry.isFile()) {
+    throw new Error("must be a regular non-symbolic-link file");
+  }
 }
 
 function errorText(error: unknown): string {

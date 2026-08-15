@@ -5,7 +5,6 @@ import {
   archivedRelativePath,
   currentRelativePath,
   generatedCliPath,
-  runSourceCli,
 } from "./support.ts";
 
 function runGeneratedCli(args: readonly string[]) {
@@ -167,18 +166,54 @@ test("evolve rejects repeated relation override targets at the CLI boundary", ()
   assert.match(result.stderr, /must not repeat a direct predecessor target/);
 });
 
-test("decision CLI rejects removed domain and path query protocols", async () => {
+test("decision CLI rejects removed domain and path query protocols", () => {
   const help = runGeneratedCli(["--help"]);
   assert.doesNotMatch(help.stdout, /\bdomains\b/);
   assert.doesNotMatch(help.stdout, /--domain/);
-  for (const args of [
-    ["domains"],
-    ["list", "--domain", "decision-records"],
-    ["show", "archive/use-generated-cli.md"],
-    ["list", "--tag", "decision-records", "--tag-or", "project-tooling"],
-    ["list", "--tag", "decision-records", "--not-tag", "project-tooling"],
+  for (const { args, stderr } of [
+    { args: ["domains"], stderr: /too many arguments/ },
+    {
+      args: ["list", "--domain", "decision-records"],
+      stderr: /unknown option/,
+    },
+    {
+      args: ["show", "archive/use-generated-cli.md"],
+      stderr: /Decision ID is invalid/,
+    },
+    {
+      args: ["list", "--tag", "decision-records", "--tag-or", "project-tooling"],
+      stderr: /unknown option/,
+    },
+    {
+      args: ["list", "--tag", "decision-records", "--not-tag", "project-tooling"],
+      stderr: /unknown option/,
+    },
   ]) {
-    const result = await runSourceCli(args);
-    assert.notEqual(result.exitCode, 0, args.join(" "));
+    const result = runGeneratedCli(args);
+    assert.equal(result.status, 2, args.join(" "));
+    assert.equal(result.stdout, "", args.join(" "));
+    assert.match(result.stderr, stderr, args.join(" "));
+  }
+});
+
+test("positional Decision IDs are validated at every CLI command boundary", () => {
+  for (const args of [
+    ["activate", "invalid_name.md", "--alignment", "aligned"],
+    ["archive", "invalid_name.md"],
+    ["discard", "invalid_name.md"],
+    ["mark-aligned", "invalid_name.md"],
+    ["show", "invalid_name.md"],
+    ["show-candidate", "invalid_name.md"],
+    ["stage", "invalid_name.md"],
+    ["trace", "invalid_name.md"],
+  ]) {
+    const result = runGeneratedCli(args);
+    assert.equal(result.status, 2, args.join(" "));
+    assert.equal(result.stdout, "", args.join(" "));
+    assert.match(
+      result.stderr,
+      /Decision ID is invalid; must be a basename ending in \.md/,
+      args.join(" "),
+    );
   }
 });

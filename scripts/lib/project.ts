@@ -21,9 +21,14 @@ export const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url))
 export const githubRepository = "zxyycom/skills";
 export const skillsRootName = "skills";
 export const ignoredDirectoryNames = [".git", "node_modules", "dist"] as const;
+const ignoredDirectoryNameSet: ReadonlySet<string> = new Set(ignoredDirectoryNames);
+const mainMarkdownIgnoredPaths = [
+  "changes/archive/**",
+  "docs/investigations/_resources/**"
+] as const;
 
 export function shouldIgnoreDirectoryName(name: string): boolean {
-  return name.startsWith(".") || (ignoredDirectoryNames as readonly string[]).includes(name);
+  return name.startsWith(".") || ignoredDirectoryNameSet.has(name);
 }
 
 export async function discoverSkillPackages(workspaceRoot: string = rootDir): Promise<SkillDiscoveryResult> {
@@ -99,8 +104,7 @@ export async function collectSkillFiles(skillDirectory: string): Promise<string[
 export async function collectMainMarkdownFiles(workspaceRoot: string = rootDir): Promise<string[]> {
   const ignoredPaths = [
     `${skillsRootName}/**`,
-    "changes/archive/**",
-    "docs/investigations/_resources/**",
+    ...mainMarkdownIgnoredPaths,
     ...ignoredDirectoryNames.map((directoryName) => `${directoryName}/**`)
   ];
 

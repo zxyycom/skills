@@ -1,36 +1,38 @@
 import type {
   EstablishedDecisionStatus,
+  DecisionId,
   DecisionProjection,
   DecisionRecord,
   DecisionRelationType,
   DecisionTraceDirection
 } from "./types.ts";
+import { isEstablishedDecisionRecord } from "./types.ts";
 
 export type DecisionRelationEdge = {
-  source: string;
-  target: string;
+  source: DecisionId;
+  target: DecisionId;
   type: DecisionRelationType;
 };
 
 export type DecisionRelationTrace = {
   edges: DecisionRelationEdge[];
-  decisionIds: Set<string>;
+  decisionIds: Set<DecisionId>;
 };
 
 export type DecisionRelationConsistencyIssue = {
   message: string;
-  sourceIds: string[];
+  sourceIds: DecisionId[];
 };
 
 type DecisionRelationGraph = {
   edges: DecisionRelationEdge[];
-  edgesBySource: Map<string, DecisionRelationEdge[]>;
-  edgesByTarget: Map<string, DecisionRelationEdge[]>;
-  recordById: Map<string, DecisionRelationConsistencyRecord>;
+  edgesBySource: Map<DecisionId, DecisionRelationEdge[]>;
+  edgesByTarget: Map<DecisionId, DecisionRelationEdge[]>;
+  recordById: Map<DecisionId, DecisionRelationConsistencyRecord>;
 };
 
 export type DecisionRelationConsistencyRecord = {
-  decisionId: string;
+  decisionId: DecisionId;
   projection: DecisionProjection;
   sourcePath: string;
   status: EstablishedDecisionStatus;
@@ -38,9 +40,9 @@ export type DecisionRelationConsistencyRecord = {
 
 function indexEdges(
   edges: DecisionRelationEdge[],
-  selectId: (edge: DecisionRelationEdge) => string
-): Map<string, DecisionRelationEdge[]> {
-  const index = new Map<string, DecisionRelationEdge[]>();
+  selectId: (edge: DecisionRelationEdge) => DecisionId
+): Map<DecisionId, DecisionRelationEdge[]> {
+  const index = new Map<DecisionId, DecisionRelationEdge[]>();
   for (const edge of edges) {
     const decisionId = selectId(edge);
     const indexedEdges = index.get(decisionId);
@@ -88,14 +90,14 @@ function compareEdges(
 
 export function traceDecisionRelations(
   records: readonly DecisionRelationConsistencyRecord[],
-  startDecisionId: string,
+  startDecisionId: DecisionId,
   options: {
     direction: DecisionTraceDirection;
     maxDepth: number | null;
   }
 ): DecisionRelationTrace {
   const graph = buildDecisionRelationGraph(records);
-  const decisionIds = new Set<string>();
+  const decisionIds = new Set<DecisionId>();
   const traversalQueue = [{ decisionId: startDecisionId, depth: 0 }];
 
   for (let index = 0; index < traversalQueue.length; index += 1) {
@@ -135,7 +137,7 @@ export function decisionRelationConsistencyErrors(
   records: readonly DecisionRecord[]
 ): string[] {
   return decisionRelationConsistencyIssues(records.flatMap((record) => (
-    record.source.kind === "established"
+    isEstablishedDecisionRecord(record)
       ? [{
           decisionId: record.decisionId,
           projection: record.source.document,
@@ -210,10 +212,10 @@ export function decisionRelationConsistencyIssues(
     }
   }
 
-  const visitState = new Map<string, "visiting" | "visited">();
-  const idStack: string[] = [];
+  const visitState = new Map<DecisionId, "visiting" | "visited">();
+  const idStack: DecisionId[] = [];
 
-  function visit(decisionId: string): void {
+  function visit(decisionId: DecisionId): void {
     visitState.set(decisionId, "visiting");
     idStack.push(decisionId);
 

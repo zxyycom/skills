@@ -19,6 +19,7 @@ import {
   isEstablishedDecisionRecord,
   type DecisionAlignment,
   type DecisionCandidateRecord,
+  type DecisionId,
   type DecisionRecord,
   type DecisionRelation,
   type DecisionRelationOverride,
@@ -55,7 +56,7 @@ export type DecisionRelationTransactionPreparation =
     };
 
 export type DecisionRelationTransactionRequest = {
-  collapseUnrecordedId: string | null;
+  collapseUnrecordedId: DecisionId | null;
   keepUnrecordedHistory: boolean;
   relationOverride: DecisionRelationOverride;
   successors: readonly DecisionSuccessor[];
@@ -216,22 +217,22 @@ function prepareSuccessors(
     return plainFailure("evolve requires at least one --successor value.");
   }
 
-  const selectedPaths = new Set<string>();
+  const selectedIds = new Set<DecisionId>();
   const records: PreparedSuccessor[] = [];
   for (const requested of requestedSuccessors) {
-    const requestedPath = requested.decisionId;
-    const record = findRecord(scan, requestedPath);
+    const requestedId = requested.decisionId;
+    const record = findRecord(scan, requestedId);
     if (record === null || !record.markdownExists) {
       return plainFailure(
         "Successor decision does not exist: " + requested.decisionId
       );
     }
-    if (selectedPaths.has(record.decisionId)) {
+    if (selectedIds.has(requestedId)) {
       return plainFailure(
-        "Successor decision path is repeated: " + record.decisionId
+        "Successor Decision ID is repeated: " + record.decisionId
       );
     }
-    selectedPaths.add(record.decisionId);
+    selectedIds.add(requestedId);
 
     if (isDecisionCandidateRecord(record)) {
       const sourceRelations = cloneRelations(record.source.document.relations);
@@ -341,19 +342,19 @@ function splitSuccessorClosureErrors(
   if (splitPredecessor === null) {
     return [];
   }
-  const selectedPaths = new Set(
+  const selectedIds = new Set(
     successors.map((successor) => successor.record.decisionId)
   );
-  const finalPaths = new Set(previewRecords
+  const finalIds = new Set(previewRecords
     .filter((record) => record.projection.relations.some((relation) => (
       relation.type === "拆分" && relation.target === splitPredecessor
     )))
     .map((record) => record.decisionId));
-  const omitted = [...finalPaths]
-    .filter((decisionId) => !selectedPaths.has(decisionId))
+  const omitted = [...finalIds]
+    .filter((decisionId) => !selectedIds.has(decisionId))
     .sort();
-  const absent = [...selectedPaths]
-    .filter((decisionId) => !finalPaths.has(decisionId))
+  const absent = [...selectedIds]
+    .filter((decisionId) => !finalIds.has(decisionId))
     .sort();
   return omitted.length === 0 && absent.length === 0
     ? []
@@ -376,7 +377,7 @@ function directPredecessors(
   successors: readonly PreparedSuccessor[],
   collapsedRecord: EstablishedDecisionRecord | null
 ): { activeRecords: EstablishedDecisionRecord[]; errors: string[] } {
-  const activeRecords = new Map<string, EstablishedDecisionRecord>();
+  const activeRecords = new Map<DecisionId, EstablishedDecisionRecord>();
   const collapsedDirectPredecessors = new Set(
     collapsedRecord?.source.document.relations.map((relation) => (
       relation.target
@@ -384,30 +385,30 @@ function directPredecessors(
   );
   const errors: string[] = [];
   for (const successor of successors) {
-    const seenTargets = new Set<string>();
+    const seenTargets = new Set<DecisionId>();
     for (const relation of successor.finalRelations) {
-      const targetPath = relation.target;
-      if (targetPath === successor.record.decisionId) {
+      const targetId = relation.target;
+      if (targetId === successor.record.decisionId) {
         errors.push(
           "Decision relation must not target itself: "
             + successor.record.decisionId
         );
         continue;
       }
-      if (seenTargets.has(targetPath)) {
+      if (seenTargets.has(targetId)) {
         errors.push(
           "Decision relation target is repeated for "
             + successor.record.decisionId
             + ": "
-            + targetPath
+            + targetId
         );
         continue;
       }
-      seenTargets.add(targetPath);
-      const predecessor = findEstablishedRecord(scan, targetPath);
+      seenTargets.add(targetId);
+      const predecessor = findEstablishedRecord(scan, targetId);
       if (predecessor === null) {
         errors.push(
-          "Evolution predecessor is not an established decision: " + targetPath
+          "Evolution predecessor is not an established decision: " + targetId
         );
         continue;
       }
@@ -437,16 +438,22 @@ function buildRelationTransactionPreview(
   archivedPredecessors: readonly EstablishedDecisionRecord[],
   collapsedRecord: EstablishedDecisionRecord | null
 ): DecisionRelationConsistencyRecord[] {
-  const successorByPath = new Map(successors.map((successor) => [
+  const successorById = new Map<DecisionId, PreparedSuccessor>(successors.map((successor) => [
     successor.record.decisionId,
     successor
   ]));
-  const archivedPaths = new Set(
+  const archivedIds = new Set<DecisionId>(
     archivedPredecessors.map((record) => record.decisionId)
   );
   const preview: DecisionRelationConsistencyRecord[] = [];
   for (const record of scan.records) {
-    const successor = successorByPath.get(record.decisionId);
+    const domainRecord = isDecisionCandidateRecord(record)
+      || isEstablishedDecisionRecord(record)
+      ? record
+      : null;
+    const successor = domainRecord === null
+      ? undefined
+      : successorById.get(domainRecord.decisionId);
     const establishedRecord = isEstablishedDecisionRecord(record)
       ? record
       : null;
@@ -458,7 +465,7 @@ function buildRelationTransactionPreview(
     }
     const status = successor?.candidate === true
       ? "active"
-      : archivedPaths.has(record.decisionId)
+      : domainRecord !== null && archivedIds.has(domainRecord.decisionId)
         ? "archived"
         : successor?.candidate === false
           ? successor.record.source.document.status
@@ -475,10 +482,15 @@ function buildRelationTransactionPreview(
     if (projection === undefined) {
       continue;
     }
+    const decisionId = successor?.record.decisionId
+      ?? establishedRecord?.decisionId;
+    if (decisionId === undefined) {
+      continue;
+    }
     preview.push({
       sourcePath: record.sourcePath,
       projection,
-      decisionId: record.decisionId,
+      decisionId,
       status
     });
   }
@@ -495,11 +507,11 @@ type CollapsedPredecessorPreparation =
 function prepareCollapsedPredecessor(
   scan: DecisionScan,
   successors: readonly PreparedSuccessor[],
-  collapsedPath: string | null,
+  collapsedId: DecisionId | null,
   relationOverride: DecisionRelationOverride,
   historyBaseline: DecisionHistoryBaseline | null
 ): CollapsedPredecessorPreparation {
-  if (collapsedPath === null) {
+  if (collapsedId === null) {
     return { record: null, status: "ok" };
   }
   if (successors.length !== 1 || successors[0]?.candidate !== true) {
@@ -525,10 +537,10 @@ function prepareCollapsedPredecessor(
       "--collapse-unrecorded requires an available Git HEAD baseline."
     );
   }
-  const record = findEstablishedRecord(scan, collapsedPath);
+  const record = findEstablishedRecord(scan, collapsedId);
   if (record === null || !record.markdownExists) {
     return plainFailure(
-      "Collapsed predecessor is not an established decision: " + collapsedPath
+      "Collapsed predecessor is not an established decision: " + collapsedId
     );
   }
   if (record.decisionId === successor.record.decisionId) {
@@ -566,26 +578,32 @@ function collapsedDecisionReferenceErrors(
   successors: readonly PreparedSuccessor[],
   collapsedRecord: EstablishedDecisionRecord
 ): string[] {
-  const selectedPaths = new Set(
+  const selectedIds = new Set<DecisionId>(
     successors.map((successor) => successor.record.decisionId)
   );
-  const referencingPaths = scan.records
-    .filter((record) => record.decisionId !== collapsedRecord.decisionId)
-    .filter((record) => !selectedPaths.has(record.decisionId))
-    .filter((record) => (
-      record.source.kind === "candidate"
-      || record.source.kind === "established"
-    ) && record.source.document.relations.some((relation) => (
-      relation.target === collapsedRecord.decisionId
-    )))
-    .map((record) => record.decisionId)
+  const referencingIds = scan.records
+    .flatMap((record) => {
+      if (
+        (!isDecisionCandidateRecord(record)
+          && !isEstablishedDecisionRecord(record))
+        || record.decisionId === collapsedRecord.decisionId
+        || selectedIds.has(record.decisionId)
+      ) {
+        return [];
+      }
+      return record.source.document.relations.some((relation) => (
+        relation.target === collapsedRecord.decisionId
+      ))
+        ? [record.decisionId]
+        : [];
+    })
     .sort();
-  return referencingPaths.length === 0
+  return referencingIds.length === 0
     ? []
     : [
         "Cannot collapse decision while it is still referenced: "
           + collapsedRecord.decisionId,
-        "Remove or replace references from: " + referencingPaths.join(", ")
+        "Remove or replace references from: " + referencingIds.join(", ")
       ];
 }
 
@@ -629,14 +647,13 @@ export function decisionRelationTransactionRequiresHistoryBaseline(
   ));
 }
 
-function findRecord(scan: DecisionScan, value: string): DecisionRecord | null {
-  const decisionId = value;
-  return scan.records.find((record) => record.decisionId === decisionId) ?? null;
+function findRecord(scan: DecisionScan, value: DecisionId): DecisionRecord | null {
+  return scan.records.find((record) => record.decisionId === value) ?? null;
 }
 
 function findEstablishedRecord(
   scan: DecisionScan,
-  value: string
+  value: DecisionId
 ): EstablishedDecisionRecord | null {
   const record = findRecord(scan, value);
   return record !== null && isEstablishedDecisionRecord(record) ? record : null;

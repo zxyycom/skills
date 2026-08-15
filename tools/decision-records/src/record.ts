@@ -9,6 +9,7 @@ import {
 import { isDecisionId } from "./decision-path.ts";
 import {
   type DecisionProjection,
+  type DecisionId,
   type DecisionRelation,
   type DecisionTags,
   type MarkdownSection
@@ -27,7 +28,7 @@ const sectionOrder = [
 const requiredSections = new Set(sectionOrder);
 
 type DecisionRelationTargetExists = (
-  decisionId: string
+  decisionId: DecisionId
 ) => boolean | Promise<boolean>;
 
 async function validateDecisionRelations(options: {
@@ -96,10 +97,8 @@ export async function validateDecisionBody(
 
   const sections = parseSections(body);
   const sectionMap = new Map<string, MarkdownSection[]>();
-  const expectedSections = new Set(sectionOrder);
-
   for (const section of sections) {
-    if (!expectedSections.has(section.heading)) {
+    if (!requiredSections.has(section.heading)) {
       errors.push(sourcePath + " has unsupported section " + section.heading);
       continue;
     }
@@ -154,9 +153,14 @@ export async function validateDecisionBody(
     });
   }
 
-  if (!metadata || !projection || errors.length > errorCountBeforeValidation) {
+  if (
+    parsedMarkdown === null
+    || metadata === null
+    || projection === null
+    || errors.length > errorCountBeforeValidation
+  ) {
     return null;
   }
 
-  return { ...projection, tags: [...parsedMarkdown!.tags], ...metadata, body };
+  return { ...projection, tags: [...parsedMarkdown.tags], ...metadata, body };
 }

@@ -31,8 +31,7 @@ import {
 import type {
   DecisionIndex,
   DecisionIndexMetadata,
-  DecisionIndexState,
-  DecisionSource
+  DecisionIndexState
 } from "./types.ts";
 
 export {
@@ -45,8 +44,6 @@ export {
   readDecisionSourceRevision,
   readDecisionStateSnapshot
 };
-
-export type { DecisionSource };
 
 export const decisionIndexFileName = "decision-index.json";
 
@@ -190,28 +187,28 @@ function validateDecisionIndexMembership(
   decisionIds: readonly string[],
   sourcePath: string
 ): StateIndexResult<DecisionIndex> {
-  const expectedPaths = [...new Set(decisionIds)].sort(compareText);
-  const indexedPaths = Object.keys(index.entries).sort(compareText);
+  const expectedIds = [...new Set(decisionIds)].sort(compareText);
+  const indexedIds = Object.keys(index.entries).sort(compareText);
   if (
-    expectedPaths.length === indexedPaths.length
-    && expectedPaths.every((entry, entryIndex) => (
-      entry === indexedPaths[entryIndex]
+    expectedIds.length === indexedIds.length
+    && expectedIds.every((entry, entryIndex) => (
+      entry === indexedIds[entryIndex]
     ))
   ) {
     return { diagnostics: [], status: "ok", value: index };
   }
 
-  const expectedPathSet = new Set(expectedPaths);
-  const indexedPathSet = new Set(indexedPaths);
-  const missingPaths = expectedPaths.filter((entry) => !indexedPathSet.has(entry));
-  const unexpectedPaths = indexedPaths.filter((entry) => !expectedPathSet.has(entry));
+  const expectedIdSet = new Set(expectedIds);
+  const indexedIdSet = new Set(indexedIds);
+  const missingIds = expectedIds.filter((entry) => !indexedIdSet.has(entry));
+  const unexpectedIds = indexedIds.filter((entry) => !expectedIdSet.has(entry));
   const details = [
-    ...(missingPaths.length === 0
+    ...(missingIds.length === 0
       ? []
-      : ["missing: " + missingPaths.join(", ")]),
-    ...(unexpectedPaths.length === 0
+      : ["missing: " + missingIds.join(", ")]),
+    ...(unexpectedIds.length === 0
       ? []
-      : ["unexpected: " + unexpectedPaths.join(", ")])
+      : ["unexpected: " + unexpectedIds.join(", ")])
   ];
   return failure(
     "decision-index.membership-mismatch",
@@ -243,7 +240,11 @@ function validateDecisionIndex(
   return {
     diagnostics: [],
     status: "ok",
-    value: index as DecisionIndex
+    value: {
+      ...index,
+      definitionVersion: decisionIndexDefinitionVersion,
+      namespace: decisionIndexNamespace
+    }
   };
 }
 

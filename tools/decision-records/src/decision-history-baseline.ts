@@ -1,7 +1,8 @@
 import path from "node:path";
 import {
   openVersionControl,
-  VersionControlError
+  VersionControlError,
+  type VersionControlRepository
 } from "../../shared/src/version-control/index.ts";
 import {
   decisionAttention,
@@ -10,13 +11,17 @@ import {
   type DecisionApplicationFailure
 } from "./application-result.ts";
 import { decisionIdFromSourcePath } from "./decision-path.ts";
-import type { DecisionRecord, DecisionScan } from "./types.ts";
+import type {
+  DecisionId,
+  DecisionScan,
+  EstablishedDecisionRecord
+} from "./types.ts";
 
 export type DecisionHistoryBaseline =
   | {
       kind: "git-head";
       label: "Git HEAD";
-      recordedDecisionIds: ReadonlySet<string>;
+      recordedDecisionIds: ReadonlySet<DecisionId>;
     }
   | {
       kind: "outside-git-worktree";
@@ -32,7 +37,7 @@ export type DecisionHistoryBaselineResult =
 export async function loadDecisionHistoryBaseline(
   scan: DecisionScan
 ): Promise<DecisionHistoryBaselineResult> {
-  let repository;
+  let repository: VersionControlRepository;
   try {
     repository = await openVersionControl(scan.decisionsDirectory);
   } catch (error) {
@@ -63,7 +68,7 @@ export async function loadDecisionHistoryBaseline(
         baseline: {
           kind: "git-head",
           label: "Git HEAD",
-          recordedDecisionIds: new Set<string>()
+          recordedDecisionIds: new Set<DecisionId>()
         },
         status: "ok"
       };
@@ -76,7 +81,7 @@ export async function loadDecisionHistoryBaseline(
           pathScopes: [directoryScope]
         });
     const prefix = directoryScope.length === 0 ? "" : directoryScope + "/";
-    const recordedDecisionIds = new Set<string>();
+    const recordedDecisionIds = new Set<DecisionId>();
     for (const filePath of revisionFiles) {
       if (!filePath.startsWith(prefix)) {
         continue;
@@ -100,7 +105,7 @@ export async function loadDecisionHistoryBaseline(
 }
 
 export function prepareUnrecordedHistoryAttention(
-  records: readonly DecisionRecord[],
+  records: readonly EstablishedDecisionRecord[],
   keepUnrecordedHistory: boolean,
   historyBaseline: DecisionHistoryBaseline | null,
   canCollapse: boolean

@@ -17,7 +17,7 @@ import {
 } from "./decision-query-context.ts";
 import {
   loadDecisionValidationContext,
-  selectDecisionIndexSourcePaths,
+  selectEstablishedDecisionIds,
   validateDecisionScan
 } from "./index.ts";
 import {
@@ -27,7 +27,10 @@ import {
 import { scanDecisionRecords } from "./scan.ts";
 import {
   compareDecisionRecords,
+  isActivationCandidateRecord,
   type DecisionAlignment,
+  type DecisionCandidateRecord,
+  type DecisionId,
   type DecisionIndexEntry,
   type DecisionListAlignment,
   type DecisionListStatus,
@@ -36,6 +39,8 @@ import {
   type DecisionRecord,
   type DecisionScan,
   type DecisionTraceDirection,
+  type DecisionSourcePath,
+  type DecisionTag,
   type DecisionValidationResult
 } from "./types.ts";
 
@@ -52,16 +57,16 @@ export type DecisionQueryRequest =
       fullTime: boolean;
       location: DecisionLocation;
       status: DecisionListStatus;
-      tags: readonly string[];
+      tags: readonly DecisionTag[];
     }
   | {
       command: "show-candidate";
-      decisionId: string;
+      decisionId: DecisionId;
       location: DecisionLocation;
     }
   | {
       command: "show";
-      decisionId: string;
+      decisionId: DecisionId;
       location: DecisionLocation;
     }
   | {
@@ -71,7 +76,7 @@ export type DecisionQueryRequest =
     }
   | {
       command: "trace";
-      decisionId: string;
+      decisionId: DecisionId;
       direction: DecisionTraceDirection;
       location: DecisionLocation;
       maxDepth: number | null;
@@ -85,21 +90,21 @@ type QuerySuccessBase = {
 export type IndexedDecisionRecord = {
   alignment: DecisionAlignment | null;
   createdAt: string;
-  decisionId: string;
+  decisionId: DecisionId;
   projection: DecisionProjection;
-  sourcePath: string;
+  sourcePath: DecisionSourcePath;
   status: EstablishedDecisionStatus;
-  tags: string[];
+  tags: DecisionTag[];
 };
 
 export type CandidateDecisionRecord = {
   alignment: null;
   createdAt: null;
-  decisionId: string;
+  decisionId: DecisionId;
   projection: DecisionProjection;
-  sourcePath: string;
+  sourcePath: DecisionSourcePath;
   status: "candidate";
-  tags: string[];
+  tags: DecisionTag[];
 };
 
 export type DecisionQuerySuccess =
@@ -379,7 +384,7 @@ async function synchronizeDecisionIndex(
   if (sourceValidation.errors.length > 0) {
     return decisionFailure(sourceValidation.errors);
   }
-  const selection = selectDecisionIndexSourcePaths(result.scan);
+  const selection = selectEstablishedDecisionIds(result.scan);
   if (selection.errors.length > 0) {
     return decisionFailure(selection.errors);
   }
@@ -449,6 +454,9 @@ function indexedRecord(
   entry: DecisionIndexEntry
 ): IndexedDecisionRecord {
   const state = entry.state;
+  if (!isDecisionId(entry.id)) {
+    throw new TypeError("indexed decision entry uses an invalid Decision ID");
+  }
   const projection = {
     title: state.title,
     purpose: state.purpose,
@@ -467,9 +475,9 @@ function indexedRecord(
   };
 }
 
-function activationCandidates(scan: DecisionScan): DecisionRecord[] {
+function activationCandidates(scan: DecisionScan): DecisionCandidateRecord[] {
   return scan.records
-    .filter((record) => record.activationCandidate)
+    .filter(isActivationCandidateRecord)
     .sort(compareDecisionRecords);
 }
 
@@ -520,7 +528,7 @@ async function loadCandidateQueryContext(
     ]);
   }
   if (hasEstablishedRecord) {
-    const selection = selectDecisionIndexSourcePaths(scan);
+    const selection = selectEstablishedDecisionIds(scan);
     if (selection.errors.length > 0) {
       return decisionFailure(selection.errors);
     }
@@ -576,12 +584,17 @@ async function readDecisionBody(
   | { status: "ok"; value: string }
 > {
   try {
+    const sourceFilePath = path.join(
+      decisionsDirectory,
+      ...record.sourcePath.split("/")
+    );
+    const entry = await fs.lstat(sourceFilePath);
+    if (entry.isSymbolicLink() || !entry.isFile()) {
+      throw new Error("must be a regular non-symbolic-link file");
+    }
     return {
       status: "ok",
-      value: await fs.readFile(
-        path.join(decisionsDirectory, ...record.sourcePath.split("/")),
-        "utf8"
-      )
+      value: await fs.readFile(sourceFilePath, "utf8")
     };
   } catch (error) {
     return decisionFailure([
