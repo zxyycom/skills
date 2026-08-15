@@ -36,7 +36,7 @@ function jsonValue(value: unknown, seen: Set<object>): JsonValue {
     return { name: value.name, message: value.message };
   }
   if (typeof value !== "object") {
-    return String(value);
+    return null;
   }
   if (seen.has(value)) {
     return "[Circular]";

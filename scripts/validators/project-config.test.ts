@@ -11,13 +11,88 @@ import {
   validateOxcConfigurationFiles,
   validateRepositoryPermissionRules
 } from "./project-config.ts";
-import { formatPackageScripts } from "../lib/oxc-config.ts";
+import { formatPackageScripts, lintPackageScripts } from "../lib/oxc-config.ts";
+import { runLint } from "../lint.ts";
 
 const workspaceRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
   ".."
 );
+
+type OxlintPolicyMutation = {
+  expectedFailure: string;
+  mutate: (configuration: Record<string, unknown>) => void;
+};
+
+const oxlintPolicyMutations: readonly OxlintPolicyMutation[] = [
+  {
+    expectedFailure:
+      "ignorePatterns is not an allowed repository Oxlint setting",
+    mutate: (configuration) => {
+      configuration.ignorePatterns = ["tools/**"];
+    }
+  },
+  {
+    expectedFailure: "extends is not an allowed repository Oxlint setting",
+    mutate: (configuration) => {
+      configuration.extends = ["./base-oxlint.json"];
+    }
+  },
+  {
+    expectedFailure:
+      'options must set "reportUnusedDisableDirectives" to "error" and "typeAware" to true',
+    mutate: (configuration) => {
+      configuration.options = {
+        reportUnusedDisableDirectives: "error",
+        typeAware: false
+      };
+    }
+  },
+  {
+    expectedFailure:
+      'options must set "reportUnusedDisableDirectives" to "error" and "typeAware" to true',
+    mutate: (configuration) => {
+      configuration.options = {
+        reportUnusedDisableDirectives: "off",
+        typeAware: true
+      };
+    }
+  },
+  {
+    expectedFailure: 'categories must equal { "correctness": "error" }',
+    mutate: (configuration) => {
+      configuration.categories = { correctness: "off" };
+    }
+  },
+  {
+    expectedFailure: 'plugins must equal ["typescript", "unicorn", "oxc"]',
+    mutate: (configuration) => {
+      configuration.plugins = ["unicorn"];
+    }
+  },
+  {
+    expectedFailure:
+      'rules must preserve the approved "typescript/no-floating-promises" configuration',
+    mutate: (configuration) => {
+      configuration.rules = { "typescript/no-floating-promises": "off" };
+    }
+  }
+];
+
+function cloneJsonRecord(
+  value: Record<string, unknown>
+): Record<string, unknown> {
+  return structuredClone(value);
+}
+
+function oxlintPolicyError(configurationPath: string, failure: string): string {
+  return (
+    `${configurationPath} violates the repository Oxlint policy:\n` +
+    `- ${failure}; update the policy owner before changing lint behavior\n` +
+    "Fix the affected code; only for a direct contract conflict, use the narrowest justified oxlint-disable-next-line at that line."
+  );
+}
 
 function requiredPackageJson(): string {
   const scripts = Object.fromEntries(
@@ -26,7 +101,12 @@ function requiredPackageJson(): string {
       `bun run ${scriptName}`
     ])
   );
-  Object.assign(scripts, maintenanceCliPackageScripts, formatPackageScripts);
+  Object.assign(
+    scripts,
+    maintenanceCliPackageScripts,
+    formatPackageScripts,
+    lintPackageScripts
+  );
   return `${JSON.stringify({ scripts }, undefined, 2)}\n`;
 }
 
@@ -96,6 +176,74 @@ test("format scripts cover repository automation and distributable tool sources"
   }
 });
 
+test("lint entry preserves Oxlint configuration preflight", async () => {
+  const tempRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), "skills lint preflight ")
+  );
+  try {
+    const packageJsonPath = path.join(tempRoot, "package.json");
+    const invalidPackageJson = requiredPackageJson()
+      .replace(
+        JSON.stringify(lintPackageScripts.lint),
+        JSON.stringify("oxlint --type-aware --deny-warnings scripts tools")
+      )
+      .replace(
+        JSON.stringify(lintPackageScripts["lint:fix"]),
+        JSON.stringify(
+          "oxlint --type-aware --deny-warnings --fix scripts tools"
+        )
+      );
+    await fs.writeFile(packageJsonPath, invalidPackageJson, "utf8");
+
+    const packageErrors: string[] = [];
+    await validatePackageScripts(
+      (message) => packageErrors.push(message),
+      tempRoot
+    );
+    assert.deepEqual(packageErrors, [
+      `package.json script lint must be ${lintPackageScripts.lint}; restore the repository Oxlint preflight command`,
+      `package.json script lint:fix must be ${lintPackageScripts["lint:fix"]}; restore the repository Oxlint preflight command`
+    ]);
+
+    const oxlintConfigurationPath = path.join(tempRoot, ".oxlintrc.json");
+    const oxlintConfiguration = JSON.parse(
+      await fs.readFile(path.join(workspaceRoot, ".oxlintrc.json"), "utf8")
+    ) as Record<string, unknown>;
+    oxlintConfiguration.overrides = [
+      {
+        files: ["scripts/example.ts"],
+        rules: { "no-unused-vars": "off" }
+      }
+    ];
+    await fs.writeFile(
+      oxlintConfigurationPath,
+      `${JSON.stringify(oxlintConfiguration, undefined, 2)}\n`,
+      "utf8"
+    );
+
+    const lintErrors: string[] = [];
+    let oxlintRan = false;
+    const exitCode = await runLint({
+      report: (message) => lintErrors.push(message),
+      runOxlint: async () => {
+        oxlintRan = true;
+        return 0;
+      },
+      workspaceRoot: tempRoot
+    });
+    assert.equal(exitCode, 1);
+    assert.equal(oxlintRan, false);
+    assert.deepEqual(lintErrors, [
+      oxlintPolicyError(
+        oxlintConfigurationPath,
+        "overrides is not an allowed repository Oxlint setting"
+      )
+    ]);
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true });
+  }
+});
+
 test("project package script validation maps invalid JSON boundaries", async () => {
   const tempRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), "skills invalid package json ")
@@ -129,44 +277,102 @@ test("project package script validation maps invalid JSON boundaries", async () 
   }
 });
 
-test("project configuration requires Oxc configuration files", async () => {
-  const tempRoot = await fs.mkdtemp(
-    path.join(os.tmpdir(), "skills required project files ")
-  );
-  try {
-    const errors: string[] = [];
-    await validateOxcConfigurationFiles(
-      (message) => errors.push(message),
-      tempRoot
+test(
+  "project configuration requires Oxc configuration files",
+  { timeout: 15_000 },
+  async () => {
+    const tempRoot = await fs.mkdtemp(
+      path.join(os.tmpdir(), "skills required project files ")
     );
+    try {
+      const errors: string[] = [];
+      await validateOxcConfigurationFiles(
+        (message) => errors.push(message),
+        tempRoot
+      );
 
-    assert.ok(errors.some((message) => message.includes(".oxfmtrc.json")));
-    assert.ok(errors.some((message) => message.includes(".oxlintrc.json")));
+      assert.ok(errors.some((message) => message.includes(".oxfmtrc.json")));
+      assert.ok(errors.some((message) => message.includes(".oxlintrc.json")));
 
-    await fs.writeFile(
-      path.join(tempRoot, ".oxfmtrc.json"),
-      '{"printWidth":true}\n',
-      "utf8"
-    );
-    await fs.writeFile(path.join(tempRoot, ".oxlintrc.json"), "[]\n", "utf8");
-    const invalidErrors: string[] = [];
-    await validateOxcConfigurationFiles(
-      (message) => invalidErrors.push(message),
-      tempRoot
-    );
-    assert.ok(
-      invalidErrors.some(
-        (message) =>
-          message.includes(".oxfmtrc.json") && message.includes("/printWidth")
-      )
-    );
-    assert.ok(
-      invalidErrors.some((message) => message.includes(".oxlintrc.json"))
-    );
-  } finally {
-    await fs.rm(tempRoot, { recursive: true, force: true });
+      await fs.writeFile(
+        path.join(tempRoot, ".oxfmtrc.json"),
+        '{"printWidth":true}\n',
+        "utf8"
+      );
+      await fs.writeFile(path.join(tempRoot, ".oxlintrc.json"), "[]\n", "utf8");
+      const invalidErrors: string[] = [];
+      await validateOxcConfigurationFiles(
+        (message) => invalidErrors.push(message),
+        tempRoot
+      );
+      assert.ok(
+        invalidErrors.some(
+          (message) =>
+            message.includes(".oxfmtrc.json") && message.includes("/printWidth")
+        )
+      );
+      assert.ok(
+        invalidErrors.some((message) => message.includes(".oxlintrc.json"))
+      );
+
+      await Promise.all([
+        fs.copyFile(
+          path.join(workspaceRoot, ".oxfmtrc.json"),
+          path.join(tempRoot, ".oxfmtrc.json")
+        ),
+        fs.copyFile(
+          path.join(workspaceRoot, ".oxlintrc.json"),
+          path.join(tempRoot, ".oxlintrc.json")
+        )
+      ]);
+      const currentConfigurationErrors: string[] = [];
+      await validateOxcConfigurationFiles(
+        (message) => currentConfigurationErrors.push(message),
+        tempRoot
+      );
+      assert.deepEqual(currentConfigurationErrors, []);
+
+      const oxlintConfigurationPath = path.join(tempRoot, ".oxlintrc.json");
+      const currentOxlintConfiguration = JSON.parse(
+        await fs.readFile(oxlintConfigurationPath, "utf8")
+      ) as Record<string, unknown>;
+      for (const { expectedFailure, mutate } of [
+        {
+          expectedFailure:
+            "overrides is not an allowed repository Oxlint setting",
+          mutate: (configuration: Record<string, unknown>) => {
+            configuration.overrides = [];
+          }
+        },
+        ...oxlintPolicyMutations
+      ]) {
+        const mutatedConfiguration = cloneJsonRecord(
+          currentOxlintConfiguration
+        );
+        mutate(mutatedConfiguration);
+        await fs.writeFile(
+          oxlintConfigurationPath,
+          `${JSON.stringify(mutatedConfiguration, undefined, 2)}\n`,
+          "utf8"
+        );
+        const policyErrors: string[] = [];
+        await validateOxcConfigurationFiles(
+          (message) => policyErrors.push(message),
+          tempRoot
+        );
+        assert.equal(policyErrors.length, 1);
+        assert.ok(policyErrors[0]?.includes(expectedFailure));
+        assert.ok(
+          policyErrors[0]?.includes(
+            "Fix the affected code; only for a direct contract conflict"
+          )
+        );
+      }
+    } finally {
+      await fs.rm(tempRoot, { recursive: true, force: true });
+    }
   }
-});
+);
 
 test("repository permission rules cover environment setup without stale or blanket entries", async () => {
   const tempRoot = await fs.mkdtemp(

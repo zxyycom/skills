@@ -2,6 +2,7 @@ export const projectionMaximumLength = 100;
 export const projectionMinimumLength = 4;
 
 export function unicodeCodePointLength(value: string): number {
+  // oxlint-disable-next-line typescript/no-misused-spread -- This contract counts Unicode code points, not grapheme clusters.
   return [...value].length;
 }
 

@@ -4,7 +4,6 @@ import type {
   TaskBlocker,
   TaskConstraintSource,
   TaskEffectiveState,
-  TaskEntry,
   TaskIndex,
   TaskProjection
 } from "./types.ts";

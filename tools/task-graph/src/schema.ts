@@ -484,7 +484,7 @@ export function normalizeTaskContent(input: TaskContentInput): TaskContent {
     goal: parsed.goal,
     acceptance: [...(parsed.acceptance ?? [])],
     context: parsed.context ?? null,
-    references: { ...(parsed.references ?? {}) },
+    references: { ...parsed.references },
     result: null
   };
 }

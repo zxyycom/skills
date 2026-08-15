@@ -12,7 +12,6 @@ import { changePlanMetadataName } from "../src/types.ts";
 import {
   validBaseCommit,
   validDesign,
-  validProposal,
   withTempRoot,
   writePlan
 } from "./support.ts";

@@ -18,7 +18,6 @@ import type {
   ClaimTaskOptions,
   CompleteTaskOptions,
   RemoveTasksOptions,
-  TaskContentInput,
   TaskControlInput,
   TaskExecutionPhase,
   TaskGraphApplyRequest,

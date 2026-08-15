@@ -7,7 +7,6 @@ import {
   completedTasks,
   generatedCliPath,
   validProposal,
-  validBaseCommit,
   withTempRoot,
   writePlan
 } from "./support.ts";

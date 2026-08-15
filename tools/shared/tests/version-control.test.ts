@@ -9,11 +9,25 @@ import {
   repositoryRelativePathFromFileSystemPath,
   VersionControlError
 } from "../src/version-control/index.ts";
+import { operationErrorDetail } from "../src/version-control/error-detail.ts";
 import { listFirstParentRevisionChanges } from "../src/version-control/git-first-parent.ts";
 import { openGitVersionControl } from "../src/version-control/git.ts";
 import { parseGitFirstParentRevisionChanges } from "../src/version-control/git-numstat.ts";
 
 const gitTestOptions = { timeout: 15_000 };
+
+test("normalizes structured version-control operation error details", () => {
+  assert.equal(operationErrorDetail(undefined), null);
+  assert.equal(operationErrorDetail("\n Git\tfailed \n"), "Git failed");
+  const structured = operationErrorDetail({
+    operation: "read revision",
+    retries: 2
+  });
+  assert.ok(structured);
+  assert.match(structured, /operation.*read revision/u);
+  assert.match(structured, /retries.*2/u);
+  assert.doesNotMatch(structured, /\[object Object\]/u);
+});
 
 async function withTempRoot(
   run: (tempRoot: string) => Promise<void>

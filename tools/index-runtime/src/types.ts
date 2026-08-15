@@ -1,22 +1,10 @@
-import type {
-  DeepReadonly,
-  JsonObject,
-  JsonPrimitive,
-  JsonValue,
-  ReadonlyJsonObject,
-  ReadonlyJsonValue
-} from "./json.ts";
+import type { DeepReadonly, JsonObject } from "./json.ts";
 import type {
   StateIndex as StateIndexValue,
   StateIndexStoredEntry as StateIndexStoredEntryValue,
-  StateIndexFilter,
   StateIndexKeyDefinition,
   StateIndexKeyMode,
-  StateIndexKeyScalar,
-  StateIndexQuery,
-  StateIndexQueryValue,
-  StateIndexRangeScalar,
-  StateIndexSort
+  StateIndexKeyScalar
 } from "./schemas.ts";
 
 export type {

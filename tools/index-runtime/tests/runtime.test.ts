@@ -96,6 +96,7 @@ function createMetadataFixture() {
     parseState: (input, context) => {
       assert.equal(context.metadata.tenant, "tenant-a");
       assert.match(context.id, /^tenant-a:/u);
+      // oxlint-disable-next-line no-constant-condition -- The unreachable block retains compile-only @ts-expect-error checks for the readonly projection context.
       if (false) {
         // @ts-expect-error The projection context cannot replace metadata.
         context.metadata = {};
@@ -122,6 +123,7 @@ function createMetadataFixture() {
         "nested",
         "tenant"
       ]);
+      // oxlint-disable-next-line no-constant-condition -- The unreachable block retains compile-only @ts-expect-error checks for the complete index's readonly fields.
       if (false) {
         // @ts-expect-error Complete index entries are recursively readonly.
         index.entries["tenant-a:two"] = index.entries["tenant-a:one"]!;
@@ -687,6 +689,7 @@ test("freezes runtime reader metadata and avoids revalidating query overlays", a
     const reader = resultValue(await runtime.open());
     const tenant: string = reader.metadata.tenant;
     assert.equal(tenant, "tenant-a");
+    // oxlint-disable-next-line no-constant-condition -- The unreachable block retains compile-only @ts-expect-error checks for readonly reader metadata.
     if (false) {
       // @ts-expect-error Reader metadata objects are recursively readonly.
       reader.metadata.nested.a = 3;
@@ -707,6 +710,7 @@ test("freezes runtime reader metadata and avoids revalidating query overlays", a
     const queried = resultValue(reader.query());
     const queryTenant: string = queried.metadata.tenant;
     assert.equal(queryTenant, "tenant-a");
+    // oxlint-disable-next-line no-constant-condition -- The unreachable block retains compile-only @ts-expect-error checks for readonly query metadata.
     if (false) {
       // @ts-expect-error Query metadata objects are recursively readonly.
       queried.metadata.nested.a = 3;

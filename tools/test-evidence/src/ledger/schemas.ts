@@ -84,6 +84,7 @@ export const testEvidenceTagSchema = v.pipe(
 export const testEntityIdSchema = v.pipe(
   nonEmptyStringSchema,
   v.regex(
+    // oxlint-disable-next-line no-control-regex -- Test entity IDs intentionally reject C0 control characters and DEL at the ledger input boundary.
     /^(?!.*[\s`\u0000-\u001f\u007f]).+$/u,
     "must be a non-empty token without whitespace, backticks, or control characters"
   )

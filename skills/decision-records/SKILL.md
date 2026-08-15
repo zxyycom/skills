@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "28"
+  version: "29"
 ---
 
 # Decision Records

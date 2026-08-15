@@ -6992,10 +6992,10 @@
         "title": "格式化命令覆盖全部维护源码"
       }
     },
-    "REPO-OXC-CONFIG-001": {
+    "REPO-LINT-PREFLIGHT-001": {
       "keys": {
         "search": [
-          "REPO-OXC-CONFIG-001 项目配置要求 Oxc 配置文件 项目配置校验必须解析并按安装的 Oxc schema 校验根目录 Oxlint 与 Oxfmt 配置，避免维护命令和正式门禁接受无效配置。 缺少根目录配置的项目会分别报告 `.oxlintrc.json` 与 `.oxfmtrc.json` 路径和恢复动作。 字段类型错误或根结构错误的配置会在正式校验中被拒绝。 scripts/validators/project-config.test.ts > project configuration requires Oxc configuration files bun test --test-name-pattern=\"^project configuration requires Oxc configuration files$\" ./scripts/validators/project-config.test.ts"
+          "REPO-LINT-PREFLIGHT-001 lint 入口保留 Oxlint 配置前置校验 `lint` 与 `lint:fix` package scripts 必须委托仓库入口；入口必须在启动 Oxlint 前执行统一项目基线的配置前置校验，不能让直接调用 Oxlint 绕过配置门禁。 把 `lint` 改为直接 Oxlint 命令时，项目配置校验会给出恢复前置入口的诊断。 schema 合法但试图以配置级绕过统一基线的配置会让 lint 入口失败，且不会执行 Oxlint。 scripts/validators/project-config.test.ts > lint entry preserves Oxlint configuration preflight bun test --test-name-pattern=\"^lint entry preserves Oxlint configuration preflight$\" ./scripts/validators/project-config.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -7004,14 +7004,37 @@
       "state": {
         "endLine": 13,
         "entries": [
+          "scripts/validators/project-config.test.ts > lint entry preserves Oxlint configuration preflight",
+          "bun test --test-name-pattern=\"^lint entry preserves Oxlint configuration preflight$\" ./scripts/validators/project-config.test.ts"
+        ],
+        "id": "REPO-LINT-PREFLIGHT-001",
+        "line": 1,
+        "searchText": "lint 入口保留 Oxlint 配置前置校验 `lint` 与 `lint:fix` package scripts 必须委托仓库入口；入口必须在启动 Oxlint 前执行统一项目基线的配置前置校验，不能让直接调用 Oxlint 绕过配置门禁。 把 `lint` 改为直接 Oxlint 命令时，项目配置校验会给出恢复前置入口的诊断。 schema 合法但试图以配置级绕过统一基线的配置会让 lint 入口失败，且不会执行 Oxlint。 scripts/validators/project-config.test.ts > lint entry preserves Oxlint configuration preflight bun test --test-name-pattern=\"^lint entry preserves Oxlint configuration preflight$\" ./scripts/validators/project-config.test.ts",
+        "sourcePath": "repository-tooling/lint-entry-preserves-oxlint-configuration-preflight.md",
+        "summary": "`lint` 与 `lint:fix` package scripts 必须委托仓库入口；入口必须在启动 Oxlint 前执行统一项目基线的配置前置校验，不能让直接调用 Oxlint 绕过配置门禁。",
+        "title": "lint 入口保留 Oxlint 配置前置校验"
+      }
+    },
+    "REPO-OXC-CONFIG-001": {
+      "keys": {
+        "search": [
+          "REPO-OXC-CONFIG-001 项目配置要求 Oxc 配置文件 项目配置校验必须解析并按安装的 Oxc schema 校验根目录 Oxlint 与 Oxfmt 配置；Oxlint 配置必须保持受校验的统一项目基线，不能承接配置级绕过或基线降级。基线与局部例外路径由[编码规范](../../coding-style.md#7-oxlint-例外保持局部且可审计)承接。 缺少根目录配置的项目会分别报告 `.oxlintrc.json` 与 `.oxfmtrc.json` 路径和恢复动作。 字段类型错误或根结构错误的配置会在正式校验中被拒绝。 当前有效配置可以通过；即使安装版本的 Oxlint schema 接受，配置级路径或规则绕过以及已选基线降级仍会在正式校验中被拒绝，并给出局部例外的替代处置。 scripts/validators/project-config.test.ts > project configuration requires Oxc configuration files bun test --test-name-pattern=\"^project configuration requires Oxc configuration files$\" ./scripts/validators/project-config.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
           "scripts/validators/project-config.test.ts > project configuration requires Oxc configuration files",
           "bun test --test-name-pattern=\"^project configuration requires Oxc configuration files$\" ./scripts/validators/project-config.test.ts"
         ],
         "id": "REPO-OXC-CONFIG-001",
         "line": 1,
-        "searchText": "项目配置要求 Oxc 配置文件 项目配置校验必须解析并按安装的 Oxc schema 校验根目录 Oxlint 与 Oxfmt 配置，避免维护命令和正式门禁接受无效配置。 缺少根目录配置的项目会分别报告 `.oxlintrc.json` 与 `.oxfmtrc.json` 路径和恢复动作。 字段类型错误或根结构错误的配置会在正式校验中被拒绝。 scripts/validators/project-config.test.ts > project configuration requires Oxc configuration files bun test --test-name-pattern=\"^project configuration requires Oxc configuration files$\" ./scripts/validators/project-config.test.ts",
+        "searchText": "项目配置要求 Oxc 配置文件 项目配置校验必须解析并按安装的 Oxc schema 校验根目录 Oxlint 与 Oxfmt 配置；Oxlint 配置必须保持受校验的统一项目基线，不能承接配置级绕过或基线降级。基线与局部例外路径由[编码规范](../../coding-style.md#7-oxlint-例外保持局部且可审计)承接。 缺少根目录配置的项目会分别报告 `.oxlintrc.json` 与 `.oxfmtrc.json` 路径和恢复动作。 字段类型错误或根结构错误的配置会在正式校验中被拒绝。 当前有效配置可以通过；即使安装版本的 Oxlint schema 接受，配置级路径或规则绕过以及已选基线降级仍会在正式校验中被拒绝，并给出局部例外的替代处置。 scripts/validators/project-config.test.ts > project configuration requires Oxc configuration files bun test --test-name-pattern=\"^project configuration requires Oxc configuration files$\" ./scripts/validators/project-config.test.ts",
         "sourcePath": "repository-tooling/project-configuration-requires-oxc-configuration-files.md",
-        "summary": "项目配置校验必须解析并按安装的 Oxc schema 校验根目录 Oxlint 与 Oxfmt 配置，避免维护命令和正式门禁接受无效配置。",
+        "summary": "项目配置校验必须解析并按安装的 Oxc schema 校验根目录 Oxlint 与 Oxfmt 配置；Oxlint 配置必须保持受校验的统一项目基线，不能承接配置级绕过或基线降级。基线与局部例外路径由[编码规范](../../coding-style.md#7-oxlint-例外保持局部且可审计)承接。",
         "title": "项目配置要求 Oxc 配置文件"
       }
     },
@@ -12144,6 +12167,29 @@
         "title": "Git 工作树发现故障报告为操作失败"
       }
     },
+    "VERSION-CONTROL-ERROR-DETAIL-001": {
+      "keys": {
+        "search": [
+          "VERSION-CONTROL-ERROR-DETAIL-001 规范化结构化版本控制操作错误详情 版本控制边界必须把底层操作详情规范化为有界、单行且可行动的文本；结构化未知值不能退化为默认的 `[object Object]`。 缺失详情返回空值，带多余空白的字符串被规范化，结构化对象保留字段和值的可读表示。 tools/shared/tests/version-control.test.ts > normalizes structured version-control operation error details bun test --test-name-pattern=\"^normalizes structured version-control operation error details$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "topic": [
+          "version-control"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/shared/tests/version-control.test.ts > normalizes structured version-control operation error details",
+          "bun test --test-name-pattern=\"^normalizes structured version-control operation error details$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "id": "VERSION-CONTROL-ERROR-DETAIL-001",
+        "line": 1,
+        "searchText": "规范化结构化版本控制操作错误详情 版本控制边界必须把底层操作详情规范化为有界、单行且可行动的文本；结构化未知值不能退化为默认的 `[object Object]`。 缺失详情返回空值，带多余空白的字符串被规范化，结构化对象保留字段和值的可读表示。 tools/shared/tests/version-control.test.ts > normalizes structured version-control operation error details bun test --test-name-pattern=\"^normalizes structured version-control operation error details$\" ./tools/shared/tests/version-control.test.ts",
+        "sourcePath": "version-control/normalizes-structured-version-control-operation-error-details.md",
+        "summary": "版本控制边界必须把底层操作详情规范化为有界、单行且可行动的文本；结构化未知值不能退化为默认的 `[object Object]`。",
+        "title": "规范化结构化版本控制操作错误详情"
+      }
+    },
     "VERSION-CONTROL-FIRST-PARENT-001": {
       "keys": {
         "search": [
@@ -12944,7 +12990,8 @@
       "INVESTIGATION-VALIDATION-FILTER-001": "sha256:59fb97585ad6fe441e9bf7a42044f69eb26a826b7c648a25322a8ab2e350e036",
       "PROJECT-MARKDOWN-SCOPE-001": "sha256:c81887aeeaff27a4a175363abe07d51f222bfdb46e785dc0c436e790aa82832c",
       "REPO-FORMAT-SCRIPTS-001": "sha256:2f52e8e3653f91fad9f12010ebaee9b5beec800eb99609bd48b28a284618794d",
-      "REPO-OXC-CONFIG-001": "sha256:2a46d49b8ef92e3c1fc8ac34a68c9288ffd848976612d1d7069c171d93af75da",
+      "REPO-LINT-PREFLIGHT-001": "sha256:028ff20768861e327bd9a7a43cd90b6eeaeea2de6490982ebb7ee8269b68b2c4",
+      "REPO-OXC-CONFIG-001": "sha256:f704f1d4d178c8c92be699f3614311f94bac169d9afe363c27f0fcff0f989d52",
       "REPO-PACKAGE-JSON-001": "sha256:36724eb3dd100be35650754564a630256b7e0acfa6047ffd892ea44d67692239",
       "REPO-SHORT-CLI-001": "sha256:b65cd8fea69d66bc1ddb39a518ae483789f16e9172df3fd15f2e89257a737e28",
       "REPO-SHORT-CONFIG-001": "sha256:a3072037101a9d2e465b91fc5b723ca5893a1d21a1e7dd108aab85eca2ece10f",
@@ -13168,6 +13215,7 @@
       "VERSION-CONTROL-CONFLICT-001": "sha256:224755b16beb3ee84e7a4f625d07fbd822caee95d9c5c8b38d88bfcee729dbc9",
       "VERSION-CONTROL-CORRUPTION-001": "sha256:b06707123210dd012e181d9c2bc41ac9dad67db2cfc8cb1d25d63a38b6cdbbff",
       "VERSION-CONTROL-DISCOVERY-FAILURE-001": "sha256:98962b6a255620d5f70bdc3bdd6c811b1dc2a0eac420e71bccf812bcf429f884",
+      "VERSION-CONTROL-ERROR-DETAIL-001": "sha256:59b19aa8951df33b8aa85cb9e9b4892727c0fb2fb97c0b4e85cfa12671b6e531",
       "VERSION-CONTROL-FIRST-PARENT-001": "sha256:54aa1b954c70c7456be3d9e7418030c8b1810080439ddc4c4ab14f6c213ca3e9",
       "VERSION-CONTROL-FIRST-PARENT-FAILURE-001": "sha256:a932264bbf70968e661a976a9f5a45ae85d4c56349df1404202562640c24cbca",
       "VERSION-CONTROL-FIRST-PARENT-RELATION-001": "sha256:a3ba2e94b62fe1c4aa578ce7568d634d1fdaa3ed8090e482d5f420b4fa00bfa8",

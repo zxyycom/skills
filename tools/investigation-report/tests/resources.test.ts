@@ -14,13 +14,11 @@ import {
   validateInvestigationReports
 } from "../src/validation.ts";
 import {
-  coreSectionCases,
   commitAll,
   createValidReports,
   initializeGitRepository,
   investigationRoot,
   reportEntryMarkdown,
-  reportMarkdown,
   type ReportInput,
   withTempRoot,
   writeCollection,

@@ -5,7 +5,6 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import { fileURLToPath } from "node:url";
 import {
   TaskGraphError,
   applyTaskGraphOperations,
@@ -21,12 +20,6 @@ export const initialNow = new Date("2026-08-06T08:00:00.000Z");
 const execFileAsync = promisify(execFile);
 let nodeExecutablePromise: Promise<string> | null = null;
 let nodeVersionPromise: Promise<string> | null = null;
-const repositoryRoot = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "..",
-  "..",
-  ".."
-);
 
 export async function resolveNodeExecutable(): Promise<string> {
   nodeExecutablePromise ??= execFileAsync("node", ["-p", "process.execPath"], {

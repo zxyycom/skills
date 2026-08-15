@@ -44,7 +44,7 @@ type InvestigationIndexFixture = StateIndex<
 function topic(
   topicPath: string,
   title: string,
-  reports: ReportInput["reports"] = undefined
+  reports?: ReportInput["reports"]
 ): ReportInput {
   return {
     path: topicPath,

@@ -141,7 +141,7 @@ async function callRawCli(
       leaseIdGenerator: uuidSequence(1001),
       loadNativeLock: loadUncontendedNativeLock,
       lockRoot: path.join(root, "test-locks"),
-      ...(options.serviceOptions ?? {})
+      ...options.serviceOptions
     }
   });
   const output = requireOnlyOutput(chunks);

@@ -92,6 +92,7 @@ export const decisionIndexJsonSchema = {
             properties: { status: { const: "active" } },
             required: ["status"]
           },
+          // oxlint-disable-next-line unicorn/no-thenable -- JSON Schema's required "then" keyword holds a schema object, not a callable thenable.
           then: {
             properties: { alignment: { enum: decisionAlignments } }
           }

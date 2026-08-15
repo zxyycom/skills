@@ -3,6 +3,7 @@ import path from "node:path";
 import { checkPackageScripts } from "../lib/check-plan.ts";
 import {
   formatPackageScripts,
+  lintPackageScripts,
   validateOxcConfigurationFiles
 } from "../lib/oxc-config.ts";
 import { rootDir } from "../lib/project.ts";
@@ -69,6 +70,7 @@ const requiredProjectFiles = [
   "scripts/setup-git-hooks.js",
   "scripts/setup-repository.js",
   "scripts/task-graph.js",
+  "scripts/lint.ts",
   "docs/tooling.md",
   "docs/skills",
   ".githooks/pre-commit",
@@ -148,6 +150,16 @@ export async function validatePackageScripts(
       report(
         `package.json script ${scriptName} must be ${expectedCommand}; ` +
           "restore the repository Oxfmt command"
+      );
+    }
+  }
+  for (const [scriptName, expectedCommand] of Object.entries(
+    lintPackageScripts
+  )) {
+    if (packageJson.scripts[scriptName] !== expectedCommand) {
+      report(
+        `package.json script ${scriptName} must be ${expectedCommand}; ` +
+          "restore the repository Oxlint preflight command"
       );
     }
   }

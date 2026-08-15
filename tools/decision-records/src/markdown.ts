@@ -43,7 +43,7 @@ export function requireNonEmptyField(
   errors: string[]
 ): void {
   const values = fieldValues(sectionContent, label);
-  if (values.length === 0 || values.every((value) => value.length === 0)) {
+  if (values.every((value) => value.length === 0)) {
     errors.push(
       relativePath + ' must include non-empty field "- ' + label + ': <value>"'
     );

@@ -228,7 +228,7 @@ function normalizeSearchText(value: string): string {
 
 function caseQueryFailure(
   diagnostics: readonly TestEvidenceDiagnostic[],
-  options: Partial<QueryTestEvidenceCasesOptions> | unknown
+  options: unknown
 ): TestEvidenceCaseQueryResult {
   const value = isObject(options) ? options : {};
   return v.parse(testEvidenceCaseQueryResultSchema, {
@@ -245,7 +245,7 @@ function caseQueryFailure(
 
 function testQueryFailure(
   diagnostics: readonly TestEvidenceDiagnostic[],
-  options: Partial<QueryTestEntitiesOptions> | unknown
+  options: unknown
 ): TestEvidenceTestQueryResult {
   const value = isObject(options) ? options : {};
   return v.parse(testEvidenceTestQueryResultSchema, {

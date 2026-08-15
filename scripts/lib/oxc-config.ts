@@ -1,5 +1,6 @@
 import { Ajv } from "ajv";
 import { createRequire } from "node:module";
+import { isDeepStrictEqual } from "node:util";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { type FormatConfig } from "oxfmt";
@@ -16,7 +17,51 @@ export const formatPackageScripts = {
   "format:check": `oxfmt --check ${formatSourceGlob}`
 } as const satisfies Readonly<Record<string, string>>;
 
+export const lintPackageScripts = {
+  lint: "bun scripts/lint.ts",
+  "lint:fix": "bun scripts/lint.ts --fix"
+} as const satisfies Readonly<Record<string, string>>;
+
 type OxcTool = "oxfmt" | "oxlint";
+
+const repositoryOxlintPolicy = {
+  categories: { correctness: "error" },
+  env: { builtin: true },
+  options: {
+    reportUnusedDisableDirectives: "error",
+    typeAware: true
+  },
+  plugins: ["typescript", "unicorn", "oxc"],
+  rules: {
+    "typescript/no-floating-promises": [
+      "error",
+      {
+        allowForKnownSafeCalls: [
+          {
+            from: "package",
+            name: "test",
+            package: "node:test"
+          }
+        ]
+      }
+    ]
+  }
+} as const;
+
+const allowedOxlintConfigurationKeys = new Set([
+  "$schema",
+  ...Object.keys(repositoryOxlintPolicy)
+]);
+
+const oxlintPolicyExpectations = {
+  categories: 'categories must equal { "correctness": "error" }',
+  env: 'env must equal { "builtin": true }',
+  options:
+    'options must set "reportUnusedDisableDirectives" to "error" and "typeAware" to true',
+  plugins: 'plugins must equal ["typescript", "unicorn", "oxc"]',
+  rules:
+    'rules must preserve the approved "typescript/no-floating-promises" configuration'
+} as const satisfies Record<keyof typeof repositoryOxlintPolicy, string>;
 
 function createSchemaValidator(): Ajv {
   const validator = new Ajv({ allErrors: true, strict: false });
@@ -120,6 +165,41 @@ async function loadOxcConfiguration<T>(
   return configuration;
 }
 
+function validateOxlintProjectPolicy(
+  configuration: unknown,
+  configurationPath: string
+): void {
+  if (!isRecord(configuration)) {
+    throw new Error(
+      `${configurationPath} must be an object to satisfy the repository Oxlint policy.`
+    );
+  }
+
+  const policyFailures: string[] = [];
+  for (const key of Object.keys(configuration)) {
+    if (!allowedOxlintConfigurationKeys.has(key)) {
+      policyFailures.push(
+        `${key} is not an allowed repository Oxlint setting; update the policy owner before changing lint behavior`
+      );
+    }
+  }
+  for (const [key, expectedValue] of Object.entries(repositoryOxlintPolicy)) {
+    if (!isDeepStrictEqual(configuration[key], expectedValue)) {
+      policyFailures.push(
+        `${oxlintPolicyExpectations[key as keyof typeof repositoryOxlintPolicy]}; update the policy owner before changing lint behavior`
+      );
+    }
+  }
+  if (policyFailures.length === 0) {
+    return;
+  }
+  throw new Error(
+    `${configurationPath} violates the repository Oxlint policy:\n` +
+      policyFailures.map((failure) => `- ${failure}`).join("\n") +
+      "\nFix the affected code; only for a direct contract conflict, use the narrowest justified oxlint-disable-next-line at that line."
+  );
+}
+
 export async function loadOxfmtFormatConfig(
   workspaceRoot: string = rootDir
 ): Promise<FormatConfig> {
@@ -127,6 +207,20 @@ export async function loadOxfmtFormatConfig(
     "oxfmt",
     oxfmtConfigFileName,
     workspaceRoot
+  );
+}
+
+export async function validateOxlintConfiguration(
+  workspaceRoot: string = rootDir
+): Promise<void> {
+  const configuration = await loadOxcConfiguration(
+    "oxlint",
+    oxlintConfigFileName,
+    workspaceRoot
+  );
+  validateOxlintProjectPolicy(
+    configuration,
+    path.join(workspaceRoot, oxlintConfigFileName)
   );
 }
 
@@ -139,7 +233,11 @@ export async function validateOxcConfigurationFiles(
     ["oxlint", oxlintConfigFileName]
   ] as const) {
     try {
-      await loadOxcConfiguration(tool, fileName, workspaceRoot);
+      if (tool === "oxlint") {
+        await validateOxlintConfiguration(workspaceRoot);
+      } else {
+        await loadOxcConfiguration(tool, fileName, workspaceRoot);
+      }
     } catch (error) {
       report(error instanceof Error ? error.message : String(error));
     }

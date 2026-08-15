@@ -1,4 +1,5 @@
 import { execFile } from "node:child_process";
+import { operationErrorDetail } from "./error-detail.ts";
 import { VersionControlError } from "./errors.ts";
 import { parseGitFirstParentRevisionChanges } from "./git-numstat.ts";
 import type {
@@ -8,7 +9,6 @@ import type {
 } from "./types.ts";
 
 const gitOutputMaxBuffer = 16 * 1024 * 1024;
-const operationErrorDetailMaxLength = 500;
 
 type GitCommandExit = {
   exitCode: number;
@@ -102,19 +102,4 @@ function firstParentOperationError(
     `Version-control operation failed: list first-parent revision changes from ${from} to ${to}` +
       (detailText === null ? "" : ": " + detailText)
   );
-}
-
-function operationErrorDetail(detail: unknown): string | null {
-  if (detail === undefined || detail === null) {
-    return null;
-  }
-  const text = (detail instanceof Error ? detail.message : String(detail))
-    .trim()
-    .replace(/\s+/gu, " ");
-  if (text.length === 0) {
-    return null;
-  }
-  return text.length <= operationErrorDetailMaxLength
-    ? text
-    : text.slice(0, operationErrorDetailMaxLength - 1) + "…";
 }

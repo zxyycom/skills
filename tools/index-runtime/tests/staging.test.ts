@@ -14,7 +14,6 @@ import {
   stageSelectedIndexEntries,
   type ReadonlyStateIndex,
   type StateIndexDefinition,
-  type StateIndexEntryStageResult,
   type StateSnapshot
 } from "../src/index.ts";
 import { resultValue } from "./support.ts";

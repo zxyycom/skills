@@ -4,6 +4,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { simpleGit, type SimpleGit } from "simple-git";
 import { VersionControlError } from "./errors.ts";
+import { operationErrorDetail } from "./error-detail.ts";
 import { readGitBlobs } from "./git-blob-batch.ts";
 import { parseGitTreeEntries, type GitTreeEntry } from "./git-tree-entry.ts";
 import {
@@ -23,7 +24,6 @@ import type {
 
 const gitMaxConcurrentProcesses = 4;
 const gitOutputMaxBuffer = 16 * 1024 * 1024;
-const operationErrorDetailMaxLength = 500;
 const gitBlobModes = new Set(["100644", "100755", "120000"]);
 const defaultGitBlobMode = "100644";
 const gitIndexModePattern = /^[0-7]{6}$/u;
@@ -1130,19 +1130,4 @@ function operationError(
     `Version-control operation failed: ${operation}` +
       (detailText === null ? "" : ": " + detailText)
   );
-}
-
-function operationErrorDetail(detail: unknown): string | null {
-  if (detail === undefined || detail === null) {
-    return null;
-  }
-  const text = (detail instanceof Error ? detail.message : String(detail))
-    .trim()
-    .replace(/\s+/gu, " ");
-  if (text.length === 0) {
-    return null;
-  }
-  return text.length <= operationErrorDetailMaxLength
-    ? text
-    : text.slice(0, operationErrorDetailMaxLength - 1) + "…";
 }

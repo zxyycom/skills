@@ -65,7 +65,7 @@ function hasSupportedMarkdownParentheses(segment: string): boolean {
 }
 
 function escapeRegularExpressionCharacterClass(value: string): string {
-  return value.replace(/[\\[\]\^-]/gu, "\\$&");
+  return value.replace(/[\\[\]^-]/gu, "\\$&");
 }
 
 export function investigationResourceIdFromLinkTarget(

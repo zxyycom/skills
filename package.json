@@ -9,7 +9,7 @@
   },
   "scripts": {
     "typecheck": "tsgo --noEmit",
-    "lint": "oxlint --type-aware --deny-warnings scripts tools",
+    "lint": "bun scripts/lint.ts",
     "format": "oxfmt --write '{scripts/**/*.{ts,js},tools/**/*.ts}'",
     "format:check": "oxfmt --check '{scripts/**/*.{ts,js},tools/**/*.ts}'",
     "validate": "bun scripts/validate.ts",
@@ -58,7 +58,7 @@
     "sync:skill-updaters": "bun scripts/build/skill-updaters.ts --write",
     "check:skill-updaters": "bun scripts/build/skill-updaters.ts --check",
     "check": "bun scripts/check.ts",
-    "lint:fix": "oxlint --type-aware --deny-warnings --fix scripts tools",
+    "lint:fix": "bun scripts/lint.ts --fix",
     "fix": "bun run lint:fix && bun run format"
   },
   "devDependencies": {

@@ -1325,7 +1325,7 @@ export async function runTaskGraphCli(
   let service: TaskGraphService;
   try {
     service = new TaskGraphService({
-      ...(options.serviceOptions ?? {}),
+      ...options.serviceOptions,
       root: globals.root,
       indexPath: globals.indexPath,
       loadNativeLock:

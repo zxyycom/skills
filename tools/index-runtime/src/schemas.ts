@@ -9,7 +9,9 @@ export const stateIndexQueryMaximumLimit = 1_000;
 const namespacePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 const keyNamePattern = /^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$/u;
 const stateIndexTextPattern =
+  // oxlint-disable-next-line no-control-regex -- State-index text intentionally excludes C0 control characters and DEL at its external-data boundary.
   /^(?![\s\S]*[\u0000-\u001f\u007f])\S(?:[\s\S]*\S)?$/;
+// oxlint-disable-next-line no-control-regex -- This predicate must preserve the same C0-control-and-DEL contract as stateIndexTextSchema.
 const controlCharacterPattern = /[\u0000-\u001f\u007f]/u;
 
 export const stateIndexTextSchema = v.pipe(

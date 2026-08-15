@@ -127,6 +127,7 @@
       "distinguish-skill-and-distribution-unit-boundaries.md": "sha256:b762b84ec36eb17514d5d3b6e5bc5a5cffc23a09d236fa1fc82eec530adf03cb",
       "distribute-openspec-as-an-aggregate-unit.md": "sha256:afc4950ecf1dced645b01d01b6321d55cf88f46ed462dada247998c421d0d8d0",
       "distribute-openspec-skills-independently.md": "sha256:24dee0291559a42f3d4aa1d3ed135b32e98209929a42789774bf629d8e597866",
+      "enforce-one-oxlint-quality-baseline.md": "sha256:518ba4390966bba4c089d4f2a141715025d6bce7a1a141ba9ce2bcbb502c8827",
       "establish-decisions-with-atomic-evolution.md": "sha256:3b201bf83453ee0b980b4f897cf9fa8e382b5778acb07363f89fa12f5152f4e0",
       "evaluate-reorganization-from-task-graph-case.md": "sha256:e0c03f1ddb3d3a1791646a2a959284d433165c95679ad989c99acd92cf03a6e0",
       "exclude-archived-changes-from-link-validation.md": "sha256:ea8064051faf2a482486b1b48cf9a53eb83e1214dc357c2d91df82c9c71731e4",
@@ -262,6 +263,7 @@
       "use-independent-change-plans.md": "sha256:a4f03779c1cdd7a944db30bdf4b57c4b3bd002bcb2945220931c421ffa3ecb2d",
       "use-independent-read-side-index-runtime.md": "sha256:171593c5c44175eb894abe3e23e9be9156604429e6f532cf6e75afec9e966a15",
       "use-json-task-index-as-single-fact-source.md": "sha256:5b5e0d66def766059138feb1ad96139a0373f650ebf0c199944795c0f29deb0e",
+      "use-local-reasoned-oxlint-exceptions.md": "sha256:9d52048f5ef6722bdc150ce900208df9399a9bd2af677848520d9b3b324b5f3b",
       "use-monorepo-versioned-skill-packages.md": "sha256:d0c6bfb37dbe1b94af823143c4e40f8b0990d5a5bb28de18155da2298e4407d1",
       "use-monotonic-alignment-baseline.md": "sha256:b093a0204566b741fe7efbb97efb4b45549b7daadacd875fc924990a662ce8e2",
       "use-native-locks-for-json-transactions.md": "sha256:64ef5d12dc865922f715dc2831b23f979a421e167299530f8d06ef51839004e6",
@@ -3847,6 +3849,38 @@
           {
             "type": "拆分",
             "target": "260720-use-distribution-unit-boundaries.md"
+          }
+        ]
+      }
+    },
+    "enforce-one-oxlint-quality-baseline.md": {
+      "keys": {
+        "tag": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "enforce-one-oxlint-quality-baseline.md",
+        "title": "以受校验的统一基线约束 Oxlint 配置",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-15T12:05:52Z",
+        "purpose": "防止 Oxlint 配置绕过检查或降低项目已经选择的质量基线。",
+        "background": "局部注释规则不能阻止路径忽略、配置继承、规则关闭或基线选项降级在运行前削弱检查。",
+        "decision": "将 Oxlint 配置作为受校验的统一基线；配置行为变化必须同步规范、前置校验和测试，局部例外继续使用带理由的单行抑制。",
+        "tags": [
+          "project-tooling"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "use-local-reasoned-oxlint-exceptions.md"
           }
         ]
       }
@@ -7947,6 +7981,33 @@
             "target": "use-authoritative-json-index-for-task-coordination.md"
           }
         ]
+      }
+    },
+    "use-local-reasoned-oxlint-exceptions.md": {
+      "keys": {
+        "tag": [
+          "project-tooling"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/use-local-reasoned-oxlint-exceptions.md",
+        "title": "以局部且有理由的注释承接 Oxlint 例外",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-15T10:27:13Z",
+        "purpose": "让 Oxlint 例外保持可审计，并避免历史文件级配置掩盖新增问题。",
+        "background": "文件或路径豁免会扩大规则关闭范围；明确契约的局部语法需要保留时，紧邻理由能保留审查依据。",
+        "decision": "默认修复诊断；只有明确契约不可改写的单点结构才用带理由的单行抑制，并把未使用抑制视为错误。",
+        "tags": [
+          "project-tooling"
+        ],
+        "relations": []
       }
     },
     "use-monorepo-versioned-skill-packages.md": {
