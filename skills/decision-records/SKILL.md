@@ -2,11 +2,10 @@
 name: decision-records
 description: >-
   用于长期决策管理。当用户正在作出可能持续影响后续行为、owner、边界、
-  兼容性、风险处理或验收方式的决定，或拟议决定与既有决定冲突，或需要在
-  多个决策变化同时存在时单独暂存所选变化，并让完整决策索引与待提交集合
-  一致时使用。
+  兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
+  既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "27"
+  version: "28"
 ---
 
 # Decision Records
@@ -15,9 +14,9 @@ metadata:
 
 维护可回放、可验证、可演进的长期判断。决策记录保存采用方向、理由、生命周期和演进关系；它不保存任务进度、执行日志或当前实现快照。代码、配置、规范和项目文档仍是当前事实来源。
 
-每条记录以含 `.md` 的 basename 作为稳定 **Decision ID**。记录 Markdown 中的非空 `tags` 集合表达分类，`status` 表达生命周期；物理位置只投影状态：`candidate` 和 `active` 直属决策根目录，`archived` 直属 `archive/`。派生索引以 Decision ID 为键，用 `sourcePath` 定位当前 Markdown。移动位置不改变 ID；改 basename 才是身份变化。
+每条记录以含 `.md` 的 basename 作为稳定 **Decision ID**；移动位置不改变 ID，改 basename 才是身份变化。格式、位置、分类、关系与索引契约由决策记录规则和 Schema 承接。
 
-`active + aligned` 是已核对的当前基线；`active + unaligned` 是已经确认、但尚未成为当前事实的未来方向。`candidate` 结构与内容完整、可供审核，但未建立到正式集合。`alignment` 不创建实施授权、任务或优先级。
+`active + aligned` 是已核对的当前基线；`active + unaligned` 是已经确认、但尚未成为当前事实的未来方向，是正常的长期状态而非失败、待办或实施授权。`candidate` 结构与内容完整、可供审核，但未建立到正式集合。`alignment` 不创建实施授权、任务或优先级。
 
 ## 内容 owner
 
@@ -25,17 +24,17 @@ metadata:
 2. [决策记录规则](references/decision-record-rules.md) 面向写入和结构维护，承接格式、身份、分类、生命周期、关系、索引与事务不变量。
 3. [Decision Index Schema](references/decision-index.schema.json) 承接索引的精确机器结构、字段、版本与序列化约束。
 4. `scripts/decision-records.mjs --help` 承接当前 CLI 参数、输出和退出状态。
-5. [维护恢复](references/maintenance-recovery.md) 只在 CLI、索引或写入恢复不能由普通诊断解决时读取。
+5. [状态与维护恢复](references/maintenance-recovery.md) 承接首次候选集合，以及 CLI、索引或写入恢复的异常路径；只在这些条件触发时读取。
 
 ## 主动读取
 
 1. 先读目标工作区指令和当前任务直接相关的事实来源。
 2. 按 `--root` 和可选 `--decisions-dir` 定位集合；集合整体不存在时视为尚未初始化，不从 Git 状态推断决策是否存在或生效。
-3. 日常恢复运行 `list`：默认只读取持久索引中的 active 记录。按需用 `--status archived|all`、`--alignment` 和可重复 `--tag` 缩小范围；重复 `--tag` 是 AND，结果必须包含每个指定 tag。需要完整理由用 `show <decision-id>`，需要演进链路用 `trace <decision-id>`。
-4. 只有审核尚未建立的记录时运行 `candidates` 或 `show-candidate <decision-id>`；候选不混入正式索引。候选源码查询逐文件容错，但根目录、集合边界或已建立集合的索引前提错误会阻断查询；仅首次建立且没有已建立记录时可缺少索引。
+3. 审核尚未建立的记录时，先运行 `candidates`，再按需用 `show-candidate <decision-id>` 审核正文。
+4. 恢复当前判断时运行 `list`，再按需用 `show <decision-id>` 读取完整理由或用 `trace <decision-id>` 读取演进关系；筛选与输出参数以 `--help` 为准。
 5. 摘要足够时停止扩大读取。只有任务需要历史时才查询 archived 记录或完整关系图。
-6. 手工修改 Markdown、怀疑索引陈旧或准备维护时，先运行严格 `check`；需要接受合法来源变化时运行 `sync-index --write`。常规查询不逐次重扫全部 Markdown，也不能用陈旧索引断言来源不存在记录。
-7. 任何候选写入、分类修改、生命周期、关系、`pending` 快照或结构审阅前，完整读取决策记录规则。只有普通 CLI 诊断无法处理索引故障或中断写入时才读取恢复手册。
+6. 任何候选写入、已建立记录维护、暂存快照或结构审阅前，完整读取决策记录规则。首次候选集合、索引异常或写入中断时，读取恢复手册，不把缺失索引直接当作需要重建的错误。
+7. 手工修改已建立 Markdown、怀疑索引陈旧或准备维护时，先运行严格 `check`；需要接受合法来源变化时运行 `sync-index --write`。常规查询不逐次重扫全部 Markdown，也不能用陈旧索引断言来源不存在记录。
 
 ## 执行流程
 
@@ -62,30 +61,25 @@ metadata:
 3. 是判断或取舍，而不是事实、任务、进度或执行结果。
 4. 能作为整体独立修订、替代、归档和判断对齐。
 
-使用合法的新 Decision ID 文件名，在根目录写入完整 `candidate`。每个候选必须有至少一个有依据的 tag、完整 frontmatter、摘要和“目的 / 背景 / 决策”正文；半成品留在对话、Change 或其他草稿 owner。候选可声明真实直接前序的完整关系集合，但在建立前不进入正式关系图。
+使用新的 Decision ID 写入完整 `candidate`；格式、分类、正文和前序关系按决策记录规则检查。半成品留在对话、Change 或其他草稿 owner，不能写入决策根目录。
 
 ### 4. 维护记录
 
-1. 关系、查询、生命周期和 `stage` 一律接收 Decision ID，不用 `sourcePath` 作为身份输入。`sourcePath` 只用于定位和展示。
-2. `activate <decision-id> --alignment ...` 建立一个候选，或重新激活一个 archived 记录。`evolve` 是建立关系、完整关系修订和闭合多后继演进的统一入口；重复 `--successor <alignment=decision-id>` 显式给出完整后继集合，关系覆盖要么完整替换、要么显式为空，绝不追加或猜测。
-3. `archive <decision-id...>` 将 active 记录移动到 `archive/` 并保留最后对齐状态与关系；重新激活反向移动到根目录。所有生命周期和关系事务都必须预检完整组合、拒绝并发漂移、同步索引、读回检查，并在可处理失败时恢复 Markdown 与索引组合。
-4. tags 只承接记录级分类。修改 tags 不改变 Decision ID、正文语义、生命周期或关系；修改后重建索引并通过严格检查。tags 不承接状态、对齐、关系类型或当前事实。
-5. 已建立记录的判断语义变化通过新记录和真实关系表达；编辑性文字修正可直接改权威 Markdown。不得直接编辑派生索引制造状态。
-6. 当前契约只接受本文件与规则定义的 ID、tags 和物理布局；不提供旧格式读取、路径别名、重定向、双写、迁移或升级命令。
+1. 查询、关系和生命周期命令一律接收 Decision ID；`sourcePath` 只用于定位和展示。
+2. `activate` 建立候选或重新激活 archived 记录；`evolve` 维护完整的演进关系；`mark-aligned`、`archive` 与 `discard` 只用于各自生命周期动作。精确参数与组合规则以 `--help` 和决策记录规则为准。
+3. 已建立记录的判断语义变化通过新记录和真实关系表达；编辑性文字修正可直接改权威 Markdown。不得直接编辑派生索引制造状态。
+4. 生命周期和关系写入使用 CLI 事务，尽可能保证 Markdown 与索引组合的原子性；普通诊断无法恢复的失败按恢复手册处理。
 
 ### 5. 构造待提交决策快照
 
-1. 只有调用方明确要把决策 `filesystem` 变化放入下一版本时，才运行 `stage <decision-id...>`。显式选择的 ID 共同形成完整合法集合。
-2. 同一 ID 在 `revision` 与 `filesystem` 的 `sourcePath` 不同时，stage 将其视为一次位置移动。stage 不推断 basename 改名意图：只选新 ID 表示新增，只选旧 ID 表示删除，同时选旧、新 ID 才表达改名。
-3. stage 以 `revision` 为基线，只叠加所选 ID 的初始 `filesystem` 状态，从目标 Markdown 重建完整索引，再整体替换 `pending` 中的决策范围。未选择的磁盘变化和范围外 pending 内容保持不变；写入前复核所选来源未漂移。
-4. 非法 ID、目标集合不合法、版本管理不可用、所选来源、revision 或 pending 漂移均不得产生部分结果。生命周期命令不读取、合并或写入 pending。
+只有调用方明确要求将决策文件系统变化放入下一版本时，才运行 `stage <decision-id...>`。它以显式 Decision ID 构造完整待提交快照；选择和失败边界以决策记录规则与 `--help` 为准。生命周期命令不写入 pending。
 
 ### 6. 验证与交付
 
-1. 确认候选具有长期回放价值且内容完整；active 记录只保存已确认判断。
-2. 标记对齐前，将完整决策与当前事实来源逐项核对。只有完整方向成为当前事实后才能标记 aligned。
-3. 维护结束运行严格 `check`。合法完整候选可等待审核且不进入正式索引；候选结构、身份、状态组合或前瞻关系非法仍阻断验收。
-4. 写入时说明新增、修订、归档、位置或对齐变化和实际验证结果；只读恢复时说明适用决策、分类和结果边界。
+1. 候选任务确认候选具有长期回放价值、内容完整且通过 `candidates` / `show-candidate` 审核；active 记录只保存已确认判断。
+2. 建立或对齐任务在操作前按规则核对完整方向与当前事实来源；只有完整方向成为当前事实后才能标记 aligned。
+3. 已建立集合的维护任务在结束时运行严格 `check`；首次候选集合或故障恢复按恢复手册验证。
+4. 写入时说明新增、修订、归档或对齐变化和实际验证结果；只读恢复时说明适用决策、分类和结果边界。
 
 ## CLI
 
@@ -97,18 +91,17 @@ node scripts/decision-records.mjs <command> [options] --root <resolution-root>
 
 | 命令 | 用途 |
 | --- | --- |
-| `candidates` / `show-candidate <decision-id>` | 从根目录 Markdown 发现或读取可审核候选，不加入正式索引。 |
-| `list` | 读取持久索引；默认 active，重复 `--tag` 按 AND 过滤。 |
-| `show <decision-id>` / `trace <decision-id>` | 按稳定 ID 读取正文或演进关系。 |
+| `candidates` / `show-candidate <decision-id>` | 发现或审核候选。 |
+| `list` / `show <decision-id>` / `trace <decision-id>` | 恢复当前判断、完整理由或演进关系。 |
 | `check` / `sync-index --write` | 严格验证或从权威 Markdown 重建索引。 |
-| `stage <decision-id...>` | 以显式 ID 构造完整 pending 决策快照。 |
-| `activate` / `evolve` / `mark-aligned` / `archive` / `discard` | 维护生命周期、关系和候选；精确参数以 `--help` 为准。 |
+| `stage <decision-id...>` | 构造待提交决策快照。 |
+| `activate` / `evolve` / `mark-aligned` / `archive` / `discard` | 维护生命周期、关系和候选。 |
 
-`stage` 是独立的版本快照命令，不是生命周期选项；生命周期命令不提供 `--stage`。索引的精确字段、版本和格式由相邻 JSON Schema 承接。
+精确参数、输出和退出状态以 `--help` 为准；索引的精确字段、版本和格式由相邻 JSON Schema 承接。
 
 ## 完成标准
 
-1. 已恢复所有直接相关的 active 决策，并逐条判断其对当前任务的实际作用。
-2. 新候选使用合法唯一 ID、非空有序 tags、完整正文与真实关系；已建立记录和索引一致。
-3. 位置、status、sourcePath、关系、索引与 pending（如使用）符合相应事务边界；分类没有变成第二个生命周期或事实来源。
-4. 严格 `check` 成功；无法运行时按恢复手册说明未证明的边界。
+1. 只读恢复已恢复全部直接相关的 active 决策，并说明其对当前任务的作用和边界。
+2. 候选起草或维护已遵守决策记录规则，并说明候选、修订、归档或对齐的实际变化。
+3. 已建立集合维护已通过严格 `check`；首次候选集合和故障恢复已按维护恢复的适用路径验证。
+4. 暂存任务只报告显式选择的 Decision ID 与生成的待提交快照。无法完成相应验证时，按恢复手册说明未证明的边界。

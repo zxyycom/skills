@@ -3,6 +3,7 @@ import path from "node:path";
 import test from "node:test";
 import {
   candidateDecisionBody,
+  findIndexEntry,
   readIndex,
   runSourceCli,
   withTemporaryWorkspace,
@@ -25,10 +26,10 @@ test("first establishment creates a root Decision ID and definition-six index", 
     const index = await readIndex(workspaceRoot);
     assert.equal(index.definitionVersion, 6);
     assert.deepEqual(index.metadata, {});
-    assert.equal(index.entries[decisionId].state.sourcePath, decisionId);
-    assert.equal(index.entries[decisionId].state.status, "active");
+    assert.equal(findIndexEntry(index, decisionId).sourcePath, decisionId);
+    assert.equal(findIndexEntry(index, decisionId).status, "active");
     assert.equal(
-      path.basename(index.entries[decisionId].state.sourcePath),
+      path.basename(findIndexEntry(index, decisionId).sourcePath),
       decisionId,
     );
   }));
@@ -58,7 +59,7 @@ test("date-shaped IDs and titles remain valid candidates and can be activated", 
     ]);
     assert.equal(activated.exitCode, 0, activated.stderr);
     assert.equal(
-      (await readIndex(workspaceRoot)).entries[decisionId].state.title,
+      findIndexEntry(await readIndex(workspaceRoot), decisionId).title,
       "2026-08-15 日期样式标题",
     );
   }));

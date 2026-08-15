@@ -1,7 +1,3 @@
-import type {
-  StateIndex,
-  StateIndexEntry
-} from "../../index-runtime/src/index.ts";
 import {
   isDecisionId,
   isDecisionSourcePath
@@ -145,16 +141,38 @@ export type DecisionSourceInput = Readonly<{
   text: string;
 }>;
 
-export type DecisionIndexEntry = StateIndexEntry<DecisionIndexState>;
+export type DecisionIndexStoredEntry = {
+  keys: {
+    tag: DecisionTag[];
+    status: [EstablishedDecisionStatus];
+    alignment?: [DecisionAlignment];
+  };
+  state: DecisionIndexState;
+};
+
+export type DecisionIndexEntry = DecisionIndexStoredEntry & {
+  id: DecisionId;
+};
 
 export type DecisionIndexMetadata = Record<string, never>;
 
-export type DecisionIndex = Omit<
-  StateIndex<DecisionIndexState, DecisionIndexMetadata>,
-  "definitionVersion" | "namespace"
-> & {
-  definitionVersion: 6;
+export type DecisionSourceRevision = {
+  metadata: string;
+  entries: Record<DecisionId, string>;
+};
+
+export type DecisionIndex = {
+  schemaVersion: 3;
   namespace: "decisions";
+  definitionVersion: 6;
+  metadata: DecisionIndexMetadata;
+  sourceRevision: DecisionSourceRevision;
+  keyDefinitions: [
+    { name: "tag"; mode: "exact" },
+    { name: "status"; mode: "exact" },
+    { name: "alignment"; mode: "exact" }
+  ];
+  entries: Record<DecisionId, DecisionIndexStoredEntry>;
 };
 
 export type DecisionRecord = {

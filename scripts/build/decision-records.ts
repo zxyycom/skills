@@ -1,9 +1,11 @@
 import path from "node:path";
+import process from "node:process";
 import {
-  buildGeneratedDeclaration,
   buildGeneratedFileHeader,
+  buildGeneratedTypeScriptDeclarationArtifacts,
   bundleWithBun,
   parseGeneratedFileMode,
+  removeStaleGeneratedTypeScriptDeclarations,
   syncGeneratedArtifacts,
   type BunBundleResult
 } from "../lib/generated-file.ts";
@@ -11,11 +13,13 @@ import { githubRepository, rootDir } from "../lib/project.ts";
 import { decisionIndexJsonSchema } from "../../tools/decision-records/src/decision-index-json-schema.ts";
 
 const sourceRelativePath = "tools/decision-records/src/cli.ts";
-const declarationSourceRelativePath =
-  "tools/decision-records/api/decision-records.d.mts";
 const outputRelativePath = "skills/decision-records/scripts/decision-records.mjs";
 const declarationOutputRelativePath =
   "skills/decision-records/scripts/decision-records.d.mts";
+const declarationOutputDirectory = path.join(
+  rootDir,
+  "skills/decision-records/scripts/decision-records-sdk"
+);
 const schemaSourceRelativePath =
   "tools/decision-records/src/decision-index-json-schema.ts";
 const schemaOutputRelativePath =
@@ -45,30 +49,26 @@ async function main(): Promise<void> {
   const mode = parseGeneratedFileMode(process.argv.slice(2));
   const outputPath = path.join(rootDir, outputRelativePath);
   const expected = await buildArtifact();
-  const expectedDeclaration = await buildGeneratedDeclaration({
-    banner: buildGeneratedFileHeader({
-      artifactName: "decision-records TypeScript declarations",
-      rebuildCommand: "bun run sync:decision-records-cli",
-      repository: githubRepository,
-      skillSourcePath: "skills/decision-records",
-      sourcePath: declarationSourceRelativePath
-    }),
-    sourcePath: path.join(rootDir, declarationSourceRelativePath)
+  const declarationArtifacts = await buildGeneratedTypeScriptDeclarationArtifacts({
+    declarationArtifactName: "decision records TypeScript declaration",
+    declarationEntryOutputPath: path.join(rootDir, declarationOutputRelativePath),
+    declarationOutputDirectory,
+    entrySourcePath: sourceRelativePath,
+    rebuildCommand: "bun run sync:decision-records-cli",
+    repository: githubRepository,
+    skillSourcePath: "skills/decision-records",
+    workspaceRoot: rootDir
   });
   const expectedSchema = `${JSON.stringify(decisionIndexJsonSchema, null, 2)}\n`;
   if (expected.sourceMap === null) {
     throw new Error("Decision records CLI bundle must include a source map");
   }
 
-  const changed = await syncGeneratedArtifacts(
+  const changedArtifacts = await syncGeneratedArtifacts(
     [
       { content: expected.code, path: outputPath },
       { content: expected.sourceMap, path: `${outputPath}.map` },
-      {
-        content: expectedDeclaration,
-        path: path.join(rootDir, declarationOutputRelativePath),
-        sourcePath: declarationSourceRelativePath
-      },
+      ...declarationArtifacts,
       {
         content: expectedSchema,
         path: path.join(rootDir, schemaOutputRelativePath),
@@ -79,8 +79,24 @@ async function main(): Promise<void> {
     rootDir,
     sourceRelativePath
   );
+  const expectedDeclarationPaths = new Set(
+    declarationArtifacts
+      .map((artifact) => artifact.path)
+      .filter(
+        (artifactPath) => path.dirname(artifactPath) === declarationOutputDirectory
+      )
+  );
+  const staleDeclarations = await removeStaleGeneratedTypeScriptDeclarations({
+    declarationArtifactName: "decision records TypeScript declaration",
+    declarationOutputDirectory,
+    expectedPaths: expectedDeclarationPaths,
+    mode,
+    sourcePath: sourceRelativePath,
+    workspaceRoot: rootDir
+  });
+  const changed = changedArtifacts || staleDeclarations.changed;
 
-  if (mode === "check" && changed) {
+  if (staleDeclarations.hasUnsupportedEntries || (mode === "check" && changed)) {
     process.exit(1);
   }
 

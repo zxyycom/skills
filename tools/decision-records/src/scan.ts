@@ -26,7 +26,7 @@ import {
   type DecisionScanOptions
 } from "./types.ts";
 
-type DecisionStoredIndexEntry = DecisionIndex["entries"][string];
+type DecisionStoredIndexEntry = DecisionIndex["entries"][DecisionId];
 
 type SourceFile = {
   decisionId: string;
@@ -411,9 +411,13 @@ async function scanSourceFile(
     sourceErrors: string[];
   }
 ): Promise<DecisionRecord> {
+  const decisionId = isDecisionId(sourceFile.decisionId)
+    ? sourceFile.decisionId
+    : null;
   const indexEntry = context.index !== null
-    && Object.hasOwn(context.index.entries, sourceFile.decisionId)
-    ? context.index.entries[sourceFile.decisionId]
+    && decisionId !== null
+    && Object.hasOwn(context.index.entries, decisionId)
+    ? context.index.entries[decisionId]
     : null;
   let sourceText: string;
   try {

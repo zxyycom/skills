@@ -1,9 +1,12 @@
 import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
+import { createRequire } from "node:module";
 import os from "node:os";
 import path from "node:path";
 import { parseArgs, promisify } from "node:util";
-import { pathExists } from "../../tools/shared/src/node/filesystem.ts";
+import {
+  isFileSystemError
+} from "../../tools/shared/src/node/filesystem.ts";
 
 export type GeneratedFileMode = "check" | "write";
 
@@ -47,6 +50,31 @@ export type GeneratedArtifact = {
 export type GeneratedDeclarationOptions = {
   banner: string;
   sourcePath: string;
+};
+
+export type GeneratedTypeScriptDeclarationArtifactsOptions = {
+  declarationArtifactName: string;
+  declarationEntryOutputPath: string;
+  declarationOutputDirectory: string;
+  entrySourcePath: string;
+  rebuildCommand: string;
+  repository: string;
+  skillSourcePath: string;
+  workspaceRoot: string;
+};
+
+export type GeneratedTypeScriptDeclarationCleanupOptions = {
+  declarationArtifactName: string;
+  declarationOutputDirectory: string;
+  expectedPaths: ReadonlySet<string>;
+  mode: GeneratedFileMode;
+  sourcePath: string;
+  workspaceRoot: string;
+};
+
+export type GeneratedTypeScriptDeclarationCleanupResult = {
+  changed: boolean;
+  hasUnsupportedEntries: boolean;
 };
 
 export type GeneratedFileHeaderOptions = {
@@ -273,8 +301,265 @@ export async function buildGeneratedDeclaration(
   return `${options.banner}\n${declaration.endsWith("\n") ? declaration : `${declaration}\n`}`;
 }
 
+function generatedDeclarationHeader(
+  options: GeneratedTypeScriptDeclarationArtifactsOptions,
+  sourcePath: string,
+  artifactName: string
+): string {
+  return buildGeneratedFileHeader({
+    artifactName,
+    rebuildCommand: options.rebuildCommand,
+    repository: options.repository,
+    skillSourcePath: options.skillSourcePath,
+    sourcePath
+  });
+}
+
+function normalizeGeneratedTypeScriptDeclaration(declaration: string): string {
+  const normalized = declaration
+    .replace(/^#![^\r\n]*(?:\r?\n)?/u, "")
+    .replace(/\r\n?/gu, "\n")
+    .replace(/(["'])(\.\.?\/[^"']+)\.ts\1/gu, "$1$2.mjs$1");
+  return normalized.endsWith("\n") ? normalized : `${normalized}\n`;
+}
+
+function generatedDeclarationDependencies(
+  declaration: string,
+  filename: string
+): string[] {
+  const specifiers = [
+    ...declaration.matchAll(/\bfrom\s+["']([^"']+)["']/gu),
+    ...declaration.matchAll(/\bimport\s*\(\s*["']([^"']+)["']\s*\)/gu),
+    ...declaration.matchAll(/^\s*import\s+["']([^"']+)["'];?\s*$/gmu)
+  ].map((match) => match[1] ?? "");
+  return [...new Set(specifiers.map((specifier) => {
+    const match = /^\.\/([^/\\]+)\.mjs$/u.exec(specifier);
+    if (match === null) {
+      throw new Error(
+        `${filename} exposes unsupported declaration dependency ${specifier}`
+      );
+    }
+    return `${match[1]}.d.ts`;
+  }))];
+}
+
+export async function buildGeneratedTypeScriptDeclarationArtifacts(
+  options: GeneratedTypeScriptDeclarationArtifactsOptions
+): Promise<GeneratedArtifact[]> {
+  const packageRequire = createRequire(import.meta.url);
+  const compilerPackageRoot = path.dirname(
+    packageRequire.resolve("@typescript/native-preview/package.json")
+  );
+  const compilerEntry = path.join(compilerPackageRoot, "bin", "tsgo");
+  const temporaryDirectory = await fs.mkdtemp(
+    path.join(os.tmpdir(), "generated-typescript-declarations-")
+  );
+  try {
+    await execFileAsync(
+      process.execPath,
+      [
+        compilerEntry,
+        "--ignoreConfig",
+        "--declaration",
+        "--emitDeclarationOnly",
+        "--stripInternal",
+        "--target", "ES2024",
+        "--module", "NodeNext",
+        "--moduleResolution", "NodeNext",
+        "--allowImportingTsExtensions",
+        "--strict",
+        "--verbatimModuleSyntax",
+        "--skipLibCheck", "false",
+        "--types", "node",
+        "--rootDir", ".",
+        "--outDir", temporaryDirectory,
+        options.entrySourcePath
+      ],
+      {
+        cwd: options.workspaceRoot,
+        maxBuffer: 10 * 1024 * 1024,
+        windowsHide: true
+      }
+    );
+
+    const emittedDirectory = path.join(
+      temporaryDirectory,
+      path.dirname(options.entrySourcePath)
+    );
+    const entryDeclarationFilename = path.basename(options.entrySourcePath)
+      .replace(/\.ts$/u, ".d.ts");
+    const emittedFiles = (await fs.readdir(emittedDirectory))
+      .filter((filename) => filename.endsWith(".d.ts"))
+      .sort();
+    if (!emittedFiles.includes(entryDeclarationFilename)) {
+      throw new Error(
+        `TypeScript did not emit ${entryDeclarationFilename} for ${options.entrySourcePath}`
+      );
+    }
+
+    const declarations = new Map<string, string>();
+    for (const filename of emittedFiles) {
+      declarations.set(
+        filename,
+        normalizeGeneratedTypeScriptDeclaration(
+          await fs.readFile(path.join(emittedDirectory, filename), "utf8")
+        )
+      );
+    }
+
+    const reachableFiles = new Set<string>();
+    const pendingFiles = [entryDeclarationFilename];
+    while (pendingFiles.length > 0) {
+      const filename = pendingFiles.pop();
+      if (filename === undefined || reachableFiles.has(filename)) continue;
+      const declaration = declarations.get(filename);
+      if (declaration === undefined) {
+        throw new Error(`Missing emitted declaration dependency ${filename}`);
+      }
+      reachableFiles.add(filename);
+      for (const dependency of generatedDeclarationDependencies(declaration, filename)) {
+        if (!reachableFiles.has(dependency)) pendingFiles.push(dependency);
+      }
+    }
+
+    const sourceDirectory = path.posix.dirname(options.entrySourcePath);
+    const entryModuleName = entryDeclarationFilename.replace(/\.d\.ts$/u, ".mjs");
+    const artifacts: GeneratedArtifact[] = [{
+      content: `${generatedDeclarationHeader(
+        options,
+        options.entrySourcePath,
+        `${options.declarationArtifactName} entry`
+      )}\nexport * from "./${path.basename(options.declarationOutputDirectory)}/${entryModuleName}";\n`,
+      path: options.declarationEntryOutputPath,
+      sourcePath: options.entrySourcePath
+    }];
+    for (const filename of [...reachableFiles].sort()) {
+      const declaration = declarations.get(filename);
+      if (declaration === undefined) {
+        throw new Error(`Missing emitted declaration ${filename}`);
+      }
+      const sourcePath = path.posix.join(
+        sourceDirectory,
+        filename.replace(/\.d\.ts$/u, ".ts")
+      );
+      artifacts.push({
+        content: `${generatedDeclarationHeader(
+          options,
+          sourcePath,
+          options.declarationArtifactName
+        )}\n${declaration}`,
+        path: path.join(
+          options.declarationOutputDirectory,
+          filename.replace(/\.d\.ts$/u, ".d.mts")
+        ),
+        sourcePath
+      });
+    }
+    return artifacts;
+  } finally {
+    await fs.rm(temporaryDirectory, { force: true, recursive: true });
+  }
+}
+
+function isGeneratedTypeScriptDeclaration(
+  declaration: string,
+  artifactName: string
+): boolean {
+  return declaration.startsWith(
+    `/*\n * Generated ${artifactName}. Do not edit this file directly.\n`
+  );
+}
+
+function unsupportedDeclarationArtifact(
+  relativePath: string,
+  reason: string
+): void {
+  console.error(`${relativePath} must be removed or relocated manually: ${reason}`);
+}
+
+export async function removeStaleGeneratedTypeScriptDeclarations(
+  options: GeneratedTypeScriptDeclarationCleanupOptions
+): Promise<GeneratedTypeScriptDeclarationCleanupResult> {
+  let entries;
+  try {
+    entries = await fs.readdir(options.declarationOutputDirectory, {
+      withFileTypes: true
+    });
+  } catch (error) {
+    if (isFileSystemError(error, "ENOENT")) {
+      return { changed: false, hasUnsupportedEntries: false };
+    }
+    throw error;
+  }
+
+  let changed = false;
+  let hasUnsupportedEntries = false;
+  for (const entry of entries) {
+    const entryPath = path.join(options.declarationOutputDirectory, entry.name);
+    if (options.expectedPaths.has(entryPath)) continue;
+
+    changed = true;
+    const relativePath = path.relative(options.workspaceRoot, entryPath)
+      .replace(/\\/gu, "/");
+    if (!entry.isFile() || !entry.name.endsWith(".d.mts")) {
+      hasUnsupportedEntries = true;
+      unsupportedDeclarationArtifact(
+        relativePath,
+        "only direct regular generated .d.mts files are eligible for cleanup"
+      );
+      continue;
+    }
+
+    let declaration: string;
+    try {
+      declaration = await fs.readFile(entryPath, "utf8");
+    } catch (error) {
+      hasUnsupportedEntries = true;
+      unsupportedDeclarationArtifact(
+        relativePath,
+        "the declaration could not be read to verify its generated header"
+      );
+      continue;
+    }
+    if (!isGeneratedTypeScriptDeclaration(
+      declaration,
+      options.declarationArtifactName
+    )) {
+      hasUnsupportedEntries = true;
+      unsupportedDeclarationArtifact(
+        relativePath,
+        "the declaration does not carry this generator's header"
+      );
+      continue;
+    }
+
+    if (options.mode === "check") {
+      console.error(`${relativePath} is not emitted by ${options.sourcePath}`);
+    } else {
+      await fs.unlink(entryPath);
+      console.log(`Removed ${relativePath}`);
+    }
+  }
+  return { changed, hasUnsupportedEntries };
+}
+
 function normalizeGeneratedTextLineEndings(text: string): string {
   return text.replace(/\r\n/g, "\n");
+}
+
+async function hasRegularGeneratedArtifact(outputPath: string): Promise<boolean> {
+  try {
+    const status = await fs.lstat(outputPath);
+    if (!status.isFile()) {
+      throw new Error(`Generated artifact path must be a regular file: ${outputPath}`);
+    }
+    return true;
+  } catch (error) {
+    if (isFileSystemError(error, "ENOENT")) {
+      return false;
+    }
+    throw error;
+  }
 }
 
 export async function syncGeneratedFile(
@@ -282,7 +567,7 @@ export async function syncGeneratedFile(
   expected: string,
   mode: GeneratedFileMode
 ): Promise<"current" | "stale" | "written"> {
-  if (await pathExists(outputPath)) {
+  if (await hasRegularGeneratedArtifact(outputPath)) {
     const actual = await fs.readFile(outputPath, "utf8");
     if (
       normalizeGeneratedTextLineEndings(actual)
@@ -297,6 +582,7 @@ export async function syncGeneratedFile(
   }
 
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
+  await hasRegularGeneratedArtifact(outputPath);
   await fs.writeFile(outputPath, expected, "utf8");
   return "written";
 }

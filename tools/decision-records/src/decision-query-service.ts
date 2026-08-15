@@ -155,6 +155,10 @@ export type DecisionQueryResult =
   | DecisionApplicationFailure
   | DecisionQuerySuccess;
 
+type IndexedDecisionState = Pick<DecisionIndexEntry, "state"> & {
+  id: string;
+};
+
 export async function executeDecisionQuery(
   request: DecisionQueryRequest
 ): Promise<DecisionQueryResult> {
@@ -445,13 +449,13 @@ function listFilters(
 }
 
 function indexedRecords(
-  entries: readonly DecisionIndexEntry[]
+  entries: readonly IndexedDecisionState[]
 ): IndexedDecisionRecord[] {
   return entries.map(indexedRecord);
 }
 
 function indexedRecord(
-  entry: DecisionIndexEntry
+  entry: IndexedDecisionState
 ): IndexedDecisionRecord {
   const state = entry.state;
   if (!isDecisionId(entry.id)) {

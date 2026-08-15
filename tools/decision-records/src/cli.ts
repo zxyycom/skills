@@ -355,6 +355,7 @@ export type {
   DecisionIndex,
   DecisionIndexEntry,
   DecisionIndexMetadata,
+  DecisionIndexStoredEntry,
   DecisionIndexState,
   DecisionListAlignment,
   DecisionListStatus,
@@ -370,6 +371,9 @@ export type {
   DecisionSuccessor,
   DecisionTags,
   DecisionStatus,
+  DecisionSourceRevision,
+  DecisionSourcePath,
+  DecisionTag,
   EstablishedDecisionStatus,
   DecisionValidationResult
 } from "./types.ts";

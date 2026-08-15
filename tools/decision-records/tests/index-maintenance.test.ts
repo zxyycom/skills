@@ -5,6 +5,7 @@ import test from "node:test";
 import { validateDecisionRecords } from "../src/index.ts";
 import {
   currentRelativePath,
+  decisionIdForTest,
   decisionFilePath,
   findIndexEntry,
   readIndex,
@@ -20,7 +21,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
   const indexPath = path.join(decisionsDirectory, "decision-index.json");
   const originalIndexText = await fs.readFile(indexPath, "utf8");
   const originalIndex = await readIndex(indexPath);
-  const firstEntryId = Object.keys(originalIndex.entries)[0]!;
+  const firstEntryId = decisionIdForTest(Object.keys(originalIndex.entries)[0]!);
   const currentDecisionPath = decisionFilePath(
     workspaceRoot,
     currentRelativePath

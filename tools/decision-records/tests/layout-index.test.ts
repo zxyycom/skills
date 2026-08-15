@@ -10,6 +10,7 @@ import {
   currentDecisionId,
   currentSourcePath,
   decisionFilePath,
+  findIndexEntry,
   readIndex,
   runSourceCli,
   withFixtureWorkspace,
@@ -91,10 +92,10 @@ test("decision index is ID-keyed with empty metadata and deterministic tag keys"
       currentDecisionId,
     ]);
     assert.equal(
-      index.entries[currentDecisionId].state.sourcePath,
+      findIndexEntry(index, currentDecisionId).sourcePath,
       currentSourcePath,
     );
-    assert.deepEqual(index.entries[currentDecisionId].state.tags, [
+    assert.deepEqual(findIndexEntry(index, currentDecisionId).tags, [
       "project-tooling",
     ]);
     assert.deepEqual(Object.keys(index.sourceRevision.entries), [
@@ -125,7 +126,7 @@ test("index revision detects tag and sourcePath changes before accepting a rebui
     ]);
     assert.equal(synced.exitCode, 0, synced.stderr);
     const rebuilt = await readIndex(workspaceRoot);
-    assert.deepEqual(rebuilt.entries[currentDecisionId].state.tags, [
+    assert.deepEqual(findIndexEntry(rebuilt, currentDecisionId).tags, [
       "decision-records",
       "project-tooling",
     ]);

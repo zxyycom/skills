@@ -70,7 +70,7 @@ relations: []
 | --- | --- |
 | `candidate + alignment: null + createdAt: null` | 结构和内容完整、可审核，尚未建立；不进入正式索引。 |
 | `active + aligned` | 已确认并进入当前集合，完整方向已成为当前事实并通过核对。 |
-| `active + unaligned` | 已确认并进入当前集合，作为未来方向约束相关选择。 |
+| `active + unaligned` | 已确认并进入当前集合，作为未来方向约束相关选择；这是正常状态，不表示失败、待办或实施授权。 |
 | `archived + aligned/unaligned` | 不再作为当前依据，保留最后对齐状态与演进历史。 |
 | 历史 `archived + alignment: null` | 只表示归档前事实关系未知。 |
 
@@ -96,13 +96,13 @@ relations:
 3. 候选关系做类型、ID、重复、自环和目标可解析性前瞻检查，但在建立前不进入正式图，也不要求活动前序提前归档。
 4. `evolve` 通过重复 `--successor <alignment=decision-id>` 显式选择完整后继集合。每个后继的来源关系，或调用方以重复 `--relation <type=decision-id>` 给出的完整替换集合，或 `--clear-relations` 的显式空集合，构成有效最终关系；三种意图不追加、不合并、不互相推断。
 5. 非拆分的有效最终关系只允许一个所选后继；全部为归并时至少含两个不同前序。拆分必须显式选择至少两个后继，每个后继恰有一条指向同一前序的拆分关系，且选择集等于该前序的完整直接拆分后继集合。
-6. 事务在写入前解析全部后继和最终关系，验证生命周期、对齐、关系策略、环路、未记录历史与最终图；然后归档新增活动前序、写入完整关系、建立候选、重建索引并读回严格检查。任一步可处理失败时恢复命令前的 Markdown 和索引组合；中断或恢复不完整时停止维护并按恢复手册处理。
+6. 关系和生命周期变更使用 CLI 事务；它尽可能保证 Markdown 与索引组合的原子性。普通诊断无法恢复的失败按维护恢复处理。
 7. 已建立记录的关系只能由完整关系事务修订。新候选可由 `activate` 的单后继便捷入口进入相同事务；重新激活 archived 记录不借激活修订关系。
 
 ## 维护不变量
 
 1. 当前指令明确授权起草候选，或足以确认长期判断和维护范围时，才在相应边界内写入；新增记录或改变状态前告知用户将改变的判断和集合。
-2. 候选、编辑性正文修正和 tags 可直接修改权威 Markdown；生命周期、对齐、归档和丢弃使用 CLI。每次手工 Markdown 修改后同步索引，并在维护或验收前运行严格 check。
+2. 候选、编辑性正文修正和 tags 可直接修改权威 Markdown；生命周期、对齐、归档和丢弃使用 CLI。已建立 Markdown 的手工修改后同步索引，并在维护或验收前运行严格 check。
 3. Git `HEAD` 只用于归档前判断路径是否已进入提交基线，不参与候选、建立、生效、对齐、索引成员或丢弃判断。需要归档未进入 HEAD 的路径时，CLI 暂停且不写入，调用方必须显式确认保留历史；单候选后继可以按 CLI 规则显式折叠一个中间前序。
 4. `discard` 只删除未建立且未被候选引用的完整 candidate；不得用它或通用删除动作重写已建立历史。
 5. `sourcePath` 变化是位置变化，stage 选择一次对应 ID 即可。stage 不从差异推断 basename 改名意图：只选新 ID 表示新增，只选旧 ID 表示删除，同时选旧、新 ID 才表达改名。生命周期移动、关系维护和 stage 都应在写前拒绝 revision、pending 或所选来源漂移。
@@ -114,7 +114,7 @@ relations:
 2. entry 与 source revision 以 Decision ID 为键。state 保存 sourcePath、tags、status、alignment、createdAt、摘要和关系；source revision 覆盖规范 ID、sourcePath 与规范 Markdown 内容。
 3. 索引 keys 为多值 exact `tag`、exact `status` 和 exact `alignment`。`list` 默认 active；重复 `--tag` 的 AND 过滤要求每个 tag 都匹配。当前查询不推断分类，也不提供 OR、NOT、层级、别名或权重。
 4. `show` 从索引按 ID 定位，只读取目标 Markdown 正文。`trace`、关系、生命周期和 stage 使用 ID；输出显示 ID、sourcePath 与 tags。
-5. candidates 与 show-candidate 直接扫描根目录源码：单条非法 Markdown 产生 warning 并跳过，显式目标自身非法则失败；根目录、成员边界或索引前提错误属于集合级错误。只有没有任何已建立记录且索引缺失的首次建立集合可不带索引查询候选；候选始终排除于正式索引。
+5. candidates 与 show-candidate 直接扫描根目录源码：单条非法 Markdown 产生 warning 并跳过，显式目标自身非法则失败；根目录、成员边界或已建立集合的索引前提错误属于集合级错误。候选始终排除于正式索引。
 6. 索引缺失、损坏或陈旧时只能由权威 Markdown 重建，不能反向补造 Markdown 事实。常规查询读取结构有效的持久索引，不在每次查询前重扫整个集合。
 
 ## 验证

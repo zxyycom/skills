@@ -12,6 +12,7 @@ import {
   currentSourcePath,
   decisionFilePath,
   fileExists,
+  findIndexEntry,
   initializeGitRepository,
   readIndex,
   runSourceCli,
@@ -45,8 +46,10 @@ test("archive and reactivate move one Decision ID while preserving its Markdown 
       before.replace("status: active", "status: archived"),
     );
     assert.equal(
-      (await readIndex(workspaceRoot)).entries[currentDecisionId].state
-        .sourcePath,
+      findIndexEntry(
+        await readIndex(workspaceRoot),
+        currentDecisionId
+      ).sourcePath,
       `archive/${currentDecisionId}`,
     );
 
@@ -67,8 +70,10 @@ test("archive and reactivate move one Decision ID while preserving its Markdown 
       before,
     );
     assert.equal(
-      (await readIndex(workspaceRoot)).entries[currentDecisionId].state
-        .sourcePath,
+      findIndexEntry(
+        await readIndex(workspaceRoot),
+        currentDecisionId
+      ).sourcePath,
       currentSourcePath,
     );
   }));
@@ -95,12 +100,12 @@ test("relations resolve stable IDs across active and archived locations", () =>
     ]);
     assert.equal(activated.exitCode, 0, activated.stderr);
     const index = await readIndex(workspaceRoot);
-    assert.equal(index.entries[currentDecisionId].state.status, "archived");
+    assert.equal(findIndexEntry(index, currentDecisionId).status, "archived");
     assert.equal(
-      index.entries[currentDecisionId].state.sourcePath,
+      findIndexEntry(index, currentDecisionId).sourcePath,
       `archive/${currentDecisionId}`,
     );
-    assert.deepEqual(index.entries[candidateId].state.relations, [
+    assert.deepEqual(findIndexEntry(index, candidateId).relations, [
       {
         type: "修订",
         target: currentDecisionId,
@@ -142,8 +147,10 @@ test("lifecycle rejects a source changed after its prewrite scan before moving e
       false,
     );
     assert.equal(
-      (await readIndex(workspaceRoot)).entries[archivedDecisionId].state
-        .sourcePath,
+      findIndexEntry(
+        await readIndex(workspaceRoot),
+        archivedDecisionId
+      ).sourcePath,
       archivedSourcePath,
     );
   }));

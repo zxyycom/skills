@@ -2763,7 +2763,30 @@
     "DECISION-GENERATED-ARTIFACTS-001": {
       "keys": {
         "search": [
-          "DECISION-GENERATED-ARTIFACTS-001 生成制品公开带标签的 ID 契约与可移植元数据 分发制品的 Schema、API 与可移植元数据必须公开稳定 ID、经验证的 `DecisionTag[]`、sourcePath 契约，并排除已移除的分类字段。 生成声明公开 `DecisionId`、`DecisionTag` 和 `tags: DecisionTag[]`，模块与元数据保持可导入。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose the tagged ID contract and portable metadata bun test --test-name-pattern=\"^generated\\ decision\\ artifacts\\ expose\\ the\\ tagged\\ ID\\ contract\\ and\\ portable\\ metadata$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-GENERATED-ARTIFACTS-001 生成决策声明提供可移植 CLI API 分发声明必须从 CLI 运行时导出机械生成，保留既有决策类型并携带可由隔离 TypeScript 消费者解析的最小可达闭包。 根声明与四个可达声明文件保持同步，不引用 TypeScript 源文件或 index-runtime。 隔离消费者可以导入运行时函数和既有公开决策类型，并通过严格 TypeScript 编译。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision declarations expose a portable CLI API bun test --test-name-pattern=\"^generated\\ decision\\ declarations\\ expose\\ a\\ portable\\ CLI\\ API$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/generated-artifacts.test.ts > generated decision declarations expose a portable CLI API",
+          "bun test --test-name-pattern=\"^generated\\ decision\\ declarations\\ expose\\ a\\ portable\\ CLI\\ API$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-GENERATED-ARTIFACTS-001",
+        "line": 1,
+        "searchText": "生成决策声明提供可移植 CLI API 分发声明必须从 CLI 运行时导出机械生成，保留既有决策类型并携带可由隔离 TypeScript 消费者解析的最小可达闭包。 根声明与四个可达声明文件保持同步，不引用 TypeScript 源文件或 index-runtime。 隔离消费者可以导入运行时函数和既有公开决策类型，并通过严格 TypeScript 编译。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision declarations expose a portable CLI API bun test --test-name-pattern=\"^generated\\ decision\\ declarations\\ expose\\ a\\ portable\\ CLI\\ API$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/generated-decision-declarations-expose-portable-cli-api.md",
+        "summary": "分发声明必须从 CLI 运行时导出机械生成，保留既有决策类型并携带可由隔离 TypeScript 消费者解析的最小可达闭包。",
+        "title": "生成决策声明提供可移植 CLI API"
+      }
+    },
+    "DECISION-GENERATED-METADATA-001": {
+      "keys": {
+        "search": [
+          "DECISION-GENERATED-METADATA-001 生成决策 bundle 与 source map 元数据保持可移植 分发 bundle 与 source map 必须保留可定位的维护来源和不依赖 checkout 绝对路径的元数据。 bundle 标示 CLI 源、重建入口和 source map；source map 只含相对的正斜杠 workspace 路径。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision bundle and source map retain portable metadata bun test --test-name-pattern=\"^generated\\ decision\\ bundle\\ and\\ source\\ map\\ retain\\ portable\\ metadata$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2772,15 +2795,38 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose the tagged ID contract and portable metadata",
-          "bun test --test-name-pattern=\"^generated\\ decision\\ artifacts\\ expose\\ the\\ tagged\\ ID\\ contract\\ and\\ portable\\ metadata$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/generated-artifacts.test.ts > generated decision bundle and source map retain portable metadata",
+          "bun test --test-name-pattern=\"^generated\\ decision\\ bundle\\ and\\ source\\ map\\ retain\\ portable\\ metadata$\" ./tools/decision-records/tests/run.ts"
         ],
-        "id": "DECISION-GENERATED-ARTIFACTS-001",
+        "id": "DECISION-GENERATED-METADATA-001",
         "line": 1,
-        "searchText": "生成制品公开带标签的 ID 契约与可移植元数据 分发制品的 Schema、API 与可移植元数据必须公开稳定 ID、经验证的 `DecisionTag[]`、sourcePath 契约，并排除已移除的分类字段。 生成声明公开 `DecisionId`、`DecisionTag` 和 `tags: DecisionTag[]`，模块与元数据保持可导入。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision artifacts expose the tagged ID contract and portable metadata bun test --test-name-pattern=\"^generated\\ decision\\ artifacts\\ expose\\ the\\ tagged\\ ID\\ contract\\ and\\ portable\\ metadata$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/generated-decision-artifacts-expose-schemas-apis-and-portable-metadata.md",
-        "summary": "分发制品的 Schema、API 与可移植元数据必须公开稳定 ID、经验证的 `DecisionTag[]`、sourcePath 契约，并排除已移除的分类字段。",
-        "title": "生成制品公开带标签的 ID 契约与可移植元数据"
+        "searchText": "生成决策 bundle 与 source map 元数据保持可移植 分发 bundle 与 source map 必须保留可定位的维护来源和不依赖 checkout 绝对路径的元数据。 bundle 标示 CLI 源、重建入口和 source map；source map 只含相对的正斜杠 workspace 路径。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision bundle and source map retain portable metadata bun test --test-name-pattern=\"^generated\\ decision\\ bundle\\ and\\ source\\ map\\ retain\\ portable\\ metadata$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/generated-decision-bundle-metadata-remains-portable.md",
+        "summary": "分发 bundle 与 source map 必须保留可定位的维护来源和不依赖 checkout 绝对路径的元数据。",
+        "title": "生成决策 bundle 与 source map 元数据保持可移植"
+      }
+    },
+    "DECISION-GENERATED-SCHEMA-001": {
+      "keys": {
+        "search": [
+          "DECISION-GENERATED-SCHEMA-001 生成决策 Schema 与运行时索引 Schema 一致 分发的决策索引 JSON Schema 必须与维护源码中的运行时 Schema 保持完全一致。 分发 Schema 与运行时 Schema 逐结构相同，并保留定义版本、三项 key 定义和必需状态字段。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision schema matches the runtime index schema bun test --test-name-pattern=\"^generated\\ decision\\ schema\\ matches\\ the\\ runtime\\ index\\ schema$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/generated-artifacts.test.ts > generated decision schema matches the runtime index schema",
+          "bun test --test-name-pattern=\"^generated\\ decision\\ schema\\ matches\\ the\\ runtime\\ index\\ schema$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-GENERATED-SCHEMA-001",
+        "line": 1,
+        "searchText": "生成决策 Schema 与运行时索引 Schema 一致 分发的决策索引 JSON Schema 必须与维护源码中的运行时 Schema 保持完全一致。 分发 Schema 与运行时 Schema 逐结构相同，并保留定义版本、三项 key 定义和必需状态字段。 tools/decision-records/tests/generated-artifacts.test.ts > generated decision schema matches the runtime index schema bun test --test-name-pattern=\"^generated\\ decision\\ schema\\ matches\\ the\\ runtime\\ index\\ schema$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/generated-decision-schema-matches-runtime-schema.md",
+        "summary": "分发的决策索引 JSON Schema 必须与维护源码中的运行时 Schema 保持完全一致。",
+        "title": "生成决策 Schema 与运行时索引 Schema 一致"
       }
     },
     "DECISION-ID-INDEX-001": {
@@ -4623,6 +4669,29 @@
         "title": "声明文件生成结果稳定"
       }
     },
+    "GENERATED-FILE-DECLARATION-CLEANUP-001": {
+      "keys": {
+        "search": [
+          "GENERATED-FILE-DECLARATION-CLEANUP-001 声明树清理只移除已验证的过期文件 生成声明树只能清理不在当前闭包中、直接普通且带本生成器 header 的 `.d.mts` 文件；其他成员必须保留、报告手动处置并使构建失败。 check 报告可验证 stale 声明与不受支持成员；write 只删除 stale 声明，保留当前声明、手写声明、目录和符号链接，同时维持失败状态。 scripts/lib/generated-file.test.ts > generated declaration cleanup only removes verified stale declaration files bun test --test-name-pattern=\"^generated declaration cleanup only removes verified stale declaration files$\" ./scripts/lib/generated-file.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "scripts/lib/generated-file.test.ts > generated declaration cleanup only removes verified stale declaration files",
+          "bun test --test-name-pattern=\"^generated declaration cleanup only removes verified stale declaration files$\" ./scripts/lib/generated-file.test.ts"
+        ],
+        "id": "GENERATED-FILE-DECLARATION-CLEANUP-001",
+        "line": 1,
+        "searchText": "声明树清理只移除已验证的过期文件 生成声明树只能清理不在当前闭包中、直接普通且带本生成器 header 的 `.d.mts` 文件；其他成员必须保留、报告手动处置并使构建失败。 check 报告可验证 stale 声明与不受支持成员；write 只删除 stale 声明，保留当前声明、手写声明、目录和符号链接，同时维持失败状态。 scripts/lib/generated-file.test.ts > generated declaration cleanup only removes verified stale declaration files bun test --test-name-pattern=\"^generated declaration cleanup only removes verified stale declaration files$\" ./scripts/lib/generated-file.test.ts",
+        "sourcePath": "repository-tooling/generated-declaration-cleanup-only-removes-verified-stale-files.md",
+        "summary": "生成声明树只能清理不在当前闭包中、直接普通且带本生成器 header 的 `.d.mts` 文件；其他成员必须保留、报告手动处置并使构建失败。",
+        "title": "声明树清理只移除已验证的过期文件"
+      }
+    },
     "GENERATED-FILE-DRIFT-001": {
       "keys": {
         "search": [
@@ -4667,6 +4736,29 @@
         "sourcePath": "repository-tooling/source-map-normalization-keeps-workspace-sources-portable.md",
         "summary": "生成 source map 中的 workspace 源路径必须规范化为可移植相对路径。",
         "title": "Source map 路径保持可移植"
+      }
+    },
+    "GENERATED-FILE-SYMLINK-001": {
+      "keys": {
+        "search": [
+          "GENERATED-FILE-SYMLINK-001 生成文件同步拒绝符号链接制品路径 生成文件同步只能读取或写入普通文件；预期制品路径是符号链接时，check 与 write 都必须拒绝，不能跟随链接影响其目标。 对指向受保护文件的生成路径链接，check 与 write 都失败，链接和目标文件内容均保持不变。 scripts/lib/generated-file.test.ts > generated file sync rejects symbolic-link artifact paths bun test --test-name-pattern=\"^generated file sync rejects symbolic-link artifact paths$\" ./scripts/lib/generated-file.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "scripts/lib/generated-file.test.ts > generated file sync rejects symbolic-link artifact paths",
+          "bun test --test-name-pattern=\"^generated file sync rejects symbolic-link artifact paths$\" ./scripts/lib/generated-file.test.ts"
+        ],
+        "id": "GENERATED-FILE-SYMLINK-001",
+        "line": 1,
+        "searchText": "生成文件同步拒绝符号链接制品路径 生成文件同步只能读取或写入普通文件；预期制品路径是符号链接时，check 与 write 都必须拒绝，不能跟随链接影响其目标。 对指向受保护文件的生成路径链接，check 与 write 都失败，链接和目标文件内容均保持不变。 scripts/lib/generated-file.test.ts > generated file sync rejects symbolic-link artifact paths bun test --test-name-pattern=\"^generated file sync rejects symbolic-link artifact paths$\" ./scripts/lib/generated-file.test.ts",
+        "sourcePath": "repository-tooling/generated-file-sync-rejects-symbolic-link-artifact-paths.md",
+        "summary": "生成文件同步只能读取或写入普通文件；预期制品路径是符号链接时，check 与 write 都必须拒绝，不能跟随链接影响其目标。",
+        "title": "生成文件同步拒绝符号链接制品路径"
       }
     },
     "INDEX-RUNTIME-ABORT-001": {
@@ -8559,7 +8651,7 @@
     "TASK-GRAPH-DISTRIBUTION-004": {
       "keys": {
         "search": [
-          "TASK-GRAPH-DISTRIBUTION-004 生成模块与声明树不依赖 checkout 绝对路径 Task-graph 的生成脚本必须在长度不同的 checkout 绝对路径下产生逐字节一致的 bundle、source map、声明入口和完整声明树。 构建只对锁定的 `write-file-atomic@8.0.0` 唯一 `__filename` token 使用稳定模块路径；Bun 的 bundle/map debugId 必须先一致再成对移除，其他 source map 映射保持由 bundler 生成。 声明目录只保留当前公开入口可达的生成文件；额外文件必须让 `--check` 失败，并由 `--write` 清除。 两个不同长度的隔离源码与依赖树分别执行真实生成入口后，`task-graph.mjs`、`.map`、根声明和声明树逐字节一致；制品不含 debugId，并包含稳定的 write-file-atomic 模块标识。注入 stale 声明后，check 拒绝该目录，write 删除额外文件。 tools/task-graph/tests/generated-artifacts.test.ts > generated task graph bundle and source map are checkout-path independent bun test --test-name-pattern=\"^generated task graph bundle and source map are checkout-path independent$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-DISTRIBUTION-004 生成模块与声明树不依赖 checkout 绝对路径 Task-graph 的生成脚本必须在长度不同的 checkout 绝对路径下产生逐字节一致的 bundle、source map、声明入口和完整声明树。 构建只对锁定的 `write-file-atomic@8.0.0` 唯一 `__filename` token 使用稳定模块路径；Bun 的 bundle/map debugId 必须先一致再成对移除，其他 source map 映射保持由 bundler 生成。 声明目录只保留当前公开入口可达的生成文件；只有额外的直接普通且带当前生成器 header 的 `.d.mts` 文件可由 `--write` 清除。 两个不同长度的隔离源码与依赖树分别执行真实生成入口后，`task-graph.mjs`、`.map`、根声明和声明树逐字节一致；制品不含 debugId，并包含稳定的 write-file-atomic 模块标识。注入带 header 的 stale 声明后，check 拒绝该目录，write 删除该文件。 tools/task-graph/tests/generated-artifacts.test.ts > generated task graph bundle and source map are checkout-path independent bun test --test-name-pattern=\"^generated task graph bundle and source map are checkout-path independent$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -8573,7 +8665,7 @@
         ],
         "id": "TASK-GRAPH-DISTRIBUTION-004",
         "line": 1,
-        "searchText": "生成模块与声明树不依赖 checkout 绝对路径 Task-graph 的生成脚本必须在长度不同的 checkout 绝对路径下产生逐字节一致的 bundle、source map、声明入口和完整声明树。 构建只对锁定的 `write-file-atomic@8.0.0` 唯一 `__filename` token 使用稳定模块路径；Bun 的 bundle/map debugId 必须先一致再成对移除，其他 source map 映射保持由 bundler 生成。 声明目录只保留当前公开入口可达的生成文件；额外文件必须让 `--check` 失败，并由 `--write` 清除。 两个不同长度的隔离源码与依赖树分别执行真实生成入口后，`task-graph.mjs`、`.map`、根声明和声明树逐字节一致；制品不含 debugId，并包含稳定的 write-file-atomic 模块标识。注入 stale 声明后，check 拒绝该目录，write 删除额外文件。 tools/task-graph/tests/generated-artifacts.test.ts > generated task graph bundle and source map are checkout-path independent bun test --test-name-pattern=\"^generated task graph bundle and source map are checkout-path independent$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "生成模块与声明树不依赖 checkout 绝对路径 Task-graph 的生成脚本必须在长度不同的 checkout 绝对路径下产生逐字节一致的 bundle、source map、声明入口和完整声明树。 构建只对锁定的 `write-file-atomic@8.0.0` 唯一 `__filename` token 使用稳定模块路径；Bun 的 bundle/map debugId 必须先一致再成对移除，其他 source map 映射保持由 bundler 生成。 声明目录只保留当前公开入口可达的生成文件；只有额外的直接普通且带当前生成器 header 的 `.d.mts` 文件可由 `--write` 清除。 两个不同长度的隔离源码与依赖树分别执行真实生成入口后，`task-graph.mjs`、`.map`、根声明和声明树逐字节一致；制品不含 debugId，并包含稳定的 write-file-atomic 模块标识。注入带 header 的 stale 声明后，check 拒绝该目录，write 删除该文件。 tools/task-graph/tests/generated-artifacts.test.ts > generated task graph bundle and source map are checkout-path independent bun test --test-name-pattern=\"^generated task graph bundle and source map are checkout-path independent$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/generated-bundle-is-checkout-path-independent.md",
         "summary": "Task-graph 的生成脚本必须在长度不同的 checkout 绝对路径下产生逐字节一致的 bundle、source map、声明入口和完整声明树。",
         "title": "生成模块与声明树不依赖 checkout 绝对路径"
@@ -12507,7 +12599,9 @@
       "DECISION-FILESYSTEM-SCAN-READ-FAILURES-001": "sha256:899de702d15ae0a7ed87168ac45d6308fd544c4ca01b38bd9ad8a3a0835a0d9f",
       "DECISION-FILESYSTEM-TRANSACTION-001": "sha256:78c796f1837a3a0c4dc5b7e1b7b38e868fe053af1bfdfbcebf98d490a52cb2c4",
       "DECISION-FIRST-ESTABLISHMENT-001": "sha256:d5cfabda96a99227ba2f641624dd4a20b9a6f5342bad0b8c7cb5f1ae734b1fc3",
-      "DECISION-GENERATED-ARTIFACTS-001": "sha256:d783f4cd7281d0bdd129cab917476100d4baec44bcbedf150357b1ee1e96da30",
+      "DECISION-GENERATED-ARTIFACTS-001": "sha256:b475a594aec688c0ec54db1fd9f82595c4f2a4bec41ecd19761b2124aaa97713",
+      "DECISION-GENERATED-METADATA-001": "sha256:66294a46153bc12ad45d3ecd1b22116ab4e02f9aa8b8b847639303c9435f2002",
+      "DECISION-GENERATED-SCHEMA-001": "sha256:4e76bae4e51d59b2f883167716e2bfa4d2a57ee0dbe96dfe6a59aef8140016a0",
       "DECISION-ID-INDEX-001": "sha256:d27fbe7fe4843bbbc7747c7630f73463493509ce4892c269866da86c92ab6272",
       "DECISION-ID-QUERY-001": "sha256:7d33b8e779d42a2de8343d0d71662dafa53690d3698f9a407b75ab190727488c",
       "DECISION-ID-RELATION-001": "sha256:3c5293a5dbc1b290b8bc4a4ffa08422901878a0ab6285193d3c44e1a1155bf9e",
@@ -12588,8 +12682,10 @@
       "ENV-PERMISSION-RULES-001": "sha256:21a124776a169674569296131b473013b83cd4982ea6a91fde7ec22edc11b45a",
       "ENV-WORKTREE-SETUP-001": "sha256:a232485668782b975b6e416528f415886b669450f36394065848a5027441842f",
       "GENERATED-FILE-DECLARATION-001": "sha256:6e1393221dbc7a89eb508e87745a86f801af86a6067ebd39427d34876b660d3a",
+      "GENERATED-FILE-DECLARATION-CLEANUP-001": "sha256:514a4c9d7314c505c7e8b390ae1bc819264127f1571a3bd49dd17043119e89b0",
       "GENERATED-FILE-DRIFT-001": "sha256:75f8e90a810f0a9bb1d14f9e6c378c6815b3fce9dd7d9217124df59684ff852a",
       "GENERATED-FILE-SOURCE-MAP-001": "sha256:8554388099096f17fa56eab44ac699ce0c23660e8fe15f8ea96ea7e14e3abe08",
+      "GENERATED-FILE-SYMLINK-001": "sha256:0e74fe76aec10b4e8ee87eaaf504142448f70736d96c88ddd5522d81d86004ff",
       "INDEX-RUNTIME-ABORT-001": "sha256:4665a415eaf26bb959157f848dbfdd0cde6ace890ef4a35db8cfca2d25cd0fe2",
       "INDEX-RUNTIME-DEFINITION-001": "sha256:1191cdb039c59ee498624bf269611513701f39ede03cfe0afbe20b91dc773d4f",
       "INDEX-RUNTIME-DEFINITION-002": "sha256:46a432343309882f2863ed425896a29fc91082f7ab594d038c1cc58b24a4b69d",
@@ -12759,7 +12855,7 @@
       "TASK-GRAPH-CONTROL-001": "sha256:f849c97211805354acd9359abae315b3f57795641ea916f4a7e2088eb04109be",
       "TASK-GRAPH-DEFAULTS-001": "sha256:9829682d1cbe0f0e27e92ec3f3542b52215c6b57a7c9259999afae531df9e416",
       "TASK-GRAPH-DISTRIBUTION-001": "sha256:b6bfa8114960756028e8cba8654ca3dc42bca284d75d14141f6cf2efdd91c793",
-      "TASK-GRAPH-DISTRIBUTION-004": "sha256:d319cca6997734fcaf3788bc4ac3a65ea4802a4a7e0c78e785d3e7b4b8ebe312",
+      "TASK-GRAPH-DISTRIBUTION-004": "sha256:3cc72a827868753fc9477fbad9c4cc6ade3da60a6cd396481d05d9cdf707d46a",
       "TASK-GRAPH-DISTRIBUTION-IMPORT-001": "sha256:a7e047d57c7c3a5c2696eedfa6ff6b5a0084493ee484d137759c531e315f0274",
       "TASK-GRAPH-DISTRIBUTION-LIST-PARITY-001": "sha256:f188effd813c6f79c6010c7e70aa8b30944c5767e724da4cf24faedfec57847c",
       "TASK-GRAPH-DISTRIBUTION-OFFLINE-001": "sha256:472a4e1422ccff06fb1b5b5c01a20f5e83969760caaa7b900fb567db391e02fa",

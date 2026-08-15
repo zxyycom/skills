@@ -117,6 +117,7 @@
       "define-version-control-visible-investigation-resources.md": "sha256:611f7474c7e937311906c1bf24144ed3bec2d4fa5a9527c602d35eb4adcda41f",
       "delegate-native-runtime-installation-to-caller.md": "sha256:3b05c3c7b7ca707f05166167568d05d0ab3ade1898974b6ff3c604c51d60f45d",
       "derive-check-exit-status-from-step-results.md": "sha256:f12b93c9d06db83591e98e7b79cf3d7ec5ddad9387a2e34ef971ddde5e932203",
+      "derive-decision-records-declarations-from-runtime-source.md": "sha256:f297788f201ccdabd4cdad1c41edf905054d7a75eb90b4139fc0b86c09f89474",
       "derive-establishment-from-markdown-lifecycle.md": "sha256:71784270ab099d77eece2838896ed0b3c6163f7276c1bda50760865fc9d021b2",
       "derive-pending-from-head-path.md": "sha256:6b3b638e5beffb3e7cdf9c2e8756454fc89f61bb8163d58ad3270b9f5f446517",
       "derive-sdk-declarations-from-runtime-source.md": "sha256:dd94355a32423c0f3803495608fd104e354d78c601388a55a453504a2c6dc54c",
@@ -3537,6 +3538,33 @@
             "target": "render-check-results-and-exit-status.md"
           }
         ]
+      }
+    },
+    "derive-decision-records-declarations-from-runtime-source.md": {
+      "keys": {
+        "tag": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "derive-decision-records-declarations-from-runtime-source.md",
+        "title": "从 Decision Records 源码派生声明",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-15T06:11:01Z",
+        "purpose": "让 CLI 与程序化调用共享一个实现和公共导出事实源，避免独立手写声明漂移。",
+        "background": "Decision Records 的 CLI 模块已公开程序化调用所需的值和类型导出；手写声明会复制接口责任。",
+        "decision": "程序化调用直接使用 CLI 模块的公共导出，并由 TypeScript 从实现机械生成声明入口及可达声明闭包。",
+        "tags": [
+          "decision-records"
+        ],
+        "relations": []
       }
     },
     "derive-establishment-from-markdown-lifecycle.md": {

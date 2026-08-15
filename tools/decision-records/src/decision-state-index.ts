@@ -240,11 +240,13 @@ function validateDecisionIndex(
   return {
     diagnostics: [],
     status: "ok",
+    // The state-index parser and decision definition have validated this exact
+    // schema and key projection before it crosses the public decision boundary.
     value: {
       ...index,
       definitionVersion: decisionIndexDefinitionVersion,
       namespace: decisionIndexNamespace
-    }
+    } as DecisionIndex
   };
 }
 

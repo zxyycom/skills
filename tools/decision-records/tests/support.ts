@@ -8,7 +8,12 @@ import {
   runDecisionRecordsCli as runSourceDecisionRecordsCli
 } from "../src/cli.ts";
 import { parseDecisionIndex } from "../src/decision-state-index.ts";
-import type { DecisionIndex, DecisionIndexState } from "../src/types.ts";
+import { isDecisionId } from "../src/decision-path.ts";
+import type {
+  DecisionId,
+  DecisionIndex,
+  DecisionIndexState
+} from "../src/types.ts";
 import {
   runDecisionRecordsCli as runBundledDecisionRecordsCli
 } from "../../../skills/decision-records/scripts/decision-records.mjs";
@@ -31,6 +36,13 @@ export const generatedDeclarationPath = path.join(
   "scripts",
   "decision-records.d.mts"
 );
+export const generatedDeclarationDirectory = path.join(
+  rootDirectory,
+  "skills",
+  "decision-records",
+  "scripts",
+  "decision-records-sdk"
+);
 export const generatedSchemaPath = path.join(
   rootDirectory,
   "skills",
@@ -38,16 +50,8 @@ export const generatedSchemaPath = path.join(
   "references",
   "decision-index.schema.json"
 );
-export const generatedUpdaterPath = path.join(
-  rootDirectory,
-  "skills",
-  "decision-records",
-  "scripts",
-  "update-skill.mjs"
-);
-
-export const currentDecisionId = "use-generated-cli.md";
-export const archivedDecisionId = "260710-use-source-cli.md";
+export const currentDecisionId = decisionIdForTest("use-generated-cli.md");
+export const archivedDecisionId = decisionIdForTest("260710-use-source-cli.md");
 export const currentSourcePath = currentDecisionId;
 export const archivedSourcePath = `archive/${archivedDecisionId}`;
 // Compatibility aliases keep still-being-migrated test files type-checkable while
@@ -267,9 +271,14 @@ export function findIndexEntry(
   index: DecisionIndex,
   decisionId: string
 ): DecisionIndexState {
-  const entry = index.entries[decisionId];
+  const entry = index.entries[decisionIdForTest(decisionId)];
   assert.ok(entry, `Expected indexed decision ${decisionId}`);
   return entry.state;
+}
+
+export function decisionIdForTest(value: string): DecisionId {
+  assert.ok(isDecisionId(value), `Expected Decision ID ${value}`);
+  return value;
 }
 
 export function initializeGitRepository(workspaceRoot: string): void {
