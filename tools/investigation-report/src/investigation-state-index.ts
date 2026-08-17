@@ -67,16 +67,15 @@ export async function syncInvestigationStateIndex(options: {
   indexPath?: string;
   mode: StateIndexSyncMode;
   signal?: AbortSignal;
-  snapshot?: StateSnapshot<InvestigationIndexState, InvestigationIndexMetadata>;
+  snapshot: StateSnapshot<InvestigationIndexState, InvestigationIndexMetadata>;
 }): Promise<StateIndexSyncResult> {
   const context = stateIndexContext(
     options.investigationsDirectory,
     options.signal
   );
-  const definition =
-    options.snapshot === undefined
-      ? createInvestigationStateIndexDefinition()
-      : createInvestigationStateIndexDefinition({ snapshot: options.snapshot });
+  const definition = createInvestigationStateIndexDefinition({
+    snapshot: options.snapshot
+  });
   const indexPath = options.indexPath ?? investigationIndexFileName;
   return await syncStateIndex({
     context,
