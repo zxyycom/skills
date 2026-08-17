@@ -219,6 +219,18 @@ export function investigationRoot(workspaceRoot: string): string {
   return path.join(workspaceRoot, "docs", "investigations");
 }
 
+/**
+ * Builds a resource id owned by the topic that declares it.  The production
+ * contract derives ownership from this prefix, so fixtures must not use the
+ * pre-v5 flat resource ids.
+ */
+export function resourceIdForTopic(
+  topicPath: string,
+  resourceSubpath: string
+): string {
+  return `${topicPath.slice(0, -".md".length)}/${resourceSubpath}`;
+}
+
 export async function writeResource(
   workspaceRoot: string,
   resourceId: string,

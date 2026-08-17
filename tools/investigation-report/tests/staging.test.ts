@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
@@ -27,6 +26,7 @@ import {
   investigationRoot,
   pendingPaths,
   readPendingText,
+  resourceIdForTopic,
   runGit,
   type ReportInput,
   withTempRoot,
@@ -175,7 +175,12 @@ test("stage-index isolates one selected topic without reading or staging domain 
     const workspaceRoot = path.join(tempRoot, "workspace");
     const topicA = topic("runtime/topic-a.md", "主题 A 基线", [
       {
-        resources: [{ id: "captures/topic-a.txt", label: "主题 A 样本" }],
+        resources: [
+          {
+            id: "runtime/topic-a/topic-a.txt",
+            label: "主题 A 样本"
+          }
+        ],
         title: "形成主题 A 基线"
       }
     ]);
@@ -183,7 +188,7 @@ test("stage-index isolates one selected topic without reading or staging domain 
     initializeGitRepository(workspaceRoot);
     await writeResource(
       workspaceRoot,
-      "captures/topic-a.txt",
+      "runtime/topic-a/topic-a.txt",
       "stable resource\n"
     );
     await writeCollection(workspaceRoot, [topicA, topicB]);
@@ -211,7 +216,8 @@ test("stage-index isolates one selected topic without reading or staging domain 
     const resourcePath = path.join(
       investigationRoot(workspaceRoot),
       "_resources",
-      "captures",
+      "runtime",
+      "topic-a",
       "topic-a.txt"
     );
     await fs.writeFile(topicAPath, "not a valid investigation report\n");
@@ -315,21 +321,29 @@ test("stage-index applies selected additions deletions and explicit renames", ()
     );
   }));
 
-test("stage-index bootstraps the first resource-aware investigation index", () =>
+test("stage-index bootstraps the first v5 investigation index without resource metadata", () =>
   withTempRoot("stage-bootstrap", async (tempRoot) => {
     const workspaceRoot = path.join(tempRoot, "workspace");
     initializeGitRepository(workspaceRoot);
     await fs.writeFile(path.join(workspaceRoot, "README.md"), "baseline\n");
     commitAll(workspaceRoot, "baseline");
 
-    const resource = Uint8Array.from([0, 127, 128, 255]);
     const report = topic("runtime/first-topic.md", "首次调查主题", [
       {
-        resources: [{ id: "captures/first.bin", label: "首次资源" }],
+        resources: [
+          {
+            id: "runtime/first-topic/first.bin",
+            label: "首次资源"
+          }
+        ],
         title: "形成首次主题"
       }
     ]);
-    await writeResource(workspaceRoot, "captures/first.bin", resource);
+    await writeResource(
+      workspaceRoot,
+      "runtime/first-topic/first.bin",
+      Uint8Array.from([0, 127, 128, 255])
+    );
     await writeCollection(workspaceRoot, [report]);
 
     const result = await stageBundledInvestigationIndex({
@@ -342,14 +356,10 @@ test("stage-index bootstraps the first resource-aware investigation index", () =
     assert.deepEqual(pendingPaths(workspaceRoot), [indexRepositoryPath]);
 
     const pending = readPendingIndex(workspaceRoot);
-    assert.deepEqual(pending.metadata.resources, [
-      {
-        id: "captures/first.bin",
-        sha256: createHash("sha256").update(resource).digest("hex")
-      }
-    ]);
+    assert.equal(pending.definitionVersion, 5);
+    assert.deepEqual(pending.metadata, {});
     assert.deepEqual(pending.entries[report.path]?.state.resourceReferences, [
-      { reportIndex: 0, resourceIds: ["captures/first.bin"] }
+      { reportIndex: 0, resourceIds: ["runtime/first-topic/first.bin"] }
     ]);
   }));
 
@@ -454,52 +464,136 @@ test("stage-index rejects existing same-index pending and preserves outside pend
     );
   }));
 
-test("stage-index rejects attached-resource metadata changes that require full-index staging", () =>
-  withTempRoot("stage-resource-metadata", async (tempRoot) => {
+async function testStageAcrossUnrelatedResourceChange(
+  tempRoot: string,
+  change: "add" | "bytes" | "delete" | "rename"
+): Promise<void> {
+  const workspaceRoot = path.join(tempRoot, change);
+  const topicA = topic("runtime/topic-a.md", "主题 A 基线");
+  const topicBPath = "runtime/topic-b.md";
+  const topicBResourceId = resourceIdForTopic(topicBPath, "evidence.bin");
+  const topicB = topic(topicBPath, "主题 B 基线", [
+    {
+      resources: [{ id: topicBResourceId, label: "主题 B 资源" }],
+      title: "形成主题 B 基线"
+    }
+  ]);
+  initializeGitRepository(workspaceRoot);
+  await writeResource(workspaceRoot, topicBResourceId, Uint8Array.of(1));
+  await writeCollection(workspaceRoot, [topicA, topicB]);
+  commitAll(workspaceRoot, "baseline");
+
+  await fs.writeFile(path.join(workspaceRoot, "outside.txt"), "outside\n");
+  runGit(workspaceRoot, ["add", "outside.txt"]);
+  await writeCollection(workspaceRoot, [
+    { ...topicA, title: "主题 A 可选择条目变化" },
+    topicB
+  ]);
+  const baseline = readRevisionIndex(workspaceRoot);
+  const workspace = await readWorkspaceIndex(workspaceRoot);
+  const resourcePath = path.join(
+    investigationRoot(workspaceRoot),
+    "_resources",
+    ...topicBResourceId.split("/")
+  );
+
+  switch (change) {
+    case "add":
+      await writeResource(
+        workspaceRoot,
+        resourceIdForTopic(topicBPath, "unreferenced-added.bin"),
+        Uint8Array.of(2)
+      );
+      break;
+    case "bytes":
+      await fs.writeFile(resourcePath, Uint8Array.of(2));
+      break;
+    case "delete":
+      await fs.rm(resourcePath);
+      break;
+    case "rename":
+      await fs.rename(
+        resourcePath,
+        path.join(
+          investigationRoot(workspaceRoot),
+          "_resources",
+          ...resourceIdForTopic(topicBPath, "renamed.bin").split("/")
+        )
+      );
+      break;
+  }
+
+  const result = await stageInvestigationIndex({
+    topicIds: [topicA.path],
+    workspaceRoot
+  });
+  assert.equal(result.status, "ok");
+  assert.equal(result.state, "staged");
+  const pending = readPendingIndex(workspaceRoot);
+  assert.deepEqual(
+    pending.entries[topicA.path],
+    workspace.entries[topicA.path]
+  );
+  assert.deepEqual(pending.entries[topicB.path], baseline.entries[topicB.path]);
+  assert.deepEqual(pending.metadata, {});
+  assert.deepEqual(
+    pendingPaths(workspaceRoot).sort(),
+    [indexRepositoryPath, "outside.txt"].sort()
+  );
+}
+
+test("stage-index selects topic A when topic B adds an unrelated v5 resource", () =>
+  withTempRoot("stage-resource-add", (tempRoot) =>
+    testStageAcrossUnrelatedResourceChange(tempRoot, "add")
+  ));
+
+test("stage-index selects topic A when topic B resource bytes change", () =>
+  withTempRoot("stage-resource-bytes", (tempRoot) =>
+    testStageAcrossUnrelatedResourceChange(tempRoot, "bytes")
+  ));
+
+test("stage-index selects topic A when topic B resource is deleted", () =>
+  withTempRoot("stage-resource-delete", (tempRoot) =>
+    testStageAcrossUnrelatedResourceChange(tempRoot, "delete")
+  ));
+
+test("stage-index selects topic A when topic B resource is renamed", () =>
+  withTempRoot("stage-resource-rename", (tempRoot) =>
+    testStageAcrossUnrelatedResourceChange(tempRoot, "rename")
+  ));
+
+test("stage-index does not combine a legacy v4 revision with a v5 workspace index", () =>
+  withTempRoot("stage-definition-upgrade", async (tempRoot) => {
     const workspaceRoot = path.join(tempRoot, "workspace");
-    const report = topic("runtime/resource-topic.md", "资源主题", [
-      {
-        resources: [{ id: "captures/resource.bin", label: "资源样本" }],
-        title: "形成资源结论"
-      }
-    ]);
+    const topicA = topic("runtime/topic-a.md", "主题 A 基线");
+    const topicB = topic("runtime/topic-b.md", "主题 B 基线");
     initializeGitRepository(workspaceRoot);
-    await writeResource(
-      workspaceRoot,
-      "captures/resource.bin",
-      Uint8Array.of(1)
-    );
-    await writeCollection(workspaceRoot, [report]);
-    commitAll(workspaceRoot, "baseline");
-
-    await writeResource(
-      workspaceRoot,
-      "captures/resource.bin",
-      Uint8Array.of(2)
-    );
-    await writeCollection(workspaceRoot, [report]);
-    const resourcePath = path.join(
-      investigationRoot(workspaceRoot),
-      "_resources",
-      "captures",
-      "resource.bin"
-    );
-    const before = {
-      index: await fs.readFile(indexPath(workspaceRoot)),
-      resource: await fs.readFile(resourcePath)
+    await writeCollection(workspaceRoot, [topicA, topicB]);
+    const indexPathValue = indexPath(workspaceRoot);
+    const currentIndex = JSON.parse(
+      await fs.readFile(indexPathValue, "utf8")
+    ) as {
+      definitionVersion: number;
     };
+    currentIndex.definitionVersion = 4;
+    await fs.writeFile(
+      indexPathValue,
+      `${JSON.stringify(currentIndex, null, 2)}\n`,
+      "utf8"
+    );
+    commitAll(workspaceRoot, "legacy v4 baseline");
 
+    await writeCollection(workspaceRoot, [
+      { ...topicA, title: "主题 A v5 更新" },
+      topicB
+    ]);
     const result = await stageInvestigationIndex({
-      topicIds: [report.path],
+      topicIds: [topicA.path],
       workspaceRoot
     });
     assert.equal(result.status, "error");
-    assert.equal(result.state, "collection-changed");
-    assert.equal(
-      result.diagnostics[0]?.code,
-      "state-index.stage-collection-changed"
-    );
     assert.deepEqual(pendingPaths(workspaceRoot), []);
-    assert.deepEqual(await fs.readFile(indexPath(workspaceRoot)), before.index);
-    assert.deepEqual(await fs.readFile(resourcePath), before.resource);
+
+    runGit(workspaceRoot, ["add", indexRepositoryPath]);
+    assert.deepEqual(pendingPaths(workspaceRoot), [indexRepositoryPath]);
   }));

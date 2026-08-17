@@ -7,10 +7,10 @@
 1. 每个主题 Markdown 是自身标题、核心问题、状态、最新报告时间和全部历史报告的唯一事实源，也是索引的基本单位。
 2. `调查报告` 中每个三级标题是一份形成于特定时点的完整报告。报告是主题内部按形成时间追加的认识记录，不独立成为主索引条目；最后一份报告只表示最近记录，不自动成为累积当前口径。
 3. 报告 Markdown 中可选的 `随附资源` 是“哪份报告以什么展示文字引用哪些资源”的唯一事实源。没有该字段的报告不拥有资源引用，索引不能为它补造关系。
-4. 调查根目录下可选的 `_resources/` 是统一资源池；其中每个受管文件的原始字节是该资源内容的事实源。目录位置只定义资源 ID，不表达资源属于哪个主题。Git 工作区以版本控制可见文件界定受管成员，非 Git 工作区以文件系统完整发现界定受管成员。
-5. `investigation-index.json` 是从当前调查根目录内全部主题 Markdown 和受管资源文件确定性生成的通用主题索引，只用于发现、过滤、排序、引用关系投影、资源完整性和新鲜度检查，不拥有独立事实。
-6. `scripts/check-investigations.mjs` 的 `list` 命令通过通用 keys 查询已经核对新鲜度的索引，默认命令只读检查主题、资源和索引；显式 `sync-index` 可以创建或替换工作树中的派生索引，`stage-index` 可以按主题 ID 对该索引执行受控的版本仓库 `pending` 写入，两者都不写主题或资源文件。
-7. [investigation-index.schema.json](investigation-index.schema.json) 是随包分发的当前索引 JSON Schema；CLI 继续负责 Schema 无法证明的 Markdown 对应、资源安全、source revision、id、state、metadata 和 keys 一致性。
+4. 调查根目录下可选的 `_resources/` 是统一资源池；资源 ID 固定为 `<category-id>/<semantic-slug>/<resource-subpath>`，映射 owner topic `<category-id>/<semantic-slug>.md`。其中 `resource-subpath` 至少包含一个文件名，owner 根之后可以合法嵌套；这个路径是资源唯一 owner 的事实来源，不限制其他主题引用。每个受管文件的原始字节是资源内容的事实源。Git 工作区以版本控制可见文件界定受管成员，非 Git 工作区以文件系统完整发现界定受管成员。
+5. `investigation-index.json` 是从当前调查根目录内全部主题 Markdown 确定性生成的通用主题索引，只用于发现、过滤、排序和报告资源关系投影，不拥有独立事实。当前资源完整性由 `check` 与 `sync-index` 的前置全量校验承接，资源成员、路径和字节不进入索引来源或新鲜度。
+6. `scripts/check-investigations.mjs` 的 `check` 命令只读检查主题、当前资源和索引，`sync-index` 先完成默认全量资源校验再创建或替换工作树中的派生索引，`list` 通过通用 keys 查询已经核对主题 Markdown 新鲜度的索引且不读取资源池；`stage-index` 可以按主题 ID 对该索引执行受控的版本仓库 `pending` 写入。命令都不写主题或资源文件。
+7. [investigation-index.schema.json](investigation-index.schema.json) 是随包分发的当前索引 JSON Schema；CLI 继续负责 Schema 无法证明的 Markdown 对应、资源安全、完整全量资源检查、source revision、id、state、metadata 和 keys 一致性。
 
 本文中的“工作区索引”指工作树内当前的 `investigation-index.json`；`pending` 指版本管理暂存区中的待提交内容。两者是同一路径在不同版本管理状态下的内容，不能互相替代。
 
@@ -79,8 +79,8 @@ docs/investigations/
    ### 核对用户接口参数
    - 形成时间: 2026-08-06T16:00:00+08:00
    - 随附资源:
-     - [接口参数原文](../_resources/api/get-user-parameters.md)
-     - [原始响应样本](../_resources/api/get-user-response.json)
+    - [接口参数原文](../_resources/api/get-user-parameters/parameters.md)
+    - [原始响应样本](../_resources/api/get-user-parameters/response.json)
 
    #### 形成时背景
    ...
@@ -95,7 +95,7 @@ docs/investigations/
 
 ## 资源池与资源 ID
 
-1. 相对 `_resources/` 的规范化 POSIX 文件路径是资源 ID。资源可以平级或嵌套；目录层级只用于组织和身份，不声明主题归属。
+1. 相对 `_resources/` 的规范化 POSIX 文件路径是资源 ID，固定为 `<category-id>/<semantic-slug>/<resource-subpath>`。前两段必须逐字对应唯一 owner topic `<category-id>/<semantic-slug>.md`；`resource-subpath` 至少包含一个文件名，之后可以任意合法嵌套。资源 owner 不限制其他报告或主题引用同一文件。
 2. 资源 ID 不能是绝对路径，不能包含空段、`.`、`..`、反斜杠、查询、片段或百分号编码。正斜杠只分隔路径段，不属于路径段字符。
 3. 资源 ID 的每个路径段只允许以下字符：
    - 身份字符：常用汉字 `U+4E00..U+9FFF`、汉字数字零 `〇`、大小写 ASCII 英文字母和 ASCII 数字。
@@ -104,19 +104,19 @@ docs/investigations/
    - 标点：`,`、`!`、`~`、`'`、`，`、`。`、`！`、`、`、`·`、`：`、`？`。
    白名单之外的字符均不合法；例如 ASCII 问号 `?` 不因全角问号 `？` 已放行而合法，其他字符也不因属于 Unicode 字母、数字、标点或可打印字符而自动合法。
 4. 每个资源 ID 路径段必须满足以下结构门禁：不能以 `.` 开头或结尾；至少包含一个身份字符；不能使用不区分大小写的 Windows 保留设备名 `CON`、`PRN`、`AUX`、`NUL`、`COM1..9` 或 `LPT1..9` 及其带扩展名形式；ASCII 圆括号必须成对，允许空内容和嵌套，最大嵌套深度为 32。
-5. 报告文件固定位于一层 category 目录，因此 `../_resources/<resource-id>` 必须按原文还原为唯一资源 ID；实际文件路径的大小写必须与 ID 完全一致。
-6. 资源可以是文本或二进制普通文件。完整发现拒绝资源根、任一路径分量或文件本身为符号链接，也拒绝目录目标、其他非普通文件、缺失目标和越过调查根目录的路径。
-7. Git 工作区只把 `git ls-files --cached --others --exclude-standard` 在 `_resources/` 范围内返回的文件作为受管资源：项目 `.gitignore`、仓库 exclude 和全局 exclude 排除的未跟踪文件不参与孤儿检查、metadata 或 source revision，已经跟踪的文件即使后来命中 ignore 仍是受管资源。非 Git 工作区继续把 `_resources/` 中完整发现的普通文件作为受管资源。每个受管普通文件都必须至少被一份报告声明引用；未引用文件是孤儿并使完整检查失败。报告显式引用存在但因版本控制 ignore 被排除的未跟踪文件时必须失败，不能把它作为本地不可分发的证据静默纳入。
-8. 何时保存资源、正文怎样解释资源以及何时可以原地修改历史资源，由 [SKILL.md](../SKILL.md) 承接。本契约只校验已声明引用、资源文件、SHA-256 和 source revision 的结构与一致性；校验结果不判断资源来源可信、内容安全或历史修改正当性。
-9. 文件系统校验面向受信任工作区中的静态状态和普通并发漂移。实现把实际打开的普通文件与 `_resources/` 规范根内路径身份绑定，并由同步写前的完整 source revision 复核拒绝读取期间变化；CLI 不充当隔离能够精确竞态系统调用的恶意主机进程的安全沙箱。
+5. `category-id` 与 `semantic-slug` 都使用主题文件相同的 kebab-case；报告文件固定位于一层 category 目录，因此 `../_resources/<resource-id>` 必须按原文还原为唯一资源 ID；实际文件路径的大小写必须与 ID 完全一致。
+6. 资源可以是文本或二进制普通文件。被引用资源不接受资源根、任一路径分量或文件本身为符号链接，也不接受目录目标、其他非普通文件、缺失目标和越过调查根目录的路径；完全未引用的可见资源适用第 7 条的 warning 严重性。
+7. Git 工作区只把 `git ls-files --cached --others --exclude-standard` 在 `_resources/` 范围内返回的文件作为版本控制可见资源：项目 `.gitignore`、仓库 exclude 和全局 exclude 排除的未跟踪文件不产生 warning，已经跟踪或通过 `git add -f` 进入 pending 的文件即使命中 ignore 仍可见。非 Git 工作区继续完整发现 `_resources/` 中的文件系统资源。默认全量检查先收集全部合法主题报告的引用，再发现可见成员：被引用资源必须满足 owner 前缀、owner 主题存在且至少一份 owner 报告引用，并继续严格校验路径安全、精确大小写、存在性、普通文件身份和版本控制可见性；报告显式引用因 ignore 被排除的未跟踪文件时必须失败。只要能够确定可见成员完全未被引用，它及其非法 owner 结构、缺失 owner 主题、非法类型或安全路径问题都只产生 warning；一旦报告引用该路径，相应问题是 error。已存在资源根无法安全解析或读取、版本控制查询失败等使成员或引用集合无法可靠建立时，是资源检查无法完成的 error，不归因于某个未引用资源。
+8. 何时保存资源、正文怎样解释资源以及何时可以原地修改历史资源，由 [SKILL.md](../SKILL.md) 承接。本契约只校验已声明引用和资源文件的结构、归属与当前完整性；校验结果不判断资源来源可信、内容安全或历史修改正当性。
+9. 文件系统校验面向受信任工作区中的静态状态和普通并发漂移。实现把实际打开的普通文件与 `_resources/` 规范根内路径身份绑定。`sync-index` 写入前只复核由主题 Markdown 构成的 source revision：资源在此前完整资源检查完成后改变，不会使 `definitionVersion: 5` 的索引写入视为 source drift；要核对改变后的资源状态，随后运行默认全量 `check`。CLI 不充当隔离能够精确竞态系统调用的恶意主机进程的安全沙箱。
 
 ## JSON 通用索引
 
-索引使用通用状态索引外壳，领域 namespace 为 `investigations`，当前 `definitionVersion` 为 `4`：
+索引使用通用状态索引外壳，领域 namespace 为 `investigations`，当前 `definitionVersion` 为 `5`：
 
 ```json
 {
-  "definitionVersion": 4,
+  "definitionVersion": 5,
   "entries": {
     "codex/project-shell-mcp-registration.md": {
       "keys": {
@@ -143,7 +143,7 @@ docs/investigations/
           {
             "reportIndex": 1,
             "resourceIds": [
-              "shell/registration-output.txt"
+              "codex/project-shell-mcp-registration/registration-output.txt"
             ]
           }
         ],
@@ -158,14 +158,7 @@ docs/investigations/
     { "mode": "exact", "name": "status" },
     { "mode": "text", "name": "text" }
   ],
-  "metadata": {
-    "resources": [
-      {
-        "id": "shell/registration-output.txt",
-        "sha256": "<64 lowercase hexadecimal characters>"
-      }
-    ]
-  },
+  "metadata": {},
   "namespace": "investigations",
   "schemaVersion": 3,
   "sourceRevision": {
@@ -184,20 +177,20 @@ docs/investigations/
 3. `state.title`、`state.question` 和 `state.reportTitles` 通过 Markdown AST 提取语义纯文本，去除行内标记并折叠空白；`reportTitles` 保持报告形成顺序，`reportCount` 必须等于其长度。状态和最新报告时间保存解析后的字段文本，state 不保存报告结果摘要、资源展示文字、Markdown 展示语法或正文副本。
 4. 每个主题 state 必须包含 `resourceReferences`。它只投影声明了 `随附资源` 的报告；没有资源引用的主题保存空数组。`reportIndex` 是与 `reportTitles` 对应的零基报告序号，对象按 `reportIndex` 排序；每个对象的 `resourceIds` 彼此唯一并按 ID 排序。报告顺序变化会重建这些序号，序号不是跨版本持久身份。
 5. `category` 和 `status` 是 exact key；`latest-report-at` 把最新报告时间转换为 epoch 毫秒后作为 range key；`text` 聚合主题标题、核心问题和全部报告标题。资源 ID、展示文字和资源正文都不进入查询 key；路径查询直接使用保留的主题 `id`。
-6. `metadata.resources` 必须存在；没有资源的集合保存空数组。存在资源时按 ID 排序，每个被引用资源只保存一次规范化 ID 和原始字节的 SHA-256；`sha256` 是 64 个小写十六进制字符。领域校验要求 state 引用的每个资源 ID 在 metadata 中恰好出现一次，且 metadata 中没有未被 state 引用的资源。
+6. `metadata` 必须是拒绝额外字段的严格空对象。资源 ID、SHA-256、引用计数、资源状态和资源内容摘要都不进入 metadata；领域校验从报告 Markdown 投影 `resourceReferences`，不通过 metadata 校验引用、未引用资源或资源内容。
 7. `sourceRevision.entries` 与 `entries` 使用相同的主题 `id` 成员集。每个值只指纹化对应主题的 POSIX 路径和完整 Markdown UTF-8 文本，计算前只把 CRLF 规范化为 LF；单个主题内容变化只改变该主题的指纹，新增、删除或移动主题会改变成员集。
-8. `sourceRevision.metadata` 稳定指纹化按 ID 排序的受管资源 ID 与原始字节 SHA-256；metadata 资源摘要和 metadata revision 来自同一次资源读取。受管资源新增、删除、重命名或内容变化都会改变集合级 revision；被 ignore 排除的未跟踪文件及其字节变化不参与 revision。资源原始字节不做文本换行规范化。
-9. 通用外壳固定使用 `schemaVersion: 3`。调查领域 `definitionVersion: 4`、`state.resourceReferences` 和 `metadata.resources` 是当前格式的必需部分；旧 definition version 或缺失这些字段的索引不兼容。
-10. 输入发现顺序不影响确定性输出；key 定义、key 名和 key 值使用固定全序，metadata、state 和资源 ID 确定性排序，`reportTitles` 保持源顺序。JSON 使用两空格缩进、LF 和文件末尾换行，不保存生成时间。
-11. 索引是可删除重建的派生副本。正常维护不直接编辑它，也不保留手写资源 manifest、`investigation-index.md` 或其他兼容索引；工具损坏时先恢复当前 CLI，再从主题 Markdown 和受管资源文件重建当前 JSON 格式。
-12. `sync-index` 在同一次完整读取中解析报告引用、发现并校验资源、构建 state、metadata 和 source revision；写入前再次读取完整 revision。主题或资源在构建期间变化时拒绝替换索引。
+8. `sourceRevision.metadata` 只稳定指纹化严格空 metadata；不读取、枚举或摘要 `_resources/`。资源成员、路径名称和原始字节不参与 source revision，也不决定 `list` 的索引新鲜度。
+9. 通用外壳固定使用 `schemaVersion: 3`。调查领域 `definitionVersion: 5`、`state.resourceReferences` 和严格空 `metadata` 是当前格式的必需部分；旧 definition version 或缺失这些字段的索引不兼容。
+10. 输入发现顺序不影响确定性输出；key 定义、key 名和 key 值使用固定全序，state 和每个 `resourceIds` 确定性排序，`reportTitles` 保持源顺序。JSON 使用两空格缩进、LF 和文件末尾换行，不保存生成时间。
+11. 索引是可删除重建的派生副本。正常维护不直接编辑它，也不保留手写资源 manifest、`investigation-index.md` 或其他兼容索引；工具损坏时先恢复当前 CLI，再从主题 Markdown 重建当前 JSON 格式。
+12. `sync-index` 先完成完整资源检查，再只由主题 Markdown 构建 state、严格空 metadata 和 source revision；写入前再次读取主题 Markdown revision。主题在构建期间变化时拒绝替换索引，资源在资源校验完成后的变化不构成索引并发漂移。
 
 ## 时间与维护
 
 1. `形成时间` 和 `最新报告时间` 使用带显式时区、无小数秒的 RFC 3339 时间戳。报告按形成时间非递减顺序追加。
 2. 追加报告时写在 `调查报告` 容器末尾，并同步主题信息。原地修正或只更新状态时不新增报告，也不改变最新报告时间。
 3. 主题文件不进入物理归档目录；状态、报告序列、形成时资源和 Git 历史共同表达演进。
-4. 创建、更新、删除或移动主题文件，新增、修改、删除或移动资源，或改变资源引用后，都运行 `sync-index`；成功后再运行默认全量 `check`。同步失败不以手工修补 JSON 代替。
+4. 创建、更新、删除或移动主题文件，或改变资源引用后，都运行 `sync-index`；成功后再运行默认全量 `check`。仅新增、修改、删除或移动资源时，运行默认全量 `check`，不以资源变化重建索引。同步失败不以手工修补 JSON 代替。
 5. 移动或重命名资源会成为旧资源 ID 删除和新资源 ID 新增；必须同步更新所有引用该资源的报告，不能让索引或目录位置代替报告声明关系。
 
 ## CLI
@@ -242,23 +235,25 @@ node <investigation-report-skill>/scripts/check-investigations.mjs stage-index <
 1. 检查调查根目录、分类目录、主题路径层级、kebab-case 文件名和保留的 `_resources/` 目录。
 2. 检查主题文件 H1、前两个固定 H2、调查信息、状态和至少一份 H3 报告。
 3. 检查每份报告的形成时间、可选 `随附资源` 的位置与精确结构、四个固定 H4 的存在、唯一、非空和顺序、报告时间顺序及最新报告时间一致性。
-4. 按当前工作区的受管成员规则发现完整资源池，拒绝非法 ID、路径大小写不一致、符号链接、非普通文件、缺失引用、被忽略的显式引用和孤儿资源，同时允许多个报告或主题共享同一资源。
-5. 通过通用索引运行时完整解析来源并检查 JSON 外壳、主题 state、资源 metadata、id、keys、source revision、确定性内容、报告聚合字段、引用关系以及 Markdown、资源与索引的一致性。
+4. 收集全量主题引用并发现完整版本控制可见资源池。被引用资源的非法 ID 或 owner、缺失 owner 引用、路径大小写不一致、符号链接、非普通文件、缺失目标或被忽略的显式引用都是 errors；能够确定完全未引用的可见资源及其同类问题都是 warnings。资源根不可读或 Git 查询失败等无法完成资源检查的操作问题是 errors。
+5. 通过通用索引运行时完整解析来源并检查 JSON 外壳、主题 state、严格空 metadata、id、keys、source revision、确定性内容、报告聚合字段、引用关系以及 Markdown 与索引的一致性。
 
-带 `--category` 或 `--path` 的 `check` 只解析命中的主题，并校验这些报告声明的资源 ID 和资源文件；筛选没有命中时失败。局部结果不证明全局孤儿状态、metadata、source revision 或索引可查询。
+带 `--category` 或 `--path` 的 scoped `check` 只解析命中的主题，并校验这些报告声明的资源 ID 和直接目标文件；筛选没有命中时失败。它不额外读取未命中的 owner 主题，因此不证明跨主题 owner anchor、全局未引用资源状态、metadata、source revision 或索引可查询。
 
-`list` 先校验索引的通用结构、成员身份、namespace、definition version 和 key definitions，再发现当前主题与资源、读取资源原始字节并核对结构化 source revision。资源集合或内容导致索引陈旧时，诊断区分新增、删除和内容变化并定位资源 ID。这个快速路径不重新解析报告正文、不重建 state 或 keys，也不运行完整索引构建与领域深度校验。结果默认按 `latest-report-at` 倒序、相同时间按路径排序，并显示状态、最新报告时间、路径、主题标题、核心问题、报告数量和最新报告标题；没有命中不是错误。索引缺失、失效、定义不匹配或源在读取期间变化时失败，不返回可能过期的结果。
+`list` 先校验索引的通用结构、成员身份、namespace、definition version 和 key definitions，再发现当前主题并核对结构化 source revision。它不读取、枚举或校验资源池。这个快速路径不重新解析报告正文、不重建 state 或 keys，也不运行完整索引构建与领域深度校验。结果默认按 `latest-report-at` 倒序、相同时间按路径排序，并显示状态、最新报告时间、路径、主题标题、核心问题、报告数量和最新报告标题；没有命中不是错误。索引缺失、失效、定义不匹配或主题源在读取期间变化时失败，不返回可能过期的结果。
 
-`sync-index` 不接受筛选。它先验证全部主题文件和资源，再确定性创建或替换 JSON 索引；任一主题或资源无效、根目录不可读、源在同步期间变化或写入验证失败时退出失败。
+`sync-index` 不接受筛选。它先验证全部主题文件和当前资源，不读取、验证或要求既有索引新鲜；有 errors 时不写索引，只有 warnings 时继续只由主题 Markdown 确定性创建或替换 JSON 索引。任一主题无效、资源检查无法完成、主题源在同步期间变化或写入验证失败时退出失败。
+
+`check` 与 `sync-index` 都返回确定性去重排序的 `errors` 与 `warnings`。CLI 在成功和失败路径均展示两者：errors 与命令失败使用 stderr，warnings 也使用 stderr；只有 errors 决定退出失败，只有 warnings 时仍在 stdout 输出成功结果。warnings 不进入索引、source revision、`list` 结果或 staging 状态。
 
 ### `stage-index`
 
-`stage-index` 仅在工作区索引已经由 `sync-index` 从当前主题与资源重建、并通过默认全量 `check` 后使用。命令本身不解析主题 Markdown、不读取随附资源，也不重建或验证工作区索引；成功只证明选中主题对应的索引结果已进入 `pending`，不证明工作区索引新鲜或领域文件有效。
+`stage-index` 仅在工作区索引已经由 `sync-index` 从当前主题 Markdown 重建、并通过默认全量 `check` 后使用。命令本身不解析主题 Markdown、不读取随附资源，也不重建或验证工作区索引；成功只证明选中主题对应的索引结果已进入 `pending`，不证明工作区索引新鲜或领域文件有效。
 
 命令至少接收一个 topic ID，不接受查询筛选或分页参数。每个 ID 必须逐字使用规范且不重复的 `<category-id>/<semantic-slug>.md` POSIX 路径；命令不替调用方 trim、改写反斜杠或推断重命名。移动主题时同时选择旧 ID 与新 ID。`--json` 只适用于该命令，并输出完整的 `status`、`state`、`changed`、`selectedIds`、`indexPath`、`namespace` 和 `diagnostics` 结果。
 
 命令从 current revision 与已经存在的工作区索引按选中 ID 组合完整目标索引，在确认 `investigation-index.json` 没有既有 `pending` 后写入该路径的暂存结果；它不改写工作树，也不暂存主题 Markdown、随附资源或其他领域文件，这些文件必须由调用方另行选择。合法 ID 在两份索引中都不存在时在写入前失败。同一索引已有 `pending` 时也直接失败并保留原内容，目标外的 `pending` 路径不受影响。
 
-资源 ID、SHA-256 与 `sourceRevision.metadata` 属于完整集合。相对 current revision 的受管资源成员、名称或字节变化会使 `stage-index` 返回 `collection-changed`；这类变更必须整体暂存工作区索引，不能从主题引用关系推断或拆分集合级 metadata。current revision 尚无调查索引时，首次合法主题选择可以暂存完整工作区索引，但主题和资源文件仍不会随之进入 `pending`。
+资源成员、名称和字节不属于索引 metadata 或 source revision。两侧索引都使用 definition version 5 时，资源变化不触发调查领域的 `collection-changed`，`stage-index` 可以继续只组合选中主题条目；主题资源链接变化在同步后随对应 topic entry 选择。version 4 到 version 5 是集合定义升级，首次交付必须整体暂存重建后的索引，不进行跨 definition version 的选中条目组合。current revision 尚无调查索引时，首次合法主题选择可以暂存完整工作区索引，但主题和资源文件仍不会随之进入 `pending`。
 
 CLI 不判断章节语义、证据质量、资源是否值得保存、资源来源可信度、敏感信息、历史修改正当性、场景义务、状态选择或拆分判断；这些由 `SKILL.md` 的形成与审阅流程承接。退出状态 `0` 表示成功，`1` 表示结构、资源、索引、版本仓库、pending 冲突或写入失败，`2` 表示参数错误。

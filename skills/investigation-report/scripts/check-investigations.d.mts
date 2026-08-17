@@ -22,6 +22,7 @@ export type InvestigationReportCheckResult = {
   indexChecked: boolean;
   indexPath: string;
   selectedTopicCount: number;
+  warnings: string[];
 };
 
 export type InvestigationIndexSyncOptions = {
@@ -35,6 +36,7 @@ export type InvestigationIndexSyncResult = {
   errors: string[];
   indexPath: string;
   topicCount: number;
+  warnings: string[];
 };
 
 export type InvestigationIndexStageOptions = {

@@ -157,7 +157,7 @@
   "description": "由调查主题 Markdown 生成的领域状态通用索引。",
   "properties": {
     "definitionVersion": {
-      "const": 4
+      "const": 5
     },
     "entries": {
       "additionalProperties": {
@@ -203,31 +203,6 @@
     },
     "metadata": {
       "additionalProperties": false,
-      "properties": {
-        "resources": {
-          "items": {
-            "additionalProperties": false,
-            "properties": {
-              "id": {
-                "$ref": "#/$defs/resourceId"
-              },
-              "sha256": {
-                "pattern": "^[0-9a-f]{64}$",
-                "type": "string"
-              }
-            },
-            "required": [
-              "id",
-              "sha256"
-            ],
-            "type": "object"
-          },
-          "type": "array"
-        }
-      },
-      "required": [
-        "resources"
-      ],
       "type": "object"
     },
     "namespace": {

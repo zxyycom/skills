@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
@@ -19,6 +18,8 @@ import {
   initializeGitRepository,
   investigationRoot,
   reportEntryMarkdown,
+  resourceIdForTopic,
+  runGit,
   type ReportInput,
   withTempRoot,
   writeCollection,
@@ -38,17 +39,8 @@ type ResourceIndex = {
       };
     }
   >;
-  metadata: {
-    resources: Array<{
-      id: string;
-      sha256: string;
-    }>;
-  };
+  metadata: Record<string, never>;
 };
-
-function resourceHash(content: string | Uint8Array): string {
-  return createHash("sha256").update(content).digest("hex");
-}
 
 function rawResourceFieldReport(
   reportPath: string,
@@ -101,36 +93,40 @@ test("validation keeps reports without attached resources valid", () =>
         "utf8"
       )
     ) as ResourceIndex;
-    assert.deepEqual(index.metadata.resources, []);
+    assert.deepEqual(index.metadata, {});
     for (const entry of Object.values(index.entries)) {
       assert.deepEqual(entry.state.resourceReferences, []);
     }
   }));
 
-test("resource index projects single multiple and shared attachments", () =>
+test("owner reports anchor resource prefixes before other topics share them", () =>
   withTempRoot("resources-projection", async (workspaceRoot) => {
+    const ownerTopicPath = "api/user-request.md";
+    const ownerRequest = resourceIdForTopic(ownerTopicPath, "request.txt");
+    const ownerResponse = resourceIdForTopic(ownerTopicPath, "response.bin");
+    const ownerContext = resourceIdForTopic(ownerTopicPath, "context.md");
     const request = "GET /users/42\naccept: application/json\n";
     const response = Uint8Array.from([0, 1, 2, 127, 128, 255]);
     const context = "# 观测条件\r\n\r\n形成时使用 staging 配置。\r\n";
-    await writeResource(workspaceRoot, "shared/context.md", context);
-    await writeResource(workspaceRoot, "captures/response.bin", response);
-    await writeResource(workspaceRoot, "api/request.txt", request);
+    await writeResource(workspaceRoot, ownerContext, context);
+    await writeResource(workspaceRoot, ownerResponse, response);
+    await writeResource(workspaceRoot, ownerRequest, request);
 
     await writeCollection(workspaceRoot, [
       {
-        path: "api/user-request.md",
+        path: ownerTopicPath,
         question: "用户请求与响应如何对应？",
         reports: [
           {
             formedAt: "2026-07-20T09:00:00+08:00",
-            resources: [{ id: "api/request.txt", label: "请求原文" }],
+            resources: [{ id: ownerRequest, label: "请求原文" }],
             title: "保存请求"
           },
           {
             formedAt: "2026-07-21T09:00:00+08:00",
             resources: [
-              { id: "shared/context.md", label: "观测条件" },
-              { id: "captures/response.bin", label: "二进制响应" }
+              { id: ownerContext, label: "观测条件" },
+              { id: ownerResponse, label: "二进制响应" }
             ],
             title: "保存响应"
           }
@@ -143,8 +139,8 @@ test("resource index projects single multiple and shared attachments", () =>
         reports: [
           {
             resources: [
-              { id: "captures/response.bin", label: "共享响应" },
-              { id: "shared/context.md", label: "共享观测条件" }
+              { id: ownerResponse, label: "共享响应" },
+              { id: ownerContext, label: "共享观测条件" }
             ],
             title: "复核共享响应"
           }
@@ -159,19 +155,15 @@ test("resource index projects single multiple and shared attachments", () =>
         "utf8"
       )
     ) as ResourceIndex;
-    assert.equal(index.definitionVersion, 4);
-    assert.deepEqual(index.metadata.resources, [
-      { id: "api/request.txt", sha256: resourceHash(request) },
-      { id: "captures/response.bin", sha256: resourceHash(response) },
-      { id: "shared/context.md", sha256: resourceHash(context) }
-    ]);
+    assert.equal(index.definitionVersion, 5);
+    assert.deepEqual(index.metadata, {});
     assert.deepEqual(
       index.entries["api/user-request.md"]!.state.resourceReferences,
       [
-        { reportIndex: 0, resourceIds: ["api/request.txt"] },
+        { reportIndex: 0, resourceIds: [ownerRequest] },
         {
           reportIndex: 1,
-          resourceIds: ["captures/response.bin", "shared/context.md"]
+          resourceIds: [ownerContext, ownerResponse]
         }
       ]
     );
@@ -180,7 +172,7 @@ test("resource index projects single multiple and shared attachments", () =>
       [
         {
           reportIndex: 0,
-          resourceIds: ["captures/response.bin", "shared/context.md"]
+          resourceIds: [ownerContext, ownerResponse]
         }
       ]
     );
@@ -190,20 +182,203 @@ test("resource index projects single multiple and shared attachments", () =>
     );
   }));
 
+test("referenced resources require an owner topic and an owner report reference", () =>
+  withTempRoot("resources-owner-errors", async (workspaceRoot) => {
+    const consumerPath = "runtime/consumer.md";
+    const missingOwnerId = "api/missing-owner/evidence.txt";
+    const ownerWithoutReferenceId = "api/owner-without-reference/evidence.txt";
+    await writeResource(workspaceRoot, missingOwnerId, "missing owner\n");
+    await writeResource(
+      workspaceRoot,
+      ownerWithoutReferenceId,
+      "owner does not reference\n"
+    );
+    await writeCollection(
+      workspaceRoot,
+      [
+        {
+          path: consumerPath,
+          question: "资源是否必须由路径 owner 主题锚定？",
+          reports: [
+            {
+              resources: [
+                { id: missingOwnerId, label: "不存在的 owner" },
+                { id: ownerWithoutReferenceId, label: "未引用 owner" }
+              ],
+              title: "检查 owner 锚点"
+            }
+          ],
+          title: "资源 owner 锚点调查"
+        },
+        {
+          path: "api/owner-without-reference.md",
+          question: "owner 不引用资源是否阻止其他主题共享？",
+          title: "未引用资源的 owner"
+        }
+      ],
+      false
+    );
+
+    const result = await validateInvestigationReports({ workspaceRoot });
+    assert.ok(
+      result.errors.some((error) => error.includes(missingOwnerId)),
+      result.errors.join("; ")
+    );
+    assert.ok(
+      result.errors.some(
+        (error) =>
+          error.includes(ownerWithoutReferenceId) &&
+          /owner|topic|reference/iu.test(error)
+      ),
+      result.errors.join("; ")
+    );
+  }));
+
+test("scoped validation rejects resource links with non-kebab owner prefixes", () =>
+  withTempRoot("resources-scoped-owner-prefix", async (workspaceRoot) => {
+    const reportPath = "runtime/non-kebab-owner-prefix.md";
+    const report: ReportInput = {
+      path: reportPath,
+      question: "局部检查是否拒绝非 kebab 的资源 owner 前缀？",
+      reports: [
+        {
+          resources: [
+            {
+              id: "UPPER/Not-A-Slug/evidence.txt",
+              label: "非法 owner 前缀"
+            }
+          ],
+          title: "检查非 kebab owner"
+        }
+      ],
+      title: "非 kebab 资源 owner 调查"
+    };
+    await writeCollection(workspaceRoot, [report], false);
+
+    const errors = await validatePath(workspaceRoot, reportPath);
+    assert.ok(
+      errors.some(
+        (error) =>
+          error.includes("UPPER/Not-A-Slug/evidence.txt") &&
+          /kebab-case owner topic prefix/iu.test(error)
+      ),
+      errors.join("; ")
+    );
+  }));
+
+test("invalid owner topics cannot anchor resource references from valid consumers", () =>
+  withTempRoot("resources-invalid-owner-consumer", async (workspaceRoot) => {
+    const ownerPath = "api/invalid-owner.md";
+    const consumerPath = "runtime/resource-consumer.md";
+    const resourceId = resourceIdForTopic(ownerPath, "evidence.txt");
+    await writeResource(workspaceRoot, resourceId, "evidence\n");
+    await writeCollection(
+      workspaceRoot,
+      [
+        {
+          path: ownerPath,
+          question: "无效主题能否成为资源 owner anchor？",
+          reports: [
+            {
+              resources: [{ id: resourceId, label: "owner 资源" }],
+              title: "无效 owner 报告"
+            }
+          ],
+          status: "错误状态",
+          title: "无效 owner 主题"
+        },
+        {
+          path: consumerPath,
+          question: "其他主题能否依赖无效 owner 的引用？",
+          reports: [
+            {
+              resources: [{ id: resourceId, label: "消费者资源" }],
+              title: "引用无效 owner 资源"
+            }
+          ],
+          title: "资源消费者主题"
+        }
+      ],
+      false
+    );
+
+    const result = await validateInvestigationReports({ workspaceRoot });
+    assert.ok(
+      result.errors.some(
+        (error) =>
+          error.includes(resourceId) &&
+          /referenced by its owner topic/iu.test(error)
+      ),
+      result.errors.join("; ")
+    );
+  }));
+
+test("resources linked only by invalid owner topics remain unreferenced warnings", () =>
+  withTempRoot(
+    "resources-invalid-owner-unreferenced",
+    async (workspaceRoot) => {
+      const ownerPath = "api/invalid-owner.md";
+      const resourceId = resourceIdForTopic(ownerPath, "evidence.txt");
+      await writeResource(workspaceRoot, resourceId, "evidence\n");
+      await writeCollection(
+        workspaceRoot,
+        [
+          {
+            path: ownerPath,
+            question: "无效主题的资源链接是否属于全量合法引用？",
+            reports: [
+              {
+                resources: [{ id: resourceId, label: "无效 owner 资源" }],
+                title: "无效主题资源链接"
+              }
+            ],
+            status: "错误状态",
+            title: "只含无效 owner 的主题"
+          }
+        ],
+        false
+      );
+
+      const result = await validateInvestigationReports({ workspaceRoot });
+      assert.ok(result.errors.some((error) => error.includes(ownerPath)));
+      assert.ok(
+        result.warnings.some(
+          (warning) =>
+            warning.includes(resourceId) &&
+            /referenced by its owner topic/iu.test(warning)
+        ),
+        result.warnings.join("; ")
+      );
+    }
+  ));
+
 test("resource ID whitelist accepts common names and rejects structural hazards", () =>
   withTempRoot("resources-readable-ids", async (workspaceRoot) => {
+    const topicPath = "runtime/readable-resource-ids.md";
     const resources = [
       {
-        id: "接口+响应@v2=ok/截图[1]【终版】(修订(二)).png",
+        id: resourceIdForTopic(
+          topicPath,
+          "接口+响应@v2=ok/截图[1]【终版】(修订(二)).png"
+        ),
         label: "接口截图"
       },
       {
-        id: "【原始】报告《摘要》-问题：原因，修订！.pdf",
+        id: resourceIdForTopic(
+          topicPath,
+          "【原始】报告《摘要》-问题：原因，修订！.pdf"
+        ),
         label: "原始报告"
       },
-      { id: "_O'Reilly~摘录().txt", label: "英文摘录" },
       {
-        id: "白名单._-+@=()（）[]【】《》,!~'，。！、·：？.txt",
+        id: resourceIdForTopic(topicPath, "_O'Reilly~摘录().txt"),
+        label: "英文摘录"
+      },
+      {
+        id: resourceIdForTopic(
+          topicPath,
+          "白名单._-+@=()（）[]【】《》,!~'，。！、·：？.txt"
+        ),
         label: "完整符号样本"
       }
     ];
@@ -217,7 +392,7 @@ test("resource ID whitelist accepts common names and rejects structural hazards"
     await writeResource(workspaceRoot, resources[3]!.id, "all symbols\n");
     await writeCollection(workspaceRoot, [
       {
-        path: "runtime/readable-resource-ids.md",
+        path: topicPath,
         question: "白名单资源名称能否保持可读并安全引用？",
         reports: [{ resources, title: "核对可读资源名称" }],
         title: "可读资源名称调查"
@@ -232,19 +407,17 @@ test("resource ID whitelist accepts common names and rejects structural hazards"
         "utf8"
       )
     ) as ResourceIndex;
-    assert.deepEqual(
-      index.entries["runtime/readable-resource-ids.md"]!.state
-        .resourceReferences,
-      [
-        {
-          reportIndex: 0,
-          resourceIds: resources.map(({ id }) => id).sort()
-        }
-      ]
-    );
+    assert.deepEqual(index.entries[topicPath]!.state.resourceReferences, [
+      {
+        reportIndex: 0,
+        resourceIds: resources.map(({ id }) => id).sort()
+      }
+    ]);
 
-    assert.equal(isInvestigationResourceId("响应().json"), true);
-    assert.equal(isInvestigationResourceId("响应(最终).json"), true);
+    const withOwner = (resourceSubpath: string): string =>
+      resourceIdForTopic(topicPath, resourceSubpath);
+    assert.equal(isInvestigationResourceId(withOwner("响应().json")), true);
+    assert.equal(isInvestigationResourceId(withOwner("响应(最终).json")), true);
     for (const allowedInfix of [
       ".",
       "_",
@@ -274,13 +447,15 @@ test("resource ID whitelist accepts common names and rejects structural hazards"
       "？"
     ]) {
       assert.equal(
-        isInvestigationResourceId(`甲${allowedInfix}乙.txt`),
+        isInvestigationResourceId(withOwner(`甲${allowedInfix}乙.txt`)),
         true,
         `allowed infix ${JSON.stringify(allowedInfix)}`
       );
     }
     assert.equal(
-      isInvestigationResourceId(`甲${"(".repeat(32)}乙${")".repeat(32)}.txt`),
+      isInvestigationResourceId(
+        withOwner(`甲${"(".repeat(32)}乙${")".repeat(32)}.txt`)
+      ),
       true
     );
     for (const [reason, invalidId] of [
@@ -311,7 +486,7 @@ test("resource ID whitelist accepts common names and rejects structural hazards"
       ["emoji", "响应🎉.txt"]
     ]) {
       assert.equal(
-        isInvestigationResourceId(invalidId),
+        isInvestigationResourceId(withOwner(invalidId)),
         false,
         `${reason}: ${invalidId}`
       );
@@ -322,7 +497,10 @@ test("attached resource field is strict when present", () =>
   withTempRoot("resources-field", async (workspaceRoot) => {
     const emphasizedLabel = rawResourceFieldReport(
       "runtime/emphasized-resource-label.md",
-      ["- 随附资源:", "  - [**强调样本**](../_resources/sample.txt)"]
+      [
+        "- 随附资源:",
+        "  - [**强调样本**](../_resources/runtime/emphasized-resource-label/sample.txt)"
+      ]
     );
     const emptyField = rawResourceFieldReport(
       "runtime/empty-resource-field.md",
@@ -384,7 +562,29 @@ test("attached resource field is strict when present", () =>
       "",
       "[sample-resource]: ../_resources/sample.txt"
     ].join("\n");
-    await writeResource(workspaceRoot, "sample.txt", "sample\n");
+    for (const report of [
+      emptyField,
+      emptyLabel,
+      duplicate,
+      trailingText,
+      resourceAfterMetadata,
+      duplicateField,
+      multipleLinksInItem,
+      orderedResourceList,
+      titledLink,
+      referenceStyleLink
+    ]) {
+      report.body = report.body?.replaceAll(
+        /\.\.\/_resources\/(sample|other)\.txt/gu,
+        (_target, filename: string) =>
+          `../_resources/${resourceIdForTopic(report.path, `${filename}.txt`)}`
+      );
+    }
+    await writeResource(
+      workspaceRoot,
+      "runtime/emphasized-resource-label/sample.txt",
+      "sample\n"
+    );
     await writeResource(workspaceRoot, "other.txt", "other\n");
     await writeCollection(
       workspaceRoot,
@@ -415,7 +615,7 @@ test("attached resource field is strict when present", () =>
         emptyLabel,
         "exactly one local Markdown link with non-empty display text"
       ],
-      [duplicate, "must not reference resource sample.txt more than once"],
+      [duplicate, "must not reference resource"],
       [
         trailingText,
         "exactly one local Markdown link with non-empty display text"
@@ -565,7 +765,12 @@ test("validation reports missing attached resources", () =>
       question: "缺失资源是否会被定位？",
       reports: [
         {
-          resources: [{ id: "missing/sample.txt", label: "缺失样本" }],
+          resources: [
+            {
+              id: "runtime/missing-resource/sample.txt",
+              label: "缺失样本"
+            }
+          ],
           title: "检查缺失资源"
         }
       ],
@@ -574,7 +779,9 @@ test("validation reports missing attached resources", () =>
     await writeCollection(workspaceRoot, [report], false);
 
     const errors = await validatePath(workspaceRoot, report.path);
-    assert.ok(errorSummary(errors).includes("missing/sample.txt"));
+    assert.ok(
+      errorSummary(errors).includes("runtime/missing-resource/sample.txt")
+    );
     assert.match(errorSummary(errors), /does not exist|missing/u);
   }));
 
@@ -585,20 +792,29 @@ test("validation reports attached resource case mismatches", () =>
       question: "资源大小写不一致是否会被定位？",
       reports: [
         {
-          resources: [{ id: "case/sample.txt", label: "大小写样本" }],
+          resources: [
+            {
+              id: "runtime/resource-case/sample.txt",
+              label: "大小写样本"
+            }
+          ],
           title: "检查大小写"
         }
       ],
       title: "资源大小写调查"
     };
-    await writeResource(workspaceRoot, "case/Sample.txt", "sample\n");
+    await writeResource(
+      workspaceRoot,
+      "runtime/resource-case/Sample.txt",
+      "sample\n"
+    );
     await writeCollection(workspaceRoot, [report], false);
 
     const errors = await validatePath(workspaceRoot, report.path);
     const summary = errorSummary(errors);
     assert.ok(
       summary.includes(
-        '_resources/case/sample.txt must match actual path casing; found "Sample.txt"'
+        '_resources/runtime/resource-case/sample.txt must match actual path casing; found "Sample.txt"'
       ),
       summary
     );
@@ -611,7 +827,9 @@ test("validation rejects symbolic links in attached resource paths", () =>
     for (const kind of cases) {
       const workspaceRoot = path.join(tempRoot, kind);
       const resourceId =
-        kind === "component" ? "linked/sample.txt" : "sample.txt";
+        kind === "component"
+          ? `runtime/${kind}-symlink/linked/sample.txt`
+          : `runtime/${kind}-symlink/sample.txt`;
       const report: ReportInput = {
         path: `runtime/${kind}-symlink.md`,
         question: "符号链接资源是否会被拒绝？",
@@ -635,11 +853,26 @@ test("validation rejects symbolic links in attached resource paths", () =>
         const resourcesRoot = path.join(collectionRoot, "_resources");
         await fs.mkdir(resourcesRoot, { recursive: true });
         if (kind === "component") {
-          await fs.symlink(outsideRoot, path.join(resourcesRoot, "linked"));
+          await fs.mkdir(
+            path.join(resourcesRoot, "runtime", `${kind}-symlink`),
+            {
+              recursive: true
+            }
+          );
+          await fs.symlink(
+            outsideRoot,
+            path.join(resourcesRoot, "runtime", `${kind}-symlink`, "linked")
+          );
         } else {
+          await fs.mkdir(
+            path.join(resourcesRoot, "runtime", `${kind}-symlink`),
+            {
+              recursive: true
+            }
+          );
           await fs.symlink(
             path.join(outsideRoot, "sample.txt"),
-            path.join(resourcesRoot, "sample.txt")
+            path.join(resourcesRoot, "runtime", `${kind}-symlink`, "sample.txt")
           );
         }
       }
@@ -662,7 +895,12 @@ test("validation rejects attached resource targets that are not regular files", 
       question: "资源目标是否必须是普通文件？",
       reports: [
         {
-          resources: [{ id: "directory", label: "目录目标" }],
+          resources: [
+            {
+              id: "runtime/directory-resource/directory",
+              label: "目录目标"
+            }
+          ],
           title: "检查资源类型"
         }
       ],
@@ -670,7 +908,13 @@ test("validation rejects attached resource targets that are not regular files", 
     };
     await writeCollection(workspaceRoot, [report], false);
     await fs.mkdir(
-      path.join(investigationRoot(workspaceRoot), "_resources", "directory"),
+      path.join(
+        investigationRoot(workspaceRoot),
+        "_resources",
+        "runtime",
+        "directory-resource",
+        "directory"
+      ),
       { recursive: true }
     );
 
@@ -679,117 +923,178 @@ test("validation rejects attached resource targets that are not regular files", 
     assert.match(errorSummary(errors), /regular file/u);
   }));
 
-test("full validation rejects orphan resources while scoped validation remains local", () =>
+test("unreferenced resource pool hazards warn only and scoped checks prove neither owner anchoring nor global unreferenced-resource state", () =>
   withTempRoot("resources-scope", async (workspaceRoot) => {
     const report = createValidReports()[0]!;
     await writeCollection(workspaceRoot, [report]);
-    await writeResource(workspaceRoot, "orphan.txt", "not referenced\n");
+    await writeResource(
+      workspaceRoot,
+      "codex/project-shell-registration/orphan.txt",
+      "not referenced\n"
+    );
+    await writeResource(workspaceRoot, "orphan.txt", "illegal owner\n");
+    await writeResource(
+      workspaceRoot,
+      "runtime/unreferenced-owner/illegal🎉.txt",
+      "illegal id\n"
+    );
+    const resourcesRoot = path.join(
+      investigationRoot(workspaceRoot),
+      "_resources",
+      "runtime",
+      "unreferenced-owner"
+    );
+    await fs.mkdir(path.join(resourcesRoot, "directory"), { recursive: true });
+    await fs.symlink(
+      path.join(resourcesRoot, "orphan.txt"),
+      path.join(resourcesRoot, "linked.txt")
+    );
 
     const scoped = await validateInvestigationReports({
       paths: [report.path],
       workspaceRoot
     });
     assert.deepEqual(scoped.errors, []);
+    assert.deepEqual(scoped.warnings, []);
     assert.equal(scoped.indexChecked, false);
 
     const complete = await validateInvestigationReports({ workspaceRoot });
-    assert.ok(errorSummary(complete.errors).includes("orphan.txt"));
-    assert.match(errorSummary(complete.errors), /not referenced|orphan/u);
+    assert.deepEqual(complete.errors, []);
+    assert.ok(complete.warnings.length >= 4, complete.warnings.join("; "));
+    assert.match(
+      errorSummary(complete.warnings),
+      /codex\/project-shell-registration\/orphan.txt/u
+    );
+    assert.match(errorSummary(complete.warnings), /illegal🎉.txt/u);
+    assert.match(errorSummary(complete.warnings), /symbolic link/u);
+    assert.match(errorSummary(complete.warnings), /regular file/u);
+    assert.deepEqual(
+      complete.warnings,
+      [...complete.warnings].sort((left, right) =>
+        left < right ? -1 : left > right ? 1 : 0
+      )
+    );
   }));
 
-test("Git ignore rules exclude untracked noise but retain tracked resources", () =>
-  withTempRoot("resources-git-ignore", async (workspaceRoot) => {
+test("a resource root that cannot be inspected makes validation an error", () =>
+  withTempRoot("resources-root-unavailable", async (workspaceRoot) => {
+    const topicPath = "runtime/root-unavailable.md";
+    const resourceId = resourceIdForTopic(topicPath, "evidence.txt");
+    await writeCollection(
+      workspaceRoot,
+      [
+        {
+          path: topicPath,
+          question: "资源根不可用时能否仍判定资源完整？",
+          reports: [
+            {
+              resources: [{ id: resourceId, label: "不可读资源根" }],
+              title: "检查资源根错误"
+            }
+          ],
+          title: "资源根错误调查"
+        }
+      ],
+      false
+    );
+    await fs.writeFile(
+      path.join(investigationRoot(workspaceRoot), "_resources"),
+      "not a directory\n"
+    );
+
+    const result = await validateInvestigationReports({ workspaceRoot });
+    assert.ok(
+      result.errors.some((error) =>
+        /_resources.*directory|resource.*check.*completed/iu.test(error)
+      ),
+      result.errors.join("; ")
+    );
+  }));
+
+test("a Git membership query failure makes full resource validation an error", () =>
+  withTempRoot("resources-membership-unavailable", async (workspaceRoot) => {
+    const topicPath = "runtime/membership-unavailable.md";
+    const resourceId = resourceIdForTopic(topicPath, "evidence.txt");
+    await writeResource(workspaceRoot, resourceId, "evidence\n");
+    await writeCollection(
+      workspaceRoot,
+      [
+        {
+          path: topicPath,
+          question: "版本控制成员查询失败能否降级为 warning？",
+          reports: [
+            {
+              resources: [{ id: resourceId, label: "成员查询资源" }],
+              title: "检查成员查询错误"
+            }
+          ],
+          title: "资源成员查询错误调查"
+        }
+      ],
+      false
+    );
+    await fs.mkdir(path.join(workspaceRoot, ".git"));
+
+    const result = await validateInvestigationReports({ workspaceRoot });
+    assert.ok(
+      result.errors.some((error) =>
+        /membership|version-control|Git/iu.test(error)
+      ),
+      result.errors.join("; ")
+    );
+  }));
+
+test("tracked unreferenced resource members warn when their entire resource root is deleted", () =>
+  withTempRoot("resources-deleted-tracked-root", async (workspaceRoot) => {
+    const topicPath = "runtime/deleted-resource-root.md";
+    const resourceId = resourceIdForTopic(topicPath, "evidence.txt");
     initializeGitRepository(workspaceRoot);
-    const trackedId = "evidence/tracked-then-ignored.txt";
-    const visibleId = "evidence/visible.txt";
-    await writeResource(workspaceRoot, trackedId, "tracked\n");
-    await writeResource(workspaceRoot, visibleId, "visible\n");
+    await writeResource(workspaceRoot, resourceId, "tracked evidence\n");
     await writeCollection(workspaceRoot, [
       {
-        path: "runtime/git-visible-resources.md",
-        question: "Git 忽略规则如何界定受管调查资源？",
-        reports: [
-          {
-            resources: [
-              { id: trackedId, label: "已跟踪资源" },
-              { id: visibleId, label: "可见资源" }
-            ],
-            title: "核对 Git 可见资源"
-          }
-        ],
-        title: "Git 可见资源调查"
+        path: topicPath,
+        question: "已跟踪但未引用的资源根删除后是否只产生 warning？",
+        title: "删除资源根后的 tracked 成员"
       }
     ]);
-    commitAll(workspaceRoot, "base resources");
-    await fs.writeFile(
-      path.join(workspaceRoot, ".gitignore"),
-      [
-        "__pycache__/",
-        "*.pyc",
-        "ignored-untracked.txt",
-        "tracked-then-ignored.txt",
-        ""
-      ].join("\n"),
-      "utf8"
-    );
-    await writeResource(
-      workspaceRoot,
-      "evidence/__pycache__/parser.cpython-313.pyc",
-      Uint8Array.from([1, 2, 3])
-    );
-    await writeResource(
-      workspaceRoot,
-      "evidence/ignored-untracked.txt",
-      "ignored\n"
-    );
+    commitAll(workspaceRoot, "baseline tracked resource");
+    await fs.rm(path.join(investigationRoot(workspaceRoot), "_resources"), {
+      force: true,
+      recursive: true
+    });
 
-    const synchronized = await synchronizeInvestigationIndex({ workspaceRoot });
-    assert.deepEqual(synchronized.errors, []);
-    assert.deepEqual(
-      (await validateInvestigationReports({ workspaceRoot })).errors,
-      []
-    );
-    const before = await readInvestigationSourceRevision(
-      investigationRoot(workspaceRoot)
-    );
-    await writeResource(
-      workspaceRoot,
-      "evidence/__pycache__/parser.cpython-313.pyc",
-      Uint8Array.from([4, 5, 6])
-    );
-    const after = await readInvestigationSourceRevision(
-      investigationRoot(workspaceRoot)
-    );
-    assert.deepEqual(after, before);
-
-    const index = JSON.parse(
-      await fs.readFile(
-        path.join(investigationRoot(workspaceRoot), investigationIndexFileName),
-        "utf8"
-      )
-    ) as ResourceIndex;
-    assert.deepEqual(
-      index.metadata.resources.map(({ id }) => id),
-      [trackedId, visibleId]
+    const result = await validateInvestigationReports({ workspaceRoot });
+    assert.deepEqual(result.errors, []);
+    assert.ok(
+      result.warnings.some(
+        (warning) =>
+          warning.includes(resourceId) && /does not exist/iu.test(warning)
+      ),
+      result.warnings.join("; ")
     );
   }));
 
-test("validation rejects explicitly referenced ignored resources", () =>
+test("ignored binary resources fail only when referenced, then become managed after git add -f", () =>
   withTempRoot("resources-ignored-reference", async (workspaceRoot) => {
     initializeGitRepository(workspaceRoot);
     await fs.writeFile(
       path.join(workspaceRoot, ".gitignore"),
-      "ignored-response.json\n",
+      "*.bin\n",
       "utf8"
     );
+    const topicPath = "runtime/ignored-resource.md";
+    const ignoredResourceId = resourceIdForTopic(
+      topicPath,
+      "captures/ignored-response.bin"
+    );
     const report: ReportInput = {
-      path: "runtime/ignored-resource.md",
+      path: topicPath,
       question: "被忽略的文件能否作为调查证据？",
       reports: [
         {
           resources: [
             {
-              id: "captures/ignored-response.json",
+              id: ignoredResourceId,
               label: "被忽略响应"
             }
           ],
@@ -800,31 +1105,59 @@ test("validation rejects explicitly referenced ignored resources", () =>
     };
     await writeResource(
       workspaceRoot,
-      "captures/ignored-response.json",
-      "{}\n"
+      ignoredResourceId,
+      Uint8Array.of(0, 127, 128, 255)
     );
     await writeCollection(workspaceRoot, [report], false);
 
-    const errors = await validatePath(workspaceRoot, report.path);
-    const summary = errorSummary(errors);
+    const ignored = await validateInvestigationReports({ workspaceRoot });
+    const summary = errorSummary(ignored.errors);
     assert.match(summary, /ignored by version-control rules/u);
-    assert.doesNotMatch(summary, /does not exist/u);
+    assert.deepEqual(ignored.warnings, []);
+
+    runGit(workspaceRoot, [
+      "add",
+      "--force",
+      path.posix.join("docs/investigations/_resources", ignoredResourceId)
+    ]);
+    const managed = await validatePath(workspaceRoot, report.path);
+    assert.deepEqual(managed, []);
+
+    await writeCollection(workspaceRoot, [
+      {
+        ...report,
+        reports: [{ title: "移除已受管二进制引用" }]
+      }
+    ]);
+    const unreferenced = await validateInvestigationReports({ workspaceRoot });
+    assert.deepEqual(unreferenced.errors, []);
+    assert.ok(
+      unreferenced.warnings.some((warning) =>
+        warning.includes(ignoredResourceId)
+      ),
+      unreferenced.warnings.join("; ")
+    );
   }));
 
-test("resource changes invalidate source revision and list results", () =>
+test("resource pool changes leave list fresh while report link changes invalidate its entry", () =>
   withTempRoot("resources-revision", async (workspaceRoot) => {
-    const originalId = "captures/response.bin";
-    const renamedId = "captures/renamed-response.bin";
+    const topicPath = "runtime/resource-revision.md";
+    const originalId = resourceIdForTopic(topicPath, "captures/response.bin");
+    const addedId = resourceIdForTopic(topicPath, "captures/added.bin");
+    const renamedId = resourceIdForTopic(
+      topicPath,
+      "captures/renamed-response.bin"
+    );
     const report = (resourceId: string): ReportInput => ({
-      path: "runtime/resource-revision.md",
-      question: "资源变化是否会使旧索引失效？",
+      path: topicPath,
+      question: "资源变化是否会保持主题索引可查询？",
       reports: [
         {
           resources: [{ id: resourceId, label: "响应样本" }],
           title: "检查资源 revision"
         }
       ],
-      title: "资源 revision 调查"
+      title: "资源索引边界调查"
     });
     await writeResource(workspaceRoot, originalId, Uint8Array.from([1, 2, 3]));
     await writeCollection(workspaceRoot, [report(originalId)]);
@@ -835,45 +1168,62 @@ test("resource changes invalidate source revision and list results", () =>
     await writeResource(workspaceRoot, originalId, Uint8Array.from([1, 2, 4]));
     const contentRevision =
       await readInvestigationSourceRevision(collectionRoot);
-    assert.notEqual(contentRevision.metadata, initialRevision.metadata);
-    assert.deepEqual(contentRevision.entries, initialRevision.entries);
+    assert.deepEqual(contentRevision, initialRevision);
 
-    const contentStale = await queryInvestigationIndex({ workspaceRoot });
-    assert.deepEqual(contentStale.entries, []);
-    assert.ok(
-      errorSummary(contentStale.errors).includes(originalId),
-      errorSummary(contentStale.errors)
+    await writeResource(workspaceRoot, addedId, Uint8Array.from([9]));
+    const addedRevision = await readInvestigationSourceRevision(collectionRoot);
+    assert.deepEqual(addedRevision, contentRevision);
+    assert.deepEqual(
+      (await queryInvestigationIndex({ workspaceRoot })).errors,
+      []
     );
+    await fs.rm(path.join(collectionRoot, "_resources", ...addedId.split("/")));
+    const removedRevision =
+      await readInvestigationSourceRevision(collectionRoot);
+    assert.deepEqual(removedRevision, addedRevision);
+
+    const contentFresh = await queryInvestigationIndex({ workspaceRoot });
+    assert.deepEqual(contentFresh.errors, []);
+    assert.equal(contentFresh.total, 1);
     const contentCheck = await validateInvestigationReports({ workspaceRoot });
     assert.equal(contentCheck.indexChecked, true);
-    assert.ok(
-      errorSummary(contentCheck.errors).includes(originalId),
-      errorSummary(contentCheck.errors)
-    );
+    assert.deepEqual(contentCheck.errors, []);
     const contentSynchronized = await synchronizeInvestigationIndex({
       workspaceRoot
     });
     assert.deepEqual(contentSynchronized.errors, []);
-    assert.equal(contentSynchronized.changed, true);
+    assert.equal(contentSynchronized.changed, false);
 
     await fs.rename(
       path.join(collectionRoot, "_resources", ...originalId.split("/")),
       path.join(collectionRoot, "_resources", ...renamedId.split("/"))
     );
+    const renamedOnlyRevision =
+      await readInvestigationSourceRevision(collectionRoot);
+    assert.deepEqual(renamedOnlyRevision, removedRevision);
+    assert.deepEqual(
+      (await queryInvestigationIndex({ workspaceRoot })).errors,
+      []
+    );
+
     await writeCollection(workspaceRoot, [report(renamedId)], false);
     const renamedRevision =
       await readInvestigationSourceRevision(collectionRoot);
-    assert.notEqual(renamedRevision.metadata, contentRevision.metadata);
+    assert.equal(renamedRevision.metadata, contentRevision.metadata);
     assert.notDeepEqual(renamedRevision.entries, contentRevision.entries);
 
     const renameStale = await queryInvestigationIndex({ workspaceRoot });
     assert.deepEqual(renameStale.entries, []);
-    assert.ok(errorSummary(renameStale.errors).includes(originalId));
-    assert.ok(errorSummary(renameStale.errors).includes(renamedId));
+    assert.ok(
+      errorSummary(renameStale.errors).includes("source revision"),
+      errorSummary(renameStale.errors)
+    );
     const renameCheck = await validateInvestigationReports({ workspaceRoot });
     assert.equal(renameCheck.indexChecked, true);
-    assert.ok(errorSummary(renameCheck.errors).includes(originalId));
-    assert.ok(errorSummary(renameCheck.errors).includes(renamedId));
+    assert.ok(
+      errorSummary(renameCheck.errors).includes("state projection"),
+      errorSummary(renameCheck.errors)
+    );
 
     const synchronized = await synchronizeInvestigationIndex({ workspaceRoot });
     assert.deepEqual(synchronized.errors, []);

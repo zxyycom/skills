@@ -4,7 +4,7 @@
 
 ## Why
 
-`investigation-report` 当前把全部版本控制可见资源的 ID 与 SHA-256 写入 `investigation-index.json` 的集合级 metadata，并让资源成员和字节参与 `sourceRevision.metadata`。`stage-index` 虽然只暂存选中主题的索引条目，却必须先证明集合级 metadata 不变；因此任意资源新增、删除、改名或字节变化都会返回 `collection-changed`。
+在本 Change 实施前，`investigation-report` 把全部版本控制可见资源的 ID 与 SHA-256 写入 `investigation-index.json` 的集合级 metadata，并让资源成员和字节参与 `sourceRevision.metadata`。`stage-index` 虽然只暂存选中主题的索引条目，却必须先证明集合级 metadata 不变；因此任意资源新增、删除、改名或字节变化都会返回 `collection-changed`。
 
 统一 `_resources/` 的用途是集中保存调查材料，不是把全部资源绑定成一个提交单元。报告 Markdown 已经声明精确引用关系，资源路径可以直接映射到负责维持它的 owner 主题。资源安全与归属应由报告引用校验负责，主题索引只需要投影报告事实和资源 ID 关系。
 

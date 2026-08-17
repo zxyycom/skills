@@ -1,10 +1,10 @@
 ---
 title: 让调查索引条目暂存不受资源变化阻塞
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-17T08:03:17Z
 purpose: 让按主题选择的调查索引条目可以独立进入 pending，不因集合级资源状态被迫整体暂存。
-background: stage-index 只组合派生索引条目，却因调查资源被放入集合级 metadata 而拒绝任何伴随资源变化的条目级操作。
+background: 本决策形成前，stage-index 只组合派生索引条目，却因调查资源被放入集合级 metadata 而拒绝任何伴随资源变化的条目级操作。
 decision: stage-index 保持只暂存选中索引项；调查领域不再用资源变化触发集合门禁，领域文件仍由调用方显式选择。
 tags:
   - investigation-report
@@ -22,7 +22,7 @@ relations:
 ## 背景
 
 - `stage-index` 当前只接收规范 topic ID 并委托公共 selected-entry staging，不读取或暂存主题 Markdown 与资源文件。
-- 公共运行时正确要求集合级 metadata 稳定；阻塞来自调查领域把资源成员和 SHA-256 放入该集合边界，而不是公共 staging 算法。
+- 公共运行时正确要求集合级 metadata 稳定；旧调查领域把资源成员和 SHA-256 放入该集合边界，造成阻塞的不是公共 staging 算法。
 - [索引来源决策](exclude-investigation-resources-from-index-revision.md)让资源退出调查 metadata 后，资源变化不再代表主题索引集合契约变化；报告链接变化仍由对应 topic entry 表达。
 
 ## 决策

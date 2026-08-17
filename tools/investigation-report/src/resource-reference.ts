@@ -1,3 +1,5 @@
+import { isInvestigationCategory } from "./report-path.ts";
+
 export const investigationResourcesDirectoryName = "_resources";
 
 const investigationResourceIdentityCharacterClassSource =
@@ -30,10 +32,23 @@ export type InvestigationResourceLinkTargetResult =
   | { status: "invalid"; error: string };
 
 export function isInvestigationResourceId(value: string): boolean {
+  const segments = value.split("/");
   return (
-    investigationResourceIdLexicalPattern.test(value) &&
-    value.split("/").every(isInvestigationResourcePathSegment)
+    isLexicallySafeInvestigationResourcePath(value) &&
+    segments.length >= 3 &&
+    isInvestigationCategory(segments[0] ?? "") &&
+    isInvestigationCategory(segments[1] ?? "")
   );
+}
+
+export function investigationResourceOwnerTopicId(
+  value: string
+): string | null {
+  if (!isInvestigationResourceId(value)) {
+    return null;
+  }
+  const [category, slug] = value.split("/");
+  return `${category}/${slug}.md`;
 }
 
 function isInvestigationResourcePathSegment(segment: string): boolean {
@@ -90,11 +105,21 @@ export function investigationResourceIdFromLinkTarget(
   const id = target.slice(prefix.length);
   if (!isInvestigationResourceId(id)) {
     return {
-      error:
-        `resource link target ${JSON.stringify(target)} must contain a safe, ` +
-        "normalized resource id",
+      error: isLexicallySafeInvestigationResourcePath(id)
+        ? `resource link target ${JSON.stringify(target)} must use ` +
+          "<category-id>/<semantic-slug>/<resource-subpath> with a " +
+          "kebab-case owner topic prefix"
+        : `resource link target ${JSON.stringify(target)} must contain a safe, ` +
+          "normalized resource id",
       status: "invalid"
     };
   }
   return { id, status: "valid" };
+}
+
+function isLexicallySafeInvestigationResourcePath(value: string): boolean {
+  return (
+    investigationResourceIdLexicalPattern.test(value) &&
+    value.split("/").every(isInvestigationResourcePathSegment)
+  );
 }

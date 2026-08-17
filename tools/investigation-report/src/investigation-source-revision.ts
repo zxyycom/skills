@@ -2,7 +2,6 @@ import { createHash } from "node:crypto";
 import type { StateSourceRevision } from "../../index-runtime/src/index.ts";
 import type {
   InvestigationIndexMetadata,
-  InvestigationResourceSource,
   InvestigationSource
 } from "./types.ts";
 
@@ -16,15 +15,13 @@ type PreparedInvestigationSources = Readonly<{
 }>;
 
 export function investigationSourceRevision(
-  sources: readonly InvestigationSource[],
-  resources: readonly InvestigationResourceSource[] = []
+  sources: readonly InvestigationSource[]
 ): StateSourceRevision {
-  return prepareInvestigationSources(sources, resources).revision;
+  return prepareInvestigationSources(sources).revision;
 }
 
 export function prepareInvestigationSources(
-  sources: readonly InvestigationSource[],
-  resources: readonly InvestigationResourceSource[] = []
+  sources: readonly InvestigationSource[]
 ): PreparedInvestigationSources {
   const orderedSources = sources
     .map(({ path, text }) => ({ path, text }))
@@ -33,15 +30,10 @@ export function prepareInvestigationSources(
   if (sourcePaths.size !== orderedSources.length) {
     throw new Error("investigation sources must use unique paths");
   }
-  const metadata = investigationResourceMetadata(resources);
-
   return {
-    metadata,
+    metadata: {},
     revision: {
-      metadata: sourceFingerprint(
-        "investigation-index-metadata-v2",
-        ...metadata.resources.flatMap(({ id, sha256 }) => [id, sha256])
-      ),
+      metadata: sourceFingerprint("investigation-index-metadata-v3", "{}"),
       entries: Object.fromEntries(
         orderedSources.map((source) => [
           source.path,
@@ -55,28 +47,6 @@ export function prepareInvestigationSources(
     },
     sources: orderedSources
   };
-}
-
-export function investigationResourceMetadata(
-  resources: readonly InvestigationResourceSource[]
-): InvestigationIndexMetadata {
-  const orderedResources = resources
-    .map(({ bytes, id }) => ({ bytes, id }))
-    .sort((left, right) => compareText(left.id, right.id));
-  const resourceIds = new Set(orderedResources.map((resource) => resource.id));
-  if (resourceIds.size !== orderedResources.length) {
-    throw new Error("investigation resources must use unique ids");
-  }
-  return {
-    resources: orderedResources.map((resource) => ({
-      id: resource.id,
-      sha256: investigationResourceSha256(resource.bytes)
-    }))
-  };
-}
-
-function investigationResourceSha256(bytes: Uint8Array): string {
-  return createHash("sha256").update(bytes).digest("hex");
 }
 
 function sourceFingerprint(

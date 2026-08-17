@@ -24,7 +24,7 @@ import {
 } from "./types.ts";
 
 export const investigationIndexNamespace = "investigations";
-export const investigationIndexDefinitionVersion = 4;
+export const investigationIndexDefinitionVersion = 5;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
@@ -43,10 +43,6 @@ const investigationResourceIdSchema = v.pipe(
     isInvestigationResourceId,
     "must be a safe, normalized investigation resource id"
   )
-);
-const investigationResourceSha256Schema = v.pipe(
-  v.string("must be a string"),
-  v.regex(/^[0-9a-f]{64}$/u, "must be a lowercase SHA-256 digest")
 );
 const investigationResourceReferenceSchema = v.strictObject({
   reportIndex: v.pipe(
@@ -97,22 +93,7 @@ const investigationIndexStateSchema = v.strictObject({
   status: v.picklist(investigationReportStatuses),
   title: nonEmptyStringSchema
 });
-const investigationIndexMetadataSchema = v.strictObject({
-  resources: v.pipe(
-    v.array(
-      v.strictObject({
-        id: investigationResourceIdSchema,
-        sha256: investigationResourceSha256Schema
-      }),
-      "must be an array"
-    ),
-    v.check(
-      (resources) =>
-        isStrictlySortedText(resources.map((resource) => resource.id)),
-      "must contain unique resources in id order"
-    )
-  )
-});
+const investigationIndexMetadataSchema = v.strictObject({});
 const sourceFingerprintSchema = v.pipe(
   v.string("must be a string"),
   v.regex(
@@ -186,30 +167,6 @@ function validateInvestigationIndex(
       parsed.issues.map(formatInvestigationIndexIssue).join("; ")
     );
   }
-  const metadataIds = new Set(
-    index.metadata.resources.map((resource) => resource.id)
-  );
-  const referencedIds = new Set<string>();
-  for (const entry of Object.values(index.entries)) {
-    for (const reference of entry.state.resourceReferences) {
-      for (const id of reference.resourceIds) {
-        if (!metadataIds.has(id)) {
-          throw new TypeError(
-            `resource ${id} referenced by ${entry.state.path} is missing from metadata.resources`
-          );
-        }
-        referencedIds.add(id);
-      }
-    }
-  }
-  const unreferenced = index.metadata.resources.find(
-    (resource) => !referencedIds.has(resource.id)
-  );
-  if (unreferenced !== undefined) {
-    throw new TypeError(
-      `metadata resource ${unreferenced.id} is not referenced by any report state`
-    );
-  }
 }
 
 function parseInvestigationIndexMetadata(
@@ -220,7 +177,13 @@ function parseInvestigationIndexMetadata(
     >["parseMetadata"]
   >[0]
 ): InvestigationIndexMetadata {
-  return v.parse(investigationIndexMetadataSchema, input);
+  const parsed = v.safeParse(investigationIndexMetadataSchema, input);
+  if (!parsed.success) {
+    throw new TypeError(
+      "metadata " + parsed.issues.map(formatInvestigationIndexIssue).join("; ")
+    );
+  }
+  return parsed.output;
 }
 
 function parseInvestigationIndexState(

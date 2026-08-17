@@ -3,8 +3,8 @@ import path from "node:path";
 import { err, errAsync, ok, ResultAsync, type Result } from "neverthrow";
 import type { StateSnapshot } from "../../index-runtime/src/index.ts";
 import {
-  inspectInvestigationCollectionLayout,
-  readInvestigationStateSnapshot
+  createInvestigationStateSnapshot,
+  inspectInvestigationCollectionLayout
 } from "./investigation-index-source.ts";
 import {
   investigationIndexDiagnosticMessages,
@@ -28,14 +28,18 @@ import {
   type ResolvedInvestigationsDirectory
 } from "./report-path.ts";
 import { buildInvestigationTopicState } from "./report-validation.ts";
-import { validateReferencedInvestigationResources } from "./resources.ts";
+import {
+  validateFullInvestigationResources,
+  validateReferencedInvestigationResources
+} from "./resources.ts";
 import type {
   InvestigationIndexMetadata,
   InvestigationIndexState,
   InvestigationIndexSyncOptions,
   InvestigationIndexSyncResult,
   InvestigationReportCheckOptions,
-  InvestigationReportCheckResult
+  InvestigationReportCheckResult,
+  InvestigationSource
 } from "./types.ts";
 
 type Selection = Readonly<{
@@ -74,6 +78,20 @@ type SnapshotCounts = Readonly<{
   categoryCount: number;
   topicCount: number;
 }>;
+
+type FullCollectionValidation =
+  | Readonly<{
+      counts: SnapshotCounts;
+      errors: string[];
+      status: "invalid";
+      warnings: string[];
+    }>
+  | Readonly<{
+      counts: SnapshotCounts;
+      snapshot: InvestigationSnapshot;
+      status: "valid";
+      warnings: string[];
+    }>;
 
 function prepareSelection(
   options: InvestigationReportCheckOptions
@@ -196,7 +214,7 @@ function validateFullInvestigationCollection(
 ): ResultAsync<InvestigationReportCheckResult, InvestigationReportCheckResult> {
   const indexPath = path.join(investigationRoot, investigationIndexFileName);
   return ResultAsync.fromPromise(
-    readInvestigationStateSnapshot(investigationRoot),
+    collectFullInvestigationValidation(investigationRoot),
     (error) =>
       emptyResult(
         [
@@ -205,15 +223,31 @@ function validateFullInvestigationCollection(
         ],
         indexPath
       )
-  ).andThen((snapshot) =>
-    checkInvestigationSnapshot(investigationRoot, indexPath, snapshot)
-  );
+  ).andThen((collection) => {
+    const collected = checkResult(
+      collection.counts,
+      collection.status === "invalid" ? collection.errors : [],
+      false,
+      indexPath,
+      collection.warnings
+    );
+    if (collection.status === "invalid") {
+      return errAsync(collected);
+    }
+    return checkInvestigationSnapshot(
+      investigationRoot,
+      indexPath,
+      collection.snapshot,
+      collection.warnings
+    );
+  });
 }
 
 function checkInvestigationSnapshot(
   investigationRoot: string,
   indexPath: string,
-  snapshot: InvestigationSnapshot
+  snapshot: InvestigationSnapshot,
+  warnings: readonly string[]
 ): ResultAsync<InvestigationReportCheckResult, InvestigationReportCheckResult> {
   const counts = snapshotCounts(snapshot);
   return ResultAsync.fromPromise(
@@ -230,7 +264,8 @@ function checkInvestigationSnapshot(
             errorText(error)
         ],
         false,
-        indexPath
+        indexPath,
+        warnings
       )
   ).andThen((synchronized) => {
     const errors =
@@ -244,7 +279,8 @@ function checkInvestigationSnapshot(
         !synchronized.diagnostics.some(
           (diagnostic) => diagnostic.code === "state-index.source-read-failed"
         ),
-      indexPath
+      indexPath,
+      warnings
     );
     return errors.length > 0 ? err(result) : ok(result);
   });
@@ -307,13 +343,7 @@ async function collectScopedInvestigationResult(
     const report = parseInvestigationReport(markdown, relativePath);
     const built = buildInvestigationTopicState(relativePath, report);
     errors.push(...built.errors);
-    if (built.status === "valid") {
-      selectedResourceIds.push(
-        ...built.state.resourceReferences.flatMap(
-          (reference) => reference.resourceIds
-        )
-      );
-    }
+    selectedResourceIds.push(...resourceIdsFromReport(report));
   }
   errors.push(
     ...(await validateReferencedInvestigationResources(
@@ -328,8 +358,82 @@ async function collectScopedInvestigationResult(
     errors: uniqueSorted(errors),
     indexChecked: false,
     indexPath: path.join(investigationRoot, investigationIndexFileName),
-    selectedTopicCount: selectedPaths.length
+    selectedTopicCount: selectedPaths.length,
+    warnings: []
   };
+}
+
+async function collectFullInvestigationValidation(
+  investigationRoot: string
+): Promise<FullCollectionValidation> {
+  const layout = await inspectInvestigationCollectionLayout(investigationRoot);
+  const errors = [...layout.errors];
+  const sources: InvestigationSource[] = [];
+  const states: InvestigationIndexState[] = [];
+  const referencesByTopic = new Map<string, Set<string>>(
+    layout.topicPaths.map((topicPath) => [topicPath, new Set<string>()])
+  );
+
+  if (layout.topicPaths.length === 0) {
+    errors.push("investigation collection must contain at least one topic");
+  }
+
+  for (const relativePath of layout.topicPaths) {
+    const reportPath = path.join(investigationRoot, ...relativePath.split("/"));
+    let markdown: string;
+    try {
+      markdown = await fs.readFile(reportPath, "utf8");
+    } catch (error) {
+      errors.push(`${relativePath} could not be read: ${errorText(error)}`);
+      continue;
+    }
+    sources.push({ path: relativePath, text: markdown });
+    const report = parseInvestigationReport(markdown, relativePath);
+    const built = buildInvestigationTopicState(relativePath, report);
+    errors.push(...built.errors);
+    if (built.status === "valid") {
+      states.push(built.state);
+      referencesByTopic.set(
+        relativePath,
+        new Set(
+          built.state.resourceReferences.flatMap(
+            (reference) => reference.resourceIds
+          )
+        )
+      );
+    }
+  }
+
+  const resources = await validateFullInvestigationResources(
+    investigationRoot,
+    referencesByTopic
+  );
+  errors.push(...resources.errors);
+  const counts = {
+    categoryCount: categoriesOf(layout.topicPaths).size,
+    topicCount: layout.topicPaths.length
+  };
+  const uniqueErrors = uniqueSorted(errors);
+  if (uniqueErrors.length > 0) {
+    return {
+      counts,
+      errors: uniqueErrors,
+      status: "invalid",
+      warnings: resources.warnings
+    };
+  }
+  return {
+    counts,
+    snapshot: createInvestigationStateSnapshot(sources, states),
+    status: "valid",
+    warnings: resources.warnings
+  };
+}
+
+function resourceIdsFromReport(
+  report: ReturnType<typeof parseInvestigationReport>
+): string[] {
+  return report.reports.flatMap((entry) => entry.resourceIds);
 }
 
 export async function validateInvestigationReports(
@@ -405,7 +509,7 @@ function synchronizeFullInvestigationCollection(
 ): ResultAsync<InvestigationIndexSyncResult, InvestigationIndexSyncResult> {
   const indexPath = path.join(investigationRoot, investigationIndexFileName);
   return ResultAsync.fromPromise(
-    readInvestigationStateSnapshot(investigationRoot),
+    collectFullInvestigationValidation(investigationRoot),
     (error) =>
       emptySyncResult(
         [
@@ -414,15 +518,31 @@ function synchronizeFullInvestigationCollection(
         ],
         indexPath
       )
-  ).andThen((snapshot) =>
-    synchronizeInvestigationSnapshot(investigationRoot, indexPath, snapshot)
-  );
+  ).andThen((collection) => {
+    const collected = syncResult(
+      collection.counts,
+      false,
+      collection.status === "invalid" ? collection.errors : [],
+      indexPath,
+      collection.warnings
+    );
+    if (collection.status === "invalid") {
+      return errAsync(collected);
+    }
+    return synchronizeInvestigationSnapshot(
+      investigationRoot,
+      indexPath,
+      collection.snapshot,
+      collection.warnings
+    );
+  });
 }
 
 function synchronizeInvestigationSnapshot(
   investigationRoot: string,
   indexPath: string,
-  snapshot: InvestigationSnapshot
+  snapshot: InvestigationSnapshot,
+  warnings: readonly string[]
 ): ResultAsync<InvestigationIndexSyncResult, InvestigationIndexSyncResult> {
   const counts = snapshotCounts(snapshot);
   return ResultAsync.fromPromise(
@@ -439,14 +559,21 @@ function synchronizeInvestigationSnapshot(
           "investigation index synchronization could not be completed: " +
             errorText(error)
         ],
-        indexPath
+        indexPath,
+        warnings
       )
   ).andThen((synchronized) => {
     const errors =
       synchronized.status === "error"
         ? investigationIndexDiagnosticMessages(synchronized.diagnostics)
         : [];
-    const result = syncResult(counts, synchronized.changed, errors, indexPath);
+    const result = syncResult(
+      counts,
+      synchronized.changed,
+      errors,
+      indexPath,
+      warnings
+    );
     return errors.length > 0 ? err(result) : ok(result);
   });
 }
@@ -473,7 +600,8 @@ function checkResult(
   counts: SnapshotCounts,
   errors: readonly string[],
   indexChecked: boolean,
-  indexPath: string
+  indexPath: string,
+  warnings: readonly string[] = []
 ): InvestigationReportCheckResult {
   return {
     availableTopicCount: counts.topicCount,
@@ -481,7 +609,8 @@ function checkResult(
     errors: uniqueSorted(errors),
     indexChecked,
     indexPath,
-    selectedTopicCount: counts.topicCount
+    selectedTopicCount: counts.topicCount,
+    warnings: uniqueSorted(warnings)
   };
 }
 
@@ -489,14 +618,16 @@ function syncResult(
   counts: SnapshotCounts,
   changed: boolean,
   errors: readonly string[],
-  indexPath: string
+  indexPath: string,
+  warnings: readonly string[] = []
 ): InvestigationIndexSyncResult {
   return {
     categoryCount: counts.categoryCount,
     changed,
     errors: uniqueSorted(errors),
     indexPath,
-    topicCount: counts.topicCount
+    topicCount: counts.topicCount,
+    warnings: uniqueSorted(warnings)
   };
 }
 
@@ -524,7 +655,8 @@ function emptyResult(
     errors: uniqueSorted(errors),
     indexChecked: false,
     indexPath,
-    selectedTopicCount: 0
+    selectedTopicCount: 0,
+    warnings: []
   };
 }
 
@@ -537,7 +669,8 @@ function emptySyncResult(
     changed: false,
     errors: uniqueSorted(errors),
     indexPath,
-    topicCount: 0
+    topicCount: 0,
+    warnings: []
   };
 }
 

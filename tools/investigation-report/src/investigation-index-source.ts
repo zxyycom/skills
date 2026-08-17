@@ -13,16 +13,13 @@ import {
   validateInvestigationTopicPath
 } from "./report-path.ts";
 import { buildInvestigationTopicState } from "./report-validation.ts";
-import { readInvestigationResources } from "./resources.ts";
 import { investigationResourcesDirectoryName } from "./resource-reference.ts";
 import {
-  investigationResourceMetadata,
   investigationSourceRevision,
   prepareInvestigationSources
 } from "./investigation-source-revision.ts";
 import {
   type InvestigationIndexMetadata,
-  type InvestigationResourceSource,
   type InvestigationIndexState,
   type InvestigationSource
 } from "./types.ts";
@@ -139,46 +136,26 @@ export async function readInvestigationSourceRevision(
   investigationsDirectory: string,
   signal?: AbortSignal
 ): Promise<StateSourceRevision> {
-  const collection = await readInvestigationCollection(
-    investigationsDirectory,
-    signal
+  return investigationSourceRevision(
+    await readInvestigationCollection(investigationsDirectory, signal)
   );
-  return investigationSourceRevision(collection.sources, collection.resources);
-}
-
-export async function readInvestigationResourceMetadata(
-  investigationsDirectory: string,
-  signal?: AbortSignal
-): Promise<InvestigationIndexMetadata> {
-  const resources = await readInvestigationResources(
-    investigationsDirectory,
-    signal
-  );
-  return investigationResourceMetadata(resources);
 }
 
 export async function readInvestigationStateSnapshot(
   investigationsDirectory: string,
   signal?: AbortSignal
 ): Promise<StateSnapshot<InvestigationIndexState, InvestigationIndexMetadata>> {
-  const collection = await readInvestigationCollection(
-    investigationsDirectory,
-    signal
-  );
   return buildInvestigationStateSnapshot(
-    collection.sources,
-    collection.resources
+    await readInvestigationCollection(investigationsDirectory, signal)
   );
 }
 
 function buildInvestigationStateSnapshot(
-  sources: readonly InvestigationSource[],
-  resources: readonly InvestigationResourceSource[]
+  sources: readonly InvestigationSource[]
 ): StateSnapshot<InvestigationIndexState, InvestigationIndexMetadata> {
-  const prepared = prepareInvestigationSources(sources, resources);
   const errors: string[] = [];
   const states: InvestigationIndexState[] = [];
-  for (const source of prepared.sources) {
+  for (const source of sources) {
     const built = buildInvestigationTopicState(
       source.path,
       parseInvestigationReport(source.text, source.path)
@@ -192,22 +169,50 @@ function buildInvestigationStateSnapshot(
   if (errors.length > 0) {
     throw new Error([...new Set(errors)].sort(compareText).join("; "));
   }
-  validateInvestigationResourceCoverage(states, prepared.metadata);
+  return createInvestigationStateSnapshot(sources, states);
+}
 
+export function createInvestigationStateSnapshot(
+  sources: readonly InvestigationSource[],
+  states: readonly InvestigationIndexState[]
+): StateSnapshot<InvestigationIndexState, InvestigationIndexMetadata> {
+  const prepared = prepareInvestigationSources(sources);
+  const sourcePaths = new Set(prepared.sources.map((source) => source.path));
+  const statesByPath = new Map<string, InvestigationIndexState>();
+  for (const state of states) {
+    if (statesByPath.has(state.path)) {
+      throw new Error(
+        `investigation state ${state.path} has a duplicate state projection`
+      );
+    }
+    if (!sourcePaths.has(state.path)) {
+      throw new Error(
+        `investigation state ${state.path} has no matching source`
+      );
+    }
+    statesByPath.set(state.path, state);
+  }
   return {
     metadata: prepared.metadata,
     sourceRevision: prepared.revision,
-    states: Object.fromEntries(states.map((state) => [state.path, state]))
+    states: Object.fromEntries(
+      prepared.sources.map((source) => {
+        const state = statesByPath.get(source.path);
+        if (state === undefined) {
+          throw new Error(
+            `investigation source ${source.path} has no state projection`
+          );
+        }
+        return [source.path, state];
+      })
+    )
   };
 }
 
 async function readInvestigationCollection(
   investigationsDirectory: string,
   signal?: AbortSignal
-): Promise<{
-  resources: InvestigationResourceSource[];
-  sources: InvestigationSource[];
-}> {
+): Promise<InvestigationSource[]> {
   const layout = await inspectInvestigationCollectionLayout(
     investigationsDirectory
   );
@@ -217,15 +222,11 @@ async function readInvestigationCollection(
   if (layout.topicPaths.length === 0) {
     throw new Error("investigation collection must contain at least one topic");
   }
-  const [sources, resources] = await Promise.all([
-    readInvestigationSources(
-      investigationsDirectory,
-      layout.topicPaths,
-      signal
-    ),
-    readInvestigationResources(investigationsDirectory, signal)
-  ]);
-  return { resources, sources };
+  return await readInvestigationSources(
+    investigationsDirectory,
+    layout.topicPaths,
+    signal
+  );
 }
 
 async function readInvestigationSources(
@@ -256,34 +257,6 @@ async function readInvestigationSources(
     );
   }
   return sources;
-}
-
-function validateInvestigationResourceCoverage(
-  states: readonly InvestigationIndexState[],
-  metadata: InvestigationIndexMetadata
-): void {
-  const available = new Set(metadata.resources.map((resource) => resource.id));
-  const referenced = new Set(
-    states.flatMap((state) =>
-      state.resourceReferences.flatMap((reference) => reference.resourceIds)
-    )
-  );
-  const errors = [
-    ...[...referenced]
-      .filter((id) => !available.has(id))
-      .map(
-        (id) => `${investigationResourcesDirectoryName}/${id} does not exist`
-      ),
-    ...[...available]
-      .filter((id) => !referenced.has(id))
-      .map(
-        (id) =>
-          `${investigationResourcesDirectoryName}/${id} is not referenced by any investigation report`
-      )
-  ];
-  if (errors.length > 0) {
-    throw new Error(errors.sort(compareText).join("; "));
-  }
 }
 
 async function readInvestigationSource(

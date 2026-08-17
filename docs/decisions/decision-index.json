@@ -81,7 +81,7 @@
       "align-agent-lifecycle-with-task-slices.md": "sha256:b6999de08e2338dfd0889a24a2febdfa366cec7eb7ea9dae1608c4a139714407",
       "allocate-agents-and-runtime-by-task-slice.md": "sha256:b3f42138dc93d1c0d5dae604a183ba171c22d44efb52dc8057d943060edf0971",
       "allow-sequential-activation-of-prewritten-candidates.md": "sha256:356737456be2e8c4cad7b1bb4aad02a6747a11c65093ed6ce83c20968a4114dc",
-      "anchor-investigation-resources-to-topic-owners.md": "sha256:3e48ea362bad09807e2bd1d5366c7ff5fb8703364c8ed5f59c3d3710f7536dd3",
+      "anchor-investigation-resources-to-topic-owners.md": "sha256:26ee1186c666b3197095b245ed745581bf4a12fcf0417639ba6ed6e5242d47b5",
       "anchor-semantic-task-results-in-index-history.md": "sha256:469f7a388bc6a01171440a363e2d8fc816ec4cf87b1a68ea2d46367fd5456d77",
       "anchor-task-results-in-index-history.md": "sha256:57e75b392258052287f944c8e5fda18d1fe5903217a7400e4d0682a881654808",
       "append-self-contained-investigation-reports.md": "sha256:71da162844321dd3036ed0c407deab2abeaf2b83908e85d66c25008e1865f5da",
@@ -115,7 +115,7 @@
       "defer-standard-test-result-blocking.md": "sha256:d9fcfdcbc8ed63eb91abd39c9fd55d6c19a5337a250f31a640f1285657bc9ec9",
       "defer-terminal-correction-until-confirmed-recovery-need.md": "sha256:63789e0369451dd6e487a880dc26b01cf58d29d682ebcad23be2fc2773f7cd49",
       "define-decision-alignment-semantics.md": "sha256:706acc334dbf641e3f3b5864e0c4e8d0d9ad37994d3607f0d2cd44c42fb3021c",
-      "define-version-control-visible-investigation-resources.md": "sha256:611f7474c7e937311906c1bf24144ed3bec2d4fa5a9527c602d35eb4adcda41f",
+      "define-version-control-visible-investigation-resources.md": "sha256:4926054ae2b8c42018f94ba2fa14f2d90d5dc8a1fa0132522c0d688cfc5b222d",
       "delegate-native-runtime-installation-to-caller.md": "sha256:3b05c3c7b7ca707f05166167568d05d0ab3ade1898974b6ff3c604c51d60f45d",
       "derive-check-exit-status-from-step-results.md": "sha256:f12b93c9d06db83591e98e7b79cf3d7ec5ddad9387a2e34ef971ddde5e932203",
       "derive-decision-records-declarations-from-runtime-source.md": "sha256:f297788f201ccdabd4cdad1c41edf905054d7a75eb90b4139fc0b86c09f89474",
@@ -133,7 +133,7 @@
       "evaluate-reorganization-from-task-graph-case.md": "sha256:e0c03f1ddb3d3a1791646a2a959284d433165c95679ad989c99acd92cf03a6e0",
       "exclude-archived-changes-from-link-validation.md": "sha256:ea8064051faf2a482486b1b48cf9a53eb83e1214dc357c2d91df82c9c71731e4",
       "exclude-formation-time-link-bytes-from-validation.md": "sha256:13508bb94354446a14171f270f76f81913e188c01e9ca26cdb9e981dbe14bdf6",
-      "exclude-investigation-resources-from-index-revision.md": "sha256:9000c9f57cd497b4a54cc7e99c5751f61c1baa4c74be49ff89de720f6c69771a",
+      "exclude-investigation-resources-from-index-revision.md": "sha256:783e67936f134e53096b3081240b6a508b19a3fdaa1ad12a676e07709a9f9b02",
       "express-alignment-as-field-relation.md": "sha256:484d8589e23d61ef0195eedf92e0609d9512c01b4e2e63e9b8290958714f2e2d",
       "express-decision-alignment-state.md": "sha256:3bc42786232ddc54c277a350a622a07c80dde95bc0ce63b7910d3764217f4793",
       "fix-test-evidence-workspace-contract.md": "sha256:30d95d438913aa07eb90124d714964b1942229f245c15c8f8fb8f3a9d0364a75",
@@ -230,7 +230,7 @@
       "settle-all-selected-checks-under-bounded-concurrency.md": "sha256:59bd70483e1aac3e1c8648b3f6421532e3949b1fc700f3d54524cf4320d6c2c4",
       "simplify-change-lifecycle-to-draft-plan-and-archive.md": "sha256:c091f7eee2b4685b70ecc2b81fb9754adf929982cef2f2fb170ec472b8efcbc2",
       "split-commits-by-semantic-unit.md": "sha256:02ad6611a9074de1fae3518c8de4f9b0f841c24f724a58810d33a32e59da6294",
-      "stage-investigation-index-entries-across-resource-changes.md": "sha256:98ef48849e21d6c5aedebf84bff332eeb7d60367a4e1b9b4787d7b1a98e5458a",
+      "stage-investigation-index-entries-across-resource-changes.md": "sha256:ee14512b16b528d186c84befeb4f3a970744c79979ea53c9ba17a69a5626eb9c",
       "stage-selected-decisions-by-stable-id.md": "sha256:88aa72024ab6ea63b6654d540f5c4f99a90c61c25bb278cb4932f51075d1757e",
       "stage-selected-decisions.md": "sha256:6f45e4b54b95399b0200e658013c22ab28cb89bebeb7ac8622abe9fb60315de9",
       "stage-selected-index-entries-by-id.md": "sha256:b34859d17fc2387dff6da11d00e494dbba05eba51790fa7f648a7b5bbbb37c5c",
@@ -289,7 +289,7 @@
       "use-versioned-overlay-skill-updates.md": "sha256:45c50941a04dc9aff4f2e305ec83fd14cb12d3df86e554cd23f6c4974d35f192",
       "use-versioned-runner-result-protocol.md": "sha256:48cde8d9a3cd54768d144286b55ddccec9f52272a234fe75764562d7e7fdcf9c",
       "version-index-definition-compatibility.md": "sha256:94002fd6642a327388347c00f5963519a2b44eafa9eab41fd031ecdd48007d32",
-      "warn-on-unreferenced-investigation-resources.md": "sha256:464b7bdb0663fff6adec24322d675f93f4f5668e15603a4bd84fa4827105ee94"
+      "warn-on-unreferenced-investigation-resources.md": "sha256:4701fda64d3ee6fe1a6c8765f3aead22905eae86e8b1b97635615938f3c2e645"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -2489,14 +2489,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "anchor-investigation-resources-to-topic-owners.md",
         "title": "以主题归属锚定调查资源",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-17T08:03:12Z",
         "purpose": "让集中存放的调查资源拥有可从路径恢复的稳定主题 owner，同时允许多份报告安全复用同一文件。",
         "background": "统一资源目录只表达集中存放，任意嵌套路径没有声明由哪个主题维持资源，也无法区分 owner 引用与外部共享引用。",
@@ -3506,8 +3506,8 @@
         "status": "active",
         "alignment": "aligned",
         "createdAt": "2026-08-14T08:04:04Z",
-        "purpose": "让调查资源保留常见可读文件名，并让项目 ignore 排除的未跟踪生成文件退出资源完整性与索引边界。",
-        "background": "过窄名称规则迫使形成时材料改名，而递归扫描全部磁盘文件会把 Python 编译缓存等项目已忽略文件误判为孤儿资源和索引输入。",
+        "purpose": "让调查资源保留常见可读文件名，并让项目 ignore 排除的未跟踪生成文件退出版本控制可见资源成员与引用完整性检查。",
+        "background": "过窄名称规则迫使形成时材料改名，而递归扫描全部磁盘文件会把 Python 编译缓存等项目已忽略文件误判为完全未引用资源。",
         "decision": "资源 ID 采用逐项列出的常用字符白名单并增加少量跨平台结构门禁；Git 工作区只管理版本控制可见资源，非 Git 工作区继续完整发现文件系统资源。",
         "tags": [
           "investigation-report"
@@ -4050,14 +4050,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "exclude-investigation-resources-from-index-revision.md",
         "title": "让调查资源退出主题索引来源版本",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-17T08:03:12Z",
         "purpose": "让调查主题索引只投影报告事实与资源引用关系，不再用集合级 metadata 跟踪资源文件成员和字节。",
         "background": "资源哈希能够暴露文件变化，但把全部资源纳入 metadata 和 source revision 会让查询索引承担资源快照清单职责。",
@@ -7025,17 +7025,17 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "stage-investigation-index-entries-across-resource-changes.md",
         "title": "让调查索引条目暂存不受资源变化阻塞",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-17T08:03:17Z",
         "purpose": "让按主题选择的调查索引条目可以独立进入 pending，不因集合级资源状态被迫整体暂存。",
-        "background": "stage-index 只组合派生索引条目，却因调查资源被放入集合级 metadata 而拒绝任何伴随资源变化的条目级操作。",
+        "background": "本决策形成前，stage-index 只组合派生索引条目，却因调查资源被放入集合级 metadata 而拒绝任何伴随资源变化的条目级操作。",
         "decision": "stage-index 保持只暂存选中索引项；调查领域不再用资源变化触发集合门禁，领域文件仍由调用方显式选择。",
         "tags": [
           "investigation-report"
@@ -8813,14 +8813,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "warn-on-unreferenced-investigation-resources.md",
         "title": "只提醒未引用的调查资源",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-08-17T08:03:12Z",
         "purpose": "让资源池卫生问题持续可见，但只用阻塞级校验保护已经进入报告证据关系的资源。",
         "background": "未引用文件可能是待接入或待清理材料；把它们当作集合错误会让无关资源状态阻塞调查检查与同步。",

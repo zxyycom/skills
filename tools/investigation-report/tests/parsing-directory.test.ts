@@ -496,8 +496,7 @@ async function testEmptyInvestigationCollection(
 
   const fullValidation = await validateInvestigationReports({ workspaceRoot });
   assert.deepEqual(fullValidation.errors, [
-    "investigation report check could not be completed: " +
-      "investigation collection must contain at least one topic"
+    "investigation collection must contain at least one topic"
   ]);
   assert.equal(fullValidation.selectedTopicCount, 0);
   assert.equal(fullValidation.availableTopicCount, 0);
@@ -507,8 +506,7 @@ async function testEmptyInvestigationCollection(
     workspaceRoot
   });
   assert.deepEqual(synchronization.errors, [
-    "investigation index synchronization could not be completed: " +
-      "investigation collection must contain at least one topic"
+    "investigation collection must contain at least one topic"
   ]);
   assert.equal(synchronization.changed, false);
   assert.equal(synchronization.topicCount, 0);
@@ -530,11 +528,11 @@ async function testEmptyInvestigationCollection(
     await fs.readFile(templateIndexPath, "utf8")
   ) as {
     entries: Record<string, unknown>;
-    metadata: { resources: unknown[] };
+    metadata: Record<string, never>;
     sourceRevision: ReturnType<typeof investigationSourceRevision>;
   };
   emptyIndex.entries = {};
-  emptyIndex.metadata = { resources: [] };
+  emptyIndex.metadata = {};
   emptyIndex.sourceRevision = investigationSourceRevision([]);
   await fs.writeFile(
     synchronization.indexPath,

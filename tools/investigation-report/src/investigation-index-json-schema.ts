@@ -164,24 +164,6 @@ export const investigationIndexJsonSchema = {
     },
     metadata: {
       additionalProperties: false,
-      properties: {
-        resources: {
-          items: {
-            additionalProperties: false,
-            properties: {
-              id: { $ref: "#/$defs/resourceId" },
-              sha256: {
-                pattern: "^[0-9a-f]{64}$",
-                type: "string"
-              }
-            },
-            required: ["id", "sha256"],
-            type: "object"
-          },
-          type: "array"
-        }
-      },
-      required: ["resources"],
       type: "object"
     },
     namespace: { const: investigationIndexNamespace },

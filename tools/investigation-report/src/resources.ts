@@ -11,93 +11,46 @@ import {
   VersionControlError
 } from "../../shared/src/version-control/index.ts";
 import {
+  investigationResourceOwnerTopicId,
   investigationResourcesDirectoryName,
   isInvestigationResourceId
 } from "./resource-reference.ts";
-import type { InvestigationResourceSource } from "./types.ts";
-
-type ResourceWalkResult = {
-  encounteredResourceIds: string[];
-  errors: string[];
-  resources: InvestigationResourceSource[];
-};
 
 type ManagedResourceMembership =
   | Readonly<{ mode: "file-system" }>
   | Readonly<{
-      directories: ReadonlySet<string>;
       files: ReadonlySet<string>;
       mode: "version-control";
     }>;
 
-export async function readInvestigationResources(
-  investigationsDirectory: string,
-  signal?: AbortSignal
-): Promise<InvestigationResourceSource[]> {
-  const resourcesRoot = path.join(
-    investigationsDirectory,
-    investigationResourcesDirectoryName
-  );
-  let rootStat: Awaited<ReturnType<typeof fs.lstat>> | null;
-  try {
-    rootStat = await lstatOrNull(resourcesRoot);
-  } catch (error) {
-    throw new Error(
-      `${investigationResourcesDirectoryName} could not be inspected: ${errorText(error)}`,
-      { cause: error }
-    );
-  }
-  if (rootStat === null) {
-    return [];
-  }
-  if (rootStat.isSymbolicLink()) {
-    throw new Error(
-      `${investigationResourcesDirectoryName} must not be a symbolic link`
-    );
-  }
-  if (!rootStat.isDirectory()) {
-    throw new Error(
-      `${investigationResourcesDirectoryName} must be a directory`
-    );
-  }
+type ResourceRoot = Readonly<{
+  canonicalResourcesRoot: string;
+  membership: ManagedResourceMembership;
+}>;
 
-  let canonicalResourcesRoot: string;
-  try {
-    canonicalResourcesRoot = await verifiedCanonicalResourcesRoot(
-      investigationsDirectory,
-      resourcesRoot
-    );
-  } catch (error) {
-    throw new Error(
-      `${investigationResourcesDirectoryName} could not be safely resolved: ${errorText(error)}`,
-      { cause: error }
-    );
-  }
-  const managedResourceMembership = await readManagedResourceMembership(
-    investigationsDirectory,
-    canonicalResourcesRoot
-  );
-  const walked = await walkResourceDirectory(
-    canonicalResourcesRoot,
-    "",
-    canonicalResourcesRoot,
-    managedResourceMembership,
-    signal
-  );
-  if (managedResourceMembership.mode === "version-control") {
-    const encountered = new Set(walked.encounteredResourceIds);
-    for (const id of managedResourceMembership.files) {
-      if (!encountered.has(id)) {
-        walked.errors.push(`${resourcePath(id)} does not exist`);
-      }
-    }
-  }
-  if (walked.errors.length > 0) {
-    throw new Error(uniqueSorted(walked.errors).join("; "));
-  }
-  return walked.resources.sort((left, right) => compareText(left.id, right.id));
-}
+type ResourceRootPreparation =
+  | Readonly<{
+      membership: ManagedResourceMembership;
+      status: "missing";
+    }>
+  | Readonly<{ errors: string[]; status: "invalid" }>
+  | (ResourceRoot & Readonly<{ status: "ready" }>);
 
+export type InvestigationResourceValidationResult = Readonly<{
+  errors: string[];
+  warnings: string[];
+}>;
+
+/** Maps each discovered topic path to the valid resource IDs it directly declares. */
+export type InvestigationResourceReferences = ReadonlyMap<
+  string,
+  ReadonlySet<string>
+>;
+
+/**
+ * Validates only the direct targets of scoped report references. Owner anchors
+ * and unreferenced-member discovery deliberately belong to the full check.
+ */
 export async function validateReferencedInvestigationResources(
   investigationsDirectory: string,
   resourceIds: readonly string[],
@@ -108,16 +61,92 @@ export async function validateReferencedInvestigationResources(
     return [];
   }
 
+  const prepared = await prepareResourceRoot(investigationsDirectory);
+  if (prepared.status === "invalid") {
+    return prepared.errors;
+  }
+  if (prepared.status === "missing") {
+    return ids.map((id) => missingResourceIssue(id));
+  }
+
   const errors: string[] = [];
-  const validIds = ids.filter((id) => {
-    if (isInvestigationResourceId(id)) {
-      return true;
+  for (const id of ids) {
+    throwIfAborted(signal, "investigation resource validation was aborted");
+    errors.push(...(await directResourceIssues(prepared, id)));
+  }
+  return uniqueSorted(errors);
+}
+
+/**
+ * Performs the default resource check after all topic reports have been
+ * parsed. Referenced resources are errors; visible members absent from every
+ * valid reference are warnings.
+ */
+export async function validateFullInvestigationResources(
+  investigationsDirectory: string,
+  referencesByTopic: InvestigationResourceReferences,
+  signal?: AbortSignal
+): Promise<InvestigationResourceValidationResult> {
+  const referencedIds = uniqueSorted(
+    [...referencesByTopic.values()].flatMap((ids) => [...ids])
+  );
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  const prepared = await prepareResourceRoot(investigationsDirectory);
+
+  for (const id of referencedIds) {
+    errors.push(...ownerIssues(id, referencesByTopic));
+  }
+
+  if (prepared.status === "invalid") {
+    errors.push(...prepared.errors);
+    return validationResult(errors, warnings);
+  }
+  if (prepared.status === "missing") {
+    errors.push(...referencedIds.map(missingResourceIssue));
+    if (prepared.membership.mode === "version-control") {
+      const referenced = new Set(referencedIds);
+      for (const id of prepared.membership.files) {
+        if (referenced.has(id)) {
+          continue;
+        }
+        warnings.push(...ownerIssues(id, referencesByTopic));
+        warnings.push(missingResourceIssue(id));
+      }
     }
+    return validationResult(errors, warnings);
+  }
+
+  let visibleIds: string[];
+  try {
+    visibleIds = await discoverVisibleResourceIds(prepared, signal);
+  } catch (error) {
     errors.push(
-      `resource ${JSON.stringify(id)} must use a safe, normalized resource id`
+      `${investigationResourcesDirectoryName} membership could not be fully inspected: ${errorText(error)}`
     );
-    return false;
-  });
+    visibleIds = [];
+  }
+
+  for (const id of referencedIds) {
+    throwIfAborted(signal, "investigation resource validation was aborted");
+    errors.push(...(await directResourceIssues(prepared, id)));
+  }
+
+  const referenced = new Set(referencedIds);
+  for (const id of visibleIds) {
+    if (referenced.has(id)) {
+      continue;
+    }
+    throwIfAborted(signal, "investigation resource validation was aborted");
+    warnings.push(...ownerIssues(id, referencesByTopic));
+    warnings.push(...(await directResourceIssues(prepared, id)));
+  }
+  return validationResult(errors, warnings);
+}
+
+async function prepareResourceRoot(
+  investigationsDirectory: string
+): Promise<ResourceRootPreparation> {
   const resourcesRoot = path.join(
     investigationsDirectory,
     investigationResourcesDirectoryName
@@ -126,24 +155,44 @@ export async function validateReferencedInvestigationResources(
   try {
     rootStat = await lstatOrNull(resourcesRoot);
   } catch (error) {
-    errors.push(
-      `${investigationResourcesDirectoryName} could not be inspected: ${errorText(error)}`
-    );
-    return uniqueSorted(errors);
+    return {
+      errors: [
+        `${investigationResourcesDirectoryName} could not be inspected: ${errorText(error)}`
+      ],
+      status: "invalid"
+    };
   }
   if (rootStat === null) {
-    errors.push(...validIds.map((id) => `${resourcePath(id)} does not exist`));
-    return uniqueSorted(errors);
+    try {
+      return {
+        membership: await readManagedResourceMembership(
+          investigationsDirectory,
+          resourcesRoot
+        ),
+        status: "missing"
+      };
+    } catch (error) {
+      return {
+        errors: [
+          `${investigationResourcesDirectoryName} membership could not be determined: ${errorText(error)}`
+        ],
+        status: "invalid"
+      };
+    }
   }
   if (rootStat.isSymbolicLink()) {
-    errors.push(
-      `${investigationResourcesDirectoryName} must not be a symbolic link`
-    );
-    return uniqueSorted(errors);
+    return {
+      errors: [
+        `${investigationResourcesDirectoryName} must not be a symbolic link`
+      ],
+      status: "invalid"
+    };
   }
   if (!rootStat.isDirectory()) {
-    errors.push(`${investigationResourcesDirectoryName} must be a directory`);
-    return uniqueSorted(errors);
+    return {
+      errors: [`${investigationResourcesDirectoryName} must be a directory`],
+      status: "invalid"
+    };
   }
 
   let canonicalResourcesRoot: string;
@@ -153,104 +202,83 @@ export async function validateReferencedInvestigationResources(
       resourcesRoot
     );
   } catch (error) {
-    errors.push(
-      `${investigationResourcesDirectoryName} could not be safely resolved: ${errorText(error)}`
-    );
-    return uniqueSorted(errors);
-  }
-  let managedResourceMembership: ManagedResourceMembership;
-  try {
-    managedResourceMembership = await readManagedResourceMembership(
-      investigationsDirectory,
-      canonicalResourcesRoot
-    );
-  } catch (error) {
-    errors.push(
-      `${investigationResourcesDirectoryName} membership could not be determined: ${errorText(error)}`
-    );
-    return uniqueSorted(errors);
+    return {
+      errors: [
+        `${investigationResourcesDirectoryName} could not be safely resolved: ${errorText(error)}`
+      ],
+      status: "invalid"
+    };
   }
 
-  for (const id of validIds) {
-    if (signal?.aborted === true) {
-      throw new Error("investigation resource validation was aborted");
-    }
-    try {
-      const resourceErrors = await validateReferencedResource(
-        canonicalResourcesRoot,
-        id
-      );
-      errors.push(...resourceErrors);
-      if (
-        resourceErrors.length === 0 &&
-        managedResourceMembership.mode === "version-control" &&
-        !managedResourceMembership.files.has(id)
-      ) {
-        errors.push(
-          `${resourcePath(id)} is ignored by version-control rules and is not a managed investigation resource`
-        );
-      }
-    } catch (error) {
-      errors.push(
-        `${resourcePath(id)} could not be validated: ${errorText(error)}`
-      );
-    }
+  try {
+    return {
+      canonicalResourcesRoot,
+      membership: await readManagedResourceMembership(
+        investigationsDirectory,
+        canonicalResourcesRoot
+      ),
+      status: "ready"
+    };
+  } catch (error) {
+    return {
+      errors: [
+        `${investigationResourcesDirectoryName} membership could not be determined: ${errorText(error)}`
+      ],
+      status: "invalid"
+    };
   }
-  return uniqueSorted(errors);
 }
 
-async function walkResourceDirectory(
+async function discoverVisibleResourceIds(
+  resourceRoot: ResourceRoot,
+  signal: AbortSignal | undefined
+): Promise<string[]> {
+  if (resourceRoot.membership.mode === "version-control") {
+    return [...resourceRoot.membership.files].sort(compareText);
+  }
+  return await walkFileSystemResourceIds(
+    resourceRoot.canonicalResourcesRoot,
+    "",
+    resourceRoot.canonicalResourcesRoot,
+    signal
+  );
+}
+
+async function walkFileSystemResourceIds(
   absoluteDirectory: string,
   relativeDirectory: string,
   canonicalResourcesRoot: string,
-  managedResourceMembership: ManagedResourceMembership,
   signal: AbortSignal | undefined
-): Promise<ResourceWalkResult> {
-  const encounteredResourceIds: string[] = [];
-  const errors: string[] = [];
-  const resources: InvestigationResourceSource[] = [];
-  if (signal?.aborted === true) {
-    throw new Error("investigation resource read was aborted");
-  }
+): Promise<string[]> {
+  throwIfAborted(signal, "investigation resource discovery was aborted");
   let entries: Dirent<string>[];
   try {
     entries = await fs.readdir(absoluteDirectory, { withFileTypes: true });
   } catch (error) {
-    errors.push(
-      `${resourceDirectoryPath(relativeDirectory)} could not be read: ${errorText(error)}`
+    throw new Error(
+      `${resourceDirectoryPath(relativeDirectory)} could not be read: ${errorText(error)}`,
+      { cause: error }
     );
-    return { encounteredResourceIds, errors, resources };
   }
   entries.sort((left, right) => compareText(left.name, right.name));
+
+  const ids: string[] = [];
   for (const entry of entries) {
     const id =
       relativeDirectory.length === 0
         ? entry.name
         : `${relativeDirectory}/${entry.name}`;
-    if (!isManagedResourcePath(id, managedResourceMembership)) {
-      continue;
-    }
     const absolutePath = path.join(absoluteDirectory, entry.name);
     let stat: Awaited<ReturnType<typeof fs.lstat>>;
     try {
       stat = await fs.lstat(absolutePath);
     } catch (error) {
-      errors.push(
-        `${resourcePath(id)} could not be inspected: ${errorText(error)}`
+      throw new Error(
+        `${resourcePath(id)} could not be inspected: ${errorText(error)}`,
+        { cause: error }
       );
-      continue;
     }
-    if (stat.isSymbolicLink()) {
-      if (
-        managedResourceMembership.mode === "version-control" &&
-        managedResourceMembership.files.has(id)
-      ) {
-        encounteredResourceIds.push(id);
-      }
-      errors.push(`${resourcePath(id)} must not be a symbolic link`);
-      continue;
-    }
-    if (stat.isDirectory()) {
+    if (stat.isDirectory() && !stat.isSymbolicLink()) {
       let canonicalDirectory: string;
       try {
         canonicalDirectory = await verifiedCanonicalResourceDirectory(
@@ -258,58 +286,84 @@ async function walkResourceDirectory(
           canonicalResourcesRoot
         );
       } catch (error) {
-        errors.push(
-          `${resourcePath(id)} could not be safely traversed: ${errorText(error)}`
+        throw new Error(
+          `${resourcePath(id)} could not be safely traversed: ${errorText(error)}`,
+          { cause: error }
         );
-        continue;
       }
-      const nested = await walkResourceDirectory(
+      const nestedIds = await walkFileSystemResourceIds(
         canonicalDirectory,
         id,
         canonicalResourcesRoot,
-        managedResourceMembership,
         signal
       );
-      encounteredResourceIds.push(...nested.encounteredResourceIds);
-      errors.push(...nested.errors);
-      resources.push(...nested.resources);
+      if (nestedIds.length === 0 && id.split("/").length >= 3) {
+        ids.push(id);
+      } else {
+        ids.push(...nestedIds);
+      }
       continue;
     }
-    if (
-      managedResourceMembership.mode === "version-control" &&
-      !managedResourceMembership.files.has(id)
-    ) {
-      errors.push(
-        `${resourcePath(id)} must remain a directory for version-control-visible resources`
-      );
-      continue;
-    }
-    encounteredResourceIds.push(id);
-    if (!stat.isFile()) {
-      errors.push(`${resourcePath(id)} must be a regular file`);
-      continue;
-    }
-    if (!isInvestigationResourceId(id)) {
-      errors.push(
-        `${resourcePath(id)} must use a safe, normalized resource id`
-      );
-      continue;
-    }
+    ids.push(id);
+  }
+  return ids.sort(compareText);
+}
+
+async function directResourceIssues(
+  resourceRoot: ResourceRoot,
+  id: string
+): Promise<string[]> {
+  const errors: string[] = [];
+  if (!isInvestigationResourceId(id)) {
+    errors.push(
+      `${resourcePath(id)} must use a safe, normalized resource id with an owner topic prefix`
+    );
+  }
+  if (isSafeResourcePath(id)) {
     try {
-      resources.push({
-        bytes: await readVerifiedRegularFile(
-          absolutePath,
-          canonicalResourcesRoot
-        ),
-        id
-      });
+      errors.push(
+        ...(await validateReferencedResource(
+          resourceRoot.canonicalResourcesRoot,
+          id
+        ))
+      );
     } catch (error) {
       errors.push(
-        `${resourcePath(id)} could not be read as a regular file: ${errorText(error)}`
+        `${resourcePath(id)} could not be validated: ${errorText(error)}`
       );
     }
   }
-  return { encounteredResourceIds, errors, resources };
+  if (
+    resourceRoot.membership.mode === "version-control" &&
+    !resourceRoot.membership.files.has(id)
+  ) {
+    errors.push(
+      `${resourcePath(id)} is ignored by version-control rules and is not a managed investigation resource`
+    );
+  }
+  return uniqueSorted(errors);
+}
+
+function ownerIssues(
+  id: string,
+  referencesByTopic: InvestigationResourceReferences
+): string[] {
+  const ownerTopicId = investigationResourceOwnerTopicId(id);
+  if (ownerTopicId === null) {
+    return [
+      `${resourcePath(id)} must use a safe, normalized resource id with an owner topic prefix`
+    ];
+  }
+  const ownerReferences = referencesByTopic.get(ownerTopicId);
+  if (ownerReferences === undefined) {
+    return [`${resourcePath(id)} owner topic ${ownerTopicId} does not exist`];
+  }
+  if (!ownerReferences.has(id)) {
+    return [
+      `${resourcePath(id)} must be referenced by its owner topic ${ownerTopicId}`
+    ];
+  }
+  return [];
 }
 
 async function readManagedResourceMembership(
@@ -336,34 +390,16 @@ async function readManagedResourceMembership(
   const workspaceFiles = await repository.listWorkspaceFiles({
     pathScopes: [resourcePathScope]
   });
-  const files = new Set(
-    workspaceFiles.flatMap((workspacePath) =>
-      workspacePath.startsWith(resourcePathPrefix)
-        ? [workspacePath.slice(resourcePathPrefix.length)]
-        : []
-    )
-  );
-  const directories = new Set<string>();
-  for (const id of files) {
-    const segments = id.split("/");
-    for (let index = 1; index < segments.length; index += 1) {
-      directories.add(segments.slice(0, index).join("/"));
-    }
-  }
-  return { directories, files, mode: "version-control" };
-}
-
-function isManagedResourcePath(
-  id: string,
-  managedResourceMembership: ManagedResourceMembership
-): boolean {
-  if (managedResourceMembership.mode === "file-system") {
-    return true;
-  }
-  return (
-    managedResourceMembership.files.has(id) ||
-    managedResourceMembership.directories.has(id)
-  );
+  return {
+    files: new Set(
+      workspaceFiles.flatMap((workspacePath) =>
+        workspacePath.startsWith(resourcePathPrefix)
+          ? [workspacePath.slice(resourcePathPrefix.length)]
+          : []
+      )
+    ),
+    mode: "version-control"
+  };
 }
 
 async function validateReferencedResource(
@@ -422,7 +458,7 @@ async function validateReferencedResource(
       return errors;
     }
     try {
-      await readVerifiedRegularFile(absolutePath, canonicalResourcesRoot);
+      await verifyRegularFile(absolutePath, canonicalResourcesRoot);
     } catch (error) {
       errors.push(
         `${resourcePath(id)} could not be read as a regular file: ${errorText(error)}`
@@ -432,10 +468,10 @@ async function validateReferencedResource(
   return errors;
 }
 
-async function readVerifiedRegularFile(
+async function verifyRegularFile(
   absolutePath: string,
   canonicalResourcesRoot: string
-): Promise<Uint8Array> {
+): Promise<void> {
   const handle = await fs.open(
     absolutePath,
     fileSystemConstants.O_RDONLY | fileSystemConstants.O_NOFOLLOW
@@ -460,7 +496,6 @@ async function readVerifiedRegularFile(
         "resource path changed while its opened file was being verified"
       );
     }
-    return await handle.readFile();
   } finally {
     await handle.close();
   }
@@ -536,6 +571,19 @@ async function verifiedCanonicalResourcesRoot(
   return canonicalResourcesRoot;
 }
 
+function isSafeResourcePath(value: string): boolean {
+  return (
+    value.length > 0 &&
+    !path.posix.isAbsolute(value) &&
+    !path.win32.isAbsolute(value) &&
+    !value
+      .split("/")
+      .some(
+        (segment) => segment.length === 0 || segment === "." || segment === ".."
+      )
+  );
+}
+
 function sameFileIdentity(
   left: Readonly<{ dev: bigint; ino: bigint }>,
   right: Readonly<{ dev: bigint; ino: bigint }>
@@ -556,8 +604,31 @@ async function lstatOrNull(
   }
 }
 
+function validationResult(
+  errors: readonly string[],
+  warnings: readonly string[]
+): InvestigationResourceValidationResult {
+  return {
+    errors: uniqueSorted(errors),
+    warnings: uniqueSorted(warnings)
+  };
+}
+
+function throwIfAborted(
+  signal: AbortSignal | undefined,
+  message: string
+): void {
+  if (signal?.aborted === true) {
+    throw new Error(message);
+  }
+}
+
 function resourcePath(id: string): string {
   return `${investigationResourcesDirectoryName}/${id}`;
+}
+
+function missingResourceIssue(id: string): string {
+  return `${resourcePath(id)} does not exist`;
 }
 
 function resourceDirectoryPath(relativeDirectory: string): string {

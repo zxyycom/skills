@@ -1,8 +1,12 @@
-### Case INVESTIGATION-CLI-SYNC-001: 生成 sync-index 命令写入完整索引
+### Case INVESTIGATION-CLI-SYNC-001: 生成 Sync-index 命令写入完整 v5 索引
+
 Entry:
 - `tools/investigation-report/tests/cli-generated.test.ts > generated investigation sync command writes the full index`
 - `bun test --test-name-pattern="^generated investigation sync command writes the full index$" ./tools/investigation-report/tests/run.ts`
+
 Contract:
-- `sync-index` 命令必须验证完整调查集合与资源集合，并写入标准索引文件。
+- `sync-index` 命令必须校验完整调查集合，并将 v5 主题索引写入标准索引文件；资源关系只保存于主题 state，metadata 不保存资源摘要。
+
 Proves:
-- 命令成功时只向 stdout 报告同步结果且 stderr 为空，目标索引实际保存资源关系与原始字节 SHA-256。
+- 命令成功时只向 stdout 报告同步结果且 stderr 为空。
+- 写出的索引 metadata 为 `{}`，并为带随附资源的报告保留 resourceReferences。

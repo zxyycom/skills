@@ -1,7 +1,7 @@
 ---
 title: 以主题归属锚定调查资源
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-17T08:03:12Z
 purpose: 让集中存放的调查资源拥有可从路径恢复的稳定主题 owner，同时允许多份报告安全复用同一文件。
 background: 统一资源目录只表达集中存放，任意嵌套路径没有声明由哪个主题维持资源，也无法区分 owner 引用与外部共享引用。

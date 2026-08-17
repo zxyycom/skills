@@ -6006,24 +6006,24 @@
     "INVESTIGATION-CLI-CONTRACTS-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-CONTRACTS-001 生成 check 命令保持验证契约 生成调查 CLI 的默认 check 命令必须支持完整校验；路径过滤 check 必须校验命中报告的资源引用但不声称已检查全局索引，并以退出码区分有效和无效输入。 完整与过滤检查成功时只向 stdout 写结果且 stderr 为空；过滤检查对存在的引用资源成功并报告 `index not checked`。 删除目标报告引用的资源后，命令以精确 ID 诊断和退出码 1 失败；报告结构错误亦返回退出码 1，两类失败的 stdout 均为空。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation check command preserves validation contracts bun test --test-name-pattern=\"^generated investigation check command preserves validation contracts$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-CONTRACTS-001 生成 Check 命令保持验证契约 生成调查 CLI 的默认 check 必须执行完整校验；路径过滤 check 只校验命中报告及其引用资源，不声称已检查全局资源池或索引，并以退出码区分有效与无效输入。 完整与过滤检查成功时只向 stdout 写结果且 stderr 为空；过滤检查报告 `index not checked`。 删除目标报告引用的资源或破坏报告结构后，命令以退出码 1 失败、stdout 为空，并给出对应诊断。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation check command preserves validation contracts bun test --test-name-pattern=\"^generated investigation check command preserves validation contracts$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 13,
         "entries": [
           "tools/investigation-report/tests/cli-generated.test.ts > generated investigation check command preserves validation contracts",
           "bun test --test-name-pattern=\"^generated investigation check command preserves validation contracts$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-CLI-CONTRACTS-001",
         "line": 1,
-        "searchText": "生成 check 命令保持验证契约 生成调查 CLI 的默认 check 命令必须支持完整校验；路径过滤 check 必须校验命中报告的资源引用但不声称已检查全局索引，并以退出码区分有效和无效输入。 完整与过滤检查成功时只向 stdout 写结果且 stderr 为空；过滤检查对存在的引用资源成功并报告 `index not checked`。 删除目标报告引用的资源后，命令以精确 ID 诊断和退出码 1 失败；报告结构错误亦返回退出码 1，两类失败的 stdout 均为空。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation check command preserves validation contracts bun test --test-name-pattern=\"^generated investigation check command preserves validation contracts$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "生成 Check 命令保持验证契约 生成调查 CLI 的默认 check 必须执行完整校验；路径过滤 check 只校验命中报告及其引用资源，不声称已检查全局资源池或索引，并以退出码区分有效与无效输入。 完整与过滤检查成功时只向 stdout 写结果且 stderr 为空；过滤检查报告 `index not checked`。 删除目标报告引用的资源或破坏报告结构后，命令以退出码 1 失败、stdout 为空，并给出对应诊断。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation check command preserves validation contracts bun test --test-name-pattern=\"^generated investigation check command preserves validation contracts$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/generated-investigation-check-command-preserves-validation-contracts.md",
-        "summary": "生成调查 CLI 的默认 check 命令必须支持完整校验；路径过滤 check 必须校验命中报告的资源引用但不声称已检查全局索引，并以退出码区分有效和无效输入。",
-        "title": "生成 check 命令保持验证契约"
+        "summary": "生成调查 CLI 的默认 check 必须执行完整校验；路径过滤 check 只校验命中报告及其引用资源，不声称已检查全局资源池或索引，并以退出码区分有效与无效输入。",
+        "title": "生成 Check 命令保持验证契约"
       }
     },
     "INVESTIGATION-CLI-LIST-001": {
@@ -6049,10 +6049,10 @@
         "title": "生成 list 命令按索引条件过滤主题"
       }
     },
-    "INVESTIGATION-CLI-RESOURCE-STALE-001": {
+    "INVESTIGATION-CLI-LIST-FRESHNESS-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-RESOURCE-STALE-001 生成 List 命令拒绝过期的随附资源 分发 `list` 命令在返回索引主题前必须核对当前资源字节，过期时以资源 ID 诊断失败。 同步后修改二进制资源会使生成 `list` 返回退出码 1，stdout 为空，stderr 同时指出资源 ID 和内容变化原因。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation list rejects stale attached resources bun test --test-name-pattern=\"^generated investigation list rejects stale attached resources$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-LIST-FRESHNESS-001 生成 List 命令不因随附资源字节变化而过期 分发 `list` 命令以主题 Markdown 的 v5 来源 revision 判断索引新鲜度，不把随附资源原始字节纳入该判断。 同步后修改已引用二进制资源的字节，`list` 仍以退出码 0 返回主题，且 stderr 为空。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation list remains current after attached resource byte changes bun test --test-name-pattern=\"^generated investigation list remains current after attached resource byte changes$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -6061,38 +6061,38 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/investigation-report/tests/cli-generated.test.ts > generated investigation list rejects stale attached resources",
-          "bun test --test-name-pattern=\"^generated investigation list rejects stale attached resources$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/cli-generated.test.ts > generated investigation list remains current after attached resource byte changes",
+          "bun test --test-name-pattern=\"^generated investigation list remains current after attached resource byte changes$\" ./tools/investigation-report/tests/run.ts"
         ],
-        "id": "INVESTIGATION-CLI-RESOURCE-STALE-001",
+        "id": "INVESTIGATION-CLI-LIST-FRESHNESS-001",
         "line": 1,
-        "searchText": "生成 List 命令拒绝过期的随附资源 分发 `list` 命令在返回索引主题前必须核对当前资源字节，过期时以资源 ID 诊断失败。 同步后修改二进制资源会使生成 `list` 返回退出码 1，stdout 为空，stderr 同时指出资源 ID 和内容变化原因。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation list rejects stale attached resources bun test --test-name-pattern=\"^generated investigation list rejects stale attached resources$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/generated-investigation-list-rejects-stale-attached-resources.md",
-        "summary": "分发 `list` 命令在返回索引主题前必须核对当前资源字节，过期时以资源 ID 诊断失败。",
-        "title": "生成 List 命令拒绝过期的随附资源"
+        "searchText": "生成 List 命令不因随附资源字节变化而过期 分发 `list` 命令以主题 Markdown 的 v5 来源 revision 判断索引新鲜度，不把随附资源原始字节纳入该判断。 同步后修改已引用二进制资源的字节，`list` 仍以退出码 0 返回主题，且 stderr 为空。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation list remains current after attached resource byte changes bun test --test-name-pattern=\"^generated investigation list remains current after attached resource byte changes$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/generated-investigation-list-remains-current-after-resource-byte-changes.md",
+        "summary": "分发 `list` 命令以主题 Markdown 的 v5 来源 revision 判断索引新鲜度，不把随附资源原始字节纳入该判断。",
+        "title": "生成 List 命令不因随附资源字节变化而过期"
       }
     },
     "INVESTIGATION-CLI-SYNC-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-SYNC-001 生成 sync-index 命令写入完整索引 `sync-index` 命令必须验证完整调查集合与资源集合，并写入标准索引文件。 命令成功时只向 stdout 报告同步结果且 stderr 为空，目标索引实际保存资源关系与原始字节 SHA-256。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation sync command writes the full index bun test --test-name-pattern=\"^generated investigation sync command writes the full index$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-SYNC-001 生成 Sync-index 命令写入完整 v5 索引 `sync-index` 命令必须校验完整调查集合，并将 v5 主题索引写入标准索引文件；资源关系只保存于主题 state，metadata 不保存资源摘要。 命令成功时只向 stdout 报告同步结果且 stderr 为空。 写出的索引 metadata 为 `{}`，并为带随附资源的报告保留 resourceReferences。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation sync command writes the full index bun test --test-name-pattern=\"^generated investigation sync command writes the full index$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 13,
         "entries": [
           "tools/investigation-report/tests/cli-generated.test.ts > generated investigation sync command writes the full index",
           "bun test --test-name-pattern=\"^generated investigation sync command writes the full index$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-CLI-SYNC-001",
         "line": 1,
-        "searchText": "生成 sync-index 命令写入完整索引 `sync-index` 命令必须验证完整调查集合与资源集合，并写入标准索引文件。 命令成功时只向 stdout 报告同步结果且 stderr 为空，目标索引实际保存资源关系与原始字节 SHA-256。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation sync command writes the full index bun test --test-name-pattern=\"^generated investigation sync command writes the full index$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "生成 Sync-index 命令写入完整 v5 索引 `sync-index` 命令必须校验完整调查集合，并将 v5 主题索引写入标准索引文件；资源关系只保存于主题 state，metadata 不保存资源摘要。 命令成功时只向 stdout 报告同步结果且 stderr 为空。 写出的索引 metadata 为 `{}`，并为带随附资源的报告保留 resourceReferences。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation sync command writes the full index bun test --test-name-pattern=\"^generated investigation sync command writes the full index$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/generated-investigation-sync-command-writes-the-full-index.md",
-        "summary": "`sync-index` 命令必须验证完整调查集合与资源集合，并写入标准索引文件。",
-        "title": "生成 sync-index 命令写入完整索引"
+        "summary": "`sync-index` 命令必须校验完整调查集合，并将 v5 主题索引写入标准索引文件；资源关系只保存于主题 state，metadata 不保存资源摘要。",
+        "title": "生成 Sync-index 命令写入完整 v5 索引"
       }
     },
     "INVESTIGATION-CLI-USAGE-001": {
@@ -6116,6 +6116,29 @@
         "sourcePath": "investigation-report/generated-investigation-cli-usage-errors-preserve-exit-contracts.md",
         "summary": "帮助请求必须成功展示可选随附资源、完整受管资源池、Git ignore 边界及各命令约束，未知选项、非法 limit 和 sync-index 过滤参数必须返回用法错误。",
         "title": "生成 CLI 的帮助与参数错误保留退出契约"
+      }
+    },
+    "INVESTIGATION-CLI-WARNINGS-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CLI-WARNINGS-001 生成 CLI 将 Warnings 写入 Stderr 而不改变退出语义 生成 CLI 必须把非阻断 warnings 输出到 stderr；只有 errors 才改变命令失败结果，warnings 不得吞掉同时存在的 error。 只有未引用资源 warning 的 check 与 sync 仍以退出码 0 成功，stdout 保留成功结果，stderr 包含资源 ID。 同时存在报告错误与未引用资源 warning 时，命令以退出码 1 失败、stdout 为空，stderr 同时保留失败说明和 warning。 tools/investigation-report/tests/cli-generated.test.ts > generated CLI prints warnings to stderr without changing success or error exits bun test --test-name-pattern=\"^generated CLI prints warnings to stderr without changing success or error exits$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > generated CLI prints warnings to stderr without changing success or error exits",
+          "bun test --test-name-pattern=\"^generated CLI prints warnings to stderr without changing success or error exits$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CLI-WARNINGS-001",
+        "line": 1,
+        "searchText": "生成 CLI 将 Warnings 写入 Stderr 而不改变退出语义 生成 CLI 必须把非阻断 warnings 输出到 stderr；只有 errors 才改变命令失败结果，warnings 不得吞掉同时存在的 error。 只有未引用资源 warning 的 check 与 sync 仍以退出码 0 成功，stdout 保留成功结果，stderr 包含资源 ID。 同时存在报告错误与未引用资源 warning 时，命令以退出码 1 失败、stdout 为空，stderr 同时保留失败说明和 warning。 tools/investigation-report/tests/cli-generated.test.ts > generated CLI prints warnings to stderr without changing success or error exits bun test --test-name-pattern=\"^generated CLI prints warnings to stderr without changing success or error exits$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/generated-cli-prints-warnings-to-stderr.md",
+        "summary": "生成 CLI 必须把非阻断 warnings 输出到 stderr；只有 errors 才改变命令失败结果，warnings 不得吞掉同时存在的 error。",
+        "title": "生成 CLI 将 Warnings 写入 Stderr 而不改变退出语义"
       }
     },
     "INVESTIGATION-COLLECTION-LAYOUT-001": {
@@ -6167,7 +6190,7 @@
     "INVESTIGATION-EMPTY-COLLECTION-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-EMPTY-COLLECTION-001 完整校验与同步拒绝空调查集合 完整调查集合必须至少包含一个合法主题；完整校验和索引同步不能把零主题集合视为有效，也不能为它物化空索引。 完整校验与同步分别返回包含 `investigation collection must contain at least one topic` 的唯一操作诊断，主题计数保持为零。 同步结果声明 `changed: false`，且目标 `investigation-index.json` 不存在。 即使手工放入结构合法、空 entries 与空资源 metadata 对应 revision 一致的索引，公共查询仍从实时 source revision 读取返回零主题诊断、空 entries 和 `total: 0`，而不是把空集合当成成功的空查询结果。 tools/investigation-report/tests/parsing-directory.test.ts > full validation and synchronization reject empty investigation collections bun test --test-name-pattern=\"^full validation and synchronization reject empty investigation collections$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-EMPTY-COLLECTION-001 完整校验与同步拒绝空调查集合 完整调查集合必须至少包含一个合法主题；完整校验和索引同步不能把零主题集合视为有效，也不能为它物化空 v5 索引。 完整校验与同步分别返回 `investigation collection must contain at least one topic` 的唯一操作诊断，主题计数保持为零。 同步结果声明 `changed: false`，且目标 `investigation-index.json` 不存在。 即使手工放入结构合法、entries 为空且 metadata 为 `{}` 的对应 revision 索引，公共查询仍返回零主题诊断、空 entries 和 `total: 0`，而不把空集合当作成功的空查询。 tools/investigation-report/tests/parsing-directory.test.ts > full validation and synchronization reject empty investigation collections bun test --test-name-pattern=\"^full validation and synchronization reject empty investigation collections$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -6181,79 +6204,102 @@
         ],
         "id": "INVESTIGATION-EMPTY-COLLECTION-001",
         "line": 1,
-        "searchText": "完整校验与同步拒绝空调查集合 完整调查集合必须至少包含一个合法主题；完整校验和索引同步不能把零主题集合视为有效，也不能为它物化空索引。 完整校验与同步分别返回包含 `investigation collection must contain at least one topic` 的唯一操作诊断，主题计数保持为零。 同步结果声明 `changed: false`，且目标 `investigation-index.json` 不存在。 即使手工放入结构合法、空 entries 与空资源 metadata 对应 revision 一致的索引，公共查询仍从实时 source revision 读取返回零主题诊断、空 entries 和 `total: 0`，而不是把空集合当成成功的空查询结果。 tools/investigation-report/tests/parsing-directory.test.ts > full validation and synchronization reject empty investigation collections bun test --test-name-pattern=\"^full validation and synchronization reject empty investigation collections$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "完整校验与同步拒绝空调查集合 完整调查集合必须至少包含一个合法主题；完整校验和索引同步不能把零主题集合视为有效，也不能为它物化空 v5 索引。 完整校验与同步分别返回 `investigation collection must contain at least one topic` 的唯一操作诊断，主题计数保持为零。 同步结果声明 `changed: false`，且目标 `investigation-index.json` 不存在。 即使手工放入结构合法、entries 为空且 metadata 为 `{}` 的对应 revision 索引，公共查询仍返回零主题诊断、空 entries 和 `total: 0`，而不把空集合当作成功的空查询。 tools/investigation-report/tests/parsing-directory.test.ts > full validation and synchronization reject empty investigation collections bun test --test-name-pattern=\"^full validation and synchronization reject empty investigation collections$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/full-validation-and-synchronization-reject-empty-investigation-collections.md",
-        "summary": "完整调查集合必须至少包含一个合法主题；完整校验和索引同步不能把零主题集合视为有效，也不能为它物化空索引。",
+        "summary": "完整调查集合必须至少包含一个合法主题；完整校验和索引同步不能把零主题集合视为有效，也不能为它物化空 v5 索引。",
         "title": "完整校验与同步拒绝空调查集合"
       }
     },
     "INVESTIGATION-GENERATED-METADATA-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-GENERATED-METADATA-001 生成调查制品携带可移植元数据 调查分发制品必须暴露维护来源、当前资源索引 schema、选择性暂存 API 及其传递依赖，且不包含机器绝对路径。 Banner、声明和 source map 使用仓库可移植路径；声明暴露 `stageInvestigationIndex`，source map 内联领域、公共运行时和版本仓库暂存源码；definition version 4 schema 包含 resourceReferences 与 SHA-256 约束。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation artifacts expose portable metadata bun test --test-name-pattern=\"^generated investigation artifacts expose portable metadata$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-GENERATED-METADATA-001 生成调查制品携带可移植的 v5 元数据 调查分发制品必须暴露维护来源、v5 索引 schema、选择性暂存 API 及其传递依赖，且不包含机器绝对路径。 Banner、声明和 source map 使用仓库可移植路径，声明暴露 `stageInvestigationIndex` 及其运行时依赖。 生成 schema 固定 definition version 5、严格空 metadata、Schema v3 与主题 state 的 `resourceReferences` 约束。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation artifacts expose portable metadata bun test --test-name-pattern=\"^generated investigation artifacts expose portable metadata$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 13,
         "entries": [
           "tools/investigation-report/tests/cli-generated.test.ts > generated investigation artifacts expose portable metadata",
           "bun test --test-name-pattern=\"^generated investigation artifacts expose portable metadata$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-GENERATED-METADATA-001",
         "line": 1,
-        "searchText": "生成调查制品携带可移植元数据 调查分发制品必须暴露维护来源、当前资源索引 schema、选择性暂存 API 及其传递依赖，且不包含机器绝对路径。 Banner、声明和 source map 使用仓库可移植路径；声明暴露 `stageInvestigationIndex`，source map 内联领域、公共运行时和版本仓库暂存源码；definition version 4 schema 包含 resourceReferences 与 SHA-256 约束。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation artifacts expose portable metadata bun test --test-name-pattern=\"^generated investigation artifacts expose portable metadata$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "生成调查制品携带可移植的 v5 元数据 调查分发制品必须暴露维护来源、v5 索引 schema、选择性暂存 API 及其传递依赖，且不包含机器绝对路径。 Banner、声明和 source map 使用仓库可移植路径，声明暴露 `stageInvestigationIndex` 及其运行时依赖。 生成 schema 固定 definition version 5、严格空 metadata、Schema v3 与主题 state 的 `resourceReferences` 约束。 tools/investigation-report/tests/cli-generated.test.ts > generated investigation artifacts expose portable metadata bun test --test-name-pattern=\"^generated investigation artifacts expose portable metadata$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/generated-investigation-artifacts-expose-portable-metadata.md",
-        "summary": "调查分发制品必须暴露维护来源、当前资源索引 schema、选择性暂存 API 及其传递依赖，且不包含机器绝对路径。",
-        "title": "生成调查制品携带可移植元数据"
+        "summary": "调查分发制品必须暴露维护来源、v5 索引 schema、选择性暂存 API 及其传递依赖，且不包含机器绝对路径。",
+        "title": "生成调查制品携带可移植的 v5 元数据"
+      }
+    },
+    "INVESTIGATION-INDEX-COMPATIBILITY-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-INDEX-COMPATIBILITY-001 索引拒绝旧 Definition 与额外 Metadata 解析持久化调查索引时只接受 Schema v3、definition version 5 和严格空 metadata；旧 definition 或额外 metadata 字段不兼容。 Schema version 2 与 definition version 4 都被解析拒绝。 在 metadata 中加入旧的 `resources` 字段被额外属性校验拒绝。 tools/investigation-report/tests/index-query.test.ts > index rejects legacy definitions and additional metadata bun test --test-name-pattern=\"^index rejects legacy definitions and additional metadata$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/index-query.test.ts > index rejects legacy definitions and additional metadata",
+          "bun test --test-name-pattern=\"^index rejects legacy definitions and additional metadata$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-INDEX-COMPATIBILITY-001",
+        "line": 1,
+        "searchText": "索引拒绝旧 Definition 与额外 Metadata 解析持久化调查索引时只接受 Schema v3、definition version 5 和严格空 metadata；旧 definition 或额外 metadata 字段不兼容。 Schema version 2 与 definition version 4 都被解析拒绝。 在 metadata 中加入旧的 `resources` 字段被额外属性校验拒绝。 tools/investigation-report/tests/index-query.test.ts > index rejects legacy definitions and additional metadata bun test --test-name-pattern=\"^index rejects legacy definitions and additional metadata$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/index-rejects-legacy-definitions-and-extra-metadata.md",
+        "summary": "解析持久化调查索引时只接受 Schema v3、definition version 5 和严格空 metadata；旧 definition 或额外 metadata 字段不兼容。",
+        "title": "索引拒绝旧 Definition 与额外 Metadata"
       }
     },
     "INVESTIGATION-INDEX-INTEGRITY-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-INDEX-INTEGRITY-001 索引加载拒绝过期与篡改内容 调查索引快速加载必须验证通用结构、schema 版本与结构化来源新鲜度；显式完整解析继续验证 ID-keyed state、资源关系和 metadata 完整性。 过期索引在快速加载时被拒绝，key projection 篡改在严格检查时被拒绝。 Schema v2、非法来源 fingerprint、state/path 身份不一致和报告计数篡改均被完整解析拒绝。 非法资源 SHA-256、越界 reportIndex、state 引用缺失 metadata 和 metadata 孤儿资源均被完整解析拒绝。 resourceReferences 的 reportIndex 与 resourceIds，以及 metadata 的资源 ID 发生乱序或重复时，分别命中对应的严格顺序与唯一性诊断。 tools/investigation-report/tests/index-query.test.ts > index loading rejects stale and tampered investigation indexes bun test --test-name-pattern=\"^index loading rejects stale and tampered investigation indexes$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-INDEX-INTEGRITY-001 索引加载拒绝过期与篡改的主题投影 调查索引加载必须用当前主题 Markdown 的 source revision 拒绝过期索引，并在完整校验时拒绝不符合运行时 key projection 的持久化 state。 直接新增主题文件后，完整验证和查询都拒绝未同步索引。 同步后篡改索引标题，完整验证拒绝其 state 与运行时 keys 不一致。 tools/investigation-report/tests/index-query.test.ts > index loading rejects stale and tampered topic projections bun test --test-name-pattern=\"^index loading rejects stale and tampered topic projections$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 13,
         "entries": [
-          "tools/investigation-report/tests/index-query.test.ts > index loading rejects stale and tampered investigation indexes",
-          "bun test --test-name-pattern=\"^index loading rejects stale and tampered investigation indexes$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/index-query.test.ts > index loading rejects stale and tampered topic projections",
+          "bun test --test-name-pattern=\"^index loading rejects stale and tampered topic projections$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-INDEX-INTEGRITY-001",
         "line": 1,
-        "searchText": "索引加载拒绝过期与篡改内容 调查索引快速加载必须验证通用结构、schema 版本与结构化来源新鲜度；显式完整解析继续验证 ID-keyed state、资源关系和 metadata 完整性。 过期索引在快速加载时被拒绝，key projection 篡改在严格检查时被拒绝。 Schema v2、非法来源 fingerprint、state/path 身份不一致和报告计数篡改均被完整解析拒绝。 非法资源 SHA-256、越界 reportIndex、state 引用缺失 metadata 和 metadata 孤儿资源均被完整解析拒绝。 resourceReferences 的 reportIndex 与 resourceIds，以及 metadata 的资源 ID 发生乱序或重复时，分别命中对应的严格顺序与唯一性诊断。 tools/investigation-report/tests/index-query.test.ts > index loading rejects stale and tampered investigation indexes bun test --test-name-pattern=\"^index loading rejects stale and tampered investigation indexes$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/index-loading-rejects-stale-and-tampered-investigation-indexes.md",
-        "summary": "调查索引快速加载必须验证通用结构、schema 版本与结构化来源新鲜度；显式完整解析继续验证 ID-keyed state、资源关系和 metadata 完整性。",
-        "title": "索引加载拒绝过期与篡改内容"
+        "searchText": "索引加载拒绝过期与篡改的主题投影 调查索引加载必须用当前主题 Markdown 的 source revision 拒绝过期索引，并在完整校验时拒绝不符合运行时 key projection 的持久化 state。 直接新增主题文件后，完整验证和查询都拒绝未同步索引。 同步后篡改索引标题，完整验证拒绝其 state 与运行时 keys 不一致。 tools/investigation-report/tests/index-query.test.ts > index loading rejects stale and tampered topic projections bun test --test-name-pattern=\"^index loading rejects stale and tampered topic projections$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/index-loading-rejects-stale-and-tampered-topic-projections.md",
+        "summary": "调查索引加载必须用当前主题 Markdown 的 source revision 拒绝过期索引，并在完整校验时拒绝不符合运行时 key projection 的持久化 state。",
+        "title": "索引加载拒绝过期与篡改的主题投影"
       }
     },
     "INVESTIGATION-INDEX-QUERY-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-INDEX-QUERY-001 索引查询筛选并分页调查状态 Schema v3 调查索引必须按报告路径键控 state/revision，无资源集合保存显式空资源投影，并继续支持状态筛选、稳定排序和分页。 Stored entry 不重复保存 ID，entries 与 revision 成员一致，metadata.resources 和 state.resourceReferences 为空数组；查询返回正确 total、offset 和目标报告集合。 tools/investigation-report/tests/index-query.test.ts > index queries return filtered and paginated investigation states bun test --test-name-pattern=\"^index queries return filtered and paginated investigation states$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-INDEX-QUERY-001 索引查询返回 v5 主题状态并要求空 Metadata Schema v3、definition version 5 的调查索引按主题路径键控 state 与 revision，metadata 是严格的空对象，并继续支持状态筛选、稳定排序和分页。 索引 entries 与 revision 成员一致，state 资源引用为空，metadata 为 `{}`。 公共查询按状态和文本条件返回正确的 total、offset 与目标主题。 tools/investigation-report/tests/index-query.test.ts > index queries return v5 topic states with strict empty metadata bun test --test-name-pattern=\"^index queries return v5 topic states with strict empty metadata$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 13,
         "entries": [
-          "tools/investigation-report/tests/index-query.test.ts > index queries return filtered and paginated investigation states",
-          "bun test --test-name-pattern=\"^index queries return filtered and paginated investigation states$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/index-query.test.ts > index queries return v5 topic states with strict empty metadata",
+          "bun test --test-name-pattern=\"^index queries return v5 topic states with strict empty metadata$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-INDEX-QUERY-001",
         "line": 1,
-        "searchText": "索引查询筛选并分页调查状态 Schema v3 调查索引必须按报告路径键控 state/revision，无资源集合保存显式空资源投影，并继续支持状态筛选、稳定排序和分页。 Stored entry 不重复保存 ID，entries 与 revision 成员一致，metadata.resources 和 state.resourceReferences 为空数组；查询返回正确 total、offset 和目标报告集合。 tools/investigation-report/tests/index-query.test.ts > index queries return filtered and paginated investigation states bun test --test-name-pattern=\"^index queries return filtered and paginated investigation states$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/index-queries-return-filtered-and-paginated-investigation-states.md",
-        "summary": "Schema v3 调查索引必须按报告路径键控 state/revision，无资源集合保存显式空资源投影，并继续支持状态筛选、稳定排序和分页。",
-        "title": "索引查询筛选并分页调查状态"
+        "searchText": "索引查询返回 v5 主题状态并要求空 Metadata Schema v3、definition version 5 的调查索引按主题路径键控 state 与 revision，metadata 是严格的空对象，并继续支持状态筛选、稳定排序和分页。 索引 entries 与 revision 成员一致，state 资源引用为空，metadata 为 `{}`。 公共查询按状态和文本条件返回正确的 total、offset 与目标主题。 tools/investigation-report/tests/index-query.test.ts > index queries return v5 topic states with strict empty metadata bun test --test-name-pattern=\"^index queries return v5 topic states with strict empty metadata$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/index-queries-return-v5-topic-states-with-strict-empty-metadata.md",
+        "summary": "Schema v3、definition version 5 的调查索引按主题路径键控 state 与 revision，metadata 是严格的空对象，并继续支持状态筛选、稳定排序和分页。",
+        "title": "索引查询返回 v5 主题状态并要求空 Metadata"
       }
     },
     "INVESTIGATION-INFORMATION-FIELDS-001": {
@@ -6348,10 +6394,10 @@
         "title": "随附资源字段存在时使用严格语法"
       }
     },
-    "INVESTIGATION-RESOURCE-IGNORE-001": {
+    "INVESTIGATION-RESOURCE-GIT-VISIBILITY-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RESOURCE-IGNORE-001 Git ignore 排除未跟踪噪声但保留已跟踪资源 Git 工作区只把版本控制可见文件作为受管调查资源；ignore 排除的未跟踪文件不参与孤儿检查、metadata 或 source revision，已跟踪文件即使后来命中 ignore 仍继续受管。 `__pycache__/*.pyc` 与另一个被 ignore 的未跟踪资源不会导致完整检查失败，也不会进入资源 metadata。 已提交后才命中 ignore 的资源与普通可见资源继续进入 metadata；只改变被忽略缓存的字节不会改变结构化来源 revision。 tools/investigation-report/tests/resources.test.ts > Git ignore rules exclude untracked noise but retain tracked resources bun test --test-name-pattern=\"^Git ignore rules exclude untracked noise but retain tracked resources$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RESOURCE-GIT-VISIBILITY-001 被忽略的二进制资源仅在引用时失败，强制加入后受管 被 Git ignore 且未受版本控制管理的资源不能作为报告引用；`git add -f` 后资源成为可引用的受管文件。已受管但未被任何报告引用的资源只产生 warning。 被 ignore 的二进制资源被引用时，完整验证以版本控制可见性错误失败。 强制加入 Git 后，路径过滤验证通过；移除报告引用后，完整验证成功并报告该资源未引用的 warning。 tools/investigation-report/tests/resources.test.ts > ignored binary resources fail only when referenced, then become managed after git add -f bun test --test-name-pattern=\"^ignored binary resources fail only when referenced, then become managed after git add -f$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -6360,38 +6406,84 @@
       "state": {
         "endLine": 13,
         "entries": [
-          "tools/investigation-report/tests/resources.test.ts > Git ignore rules exclude untracked noise but retain tracked resources",
-          "bun test --test-name-pattern=\"^Git ignore rules exclude untracked noise but retain tracked resources$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/resources.test.ts > ignored binary resources fail only when referenced, then become managed after git add -f",
+          "bun test --test-name-pattern=\"^ignored binary resources fail only when referenced, then become managed after git add -f$\" ./tools/investigation-report/tests/run.ts"
         ],
-        "id": "INVESTIGATION-RESOURCE-IGNORE-001",
+        "id": "INVESTIGATION-RESOURCE-GIT-VISIBILITY-001",
         "line": 1,
-        "searchText": "Git ignore 排除未跟踪噪声但保留已跟踪资源 Git 工作区只把版本控制可见文件作为受管调查资源；ignore 排除的未跟踪文件不参与孤儿检查、metadata 或 source revision，已跟踪文件即使后来命中 ignore 仍继续受管。 `__pycache__/*.pyc` 与另一个被 ignore 的未跟踪资源不会导致完整检查失败，也不会进入资源 metadata。 已提交后才命中 ignore 的资源与普通可见资源继续进入 metadata；只改变被忽略缓存的字节不会改变结构化来源 revision。 tools/investigation-report/tests/resources.test.ts > Git ignore rules exclude untracked noise but retain tracked resources bun test --test-name-pattern=\"^Git ignore rules exclude untracked noise but retain tracked resources$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/git-ignore-excludes-untracked-noise-but-retains-tracked-resources.md",
-        "summary": "Git 工作区只把版本控制可见文件作为受管调查资源；ignore 排除的未跟踪文件不参与孤儿检查、metadata 或 source revision，已跟踪文件即使后来命中 ignore 仍继续受管。",
-        "title": "Git ignore 排除未跟踪噪声但保留已跟踪资源"
+        "searchText": "被忽略的二进制资源仅在引用时失败，强制加入后受管 被 Git ignore 且未受版本控制管理的资源不能作为报告引用；`git add -f` 后资源成为可引用的受管文件。已受管但未被任何报告引用的资源只产生 warning。 被 ignore 的二进制资源被引用时，完整验证以版本控制可见性错误失败。 强制加入 Git 后，路径过滤验证通过；移除报告引用后，完整验证成功并报告该资源未引用的 warning。 tools/investigation-report/tests/resources.test.ts > ignored binary resources fail only when referenced, then become managed after git add -f bun test --test-name-pattern=\"^ignored binary resources fail only when referenced, then become managed after git add -f$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/ignored-binary-resources-require-git-visibility.md",
+        "summary": "被 Git ignore 且未受版本控制管理的资源不能作为报告引用；`git add -f` 后资源成为可引用的受管文件。已受管但未被任何报告引用的资源只产生 warning。",
+        "title": "被忽略的二进制资源仅在引用时失败，强制加入后受管"
       }
     },
-    "INVESTIGATION-RESOURCE-IGNORE-REFERENCE-001": {
+    "INVESTIGATION-RESOURCE-INVALID-OWNER-ANCHOR-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RESOURCE-IGNORE-REFERENCE-001 显式引用 ignore 排除的未跟踪资源时失败 报告不能把 Git ignore 排除的未跟踪本地文件作为可分发调查证据；存在但不受管的目标必须与真正缺失资源区分诊断。 局部检查对磁盘上存在且被 ignore 的 JSON 资源返回版本控制忽略诊断。 同一结果不包含 `does not exist`，证明失败来自受管成员边界而不是文件缺失。 tools/investigation-report/tests/resources.test.ts > validation rejects explicitly referenced ignored resources bun test --test-name-pattern=\"^validation rejects explicitly referenced ignored resources$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RESOURCE-INVALID-OWNER-ANCHOR-001 无效 Owner 主题不能为有效消费者建立资源 Anchor 资源 owner 主题本身必须通过主题验证，才可作为其他有效消费者主题共享资源的 anchor。 owner 主题无效时，即使该主题列出资源，有效消费者的同一资源引用仍返回要求 owner 主题引用该资源的 error。 tools/investigation-report/tests/resources.test.ts > invalid owner topics cannot anchor resource references from valid consumers bun test --test-name-pattern=\"^invalid owner topics cannot anchor resource references from valid consumers$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 12,
         "entries": [
-          "tools/investigation-report/tests/resources.test.ts > validation rejects explicitly referenced ignored resources",
-          "bun test --test-name-pattern=\"^validation rejects explicitly referenced ignored resources$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/resources.test.ts > invalid owner topics cannot anchor resource references from valid consumers",
+          "bun test --test-name-pattern=\"^invalid owner topics cannot anchor resource references from valid consumers$\" ./tools/investigation-report/tests/run.ts"
         ],
-        "id": "INVESTIGATION-RESOURCE-IGNORE-REFERENCE-001",
+        "id": "INVESTIGATION-RESOURCE-INVALID-OWNER-ANCHOR-001",
         "line": 1,
-        "searchText": "显式引用 ignore 排除的未跟踪资源时失败 报告不能把 Git ignore 排除的未跟踪本地文件作为可分发调查证据；存在但不受管的目标必须与真正缺失资源区分诊断。 局部检查对磁盘上存在且被 ignore 的 JSON 资源返回版本控制忽略诊断。 同一结果不包含 `does not exist`，证明失败来自受管成员边界而不是文件缺失。 tools/investigation-report/tests/resources.test.ts > validation rejects explicitly referenced ignored resources bun test --test-name-pattern=\"^validation rejects explicitly referenced ignored resources$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/validation-rejects-explicitly-referenced-ignored-resources.md",
-        "summary": "报告不能把 Git ignore 排除的未跟踪本地文件作为可分发调查证据；存在但不受管的目标必须与真正缺失资源区分诊断。",
-        "title": "显式引用 ignore 排除的未跟踪资源时失败"
+        "searchText": "无效 Owner 主题不能为有效消费者建立资源 Anchor 资源 owner 主题本身必须通过主题验证，才可作为其他有效消费者主题共享资源的 anchor。 owner 主题无效时，即使该主题列出资源，有效消费者的同一资源引用仍返回要求 owner 主题引用该资源的 error。 tools/investigation-report/tests/resources.test.ts > invalid owner topics cannot anchor resource references from valid consumers bun test --test-name-pattern=\"^invalid owner topics cannot anchor resource references from valid consumers$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/invalid-owner-topics-cannot-anchor-valid-consumers.md",
+        "summary": "资源 owner 主题本身必须通过主题验证，才可作为其他有效消费者主题共享资源的 anchor。",
+        "title": "无效 Owner 主题不能为有效消费者建立资源 Anchor"
+      }
+    },
+    "INVESTIGATION-RESOURCE-INVALID-OWNER-WARNING-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RESOURCE-INVALID-OWNER-WARNING-001 仅由无效 Owner 主题链接的可见资源仍是未引用 Warning 无效 owner 主题的资源链接不建立全量资源引用关系；可见资源仍须作为未引用成员给出 warning，同时保留主题结构 error。 完整验证同时返回无效 owner 主题的 error，以及包含资源 ID 和 owner-reference 原因的未引用 warning。 tools/investigation-report/tests/resources.test.ts > resources linked only by invalid owner topics remain unreferenced warnings bun test --test-name-pattern=\"^resources linked only by invalid owner topics remain unreferenced warnings$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/resources.test.ts > resources linked only by invalid owner topics remain unreferenced warnings",
+          "bun test --test-name-pattern=\"^resources linked only by invalid owner topics remain unreferenced warnings$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RESOURCE-INVALID-OWNER-WARNING-001",
+        "line": 1,
+        "searchText": "仅由无效 Owner 主题链接的可见资源仍是未引用 Warning 无效 owner 主题的资源链接不建立全量资源引用关系；可见资源仍须作为未引用成员给出 warning，同时保留主题结构 error。 完整验证同时返回无效 owner 主题的 error，以及包含资源 ID 和 owner-reference 原因的未引用 warning。 tools/investigation-report/tests/resources.test.ts > resources linked only by invalid owner topics remain unreferenced warnings bun test --test-name-pattern=\"^resources linked only by invalid owner topics remain unreferenced warnings$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/resources-linked-only-by-invalid-owners-remain-warnings.md",
+        "summary": "无效 owner 主题的资源链接不建立全量资源引用关系；可见资源仍须作为未引用成员给出 warning，同时保留主题结构 error。",
+        "title": "仅由无效 Owner 主题链接的可见资源仍是未引用 Warning"
+      }
+    },
+    "INVESTIGATION-RESOURCE-MEMBERSHIP-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RESOURCE-MEMBERSHIP-001 Git 成员查询失败使完整资源验证失败 完整资源验证不能在 Git 成员关系无法确定时把资源可见性结论降级为 warning。 Git 元数据不完整导致成员查询失败时，完整验证返回包含 membership、version-control 或 Git 的 error。 tools/investigation-report/tests/resources.test.ts > a Git membership query failure makes full resource validation an error bun test --test-name-pattern=\"^a Git membership query failure makes full resource validation an error$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/resources.test.ts > a Git membership query failure makes full resource validation an error",
+          "bun test --test-name-pattern=\"^a Git membership query failure makes full resource validation an error$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RESOURCE-MEMBERSHIP-001",
+        "line": 1,
+        "searchText": "Git 成员查询失败使完整资源验证失败 完整资源验证不能在 Git 成员关系无法确定时把资源可见性结论降级为 warning。 Git 元数据不完整导致成员查询失败时，完整验证返回包含 membership、version-control 或 Git 的 error。 tools/investigation-report/tests/resources.test.ts > a Git membership query failure makes full resource validation an error bun test --test-name-pattern=\"^a Git membership query failure makes full resource validation an error$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/resource-git-membership-query-failure-is-an-error.md",
+        "summary": "完整资源验证不能在 Git 成员关系无法确定时把资源可见性结论降级为 warning。",
+        "title": "Git 成员查询失败使完整资源验证失败"
       }
     },
     "INVESTIGATION-RESOURCE-MISSING-001": {
@@ -6443,7 +6535,7 @@
     "INVESTIGATION-RESOURCE-OPTIONAL-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RESOURCE-OPTIONAL-001 无随附资源的报告保持合法 随附资源是报告的可选能力；报告未声明资源时仍须通过完整校验并产生显式空投影。 既有无资源报告能够同步并通过默认检查。 其主题 state 的 `resourceReferences` 与索引 metadata 的 `resources` 均为空数组。 tools/investigation-report/tests/resources.test.ts > validation keeps reports without attached resources valid bun test --test-name-pattern=\"^validation keeps reports without attached resources valid$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RESOURCE-OPTIONAL-001 无随附资源的报告保持合法 调查报告可以不声明随附资源；v5 索引以严格空 metadata 和空报告级资源引用表示该状态。 不含资源的完整集合通过验证。 索引 metadata 为 `{}`，每个主题 state 的 `resourceReferences` 为空数组。 tools/investigation-report/tests/resources.test.ts > validation keeps reports without attached resources valid bun test --test-name-pattern=\"^validation keeps reports without attached resources valid$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -6457,10 +6549,56 @@
         ],
         "id": "INVESTIGATION-RESOURCE-OPTIONAL-001",
         "line": 1,
-        "searchText": "无随附资源的报告保持合法 随附资源是报告的可选能力；报告未声明资源时仍须通过完整校验并产生显式空投影。 既有无资源报告能够同步并通过默认检查。 其主题 state 的 `resourceReferences` 与索引 metadata 的 `resources` 均为空数组。 tools/investigation-report/tests/resources.test.ts > validation keeps reports without attached resources valid bun test --test-name-pattern=\"^validation keeps reports without attached resources valid$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "无随附资源的报告保持合法 调查报告可以不声明随附资源；v5 索引以严格空 metadata 和空报告级资源引用表示该状态。 不含资源的完整集合通过验证。 索引 metadata 为 `{}`，每个主题 state 的 `resourceReferences` 为空数组。 tools/investigation-report/tests/resources.test.ts > validation keeps reports without attached resources valid bun test --test-name-pattern=\"^validation keeps reports without attached resources valid$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/validation-keeps-reports-without-attached-resources-valid.md",
-        "summary": "随附资源是报告的可选能力；报告未声明资源时仍须通过完整校验并产生显式空投影。",
+        "summary": "调查报告可以不声明随附资源；v5 索引以严格空 metadata 和空报告级资源引用表示该状态。",
         "title": "无随附资源的报告保持合法"
+      }
+    },
+    "INVESTIGATION-RESOURCE-OWNER-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RESOURCE-OWNER-001 被引用资源需要 Owner 主题与 Owner 报告引用 消费者主题只能共享存在的 owner 主题已在自身报告中引用的资源；缺失 owner 或 owner 未声明资源时，资源引用无效。 缺失 owner 与 owner 未引用资源分别产生包含相应资源 ID 的阻断诊断。 tools/investigation-report/tests/resources.test.ts > referenced resources require an owner topic and an owner report reference bun test --test-name-pattern=\"^referenced resources require an owner topic and an owner report reference$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/resources.test.ts > referenced resources require an owner topic and an owner report reference",
+          "bun test --test-name-pattern=\"^referenced resources require an owner topic and an owner report reference$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RESOURCE-OWNER-001",
+        "line": 1,
+        "searchText": "被引用资源需要 Owner 主题与 Owner 报告引用 消费者主题只能共享存在的 owner 主题已在自身报告中引用的资源；缺失 owner 或 owner 未声明资源时，资源引用无效。 缺失 owner 与 owner 未引用资源分别产生包含相应资源 ID 的阻断诊断。 tools/investigation-report/tests/resources.test.ts > referenced resources require an owner topic and an owner report reference bun test --test-name-pattern=\"^referenced resources require an owner topic and an owner report reference$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/referenced-resources-require-owner-anchor.md",
+        "summary": "消费者主题只能共享存在的 owner 主题已在自身报告中引用的资源；缺失 owner 或 owner 未声明资源时，资源引用无效。",
+        "title": "被引用资源需要 Owner 主题与 Owner 报告引用"
+      }
+    },
+    "INVESTIGATION-RESOURCE-OWNER-PREFIX-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RESOURCE-OWNER-PREFIX-001 局部验证拒绝非 Kebab Owner 前缀的资源链接 资源 ID 的 owner 前缀必须为可解析的 kebab-case 主题路径；局部验证也必须执行该资源引用格式边界。 局部验证含非 kebab owner 前缀资源链接的主题时，返回包含资源 ID 和 kebab-case owner prefix 原因的 error。 tools/investigation-report/tests/resources.test.ts > scoped validation rejects resource links with non-kebab owner prefixes bun test --test-name-pattern=\"^scoped validation rejects resource links with non-kebab owner prefixes$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/resources.test.ts > scoped validation rejects resource links with non-kebab owner prefixes",
+          "bun test --test-name-pattern=\"^scoped validation rejects resource links with non-kebab owner prefixes$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RESOURCE-OWNER-PREFIX-001",
+        "line": 1,
+        "searchText": "局部验证拒绝非 Kebab Owner 前缀的资源链接 资源 ID 的 owner 前缀必须为可解析的 kebab-case 主题路径；局部验证也必须执行该资源引用格式边界。 局部验证含非 kebab owner 前缀资源链接的主题时，返回包含资源 ID 和 kebab-case owner prefix 原因的 error。 tools/investigation-report/tests/resources.test.ts > scoped validation rejects resource links with non-kebab owner prefixes bun test --test-name-pattern=\"^scoped validation rejects resource links with non-kebab owner prefixes$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/scoped-validation-rejects-non-kebab-owner-prefixes.md",
+        "summary": "资源 ID 的 owner 前缀必须为可解析的 kebab-case 主题路径；局部验证也必须执行该资源引用格式边界。",
+        "title": "局部验证拒绝非 Kebab Owner 前缀的资源链接"
       }
     },
     "INVESTIGATION-RESOURCE-PATH-001": {
@@ -6489,70 +6627,93 @@
     "INVESTIGATION-RESOURCE-PROJECTION-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RESOURCE-PROJECTION-001 资源索引投影单项、多项与共享引用 报告声明的文本与二进制资源必须按报告位置进入主题 state，共享资源在集合级 metadata 中只保存一份 SHA-256 摘要。 资源按与 ID 排序相反的顺序创建时，单资源、多资源和跨报告、跨主题共享关系仍生成按 reportIndex 和资源 ID 排序的投影。 保留 CRLF 的文本与二进制原始字节各自产生可独立复算的 64 个小写十六进制字符 SHA-256。 tools/investigation-report/tests/resources.test.ts > resource index projects single multiple and shared attachments bun test --test-name-pattern=\"^resource index projects single multiple and shared attachments$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RESOURCE-PROJECTION-001 Owner 报告锚定资源并允许跨主题共享 每个资源 ID 必须由其 owner 主题路径前缀锚定；其他主题可引用已经由 owner 报告声明的资源。 索引只在主题 state 中保存报告级资源引用，不再保存集合级资源摘要。 owner 主题按报告顺序投影其文本和二进制资源引用，另一主题可以复用同一 owner 资源。 索引使用 definition version 5、空 metadata，并为两份主题保存按资源 ID 排序的报告级引用。 tools/investigation-report/tests/resources.test.ts > owner reports anchor resource prefixes before other topics share them bun test --test-name-pattern=\"^owner reports anchor resource prefixes before other topics share them$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 14,
         "entries": [
-          "tools/investigation-report/tests/resources.test.ts > resource index projects single multiple and shared attachments",
-          "bun test --test-name-pattern=\"^resource index projects single multiple and shared attachments$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/resources.test.ts > owner reports anchor resource prefixes before other topics share them",
+          "bun test --test-name-pattern=\"^owner reports anchor resource prefixes before other topics share them$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-RESOURCE-PROJECTION-001",
         "line": 1,
-        "searchText": "资源索引投影单项、多项与共享引用 报告声明的文本与二进制资源必须按报告位置进入主题 state，共享资源在集合级 metadata 中只保存一份 SHA-256 摘要。 资源按与 ID 排序相反的顺序创建时，单资源、多资源和跨报告、跨主题共享关系仍生成按 reportIndex 和资源 ID 排序的投影。 保留 CRLF 的文本与二进制原始字节各自产生可独立复算的 64 个小写十六进制字符 SHA-256。 tools/investigation-report/tests/resources.test.ts > resource index projects single multiple and shared attachments bun test --test-name-pattern=\"^resource index projects single multiple and shared attachments$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/resource-index-projects-single-multiple-and-shared-attachments.md",
-        "summary": "报告声明的文本与二进制资源必须按报告位置进入主题 state，共享资源在集合级 metadata 中只保存一份 SHA-256 摘要。",
-        "title": "资源索引投影单项、多项与共享引用"
+        "searchText": "Owner 报告锚定资源并允许跨主题共享 每个资源 ID 必须由其 owner 主题路径前缀锚定；其他主题可引用已经由 owner 报告声明的资源。 索引只在主题 state 中保存报告级资源引用，不再保存集合级资源摘要。 owner 主题按报告顺序投影其文本和二进制资源引用，另一主题可以复用同一 owner 资源。 索引使用 definition version 5、空 metadata，并为两份主题保存按资源 ID 排序的报告级引用。 tools/investigation-report/tests/resources.test.ts > owner reports anchor resource prefixes before other topics share them bun test --test-name-pattern=\"^owner reports anchor resource prefixes before other topics share them$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/owner-reports-anchor-resource-prefixes-before-cross-topic-sharing.md",
+        "summary": "每个资源 ID 必须由其 owner 主题路径前缀锚定；其他主题可引用已经由 owner 报告声明的资源。",
+        "title": "Owner 报告锚定资源并允许跨主题共享"
       }
     },
     "INVESTIGATION-RESOURCE-REVISION-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RESOURCE-REVISION-001 资源变化使来源 Revision 与 List 结果失效 资源原始字节、ID 集合或报告引用变化必须改变结构化来源 revision，默认 `check` 与 `list` 都不得接受旧索引。 只修改资源字节时仅 metadata revision 变化，主题 entry revisions 保持不变。 资源内容变化和资源重命名后，默认检查与索引查询均失败并定位受影响的资源 ID；重新同步后查询恢复。 tools/investigation-report/tests/resources.test.ts > resource changes invalidate source revision and list results bun test --test-name-pattern=\"^resource changes invalidate source revision and list results$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RESOURCE-REVISION-001 资源池变化保持 List 新鲜，报告链接变化使条目失效 v5 来源 revision 只指纹主题 Markdown；资源字节、未引用资源的增删和资源文件改名不使派生索引过期。 报告内资源链接的变更属于主题内容变更，必须使其索引 entry 过期。 修改、增加、删除或改名资源文件后 revision、查询、完整检查与同步均保持新鲜。 报告改为引用改名资源后，仅相应主题 revision 改变，查询和检查拒绝旧索引；同步后查询恢复。 tools/investigation-report/tests/resources.test.ts > resource pool changes leave list fresh while report link changes invalidate its entry bun test --test-name-pattern=\"^resource pool changes leave list fresh while report link changes invalidate its entry$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 14,
         "entries": [
-          "tools/investigation-report/tests/resources.test.ts > resource changes invalidate source revision and list results",
-          "bun test --test-name-pattern=\"^resource changes invalidate source revision and list results$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/resources.test.ts > resource pool changes leave list fresh while report link changes invalidate its entry",
+          "bun test --test-name-pattern=\"^resource pool changes leave list fresh while report link changes invalidate its entry$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-RESOURCE-REVISION-001",
         "line": 1,
-        "searchText": "资源变化使来源 Revision 与 List 结果失效 资源原始字节、ID 集合或报告引用变化必须改变结构化来源 revision，默认 `check` 与 `list` 都不得接受旧索引。 只修改资源字节时仅 metadata revision 变化，主题 entry revisions 保持不变。 资源内容变化和资源重命名后，默认检查与索引查询均失败并定位受影响的资源 ID；重新同步后查询恢复。 tools/investigation-report/tests/resources.test.ts > resource changes invalidate source revision and list results bun test --test-name-pattern=\"^resource changes invalidate source revision and list results$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/resource-changes-invalidate-source-revision-and-list-results.md",
-        "summary": "资源原始字节、ID 集合或报告引用变化必须改变结构化来源 revision，默认 `check` 与 `list` 都不得接受旧索引。",
-        "title": "资源变化使来源 Revision 与 List 结果失效"
+        "searchText": "资源池变化保持 List 新鲜，报告链接变化使条目失效 v5 来源 revision 只指纹主题 Markdown；资源字节、未引用资源的增删和资源文件改名不使派生索引过期。 报告内资源链接的变更属于主题内容变更，必须使其索引 entry 过期。 修改、增加、删除或改名资源文件后 revision、查询、完整检查与同步均保持新鲜。 报告改为引用改名资源后，仅相应主题 revision 改变，查询和检查拒绝旧索引；同步后查询恢复。 tools/investigation-report/tests/resources.test.ts > resource pool changes leave list fresh while report link changes invalidate its entry bun test --test-name-pattern=\"^resource pool changes leave list fresh while report link changes invalidate its entry$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/resource-pool-changes-leave-list-fresh.md",
+        "summary": "v5 来源 revision 只指纹主题 Markdown；资源字节、未引用资源的增删和资源文件改名不使派生索引过期。",
+        "title": "资源池变化保持 List 新鲜，报告链接变化使条目失效"
+      }
+    },
+    "INVESTIGATION-RESOURCE-ROOT-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RESOURCE-ROOT-001 无法检查资源根目录时验证失败 完整资源验证无法枚举 `_resources` 根目录时，不得降级为成功或 warning。 `_resources` 为普通文件而非目录时，验证返回指向资源根或未完成资源检查的 error。 tools/investigation-report/tests/resources.test.ts > a resource root that cannot be inspected makes validation an error bun test --test-name-pattern=\"^a resource root that cannot be inspected makes validation an error$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/resources.test.ts > a resource root that cannot be inspected makes validation an error",
+          "bun test --test-name-pattern=\"^a resource root that cannot be inspected makes validation an error$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RESOURCE-ROOT-001",
+        "line": 1,
+        "searchText": "无法检查资源根目录时验证失败 完整资源验证无法枚举 `_resources` 根目录时，不得降级为成功或 warning。 `_resources` 为普通文件而非目录时，验证返回指向资源根或未完成资源检查的 error。 tools/investigation-report/tests/resources.test.ts > a resource root that cannot be inspected makes validation an error bun test --test-name-pattern=\"^a resource root that cannot be inspected makes validation an error$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/resource-root-inspection-failure-is-an-error.md",
+        "summary": "完整资源验证无法枚举 `_resources` 根目录时，不得降级为成功或 warning。",
+        "title": "无法检查资源根目录时验证失败"
       }
     },
     "INVESTIGATION-RESOURCE-SCOPE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RESOURCE-SCOPE-001 完整检查拒绝孤儿资源而局部检查保持局部 完整检查必须拒绝未被任何报告引用的受管资源文件；按路径的局部检查只验证命中报告的引用，不声称全局孤儿或索引新鲜度。 新增孤儿文件后，命中主题的局部检查成功且 `indexChecked` 为 false。 同一集合的完整检查返回包含孤儿资源 ID 的阻断诊断。 tools/investigation-report/tests/resources.test.ts > full validation rejects orphan resources while scoped validation remains local bun test --test-name-pattern=\"^full validation rejects orphan resources while scoped validation remains local$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RESOURCE-SCOPE-001 未引用资源池问题仅告警，局部检查不推断 Owner 或全局未引用资源状态 完整检查仅把报告实际引用资源的 owner 与可用性问题视为阻断错误；资源池中未引用的路径、非法名称、符号链接或非普通文件只产生告警。 按路径的局部检查不扫描资源池，也不宣称全局 owner 锚定或未引用资源状态。 局部检查成功、没有 warnings，且 `indexChecked` 为 false。 完整检查没有 errors，按稳定排序报告未引用资源、非法资源 ID、符号链接和非普通文件的 warnings。 tools/investigation-report/tests/resources.test.ts > unreferenced resource pool hazards warn only and scoped checks prove neither owner anchoring nor global unreferenced-resource state bun test --test-name-pattern=\"^unreferenced resource pool hazards warn only and scoped checks prove neither owner anchoring nor global unreferenced-resource state$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 14,
         "entries": [
-          "tools/investigation-report/tests/resources.test.ts > full validation rejects orphan resources while scoped validation remains local",
-          "bun test --test-name-pattern=\"^full validation rejects orphan resources while scoped validation remains local$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/resources.test.ts > unreferenced resource pool hazards warn only and scoped checks prove neither owner anchoring nor global unreferenced-resource state",
+          "bun test --test-name-pattern=\"^unreferenced resource pool hazards warn only and scoped checks prove neither owner anchoring nor global unreferenced-resource state$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-RESOURCE-SCOPE-001",
         "line": 1,
-        "searchText": "完整检查拒绝孤儿资源而局部检查保持局部 完整检查必须拒绝未被任何报告引用的受管资源文件；按路径的局部检查只验证命中报告的引用，不声称全局孤儿或索引新鲜度。 新增孤儿文件后，命中主题的局部检查成功且 `indexChecked` 为 false。 同一集合的完整检查返回包含孤儿资源 ID 的阻断诊断。 tools/investigation-report/tests/resources.test.ts > full validation rejects orphan resources while scoped validation remains local bun test --test-name-pattern=\"^full validation rejects orphan resources while scoped validation remains local$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/full-validation-rejects-orphans-while-scoped-validation-remains-local.md",
-        "summary": "完整检查必须拒绝未被任何报告引用的受管资源文件；按路径的局部检查只验证命中报告的引用，不声称全局孤儿或索引新鲜度。",
-        "title": "完整检查拒绝孤儿资源而局部检查保持局部"
+        "searchText": "未引用资源池问题仅告警，局部检查不推断 Owner 或全局未引用资源状态 完整检查仅把报告实际引用资源的 owner 与可用性问题视为阻断错误；资源池中未引用的路径、非法名称、符号链接或非普通文件只产生告警。 按路径的局部检查不扫描资源池，也不宣称全局 owner 锚定或未引用资源状态。 局部检查成功、没有 warnings，且 `indexChecked` 为 false。 完整检查没有 errors，按稳定排序报告未引用资源、非法资源 ID、符号链接和非普通文件的 warnings。 tools/investigation-report/tests/resources.test.ts > unreferenced resource pool hazards warn only and scoped checks prove neither owner anchoring nor global unreferenced-resource state bun test --test-name-pattern=\"^unreferenced resource pool hazards warn only and scoped checks prove neither owner anchoring nor global unreferenced-resource state$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/unreferenced-resource-pool-hazards-warn-only.md",
+        "summary": "完整检查仅把报告实际引用资源的 owner 与可用性问题视为阻断错误；资源池中未引用的路径、非法名称、符号链接或非普通文件只产生告警。",
+        "title": "未引用资源池问题仅告警，局部检查不推断 Owner 或全局未引用资源状态"
       }
     },
     "INVESTIGATION-RESOURCE-SYMLINK-001": {
@@ -6576,6 +6737,29 @@
         "sourcePath": "investigation-report/validation-rejects-symbolic-links-in-attached-resource-paths.md",
         "summary": "资源根、中间路径分量和最终文件都不得是符号链接。",
         "title": "随附资源路径中的符号链接被拒绝"
+      }
+    },
+    "INVESTIGATION-RESOURCE-TRACKED-MISSING-ROOT-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RESOURCE-TRACKED-MISSING-ROOT-001 删除整个资源根后已跟踪的未引用资源产生 Missing Warning Git 已跟踪但未被报告引用的资源，即使整个 `_resources` 工作树被删除，也应报告缺失 warning 而不是阻断完整验证。 删除资源根后，完整验证没有 errors，并返回包含已跟踪资源 ID 与 `does not exist` 原因的 warning。 tools/investigation-report/tests/resources.test.ts > tracked unreferenced resource members warn when their entire resource root is deleted bun test --test-name-pattern=\"^tracked unreferenced resource members warn when their entire resource root is deleted$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/resources.test.ts > tracked unreferenced resource members warn when their entire resource root is deleted",
+          "bun test --test-name-pattern=\"^tracked unreferenced resource members warn when their entire resource root is deleted$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RESOURCE-TRACKED-MISSING-ROOT-001",
+        "line": 1,
+        "searchText": "删除整个资源根后已跟踪的未引用资源产生 Missing Warning Git 已跟踪但未被报告引用的资源，即使整个 `_resources` 工作树被删除，也应报告缺失 warning 而不是阻断完整验证。 删除资源根后，完整验证没有 errors，并返回包含已跟踪资源 ID 与 `does not exist` 原因的 warning。 tools/investigation-report/tests/resources.test.ts > tracked unreferenced resource members warn when their entire resource root is deleted bun test --test-name-pattern=\"^tracked unreferenced resource members warn when their entire resource root is deleted$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/tracked-unreferenced-resources-warn-when-root-is-deleted.md",
+        "summary": "Git 已跟踪但未被报告引用的资源，即使整个 `_resources` 工作树被删除，也应报告缺失 warning 而不是阻断完整验证。",
+        "title": "删除整个资源根后已跟踪的未引用资源产生 Missing Warning"
       }
     },
     "INVESTIGATION-RESOURCE-TYPE-001": {
@@ -6647,10 +6831,33 @@
         "title": "千份调查报告可同步并查询"
       }
     },
+    "INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001 State Snapshot 拒绝重复的主题路径投影 创建调查 state snapshot 时，每个主题路径只能投影一个 state；重复路径不能被静默覆盖或合并。 为同一 source 路径传入两个同路径 state 时，`createInvestigationStateSnapshot` 抛出包含该路径与 duplicate state projection 原因的错误。 tools/investigation-report/tests/index-query.test.ts > state snapshots reject duplicate state paths bun test --test-name-pattern=\"^state snapshots reject duplicate state paths$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/index-query.test.ts > state snapshots reject duplicate state paths",
+          "bun test --test-name-pattern=\"^state snapshots reject duplicate state paths$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001",
+        "line": 1,
+        "searchText": "State Snapshot 拒绝重复的主题路径投影 创建调查 state snapshot 时，每个主题路径只能投影一个 state；重复路径不能被静默覆盖或合并。 为同一 source 路径传入两个同路径 state 时，`createInvestigationStateSnapshot` 抛出包含该路径与 duplicate state projection 原因的错误。 tools/investigation-report/tests/index-query.test.ts > state snapshots reject duplicate state paths bun test --test-name-pattern=\"^state snapshots reject duplicate state paths$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/state-snapshots-reject-duplicate-state-paths.md",
+        "summary": "创建调查 state snapshot 时，每个主题路径只能投影一个 state；重复路径不能被静默覆盖或合并。",
+        "title": "State Snapshot 拒绝重复的主题路径投影"
+      }
+    },
     "INVESTIGATION-SNAPSHOT-REVISION-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-SNAPSHOT-REVISION-001 预构造快照写入前拒绝实时来源变化 使用预构造 snapshot 同步索引时，投影必须继续使用同一 snapshot，并在写入前通过实时 revision-only 读取复核来源；两次读取不一致时必须拒绝写入。 从实际主题文件构造 snapshot 后再修改该文件，写入同步返回 `source-invalid`、`changed: false` 和唯一的 `state-index.source-changed` 诊断。 目标索引原本不存在时不会被创建；目标索引已经存在时，其原始字节不会被替换。 tools/investigation-report/tests/index-query.test.ts > prebuilt snapshot synchronization rejects live source changes before index writes bun test --test-name-pattern=\"^prebuilt snapshot synchronization rejects live source changes before index writes$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-SNAPSHOT-REVISION-001 预构造快照写入前拒绝实时主题变化 使用预构造 snapshot 同步索引时，投影必须继续使用同一 snapshot，并在写入前通过实时主题 revision 复核来源；两次读取不一致时必须拒绝写入。 snapshot 形成后修改主题 Markdown，写入同步返回 `source-invalid`、`changed: false` 和唯一的 `state-index.source-changed` 诊断。 已存在索引的原始字节不会被替换。 tools/investigation-report/tests/index-query.test.ts > prebuilt snapshot synchronization rejects live topic changes before index writes bun test --test-name-pattern=\"^prebuilt snapshot synchronization rejects live topic changes before index writes$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -6659,61 +6866,84 @@
       "state": {
         "endLine": 13,
         "entries": [
-          "tools/investigation-report/tests/index-query.test.ts > prebuilt snapshot synchronization rejects live source changes before index writes",
-          "bun test --test-name-pattern=\"^prebuilt snapshot synchronization rejects live source changes before index writes$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/index-query.test.ts > prebuilt snapshot synchronization rejects live topic changes before index writes",
+          "bun test --test-name-pattern=\"^prebuilt snapshot synchronization rejects live topic changes before index writes$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-SNAPSHOT-REVISION-001",
         "line": 1,
-        "searchText": "预构造快照写入前拒绝实时来源变化 使用预构造 snapshot 同步索引时，投影必须继续使用同一 snapshot，并在写入前通过实时 revision-only 读取复核来源；两次读取不一致时必须拒绝写入。 从实际主题文件构造 snapshot 后再修改该文件，写入同步返回 `source-invalid`、`changed: false` 和唯一的 `state-index.source-changed` 诊断。 目标索引原本不存在时不会被创建；目标索引已经存在时，其原始字节不会被替换。 tools/investigation-report/tests/index-query.test.ts > prebuilt snapshot synchronization rejects live source changes before index writes bun test --test-name-pattern=\"^prebuilt snapshot synchronization rejects live source changes before index writes$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/prebuilt-snapshot-synchronization-rejects-live-source-changes-before-index-writes.md",
-        "summary": "使用预构造 snapshot 同步索引时，投影必须继续使用同一 snapshot，并在写入前通过实时 revision-only 读取复核来源；两次读取不一致时必须拒绝写入。",
-        "title": "预构造快照写入前拒绝实时来源变化"
+        "searchText": "预构造快照写入前拒绝实时主题变化 使用预构造 snapshot 同步索引时，投影必须继续使用同一 snapshot，并在写入前通过实时主题 revision 复核来源；两次读取不一致时必须拒绝写入。 snapshot 形成后修改主题 Markdown，写入同步返回 `source-invalid`、`changed: false` 和唯一的 `state-index.source-changed` 诊断。 已存在索引的原始字节不会被替换。 tools/investigation-report/tests/index-query.test.ts > prebuilt snapshot synchronization rejects live topic changes before index writes bun test --test-name-pattern=\"^prebuilt snapshot synchronization rejects live topic changes before index writes$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/prebuilt-snapshot-synchronization-rejects-live-topic-changes-before-index-writes.md",
+        "summary": "使用预构造 snapshot 同步索引时，投影必须继续使用同一 snapshot，并在写入前通过实时主题 revision 复核来源；两次读取不一致时必须拒绝写入。",
+        "title": "预构造快照写入前拒绝实时主题变化"
+      }
+    },
+    "INVESTIGATION-SNAPSHOT-SOURCE-MEMBERSHIP-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-SNAPSHOT-SOURCE-MEMBERSHIP-001 State Snapshot 拒绝来源集合外的 State 路径 调查 state snapshot 中的每个 state 路径必须属于其 source 集合；不得向索引投影不存在对应 Markdown source 的主题状态。 state 路径不在 source 集合中时，`createInvestigationStateSnapshot` 抛出包含该路径与 no matching source 原因的错误。 tools/investigation-report/tests/index-query.test.ts > state snapshots reject paths without matching sources bun test --test-name-pattern=\"^state snapshots reject paths without matching sources$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/index-query.test.ts > state snapshots reject paths without matching sources",
+          "bun test --test-name-pattern=\"^state snapshots reject paths without matching sources$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-SNAPSHOT-SOURCE-MEMBERSHIP-001",
+        "line": 1,
+        "searchText": "State Snapshot 拒绝来源集合外的 State 路径 调查 state snapshot 中的每个 state 路径必须属于其 source 集合；不得向索引投影不存在对应 Markdown source 的主题状态。 state 路径不在 source 集合中时，`createInvestigationStateSnapshot` 抛出包含该路径与 no matching source 原因的错误。 tools/investigation-report/tests/index-query.test.ts > state snapshots reject paths without matching sources bun test --test-name-pattern=\"^state snapshots reject paths without matching sources$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/state-snapshots-reject-paths-without-matching-sources.md",
+        "summary": "调查 state snapshot 中的每个 state 路径必须属于其 source 集合；不得向索引投影不存在对应 Markdown source 的主题状态。",
+        "title": "State Snapshot 拒绝来源集合外的 State 路径"
       }
     },
     "INVESTIGATION-SOURCE-REVISION-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-SOURCE-REVISION-001 调查来源 Revision 分离 Metadata 与逐 Topic 指纹 调查完整快照与快速读取必须共享结构化 revision；单份报告变化只影响对应路径指纹，快速路径不解析 Markdown。 完整与快速 revision 相同，且不受来源输入顺序或 CRLF 影响。 修改或删除一份报告只改变或移除对应 entry，其他 entry 与 metadata 保持不变。 无效报告仍可快速指纹化，而完整快照读取拒绝其 Markdown 结构。 tools/investigation-report/tests/index-query.test.ts > source revisions partition metadata and topic fingerprints without parsing Markdown bun test --test-name-pattern=\"^source revisions partition metadata and topic fingerprints without parsing Markdown$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-SOURCE-REVISION-001 来源 Revision 仅指纹主题 Markdown 与严格空 Metadata 调查完整 snapshot 与快速读取共享仅由主题 Markdown 派生的结构化 revision；metadata 保持严格空对象，资源池不参与来源指纹。 完整与快速 revision 相同，且来源输入顺序不会影响 revision。 改变一份主题 Markdown 只改变对应 entry 指纹，metadata 不变。 tools/investigation-report/tests/index-query.test.ts > source revisions fingerprint only topic Markdown and strict empty metadata bun test --test-name-pattern=\"^source revisions fingerprint only topic Markdown and strict empty metadata$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 14,
+        "endLine": 13,
         "entries": [
-          "tools/investigation-report/tests/index-query.test.ts > source revisions partition metadata and topic fingerprints without parsing Markdown",
-          "bun test --test-name-pattern=\"^source revisions partition metadata and topic fingerprints without parsing Markdown$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/index-query.test.ts > source revisions fingerprint only topic Markdown and strict empty metadata",
+          "bun test --test-name-pattern=\"^source revisions fingerprint only topic Markdown and strict empty metadata$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-SOURCE-REVISION-001",
         "line": 1,
-        "searchText": "调查来源 Revision 分离 Metadata 与逐 Topic 指纹 调查完整快照与快速读取必须共享结构化 revision；单份报告变化只影响对应路径指纹，快速路径不解析 Markdown。 完整与快速 revision 相同，且不受来源输入顺序或 CRLF 影响。 修改或删除一份报告只改变或移除对应 entry，其他 entry 与 metadata 保持不变。 无效报告仍可快速指纹化，而完整快照读取拒绝其 Markdown 结构。 tools/investigation-report/tests/index-query.test.ts > source revisions partition metadata and topic fingerprints without parsing Markdown bun test --test-name-pattern=\"^source revisions partition metadata and topic fingerprints without parsing Markdown$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/source-revisions-partition-metadata-and-topic-fingerprints-without-parsing-markdown.md",
-        "summary": "调查完整快照与快速读取必须共享结构化 revision；单份报告变化只影响对应路径指纹，快速路径不解析 Markdown。",
-        "title": "调查来源 Revision 分离 Metadata 与逐 Topic 指纹"
+        "searchText": "来源 Revision 仅指纹主题 Markdown 与严格空 Metadata 调查完整 snapshot 与快速读取共享仅由主题 Markdown 派生的结构化 revision；metadata 保持严格空对象，资源池不参与来源指纹。 完整与快速 revision 相同，且来源输入顺序不会影响 revision。 改变一份主题 Markdown 只改变对应 entry 指纹，metadata 不变。 tools/investigation-report/tests/index-query.test.ts > source revisions fingerprint only topic Markdown and strict empty metadata bun test --test-name-pattern=\"^source revisions fingerprint only topic Markdown and strict empty metadata$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/source-revisions-fingerprint-only-topic-markdown-and-strict-empty-metadata.md",
+        "summary": "调查完整 snapshot 与快速读取共享仅由主题 Markdown 派生的结构化 revision；metadata 保持严格空对象，资源池不参与来源指纹。",
+        "title": "来源 Revision 仅指纹主题 Markdown 与严格空 Metadata"
       }
     },
     "INVESTIGATION-STAGE-BOOTSTRAP-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-STAGE-BOOTSTRAP-001 首次暂存完整保留资源感知索引 revision 尚无调查索引时，合法的首次主题选择可以创建 pending 索引，并保留工作区索引的资源 metadata 与主题资源引用；领域文件不随索引进入 pending。 bundled API 从含二进制随附资源的首个主题生成 pending 索引，SHA-256 与报告级引用正确，pending 路径只有派生索引。 tools/investigation-report/tests/staging.test.ts > stage-index bootstraps the first resource-aware investigation index bun test --test-name-pattern=\"^stage-index bootstraps the first resource-aware investigation index$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-STAGE-BOOTSTRAP-001 首次暂存 v5 调查索引不写资源 Metadata revision 尚无调查索引时，合法的首次主题选择可创建 pending v5 索引；资源引用保留在主题 state，metadata 始终为空，领域文件不随索引进入 pending。 bundled API 为含二进制随附资源的首个主题创建仅含派生索引的 pending。 pending 索引使用 definition version 5、空 metadata，并保留该主题的报告级资源引用。 tools/investigation-report/tests/staging.test.ts > stage-index bootstraps the first v5 investigation index without resource metadata bun test --test-name-pattern=\"^stage-index bootstraps the first v5 investigation index without resource metadata$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 13,
         "entries": [
-          "tools/investigation-report/tests/staging.test.ts > stage-index bootstraps the first resource-aware investigation index",
-          "bun test --test-name-pattern=\"^stage-index bootstraps the first resource-aware investigation index$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/staging.test.ts > stage-index bootstraps the first v5 investigation index without resource metadata",
+          "bun test --test-name-pattern=\"^stage-index bootstraps the first v5 investigation index without resource metadata$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-STAGE-BOOTSTRAP-001",
         "line": 1,
-        "searchText": "首次暂存完整保留资源感知索引 revision 尚无调查索引时，合法的首次主题选择可以创建 pending 索引，并保留工作区索引的资源 metadata 与主题资源引用；领域文件不随索引进入 pending。 bundled API 从含二进制随附资源的首个主题生成 pending 索引，SHA-256 与报告级引用正确，pending 路径只有派生索引。 tools/investigation-report/tests/staging.test.ts > stage-index bootstraps the first resource-aware investigation index bun test --test-name-pattern=\"^stage-index bootstraps the first resource-aware investigation index$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/stage-index-bootstraps-the-first-resource-aware-investigation-index.md",
-        "summary": "revision 尚无调查索引时，合法的首次主题选择可以创建 pending 索引，并保留工作区索引的资源 metadata 与主题资源引用；领域文件不随索引进入 pending。",
-        "title": "首次暂存完整保留资源感知索引"
+        "searchText": "首次暂存 v5 调查索引不写资源 Metadata revision 尚无调查索引时，合法的首次主题选择可创建 pending v5 索引；资源引用保留在主题 state，metadata 始终为空，领域文件不随索引进入 pending。 bundled API 为含二进制随附资源的首个主题创建仅含派生索引的 pending。 pending 索引使用 definition version 5、空 metadata，并保留该主题的报告级资源引用。 tools/investigation-report/tests/staging.test.ts > stage-index bootstraps the first v5 investigation index without resource metadata bun test --test-name-pattern=\"^stage-index bootstraps the first v5 investigation index without resource metadata$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/stage-index-bootstraps-the-first-v5-index-without-resource-metadata.md",
+        "summary": "revision 尚无调查索引时，合法的首次主题选择可创建 pending v5 索引；资源引用保留在主题 state，metadata 始终为空，领域文件不随索引进入 pending。",
+        "title": "首次暂存 v5 调查索引不写资源 Metadata"
       }
     },
     "INVESTIGATION-STAGE-CLI-USAGE-001": {
@@ -6760,6 +6990,29 @@
         "sourcePath": "investigation-report/stage-index-rejects-existing-same-index-pending.md",
         "summary": "目标调查索引已有待提交内容时，`stage-index` 必须拒绝覆盖、累加或清除；目标外的 pending 路径也不能受影响。",
         "title": "同索引既有 pending 被拒绝并原样保留"
+      }
+    },
+    "INVESTIGATION-STAGE-DEFINITION-UPGRADE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-STAGE-DEFINITION-UPGRADE-001 暂存不混合旧 v4 Revision 与 v5 工作区索引 选择性索引暂存不得把 revision 中的 legacy v4 索引与工作区 v5 索引合并；定义升级必须作为完整索引变更处理。 对 v4 基线选择主题 A 时暂存返回 error 且不创建 pending。 手动加入 v5 工作区索引后，pending 仅包含派生索引，表明升级没有被逐主题 overlay。 tools/investigation-report/tests/staging.test.ts > stage-index does not combine a legacy v4 revision with a v5 workspace index bun test --test-name-pattern=\"^stage-index does not combine a legacy v4 revision with a v5 workspace index$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/staging.test.ts > stage-index does not combine a legacy v4 revision with a v5 workspace index",
+          "bun test --test-name-pattern=\"^stage-index does not combine a legacy v4 revision with a v5 workspace index$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-STAGE-DEFINITION-UPGRADE-001",
+        "line": 1,
+        "searchText": "暂存不混合旧 v4 Revision 与 v5 工作区索引 选择性索引暂存不得把 revision 中的 legacy v4 索引与工作区 v5 索引合并；定义升级必须作为完整索引变更处理。 对 v4 基线选择主题 A 时暂存返回 error 且不创建 pending。 手动加入 v5 工作区索引后，pending 仅包含派生索引，表明升级没有被逐主题 overlay。 tools/investigation-report/tests/staging.test.ts > stage-index does not combine a legacy v4 revision with a v5 workspace index bun test --test-name-pattern=\"^stage-index does not combine a legacy v4 revision with a v5 workspace index$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/stage-index-rejects-definition-upgrade-overlay.md",
+        "summary": "选择性索引暂存不得把 revision 中的 legacy v4 索引与工作区 v5 索引合并；定义升级必须作为完整索引变更处理。",
+        "title": "暂存不混合旧 v4 Revision 与 v5 工作区索引"
       }
     },
     "INVESTIGATION-STAGE-INPUT-001": {
@@ -6854,27 +7107,96 @@
         "title": "选择性暂存组合新增、删除和显式重命名"
       }
     },
-    "INVESTIGATION-STAGE-RESOURCE-METADATA-001": {
+    "INVESTIGATION-STAGE-RESOURCE-ADD-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-STAGE-RESOURCE-METADATA-001 资源 metadata 变化拒绝按主题暂存 随附资源 ID、SHA-256 与 metadata 来源指纹属于完整调查集合；相对 revision 变化时不能归入单个主题 ID。 资源字节变化并重建工作区索引后，主题选择返回 `collection-changed`，不产生 pending，也不改写索引或资源。 tools/investigation-report/tests/staging.test.ts > stage-index rejects attached-resource metadata changes that require full-index staging bun test --test-name-pattern=\"^stage-index rejects attached-resource metadata changes that require full-index staging$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-STAGE-RESOURCE-ADD-001 暂存主题 A 时忽略主题 B 新增的未引用 v5 资源 v5 选择性索引暂存仅合并被选主题的主题 Markdown 变化；其他主题资源池新增不构成集合级 metadata 变化。 主题 B 新增未引用资源后，选择主题 A 仍成功暂存，主题 B entry 保持 revision 基线，metadata 为 `{}`。 tools/investigation-report/tests/staging.test.ts > stage-index selects topic A when topic B adds an unrelated v5 resource bun test --test-name-pattern=\"^stage-index selects topic A when topic B adds an unrelated v5 resource$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 12,
         "entries": [
-          "tools/investigation-report/tests/staging.test.ts > stage-index rejects attached-resource metadata changes that require full-index staging",
-          "bun test --test-name-pattern=\"^stage-index rejects attached-resource metadata changes that require full-index staging$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/staging.test.ts > stage-index selects topic A when topic B adds an unrelated v5 resource",
+          "bun test --test-name-pattern=\"^stage-index selects topic A when topic B adds an unrelated v5 resource$\" ./tools/investigation-report/tests/run.ts"
         ],
-        "id": "INVESTIGATION-STAGE-RESOURCE-METADATA-001",
+        "id": "INVESTIGATION-STAGE-RESOURCE-ADD-001",
         "line": 1,
-        "searchText": "资源 metadata 变化拒绝按主题暂存 随附资源 ID、SHA-256 与 metadata 来源指纹属于完整调查集合；相对 revision 变化时不能归入单个主题 ID。 资源字节变化并重建工作区索引后，主题选择返回 `collection-changed`，不产生 pending，也不改写索引或资源。 tools/investigation-report/tests/staging.test.ts > stage-index rejects attached-resource metadata changes that require full-index staging bun test --test-name-pattern=\"^stage-index rejects attached-resource metadata changes that require full-index staging$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/stage-index-rejects-resource-metadata-changes.md",
-        "summary": "随附资源 ID、SHA-256 与 metadata 来源指纹属于完整调查集合；相对 revision 变化时不能归入单个主题 ID。",
-        "title": "资源 metadata 变化拒绝按主题暂存"
+        "searchText": "暂存主题 A 时忽略主题 B 新增的未引用 v5 资源 v5 选择性索引暂存仅合并被选主题的主题 Markdown 变化；其他主题资源池新增不构成集合级 metadata 变化。 主题 B 新增未引用资源后，选择主题 A 仍成功暂存，主题 B entry 保持 revision 基线，metadata 为 `{}`。 tools/investigation-report/tests/staging.test.ts > stage-index selects topic A when topic B adds an unrelated v5 resource bun test --test-name-pattern=\"^stage-index selects topic A when topic B adds an unrelated v5 resource$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/stage-index-selects-topic-across-resource-add.md",
+        "summary": "v5 选择性索引暂存仅合并被选主题的主题 Markdown 变化；其他主题资源池新增不构成集合级 metadata 变化。",
+        "title": "暂存主题 A 时忽略主题 B 新增的未引用 v5 资源"
+      }
+    },
+    "INVESTIGATION-STAGE-RESOURCE-BYTES-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-STAGE-RESOURCE-BYTES-001 暂存主题 A 时忽略主题 B 资源字节变化 v5 选择性索引暂存不把未选主题的资源字节纳入来源 revision 或集合级 metadata。 主题 B 已有资源字节变化后，选择主题 A 仍成功暂存，主题 B entry 保持 revision 基线，metadata 为 `{}`。 tools/investigation-report/tests/staging.test.ts > stage-index selects topic A when topic B resource bytes change bun test --test-name-pattern=\"^stage-index selects topic A when topic B resource bytes change$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/staging.test.ts > stage-index selects topic A when topic B resource bytes change",
+          "bun test --test-name-pattern=\"^stage-index selects topic A when topic B resource bytes change$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-STAGE-RESOURCE-BYTES-001",
+        "line": 1,
+        "searchText": "暂存主题 A 时忽略主题 B 资源字节变化 v5 选择性索引暂存不把未选主题的资源字节纳入来源 revision 或集合级 metadata。 主题 B 已有资源字节变化后，选择主题 A 仍成功暂存，主题 B entry 保持 revision 基线，metadata 为 `{}`。 tools/investigation-report/tests/staging.test.ts > stage-index selects topic A when topic B resource bytes change bun test --test-name-pattern=\"^stage-index selects topic A when topic B resource bytes change$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/stage-index-selects-topic-across-resource-byte-change.md",
+        "summary": "v5 选择性索引暂存不把未选主题的资源字节纳入来源 revision 或集合级 metadata。",
+        "title": "暂存主题 A 时忽略主题 B 资源字节变化"
+      }
+    },
+    "INVESTIGATION-STAGE-RESOURCE-DELETE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-STAGE-RESOURCE-DELETE-001 暂存主题 A 时忽略主题 B 资源删除 v5 选择性索引暂存不把未选主题的资源删除视为集合级 metadata 变化。 删除主题 B 资源后，选择主题 A 仍成功暂存，主题 B entry 保持 revision 基线，metadata 为 `{}`。 tools/investigation-report/tests/staging.test.ts > stage-index selects topic A when topic B resource is deleted bun test --test-name-pattern=\"^stage-index selects topic A when topic B resource is deleted$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/staging.test.ts > stage-index selects topic A when topic B resource is deleted",
+          "bun test --test-name-pattern=\"^stage-index selects topic A when topic B resource is deleted$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-STAGE-RESOURCE-DELETE-001",
+        "line": 1,
+        "searchText": "暂存主题 A 时忽略主题 B 资源删除 v5 选择性索引暂存不把未选主题的资源删除视为集合级 metadata 变化。 删除主题 B 资源后，选择主题 A 仍成功暂存，主题 B entry 保持 revision 基线，metadata 为 `{}`。 tools/investigation-report/tests/staging.test.ts > stage-index selects topic A when topic B resource is deleted bun test --test-name-pattern=\"^stage-index selects topic A when topic B resource is deleted$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/stage-index-selects-topic-across-resource-deletion.md",
+        "summary": "v5 选择性索引暂存不把未选主题的资源删除视为集合级 metadata 变化。",
+        "title": "暂存主题 A 时忽略主题 B 资源删除"
+      }
+    },
+    "INVESTIGATION-STAGE-RESOURCE-RENAME-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-STAGE-RESOURCE-RENAME-001 暂存主题 A 时忽略主题 B 资源改名 v5 选择性索引暂存不把未选主题的资源改名视为集合级 metadata 变化。 改名主题 B 资源后，选择主题 A 仍成功暂存，主题 B entry 保持 revision 基线，metadata 为 `{}`。 tools/investigation-report/tests/staging.test.ts > stage-index selects topic A when topic B resource is renamed bun test --test-name-pattern=\"^stage-index selects topic A when topic B resource is renamed$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/staging.test.ts > stage-index selects topic A when topic B resource is renamed",
+          "bun test --test-name-pattern=\"^stage-index selects topic A when topic B resource is renamed$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-STAGE-RESOURCE-RENAME-001",
+        "line": 1,
+        "searchText": "暂存主题 A 时忽略主题 B 资源改名 v5 选择性索引暂存不把未选主题的资源改名视为集合级 metadata 变化。 改名主题 B 资源后，选择主题 A 仍成功暂存，主题 B entry 保持 revision 基线，metadata 为 `{}`。 tools/investigation-report/tests/staging.test.ts > stage-index selects topic A when topic B resource is renamed bun test --test-name-pattern=\"^stage-index selects topic A when topic B resource is renamed$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/stage-index-selects-topic-across-resource-rename.md",
+        "summary": "v5 选择性索引暂存不把未选主题的资源改名视为集合级 metadata 变化。",
+        "title": "暂存主题 A 时忽略主题 B 资源改名"
       }
     },
     "INVESTIGATION-STAGE-VERSION-CONTROL-001": {
@@ -6923,6 +7245,29 @@
         "title": "完整报告结构与时间顺序受约束"
       }
     },
+    "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001 全量同步拒绝资源校验开始后变更的主题引用 `sync-index` 在完成全量资源校验后只能写入同一份已校验主题快照；写入前主题 Markdown 的资源引用发生变化时，必须因 source drift 拒绝写入，而不是物化未经校验的新引用。 资源成员查询期间将已验证主题改为引用缺失资源后，同步返回 `changed: false` 和 source-changed error，现有索引字节保持不变。 随后的完整验证发现新资源引用缺失，证明同步未绕过资源完整性校验。 tools/investigation-report/tests/index-query.test.ts > full synchronization rejects topic references changed after resource validation begins bun test --test-name-pattern=\"^full synchronization rejects topic references changed after resource validation begins$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/index-query.test.ts > full synchronization rejects topic references changed after resource validation begins",
+          "bun test --test-name-pattern=\"^full synchronization rejects topic references changed after resource validation begins$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001",
+        "line": 1,
+        "searchText": "全量同步拒绝资源校验开始后变更的主题引用 `sync-index` 在完成全量资源校验后只能写入同一份已校验主题快照；写入前主题 Markdown 的资源引用发生变化时，必须因 source drift 拒绝写入，而不是物化未经校验的新引用。 资源成员查询期间将已验证主题改为引用缺失资源后，同步返回 `changed: false` 和 source-changed error，现有索引字节保持不变。 随后的完整验证发现新资源引用缺失，证明同步未绕过资源完整性校验。 tools/investigation-report/tests/index-query.test.ts > full synchronization rejects topic references changed after resource validation begins bun test --test-name-pattern=\"^full synchronization rejects topic references changed after resource validation begins$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/full-sync-rejects-topic-reference-change-after-resource-validation.md",
+        "summary": "`sync-index` 在完成全量资源校验后只能写入同一份已校验主题快照；写入前主题 Markdown 的资源引用发生变化时，必须因 source drift 拒绝写入，而不是物化未经校验的新引用。",
+        "title": "全量同步拒绝资源校验开始后变更的主题引用"
+      }
+    },
     "INVESTIGATION-VALIDATION-FILTER-001": {
       "keys": {
         "search": [
@@ -6944,6 +7289,29 @@
         "sourcePath": "investigation-report/validation-filters-reports-by-category-and-path.md",
         "summary": "调查校验必须按 category 和目录路径限制目标报告。",
         "title": "调查校验按类别与路径筛选"
+      }
+    },
+    "INVESTIGATION-VALIDATION-WARNINGS-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-VALIDATION-WARNINGS-001 公共 Check 与 Sync 将稳定 Warnings 与 Errors 分开返回 公共验证与同步 API 必须将非阻断的资源池 warnings 与 errors 分离，并以确定性排序保留同一组 warnings。 未引用资源不会产生 errors，check 的 warnings 按稳定词法顺序返回。 sync 返回与 check 相同的 warnings，且在索引无需变更时保持 `changed: false`。 tools/investigation-report/tests/cli-generated.test.ts > public check and sync return deterministic warnings separately from errors bun test --test-name-pattern=\"^public check and sync return deterministic warnings separately from errors$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > public check and sync return deterministic warnings separately from errors",
+          "bun test --test-name-pattern=\"^public check and sync return deterministic warnings separately from errors$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-VALIDATION-WARNINGS-001",
+        "line": 1,
+        "searchText": "公共 Check 与 Sync 将稳定 Warnings 与 Errors 分开返回 公共验证与同步 API 必须将非阻断的资源池 warnings 与 errors 分离，并以确定性排序保留同一组 warnings。 未引用资源不会产生 errors，check 的 warnings 按稳定词法顺序返回。 sync 返回与 check 相同的 warnings，且在索引无需变更时保持 `changed: false`。 tools/investigation-report/tests/cli-generated.test.ts > public check and sync return deterministic warnings separately from errors bun test --test-name-pattern=\"^public check and sync return deterministic warnings separately from errors$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/public-validation-and-sync-return-warnings-separately.md",
+        "summary": "公共验证与同步 API 必须将非阻断的资源池 warnings 与 errors 分离，并以确定性排序保留同一组 warnings。",
+        "title": "公共 Check 与 Sync 将稳定 Warnings 与 Errors 分开返回"
       }
     },
     "PROJECT-MARKDOWN-SCOPE-001": {
@@ -12947,47 +13315,63 @@
       "INDEX-RUNTIME-TEMPORAL-SORT-001": "sha256:c171e76cf05b0b6f1505e25b88d903014dc2ecc917585aff424c19e655df3303",
       "INDEX-RUNTIME-TEXT-SEARCH-001": "sha256:025c697be00a2550ec330872fffefa04d9ca342e1dd6ee497e1e8310781ec8f1",
       "INVESTIGATION-BUNDLED-PARITY-001": "sha256:8072eebbaf2692c9e9c21fa38b177857a8fd143d4e761abee54a2d4cda9f9a9b",
-      "INVESTIGATION-CLI-CONTRACTS-001": "sha256:88abe2ec2f9d14f1900f32f37cce19b9ed363d95a89d74735e019a56f42308c4",
+      "INVESTIGATION-CLI-CONTRACTS-001": "sha256:d8a18d046570cdae989f2a49e66b68257a8067793f18c5965d4cd23984cbf707",
       "INVESTIGATION-CLI-LIST-001": "sha256:e875cfb1d933f07ed770f8d85428d976dba7665d43462b98da450eb064ba6bc2",
-      "INVESTIGATION-CLI-RESOURCE-STALE-001": "sha256:9067b3be24aa2d519e8f5b88c1f5dc6ee9d73bc4291925500a159f6083a09f23",
-      "INVESTIGATION-CLI-SYNC-001": "sha256:224d27a5707e7ad1c5364d6f185a68f837aedef2ec5341b783087cf9aa99fc82",
+      "INVESTIGATION-CLI-LIST-FRESHNESS-001": "sha256:51a0bb54e6b1675f9a57c0e9c1ca51eb6784203a53679c11ed5f63cc32cbe8db",
+      "INVESTIGATION-CLI-SYNC-001": "sha256:62a5b4ea7d38193af3e44c4fa2b64cb8478278a30c64962fcc594ffa744eb29c",
       "INVESTIGATION-CLI-USAGE-001": "sha256:19126e1c0afb410a1bb69e8e9ad0f1cebcfa72fd4a905cd3eba36c755d221353",
+      "INVESTIGATION-CLI-WARNINGS-001": "sha256:cce45a9b3e00aa24708d49870e124955b59341c7db9a047cd002bbf6205d033e",
       "INVESTIGATION-COLLECTION-LAYOUT-001": "sha256:6d51963a7da7fa2f812f9439b11b825fbbd302449c05fd72b5186be86ed4145f",
       "INVESTIGATION-DIRECTORY-PATH-001": "sha256:1c1d0fcc7e9050d548d94ab38cf8aaf38269f7b6c6030af53e8da9bda8c2c7f0",
-      "INVESTIGATION-EMPTY-COLLECTION-001": "sha256:4d13daa2d59127277610719e9641dddd5943cfb2d5b5fdcbe02885b93c333247",
-      "INVESTIGATION-GENERATED-METADATA-001": "sha256:515c9bb828e848660b57482fcd116b1e291fd8ece629a721ac524f55a89a85e1",
-      "INVESTIGATION-INDEX-INTEGRITY-001": "sha256:8736ae954501079dbef68d4231ba861ca41a05639175f33f98d837acf3a17368",
-      "INVESTIGATION-INDEX-QUERY-001": "sha256:5dd53bb191cfbf1c95cd80dce485ea17ea66d45c3701afa688fec1f1162a025e",
+      "INVESTIGATION-EMPTY-COLLECTION-001": "sha256:d093c7ab192a4fe3273467903179bf0366380eeea88d70457b9fe03853f64d28",
+      "INVESTIGATION-GENERATED-METADATA-001": "sha256:950389bb7d74d2db5162a335e7b3d2ee2057f09a7194ee718a61863d4d66114f",
+      "INVESTIGATION-INDEX-COMPATIBILITY-001": "sha256:eb7a236d5a9e94e542376f3ea6bd5238443c0cfbb6c80d18d61cc8777eb21e7b",
+      "INVESTIGATION-INDEX-INTEGRITY-001": "sha256:c5ae36a9b7a8b4c601b366202494b2cbcec2894f927a57a1189543ae507efb9b",
+      "INVESTIGATION-INDEX-QUERY-001": "sha256:79cf75b30e9afe60410628143343fa314e704447382e4d4e1fd76b50415ce751",
       "INVESTIGATION-INFORMATION-FIELDS-001": "sha256:f1eace758edd23107a291afbf71e04c0c15926f60293d81611fea11dd2e4de90",
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:697be80001ab72ae5e092884156139f46896dc90a54965a79f9f98c65a67ffe1",
       "INVESTIGATION-RESOURCE-CASE-001": "sha256:885153fd1dad8dfe9b8ed2a2a4e31f9eb1488012e4348584ac64bd3de2339b3b",
       "INVESTIGATION-RESOURCE-FIELD-001": "sha256:9cd1aa6994f920db15bcfd27a82e9a8a9073257d35342ced495c8ac34278142a",
-      "INVESTIGATION-RESOURCE-IGNORE-001": "sha256:4fd4e7568dd1d1802f2d658dcb926f20a1db95c7e22cfb76b1cc11cd1e52eef5",
-      "INVESTIGATION-RESOURCE-IGNORE-REFERENCE-001": "sha256:38cd42618ea6feadf47ff8a3eeada43c47d6477aa3e14cec0488f2bab1021c7c",
+      "INVESTIGATION-RESOURCE-GIT-VISIBILITY-001": "sha256:c3325f61061f15e1cd6c07a8a7b5effe8bbdb842d58a2a809f0ed574af8deb81",
+      "INVESTIGATION-RESOURCE-INVALID-OWNER-ANCHOR-001": "sha256:3a96d258927bf1af82d1611718db1192599269d9938123a64da387682322f78b",
+      "INVESTIGATION-RESOURCE-INVALID-OWNER-WARNING-001": "sha256:49ea7498d001e3a5d2631ac10d91c38b533dcff384af38cc4f50ac21f4689168",
+      "INVESTIGATION-RESOURCE-MEMBERSHIP-001": "sha256:a9bcd580657372e67b4a5bd9c91dc5a094f632b2099a8e185d6a7f0280153d1a",
       "INVESTIGATION-RESOURCE-MISSING-001": "sha256:cfb16270a4541ad444bc0be7cea40ffb38ea2ed45001cf80c8d02154e7be09c6",
       "INVESTIGATION-RESOURCE-NAME-001": "sha256:ab0afa8043f1d6b80399a29d17b9ba38d60fc7dc50ddee4da5929a09b02a91c2",
-      "INVESTIGATION-RESOURCE-OPTIONAL-001": "sha256:c1f6032454a5ceae9ac1c55c8542fbd8eac368f8dcd1f6d79b1ba184152e1093",
+      "INVESTIGATION-RESOURCE-OPTIONAL-001": "sha256:f69eafbf7d1836827e33015e7754234abec37bac1977bcd5dc9281d3e2152680",
+      "INVESTIGATION-RESOURCE-OWNER-001": "sha256:d03dfb7a7776fb9392eb5ed10ab647ac9b5b6380a779c2798030f70d99ff78b7",
+      "INVESTIGATION-RESOURCE-OWNER-PREFIX-001": "sha256:eed2b6fb0129b2fe064e75e943f2393ce53811049c92a23c1746ff98bb472946",
       "INVESTIGATION-RESOURCE-PATH-001": "sha256:ddde3d89472f4486303d7e25a72ebdf7cb00e4203d1f56f88e7ceae006eb5b0a",
-      "INVESTIGATION-RESOURCE-PROJECTION-001": "sha256:220b5051bcdb7dec0786644b7689efa4c2d7e972842bb23f862fe7986c751203",
-      "INVESTIGATION-RESOURCE-REVISION-001": "sha256:28a06e8705d93d20e6766f3669ca955ca369acddf4ec6a310d13c673865f5d2b",
-      "INVESTIGATION-RESOURCE-SCOPE-001": "sha256:70402ef860bf66e528b3e1a43c72e7b57f64b4b6eac7856c26f002533ec93524",
+      "INVESTIGATION-RESOURCE-PROJECTION-001": "sha256:de2ad271d62e77e27720d5b3ce4e297b95b38faf3f838b182f1c4045572e60eb",
+      "INVESTIGATION-RESOURCE-REVISION-001": "sha256:d4d37bf72e55332789f58de66ecee231a235d73dfd33bf86b4e572e5b8dee3a5",
+      "INVESTIGATION-RESOURCE-ROOT-001": "sha256:b22f757affe565d5a31f937d4aa027119993a81b18bcfbf32c855d468c625d79",
+      "INVESTIGATION-RESOURCE-SCOPE-001": "sha256:a3eacc2cdafe58760e7ad30351c693419cd6a0846fb30e034d5839088394cdc4",
       "INVESTIGATION-RESOURCE-SYMLINK-001": "sha256:1d5caca3e90b76a10ab7cf18b639a6b291ce2aecbb8edb2f37a3bbb9c0021de3",
+      "INVESTIGATION-RESOURCE-TRACKED-MISSING-ROOT-001": "sha256:38ee04a31609a31dac30f425e2a235e36aebc995a4b322a4705746ce39d53a30",
       "INVESTIGATION-RESOURCE-TYPE-001": "sha256:a2ae05a8df29f4ebb34e5deb73df2225ac187271538cc0246f8e71df91935685",
       "INVESTIGATION-ROOT-CONFINEMENT-001": "sha256:6dbd37fe69ed78f2f202659e7e17a06ab0a6dd2c723d978f68677add45a20f55",
       "INVESTIGATION-SCALE-INDEX-001": "sha256:c2bf0c616d8f309a1c85dc24c01febb973b931410e1f43b25b72fb499fe46b56",
-      "INVESTIGATION-SNAPSHOT-REVISION-001": "sha256:a3a5ae7599771d5425b8cc5a4cdef434c714f946528e7b6b9e08088bbd7bc783",
-      "INVESTIGATION-SOURCE-REVISION-001": "sha256:d7bc684d85b8c31c9e3249fd94cd22271db1cf9fdc8ea806468252e62acd57ad",
-      "INVESTIGATION-STAGE-BOOTSTRAP-001": "sha256:a13c38e595c2c313ac340b65890d92e3b71613296bc75156e1b7d3d77b82fe19",
+      "INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001": "sha256:55bd501266b05bd87c0fc8332b5653850dee0e30051544e26ba1939a26b5d070",
+      "INVESTIGATION-SNAPSHOT-REVISION-001": "sha256:ed9ddd44e964857b49701dce3d635d7b27074387ab2567cefee5259de234c2c3",
+      "INVESTIGATION-SNAPSHOT-SOURCE-MEMBERSHIP-001": "sha256:0f8c76d0dfc4ff11feccbf52d836351bf477b1316f317c2fc1c5c90d7df1679c",
+      "INVESTIGATION-SOURCE-REVISION-001": "sha256:e2ce6b1e4d3cac069ff1bb8aa4c2810c89fce45ca8be30a05d40da9394dfe2ba",
+      "INVESTIGATION-STAGE-BOOTSTRAP-001": "sha256:a3d3f8a57d50946fd022f4fce71417651d680a379dd6af362d0cacb3ad37c493",
       "INVESTIGATION-STAGE-CLI-USAGE-001": "sha256:9c0616de0d79ce62d27fc244112d54af16c619d82daf29c052542f45c0dc9bc5",
       "INVESTIGATION-STAGE-CONFLICT-001": "sha256:360bd441503e1ed8219a3313abf01d3ef8679ec1b78af175f0e5acd2b1ef9075",
+      "INVESTIGATION-STAGE-DEFINITION-UPGRADE-001": "sha256:962915125a0acc389eba54722a6d2b501cc71f7c529425f4287e922812ae3643",
       "INVESTIGATION-STAGE-INPUT-001": "sha256:1da5b5543085840fabb41543a57b56bf04dd434af6b24b3988f5000e429761dc",
       "INVESTIGATION-STAGE-ISOLATION-001": "sha256:49849af919364fbac6d6de7091b8e74bf14d3bcee0ba4aabd433eb5e1b9d254a",
       "INVESTIGATION-STAGE-MISSING-001": "sha256:99bc7c6eb49b7a20fafccee230a31fae491d8f3ec13e350d317a54ca8047f9de",
       "INVESTIGATION-STAGE-OVERLAY-001": "sha256:ed40e1a5df37ce3cf5c7cd73d60e6af603adcbe1ad21e8292d677c554feb387f",
-      "INVESTIGATION-STAGE-RESOURCE-METADATA-001": "sha256:28274a241e9f956f16f58eedbfadf9715dd11c5135fd8efe0a5090fa1b79cfc5",
+      "INVESTIGATION-STAGE-RESOURCE-ADD-001": "sha256:b14e1f6c10a0feab8d045f9573b78a40da4f20e671f0c46464ce6af172677e17",
+      "INVESTIGATION-STAGE-RESOURCE-BYTES-001": "sha256:f84720f24857e96ba6b6494399705de8bd4ca92f7f0193a8e7a727a737622ba6",
+      "INVESTIGATION-STAGE-RESOURCE-DELETE-001": "sha256:b8dca1aa239ed0143843b3747eeee64070e6cafcce30a7901201675d24711593",
+      "INVESTIGATION-STAGE-RESOURCE-RENAME-001": "sha256:7a4d8bf25fa6d3769eb15dcac190b0d7e823f537d03daad11a68d28641dec54e",
       "INVESTIGATION-STAGE-VERSION-CONTROL-001": "sha256:8079f1845974e8645273f7985cb55e6f387e19bf7e2e560b264a40a487e7b14e",
       "INVESTIGATION-STRUCTURE-CHRONOLOGY-001": "sha256:c37b58ae1a46e45c4c65521f420c6f373301ce0465e1d5c14ed70abb8a7f0de4",
+      "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001": "sha256:f87f792bb492b949913029141e608d3f446e2a5a9d262c01028f6094e5772236",
       "INVESTIGATION-VALIDATION-FILTER-001": "sha256:59fb97585ad6fe441e9bf7a42044f69eb26a826b7c648a25322a8ab2e350e036",
+      "INVESTIGATION-VALIDATION-WARNINGS-001": "sha256:42cf1a80283eae4e2ddc26a99a54313dcf8cbfbbab05403aa4ef362e90e2f384",
       "PROJECT-MARKDOWN-SCOPE-001": "sha256:c81887aeeaff27a4a175363abe07d51f222bfdb46e785dc0c436e790aa82832c",
       "REPO-FORMAT-SCRIPTS-001": "sha256:2f52e8e3653f91fad9f12010ebaee9b5beec800eb99609bd48b28a284618794d",
       "REPO-LINT-PREFLIGHT-001": "sha256:028ff20768861e327bd9a7a43cd90b6eeaeea2de6490982ebb7ee8269b68b2c4",

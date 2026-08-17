@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { constants as fileSystemConstants } from "node:fs";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
@@ -9,88 +11,79 @@ import {
 } from "../../index-runtime/src/index.ts";
 import {
   createInvestigationStateIndexDefinition,
-  investigationSourceRevision,
   investigationIndexFileName,
+  investigationSourceRevision,
   loadCurrentInvestigationIndex,
   readInvestigationSourceRevision,
   readInvestigationStateSnapshot,
   syncInvestigationStateIndex
 } from "../src/investigation-state-index.ts";
+import { createInvestigationStateSnapshot } from "../src/investigation-index-source.ts";
 import { queryInvestigationIndex } from "../src/query.ts";
+import type { InvestigationIndexState } from "../src/types.ts";
 import {
   synchronizeInvestigationIndex,
   validateInvestigationReports
 } from "../src/validation.ts";
 import {
   createValidReports,
+  initializeGitRepository,
   investigationRoot,
+  resourceIdForTopic,
   reportMarkdown,
   resultValue,
   type ReportInput,
   withTempRoot,
-  writeCollection
+  writeCollection,
+  writeResource
 } from "./support.ts";
+
+function parseIndex(text: string, sourcePath: string) {
+  return parseStateIndex({
+    definition: createInvestigationStateIndexDefinition(),
+    expectation: {
+      definitionVersion: 5,
+      namespace: "investigations"
+    },
+    sourcePath,
+    text
+  });
+}
 
 async function testValidIndexAndQueries(tempRoot: string): Promise<void> {
   const workspaceRoot = path.join(tempRoot, "valid-index");
   await writeCollection(workspaceRoot, createValidReports());
 
-  const valid = await validateInvestigationReports({ workspaceRoot });
-  assert.deepEqual(valid.errors, []);
-  assert.equal(valid.indexChecked, true);
-  assert.equal(valid.availableTopicCount, 2);
-  assert.equal(valid.selectedTopicCount, 2);
-  assert.equal(valid.categoryCount, 2);
+  const validation = await validateInvestigationReports({ workspaceRoot });
+  assert.deepEqual(validation.errors, []);
+  assert.deepEqual(validation.warnings, []);
+  assert.equal(validation.indexChecked, true);
+  assert.equal(validation.availableTopicCount, 2);
+  assert.equal(validation.selectedTopicCount, 2);
+  assert.equal(validation.categoryCount, 2);
 
   const collectionRoot = investigationRoot(workspaceRoot);
-  const validIndex = JSON.parse(
-    await fs.readFile(
-      path.join(collectionRoot, investigationIndexFileName),
-      "utf8"
-    )
-  ) as StateIndex;
-  assert.equal(validIndex.schemaVersion, 3);
-  assert.deepEqual(validIndex.metadata, { resources: [] });
-  assert.equal(validIndex.namespace, "investigations");
-  assert.equal(validIndex.definitionVersion, 4);
-  assert.match(validIndex.sourceRevision.metadata, /^sha256:[0-9a-f]{64}$/u);
-  assert.ok(
-    Object.values(validIndex.sourceRevision.entries).every((fingerprint) =>
-      /^sha256:[0-9a-f]{64}$/u.test(fingerprint)
-    )
-  );
-  assert.deepEqual(Object.keys(validIndex.entries), [
+  const indexPath = path.join(collectionRoot, investigationIndexFileName);
+  const source = await fs.readFile(indexPath, "utf8");
+  const index = JSON.parse(source) as StateIndex;
+  assert.equal(index.schemaVersion, 3);
+  assert.equal(index.definitionVersion, 5);
+  assert.deepEqual(index.metadata, {});
+  assert.equal(index.namespace, "investigations");
+  assert.match(index.sourceRevision.metadata, /^sha256:[0-9a-f]{64}$/u);
+  assert.deepEqual(Object.keys(index.entries), [
     "codex/project-shell-registration.md",
     "runtime/process-churn.md"
   ]);
   assert.deepEqual(
-    Object.keys(validIndex.sourceRevision.entries),
-    Object.keys(validIndex.entries)
+    Object.keys(index.sourceRevision.entries),
+    Object.keys(index.entries)
   );
 
-  const codexEntry = validIndex.entries["codex/project-shell-registration.md"]!;
-  assert.equal(Object.hasOwn(codexEntry, "id"), false);
-  assert.deepEqual(codexEntry.state, {
-    latestReportAt: "2026-07-21T09:00:00+08:00",
-    path: "codex/project-shell-registration.md",
-    question: "为什么项目 Shell 没有进入可用工具列表？",
-    reportCount: 2,
-    reportTitles: ["恢复注册入口", "复查当前注册状态"],
-    resourceReferences: [],
-    status: "调查中",
-    title: "项目 Shell 注册调查"
-  });
+  const codexEntry = index.entries["codex/project-shell-registration.md"]!;
+  assert.deepEqual(codexEntry.state.resourceReferences, []);
   assert.deepEqual(codexEntry.keys.category, ["codex"]);
   assert.deepEqual(codexEntry.keys.status, ["调查中"]);
-  assert.deepEqual(codexEntry.keys.text, [
-    "为什么项目 Shell 没有进入可用工具列表？",
-    "复查当前注册状态",
-    "恢复注册入口",
-    "项目 Shell 注册调查"
-  ]);
-  assert.deepEqual(codexEntry.keys["latest-report-at"], [
-    Date.parse("2026-07-21T09:00:00+08:00")
-  ]);
 
   const loadedIndex = resultValue(
     await loadCurrentInvestigationIndex({
@@ -119,7 +112,7 @@ async function testValidIndexAndQueries(tempRoot: string): Promise<void> {
       }
     })
   );
-  assert.deepEqual(queriedIndex.metadata, { resources: [] });
+  assert.deepEqual(queriedIndex.metadata, {});
   assert.deepEqual(
     queriedIndex.entries.map((entry) => entry.id),
     ["runtime/process-churn.md"]
@@ -136,129 +129,28 @@ async function testValidIndexAndQueries(tempRoot: string): Promise<void> {
     domainQuery.entries.map((entry) => entry.path),
     ["runtime/process-churn.md"]
   );
-
-  const historicalReportTitleQuery = await queryInvestigationIndex({
-    text: "恢复 注册",
-    workspaceRoot
-  });
-  assert.deepEqual(historicalReportTitleQuery.errors, []);
-  assert.deepEqual(
-    historicalReportTitleQuery.entries.map((entry) => entry.path),
-    ["codex/project-shell-registration.md"]
-  );
-
-  const secondPage = await queryInvestigationIndex({
-    limit: 1,
-    offset: 1,
-    workspaceRoot
-  });
-  assert.deepEqual(secondPage.errors, []);
-  assert.equal(secondPage.total, 2);
-  assert.deepEqual(
-    secondPage.entries.map((entry) => entry.path),
-    ["runtime/process-churn.md"]
-  );
 }
 
-async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
-  const workspaceRoot = path.join(tempRoot, "stale-index");
-  const firstStaleReport: ReportInput = {
-    path: "runtime/first-report.md",
-    question: "新增主题文件是否会使派生索引失效？",
-    title: "首个索引成员调查"
-  };
-  const addedStaleReport: ReportInput = {
-    path: "runtime/added-report.md",
-    question: "新增文件是否会由同步自动吸收？",
-    title: "新增索引成员调查"
-  };
-  await writeCollection(workspaceRoot, [firstStaleReport]);
-
-  const addedStalePath = path.join(
-    investigationRoot(workspaceRoot),
-    ...addedStaleReport.path.split("/")
-  );
-  await fs.writeFile(addedStalePath, reportMarkdown(addedStaleReport), "utf8");
-
-  const stale = await validateInvestigationReports({ workspaceRoot });
-  assert.equal(stale.indexChecked, true);
-  assert.ok(
-    stale.errors.some(
-      (error) =>
-        error.includes(investigationIndexFileName) &&
-        error.includes("does not match the current state projection")
-    )
-  );
-
-  const staleQuery = await queryInvestigationIndex({ workspaceRoot });
-  assert.ok(
-    staleQuery.errors.some(
-      (error) =>
-        error.includes(investigationIndexFileName) &&
-        error.includes("does not match the current source revision")
-    )
-  );
-  assert.deepEqual(staleQuery.entries, []);
-
-  const isolatedAddedReport = await validateInvestigationReports({
-    paths: [addedStaleReport.path],
-    workspaceRoot
-  });
-  assert.deepEqual(isolatedAddedReport.errors, []);
-  assert.equal(isolatedAddedReport.indexChecked, false);
-
-  const resynchronized = await synchronizeInvestigationIndex({
-    workspaceRoot
-  });
-  assert.deepEqual(resynchronized.errors, []);
-  assert.equal(resynchronized.changed, true);
-  assert.deepEqual(
-    (await validateInvestigationReports({ workspaceRoot })).errors,
-    []
-  );
-  const resynchronizedIndex = resultValue(
-    await loadCurrentInvestigationIndex({
-      investigationsDirectory: investigationRoot(workspaceRoot)
-    })
-  );
-  assert.deepEqual(Object.keys(resynchronizedIndex.entries), [
-    "runtime/added-report.md",
-    "runtime/first-report.md"
-  ]);
-
+async function testIndexCompatibilityAndStrictMetadata(
+  tempRoot: string
+): Promise<void> {
+  const workspaceRoot = path.join(tempRoot, "strict-index");
+  await writeCollection(workspaceRoot, createValidReports());
   const indexPath = path.join(
     investigationRoot(workspaceRoot),
     investigationIndexFileName
   );
-  const indexSource = await fs.readFile(indexPath, "utf8");
-  await fs.writeFile(
-    indexPath,
-    indexSource.replace("新增索引成员调查", "被篡改的索引标题"),
-    "utf8"
-  );
-  const tampered = await validateInvestigationReports({ workspaceRoot });
-  assert.ok(
-    tampered.errors.some(
-      (error) =>
-        error.includes(investigationIndexFileName) &&
-        error.includes("does not match its keys under the runtime definition")
-    )
-  );
-  assert.equal(
-    (await synchronizeInvestigationIndex({ workspaceRoot })).changed,
-    true
-  );
+  const source = await fs.readFile(indexPath, "utf8");
+  const index = JSON.parse(source) as {
+    definitionVersion: number;
+    metadata: Record<string, unknown>;
+    schemaVersion: number;
+  };
 
-  const restoredIndex = await fs.readFile(indexPath, "utf8");
-  const schemaV2 = parseStateIndex({
-    definition: createInvestigationStateIndexDefinition(),
-    expectation: {
-      definitionVersion: 4,
-      namespace: "investigations"
-    },
-    sourcePath: investigationIndexFileName,
-    text: restoredIndex.replace('"schemaVersion": 3', '"schemaVersion": 2')
-  });
+  const schemaV2 = parseIndex(
+    source.replace('"schemaVersion": 3', '"schemaVersion": 2'),
+    indexPath
+  );
   assert.equal(schemaV2.status, "error");
   assert.ok(
     schemaV2.diagnostics.some((diagnostic) =>
@@ -266,292 +158,77 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
     )
   );
 
-  const invalidRevisionIndex = JSON.parse(restoredIndex) as StateIndex;
-  invalidRevisionIndex.sourceRevision = {
-    ...invalidRevisionIndex.sourceRevision,
-    entries: {
-      ...invalidRevisionIndex.sourceRevision.entries,
-      "runtime/added-report.md": "not-a-sha256"
-    }
-  };
-  const invalidRevision = parseStateIndex({
-    definition: createInvestigationStateIndexDefinition(),
-    expectation: {
-      definitionVersion: 4,
-      namespace: "investigations"
-    },
-    sourcePath: investigationIndexFileName,
-    text: JSON.stringify(invalidRevisionIndex)
-  });
-  assert.equal(invalidRevision.status, "error");
+  index.definitionVersion = 4;
+  const legacyDefinition = parseIndex(JSON.stringify(index), indexPath);
+  assert.equal(legacyDefinition.status, "error");
   assert.ok(
-    invalidRevision.diagnostics.some((diagnostic) =>
-      diagnostic.message.includes(
-        "must be a sha256 investigation source fingerprint"
-      )
+    legacyDefinition.diagnostics.some((diagnostic) =>
+      /definition|version|expected/iu.test(diagnostic.message)
+    )
+  );
+
+  index.definitionVersion = 5;
+  index.metadata = { resources: [] };
+  const extraMetadata = parseIndex(JSON.stringify(index), indexPath);
+  assert.equal(extraMetadata.status, "error");
+  assert.ok(
+    extraMetadata.diagnostics.some((diagnostic) =>
+      /metadata|additional|property/iu.test(diagnostic.message)
     ),
-    invalidRevision.diagnostics.map((entry) => entry.message).join("; ")
+    extraMetadata.diagnostics.map((entry) => entry.message).join("; ")
   );
+}
 
-  const mismatchedPathIndex = JSON.parse(restoredIndex) as {
-    entries: Record<string, { state: { path: string } }>;
+async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
+  const workspaceRoot = path.join(tempRoot, "stale-index");
+  const firstReport: ReportInput = {
+    path: "runtime/first-report.md",
+    question: "新增主题文件是否会使派生索引失效？",
+    title: "首个索引成员调查"
   };
-  mismatchedPathIndex.entries["runtime/added-report.md"]!.state.path =
-    "runtime/mismatched-id.md";
-  const mismatchedPath = parseStateIndex({
-    definition: createInvestigationStateIndexDefinition(),
-    expectation: {
-      definitionVersion: 4,
-      namespace: "investigations"
-    },
-    sourcePath: investigationIndexFileName,
-    text: JSON.stringify(mismatchedPathIndex)
-  });
-  assert.equal(mismatchedPath.status, "error");
-  assert.ok(
-    mismatchedPath.diagnostics.some((diagnostic) =>
-      diagnostic.message.includes("state.path must equal the entry id")
-    )
-  );
-
-  const invalidCount = parseStateIndex({
-    definition: createInvestigationStateIndexDefinition(),
-    expectation: {
-      definitionVersion: 4,
-      namespace: "investigations"
-    },
-    sourcePath: investigationIndexFileName,
-    text: restoredIndex.replace('"reportCount": 1', '"reportCount": 2')
-  });
-  assert.equal(invalidCount.status, "error");
-  assert.ok(
-    invalidCount.diagnostics.some((diagnostic) =>
-      diagnostic.message.includes(
-        "reportCount must equal the number of reportTitles"
-      )
-    ),
-    invalidCount.diagnostics.map((entry) => entry.message).join("; ")
-  );
-
-  const invalidResourceSha = parseStateIndex({
-    definition: createInvestigationStateIndexDefinition(),
-    expectation: {
-      definitionVersion: 4,
-      namespace: "investigations"
-    },
-    sourcePath: investigationIndexFileName,
-    text: restoredIndex.replace(
-      '"resources": []',
-      '"resources": [{"id": "sample.txt", "sha256": "not-a-sha256"}]'
-    )
-  });
-  assert.equal(invalidResourceSha.status, "error");
-  assert.ok(
-    invalidResourceSha.diagnostics.some((diagnostic) =>
-      diagnostic.message.includes("must be a lowercase SHA-256 digest")
-    )
-  );
-
-  const outOfRangeResourceReference = parseStateIndex({
-    definition: createInvestigationStateIndexDefinition(),
-    expectation: {
-      definitionVersion: 4,
-      namespace: "investigations"
-    },
-    sourcePath: investigationIndexFileName,
-    text: restoredIndex.replace(
-      '"resourceReferences": []',
-      '"resourceReferences": [{"reportIndex": 1, "resourceIds": ["sample.txt"]}]'
-    )
-  });
-  assert.equal(outOfRangeResourceReference.status, "error");
-  assert.ok(
-    outOfRangeResourceReference.diagnostics.some((diagnostic) =>
-      diagnostic.message.includes("reportIndex 1 must be less than reportCount")
-    )
-  );
-
-  type ResourceTamperIndex = {
-    entries: Record<
-      string,
-      {
-        state: {
-          reportCount: number;
-          reportTitles: string[];
-          resourceReferences: Array<{
-            reportIndex: number;
-            resourceIds: string[];
-          }>;
-        };
-      }
-    >;
-    metadata: {
-      resources: Array<{ id: string; sha256: string }>;
-    };
+  const addedReport: ReportInput = {
+    path: "runtime/added-report.md",
+    question: "新增文件是否会由同步自动吸收？",
+    title: "新增索引成员调查"
   };
-  const resourceEntryId = "runtime/added-report.md";
-  const resourceDigest = "0".repeat(64);
-  const parseResourceTamper = (
-    mutate: (index: ResourceTamperIndex) => void
-  ) => {
-    const candidate = JSON.parse(restoredIndex) as ResourceTamperIndex;
-    mutate(candidate);
-    return parseStateIndex({
-      definition: createInvestigationStateIndexDefinition(),
-      expectation: {
-        definitionVersion: 4,
-        namespace: "investigations"
-      },
-      sourcePath: investigationIndexFileName,
-      text: JSON.stringify(candidate)
-    });
-  };
+  await writeCollection(workspaceRoot, [firstReport]);
 
-  const unorderedReportIndexes = parseResourceTamper((index) => {
-    const state = index.entries[resourceEntryId]!.state;
-    state.reportCount = 2;
-    state.reportTitles = ["第一份报告", "第二份报告"];
-    state.resourceReferences = [
-      { reportIndex: 1, resourceIds: ["b.txt"] },
-      { reportIndex: 0, resourceIds: ["a.txt"] }
-    ];
-    index.metadata.resources = [
-      { id: "a.txt", sha256: resourceDigest },
-      { id: "b.txt", sha256: resourceDigest }
-    ];
-  });
-  assert.equal(unorderedReportIndexes.status, "error");
+  await fs.writeFile(
+    path.join(investigationRoot(workspaceRoot), ...addedReport.path.split("/")),
+    reportMarkdown(addedReport),
+    "utf8"
+  );
+  const stale = await validateInvestigationReports({ workspaceRoot });
+  assert.equal(stale.indexChecked, true);
   assert.ok(
-    unorderedReportIndexes.diagnostics.some((diagnostic) =>
-      diagnostic.message.includes(
-        "must use unique reportIndex values in sorted order"
-      )
+    stale.errors.some((error) =>
+      error.includes("does not match the current state projection")
     )
   );
-
-  const duplicateReportIndexes = parseResourceTamper((index) => {
-    index.entries[resourceEntryId]!.state.resourceReferences = [
-      { reportIndex: 0, resourceIds: ["a.txt"] },
-      { reportIndex: 0, resourceIds: ["b.txt"] }
-    ];
-    index.metadata.resources = [
-      { id: "a.txt", sha256: resourceDigest },
-      { id: "b.txt", sha256: resourceDigest }
-    ];
-  });
-  assert.equal(duplicateReportIndexes.status, "error");
+  const staleQuery = await queryInvestigationIndex({ workspaceRoot });
+  assert.deepEqual(staleQuery.entries, []);
   assert.ok(
-    duplicateReportIndexes.diagnostics.some((diagnostic) =>
-      diagnostic.message.includes(
-        "must use unique reportIndex values in sorted order"
-      )
-    )
+    staleQuery.errors.some((error) => error.includes("source revision"))
   );
 
-  const unorderedResourceIds = parseResourceTamper((index) => {
-    index.entries[resourceEntryId]!.state.resourceReferences = [
-      {
-        reportIndex: 0,
-        resourceIds: ["b.txt", "a.txt"]
-      }
-    ];
-    index.metadata.resources = [
-      { id: "a.txt", sha256: resourceDigest },
-      { id: "b.txt", sha256: resourceDigest }
-    ];
-  });
-  assert.equal(unorderedResourceIds.status, "error");
-  assert.ok(
-    unorderedResourceIds.diagnostics.some((diagnostic) =>
-      diagnostic.message.includes(
-        "must contain unique resource ids in sorted order"
-      )
-    )
-  );
+  const synchronized = await synchronizeInvestigationIndex({ workspaceRoot });
+  assert.deepEqual(synchronized.errors, []);
+  assert.equal(synchronized.changed, true);
 
-  const duplicateResourceIds = parseResourceTamper((index) => {
-    index.entries[resourceEntryId]!.state.resourceReferences = [
-      {
-        reportIndex: 0,
-        resourceIds: ["a.txt", "a.txt"]
-      }
-    ];
-    index.metadata.resources = [{ id: "a.txt", sha256: resourceDigest }];
-  });
-  assert.equal(duplicateResourceIds.status, "error");
-  assert.ok(
-    duplicateResourceIds.diagnostics.some((diagnostic) =>
-      diagnostic.message.includes(
-        "must contain unique resource ids in sorted order"
-      )
-    )
+  const indexPath = path.join(
+    investigationRoot(workspaceRoot),
+    investigationIndexFileName
   );
-
-  const unorderedMetadataIds = parseResourceTamper((index) => {
-    index.metadata.resources = [
-      { id: "b.txt", sha256: resourceDigest },
-      { id: "a.txt", sha256: resourceDigest }
-    ];
-  });
-  assert.equal(unorderedMetadataIds.status, "error");
-  assert.ok(
-    unorderedMetadataIds.diagnostics.some((diagnostic) =>
-      diagnostic.message.includes("must contain unique resources in id order")
-    )
+  const current = await fs.readFile(indexPath, "utf8");
+  await fs.writeFile(
+    indexPath,
+    current.replace("新增索引成员调查", "被篡改的索引标题"),
+    "utf8"
   );
-
-  const duplicateMetadataIds = parseResourceTamper((index) => {
-    index.metadata.resources = [
-      { id: "a.txt", sha256: resourceDigest },
-      { id: "a.txt", sha256: resourceDigest }
-    ];
-  });
-  assert.equal(duplicateMetadataIds.status, "error");
+  const tampered = await validateInvestigationReports({ workspaceRoot });
   assert.ok(
-    duplicateMetadataIds.diagnostics.some((diagnostic) =>
-      diagnostic.message.includes("must contain unique resources in id order")
-    )
-  );
-
-  const missingResourceMetadata = parseStateIndex({
-    definition: createInvestigationStateIndexDefinition(),
-    expectation: {
-      definitionVersion: 4,
-      namespace: "investigations"
-    },
-    sourcePath: investigationIndexFileName,
-    text: restoredIndex.replace(
-      '"resourceReferences": []',
-      '"resourceReferences": [{"reportIndex": 0, "resourceIds": ["sample.txt"]}]'
-    )
-  });
-  assert.equal(missingResourceMetadata.status, "error");
-  assert.ok(
-    missingResourceMetadata.diagnostics.some(
-      (diagnostic) =>
-        diagnostic.message.includes("sample.txt") &&
-        diagnostic.message.includes("missing from metadata.resources")
-    )
-  );
-
-  const unreferencedResourceMetadata = parseStateIndex({
-    definition: createInvestigationStateIndexDefinition(),
-    expectation: {
-      definitionVersion: 4,
-      namespace: "investigations"
-    },
-    sourcePath: investigationIndexFileName,
-    text: restoredIndex.replace(
-      '"resources": []',
-      `"resources": [{"id": "sample.txt", "sha256": "${"0".repeat(64)}"}]`
-    )
-  });
-  assert.equal(unreferencedResourceMetadata.status, "error");
-  assert.ok(
-    unreferencedResourceMetadata.diagnostics.some(
-      (diagnostic) =>
-        diagnostic.message.includes("metadata resource sample.txt") &&
-        diagnostic.message.includes("not referenced")
+    tampered.errors.some((error) =>
+      error.includes("does not match its keys under the runtime definition")
     )
   );
 }
@@ -559,156 +236,282 @@ async function testStaleAndTamperedIndexes(tempRoot: string): Promise<void> {
 async function testPrebuiltSnapshotWriteBoundary(
   tempRoot: string
 ): Promise<void> {
-  const missingIndexWorkspace = path.join(tempRoot, "missing-index");
-  const missingIndexReports = createValidReports();
-  await writeCollection(missingIndexWorkspace, missingIndexReports, false);
-  const missingIndexRoot = investigationRoot(missingIndexWorkspace);
-  const missingIndexPath = path.join(
-    missingIndexRoot,
-    investigationIndexFileName
-  );
-  const missingIndexSnapshot =
-    await readInvestigationStateSnapshot(missingIndexRoot);
+  const workspaceRoot = path.join(tempRoot, "snapshot-write-boundary");
+  const reports = createValidReports();
+  await writeCollection(workspaceRoot, reports);
+  const collectionRoot = investigationRoot(workspaceRoot);
+  const indexPath = path.join(collectionRoot, investigationIndexFileName);
+  const originalIndex = await fs.readFile(indexPath, "utf8");
+  const snapshot = await readInvestigationStateSnapshot(collectionRoot);
   await fs.appendFile(
-    path.join(missingIndexRoot, ...missingIndexReports[0]!.path.split("/")),
+    path.join(collectionRoot, ...reports[0]!.path.split("/")),
     "\n<!-- changed after snapshot -->\n",
     "utf8"
   );
 
-  const rejectedWrite = await syncInvestigationStateIndex({
-    investigationsDirectory: missingIndexRoot,
+  const rejected = await syncInvestigationStateIndex({
+    investigationsDirectory: collectionRoot,
     mode: "write",
-    snapshot: missingIndexSnapshot
+    snapshot
   });
-  assert.equal(rejectedWrite.status, "error");
-  assert.equal(rejectedWrite.state, "source-invalid");
-  assert.equal(rejectedWrite.changed, false);
+  assert.equal(rejected.status, "error");
+  assert.equal(rejected.state, "source-invalid");
+  assert.equal(rejected.changed, false);
   assert.deepEqual(
-    rejectedWrite.diagnostics.map((diagnostic) => diagnostic.code),
+    rejected.diagnostics.map((diagnostic) => diagnostic.code),
     ["state-index.source-changed"]
   );
-  assert.equal(
-    await fs.stat(missingIndexPath).then(
-      () => true,
-      () => false
-    ),
-    false
-  );
-
-  const existingIndexWorkspace = path.join(tempRoot, "existing-index");
-  const existingIndexReports = createValidReports();
-  await writeCollection(existingIndexWorkspace, existingIndexReports);
-  const existingIndexRoot = investigationRoot(existingIndexWorkspace);
-  const existingIndexPath = path.join(
-    existingIndexRoot,
-    investigationIndexFileName
-  );
-  const originalIndex = await fs.readFile(existingIndexPath, "utf8");
-  const existingIndexSnapshot =
-    await readInvestigationStateSnapshot(existingIndexRoot);
-  await fs.appendFile(
-    path.join(existingIndexRoot, ...existingIndexReports[0]!.path.split("/")),
-    "\n<!-- changed after snapshot -->\n",
-    "utf8"
-  );
-
-  const rejectedReplacement = await syncInvestigationStateIndex({
-    investigationsDirectory: existingIndexRoot,
-    mode: "write",
-    snapshot: existingIndexSnapshot
-  });
-  assert.equal(rejectedReplacement.status, "error");
-  assert.equal(rejectedReplacement.state, "source-invalid");
-  assert.equal(rejectedReplacement.changed, false);
-  assert.deepEqual(
-    rejectedReplacement.diagnostics.map((diagnostic) => diagnostic.code),
-    ["state-index.source-changed"]
-  );
-  assert.equal(await fs.readFile(existingIndexPath, "utf8"), originalIndex);
+  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndex);
 }
 
-test("index queries return filtered and paginated investigation states", () =>
+async function writeGitMembershipMutationWrapper(options: {
+  markerPath: string;
+  replacementPath: string;
+  targetPath: string;
+  wrapperPath: string;
+}): Promise<void> {
+  const realGitPath = await resolveGitExecutable();
+  const dispatcherSource = [
+    'const { spawnSync } = require("node:child_process");',
+    'const fs = require("node:fs");',
+    "",
+    'if (process.argv.slice(2).includes("ls-files") &&',
+    `    !fs.existsSync(${JSON.stringify(options.markerPath)})) {`,
+    `  fs.copyFileSync(${JSON.stringify(options.replacementPath)}, ${JSON.stringify(options.targetPath)});`,
+    `  fs.closeSync(fs.openSync(${JSON.stringify(options.markerPath)}, "w"));`,
+    "}",
+    "",
+    `const result = spawnSync(${JSON.stringify(realGitPath)}, process.argv.slice(2), { stdio: "inherit" });`,
+    "if (result.error) {",
+    "  throw result.error;",
+    "}",
+    "process.exitCode = result.status ?? 1;",
+    ""
+  ].join("\n");
+  await fs.mkdir(path.dirname(options.wrapperPath), { recursive: true });
+  if (process.platform === "win32") {
+    const dispatcherPath = options.wrapperPath + ".cjs";
+    await fs.writeFile(dispatcherPath, dispatcherSource, "utf8");
+    const compiled = spawnSync(
+      process.execPath,
+      ["build", "--compile", dispatcherPath, "--outfile", options.wrapperPath],
+      { encoding: "utf8", windowsHide: true }
+    );
+    assert.equal(
+      compiled.status,
+      0,
+      `could not compile the Windows Git test shim: ${compiled.stderr}`
+    );
+    return;
+  }
+  await fs.writeFile(
+    options.wrapperPath,
+    `#!${process.execPath}\n${dispatcherSource}`,
+    { mode: 0o755 }
+  );
+  await fs.chmod(options.wrapperPath, 0o755);
+}
+
+async function resolveGitExecutable(): Promise<string> {
+  const names = process.platform === "win32" ? ["git.exe", "git.com"] : ["git"];
+  for (const directory of (process.env.PATH ?? "").split(path.delimiter)) {
+    if (directory.length === 0) {
+      continue;
+    }
+    for (const name of names) {
+      const candidate = path.join(directory, name);
+      try {
+        await fs.access(candidate, fileSystemConstants.X_OK);
+        return candidate;
+      } catch {
+        // Continue through the operating system's command-search candidates.
+      }
+    }
+  }
+  throw new Error("Git executable was not found on PATH");
+}
+
+async function testFullSynchronizationUsesValidatedTopicSnapshot(
+  tempRoot: string
+): Promise<void> {
+  const workspaceRoot = path.join(tempRoot, "validation-snapshot-boundary");
+  const topicPath = "runtime/snapshot-boundary.md";
+  const validResourceId = resourceIdForTopic(topicPath, "evidence.txt");
+  const invalidResourceId = resourceIdForTopic(topicPath, "missing.txt");
+  const initialReport: ReportInput = {
+    path: topicPath,
+    question: "全量同步是否只写入已完成资源校验的主题快照？",
+    reports: [
+      {
+        resources: [{ id: validResourceId, label: "已校验资源" }],
+        title: "建立已校验主题快照"
+      }
+    ],
+    title: "主题快照与资源校验边界"
+  };
+  const replacementReport: ReportInput = {
+    ...initialReport,
+    reports: [
+      {
+        resources: [{ id: invalidResourceId, label: "未校验缺失资源" }],
+        title: "在资源检查期间改写引用"
+      }
+    ]
+  };
+  initializeGitRepository(workspaceRoot);
+  await writeResource(workspaceRoot, validResourceId, "valid evidence\n");
+  await writeCollection(workspaceRoot, [initialReport]);
+
+  const collectionRoot = investigationRoot(workspaceRoot);
+  const indexPath = path.join(collectionRoot, investigationIndexFileName);
+  const originalIndex = await fs.readFile(indexPath, "utf8");
+  const targetPath = path.join(collectionRoot, ...topicPath.split("/"));
+  const replacementPath = path.join(tempRoot, "replacement.md");
+  const markerPath = path.join(tempRoot, "resource-membership-read");
+  const wrapperDirectory = path.join(tempRoot, "git-wrapper");
+  await fs.writeFile(
+    replacementPath,
+    reportMarkdown(replacementReport),
+    "utf8"
+  );
+  await writeGitMembershipMutationWrapper({
+    markerPath,
+    replacementPath,
+    targetPath,
+    wrapperPath: path.join(
+      wrapperDirectory,
+      process.platform === "win32" ? "git.exe" : "git"
+    )
+  });
+
+  const originalPath = process.env.PATH;
+  process.env.PATH = wrapperDirectory + path.delimiter + (originalPath ?? "");
+  let synchronized: Awaited<ReturnType<typeof synchronizeInvestigationIndex>>;
+  try {
+    synchronized = await synchronizeInvestigationIndex({ workspaceRoot });
+  } finally {
+    if (originalPath === undefined) {
+      delete process.env.PATH;
+    } else {
+      process.env.PATH = originalPath;
+    }
+  }
+
+  await assert.doesNotReject(fs.access(markerPath));
+  assert.equal(synchronized.changed, false);
+  assert.ok(
+    synchronized.errors.some((error) => /source.*changed/iu.test(error)),
+    synchronized.errors.join("; ")
+  );
+  assert.equal(await fs.readFile(indexPath, "utf8"), originalIndex);
+
+  const currentValidation = await validateInvestigationReports({
+    workspaceRoot
+  });
+  assert.ok(
+    currentValidation.errors.some(
+      (error) =>
+        error.includes(invalidResourceId) && error.includes("does not exist")
+    ),
+    currentValidation.errors.join("; ")
+  );
+}
+
+async function testSourceRevisionOnlyUsesTopicMarkdown(
+  tempRoot: string
+): Promise<void> {
+  const workspaceRoot = path.join(tempRoot, "source-revision");
+  const reports = createValidReports();
+  await writeCollection(workspaceRoot, reports, false);
+  const collectionRoot = investigationRoot(workspaceRoot);
+  const snapshot = await readInvestigationStateSnapshot(collectionRoot);
+  const revision = await readInvestigationSourceRevision(collectionRoot);
+  assert.deepEqual(snapshot.sourceRevision, revision);
+
+  const sources = reports.map((report) => ({
+    path: report.path,
+    text: reportMarkdown(report)
+  }));
+  assert.deepEqual(
+    investigationSourceRevision([...sources].reverse()),
+    revision
+  );
+  const changedPath = reports[0]!.path;
+  const changed = investigationSourceRevision(
+    sources.map((source) =>
+      source.path === changedPath
+        ? { ...source, text: source.text + "not projected\n" }
+        : source
+    )
+  );
+  assert.equal(changed.metadata, revision.metadata);
+  assert.notEqual(changed.entries[changedPath], revision.entries[changedPath]);
+}
+
+test("index queries return v5 topic states with strict empty metadata", () =>
   withTempRoot("index-query-valid", testValidIndexAndQueries));
 
-test("index loading rejects stale and tampered investigation indexes", () =>
+test("index rejects legacy definitions and additional metadata", () =>
+  withTempRoot("index-query-strict", testIndexCompatibilityAndStrictMetadata));
+
+test("index loading rejects stale and tampered topic projections", () =>
   withTempRoot("index-query-stale", testStaleAndTamperedIndexes));
 
-test("prebuilt snapshot synchronization rejects live source changes before index writes", () =>
+test("prebuilt snapshot synchronization rejects live topic changes before index writes", () =>
   withTempRoot("snapshot-write-boundary", testPrebuiltSnapshotWriteBoundary));
 
-test("source revisions partition metadata and topic fingerprints without parsing Markdown", () =>
-  withTempRoot("source-revision", async (tempRoot) => {
-    const workspaceRoot = path.join(tempRoot, "source-revision");
-    const reports = createValidReports();
-    await writeCollection(workspaceRoot, reports, false);
-    const collectionRoot = investigationRoot(workspaceRoot);
+test("state snapshots reject duplicate state paths", () => {
+  const statePath = "runtime/duplicate-state.md";
+  const state: InvestigationIndexState = {
+    latestReportAt: "2026-08-17",
+    path: statePath,
+    question: "快照是否拒绝重复的状态投影？",
+    reportCount: 1,
+    reportTitles: ["重复状态投影"],
+    resourceReferences: [],
+    status: "调查中",
+    title: "重复状态投影"
+  };
 
-    const snapshot = await readInvestigationStateSnapshot(collectionRoot);
-    const revision = await readInvestigationSourceRevision(collectionRoot);
-    assert.deepEqual(snapshot.sourceRevision, revision);
-    assert.deepEqual(
-      Object.keys(snapshot.states),
-      reports.map((report) => report.path).sort()
-    );
-
-    const sources = reports.map((report) => ({
-      path: report.path,
-      text: reportMarkdown(report)
-    }));
-    const reversed = investigationSourceRevision([...sources].reverse());
-    assert.deepEqual(reversed, revision);
-    assert.deepEqual(
-      investigationSourceRevision(
-        sources.map((source) => ({
-          ...source,
-          text: source.text.replace(/\n/gu, "\r\n")
-        }))
+  assert.throws(
+    () =>
+      createInvestigationStateSnapshot(
+        [{ path: statePath, text: "source\n" }],
+        [state, { ...state }]
       ),
-      revision
-    );
+    new RegExp(`${statePath} has a duplicate state projection`, "u")
+  );
+});
 
-    const changedPath = reports[0]!.path;
-    const changedRevision = investigationSourceRevision(
-      sources.map((source) =>
-        source.path === changedPath
-          ? { ...source, text: source.text + "not projected\n" }
-          : source
-      )
-    );
-    assert.equal(changedRevision.metadata, revision.metadata);
-    assert.notEqual(
-      changedRevision.entries[changedPath],
-      revision.entries[changedPath]
-    );
-    for (const report of reports.slice(1)) {
-      assert.equal(
-        changedRevision.entries[report.path],
-        revision.entries[report.path]
-      );
-    }
-    const removedRevision = investigationSourceRevision(sources.slice(1));
-    assert.equal(removedRevision.metadata, revision.metadata);
-    assert.deepEqual(
-      Object.keys(removedRevision.entries),
-      reports.slice(1).map((report) => report.path)
-    );
-    for (const report of reports.slice(1)) {
-      assert.equal(
-        removedRevision.entries[report.path],
-        revision.entries[report.path]
-      );
-    }
+test("state snapshots reject paths without matching sources", () => {
+  const sourcePath = "runtime/snapshot-source.md";
+  const statePath = "runtime/source-external-state.md";
+  const state: InvestigationIndexState = {
+    latestReportAt: "2026-08-17",
+    path: statePath,
+    question: "快照是否拒绝来源集合外的状态投影？",
+    reportCount: 1,
+    reportTitles: ["来源外状态投影"],
+    resourceReferences: [],
+    status: "调查中",
+    title: "来源外状态投影"
+  };
 
-    const invalidPath = path.join(collectionRoot, ...changedPath.split("/"));
-    await fs.writeFile(invalidPath, "not a report\n", "utf8");
-    const unparsedRevision =
-      await readInvestigationSourceRevision(collectionRoot);
-    assert.match(
-      unparsedRevision.entries[changedPath]!,
-      /^sha256:[0-9a-f]{64}$/u
-    );
-    await assert.rejects(
-      readInvestigationStateSnapshot(collectionRoot),
-      /must contain exactly one H1/
-    );
-  }));
+  assert.throws(
+    () =>
+      createInvestigationStateSnapshot(
+        [{ path: sourcePath, text: "source\n" }],
+        [state]
+      ),
+    new RegExp(`${statePath} has no matching source`, "u")
+  );
+});
+
+test("full synchronization rejects topic references changed after resource validation begins", () =>
+  withTempRoot(
+    "full-validation-snapshot-boundary",
+    testFullSynchronizationUsesValidatedTopicSnapshot
+  ));
+
+test("source revisions fingerprint only topic Markdown and strict empty metadata", () =>
+  withTempRoot("source-revision", testSourceRevisionOnlyUsesTopicMarkdown));

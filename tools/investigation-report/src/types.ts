@@ -32,6 +32,7 @@ export type InvestigationReportCheckResult = {
   indexChecked: boolean;
   indexPath: string;
   selectedTopicCount: number;
+  warnings: string[];
 };
 
 export type InvestigationIndexSyncOptions = {
@@ -45,6 +46,7 @@ export type InvestigationIndexSyncResult = {
   errors: string[];
   indexPath: string;
   topicCount: number;
+  warnings: string[];
 };
 
 export type InvestigationIndexStageOptions = {
@@ -79,14 +81,7 @@ export type InvestigationIndexQueryResult = {
   total: number;
 };
 
-export type InvestigationResourceMetadata = {
-  id: string;
-  sha256: string;
-};
-
-export type InvestigationIndexMetadata = {
-  resources: InvestigationResourceMetadata[];
-};
+export type InvestigationIndexMetadata = Record<string, never>;
 
 export type InvestigationResourceReference = {
   reportIndex: number;
@@ -107,11 +102,6 @@ export type InvestigationIndexState = {
 export type InvestigationSource = Readonly<{
   path: string;
   text: string;
-}>;
-
-export type InvestigationResourceSource = Readonly<{
-  bytes: Uint8Array;
-  id: string;
 }>;
 
 export type InvestigationReportProjection = {

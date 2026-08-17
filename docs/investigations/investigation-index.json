@@ -1,5 +1,5 @@
 {
-  "definitionVersion": 4,
+  "definitionVersion": 5,
   "entries": {
     "ai-ready-docs/target-boundary-information-and-anchoring.md": {
       "keys": {
@@ -439,30 +439,7 @@
       "mode": "text"
     }
   ],
-  "metadata": {
-    "resources": [
-      {
-        "id": "codex/conversation-preservation-and-redaction/conversation-final-dialogue.initial.md",
-        "sha256": "fdb272e85fe065db28085ccde79d1f331175dece3e2081f8fff74c1d2ee6e3e6"
-      },
-      {
-        "id": "codex/conversation-preservation-and-redaction/conversation-near-full.redacted.jsonl",
-        "sha256": "3142abcbcdc02aa2d2ef1d228dadde537f3353b9b9e152714110c2761e8a2f88"
-      },
-      {
-        "id": "test-evidence/standard-test-result-blocking/design.md",
-        "sha256": "71346324df5a0899bb5996e11c9d452cb02c369fe5ee532a405ff8b9ab6a2442"
-      },
-      {
-        "id": "test-evidence/standard-test-result-blocking/proposal.md",
-        "sha256": "d006792016592c63920f5db18ac3b2a99b66c96471a26df4448d60933e8dd855"
-      },
-      {
-        "id": "test-evidence/standard-test-result-blocking/tasks.md",
-        "sha256": "72d00e0c3db9a12d898ae38c5a37e906090a67362773088947806fa59bd8abb2"
-      }
-    ]
-  },
+  "metadata": {},
   "namespace": "investigations",
   "schemaVersion": 3,
   "sourceRevision": {
@@ -480,6 +457,6 @@
       "task-graph/file-lock-and-atomic-write-libraries.md": "sha256:1ef40f9481f4a6a1275f50b5ede4f08d70dd67677d0057852a3c6bf9841c1edb",
       "test-evidence/standard-test-result-blocking.md": "sha256:9342822bb3eb67e35299264cd653743e64858b648c6d0feab2937491f6981dc2"
     },
-    "metadata": "sha256:b25b64772b2f2fa2c485c258f7776e508fadac24d3d1342586592257fdb027b7"
+    "metadata": "sha256:bb46b05dcddfd42513b7c9c3e68af97db6bdf58cecee29006a53cd5e5e081567"
   }
 }

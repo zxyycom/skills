@@ -48,11 +48,11 @@ function printHelp(): void {
       "       check-investigations.mjs stage-index <topic-id...> [options]",
       "",
       "Check investigation topics, optional attached resources, timestamps, and the generated index.",
-      "Without filters, every topic, the managed resource pool, and full-index freshness are checked.",
+      "Without filters, every topic, visible resource, and full-index freshness are checked.",
       "With --category or --path, matching topics and their referenced resources are checked.",
       "Git workspaces exclude ignored untracked resources; tracked resources remain managed.",
-      "sync-index validates every topic and managed resource, then writes the derived JSON index.",
-      "list checks topic and managed resource freshness, then queries without parsing report bodies.",
+      "sync-index validates every topic and visible resource, then writes the derived JSON index.",
+      "list checks topic freshness, then queries without parsing report bodies.",
       "stage-index stages only selected topic entries from the current workspace index.",
       "It does not read or stage topic Markdown or attached resources.",
       "",
@@ -226,6 +226,7 @@ async function runSyncCommand(
     locationOptions(values)
   );
   if (execution.isErr()) {
+    printWarnings(execution.error.result.warnings);
     printErrors(
       execution.error.kind === "invalid-options"
         ? "Invalid investigation index synchronization options:"
@@ -235,6 +236,7 @@ async function runSyncCommand(
     return execution.error.kind === "invalid-options" ? 2 : 1;
   }
   const synchronized = execution.value;
+  printWarnings(synchronized.warnings);
   console.log(
     synchronized.changed
       ? "Investigation index synchronized " +
@@ -359,6 +361,7 @@ async function runCheckCommand(
   }
   const execution = await executeInvestigationReportCheck(checkOptions(values));
   if (execution.isErr()) {
+    printWarnings(execution.error.result.warnings);
     printErrors(
       execution.error.kind === "invalid-options"
         ? "Invalid investigation topic check options:"
@@ -368,6 +371,7 @@ async function runCheckCommand(
     return execution.error.kind === "invalid-options" ? 2 : 1;
   }
   const result = execution.value;
+  printWarnings(result.warnings);
   console.log(
     "Investigation report check passed (" +
       result.selectedTopicCount +
@@ -405,6 +409,16 @@ function printErrors(title: string, errors: readonly string[]): void {
   console.error(title);
   for (const error of errors) {
     console.error(`- ${error}`);
+  }
+}
+
+function printWarnings(warnings: readonly string[]): void {
+  if (warnings.length === 0) {
+    return;
+  }
+  console.error("Investigation report warnings:");
+  for (const warning of warnings) {
+    console.error(`- ${warning}`);
   }
 }
 

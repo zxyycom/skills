@@ -5,8 +5,8 @@ Entry:
 - `bun test --test-name-pattern="^validation keeps reports without attached resources valid$" ./tools/investigation-report/tests/run.ts`
 
 Contract:
-- 随附资源是报告的可选能力；报告未声明资源时仍须通过完整校验并产生显式空投影。
+- 调查报告可以不声明随附资源；v5 索引以严格空 metadata 和空报告级资源引用表示该状态。
 
 Proves:
-- 既有无资源报告能够同步并通过默认检查。
-- 其主题 state 的 `resourceReferences` 与索引 metadata 的 `resources` 均为空数组。
+- 不含资源的完整集合通过验证。
+- 索引 metadata 为 `{}`，每个主题 state 的 `resourceReferences` 为空数组。
