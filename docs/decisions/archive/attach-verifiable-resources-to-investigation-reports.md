@@ -1,6 +1,6 @@
 ---
 title: 以报告引用和索引哈希维护调查资源
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-06T09:20:30Z
 purpose: 允许调查报告按需引用不适合在正文完整展开的形成时材料，并使已声明的引用关系、内容变化和索引新鲜度可复核。

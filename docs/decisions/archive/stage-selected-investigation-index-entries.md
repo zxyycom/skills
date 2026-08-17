@@ -1,6 +1,6 @@
 ---
 title: 按调查主题 ID 独立暂存派生索引条目
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-10T03:58:30Z
 purpose: 让并行调查只暂存选中主题对应的索引变化，同时保持事实源与集合级资源边界。
