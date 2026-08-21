@@ -1,6 +1,6 @@
 ---
 title: 将负向方案视为解空间锚点
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-07-20T10:15:36+08:00
 purpose: 让 agent 从目标、约束和结果建立解题路径, 避免替代方案被排除对象限定在局部框架中。
