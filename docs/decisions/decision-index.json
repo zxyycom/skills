@@ -151,6 +151,7 @@
       "index-ledger-by-stable-case-state.md": "sha256:90f0a2d035b748c05e6c9bfcec88389db0ca5277128b23d010770885da46141d",
       "inherit-ancestor-task-constraints.md": "sha256:1eaa47b080365c2f0e4b6ef8c86136134732f9696131d3228bec28138c6b2d1e",
       "install-native-runtime-in-user-tool-home.md": "sha256:03080ca6253a7d7c08e439fd97fa2d9d497c6174e549c30306158d4bae5151c7",
+      "keep-ai-ready-entry-complete-and-calibrate-principles-on-demand.md": "sha256:d636f43b06bb03332d1b1db33bf4a53b97b8b95ebea29f1e911bf819ee6c6d16",
       "keep-task-execution-mechanism-neutral.md": "sha256:3f3403859d31b798eb72236d9abe8c528ac5e78bf36eaab72a8826410d0c882e",
       "keep-task-graph-locks-outside-workspace.md": "sha256:275afabc7ff8c59aaf8c8af32c3e20c4c0cf3860fbad37da153f728d729a64e7",
       "keep-task-results-semantic.md": "sha256:38524787633ccff16e9f354e18458cb3957a53148cfb16f69c6090d5d9a894c5",
@@ -248,6 +249,7 @@
       "upgrade-decision-domains-after-real-pressure.md": "sha256:520d82f2b959eb9452dced4672ef2e6185729860b474c7a51ff2cea3f5dd3a00",
       "use-ai-ready-docs-identity.md": "sha256:653193c966fd867c94565f65d50fc66e721aedb88d44803fdbab593d4371b5b3",
       "use-alignment-aware-decision-commands.md": "sha256:749b875f431f33d749128d447dcdf1ffed6e12d0978d63bf3238c782a328d5f8",
+      "use-ascii-for-simple-relations-and-mindmaps-for-complex-structures.md": "sha256:a71d19bb65cf24d12d28942f1d4bc00b6b94f88b5b9cdd4876e4b1b73e7ce0d9",
       "use-authoritative-json-index-for-short-lived-tasks.md": "sha256:462de780471fe690454b331fe1d646cc2ca56170ee86a9b3084231ce8b74d8b5",
       "use-authoritative-json-index-for-task-coordination.md": "sha256:7551bbb86e466d896c66c988a79ab81f16de9ef36d070de09fbd8605d0c6ec19",
       "use-closed-splits-for-coarse-decisions.md": "sha256:adb2041cb046a808431ffdbf932512ab425eb51ecbb2b6335380d1bb2918be7a",
@@ -257,7 +259,7 @@
       "use-document-navigation-owner.md": "sha256:4deaa9ab0c35a5326be164dcbff7dec2502a29c0f737b8010a1b3df73e5dfa63",
       "use-domain-paths-as-primary-classification.md": "sha256:59465acf645916c9f42ecc6cac48d78a969a1a9b79b41265b1f4b69bf28c6e7b",
       "use-error-recovery-reference.md": "sha256:409a769557a23ebbc355bb0563e2990e3b235239049400e0a7b602d2ec951319",
-      "use-explicit-environment-supported-diagrams.md": "sha256:1476a80357d9f90363156eeb51d4b9c3214a53d4a5cb7a542e33d3642eec6e85",
+      "use-explicit-environment-supported-diagrams.md": "sha256:472c46883b48f69aaf256f50c78fe99156c72c8864b55e076a65eb1000de9a9c",
       "use-explicit-reviewable-candidates.md": "sha256:e346f77da52e08de8b6cdeb638defc27a71b0ae055c613d2dba5643348366feb",
       "use-field-alignment-commands.md": "sha256:98790778b51972572951a1c83f8cf20589d51de37a9c05b50678337b37aed4d1",
       "use-fixed-index-query-modes.md": "sha256:757a2d2f2a3322594489dd6d0f36028b4179844ab872b8d4a7368809b4df6584",
@@ -4582,6 +4584,38 @@
         "relations": []
       }
     },
+    "keep-ai-ready-entry-complete-and-calibrate-principles-on-demand.md": {
+      "keys": {
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "keep-ai-ready-entry-complete-and-calibrate-principles-on-demand.md",
+        "title": "保留 AI-ready 完整执行契约并按需校准复杂原则",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-21T05:38:33Z",
+        "purpose": "让入口完整承接执行契约, 并让原理理由和校准案例按需提供判断支持。",
+        "background": "执行细节需要稳定进入每次任务, 原理推导和案例则按复杂度选择读取; 两类内容适合按使用频率分工。",
+        "decision": "SKILL.md 承接完整可执行契约, principles.md 按需承接原理和案例, 入口规模以执行完整和信息责任清楚为准。",
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "260701-compact-entry-and-archive-migration-copies.md"
+          }
+        ]
+      }
+    },
     "keep-task-execution-mechanism-neutral.md": {
       "keys": {
         "tag": [
@@ -7552,6 +7586,38 @@
         ]
       }
     },
+    "use-ascii-for-simple-relations-and-mindmaps-for-complex-structures.md": {
+      "keys": {
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-ascii-for-simple-relations-and-mindmaps-for-complex-structures.md",
+        "title": "简单关系使用 ASCII 并为复杂层次使用思维导图",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-21T05:58:32Z",
+        "purpose": "让图示复杂度与关系复杂度匹配, 使简单关系快速可读并让复杂结构保持清楚的全局组织。",
+        "background": "ASCII 让少量局部关系快速可读, 思维导图保持多层次、多分支结构的全局组织, flowchart 显式呈现方向和条件。",
+        "decision": "简单局部关系可用 ASCII, 复杂层次和概念结构在环境支持时使用思维导图, 流程与时序使用匹配的显式图示。",
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "use-explicit-environment-supported-diagrams.md"
+          }
+        ]
+      }
+    },
     "use-authoritative-json-index-for-short-lived-tasks.md": {
       "keys": {
         "tag": [
@@ -7824,16 +7890,16 @@
           "ai-ready-docs"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "use-explicit-environment-supported-diagrams.md",
+        "sourcePath": "archive/use-explicit-environment-supported-diagrams.md",
         "title": "使用环境支持的显式关系图示",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-11T03:24:22Z",
         "purpose": "让图示在确有理解收益时帮助 AI 恢复关系，同时保留不依赖特定渲染器的完整语义路径。",

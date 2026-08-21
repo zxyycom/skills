@@ -1,6 +1,6 @@
 ---
 title: 使用环境支持的显式关系图示
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-11T03:24:22Z
 purpose: 让图示在确有理解收益时帮助 AI 恢复关系，同时保留不依赖特定渲染器的完整语义路径。
