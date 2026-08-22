@@ -51,7 +51,13 @@ const initialDraftDesign = `# Design
 
 ## Decisions
 
+### Intended Change
+
 当前采用最小可行方向，具体细节仍可随计划收敛。
+
+### Resulting Impacts
+
+计划确认前需要同步受影响 owner 和验证边界。
 
 ## Risks / Trade-offs
 
@@ -110,6 +116,27 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
     verification: { completedTaskCount: 0, taskCount: 0 }
   });
 
+  await fs.writeFile(
+    path.join(draftDirectory, "proposal.md"),
+    `${minimalDraftProposal}\n## Scope\n\n仍在收敛的范围。\n`,
+    "utf8"
+  );
+  const unstructuredDraftScopeResult =
+    await checkChangePlanDirectory(draftDirectory);
+  assert.ok(
+    unstructuredDraftScopeResult.diagnostics.some(
+      (diagnostic) =>
+        diagnostic.code === "missing-section" &&
+        diagnostic.file === "proposal.md" &&
+        diagnostic.message.includes("Intended Change")
+    )
+  );
+  await fs.writeFile(
+    path.join(draftDirectory, "proposal.md"),
+    minimalDraftProposal,
+    "utf8"
+  );
+
   await fs.rm(path.join(draftDirectory, "design.md"));
   const incompleteDraftResult = await checkChangePlanDirectory(draftDirectory);
   assert.equal(incompleteDraftResult.valid, false);
@@ -129,6 +156,38 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
   assert.equal(targetResult.valid, true);
   assert.equal(targetResult.stage, "draft");
   assert.equal(targetResult.taskCount, 3);
+
+  await fs.writeFile(
+    path.join(planTargetDirectory, "design.md"),
+    validDesign.replace(
+      `## Decisions
+
+### Intended Change
+
+采用 proposal、design 和 tasks 三文件结构。
+
+### Resulting Impacts
+
+同步 metadata、检查器和验证入口。`,
+      `## Decisions
+
+采用 proposal、design 和 tasks 三文件结构。`
+    ),
+    "utf8"
+  );
+  const missingSubsectionsResult =
+    await checkChangePlanDirectoryForPlan(planTargetDirectory);
+  assert.ok(
+    missingSubsectionsResult.diagnostics.some(
+      (diagnostic) =>
+        diagnostic.code === "missing-section" && diagnostic.file === "design.md"
+    )
+  );
+  await fs.writeFile(
+    path.join(planTargetDirectory, "design.md"),
+    validDesign,
+    "utf8"
+  );
 
   await fs.rm(path.join(planTargetDirectory, "tasks.md"));
   const incompleteTargetResult =
@@ -212,6 +271,23 @@ async function testMetadataAndArchiveBoundaries(
   assert.equal(archivedResult.metadata, null);
   assert.equal(archivedResult.stage, null);
   assert.equal(archivedResult.distance, null);
+
+  const invalidHistoricalMetadataDirectory = await writePlan(
+    path.join(tempRoot, "archive"),
+    "invalid-historical-metadata",
+    { metadata: null }
+  );
+  await fs.writeFile(
+    path.join(invalidHistoricalMetadataDirectory, changePlanMetadataName),
+    "{",
+    "utf8"
+  );
+  const invalidHistoricalMetadataResult = await checkChangePlanDirectory(
+    invalidHistoricalMetadataDirectory
+  );
+  assert.equal(invalidHistoricalMetadataResult.valid, true);
+  assert.equal(invalidHistoricalMetadataResult.metadata, null);
+  assert.equal(invalidHistoricalMetadataResult.stage, null);
 }
 
 async function testVersionControlFailure(tempRoot: string): Promise<void> {

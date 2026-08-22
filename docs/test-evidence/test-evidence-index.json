@@ -280,7 +280,7 @@
     "CHANGE-PLAN-CHECK-METADATA-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CHECK-METADATA-001 检查区分活动元数据与归档历史 Active Change 只通过规范 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不解析 active metadata。 null-base Plan、`implementation`、`shelved` 与含未知字段的 Draft 都得到 `invalid-metadata`，其 stage、metadata 与距离为空。 缺失 active metadata 得到缺失文件诊断，而无 metadata 的 archived Change 保持有效。 tools/change-plan/tests/check.test.ts > check validates active metadata and preserves archived history bun test --test-name-pattern=\"^check validates active metadata and preserves archived history$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CHECK-METADATA-001 检查区分活动元数据与归档历史 Active Change 只通过规范 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不读取或解释历史 metadata。 null-base Plan、`implementation`、`shelved` 与含未知字段的 Draft 都得到 `invalid-metadata`，其 stage、metadata 与距离为空。 缺失 active metadata 得到缺失文件诊断，而没有 metadata 或历史 metadata 无效的 archived Change 继续按固定 artifact 结构通过检查。 tools/change-plan/tests/check.test.ts > check validates active metadata and preserves archived history bun test --test-name-pattern=\"^check validates active metadata and preserves archived history$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -294,9 +294,9 @@
         ],
         "id": "CHANGE-PLAN-CHECK-METADATA-001",
         "line": 1,
-        "searchText": "检查区分活动元数据与归档历史 Active Change 只通过规范 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不解析 active metadata。 null-base Plan、`implementation`、`shelved` 与含未知字段的 Draft 都得到 `invalid-metadata`，其 stage、metadata 与距离为空。 缺失 active metadata 得到缺失文件诊断，而无 metadata 的 archived Change 保持有效。 tools/change-plan/tests/check.test.ts > check validates active metadata and preserves archived history bun test --test-name-pattern=\"^check validates active metadata and preserves archived history$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "检查区分活动元数据与归档历史 Active Change 只通过规范 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不读取或解释历史 metadata。 null-base Plan、`implementation`、`shelved` 与含未知字段的 Draft 都得到 `invalid-metadata`，其 stage、metadata 与距离为空。 缺失 active metadata 得到缺失文件诊断，而没有 metadata 或历史 metadata 无效的 archived Change 继续按固定 artifact 结构通过检查。 tools/change-plan/tests/check.test.ts > check validates active metadata and preserves archived history bun test --test-name-pattern=\"^check validates active metadata and preserves archived history$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/check-validates-active-metadata-and-preserves-archived-history.md",
-        "summary": "Active Change 只通过规范 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不解析 active metadata。",
+        "summary": "Active Change 只通过规范 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不读取或解释历史 metadata。",
         "title": "检查区分活动元数据与归档历史"
       }
     },
@@ -326,7 +326,7 @@
     "CHANGE-PLAN-CHECK-STAGES-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CHECK-STAGES-001 检查按生命周期阶段应用制品契约 Change 检查必须按当前阶段或目标阶段应用对应的制品要求。 普通 Draft 检查接受最小 proposal 和初始 design、但没有 tasks 的目录，并拒绝缺少 design 的目录。 Metadata 仍为 `draft` 时，目标 Plan 检查要求完整 proposal、design 和 tasks；缺少 tasks 时报告对应诊断。 tools/change-plan/tests/check.test.ts > check applies stage-specific artifact contracts bun test --test-name-pattern=\"^check applies stage-specific artifact contracts$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CHECK-STAGES-001 检查按生命周期阶段应用制品契约 Change 检查按当前阶段或目标阶段确定必需 artifacts；stage 不改变 `Scope` 与 `Decisions` 的固定内部结构。 普通 Draft 检查接受最小 proposal 和初始 design、但没有 tasks 的目录；Draft proposal 追加 `Scope` 时仍要求固定 H3，并拒绝缺少 design 的目录。 Metadata 仍为 `draft` 时，目标 Plan 检查要求完整 proposal、design、tasks 及 `Intended Change`、`Resulting Impacts` H3；缺少 H3 或 tasks 时报告对应诊断。 tools/change-plan/tests/check.test.ts > check applies stage-specific artifact contracts bun test --test-name-pattern=\"^check applies stage-specific artifact contracts$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -340,9 +340,9 @@
         ],
         "id": "CHANGE-PLAN-CHECK-STAGES-001",
         "line": 1,
-        "searchText": "检查按生命周期阶段应用制品契约 Change 检查必须按当前阶段或目标阶段应用对应的制品要求。 普通 Draft 检查接受最小 proposal 和初始 design、但没有 tasks 的目录，并拒绝缺少 design 的目录。 Metadata 仍为 `draft` 时，目标 Plan 检查要求完整 proposal、design 和 tasks；缺少 tasks 时报告对应诊断。 tools/change-plan/tests/check.test.ts > check applies stage-specific artifact contracts bun test --test-name-pattern=\"^check applies stage-specific artifact contracts$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "检查按生命周期阶段应用制品契约 Change 检查按当前阶段或目标阶段确定必需 artifacts；stage 不改变 `Scope` 与 `Decisions` 的固定内部结构。 普通 Draft 检查接受最小 proposal 和初始 design、但没有 tasks 的目录；Draft proposal 追加 `Scope` 时仍要求固定 H3，并拒绝缺少 design 的目录。 Metadata 仍为 `draft` 时，目标 Plan 检查要求完整 proposal、design、tasks 及 `Intended Change`、`Resulting Impacts` H3；缺少 H3 或 tasks 时报告对应诊断。 tools/change-plan/tests/check.test.ts > check applies stage-specific artifact contracts bun test --test-name-pattern=\"^check applies stage-specific artifact contracts$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/check-applies-stage-specific-artifact-contracts.md",
-        "summary": "Change 检查必须按当前阶段或目标阶段应用对应的制品要求。",
+        "summary": "Change 检查按当前阶段或目标阶段确定必需 artifacts；stage 不改变 `Scope` 与 `Decisions` 的固定内部结构。",
         "title": "检查按生命周期阶段应用制品契约"
       }
     },
@@ -1034,6 +1034,98 @@
         "sourcePath": "change-plan/markdown-semantics-normalize-crlf-and-ignore-html-comments-as-content.md",
         "summary": "Artifact 只按一次规范化后的 Markdown AST 判断结构与语义内容；HTML 注释不能填充摘要或必需章节。",
         "title": "Markdown 语义内容忽略注释并统一换行"
+      }
+    },
+    "CHANGE-PLAN-MARKDOWN-SUBSECTION-DUPLICATE-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-MARKDOWN-SUBSECTION-DUPLICATE-001 Markdown 报告重复的必需子章节 Artifact contract 在指定 H2 内要求每个必需 H3 只出现一次。 起始序列之后再次出现 `Intended Change` 时产生重复章节诊断。 tools/change-plan/tests/markdown.test.ts > Markdown reports duplicate required subsections bun test --test-name-pattern=\"^Markdown reports duplicate required subsections$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/change-plan/tests/markdown.test.ts > Markdown reports duplicate required subsections",
+          "bun test --test-name-pattern=\"^Markdown reports duplicate required subsections$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-MARKDOWN-SUBSECTION-DUPLICATE-001",
+        "line": 1,
+        "searchText": "Markdown 报告重复的必需子章节 Artifact contract 在指定 H2 内要求每个必需 H3 只出现一次。 起始序列之后再次出现 `Intended Change` 时产生重复章节诊断。 tools/change-plan/tests/markdown.test.ts > Markdown reports duplicate required subsections bun test --test-name-pattern=\"^Markdown reports duplicate required subsections$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/markdown-reports-duplicate-required-subsections.md",
+        "summary": "Artifact contract 在指定 H2 内要求每个必需 H3 只出现一次。",
+        "title": "Markdown 报告重复的必需子章节"
+      }
+    },
+    "CHANGE-PLAN-MARKDOWN-SUBSECTION-EMPTY-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-MARKDOWN-SUBSECTION-EMPTY-001 Markdown 报告内容为空的必需子章节 Artifact contract 要求每个必需 H3 都包含非空语义内容。 `Resulting Impacts` 没有语义内容时产生空章节诊断。 tools/change-plan/tests/markdown.test.ts > Markdown reports empty required subsections bun test --test-name-pattern=\"^Markdown reports empty required subsections$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/change-plan/tests/markdown.test.ts > Markdown reports empty required subsections",
+          "bun test --test-name-pattern=\"^Markdown reports empty required subsections$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-MARKDOWN-SUBSECTION-EMPTY-001",
+        "line": 1,
+        "searchText": "Markdown 报告内容为空的必需子章节 Artifact contract 要求每个必需 H3 都包含非空语义内容。 `Resulting Impacts` 没有语义内容时产生空章节诊断。 tools/change-plan/tests/markdown.test.ts > Markdown reports empty required subsections bun test --test-name-pattern=\"^Markdown reports empty required subsections$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/markdown-reports-empty-required-subsections.md",
+        "summary": "Artifact contract 要求每个必需 H3 都包含非空语义内容。",
+        "title": "Markdown 报告内容为空的必需子章节"
+      }
+    },
+    "CHANGE-PLAN-MARKDOWN-SUBSECTION-MISSING-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-MARKDOWN-SUBSECTION-MISSING-001 Markdown 报告缺失的必需子章节 Artifact contract 在指定 H2 内要求完整的必需 H3 集合。 缺少 `Resulting Impacts` 时产生指向该 H3 的缺失章节诊断。 tools/change-plan/tests/markdown.test.ts > Markdown reports missing required subsections bun test --test-name-pattern=\"^Markdown reports missing required subsections$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/change-plan/tests/markdown.test.ts > Markdown reports missing required subsections",
+          "bun test --test-name-pattern=\"^Markdown reports missing required subsections$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-MARKDOWN-SUBSECTION-MISSING-001",
+        "line": 1,
+        "searchText": "Markdown 报告缺失的必需子章节 Artifact contract 在指定 H2 内要求完整的必需 H3 集合。 缺少 `Resulting Impacts` 时产生指向该 H3 的缺失章节诊断。 tools/change-plan/tests/markdown.test.ts > Markdown reports missing required subsections bun test --test-name-pattern=\"^Markdown reports missing required subsections$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/markdown-reports-missing-required-subsections.md",
+        "summary": "Artifact contract 在指定 H2 内要求完整的必需 H3 集合。",
+        "title": "Markdown 报告缺失的必需子章节"
+      }
+    },
+    "CHANGE-PLAN-MARKDOWN-SUBSECTION-ORDER-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-MARKDOWN-SUBSECTION-ORDER-001 Markdown 报告顺序错误的必需子章节 Artifact contract 要求必需 H3 作为所属 H2 的有序起始序列。 `Resulting Impacts` 出现在 `Intended Change` 之前时产生章节顺序诊断。 tools/change-plan/tests/markdown.test.ts > Markdown reports out-of-order required subsections bun test --test-name-pattern=\"^Markdown reports out-of-order required subsections$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/change-plan/tests/markdown.test.ts > Markdown reports out-of-order required subsections",
+          "bun test --test-name-pattern=\"^Markdown reports out-of-order required subsections$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-MARKDOWN-SUBSECTION-ORDER-001",
+        "line": 1,
+        "searchText": "Markdown 报告顺序错误的必需子章节 Artifact contract 要求必需 H3 作为所属 H2 的有序起始序列。 `Resulting Impacts` 出现在 `Intended Change` 之前时产生章节顺序诊断。 tools/change-plan/tests/markdown.test.ts > Markdown reports out-of-order required subsections bun test --test-name-pattern=\"^Markdown reports out-of-order required subsections$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/markdown-reports-out-of-order-required-subsections.md",
+        "summary": "Artifact contract 要求必需 H3 作为所属 H2 的有序起始序列。",
+        "title": "Markdown 报告顺序错误的必需子章节"
       }
     },
     "CHANGE-PLAN-MARKDOWN-TASKS-001": {
@@ -13066,9 +13158,9 @@
       "CHANGE-PLAN-CATALOG-SYMLINK-001": "sha256:fc6fef013c71b8d7388e169d77a5b775011eb3c174fa835be2e4f152c019b447",
       "CHANGE-PLAN-CHECK-ARTIFACTS-001": "sha256:bc8dc15f8d74580f110421b1de4a9bf154e4e1a06f8b78b4652cc93d1b60edb4",
       "CHANGE-PLAN-CHECK-COMPLETE-001": "sha256:f4ecf5f1ee6186ae7c7f1361c6ac129a338dd4ab54a337408c301015c2479ac1",
-      "CHANGE-PLAN-CHECK-METADATA-001": "sha256:8c2489db8e878c35c98ac294b94b72e0b0ab0f9e5f4fd8eb8e3ea5a9d55d8be9",
+      "CHANGE-PLAN-CHECK-METADATA-001": "sha256:a656bfde8ade2c2940768b99f294ccdcf9940bb835727d2282453a722d60ceba",
       "CHANGE-PLAN-CHECK-PATH-001": "sha256:8567cac39f90d4d674a2349a2070aaa243be9764ad93abd1d20684dd4f934762",
-      "CHANGE-PLAN-CHECK-STAGES-001": "sha256:beee88026ed3f62d35567f0a90ea4ef3885705a95a267454754d099f768f5429",
+      "CHANGE-PLAN-CHECK-STAGES-001": "sha256:ef054b07b350458a3317f66453be72cdcbc79d858d207b3fbdf42ba13b6daa66",
       "CHANGE-PLAN-CHECK-SYMLINK-001": "sha256:6a003f12e0fb0e6d35855ca7c9939cb55c5ebf5b7df06146a3adaca8c1595d28",
       "CHANGE-PLAN-CHECK-VC-001": "sha256:726d3343bc3959cbe4d8f23d0a8d3df6bb106282edb6a50ea83720a7ab8690c5",
       "CHANGE-PLAN-CLI-ARCHIVE-001": "sha256:8ae3b39eaef7fd4af641a001d19f9eb1ea850ecb740bc63fd3bf9bc93e5d24b0",
@@ -13099,6 +13191,10 @@
       "CHANGE-PLAN-LIFECYCLE-STRICT-METADATA-001": "sha256:03c1f678f38f184aea84f4f11757c5abb8d25a118451dbcfd85685b6e890ebe6",
       "CHANGE-PLAN-LIFECYCLE-VC-001": "sha256:f2835f70dcb2ccdf4486329e2c8fa1cc272897a26b6a60df0211566fe72cf84d",
       "CHANGE-PLAN-MARKDOWN-SEMANTICS-001": "sha256:1cf089a9e0d3c9c42b4bb2ff598b3f171e9cc47878febbead11fdf7aa9231988",
+      "CHANGE-PLAN-MARKDOWN-SUBSECTION-DUPLICATE-001": "sha256:db3e1ce84ff1ace65bed869a3faf56530064dd94c22a07e74583af646ac0a99f",
+      "CHANGE-PLAN-MARKDOWN-SUBSECTION-EMPTY-001": "sha256:8bfa38cf27f8ef4f41d35828d44e543bfd403c4f5c48ff819223b3eb4eb3f08d",
+      "CHANGE-PLAN-MARKDOWN-SUBSECTION-MISSING-001": "sha256:5db7ba1e1714161323e3cd544babaad3f22392f7924db7b79dceb4e5d5343288",
+      "CHANGE-PLAN-MARKDOWN-SUBSECTION-ORDER-001": "sha256:b0a3670bbd6d3e28894bad10e3ef640b6250199a290a00714b66366bee4940db",
       "CHANGE-PLAN-MARKDOWN-TASKS-001": "sha256:d64961e5a57d6ed00d1b756c32d16f711ae65b0aabda3a666c85f0a05df3a2e6",
       "CHANGE-PLAN-METADATA-ERRORS-001": "sha256:dc32034ec6df6b286c35fd9b20bd759ea2703ae64255e5cc66b53b7b8a0958c3",
       "CHANGE-PLAN-METADATA-SCHEMA-001": "sha256:c0bcebdb00dc19491dfe0aed469054779f06e32ec73d4ff2f9349e13a9155fa6",

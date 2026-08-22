@@ -6,6 +6,7 @@ import { validateChangePlanArtifact } from "./markdown.ts";
 import { ChangePlanMetadataError, readChangePlanMetadata } from "./metadata.ts";
 import {
   changePlanMetadataName,
+  type ArtifactSubsectionContract,
   type ArtifactStructureContract,
   type ChangePlanCheckResult,
   type ChangePlanDiagnostic,
@@ -18,6 +19,21 @@ import {
 
 const kebabCasePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 
+const requiredChangeSubsections = [
+  "Intended Change",
+  "Resulting Impacts"
+] as const;
+
+const scopeSubsectionContract = {
+  ownerSection: "Scope",
+  requiredSubsections: requiredChangeSubsections
+} as const satisfies ArtifactSubsectionContract;
+
+const decisionsSubsectionContract = {
+  ownerSection: "Decisions",
+  requiredSubsections: requiredChangeSubsections
+} as const satisfies ArtifactSubsectionContract;
+
 const designArtifactContract = {
   file: "design.md",
   h1: "Design",
@@ -27,7 +43,8 @@ const designArtifactContract = {
     "Decisions",
     "Risks / Trade-offs",
     "Open Questions"
-  ]
+  ],
+  subsectionContracts: [decisionsSubsectionContract]
 } as const satisfies ArtifactStructureContract;
 
 const planArtifactContracts = [
@@ -40,7 +57,8 @@ const planArtifactContracts = [
       "Scope",
       "Success Criteria",
       "Affected Owners"
-    ]
+    ],
+    subsectionContracts: [scopeSubsectionContract]
   },
   designArtifactContract,
   {
@@ -55,7 +73,8 @@ const draftArtifactContracts = [
   {
     file: "proposal.md",
     h1: "Proposal",
-    requiredSections: ["Why", "Outcome"]
+    requiredSections: ["Why", "Outcome"],
+    subsectionContracts: [scopeSubsectionContract]
   },
   designArtifactContract
 ] as const satisfies readonly ArtifactStructureContract[];

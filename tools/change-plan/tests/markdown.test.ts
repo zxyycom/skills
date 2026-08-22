@@ -16,6 +16,37 @@ const tasksContract: ArtifactStructureContract = {
   taskSections: ["Readiness", "Implementation", "Verification"]
 };
 
+const changeProposalContract: ArtifactStructureContract = {
+  file: "proposal.md",
+  h1: "Proposal",
+  requiredSections: ["Why", "Outcome", "Scope"],
+  subsectionContracts: [
+    {
+      ownerSection: "Scope",
+      requiredSubsections: ["Intended Change", "Resulting Impacts"]
+    }
+  ]
+};
+
+function proposalWithScope(scope: string): string {
+  return `# Proposal
+
+变更摘要。
+
+## Why
+
+变更原因。
+
+## Outcome
+
+预期结果。
+
+## Scope
+
+${scope}
+`;
+}
+
 test("Markdown semantics normalize CRLF and ignore HTML comments as content", () => {
   const valid = validateChangePlanArtifact(
     "# Proposal\r\n\r\n摘要。\r\n\r\n## Why\r\n\r\n原因。\r\n\r\n## Outcome\r\n\r\n结果。\r\n",
@@ -74,4 +105,76 @@ test("Markdown task counting ignores fenced and commented checklist lookalikes",
     readiness: { completedTaskCount: 1, taskCount: 1 },
     verification: { completedTaskCount: 0, taskCount: 1 }
   });
+});
+
+test("Markdown reports missing required subsections", () => {
+  const result = validateChangePlanArtifact(
+    proposalWithScope(`### Intended Change
+
+预期调整。`),
+    changeProposalContract
+  );
+  assert.ok(
+    result.diagnostics.some(
+      (diagnostic) =>
+        diagnostic.code === "missing-section" &&
+        diagnostic.message.includes("Resulting Impacts")
+    )
+  );
+});
+
+test("Markdown reports duplicate required subsections", () => {
+  const result = validateChangePlanArtifact(
+    proposalWithScope(`### Intended Change
+
+预期调整。
+
+### Resulting Impacts
+
+衍生影响。
+
+### Intended Change
+
+重复的预期调整。`),
+    changeProposalContract
+  );
+  assert.ok(
+    result.diagnostics.some(
+      (diagnostic) => diagnostic.code === "duplicate-section"
+    )
+  );
+});
+
+test("Markdown reports out-of-order required subsections", () => {
+  const result = validateChangePlanArtifact(
+    proposalWithScope(`### Resulting Impacts
+
+衍生影响。
+
+### Intended Change
+
+预期调整。`),
+    changeProposalContract
+  );
+  assert.ok(
+    result.diagnostics.some((diagnostic) => diagnostic.code === "section-order")
+  );
+});
+
+test("Markdown reports empty required subsections", () => {
+  const result = validateChangePlanArtifact(
+    proposalWithScope(`### Intended Change
+
+预期调整。
+
+### Resulting Impacts`),
+    changeProposalContract
+  );
+  assert.ok(
+    result.diagnostics.some(
+      (diagnostic) =>
+        diagnostic.code === "empty-section" &&
+        diagnostic.message.includes("Resulting Impacts")
+    )
+  );
 });

@@ -1,6 +1,7 @@
 import { fromMarkdown } from "mdast-util-from-markdown";
 import { toString } from "mdast-util-to-string";
 import type {
+  ArtifactSubsectionContract,
   ArtifactStructureContract,
   ArtifactValidationResult,
   ChangePlanArtifactName,
@@ -226,6 +227,122 @@ function validateHeadings(
   return h2;
 }
 
+function validateRequiredSubsectionHeadings(
+  headings: readonly RootHeading[],
+  subsectionContract: ArtifactSubsectionContract,
+  file: ChangePlanArtifactName,
+  diagnostics: ChangePlanDiagnostic[]
+): void {
+  const { ownerSection, requiredSubsections } = subsectionContract;
+  for (const [index, title] of requiredSubsections.entries()) {
+    const matches = headings.filter((heading) => heading.title === title);
+    if (matches.length === 0) {
+      diagnostics.push(
+        diagnostic(
+          file,
+          "missing-section",
+          `missing required "### ${title}" subsection in "## ${ownerSection}"`
+        )
+      );
+      continue;
+    }
+    if (matches.length > 1) {
+      diagnostics.push(
+        diagnostic(
+          file,
+          "duplicate-section",
+          `"### ${title}" must appear exactly once in "## ${ownerSection}"`,
+          matches[1]?.lineIndex === undefined
+            ? undefined
+            : matches[1].lineIndex + 1
+        )
+      );
+    }
+    if (headings[index]?.title !== title) {
+      diagnostics.push(
+        diagnostic(
+          file,
+          "section-order",
+          `H3 subsections in "## ${ownerSection}" must start with: ${requiredSubsections.join(", ")}`,
+          headings[index]?.lineIndex === undefined
+            ? undefined
+            : headings[index].lineIndex + 1
+        )
+      );
+    }
+  }
+}
+
+function validateRequiredSubsectionContent(
+  root: MarkdownRoot,
+  headings: readonly RootHeading[],
+  sectionEnd: number,
+  subsectionContract: ArtifactSubsectionContract,
+  file: ChangePlanArtifactName,
+  diagnostics: ChangePlanDiagnostic[]
+): void {
+  for (const title of subsectionContract.requiredSubsections) {
+    const subsection = headings.find((heading) => heading.title === title);
+    if (subsection === undefined) {
+      continue;
+    }
+    const nextHeading = headings.find(
+      (heading) => heading.lineIndex > subsection.lineIndex
+    );
+    const subsectionEnd = nextHeading?.lineIndex ?? sectionEnd;
+    if (!hasSemanticContent(root, subsection.lineIndex + 1, subsectionEnd)) {
+      diagnostics.push(
+        diagnostic(
+          file,
+          "empty-section",
+          `"### ${title}" in "## ${subsectionContract.ownerSection}" must not be empty`,
+          subsection.lineIndex + 1
+        )
+      );
+    }
+  }
+}
+
+function validateSubsections(
+  root: MarkdownRoot,
+  lines: readonly string[],
+  headings: readonly RootHeading[],
+  h2: readonly RootHeading[],
+  contract: ArtifactStructureContract,
+  diagnostics: ChangePlanDiagnostic[]
+): void {
+  for (const subsectionContract of contract.subsectionContracts ?? []) {
+    const section = h2.find(
+      (heading) => heading.title === subsectionContract.ownerSection
+    );
+    if (section === undefined) {
+      continue;
+    }
+    const nextH2 = h2.find((heading) => heading.lineIndex > section.lineIndex);
+    const sectionEnd = nextH2?.lineIndex ?? lines.length;
+    const subsectionHeadings = headings.filter(
+      (heading) =>
+        heading.depth === 3 &&
+        heading.lineIndex > section.lineIndex &&
+        heading.lineIndex < sectionEnd
+    );
+    validateRequiredSubsectionHeadings(
+      subsectionHeadings,
+      subsectionContract,
+      contract.file,
+      diagnostics
+    );
+    validateRequiredSubsectionContent(
+      root,
+      subsectionHeadings,
+      sectionEnd,
+      subsectionContract,
+      contract.file,
+      diagnostics
+    );
+  }
+}
+
 function isTaskHeading(
   heading: string,
   taskSections: ReadonlySet<string>
@@ -336,6 +453,7 @@ export function validateChangePlanArtifact(
   const diagnostics: ChangePlanDiagnostic[] = [];
   const headings = rootHeadings(root);
   const h2 = validateHeadings(root, lines, headings, contract, diagnostics);
+  validateSubsections(root, lines, headings, h2, contract, diagnostics);
   const tasks =
     contract.taskSections === undefined
       ? {

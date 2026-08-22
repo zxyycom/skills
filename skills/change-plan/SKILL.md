@@ -5,16 +5,18 @@ description: >-
   design.md、tasks.md 和 .change-plan.json 维护明确 Change 的目标、设计、任务、
   验证、draft/plan active stage 与 archived 目录状态。
 metadata:
-  version: "15"
+  version: "16"
 ---
 
 # Change Plan
 
 ## 目标
 
-让一个明确 Change 从可持续改写的 Draft 收敛为 Plan，在 Plan 内完成准备、实施与验证，
-并在完成后归档。Draft 与 Plan 表达内容成熟度，tasks 的 checkbox 表达 Plan 内进度，
-archived 目录 status 表达完成后的历史结果。
+让一个以明确 `Outcome` 组织的 Change 从可持续改写的 Draft 收敛为 Plan，在 Plan 内完成准备、
+实施与验证，并在完成后归档。固定 artifact 结构以 `Intended Change` 记录为实现 `Outcome`
+采用的预期调整，以 `Resulting Impacts` 记录由该调整产生且实现 `Outcome` 必须处理的影响；design
+和 tasks 将两者落实为同一生命周期中的决定、工作与验证。Draft 与 Plan 表达内容成熟度，tasks
+的 checkbox 表达 Plan 内进度，archived 目录 status 表达完成后的历史结果。
 
 Change artifacts、机械检查、内容审阅和当前任务授权分别提供不同证据。CLI 成功只证明固定
 机械条件成立；开始实施和归档仍以当前任务授权及执行者的语义判断为准。
@@ -40,15 +42,15 @@ Change artifacts、机械检查、内容审阅和当前任务授权分别提供�
 ### 1. 定位或建立 Change
 
 1. 读取目标工作区指令、固定契约以及与 Change 直接相关的事实 owner；项目已有决策、调查或测试证据入口时，只读取当前范围需要的材料。
-2. 将用户目标压缩成一句结果说明，并确定范围、非目标、成功标准和受影响 owner。
+2. 将用户目标压缩成一句 `Outcome`，确定预期调整，并从事实 owner 与现有依赖恢复由该调整产生且实现 `Outcome` 必须处理的影响，据此确定范围、非目标、成功标准和受影响 owner。具有独立 `Outcome` 或生命周期的事项建立独立 Change。
 3. 使用用户指定的 Change 目录；未指定时遵循项目已有约定，项目没有约定时使用 `changes/<kebab-case-name>/`。
 4. 需要选择现有 Change 时先运行 `list`；目标确定后运行 `show`，根据 status、stage、任务进度、诊断和距离证据恢复上下文。
-5. 新建 active Change 时，写入 Draft metadata、最小 `proposal.md` 和初始 `design.md`，暂不创建 `tasks.md`。目标、范围或会改变 public contract、架构边界、兼容性和验收的关键选择无法可靠判断时，只确认会改变结果的最小问题。
+5. 新建 active Change 时，按固定契约写入 Draft metadata、最小 `proposal.md` 和初始 `design.md`，暂不创建 `tasks.md`。目标、范围或会改变 public contract、架构边界、兼容性和验收的关键选择无法可靠判断时，只确认会改变结果的最小问题。
 
 ### 2. 将 Draft 收敛为 Plan
 
 1. Draft proposal 说明 `Why` 与 `Outcome`；初始 design 保存当前上下文、目标、设计方向、取舍与开放问题。两者可以持续修订，暂定选择保持显式。
-2. 准备形成 Plan 时，补全 proposal 的范围、成功标准和受影响 owner；让 design 的判断、风险和开放问题足以支持实施；再从 design 派生 `tasks.md`，使 Implementation 落实设计判断，Verification 覆盖成功标准和风险。
+2. 准备形成 Plan 时，按固定契约在 `Scope` 与 `Decisions` 中分别填写 `Intended Change` 和 `Resulting Impacts`；补全成功标准和受影响 owner，再从 design 派生 `tasks.md`，使 Implementation 与 Verification 覆盖预期调整和必要影响。所有任务继续使用同一进度模型。
 3. Readiness、Implementation 与 Verification 共同表达 Plan 内进度。只按实际证据勾选任务，并在目标、设计或新事实变化时同步修订相应 artifacts。
 4. 三个 artifacts 已经能够作为 Plan 使用时，运行：
 
@@ -61,7 +63,7 @@ Change artifacts、机械检查、内容审阅和当前任务授权分别提供�
 
 ### 3. 在 Plan 内实施、查询与复核
 
-1. 按 tasks 的依赖顺序完成 Readiness、Implementation 与 Verification。目标或范围变化时先更新 proposal，再同步 design 和 tasks；方案变化时更新 design 和受影响的任务与验证。
+1. 按 tasks 的依赖顺序完成 Readiness、Implementation 与 Verification。新发现的必要影响同步进入 proposal 与 design 的 `Resulting Impacts` 及 tasks；预期调整变化时同步 `Intended Change`，预期结果变化时同步 `Outcome` 与 Goals。方案变化时更新 design 和受影响的任务与验证。
 2. 使用 `show` 恢复单个 Change，使用 `check` 门禁单项结构与基线，使用 `list` 发现集合，使用 `check-all` 门禁所选集合。查询命令只报告结果；写入只由显式 `plan` 或 `archive` 完成。
 3. Plan 距离可用时，根据从 `baseCommit` 到当前 `HEAD` 的 first-parent 提交数和 Change 目录外累计变化行数判断复核深度。零距离只表示自计划基线以来未统计到 Change 目录外的项目变化；非零距离表示继续前需要确认这些项目变化未影响当前计划。可用距离本身不阻断检查或归档。
 4. Plan 基线不可追溯时，重新审阅当前 Plan 后运行 `plan` 刷新基线；版本控制查询失败时，先恢复仓库访问或 Git 状态，再执行同一审阅路径。现有 Plan 主动刷新基线时也先完成语义复核。
@@ -82,7 +84,7 @@ Change artifacts、机械检查、内容审阅和当前任务授权分别提供�
 
 ## 完成标准
 
-1. Draft 或 Plan 的 artifacts 共同表达同一目标，并符合固定结构；active metadata 和 archived 目录 status 与当前内容成熟度一致。
+1. Draft 或 Plan 的 artifacts 共同表达同一 `Outcome`；`Resulting Impacts` 中的每项影响都能回溯到 `Intended Change`，并符合固定结构；active metadata 和 archived 目录 status 与当前内容成熟度一致。
 2. Plan 内每项任务的状态都有事实支持，成功标准、稳定 owner、长期决策和验证证据已按实际结果同步。
 3. 查询结果中的任务进度、Git 距离或阻断诊断已得到处理；active metadata 已通过严格规范解析，无效输入已通过普通文件与版本控制流程显式修复。
 4. 机械检查、内容审阅、实施授权和归档授权在交付中分别说明，没有用 metadata、checkbox 或命令成功代替授权。

@@ -1,8 +1,8 @@
 # Change Plan 固定结构与 CLI 契约
 
 本文件是 Change 目录、`.change-plan.json`、artifact 结构、合法 stage、严格 active metadata、
-Git 距离和 CLI 机械行为的唯一精确契约。`SKILL.md` 负责内容写作、语义审阅和
-授权门禁；本文件只固定工具能够确定性执行的边界。
+Git 距离和 CLI 机械行为的唯一精确契约。`SKILL.md` 负责 `Outcome`、`Intended Change` 与
+`Resulting Impacts` 的内容判断、语义审阅和授权门禁；本文件只固定工具能够确定性执行的边界。
 
 ## 状态模型
 
@@ -32,15 +32,15 @@ Readiness、Implementation 和 Verification 的 checkbox 只表达 Plan 内任�
 
 4. Active Change 及当前检查所需的文件都必须位于真实 Change 目录中并且是普通文件；目录、`.change-plan.json` 或 artifact 为符号链接时检查失败且不会跟随链接。
 5. Active Change 必须包含 `.change-plan.json`。缺失、无法读取、规范字段组合不合法或存在未定义字段时检查失败，不投影或自动迁移无效输入。
-6. Archived Change 保留完整三个 artifacts；归档时随目录保留的 `.change-plan.json` 只作为历史文件，checker 不要求、读取或解释它，stage 为 `null`。
+6. Archived Change 保留完整三个 artifacts；归档时随目录保留的 `.change-plan.json` 只作为历史文件，checker 不要求、读取或解释它，stage 与查询 metadata 为 `null`。
 7. 可以增加交付说明或证据文件；附加文件不参与固定结构检查，也不能代替当前 stage 要求的 artifacts。
 8. Catalog 只发现上述两层普通目录，不递归发现更深层 Change，也不把文件或符号链接作为列表成员。
 9. `plan` 与 `archive` 在受信工作区中由单一操作者执行。命令运行期间，目标 Change、Change 根和
    archive 路径的命名空间保持稳定；工具拒绝已观察到的符号链接、身份变化和目标冲突，但不把这些
    路径检查当作跨进程锁或恶意并发改名隔离。
 
-规范 metadata 不包含 schema version，以 `stage` 判别且每个对象只允许对应示例中的字段。规范
-parser 与 writer 只接受和写入以下结构：
+规范 metadata 不包含 schema version，以 `stage` 判别且每个对象只允许对应示例中的字段。
+Parser 与 writer 接受以下结构：
 
 Draft：
 
@@ -75,8 +75,9 @@ metadata JSON Schema 或分发类型声明。
 2. H1 与首个 H2 之间必须有非空 Change 摘要。
 3. 必需 H2 必须各出现一次，并作为文件开头的 H2 序列按模板顺序排列；每节必须有非空语义内容。
 4. 必需序列之后可以追加 H2；新增章节不能改变或代替必需章节。
-5. 固定标题使用英文，正文沿用用户输入语言或项目语言。
-6. Checker 统一换行后只解析一次 Markdown AST；HTML 注释不算语义内容，代码围栏和 HTML 注释中的 checklist 相似文本不算任务。
+5. 受检 proposal 中出现 `Scope` 时，以及所有受检 design 的 `Decisions` 中，按模板固定 H3。每组必需 H3 各出现一次，并作为该 H2 内的 H3 起始序列按模板顺序排列；每节必须有非空语义内容，必需序列之后可以追加 H3。
+6. 固定标题使用英文，正文沿用用户输入语言或项目语言。
+7. Checker 统一换行后只解析一次 Markdown AST；HTML 注释不算语义内容，代码围栏和 HTML 注释中的 checklist 相似文本不算任务。
 
 ### Stage 与受检制品
 
@@ -108,9 +109,11 @@ metadata JSON Schema 或分发类型声明。
 <完成后可以观察到的结果。>
 ```
 
+Draft proposal 不要求 `Scope`；追加 `Scope` 时，该章节仍使用通用 Markdown 规则规定的固定 H3。
+
 ### Design
 
-所有受检场景的 `design.md` 使用同一固定结构：
+所有受检场景的 `design.md` 使用以下固定结构：
 
 ```markdown
 # Design
@@ -124,7 +127,12 @@ metadata JSON Schema 或分发类型声明。
 <设计目标与明确不承担的内容。>
 
 ## Decisions
-<当前方案、判断状态与影响；明确区分暂定选择和已确认判断。>
+
+### Intended Change
+<实现 Outcome 的当前方案与判断状态；明确区分暂定选择和已确认判断。>
+
+### Resulting Impacts
+<逐项说明由 Intended Change 引起的影响、局部约束、处理决定与验证要求；没有时明确写“无”。>
 
 ## Risks / Trade-offs
 <会改变后续设计、实施、权限或验证的风险与取舍。>
@@ -155,7 +163,12 @@ Plan 及 archived 检查使用扩展后的 `proposal.md` 和完整 `tasks.md`。
 <完成后可以观察到的结果。>
 
 ## Scope
-<纳入范围与非目标。>
+
+### Intended Change
+<描述为实现 Outcome 采用的预期调整及其范围边界。>
+
+### Resulting Impacts
+<逐项说明由 Intended Change 产生且实现 Outcome 必须处理的影响范围；没有时明确写“无”。>
 
 ## Success Criteria
 <可检查的完成条件。>

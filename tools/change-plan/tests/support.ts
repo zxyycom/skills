@@ -26,7 +26,13 @@ export const validProposal = `# Proposal
 
 ## Scope
 
-只处理计划结构和对应检查器。
+### Intended Change
+
+调整计划结构和对应检查器。
+
+### Resulting Impacts
+
+同步 metadata、结构验证和测试证据。
 
 ## Success Criteria
 
@@ -51,7 +57,13 @@ export const validDesign = `# Design
 
 ## Decisions
 
+### Intended Change
+
 采用 proposal、design 和 tasks 三文件结构。
+
+### Resulting Impacts
+
+同步 metadata、检查器和验证入口。
 
 ## Risks / Trade-offs
 

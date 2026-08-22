@@ -52,6 +52,17 @@ export type ChangePlanArtifactHeading =
 
 export type ChangePlanArtifactTitle = "Proposal" | "Design" | "Tasks";
 
+export type ChangePlanArtifactSubheading =
+  | "Intended Change"
+  | "Resulting Impacts";
+
+export type ChangePlanArtifactSubsectionOwner = "Decisions" | "Scope";
+
+export type ArtifactSubsectionContract = {
+  ownerSection: ChangePlanArtifactSubsectionOwner;
+  requiredSubsections: readonly ChangePlanArtifactSubheading[];
+};
+
 export type ChangePlanTaskSectionProgress = {
   completedTaskCount: number;
   taskCount: number;
@@ -199,6 +210,7 @@ export type ArtifactStructureContract = {
   file: ChangePlanArtifactName;
   h1: ChangePlanArtifactTitle;
   requiredSections: readonly ChangePlanArtifactHeading[];
+  subsectionContracts?: readonly ArtifactSubsectionContract[];
   taskSections?: readonly ChangePlanTaskHeading[];
 };
 
