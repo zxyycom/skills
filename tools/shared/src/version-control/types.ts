@@ -68,6 +68,10 @@ export type VersionControlRepository = {
     revision: RevisionId,
     options?: ListVersionControlFilesOptions
   ) => Promise<string[]>;
+  readRevisionFiles: (
+    revision: RevisionId,
+    options?: ListVersionControlFilesOptions
+  ) => Promise<VersionControlFile[]>;
   listWorkspaceChangedPaths: () => Promise<string[]>;
   listWorkspaceFiles: (
     options?: ListVersionControlFilesOptions

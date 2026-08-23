@@ -3703,6 +3703,29 @@
         "title": "选择旧 ID 表达删除而非改名"
       }
     },
+    "DECISION-STAGE-INDEX-ONLY-BASELINE-001": {
+      "keys": {
+        "search": [
+          "DECISION-STAGE-INDEX-ONLY-BASELINE-001 Stage 从仅派生索引的 revision 基线建立决策 revision 决策范围只含 `decision-index.json` 时，Stage 必须把它视为没有 Markdown 基线，并以选中的 filesystem Decision 构造首个完整 pending 快照。 新建有效 Decision 可成功 stage，而不会把空的 Markdown 路径范围解释为整个 revision。 pending 同时包含新建 Markdown 与从该来源重建的 `decision-index.json` 条目。 tools/decision-records/tests/stage.test.ts > stage bootstraps a new Decision when revision contains only the derived index bun test --test-name-pattern=\"^stage bootstraps a new Decision when revision contains only the derived index$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage bootstraps a new Decision when revision contains only the derived index",
+          "bun test --test-name-pattern=\"^stage bootstraps a new Decision when revision contains only the derived index$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STAGE-INDEX-ONLY-BASELINE-001",
+        "line": 1,
+        "searchText": "Stage 从仅派生索引的 revision 基线建立决策 revision 决策范围只含 `decision-index.json` 时，Stage 必须把它视为没有 Markdown 基线，并以选中的 filesystem Decision 构造首个完整 pending 快照。 新建有效 Decision 可成功 stage，而不会把空的 Markdown 路径范围解释为整个 revision。 pending 同时包含新建 Markdown 与从该来源重建的 `decision-index.json` 条目。 tools/decision-records/tests/stage.test.ts > stage bootstraps a new Decision when revision contains only the derived index bun test --test-name-pattern=\"^stage bootstraps a new Decision when revision contains only the derived index$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/stage-bootstraps-a-new-decision-when-revision-contains-only-the-derived-index.md",
+        "summary": "revision 决策范围只含 `decision-index.json` 时，Stage 必须把它视为没有 Markdown 基线，并以选中的 filesystem Decision 构造首个完整 pending 快照。",
+        "title": "Stage 从仅派生索引的 revision 基线建立决策"
+      }
+    },
     "DECISION-STAGE-INPUT-001": {
       "keys": {
         "search": [
@@ -3908,6 +3931,29 @@
         "sourcePath": "decision-records/stage-explicit-rename.md",
         "summary": "只有显式同时选择 old+new ID 才表达 basename rename；新正文编辑与 identity 变更一同进入 pending index，工具不猜测。",
         "title": "Stage 仅以显式 old+new ID 表达 basename 改名"
+      }
+    },
+    "DECISION-STAGE-REVISION-BATCH-001": {
+      "keys": {
+        "search": [
+          "DECISION-STAGE-REVISION-BATCH-001 Stage 对完整决策快照限制 Git 调用数 Stage 仍以完整 revision 决策集合构造并验证 pending 快照，但 revision 基线读取与未变化 pending entry 复用不得使 Git 进程数随集合文件数线性增长。 在 fixture 建立完成后，150 与 300 个决策的未修改 stage 各不超过 20 次 Git 调用，且 pending 保持无变化。 修改一个选中决策后，150 与 300 个决策各不超过 25 次 Git 调用，并暂存包含修改后标题的选中 Markdown，以及为该标题重建的完整派生索引。 tools/decision-records/tests/stage.test.ts > stage keeps Git invocation counts bounded for complete decision snapshots bun test --test-name-pattern=\"^stage keeps Git invocation counts bounded for complete decision snapshots$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/stage.test.ts > stage keeps Git invocation counts bounded for complete decision snapshots",
+          "bun test --test-name-pattern=\"^stage keeps Git invocation counts bounded for complete decision snapshots$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-STAGE-REVISION-BATCH-001",
+        "line": 1,
+        "searchText": "Stage 对完整决策快照限制 Git 调用数 Stage 仍以完整 revision 决策集合构造并验证 pending 快照，但 revision 基线读取与未变化 pending entry 复用不得使 Git 进程数随集合文件数线性增长。 在 fixture 建立完成后，150 与 300 个决策的未修改 stage 各不超过 20 次 Git 调用，且 pending 保持无变化。 修改一个选中决策后，150 与 300 个决策各不超过 25 次 Git 调用，并暂存包含修改后标题的选中 Markdown，以及为该标题重建的完整派生索引。 tools/decision-records/tests/stage.test.ts > stage keeps Git invocation counts bounded for complete decision snapshots bun test --test-name-pattern=\"^stage keeps Git invocation counts bounded for complete decision snapshots$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/stage-bounds-git-invocations-for-complete-decision-snapshots.md",
+        "summary": "Stage 仍以完整 revision 决策集合构造并验证 pending 快照，但 revision 基线读取与未变化 pending entry 复用不得使 Git 进程数随集合文件数线性增长。",
+        "title": "Stage 对完整决策快照限制 Git 调用数"
       }
     },
     "DECISION-STAGE-SELECTED-MEMBER-TYPE-001": {
@@ -12584,7 +12630,7 @@
     "VERSION-CONTROL-CORRUPTION-001": {
       "keys": {
         "search": [
-          "VERSION-CONTROL-CORRUPTION-001 将损坏修订对象报告为操作失败 只有 Git 明确确认 revision 或文件不存在时才能返回对应缺失语义；Git 查询或对象读取失败必须保留为操作错误。 损坏 blob 读取和损坏 commit 解析都返回带操作上下文的 `operation-failed`；损坏 commit 不会被降级为 `revision-not-found`。 tools/shared/tests/version-control.test.ts > reports corrupt revision objects as operation failures bun test --test-name-pattern=\"^reports corrupt revision objects as operation failures$\" ./tools/shared/tests/version-control.test.ts"
+          "VERSION-CONTROL-CORRUPTION-001 将损坏修订对象报告为操作失败 只有 Git 明确确认 revision 或文件不存在时才能返回对应缺失语义；Git 查询或对象读取失败必须保留为操作错误。 损坏 blob 的单文件与批量 revision 读取，以及损坏 commit 解析都返回带操作上下文的 `operation-failed`；损坏 commit 不会被降级为 `revision-not-found`。 tools/shared/tests/version-control.test.ts > reports corrupt revision objects as operation failures bun test --test-name-pattern=\"^reports corrupt revision objects as operation failures$\" ./tools/shared/tests/version-control.test.ts"
         ],
         "topic": [
           "version-control"
@@ -12598,7 +12644,7 @@
         ],
         "id": "VERSION-CONTROL-CORRUPTION-001",
         "line": 1,
-        "searchText": "将损坏修订对象报告为操作失败 只有 Git 明确确认 revision 或文件不存在时才能返回对应缺失语义；Git 查询或对象读取失败必须保留为操作错误。 损坏 blob 读取和损坏 commit 解析都返回带操作上下文的 `operation-failed`；损坏 commit 不会被降级为 `revision-not-found`。 tools/shared/tests/version-control.test.ts > reports corrupt revision objects as operation failures bun test --test-name-pattern=\"^reports corrupt revision objects as operation failures$\" ./tools/shared/tests/version-control.test.ts",
+        "searchText": "将损坏修订对象报告为操作失败 只有 Git 明确确认 revision 或文件不存在时才能返回对应缺失语义；Git 查询或对象读取失败必须保留为操作错误。 损坏 blob 的单文件与批量 revision 读取，以及损坏 commit 解析都返回带操作上下文的 `operation-failed`；损坏 commit 不会被降级为 `revision-not-found`。 tools/shared/tests/version-control.test.ts > reports corrupt revision objects as operation failures bun test --test-name-pattern=\"^reports corrupt revision objects as operation failures$\" ./tools/shared/tests/version-control.test.ts",
         "sourcePath": "version-control/reports-corrupt-revision-objects-as-operation-failures.md",
         "summary": "只有 Git 明确确认 revision 或文件不存在时才能返回对应缺失语义；Git 查询或对象读取失败必须保留为操作错误。",
         "title": "将损坏修订对象报告为操作失败"
@@ -12926,6 +12972,29 @@
         "title": "精确替换字面 pending 范围并保留范围外文件"
       }
     },
+    "VERSION-CONTROL-PENDING-REUSE-NOOP-001": {
+      "keys": {
+        "search": [
+          "VERSION-CONTROL-PENDING-REUSE-NOOP-001 复用已验证 pending entry 并跳过无变化发布 `replacePendingFiles` 只在锁内已验证的同路径普通非可执行同字节 entry 可复用；完整目标与当前范围一致时不得发布 pending index，实际变化仍走写入路径。 无变化替换返回原有路径且不发布 pending 写入。 修改目标字节后发布一次替换，并读回新的 pending 文件内容。 tools/shared/tests/version-control.test.ts > reuses verified pending entries and avoids publishing an unchanged replacement bun test --test-name-pattern=\"^reuses verified pending entries and avoids publishing an unchanged replacement$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "topic": [
+          "version-control"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/shared/tests/version-control.test.ts > reuses verified pending entries and avoids publishing an unchanged replacement",
+          "bun test --test-name-pattern=\"^reuses verified pending entries and avoids publishing an unchanged replacement$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "id": "VERSION-CONTROL-PENDING-REUSE-NOOP-001",
+        "line": 1,
+        "searchText": "复用已验证 pending entry 并跳过无变化发布 `replacePendingFiles` 只在锁内已验证的同路径普通非可执行同字节 entry 可复用；完整目标与当前范围一致时不得发布 pending index，实际变化仍走写入路径。 无变化替换返回原有路径且不发布 pending 写入。 修改目标字节后发布一次替换，并读回新的 pending 文件内容。 tools/shared/tests/version-control.test.ts > reuses verified pending entries and avoids publishing an unchanged replacement bun test --test-name-pattern=\"^reuses verified pending entries and avoids publishing an unchanged replacement$\" ./tools/shared/tests/version-control.test.ts",
+        "sourcePath": "version-control/reuses-verified-pending-entries-and-avoids-publishing-an-unchanged-replacement.md",
+        "summary": "`replacePendingFiles` 只在锁内已验证的同路径普通非可执行同字节 entry 可复用；完整目标与当前范围一致时不得发布 pending index，实际变化仍走写入路径。",
+        "title": "复用已验证 pending entry 并跳过无变化发布"
+      }
+    },
     "VERSION-CONTROL-PENDING-UNRESOLVED-001": {
       "keys": {
         "search": [
@@ -13039,6 +13108,75 @@
         "sourcePath": "version-control/discovers-the-repository-root-and-reads-revision-snapshots.md",
         "summary": "版本控制适配器必须从嵌套路径发现仓库根，并按修订列举和读取文件。",
         "title": "发现仓库根并读取修订快照"
+      }
+    },
+    "VERSION-CONTROL-REVISION-BATCH-001": {
+      "keys": {
+        "search": [
+          "VERSION-CONTROL-REVISION-BATCH-001 批量读取受范围约束的 revision 快照 `readRevisionFiles` 按字面仓库相对路径范围读取整个或选定 revision 快照；路径中的 Git pathspec 元字符不扩展，并以规范路径稳定排序返回文件字节。 全 revision 读取保留普通文件、可执行文件和符号链接 blob 的字节与排序。 单路径、多路径、重叠文件/目录范围和无匹配范围分别返回精确、去重或空的结果；`docs/*.md` 只匹配名称含星号的文件，不匹配普通 Markdown 文件。 tools/shared/tests/version-control.test.ts > reads batched revision snapshots with literal scopes and supported blob modes bun test --test-name-pattern=\"^reads batched revision snapshots with literal scopes and supported blob modes$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "topic": [
+          "version-control"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/shared/tests/version-control.test.ts > reads batched revision snapshots with literal scopes and supported blob modes",
+          "bun test --test-name-pattern=\"^reads batched revision snapshots with literal scopes and supported blob modes$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "id": "VERSION-CONTROL-REVISION-BATCH-001",
+        "line": 1,
+        "searchText": "批量读取受范围约束的 revision 快照 `readRevisionFiles` 按字面仓库相对路径范围读取整个或选定 revision 快照；路径中的 Git pathspec 元字符不扩展，并以规范路径稳定排序返回文件字节。 全 revision 读取保留普通文件、可执行文件和符号链接 blob 的字节与排序。 单路径、多路径、重叠文件/目录范围和无匹配范围分别返回精确、去重或空的结果；`docs/*.md` 只匹配名称含星号的文件，不匹配普通 Markdown 文件。 tools/shared/tests/version-control.test.ts > reads batched revision snapshots with literal scopes and supported blob modes bun test --test-name-pattern=\"^reads batched revision snapshots with literal scopes and supported blob modes$\" ./tools/shared/tests/version-control.test.ts",
+        "sourcePath": "version-control/reads-batched-revision-snapshots-with-literal-scopes-and-supported-blob-modes.md",
+        "summary": "`readRevisionFiles` 按字面仓库相对路径范围读取整个或选定 revision 快照；路径中的 Git pathspec 元字符不扩展，并以规范路径稳定排序返回文件字节。",
+        "title": "批量读取受范围约束的 revision 快照"
+      }
+    },
+    "VERSION-CONTROL-REVISION-SHA256-001": {
+      "keys": {
+        "search": [
+          "VERSION-CONTROL-REVISION-SHA256-001 批量读取 SHA-256 revision 快照 `readRevisionFiles` 不把 Git revision 的对象标识格式限定为 SHA-1，并支持 SHA-256 repository。 在支持 SHA-256 repository 的 Git 环境中，64 位 revision 返回正确的路径和字节。 tools/shared/tests/version-control.test.ts > reads batched revision snapshots from SHA-256 repositories bun test --test-name-pattern=\"^reads batched revision snapshots from SHA-256 repositories$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "topic": [
+          "version-control"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/shared/tests/version-control.test.ts > reads batched revision snapshots from SHA-256 repositories",
+          "bun test --test-name-pattern=\"^reads batched revision snapshots from SHA-256 repositories$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "id": "VERSION-CONTROL-REVISION-SHA256-001",
+        "line": 1,
+        "searchText": "批量读取 SHA-256 revision 快照 `readRevisionFiles` 不把 Git revision 的对象标识格式限定为 SHA-1，并支持 SHA-256 repository。 在支持 SHA-256 repository 的 Git 环境中，64 位 revision 返回正确的路径和字节。 tools/shared/tests/version-control.test.ts > reads batched revision snapshots from SHA-256 repositories bun test --test-name-pattern=\"^reads batched revision snapshots from SHA-256 repositories$\" ./tools/shared/tests/version-control.test.ts",
+        "sourcePath": "version-control/reads-batched-revision-snapshots-from-sha-256-repositories.md",
+        "summary": "`readRevisionFiles` 不把 Git revision 的对象标识格式限定为 SHA-1，并支持 SHA-256 repository。",
+        "title": "批量读取 SHA-256 revision 快照"
+      }
+    },
+    "VERSION-CONTROL-REVISION-TREE-001": {
+      "keys": {
+        "search": [
+          "VERSION-CONTROL-REVISION-TREE-001 拒绝不支持的批量 revision tree entry `readRevisionFiles` 只能返回普通、可执行或符号链接 blob；Gitlink 与其他不能表达为文件字节的 tree entry 必须使读取失败。 包含 Gitlink 的匹配范围返回带路径上下文的 `operation-failed`，不会静默遗漏该 entry。 tools/shared/tests/version-control.test.ts > rejects unsupported tree entries when reading batched revision snapshots bun test --test-name-pattern=\"^rejects unsupported tree entries when reading batched revision snapshots$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "topic": [
+          "version-control"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/shared/tests/version-control.test.ts > rejects unsupported tree entries when reading batched revision snapshots",
+          "bun test --test-name-pattern=\"^rejects unsupported tree entries when reading batched revision snapshots$\" ./tools/shared/tests/version-control.test.ts"
+        ],
+        "id": "VERSION-CONTROL-REVISION-TREE-001",
+        "line": 1,
+        "searchText": "拒绝不支持的批量 revision tree entry `readRevisionFiles` 只能返回普通、可执行或符号链接 blob；Gitlink 与其他不能表达为文件字节的 tree entry 必须使读取失败。 包含 Gitlink 的匹配范围返回带路径上下文的 `operation-failed`，不会静默遗漏该 entry。 tools/shared/tests/version-control.test.ts > rejects unsupported tree entries when reading batched revision snapshots bun test --test-name-pattern=\"^rejects unsupported tree entries when reading batched revision snapshots$\" ./tools/shared/tests/version-control.test.ts",
+        "sourcePath": "version-control/rejects-unsupported-tree-entries-when-reading-batched-revision-snapshots.md",
+        "summary": "`readRevisionFiles` 只能返回普通、可执行或符号链接 blob；Gitlink 与其他不能表达为文件字节的 tree entry 必须使读取失败。",
+        "title": "拒绝不支持的批量 revision tree entry"
       }
     },
     "VERSION-CONTROL-STATES-001": {
@@ -13307,6 +13445,7 @@
       "DECISION-STAGE-BOOTSTRAP-MISSING-001": "sha256:7b15942812b0cc8534fdd2ac56da1ab2530ae03e5daa29b29398eb365f0a8587",
       "DECISION-STAGE-CLI-001": "sha256:a918b118ed2286916963510e2f5978b9a703f66a8c6c72d1598a801caea17488",
       "DECISION-STAGE-DELETION-001": "sha256:00f4686ac156a9ffe345f5f02cb0202c8ba1d5aa07596ac9ce5f2b84ae7282ca",
+      "DECISION-STAGE-INDEX-ONLY-BASELINE-001": "sha256:f7dcb7cfd4e09431595681e1994c8f83ce5a923ec7aa37a3cf3d1d7b2e23c6b1",
       "DECISION-STAGE-INPUT-001": "sha256:8e90a9377b2a03355b1335e39d0e6ded67b0b2bb8afab807a42c62f0977f5b15",
       "DECISION-STAGE-ISOLATION-001": "sha256:4879eae2934654b4cf960f25a42ce3fbfe138418f6404bdb2416cc8bcf408dfb",
       "DECISION-STAGE-LEGACY-001": "sha256:f18acc06b062f0ae7ba5e472b780cb6728535697800c4957f4df271633b779f6",
@@ -13316,6 +13455,7 @@
       "DECISION-STAGE-PENDING-CAS-001": "sha256:6f30e94c914e11a3817a094c6fc14370ef1453c6448df11ea7ab8808c01823ae",
       "DECISION-STAGE-PENDING-EXISTING-001": "sha256:ec5eb9988d241d4f15d1151e8cc53e0ca739b7e24efe531e524286a65d82179a",
       "DECISION-STAGE-RENAME-001": "sha256:8b820084e3961d6814f77d7b474c19ef3a5aae9f5e497591793ff640a93a09b8",
+      "DECISION-STAGE-REVISION-BATCH-001": "sha256:f0a37e891d66e769f4283a18c194d7cba9f659cec459c6b964d7af69026639b8",
       "DECISION-STAGE-SELECTED-MEMBER-TYPE-001": "sha256:0bcdc55423c6035a935ff2f35eafce9ffce4d9c304e6a0a2ce9cdc5944b39a89",
       "DECISION-STAGE-SOURCE-PREFLIGHT-001": "sha256:85d5dcd06ec8c394c451539ab8a46a82813c90294e3661fe29f452cc2d5bf958",
       "DECISION-STAGE-TARGET-VALIDATION-001": "sha256:ec88ff03f358d539016789064cf30b9673d8a4851575e9c757d5b43c51ccdb2b",
@@ -13693,7 +13833,7 @@
       "TEST-EVIDENCE-UPGRADE-V2-001": "sha256:1b0578a03fb83d11d0ff53531dc5ddf323a629421ca5988822d4e942b1b39d88",
       "VERSION-CONTROL-CHANGES-001": "sha256:31254f830340da6e7056305051c59f67bd1252d9ae94f38d4f5ec4754724ecf5",
       "VERSION-CONTROL-CONFLICT-001": "sha256:224755b16beb3ee84e7a4f625d07fbd822caee95d9c5c8b38d88bfcee729dbc9",
-      "VERSION-CONTROL-CORRUPTION-001": "sha256:b06707123210dd012e181d9c2bc41ac9dad67db2cfc8cb1d25d63a38b6cdbbff",
+      "VERSION-CONTROL-CORRUPTION-001": "sha256:f04976e6b2b44976c3ccfbee8afa58234b4b02309cccedadfd0a018a57327267",
       "VERSION-CONTROL-DISCOVERY-FAILURE-001": "sha256:98962b6a255620d5f70bdc3bdd6c811b1dc2a0eac420e71bccf812bcf429f884",
       "VERSION-CONTROL-ERROR-DETAIL-001": "sha256:59b19aa8951df33b8aa85cb9e9b4892727c0fb2fb97c0b4e85cfa12671b6e531",
       "VERSION-CONTROL-FIRST-PARENT-001": "sha256:54aa1b954c70c7456be3d9e7418030c8b1810080439ddc4c4ab14f6c213ca3e9",
@@ -13708,11 +13848,15 @@
       "VERSION-CONTROL-PENDING-READBACK-FAILURE-001": "sha256:39ff7fdab5f80df6acdb89cddfc515066de535e79dca68388d36e71adaae3847",
       "VERSION-CONTROL-PENDING-RECOVERY-FAILURE-001": "sha256:8300ad5e02523c7ec25d8ad57c3f96a2f28a9146f8955b32c6620f0eae1a34ad",
       "VERSION-CONTROL-PENDING-REPLACE-001": "sha256:695861c6fe53449c4f77e0e284cec6989f0ea97b0ed611b8bf6a786ddf457e27",
+      "VERSION-CONTROL-PENDING-REUSE-NOOP-001": "sha256:1bf5866c02280e6ba366a564a0f20dd224d0042486ed11e75823c3e6490df018",
       "VERSION-CONTROL-PENDING-UNRESOLVED-001": "sha256:df74f984ab955c11b8a09a2d741fe4fb4053c318ae5c96dfa95c38a6a89805cd",
       "VERSION-CONTROL-PENDING-WRITE-FAILURE-001": "sha256:fe2774c98fc1e1757ae7e7b5d845a23ad9f28d43b4083c84c7f546416e0b00bd",
       "VERSION-CONTROL-REPOSITORY-001": "sha256:bd95ed5c9d2cbd25eba21dc495a6d5602854684c9af6723620efed2af814a8f3",
       "VERSION-CONTROL-REPOSITORY-PATH-001": "sha256:47456f3b29a000c855fc212f228c5bd7272cef01d23f6f9810592b7dc39d31a6",
       "VERSION-CONTROL-REVISION-001": "sha256:a03d1dfa9987689debcd3a3140e7ea394eb6d4e015f845e92539bc3c39a81092",
+      "VERSION-CONTROL-REVISION-BATCH-001": "sha256:c2ac1874197676e0a7e9bbaee5da914df99ed608aa233dc35ea41aa6ff34afc2",
+      "VERSION-CONTROL-REVISION-SHA256-001": "sha256:a6137b4863dc17fcada5297d7223ea78abc045df2143f5acf173dec964b400a1",
+      "VERSION-CONTROL-REVISION-TREE-001": "sha256:bb4f956b9f985514fc3439cf1379c7234913ecc2f78b8612d8754d79e38b1e12",
       "VERSION-CONTROL-STATES-001": "sha256:5de8e31678bc717f6da89e3590791e55aa6318cfec899c3196498616b346aff0",
       "VERSION-CONTROL-WORKTREE-001": "sha256:9ac7f9540e8bd3f19b913fb66ba465f99e43b4274299fb9dbb6a8bfbe311b790"
     },

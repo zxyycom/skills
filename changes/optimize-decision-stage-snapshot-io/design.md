@@ -16,7 +16,7 @@
 优化前: revision paths -> N × (resolve + tree + blob) -> complete target
         -> lock -> N × hash -> optional index write -> readback
 
-目标: revision scope -> one resolve/tree + one blob batch -> complete target
+目标: revision scope -> list paths/filter derived index -> one resolve/tree + blob batch -> complete target
       -> lock/expected checks -> reuse unchanged entries + K × hash
       -> no-op return OR one index write -> readback
 ```
@@ -44,7 +44,7 @@
 ### Intended Change
 
 1. **建立批量 revision 内容边界。** 在 `VersionControlRepository` 增加 `readRevisionFiles(revision: RevisionId, options?: ListVersionControlFilesOptions): Promise<VersionControlFile[]>`。`pathScopes` 沿用现有字面仓库相对路径语义：省略或传入空数组表示整个 revision，没有匹配文件时返回空数组；结果按规范仓库路径稳定排序。Git 实现只解析一次 revision，以一次递归、NUL 分隔的 `ls-tree` 取得路径、模式和 object ID，接受 `100644`、`100755` 与 `120000` blob，拒绝 Gitlink、非 blob 和异常记录，再调用现有 `readGitBlobs` 一次读取全部唯一 blob 并映射回文件。缺失 blob 或 Git 失败保持 `operation-failed`。现有单文件和仅列路径操作继续保留，并与批量结果对账。
-2. **让 Decision Records 只消费批量公共语义。** `readDecisionBaseline` 通过批量操作读取 decision scope，再排除 `decision-index.json`、验证剩余路径可映射为唯一 Decision ID，并沿用现有 UTF-8 解码、稳定排序和 Markdown 来源构造。后续选中 filesystem overlay、完整关系校验、索引生成/回读及选中来源二次复核不变。
+2. **让 Decision Records 只消费批量公共语义。** `readDecisionBaseline` 先列出 decision scope 路径并排除 `decision-index.json`；若过滤后没有 Markdown 路径，直接返回空基线，不能把空 `pathScopes` 传给批量读取而读取整个 revision。否则通过一次批量内容操作读取剩余 Markdown，验证每个路径可映射为唯一 Decision ID，并沿用现有 UTF-8 解码、稳定排序和 Markdown 来源构造。先过滤保持派生索引不作为 Markdown 基线输入；后续选中 filesystem overlay、完整关系校验、索引生成/回读及选中来源二次复核不变。
 3. **在锁内按目标内容复用 Git entry。** `replacePendingFiles` 复制 index 并完成 current revision、expected 成员、普通文件表示和字节核对后，以当前 stage-0 entries 与已读取文件建立路径映射。只有 entry 模式为目标普通非可执行模式、路径相同且字节等于目标时才能复用；删除目标不创建 blob，其他目标文件继续通过 `hash-object -w` 建立普通文件 entry。比较和复用只存在于 Git 实现内部。
 4. **明确无变化与实际写入分支。** 目标 entries 构造完成后，若与锁内当前 entries 完全相同，则不调用 `update-index`，不执行只用于验证新写入的第二次读取，也不以锁副本替换当前 index；操作清理锁文件并返回与公共契约一致的成功结果。若 entries 不同，则继续一次 index 更新、写后 entry/字节读回、原子 rename 和现有恢复流程。两条分支都必须先完成锁内 revision 与 expected files 核对。
 5. **用复杂度证据固定退出。** Git 集成测试使用只在目标操作期间计数的可控 Git executable 或等价注入点，分别建立 150/300 文件的 unchanged 与单 Decision 修改场景。门禁使用 proposal 的 20/25 次上限并同时证明目标内容；不得把 fixture 初始化、commit 或结果审阅命令计入 stage 调用数。实施记录优化前后调用直方图和同机墙钟，真实 Windows 复测仅在环境可用时补充，不阻塞由平台无关复杂度已经证明的结果。
@@ -56,7 +56,7 @@
 | 共享版本管理公共接口 | 增加批量 revision 内容读取；公共值仍只有 revision、路径与字节 | 类型检查；全 revision、无匹配、单/多 scope、顺序、模式、SHA 和失败测试 |
 | Git revision reader | 共享 tree 解析和一次 batch blob 读取，消除逐文件重复解析 | 与现有单文件/路径列表结果对账；异常记录与对象缺失失败 |
 | Git pending replacement | 复用安全 entry，分开 no-op 与 actual-write 发布路径 | expected/CAS、普通文件限制、范围隔离、readback、恢复和并发测试 |
-| Decision Records stage | 批量读取完整 revision scope，其余领域流程不变 | 增删改移、未选择变化隔离、完整索引、来源漂移和规模调用数 |
+| Decision Records stage | 过滤派生索引路径后批量读取完整 revision Markdown，其余领域流程不变 | 增删改移、未选择变化隔离、完整索引、来源漂移和规模调用数 |
 | 分发制品 | 共享源码可能进入 Change Plan、Decision Records、Investigation Report、Task Graph 与 Test Evidence bundle；只同步实际受影响产物 | 对五个 consumer 运行各自 sync/check；版本承载变化时提升对应 skill 版本 |
 | Test Evidence | 修改后的最小测试节点需要对应权威 case | 单 case 文件、topic 映射与派生索引一致 |
 

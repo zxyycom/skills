@@ -34,7 +34,6 @@ import {
 } from "./decision-query-context.ts";
 import type { DecisionId, DecisionSource } from "./types.ts";
 
-const revisionReadConcurrency = 32;
 const utf8Decoder = new TextDecoder("utf-8", { fatal: true });
 
 export type DecisionStageSuccess = {
@@ -310,11 +309,12 @@ async function readDecisionBaseline(options: {
     }
     sourcePaths.push(repositoryFilePath);
   }
-  const files = await readRevisionFiles(
-    options.repository,
-    options.revision,
-    sourcePaths
-  );
+  if (sourcePaths.length === 0) {
+    return [];
+  }
+  const files = await options.repository.readRevisionFiles(options.revision, {
+    pathScopes: sourcePaths
+  });
   return files.map((file) =>
     stageSourceFromFile(
       file,
@@ -473,35 +473,6 @@ function stageSourceFromFile(
       text: decodeUtf8(file.data, sourcePath)
     }
   };
-}
-
-async function readRevisionFiles(
-  repository: VersionControlRepository,
-  revision: RevisionId,
-  filePaths: readonly string[]
-): Promise<VersionControlFile[]> {
-  const files: VersionControlFile[] = [];
-  for (
-    let offset = 0;
-    offset < filePaths.length;
-    offset += revisionReadConcurrency
-  ) {
-    const batch = filePaths.slice(offset, offset + revisionReadConcurrency);
-    files.push(
-      ...(await Promise.all(
-        batch.map(async (filePath) => {
-          const file = await repository.readRevisionFile(revision, filePath);
-          if (file === null) {
-            throw new Error(
-              "revision file disappeared while reading: " + filePath
-            );
-          }
-          return file;
-        })
-      ))
-    );
-  }
-  return files.sort(compareVersionControlFiles);
 }
 
 async function buildDecisionIndexText(

@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
+import process from "node:process";
 import test from "node:test";
 import { createCliProgram } from "../src/cli-args.ts";
 import {
@@ -172,6 +175,95 @@ test("stage isolates unselected filesystem changes", () =>
     assert.doesNotMatch(pending, new RegExp(unselectedId));
   }));
 
+test(
+  "stage keeps Git invocation counts bounded for complete decision snapshots",
+  { timeout: 30_000 },
+  async (t) => {
+    if (process.platform === "win32") {
+      t.skip("The Git invocation wrapper is currently POSIX-only");
+      return;
+    }
+    for (const decisionCount of [150, 300]) {
+      await withTemporaryWorkspace(
+        `stage-call-count-${decisionCount}`,
+        async (workspaceRoot) => {
+          initializeGitRepository(workspaceRoot);
+          const decisionIds = await createStageScaleFixture(
+            workspaceRoot,
+            decisionCount
+          );
+          const synced = await runSourceCli([
+            "sync-index",
+            "--write",
+            "--root",
+            workspaceRoot
+          ]);
+          assert.equal(synced.exitCode, 0, synced.stderr);
+          commitWorkspace(workspaceRoot);
+
+          const unchanged = await countGitInvocations(async () =>
+            runSourceCli(["stage", decisionIds[0]!, "--root", workspaceRoot])
+          );
+          assert.equal(unchanged.result.exitCode, 0, unchanged.result.stderr);
+          assert.ok(
+            unchanged.callCount <= 20,
+            `${decisionCount} unchanged decisions used ${unchanged.callCount} Git invocations`
+          );
+          assert.equal(
+            runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
+            ""
+          );
+
+          const changedDecisionPath = decisionFilePath(
+            workspaceRoot,
+            decisionIds[0]!
+          );
+          await fs.writeFile(
+            changedDecisionPath,
+            (await fs.readFile(changedDecisionPath, "utf8")).replace(
+              "规模化决策 0",
+              "修改后的规模化决策"
+            ),
+            "utf8"
+          );
+          const changed = await countGitInvocations(async () =>
+            runSourceCli(["stage", decisionIds[0]!, "--root", workspaceRoot])
+          );
+          assert.equal(changed.result.exitCode, 0, changed.result.stderr);
+          assert.ok(
+            changed.callCount <= 25,
+            `${decisionCount} changed decisions used ${changed.callCount} Git invocations`
+          );
+          const pendingPaths = runGit(workspaceRoot, [
+            "diff",
+            "--cached",
+            "--name-only"
+          ]);
+          assert.match(pendingPaths, new RegExp(decisionIds[0]!));
+          assert.match(pendingPaths, /docs\/decisions\/decision-index\.json/);
+          assert.match(
+            runGit(workspaceRoot, [
+              "show",
+              `:docs/decisions/${decisionIds[0]!}`
+            ]),
+            /修改后的规模化决策/
+          );
+          const pendingIndex = JSON.parse(
+            runGit(workspaceRoot, [
+              "show",
+              ":docs/decisions/decision-index.json"
+            ])
+          );
+          assert.equal(
+            pendingIndex.entries[decisionIds[0]!].state.title,
+            "修改后的规模化决策"
+          );
+        }
+      );
+    }
+  }
+);
+
 test("stage rejects an existing pending decision index", () =>
   withFixtureWorkspace("stage-existing-pending", async (workspaceRoot) => {
     initializeGitRepository(workspaceRoot);
@@ -297,6 +389,44 @@ test("stage bootstraps the first pending decision collection", () =>
     const pending = runGit(workspaceRoot, ["diff", "--cached", "--name-only"]);
     assert.match(pending, new RegExp(id));
     assert.match(pending, /decision-index\.json/);
+  }));
+
+test("stage bootstraps a new Decision when revision contains only the derived index", () =>
+  withTemporaryWorkspace("stage-index-only-baseline", async (workspaceRoot) => {
+    initializeGitRepository(workspaceRoot);
+    const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+    await fs.mkdir(decisionsDirectory, { recursive: true });
+    await fs.writeFile(
+      path.join(decisionsDirectory, "decision-index.json"),
+      "{}\n",
+      "utf8"
+    );
+    commitWorkspace(workspaceRoot);
+
+    const decisionId = "use-index-only-baseline.md";
+    await writeDecision(
+      workspaceRoot,
+      decisionId,
+      candidateDecisionBody({ title: "从仅索引基线建立决策" })
+        .replace("status: candidate", "status: active")
+        .replace("alignment: null", "alignment: aligned")
+        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
+    );
+    const staged = await runSourceCli([
+      "stage",
+      decisionId,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(staged.exitCode, 0, staged.stderr);
+    const pending = JSON.parse(
+      runGit(workspaceRoot, ["show", ":docs/decisions/decision-index.json"])
+    );
+    assert.ok(pending.entries[decisionId]);
+    assert.match(
+      runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
+      new RegExp(decisionId)
+    );
   }));
 
 test("stage rejects invalid duplicate and missing paths without changing pending", () =>
@@ -646,3 +776,89 @@ test("stage rejects a selected symlink source outside the decision root", async 
     }
   );
 });
+
+async function createStageScaleFixture(
+  workspaceRoot: string,
+  decisionCount: number
+): Promise<string[]> {
+  const decisionIds: string[] = [];
+  for (let index = 0; index < decisionCount; index += 1) {
+    const decisionId = `use-scale-${String(index).padStart(3, "0")}.md`;
+    decisionIds.push(decisionId);
+    await writeDecision(
+      workspaceRoot,
+      decisionId,
+      candidateDecisionBody({ title: `规模化决策 ${index}` })
+        .replace("status: candidate", "status: active")
+        .replace("alignment: null", "alignment: aligned")
+        .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
+    );
+  }
+  return decisionIds;
+}
+
+async function countGitInvocations<T>(
+  operation: () => Promise<T>
+): Promise<{ callCount: number; result: T }> {
+  const wrapperDirectory = await fs.mkdtemp(
+    path.join(os.tmpdir(), "decision-stage-git-")
+  );
+  const wrapperPath = path.join(wrapperDirectory, "git");
+  const countPath = path.join(wrapperDirectory, "calls.log");
+  const gitExecutable = execFileSync("sh", ["-c", "command -v git"], {
+    encoding: "utf8"
+  }).trim();
+  const previousPath = process.env.PATH;
+  const previousCountPath = process.env.DECISION_STAGE_GIT_COUNT_PATH;
+  const previousGitExecutable = process.env.DECISION_STAGE_REAL_GIT;
+  await fs.writeFile(
+    wrapperPath,
+    `#!${process.execPath}\n` +
+      'const { spawnSync } = require("node:child_process");\n' +
+      'const { appendFileSync } = require("node:fs");\n' +
+      'appendFileSync(process.env.DECISION_STAGE_GIT_COUNT_PATH, "1\\n");\n' +
+      'const result = spawnSync(process.env.DECISION_STAGE_REAL_GIT, process.argv.slice(2), { stdio: "inherit" });\n' +
+      "if (result.error !== undefined) throw result.error;\n" +
+      "process.exitCode = result.status ?? 1;\n",
+    "utf8"
+  );
+  await fs.chmod(wrapperPath, 0o755);
+  process.env.DECISION_STAGE_GIT_COUNT_PATH = countPath;
+  process.env.DECISION_STAGE_REAL_GIT = gitExecutable;
+  process.env.PATH = `${wrapperDirectory}${path.delimiter}${previousPath ?? ""}`;
+  try {
+    const result = await operation();
+    let calls = "";
+    try {
+      calls = await fs.readFile(countPath, "utf8");
+    } catch (error) {
+      if (
+        !(error instanceof Error && "code" in error && error.code === "ENOENT")
+      ) {
+        throw error;
+      }
+    }
+    return {
+      callCount:
+        calls.trim().length === 0 ? 0 : calls.trim().split("\n").length,
+      result
+    };
+  } finally {
+    if (previousPath === undefined) {
+      delete process.env.PATH;
+    } else {
+      process.env.PATH = previousPath;
+    }
+    if (previousCountPath === undefined) {
+      delete process.env.DECISION_STAGE_GIT_COUNT_PATH;
+    } else {
+      process.env.DECISION_STAGE_GIT_COUNT_PATH = previousCountPath;
+    }
+    if (previousGitExecutable === undefined) {
+      delete process.env.DECISION_STAGE_REAL_GIT;
+    } else {
+      process.env.DECISION_STAGE_REAL_GIT = previousGitExecutable;
+    }
+    await fs.rm(wrapperDirectory, { force: true, recursive: true });
+  }
+}

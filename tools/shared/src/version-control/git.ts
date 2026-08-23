@@ -315,6 +315,66 @@ class GitVersionControlRepository implements VersionControlRepository {
     return { data, path: normalizedPath };
   }
 
+  async readRevisionFiles(
+    revision: RevisionId,
+    options: ListVersionControlFilesOptions = {}
+  ): Promise<VersionControlFile[]> {
+    const pathScopes = normalizePathScopes(options.pathScopes ?? []);
+    const resolvedRevision = await this.resolveRevision(revision);
+    const pathspecs = pathScopes.map((scope) => `:(literal)${scope}`);
+    let entries: GitTreeEntry[];
+    try {
+      entries = parseGitTreeEntries(
+        await this.#git.raw([
+          "ls-tree",
+          "-r",
+          "-z",
+          resolvedRevision,
+          "--",
+          ...pathspecs
+        ])
+      );
+    } catch {
+      throw operationError(`locate files in revision ${resolvedRevision}`);
+    }
+
+    const unsupportedEntry = entries.find(
+      (entry) => entry.objectType !== "blob" || !gitBlobModes.has(entry.mode)
+    );
+    if (unsupportedEntry !== undefined) {
+      throw operationError(
+        `locate file ${unsupportedEntry.path} in revision ${resolvedRevision}`
+      );
+    }
+
+    let blobs: ReadonlyMap<string, Buffer>;
+    try {
+      blobs = await readGitBlobs(
+        this.rootDirectory,
+        entries.map((entry) => entry.objectId)
+      );
+    } catch {
+      throw operationError(`read files from revision ${resolvedRevision}`);
+    }
+    const files = entries
+      .map((entry) => {
+        const data = blobs.get(entry.objectId);
+        if (data === undefined) {
+          throw operationError(
+            `read ${entry.path} from revision ${resolvedRevision}`
+          );
+        }
+        return { data, path: entry.path };
+      })
+      .sort((left, right) => left.path.localeCompare(right.path));
+    if (files.some((file, index) => file.path === files[index - 1]?.path)) {
+      throw operationError(
+        `locate duplicate files in revision ${resolvedRevision}`
+      );
+    }
+    return files;
+  }
+
   async readPendingFiles(
     options: ListVersionControlFilesOptions = {}
   ): Promise<VersionControlFile[]> {
@@ -374,8 +434,18 @@ class GitVersionControlRepository implements VersionControlRepository {
         throw pendingConflictError(replacement.pathScope);
       }
       const targetEntries = await this.#createPendingIndexEntries(
-        replacement.files
+        replacement.files,
+        previousEntries,
+        previousFiles
       );
+      if (sameGitIndexEntries(previousEntries, targetEntries)) {
+        await removePendingIndexLock(pendingIndexLockPath);
+        return {
+          pathScope: replacement.pathScope,
+          pendingPaths: replacement.files.map((file) => file.path),
+          previousPaths: previousFiles.map((file) => file.path)
+        };
+      }
       await this.#hooks.beforePendingWrite?.();
       await this.#writePendingIndexEntries(
         previousEntries,
@@ -541,10 +611,32 @@ class GitVersionControlRepository implements VersionControlRepository {
   }
 
   async #createPendingIndexEntries(
-    files: readonly NormalizedPendingReplacementFile[]
+    files: readonly NormalizedPendingReplacementFile[],
+    currentEntries: readonly GitIndexEntry[],
+    currentFiles: readonly VersionControlFile[]
   ): Promise<GitIndexEntry[]> {
+    const currentFileByPath = new Map(
+      currentFiles.map((file) => [file.path, file])
+    );
+    const reusableEntryByPath = new Map(
+      currentEntries
+        .filter(
+          (entry) => entry.stage === 0 && entry.mode === defaultGitBlobMode
+        )
+        .map((entry) => [entry.path, entry])
+    );
     const entries: GitIndexEntry[] = [];
     for (const file of files) {
+      const currentFile = currentFileByPath.get(file.path);
+      const reusableEntry = reusableEntryByPath.get(file.path);
+      if (
+        reusableEntry !== undefined &&
+        currentFile !== undefined &&
+        Buffer.from(currentFile.data).equals(file.data)
+      ) {
+        entries.push(reusableEntry);
+        continue;
+      }
       entries.push({
         mode: defaultGitBlobMode,
         objectId: await this.#writeGitBlob(file.data),
