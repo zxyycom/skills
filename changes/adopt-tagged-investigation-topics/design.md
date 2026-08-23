@@ -32,7 +32,9 @@
 
 ## Decisions
 
-当前责任拆分如下；“暂定”项必须在进入 Plan 前由开放问题收敛：
+### Intended Change
+
+本 Change 为实现 Outcome 采用以下核心调整；“暂定”项必须在进入 Plan 前由开放问题收敛：
 
 | 责任 | 当前设计方向 | 判断状态 |
 | --- | --- | --- |
@@ -40,14 +42,19 @@
 | 文件命名 | basename 服从 779 个目标资源文件的合并集合唯一性门禁 | 已确认方向，规范化规则待定 |
 | 分类 | tags 写入 topic 权威元数据并允许多值，category 不再从目录隐式派生 | 已确认方向，字段与迁移映射待定 |
 | 存放与定位 | topic 直接平铺在 `docs/investigations/`，索引保存稳定 Topic ID 与 `sourcePath` | 已确认方向，发现白名单待定 |
-| 选择性暂存 | `stage-index` 继续选择 topic，tag 变化随所选 topic 进入目标，不暂存分类容器 | 已确认方向 |
-| 附件 | `_resources/` 及其聚合 metadata 保持独立，不进入 topic 平铺集合与文件名门禁 | 已确认边界 |
 | 生命周期 | Investigation Report 不增加活动/归档状态或归档命令 | 已确认边界 |
 
 - **索引继续是派生检索入口。** 每个条目投影稳定 Topic ID、`sourcePath`、tags、status、latest 和现有全文字段；平铺不改成线性扫描。
 - **查询从 category 迁移到 tag。** CLI 和 Skill 文档使用共同的 tag token 和组合语义，同时保留 status、latest 与全文条件；迁移完成后只有 topic 元数据是分类事实来源。
-- **附件链接随路径迁移验证。** 迁移器或一次性迁移任务重写因目录深度变化而失效的相对链接，并验证每个目标存在，但不改变附件 ID 或资源 owner。
-- **旧 category 只作为迁移输入。** 是否把它转换为初始 tag 需要逐项审阅，不能长期同时从目录和元数据派生分类。
+
+### Resulting Impacts
+
+- **稳定 ID 需替换路径 ID 消费面。** 现有 index key、CLI 输入、选择性暂存参数与 topic 文档链接需从 `<category-id>/<semantic-slug>.md` 迁移到 basename Topic ID，并在迁移后重建派生索引。
+- **平铺需收紧根目录发现。** `docs/investigations/` 的发现规则需显式区分 topic、派生索引、说明文件与 `_resources/`；白名单仍待 Plan 前确定。
+- **附件引用需随路径深度变化迁移。** `_resources/` 及其聚合 metadata 保持独立，不进入 topic 平铺集合与文件名门禁；受影响的相对链接必须重写并验证目标存在。
+- **分类事实迁移后不再保留双写。** 旧 category 只作为迁移输入；是否转成初始 tag 需逐项审阅当前 12 个 topic，迁移后不能继续从目录和元数据同时派生分类。
+- **选择性暂存仍按 topic 完成。** `stage-index` 继续选择 topic，tag 变化随所选 topic 进入目标，不暂存已退出权威结构的分类容器。
+- **共享门禁需与其他两个 Change 协调启用。** 全局文件名唯一性检查不能在 Decision Records 或 Test Evidence 尚未迁移时把当前合法布局当成最终结构。
 
 ## Risks / Trade-offs
 

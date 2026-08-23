@@ -31,7 +31,9 @@
 
 ## Decisions
 
-### Tags authority and persisted shape
+### Intended Change
+
+#### Tags authority and persisted shape
 
 `TaskContent` 增加可选字段：
 
@@ -60,9 +62,7 @@ Tags 的唯一可写事实位于对应 task entry 的 `content.tags`。不存在
 
 每个 task 最多保存 5 个 tags。持久化 Schema、create、update-tags、CLI help 和边界测试使用同一上限；第 6 个 tag 使整个请求失败，不截断或部分写入。
 
-`schemaVersion` 保持 `2`：新字段可选，新 reader 能直接读取全部既有 index，不需要迁移或双 Schema 读取。CLI 公共协议做 minor bump，task-graph skill metadata version 在集成基线上递增；不硬编码尚未集成分支上的具体版本号，也不为旧版分发 CLI 建立兼容层。
-
-### Create and update-tags mutation
+#### Create and update-tags mutation
 
 Persisted tags 属于 content，因此 create 的程序化输入也把 tags 放在 `content` 中；`update-content` 仍只接收既有描述字段，避免“省略 tags 是保留还是清空”的双重语义。新增一个只供 create 使用的扩展类型：
 
@@ -103,11 +103,9 @@ await service.apply({
 
 这与 update-content、update-control 和 relation mutation 使用同一 batch/CAS 契约，避免第二种程序化写入表面。Operation 名称只承诺“更新后的完整集合”，不使用容易被理解成增量添加的 `set`、`add` 或 `remove`；本 change 不增加 tags patch API。CLI 的成功数据继续按既有 `task update-*` 约定返回 `{ taskId }`。
 
-Engine 先验证 task 存在和全部 tags，再原子替换 canonical tags。该 operation 允许 task 自身 execution phase 为 `idle`、`running`、`succeeded`、`failed` 或 `cancelled`；只修改 `content.tags` 与 `state.timestamps.updatedAt`，不读取或修改 lease，也不改变其他 content、control、execution 或 relations。`updatedAt` 表示 entry 最近一次持久修改，不能被解释成完成时间；result 的版本锚点继续服从 task-000040 的 owner。
+Engine 先验证 task 存在和全部 tags，再原子替换 canonical tags。该 operation 允许 task 自身 execution phase 为 `idle`、`running`、`succeeded`、`failed` 或 `cancelled`；它不读取 lease，也不改变 control、execution 或 relations。
 
 提交与当前 canonical tags 相同的完整集合仍按现有 apply mutation 语义成功：它更新 `updatedAt` 并消费一个 index revision。实现不为 tags 单独引入 no-op 检测或不同的 revision 规则。
-
-`update-content` 在构造新的描述内容时显式带回旧 `content.tags`，并继续服从原有 phase 限制。它不接受 tags 输入，也不能清空或替换 tags。
 
 CLI 契约为：
 
@@ -119,7 +117,7 @@ task update-tags <task-id> --clear-tags --expected-revision <n>
 
 Create 与 update-tags 中的 `--tag` 可多次出现，以构造多个不同 tag。Update-tags 的 `--tag` 和 `--clear-tags` 互斥，且必须提供其中一种；重复值是参数错误。SDK 通过 `tags: []` 清空，不增加单独 clear 方法。
 
-### Find query contract
+#### Find query contract
 
 公开查询类型固定为：
 
@@ -161,7 +159,7 @@ task find [--id <task-id>] [--title <text>] [--tag <tag>] [--text <text>] [--inc
 
 Find 的 `--tag` 与 update-tags 的 `--tag` 有不同基数：前者至多一次，后者可以用多个不同值构造完整 tags 数组。CLI help 必须分别表达该约束，不能通过同一个模糊的共享参数说明掩盖差异。
 
-### Default visibility, output, and ordering
+#### Default visibility, output, and ordering
 
 Find 默认只扫描 task 自身 `state.execution.phase` 为 `idle`、`running` 或 `failed` 的 entry。`failed` 是默认结果中唯一保留的终态，因为现有 `retry` 可以让它重新进入可领取流程。Expired lease 对应的 task 仍具有 `running` phase，因此自然包含在默认结果中。
 
@@ -175,9 +173,21 @@ Title 允许重名，因此 find 始终返回数组。零个 match 是成功空�
 
 CLI 使用标准 task-graph JSON envelope，不增加专用文本 renderer；envelope 中的 `revision` 是本次读取快照，`data` 与 SDK 的 `TaskFindMatch[]` 相同。Find 不提供分页、limit、sort 或 cursor。
 
-### Runtime and owner boundaries
+#### Direct index scan
 
 `findTasks` 对 `TaskGraphStore.read()` 返回的同一 index 快照做一次 O(N) 扫描、过滤与排序。它不读取派生文件、不写缓存、不调用 mutation runtime，也不需要先计算完整 task projection。
+
+### Resulting Impacts
+
+#### Existing content, lifecycle, and compatibility
+
+`update-task-tags` 只修改 `content.tags` 与 `state.timestamps.updatedAt`，不改变其他 content。`updatedAt` 表示 entry 最近一次持久修改，不能被解释成完成时间；result 的版本锚点继续服从 task-000040 的 owner。
+
+`update-content` 在构造新的描述内容时显式带回旧 `content.tags`，并继续服从原有 phase 限制。它不接受 tags 输入，也不能清空或替换 tags。
+
+`schemaVersion` 保持 `2`：新字段可选，新 reader 能直接读取全部既有 index，不需要迁移或双 Schema 读取。CLI 公共协议做 minor bump，task-graph skill metadata version 在集成基线上递增；不硬编码尚未集成分支上的具体版本号，也不为旧版分发 CLI 建立兼容层。
+
+#### Existing runtime and owner boundaries
 
 `update-task-tags` 属于工作区 mutation，继续通过 `TaskGraphService.apply`、store native lock、expected revision、canonical candidate 和原子写入；CLI command help 标记 `requiresMutationRuntime: true`。`task create --tag` 继续通过同一 batch apply 边界执行。
 

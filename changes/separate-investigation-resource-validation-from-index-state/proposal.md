@@ -20,13 +20,19 @@
 
 ## Scope
 
-纳入范围：
+### Intended Change
 
-- 调整 `investigation-report` 的资源 ID、引用校验、warnings、索引 metadata、source revision 以及 `check`、`sync-index`、`list`、`stage-index` 的行为边界。
-- 同步修改行为 owner、TypeScript 源码与声明源、公开结果类型、生成的分发 CLI、声明与 JSON Schema、当前调查索引、行为测试与测试证据账本。
-- 实施完成并验证后，分别对齐已经建立的四条长期决策。
+- 把调查资源的 owner 与完整性从主题索引集合状态中拆出：资源 ID 的前两段确定 owner 主题，报告引用负责验证安全性、存在性、owner 参与引用与版本控制可见性。
+- 在资源校验中区分被引用资源与完全未引用资源：前者的完整性问题阻塞维护，后者及其可归因问题只产生 warning，资源检查无法完成时仍失败。
+- 让主题索引只投影 Markdown 报告事实及其 `resourceReferences`；移除资源清单、SHA-256 和资源字节 revision。
 
-不纳入范围：
+### Resulting Impacts
+
+- `InvestigationReportCheckResult` 与 `InvestigationIndexSyncResult` 需要分别返回确定性 `errors` 和 `warnings`；`check` 与 `sync-index` 展示资源诊断，`list` 只核对主题 revision，`stage-index` 继续仅暂存选中索引条目且不再因无关资源变化拒绝它。
+- 调查领域 `definitionVersion` 必须从 `4` 提升到 `5` 并整体重建首份新索引；不为旧索引或旧资源布局保留兼容读取、转换器或跨 definition version 的条目组合。
+- 行为 owner、TypeScript 源码与声明源、公开类型、生成 CLI/声明/Schema、当前调查索引、行为测试与测试证据账本都需同步；四条长期决策只在对应方向实施并验证后对齐。
+
+### 非目标
 
 - 不增加资源 manifest、共享资源注册表、反向引用索引、独立资源 entry 或自动 owner 转移。
 - 不让 `stage-index` 自动选择、暂存或提交主题 Markdown 与资源文件。

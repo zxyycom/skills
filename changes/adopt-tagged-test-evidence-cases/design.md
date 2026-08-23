@@ -33,7 +33,9 @@
 
 ## Decisions
 
-当前责任拆分如下；“暂定”项必须在进入 Plan 前由开放问题收敛：
+### Intended Change
+
+本 Change 为实现 Outcome 采用以下核心调整；“暂定”项必须在进入 Plan 前由开放问题收敛：
 
 | 责任 | 当前设计方向 | 判断状态 |
 | --- | --- | --- |
@@ -41,14 +43,19 @@
 | 文件命名 | basename 与 Case ID 解耦，并服从 779 个目标资源文件的合并集合唯一性门禁 | 已确认方向，规范化与冲突新名称待定 |
 | 分类 | tags 写入每个 case 的权威元数据，topic catalog 与 `metadata.topics` 退出权威结构 | 已确认方向，字段与迁移映射待定 |
 | 存放与定位 | case 平铺在一个不表达分类的固定源文件区域，索引保存 Case ID 与 `sourcePath` | 已确认方向，根目录或固定容器待定 |
-| 选择性暂存 | 继续按 Case ID 构造完整目标索引，不单独暂存 tag catalog | 已确认方向 |
 | 专属语义 | 原生测试入口、`proves`、账本覆盖和单 case 文件校验保持不变 | 已确认边界 |
 | 生命周期 | Test Evidence 不增加活动/归档状态或归档命令 | 已确认边界 |
 
 - **查询由 topic 迁移到 tag。** list、find 和 check 等入口使用共同的 tag token 与组合语义，同时保留 Case ID、entry、`proves`、文件路径和全文等专属条件。
-- **重命名只迁移文件定位。** 已知冲突通过重命名其中一个文件解决，Case ID 和测试入口保持不变；所有路径引用、索引 `sourcePath` 和文档链接随迁移更新。
-- **全局门禁是本组三个 Change 的最终验收。** 门禁只扫描共同工作定义中的 779 个权威 Markdown，并为每个冲突报告全部路径；它不要求统一资源索引。
-- **topic 只作为迁移输入。** 现有 topic 是否转换成初始 tag 需要按 case 内容和 topic 描述审阅，迁移完成后不保留 catalog 与 case tags 两个分类事实来源。
+
+### Resulting Impacts
+
+- **已知同名文件需在平铺前解决。** 两个 `stage-index-applies-selected-additions-deletions-and-explicit-renames.md` 中必须重命名一个；这只迁移文件定位，Case ID 和测试入口保持不变，路径引用、索引 `sourcePath` 与文档链接随之更新。
+- **493 个 case 的平铺迁移需完整对账。** 迁移前后的 case 数量、Case ID、原生测试入口与 `proves` 关系必须一致，且派生索引不能丢失、重复或错误重绑 case。
+- **选择性暂存需保留 Case ID 边界。** `stage-index` 继续按 Case ID 构造完整目标索引，tag 变化随所选 case 进入目标，不单独暂存 tag catalog。
+- **topic 分类需在迁移后退出权威结构。** 现有 topic 只作为迁移输入；是否转成初始 tag 需按 case 内容和 topic 描述审阅，有价值的 topic 描述需转入现有 owner，不能长期保留 catalog 与 case tags 两个分类事实来源。
+- **平铺边界需固定发现与导航。** 根目录或固定非分类容器仍待 Plan 前确定；相应发现规则和诊断必须明确区分权威 case 与派生或说明文件。
+- **全局门禁是本组三个 Change 的最终验收。** 门禁只扫描共同工作定义中的 779 个权威 Markdown，并为每个冲突报告全部路径；它不要求统一资源索引，只能在三个集合的权威文件边界与迁移结果都明确后启用。
 
 ## Risks / Trade-offs
 

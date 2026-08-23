@@ -14,19 +14,26 @@ task-graph 形成单向调用面：领域操作与类型由 `tools/task-graph/sr
 
 ## Scope
 
-纳入范围：
+### Intended Change
 
-- 明确仓库级“领域操作层 → CLI 适配 / 直接 import”责任边界，并纠正“生成声明天然等于稳定 SDK”的工具链表述。
+本 Change 为 Outcome 采用的核心调整是把 task-graph 的领域直接入口、CLI 适配入口与分发组合入口拆成单向依赖，同时保持同一领域实现和既有根模块外部行为：
+
 - 为 task-graph 增加独立的分发组合入口；让 `cli.ts` 不再作为领域公开导出的 owner，让 `index.ts` 保持直接操作入口。
-- 调整 task-graph 构建与生成声明闭包，使运行时根模块继续同时提供 CLI runner 和既有领域导出，但声明来源与源码责任边界一致。
-- 更新 task-graph 行为 owner、人类说明、长期决策、生成产物、测试与测试证据。
 
-不纳入范围：
+该入口调整继续受以下范围边界约束：
 
 - 不在本 Change 中迁移 decision-records、investigation-report、skill-validator、test-evidence、skill-updater 或 change-plan 的程序化入口与声明来源。
 - 不新增逐命令 SDK wrapper、service factory、alias、registry、独立包、独立版本或兼容性承诺。
 - 不改变 task index、领域请求、状态转移、错误码、CLI 命令、CLI 输出或现有根模块运行时导出集合。
 - 不实施当前其他 task-graph Change 的显式 ID、tag/find、关系继承、纠错或重开能力。
+
+### Resulting Impacts
+
+入口 owner 从 `cli.ts` 转移到单向组合结构后，生成链、仓库说明和兼容证据必须随之对齐；这些是核心入口调整触发的必要影响，不是另一套 SDK Outcome：
+
+- 明确仓库级“领域操作层 → CLI 适配 / 直接 import”责任边界，并纠正“生成声明天然等于稳定 SDK”的工具链表述。
+- 调整 task-graph 构建与生成声明闭包，使运行时根模块继续同时提供 CLI runner 和既有领域导出，但声明来源与源码责任边界一致。
+- 更新 task-graph 行为 owner、人类说明、长期决策、生成产物、测试与测试证据。
 
 ## Success Criteria
 

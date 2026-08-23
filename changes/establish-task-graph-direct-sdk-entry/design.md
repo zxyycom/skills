@@ -47,7 +47,11 @@ CLI 与领域的责任按输入含义区分。重复 option、缺失 operand、�
 
 ## Decisions
 
-### 1. 三个源码入口单向组合
+### Intended Change
+
+为实现直接 import 与 CLI 共享同一领域事实源，本 Change 采用三个源码入口的单向组合，并明确直接领域结果与 CLI 表示层的边界：
+
+#### 1. 三个源码入口单向组合
 
 - `tools/task-graph/src/index.ts` 是直接领域入口，继续组合现有 Service、纯领域操作、projection、错误、类型与 parse/serialize 导出；它不导入 CLI。
 - `tools/task-graph/src/cli.ts` 是 CLI adapter，只公开 `runTaskGraphCli` 与其调用 options，不再 `export *` 领域入口。CLI 优先从 `index.ts` 取得公开领域能力；仅服务 runtime 注入、输出或测试的 internal helper 可以由 CLI 直接从内部模块导入，但不会进入分发根公开面。
@@ -55,7 +59,7 @@ CLI 与领域的责任按输入含义区分。重复 option、缺失 operand、�
 
 该结构保留一个可执行、可导入的 `task-graph.mjs`。`entry.ts` 是组合 owner，`index.ts` 是领域导出 owner，`cli.ts` 是适配 owner；三者都不得复制领域校验或状态转移。
 
-### 2. 领域结果与 CLI 输出保持两种边界
+#### 2. 领域结果与 CLI 输出保持两种边界
 
 直接调用继续取得 `TaskGraphService` 的结构化成功值，并以 `TaskGraphError` 接收可预期领域失败；它不模拟 argv，不返回退出码，不包裹 CLI `TaskGraphResult` envelope，也不运行 CLI serializer 或 renderer。CLI 将 argv 映射为同一 Service/operation 输入，再把成功或 `TaskGraphError` 映射为现有 envelope、文本和退出码。
 
@@ -65,7 +69,11 @@ CLI 与领域的责任按输入含义区分。重复 option、缺失 operand、�
 2. Mutation：从两个内容相同且相互独立的 workspace 出发，以相同 request 和固定 clock 分别运行直接 `apply()` 与 CLI `apply --json`，比较领域结果和规范化持久化索引；测试不让两次写入共享 revision 或锁状态。
 3. 领域失败：同一个非法领域值由直接调用抛出既有 `TaskGraphError.code`，由 CLI 映射成相同 error code；argv 语法错误不伪装成直接调用协议。
 
-### 3. 声明从组合入口的实现闭包生成
+### Resulting Impacts
+
+组合入口取代 `cli.ts` 成为分发根后，声明生成、兼容基线、版本说明与长期决策必须同步改变，其他工具也必须留在各自 owner 中独立处理。以下决定处理这些由入口调整触发的影响，不建立第二套 SDK 契约：
+
+#### 3. 声明从组合入口的实现闭包生成
 
 `scripts/build/task-graph.ts` 改以 `entry.ts` 构建运行时 bundle，并由 TypeScript 编译器从实际组合入口发出可达声明闭包。根 `.d.mts`、`cli.d.mts`、`index.d.mts` 和依赖声明仍是生成产物；生成器不得维护字段、方法或类型的手写 SDK 清单。测试分别核对：
 
@@ -75,13 +83,13 @@ CLI 与领域的责任按输入含义区分。重复 option、缺失 operand、�
 
 现有 `task-graph-sdk/` 目录名可以保留为生成声明树的位置，避免无行为价值的文件迁移；该目录不代表存在 SDK 实现层。
 
-### 4. 兼容性、版本与长期 owner
+#### 4. 兼容性、版本与长期 owner
 
 本 Change 不改变 CLI protocol version，因为命令、参数、输出、错误码和根运行时 export key 都保持不变。分发源码、声明和说明发生变化时按仓库规则提升 task-graph skill 独立版本；skill 内容版本与 CLI protocol version 是两个 owner，不互相代替。`docs/coding-style.md` 与 `docs/tooling.md` 记录通用边界：声明只提供当前实现的类型化直接调用，除非行为 owner 另行承诺，否则不自动建立独立稳定性或版本。
 
 实施时创建一条 task-graph 后继候选决策，以“修订”关系指向 `derive-sdk-declarations-from-runtime-source.md`；由 decision-records 的统一关系事务建立新记录并归档前序记录，禁止直接改写已建立记录。后继必须自包含地说明领域入口、CLI adapter、分发组合、机械声明和非稳定性边界，不能只记录文件移动。候选 ID/标题按 decision-records 命名规则在实施时生成，不由本 Change 另造第二套标识规则。
 
-### 5. 其他工具按 owner 分批处理
+#### 5. 其他工具按 owner 分批处理
 
 本 Change 不建立全仓 SDK registry 或统一迁移脚本。后续只有在某个工具出现真实直接调用需求或当前声明已经妨碍维护时，才在该工具 owner 下建立独立 Change；届时复用相同责任边界，但不复制 task-graph 的 Service 形态。
 

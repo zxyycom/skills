@@ -15,14 +15,18 @@ Change Plan 只接受规范 Draft 与 Plan metadata，当前仓库中的旧 acti
 
 ## Scope
 
-纳入范围：
+### Intended Change
 
-- 一次性迁移 `check-all-change-plans` 与 `establish-task-correction-and-successor-evolution` 的 metadata。
-- 删除兼容 schema、reader、类型、null-base 距离分支及其查询和 lifecycle 行为。
-- 让旧 metadata 在 `list`、`show`、`check`、`check-all`、`plan` 与 `archive` 中使用现有 invalid metadata 诊断和失败通道。
-- 修订 governing decision，同步 change-plan 的 skill 入口、固定契约、人类介绍、生成产物、测试及测试证据。
+- 将规范 parser 作为 active metadata 读取、检查和写入的唯一 runtime schema，只接受 Draft 与带非空 `baseCommit` 的 Plan。
+- 从当前 active lifecycle 契约移除 `implementation`、`shelved`、`shelf` 和 null-base Plan；不为这些形状保留投影、自动迁移、命令别名或版本协商。
 
-非目标：
+### Resulting Impacts
+
+- 严格 schema 启用前，当前仓库中的 `check-all-change-plans` 与 `establish-task-correction-and-successor-evolution` 必须一次性改写为规范 Plan，并保留各自既有 `baseCommit`。
+- 任何未迁移的旧 metadata 都使用普通 invalid metadata 路径：`list` 仍可发现目录，`show`、`check`、`check-all`、`plan` 与 `archive` 按既有诊断和失败通道拒绝它。
+- 实现需删除兼容 schema、reader、类型、canonical 投影与 null-base 距离分支，并同步 governing decision、change-plan 行为 owner、生成 CLI、测试及测试证据。
+
+### 非目标
 
 - 不增加迁移命令、schema version、兼容开关或弃用期。
 - 不改写 archived Change 的历史 metadata，也不让 checker 开始解析它。

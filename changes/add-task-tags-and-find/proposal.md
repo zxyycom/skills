@@ -21,18 +21,22 @@ Tags 只解决人工分类和任务发现。它们必须在 task entry 被移除
 
 ## Scope
 
-纳入范围：
+### Intended Change
 
 - `content.tags?: string[]` 的持久化 Schema、规范化、最多 5 个 tags，以及单个 tag 的长度与字符限制。
 - 创建任务时写入 tags，以及基于 expected revision 的全量 `update-tags` / clear mutation。
-- Tags 在全部 execution phase 的维护边界、`updatedAt` 语义，以及 `update-content` 的 tags 保留行为。
 - `TaskGraphService.findTasks`、create content tags、`update-task-tags` apply operation 和对应公开类型。
 - `task find`、`task update-tags`、`task create --tag` 的 help、argv 校验和结构化输出。
 - 最终 task ID、title、tag、描述文本的固定匹配语义，组合交集、默认完成态过滤和固定排序。
-- Task-graph 领域说明、长期决策、协议版本、skill 版本、生成 bundle、SDK 声明与 JSON Schema。
-- 源码、CLI、SDK、分发产物和兼容性测试，以及每个新增或修改测试入口的 test-evidence case。
 
-不纳入范围：
+### Resulting Impacts
+
+- Tags 必须在全部 execution phase 中可维护，但只能更新 tags 与 entry `updatedAt`；既有 `update-content` 则必须保留 tags，避免新分类元数据改变 execution、lease、result 或其他 content 语义。
+- 新的持久化字段与公开查询要在不含 tags 的既有 index 上保持可读，并同步 task-graph 协议与 skill 版本、生成 bundle、SDK 声明和 JSON Schema。
+- Task-graph 领域说明与长期决策需记录 tags 与 find 的责任边界；源码、CLI、SDK、分发产物和兼容行为需保持一致。
+- 每个新增或修改的最小原生测试入口都需有唯一 test-evidence case，且相关派生索引必须同步。
+
+### 非目标
 
 - 修改 `task list` renderer 或公开 `TaskListItem`，或把 find 结果扩展成完整 task entry 批量接口。
 - Tag 注册表、层级、别名、描述、颜色、继承、自动推断、全局治理或调度语义。

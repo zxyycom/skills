@@ -28,7 +28,11 @@
 
 ## Decisions
 
-### Authority map
+### Intended Change
+
+本 Change 采用同一组相互依赖的核心调整：资源完整性由 owner 路径与报告引用校验，主题索引只承载主题事实与报告声明的资源 ID 关系。
+
+#### 权威关系
 
 | 独立判断 | 长期 owner | 本 Change 的实施责任 |
 | --- | --- | --- |
@@ -39,7 +43,7 @@
 
 前三条决策是原资源总决策的完整拆分后继；第四条只修订原 `stage-index` 决策。版本控制可见性和资源名称规则继续由现有独立决策承接，不复制进这四条 owner。
 
-### Resource ownership and validation
+#### 资源 owner 与校验
 
 资源 ID 使用 `<category-id>/<semantic-slug>/<resource-subpath>`，并映射到 owner topic ID `<category-id>/<semantic-slug>.md`。`resource-subpath` 至少包含一个文件名，owner 根之后继续允许任意层合法嵌套。报告链接语法保持 `../_resources/<resource-id>`。
 
@@ -57,13 +61,19 @@
 4. 资源检查无法完成时命令失败，因为工具尚未得到足以判断哪些资源被引用或未引用的完整信息；失败原因是检查操作未完成，不是未引用资源需要阻塞。
 5. scoped check 只解析命中主题，校验它们声明的资源 ID 结构和直接目标文件，不额外读取未命中的 owner 主题，因此不证明跨主题 owner 锚点或全局未引用资源状态。默认全量 check 与 `sync-index` 才建立完整 owner 引用关系。
 
-`InvestigationReportCheckResult` 与 `InvestigationIndexSyncResult` 都增加 `warnings: string[]`，并让 errors 与 warnings 分别去重排序。CLI 在成功或失败路径都展示已有 warnings；warnings 使用 stderr，不改变只有 errors 决定的退出状态，只有 warnings 时仍在 stdout 输出 check 或 sync 成功结果。Warnings 不进入索引、source revision、`list` 结果或 staging 状态。
-
-### Index and command boundaries
+#### 主题索引来源边界
 
 主题 state 保留 `resourceReferences`，因此报告链接变化仍改变对应 entry 与 entry source fingerprint。调查 metadata 改为拒绝额外字段的严格空对象；`sourceRevision.metadata` 只稳定指纹化该空领域 metadata，不读取、摘要或枚举 `_resources/`。通用 `schemaVersion` 保持 `3`。
 
 完整维护路径先执行领域校验，再把主题 Markdown 单独构造成索引 snapshot；写入前的通用 source revision 复核也只重读主题 Markdown。资源在校验完成后的变化不再构成索引并发漂移，调用方仍通过完成同步后的默认全量 check 核对当下资源状态。
+
+### Resulting Impacts
+
+下列公开结果、命令、版本与交付处理都由资源校验与索引状态的新边界引起。
+
+#### 结果与命令边界
+
+`InvestigationReportCheckResult` 与 `InvestigationIndexSyncResult` 都增加 `warnings: string[]`，并让 errors 与 warnings 分别去重排序。CLI 在成功或失败路径都展示已有 warnings；warnings 使用 stderr，不改变只有 errors 决定的退出状态，只有 warnings 时仍在 stdout 输出 check 或 sync 成功结果。Warnings 不进入索引、source revision、`list` 结果或 staging 状态。
 
 命令责任调整为：
 
@@ -74,7 +84,7 @@
 
 同一调查索引已有 pending、非法或缺失 topic ID、主题重命名选择、版本控制失败以及目标索引之外 pending 保留等既有 staging 边界不变。
 
-### Compatibility and delivery
+#### 兼容与交付
 
 本 Change 交付后的索引结构移除 `metadata.resources`，将调查领域 `definitionVersion` 从 `4` 提升到 `5`，并保持通用 `schemaVersion: 3`。实施前的 version 4 索引由当前 `sync-index` 重建，不增加双读、转换器或旧 metadata 容忍分支。Version 4 到 version 5 是集合定义升级，首次交付整体暂存重建后的索引；选中条目组合只要求在两侧均为 version 5 的正常维护中跨资源变化成立。不符合 owner 结构的外部工作区资源需要显式移动并更新报告链接；本仓库现有资源无需迁移。
 

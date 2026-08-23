@@ -18,15 +18,14 @@
 
 ## Scope
 
-纳入范围：
+### Intended Change
+
+本 Change 为 Outcome 采用的核心调整是建立便携的显式 ID 契约，并把可选请求、占用回退与最终实际 ID 作为同一个创建语义交付：
 
 - 定义自动 ID、显式 ID、持久 task ID 和 apply reference 的统一校验边界。
 - 为 create operation 和 `task create` CLI 增加可选显式 ID，并实现占用回退、自动分配、最终 ID 返回和事务回滚语义。
-- 调整 `nextTaskId` 语义校验、关系字典、staging、规范序列化和全部 task ID 消费入口。
-- 同步 task-graph 行为 owner、人类说明、公开 CLI 版本、生成 JSON Schema、分发 bundle、SDK 声明和 skill 独立版本，并新增承接身份分配方向的长期决策。
-- 新增或更新原生测试，并按 test-evidence-review 契约维护一入口一 case 的 task-graph 测试证据。
 
-非目标：
+该能力继续受以下范围边界约束：
 
 - 不重命名既有 task，不增加 task ID rename 或迁移命令。
 - 不从 title、alias 或其他内容推导 ID，也不自动规范化、改写大小写或追加冲突后缀。
@@ -34,6 +33,14 @@
 - 不改变 task result、succeeded 重开或其他 task 生命周期语义。
 - 不为已删除的显式 ID 保存 tombstone、保留集合或历史映射，也不让新 task 继承已删除 task 的内容、关系、状态或结果。
 - 不把 task-000037 或 task-000040 的独立目标并入本 Change。
+
+### Resulting Impacts
+
+持久 task ID 从单一自动格式扩大为自动与显式 ID 的联合后，所有依赖该身份域的既有边界都必须消费同一事实源，因此还需处理以下连锁影响：
+
+- 调整 `nextTaskId` 语义校验、关系字典、staging、规范序列化和全部 task ID 消费入口，避免形成只能创建却不能完成后续生命周期的半能力。
+- 同步 task-graph 行为 owner、人类说明、公开 CLI 版本、生成 JSON Schema、分发 bundle、SDK 声明和 skill 独立版本，并新增承接身份分配方向的长期决策。
+- 新增或更新原生测试，并按 test-evidence-review 契约维护一入口一 case 的 task-graph 测试证据。
 
 ## Success Criteria
 

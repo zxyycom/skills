@@ -44,17 +44,16 @@
 
 以下范围只描述实现搁置方案可能涉及的维护面，不授权修改这些 owner。
 
-旧方案纳入范围：
+### Intended Change
+
+旧方案为 Outcome 采用的核心调整是保留现有非终态 mutation 与 lease 路由，只为写入时即错误的 succeeded/cancelled 事实增加窄而显式的终态纠正，并让正确完成后的新增目标继续由独立 task 承接：
 
 - 明确 candidate/queued/waiting/paused control 与 idle/running/failed/succeeded/cancelled execution 的现有修改矩阵，以及 content、control、parent、dependency、exclusion、lease 和 result 各自的 owner。
 - 在 task state 中增加可选、非空、按发生顺序保存的 terminal correction evidence，并保持没有纠正记录的既有 Schema v2 index 可直接读取。
 - 为源码 engine、service、公开导出与 CLI 增加 `correct`，固定 expected revision、reason、终态来源、`idle + paused` 目标状态、result 清除与返回结果。
-- 在同一事务内重算有效 dependents、祖先、父子门禁、依赖、排斥和完整 Schema/graph 语义，拒绝会让已执行上下游继续依赖错误事实的纠正。
 - 保持 retry 只处理 failed、release 只处理当前 running lease、cancel 只表达取消、complete 只建立当前 succeeded result；不让这些动作互相替代。
-- 同步 task-graph 行为 owner、人类说明、长期决策、CLI 协议版本、skill 独立版本、生成 bundle、source map、SDK 声明与 task index JSON Schema。
-- 新增或更新原生测试，并按 test-evidence-review 契约维护一入口一 case；同步受新能力修订的既有“终态不可 reopen”测试证据。
 
-旧方案非目标：
+上述调整继续受以下范围边界约束：
 
 - 不增加通用 task patch、任意 state rewrite、force lease takeover、批量 cascade correction 或绕过 expected revision 的管理员入口。
 - 不允许 succeeded result 在保持 succeeded phase 时原位修改，也不把 `correct` 用作摘要、reference 或提交 SHA 的 metadata 校正命令。
@@ -62,6 +61,14 @@
 - 不改变 failed retry、过期 lease recover claim、父任务完成条件、任务删除门禁、`index stage` 与 Git commit 的职责分工。
 - 不为正确完成后的新需求增加 successor、supersedes、replaces 或 evolution 拓扑边，不自动重定向既有 dependency。
 - 不回溯清理或改写历史 task result，也不修改当前中央 task index 作为本 Change 的计划产物。
+
+### Resulting Impacts
+
+新增终态纠正会撤销已参与父子与 dependency 投影的终态事实，因此实现该调整还必须处理以下连锁影响；这些事项不构成独立 Outcome：
+
+- 在同一事务内重算有效 dependents、祖先、父子门禁、依赖、排斥和完整 Schema/graph 语义，拒绝会让已执行上下游继续依赖错误事实的纠正。
+- 同步 task-graph 行为 owner、人类说明、长期决策、CLI 协议版本、skill 独立版本、生成 bundle、source map、SDK 声明与 task index JSON Schema，使新增状态与命令不形成源码、分发或说明漂移。
+- 新增或更新原生测试，并按 test-evidence-review 契约维护一入口一 case；同步受新能力修订的既有“终态不可 reopen”测试证据。
 
 ## Success Criteria
 
