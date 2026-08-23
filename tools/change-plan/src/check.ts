@@ -1,6 +1,7 @@
 import type { Stats } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { changePlanStatusFromDirectory } from "./change-directory.ts";
 import { inspectPlanVersionControl } from "./git-distance.ts";
 import { validateChangePlanArtifact } from "./markdown.ts";
 import { ChangePlanMetadataError, readChangePlanMetadata } from "./metadata.ts";
@@ -158,10 +159,6 @@ function sortDiagnostics(
       left.code.localeCompare(right.code) ||
       left.message.localeCompare(right.message)
   );
-}
-
-function isArchivedChangeDirectory(changeDirectory: string): boolean {
-  return path.basename(path.dirname(changeDirectory)) === "archive";
 }
 
 function addChangeNameDiagnostic(
@@ -366,6 +363,22 @@ async function checkChangePlanDirectoryWithOptions(
 ): Promise<ChangePlanCheckResult> {
   const changeDirectory = path.resolve(changeDirectoryInput);
   const diagnostics: ChangePlanDiagnostic[] = [];
+  if (changePlanStatusFromDirectory(changeDirectory) === "archived") {
+    diagnostics.push(
+      directoryDiagnostic(
+        "archived-change-not-checkable",
+        "archived changes are historical records and cannot be checked; use show to read the archived artifacts"
+      )
+    );
+    return checkResult(
+      changeDirectory,
+      diagnostics,
+      null,
+      null,
+      null,
+      emptyArtifactProgress()
+    );
+  }
   addChangeNameDiagnostic(changeDirectory, diagnostics);
   if (!(await inspectChangeDirectory(changeDirectory, diagnostics))) {
     return checkResult(
@@ -378,25 +391,16 @@ async function checkChangePlanDirectoryWithOptions(
     );
   }
 
-  const archived = isArchivedChangeDirectory(changeDirectory);
-  const activeMetadata: ChangePlanMetadata | null = archived
-    ? null
-    : await readActiveMetadata(changeDirectory, diagnostics);
-  const stage = archived ? null : (activeMetadata?.stage ?? null);
-  const artifactStage = archived
-    ? "plan"
-    : (options.artifactStage ?? stage ?? undefined);
+  const activeMetadata = await readActiveMetadata(changeDirectory, diagnostics);
+  const stage = activeMetadata?.stage ?? null;
+  const artifactStage = options.artifactStage ?? stage ?? undefined;
   const progress =
     artifactStage === undefined
       ? emptyArtifactProgress()
       : await validateArtifacts(changeDirectory, artifactStage, diagnostics);
 
   let distance: GitDistanceEvidence | null = null;
-  if (
-    options.inspectGitDistance &&
-    !archived &&
-    activeMetadata?.stage === "plan"
-  ) {
+  if (options.inspectGitDistance && activeMetadata?.stage === "plan") {
     try {
       const inspection = await inspectPlanVersionControl(
         changeDirectory,

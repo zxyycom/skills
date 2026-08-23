@@ -13,8 +13,8 @@ Change 使用两个互不替代的概念：
 | status | `active`、`archived` | Change 所在目录。 |
 | stage | `draft`、`plan` | Active Change 的规范 `.change-plan.json`。 |
 
-标准生命周期是 `active/draft -> active/plan -> archived`。Archived Change 的 stage 为 `null`；
-Readiness、Implementation 和 Verification 的 checkbox 只表达 Plan 内任务进度。
+标准生命周期是 `active/draft -> active/plan -> archived`。Archived Change 没有 stage，也不再是
+checker 的输入；Readiness、Implementation 和 Verification 的 checkbox 只表达 active Plan 内任务进度。
 
 ## Change 目录与 metadata
 
@@ -32,7 +32,7 @@ Readiness、Implementation 和 Verification 的 checkbox 只表达 Plan 内任�
 
 4. Active Change 及当前检查所需的文件都必须位于真实 Change 目录中并且是普通文件；目录、`.change-plan.json` 或 artifact 为符号链接时检查失败且不会跟随链接。
 5. Active Change 必须包含 `.change-plan.json`。缺失、无法读取、规范字段组合不合法或存在未定义字段时检查失败，不投影或自动迁移无效输入。
-6. Archived Change 保留完整三个 artifacts；归档时随目录保留的 `.change-plan.json` 只作为历史文件，checker 不要求、读取或解释它，stage 与查询 metadata 为 `null`。
+6. `archive` 成功时把通过最终门禁的三个 artifacts 与 `.change-plan.json` 一同移动为 archived 历史。归档后 checker 不读取或解释其中任何文件；catalog 只发现目录，`show` 只按查询契约读取普通 artifact 文件。
 7. 可以增加交付说明或证据文件；附加文件不参与固定结构检查，也不能代替当前 stage 要求的 artifacts。
 8. Catalog 只发现上述两层普通目录，不递归发现更深层 Change，也不把文件或符号链接作为列表成员。
 9. `plan` 与 `archive` 在受信工作区中由单一操作者执行。命令运行期间，目标 Change、Change 根和
@@ -85,7 +85,6 @@ metadata JSON Schema 或分发类型声明。
 | --- | --- | --- | --- |
 | Draft 的结构检查 | Draft Proposal 结构 | Design 结构 | 不参与结构检查 |
 | Plan 的结构检查、`plan` 命令目标和 archive | Plan Proposal 结构 | Design 结构 | Tasks 结构 |
-| Archived Change | Plan Proposal 结构 | Design 结构 | Tasks 结构 |
 
 准备运行 `plan` 时，仍为 Draft 的目录可以包含 `tasks.md`。普通 Draft 检查不校验它，`show`
 仍按查询契约返回其可读取内容，`plan` 则按目标 Plan 结构检查它；文件的创建时机和派生关系由
@@ -147,7 +146,7 @@ Draft 与 Plan 对 design 内容成熟度的要求、tasks 派生关系和语义
 
 ### Plan Proposal 与 Tasks
 
-Plan 及 archived 检查使用扩展后的 `proposal.md` 和完整 `tasks.md`。
+Plan 检查使用扩展后的 `proposal.md` 和完整 `tasks.md`。
 
 `proposal.md`：
 
@@ -241,7 +240,7 @@ CLI 仅提供以下六个命令：
 node <change-plan-cli> list [change-root] [--archived | --all | --stage <draft|plan>] [--json]
 node <change-plan-cli> show <change-directory> [--json]
 node <change-plan-cli> check <change-directory> [--json]
-node <change-plan-cli> check-all [change-root] [--archived | --all] [--json]
+node <change-plan-cli> check-all [change-root] [--json]
 node <change-plan-cli> plan <change-directory> [--json]
 node <change-plan-cli> archive <change-directory> [--json]
 ```
@@ -250,23 +249,24 @@ node <change-plan-cli> archive <change-directory> [--json]
 
 | 命令 | 选择与机械结果 |
 | --- | --- |
-| `list` | 默认发现当前工作目录 `changes/` 的 active Change；`--archived` 只选 archived，`--all` 选择两者，`--stage` 只筛选 active `draft` 或 `plan`。三个选项互斥。无效成员保持可见但没有合法 stage，不使发现操作失败。 |
-| `show` | 展开一个显式 Change 目录的 status、检查结果和三个 artifacts。结构无效时仍返回可读取内容与诊断，并以领域失败退出。 |
-| `check` | 按当前 stage 检查一个显式 Change 目录、metadata、artifacts、任务语法和 Plan 基线。 |
-| `check-all` | 默认门禁当前工作目录 `changes/` 的全部 active Change；`--archived` 只选 archived，`--all` 选择两者。根错误或任一成员无效时集合失败；合法空集合通过。 |
+| `list` | 默认发现当前工作目录 `changes/` 的 active Change；`--archived` 只选 archived，`--all` 选择两者，`--stage` 只筛选 active `draft` 或 `plan`。三个选项互斥。Active entry 携带检查结果；archived entry 只携带身份和路径。无效 active 成员保持可见但没有合法 stage，不使发现操作失败。 |
+| `show` | Active Change 返回检查结果和可读取 artifacts，结构无效时以领域失败退出；archived Change 返回原始 artifacts、`check: null` 和读取错误，不解析内容或 metadata。 |
+| `check` | 按当前 stage 检查一个显式 active Change 的 metadata、artifacts、任务语法和 Plan 基线。Archived 路径返回 `archived-change-not-checkable`，且不读取历史文件。 |
+| `check-all` | 门禁当前工作目录 `changes/` 或显式 change root 的全部 active 直接成员。根错误或任一成员无效时集合失败；合法空集合通过。 |
 
-`list` 与 `check-all` 只发现 Change 根的直接成员，先按 active、archived 排序，再按 Change 名称
-排序。Archived Change 只有在显式选择时进入集合，默认 active 门禁不检查历史 metadata。
+`list` 只发现 Change 根及 `archive/` 的直接成员，先按 active、archived 排序，再按 Change 名称排序。
+`check-all` 只发现 Change 根的 active 直接成员并忽略 `archive/`；`--archived` 与 `--all` 只适用于
+`list`。
 
 ### 结构化查询结果
 
-单项 checker 是查询结果的共同内核。`check --json` 直接返回以下字段；`list` entry 和
-`show.check` 复用同一结构：
+单项 checker 只属于 active Change。`check --json` 直接返回以下字段；active `list` entry 和
+active `show.check` 复用同一结构：
 
 | 字段 | 含义 |
 | --- | --- |
 | `changeDirectory`、`changeName` | 规范化后的绝对目录与 Change 名称。 |
-| `stage`、`metadata` | 规范 Active Change 的 stage 与 metadata；active metadata 无效或 Change 已 archived 时两者均为 `null`。 |
+| `stage`、`metadata` | 规范 active Change 的 stage 与 metadata；active metadata 无效时两者均为 `null`。 |
 | `taskCount`、`completedTaskCount`、`taskProgress` | 整体任务计数，以及 readiness、implementation、verification 三个区段各自的计数。 |
 | `distance` | 可用 Plan 的 `GitDistanceEvidence`；其他场景为 `null`。 |
 | `diagnostics`、`valid` | 稳定诊断数组；仅当数组为空时 `valid` 为 `true`。 |
@@ -275,6 +275,7 @@ node <change-plan-cli> archive <change-directory> [--json]
 `code` 的合法值为：
 
 ```text
+archived-change-not-checkable
 change-directory-not-found
 change-directory-read-failed
 change-path-not-directory
@@ -299,12 +300,12 @@ version-control-failed
 
 各查询命令的顶层 JSON 结构为：
 
-1. `show` 返回 `status`、`check` 和 `artifacts`；`artifacts` 固定包含 `proposal.md`、`design.md`、`tasks.md`，不可读的值为 `null`。
-2. `list` 返回 `changeRoot`、集合选择 `status`、根级 `errors` 和完整 `entries`；每个 entry 在共同检查结果上增加成员目录 `status`。
-3. `check-all` 在 `list` 结果上增加 `checkedCount`、`validCount`、`invalidCount` 与集合 `valid`。集合 `valid` 仅在根级 `errors` 为空且 `invalidCount` 为零时成立。
+1. Active `show` 返回 `status: "active"`、完整 `check` 和 `artifacts`；archived `show` 返回 `status: "archived"`、`changeDirectory`、`changeName`、`check: null`、读取 `errors` 和 `artifacts`。`artifacts` 固定包含 `proposal.md`、`design.md`、`tasks.md`，缺失、非普通文件或不可读的值为 `null`；这些值不产生 archived 有效性判断。
+2. `list` 返回 `changeRoot`、集合选择 `status`、根级 `errors` 和 `entries`。Active entry 在完整检查结果上增加 `status: "active"`；archived entry 只包含 `changeDirectory`、`changeName` 与 `status: "archived"`。
+3. `check-all` 返回 active `entries`、`changeRoot`、根级 `errors`、`checkedCount`、`validCount`、`invalidCount` 与集合 `valid`，不返回 lifecycle selection。集合 `valid` 仅在根级 `errors` 为空且 `invalidCount` 为零时成立。
 
-`list` 和 `check-all` 的顶层 `status` 是集合选择，合法值为 `active`、`archived` 或 `all`；
-`entries[].status` 才是单个 Change 的目录 status。
+`list.status` 是集合选择，合法值为 `active`、`archived` 或 `all`；`entries[].status` 是单个 Change
+的目录 status。
 
 ### 写入命令
 
@@ -330,8 +331,8 @@ version-control-failed
 
 ### 退出码与输出
 
-1. `0`：命令成功；`list` 中存在 invalid 成员不使发现操作本身失败；`check-all` 的合法空集合也成功。
-2. `1`：查询根或目标不可用、结构或 Plan 基线无效、`check-all` 的任一成员无效、写入或归档门禁失败，或 metadata 与归档写入失败。
+1. `0`：命令成功；`list` 中存在 invalid active 成员不使发现操作本身失败；`check-all` 的合法空 active 集合也成功。
+2. `1`：查询根或目标不可用、结构或 Plan 基线无效、对 archived 运行 `check`、`check-all` 的任一 active 成员无效、写入或归档门禁失败，或 metadata 与归档写入失败。
 3. `2`：CLI 参数无效，包含调用六个命令之外的名称。
 
 文本模式把成功结果写入 stdout，把诊断和失败写入 stderr，并在写入失败中显示稳定 `errorCode`。

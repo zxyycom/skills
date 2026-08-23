@@ -25,10 +25,11 @@ async function testListStatuses(tempRoot: string): Promise<void> {
   await writePlan(lifecycleRoot, "active-plan");
   await writePlan(lifecycleRoot, "completed-plan", { tasks: completedTasks });
   const archiveRoot = path.join(lifecycleRoot, "archive");
-  await writePlan(archiveRoot, "old-plan", {
+  const archivedDirectory = await writePlan(archiveRoot, "old-plan", {
     metadata: null,
     tasks: completedTasks
   });
+  await fs.rm(path.join(archivedDirectory, "design.md"));
 
   const activeList = await listChangePlans({ changeRoot: lifecycleRoot });
   assert.deepEqual(activeList.errors, []);
@@ -52,8 +53,11 @@ async function testListStatuses(tempRoot: string): Promise<void> {
     archivedList.entries.map((entry) => [entry.status, entry.changeName]),
     [["archived", "old-plan"]]
   );
-  assert.equal(archivedList.entries[0]?.stage, null);
-  assert.equal(archivedList.entries[0]?.distance, null);
+  assert.deepEqual(archivedList.entries[0], {
+    changeDirectory: archivedDirectory,
+    changeName: "old-plan",
+    status: "archived"
+  });
 
   const allList = await listChangePlans({
     changeRoot: lifecycleRoot,
@@ -90,7 +94,10 @@ async function testStageFilter(tempRoot: string): Promise<void> {
   });
   assert.deepEqual(draftList.errors, []);
   assert.deepEqual(
-    draftList.entries.map((entry) => [entry.changeName, entry.stage]),
+    draftList.entries.map((entry) => [
+      entry.changeName,
+      entry.status === "active" ? entry.stage : null
+    ]),
     [["draft-change", "draft"]]
   );
 
@@ -99,7 +106,10 @@ async function testStageFilter(tempRoot: string): Promise<void> {
     stage: "plan"
   });
   assert.deepEqual(
-    planList.entries.map((entry) => [entry.changeName, entry.stage]),
+    planList.entries.map((entry) => [
+      entry.changeName,
+      entry.status === "active" ? entry.stage : null
+    ]),
     [["plan-change", "plan"]]
   );
 
@@ -107,12 +117,20 @@ async function testStageFilter(tempRoot: string): Promise<void> {
   const legacyEntry = activeList.entries.find(
     (entry) => entry.changeName === "legacy-change"
   );
-  assert.equal(legacyEntry?.stage, null);
-  assert.equal(legacyEntry?.valid, false);
+  assert.equal(legacyEntry?.status, "active");
+  assert.equal(
+    legacyEntry?.status === "active" ? legacyEntry.stage : undefined,
+    null
+  );
+  assert.equal(
+    legacyEntry?.status === "active" ? legacyEntry.valid : undefined,
+    false
+  );
   assert.ok(
-    legacyEntry?.diagnostics.some(
-      (diagnostic) => diagnostic.code === "invalid-metadata"
-    )
+    legacyEntry?.status === "active" &&
+      legacyEntry.diagnostics.some(
+        (diagnostic) => diagnostic.code === "invalid-metadata"
+      )
   );
 
   const invalidFilter = await listChangePlans({
@@ -141,10 +159,17 @@ async function testInvalidEntriesRemainDiscoverable(
     (entry) => entry.changeName === "invalid-plan"
   );
   assert.equal(listWithInvalid.errors.length, 0);
-  assert.equal(invalidListEntry?.valid, false);
+  assert.equal(
+    invalidListEntry?.status === "active" ? invalidListEntry.valid : undefined,
+    false
+  );
 
   const shownInvalid = await showChangePlanDirectory(invalidListedDirectory);
-  assert.equal(shownInvalid.check.valid, false);
+  assert.equal(shownInvalid.status, "active");
+  assert.equal(
+    shownInvalid.status === "active" ? shownInvalid.check.valid : undefined,
+    false
+  );
   assert.equal(shownInvalid.artifacts["proposal.md"], validProposal);
   assert.equal(shownInvalid.artifacts["design.md"], null);
 }
@@ -201,7 +226,9 @@ async function testChangeRootDiagnostics(tempRoot: string): Promise<void> {
   );
 }
 
-async function testCollectionCheckAggregation(tempRoot: string): Promise<void> {
+async function testActiveCollectionCheckAggregation(
+  tempRoot: string
+): Promise<void> {
   const lifecycleRoot = path.join(tempRoot, "collection-check");
   await writePlan(lifecycleRoot, "valid-active");
   const invalidDirectory = path.join(lifecycleRoot, "invalid-active");
@@ -211,15 +238,16 @@ async function testCollectionCheckAggregation(tempRoot: string): Promise<void> {
     validProposal,
     "utf8"
   );
-  await writePlan(path.join(lifecycleRoot, "archive"), "valid-archived", {
-    metadata: null,
-    tasks: completedTasks
-  });
+  const archivedDirectory = path.join(
+    lifecycleRoot,
+    "archive",
+    "invalid-archived"
+  );
+  await fs.mkdir(archivedDirectory, { recursive: true });
 
   const activeResult = await checkChangePlanCollection({
     changeRoot: lifecycleRoot
   });
-  assert.equal(activeResult.status, "active");
   assert.equal(activeResult.checkedCount, 2);
   assert.equal(activeResult.validCount, 1);
   assert.equal(activeResult.invalidCount, 1);
@@ -234,22 +262,7 @@ async function testCollectionCheckAggregation(tempRoot: string): Promise<void> {
     )
   );
 
-  const archivedResult = await checkChangePlanCollection({
-    changeRoot: lifecycleRoot,
-    status: "archived"
-  });
-  assert.equal(archivedResult.checkedCount, 1);
-  assert.equal(archivedResult.validCount, 1);
-  assert.equal(archivedResult.invalidCount, 0);
-  assert.equal(archivedResult.valid, true);
-
-  const allResult = await checkChangePlanCollection({
-    changeRoot: lifecycleRoot,
-    status: "all"
-  });
-  assert.equal(allResult.checkedCount, 3);
-  assert.equal(allResult.invalidCount, 1);
-  assert.equal(allResult.valid, false);
+  assert.ok(activeResult.entries.every((entry) => entry.status === "active"));
 }
 
 async function testCollectionCheckRootOutcomes(
@@ -262,13 +275,6 @@ async function testCollectionCheckRootOutcomes(
   });
   assert.equal(emptyResult.checkedCount, 0);
   assert.equal(emptyResult.valid, true);
-
-  const emptyArchivedResult = await checkChangePlanCollection({
-    changeRoot: emptyRoot,
-    status: "archived"
-  });
-  assert.equal(emptyArchivedResult.checkedCount, 0);
-  assert.equal(emptyArchivedResult.valid, true);
 
   const missingResult = await checkChangePlanCollection({
     changeRoot: path.join(tempRoot, "missing-collection")
@@ -286,6 +292,18 @@ async function testShowStatus(tempRoot: string): Promise<void> {
     "old-plan",
     { tasks: completedTasks }
   );
+  await fs.writeFile(
+    path.join(archivedDirectory, "proposal.md"),
+    "historical proposal without current headings\n",
+    "utf8"
+  );
+  await fs.rm(path.join(archivedDirectory, "design.md"));
+  await fs.rm(path.join(archivedDirectory, "tasks.md"));
+  await fs.writeFile(
+    path.join(archivedDirectory, ".change-plan.json"),
+    "{",
+    "utf8"
+  );
 
   const shownActive = await showChangePlanDirectory(activeDirectory);
   assert.equal(shownActive.status, "active");
@@ -293,6 +311,31 @@ async function testShowStatus(tempRoot: string): Promise<void> {
   assert.equal(shownActive.artifacts["proposal.md"], validProposal);
   const shownArchived = await showChangePlanDirectory(archivedDirectory);
   assert.equal(shownArchived.status, "archived");
+  assert.equal(shownArchived.check, null);
+  assert.deepEqual(
+    shownArchived.status === "archived" ? shownArchived.errors : undefined,
+    []
+  );
+  assert.equal(
+    shownArchived.artifacts["proposal.md"],
+    "historical proposal without current headings\n"
+  );
+  assert.equal(shownArchived.artifacts["design.md"], null);
+
+  const missingArchived = await showChangePlanDirectory(
+    path.join(lifecycleRoot, "archive", "missing-history")
+  );
+  assert.equal(missingArchived.status, "archived");
+  assert.equal(missingArchived.check, null);
+  assert.match(
+    missingArchived.status === "archived"
+      ? (missingArchived.errors[0] ?? "")
+      : "",
+    /does not exist/u
+  );
+  assert.ok(
+    Object.values(missingArchived.artifacts).every((value) => value === null)
+  );
 }
 
 async function testSymbolicLinksAreNotDiscovered(
@@ -348,6 +391,17 @@ async function testShowDoesNotReadSymbolicLinks(
     linkedDirectory,
     process.platform === "win32" ? "junction" : "dir"
   );
+  const archiveDirectory = path.join(tempRoot, "archive");
+  await fs.mkdir(archiveDirectory);
+  const archivedLinkedDirectory = path.join(
+    archiveDirectory,
+    "linked-archived-change"
+  );
+  await fs.symlink(
+    externalDirectory,
+    archivedLinkedDirectory,
+    process.platform === "win32" ? "junction" : "dir"
+  );
 
   const realDirectory = await writePlan(tempRoot, "linked-artifact");
   await fs.rm(path.join(realDirectory, "proposal.md"));
@@ -368,6 +422,25 @@ async function testShowDoesNotReadSymbolicLinks(
     /EXTERNAL-SHOW-MARKER/u
   );
 
+  const archivedLinkedDirectoryResult = await showChangePlanDirectory(
+    archivedLinkedDirectory
+  );
+  assert.equal(archivedLinkedDirectoryResult.status, "archived");
+  assert.equal(archivedLinkedDirectoryResult.check, null);
+  assert.ok(
+    archivedLinkedDirectoryResult.status === "archived" &&
+      archivedLinkedDirectoryResult.errors.length > 0
+  );
+  assert.deepEqual(archivedLinkedDirectoryResult.artifacts, {
+    "design.md": null,
+    "proposal.md": null,
+    "tasks.md": null
+  });
+  assert.doesNotMatch(
+    JSON.stringify(archivedLinkedDirectoryResult),
+    /EXTERNAL-SHOW-MARKER/u
+  );
+
   const linkedArtifactResult = await showChangePlanDirectory(realDirectory);
   assert.equal(linkedArtifactResult.artifacts["proposal.md"], null);
   assert.doesNotMatch(
@@ -375,7 +448,11 @@ async function testShowDoesNotReadSymbolicLinks(
     /EXTERNAL-SHOW-MARKER/u
   );
 
-  for (const changeDirectory of [linkedDirectory, realDirectory]) {
+  for (const changeDirectory of [
+    linkedDirectory,
+    realDirectory,
+    archivedLinkedDirectory
+  ]) {
     const cliResult = spawnSync(
       "node",
       [generatedCliPath, "show", changeDirectory, "--json"],
@@ -403,8 +480,8 @@ test("catalog filters active changes by lifecycle stage", () =>
 test("catalog reports inaccessible and malformed lifecycle roots", () =>
   withTempRoot("catalog-roots", testChangeRootDiagnostics));
 
-test("collection check aggregates selected change results", () =>
-  withTempRoot("collection-check", testCollectionCheckAggregation));
+test("collection check aggregates active change results", () =>
+  withTempRoot("collection-check", testActiveCollectionCheckAggregation));
 
 test("collection check distinguishes empty and unavailable roots", () =>
   withTempRoot("collection-check-roots", testCollectionCheckRootOutcomes));

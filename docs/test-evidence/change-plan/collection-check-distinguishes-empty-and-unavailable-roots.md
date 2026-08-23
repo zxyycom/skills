@@ -5,4 +5,4 @@ Entry:
 Contract:
 - 集合检查必须把可访问的空目标集合与无法访问的 change root 区分为不同结果。
 Proves:
-- Active 空集合和 archive 容器尚不存在的 archived 空集合都以零计数通过；缺失 change root 保留根级错误并使集合失败。
+- Active 空集合以零计数通过；缺失 change root 保留根级错误并使集合失败。

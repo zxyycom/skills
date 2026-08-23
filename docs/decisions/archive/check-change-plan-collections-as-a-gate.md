@@ -1,6 +1,6 @@
 ---
 title: 把 Change 集合检查作为独立门禁
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-11T07:14:17Z
 purpose: 让调用方一次判断一个 Change 根中的 active Change 是否全部有效，同时保留发现命令对无效成员的可见性。

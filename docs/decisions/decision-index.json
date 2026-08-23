@@ -98,7 +98,7 @@
       "catalog-minimal-native-test-entries.md": "sha256:d10e1a92f00d4714b9fe49b85cc32868164d3a950247e32d20119a9b40ffcc54",
       "centralize-maintenance-and-keep-distribution-lightweight.md": "sha256:072821891d4338ba027408364710a214e9787d3b7ae1e9c13140d822934c437c",
       "centralize-version-control-responsibility.md": "sha256:049e6ccd838324e435b7032927bc89226f7b22518ac683d8e74c2a020d32baf7",
-      "check-change-plan-collections-as-a-gate.md": "sha256:85b2ce41852390979a0ded9599840f7b5526d848f45988c464e84a6da39154e2",
+      "check-change-plan-collections-as-a-gate.md": "sha256:b0722d67ab0bf2e1ad5ad01e54da6b72f178f4f71c91cfe373a9dc0d758b89a8",
       "choose-smallest-correct-maintenance-surface.md": "sha256:9f1df394c7febd66de7b8a7040060031513f854f289b31401a2499f4bdc65496",
       "classify-ai-configuration-commits.md": "sha256:1d837f8ce27243e298c9c1cf89257c8b0988789b6d3e2c13148af73ef8b99843",
       "classify-decisions-by-controlled-domain-path.md": "sha256:e43913dc739adccd9338389f495166439c397845603f136684ea055f1f341479",
@@ -132,7 +132,7 @@
       "establish-decisions-with-atomic-evolution.md": "sha256:3b201bf83453ee0b980b4f897cf9fa8e382b5778acb07363f89fa12f5152f4e0",
       "evaluate-reorganization-from-task-graph-case.md": "sha256:e0c03f1ddb3d3a1791646a2a959284d433165c95679ad989c99acd92cf03a6e0",
       "exclude-archived-changes-from-link-validation.md": "sha256:ea8064051faf2a482486b1b48cf9a53eb83e1214dc357c2d91df82c9c71731e4",
-      "exclude-formation-time-link-bytes-from-validation.md": "sha256:13508bb94354446a14171f270f76f81913e188c01e9ca26cdb9e981dbe14bdf6",
+      "exclude-formation-time-link-bytes-from-validation.md": "sha256:1cdedb8efb7b8b6561d90811d06c04a4fa73b522d9b70fb4636b16f31d7e4a43",
       "exclude-investigation-resources-from-index-revision.md": "sha256:783e67936f134e53096b3081240b6a508b19a3fdaa1ad12a676e07709a9f9b02",
       "express-alignment-as-field-relation.md": "sha256:484d8589e23d61ef0195eedf92e0609d9512c01b4e2e63e9b8290958714f2e2d",
       "express-decision-alignment-state.md": "sha256:3bc42786232ddc54c277a350a622a07c80dde95bc0ce63b7910d3764217f4793",
@@ -292,6 +292,7 @@
       "use-typed-collection-metadata.md": "sha256:a0e261ea16fca33ef949f83b289b5c323f02ab7501cc55bb7732bf7b3974c801",
       "use-versioned-overlay-skill-updates.md": "sha256:45c50941a04dc9aff4f2e305ec83fd14cb12d3df86e554cd23f6c4974d35f192",
       "use-versioned-runner-result-protocol.md": "sha256:48cde8d9a3cd54768d144286b55ddccec9f52272a234fe75764562d7e7fdcf9c",
+      "validate-only-active-change-plans.md": "sha256:14d148173e7fbc11d4a3c13ccb4ccecc8c9b459516ba79072388da911bdfe860",
       "version-index-definition-compatibility.md": "sha256:94002fd6642a327388347c00f5963519a2b44eafa9eab41fd031ecdd48007d32",
       "warn-on-unreferenced-investigation-resources.md": "sha256:4701fda64d3ee6fe1a6c8765f3aead22905eae86e8b1b97635615938f3c2e645"
     },
@@ -2998,16 +2999,16 @@
           "change-plan"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "check-change-plan-collections-as-a-gate.md",
+        "sourcePath": "archive/check-change-plan-collections-as-a-gate.md",
         "title": "把 Change 集合检查作为独立门禁",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-11T07:14:17Z",
         "purpose": "让调用方一次判断一个 Change 根中的 active Change 是否全部有效，同时保留发现命令对无效成员的可见性。",
@@ -4031,9 +4032,9 @@
         "status": "active",
         "alignment": "aligned",
         "createdAt": "2026-08-15T04:14:19Z",
-        "purpose": "让当前链接门禁覆盖可维护文档，同时保留历史形成时材料的专属验证责任。",
+        "purpose": "让当前链接门禁覆盖可维护文档，同时保留历史形成时材料各自的 owner 边界。",
         "background": "归档 Change 与调查资源都保存形成时字节，持续链接校验会把后续 owner 变化错误转化为维护义务。",
-        "decision": "bun run validate 排除归档 Change 和调查资源 Markdown，分别由 Change Plan 与 Investigation Report 门禁维护。",
+        "decision": "bun run validate 排除归档 Change 与调查资源；Change Plan 只在归档前门禁，Investigation Report 维护资源完整性。",
         "tags": [
           "project-tooling"
         ],
@@ -8895,6 +8896,38 @@
           {
             "type": "拆分",
             "target": "defer-standard-test-result-blocking.md"
+          }
+        ]
+      }
+    },
+    "validate-only-active-change-plans.md": {
+      "keys": {
+        "tag": [
+          "change-plan"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "validate-only-active-change-plans.md",
+        "title": "只对 Active Change 执行机械校验",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-23T12:48:09Z",
+        "purpose": "让 Change 的归档动作终止当前契约门禁，同时保留历史记录的发现和原始读取能力。",
+        "background": "对 archived Change 重用当前 checker 会让已经完成的历史记录因后续 artifact 契约演进而重新失效。",
+        "decision": "单项与集合 checker 只接受 active Change；archive 在移动前完成最终门禁，list 和 show 不校验 archived 内容。",
+        "tags": [
+          "change-plan"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "check-change-plan-collections-as-a-gate.md"
           }
         ]
       }

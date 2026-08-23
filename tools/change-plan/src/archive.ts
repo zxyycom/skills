@@ -2,7 +2,7 @@ import type { Stats } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { checkChangePlanDirectory } from "./check.ts";
-import { changePlanStatusFromDirectory } from "./catalog.ts";
+import { changePlanStatusFromDirectory } from "./change-directory.ts";
 import type {
   ChangePlanArchiveResult,
   ChangePlanCheckResult

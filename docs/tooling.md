@@ -130,7 +130,7 @@ task-graph 短命令另外承担项目 root 选择。省略 `--root` 时，它�
 | Skill Updater | `test:skill-updater` | `sync:skill-updaters` | `check:skill-updaters` |
 | 共享基础设施 | `test:check`、`test:environment`、`test:generated-file`、`test:index-runtime`、`test:skill-package-hash`、`test:version-control` | — | — |
 
-`bun run validate` 的主仓库 Markdown 链接范围排除 `changes/archive/**` 与 `docs/investigations/_resources/**`。前者只作为 Change Plan 历史参考，仍由 change-plan CLI 保留结构、完成任务和归档目标门禁；后者是 Investigation Report 保存的形成时字节，仍由资源引用与完整性门禁维护。active change、当前 investigation topic 与其他当前维护 Markdown 继续参与链接校验。
+`bun run validate` 的主仓库 Markdown 链接范围排除 `changes/archive/**` 与 `docs/investigations/_resources/**`。前者只作为 Change Plan 历史参考；active Change 在移动前由 `archive` 完成结构、基线、任务和目标路径门禁，归档后不再进入链接校验或 Change Plan checker。后者是 Investigation Report 保存的形成时字节，仍由资源引用与完整性门禁维护。active change、当前 investigation topic 与其他当前维护 Markdown 继续参与链接校验。
 
 三类前缀表达不同义务：
 

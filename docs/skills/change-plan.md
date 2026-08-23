@@ -2,7 +2,7 @@
 
 `change-plan` 为明确 Change 保存可版本化、可审阅和可交接的临时实施上下文。Active Change
 只使用 `draft` 与 `plan` 两种 stage；完成后的 Change 进入 `archive/` 并以 archived 目录
-status 保存历史。
+status 保存历史；归档前由 `archive` 完成最后一次 active Plan 门禁，归档后不再按后续契约重新校验。
 
 ## 为什么需要它
 
@@ -20,11 +20,11 @@ Readiness、Implementation 和 Verification 都在 Plan 内推进，其 checkbox
 
 ## 主要能力
 
-1. `list`、`show`、`check` 和 `check-all` 分别承担发现、展开、单项门禁和集合门禁。
+1. `list` 发现 active 与 archived Change；`show` 展开 active 状态或读取 archived 历史；`check` 与 `check-all` 只门禁 active Change。
 2. `plan` 确认 Draft，或在重新审阅现有 Plan 后刷新 Git 基线；`archive` 归档已经完成的 Plan。
 3. Plan 查询直接提供基线后的 first-parent 提交数和 Change 目录外累计变化行数，帮助操作者决定需要怎样复核当前计划；可用距离只提供上下文，不驱动生命周期。
 4. Active metadata 只接受规范 Draft 或具有非空 Git 基线的规范 Plan；无效 metadata 所在目录仍可发现，但不能投影为合法 stage 或由写入命令自动迁移。
-5. Archived status 和 stage 只由目录决定；历史 metadata 不参与 checker 或查询解释。
+5. Archived status 只由目录决定且没有 stage；历史 metadata 与 artifacts 不进入 checker。`list` 的 archived entry 只返回身份和路径，`show` 只读取原始 artifacts。
 6. 随包 MJS 同时提供 CLI 和随当前实现变化的直接 import 表面；需要稳定交互时使用固定 CLI 契约与 JSON 结果。
 
 ## 能力边界

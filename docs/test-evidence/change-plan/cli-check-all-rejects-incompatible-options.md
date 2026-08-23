@@ -3,6 +3,6 @@ Entry:
 - `tools/change-plan/tests/cli.test.ts > CLI check-all rejects incompatible options`
 - `bun test --test-name-pattern="^CLI check-all rejects incompatible options$" ./tools/change-plan/tests/run.ts`
 Contract:
-- `check-all` 只接受一个集合选择，不接受 stage 过滤，并必须在帮助文本中公开合法调用方式。
+- `check-all` 只接受可选 change root 与 `--json`；生命周期和 stage 选择只属于 `list`。
 Proves:
-- 同时使用 `--archived` 与 `--all` 或提供 `--stage` 时退出 `2` 并返回对应参数诊断；帮助文本列出 `check-all`。
+- 单独提供 `--archived`、`--all` 或 `--stage` 都退出 `2` 并说明这些选项只适用于 `list`；帮助文本列出 `check-all`。

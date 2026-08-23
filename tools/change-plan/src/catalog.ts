@@ -1,14 +1,17 @@
 import type { Stats } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { changePlanStatusFromDirectory } from "./change-directory.ts";
 import { checkChangePlanDirectory } from "./check.ts";
 import {
   changePlanArtifactNames,
+  type ChangePlanActiveListEntry,
   type ChangePlanArtifactContents,
+  type ChangePlanArchivedListEntry,
+  type ChangePlanArchivedShowResult,
   type ChangePlanCheckResult,
   type ChangePlanCollectionCheckResult,
   type ChangePlanCollectionOptions,
-  type ChangePlanListEntry,
   type ChangePlanListOptions,
   type ChangePlanListResult,
   type ChangePlanShowResult,
@@ -39,28 +42,18 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-export function changePlanStatusFromDirectory(
-  changeDirectory: string
-): ChangePlanStatus {
-  return path.basename(path.dirname(path.resolve(changeDirectory))) ===
-    "archive"
-    ? "archived"
-    : "active";
+function activeListEntry(
+  check: ChangePlanCheckResult
+): ChangePlanActiveListEntry {
+  return { ...check, status: "active" };
 }
 
-function listEntry(
-  check: ChangePlanCheckResult,
-  status: ChangePlanStatus
-): ChangePlanListEntry {
-  return { ...check, status };
-}
-
-async function listDirectoryEntries(
+async function listDirectoryNames(
   directory: string,
   status: ChangePlanStatus
-): Promise<ChangePlanListEntry[]> {
+): Promise<string[]> {
   const entries = await fs.readdir(directory, { withFileTypes: true });
-  const directoryNames = entries
+  return entries
     .filter(
       (entry) =>
         entry.isDirectory() &&
@@ -68,15 +61,29 @@ async function listDirectoryEntries(
     )
     .map((entry) => entry.name)
     .sort((left, right) => left.localeCompare(right));
+}
 
+async function listActiveDirectoryEntries(
+  directory: string
+): Promise<ChangePlanActiveListEntry[]> {
+  const directoryNames = await listDirectoryNames(directory, "active");
   return await Promise.all(
     directoryNames.map(async (name) =>
-      listEntry(
-        await checkChangePlanDirectory(path.join(directory, name)),
-        status
+      activeListEntry(
+        await checkChangePlanDirectory(path.join(directory, name))
       )
     )
   );
+}
+
+async function listArchivedDirectoryEntries(
+  directory: string
+): Promise<ChangePlanArchivedListEntry[]> {
+  return (await listDirectoryNames(directory, "archived")).map((name) => ({
+    changeDirectory: path.join(directory, name),
+    changeName: name,
+    status: "archived"
+  }));
 }
 
 export async function listChangePlans(
@@ -116,9 +123,7 @@ export async function listChangePlans(
 
   if (status === "active" || status === "all") {
     try {
-      result.entries.push(
-        ...(await listDirectoryEntries(changeRoot, "active"))
-      );
+      result.entries.push(...(await listActiveDirectoryEntries(changeRoot)));
     } catch (error) {
       result.errors.push(
         `cannot list active changes in ${changeRoot}: ${errorMessage(error)}`
@@ -137,7 +142,7 @@ export async function listChangePlans(
           );
         } else {
           result.entries.push(
-            ...(await listDirectoryEntries(archiveDirectory, "archived"))
+            ...(await listArchivedDirectoryEntries(archiveDirectory))
           );
         }
       }
@@ -155,7 +160,7 @@ export async function listChangePlans(
   );
   if (options.stage !== undefined) {
     result.entries = result.entries.filter(
-      (entry) => entry.stage === options.stage
+      (entry) => entry.status === "active" && entry.stage === options.stage
     );
   }
   return result;
@@ -164,12 +169,20 @@ export async function listChangePlans(
 export async function checkChangePlanCollection(
   options: ChangePlanCollectionOptions = {}
 ): Promise<ChangePlanCollectionCheckResult> {
-  const listResult = await listChangePlans(options);
-  const validCount = listResult.entries.filter((entry) => entry.valid).length;
-  const invalidCount = listResult.entries.length - validCount;
+  const listResult = await listChangePlans({
+    changeRoot: options.changeRoot,
+    status: "active"
+  });
+  const entries = listResult.entries.filter(
+    (entry): entry is ChangePlanActiveListEntry => entry.status === "active"
+  );
+  const validCount = entries.filter((entry) => entry.valid).length;
+  const invalidCount = entries.length - validCount;
   return {
-    ...listResult,
-    checkedCount: listResult.entries.length,
+    changeRoot: listResult.changeRoot,
+    checkedCount: entries.length,
+    entries,
+    errors: listResult.errors,
     invalidCount,
     valid: listResult.errors.length === 0 && invalidCount === 0,
     validCount
@@ -218,13 +231,58 @@ async function readArtifactContents(
   return artifacts;
 }
 
+async function showArchivedChangeDirectory(
+  changeDirectory: string
+): Promise<ChangePlanArchivedShowResult> {
+  const errors: string[] = [];
+  let directoryStat: Stats | null;
+  try {
+    directoryStat = await lstatOrNull(changeDirectory);
+  } catch (error) {
+    errors.push(
+      `cannot inspect archived change directory ${changeDirectory}: ${errorMessage(error)}`
+    );
+    directoryStat = null;
+  }
+  if (directoryStat === null && errors.length === 0) {
+    errors.push(`archived change directory does not exist: ${changeDirectory}`);
+  } else if (
+    directoryStat !== null &&
+    (directoryStat.isSymbolicLink() || !directoryStat.isDirectory())
+  ) {
+    errors.push(
+      `archived change path must be a regular directory and not a symbolic link: ${changeDirectory}`
+    );
+  }
+
+  return {
+    artifacts:
+      errors.length === 0
+        ? await readArtifactContents(changeDirectory)
+        : {
+            "design.md": null,
+            "proposal.md": null,
+            "tasks.md": null
+          },
+    changeDirectory,
+    changeName: path.basename(changeDirectory),
+    check: null,
+    errors,
+    status: "archived"
+  };
+}
+
 export async function showChangePlanDirectory(
   changeDirectoryInput: string
 ): Promise<ChangePlanShowResult> {
-  const check = await checkChangePlanDirectory(changeDirectoryInput);
+  const changeDirectory = path.resolve(changeDirectoryInput);
+  if (changePlanStatusFromDirectory(changeDirectory) === "archived") {
+    return await showArchivedChangeDirectory(changeDirectory);
+  }
+  const check = await checkChangePlanDirectory(changeDirectory);
   return {
     artifacts: await readArtifactContents(check.changeDirectory),
     check,
-    status: changePlanStatusFromDirectory(check.changeDirectory)
+    status: "active"
   };
 }

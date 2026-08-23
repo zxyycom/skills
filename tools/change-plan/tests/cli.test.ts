@@ -13,6 +13,7 @@ import {
 
 type CliFixture = {
   activeDirectory: string;
+  archivedDirectory: string;
   invalidListedDirectory: string;
   invalidTasksDirectory: string;
   lifecycleRoot: string;
@@ -22,7 +23,7 @@ type CliFixture = {
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object";
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 function isUnknownArray(value: unknown): value is unknown[] {
@@ -78,9 +79,25 @@ async function createCliFixture(tempRoot: string): Promise<CliFixture> {
 
   const lifecycleRoot = path.join(tempRoot, "changes");
   const activeDirectory = await writePlan(lifecycleRoot, "active-plan");
-  await writePlan(path.join(lifecycleRoot, "archive"), "old-plan", {
-    tasks: completedTasks
-  });
+  const archivedDirectory = await writePlan(
+    path.join(lifecycleRoot, "archive"),
+    "old-plan",
+    {
+      tasks: completedTasks
+    }
+  );
+  await fs.writeFile(
+    path.join(archivedDirectory, "proposal.md"),
+    "historical proposal without current headings\n",
+    "utf8"
+  );
+  await fs.rm(path.join(archivedDirectory, "design.md"));
+  await fs.rm(path.join(archivedDirectory, "tasks.md"));
+  await fs.writeFile(
+    path.join(archivedDirectory, ".change-plan.json"),
+    "{",
+    "utf8"
+  );
 
   const invalidListedDirectory = path.join(lifecycleRoot, "invalid-plan");
   await fs.mkdir(invalidListedDirectory);
@@ -107,6 +124,7 @@ async function createCliFixture(tempRoot: string): Promise<CliFixture> {
 
   return {
     activeDirectory,
+    archivedDirectory,
     invalidListedDirectory,
     invalidTasksDirectory,
     lifecycleRoot,
@@ -114,6 +132,22 @@ async function createCliFixture(tempRoot: string): Promise<CliFixture> {
     nonDirectoryChangeRoot,
     validDirectory
   };
+}
+
+function testArchivedCheckCommand(fixture: CliFixture): void {
+  const textResult = runCli(["check", fixture.archivedDirectory]);
+  assert.equal(textResult.status, 1);
+  assert.equal(textResult.stdout, "");
+  assert.match(textResult.stderr, /archived-change-not-checkable/u);
+  assert.doesNotMatch(textResult.stderr, /missing-required-file|invalid-h1/u);
+
+  const jsonResult = runCli(["check", fixture.archivedDirectory, "--json"]);
+  assert.equal(jsonResult.status, 1);
+  assert.equal(jsonResult.stderr, "");
+  const parsed: unknown = JSON.parse(jsonResult.stdout);
+  assert.ok(isRecord(parsed));
+  assert.equal(parsed.valid, false);
+  assert.equal(parsed.taskCount, 0);
 }
 
 function testCheckCommands(fixture: CliFixture): void {
@@ -142,11 +176,12 @@ function testCheckCommands(fixture: CliFixture): void {
   );
   assert.equal(cliJson.status, 1);
   assert.equal(cliJson.stderr, "");
-  const jsonResult = JSON.parse(cliJson.stdout) as { valid: boolean };
+  const jsonResult: unknown = JSON.parse(cliJson.stdout);
+  assert.ok(isRecord(jsonResult));
   assert.equal(jsonResult.valid, false);
 }
 
-function testCollectionCheckResults(fixture: CliFixture): void {
+function testActiveCollectionCheckResults(fixture: CliFixture): void {
   const textFailure = runCli(["check-all", fixture.lifecycleRoot]);
   assert.equal(textFailure.status, 1);
   assert.equal(textFailure.stdout, "");
@@ -164,7 +199,6 @@ function testCollectionCheckResults(fixture: CliFixture): void {
   const defaultRootResult: unknown = JSON.parse(defaultRootFailure.stdout);
   assert.ok(isRecord(defaultRootResult));
   assert.equal(defaultRootResult.changeRoot, fixture.lifecycleRoot);
-  assert.equal(defaultRootResult.status, "active");
   assert.equal(defaultRootResult.valid, false);
   assert.equal(defaultRootResult.checkedCount, 3);
   assert.equal(defaultRootResult.validCount, 2);
@@ -185,31 +219,11 @@ function testCollectionCheckResults(fixture: CliFixture): void {
       (entry) => isRecord(entry) && "distance" in entry
     )
   );
-
-  const archivedSuccess = runCli([
-    "check-all",
-    fixture.lifecycleRoot,
-    "--archived"
-  ]);
-  assert.equal(archivedSuccess.status, 0, archivedSuccess.stderr);
-  assert.match(archivedSuccess.stdout, /1\/1 changes valid/u);
-  assert.equal(archivedSuccess.stdout.trim().split("\n").length, 1);
-  assert.doesNotMatch(archivedSuccess.stdout, /计划基线|距离计划/u);
-  assert.equal(archivedSuccess.stderr, "");
-
-  const allFailure = runCli([
-    "check-all",
-    fixture.lifecycleRoot,
-    "--all",
-    "--json"
-  ]);
-  assert.equal(allFailure.status, 1);
-  assert.equal(allFailure.stderr, "");
-  const allResult: unknown = JSON.parse(allFailure.stdout);
-  assert.ok(isRecord(allResult));
-  assert.equal(allResult.status, "all");
-  assert.equal(allResult.checkedCount, 4);
-  assert.equal(allResult.invalidCount, 1);
+  assert.ok(
+    defaultRootResult.entries.every(
+      (entry) => isRecord(entry) && entry.status === "active"
+    )
+  );
 }
 
 function testCollectionCheckRootDiagnostics(fixture: CliFixture): void {
@@ -234,14 +248,17 @@ function testCollectionCheckRootDiagnostics(fixture: CliFixture): void {
 }
 
 function testCollectionCheckOptions(fixture: CliFixture): void {
-  const optionConflict = runCli([
+  const archivedOption = runCli([
     "check-all",
     fixture.lifecycleRoot,
-    "--archived",
-    "--all"
+    "--archived"
   ]);
-  assert.equal(optionConflict.status, 2);
-  assert.match(optionConflict.stderr, /cannot be used together/u);
+  assert.equal(archivedOption.status, 2);
+  assert.match(archivedOption.stderr, /only valid with list/u);
+
+  const allOption = runCli(["check-all", fixture.lifecycleRoot, "--all"]);
+  assert.equal(allOption.status, 2);
+  assert.match(allOption.stderr, /only valid with list/u);
 
   const stageConflict = runCli([
     "check-all",
@@ -265,19 +282,34 @@ function testListLifecycleJson(fixture: CliFixture): void {
   );
   assert.equal(cliList.status, 0, cliList.stderr);
   assert.equal(cliList.stderr, "");
-  const cliListResult = JSON.parse(cliList.stdout) as {
-    entries: Array<{ changeName: string; status: string }>;
-  };
+  const cliListResult: unknown = JSON.parse(cliList.stdout);
+  assert.ok(isRecord(cliListResult));
+  assert.ok(isUnknownArray(cliListResult.entries));
   assert.ok(
     cliListResult.entries.some(
-      (entry) => entry.changeName === "active-plan" && entry.status === "active"
+      (entry) =>
+        isRecord(entry) &&
+        entry.changeName === "active-plan" &&
+        entry.status === "active"
     )
   );
   assert.ok(
     cliListResult.entries.some(
-      (entry) => entry.changeName === "old-plan" && entry.status === "archived"
+      (entry) =>
+        isRecord(entry) &&
+        entry.changeName === "old-plan" &&
+        entry.status === "archived"
     )
   );
+  const archivedEntry = cliListResult.entries.find(
+    (entry) => isRecord(entry) && entry.changeName === "old-plan"
+  );
+  assert.ok(isRecord(archivedEntry));
+  assert.deepEqual(Object.keys(archivedEntry).sort(), [
+    "changeDirectory",
+    "changeName",
+    "status"
+  ]);
 
   const stageList = runCli([
     "list",
@@ -298,6 +330,27 @@ function testListLifecycleJson(fixture: CliFixture): void {
   );
 }
 
+function testArchivedShowCommand(fixture: CliFixture): void {
+  const textResult = runCli(["show", fixture.archivedDirectory]);
+  assert.equal(textResult.status, 0, textResult.stderr);
+  assert.match(textResult.stdout, /Status: archived/u);
+  assert.match(textResult.stdout, /Check: not applicable \(archived\)/u);
+  assert.match(
+    textResult.stdout,
+    /historical proposal without current headings/u
+  );
+  assert.doesNotMatch(textResult.stdout, /Stage:|Tasks:|valid|invalid/u);
+  assert.equal(textResult.stderr, "");
+
+  const jsonResult = runCli(["show", fixture.archivedDirectory, "--json"]);
+  assert.equal(jsonResult.status, 0, jsonResult.stderr);
+  const parsed: unknown = JSON.parse(jsonResult.stdout);
+  assert.ok(isRecord(parsed));
+  assert.equal(parsed.status, "archived");
+  assert.equal(parsed.check, null);
+  assert.deepEqual(parsed.errors, []);
+}
+
 function testListRootDiagnostics(fixture: CliFixture): void {
   const cliListFailure = spawnSync(
     "node",
@@ -306,10 +359,12 @@ function testListRootDiagnostics(fixture: CliFixture): void {
   );
   assert.equal(cliListFailure.status, 1);
   assert.equal(cliListFailure.stderr, "");
-  const cliListFailureResult = JSON.parse(cliListFailure.stdout) as {
-    errors: string[];
-  };
-  assert.match(cliListFailureResult.errors[0] ?? "", /must be a directory/u);
+  const cliListFailureResult: unknown = JSON.parse(cliListFailure.stdout);
+  assert.ok(isRecord(cliListFailureResult));
+  assert.ok(isUnknownArray(cliListFailureResult.errors));
+  const firstError = cliListFailureResult.errors[0];
+  assert.ok(typeof firstError === "string");
+  assert.match(firstError, /must be a directory/u);
 }
 
 function testListOptionConflicts(fixture: CliFixture): void {
@@ -345,10 +400,10 @@ function testShowCommands(fixture: CliFixture): void {
   );
   assert.equal(cliInvalidShow.status, 1);
   assert.equal(cliInvalidShow.stderr, "");
-  const cliInvalidShowResult = JSON.parse(cliInvalidShow.stdout) as {
-    artifacts: Record<string, string | null>;
-    check: { valid: boolean };
-  };
+  const cliInvalidShowResult: unknown = JSON.parse(cliInvalidShow.stdout);
+  assert.ok(isRecord(cliInvalidShowResult));
+  assert.ok(isRecord(cliInvalidShowResult.check));
+  assert.ok(isRecord(cliInvalidShowResult.artifacts));
   assert.equal(cliInvalidShowResult.check.valid, false);
   assert.equal(cliInvalidShowResult.artifacts["design.md"], null);
 }
@@ -538,13 +593,11 @@ async function testArchiveCommands(fixture: CliFixture): Promise<void> {
   );
   assert.equal(cliLinkedArchive.status, 1);
   assert.equal(cliLinkedArchive.stderr, "");
-  const cliLinkedArchiveResult = JSON.parse(cliLinkedArchive.stdout) as {
-    archived: boolean;
-    check: unknown;
-    error: string;
-  };
+  const cliLinkedArchiveResult: unknown = JSON.parse(cliLinkedArchive.stdout);
+  assert.ok(isRecord(cliLinkedArchiveResult));
   assert.equal(cliLinkedArchiveResult.archived, false);
   assert.equal(cliLinkedArchiveResult.check, null);
+  assert.ok(typeof cliLinkedArchiveResult.error === "string");
   assert.match(cliLinkedArchiveResult.error, /must not be a symbolic link/u);
 
   const cliArchiveDirectory = await writePlan(
@@ -559,11 +612,10 @@ async function testArchiveCommands(fixture: CliFixture): Promise<void> {
   );
   assert.equal(cliArchive.status, 0, cliArchive.stderr);
   assert.equal(cliArchive.stderr, "");
-  const cliArchiveResult = JSON.parse(cliArchive.stdout) as {
-    archived: boolean;
-    archivedDirectory: string;
-  };
+  const cliArchiveResult: unknown = JSON.parse(cliArchive.stdout);
+  assert.ok(isRecord(cliArchiveResult));
   assert.equal(cliArchiveResult.archived, true);
+  assert.ok(typeof cliArchiveResult.archivedDirectory === "string");
   assert.equal(
     await fs
       .stat(cliArchiveResult.archivedDirectory)
@@ -630,8 +682,11 @@ async function withCliFixture(
 test("CLI check preserves text and JSON exit contracts", () =>
   withCliFixture("check", testCheckCommands));
 
-test("CLI check-all gates selected change collections", () =>
-  withCliFixture("check-all", testCollectionCheckResults));
+test("CLI check rejects archived changes without artifact diagnostics", () =>
+  withCliFixture("check-archived", testArchivedCheckCommand));
+
+test("CLI check-all gates active change collections", () =>
+  withCliFixture("check-all", testActiveCollectionCheckResults));
 
 test("CLI check-all reports lifecycle root diagnostics", () =>
   withCliFixture("check-all-roots", testCollectionCheckRootDiagnostics));
@@ -650,6 +705,9 @@ test("CLI list rejects conflicting lifecycle options", () =>
 
 test("CLI show returns artifacts and invalid-plan diagnostics", () =>
   withCliFixture("show", testShowCommands));
+
+test("CLI show reads archived artifacts without a check result", () =>
+  withCliFixture("show-archived", testArchivedShowCommand));
 
 test("CLI archive enforces gates and moves complete plans", () =>
   withCliFixture("archive", testArchiveCommands));

@@ -36,7 +36,7 @@
 
 - Markdown checker 需要在指定 H2 范围内验证 H3 的缺失、重复、顺序和非空内容。
 - 测试 fixture、分发 CLI 和人类说明需要使用同一固定结构。
-- 归档前由 active check 完整门禁；归档后查询继续返回 `stage: null`、`metadata: null`。
+- 归档前由 active check 完整门禁；归档后的 `list` 只返回身份和路径，`show` 返回 `check: null` 与原始 artifacts，不再投影 stage 或 metadata。
 
 ## Risks / Trade-offs
 

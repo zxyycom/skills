@@ -202,9 +202,7 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
   );
 }
 
-async function testMetadataAndArchiveBoundaries(
-  tempRoot: string
-): Promise<void> {
+async function testActiveMetadataBoundaries(tempRoot: string): Promise<void> {
   const headCommit = runGit(tempRoot, ["rev-parse", "HEAD"]);
   const invalidCases = [
     ["null-base", { baseCommit: null, stage: "plan" }],
@@ -260,34 +258,34 @@ async function testMetadataAndArchiveBoundaries(
         diagnostic.file === changePlanMetadataName
     )
   );
+}
 
+async function testArchivedCheckBoundary(tempRoot: string): Promise<void> {
   const archivedDirectory = await writePlan(
     path.join(tempRoot, "archive"),
     "historical-change",
     { metadata: null }
   );
-  const archivedResult = await checkChangePlanDirectory(archivedDirectory);
-  assert.equal(archivedResult.valid, true);
-  assert.equal(archivedResult.metadata, null);
-  assert.equal(archivedResult.stage, null);
-  assert.equal(archivedResult.distance, null);
-
-  const invalidHistoricalMetadataDirectory = await writePlan(
-    path.join(tempRoot, "archive"),
-    "invalid-historical-metadata",
-    { metadata: null }
-  );
+  await fs.rm(path.join(archivedDirectory, "design.md"));
   await fs.writeFile(
-    path.join(invalidHistoricalMetadataDirectory, changePlanMetadataName),
+    path.join(archivedDirectory, changePlanMetadataName),
     "{",
     "utf8"
   );
-  const invalidHistoricalMetadataResult = await checkChangePlanDirectory(
-    invalidHistoricalMetadataDirectory
-  );
-  assert.equal(invalidHistoricalMetadataResult.valid, true);
-  assert.equal(invalidHistoricalMetadataResult.metadata, null);
-  assert.equal(invalidHistoricalMetadataResult.stage, null);
+  const result = await checkChangePlanDirectory(archivedDirectory);
+  assert.equal(result.valid, false);
+  assert.equal(result.metadata, null);
+  assert.equal(result.stage, null);
+  assert.equal(result.distance, null);
+  assert.equal(result.taskCount, 0);
+  assert.deepEqual(result.diagnostics, [
+    {
+      code: "archived-change-not-checkable",
+      file: null,
+      message:
+        "archived changes are historical records and cannot be checked; use show to read the archived artifacts"
+    }
+  ]);
 }
 
 async function testVersionControlFailure(tempRoot: string): Promise<void> {
@@ -519,8 +517,11 @@ test("check accepts a complete plan", () =>
 test("check applies stage-specific artifact contracts", () =>
   withTempRoot("check-stages", testStageArtifactContracts));
 
-test("check validates active metadata and preserves archived history", () =>
-  withTempRoot("check-metadata", testMetadataAndArchiveBoundaries));
+test("check validates active metadata", () =>
+  withTempRoot("check-metadata", testActiveMetadataBoundaries));
+
+test("check rejects archived changes without validating historical content", () =>
+  withTempRoot("check-archived", testArchivedCheckBoundary));
 
 test("check reports change directory path diagnostics", () =>
   withTempRoot("check-paths", testDirectoryDiagnostics));

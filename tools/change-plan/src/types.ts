@@ -74,6 +74,7 @@ export type ChangePlanTaskProgress = Record<
 >;
 
 export type ChangePlanDiagnosticCode =
+  | "archived-change-not-checkable"
   | "change-directory-not-found"
   | "change-directory-read-failed"
   | "change-path-not-directory"
@@ -117,30 +118,44 @@ export type ChangePlanCheckResult = {
 
 export type ChangePlanStatus = "active" | "archived";
 
-export type ChangePlanCollectionSelection = ChangePlanStatus | "all";
+export type ChangePlanListSelection = ChangePlanStatus | "all";
 
 export type ChangePlanCollectionOptions = {
   changeRoot?: string;
-  status?: ChangePlanCollectionSelection;
 };
 
-export type ChangePlanListOptions = ChangePlanCollectionOptions & {
+export type ChangePlanListOptions = {
+  changeRoot?: string;
   stage?: ChangePlanStage;
+  status?: ChangePlanListSelection;
 };
 
-export type ChangePlanListEntry = ChangePlanCheckResult & {
-  status: ChangePlanStatus;
+export type ChangePlanActiveListEntry = ChangePlanCheckResult & {
+  status: "active";
 };
+
+export type ChangePlanArchivedListEntry = {
+  changeDirectory: string;
+  changeName: string;
+  status: "archived";
+};
+
+export type ChangePlanListEntry =
+  | ChangePlanActiveListEntry
+  | ChangePlanArchivedListEntry;
 
 export type ChangePlanListResult = {
   changeRoot: string;
   entries: ChangePlanListEntry[];
   errors: string[];
-  status: ChangePlanCollectionSelection;
+  status: ChangePlanListSelection;
 };
 
-export type ChangePlanCollectionCheckResult = ChangePlanListResult & {
+export type ChangePlanCollectionCheckResult = {
+  changeRoot: string;
   checkedCount: number;
+  entries: ChangePlanActiveListEntry[];
+  errors: string[];
   invalidCount: number;
   valid: boolean;
   validCount: number;
@@ -151,11 +166,24 @@ export type ChangePlanArtifactContents = Record<
   string | null
 >;
 
-export type ChangePlanShowResult = {
+export type ChangePlanActiveShowResult = {
   artifacts: ChangePlanArtifactContents;
   check: ChangePlanCheckResult;
-  status: ChangePlanStatus;
+  status: "active";
 };
+
+export type ChangePlanArchivedShowResult = {
+  artifacts: ChangePlanArtifactContents;
+  changeDirectory: string;
+  changeName: string;
+  check: null;
+  errors: string[];
+  status: "archived";
+};
+
+export type ChangePlanShowResult =
+  | ChangePlanActiveShowResult
+  | ChangePlanArchivedShowResult;
 
 export type ChangePlanLifecycleAction = "plan";
 

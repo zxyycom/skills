@@ -119,23 +119,23 @@
     "CHANGE-PLAN-CATALOG-LIFECYCLE-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CATALOG-LIFECYCLE-001 目录按生命周期列出计划 Change catalog 支持 active、archived 与 all 生命周期筛选，并在每个条目中公开适用的阶段与 Git 距离证据。 每种筛选只返回对应生命周期且排序稳定的计划；活动 Plan 返回距离证据，归档历史不解释 metadata 且距离为空。 tools/change-plan/tests/catalog.test.ts > catalog lists active, archived, and all change plans bun test --test-name-pattern=\"^catalog lists active, archived, and all change plans$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CATALOG-LIFECYCLE-001 目录按生命周期列出计划 Change catalog 支持 active、archived 与 all 生命周期筛选；active entry 公开检查结果，archived entry 只公开身份与路径。 每种筛选只返回对应生命周期且排序稳定的计划；active Plan 返回距离证据。 缺少 design 的 archived 历史仍可发现，其 entry 只包含 `changeDirectory`、`changeName` 与 `status`。 tools/change-plan/tests/catalog.test.ts > catalog lists active, archived, and all change plans bun test --test-name-pattern=\"^catalog lists active, archived, and all change plans$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
         "entries": [
           "tools/change-plan/tests/catalog.test.ts > catalog lists active, archived, and all change plans",
           "bun test --test-name-pattern=\"^catalog lists active, archived, and all change plans$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-CATALOG-LIFECYCLE-001",
         "line": 1,
-        "searchText": "目录按生命周期列出计划 Change catalog 支持 active、archived 与 all 生命周期筛选，并在每个条目中公开适用的阶段与 Git 距离证据。 每种筛选只返回对应生命周期且排序稳定的计划；活动 Plan 返回距离证据，归档历史不解释 metadata 且距离为空。 tools/change-plan/tests/catalog.test.ts > catalog lists active, archived, and all change plans bun test --test-name-pattern=\"^catalog lists active, archived, and all change plans$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "目录按生命周期列出计划 Change catalog 支持 active、archived 与 all 生命周期筛选；active entry 公开检查结果，archived entry 只公开身份与路径。 每种筛选只返回对应生命周期且排序稳定的计划；active Plan 返回距离证据。 缺少 design 的 archived 历史仍可发现，其 entry 只包含 `changeDirectory`、`changeName` 与 `status`。 tools/change-plan/tests/catalog.test.ts > catalog lists active, archived, and all change plans bun test --test-name-pattern=\"^catalog lists active, archived, and all change plans$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/catalog-lists-active-archived-and-all-change-plans.md",
-        "summary": "Change catalog 支持 active、archived 与 all 生命周期筛选，并在每个条目中公开适用的阶段与 Git 距离证据。",
+        "summary": "Change catalog 支持 active、archived 与 all 生命周期筛选；active entry 公开检查结果，archived entry 只公开身份与路径。",
         "title": "目录按生命周期列出计划"
       }
     },
@@ -165,23 +165,23 @@
     "CHANGE-PLAN-CATALOG-SHOW-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CATALOG-SHOW-001 Show 返回生命周期状态 `show` 必须按目录位置区分 active 与 archived Change，并为 active Change 返回可读取 artifacts 和检查结果。 Active Change 返回 `active`、有效检查和 proposal 内容；归档目录中的 Change 返回 `archived`。 tools/change-plan/tests/catalog.test.ts > catalog shows lifecycle status bun test --test-name-pattern=\"^catalog shows lifecycle status$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CATALOG-SHOW-001 Show 返回生命周期状态 `show` 必须按目录位置区分 active 与 archived Change；active 返回检查结果，archived 只读取原始 artifacts。 Active Change 返回 `active`、有效检查和 proposal 内容。 当前结构无效、缺少 design/tasks 且 metadata 无法解析的 archived Change 仍返回 `check: null`、原始 proposal 与空 errors，不产生内容诊断。 不存在的 archived 目标返回 `check: null`、全空 artifacts 与目录不可用错误，而不是内容检查结果。 tools/change-plan/tests/catalog.test.ts > catalog shows lifecycle status bun test --test-name-pattern=\"^catalog shows lifecycle status$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 11,
         "entries": [
           "tools/change-plan/tests/catalog.test.ts > catalog shows lifecycle status",
           "bun test --test-name-pattern=\"^catalog shows lifecycle status$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-CATALOG-SHOW-001",
         "line": 1,
-        "searchText": "Show 返回生命周期状态 `show` 必须按目录位置区分 active 与 archived Change，并为 active Change 返回可读取 artifacts 和检查结果。 Active Change 返回 `active`、有效检查和 proposal 内容；归档目录中的 Change 返回 `archived`。 tools/change-plan/tests/catalog.test.ts > catalog shows lifecycle status bun test --test-name-pattern=\"^catalog shows lifecycle status$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Show 返回生命周期状态 `show` 必须按目录位置区分 active 与 archived Change；active 返回检查结果，archived 只读取原始 artifacts。 Active Change 返回 `active`、有效检查和 proposal 内容。 当前结构无效、缺少 design/tasks 且 metadata 无法解析的 archived Change 仍返回 `check: null`、原始 proposal 与空 errors，不产生内容诊断。 不存在的 archived 目标返回 `check: null`、全空 artifacts 与目录不可用错误，而不是内容检查结果。 tools/change-plan/tests/catalog.test.ts > catalog shows lifecycle status bun test --test-name-pattern=\"^catalog shows lifecycle status$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/catalog-shows-lifecycle-status.md",
-        "summary": "`show` 必须按目录位置区分 active 与 archived Change，并为 active Change 返回可读取 artifacts 和检查结果。",
+        "summary": "`show` 必须按目录位置区分 active 与 archived Change；active 返回检查结果，archived 只读取原始 artifacts。",
         "title": "Show 返回生命周期状态"
       }
     },
@@ -229,6 +229,29 @@
         "sourcePath": "change-plan/catalog-does-not-discover-symbolic-link-change-directories.md",
         "summary": "Change catalog 只发现受管理根目录中的真实目录。",
         "title": "Catalog 不发现符号链接 change"
+      }
+    },
+    "CHANGE-PLAN-CHECK-ARCHIVED-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CHECK-ARCHIVED-001 Check 拒绝 Archived 且不校验历史内容 Checker 只接受 active Change；archived Change 是历史记录，不读取或验证其 metadata 与 artifacts。 缺少 design 且 metadata 无法解析的 archived 目录只返回 `archived-change-not-checkable`。 结果不包含 artifact 或 metadata 诊断，任务计数为零，stage、metadata 与距离为空。 tools/change-plan/tests/check.test.ts > check rejects archived changes without validating historical content bun test --test-name-pattern=\"^check rejects archived changes without validating historical content$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/change-plan/tests/check.test.ts > check rejects archived changes without validating historical content",
+          "bun test --test-name-pattern=\"^check rejects archived changes without validating historical content$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CHECK-ARCHIVED-001",
+        "line": 1,
+        "searchText": "Check 拒绝 Archived 且不校验历史内容 Checker 只接受 active Change；archived Change 是历史记录，不读取或验证其 metadata 与 artifacts。 缺少 design 且 metadata 无法解析的 archived 目录只返回 `archived-change-not-checkable`。 结果不包含 artifact 或 metadata 诊断，任务计数为零，stage、metadata 与距离为空。 tools/change-plan/tests/check.test.ts > check rejects archived changes without validating historical content bun test --test-name-pattern=\"^check rejects archived changes without validating historical content$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/check-rejects-archived-changes-without-validating-historical-content.md",
+        "summary": "Checker 只接受 active Change；archived Change 是历史记录，不读取或验证其 metadata 与 artifacts。",
+        "title": "Check 拒绝 Archived 且不校验历史内容"
       }
     },
     "CHANGE-PLAN-CHECK-ARTIFACTS-001": {
@@ -280,7 +303,7 @@
     "CHANGE-PLAN-CHECK-METADATA-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CHECK-METADATA-001 检查区分活动元数据与归档历史 Active Change 只通过规范 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不读取或解释历史 metadata。 null-base Plan、`implementation`、`shelved` 与含未知字段的 Draft 都得到 `invalid-metadata`，其 stage、metadata 与距离为空。 缺失 active metadata 得到缺失文件诊断，而没有 metadata 或历史 metadata 无效的 archived Change 继续按固定 artifact 结构通过检查。 tools/change-plan/tests/check.test.ts > check validates active metadata and preserves archived history bun test --test-name-pattern=\"^check validates active metadata and preserves archived history$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CHECK-METADATA-001 检查只接受规范 Active Metadata Active Change 只通过规范 metadata 恢复 Draft 或 Plan 身份与 Git 基线。 null-base Plan、`implementation`、`shelved` 与含未知字段的 Draft 都得到 `invalid-metadata`，其 stage、metadata 与距离为空。 缺失 active metadata 得到缺失文件诊断。 tools/change-plan/tests/check.test.ts > check validates active metadata bun test --test-name-pattern=\"^check validates active metadata$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -289,15 +312,15 @@
       "state": {
         "endLine": 10,
         "entries": [
-          "tools/change-plan/tests/check.test.ts > check validates active metadata and preserves archived history",
-          "bun test --test-name-pattern=\"^check validates active metadata and preserves archived history$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/check.test.ts > check validates active metadata",
+          "bun test --test-name-pattern=\"^check validates active metadata$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-CHECK-METADATA-001",
         "line": 1,
-        "searchText": "检查区分活动元数据与归档历史 Active Change 只通过规范 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不读取或解释历史 metadata。 null-base Plan、`implementation`、`shelved` 与含未知字段的 Draft 都得到 `invalid-metadata`，其 stage、metadata 与距离为空。 缺失 active metadata 得到缺失文件诊断，而没有 metadata 或历史 metadata 无效的 archived Change 继续按固定 artifact 结构通过检查。 tools/change-plan/tests/check.test.ts > check validates active metadata and preserves archived history bun test --test-name-pattern=\"^check validates active metadata and preserves archived history$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/check-validates-active-metadata-and-preserves-archived-history.md",
-        "summary": "Active Change 只通过规范 metadata 恢复 Draft/Plan 身份与基线；archived Change 由目录身份成立，不读取或解释历史 metadata。",
-        "title": "检查区分活动元数据与归档历史"
+        "searchText": "检查只接受规范 Active Metadata Active Change 只通过规范 metadata 恢复 Draft 或 Plan 身份与 Git 基线。 null-base Plan、`implementation`、`shelved` 与含未知字段的 Draft 都得到 `invalid-metadata`，其 stage、metadata 与距离为空。 缺失 active metadata 得到缺失文件诊断。 tools/change-plan/tests/check.test.ts > check validates active metadata bun test --test-name-pattern=\"^check validates active metadata$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/check-validates-active-metadata.md",
+        "summary": "Active Change 只通过规范 metadata 恢复 Draft 或 Plan 身份与 Git 基线。",
+        "title": "检查只接受规范 Active Metadata"
       }
     },
     "CHANGE-PLAN-CHECK-PATH-001": {
@@ -441,30 +464,30 @@
     "CHANGE-PLAN-CLI-CHECK-ALL-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CLI-CHECK-ALL-001 Check-all CLI 门禁所选 Change 集合 `check-all` 默认门禁 active Change，允许显式选择 archived 或全部集合，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。 成员失败时文本 stderr 展开逐项诊断，JSON stdout 保留计数、根路径和完整成员结果。 JSON 中每个成员都公开 `distance` 字段；Archived-only 文本只输出一行集合摘要。 Archived-only 成功退出 `0`，all 选择同时包含 active 与 archived 并在存在无效成员时退出 `1`。 tools/change-plan/tests/cli.test.ts > CLI check-all gates selected change collections bun test --test-name-pattern=\"^CLI check-all gates selected change collections$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CLI-CHECK-ALL-001 Check-all CLI 门禁 Active Change 集合 `check-all` 固定门禁 active Change，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。 成员失败时文本 stderr 展开逐项诊断，JSON stdout 保留计数、根路径和完整 active 成员结果。 JSON 中每个成员都公开 `distance` 并具有 `status: active`，archive 中的历史成员不进入结果。 tools/change-plan/tests/cli.test.ts > CLI check-all gates active change collections bun test --test-name-pattern=\"^CLI check-all gates active change collections$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 11,
+        "endLine": 10,
         "entries": [
-          "tools/change-plan/tests/cli.test.ts > CLI check-all gates selected change collections",
-          "bun test --test-name-pattern=\"^CLI check-all gates selected change collections$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/cli.test.ts > CLI check-all gates active change collections",
+          "bun test --test-name-pattern=\"^CLI check-all gates active change collections$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-CLI-CHECK-ALL-001",
         "line": 1,
-        "searchText": "Check-all CLI 门禁所选 Change 集合 `check-all` 默认门禁 active Change，允许显式选择 archived 或全部集合，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。 成员失败时文本 stderr 展开逐项诊断，JSON stdout 保留计数、根路径和完整成员结果。 JSON 中每个成员都公开 `distance` 字段；Archived-only 文本只输出一行集合摘要。 Archived-only 成功退出 `0`，all 选择同时包含 active 与 archived 并在存在无效成员时退出 `1`。 tools/change-plan/tests/cli.test.ts > CLI check-all gates selected change collections bun test --test-name-pattern=\"^CLI check-all gates selected change collections$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/cli-check-all-gates-selected-change-collections.md",
-        "summary": "`check-all` 默认门禁 active Change，允许显式选择 archived 或全部集合，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。",
-        "title": "Check-all CLI 门禁所选 Change 集合"
+        "searchText": "Check-all CLI 门禁 Active Change 集合 `check-all` 固定门禁 active Change，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。 成员失败时文本 stderr 展开逐项诊断，JSON stdout 保留计数、根路径和完整 active 成员结果。 JSON 中每个成员都公开 `distance` 并具有 `status: active`，archive 中的历史成员不进入结果。 tools/change-plan/tests/cli.test.ts > CLI check-all gates active change collections bun test --test-name-pattern=\"^CLI check-all gates active change collections$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/cli-check-all-gates-active-change-collections.md",
+        "summary": "`check-all` 固定门禁 active Change，并让文本与 JSON 输出使用同一个聚合结果决定退出状态。",
+        "title": "Check-all CLI 门禁 Active Change 集合"
       }
     },
     "CHANGE-PLAN-CLI-CHECK-ALL-OPTIONS-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CLI-CHECK-ALL-OPTIONS-001 Check-all CLI 拒绝不兼容选项 `check-all` 只接受一个集合选择，不接受 stage 过滤，并必须在帮助文本中公开合法调用方式。 同时使用 `--archived` 与 `--all` 或提供 `--stage` 时退出 `2` 并返回对应参数诊断；帮助文本列出 `check-all`。 tools/change-plan/tests/cli.test.ts > CLI check-all rejects incompatible options bun test --test-name-pattern=\"^CLI check-all rejects incompatible options$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CLI-CHECK-ALL-OPTIONS-001 Check-all CLI 拒绝不兼容选项 `check-all` 只接受可选 change root 与 `--json`；生命周期和 stage 选择只属于 `list`。 单独提供 `--archived`、`--all` 或 `--stage` 都退出 `2` 并说明这些选项只适用于 `list`；帮助文本列出 `check-all`。 tools/change-plan/tests/cli.test.ts > CLI check-all rejects incompatible options bun test --test-name-pattern=\"^CLI check-all rejects incompatible options$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -478,9 +501,9 @@
         ],
         "id": "CHANGE-PLAN-CLI-CHECK-ALL-OPTIONS-001",
         "line": 1,
-        "searchText": "Check-all CLI 拒绝不兼容选项 `check-all` 只接受一个集合选择，不接受 stage 过滤，并必须在帮助文本中公开合法调用方式。 同时使用 `--archived` 与 `--all` 或提供 `--stage` 时退出 `2` 并返回对应参数诊断；帮助文本列出 `check-all`。 tools/change-plan/tests/cli.test.ts > CLI check-all rejects incompatible options bun test --test-name-pattern=\"^CLI check-all rejects incompatible options$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Check-all CLI 拒绝不兼容选项 `check-all` 只接受可选 change root 与 `--json`；生命周期和 stage 选择只属于 `list`。 单独提供 `--archived`、`--all` 或 `--stage` 都退出 `2` 并说明这些选项只适用于 `list`；帮助文本列出 `check-all`。 tools/change-plan/tests/cli.test.ts > CLI check-all rejects incompatible options bun test --test-name-pattern=\"^CLI check-all rejects incompatible options$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/cli-check-all-rejects-incompatible-options.md",
-        "summary": "`check-all` 只接受一个集合选择，不接受 stage 过滤，并必须在帮助文本中公开合法调用方式。",
+        "summary": "`check-all` 只接受可选 change root 与 `--json`；生命周期和 stage 选择只属于 `list`。",
         "title": "Check-all CLI 拒绝不兼容选项"
       }
     },
@@ -505,6 +528,29 @@
         "sourcePath": "change-plan/cli-check-all-reports-lifecycle-root-diagnostics.md",
         "summary": "`check-all` 遇到不可用 change root 时必须在文本和 JSON 模式中报告根级失败，并使用相同失败退出状态。",
         "title": "Check-all CLI 报告生命周期根目录诊断"
+      }
+    },
+    "CHANGE-PLAN-CLI-CHECK-ARCHIVED-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-CLI-CHECK-ARCHIVED-001 Check CLI 拒绝 Archived 且不报告 Artifact 诊断 Check CLI 只门禁 active Change；对 archived 路径只报告命令不适用。 文本模式退出 `1` 并报告 `archived-change-not-checkable`，不报告缺失文件或 Markdown 结构问题。 JSON 模式退出 `1`、保持 stderr 为空，并返回 `valid: false` 与零任务计数。 tools/change-plan/tests/cli.test.ts > CLI check rejects archived changes without artifact diagnostics bun test --test-name-pattern=\"^CLI check rejects archived changes without artifact diagnostics$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/change-plan/tests/cli.test.ts > CLI check rejects archived changes without artifact diagnostics",
+          "bun test --test-name-pattern=\"^CLI check rejects archived changes without artifact diagnostics$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CLI-CHECK-ARCHIVED-001",
+        "line": 1,
+        "searchText": "Check CLI 拒绝 Archived 且不报告 Artifact 诊断 Check CLI 只门禁 active Change；对 archived 路径只报告命令不适用。 文本模式退出 `1` 并报告 `archived-change-not-checkable`，不报告缺失文件或 Markdown 结构问题。 JSON 模式退出 `1`、保持 stderr 为空，并返回 `valid: false` 与零任务计数。 tools/change-plan/tests/cli.test.ts > CLI check rejects archived changes without artifact diagnostics bun test --test-name-pattern=\"^CLI check rejects archived changes without artifact diagnostics$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/cli-check-rejects-archived-changes-without-artifact-diagnostics.md",
+        "summary": "Check CLI 只门禁 active Change；对 archived 路径只报告命令不适用。",
+        "title": "Check CLI 拒绝 Archived 且不报告 Artifact 诊断"
       }
     },
     "CHANGE-PLAN-CLI-COMMANDS-001": {
@@ -556,21 +602,21 @@
     "CHANGE-PLAN-CLI-LIST-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-CLI-LIST-001 List CLI 返回生命周期筛选后的 JSON List CLI 必须支持按活动/归档状态列出 Change，并允许活动条目继续按生命周期阶段筛选。 `--all --json` 同时返回 active 与 archived 条目；`--stage plan --json` 只返回 Plan 条目。 tools/change-plan/tests/cli.test.ts > CLI list returns lifecycle-filtered JSON bun test --test-name-pattern=\"^CLI list returns lifecycle-filtered JSON$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CLI-LIST-001 List CLI 返回生命周期筛选后的 JSON List CLI 必须支持按活动/归档状态列出 Change，并允许活动条目继续按生命周期阶段筛选。 `--all --json` 同时返回 active 与 archived 条目；`--stage plan --json` 只返回 Plan 条目。 Archived JSON entry 只包含 `changeDirectory`、`changeName` 与 `status`，不投影 active 检查字段。 tools/change-plan/tests/cli.test.ts > CLI list returns lifecycle-filtered JSON bun test --test-name-pattern=\"^CLI list returns lifecycle-filtered JSON$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
         "entries": [
           "tools/change-plan/tests/cli.test.ts > CLI list returns lifecycle-filtered JSON",
           "bun test --test-name-pattern=\"^CLI list returns lifecycle-filtered JSON$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-CLI-LIST-001",
         "line": 1,
-        "searchText": "List CLI 返回生命周期筛选后的 JSON List CLI 必须支持按活动/归档状态列出 Change，并允许活动条目继续按生命周期阶段筛选。 `--all --json` 同时返回 active 与 archived 条目；`--stage plan --json` 只返回 Plan 条目。 tools/change-plan/tests/cli.test.ts > CLI list returns lifecycle-filtered JSON bun test --test-name-pattern=\"^CLI list returns lifecycle-filtered JSON$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "List CLI 返回生命周期筛选后的 JSON List CLI 必须支持按活动/归档状态列出 Change，并允许活动条目继续按生命周期阶段筛选。 `--all --json` 同时返回 active 与 archived 条目；`--stage plan --json` 只返回 Plan 条目。 Archived JSON entry 只包含 `changeDirectory`、`changeName` 与 `status`，不投影 active 检查字段。 tools/change-plan/tests/cli.test.ts > CLI list returns lifecycle-filtered JSON bun test --test-name-pattern=\"^CLI list returns lifecycle-filtered JSON$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/cli-list-returns-lifecycle-filtered-json.md",
         "summary": "List CLI 必须支持按活动/归档状态列出 Change，并允许活动条目继续按生命周期阶段筛选。",
         "title": "List CLI 返回生命周期筛选后的 JSON"
@@ -714,33 +760,56 @@
         "title": "Show CLI 返回制品与无效计划诊断"
       }
     },
-    "CHANGE-PLAN-COLLECTION-CHECK-001": {
+    "CHANGE-PLAN-CLI-SHOW-ARCHIVED-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-COLLECTION-CHECK-001 集合检查聚合所选 Change 结果 集合检查必须复用 catalog 的 active、archived 与 all 成员选择，并从完整逐项检查结果派生稳定计数和整体有效性。 无效成员会保留诊断并使集合失败，显式 archived 选择可以独立通过，all 会包含两类成员。 tools/change-plan/tests/catalog.test.ts > collection check aggregates selected change results bun test --test-name-pattern=\"^collection check aggregates selected change results$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-CLI-SHOW-ARCHIVED-001 Show CLI 读取 Archived Artifact 且不返回检查结果 Show CLI 可以读取 archived Change 的原始 artifacts，但不恢复 stage、任务进度或有效性判断。 当前结构无效且缺少 design/tasks 的 archived Change 仍成功显示历史 proposal 与 `Check: not applicable (archived)`。 Archived JSON 返回 `status: archived`、`check: null` 与空 errors，文本不显示 Stage、Tasks 或 valid/invalid。 tools/change-plan/tests/cli.test.ts > CLI show reads archived artifacts without a check result bun test --test-name-pattern=\"^CLI show reads archived artifacts without a check result$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
         "entries": [
-          "tools/change-plan/tests/catalog.test.ts > collection check aggregates selected change results",
-          "bun test --test-name-pattern=\"^collection check aggregates selected change results$\" ./tools/change-plan/tests/run.ts"
+          "tools/change-plan/tests/cli.test.ts > CLI show reads archived artifacts without a check result",
+          "bun test --test-name-pattern=\"^CLI show reads archived artifacts without a check result$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "id": "CHANGE-PLAN-CLI-SHOW-ARCHIVED-001",
+        "line": 1,
+        "searchText": "Show CLI 读取 Archived Artifact 且不返回检查结果 Show CLI 可以读取 archived Change 的原始 artifacts，但不恢复 stage、任务进度或有效性判断。 当前结构无效且缺少 design/tasks 的 archived Change 仍成功显示历史 proposal 与 `Check: not applicable (archived)`。 Archived JSON 返回 `status: archived`、`check: null` 与空 errors，文本不显示 Stage、Tasks 或 valid/invalid。 tools/change-plan/tests/cli.test.ts > CLI show reads archived artifacts without a check result bun test --test-name-pattern=\"^CLI show reads archived artifacts without a check result$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/cli-show-reads-archived-artifacts-without-a-check-result.md",
+        "summary": "Show CLI 可以读取 archived Change 的原始 artifacts，但不恢复 stage、任务进度或有效性判断。",
+        "title": "Show CLI 读取 Archived Artifact 且不返回检查结果"
+      }
+    },
+    "CHANGE-PLAN-COLLECTION-CHECK-001": {
+      "keys": {
+        "search": [
+          "CHANGE-PLAN-COLLECTION-CHECK-001 集合检查只聚合 Active Change 结果 集合检查固定门禁 change root 的 active 直接成员，并从完整逐项检查结果派生稳定计数和整体有效性。 无效 active 成员保留诊断并使集合失败，有效 active 成员进入对应计数。 即使 archive 中存在无效历史目录，聚合结果仍只包含 `status: active` 的两个直接成员。 tools/change-plan/tests/catalog.test.ts > collection check aggregates active change results bun test --test-name-pattern=\"^collection check aggregates active change results$\" ./tools/change-plan/tests/run.ts"
+        ],
+        "topic": [
+          "change-plan"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/change-plan/tests/catalog.test.ts > collection check aggregates active change results",
+          "bun test --test-name-pattern=\"^collection check aggregates active change results$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-COLLECTION-CHECK-001",
         "line": 1,
-        "searchText": "集合检查聚合所选 Change 结果 集合检查必须复用 catalog 的 active、archived 与 all 成员选择，并从完整逐项检查结果派生稳定计数和整体有效性。 无效成员会保留诊断并使集合失败，显式 archived 选择可以独立通过，all 会包含两类成员。 tools/change-plan/tests/catalog.test.ts > collection check aggregates selected change results bun test --test-name-pattern=\"^collection check aggregates selected change results$\" ./tools/change-plan/tests/run.ts",
-        "sourcePath": "change-plan/collection-check-aggregates-selected-change-results.md",
-        "summary": "集合检查必须复用 catalog 的 active、archived 与 all 成员选择，并从完整逐项检查结果派生稳定计数和整体有效性。",
-        "title": "集合检查聚合所选 Change 结果"
+        "searchText": "集合检查只聚合 Active Change 结果 集合检查固定门禁 change root 的 active 直接成员，并从完整逐项检查结果派生稳定计数和整体有效性。 无效 active 成员保留诊断并使集合失败，有效 active 成员进入对应计数。 即使 archive 中存在无效历史目录，聚合结果仍只包含 `status: active` 的两个直接成员。 tools/change-plan/tests/catalog.test.ts > collection check aggregates active change results bun test --test-name-pattern=\"^collection check aggregates active change results$\" ./tools/change-plan/tests/run.ts",
+        "sourcePath": "change-plan/collection-check-aggregates-active-change-results.md",
+        "summary": "集合检查固定门禁 change root 的 active 直接成员，并从完整逐项检查结果派生稳定计数和整体有效性。",
+        "title": "集合检查只聚合 Active Change 结果"
       }
     },
     "CHANGE-PLAN-COLLECTION-ROOTS-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-COLLECTION-ROOTS-001 集合检查区分空集合与不可用根目录 集合检查必须把可访问的空目标集合与无法访问的 change root 区分为不同结果。 Active 空集合和 archive 容器尚不存在的 archived 空集合都以零计数通过；缺失 change root 保留根级错误并使集合失败。 tools/change-plan/tests/catalog.test.ts > collection check distinguishes empty and unavailable roots bun test --test-name-pattern=\"^collection check distinguishes empty and unavailable roots$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-COLLECTION-ROOTS-001 集合检查区分空集合与不可用根目录 集合检查必须把可访问的空目标集合与无法访问的 change root 区分为不同结果。 Active 空集合以零计数通过；缺失 change root 保留根级错误并使集合失败。 tools/change-plan/tests/catalog.test.ts > collection check distinguishes empty and unavailable roots bun test --test-name-pattern=\"^collection check distinguishes empty and unavailable roots$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
@@ -754,7 +823,7 @@
         ],
         "id": "CHANGE-PLAN-COLLECTION-ROOTS-001",
         "line": 1,
-        "searchText": "集合检查区分空集合与不可用根目录 集合检查必须把可访问的空目标集合与无法访问的 change root 区分为不同结果。 Active 空集合和 archive 容器尚不存在的 archived 空集合都以零计数通过；缺失 change root 保留根级错误并使集合失败。 tools/change-plan/tests/catalog.test.ts > collection check distinguishes empty and unavailable roots bun test --test-name-pattern=\"^collection check distinguishes empty and unavailable roots$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "集合检查区分空集合与不可用根目录 集合检查必须把可访问的空目标集合与无法访问的 change root 区分为不同结果。 Active 空集合以零计数通过；缺失 change root 保留根级错误并使集合失败。 tools/change-plan/tests/catalog.test.ts > collection check distinguishes empty and unavailable roots bun test --test-name-pattern=\"^collection check distinguishes empty and unavailable roots$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/collection-check-distinguishes-empty-and-unavailable-roots.md",
         "summary": "集合检查必须把可访问的空目标集合与无法访问的 change root 区分为不同结果。",
         "title": "集合检查区分空集合与不可用根目录"
@@ -1246,21 +1315,21 @@
     "CHANGE-PLAN-SHOW-SYMLINK-001": {
       "keys": {
         "search": [
-          "CHANGE-PLAN-SHOW-SYMLINK-001 Show 不读取符号链接外部内容 `show` 只能读取真实 Change 目录中的普通 artifact；目录或 artifact 为符号链接时返回空内容，不跟随链接读取 Change 外部数据。 源码函数与 JSON CLI 对链接目录均返回全空 artifacts，对链接 `proposal.md` 返回 `null`，且所有输出都不包含外部 marker。 tools/change-plan/tests/catalog.test.ts > show does not read symbolic-link directories or artifacts bun test --test-name-pattern=\"^show does not read symbolic-link directories or artifacts$\" ./tools/change-plan/tests/run.ts"
+          "CHANGE-PLAN-SHOW-SYMLINK-001 Show 不读取符号链接外部内容 `show` 只能读取真实 Change 目录中的普通 artifact；目录或 artifact 为符号链接时返回空内容，不跟随链接读取 Change 外部数据。 源码函数与 JSON CLI 对 active 或 archived 链接目录均返回全空 artifacts，对 active 链接 `proposal.md` 返回 `null`，且所有输出都不包含外部 marker。 Archived 链接目录返回 `check: null` 与查询错误，不进入 checker 或外部目标。 tools/change-plan/tests/catalog.test.ts > show does not read symbolic-link directories or artifacts bun test --test-name-pattern=\"^show does not read symbolic-link directories or artifacts$\" ./tools/change-plan/tests/run.ts"
         ],
         "topic": [
           "change-plan"
         ]
       },
       "state": {
-        "endLine": 9,
+        "endLine": 10,
         "entries": [
           "tools/change-plan/tests/catalog.test.ts > show does not read symbolic-link directories or artifacts",
           "bun test --test-name-pattern=\"^show does not read symbolic-link directories or artifacts$\" ./tools/change-plan/tests/run.ts"
         ],
         "id": "CHANGE-PLAN-SHOW-SYMLINK-001",
         "line": 1,
-        "searchText": "Show 不读取符号链接外部内容 `show` 只能读取真实 Change 目录中的普通 artifact；目录或 artifact 为符号链接时返回空内容，不跟随链接读取 Change 外部数据。 源码函数与 JSON CLI 对链接目录均返回全空 artifacts，对链接 `proposal.md` 返回 `null`，且所有输出都不包含外部 marker。 tools/change-plan/tests/catalog.test.ts > show does not read symbolic-link directories or artifacts bun test --test-name-pattern=\"^show does not read symbolic-link directories or artifacts$\" ./tools/change-plan/tests/run.ts",
+        "searchText": "Show 不读取符号链接外部内容 `show` 只能读取真实 Change 目录中的普通 artifact；目录或 artifact 为符号链接时返回空内容，不跟随链接读取 Change 外部数据。 源码函数与 JSON CLI 对 active 或 archived 链接目录均返回全空 artifacts，对 active 链接 `proposal.md` 返回 `null`，且所有输出都不包含外部 marker。 Archived 链接目录返回 `check: null` 与查询错误，不进入 checker 或外部目标。 tools/change-plan/tests/catalog.test.ts > show does not read symbolic-link directories or artifacts bun test --test-name-pattern=\"^show does not read symbolic-link directories or artifacts$\" ./tools/change-plan/tests/run.ts",
         "sourcePath": "change-plan/show-does-not-read-symbolic-link-directories-or-artifacts.md",
         "summary": "`show` 只能读取真实 Change 目录中的普通 artifact；目录或 artifact 为符号链接时返回空内容，不跟随链接读取 Change 外部数据。",
         "title": "Show 不读取符号链接外部内容"
@@ -13289,34 +13358,37 @@
       "CHANGE-PLAN-ARCHIVE-SOURCE-001": "sha256:fe8a6b826670a5751b1c702e0af55c9fb0fd7a28a29332195acdb589d1236ad1",
       "CHANGE-PLAN-ARCHIVE-TARGET-001": "sha256:bf72a27ade75aed5b8f6fffe81ffb08089f3015d940add1d82e44d4ad5683100",
       "CHANGE-PLAN-CATALOG-INVALID-001": "sha256:61fd1852f86cc38e4c03a5b00d0bdbe1c5004246851ab8d1e23e8f72d77efe03",
-      "CHANGE-PLAN-CATALOG-LIFECYCLE-001": "sha256:fce5a5ff32c12cc8d825afe0eb92266ca0627ee3332eb076aaed15b046e9fb82",
+      "CHANGE-PLAN-CATALOG-LIFECYCLE-001": "sha256:964292b2fa0b508ceaeb7c75e2ce0d6e0b2cebd9b993b1b46a7f0fa8c70bdfba",
       "CHANGE-PLAN-CATALOG-ROOTS-001": "sha256:74c0e20a9933fabcf6161c842b8b0d311d3b1c3f52893d99a727c38dd5e6b7c6",
-      "CHANGE-PLAN-CATALOG-SHOW-001": "sha256:f2acb18cfe9026fe954defd537879cc802eb7274bb8a125163009487a7a0071e",
+      "CHANGE-PLAN-CATALOG-SHOW-001": "sha256:cc874940e5774a6d6147c0bb1be614c8833e0a6d0e670a0af175da3cc02b5bcf",
       "CHANGE-PLAN-CATALOG-STAGE-001": "sha256:08299bf6a651cb5fb771111ec470724bb866c3140a6140a55e37aa516bf3aa6c",
       "CHANGE-PLAN-CATALOG-SYMLINK-001": "sha256:fc6fef013c71b8d7388e169d77a5b775011eb3c174fa835be2e4f152c019b447",
+      "CHANGE-PLAN-CHECK-ARCHIVED-001": "sha256:74796b6f0cc54672eb15592f3659f7714f5b737de3cfa5f567d04fba9825eff8",
       "CHANGE-PLAN-CHECK-ARTIFACTS-001": "sha256:bc8dc15f8d74580f110421b1de4a9bf154e4e1a06f8b78b4652cc93d1b60edb4",
       "CHANGE-PLAN-CHECK-COMPLETE-001": "sha256:f4ecf5f1ee6186ae7c7f1361c6ac129a338dd4ab54a337408c301015c2479ac1",
-      "CHANGE-PLAN-CHECK-METADATA-001": "sha256:a656bfde8ade2c2940768b99f294ccdcf9940bb835727d2282453a722d60ceba",
+      "CHANGE-PLAN-CHECK-METADATA-001": "sha256:95b1527ec77d4af2dea98d8e01718c836345fc5514db6e1da8c33a4b84fb31b9",
       "CHANGE-PLAN-CHECK-PATH-001": "sha256:8567cac39f90d4d674a2349a2070aaa243be9764ad93abd1d20684dd4f934762",
       "CHANGE-PLAN-CHECK-STAGES-001": "sha256:ef054b07b350458a3317f66453be72cdcbc79d858d207b3fbdf42ba13b6daa66",
       "CHANGE-PLAN-CHECK-SYMLINK-001": "sha256:6a003f12e0fb0e6d35855ca7c9939cb55c5ebf5b7df06146a3adaca8c1595d28",
       "CHANGE-PLAN-CHECK-VC-001": "sha256:726d3343bc3959cbe4d8f23d0a8d3df6bb106282edb6a50ea83720a7ab8690c5",
       "CHANGE-PLAN-CLI-ARCHIVE-001": "sha256:8ae3b39eaef7fd4af641a001d19f9eb1ea850ecb740bc63fd3bf9bc93e5d24b0",
       "CHANGE-PLAN-CLI-CHECK-001": "sha256:77d0dc65a5414f77e4f36402ceed132306f7c72fbb2686e35c503cdf617acf01",
-      "CHANGE-PLAN-CLI-CHECK-ALL-001": "sha256:933ee01cac21729c9a0f225be0ea471ef76101623469891a20072116f033a889",
-      "CHANGE-PLAN-CLI-CHECK-ALL-OPTIONS-001": "sha256:b87f763667d5df94cf51f86611a910de340ff04fd8b0effbd86c61c7161b40e6",
+      "CHANGE-PLAN-CLI-CHECK-ALL-001": "sha256:91b93b5ca18c732a0270549369138b9262e4201e5163bb8f678e3d1eecac3516",
+      "CHANGE-PLAN-CLI-CHECK-ALL-OPTIONS-001": "sha256:d730a1e0119aafc48ca8d36e61abe215cce000e4d0eb0e8dd9520fa4fd1e2365",
       "CHANGE-PLAN-CLI-CHECK-ALL-ROOTS-001": "sha256:daf00a4af5dd0f8044ad26a1a029fabc0b54b7d3fdad9bb6cab69ec9846c5fc3",
+      "CHANGE-PLAN-CLI-CHECK-ARCHIVED-001": "sha256:0a9c09732e71570ad75ee215cad011b48518c2ecb152770108f64ab8a4a8c96e",
       "CHANGE-PLAN-CLI-COMMANDS-001": "sha256:9c83bb791dc0cde422991626251a9985587fce9676300e73b4a8d53dbdbbd713",
       "CHANGE-PLAN-CLI-DISTANCE-001": "sha256:c39d7066806466a4bd9e036cb8ced1d4ecc7155e98d971bc9d8ad4f0f5822e7c",
-      "CHANGE-PLAN-CLI-LIST-001": "sha256:5e6c161d13e7132579d4eb27c7eb58fcc61a7dc8218cea87947173de88a445f4",
+      "CHANGE-PLAN-CLI-LIST-001": "sha256:13476ab774aab9850b62e1df5b0e28c62de19fe52a0b4f9336e9052f91a2731c",
       "CHANGE-PLAN-CLI-LIST-ARGS-001": "sha256:1c218739f3b4a92f314c012aa0f6acf5660ebdd576a732ef196c65a57798ca7a",
       "CHANGE-PLAN-CLI-LIST-ROOT-001": "sha256:142d5c70f5012973407aa1c114526abd0bed18f207bf2b5c1e02ba755b00bcd3",
       "CHANGE-PLAN-CLI-PLAN-CANONICAL-INPUTS-001": "sha256:79e6cf72f6e2b509efd6c53d8227100159f672f395abeb1046b9bf8b9877e796",
       "CHANGE-PLAN-CLI-PLAN-COMMIT-001": "sha256:d9552bc31d6a5e90d4d7fa4eec25319cca966277b52a1520d5b8c520dbad40bf",
       "CHANGE-PLAN-CLI-PLAN-NO-HEAD-001": "sha256:3807d0a281290da77157fffe53d156bcaa307f018d766b04b8601081e981b4dd",
       "CHANGE-PLAN-CLI-SHOW-001": "sha256:c2f5d2a79082ffd7b5584ef5533fc07304b21a67677f66c7efc446fae7040f3b",
-      "CHANGE-PLAN-COLLECTION-CHECK-001": "sha256:de00eb26b9fd4b50029e147b86f07878314e9e7b0defcbc192e14ab83dcb9366",
-      "CHANGE-PLAN-COLLECTION-ROOTS-001": "sha256:3f6c42628e52aac88ba9c9d4b232721b9a83288b870b911248b758b3ebeb084f",
+      "CHANGE-PLAN-CLI-SHOW-ARCHIVED-001": "sha256:27097a99ec1bcb8fdcd99decad12ae4c710b6639f948361c14a3660aa87d4a91",
+      "CHANGE-PLAN-COLLECTION-CHECK-001": "sha256:f1d773c9160f53350270b065aec72f4c725c296a198691e8a5099285fb157b5b",
+      "CHANGE-PLAN-COLLECTION-ROOTS-001": "sha256:9593ca44c9803fc623009300d34dc0662be713d00ee27ef815cb68fa6c68d6ed",
       "CHANGE-PLAN-GENERATED-ARTIFACTS-001": "sha256:501b7733efac8e3e550b0f056e4adccc8a510c1a8b41be7033ead46c5e79ebeb",
       "CHANGE-PLAN-GIT-BASE-001": "sha256:7d8fa2ee2cbf6b1f641d416906587dac107e66ba88d653bd7f9ecf2234cf43c8",
       "CHANGE-PLAN-GIT-EXCLUDE-001": "sha256:284255391ef42b91a26f880eebac5ecb386e76e50cca43066c91380b063117cf",
@@ -13338,7 +13410,7 @@
       "CHANGE-PLAN-METADATA-SCHEMA-001": "sha256:c0bcebdb00dc19491dfe0aed469054779f06e32ec73d4ff2f9349e13a9155fa6",
       "CHANGE-PLAN-METADATA-SYMLINK-001": "sha256:285e8e752f68addef6433c70d1b8d0bf797b638d196652344ce2f1b40c2c587f",
       "CHANGE-PLAN-METADATA-WRITER-001": "sha256:447c2a34524432d6d39e7851df432197b4d9461679fb9641e0b202f0316c3cac",
-      "CHANGE-PLAN-SHOW-SYMLINK-001": "sha256:4596341cd28d7edf40f0d5f743788b0fca3b45989feaf22f29f1bbae57e7962e",
+      "CHANGE-PLAN-SHOW-SYMLINK-001": "sha256:913be310972611ca0f883f6074b61462e40b73f51298de6150254715b63ef087",
       "CHECK-CLI-CONCURRENCY-001": "sha256:88e976ae0580c8e1c503d0be615d581e0f0ece14dbabe4b0e2664ac419905d46",
       "CHECK-CLI-UNKNOWN-OPTION-001": "sha256:8a48bbbdcf577be8b08b707c5b5d7d6e3de84dea348a472c81e6edec6f4fb8b0",
       "CHECK-DURATION-FORMAT-001": "sha256:5cb7811791d87d8d40a6f6a3f6a3d3e13bb6fc6cc48965ef18cd03be6fd293c0",

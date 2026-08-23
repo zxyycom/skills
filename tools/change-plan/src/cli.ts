@@ -21,9 +21,9 @@ import {
   changePlanArtifactNames,
   type ChangePlanCheckResult,
   type ChangePlanCollectionCheckResult,
-  type ChangePlanCollectionSelection,
   type ChangePlanDiagnostic,
   type ChangePlanLifecycleResult,
+  type ChangePlanListSelection,
   type ChangePlanStage,
   type GitDistanceEvidence
 } from "./types.ts";
@@ -34,16 +34,16 @@ function helpText(): string {
     "  change-plan.mjs list [change-root] [--archived | --all | --stage <stage>] [--json]",
     "  change-plan.mjs show <change-directory> [--json]",
     "  change-plan.mjs check <change-directory> [--json]",
-    "  change-plan.mjs check-all [change-root] [--archived | --all] [--json]",
+    "  change-plan.mjs check-all [change-root] [--json]",
     "  change-plan.mjs plan <change-directory> [--json]",
     "  change-plan.mjs archive <change-directory> [--json]",
     "",
     "Manage Draft and Plan artifacts, checks, Git distance, and archive delivery.",
-    "Commands apply mechanical checks only; they do not approve plans or judge semantics.",
+    "Check commands apply mechanical gates only; they do not approve plans or judge semantics.",
     "",
     "Options:",
-    "  --archived   Select archived changes for list or check-all",
-    "  --all        Select active and archived changes for list or check-all",
+    "  --archived   List archived changes",
+    "  --all        List active and archived changes",
     "  --stage      List active changes in draft or plan stage",
     "  --json       Write the structured result to stdout",
     "  -h, --help   Show this help"
@@ -111,20 +111,16 @@ function formatCollectionCheckSummary(
   result: ChangePlanCollectionCheckResult
 ): string {
   return (
-    `${result.status}; ${result.changeRoot}; ` +
+    `active; ${result.changeRoot}; ` +
     `${result.validCount}/${result.checkedCount} changes valid`
   );
 }
 
 async function runCollectionCheckCommand(
   changeRoot: string | undefined,
-  selection: ChangePlanCollectionSelection,
   json: boolean
 ): Promise<number> {
-  const result = await checkChangePlanCollection({
-    changeRoot,
-    status: selection
-  });
+  const result = await checkChangePlanCollection({ changeRoot });
   if (json) {
     console.log(JSON.stringify(result, null, 2));
     return result.valid ? 0 : 1;
@@ -148,7 +144,7 @@ async function runCollectionCheckCommand(
 
 async function runListCommand(
   changeRoot: string | undefined,
-  selection: ChangePlanCollectionSelection,
+  selection: ChangePlanListSelection,
   stage: ChangePlanStage | undefined,
   json: boolean
 ): Promise<number> {
@@ -174,6 +170,10 @@ async function runListCommand(
     return 0;
   }
   for (const entry of result.entries) {
+    if (entry.status === "archived") {
+      console.log(`- archived ${entry.changeName} ${entry.changeDirectory}`);
+      continue;
+    }
     console.log(
       `- ${entry.status} ${entry.changeName} ` +
         `stage=${entry.stage ?? "none"} ` +
@@ -193,7 +193,33 @@ async function runShowCommand(
   const result = await showChangePlanDirectory(changeDirectory);
   if (json) {
     console.log(JSON.stringify(result, null, 2));
-    return result.check.valid ? 0 : 1;
+    const showSucceeded =
+      result.status === "active"
+        ? result.check.valid
+        : result.errors.length === 0;
+    return showSucceeded ? 0 : 1;
+  }
+  if (result.status === "archived") {
+    console.log(`Change: ${result.changeName}`);
+    console.log("Status: archived");
+    console.log(`Directory: ${result.changeDirectory}`);
+    console.log("Check: not applicable (archived)");
+    for (const artifact of changePlanArtifactNames) {
+      console.log("");
+      console.log(`--- ${artifact} ---`);
+      const contents = result.artifacts[artifact];
+      console.log(
+        contents === null ? "[missing or unreadable]" : contents.trimEnd()
+      );
+    }
+    if (result.errors.length > 0) {
+      console.error("Archived change show failed:");
+      for (const error of result.errors) {
+        console.error(`- ${error}`);
+      }
+      return 1;
+    }
+    return 0;
   }
   console.log(`Change: ${result.check.changeName}`);
   console.log(`Status: ${result.status}`);
@@ -289,10 +315,10 @@ function parseStage(value: string | undefined): ChangePlanStage | undefined {
   return value === "draft" || value === "plan" ? value : undefined;
 }
 
-function parseCollectionSelection(
+function parseListSelection(
   all: boolean,
   archived: boolean
-): ChangePlanCollectionSelection | undefined {
+): ChangePlanListSelection | undefined {
   if (all && archived) {
     return undefined;
   }
@@ -338,7 +364,7 @@ export async function runChangePlanCli(
         "Expected: change-plan.mjs list [change-root] [--archived | --all | --stage <stage>] [--json]"
       );
     }
-    const selection = parseCollectionSelection(
+    const selection = parseListSelection(
       parsed.values.all === true,
       parsed.values.archived === true
     );
@@ -360,20 +386,19 @@ export async function runChangePlanCli(
   if (command === "check-all") {
     if (operands.length > 1 || operands[0]?.trim().length === 0) {
       return invalidArguments(
-        "Expected: change-plan.mjs check-all [change-root] [--archived | --all] [--json]"
+        "Expected: change-plan.mjs check-all [change-root] [--json]"
       );
     }
-    if (stageValue !== undefined) {
-      return invalidArguments("--stage is only valid with list.");
+    if (
+      parsed.values.all === true ||
+      parsed.values.archived === true ||
+      stageValue !== undefined
+    ) {
+      return invalidArguments(
+        "--archived, --all, and --stage are only valid with list."
+      );
     }
-    const selection = parseCollectionSelection(
-      parsed.values.all === true,
-      parsed.values.archived === true
-    );
-    if (selection === undefined) {
-      return invalidArguments("--archived and --all cannot be used together.");
-    }
-    return await runCollectionCheckCommand(operands[0], selection, json);
+    return await runCollectionCheckCommand(operands[0], json);
   }
 
   if (
@@ -382,7 +407,7 @@ export async function runChangePlanCli(
     stageValue !== undefined
   ) {
     return invalidArguments(
-      "--archived and --all are only valid with list or check-all; --stage is only valid with list."
+      "--archived, --all, and --stage are only valid with list."
     );
   }
   const changeDirectory = operands[0];
@@ -423,12 +448,15 @@ export {
 };
 export type {
   ChangePlanArchiveResult,
+  ChangePlanActiveListEntry,
+  ChangePlanActiveShowResult,
   ChangePlanArtifactContents,
   ChangePlanArtifactName,
+  ChangePlanArchivedListEntry,
+  ChangePlanArchivedShowResult,
   ChangePlanCheckResult,
   ChangePlanCollectionCheckResult,
   ChangePlanCollectionOptions,
-  ChangePlanCollectionSelection,
   ChangePlanDiagnostic,
   ChangePlanDiagnosticCode,
   ChangePlanFileName,
@@ -440,6 +468,7 @@ export type {
   ChangePlanListEntry,
   ChangePlanListOptions,
   ChangePlanListResult,
+  ChangePlanListSelection,
   ChangePlanMetadata,
   ChangePlanMetadataName,
   ChangePlanShowResult,
