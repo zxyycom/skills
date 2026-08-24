@@ -31,7 +31,8 @@ Readiness、Implementation 和 Verification 都在 Plan 内推进，其 checkbox
 
 项目 owner 继续拥有稳定事实、接口和验证语义，长期判断进入项目已有决策 owner。Change
 artifacts、机械检查、语义审阅与当前任务授权提供不同证据：`plan` 记录基线，`archive` 移动目录，
-两者都不代替实施或归档授权。不再实施的 active Change 通过项目普通文件删除和版本控制流程退出。
+两者都不代替实施或归档授权。不再实施的 active Change 只在明确授权后按项目的文件系统与版本控制
+流程移除整个目录，并以 `list` 不再发现该 active member 作为退出结果。
 
 实际 skill 位于 [`skills/change-plan/`](../../skills/change-plan/)。Agent 行为从
 [`SKILL.md`](../../skills/change-plan/SKILL.md) 进入；字段、严格 metadata 边界、六个命令、输出和机械门禁以

@@ -30,6 +30,9 @@ checker 的输入；Readiness、Implementation 和 Verification 的 checkbox 只
        └── <archived-change-name>/
    ```
 
+   Catalog 只以当前文件系统中的直接子目录判定成员，不读取 Git 跟踪状态；目录即使为空也仍是
+   active member，只有整个目录消失才退出集合。
+
 4. Active Change 及当前检查所需的文件都必须位于真实 Change 目录中并且是普通文件；目录、`.change-plan.json` 或 artifact 为符号链接时检查失败且不会跟随链接。
 5. Active Change 必须包含 `.change-plan.json`。缺失、无法读取、规范字段组合不合法或存在未定义字段时检查失败，不投影或自动迁移无效输入。
 6. `archive` 成功时把通过最终门禁的三个 artifacts 与 `.change-plan.json` 一同移动为 archived 历史。归档后 checker 不读取或解释其中任何文件；catalog 只发现目录，`show` 只按查询契约读取普通 artifact 文件。

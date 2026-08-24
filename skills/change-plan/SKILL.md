@@ -5,7 +5,7 @@ description: >-
   design.md、tasks.md 和 .change-plan.json 维护明确 Change 的目标、设计、任务、
   验证、draft/plan active stage 与 archived 目录状态。
 metadata:
-  version: "18"
+  version: "19"
 ---
 
 # Change Plan
@@ -82,13 +82,13 @@ Change artifacts、机械检查、内容审阅和当前任务授权分别提供�
    ```
 
 3. 归档成功后，整个目录进入同级 `archive/<change-name>/` 并作为历史参考；checker 不再读取或判断其中的 metadata、artifact 结构、任务与 Git 基线。后续工作需要新计划时建立新的 active Change。
-4. 对不再实施的 active Change，先判断其内容是否仍有独立价值，并把稳定事实、长期方向或调查结果交给对应 owner。只有当前任务已经明确授权删除该具体 Change 时，才使用项目普通文件删除与版本控制流程让它退出。
+4. 对不再实施的 active Change，先判断其内容是否仍有独立价值，并把稳定事实、长期方向或调查结果交给对应 owner。只有当前任务已经明确授权删除该具体 Change 时，才按项目的文件系统与版本控制流程移除整个 Change 目录；随后运行 `list`，确认它不再作为 active member 出现。
 
 ## 完成标准
 
 1. Draft 或 Plan 的 artifacts 共同表达同一 `Outcome`；`Resulting Impacts` 中的每项影响都能回溯到 `Intended Change`，并符合固定结构；active metadata 表达当前内容成熟度，archived 目录 status 只表达历史结果。
 2. Plan 内每项任务的状态都有事实支持，成功标准、稳定 owner、长期决策和验证证据已按实际结果同步。
-3. Active Change 查询中的任务进度、Git 距离或阻断诊断已得到处理，metadata 已通过严格规范解析；archived Change 的查询错误已得到处理。无效 active 输入通过普通文件与版本控制流程显式修复。
+3. Active Change 查询中的任务进度、Git 距离或阻断诊断已得到处理，metadata 已通过严格规范解析；archived Change 的查询错误已得到处理。无效 active 输入通过普通文件与版本控制流程显式修复，已授权删除的 active Change 已由 `list` 确认退出。
 4. 机械检查、内容审阅、实施授权和归档授权在交付中分别说明，没有用 metadata、checkbox 或命令成功代替授权。
 
 ## 交付
