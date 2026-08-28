@@ -3,6 +3,10 @@ import path from "node:path";
 import { err, errAsync, ok, ResultAsync, type Result } from "neverthrow";
 import type { StateSnapshot } from "../../index-runtime/src/index.ts";
 import {
+  openVersionControl,
+  repositoryRelativePathFromFileSystemPath
+} from "../../shared/src/version-control/index.ts";
+import {
   createInvestigationStateSnapshot,
   inspectInvestigationCollectionLayout,
   readInvestigationSources
@@ -333,12 +337,19 @@ async function validateFullCollection(
           collection.indexPath
         )
       : [];
+  const warnings = [
+    ...collection.warnings,
+    ...(await unrecordedPredecessorWarnings(
+      investigationRoot,
+      collection.states
+    ))
+  ];
   return checkResult(
     collection.reportCount,
     errors,
     synchronized.status === "ok",
     collection.indexPath,
-    collection.warnings
+    warnings
   );
 }
 
@@ -509,6 +520,66 @@ function investigationIndexPathForOptions(options: {
 }
 function uniqueSorted(values: readonly string[]): string[] {
   return [...new Set(values)].sort(compareText);
+}
+
+async function unrecordedPredecessorWarnings(
+  investigationsDirectory: string,
+  states: ReadonlyMap<string, InvestigationIndexState>
+): Promise<string[]> {
+  const directPredecessors = [...states].flatMap(([source, state]) =>
+    state.relations.map((relation) => ({ relation, source }))
+  );
+  const recordedIds = await recordedInvestigationIdsAtHead(
+    investigationsDirectory,
+    new Set(directPredecessors.map(({ relation }) => relation.target))
+  );
+  if (recordedIds === null) return [];
+  return uniqueSorted(
+    directPredecessors
+      .filter(({ relation }) => !recordedIds.has(relation.target))
+      .map(
+        ({ relation, source }) =>
+          `前序报告 ${relation.target} 尚未进入 Git HEAD，请确认 ${source} 的 ${relation.type} 关系是否应保留为独立调查演进。`
+      )
+  );
+}
+
+async function recordedInvestigationIdsAtHead(
+  investigationsDirectory: string,
+  ids: Iterable<string>
+): Promise<Set<string> | null> {
+  try {
+    const repository = await openVersionControl(investigationsDirectory);
+    const revision = await repository.getCurrentRevision();
+    if (revision === null) return null;
+    const directoryScope =
+      path.resolve(investigationsDirectory) === repository.rootDirectory
+        ? ""
+        : repositoryRelativePathFromFileSystemPath(
+            repository.rootDirectory,
+            investigationsDirectory
+          );
+    const revisionFiles =
+      directoryScope.length === 0
+        ? await repository.listRevisionFiles(revision)
+        : await repository.listRevisionFiles(revision, {
+            pathScopes: [directoryScope]
+          });
+    const pathsById = new Map(
+      [...ids].map((id) => [
+        directoryScope.length === 0 ? id : `${directoryScope}/${id}`,
+        id
+      ])
+    );
+    return new Set(
+      revisionFiles.flatMap((filePath) => {
+        const id = pathsById.get(filePath);
+        return id === undefined ? [] : [id];
+      })
+    );
+  } catch {
+    return null;
+  }
 }
 function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;

@@ -13,8 +13,8 @@ import {
 import { decisionIdFromSourcePath } from "./decision-path.ts";
 import type {
   DecisionId,
-  DecisionScan,
-  EstablishedDecisionRecord
+  DecisionRelationType,
+  DecisionScan
 } from "./types.ts";
 
 export type DecisionHistoryBaseline =
@@ -32,6 +32,17 @@ export type DecisionHistoryBaselineResult =
   | {
       baseline: DecisionHistoryBaseline;
       status: "ok";
+    };
+
+export type UnrecordedHistoryAttentionTarget =
+  | {
+      decisionId: DecisionId;
+      kind: "archive";
+    }
+  | {
+      decisionId: DecisionId;
+      kind: "relation";
+      relationType: DecisionRelationType;
     };
 
 export async function loadDecisionHistoryBaseline(
@@ -111,10 +122,9 @@ export async function loadDecisionHistoryBaseline(
 }
 
 export function prepareUnrecordedHistoryAttention(
-  records: readonly EstablishedDecisionRecord[],
+  targets: readonly UnrecordedHistoryAttentionTarget[],
   keepUnrecordedHistory: boolean,
-  historyBaseline: DecisionHistoryBaseline | null,
-  canCollapse: boolean
+  historyBaseline: DecisionHistoryBaseline | null
 ): DecisionApplicationAttention | null {
   if (
     keepUnrecordedHistory ||
@@ -123,30 +133,66 @@ export function prepareUnrecordedHistoryAttention(
   ) {
     return null;
   }
-  const unrecordedIds = records
-    .map((record) => record.decisionId)
+  const unrecordedTargets = targets
     .filter(
-      (decisionId) => !historyBaseline.recordedDecisionIds.has(decisionId)
-    );
-  if (unrecordedIds.length === 0) {
+      (target) => !historyBaseline.recordedDecisionIds.has(target.decisionId)
+    )
+    .sort(compareUnrecordedHistoryAttentionTargets);
+  if (unrecordedTargets.length === 0) {
     return null;
   }
   return decisionAttention([
-    "The following decisions have not entered " +
-      historyBaseline.label +
-      ": " +
-      unrecordedIds.join(", ") +
-      ".",
-    "Archiving them now may preserve same-change intermediate decisions as " +
-      "meaningless evolution history; no files were changed.",
-    canCollapse
-      ? "Re-run with --keep-unrecorded-history to preserve that history, or use " +
-        "evolve --collapse-unrecorded <decision-id> with one --successor " +
-        "and the complete final relation selection."
-      : "Re-run with --keep-unrecorded-history only after deciding that the " +
-        "unrecorded history should be preserved; otherwise resolve it through " +
-        "an explicit evolve collapse."
+    ...unrecordedTargets.map((target) =>
+      unrecordedHistoryAttentionMessage(historyBaseline.label, target)
+    ),
+    "Re-run with --keep-unrecorded-history only after confirming that the " +
+      "unrecorded history should be preserved; no files were changed."
   ]);
+}
+
+function unrecordedHistoryAttentionMessage(
+  historyLabel: string,
+  target: UnrecordedHistoryAttentionTarget
+): string {
+  if (target.kind === "archive") {
+    return (
+      "Decision " +
+      target.decisionId +
+      " has not entered " +
+      historyLabel +
+      "; confirm whether it should be preserved as independent decision history."
+    );
+  }
+  return (
+    "Predecessor decision " +
+    target.decisionId +
+    " has not entered " +
+    historyLabel +
+    "; confirm whether this " +
+    target.relationType +
+    " relation should be preserved as independent decision evolution."
+  );
+}
+
+function compareUnrecordedHistoryAttentionTargets(
+  left: UnrecordedHistoryAttentionTarget,
+  right: UnrecordedHistoryAttentionTarget
+): number {
+  const decisionIdComparison = compareText(left.decisionId, right.decisionId);
+  if (decisionIdComparison !== 0) {
+    return decisionIdComparison;
+  }
+  if (left.kind !== right.kind) {
+    return compareText(left.kind, right.kind);
+  }
+  if (left.kind === "relation" && right.kind === "relation") {
+    return compareText(left.relationType, right.relationType);
+  }
+  return 0;
+}
+
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 function isOutsideRepository(relativePath: string): boolean {

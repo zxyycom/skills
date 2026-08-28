@@ -4741,24 +4741,47 @@
     "DECISION-UNRECORDED-ARCHIVE-001": {
       "keys": {
         "search": [
-          "DECISION-UNRECORDED-ARCHIVE-001 归档未提交决策前暂停并要求显式保留 Archive 不得静默保留尚未进入 Git HEAD 的已建立记录；首次调用必须无写入暂停，显式确认后才能归档。 首次 archive 返回预警且决策 Markdown 与索引逐字节不变。 带 `--keep-unrecorded-history` 的重试不再依赖 Git 基线读取，并把目标归档且保留 aligned 对齐状态。 tools/decision-records/tests/unrecorded-history.test.ts > archive pauses before preserving an unrecorded established decision bun test --test-name-pattern=\"^archive pauses before preserving an unrecorded established decision$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-UNRECORDED-ARCHIVE-001 归档尚未进入 Git HEAD 的决策前暂停并要求显式确认 Git 工作树尚无首次提交的 unborn HEAD 按空基线处理；单独 `archive` 已建立决策时，首次调用必须暂停且不写入，只有显式确认保留独立决策历史后才能归档。 unborn HEAD fixture 中，首次 `archive` 返回独立历史确认提示，决策 Markdown 与索引逐字节不变。 带 `--keep-unrecorded-history` 的重试将目标归档并保留其 `aligned` 对齐状态。 tools/decision-records/tests/unrecorded-history.test.ts > archive pauses before preserving an unrecorded established decision bun test --test-name-pattern=\"^archive pauses before preserving an unrecorded established decision$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 16,
         "entries": [
           "tools/decision-records/tests/unrecorded-history.test.ts > archive pauses before preserving an unrecorded established decision",
           "bun test --test-name-pattern=\"^archive pauses before preserving an unrecorded established decision$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-UNRECORDED-ARCHIVE-001",
         "line": 1,
-        "searchText": "归档未提交决策前暂停并要求显式保留 Archive 不得静默保留尚未进入 Git HEAD 的已建立记录；首次调用必须无写入暂停，显式确认后才能归档。 首次 archive 返回预警且决策 Markdown 与索引逐字节不变。 带 `--keep-unrecorded-history` 的重试不再依赖 Git 基线读取，并把目标归档且保留 aligned 对齐状态。 tools/decision-records/tests/unrecorded-history.test.ts > archive pauses before preserving an unrecorded established decision bun test --test-name-pattern=\"^archive pauses before preserving an unrecorded established decision$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "归档尚未进入 Git HEAD 的决策前暂停并要求显式确认 Git 工作树尚无首次提交的 unborn HEAD 按空基线处理；单独 `archive` 已建立决策时，首次调用必须暂停且不写入，只有显式确认保留独立决策历史后才能归档。 unborn HEAD fixture 中，首次 `archive` 返回独立历史确认提示，决策 Markdown 与索引逐字节不变。 带 `--keep-unrecorded-history` 的重试将目标归档并保留其 `aligned` 对齐状态。 tools/decision-records/tests/unrecorded-history.test.ts > archive pauses before preserving an unrecorded established decision bun test --test-name-pattern=\"^archive pauses before preserving an unrecorded established decision$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/archive-pauses-before-preserving-an-unrecorded-established-decision.md",
-        "summary": "Archive 不得静默保留尚未进入 Git HEAD 的已建立记录；首次调用必须无写入暂停，显式确认后才能归档。",
-        "title": "归档未提交决策前暂停并要求显式保留"
+        "summary": "Git 工作树尚无首次提交的 unborn HEAD 按空基线处理；单独 `archive` 已建立决策时，首次调用必须暂停且不写入，只有显式确认保留独立决策历史后才能归档。",
+        "title": "归档尚未进入 Git HEAD 的决策前暂停并要求显式确认"
+      }
+    },
+    "DECISION-UNRECORDED-ARCHIVED-PREDECESSOR-001": {
+      "keys": {
+        "search": [
+          "DECISION-UNRECORDED-ARCHIVED-PREDECESSOR-001 关系事务确认尚未进入 Git HEAD 的归档直接前序 `evolve` 以候选中的关系连接尚未进入 Git HEAD 的 archived 直接前序时，首次调用必须暂停且不写入；archived 前序与 active 前序适用同一确认规则。 首次 `evolve` 返回包含该 archived 前序和 `替代` 关系类型的确认提示，并逐字节保留候选、前序与索引。 带 `--keep-unrecorded-history` 的重试建立后继关系，同时保持前序的 archived 状态。 tools/decision-records/tests/unrecorded-history.test.ts > evolve pauses for an unrecorded archived direct predecessor bun test --test-name-pattern=\"^evolve pauses for an unrecorded archived direct predecessor$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > evolve pauses for an unrecorded archived direct predecessor",
+          "bun test --test-name-pattern=\"^evolve pauses for an unrecorded archived direct predecessor$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-UNRECORDED-ARCHIVED-PREDECESSOR-001",
+        "line": 1,
+        "searchText": "关系事务确认尚未进入 Git HEAD 的归档直接前序 `evolve` 以候选中的关系连接尚未进入 Git HEAD 的 archived 直接前序时，首次调用必须暂停且不写入；archived 前序与 active 前序适用同一确认规则。 首次 `evolve` 返回包含该 archived 前序和 `替代` 关系类型的确认提示，并逐字节保留候选、前序与索引。 带 `--keep-unrecorded-history` 的重试建立后继关系，同时保持前序的 archived 状态。 tools/decision-records/tests/unrecorded-history.test.ts > evolve pauses for an unrecorded archived direct predecessor bun test --test-name-pattern=\"^evolve pauses for an unrecorded archived direct predecessor$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-pauses-for-an-unrecorded-archived-direct-predecessor.md",
+        "summary": "`evolve` 以候选中的关系连接尚未进入 Git HEAD 的 archived 直接前序时，首次调用必须暂停且不写入；archived 前序与 active 前序适用同一确认规则。",
+        "title": "关系事务确认尚未进入 Git HEAD 的归档直接前序"
       }
     },
     "DECISION-UNRECORDED-COLLAPSE-001": {
@@ -4902,24 +4925,47 @@
     "DECISION-UNRECORDED-EVOLUTION-001": {
       "keys": {
         "search": [
-          "DECISION-UNRECORDED-EVOLUTION-001 未提交决策演进等待显式保留 演进即将归档未进入 Git HEAD 的直接前序时必须先无写入暂停；只有调用者确认具有长期回放价值后，才能显式保留该历史。 首次带关系激活返回可行动 warning，并逐字节保留候选、前序和索引。 `--keep-unrecorded-history` 重试后保留中间记录和后继到中间记录的直接关系。 tools/decision-records/tests/unrecorded-history.test.ts > unrecorded decision evolution pauses until history is explicitly preserved bun test --test-name-pattern=\"^unrecorded decision evolution pauses until history is explicitly preserved$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-UNRECORDED-EVOLUTION-001 尚未进入 Git HEAD 的决策演进等待显式确认 `activate` 以关系连接候选与尚未进入 Git HEAD 的已建立直接前序时，首次调用必须暂停且不写入；提示标明前序和关系类型，显式确认保留独立决策演进后才能继续。 首次带 `修订` 关系的 `activate` 返回包含前序与关系类型的确认提示，并逐字节保留候选、前序和索引。 带 `--keep-unrecorded-history` 的重试归档中间决策，并建立后继到该决策的直接关系。 tools/decision-records/tests/unrecorded-history.test.ts > unrecorded decision evolution pauses until history is explicitly preserved bun test --test-name-pattern=\"^unrecorded decision evolution pauses until history is explicitly preserved$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 16,
         "entries": [
           "tools/decision-records/tests/unrecorded-history.test.ts > unrecorded decision evolution pauses until history is explicitly preserved",
           "bun test --test-name-pattern=\"^unrecorded decision evolution pauses until history is explicitly preserved$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-UNRECORDED-EVOLUTION-001",
         "line": 1,
-        "searchText": "未提交决策演进等待显式保留 演进即将归档未进入 Git HEAD 的直接前序时必须先无写入暂停；只有调用者确认具有长期回放价值后，才能显式保留该历史。 首次带关系激活返回可行动 warning，并逐字节保留候选、前序和索引。 `--keep-unrecorded-history` 重试后保留中间记录和后继到中间记录的直接关系。 tools/decision-records/tests/unrecorded-history.test.ts > unrecorded decision evolution pauses until history is explicitly preserved bun test --test-name-pattern=\"^unrecorded decision evolution pauses until history is explicitly preserved$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "尚未进入 Git HEAD 的决策演进等待显式确认 `activate` 以关系连接候选与尚未进入 Git HEAD 的已建立直接前序时，首次调用必须暂停且不写入；提示标明前序和关系类型，显式确认保留独立决策演进后才能继续。 首次带 `修订` 关系的 `activate` 返回包含前序与关系类型的确认提示，并逐字节保留候选、前序和索引。 带 `--keep-unrecorded-history` 的重试归档中间决策，并建立后继到该决策的直接关系。 tools/decision-records/tests/unrecorded-history.test.ts > unrecorded decision evolution pauses until history is explicitly preserved bun test --test-name-pattern=\"^unrecorded decision evolution pauses until history is explicitly preserved$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/unrecorded-decision-evolution-pauses-until-history-is-explicitly-preserved.md",
-        "summary": "演进即将归档未进入 Git HEAD 的直接前序时必须先无写入暂停；只有调用者确认具有长期回放价值后，才能显式保留该历史。",
-        "title": "未提交决策演进等待显式保留"
+        "summary": "`activate` 以关系连接候选与尚未进入 Git HEAD 的已建立直接前序时，首次调用必须暂停且不写入；提示标明前序和关系类型，显式确认保留独立决策演进后才能继续。",
+        "title": "尚未进入 Git HEAD 的决策演进等待显式确认"
+      }
+    },
+    "DECISION-UNRECORDED-WARNING-ORDER-001": {
+      "keys": {
+        "search": [
+          "DECISION-UNRECORDED-WARNING-ORDER-001 Evolve 按 Decision ID 顺序列出尚未进入 Git HEAD 的前序提示 `evolve` 对多个尚未进入 Git HEAD 的直接前序暂停时，独立历史确认提示按 Decision ID 稳定排序。 候选关系按 `z`、`a` 提供时，stderr 中 `a` 前序的确认提示先于 `z` 前序的确认提示。 tools/decision-records/tests/unrecorded-history.test.ts > evolve lists unrecorded predecessor warnings in Decision ID order bun test --test-name-pattern=\"^evolve lists unrecorded predecessor warnings in Decision ID order$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > evolve lists unrecorded predecessor warnings in Decision ID order",
+          "bun test --test-name-pattern=\"^evolve lists unrecorded predecessor warnings in Decision ID order$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-UNRECORDED-WARNING-ORDER-001",
+        "line": 1,
+        "searchText": "Evolve 按 Decision ID 顺序列出尚未进入 Git HEAD 的前序提示 `evolve` 对多个尚未进入 Git HEAD 的直接前序暂停时，独立历史确认提示按 Decision ID 稳定排序。 候选关系按 `z`、`a` 提供时，stderr 中 `a` 前序的确认提示先于 `z` 前序的确认提示。 tools/decision-records/tests/unrecorded-history.test.ts > evolve lists unrecorded predecessor warnings in Decision ID order bun test --test-name-pattern=\"^evolve lists unrecorded predecessor warnings in Decision ID order$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-lists-unrecorded-predecessor-warnings-in-decision-id-order.md",
+        "summary": "`evolve` 对多个尚未进入 Git HEAD 的直接前序暂停时，独立历史确认提示按 Decision ID 稳定排序。",
+        "title": "Evolve 按 Decision ID 顺序列出尚未进入 Git HEAD 的前序提示"
       }
     },
     "ENV-CHECK-READONLY-001": {
@@ -6852,6 +6898,52 @@
         "sourcePath": "investigation-report/show-and-trace-resolve-reports-by-investigation-id.md",
         "summary": "`show` 与 `trace` 只接受规范 Investigation ID，并按报告 ID 查询。",
         "title": "show and trace resolve reports by investigation id"
+      }
+    },
+    "INVESTIGATION-RELATION-GIT-HEAD-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RELATION-GIT-HEAD-001 全量检查仅提示尚未进入 Git HEAD 的直接前序 默认全量检查只对尚未进入 Git HEAD 的直接前序关系给出独立调查演进复核提示。 三层关系中，只有以 `first-unrecorded.md` 和 `second-unrecorded.md` 为 target 的未进入 Git HEAD 直接关系产生提示；以 `recorded.md` 为 target 的 HEAD 内直接关系不提示，且不合成 `source.md` 指向 `first-unrecorded.md` 的间接关系提示。 tools/investigation-report/tests/parsing-directory.test.ts > full validation warns only for direct predecessors outside Git HEAD bun test --test-name-pattern=\"^full validation warns only for direct predecessors outside Git HEAD$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/investigation-report/tests/parsing-directory.test.ts > full validation warns only for direct predecessors outside Git HEAD",
+          "bun test --test-name-pattern=\"^full validation warns only for direct predecessors outside Git HEAD$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RELATION-GIT-HEAD-001",
+        "line": 1,
+        "searchText": "全量检查仅提示尚未进入 Git HEAD 的直接前序 默认全量检查只对尚未进入 Git HEAD 的直接前序关系给出独立调查演进复核提示。 三层关系中，只有以 `first-unrecorded.md` 和 `second-unrecorded.md` 为 target 的未进入 Git HEAD 直接关系产生提示；以 `recorded.md` 为 target 的 HEAD 内直接关系不提示，且不合成 `source.md` 指向 `first-unrecorded.md` 的间接关系提示。 tools/investigation-report/tests/parsing-directory.test.ts > full validation warns only for direct predecessors outside Git HEAD bun test --test-name-pattern=\"^full validation warns only for direct predecessors outside Git HEAD$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/full-validation-warns-only-for-direct-predecessors-outside-git-head.md",
+        "summary": "默认全量检查只对尚未进入 Git HEAD 的直接前序关系给出独立调查演进复核提示。",
+        "title": "全量检查仅提示尚未进入 Git HEAD 的直接前序"
+      }
+    },
+    "INVESTIGATION-RELATION-GIT-HEAD-002": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RELATION-GIT-HEAD-002 无可用 Git HEAD 时全量检查跳过前序提示 不存在可用 Git HEAD 基线时，默认全量检查跳过尚未进入 Git HEAD 的直接前序关系提示。 非 Git、尚未形成 HEAD 及 HEAD 不可读或无效的 Git 工作区中，直接前序关系均不产生 error 或 warning。 tools/investigation-report/tests/parsing-directory.test.ts > full validation skips unrecorded predecessor warnings without Git HEAD bun test --test-name-pattern=\"^full validation skips unrecorded predecessor warnings without Git HEAD$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/investigation-report/tests/parsing-directory.test.ts > full validation skips unrecorded predecessor warnings without Git HEAD",
+          "bun test --test-name-pattern=\"^full validation skips unrecorded predecessor warnings without Git HEAD$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RELATION-GIT-HEAD-002",
+        "line": 1,
+        "searchText": "无可用 Git HEAD 时全量检查跳过前序提示 不存在可用 Git HEAD 基线时，默认全量检查跳过尚未进入 Git HEAD 的直接前序关系提示。 非 Git、尚未形成 HEAD 及 HEAD 不可读或无效的 Git 工作区中，直接前序关系均不产生 error 或 warning。 tools/investigation-report/tests/parsing-directory.test.ts > full validation skips unrecorded predecessor warnings without Git HEAD bun test --test-name-pattern=\"^full validation skips unrecorded predecessor warnings without Git HEAD$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/full-validation-skips-unrecorded-predecessor-warnings-without-git-head.md",
+        "summary": "不存在可用 Git HEAD 基线时，默认全量检查跳过尚未进入 Git HEAD 的直接前序关系提示。",
+        "title": "无可用 Git HEAD 时全量检查跳过前序提示"
       }
     },
     "INVESTIGATION-RELATION-GRAPH-CYCLE-001": {
@@ -14157,14 +14249,16 @@
       "DECISION-TRANSACTION-MOVE-001": "sha256:439a70b022f662b28ba2e373ddaf1351a98352e623ca602467680b3d04e69ff7",
       "DECISION-TRANSACTION-WRITE-RECOVERY-001": "sha256:e4ba39cf8c04ccec3719882f42273fa3bae2acf920fd6e3e2105d16e247b4fde",
       "DECISION-TYPE-PATH-001": "sha256:a497c584f58d77b8eba6552fcaff741261cb3776df69d296c4a3931549de51ac",
-      "DECISION-UNRECORDED-ARCHIVE-001": "sha256:815a7fdef4052f156d878333755bc5bb232fe99ab03d18804385428541fc2ddf",
+      "DECISION-UNRECORDED-ARCHIVE-001": "sha256:529730b9e909578cf8e227b61595fbeb7bf2c61e792697f607ff2fdd774dfd9b",
+      "DECISION-UNRECORDED-ARCHIVED-PREDECESSOR-001": "sha256:8fa8386271f72753ce6ef1e7185c1141960b01bf40e1cc4daa6359567babc7d7",
       "DECISION-UNRECORDED-COLLAPSE-001": "sha256:e9a35a4b90755f146056f063864d383c95f47541c132323c13fc6e6379ed5286",
       "DECISION-UNRECORDED-COLLAPSE-BOUNDARY-001": "sha256:849b3b4ba373da48c1b35db4f1fc87e9485939c592de295ec80e5c10742f33b3",
       "DECISION-UNRECORDED-COLLAPSE-EMPTY-001": "sha256:a8f8ac8bfca33789deb4c8f4f8d1dff6d97abcaaffd82075e38bd0a784c65246",
       "DECISION-UNRECORDED-COLLAPSE-IMPLICIT-EMPTY-001": "sha256:74c9a4f96aa79cb0ea0a4847223be0ab0d0608e4dd66b313118f9f64934b2d59",
       "DECISION-UNRECORDED-COLLAPSE-RECORDED-001": "sha256:393424879ded25295580036f42fb925d904f813ee4b8f78145145ef74f577651",
       "DECISION-UNRECORDED-COLLAPSE-REFERENCE-001": "sha256:935124fad8a31eaad28880889195c198c6ed6a6e7ce512ad6c20b07fba308980",
-      "DECISION-UNRECORDED-EVOLUTION-001": "sha256:febded1810b231ce8775d25dc6b2460fba9b25c72a3cf7566ae3779d9e0a617a",
+      "DECISION-UNRECORDED-EVOLUTION-001": "sha256:789f1a98d3fbd16a010fb515dd5e2f33788aeb39bf4d97b363ff78b70001496d",
+      "DECISION-UNRECORDED-WARNING-ORDER-001": "sha256:e440a42644bca2baa2c4465357436937b02c0ca646da3625a4d02d8c32659d30",
       "ENV-CHECK-READONLY-001": "sha256:1cc8bb79619b0886f6166381c90048049dc07658f88f51ca0bd0901ffebb6731",
       "ENV-CLONE-HOOK-001": "sha256:8ceef40cebeb5559b4eae4eebb6c9d903ded8c629f52abb4ece20145ba657f1d",
       "ENV-LINKED-HASH-HOOK-001": "sha256:13a94db1d55359cb4362c4db760d950fbc1f0b4480ea0db4928da59711cc3f92",
@@ -14249,6 +14343,8 @@
       "INVESTIGATION-INDEX-TEXT-FILTER-001": "sha256:3c7ebda378aba9e7e6fc6353adc3579a185fe8282c58560bf8f173efbc639fc0",
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:c296f8686441762f6fc42c7baed4df1d90c506d8349e5a90cd6a79118af81f86",
       "INVESTIGATION-QUERY-REPORT-ID-001": "sha256:f06cda59aa8d5cf08fe6e2ce817df58bebadd2df540370e4b2c9190073a6615f",
+      "INVESTIGATION-RELATION-GIT-HEAD-001": "sha256:b740f716cf24b71bd291fb8b81f3722901893c2b422e472704948eeba9b2476b",
+      "INVESTIGATION-RELATION-GIT-HEAD-002": "sha256:79d72fff9862a75047f32dc2af9685234ec1d8e4da8ee973830aabfb4b6bf035",
       "INVESTIGATION-RELATION-GRAPH-CYCLE-001": "sha256:c765da2db93e681c3aeee2493d2e16aadb08d39077a5b9af527690865822d170",
       "INVESTIGATION-RELATION-GRAPH-DUPLICATE-001": "sha256:3d2a034adff29f80dcf6a200fb20ed7450f32ed31357e31f4daf3b6f49d3ef77",
       "INVESTIGATION-RELATION-GRAPH-SELF-001": "sha256:770dff101c35f6a9ac7d0ac808dfdd12b9ed9ecc5cb56568488367421cf478ea",

@@ -360,10 +360,12 @@ function prepareArchive(
     records.push(record);
   }
   const unrecordedAttention = prepareUnrecordedHistoryAttention(
-    records,
+    records.map((record) => ({
+      decisionId: record.decisionId,
+      kind: "archive"
+    })),
     keepUnrecordedHistory,
-    historyBaseline,
-    false
+    historyBaseline
   );
   if (unrecordedAttention !== null) {
     return unrecordedAttention;

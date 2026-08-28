@@ -5,7 +5,8 @@ import {
 } from "./application-result.ts";
 import {
   prepareUnrecordedHistoryAttention,
-  type DecisionHistoryBaseline
+  type DecisionHistoryBaseline,
+  type UnrecordedHistoryAttentionTarget
 } from "./decision-history-baseline.ts";
 import { prepareArchivedDecisionChange } from "./decision-lifecycle-change.ts";
 import { serializeDecisionFrontmatter } from "./decision-metadata.ts";
@@ -22,6 +23,7 @@ import {
   type DecisionId,
   type DecisionRecord,
   type DecisionRelation,
+  type DecisionRelationType,
   type DecisionRelationOverride,
   type DecisionScan,
   type DecisionSuccessor,
@@ -102,12 +104,9 @@ export function prepareDecisionRelationTransaction(
   }
 
   const unrecordedAttention = prepareUnrecordedHistoryAttention(
-    predecessorSelection.activeRecords,
+    predecessorSelection.historyAttentionTargets,
     request.keepUnrecordedHistory,
-    historyBaseline,
-    collapsed.record === null &&
-      successors.records.length === 1 &&
-      successors.records[0]?.candidate === true
+    historyBaseline
   );
   if (unrecordedAttention !== null) {
     return unrecordedAttention;
@@ -385,8 +384,17 @@ function directPredecessors(
   scan: DecisionScan,
   successors: readonly PreparedSuccessor[],
   collapsedRecord: EstablishedDecisionRecord | null
-): { activeRecords: EstablishedDecisionRecord[]; errors: string[] } {
+): {
+  activeRecords: EstablishedDecisionRecord[];
+  errors: string[];
+  historyAttentionTargets: UnrecordedHistoryAttentionTarget[];
+} {
   const activeRecords = new Map<DecisionId, EstablishedDecisionRecord>();
+  const historyAttentionTargets: UnrecordedHistoryAttentionTarget[] = [];
+  const relationTypesByPredecessor = new Map<
+    DecisionId,
+    Set<DecisionRelationType>
+  >();
   const collapsedDirectPredecessors = new Set(
     collapsedRecord?.source.document.relations.map(
       (relation) => relation.target
@@ -436,9 +444,28 @@ function directPredecessors(
       if (predecessor.source.document.status === "active") {
         activeRecords.set(predecessor.decisionId, predecessor);
       }
+      let relationTypes = relationTypesByPredecessor.get(
+        predecessor.decisionId
+      );
+      if (relationTypes === undefined) {
+        relationTypes = new Set<DecisionRelationType>();
+        relationTypesByPredecessor.set(predecessor.decisionId, relationTypes);
+      }
+      if (!relationTypes.has(relation.type)) {
+        relationTypes.add(relation.type);
+        historyAttentionTargets.push({
+          decisionId: predecessor.decisionId,
+          kind: "relation",
+          relationType: relation.type
+        });
+      }
     }
   }
-  return { activeRecords: [...activeRecords.values()], errors };
+  return {
+    activeRecords: [...activeRecords.values()],
+    errors,
+    historyAttentionTargets
+  };
 }
 
 function buildRelationTransactionPreview(
@@ -655,9 +682,7 @@ export function decisionRelationTransactionRequiresHistoryBaseline(
     );
   });
   return relations.some(
-    (relation) =>
-      findEstablishedRecord(scan, relation.target)?.source.document.status ===
-      "active"
+    (relation) => findEstablishedRecord(scan, relation.target) !== null
   );
 }
 

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import { test } from "node:test";
 import { parseInvestigationReport } from "../src/markdown.ts";
@@ -213,3 +214,98 @@ test("public APIs diagnose malformed runtime options without throwing", async ()
   } as unknown as { workspaceRoot: string });
   assert.ok(result.errors.some((error) => error.includes("must be a string")));
 });
+
+test("full validation warns only for direct predecessors outside Git HEAD", async () => {
+  await withTempRoot("unrecorded-predecessor", async (root) => {
+    await writeCollection(root, [
+      { id: "recorded.md", formedAt: "2026-08-28T10:00:00+00:00" }
+    ]);
+    initializeGit(root);
+    await writeCollection(root, [
+      { id: "recorded.md", formedAt: "2026-08-28T10:00:00+00:00" },
+      {
+        id: "first-unrecorded.md",
+        formedAt: "2026-08-28T11:00:00+00:00",
+        relations: [{ target: "recorded.md", type: "补充" }]
+      },
+      {
+        id: "second-unrecorded.md",
+        formedAt: "2026-08-28T12:00:00+00:00",
+        relations: [{ target: "first-unrecorded.md", type: "修正" }]
+      },
+      {
+        id: "source.md",
+        formedAt: "2026-08-28T13:00:00+00:00",
+        relations: [{ target: "second-unrecorded.md", type: "复查" }]
+      }
+    ]);
+
+    const result = await validateInvestigationReports({ workspaceRoot: root });
+
+    assert.deepEqual(result.errors, []);
+    assert.deepEqual(result.warnings, [
+      "前序报告 first-unrecorded.md 尚未进入 Git HEAD，请确认 second-unrecorded.md 的 修正 关系是否应保留为独立调查演进。",
+      "前序报告 second-unrecorded.md 尚未进入 Git HEAD，请确认 source.md 的 复查 关系是否应保留为独立调查演进。"
+    ]);
+    assert.ok(
+      !result.warnings.includes(
+        "前序报告 first-unrecorded.md 尚未进入 Git HEAD，请确认 source.md 的 复查 关系是否应保留为独立调查演进。"
+      )
+    );
+    assert.ok(
+      !result.warnings.includes(
+        "前序报告 recorded.md 尚未进入 Git HEAD，请确认 first-unrecorded.md 的 补充 关系是否应保留为独立调查演进。"
+      )
+    );
+  });
+});
+
+test("full validation skips unrecorded predecessor warnings without Git HEAD", async () => {
+  await withTempRoot("no-git-head", async (root) => {
+    await writeCollection(root, [
+      { id: "predecessor.md", formedAt: "2026-08-28T10:00:00+00:00" },
+      {
+        id: "source.md",
+        formedAt: "2026-08-28T11:00:00+00:00",
+        relations: [{ target: "predecessor.md", type: "补充" }]
+      }
+    ]);
+
+    const result = await validateInvestigationReports({ workspaceRoot: root });
+
+    assert.deepEqual(result.errors, []);
+    assert.deepEqual(result.warnings, []);
+    git(root, ["init", "--quiet"]);
+    const unbornHeadResult = await validateInvestigationReports({
+      workspaceRoot: root
+    });
+    assert.deepEqual(unbornHeadResult.errors, []);
+    assert.deepEqual(unbornHeadResult.warnings, []);
+    git(root, ["symbolic-ref", "HEAD", "refs/heads/broken"]);
+    await fs.writeFile(
+      `${root}/.git/refs/heads/broken`,
+      "not-an-object\n",
+      "utf8"
+    );
+    const brokenHeadResult = await validateInvestigationReports({
+      workspaceRoot: root
+    });
+    assert.deepEqual(brokenHeadResult.errors, []);
+    assert.deepEqual(brokenHeadResult.warnings, []);
+  });
+});
+
+function git(root: string, args: readonly string[]): string {
+  return execFileSync("git", ["-C", root, ...args], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+}
+
+function initializeGit(root: string): void {
+  git(root, ["init", "--quiet"]);
+  git(root, ["config", "user.email", "test@example.invalid"]);
+  git(root, ["config", "user.name", "Test"]);
+  git(root, ["add", "."]);
+  git(root, ["commit", "--quiet", "-m", "initial"]);
+}
