@@ -1,3 +1,4 @@
+import fs from "node:fs/promises";
 import path from "node:path";
 import {
   err,
@@ -14,36 +15,58 @@ import {
   type StateIndexFilter
 } from "../../index-runtime/src/index.ts";
 import {
+  buildRelationGraph,
+  traceRelationGraph
+} from "../../shared/src/graph/relations.ts";
+import {
   createInvestigationStateIndexDefinition,
   investigationIndexDiagnosticMessages,
   investigationIndexFileName,
   loadCurrentInvestigationIndex
 } from "./investigation-state-index.ts";
-import { parseInvestigationIndexQueryOptions } from "./options.ts";
+import {
+  parseInvestigationIndexQueryOptions,
+  parseInvestigationReportShowOptions,
+  parseInvestigationReportTraceOptions
+} from "./options.ts";
 import {
   canonicalizeInvestigationsDirectory,
   defaultInvestigationsDirectory,
-  isInvestigationCategory,
-  isInvestigationTopicPath,
-  normalizeInvestigationTopicPath,
+  isInvestigationId,
+  isInvestigationTag,
+  reportPathForInvestigationId,
   resolveInvestigationsDirectory,
   type ResolvedInvestigationsDirectory
 } from "./report-path.ts";
+import { isInvestigationRelationType } from "./report-validation.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
-import {
-  type InvestigationIndexQueryOptions,
-  type InvestigationIndexQueryResult
+import type {
+  InvestigationIndexQueryOptions,
+  InvestigationIndexQueryResult,
+  InvestigationReportShowOptions,
+  InvestigationReportShowResult,
+  InvestigationReportTraceOptions,
+  InvestigationReportTraceResult
 } from "./types.ts";
 
 type InvestigationIndexQueryFailure = Readonly<{
   kind: "invalid-options" | "operation";
   result: InvestigationIndexQueryResult;
 }>;
-
 type PreparedQuery = Readonly<{
   indexPath: string;
   resolved: ResolvedInvestigationsDirectory;
   validated: ValidatedQueryOptions;
+}>;
+type ValidatedQueryOptions = Readonly<{
+  filters: StateIndexFilter[];
+  limit: number;
+  offset: number;
+}>;
+type QueryOptionValidationFailure = Readonly<{
+  errors: string[];
+  limit: number;
+  offset: number;
 }>;
 
 export async function queryInvestigationIndex(
@@ -63,7 +86,6 @@ export function executeInvestigationIndexQuery(
   if (prepared.isErr()) {
     return errAsync(prepared.error);
   }
-
   return canonicalizeInvestigationsDirectory(prepared.value.resolved)
     .mapErr((errors) =>
       queryFailure(
@@ -93,6 +115,168 @@ export function executeInvestigationIndexQuery(
     );
 }
 
+export async function showInvestigationReport(
+  options: InvestigationReportShowOptions
+): Promise<InvestigationReportShowResult> {
+  const parsed = parseInvestigationReportShowOptions(options);
+  const id =
+    typeof (options as { id?: unknown }).id === "string"
+      ? (options as { id: string }).id
+      : "";
+  if (parsed.isErr() || !isInvestigationId(id)) {
+    return showFailure(id, defaultInvestigationIndexPath(), [
+      ...(parsed.isErr() ? parsed.error : []),
+      `${id || "<empty>"} must use an Investigation ID`
+    ]);
+  }
+  const resolved = resolveInvestigationsDirectory(
+    parsed.value.workspaceRoot,
+    parsed.value.investigationsDir
+  );
+  if (resolved.isErr()) {
+    return showFailure(
+      id,
+      investigationIndexPathForOptions(parsed.value),
+      resolved.error
+    );
+  }
+  const canonical = await canonicalizeInvestigationsDirectory(resolved.value);
+  if (canonical.isErr()) {
+    return showFailure(
+      id,
+      investigationIndexPathForOptions(parsed.value),
+      canonical.error
+    );
+  }
+  const indexPath = path.join(
+    canonical.value.investigationsDirectory,
+    investigationIndexFileName
+  );
+  const loaded = await loadCurrentInvestigationIndex({
+    investigationsDirectory: canonical.value.investigationsDirectory
+  });
+  if (loaded.status === "error") {
+    return showFailure(
+      id,
+      indexPath,
+      investigationIndexDiagnosticMessages(loaded.diagnostics, indexPath)
+    );
+  }
+  const entry = loaded.value.entries[id];
+  if (entry === undefined) {
+    return showFailure(id, indexPath, [
+      `${id} investigation report does not exist`
+    ]);
+  }
+  try {
+    return {
+      errors: [],
+      id,
+      indexPath,
+      markdown: await fs.readFile(
+        reportPathForInvestigationId(
+          canonical.value.investigationsDirectory,
+          id
+        ),
+        "utf8"
+      ),
+      state: entry.state,
+      status: "ok"
+    };
+  } catch (error) {
+    return showFailure(id, indexPath, [
+      `${id} could not be read: ${errorText(error)}`
+    ]);
+  }
+}
+
+export async function traceInvestigationReports(
+  options: InvestigationReportTraceOptions
+): Promise<InvestigationReportTraceResult> {
+  const parsed = parseInvestigationReportTraceOptions(options);
+  const id =
+    typeof (options as { id?: unknown }).id === "string"
+      ? (options as { id: string }).id
+      : "";
+  if (parsed.isErr() || !isInvestigationId(id)) {
+    return traceFailure(id, defaultInvestigationIndexPath(), [
+      ...(parsed.isErr() ? parsed.error : []),
+      `${id || "<empty>"} must use an Investigation ID`
+    ]);
+  }
+  const direction = parsed.value.direction ?? "both";
+  const maxDepth = parsed.value.maxDepth ?? null;
+  if (
+    !Number.isSafeInteger(maxDepth ?? 0) ||
+    (maxDepth !== null && maxDepth < 0)
+  ) {
+    return traceFailure(id, investigationIndexPathForOptions(parsed.value), [
+      "maxDepth must be a non-negative integer"
+    ]);
+  }
+  const resolved = resolveInvestigationsDirectory(
+    parsed.value.workspaceRoot,
+    parsed.value.investigationsDir
+  );
+  if (resolved.isErr()) {
+    return traceFailure(
+      id,
+      investigationIndexPathForOptions(parsed.value),
+      resolved.error
+    );
+  }
+  const canonical = await canonicalizeInvestigationsDirectory(resolved.value);
+  if (canonical.isErr()) {
+    return traceFailure(
+      id,
+      investigationIndexPathForOptions(parsed.value),
+      canonical.error
+    );
+  }
+  const indexPath = path.join(
+    canonical.value.investigationsDirectory,
+    investigationIndexFileName
+  );
+  const loaded = await loadCurrentInvestigationIndex({
+    investigationsDirectory: canonical.value.investigationsDirectory
+  });
+  if (loaded.status === "error") {
+    return traceFailure(
+      id,
+      indexPath,
+      investigationIndexDiagnosticMessages(loaded.diagnostics, indexPath)
+    );
+  }
+  if (loaded.value.entries[id] === undefined) {
+    return traceFailure(id, indexPath, [
+      `${id} investigation report does not exist`
+    ]);
+  }
+  const graph = buildRelationGraph(
+    Object.keys(loaded.value.entries),
+    Object.entries(loaded.value.entries).flatMap(([source, entry]) =>
+      entry.state.relations.map((relation) => ({
+        source,
+        target: relation.target,
+        type: relation.type
+      }))
+    )
+  );
+  const trace = traceRelationGraph(graph, id, { direction, maxDepth });
+  return {
+    edges: trace.edges.map((edge) => ({
+      source: edge.source,
+      target: edge.target,
+      type: edge.type
+    })),
+    errors: [],
+    id,
+    indexPath,
+    reportIds: [...trace.ids].sort(compareText),
+    status: "ok"
+  };
+}
+
 function prepareQuery(
   input: unknown
 ): Result<PreparedQuery, InvestigationIndexQueryFailure> {
@@ -108,7 +292,6 @@ function prepareQuery(
       )
     );
   }
-
   const resolved = resolveInvestigationsDirectory(
     parsed.value.workspaceRoot,
     parsed.value.investigationsDir
@@ -157,7 +340,6 @@ function queryValidatedInvestigationIndex(
         investigationIndexDiagnosticMessages(loaded.diagnostics, indexPath)
       );
     }
-
     return fromThrowable(
       () =>
         queryStateIndex({
@@ -167,7 +349,7 @@ function queryValidatedInvestigationIndex(
             filters: validated.filters,
             limit: validated.limit,
             offset: validated.offset,
-            sort: [{ direction: "desc", key: "latest-report-at" }]
+            sort: [{ direction: "asc", key: "id" }]
           }
         }),
       (error) => [
@@ -179,7 +361,10 @@ function queryValidatedInvestigationIndex(
             investigationIndexDiagnosticMessages(queried.diagnostics, indexPath)
           )
         : ok({
-            entries: queried.value.entries.map((entry) => entry.state),
+            entries: queried.value.entries.map((entry) => ({
+              id: entry.id,
+              state: entry.state
+            })),
             errors: [],
             indexPath,
             limit: queried.value.limit,
@@ -189,18 +374,6 @@ function queryValidatedInvestigationIndex(
     );
   });
 }
-
-type ValidatedQueryOptions = Readonly<{
-  filters: StateIndexFilter[];
-  limit: number;
-  offset: number;
-}>;
-
-type QueryOptionValidationFailure = Readonly<{
-  errors: string[];
-  limit: number;
-  offset: number;
-}>;
 
 function validateQueryOptions(
   options: InvestigationIndexQueryOptions
@@ -221,100 +394,64 @@ function validateQueryOptions(
   if (!Number.isSafeInteger(offset) || offset < 0) {
     errors.push("offset must be a non-negative integer");
   }
-
-  const paths = uniqueSorted(
-    (options.paths ?? []).map(normalizeInvestigationTopicPath)
-  );
-  const invalidPaths = paths.filter(
-    (topicPath) => !isInvestigationTopicPath(topicPath)
-  );
-  for (const topicPath of invalidPaths) {
+  const tags = uniqueSorted((options.tags ?? []).map((tag) => tag.trim()));
+  const invalidTags = tags.filter((tag) => !isInvestigationTag(tag));
+  for (const tag of invalidTags) {
+    errors.push(`tag filter must use kebab-case: ${tag || "<empty>"}`);
+  }
+  if (tags.length > 0 && invalidTags.length === 0) {
+    filters.push({ key: "tag", kind: "exact", operator: "all", values: tags });
+  }
+  if (
+    options.relationType !== undefined &&
+    !isInvestigationRelationType(options.relationType)
+  ) {
     errors.push(
-      `path filter must use <category-id>/<semantic-slug>.md: ` +
-        (topicPath || "<empty>")
+      `unknown investigation relation type: ${String(options.relationType)}`
     );
-  }
-  if (paths.length > 0 && invalidPaths.length === 0) {
+  } else if (options.relationType !== undefined) {
     filters.push({
-      key: "id",
+      key: "relation-type",
       kind: "exact",
       operator: "any",
-      values: paths
+      values: [options.relationType]
     });
   }
-
-  const categories = uniqueSorted(
-    (options.categories ?? []).map((category) => category.trim())
-  );
-  const invalidCategories = categories.filter(
-    (category) => !isInvestigationCategory(category)
-  );
-  for (const category of invalidCategories) {
-    errors.push(
-      `category filter must use kebab-case: ${category || "<empty>"}`
-    );
-  }
-  if (categories.length > 0 && invalidCategories.length === 0) {
-    filters.push({
-      key: "category",
-      kind: "exact",
-      operator: "any",
-      values: categories
-    });
-  }
-
-  const statuses = uniqueSorted(options.statuses ?? []);
-  if (statuses.length > 0) {
-    filters.push({
-      key: "status",
-      kind: "exact",
-      operator: "any",
-      values: statuses
-    });
-  }
-
   const text = options.text?.trim();
   if (options.text !== undefined && text?.length === 0) {
     errors.push("text filter must not be empty");
   } else if (text !== undefined) {
-    filters.push({
-      key: "text",
-      kind: "text",
-      operator: "all",
-      text
-    });
+    filters.push({ key: "text", kind: "text", operator: "all", text });
   }
-
-  const latestFrom = timestampFilter(
-    options.latestReportAtFrom,
-    "latest report lower bound",
+  const from = timestampFilter(
+    options.formedAtFrom,
+    "formedAt lower bound",
     errors
   );
-  const latestTo = timestampFilter(
-    options.latestReportAtTo,
-    "latest report upper bound",
+  const to = timestampFilter(
+    options.formedAtTo,
+    "formedAt upper bound",
     errors
   );
-  if (latestFrom !== null && latestTo !== null && latestFrom > latestTo) {
-    errors.push("latest report lower bound must not be after the upper bound");
+  if (from !== null && to !== null && from > to) {
+    errors.push("formedAt lower bound must not be after the upper bound");
   }
-  if (latestFrom !== null) {
+  if (from !== null) {
     filters.push({
-      key: "latest-report-at",
+      key: "formed-at",
       kind: "range",
       operator: "gte",
-      value: latestFrom
+      value: from
     });
   }
-  if (latestTo !== null) {
+  if (to !== null) {
     filters.push({
-      key: "latest-report-at",
+      key: "formed-at",
       kind: "range",
       operator: "lte",
-      value: latestTo
+      value: to
     });
   }
-
   const uniqueErrors = uniqueSorted(errors);
   return uniqueErrors.length > 0
     ? err({ errors: uniqueErrors, limit, offset })
@@ -326,9 +463,7 @@ function timestampFilter(
   label: string,
   errors: string[]
 ): number | null {
-  if (value === undefined) {
-    return null;
-  }
+  if (value === undefined) return null;
   const milliseconds = investigationTimestampMilliseconds(value.trim());
   if (milliseconds === null) {
     errors.push(
@@ -337,7 +472,6 @@ function timestampFilter(
   }
   return milliseconds;
 }
-
 function queryFailure(
   kind: InvestigationIndexQueryFailure["kind"],
   errors: readonly string[],
@@ -347,26 +481,44 @@ function queryFailure(
 ): InvestigationIndexQueryFailure {
   return {
     kind,
-    result: emptyQueryResult(errors, indexPath, limit, offset)
+    result: {
+      entries: [],
+      errors: uniqueSorted(errors),
+      indexPath,
+      limit,
+      offset,
+      total: 0
+    }
   };
 }
-
-function emptyQueryResult(
-  errors: readonly string[],
+function showFailure(
+  id: string,
   indexPath: string,
-  limit: number,
-  offset: number
-): InvestigationIndexQueryResult {
+  errors: readonly string[]
+): InvestigationReportShowResult {
   return {
-    entries: [],
     errors: uniqueSorted(errors),
+    id,
     indexPath,
-    limit,
-    offset,
-    total: 0
+    markdown: null,
+    state: null,
+    status: "error"
   };
 }
-
+function traceFailure(
+  id: string,
+  indexPath: string,
+  errors: readonly string[]
+): InvestigationReportTraceResult {
+  return {
+    edges: [],
+    errors: uniqueSorted(errors),
+    id,
+    indexPath,
+    reportIds: [],
+    status: "error"
+  };
+}
 function defaultInvestigationIndexPath(): string {
   return path.join(
     path.resolve("."),
@@ -374,10 +526,10 @@ function defaultInvestigationIndexPath(): string {
     investigationIndexFileName
   );
 }
-
-function investigationIndexPathForOptions(
-  options: InvestigationIndexQueryOptions
-): string {
+function investigationIndexPathForOptions(options: {
+  investigationsDir?: string;
+  workspaceRoot: string;
+}): string {
   return path.join(
     path.resolve(
       options.workspaceRoot,
@@ -386,15 +538,12 @@ function investigationIndexPathForOptions(
     investigationIndexFileName
   );
 }
-
-function uniqueSorted<Value extends string>(values: readonly Value[]): Value[] {
+function uniqueSorted(values: readonly string[]): string[] {
   return [...new Set(values)].sort(compareText);
 }
-
 function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
-
 function errorText(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }

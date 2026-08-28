@@ -5,4 +5,4 @@ Entry:
 Contract:
 - 维护 CLI 的类型化 package script 映射中的每个命令都必须能调用其领域入口，并以稳定能力标识确认没有路由到其他工具。
 Proves:
-- 映射中的每个 `bun run <command> -- --help` 均成功退出，并返回对应领域 CLI 的稳定能力标识；Change Plan 以 `check-all` 命令表面识别当前入口。
+- 映射中的每个 `bun run <command> -- --help` 均成功退出，并返回对应领域 CLI 的稳定能力标识；Change Plan 以 `check-all` 命令表面识别当前入口，Investigation Report 以报告记录及其派生索引的公共说明识别当前入口。

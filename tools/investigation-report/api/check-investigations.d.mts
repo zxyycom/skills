@@ -1,19 +1,28 @@
-export type InvestigationReportStatus = "调查中" | "暂停" | "已结束";
+export type InvestigationRelationType =
+  | "补充"
+  | "复查"
+  | "修正"
+  | "推翻"
+  | "归并"
+  | "拆分";
+
+export type InvestigationRelation = {
+  target: string;
+  type: InvestigationRelationType;
+};
 
 export type InvestigationReportCheckOptions = {
-  categories?: readonly string[];
+  ids?: readonly string[];
   investigationsDir?: string;
-  paths?: readonly string[];
   workspaceRoot: string;
 };
 
 export type InvestigationReportCheckResult = {
-  availableTopicCount: number;
-  categoryCount: number;
+  availableReportCount: number;
   errors: string[];
   indexChecked: boolean;
   indexPath: string;
-  selectedTopicCount: number;
+  selectedReportCount: number;
   warnings: string[];
 };
 
@@ -23,17 +32,16 @@ export type InvestigationIndexSyncOptions = {
 };
 
 export type InvestigationIndexSyncResult = {
-  categoryCount: number;
   changed: boolean;
   errors: string[];
   indexPath: string;
-  topicCount: number;
+  reportCount: number;
   warnings: string[];
 };
 
 export type InvestigationIndexStageOptions = {
   investigationsDir?: string;
-  topicIds: readonly string[];
+  reportIds: readonly string[];
   workspaceRoot: string;
 };
 
@@ -64,18 +72,7 @@ export type InvestigationIndexStageResult =
     })
   | (InvestigationIndexStageBase & {
       changed: false;
-      state:
-        | "collection-changed"
-        | "definition-invalid"
-        | "index-path-invalid"
-        | "operation-aborted"
-        | "pending-conflict"
-        | "pending-write-failed"
-        | "revision-index-invalid"
-        | "revision-read-failed"
-        | "selection-invalid"
-        | "target-invalid"
-        | "workspace-index-invalid";
+      state: string;
       status: "error";
     })
   | (InvestigationIndexStageBase & {
@@ -84,21 +81,29 @@ export type InvestigationIndexStageResult =
       status: "error";
     });
 
+export type InvestigationIndexState = {
+  formedAt: string;
+  question: string;
+  relations: InvestigationRelation[];
+  resourceIds: string[];
+  tags: string[];
+  title: string;
+};
+
 export type InvestigationIndexQueryOptions = {
-  categories?: readonly string[];
+  formedAtFrom?: string;
+  formedAtTo?: string;
   investigationsDir?: string;
-  latestReportAtFrom?: string;
-  latestReportAtTo?: string;
   limit?: number;
   offset?: number;
-  paths?: readonly string[];
-  statuses?: readonly InvestigationReportStatus[];
+  relationType?: InvestigationRelationType;
+  tags?: readonly string[];
   text?: string;
   workspaceRoot: string;
 };
 
 export type InvestigationIndexQueryResult = {
-  entries: InvestigationIndexState[];
+  entries: Array<{ id: string; state: InvestigationIndexState }>;
   errors: string[];
   indexPath: string;
   limit: number;
@@ -106,38 +111,81 @@ export type InvestigationIndexQueryResult = {
   total: number;
 };
 
-export type InvestigationResourceReference = {
-  reportIndex: number;
-  resourceIds: string[];
+export type InvestigationRelationReplacement = {
+  relations: readonly InvestigationRelation[];
+  source: string;
 };
 
-export type InvestigationIndexState = {
-  latestReportAt: string;
-  path: string;
-  question: string;
-  reportCount: number;
-  reportTitles: string[];
-  resourceReferences: InvestigationResourceReference[];
-  status: InvestigationReportStatus;
-  title: string;
+export type InvestigationRelationSetOptions = {
+  investigationsDir?: string;
+  replacements: readonly InvestigationRelationReplacement[];
+  workspaceRoot: string;
+};
+
+export type InvestigationRelationSetResult = {
+  changed: boolean;
+  errors: string[];
+  indexPath: string;
+  sourceIds: string[];
+};
+
+export type InvestigationReportShowOptions = {
+  id: string;
+  investigationsDir?: string;
+  workspaceRoot: string;
+};
+
+export type InvestigationReportShowResult = {
+  errors: string[];
+  id: string;
+  indexPath: string;
+  markdown: string | null;
+  state: InvestigationIndexState | null;
+  status: "ok" | "error";
+};
+
+export type InvestigationReportTraceOptions = {
+  direction?: "predecessors" | "successors" | "both";
+  id: string;
+  investigationsDir?: string;
+  maxDepth?: number;
+  workspaceRoot: string;
+};
+
+export type InvestigationReportTraceResult = {
+  edges: Array<{
+    source: string;
+    target: string;
+    type: InvestigationRelationType;
+  }>;
+  errors: string[];
+  id: string;
+  indexPath: string;
+  reportIds: string[];
+  status: "ok" | "error";
 };
 
 export declare function runInvestigationReportCheckCli(
   argv?: readonly string[]
 ): Promise<number>;
-
 export declare function synchronizeInvestigationIndex(
   options: InvestigationIndexSyncOptions
 ): Promise<InvestigationIndexSyncResult>;
-
 export declare function stageInvestigationIndex(
   options: InvestigationIndexStageOptions
 ): Promise<InvestigationIndexStageResult>;
-
 export declare function queryInvestigationIndex(
   options: InvestigationIndexQueryOptions
 ): Promise<InvestigationIndexQueryResult>;
-
+export declare function showInvestigationReport(
+  options: InvestigationReportShowOptions
+): Promise<InvestigationReportShowResult>;
+export declare function traceInvestigationReports(
+  options: InvestigationReportTraceOptions
+): Promise<InvestigationReportTraceResult>;
+export declare function setInvestigationRelations(
+  options: InvestigationRelationSetOptions
+): Promise<InvestigationRelationSetResult>;
 export declare function validateInvestigationReports(
   options: InvestigationReportCheckOptions
 ): Promise<InvestigationReportCheckResult>;

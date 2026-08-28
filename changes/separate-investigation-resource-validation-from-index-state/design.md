@@ -36,10 +36,10 @@
 
 | 独立判断 | 长期 owner | 本 Change 的实施责任 |
 | --- | --- | --- |
-| 资源路径与共享引用 | [`anchor-investigation-resources-to-topic-owners.md`](../../docs/decisions/anchor-investigation-resources-to-topic-owners.md) | 推导 owner topic ID，并校验被引用资源的 owner 参与当前引用 |
-| 引用错误与未引用资源 warning | [`warn-on-unreferenced-investigation-resources.md`](../../docs/decisions/warn-on-unreferenced-investigation-resources.md) | 分离 errors/warnings，定义全量与 scoped 检查边界 |
-| 索引来源边界 | [`exclude-investigation-resources-from-index-revision.md`](../../docs/decisions/exclude-investigation-resources-from-index-revision.md) | 保留 `resourceReferences`，移除资源 metadata、SHA 和字节 revision |
-| 选中条目暂存 | [`stage-investigation-index-entries-across-resource-changes.md`](../../docs/decisions/stage-investigation-index-entries-across-resource-changes.md) | 维持 index-only staging，并取消调查领域的资源集合门禁 |
+| 资源路径与共享引用 | [`anchor-investigation-resources-to-topic-owners.md`](../../docs/decisions/archive/anchor-investigation-resources-to-topic-owners.md) | 推导 owner topic ID，并校验被引用资源的 owner 参与当前引用 |
+| 引用错误与未引用资源 warning | [`warn-on-unreferenced-investigation-resources.md`](../../docs/decisions/archive/warn-on-unreferenced-investigation-resources.md) | 分离 errors/warnings，定义全量与 scoped 检查边界 |
+| 索引来源边界 | [`exclude-investigation-resources-from-index-revision.md`](../../docs/decisions/archive/exclude-investigation-resources-from-index-revision.md) | 保留 `resourceReferences`，移除资源 metadata、SHA 和字节 revision |
+| 选中条目暂存 | [`stage-investigation-index-entries-across-resource-changes.md`](../../docs/decisions/archive/stage-investigation-index-entries-across-resource-changes.md) | 维持 index-only staging，并取消调查领域的资源集合门禁 |
 
 前三条决策是原资源总决策的完整拆分后继；第四条只修订原 `stage-index` 决策。版本控制可见性和资源名称规则继续由现有独立决策承接，不复制进这四条 owner。
 

@@ -21,7 +21,7 @@
    - `dependency-boundary-design`: 判断分散的依赖调用是否需要收口, 并形成明确的责任边界。
    - `minimal-implementation`: 在目标和责任明确后, 比较正确候选的整体维护面并选择更小方案。
    - `skill-design-discovery`: 在创建或重构 skill 前, 从现实材料恢复流程、判断、约束、权限和验证义务。
-   - `investigation-report`: 以可独立复核和比较的报告保存调查背景、依据、结果与边界。
+   - `investigation-report`: 以带稳定 ID、tags 与显式关系的单份报告保存可独立复核的调查背景、依据、结果与边界。
    - `test-evidence-review`: 以最小原生测试入口为单位审查测试证据, 区分测试节点与聚合容器或内部环节, 并维护可检索 case。
    - `ai-ready-docs`: 优化说明、规则、任务和工作流等文档, 使 AI 能准确理解和可靠使用。
    - `skill-maintainer`: 维护 skill 的能力归属、组成和交付边界。

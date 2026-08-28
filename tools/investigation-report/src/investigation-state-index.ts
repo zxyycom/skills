@@ -15,7 +15,7 @@ import {
   investigationIndexNamespace
 } from "./investigation-index-definition.ts";
 import {
-  discoverInvestigationTopicPaths,
+  discoverInvestigationReportIds,
   readInvestigationSourceRevision,
   readInvestigationStateSnapshot
 } from "./investigation-index-source.ts";
@@ -29,7 +29,7 @@ import type {
 
 export {
   createInvestigationStateIndexDefinition,
-  discoverInvestigationTopicPaths,
+  discoverInvestigationReportIds,
   investigationIndexDefinitionVersion,
   investigationIndexFileName,
   investigationIndexNamespace,
@@ -37,7 +37,6 @@ export {
   readInvestigationSourceRevision,
   readInvestigationStateSnapshot
 };
-
 export type { InvestigationIndexMetadata, InvestigationSource };
 
 export async function loadCurrentInvestigationIndex(options: {
@@ -53,12 +52,10 @@ export async function loadCurrentInvestigationIndex(options: {
     options.investigationsDirectory,
     options.signal
   );
-  const definition = createInvestigationStateIndexDefinition();
-  const indexPath = options.indexPath ?? investigationIndexFileName;
   return await loadCurrentStateIndex({
     context,
-    definition,
-    indexPath
+    definition: createInvestigationStateIndexDefinition(),
+    indexPath: options.indexPath ?? investigationIndexFileName
   });
 }
 
@@ -73,14 +70,12 @@ export async function syncInvestigationStateIndex(options: {
     options.investigationsDirectory,
     options.signal
   );
-  const definition = createInvestigationStateIndexDefinition({
-    snapshot: options.snapshot
-  });
-  const indexPath = options.indexPath ?? investigationIndexFileName;
   return await syncStateIndex({
     context,
-    definition,
-    indexPath,
+    definition: createInvestigationStateIndexDefinition({
+      snapshot: options.snapshot
+    }),
+    indexPath: options.indexPath ?? investigationIndexFileName,
     mode: options.mode
   });
 }
@@ -110,8 +105,5 @@ function stateIndexContext(
   root: string,
   signal: AbortSignal | undefined
 ): StateIndexContext {
-  return {
-    root,
-    ...(signal === undefined ? {} : { signal })
-  };
+  return { root, ...(signal === undefined ? {} : { signal }) };
 }

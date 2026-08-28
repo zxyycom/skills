@@ -1,149 +1,113 @@
-import { validateInvestigationTopicPath } from "./report-path.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
+import { isInvestigationId, isInvestigationTag } from "./report-path.ts";
 import {
-  isInvestigationReportStatus,
-  investigationReportStatuses,
+  compareInvestigationRelations,
+  parseInvestigationReport
+} from "./markdown.ts";
+import {
+  investigationRelationTypes,
   type InvestigationIndexState,
-  type InvestigationReportEntryProjection,
+  type InvestigationRelation,
+  type InvestigationRelationType,
   type ParsedInvestigationReport
 } from "./types.ts";
 
-export type InvestigationTopicStateBuildResult =
-  | {
-      errors: string[];
-      state: null;
-      status: "invalid";
-    }
-  | {
-      errors: [];
-      state: InvestigationIndexState;
-      status: "valid";
-    };
+export type InvestigationReportStateBuildResult =
+  | Readonly<{ errors: string[]; state: null; status: "invalid" }>
+  | Readonly<{ errors: []; state: InvestigationIndexState; status: "valid" }>;
 
-function validateStatusAndLatestReportTime(
-  source: string,
-  status: string | null,
-  latestReportAt: string | null,
-  errors: string[]
-): void {
-  if (status !== null && !isInvestigationReportStatus(status)) {
+export function buildInvestigationReportState(
+  id: string,
+  report: ParsedInvestigationReport
+): InvestigationReportStateBuildResult {
+  const errors = [...report.errors];
+  if (!isInvestigationId(id)) {
+    errors.push(`${id || "<empty>"} must use a valid Investigation ID`);
+  }
+  if (report.report === null) {
+    return { errors: uniqueSorted(errors), state: null, status: "invalid" };
+  }
+  const document = report.report;
+  if (investigationTimestampMilliseconds(document.formedAt) === null) {
     errors.push(
-      `${source} status must be one of: ${investigationReportStatuses.join(", ")}`
+      `${id} formedAt must use an RFC 3339 timestamp with timezone and second precision`
     );
   }
   if (
-    latestReportAt !== null &&
-    investigationTimestampMilliseconds(latestReportAt) === null
+    document.tags.length === 0 ||
+    document.tags.some((tag) => !isInvestigationTag(tag))
   ) {
+    errors.push(`${id} tags must contain valid kebab-case tokens`);
+  }
+  if (!isStrictlySorted(document.tags)) {
+    errors.push(`${id} tags must be unique and sorted lexically`);
+  }
+  if (!areCanonicalRelations(document.relations)) {
     errors.push(
-      `${source} latest report time must use an RFC 3339 timestamp with timezone and second precision`
+      `${id} relations must be unique and sorted by type then target`
     );
   }
-}
-
-function validateReportEntryTimestamps(
-  source: string,
-  reports: readonly InvestigationReportEntryProjection[],
-  latestReportAt: string | null,
-  errors: string[]
-): void {
-  let previousFormedMilliseconds: number | null = null;
-  for (const report of reports) {
-    if (report.formedAt === null) {
-      continue;
-    }
-    const formedMilliseconds = investigationTimestampMilliseconds(
-      report.formedAt
-    );
-    if (formedMilliseconds === null) {
-      errors.push(
-        `${source}:${report.line} report formed time must use an RFC 3339 timestamp with timezone and second precision`
-      );
-      continue;
-    }
+  for (const relation of document.relations) {
     if (
-      previousFormedMilliseconds !== null &&
-      formedMilliseconds < previousFormedMilliseconds
+      !isInvestigationRelationType(relation.type) ||
+      !isInvestigationId(relation.target)
     ) {
       errors.push(
-        `${source}:${report.line} report formed time must not be earlier than the previous report`
+        `${id} relations must use known types and valid Investigation ID targets`
       );
     }
-    previousFormedMilliseconds = formedMilliseconds;
   }
-  const lastReport = reports.at(-1);
-  if (
-    latestReportAt !== null &&
-    lastReport?.formedAt !== null &&
-    lastReport?.formedAt !== undefined &&
-    latestReportAt !== lastReport.formedAt
-  ) {
-    errors.push(
-      `${source} latest report time must exactly match the last report formed time`
-    );
+  const sortedErrors = uniqueSorted(errors);
+  if (sortedErrors.length > 0) {
+    return { errors: sortedErrors, state: null, status: "invalid" };
   }
-}
-
-export function buildInvestigationTopicState(
-  relativePath: string,
-  report: ParsedInvestigationReport
-): InvestigationTopicStateBuildResult {
-  const errors = [
-    ...validateInvestigationTopicPath(relativePath),
-    ...report.errors
-  ];
-  validateStatusAndLatestReportTime(
-    relativePath,
-    report.projection.status,
-    report.projection.latestReportAt,
-    errors
-  );
-  validateReportEntryTimestamps(
-    relativePath,
-    report.reports,
-    report.projection.latestReportAt,
-    errors
-  );
-
-  const { latestReportAt, question, status, title } = report.projection;
-  if (
-    errors.length > 0 ||
-    latestReportAt === null ||
-    question === null ||
-    status === null ||
-    title === null ||
-    !isInvestigationReportStatus(status)
-  ) {
-    return {
-      errors: [...new Set(errors)],
-      state: null,
-      status: "invalid"
-    };
-  }
-
   return {
     errors: [],
-    status: "valid",
     state: {
-      latestReportAt,
-      path: relativePath,
-      question,
-      reportCount: report.reports.length,
-      reportTitles: report.reports.map((entry) => entry.title),
-      resourceReferences: report.reports.flatMap((entry, reportIndex) =>
-        entry.resourceIds.length === 0
-          ? []
-          : [
-              {
-                reportIndex,
-                resourceIds: [...entry.resourceIds].sort(compareText)
-              }
-            ]
-      ),
-      status,
-      title
-    }
+      formedAt: document.formedAt,
+      question: document.question,
+      relations: [...document.relations],
+      resourceIds: [...document.resourceIds],
+      tags: [...document.tags],
+      title: document.title
+    },
+    status: "valid"
   };
+}
+
+export function isInvestigationRelationType(
+  value: string
+): value is InvestigationRelationType {
+  return (investigationRelationTypes as readonly string[]).includes(value);
+}
+
+export function areCanonicalRelations(
+  relations: readonly InvestigationRelation[]
+): boolean {
+  return relations.every((relation, index) => {
+    const previous = relations[index - 1];
+    return (
+      previous === undefined ||
+      compareInvestigationRelations(previous, relation) < 0
+    );
+  });
+}
+
+export function parseAndBuildInvestigationReportState(
+  id: string,
+  text: string
+): InvestigationReportStateBuildResult {
+  return buildInvestigationReportState(id, parseInvestigationReport(text, id));
+}
+
+function isStrictlySorted(values: readonly string[]): boolean {
+  return values.every(
+    (value, index) => index === 0 || values[index - 1]! < value
+  );
+}
+
+function uniqueSorted(values: readonly string[]): string[] {
+  return [...new Set(values)].sort(compareText);
 }
 
 function compareText(left: string, right: string): number {

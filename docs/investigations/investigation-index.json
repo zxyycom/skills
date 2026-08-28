@@ -1,437 +1,985 @@
 {
-  "definitionVersion": 5,
+  "definitionVersion": 6,
   "entries": {
-    "ai-ready-docs/target-boundary-information-and-anchoring.md": {
+    "adopt-native-lock-and-atomic-write-libraries.md": {
       "keys": {
-        "category": [
-          "ai-ready-docs"
+        "formed-at": [
+          1786038330000
         ],
-        "latest-report-at": [
-          1786630078000
+        "relation-type": [
+          "复查"
         ],
-        "status": [
-          "调查中"
+        "tag": [
+          "task-graph"
         ],
         "text": [
-          "AI 文档目标、边界、信息效率与解空间锚定调查",
-          "ai-ready-docs 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
-          "人与 AI 具有不同的抽象默认偏差",
-          "从负向描述争议恢复候选概念模型",
-          "关联激活邻域不等于任务有效解集合",
-          "分离解空间定位与上下文搜索锚定",
-          "区分内容保真、目标符合与目标显化",
-          "区分框架重构与框架内修补两种策略",
-          "区分语义责任与解空间分析层",
-          "区分逻辑剪枝、搜索偏置与路径依赖",
-          "安全主线可以由负向规则具体化",
-          "收回框架重构旁支并恢复正负描述主线",
-          "文档投影会反过来参与目标形成",
-          "正向目标是对负向修正历史的认知压缩",
-          "正负描述的不对称来自参照结构而非句式",
-          "正负描述表达能力等价但构造成本不对称",
-          "正负极性依赖描述层级与参照对象",
-          "深层目标只有局部且不可靠的可识别性",
-          "目标在抽象层完整而在实践层逐步收敛",
-          "目标是层级化且部分可表达的动态意向",
+          "约束收窄后采用原生锁与原子写库",
+          "约束收窄后，原生锁和原子写库能否分别完整承接 task-graph 的窄责任？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-07T01:45:30+08:00",
+        "question": "约束收窄后，原生锁和原子写库能否分别完整承接 task-graph 的窄责任？",
+        "relations": [
+          {
+            "target": "reject-lock-and-atomic-write-library-dependencies.md",
+            "type": "复查"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "task-graph"
+        ],
+        "title": "约束收窄后采用原生锁与原子写库"
+      }
+    },
+    "adopt-preflight-warning-and-single-predecessor-collapse.md": {
+      "keys": {
+        "formed-at": [
+          1785725121000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "decision-records"
+        ],
+        "text": [
+          "如何用事前警告和显式单前序折叠处理尚未进入版本基线的决策演进？",
+          "采用事前警告与显式单前序折叠"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-03T10:45:21+08:00",
+        "question": "如何用事前警告和显式单前序折叠处理尚未进入版本基线的决策演进？",
+        "relations": [
+          {
+            "target": "detect-uncommitted-decision-evolution-from-git-baselines.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "decision-records"
+        ],
+        "title": "采用事前警告与显式单前序折叠"
+      }
+    },
+    "align-prompt-optimize-name-and-trigger.md": {
+      "keys": {
+        "formed-at": [
+          1784628632000
+        ],
+        "tag": [
+          "prompt-optimize"
+        ],
+        "text": [
+          "prompt-optimize 的名称怎样同时表达真实能力、人类发现入口与 agent 主动触发边界？",
+          "现名未完整表达能力，并暴露双向触发约束"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-07-21T18:10:32+08:00",
+        "question": "prompt-optimize 的名称怎样同时表达真实能力、人类发现入口与 agent 主动触发边界？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "prompt-optimize"
+        ],
+        "title": "现名未完整表达能力，并暴露双向触发约束"
+      }
+    },
+    "bind-mentioned-objects-to-negative-roles.md": {
+      "keys": {
+        "formed-at": [
+          1786616028000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "text": [
+          "负向描述为什么需要同时准确表示对象并把它绑定到排除角色？",
           "负向描述需要额外完成对象角色绑定"
         ]
       },
       "state": {
-        "latestReportAt": "2026-08-13T14:07:58+00:00",
-        "path": "ai-ready-docs/target-boundary-information-and-anchoring.md",
-        "question": "ai-ready-docs 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
-        "reportCount": 19,
-        "reportTitles": [
-          "从负向描述争议恢复候选概念模型",
-          "区分语义责任与解空间分析层",
-          "目标在抽象层完整而在实践层逐步收敛",
-          "目标是层级化且部分可表达的动态意向",
-          "文档投影会反过来参与目标形成",
-          "区分逻辑剪枝、搜索偏置与路径依赖",
-          "区分内容保真、目标符合与目标显化",
-          "深层目标只有局部且不可靠的可识别性",
-          "正负描述的不对称来自参照结构而非句式",
-          "分离解空间定位与上下文搜索锚定",
-          "关联激活邻域不等于任务有效解集合",
-          "负向描述需要额外完成对象角色绑定",
-          "正负描述表达能力等价但构造成本不对称",
-          "正向目标是对负向修正历史的认知压缩",
-          "人与 AI 具有不同的抽象默认偏差",
-          "区分框架重构与框架内修补两种策略",
-          "收回框架重构旁支并恢复正负描述主线",
-          "正负极性依赖描述层级与参照对象",
-          "安全主线可以由负向规则具体化"
-        ],
-        "resourceReferences": [],
-        "status": "调查中",
-        "title": "AI 文档目标、边界、信息效率与解空间锚定调查"
-      }
-    },
-    "codex/conversation-preservation-and-redaction.md": {
-      "keys": {
-        "category": [
-          "codex"
-        ],
-        "latest-report-at": [
-          1786676231000
-        ],
-        "status": [
-          "暂停"
-        ],
-        "text": [
-          "Codex 会话双版本保存与脱敏调查",
-          "当一段重要 Codex 会话的原始 JSONL 同时包含应长期保存的公开讨论与不宜入库的本机、运行时和内部数据时，怎样形成可审计的近全量语义档案与可阅读对话版本，并明确二者相对原件的保留、转换和删减边界？",
-          "形成脱敏近全量档案与机械对话初稿"
-        ]
-      },
-      "state": {
-        "latestReportAt": "2026-08-14T02:57:11+00:00",
-        "path": "codex/conversation-preservation-and-redaction.md",
-        "question": "当一段重要 Codex 会话的原始 JSONL 同时包含应长期保存的公开讨论与不宜入库的本机、运行时和内部数据时，怎样形成可审计的近全量语义档案与可阅读对话版本，并明确二者相对原件的保留、转换和删减边界？",
-        "reportCount": 1,
-        "reportTitles": [
-          "形成脱敏近全量档案与机械对话初稿"
-        ],
-        "resourceReferences": [
+        "formedAt": "2026-08-13T10:13:48+00:00",
+        "question": "负向描述为什么需要同时准确表示对象并把它绑定到排除角色？",
+        "relations": [
           {
-            "reportIndex": 0,
-            "resourceIds": [
-              "codex/conversation-preservation-and-redaction/conversation-final-dialogue.initial.md",
-              "codex/conversation-preservation-and-redaction/conversation-near-full.redacted.jsonl"
-            ]
+            "target": "distinguish-activation-neighborhoods-from-valid-solution-space.md",
+            "type": "补充"
           }
         ],
-        "status": "暂停",
-        "title": "Codex 会话双版本保存与脱敏调查"
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "负向描述需要额外完成对象角色绑定"
       }
     },
-    "context-management/unified-context-management.md": {
+    "bound-identifiability-of-deep-goals.md": {
       "keys": {
-        "category": [
-          "context-management"
+        "formed-at": [
+          1786613845000
         ],
-        "latest-report-at": [
-          1784627415000
+        "relation-type": [
+          "修正"
         ],
-        "status": [
-          "暂停"
+        "tag": [
+          "ai-ready-docs"
         ],
         "text": [
-          "现有上下文管理 skills 与统一上下文管理系统的差距调查",
-          "现有上下文管理 skills 组合起来，距离一套统一的上下文管理系统还差什么，Docnav 已经实践了其中哪些能力？",
-          "现有组合的主要差距位于路由与协作层"
+          "拥有者在多大程度上能够从歧义、候选和冲突中识别深层目标？",
+          "深层目标只有局部且不可靠的可识别性"
         ]
       },
       "state": {
-        "latestReportAt": "2026-07-21T17:50:15+08:00",
-        "path": "context-management/unified-context-management.md",
-        "question": "现有上下文管理 skills 组合起来，距离一套统一的上下文管理系统还差什么，Docnav 已经实践了其中哪些能力？",
-        "reportCount": 1,
-        "reportTitles": [
-          "现有组合的主要差距位于路由与协作层"
+        "formedAt": "2026-08-13T09:37:25+00:00",
+        "question": "拥有者在多大程度上能够从歧义、候选和冲突中识别深层目标？",
+        "relations": [
+          {
+            "target": "separate-semantic-fidelity-goal-fit-and-goal-explication.md",
+            "type": "修正"
+          }
         ],
-        "resourceReferences": [],
-        "status": "暂停",
-        "title": "现有上下文管理 skills 与统一上下文管理系统的差距调查"
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "深层目标只有局部且不可靠的可识别性"
       }
     },
-    "decision-records/intra-change-decision-evolution.md": {
+    "compare-human-and-ai-abstraction-defaults.md": {
       "keys": {
-        "category": [
-          "decision-records"
+        "formed-at": [
+          1786619147000
         ],
-        "latest-report-at": [
-          1785725121000
+        "relation-type": [
+          "修正"
         ],
-        "status": [
-          "已结束"
+        "tag": [
+          "ai-ready-docs"
         ],
         "text": [
-          "同一变更内决策演进保留边界调查",
-          "已激活决策在进入版本基线前被同一变更中的新决策修订时，是否应保留为长期演进历史，以及版本控制证据能否支持安全折叠？",
-          "版本基线可发现同一变更内的决策演进候选",
-          "采用事前警告与显式单前序折叠"
+          "人与 AI 具有不同的抽象默认偏差",
+          "人和 AI 在何种机制下会把有限规则过度抽象为具有外推权威的框架？"
         ]
       },
       "state": {
-        "latestReportAt": "2026-08-03T10:45:21+08:00",
-        "path": "decision-records/intra-change-decision-evolution.md",
-        "question": "已激活决策在进入版本基线前被同一变更中的新决策修订时，是否应保留为长期演进历史，以及版本控制证据能否支持安全折叠？",
-        "reportCount": 2,
-        "reportTitles": [
-          "版本基线可发现同一变更内的决策演进候选",
-          "采用事前警告与显式单前序折叠"
+        "formedAt": "2026-08-13T11:05:47+00:00",
+        "question": "人和 AI 在何种机制下会把有限规则过度抽象为具有外推权威的框架？",
+        "relations": [
+          {
+            "target": "compress-negative-revision-history-into-positive-goals.md",
+            "type": "修正"
+          }
         ],
-        "resourceReferences": [],
-        "status": "已结束",
-        "title": "同一变更内决策演进保留边界调查"
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "人与 AI 具有不同的抽象默认偏差"
       }
     },
-    "git-integration/direct-git-library-selection.md": {
+    "compress-negative-revision-history-into-positive-goals.md": {
       "keys": {
-        "category": [
-          "git-integration"
+        "formed-at": [
+          1786617146000
         ],
-        "latest-report-at": [
-          1784622685000
+        "relation-type": [
+          "补充"
         ],
-        "status": [
-          "暂停"
+        "tag": [
+          "ai-ready-docs"
         ],
         "text": [
-          "TypeScript Git 库选型调查",
-          "本项目应选择哪种 TypeScript Git 库，候选的 API 适配、结果正确性、真实性能和社区可持续性能否共同支持采用？",
-          "统一选型需要正确性、性能与维护证据"
+          "正向目标怎样压缩候选反馈与负向修正历史，而不丢失仍需独立保留的边界？",
+          "正向目标是对负向修正历史的认知压缩"
         ]
       },
       "state": {
-        "latestReportAt": "2026-07-21T16:31:25+08:00",
-        "path": "git-integration/direct-git-library-selection.md",
-        "question": "本项目应选择哪种 TypeScript Git 库，候选的 API 适配、结果正确性、真实性能和社区可持续性能否共同支持采用？",
-        "reportCount": 1,
-        "reportTitles": [
-          "统一选型需要正确性、性能与维护证据"
+        "formedAt": "2026-08-13T10:32:26+00:00",
+        "question": "正向目标怎样压缩候选反馈与负向修正历史，而不丢失仍需独立保留的边界？",
+        "relations": [
+          {
+            "target": "distinguish-expressive-equivalence-from-construction-cost.md",
+            "type": "补充"
+          }
         ],
-        "resourceReferences": [],
-        "status": "暂停",
-        "title": "TypeScript Git 库选型调查"
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "正向目标是对负向修正历史的认知压缩"
       }
     },
-    "implementation-libraries/functional-utilities-and-data-structures.md": {
+    "defer-standard-test-result-blocking.md": {
       "keys": {
-        "category": [
-          "implementation-libraries"
-        ],
-        "latest-report-at": [
-          1786074200000
-        ],
-        "status": [
-          "已结束"
-        ],
-        "text": [
-          "TypeScript 函数式工具与专用数据结构库调查",
-          "在本仓库的 TypeScript 实现中，哪些函数式集合/管道工具与专用数据结构库值得预装，既能提供可靠实现又不会用重叠抽象扩大代码风格的解空间？",
-          "预装候选的适用价值与依赖边界"
-        ]
-      },
-      "state": {
-        "latestReportAt": "2026-08-07T11:43:20+08:00",
-        "path": "implementation-libraries/functional-utilities-and-data-structures.md",
-        "question": "在本仓库的 TypeScript 实现中，哪些函数式集合/管道工具与专用数据结构库值得预装，既能提供可靠实现又不会用重叠抽象扩大代码风格的解空间？",
-        "reportCount": 1,
-        "reportTitles": [
-          "预装候选的适用价值与依赖边界"
-        ],
-        "resourceReferences": [],
-        "status": "已结束",
-        "title": "TypeScript 函数式工具与专用数据结构库调查"
-      }
-    },
-    "implementation-libraries/pattern-matching-and-state-modeling-libraries.md": {
-      "keys": {
-        "category": [
-          "implementation-libraries"
-        ],
-        "latest-report-at": [
-          1786074236000
-        ],
-        "status": [
-          "已结束"
-        ],
-        "text": [
-          "TypeScript 穷尽匹配与轻量状态建模库调查",
-          "哪些 TypeScript 库适合预装，用于可靠表达封闭分支、判别联合和真正的有限状态机，同时保持轻量、成熟且持续维护？",
-          "确定穷尽匹配与轻量状态机的预装候选"
-        ]
-      },
-      "state": {
-        "latestReportAt": "2026-08-07T11:43:56+08:00",
-        "path": "implementation-libraries/pattern-matching-and-state-modeling-libraries.md",
-        "question": "哪些 TypeScript 库适合预装，用于可靠表达封闭分支、判别联合和真正的有限状态机，同时保持轻量、成熟且持续维护？",
-        "reportCount": 1,
-        "reportTitles": [
-          "确定穷尽匹配与轻量状态机的预装候选"
-        ],
-        "resourceReferences": [],
-        "status": "已结束",
-        "title": "TypeScript 穷尽匹配与轻量状态建模库调查"
-      }
-    },
-    "implementation-libraries/result-and-option-libraries.md": {
-      "keys": {
-        "category": [
-          "implementation-libraries"
-        ],
-        "latest-report-at": [
-          1786074253000
-        ],
-        "status": [
-          "已结束"
-        ],
-        "text": [
-          "TypeScript Result 与 Option 库调查",
-          "本项目应预装哪一个轻量 TypeScript Result 库，并怎样与项目自有 Option 源码形成稳定、不过度重叠的实现基础？",
-          "采用 neverthrow 并由项目源码承接 Option"
-        ]
-      },
-      "state": {
-        "latestReportAt": "2026-08-07T11:44:13+08:00",
-        "path": "implementation-libraries/result-and-option-libraries.md",
-        "question": "本项目应预装哪一个轻量 TypeScript Result 库，并怎样与项目自有 Option 源码形成稳定、不过度重叠的实现基础？",
-        "reportCount": 1,
-        "reportTitles": [
-          "采用 neverthrow 并由项目源码承接 Option"
-        ],
-        "resourceReferences": [],
-        "status": "已结束",
-        "title": "TypeScript Result 与 Option 库调查"
-      }
-    },
-    "prompt-optimize/name-and-trigger-alignment.md": {
-      "keys": {
-        "category": [
-          "prompt-optimize"
-        ],
-        "latest-report-at": [
-          1784628632000
-        ],
-        "status": [
-          "暂停"
-        ],
-        "text": [
-          "Prompt Optimize 名称与触发对齐调查",
-          "prompt-optimize 的名称应如何表达其真实能力，并同时支持人类显式调用与 agent 主动触发？",
-          "现名未完整表达能力，并暴露双向触发约束"
-        ]
-      },
-      "state": {
-        "latestReportAt": "2026-07-21T18:10:32+08:00",
-        "path": "prompt-optimize/name-and-trigger-alignment.md",
-        "question": "prompt-optimize 的名称应如何表达其真实能力，并同时支持人类显式调用与 agent 主动触发？",
-        "reportCount": 1,
-        "reportTitles": [
-          "现名未完整表达能力，并暴露双向触发约束"
-        ],
-        "resourceReferences": [],
-        "status": "暂停",
-        "title": "Prompt Optimize 名称与触发对齐调查"
-      }
-    },
-    "skill-orchestration/operation-time-skill-rerouting.md": {
-      "keys": {
-        "category": [
-          "skill-orchestration"
-        ],
-        "latest-report-at": [
-          1786513181000
-        ],
-        "status": [
-          "暂停"
-        ],
-        "text": [
-          "长任务从一个工作阶段进入具体副作用动作时，怎样重新发现并进入适用的领域 Skill，而不让通用执行 Skill 硬编码其他 Skill 的领域内容？",
-          "长任务跨阶段 Skill 重路由调查",
-          "首次发现改进没有覆盖动作时重路由"
-        ]
-      },
-      "state": {
-        "latestReportAt": "2026-08-12T05:39:41+00:00",
-        "path": "skill-orchestration/operation-time-skill-rerouting.md",
-        "question": "长任务从一个工作阶段进入具体副作用动作时，怎样重新发现并进入适用的领域 Skill，而不让通用执行 Skill 硬编码其他 Skill 的领域内容？",
-        "reportCount": 1,
-        "reportTitles": [
-          "首次发现改进没有覆盖动作时重路由"
-        ],
-        "resourceReferences": [],
-        "status": "暂停",
-        "title": "长任务跨阶段 Skill 重路由调查"
-      }
-    },
-    "task-graph/file-lock-and-atomic-write-libraries.md": {
-      "keys": {
-        "category": [
-          "task-graph"
-        ],
-        "latest-report-at": [
-          1786069723000
-        ],
-        "status": [
-          "已结束"
-        ],
-        "text": [
-          "Task Graph 文件锁与原子写入 npm 库调查",
-          "task-graph 是否应采用成熟 npm 库承接同主机跨进程文件锁、陈旧锁恢复和原子索引替换？",
-          "保留成熟库并删除外围监督协议",
-          "现有候选无法缩减 task-graph 的关键事务协议",
-          "约束收窄后采用原生锁与原子写库"
-        ]
-      },
-      "state": {
-        "latestReportAt": "2026-08-07T10:28:43+08:00",
-        "path": "task-graph/file-lock-and-atomic-write-libraries.md",
-        "question": "task-graph 是否应采用成熟 npm 库承接同主机跨进程文件锁、陈旧锁恢复和原子索引替换？",
-        "reportCount": 3,
-        "reportTitles": [
-          "现有候选无法缩减 task-graph 的关键事务协议",
-          "约束收窄后采用原生锁与原子写库",
-          "保留成熟库并删除外围监督协议"
-        ],
-        "resourceReferences": [],
-        "status": "已结束",
-        "title": "Task Graph 文件锁与原子写入 npm 库调查"
-      }
-    },
-    "test-evidence/standard-test-result-blocking.md": {
-      "keys": {
-        "category": [
-          "test-evidence"
-        ],
-        "latest-report-at": [
+        "formed-at": [
           1786417716000
         ],
-        "status": [
-          "已结束"
+        "tag": [
+          "test-evidence"
         ],
         "text": [
-          "在尚未获得实施授权时，如何保存 runner 无关结果协议与测试阻断资格的探索认识，以及什么证据足以重新启动规划？",
-          "标准测试结果阻断资格探索",
+          "标准测试结果协议与阻断资格在没有实施授权时应由哪些长期载体承接？",
           "确认延期方向并退出活动 Change"
         ]
       },
       "state": {
-        "latestReportAt": "2026-08-11T03:08:36Z",
-        "path": "test-evidence/standard-test-result-blocking.md",
-        "question": "在尚未获得实施授权时，如何保存 runner 无关结果协议与测试阻断资格的探索认识，以及什么证据足以重新启动规划？",
-        "reportCount": 1,
-        "reportTitles": [
-          "确认延期方向并退出活动 Change"
+        "formedAt": "2026-08-11T03:08:36Z",
+        "question": "标准测试结果协议与阻断资格在没有实施授权时应由哪些长期载体承接？",
+        "relations": [],
+        "resourceIds": [
+          "defer-standard-test-result-blocking/design.md",
+          "defer-standard-test-result-blocking/proposal.md",
+          "defer-standard-test-result-blocking/tasks.md"
         ],
-        "resourceReferences": [
+        "tags": [
+          "test-evidence"
+        ],
+        "title": "确认延期方向并退出活动 Change"
+      }
+    },
+    "define-git-library-selection-evidence.md": {
+      "keys": {
+        "formed-at": [
+          1784622685000
+        ],
+        "tag": [
+          "git-integration"
+        ],
+        "text": [
+          "TypeScript Git 库选型需要哪些 API、正确性、真实性能与维护证据？",
+          "统一选型需要正确性、性能与维护证据"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-07-21T16:31:25+08:00",
+        "question": "TypeScript Git 库选型需要哪些 API、正确性、真实性能与维护证据？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "git-integration"
+        ],
+        "title": "统一选型需要正确性、性能与维护证据"
+      }
+    },
+    "detect-uncommitted-decision-evolution-from-git-baselines.md": {
+      "keys": {
+        "formed-at": [
+          1785227943000
+        ],
+        "tag": [
+          "decision-records"
+        ],
+        "text": [
+          "Git 版本基线能否安全识别同一 Change 内尚未提交的中间决策演进候选？",
+          "版本基线可发现同一变更内的决策演进候选"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-07-28T16:39:03+08:00",
+        "question": "Git 版本基线能否安全识别同一 Change 内尚未提交的中间决策演进候选？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "decision-records"
+        ],
+        "title": "版本基线可发现同一变更内的决策演进候选"
+      }
+    },
+    "distinguish-activation-neighborhoods-from-valid-solution-space.md": {
+      "keys": {
+        "formed-at": [
+          1786615149000
+        ],
+        "relation-type": [
+          "修正"
+        ],
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "text": [
+          "Transformer 中被上下文激活的关联邻域为何不能等同于任务有效解集合？",
+          "关联激活邻域不等于任务有效解集合"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-13T09:59:09+00:00",
+        "question": "Transformer 中被上下文激活的关联邻域为何不能等同于任务有效解集合？",
+        "relations": [
           {
-            "reportIndex": 0,
-            "resourceIds": [
-              "test-evidence/standard-test-result-blocking/design.md",
-              "test-evidence/standard-test-result-blocking/proposal.md",
-              "test-evidence/standard-test-result-blocking/tasks.md"
-            ]
+            "target": "separate-solution-space-positioning-from-contextual-anchoring.md",
+            "type": "修正"
           }
         ],
-        "status": "已结束",
-        "title": "标准测试结果阻断资格探索"
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "关联激活邻域不等于任务有效解集合"
+      }
+    },
+    "distinguish-expressive-equivalence-from-construction-cost.md": {
+      "keys": {
+        "formed-at": [
+          1786616874000
+        ],
+        "relation-type": [
+          "修正"
+        ],
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "text": [
+          "正负描述在形式表达能力等价时，为什么仍可能具有不对称的自然语言构造成本？",
+          "正负描述表达能力等价但构造成本不对称"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-13T10:27:54+00:00",
+        "question": "正负描述在形式表达能力等价时，为什么仍可能具有不对称的自然语言构造成本？",
+        "relations": [
+          {
+            "target": "ground-positive-negative-asymmetry-in-reference-structure.md",
+            "type": "修正"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "正负描述表达能力等价但构造成本不对称"
+      }
+    },
+    "ground-positive-negative-asymmetry-in-reference-structure.md": {
+      "keys": {
+        "formed-at": [
+          1786614419000
+        ],
+        "relation-type": [
+          "修正"
+        ],
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "text": [
+          "正向与负向描述的使用差异是否主要来自参照结构，而不是肯定或否定句式？",
+          "正负描述的不对称来自参照结构而非句式"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-13T09:46:59+00:00",
+        "question": "正向与负向描述的使用差异是否主要来自参照结构，而不是肯定或否定句式？",
+        "relations": [
+          {
+            "target": "recover-candidate-model-from-negative-description-dispute.md",
+            "type": "修正"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "正负描述的不对称来自参照结构而非句式"
+      }
+    },
+    "identify-operation-time-skill-rerouting-gap.md": {
+      "keys": {
+        "formed-at": [
+          1786513181000
+        ],
+        "tag": [
+          "skill-orchestration"
+        ],
+        "text": [
+          "长任务进入具体副作用动作时，现有 Skill 发现机制为什么没有可靠触发领域重路由？",
+          "首次发现改进没有覆盖动作时重路由"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-12T05:39:41+00:00",
+        "question": "长任务进入具体副作用动作时，现有 Skill 发现机制为什么没有可靠触发领域重路由？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "skill-orchestration"
+        ],
+        "title": "首次发现改进没有覆盖动作时重路由"
+      }
+    },
+    "identify-routing-and-coordination-gaps-in-context-management.md": {
+      "keys": {
+        "formed-at": [
+          1784627415000
+        ],
+        "tag": [
+          "context-management"
+        ],
+        "text": [
+          "现有上下文管理 skills 距离统一上下文管理系统还缺少哪些路由与协作能力？",
+          "现有组合的主要差距位于路由与协作层"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-07-21T17:50:15+08:00",
+        "question": "现有上下文管理 skills 距离统一上下文管理系统还缺少哪些路由与协作能力？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "context-management"
+        ],
+        "title": "现有组合的主要差距位于路由与协作层"
+      }
+    },
+    "model-goals-as-layered-partially-expressible-intentions.md": {
+      "keys": {
+        "formed-at": [
+          1786611677000
+        ],
+        "relation-type": [
+          "修正"
+        ],
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "text": [
+          "目标应怎样同时表达深层意向、当前代理、偏好、现实约束与允许偏离的理由？",
+          "目标是层级化且部分可表达的动态意向"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-13T09:01:17+00:00",
+        "question": "目标应怎样同时表达深层意向、当前代理、偏好、现实约束与允许偏离的理由？",
+        "relations": [
+          {
+            "target": "treat-goals-as-complete-in-abstraction-and-incremental-in-practice.md",
+            "type": "修正"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "目标是层级化且部分可表达的动态意向"
+      }
+    },
+    "preserve-redacted-conversations-in-two-derived-forms.md": {
+      "keys": {
+        "formed-at": [
+          1786676231000
+        ],
+        "tag": [
+          "codex"
+        ],
+        "text": [
+          "形成脱敏近全量档案与机械对话初稿",
+          "怎样从含敏感运行时数据的 Codex JSONL 形成可审计近全量档案和可阅读对话初稿？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-14T02:57:11+00:00",
+        "question": "怎样从含敏感运行时数据的 Codex JSONL 形成可审计近全量档案和可阅读对话初稿？",
+        "relations": [],
+        "resourceIds": [
+          "preserve-redacted-conversations-in-two-derived-forms/conversation-final-dialogue.initial.md",
+          "preserve-redacted-conversations-in-two-derived-forms/conversation-near-full.redacted.jsonl"
+        ],
+        "tags": [
+          "codex"
+        ],
+        "title": "形成脱敏近全量档案与机械对话初稿"
+      }
+    },
+    "recognize-document-projections-as-part-of-goal-formation.md": {
+      "keys": {
+        "formed-at": [
+          1786612070000
+        ],
+        "relation-type": [
+          "修正"
+        ],
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "text": [
+          "文档作为目标的时点投影时，怎样通过反馈反过来参与目标形成？",
+          "文档投影会反过来参与目标形成"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-13T09:07:50+00:00",
+        "question": "文档作为目标的时点投影时，怎样通过反馈反过来参与目标形成？",
+        "relations": [
+          {
+            "target": "model-goals-as-layered-partially-expressible-intentions.md",
+            "type": "修正"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "文档投影会反过来参与目标形成"
+      }
+    },
+    "recover-candidate-model-from-negative-description-dispute.md": {
+      "keys": {
+        "formed-at": [
+          1786610110000
+        ],
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "text": [
+          "从负向描述争议恢复候选概念模型",
+          "负向描述争议暴露了怎样的候选概念层次与后续调查边界？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-13T08:35:10+00:00",
+        "question": "负向描述争议暴露了怎样的候选概念层次与后续调查边界？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "从负向描述争议恢复候选概念模型"
+      }
+    },
+    "reject-lock-and-atomic-write-library-dependencies.md": {
+      "keys": {
+        "formed-at": [
+          1786024415000
+        ],
+        "tag": [
+          "task-graph"
+        ],
+        "text": [
+          "现有 npm 候选能否实质缩减 task-graph 的锁、恢复与原子写事务协议？",
+          "现有候选无法缩减 task-graph 的关键事务协议"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-06T21:53:35+08:00",
+        "question": "现有 npm 候选能否实质缩减 task-graph 的锁、恢复与原子写事务协议？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "task-graph"
+        ],
+        "title": "现有候选无法缩减 task-graph 的关键事务协议"
+      }
+    },
+    "remove-supervision-around-lock-and-atomic-write-libraries.md": {
+      "keys": {
+        "formed-at": [
+          1786069723000
+        ],
+        "relation-type": [
+          "修正"
+        ],
+        "tag": [
+          "task-graph"
+        ],
+        "text": [
+          "保留成熟库并删除外围监督协议",
+          "删除外围监督协议后，已选锁与原子写库应继续承接哪些责任？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-07T10:28:43+08:00",
+        "question": "删除外围监督协议后，已选锁与原子写库应继续承接哪些责任？",
+        "relations": [
+          {
+            "target": "adopt-native-lock-and-atomic-write-libraries.md",
+            "type": "修正"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "task-graph"
+        ],
+        "title": "保留成熟库并删除外围监督协议"
+      }
+    },
+    "return-from-framework-strategy-to-description-polarity.md": {
+      "keys": {
+        "formed-at": [
+          1786620049000
+        ],
+        "relation-type": [
+          "修正"
+        ],
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "text": [
+          "哪些框架策略认识仍服务正负描述主线，哪些已经构成应退出本主题的旁支？",
+          "收回框架重构旁支并恢复正负描述主线"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-13T11:20:49+00:00",
+        "question": "哪些框架策略认识仍服务正负描述主线，哪些已经构成应退出本主题的旁支？",
+        "relations": [
+          {
+            "target": "separate-framework-reconstruction-from-local-repair.md",
+            "type": "修正"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "收回框架重构旁支并恢复正负描述主线"
+      }
+    },
+    "select-functional-utilities-and-data-structures.md": {
+      "keys": {
+        "formed-at": [
+          1786074200000
+        ],
+        "tag": [
+          "implementation-libraries"
+        ],
+        "text": [
+          "哪些函数式工具与专用数据结构库值得预装，它们的适用边界是什么？",
+          "预装候选的适用价值与依赖边界"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-07T11:43:20+08:00",
+        "question": "哪些函数式工具与专用数据结构库值得预装，它们的适用边界是什么？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "implementation-libraries"
+        ],
+        "title": "预装候选的适用价值与依赖边界"
+      }
+    },
+    "select-neverthrow-and-project-option.md": {
+      "keys": {
+        "formed-at": [
+          1786074253000
+        ],
+        "tag": [
+          "implementation-libraries"
+        ],
+        "text": [
+          "本项目应预装哪个轻量 Result 库，并怎样与项目自有 Option 形成稳定边界？",
+          "采用 neverthrow 并由项目源码承接 Option"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-07T11:44:13+08:00",
+        "question": "本项目应预装哪个轻量 Result 库，并怎样与项目自有 Option 形成稳定边界？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "implementation-libraries"
+        ],
+        "title": "采用 neverthrow 并由项目源码承接 Option"
+      }
+    },
+    "select-pattern-matching-and-state-modeling-libraries.md": {
+      "keys": {
+        "formed-at": [
+          1786074236000
+        ],
+        "tag": [
+          "implementation-libraries"
+        ],
+        "text": [
+          "哪些库适合预装以承接穷尽匹配、判别联合与轻量有限状态机？",
+          "确定穷尽匹配与轻量状态机的预装候选"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-07T11:43:56+08:00",
+        "question": "哪些库适合预装以承接穷尽匹配、判别联合与轻量有限状态机？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "implementation-libraries"
+        ],
+        "title": "确定穷尽匹配与轻量状态机的预装候选"
+      }
+    },
+    "separate-framework-reconstruction-from-local-repair.md": {
+      "keys": {
+        "formed-at": [
+          1786619604000
+        ],
+        "relation-type": [
+          "修正"
+        ],
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "text": [
+          "区分框架重构与框架内修补两种策略",
+          "框架重构与框架内修补两种策略的触发条件、价值和失败模式有何不同？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-13T11:13:24+00:00",
+        "question": "框架重构与框架内修补两种策略的触发条件、价值和失败模式有何不同？",
+        "relations": [
+          {
+            "target": "compare-human-and-ai-abstraction-defaults.md",
+            "type": "修正"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "区分框架重构与框架内修补两种策略"
+      }
+    },
+    "separate-logical-pruning-search-bias-and-path-dependence.md": {
+      "keys": {
+        "formed-at": [
+          1786612371000
+        ],
+        "relation-type": [
+          "修正"
+        ],
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "text": [
+          "区分逻辑剪枝、搜索偏置与路径依赖",
+          "逻辑剪枝、搜索偏置与跨时间路径依赖应怎样区分？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-13T09:12:51+00:00",
+        "question": "逻辑剪枝、搜索偏置与跨时间路径依赖应怎样区分？",
+        "relations": [
+          {
+            "target": "recognize-document-projections-as-part-of-goal-formation.md",
+            "type": "修正"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "区分逻辑剪枝、搜索偏置与路径依赖"
+      }
+    },
+    "separate-semantic-fidelity-goal-fit-and-goal-explication.md": {
+      "keys": {
+        "formed-at": [
+          1786613388000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "text": [
+          "内容语义保真、结果符合深层目标与目标通过反馈显化有何不同？",
+          "区分内容保真、目标符合与目标显化"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-13T09:29:48+00:00",
+        "question": "内容语义保真、结果符合深层目标与目标通过反馈显化有何不同？",
+        "relations": [
+          {
+            "target": "recognize-document-projections-as-part-of-goal-formation.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "区分内容保真、目标符合与目标显化"
+      }
+    },
+    "separate-semantic-responsibility-from-solution-space-analysis.md": {
+      "keys": {
+        "formed-at": [
+          1786610531000
+        ],
+        "relation-type": [
+          "修正"
+        ],
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "text": [
+          "区分语义责任与解空间分析层",
+          "语义责任与解空间分析分别承担什么层次的判断，它们如何衔接？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-13T08:42:11+00:00",
+        "question": "语义责任与解空间分析分别承担什么层次的判断，它们如何衔接？",
+        "relations": [
+          {
+            "target": "recover-candidate-model-from-negative-description-dispute.md",
+            "type": "修正"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "区分语义责任与解空间分析层"
+      }
+    },
+    "separate-solution-space-positioning-from-contextual-anchoring.md": {
+      "keys": {
+        "formed-at": [
+          1786614728000
+        ],
+        "relation-type": [
+          "修正"
+        ],
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "text": [
+          "任务契约对解空间的正常定位与对象被提及时产生的上下文搜索锚定有何不同？",
+          "分离解空间定位与上下文搜索锚定"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-13T09:52:08+00:00",
+        "question": "任务契约对解空间的正常定位与对象被提及时产生的上下文搜索锚定有何不同？",
+        "relations": [
+          {
+            "target": "separate-logical-pruning-search-bias-and-path-dependence.md",
+            "type": "修正"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "分离解空间定位与上下文搜索锚定"
+      }
+    },
+    "specify-safety-goals-with-negative-rules.md": {
+      "keys": {
+        "formed-at": [
+          1786630078000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "text": [
+          "安全主线可以由负向规则具体化",
+          "安全目标在什么条件下应由可判断的负向规则具体化，而不能只保留正向概括？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-13T14:07:58+00:00",
+        "question": "安全目标在什么条件下应由可判断的负向规则具体化，而不能只保留正向概括？",
+        "relations": [
+          {
+            "target": "treat-description-polarity-as-reference-relative.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "安全主线可以由负向规则具体化"
+      }
+    },
+    "treat-description-polarity-as-reference-relative.md": {
+      "keys": {
+        "formed-at": [
+          1786628592000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "text": [
+          "正负极性依赖描述层级与参照对象",
+          "正负极性应怎样相对于具体命题、参照对象和描述层级判断？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-13T13:43:12+00:00",
+        "question": "正负极性应怎样相对于具体命题、参照对象和描述层级判断？",
+        "relations": [
+          {
+            "target": "distinguish-expressive-equivalence-from-construction-cost.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "正负极性依赖描述层级与参照对象"
+      }
+    },
+    "treat-goals-as-complete-in-abstraction-and-incremental-in-practice.md": {
+      "keys": {
+        "formed-at": [
+          1786610916000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "text": [
+          "为什么目标在理想抽象中可以包含边界，而在实际文档中仍需逐步收敛？",
+          "目标在抽象层完整而在实践层逐步收敛"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-13T08:48:36+00:00",
+        "question": "为什么目标在理想抽象中可以包含边界，而在实际文档中仍需逐步收敛？",
+        "relations": [
+          {
+            "target": "separate-semantic-responsibility-from-solution-space-analysis.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "title": "目标在抽象层完整而在实践层逐步收敛"
       }
     }
   },
   "keyDefinitions": [
     {
-      "name": "category",
-      "mode": "exact"
-    },
-    {
-      "name": "latest-report-at",
+      "name": "formed-at",
       "mode": "range"
     },
     {
-      "name": "status",
+      "name": "relation-type",
+      "mode": "exact"
+    },
+    {
+      "name": "tag",
       "mode": "exact"
     },
     {
@@ -444,19 +992,40 @@
   "schemaVersion": 3,
   "sourceRevision": {
     "entries": {
-      "ai-ready-docs/target-boundary-information-and-anchoring.md": "sha256:82ee33aca99791d5718757cbd279aeccf36b7dab56e51ef3e685101edd697615",
-      "codex/conversation-preservation-and-redaction.md": "sha256:818abcdb4142a37db2c1864064f42ed3e5dbfc234fc862d805c6f81ec33666fe",
-      "context-management/unified-context-management.md": "sha256:924236b12d95a2df8e645a9b51587591dc626749ff47e8f0676eb862eeef1c2e",
-      "decision-records/intra-change-decision-evolution.md": "sha256:3470b024980a9932889c90ebf0a9c7cc35d6d91cfbbed96c40a2e2731f2b8823",
-      "git-integration/direct-git-library-selection.md": "sha256:9948dbd4fcf22f71a82702d5d4cecd1008a189fab81c2e3bbcc0375c244ad4c9",
-      "implementation-libraries/functional-utilities-and-data-structures.md": "sha256:6bf7e428f3ad5573d3f6de2b6dbfc13c9dff95bc0b073409fb95351455c72ffd",
-      "implementation-libraries/pattern-matching-and-state-modeling-libraries.md": "sha256:3a58606070f5268283b32f37752872012bd05defd4a588b6092e014e62cc79fc",
-      "implementation-libraries/result-and-option-libraries.md": "sha256:3700335afd0bf7a4c1e4618a606af6b5fbb9a774d34ab5fdf5dad07eff1ec098",
-      "prompt-optimize/name-and-trigger-alignment.md": "sha256:3e962c81424f762a619986a4c3d8fc668a84b7ff3e867ca38ee370531ac826db",
-      "skill-orchestration/operation-time-skill-rerouting.md": "sha256:ae7d8ac02ca2dfbe31e2eb53784cbd2333998902d8db3ca0040f97a0f391121a",
-      "task-graph/file-lock-and-atomic-write-libraries.md": "sha256:1ef40f9481f4a6a1275f50b5ede4f08d70dd67677d0057852a3c6bf9841c1edb",
-      "test-evidence/standard-test-result-blocking.md": "sha256:9342822bb3eb67e35299264cd653743e64858b648c6d0feab2937491f6981dc2"
+      "adopt-native-lock-and-atomic-write-libraries.md": "sha256:87332977146e80cc0f45db9956ab0b72b54211153e97c290acbf3988d2fb2326",
+      "adopt-preflight-warning-and-single-predecessor-collapse.md": "sha256:8b7a09662f8f323c868e2f0c10a421125a2c213a5ae29f37a58c0985926452ad",
+      "align-prompt-optimize-name-and-trigger.md": "sha256:d6e211f49e5bc58fba23c430d294054269f287a0602fc732cca758bcfbb26bdb",
+      "bind-mentioned-objects-to-negative-roles.md": "sha256:0a4c03fe8c4153e4ed13b18dca58fd173e38552387ef5eac581d5142a3e8db2a",
+      "bound-identifiability-of-deep-goals.md": "sha256:1335f0ec90540d6604861a814d0c4d276c2034adf31abd09ed93f1362cbfe6c2",
+      "compare-human-and-ai-abstraction-defaults.md": "sha256:63cd5425618e90209d4a07a5d5d9fc86711e41573d860de6b9fa3dac4afff2f6",
+      "compress-negative-revision-history-into-positive-goals.md": "sha256:45ce575b6a07ff566b97fc0e0b42960749c1a9b614dd31fe75d031c417aad72b",
+      "defer-standard-test-result-blocking.md": "sha256:3ef4ebd646d3f6c0d32e69db5808009488b15b12bce01d64f65a24f62228f023",
+      "define-git-library-selection-evidence.md": "sha256:8cb8679b7f5e75187234e51e9c5b23475f347ddfda97bd10b26c9ddc480faa19",
+      "detect-uncommitted-decision-evolution-from-git-baselines.md": "sha256:fb694f1521249788cc78eb9ce411b05ace40cfa86654c0b2a97ba9e8df191f81",
+      "distinguish-activation-neighborhoods-from-valid-solution-space.md": "sha256:36b92506235a6c9d485d876506c0ddbd7958137a0c19ae56e99b249d844eb944",
+      "distinguish-expressive-equivalence-from-construction-cost.md": "sha256:a29f9f6e2543ef87429dff09a56e078bb5704639e8ca29b22db63a7bbb91d7db",
+      "ground-positive-negative-asymmetry-in-reference-structure.md": "sha256:b8832dbdc9c7293b14e69800fc11e13623e10102368b5e616455b7fc40c62331",
+      "identify-operation-time-skill-rerouting-gap.md": "sha256:cf86eff84a6cc500ef40d435cfef153d8b41d37f3b85f95e4fa2408798cdcc97",
+      "identify-routing-and-coordination-gaps-in-context-management.md": "sha256:80b476d70dfc61a5cd0463c7ca5dee3bf0f09cb1bbe7b46e1eeb7204786386fe",
+      "model-goals-as-layered-partially-expressible-intentions.md": "sha256:1632232ac3998575f0befc5b9804c8ef0e31ce6f49bd4648b1a619d705cc1e80",
+      "preserve-redacted-conversations-in-two-derived-forms.md": "sha256:4c41850dacce295516c74f70f6db3b268a106cebeef2c2ad72bdf1771a48cb96",
+      "recognize-document-projections-as-part-of-goal-formation.md": "sha256:aad57f9a803036955fe3cff8cf365059f5f7ff6e92e5946d91acd0e3c7465051",
+      "recover-candidate-model-from-negative-description-dispute.md": "sha256:01ece35a3730d57418c73dbdb6918ead2767eda44b4270b47931285d46521958",
+      "reject-lock-and-atomic-write-library-dependencies.md": "sha256:8795de7741eec4ab4161c2333fb76e176c95426621c9a45dc998e3c641962a2d",
+      "remove-supervision-around-lock-and-atomic-write-libraries.md": "sha256:4da54d7da3d49f2d0c223ef456ad036a0126609a378fd31701bf8d276497edaf",
+      "return-from-framework-strategy-to-description-polarity.md": "sha256:7580f2e64e17ba50d5fe9d76e94b854df4cc0880d6687eacca172fb1caa0cfc6",
+      "select-functional-utilities-and-data-structures.md": "sha256:cec3ad89a1e8defdd65be977407ab60b07c6701128e3ce71b2e69ad41708182c",
+      "select-neverthrow-and-project-option.md": "sha256:e27ebfa2f39eb6d665f0c5ab29f0a78adee951fadcdf378900ddfba9da4e3a6e",
+      "select-pattern-matching-and-state-modeling-libraries.md": "sha256:19eee6ea30e75fd292e7460488e8eeab47f5e591ed2b396b2a00f43d7c3b7925",
+      "separate-framework-reconstruction-from-local-repair.md": "sha256:87c7cc79d3f4bd1a9120402b78fd0a130816fa63daa272e1ee9abcab17731290",
+      "separate-logical-pruning-search-bias-and-path-dependence.md": "sha256:a22725825998207257a19800c5c1b1aeae180b74ed163468954f08e24772b5d3",
+      "separate-semantic-fidelity-goal-fit-and-goal-explication.md": "sha256:3c1e55fb52b9ba1f3143d4b907c2e7359efe2fb06c8804a48ca256ee403dfe11",
+      "separate-semantic-responsibility-from-solution-space-analysis.md": "sha256:f6b9a171597333b2d4ad0c9a45935c377eac6818a603a98500078da6e1c8e046",
+      "separate-solution-space-positioning-from-contextual-anchoring.md": "sha256:7bd7d5e3079ed71c301b14d24a44bc6037afa6be880f45b03238c31dc35720f9",
+      "specify-safety-goals-with-negative-rules.md": "sha256:dd53ec9ff5a4df5c4be78367f41cfbf4a9dbc33547883b4fb539a34b9a63458e",
+      "treat-description-polarity-as-reference-relative.md": "sha256:63e1eca57c73c14775cef1e1ff80801a46dd2be8e109b94c676aee8f2dbed209",
+      "treat-goals-as-complete-in-abstraction-and-incremental-in-practice.md": "sha256:83084477ff1749454e291154e0c3222051416d2b73ce14191043e06dcb6a00bf"
     },
-    "metadata": "sha256:bb46b05dcddfd42513b7c9c3e68af97db6bdf58cecee29006a53cd5e5e081567"
+    "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }
 }

@@ -9,16 +9,13 @@ import {
 export const defaultInvestigationsDirectory = "docs/investigations";
 export const investigationIndexFileName = "investigation-index.json";
 export const investigationKebabCasePatternSource = "[a-z0-9]+(?:-[a-z0-9]+)*";
-export const investigationTopicPathPatternSource = `^${investigationKebabCasePatternSource}/${investigationKebabCasePatternSource}\\.md$`;
+export const investigationIdPatternSource = `^${investigationKebabCasePatternSource}\\.md$`;
 
 const kebabCasePattern = new RegExp(
   `^${investigationKebabCasePatternSource}$`,
   "u"
 );
-const investigationTopicPathPattern = new RegExp(
-  investigationTopicPathPatternSource,
-  "u"
-);
+const investigationIdPattern = new RegExp(investigationIdPatternSource, "u");
 
 export type ResolvedInvestigationsDirectory = {
   investigationsDirectory: string;
@@ -88,6 +85,29 @@ export function canonicalizeInvestigationsDirectory(
   );
 }
 
+export function isInvestigationId(value: string): boolean {
+  return !value.includes("/") && investigationIdPattern.test(value);
+}
+
+export function validateInvestigationId(value: string): string[] {
+  return isInvestigationId(value)
+    ? []
+    : [
+        `${value || "<empty>"} must use a kebab-case semantic Investigation ID with .md`
+      ];
+}
+
+export function isInvestigationTag(value: string): boolean {
+  return kebabCasePattern.test(value);
+}
+
+export function reportPathForInvestigationId(
+  investigationsDirectory: string,
+  id: string
+): string {
+  return path.join(investigationsDirectory, id);
+}
+
 function canonicalDirectory(
   label: string,
   directory: string
@@ -103,64 +123,6 @@ function canonicalDirectory(
         : err([`${label} must be a directory`])
     )
   );
-}
-
-export function normalizeInvestigationTopicPath(value: string): string {
-  return value.trim().replace(/\\/gu, "/").replace(/^\.\//u, "");
-}
-
-export function isSafeRelativeInvestigationPath(relativePath: string): boolean {
-  if (
-    relativePath.length === 0 ||
-    path.posix.isAbsolute(relativePath) ||
-    path.win32.isAbsolute(relativePath) ||
-    relativePath.includes("?") ||
-    relativePath.includes("#")
-  ) {
-    return false;
-  }
-  return !relativePath
-    .split("/")
-    .some((part) => part.length === 0 || part === "." || part === "..");
-}
-
-export function isInvestigationTopicPath(relativePath: string): boolean {
-  return (
-    isSafeRelativeInvestigationPath(relativePath) &&
-    investigationTopicPathPattern.test(relativePath)
-  );
-}
-
-export function isInvestigationCategory(value: string): boolean {
-  return kebabCasePattern.test(value);
-}
-
-export function investigationCategoryOf(relativePath: string): string | null {
-  const parts = relativePath.split("/");
-  return parts.length > 0 && parts[0].length > 0 ? parts[0] : null;
-}
-
-export function validateInvestigationTopicPath(relativePath: string): string[] {
-  if (!isSafeRelativeInvestigationPath(relativePath)) {
-    return [`${relativePath} must be a safe relative POSIX path`];
-  }
-  const parts = relativePath.split("/");
-  if (parts.length !== 2) {
-    return [`${relativePath} must use <category-id>/<semantic-slug>.md`];
-  }
-  const [category, fileName] = parts;
-  const extension = path.posix.extname(fileName);
-  const slug = path.posix.basename(fileName, extension);
-  const errors: string[] = [];
-  if (!isInvestigationCategory(category)) {
-    errors.push(`${relativePath} category must use kebab-case`);
-  }
-  if (extension !== ".md" || !isInvestigationCategory(slug)) {
-    errors.push(
-      `${relativePath} filename must use a kebab-case semantic slug with .md`
-    );
-  }
-  return errors;
 }
 
 function fileSystemResolutionError(label: string, error: unknown): string {

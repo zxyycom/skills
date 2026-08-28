@@ -3,35 +3,35 @@ import type {
   StateIndexEntryStageResult
 } from "../../index-runtime/src/index.ts";
 
-export const investigationReportStatuses = [
-  "调查中",
-  "暂停",
-  "已结束"
+export const investigationRelationTypes = [
+  "补充",
+  "复查",
+  "修正",
+  "推翻",
+  "归并",
+  "拆分"
 ] as const;
 
-export type InvestigationReportStatus =
-  (typeof investigationReportStatuses)[number];
+export type InvestigationRelationType =
+  (typeof investigationRelationTypes)[number];
 
-export function isInvestigationReportStatus(
-  value: string
-): value is InvestigationReportStatus {
-  return investigationReportStatuses.some((status) => status === value);
-}
+export type InvestigationRelation = Readonly<{
+  target: string;
+  type: InvestigationRelationType;
+}>;
 
 export type InvestigationReportCheckOptions = {
-  categories?: readonly string[];
+  ids?: readonly string[];
   investigationsDir?: string;
-  paths?: readonly string[];
   workspaceRoot: string;
 };
 
 export type InvestigationReportCheckResult = {
-  availableTopicCount: number;
-  categoryCount: number;
+  availableReportCount: number;
   errors: string[];
   indexChecked: boolean;
   indexPath: string;
-  selectedTopicCount: number;
+  selectedReportCount: number;
   warnings: string[];
 };
 
@@ -41,17 +41,16 @@ export type InvestigationIndexSyncOptions = {
 };
 
 export type InvestigationIndexSyncResult = {
-  categoryCount: number;
   changed: boolean;
   errors: string[];
   indexPath: string;
-  topicCount: number;
+  reportCount: number;
   warnings: string[];
 };
 
 export type InvestigationIndexStageOptions = {
   investigationsDir?: string;
-  topicIds: readonly string[];
+  reportIds: readonly string[];
   workspaceRoot: string;
 };
 
@@ -60,20 +59,24 @@ export type InvestigationIndexStageDiagnostic = StateIndexDiagnostic;
 export type InvestigationIndexStageResult = StateIndexEntryStageResult;
 
 export type InvestigationIndexQueryOptions = {
-  categories?: readonly string[];
+  formedAtFrom?: string;
+  formedAtTo?: string;
   investigationsDir?: string;
-  latestReportAtFrom?: string;
-  latestReportAtTo?: string;
   limit?: number;
   offset?: number;
-  paths?: readonly string[];
-  statuses?: readonly InvestigationReportStatus[];
+  relationType?: InvestigationRelationType;
+  tags?: readonly string[];
   text?: string;
   workspaceRoot: string;
 };
 
+export type InvestigationIndexQueryEntry = Readonly<{
+  id: string;
+  state: InvestigationIndexState;
+}>;
+
 export type InvestigationIndexQueryResult = {
-  entries: InvestigationIndexState[];
+  entries: InvestigationIndexQueryEntry[];
   errors: string[];
   indexPath: string;
   limit: number;
@@ -81,45 +84,116 @@ export type InvestigationIndexQueryResult = {
   total: number;
 };
 
+export type InvestigationReportShowOptions = {
+  id: string;
+  investigationsDir?: string;
+  workspaceRoot: string;
+};
+
+export type InvestigationReportShowResult =
+  | Readonly<{
+      errors: string[];
+      id: string;
+      indexPath: string;
+      markdown: string;
+      state: InvestigationIndexState;
+      status: "ok";
+    }>
+  | Readonly<{
+      errors: string[];
+      id: string;
+      indexPath: string;
+      markdown: null;
+      state: null;
+      status: "error";
+    }>;
+
+export type InvestigationTraceDirection =
+  | "predecessors"
+  | "successors"
+  | "both";
+
+export type InvestigationReportTraceOptions = {
+  direction?: InvestigationTraceDirection;
+  id: string;
+  investigationsDir?: string;
+  maxDepth?: number;
+  workspaceRoot: string;
+};
+
+export type InvestigationRelationEdge = Readonly<{
+  source: string;
+  target: string;
+  type: InvestigationRelationType;
+}>;
+
+export type InvestigationReportTraceResult =
+  | Readonly<{
+      edges: InvestigationRelationEdge[];
+      errors: string[];
+      id: string;
+      indexPath: string;
+      reportIds: string[];
+      status: "ok";
+    }>
+  | Readonly<{
+      edges: InvestigationRelationEdge[];
+      errors: string[];
+      id: string;
+      indexPath: string;
+      reportIds: string[];
+      status: "error";
+    }>;
+
+export type InvestigationRelationReplacement = Readonly<{
+  relations: readonly InvestigationRelation[];
+  source: string;
+}>;
+
+export type InvestigationRelationSetOptions = {
+  investigationsDir?: string;
+  replacements: readonly InvestigationRelationReplacement[];
+  workspaceRoot: string;
+};
+
+export type InvestigationRelationSetResult = Readonly<{
+  changed: boolean;
+  errors: string[];
+  indexPath: string;
+  sourceIds: string[];
+}>;
+
 export type InvestigationIndexMetadata = Record<string, never>;
 
-export type InvestigationResourceReference = {
-  reportIndex: number;
-  resourceIds: string[];
-};
-
-export type InvestigationIndexState = {
-  latestReportAt: string;
-  path: string;
+export type InvestigationIndexState = Readonly<{
+  formedAt: string;
   question: string;
-  reportCount: number;
-  reportTitles: string[];
-  resourceReferences: InvestigationResourceReference[];
-  status: InvestigationReportStatus;
+  relations: InvestigationRelation[];
+  resourceIds: string[];
+  tags: string[];
   title: string;
-};
+}>;
 
 export type InvestigationSource = Readonly<{
-  path: string;
+  id: string;
   text: string;
 }>;
 
-export type InvestigationReportProjection = {
-  latestReportAt: string | null;
-  question: string | null;
-  status: string | null;
-  title: string | null;
-};
-
-export type InvestigationReportEntryProjection = {
-  formedAt: string | null;
-  line: number;
-  resourceIds: string[];
-  title: string;
-};
-
-export type ParsedInvestigationReport = {
+export type ParsedInvestigationReport = Readonly<{
   errors: string[];
-  projection: InvestigationReportProjection;
-  reports: InvestigationReportEntryProjection[];
-};
+  report: ParsedInvestigationReportDocument | null;
+}>;
+
+export type ParsedInvestigationReportDocument = Readonly<{
+  formedAt: string;
+  frontmatter: Readonly<{
+    endLine: number;
+    relationsEndLine: number;
+    relationsStartLine: number;
+  }>;
+  question: string;
+  relations: InvestigationRelation[];
+  resourceIds: string[];
+  tags: string[];
+  title: string;
+}>;

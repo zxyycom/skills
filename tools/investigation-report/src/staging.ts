@@ -14,7 +14,7 @@ import { parseInvestigationIndexStageOptions } from "./options.ts";
 import {
   canonicalizeInvestigationsDirectory,
   defaultInvestigationsDirectory,
-  isInvestigationTopicPath,
+  isInvestigationId,
   resolveInvestigationsDirectory,
   type ResolvedInvestigationsDirectory
 } from "./report-path.ts";
@@ -27,39 +27,31 @@ export type InvestigationIndexStageFailure = Readonly<{
   kind: "invalid-options" | "operation";
   result: InvestigationIndexStageError;
 }>;
-
 type InvestigationIndexStageSuccess = Extract<
   InvestigationIndexStageResult,
   { status: "ok" }
 >;
-
 type InvestigationIndexStageError = Extract<
   InvestigationIndexStageResult,
   { status: "error" }
 >;
-
 type InvestigationIndexStageUnchangedError = Extract<
   InvestigationIndexStageError,
   { changed: false }
 >;
-
-type InvestigationIndexStageUnchangedErrorState =
-  InvestigationIndexStageUnchangedError["state"];
-
 type PreparedInvestigationIndexStage = Readonly<{
   indexPath: string;
+  reportIds: string[];
   resolved: ResolvedInvestigationsDirectory;
-  topicIds: string[];
 }>;
 
 const investigationStageDiagnosticCodes = {
   locationInvalid: "investigation-report.stage-location-invalid",
   optionsInvalid: "investigation-report.stage-options-invalid",
-  topicIdDuplicate: "investigation-report.stage-topic-id-duplicate",
-  topicIdInvalid: "investigation-report.stage-topic-id-invalid",
-  topicIdsEmpty: "investigation-report.stage-topic-ids-empty"
+  reportIdDuplicate: "investigation-report.stage-report-id-duplicate",
+  reportIdInvalid: "investigation-report.stage-report-id-invalid",
+  reportIdsEmpty: "investigation-report.stage-report-ids-empty"
 } as const;
-
 type InvestigationStageDiagnosticCode =
   (typeof investigationStageDiagnosticCodes)[keyof typeof investigationStageDiagnosticCodes];
 
@@ -80,7 +72,6 @@ export function executeInvestigationIndexStage(
   if (prepared.isErr()) {
     return errAsync(prepared.error);
   }
-
   return canonicalizeInvestigationsDirectory(prepared.value.resolved)
     .mapErr((errors) =>
       stageFailure(
@@ -99,7 +90,7 @@ export function executeInvestigationIndexStage(
     .andThen((canonical) =>
       stageValidatedInvestigationIndex(
         canonical.investigationsDirectory,
-        prepared.value.topicIds
+        prepared.value.reportIds
       )
     );
 }
@@ -109,27 +100,25 @@ function prepareStage(
 ): Result<PreparedInvestigationIndexStage, InvestigationIndexStageFailure> {
   const parsed = parseInvestigationIndexStageOptions(input);
   if (parsed.isErr()) {
-    const indexPath = defaultInvestigationIndexPath();
     return err(
       stageFailure(
         "invalid-options",
         failedStage(
-          indexPath,
+          defaultInvestigationIndexPath(),
           diagnosticsFromMessages(
             investigationStageDiagnosticCodes.optionsInvalid,
             parsed.error,
-            indexPath
+            defaultInvestigationIndexPath()
           )
         )
       )
     );
   }
-
   const resolved = resolveInvestigationsDirectory(
     parsed.value.workspaceRoot,
     parsed.value.investigationsDir
   );
-  const validatedIds = validateTopicIds(parsed.value.topicIds);
+  const validatedIds = validateReportIds(parsed.value.reportIds);
   const indexPath = investigationIndexPathForOptions(parsed.value);
   if (resolved.isErr() || validatedIds.isErr()) {
     return err(
@@ -154,55 +143,56 @@ function prepareStage(
   }
   return ok({
     indexPath,
-    resolved: resolved.value,
-    topicIds: validatedIds.value
+    reportIds: validatedIds.value,
+    resolved: resolved.value
   });
 }
 
-function validateTopicIds(
-  topicIds: readonly string[]
+function validateReportIds(
+  reportIds: readonly string[]
 ): Result<string[], StateIndexDiagnostic[]> {
-  if (topicIds.length === 0) {
+  if (reportIds.length === 0) {
     return err([
       stageDiagnostic(
-        investigationStageDiagnosticCodes.topicIdsEmpty,
-        "stage-index requires at least one investigation topic id"
+        investigationStageDiagnosticCodes.reportIdsEmpty,
+        "stage-index requires at least one Investigation ID"
       )
     ]);
   }
-
   const diagnostics: StateIndexDiagnostic[] = [];
   const seen = new Set<string>();
-  for (const topicId of topicIds) {
-    if (!isInvestigationTopicPath(topicId)) {
+  for (const value of reportIds) {
+    const id = value;
+    if (!isInvestigationId(id)) {
       diagnostics.push(
         stageDiagnostic(
-          investigationStageDiagnosticCodes.topicIdInvalid,
-          `topic id ${JSON.stringify(topicId)} must use a normalized ` +
-            "<category-id>/<semantic-slug>.md POSIX path",
-          topicId
+          investigationStageDiagnosticCodes.reportIdInvalid,
+          `report id ${JSON.stringify(value)} must use an Investigation ID with .md`,
+          value
         )
       );
       continue;
     }
-    if (seen.has(topicId)) {
+    if (seen.has(id)) {
       diagnostics.push(
         stageDiagnostic(
-          investigationStageDiagnosticCodes.topicIdDuplicate,
-          `topic id ${JSON.stringify(topicId)} appears more than once`,
-          topicId
+          investigationStageDiagnosticCodes.reportIdDuplicate,
+          `report id ${JSON.stringify(id)} appears more than once`,
+          id
         )
       );
       continue;
     }
-    seen.add(topicId);
+    seen.add(id);
   }
-  return diagnostics.length > 0 ? err(diagnostics) : ok([...topicIds]);
+  return diagnostics.length > 0
+    ? err(diagnostics)
+    : ok([...seen].sort(compareText));
 }
 
 function stageValidatedInvestigationIndex(
   investigationsDirectory: string,
-  topicIds: readonly string[]
+  reportIds: readonly string[]
 ): ResultAsync<InvestigationIndexStageSuccess, InvestigationIndexStageFailure> {
   const indexPath = path.join(
     investigationsDirectory,
@@ -214,7 +204,7 @@ function stageValidatedInvestigationIndex(
     root: investigationsDirectory
   });
   return ResultAsync.fromSafePromise(
-    runtime.stageSelectedEntries(topicIds)
+    runtime.stageSelectedEntries(reportIds)
   ).andThen((result) => {
     const mapped = withDisplayIndexPath(result, indexPath);
     return mapped.status === "error"
@@ -245,7 +235,7 @@ function withDisplayIndexPath(
 function failedStage(
   indexPath: string,
   diagnostics: StateIndexDiagnostic[],
-  state: InvestigationIndexStageUnchangedErrorState = "selection-invalid"
+  state: InvestigationIndexStageUnchangedError["state"] = "selection-invalid"
 ): InvestigationIndexStageUnchangedError {
   return {
     changed: false,
@@ -257,14 +247,12 @@ function failedStage(
     status: "error"
   };
 }
-
 function stageFailure(
   kind: InvestigationIndexStageFailure["kind"],
   result: InvestigationIndexStageError
 ): InvestigationIndexStageFailure {
   return { kind, result };
 }
-
 function diagnosticsFromMessages(
   code: InvestigationStageDiagnosticCode,
   messages: readonly string[],
@@ -277,24 +265,16 @@ function diagnosticsFromMessages(
     stateId: null
   }));
 }
-
 function stageDiagnostic(
   code: InvestigationStageDiagnosticCode,
   message: string,
   stateId: string | null = null
 ): StateIndexDiagnostic {
-  return {
-    code,
-    message,
-    path: null,
-    stateId
-  };
+  return { code, message, path: null, stateId };
 }
-
 function defaultInvestigationIndexPath(): string {
   return path.join(defaultInvestigationsDirectory, investigationIndexFileName);
 }
-
 function investigationIndexPathForOptions(options: {
   investigationsDir?: string;
   workspaceRoot: string;
@@ -304,4 +284,7 @@ function investigationIndexPathForOptions(options: {
     options.investigationsDir ?? defaultInvestigationsDirectory,
     investigationIndexFileName
   );
+}
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
 }

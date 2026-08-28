@@ -28,7 +28,7 @@
 
 | 当前需要保存的结果 | 最小载体 | 载体退出条件 |
 | --- | --- | --- |
-| 只在当前任务中形成的想法、比较或临时步骤 | 当前任务上下文 | 当前任务结束后不另行持久化；需要独立复核时才按调查报告契约建立主题 |
+| 只在当前任务中形成的想法、比较或临时步骤 | 当前任务上下文 | 当前任务结束后不另行持久化；需要独立复核时才按调查报告契约建立报告 |
 | 跨 change 持续影响后续选择的方向、理由和长期约束 | Decision record | 决策按自身生命周期修订、拆分或归档；`active + unaligned` 只表示未来方向，不自动产生实施 task 或等待状态 |
 | 已经明确、需要跨文件或 owner 持久规划和交接的实施 change | Change plan | 完成后归档；不再实施的 draft 不作为未来资料柜，只有具备独立复核价值的调查材料才迁入调查 owner |
 | 已选择的当前工作所需的非线性协调，或具有明确外部条件的等待 | Task Graph task | 目标达成后完成；目标放弃或不再具有当前协调价值时取消；`waiting` 必须写明能够被观察的外部条件 |
@@ -52,7 +52,7 @@
 | 测试证据账本 | `docs/test-evidence/test-evidence-topics.json`、`docs/test-evidence/<topic-id>/*.md`、`docs/test-evidence/test-evidence-index.json` | 受控 topic 表定义稳定测试责任，每个 Markdown 只承接一个最小原生测试入口的权威 case，索引 JSON 是统一查询投影；格式与维护事务由 `skills/test-evidence-review/` 承接 |
 | 可分发工具源码 | `tools/<tool-name>/` | 随 skill 分发的源码、声明、测试、fixture 和局部组件契约；`tools/shared/` 承接跨工具运行时不变量，`tools/skill-package/` 承接发布端与 updater 共用的分发协议 |
 | 主仓库自动化与共享交付 | 主仓库根目录、`scripts/` 和 CI 配置 | 命令编排、生成适配、共享校验、打包、聚合发布、依赖入口、Git 和 CI 自动化；不承接随 skill 分发工具的运行时源码 |
-| 调查报告 | `docs/investigations/<category-id>/<semantic-slug>.md`、`docs/investigations/investigation-index.json` | 主题 Markdown 承接可独立复核的报告；`skills/investigation-report/references/investigation-report-contract.md` 是格式与维护事务的固定契约，JSON 是派生索引 |
+| 调查报告 | `docs/investigations/<investigation-id>.md`、`docs/investigations/investigation-index.json` | 根目录直属 Markdown 各承接一份可独立复核的报告；Investigation ID、tags、关系、资源与维护事务由 `skills/investigation-report/references/investigation-report-contract.md` 承接，JSON 是派生索引 |
 | 长期决策 | `docs/decisions/*.md`、`docs/decisions/archive/*.md`、`docs/decisions/decision-index.json` | Markdown basename 是稳定 Decision ID，frontmatter 的非空 tags 承接分类，status 决定根目录或 `archive/` 位置；Markdown 承接生命周期、对齐状态和完整语义。`skills/decision-records/SKILL.md` 是 agent 行为入口，`references/decision-record-rules.md` 承接决策语义与维护不变量，JSON Schema 承接索引精确结构，索引 JSON 是查询投影 |
 
 ## 维护规则

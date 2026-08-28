@@ -24,22 +24,22 @@ export function prepareInvestigationSources(
   sources: readonly InvestigationSource[]
 ): PreparedInvestigationSources {
   const orderedSources = sources
-    .map(({ path, text }) => ({ path, text }))
-    .sort((left, right) => compareText(left.path, right.path));
-  const sourcePaths = new Set(orderedSources.map((source) => source.path));
-  if (sourcePaths.size !== orderedSources.length) {
-    throw new Error("investigation sources must use unique paths");
+    .map(({ id, text }) => ({ id, text }))
+    .sort((left, right) => compareText(left.id, right.id));
+  const sourceIds = new Set(orderedSources.map((source) => source.id));
+  if (sourceIds.size !== orderedSources.length) {
+    throw new Error("investigation sources must use unique Investigation IDs");
   }
   return {
     metadata: {},
     revision: {
-      metadata: sourceFingerprint("investigation-index-metadata-v3", "{}"),
+      metadata: sourceFingerprint("investigation-index-metadata-v4", "{}"),
       entries: Object.fromEntries(
         orderedSources.map((source) => [
-          source.path,
+          source.id,
           sourceFingerprint(
-            "investigation-index-entry-v1",
-            source.path,
+            "investigation-index-entry-v2",
+            source.id,
             normalizeSourceText(source.text)
           )
         ])
@@ -69,7 +69,7 @@ function hashField(hash: ReturnType<typeof createHash>, value: string): void {
 }
 
 function normalizeSourceText(value: string): string {
-  return value.replace(/\r\n/g, "\n");
+  return value.replace(/\r\n?/gu, "\n");
 }
 
 function compareText(left: string, right: string): number {

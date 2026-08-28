@@ -1,51 +1,47 @@
 {
-  "$comment": "entry 对象键、state.path、派生 keys、资源排序与交叉引用、sourceRevision 与调查事实源的一致性由调查报告 CLI 检查。",
+  "$comment": "entry 对象键、派生 keys、资源排序、关系图、sourceRevision 与报告 Markdown 的一致性由调查报告 CLI 检查。",
   "$defs": {
     "fingerprint": {
       "pattern": "^sha256:[0-9a-f]{64}$",
       "type": "string"
     },
-    "resourceId": {
-      "$comment": "pattern 表达路径段字符白名单、非空路径段和正斜杠分隔；路径段首尾点、至少一个汉字、ASCII 英文字母或 ASCII 数字、Windows 保留设备名和 ASCII 括号平衡由调查报告 CLI 补充校验。",
-      "pattern": "^[A-Za-z0-9\\u3007\\u4e00-\\u9fff._\\-+@=()（）\\[\\]【】《》,!~'，。！、·：？]+(?:/[A-Za-z0-9\\u3007\\u4e00-\\u9fff._\\-+@=()（）\\[\\]【】《》,!~'，。！、·：？]+)*$",
+    "investigationId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*\\.md$",
       "type": "string"
     },
-    "resourceReference": {
+    "relation": {
       "additionalProperties": false,
       "properties": {
-        "reportIndex": {
-          "minimum": 0,
-          "type": "integer"
+        "target": {
+          "$ref": "#/$defs/investigationId"
         },
-        "resourceIds": {
-          "items": {
-            "$ref": "#/$defs/resourceId"
-          },
-          "minItems": 1,
-          "type": "array",
-          "uniqueItems": true
+        "type": {
+          "enum": [
+            "补充",
+            "复查",
+            "修正",
+            "推翻",
+            "归并",
+            "拆分"
+          ],
+          "type": "string"
         }
       },
       "required": [
-        "reportIndex",
-        "resourceIds"
+        "type",
+        "target"
       ],
       "type": "object"
+    },
+    "resourceId": {
+      "$comment": "pattern 表达路径段字符白名单、非空路径段和正斜杠分隔；owner Investigation ID、路径段首尾点、至少一个身份字符、Windows 保留设备名和 Markdown 括号平衡由调查报告 CLI 补充校验。",
+      "pattern": "^[A-Za-z0-9\\u3007\\u4e00-\\u9fff._\\-+@=()（）\\[\\]【】《》,!~'，。！、·：？]+(?:/[A-Za-z0-9\\u3007\\u4e00-\\u9fff._\\-+@=()（）\\[\\]【】《》,!~'，。！、·：？]+)*$",
+      "type": "string"
     },
     "keyValues": {
       "additionalProperties": false,
       "properties": {
-        "category": {
-          "items": {
-            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-            "type": "string"
-          },
-          "maxItems": 1,
-          "minItems": 1,
-          "type": "array",
-          "uniqueItems": true
-        },
-        "latest-report-at": {
+        "formed-at": {
           "items": {
             "type": "integer"
           },
@@ -54,16 +50,26 @@
           "type": "array",
           "uniqueItems": true
         },
-        "status": {
+        "relation-type": {
           "items": {
             "enum": [
-              "调查中",
-              "暂停",
-              "已结束"
+              "补充",
+              "复查",
+              "修正",
+              "推翻",
+              "归并",
+              "拆分"
             ],
             "type": "string"
           },
-          "maxItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "tag": {
+          "items": {
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "type": "string"
+          },
           "minItems": 1,
           "type": "array",
           "uniqueItems": true
@@ -80,58 +86,46 @@
         }
       },
       "required": [
-        "category",
-        "latest-report-at",
-        "status",
+        "tag",
+        "formed-at",
+        "relation-type",
         "text"
       ],
       "type": "object"
     },
-    "topicPath": {
-      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*/[a-z0-9]+(?:-[a-z0-9]+)*\\.md$",
-      "type": "string"
-    },
     "state": {
       "additionalProperties": false,
       "properties": {
-        "latestReportAt": {
+        "formedAt": {
           "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})(Z|[+-]\\d{2}:\\d{2})$",
           "type": "string"
-        },
-        "path": {
-          "$ref": "#/$defs/topicPath"
         },
         "question": {
           "minLength": 1,
           "pattern": "^(?!\\s)(?:[^\\u0000-\\u001f\\u007f]*\\S)?$",
           "type": "string"
         },
-        "reportCount": {
-          "minimum": 1,
-          "type": "integer"
-        },
-        "reportTitles": {
+        "relations": {
           "items": {
-            "minLength": 1,
-            "pattern": "^(?!\\s)(?:[^\\u0000-\\u001f\\u007f]*\\S)?$",
+            "$ref": "#/$defs/relation"
+          },
+          "type": "array"
+        },
+        "resourceIds": {
+          "items": {
+            "$ref": "#/$defs/resourceId"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "tags": {
+          "items": {
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
             "type": "string"
           },
           "minItems": 1,
-          "type": "array"
-        },
-        "resourceReferences": {
-          "items": {
-            "$ref": "#/$defs/resourceReference"
-          },
-          "type": "array"
-        },
-        "status": {
-          "enum": [
-            "调查中",
-            "暂停",
-            "已结束"
-          ],
-          "type": "string"
+          "type": "array",
+          "uniqueItems": true
         },
         "title": {
           "minLength": 1,
@@ -140,24 +134,22 @@
         }
       },
       "required": [
-        "latestReportAt",
-        "path",
+        "title",
+        "formedAt",
         "question",
-        "reportCount",
-        "reportTitles",
-        "resourceReferences",
-        "status",
-        "title"
+        "tags",
+        "relations",
+        "resourceIds"
       ],
       "type": "object"
     }
   },
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "由调查主题 Markdown 生成的领域状态通用索引。",
+  "description": "由单份调查报告 Markdown 生成的领域状态通用索引。",
   "properties": {
     "definitionVersion": {
-      "const": 5
+      "const": 6
     },
     "entries": {
       "additionalProperties": {
@@ -177,7 +169,7 @@
         "type": "object"
       },
       "propertyNames": {
-        "$ref": "#/$defs/topicPath"
+        "$ref": "#/$defs/investigationId"
       },
       "type": "object"
     },
@@ -185,15 +177,15 @@
       "const": [
         {
           "mode": "exact",
-          "name": "category"
+          "name": "tag"
         },
         {
           "mode": "range",
-          "name": "latest-report-at"
+          "name": "formed-at"
         },
         {
           "mode": "exact",
-          "name": "status"
+          "name": "relation-type"
         },
         {
           "mode": "text",
@@ -222,7 +214,7 @@
             "$ref": "#/$defs/fingerprint"
           },
           "propertyNames": {
-            "$ref": "#/$defs/topicPath"
+            "$ref": "#/$defs/investigationId"
           },
           "type": "object"
         }
@@ -243,6 +235,6 @@
     "schemaVersion",
     "sourceRevision"
   ],
-  "title": "Investigation Topic State Index",
+  "title": "Investigation Report State Index",
   "type": "object"
 }

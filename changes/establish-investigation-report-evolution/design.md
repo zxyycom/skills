@@ -4,13 +4,13 @@
 
 ## Context
 
-- 本 Change 的 artifacts 使用同一消费契约：proposal 拥有 Outcome、范围和成功标准；本 design 拥有已经确认的目标模型、领域边界与取舍；tasks 拥有实施顺序和验证出口。当前代码、旧格式和既有决策是迁移基线，不会覆盖本 design 的目标状态；实施发现目标必须改变时，先同步修订三个 artifacts，再继续任务。
-- 当前固定契约把 `docs/investigations/<category-id>/<semantic-slug>.md` 作为 topic ID；每个 topic 保存一个核心问题、继续调查状态、最新报告时间和一组按形成时间追加的 H3 报告，派生索引 definition 5 也以 topic 为 entry。
-- 2026-08-28 的审计基线包含 12 个 topic Markdown、33 份合法 H3 报告和 5 个版本控制可见资源。[`migration-manifest.json`](migration-manifest.json) 已保存逐报告与逐资源映射、内容指纹和当前 source revision；实施写入前只需先比较 revision，发生漂移时重新审阅受影响行。
-- [`maintain-topic-level-investigation-index`](../../docs/decisions/maintain-topic-level-investigation-index.md) 明确选择 topic 级身份与索引；[`use-fixed-investigation-record-core`](../../docs/decisions/use-fixed-investigation-record-core.md) 同时拥有仍需保留的四段固定核心和将被取消的主题追加模型。资源 owner、索引 revision、未引用资源诊断与选择性暂存也分别由现行决策承接。
+- 本 Change 的 artifacts 使用同一消费契约：proposal 拥有 Outcome、范围和成功标准；本 design 拥有已经确认的目标模型、领域边界与取舍；tasks 拥有完成进度和验证证据。审计基线中的代码、旧格式和既有决策只说明已完成迁移的起点，不能覆盖本 design 的目标状态；如 active Plan 期间发现目标需要改变，必须同步修订三个 artifacts。
+- 审计时的固定契约把 `docs/investigations/<category-id>/<semantic-slug>.md` 作为 topic ID；每个 topic 保存一个核心问题、继续调查状态、最新报告时间和一组按形成时间追加的 H3 报告，派生索引 definition 5 也以 topic 为 entry。
+- 2026-08-28 的审计基线包含 12 个 topic Markdown、33 份合法 H3 报告和 5 个版本控制可见资源。[`migration-manifest.json`](migration-manifest.json) 保存逐报告与逐资源映射、内容指纹和当时 source revision；该 revision 已作为迁移写入前的漂移门禁。
+- [`maintain-topic-level-investigation-index`](../../docs/decisions/archive/maintain-topic-level-investigation-index.md) 曾明确选择 topic 级身份与索引；[`use-fixed-investigation-record-core`](../../docs/decisions/archive/use-fixed-investigation-record-core.md) 曾同时拥有四段固定核心和主题追加模型。它们及资源 owner、索引 revision、未引用资源诊断和选择性暂存的旧决策已由当前报告级后继闭合。
 - 调查报告记录形成时认识，不自动成为当前事实、长期采用方向或实施授权。Decision Records 的 archive 用来区分当前约束与历史决定；调查报告没有这个区分需要，推翻关系也不应让历史报告退出正常发现路径。
-- 当前 Decision Records 已实现边索引、双向 trace 与环检测，但相关代码也绑定 Decision ID、archived 目标、关系形状和生命周期事务。共享算法可以抽取，领域关系类型和生命周期不能整体复用。
-- 调查资源当前以 topic path 为 owner 前缀，资源字节不进入主题索引 revision，被引用资源严格校验，完全未引用的可见资源只产生 warning。这些责任继续成立，但 owner 和引用投影必须改为报告级。
+- Decision Records 的边索引、双向 trace 与环检测曾与 Decision ID、archived 目标、关系形状和生命周期事务绑定；实施仅抽取共享算法，领域关系类型和生命周期不整体复用。
+- 审计时调查资源以 topic path 为 owner 前缀，资源字节不进入主题索引 revision，被引用资源严格校验，完全未引用的可见资源只产生 warning。资源字节、严格校验和 warning 边界在报告级模型中继续成立，owner 和引用投影已改为报告级。
 - 已归档的 Decision Records 标签化 Change 已明确不建立跨资源全局文件名规则。Investigation ID 只需在 Investigation Report 集合内唯一；本 Change 不依赖 Test Evidence 标签化 Change，也不创建跨资源统一 CRUD 或全局 ID namespace。
 
 ## Goals / Non-Goals
@@ -33,7 +33,7 @@
 - 不从时间相邻、相同 tags、普通 Markdown 链接或旧主题同文件关系自动推断演进边。
 - 不让关系图代替证据引用、任务依赖、决策演进或实施映射。
 - 不在本 Change 中改造 Test Evidence 的布局、标签或身份，也不建立跨资源全局文件名门禁。
-- 不提供作为当前产品能力或分发内容的旧格式 reader、双写、重定向、迁移命令或升级脚本；Change 内用于清单、对账和确定性文件移动的一次性辅助物只服务本仓库迁移，并在归档前退出当前维护入口。
+- 不提供作为当前产品能力或分发内容的旧格式 reader、双写、重定向、迁移命令或升级脚本；清单、对账和确定性文件移动只服务本次迁移，已不在当前维护入口或分发输入中保留。
 
 ## Decisions
 
@@ -123,7 +123,7 @@
 #### 索引、查询与暂存
 
 1. 每个 Investigation ID 产生一个 entry。state 投影 `title`、`formedAt`、`question`、`tags`、`relations` 和按规范 ID 排序的 `resourceIds`，不保存可由 ID 计算的 sourcePath、正文、反向关系副本、当前结论或资源内容摘要。
-2. keys 使用 exact `tag`、range `formed-at`、exact `relation-type` 和 text `text`；text 只聚合 title 与 question。删除 category、status、latest-report-at、reportCount、reportTitles 和 reportIndex。
+2. keys 使用 exact `tag`、range `formed-at`、exact `relation-type` 和 text `text`；text 只聚合 title 与 question。旧索引 keys/state 不再投影 `category`、`status`、`latest-report-at`、`reportCount`、`reportTitles` 或 `reportIndex`；集合级同步结果的 `reportCount` 不属于旧 topic 投影。
 3. metadata 保持严格空对象。source revision 以 Investigation ID 为键，只指纹化 ID 和完整报告 Markdown；资源成员、名称与字节继续不参与索引 revision。
 4. `list` 默认查询全部正式报告，按 Investigation ID 的 locale 无关词法顺序排序，再应用 offset 和 limit；支持可重复 tag AND、包含端点的形成时间范围、一个精确关系类型和 title/question 文本查询。被推翻或具有任意后继的报告不被默认隐藏。
 5. `show <investigation-id>` 由调查根目录和 ID 计算目标路径后读取完整报告；`trace <investigation-id>` 支持 predecessors、successors、both 和非负 max-depth，深度 0 只返回起点。trace 节点按 ID、边按 source/类型表顺序/target 确定性排序，并从同一索引计算正反向关系子图。
@@ -139,12 +139,12 @@
 
 #### 不兼容迁移与长期 owner
 
-1. 逐报告迁移清单由 [`migration-manifest.json`](migration-manifest.json) 承接，已经保存旧 topic path、旧 H3 序号与标题、目标 ID、title、formedAt、question、tags、relations、资源引用、资源 owner、正文指纹和源集合 revision。实施写入前先完成 revision 漂移门禁，迁移后用同一清单对账。
+1. 逐报告迁移清单由 [`migration-manifest.json`](migration-manifest.json) 承接，保存旧 topic path、旧 H3 序号与标题、目标 ID、title、formedAt、question、tags、relations、资源引用、资源 owner、正文指纹和源集合 revision。迁移写入前已完成 revision 漂移门禁，迁移后已用同一清单对账。
 2. 单报告旧 topic 可以优先沿用有语义且无冲突的旧 basename；多报告 topic 依据各 H3 的真实认识建立语义 ID，不使用 report-1、report-2 等顺序名称。
 3. 旧 topic 内相邻顺序只保留 formedAt 事实，不自动产生关系。每条目标关系都必须由报告正文和形成时条件支持；无法确认时使用空关系。
 4. 删除状态前审阅`调查中`或`暂停`主题是否仍表达真实协调事项；仍需推进的工作交给当前任务、Task Graph、Change 或其他 owner，不把执行状态编码为 tags 或关系。
 5. 目标 parser、Schema、CLI 与 Skill 只接受新格式。迁移清单可以作为本 Change 的审计附件，确定性移动可以使用只在实施任务内存在的一次性辅助物；它们都不是当前产品能力或分发输入，归档前不得残留为旧格式 reader、双写、redirect、symlink、迁移命令或升级入口。
-6. 实施开始时先为与目标冲突的 active 决策建立最小自包含后继并通过合法 Decision Records 事务演进。仍成立的资源 revision、warning 与固定核心判断只做必要修订。
+6. 实施已先为与目标冲突的 active 决策建立最小自包含后继并通过合法 Decision Records 事务演进；仍成立的资源 revision、warning 与固定核心判断仅做必要修订。
 
 ### Resulting Impacts
 
@@ -166,7 +166,7 @@
 - 专用关系命令引入事务与恢复成本；本 Change 接受该成本，并以完整替换、显式 source 组和不触碰 pending 收窄表面。批量 source 只用于需要同一图事务的关系调整，不扩张为通用报告编辑 API。
 - 共享资源的 owner 迁移可能有歧义，需要人工选择；owner 只表达维护归属，不限制复用或证明内容可信。
 - 一次性切换没有运行时退路；迁移清单、版本控制恢复和完整门禁承担回退边界。
-- 并行工作可能使迁移清单过期；实施写入前必须重新盘点，并在 revision 漂移时停止。
+- 并行工作曾可能使迁移清单过期；迁移写入前的 revision 门禁用于在漂移时停止。
 
 ## Open Questions
 

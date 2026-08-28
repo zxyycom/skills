@@ -1,4 +1,4 @@
-import { isInvestigationCategory } from "./report-path.ts";
+import { isInvestigationId } from "./report-path.ts";
 
 export const investigationResourcesDirectoryName = "_resources";
 
@@ -35,20 +35,59 @@ export function isInvestigationResourceId(value: string): boolean {
   const segments = value.split("/");
   return (
     isLexicallySafeInvestigationResourcePath(value) &&
-    segments.length >= 3 &&
-    isInvestigationCategory(segments[0] ?? "") &&
-    isInvestigationCategory(segments[1] ?? "")
+    segments.length >= 2 &&
+    isInvestigationId(`${segments[0]}.md`)
   );
 }
 
-export function investigationResourceOwnerTopicId(
+export function investigationResourceOwnerReportId(
   value: string
 ): string | null {
   if (!isInvestigationResourceId(value)) {
     return null;
   }
-  const [category, slug] = value.split("/");
-  return `${category}/${slug}.md`;
+  return `${value.split("/")[0]}.md`;
+}
+
+export function investigationResourceIdFromLinkTarget(
+  target: string
+): InvestigationResourceLinkTargetResult {
+  const prefix = `./${investigationResourcesDirectoryName}/`;
+  if (
+    !target.startsWith(prefix) ||
+    target.includes("?") ||
+    target.includes("#") ||
+    target.includes("%") ||
+    target.includes("\\")
+  ) {
+    return {
+      error:
+        `resource link target ${JSON.stringify(target)} must use ` +
+        `./${investigationResourcesDirectoryName}/<resource-id> without ` +
+        "queries, fragments, encoding, or backslashes",
+      status: "invalid"
+    };
+  }
+  const id = target.slice(prefix.length);
+  if (!isInvestigationResourceId(id)) {
+    return {
+      error: isLexicallySafeInvestigationResourcePath(id)
+        ? `resource link target ${JSON.stringify(target)} must use ` +
+          "<investigation-id-without-md>/<resource-subpath> with an " +
+          "Investigation ID owner prefix"
+        : `resource link target ${JSON.stringify(target)} must contain a safe, ` +
+          "normalized resource id",
+      status: "invalid"
+    };
+  }
+  return { id, status: "valid" };
+}
+
+function isLexicallySafeInvestigationResourcePath(value: string): boolean {
+  return (
+    investigationResourceIdLexicalPattern.test(value) &&
+    value.split("/").every(isInvestigationResourcePathSegment)
+  );
 }
 
 function isInvestigationResourcePathSegment(segment: string): boolean {
@@ -81,45 +120,4 @@ function hasSupportedMarkdownParentheses(segment: string): boolean {
 
 function escapeRegularExpressionCharacterClass(value: string): string {
   return value.replace(/[\\[\]^-]/gu, "\\$&");
-}
-
-export function investigationResourceIdFromLinkTarget(
-  target: string
-): InvestigationResourceLinkTargetResult {
-  const prefix = `../${investigationResourcesDirectoryName}/`;
-  if (
-    !target.startsWith(prefix) ||
-    target.includes("?") ||
-    target.includes("#") ||
-    target.includes("%") ||
-    target.includes("\\")
-  ) {
-    return {
-      error:
-        `resource link target ${JSON.stringify(target)} must use ` +
-        `../${investigationResourcesDirectoryName}/<resource-id> without ` +
-        "queries, fragments, encoding, or backslashes",
-      status: "invalid"
-    };
-  }
-  const id = target.slice(prefix.length);
-  if (!isInvestigationResourceId(id)) {
-    return {
-      error: isLexicallySafeInvestigationResourcePath(id)
-        ? `resource link target ${JSON.stringify(target)} must use ` +
-          "<category-id>/<semantic-slug>/<resource-subpath> with a " +
-          "kebab-case owner topic prefix"
-        : `resource link target ${JSON.stringify(target)} must contain a safe, ` +
-          "normalized resource id",
-      status: "invalid"
-    };
-  }
-  return { id, status: "valid" };
-}
-
-function isLexicallySafeInvestigationResourcePath(value: string): boolean {
-  return (
-    investigationResourceIdLexicalPattern.test(value) &&
-    value.split("/").every(isInvestigationResourcePathSegment)
-  );
 }

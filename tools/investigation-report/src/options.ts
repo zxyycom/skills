@@ -1,60 +1,84 @@
 import { err, ok, type Result } from "neverthrow";
 import * as v from "valibot";
 import {
-  investigationReportStatuses,
+  investigationRelationTypes,
   type InvestigationIndexQueryOptions,
   type InvestigationIndexStageOptions,
   type InvestigationIndexSyncOptions,
-  type InvestigationReportCheckOptions
+  type InvestigationRelationSetOptions,
+  type InvestigationReportCheckOptions,
+  type InvestigationReportShowOptions,
+  type InvestigationReportTraceOptions
 } from "./types.ts";
 
 const requiredStringSchema = v.string("must be a string");
 const optionalStringSchema = v.optional(v.string("must be a string"));
 const optionalStringArraySchema = v.optional(
-  v.array(v.string("must be a string"), "must be an array of strings")
+  v.array(v.string("must be an array of strings"))
 );
 const requiredStringArraySchema = v.array(
-  v.string("must be a string"),
-  "must be an array of strings"
+  v.string("must be an array of strings")
 );
+const optionalNumberSchema = v.optional(v.number("must be a number"));
 
+const locationFields = {
+  investigationsDir: optionalStringSchema,
+  workspaceRoot: requiredStringSchema
+};
 const investigationReportCheckOptionsSchema = v.strictObject({
-  categories: optionalStringArraySchema,
-  investigationsDir: optionalStringSchema,
-  paths: optionalStringArraySchema,
-  workspaceRoot: requiredStringSchema
+  ids: optionalStringArraySchema,
+  ...locationFields
 });
-
-const investigationIndexSyncOptionsSchema = v.strictObject({
-  investigationsDir: optionalStringSchema,
-  workspaceRoot: requiredStringSchema
-});
-
+const investigationIndexSyncOptionsSchema = v.strictObject(locationFields);
 const investigationIndexStageOptionsSchema = v.strictObject({
-  investigationsDir: optionalStringSchema,
-  topicIds: requiredStringArraySchema,
-  workspaceRoot: requiredStringSchema
+  ...locationFields,
+  reportIds: requiredStringArraySchema
 });
-
 const investigationIndexQueryOptionsSchema = v.strictObject({
-  categories: optionalStringArraySchema,
-  investigationsDir: optionalStringSchema,
-  latestReportAtFrom: optionalStringSchema,
-  latestReportAtTo: optionalStringSchema,
-  limit: v.optional(v.number("must be an integer")),
-  offset: v.optional(v.number("must be a non-negative integer")),
-  paths: optionalStringArraySchema,
-  statuses: v.optional(
-    v.array(
-      v.picklist(
-        investigationReportStatuses,
-        "must be a known investigation status"
-      ),
-      "must be an array of investigation statuses"
+  formedAtFrom: optionalStringSchema,
+  formedAtTo: optionalStringSchema,
+  ...locationFields,
+  limit: optionalNumberSchema,
+  offset: optionalNumberSchema,
+  relationType: v.optional(
+    v.picklist(
+      investigationRelationTypes,
+      "must be a known investigation relation type"
     )
   ),
-  text: optionalStringSchema,
-  workspaceRoot: requiredStringSchema
+  tags: optionalStringArraySchema,
+  text: optionalStringSchema
+});
+const investigationReportShowOptionsSchema = v.strictObject({
+  id: requiredStringSchema,
+  ...locationFields
+});
+const investigationReportTraceOptionsSchema = v.strictObject({
+  direction: v.optional(
+    v.picklist(
+      ["predecessors", "successors", "both"],
+      "must be predecessors, successors, or both"
+    )
+  ),
+  id: requiredStringSchema,
+  ...locationFields,
+  maxDepth: optionalNumberSchema
+});
+const relationSchema = v.strictObject({
+  target: requiredStringSchema,
+  type: v.picklist(
+    investigationRelationTypes,
+    "must be a known investigation relation type"
+  )
+});
+const investigationRelationSetOptionsSchema = v.strictObject({
+  ...locationFields,
+  replacements: v.array(
+    v.strictObject({
+      relations: v.array(relationSchema),
+      source: requiredStringSchema
+    })
+  )
 });
 
 export function parseInvestigationReportCheckOptions(
@@ -62,23 +86,35 @@ export function parseInvestigationReportCheckOptions(
 ): Result<InvestigationReportCheckOptions, string[]> {
   return parseOptions(investigationReportCheckOptionsSchema, input);
 }
-
 export function parseInvestigationIndexSyncOptions(
   input: unknown
 ): Result<InvestigationIndexSyncOptions, string[]> {
   return parseOptions(investigationIndexSyncOptionsSchema, input);
 }
-
 export function parseInvestigationIndexStageOptions(
   input: unknown
 ): Result<InvestigationIndexStageOptions, string[]> {
   return parseOptions(investigationIndexStageOptionsSchema, input);
 }
-
 export function parseInvestigationIndexQueryOptions(
   input: unknown
 ): Result<InvestigationIndexQueryOptions, string[]> {
   return parseOptions(investigationIndexQueryOptionsSchema, input);
+}
+export function parseInvestigationReportShowOptions(
+  input: unknown
+): Result<InvestigationReportShowOptions, string[]> {
+  return parseOptions(investigationReportShowOptionsSchema, input);
+}
+export function parseInvestigationReportTraceOptions(
+  input: unknown
+): Result<InvestigationReportTraceOptions, string[]> {
+  return parseOptions(investigationReportTraceOptionsSchema, input);
+}
+export function parseInvestigationRelationSetOptions(
+  input: unknown
+): Result<InvestigationRelationSetOptions, string[]> {
+  return parseOptions(investigationRelationSetOptionsSchema, input);
 }
 
 function parseOptions<Schema extends v.GenericSchema>(
@@ -111,13 +147,6 @@ function formatOptionIssues(issues: readonly v.BaseIssue<unknown>[]): string[] {
       if (issue.type === "strict_object" && issue.input === undefined) {
         return [`${issuePath ?? "option"} is required`];
       }
-      if (
-        issue.type === "picklist" &&
-        issuePath?.startsWith("statuses.") === true
-      ) {
-        const message = `unknown investigation status: ${String(issue.input)}`;
-        return [`${issuePath} ${message}`];
-      }
       return [
         issuePath === null ? issue.message : `${issuePath} ${issue.message}`
       ];
@@ -126,9 +155,7 @@ function formatOptionIssues(issues: readonly v.BaseIssue<unknown>[]): string[] {
 }
 
 function uniqueSorted(values: readonly string[]): string[] {
-  return [...new Set(values)].sort(compareText);
-}
-
-function compareText(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
+  return [...new Set(values)].sort((left, right) =>
+    left < right ? -1 : left > right ? 1 : 0
+  );
 }

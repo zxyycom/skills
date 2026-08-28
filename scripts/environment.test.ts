@@ -485,7 +485,8 @@ test("repository maintenance short commands invoke their owned skill CLIs", () =
   const commandHelpPatterns = {
     "change-plan": /change-plan\.mjs check-all/u,
     "decision-records": /Query and maintain agent-oriented decision records/u,
-    "investigation-report": /Check investigation topics/u,
+    "investigation-report":
+      /Investigation Report records and their derived index/u,
     "task-graph": /"commands":\[/u,
     "test-evidence":
       /Validate, query, and selectively stage indexed test evidence/u,

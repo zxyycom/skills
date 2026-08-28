@@ -11,86 +11,80 @@ import {
   readInvestigationStateSnapshot
 } from "./investigation-index-source.ts";
 import { investigationSourceFingerprintPatternSource } from "./investigation-source-revision.ts";
-import {
-  isInvestigationTopicPath,
-  investigationCategoryOf
-} from "./report-path.ts";
+import { isInvestigationId, isInvestigationTag } from "./report-path.ts";
 import { isInvestigationResourceId } from "./resource-reference.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
 import {
-  investigationReportStatuses,
+  investigationRelationTypes,
   type InvestigationIndexMetadata,
   type InvestigationIndexState
 } from "./types.ts";
 
 export const investigationIndexNamespace = "investigations";
-export const investigationIndexDefinitionVersion = 5;
+export const investigationIndexDefinitionVersion = 6;
 
 const nonEmptyStringSchema = v.pipe(
   v.string("must be a string"),
   v.check(
-    (value) => value.length > 0 && value.trim() === value,
-    "must be non-empty text without surrounding whitespace"
+    (value) =>
+      value.length > 0 && value.trim() === value && !value.includes("\n"),
+    "must be non-empty single-line text without surrounding whitespace"
   )
 );
-const investigationTopicPathSchema = v.pipe(
+const investigationIdSchema = v.pipe(
   nonEmptyStringSchema,
-  v.check(isInvestigationTopicPath, "must use <category-id>/<semantic-slug>.md")
+  v.check(isInvestigationId, "must use a kebab-case Investigation ID with .md")
+);
+const investigationTagSchema = v.pipe(
+  nonEmptyStringSchema,
+  v.check(isInvestigationTag, "must use a kebab-case tag")
 );
 const investigationResourceIdSchema = v.pipe(
   v.string("must be a string"),
-  v.check(
-    isInvestigationResourceId,
-    "must be a safe, normalized investigation resource id"
-  )
+  v.check(isInvestigationResourceId, "must be a safe report-owned resource id")
 );
-const investigationResourceReferenceSchema = v.strictObject({
-  reportIndex: v.pipe(
-    v.number("must be a number"),
-    v.integer("must be an integer"),
-    v.minValue(0, "must be non-negative")
-  ),
-  resourceIds: v.pipe(
-    v.array(investigationResourceIdSchema, "must be an array"),
-    v.minLength(1, "must contain at least one resource id"),
-    v.check(
-      isStrictlySortedText,
-      "must contain unique resource ids in sorted order"
-    )
+const relationSchema = v.strictObject({
+  target: investigationIdSchema,
+  type: v.picklist(
+    investigationRelationTypes,
+    "must be a supported investigation relation type"
   )
 });
 const investigationIndexStateSchema = v.strictObject({
-  latestReportAt: v.pipe(
+  formedAt: v.pipe(
     nonEmptyStringSchema,
     v.check(
       (value) => investigationTimestampMilliseconds(value) !== null,
       "must be an RFC 3339 timestamp with timezone and second precision"
     )
   ),
-  path: investigationTopicPathSchema,
   question: nonEmptyStringSchema,
-  reportCount: v.pipe(
-    v.number("must be a number"),
-    v.integer("must be an integer"),
-    v.minValue(1, "must be at least 1")
-  ),
-  reportTitles: v.pipe(
-    v.array(nonEmptyStringSchema, "must be an array"),
-    v.minLength(1, "must contain at least one report title")
-  ),
-  resourceReferences: v.pipe(
-    v.array(investigationResourceReferenceSchema, "must be an array"),
+  relations: v.pipe(
+    v.array(relationSchema, "must be an array"),
     v.check(
-      (references) =>
-        references.every(
-          (reference, index) =>
-            index === 0 ||
-            references[index - 1]!.reportIndex < reference.reportIndex
-        ),
-      "must use unique reportIndex values in sorted order"
+      (relations) =>
+        relations.every((relation, index) => {
+          const previous = relations[index - 1];
+          return (
+            previous === undefined ||
+            compareCanonicalRelations(previous, relation) < 0
+          );
+        }),
+      "must contain unique relations sorted by type then target"
     )
   ),
-  status: v.picklist(investigationReportStatuses),
+  resourceIds: v.pipe(
+    v.array(investigationResourceIdSchema, "must be an array"),
+    v.check(
+      isStrictlySortedText,
+      "must contain unique resource ids in sorted order"
+    )
+  ),
+  tags: v.pipe(
+    v.array(investigationTagSchema, "must be an array"),
+    v.minLength(1, "must contain at least one tag"),
+    v.check(isStrictlySortedText, "must contain unique tags in sorted order")
+  ),
   title: nonEmptyStringSchema
 });
 const investigationIndexMetadataSchema = v.strictObject({});
@@ -103,7 +97,7 @@ const sourceFingerprintSchema = v.pipe(
 );
 const investigationSourceRevisionSchema = createStateSourceRevisionSchema({
   fingerprint: sourceFingerprintSchema,
-  id: investigationTopicPathSchema
+  id: investigationIdSchema
 });
 
 export function createInvestigationStateIndexDefinition(
@@ -119,26 +113,25 @@ export function createInvestigationStateIndexDefinition(
     definitionVersion: investigationIndexDefinitionVersion,
     keyStrategies: [
       {
-        derive: (state) =>
-          investigationTimestampMilliseconds(state.latestReportAt) ?? undefined,
-        mode: "range",
-        name: "latest-report-at"
-      },
-      {
-        derive: (state) => state.status,
+        derive: (state) => state.tags,
         mode: "exact",
-        name: "status"
+        name: "tag"
       },
       {
-        derive: (state) => [state.title, state.question, ...state.reportTitles],
+        derive: (state) =>
+          investigationTimestampMilliseconds(state.formedAt) ?? undefined,
+        mode: "range",
+        name: "formed-at"
+      },
+      {
+        derive: (state) => state.relations.map((relation) => relation.type),
+        mode: "exact",
+        name: "relation-type"
+      },
+      {
+        derive: (state) => [state.title, state.question],
         mode: "text",
         name: "text"
-      },
-      {
-        derive: (_state, context) =>
-          investigationCategoryOf(context.id) ?? undefined,
-        mode: "exact",
-        name: "category"
       }
     ],
     namespace: investigationIndexNamespace,
@@ -206,21 +199,21 @@ function parseInvestigationIndexState(
       parsed.issues.map(formatInvestigationIndexIssue).join("; ")
     );
   }
-  if (parsed.output.reportCount !== parsed.output.reportTitles.length) {
-    throw new TypeError("reportCount must equal the number of reportTitles");
-  }
-  const invalidReference = parsed.output.resourceReferences.find(
-    (reference) => reference.reportIndex >= parsed.output.reportCount
-  );
-  if (invalidReference !== undefined) {
-    throw new TypeError(
-      `resourceReferences reportIndex ${invalidReference.reportIndex} must be less than reportCount`
-    );
-  }
-  if (parsed.output.path !== context.id) {
-    throw new TypeError("state.path must equal the entry id");
+  if (!isInvestigationId(context.id)) {
+    throw new TypeError("state id must use a valid Investigation ID");
   }
   return parsed.output;
+}
+
+function compareCanonicalRelations(
+  left: { target: string; type: string },
+  right: { target: string; type: string }
+): number {
+  const types = ["补充", "复查", "修正", "推翻", "归并", "拆分"];
+  return (
+    types.indexOf(left.type) - types.indexOf(right.type) ||
+    (left.target < right.target ? -1 : left.target > right.target ? 1 : 0)
+  );
 }
 
 function isStrictlySortedText(values: string[]): boolean {

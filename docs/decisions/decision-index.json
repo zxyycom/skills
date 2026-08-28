@@ -81,7 +81,8 @@
       "align-agent-lifecycle-with-task-slices.md": "sha256:b6999de08e2338dfd0889a24a2febdfa366cec7eb7ea9dae1608c4a139714407",
       "allocate-agents-and-runtime-by-task-slice.md": "sha256:b3f42138dc93d1c0d5dae604a183ba171c22d44efb52dc8057d943060edf0971",
       "allow-sequential-activation-of-prewritten-candidates.md": "sha256:356737456be2e8c4cad7b1bb4aad02a6747a11c65093ed6ce83c20968a4114dc",
-      "anchor-investigation-resources-to-topic-owners.md": "sha256:26ee1186c666b3197095b245ed745581bf4a12fcf0417639ba6ed6e5242d47b5",
+      "anchor-investigation-resources-to-report-owners.md": "sha256:47c62ce99599ceeb0de331d8dac7db4e456372486b729d9d6d9e9af6aab0cc4a",
+      "anchor-investigation-resources-to-topic-owners.md": "sha256:e9f5c42681a404043e5e5b5cd057ff7d22f28bca8c3ef2da25751604d6d67852",
       "anchor-semantic-task-results-in-index-history.md": "sha256:469f7a388bc6a01171440a363e2d8fc816ec4cf87b1a68ea2d46367fd5456d77",
       "anchor-task-results-in-index-history.md": "sha256:57e75b392258052287f944c8e5fda18d1fe5903217a7400e4d0682a881654808",
       "append-self-contained-investigation-reports.md": "sha256:71da162844321dd3036ed0c407deab2abeaf2b83908e85d66c25008e1865f5da",
@@ -115,7 +116,7 @@
       "defer-standard-test-result-blocking.md": "sha256:d9fcfdcbc8ed63eb91abd39c9fd55d6c19a5337a250f31a640f1285657bc9ec9",
       "defer-terminal-correction-until-confirmed-recovery-need.md": "sha256:63789e0369451dd6e487a880dc26b01cf58d29d682ebcad23be2fc2773f7cd49",
       "define-decision-alignment-semantics.md": "sha256:706acc334dbf641e3f3b5864e0c4e8d0d9ad37994d3607f0d2cd44c42fb3021c",
-      "define-version-control-visible-investigation-resources.md": "sha256:4926054ae2b8c42018f94ba2fa14f2d90d5dc8a1fa0132522c0d688cfc5b222d",
+      "define-version-control-visible-investigation-resources.md": "sha256:e2acc37f4e0eff54359a825df1537e467a2e663fc82c9885ea8c457fab496cc2",
       "delegate-native-runtime-installation-to-caller.md": "sha256:3b05c3c7b7ca707f05166167568d05d0ab3ade1898974b6ff3c604c51d60f45d",
       "derive-check-exit-status-from-step-results.md": "sha256:f12b93c9d06db83591e98e7b79cf3d7ec5ddad9387a2e34ef971ddde5e932203",
       "derive-decision-records-declarations-from-runtime-source.md": "sha256:f297788f201ccdabd4cdad1c41edf905054d7a75eb90b4139fc0b86c09f89474",
@@ -133,7 +134,8 @@
       "evaluate-reorganization-from-task-graph-case.md": "sha256:e0c03f1ddb3d3a1791646a2a959284d433165c95679ad989c99acd92cf03a6e0",
       "exclude-archived-changes-from-link-validation.md": "sha256:ea8064051faf2a482486b1b48cf9a53eb83e1214dc357c2d91df82c9c71731e4",
       "exclude-formation-time-link-bytes-from-validation.md": "sha256:1cdedb8efb7b8b6561d90811d06c04a4fa73b522d9b70fb4636b16f31d7e4a43",
-      "exclude-investigation-resources-from-index-revision.md": "sha256:783e67936f134e53096b3081240b6a508b19a3fdaa1ad12a676e07709a9f9b02",
+      "exclude-investigation-resources-from-index-revision.md": "sha256:bd4f48bab162f071136d3a15e0c882804f274d8e348566aa2ad4f9fe60b5773e",
+      "exclude-investigation-resources-from-report-index-revision.md": "sha256:399e00b6f37c232a9362ca30fdbc1ef27e34a52eb6b2de18e230cc8833ec1e09",
       "express-alignment-as-field-relation.md": "sha256:484d8589e23d61ef0195eedf92e0609d9512c01b4e2e63e9b8290958714f2e2d",
       "express-decision-alignment-state.md": "sha256:3bc42786232ddc54c277a350a622a07c80dde95bc0ce63b7910d3764217f4793",
       "fix-test-evidence-workspace-contract.md": "sha256:30d95d438913aa07eb90124d714964b1942229f245c15c8f8fb8f3a9d0364a75",
@@ -160,17 +162,19 @@
       "maintain-change-artifact-and-authorization-boundaries.md": "sha256:77d6c307973b22df6bb978c1d008b0471f9146e8f6179bfe0081feee414f0026",
       "maintain-closed-many-to-many-test-case-relations.md": "sha256:5befda7cfea1e55f617823776afd88ed3802176682245af33c9ae78217423721",
       "maintain-rebuildable-read-side-index-boundary.md": "sha256:a6e485cb4b720fe675210bfdcf820ccb6916a5f218158fba11ee2057a3489f0a",
-      "maintain-topic-level-investigation-index.md": "sha256:742d306922d9f38924743f0be1b27275e71551fcffa60204119f4b17078c2a48",
+      "maintain-report-level-investigation-index.md": "sha256:e626d8500eb08d8b0981db5b32f3b3b48c3e592bb5252a27c6c99953fc9f7638",
+      "maintain-topic-level-investigation-index.md": "sha256:28102ee3c4a7a3af7ae57e1a2b68dac4d9e850203b05ad7ea4f6c4d781067dcd",
       "make-independent-decision-staging-discoverable.md": "sha256:5dc67c728288b0f2d74ed6b4d599665fc8a31d0012db48330f22202d6b7bc34e",
       "make-skill-zip-bytes-deterministic.md": "sha256:3e438692ed734067adf08381fe00a632cf07f07def1a22e8eaba0040a5052c88",
       "manage-basic-change-lifecycle.md": "sha256:49e18c4718b67ed5b1e5c7f3cd983e2f5b052d9f0718d2cbb7bd26b149ffee22",
       "manage-change-lifecycle-stages.md": "sha256:ba220a3c5376040f1c60833028058b0ed8d5e77ed85e99309a2254bb1474b9fc",
       "manage-pending-snapshot-writes.md": "sha256:643da6ba5e90321bbbb9fdc95379e36155b456d0ac54c9536edeaab348489a6c",
       "mask-non-code-test-syntax.md": "sha256:01e23ec8ca8af35b0c92aac87d785864125caee40b2c4ae73016dba8fcb015ee",
+      "model-investigation-evolution-as-report-relations.md": "sha256:55235ba74a29eee33a4c808ad185199a2d28b9b851527f06f846b6be3dba03dd",
       "model-task-relations-with-distinct-invariants.md": "sha256:4f1b90b6477689d68e4eb49b1065e2abc80c7ce7f50c2b2495cb1ce826b167a0",
       "model-task-topology-and-inheritance-explicitly.md": "sha256:f1e0f0ffdcd92ae0c5cdac52b395580c04c92e2e1bc1a227a1c7ea28228c5a26",
       "notify-before-current-decision-writes.md": "sha256:2cd9942a3bffede0c245a0aabbf108e9f95c4983537bc143a75398c1caa8b9ed",
-      "organize-by-main-promise-and-manage-context-association.md": "sha256:f82c0d2dd5d8388671ddec9394c9bd86d98336298bfb33f6e2f880c7d29bdc0b",
+      "organize-by-main-promise-and-manage-context-association.md": "sha256:ff112caa786a7e8e0b3b18ec77f4615d4a03c0b2843c4394961e387d8149e28b",
       "organize-native-test-cases-by-responsibility-topic.md": "sha256:fffeca77e2976d2e907d75a97f7e018a9eb5e46904e6027d0a569c2a4e0a8d7d",
       "organize-test-cases-by-controlled-topic-path.md": "sha256:a0a2bd943eed48603f0c9b45116257e11f274b30efcf03550373c9997b9d4852",
       "own-recoverable-task-coordination.md": "sha256:fa3feef14ffc617548e028433dd5025eb916447d3b6914e1b0c04e3eff68352c",
@@ -232,7 +236,8 @@
       "settle-all-selected-checks-under-bounded-concurrency.md": "sha256:59bd70483e1aac3e1c8648b3f6421532e3949b1fc700f3d54524cf4320d6c2c4",
       "simplify-change-lifecycle-to-draft-plan-and-archive.md": "sha256:c091f7eee2b4685b70ecc2b81fb9754adf929982cef2f2fb170ec472b8efcbc2",
       "split-commits-by-semantic-unit.md": "sha256:02ad6611a9074de1fae3518c8de4f9b0f841c24f724a58810d33a32e59da6294",
-      "stage-investigation-index-entries-across-resource-changes.md": "sha256:ee14512b16b528d186c84befeb4f3a970744c79979ea53c9ba17a69a5626eb9c",
+      "stage-investigation-index-entries-across-resource-changes.md": "sha256:8ec75c84d4dbc436bd0a4243e6247c2c52138c2c74d0d4bed0fba054aea30b63",
+      "stage-investigation-index-entries-by-report-id.md": "sha256:67835a8f603fce059ea32efed135b8250a629d3fe634be242f1d9f2a0ecfa405",
       "stage-selected-decisions-by-stable-id.md": "sha256:88aa72024ab6ea63b6654d540f5c4f99a90c61c25bb278cb4932f51075d1757e",
       "stage-selected-decisions.md": "sha256:6f45e4b54b95399b0200e658013c22ab28cb89bebeb7ac8622abe9fb60315de9",
       "stage-selected-index-entries-by-id.md": "sha256:b34859d17fc2387dff6da11d00e494dbba05eba51790fa7f648a7b5bbbb37c5c",
@@ -263,7 +268,7 @@
       "use-explicit-reviewable-candidates.md": "sha256:e346f77da52e08de8b6cdeb638defc27a71b0ae055c613d2dba5643348366feb",
       "use-field-alignment-commands.md": "sha256:98790778b51972572951a1c83f8cf20589d51de37a9c05b50678337b37aed4d1",
       "use-fixed-index-query-modes.md": "sha256:757a2d2f2a3322594489dd6d0f36028b4179844ab872b8d4a7368809b4df6584",
-      "use-fixed-investigation-record-core.md": "sha256:bb519867ede29ad92fc7a843394824e574f405705d0fa6e95501ae54febf90f2",
+      "use-fixed-investigation-record-core.md": "sha256:e29cd80346473887b93cd22e5683b09e860716cff2f56e0e3790d11e629be7b8",
       "use-frontmatter-projection-and-semantic-field-order.md": "sha256:e067b624420113835b0e95585c27afff0ed31258f633365543ac7f9d037bb09c",
       "use-id-keyed-state-index.md": "sha256:aad522528afc025c40eb117aa8b818ec5b1f0a007f9228076026f5ffc87becd6",
       "use-independent-change-plans.md": "sha256:a4f03779c1cdd7a944db30bdf4b57c4b3bd002bcb2945220931c421ffa3ecb2d",
@@ -285,6 +290,7 @@
       "use-root-task-dictionary-for-collection-identity.md": "sha256:db8c07090097c32d4ea51ff5d16f2219291497f859ce75cbb70b20f0091bd910",
       "use-root-task-dictionary.md": "sha256:c86d8090abb74cb8f12aef3bed554f4fe249299edfd7b7c1fa414b2098730a4f",
       "use-second-precision-lifecycle-index.md": "sha256:58c08edfece1a1cacff29b5c841597721e6450f5882a7d6b1ea381993d5d4510",
+      "use-single-investigation-report-core.md": "sha256:c3a38e3475f30bad5285263fc87b7b341f92ddd251d7f999d56592cceab5b9fb",
       "use-source-resilient-reviewable-candidates.md": "sha256:2b17685f43dd2cd09524de331a62623b519dc0e6e39fcb7cb1c3c81987412763",
       "use-stable-decision-ids-tags-and-location-index.md": "sha256:ff9d610d4635e76a4bcb9f99dd3479c13c5018f56b3cf296791f654f08e172f9",
       "use-stable-id-keyed-index-identity.md": "sha256:7cc8f64794676a6cbe44fb2c9d3d47e92fcc2bccdb1bcf21facda696aff71ca5",
@@ -294,7 +300,8 @@
       "use-versioned-runner-result-protocol.md": "sha256:48cde8d9a3cd54768d144286b55ddccec9f52272a234fe75764562d7e7fdcf9c",
       "validate-only-active-change-plans.md": "sha256:14d148173e7fbc11d4a3c13ccb4ccecc8c9b459516ba79072388da911bdfe860",
       "version-index-definition-compatibility.md": "sha256:94002fd6642a327388347c00f5963519a2b44eafa9eab41fd031ecdd48007d32",
-      "warn-on-unreferenced-investigation-resources.md": "sha256:4701fda64d3ee6fe1a6c8765f3aead22905eae86e8b1b97635615938f3c2e645"
+      "warn-on-unreferenced-investigation-resources.md": "sha256:ab76f8c522da179b9c1cb9807b208363a25fabf27e2f5fea504b3ad09ad450d0",
+      "warn-on-unreferenced-report-resources.md": "sha256:f89c686a4477a2f28fa5760138798e6c49c28f893f854510688585a8eb037766"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -2485,7 +2492,7 @@
         "relations": []
       }
     },
-    "anchor-investigation-resources-to-topic-owners.md": {
+    "anchor-investigation-resources-to-report-owners.md": {
       "keys": {
         "tag": [
           "investigation-report"
@@ -2498,9 +2505,41 @@
         ]
       },
       "state": {
-        "sourcePath": "anchor-investigation-resources-to-topic-owners.md",
-        "title": "以主题归属锚定调查资源",
+        "sourcePath": "anchor-investigation-resources-to-report-owners.md",
+        "title": "以报告归属锚定调查资源",
         "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T10:12:53Z",
+        "purpose": "让集中存放的调查资源由可从路径恢复的唯一 owner 报告负责，同时允许其他报告安全复用。",
+        "background": "资源 owner 当前由 topic 路径推导，但新集合不再保留主题容器；每份报告的 Investigation ID 已成为稳定身份。",
+        "decision": "被引用资源使用 Investigation ID stem 作为路径前缀确定唯一 owner 报告；owner 必须直接引用，其他报告可复用而不改变归属。",
+        "tags": [
+          "investigation-report"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "anchor-investigation-resources-to-topic-owners.md"
+          }
+        ]
+      }
+    },
+    "anchor-investigation-resources-to-topic-owners.md": {
+      "keys": {
+        "tag": [
+          "investigation-report"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/anchor-investigation-resources-to-topic-owners.md",
+        "title": "以主题归属锚定调查资源",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-17T08:03:12Z",
         "purpose": "让集中存放的调查资源拥有可从路径恢复的稳定主题 owner，同时允许多份报告安全复用同一文件。",
@@ -4052,16 +4091,16 @@
           "investigation-report"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "exclude-investigation-resources-from-index-revision.md",
+        "sourcePath": "archive/exclude-investigation-resources-from-index-revision.md",
         "title": "让调查资源退出主题索引来源版本",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-17T08:03:12Z",
         "purpose": "让调查主题索引只投影报告事实与资源引用关系，不再用集合级 metadata 跟踪资源文件成员和字节。",
@@ -4074,6 +4113,38 @@
           {
             "type": "拆分",
             "target": "attach-verifiable-resources-to-investigation-reports.md"
+          }
+        ]
+      }
+    },
+    "exclude-investigation-resources-from-report-index-revision.md": {
+      "keys": {
+        "tag": [
+          "investigation-report"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "exclude-investigation-resources-from-report-index-revision.md",
+        "title": "让调查资源退出报告索引来源版本",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T10:12:54Z",
+        "purpose": "让报告索引只投影报告事实与资源引用关系，不把资源文件成员或字节纳入索引来源版本。",
+        "background": "资源字节变更不改变报告 Markdown 的形成时认识；新索引以单报告 Investigation ID 而非主题为投影单位。",
+        "decision": "保留报告 state 的资源引用，排除资源 metadata 与字节 revision；资源完整性由检查维护，形成时字节身份由 Git 与报告证据承接。",
+        "tags": [
+          "investigation-report"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "exclude-investigation-resources-from-index-revision.md"
           }
         ]
       }
@@ -4869,7 +4940,7 @@
         ]
       }
     },
-    "maintain-topic-level-investigation-index.md": {
+    "maintain-report-level-investigation-index.md": {
       "keys": {
         "tag": [
           "investigation-report"
@@ -4882,9 +4953,41 @@
         ]
       },
       "state": {
-        "sourcePath": "maintain-topic-level-investigation-index.md",
-        "title": "以调查主题维护可重建查询索引",
+        "sourcePath": "maintain-report-level-investigation-index.md",
+        "title": "以报告级身份维护可重建调查索引",
         "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T10:12:51Z",
+        "purpose": "让每份调查报告以稳定 Investigation ID 独立发现、查询和建立演进关系，并使索引继续只作为可重建投影。",
+        "background": "主题路径、状态和追加报告容器把分类与身份耦合，无法表达跨报告认识演进；报告级 Markdown 已成为唯一事实源。",
+        "decision": "按 Investigation ID 为每份单报告投影索引 state、tags、关系、资源引用和来源版本；索引可删除重建且不保存可由 ID 推导的路径。",
+        "tags": [
+          "investigation-report"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "maintain-topic-level-investigation-index.md"
+          }
+        ]
+      }
+    },
+    "maintain-topic-level-investigation-index.md": {
+      "keys": {
+        "tag": [
+          "investigation-report"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/maintain-topic-level-investigation-index.md",
+        "title": "以调查主题维护可重建查询索引",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-06T09:20:46Z",
         "purpose": "让调查主题作为稳定发现和续接单位，并使查询投影可以从同一领域源快照完整重建。",
@@ -5078,6 +5181,38 @@
           "test-evidence-review"
         ],
         "relations": []
+      }
+    },
+    "model-investigation-evolution-as-report-relations.md": {
+      "keys": {
+        "tag": [
+          "investigation-report"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "model-investigation-evolution-as-report-relations.md",
+        "title": "以报告关系建模调查认识演进",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T10:12:50Z",
+        "purpose": "让独立报告之间的直接认识演进以可验证关系图表达，而不从主题顺序、最新节点或分类推断当前结论。",
+        "background": "主题内 H3 追加只能表达时间先后，跨主题也没有直接演进语义；调查历史不需要像决策一样以归档区分当前约束。",
+        "decision": "报告以补充、复查、修正、推翻、归并和拆分六种关系指向真实直接前序，完整图无环；所有正式报告始终留在正常集合。",
+        "tags": [
+          "investigation-report"
+        ],
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "use-fixed-investigation-record-core.md"
+          }
+        ]
       }
     },
     "model-task-relations-with-distinct-invariants.md": {
@@ -7091,16 +7226,16 @@
           "investigation-report"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "stage-investigation-index-entries-across-resource-changes.md",
+        "sourcePath": "archive/stage-investigation-index-entries-across-resource-changes.md",
         "title": "让调查索引条目暂存不受资源变化阻塞",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-17T08:03:17Z",
         "purpose": "让按主题选择的调查索引条目可以独立进入 pending，不因集合级资源状态被迫整体暂存。",
@@ -7113,6 +7248,38 @@
           {
             "type": "修订",
             "target": "stage-selected-investigation-index-entries.md"
+          }
+        ]
+      }
+    },
+    "stage-investigation-index-entries-by-report-id.md": {
+      "keys": {
+        "tag": [
+          "investigation-report"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "stage-investigation-index-entries-by-report-id.md",
+        "title": "按报告 ID 独立暂存调查索引条目",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T10:12:56Z",
+        "purpose": "让按 Investigation ID 选择的派生索引条目可以独立进入 pending，不因资源文件变化或其他报告阻塞。",
+        "background": "stage-index 只组合派生索引项，不拥有报告 Markdown 或资源文件的暂存责任；新索引以单报告 ID 作为 entry 单位。",
+        "decision": "stage-index 只接收并暂存选中 Investigation ID 的索引项；资源变化不触发集合门禁，报告和资源仍由调用方显式选择。",
+        "tags": [
+          "investigation-report"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "stage-investigation-index-entries-across-resource-changes.md"
           }
         ]
       }
@@ -8017,16 +8184,16 @@
           "investigation-report"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "use-fixed-investigation-record-core.md",
+        "sourcePath": "archive/use-fixed-investigation-record-core.md",
         "title": "使用固定调查记录核心并按场景补充正文",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-21T15:15:57Z",
         "purpose": "让每轮调查完整保存可比较的形成时输入、证据基础和结果边界，同时避免按报告规模或既有形态分配格式。",
@@ -8659,6 +8826,38 @@
         ]
       }
     },
+    "use-single-investigation-report-core.md": {
+      "keys": {
+        "tag": [
+          "investigation-report"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-single-investigation-report-core.md",
+        "title": "使用单报告固定调查核心",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T10:12:50Z",
+        "purpose": "让每份独立调查报告完整保存可比较的形成时输入、证据基础和结果边界，而不再依赖主题容器或追加位置。",
+        "background": "四项固定核心仍是每轮可复核认识的共同最低结构，但主题级核心问题和 H3 追加模型阻碍报告独立身份与演进。",
+        "decision": "每份报告固定四个非空核心；有资源时 `随附资源` 必须是第五个 H2，其他可选语义 H2 只能随后出现。",
+        "tags": [
+          "investigation-report"
+        ],
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "use-fixed-investigation-record-core.md"
+          }
+        ]
+      }
+    },
     "use-source-resilient-reviewable-candidates.md": {
       "keys": {
         "tag": [
@@ -8970,16 +9169,16 @@
           "investigation-report"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "warn-on-unreferenced-investigation-resources.md",
+        "sourcePath": "archive/warn-on-unreferenced-investigation-resources.md",
         "title": "只提醒未引用的调查资源",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-17T08:03:12Z",
         "purpose": "让资源池卫生问题持续可见，但只用阻塞级校验保护已经进入报告证据关系的资源。",
@@ -8992,6 +9191,38 @@
           {
             "type": "拆分",
             "target": "attach-verifiable-resources-to-investigation-reports.md"
+          }
+        ]
+      }
+    },
+    "warn-on-unreferenced-report-resources.md": {
+      "keys": {
+        "tag": [
+          "investigation-report"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "warn-on-unreferenced-report-resources.md",
+        "title": "只提醒未引用的报告资源",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-28T10:12:57Z",
+        "purpose": "让报告资源池卫生问题持续可见，但只用阻塞级校验保护已经进入报告证据关系的资源。",
+        "background": "未引用文件可能是待接入或待清理材料；新 owner 由报告 ID 而非主题路径推导，不能因此把无关资源状态升级为集合错误。",
+        "decision": "被引用资源继续严格校验，完全未引用的版本控制可见资源只产生 warning，ignore 排除的未跟踪噪声不提示。",
+        "tags": [
+          "investigation-report"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "warn-on-unreferenced-investigation-resources.md"
           }
         ]
       }

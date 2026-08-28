@@ -1,4 +1,4 @@
 interface:
   display_name: "调查报告"
-  short_description: "保存可独立复核和比较的形成时调查快照"
-  default_prompt: "使用 $investigation-report 围绕一个核心问题创建、更新或审阅可独立复核并与历史比较的调查报告。"
+  short_description: "保存带 tags 与关系的独立形成时调查报告"
+  default_prompt: "使用 $investigation-report 创建、更新或审阅一份可独立复核的调查报告，并在需要时声明 tags、直接前序关系和形成时资源。"

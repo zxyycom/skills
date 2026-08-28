@@ -1,3 +1,10 @@
+import {
+  buildRelationGraph,
+  relationGraphStructuralIssues,
+  traceRelationGraph,
+  type RelationEdge,
+  type RelationGraph
+} from "../../shared/src/graph/relations.ts";
 import type {
   EstablishedDecisionStatus,
   DecisionId,
@@ -8,11 +15,10 @@ import type {
 } from "./types.ts";
 import { isEstablishedDecisionRecord } from "./types.ts";
 
-export type DecisionRelationEdge = {
-  source: DecisionId;
-  target: DecisionId;
-  type: DecisionRelationType;
-};
+export type DecisionRelationEdge = RelationEdge<
+  DecisionId,
+  DecisionRelationType
+>;
 
 export type DecisionRelationTrace = {
   edges: DecisionRelationEdge[];
@@ -24,10 +30,7 @@ export type DecisionRelationConsistencyIssue = {
   sourceIds: DecisionId[];
 };
 
-type DecisionRelationGraph = {
-  edges: DecisionRelationEdge[];
-  edgesBySource: Map<DecisionId, DecisionRelationEdge[]>;
-  edgesByTarget: Map<DecisionId, DecisionRelationEdge[]>;
+type DecisionRelationGraph = RelationGraph<DecisionId, DecisionRelationType> & {
   recordById: Map<DecisionId, DecisionRelationConsistencyRecord>;
 };
 
@@ -37,23 +40,6 @@ export type DecisionRelationConsistencyRecord = {
   sourcePath: string;
   status: EstablishedDecisionStatus;
 };
-
-function indexEdges(
-  edges: DecisionRelationEdge[],
-  selectId: (edge: DecisionRelationEdge) => DecisionId
-): Map<DecisionId, DecisionRelationEdge[]> {
-  const index = new Map<DecisionId, DecisionRelationEdge[]>();
-  for (const edge of edges) {
-    const decisionId = selectId(edge);
-    const indexedEdges = index.get(decisionId);
-    if (indexedEdges) {
-      indexedEdges.push(edge);
-    } else {
-      index.set(decisionId, [edge]);
-    }
-  }
-  return index;
-}
 
 export function collectDecisionRelationEdges(
   records: readonly DecisionRelationConsistencyRecord[]
@@ -70,12 +56,15 @@ export function collectDecisionRelationEdges(
 function buildDecisionRelationGraph(
   records: readonly DecisionRelationConsistencyRecord[]
 ): DecisionRelationGraph {
-  const edges = collectDecisionRelationEdges(records);
+  const recordById = new Map(
+    records.map((record) => [record.decisionId, record])
+  );
   return {
-    edges,
-    edgesBySource: indexEdges(edges, (edge) => edge.source),
-    edgesByTarget: indexEdges(edges, (edge) => edge.target),
-    recordById: new Map(records.map((record) => [record.decisionId, record]))
+    ...buildRelationGraph(
+      recordById.keys(),
+      collectDecisionRelationEdges(records)
+    ),
+    recordById
   };
 }
 
@@ -99,45 +88,10 @@ export function traceDecisionRelations(
   }
 ): DecisionRelationTrace {
   const graph = buildDecisionRelationGraph(records);
-  const decisionIds = new Set<DecisionId>();
-  const traversalQueue = [{ decisionId: startDecisionId, depth: 0 }];
-
-  for (let index = 0; index < traversalQueue.length; index += 1) {
-    const item = traversalQueue[index];
-    if (item === undefined || decisionIds.has(item.decisionId)) {
-      continue;
-    }
-
-    decisionIds.add(item.decisionId);
-    if (options.maxDepth !== null && item.depth >= options.maxDepth) {
-      continue;
-    }
-
-    if (options.direction !== "successors") {
-      traversalQueue.push(
-        ...(graph.edgesBySource.get(item.decisionId) ?? []).map((edge) => ({
-          decisionId: edge.target,
-          depth: item.depth + 1
-        }))
-      );
-    }
-    if (options.direction !== "predecessors") {
-      traversalQueue.push(
-        ...(graph.edgesByTarget.get(item.decisionId) ?? []).map((edge) => ({
-          decisionId: edge.source,
-          depth: item.depth + 1
-        }))
-      );
-    }
-  }
-
+  const trace = traceRelationGraph(graph, startDecisionId, options);
   return {
-    edges: graph.edges
-      .filter(
-        (edge) => decisionIds.has(edge.source) && decisionIds.has(edge.target)
-      )
-      .sort(compareEdges),
-    decisionIds
+    edges: [...trace.edges].sort(compareEdges),
+    decisionIds: new Set(trace.ids)
   };
 }
 
@@ -164,12 +118,18 @@ export function decisionRelationConsistencyIssues(
   records: readonly DecisionRelationConsistencyRecord[]
 ): DecisionRelationConsistencyIssue[] {
   const graph = buildDecisionRelationGraph(records);
+  const structuralIssues = relationGraphStructuralIssues(graph);
+  const missingTargetEdges = new Set(
+    structuralIssues.flatMap((issue) =>
+      issue.kind === "missing-target" ? [issue.edge] : []
+    )
+  );
   const issues: DecisionRelationConsistencyIssue[] = [];
 
   for (const edge of graph.edges) {
     const source = graph.recordById.get(edge.source);
     const target = graph.recordById.get(edge.target);
-    if (!target) {
+    if (missingTargetEdges.has(edge)) {
       issues.push({
         message:
           (source?.sourcePath ?? edge.source) +
@@ -177,7 +137,7 @@ export function decisionRelationConsistencyIssues(
           edge.target,
         sourceIds: [edge.source]
       });
-    } else if (target.status !== "archived") {
+    } else if (target?.status !== "archived") {
       issues.push({
         message:
           (source?.sourcePath ?? edge.source) +
@@ -187,6 +147,42 @@ export function decisionRelationConsistencyIssues(
           edge.target,
         sourceIds: [edge.source]
       });
+    }
+  }
+
+  for (const issue of structuralIssues) {
+    switch (issue.kind) {
+      case "missing-target":
+        break;
+      case "self-edge": {
+        const source = graph.recordById.get(issue.edge.source);
+        issues.push({
+          message:
+            (source?.sourcePath ?? issue.edge.source) +
+            " must not relate to itself",
+          sourceIds: [issue.edge.source]
+        });
+        break;
+      }
+      case "duplicate-edge": {
+        const source = graph.recordById.get(issue.edge.source);
+        issues.push({
+          message:
+            (source?.sourcePath ?? issue.edge.source) +
+            " repeats relationship target " +
+            issue.edge.target,
+          sourceIds: [issue.edge.source]
+        });
+        break;
+      }
+      case "cycle":
+        issues.push({
+          message:
+            "Decision relations must not form a cycle: " +
+            issue.cycle.join(" -> "),
+          sourceIds: issue.cycle.slice(0, -1)
+        });
+        break;
     }
   }
 
@@ -230,46 +226,6 @@ export function decisionRelationConsistencyIssues(
           targetId,
         sourceIds: splitEdges.map((edge) => edge.source)
       });
-    }
-  }
-
-  const visitState = new Map<DecisionId, "visiting" | "visited">();
-  const idStack: DecisionId[] = [];
-
-  function visit(decisionId: DecisionId): void {
-    visitState.set(decisionId, "visiting");
-    idStack.push(decisionId);
-
-    const targets = [
-      ...new Set(
-        (graph.edgesBySource.get(decisionId) ?? []).map((edge) => edge.target)
-      )
-    ]
-      .filter((target) => graph.recordById.has(target))
-      .sort();
-    for (const target of targets) {
-      const targetState = visitState.get(target);
-      if (targetState === "visiting") {
-        const cycleStart = idStack.indexOf(target);
-        const cycleIds = idStack.slice(cycleStart);
-        issues.push({
-          message:
-            "Decision relations must not form a cycle: " +
-            [...cycleIds, target].join(" -> "),
-          sourceIds: cycleIds
-        });
-      } else if (targetState !== "visited") {
-        visit(target);
-      }
-    }
-
-    idStack.pop();
-    visitState.set(decisionId, "visited");
-  }
-
-  for (const decisionId of [...graph.recordById.keys()].sort()) {
-    if (!visitState.has(decisionId)) {
-      visit(decisionId);
     }
   }
 

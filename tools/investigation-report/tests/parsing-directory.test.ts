@@ -1,612 +1,196 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
-import path from "node:path";
-import test from "node:test";
+import { test } from "node:test";
+import { parseInvestigationReport } from "../src/markdown.ts";
+import { validateInvestigationReports } from "../src/validation.ts";
 import {
-  investigationIndexFileName,
-  investigationSourceRevision
-} from "../src/investigation-state-index.ts";
-import { queryInvestigationIndex } from "../src/query.ts";
-import {
-  synchronizeInvestigationIndex,
-  validateInvestigationReports
-} from "../src/validation.ts";
-import {
-  coreSectionCases,
-  createValidReports,
   investigationRoot,
-  reportBodyWithSections,
   reportMarkdown,
-  type ReportInput,
   withTempRoot,
   writeCollection
-} from "./support.ts";
+} from "./v6-support.ts";
 
-async function testFilteredDirectoryValidation(
-  tempRoot: string
-): Promise<void> {
-  const workspaceRoot = path.join(tempRoot, "filters");
-  await writeCollection(workspaceRoot, createValidReports());
-
-  const categoryFiltered = await validateInvestigationReports({
-    categories: ["codex"],
-    workspaceRoot
-  });
-  assert.deepEqual(categoryFiltered.errors, []);
-  assert.equal(categoryFiltered.indexChecked, false);
-  assert.equal(categoryFiltered.selectedTopicCount, 1);
-  assert.equal(categoryFiltered.categoryCount, 1);
-
-  const pathFiltered = await validateInvestigationReports({
-    paths: ["runtime\\process-churn.md"],
-    workspaceRoot
-  });
-  assert.deepEqual(pathFiltered.errors, []);
-  assert.equal(pathFiltered.indexChecked, false);
-  assert.equal(pathFiltered.selectedTopicCount, 1);
-
-  const noIntersection = await validateInvestigationReports({
-    categories: ["codex"],
-    paths: ["runtime/process-churn.md"],
-    workspaceRoot
-  });
-  assert.ok(
-    noIntersection.errors.includes(
-      "no investigation topics matched the requested filters"
-    )
-  );
-
-  const missingFilter = await validateInvestigationReports({
-    paths: ["codex/not-present.md"],
-    workspaceRoot
-  });
-  assert.ok(
-    missingFilter.errors.some((error) =>
-      error.includes("topic file does not exist")
-    )
-  );
-}
-
-async function testDirectoryPathRules(tempRoot: string): Promise<void> {
-  const dateSemanticRoot = path.join(tempRoot, "date-semantic-path");
-  const dateSemanticReport: ReportInput = {
-    path: "runtime/2026-07-21-process-churn.md",
-    question: "检查器是否避免猜测文件名中的日期语义？",
-    reports: [
-      {
-        formedAt: "2026-07-21T03:00:00Z",
-        title: "检查日期语义"
-      }
-    ],
-    title: "日期语义边界调查"
-  };
-  await writeCollection(dateSemanticRoot, [dateSemanticReport]);
+test("validation enforces report frontmatter fields and canonical ordering", () => {
+  const source = reportMarkdown({ id: "valid-report.md" });
   assert.deepEqual(
-    (
-      await validateInvestigationReports({
-        workspaceRoot: dateSemanticRoot
-      })
-    ).errors,
+    parseInvestigationReport(source, "valid-report.md").errors,
     []
   );
+  const reordered = source.replace(
+    'title: "valid-report"\nformedAt: "2026-08-28T12:00:00+00:00"',
+    'formedAt: "2026-08-28T12:00:00+00:00"\ntitle: "valid-report"'
+  );
+  assert.ok(
+    parseInvestigationReport(reordered, "valid-report.md").errors.some(
+      (error) => error.includes("fixed order")
+    )
+  );
+  const nonCanonicalEmptyRelations = source.replace(
+    "relations: []",
+    "relations:"
+  );
+  assert.ok(
+    parseInvestigationReport(
+      nonCanonicalEmptyRelations,
+      "valid-report.md"
+    ).errors.some((error) => error.includes("empty relations"))
+  );
+  const controlCharacter = source.replace(
+    /question: "[^"]+"/u,
+    'question: "bad\\rvalue"'
+  );
+  assert.ok(
+    parseInvestigationReport(controlCharacter, "valid-report.md").errors.some(
+      (error) => error.includes("question must be a non-empty")
+    )
+  );
+});
 
-  const rootLevelMarkdownRoot = path.join(tempRoot, "root-level-markdown");
-  await writeCollection(rootLevelMarkdownRoot, [dateSemanticReport]);
-  await fs.writeFile(
-    path.join(investigationRoot(rootLevelMarkdownRoot), "scratch.md"),
-    reportMarkdown({
-      path: "scratch.md",
-      question: "调查根目录是否只接受统一格式的主题文件？",
-      title: "根目录额外文档调查"
-    }),
-    "utf8"
-  );
-  const rootLevelMarkdown = await validateInvestigationReports({
-    workspaceRoot: rootLevelMarkdownRoot
-  });
-  assert.ok(
-    rootLevelMarkdown.errors.some((error) =>
-      error.includes("scratch.md must use <category-id>/<semantic-slug>.md")
-    )
-  );
-}
-
-async function testInformationFieldValidation(tempRoot: string): Promise<void> {
-  const invalidRoot = path.join(tempRoot, "invalid-information");
-  const goodReport: ReportInput = {
-    path: "codex/good-report.md",
-    question: "哪些事实能够解释当前现象？",
-    title: "有效调查"
-  };
-  const invalidReport: ReportInput = {
-    path: "runtime/invalid-report.md",
-    question: "这个索引问题会被正文改写。",
-    status: "完成",
-    title: "无效调查"
-  };
-  const invalidTimestampReport: ReportInput = {
-    latestReportAt: "2026-07-20",
-    path: "runtime/invalid-timestamp.md",
-    question: "缺少秒级时区的时间是否会被识别？",
-    reports: [
-      {
-        formedAt: "2026-07-20",
-        title: "检查时间格式"
-      }
-    ],
-    title: "无效时间调查"
-  };
-  const emptySemanticQuestion: ReportInput = {
-    path: "runtime/empty-semantic-question.md",
-    question: "** **",
-    title: "空语义问题调查"
-  };
-  await writeCollection(
-    invalidRoot,
-    [goodReport, invalidReport, invalidTimestampReport, emptySemanticQuestion],
-    false
-  );
-
-  const invalid = await validateInvestigationReports({
-    workspaceRoot: invalidRoot
-  });
-  assert.ok(
-    invalid.errors.some((error) => error.includes("status must be one of"))
-  );
-  assert.ok(
-    invalid.errors.some((error) =>
-      error.includes("latest report time must use an RFC 3339")
-    )
-  );
-  assert.ok(
-    invalid.errors.some((error) =>
-      error.includes("report formed time must use an RFC 3339")
-    )
-  );
-  assert.ok(
-    invalid.errors.some(
-      (error) =>
-        error.includes(emptySemanticQuestion.path) &&
-        error.includes('field "核心问题" must not be empty')
-    )
-  );
-  assert.equal(invalid.indexChecked, false);
-
-  const scopedValid = await validateInvestigationReports({
-    paths: [goodReport.path],
-    workspaceRoot: invalidRoot
-  });
-  assert.deepEqual(scopedValid.errors, []);
-}
-
-async function testCompleteReportStructure(tempRoot: string): Promise<void> {
-  const invalidReportsRoot = path.join(tempRoot, "invalid-reports");
-  const missingReportSection: ReportInput = {
-    body: "## 调查材料\n\n正文缺少固定调查报告容器。",
-    path: "runtime/missing-report-section.md",
-    question: "主题文件是否包含固定调查报告容器？",
-    title: "缺少调查报告"
-  };
-  const emptyReportSection: ReportInput = {
-    body: "## 调查报告\n\n尚未形成任何完整报告。",
-    path: "runtime/empty-report-section.md",
-    question: "调查报告容器是否至少包含一份报告？",
-    title: "空调查报告"
-  };
-  const missingReportTime: ReportInput = {
-    body: [
-      "## 调查报告",
-      "",
-      "### 缺少形成时间",
-      "",
-      ...coreSectionCases.flatMap((section, index) => [
-        `#### ${section.title}`,
-        section.body,
-        ...(index === coreSectionCases.length - 1 ? [] : [""])
-      ])
-    ].join("\n"),
-    path: "runtime/missing-report-time.md",
-    question: "每份报告是否记录形成时间？",
-    title: "缺少报告时间"
-  };
-  const emptyCoreReports: ReportInput[] = coreSectionCases.map((section) => ({
-    path: `runtime/empty-${section.slug}.md`,
-    question: `${section.title}是否为完整报告的必需内容？`,
-    reports: [
-      {
-        background: section.title === "形成时背景" ? "" : undefined,
-        purpose: section.title === "调查目的" ? "" : undefined,
-        resultAndBoundary: section.title === "调查结果与边界" ? "" : undefined,
-        scopeAndBasis: section.title === "调查范围与依据" ? "" : undefined,
-        title: `检查${section.title}`
-      }
-    ],
-    title: `空${section.title}调查`
-  }));
-  const missingCoreReports: ReportInput[] = coreSectionCases.map((section) => ({
-    body: reportBodyWithSections(
-      `缺少${section.title}`,
-      coreSectionCases.filter((candidate) => candidate.title !== section.title)
-    ),
-    path: `runtime/missing-${section.slug}.md`,
-    question: `完整报告是否必须包含${section.title}？`,
-    title: `缺少${section.title}调查`
-  }));
-  const duplicateCoreReports: ReportInput[] = coreSectionCases.map(
-    (section) => ({
-      body: reportBodyWithSections(`重复${section.title}`, [
-        ...coreSectionCases,
-        { body: `重复的${section.title}。`, title: section.title }
-      ]),
-      path: `runtime/duplicate-${section.slug}.md`,
-      question: `${section.title}是否只能出现一次？`,
-      title: `重复${section.title}调查`
-    })
-  );
-  const legacyCore: ReportInput = {
-    body: reportBodyWithSections("旧三段标题", [
-      { body: "已有必要背景。", title: "背景" },
-      { body: "需要调查并形成结果。", title: "起因" },
-      { body: "形成了结果。", title: "调查结果" }
-    ]),
-    path: "runtime/legacy-three-sections.md",
-    question: "旧三段标题是否会被当作固定核心接受？",
-    title: "旧三段标题调查"
-  };
-  const optionalSectionInsideCore: ReportInput = {
-    body: reportBodyWithSections("支撑章节插入核心章节", [
-      coreSectionCases[0],
-      { body: "过早出现的证据。", title: "证据" },
-      ...coreSectionCases.slice(1)
-    ]),
-    path: "runtime/optional-section-inside-core.md",
-    question: "可选章节是否只能位于固定核心之后？",
-    title: "可选章节位置调查"
-  };
-  const wrongSectionOrder: ReportInput = {
-    body: reportBodyWithSections("顺序错误", [
-      coreSectionCases[1],
-      coreSectionCases[0],
-      ...coreSectionCases.slice(2)
-    ]),
-    path: "runtime/wrong-section-order.md",
-    question: "四个核心章节是否使用固定顺序？",
-    title: "章节顺序调查"
-  };
-  const reversedReportTimes: ReportInput = {
-    latestReportAt: "2026-07-20T10:00:00+08:00",
-    path: "runtime/reversed-report-times.md",
-    question: "完整报告是否按形成时间追加？",
-    reports: [
-      {
-        formedAt: "2026-07-21T08:00:00+08:00",
-        title: "较晚形成的报告"
-      },
-      {
-        formedAt: "2026-07-20T10:00:00+08:00",
-        title: "较早形成的报告"
-      }
-    ],
-    title: "倒序完整报告"
-  };
-  const mismatchedLatestTime: ReportInput = {
-    latestReportAt: "2026-07-21T10:00:00+08:00",
-    path: "runtime/mismatched-latest-time.md",
-    question: "最新报告时间是否等于最后一份报告的形成时间？",
-    title: "最新报告时间调查"
-  };
-  await writeCollection(
-    invalidReportsRoot,
-    [
-      missingReportSection,
-      emptyReportSection,
-      missingReportTime,
-      ...emptyCoreReports,
-      ...missingCoreReports,
-      ...duplicateCoreReports,
-      legacyCore,
-      optionalSectionInsideCore,
-      wrongSectionOrder,
-      reversedReportTimes,
-      mismatchedLatestTime
-    ],
-    false
-  );
-
-  const invalidReports = await validateInvestigationReports({
-    workspaceRoot: invalidReportsRoot
-  });
-  assert.ok(
-    invalidReports.errors.some((error) =>
-      error.includes('second H2 must be "调查报告"')
-    )
-  );
-  assert.ok(
-    invalidReports.errors.some((error) =>
-      error.includes("must contain at least one H3 report")
-    )
-  );
-  assert.ok(
-    invalidReports.errors.some((error) =>
-      error.includes("report must start with")
-    )
-  );
-  for (const section of coreSectionCases) {
-    assert.ok(
-      invalidReports.errors.some(
-        (error) =>
-          error.includes(`empty-${section.slug}.md`) &&
-          error.includes(`report section "${section.title}" must not be empty`)
-      )
+test("validation enforces one report with fixed core and optional resource section", async () => {
+  await withTempRoot("structure", async (root) => {
+    await writeCollection(root, [{ id: "valid-report.md" }], false);
+    await fs.writeFile(
+      `${investigationRoot(root)}/old-topic.md`,
+      "# 旧主题\n\n## 调查信息\n- 核心问题: 不允许\n",
+      "utf8"
+    );
+    const result = await validateInvestigationReports({
+      ids: ["old-topic.md"],
+      workspaceRoot: root
+    });
+    assert.ok(result.errors.some((error) => error.includes("frontmatter")));
+    const valid = reportMarkdown({ id: "valid-report.md" });
+    const fencedHeadings = valid.replace(
+      "形成此报告时的已知事实和边界。",
+      "```markdown\n## fenced H2\n# fenced H1\n```\n形成此报告时的已知事实和边界。"
+    );
+    assert.deepEqual(
+      parseInvestigationReport(fencedHeadings, "valid-report.md").errors,
+      []
+    );
+    assert.deepEqual(
+      parseInvestigationReport(
+        `${valid}\n## 合规附加章节\n这里允许出现。\n`,
+        "valid-report.md"
+      ).errors,
+      []
+    );
+    const withResources = reportMarkdown({
+      id: "valid-report.md",
+      resources: ["valid-report/evidence.txt"]
+    });
+    assert.deepEqual(
+      parseInvestigationReport(
+        `${withResources}\n## 资源后的附加章节\n这里允许出现。\n`,
+        "valid-report.md"
+      ).errors,
+      []
     );
     assert.ok(
-      invalidReports.errors.some(
-        (error) =>
-          error.includes(`missing-${section.slug}.md`) &&
-          error.includes(`report is missing "#### ${section.title}"`)
-      )
+      parseInvestigationReport(
+        valid.replace(
+          "## 调查目的",
+          "## 不允许插入\n这里不能位于核心之间。\n\n## 调查目的"
+        ),
+        "valid-report.md"
+      ).errors.some((error) => error.includes("H2 section"))
     );
     assert.ok(
-      invalidReports.errors.some(
-        (error) =>
-          error.includes(`duplicate-${section.slug}.md`) &&
-          error.includes(`must contain exactly one "#### ${section.title}"`)
+      parseInvestigationReport(
+        withResources.replace(
+          "## 随附资源",
+          "## 资源前附加章节\n这里不能位于资源之前。\n\n## 随附资源"
+        ),
+        "valid-report.md"
+      ).errors.some((error) => error.includes("immediately follow"))
+    );
+    assert.ok(
+      parseInvestigationReport(
+        withResources.replace("## 随附资源", "## 随附资源   "),
+        "valid-report.md"
+      ).errors.some((error) =>
+        error.includes("resource heading must be exactly")
       )
     );
-  }
-  assert.ok(
-    invalidReports.errors.some(
-      (error) =>
-        error.includes(legacyCore.path) &&
-        error.includes('report is missing "#### 形成时背景"')
-    )
-  );
-  const requiredOrder = coreSectionCases
-    .map((section) => section.title)
-    .join(", ");
-  assert.ok(
-    invalidReports.errors.some(
-      (error) =>
-        error.includes(optionalSectionInsideCore.path) &&
-        error.includes(`report H4 sections must start with: ${requiredOrder}`)
-    )
-  );
-  assert.ok(
-    invalidReports.errors.some(
-      (error) =>
-        error.includes(wrongSectionOrder.path) &&
-        error.includes(`report H4 sections must start with: ${requiredOrder}`)
-    )
-  );
-  assert.ok(
-    invalidReports.errors.some((error) =>
-      error.includes(
-        "report formed time must not be earlier than the previous report"
+  });
+});
+
+test("scoped validation selects report ids without claiming full graph proof", async () => {
+  await withTempRoot("scope", async (root) => {
+    await writeCollection(root, [
+      { id: "first-report.md" },
+      { id: "second-report.md" }
+    ]);
+    await fs.mkdir(`${investigationRoot(root)}/unrelated-legacy-category`);
+    const result = await validateInvestigationReports({
+      ids: ["first-report.md"],
+      workspaceRoot: root
+    });
+    assert.equal(result.errors.length, 0);
+    assert.equal(result.indexChecked, false);
+    assert.equal(result.selectedReportCount, 1);
+    const nonCanonical = await validateInvestigationReports({
+      ids: ["./first-report.md", " second-report.md "],
+      workspaceRoot: root
+    });
+    assert.ok(nonCanonical.errors.every((error) => error.includes("check id")));
+  });
+});
+
+test("validation enforces investigation directory path rules", async () => {
+  const result = await validateInvestigationReports({
+    investigationsDir: "/tmp",
+    workspaceRoot: "."
+  });
+  assert.ok(result.errors.some((error) => error.includes("relative")));
+});
+
+test("validation reports malformed frontmatter fields in the selected report", async () => {
+  await withTempRoot("malformed", async (root) => {
+    await writeCollection(root, [{ id: "report.md" }], false);
+    const file = `${investigationRoot(root)}/report.md`;
+    await fs.writeFile(
+      file,
+      (await fs.readFile(file, "utf8")).replace(
+        /question: "[^"]+"/u,
+        'question: "bad\\rvalue"'
+      ),
+      "utf8"
+    );
+    const result = await validateInvestigationReports({
+      ids: ["report.md"],
+      workspaceRoot: root
+    });
+    assert.ok(
+      result.errors.some((error) =>
+        error.includes("question must be a non-empty")
       )
-    )
-  );
-  assert.ok(
-    invalidReports.errors.some((error) =>
-      error.includes(
-        "latest report time must exactly match the last report formed time"
-      )
-    )
-  );
-}
-
-async function testCanonicalInvestigationRootBoundary(
-  tempRoot: string
-): Promise<void> {
-  const outsideWorkspace = path.join(tempRoot, "outside-workspace");
-  await writeCollection(outsideWorkspace, createValidReports(), false);
-  const escapingWorkspace = path.join(tempRoot, "escaping-workspace");
-  await fs.mkdir(path.join(escapingWorkspace, "docs"), { recursive: true });
-  await fs.symlink(
-    investigationRoot(outsideWorkspace),
-    investigationRoot(escapingWorkspace),
-    "dir"
-  );
-
-  const escapingCheck = await validateInvestigationReports({
-    workspaceRoot: escapingWorkspace
+    );
   });
-  assert.ok(
-    escapingCheck.errors.some((error) =>
-      error.includes("must resolve within the workspace root")
-    )
-  );
-  const escapingSync = await synchronizeInvestigationIndex({
-    workspaceRoot: escapingWorkspace
+});
+
+test("full validation rejects nested category directories and unknown root members", async () => {
+  await withTempRoot("layout", async (root) => {
+    await writeCollection(root, [{ id: "report.md" }], false);
+    await fs.mkdir(`${investigationRoot(root)}/legacy-category`);
+    const result = await validateInvestigationReports({ workspaceRoot: root });
+    assert.ok(result.errors.some((error) => error.includes("not allowed")));
   });
-  assert.ok(
-    escapingSync.errors.some((error) =>
-      error.includes("must resolve within the workspace root")
-    )
-  );
+});
 
-  const containedWorkspace = path.join(tempRoot, "contained-workspace");
-  await writeCollection(containedWorkspace, createValidReports());
-  const originalRoot = investigationRoot(containedWorkspace);
-  const containedRoot = path.join(
-    containedWorkspace,
-    "collections",
-    "investigations"
-  );
-  await fs.mkdir(path.dirname(containedRoot), { recursive: true });
-  await fs.rename(originalRoot, containedRoot);
-  await fs.symlink(containedRoot, originalRoot, "dir");
-  assert.deepEqual(
-    (await validateInvestigationReports({ workspaceRoot: containedWorkspace }))
-      .errors,
-    []
-  );
-}
-
-async function testExplicitCollectionLayout(tempRoot: string): Promise<void> {
-  const workspaceRoot = path.join(tempRoot, "layout");
-  const report = createValidReports()[0]!;
-  await writeCollection(workspaceRoot, [report], false);
-  const collectionRoot = investigationRoot(workspaceRoot);
-  await fs.writeFile(path.join(collectionRoot, "notes.txt"), "not allowed\n");
-  await fs.writeFile(path.join(collectionRoot, ".hidden"), "not allowed\n");
-  await fs.writeFile(
-    path.join(collectionRoot, "runtime.txt"),
-    "not a category directory\n"
-  );
-  await fs.mkdir(path.join(collectionRoot, "BadCategory"));
-  await fs.mkdir(path.join(collectionRoot, "codex", "nested"));
-  await fs.writeFile(
-    path.join(collectionRoot, "codex", "draft.txt"),
-    "wrong extension\n"
-  );
-  await fs.symlink(
-    path.join(collectionRoot, ...report.path.split("/")),
-    path.join(collectionRoot, "codex", "linked.md")
-  );
-
-  const full = await validateInvestigationReports({ workspaceRoot });
-  const summary = full.errors.join("\n");
-  assert.match(summary, /\.hidden is not allowed at the investigation root/u);
-  assert.match(summary, /notes\.txt is not allowed at the investigation root/u);
-  assert.match(
-    summary,
-    /runtime\.txt is not allowed at the investigation root/u
-  );
-  assert.match(summary, /BadCategory category must use kebab-case/u);
-  assert.match(
-    summary,
-    /codex\/nested category directories must contain only/u
-  );
-  assert.match(summary, /codex\/draft\.txt filename must use/u);
-  assert.match(summary, /codex\/linked\.md must not be a symbolic link/u);
-
-  const scoped = await validateInvestigationReports({
-    paths: [report.path],
-    workspaceRoot
+test("full validation rejects an empty report collection", async () => {
+  await withTempRoot("empty-layout", async (root) => {
+    await fs.mkdir(investigationRoot(root), { recursive: true });
+    const result = await validateInvestigationReports({ workspaceRoot: root });
+    assert.ok(
+      result.errors.some((error) => error.includes("at least one report"))
+    );
   });
-  assert.deepEqual(scoped.errors, []);
-}
+});
 
-async function testEmptyInvestigationCollection(
-  tempRoot: string
-): Promise<void> {
-  const workspaceRoot = path.join(tempRoot, "empty-collection");
-  const collectionRoot = investigationRoot(workspaceRoot);
-  await fs.mkdir(collectionRoot, { recursive: true });
-
-  const fullValidation = await validateInvestigationReports({ workspaceRoot });
-  assert.deepEqual(fullValidation.errors, [
-    "investigation collection must contain at least one topic"
-  ]);
-  assert.equal(fullValidation.selectedTopicCount, 0);
-  assert.equal(fullValidation.availableTopicCount, 0);
-  assert.equal(fullValidation.indexChecked, false);
-
-  const synchronization = await synchronizeInvestigationIndex({
-    workspaceRoot
-  });
-  assert.deepEqual(synchronization.errors, [
-    "investigation collection must contain at least one topic"
-  ]);
-  assert.equal(synchronization.changed, false);
-  assert.equal(synchronization.topicCount, 0);
-  assert.equal(
-    await fs.stat(synchronization.indexPath).then(
-      () => true,
-      () => false
-    ),
-    false
-  );
-
-  const templateWorkspace = path.join(tempRoot, "empty-index-template");
-  await writeCollection(templateWorkspace, createValidReports());
-  const templateIndexPath = path.join(
-    investigationRoot(templateWorkspace),
-    investigationIndexFileName
-  );
-  const emptyIndex = JSON.parse(
-    await fs.readFile(templateIndexPath, "utf8")
-  ) as {
-    entries: Record<string, unknown>;
-    metadata: Record<string, never>;
-    sourceRevision: ReturnType<typeof investigationSourceRevision>;
-  };
-  emptyIndex.entries = {};
-  emptyIndex.metadata = {};
-  emptyIndex.sourceRevision = investigationSourceRevision([]);
-  await fs.writeFile(
-    synchronization.indexPath,
-    `${JSON.stringify(emptyIndex, null, 2)}\n`,
-    "utf8"
-  );
-
-  const query = await queryInvestigationIndex({ workspaceRoot });
-  assert.deepEqual(query.entries, []);
-  assert.equal(query.total, 0);
-  assert.equal(query.errors.length, 1);
-  assert.match(
-    query.errors[0]!,
-    /investigation collection must contain at least one topic/u
-  );
-}
-
-async function testRawPublicApiOptionsAreDiagnosed(
-  tempRoot: string
-): Promise<void> {
-  // @ts-expect-error JavaScript callers can pass arbitrary runtime values.
-  const invalidCheck = await validateInvestigationReports(null);
-  assert.ok(invalidCheck.errors.includes("options must be an object"));
-
-  const invalidSync = await synchronizeInvestigationIndex({
-    // @ts-expect-error JavaScript callers can pass arbitrary runtime values.
-    workspaceRoot: 42
-  });
-  assert.ok(invalidSync.errors.includes("workspaceRoot must be a string"));
-
-  const workspaceRoot = path.join(tempRoot, "public-options");
-  await writeCollection(workspaceRoot, createValidReports());
-  const invalidQuery = await queryInvestigationIndex({
-    // @ts-expect-error JavaScript callers can pass arbitrary runtime values.
-    statuses: ["未知"],
-    workspaceRoot
-  });
-  assert.deepEqual(invalidQuery.errors, [
-    "statuses.0 unknown investigation status: 未知"
-  ]);
-
-  const typoQuery = await queryInvestigationIndex({
-    // @ts-expect-error JavaScript callers can misspell public option names.
-    statues: ["暂停"],
-    workspaceRoot
-  });
-  assert.deepEqual(typoQuery.errors, ["statues is not a supported option"]);
-  assert.deepEqual(typoQuery.entries, []);
-  assert.equal(typoQuery.total, 0);
-}
-
-test("validation filters reports by category and path", () =>
-  withTempRoot("parsing-filters", testFilteredDirectoryValidation));
-
-test("validation enforces investigation directory path rules", () =>
-  withTempRoot("parsing-paths", testDirectoryPathRules));
-
-test("validation reports invalid information fields without blocking valid scopes", () =>
-  withTempRoot("parsing-information", testInformationFieldValidation));
-
-test("validation enforces complete report structure and chronology", () =>
-  withTempRoot("parsing-structure", testCompleteReportStructure));
-
-test("validation confines canonical investigation roots to the workspace", () =>
-  withTempRoot(
-    "parsing-canonical-root",
-    testCanonicalInvestigationRootBoundary
-  ));
-
-test("full validation rejects every unsupported collection layout member", () =>
-  withTempRoot("parsing-layout", testExplicitCollectionLayout));
-
-test("full validation and synchronization reject empty investigation collections", () =>
-  withTempRoot("parsing-empty-collection", testEmptyInvestigationCollection));
-
-test("public APIs diagnose malformed runtime options without throwing", () =>
-  withTempRoot("parsing-public-options", testRawPublicApiOptionsAreDiagnosed));
+test("public APIs diagnose malformed runtime options without throwing", async () => {
+  const result = await validateInvestigationReports({
+    workspaceRoot: 1
+  } as unknown as { workspaceRoot: string });
+  assert.ok(result.errors.some((error) => error.includes("must be a string")));
+});

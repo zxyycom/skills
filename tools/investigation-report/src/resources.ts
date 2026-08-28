@@ -11,7 +11,7 @@ import {
   VersionControlError
 } from "../../shared/src/version-control/index.ts";
 import {
-  investigationResourceOwnerTopicId,
+  investigationResourceOwnerReportId,
   investigationResourcesDirectoryName,
   isInvestigationResourceId
 } from "./resource-reference.ts";
@@ -41,8 +41,8 @@ export type InvestigationResourceValidationResult = Readonly<{
   warnings: string[];
 }>;
 
-/** Maps each discovered topic path to the valid resource IDs it directly declares. */
-export type InvestigationResourceReferences = ReadonlyMap<
+/** Maps each discovered report id to the valid resource IDs it directly declares. */
+export type InvestigationResourceReferencesByReport = ReadonlyMap<
   string,
   ReadonlySet<string>
 >;
@@ -78,24 +78,24 @@ export async function validateReferencedInvestigationResources(
 }
 
 /**
- * Performs the default resource check after all topic reports have been
+ * Performs the default resource check after all reports have been
  * parsed. Referenced resources are errors; visible members absent from every
  * valid reference are warnings.
  */
 export async function validateFullInvestigationResources(
   investigationsDirectory: string,
-  referencesByTopic: InvestigationResourceReferences,
+  referencesByReport: InvestigationResourceReferencesByReport,
   signal?: AbortSignal
 ): Promise<InvestigationResourceValidationResult> {
   const referencedIds = uniqueSorted(
-    [...referencesByTopic.values()].flatMap((ids) => [...ids])
+    [...referencesByReport.values()].flatMap((ids) => [...ids])
   );
   const errors: string[] = [];
   const warnings: string[] = [];
   const prepared = await prepareResourceRoot(investigationsDirectory);
 
   for (const id of referencedIds) {
-    errors.push(...ownerIssues(id, referencesByTopic));
+    errors.push(...ownerIssues(id, referencesByReport));
   }
 
   if (prepared.status === "invalid") {
@@ -110,7 +110,7 @@ export async function validateFullInvestigationResources(
         if (referenced.has(id)) {
           continue;
         }
-        warnings.push(...ownerIssues(id, referencesByTopic));
+        warnings.push(...ownerIssues(id, referencesByReport));
         warnings.push(missingResourceIssue(id));
       }
     }
@@ -138,7 +138,7 @@ export async function validateFullInvestigationResources(
       continue;
     }
     throwIfAborted(signal, "investigation resource validation was aborted");
-    warnings.push(...ownerIssues(id, referencesByTopic));
+    warnings.push(...ownerIssues(id, referencesByReport));
     warnings.push(...(await directResourceIssues(prepared, id)));
   }
   return validationResult(errors, warnings);
@@ -297,7 +297,7 @@ async function walkFileSystemResourceIds(
         canonicalResourcesRoot,
         signal
       );
-      if (nestedIds.length === 0 && id.split("/").length >= 3) {
+      if (nestedIds.length === 0 && id.split("/").length >= 2) {
         ids.push(id);
       } else {
         ids.push(...nestedIds);
@@ -316,7 +316,7 @@ async function directResourceIssues(
   const errors: string[] = [];
   if (!isInvestigationResourceId(id)) {
     errors.push(
-      `${resourcePath(id)} must use a safe, normalized resource id with an owner topic prefix`
+      `${resourcePath(id)} must use a safe, normalized resource id with an owner report prefix`
     );
   }
   if (isSafeResourcePath(id)) {
@@ -346,21 +346,21 @@ async function directResourceIssues(
 
 function ownerIssues(
   id: string,
-  referencesByTopic: InvestigationResourceReferences
+  referencesByReport: InvestigationResourceReferencesByReport
 ): string[] {
-  const ownerTopicId = investigationResourceOwnerTopicId(id);
-  if (ownerTopicId === null) {
+  const ownerReportId = investigationResourceOwnerReportId(id);
+  if (ownerReportId === null) {
     return [
-      `${resourcePath(id)} must use a safe, normalized resource id with an owner topic prefix`
+      `${resourcePath(id)} must use a safe, normalized resource id with an owner report prefix`
     ];
   }
-  const ownerReferences = referencesByTopic.get(ownerTopicId);
+  const ownerReferences = referencesByReport.get(ownerReportId);
   if (ownerReferences === undefined) {
-    return [`${resourcePath(id)} owner topic ${ownerTopicId} does not exist`];
+    return [`${resourcePath(id)} owner report ${ownerReportId} does not exist`];
   }
   if (!ownerReferences.has(id)) {
     return [
-      `${resourcePath(id)} must be referenced by its owner topic ${ownerTopicId}`
+      `${resourcePath(id)} must be referenced by its owner report ${ownerReportId}`
     ];
   }
   return [];

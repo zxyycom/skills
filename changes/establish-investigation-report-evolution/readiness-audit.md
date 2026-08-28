@@ -134,9 +134,9 @@ CodeGraph 显示 `traceDecisionRelations` 的直接消费链是 `decision-query-
 
 | 删除 Case | 新 Case 与最小入口 |
 | --- | --- |
-| `INVESTIGATION-INFORMATION-FIELDS-001` | `INVESTIGATION-FRONTMATTER-001` — `validation enforces report frontmatter fields and canonical ordering`。 |
+| `INVESTIGATION-INFORMATION-FIELDS-001` | `INVESTIGATION-REPORT-FRONTMATTER-001` — `validation enforces report frontmatter fields and canonical ordering`。 |
 | `INVESTIGATION-STRUCTURE-CHRONOLOGY-001` | `INVESTIGATION-REPORT-STRUCTURE-001` — `validation enforces one report with fixed core and optional resource section`。 |
-| `INVESTIGATION-VALIDATION-FILTER-001` | `INVESTIGATION-VALIDATION-SCOPE-001` — `scoped validation selects report ids without claiming full graph proof`。 |
+| `INVESTIGATION-VALIDATION-FILTER-001` | `INVESTIGATION-REPORT-VALIDATION-SCOPE-001` — `scoped validation selects report ids without claiming full graph proof`。 |
 
 其余 55 个 Case ID 保留稳定测试责任；原生 test 名称、Entry、Contract、Proves 和 topic 文案按目标行为更新，不能继续声称 category、status、topic、reportIndex 或 v5 是当前契约。
 
@@ -167,4 +167,4 @@ CodeGraph 显示 `traceDecisionRelations` 的直接消费链是 `decision-query-
 
 九项 Readiness 均已闭合：目标和 owner 没有被并行 Change 改写；12 topics、33 reports、5 resources 的迁移映射和指纹已确定；状态与当前协调载体已交接；7 条 active 决策已有闭合方案；shared API、代码调用面、58 个现有测试入口、12 个替代/新增 case 责任和写入恢复边界均已固定。
 
-当前没有需要用户选择的开放问题。下游执行者可以从 `tasks.md` 的 1.1 开始；只有源 revision 漂移、事实 owner 改变或实现证据证明目标契约不可成立时才先回写 artifacts，而不是重新讨论已经确认的关系类型、无归档边界或数据身份。
+本审计只保存实施前已确认的输入、边界和恢复依据，不再指示后续执行顺序。实施完成与验证证据由 `tasks.md` 承接；本 Change 仍保持 active plan，是否归档只由后续明确授权决定。

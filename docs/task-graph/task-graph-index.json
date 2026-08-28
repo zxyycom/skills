@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "revision": 349,
+  "revision": 351,
   "nextTaskId": 70,
   "tasks": {
     "task-000001": {
@@ -2145,61 +2145,6 @@
         }
       }
     },
-    "task-000052": {
-      "content": {
-        "title": "明确 Decision、Change 与 Task 的承载和退出规则",
-        "goal": "在现有 owner 中建立并应用一套最小载体规则，使维护者能按事项状态和预期结果唯一判断应使用 Decision record、Change plan、Task Graph task 还是 Change 内 tasks.md 条目，并能在交接、完成或放弃时收敛重复载体。",
-        "acceptance": [
-          "分别明确四类载体的用途、权威内容、创建门槛、生命周期、完成含义和非目标；active+unaligned 决策只有在已选为当前执行目标或存在已知外部等待条件时才产生 Task Graph task。",
-          "现有 owner 提供覆盖想法暂存、调查或决策方向、跨 owner 持久 Change、当前非线性协调及 Change 内 readiness、implementation、verification 的选择和单向交接规则；同一状态、分解、理由或长期结论只由一个 owner 完整维护。",
-          "按新规则处理 task-000024、task-000025 及两个引用的 draft Change：有当前协调价值或明确等待条件的载体写清依据并保留，其余载体取消或按 owner 规则退出；未达成目标的 task 不标为 succeeded。",
-          "用四条现有 active+unaligned 决策、一个单载体案例和一个组合载体案例验证规则；任何案例都能恢复当前权威状态、引用方向和退出动作，task-000035 的多对多账本迁移职责保持唯一。"
-        ],
-        "context": "本轮全仓审计没有发现 decision candidate，四条 active+unaligned 记录都承载真实未来判断。当前问题是部分长期方向同时存在监测 task 或延期 draft，导致维护者无法唯一判断哪个载体仍有效。",
-        "references": {
-          "change-plan": "skills/change-plan/SKILL.md",
-          "change-plan-contract": "skills/change-plan/references/change-plan-contract.md",
-          "decision-records": "skills/decision-records/SKILL.md",
-          "decision-rules": "skills/decision-records/references/decision-record-rules.md",
-          "domain-genealogy-decision": "docs/decisions/decision-records/upgrade-decision-domains-after-real-pressure.md",
-          "navigation": "docs/navigation.md",
-          "reorganization-decision": "docs/decisions/decision-records/support-reorganization-after-real-evidence.md",
-          "task-graph": "skills/task-graph/SKILL.md",
-          "test-blocking-decision": "docs/decisions/test-evidence-review/defer-standard-test-result-blocking.md",
-          "test-blocking-investigation": "docs/investigations/test-evidence/standard-test-result-blocking.md",
-          "test-ledger-change": "changes/archive/establish-many-to-many-test-case-relations/",
-          "test-relations-decision": "docs/decisions/test-evidence-review/maintain-closed-many-to-many-test-case-relations.md"
-        },
-        "result": {
-          "summary": "已建立并验证最小载体与单向退出规则：新增已对齐的项目文档决策，取消两项无当前协调价值的长期监测 task，将延期测试阻断 draft 迁为可复核调查主题，并按 task-000026 的成功证据归档多对多机制 Change；task-000035 继续唯一承接真实迁移。",
-          "references": {
-            "archived-change": "changes/archive/establish-many-to-many-test-case-relations/",
-            "decision": "docs/decisions/project-documentation/route-future-work-by-minimal-carrier.md",
-            "investigation": "docs/investigations/test-evidence/standard-test-result-blocking.md",
-            "navigation": "docs/navigation.md"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 2
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {},
-          "excludes": {}
-        },
-        "timestamps": {
-          "createdAt": "2026-08-10T15:59:13.636Z",
-          "updatedAt": "2026-08-11T03:12:31.562Z"
-        }
-      }
-    },
     "task-000053": {
       "content": {
         "title": "恢复 Change Plan 的自包含决策基线",
@@ -2427,53 +2372,6 @@
         "timestamps": {
           "createdAt": "2026-08-11T02:49:54.057Z",
           "updatedAt": "2026-08-11T03:25:04.171Z"
-        }
-      }
-    },
-    "task-000058": {
-      "content": {
-        "title": "拆分测试结果协议与阻断资格决策",
-        "goal": "把版本化 runner 结果协议与测试结果阻断资格拆成两个可独立演进的 active+unaligned 决策，同时保留各自的重启条件；不启动协议或门禁实现。",
-        "acceptance": [
-          "一个自包含后继只承接 runner 边缘的版本化 producer/consumer 协议、Test ID 生产，以及项目 consumer 不解析 runner 私有格式的边界，并归入一个明确的主要领域。",
-          "另一个自包含后继只承接正式结果获得行为 pass/fail 资格所需的身份、关系和完整性门禁，以及先报告 Test、再从账本派生 Case 的边界。",
-          "两个后继分别保存适用的重启条件，并通过一次闭合拆分归档 defer-standard-test-result-blocking；延期本身不形成第三条决定或新的实施 task。",
-          "现有测试、check、CI、Test Evidence 行为和 draft Change 不因本任务改变；Decision Records 严格检查与 bun run check 通过。"
-        ],
-        "context": "defer-standard-test-result-blocking 是真实未来方向，但把 runner 数据协议与阻断资格绑在同一生命周期。历史任务和 draft Change 只作为证据，不代表当前实施授权。",
-        "references": {
-          "decision": "docs/decisions/test-evidence-review/defer-standard-test-result-blocking.md",
-          "decision-rules": "skills/decision-records/references/decision-record-rules.md",
-          "investigation": "docs/investigations/test-evidence/standard-test-result-blocking.md",
-          "protocol-task": "task-000038",
-          "qualification-task": "task-000033"
-        },
-        "result": {
-          "summary": "已将测试结果阻断方向闭合拆分为版本化 runner 结果协议与结果资格门禁，两条均保持 active+unaligned；延期调查继续提供实施前证据，未误报为已实现。",
-          "references": {
-            "investigation": "docs/investigations/test-evidence/standard-test-result-blocking.md",
-            "protocol": "docs/decisions/test-evidence-review/use-versioned-runner-result-protocol.md",
-            "qualification": "docs/decisions/test-evidence-review/qualify-formal-test-results-before-behavior-blocking.md"
-          }
-        }
-      },
-      "state": {
-        "control": {
-          "mode": "queued",
-          "reason": null
-        },
-        "execution": {
-          "phase": "succeeded",
-          "attempt": 1
-        },
-        "relations": {
-          "parentId": null,
-          "dependsOn": {},
-          "excludes": {}
-        },
-        "timestamps": {
-          "createdAt": "2026-08-11T02:49:54.057Z",
-          "updatedAt": "2026-08-11T03:25:04.387Z"
         }
       }
     },
@@ -2902,7 +2800,7 @@
         ],
         "context": "当前只确认了 decision-records 在长任务提交阶段漏用专用 stage 的案例；新领域暂存能力缺口由独立 draft Change 承接，不属于本任务方案。",
         "references": {
-          "investigation": "docs/investigations/skill-orchestration/operation-time-skill-rerouting.md"
+          "investigation": "docs/investigations/identify-operation-time-skill-rerouting-gap.md"
         },
         "result": null
       },
@@ -2922,7 +2820,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-12T05:41:39.984Z",
-          "updatedAt": "2026-08-12T05:41:39.984Z"
+          "updatedAt": "2026-08-28T10:55:42.855Z"
         }
       }
     },
