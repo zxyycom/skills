@@ -6,19 +6,23 @@
 
 ## 为什么需要它
 
-Codex 的 shell 工具调用会受到命令形态、权限规则、sandbox、网络和审批策略影响。agent 如果只凭失败文本改引号、换 shell 或随意拼接命令，很容易浪费步骤，甚至绕过该走的审批。
+Codex 的 shell 命令由沙箱专用的受限身份运行，不继承当前交互用户或管理员的完整权限。该身份通常只能写入自身可写位置和明确 write roots，其他目录可以广泛读取，但仍受 permission profile、文件系统 ACL、受保护路径和程序请求权限约束。因此，“当前用户能访问”不能证明 shell 中的目标程序也能访问。
 
-这个 skill 的价值是让 agent 先按常见场景处置：创建进程失败就考虑提权，组合命令就判断是拆开还是提权一次执行，网络/安装就申请权限，破坏性操作就确认范围并审批，目标程序已经启动才回到真实错误处理。需要长期改变权限行为时，再进入 rules 维护路径。
+agent 如果忽略执行身份，只凭失败文本改引号、换 shell、增加 read root 或修改 shell rule，很容易在错误的权限层重复试错，甚至绕过该走的审批。
+
+这个 skill 的价值是让 agent 先按失败阶段处置：创建进程失败就考虑提权，目标程序启动后的路径权限错误就定位拒绝层，组合命令就判断是拆开还是提权一次执行，网络/安装就申请权限，破坏性操作就确认范围并审批，明确业务错误才回到目标程序处理。需要长期改变 shell rule 行为时，再进入 rules 维护路径。
 
 ## 内容结构
 
 `SKILL.md` 是双功能入口，保留触发条件、失败后 shell 使用指挥、提权条件和 rules 维护分流。
 
-`skills/codex-shell-permissions/references/rules-and-syntax.md` 是规则和语法速查，列出容易被 runner 或权限规则卡住的命令形态，以及必须提权或确认的命令。
+`skills/codex-shell-permissions/references/rules-and-syntax.md` 只承接复杂 shell 组合和 PowerShell 表达式的处理选择；一般失败分类、提权和授权边界仍由 `SKILL.md` 承接。
+
+`skills/codex-shell-permissions/references/path-permission-diagnosis.md` 用于目标程序已经启动、但文件或目录访问被拒绝的情况，区分执行身份、permission profile、文件系统权限、程序请求权限、隐式路径和 shell rule。
 
 `skills/codex-shell-permissions/references/permission-rules-maintenance.md` 是第二个主要功能的操作手册。它只在用户明确要求或批准后使用，用于处理权限 rules、`allow/prompt/block`、`execpolicy check` 和热加载问题。
 
-`skills/codex-shell-permissions/references/command-examples.md` 是命令组合试验记录，按管道、逗号、脚本块、重定向、变量、子表达式等组合记录尝试形态、观察结果、处理结论和证据状态。
+`skills/codex-shell-permissions/references/command-examples.md` 保存命令组合试验的形成时证据，不作为当前执行规则。
 
 ## 希望形成的能力
 
@@ -26,12 +30,13 @@ Codex 的 shell 工具调用会受到命令形态、权限规则、sandbox、网
 
 1. 在拆成更简单的命令和提权一次执行复杂命令之间选择。
 2. 按当前权限规则提权重跑必要命令。
-3. 改成更稳定的 PowerShell/命令形态。
-4. 回到真实程序错误处理。
-5. 在用户主动要求时进入 Codex rules 权限配置维护。
+3. 对目标程序启动后的路径错误先确认实际执行身份，再定位拒绝层，而不是把所有权限问题都归给 shell rule。
+4. 改成更稳定的 PowerShell/命令形态。
+5. 回到真实程序错误处理。
+6. 在用户主动要求时进入 Codex rules 权限配置维护。
 
-通过这种处置卡，shell 失败可以被转化成明确下一步，而不是在命令语法、规则配置和审批策略之间来回猜测。
+通过这种处置卡，shell 失败可以被转化成明确下一步，而不是在命令语法、规则配置、路径权限和审批策略之间来回猜测。
 
 ## 发展方向
 
-后续可以继续沉淀常见失败文本、敏感命令形态、审批边界和 rules 维护经验。命令组合记录优先写成“组合类型 -> 尝试形态 -> shell_command 观察 -> 处理结论 -> 证据状态”；只有影响触发、现场指挥或 rules 维护流程时才更新 skill 入口。
+后续优先沉淀能够改变权限层判断、处理动作或完成证据的稳定规则。单次失败和重复示例只作为诊断材料；只有提炼出新的可复用判断时，才更新对应 owner。

@@ -1,87 +1,58 @@
 ---
 name: codex-shell-permissions
 description: >-
-  当 shell_command、exec 或其他 shell 工具调用出现 sandbox、approval、permission、
-  execpolicy、CreateProcessAsUserW failed: 5、网络/registry/DNS 权限失败、复杂 shell
-  组合、PowerShell 引号/变量/数组/脚本块相关失败，或用户要求处理 shell 权限 rules、
-  allow/prompt/block、execpolicy 时使用。这里包含 shell 失败场景、命令组合与语法限制、
-  提权边界、权限 rules 维护和过往命令组合尝试记录的文档。
+  处理 Codex shell 调用中的 sandbox、approval、execpolicy、文件或目录权限、网络权限
+  和复杂 PowerShell 命令失败，并在用户明确要求时维护 shell permission rules。遇到
+  CreateProcessAsUserW failed: 5、EPERM/EACCES/Access denied、permission denied，
+  或 allow/prompt/block 规则问题时使用。
 metadata:
-  version: "2"
+  version: "3"
 ---
 
 # Codex Shell Permissions
 
-## 目标
+## 目标与路径选择
 
-本 skill 有两个主要功能：
+本 skill 让 agent 根据实际执行身份、原始命令、失败阶段和风险边界选择**一个**可核对的下一步，避免在命令语法、sandbox、审批和 rules 之间重复试错。
 
-1. shell 失败后的执行指挥：让 agent 停止重复试错，把失败现象映射到下一条 shell 使用方式，例如拆成简单命令、对必要的复杂命令申请提权、缩小破坏性操作范围，或回到真实程序错误处理。
-2. Codex rules 维护：在用户明确要求调整或审查权限 rules 时，指导 agent 维护 `execpolicy` 和 `allow/prompt/block` 等配置，并留下可追踪记录。
+1. 默认路径是处理当前 shell 失败：拆成简单命令、对精确命令申请 escalation、确认高风险范围，或转回目标程序错误。
+2. 只有用户明确要求添加、修改或审查 `allow/prompt/block`、`prefix_rule` 或 `execpolicy`，或者已经批准把重复问题升级为长期规则维护时，才进入 rules 维护。
+3. Shell 命令由沙箱专用的受限身份和 token 执行，不继承当前交互用户或管理员的完整权限。路径访问由该执行身份、本次 permission profile、文件系统 ACL 和程序请求的访问权限共同决定；当前用户能访问某路径，不代表 shell 中的目标程序也能访问。
+4. 配置文件、旧调查和其他 task 的结果不能证明本次权限状态；判断当前状态时使用本次实际执行身份、注入的 permission profile、原始命令和完整错误。
 
-默认走第一条路径。只有用户主动要求维护 rules，或已经批准把问题升级为长期规则维护时，才进入第二条路径。
+## 失败分类与下一步
 
-## 失败后指挥 shell 使用
+重试前保留原始命令和完整错误，先判断目标进程是否启动、失败发生在哪个阶段，再从上到下选择首个匹配行。执行该行的下一步后，根据新证据重新分类；不要连续尝试多个同类变体。
 
-1. 目标程序已经启动并返回测试、编译、Git、Bun、Python 或 PowerShell 的明确业务错误：处理真实错误。
-2. 失败文本包含 `CreateProcessAsUserW failed: 5`、`sandbox`、`permission`、`approval`、`execpolicy` 或权限规则相关内容：按权限、审批或提权场景处理。
-3. 命令包含管道、分号、`&&`、`||`、重定向、变量展开、通配符、子表达式、脚本块、数组、哈希表或逗号参数列表：先判断是拆成简单调用，还是按风险提权执行整条复杂命令。
-4. 命令会写文件、删文件、移动文件、安装依赖、访问网络、启动服务、登录、改配置或写工作区外路径：按风险确认、审批或提权。
-5. 选中一个场景后执行对应动作，不要连续尝试多个同类 shell 变体。
+| 观察 | 判断 | 下一步 |
+| --- | --- | --- |
+| runner 或审批输出明确给出 `approval`、`prompt`、`requires approval` | 策略要求审批，不是命令或程序失败 | 命令仍然必要时发起审批；否则改用真正满足任务的已允许只读入口，不改写命令绕过审批 |
+| 出现 `CreateProcessAsUserW failed: 5`，目标程序没有启动 | runner/sandbox 创建进程失败，不是 PowerShell 语法证据 | 命令必要且范围清楚时，对完全相同的命令申请 escalation，并说明必要性；不要先改引号、数组或脚本块 |
+| 目标程序已启动，并在文件或目录操作上返回 `EPERM`、`EACCES`、`Access denied` 或 `permission denied` | 目标程序已成功启动，但请求的读取、写入、执行、删除或元数据访问被权限边界拒绝 | 保留精确路径和请求动作，对照实际运行身份、当前 profile 与有效 ACL，按 [路径权限诊断](references/path-permission-diagnosis.md) 判断阻止层，再选择精确 escalation、配置修复或布局/工具入口修复 |
+| 错误明确包含 network restricted、sandbox 网络拒绝、DNS/host resolution 或 registry 访问权限失败 | 命令所需网络可能被当前权限或审批策略阻止 | 网络访问确为任务所需时按当前工具申请 escalation；不要用代理命令、临时下载脚本或 shell 拼接绕过限制 |
+| PowerShell/runner 在管道、分隔符、重定向、变量、脚本块、数组或子表达式处失败 | 外层 runner、权限匹配和 PowerShell 语法需要分开判断 | 读取 [Shell 组合与语法](references/rules-and-syntax.md)，在拆成简单命令和对完整自然执行单元申请 escalation 之间选择 |
+| 目标程序已启动，并返回与文件访问、sandbox 或权限无关的明确测试、编译、HTTP 响应、包不存在、认证拒绝、Git、Bun、Python 或 PowerShell 错误 | 目标程序或外部服务的真实错误 | 修复参数、路径、依赖、凭据、服务响应、测试或编译问题；不要继续围绕 sandbox 猜测 |
 
-## 常见场景和处理方案
+## 执行动作边界
 
-1. `CreateProcessAsUserW failed: 5`：
-   - 判断：通常是 runner/sandbox 创建进程或权限问题，不是 PowerShell 语法证据。
-   - 动作：如果命令对任务必要，按当前环境规则用 `require_escalated` 重跑同一命令，并写清为什么需要提权。
-   - 不要：反复改 PowerShell 引号、数组或脚本块来猜。
+1. **拆成简单命令**：用于排查失败阶段、各片段风险不同、展开后的路径不清，或删除、移动、覆盖范围尚未确认的情况。
+2. **对精确命令申请 escalation**：用于重要命令被 sandbox、权限、网络、创建进程或 runner 匹配阻止，或者命令完成任务必须联网、下载安装、访问 registry/DNS/API、写允许范围外路径、使用用户工具缓存、启动服务或 GUI。命令目标和副作用必须已知，理由必须说明该精确命令为何是当前任务所需。
+3. **区分任务授权与工具审批**：用户请求决定动作是否在任务授权范围内，escalation 只处理当前工具的权限或审批。删除、递归移动、`git reset`、覆盖数据、写系统路径或用户全局配置、登录以及其他高风险动作超出既有授权时，必须先确认精确目标、影响和回退边界；不能用一次 escalation 补足用户授权。
+4. **不改变长期权限**：一次失败或一次 escalation 不自动进入 rules 维护，也不能表述为 ACL、read root、permission profile 或长期规则已经修复。
+5. **不绕过审批**：不要通过 `cmd /c`、额外子 shell、通配符、字符串拼接、重定向或临时脚本隐藏原动作。
 
-2. `approval`、`prompt`、`requires approval`：
-   - 判断：策略要求审批，不是命令失败。
-   - 动作：需要执行就发起审批；不需要执行就换成已允许的只读命令。
-   - 不要：把命令改写成绕过审批的形式。
+## 完成与表述
 
-3. 网络、下载、安装、registry、DNS、host resolution 失败：
-   - 判断：大概率需要网络权限或审批。
-   - 动作：如果是完成任务所必需，按当前环境规则提权重跑。
-   - 不要：用临时脚本、代理命令或 shell 拼接绕过网络限制。
+1. 精确命令经批准后可能使用不同的执行身份或权限上下文；成功只能说明该命令已完成，除非另有直接验证，不说明普通 sandbox 内已可执行。
+2. 命令仍被策略阻止时，报告阻止阶段、已确认的命令范围和所需审批或外部状态，不继续试同类改写。
+3. 目标程序返回业务错误时，保留它作为新的直接证据并退出权限排查。
+4. 修改长期 rules 时，以 [Permission Rules Maintenance](references/permission-rules-maintenance.md) 的 `execpolicy check` 结果和维护记录作为配置证据；只有实际安全执行过代表命令时，才表述真实 runner 行为已经验证。
 
-4. 删除、递归移动、`git reset`、清理目录、写系统路径或工作区外路径：
-   - 判断：破坏性或越界操作。
-   - 动作：必须显式审批；递归删除或移动前先确认解析后的绝对路径仍在目标范围内。
-   - 不要：用 `cmd /c`、子 shell、通配符或字符串拼接执行删除。
+## 按需引用
 
-5. 命令含管道、分号、`&&`、`||`、重定向或子 shell：
-   - 判断：这是组合命令问题，外层权限匹配可能和真实 shell 语法不是同一件事。
-   - 动作：排查阶段或风险边界不清时，拆成多次简单命令；如果组合命令本身是当前任务的自然执行单元、目标范围清楚、一次执行更可靠或更省步骤，可以按当前环境规则用 `require_escalated` 执行整条命令。
-   - 不要：为了绕过审批而嵌套更多 shell，或在同一类复杂写法之间反复试错。
-
-6. 命令含 PowerShell 数组、哈希表、脚本块、复杂引号、`$()`、变量展开或逗号参数列表：
-   - 判断：PowerShell 可能合法，但外层 runner 或 rule 匹配可能不接受。
-   - 动作：能自然改成普通参数就改；复杂表达式确实能更清楚地完成任务，且写入、删除、网络或配置风险都已说明时，可以提权执行原命令。
-   - 不要：继续调整引号、脚本块或数组写法来碰运气，也不要把高风险动作藏进复杂表达式。
-
-7. 目标程序已经启动并返回清晰错误：
-   - 判断：这时通常不是 shell 权限问题。
-   - 动作：按目标程序错误修复，例如参数、路径、依赖、测试失败或编译错误。
-   - 不要：继续围绕 sandbox 猜测。
-
-## 哪些情况要提权
-
-按当前环境规则申请 `require_escalated`：
-
-1. 重要命令因 sandbox、创建进程、网络、DNS、registry 或权限错误失败。
-2. 命令需要下载、安装、更新依赖或访问外网。
-3. 命令需要写工作区外路径、系统目录、用户全局配置或工具缓存。
-4. 命令会启动服务、打开 GUI、登录账号、修改系统/工具配置。
-5. 用户明确要求执行的破坏性操作，且已经确认目标范围。
-6. 复杂 shell 组合因 runner、sandbox 或权限匹配失败，但命令意图明确、目标范围清楚，且一次执行比拆成多步更合适。
-
-提权时要写具体理由，说明为什么这是完成当前任务所必需；普通失败处理不进入持久权限规则配置。
-
-## 什么时候读引用
-
-1. 当前命令涉及复杂 shell 组合，且本文件的常见场景不足以判断时，读 [rules-and-syntax.md](references/rules-and-syntax.md)。
-2. 用户明确要求添加、修改或审查 Codex shell 权限 rules、allow/prompt/block 和 execpolicy 行为时，读 [permission-rules-maintenance.md](references/permission-rules-maintenance.md)，并把它作为第二个主要功能处理。
-3. 需要对照管道、逗号参数列表、脚本块、重定向、变量和子表达式等组合尝试及结果状态时，读 [command-examples.md](references/command-examples.md)。
-4. 普通一次性 shell 失败优先按本文件处理，不必展开引用。
+| 当前问题 | 读取内容 |
+| --- | --- |
+| 复杂命令的拆分、PowerShell 语法对照或高风险组合 | [rules-and-syntax.md](references/rules-and-syntax.md) |
+| 目标程序已启动，但文件或目录操作被权限拒绝 | [path-permission-diagnosis.md](references/path-permission-diagnosis.md) |
+| 用户已要求或批准维护 `allow/prompt/block`、`prefix_rule` 或 `execpolicy` | [permission-rules-maintenance.md](references/permission-rules-maintenance.md) |
+| 当前组合与既有试验形态相近，需要核对形成时观察和证据状态 | [command-examples.md](references/command-examples.md)；该文件是证据记录，不是当前规则 owner |
