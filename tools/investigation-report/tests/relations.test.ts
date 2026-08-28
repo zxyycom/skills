@@ -1,10 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
-  buildRelationGraph,
-  traceRelationGraph
-} from "../../shared/src/graph/relations.ts";
-import { validateInvestigationRelationGraph } from "../src/relation-validation.ts";
+  traceInvestigationRelations,
+  validateInvestigationRelationGraph
+} from "../src/relation-validation.ts";
 import type { InvestigationIndexState } from "../src/types.ts";
 
 function state(
@@ -93,7 +92,10 @@ test("relation graph rejects a repeated target", () => {
       ]
     ])
   );
-  assert.ok(errors.some((error) => error.includes("repeat target")));
+  assert.deepEqual(
+    errors.filter((error) => error.includes("repeat target")),
+    ["duplicate.md relations must not repeat target base.md"]
+  );
 });
 
 test("relation graph rejects a target formed later", () => {
@@ -132,16 +134,20 @@ test("relation graph rejects a cycle", () => {
 });
 
 test("relation trace returns deterministic predecessor successor and bidirectional subgraphs", () => {
-  const graph = buildRelationGraph(
-    ["a.md", "b.md", "c.md"],
+  const states = new Map<string, InvestigationIndexState>([
     [
-      { source: "c.md", target: "b.md", type: "修正" },
-      { source: "b.md", target: "a.md", type: "补充" }
-    ]
-  );
+      "c.md",
+      state("2026-08-28T12:00:00+00:00", [{ target: "b.md", type: "修正" }])
+    ],
+    [
+      "b.md",
+      state("2026-08-28T11:00:00+00:00", [{ target: "a.md", type: "补充" }])
+    ],
+    ["a.md", state("2026-08-28T10:00:00+00:00")]
+  ]);
   assert.deepEqual(
     [
-      ...traceRelationGraph(graph, "b.md", {
+      ...traceInvestigationRelations(states, "b.md", {
         direction: "predecessors",
         maxDepth: null
       }).ids
@@ -150,7 +156,7 @@ test("relation trace returns deterministic predecessor successor and bidirection
   );
   assert.deepEqual(
     [
-      ...traceRelationGraph(graph, "b.md", {
+      ...traceInvestigationRelations(states, "b.md", {
         direction: "successors",
         maxDepth: null
       }).ids
@@ -159,11 +165,30 @@ test("relation trace returns deterministic predecessor successor and bidirection
   );
   assert.deepEqual(
     [
-      ...traceRelationGraph(graph, "b.md", {
+      ...traceInvestigationRelations(states, "b.md", {
         direction: "both",
         maxDepth: null
       }).ids
     ],
     ["b.md", "a.md", "c.md"]
+  );
+  assert.deepEqual(
+    traceInvestigationRelations(states, "b.md", {
+      direction: "both",
+      maxDepth: null
+    }).edges,
+    [
+      { source: "b.md", target: "a.md", type: "补充" },
+      { source: "c.md", target: "b.md", type: "修正" }
+    ]
+  );
+  assert.deepEqual(
+    [
+      ...traceInvestigationRelations(states, "b.md", {
+        direction: "both",
+        maxDepth: 0
+      }).ids
+    ],
+    ["b.md"]
   );
 });

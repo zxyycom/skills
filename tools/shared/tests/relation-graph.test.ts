@@ -3,10 +3,11 @@ import test from "node:test";
 import {
   buildRelationGraph,
   relationGraphStructuralIssues,
+  sortRelationEdges,
   traceRelationGraph
 } from "../src/graph/relations.ts";
 
-test("relation graph builds deterministic source and target indexes", () => {
+test("relation graph builds source and target indexes in supplied edge order", () => {
   const graph = buildRelationGraph(
     ["a", "b", "c", "d"],
     [
@@ -17,18 +18,18 @@ test("relation graph builds deterministic source and target indexes", () => {
     ]
   );
   assert.deepEqual(graph.edges, [
-    { source: "a", target: "c", type: "merge" },
-    { source: "a", target: "b", type: "revision" },
     { source: "c", target: "b", type: "review" },
-    { source: "d", target: "a", type: "split" }
+    { source: "a", target: "b", type: "revision" },
+    { source: "d", target: "a", type: "split" },
+    { source: "a", target: "c", type: "merge" }
   ]);
   assert.deepEqual(graph.edgesBySource.get("a"), [
-    { source: "a", target: "c", type: "merge" },
-    { source: "a", target: "b", type: "revision" }
+    { source: "a", target: "b", type: "revision" },
+    { source: "a", target: "c", type: "merge" }
   ]);
   assert.deepEqual(graph.edgesByTarget.get("b"), [
-    { source: "a", target: "b", type: "revision" },
-    { source: "c", target: "b", type: "review" }
+    { source: "c", target: "b", type: "review" },
+    { source: "a", target: "b", type: "revision" }
   ]);
 });
 
@@ -46,7 +47,7 @@ test("relation graph traces bounded bidirectional subgraphs", () => {
     direction: "both",
     maxDepth: 1
   });
-  assert.deepEqual([...trace.ids], ["a", "c", "b", "d"]);
+  assert.deepEqual([...trace.ids], ["a", "b", "c", "d"]);
   assert.deepEqual(trace.edges, graph.edges);
   assert.deepEqual(
     [
@@ -59,21 +60,26 @@ test("relation graph traces bounded bidirectional subgraphs", () => {
   );
 });
 
-test("relation graph orders identifiers by UTF-16 code units", () => {
-  const graph = buildRelationGraph(
-    ["a-a", "a-A", "t-a", "t-A"],
-    [
-      { source: "a-a", target: "t-a", type: "type-a" },
-      { source: "a-A", target: "t-a", type: "type-a" },
-      { source: "a-A", target: "t-A", type: "type-a" },
-      { source: "a-A", target: "t-a", type: "type-A" }
-    ]
-  );
-  assert.deepEqual(graph.edges, [
+test("relation edge sorting uses UTF-16 code units without mutating inputs", () => {
+  const edges = [
+    { source: "a-a", target: "t-a", type: "type-a" },
+    { source: "a-A", target: "t-a", type: "type-a" },
+    { source: "a-A", target: "t-A", type: "type-a" },
+    { source: "a-A", target: "t-a", type: "type-A" }
+  ];
+  const sortedEdges = sortRelationEdges(edges);
+
+  assert.deepEqual(sortedEdges, [
     { source: "a-A", target: "t-a", type: "type-A" },
     { source: "a-A", target: "t-A", type: "type-a" },
     { source: "a-A", target: "t-a", type: "type-a" },
     { source: "a-a", target: "t-a", type: "type-a" }
+  ]);
+  assert.deepEqual(edges, [
+    { source: "a-a", target: "t-a", type: "type-a" },
+    { source: "a-A", target: "t-a", type: "type-a" },
+    { source: "a-A", target: "t-A", type: "type-a" },
+    { source: "a-A", target: "t-a", type: "type-A" }
   ]);
 });
 

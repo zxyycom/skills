@@ -7,6 +7,7 @@ export type CheckTask = {
 
 export const checkPreflightTasks = [
   { minimumProfile: "full", script: "test:decision-records-cli" },
+  { minimumProfile: "quick", script: "test:relation-graph" },
   { minimumProfile: "full", script: "test:version-control" },
   { minimumProfile: "full", script: "test:skill-package-hash" },
   { minimumProfile: "full", script: "test:investigation-report-check" },

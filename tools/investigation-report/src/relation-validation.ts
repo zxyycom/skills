@@ -1,7 +1,12 @@
 import {
   buildRelationGraph,
   relationGraphStructuralIssues,
-  type RelationEdge
+  sortRelationEdges,
+  traceRelationGraph,
+  type RelationEdge,
+  type RelationGraph,
+  type RelationGraphTrace,
+  type RelationGraphTraceOptions
 } from "../../shared/src/graph/relations.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
 import {
@@ -18,7 +23,7 @@ const ordinaryRelationTypes = new Set<InvestigationRelationType>([
   "推翻"
 ]);
 
-export function investigationRelationEdges(
+function investigationRelationEdges(
   states: ReadonlyMap<string, InvestigationIndexState>
 ): InvestigationRelationEdge[] {
   return [...states.entries()].flatMap(([source, state]) =>
@@ -30,12 +35,34 @@ export function investigationRelationEdges(
   );
 }
 
+function buildInvestigationRelationGraph(
+  states: ReadonlyMap<string, InvestigationIndexState>
+): RelationGraph<string, InvestigationRelationType> {
+  return buildRelationGraph(
+    states.keys(),
+    sortRelationEdges(investigationRelationEdges(states))
+  );
+}
+
+/** Traces Investigation report relations through the shared graph traversal. */
+export function traceInvestigationRelations(
+  states: ReadonlyMap<string, InvestigationIndexState>,
+  startId: string,
+  options: RelationGraphTraceOptions
+): RelationGraphTrace<string, InvestigationRelationType> {
+  return traceRelationGraph(
+    buildInvestigationRelationGraph(states),
+    startId,
+    options
+  );
+}
+
 export function validateInvestigationRelationGraph(
   states: ReadonlyMap<string, InvestigationIndexState>
 ): string[] {
   const ids = [...states.keys()].sort(compareText);
-  const edges = investigationRelationEdges(states);
-  const graph = buildRelationGraph(ids, edges);
+  const graph = buildInvestigationRelationGraph(states);
+  const edges = graph.edges;
   const errors: string[] = [];
 
   for (const issue of relationGraphStructuralIssues(graph)) {
@@ -89,12 +116,6 @@ export function validateInvestigationRelationGraph(
 
   for (const id of ids) {
     const sourceEdges = graph.edgesBySource.get(id) ?? [];
-    if (
-      new Set(sourceEdges.map((edge) => edge.target)).size !==
-      sourceEdges.length
-    ) {
-      errors.push(`${id} relations must not repeat target IDs`);
-    }
     errors.push(...relationShapeIssues(id, sourceEdges));
   }
   for (const id of ids) {

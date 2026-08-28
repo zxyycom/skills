@@ -1,6 +1,7 @@
 import {
   buildRelationGraph,
   relationGraphStructuralIssues,
+  sortRelationEdges,
   traceRelationGraph,
   type RelationEdge,
   type RelationGraph
@@ -62,21 +63,10 @@ function buildDecisionRelationGraph(
   return {
     ...buildRelationGraph(
       recordById.keys(),
-      collectDecisionRelationEdges(records)
+      sortRelationEdges(collectDecisionRelationEdges(records))
     ),
     recordById
   };
-}
-
-function compareEdges(
-  left: DecisionRelationEdge,
-  right: DecisionRelationEdge
-): number {
-  return (
-    left.source.localeCompare(right.source) ||
-    left.type.localeCompare(right.type) ||
-    left.target.localeCompare(right.target)
-  );
 }
 
 export function traceDecisionRelations(
@@ -90,7 +80,7 @@ export function traceDecisionRelations(
   const graph = buildDecisionRelationGraph(records);
   const trace = traceRelationGraph(graph, startDecisionId, options);
   return {
-    edges: [...trace.edges].sort(compareEdges),
+    edges: [...trace.edges],
     decisionIds: new Set(trace.ids)
   };
 }

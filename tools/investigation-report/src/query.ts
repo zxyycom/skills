@@ -15,10 +15,6 @@ import {
   type StateIndexFilter
 } from "../../index-runtime/src/index.ts";
 import {
-  buildRelationGraph,
-  traceRelationGraph
-} from "../../shared/src/graph/relations.ts";
-import {
   createInvestigationStateIndexDefinition,
   investigationIndexDiagnosticMessages,
   investigationIndexFileName,
@@ -39,6 +35,7 @@ import {
   type ResolvedInvestigationsDirectory
 } from "./report-path.ts";
 import { isInvestigationRelationType } from "./report-validation.ts";
+import { traceInvestigationRelations } from "./relation-validation.ts";
 import { investigationTimestampMilliseconds } from "./timestamp.ts";
 import type {
   InvestigationIndexQueryOptions,
@@ -250,17 +247,16 @@ export async function traceInvestigationReports(
       `${id} investigation report does not exist`
     ]);
   }
-  const graph = buildRelationGraph(
-    Object.keys(loaded.value.entries),
-    Object.entries(loaded.value.entries).flatMap(([source, entry]) =>
-      entry.state.relations.map((relation) => ({
-        source,
-        target: relation.target,
-        type: relation.type
-      }))
-    )
+  const trace = traceInvestigationRelations(
+    new Map(
+      Object.entries(loaded.value.entries).map(([reportId, entry]) => [
+        reportId,
+        entry.state
+      ])
+    ),
+    id,
+    { direction, maxDepth }
   );
-  const trace = traceRelationGraph(graph, id, { direction, maxDepth });
   return {
     edges: trace.edges.map((edge) => ({
       source: edge.source,

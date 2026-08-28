@@ -80,6 +80,7 @@ test("main Markdown collection excludes archived changes and investigation resou
 test("check plan classifies every package script by minimum profile", () => {
   const expectedCheckTasks = [
     ["test:decision-records-cli", "full"],
+    ["test:relation-graph", "quick"],
     ["test:version-control", "full"],
     ["test:skill-package-hash", "full"],
     ["test:investigation-report-check", "full"],

@@ -1499,21 +1499,21 @@
     "CHECK-PLAN-SCRIPTS-001": {
       "keys": {
         "search": [
-          "CHECK-PLAN-SCRIPTS-001 检查计划声明每个脚本的最低档位 检查计划必须显式列出全部门禁 package script，并为每个前置任务声明最低运行档位。 实际任务名称、最低档位和打包入口与仓库声明完全一致。 `lint` 与 `format:check` 作为 quick 前置任务同时进入 quick 和 full 门禁。 quick 任务在 quick 与 full 档运行，full 任务只在 full 档运行。 scripts/check.test.ts > check plan classifies every package script by minimum profile bun test --test-name-pattern=\"^check plan classifies every package script by minimum profile$\" ./scripts/check.test.ts"
+          "CHECK-PLAN-SCRIPTS-001 检查计划声明每个脚本的最低档位 检查计划必须显式列出全部门禁 package script，并为每个前置任务声明最低运行档位。 `checkPreflightTasks` 返回预期的任务名称和最低档位，`checkPackageScripts` 在其后加入 `pack:skills`。 `test:relation-graph` 的最低档位是 `quick`，quick 任务在 quick 与 full 档都被选择。 `lint` 与 `format:check` 作为 quick 前置任务同时进入 quick 和 full 门禁。 quick 任务在 quick 与 full 档运行，full 任务只在 full 档运行。 scripts/check.test.ts > check plan classifies every package script by minimum profile bun test --test-name-pattern=\"^check plan classifies every package script by minimum profile$\" ./scripts/check.test.ts"
         ],
         "topic": [
           "repository-tooling"
         ]
       },
       "state": {
-        "endLine": 11,
+        "endLine": 12,
         "entries": [
           "scripts/check.test.ts > check plan classifies every package script by minimum profile",
           "bun test --test-name-pattern=\"^check plan classifies every package script by minimum profile$\" ./scripts/check.test.ts"
         ],
         "id": "CHECK-PLAN-SCRIPTS-001",
         "line": 1,
-        "searchText": "检查计划声明每个脚本的最低档位 检查计划必须显式列出全部门禁 package script，并为每个前置任务声明最低运行档位。 实际任务名称、最低档位和打包入口与仓库声明完全一致。 `lint` 与 `format:check` 作为 quick 前置任务同时进入 quick 和 full 门禁。 quick 任务在 quick 与 full 档运行，full 任务只在 full 档运行。 scripts/check.test.ts > check plan classifies every package script by minimum profile bun test --test-name-pattern=\"^check plan classifies every package script by minimum profile$\" ./scripts/check.test.ts",
+        "searchText": "检查计划声明每个脚本的最低档位 检查计划必须显式列出全部门禁 package script，并为每个前置任务声明最低运行档位。 `checkPreflightTasks` 返回预期的任务名称和最低档位，`checkPackageScripts` 在其后加入 `pack:skills`。 `test:relation-graph` 的最低档位是 `quick`，quick 任务在 quick 与 full 档都被选择。 `lint` 与 `format:check` 作为 quick 前置任务同时进入 quick 和 full 门禁。 quick 任务在 quick 与 full 档运行，full 任务只在 full 档运行。 scripts/check.test.ts > check plan classifies every package script by minimum profile bun test --test-name-pattern=\"^check plan classifies every package script by minimum profile$\" ./scripts/check.test.ts",
         "sourcePath": "repository-tooling/check-plan-classifies-every-package-script-by-minimum-profile.md",
         "summary": "检查计划必须显式列出全部门禁 package script，并为每个前置任务声明最低运行档位。",
         "title": "检查计划声明每个脚本的最低档位"
@@ -3545,7 +3545,7 @@
     "DECISION-RELATION-GRAPH-INDEX-001": {
       "keys": {
         "search": [
-          "DECISION-RELATION-GRAPH-INDEX-001 共享关系图构建确定性 source 与 target 索引 共享关系图必须以确定顺序投影全局边、source 索引和 target 索引。 三类边集合均按确定性顺序返回。 tools/shared/tests/relation-graph.test.ts > relation graph builds deterministic source and target indexes bun test --test-name-pattern=\"^relation graph builds deterministic source and target indexes$\" ./tools/shared/tests/relation-graph.test.ts"
+          "DECISION-RELATION-GRAPH-INDEX-001 共享关系图按输入边顺序构建 source 与 target 索引 建图只建立全局边、source 索引和 target 索引，不隐式改变调用方提供的边顺序。 三类边集合均保留各自在输入中可观察到的相对顺序。 tools/shared/tests/relation-graph.test.ts > relation graph builds source and target indexes in supplied edge order bun test --test-name-pattern=\"^relation graph builds source and target indexes in supplied edge order$\" ./tools/shared/tests/relation-graph.test.ts"
         ],
         "topic": [
           "decision-records"
@@ -3554,15 +3554,15 @@
       "state": {
         "endLine": 15,
         "entries": [
-          "tools/shared/tests/relation-graph.test.ts > relation graph builds deterministic source and target indexes",
-          "bun test --test-name-pattern=\"^relation graph builds deterministic source and target indexes$\" ./tools/shared/tests/relation-graph.test.ts"
+          "tools/shared/tests/relation-graph.test.ts > relation graph builds source and target indexes in supplied edge order",
+          "bun test --test-name-pattern=\"^relation graph builds source and target indexes in supplied edge order$\" ./tools/shared/tests/relation-graph.test.ts"
         ],
         "id": "DECISION-RELATION-GRAPH-INDEX-001",
         "line": 1,
-        "searchText": "共享关系图构建确定性 source 与 target 索引 共享关系图必须以确定顺序投影全局边、source 索引和 target 索引。 三类边集合均按确定性顺序返回。 tools/shared/tests/relation-graph.test.ts > relation graph builds deterministic source and target indexes bun test --test-name-pattern=\"^relation graph builds deterministic source and target indexes$\" ./tools/shared/tests/relation-graph.test.ts",
+        "searchText": "共享关系图按输入边顺序构建 source 与 target 索引 建图只建立全局边、source 索引和 target 索引，不隐式改变调用方提供的边顺序。 三类边集合均保留各自在输入中可观察到的相对顺序。 tools/shared/tests/relation-graph.test.ts > relation graph builds source and target indexes in supplied edge order bun test --test-name-pattern=\"^relation graph builds source and target indexes in supplied edge order$\" ./tools/shared/tests/relation-graph.test.ts",
         "sourcePath": "decision-records/shared-relation-graph-builds-deterministic-source-and-target-indexes.md",
-        "summary": "共享关系图必须以确定顺序投影全局边、source 索引和 target 索引。",
-        "title": "共享关系图构建确定性 source 与 target 索引"
+        "summary": "建图只建立全局边、source 索引和 target 索引，不隐式改变调用方提供的边顺序。",
+        "title": "共享关系图按输入边顺序构建 source 与 target 索引"
       }
     },
     "DECISION-RELATION-GRAPH-MISSING-TRACE-001": {
@@ -3591,24 +3591,24 @@
     "DECISION-RELATION-GRAPH-ORDERING-001": {
       "keys": {
         "search": [
-          "DECISION-RELATION-GRAPH-ORDERING-001 共享关系图按 UTF-16 代码单元排序标识符 共享图排序不得依赖 locale。 大小写与连字符组合按 UTF-16 代码单元的稳定顺序投影。 tools/shared/tests/relation-graph.test.ts > relation graph orders identifiers by UTF-16 code units bun test --test-name-pattern=\"^relation graph orders identifiers by UTF-16 code units$\" ./tools/shared/tests/relation-graph.test.ts"
+          "DECISION-RELATION-GRAPH-ORDERING-001 共享边排序按 UTF-16 代码单元排序且不改变输入 需要规范边顺序的调用方显式使用共享排序能力，排序不得依赖 locale 或修改输入集合。 source、type 与 target 的大小写及连字符组合按 UTF-16 代码单元稳定排序。 输入数组中的边顺序保持不变。 tools/shared/tests/relation-graph.test.ts > relation edge sorting uses UTF-16 code units without mutating inputs bun test --test-name-pattern=\"^relation edge sorting uses UTF-16 code units without mutating inputs$\" ./tools/shared/tests/relation-graph.test.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 15,
+        "endLine": 16,
         "entries": [
-          "tools/shared/tests/relation-graph.test.ts > relation graph orders identifiers by UTF-16 code units",
-          "bun test --test-name-pattern=\"^relation graph orders identifiers by UTF-16 code units$\" ./tools/shared/tests/relation-graph.test.ts"
+          "tools/shared/tests/relation-graph.test.ts > relation edge sorting uses UTF-16 code units without mutating inputs",
+          "bun test --test-name-pattern=\"^relation edge sorting uses UTF-16 code units without mutating inputs$\" ./tools/shared/tests/relation-graph.test.ts"
         ],
         "id": "DECISION-RELATION-GRAPH-ORDERING-001",
         "line": 1,
-        "searchText": "共享关系图按 UTF-16 代码单元排序标识符 共享图排序不得依赖 locale。 大小写与连字符组合按 UTF-16 代码单元的稳定顺序投影。 tools/shared/tests/relation-graph.test.ts > relation graph orders identifiers by UTF-16 code units bun test --test-name-pattern=\"^relation graph orders identifiers by UTF-16 code units$\" ./tools/shared/tests/relation-graph.test.ts",
+        "searchText": "共享边排序按 UTF-16 代码单元排序且不改变输入 需要规范边顺序的调用方显式使用共享排序能力，排序不得依赖 locale 或修改输入集合。 source、type 与 target 的大小写及连字符组合按 UTF-16 代码单元稳定排序。 输入数组中的边顺序保持不变。 tools/shared/tests/relation-graph.test.ts > relation edge sorting uses UTF-16 code units without mutating inputs bun test --test-name-pattern=\"^relation edge sorting uses UTF-16 code units without mutating inputs$\" ./tools/shared/tests/relation-graph.test.ts",
         "sourcePath": "decision-records/shared-relation-graph-orders-identifiers-by-utf16-code-units.md",
-        "summary": "共享图排序不得依赖 locale。",
-        "title": "共享关系图按 UTF-16 代码单元排序标识符"
+        "summary": "需要规范边顺序的调用方显式使用共享排序能力，排序不得依赖 locale 或修改输入集合。",
+        "title": "共享边排序按 UTF-16 代码单元排序且不改变输入"
       }
     },
     "DECISION-RELATION-GRAPH-SELF-001": {
@@ -6880,7 +6880,7 @@
     "INVESTIGATION-RELATION-GRAPH-DUPLICATE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RELATION-GRAPH-DUPLICATE-001 relation graph rejects a repeated target 同一报告不能向同一 target 声明多个关系类型。 重复 target 返回重复关系诊断。 tools/investigation-report/tests/relations.test.ts > relation graph rejects a repeated target bun test --test-name-pattern=\"^relation graph rejects a repeated target$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RELATION-GRAPH-DUPLICATE-001 relation graph rejects a repeated target 同一报告不能向同一 target 声明多个关系类型。 重复 target 恰好返回一条可定位的重复关系诊断。 tools/investigation-report/tests/relations.test.ts > relation graph rejects a repeated target bun test --test-name-pattern=\"^relation graph rejects a repeated target$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -6894,7 +6894,7 @@
         ],
         "id": "INVESTIGATION-RELATION-GRAPH-DUPLICATE-001",
         "line": 1,
-        "searchText": "relation graph rejects a repeated target 同一报告不能向同一 target 声明多个关系类型。 重复 target 返回重复关系诊断。 tools/investigation-report/tests/relations.test.ts > relation graph rejects a repeated target bun test --test-name-pattern=\"^relation graph rejects a repeated target$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "relation graph rejects a repeated target 同一报告不能向同一 target 声明多个关系类型。 重复 target 恰好返回一条可定位的重复关系诊断。 tools/investigation-report/tests/relations.test.ts > relation graph rejects a repeated target bun test --test-name-pattern=\"^relation graph rejects a repeated target$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/relation-graph-rejects-a-repeated-target.md",
         "summary": "同一报告不能向同一 target 声明多个关系类型。",
         "title": "relation graph rejects a repeated target"
@@ -6972,23 +6972,23 @@
     "INVESTIGATION-RELATION-GRAPH-TRACE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RELATION-GRAPH-TRACE-001 relation trace returns deterministic predecessor successor and bidirectional subgraphs 关系 trace 按方向确定性返回 predecessor、successor 或双向报告子图。 从中间报告分别获得前序、后继和双向 ID 集合。 tools/investigation-report/tests/relations.test.ts > relation trace returns deterministic predecessor successor and bidirectional subgraphs bun test --test-name-pattern=\"^relation trace returns deterministic predecessor successor and bidirectional subgraphs$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RELATION-GRAPH-TRACE-001 relation trace returns deterministic predecessor successor and bidirectional subgraphs Investigation 关系 trace 从报告 state 出发，按方向返回 predecessor、successor 或双向子图；`maxDepth` 限制可达节点深度。 从中间报告分别获得前序、后继和双向 ID 集合。 双向 trace 返回预期顺序的关系边。 `maxDepth: 0` 时只返回起始报告 ID。 tools/investigation-report/tests/relations.test.ts > relation trace returns deterministic predecessor successor and bidirectional subgraphs bun test --test-name-pattern=\"^relation trace returns deterministic predecessor successor and bidirectional subgraphs$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 14,
         "entries": [
           "tools/investigation-report/tests/relations.test.ts > relation trace returns deterministic predecessor successor and bidirectional subgraphs",
           "bun test --test-name-pattern=\"^relation trace returns deterministic predecessor successor and bidirectional subgraphs$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-RELATION-GRAPH-TRACE-001",
         "line": 1,
-        "searchText": "relation trace returns deterministic predecessor successor and bidirectional subgraphs 关系 trace 按方向确定性返回 predecessor、successor 或双向报告子图。 从中间报告分别获得前序、后继和双向 ID 集合。 tools/investigation-report/tests/relations.test.ts > relation trace returns deterministic predecessor successor and bidirectional subgraphs bun test --test-name-pattern=\"^relation trace returns deterministic predecessor successor and bidirectional subgraphs$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "relation trace returns deterministic predecessor successor and bidirectional subgraphs Investigation 关系 trace 从报告 state 出发，按方向返回 predecessor、successor 或双向子图；`maxDepth` 限制可达节点深度。 从中间报告分别获得前序、后继和双向 ID 集合。 双向 trace 返回预期顺序的关系边。 `maxDepth: 0` 时只返回起始报告 ID。 tools/investigation-report/tests/relations.test.ts > relation trace returns deterministic predecessor successor and bidirectional subgraphs bun test --test-name-pattern=\"^relation trace returns deterministic predecessor successor and bidirectional subgraphs$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/relation-trace-returns-deterministic-predecessor-successor-and-bidirectional-subgraphs.md",
-        "summary": "关系 trace 按方向确定性返回 predecessor、successor 或双向报告子图。",
+        "summary": "Investigation 关系 trace 从报告 state 出发，按方向返回 predecessor、successor 或双向子图；`maxDepth` 限制可达节点深度。",
         "title": "relation trace returns deterministic predecessor successor and bidirectional subgraphs"
       }
     },
@@ -14016,7 +14016,7 @@
       "CHECK-FULL-PROFILE-001": "sha256:5b14ea48c505e30e9094e65b44bb3c031cb9ab6f19254203e581a5007b7ef060",
       "CHECK-MODE-OPTIONS-001": "sha256:9d2a1d20cfdcd69a7ec69a0053154e6aa9cd9e4b27393eb1a6063982cb4daead",
       "CHECK-OPTIONS-MODES-001": "sha256:eae3ee917438a3c764961ebedf5f4b07b83bb2cb28d0b13522b5559506981935",
-      "CHECK-PLAN-SCRIPTS-001": "sha256:91001b330447582421348a13618e361b064b39f38a31d5dd007abb530c454514",
+      "CHECK-PLAN-SCRIPTS-001": "sha256:0c3452b7cfcb90dff374341bd112089574955419f292a2de9614057fd7e7fc31",
       "CHECK-QUICK-PROFILE-001": "sha256:f6484fdfa0fb290aa3fe1e313a529adfbb42e2376be48010e2d03f2105c1a720",
       "CHECK-RESULT-FORMAT-001": "sha256:a58dbdecc1d689a453e47cca518b0584281b6cc586245f39440ab6a82cef4a58",
       "CHECK-SUMMARY-FORMAT-001": "sha256:87f3d4a6e2ba7746d43b6418792554a3b6c90fb7f71b2b18babb20a9427ebfa9",
@@ -14105,9 +14105,9 @@
       "DECISION-RECORD-GUARD-IDENTITY-001": "sha256:c456fb7f6e3c6c6f4d64bdcb14bdd77ee338aff8cd1e0ffb783a78ca1c181175",
       "DECISION-RELATION-GRAPH-CYCLE-001": "sha256:94fe79d8d3f1e27fbb6a09140004bddc4b74d2f184f39f428dacb7169ae58d6d",
       "DECISION-RELATION-GRAPH-DUPLICATE-001": "sha256:846f0c6032c2d9586f38552b52109a841c4d64f9db4fed0f09cfbff664398d9e",
-      "DECISION-RELATION-GRAPH-INDEX-001": "sha256:bd917379e404a18d29aa5829be3788d860d20276d371654befb47e49c0636c0b",
+      "DECISION-RELATION-GRAPH-INDEX-001": "sha256:7ea892c2954286809fbdf6c2e0b3b8bd5f52296c990b7c3d1ef9ee796b711305",
       "DECISION-RELATION-GRAPH-MISSING-TRACE-001": "sha256:16d82fa99cfe5542c7f42edb82af71713fbb1a0ee23bbaa4bf3cb86f9e19623f",
-      "DECISION-RELATION-GRAPH-ORDERING-001": "sha256:aef310061dcf02258165625df610328fa2fe7fbd4b5b3a73dcb1949e1d469518",
+      "DECISION-RELATION-GRAPH-ORDERING-001": "sha256:5fa1f0a528b3db8eb70cfb31027f00d9a032f63beb10de04efc643b915909f5f",
       "DECISION-RELATION-GRAPH-SELF-001": "sha256:d7c07a6984dad2248391afee378aae8f3a0a7d7bb64a118cd041d706c54168d1",
       "DECISION-RELATION-GRAPH-STRUCTURE-001": "sha256:2df4244739b416c6bbc66d86575f4d8b8b9cf4a4f2d47dbc6ba74fc341a756e5",
       "DECISION-RELATION-GRAPH-TRACE-001": "sha256:b8b9a61d8459adba44a12a7b786f7baaa3c6e3f1e43fa517d2a830cff37937c4",
@@ -14250,11 +14250,11 @@
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:c296f8686441762f6fc42c7baed4df1d90c506d8349e5a90cd6a79118af81f86",
       "INVESTIGATION-QUERY-REPORT-ID-001": "sha256:f06cda59aa8d5cf08fe6e2ce817df58bebadd2df540370e4b2c9190073a6615f",
       "INVESTIGATION-RELATION-GRAPH-CYCLE-001": "sha256:c765da2db93e681c3aeee2493d2e16aadb08d39077a5b9af527690865822d170",
-      "INVESTIGATION-RELATION-GRAPH-DUPLICATE-001": "sha256:1be34f5d3d35c63ef2e37265962adfb64456f7f1eca607f660a40454c690ac90",
+      "INVESTIGATION-RELATION-GRAPH-DUPLICATE-001": "sha256:3d2a034adff29f80dcf6a200fb20ed7450f32ed31357e31f4daf3b6f49d3ef77",
       "INVESTIGATION-RELATION-GRAPH-SELF-001": "sha256:770dff101c35f6a9ac7d0ac808dfdd12b9ed9ecc5cb56568488367421cf478ea",
       "INVESTIGATION-RELATION-GRAPH-SHAPES-001": "sha256:12db84349c0d482d1a24942c7e1a46b10d4e40f5109100f4794bcad55ce73115",
       "INVESTIGATION-RELATION-GRAPH-TIME-001": "sha256:6f5f6011a8022d3316dadbf285b27b237a057ad11fd8c8bc2d7bab1ae990f252",
-      "INVESTIGATION-RELATION-GRAPH-TRACE-001": "sha256:3516c3d7206feb24d9dcb2660a5052c194eea516b8fa00357a6fe728e2ede774",
+      "INVESTIGATION-RELATION-GRAPH-TRACE-001": "sha256:28ba8ff83dcb868c23cc8c7127f782bcfb250155abb8339e8fadb0c24b6f6b02",
       "INVESTIGATION-RELATION-GRAPH-VALIDATION-001": "sha256:5efc05392ae38b3a32ae84d59353fa3b641fd581a9952e32584650a760a7d7af",
       "INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001": "sha256:edef756fa68cafaa0dbca270d2636a7c67097500e703269964742fcb652ccfbf",
       "INVESTIGATION-RELATION-TRANSACTION-DRIFT-001": "sha256:d2eafdb26073ce3ddd52dfec19d17fc9300f4b8e89da85230f54dea3064bb59e",

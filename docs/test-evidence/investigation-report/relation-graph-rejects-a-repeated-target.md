@@ -11,4 +11,4 @@ Contract:
 
 Proves:
 
-- 重复 target 返回重复关系诊断。
+- 重复 target 恰好返回一条可定位的重复关系诊断。

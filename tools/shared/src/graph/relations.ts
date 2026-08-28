@@ -50,18 +50,31 @@ export type RelationGraphStructuralIssue<
     };
 
 /**
- * Normalizes a relationship collection into deterministic forward and reverse
- * indexes. Domain validation remains responsible for relation-type meaning and
- * any lifecycle or chronology rules.
+ * Returns a new edge collection in source, type, then target UTF-16 code-unit
+ * order. Building a graph preserves its supplied edge order; callers opt into
+ * this ordering when their output contract requires it.
+ */
+export function sortRelationEdges<Id extends string, Type extends string>(
+  edges: Iterable<RelationEdge<Id, Type>>
+): RelationEdge<Id, Type>[] {
+  return [...edges].sort(compareRelationEdges);
+}
+
+/**
+ * Normalizes a relationship collection into forward and reverse indexes while
+ * preserving its supplied edge order. Domain validation remains responsible
+ * for relation-type meaning and any lifecycle or chronology rules.
  */
 export function buildRelationGraph<Id extends string, Type extends string>(
   ids: Iterable<Id>,
   edges: Iterable<RelationEdge<Id, Type>>
 ): RelationGraph<Id, Type> {
   const graphIds = new Set(ids);
-  const graphEdges = [...edges]
-    .map(({ source, target, type }) => ({ source, target, type }))
-    .sort(compareRelationEdges);
+  const graphEdges = [...edges].map(({ source, target, type }) => ({
+    source,
+    target,
+    type
+  }));
   return {
     edges: graphEdges,
     edgesBySource: indexEdges(graphEdges, (edge) => edge.source),
@@ -196,7 +209,7 @@ function compareRelationEdges<Id extends string, Type extends string>(
   );
 }
 
-/** Uses the locale-independent UTF-16 code-unit order required by graph output. */
+/** Compares text by locale-independent UTF-16 code-unit order. */
 function compareStrings(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
