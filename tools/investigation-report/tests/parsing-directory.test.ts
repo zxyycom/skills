@@ -169,12 +169,31 @@ test("validation reports malformed frontmatter fields in the selected report", a
   });
 });
 
-test("full validation rejects nested category directories and unknown root members", async () => {
+test("full validation rejects nested report directories", async () => {
   await withTempRoot("layout", async (root) => {
     await writeCollection(root, [{ id: "report.md" }], false);
     await fs.mkdir(`${investigationRoot(root)}/legacy-category`);
     const result = await validateInvestigationReports({ workspaceRoot: root });
     assert.ok(result.errors.some((error) => error.includes("not allowed")));
+  });
+});
+
+test("full validation rejects unknown investigation root members", async () => {
+  await withTempRoot("unknown-root-member", async (root) => {
+    await writeCollection(root, [{ id: "report.md" }], false);
+    await fs.writeFile(
+      `${investigationRoot(root)}/unexpected.txt`,
+      "x",
+      "utf8"
+    );
+    const result = await validateInvestigationReports({ workspaceRoot: root });
+    assert.ok(
+      result.errors.some((error) =>
+        error.includes(
+          "unexpected.txt must be a root-level Investigation ID Markdown file"
+        )
+      )
+    );
   });
 });
 

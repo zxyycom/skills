@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
+import path from "node:path";
 import { test } from "node:test";
 import { stageInvestigationIndex } from "../src/staging.ts";
 import {
   investigationRoot,
+  jsonObjectMember,
+  parseJsonObject,
   withTempRoot,
   writeCollection
 } from "./v6-support.ts";
@@ -54,29 +57,64 @@ test("stage-index rejects invalid or duplicate Investigation IDs", async () => {
     });
     assert.equal(result.status, "error");
     assert.ok(
-      result.diagnostics.some((diagnostic) =>
-        diagnostic.code.includes("report-id")
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "investigation-report.stage-report-id-duplicate"
+      )
+    );
+    assert.ok(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "investigation-report.stage-report-id-invalid"
       )
     );
   });
 });
 
 test("stage-index validates canonical Investigation IDs before repository access", async () => {
-  const result = await stageInvestigationIndex({
-    reportIds: ["bad/path.md"],
-    workspaceRoot: "."
+  await withTempRoot("stage-before-repository", async (root) => {
+    const missingRoot = path.join(root, "missing-workspace");
+    const result = await stageInvestigationIndex({
+      reportIds: ["bad/path.md"],
+      workspaceRoot: missingRoot
+    });
+    assert.equal(result.status, "error");
+    assert.ok(
+      result.diagnostics.some(
+        (diagnostic) =>
+          diagnostic.code === "investigation-report.stage-report-id-invalid"
+      )
+    );
+    await assert.rejects(fs.access(missingRoot));
   });
-  assert.equal(result.status, "error");
 });
 
 test("stage-index reports unavailable version control without working-tree writes", async () => {
   await withTempRoot("stage-no-git", async (root) => {
     await writeCollection(root, [{ id: "report.md" }]);
+    const reportPath = path.join(investigationRoot(root), "report.md");
+    const indexPath = path.join(
+      investigationRoot(root),
+      "investigation-index.json"
+    );
+    const before = await Promise.all(
+      [reportPath, indexPath].map(
+        async (file) => await fs.readFile(file, "utf8")
+      )
+    );
     const result = await stageInvestigationIndex({
       reportIds: ["report.md"],
       workspaceRoot: root
     });
     assert.equal(result.status, "error");
+    assert.deepEqual(
+      await Promise.all(
+        [reportPath, indexPath].map(
+          async (file) => await fs.readFile(file, "utf8")
+        )
+      ),
+      before
+    );
   });
 });
 
@@ -127,12 +165,13 @@ test("stage-index accepts selected report additions in a current index", async (
     await writeCollection(root, [{ id: "report.md" }]);
     initializeGit(root);
     await writeCollection(root, [{ id: "report.md" }, { id: "added.md" }]);
-    const workspaceIndex = JSON.parse(
+    const workspaceIndex = parseJsonObject(
       await fs.readFile(
         `${investigationRoot(root)}/investigation-index.json`,
         "utf8"
       )
-    ) as { entries: Record<string, unknown> };
+    );
+    const workspaceEntries = jsonObjectMember(workspaceIndex, "entries");
     const addedMarkdown = await fs.readFile(
       `${investigationRoot(root)}/added.md`,
       "utf8"
@@ -144,12 +183,12 @@ test("stage-index accepts selected report additions in a current index", async (
     assert.equal(result.status, "ok");
     assert.equal(result.changed, true);
     assert.deepEqual(result.selectedIds, ["added.md"]);
-    const pendingIndex = JSON.parse(
+    const pendingIndex = parseJsonObject(
       git(root, ["show", `:${indexRelativePath}`])
-    ) as { entries: Record<string, unknown> };
+    );
     assert.deepEqual(
-      pendingIndex.entries["added.md"],
-      workspaceIndex.entries["added.md"]
+      jsonObjectMember(pendingIndex, "entries")["added.md"],
+      workspaceEntries["added.md"]
     );
     assert.deepEqual(
       git(root, ["diff", "--cached", "--name-only"]).trim(),
@@ -228,15 +267,17 @@ test("stage-index treats unrelated report resources as outside selected report e
       { id: "first.md", title: "Changed first" },
       { id: "second.md", resources: ["second/evidence.txt"] }
     ]);
-    const workspaceIndex = JSON.parse(
+    const workspaceIndex = parseJsonObject(
       await fs.readFile(
         `${investigationRoot(root)}/investigation-index.json`,
         "utf8"
       )
-    ) as { entries: Record<string, unknown> };
-    const baseIndex = JSON.parse(
+    );
+    const workspaceEntries = jsonObjectMember(workspaceIndex, "entries");
+    const baseIndex = parseJsonObject(
       git(root, ["show", `HEAD:${indexRelativePath}`])
-    ) as { entries: Record<string, unknown> };
+    );
+    const baseEntries = jsonObjectMember(baseIndex, "entries");
     await fs.writeFile(resourcePath, "after", "utf8");
     const result = await stageInvestigationIndex({
       reportIds: ["first.md"],
@@ -244,17 +285,12 @@ test("stage-index treats unrelated report resources as outside selected report e
     });
     assert.equal(result.status, "ok");
     assert.equal(result.changed, true);
-    const pendingIndex = JSON.parse(
+    const pendingIndex = parseJsonObject(
       git(root, ["show", `:${indexRelativePath}`])
-    ) as { entries: Record<string, unknown> };
-    assert.deepEqual(
-      pendingIndex.entries["first.md"],
-      workspaceIndex.entries["first.md"]
     );
-    assert.deepEqual(
-      pendingIndex.entries["second.md"],
-      baseIndex.entries["second.md"]
-    );
+    const pendingEntries = jsonObjectMember(pendingIndex, "entries");
+    assert.deepEqual(pendingEntries["first.md"], workspaceEntries["first.md"]);
+    assert.deepEqual(pendingEntries["second.md"], baseEntries["second.md"]);
     assert.deepEqual(
       git(root, ["diff", "--cached", "--name-only"]).trim(),
       indexRelativePath
@@ -290,10 +326,8 @@ test("stage-index preserves strict current index definition requirements", async
     const indexPath = `${investigationRoot(root)}/investigation-index.json`;
     const cachedBefore = git(root, ["diff", "--cached", "--binary"]);
     const stagedBefore = git(root, ["show", `:${indexRelativePath}`]);
-    const invalidIndex = JSON.parse(await fs.readFile(indexPath, "utf8")) as {
-      definitionVersion: number;
-    };
-    invalidIndex.definitionVersion = 5;
+    const invalidIndex = parseJsonObject(await fs.readFile(indexPath, "utf8"));
+    invalidIndex["definitionVersion"] = 5;
     const invalidText = `${JSON.stringify(invalidIndex, null, 2)}\n`;
     await fs.writeFile(indexPath, invalidText, "utf8");
     const result = await stageInvestigationIndex({

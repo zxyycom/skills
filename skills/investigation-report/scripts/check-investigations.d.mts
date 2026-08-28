@@ -186,13 +186,13 @@ export declare function queryInvestigationIndex(
   options: InvestigationIndexQueryOptions
 ): Promise<InvestigationIndexQueryResult>;
 export declare function showInvestigationReport(
-  options: InvestigationReportShowOptions
+  input: unknown
 ): Promise<InvestigationReportShowResult>;
 export declare function traceInvestigationReports(
-  options: InvestigationReportTraceOptions
+  input: unknown
 ): Promise<InvestigationReportTraceResult>;
 export declare function setInvestigationRelations(
-  options: InvestigationRelationSetOptions
+  input: unknown
 ): Promise<InvestigationRelationSetResult>;
 export declare function validateInvestigationReports(
   options: InvestigationReportCheckOptions

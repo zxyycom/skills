@@ -6,7 +6,7 @@ description: >-
   调查结果与边界，并可用 tags 和显式关系表达分类与认识演进。
   仅在用户明确要求记录、沉淀、维护或审阅调查时使用。
 metadata:
-  version: "19"
+  version: "20"
 ---
 
 # Investigation Report

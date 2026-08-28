@@ -5,7 +5,7 @@ Entry:
 - `bun test --test-name-pattern="^stage-index accepts selected report additions in a current index$" ./tools/investigation-report/tests/run.ts`
 
 Contract:
-- 选择性暂存按当前报告集合和索引定义处理新增报告 entry。
+- 选择性暂存按当前报告集合和 index 定义处理新增报告 entry。
 
 Proves:
-- 索引定义不满足暂存前提时返回错误而不静默写入。
+- 真实 Git fixture 中新增报告的当前 entry 写入 cached index；报告 Markdown 本身不被暂存或改写。

@@ -1,5 +1,8 @@
 import {
+  expectationOf,
   loadCurrentStateIndex,
+  parseStateIndex,
+  serializeStateIndex,
   syncStateIndex,
   type StateIndex,
   type StateIndexContext,
@@ -48,14 +51,23 @@ export async function loadCurrentInvestigationIndex(options: {
     StateIndex<InvestigationIndexState, InvestigationIndexMetadata>
   >
 > {
+  const indexPath = options.indexPath ?? investigationIndexFileName;
+  const definition = createInvestigationStateIndexDefinition();
   const context = stateIndexContext(
     options.investigationsDirectory,
     options.signal
   );
-  return await loadCurrentStateIndex({
+  const current = await loadCurrentStateIndex({
     context,
-    definition: createInvestigationStateIndexDefinition(),
-    indexPath: options.indexPath ?? investigationIndexFileName
+    definition,
+    indexPath
+  });
+  if (current.status === "error") return current;
+  return parseStateIndex({
+    definition,
+    expectation: expectationOf(definition),
+    sourcePath: indexPath,
+    text: serializeStateIndex(current.value, definition)
   });
 }
 

@@ -52,38 +52,83 @@ test("relation graph accepts independent ordinary merge and split shapes", () =>
   assert.deepEqual(validateInvestigationRelationGraph(states), []);
 });
 
-test("relation graph rejects missing duplicate self timed and cyclic edges", () => {
-  const states = new Map<string, InvestigationIndexState>([
-    [
-      "base.md",
-      state("2026-08-28T12:00:00+00:00", [{ target: "later.md", type: "补充" }])
-    ],
-    [
-      "later.md",
-      state("2026-08-28T13:00:00+00:00", [{ target: "base.md", type: "补充" }])
-    ],
-    [
-      "missing.md",
-      state("2026-08-28T14:00:00+00:00", [{ target: "none.md", type: "补充" }])
-    ],
-    [
-      "self.md",
-      state("2026-08-28T14:00:00+00:00", [{ target: "self.md", type: "补充" }])
-    ],
-    [
-      "duplicate.md",
-      state("2026-08-28T14:00:00+00:00", [
-        { target: "base.md", type: "补充" },
-        { target: "base.md", type: "复查" }
-      ])
-    ]
-  ]);
-  const errors = validateInvestigationRelationGraph(states);
+test("relation graph rejects a missing target", () => {
+  const errors = validateInvestigationRelationGraph(
+    new Map([
+      [
+        "missing.md",
+        state("2026-08-28T14:00:00+00:00", [
+          { target: "none.md", type: "补充" }
+        ])
+      ]
+    ])
+  );
   assert.ok(errors.some((error) => error.includes("does not exist")));
-  assert.ok(errors.some((error) => error.includes("formed later")));
-  assert.ok(errors.some((error) => error.includes("cycle")));
+});
+
+test("relation graph rejects a self target", () => {
+  const errors = validateInvestigationRelationGraph(
+    new Map([
+      [
+        "self.md",
+        state("2026-08-28T14:00:00+00:00", [
+          { target: "self.md", type: "补充" }
+        ])
+      ]
+    ])
+  );
   assert.ok(errors.some((error) => error.includes("must not target itself")));
+});
+
+test("relation graph rejects a repeated target", () => {
+  const errors = validateInvestigationRelationGraph(
+    new Map([
+      ["base.md", state("2026-08-28T12:00:00+00:00")],
+      [
+        "duplicate.md",
+        state("2026-08-28T14:00:00+00:00", [
+          { target: "base.md", type: "补充" },
+          { target: "base.md", type: "复查" }
+        ])
+      ]
+    ])
+  );
   assert.ok(errors.some((error) => error.includes("repeat target")));
+});
+
+test("relation graph rejects a target formed later", () => {
+  const errors = validateInvestigationRelationGraph(
+    new Map([
+      [
+        "base.md",
+        state("2026-08-28T12:00:00+00:00", [
+          { target: "later.md", type: "补充" }
+        ])
+      ],
+      ["later.md", state("2026-08-28T13:00:00+00:00")]
+    ])
+  );
+  assert.ok(errors.some((error) => error.includes("formed later")));
+});
+
+test("relation graph rejects a cycle", () => {
+  const errors = validateInvestigationRelationGraph(
+    new Map([
+      [
+        "first.md",
+        state("2026-08-28T12:00:00+00:00", [
+          { target: "second.md", type: "补充" }
+        ])
+      ],
+      [
+        "second.md",
+        state("2026-08-28T13:00:00+00:00", [
+          { target: "first.md", type: "补充" }
+        ])
+      ]
+    ])
+  );
+  assert.ok(errors.some((error) => error.includes("cycle")));
 });
 
 test("relation trace returns deterministic predecessor successor and bidirectional subgraphs", () => {

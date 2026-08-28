@@ -30,7 +30,6 @@ import { collectValidatedInvestigationCollection } from "./validation.ts";
 import type {
   InvestigationIndexState,
   InvestigationRelationReplacement,
-  InvestigationRelationSetOptions,
   InvestigationRelationSetResult,
   InvestigationSource
 } from "./types.ts";
@@ -42,12 +41,9 @@ export type InvestigationAtomicWriter = (
 type BeforeRelationPublish = () => Promise<void>;
 
 export async function setInvestigationRelations(
-  options: InvestigationRelationSetOptions
+  input: unknown
 ): Promise<InvestigationRelationSetResult> {
-  return await setInvestigationRelationsWithWriter(
-    options,
-    writeTextAtomically
-  );
+  return await setInvestigationRelationsWithWriter(input, writeTextAtomically);
 }
 
 export async function setInvestigationRelationsWithWriter(
@@ -465,19 +461,9 @@ function relationResult(
   };
 }
 function defaultIndexPath(input: unknown): string {
-  const root =
-    typeof input === "object" &&
-    input !== null &&
-    typeof (input as { workspaceRoot?: unknown }).workspaceRoot === "string"
-      ? (input as { workspaceRoot: string }).workspaceRoot
-      : ".";
+  const root = rawStringField(input, "workspaceRoot") ?? ".";
   const dir =
-    typeof input === "object" &&
-    input !== null &&
-    typeof (input as { investigationsDir?: unknown }).investigationsDir ===
-      "string"
-      ? (input as { investigationsDir: string }).investigationsDir
-      : "docs/investigations";
+    rawStringField(input, "investigationsDir") ?? "docs/investigations";
   return path.resolve(root, dir, investigationIndexFileName);
 }
 function indexPathForOptions(options: {
@@ -498,4 +484,10 @@ function compareText(left: string, right: string): number {
 }
 function errorText(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+function rawStringField(input: unknown, field: string): string | undefined {
+  if (typeof input !== "object" || input === null || Array.isArray(input))
+    return undefined;
+  const value = Reflect.get(input, field);
+  return typeof value === "string" ? value : undefined;
 }

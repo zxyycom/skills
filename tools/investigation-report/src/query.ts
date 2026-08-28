@@ -43,9 +43,7 @@ import { investigationTimestampMilliseconds } from "./timestamp.ts";
 import type {
   InvestigationIndexQueryOptions,
   InvestigationIndexQueryResult,
-  InvestigationReportShowOptions,
   InvestigationReportShowResult,
-  InvestigationReportTraceOptions,
   InvestigationReportTraceResult
 } from "./types.ts";
 
@@ -116,19 +114,17 @@ export function executeInvestigationIndexQuery(
 }
 
 export async function showInvestigationReport(
-  options: InvestigationReportShowOptions
+  input: unknown
 ): Promise<InvestigationReportShowResult> {
-  const parsed = parseInvestigationReportShowOptions(options);
-  const id =
-    typeof (options as { id?: unknown }).id === "string"
-      ? (options as { id: string }).id
-      : "";
-  if (parsed.isErr() || !isInvestigationId(id)) {
-    return showFailure(id, defaultInvestigationIndexPath(), [
-      ...(parsed.isErr() ? parsed.error : []),
+  const parsed = parseInvestigationReportShowOptions(input);
+  const rawId = rawStringField(input, "id") ?? "";
+  if (parsed.isErr())
+    return showFailure(rawId, defaultInvestigationIndexPath(), parsed.error);
+  const { id } = parsed.value;
+  if (!isInvestigationId(id))
+    return showFailure(id, investigationIndexPathForOptions(parsed.value), [
       `${id || "<empty>"} must use an Investigation ID`
     ]);
-  }
   const resolved = resolveInvestigationsDirectory(
     parsed.value.workspaceRoot,
     parsed.value.investigationsDir
@@ -191,19 +187,21 @@ export async function showInvestigationReport(
 }
 
 export async function traceInvestigationReports(
-  options: InvestigationReportTraceOptions
+  input: unknown
 ): Promise<InvestigationReportTraceResult> {
-  const parsed = parseInvestigationReportTraceOptions(options);
-  const id =
-    typeof (options as { id?: unknown }).id === "string"
-      ? (options as { id: string }).id
-      : "";
-  if (parsed.isErr() || !isInvestigationId(id)) {
-    return traceFailure(id, defaultInvestigationIndexPath(), [
-      ...(parsed.isErr() ? parsed.error : []),
-      `${id || "<empty>"} must use an Investigation ID`
+  const parsed = parseInvestigationReportTraceOptions(input);
+  const rawId = rawStringField(input, "id") ?? "";
+  if (parsed.isErr()) {
+    return traceFailure(rawId, defaultInvestigationIndexPath(), [
+      ...parsed.error
     ]);
   }
+  const options = parsed.value;
+  if (!isInvestigationId(options.id))
+    return traceFailure(options.id, investigationIndexPathForOptions(options), [
+      `${options.id || "<empty>"} must use an Investigation ID`
+    ]);
+  const { id } = options;
   const direction = parsed.value.direction ?? "both";
   const maxDepth = parsed.value.maxDepth ?? null;
   if (
@@ -275,6 +273,13 @@ export async function traceInvestigationReports(
     reportIds: [...trace.ids].sort(compareText),
     status: "ok"
   };
+}
+
+function rawStringField(input: unknown, field: string): string | undefined {
+  if (typeof input !== "object" || input === null || Array.isArray(input))
+    return undefined;
+  const value = Reflect.get(input, field);
+  return typeof value === "string" ? value : undefined;
 }
 
 function prepareQuery(

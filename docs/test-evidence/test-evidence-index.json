@@ -3496,50 +3496,188 @@
         "title": "Record 类型守卫拒绝无效身份字段"
       }
     },
-    "DECISION-RELATION-GRAPH-STRUCTURE-001": {
+    "DECISION-RELATION-GRAPH-CYCLE-001": {
       "keys": {
         "search": [
-          "DECISION-RELATION-GRAPH-STRUCTURE-001 共享关系图返回可定位的结构问题 Decision Records 共享的关系图结构校验必须以结构化数据报告缺失目标、自环、同 source/target 重复和环，而不在共享层拼接领域诊断文本。 缺失目标、自环、重复边和闭合环各自保留可定位的 edge 或 cycle 数据。 Trace 不把缺失目标作为图内节点或内部边返回。 tools/shared/tests/relation-graph.test.ts > relation graph returns structured missing self duplicate and cycle issues bun test --test-name-pattern=\"^relation graph returns structured missing self duplicate and cycle issues$\" ./tools/shared/tests/relation-graph.test.ts"
+          "DECISION-RELATION-GRAPH-CYCLE-001 共享关系图报告确定性环 共享图结构校验必须以确定性的闭合路径报告环。 同一环从规范最小 ID 开始并闭合返回。 tools/shared/tests/relation-graph.test.ts > relation graph reports a deterministic cycle bun test --test-name-pattern=\"^relation graph reports a deterministic cycle$\" ./tools/shared/tests/relation-graph.test.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 15,
         "entries": [
-          "tools/shared/tests/relation-graph.test.ts > relation graph returns structured missing self duplicate and cycle issues",
-          "bun test --test-name-pattern=\"^relation graph returns structured missing self duplicate and cycle issues$\" ./tools/shared/tests/relation-graph.test.ts"
+          "tools/shared/tests/relation-graph.test.ts > relation graph reports a deterministic cycle",
+          "bun test --test-name-pattern=\"^relation graph reports a deterministic cycle$\" ./tools/shared/tests/relation-graph.test.ts"
+        ],
+        "id": "DECISION-RELATION-GRAPH-CYCLE-001",
+        "line": 1,
+        "searchText": "共享关系图报告确定性环 共享图结构校验必须以确定性的闭合路径报告环。 同一环从规范最小 ID 开始并闭合返回。 tools/shared/tests/relation-graph.test.ts > relation graph reports a deterministic cycle bun test --test-name-pattern=\"^relation graph reports a deterministic cycle$\" ./tools/shared/tests/relation-graph.test.ts",
+        "sourcePath": "decision-records/shared-relation-graph-reports-a-deterministic-cycle.md",
+        "summary": "共享图结构校验必须以确定性的闭合路径报告环。",
+        "title": "共享关系图报告确定性环"
+      }
+    },
+    "DECISION-RELATION-GRAPH-DUPLICATE-001": {
+      "keys": {
+        "search": [
+          "DECISION-RELATION-GRAPH-DUPLICATE-001 共享关系图报告重复 source-target 边 同一 source-target 的第二条边必须保留第一条边定位并报告重复。 重复边产生 `duplicate-edge` 及 repeatedEdge 数据。 tools/shared/tests/relation-graph.test.ts > relation graph reports repeated source-target edges bun test --test-name-pattern=\"^relation graph reports repeated source-target edges$\" ./tools/shared/tests/relation-graph.test.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/shared/tests/relation-graph.test.ts > relation graph reports repeated source-target edges",
+          "bun test --test-name-pattern=\"^relation graph reports repeated source-target edges$\" ./tools/shared/tests/relation-graph.test.ts"
+        ],
+        "id": "DECISION-RELATION-GRAPH-DUPLICATE-001",
+        "line": 1,
+        "searchText": "共享关系图报告重复 source-target 边 同一 source-target 的第二条边必须保留第一条边定位并报告重复。 重复边产生 `duplicate-edge` 及 repeatedEdge 数据。 tools/shared/tests/relation-graph.test.ts > relation graph reports repeated source-target edges bun test --test-name-pattern=\"^relation graph reports repeated source-target edges$\" ./tools/shared/tests/relation-graph.test.ts",
+        "sourcePath": "decision-records/shared-relation-graph-reports-repeated-source-target-edges.md",
+        "summary": "同一 source-target 的第二条边必须保留第一条边定位并报告重复。",
+        "title": "共享关系图报告重复 source-target 边"
+      }
+    },
+    "DECISION-RELATION-GRAPH-INDEX-001": {
+      "keys": {
+        "search": [
+          "DECISION-RELATION-GRAPH-INDEX-001 共享关系图构建确定性 source 与 target 索引 共享关系图必须以确定顺序投影全局边、source 索引和 target 索引。 三类边集合均按确定性顺序返回。 tools/shared/tests/relation-graph.test.ts > relation graph builds deterministic source and target indexes bun test --test-name-pattern=\"^relation graph builds deterministic source and target indexes$\" ./tools/shared/tests/relation-graph.test.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/shared/tests/relation-graph.test.ts > relation graph builds deterministic source and target indexes",
+          "bun test --test-name-pattern=\"^relation graph builds deterministic source and target indexes$\" ./tools/shared/tests/relation-graph.test.ts"
+        ],
+        "id": "DECISION-RELATION-GRAPH-INDEX-001",
+        "line": 1,
+        "searchText": "共享关系图构建确定性 source 与 target 索引 共享关系图必须以确定顺序投影全局边、source 索引和 target 索引。 三类边集合均按确定性顺序返回。 tools/shared/tests/relation-graph.test.ts > relation graph builds deterministic source and target indexes bun test --test-name-pattern=\"^relation graph builds deterministic source and target indexes$\" ./tools/shared/tests/relation-graph.test.ts",
+        "sourcePath": "decision-records/shared-relation-graph-builds-deterministic-source-and-target-indexes.md",
+        "summary": "共享关系图必须以确定顺序投影全局边、source 索引和 target 索引。",
+        "title": "共享关系图构建确定性 source 与 target 索引"
+      }
+    },
+    "DECISION-RELATION-GRAPH-MISSING-TRACE-001": {
+      "keys": {
+        "search": [
+          "DECISION-RELATION-GRAPH-MISSING-TRACE-001 共享关系图追踪不包含缺失 target 缺失 target 不是图内节点，也不能出现在 trace 内部边。 predecessor trace 不返回缺失 ID 或指向缺失 ID 的内部边。 tools/shared/tests/relation-graph.test.ts > relation graph traces do not include missing targets bun test --test-name-pattern=\"^relation graph traces do not include missing targets$\" ./tools/shared/tests/relation-graph.test.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/shared/tests/relation-graph.test.ts > relation graph traces do not include missing targets",
+          "bun test --test-name-pattern=\"^relation graph traces do not include missing targets$\" ./tools/shared/tests/relation-graph.test.ts"
+        ],
+        "id": "DECISION-RELATION-GRAPH-MISSING-TRACE-001",
+        "line": 1,
+        "searchText": "共享关系图追踪不包含缺失 target 缺失 target 不是图内节点，也不能出现在 trace 内部边。 predecessor trace 不返回缺失 ID 或指向缺失 ID 的内部边。 tools/shared/tests/relation-graph.test.ts > relation graph traces do not include missing targets bun test --test-name-pattern=\"^relation graph traces do not include missing targets$\" ./tools/shared/tests/relation-graph.test.ts",
+        "sourcePath": "decision-records/shared-relation-graph-traces-do-not-include-missing-targets.md",
+        "summary": "缺失 target 不是图内节点，也不能出现在 trace 内部边。",
+        "title": "共享关系图追踪不包含缺失 target"
+      }
+    },
+    "DECISION-RELATION-GRAPH-ORDERING-001": {
+      "keys": {
+        "search": [
+          "DECISION-RELATION-GRAPH-ORDERING-001 共享关系图按 UTF-16 代码单元排序标识符 共享图排序不得依赖 locale。 大小写与连字符组合按 UTF-16 代码单元的稳定顺序投影。 tools/shared/tests/relation-graph.test.ts > relation graph orders identifiers by UTF-16 code units bun test --test-name-pattern=\"^relation graph orders identifiers by UTF-16 code units$\" ./tools/shared/tests/relation-graph.test.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/shared/tests/relation-graph.test.ts > relation graph orders identifiers by UTF-16 code units",
+          "bun test --test-name-pattern=\"^relation graph orders identifiers by UTF-16 code units$\" ./tools/shared/tests/relation-graph.test.ts"
+        ],
+        "id": "DECISION-RELATION-GRAPH-ORDERING-001",
+        "line": 1,
+        "searchText": "共享关系图按 UTF-16 代码单元排序标识符 共享图排序不得依赖 locale。 大小写与连字符组合按 UTF-16 代码单元的稳定顺序投影。 tools/shared/tests/relation-graph.test.ts > relation graph orders identifiers by UTF-16 code units bun test --test-name-pattern=\"^relation graph orders identifiers by UTF-16 code units$\" ./tools/shared/tests/relation-graph.test.ts",
+        "sourcePath": "decision-records/shared-relation-graph-orders-identifiers-by-utf16-code-units.md",
+        "summary": "共享图排序不得依赖 locale。",
+        "title": "共享关系图按 UTF-16 代码单元排序标识符"
+      }
+    },
+    "DECISION-RELATION-GRAPH-SELF-001": {
+      "keys": {
+        "search": [
+          "DECISION-RELATION-GRAPH-SELF-001 共享关系图报告自环 共享图结构校验必须返回可定位的自环 edge。 自环产生 `self-edge` 结构问题。 tools/shared/tests/relation-graph.test.ts > relation graph reports a self edge bun test --test-name-pattern=\"^relation graph reports a self edge$\" ./tools/shared/tests/relation-graph.test.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/shared/tests/relation-graph.test.ts > relation graph reports a self edge",
+          "bun test --test-name-pattern=\"^relation graph reports a self edge$\" ./tools/shared/tests/relation-graph.test.ts"
+        ],
+        "id": "DECISION-RELATION-GRAPH-SELF-001",
+        "line": 1,
+        "searchText": "共享关系图报告自环 共享图结构校验必须返回可定位的自环 edge。 自环产生 `self-edge` 结构问题。 tools/shared/tests/relation-graph.test.ts > relation graph reports a self edge bun test --test-name-pattern=\"^relation graph reports a self edge$\" ./tools/shared/tests/relation-graph.test.ts",
+        "sourcePath": "decision-records/shared-relation-graph-reports-a-self-edge.md",
+        "summary": "共享图结构校验必须返回可定位的自环 edge。",
+        "title": "共享关系图报告自环"
+      }
+    },
+    "DECISION-RELATION-GRAPH-STRUCTURE-001": {
+      "keys": {
+        "search": [
+          "DECISION-RELATION-GRAPH-STRUCTURE-001 共享关系图报告缺失 target 共享图结构校验以结构化数据报告缺失 target。 缺失边保留其可定位的 source、target 和 type 数据。 tools/shared/tests/relation-graph.test.ts > relation graph reports a missing target bun test --test-name-pattern=\"^relation graph reports a missing target$\" ./tools/shared/tests/relation-graph.test.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/shared/tests/relation-graph.test.ts > relation graph reports a missing target",
+          "bun test --test-name-pattern=\"^relation graph reports a missing target$\" ./tools/shared/tests/relation-graph.test.ts"
         ],
         "id": "DECISION-RELATION-GRAPH-STRUCTURE-001",
         "line": 1,
-        "searchText": "共享关系图返回可定位的结构问题 Decision Records 共享的关系图结构校验必须以结构化数据报告缺失目标、自环、同 source/target 重复和环，而不在共享层拼接领域诊断文本。 缺失目标、自环、重复边和闭合环各自保留可定位的 edge 或 cycle 数据。 Trace 不把缺失目标作为图内节点或内部边返回。 tools/shared/tests/relation-graph.test.ts > relation graph returns structured missing self duplicate and cycle issues bun test --test-name-pattern=\"^relation graph returns structured missing self duplicate and cycle issues$\" ./tools/shared/tests/relation-graph.test.ts",
-        "sourcePath": "decision-records/shared-relation-graph-reports-structured-structural-issues.md",
-        "summary": "Decision Records 共享的关系图结构校验必须以结构化数据报告缺失目标、自环、同 source/target 重复和环，而不在共享层拼接领域诊断文本。",
-        "title": "共享关系图返回可定位的结构问题"
+        "searchText": "共享关系图报告缺失 target 共享图结构校验以结构化数据报告缺失 target。 缺失边保留其可定位的 source、target 和 type 数据。 tools/shared/tests/relation-graph.test.ts > relation graph reports a missing target bun test --test-name-pattern=\"^relation graph reports a missing target$\" ./tools/shared/tests/relation-graph.test.ts",
+        "sourcePath": "decision-records/shared-relation-graph-reports-a-missing-target.md",
+        "summary": "共享图结构校验以结构化数据报告缺失 target。",
+        "title": "共享关系图报告缺失 target"
       }
     },
     "DECISION-RELATION-GRAPH-TRACE-001": {
       "keys": {
         "search": [
-          "DECISION-RELATION-GRAPH-TRACE-001 共享关系图构建确定性索引并执行有界追踪 Decision Records 关系演进共享的图原语必须从已知 ID 与有向边构建确定性正反向索引，并按方向和最大深度返回内部子图。 边、按 source 索引和按 target 索引都按 locale 无关的 UTF-16 代码单元顺序排列。 双向 trace 在深度一包含直接前序与后继，在深度零只保留起点。 tools/shared/tests/relation-graph.test.ts > relation graph builds deterministic indexes and traces bounded subgraphs bun test --test-name-pattern=\"^relation graph builds deterministic indexes and traces bounded subgraphs$\" ./tools/shared/tests/relation-graph.test.ts"
+          "DECISION-RELATION-GRAPH-TRACE-001 共享关系图执行有界双向追踪 共享关系图按方向和最大深度返回确定的内部子图。 深度一的双向追踪包含直接前序和后继；深度零仅保留起点。 tools/shared/tests/relation-graph.test.ts > relation graph traces bounded bidirectional subgraphs bun test --test-name-pattern=\"^relation graph traces bounded bidirectional subgraphs$\" ./tools/shared/tests/relation-graph.test.ts"
         ],
         "topic": [
           "decision-records"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 15,
         "entries": [
-          "tools/shared/tests/relation-graph.test.ts > relation graph builds deterministic indexes and traces bounded subgraphs",
-          "bun test --test-name-pattern=\"^relation graph builds deterministic indexes and traces bounded subgraphs$\" ./tools/shared/tests/relation-graph.test.ts"
+          "tools/shared/tests/relation-graph.test.ts > relation graph traces bounded bidirectional subgraphs",
+          "bun test --test-name-pattern=\"^relation graph traces bounded bidirectional subgraphs$\" ./tools/shared/tests/relation-graph.test.ts"
         ],
         "id": "DECISION-RELATION-GRAPH-TRACE-001",
         "line": 1,
-        "searchText": "共享关系图构建确定性索引并执行有界追踪 Decision Records 关系演进共享的图原语必须从已知 ID 与有向边构建确定性正反向索引，并按方向和最大深度返回内部子图。 边、按 source 索引和按 target 索引都按 locale 无关的 UTF-16 代码单元顺序排列。 双向 trace 在深度一包含直接前序与后继，在深度零只保留起点。 tools/shared/tests/relation-graph.test.ts > relation graph builds deterministic indexes and traces bounded subgraphs bun test --test-name-pattern=\"^relation graph builds deterministic indexes and traces bounded subgraphs$\" ./tools/shared/tests/relation-graph.test.ts",
-        "sourcePath": "decision-records/shared-relation-graph-builds-deterministic-indexes-and-traces-bounded-subgraphs.md",
-        "summary": "Decision Records 关系演进共享的图原语必须从已知 ID 与有向边构建确定性正反向索引，并按方向和最大深度返回内部子图。",
-        "title": "共享关系图构建确定性索引并执行有界追踪"
+        "searchText": "共享关系图执行有界双向追踪 共享关系图按方向和最大深度返回确定的内部子图。 深度一的双向追踪包含直接前序和后继；深度零仅保留起点。 tools/shared/tests/relation-graph.test.ts > relation graph traces bounded bidirectional subgraphs bun test --test-name-pattern=\"^relation graph traces bounded bidirectional subgraphs$\" ./tools/shared/tests/relation-graph.test.ts",
+        "sourcePath": "decision-records/shared-relation-graph-traces-bounded-bidirectional-subgraphs.md",
+        "summary": "共享关系图按方向和最大深度返回确定的内部子图。",
+        "title": "共享关系图执行有界双向追踪"
       }
     },
     "DECISION-SHOW-OUTPUT-001": {
@@ -6236,185 +6374,208 @@
     "INVESTIGATION-BUNDLED-PARITY-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-BUNDLED-PARITY-001 CLI exposes only report-level commands and rejects old topic options CLI 只公开报告级命令和参数；旧主题筛选参数不属于当前接口。 `list --tag` 在当前报告集合成功。 旧 `--category` 参数以用法错误退出。 tools/investigation-report/tests/cli-generated.test.ts > CLI exposes only report-level commands and rejects old topic options bun test --test-name-pattern=\"^CLI exposes only report-level commands and rejects old topic options$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-BUNDLED-PARITY-001 CLI exposes only report-level commands and rejects old topic options 分发 CLI 的帮助仅公开报告级命令；旧主题筛选参数不属于当前接口。 `--help` 成功且只写 stdout，并列出 `set-relations` 而不列出 `--category`；旧 `--category` 以用法错误退出、stdout 为空并向 stderr 给出诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI exposes only report-level commands and rejects old topic options bun test --test-name-pattern=\"^CLI exposes only report-level commands and rejects old topic options$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 15,
         "entries": [
           "tools/investigation-report/tests/cli-generated.test.ts > CLI exposes only report-level commands and rejects old topic options",
           "bun test --test-name-pattern=\"^CLI exposes only report-level commands and rejects old topic options$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-BUNDLED-PARITY-001",
         "line": 1,
-        "searchText": "CLI exposes only report-level commands and rejects old topic options CLI 只公开报告级命令和参数；旧主题筛选参数不属于当前接口。 `list --tag` 在当前报告集合成功。 旧 `--category` 参数以用法错误退出。 tools/investigation-report/tests/cli-generated.test.ts > CLI exposes only report-level commands and rejects old topic options bun test --test-name-pattern=\"^CLI exposes only report-level commands and rejects old topic options$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI exposes only report-level commands and rejects old topic options 分发 CLI 的帮助仅公开报告级命令；旧主题筛选参数不属于当前接口。 `--help` 成功且只写 stdout，并列出 `set-relations` 而不列出 `--category`；旧 `--category` 以用法错误退出、stdout 为空并向 stderr 给出诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI exposes only report-level commands and rejects old topic options bun test --test-name-pattern=\"^CLI exposes only report-level commands and rejects old topic options$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-exposes-only-report-level-commands-and-rejects-old-topic-options.md",
-        "summary": "CLI 只公开报告级命令和参数；旧主题筛选参数不属于当前接口。",
+        "summary": "分发 CLI 的帮助仅公开报告级命令；旧主题筛选参数不属于当前接口。",
         "title": "CLI exposes only report-level commands and rejects old topic options"
       }
     },
     "INVESTIGATION-CLI-CONTRACTS-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-CONTRACTS-001 CLI check succeeds on a current report collection 当前完整报告集合可由 CLI `check` 成功验证。 合法集合执行 `check` 返回成功退出码。 tools/investigation-report/tests/cli-generated.test.ts > CLI check succeeds on a current report collection bun test --test-name-pattern=\"^CLI check succeeds on a current report collection$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-CONTRACTS-001 CLI check succeeds on a current report collection 分发 CLI `check` 能成功验证当前完整报告集合。 合法集合以退出码 0 成功、stderr 为空，并在 stdout 报告完整 index 计数。 tools/investigation-report/tests/cli-generated.test.ts > CLI check succeeds on a current report collection bun test --test-name-pattern=\"^CLI check succeeds on a current report collection$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
           "tools/investigation-report/tests/cli-generated.test.ts > CLI check succeeds on a current report collection",
           "bun test --test-name-pattern=\"^CLI check succeeds on a current report collection$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-CLI-CONTRACTS-001",
         "line": 1,
-        "searchText": "CLI check succeeds on a current report collection 当前完整报告集合可由 CLI `check` 成功验证。 合法集合执行 `check` 返回成功退出码。 tools/investigation-report/tests/cli-generated.test.ts > CLI check succeeds on a current report collection bun test --test-name-pattern=\"^CLI check succeeds on a current report collection$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI check succeeds on a current report collection 分发 CLI `check` 能成功验证当前完整报告集合。 合法集合以退出码 0 成功、stderr 为空，并在 stdout 报告完整 index 计数。 tools/investigation-report/tests/cli-generated.test.ts > CLI check succeeds on a current report collection bun test --test-name-pattern=\"^CLI check succeeds on a current report collection$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-check-succeeds-on-a-current-report-collection.md",
-        "summary": "当前完整报告集合可由 CLI `check` 成功验证。",
+        "summary": "分发 CLI `check` 能成功验证当前完整报告集合。",
         "title": "CLI check succeeds on a current report collection"
       }
     },
-    "INVESTIGATION-CLI-LIST-001": {
+    "INVESTIGATION-CLI-ENUM-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-LIST-001 CLI list returns a current report after resource byte changes 资源字节变化不使报告索引过期，CLI `list` 继续可查询当前报告。 资源字节变化后 `list` 返回成功。 tools/investigation-report/tests/cli-generated.test.ts > CLI list returns a current report after resource byte changes bun test --test-name-pattern=\"^CLI list returns a current report after resource byte changes$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-ENUM-001 CLI leaves relation and trace enum values for API validation CLI 只负责参数分组；关系类型和 trace direction 的领域枚举由公共 API 校验。 未知关系类型和 direction 均以操作错误退出，只向 stderr 返回领域诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI leaves relation and trace enum values for API validation bun test --test-name-pattern=\"^CLI leaves relation and trace enum values for API validation$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > CLI leaves relation and trace enum values for API validation",
+          "bun test --test-name-pattern=\"^CLI leaves relation and trace enum values for API validation$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CLI-ENUM-001",
+        "line": 1,
+        "searchText": "CLI leaves relation and trace enum values for API validation CLI 只负责参数分组；关系类型和 trace direction 的领域枚举由公共 API 校验。 未知关系类型和 direction 均以操作错误退出，只向 stderr 返回领域诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI leaves relation and trace enum values for API validation bun test --test-name-pattern=\"^CLI leaves relation and trace enum values for API validation$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/cli-leaves-relation-and-trace-enum-values-for-api-validation.md",
+        "summary": "CLI 只负责参数分组；关系类型和 trace direction 的领域枚举由公共 API 校验。",
+        "title": "CLI leaves relation and trace enum values for API validation"
+      }
+    },
+    "INVESTIGATION-CLI-LIST-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CLI-LIST-001 CLI list returns a current report after resource byte changes 资源字节变化不使报告 index 过期，分发 CLI `list` 继续可查询当前报告。 在真实资源字节先后不同的 fixture 上，`list` 成功、stderr 为空且 stdout 返回报告。 tools/investigation-report/tests/cli-generated.test.ts > CLI list returns a current report after resource byte changes bun test --test-name-pattern=\"^CLI list returns a current report after resource byte changes$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 15,
         "entries": [
           "tools/investigation-report/tests/cli-generated.test.ts > CLI list returns a current report after resource byte changes",
           "bun test --test-name-pattern=\"^CLI list returns a current report after resource byte changes$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-CLI-LIST-001",
         "line": 1,
-        "searchText": "CLI list returns a current report after resource byte changes 资源字节变化不使报告索引过期，CLI `list` 继续可查询当前报告。 资源字节变化后 `list` 返回成功。 tools/investigation-report/tests/cli-generated.test.ts > CLI list returns a current report after resource byte changes bun test --test-name-pattern=\"^CLI list returns a current report after resource byte changes$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI list returns a current report after resource byte changes 资源字节变化不使报告 index 过期，分发 CLI `list` 继续可查询当前报告。 在真实资源字节先后不同的 fixture 上，`list` 成功、stderr 为空且 stdout 返回报告。 tools/investigation-report/tests/cli-generated.test.ts > CLI list returns a current report after resource byte changes bun test --test-name-pattern=\"^CLI list returns a current report after resource byte changes$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-list-returns-a-current-report-after-resource-byte-changes.md",
-        "summary": "资源字节变化不使报告索引过期，CLI `list` 继续可查询当前报告。",
+        "summary": "资源字节变化不使报告 index 过期，分发 CLI `list` 继续可查询当前报告。",
         "title": "CLI list returns a current report after resource byte changes"
-      }
-    },
-    "INVESTIGATION-CLI-LIST-FRESHNESS-001": {
-      "keys": {
-        "search": [
-          "INVESTIGATION-CLI-LIST-FRESHNESS-001 CLI help documents report-level set-relations command CLI 帮助可成功展示当前报告级命令表面。 顶层 `--help` 返回成功。 tools/investigation-report/tests/cli-generated.test.ts > CLI help documents report-level set-relations command bun test --test-name-pattern=\"^CLI help documents report-level set-relations command$\" ./tools/investigation-report/tests/run.ts"
-        ],
-        "topic": [
-          "investigation-report"
-        ]
-      },
-      "state": {
-        "endLine": 12,
-        "entries": [
-          "tools/investigation-report/tests/cli-generated.test.ts > CLI help documents report-level set-relations command",
-          "bun test --test-name-pattern=\"^CLI help documents report-level set-relations command$\" ./tools/investigation-report/tests/run.ts"
-        ],
-        "id": "INVESTIGATION-CLI-LIST-FRESHNESS-001",
-        "line": 1,
-        "searchText": "CLI help documents report-level set-relations command CLI 帮助可成功展示当前报告级命令表面。 顶层 `--help` 返回成功。 tools/investigation-report/tests/cli-generated.test.ts > CLI help documents report-level set-relations command bun test --test-name-pattern=\"^CLI help documents report-level set-relations command$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/cli-help-documents-report-level-set-relations-command.md",
-        "summary": "CLI 帮助可成功展示当前报告级命令表面。",
-        "title": "CLI help documents report-level set-relations command"
       }
     },
     "INVESTIGATION-CLI-SYNC-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-SYNC-001 CLI sync-index writes a missing derived index CLI `sync-index` 可以从合法报告源重建缺失的派生索引。 索引文件缺失时执行 `sync-index` 返回成功。 tools/investigation-report/tests/cli-generated.test.ts > CLI sync-index writes a missing derived index bun test --test-name-pattern=\"^CLI sync-index writes a missing derived index$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-SYNC-001 CLI sync-index writes a missing derived index 分发 CLI `sync-index` 能从合法报告源重建缺失的派生 index。 index 缺失时命令成功、stderr 为空，stdout 报告同步成功，且 index 文件被创建并包含报告 entry。 tools/investigation-report/tests/cli-generated.test.ts > CLI sync-index writes a missing derived index bun test --test-name-pattern=\"^CLI sync-index writes a missing derived index$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
           "tools/investigation-report/tests/cli-generated.test.ts > CLI sync-index writes a missing derived index",
           "bun test --test-name-pattern=\"^CLI sync-index writes a missing derived index$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-CLI-SYNC-001",
         "line": 1,
-        "searchText": "CLI sync-index writes a missing derived index CLI `sync-index` 可以从合法报告源重建缺失的派生索引。 索引文件缺失时执行 `sync-index` 返回成功。 tools/investigation-report/tests/cli-generated.test.ts > CLI sync-index writes a missing derived index bun test --test-name-pattern=\"^CLI sync-index writes a missing derived index$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI sync-index writes a missing derived index 分发 CLI `sync-index` 能从合法报告源重建缺失的派生 index。 index 缺失时命令成功、stderr 为空，stdout 报告同步成功，且 index 文件被创建并包含报告 entry。 tools/investigation-report/tests/cli-generated.test.ts > CLI sync-index writes a missing derived index bun test --test-name-pattern=\"^CLI sync-index writes a missing derived index$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-sync-index-writes-a-missing-derived-index.md",
-        "summary": "CLI `sync-index` 可以从合法报告源重建缺失的派生索引。",
+        "summary": "分发 CLI `sync-index` 能从合法报告源重建缺失的派生 index。",
         "title": "CLI sync-index writes a missing derived index"
       }
     },
     "INVESTIGATION-CLI-USAGE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-USAGE-001 CLI uses invalid-option exit status for malformed list input CLI 对非法报告级 list 选项返回稳定的用法错误退出码。 非正整数 `--limit` 返回退出码 2。 tools/investigation-report/tests/cli-generated.test.ts > CLI uses invalid-option exit status for malformed list input bun test --test-name-pattern=\"^CLI uses invalid-option exit status for malformed list input$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-USAGE-001 CLI uses invalid-option exit status for malformed list input 分发 CLI 对非法报告级 list 选项返回稳定用法错误。 非正整数 `--limit` 返回退出码 2、stdout 为空且 stderr 给出该选项的诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI uses invalid-option exit status for malformed list input bun test --test-name-pattern=\"^CLI uses invalid-option exit status for malformed list input$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
           "tools/investigation-report/tests/cli-generated.test.ts > CLI uses invalid-option exit status for malformed list input",
           "bun test --test-name-pattern=\"^CLI uses invalid-option exit status for malformed list input$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-CLI-USAGE-001",
         "line": 1,
-        "searchText": "CLI uses invalid-option exit status for malformed list input CLI 对非法报告级 list 选项返回稳定的用法错误退出码。 非正整数 `--limit` 返回退出码 2。 tools/investigation-report/tests/cli-generated.test.ts > CLI uses invalid-option exit status for malformed list input bun test --test-name-pattern=\"^CLI uses invalid-option exit status for malformed list input$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI uses invalid-option exit status for malformed list input 分发 CLI 对非法报告级 list 选项返回稳定用法错误。 非正整数 `--limit` 返回退出码 2、stdout 为空且 stderr 给出该选项的诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI uses invalid-option exit status for malformed list input bun test --test-name-pattern=\"^CLI uses invalid-option exit status for malformed list input$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-uses-invalid-option-exit-status-for-malformed-list-input.md",
-        "summary": "CLI 对非法报告级 list 选项返回稳定的用法错误退出码。",
+        "summary": "分发 CLI 对非法报告级 list 选项返回稳定用法错误。",
         "title": "CLI uses invalid-option exit status for malformed list input"
       }
     },
     "INVESTIGATION-CLI-WARNINGS-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-WARNINGS-001 CLI show requires one Investigation ID CLI `show` 只接受一个明确的 Investigation ID。 省略 ID 返回退出码 2。 tools/investigation-report/tests/cli-generated.test.ts > CLI show requires one Investigation ID bun test --test-name-pattern=\"^CLI show requires one Investigation ID$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-WARNINGS-001 CLI show requires one Investigation ID 分发 CLI `show` 只接受一个明确 Investigation ID。 省略 ID 返回退出码 2、stdout 为空且 stderr 给出用法诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI show requires one Investigation ID bun test --test-name-pattern=\"^CLI show requires one Investigation ID$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
           "tools/investigation-report/tests/cli-generated.test.ts > CLI show requires one Investigation ID",
           "bun test --test-name-pattern=\"^CLI show requires one Investigation ID$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-CLI-WARNINGS-001",
         "line": 1,
-        "searchText": "CLI show requires one Investigation ID CLI `show` 只接受一个明确的 Investigation ID。 省略 ID 返回退出码 2。 tools/investigation-report/tests/cli-generated.test.ts > CLI show requires one Investigation ID bun test --test-name-pattern=\"^CLI show requires one Investigation ID$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI show requires one Investigation ID 分发 CLI `show` 只接受一个明确 Investigation ID。 省略 ID 返回退出码 2、stdout 为空且 stderr 给出用法诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI show requires one Investigation ID bun test --test-name-pattern=\"^CLI show requires one Investigation ID$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-show-requires-one-investigation-id.md",
-        "summary": "CLI `show` 只接受一个明确的 Investigation ID。",
+        "summary": "分发 CLI `show` 只接受一个明确 Investigation ID。",
         "title": "CLI show requires one Investigation ID"
       }
     },
     "INVESTIGATION-COLLECTION-LAYOUT-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-COLLECTION-LAYOUT-001 full validation rejects nested category directories and unknown root members 完整验证拒绝平铺报告集合中的嵌套旧目录和未知根成员。 根目录出现嵌套旧目录时返回 not-allowed 诊断。 tools/investigation-report/tests/parsing-directory.test.ts > full validation rejects nested category directories and unknown root members bun test --test-name-pattern=\"^full validation rejects nested category directories and unknown root members$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-COLLECTION-LAYOUT-001 full validation rejects nested report directories 平铺 Investigation Report 集合不允许嵌套报告目录。 根目录出现嵌套旧目录时，完整验证返回 not-allowed 诊断。 tools/investigation-report/tests/parsing-directory.test.ts > full validation rejects nested report directories bun test --test-name-pattern=\"^full validation rejects nested report directories$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
-          "tools/investigation-report/tests/parsing-directory.test.ts > full validation rejects nested category directories and unknown root members",
-          "bun test --test-name-pattern=\"^full validation rejects nested category directories and unknown root members$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/parsing-directory.test.ts > full validation rejects nested report directories",
+          "bun test --test-name-pattern=\"^full validation rejects nested report directories$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-COLLECTION-LAYOUT-001",
         "line": 1,
-        "searchText": "full validation rejects nested category directories and unknown root members 完整验证拒绝平铺报告集合中的嵌套旧目录和未知根成员。 根目录出现嵌套旧目录时返回 not-allowed 诊断。 tools/investigation-report/tests/parsing-directory.test.ts > full validation rejects nested category directories and unknown root members bun test --test-name-pattern=\"^full validation rejects nested category directories and unknown root members$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/full-validation-rejects-nested-category-directories-and-unknown-root-members.md",
-        "summary": "完整验证拒绝平铺报告集合中的嵌套旧目录和未知根成员。",
-        "title": "full validation rejects nested category directories and unknown root members"
+        "searchText": "full validation rejects nested report directories 平铺 Investigation Report 集合不允许嵌套报告目录。 根目录出现嵌套旧目录时，完整验证返回 not-allowed 诊断。 tools/investigation-report/tests/parsing-directory.test.ts > full validation rejects nested report directories bun test --test-name-pattern=\"^full validation rejects nested report directories$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/full-validation-rejects-nested-report-directories.md",
+        "summary": "平铺 Investigation Report 集合不允许嵌套报告目录。",
+        "title": "full validation rejects nested report directories"
+      }
+    },
+    "INVESTIGATION-COLLECTION-ROOT-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-COLLECTION-ROOT-001 full validation rejects unknown investigation root members 平铺 Investigation Report 根目录只允许规范报告、派生 index 和 `_resources/`。 未知根文件返回其必须为根级 Investigation ID Markdown 文件的可行动诊断。 tools/investigation-report/tests/parsing-directory.test.ts > full validation rejects unknown investigation root members bun test --test-name-pattern=\"^full validation rejects unknown investigation root members$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/investigation-report/tests/parsing-directory.test.ts > full validation rejects unknown investigation root members",
+          "bun test --test-name-pattern=\"^full validation rejects unknown investigation root members$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-COLLECTION-ROOT-001",
+        "line": 1,
+        "searchText": "full validation rejects unknown investigation root members 平铺 Investigation Report 根目录只允许规范报告、派生 index 和 `_resources/`。 未知根文件返回其必须为根级 Investigation ID Markdown 文件的可行动诊断。 tools/investigation-report/tests/parsing-directory.test.ts > full validation rejects unknown investigation root members bun test --test-name-pattern=\"^full validation rejects unknown investigation root members$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/full-validation-rejects-unknown-investigation-root-members.md",
+        "summary": "平铺 Investigation Report 根目录只允许规范报告、派生 index 和 `_resources/`。",
+        "title": "full validation rejects unknown investigation root members"
       }
     },
     "INVESTIGATION-DIRECTORY-PATH-001": {
@@ -6466,47 +6627,70 @@
     "INVESTIGATION-GENERATED-METADATA-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-GENERATED-METADATA-001 CLI set-relations parses source groups and reports JSON result `set-relations` 必须以完整 source 组接收关系替换，并支持结构化 JSON 成功结果。 合法 source 与 relation 组返回成功。 没有 source 组的关系参数以用法错误退出。 tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations parses source groups and reports JSON result bun test --test-name-pattern=\"^CLI set-relations parses source groups and reports JSON result$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-GENERATED-METADATA-001 CLI set-relations parses source groups and reports JSON result 分发 CLI `set-relations` 以完整 source 组接收替换，并输出结构化 JSON 成功结果。 合法 source 与 relation 组成功、stderr 为空，stdout JSON 精确列出变更及 source；对应 Markdown 写入关系。 tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations parses source groups and reports JSON result bun test --test-name-pattern=\"^CLI set-relations parses source groups and reports JSON result$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 13,
+        "endLine": 15,
         "entries": [
           "tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations parses source groups and reports JSON result",
           "bun test --test-name-pattern=\"^CLI set-relations parses source groups and reports JSON result$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-GENERATED-METADATA-001",
         "line": 1,
-        "searchText": "CLI set-relations parses source groups and reports JSON result `set-relations` 必须以完整 source 组接收关系替换，并支持结构化 JSON 成功结果。 合法 source 与 relation 组返回成功。 没有 source 组的关系参数以用法错误退出。 tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations parses source groups and reports JSON result bun test --test-name-pattern=\"^CLI set-relations parses source groups and reports JSON result$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI set-relations parses source groups and reports JSON result 分发 CLI `set-relations` 以完整 source 组接收替换，并输出结构化 JSON 成功结果。 合法 source 与 relation 组成功、stderr 为空，stdout JSON 精确列出变更及 source；对应 Markdown 写入关系。 tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations parses source groups and reports JSON result bun test --test-name-pattern=\"^CLI set-relations parses source groups and reports JSON result$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-set-relations-parses-source-groups-and-reports-json-result.md",
-        "summary": "`set-relations` 必须以完整 source 组接收关系替换，并支持结构化 JSON 成功结果。",
+        "summary": "分发 CLI `set-relations` 以完整 source 组接收替换，并输出结构化 JSON 成功结果。",
         "title": "CLI set-relations parses source groups and reports JSON result"
       }
     },
-    "INVESTIGATION-INDEX-COMPATIBILITY-001": {
+    "INVESTIGATION-GENERATED-METADATA-002": {
       "keys": {
         "search": [
-          "INVESTIGATION-INDEX-COMPATIBILITY-001 index rejects legacy definitions and additional metadata 索引只接受当前定义和严格空 metadata。 旧 definition 或额外 metadata 使查询返回错误。 tools/investigation-report/tests/index-query.test.ts > index rejects legacy definitions and additional metadata bun test --test-name-pattern=\"^index rejects legacy definitions and additional metadata$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-GENERATED-METADATA-002 CLI set-relations rejects relations that do not follow a source `set-relations` 的每个 relation 参数必须属于一个已开始的 source 组。 relation 先于 source 时以用法错误退出，只向 stderr 输出可操作诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations rejects relations that do not follow a source bun test --test-name-pattern=\"^CLI set-relations rejects relations that do not follow a source$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
-          "tools/investigation-report/tests/index-query.test.ts > index rejects legacy definitions and additional metadata",
-          "bun test --test-name-pattern=\"^index rejects legacy definitions and additional metadata$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations rejects relations that do not follow a source",
+          "bun test --test-name-pattern=\"^CLI set-relations rejects relations that do not follow a source$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-GENERATED-METADATA-002",
+        "line": 1,
+        "searchText": "CLI set-relations rejects relations that do not follow a source `set-relations` 的每个 relation 参数必须属于一个已开始的 source 组。 relation 先于 source 时以用法错误退出，只向 stderr 输出可操作诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations rejects relations that do not follow a source bun test --test-name-pattern=\"^CLI set-relations rejects relations that do not follow a source$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/cli-set-relations-rejects-relations-that-do-not-follow-a-source.md",
+        "summary": "`set-relations` 的每个 relation 参数必须属于一个已开始的 source 组。",
+        "title": "CLI set-relations rejects relations that do not follow a source"
+      }
+    },
+    "INVESTIGATION-INDEX-COMPATIBILITY-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-INDEX-COMPATIBILITY-001 index rejects legacy definitions Investigation index 只接受当前 definition 版本。 旧 definition 使公共 query 返回 definition 诊断。 tools/investigation-report/tests/index-query.test.ts > index rejects legacy definitions bun test --test-name-pattern=\"^index rejects legacy definitions$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/investigation-report/tests/index-query.test.ts > index rejects legacy definitions",
+          "bun test --test-name-pattern=\"^index rejects legacy definitions$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-INDEX-COMPATIBILITY-001",
         "line": 1,
-        "searchText": "index rejects legacy definitions and additional metadata 索引只接受当前定义和严格空 metadata。 旧 definition 或额外 metadata 使查询返回错误。 tools/investigation-report/tests/index-query.test.ts > index rejects legacy definitions and additional metadata bun test --test-name-pattern=\"^index rejects legacy definitions and additional metadata$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/index-rejects-legacy-definitions-and-additional-metadata.md",
-        "summary": "索引只接受当前定义和严格空 metadata。",
-        "title": "index rejects legacy definitions and additional metadata"
+        "searchText": "index rejects legacy definitions Investigation index 只接受当前 definition 版本。 旧 definition 使公共 query 返回 definition 诊断。 tools/investigation-report/tests/index-query.test.ts > index rejects legacy definitions bun test --test-name-pattern=\"^index rejects legacy definitions$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/index-rejects-legacy-definitions.md",
+        "summary": "Investigation index 只接受当前 definition 版本。",
+        "title": "index rejects legacy definitions"
       }
     },
     "INVESTIGATION-INDEX-INTEGRITY-001": {
@@ -6532,6 +6716,29 @@
         "title": "index loading rejects stale report projections"
       }
     },
+    "INVESTIGATION-INDEX-METADATA-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-INDEX-METADATA-001 index rejects additional metadata 当前 Investigation index 的 metadata 必须是严格空对象。 写入额外 metadata 后，公共 query 返回 metadata 诊断。 tools/investigation-report/tests/index-query.test.ts > index rejects additional metadata bun test --test-name-pattern=\"^index rejects additional metadata$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/investigation-report/tests/index-query.test.ts > index rejects additional metadata",
+          "bun test --test-name-pattern=\"^index rejects additional metadata$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-INDEX-METADATA-001",
+        "line": 1,
+        "searchText": "index rejects additional metadata 当前 Investigation index 的 metadata 必须是严格空对象。 写入额外 metadata 后，公共 query 返回 metadata 诊断。 tools/investigation-report/tests/index-query.test.ts > index rejects additional metadata bun test --test-name-pattern=\"^index rejects additional metadata$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/index-rejects-additional-metadata.md",
+        "summary": "当前 Investigation index 的 metadata 必须是严格空对象。",
+        "title": "index rejects additional metadata"
+      }
+    },
     "INVESTIGATION-INDEX-QUERY-001": {
       "keys": {
         "search": [
@@ -6553,6 +6760,52 @@
         "sourcePath": "investigation-report/list-uses-investigation-id-ordering-and-repeated-tag-filters-use-and.md",
         "summary": "报告 list 按 Investigation ID 确定性排序，重复 tag 条件使用 AND。",
         "title": "list uses Investigation ID ordering and repeated tag filters use AND"
+      }
+    },
+    "INVESTIGATION-INDEX-RELATION-FILTER-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-INDEX-RELATION-FILTER-001 list filters reports by direct relation type list 的 relation-type 只匹配报告声明的直接关系类型。 仅带有请求类型关系的报告出现在查询结果中。 tools/investigation-report/tests/index-query.test.ts > list filters reports by direct relation type bun test --test-name-pattern=\"^list filters reports by direct relation type$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/investigation-report/tests/index-query.test.ts > list filters reports by direct relation type",
+          "bun test --test-name-pattern=\"^list filters reports by direct relation type$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-INDEX-RELATION-FILTER-001",
+        "line": 1,
+        "searchText": "list filters reports by direct relation type list 的 relation-type 只匹配报告声明的直接关系类型。 仅带有请求类型关系的报告出现在查询结果中。 tools/investigation-report/tests/index-query.test.ts > list filters reports by direct relation type bun test --test-name-pattern=\"^list filters reports by direct relation type$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/list-filters-reports-by-direct-relation-type.md",
+        "summary": "list 的 relation-type 只匹配报告声明的直接关系类型。",
+        "title": "list filters reports by direct relation type"
+      }
+    },
+    "INVESTIGATION-INDEX-TEXT-FILTER-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-INDEX-TEXT-FILTER-001 list filters report title and question text list 的 text 条件同时检索报告 title 与 question。 title 或 question 命中的报告被返回，不命中的报告被排除。 tools/investigation-report/tests/index-query.test.ts > list filters report title and question text bun test --test-name-pattern=\"^list filters report title and question text$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/investigation-report/tests/index-query.test.ts > list filters report title and question text",
+          "bun test --test-name-pattern=\"^list filters report title and question text$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-INDEX-TEXT-FILTER-001",
+        "line": 1,
+        "searchText": "list filters report title and question text list 的 text 条件同时检索报告 title 与 question。 title 或 question 命中的报告被返回，不命中的报告被排除。 tools/investigation-report/tests/index-query.test.ts > list filters report title and question text bun test --test-name-pattern=\"^list filters report title and question text$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/list-filters-report-title-and-question-text.md",
+        "summary": "list 的 text 条件同时检索报告 title 与 question。",
+        "title": "list filters report title and question text"
       }
     },
     "INVESTIGATION-PUBLIC-OPTIONS-001": {
@@ -6578,6 +6831,98 @@
         "title": "public APIs diagnose malformed runtime options without throwing"
       }
     },
+    "INVESTIGATION-QUERY-REPORT-ID-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-QUERY-REPORT-ID-001 show and trace resolve reports by investigation id `show` 与 `trace` 只接受规范 Investigation ID，并按报告 ID 查询。 `show` 返回对应 Markdown，successors trace 返回确定报告集合；`./` 和首尾空白输入被拒绝。 tools/investigation-report/tests/index-query.test.ts > show and trace resolve reports by investigation id bun test --test-name-pattern=\"^show and trace resolve reports by investigation id$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/index-query.test.ts > show and trace resolve reports by investigation id",
+          "bun test --test-name-pattern=\"^show and trace resolve reports by investigation id$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-QUERY-REPORT-ID-001",
+        "line": 1,
+        "searchText": "show and trace resolve reports by investigation id `show` 与 `trace` 只接受规范 Investigation ID，并按报告 ID 查询。 `show` 返回对应 Markdown，successors trace 返回确定报告集合；`./` 和首尾空白输入被拒绝。 tools/investigation-report/tests/index-query.test.ts > show and trace resolve reports by investigation id bun test --test-name-pattern=\"^show and trace resolve reports by investigation id$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/show-and-trace-resolve-reports-by-investigation-id.md",
+        "summary": "`show` 与 `trace` 只接受规范 Investigation ID，并按报告 ID 查询。",
+        "title": "show and trace resolve reports by investigation id"
+      }
+    },
+    "INVESTIGATION-RELATION-GRAPH-CYCLE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RELATION-GRAPH-CYCLE-001 relation graph rejects a cycle 报告关系图必须无环。 闭合关系返回 cycle 诊断。 tools/investigation-report/tests/relations.test.ts > relation graph rejects a cycle bun test --test-name-pattern=\"^relation graph rejects a cycle$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/investigation-report/tests/relations.test.ts > relation graph rejects a cycle",
+          "bun test --test-name-pattern=\"^relation graph rejects a cycle$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RELATION-GRAPH-CYCLE-001",
+        "line": 1,
+        "searchText": "relation graph rejects a cycle 报告关系图必须无环。 闭合关系返回 cycle 诊断。 tools/investigation-report/tests/relations.test.ts > relation graph rejects a cycle bun test --test-name-pattern=\"^relation graph rejects a cycle$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/relation-graph-rejects-a-cycle.md",
+        "summary": "报告关系图必须无环。",
+        "title": "relation graph rejects a cycle"
+      }
+    },
+    "INVESTIGATION-RELATION-GRAPH-DUPLICATE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RELATION-GRAPH-DUPLICATE-001 relation graph rejects a repeated target 同一报告不能向同一 target 声明多个关系类型。 重复 target 返回重复关系诊断。 tools/investigation-report/tests/relations.test.ts > relation graph rejects a repeated target bun test --test-name-pattern=\"^relation graph rejects a repeated target$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/investigation-report/tests/relations.test.ts > relation graph rejects a repeated target",
+          "bun test --test-name-pattern=\"^relation graph rejects a repeated target$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RELATION-GRAPH-DUPLICATE-001",
+        "line": 1,
+        "searchText": "relation graph rejects a repeated target 同一报告不能向同一 target 声明多个关系类型。 重复 target 返回重复关系诊断。 tools/investigation-report/tests/relations.test.ts > relation graph rejects a repeated target bun test --test-name-pattern=\"^relation graph rejects a repeated target$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/relation-graph-rejects-a-repeated-target.md",
+        "summary": "同一报告不能向同一 target 声明多个关系类型。",
+        "title": "relation graph rejects a repeated target"
+      }
+    },
+    "INVESTIGATION-RELATION-GRAPH-SELF-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RELATION-GRAPH-SELF-001 relation graph rejects a self target 报告不能把关系指向自身。 自环返回 self-target 诊断。 tools/investigation-report/tests/relations.test.ts > relation graph rejects a self target bun test --test-name-pattern=\"^relation graph rejects a self target$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/investigation-report/tests/relations.test.ts > relation graph rejects a self target",
+          "bun test --test-name-pattern=\"^relation graph rejects a self target$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RELATION-GRAPH-SELF-001",
+        "line": 1,
+        "searchText": "relation graph rejects a self target 报告不能把关系指向自身。 自环返回 self-target 诊断。 tools/investigation-report/tests/relations.test.ts > relation graph rejects a self target bun test --test-name-pattern=\"^relation graph rejects a self target$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/relation-graph-rejects-a-self-target.md",
+        "summary": "报告不能把关系指向自身。",
+        "title": "relation graph rejects a self target"
+      }
+    },
     "INVESTIGATION-RELATION-GRAPH-SHAPES-001": {
       "keys": {
         "search": [
@@ -6599,6 +6944,29 @@
         "sourcePath": "investigation-report/relation-graph-accepts-independent-ordinary-merge-and-split-shapes.md",
         "summary": "关系图接受独立报告、普通单前序、纯归并和闭合拆分形状。",
         "title": "relation graph accepts independent ordinary merge and split shapes"
+      }
+    },
+    "INVESTIGATION-RELATION-GRAPH-TIME-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RELATION-GRAPH-TIME-001 relation graph rejects a target formed later 关系 target 的 formedAt 不得晚于 source。 指向形成更晚报告的关系返回时间诊断。 tools/investigation-report/tests/relations.test.ts > relation graph rejects a target formed later bun test --test-name-pattern=\"^relation graph rejects a target formed later$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/investigation-report/tests/relations.test.ts > relation graph rejects a target formed later",
+          "bun test --test-name-pattern=\"^relation graph rejects a target formed later$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RELATION-GRAPH-TIME-001",
+        "line": 1,
+        "searchText": "relation graph rejects a target formed later 关系 target 的 formedAt 不得晚于 source。 指向形成更晚报告的关系返回时间诊断。 tools/investigation-report/tests/relations.test.ts > relation graph rejects a target formed later bun test --test-name-pattern=\"^relation graph rejects a target formed later$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/relation-graph-rejects-a-target-formed-later.md",
+        "summary": "关系 target 的 formedAt 不得晚于 source。",
+        "title": "relation graph rejects a target formed later"
       }
     },
     "INVESTIGATION-RELATION-GRAPH-TRACE-001": {
@@ -6627,24 +6995,24 @@
     "INVESTIGATION-RELATION-GRAPH-VALIDATION-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RELATION-GRAPH-VALIDATION-001 relation graph rejects missing duplicate self timed and cyclic edges 关系图拒绝缺失目标、重复目标、自环、逆时间边和环。 同一图返回各类结构与时间诊断。 tools/investigation-report/tests/relations.test.ts > relation graph rejects missing duplicate self timed and cyclic edges bun test --test-name-pattern=\"^relation graph rejects missing duplicate self timed and cyclic edges$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RELATION-GRAPH-VALIDATION-001 relation graph rejects a missing target 报告关系的 target 必须属于当前报告集合。 指向缺失报告的关系返回 missing-target 诊断。 tools/investigation-report/tests/relations.test.ts > relation graph rejects a missing target bun test --test-name-pattern=\"^relation graph rejects a missing target$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
-          "tools/investigation-report/tests/relations.test.ts > relation graph rejects missing duplicate self timed and cyclic edges",
-          "bun test --test-name-pattern=\"^relation graph rejects missing duplicate self timed and cyclic edges$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/relations.test.ts > relation graph rejects a missing target",
+          "bun test --test-name-pattern=\"^relation graph rejects a missing target$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-RELATION-GRAPH-VALIDATION-001",
         "line": 1,
-        "searchText": "relation graph rejects missing duplicate self timed and cyclic edges 关系图拒绝缺失目标、重复目标、自环、逆时间边和环。 同一图返回各类结构与时间诊断。 tools/investigation-report/tests/relations.test.ts > relation graph rejects missing duplicate self timed and cyclic edges bun test --test-name-pattern=\"^relation graph rejects missing duplicate self timed and cyclic edges$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/relation-graph-rejects-missing-duplicate-self-timed-and-cyclic-edges.md",
-        "summary": "关系图拒绝缺失目标、重复目标、自环、逆时间边和环。",
-        "title": "relation graph rejects missing duplicate self timed and cyclic edges"
+        "searchText": "relation graph rejects a missing target 报告关系的 target 必须属于当前报告集合。 指向缺失报告的关系返回 missing-target 诊断。 tools/investigation-report/tests/relations.test.ts > relation graph rejects a missing target bun test --test-name-pattern=\"^relation graph rejects a missing target$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/relation-graph-rejects-a-missing-target.md",
+        "summary": "报告关系的 target 必须属于当前报告集合。",
+        "title": "relation graph rejects a missing target"
       }
     },
     "INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001": {
@@ -6788,69 +7156,69 @@
     "INVESTIGATION-REPORT-FRONTMATTER-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-REPORT-FRONTMATTER-001 validation enforces report frontmatter fields and canonical ordering 每份报告使用固定 frontmatter 字段及其规范顺序。 规范报告解析成功，交换字段顺序产生 fixed-order 诊断。 tools/investigation-report/tests/parsing-directory.test.ts > validation enforces report frontmatter fields and canonical ordering bun test --test-name-pattern=\"^validation enforces report frontmatter fields and canonical ordering$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-REPORT-FRONTMATTER-001 validation enforces report frontmatter fields and canonical ordering 每份报告使用固定顺序的规范 frontmatter；relations 空集必须使用字节 `[]`，必填标量不得含控制字符。 独立字面 Markdown 的规范 frontmatter 通过；调换字段、`relations:` 空值或 `\\r` 标量各产生领域诊断。 tools/investigation-report/tests/parsing-directory.test.ts > validation enforces report frontmatter fields and canonical ordering bun test --test-name-pattern=\"^validation enforces report frontmatter fields and canonical ordering$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
           "tools/investigation-report/tests/parsing-directory.test.ts > validation enforces report frontmatter fields and canonical ordering",
           "bun test --test-name-pattern=\"^validation enforces report frontmatter fields and canonical ordering$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-REPORT-FRONTMATTER-001",
         "line": 1,
-        "searchText": "validation enforces report frontmatter fields and canonical ordering 每份报告使用固定 frontmatter 字段及其规范顺序。 规范报告解析成功，交换字段顺序产生 fixed-order 诊断。 tools/investigation-report/tests/parsing-directory.test.ts > validation enforces report frontmatter fields and canonical ordering bun test --test-name-pattern=\"^validation enforces report frontmatter fields and canonical ordering$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "validation enforces report frontmatter fields and canonical ordering 每份报告使用固定顺序的规范 frontmatter；relations 空集必须使用字节 `[]`，必填标量不得含控制字符。 独立字面 Markdown 的规范 frontmatter 通过；调换字段、`relations:` 空值或 `\\r` 标量各产生领域诊断。 tools/investigation-report/tests/parsing-directory.test.ts > validation enforces report frontmatter fields and canonical ordering bun test --test-name-pattern=\"^validation enforces report frontmatter fields and canonical ordering$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/validation-enforces-report-frontmatter-fields-and-canonical-ordering.md",
-        "summary": "每份报告使用固定 frontmatter 字段及其规范顺序。",
+        "summary": "每份报告使用固定顺序的规范 frontmatter；relations 空集必须使用字节 `[]`，必填标量不得含控制字符。",
         "title": "validation enforces report frontmatter fields and canonical ordering"
       }
     },
     "INVESTIGATION-REPORT-STRUCTURE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-REPORT-STRUCTURE-001 validation enforces one report with fixed core and optional resource section 每个 Markdown 只保存一份报告，并使用固定核心与可选随附资源章节。 旧式内容因缺少报告 frontmatter 被拒绝。 tools/investigation-report/tests/parsing-directory.test.ts > validation enforces one report with fixed core and optional resource section bun test --test-name-pattern=\"^validation enforces one report with fixed core and optional resource section$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-REPORT-STRUCTURE-001 validation enforces one report with fixed core and optional resource section 每个 Markdown 是一份报告，前四个 H2 固定；可选随附资源在第五位，附加语义 H2 仅可位于核心或资源之后，fence 内标题不参与结构识别。 旧无 frontmatter 内容被拒；核心后或资源后附加章节以及 fenced 标题通过；插入核心、资源之前或非规范资源标题各被拒绝。 tools/investigation-report/tests/parsing-directory.test.ts > validation enforces one report with fixed core and optional resource section bun test --test-name-pattern=\"^validation enforces one report with fixed core and optional resource section$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
           "tools/investigation-report/tests/parsing-directory.test.ts > validation enforces one report with fixed core and optional resource section",
           "bun test --test-name-pattern=\"^validation enforces one report with fixed core and optional resource section$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-REPORT-STRUCTURE-001",
         "line": 1,
-        "searchText": "validation enforces one report with fixed core and optional resource section 每个 Markdown 只保存一份报告，并使用固定核心与可选随附资源章节。 旧式内容因缺少报告 frontmatter 被拒绝。 tools/investigation-report/tests/parsing-directory.test.ts > validation enforces one report with fixed core and optional resource section bun test --test-name-pattern=\"^validation enforces one report with fixed core and optional resource section$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "validation enforces one report with fixed core and optional resource section 每个 Markdown 是一份报告，前四个 H2 固定；可选随附资源在第五位，附加语义 H2 仅可位于核心或资源之后，fence 内标题不参与结构识别。 旧无 frontmatter 内容被拒；核心后或资源后附加章节以及 fenced 标题通过；插入核心、资源之前或非规范资源标题各被拒绝。 tools/investigation-report/tests/parsing-directory.test.ts > validation enforces one report with fixed core and optional resource section bun test --test-name-pattern=\"^validation enforces one report with fixed core and optional resource section$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/validation-enforces-one-report-with-fixed-core-and-optional-resource-section.md",
-        "summary": "每个 Markdown 只保存一份报告，并使用固定核心与可选随附资源章节。",
+        "summary": "每个 Markdown 是一份报告，前四个 H2 固定；可选随附资源在第五位，附加语义 H2 仅可位于核心或资源之后，fence 内标题不参与结构识别。",
         "title": "validation enforces one report with fixed core and optional resource section"
       }
     },
     "INVESTIGATION-REPORT-VALIDATION-SCOPE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-REPORT-VALIDATION-SCOPE-001 scoped validation selects report ids without claiming full graph proof 按 Investigation ID 的 scoped validation 只证明所选报告，不声明完整关系图或索引已验证。 局部校验返回一个 selected report 且 `indexChecked` 为 false。 tools/investigation-report/tests/parsing-directory.test.ts > scoped validation selects report ids without claiming full graph proof bun test --test-name-pattern=\"^scoped validation selects report ids without claiming full graph proof$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-REPORT-VALIDATION-SCOPE-001 scoped validation selects report ids without claiming full graph proof scoped validation 只证明所选规范 Investigation ID，不声明完整关系图或 index 已验证。 局部校验只选择一个报告且 `indexChecked` 为 false；`./` 与首尾空白输入得到 check-id 诊断。 tools/investigation-report/tests/parsing-directory.test.ts > scoped validation selects report ids without claiming full graph proof bun test --test-name-pattern=\"^scoped validation selects report ids without claiming full graph proof$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
           "tools/investigation-report/tests/parsing-directory.test.ts > scoped validation selects report ids without claiming full graph proof",
           "bun test --test-name-pattern=\"^scoped validation selects report ids without claiming full graph proof$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-REPORT-VALIDATION-SCOPE-001",
         "line": 1,
-        "searchText": "scoped validation selects report ids without claiming full graph proof 按 Investigation ID 的 scoped validation 只证明所选报告，不声明完整关系图或索引已验证。 局部校验返回一个 selected report 且 `indexChecked` 为 false。 tools/investigation-report/tests/parsing-directory.test.ts > scoped validation selects report ids without claiming full graph proof bun test --test-name-pattern=\"^scoped validation selects report ids without claiming full graph proof$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "scoped validation selects report ids without claiming full graph proof scoped validation 只证明所选规范 Investigation ID，不声明完整关系图或 index 已验证。 局部校验只选择一个报告且 `indexChecked` 为 false；`./` 与首尾空白输入得到 check-id 诊断。 tools/investigation-report/tests/parsing-directory.test.ts > scoped validation selects report ids without claiming full graph proof bun test --test-name-pattern=\"^scoped validation selects report ids without claiming full graph proof$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/scoped-validation-selects-report-ids-without-claiming-full-graph-proof.md",
-        "summary": "按 Investigation ID 的 scoped validation 只证明所选报告，不声明完整关系图或索引已验证。",
+        "summary": "scoped validation 只证明所选规范 Investigation ID，不声明完整关系图或 index 已验证。",
         "title": "scoped validation selects report ids without claiming full graph proof"
       }
     },
@@ -6877,50 +7245,27 @@
         "title": "attached resource links reject path casing mismatches"
       }
     },
-    "INVESTIGATION-RESOURCE-FIELD-001": {
-      "keys": {
-        "search": [
-          "INVESTIGATION-RESOURCE-FIELD-001 resource links require literal current relative targets 资源链接必须保留当前 `./_resources/` 相对目标原文，不能附带 fragment。 字面相对目标有效，带 fragment 的目标无效。 tools/investigation-report/tests/resources.test.ts > resource links require literal current relative targets bun test --test-name-pattern=\"^resource links require literal current relative targets$\" ./tools/investigation-report/tests/run.ts"
-        ],
-        "topic": [
-          "investigation-report"
-        ]
-      },
-      "state": {
-        "endLine": 12,
-        "entries": [
-          "tools/investigation-report/tests/resources.test.ts > resource links require literal current relative targets",
-          "bun test --test-name-pattern=\"^resource links require literal current relative targets$\" ./tools/investigation-report/tests/run.ts"
-        ],
-        "id": "INVESTIGATION-RESOURCE-FIELD-001",
-        "line": 1,
-        "searchText": "resource links require literal current relative targets 资源链接必须保留当前 `./_resources/` 相对目标原文，不能附带 fragment。 字面相对目标有效，带 fragment 的目标无效。 tools/investigation-report/tests/resources.test.ts > resource links require literal current relative targets bun test --test-name-pattern=\"^resource links require literal current relative targets$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/resource-links-require-literal-current-relative-targets.md",
-        "summary": "资源链接必须保留当前 `./_resources/` 相对目标原文，不能附带 fragment。",
-        "title": "resource links require literal current relative targets"
-      }
-    },
     "INVESTIGATION-RESOURCE-GIT-VISIBILITY-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RESOURCE-GIT-VISIBILITY-001 resource changes do not stale the index while report link changes do 资源内容变化不使索引过期；报告资源链接仍属于报告 source。 资源字节变化后完整验证保持成功。 tools/investigation-report/tests/resources.test.ts > resource changes do not stale the index while report link changes do bun test --test-name-pattern=\"^resource changes do not stale the index while report link changes do$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RESOURCE-GIT-VISIBILITY-001 report resource link changes stale the current index 资源链接属于报告 Markdown source；仅资源字节不属于 source revision。 将报告链接改为另一合法资源后，完整验证报告当前 index 已过期。 tools/investigation-report/tests/resources.test.ts > report resource link changes stale the current index bun test --test-name-pattern=\"^report resource link changes stale the current index$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
-          "tools/investigation-report/tests/resources.test.ts > resource changes do not stale the index while report link changes do",
-          "bun test --test-name-pattern=\"^resource changes do not stale the index while report link changes do$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/resources.test.ts > report resource link changes stale the current index",
+          "bun test --test-name-pattern=\"^report resource link changes stale the current index$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-RESOURCE-GIT-VISIBILITY-001",
         "line": 1,
-        "searchText": "resource changes do not stale the index while report link changes do 资源内容变化不使索引过期；报告资源链接仍属于报告 source。 资源字节变化后完整验证保持成功。 tools/investigation-report/tests/resources.test.ts > resource changes do not stale the index while report link changes do bun test --test-name-pattern=\"^resource changes do not stale the index while report link changes do$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/resource-changes-do-not-stale-the-index-while-report-link-changes-do.md",
-        "summary": "资源内容变化不使索引过期；报告资源链接仍属于报告 source。",
-        "title": "resource changes do not stale the index while report link changes do"
+        "searchText": "report resource link changes stale the current index 资源链接属于报告 Markdown source；仅资源字节不属于 source revision。 将报告链接改为另一合法资源后，完整验证报告当前 index 已过期。 tools/investigation-report/tests/resources.test.ts > report resource link changes stale the current index bun test --test-name-pattern=\"^report resource link changes stale the current index$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/report-resource-link-changes-stale-the-current-index.md",
+        "summary": "资源链接属于报告 Markdown source；仅资源字节不属于 source revision。",
+        "title": "report resource link changes stale the current index"
       }
     },
     "INVESTIGATION-RESOURCE-INVALID-OWNER-ANCHOR-001": {
@@ -7153,10 +7498,10 @@
         "title": "report-owned resources validate exact links and permit shared references"
       }
     },
-    "INVESTIGATION-RESOURCE-REVISION-001": {
+    "INVESTIGATION-RESOURCE-REFERENCE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-RESOURCE-REVISION-001 resource byte changes do not change the report index source revision 资源字节不进入报告索引 source revision。 修改资源字节后 sourceRevision 保持相同。 tools/investigation-report/tests/resources.test.ts > resource byte changes do not change the report index source revision bun test --test-name-pattern=\"^resource byte changes do not change the report index source revision$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-RESOURCE-REFERENCE-001 resource links require literal current relative targets 附加资源链接使用字面 `./_resources/` 当前相对目标；符合白名单的 ASCII 成对括号合法。 普通目标和 `evidence(1).txt` 通过；带 fragment 的目标被拒绝。 tools/investigation-report/tests/resources.test.ts > resource links require literal current relative targets bun test --test-name-pattern=\"^resource links require literal current relative targets$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7165,14 +7510,37 @@
       "state": {
         "endLine": 12,
         "entries": [
+          "tools/investigation-report/tests/resources.test.ts > resource links require literal current relative targets",
+          "bun test --test-name-pattern=\"^resource links require literal current relative targets$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-RESOURCE-REFERENCE-001",
+        "line": 1,
+        "searchText": "resource links require literal current relative targets 附加资源链接使用字面 `./_resources/` 当前相对目标；符合白名单的 ASCII 成对括号合法。 普通目标和 `evidence(1).txt` 通过；带 fragment 的目标被拒绝。 tools/investigation-report/tests/resources.test.ts > resource links require literal current relative targets bun test --test-name-pattern=\"^resource links require literal current relative targets$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/resource-links-require-literal-current-relative-targets.md",
+        "summary": "附加资源链接使用字面 `./_resources/` 当前相对目标；符合白名单的 ASCII 成对括号合法。",
+        "title": "resource links require literal current relative targets"
+      }
+    },
+    "INVESTIGATION-RESOURCE-REVISION-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-RESOURCE-REVISION-001 resource byte changes do not change the report index source revision 资源字节不进入报告 index source revision。 在真实资源文件从 `one` 改为 `two` 后完整验证仍成功，index 的 sourceRevision 保持相同。 tools/investigation-report/tests/resources.test.ts > resource byte changes do not change the report index source revision bun test --test-name-pattern=\"^resource byte changes do not change the report index source revision$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
           "tools/investigation-report/tests/resources.test.ts > resource byte changes do not change the report index source revision",
           "bun test --test-name-pattern=\"^resource byte changes do not change the report index source revision$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-RESOURCE-REVISION-001",
         "line": 1,
-        "searchText": "resource byte changes do not change the report index source revision 资源字节不进入报告索引 source revision。 修改资源字节后 sourceRevision 保持相同。 tools/investigation-report/tests/resources.test.ts > resource byte changes do not change the report index source revision bun test --test-name-pattern=\"^resource byte changes do not change the report index source revision$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "resource byte changes do not change the report index source revision 资源字节不进入报告 index source revision。 在真实资源文件从 `one` 改为 `two` 后完整验证仍成功，index 的 sourceRevision 保持相同。 tools/investigation-report/tests/resources.test.ts > resource byte changes do not change the report index source revision bun test --test-name-pattern=\"^resource byte changes do not change the report index source revision$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/resource-byte-changes-do-not-change-the-report-index-source-revision.md",
-        "summary": "资源字节不进入报告索引 source revision。",
+        "summary": "资源字节不进入报告 index source revision。",
         "title": "resource byte changes do not change the report index source revision"
       }
     },
@@ -7294,23 +7662,23 @@
     "INVESTIGATION-ROOT-CONFINEMENT-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-ROOT-CONFINEMENT-001 validation reports malformed frontmatter fields in the selected report 局部验证必须定位所选报告中的 frontmatter 字段错误。 替换必需字段后，所选报告产生错误。 tools/investigation-report/tests/parsing-directory.test.ts > validation reports malformed frontmatter fields in the selected report bun test --test-name-pattern=\"^validation reports malformed frontmatter fields in the selected report$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-ROOT-CONFINEMENT-001 validation reports malformed frontmatter fields in the selected report scoped validation 定位所选报告中的 frontmatter 标量错误。 字面 `\\r` 标量使所选报告返回必填标量的领域诊断。 tools/investigation-report/tests/parsing-directory.test.ts > validation reports malformed frontmatter fields in the selected report bun test --test-name-pattern=\"^validation reports malformed frontmatter fields in the selected report$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
           "tools/investigation-report/tests/parsing-directory.test.ts > validation reports malformed frontmatter fields in the selected report",
           "bun test --test-name-pattern=\"^validation reports malformed frontmatter fields in the selected report$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-ROOT-CONFINEMENT-001",
         "line": 1,
-        "searchText": "validation reports malformed frontmatter fields in the selected report 局部验证必须定位所选报告中的 frontmatter 字段错误。 替换必需字段后，所选报告产生错误。 tools/investigation-report/tests/parsing-directory.test.ts > validation reports malformed frontmatter fields in the selected report bun test --test-name-pattern=\"^validation reports malformed frontmatter fields in the selected report$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "validation reports malformed frontmatter fields in the selected report scoped validation 定位所选报告中的 frontmatter 标量错误。 字面 `\\r` 标量使所选报告返回必填标量的领域诊断。 tools/investigation-report/tests/parsing-directory.test.ts > validation reports malformed frontmatter fields in the selected report bun test --test-name-pattern=\"^validation reports malformed frontmatter fields in the selected report$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/validation-reports-malformed-frontmatter-fields-in-the-selected-report.md",
-        "summary": "局部验证必须定位所选报告中的 frontmatter 字段错误。",
+        "summary": "scoped validation 定位所选报告中的 frontmatter 标量错误。",
         "title": "validation reports malformed frontmatter fields in the selected report"
       }
     },
@@ -7363,76 +7731,53 @@
     "INVESTIGATION-SNAPSHOT-REVISION-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-SNAPSHOT-REVISION-001 list filters formedAt relation type and title question text 报告 list 可组合形成时间、关系类型和标题或问题文本筛选。 组合筛选只返回命中的报告。 tools/investigation-report/tests/index-query.test.ts > list filters formedAt relation type and title question text bun test --test-name-pattern=\"^list filters formedAt relation type and title question text$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-SNAPSHOT-REVISION-001 list filters reports at an inclusive formedAt range list 的 formedAt 起止筛选包含两个端点。 起止时刻的报告被返回；范围外的报告被排除。 tools/investigation-report/tests/index-query.test.ts > list filters reports at an inclusive formedAt range bun test --test-name-pattern=\"^list filters reports at an inclusive formedAt range$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
-          "tools/investigation-report/tests/index-query.test.ts > list filters formedAt relation type and title question text",
-          "bun test --test-name-pattern=\"^list filters formedAt relation type and title question text$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/index-query.test.ts > list filters reports at an inclusive formedAt range",
+          "bun test --test-name-pattern=\"^list filters reports at an inclusive formedAt range$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-SNAPSHOT-REVISION-001",
         "line": 1,
-        "searchText": "list filters formedAt relation type and title question text 报告 list 可组合形成时间、关系类型和标题或问题文本筛选。 组合筛选只返回命中的报告。 tools/investigation-report/tests/index-query.test.ts > list filters formedAt relation type and title question text bun test --test-name-pattern=\"^list filters formedAt relation type and title question text$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/list-filters-formedat-relation-type-and-title-question-text.md",
-        "summary": "报告 list 可组合形成时间、关系类型和标题或问题文本筛选。",
-        "title": "list filters formedAt relation type and title question text"
-      }
-    },
-    "INVESTIGATION-SNAPSHOT-SOURCE-MEMBERSHIP-001": {
-      "keys": {
-        "search": [
-          "INVESTIGATION-SNAPSHOT-SOURCE-MEMBERSHIP-001 show and trace resolve reports by investigation id `show` 与 `trace` 都以 Investigation ID 直接定位报告及其关系子图。 show 返回指定报告，successor trace 返回起点和后继。 tools/investigation-report/tests/index-query.test.ts > show and trace resolve reports by investigation id bun test --test-name-pattern=\"^show and trace resolve reports by investigation id$\" ./tools/investigation-report/tests/run.ts"
-        ],
-        "topic": [
-          "investigation-report"
-        ]
-      },
-      "state": {
-        "endLine": 12,
-        "entries": [
-          "tools/investigation-report/tests/index-query.test.ts > show and trace resolve reports by investigation id",
-          "bun test --test-name-pattern=\"^show and trace resolve reports by investigation id$\" ./tools/investigation-report/tests/run.ts"
-        ],
-        "id": "INVESTIGATION-SNAPSHOT-SOURCE-MEMBERSHIP-001",
-        "line": 1,
-        "searchText": "show and trace resolve reports by investigation id `show` 与 `trace` 都以 Investigation ID 直接定位报告及其关系子图。 show 返回指定报告，successor trace 返回起点和后继。 tools/investigation-report/tests/index-query.test.ts > show and trace resolve reports by investigation id bun test --test-name-pattern=\"^show and trace resolve reports by investigation id$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/show-and-trace-resolve-reports-by-investigation-id.md",
-        "summary": "`show` 与 `trace` 都以 Investigation ID 直接定位报告及其关系子图。",
-        "title": "show and trace resolve reports by investigation id"
+        "searchText": "list filters reports at an inclusive formedAt range list 的 formedAt 起止筛选包含两个端点。 起止时刻的报告被返回；范围外的报告被排除。 tools/investigation-report/tests/index-query.test.ts > list filters reports at an inclusive formedAt range bun test --test-name-pattern=\"^list filters reports at an inclusive formedAt range$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/list-filters-reports-at-an-inclusive-formedat-range.md",
+        "summary": "list 的 formedAt 起止筛选包含两个端点。",
+        "title": "list filters reports at an inclusive formedAt range"
       }
     },
     "INVESTIGATION-SOURCE-REVISION-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-SOURCE-REVISION-001 source revisions fingerprint report Markdown and strict empty metadata only 报告索引来源 revision 指纹化报告 Markdown 与严格空 metadata。 已建立索引携带非空 sourceRevision。 tools/investigation-report/tests/index-query.test.ts > source revisions fingerprint report Markdown and strict empty metadata only bun test --test-name-pattern=\"^source revisions fingerprint report Markdown and strict empty metadata only$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-SOURCE-REVISION-001 source revisions fingerprint report Markdown source revision 指纹化报告 Markdown；重新同步后产生新 revision。 改写报告 Markdown 后当前 index 变为过期；公共 synchronize 成功重建并更新 revision。 tools/investigation-report/tests/index-query.test.ts > source revisions fingerprint report Markdown bun test --test-name-pattern=\"^source revisions fingerprint report Markdown$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
-          "tools/investigation-report/tests/index-query.test.ts > source revisions fingerprint report Markdown and strict empty metadata only",
-          "bun test --test-name-pattern=\"^source revisions fingerprint report Markdown and strict empty metadata only$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/index-query.test.ts > source revisions fingerprint report Markdown",
+          "bun test --test-name-pattern=\"^source revisions fingerprint report Markdown$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-SOURCE-REVISION-001",
         "line": 1,
-        "searchText": "source revisions fingerprint report Markdown and strict empty metadata only 报告索引来源 revision 指纹化报告 Markdown 与严格空 metadata。 已建立索引携带非空 sourceRevision。 tools/investigation-report/tests/index-query.test.ts > source revisions fingerprint report Markdown and strict empty metadata only bun test --test-name-pattern=\"^source revisions fingerprint report Markdown and strict empty metadata only$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/source-revisions-fingerprint-report-markdown-and-strict-empty-metadata-only.md",
-        "summary": "报告索引来源 revision 指纹化报告 Markdown 与严格空 metadata。",
-        "title": "source revisions fingerprint report Markdown and strict empty metadata only"
+        "searchText": "source revisions fingerprint report Markdown source revision 指纹化报告 Markdown；重新同步后产生新 revision。 改写报告 Markdown 后当前 index 变为过期；公共 synchronize 成功重建并更新 revision。 tools/investigation-report/tests/index-query.test.ts > source revisions fingerprint report Markdown bun test --test-name-pattern=\"^source revisions fingerprint report Markdown$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/source-revisions-fingerprint-report-markdown.md",
+        "summary": "source revision 指纹化报告 Markdown；重新同步后产生新 revision。",
+        "title": "source revisions fingerprint report Markdown"
       }
     },
     "INVESTIGATION-STAGE-BOOTSTRAP-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-STAGE-BOOTSTRAP-001 stage-index accepts selected report additions in a current index 选择性暂存按当前报告集合和索引定义处理新增报告 entry。 索引定义不满足暂存前提时返回错误而不静默写入。 tools/investigation-report/tests/staging.test.ts > stage-index accepts selected report additions in a current index bun test --test-name-pattern=\"^stage-index accepts selected report additions in a current index$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-STAGE-BOOTSTRAP-001 stage-index accepts selected report additions in a current index 选择性暂存按当前报告集合和 index 定义处理新增报告 entry。 真实 Git fixture 中新增报告的当前 entry 写入 cached index；报告 Markdown 本身不被暂存或改写。 tools/investigation-report/tests/staging.test.ts > stage-index accepts selected report additions in a current index bun test --test-name-pattern=\"^stage-index accepts selected report additions in a current index$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7446,39 +7791,39 @@
         ],
         "id": "INVESTIGATION-STAGE-BOOTSTRAP-001",
         "line": 1,
-        "searchText": "stage-index accepts selected report additions in a current index 选择性暂存按当前报告集合和索引定义处理新增报告 entry。 索引定义不满足暂存前提时返回错误而不静默写入。 tools/investigation-report/tests/staging.test.ts > stage-index accepts selected report additions in a current index bun test --test-name-pattern=\"^stage-index accepts selected report additions in a current index$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "stage-index accepts selected report additions in a current index 选择性暂存按当前报告集合和 index 定义处理新增报告 entry。 真实 Git fixture 中新增报告的当前 entry 写入 cached index；报告 Markdown 本身不被暂存或改写。 tools/investigation-report/tests/staging.test.ts > stage-index accepts selected report additions in a current index bun test --test-name-pattern=\"^stage-index accepts selected report additions in a current index$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/stage-index-accepts-selected-report-additions-in-a-current-index.md",
-        "summary": "选择性暂存按当前报告集合和索引定义处理新增报告 entry。",
+        "summary": "选择性暂存按当前报告集合和 index 定义处理新增报告 entry。",
         "title": "stage-index accepts selected report additions in a current index"
       }
     },
     "INVESTIGATION-STAGE-CLI-USAGE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-STAGE-CLI-USAGE-001 CLI stage-index uses invalid-option exit status without report IDs CLI `stage-index` 必须要求至少一个 Investigation ID。 省略报告 ID 返回退出码 2。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index uses invalid-option exit status without report IDs bun test --test-name-pattern=\"^CLI stage-index uses invalid-option exit status without report IDs$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-STAGE-CLI-USAGE-001 CLI stage-index uses invalid-option exit status without report IDs 分发 CLI `stage-index` 必须要求至少一个 Investigation ID。 省略报告 ID 返回退出码 2、stdout 为空、stderr 给出用法诊断且派生 index 字节不变。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index uses invalid-option exit status without report IDs bun test --test-name-pattern=\"^CLI stage-index uses invalid-option exit status without report IDs$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
           "tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index uses invalid-option exit status without report IDs",
           "bun test --test-name-pattern=\"^CLI stage-index uses invalid-option exit status without report IDs$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-STAGE-CLI-USAGE-001",
         "line": 1,
-        "searchText": "CLI stage-index uses invalid-option exit status without report IDs CLI `stage-index` 必须要求至少一个 Investigation ID。 省略报告 ID 返回退出码 2。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index uses invalid-option exit status without report IDs bun test --test-name-pattern=\"^CLI stage-index uses invalid-option exit status without report IDs$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI stage-index uses invalid-option exit status without report IDs 分发 CLI `stage-index` 必须要求至少一个 Investigation ID。 省略报告 ID 返回退出码 2、stdout 为空、stderr 给出用法诊断且派生 index 字节不变。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index uses invalid-option exit status without report IDs bun test --test-name-pattern=\"^CLI stage-index uses invalid-option exit status without report IDs$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-stage-index-uses-invalid-option-exit-status-without-report-ids.md",
-        "summary": "CLI `stage-index` 必须要求至少一个 Investigation ID。",
+        "summary": "分发 CLI `stage-index` 必须要求至少一个 Investigation ID。",
         "title": "CLI stage-index uses invalid-option exit status without report IDs"
       }
     },
     "INVESTIGATION-STAGE-CONFLICT-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-STAGE-CONFLICT-001 stage-index preserves strict current index definition requirements 选择性暂存要求当前索引定义完整合法。 不满足定义要求时返回错误。 tools/investigation-report/tests/staging.test.ts > stage-index preserves strict current index definition requirements bun test --test-name-pattern=\"^stage-index preserves strict current index definition requirements$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-STAGE-CONFLICT-001 stage-index preserves strict current index definition requirements 选择性暂存要求当前 index 定义完整合法。 真实 Git fixture 中旧或错误 definition overlay 明确返回诊断，且 cached pending 保持不变。 tools/investigation-report/tests/staging.test.ts > stage-index preserves strict current index definition requirements bun test --test-name-pattern=\"^stage-index preserves strict current index definition requirements$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7492,16 +7837,16 @@
         ],
         "id": "INVESTIGATION-STAGE-CONFLICT-001",
         "line": 1,
-        "searchText": "stage-index preserves strict current index definition requirements 选择性暂存要求当前索引定义完整合法。 不满足定义要求时返回错误。 tools/investigation-report/tests/staging.test.ts > stage-index preserves strict current index definition requirements bun test --test-name-pattern=\"^stage-index preserves strict current index definition requirements$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "stage-index preserves strict current index definition requirements 选择性暂存要求当前 index 定义完整合法。 真实 Git fixture 中旧或错误 definition overlay 明确返回诊断，且 cached pending 保持不变。 tools/investigation-report/tests/staging.test.ts > stage-index preserves strict current index definition requirements bun test --test-name-pattern=\"^stage-index preserves strict current index definition requirements$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/stage-index-preserves-strict-current-index-definition-requirements.md",
-        "summary": "选择性暂存要求当前索引定义完整合法。",
+        "summary": "选择性暂存要求当前 index 定义完整合法。",
         "title": "stage-index preserves strict current index definition requirements"
       }
     },
     "INVESTIGATION-STAGE-DEFINITION-UPGRADE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-STAGE-DEFINITION-UPGRADE-001 stage-index validates canonical Investigation IDs before repository access 选择性暂存在访问版本仓库前校验规范 Investigation ID。 非法 ID 在当前工作区外也返回错误。 tools/investigation-report/tests/staging.test.ts > stage-index validates canonical Investigation IDs before repository access bun test --test-name-pattern=\"^stage-index validates canonical Investigation IDs before repository access$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-STAGE-DEFINITION-UPGRADE-001 stage-index validates canonical Investigation IDs before repository access 选择性暂存在访问仓库或工作区前校验规范 Investigation ID。 对不存在的临时 root 传入路径 ID，返回 invalid-ID 诊断而该 root 不被创建。 tools/investigation-report/tests/staging.test.ts > stage-index validates canonical Investigation IDs before repository access bun test --test-name-pattern=\"^stage-index validates canonical Investigation IDs before repository access$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7515,39 +7860,39 @@
         ],
         "id": "INVESTIGATION-STAGE-DEFINITION-UPGRADE-001",
         "line": 1,
-        "searchText": "stage-index validates canonical Investigation IDs before repository access 选择性暂存在访问版本仓库前校验规范 Investigation ID。 非法 ID 在当前工作区外也返回错误。 tools/investigation-report/tests/staging.test.ts > stage-index validates canonical Investigation IDs before repository access bun test --test-name-pattern=\"^stage-index validates canonical Investigation IDs before repository access$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "stage-index validates canonical Investigation IDs before repository access 选择性暂存在访问仓库或工作区前校验规范 Investigation ID。 对不存在的临时 root 传入路径 ID，返回 invalid-ID 诊断而该 root 不被创建。 tools/investigation-report/tests/staging.test.ts > stage-index validates canonical Investigation IDs before repository access bun test --test-name-pattern=\"^stage-index validates canonical Investigation IDs before repository access$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/stage-index-validates-canonical-investigation-ids-before-repository-access.md",
-        "summary": "选择性暂存在访问版本仓库前校验规范 Investigation ID。",
+        "summary": "选择性暂存在访问仓库或工作区前校验规范 Investigation ID。",
         "title": "stage-index validates canonical Investigation IDs before repository access"
       }
     },
     "INVESTIGATION-STAGE-INPUT-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-STAGE-INPUT-001 stage-index rejects invalid or duplicate Investigation IDs `stage-index` 拒绝无效或重复 Investigation ID。 重复和含路径分隔符的 ID 返回 report-id 诊断。 tools/investigation-report/tests/staging.test.ts > stage-index rejects invalid or duplicate Investigation IDs bun test --test-name-pattern=\"^stage-index rejects invalid or duplicate Investigation IDs$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-STAGE-INPUT-001 stage-index rejects invalid or duplicate Investigation IDs `stage-index` 拒绝重复或非规范 Investigation ID。 重复 ID 返回 duplicate 诊断；路径、`./` 和首尾空白 ID 各返回 invalid 诊断。 tools/investigation-report/tests/staging.test.ts > stage-index rejects invalid or duplicate Investigation IDs bun test --test-name-pattern=\"^stage-index rejects invalid or duplicate Investigation IDs$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
           "tools/investigation-report/tests/staging.test.ts > stage-index rejects invalid or duplicate Investigation IDs",
           "bun test --test-name-pattern=\"^stage-index rejects invalid or duplicate Investigation IDs$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-STAGE-INPUT-001",
         "line": 1,
-        "searchText": "stage-index rejects invalid or duplicate Investigation IDs `stage-index` 拒绝无效或重复 Investigation ID。 重复和含路径分隔符的 ID 返回 report-id 诊断。 tools/investigation-report/tests/staging.test.ts > stage-index rejects invalid or duplicate Investigation IDs bun test --test-name-pattern=\"^stage-index rejects invalid or duplicate Investigation IDs$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "stage-index rejects invalid or duplicate Investigation IDs `stage-index` 拒绝重复或非规范 Investigation ID。 重复 ID 返回 duplicate 诊断；路径、`./` 和首尾空白 ID 各返回 invalid 诊断。 tools/investigation-report/tests/staging.test.ts > stage-index rejects invalid or duplicate Investigation IDs bun test --test-name-pattern=\"^stage-index rejects invalid or duplicate Investigation IDs$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/stage-index-rejects-invalid-or-duplicate-investigation-ids.md",
-        "summary": "`stage-index` 拒绝无效或重复 Investigation ID。",
+        "summary": "`stage-index` 拒绝重复或非规范 Investigation ID。",
         "title": "stage-index rejects invalid or duplicate Investigation IDs"
       }
     },
     "INVESTIGATION-STAGE-ISOLATION-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-STAGE-ISOLATION-001 stage-index keeps report Markdown outside selected index staging `stage-index` 的写入边界只包含派生索引，不包含报告 Markdown。 有效选择返回成功而报告保持在领域文件边界外。 tools/investigation-report/tests/staging.test.ts > stage-index keeps report Markdown outside selected index staging bun test --test-name-pattern=\"^stage-index keeps report Markdown outside selected index staging$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-STAGE-ISOLATION-001 stage-index keeps report Markdown outside selected index staging `stage-index` 的暂存写入边界仅为派生 index，不包含报告 Markdown。 真实 Git fixture 中暂存区只含 index；cached index 等于工作树 index，报告 Markdown 仅留在未暂存工作树差异中。 tools/investigation-report/tests/staging.test.ts > stage-index keeps report Markdown outside selected index staging bun test --test-name-pattern=\"^stage-index keeps report Markdown outside selected index staging$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7561,9 +7906,9 @@
         ],
         "id": "INVESTIGATION-STAGE-ISOLATION-001",
         "line": 1,
-        "searchText": "stage-index keeps report Markdown outside selected index staging `stage-index` 的写入边界只包含派生索引，不包含报告 Markdown。 有效选择返回成功而报告保持在领域文件边界外。 tools/investigation-report/tests/staging.test.ts > stage-index keeps report Markdown outside selected index staging bun test --test-name-pattern=\"^stage-index keeps report Markdown outside selected index staging$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "stage-index keeps report Markdown outside selected index staging `stage-index` 的暂存写入边界仅为派生 index，不包含报告 Markdown。 真实 Git fixture 中暂存区只含 index；cached index 等于工作树 index，报告 Markdown 仅留在未暂存工作树差异中。 tools/investigation-report/tests/staging.test.ts > stage-index keeps report Markdown outside selected index staging bun test --test-name-pattern=\"^stage-index keeps report Markdown outside selected index staging$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/stage-index-keeps-report-markdown-outside-selected-index-staging.md",
-        "summary": "`stage-index` 的写入边界只包含派生索引，不包含报告 Markdown。",
+        "summary": "`stage-index` 的暂存写入边界仅为派生 index，不包含报告 Markdown。",
         "title": "stage-index keeps report Markdown outside selected index staging"
       }
     },
@@ -7593,7 +7938,7 @@
     "INVESTIGATION-STAGE-OVERLAY-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-STAGE-OVERLAY-001 stage-index selects entries by Investigation ID without staging reports `stage-index` 只按 Investigation ID 选择派生索引 entry，不自动暂存报告 Markdown。 成功结果列出所选报告 ID。 tools/investigation-report/tests/staging.test.ts > stage-index selects entries by Investigation ID without staging reports bun test --test-name-pattern=\"^stage-index selects entries by Investigation ID without staging reports$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-STAGE-OVERLAY-001 stage-index selects entries by Investigation ID without staging reports `stage-index` 只按 Investigation ID 选择派生 index entry，不自动暂存报告 Markdown。 真实 Git fixture 成功选择报告 ID；暂存区只含派生 index，不含报告 Markdown。 tools/investigation-report/tests/staging.test.ts > stage-index selects entries by Investigation ID without staging reports bun test --test-name-pattern=\"^stage-index selects entries by Investigation ID without staging reports$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7607,16 +7952,16 @@
         ],
         "id": "INVESTIGATION-STAGE-OVERLAY-001",
         "line": 1,
-        "searchText": "stage-index selects entries by Investigation ID without staging reports `stage-index` 只按 Investigation ID 选择派生索引 entry，不自动暂存报告 Markdown。 成功结果列出所选报告 ID。 tools/investigation-report/tests/staging.test.ts > stage-index selects entries by Investigation ID without staging reports bun test --test-name-pattern=\"^stage-index selects entries by Investigation ID without staging reports$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "stage-index selects entries by Investigation ID without staging reports `stage-index` 只按 Investigation ID 选择派生 index entry，不自动暂存报告 Markdown。 真实 Git fixture 成功选择报告 ID；暂存区只含派生 index，不含报告 Markdown。 tools/investigation-report/tests/staging.test.ts > stage-index selects entries by Investigation ID without staging reports bun test --test-name-pattern=\"^stage-index selects entries by Investigation ID without staging reports$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/stage-index-selects-entries-by-investigation-id-without-staging-reports.md",
-        "summary": "`stage-index` 只按 Investigation ID 选择派生索引 entry，不自动暂存报告 Markdown。",
+        "summary": "`stage-index` 只按 Investigation ID 选择派生 index entry，不自动暂存报告 Markdown。",
         "title": "stage-index selects entries by Investigation ID without staging reports"
       }
     },
     "INVESTIGATION-STAGE-RESOURCE-ADD-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-STAGE-RESOURCE-ADD-001 stage-index treats unrelated report resources as outside selected report entries 未选报告的资源变化不自动进入已选报告索引 entry。 只选择 first report 时，unrelated resource 场景不扩大选择。 tools/investigation-report/tests/staging.test.ts > stage-index treats unrelated report resources as outside selected report entries bun test --test-name-pattern=\"^stage-index treats unrelated report resources as outside selected report entries$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-STAGE-RESOURCE-ADD-001 stage-index treats unrelated report resources as outside selected report entries 未选报告的资源变化不自动进入已选报告 index entry。 真实 Git fixture 只选择 first report 时，second 的资源改动不进入 pending index，也不扩大 selected IDs。 tools/investigation-report/tests/staging.test.ts > stage-index treats unrelated report resources as outside selected report entries bun test --test-name-pattern=\"^stage-index treats unrelated report resources as outside selected report entries$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7630,16 +7975,16 @@
         ],
         "id": "INVESTIGATION-STAGE-RESOURCE-ADD-001",
         "line": 1,
-        "searchText": "stage-index treats unrelated report resources as outside selected report entries 未选报告的资源变化不自动进入已选报告索引 entry。 只选择 first report 时，unrelated resource 场景不扩大选择。 tools/investigation-report/tests/staging.test.ts > stage-index treats unrelated report resources as outside selected report entries bun test --test-name-pattern=\"^stage-index treats unrelated report resources as outside selected report entries$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "stage-index treats unrelated report resources as outside selected report entries 未选报告的资源变化不自动进入已选报告 index entry。 真实 Git fixture 只选择 first report 时，second 的资源改动不进入 pending index，也不扩大 selected IDs。 tools/investigation-report/tests/staging.test.ts > stage-index treats unrelated report resources as outside selected report entries bun test --test-name-pattern=\"^stage-index treats unrelated report resources as outside selected report entries$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/stage-index-treats-unrelated-report-resources-as-outside-selected-report-entries.md",
-        "summary": "未选报告的资源变化不自动进入已选报告索引 entry。",
+        "summary": "未选报告的资源变化不自动进入已选报告 index entry。",
         "title": "stage-index treats unrelated report resources as outside selected report entries"
       }
     },
     "INVESTIGATION-STAGE-RESOURCE-BYTES-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-STAGE-RESOURCE-BYTES-001 stage-index treats resource byte changes as outside report selection 资源字节变化不扩大报告 entry 的选择范围。 资源字节场景保持报告 ID 选择边界。 tools/investigation-report/tests/staging.test.ts > stage-index treats resource byte changes as outside report selection bun test --test-name-pattern=\"^stage-index treats resource byte changes as outside report selection$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-STAGE-RESOURCE-BYTES-001 stage-index treats resource byte changes as outside report selection 资源字节变化不扩大报告 entry 的选择范围，也不使 source revision 失效。 真实资源从 `before` 改为 `after` 后，命令零变更、cached index 和工作树 index 保持原字节，资源改动仍只在未暂存工作树。 tools/investigation-report/tests/staging.test.ts > stage-index treats resource byte changes as outside report selection bun test --test-name-pattern=\"^stage-index treats resource byte changes as outside report selection$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7653,9 +7998,9 @@
         ],
         "id": "INVESTIGATION-STAGE-RESOURCE-BYTES-001",
         "line": 1,
-        "searchText": "stage-index treats resource byte changes as outside report selection 资源字节变化不扩大报告 entry 的选择范围。 资源字节场景保持报告 ID 选择边界。 tools/investigation-report/tests/staging.test.ts > stage-index treats resource byte changes as outside report selection bun test --test-name-pattern=\"^stage-index treats resource byte changes as outside report selection$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "stage-index treats resource byte changes as outside report selection 资源字节变化不扩大报告 entry 的选择范围，也不使 source revision 失效。 真实资源从 `before` 改为 `after` 后，命令零变更、cached index 和工作树 index 保持原字节，资源改动仍只在未暂存工作树。 tools/investigation-report/tests/staging.test.ts > stage-index treats resource byte changes as outside report selection bun test --test-name-pattern=\"^stage-index treats resource byte changes as outside report selection$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/stage-index-treats-resource-byte-changes-as-outside-report-selection.md",
-        "summary": "资源字节变化不扩大报告 entry 的选择范围。",
+        "summary": "资源字节变化不扩大报告 entry 的选择范围，也不使 source revision 失效。",
         "title": "stage-index treats resource byte changes as outside report selection"
       }
     },
@@ -7708,21 +8053,21 @@
     "INVESTIGATION-STAGE-VERSION-CONTROL-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-STAGE-VERSION-CONTROL-001 stage-index reports unavailable version control without working-tree writes 选择性暂存要求可用版本仓库，失败时不改写工作树。 无 Git 仓库时返回错误。 tools/investigation-report/tests/staging.test.ts > stage-index reports unavailable version control without working-tree writes bun test --test-name-pattern=\"^stage-index reports unavailable version control without working-tree writes$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-STAGE-VERSION-CONTROL-001 stage-index reports unavailable version control without working-tree writes 选择性暂存要求可用版本仓库，失败时不改写工作树。 非 Git fixture 返回错误，报告 Markdown 与派生 index 的完整字节保持不变。 tools/investigation-report/tests/staging.test.ts > stage-index reports unavailable version control without working-tree writes bun test --test-name-pattern=\"^stage-index reports unavailable version control without working-tree writes$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
           "tools/investigation-report/tests/staging.test.ts > stage-index reports unavailable version control without working-tree writes",
           "bun test --test-name-pattern=\"^stage-index reports unavailable version control without working-tree writes$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-STAGE-VERSION-CONTROL-001",
         "line": 1,
-        "searchText": "stage-index reports unavailable version control without working-tree writes 选择性暂存要求可用版本仓库，失败时不改写工作树。 无 Git 仓库时返回错误。 tools/investigation-report/tests/staging.test.ts > stage-index reports unavailable version control without working-tree writes bun test --test-name-pattern=\"^stage-index reports unavailable version control without working-tree writes$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "stage-index reports unavailable version control without working-tree writes 选择性暂存要求可用版本仓库，失败时不改写工作树。 非 Git fixture 返回错误，报告 Markdown 与派生 index 的完整字节保持不变。 tools/investigation-report/tests/staging.test.ts > stage-index reports unavailable version control without working-tree writes bun test --test-name-pattern=\"^stage-index reports unavailable version control without working-tree writes$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/stage-index-reports-unavailable-version-control-without-working-tree-writes.md",
         "summary": "选择性暂存要求可用版本仓库，失败时不改写工作树。",
         "title": "stage-index reports unavailable version control without working-tree writes"
@@ -7731,46 +8076,46 @@
     "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001 full synchronization rejects an empty report collection 完整索引同步和查询要求集合中至少存在一份报告。 空集合查询返回错误。 tools/investigation-report/tests/index-query.test.ts > full synchronization rejects an empty report collection bun test --test-name-pattern=\"^full synchronization rejects an empty report collection$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001 full synchronization rejects an empty report collection 公共完整 index 同步要求集合至少有一份报告，拒绝时不写派生 index。 空集合调用 `synchronizeInvestigationIndex` 返回集合诊断，且目标 index 不存在。 tools/investigation-report/tests/index-query.test.ts > full synchronization rejects an empty report collection bun test --test-name-pattern=\"^full synchronization rejects an empty report collection$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
           "tools/investigation-report/tests/index-query.test.ts > full synchronization rejects an empty report collection",
           "bun test --test-name-pattern=\"^full synchronization rejects an empty report collection$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001",
         "line": 1,
-        "searchText": "full synchronization rejects an empty report collection 完整索引同步和查询要求集合中至少存在一份报告。 空集合查询返回错误。 tools/investigation-report/tests/index-query.test.ts > full synchronization rejects an empty report collection bun test --test-name-pattern=\"^full synchronization rejects an empty report collection$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "full synchronization rejects an empty report collection 公共完整 index 同步要求集合至少有一份报告，拒绝时不写派生 index。 空集合调用 `synchronizeInvestigationIndex` 返回集合诊断，且目标 index 不存在。 tools/investigation-report/tests/index-query.test.ts > full synchronization rejects an empty report collection bun test --test-name-pattern=\"^full synchronization rejects an empty report collection$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/full-synchronization-rejects-an-empty-report-collection.md",
-        "summary": "完整索引同步和查询要求集合中至少存在一份报告。",
+        "summary": "公共完整 index 同步要求集合至少有一份报告，拒绝时不写派生 index。",
         "title": "full synchronization rejects an empty report collection"
       }
     },
     "INVESTIGATION-VALIDATION-WARNINGS-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-VALIDATION-WARNINGS-001 CLI trace accepts report-level direction options CLI `trace` 支持报告级的关系方向选项。 带 `--direction both` 的有效 trace 返回成功。 tools/investigation-report/tests/cli-generated.test.ts > CLI trace accepts report-level direction options bun test --test-name-pattern=\"^CLI trace accepts report-level direction options$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-VALIDATION-WARNINGS-001 CLI trace accepts report-level direction options 分发 CLI `trace` 支持报告级关系方向选项。 带 `--direction successors` 的有效 trace 成功、stderr 为空，并在 stdout 返回后继报告和边。 tools/investigation-report/tests/cli-generated.test.ts > CLI trace accepts report-level direction options bun test --test-name-pattern=\"^CLI trace accepts report-level direction options$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 12,
+        "endLine": 15,
         "entries": [
           "tools/investigation-report/tests/cli-generated.test.ts > CLI trace accepts report-level direction options",
           "bun test --test-name-pattern=\"^CLI trace accepts report-level direction options$\" ./tools/investigation-report/tests/run.ts"
         ],
         "id": "INVESTIGATION-VALIDATION-WARNINGS-001",
         "line": 1,
-        "searchText": "CLI trace accepts report-level direction options CLI `trace` 支持报告级的关系方向选项。 带 `--direction both` 的有效 trace 返回成功。 tools/investigation-report/tests/cli-generated.test.ts > CLI trace accepts report-level direction options bun test --test-name-pattern=\"^CLI trace accepts report-level direction options$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI trace accepts report-level direction options 分发 CLI `trace` 支持报告级关系方向选项。 带 `--direction successors` 的有效 trace 成功、stderr 为空，并在 stdout 返回后继报告和边。 tools/investigation-report/tests/cli-generated.test.ts > CLI trace accepts report-level direction options bun test --test-name-pattern=\"^CLI trace accepts report-level direction options$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-trace-accepts-report-level-direction-options.md",
-        "summary": "CLI `trace` 支持报告级的关系方向选项。",
+        "summary": "分发 CLI `trace` 支持报告级关系方向选项。",
         "title": "CLI trace accepts report-level direction options"
       }
     },
@@ -13758,8 +14103,14 @@
       "DECISION-METADATA-REMOVED-001": "sha256:acf1d41ba428423573e46332b0b03bcc68c1ad1112445b11d43d9dacae2b591d",
       "DECISION-QUERY-INDEX-MEMBERSHIP-001": "sha256:9be8324d65bc1f3f24199487d7f338d0e126a3388fd49469ef8d71b935bf23cf",
       "DECISION-RECORD-GUARD-IDENTITY-001": "sha256:c456fb7f6e3c6c6f4d64bdcb14bdd77ee338aff8cd1e0ffb783a78ca1c181175",
-      "DECISION-RELATION-GRAPH-STRUCTURE-001": "sha256:b55d8947e25049da8fcea03d5306b0bf744194f6008cdad8ab0f77173f0ce885",
-      "DECISION-RELATION-GRAPH-TRACE-001": "sha256:b5eaef6ff616caf2973efab1dcf3a74ff7cad7c9c67c8c5e507793b2ba0df6d6",
+      "DECISION-RELATION-GRAPH-CYCLE-001": "sha256:94fe79d8d3f1e27fbb6a09140004bddc4b74d2f184f39f428dacb7169ae58d6d",
+      "DECISION-RELATION-GRAPH-DUPLICATE-001": "sha256:846f0c6032c2d9586f38552b52109a841c4d64f9db4fed0f09cfbff664398d9e",
+      "DECISION-RELATION-GRAPH-INDEX-001": "sha256:bd917379e404a18d29aa5829be3788d860d20276d371654befb47e49c0636c0b",
+      "DECISION-RELATION-GRAPH-MISSING-TRACE-001": "sha256:16d82fa99cfe5542c7f42edb82af71713fbb1a0ee23bbaa4bf3cb86f9e19623f",
+      "DECISION-RELATION-GRAPH-ORDERING-001": "sha256:aef310061dcf02258165625df610328fa2fe7fbd4b5b3a73dcb1949e1d469518",
+      "DECISION-RELATION-GRAPH-SELF-001": "sha256:d7c07a6984dad2248391afee378aae8f3a0a7d7bb64a118cd041d706c54168d1",
+      "DECISION-RELATION-GRAPH-STRUCTURE-001": "sha256:2df4244739b416c6bbc66d86575f4d8b8b9cf4a4f2d47dbc6ba74fc341a756e5",
+      "DECISION-RELATION-GRAPH-TRACE-001": "sha256:b8b9a61d8459adba44a12a7b786f7baaa3c6e3f1e43fa517d2a830cff37937c4",
       "DECISION-SHOW-OUTPUT-001": "sha256:a6c556c13e2756b76f7019231afd5763ab95cbff56963d914132de0763548fa6",
       "DECISION-SPLIT-CLOSURE-001": "sha256:8eca8efac59196c19a855de11f0d0662e1e5449caa9e62c9b9a4f9ba82f614de",
       "DECISION-SPLIT-EXTENSION-001": "sha256:ea347368f16eca94ab22e1365226982d6b761e6b0f21bb13043991869a6fff08",
@@ -13877,36 +14228,45 @@
       "INDEX-RUNTIME-SYNC-UTF8-001": "sha256:6bd07e1441ed4e5f861530432e1639c040941a5b1b67fe43d6e48b128112d0c9",
       "INDEX-RUNTIME-TEMPORAL-SORT-001": "sha256:c171e76cf05b0b6f1505e25b88d903014dc2ecc917585aff424c19e655df3303",
       "INDEX-RUNTIME-TEXT-SEARCH-001": "sha256:025c697be00a2550ec330872fffefa04d9ca342e1dd6ee497e1e8310781ec8f1",
-      "INVESTIGATION-BUNDLED-PARITY-001": "sha256:e7f3c2f92f8d997b9f49d6a65027c7535894a947baade141ef63fdc14c5611fe",
-      "INVESTIGATION-CLI-CONTRACTS-001": "sha256:7fdfd3e5d8bd8452d7b26ab7404b7569243ed17393aa07d19a315720c8a28bba",
-      "INVESTIGATION-CLI-LIST-001": "sha256:666d0a07bc54bffa7f3fcc326fc18828ac2efb755a7c7fc4fa68da99f2edf18f",
-      "INVESTIGATION-CLI-LIST-FRESHNESS-001": "sha256:5c16a9add8cc3daed1f83a521f59cc551bfb69b292b9520c709474c383072fcd",
-      "INVESTIGATION-CLI-SYNC-001": "sha256:308b3816a3a317ea76db0deb881765de5bbaaa7f3561d934c3ed3c799dd16e5f",
-      "INVESTIGATION-CLI-USAGE-001": "sha256:c3434cc9af0a5c0f3d30944043db6dc4c885b14c58cc8fb163adffa8691a5f95",
-      "INVESTIGATION-CLI-WARNINGS-001": "sha256:3054ad8c2d2c7a6d9819f74f86ffdb8090b20bb14e13e10f4290aa5e04c8b3c3",
-      "INVESTIGATION-COLLECTION-LAYOUT-001": "sha256:d54d16819b7d36c871eb03c12612ee222c4f9c5b57ede8c23c3b4d4aa29861b8",
+      "INVESTIGATION-BUNDLED-PARITY-001": "sha256:c21cea852c6c6fa885666ae53bd0e1d46d282be54d484a332895e58d5f9ab80f",
+      "INVESTIGATION-CLI-CONTRACTS-001": "sha256:22ddd1c8f52e0d423159abae81e4b3d79afe9e61ee692ffa1ff405fa76871d30",
+      "INVESTIGATION-CLI-ENUM-001": "sha256:96f85e4a80c0feafd5b891d43139bdd2b5ad1e915e0c5a0e083915a33aad9ba5",
+      "INVESTIGATION-CLI-LIST-001": "sha256:a1c4d1f6498a702316d553efc7124cf963c43a8569331b5abc540640dc85d392",
+      "INVESTIGATION-CLI-SYNC-001": "sha256:0a41d0e32bd592820e7e1f1e126eda485b27c3bcbeb5c996c000d26367b2c163",
+      "INVESTIGATION-CLI-USAGE-001": "sha256:77875cc3901f6a08d78a635e2b3ee861cf597f6dd573eefaebf799450c8ddcd4",
+      "INVESTIGATION-CLI-WARNINGS-001": "sha256:cdef2b5d4264bf1add614c3c3980beff1a3a2667da43b1216b6186bcc76a6c54",
+      "INVESTIGATION-COLLECTION-LAYOUT-001": "sha256:1d73ce585b768cdaf110359fe5253febda7feaf0b5b0fc2a2f49d2c11769768b",
+      "INVESTIGATION-COLLECTION-ROOT-001": "sha256:f5d20b2646a9b4f27399a5fc5a022bb5a65e9ab06befc7fdec5d6190beedb372",
       "INVESTIGATION-DIRECTORY-PATH-001": "sha256:c232adeaff4f31869a400176d5e354d6ba24073fa128b52bc9abfd5d757de419",
       "INVESTIGATION-EMPTY-COLLECTION-001": "sha256:8d021f23fbc7eff9b320d85898235b02d4ffa0856cb3aa99c9bf4cc16fca592c",
-      "INVESTIGATION-GENERATED-METADATA-001": "sha256:800fe66b2d4b0bf3c21cd7725a8470950330394f31b7def0ce7ebb217a0122cb",
-      "INVESTIGATION-INDEX-COMPATIBILITY-001": "sha256:0012758d6470382d005f8d3e289c99844c7040f9508d8bfd689f29eb6607c800",
+      "INVESTIGATION-GENERATED-METADATA-001": "sha256:82909426d343053b983e0c718e3961115734ae1c2749db4d44ebf2532b1633cf",
+      "INVESTIGATION-GENERATED-METADATA-002": "sha256:a05a1110456941165ecb83b81a9af126e05f142543f2cf3db5fe057f29b09e55",
+      "INVESTIGATION-INDEX-COMPATIBILITY-001": "sha256:8d2608ee1e08148198d3112e57109415a2b0eedcc4d2e27894059f4a95413dfc",
       "INVESTIGATION-INDEX-INTEGRITY-001": "sha256:30e6abf470564ec7874d9115309741f339a2230e171409c85fc1cbc3fa4d1fcd",
+      "INVESTIGATION-INDEX-METADATA-001": "sha256:6b8709067fcaed6ea8f4c70bf05f7877b8cd4556d133a6e188435dd51de8800e",
       "INVESTIGATION-INDEX-QUERY-001": "sha256:9174dcc9fd34aff5f777c490db138274825a96a002ef3d8794b625eae0010daa",
+      "INVESTIGATION-INDEX-RELATION-FILTER-001": "sha256:b00de37bf7cf17ffeccca354b30bb855003e126825ebcabf2c55384927395e4e",
+      "INVESTIGATION-INDEX-TEXT-FILTER-001": "sha256:3c7ebda378aba9e7e6fc6353adc3579a185fe8282c58560bf8f173efbc639fc0",
       "INVESTIGATION-PUBLIC-OPTIONS-001": "sha256:c296f8686441762f6fc42c7baed4df1d90c506d8349e5a90cd6a79118af81f86",
+      "INVESTIGATION-QUERY-REPORT-ID-001": "sha256:f06cda59aa8d5cf08fe6e2ce817df58bebadd2df540370e4b2c9190073a6615f",
+      "INVESTIGATION-RELATION-GRAPH-CYCLE-001": "sha256:c765da2db93e681c3aeee2493d2e16aadb08d39077a5b9af527690865822d170",
+      "INVESTIGATION-RELATION-GRAPH-DUPLICATE-001": "sha256:1be34f5d3d35c63ef2e37265962adfb64456f7f1eca607f660a40454c690ac90",
+      "INVESTIGATION-RELATION-GRAPH-SELF-001": "sha256:770dff101c35f6a9ac7d0ac808dfdd12b9ed9ecc5cb56568488367421cf478ea",
       "INVESTIGATION-RELATION-GRAPH-SHAPES-001": "sha256:12db84349c0d482d1a24942c7e1a46b10d4e40f5109100f4794bcad55ce73115",
+      "INVESTIGATION-RELATION-GRAPH-TIME-001": "sha256:6f5f6011a8022d3316dadbf285b27b237a057ad11fd8c8bc2d7bab1ae990f252",
       "INVESTIGATION-RELATION-GRAPH-TRACE-001": "sha256:3516c3d7206feb24d9dcb2660a5052c194eea516b8fa00357a6fe728e2ede774",
-      "INVESTIGATION-RELATION-GRAPH-VALIDATION-001": "sha256:eff18d3fdfa2cd8237e32b22eb3148aaebca20b1397e6cd05aae46106c46724d",
+      "INVESTIGATION-RELATION-GRAPH-VALIDATION-001": "sha256:5efc05392ae38b3a32ae84d59353fa3b641fd581a9952e32584650a760a7d7af",
       "INVESTIGATION-RELATION-TRANSACTION-ATOMIC-001": "sha256:edef756fa68cafaa0dbca270d2636a7c67097500e703269964742fcb652ccfbf",
       "INVESTIGATION-RELATION-TRANSACTION-DRIFT-001": "sha256:d2eafdb26073ce3ddd52dfec19d17fc9300f4b8e89da85230f54dea3064bb59e",
       "INVESTIGATION-RELATION-TRANSACTION-IDEMPOTENCE-001": "sha256:e29c341374970add80fd9e97ca748eb31102e7f81ea1f62f23196e40e2fbe0a0",
       "INVESTIGATION-RELATION-TRANSACTION-PARSE-001": "sha256:55fe51a8b775ad482ba032a80fbdb70f4f077c7ca6a20fe325bf8bd9af6f8337",
       "INVESTIGATION-RELATION-TRANSACTION-PENDING-001": "sha256:5aaee9d215f3f416eb66727c9e863c253e51357a509fff505b22740a893c5659",
       "INVESTIGATION-RELATION-TRANSACTION-RECOVERY-001": "sha256:3348463801d0a972ec5a9a5a65b2c6905fe6492ca4c5bcba3eb162ca62f794c1",
-      "INVESTIGATION-REPORT-FRONTMATTER-001": "sha256:2bc9d45951a06bda887d8b45538c1b50abfacfadfd44bee71b4a791b19b4fd15",
-      "INVESTIGATION-REPORT-STRUCTURE-001": "sha256:fd6ab662ea628fcd3eac1b7d272de0dd6a5557e0e7e3a8bd76b54466efbc0fb7",
-      "INVESTIGATION-REPORT-VALIDATION-SCOPE-001": "sha256:64a1a1935ab1c980e9b624ad1fc7e03440f74c9bc639998d52f922b457b9f6eb",
+      "INVESTIGATION-REPORT-FRONTMATTER-001": "sha256:275c3a8d7772b92445db9c875eaf3b4ebf5796292fb60b17e6705bd810f8bb3b",
+      "INVESTIGATION-REPORT-STRUCTURE-001": "sha256:1192a2c396a0d369c56290ce4a1078abc4066047fc2be8672460358f5f746746",
+      "INVESTIGATION-REPORT-VALIDATION-SCOPE-001": "sha256:db1402f134024dfa26d5a1673b8d03a2ac22d4a602c2db863debe518fb3d58d2",
       "INVESTIGATION-RESOURCE-CASE-001": "sha256:db0f23dee4bbc4477e514ccf3394d23ca08cdb7de6416f545e17377901924417",
-      "INVESTIGATION-RESOURCE-FIELD-001": "sha256:6f02fa3a18a85937f48b0ae8a11fdb30ab9af8b10fe5209b2c03309e6ff7641c",
-      "INVESTIGATION-RESOURCE-GIT-VISIBILITY-001": "sha256:f4cd85db8a58b6839eae7c1d1a34d3671496715e944c1e1fa46e99e2b3da250e",
+      "INVESTIGATION-RESOURCE-GIT-VISIBILITY-001": "sha256:e959463d674edb6075b08e22561d5db1f1bdaf7c981023740d795af16902338b",
       "INVESTIGATION-RESOURCE-INVALID-OWNER-ANCHOR-001": "sha256:a69e0c6265d515f19bd359b9bce82acb45db8d011dcf413947355fdf1f273d70",
       "INVESTIGATION-RESOURCE-INVALID-OWNER-WARNING-001": "sha256:82e62e40f238d303436e405a5d2224167ba6853a7c2ffa33c7576a0e1015f722",
       "INVESTIGATION-RESOURCE-MEMBERSHIP-001": "sha256:f1071af740f7f3a0346efd84125bfc71cbc07f761ce9b4bfb437cc404714469c",
@@ -13917,33 +14277,33 @@
       "INVESTIGATION-RESOURCE-OWNER-PREFIX-001": "sha256:5ad90b70796d04bcad09a6b94bb7843d22d80458879a8caa75e5619db6dc1f14",
       "INVESTIGATION-RESOURCE-PATH-001": "sha256:1b7d718a944064c6c28aba2a4acea51565561e49d9a04b3dda419e19004c83c3",
       "INVESTIGATION-RESOURCE-PROJECTION-001": "sha256:b70f4a63794a9ed81efea0847559e4bf53bfb24c470a3b67c164b104bdc0ac1c",
-      "INVESTIGATION-RESOURCE-REVISION-001": "sha256:60f103c09fdcbdc46afd127b4a487ac83a75c1a766cf5b528620a6d53520a966",
+      "INVESTIGATION-RESOURCE-REFERENCE-001": "sha256:eb1cff25c8448b3caa7039aeb1dc9bc71ed158635170b03878ae623317c02bb1",
+      "INVESTIGATION-RESOURCE-REVISION-001": "sha256:7a7e06c1d19482969fab56a512277c66114f647f9082579fdc75b678d5e9f790",
       "INVESTIGATION-RESOURCE-ROOT-001": "sha256:fb1ffe075022915ce21e3cfd724004deabec4f7b6bf64ec1dd95773b0b337418",
       "INVESTIGATION-RESOURCE-SCOPE-001": "sha256:2ed6a4896d65fad193bcc9f6e58fe66188f4eee927a738dd6329ac82b1b5cc8b",
       "INVESTIGATION-RESOURCE-SYMLINK-001": "sha256:17b5c20ef56cc40afc086e576656220e0fb0fdb63670cbdcf1c218e45f29f43b",
       "INVESTIGATION-RESOURCE-TRACKED-MISSING-ROOT-001": "sha256:3ea607e0e19e690e812fb40959a100539804584ff7235106ec892830b0f3a39f",
       "INVESTIGATION-RESOURCE-TYPE-001": "sha256:136efbc83e2cff8a2a8354dc99819168ebb89c5cf70a268ee466e1ffab2a4a63",
-      "INVESTIGATION-ROOT-CONFINEMENT-001": "sha256:426c77e9213ecbf6f4a29d95ad1f17f63f40f9a9e961c319a14b9fa3d3238b4f",
+      "INVESTIGATION-ROOT-CONFINEMENT-001": "sha256:6cfebc15ed121b4633e6278486565a97c892b8ed39f7a253b59d3d2c62f3c45b",
       "INVESTIGATION-SCALE-INDEX-001": "sha256:a0a230f55169ec69d236d9166c1211e849df1cc89b1bcd5decf70c507133c675",
       "INVESTIGATION-SNAPSHOT-DUPLICATE-STATE-001": "sha256:254d4824b981d0cce7d9e1dc079887436c59a58d90835916b29fa70047ba8f06",
-      "INVESTIGATION-SNAPSHOT-REVISION-001": "sha256:91da21020cc65d44028551a26df111ccd3db55dffe7484a789c2bb2bb0380d5f",
-      "INVESTIGATION-SNAPSHOT-SOURCE-MEMBERSHIP-001": "sha256:b2c00a251e3cb1770999456f92ab6457a99cddb3ac9c03ef8e1d32c6e14f0238",
-      "INVESTIGATION-SOURCE-REVISION-001": "sha256:5daf00a1820edf73b00bc5b002fbf7bc2d7b8f2d35d00b892249d905d2456d6e",
-      "INVESTIGATION-STAGE-BOOTSTRAP-001": "sha256:8e2b608421ed9db11d685922f7f71ad62e534198771e479397fc6d866fc5ac5b",
-      "INVESTIGATION-STAGE-CLI-USAGE-001": "sha256:3ea4764f98fbc82357909c58124729688ec51fcd391fc4db227cc60f9810122f",
-      "INVESTIGATION-STAGE-CONFLICT-001": "sha256:770a41afebad4b2ece5686e977084a7d7d33674d4343dd20db9432f0428c9604",
-      "INVESTIGATION-STAGE-DEFINITION-UPGRADE-001": "sha256:1e8da6722771ca8d6d9cbe32bce94610cf1a969ec69f53e2c999fb44cad92d1f",
-      "INVESTIGATION-STAGE-INPUT-001": "sha256:c92cfde7288bed72324f5c3182bb86dc33272e7d620f77eb8604acb24e490371",
-      "INVESTIGATION-STAGE-ISOLATION-001": "sha256:6f30e898cc237afb8940a78950c6791d0dd53103080520b9fcd5f5e081f454f4",
+      "INVESTIGATION-SNAPSHOT-REVISION-001": "sha256:14496f1c0c6948df244d3c4a845ecca44a488636ee104a3d14e30a61b36ede2b",
+      "INVESTIGATION-SOURCE-REVISION-001": "sha256:11a9746b2ed741ab64c90bce5547e3a6c186afb366d12240da25ca5b7fa1aa6d",
+      "INVESTIGATION-STAGE-BOOTSTRAP-001": "sha256:b6307f01921a3aa9b33c0b5bb692b7b7918f366021658b8c6ad10f136cec8e1e",
+      "INVESTIGATION-STAGE-CLI-USAGE-001": "sha256:d5604199487e0db107a36900f6515f7e0fcdccfdb29ef6e556091947b9ab8dde",
+      "INVESTIGATION-STAGE-CONFLICT-001": "sha256:abe617dbc0f4900e9c93477acf4115882823c32b9061abe83bda46ad5b2d1b57",
+      "INVESTIGATION-STAGE-DEFINITION-UPGRADE-001": "sha256:88ff64bb31221493ac7013f2c6e5e73a554fc1e7d041fcca5bdc936fbb6219f3",
+      "INVESTIGATION-STAGE-INPUT-001": "sha256:fa53885a795d5631b866e224097be0e752c76506faf897841f82035e0ae3125f",
+      "INVESTIGATION-STAGE-ISOLATION-001": "sha256:96725596ff5d08a0881b011bced66c9ea88e51ee4701c885ed2124c9935b2283",
       "INVESTIGATION-STAGE-MISSING-001": "sha256:384766c64d0232948396cf63059a4f733a226f096cd312a73e1b54b5c5b1b1e5",
-      "INVESTIGATION-STAGE-OVERLAY-001": "sha256:df9cf7e07fa4cb92c13b3caae16c01a0fedcd1f4a4d09c0d1675175f556ebf9f",
-      "INVESTIGATION-STAGE-RESOURCE-ADD-001": "sha256:9df87d38490eeadcfac04ba685cf5523aedbc3023904c6588ee8b29e22e14273",
-      "INVESTIGATION-STAGE-RESOURCE-BYTES-001": "sha256:33e604943771de8065b33bdbe56eb3dc3c68bb77e2172a302181272386da2992",
+      "INVESTIGATION-STAGE-OVERLAY-001": "sha256:5a8c7e63f4ead7ecd6b417546544077fc6ca156072ee7f300b7dd671d4092d80",
+      "INVESTIGATION-STAGE-RESOURCE-ADD-001": "sha256:8eca870a2abdb5317c3f435178e42886b22e61e0c2a36e5fc93dd1fe419208ed",
+      "INVESTIGATION-STAGE-RESOURCE-BYTES-001": "sha256:f320df023ba312c17d42e350054bfe723f60399a4cbeff1988c6a9021df2ac99",
       "INVESTIGATION-STAGE-RESOURCE-DELETE-001": "sha256:64db4707b83b697b85ce4220bb2acb929667447a07079a754800d717ff847cb3",
       "INVESTIGATION-STAGE-RESOURCE-RENAME-001": "sha256:0288febc705e6ceefd3bc4f5a92b8e481e1093d5967796dc536c06a71c98aa64",
-      "INVESTIGATION-STAGE-VERSION-CONTROL-001": "sha256:58434ba66a27d07cad331ac339686589b95976a01c14eac7b1c06b928609e657",
-      "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001": "sha256:63b9d707bf9b9e274c7f41e357a66b42ce4f29511906bbda9cd14f43398b6614",
-      "INVESTIGATION-VALIDATION-WARNINGS-001": "sha256:80a8a774e1e9b9e4feaa02c7be71843ad74f877321ebf1556e893129e48929f7",
+      "INVESTIGATION-STAGE-VERSION-CONTROL-001": "sha256:9555e9e4e55d747f55eb3b6653062814f14092477cec780b3a4f46778716546f",
+      "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001": "sha256:b972098b86b31893963b01c347b74b36806bf2f3a53f49d64abad277df716cb7",
+      "INVESTIGATION-VALIDATION-WARNINGS-001": "sha256:8d743d73e4a9956cbaa7d8b75be05bff83404c8b5d0f4679f76c0bdc343ad075",
       "PROJECT-MARKDOWN-SCOPE-001": "sha256:c81887aeeaff27a4a175363abe07d51f222bfdb46e785dc0c436e790aa82832c",
       "REPO-FORMAT-SCRIPTS-001": "sha256:2f52e8e3653f91fad9f12010ebaee9b5beec800eb99609bd48b28a284618794d",
       "REPO-LINT-PREFLIGHT-001": "sha256:028ff20768861e327bd9a7a43cd90b6eeaeea2de6490982ebb7ee8269b68b2c4",

@@ -1,10 +1,14 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { serializeInvestigationReportFrontmatter } from "../src/markdown.ts";
+import { fileURLToPath } from "node:url";
 import { synchronizeInvestigationIndex } from "../src/validation.ts";
-import type { InvestigationRelation } from "../src/types.ts";
+import {
+  investigationRelationTypes,
+  type InvestigationRelation
+} from "../src/types.ts";
 
 export type ReportFixture = Readonly<{
   formedAt?: string;
@@ -16,15 +20,44 @@ export type ReportFixture = Readonly<{
   title?: string;
 }>;
 
+export type InvestigationCliResult = Readonly<{
+  status: number | null;
+  stderr: string;
+  stdout: string;
+}>;
+
+const generatedCliPath = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../../../skills/investigation-report/scripts/check-investigations.mjs"
+);
+
 export function reportMarkdown(input: ReportFixture): string {
+  const relations = [...(input.relations ?? [])].sort((left, right) => {
+    const typeOrder =
+      investigationRelationTypes.indexOf(left.type) -
+      investigationRelationTypes.indexOf(right.type);
+    return typeOrder === 0 ? compareText(left.target, right.target) : typeOrder;
+  });
   return [
-    serializeInvestigationReportFrontmatter({
-      formedAt: input.formedAt ?? "2026-08-28T12:00:00+00:00",
-      question: input.question ?? "当前问题是什么？",
-      relations: input.relations ?? [],
-      tags: input.tags ?? ["investigation-report"],
-      title: input.title ?? input.id.slice(0, -3)
-    }),
+    "---",
+    `title: ${JSON.stringify(input.title ?? input.id.slice(0, -3))}`,
+    `formedAt: ${JSON.stringify(input.formedAt ?? "2026-08-28T12:00:00+00:00")}`,
+    `question: ${JSON.stringify(input.question ?? "当前问题是什么？")}`,
+    "tags:",
+    ...(input.tags ?? ["investigation-report"])
+      .slice()
+      .sort(compareText)
+      .map((tag) => `  - ${JSON.stringify(tag)}`),
+    ...(relations.length === 0
+      ? ["relations: []"]
+      : [
+          "relations:",
+          ...relations.flatMap((relation) => [
+            `  - type: ${JSON.stringify(relation.type)}`,
+            `    target: ${JSON.stringify(relation.target)}`
+          ])
+        ]),
+    "---",
     "",
     "## 形成时背景",
     "形成此报告时的已知事实和边界。",
@@ -52,6 +85,42 @@ export function investigationRoot(workspaceRoot: string): string {
   return path.join(workspaceRoot, "docs", "investigations");
 }
 
+export function runGeneratedInvestigationCli(
+  workspaceRoot: string,
+  args: readonly string[]
+): InvestigationCliResult {
+  const result = spawnSync(
+    "node",
+    [generatedCliPath, ...args, "--root", workspaceRoot],
+    { encoding: "utf8" }
+  );
+  assert.equal(
+    result.error,
+    undefined,
+    `could not run generated investigation CLI with node: ${result.error?.message ?? "unknown spawn failure"}`
+  );
+  return {
+    status: result.status,
+    stderr: result.stderr ?? "",
+    stdout: result.stdout ?? ""
+  };
+}
+
+export function parseJsonObject(text: string): Record<string, unknown> {
+  const parsed: unknown = JSON.parse(text);
+  assert.ok(isJsonObject(parsed), "expected JSON object");
+  return parsed;
+}
+
+export function jsonObjectMember(
+  object: Readonly<Record<string, unknown>>,
+  member: string
+): Record<string, unknown> {
+  const value = object[member];
+  assert.ok(isJsonObject(value), `expected JSON object member ${member}`);
+  return value;
+}
+
 export async function writeCollection(
   workspaceRoot: string,
   reports: readonly ReportFixture[],
@@ -70,6 +139,14 @@ export async function writeCollection(
     const result = await synchronizeInvestigationIndex({ workspaceRoot });
     assert.deepEqual(result.errors, []);
   }
+}
+
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function isJsonObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 export async function withTempRoot(

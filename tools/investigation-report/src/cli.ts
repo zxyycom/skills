@@ -21,10 +21,7 @@ import {
 } from "./validation.ts";
 import type {
   InvestigationIndexStageResult,
-  InvestigationRelation,
-  InvestigationRelationReplacement,
-  InvestigationRelationSetResult,
-  InvestigationTraceDirection
+  InvestigationRelationSetResult
 } from "./types.ts";
 
 type InvestigationCommand =
@@ -38,7 +35,16 @@ type InvestigationCommand =
 type ParsedCli = Readonly<{
   command: InvestigationCommand;
   positionals: string[];
+  relationEvents?: readonly RelationCliEvent[];
   values: Map<string, string[]>;
+}>;
+type RelationCliEvent =
+  | Readonly<{ kind: "source"; value: string }>
+  | Readonly<{ kind: "relation"; value: string }>
+  | Readonly<{ kind: "clear" }>;
+type RawInvestigationRelationReplacement = Readonly<{
+  relations: readonly Readonly<{ target: string; type: string }>[];
+  source: string;
 }>;
 
 const valueOptions = new Set([
@@ -283,6 +289,7 @@ async function runList(input: ParsedCli): Promise<number> {
       "offset"
     ]);
   if (problem !== null) return cliInvalid(problem);
+  const relationType = valueOf(input.values, "relation-type");
   const execution = await executeInvestigationIndexQuery({
     ...location(input.values),
     ...(valuesOf(input.values, "tag") === undefined
@@ -294,14 +301,7 @@ async function runList(input: ParsedCli): Promise<number> {
     ...(valueOf(input.values, "formed-to") === undefined
       ? {}
       : { formedAtTo: valueOf(input.values, "formed-to") }),
-    ...(valueOf(input.values, "relation-type") === undefined
-      ? {}
-      : {
-          relationType: valueOf(
-            input.values,
-            "relation-type"
-          ) as InvestigationRelation["type"]
-        }),
+    ...(relationType === undefined ? {} : { relationType }),
     ...(valueOf(input.values, "text") === undefined
       ? {}
       : { text: valueOf(input.values, "text") }),
@@ -339,11 +339,12 @@ async function runList(input: ParsedCli): Promise<number> {
 
 async function runShow(input: ParsedCli): Promise<number> {
   const problem = assertAllowedOptions(input, ["root", "investigations-dir"]);
-  if (problem !== null || input.positionals.length !== 1)
+  const [id] = input.positionals;
+  if (problem !== null || id === undefined || input.positionals.length !== 1)
     return cliInvalid(problem ?? "show requires exactly one Investigation ID");
   const result = await showInvestigationReport({
     ...location(input.values),
-    id: input.positionals[0]!
+    id
   });
   if (result.status === "error")
     return printResultErrors(
@@ -362,19 +363,14 @@ async function runTrace(input: ParsedCli): Promise<number> {
     "direction",
     "max-depth"
   ]);
-  if (problem !== null || input.positionals.length !== 1)
+  const [id] = input.positionals;
+  if (problem !== null || id === undefined || input.positionals.length !== 1)
     return cliInvalid(problem ?? "trace requires exactly one Investigation ID");
+  const direction = valueOf(input.values, "direction");
   const result = await traceInvestigationReports({
     ...location(input.values),
-    id: input.positionals[0]!,
-    ...(valueOf(input.values, "direction") === undefined
-      ? {}
-      : {
-          direction: valueOf(
-            input.values,
-            "direction"
-          ) as InvestigationTraceDirection
-        }),
+    id,
+    ...(direction === undefined ? {} : { direction }),
     ...(numberValue(input.values, "max-depth") === undefined
       ? {}
       : { maxDepth: numberValue(input.values, "max-depth") })
@@ -425,7 +421,7 @@ async function runSetRelations(input: ParsedCli): Promise<number> {
       "json"
     ]);
   if (problem !== null) return cliInvalid(problem);
-  const parsed = parseRelationGroups(input.values);
+  const parsed = parseRelationGroups(input.relationEvents);
   if (parsed.status === "error") return cliInvalid(parsed.error);
   const result = await setInvestigationRelations({
     ...location(input.values),
@@ -437,30 +433,16 @@ async function runSetRelations(input: ParsedCli): Promise<number> {
 }
 
 function parseRelationGroups(
-  values: ReadonlyMap<string, string[]>
+  events: readonly RelationCliEvent[] | undefined
 ):
-  | { status: "ok"; replacements: InvestigationRelationReplacement[] }
+  | { status: "ok"; replacements: RawInvestigationRelationReplacement[] }
   | { status: "error"; error: string } {
-  const events: Array<{
-    kind: "source" | "relation" | "clear";
-    value?: string;
-  }> = [];
-  // Map does not retain interleaving across option names; CLI parsing records order below only for set-relations.
-  // The hand parser uses this private marker when it sees relation options.
-  const raw = values.get("__relation-events");
-  if (raw === undefined)
+  if (events === undefined)
     return { error: "set-relations requires --source groups", status: "error" };
-  for (const token of raw) {
-    const separator = token.indexOf(":");
-    const kind = token.slice(0, separator);
-    const value = token.slice(separator + 1);
-    if (kind === "source" || kind === "relation") events.push({ kind, value });
-    else if (kind === "clear") events.push({ kind: "clear" });
-  }
-  const replacements: InvestigationRelationReplacement[] = [];
+  const replacements: RawInvestigationRelationReplacement[] = [];
   let current: {
     mode: "clear" | "relations" | null;
-    relations: InvestigationRelation[];
+    relations: Array<{ target: string; type: string }>;
     source: string;
   } | null = null;
   function finish(): string | null {
@@ -471,36 +453,45 @@ function parseRelationGroups(
     return null;
   }
   for (const event of events) {
-    if (event.kind === "source") {
-      const error = finish();
-      if (error !== null) return { error, status: "error" };
-      current = { mode: null, relations: [], source: event.value! };
-    } else if (current === null)
-      return { error: `--${event.kind} must follow --source`, status: "error" };
-    else if (event.kind === "clear") {
-      if (current.mode !== null)
-        return {
-          error: `source ${current.source} must choose either --relation or --clear-relations`,
-          status: "error"
-        };
-      current.mode = "clear";
-    } else {
-      if (current.mode === "clear")
-        return {
-          error: `source ${current.source} must choose either --relation or --clear-relations`,
-          status: "error"
-        };
-      const separator = event.value!.indexOf("=");
-      if (separator <= 0 || separator === event.value!.length - 1)
-        return {
-          error: `relation ${JSON.stringify(event.value)} must use <type=target-id>`,
-          status: "error"
-        };
-      current.mode = "relations";
-      current.relations.push({
-        type: event.value!.slice(0, separator) as InvestigationRelation["type"],
-        target: event.value!.slice(separator + 1)
-      });
+    switch (event.kind) {
+      case "source": {
+        const error = finish();
+        if (error !== null) return { error, status: "error" };
+        current = { mode: null, relations: [], source: event.value };
+        break;
+      }
+      case "clear": {
+        if (current === null)
+          return { error: "--clear must follow --source", status: "error" };
+        if (current.mode !== null)
+          return {
+            error: `source ${current.source} must choose either --relation or --clear-relations`,
+            status: "error"
+          };
+        current.mode = "clear";
+        break;
+      }
+      case "relation": {
+        if (current === null)
+          return { error: "--relation must follow --source", status: "error" };
+        if (current.mode === "clear")
+          return {
+            error: `source ${current.source} must choose either --relation or --clear-relations`,
+            status: "error"
+          };
+        const separator = event.value.indexOf("=");
+        if (separator <= 0 || separator === event.value.length - 1)
+          return {
+            error: `relation ${JSON.stringify(event.value)} must use <type=target-id>`,
+            status: "error"
+          };
+        current.mode = "relations";
+        current.relations.push({
+          target: event.value.slice(separator + 1),
+          type: event.value.slice(0, separator)
+        });
+        break;
+      }
     }
   }
   const error = finish();
@@ -613,21 +604,30 @@ function parseCliWithRelationEvents(
   if (parsed.status !== "command" || parsed.value.command !== "set-relations")
     return parsed;
   const first = argv[0] === "set-relations" ? 1 : 0;
-  const events: string[] = [];
+  const events: RelationCliEvent[] = [];
   for (let index = first; index < argv.length; index += 1) {
     const token = argv[index]!;
-    if (token === "--source" || token === "--relation") {
+    if (token === "--source") {
       const value = argv[index + 1];
-      if (value !== undefined) events.push(`${token.slice(2)}:${value}`);
+      if (value !== undefined) events.push({ kind: "source", value });
       index += 1;
-    } else if (token === "--clear-relations") events.push("clear:");
+    } else if (token === "--relation") {
+      const value = argv[index + 1];
+      if (value !== undefined) events.push({ kind: "relation", value });
+      index += 1;
+    } else if (token === "--clear-relations") events.push({ kind: "clear" });
     else if (token.startsWith("--source="))
-      events.push(`source:${token.slice("--source=".length)}`);
+      events.push({ kind: "source", value: token.slice("--source=".length) });
     else if (token.startsWith("--relation="))
-      events.push(`relation:${token.slice("--relation=".length)}`);
+      events.push({
+        kind: "relation",
+        value: token.slice("--relation=".length)
+      });
   }
-  parsed.value.values.set("__relation-events", events);
-  return parsed;
+  return {
+    status: "command",
+    value: { ...parsed.value, relationEvents: events }
+  };
 }
 
 export {

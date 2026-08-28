@@ -17,6 +17,7 @@ import { investigationTimestampMilliseconds } from "./timestamp.ts";
 import {
   investigationRelationTypes,
   type InvestigationIndexMetadata,
+  type InvestigationRelation,
   type InvestigationIndexState
 } from "./types.ts";
 
@@ -206,20 +207,21 @@ function parseInvestigationIndexState(
 }
 
 function compareCanonicalRelations(
-  left: { target: string; type: string },
-  right: { target: string; type: string }
+  left: InvestigationRelation,
+  right: InvestigationRelation
 ): number {
-  const types = ["补充", "复查", "修正", "推翻", "归并", "拆分"];
   return (
-    types.indexOf(left.type) - types.indexOf(right.type) ||
+    investigationRelationTypes.indexOf(left.type) -
+      investigationRelationTypes.indexOf(right.type) ||
     (left.target < right.target ? -1 : left.target > right.target ? 1 : 0)
   );
 }
 
 function isStrictlySortedText(values: string[]): boolean {
-  return values.every(
-    (value, index) => index === 0 || values[index - 1]! < value
-  );
+  return values.every((value, index) => {
+    const previous = values[index - 1];
+    return previous === undefined || previous < value;
+  });
 }
 
 function formatInvestigationIndexIssue(issue: v.BaseIssue<unknown>): string {

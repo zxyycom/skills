@@ -10,6 +10,8 @@ import {
 } from "../src/resource-reference.ts";
 import {
   investigationRoot,
+  jsonObjectMember,
+  parseJsonObject,
   withTempRoot,
   writeCollection
 } from "./v6-support.ts";
@@ -84,16 +86,12 @@ test("resource byte changes do not change the report index source revision", asy
       investigationRoot(root),
       "investigation-index.json"
     );
-    const before = JSON.parse(await fs.readFile(indexPath, "utf8")) as {
-      sourceRevision: unknown;
-    };
+    const before = parseJsonObject(await fs.readFile(indexPath, "utf8"));
     await fs.writeFile(resource, "two", "utf8");
     const result = await validateInvestigationReports({ workspaceRoot: root });
     assert.deepEqual(result.errors, []);
-    const after = JSON.parse(await fs.readFile(indexPath, "utf8")) as {
-      sourceRevision: unknown;
-    };
-    assert.deepEqual(after.sourceRevision, before.sourceRevision);
+    const after = parseJsonObject(await fs.readFile(indexPath, "utf8"));
+    assert.deepEqual(after["sourceRevision"], before["sourceRevision"]);
   });
 });
 
@@ -304,23 +302,33 @@ test("resource root must be a directory when reports declare resources", async (
   });
 });
 
-test("resource changes do not stale the index while report link changes do", async () => {
+test("report resource link changes stale the current index", async () => {
   await withTempRoot("resource-link-revision", async (root) => {
-    const resource = path.join(
+    const resourceDirectory = path.join(
       investigationRoot(root),
       "_resources",
-      "report",
-      "evidence.txt"
+      "report"
     );
-    await fs.mkdir(path.dirname(resource), { recursive: true });
-    await fs.writeFile(resource, "x");
+    await fs.mkdir(resourceDirectory, { recursive: true });
+    await fs.writeFile(path.join(resourceDirectory, "evidence.txt"), "x");
+    await fs.writeFile(path.join(resourceDirectory, "replacement.txt"), "y");
     await writeCollection(root, [
       { id: "report.md", resources: ["report/evidence.txt"] }
     ]);
-    await fs.writeFile(resource, "y");
-    assert.deepEqual(
-      (await validateInvestigationReports({ workspaceRoot: root })).errors,
-      []
+    const reportPath = path.join(investigationRoot(root), "report.md");
+    await fs.writeFile(
+      reportPath,
+      (await fs.readFile(reportPath, "utf8")).replace(
+        "report/evidence.txt",
+        "report/replacement.txt"
+      ),
+      "utf8"
+    );
+    const result = await validateInvestigationReports({ workspaceRoot: root });
+    assert.ok(
+      result.errors.some(
+        (error) => error.includes("source") || error.includes("index")
+      )
     );
   });
 });
@@ -344,12 +352,14 @@ test("visible resource discovery rejects unsafe owner directory names", async ()
 test("resource resources are never projected as index source bytes", async () => {
   await withTempRoot("source-boundary", async (root) => {
     await writeCollection(root, [{ id: "report.md" }]);
-    const index = JSON.parse(
+    const index = parseJsonObject(
       await fs.readFile(
         `${investigationRoot(root)}/investigation-index.json`,
         "utf8"
       )
-    ) as { entries: Record<string, { state: Record<string, unknown> }> };
-    assert.equal("resourceBytes" in index.entries["report.md"]!.state, false);
+    );
+    const entries = jsonObjectMember(index, "entries");
+    const report = jsonObjectMember(entries, "report.md");
+    assert.equal("resourceBytes" in jsonObjectMember(report, "state"), false);
   });
 });
