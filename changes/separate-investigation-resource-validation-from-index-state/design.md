@@ -1,10 +1,12 @@
 # Design
 
-本 design 把四条长期方向映射为可执行方案；长期判断由对应决策承接，本 Change 只拥有实施边界、兼容处理、任务顺序和验证出口。
+> **历史实施边界。** 本 design 记录本 Change 形成时的主题模型实施方案，不定义当前单报告模型的行为。维护当前行为时，以 [`skills/investigation-report/SKILL.md`](../../skills/investigation-report/SKILL.md) 及其固定契约为准；下文指向 `archive/` 的决策仅承接当时的判断依据。
+
+本 design 把四条形成时的长期方向映射为可执行方案；相应判断由归档决策承接，本 Change 只拥有历史实施边界、兼容处理、任务顺序和验证出口。
 
 ## Context
 
-- 行为事实由 [`skills/investigation-report/SKILL.md`](../../skills/investigation-report/SKILL.md)、固定契约和 `tools/investigation-report/src/` 承接。四条长期决策约束目标方案；alignment 的当前状态由对应 Decision Record 承接，本 Change 只在 `tasks.md` 记录其验收。
+- 行为事实由 [`skills/investigation-report/SKILL.md`](../../skills/investigation-report/SKILL.md)、固定契约和 `tools/investigation-report/src/` 承接。四条归档决策约束本 Change 形成时的目标方案；alignment 的当前状态由对应 Decision Record 承接，本 Change 只在 `tasks.md` 记录其验收。
 - 当前资源链接必须逐字使用 `../_resources/<resource-id>`，并已受规范 POSIX 路径、字符白名单、规范根、符号链接和普通文件门禁约束。
 - Git 工作区已经有独立的版本控制可见性规则：tracked 文件和 `git add -f` 的 ignored 文件可见，仍被 ignore 排除的未跟踪文件不可见；本 Change 只使用该结果，不重新定义成员发现。
 - 实施前的 `metadata.resources` 和 `sourceRevision.metadata` 覆盖完整资源集合。公共 selected-entry staging 正确要求集合级 metadata 稳定；耦合来自调查领域的 metadata 选择，不需要修改公共 index-runtime。
@@ -34,7 +36,7 @@
 
 #### 权威关系
 
-| 独立判断 | 长期 owner | 本 Change 的实施责任 |
+| 独立判断 | 形成时的长期依据 | 本 Change 的实施责任 |
 | --- | --- | --- |
 | 资源路径与共享引用 | [`anchor-investigation-resources-to-topic-owners.md`](../../docs/decisions/archive/anchor-investigation-resources-to-topic-owners.md) | 推导 owner topic ID，并校验被引用资源的 owner 参与当前引用 |
 | 引用错误与未引用资源 warning | [`warn-on-unreferenced-investigation-resources.md`](../../docs/decisions/archive/warn-on-unreferenced-investigation-resources.md) | 分离 errors/warnings，定义全量与 scoped 检查边界 |

@@ -7,7 +7,7 @@
 - 本 Change 的 artifacts 使用同一消费契约：proposal 拥有 Outcome、范围和成功标准；本 design 拥有已经确认的目标模型、领域边界与取舍；tasks 拥有完成进度和验证证据。审计基线中的代码、旧格式和既有决策只说明已完成迁移的起点，不能覆盖本 design 的目标状态；如 active Plan 期间发现目标需要改变，必须同步修订三个 artifacts。
 - 审计时的固定契约把 `docs/investigations/<category-id>/<semantic-slug>.md` 作为 topic ID；每个 topic 保存一个核心问题、继续调查状态、最新报告时间和一组按形成时间追加的 H3 报告，派生索引 definition 5 也以 topic 为 entry。
 - 2026-08-28 的审计基线包含 12 个 topic Markdown、33 份合法 H3 报告和 5 个版本控制可见资源。[`migration-manifest.json`](migration-manifest.json) 保存逐报告与逐资源映射、内容指纹和当时 source revision；该 revision 已作为迁移写入前的漂移门禁。
-- [`maintain-topic-level-investigation-index`](../../docs/decisions/archive/maintain-topic-level-investigation-index.md) 曾明确选择 topic 级身份与索引；[`use-fixed-investigation-record-core`](../../docs/decisions/archive/use-fixed-investigation-record-core.md) 曾同时拥有四段固定核心和主题追加模型。它们及资源 owner、索引 revision、未引用资源诊断和选择性暂存的旧决策已由当前报告级后继闭合。
+- [`maintain-topic-level-investigation-index`](../../../docs/decisions/archive/maintain-topic-level-investigation-index.md) 曾明确选择 topic 级身份与索引；[`use-fixed-investigation-record-core`](../../../docs/decisions/archive/use-fixed-investigation-record-core.md) 曾同时拥有四段固定核心和主题追加模型。它们及资源 owner、索引 revision、未引用资源诊断和选择性暂存的旧决策已由当前报告级后继闭合。
 - 调查报告记录形成时认识，不自动成为当前事实、长期采用方向或实施授权。Decision Records 的 archive 用来区分当前约束与历史决定；调查报告没有这个区分需要，推翻关系也不应让历史报告退出正常发现路径。
 - Decision Records 的边索引、双向 trace 与环检测曾与 Decision ID、archived 目标、关系形状和生命周期事务绑定；实施仅抽取共享算法，领域关系类型和生命周期不整体复用。
 - 审计时调查资源以 topic path 为 owner 前缀，资源字节不进入主题索引 revision，被引用资源严格校验，完全未引用的可见资源只产生 warning。资源字节、严格校验和 warning 边界在报告级模型中继续成立，owner 和引用投影已改为报告级。

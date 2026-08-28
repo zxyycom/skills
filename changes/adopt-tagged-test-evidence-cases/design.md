@@ -6,7 +6,7 @@
 
 - [`fix-test-evidence-workspace-contract`](../../docs/decisions/fix-test-evidence-workspace-contract.md) 当前固定了测试证据根目录、受控 topic catalog、topic 目录和统一派生索引；本 Change 必须通过后继决策演进该契约。
 - [`stage-selected-test-evidence-index-entries`](../../docs/decisions/stage-selected-test-evidence-index-entries.md) 已经让选择性暂存按 Case ID 选择条目。Case ID 因而应继续作为测试证据的语义身份，而不是被文件路径或 tag 替代。
-- 本 Change 与已归档的 [`adopt-tagged-decision-records`](../archive/adopt-tagged-decision-records/design.md) 源自同一组早期 draft；Decision Records 已明确把文件名唯一性限定在自身集合。原 Investigation Report draft 已删除，新的 [`establish-investigation-report-evolution`](../establish-investigation-report-evolution/design.md) 同样不建立跨资源全局 ID namespace。本 Change 不能再把三个集合的合并文件数或全局 basename 唯一性当作共享前置，Test Evidence 的文件身份与冲突门禁需要在自身 Plan 内重新收敛。
+- 本 Change 与已归档的 [`adopt-tagged-decision-records`](../archive/adopt-tagged-decision-records/design.md) 源自同一组早期 draft；Decision Records 已明确把文件名唯一性限定在自身集合。原 Investigation Report draft 已删除，已归档的 [`establish-investigation-report-evolution`](../archive/establish-investigation-report-evolution/design.md) 同样不建立跨资源全局 ID namespace。本 Change 不能再把三个集合的合并文件数或全局 basename 唯一性当作共享前置，Test Evidence 的文件身份与冲突门禁需要在自身 Plan 内重新收敛。
 - 当前 578 个 case 中存在 Test Evidence 集合内唯一一组同名文件：`docs/test-evidence/test-evidence/stage-index-applies-selected-additions-deletions-and-explicit-renames.md` 与 `docs/test-evidence/investigation-report/stage-index-applies-selected-additions-deletions-and-explicit-renames.md`。两者只是位于不同 topic；平铺和集合门禁启用前必须重命名其中一个文件，但 Case ID 保持不变。
 - 当前 topic catalog 提供分类元数据，topic 目录提供物理分组；topic catalog 的集合级变化会妨碍只按 Case ID 选择单个 index entry 的纯局部暂存。
 - [`skills/test-evidence-review/SKILL.md`](../../skills/test-evidence-review/SKILL.md) 要求每个文件只保存一个 case，并让账本覆盖全部可独立选择和报告的最小原生测试入口。标签化不能削弱这一完整性门禁。

@@ -1,5 +1,7 @@
 # Proposal
 
+> **历史实施范围。** 本 Change 保留其形成时以主题索引为单位的资源校验与索引状态分离方案，以及对应的完成记录；它不定义当前单报告模型的行为。维护当前行为时，以 [`skills/investigation-report/SKILL.md`](../../skills/investigation-report/SKILL.md) 及其固定契约为准；下文指向 `archive/` 的决策仅作为本 Change 的历史依据。
+
 本 Change 把调查资源校验与主题索引集合状态分离，使资源保持集中、可验证且可复用，同时让无关资源变化不再阻塞按主题暂存索引条目。
 
 ## Why
@@ -55,4 +57,4 @@
 - 行为与公开说明：[`skills/investigation-report/SKILL.md`](../../skills/investigation-report/SKILL.md)、[`investigation-report-contract.md`](../../skills/investigation-report/references/investigation-report-contract.md)、[`docs/skills/investigation-report.md`](../../docs/skills/investigation-report.md)
 - 实现与生成边界：`tools/investigation-report/src/`、`tools/investigation-report/api/check-investigations.d.mts`、`tools/investigation-report/tests/`、`skills/investigation-report/scripts/`、`skills/investigation-report/references/investigation-index.schema.json`
 - 当前派生状态与证据：`docs/investigations/investigation-index.json`、`docs/test-evidence/investigation-report/`、`docs/test-evidence/test-evidence-index.json`
-- 长期方向与派生索引：[`anchor-investigation-resources-to-topic-owners.md`](../../docs/decisions/archive/anchor-investigation-resources-to-topic-owners.md)、[`warn-on-unreferenced-investigation-resources.md`](../../docs/decisions/archive/warn-on-unreferenced-investigation-resources.md)、[`exclude-investigation-resources-from-index-revision.md`](../../docs/decisions/archive/exclude-investigation-resources-from-index-revision.md)、[`stage-investigation-index-entries-across-resource-changes.md`](../../docs/decisions/archive/stage-investigation-index-entries-across-resource-changes.md)、`docs/decisions/decision-index.json`
+- 形成时的长期方向与派生索引：[`anchor-investigation-resources-to-topic-owners.md`](../../docs/decisions/archive/anchor-investigation-resources-to-topic-owners.md)、[`warn-on-unreferenced-investigation-resources.md`](../../docs/decisions/archive/warn-on-unreferenced-investigation-resources.md)、[`exclude-investigation-resources-from-index-revision.md`](../../docs/decisions/archive/exclude-investigation-resources-from-index-revision.md)、[`stage-investigation-index-entries-across-resource-changes.md`](../../docs/decisions/archive/stage-investigation-index-entries-across-resource-changes.md)、`docs/decisions/decision-index.json`
