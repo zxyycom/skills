@@ -1,0 +1,1489 @@
+{
+  "schemaVersion": 1,
+  "sourceHead": "51a6946064212f574bf3dab63f05d6e3b7cee94c",
+  "sourceCollectionRevision": {
+    "entries": {
+      "ai-ready-docs/target-boundary-information-and-anchoring.md": "sha256:82ee33aca99791d5718757cbd279aeccf36b7dab56e51ef3e685101edd697615",
+      "codex/conversation-preservation-and-redaction.md": "sha256:818abcdb4142a37db2c1864064f42ed3e5dbfc234fc862d805c6f81ec33666fe",
+      "context-management/unified-context-management.md": "sha256:924236b12d95a2df8e645a9b51587591dc626749ff47e8f0676eb862eeef1c2e",
+      "decision-records/intra-change-decision-evolution.md": "sha256:3470b024980a9932889c90ebf0a9c7cc35d6d91cfbbed96c40a2e2731f2b8823",
+      "git-integration/direct-git-library-selection.md": "sha256:9948dbd4fcf22f71a82702d5d4cecd1008a189fab81c2e3bbcc0375c244ad4c9",
+      "implementation-libraries/functional-utilities-and-data-structures.md": "sha256:6bf7e428f3ad5573d3f6de2b6dbfc13c9dff95bc0b073409fb95351455c72ffd",
+      "implementation-libraries/pattern-matching-and-state-modeling-libraries.md": "sha256:3a58606070f5268283b32f37752872012bd05defd4a588b6092e014e62cc79fc",
+      "implementation-libraries/result-and-option-libraries.md": "sha256:3700335afd0bf7a4c1e4618a606af6b5fbb9a774d34ab5fdf5dad07eff1ec098",
+      "prompt-optimize/name-and-trigger-alignment.md": "sha256:3e962c81424f762a619986a4c3d8fc668a84b7ff3e867ca38ee370531ac826db",
+      "skill-orchestration/operation-time-skill-rerouting.md": "sha256:ae7d8ac02ca2dfbe31e2eb53784cbd2333998902d8db3ca0040f97a0f391121a",
+      "task-graph/file-lock-and-atomic-write-libraries.md": "sha256:1ef40f9481f4a6a1275f50b5ede4f08d70dd67677d0057852a3c6bf9841c1edb",
+      "test-evidence/standard-test-result-blocking.md": "sha256:9342822bb3eb67e35299264cd653743e64858b648c6d0feab2937491f6981dc2"
+    },
+    "metadata": "sha256:bb46b05dcddfd42513b7c9c3e68af97db6bdf58cecee29006a53cd5e5e081567"
+  },
+  "counts": {
+    "topics": 12,
+    "reports": 33,
+    "resources": 5,
+    "reportsWithRelations": 21,
+    "reportsWithoutRelations": 12
+  },
+  "fingerprintRule": "reportFingerprint is SHA-256 of the legacy H3 heading and its complete LF-normalized block through the next H3 or EOF; section fingerprints cover each legacy H4 body after trimming outer blank lines and adding one LF",
+  "reports": [
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 1,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "从负向描述争议恢复候选概念模型",
+      "formedAt": "2026-08-13T08:35:10+00:00",
+      "targetId": "recover-candidate-model-from-negative-description-dispute.md",
+      "title": "从负向描述争议恢复候选概念模型",
+      "question": "负向描述争议暴露了怎样的候选概念层次与后续调查边界？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:eafa37aebc43858f8ef99cb891ecc0054bae7d961555211bf187efa97e60ff06",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:e43d46f08eaca62ced3b3d94035ede4411967bfefcf77441f250f06a9b37726b"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:486f77089ef59361dc786a76c1a4131987477d49bc6b3086d1820370f3eff4e6"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:beb428de53f189febfe2d3dae98d7f53ae69639bd3e4c54068f9de11acdd8a84"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:ae6e62b2e29a9a7fafdb7076b56c4e63948e84281c47631b47cb9f04ea860b3a"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 2,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "区分语义责任与解空间分析层",
+      "formedAt": "2026-08-13T08:42:11+00:00",
+      "targetId": "separate-semantic-responsibility-from-solution-space-analysis.md",
+      "title": "区分语义责任与解空间分析层",
+      "question": "语义责任与解空间分析分别承担什么层次的判断，它们如何衔接？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "修正",
+          "target": "recover-candidate-model-from-negative-description-dispute.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:1371ef717f2700f3da748d0fbe4c47a06baaecb263875c1f2e054ffed1e8f660",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:f00bee2ba78b5c25b2122a8aaf8d9dab369e92fe7fadee7b27b601377862760a"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:92e825dba1a87e9f42ef734ee42f6621117c51d40edf27149186bf9b21fa42e5"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:eece3b568f71b61423036e687f48af365cc93592de52ac9e5c8ef425f5e380b9"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:9f66a27e5571974f5057b255715b833372428765ffce036401b351e063cb0dab"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 3,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "目标在抽象层完整而在实践层逐步收敛",
+      "formedAt": "2026-08-13T08:48:36+00:00",
+      "targetId": "treat-goals-as-complete-in-abstraction-and-incremental-in-practice.md",
+      "title": "目标在抽象层完整而在实践层逐步收敛",
+      "question": "为什么目标在理想抽象中可以包含边界，而在实际文档中仍需逐步收敛？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "补充",
+          "target": "separate-semantic-responsibility-from-solution-space-analysis.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:5b673bd602076aa89d32d89019ef3674cc2b5a53ba9004aa018a7adeaad0c25f",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:8a2abec6033b153de629dddc8af5752c9197be06a0e7148242b98fd80926d807"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:8e94145a1f0eb27234c5ef2927aa6dec147517ca33d0011c967e99b5182eedbe"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:2cf1684a35720e438bbfb867d2eef25e05339e07be0b5bf4293ce7fe987dfaed"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:3f87b7f699d84081148d388ab9b4f973a7499d15a87d9d1c1aa4a8b2b8a84861"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 4,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "目标是层级化且部分可表达的动态意向",
+      "formedAt": "2026-08-13T09:01:17+00:00",
+      "targetId": "model-goals-as-layered-partially-expressible-intentions.md",
+      "title": "目标是层级化且部分可表达的动态意向",
+      "question": "目标应怎样同时表达深层意向、当前代理、偏好、现实约束与允许偏离的理由？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "修正",
+          "target": "treat-goals-as-complete-in-abstraction-and-incremental-in-practice.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:6842b8e057121a9d8fea3f8544b740223aa17502598d0ac5c5b50c64793b6a1b",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:db70bbe8429582d78d62a591400161da0503a639022732dcdf306517b1dd7497"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:36fed3487a0fb79e3c399b15f1f5a5f38c58ce258982e8fa54899b37df0dab98"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:ec16c0b4f56fd01e84ddfc11d7c0ce2819629367128f0700fc6f1205d67f83b2"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:a737f7ab58f1f877d1358a7ae436ef012b7be82f12c45304a40cc296fd9f8398"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 5,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "文档投影会反过来参与目标形成",
+      "formedAt": "2026-08-13T09:07:50+00:00",
+      "targetId": "recognize-document-projections-as-part-of-goal-formation.md",
+      "title": "文档投影会反过来参与目标形成",
+      "question": "文档作为目标的时点投影时，怎样通过反馈反过来参与目标形成？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "修正",
+          "target": "model-goals-as-layered-partially-expressible-intentions.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:42556660e69d7131cb80e35fac51b97c07a0245b10fc6810dfdd6ab638f87868",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:fd9928033361ea318b6e362ee1f8f8d7da42a07907314ed0ee77206ad558ee85"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:47d169a3ecd824d7fc3d7c0f81ea162e603fce33818cd2c4b4d4c09f61bb5d17"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:c23cb4ceefc3e05488abc1fdb206277e195f09d65a8e63a11f3ffa3f7d106db0"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:34a26aca91a77e8d33f86c4a5d62816318b48704396898adcdb79ff88ee89e7a"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 6,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "区分逻辑剪枝、搜索偏置与路径依赖",
+      "formedAt": "2026-08-13T09:12:51+00:00",
+      "targetId": "separate-logical-pruning-search-bias-and-path-dependence.md",
+      "title": "区分逻辑剪枝、搜索偏置与路径依赖",
+      "question": "逻辑剪枝、搜索偏置与跨时间路径依赖应怎样区分？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "修正",
+          "target": "recognize-document-projections-as-part-of-goal-formation.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:2257fd655034b06bfffc1577a2f005d43f29e1f34ca76e1b1a85f1b756c8a95d",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:829a81530a365d73bb6be9f6c34c5e3ee59bbdc82b91848a681f9b218349e5a5"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:e8c85c4e137afff5a33faf13b591f736f765c87ef6dbc6faadfbafb08d6be373"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:d80f095faf38e6c3829626ebf262b87830f6a1577dbfb24c5576c835d119f3de"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:994abaffaae760cb082ece48ac7536209dfc309799a80809381e695f0eac5d37"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 7,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "区分内容保真、目标符合与目标显化",
+      "formedAt": "2026-08-13T09:29:48+00:00",
+      "targetId": "separate-semantic-fidelity-goal-fit-and-goal-explication.md",
+      "title": "区分内容保真、目标符合与目标显化",
+      "question": "内容语义保真、结果符合深层目标与目标通过反馈显化有何不同？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "补充",
+          "target": "recognize-document-projections-as-part-of-goal-formation.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:7631dd64cea86cc78e9c2a9aa12c570b210a44be49dcbcbaa4e4fe42d7713c22",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:31d6749b85f4bf6417e3cedd37f2cee305244a960fda55d3a1c2c23d01f4fe8c"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:58dba47ae3288d3a1d83f2d04d9e664f01cade4c5067b6c52f9d068d58a0568b"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:ceace8388c81df23fdb2ff5f67ac87a50b91d3cd3e0acbf5d30d4733dd0ea7b4"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:ae972c637887d3604c42b18552509a035cb1331e7105dfc29768d0ef7bc744c3"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 8,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "深层目标只有局部且不可靠的可识别性",
+      "formedAt": "2026-08-13T09:37:25+00:00",
+      "targetId": "bound-identifiability-of-deep-goals.md",
+      "title": "深层目标只有局部且不可靠的可识别性",
+      "question": "拥有者在多大程度上能够从歧义、候选和冲突中识别深层目标？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "修正",
+          "target": "separate-semantic-fidelity-goal-fit-and-goal-explication.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:480d244276f99526c59f873733aa05dddd073b7f7c39c946ead84438e8103c19",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:6a51779dd734bea4069f50df17cccc3c8755744e54705fd4132e239259c810f6"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:82d947b4c1c838735b8314031891e41a0bbbe2b63749073114363089581fb2db"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:8298a53e1b544e43e91e5d1c3b2554417b2d681ed8e30cf9df8dea90f420fff6"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:6c827eb97ab4e3974bf0fff8ec62c3ec61c98232b6eb11b69fd186da3e64dafd"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 9,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "正负描述的不对称来自参照结构而非句式",
+      "formedAt": "2026-08-13T09:46:59+00:00",
+      "targetId": "ground-positive-negative-asymmetry-in-reference-structure.md",
+      "title": "正负描述的不对称来自参照结构而非句式",
+      "question": "正向与负向描述的使用差异是否主要来自参照结构，而不是肯定或否定句式？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "修正",
+          "target": "recover-candidate-model-from-negative-description-dispute.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:65442ba83a069af5d1cf588bfbc79c5bf524f0a83cc6849a860b50c4a16102b1",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:1d43f333aa180b6643a1d4f6581dc06d68347bef3442dd342711fc30ffad0289"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:0373c6a41420ba4b86035804f095385e702df753abd2c702c14415826071e6f8"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:27121483cb3dc15268d52b8c96533ecb2eb0cf6669b644de904809d0ef089566"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:c2ae5c9747bdcb97f8e81d5657855a866c70b63bf93959397df56c713e9ba10a"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 10,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "分离解空间定位与上下文搜索锚定",
+      "formedAt": "2026-08-13T09:52:08+00:00",
+      "targetId": "separate-solution-space-positioning-from-contextual-anchoring.md",
+      "title": "分离解空间定位与上下文搜索锚定",
+      "question": "任务契约对解空间的正常定位与对象被提及时产生的上下文搜索锚定有何不同？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "修正",
+          "target": "separate-logical-pruning-search-bias-and-path-dependence.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:37cdea03ec06a929271d4bf6e1a09590f1ee2f41fd5be4247e802d4079f4eca4",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:c54425252a9be7a995fcfa161387fcec608488079de9a6847fb0cea52f715cca"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:daf10e02f6bd81f7c3dd5ae130f5627b36aaae657a66f066501333133bb0c442"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:8c65c5515f0ed9929e93dec4555a174dde3afad9a1acd0533798cde0bea25b75"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:6ef3e3f447505f2c4e7eb59a2e2223295904989ca52ccbfb6e795c92e15eb01f"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 11,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "关联激活邻域不等于任务有效解集合",
+      "formedAt": "2026-08-13T09:59:09+00:00",
+      "targetId": "distinguish-activation-neighborhoods-from-valid-solution-space.md",
+      "title": "关联激活邻域不等于任务有效解集合",
+      "question": "Transformer 中被上下文激活的关联邻域为何不能等同于任务有效解集合？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "修正",
+          "target": "separate-solution-space-positioning-from-contextual-anchoring.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:ed463d3904bd58b0a6c4b47046e45319f1b51f8d888b6ba4bc1d00fad8d41091",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:867d032afdab06226bf1296881cddad9fe600e9121d48f64f49a0ca4cd0409bc"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:a9e32dc31479332793a6db9c820c0eeca46bdc44b76ae9fef6eac769ecc051bc"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:a26be4f4e602633a805d2f648b98aef6e13bd45b831bbe70f6b4be471099db22"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:4b4ad0c8740377193cd7ccbbd9297b0020b9c873f75e1e3f15c4980efd633c7e"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 12,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "负向描述需要额外完成对象角色绑定",
+      "formedAt": "2026-08-13T10:13:48+00:00",
+      "targetId": "bind-mentioned-objects-to-negative-roles.md",
+      "title": "负向描述需要额外完成对象角色绑定",
+      "question": "负向描述为什么需要同时准确表示对象并把它绑定到排除角色？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "补充",
+          "target": "distinguish-activation-neighborhoods-from-valid-solution-space.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:bc7fdf5c375fb92fb915baf1fe3c9c0e52c7d0704e26b74ecd934f5f5f114967",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:a7c21b0d98a9208f1b701d7e02da8f96d84b6dc595e471a74c574681350c89a1"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:08d50fa3e936486ff5f06e7cbc69c08cff6027df09a0ab7c22152f58dfac5f32"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:22bfc79ed0a0d88d7f475cb98e6ac906696022b2f5a64e03da261ffdcf781701"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:d53c354468e13789a3e2ea84d3edc5ceb646498c25ed8035d0a383d88040dcd4"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 13,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "正负描述表达能力等价但构造成本不对称",
+      "formedAt": "2026-08-13T10:27:54+00:00",
+      "targetId": "distinguish-expressive-equivalence-from-construction-cost.md",
+      "title": "正负描述表达能力等价但构造成本不对称",
+      "question": "正负描述在形式表达能力等价时，为什么仍可能具有不对称的自然语言构造成本？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "修正",
+          "target": "ground-positive-negative-asymmetry-in-reference-structure.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:55f48f3dea872880e48001cf6f19a2ca3c54db5f13be4208fc0ec96fcec0434d",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:8d6ae33c18d28244e3f650ac84488b29118ae80c9979cf5df48d5ea6deec526f"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:a92de1e8308d5791712635e6fa246a2b69290e49fa96588e7a2d9530c69611a8"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:233933b782932279e88f8bb8d165d50f2dd9d11743c8037d19b931ef89c4af05"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:6e564f25788e44a8fbf20f663249b20f2a1db90b3ae5bd1e298f550a6ae4fd20"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 14,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "正向目标是对负向修正历史的认知压缩",
+      "formedAt": "2026-08-13T10:32:26+00:00",
+      "targetId": "compress-negative-revision-history-into-positive-goals.md",
+      "title": "正向目标是对负向修正历史的认知压缩",
+      "question": "正向目标怎样压缩候选反馈与负向修正历史，而不丢失仍需独立保留的边界？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "补充",
+          "target": "distinguish-expressive-equivalence-from-construction-cost.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:b471e855d221a5ecf650a79a721ec7e98ac7121019fd108a3a045d9f3e3534ce",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:60a3f64a2ba1b4acf8ee06b878e6dc81ed08fde905538eb0ea12e751a51a1fca"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:c3a089d70adfb957e7c1346a8d320d66c05b57f2b150cb20c77968e30fd44f20"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:1263d7d6824780272e21f97b3ecc507d5e249cc4c1b5559ea421c6de4a4946d5"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:ed2655c8e292324900be81cd5f8edf44499754120622a58354f62cca261eaca2"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 15,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "人与 AI 具有不同的抽象默认偏差",
+      "formedAt": "2026-08-13T11:05:47+00:00",
+      "targetId": "compare-human-and-ai-abstraction-defaults.md",
+      "title": "人与 AI 具有不同的抽象默认偏差",
+      "question": "人和 AI 在何种机制下会把有限规则过度抽象为具有外推权威的框架？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "修正",
+          "target": "compress-negative-revision-history-into-positive-goals.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:69ad5b1637378ee54ffab2b6594af4eeb407e0e9f10a1fedcdfdb964ee414a4e",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:4f25f9531a0a5875de012ce2241965ee40c7ab9cf8dcb37a64aa9224dca79506"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:a764e0f5044494f8bd1e0d5d7a92f8ae5bb521b32b3f3bf68baba2d4ec264a21"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:b43ef1302b05c790e231ba3f52abae9cfc99478d75b4d0216ec05db4c2259046"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:0cdb9f3598bbcf9b0494926099308661416b1d441b76cc68c0f0ed59ab57a9b1"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 16,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "区分框架重构与框架内修补两种策略",
+      "formedAt": "2026-08-13T11:13:24+00:00",
+      "targetId": "separate-framework-reconstruction-from-local-repair.md",
+      "title": "区分框架重构与框架内修补两种策略",
+      "question": "框架重构与框架内修补两种策略的触发条件、价值和失败模式有何不同？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "修正",
+          "target": "compare-human-and-ai-abstraction-defaults.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:023037f2e3d122009ab36c9f4590d4dc6645031f41a38688c35d95859cd4df92",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:c4dc32c9e14636868c1aa6e96ca5da4f0b9c25fb2e40d80bf4fba3213ef061da"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:f19eb4ec2ab72d2a0ece9fbbd5b9d899331eaeb425631dfc00dd6902947303ef"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:5d6eb4c06cf0b5ac49b188c610cae3656cbf5949ab4ed4e7b70074d89ea06cdd"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:d11e6fe8f5bb0c783926596fa6a7e1be52f584837819db2099444320939ffe43"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 17,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "收回框架重构旁支并恢复正负描述主线",
+      "formedAt": "2026-08-13T11:20:49+00:00",
+      "targetId": "return-from-framework-strategy-to-description-polarity.md",
+      "title": "收回框架重构旁支并恢复正负描述主线",
+      "question": "哪些框架策略认识仍服务正负描述主线，哪些已经构成应退出本主题的旁支？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "修正",
+          "target": "separate-framework-reconstruction-from-local-repair.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:f7efa60fcaa6fd343abb3c04d80fe5002c94dcaacf3f7c5eb41c77610dbbf6c7",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:42324d8d9804089536ab82aa47cdd195c781fcef124b7da96d81220c2600c6d1"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:12688ab5a721e893f83b517f3f0abfc36fe9cd7dfb836e293c342086b0a5b1b6"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:064984f13bc79f4a3040d2ccce7ff76bad4680dab16ce51feb06a881f8d09200"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:a276abf10279192596f780b04046071362bc5740e9c208284a241c342c00cb2f"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 18,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "正负极性依赖描述层级与参照对象",
+      "formedAt": "2026-08-13T13:43:12+00:00",
+      "targetId": "treat-description-polarity-as-reference-relative.md",
+      "title": "正负极性依赖描述层级与参照对象",
+      "question": "正负极性应怎样相对于具体命题、参照对象和描述层级判断？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "补充",
+          "target": "distinguish-expressive-equivalence-from-construction-cost.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:27225435d04ee6cf9648e3d296edb74ebad8c663b887a115bc700ddc4a83c816",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:d78d6a6ada480d3e13392223f0a792bfa3b6f90f3aed483be0dbd73c9e62ee94"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:6c1d34cfbe4974261ae787cbc5fa3eb650dde037ba2b20a506406a792c588ec2"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:fa9b47a72d39f529be3696b36492d4be602cf69fb972b43f54498f10636adaf5"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:900e2128615d30bd359ad40472bc67e47a0c02deb3cdbf26e249e0875b513068"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "ai-ready-docs/target-boundary-information-and-anchoring.md",
+      "legacyReportIndex": 19,
+      "legacyTopicQuestion": "`ai-ready-docs` 应怎样解释正向引导、负向边界、任务相关的信息效率与解空间锚定之间的关系，并将原理转化为不会诱导 agent 主动枚举错误路径的可靠动作？",
+      "legacyTopicStatus": "调查中",
+      "legacyTitle": "安全主线可以由负向规则具体化",
+      "formedAt": "2026-08-13T14:07:58+00:00",
+      "targetId": "specify-safety-goals-with-negative-rules.md",
+      "title": "安全主线可以由负向规则具体化",
+      "question": "安全目标在什么条件下应由可判断的负向规则具体化，而不能只保留正向概括？",
+      "tags": [
+        "ai-ready-docs"
+      ],
+      "relations": [
+        {
+          "type": "补充",
+          "target": "treat-description-polarity-as-reference-relative.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:0e4b24b6bae1cefd4fda4d02425dc67da12981337d260c27999458cd15c4d963",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:a92af202a7cd0a8f87438b2a4f51267a29daf52d4a5c260bde7d67605a8cf0e4"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:9f81a866a815df4eb32b23f37c16d67831ac71c301718347ba9fa28c0eee2e07"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:5d6049fac6daad0185ed3538ee9af91d6e6b836f3dc48af79099d926165f8063"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:b71c4abc82974446e9e672df024e264310eb77b8562e097bb272e633a2510be7"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "codex/conversation-preservation-and-redaction.md",
+      "legacyReportIndex": 1,
+      "legacyTopicQuestion": "当一段重要 Codex 会话的原始 JSONL 同时包含应长期保存的公开讨论与不宜入库的本机、运行时和内部数据时，怎样形成可审计的近全量语义档案与可阅读对话版本，并明确二者相对原件的保留、转换和删减边界？",
+      "legacyTopicStatus": "暂停",
+      "legacyTitle": "形成脱敏近全量档案与机械对话初稿",
+      "formedAt": "2026-08-14T02:57:11+00:00",
+      "targetId": "preserve-redacted-conversations-in-two-derived-forms.md",
+      "title": "形成脱敏近全量档案与机械对话初稿",
+      "question": "怎样从含敏感运行时数据的 Codex JSONL 形成可审计近全量档案和可阅读对话初稿？",
+      "tags": [
+        "codex"
+      ],
+      "relations": [],
+      "legacyResourceIds": [
+        "codex/conversation-preservation-and-redaction/conversation-near-full.redacted.jsonl",
+        "codex/conversation-preservation-and-redaction/conversation-final-dialogue.initial.md"
+      ],
+      "targetResourceIds": [
+        "preserve-redacted-conversations-in-two-derived-forms/conversation-near-full.redacted.jsonl",
+        "preserve-redacted-conversations-in-two-derived-forms/conversation-final-dialogue.initial.md"
+      ],
+      "reportFingerprint": "sha256:64dbe016071dcf06b780f595c6c7f6d3e143e973f38fa72335abff5e3011b95f",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:6d0b9cde6f8bf3272698579a0cb508bd23256cbcce2af215d75c4c3c39fd1453"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:2155afc73c243125ed16a5f76235c7d25b067c4f3cf46cdc15bd93611446ae59"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:a27e4326c7bb6760d451b6f051afc7e399ed7bf13d43c5fbb9c3407e1538d843"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:b05004e1cbb06f6f52d9a7d1d95cd5785ee09a97d34aa1d6a6c49910f905d38d"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "context-management/unified-context-management.md",
+      "legacyReportIndex": 1,
+      "legacyTopicQuestion": "现有上下文管理 skills 组合起来，距离一套统一的上下文管理系统还差什么，Docnav 已经实践了其中哪些能力？",
+      "legacyTopicStatus": "暂停",
+      "legacyTitle": "现有组合的主要差距位于路由与协作层",
+      "formedAt": "2026-07-21T17:50:15+08:00",
+      "targetId": "identify-routing-and-coordination-gaps-in-context-management.md",
+      "title": "现有组合的主要差距位于路由与协作层",
+      "question": "现有上下文管理 skills 距离统一上下文管理系统还缺少哪些路由与协作能力？",
+      "tags": [
+        "context-management"
+      ],
+      "relations": [],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:e89a26c9623b2a4a1d3ee444d4f265abd42e2af54e108590cf2551ded1b311e7",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:bd84e1b73a8be23c4341e07f2859a84b15ead34e1177f07d417f0415eb6476e7"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:705a84dc6ff7e12be7c4b5e1a1482f379a29c81fe5c467f9f9a0d7206096448b"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:dafbe85ebd339a54bb34b414664db22bb8336f2830806e7db721b25366493205"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:c0b7be060587b38fa6816827887b34480c76d773c6e14c3d55d2b13b9f3b8aee"
+        }
+      ],
+      "additionalSectionFingerprints": [
+        {
+          "title": "差距判断",
+          "contentFingerprint": "sha256:8ab1699461cfbb9c55e15879de52f398dc7688b7cf2ed0f3deddd80dbb380ae5"
+        },
+        {
+          "title": "Docnav 证据",
+          "contentFingerprint": "sha256:03fa273570c5ee1e75c3e9ea805138db3e4b640f3a0f2f4397714871a32e259f"
+        },
+        {
+          "title": "后续调查",
+          "contentFingerprint": "sha256:83e7025f07cb872140b6be671b23c73a9b6af51353c02076d86efe7e7df6fd94"
+        }
+      ]
+    },
+    {
+      "legacyTopicPath": "decision-records/intra-change-decision-evolution.md",
+      "legacyReportIndex": 1,
+      "legacyTopicQuestion": "已激活决策在进入版本基线前被同一变更中的新决策修订时，是否应保留为长期演进历史，以及版本控制证据能否支持安全折叠？",
+      "legacyTopicStatus": "已结束",
+      "legacyTitle": "版本基线可发现同一变更内的决策演进候选",
+      "formedAt": "2026-07-28T16:39:03+08:00",
+      "targetId": "detect-uncommitted-decision-evolution-from-git-baselines.md",
+      "title": "版本基线可发现同一变更内的决策演进候选",
+      "question": "Git 版本基线能否安全识别同一 Change 内尚未提交的中间决策演进候选？",
+      "tags": [
+        "decision-records"
+      ],
+      "relations": [],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:71d7b1e7bc791790b2a6eb9daae6b93f34028b53e2470a0a10d39604576bb165",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:7f06691b86c7d1a166cdbe053a61d649601a1d4541a04059d562ef33e767d979"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:3fc2273a73363da008e2f00148af655ca5b8da1d28ce0414d7fae5c2df8bb04e"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:873a8e10ac8b667144490975ee76ac5a45585f0a6f3f76d8ec204d431e649cfe"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:a81181f60dc06205895aa7434d8deb5669ed558c45a8779c32563a7b555af20f"
+        }
+      ],
+      "additionalSectionFingerprints": [
+        {
+          "title": "候选判定矩阵",
+          "contentFingerprint": "sha256:e64bf5d7e2ab12021796cdd2a3a992995c832095f4c402552198687b4c407c50"
+        },
+        {
+          "title": "后续复核条件",
+          "contentFingerprint": "sha256:e81b33ba231004257d31d8cd4e73bb60ad5b99f3d5aa83492aef59e8fbd48c39"
+        }
+      ]
+    },
+    {
+      "legacyTopicPath": "decision-records/intra-change-decision-evolution.md",
+      "legacyReportIndex": 2,
+      "legacyTopicQuestion": "已激活决策在进入版本基线前被同一变更中的新决策修订时，是否应保留为长期演进历史，以及版本控制证据能否支持安全折叠？",
+      "legacyTopicStatus": "已结束",
+      "legacyTitle": "采用事前警告与显式单前序折叠",
+      "formedAt": "2026-08-03T10:45:21+08:00",
+      "targetId": "adopt-preflight-warning-and-single-predecessor-collapse.md",
+      "title": "采用事前警告与显式单前序折叠",
+      "question": "如何用事前警告和显式单前序折叠处理尚未进入版本基线的决策演进？",
+      "tags": [
+        "decision-records"
+      ],
+      "relations": [
+        {
+          "type": "补充",
+          "target": "detect-uncommitted-decision-evolution-from-git-baselines.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:f1b37b798aabcc5584d3c7b523cb7948b0e17bfcb282744e0701d0ec948c0d14",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:f8a2f85fd78a0337cb62f311aab149409acde72debb9f90b0acd7339e415bad5"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:d8611edf0154ab371de6946eaaf95fce110fb8ac9042ad19f0e92ab8b1153c0d"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:ae135c81107bbc8abfca01ef3e9c3501b08471685221298b749347c0a4650f02"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:f13f2bd538a7db7146c681d886757807d2a30a9ede9e0edc6c1d3e057f4d86ee"
+        }
+      ],
+      "additionalSectionFingerprints": [
+        {
+          "title": "后续复核条件",
+          "contentFingerprint": "sha256:e02ab0403928279609cfd5f6befb699c6a3d7f95ef556cab41df8596639ffd60"
+        }
+      ]
+    },
+    {
+      "legacyTopicPath": "git-integration/direct-git-library-selection.md",
+      "legacyReportIndex": 1,
+      "legacyTopicQuestion": "本项目应选择哪种 TypeScript Git 库，候选的 API 适配、结果正确性、真实性能和社区可持续性能否共同支持采用？",
+      "legacyTopicStatus": "暂停",
+      "legacyTitle": "统一选型需要正确性、性能与维护证据",
+      "formedAt": "2026-07-21T16:31:25+08:00",
+      "targetId": "define-git-library-selection-evidence.md",
+      "title": "统一选型需要正确性、性能与维护证据",
+      "question": "TypeScript Git 库选型需要哪些 API、正确性、真实性能与维护证据？",
+      "tags": [
+        "git-integration"
+      ],
+      "relations": [],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:efe47a67f4e062d79256d9d045b082443395e88517383ae7a616f084f012bb51",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:9665107d2a47562cbdf232932e7c4d7d3990ebc313b0bc6740fb8727f6133a3d"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:d22a678f78f73c3ff8730e042b1277aae4e5ac7b1a6dc4636d1b457a14ca6f82"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:3f2cac8d204ef2fef50d2209088d03a589101a5ead030d3bb384ea0554c51331"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:39d9b83b9b163c7529ac73f469ade15e79db3eb138bce6c0248cba8e1db03413"
+        }
+      ],
+      "additionalSectionFingerprints": [
+        {
+          "title": "候选判断",
+          "contentFingerprint": "sha256:14a16d792bcec91739c01f064c71eb8fe4f94d11544337eaa50a3f573a97831e"
+        },
+        {
+          "title": "验证顺序",
+          "contentFingerprint": "sha256:530e42c14406feb25978fd96818508c4f8e42e95ec52547833b8ace9b8c56130"
+        }
+      ]
+    },
+    {
+      "legacyTopicPath": "implementation-libraries/functional-utilities-and-data-structures.md",
+      "legacyReportIndex": 1,
+      "legacyTopicQuestion": "在本仓库的 TypeScript 实现中，哪些函数式集合/管道工具与专用数据结构库值得预装，既能提供可靠实现又不会用重叠抽象扩大代码风格的解空间？",
+      "legacyTopicStatus": "已结束",
+      "legacyTitle": "预装候选的适用价值与依赖边界",
+      "formedAt": "2026-08-07T11:43:20+08:00",
+      "targetId": "select-functional-utilities-and-data-structures.md",
+      "title": "预装候选的适用价值与依赖边界",
+      "question": "哪些函数式工具与专用数据结构库值得预装，它们的适用边界是什么？",
+      "tags": [
+        "implementation-libraries"
+      ],
+      "relations": [],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:b8e602e4d3b474b0fc5611cb52fcb1aedee59d5e0fdea0b692df47957291a8d9",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:983e91fbca306ad64b3d58f5ebf9cfcf7769f1109073bf7df4f0570178ff8144"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:727b4968e28767f5a7956d54e69ad946e23297cb4a9c75450cd9d785a81ecbfc"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:62d173291bd7f015f2863505f59f2b611020db38a45a668004a3835d3706f6c7"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:1e4fe620f284cb782f73ac9bf0741ed8276f79f34e2042230cfeb0a05188b524"
+        }
+      ],
+      "additionalSectionFingerprints": [
+        {
+          "title": "函数式与通用工具对照",
+          "contentFingerprint": "sha256:e3eaa47bc3cfd08638c6d8cf965a4e28b73c869ccada352af1a78d2fd047fbae"
+        },
+        {
+          "title": "专用数据结构对照",
+          "contentFingerprint": "sha256:b52c9342ab9c922efc36beeb5ffdc0a95f11953138eb49efc38cb609bb849571"
+        },
+        {
+          "title": "推荐顺序与复核条件",
+          "contentFingerprint": "sha256:f68ab033e7eb93e79fe4a9c5a0a3511daa37f135cb69e5ab9503f930dc55f8ee"
+        }
+      ]
+    },
+    {
+      "legacyTopicPath": "implementation-libraries/pattern-matching-and-state-modeling-libraries.md",
+      "legacyReportIndex": 1,
+      "legacyTopicQuestion": "哪些 TypeScript 库适合预装，用于可靠表达封闭分支、判别联合和真正的有限状态机，同时保持轻量、成熟且持续维护？",
+      "legacyTopicStatus": "已结束",
+      "legacyTitle": "确定穷尽匹配与轻量状态机的预装候选",
+      "formedAt": "2026-08-07T11:43:56+08:00",
+      "targetId": "select-pattern-matching-and-state-modeling-libraries.md",
+      "title": "确定穷尽匹配与轻量状态机的预装候选",
+      "question": "哪些库适合预装以承接穷尽匹配、判别联合与轻量有限状态机？",
+      "tags": [
+        "implementation-libraries"
+      ],
+      "relations": [],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:d8ab58178c2ecdf662cb493332188b54717dc86bfafbd21efe77c0a7d3b76499",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:5b5544a6ba9787f574a06bedc57803d429f5208ff090cf6566e1354fb9488625"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:60b430755a79d003c2a825a2388054740355ceb11b5329a2ebf856def41196c5"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:b217326548433ae47517635760330f4cbccd0d5a26d63db21c0c0e9af2173594"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:44732f3c854e9fb1a6806e6add592a55e49c73d4954f47a37d8a9971e06f27c6"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "implementation-libraries/result-and-option-libraries.md",
+      "legacyReportIndex": 1,
+      "legacyTopicQuestion": "本项目应预装哪一个轻量 TypeScript Result 库，并怎样与项目自有 Option 源码形成稳定、不过度重叠的实现基础？",
+      "legacyTopicStatus": "已结束",
+      "legacyTitle": "采用 neverthrow 并由项目源码承接 Option",
+      "formedAt": "2026-08-07T11:44:13+08:00",
+      "targetId": "select-neverthrow-and-project-option.md",
+      "title": "采用 neverthrow 并由项目源码承接 Option",
+      "question": "本项目应预装哪个轻量 Result 库，并怎样与项目自有 Option 形成稳定边界？",
+      "tags": [
+        "implementation-libraries"
+      ],
+      "relations": [],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:d13d41bfa3c50c9230d7ab06cfdeebfd7b461eaa407ff5b9b9358543abe0ae38",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:b8e486fbf315fa685e61c1ceaf6e534f5a4479feeb81109ab6656b7a67f556f8"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:4f397e45d31a10480f533babf6415257e3cc83ee34506181010f424a71e5f63a"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:3a48aa007b9e233a668831f1a90f6d01a4da343c76b9715664f22c77161af2e4"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:c79499dbced0a7abdae610cfde16784a266abcfc37c7761dd276c493a1fe5b7a"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "prompt-optimize/name-and-trigger-alignment.md",
+      "legacyReportIndex": 1,
+      "legacyTopicQuestion": "`prompt-optimize` 的名称应如何表达其真实能力，并同时支持人类显式调用与 agent 主动触发？",
+      "legacyTopicStatus": "暂停",
+      "legacyTitle": "现名未完整表达能力，并暴露双向触发约束",
+      "formedAt": "2026-07-21T18:10:32+08:00",
+      "targetId": "align-prompt-optimize-name-and-trigger.md",
+      "title": "现名未完整表达能力，并暴露双向触发约束",
+      "question": "prompt-optimize 的名称怎样同时表达真实能力、人类发现入口与 agent 主动触发边界？",
+      "tags": [
+        "prompt-optimize"
+      ],
+      "relations": [],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:fa26be1931fd31d3074ed26fdbf7523125def9ef57b59c216737fc96f0bc2bb6",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:e67cf5fd05f1c93088ba13e7f16f491ea31572cbaa6fe80a3828e54d5ccfc20c"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:2d1aa5516261c66d4207643221719c2571185627e8dc7ef06df8c87c9c68952c"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:a7c95f90a592ce15bfce29d18e96eed99674374660db73237e62c68a6fd871d6"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:023e3a0f96c45171f2f4bbfd29bb125f94735777daf98870b565e307f2fb5f06"
+        }
+      ],
+      "additionalSectionFingerprints": [
+        {
+          "title": "候选名称比较",
+          "contentFingerprint": "sha256:1f447cc1c94ceedc5aea26eae5690a3d2c436397a8c1ab45b6c6f8fd14c124ad"
+        },
+        {
+          "title": "证据",
+          "contentFingerprint": "sha256:fb8078ddeceb11a050f435277ec11c99d43ccfb09950ab06ab9425a7011d5656"
+        },
+        {
+          "title": "后续调查",
+          "contentFingerprint": "sha256:e3df98bf333a8deccb54e0ec25c434c316088127b4f3e98368cb2c3744405908"
+        }
+      ]
+    },
+    {
+      "legacyTopicPath": "skill-orchestration/operation-time-skill-rerouting.md",
+      "legacyReportIndex": 1,
+      "legacyTopicQuestion": "长任务从一个工作阶段进入具体副作用动作时，怎样重新发现并进入适用的领域 Skill，而不让通用执行 Skill 硬编码其他 Skill 的领域内容？",
+      "legacyTopicStatus": "暂停",
+      "legacyTitle": "首次发现改进没有覆盖动作时重路由",
+      "formedAt": "2026-08-12T05:39:41+00:00",
+      "targetId": "identify-operation-time-skill-rerouting-gap.md",
+      "title": "首次发现改进没有覆盖动作时重路由",
+      "question": "长任务进入具体副作用动作时，现有 Skill 发现机制为什么没有可靠触发领域重路由？",
+      "tags": [
+        "skill-orchestration"
+      ],
+      "relations": [],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:2d50d1819829a3ccb53aadd18fef12e1c125bba58113414542164ac305562b92",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:4c3782e842fc6c589b44ffc1ca2e3d9c77faa7ce4bd0cbb36cc33170938103ed"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:9a1139c8936ee5cd08516a351be1f419716c9a8adfed3d50e065505cee2b7156"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:9c78a4ba79d83352c47f56a063471ee1c31beb82b91dabcb2a54cdff1ad2a79f"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:e524b7689e67742bde008a77809c63419a8bfdf5e0db0d3c1e105cb7422d88e7"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    },
+    {
+      "legacyTopicPath": "task-graph/file-lock-and-atomic-write-libraries.md",
+      "legacyReportIndex": 1,
+      "legacyTopicQuestion": "task-graph 是否应采用成熟 npm 库承接同主机跨进程文件锁、陈旧锁恢复和原子索引替换？",
+      "legacyTopicStatus": "已结束",
+      "legacyTitle": "现有候选无法缩减 task-graph 的关键事务协议",
+      "formedAt": "2026-08-06T21:53:35+08:00",
+      "targetId": "reject-lock-and-atomic-write-library-dependencies.md",
+      "title": "现有候选无法缩减 task-graph 的关键事务协议",
+      "question": "现有 npm 候选能否实质缩减 task-graph 的锁、恢复与原子写事务协议？",
+      "tags": [
+        "task-graph"
+      ],
+      "relations": [],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:fb7421c88c5683596ea83ceb91565d8c98e4788e0421f3988eb3551c12daa520",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:3bed2302d93fedd8558fd3bb5c3d3efd68cee4c312d1858a2dfaa2d5ca7c3b26"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:b8fee7efb54f5082c89061190af16adc67c1cb71e73e54ac5166a8aae11bbdbd"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:2bc8ede98c9224c94203ae779da5e6fa8336b09ee642dacd6f6faf531152eca9"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:6b71470f466312fdf4f21dd376bbe0302b1dbeade8b6997964b93603ccf48ae9"
+        }
+      ],
+      "additionalSectionFingerprints": [
+        {
+          "title": "建议的实现与验收重点",
+          "contentFingerprint": "sha256:15f0bd841a57d136306d642591d49ebbd697e8198e8e2bd22545f32b92e3fb5d"
+        },
+        {
+          "title": "不可外推的边界",
+          "contentFingerprint": "sha256:4dda9a9e1712414549065e2b361c4b61ab555764b9c5c325290a8f6117959aa1"
+        }
+      ]
+    },
+    {
+      "legacyTopicPath": "task-graph/file-lock-and-atomic-write-libraries.md",
+      "legacyReportIndex": 2,
+      "legacyTopicQuestion": "task-graph 是否应采用成熟 npm 库承接同主机跨进程文件锁、陈旧锁恢复和原子索引替换？",
+      "legacyTopicStatus": "已结束",
+      "legacyTitle": "约束收窄后采用原生锁与原子写库",
+      "formedAt": "2026-08-07T01:45:30+08:00",
+      "targetId": "adopt-native-lock-and-atomic-write-libraries.md",
+      "title": "约束收窄后采用原生锁与原子写库",
+      "question": "约束收窄后，原生锁和原子写库能否分别完整承接 task-graph 的窄责任？",
+      "tags": [
+        "task-graph"
+      ],
+      "relations": [
+        {
+          "type": "复查",
+          "target": "reject-lock-and-atomic-write-library-dependencies.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:cdd7e28db99eb665c9917128dfae5c8e994eedd28cf653b47ff5b3846e733c27",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:ea4a3095e1156a86b15fde35baa96973d105414ebe4b2e7ce79438f8394ace93"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:fd54a35fb97b98aee2bff231243b1366fa46544acbb68bdfd6fd24c481a1cfac"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:d6f930a01e24bda8bd32b7e6123cec47ef711bc53e44007fd3b0d30bb48491e7"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:dd096f55f78789e3937e9d2f0fe7f97353a86aefec710e821663235d880ad58e"
+        }
+      ],
+      "additionalSectionFingerprints": [
+        {
+          "title": "后续复核条件",
+          "contentFingerprint": "sha256:fdb5ed98d6a41065c8f4a03f6b722bb0c90345b463c1f021c708028f48180505"
+        }
+      ]
+    },
+    {
+      "legacyTopicPath": "task-graph/file-lock-and-atomic-write-libraries.md",
+      "legacyReportIndex": 3,
+      "legacyTopicQuestion": "task-graph 是否应采用成熟 npm 库承接同主机跨进程文件锁、陈旧锁恢复和原子索引替换？",
+      "legacyTopicStatus": "已结束",
+      "legacyTitle": "保留成熟库并删除外围监督协议",
+      "formedAt": "2026-08-07T10:28:43+08:00",
+      "targetId": "remove-supervision-around-lock-and-atomic-write-libraries.md",
+      "title": "保留成熟库并删除外围监督协议",
+      "question": "删除外围监督协议后，已选锁与原子写库应继续承接哪些责任？",
+      "tags": [
+        "task-graph"
+      ],
+      "relations": [
+        {
+          "type": "修正",
+          "target": "adopt-native-lock-and-atomic-write-libraries.md"
+        }
+      ],
+      "legacyResourceIds": [],
+      "targetResourceIds": [],
+      "reportFingerprint": "sha256:bfa2dd3591322094ece4c3921bb36ea65487fd913539b1720474eeaaee39f3da",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:630979b4c6d6e184b862523abad3d4175d829ce1e8812a4de9a8a942b1344c92"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:545b9ff87b7788003a7b41a7cbfcedd45cc282c294e3b2209da0e93d45588265"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:b5a684b85c4988e9d24f7bde277cc00a025c1f13ff75af0c00ff85ae42389fa4"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:46c6fd0893de64b132cfc069fa9c322e479c5ba48fe11b4001a416d848c3c2ce"
+        }
+      ],
+      "additionalSectionFingerprints": [
+        {
+          "title": "后续复核条件",
+          "contentFingerprint": "sha256:425f4c3aa6a34bc9a420e69bc5a2376e8598787416720aaa89db0266cb72818a"
+        }
+      ]
+    },
+    {
+      "legacyTopicPath": "test-evidence/standard-test-result-blocking.md",
+      "legacyReportIndex": 1,
+      "legacyTopicQuestion": "在尚未获得实施授权时，如何保存 runner 无关结果协议与测试阻断资格的探索认识，以及什么证据足以重新启动规划？",
+      "legacyTopicStatus": "已结束",
+      "legacyTitle": "确认延期方向并退出活动 Change",
+      "formedAt": "2026-08-11T03:08:36Z",
+      "targetId": "defer-standard-test-result-blocking.md",
+      "title": "确认延期方向并退出活动 Change",
+      "question": "标准测试结果协议与阻断资格在没有实施授权时应由哪些长期载体承接？",
+      "tags": [
+        "test-evidence"
+      ],
+      "relations": [],
+      "legacyResourceIds": [
+        "test-evidence/standard-test-result-blocking/proposal.md",
+        "test-evidence/standard-test-result-blocking/design.md",
+        "test-evidence/standard-test-result-blocking/tasks.md"
+      ],
+      "targetResourceIds": [
+        "defer-standard-test-result-blocking/proposal.md",
+        "defer-standard-test-result-blocking/design.md",
+        "defer-standard-test-result-blocking/tasks.md"
+      ],
+      "reportFingerprint": "sha256:d38c12dc3f97d2a7e31ea54093e7d000dee9ee072d38a77808745b0a76c78c9b",
+      "coreSectionFingerprints": [
+        {
+          "title": "形成时背景",
+          "contentFingerprint": "sha256:b95da96bb45eb0026b42f7f2e0fac2a8f56eaaf4709b16ce5fd4d51c812ed3ed"
+        },
+        {
+          "title": "调查目的",
+          "contentFingerprint": "sha256:f713326fa1771adc82485534dfc3fdd6162c1d77553758bec8368afff79e8e79"
+        },
+        {
+          "title": "调查范围与依据",
+          "contentFingerprint": "sha256:ca7e9fbb6d75a1faa5efafd4acb7d18257578ff83019ba6feaa232e9ef7047d9"
+        },
+        {
+          "title": "调查结果与边界",
+          "contentFingerprint": "sha256:b1b0fceb5c2d07540003976c8b0d01be984e85efc27df878f40904a3707c94de"
+        }
+      ],
+      "additionalSectionFingerprints": []
+    }
+  ],
+  "resources": [
+    {
+      "legacyResourceId": "codex/conversation-preservation-and-redaction/conversation-final-dialogue.initial.md",
+      "targetResourceId": "preserve-redacted-conversations-in-two-derived-forms/conversation-final-dialogue.initial.md",
+      "ownerReportId": "preserve-redacted-conversations-in-two-derived-forms.md",
+      "contentFingerprint": "sha256:fdb272e85fe065db28085ccde79d1f331175dece3e2081f8fff74c1d2ee6e3e6",
+      "preserveBytes": true
+    },
+    {
+      "legacyResourceId": "codex/conversation-preservation-and-redaction/conversation-near-full.redacted.jsonl",
+      "targetResourceId": "preserve-redacted-conversations-in-two-derived-forms/conversation-near-full.redacted.jsonl",
+      "ownerReportId": "preserve-redacted-conversations-in-two-derived-forms.md",
+      "contentFingerprint": "sha256:3142abcbcdc02aa2d2ef1d228dadde537f3353b9b9e152714110c2761e8a2f88",
+      "preserveBytes": true
+    },
+    {
+      "legacyResourceId": "test-evidence/standard-test-result-blocking/design.md",
+      "targetResourceId": "defer-standard-test-result-blocking/design.md",
+      "ownerReportId": "defer-standard-test-result-blocking.md",
+      "contentFingerprint": "sha256:71346324df5a0899bb5996e11c9d452cb02c369fe5ee532a405ff8b9ab6a2442",
+      "preserveBytes": true
+    },
+    {
+      "legacyResourceId": "test-evidence/standard-test-result-blocking/proposal.md",
+      "targetResourceId": "defer-standard-test-result-blocking/proposal.md",
+      "ownerReportId": "defer-standard-test-result-blocking.md",
+      "contentFingerprint": "sha256:d006792016592c63920f5db18ac3b2a99b66c96471a26df4448d60933e8dd855",
+      "preserveBytes": true
+    },
+    {
+      "legacyResourceId": "test-evidence/standard-test-result-blocking/tasks.md",
+      "targetResourceId": "defer-standard-test-result-blocking/tasks.md",
+      "ownerReportId": "defer-standard-test-result-blocking.md",
+      "contentFingerprint": "sha256:72d00e0c3db9a12d898ae38c5a37e906090a67362773088947806fa59bd8abb2",
+      "preserveBytes": true
+    }
+  ]
+}
