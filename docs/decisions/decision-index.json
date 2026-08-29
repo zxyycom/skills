@@ -187,7 +187,7 @@
       "model-task-topology-and-inheritance-explicitly.md": "sha256:f1e0f0ffdcd92ae0c5cdac52b395580c04c92e2e1bc1a227a1c7ea28228c5a26",
       "notify-before-current-decision-writes.md": "sha256:2cd9942a3bffede0c245a0aabbf108e9f95c4983537bc143a75398c1caa8b9ed",
       "organize-ai-ready-docs-around-main-promise.md": "sha256:5c59533dadbe2b45af431b127adbc0983343adcb195fb54cb353e370cd542856",
-      "organize-by-main-promise-and-manage-context-association.md": "sha256:aa8aaa05baa633a3648c257dc9c92c09c51e14aa6f08ccce156efb1885144f22",
+      "organize-by-main-promise-and-manage-context-association.md": "sha256:6c8833087c20743406dcec11933f07115564ad401e55a901fdba1c03d48abbbf",
       "organize-native-test-cases-by-responsibility-topic.md": "sha256:fffeca77e2976d2e907d75a97f7e018a9eb5e46904e6027d0a569c2a4e0a8d7d",
       "organize-test-cases-by-controlled-topic-path.md": "sha256:a0a2bd943eed48603f0c9b45116257e11f274b30efcf03550373c9997b9d4852",
       "own-recoverable-task-coordination.md": "sha256:fa3feef14ffc617548e028433dd5025eb916447d3b6914e1b0c04e3eff68352c",

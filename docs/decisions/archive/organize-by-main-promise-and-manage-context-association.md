@@ -23,7 +23,7 @@ relations:
 - 目标方向不能代替定义或检验结果所需的具体规格; 规则是否必要也不由句子的正负形式决定。
 - 文档点名任何目标、约束、示例、历史方案或排除对象时, 都可能提高相关内容在后续生成中的显著性; 这一影响独立于表达形式和内容是否语义正确。
 - 上下文关联的方向和强度缺少跨模型、跨任务的普遍证据, 因而只作为独立检查, 不写成确定规律。
-- [相关调查](../investigations/recover-candidate-model-from-negative-description-dispute.md)从负向描述案例展开, 但结论分别作用于内容组织和上下文关联, 不以负向描述为适用边界。
+- [相关调查](../../investigations/recover-candidate-model-from-negative-description-dispute.md)从负向描述案例展开, 但结论分别作用于内容组织和上下文关联, 不以负向描述为适用边界。
 
 ## 决策
 - 采用: `skills/ai-ready-docs/` 默认先用目标状态、必要约束、推荐路径和验收方式建立主线, 再保留定义或检验主承诺所需的具体规格。
