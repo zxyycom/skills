@@ -12,7 +12,7 @@
       "260630-reorganize-prompt-optimize-rewrite-rules-as-pipeline.md": "sha256:aabc7dede9bbd6b990c7a8eb4f4cac40ef0a72dac88fb7bc8254646387f722ad",
       "260630-track-decision-status-and-relations.md": "sha256:2b8e1293c8192973054c63cb5f2e5805f81ce6d3dd4169b43e35d1df475444d3",
       "260630-use-compact-decision-records.md": "sha256:e015bf5a550a6ab5a122a1d5b5945618a7a29a8feefc3a09e140ec74d3ce7c5c",
-      "260701-add-document-main-promise-check.md": "sha256:e90c9066ffb63ccd8c158b57dee1903334d5b658078467060ae0e4fada2c71d6",
+      "260701-add-document-main-promise-check.md": "sha256:5be36379061f4bfa589ae475ad0eb2d47f7262e6c9e1690bb2b1429c71e91a7d",
       "260701-add-submodule-release-workflows.md": "sha256:337bfda3b0db938be82c62b2f5b4b9f94c2a10fc4741dfdd30c8ac59d1678c35",
       "260701-avoid-workflow-structure-validation.md": "sha256:4e9bf414048f4593de10d514f3f82572a773a98f16d5dca7fcc8bde9ff673b0c",
       "260701-compact-entry-and-archive-migration-copies.md": "sha256:8a5092dd1faa17d98e369f75694c40364857a92ece1e2a987be65e2a486fd399",
@@ -101,6 +101,7 @@
       "centralize-maintenance-and-keep-distribution-lightweight.md": "sha256:072821891d4338ba027408364710a214e9787d3b7ae1e9c13140d822934c437c",
       "centralize-version-control-responsibility.md": "sha256:049e6ccd838324e435b7032927bc89226f7b22518ac683d8e74c2a020d32baf7",
       "check-change-plan-collections-as-a-gate.md": "sha256:b0722d67ab0bf2e1ad5ad01e54da6b72f178f4f71c91cfe373a9dc0d758b89a8",
+      "check-contextual-associations-of-mentioned-objects.md": "sha256:e17560aa3e6817c67b6fc787c8496bcffa5da0ecba592be4b2299cb0d50eb247",
       "choose-smallest-correct-maintenance-surface.md": "sha256:9f1df394c7febd66de7b8a7040060031513f854f289b31401a2499f4bdc65496",
       "classify-ai-configuration-commits.md": "sha256:1d837f8ce27243e298c9c1cf89257c8b0988789b6d3e2c13148af73ef8b99843",
       "classify-decisions-by-controlled-domain-path.md": "sha256:e43913dc739adccd9338389f495166439c397845603f136684ea055f1f341479",
@@ -134,6 +135,7 @@
       "distribute-openspec-skills-independently.md": "sha256:24dee0291559a42f3d4aa1d3ed135b32e98209929a42789774bf629d8e597866",
       "enforce-one-oxlint-quality-baseline.md": "sha256:518ba4390966bba4c089d4f2a141715025d6bce7a1a141ba9ce2bcbb502c8827",
       "establish-decisions-with-atomic-evolution.md": "sha256:3b201bf83453ee0b980b4f897cf9fa8e382b5778acb07363f89fa12f5152f4e0",
+      "establish-document-main-promise-for-ai-ready-docs.md": "sha256:e18b75c9e831a58870d298d599a9f77d938e76f0a9315139e3d92bf700400f0b",
       "evaluate-reorganization-from-task-graph-case.md": "sha256:490e695f54138e1bafb7e80cce6de7946ab09fc16910aa4d5d3de0730e0372f2",
       "exclude-archived-changes-from-link-validation.md": "sha256:ea8064051faf2a482486b1b48cf9a53eb83e1214dc357c2d91df82c9c71731e4",
       "exclude-formation-time-link-bytes-from-validation.md": "sha256:1cdedb8efb7b8b6561d90811d06c04a4fa73b522d9b70fb4636b16f31d7e4a43",
@@ -181,7 +183,8 @@
       "model-task-relations-with-distinct-invariants.md": "sha256:4f1b90b6477689d68e4eb49b1065e2abc80c7ce7f50c2b2495cb1ce826b167a0",
       "model-task-topology-and-inheritance-explicitly.md": "sha256:f1e0f0ffdcd92ae0c5cdac52b395580c04c92e2e1bc1a227a1c7ea28228c5a26",
       "notify-before-current-decision-writes.md": "sha256:2cd9942a3bffede0c245a0aabbf108e9f95c4983537bc143a75398c1caa8b9ed",
-      "organize-by-main-promise-and-manage-context-association.md": "sha256:ff112caa786a7e8e0b3b18ec77f4615d4a03c0b2843c4394961e387d8149e28b",
+      "organize-ai-ready-docs-around-main-promise.md": "sha256:5c59533dadbe2b45af431b127adbc0983343adcb195fb54cb353e370cd542856",
+      "organize-by-main-promise-and-manage-context-association.md": "sha256:aa8aaa05baa633a3648c257dc9c92c09c51e14aa6f08ccce156efb1885144f22",
       "organize-native-test-cases-by-responsibility-topic.md": "sha256:fffeca77e2976d2e907d75a97f7e018a9eb5e46904e6027d0a569c2a4e0a8d7d",
       "organize-test-cases-by-controlled-topic-path.md": "sha256:a0a2bd943eed48603f0c9b45116257e11f274b30efcf03550373c9997b9d4852",
       "own-recoverable-task-coordination.md": "sha256:fa3feef14ffc617548e028433dd5025eb916447d3b6914e1b0c04e3eff68352c",
@@ -522,16 +525,16 @@
           "ai-ready-docs"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "260701-add-document-main-promise-check.md",
+        "sourcePath": "archive/260701-add-document-main-promise-check.md",
         "title": "给 prompt-optimize 增加文档主承诺检查",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-07-01T14:55:35+08:00",
         "purpose": "让文档正文兑现入口建立的预期，并能识别整体重心偏移。",
@@ -3103,6 +3106,38 @@
         "relations": []
       }
     },
+    "check-contextual-associations-of-mentioned-objects.md": {
+      "keys": {
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "check-contextual-associations-of-mentioned-objects.md",
+        "title": "检查被点名对象的上下文关联",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T16:07:13Z",
+        "purpose": "让 AI-ready 文档独立检查被点名对象及其关联内容是否服务当前目标、边界或判断。",
+        "background": "点名目标、约束、示例、历史方案或排除对象都会提高关联内容显著性，但关联方向和强度缺少跨模型、跨任务的普遍证据。",
+        "decision": "对任何被点名对象独立进行上下文关联检查；无新增判断的重复内容收敛，必要的边界或示例明确角色并回到主线。",
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "organize-by-main-promise-and-manage-context-association.md"
+          }
+        ]
+      }
+    },
     "choose-smallest-correct-maintenance-surface.md": {
       "keys": {
         "tag": [
@@ -4106,6 +4141,42 @@
           {
             "type": "修订",
             "target": "derive-establishment-from-markdown-lifecycle.md"
+          }
+        ]
+      }
+    },
+    "establish-document-main-promise-for-ai-ready-docs.md": {
+      "keys": {
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "establish-document-main-promise-for-ai-ready-docs.md",
+        "title": "为 AI-ready 文档建立主承诺检查",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T16:09:38Z",
+        "purpose": "让 AI-ready 文档从入口信号恢复主承诺，并以正文结构和结果检查是否兑现预期。",
+        "background": "原 prompt-optimize 的主承诺检查与当前 AI-ready 内容组织方向共同要求入口承诺、正文重心和具体规格保持一致。",
+        "decision": "在 AI-ready 文档流程中建立主承诺，以目标方向组织内容并用正文主题、层级、篇幅、结论和验收验证兑现情况。",
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "relations": [
+          {
+            "type": "归并",
+            "target": "260701-add-document-main-promise-check.md"
+          },
+          {
+            "type": "归并",
+            "target": "organize-ai-ready-docs-around-main-promise.md"
           }
         ]
       }
@@ -5554,22 +5625,54 @@
         ]
       }
     },
-    "organize-by-main-promise-and-manage-context-association.md": {
+    "organize-ai-ready-docs-around-main-promise.md": {
       "keys": {
         "tag": [
           "ai-ready-docs"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "organize-by-main-promise-and-manage-context-association.md",
+        "sourcePath": "archive/organize-ai-ready-docs-around-main-promise.md",
+        "title": "围绕文档主承诺组织 AI-ready 内容",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T16:07:13Z",
+        "purpose": "让 AI-ready 文档以目标方向、必要约束和验收方式建立主线，并保留兑现主承诺所需的精确规格。",
+        "background": "目标方向不能代替定义或检验所需规格，但只按表达正负或对象类别组织内容会增加判断成本且不能保证正文兑现承诺。",
+        "decision": "默认以文档主承诺组织内容，用目标状态、必要约束、推荐路径和验收方式建立主线，再保留必要的具体规格。",
+        "tags": [
+          "ai-ready-docs"
+        ],
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "organize-by-main-promise-and-manage-context-association.md"
+          }
+        ]
+      }
+    },
+    "organize-by-main-promise-and-manage-context-association.md": {
+      "keys": {
+        "tag": [
+          "ai-ready-docs"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/organize-by-main-promise-and-manage-context-association.md",
         "title": "按主承诺组织内容并管理上下文关联",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-21T03:39:50Z",
         "purpose": "让文档围绕主承诺组织目标方向与具体规格, 并管理被点名对象带来的上下文关联。",

@@ -1,6 +1,6 @@
 ---
 title: 按主承诺组织内容并管理上下文关联
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-21T03:39:50Z
 purpose: 让文档围绕主承诺组织目标方向与具体规格, 并管理被点名对象带来的上下文关联。
