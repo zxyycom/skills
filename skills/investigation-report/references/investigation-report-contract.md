@@ -89,7 +89,9 @@ relations:
 3. source revision 以 Investigation ID 为键，只指纹化 ID 和完整报告 Markdown UTF-8 内容，计算前只把 CRLF 规范为 LF。报告成员或可投影内容变化会更新对应 revision；资源成员、名称和字节不参与 revision。
 4. `list` 默认查询全部正式报告，按 Investigation ID 的 locale 无关词法顺序排序；支持可重复 `--tag` 的 AND、包含端点的 formedAt 范围、一个精确关系类型和 title/question 文本查询。`show <investigation-id>` 读取完整报告；`trace <investigation-id>` 支持 predecessors、successors、both 与非负 `--depth`。
 5. `check` 验证报告、完整关系图、资源与索引。scoped check 只验证命中报告及其直接引用，不证明完整图、拆分闭合、未引用资源集合或索引新鲜度。`sync-index` 不要求旧索引新鲜；它在集合 mutation lock 内验证完整报告、关系图和资源，再从同一 Markdown snapshot 重建索引。锁冲突时命令零写入失败并要求在当前事务结束后重试。已建立空集合只有在当前有效索引存在时成立。
-6. 创建、手工修正、改名报告或改变资源引用后运行 `sync-index`，然后运行默认全量 `check`。`set-relations` 与 `discard` 已在各自事务中同步索引，成功后直接运行默认全量 `check`。只改资源文件时运行默认全量 `check`；不得手工修补 JSON 代替维护流程。
+6. `sync-index` 是完整集合的低频重建入口。一批创建、手工修正、改名或资源引用调整可以先共同完成；在 `list`、`show`、`trace`、已有关系事务、`discard`、默认全量 `check`、`stage-index` 或交付需要当前索引前运行一次。
+7. 批量编辑期间索引可以暂时陈旧，此时使用 scoped check 或直接读取 Markdown；陈旧索引不提供当前集合事实。`set-relations` 与 `discard` 要求当前索引，并在成功事务中同步索引。
+8. `set-relations` 与 `discard` 成功后直接运行默认全量 `check`。只改资源文件时保留当前索引并运行默认全量 `check`；报告索引只通过领域命令维护。
 
 ### `set-relations`
 
