@@ -13,6 +13,7 @@ import {
   findIndexEntry,
   initializeGitRepository,
   readIndex,
+  runGit,
   runSourceCli,
   runSuccessfulSourceCli,
   withFixtureWorkspace,
@@ -46,47 +47,70 @@ const unindexedBody = [
   ""
 ].join("\n");
 
-test("discard rejects established decisions without mutation", () =>
-  withFixtureWorkspace(
-    "candidate-discard-established",
-    async (workspaceRoot) => {
-      const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
-      const indexPath = path.join(decisionsDirectory, "decision-index.json");
-      const originalIndexText = await fs.readFile(indexPath, "utf8");
-      const establishedPath = decisionFilePath(
-        workspaceRoot,
-        currentRelativePath
-      );
-      const establishedText = await fs.readFile(establishedPath, "utf8");
+test("discarding the only active established decision removes the derived index", () =>
+  withTemporaryWorkspace("only-active-established", async (workspaceRoot) => {
+    const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+    const indexPath = path.join(decisionsDirectory, "decision-index.json");
+    const decisionId = "use-only-active-established.md";
+    const decisionPath = decisionFilePath(workspaceRoot, decisionId);
+    await fs.mkdir(path.dirname(decisionPath), { recursive: true });
+    await fs.writeFile(decisionPath, candidateDecisionBody(), "utf8");
+    await runSuccessfulSourceCli([
+      "activate",
+      decisionId,
+      "--alignment",
+      "aligned",
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(await fileExists(indexPath), true);
 
-      const discarded = await runSourceCli([
-        "discard",
-        currentRelativePath,
-        "--root",
-        workspaceRoot
-      ]);
-      assert.equal(discarded.exitCode, 1);
-      assert.match(discarded.stderr, /Cannot discard established decision/);
-      assert.equal(await fs.readFile(establishedPath, "utf8"), establishedText);
-      assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
+    const discarded = await runSourceCli([
+      "discard",
+      decisionId,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(discarded.exitCode, 0, discarded.stderr);
+    assert.equal(await fileExists(decisionPath), false);
+    assert.equal(await fileExists(indexPath), false);
+  }));
 
-      const spoofedCandidateText = establishedText
-        .replace("status: active", "status: candidate")
-        .replace("alignment: aligned", "alignment: null")
-        .replace("createdAt: 2026-07-11T14:15:16+08:00", "createdAt: null");
-      await fs.writeFile(establishedPath, spoofedCandidateText, "utf8");
-      assert.ok(
-        (await validateDecisionRecords({ workspaceRoot })).errors.some(
-          (error) =>
-            error.includes(
-              "candidate status is allowed only for a complete, unindexed"
-            )
-        )
-      );
-      assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
-      await fs.writeFile(establishedPath, establishedText, "utf8");
-    }
-  ));
+test("discarding the only archived established decision removes its archive path and index", () =>
+  withTemporaryWorkspace("only-archived-established", async (workspaceRoot) => {
+    const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+    const indexPath = path.join(decisionsDirectory, "decision-index.json");
+    const decisionId = "use-only-archived-established.md";
+    const decisionPath = decisionFilePath(workspaceRoot, decisionId);
+    await fs.mkdir(path.dirname(decisionPath), { recursive: true });
+    await fs.writeFile(decisionPath, candidateDecisionBody(), "utf8");
+    await runSuccessfulSourceCli([
+      "activate",
+      decisionId,
+      "--alignment",
+      "aligned",
+      "--root",
+      workspaceRoot
+    ]);
+    await runSuccessfulSourceCli([
+      "archive",
+      decisionId,
+      "--root",
+      workspaceRoot
+    ]);
+    const archivedPath = path.join(decisionsDirectory, "archive", decisionId);
+    assert.equal(await fileExists(archivedPath), true);
+
+    const discarded = await runSourceCli([
+      "discard",
+      decisionId,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(discarded.exitCode, 0, discarded.stderr);
+    assert.equal(await fileExists(archivedPath), false);
+    assert.equal(await fileExists(indexPath), false);
+  }));
 
 test("discard rejects invalid candidate lifecycle or body without mutation", () =>
   withFixtureWorkspace(
@@ -114,8 +138,7 @@ test("discard rejects invalid candidate lifecycle or body without mutation", () 
         await fs.writeFile(invalidLifecyclePath, invalidLifecycleBody, "utf8");
         await assertRejectedDiscardPreserves({
           decisionPath: invalidLifecyclePath,
-          expectedError:
-            /Discard requires a complete reviewable decision candidate/,
+          expectedError: /Discarded Decision ID is unavailable/,
           indexPath,
           relativePath: invalidLifecycleRelativePath,
           workspaceRoot
@@ -132,7 +155,7 @@ test("discard rejects invalid candidate lifecycle or body without mutation", () 
       await fs.writeFile(invalidPath, invalidBody, "utf8");
       await assertRejectedDiscardPreserves({
         decisionPath: invalidPath,
-        expectedError: /Discard requires a complete reviewable/,
+        expectedError: /Discarded Decision ID is unavailable/,
         indexPath,
         relativePath: invalidRelativePath,
         workspaceRoot
@@ -208,6 +231,8 @@ test("discard rejects a candidate that is still referenced without mutation", ()
         relations: [{ type: "修订", target: targetRelativePath }]
       });
       await fs.writeFile(sourcePath, sourceText, "utf8");
+      initializeGitRepository(workspaceRoot);
+      commitWorkspace(workspaceRoot, "record referenced candidates");
 
       await assertRejectedDiscardPreserves({
         decisionPath: targetPath,
@@ -218,6 +243,131 @@ test("discard rejects a candidate that is still referenced without mutation", ()
       });
       assert.equal(await fs.readFile(targetPath, "utf8"), targetText);
       assert.equal(await fs.readFile(sourcePath, "utf8"), sourceText);
+    }
+  ));
+
+test("discard rejects an established decision that is still referenced without mutation", () =>
+  withFixtureWorkspace(
+    "established-discard-referenced",
+    async (workspaceRoot) => {
+      const indexPath = path.join(
+        workspaceRoot,
+        "docs",
+        "decisions",
+        "decision-index.json"
+      );
+      const successorRelativePath = "use-established-discard-source.md";
+      const successorPath = decisionFilePath(
+        workspaceRoot,
+        successorRelativePath
+      );
+      await fs.writeFile(
+        successorPath,
+        candidateDecisionBody({
+          relations: [{ type: "修订", target: currentRelativePath }]
+        }),
+        "utf8"
+      );
+      await runSuccessfulSourceCli([
+        "activate",
+        successorRelativePath,
+        "--alignment",
+        "aligned",
+        "--root",
+        workspaceRoot
+      ]);
+
+      const archivedTargetPath = decisionFilePath(
+        workspaceRoot,
+        "archive/" + currentRelativePath
+      );
+      const archivedTargetText = await fs.readFile(archivedTargetPath, "utf8");
+      const successorText = await fs.readFile(successorPath, "utf8");
+      const indexText = await fs.readFile(indexPath, "utf8");
+      await assertRejectedDiscardPreserves({
+        decisionPath: archivedTargetPath,
+        expectedError: /still referenced/,
+        indexPath,
+        relativePath: currentRelativePath,
+        workspaceRoot
+      });
+      assert.equal(
+        await fs.readFile(archivedTargetPath, "utf8"),
+        archivedTargetText
+      );
+      assert.equal(await fs.readFile(successorPath, "utf8"), successorText);
+      assert.equal(await fs.readFile(indexPath, "utf8"), indexText);
+    }
+  ));
+
+test("discard fails closed when Git HEAD cannot be read", () =>
+  withFixtureWorkspace(
+    "candidate-discard-unreadable-head",
+    async (workspaceRoot) => {
+      const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+      const indexPath = path.join(decisionsDirectory, "decision-index.json");
+      const originalIndexText = await fs.readFile(indexPath, "utf8");
+      const sourceRelativePath = "use-corrupt-head-discard-candidate.md";
+      const sourcePath = decisionFilePath(workspaceRoot, sourceRelativePath);
+      const sourceText = candidateDecisionBody();
+      await fs.writeFile(sourcePath, sourceText, "utf8");
+      initializeGitRepository(workspaceRoot);
+      commitWorkspace(workspaceRoot, "record discard candidate");
+      const headReference = runGit(workspaceRoot, [
+        "symbolic-ref",
+        "--quiet",
+        "HEAD"
+      ]).trim();
+      await fs.writeFile(
+        path.join(workspaceRoot, ".git", ...headReference.split("/")),
+        "not-a-commit\n",
+        "utf8"
+      );
+
+      const discarded = await runSourceCli([
+        "discard",
+        sourceRelativePath,
+        "--root",
+        workspaceRoot
+      ]);
+
+      assert.equal(discarded.exitCode, 1);
+      assert.match(discarded.stderr, /Failed to inspect Git HEAD/);
+      assert.equal(await fs.readFile(sourcePath, "utf8"), sourceText);
+      assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
+    }
+  ));
+
+test("discard flag deletes a recorded decision without reading Git HEAD", () =>
+  withFixtureWorkspace(
+    "candidate-discard-flag-corrupt-head",
+    async (workspaceRoot) => {
+      const sourceRelativePath = "use-flagged-discard-candidate.md";
+      const sourcePath = decisionFilePath(workspaceRoot, sourceRelativePath);
+      await fs.writeFile(sourcePath, candidateDecisionBody(), "utf8");
+      initializeGitRepository(workspaceRoot);
+      commitWorkspace(workspaceRoot, "record flagged discard candidate");
+      const headReference = runGit(workspaceRoot, [
+        "symbolic-ref",
+        "--quiet",
+        "HEAD"
+      ]).trim();
+      await fs.writeFile(
+        path.join(workspaceRoot, ".git", ...headReference.split("/")),
+        "not-a-commit\n",
+        "utf8"
+      );
+
+      const discarded = await runSourceCli([
+        "discard",
+        sourceRelativePath,
+        "--delete-recorded-decision",
+        "--root",
+        workspaceRoot
+      ]);
+
+      assert.equal(discarded.exitCode, 0, discarded.stderr);
+      assert.equal(await fileExists(sourcePath), false);
     }
   ));
 
@@ -254,7 +404,7 @@ test("discard accepts a candidate with a valid active-target relation", () =>
     }
   ));
 
-test("discard removes only the selected candidate and preserves siblings", () =>
+test("discard pauses before deleting a candidate recorded in Git HEAD", () =>
   withFixtureWorkspace("candidate-discard-selection", async (workspaceRoot) => {
     const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
     const indexPath = path.join(decisionsDirectory, "decision-index.json");
@@ -282,14 +432,29 @@ test("discard removes only the selected candidate and preserves siblings", () =>
     assert.equal(candidateCheck.exitCode, 0, candidateCheck.stderr);
     assert.equal(candidateCheck.stderr, "");
     assert.match(candidateCheck.stdout, /2 candidates/);
-    const discarded = await runSourceCli([
+    const paused = await runSourceCli([
       "discard",
       discardedRelativePath,
       "--root",
       workspaceRoot
     ]);
+    assert.equal(paused.exitCode, 1);
+    assert.match(paused.stderr, /Decision .* has entered Git HEAD/i);
+    assert.match(paused.stderr, /--delete-recorded-decision/);
+    assert.equal(
+      await fs.readFile(discardedPath, "utf8"),
+      candidateDecisionBody()
+    );
+    assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
+    const discarded = await runSourceCli([
+      "discard",
+      discardedRelativePath,
+      "--delete-recorded-decision",
+      "--root",
+      workspaceRoot
+    ]);
     assert.equal(discarded.exitCode, 0, discarded.stderr);
-    assert.match(discarded.stdout, /Discarded decision candidate/);
+    assert.match(discarded.stdout, /Discarded decision/);
     assert.match(discarded.stderr, /use-other-valid-candidate\.md/);
     assert.equal(await fileExists(discardedPath), false);
     assert.equal(
@@ -299,6 +464,53 @@ test("discard removes only the selected candidate and preserves siblings", () =>
     assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
     await fs.rm(otherCandidatePath);
   }));
+
+test("discard deletes candidates absent from Git HEAD", () =>
+  withFixtureWorkspace(
+    "candidate-discard-unrecorded",
+    async (workspaceRoot) => {
+      const decisionsDirectory = path.join(workspaceRoot, "docs", "decisions");
+      const indexPath = path.join(decisionsDirectory, "decision-index.json");
+      const originalIndexText = await fs.readFile(indexPath, "utf8");
+      initializeGitRepository(workspaceRoot);
+      commitWorkspace(workspaceRoot, "record established decision baseline");
+
+      const sourceRelativePath = "use-unrecorded-discard-candidate.md";
+      const sourcePath = decisionFilePath(workspaceRoot, sourceRelativePath);
+      await fs.writeFile(sourcePath, candidateDecisionBody(), "utf8");
+      const discarded = await runSourceCli([
+        "discard",
+        sourceRelativePath,
+        "--root",
+        workspaceRoot
+      ]);
+
+      assert.equal(discarded.exitCode, 0, discarded.stderr);
+      assert.equal(await fileExists(sourcePath), false);
+      assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
+    }
+  ));
+
+test("discard deletes candidates in a Git worktree with unborn HEAD", () =>
+  withFixtureWorkspace(
+    "candidate-discard-unborn-head",
+    async (workspaceRoot) => {
+      initializeGitRepository(workspaceRoot);
+      const sourceRelativePath = "use-unborn-head-discard-candidate.md";
+      const sourcePath = decisionFilePath(workspaceRoot, sourceRelativePath);
+      await fs.writeFile(sourcePath, candidateDecisionBody(), "utf8");
+
+      const discarded = await runSourceCli([
+        "discard",
+        sourceRelativePath,
+        "--root",
+        workspaceRoot
+      ]);
+
+      assert.equal(discarded.exitCode, 0, discarded.stderr);
+      assert.equal(await fileExists(sourcePath), false);
+    }
+  ));
 
 test("candidate queries discover source records while activation indexes only reviewed targets", () =>
   withFixtureWorkspace(
@@ -552,10 +764,6 @@ test("discarding the only candidate leaves no established decision index", () =>
     ]);
     assert.equal(discarded.exitCode, 0, discarded.stderr);
     assert.equal(await fileExists(decisionPath), false);
-    assert.equal(
-      await fileExists(path.join(decisionsDirectory, "decision-index.json")),
-      false
-    );
     assert.equal(
       await fileExists(path.join(decisionsDirectory, "decision-index.json")),
       false

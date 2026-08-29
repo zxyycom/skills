@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "33"
+  version: "34"
 ---
 
 # Decision Records
@@ -33,7 +33,7 @@ metadata:
 3. 审核尚未建立的记录时，先运行 `candidates`，再按需用 `show-candidate <decision-id>` 审核正文。
 4. 恢复当前判断时运行 `list`，再按需用 `show <decision-id>` 读取完整理由或用 `trace <decision-id>` 读取演进关系；筛选与输出参数以 `--help` 为准。
 5. 摘要足够时停止扩大读取。只有任务需要历史时才查询 archived 记录或完整关系图。
-6. 任何候选写入、已建立记录维护、暂存快照或结构审阅前，完整读取决策记录规则。首次候选集合、索引异常或写入中断时，读取恢复手册，不把缺失索引直接当作需要重建的错误。
+6. 任何候选写入、已建立记录维护、暂存快照或结构审阅前，完整读取决策记录规则，并按相应命令的 `--help` 执行；规则和 CLI 负责判定具体前置条件。任务需要在演进事务中删除一个决策时，以 `evolve --discard <decision-id>` 显式选择该动作。首次候选集合、索引异常或写入中断时，读取恢复手册，不把缺失索引直接当作需要重建的错误。
 7. 手工修改已建立 Markdown、怀疑索引陈旧或准备维护时，先运行严格 `check`；需要接受合法来源变化时运行 `sync-index --write`。常规查询不逐次重扫全部 Markdown，也不能用陈旧索引断言来源不存在记录。
 
 ## 执行流程
@@ -66,13 +66,14 @@ metadata:
 ### 4. 维护记录
 
 1. 查询、关系和生命周期命令一律接收 Decision ID；`sourcePath` 只用于定位和展示。
-2. `activate` 建立候选或重新激活 archived 记录；`evolve` 维护完整的演进关系；`mark-aligned`、`archive` 与 `discard` 只用于各自生命周期动作。精确参数与组合规则以 `--help` 和决策记录规则为准。
+2. `activate` 建立候选或重新激活 archived 记录；`evolve` 维护完整的演进关系；`mark-aligned`、`archive` 与 `discard` 只用于各自维护动作。精确参数与组合规则以 `--help` 和决策记录规则为准。
 3. 已建立记录的判断语义变化通过新记录和真实关系表达；编辑性文字修正可直接改权威 Markdown。不得直接编辑派生索引制造状态。
-4. 生命周期和关系写入使用 CLI 事务，尽可能保证 Markdown 与索引组合的原子性；普通诊断无法恢复的失败按恢复手册处理。操作涉及尚未进入 Git `HEAD` 的决策时，先按决策记录规则完成独立历史确认，再继续写入。
+4. 生命周期和关系写入使用 CLI 事务，尽可能保证 Markdown 与索引组合的原子性；普通诊断无法恢复的失败按恢复手册处理。不要在运行前自行推演 Git 历史边界；正常执行领域命令即可。CLI 实际暂停时，向调用方完整转达受检 Decision ID、操作和零写入状态；等待本次明确确认后，才按 CLI 给出的额外参数重试，不自动重试，也不把这个确认代替原有维护授权。
+5. `discard` 删除完整且无剩余引用的 candidate、active 或 archived 决策；`evolve --discard <decision-id>` 将同一删除动作与关系事务原子组合。参数显式选择删除对象，适用条件和失败边界交给决策记录规则与 CLI 判定；成功时报告删除而非归档。
 
 ### 5. 构造待提交决策快照
 
-只有调用方明确要求将决策文件系统变化放入下一版本时，才运行 `stage <decision-id...>`。它以显式 Decision ID 构造完整待提交快照；选择和失败边界以决策记录规则与 `--help` 为准。生命周期命令不写入 pending。
+任务需要 Git pending 快照或提交准备时，运行 `stage <decision-id...>`。它只是将显式 Decision ID 对应的文件系统内容转换为完整 pending 快照，不改变决策生命周期；选择、已有 pending 和失败边界以决策记录规则与 `--help` 为准。生命周期命令不写入 pending。
 
 ### 6. 验证与交付
 
@@ -80,6 +81,8 @@ metadata:
 2. 建立或对齐任务在操作前按规则核对完整方向与当前事实来源；只有完整方向成为当前事实后才能标记 aligned。
 3. 已建立集合的维护任务在结束时运行严格 `check`；首次候选集合或故障恢复按恢复手册验证。
 4. 写入时说明新增、修订、归档或对齐变化和实际验证结果；只读恢复时说明适用决策、分类和结果边界。
+5. CLI 返回暂停提示时，已原样说明受检对象和零写入状态，并停下等待本次确认；只有明确确认后才按提示重试。
+6. discard 任务说明删除对象与实际结果；嵌入 `evolve` 时同时说明最终关系。失败或未满足规则时不写入。stage 任务说明显式选择的 Decision ID 与生成的 pending 快照，并说明它没有改变生命周期。
 
 ## CLI
 
@@ -95,7 +98,7 @@ node scripts/decision-records.mjs <command> [options] --root <resolution-root>
 | `list` / `show <decision-id>` / `trace <decision-id>` | 恢复当前判断、完整理由或演进关系。 |
 | `check` / `sync-index --write` | 严格验证或从权威 Markdown 重建索引。 |
 | `stage <decision-id...>` | 构造待提交决策快照。 |
-| `activate` / `evolve` / `mark-aligned` / `archive` / `discard` | 维护生命周期、关系和候选。 |
+| `activate` / `evolve` / `mark-aligned` / `archive` / `discard` | 维护生命周期、关系和候选；`evolve --discard <decision-id>` 可在关系事务中删除一个决策。 |
 
 精确参数、输出和退出状态以 `--help` 为准；索引的精确字段、版本和格式由相邻 JSON Schema 承接。
 
@@ -104,4 +107,6 @@ node scripts/decision-records.mjs <command> [options] --root <resolution-root>
 1. 只读恢复已恢复全部直接相关的 active 决策，并说明其对当前任务的作用和边界。
 2. 候选起草或维护已遵守决策记录规则，并说明候选、修订、归档或对齐的实际变化。
 3. 已建立集合维护已通过严格 `check`；首次候选集合和故障恢复已按维护恢复的适用路径验证。
-4. 暂存任务只报告显式选择的 Decision ID 与生成的待提交快照。无法完成相应验证时，按恢复手册说明未证明的边界。
+4. CLI 返回暂停提示时没有自动重试；任务已停在零写入边界，或在取得本次明确确认后按提示继续。
+5. discard 已报告删除对象、最终关系和不满足规则时的零写入结果。
+6. 暂存任务只报告显式选择的 Decision ID 与生成的 Git pending 快照，并说明没有改变生命周期。无法完成相应验证时，按恢复手册说明未证明的边界。

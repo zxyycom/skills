@@ -103,9 +103,9 @@ relations:
 
 1. 当前指令明确授权起草候选，或足以确认长期判断和维护范围时，才在相应边界内写入；新增记录或改变状态前告知用户将改变的判断和集合。
 2. 候选、编辑性正文修正和 tags 可直接修改权威 Markdown；生命周期、对齐、归档和丢弃使用 CLI。已建立 Markdown 的手工修改后同步索引，并在维护或验收前运行严格 check。
-3. Git `HEAD` 只用于在保留独立决策历史前要求再次确认，不参与候选、建立、生效、对齐、索引成员或丢弃判断。在 Git 工作树中，尚无首次提交的 unborn `HEAD` 按空 Git `HEAD` 基线处理，因此下列受检决策都视为尚未进入 Git `HEAD`，同样要求确认；这不同于 Investigation Report 对 unborn `HEAD` 跳过提示的规则。在可用 Git `HEAD` 基线中（包括上述空基线），单独 `archive` 的目标，以及本次关系事务中所选后继完整最终关系集里的每个已建立直接前序（relation target），只要尚未进入 Git `HEAD`，CLI 就暂停且不写入；无论前序是 active 还是 archived，调用方都必须以 `--keep-unrecorded-history` 显式确认后才可继续。该判断不使用形成时间；单候选后继仍可按 CLI 规则显式折叠一个中间前序。
-4. `discard` 只删除未建立且未被候选引用的完整 candidate；不得用它或通用删除动作重写已建立历史。
-5. `sourcePath` 变化是位置变化，stage 选择一次对应 ID 即可。stage 不从差异推断 basename 改名意图：只选新 ID 表示新增，只选旧 ID 表示删除，同时选旧、新 ID 才表达改名。生命周期移动、关系维护和 stage 都应在写前拒绝 revision、pending 或所选来源漂移。
+3. Git `HEAD` 只用于在保留独立决策历史前要求再次确认，以及删除已记录决策的机械门禁；不参与候选、建立、生效、对齐或索引成员判断。在 Git 工作树中，尚无首次提交的 unborn `HEAD` 按空 Git `HEAD` 基线处理。可用 Git `HEAD` 基线中，单独 `archive` 的目标，以及本次关系事务中所选后继完整最终关系集里的每个已建立直接前序（relation target），只要尚未进入 Git `HEAD`，CLI 就暂停且不写入；无论前序是 active 还是 archived，调用方都必须以 `--keep-unrecorded-history` 显式确认后才可继续。该判断不使用形成时间。在 Git 工作树外没有这个确认门；但 stage 仍需要其自身的版本控制前提。
+4. `discard` 删除完整、结构有效且在删除后的最终集合中无剩余引用的 candidate、active 或 archived 决策。它既可直接运行，也可通过 `evolve --discard <decision-id>` 与后继建立、最终关系修改和索引重建处于同一事务；被删除 ID 不能同时作为后继，所选后继的最终关系也不得保留该 ID。`evolve` 仍遵循普通演进的关系形状、闭包和最终图验证，不增加只适用于删除的后继数量、状态、前序或显式空关系限制。删除的 Decision ID 已进入 Git `HEAD` 时，未带 `--delete-recorded-decision` 的调用在其余删除条件和演进最终图都已通过后 attention 且零写入；带该参数即为明确的机械删除选择，不会为 discard 自身重复读取 Git `HEAD`，但不绕过同次 `evolve` 最终关系的独立 `--keep-unrecorded-history` 预检。非 Git 工作树、unborn `HEAD` 或 ID 未进入 `HEAD` 时正常删除；无参数且 `HEAD` 不可读取时 fail closed。调用方不主动预检 Git，只响应 CLI 实际提示。
+5. `stage` 只是 Git pending 状态转换，不改变决策生命周期。`sourcePath` 变化是位置变化，stage 选择一次对应 ID 即可。stage 不从差异推断 basename 改名意图：只选新 ID 表示新增，只选旧 ID 表示删除，同时选旧、新 ID 才表达改名。生命周期移动、关系维护和 stage 都应在写前拒绝 revision、pending 或所选来源漂移。
 6. 当前契约不提供其他格式、身份或位置模型的兼容读取、转换、双写、迁移或升级入口。
 
 ## 派生索引与查询

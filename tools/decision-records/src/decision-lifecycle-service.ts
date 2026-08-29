@@ -39,7 +39,8 @@ export type DecisionLifecycleRequest =
     }
   | {
       action: "evolve";
-      collapseUnrecordedId: DecisionId | null;
+      discardId: DecisionId | null;
+      deleteRecordedDecision: boolean;
       keepUnrecordedHistory: boolean;
       relationOverride: DecisionRelationOverride;
       successors: readonly DecisionSuccessor[];
@@ -50,44 +51,48 @@ export type DecisionLifecycleRequest =
       decisionIds: readonly DecisionId[];
     }
   | {
-      action: "discard" | "mark-aligned";
+      action: "discard";
+      decisionId: DecisionId;
+      deleteRecordedDecision: boolean;
+    }
+  | {
+      action: "mark-aligned";
       decisionId: DecisionId;
     };
 
-export type DecisionHistoryBaselineRequirement =
-  | "collapse-proof"
-  | "none"
-  | "unrecorded-preflight";
-
-export function decisionHistoryBaselineRequirement(
+export function requiresDecisionHistoryBaseline(
   scan: DecisionScan,
   request: DecisionLifecycleRequest
-): DecisionHistoryBaselineRequirement {
-  if (request.action === "evolve" && request.collapseUnrecordedId !== null) {
-    return "collapse-proof";
-  }
+): boolean {
   if (
     (request.action === "activate" ||
       request.action === "archive" ||
-      request.action === "evolve") &&
+      (request.action === "evolve" &&
+        (request.discardId === null || request.deleteRecordedDecision))) &&
     request.keepUnrecordedHistory
   ) {
-    return "none";
+    return false;
   }
   if (request.action === "archive") {
-    return "unrecorded-preflight";
+    return true;
+  }
+  if (request.action === "discard") {
+    return decisionRelationTransactionRequiresHistoryBaseline(
+      scan,
+      discardRelationTransactionRequest(request)
+    );
   }
   if (request.action !== "activate" && request.action !== "evolve") {
-    return "none";
+    return false;
   }
   const transactionRequest =
     request.action === "activate"
       ? activationRelationTransactionRequest(scan, request)
-      : request;
-  return transactionRequest !== null &&
+      : { ...request, kind: "evolve" as const };
+  return (
+    transactionRequest !== null &&
     decisionRelationTransactionRequiresHistoryBaseline(scan, transactionRequest)
-    ? "unrecorded-preflight"
-    : "none";
+  );
 }
 
 function activationRelationTransactionRequest(
@@ -99,7 +104,9 @@ function activationRelationTransactionRequest(
     return null;
   }
   return {
-    collapseUnrecordedId: null,
+    discardId: null,
+    deleteRecordedDecision: false,
+    kind: "evolve",
     keepUnrecordedHistory: request.keepUnrecordedHistory,
     relationOverride: request.relationOverride,
     successors: [
@@ -128,8 +135,10 @@ export function prepareDecisionLifecycle(
     historyBaseline: DecisionHistoryBaseline | null;
   }
 ): DecisionLifecyclePreparation {
-  const baselineRequirement = decisionHistoryBaselineRequirement(scan, request);
-  if (baselineRequirement !== "none" && options.historyBaseline === null) {
+  if (
+    requiresDecisionHistoryBaseline(scan, request) &&
+    options.historyBaseline === null
+  ) {
     return plainFailure(
       "Decision history baseline was not loaded before " + request.action + "."
     );
@@ -157,7 +166,12 @@ export function prepareDecisionLifecycle(
         options.historyBaseline
       );
     case "discard":
-      return prepareDiscard(scan, request.decisionId);
+      return prepareDiscard(
+        scan,
+        request.decisionId,
+        request.deleteRecordedDecision,
+        options.historyBaseline
+      );
     case "mark-aligned":
       return prepareMarkAligned(scan, request.decisionId);
   }
@@ -275,7 +289,7 @@ function prepareEvolution(
 ): DecisionLifecyclePreparation {
   const prepared = prepareDecisionRelationTransaction(
     scan,
-    request,
+    { ...request, kind: "evolve" },
     currentTimestamp,
     historyBaseline
   );
@@ -387,64 +401,38 @@ function prepareArchive(
 
 function prepareDiscard(
   scan: DecisionScan,
-  decisionId: DecisionId
+  decisionId: DecisionId,
+  deleteRecordedDecision: boolean,
+  historyBaseline: DecisionHistoryBaseline | null
 ): DecisionLifecyclePreparation {
-  const record = findRecord(scan, decisionId);
-  if (record === null || !record.markdownExists) {
-    return plainFailure("Decision does not exist: " + decisionId);
-  }
-  if (record.source.kind === "established") {
-    return decisionFailure([
-      "Cannot discard established decision: " + record.sourcePath,
-      "Use archive or create a real evolution decision instead."
-    ]);
-  }
-  if (record.source.kind !== "candidate") {
-    return decisionFailure([
-      "Discard requires a complete reviewable decision candidate with a new " +
-        "identity path, current format, status: candidate, alignment: null, " +
-        "and createdAt: null: " +
-        record.sourcePath
-    ]);
-  }
-  if (record.relationshipErrors.length > 0) {
-    return decisionFailure([
-      "Discard requires the candidate relationships to be structurally valid: " +
-        record.sourcePath,
-      ...record.relationshipErrors
-    ]);
-  }
-  const referencingIds = scan.records
-    .filter((candidate) => candidate.decisionId !== record.decisionId)
-    .filter(
-      (candidate) =>
-        (candidate.source.kind === "candidate" ||
-          candidate.source.kind === "established") &&
-        candidate.source.document.relations.some(
-          (relation) => relation.target === record.decisionId
-        )
-    )
-    .map((candidate) => candidate.decisionId);
-  if (referencingIds.length > 0) {
-    return decisionFailure([
-      "Cannot discard decision file while it is still referenced: " +
-        record.sourcePath,
-      "Remove references from: " + referencingIds.join(", ")
-    ]);
-  }
+  const prepared = prepareDecisionRelationTransaction(
+    scan,
+    discardRelationTransactionRequest({
+      action: "discard",
+      decisionId,
+      deleteRecordedDecision
+    }),
+    currentDecisionTimestamp,
+    historyBaseline
+  );
+  if (prepared.status !== "ok") return prepared;
   return {
-    changes: [
-      {
-        decisionPath: record.decisionPath,
-        expectedText: record.source.text,
-        nextText: null
-      }
-    ],
-    message:
-      "Discarded decision candidate " +
-      record.sourcePath +
-      " before it entered the decision index.",
+    changes: prepared.changes,
+    message: "Discarded decision " + prepared.discardedRecord?.sourcePath + ".",
     status: "ok"
+  };
+}
+
+function discardRelationTransactionRequest(
+  request: Extract<DecisionLifecycleRequest, { action: "discard" }>
+): DecisionRelationTransactionRequest {
+  return {
+    discardId: request.decisionId,
+    deleteRecordedDecision: request.deleteRecordedDecision,
+    kind: "discard",
+    keepUnrecordedHistory: false,
+    relationOverride: { kind: "source" },
+    successors: []
   };
 }
 

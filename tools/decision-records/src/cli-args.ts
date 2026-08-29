@@ -63,11 +63,15 @@ export type CliArgs =
     >
   | LocatedCommand<"candidates">
   | LocatedCommand<"check">
-  | LocatedCommand<"discard", { decisionId: DecisionId }>
+  | LocatedCommand<
+      "discard",
+      { decisionId: DecisionId; deleteRecordedDecision: boolean }
+    >
   | LocatedCommand<
       "evolve",
       {
-        collapseUnrecordedId: DecisionId | null;
+        discardId: DecisionId | null;
+        deleteRecordedDecision: boolean;
         keepUnrecordedHistory: boolean;
         relationOverride: DecisionRelationOverride;
         successors: DecisionSuccessor[];
@@ -104,7 +108,8 @@ export type CliArgsFor<TCommand extends Command> = Extract<
 type ParsedOptions = {
   alignment?: DecisionListAlignment;
   clearRelations?: boolean;
-  collapseUnrecorded?: DecisionId;
+  discard?: DecisionId;
+  deleteRecordedDecision?: boolean;
   decisionsDir?: string;
   depth?: number;
   direction?: DecisionTraceDirection;
@@ -281,6 +286,12 @@ function commandArgs(
     case "check":
       return { ...location, command };
     case "discard":
+      return {
+        ...location,
+        command,
+        decisionId: requiredDecisionId(decisionIds),
+        deleteRecordedDecision: options.deleteRecordedDecision ?? false
+      };
     case "mark-aligned":
     case "show":
     case "show-candidate":
@@ -292,10 +303,20 @@ function commandArgs(
     case "stage":
       return { ...location, command, decisionIds };
     case "evolve":
+      if (
+        options.deleteRecordedDecision === true &&
+        options.discard === undefined
+      ) {
+        commanderCommand.error(
+          "--delete-recorded-decision requires --discard <decision-id>",
+          { exitCode: 2, code: "decision-records.missing-discard" }
+        );
+      }
       return {
         ...location,
-        collapseUnrecordedId: options.collapseUnrecorded ?? null,
+        discardId: options.discard ?? null,
         command,
+        deleteRecordedDecision: options.deleteRecordedDecision ?? false,
         keepUnrecordedHistory: options.keepUnrecordedHistory ?? false,
         relationOverride: decisionRelationOverride(options),
         successors: options.successor ?? []
@@ -549,8 +570,8 @@ export function createCliProgram(
     program,
     "evolve",
     "Replace complete successor relations, establish selected candidates, " +
-      "archive new active predecessors, and optionally collapse one " +
-      "unrecorded intermediate predecessor in one recoverable transaction."
+      "archive new active predecessors, and optionally discard one decision " +
+      "in the same recoverable transaction."
   )
     .addOption(
       new Option(
@@ -566,12 +587,13 @@ export function createCliProgram(
     .addOption(createKeepUnrecordedHistoryOption())
     .addOption(
       new Option(
-        "--collapse-unrecorded <decision-id>",
-        "Delete one active predecessor absent from Git HEAD for one new " +
-          "candidate; resolved source relations or --relation define the " +
-          "complete final set, and --clear-relations selects an explicitly " +
-          "empty set."
+        "--discard <decision-id>",
+        "Discard one Decision ID in the same recoverable relation transaction."
       ).argParser(parseSingleDecisionId)
+    )
+    .option(
+      "--delete-recorded-decision",
+      "Confirm deletion when the discarded Decision ID has entered Git HEAD."
     );
   evolve.action(() => execute("evolve", evolve));
 
@@ -608,12 +630,18 @@ export function createCliProgram(
   const discard = createSubcommand(
     program,
     "discard",
-    "Delete a complete reviewable decision candidate and rebuild the index."
-  ).argument(
-    "<decision-id>",
-    "Stable Decision ID basename.",
-    parseSingleDecisionId
-  );
+    "Delete one complete, unreferenced candidate or established decision. IDs already " +
+      "recorded in Git HEAD require --delete-recorded-decision."
+  )
+    .argument(
+      "<decision-id>",
+      "Stable Decision ID basename.",
+      parseSingleDecisionId
+    )
+    .option(
+      "--delete-recorded-decision",
+      "Confirm deletion of a Decision ID that has entered Git HEAD."
+    );
   discard.action((decisionId: DecisionId) =>
     execute("discard", discard, [decisionId])
   );

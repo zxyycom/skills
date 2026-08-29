@@ -8,6 +8,12 @@ import {
   type DecisionHistoryBaseline,
   type UnrecordedHistoryAttentionTarget
 } from "./decision-history-baseline.ts";
+import {
+  discardDecisionChange,
+  prepareDiscardDecisionEligibility,
+  prepareRecordedDiscardAttention,
+  type DiscardableDecisionRecord
+} from "./decision-discard.ts";
 import { prepareArchivedDecisionChange } from "./decision-lifecycle-change.ts";
 import { serializeDecisionFrontmatter } from "./decision-metadata.ts";
 import {
@@ -46,23 +52,40 @@ type PreparedSuccessor =
       record: EstablishedDecisionRecord;
     });
 
+type DecisionRelationGraphPlan = {
+  archivedPredecessors: EstablishedDecisionRecord[];
+  discardedRecord: DiscardableDecisionRecord | null;
+  successors: PreparedSuccessor[];
+};
+
 export type DecisionRelationTransactionPreparation =
   | DecisionApplicationAttention
   | DecisionApplicationFailure
   | {
       archivedPredecessors: EstablishedDecisionRecord[];
       changes: DecisionFileChange[];
-      collapsedRecord: EstablishedDecisionRecord | null;
+      discardedRecord: DiscardableDecisionRecord | null;
       status: "ok";
       successors: PreparedSuccessor[];
     };
 
-export type DecisionRelationTransactionRequest = {
-  collapseUnrecordedId: DecisionId | null;
-  keepUnrecordedHistory: boolean;
-  relationOverride: DecisionRelationOverride;
-  successors: readonly DecisionSuccessor[];
-};
+export type DecisionRelationTransactionRequest =
+  | {
+      discardId: DecisionId | null;
+      deleteRecordedDecision: boolean;
+      kind: "evolve";
+      keepUnrecordedHistory: boolean;
+      relationOverride: DecisionRelationOverride;
+      successors: readonly DecisionSuccessor[];
+    }
+  | {
+      discardId: DecisionId;
+      deleteRecordedDecision: boolean;
+      kind: "discard";
+      keepUnrecordedHistory: false;
+      relationOverride: { kind: "source" };
+      successors: readonly [];
+    };
 
 export function prepareDecisionRelationTransaction(
   scan: DecisionScan,
@@ -74,33 +97,51 @@ export function prepareDecisionRelationTransaction(
     scan,
     request.successors,
     request.relationOverride,
-    currentTimestamp()
+    currentTimestamp(),
+    request.kind === "discard"
   );
   if (successors.status === "error") {
     return successors;
   }
-  const strategyErrors = relationStrategyShapeErrors(successors.records);
+  const discarded = prepareDiscardDecisionEligibility(scan, request.discardId);
+  if (discarded.status === "error") {
+    return discarded;
+  }
+  const predecessorSelection = directPredecessors(scan, successors.records);
+  if (predecessorSelection.errors.length > 0) {
+    return decisionFailure(predecessorSelection.errors);
+  }
+  const graphPlan: DecisionRelationGraphPlan = {
+    archivedPredecessors: predecessorSelection.activeRecords,
+    discardedRecord: discarded.record,
+    successors: successors.records
+  };
+  const operationConflicts = graphPlanOperationConflicts(graphPlan);
+  if (operationConflicts.length > 0) {
+    return decisionFailure(operationConflicts);
+  }
+  const discardReferenceErrors = discardedDecisionReferenceErrors(
+    scan,
+    graphPlan
+  );
+  if (discardReferenceErrors.length > 0) {
+    return decisionFailure(discardReferenceErrors);
+  }
+  const previewRecords = projectDecisionRelationGraph(scan, graphPlan);
+  const strategyErrors = relationStrategyShapeErrors(graphPlan.successors);
   if (strategyErrors.length > 0) {
     return decisionFailure(strategyErrors);
   }
-
-  const collapsed = prepareCollapsedPredecessor(
-    scan,
-    successors.records,
-    request.collapseUnrecordedId,
-    request.relationOverride,
-    historyBaseline
-  );
-  if (collapsed.status === "error") {
-    return collapsed;
+  const previewIssues = decisionRelationConsistencyIssues(previewRecords);
+  if (previewIssues.length > 0) {
+    return decisionFailure(previewIssues.map((issue) => issue.message));
   }
-  const predecessorSelection = directPredecessors(
-    scan,
-    successors.records,
-    collapsed.record
+  const splitClosureErrors = splitSuccessorClosureErrors(
+    graphPlan.successors,
+    previewRecords
   );
-  if (predecessorSelection.errors.length > 0) {
-    return decisionFailure(predecessorSelection.errors);
+  if (splitClosureErrors.length > 0) {
+    return decisionFailure(splitClosureErrors);
   }
 
   const unrecordedAttention = prepareUnrecordedHistoryAttention(
@@ -112,45 +153,24 @@ export function prepareDecisionRelationTransaction(
     return unrecordedAttention;
   }
 
-  const collapsedReferenceErrors =
-    collapsed.record === null
-      ? []
-      : collapsedDecisionReferenceErrors(
-          scan,
-          successors.records,
-          collapsed.record
-        );
-  if (collapsedReferenceErrors.length > 0) {
-    return decisionFailure(collapsedReferenceErrors);
-  }
-
-  const previewRecords = buildRelationTransactionPreview(
-    scan,
-    successors.records,
-    predecessorSelection.activeRecords,
-    collapsed.record
+  const recordedDiscardAttention = prepareRecordedDiscardAttention(
+    discarded.record,
+    request.deleteRecordedDecision,
+    historyBaseline
   );
-  const previewIssues = decisionRelationConsistencyIssues(previewRecords);
-  if (previewIssues.length > 0) {
-    return decisionFailure(previewIssues.map((issue) => issue.message));
-  }
-  const splitClosureErrors = splitSuccessorClosureErrors(
-    successors.records,
-    previewRecords
-  );
-  if (splitClosureErrors.length > 0) {
-    return decisionFailure(splitClosureErrors);
+  if (recordedDiscardAttention !== null) {
+    return recordedDiscardAttention;
   }
 
   const changes: DecisionFileChange[] = [];
-  for (const predecessor of predecessorSelection.activeRecords) {
+  for (const predecessor of graphPlan.archivedPredecessors) {
     const prepared = prepareArchivedDecisionChange(predecessor);
     if (prepared.status === "error") {
       return prepared;
     }
     changes.push(prepared.change);
   }
-  for (const successor of successors.records) {
+  for (const successor of graphPlan.successors) {
     if (
       !successor.candidate &&
       relationsEqual(successor.sourceRelations, successor.finalRelations)
@@ -179,20 +199,16 @@ export function prepareDecisionRelationTransaction(
       nextText
     });
   }
-  if (collapsed.record !== null) {
-    changes.push({
-      decisionPath: collapsed.record.decisionPath,
-      expectedText: collapsed.record.source.text,
-      nextText: null
-    });
+  if (graphPlan.discardedRecord !== null) {
+    changes.push(discardDecisionChange(graphPlan.discardedRecord));
   }
 
   return {
-    archivedPredecessors: predecessorSelection.activeRecords,
+    archivedPredecessors: graphPlan.archivedPredecessors,
     changes,
-    collapsedRecord: collapsed.record,
+    discardedRecord: graphPlan.discardedRecord,
     status: "ok",
-    successors: successors.records
+    successors: graphPlan.successors
   };
 }
 
@@ -208,10 +224,13 @@ function prepareSuccessors(
   scan: DecisionScan,
   requestedSuccessors: readonly DecisionSuccessor[],
   relationOverride: DecisionRelationOverride,
-  establishedAt: string
+  establishedAt: string,
+  allowsEmptySuccessors: boolean
 ): PreparedSuccessors {
   if (requestedSuccessors.length === 0) {
-    return plainFailure("evolve requires at least one --successor value.");
+    return allowsEmptySuccessors
+      ? { establishedAt, records: [], status: "ok" }
+      : plainFailure("evolve requires at least one --successor value.");
   }
 
   const selectedIds = new Set<DecisionId>();
@@ -289,6 +308,9 @@ function prepareSuccessors(
 function relationStrategyShapeErrors(
   successors: readonly PreparedSuccessor[]
 ): string[] {
+  if (successors.length === 0) {
+    return [];
+  }
   const hasSplit = successors.some((successor) =>
     successor.finalRelations.some((relation) => relation.type === "拆分")
   );
@@ -382,8 +404,7 @@ function splitSuccessorClosureErrors(
 
 function directPredecessors(
   scan: DecisionScan,
-  successors: readonly PreparedSuccessor[],
-  collapsedRecord: EstablishedDecisionRecord | null
+  successors: readonly PreparedSuccessor[]
 ): {
   activeRecords: EstablishedDecisionRecord[];
   errors: string[];
@@ -395,11 +416,6 @@ function directPredecessors(
     DecisionId,
     Set<DecisionRelationType>
   >();
-  const collapsedDirectPredecessors = new Set(
-    collapsedRecord?.source.document.relations.map(
-      (relation) => relation.target
-    ) ?? []
-  );
   const errors: string[] = [];
   for (const successor of successors) {
     const seenTargets = new Set<DecisionId>();
@@ -426,18 +442,6 @@ function directPredecessors(
       if (predecessor === null) {
         errors.push(
           "Evolution predecessor is not an established decision: " + targetId
-        );
-        continue;
-      }
-      if (
-        predecessor.source.document.status === "archived" &&
-        collapsedRecord !== null &&
-        !collapsedDirectPredecessors.has(predecessor.decisionId)
-      ) {
-        errors.push(
-          "Archived final relation target must be a direct predecessor of " +
-            "the collapsed decision: " +
-            predecessor.decisionId
         );
         continue;
       }
@@ -468,17 +472,18 @@ function directPredecessors(
   };
 }
 
-function buildRelationTransactionPreview(
+function projectDecisionRelationGraph(
   scan: DecisionScan,
-  successors: readonly PreparedSuccessor[],
-  archivedPredecessors: readonly EstablishedDecisionRecord[],
-  collapsedRecord: EstablishedDecisionRecord | null
+  graphPlan: DecisionRelationGraphPlan
 ): DecisionRelationConsistencyRecord[] {
   const successorById = new Map<DecisionId, PreparedSuccessor>(
-    successors.map((successor) => [successor.record.decisionId, successor])
+    graphPlan.successors.map((successor) => [
+      successor.record.decisionId,
+      successor
+    ])
   );
   const archivedIds = new Set<DecisionId>(
-    archivedPredecessors.map((record) => record.decisionId)
+    graphPlan.archivedPredecessors.map((record) => record.decisionId)
   );
   const preview: DecisionRelationConsistencyRecord[] = [];
   for (const record of scan.records) {
@@ -494,7 +499,7 @@ function buildRelationTransactionPreview(
       ? record
       : null;
     if (
-      record.decisionId === collapsedRecord?.decisionId ||
+      record.decisionId === graphPlan.discardedRecord?.decisionId ||
       (establishedRecord === null && successor === undefined)
     ) {
       continue;
@@ -535,101 +540,34 @@ function buildRelationTransactionPreview(
   return preview;
 }
 
-type CollapsedPredecessorPreparation =
-  | DecisionApplicationFailure
-  | {
-      record: EstablishedDecisionRecord | null;
-      status: "ok";
-    };
-
-function prepareCollapsedPredecessor(
+function discardedDecisionReferenceErrors(
   scan: DecisionScan,
-  successors: readonly PreparedSuccessor[],
-  collapsedId: DecisionId | null,
-  relationOverride: DecisionRelationOverride,
-  historyBaseline: DecisionHistoryBaseline | null
-): CollapsedPredecessorPreparation {
-  if (collapsedId === null) {
-    return { record: null, status: "ok" };
-  }
-  if (successors.length !== 1 || successors[0]?.candidate !== true) {
-    return plainFailure(
-      "--collapse-unrecorded requires exactly one new decision candidate successor."
-    );
-  }
-  const successor = successors[0];
-  if (
-    successor.finalRelations.length === 0 &&
-    relationOverride.kind === "source"
-  ) {
-    return plainFailure(
-      "Use --clear-relations to explicitly select an empty final relation set " +
-        "when collapsing an unrecorded predecessor."
-    );
-  }
-  if (historyBaseline === null || historyBaseline.kind !== "git-head") {
-    return plainFailure(
-      "--collapse-unrecorded requires an available Git HEAD baseline."
-    );
-  }
-  const record = findEstablishedRecord(scan, collapsedId);
-  if (record === null || !record.markdownExists) {
-    return plainFailure(
-      "Collapsed predecessor is not an established decision: " + collapsedId
-    );
-  }
-  if (record.decisionId === successor.record.decisionId) {
-    return plainFailure(
-      "Collapsed predecessor must not be the successor itself: " +
-        successor.record.decisionId
-    );
-  }
-  if (record.source.document.status !== "active") {
-    return plainFailure(
-      "Collapsed predecessor must be active: " + record.decisionId
-    );
-  }
-  if (historyBaseline.recordedDecisionIds.has(record.decisionId)) {
-    return plainFailure(
-      "Cannot collapse a decision recorded in " +
-        historyBaseline.label +
-        ": " +
-        record.decisionId
-    );
-  }
-  if (
-    successor.finalRelations.some(
-      (relation) => relation.target === record.decisionId
-    )
-  ) {
-    return plainFailure(
-      "The complete final relation list must not retain the collapsed predecessor: " +
-        record.decisionId
-    );
-  }
-  return { record, status: "ok" };
-}
-
-function collapsedDecisionReferenceErrors(
-  scan: DecisionScan,
-  successors: readonly PreparedSuccessor[],
-  collapsedRecord: EstablishedDecisionRecord
+  graphPlan: DecisionRelationGraphPlan
 ): string[] {
-  const selectedIds = new Set<DecisionId>(
-    successors.map((successor) => successor.record.decisionId)
+  const discardedDecisionId = graphPlan.discardedRecord?.decisionId;
+  if (discardedDecisionId === undefined) {
+    return [];
+  }
+  const successorsById = new Map(
+    graphPlan.successors.map((successor) => [
+      successor.record.decisionId,
+      successor
+    ])
   );
   const referencingIds = scan.records
     .flatMap((record) => {
       if (
+        record.decisionId === discardedDecisionId ||
         (!isDecisionCandidateRecord(record) &&
-          !isEstablishedDecisionRecord(record)) ||
-        record.decisionId === collapsedRecord.decisionId ||
-        selectedIds.has(record.decisionId)
+          !isEstablishedDecisionRecord(record))
       ) {
         return [];
       }
-      return record.source.document.relations.some(
-        (relation) => relation.target === collapsedRecord.decisionId
+      const relations =
+        successorsById.get(record.decisionId)?.finalRelations ??
+        record.source.document.relations;
+      return relations.some(
+        (relation) => relation.target === discardedDecisionId
       )
         ? [record.decisionId]
         : [];
@@ -638,10 +576,27 @@ function collapsedDecisionReferenceErrors(
   return referencingIds.length === 0
     ? []
     : [
-        "Cannot collapse decision while it is still referenced: " +
-          collapsedRecord.decisionId,
+        "Cannot discard decision while it is still referenced: " +
+          discardedDecisionId,
         "Remove or replace references from: " + referencingIds.join(", ")
       ];
+}
+
+function graphPlanOperationConflicts(
+  graphPlan: DecisionRelationGraphPlan
+): string[] {
+  const discardedDecisionId = graphPlan.discardedRecord?.decisionId;
+  if (discardedDecisionId === undefined) {
+    return [];
+  }
+  return graphPlan.successors.some(
+    (successor) => successor.record.decisionId === discardedDecisionId
+  )
+    ? [
+        "Discarded Decision ID must not also be a successor: " +
+          discardedDecisionId
+      ]
+    : [];
 }
 
 export function decisionRelationTransactionMessage(
@@ -655,35 +610,52 @@ export function decisionRelationTransactionMessage(
         prepared.archivedPredecessors
           .map((record) => record.decisionId)
           .join(", ");
-  const collapsed =
-    prepared.collapsedRecord === null
+  const discarded =
+    prepared.discardedRecord === null
       ? ""
-      : " and collapsed unrecorded predecessor " +
-        prepared.collapsedRecord.decisionId;
-  return prefix + archived + collapsed + ".";
+      : " and discarded decision " + prepared.discardedRecord.decisionId;
+  return prefix + archived + discarded + ".";
 }
 
 export function decisionRelationTransactionRequiresHistoryBaseline(
   scan: DecisionScan,
   request: DecisionRelationTransactionRequest
 ): boolean {
-  const relations = request.successors.flatMap((successor) => {
+  const successors = request.successors.flatMap((successor) => {
     const record = findRecord(scan, successor.decisionId);
     if (
       record === null ||
-      (record.source.kind !== "candidate" &&
-        record.source.kind !== "established")
+      (!isDecisionCandidateRecord(record) &&
+        !isEstablishedDecisionRecord(record))
     ) {
       return [];
     }
-    return resolveEffectiveRelations(
-      record.source.document.relations,
-      request.relationOverride
-    );
+    return [
+      {
+        decisionId: record.decisionId,
+        finalRelations: resolveEffectiveRelations(
+          record.source.document.relations,
+          request.relationOverride
+        )
+      }
+    ];
   });
-  return relations.some(
-    (relation) => findEstablishedRecord(scan, relation.target) !== null
-  );
+  if (successors.length !== request.successors.length) {
+    return false;
+  }
+  const relations = successors.flatMap((successor) => successor.finalRelations);
+  if (
+    relations.some(
+      (relation) => findEstablishedRecord(scan, relation.target) !== null
+    )
+  ) {
+    return true;
+  }
+  if (request.deleteRecordedDecision) {
+    return false;
+  }
+  const discarded = prepareDiscardDecisionEligibility(scan, request.discardId);
+  return discarded.status === "ok" && discarded.record !== null;
 }
 
 function findRecord(

@@ -109,15 +109,6 @@ test("activation and archive transitions preserve content and index atomicity", 
     assert.equal(archivedState.alignment, "aligned");
     assert.equal(archivedState.createdAt, createdAt);
 
-    const archivedDiscard = await runSourceCli([
-      "discard",
-      lifecycleRelativePath,
-      "--root",
-      workspaceRoot
-    ]);
-    assert.equal(archivedDiscard.exitCode, 1);
-    assert.match(archivedDiscard.stderr, /Cannot discard established decision/);
-
     const reactivated = await runSourceCli([
       "activate",
       lifecycleRelativePath,
@@ -145,4 +136,32 @@ test("activation and archive transitions preserve content and index atomicity", 
       assert.doesNotMatch(result.stdout, /pending/i);
       assert.doesNotMatch(result.stderr, /Git HEAD|pending/i);
     }
+
+    const archivedAgain = await runSourceCli([
+      "archive",
+      lifecycleRelativePath,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(archivedAgain.exitCode, 0, archivedAgain.stderr);
+    const discardedArchived = await runSourceCli([
+      "discard",
+      lifecycleRelativePath,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(discardedArchived.exitCode, 0, discardedArchived.stderr);
+    assert.equal(
+      await fileExists(
+        path.join(decisionsDirectory, "archive", lifecycleRelativePath)
+      ),
+      false
+    );
+    assert.equal(
+      Object.hasOwn(
+        (await readIndex(indexPath)).entries,
+        lifecycleRelativePath
+      ),
+      false
+    );
   }));

@@ -1910,29 +1910,6 @@
         "title": "Discard 接受指向活动目标的合法候选"
       }
     },
-    "DECISION-CANDIDATE-DISCARD-GATES-001": {
-      "keys": {
-        "search": [
-          "DECISION-CANDIDATE-DISCARD-GATES-001 Discard 拒绝已建立决策且不写入 Discard 只能删除未建立候选；正式索引中的已建立身份不能通过把 Markdown 生命周期字段改写成 candidate 来规避。 对活动已建立决策执行 discard 返回拒绝诊断，Markdown 与索引逐字节不变。 把同一已索引 Markdown 伪装成 candidate 后，严格检查报告该身份只允许完整且未索引的候选，索引仍不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects established decisions without mutation bun test --test-name-pattern=\"^discard rejects established decisions without mutation$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "topic": [
-          "decision-records"
-        ]
-      },
-      "state": {
-        "endLine": 10,
-        "entries": [
-          "tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects established decisions without mutation",
-          "bun test --test-name-pattern=\"^discard rejects established decisions without mutation$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "id": "DECISION-CANDIDATE-DISCARD-GATES-001",
-        "line": 1,
-        "searchText": "Discard 拒绝已建立决策且不写入 Discard 只能删除未建立候选；正式索引中的已建立身份不能通过把 Markdown 生命周期字段改写成 candidate 来规避。 对活动已建立决策执行 discard 返回拒绝诊断，Markdown 与索引逐字节不变。 把同一已索引 Markdown 伪装成 candidate 后，严格检查报告该身份只允许完整且未索引的候选，索引仍不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects established decisions without mutation bun test --test-name-pattern=\"^discard rejects established decisions without mutation$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/discard-rejects-established-decisions-without-mutation.md",
-        "summary": "Discard 只能删除未建立候选；正式索引中的已建立身份不能通过把 Markdown 生命周期字段改写成 candidate 来规避。",
-        "title": "Discard 拒绝已建立决策且不写入"
-      }
-    },
     "DECISION-CANDIDATE-DISCARD-INVALID-001": {
       "keys": {
         "search": [
@@ -1982,7 +1959,7 @@
     "DECISION-CANDIDATE-DISCARD-REFERENCED-001": {
       "keys": {
         "search": [
-          "DECISION-CANDIDATE-DISCARD-REFERENCED-001 Discard 拒绝仍被引用的候选 仍被其他候选直接引用的候选目标不能删除，以免留下悬空关系。 对被另一候选修订关系引用的目标执行 discard 返回 still referenced 诊断。 被引用目标、引用来源与正式索引均保持不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects a candidate that is still referenced without mutation bun test --test-name-pattern=\"^discard rejects a candidate that is still referenced without mutation$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CANDIDATE-DISCARD-REFERENCED-001 Discard 拒绝仍被引用的候选 仍被其他候选直接引用的候选目标不能删除，以免留下悬空关系；即使目标 candidate 已进入 Git `HEAD`，也必须先报告引用阻断而不要求额外删除参数。 已提交的目标和引用候选存在关系时，discard 返回 still referenced 诊断，而不是已记录 candidate 的删除 attention。 被引用目标、引用来源与正式索引均保持不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects a candidate that is still referenced without mutation bun test --test-name-pattern=\"^discard rejects a candidate that is still referenced without mutation$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1996,16 +1973,39 @@
         ],
         "id": "DECISION-CANDIDATE-DISCARD-REFERENCED-001",
         "line": 1,
-        "searchText": "Discard 拒绝仍被引用的候选 仍被其他候选直接引用的候选目标不能删除，以免留下悬空关系。 对被另一候选修订关系引用的目标执行 discard 返回 still referenced 诊断。 被引用目标、引用来源与正式索引均保持不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects a candidate that is still referenced without mutation bun test --test-name-pattern=\"^discard rejects a candidate that is still referenced without mutation$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Discard 拒绝仍被引用的候选 仍被其他候选直接引用的候选目标不能删除，以免留下悬空关系；即使目标 candidate 已进入 Git `HEAD`，也必须先报告引用阻断而不要求额外删除参数。 已提交的目标和引用候选存在关系时，discard 返回 still referenced 诊断，而不是已记录 candidate 的删除 attention。 被引用目标、引用来源与正式索引均保持不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects a candidate that is still referenced without mutation bun test --test-name-pattern=\"^discard rejects a candidate that is still referenced without mutation$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/discard-rejects-a-candidate-that-is-still-referenced-without-mutation.md",
-        "summary": "仍被其他候选直接引用的候选目标不能删除，以免留下悬空关系。",
+        "summary": "仍被其他候选直接引用的候选目标不能删除，以免留下悬空关系；即使目标 candidate 已进入 Git `HEAD`，也必须先报告引用阻断而不要求额外删除参数。",
         "title": "Discard 拒绝仍被引用的候选"
       }
     },
-    "DECISION-CANDIDATE-DISCARD-SELECTION-001": {
+    "DECISION-CANDIDATE-DISCARD-UNBORN-001": {
       "keys": {
         "search": [
-          "DECISION-CANDIDATE-DISCARD-SELECTION-001 丢弃只删除选定候选并保留同级候选 多个结构完整的显式候选并存时，严格检查允许它们等待审核；Discard 必须只删除显式目标并保持其他候选和已建立索引，候选是否已经进入 Git `HEAD` 不影响删除。 两个候选提交到 Git `HEAD` 后，严格检查仍成功并计数两个候选；丢弃目标后同级候选原文与正式索引保持不变。 命令输出确认删除目标，并在 stderr 提醒仍存在的候选。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard removes only the selected candidate and preserves siblings bun test --test-name-pattern=\"^discard removes only the selected candidate and preserves siblings$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CANDIDATE-DISCARD-UNBORN-001 Discard 删除 unborn Git HEAD 工作树中的候选 尚无首次提交的 Git 工作树没有已记录 Decision ID；完整且未被引用的 candidate 可由普通 `discard` 删除。 初始化但未提交的 Git 工作树中，普通 discard 成功删除 candidate 文件。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard deletes candidates in a Git worktree with unborn HEAD bun test --test-name-pattern=\"^discard deletes candidates in a Git worktree with unborn HEAD$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > discard deletes candidates in a Git worktree with unborn HEAD",
+          "bun test --test-name-pattern=\"^discard deletes candidates in a Git worktree with unborn HEAD$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-DISCARD-UNBORN-001",
+        "line": 1,
+        "searchText": "Discard 删除 unborn Git HEAD 工作树中的候选 尚无首次提交的 Git 工作树没有已记录 Decision ID；完整且未被引用的 candidate 可由普通 `discard` 删除。 初始化但未提交的 Git 工作树中，普通 discard 成功删除 candidate 文件。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard deletes candidates in a Git worktree with unborn HEAD bun test --test-name-pattern=\"^discard deletes candidates in a Git worktree with unborn HEAD$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/discard-deletes-candidates-with-unborn-git-head.md",
+        "summary": "尚无首次提交的 Git 工作树没有已记录 Decision ID；完整且未被引用的 candidate 可由普通 `discard` 删除。",
+        "title": "Discard 删除 unborn Git HEAD 工作树中的候选"
+      }
+    },
+    "DECISION-CANDIDATE-DISCARD-UNREADABLE-HEAD-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-DISCARD-UNREADABLE-HEAD-001 Discard 在 Git HEAD 不可读取时零写入失败 完整 candidate 的 discard 需要判定其是否已进入 Git `HEAD`；Git `HEAD` 不能读取时，CLI 必须在删除前失败，不能将该异常当作未记录 candidate。 已提交 candidate 的引用被破坏后，discard 返回 Git HEAD 检查错误。 candidate 原文和正式索引逐字节不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard fails closed when Git HEAD cannot be read bun test --test-name-pattern=\"^discard fails closed when Git HEAD cannot be read$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2014,15 +2014,38 @@
       "state": {
         "endLine": 10,
         "entries": [
-          "tools/decision-records/tests/candidate-lifecycle.test.ts > discard removes only the selected candidate and preserves siblings",
-          "bun test --test-name-pattern=\"^discard removes only the selected candidate and preserves siblings$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > discard fails closed when Git HEAD cannot be read",
+          "bun test --test-name-pattern=\"^discard fails closed when Git HEAD cannot be read$\" ./tools/decision-records/tests/run.ts"
         ],
-        "id": "DECISION-CANDIDATE-DISCARD-SELECTION-001",
+        "id": "DECISION-CANDIDATE-DISCARD-UNREADABLE-HEAD-001",
         "line": 1,
-        "searchText": "丢弃只删除选定候选并保留同级候选 多个结构完整的显式候选并存时，严格检查允许它们等待审核；Discard 必须只删除显式目标并保持其他候选和已建立索引，候选是否已经进入 Git `HEAD` 不影响删除。 两个候选提交到 Git `HEAD` 后，严格检查仍成功并计数两个候选；丢弃目标后同级候选原文与正式索引保持不变。 命令输出确认删除目标，并在 stderr 提醒仍存在的候选。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard removes only the selected candidate and preserves siblings bun test --test-name-pattern=\"^discard removes only the selected candidate and preserves siblings$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/discard-removes-only-the-selected-candidate-and-preserves-siblings.md",
-        "summary": "多个结构完整的显式候选并存时，严格检查允许它们等待审核；Discard 必须只删除显式目标并保持其他候选和已建立索引，候选是否已经进入 Git `HEAD` 不影响删除。",
-        "title": "丢弃只删除选定候选并保留同级候选"
+        "searchText": "Discard 在 Git HEAD 不可读取时零写入失败 完整 candidate 的 discard 需要判定其是否已进入 Git `HEAD`；Git `HEAD` 不能读取时，CLI 必须在删除前失败，不能将该异常当作未记录 candidate。 已提交 candidate 的引用被破坏后，discard 返回 Git HEAD 检查错误。 candidate 原文和正式索引逐字节不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard fails closed when Git HEAD cannot be read bun test --test-name-pattern=\"^discard fails closed when Git HEAD cannot be read$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/discard-fails-closed-when-git-head-cannot-be-read.md",
+        "summary": "完整 candidate 的 discard 需要判定其是否已进入 Git `HEAD`；Git `HEAD` 不能读取时，CLI 必须在删除前失败，不能将该异常当作未记录 candidate。",
+        "title": "Discard 在 Git HEAD 不可读取时零写入失败"
+      }
+    },
+    "DECISION-CANDIDATE-DISCARD-UNRECORDED-001": {
+      "keys": {
+        "search": [
+          "DECISION-CANDIDATE-DISCARD-UNRECORDED-001 Discard 删除未进入 Git HEAD 的候选 Git 工作树已有已提交基线时，未进入 Git `HEAD` 的完整且未被引用 candidate 可由普通 `discard` 删除，不需要已记录候选删除参数。 提交既有决策集合后新建 candidate，普通 discard 成功删除该文件。 已建立成员的正式索引逐字节不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard deletes candidates absent from Git HEAD bun test --test-name-pattern=\"^discard deletes candidates absent from Git HEAD$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > discard deletes candidates absent from Git HEAD",
+          "bun test --test-name-pattern=\"^discard deletes candidates absent from Git HEAD$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CANDIDATE-DISCARD-UNRECORDED-001",
+        "line": 1,
+        "searchText": "Discard 删除未进入 Git HEAD 的候选 Git 工作树已有已提交基线时，未进入 Git `HEAD` 的完整且未被引用 candidate 可由普通 `discard` 删除，不需要已记录候选删除参数。 提交既有决策集合后新建 candidate，普通 discard 成功删除该文件。 已建立成员的正式索引逐字节不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard deletes candidates absent from Git HEAD bun test --test-name-pattern=\"^discard deletes candidates absent from Git HEAD$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/discard-deletes-candidates-absent-from-git-head.md",
+        "summary": "Git 工作树已有已提交基线时，未进入 Git `HEAD` 的完整且未被引用 candidate 可由普通 `discard` 删除，不需要已记录候选删除参数。",
+        "title": "Discard 删除未进入 Git HEAD 的候选"
       }
     },
     "DECISION-CANDIDATE-EMPTY-INDEX-001": {
@@ -2278,6 +2301,29 @@
         "title": "CLI 顶层帮助公开当前命令集合"
       }
     },
+    "DECISION-CLI-DISCARD-RECORDED-FLAG-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-DISCARD-RECORDED-FLAG-001 Discard 帮助展示已记录决策删除参数 CLI 必须公开删除已进入 Git `HEAD` Decision ID 所需的 `--delete-recorded-decision` 显式参数。 `discard --help` 展示参数及其 Git HEAD 适用说明。 tools/decision-records/tests/cli-args.test.ts > discard help requires an explicit recorded decision deletion flag bun test --test-name-pattern=\"^discard help requires an explicit recorded decision deletion flag$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > discard help requires an explicit recorded decision deletion flag",
+          "bun test --test-name-pattern=\"^discard help requires an explicit recorded decision deletion flag$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-DISCARD-RECORDED-FLAG-001",
+        "line": 1,
+        "searchText": "Discard 帮助展示已记录决策删除参数 CLI 必须公开删除已进入 Git `HEAD` Decision ID 所需的 `--delete-recorded-decision` 显式参数。 `discard --help` 展示参数及其 Git HEAD 适用说明。 tools/decision-records/tests/cli-args.test.ts > discard help requires an explicit recorded decision deletion flag bun test --test-name-pattern=\"^discard help requires an explicit recorded decision deletion flag$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/discard-help-requires-explicit-recorded-decision-deletion-flag.md",
+        "summary": "CLI 必须公开删除已进入 Git `HEAD` Decision ID 所需的 `--delete-recorded-decision` 显式参数。",
+        "title": "Discard 帮助展示已记录决策删除参数"
+      }
+    },
     "DECISION-CLI-EVOLVE-HELP-001": {
       "keys": {
         "search": [
@@ -2301,10 +2347,33 @@
         "title": "Evolve 帮助公开后继与完整关系选择"
       }
     },
+    "DECISION-CLI-EVOLVE-RECORDED-FLAG-001": {
+      "keys": {
+        "search": [
+          "DECISION-CLI-EVOLVE-RECORDED-FLAG-001 Evolve 的已记录删除参数必须配合 discard `--delete-recorded-decision` 仅确认 `--discard <decision-id>` 选定目标的删除，不是独立演进选项。 evolve 仅传该参数时以退出码 2 在 Commander 参数边界拒绝，stdout 为空，stderr 给出稳定的 `--delete-recorded-decision requires --discard <decision-id>` 诊断。 tools/decision-records/tests/cli-args.test.ts > evolve rejects a recorded-decision deletion flag without discard bun test --test-name-pattern=\"^evolve rejects a recorded-decision deletion flag without discard$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > evolve rejects a recorded-decision deletion flag without discard",
+          "bun test --test-name-pattern=\"^evolve rejects a recorded-decision deletion flag without discard$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-CLI-EVOLVE-RECORDED-FLAG-001",
+        "line": 1,
+        "searchText": "Evolve 的已记录删除参数必须配合 discard `--delete-recorded-decision` 仅确认 `--discard <decision-id>` 选定目标的删除，不是独立演进选项。 evolve 仅传该参数时以退出码 2 在 Commander 参数边界拒绝，stdout 为空，stderr 给出稳定的 `--delete-recorded-decision requires --discard <decision-id>` 诊断。 tools/decision-records/tests/cli-args.test.ts > evolve rejects a recorded-decision deletion flag without discard bun test --test-name-pattern=\"^evolve rejects a recorded-decision deletion flag without discard$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-delete-recorded-decision-flag-requires-discard.md",
+        "summary": "`--delete-recorded-decision` 仅确认 `--discard <decision-id>` 选定目标的删除，不是独立演进选项。",
+        "title": "Evolve 的已记录删除参数必须配合 discard"
+      }
+    },
     "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001": {
       "keys": {
         "search": [
-          "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001 Evolve 要求至少一个后继参数 Evolve 必须通过至少一个 `--successor` 明确完整后继集合。 未提供 successor 的 evolve 调用退出 2，并报告 required option `--successor`。 tools/decision-records/tests/cli-args.test.ts > evolve requires at least one successor argument bun test --test-name-pattern=\"^evolve requires at least one successor argument$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001 Evolve 要求至少一个后继参数 Evolve 必须通过至少一个 `--successor` 明确完整后继集合。 未提供 successor 的 evolve 调用，即使附带 `--discard`，也退出 2 并报告 required option `--successor`。 tools/decision-records/tests/cli-args.test.ts > evolve requires at least one successor argument bun test --test-name-pattern=\"^evolve requires at least one successor argument$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2318,7 +2387,7 @@
         ],
         "id": "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001",
         "line": 1,
-        "searchText": "Evolve 要求至少一个后继参数 Evolve 必须通过至少一个 `--successor` 明确完整后继集合。 未提供 successor 的 evolve 调用退出 2，并报告 required option `--successor`。 tools/decision-records/tests/cli-args.test.ts > evolve requires at least one successor argument bun test --test-name-pattern=\"^evolve requires at least one successor argument$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Evolve 要求至少一个后继参数 Evolve 必须通过至少一个 `--successor` 明确完整后继集合。 未提供 successor 的 evolve 调用，即使附带 `--discard`，也退出 2 并报告 required option `--successor`。 tools/decision-records/tests/cli-args.test.ts > evolve requires at least one successor argument bun test --test-name-pattern=\"^evolve requires at least one successor argument$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/evolve-requires-at-least-one-successor-argument.md",
         "summary": "Evolve 必须通过至少一个 `--successor` 明确完整后继集合。",
         "title": "Evolve 要求至少一个后继参数"
@@ -2553,6 +2622,144 @@
         "title": "相对决策目录从 workspace 根解析"
       }
     },
+    "DECISION-DISCARD-ONLY-ACTIVE-ESTABLISHED-001": {
+      "keys": {
+        "search": [
+          "DECISION-DISCARD-ONLY-ACTIVE-ESTABLISHED-001 Discard 删除唯一 active 已建立决策并移除派生索引 `discard` 可删除无引用的 active 已建立决策；删除后没有任何已建立决策时，不保留空派生索引。 唯一 active 决策的 Markdown 与 `decision-index.json` 都被移除。 tools/decision-records/tests/candidate-lifecycle.test.ts > discarding the only active established decision removes the derived index bun test --test-name-pattern=\"^discarding the only active established decision removes the derived index$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > discarding the only active established decision removes the derived index",
+          "bun test --test-name-pattern=\"^discarding the only active established decision removes the derived index$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-DISCARD-ONLY-ACTIVE-ESTABLISHED-001",
+        "line": 1,
+        "searchText": "Discard 删除唯一 active 已建立决策并移除派生索引 `discard` 可删除无引用的 active 已建立决策；删除后没有任何已建立决策时，不保留空派生索引。 唯一 active 决策的 Markdown 与 `decision-index.json` 都被移除。 tools/decision-records/tests/candidate-lifecycle.test.ts > discarding the only active established decision removes the derived index bun test --test-name-pattern=\"^discarding the only active established decision removes the derived index$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/discard-only-active-established-removes-derived-index.md",
+        "summary": "`discard` 可删除无引用的 active 已建立决策；删除后没有任何已建立决策时，不保留空派生索引。",
+        "title": "Discard 删除唯一 active 已建立决策并移除派生索引"
+      }
+    },
+    "DECISION-DISCARD-ONLY-ARCHIVED-ESTABLISHED-001": {
+      "keys": {
+        "search": [
+          "DECISION-DISCARD-ONLY-ARCHIVED-ESTABLISHED-001 Discard 删除唯一 archived 已建立决策 `discard` 同样可删除无引用的 archived 已建立决策。 删除 archive 下的 Markdown；集合不再有已建立成员时同时移除派生索引。 tools/decision-records/tests/candidate-lifecycle.test.ts > discarding the only archived established decision removes its archive path and index bun test --test-name-pattern=\"^discarding the only archived established decision removes its archive path and index$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > discarding the only archived established decision removes its archive path and index",
+          "bun test --test-name-pattern=\"^discarding the only archived established decision removes its archive path and index$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-DISCARD-ONLY-ARCHIVED-ESTABLISHED-001",
+        "line": 1,
+        "searchText": "Discard 删除唯一 archived 已建立决策 `discard` 同样可删除无引用的 archived 已建立决策。 删除 archive 下的 Markdown；集合不再有已建立成员时同时移除派生索引。 tools/decision-records/tests/candidate-lifecycle.test.ts > discarding the only archived established decision removes its archive path and index bun test --test-name-pattern=\"^discarding the only archived established decision removes its archive path and index$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/discard-only-archived-established-removes-archive-path-and-index.md",
+        "summary": "`discard` 同样可删除无引用的 archived 已建立决策。",
+        "title": "Discard 删除唯一 archived 已建立决策"
+      }
+    },
+    "DECISION-DISCARD-RECORDED-ATTENTION-001": {
+      "keys": {
+        "search": [
+          "DECISION-DISCARD-RECORDED-ATTENTION-001 Discard 在删除已记录决策前暂停 完整且未被引用的 Decision ID 已进入 Git `HEAD` 时，首次 `discard` 必须零写入 attention；只有显式加入 `--delete-recorded-decision` 才能删除目标。 首次 discard 保留目标文件和正式索引；带参数重试只删除选定目标，保留同级候选。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard pauses before deleting a candidate recorded in Git HEAD bun test --test-name-pattern=\"^discard pauses before deleting a candidate recorded in Git HEAD$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > discard pauses before deleting a candidate recorded in Git HEAD",
+          "bun test --test-name-pattern=\"^discard pauses before deleting a candidate recorded in Git HEAD$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-DISCARD-RECORDED-ATTENTION-001",
+        "line": 1,
+        "searchText": "Discard 在删除已记录决策前暂停 完整且未被引用的 Decision ID 已进入 Git `HEAD` 时，首次 `discard` 必须零写入 attention；只有显式加入 `--delete-recorded-decision` 才能删除目标。 首次 discard 保留目标文件和正式索引；带参数重试只删除选定目标，保留同级候选。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard pauses before deleting a candidate recorded in Git HEAD bun test --test-name-pattern=\"^discard pauses before deleting a candidate recorded in Git HEAD$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/discard-pauses-before-deleting-recorded-decision.md",
+        "summary": "完整且未被引用的 Decision ID 已进入 Git `HEAD` 时，首次 `discard` 必须零写入 attention；只有显式加入 `--delete-recorded-decision` 才能删除目标。",
+        "title": "Discard 在删除已记录决策前暂停"
+      }
+    },
+    "DECISION-DISCARD-RECORDED-FLAG-001": {
+      "keys": {
+        "search": [
+          "DECISION-DISCARD-RECORDED-FLAG-001 Discard 参数删除已记录决策而不读取 Git HEAD `--delete-recorded-decision` 是删除已记录 Decision ID 的显式机械选择；带该参数时，direct discard 不再读取 Git `HEAD` 重复判定记录状态。 已提交 candidate 的 Git `HEAD` 引用损坏后，带参数的 discard 仍成功删除目标。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard flag deletes a recorded decision without reading Git HEAD bun test --test-name-pattern=\"^discard flag deletes a recorded decision without reading Git HEAD$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > discard flag deletes a recorded decision without reading Git HEAD",
+          "bun test --test-name-pattern=\"^discard flag deletes a recorded decision without reading Git HEAD$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-DISCARD-RECORDED-FLAG-001",
+        "line": 1,
+        "searchText": "Discard 参数删除已记录决策而不读取 Git HEAD `--delete-recorded-decision` 是删除已记录 Decision ID 的显式机械选择；带该参数时，direct discard 不再读取 Git `HEAD` 重复判定记录状态。 已提交 candidate 的 Git `HEAD` 引用损坏后，带参数的 discard 仍成功删除目标。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard flag deletes a recorded decision without reading Git HEAD bun test --test-name-pattern=\"^discard flag deletes a recorded decision without reading Git HEAD$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/discard-flag-deletes-recorded-decision-without-reading-git-head.md",
+        "summary": "`--delete-recorded-decision` 是删除已记录 Decision ID 的显式机械选择；带该参数时，direct discard 不再读取 Git `HEAD` 重复判定记录状态。",
+        "title": "Discard 参数删除已记录决策而不读取 Git HEAD"
+      }
+    },
+    "DECISION-DISCARD-REFERENCED-ESTABLISHED-001": {
+      "keys": {
+        "search": [
+          "DECISION-DISCARD-REFERENCED-ESTABLISHED-001 Discard 拒绝仍被引用的已建立决策 已建立决策仍被另一个已建立决策直接引用时不能删除；诊断应说明剩余引用，而不是把删除后的悬空 target 表现为普通图扫描错误。 对已归档且仍被 active 后继引用的 Decision ID 执行 discard 返回 still referenced 诊断。 被选记录、引用后继和正式索引均保持不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects an established decision that is still referenced without mutation bun test --test-name-pattern=\"^discard rejects an established decision that is still referenced without mutation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects an established decision that is still referenced without mutation",
+          "bun test --test-name-pattern=\"^discard rejects an established decision that is still referenced without mutation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-DISCARD-REFERENCED-ESTABLISHED-001",
+        "line": 1,
+        "searchText": "Discard 拒绝仍被引用的已建立决策 已建立决策仍被另一个已建立决策直接引用时不能删除；诊断应说明剩余引用，而不是把删除后的悬空 target 表现为普通图扫描错误。 对已归档且仍被 active 后继引用的 Decision ID 执行 discard 返回 still referenced 诊断。 被选记录、引用后继和正式索引均保持不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects an established decision that is still referenced without mutation bun test --test-name-pattern=\"^discard rejects an established decision that is still referenced without mutation$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/discard-rejects-an-established-decision-that-is-still-referenced-without-mutation.md",
+        "summary": "已建立决策仍被另一个已建立决策直接引用时不能删除；诊断应说明剩余引用，而不是把删除后的悬空 target 表现为普通图扫描错误。",
+        "title": "Discard 拒绝仍被引用的已建立决策"
+      }
+    },
+    "DECISION-DISCARD-SPLIT-CLOSURE-001": {
+      "keys": {
+        "search": [
+          "DECISION-DISCARD-SPLIT-CLOSURE-001 Discard 拒绝会打开拆分闭包的后继 已建立拆分关系必须始终保有至少两个直接拆分后继；direct discard 不能删除其中一个后继而留下开放拆分。 即使请求 `--delete-recorded-decision`，对闭合拆分的一个后继执行 discard 仍会在写入前返回最终关系图一致性诊断。 被选后继的 Markdown 和正式索引均保持不变。 tools/decision-records/tests/evolution.test.ts > discard rejects a split successor that would leave an open split bun test --test-name-pattern=\"^discard rejects a split successor that would leave an open split$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > discard rejects a split successor that would leave an open split",
+          "bun test --test-name-pattern=\"^discard rejects a split successor that would leave an open split$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-DISCARD-SPLIT-CLOSURE-001",
+        "line": 1,
+        "searchText": "Discard 拒绝会打开拆分闭包的后继 已建立拆分关系必须始终保有至少两个直接拆分后继；direct discard 不能删除其中一个后继而留下开放拆分。 即使请求 `--delete-recorded-decision`，对闭合拆分的一个后继执行 discard 仍会在写入前返回最终关系图一致性诊断。 被选后继的 Markdown 和正式索引均保持不变。 tools/decision-records/tests/evolution.test.ts > discard rejects a split successor that would leave an open split bun test --test-name-pattern=\"^discard rejects a split successor that would leave an open split$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/discard-rejects-a-split-successor-that-would-open-its-split.md",
+        "summary": "已建立拆分关系必须始终保有至少两个直接拆分后继；direct discard 不能删除其中一个后继而留下开放拆分。",
+        "title": "Discard 拒绝会打开拆分闭包的后继"
+      }
+    },
     "DECISION-EVOLUTION-RELATIONS-001": {
       "keys": {
         "search": [
@@ -2643,6 +2850,236 @@
         "sourcePath": "decision-records/evolve-establishes-one-successor-while-preserving-archived-predecessors.md",
         "summary": "单后继 evolve 可以使用活动和已归档的合法直接前序；事务只归档新增活动前序，并保存调用方提供的完整最终关系集合。",
         "title": "Evolve 建立单后继并保留已归档前序"
+      }
+    },
+    "DECISION-EVOLVE-DISCARD-001": {
+      "keys": {
+        "search": [
+          "DECISION-EVOLVE-DISCARD-001 Evolve 以显式最终关系删除未记录中间决策 `evolve --discard` 在关系事务中删除无引用、未进入 Git HEAD 的决策，并把调用方提供的关系作为后继完整最终关系集合。 删除目标从 Markdown 和派生索引移除；后继采用显式最终关系且严格检查通过。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discards an unrecorded intermediate with explicit final relations bun test --test-name-pattern=\"^evolve discards an unrecorded intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > evolve discards an unrecorded intermediate with explicit final relations",
+          "bun test --test-name-pattern=\"^evolve discards an unrecorded intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-EVOLVE-DISCARD-001",
+        "line": 1,
+        "searchText": "Evolve 以显式最终关系删除未记录中间决策 `evolve --discard` 在关系事务中删除无引用、未进入 Git HEAD 的决策，并把调用方提供的关系作为后继完整最终关系集合。 删除目标从 Markdown 和派生索引移除；后继采用显式最终关系且严格检查通过。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discards an unrecorded intermediate with explicit final relations bun test --test-name-pattern=\"^evolve discards an unrecorded intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-discards-an-unrecorded-intermediate-with-explicit-final-relations.md",
+        "summary": "`evolve --discard` 在关系事务中删除无引用、未进入 Git HEAD 的决策，并把调用方提供的关系作为后继完整最终关系集合。",
+        "title": "Evolve 以显式最终关系删除未记录中间决策"
+      }
+    },
+    "DECISION-EVOLVE-DISCARD-ARCHIVED-RELATION-001": {
+      "keys": {
+        "search": [
+          "DECISION-EVOLVE-DISCARD-ARCHIVED-RELATION-001 Evolve discard 接受合法的无关 archived 最终关系 `evolve --discard` 不增加删除专属的前序边界；只要最终图合法，后继可指向合法 archived 前序。 事务删除目标并保留调用方选择的 archived 最终关系。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discard accepts an unrelated archived final relation bun test --test-name-pattern=\"^evolve discard accepts an unrelated archived final relation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > evolve discard accepts an unrelated archived final relation",
+          "bun test --test-name-pattern=\"^evolve discard accepts an unrelated archived final relation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-EVOLVE-DISCARD-ARCHIVED-RELATION-001",
+        "line": 1,
+        "searchText": "Evolve discard 接受合法的无关 archived 最终关系 `evolve --discard` 不增加删除专属的前序边界；只要最终图合法，后继可指向合法 archived 前序。 事务删除目标并保留调用方选择的 archived 最终关系。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discard accepts an unrelated archived final relation bun test --test-name-pattern=\"^evolve discard accepts an unrelated archived final relation$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-discard-accepts-an-unrelated-archived-final-relation.md",
+        "summary": "`evolve --discard` 不增加删除专属的前序边界；只要最终图合法，后继可指向合法 archived 前序。",
+        "title": "Evolve discard 接受合法的无关 archived 最终关系"
+      }
+    },
+    "DECISION-EVOLVE-DISCARD-EMPTY-001": {
+      "keys": {
+        "search": [
+          "DECISION-EVOLVE-DISCARD-EMPTY-001 Evolve discard 接受显式空的最终关系集合 `--clear-relations` 将所选后继的完整最终关系替换为空，并可与 `--discard` 同一事务使用。 事务删除目标并建立关系为空的后继。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discard accepts an explicitly empty final relation set bun test --test-name-pattern=\"^evolve discard accepts an explicitly empty final relation set$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > evolve discard accepts an explicitly empty final relation set",
+          "bun test --test-name-pattern=\"^evolve discard accepts an explicitly empty final relation set$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-EVOLVE-DISCARD-EMPTY-001",
+        "line": 1,
+        "searchText": "Evolve discard 接受显式空的最终关系集合 `--clear-relations` 将所选后继的完整最终关系替换为空，并可与 `--discard` 同一事务使用。 事务删除目标并建立关系为空的后继。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discard accepts an explicitly empty final relation set bun test --test-name-pattern=\"^evolve discard accepts an explicitly empty final relation set$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-discard-accepts-an-explicitly-empty-final-relation-set.md",
+        "summary": "`--clear-relations` 将所选后继的完整最终关系替换为空，并可与 `--discard` 同一事务使用。",
+        "title": "Evolve discard 接受显式空的最终关系集合"
+      }
+    },
+    "DECISION-EVOLVE-DISCARD-RECORDED-001": {
+      "keys": {
+        "search": [
+          "DECISION-EVOLVE-DISCARD-RECORDED-001 Evolve discard 在删除已记录决策前暂停 `evolve --discard` 删除已进入 Git `HEAD` 的 Decision ID 时，未带 `--delete-recorded-decision` 必须 attention 且零写入。 后继候选、删除目标和派生索引在 attention 后保持不变。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discard pauses before deleting a recorded decision bun test --test-name-pattern=\"^evolve discard pauses before deleting a recorded decision$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > evolve discard pauses before deleting a recorded decision",
+          "bun test --test-name-pattern=\"^evolve discard pauses before deleting a recorded decision$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-EVOLVE-DISCARD-RECORDED-001",
+        "line": 1,
+        "searchText": "Evolve discard 在删除已记录决策前暂停 `evolve --discard` 删除已进入 Git `HEAD` 的 Decision ID 时，未带 `--delete-recorded-decision` 必须 attention 且零写入。 后继候选、删除目标和派生索引在 attention 后保持不变。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discard pauses before deleting a recorded decision bun test --test-name-pattern=\"^evolve discard pauses before deleting a recorded decision$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-discard-pauses-before-deleting-a-recorded-decision.md",
+        "summary": "`evolve --discard` 删除已进入 Git `HEAD` 的 Decision ID 时，未带 `--delete-recorded-decision` 必须 attention 且零写入。",
+        "title": "Evolve discard 在删除已记录决策前暂停"
+      }
+    },
+    "DECISION-EVOLVE-DISCARD-RECORDED-FLAG-001": {
+      "keys": {
+        "search": [
+          "DECISION-EVOLVE-DISCARD-RECORDED-FLAG-001 Evolve discard 参数删除已记录决策而不读取 Git HEAD `evolve --discard` 带 `--delete-recorded-decision` 时，该参数是删除目标的机械确认，不为 discard 自身重复读取 Git `HEAD`。 删除目标已进入 Git HEAD 且 HEAD 随后不可读取时，来源关系为空的新 candidate 仍在同一事务建立，目标被删除。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discard flag deletes a recorded decision without reading Git HEAD bun test --test-name-pattern=\"^evolve discard flag deletes a recorded decision without reading Git HEAD$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > evolve discard flag deletes a recorded decision without reading Git HEAD",
+          "bun test --test-name-pattern=\"^evolve discard flag deletes a recorded decision without reading Git HEAD$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-EVOLVE-DISCARD-RECORDED-FLAG-001",
+        "line": 1,
+        "searchText": "Evolve discard 参数删除已记录决策而不读取 Git HEAD `evolve --discard` 带 `--delete-recorded-decision` 时，该参数是删除目标的机械确认，不为 discard 自身重复读取 Git `HEAD`。 删除目标已进入 Git HEAD 且 HEAD 随后不可读取时，来源关系为空的新 candidate 仍在同一事务建立，目标被删除。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discard flag deletes a recorded decision without reading Git HEAD bun test --test-name-pattern=\"^evolve discard flag deletes a recorded decision without reading Git HEAD$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-discard-flag-deletes-recorded-decision-without-reading-git-head.md",
+        "summary": "`evolve --discard` 带 `--delete-recorded-decision` 时，该参数是删除目标的机械确认，不为 discard 自身重复读取 Git `HEAD`。",
+        "title": "Evolve discard 参数删除已记录决策而不读取 Git HEAD"
+      }
+    },
+    "DECISION-EVOLVE-DISCARD-REFERENCE-001": {
+      "keys": {
+        "search": [
+          "DECISION-EVOLVE-DISCARD-REFERENCE-001 Evolve discard 拒绝仍被引用的决策 被剩余 candidate 或已建立记录引用的删除目标不能被 discard。 CLI 报告引用 ID，且不会修改后继、引用记录、目标或索引。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discard rejects a predecessor referenced by another candidate bun test --test-name-pattern=\"^evolve discard rejects a predecessor referenced by another candidate$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > evolve discard rejects a predecessor referenced by another candidate",
+          "bun test --test-name-pattern=\"^evolve discard rejects a predecessor referenced by another candidate$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-EVOLVE-DISCARD-REFERENCE-001",
+        "line": 1,
+        "searchText": "Evolve discard 拒绝仍被引用的决策 被剩余 candidate 或已建立记录引用的删除目标不能被 discard。 CLI 报告引用 ID，且不会修改后继、引用记录、目标或索引。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discard rejects a predecessor referenced by another candidate bun test --test-name-pattern=\"^evolve discard rejects a predecessor referenced by another candidate$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-discard-rejects-a-decision-referenced-by-another-candidate.md",
+        "summary": "被剩余 candidate 或已建立记录引用的删除目标不能被 discard。",
+        "title": "Evolve discard 拒绝仍被引用的决策"
+      }
+    },
+    "DECISION-EVOLVE-DISCARD-RELATION-HISTORY-001": {
+      "keys": {
+        "search": [
+          "DECISION-EVOLVE-DISCARD-RELATION-HISTORY-001 Evolve discard 参数不绕过最终关系的历史确认 `--delete-recorded-decision` 只确认删除目标；最终关系指向尚未进入 Git HEAD 的已建立前序时，仍须以 `--keep-unrecorded-history` 明确保留该独立历史。 CLI 返回前序历史 attention，且后继、删除目标、前序 Markdown 与索引均保持不变。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discard flag still pauses for an unrecorded final predecessor bun test --test-name-pattern=\"^evolve discard flag still pauses for an unrecorded final predecessor$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > evolve discard flag still pauses for an unrecorded final predecessor",
+          "bun test --test-name-pattern=\"^evolve discard flag still pauses for an unrecorded final predecessor$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-EVOLVE-DISCARD-RELATION-HISTORY-001",
+        "line": 1,
+        "searchText": "Evolve discard 参数不绕过最终关系的历史确认 `--delete-recorded-decision` 只确认删除目标；最终关系指向尚未进入 Git HEAD 的已建立前序时，仍须以 `--keep-unrecorded-history` 明确保留该独立历史。 CLI 返回前序历史 attention，且后继、删除目标、前序 Markdown 与索引均保持不变。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discard flag still pauses for an unrecorded final predecessor bun test --test-name-pattern=\"^evolve discard flag still pauses for an unrecorded final predecessor$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-discard-flag-still-pauses-for-an-unrecorded-final-predecessor.md",
+        "summary": "`--delete-recorded-decision` 只确认删除目标；最终关系指向尚未进入 Git HEAD 的已建立前序时，仍须以 `--keep-unrecorded-history` 明确保留该独立历史。",
+        "title": "Evolve discard 参数不绕过最终关系的历史确认"
+      }
+    },
+    "DECISION-EVOLVE-DISCARD-SOURCE-EMPTY-001": {
+      "keys": {
+        "search": [
+          "DECISION-EVOLVE-DISCARD-SOURCE-EMPTY-001 Evolve discard 接受来源为空的最终关系 未提供关系覆盖时，所选后继使用自身来源关系；来源为空即为空最终关系，不额外要求 `--clear-relations`。 关系为空的后继可与删除目标在同一事务完成。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discard accepts source-empty final relations bun test --test-name-pattern=\"^evolve discard accepts source-empty final relations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/unrecorded-history.test.ts > evolve discard accepts source-empty final relations",
+          "bun test --test-name-pattern=\"^evolve discard accepts source-empty final relations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-EVOLVE-DISCARD-SOURCE-EMPTY-001",
+        "line": 1,
+        "searchText": "Evolve discard 接受来源为空的最终关系 未提供关系覆盖时，所选后继使用自身来源关系；来源为空即为空最终关系，不额外要求 `--clear-relations`。 关系为空的后继可与删除目标在同一事务完成。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discard accepts source-empty final relations bun test --test-name-pattern=\"^evolve discard accepts source-empty final relations$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-discard-accepts-source-empty-final-relations.md",
+        "summary": "未提供关系覆盖时，所选后继使用自身来源关系；来源为空即为空最终关系，不额外要求 `--clear-relations`。",
+        "title": "Evolve discard 接受来源为空的最终关系"
+      }
+    },
+    "DECISION-EVOLVE-DISCARD-SPLIT-CLOSURE-001": {
+      "keys": {
+        "search": [
+          "DECISION-EVOLVE-DISCARD-SPLIT-CLOSURE-001 Evolve 用完整拆分闭包替换被 discard 的后继 discard 与 evolve 都在同一最终关系图上接受操作；evolve 可以删除一个已建立的拆分后继，只要其余被选后继和新候选共同构成完整闭包。 evolve 同时删除一个拆分后继并建立替代后继后，索引不再含被删除 ID，替代后继保留正确拆分关系。 最终 Decision Records 校验通过，证明最终图仍是闭合拆分。 tools/decision-records/tests/evolution.test.ts > evolve discards one split successor when it replaces the complete closure bun test --test-name-pattern=\"^evolve discards one split successor when it replaces the complete closure$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 10,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve discards one split successor when it replaces the complete closure",
+          "bun test --test-name-pattern=\"^evolve discards one split successor when it replaces the complete closure$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-EVOLVE-DISCARD-SPLIT-CLOSURE-001",
+        "line": 1,
+        "searchText": "Evolve 用完整拆分闭包替换被 discard 的后继 discard 与 evolve 都在同一最终关系图上接受操作；evolve 可以删除一个已建立的拆分后继，只要其余被选后继和新候选共同构成完整闭包。 evolve 同时删除一个拆分后继并建立替代后继后，索引不再含被删除 ID，替代后继保留正确拆分关系。 最终 Decision Records 校验通过，证明最终图仍是闭合拆分。 tools/decision-records/tests/evolution.test.ts > evolve discards one split successor when it replaces the complete closure bun test --test-name-pattern=\"^evolve discards one split successor when it replaces the complete closure$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-replaces-a-discarded-split-successor-with-a-closed-final-set.md",
+        "summary": "discard 与 evolve 都在同一最终关系图上接受操作；evolve 可以删除一个已建立的拆分后继，只要其余被选后继和新候选共同构成完整闭包。",
+        "title": "Evolve 用完整拆分闭包替换被 discard 的后继"
+      }
+    },
+    "DECISION-EVOLVE-DISCARD-SUCCESSOR-CONFLICT-001": {
+      "keys": {
+        "search": [
+          "DECISION-EVOLVE-DISCARD-SUCCESSOR-CONFLICT-001 Evolve 拒绝同时 discard 和选择同一后继 同一关系图计划不能同时 upsert 一个 Decision ID 并删除它；`evolve --discard` 的目标不能出现在 successor 集合。 CLI 在写入前拒绝冲突的 operation plan，并保留目标 Markdown 和正式索引原文。 tools/decision-records/tests/evolution.test.ts > evolve rejects a discarded Decision ID selected as a successor without mutation bun test --test-name-pattern=\"^evolve rejects a discarded Decision ID selected as a successor without mutation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve rejects a discarded Decision ID selected as a successor without mutation",
+          "bun test --test-name-pattern=\"^evolve rejects a discarded Decision ID selected as a successor without mutation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-EVOLVE-DISCARD-SUCCESSOR-CONFLICT-001",
+        "line": 1,
+        "searchText": "Evolve 拒绝同时 discard 和选择同一后继 同一关系图计划不能同时 upsert 一个 Decision ID 并删除它；`evolve --discard` 的目标不能出现在 successor 集合。 CLI 在写入前拒绝冲突的 operation plan，并保留目标 Markdown 和正式索引原文。 tools/decision-records/tests/evolution.test.ts > evolve rejects a discarded Decision ID selected as a successor without mutation bun test --test-name-pattern=\"^evolve rejects a discarded Decision ID selected as a successor without mutation$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-rejects-a-discarded-id-selected-as-a-successor.md",
+        "summary": "同一关系图计划不能同时 upsert 一个 Decision ID 并删除它；`evolve --discard` 的目标不能出现在 successor 集合。",
+        "title": "Evolve 拒绝同时 discard 和选择同一后继"
       }
     },
     "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001": {
@@ -4782,144 +5219,6 @@
         "sourcePath": "decision-records/evolve-pauses-for-an-unrecorded-archived-direct-predecessor.md",
         "summary": "`evolve` 以候选中的关系连接尚未进入 Git HEAD 的 archived 直接前序时，首次调用必须暂停且不写入；archived 前序与 active 前序适用同一确认规则。",
         "title": "关系事务确认尚未进入 Git HEAD 的归档直接前序"
-      }
-    },
-    "DECISION-UNRECORDED-COLLAPSE-001": {
-      "keys": {
-        "search": [
-          "DECISION-UNRECORDED-COLLAPSE-001 Evolve 以显式最终关系折叠未提交中间决策 `evolve --collapse-unrecorded` 只删除未进入 Git HEAD 的单个活动已建立中间前序，并把调用者提供的关系作为后继的完整最终关系集合。 折叠前的最终关系目标已经 archived，且确实是中间记录原有的直接前序。 合法折叠删除未提交中间记录，并从派生索引移除该记录。 后继只保留调用者显式给出的原中间记录直接上游关系，严格决策检查继续通过。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapses an unrecorded intermediate with explicit final relations bun test --test-name-pattern=\"^evolve collapses an unrecorded intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "topic": [
-          "decision-records"
-        ]
-      },
-      "state": {
-        "endLine": 11,
-        "entries": [
-          "tools/decision-records/tests/unrecorded-history.test.ts > evolve collapses an unrecorded intermediate with explicit final relations",
-          "bun test --test-name-pattern=\"^evolve collapses an unrecorded intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "id": "DECISION-UNRECORDED-COLLAPSE-001",
-        "line": 1,
-        "searchText": "Evolve 以显式最终关系折叠未提交中间决策 `evolve --collapse-unrecorded` 只删除未进入 Git HEAD 的单个活动已建立中间前序，并把调用者提供的关系作为后继的完整最终关系集合。 折叠前的最终关系目标已经 archived，且确实是中间记录原有的直接前序。 合法折叠删除未提交中间记录，并从派生索引移除该记录。 后继只保留调用者显式给出的原中间记录直接上游关系，严格决策检查继续通过。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapses an unrecorded intermediate with explicit final relations bun test --test-name-pattern=\"^evolve collapses an unrecorded intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/evolve-collapses-an-unrecorded-intermediate-with-explicit-final-relations.md",
-        "summary": "`evolve --collapse-unrecorded` 只删除未进入 Git HEAD 的单个活动已建立中间前序，并把调用者提供的关系作为后继的完整最终关系集合。",
-        "title": "Evolve 以显式最终关系折叠未提交中间决策"
-      }
-    },
-    "DECISION-UNRECORDED-COLLAPSE-BOUNDARY-001": {
-      "keys": {
-        "search": [
-          "DECISION-UNRECORDED-COLLAPSE-BOUNDARY-001 Evolve 折叠拒绝越过中间决策边界的归档关系 折叠后的已归档关系目标只能来自被折叠记录原有的直接前序，CLI 不跨层推断、合成或接受无关归档关系。 最终关系引用无关已归档决策时，evolve 报告该目标不是被折叠记录的直接前序。 拒绝路径逐字节保留后继候选、中间记录和 decision-index.json。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects archived relations outside the intermediate boundary bun test --test-name-pattern=\"^evolve collapse rejects archived relations outside the intermediate boundary$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "topic": [
-          "decision-records"
-        ]
-      },
-      "state": {
-        "endLine": 10,
-        "entries": [
-          "tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects archived relations outside the intermediate boundary",
-          "bun test --test-name-pattern=\"^evolve collapse rejects archived relations outside the intermediate boundary$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "id": "DECISION-UNRECORDED-COLLAPSE-BOUNDARY-001",
-        "line": 1,
-        "searchText": "Evolve 折叠拒绝越过中间决策边界的归档关系 折叠后的已归档关系目标只能来自被折叠记录原有的直接前序，CLI 不跨层推断、合成或接受无关归档关系。 最终关系引用无关已归档决策时，evolve 报告该目标不是被折叠记录的直接前序。 拒绝路径逐字节保留后继候选、中间记录和 decision-index.json。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects archived relations outside the intermediate boundary bun test --test-name-pattern=\"^evolve collapse rejects archived relations outside the intermediate boundary$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/evolve-collapse-rejects-archived-relations-outside-the-intermediate-boundary.md",
-        "summary": "折叠后的已归档关系目标只能来自被折叠记录原有的直接前序，CLI 不跨层推断、合成或接受无关归档关系。",
-        "title": "Evolve 折叠拒绝越过中间决策边界的归档关系"
-      }
-    },
-    "DECISION-UNRECORDED-COLLAPSE-EMPTY-001": {
-      "keys": {
-        "search": [
-          "DECISION-UNRECORDED-COLLAPSE-EMPTY-001 Evolve 折叠接受显式空的最终关系集合 `--clear-relations` 明确表示折叠后的后继不承接中间记录的任何上游，是空最终关系集合的唯一无歧义入口。 带 `--clear-relations` 的单候选折叠成功删除未进入 Git HEAD 的中间记录。 建立后的后继拥有空关系集合。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse accepts an explicitly empty final relation set bun test --test-name-pattern=\"^evolve collapse accepts an explicitly empty final relation set$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "topic": [
-          "decision-records"
-        ]
-      },
-      "state": {
-        "endLine": 10,
-        "entries": [
-          "tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse accepts an explicitly empty final relation set",
-          "bun test --test-name-pattern=\"^evolve collapse accepts an explicitly empty final relation set$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "id": "DECISION-UNRECORDED-COLLAPSE-EMPTY-001",
-        "line": 1,
-        "searchText": "Evolve 折叠接受显式空的最终关系集合 `--clear-relations` 明确表示折叠后的后继不承接中间记录的任何上游，是空最终关系集合的唯一无歧义入口。 带 `--clear-relations` 的单候选折叠成功删除未进入 Git HEAD 的中间记录。 建立后的后继拥有空关系集合。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse accepts an explicitly empty final relation set bun test --test-name-pattern=\"^evolve collapse accepts an explicitly empty final relation set$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/evolve-collapse-accepts-an-explicitly-empty-final-relation-set.md",
-        "summary": "`--clear-relations` 明确表示折叠后的后继不承接中间记录的任何上游，是空最终关系集合的唯一无歧义入口。",
-        "title": "Evolve 折叠接受显式空的最终关系集合"
-      }
-    },
-    "DECISION-UNRECORDED-COLLAPSE-IMPLICIT-EMPTY-001": {
-      "keys": {
-        "search": [
-          "DECISION-UNRECORDED-COLLAPSE-IMPLICIT-EMPTY-001 Evolve 折叠拒绝隐式空关系选择 折叠未记录中间前序时，省略关系覆盖表示使用候选来源关系；来源关系为空不能被推断为调用方明确放弃全部上游，必须使用 `--clear-relations` 表达该意图。 空关系候选在没有显式覆盖或清空时被拒绝，并得到使用 `--clear-relations` 的可行动诊断。 拒绝路径逐字节保留后继候选、中间记录和 decision-index.json。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects an implicit empty final relation selection bun test --test-name-pattern=\"^evolve collapse rejects an implicit empty final relation selection$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "topic": [
-          "decision-records"
-        ]
-      },
-      "state": {
-        "endLine": 10,
-        "entries": [
-          "tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects an implicit empty final relation selection",
-          "bun test --test-name-pattern=\"^evolve collapse rejects an implicit empty final relation selection$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "id": "DECISION-UNRECORDED-COLLAPSE-IMPLICIT-EMPTY-001",
-        "line": 1,
-        "searchText": "Evolve 折叠拒绝隐式空关系选择 折叠未记录中间前序时，省略关系覆盖表示使用候选来源关系；来源关系为空不能被推断为调用方明确放弃全部上游，必须使用 `--clear-relations` 表达该意图。 空关系候选在没有显式覆盖或清空时被拒绝，并得到使用 `--clear-relations` 的可行动诊断。 拒绝路径逐字节保留后继候选、中间记录和 decision-index.json。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects an implicit empty final relation selection bun test --test-name-pattern=\"^evolve collapse rejects an implicit empty final relation selection$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/evolve-collapse-rejects-an-implicit-empty-final-relation-selection.md",
-        "summary": "折叠未记录中间前序时，省略关系覆盖表示使用候选来源关系；来源关系为空不能被推断为调用方明确放弃全部上游，必须使用 `--clear-relations` 表达该意图。",
-        "title": "Evolve 折叠拒绝隐式空关系选择"
-      }
-    },
-    "DECISION-UNRECORDED-COLLAPSE-RECORDED-001": {
-      "keys": {
-        "search": [
-          "DECISION-UNRECORDED-COLLAPSE-RECORDED-001 Evolve 折叠拒绝已进入 Git HEAD 的前序 `--collapse-unrecorded` 只能删除当前 Git HEAD 中不存在同一决策根相对路径的活动已建立前序。 中间记录路径提交到 Git HEAD 后，折叠返回已记录诊断并拒绝执行。 拒绝路径逐字节保留后继候选、中间记录和派生索引。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects a predecessor recorded in Git HEAD bun test --test-name-pattern=\"^evolve collapse rejects a predecessor recorded in Git HEAD$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "topic": [
-          "decision-records"
-        ]
-      },
-      "state": {
-        "endLine": 10,
-        "entries": [
-          "tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects a predecessor recorded in Git HEAD",
-          "bun test --test-name-pattern=\"^evolve collapse rejects a predecessor recorded in Git HEAD$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "id": "DECISION-UNRECORDED-COLLAPSE-RECORDED-001",
-        "line": 1,
-        "searchText": "Evolve 折叠拒绝已进入 Git HEAD 的前序 `--collapse-unrecorded` 只能删除当前 Git HEAD 中不存在同一决策根相对路径的活动已建立前序。 中间记录路径提交到 Git HEAD 后，折叠返回已记录诊断并拒绝执行。 拒绝路径逐字节保留后继候选、中间记录和派生索引。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects a predecessor recorded in Git HEAD bun test --test-name-pattern=\"^evolve collapse rejects a predecessor recorded in Git HEAD$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/evolve-collapse-rejects-a-predecessor-recorded-in-git-head.md",
-        "summary": "`--collapse-unrecorded` 只能删除当前 Git HEAD 中不存在同一决策根相对路径的活动已建立前序。",
-        "title": "Evolve 折叠拒绝已进入 Git HEAD 的前序"
-      }
-    },
-    "DECISION-UNRECORDED-COLLAPSE-REFERENCE-001": {
-      "keys": {
-        "search": [
-          "DECISION-UNRECORDED-COLLAPSE-REFERENCE-001 Evolve 折叠拒绝仍被其他候选引用的前序 被其他决策记录或候选引用的中间前序不能自动折叠，调用者必须先明确处理引用关系。 `evolve` 发现另一个候选仍引用折叠目标时，返回明确的不可折叠诊断、引用路径和退出码 1。 命令失败不会修改后继候选、引用候选、中间记录或派生索引。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects a predecessor referenced by another candidate bun test --test-name-pattern=\"^evolve collapse rejects a predecessor referenced by another candidate$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "topic": [
-          "decision-records"
-        ]
-      },
-      "state": {
-        "endLine": 10,
-        "entries": [
-          "tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects a predecessor referenced by another candidate",
-          "bun test --test-name-pattern=\"^evolve collapse rejects a predecessor referenced by another candidate$\" ./tools/decision-records/tests/run.ts"
-        ],
-        "id": "DECISION-UNRECORDED-COLLAPSE-REFERENCE-001",
-        "line": 1,
-        "searchText": "Evolve 折叠拒绝仍被其他候选引用的前序 被其他决策记录或候选引用的中间前序不能自动折叠，调用者必须先明确处理引用关系。 `evolve` 发现另一个候选仍引用折叠目标时，返回明确的不可折叠诊断、引用路径和退出码 1。 命令失败不会修改后继候选、引用候选、中间记录或派生索引。 tools/decision-records/tests/unrecorded-history.test.ts > evolve collapse rejects a predecessor referenced by another candidate bun test --test-name-pattern=\"^evolve collapse rejects a predecessor referenced by another candidate$\" ./tools/decision-records/tests/run.ts",
-        "sourcePath": "decision-records/evolve-collapse-rejects-a-predecessor-referenced-by-another-candidate.md",
-        "summary": "被其他决策记录或候选引用的中间前序不能自动折叠，调用者必须先明确处理引用关系。",
-        "title": "Evolve 折叠拒绝仍被其他候选引用的前序"
       }
     },
     "DECISION-UNRECORDED-EVOLUTION-001": {
@@ -14126,11 +14425,12 @@
       "DECISION-CANDIDATE-ACTIVATION-SELECTION-001": "sha256:59b6351778c79925596849bc82b33bdbb8ab846d0a92572e1564f2a9ee40d335",
       "DECISION-CANDIDATE-DATE-IDENTITY-001": "sha256:62d4093cd5a9e3b0b60c9b8fb15a64b246aa4622c566f8162de77b0a60fc6aed",
       "DECISION-CANDIDATE-DISCARD-ACTIVE-TARGET-001": "sha256:c0b69beeb225427f4d7a3ff5457f60d26d6effb288dbd06ee93b140662057d28",
-      "DECISION-CANDIDATE-DISCARD-GATES-001": "sha256:4bdbda6483910da355e2e90118ed27e3ef255012a835a97a3960f2eed1d8ece5",
       "DECISION-CANDIDATE-DISCARD-INVALID-001": "sha256:23a58829f2e0b8246e3e79e8e68f671cc2ccbe50b7331c84bc1920df9421967a",
       "DECISION-CANDIDATE-DISCARD-INVALID-RELATION-001": "sha256:a5f14897991236a565d839550e955709b8d274c17d72a917b61e36a2c0d15c2a",
-      "DECISION-CANDIDATE-DISCARD-REFERENCED-001": "sha256:6fa84f0e7ede9c669cb66620a81f8accdefa8976351a751523b870c96eebc2e9",
-      "DECISION-CANDIDATE-DISCARD-SELECTION-001": "sha256:c5e0606d5f76d78d409ac68690c02e7ac7b59beb3e4829c507042d07c27bc6fd",
+      "DECISION-CANDIDATE-DISCARD-REFERENCED-001": "sha256:869bf76fb9abe6401ef6481df05166435245b018e42e314dba8061118acb6c26",
+      "DECISION-CANDIDATE-DISCARD-UNBORN-001": "sha256:1052448246fe7912bc851f16497416f815678f3bf0dd5e1e0189b9a34de0527a",
+      "DECISION-CANDIDATE-DISCARD-UNREADABLE-HEAD-001": "sha256:33d43c44e9b3001c5a584355a61507f668d2c1ea14d9bc2f6cce531091866e94",
+      "DECISION-CANDIDATE-DISCARD-UNRECORDED-001": "sha256:f402aa1cd4bf1f179bec1d74faa6bbc658d08b5ed2ea9001d9f0e0ba4abd9e3c",
       "DECISION-CANDIDATE-EMPTY-INDEX-001": "sha256:84c4b3cb3bda36a50545a7c9ab8ef785acd5645b915f3fa4e7307a2fc82ee94a",
       "DECISION-CANDIDATE-FIRST-DISCOVERY-001": "sha256:1a1b6b17ab6deb4ceb50044e561283b8d610358d2635007f9a6bbf44991db51d",
       "DECISION-CANDIDATE-INDEX-001": "sha256:5f0a539542009ad43aa2a2a7721f6bd4024b90699276353a8162e94de926535c",
@@ -14142,8 +14442,10 @@
       "DECISION-CLI-ACTIVATE-ALIGNMENT-001": "sha256:2b60ad9b6a2a8b5bb19aebde19a7887f42927685db108b29b69b44ecb350af68",
       "DECISION-CLI-ARCHIVE-HELP-001": "sha256:195ae3be4014bc4097234bb838f5bc5ed4bb58660d72175fcee30a42edeb62e0",
       "DECISION-CLI-ARGS-001": "sha256:a720d4e0d4bc23cc60ef566ca1c97f59103a65569670c6d09adb3a9a2ca06f16",
+      "DECISION-CLI-DISCARD-RECORDED-FLAG-001": "sha256:350f0c4c5fc50de7af397621c955d41e1a504802d334d8e41023cdce8a03f82e",
       "DECISION-CLI-EVOLVE-HELP-001": "sha256:569d1990171808e0187aeec62808eb78cc68548f3e34d88f38ec4d41109a8970",
-      "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001": "sha256:28610923594ce003805d9c9a1a853721f5cde444ae0f29e0569a448a287f84c8",
+      "DECISION-CLI-EVOLVE-RECORDED-FLAG-001": "sha256:a895239ab211475f195ece28e66be2c34f0c6129ef50f5eb3022da5c9755cc1a",
+      "DECISION-CLI-EVOLVE-SUCCESSOR-REQUIRED-001": "sha256:2ea7b5860f9f3be890ef6a9ce208404f03cc99eb8681c750527d66e138fa5b28",
       "DECISION-CLI-MARK-ALIGNED-HELP-001": "sha256:a0f31da74c2dd5ec39de558a6696137da5d0f3666003ae2c6291864050cfcb97",
       "DECISION-CLI-POSITIONAL-ID-001": "sha256:e7098c9b0e0c70ca4619896b6257301a6f7909b731c91a9bf5fb7e48690d9f3a",
       "DECISION-CLI-RELATION-SELECTION-001": "sha256:9fdc9deed74a62b3578886105bcd61fd5a541edf47ee75587711499632cf1c3d",
@@ -14154,10 +14456,26 @@
       "DECISION-CLI-UNKNOWN-OPTION-001": "sha256:9f868dbf4976035508ddb0e1c8f61b824d108221aaaf8e36a4438816cc4d4254",
       "DECISION-CONFIGURED-ABSOLUTE-DIRECTORY-001": "sha256:666237bcba499dc5c1abfd183b4671f46284cfcf1f85c2e46850637d156fe048",
       "DECISION-CONFIGURED-RELATIVE-DIRECTORY-001": "sha256:5fb87bdbc2a18d634f362e618dd413aad14aa12865dcccb1b27eb4fb7a409fc4",
+      "DECISION-DISCARD-ONLY-ACTIVE-ESTABLISHED-001": "sha256:91b24bf6b6ba244042934333ed6b8e3e4000cc089249e741188d12f9b1e6c572",
+      "DECISION-DISCARD-ONLY-ARCHIVED-ESTABLISHED-001": "sha256:6405840791082d95980bc5f117b32a76b1e4b28a2fcc78413807b44ea1e443f3",
+      "DECISION-DISCARD-RECORDED-ATTENTION-001": "sha256:85c882402c6a4330fdd46bfa44041eab410bba3668ba974df0029e5d02748dbd",
+      "DECISION-DISCARD-RECORDED-FLAG-001": "sha256:f657e9d50a123bf4661288df4ecf0c91f48dfc1abe916555468a3fac3b93d016",
+      "DECISION-DISCARD-REFERENCED-ESTABLISHED-001": "sha256:0f6297d23d47d143eb01a4e2d4b3789e5ef0b4a50f7c262fa8bdec6e76c76ccb",
+      "DECISION-DISCARD-SPLIT-CLOSURE-001": "sha256:4a19947455010b77267df01d6419bd2fb0be11cdc79f57bd7d0c946ae61e7698",
       "DECISION-EVOLUTION-RELATIONS-001": "sha256:3bc417fcb8ccc884e03096b0a61c5f089dc66352d03d45f25cf9936be0cf29e4",
       "DECISION-EVOLVE-ALIGNMENT-CONFIRMATION-001": "sha256:cdc7a1d0eb5058b3ff4076b0f4b19969284a9fdcc334e1429a09b6c0d4d6f96b",
       "DECISION-EVOLVE-ARCHIVED-SUCCESSOR-001": "sha256:4d186724297c46b154cbd101cc4fe17bc1dd88a5197235d23c8c7db0e50098dc",
       "DECISION-EVOLVE-COMMAND-001": "sha256:e1d910ece5bad2f7de165a91632f5704387937d3bf5bbff6a100ed86b04d788b",
+      "DECISION-EVOLVE-DISCARD-001": "sha256:c6a7e328b8e83ba88bfb5b2d3b00f243a64695f0b9db0f2b625ee6f0e13aebda",
+      "DECISION-EVOLVE-DISCARD-ARCHIVED-RELATION-001": "sha256:6ad19b29146ee30622016b3e84ff8803c173fa4bfc4a77bc7b47eb6c4026c4e8",
+      "DECISION-EVOLVE-DISCARD-EMPTY-001": "sha256:b639ef157ddd731570dc8479cc7cf1dd7e7b72a344bac81af9ff5675e1da219c",
+      "DECISION-EVOLVE-DISCARD-RECORDED-001": "sha256:580c3aee837682bfa59ebf7cbfcee0dae458dc9c444f7839b8358e2ae9a701e5",
+      "DECISION-EVOLVE-DISCARD-RECORDED-FLAG-001": "sha256:a197d25c573b00453e65710bbb71dc6a5d5308ad182fa296781d615aebae9683",
+      "DECISION-EVOLVE-DISCARD-REFERENCE-001": "sha256:98b81a7a123820ddb7c599d94c6cd6914d23b7bc1e8ecd7069d272bdb70dce07",
+      "DECISION-EVOLVE-DISCARD-RELATION-HISTORY-001": "sha256:824eae4cf34906ecc6f77393f68708078a3db1dd93896aec6b0cf35b5c4995ff",
+      "DECISION-EVOLVE-DISCARD-SOURCE-EMPTY-001": "sha256:d250d963424a8116841d06d97a7a9c38fa7b91a8266ca67ffac3329907781cc4",
+      "DECISION-EVOLVE-DISCARD-SPLIT-CLOSURE-001": "sha256:8ba04b1c9dccf1e56fe6c3b4f2bc6072a6d5acef2ba7df8af820fbdeb1ba5eb7",
+      "DECISION-EVOLVE-DISCARD-SUCCESSOR-CONFLICT-001": "sha256:79ad71a2e01775abc2d3ecf0a5860006a3501f5b41e1f9e42d9255b7ccf6e3c1",
       "DECISION-EVOLVE-DUPLICATE-RELATION-TARGET-001": "sha256:012ba61e3ef68558605e77f7973a97304da3bb2e4682dc5f9fea504e34423736",
       "DECISION-EVOLVE-DUPLICATE-SUCCESSOR-001": "sha256:621f08d6c375564019aa4aa88b1ad7d1cd6db521d3fb1937a99a4f81b6446af7",
       "DECISION-EVOLVE-ESTABLISHED-REPLACE-001": "sha256:17305233f0e42f3598fa12cfae0f5651ca4391346034e79ea43eeb4c620519ff",
@@ -14251,12 +14569,6 @@
       "DECISION-TYPE-PATH-001": "sha256:a497c584f58d77b8eba6552fcaff741261cb3776df69d296c4a3931549de51ac",
       "DECISION-UNRECORDED-ARCHIVE-001": "sha256:529730b9e909578cf8e227b61595fbeb7bf2c61e792697f607ff2fdd774dfd9b",
       "DECISION-UNRECORDED-ARCHIVED-PREDECESSOR-001": "sha256:8fa8386271f72753ce6ef1e7185c1141960b01bf40e1cc4daa6359567babc7d7",
-      "DECISION-UNRECORDED-COLLAPSE-001": "sha256:e9a35a4b90755f146056f063864d383c95f47541c132323c13fc6e6379ed5286",
-      "DECISION-UNRECORDED-COLLAPSE-BOUNDARY-001": "sha256:849b3b4ba373da48c1b35db4f1fc87e9485939c592de295ec80e5c10742f33b3",
-      "DECISION-UNRECORDED-COLLAPSE-EMPTY-001": "sha256:a8f8ac8bfca33789deb4c8f4f8d1dff6d97abcaaffd82075e38bd0a784c65246",
-      "DECISION-UNRECORDED-COLLAPSE-IMPLICIT-EMPTY-001": "sha256:74c9a4f96aa79cb0ea0a4847223be0ab0d0608e4dd66b313118f9f64934b2d59",
-      "DECISION-UNRECORDED-COLLAPSE-RECORDED-001": "sha256:393424879ded25295580036f42fb925d904f813ee4b8f78145145ef74f577651",
-      "DECISION-UNRECORDED-COLLAPSE-REFERENCE-001": "sha256:935124fad8a31eaad28880889195c198c6ed6a6e7ce512ad6c20b07fba308980",
       "DECISION-UNRECORDED-EVOLUTION-001": "sha256:789f1a98d3fbd16a010fb515dd5e2f33788aeb39bf4d97b363ff78b70001496d",
       "DECISION-UNRECORDED-WARNING-ORDER-001": "sha256:e440a42644bca2baa2c4465357436937b02c0ca646da3625a4d02d8c32659d30",
       "ENV-CHECK-READONLY-001": "sha256:1cc8bb79619b0886f6166381c90048049dc07658f88f51ca0bd0901ffebb6731",

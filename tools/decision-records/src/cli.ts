@@ -16,7 +16,7 @@ import {
   type DecisionHistoryBaseline
 } from "./decision-history-baseline.ts";
 import {
-  decisionHistoryBaselineRequirement,
+  requiresDecisionHistoryBaseline,
   prepareDecisionLifecycle,
   type DecisionLifecycleRequest
 } from "./decision-lifecycle-service.ts";
@@ -159,7 +159,8 @@ async function runEvolve(args: CliArgsFor<"evolve">): Promise<number> {
     ? 1
     : await applyLifecycle(args, scan, {
         action: "evolve",
-        collapseUnrecordedId: args.collapseUnrecordedId,
+        discardId: args.discardId,
+        deleteRecordedDecision: args.deleteRecordedDecision,
         keepUnrecordedHistory: args.keepUnrecordedHistory,
         relationOverride: args.relationOverride,
         successors: args.successors
@@ -201,7 +202,8 @@ async function runDiscard(args: CliArgsFor<"discard">): Promise<number> {
   );
   return await applyLifecycle(args, result.scan, {
     action: "discard",
-    decisionId: args.decisionId
+    decisionId: args.decisionId,
+    deleteRecordedDecision: args.deleteRecordedDecision
   });
 }
 
@@ -226,7 +228,7 @@ async function applyLifecycle(
   request: DecisionLifecycleRequest
 ): Promise<number> {
   let historyBaseline: DecisionHistoryBaseline | null = null;
-  if (decisionHistoryBaselineRequirement(scan, request) !== "none") {
+  if (requiresDecisionHistoryBaseline(scan, request)) {
     const loadedBaseline = await loadDecisionHistoryBaseline(scan);
     if (loadedBaseline.status === "error") {
       printDecisionFailure(loadedBaseline);

@@ -435,6 +435,75 @@ test("evolve performs a closed split with independently aligned successors", () 
     assert.match(traced, /keep-future-split-slice/);
   }));
 
+test("discard rejects a split successor that would leave an open split", () =>
+  withFixtureWorkspace("discard-open-split", async (workspaceRoot) => {
+    const established = await establishClosedSplit(workspaceRoot);
+    const discardedPath = decisionFilePath(
+      workspaceRoot,
+      established.alignedRelativePath
+    );
+    const discardedText = await fs.readFile(discardedPath, "utf8");
+    const indexText = await fs.readFile(established.indexPath, "utf8");
+
+    const discarded = await runSourceCli([
+      "discard",
+      established.alignedRelativePath,
+      "--delete-recorded-decision",
+      "--root",
+      workspaceRoot
+    ]);
+
+    assert.equal(discarded.exitCode, 1);
+    assert.match(
+      discarded.stderr,
+      /split target must have at least two direct/
+    );
+    assert.equal(await fs.readFile(discardedPath, "utf8"), discardedText);
+    assert.equal(await fs.readFile(established.indexPath, "utf8"), indexText);
+  }));
+
+test("evolve discards one split successor when it replaces the complete closure", () =>
+  withFixtureWorkspace(
+    "evolve-replace-split-successor",
+    async (workspaceRoot) => {
+      const established = await establishClosedSplit(workspaceRoot);
+      const replacementRelativePath = "replace-current-split-slice.md";
+      await fs.writeFile(
+        decisionFilePath(workspaceRoot, replacementRelativePath),
+        candidateDecisionBody(),
+        "utf8"
+      );
+
+      await runSuccessfulSourceCli([
+        "evolve",
+        "--successor",
+        "unaligned=" + established.unalignedRelativePath,
+        "--successor",
+        "aligned=" + replacementRelativePath,
+        "--relation",
+        "拆分=" + established.coarseRelativePath,
+        "--discard",
+        established.alignedRelativePath,
+        "--root",
+        workspaceRoot
+      ]);
+
+      const index = await readIndex(established.indexPath);
+      assert.equal(
+        Object.hasOwn(index.entries, established.alignedRelativePath),
+        false
+      );
+      assert.deepEqual(
+        findIndexEntry(index, replacementRelativePath).relations,
+        [{ type: "拆分", target: established.coarseRelativePath }]
+      );
+      assert.deepEqual(
+        (await validateDecisionRecords({ workspaceRoot })).errors,
+        []
+      );
+    }
+  ));
+
 test("evolve adds a split successor only when every existing successor is selected", () =>
   withFixtureWorkspace("evolve-extend-split", async (workspaceRoot) => {
     const established = await establishClosedSplit(workspaceRoot);
@@ -469,6 +538,40 @@ test("evolve adds a split successor only when every existing successor is select
       []
     );
   }));
+
+test("evolve rejects a discarded Decision ID selected as a successor without mutation", () =>
+  withFixtureWorkspace(
+    "evolve-discard-successor-conflict",
+    async (workspaceRoot) => {
+      const targetPath = decisionFilePath(workspaceRoot, currentRelativePath);
+      const targetText = await fs.readFile(targetPath, "utf8");
+      const indexPath = path.join(
+        workspaceRoot,
+        "docs",
+        "decisions",
+        "decision-index.json"
+      );
+      const indexText = await fs.readFile(indexPath, "utf8");
+
+      const rejected = await runSourceCli([
+        "evolve",
+        "--successor",
+        "aligned=" + currentRelativePath,
+        "--discard",
+        currentRelativePath,
+        "--root",
+        workspaceRoot
+      ]);
+
+      assert.equal(rejected.exitCode, 1);
+      assert.match(
+        rejected.stderr,
+        /Discarded Decision ID must not also be a successor/
+      );
+      assert.equal(await fs.readFile(targetPath, "utf8"), targetText);
+      assert.equal(await fs.readFile(indexPath, "utf8"), indexText);
+    }
+  ));
 
 test("evolve rejects a split extension that omits an existing successor before writing", () =>
   withFixtureWorkspace("evolve-omit-split", async (workspaceRoot) => {

@@ -48,6 +48,28 @@ test("archive help promises to preserve the last alignment", () => {
   assert.match(help.stdout, /preserving their last alignment/);
 });
 
+test("discard help requires an explicit recorded decision deletion flag", () => {
+  const help = runGeneratedCli(["discard", "--help"]);
+  assert.equal(help.status, 0);
+  assert.match(help.stdout, /--delete-recorded-decision/);
+  assert.match(help.stdout, /Decision ID that has entered\s+Git HEAD/);
+});
+
+test("evolve rejects a recorded-decision deletion flag without discard", () => {
+  const result = runGeneratedCli([
+    "evolve",
+    "--successor",
+    "aligned=use-successor.md",
+    "--delete-recorded-decision"
+  ]);
+  assert.equal(result.status, 2);
+  assert.equal(result.stdout, "");
+  assert.match(
+    result.stderr,
+    /--delete-recorded-decision requires --discard <decision-id>/
+  );
+});
+
 test("mark-aligned help requires verified current facts", () => {
   const help = runGeneratedCli(["mark-aligned", "--help"]);
   assert.equal(help.status, 0);
@@ -62,10 +84,7 @@ test("evolve help exposes successor and complete relation selection", () => {
   assert.equal(help.status, 0);
   assert.match(help.stdout, /--successor <alignment=decision-id>/);
   assert.match(help.stdout, /--clear-relations/);
-  assert.match(
-    help.stdout,
-    /resolved\s+source relations or --relation define the\s+complete final set, and --clear-relations\s+selects an explicitly empty set/
-  );
+  assert.match(help.stdout, /--discard <decision-id>/);
   assert.doesNotMatch(help.stdout, /--alignment <value>/);
 });
 
@@ -86,9 +105,14 @@ test("decision CLI rejects removed split and positional evolve protocols", () =>
 });
 
 test("evolve requires at least one successor argument", () => {
-  const result = runGeneratedCli(["evolve"]);
-  assert.equal(result.status, 2);
-  assert.match(result.stderr, /required option '--successor/);
+  for (const args of [
+    ["evolve"],
+    ["evolve", "--discard", currentRelativePath]
+  ]) {
+    const result = runGeneratedCli(args);
+    assert.equal(result.status, 2);
+    assert.match(result.stderr, /required option '--successor/);
+  }
 });
 
 test("relation and clear-relations options are mutually exclusive", () => {
