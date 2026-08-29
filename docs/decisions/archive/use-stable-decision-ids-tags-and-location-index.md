@@ -1,6 +1,6 @@
 ---
 title: 使用稳定 Decision ID、tags 与定位索引
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-15T03:14:02Z
 purpose: 让决策身份、分类、当前来源位置和生命周期能够独立演进，避免分类或归档移动改变记录身份。

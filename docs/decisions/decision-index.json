@@ -105,6 +105,7 @@
       "choose-smallest-correct-maintenance-surface.md": "sha256:9f1df394c7febd66de7b8a7040060031513f854f289b31401a2499f4bdc65496",
       "classify-ai-configuration-commits.md": "sha256:1d837f8ce27243e298c9c1cf89257c8b0988789b6d3e2c13148af73ef8b99843",
       "classify-decisions-by-controlled-domain-path.md": "sha256:e43913dc739adccd9338389f495166439c397845603f136684ea055f1f341479",
+      "classify-decisions-with-record-level-tags.md": "sha256:d83afefddafa771d4c388d0c65b9474a50f4d521ba57db8e751b7e9b9ed5fb14",
       "classify-task-index-transaction-outcomes-conservatively.md": "sha256:9cc7315bba9a77bfeb0f1e3a87bd230fb29eb47a43e6388413360ef651d6f73a",
       "compare-correct-options-by-total-maintenance-surface.md": "sha256:d8171935274ad69bb3642c1826abbab6e5c716d5f89ad53e9fb341d0c64d19eb",
       "complete-current-decision-work-by-task-outcome.md": "sha256:0d6f5904cb0bd031913d2294cc282f8e153a2fd78c06d99c3c2cb602a37b30c7",
@@ -165,6 +166,7 @@
       "keep-task-results-semantic.md": "sha256:38524787633ccff16e9f354e18458cb3957a53148cfb16f69c6090d5d9a894c5",
       "key-task-identity-and-separate-content-state-projection.md": "sha256:6656e46beed9b13340c2ad9d17988f6e7b0f36162ba739e6865c363d1d049968",
       "limit-investigation-resources-to-version-control-visible-members.md": "sha256:e41ff8e310885b74469d126932259763796d3431700143cc73875232d26cb43f",
+      "locate-decisions-through-id-keyed-index.md": "sha256:f88def296704f5a29768dffe0e476747d9a4cf47f953fe086330b7cf2b22874e",
       "locate-locks-by-task-index-identity.md": "sha256:c66bc0b817bde5c0cff8c02a5ddd94ca86a2db151c89173e9f331be3b93cfe7a",
       "maintain-change-artifact-and-authorization-boundaries.md": "sha256:77d6c307973b22df6bb978c1d008b0471f9146e8f6179bfe0081feee414f0026",
       "maintain-closed-many-to-many-test-case-relations.md": "sha256:5befda7cfea1e55f617823776afd88ed3802176682245af33c9ae78217423721",
@@ -198,6 +200,7 @@
       "prefer-mature-libraries-for-common-automation.md": "sha256:ab69df2906c582cca148e568c62179dfcf732a202d91388c2127891bf64031ff",
       "preserve-comparable-investigation-inputs.md": "sha256:c6a17e1543ef7d4f91e7c870bf16617f5dfdf71d680af42bf42eb33f66007ce0",
       "preserve-pinned-upstream-snapshots-for-traceability.md": "sha256:61424b784ff290c5809f6212619bdf62af598220513f47fac89fed65fe7cc114",
+      "project-decision-lifecycle-into-physical-archive-boundary.md": "sha256:f82f58ec35e126b21f46b34e9ad997eb8d9506717c3d01e53922e39dbab3507c",
       "project-domains-into-decision-queries.md": "sha256:02ecdd2ee726c167e89e75c59e119e908b8d6479389d47bbed3330ecd2fbe2ad",
       "propagate-validated-collection-metadata.md": "sha256:6bdcd6e277c22eb313f46d2d0281b0e3d60c1c1811b2acf37170ba6d35d4fffc",
       "publish-only-layered-test-evidence-interfaces.md": "sha256:060d89f883d988bd6ea54de893be98dc2ee914a63924c4d3f018610e43fdea81",
@@ -303,7 +306,8 @@
       "use-second-precision-lifecycle-index.md": "sha256:58c08edfece1a1cacff29b5c841597721e6450f5882a7d6b1ea381993d5d4510",
       "use-single-investigation-report-core.md": "sha256:c3a38e3475f30bad5285263fc87b7b341f92ddd251d7f999d56592cceab5b9fb",
       "use-source-resilient-reviewable-candidates.md": "sha256:2b17685f43dd2cd09524de331a62623b519dc0e6e39fcb7cb1c3c81987412763",
-      "use-stable-decision-ids-tags-and-location-index.md": "sha256:ff9d610d4635e76a4bcb9f99dd3479c13c5018f56b3cf296791f654f08e172f9",
+      "use-stable-decision-id-for-relations-and-lifecycle.md": "sha256:8b9c8d0c941eae7be7d6186c28ec89f0fee5b8cf7477763db486c33c4d137d54",
+      "use-stable-decision-ids-tags-and-location-index.md": "sha256:1df2762616130700cafd5b199ed6e7764ba9a740ab86dd78acf17612ceafe8ef",
       "use-stable-id-keyed-index-identity.md": "sha256:7cc8f64794676a6cbe44fb2c9d3d47e92fcc2bccdb1bcf21facda696aff71ca5",
       "use-topic-filtered-decision-queries.md": "sha256:a8aea73a0b5d6292f61db9001eb849459b6e454bb6683438083149556928e298",
       "use-typed-collection-metadata.md": "sha256:a0e261ea16fca33ef949f83b289b5c323f02ab7501cc55bb7732bf7b3974c801",
@@ -3229,6 +3233,38 @@
         ]
       }
     },
+    "classify-decisions-with-record-level-tags.md": {
+      "keys": {
+        "tag": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "classify-decisions-with-record-level-tags.md",
+        "title": "用记录级 tags 分类决策",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T16:11:33Z",
+        "purpose": "让每条决策以可独立组合的记录级分类表达实际主题，而不受唯一目录归属限制。",
+        "background": "一条长期判断可能需要多个彼此独立的分类维度；唯一领域路径会迫使维护者在身份迁移与分类信息丢失之间取舍。",
+        "decision": "每条权威 Markdown 保存非空、有序且唯一的 tags；tags 只承接分类，重复 tag 查询使用 AND 交集语义。",
+        "tags": [
+          "decision-records"
+        ],
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "use-stable-decision-ids-tags-and-location-index.md"
+          }
+        ]
+      }
+    },
     "classify-task-index-transaction-outcomes-conservatively.md": {
       "keys": {
         "tag": [
@@ -5072,6 +5108,38 @@
         ]
       }
     },
+    "locate-decisions-through-id-keyed-index.md": {
+      "keys": {
+        "tag": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "locate-decisions-through-id-keyed-index.md",
+        "title": "通过 ID 键控索引定位决策",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T16:11:33Z",
+        "purpose": "让常规决策查询从受检索引按稳定 ID 恢复当前位置，并保持索引与权威 Markdown 的单向派生关系。",
+        "background": "常规查询需要持久快照，候选需要直接发现源码；二者都需要与身份无关的当前位置定位，索引不能反向制造来源事实。",
+        "decision": "持久索引以 Decision ID 为键、以 sourcePath 定位来源；查询读取受检快照，check、同步与生命周期事务维护来源一致性。",
+        "tags": [
+          "decision-records"
+        ],
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "use-stable-decision-ids-tags-and-location-index.md"
+          }
+        ]
+      }
+    },
     "locate-locks-by-task-index-identity.md": {
       "keys": {
         "tag": [
@@ -6074,6 +6142,38 @@
           {
             "type": "拆分",
             "target": "choose-smallest-correct-maintenance-surface.md"
+          }
+        ]
+      }
+    },
+    "project-decision-lifecycle-into-physical-archive-boundary.md": {
+      "keys": {
+        "tag": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "project-decision-lifecycle-into-physical-archive-boundary.md",
+        "title": "将决策生命周期投影到物理归档边界",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T16:11:33Z",
+        "purpose": "让 Markdown status 作为生命周期权威，并以根目录和统一 archive 目录提供受检的物理位置投影。",
+        "background": "已归档记录需要离开常规搜索路径，但物理移动只有在身份、关系和索引不再由路径定义时才安全。",
+        "decision": "candidate 与 active 记录直属决策根，archived 记录直属统一 archive；位置与索引必须投影并验证 Markdown status。",
+        "tags": [
+          "decision-records"
+        ],
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "use-stable-decision-ids-tags-and-location-index.md"
           }
         ]
       }
@@ -9297,7 +9397,7 @@
         ]
       }
     },
-    "use-stable-decision-ids-tags-and-location-index.md": {
+    "use-stable-decision-id-for-relations-and-lifecycle.md": {
       "keys": {
         "tag": [
           "decision-records"
@@ -9310,9 +9410,41 @@
         ]
       },
       "state": {
-        "sourcePath": "use-stable-decision-ids-tags-and-location-index.md",
-        "title": "使用稳定 Decision ID、tags 与定位索引",
+        "sourcePath": "use-stable-decision-id-for-relations-and-lifecycle.md",
+        "title": "使用稳定 Decision ID 选择关系与生命周期",
         "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T16:11:33Z",
+        "purpose": "让关系、查询、生命周期和选择性暂存以不随目录移动变化的决策身份为输入。",
+        "background": "目录路径承担身份时，分类调整或归档移动会扩大为关系、引用和维护操作的身份迁移。",
+        "decision": "使用 Markdown basename 作为全集合唯一的稳定 Decision ID；目录移动不改变身份，关系与生命周期操作按 ID 选择。",
+        "tags": [
+          "decision-records"
+        ],
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "use-stable-decision-ids-tags-and-location-index.md"
+          }
+        ]
+      }
+    },
+    "use-stable-decision-ids-tags-and-location-index.md": {
+      "keys": {
+        "tag": [
+          "decision-records"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/use-stable-decision-ids-tags-and-location-index.md",
+        "title": "使用稳定 Decision ID、tags 与定位索引",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-15T03:14:02Z",
         "purpose": "让决策身份、分类、当前来源位置和生命周期能够独立演进，避免分类或归档移动改变记录身份。",
