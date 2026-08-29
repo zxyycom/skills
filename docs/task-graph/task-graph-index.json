@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "revision": 351,
+  "revision": 352,
   "nextTaskId": 70,
   "tasks": {
     "task-000001": {
@@ -2765,7 +2765,7 @@
         "references": {
           "case-decisions": "docs/decisions/",
           "case-task": "task-000059",
-          "decision": "docs/decisions/evaluate-reorganization-from-task-graph-case.md"
+          "decision": "docs/decisions/archive/evaluate-reorganization-from-task-graph-case.md"
         },
         "result": null
       },
@@ -2785,7 +2785,7 @@
         },
         "timestamps": {
           "createdAt": "2026-08-11T03:59:24.895Z",
-          "updatedAt": "2026-08-15T03:34:52.505Z"
+          "updatedAt": "2026-08-29T15:46:05.665Z"
         }
       }
     },

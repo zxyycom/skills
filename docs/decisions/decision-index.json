@@ -80,6 +80,7 @@
       "aggregate-parent-task-completion.md": "sha256:e193dc4130bf50c0c0fe8e53e5fef0da212c0fd40bf36bb56f60e138b1ea7550",
       "align-agent-lifecycle-with-task-slices.md": "sha256:b6999de08e2338dfd0889a24a2febdfa366cec7eb7ea9dae1608c4a139714407",
       "allocate-agents-and-runtime-by-task-slice.md": "sha256:b3f42138dc93d1c0d5dae604a183ba171c22d44efb52dc8057d943060edf0971",
+      "allow-listed-investigation-resource-names.md": "sha256:9b9c7a34283cd35282795b60968b2b83192d06fff9a0377868bc8f8a6d65e945",
       "allow-sequential-activation-of-prewritten-candidates.md": "sha256:356737456be2e8c4cad7b1bb4aad02a6747a11c65093ed6ce83c20968a4114dc",
       "anchor-investigation-resources-to-report-owners.md": "sha256:47c62ce99599ceeb0de331d8dac7db4e456372486b729d9d6d9e9af6aab0cc4a",
       "anchor-investigation-resources-to-topic-owners.md": "sha256:e9f5c42681a404043e5e5b5cd057ff7d22f28bca8c3ef2da25751604d6d67852",
@@ -116,7 +117,7 @@
       "defer-standard-test-result-blocking.md": "sha256:d9fcfdcbc8ed63eb91abd39c9fd55d6c19a5337a250f31a640f1285657bc9ec9",
       "defer-terminal-correction-until-confirmed-recovery-need.md": "sha256:63789e0369451dd6e487a880dc26b01cf58d29d682ebcad23be2fc2773f7cd49",
       "define-decision-alignment-semantics.md": "sha256:706acc334dbf641e3f3b5864e0c4e8d0d9ad37994d3607f0d2cd44c42fb3021c",
-      "define-version-control-visible-investigation-resources.md": "sha256:e2acc37f4e0eff54359a825df1537e467a2e663fc82c9885ea8c457fab496cc2",
+      "define-version-control-visible-investigation-resources.md": "sha256:69bc8008b0100d3c297e1a880174241655cdefa9975ce0e68d22ae4c93575386",
       "delegate-native-runtime-installation-to-caller.md": "sha256:3b05c3c7b7ca707f05166167568d05d0ab3ade1898974b6ff3c604c51d60f45d",
       "derive-check-exit-status-from-step-results.md": "sha256:f12b93c9d06db83591e98e7b79cf3d7ec5ddad9387a2e34ef971ddde5e932203",
       "derive-decision-records-declarations-from-runtime-source.md": "sha256:f297788f201ccdabd4cdad1c41edf905054d7a75eb90b4139fc0b86c09f89474",
@@ -125,13 +126,15 @@
       "derive-sdk-declarations-from-runtime-source.md": "sha256:dd94355a32423c0f3803495608fd104e354d78c601388a55a453504a2c6dc54c",
       "design-by-scenario-denominators.md": "sha256:27aa1e1b7cbf2066aab66b0aa8b413081bf2064adfc07cdcf8a80e8a34d7edc5",
       "detect-shelved-plans-by-git-distance.md": "sha256:9d92cf5da0395685fded81ea7aa3303b314dde49528e98960dfb8d0661ecd42a",
+      "discard-complete-unreferenced-decisions.md": "sha256:05f267c30e0dc162014276cb6d2427ea1dd439ecf0981d4e12d4ca1b350fbde6",
+      "discard-complete-unreferenced-investigation-reports.md": "sha256:f9d1a0f0784bfb990f7d50426881b338d8897d1f124852c6d536a0220f14ace3",
       "discover-skill-behavior-before-lifecycle-implementation.md": "sha256:d0313c4fb1c913a993e547607e73ec03b1801770d0c50eefba03429da1a19995",
       "distinguish-skill-and-distribution-unit-boundaries.md": "sha256:b762b84ec36eb17514d5d3b6e5bc5a5cffc23a09d236fa1fc82eec530adf03cb",
       "distribute-openspec-as-an-aggregate-unit.md": "sha256:afc4950ecf1dced645b01d01b6321d55cf88f46ed462dada247998c421d0d8d0",
       "distribute-openspec-skills-independently.md": "sha256:24dee0291559a42f3d4aa1d3ed135b32e98209929a42789774bf629d8e597866",
       "enforce-one-oxlint-quality-baseline.md": "sha256:518ba4390966bba4c089d4f2a141715025d6bce7a1a141ba9ce2bcbb502c8827",
       "establish-decisions-with-atomic-evolution.md": "sha256:3b201bf83453ee0b980b4f897cf9fa8e382b5778acb07363f89fa12f5152f4e0",
-      "evaluate-reorganization-from-task-graph-case.md": "sha256:e0c03f1ddb3d3a1791646a2a959284d433165c95679ad989c99acd92cf03a6e0",
+      "evaluate-reorganization-from-task-graph-case.md": "sha256:490e695f54138e1bafb7e80cce6de7946ab09fc16910aa4d5d3de0730e0372f2",
       "exclude-archived-changes-from-link-validation.md": "sha256:ea8064051faf2a482486b1b48cf9a53eb83e1214dc357c2d91df82c9c71731e4",
       "exclude-formation-time-link-bytes-from-validation.md": "sha256:1cdedb8efb7b8b6561d90811d06c04a4fa73b522d9b70fb4636b16f31d7e4a43",
       "exclude-investigation-resources-from-index-revision.md": "sha256:bd4f48bab162f071136d3a15e0c882804f274d8e348566aa2ad4f9fe60b5773e",
@@ -147,7 +150,8 @@
       "generate-index-from-self-contained-decisions.md": "sha256:14ff4e10e28c2fd6153325805bd3889f2e27f1c44afc2cfc13db11e8417c9b3e",
       "generate-query-index-from-topic-files.md": "sha256:0d12c49196b17e31348c2093b8527dec9005f5c47002475c9fa03f497f5afd33",
       "generate-self-contained-tool-distributions.md": "sha256:1724946f21239af2d54697d0e0fee03316607e5b8c531c3036bee25bf8791181",
-      "guard-unrecorded-decision-evolution.md": "sha256:41a59452dbf4c02934ce408cb2f09e029a632c3abb0e43864595132fa0e04bb9",
+      "guard-unrecorded-decision-evolution.md": "sha256:5dd708ed0af7837a3ff54eb6300aa7b42f6fc7eb5961e7fb25de98ae50ca84ac",
+      "guard-unrecorded-decision-history-during-evolution.md": "sha256:0bf326feb5659e2c3e79e3f06091a0f5ac3f2b5f65f2c25eeb28f25050796258",
       "handoff-minimum-results-and-evidence.md": "sha256:0be9bbf795b529db42351259b040b33b0d177a4340625e901d77ac72ad1727fe",
       "index-independent-proof-cases-from-current-catalog.md": "sha256:a4253dafb498b278e350743d8e9ee21811ed515f6a7bcf62e37bd95653344766",
       "index-ledger-by-stable-case-state.md": "sha256:90f0a2d035b748c05e6c9bfcec88389db0ca5277128b23d010770885da46141d",
@@ -158,6 +162,7 @@
       "keep-task-graph-locks-outside-workspace.md": "sha256:275afabc7ff8c59aaf8c8af32c3e20c4c0cf3860fbad37da153f728d729a64e7",
       "keep-task-results-semantic.md": "sha256:38524787633ccff16e9f354e18458cb3957a53148cfb16f69c6090d5d9a894c5",
       "key-task-identity-and-separate-content-state-projection.md": "sha256:6656e46beed9b13340c2ad9d17988f6e7b0f36162ba739e6865c363d1d049968",
+      "limit-investigation-resources-to-version-control-visible-members.md": "sha256:e41ff8e310885b74469d126932259763796d3431700143cc73875232d26cb43f",
       "locate-locks-by-task-index-identity.md": "sha256:c66bc0b817bde5c0cff8c02a5ddd94ca86a2db151c89173e9f331be3b93cfe7a",
       "maintain-change-artifact-and-authorization-boundaries.md": "sha256:77d6c307973b22df6bb978c1d008b0471f9146e8f6179bfe0081feee414f0026",
       "maintain-closed-many-to-many-test-case-relations.md": "sha256:5befda7cfea1e55f617823776afd88ed3802176682245af33c9ae78217423721",
@@ -170,7 +175,8 @@
       "manage-change-lifecycle-stages.md": "sha256:ba220a3c5376040f1c60833028058b0ed8d5e77ed85e99309a2254bb1474b9fc",
       "manage-pending-snapshot-writes.md": "sha256:643da6ba5e90321bbbb9fdc95379e36155b456d0ac54c9536edeaab348489a6c",
       "mask-non-code-test-syntax.md": "sha256:01e23ec8ca8af35b0c92aac87d785864125caee40b2c4ae73016dba8fcb015ee",
-      "model-investigation-evolution-and-explicit-removal.md": "sha256:0ee0cf9c83c77bfe7a19057f7c244c92e021b03a077d23ee6742b003a362c316",
+      "model-investigation-evolution-and-explicit-removal.md": "sha256:5c646e5ec0b045dc1eebbb848ddd1a98dfc635051524019de2fe06eae9477f16",
+      "model-investigation-evolution-as-direct-relations.md": "sha256:e67cbffa1e7c8a2ecc3a2741b930ffe48d60b721591261403b8fa3fd17d7d67d",
       "model-investigation-evolution-as-report-relations.md": "sha256:3881c5e363abf3c40ca91cec448a761b644c1d98a5b7d3ade8f5cb9998b94368",
       "model-task-relations-with-distinct-invariants.md": "sha256:4f1b90b6477689d68e4eb49b1065e2abc80c7ce7f50c2b2495cb1ce826b167a0",
       "model-task-topology-and-inheritance-explicitly.md": "sha256:f1e0f0ffdcd92ae0c5cdac52b395580c04c92e2e1bc1a227a1c7ea28228c5a26",
@@ -225,12 +231,13 @@
       "select-task-graph-project-roots.md": "sha256:0fe6d868e125394f68fdda97d8644b91fa8df24d049d08018746f03f8ee022a3",
       "separate-activation-effect-from-head-pending.md": "sha256:598b13ac3bbfb1a756671fff87334f2b521bb33b0aff95ed9187bdf02ad65a0d",
       "separate-agent-contract-from-tool-protocol.md": "sha256:135a1979a6ca529bd434c42aae253c79b6d789329fd8f0f23da71d5f74d53e71",
-      "separate-candidates-from-established-decisions.md": "sha256:686b1ff2282cf66b2a4bcd669f658041febcd26a4f3748d5c6a5fedfc42ac023",
+      "separate-candidates-from-established-decisions.md": "sha256:0e8aa54d5c7b31f4bad06b81b71ca6c61eec085aaf6dfed95e1feea6608de769",
       "separate-delivery-and-auxiliary-write-ownership.md": "sha256:e192b6037ac6627d3322a2b1f6ba5307b8891b18178cae01f843358c3dd4fea0",
       "separate-design-discovery-from-lifecycle-maintenance.md": "sha256:78ce0e27ed2a70233b221b1309d6a4cda84076c2e381d1c63bfaa8cad2d06ed6",
       "separate-distributable-tool-source-from-repository-automation.md": "sha256:f749c1b133dd28c2aa30a52056d1ba6e52114ee08412e7b2f559e98eec5560e1",
       "separate-package-byte-identity-from-version-carrying-changes.md": "sha256:9c31ebed683ff6078bc9f80566d4f03e13e7baffece44c9328d66924dfe215b6",
       "separate-raw-results-from-output-functions.md": "sha256:0e1409aa9a37bfa6f171537d294fa7da4caf38da7b3a74e7b6f6a229a2d39393",
+      "separate-reviewable-candidates-from-established-decisions.md": "sha256:ed0195107d00707e2176199f8ba6f65427d34cfae376cd5d43c82655663dbd7d",
       "separate-task-content-state-and-effective-projection.md": "sha256:18c82da6bb49d05efcc394b563a00df25fcf1174f4e51379fec21e8668acc69c",
       "separate-task-coordination-from-execution-mechanism.md": "sha256:5554691a01f1b554e41b8b826071189542c6ab48ed66bdcabf708313f43a0788",
       "separate-tool-source-and-repository-automation.md": "sha256:2d95d6b3d76b3535f8dfe3d248b6be718060a5046b5f326cb8e8977498cbf615",
@@ -301,7 +308,7 @@
       "use-versioned-runner-result-protocol.md": "sha256:48cde8d9a3cd54768d144286b55ddccec9f52272a234fe75764562d7e7fdcf9c",
       "validate-only-active-change-plans.md": "sha256:14d148173e7fbc11d4a3c13ccb4ccecc8c9b459516ba79072388da911bdfe860",
       "version-index-definition-compatibility.md": "sha256:94002fd6642a327388347c00f5963519a2b44eafa9eab41fd031ecdd48007d32",
-      "warn-on-unreferenced-investigation-resources.md": "sha256:ab76f8c522da179b9c1cb9807b208363a25fabf27e2f5fea504b3ad09ad450d0",
+      "warn-on-unreferenced-investigation-resources.md": "sha256:c80123faec33a3d0e728a009dee7eae4c0d68984de137dac3b1b934af8bedba0",
       "warn-on-unreferenced-report-resources.md": "sha256:f89c686a4477a2f28fa5760138798e6c49c28f893f854510688585a8eb037766"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
@@ -2469,6 +2476,38 @@
         ]
       }
     },
+    "allow-listed-investigation-resource-names.md": {
+      "keys": {
+        "tag": [
+          "investigation-report"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "allow-listed-investigation-resource-names.md",
+        "title": "用逐项白名单约束调查资源名称",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T15:42:48Z",
+        "purpose": "让调查资源保留常见可读文件名，同时维持可审查的路径与名称安全边界。",
+        "background": "过窄名称规则迫使形成时材料改名，而宽泛 Unicode 类别会纳入不可见、控制或未经验证的字符边界。",
+        "decision": "资源 ID 使用逐项列出的常用字符白名单和少量跨平台结构门禁；路径身份与根目录约束继续独立执行。",
+        "tags": [
+          "investigation-report"
+        ],
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "define-version-control-visible-investigation-resources.md"
+          }
+        ]
+      }
+    },
     "allow-sequential-activation-of-prewritten-candidates.md": {
       "keys": {
         "tag": [
@@ -3539,16 +3578,16 @@
           "investigation-report"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "define-version-control-visible-investigation-resources.md",
+        "sourcePath": "archive/define-version-control-visible-investigation-resources.md",
         "title": "以明确名称白名单和版本控制可见性界定受管调查资源",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-14T08:04:04Z",
         "purpose": "让调查资源保留常见可读文件名，并让项目 ignore 排除的未跟踪生成文件退出版本控制可见资源成员与引用完整性检查。",
@@ -3806,6 +3845,74 @@
         "relations": []
       }
     },
+    "discard-complete-unreferenced-decisions.md": {
+      "keys": {
+        "tag": [
+          "decision-records",
+          "version-control"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "discard-complete-unreferenced-decisions.md",
+        "title": "显式剔除完整且无引用的决策",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T15:42:44Z",
+        "purpose": "让明确不应保留的候选、活动或归档决策能安全退出集合，而不把删除与关系演进混为一谈。",
+        "background": "长期保留不等于禁止删除；手工移除会遗留关系和派生索引，而已进入 Git 历史的删除需要明确机械确认。",
+        "decision": "discard 只删除结构完整且在最终集合中无引用的决策，并由事务验证关系与索引；已记录决策删除须显式确认。",
+        "tags": [
+          "decision-records",
+          "version-control"
+        ],
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "guard-unrecorded-decision-evolution.md"
+          }
+        ]
+      }
+    },
+    "discard-complete-unreferenced-investigation-reports.md": {
+      "keys": {
+        "tag": [
+          "investigation-report",
+          "version-control"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "discard-complete-unreferenced-investigation-reports.md",
+        "title": "显式剔除完整且无引用的调查报告",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T15:42:49Z",
+        "purpose": "让确需删除的调查报告通过独立、可预演且可恢复的机械动作退出集合。",
+        "background": "长期保留不等于永远禁止删除；手工删除会把关系、资源 owner、派生索引和 Git 记录边界留给调用方拼接。",
+        "decision": "删除只通过 discard 事务完成，并在写入前验证完整图、资源归属、版本记录与恢复边界。",
+        "tags": [
+          "investigation-report",
+          "version-control"
+        ],
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "model-investigation-evolution-and-explicit-removal.md"
+          }
+        ]
+      }
+    },
     "discover-skill-behavior-before-lifecycle-implementation.md": {
       "keys": {
         "tag": [
@@ -4001,16 +4108,16 @@
           "decision-records"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "unaligned"
         ]
       },
       "state": {
-        "sourcePath": "evaluate-reorganization-from-task-graph-case.md",
+        "sourcePath": "archive/evaluate-reorganization-from-task-graph-case.md",
         "title": "以 Task Graph 重划案例评估决策重组",
-        "status": "active",
+        "status": "archived",
         "alignment": "unaligned",
         "createdAt": "2026-08-11T04:02:33Z",
         "purpose": "用已经出现的多前序、多后继边界重划检验现有关系表达，并把协议设计限定在证据证明必要之后。",
@@ -4489,16 +4596,16 @@
           "decision-records"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "guard-unrecorded-decision-evolution.md",
+        "sourcePath": "archive/guard-unrecorded-decision-evolution.md",
         "title": "显式处理未进入版本基线的决策演进",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-03T02:36:35Z",
         "purpose": "防止同一未提交变更中的中间判断被无意保存为长期决策演进历史。",
@@ -4508,6 +4615,40 @@
           "decision-records"
         ],
         "relations": []
+      }
+    },
+    "guard-unrecorded-decision-history-during-evolution.md": {
+      "keys": {
+        "tag": [
+          "decision-records",
+          "version-control"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "guard-unrecorded-decision-history-during-evolution.md",
+        "title": "在决策演进中保护未进入版本基线的历史",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T15:42:44Z",
+        "purpose": "防止尚未进入 Git HEAD 的已建立决策在归档或关系演进中被无意作为短暂过程遗失。",
+        "background": "Git 不决定决策是否建立，但可以指出待归档前序尚未进入已提交基线；最终直接关系不能由链路自动合成。",
+        "decision": "对尚未进入 Git HEAD 的待归档前序暂停并要求显式保留历史确认；关系演进始终由调用者提供完整最终关系集合。",
+        "tags": [
+          "decision-records",
+          "version-control"
+        ],
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "guard-unrecorded-decision-evolution.md"
+          }
+        ]
       }
     },
     "handoff-minimum-results-and-evidence.md": {
@@ -4814,6 +4955,40 @@
           {
             "type": "修订",
             "target": "separate-task-content-state-and-effective-projection.md"
+          }
+        ]
+      }
+    },
+    "limit-investigation-resources-to-version-control-visible-members.md": {
+      "keys": {
+        "tag": [
+          "investigation-report",
+          "version-control"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "limit-investigation-resources-to-version-control-visible-members.md",
+        "title": "将受管调查资源限制为版本控制可见成员",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T15:42:48Z",
+        "purpose": "让项目 ignore 排除的未跟踪生成文件退出受管调查资源成员与引用完整性检查。",
+        "background": "递归扫描全部磁盘文件会把项目已忽略的缓存和编译产物误判为完全未引用资源，而内置缓存名单无法覆盖项目真实边界。",
+        "decision": "Git 工作区只管理版本控制可见资源；非 Git 工作区继续完整发现文件系统资源。",
+        "tags": [
+          "investigation-report",
+          "version-control"
+        ],
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "define-version-control-visible-investigation-resources.md"
           }
         ]
       }
@@ -5190,16 +5365,16 @@
           "investigation-report"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "model-investigation-evolution-and-explicit-removal.md",
+        "sourcePath": "archive/model-investigation-evolution-and-explicit-removal.md",
         "title": "以报告关系建模调查演进并显式剔除报告",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-29T06:15:41Z",
         "purpose": "让调查关系只表达认识演进，同时让确需删除的报告通过独立、可预演且可恢复的机械动作退出集合。",
@@ -5212,6 +5387,38 @@
           {
             "type": "修订",
             "target": "model-investigation-evolution-as-report-relations.md"
+          }
+        ]
+      }
+    },
+    "model-investigation-evolution-as-direct-relations.md": {
+      "keys": {
+        "tag": [
+          "investigation-report"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "model-investigation-evolution-as-direct-relations.md",
+        "title": "用直接关系表达调查认识演进",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T15:42:49Z",
+        "purpose": "让调查关系只表达形成时认识演进，而不承担当前有效性、归档或删除语义。",
+        "background": "报告被补充、复查、修正或推翻不意味着前序报告应隐藏、归档或自动删除。",
+        "decision": "报告只以六种直接前序关系表达认识演进；关系不产生生命周期或删除效果。",
+        "tags": [
+          "investigation-report"
+        ],
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "model-investigation-evolution-and-explicit-removal.md"
           }
         ]
       }
@@ -6890,16 +7097,16 @@
           "decision-records"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "separate-candidates-from-established-decisions.md",
+        "sourcePath": "archive/separate-candidates-from-established-decisions.md",
         "title": "将可审核候选与已建立决策分离",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-11T03:25:27Z",
         "purpose": "让完整决策方向在正式建立前可收敛、等待审核和安全删除，而不冒充当前决策。",
@@ -7060,6 +7267,38 @@
           "task-graph"
         ],
         "relations": []
+      }
+    },
+    "separate-reviewable-candidates-from-established-decisions.md": {
+      "keys": {
+        "tag": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "separate-reviewable-candidates-from-established-decisions.md",
+        "title": "将可审核候选与已建立决策分离",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T15:42:46Z",
+        "purpose": "让完整决策方向在正式建立前可收敛和等待审核，而不冒充当前决策。",
+        "background": "写成完整记录与确认其进入当前决策集合是两个动作，Git 历史和 pending 都不能替代审核建立。",
+        "decision": "候选使用显式生命周期并留在正式索引外；审核时才选择对齐状态、写入建立时间并进入决策集合。",
+        "tags": [
+          "decision-records"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "separate-candidates-from-established-decisions.md"
+          }
+        ]
       }
     },
     "separate-task-content-state-and-effective-projection.md": {

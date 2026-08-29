@@ -1,6 +1,6 @@
 ---
 title: 以报告关系建模调查演进并显式剔除报告
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-29T06:15:41Z
 purpose: 让调查关系只表达认识演进，同时让确需删除的报告通过独立、可预演且可恢复的机械动作退出集合。

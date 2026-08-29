@@ -1,6 +1,6 @@
 ---
 title: 显式处理未进入版本基线的决策演进
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-03T02:36:35Z
 purpose: 防止同一未提交变更中的中间判断被无意保存为长期决策演进历史。

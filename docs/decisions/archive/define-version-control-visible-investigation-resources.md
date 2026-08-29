@@ -1,6 +1,6 @@
 ---
 title: 以明确名称白名单和版本控制可见性界定受管调查资源
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-14T08:04:04Z
 purpose: 让调查资源保留常见可读文件名，并让项目 ignore 排除的未跟踪生成文件退出版本控制可见资源成员与引用完整性检查。
@@ -29,5 +29,5 @@ relations: []
 - 采用: Git 工作区以 `git ls-files --cached --others --exclude-standard` 在 `_resources/` 范围内返回的文件作为受管资源；ignore 排除的未跟踪文件不参与完全未引用资源检查，已经跟踪的文件即使命中 ignore 仍保持受管。
 - 采用: 报告显式引用存在但因 Git ignore 退出版本控制可见集合的未跟踪文件时失败，避免本地不可分发材料成为调查证据；非 Git 工作区没有可复用的项目 ignore 语义时继续完整发现 `_resources/` 文件系统成员。
 - 采用（历史兼容边界）: 本记录建立时，资源 ID 接受集合和受管资源成员规则改变索引 metadata、source revision 与新鲜度判断，因此调查领域升级到 `definitionVersion: 4`；通用 JSON 外壳没有变化，`schemaVersion` 保持 `3`，索引由当时 CLI 重建。
-- 采用（当前索引边界）: 当前索引 metadata、source revision、新鲜度和 definition version 由[资源退出索引来源决策](exclude-investigation-resources-from-report-index-revision.md)定义；本记录继续只拥有名称白名单与版本控制可见资源成员规则。
+- 采用（当前索引边界）: 当前索引 metadata、source revision、新鲜度和 definition version 由[资源退出索引来源决策](../exclude-investigation-resources-from-report-index-revision.md)定义；本记录继续只拥有名称白名单与版本控制可见资源成员规则。
 - 不采用: 任意可打印 Unicode、宽泛 Unicode 字符类别、静默字符归一化、百分号编码别名、调查工具内置缓存名单或独立 `.investigationignore`。

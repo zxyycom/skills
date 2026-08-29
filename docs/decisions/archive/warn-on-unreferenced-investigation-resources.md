@@ -23,7 +23,7 @@ relations:
 
 - 报告显式引用会让资源成为调查证据；缺失、不安全、不可分发或 owner 错误会直接破坏报告复核。
 - 完全未引用的文件可能是待接入或待清理材料。Warning 足以暴露问题，失败退出会把资源池卫生扩大成所有调查维护的全局前置。
-- [版本控制可见性决策](../define-version-control-visible-investigation-resources.md)已经拥有 Git 与非 Git 工作区的资源发现规则，本决策只确定可见或不可见之后的诊断结果。
+- [版本控制可见性决策](define-version-control-visible-investigation-resources.md)已经拥有 Git 与非 Git 工作区的资源发现规则，本决策只确定可见或不可见之后的诊断结果。
 
 ## 决策
 

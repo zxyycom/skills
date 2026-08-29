@@ -1,6 +1,6 @@
 ---
 title: 以 Task Graph 重划案例评估决策重组
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-11T04:02:33Z
 purpose: 用已经出现的多前序、多后继边界重划检验现有关系表达，并把协议设计限定在证据证明必要之后。
