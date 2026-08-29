@@ -1,6 +1,6 @@
 ---
 title: 用统一物理归档边界降低决策搜索干扰
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-12T07:53:46Z
 purpose: 让常规文件搜索能够低成本排除归档决策，并从路径直接识别记录是否属于历史集合。

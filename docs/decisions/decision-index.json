@@ -170,6 +170,7 @@
       "locate-locks-by-task-index-identity.md": "sha256:c66bc0b817bde5c0cff8c02a5ddd94ca86a2db151c89173e9f331be3b93cfe7a",
       "maintain-change-artifact-and-authorization-boundaries.md": "sha256:77d6c307973b22df6bb978c1d008b0471f9146e8f6179bfe0081feee414f0026",
       "maintain-closed-many-to-many-test-case-relations.md": "sha256:5befda7cfea1e55f617823776afd88ed3802176682245af33c9ae78217423721",
+      "maintain-physical-archive-boundary-as-lifecycle-projection.md": "sha256:4a184773e93167d6711f30d9f9c2d8c6ff11b76cd7edb4dab91d27f94160c5ad",
       "maintain-rebuildable-read-side-index-boundary.md": "sha256:a6e485cb4b720fe675210bfdcf820ccb6916a5f218158fba11ee2057a3489f0a",
       "maintain-report-level-investigation-index.md": "sha256:e626d8500eb08d8b0981db5b32f3b3b48c3e592bb5252a27c6c99953fc9f7638",
       "maintain-topic-level-investigation-index.md": "sha256:28102ee3c4a7a3af7ae57e1a2b68dac4d9e850203b05ad7ea4f6c4d781067dcd",
@@ -200,7 +201,7 @@
       "prefer-mature-libraries-for-common-automation.md": "sha256:ab69df2906c582cca148e568c62179dfcf732a202d91388c2127891bf64031ff",
       "preserve-comparable-investigation-inputs.md": "sha256:c6a17e1543ef7d4f91e7c870bf16617f5dfdf71d680af42bf42eb33f66007ce0",
       "preserve-pinned-upstream-snapshots-for-traceability.md": "sha256:61424b784ff290c5809f6212619bdf62af598220513f47fac89fed65fe7cc114",
-      "project-decision-lifecycle-into-physical-archive-boundary.md": "sha256:f82f58ec35e126b21f46b34e9ad997eb8d9506717c3d01e53922e39dbab3507c",
+      "project-decision-lifecycle-into-physical-archive-boundary.md": "sha256:0beae4c18d8072667e5f40002c02c72b9b0cd619419294ca5405dd413a0d7f97",
       "project-domains-into-decision-queries.md": "sha256:02ecdd2ee726c167e89e75c59e119e908b8d6479389d47bbed3330ecd2fbe2ad",
       "propagate-validated-collection-metadata.md": "sha256:6bdcd6e277c22eb313f46d2d0281b0e3d60c1c1811b2acf37170ba6d35d4fffc",
       "publish-only-layered-test-evidence-interfaces.md": "sha256:060d89f883d988bd6ea54de893be98dc2ee914a63924c4d3f018610e43fdea81",
@@ -294,7 +295,7 @@
       "use-native-locks-for-json-transactions.md": "sha256:64ef5d12dc865922f715dc2831b23f979a421e167299530f8d06ef51839004e6",
       "use-one-change-artifact-structure.md": "sha256:8996b55c8a0df5d287852bb21e52eac45b519fd44c271f425bed39a1b417ab13",
       "use-persisted-index-for-routine-queries.md": "sha256:5b6d4f024f11fc52a93937211a12a018a3da4c4c1d593ff5767abc64fbb69808",
-      "use-physical-archive-boundary-for-decision-search.md": "sha256:bd079276e126a84298cc9fe202ba2c10b0d8e6c78b7d5a8a4d65456775eaea64",
+      "use-physical-archive-boundary-for-decision-search.md": "sha256:ca60dd549992cb2c83f064c0fda8ec4dee3898d1ce8326df212666d9d1b7338a",
       "use-plan-base-only-for-git-distance.md": "sha256:13933964ea3368150d336920705fb800ff06ae8ddfe1a01c613c8a131c401d2f",
       "use-profiled-concise-checks.md": "sha256:9e619f77ae8610f5a14d3743961b09ace5d5bdeb51fc096fc4c0898587406f7a",
       "use-project-short-commands-for-maintenance-clis.md": "sha256:af6c8c17acc8291a17354ccc81eef1b8239c1d3a5bda2cf785beffef92fbbe3c",
@@ -5231,6 +5232,42 @@
         "relations": []
       }
     },
+    "maintain-physical-archive-boundary-as-lifecycle-projection.md": {
+      "keys": {
+        "tag": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "maintain-physical-archive-boundary-as-lifecycle-projection.md",
+        "title": "将物理归档边界维护为生命周期投影",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T16:13:11Z",
+        "purpose": "让归档记录退出常规文件搜索，同时保持 Markdown 生命周期权威、物理位置和索引投影一致。",
+        "background": "通用文件工具不能解析 frontmatter；统一路径边界可整体排除历史，但位置不能成为独立生命周期事实或承担决策身份。",
+        "decision": "Markdown status 决定生命周期；根目录和 archive 位置及索引受检投影 status，历史记录仍可显式查询和追踪。",
+        "tags": [
+          "decision-records"
+        ],
+        "relations": [
+          {
+            "type": "归并",
+            "target": "project-decision-lifecycle-into-physical-archive-boundary.md"
+          },
+          {
+            "type": "归并",
+            "target": "use-physical-archive-boundary-for-decision-search.md"
+          }
+        ]
+      }
+    },
     "maintain-rebuildable-read-side-index-boundary.md": {
       "keys": {
         "tag": [
@@ -6152,16 +6189,16 @@
           "decision-records"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "project-decision-lifecycle-into-physical-archive-boundary.md",
+        "sourcePath": "archive/project-decision-lifecycle-into-physical-archive-boundary.md",
         "title": "将决策生命周期投影到物理归档边界",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-29T16:11:33Z",
         "purpose": "让 Markdown status 作为生命周期权威，并以根目录和统一 archive 目录提供受检的物理位置投影。",
@@ -9036,16 +9073,16 @@
           "decision-records"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "use-physical-archive-boundary-for-decision-search.md",
+        "sourcePath": "archive/use-physical-archive-boundary-for-decision-search.md",
         "title": "用统一物理归档边界降低决策搜索干扰",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-12T07:53:46Z",
         "purpose": "让常规文件搜索能够低成本排除归档决策，并从路径直接识别记录是否属于历史集合。",

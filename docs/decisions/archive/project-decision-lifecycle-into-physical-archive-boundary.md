@@ -1,6 +1,6 @@
 ---
 title: 将决策生命周期投影到物理归档边界
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-29T16:11:33Z
 purpose: 让 Markdown status 作为生命周期权威，并以根目录和统一 archive 目录提供受检的物理位置投影。
