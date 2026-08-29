@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "34"
+  version: "35"
 ---
 
 # Decision Records
@@ -34,7 +34,7 @@ metadata:
 4. 恢复当前判断时运行 `list`，再按需用 `show <decision-id>` 读取完整理由或用 `trace <decision-id>` 读取演进关系；筛选与输出参数以 `--help` 为准。
 5. 摘要足够时停止扩大读取。只有任务需要历史时才查询 archived 记录或完整关系图。
 6. 任何候选写入、已建立记录维护、暂存快照或结构审阅前，完整读取决策记录规则，并按相应命令的 `--help` 执行；规则和 CLI 负责判定具体前置条件。任务需要在演进事务中删除一个决策时，以 `evolve --discard <decision-id>` 显式选择该动作。首次候选集合、索引异常或写入中断时，读取恢复手册，不把缺失索引直接当作需要重建的错误。
-7. 手工修改已建立 Markdown、怀疑索引陈旧或准备维护时，先运行严格 `check`；需要接受合法来源变化时运行 `sync-index --write`。常规查询不逐次重扫全部 Markdown，也不能用陈旧索引断言来源不存在记录。
+7. 手工修改已建立 Markdown、怀疑索引陈旧或准备维护时，先运行严格 `check`；需要接受合法来源变化时运行 `sync-index`。`check` 始终只读，`sync-index` 明确表示从已建立 Markdown 重建工作区索引。常规查询不逐次重扫全部 Markdown，也不能用陈旧索引断言来源不存在记录。
 
 ## 执行流程
 
@@ -96,7 +96,7 @@ node scripts/decision-records.mjs <command> [options] --root <resolution-root>
 | --- | --- |
 | `candidates` / `show-candidate <decision-id>` | 发现或审核候选。 |
 | `list` / `show <decision-id>` / `trace <decision-id>` | 恢复当前判断、完整理由或演进关系。 |
-| `check` / `sync-index --write` | 严格验证或从权威 Markdown 重建索引。 |
+| `check` / `sync-index` | 严格只读验证或从权威 Markdown 重建索引。 |
 | `stage <decision-id...>` | 构造待提交决策快照。 |
 | `activate` / `evolve` / `mark-aligned` / `archive` / `discard` | 维护生命周期、关系和候选；`evolve --discard <decision-id>` 可在关系事务中删除一个决策。 |
 

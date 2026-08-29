@@ -116,12 +116,7 @@ export async function createFixtureWorkspace(label: string): Promise<string> {
     path.join(os.tmpdir(), `decision-records-${label}-`)
   );
   await fs.cp(fixtureRoot, workspaceRoot, { recursive: true });
-  const synced = await runSourceCli([
-    "sync-index",
-    "--write",
-    "--root",
-    workspaceRoot
-  ]);
+  const synced = await runSourceCli(["sync-index", "--root", workspaceRoot]);
   assert.equal(synced.exitCode, 0, synced.stderr);
   return workspaceRoot;
 }

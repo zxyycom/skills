@@ -24,7 +24,7 @@
 从 skill 目录运行：
 
 ```text
-node scripts/decision-records.mjs sync-index --write --root <resolution-root>
+node scripts/decision-records.mjs sync-index --root <resolution-root>
 node scripts/decision-records.mjs check --root <resolution-root>
 ```
 

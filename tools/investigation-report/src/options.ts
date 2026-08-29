@@ -6,6 +6,7 @@ import {
   type InvestigationIndexStageOptions,
   type InvestigationIndexSyncOptions,
   type InvestigationRelationSetOptions,
+  type InvestigationReportDiscardOptions,
   type InvestigationReportCheckOptions,
   type InvestigationReportShowOptions,
   type InvestigationReportTraceOptions
@@ -80,6 +81,12 @@ const investigationRelationSetOptionsSchema = v.strictObject({
     })
   )
 });
+const investigationReportDiscardOptionsSchema = v.strictObject({
+  deleteOwnedResources: v.optional(v.boolean("must be a boolean")),
+  deleteRecordedReport: v.optional(v.boolean("must be a boolean")),
+  id: requiredStringSchema,
+  ...locationFields
+});
 
 export function parseInvestigationReportCheckOptions(
   input: unknown
@@ -115,6 +122,11 @@ export function parseInvestigationRelationSetOptions(
   input: unknown
 ): Result<InvestigationRelationSetOptions, string[]> {
   return parseOptions(investigationRelationSetOptionsSchema, input);
+}
+export function parseInvestigationReportDiscardOptions(
+  input: unknown
+): Result<InvestigationReportDiscardOptions, string[]> {
+  return parseOptions(investigationReportDiscardOptionsSchema, input);
 }
 
 function parseOptions<Schema extends v.GenericSchema>(

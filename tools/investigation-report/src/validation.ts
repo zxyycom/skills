@@ -11,6 +11,7 @@ import {
   inspectInvestigationCollectionLayout,
   readInvestigationSources
 } from "./investigation-index-source.ts";
+import { withInvestigationCollectionMutationLock } from "./collection-mutation-lock.ts";
 import {
   investigationIndexDiagnosticMessages,
   investigationIndexFileName,
@@ -80,12 +81,13 @@ type PreparedSync = Readonly<{
 }>;
 
 export async function collectValidatedInvestigationCollection(
-  investigationRoot: string
+  investigationRoot: string,
+  options: { allowEmptyCollection?: boolean } = {}
 ): Promise<ValidatedInvestigationCollection> {
   const indexPath = path.join(investigationRoot, investigationIndexFileName);
   const layout = await inspectInvestigationCollectionLayout(investigationRoot);
   const errors = [...layout.errors];
-  if (layout.reportIds.length === 0) {
+  if (layout.reportIds.length === 0 && !options.allowEmptyCollection) {
     errors.push("investigation collection must contain at least one report");
   }
   const sources =
@@ -202,16 +204,20 @@ export function executeInvestigationIndexSync(
       ResultAsync.fromPromise<
         InvestigationIndexSyncResult,
         InvestigationIndexSyncFailure
-      >(synchronizeFullCollection(canonical.investigationsDirectory), (error) =>
-        syncFailure(
-          "operation",
-          emptySyncResult(
-            [
-              `investigation index synchronization could not be completed: ${errorText(error)}`
-            ],
-            prepared.value.indexPath
+      >(
+        synchronizeFullCollectionWithMutationLock(
+          canonical.investigationsDirectory
+        ),
+        (error) =>
+          syncFailure(
+            "operation",
+            emptySyncResult(
+              [
+                `investigation index synchronization could not be completed: ${errorText(error)}`
+              ],
+              prepared.value.indexPath
+            )
           )
-        )
       )
     )
     .andThen((result) =>
@@ -314,12 +320,28 @@ function prepareSync(
 async function validateFullCollection(
   investigationRoot: string
 ): Promise<InvestigationReportCheckResult> {
-  const collection =
-    await collectValidatedInvestigationCollection(investigationRoot);
+  const collection = await collectValidatedInvestigationCollection(
+    investigationRoot,
+    {
+      allowEmptyCollection: true
+    }
+  );
   if (collection.errors.length > 0 || collection.snapshot === null) {
     return checkResult(
       collection.reportCount,
       collection.errors,
+      false,
+      collection.indexPath,
+      collection.warnings
+    );
+  }
+  if (
+    collection.reportCount === 0 &&
+    (await lstatOrNull(collection.indexPath)) === null
+  ) {
+    return checkResult(
+      0,
+      ["investigation collection must contain at least one report"],
       false,
       collection.indexPath,
       collection.warnings
@@ -409,13 +431,27 @@ async function validateScopedCollection(
 async function synchronizeFullCollection(
   investigationRoot: string
 ): Promise<InvestigationIndexSyncResult> {
-  const collection =
-    await collectValidatedInvestigationCollection(investigationRoot);
+  const collection = await collectValidatedInvestigationCollection(
+    investigationRoot,
+    { allowEmptyCollection: true }
+  );
   if (collection.errors.length > 0 || collection.snapshot === null) {
     return syncResult(
       collection.reportCount,
       false,
       collection.errors,
+      collection.indexPath,
+      collection.warnings
+    );
+  }
+  if (
+    collection.reportCount === 0 &&
+    (await lstatOrNull(collection.indexPath)) === null
+  ) {
+    return syncResult(
+      0,
+      false,
+      ["investigation collection must contain at least one report"],
       collection.indexPath,
       collection.warnings
     );
@@ -438,6 +474,15 @@ async function synchronizeFullCollection(
     errors,
     collection.indexPath,
     collection.warnings
+  );
+}
+
+async function synchronizeFullCollectionWithMutationLock(
+  investigationRoot: string
+): Promise<InvestigationIndexSyncResult> {
+  return await withInvestigationCollectionMutationLock(
+    path.join(investigationRoot, investigationIndexFileName),
+    async () => await synchronizeFullCollection(investigationRoot)
   );
 }
 
@@ -583,6 +628,21 @@ async function recordedInvestigationIdsAtHead(
 }
 function compareText(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
+}
+async function lstatOrNull(
+  filePath: string
+): Promise<Awaited<ReturnType<typeof fs.lstat>> | null> {
+  try {
+    return await fs.lstat(filePath);
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      Reflect.get(error, "code") === "ENOENT"
+    )
+      return null;
+    throw error;
+  }
 }
 function errorText(error: unknown): string {
   return error instanceof Error ? error.message : String(error);

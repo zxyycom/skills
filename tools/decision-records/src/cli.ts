@@ -110,8 +110,7 @@ async function runTrace(args: CliArgsFor<"trace">): Promise<number> {
 async function runSyncIndex(args: CliArgsFor<"sync-index">): Promise<number> {
   return await runQuery({
     command: "sync-index",
-    location: decisionLocation(args),
-    write: args.write
+    location: decisionLocation(args)
   });
 }
 

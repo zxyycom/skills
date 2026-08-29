@@ -8,6 +8,8 @@ import {
   showInvestigationReport,
   traceInvestigationReports
 } from "./query.ts";
+import { discardInvestigationReport } from "./discard.ts";
+import { isInvestigationId } from "./report-path.ts";
 import { setInvestigationRelations } from "./relation-transaction.ts";
 import {
   executeInvestigationIndexStage,
@@ -26,6 +28,7 @@ import type {
 
 type InvestigationCommand =
   | "check"
+  | "discard"
   | "list"
   | "show"
   | "stage-index"
@@ -59,59 +62,138 @@ const valueOptions = new Set([
   "limit",
   "offset",
   "direction",
-  "max-depth",
+  "depth",
   "source",
   "relation"
 ]);
-const booleanOptions = new Set(["json", "clear-relations", "help"]);
+const booleanOptions = new Set([
+  "clear-relations",
+  "delete-owned-resources",
+  "delete-recorded-report",
+  "help"
+]);
 
-function printHelp(): void {
-  console.log(
-    [
-      "Usage: check-investigations.mjs [check] [--id <investigation-id> ...] [options]",
-      "       check-investigations.mjs sync-index [options]",
-      "       check-investigations.mjs list [--tag <tag> ...] [options]",
-      "       check-investigations.mjs show <investigation-id> [options]",
-      "       check-investigations.mjs trace <investigation-id> [options]",
-      "       check-investigations.mjs stage-index <investigation-id...> [options]",
-      "       check-investigations.mjs set-relations --source <investigation-id> (--relation <type=target-id>... | --clear-relations) [--source ...] [options]",
+function printHelp(command?: InvestigationCommand): void {
+  const commandHelp: Record<InvestigationCommand, readonly string[]> = {
+    check: [
+      "Usage: investigation-report [check] [--id <investigation-id> ...] [options]",
       "",
-      "Check and query flat Investigation Report records and their derived index.",
-      "Full check verifies the complete relation graph, resource ownership, and index freshness.",
-      "Scoped --id check validates selected reports and their declared resources only; it does not prove graph or index completeness.",
-      "sync-index rebuilds the full derived index from valid report Markdown.",
-      "stage-index changes only pending index entries for selected Investigation IDs.",
-      "set-relations atomically replaces every selected source relation set and the workspace index; it does not stage files.",
+      "Validate reports, the complete relation graph, resource ownership, and the current index.",
+      "Scoped --id checks validate only selected reports and their declared resources."
+    ],
+    discard: [
+      "Usage: investigation-report discard <investigation-id> [--delete-owned-resources] [--delete-recorded-report] [options]",
       "",
-      "Options:",
-      "  --root <workspace-root>       Workspace root (default: current directory)",
-      "  --investigations-dir <path>  Investigation root relative to workspace",
-      "  --id <investigation-id>       Scoped check ID; repeatable",
-      "  --tag <tag>                   List tag; repeatable and combined with AND",
-      "  --formed-from <timestamp>     List formedAt lower bound, inclusive",
-      "  --formed-to <timestamp>       List formedAt upper bound, inclusive",
-      "  --relation-type <type>        List direct relation type",
-      "  --text <terms>                List title and question text containing all terms",
-      "  --limit <count>               List page size (default: 50, maximum: 1000)",
-      "  --offset <count>              List page offset (default: 0)",
-      "  --direction <direction>       trace: predecessors, successors, or both (default: both)",
-      "  --max-depth <count>           trace maximum non-negative depth",
-      "  --source <investigation-id>   Start one complete set-relations source group",
-      "  --relation <type=target-id>   Add one complete-replacement relation to the active group",
-      "  --clear-relations             Explicitly clear the active source group",
-      "  --json                        Emit set-relations or stage-index result as JSON",
-      "  -h, --help                    Show this help"
-    ].join("\n")
-  );
+      "Delete one established report after a full graph and resource preflight.",
+      "Refuses remaining relation references and shared owner resources. Reports or owned resources in Git HEAD require --delete-recorded-report."
+    ],
+    list: [
+      "Usage: investigation-report list [--tag <tag> ...] [options]",
+      "",
+      "List reports from the current derived index."
+    ],
+    show: [
+      "Usage: investigation-report show <investigation-id> [options]",
+      "",
+      "Print one report Markdown document from the current derived index."
+    ],
+    "stage-index": [
+      "Usage: investigation-report stage-index <investigation-id...> [options]",
+      "",
+      "Write only selected report entries to the pending index; report Markdown and resources remain outside this operation."
+    ],
+    "sync-index": [
+      "Usage: investigation-report sync-index [options]",
+      "",
+      "Validate the full collection and rebuild its derived index in the working tree."
+    ],
+    trace: [
+      "Usage: investigation-report trace <investigation-id> [options]",
+      "",
+      "Trace predecessor and successor report relationships from the current derived index."
+    ],
+    "set-relations": [
+      "Usage: investigation-report set-relations --source <investigation-id> (--relation <type=target-id>... | --clear-relations) [--source ...] [options]",
+      "",
+      "Atomically replace every selected source relation set and rebuild the workspace index; does not stage files."
+    ]
+  };
+  const sharedOptions = [
+    "  --root <workspace-root>       Workspace root (default: current directory)",
+    "  --investigations-dir <path>  Investigation root relative to workspace",
+    "  -h, --help                    Show this help"
+  ];
+  const specificOptions: Partial<
+    Record<InvestigationCommand, readonly string[]>
+  > = {
+    check: ["  --id <investigation-id>       Scoped check ID; repeatable"],
+    discard: [
+      "  --delete-owned-resources      Confirm deletion of the report's owner-prefix resources",
+      "  --delete-recorded-report      Confirm deletion of report or owned resources already in Git HEAD"
+    ],
+    list: [
+      "  --tag <tag>                   Repeatable AND tag filter",
+      "  --formed-from <timestamp>     Inclusive formedAt lower bound",
+      "  --formed-to <timestamp>       Inclusive formedAt upper bound",
+      "  --relation-type <type>        Direct relation type",
+      "  --text <terms>                Title and question terms",
+      "  --limit <count>               Page size (default: 50, maximum: 1000)",
+      "  --offset <count>              Page offset (default: 0)"
+    ],
+    trace: [
+      "  --direction <direction>       predecessors, successors, or both (default: both)",
+      "  --depth <count>               Maximum non-negative relation depth"
+    ],
+    "set-relations": [
+      "  --source <investigation-id>   Start one complete replacement source group",
+      "  --relation <type=target-id>   Add one relation to the active source group",
+      "  --clear-relations             Explicitly clear the active source group"
+    ]
+  };
+  const lines =
+    command === undefined
+      ? [
+          "Usage: investigation-report <command> [options]",
+          "       investigation-report [check] [options]",
+          "       investigation-report help <command>",
+          "",
+          "Check, query, and maintain flat Investigation Report records and their derived index.",
+          "",
+          "Commands: check, sync-index, list, show, trace, set-relations, stage-index, discard",
+          "Run investigation-report help <command> for command options.",
+          "",
+          "Exit status: 0 success; 1 check, operation, or deletion-confirmation failure; 2 invalid CLI arguments."
+        ]
+      : [
+          ...commandHelp[command],
+          "",
+          "Options:",
+          ...sharedOptions,
+          ...(specificOptions[command] ?? []),
+          "",
+          "Exit status: 0 success; 1 check, operation, or deletion-confirmation failure; 2 invalid CLI arguments."
+        ];
+  console.log(lines.join("\n"));
 }
 
 function parseCli(
   argv: readonly string[]
 ):
-  | { status: "help" }
+  | { command?: InvestigationCommand; status: "help" }
   | { status: "invalid"; error: string }
   | { status: "command"; value: ParsedCli } {
   const [first] = argv;
+  if (first === "-h" || first === "--help") return { status: "help" };
+  if (first === "help") {
+    const requested = argv[1];
+    if (requested === undefined) return { status: "help" };
+    if (!isCommand(requested) || argv.length !== 2)
+      return {
+        error: `unknown command: ${requested ?? ""}`,
+        status: "invalid"
+      };
+    return { command: requested, status: "help" };
+  }
   const commandToken =
     first === undefined || first.startsWith("-") ? "check" : first;
   if (!isCommand(commandToken)) {
@@ -151,7 +233,7 @@ function parseCli(
     values.set(rawName, [...(values.get(rawName) ?? []), value]);
   }
   return values.has("help")
-    ? { status: "help" }
+    ? { command: commandToken, status: "help" }
     : {
         status: "command",
         value: { command: commandToken, positionals, values }
@@ -161,6 +243,7 @@ function parseCli(
 function isCommand(value: string): value is InvestigationCommand {
   return [
     "check",
+    "discard",
     "sync-index",
     "list",
     "show",
@@ -274,6 +357,44 @@ async function runSync(input: ParsedCli): Promise<number> {
   return 0;
 }
 
+async function runDiscard(input: ParsedCli): Promise<number> {
+  const problem = assertAllowedOptions(input, [
+    "root",
+    "investigations-dir",
+    "delete-owned-resources",
+    "delete-recorded-report"
+  ]);
+  const [id] = input.positionals;
+  if (problem !== null || id === undefined || input.positionals.length !== 1)
+    return cliInvalid(
+      problem ?? "discard requires exactly one Investigation ID"
+    );
+  if (!isInvestigationId(id))
+    return cliInvalid(
+      `${id || "<empty>"} discard id must use an Investigation ID`
+    );
+  const result = await discardInvestigationReport({
+    ...location(input.values),
+    deleteOwnedResources: has(input.values, "delete-owned-resources"),
+    deleteRecordedReport: has(input.values, "delete-recorded-report"),
+    id
+  });
+  if (result.errors.length > 0) {
+    printResultErrors(
+      result.changed
+        ? "Investigation report discard committed, but cleanup failed:"
+        : "Investigation report discard failed:",
+      result.errors,
+      1
+    );
+    return 1;
+  }
+  console.log(
+    `Investigation report discarded: ${result.id}${result.deletedResourceIds.length === 0 ? "" : `; deleted ${result.deletedResourceIds.length} owned resource(s)`}.`
+  );
+  return 0;
+}
+
 async function runList(input: ParsedCli): Promise<number> {
   const problem =
     assertNoPositionals(input) ??
@@ -361,7 +482,7 @@ async function runTrace(input: ParsedCli): Promise<number> {
     "root",
     "investigations-dir",
     "direction",
-    "max-depth"
+    "depth"
   ]);
   const [id] = input.positionals;
   if (problem !== null || id === undefined || input.positionals.length !== 1)
@@ -371,9 +492,9 @@ async function runTrace(input: ParsedCli): Promise<number> {
     ...location(input.values),
     id,
     ...(direction === undefined ? {} : { direction }),
-    ...(numberValue(input.values, "max-depth") === undefined
+    ...(numberValue(input.values, "depth") === undefined
       ? {}
-      : { maxDepth: numberValue(input.values, "max-depth") })
+      : { maxDepth: numberValue(input.values, "depth") })
   });
   if (result.status === "error")
     return printResultErrors(
@@ -388,24 +509,17 @@ async function runTrace(input: ParsedCli): Promise<number> {
 }
 
 async function runStage(input: ParsedCli): Promise<number> {
-  const problem = assertAllowedOptions(input, [
-    "root",
-    "investigations-dir",
-    "json"
-  ]);
+  const problem = assertAllowedOptions(input, ["root", "investigations-dir"]);
   if (problem !== null) return cliInvalid(problem);
   const execution = await executeInvestigationIndexStage({
     ...location(input.values),
     reportIds: input.positionals
   });
   if (execution.isErr()) {
-    if (has(input.values, "json"))
-      console.log(JSON.stringify(execution.error.result));
-    else printStageErrors(execution.error.result);
+    printStageErrors(execution.error.result);
     return execution.error.kind === "invalid-options" ? 2 : 1;
   }
-  if (has(input.values, "json")) console.log(JSON.stringify(execution.value));
-  else printStageSuccess(execution.value);
+  printStageSuccess(execution.value);
   return 0;
 }
 
@@ -417,8 +531,7 @@ async function runSetRelations(input: ParsedCli): Promise<number> {
       "investigations-dir",
       "source",
       "relation",
-      "clear-relations",
-      "json"
+      "clear-relations"
     ]);
   if (problem !== null) return cliInvalid(problem);
   const parsed = parseRelationGroups(input.relationEvents);
@@ -427,8 +540,7 @@ async function runSetRelations(input: ParsedCli): Promise<number> {
     ...location(input.values),
     replacements: parsed.replacements
   });
-  if (has(input.values, "json")) console.log(JSON.stringify(result));
-  else printRelationResult(result);
+  printRelationResult(result);
   return result.errors.length === 0 ? 0 : 1;
 }
 
@@ -574,7 +686,7 @@ export async function runInvestigationReportCheckCli(
 ): Promise<number> {
   const parsed = parseCliWithRelationEvents(argv);
   if (parsed.status === "help") {
-    printHelp();
+    printHelp(parsed.command);
     return 0;
   }
   if (parsed.status === "invalid") return cliInvalid(parsed.error);
@@ -582,6 +694,8 @@ export async function runInvestigationReportCheckCli(
   switch (input.command) {
     case "check":
       return await runCheck(input);
+    case "discard":
+      return await runDiscard(input);
     case "sync-index":
       return await runSync(input);
     case "list":
@@ -631,6 +745,7 @@ function parseCliWithRelationEvents(
 }
 
 export {
+  discardInvestigationReport,
   queryInvestigationIndex,
   setInvestigationRelations,
   showInvestigationReport,
@@ -648,6 +763,8 @@ export type {
   InvestigationIndexState,
   InvestigationIndexSyncOptions,
   InvestigationIndexSyncResult,
+  InvestigationReportDiscardOptions,
+  InvestigationReportDiscardResult,
   InvestigationRelation,
   InvestigationRelationSetOptions,
   InvestigationRelationSetResult,

@@ -118,12 +118,7 @@ test("index revision detects tag and sourcePath changes before accepting a rebui
     const stale = await validateDecisionRecords({ workspaceRoot });
     assert.notEqual(stale.errors.length, 0);
 
-    const synced = await runSourceCli([
-      "sync-index",
-      "--write",
-      "--root",
-      workspaceRoot
-    ]);
+    const synced = await runSourceCli(["sync-index", "--root", workspaceRoot]);
     assert.equal(synced.exitCode, 0, synced.stderr);
     const rebuilt = await readIndex(workspaceRoot);
     assert.deepEqual(findIndexEntry(rebuilt, currentDecisionId).tags, [

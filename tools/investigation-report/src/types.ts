@@ -163,6 +163,23 @@ export type InvestigationRelationSetResult = Readonly<{
   sourceIds: string[];
 }>;
 
+export type InvestigationReportDiscardOptions = {
+  deleteOwnedResources?: boolean;
+  deleteRecordedReport?: boolean;
+  id: string;
+  investigationsDir?: string;
+  workspaceRoot: string;
+};
+
+export type InvestigationReportDiscardResult = Readonly<{
+  changed: boolean;
+  deletedResourceIds: string[];
+  errors: string[];
+  id: string;
+  indexPath: string;
+  requiresRecordedDeletionConfirmation: boolean;
+}>;
+
 export type InvestigationIndexMetadata = Record<string, never>;
 
 export type InvestigationIndexState = Readonly<{

@@ -7,6 +7,7 @@ import {
   decisionIndexFileName,
   syncDecisionIndex
 } from "./decision-state-index.ts";
+import { withDecisionCollectionMutationLock } from "./decision-collection-mutation-lock.ts";
 import { scanDecisionRecords } from "./scan.ts";
 import { displayDecisionPath } from "./decision-path.ts";
 import type { DecisionScan, DecisionScanOptions } from "./types.ts";
@@ -26,6 +27,25 @@ type DecisionChangePreflight = {
 };
 
 export async function applyDecisionChanges(options: {
+  changes: readonly DecisionFileChange[];
+  originalScan: DecisionScan;
+  scanOptions: DecisionScanOptions;
+}): Promise<string[]> {
+  try {
+    return await withDecisionCollectionMutationLock(
+      options.originalScan.indexPath,
+      async () => await applyLockedDecisionChanges(options)
+    );
+  } catch (error) {
+    return [
+      "Decision transaction could not start: " +
+        errorText(error) +
+        ". No files were written."
+    ];
+  }
+}
+
+async function applyLockedDecisionChanges(options: {
   changes: readonly DecisionFileChange[];
   originalScan: DecisionScan;
   scanOptions: DecisionScanOptions;

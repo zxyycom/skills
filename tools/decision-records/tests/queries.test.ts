@@ -61,8 +61,7 @@ test("check detects tagged source drift and sync-index accepts it", () =>
     const check = await runSourceCli(["check", "--root", workspaceRoot]);
     assert.notEqual(check.exitCode, 0);
     assert.equal(
-      (await runSourceCli(["sync-index", "--write", "--root", workspaceRoot]))
-        .exitCode,
+      (await runSourceCli(["sync-index", "--root", workspaceRoot])).exitCode,
       0
     );
   }));
@@ -234,8 +233,7 @@ test("decision list combines repeated tag selectors with AND semantics", () =>
         .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
     );
     assert.equal(
-      (await runSourceCli(["sync-index", "--write", "--root", workspaceRoot]))
-        .exitCode,
+      (await runSourceCli(["sync-index", "--root", workspaceRoot])).exitCode,
       0
     );
     const listed = await runSuccessfulSourceCli([
@@ -266,8 +264,7 @@ test("decision list filters records by alignment selector", () =>
         .replace("createdAt: null", "createdAt: 2026-08-15T00:00:00Z")
     );
     assert.equal(
-      (await runSourceCli(["sync-index", "--write", "--root", workspaceRoot]))
-        .exitCode,
+      (await runSourceCli(["sync-index", "--root", workspaceRoot])).exitCode,
       0
     );
     const listed = await runSuccessfulSourceCli([

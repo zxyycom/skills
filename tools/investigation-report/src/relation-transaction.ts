@@ -1,11 +1,15 @@
 import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { withInvestigationCollectionMutationLock } from "./collection-mutation-lock.ts";
 import {
   buildStateIndex,
   serializeStateIndex
 } from "../../index-runtime/src/index.ts";
-import { createInvestigationStateSnapshot } from "./investigation-index-source.ts";
+import {
+  createInvestigationStateSnapshot,
+  sameInvestigationSources
+} from "./investigation-index-source.ts";
 import {
   createInvestigationStateIndexDefinition,
   investigationIndexDiagnosticMessages,
@@ -87,7 +91,7 @@ export async function setInvestigationRelationsWithWriter(
   }
   const root = canonical.value.investigationsDirectory;
   const indexPath = path.join(root, investigationIndexFileName);
-  return await withTransactionLock(
+  return await withInvestigationCollectionMutationLock(
     indexPath,
     async () =>
       await applyRelationReplacements({
@@ -237,14 +241,7 @@ async function applyRelationReplacements(options: {
     ]);
   }
   if (
-    JSON.stringify(protectedCollection.snapshot.sourceRevision) !==
-      JSON.stringify(collection.snapshot.sourceRevision) ||
-    protectedCollection.sources.length !== collection.sources.length ||
-    protectedCollection.sources.some(
-      (source, index) =>
-        source.id !== collection.sources[index]?.id ||
-        source.text !== collection.sources[index]?.text
-    )
+    !sameInvestigationSources(protectedCollection.sources, collection.sources)
   ) {
     return relationResult(false, sourceIds, options.indexPath, [
       "investigation collection changed after relation validation; no files were written"
@@ -359,30 +356,6 @@ function validateReplacements(
     replacements: sorted,
     sourceIds: sorted.map((replacement) => replacement.source)
   };
-}
-
-async function withTransactionLock<Result>(
-  indexPath: string,
-  operation: () => Promise<Result>
-): Promise<Result> {
-  const lockPath = path.join(
-    path.dirname(path.dirname(indexPath)),
-    `.${path.basename(indexPath)}.relations.lock`
-  );
-  let handle: Awaited<ReturnType<typeof fs.open>>;
-  try {
-    handle = await fs.open(lockPath, "wx");
-  } catch (error) {
-    throw new Error(
-      `could not acquire investigation relation transaction lock ${lockPath}: ${errorText(error)}; retry after the active transaction completes`
-    );
-  }
-  try {
-    return await operation();
-  } finally {
-    await handle.close().catch(() => undefined);
-    await fs.rm(lockPath, { force: true }).catch(() => undefined);
-  }
 }
 
 async function writeTextAtomically(

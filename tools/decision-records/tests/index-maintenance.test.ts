@@ -171,12 +171,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
     await fs.writeFile(indexPath, originalIndexText, "utf8");
     await fs.rm(indexPath);
     assert.match(
-      await runSuccessfulSourceCli([
-        "sync-index",
-        "--write",
-        "--root",
-        workspaceRoot
-      ]),
+      await runSuccessfulSourceCli(["sync-index", "--root", workspaceRoot]),
       /Rebuilt .*decision-index\.json from decision Markdown files/
     );
     assert.equal(await fs.readFile(indexPath, "utf8"), originalIndexText);
@@ -210,12 +205,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
       "alignment: unaligned"
     );
     await fs.writeFile(currentDecisionPath, ordinaryUnalignedDecision, "utf8");
-    await runSuccessfulSourceCli([
-      "sync-index",
-      "--write",
-      "--root",
-      workspaceRoot
-    ]);
+    await runSuccessfulSourceCli(["sync-index", "--root", workspaceRoot]);
     assert.deepEqual(
       (await validateDecisionRecords({ workspaceRoot })).errors,
       []
@@ -319,12 +309,7 @@ test("index maintenance detects drift and synchronizes canonical decision states
     assert.equal(driftedList.exitCode, 0, driftedList.stderr);
     assert.match(driftedList.stdout, /title: 使用生成 CLI/);
     assert.doesNotMatch(driftedList.stdout, /title: 使用同步后的生成 CLI/);
-    await runSuccessfulSourceCli([
-      "sync-index",
-      "--write",
-      "--root",
-      workspaceRoot
-    ]);
+    await runSuccessfulSourceCli(["sync-index", "--root", workspaceRoot]);
     const synchronizedIndex = await readIndex(indexPath);
     const synchronizedEntry = findIndexEntry(
       synchronizedIndex,

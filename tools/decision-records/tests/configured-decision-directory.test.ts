@@ -24,7 +24,6 @@ test("relative decision directories resolve from the workspace root", async () =
     });
     await runSuccessfulSourceCli([
       "sync-index",
-      "--write",
       "--decisions-dir",
       configuredPath,
       "--root",
@@ -73,7 +72,6 @@ test("absolute decision directories remain outside the workspace root", async ()
     });
     await runSuccessfulSourceCli([
       "sync-index",
-      "--write",
       "--decisions-dir",
       decisionsDirectory,
       "--root",

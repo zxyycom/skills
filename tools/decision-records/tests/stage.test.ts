@@ -194,7 +194,6 @@ test(
           );
           const synced = await runSourceCli([
             "sync-index",
-            "--write",
             "--root",
             workspaceRoot
           ]);

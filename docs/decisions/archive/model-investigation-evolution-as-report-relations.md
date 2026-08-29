@@ -1,6 +1,6 @@
 ---
 title: 以报告关系建模调查认识演进
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-28T10:12:50Z
 purpose: 让独立报告之间的直接认识演进以可验证关系图表达，而不从主题顺序、最新节点或分类推断当前结论。

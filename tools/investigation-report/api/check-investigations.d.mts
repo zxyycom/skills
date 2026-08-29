@@ -189,3 +189,24 @@ export declare function setInvestigationRelations(
 export declare function validateInvestigationReports(
   options: InvestigationReportCheckOptions
 ): Promise<InvestigationReportCheckResult>;
+
+export type InvestigationReportDiscardOptions = {
+  deleteOwnedResources?: boolean;
+  deleteRecordedReport?: boolean;
+  id: string;
+  investigationsDir?: string;
+  workspaceRoot: string;
+};
+
+export type InvestigationReportDiscardResult = {
+  changed: boolean;
+  deletedResourceIds: string[];
+  errors: string[];
+  id: string;
+  indexPath: string;
+  requiresRecordedDeletionConfirmation: boolean;
+};
+
+export declare function discardInvestigationReport(
+  input: unknown
+): Promise<InvestigationReportDiscardResult>;

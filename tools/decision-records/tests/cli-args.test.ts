@@ -21,7 +21,7 @@ test("decision CLI top-level help exposes the current command set", () => {
   assert.match(help.stdout, /This is the default command/);
   assert.match(
     help.stdout,
-    /Check the JSON index against established\s+Markdown/
+    /sync-index\s+Rebuild the JSON index from established\s+Markdown/
   );
   assert.match(
     help.stdout,
@@ -40,6 +40,18 @@ test("decision CLI top-level help exposes the current command set", () => {
     /evolve \[options\]\s+Replace complete successor relations/i
   );
   assert.doesNotMatch(help.stdout, /^\s*split(?:\s|$)/m);
+});
+
+test("sync-index rebuilds without an option and rejects the former write flag", () => {
+  const help = runGeneratedCli(["sync-index", "--help"]);
+  assert.equal(help.status, 0);
+  assert.match(help.stdout, /Rebuild the JSON index from established Markdown/);
+  assert.doesNotMatch(help.stdout, /--write/);
+
+  const legacyFlag = runGeneratedCli(["sync-index", "--write"]);
+  assert.equal(legacyFlag.status, 2);
+  assert.equal(legacyFlag.stdout, "");
+  assert.match(legacyFlag.stderr, /unknown option '--write'/);
 });
 
 test("archive help promises to preserve the last alignment", () => {

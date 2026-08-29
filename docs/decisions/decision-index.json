@@ -170,7 +170,8 @@
       "manage-change-lifecycle-stages.md": "sha256:ba220a3c5376040f1c60833028058b0ed8d5e77ed85e99309a2254bb1474b9fc",
       "manage-pending-snapshot-writes.md": "sha256:643da6ba5e90321bbbb9fdc95379e36155b456d0ac54c9536edeaab348489a6c",
       "mask-non-code-test-syntax.md": "sha256:01e23ec8ca8af35b0c92aac87d785864125caee40b2c4ae73016dba8fcb015ee",
-      "model-investigation-evolution-as-report-relations.md": "sha256:55235ba74a29eee33a4c808ad185199a2d28b9b851527f06f846b6be3dba03dd",
+      "model-investigation-evolution-and-explicit-removal.md": "sha256:0ee0cf9c83c77bfe7a19057f7c244c92e021b03a077d23ee6742b003a362c316",
+      "model-investigation-evolution-as-report-relations.md": "sha256:3881c5e363abf3c40ca91cec448a761b644c1d98a5b7d3ade8f5cb9998b94368",
       "model-task-relations-with-distinct-invariants.md": "sha256:4f1b90b6477689d68e4eb49b1065e2abc80c7ce7f50c2b2495cb1ce826b167a0",
       "model-task-topology-and-inheritance-explicitly.md": "sha256:f1e0f0ffdcd92ae0c5cdac52b395580c04c92e2e1bc1a227a1c7ea28228c5a26",
       "notify-before-current-decision-writes.md": "sha256:2cd9942a3bffede0c245a0aabbf108e9f95c4983537bc143a75398c1caa8b9ed",
@@ -201,7 +202,7 @@
       "query-projected-decision-metadata.md": "sha256:7729afa238f64c26a6f49ae3b42de4a30acda087a9329b05732d492d0f16de98",
       "read-ledger-contract-on-demand.md": "sha256:8e26e9c1d93b7bbb033742b71f589fd16471e3a649f66fa66cf2132589d26942",
       "read-skill-package-inputs-from-versioned-pending-snapshot.md": "sha256:3414d165bdb80865baf9fc69ae2bbf0893c963807f1d6768d5234f78ec51b22b",
-      "rebuild-index-only-with-current-tools.md": "sha256:c5f07024654b450813cc83e4f3878116df32cea70c060730e5e1a6c636c64522",
+      "rebuild-index-only-with-current-tools.md": "sha256:fb36edf2c294b8c8b2197688f49eecfe3eb1c561d5fe59ddd1e785fb7117ac53",
       "reclaim-expired-task-leases-through-claim.md": "sha256:e2cb3c3164cd124e149b1d7a3332edd38e1a2d16d89fdc5ff68cee8e6445880a",
       "recover-current-format-tools-and-index.md": "sha256:acf19524030b3a57e9fab1fe589166f57c623d76dd3a28b348573af3764f28d2",
       "register-one-case-per-independent-verification-entry.md": "sha256:046cad89081366c5e2fa1eb53b0a33f16d0023eab0a1f7ba4ad0915318e4725f",
@@ -5183,7 +5184,7 @@
         "relations": []
       }
     },
-    "model-investigation-evolution-as-report-relations.md": {
+    "model-investigation-evolution-and-explicit-removal.md": {
       "keys": {
         "tag": [
           "investigation-report"
@@ -5196,9 +5197,41 @@
         ]
       },
       "state": {
-        "sourcePath": "model-investigation-evolution-as-report-relations.md",
-        "title": "以报告关系建模调查认识演进",
+        "sourcePath": "model-investigation-evolution-and-explicit-removal.md",
+        "title": "以报告关系建模调查演进并显式剔除报告",
         "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-29T06:15:41Z",
+        "purpose": "让调查关系只表达认识演进，同时让确需删除的报告通过独立、可预演且可恢复的机械动作退出集合。",
+        "background": "报告没有归档生命周期，但长期保留不等于永远禁止删除；手工删除会把关系、资源 owner、派生索引和 Git 记录边界留给调用方拼接。",
+        "decision": "报告继续以六种直接前序关系表达认识演进且不产生归档或隐藏；删除只通过独立 discard 事务完成，并在写入前验证完整图、资源归属、版本记录与恢复边界。",
+        "tags": [
+          "investigation-report"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "model-investigation-evolution-as-report-relations.md"
+          }
+        ]
+      }
+    },
+    "model-investigation-evolution-as-report-relations.md": {
+      "keys": {
+        "tag": [
+          "investigation-report"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/model-investigation-evolution-as-report-relations.md",
+        "title": "以报告关系建模调查认识演进",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-28T10:12:50Z",
         "purpose": "让独立报告之间的直接认识演进以可验证关系图表达，而不从主题顺序、最新节点或分类推断当前结论。",

@@ -171,6 +171,19 @@ export function createInvestigationStateSnapshot(
   };
 }
 
+export function sameInvestigationSources(
+  left: readonly InvestigationSource[],
+  right: readonly InvestigationSource[]
+): boolean {
+  return (
+    left.length === right.length &&
+    left.every(
+      (source, index) =>
+        source.id === right[index]?.id && source.text === right[index]?.text
+    )
+  );
+}
+
 export async function readInvestigationSources(
   investigationsDirectory: string,
   reportIds: readonly string[],
@@ -210,11 +223,6 @@ async function readInvestigationCollection(
   );
   if (layout.errors.length > 0) {
     throw new Error(layout.errors.join("; "));
-  }
-  if (layout.reportIds.length === 0) {
-    throw new Error(
-      "investigation collection must contain at least one report"
-    );
   }
   return await readInvestigationSources(
     investigationsDirectory,

@@ -8,7 +8,7 @@
 2. 每个根目录直属报告 Markdown 是自身 title、formedAt、question、tags、relations、正文和资源引用的唯一事实源。一份文件只保存一份报告。
 3. `investigation-index.json` 从全部合法报告确定性生成，只用于发现、过滤、排序、关系 trace 和资源引用投影，不拥有独立事实。资源成员、路径与字节不进入索引来源版本或新鲜度。
 4. 可选 `_resources/` 是统一资源池。资源 ID 固定为 `<investigation-id-stem>/<resource-subpath>`，首段映射 owner 报告 `<investigation-id-stem>.md`；路径是资源唯一 owner 的事实来源，不限制其他报告引用。每个受管文件的原始字节是资源内容的事实源。
-5. `scripts/check-investigations.mjs` 的 `check` 只读检查报告、关系图、当前资源和索引；`sync-index` 从完整已验证的报告集合创建或替换工作树索引；`list`、`show` 与 `trace` 查询索引；`set-relations` 事务化调整既有关系；`stage-index` 按 Investigation ID 对索引执行受控 pending 写入。除 `set-relations` 与 `sync-index` 外，命令不写报告或资源文件。
+5. `scripts/check-investigations.mjs` 的 `check` 只读检查报告、关系图、当前资源和索引；`sync-index` 从完整已验证的报告集合创建或替换工作树索引；`list`、`show` 与 `trace` 查询索引；`set-relations` 事务化调整既有关系；`discard` 事务化删除一个报告及经确认的 owner 资源；`stage-index` 按 Investigation ID 对索引执行受控 pending 写入。只有 `sync-index`、`set-relations` 与 `discard` 写工作区领域状态，三者共用集合 mutation lock；`stage-index` 只写 Git pending。
 6. [investigation-index.schema.json](investigation-index.schema.json) 是随包分发的当前索引 JSON Schema；CLI 继续负责 Schema 无法证明的 Markdown、关系、资源安全、source revision、state 和 keys 一致性。
 
 本文中的“工作区索引”指工作树内当前的 `investigation-index.json`；`pending` 指版本管理暂存区中的待提交内容。两者是同一路径在不同版本管理状态下的内容，不能互相替代。
@@ -23,7 +23,7 @@ docs/investigations/
 
 调查根目录只接受派生索引、可选 `_resources/` 和根目录直属的报告 Markdown；不建立其他报告目录或生命周期目录。`_resources/` 中的 Markdown 是资源，不参与报告发现。
 
-可以用 `--investigations-dir` 选择工作区内的其他调查根目录，但同一集合始终使用同一根目录。首次创建报告时先建立完整报告，再运行 `sync-index` 创建索引；不能以空索引代替首份有效报告。
+可以用 `--investigations-dir` 选择工作区内的其他调查根目录，但同一集合始终使用同一根目录。首次创建报告时先建立完整报告，再运行 `sync-index` 创建索引；不能以空索引代替首份有效报告。已建立集合通过 `discard` 删除最后一份报告时保留结构和来源版本均有效的空索引；该空索引可继续 `check`、`list` 和 `sync-index`，但不能让全新无索引空目录成为已建立集合。
 
 ## 报告 Markdown
 
@@ -50,7 +50,7 @@ relations:
 6. 其他可选语义 H2 只能位于四项固定核心之后；报告声明资源时，只能位于第五个 H2 `随附资源` 之后。
 7. 每个资源链接展示文字的文本投影非空，链接目标逐字为 `./_resources/<resource-id>`，不能携带查询、片段、百分号编码、反斜杠或链接外文字。同一报告内 resource ID 唯一并按 locale 无关词法升序排列。
 
-完整报告写入集合即建立。草稿留在当前任务或其他草稿 owner；新证据或实质认识变化创建新报告，只有当时认识未被准确保存、格式或链接错误时才原地修正。删除已建立报告必须有明确任务授权，并在同步前修复指向它的关系和受影响资源 owner。
+完整报告写入集合即建立。草稿留在当前任务或其他草稿 owner；新证据或实质认识变化创建新报告，只有当时认识未被准确保存、格式或链接错误时才原地修正。删除已建立报告必须有明确任务授权并使用 `discard`；关系入边、共享 owner 资源或其他删除门禁未清除时命令零写入。
 
 ## 关系图
 
@@ -69,7 +69,7 @@ relations:
 2. 独立报告使用空关系。`补充`、`复查`、`修正` 和 `推翻`只指向一个直接前序；`归并`只能使用至少两个 target 的纯归并集合。
 3. 每个`拆分`后继只能有一条指向同一前序的`拆分`关系，且没有其他关系；被拆分前序在完整集合中至少有两个直接拆分后继。
 4. 关系只表达认识演进。不从相同 tags、时间先后、普通链接、资源共享或目录位置推断边；间接关系通过 trace 恢复。
-5. 后继关系不写回前序、不改变前序位置或默认可见性。所有已建立报告都留在同一正式集合，任何关系都不产生隐藏或归档行为。
+5. 后继关系不写回前序、不改变前序位置或默认可见性。所有未被显式 `discard` 的已建立报告都留在同一正式集合，任何关系都不产生隐藏、归档或自动删除行为。
 6. 默认全量 `check` 仅在可用 Git `HEAD` 基线中检查每条直接关系的 target（直接前序）。target 尚未进入 Git `HEAD` 时，返回包含 source、target 和 relation type 的确定性 warning，要求复核该关系是否应保留为独立调查演进；warning 不产生 error，也不阻断 `set-relations` 或其他写入。不比较 `formedAt` 或其他时间间隔。target 已进入 Git `HEAD` 时不提示；非 Git 工作区、尚未形成 `HEAD` 或无法建立可用 `HEAD` 基线时跳过此提示。
 
 ## 资源池与资源 ID
@@ -87,9 +87,9 @@ relations:
 1. 每个 Investigation ID 产生一个索引 entry。state 投影 `title`、`formedAt`、`question`、`tags`、`relations` 和按规范 ID 排序的 `resourceIds`；不保存 sourcePath、正文、反向关系副本、当前结论或资源内容摘要。
 2. keys 是 exact `tag`、range `formed-at`、exact `relation-type` 与 text `text`；text 只聚合 title 与 question。metadata 是拒绝额外字段的严格空对象。
 3. source revision 以 Investigation ID 为键，只指纹化 ID 和完整报告 Markdown UTF-8 内容，计算前只把 CRLF 规范为 LF。报告成员或可投影内容变化会更新对应 revision；资源成员、名称和字节不参与 revision。
-4. `list` 默认查询全部正式报告，按 Investigation ID 的 locale 无关词法顺序排序；支持可重复 `--tag` 的 AND、包含端点的 formedAt 范围、一个精确关系类型和 title/question 文本查询。`show <investigation-id>` 读取完整报告；`trace <investigation-id>` 支持 predecessors、successors、both 与非负 max-depth。
-5. `check` 验证报告、完整关系图、资源与索引。scoped check 只验证命中报告及其直接引用，不证明完整图、拆分闭合、未引用资源集合或索引新鲜度。`sync-index` 不要求旧索引新鲜，先验证完整报告、关系图和资源，再从同一 Markdown snapshot 重建索引。
-6. 创建、删除、改名报告或改变资源引用后运行 `sync-index`，然后运行默认全量 `check`。只改资源文件时运行默认全量 `check`；不得手工修补 JSON 代替维护流程。
+4. `list` 默认查询全部正式报告，按 Investigation ID 的 locale 无关词法顺序排序；支持可重复 `--tag` 的 AND、包含端点的 formedAt 范围、一个精确关系类型和 title/question 文本查询。`show <investigation-id>` 读取完整报告；`trace <investigation-id>` 支持 predecessors、successors、both 与非负 `--depth`。
+5. `check` 验证报告、完整关系图、资源与索引。scoped check 只验证命中报告及其直接引用，不证明完整图、拆分闭合、未引用资源集合或索引新鲜度。`sync-index` 不要求旧索引新鲜；它在集合 mutation lock 内验证完整报告、关系图和资源，再从同一 Markdown snapshot 重建索引。锁冲突时命令零写入失败并要求在当前事务结束后重试。已建立空集合只有在当前有效索引存在时成立。
+6. 创建、手工修正、改名报告或改变资源引用后运行 `sync-index`，然后运行默认全量 `check`。`set-relations` 与 `discard` 已在各自事务中同步索引，成功后直接运行默认全量 `check`。只改资源文件时运行默认全量 `check`；不得手工修补 JSON 代替维护流程。
 
 ### `set-relations`
 
@@ -106,6 +106,20 @@ set-relations \
 4. 成功路径保护全部目标报告、索引和完整图预览的 revision，事务化改写选中 Markdown frontmatter 与工作区索引。写前漂移失败；中断或发布失败恢复完整旧组合或返回明确恢复诊断。
 5. 命令不改 title、formedAt、question、tags、正文、资源或 Git pending。全部最终关系与现值相同时返回 `changed: false` 且不改写字节；至少一组改变时返回 `changed: true` 和规范 source ID 列表。
 
+### `discard`
+
+```text
+discard <investigation-id> [--delete-owned-resources] [--delete-recorded-report]
+```
+
+1. `discard` 是独立的破坏性删除事务，不是生命周期或关系类型。命令只接受一个已建立 Investigation ID，不在同一调用中调整关系、迁移资源 owner 或写 Git pending。
+2. 命令要求完整报告集合、关系图和资源有效，且工作区索引对同一 Markdown snapshot 新鲜。任何其他报告仍以关系指向目标时拒绝；移除目标后的完整图仍须满足无环、时间方向、关系形状和拆分闭合。
+3. 目标 owner 前缀下存在受管资源时，调用方必须用 `--delete-owned-resources` 明确选择删除全部这些资源。任一 owner 资源仍被其他报告引用时拒绝，调用方须先显式迁移资源并更新引用；命令不猜测或自动转移 owner。
+4. Owner 资源树只能包含路径合法、版本控制可见、非符号链接的普通受管文件与目录。Ignored、非法路径、符号链接、非普通实体、无法完整检查的成员或写前成员漂移都阻断整个事务，不能通过递归删除吞掉未预演字节。
+5. 在可用 Git `HEAD` 中，只要目标报告或任一将删 owner 资源已经记录，首次调用就返回确定性确认诊断且零写入；明确确认后用 `--delete-recorded-report` 重试。非 Git 工作区或 unborn `HEAD` 不要求该参数；Git 或成员检查异常必须 fail closed，不能当作未记录。
+6. 事务与 `sync-index`、`set-relations` 共用集合 mutation lock，在锁内保护报告集合、索引和 owner 资源成员。它先把目标报告与经确认资源移动到同文件系统 tombstone，复核最终文件与目录成员后原子发布新索引。索引发布是领域提交点：发布前任一步失败都恢复报告、资源和索引，恢复不完整时返回可行动诊断；发布后只精确清理已预演成员，不递归删除未知成员。
+7. 索引发布后（已跨过领域提交点），tombstone 清理无法完整完成时，命令返回 `changed: true` 和包含残留路径的 cleanup 诊断；报告已经退出集合，索引已是最终投影，未清理成员留在 tombstone 供人工处理。成功删除最后一份报告时保留合法空索引。索引发布前失败和等待确认路径不改变报告、资源、索引或现有 Git pending。
+
 ### `stage-index`
 
 `stage-index <investigation-id...>` 只在工作区索引已由 `sync-index` 从当前报告集合重建并通过默认全量 `check` 后使用。它只组合选中报告的索引结果进入 pending，不自动暂存报告 Markdown、资源或其他领域文件；这些文件由调用方按实际提交范围选择。
@@ -121,7 +135,8 @@ node <investigation-report-skill>/scripts/check-investigations.mjs list --root <
 node <investigation-report-skill>/scripts/check-investigations.mjs show <investigation-id> --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs trace <investigation-id> --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs set-relations --source <investigation-id> --clear-relations --root <workspace-root>
+node <investigation-report-skill>/scripts/check-investigations.mjs discard <investigation-id> --root <workspace-root>
 node <investigation-report-skill>/scripts/check-investigations.mjs stage-index <investigation-id...> --root <workspace-root>
 ```
 
-无显式 command 时默认执行 `check`。CLI 返回确定性去重排序的 errors 与 warnings；只有 errors 决定失败。它不判断章节语义、证据质量、资源是否值得保存、资源来源可信度、敏感信息、历史修改正当性或关系语义是否真实直接；这些由 `SKILL.md` 的形成与审阅流程承接。
+无显式 command 时默认执行 `check`；公开 help 的 usage 使用 `investigation-report`，并按子命令展示合法参数。CLI 只提供人类可读文本，不提供 JSON 输出协议。退出码 `0` 表示成功，`1` 表示检查、领域操作或删除确认未通过，`2` 表示 CLI 参数无效。CLI 返回确定性去重排序的 errors 与 warnings；只有 errors 决定失败。它不判断章节语义、证据质量、资源是否值得保存、资源来源可信度、敏感信息、历史修改正当性或关系语义是否真实直接；这些由 `SKILL.md` 的形成与审阅流程承接。

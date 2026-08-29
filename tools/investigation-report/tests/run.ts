@@ -1,4 +1,5 @@
 await import("./cli-generated.test.ts");
+await import("./discard.test.ts");
 await import("./index-query.test.ts");
 await import("./parsing-directory.test.ts");
 await import("./resources.test.ts");

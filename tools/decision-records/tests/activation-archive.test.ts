@@ -129,7 +129,7 @@ test("activation and archive transitions preserve content and index atomicity", 
       ["list", "--root", workspaceRoot],
       ["show", lifecycleRelativePath, "--root", workspaceRoot],
       ["trace", lifecycleRelativePath, "--root", workspaceRoot],
-      ["sync-index", "--write", "--root", workspaceRoot]
+      ["sync-index", "--root", workspaceRoot]
     ]) {
       const result = await runBundledCli(args);
       assert.equal(result.exitCode, 0, `${args[0]} failed: ${result.stderr}`);

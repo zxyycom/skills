@@ -5,7 +5,7 @@ Entry:
 - `bun test --test-name-pattern="^full validation rejects an empty report collection$" ./tools/investigation-report/tests/run.ts`
 
 Contract:
-- 完整报告集合至少包含一份正式报告。
+- 没有当前派生索引的新建空报告目录不得被视为已建立集合。
 
 Proves:
-- 空目录返回 at-least-one-report 诊断。
+- 新建空目录返回 at-least-one-report 诊断。

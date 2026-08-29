@@ -7,12 +7,15 @@ import {
 } from "./application-result.ts";
 import {
   decisionIndexDiagnosticMessages,
+  decisionIndexFileName,
   syncDecisionIndex
 } from "./decision-state-index.ts";
+import { withDecisionCollectionMutationLock } from "./decision-collection-mutation-lock.ts";
 import { isDecisionId } from "./decision-path.ts";
 import {
   decisionScanOptions,
   loadDecisionQueryContext,
+  resolveDecisionLocation,
   type DecisionLocation
 } from "./decision-query-context.ts";
 import {
@@ -72,7 +75,6 @@ export type DecisionQueryRequest =
   | {
       command: "sync-index";
       location: DecisionLocation;
-      write: boolean;
     }
   | {
       command: "trace";
@@ -386,6 +388,24 @@ async function traceDecisionRecord(
 async function synchronizeDecisionIndex(
   request: Extract<DecisionQueryRequest, { command: "sync-index" }>
 ): Promise<DecisionQueryResult> {
+  const { decisionsDirectory } = resolveDecisionLocation(request.location);
+  try {
+    return await withDecisionCollectionMutationLock(
+      path.join(decisionsDirectory, decisionIndexFileName),
+      async () => await synchronizeLockedDecisionIndex(request)
+    );
+  } catch (error) {
+    return decisionFailure([
+      "Decision index synchronization could not start: " +
+        errorText(error) +
+        ". No files were written."
+    ]);
+  }
+}
+
+async function synchronizeLockedDecisionIndex(
+  request: Extract<DecisionQueryRequest, { command: "sync-index" }>
+): Promise<DecisionQueryResult> {
   const { result } = await loadDecisionValidationContext(
     decisionScanOptions(request.location),
     { checkIndexText: false }
@@ -403,26 +423,10 @@ async function synchronizeDecisionIndex(
   }
   const synchronized = await syncDecisionIndex({
     decisionsDirectory: result.scan.decisionsDirectory,
-    mode: request.write ? "write" : "check",
+    mode: "write",
     decisionIds: selection.decisionIds
   });
   if (synchronized.status === "error") {
-    if (
-      !request.write &&
-      (synchronized.state === "index-invalid" ||
-        synchronized.state === "index-missing" ||
-        synchronized.state === "index-stale")
-    ) {
-      return decisionFailure(
-        [
-          "Decision index is out of sync.",
-          "Run sync-index --write to update " +
-            result.scan.indexRelativePath +
-            "."
-        ],
-        { presentation: "plain" }
-      );
-    }
     return decisionFailure(
       decisionIndexDiagnosticMessages(
         synchronized.diagnostics,
@@ -559,7 +563,7 @@ async function loadCandidateQueryContext(location: DecisionLocation): Promise<
         checked.state === "index-missing" ||
         checked.state === "index-stale"
         ? decisionFailure([
-            scan.indexRelativePath + " is out of sync; run sync-index --write"
+            scan.indexRelativePath + " is out of sync; run sync-index"
           ])
         : indexFailure(checked, scan.indexRelativePath);
     }

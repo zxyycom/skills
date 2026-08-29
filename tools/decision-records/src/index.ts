@@ -90,9 +90,7 @@ export async function validateDecisionScan(
         checked.state === "index-missing" ||
         checked.state === "index-stale"
       ) {
-        errors.push(
-          scan.indexRelativePath + " is out of sync; run sync-index --write"
-        );
+        errors.push(scan.indexRelativePath + " is out of sync; run sync-index");
       } else {
         errors.push(
           ...decisionIndexDiagnosticMessages(

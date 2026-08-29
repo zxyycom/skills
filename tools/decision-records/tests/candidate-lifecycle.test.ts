@@ -657,7 +657,6 @@ test("candidate queries discover source records while activation indexes only re
 
       const candidateSync = await runSourceCli([
         "sync-index",
-        "--write",
         "--root",
         workspaceRoot
       ]);
@@ -723,7 +722,6 @@ test("activation reconciles unindexed established records before committing a ca
 
     const syncWithOrphan = await runSourceCli([
       "sync-index",
-      "--write",
       "--root",
       workspaceRoot
     ]);

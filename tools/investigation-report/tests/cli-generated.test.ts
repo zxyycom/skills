@@ -17,8 +17,16 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
     const help = runGeneratedInvestigationCli(root, ["--help"]);
     assert.equal(help.status, 0);
     assert.equal(help.stderr, "");
-    assert.match(help.stdout, /set-relations --source <investigation-id>/u);
+    assert.match(help.stdout, /Usage: investigation-report <command>/u);
+    assert.match(help.stdout, /Exit status: 0 success; 1/u);
+    assert.doesNotMatch(help.stdout, /check-investigations\.mjs/u);
     assert.doesNotMatch(help.stdout, /--category/u);
+
+    const commandHelp = runGeneratedInvestigationCli(root, ["trace", "--help"]);
+    assert.equal(commandHelp.status, 0);
+    assert.match(commandHelp.stdout, /Usage: investigation-report trace/u);
+    assert.match(commandHelp.stdout, /--depth <count>/u);
+    assert.doesNotMatch(commandHelp.stdout, /set-relations/u);
 
     const oldOption = runGeneratedInvestigationCli(root, [
       "list",
@@ -31,7 +39,7 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
   });
 });
 
-test("CLI set-relations parses source groups and reports JSON result", async () => {
+test("CLI set-relations prints a human-readable result and rejects JSON output", async () => {
   await withTempRoot("cli-relations", async (root) => {
     await writeCollection(root, [{ id: "base.md" }, { id: "next.md" }]);
     const result = runGeneratedInvestigationCli(root, [
@@ -39,17 +47,23 @@ test("CLI set-relations parses source groups and reports JSON result", async () 
       "--source",
       "next.md",
       "--relation",
-      "补充=base.md",
-      "--json"
+      "补充=base.md"
     ]);
     assert.equal(result.status, 0);
     assert.equal(result.stderr, "");
-    assert.deepEqual(parseJsonObject(result.stdout), {
-      changed: true,
-      errors: [],
-      indexPath: `${investigationRoot(root)}/investigation-index.json`,
-      sourceIds: ["next.md"]
-    });
+    assert.match(
+      result.stdout,
+      /Investigation relations updated for: next\.md/u
+    );
+    const json = runGeneratedInvestigationCli(root, [
+      "set-relations",
+      "--source",
+      "next.md",
+      "--clear-relations",
+      "--json"
+    ]);
+    assert.equal(json.status, 2);
+    assert.match(json.stderr, /unknown option: --json/u);
     const markdown = await fs.readFile(
       path.join(investigationRoot(root), "next.md"),
       "utf8"
@@ -95,6 +109,20 @@ test("CLI leaves relation and trace enum values for API validation", async () =>
     assert.equal(trace.status, 1);
     assert.equal(trace.stdout, "");
     assert.match(trace.stderr, /direction/u);
+  });
+});
+
+test("CLI discard rejects malformed investigation IDs as argument errors", async () => {
+  await withTempRoot("cli-discard-invalid", async (root) => {
+    await writeCollection(root, [{ id: "report.md" }]);
+    const result = runGeneratedInvestigationCli(root, [
+      "discard",
+      "./report.md"
+    ]);
+    assert.equal(result.status, 2);
+    assert.equal(result.stdout, "");
+    assert.match(result.stderr, /discard id must use an Investigation ID/u);
+    await fs.access(path.join(investigationRoot(root), "report.md"));
   });
 });
 
@@ -183,6 +211,26 @@ test("CLI stage-index uses invalid-option exit status without report IDs", async
   });
 });
 
+test("CLI stage-index rejects JSON output", async () => {
+  await withTempRoot("cli-stage-json", async (root) => {
+    await writeCollection(root, [{ id: "report.md" }]);
+    const indexPath = path.join(
+      investigationRoot(root),
+      "investigation-index.json"
+    );
+    const before = await fs.readFile(indexPath, "utf8");
+    const result = runGeneratedInvestigationCli(root, [
+      "stage-index",
+      "report.md",
+      "--json"
+    ]);
+    assert.equal(result.status, 2);
+    assert.equal(result.stdout, "");
+    assert.match(result.stderr, /unknown option: --json/u);
+    assert.equal(await fs.readFile(indexPath, "utf8"), before);
+  });
+});
+
 test("CLI show requires one Investigation ID", async () => {
   await withTempRoot("cli-show", async (root) => {
     await writeCollection(root, [{ id: "report.md" }]);
@@ -206,6 +254,8 @@ test("CLI trace accepts report-level direction options", async () => {
       "trace",
       "--direction",
       "successors",
+      "--depth",
+      "1",
       "first.md"
     ]);
     assert.equal(result.status, 0);

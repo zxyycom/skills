@@ -90,7 +90,7 @@ export type CliArgs =
   | LocatedCommand<"show", { decisionId: DecisionId }>
   | LocatedCommand<"show-candidate", { decisionId: DecisionId }>
   | LocatedCommand<"stage", { decisionIds: DecisionId[] }>
-  | LocatedCommand<"sync-index", { write: boolean }>
+  | LocatedCommand<"sync-index">
   | LocatedCommand<
       "trace",
       {
@@ -120,7 +120,6 @@ type ParsedOptions = {
   status?: DecisionListStatus;
   successor?: DecisionSuccessor[];
   tag?: DecisionTag[];
-  write?: boolean;
 };
 
 type RunCommand = (args: CliArgs) => Promise<number>;
@@ -331,7 +330,7 @@ function commandArgs(
         tags: options.tag ?? []
       };
     case "sync-index":
-      return { ...location, command, write: options.write ?? false };
+      return { ...location, command };
     case "trace":
       return {
         ...location,
@@ -521,8 +520,8 @@ export function createCliProgram(
   const syncIndex = createSubcommand(
     program,
     "sync-index",
-    "Check the JSON index against established Markdown; use --write to rebuild it."
-  ).option("--write", "Write the index rebuilt from established decisions.");
+    "Rebuild the JSON index from established Markdown."
+  );
   syncIndex.action(() => execute("sync-index", syncIndex));
 
   const stage = createSubcommand(

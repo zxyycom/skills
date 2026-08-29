@@ -2281,7 +2281,7 @@
     "DECISION-CLI-ARGS-001": {
       "keys": {
         "search": [
-          "DECISION-CLI-ARGS-001 CLI 顶层帮助公开当前命令集合 顶层帮助必须准确公开默认 check、候选源码查询、正式索引语义和统一 evolve 协议，且不再公开独立 split 命令。 顶层帮助包含 agent-oriented 入口、默认严格检查、候选源码发现、show-candidate 与 evolve 说明。 顶层命令列表不包含独立 split 命令。 tools/decision-records/tests/cli-args.test.ts > decision CLI top-level help exposes the current command set bun test --test-name-pattern=\"^decision CLI top-level help exposes the current command set$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CLI-ARGS-001 CLI 顶层帮助公开当前命令集合 顶层帮助必须准确公开默认 check、候选源码查询、直接重建正式索引和统一 evolve 协议，且不再公开独立 split 命令。 顶层帮助包含 agent-oriented 入口、默认严格检查、候选源码发现、直接重建索引、show-candidate 与 evolve 说明。 顶层命令列表不包含独立 split 命令。 tools/decision-records/tests/cli-args.test.ts > decision CLI top-level help exposes the current command set bun test --test-name-pattern=\"^decision CLI top-level help exposes the current command set$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2295,9 +2295,9 @@
         ],
         "id": "DECISION-CLI-ARGS-001",
         "line": 1,
-        "searchText": "CLI 顶层帮助公开当前命令集合 顶层帮助必须准确公开默认 check、候选源码查询、正式索引语义和统一 evolve 协议，且不再公开独立 split 命令。 顶层帮助包含 agent-oriented 入口、默认严格检查、候选源码发现、show-candidate 与 evolve 说明。 顶层命令列表不包含独立 split 命令。 tools/decision-records/tests/cli-args.test.ts > decision CLI top-level help exposes the current command set bun test --test-name-pattern=\"^decision CLI top-level help exposes the current command set$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "CLI 顶层帮助公开当前命令集合 顶层帮助必须准确公开默认 check、候选源码查询、直接重建正式索引和统一 evolve 协议，且不再公开独立 split 命令。 顶层帮助包含 agent-oriented 入口、默认严格检查、候选源码发现、直接重建索引、show-candidate 与 evolve 说明。 顶层命令列表不包含独立 split 命令。 tools/decision-records/tests/cli-args.test.ts > decision CLI top-level help exposes the current command set bun test --test-name-pattern=\"^decision CLI top-level help exposes the current command set$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/decision-cli-top-level-help-exposes-the-current-command-set.md",
-        "summary": "顶层帮助必须准确公开默认 check、候选源码查询、正式索引语义和统一 evolve 协议，且不再公开独立 split 命令。",
+        "summary": "顶层帮助必须准确公开默认 check、候选源码查询、直接重建正式索引和统一 evolve 协议，且不再公开独立 split 命令。",
         "title": "CLI 顶层帮助公开当前命令集合"
       }
     },
@@ -4922,6 +4922,75 @@
         "title": "严格关系检查拒绝不纯拆分后继"
       }
     },
+    "DECISION-SYNC-INDEX-001": {
+      "keys": {
+        "search": [
+          "DECISION-SYNC-INDEX-001 同步命令直接重建索引并拒绝旧写入选项 `sync-index` 直接从已建立的 Decision Markdown 重建派生索引；`check` 保持独立的只读严格验证入口。 `--write` 不再是 Decision Records CLI 的公共选项。 `sync-index --help` 说明直接重建索引且不显示 `--write`。 使用旧的 `--write` 参数以参数错误退出，并在不进入索引写入流程前报告未知选项。 tools/decision-records/tests/cli-args.test.ts > sync-index rebuilds without an option and rejects the former write flag bun test --test-name-pattern=\"^sync-index rebuilds without an option and rejects the former write flag$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/decision-records/tests/cli-args.test.ts > sync-index rebuilds without an option and rejects the former write flag",
+          "bun test --test-name-pattern=\"^sync-index rebuilds without an option and rejects the former write flag$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SYNC-INDEX-001",
+        "line": 1,
+        "searchText": "同步命令直接重建索引并拒绝旧写入选项 `sync-index` 直接从已建立的 Decision Markdown 重建派生索引；`check` 保持独立的只读严格验证入口。 `--write` 不再是 Decision Records CLI 的公共选项。 `sync-index --help` 说明直接重建索引且不显示 `--write`。 使用旧的 `--write` 参数以参数错误退出，并在不进入索引写入流程前报告未知选项。 tools/decision-records/tests/cli-args.test.ts > sync-index rebuilds without an option and rejects the former write flag bun test --test-name-pattern=\"^sync-index rebuilds without an option and rejects the former write flag$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/sync-index-writes-without-legacy-flag.md",
+        "summary": "`sync-index` 直接从已建立的 Decision Markdown 重建派生索引；`check` 保持独立的只读严格验证入口。",
+        "title": "同步命令直接重建索引并拒绝旧写入选项"
+      }
+    },
+    "DECISION-SYNC-INDEX-002": {
+      "keys": {
+        "search": [
+          "DECISION-SYNC-INDEX-002 同步索引在决策事务持锁时快速失败 生命周期、关系与 discard 共用的 Decision Markdown 与索引事务，与 `sync-index` 共享同一个集合级 mutation lock。 锁被事务持有时，`sync-index` 快速失败而不写入旧投影，并给出可在事务结束后重试的失败反馈。 事务持锁期间 `sync-index` 以非零状态快速失败、说明锁冲突和重试动作，且索引字节不变。 事务完成后重试同步成功；持久索引投影与已更新的 Markdown 和严格验证一致。 tools/decision-records/tests/transaction-recovery.test.ts > sync-index fails while a decision transaction holds the collection lock bun test --test-name-pattern=\"^sync-index fails while a decision transaction holds the collection lock$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/decision-records/tests/transaction-recovery.test.ts > sync-index fails while a decision transaction holds the collection lock",
+          "bun test --test-name-pattern=\"^sync-index fails while a decision transaction holds the collection lock$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SYNC-INDEX-002",
+        "line": 1,
+        "searchText": "同步索引在决策事务持锁时快速失败 生命周期、关系与 discard 共用的 Decision Markdown 与索引事务，与 `sync-index` 共享同一个集合级 mutation lock。 锁被事务持有时，`sync-index` 快速失败而不写入旧投影，并给出可在事务结束后重试的失败反馈。 事务持锁期间 `sync-index` 以非零状态快速失败、说明锁冲突和重试动作，且索引字节不变。 事务完成后重试同步成功；持久索引投影与已更新的 Markdown 和严格验证一致。 tools/decision-records/tests/transaction-recovery.test.ts > sync-index fails while a decision transaction holds the collection lock bun test --test-name-pattern=\"^sync-index fails while a decision transaction holds the collection lock$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/sync-index-avoids-concurrent-decision-transactions.md",
+        "summary": "生命周期、关系与 discard 共用的 Decision Markdown 与索引事务，与 `sync-index` 共享同一个集合级 mutation lock。",
+        "title": "同步索引在决策事务持锁时快速失败"
+      }
+    },
+    "DECISION-SYNC-INDEX-003": {
+      "keys": {
+        "search": [
+          "DECISION-SYNC-INDEX-003 决策事务在同步索引持锁时快速失败 所有会共同写入 Decision Markdown 与派生索引的领域事务，必须与 `sync-index` 争用同一个集合级 mutation lock。 `sync-index` 仍在写入时，新的领域事务快速失败、零写入，并要求在同步结束后重试。 真实 `sync-index` 在原子替换索引前持锁时，`applyDecisionChanges` 报告锁冲突与重试动作，未改写 Markdown 或索引。 解除同步写入后索引完成发布，并通过严格 Decision 验证。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction fails while sync-index holds the collection lock bun test --test-name-pattern=\"^decision transaction fails while sync-index holds the collection lock$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "tools/decision-records/tests/transaction-recovery.test.ts > decision transaction fails while sync-index holds the collection lock",
+          "bun test --test-name-pattern=\"^decision transaction fails while sync-index holds the collection lock$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-SYNC-INDEX-003",
+        "line": 1,
+        "searchText": "决策事务在同步索引持锁时快速失败 所有会共同写入 Decision Markdown 与派生索引的领域事务，必须与 `sync-index` 争用同一个集合级 mutation lock。 `sync-index` 仍在写入时，新的领域事务快速失败、零写入，并要求在同步结束后重试。 真实 `sync-index` 在原子替换索引前持锁时，`applyDecisionChanges` 报告锁冲突与重试动作，未改写 Markdown 或索引。 解除同步写入后索引完成发布，并通过严格 Decision 验证。 tools/decision-records/tests/transaction-recovery.test.ts > decision transaction fails while sync-index holds the collection lock bun test --test-name-pattern=\"^decision transaction fails while sync-index holds the collection lock$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/decision-transaction-fails-while-sync-index-holds-the-collection-lock.md",
+        "summary": "所有会共同写入 Decision Markdown 与派生索引的领域事务，必须与 `sync-index` 争用同一个集合级 mutation lock。",
+        "title": "决策事务在同步索引持锁时快速失败"
+      }
+    },
     "DECISION-TAG-METADATA-001": {
       "keys": {
         "search": [
@@ -4948,7 +5017,7 @@
     "DECISION-TAG-SOURCE-DRIFT-001": {
       "keys": {
         "search": [
-          "DECISION-TAG-SOURCE-DRIFT-001 Check 检测标签来源漂移并由同步接受 标签来源漂移使 strict check 失败；sync-index --write 重建后接受当前来源。 添加 tag 后 check 非零，随后同步索引成功。 tools/decision-records/tests/queries.test.ts > check detects tagged source drift and sync-index accepts it bun test --test-name-pattern=\"^check detects tagged source drift and sync-index accepts it$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-TAG-SOURCE-DRIFT-001 Check 检测标签来源漂移并由同步接受 标签来源漂移使 strict check 失败；sync-index 重建后接受当前来源。 添加 tag 后 check 非零，随后同步索引成功。 tools/decision-records/tests/queries.test.ts > check detects tagged source drift and sync-index accepts it bun test --test-name-pattern=\"^check detects tagged source drift and sync-index accepts it$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -4962,9 +5031,9 @@
         ],
         "id": "DECISION-TAG-SOURCE-DRIFT-001",
         "line": 1,
-        "searchText": "Check 检测标签来源漂移并由同步接受 标签来源漂移使 strict check 失败；sync-index --write 重建后接受当前来源。 添加 tag 后 check 非零，随后同步索引成功。 tools/decision-records/tests/queries.test.ts > check detects tagged source drift and sync-index accepts it bun test --test-name-pattern=\"^check detects tagged source drift and sync-index accepts it$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Check 检测标签来源漂移并由同步接受 标签来源漂移使 strict check 失败；sync-index 重建后接受当前来源。 添加 tag 后 check 非零，随后同步索引成功。 tools/decision-records/tests/queries.test.ts > check detects tagged source drift and sync-index accepts it bun test --test-name-pattern=\"^check detects tagged source drift and sync-index accepts it$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/tagged-source-drift-sync.md",
-        "summary": "标签来源漂移使 strict check 失败；sync-index --write 重建后接受当前来源。",
+        "summary": "标签来源漂移使 strict check 失败；sync-index 重建后接受当前来源。",
         "title": "Check 检测标签来源漂移并由同步接受"
       }
     },
@@ -6762,6 +6831,29 @@
         "title": "CLI check succeeds on a current report collection"
       }
     },
+    "INVESTIGATION-CLI-DISCARD-ARGS-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CLI-DISCARD-ARGS-001 CLI discard rejects malformed investigation IDs as argument errors CLI 的非法 Investigation ID 是调用参数错误，不是领域操作失败。 分发 CLI 对 `./report.md` 返回 status 2、空 stdout，且报告未改。 tools/investigation-report/tests/cli-generated.test.ts > CLI discard rejects malformed investigation IDs as argument errors bun test --test-name-pattern=\"^CLI discard rejects malformed investigation IDs as argument errors$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > CLI discard rejects malformed investigation IDs as argument errors",
+          "bun test --test-name-pattern=\"^CLI discard rejects malformed investigation IDs as argument errors$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CLI-DISCARD-ARGS-001",
+        "line": 1,
+        "searchText": "CLI discard rejects malformed investigation IDs as argument errors CLI 的非法 Investigation ID 是调用参数错误，不是领域操作失败。 分发 CLI 对 `./report.md` 返回 status 2、空 stdout，且报告未改。 tools/investigation-report/tests/cli-generated.test.ts > CLI discard rejects malformed investigation IDs as argument errors bun test --test-name-pattern=\"^CLI discard rejects malformed investigation IDs as argument errors$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/cli-discard-rejects-malformed-investigation-ids.md",
+        "summary": "CLI 的非法 Investigation ID 是调用参数错误，不是领域操作失败。",
+        "title": "CLI discard rejects malformed investigation IDs as argument errors"
+      }
+    },
     "INVESTIGATION-CLI-ENUM-001": {
       "keys": {
         "search": [
@@ -6806,6 +6898,52 @@
         "sourcePath": "investigation-report/cli-list-returns-a-current-report-after-resource-byte-changes.md",
         "summary": "资源字节变化不使报告 index 过期，分发 CLI `list` 继续可查询当前报告。",
         "title": "CLI list returns a current report after resource byte changes"
+      }
+    },
+    "INVESTIGATION-CLI-RELATIONS-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CLI-RELATIONS-001 CLI set-relations prints a human-readable result and rejects JSON output 分发 CLI `set-relations` 以完整 source 组接收替换，并输出人类可读结果；不提供 JSON 输出契约。 合法 source 与 relation 组会写入关系，并在 stdout 返回人类可读结果且保持 stderr 为空。 随后的 `--json` 调用在参数边界被拒绝，且不会覆盖已写入的 Markdown 关系。 tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations prints a human-readable result and rejects JSON output bun test --test-name-pattern=\"^CLI set-relations prints a human-readable result and rejects JSON output$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 16,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations prints a human-readable result and rejects JSON output",
+          "bun test --test-name-pattern=\"^CLI set-relations prints a human-readable result and rejects JSON output$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CLI-RELATIONS-001",
+        "line": 1,
+        "searchText": "CLI set-relations prints a human-readable result and rejects JSON output 分发 CLI `set-relations` 以完整 source 组接收替换，并输出人类可读结果；不提供 JSON 输出契约。 合法 source 与 relation 组会写入关系，并在 stdout 返回人类可读结果且保持 stderr 为空。 随后的 `--json` 调用在参数边界被拒绝，且不会覆盖已写入的 Markdown 关系。 tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations prints a human-readable result and rejects JSON output bun test --test-name-pattern=\"^CLI set-relations prints a human-readable result and rejects JSON output$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/cli-set-relations-prints-human-readable-result-and-rejects-json-output.md",
+        "summary": "分发 CLI `set-relations` 以完整 source 组接收替换，并输出人类可读结果；不提供 JSON 输出契约。",
+        "title": "CLI set-relations prints a human-readable result and rejects JSON output"
+      }
+    },
+    "INVESTIGATION-CLI-STAGE-JSON-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-CLI-STAGE-JSON-001 CLI stage-index rejects JSON output 分发 CLI 不为 `stage-index` 提供 JSON 输出协议。 传入 `--json` 返回退出码 2、stdout 为空、stderr 给出未知选项诊断，且派生 index 字节不变。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index rejects JSON output bun test --test-name-pattern=\"^CLI stage-index rejects JSON output$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index rejects JSON output",
+          "bun test --test-name-pattern=\"^CLI stage-index rejects JSON output$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-CLI-STAGE-JSON-001",
+        "line": 1,
+        "searchText": "CLI stage-index rejects JSON output 分发 CLI 不为 `stage-index` 提供 JSON 输出协议。 传入 `--json` 返回退出码 2、stdout 为空、stderr 给出未知选项诊断，且派生 index 字节不变。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index rejects JSON output bun test --test-name-pattern=\"^CLI stage-index rejects JSON output$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/cli-stage-index-rejects-json-output.md",
+        "summary": "分发 CLI 不为 `stage-index` 提供 JSON 输出协议。",
+        "title": "CLI stage-index rejects JSON output"
       }
     },
     "INVESTIGATION-CLI-SYNC-001": {
@@ -6946,10 +7084,286 @@
         "title": "validation enforces investigation directory path rules"
       }
     },
+    "INVESTIGATION-DISCARD-CLEANUP-FAILURE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DISCARD-CLEANUP-FAILURE-001 discard reports a committed result when safe tombstone cleanup cannot finish 新索引发布是 discard 的领域提交点；提交后的 tombstone 清理不能删除未预演成员，无法安全完成时必须保留残留并明确报告操作已经提交。 索引发布后注入未预演目录会返回 `changed: true` 与 committed cleanup 诊断，报告已退出集合且完整检查通过。 未预演目录保留在诊断指向的 tombstone 中，没有被递归删除。 tools/investigation-report/tests/discard.test.ts > discard reports a committed result when safe tombstone cleanup cannot finish bun test --test-name-pattern=\"^discard reports a committed result when safe tombstone cleanup cannot finish$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/discard.test.ts > discard reports a committed result when safe tombstone cleanup cannot finish",
+          "bun test --test-name-pattern=\"^discard reports a committed result when safe tombstone cleanup cannot finish$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DISCARD-CLEANUP-FAILURE-001",
+        "line": 1,
+        "searchText": "discard reports a committed result when safe tombstone cleanup cannot finish 新索引发布是 discard 的领域提交点；提交后的 tombstone 清理不能删除未预演成员，无法安全完成时必须保留残留并明确报告操作已经提交。 索引发布后注入未预演目录会返回 `changed: true` 与 committed cleanup 诊断，报告已退出集合且完整检查通过。 未预演目录保留在诊断指向的 tombstone 中，没有被递归删除。 tools/investigation-report/tests/discard.test.ts > discard reports a committed result when safe tombstone cleanup cannot finish bun test --test-name-pattern=\"^discard reports a committed result when safe tombstone cleanup cannot finish$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/discard-reports-committed-cleanup-failure.md",
+        "summary": "新索引发布是 discard 的领域提交点；提交后的 tombstone 清理不能删除未预演成员，无法安全完成时必须保留残留并明确报告操作已经提交。",
+        "title": "discard reports a committed result when safe tombstone cleanup cannot finish"
+      }
+    },
+    "INVESTIGATION-DISCARD-FINAL-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DISCARD-FINAL-001 discard removes a final report and confirmed owner resources 删除有 owner-prefix 资源的报告必须显式确认资源删除；成功删除最后一份已建立报告后，派生空索引仍可被完整检查和列表查询使用。 未确认资源删除时无写入并给出参数提示；确认后报告及资源消失，且没有遗留 tombstone。 完整 check 成功且 list 返回空集合。 tools/investigation-report/tests/discard.test.ts > discard requires resource confirmation then removes a final report and its owner resources bun test --test-name-pattern=\"^discard requires resource confirmation then removes a final report and its owner resources$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/investigation-report/tests/discard.test.ts > discard requires resource confirmation then removes a final report and its owner resources",
+          "bun test --test-name-pattern=\"^discard requires resource confirmation then removes a final report and its owner resources$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DISCARD-FINAL-001",
+        "line": 1,
+        "searchText": "discard removes a final report and confirmed owner resources 删除有 owner-prefix 资源的报告必须显式确认资源删除；成功删除最后一份已建立报告后，派生空索引仍可被完整检查和列表查询使用。 未确认资源删除时无写入并给出参数提示；确认后报告及资源消失，且没有遗留 tombstone。 完整 check 成功且 list 返回空集合。 tools/investigation-report/tests/discard.test.ts > discard requires resource confirmation then removes a final report and its owner resources bun test --test-name-pattern=\"^discard requires resource confirmation then removes a final report and its owner resources$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/discard-removes-final-report-and-owned-resources.md",
+        "summary": "删除有 owner-prefix 资源的报告必须显式确认资源删除；成功删除最后一份已建立报告后，派生空索引仍可被完整检查和列表查询使用。",
+        "title": "discard removes a final report and confirmed owner resources"
+      }
+    },
+    "INVESTIGATION-DISCARD-GIT-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DISCARD-GIT-001 discard pauses deletion of Git-recorded reports 已进入 Git HEAD 的报告或将删除的 owner 资源必须先经显式 `deleteRecordedReport` 确认，暂停路径不得写入。 已记录报告首次 discard 返回确认状态且文件仍在；确认后删除生效。 tools/investigation-report/tests/discard.test.ts > discard pauses recorded reports until recorded deletion is explicitly confirmed bun test --test-name-pattern=\"^discard pauses recorded reports until recorded deletion is explicitly confirmed$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/discard.test.ts > discard pauses recorded reports until recorded deletion is explicitly confirmed",
+          "bun test --test-name-pattern=\"^discard pauses recorded reports until recorded deletion is explicitly confirmed$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DISCARD-GIT-001",
+        "line": 1,
+        "searchText": "discard pauses deletion of Git-recorded reports 已进入 Git HEAD 的报告或将删除的 owner 资源必须先经显式 `deleteRecordedReport` 确认，暂停路径不得写入。 已记录报告首次 discard 返回确认状态且文件仍在；确认后删除生效。 tools/investigation-report/tests/discard.test.ts > discard pauses recorded reports until recorded deletion is explicitly confirmed bun test --test-name-pattern=\"^discard pauses recorded reports until recorded deletion is explicitly confirmed$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/discard-pauses-recorded-report-deletion.md",
+        "summary": "已进入 Git HEAD 的报告或将删除的 owner 资源必须先经显式 `deleteRecordedReport` 确认，暂停路径不得写入。",
+        "title": "discard pauses deletion of Git-recorded reports"
+      }
+    },
+    "INVESTIGATION-DISCARD-GIT-FAILURE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DISCARD-GIT-FAILURE-001 discard fails closed when a Git worktree cannot be inspected 除明确的非 Git 工作区外，版本控制发现或 HEAD 检查失败必须阻止 discard 写入。 损坏的 Git worktree 返回 Git/版本控制诊断，报告未被删除。 tools/investigation-report/tests/discard.test.ts > discard fails closed when a Git worktree cannot be inspected bun test --test-name-pattern=\"^discard fails closed when a Git worktree cannot be inspected$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/discard.test.ts > discard fails closed when a Git worktree cannot be inspected",
+          "bun test --test-name-pattern=\"^discard fails closed when a Git worktree cannot be inspected$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DISCARD-GIT-FAILURE-001",
+        "line": 1,
+        "searchText": "discard fails closed when a Git worktree cannot be inspected 除明确的非 Git 工作区外，版本控制发现或 HEAD 检查失败必须阻止 discard 写入。 损坏的 Git worktree 返回 Git/版本控制诊断，报告未被删除。 tools/investigation-report/tests/discard.test.ts > discard fails closed when a Git worktree cannot be inspected bun test --test-name-pattern=\"^discard fails closed when a Git worktree cannot be inspected$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/discard-fails-closed-on-git-inspection.md",
+        "summary": "除明确的非 Git 工作区外，版本控制发现或 HEAD 检查失败必须阻止 discard 写入。",
+        "title": "discard fails closed when a Git worktree cannot be inspected"
+      }
+    },
+    "INVESTIGATION-DISCARD-PENDING-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DISCARD-PENDING-001 discard preserves existing Git pending content discard 只修改工作树，不得改变已有 Git pending 快照。 删除已记录报告后 cached binary diff 与操作前完全相同。 tools/investigation-report/tests/discard.test.ts > discard preserves existing Git pending content bun test --test-name-pattern=\"^discard preserves existing Git pending content$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/discard.test.ts > discard preserves existing Git pending content",
+          "bun test --test-name-pattern=\"^discard preserves existing Git pending content$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DISCARD-PENDING-001",
+        "line": 1,
+        "searchText": "discard preserves existing Git pending content discard 只修改工作树，不得改变已有 Git pending 快照。 删除已记录报告后 cached binary diff 与操作前完全相同。 tools/investigation-report/tests/discard.test.ts > discard preserves existing Git pending content bun test --test-name-pattern=\"^discard preserves existing Git pending content$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/discard-preserves-existing-git-pending.md",
+        "summary": "discard 只修改工作树，不得改变已有 Git pending 快照。",
+        "title": "discard preserves existing Git pending content"
+      }
+    },
+    "INVESTIGATION-DISCARD-REFERENCES-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DISCARD-REFERENCES-001 discard rejects referenced reports and owner resources `discard` 不得删除仍作为其他报告直接关系 target 的报告，也不得删除仍被其他报告引用的 owner-prefix 资源。 同时存在关系和共享资源引用时，操作返回两类可行动诊断，报告和索引字节保持不变。 tools/investigation-report/tests/discard.test.ts > discard rejects reports still used as relation targets or resource owners bun test --test-name-pattern=\"^discard rejects reports still used as relation targets or resource owners$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/discard.test.ts > discard rejects reports still used as relation targets or resource owners",
+          "bun test --test-name-pattern=\"^discard rejects reports still used as relation targets or resource owners$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DISCARD-REFERENCES-001",
+        "line": 1,
+        "searchText": "discard rejects referenced reports and owner resources `discard` 不得删除仍作为其他报告直接关系 target 的报告，也不得删除仍被其他报告引用的 owner-prefix 资源。 同时存在关系和共享资源引用时，操作返回两类可行动诊断，报告和索引字节保持不变。 tools/investigation-report/tests/discard.test.ts > discard rejects reports still used as relation targets or resource owners bun test --test-name-pattern=\"^discard rejects reports still used as relation targets or resource owners$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/discard-rejects-referenced-reports-and-owned-resources.md",
+        "summary": "`discard` 不得删除仍作为其他报告直接关系 target 的报告，也不得删除仍被其他报告引用的 owner-prefix 资源。",
+        "title": "discard rejects referenced reports and owner resources"
+      }
+    },
+    "INVESTIGATION-DISCARD-RESOURCE-DRIFT-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DISCARD-RESOURCE-DRIFT-001 discard rechecks ignored owner resource drift before publishing discard 在发布前必须重新比较 owner 资源成员，防止预演后的资源变化进入递归删除。 预演后新增 ignored owner 资源使发布失败，报告和原资源保持存在。 tools/investigation-report/tests/discard.test.ts > discard rechecks ignored owner resource drift before publishing bun test --test-name-pattern=\"^discard rechecks ignored owner resource drift before publishing$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/discard.test.ts > discard rechecks ignored owner resource drift before publishing",
+          "bun test --test-name-pattern=\"^discard rechecks ignored owner resource drift before publishing$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DISCARD-RESOURCE-DRIFT-001",
+        "line": 1,
+        "searchText": "discard rechecks ignored owner resource drift before publishing discard 在发布前必须重新比较 owner 资源成员，防止预演后的资源变化进入递归删除。 预演后新增 ignored owner 资源使发布失败，报告和原资源保持存在。 tools/investigation-report/tests/discard.test.ts > discard rechecks ignored owner resource drift before publishing bun test --test-name-pattern=\"^discard rechecks ignored owner resource drift before publishing$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/discard-rechecks-owned-resource-drift.md",
+        "summary": "discard 在发布前必须重新比较 owner 资源成员，防止预演后的资源变化进入递归删除。",
+        "title": "discard rechecks ignored owner resource drift before publishing"
+      }
+    },
+    "INVESTIGATION-DISCARD-RESOURCE-ID-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DISCARD-RESOURCE-ID-001 discard rejects illegal owner resource IDs without deleting the report 删除前必须拒绝不符合受管资源 ID 规则的 owner 文件路径。 检测到非法 `%` 路径时无写入，报告保持存在。 tools/investigation-report/tests/discard.test.ts > discard rejects illegal owner resource IDs without deleting the report bun test --test-name-pattern=\"^discard rejects illegal owner resource IDs without deleting the report$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/discard.test.ts > discard rejects illegal owner resource IDs without deleting the report",
+          "bun test --test-name-pattern=\"^discard rejects illegal owner resource IDs without deleting the report$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DISCARD-RESOURCE-ID-001",
+        "line": 1,
+        "searchText": "discard rejects illegal owner resource IDs without deleting the report 删除前必须拒绝不符合受管资源 ID 规则的 owner 文件路径。 检测到非法 `%` 路径时无写入，报告保持存在。 tools/investigation-report/tests/discard.test.ts > discard rejects illegal owner resource IDs without deleting the report bun test --test-name-pattern=\"^discard rejects illegal owner resource IDs without deleting the report$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/discard-rejects-illegal-owner-resource-ids.md",
+        "summary": "删除前必须拒绝不符合受管资源 ID 规则的 owner 文件路径。",
+        "title": "discard rejects illegal owner resource IDs without deleting the report"
+      }
+    },
+    "INVESTIGATION-DISCARD-RESOURCE-SAFETY-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DISCARD-RESOURCE-SAFETY-001 discard rejects unsafe owner resource members without deleting the report 删除前必须拒绝 owner 资源树中的符号链接或其他不安全成员。 检测到符号链接时无写入，报告保持存在。 tools/investigation-report/tests/discard.test.ts > discard rejects unsafe owner resource members without deleting the report bun test --test-name-pattern=\"^discard rejects unsafe owner resource members without deleting the report$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/discard.test.ts > discard rejects unsafe owner resource members without deleting the report",
+          "bun test --test-name-pattern=\"^discard rejects unsafe owner resource members without deleting the report$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DISCARD-RESOURCE-SAFETY-001",
+        "line": 1,
+        "searchText": "discard rejects unsafe owner resource members without deleting the report 删除前必须拒绝 owner 资源树中的符号链接或其他不安全成员。 检测到符号链接时无写入，报告保持存在。 tools/investigation-report/tests/discard.test.ts > discard rejects unsafe owner resource members without deleting the report bun test --test-name-pattern=\"^discard rejects unsafe owner resource members without deleting the report$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/discard-rejects-unsafe-owner-resource-members.md",
+        "summary": "删除前必须拒绝 owner 资源树中的符号链接或其他不安全成员。",
+        "title": "discard rejects unsafe owner resource members without deleting the report"
+      }
+    },
+    "INVESTIGATION-DISCARD-RESTORE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DISCARD-RESTORE-001 discard restores report resources and index when index publication fails discard 发布索引失败时必须恢复被 tombstone 的报告、owner 资源和原索引字节。 模拟索引写失败后结果失败，报告、资源和索引均恢复。 tools/investigation-report/tests/discard.test.ts > discard restores report resources and index when index publication fails bun test --test-name-pattern=\"^discard restores report resources and index when index publication fails$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/discard.test.ts > discard restores report resources and index when index publication fails",
+          "bun test --test-name-pattern=\"^discard restores report resources and index when index publication fails$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DISCARD-RESTORE-001",
+        "line": 1,
+        "searchText": "discard restores report resources and index when index publication fails discard 发布索引失败时必须恢复被 tombstone 的报告、owner 资源和原索引字节。 模拟索引写失败后结果失败，报告、资源和索引均恢复。 tools/investigation-report/tests/discard.test.ts > discard restores report resources and index when index publication fails bun test --test-name-pattern=\"^discard restores report resources and index when index publication fails$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/discard-restores-after-index-publication-failure.md",
+        "summary": "discard 发布索引失败时必须恢复被 tombstone 的报告、owner 资源和原索引字节。",
+        "title": "discard restores report resources and index when index publication fails"
+      }
+    },
+    "INVESTIGATION-DISCARD-SPLIT-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DISCARD-SPLIT-001 discard rejects a removal that breaks split relation closure `discard` 必须预演最终关系图，不能删除会破坏拆分后继闭合的报告。 删除会使前序只剩一个拆分后继时失败，目标报告保留。 tools/investigation-report/tests/discard.test.ts > discard rejects a removal that breaks split relation closure bun test --test-name-pattern=\"^discard rejects a removal that breaks split relation closure$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/discard.test.ts > discard rejects a removal that breaks split relation closure",
+          "bun test --test-name-pattern=\"^discard rejects a removal that breaks split relation closure$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DISCARD-SPLIT-001",
+        "line": 1,
+        "searchText": "discard rejects a removal that breaks split relation closure `discard` 必须预演最终关系图，不能删除会破坏拆分后继闭合的报告。 删除会使前序只剩一个拆分后继时失败，目标报告保留。 tools/investigation-report/tests/discard.test.ts > discard rejects a removal that breaks split relation closure bun test --test-name-pattern=\"^discard rejects a removal that breaks split relation closure$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/discard-rejects-broken-split-closure.md",
+        "summary": "`discard` 必须预演最终关系图，不能删除会破坏拆分后继闭合的报告。",
+        "title": "discard rejects a removal that breaks split relation closure"
+      }
+    },
+    "INVESTIGATION-DISCARD-TOMBSTONE-WINDOW-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DISCARD-TOMBSTONE-WINDOW-001 discard restores tombstoned resources when a rename-window member appears owner 资源目录进入 tombstone 后、索引写入前必须再次安全扫描并与预演资源集合一致；窗口内新增成员不得被递归删除。 在 rename 后注入未预演的空目录时事务失败并恢复报告、owner 资源和原索引，注入成员也没有被删除。 tools/investigation-report/tests/discard.test.ts > discard restores tombstoned resources when a rename-window member appears bun test --test-name-pattern=\"^discard restores tombstoned resources when a rename-window member appears$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/discard.test.ts > discard restores tombstoned resources when a rename-window member appears",
+          "bun test --test-name-pattern=\"^discard restores tombstoned resources when a rename-window member appears$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DISCARD-TOMBSTONE-WINDOW-001",
+        "line": 1,
+        "searchText": "discard restores tombstoned resources when a rename-window member appears owner 资源目录进入 tombstone 后、索引写入前必须再次安全扫描并与预演资源集合一致；窗口内新增成员不得被递归删除。 在 rename 后注入未预演的空目录时事务失败并恢复报告、owner 资源和原索引，注入成员也没有被删除。 tools/investigation-report/tests/discard.test.ts > discard restores tombstoned resources when a rename-window member appears bun test --test-name-pattern=\"^discard restores tombstoned resources when a rename-window member appears$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/discard-restores-on-tombstone-window-resource-change.md",
+        "summary": "owner 资源目录进入 tombstone 后、索引写入前必须再次安全扫描并与预演资源集合一致；窗口内新增成员不得被递归删除。",
+        "title": "discard restores tombstoned resources when a rename-window member appears"
+      }
+    },
     "INVESTIGATION-EMPTY-COLLECTION-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-EMPTY-COLLECTION-001 full validation rejects an empty report collection 完整报告集合至少包含一份正式报告。 空目录返回 at-least-one-report 诊断。 tools/investigation-report/tests/parsing-directory.test.ts > full validation rejects an empty report collection bun test --test-name-pattern=\"^full validation rejects an empty report collection$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-EMPTY-COLLECTION-001 full validation rejects an empty report collection 没有当前派生索引的新建空报告目录不得被视为已建立集合。 新建空目录返回 at-least-one-report 诊断。 tools/investigation-report/tests/parsing-directory.test.ts > full validation rejects an empty report collection bun test --test-name-pattern=\"^full validation rejects an empty report collection$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -6963,33 +7377,33 @@
         ],
         "id": "INVESTIGATION-EMPTY-COLLECTION-001",
         "line": 1,
-        "searchText": "full validation rejects an empty report collection 完整报告集合至少包含一份正式报告。 空目录返回 at-least-one-report 诊断。 tools/investigation-report/tests/parsing-directory.test.ts > full validation rejects an empty report collection bun test --test-name-pattern=\"^full validation rejects an empty report collection$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "full validation rejects an empty report collection 没有当前派生索引的新建空报告目录不得被视为已建立集合。 新建空目录返回 at-least-one-report 诊断。 tools/investigation-report/tests/parsing-directory.test.ts > full validation rejects an empty report collection bun test --test-name-pattern=\"^full validation rejects an empty report collection$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/full-validation-rejects-an-empty-report-collection.md",
-        "summary": "完整报告集合至少包含一份正式报告。",
+        "summary": "没有当前派生索引的新建空报告目录不得被视为已建立集合。",
         "title": "full validation rejects an empty report collection"
       }
     },
-    "INVESTIGATION-GENERATED-METADATA-001": {
+    "INVESTIGATION-EMPTY-INDEX-SYNC-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-GENERATED-METADATA-001 CLI set-relations parses source groups and reports JSON result 分发 CLI `set-relations` 以完整 source 组接收替换，并输出结构化 JSON 成功结果。 合法 source 与 relation 组成功、stderr 为空，stdout JSON 精确列出变更及 source；对应 Markdown 写入关系。 tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations parses source groups and reports JSON result bun test --test-name-pattern=\"^CLI set-relations parses source groups and reports JSON result$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-EMPTY-INDEX-SYNC-001 sync-index accepts an existing empty index but not a new empty collection 已建立集合删除到空索引后可同步；全新空目录不能由 sync-index 初始化为空集合。 已有空索引同步成功；无索引空目录返回至少一份报告诊断。 tools/investigation-report/tests/discard.test.ts > sync-index accepts an existing empty index but not a new empty collection bun test --test-name-pattern=\"^sync-index accepts an existing empty index but not a new empty collection$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
         ]
       },
       "state": {
-        "endLine": 15,
+        "endLine": 12,
         "entries": [
-          "tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations parses source groups and reports JSON result",
-          "bun test --test-name-pattern=\"^CLI set-relations parses source groups and reports JSON result$\" ./tools/investigation-report/tests/run.ts"
+          "tools/investigation-report/tests/discard.test.ts > sync-index accepts an existing empty index but not a new empty collection",
+          "bun test --test-name-pattern=\"^sync-index accepts an existing empty index but not a new empty collection$\" ./tools/investigation-report/tests/run.ts"
         ],
-        "id": "INVESTIGATION-GENERATED-METADATA-001",
+        "id": "INVESTIGATION-EMPTY-INDEX-SYNC-001",
         "line": 1,
-        "searchText": "CLI set-relations parses source groups and reports JSON result 分发 CLI `set-relations` 以完整 source 组接收替换，并输出结构化 JSON 成功结果。 合法 source 与 relation 组成功、stderr 为空，stdout JSON 精确列出变更及 source；对应 Markdown 写入关系。 tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations parses source groups and reports JSON result bun test --test-name-pattern=\"^CLI set-relations parses source groups and reports JSON result$\" ./tools/investigation-report/tests/run.ts",
-        "sourcePath": "investigation-report/cli-set-relations-parses-source-groups-and-reports-json-result.md",
-        "summary": "分发 CLI `set-relations` 以完整 source 组接收替换，并输出结构化 JSON 成功结果。",
-        "title": "CLI set-relations parses source groups and reports JSON result"
+        "searchText": "sync-index accepts an existing empty index but not a new empty collection 已建立集合删除到空索引后可同步；全新空目录不能由 sync-index 初始化为空集合。 已有空索引同步成功；无索引空目录返回至少一份报告诊断。 tools/investigation-report/tests/discard.test.ts > sync-index accepts an existing empty index but not a new empty collection bun test --test-name-pattern=\"^sync-index accepts an existing empty index but not a new empty collection$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/empty-index-sync-preserves-established-empty-collection.md",
+        "summary": "已建立集合删除到空索引后可同步；全新空目录不能由 sync-index 初始化为空集合。",
+        "title": "sync-index accepts an existing empty index but not a new empty collection"
       }
     },
     "INVESTIGATION-GENERATED-METADATA-002": {
@@ -8462,6 +8876,29 @@
         "sourcePath": "investigation-report/stage-index-reports-unavailable-version-control-without-working-tree-writes.md",
         "summary": "选择性暂存要求可用版本仓库，失败时不改写工作树。",
         "title": "stage-index reports unavailable version control without working-tree writes"
+      }
+    },
+    "INVESTIGATION-SYNC-DISCARD-LOCK-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-SYNC-DISCARD-LOCK-001 sync-index rejects a concurrent rebuild while discard owns the collection `sync-index` 与 `discard` 共用调查集合 mutation lock；锁被 `discard` 持有时，同步必须零写入失败，释放后可从最终集合重试。 在 discard 的 index 提交点暂停时，sync-index 返回可行动的 lock 诊断且 index 保持旧字节；discard 完成后重试成功，最终 index 不再包含已删除的报告 ID。 tools/investigation-report/tests/discard.test.ts > sync-index rejects a concurrent rebuild while discard owns the collection bun test --test-name-pattern=\"^sync-index rejects a concurrent rebuild while discard owns the collection$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/investigation-report/tests/discard.test.ts > sync-index rejects a concurrent rebuild while discard owns the collection",
+          "bun test --test-name-pattern=\"^sync-index rejects a concurrent rebuild while discard owns the collection$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-SYNC-DISCARD-LOCK-001",
+        "line": 1,
+        "searchText": "sync-index rejects a concurrent rebuild while discard owns the collection `sync-index` 与 `discard` 共用调查集合 mutation lock；锁被 `discard` 持有时，同步必须零写入失败，释放后可从最终集合重试。 在 discard 的 index 提交点暂停时，sync-index 返回可行动的 lock 诊断且 index 保持旧字节；discard 完成后重试成功，最终 index 不再包含已删除的报告 ID。 tools/investigation-report/tests/discard.test.ts > sync-index rejects a concurrent rebuild while discard owns the collection bun test --test-name-pattern=\"^sync-index rejects a concurrent rebuild while discard owns the collection$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/sync-index-rejects-concurrent-rebuild-while-discard-owns-collection.md",
+        "summary": "`sync-index` 与 `discard` 共用调查集合 mutation lock；锁被 `discard` 持有时，同步必须零写入失败，释放后可从最终集合重试。",
+        "title": "sync-index rejects a concurrent rebuild while discard owns the collection"
       }
     },
     "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001": {
@@ -14441,7 +14878,7 @@
       "DECISION-CHECK-PARITY-001": "sha256:a2c6a0d773920c1492abb6064a51004b9c7eca20ab9c928278ad28dfc3223388",
       "DECISION-CLI-ACTIVATE-ALIGNMENT-001": "sha256:2b60ad9b6a2a8b5bb19aebde19a7887f42927685db108b29b69b44ecb350af68",
       "DECISION-CLI-ARCHIVE-HELP-001": "sha256:195ae3be4014bc4097234bb838f5bc5ed4bb58660d72175fcee30a42edeb62e0",
-      "DECISION-CLI-ARGS-001": "sha256:a720d4e0d4bc23cc60ef566ca1c97f59103a65569670c6d09adb3a9a2ca06f16",
+      "DECISION-CLI-ARGS-001": "sha256:7ff24ab43ad087d3e547acf9c9a5532b2f39bf3cd047890b7800881f02e8dd0c",
       "DECISION-CLI-DISCARD-RECORDED-FLAG-001": "sha256:350f0c4c5fc50de7af397621c955d41e1a504802d334d8e41023cdce8a03f82e",
       "DECISION-CLI-EVOLVE-HELP-001": "sha256:569d1990171808e0187aeec62808eb78cc68548f3e34d88f38ec4d41109a8970",
       "DECISION-CLI-EVOLVE-RECORDED-FLAG-001": "sha256:a895239ab211475f195ece28e66be2c34f0c6129ef50f5eb3022da5c9755cc1a",
@@ -14556,8 +14993,11 @@
       "DECISION-STATE-SOURCE-PARITY-001": "sha256:17220671efb9427c9b716e717980066bdf4a3bd31a85534c96c9fb2d91094c10",
       "DECISION-STATIC-MERGE-MINIMUM-001": "sha256:e3f935edc0d5c3b47ee6983577907021532e348993cdc16685c091b955b228f6",
       "DECISION-STATIC-SPLIT-PURITY-001": "sha256:1fc3cb9ec0c7f3c0a66e23e7101440051e785a4f32884a83a186dd44bafe13ae",
+      "DECISION-SYNC-INDEX-001": "sha256:bfc0d219f8258b163ae8463e05828919bb57c6595197db57c635b57fc883e1b0",
+      "DECISION-SYNC-INDEX-002": "sha256:25aadb9106f3eafc222aced0f04324dbe0f2012f80bf38ddee98ce46729deffd",
+      "DECISION-SYNC-INDEX-003": "sha256:dda5ee31838ab96da33f44fb5d5e76119dee8d07d242b7fdb25b539a3f13c073",
       "DECISION-TAG-METADATA-001": "sha256:3254f457575ab9cf789a3aeba69142caa7157e456032981afd309dd318c13f0f",
-      "DECISION-TAG-SOURCE-DRIFT-001": "sha256:ac6366e92af6a0c1625f302fb7467e97b788b8746cc4d33a71264725e97e554b",
+      "DECISION-TAG-SOURCE-DRIFT-001": "sha256:c9e8323fdb61a79b135948c56dc0a760fafed6217fb3ad118a7e232e1147ef34",
       "DECISION-TAG-VALIDATION-001": "sha256:5c803b887fc0d762909b59a06ce6b858ddf6e0eae2f1a90d8a70ee519fe21500",
       "DECISION-TAGGED-LAYOUT-CHECK-001": "sha256:0b87254d195004fde9d0547fe68ef5e17f5d6efc42cfeea08aee9bec98f091f8",
       "DECISION-TRACE-DIRECTION-001": "sha256:751c43325ab28ab6712d7d347fabfb698c3e5da4703679da748f2806815cfeec",
@@ -14636,16 +15076,31 @@
       "INDEX-RUNTIME-TEXT-SEARCH-001": "sha256:025c697be00a2550ec330872fffefa04d9ca342e1dd6ee497e1e8310781ec8f1",
       "INVESTIGATION-BUNDLED-PARITY-001": "sha256:c21cea852c6c6fa885666ae53bd0e1d46d282be54d484a332895e58d5f9ab80f",
       "INVESTIGATION-CLI-CONTRACTS-001": "sha256:22ddd1c8f52e0d423159abae81e4b3d79afe9e61ee692ffa1ff405fa76871d30",
+      "INVESTIGATION-CLI-DISCARD-ARGS-001": "sha256:3dff8b6b214db09bb484bfc7a703f534e6ad1f94fe3b2e6f6c9cb568c46a5b4b",
       "INVESTIGATION-CLI-ENUM-001": "sha256:96f85e4a80c0feafd5b891d43139bdd2b5ad1e915e0c5a0e083915a33aad9ba5",
       "INVESTIGATION-CLI-LIST-001": "sha256:a1c4d1f6498a702316d553efc7124cf963c43a8569331b5abc540640dc85d392",
+      "INVESTIGATION-CLI-RELATIONS-001": "sha256:ee335a2caf8f7186596dad9dd01f839afcd96cbb722366432f475bb29a451ee8",
+      "INVESTIGATION-CLI-STAGE-JSON-001": "sha256:f711b6ffa113e9938f641af3f9202e3ae7dd19a281f63ae10700d6700801af94",
       "INVESTIGATION-CLI-SYNC-001": "sha256:0a41d0e32bd592820e7e1f1e126eda485b27c3bcbeb5c996c000d26367b2c163",
       "INVESTIGATION-CLI-USAGE-001": "sha256:77875cc3901f6a08d78a635e2b3ee861cf597f6dd573eefaebf799450c8ddcd4",
       "INVESTIGATION-CLI-WARNINGS-001": "sha256:cdef2b5d4264bf1add614c3c3980beff1a3a2667da43b1216b6186bcc76a6c54",
       "INVESTIGATION-COLLECTION-LAYOUT-001": "sha256:1d73ce585b768cdaf110359fe5253febda7feaf0b5b0fc2a2f49d2c11769768b",
       "INVESTIGATION-COLLECTION-ROOT-001": "sha256:f5d20b2646a9b4f27399a5fc5a022bb5a65e9ab06befc7fdec5d6190beedb372",
       "INVESTIGATION-DIRECTORY-PATH-001": "sha256:c232adeaff4f31869a400176d5e354d6ba24073fa128b52bc9abfd5d757de419",
-      "INVESTIGATION-EMPTY-COLLECTION-001": "sha256:8d021f23fbc7eff9b320d85898235b02d4ffa0856cb3aa99c9bf4cc16fca592c",
-      "INVESTIGATION-GENERATED-METADATA-001": "sha256:82909426d343053b983e0c718e3961115734ae1c2749db4d44ebf2532b1633cf",
+      "INVESTIGATION-DISCARD-CLEANUP-FAILURE-001": "sha256:55de2872c1ae51cb0b40f7872ce5e940ee4222cbbc56761a3041c1e8c17b0e42",
+      "INVESTIGATION-DISCARD-FINAL-001": "sha256:1cd2a20ba186c6a8493291bafd68b89058688bd2e9cf5dcdcac1b0d3948a25a9",
+      "INVESTIGATION-DISCARD-GIT-001": "sha256:478670bd8ad631df55d33492e3c577cb42e7b800d8496abfc73e56f45ca6236a",
+      "INVESTIGATION-DISCARD-GIT-FAILURE-001": "sha256:f97011e662d5b3d09c567055d599c14c359725042e4b3c6382cf5d68515d944d",
+      "INVESTIGATION-DISCARD-PENDING-001": "sha256:f4d960508336c68c558a2244d66b97b0373dd6570d9afd5c9e5732d8242dff31",
+      "INVESTIGATION-DISCARD-REFERENCES-001": "sha256:3a554921e15d13fa6f9b3ad1c878042ea3e5acd8dd6f9a64e4424163e8de4bf1",
+      "INVESTIGATION-DISCARD-RESOURCE-DRIFT-001": "sha256:cad065c073c38d28af785d04c68bf5eeeafe0d46c48beecfe4d1365f35e9b377",
+      "INVESTIGATION-DISCARD-RESOURCE-ID-001": "sha256:49e498f86ef96da63bc9208a813c15fdafac723e66373fe6ca774270900f8332",
+      "INVESTIGATION-DISCARD-RESOURCE-SAFETY-001": "sha256:3f88424294064c7ada1df5f0fae19302c7684537e76326d6213b32a9edd271e0",
+      "INVESTIGATION-DISCARD-RESTORE-001": "sha256:7c6580348467ce262bd7673febc74f0f6a72c12232795cd1bc8a8cdea4845053",
+      "INVESTIGATION-DISCARD-SPLIT-001": "sha256:507f797d445c782363c366c167615e1b1085b3c8c9b81f1e40a4aae4e144c4b3",
+      "INVESTIGATION-DISCARD-TOMBSTONE-WINDOW-001": "sha256:432c88d3d37f5c966227cb247a4772c3b4952080cdf87d4d67881e399bd46bd8",
+      "INVESTIGATION-EMPTY-COLLECTION-001": "sha256:5b994a600317858824056701bfa02ad70a7a57d9984d7fe6c05864d5e36a22c6",
+      "INVESTIGATION-EMPTY-INDEX-SYNC-001": "sha256:641d885af8aee484c81cb7b0f6ea29bd0d7d860e2209768ae80c7ef559d02efc",
       "INVESTIGATION-GENERATED-METADATA-002": "sha256:a05a1110456941165ecb83b81a9af126e05f142543f2cf3db5fe057f29b09e55",
       "INVESTIGATION-INDEX-COMPATIBILITY-001": "sha256:8d2608ee1e08148198d3112e57109415a2b0eedcc4d2e27894059f4a95413dfc",
       "INVESTIGATION-INDEX-INTEGRITY-001": "sha256:30e6abf470564ec7874d9115309741f339a2230e171409c85fc1cbc3fa4d1fcd",
@@ -14710,6 +15165,7 @@
       "INVESTIGATION-STAGE-RESOURCE-DELETE-001": "sha256:64db4707b83b697b85ce4220bb2acb929667447a07079a754800d717ff847cb3",
       "INVESTIGATION-STAGE-RESOURCE-RENAME-001": "sha256:0288febc705e6ceefd3bc4f5a92b8e481e1093d5967796dc536c06a71c98aa64",
       "INVESTIGATION-STAGE-VERSION-CONTROL-001": "sha256:9555e9e4e55d747f55eb3b6653062814f14092477cec780b3a4f46778716546f",
+      "INVESTIGATION-SYNC-DISCARD-LOCK-001": "sha256:a51a3a8e275adea77fd9998a697543254c42fae108327756bde53d90657e339f",
       "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001": "sha256:b972098b86b31893963b01c347b74b36806bf2f3a53f49d64abad277df716cb7",
       "INVESTIGATION-VALIDATION-WARNINGS-001": "sha256:8d743d73e4a9956cbaa7d8b75be05bff83404c8b5d0f4679f76c0bdc343ad075",
       "PROJECT-MARKDOWN-SCOPE-001": "sha256:e0eb629bcb288e6ca9860f915df74f5904830d1569bf43119311855290651540",
