@@ -27,7 +27,7 @@
       "260703-follow-latest-release-for-skill-updater.md": "sha256:80e700efb405e82b3ddac4d040f427165b780d3ca8cd8b278767a6f8df6e68a2",
       "260703-use-per-skill-hash-lock-for-updater.md": "sha256:9bc2df4a86bcebc639a43089e404f87a050b3ae927b7698411c0230e4cc1bde5",
       "260706-gate-temporary-change-plans.md": "sha256:b1b3dd1ff3ae94c17720ec2644ae953f521e3807fc86d6c7c78732e619deb7d1",
-      "260706-move-subagent-guidance-to-dedicated-skill.md": "sha256:02115e394d08a6b1dea2d7849247e575aab4e1750fa3d6023c3e2516c199024f",
+      "260706-move-subagent-guidance-to-dedicated-skill.md": "sha256:627172b1125c9f2c509e0905bce56a95c2b2e034d1fdf75e8352675e621cda07",
       "260710-use-cli-active-index-and-invalidated-archive.md": "sha256:ce8a20dd2ace8cf3a4a3d86d4e9a1bcb2149440caa7b1b046e4aeb41e50dc681",
       "260710-use-explicit-portable-decision-memory.md": "sha256:8249d561c2150fe6066a59892af8fd1c0e84c926dc420bb8b01f7e0b726d9a9f",
       "260711-bound-history-with-direct-relations.md": "sha256:61d01e7cf973d105b015847920ed82acc67c930d6ef0bf7c27e91a041fb9e59d",
@@ -85,7 +85,7 @@
       "anchor-investigation-resources-to-report-owners.md": "sha256:47c62ce99599ceeb0de331d8dac7db4e456372486b729d9d6d9e9af6aab0cc4a",
       "anchor-investigation-resources-to-topic-owners.md": "sha256:e9f5c42681a404043e5e5b5cd057ff7d22f28bca8c3ef2da25751604d6d67852",
       "anchor-semantic-task-results-in-index-history.md": "sha256:469f7a388bc6a01171440a363e2d8fc816ec4cf87b1a68ea2d46367fd5456d77",
-      "anchor-task-results-in-index-history.md": "sha256:57e75b392258052287f944c8e5fda18d1fe5903217a7400e4d0682a881654808",
+      "anchor-task-results-in-index-history.md": "sha256:ff1e16bb314dfd5d0484620422c52e9c36fab4083609bebb9c58ce4a324dcf72",
       "append-self-contained-investigation-reports.md": "sha256:71da162844321dd3036ed0c407deab2abeaf2b83908e85d66c25008e1865f5da",
       "assign-tool-and-automation-source-owners.md": "sha256:f06cafa1d250fdb46ef388821328e4d6d90621fbb729644b27c20b20206e337b",
       "attach-verifiable-resources-to-investigation-reports.md": "sha256:68cb01b442965023497c4abd2e7ced4b3db87c61acee5be61c307abfab41c58d",
@@ -113,7 +113,7 @@
       "coordinate-task-execution-with-transactional-claims.md": "sha256:bc0da13729ca6e05cf3a2c06e929c91fbf3c9f9b091ee31522823eeea05d68c3",
       "default-checks-to-warnings.md": "sha256:00b912f535010cd8ad651db6955673aee76632faf5e362f4ddb5a3497a94ee83",
       "default-to-current-task-changes.md": "sha256:6ad8e4b4d0aaa471f237a27862f81072aeab407303021494d4f9c77d3d610a4c",
-      "defer-openspec-maintenance-during-removal-review.md": "sha256:b9d212510c1b5eb14ea7b19bd81403d63214c172dcda9e8c650173b91a064d62",
+      "defer-openspec-maintenance-during-removal-review.md": "sha256:8ad6ea656e14c275920d64dd949cff5a59b5c83de20cc6810134ccefe11ce221",
       "defer-standard-test-result-blocking.md": "sha256:d9fcfdcbc8ed63eb91abd39c9fd55d6c19a5337a250f31a640f1285657bc9ec9",
       "defer-terminal-correction-until-confirmed-recovery-need.md": "sha256:63789e0369451dd6e487a880dc26b01cf58d29d682ebcad23be2fc2773f7cd49",
       "define-decision-alignment-semantics.md": "sha256:706acc334dbf641e3f3b5864e0c4e8d0d9ad37994d3607f0d2cd44c42fb3021c",
@@ -130,7 +130,7 @@
       "discard-complete-unreferenced-investigation-reports.md": "sha256:f9d1a0f0784bfb990f7d50426881b338d8897d1f124852c6d536a0220f14ace3",
       "discover-skill-behavior-before-lifecycle-implementation.md": "sha256:d0313c4fb1c913a993e547607e73ec03b1801770d0c50eefba03429da1a19995",
       "distinguish-skill-and-distribution-unit-boundaries.md": "sha256:b762b84ec36eb17514d5d3b6e5bc5a5cffc23a09d236fa1fc82eec530adf03cb",
-      "distribute-openspec-as-an-aggregate-unit.md": "sha256:afc4950ecf1dced645b01d01b6321d55cf88f46ed462dada247998c421d0d8d0",
+      "distribute-openspec-as-an-aggregate-unit.md": "sha256:4dcea96005f0dfa9240740c999f43c55f964edc59b5cd585513e671623a1345f",
       "distribute-openspec-skills-independently.md": "sha256:24dee0291559a42f3d4aa1d3ed135b32e98209929a42789774bf629d8e597866",
       "enforce-one-oxlint-quality-baseline.md": "sha256:518ba4390966bba4c089d4f2a141715025d6bce7a1a141ba9ce2bcbb502c8827",
       "establish-decisions-with-atomic-evolution.md": "sha256:3b201bf83453ee0b980b4f897cf9fa8e382b5778acb07363f89fa12f5152f4e0",
@@ -207,7 +207,7 @@
       "query-ledger-with-structured-inspection.md": "sha256:e604fdeb7c0d030a90fdd31ab1742908ad8ab12a837508153585bc7b483938a2",
       "query-projected-decision-metadata.md": "sha256:7729afa238f64c26a6f49ae3b42de4a30acda087a9329b05732d492d0f16de98",
       "read-ledger-contract-on-demand.md": "sha256:8e26e9c1d93b7bbb033742b71f589fd16471e3a649f66fa66cf2132589d26942",
-      "read-skill-package-inputs-from-versioned-pending-snapshot.md": "sha256:3414d165bdb80865baf9fc69ae2bbf0893c963807f1d6768d5234f78ec51b22b",
+      "read-skill-package-inputs-from-versioned-pending-snapshot.md": "sha256:e8efc028f33658372d31143ef735ade1bf9a1ad6a21c254c4b3b40dc1fd32c09",
       "rebuild-index-only-with-current-tools.md": "sha256:fb36edf2c294b8c8b2197688f49eecfe3eb1c561d5fe59ddd1e785fb7117ac53",
       "reclaim-expired-task-leases-through-claim.md": "sha256:e2cb3c3164cd124e149b1d7a3332edd38e1a2d16d89fdc5ff68cee8e6445880a",
       "recover-current-format-tools-and-index.md": "sha256:acf19524030b3a57e9fab1fe589166f57c623d76dd3a28b348573af3764f28d2",
@@ -222,13 +222,13 @@
       "require-canonical-active-change-metadata.md": "sha256:5191e22133c5a5ee37641d2df1447904f281a3afd3a04891674d375d5f47d92d",
       "retain-tasks-by-coordination-value.md": "sha256:41ccbe6f0aad9af8190b6dca4dc84f08cca95515048796029786161eafade7f6",
       "review-verification-implementations-with-explicit-indexed-cases.md": "sha256:f9856cdf8a7a573daa08986e43c291f0d219a61b615537ef626257f25a258018",
-      "route-future-work-by-minimal-carrier.md": "sha256:6ea0d6911e25cb864033dafc8b42a8271ff081b2de14d6d7dfaa909c5659ea4e",
+      "route-future-work-by-minimal-carrier.md": "sha256:2d57595193ae1d7a707803770d9dd7e53ab7610f9f237349e3a2c74d83b633f9",
       "run-packaging-after-prerequisite-checks.md": "sha256:c5113801a620a7f61cbeb8665435ab07843e83ed87285e4551d97c8f3fb942bd",
       "schedule-selected-checks-conservatively.md": "sha256:edf33c11f4427fc05c0440ec9dcf3d0c80ec9b26b50043b47be266bc2d859814",
       "select-check-tasks-by-profile.md": "sha256:9df3417000aef4cba7e608d8222e21c2aeff013a65f2a3f0f5260725a6746b59",
       "select-model-before-reasoning-effort.md": "sha256:9352b8fac265c275d703f6e1c2ba4cef25c67e1ab802c47d0109fae25483999f",
       "select-prerequisite-checks-by-profile.md": "sha256:de2cd24415234161c52692d3b2a5e4fc0ce8dba289cc1aa7b88e0d321171c2e6",
-      "select-task-graph-project-roots.md": "sha256:0fe6d868e125394f68fdda97d8644b91fa8df24d049d08018746f03f8ee022a3",
+      "select-task-graph-project-roots.md": "sha256:f1a23b90ef85d023cc3200ab864c374e19e480ba196a03b5e92a1affb600c9f7",
       "separate-activation-effect-from-head-pending.md": "sha256:598b13ac3bbfb1a756671fff87334f2b521bb33b0aff95ed9187bdf02ad65a0d",
       "separate-agent-contract-from-tool-protocol.md": "sha256:135a1979a6ca529bd434c42aae253c79b6d789329fd8f0f23da71d5f74d53e71",
       "separate-candidates-from-established-decisions.md": "sha256:0e8aa54d5c7b31f4bad06b81b71ca6c61eec085aaf6dfed95e1feea6608de769",
@@ -245,13 +245,13 @@
       "simplify-change-lifecycle-to-draft-plan-and-archive.md": "sha256:c091f7eee2b4685b70ecc2b81fb9754adf929982cef2f2fb170ec472b8efcbc2",
       "split-commits-by-semantic-unit.md": "sha256:02ad6611a9074de1fae3518c8de4f9b0f841c24f724a58810d33a32e59da6294",
       "stage-investigation-index-entries-across-resource-changes.md": "sha256:8ec75c84d4dbc436bd0a4243e6247c2c52138c2c74d0d4bed0fba054aea30b63",
-      "stage-investigation-index-entries-by-report-id.md": "sha256:67835a8f603fce059ea32efed135b8250a629d3fe634be242f1d9f2a0ecfa405",
-      "stage-selected-decisions-by-stable-id.md": "sha256:88aa72024ab6ea63b6654d540f5c4f99a90c61c25bb278cb4932f51075d1757e",
+      "stage-investigation-index-entries-by-report-id.md": "sha256:81ba8e0756319a4948d1c78b234addaa09f885d0559a3ab12e625088a3b5b923",
+      "stage-selected-decisions-by-stable-id.md": "sha256:f6956d2cba8fe73f9152ef86ca8b923bf71af6060d6cb9b916471d794ffa9880",
       "stage-selected-decisions.md": "sha256:6f45e4b54b95399b0200e658013c22ab28cb89bebeb7ac8622abe9fb60315de9",
-      "stage-selected-index-entries-by-id.md": "sha256:b34859d17fc2387dff6da11d00e494dbba05eba51790fa7f648a7b5bbbb37c5c",
+      "stage-selected-index-entries-by-id.md": "sha256:11f8325268912faf5960f4a08ecff9ee5b7491e28c204d6fd9fe4cadf596f1f3",
       "stage-selected-index-entries.md": "sha256:a82dc7991f774aa005d06421dbee0cb26b7d1c383c2cd8a296d7df6e9eb26687",
       "stage-selected-investigation-index-entries.md": "sha256:598ccf5d5383efb4aed3ec40658260c7577c0685add8cf07b611719c7b5f7ae4",
-      "stage-selected-test-evidence-index-entries.md": "sha256:62b56422e4c3e66442a993df83c3444f8e66f97478cf28a582300ed11f46f997",
+      "stage-selected-test-evidence-index-entries.md": "sha256:420603d5eb99a4bad040f2735aab6d45a4f775c834c1649d89e1f09176c34b03",
       "standardize-runner-results-at-producer-boundaries.md": "sha256:489817016644f812585268ad2d2dabea8daf1ec8a6c1d54f99cd4ec0d41fa1f1",
       "support-degraded-decision-maintenance.md": "sha256:60696fc9413a1eb2bf8a64f0a800896066caf4bb14e949a154de49cff2e15d49",
       "support-reorganization-after-real-evidence.md": "sha256:f6bb11296cedfa0a9cba6f2eec8bfcb0f2de56cf5b99b058e6660c3c5becd232",
@@ -982,7 +982,8 @@
     "260706-move-subagent-guidance-to-dedicated-skill.md": {
       "keys": {
         "tag": [
-          "ai-ready-docs"
+          "ai-ready-docs",
+          "subagent-orchestration"
         ],
         "status": [
           "active"
@@ -1001,7 +1002,8 @@
         "background": "`prompt-optimize` 的 `agent-tasks.md` 曾负责 worker、explorer、并行 agent 和子 agent 任务结构。",
         "decision": "删除 `prompt-optimize` 的 `agent-tasks.md`，由 `subagent-orchestration` 唯一承接子代理编排和任务派发。",
         "tags": [
-          "ai-ready-docs"
+          "ai-ready-docs",
+          "subagent-orchestration"
         ],
         "relations": [
           {
@@ -2626,7 +2628,8 @@
     "anchor-task-results-in-index-history.md": {
       "keys": {
         "tag": [
-          "task-graph"
+          "task-graph",
+          "version-control"
         ],
         "status": [
           "active"
@@ -2645,7 +2648,8 @@
         "background": "工作区 mutation 和 pending 快照都不是版本历史，只有包含终态 entry 的提交能够形成稳定仓库锚点。",
         "decision": "首个包含终态 entry 的 task index 提交构成版本锚点；该锚点只证明仓库已记录结果。",
         "tags": [
-          "task-graph"
+          "task-graph",
+          "version-control"
         ],
         "relations": [
           {
@@ -3460,6 +3464,7 @@
     "defer-openspec-maintenance-during-removal-review.md": {
       "keys": {
         "tag": [
+          "openspec",
           "skill-maintainer"
         ],
         "status": [
@@ -3479,6 +3484,7 @@
         "background": "项目正在观察是否整体删除四个 OpenSpec skills；继续修正文案、扩展能力或处理非阻断问题可能增加很快失去价值的维护面。",
         "decision": "观察期内保留现有 OpenSpec skills，但默认延期普通问题和改进；只有明确重新选择维护或出现阻断安全退出的问题时才恢复处理，实际删除仍需独立授权。",
         "tags": [
+          "openspec",
           "skill-maintainer"
         ],
         "relations": []
@@ -3980,6 +3986,7 @@
     "distribute-openspec-as-an-aggregate-unit.md": {
       "keys": {
         "tag": [
+          "openspec",
           "skill-maintainer"
         ],
         "status": [
@@ -3999,6 +4006,7 @@
         "background": "共同分发单元描述成员协作与交付关系，并不要求合并为单个物理包或让全部成员成为强制安装集合。",
         "decision": "四个 OpenSpec skill 共同组成聚合分发单元；每个成员仍有独立制品、版本和 updater，支持按需安装。",
         "tags": [
+          "openspec",
           "skill-maintainer"
         ],
         "relations": [
@@ -6332,7 +6340,8 @@
     "read-skill-package-inputs-from-versioned-pending-snapshot.md": {
       "keys": {
         "tag": [
-          "project-tooling"
+          "project-tooling",
+          "version-control"
         ],
         "status": [
           "active"
@@ -6351,7 +6360,8 @@
         "background": "工作区可能包含未选择改动；打包时临时构建又会让制品输入不同于已审阅的待提交内容。",
         "decision": "Hash 与 pack 共用版本管理 pending 中的 skill 文件快照；pack 不生成或修复输入，只消费已经存在的稳定内容。",
         "tags": [
-          "project-tooling"
+          "project-tooling",
+          "version-control"
         ],
         "relations": [
           {
@@ -6814,7 +6824,11 @@
     "route-future-work-by-minimal-carrier.md": {
       "keys": {
         "tag": [
-          "project-documentation"
+          "change-plan",
+          "decision-records",
+          "investigation-report",
+          "project-documentation",
+          "task-graph"
         ],
         "status": [
           "active"
@@ -6833,7 +6847,11 @@
         "background": "仓库已有四类载体的局部边界，但缺少跨 owner 的选择与退出规则，同一未来事项可能被重复保存为长期等待 task 或活动 draft。",
         "decision": "由仓库导航维护最小载体和单向交接规则；只在独立结果成为当前需要时建立载体，未对齐决策不自动创建 task，失去当前价值的 Change 与 task 按 owner 退出。",
         "tags": [
-          "project-documentation"
+          "change-plan",
+          "decision-records",
+          "investigation-report",
+          "project-documentation",
+          "task-graph"
         ],
         "relations": []
       }
@@ -7001,7 +7019,8 @@
     "select-task-graph-project-roots.md": {
       "keys": {
         "tag": [
-          "project-tooling"
+          "project-tooling",
+          "task-graph"
         ],
         "status": [
           "active"
@@ -7020,7 +7039,8 @@
         "background": "Linked worktree 按自身目录操作会分叉任务索引，持久化绝对 root 会陈旧，而完全禁止显式 root 会阻止合法的多项目操作。",
         "decision": "默认从短命令所在 Git 项目发现主 worktree；唯一显式 root 切换到目标项目自己的 CLI 和 canonical index。",
         "tags": [
-          "project-tooling"
+          "project-tooling",
+          "task-graph"
         ],
         "relations": [
           {
@@ -7527,7 +7547,9 @@
     "stage-investigation-index-entries-by-report-id.md": {
       "keys": {
         "tag": [
-          "investigation-report"
+          "index-runtime",
+          "investigation-report",
+          "version-control"
         ],
         "status": [
           "active"
@@ -7546,7 +7568,9 @@
         "background": "stage-index 只组合派生索引项，不拥有报告 Markdown 或资源文件的暂存责任；新索引以单报告 ID 作为 entry 单位。",
         "decision": "stage-index 只接收并暂存选中 Investigation ID 的索引项；资源变化不触发集合门禁，报告和资源仍由调用方显式选择。",
         "tags": [
-          "investigation-report"
+          "index-runtime",
+          "investigation-report",
+          "version-control"
         ],
         "relations": [
           {
@@ -7559,7 +7583,8 @@
     "stage-selected-decisions-by-stable-id.md": {
       "keys": {
         "tag": [
-          "decision-records"
+          "decision-records",
+          "version-control"
         ],
         "status": [
           "active"
@@ -7578,7 +7603,8 @@
         "background": "当前路径会因分类和归档移动而变化；以路径作为选择单位会把位置变化误判为身份变化，并妨碍选择性暂存保持完整一致的索引。",
         "decision": "stage 以 Decision ID 显式选择 filesystem 变化，以 revision 为基线构造完整目标集合并原子替换 pending 决策范围。",
         "tags": [
-          "decision-records"
+          "decision-records",
+          "version-control"
         ],
         "relations": [
           {
@@ -7618,7 +7644,8 @@
     "stage-selected-index-entries-by-id.md": {
       "keys": {
         "tag": [
-          "index-runtime"
+          "index-runtime",
+          "version-control"
         ],
         "status": [
           "active"
@@ -7637,7 +7664,8 @@
         "background": "单文件索引无法按文件边界隔离不同任务，但 ID 键控条目及其来源指纹可以独立组合。",
         "decision": "索引运行时只接收选中 ID，从 revision 与工作区索引组合完整目标并受控写入 pending。",
         "tags": [
-          "index-runtime"
+          "index-runtime",
+          "version-control"
         ],
         "relations": [
           {
@@ -7704,7 +7732,9 @@
     "stage-selected-test-evidence-index-entries.md": {
       "keys": {
         "tag": [
-          "test-evidence-review"
+          "index-runtime",
+          "test-evidence-review",
+          "version-control"
         ],
         "status": [
           "active"
@@ -7723,7 +7753,9 @@
         "background": "多个 Case 共享一个派生索引；公共运行时已经能按稳定 ID 组合条目，但测试证据领域仍需拥有选择输入和文件边界。",
         "decision": "测试证据入口校验 Case ID 后只把选中 ID 交给索引运行时，topic 表、Case Markdown 和代码均由调用方另行暂存。",
         "tags": [
-          "test-evidence-review"
+          "index-runtime",
+          "test-evidence-review",
+          "version-control"
         ],
         "relations": []
       }

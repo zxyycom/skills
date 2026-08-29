@@ -8,6 +8,7 @@ background: 当前路径会因分类和归档移动而变化；以路径作为�
 decision: stage 以 Decision ID 显式选择 filesystem 变化，以 revision 为基线构造完整目标集合并原子替换 pending 决策范围。
 tags:
   - decision-records
+  - version-control
 relations:
   - type: 修订
     target: stage-selected-decisions.md

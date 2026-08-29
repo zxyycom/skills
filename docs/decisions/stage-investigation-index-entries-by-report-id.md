@@ -7,7 +7,9 @@ purpose: 让按 Investigation ID 选择的派生索引条目可以独立进入 p
 background: stage-index 只组合派生索引项，不拥有报告 Markdown 或资源文件的暂存责任；新索引以单报告 ID 作为 entry 单位。
 decision: stage-index 只接收并暂存选中 Investigation ID 的索引项；资源变化不触发集合门禁，报告和资源仍由调用方显式选择。
 tags:
+  - index-runtime
   - investigation-report
+  - version-control
 relations:
   - type: 修订
     target: stage-investigation-index-entries-across-resource-changes.md

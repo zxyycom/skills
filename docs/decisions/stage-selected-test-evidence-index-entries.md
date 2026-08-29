@@ -7,7 +7,9 @@ purpose: 让并行测试证据维护只暂存选中 Case 对应的索引变化�
 background: 多个 Case 共享一个派生索引；公共运行时已经能按稳定 ID 组合条目，但测试证据领域仍需拥有选择输入和文件边界。
 decision: 测试证据入口校验 Case ID 后只把选中 ID 交给索引运行时，topic 表、Case Markdown 和代码均由调用方另行暂存。
 tags:
+  - index-runtime
   - test-evidence-review
+  - version-control
 relations: []
 ---
 

@@ -7,6 +7,7 @@ purpose: 在 OpenSpec skills 的去留尚未确认时停止继续投入普通改
 background: 项目正在观察是否整体删除四个 OpenSpec skills；继续修正文案、扩展能力或处理非阻断问题可能增加很快失去价值的维护面。
 decision: 观察期内保留现有 OpenSpec skills，但默认延期普通问题和改进；只有明确重新选择维护或出现阻断安全退出的问题时才恢复处理，实际删除仍需独立授权。
 tags:
+  - openspec
   - skill-maintainer
 relations: []
 ---

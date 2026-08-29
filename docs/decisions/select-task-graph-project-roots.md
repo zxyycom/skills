@@ -8,6 +8,7 @@ background: Linked worktree 按自身目录操作会分叉任务索引，持久�
 decision: 默认从短命令所在 Git 项目发现主 worktree；唯一显式 root 切换到目标项目自己的 CLI 和 canonical index。
 tags:
   - project-tooling
+  - task-graph
 relations:
   - type: 拆分
     target: bootstrap-hooks-and-use-project-short-commands.md

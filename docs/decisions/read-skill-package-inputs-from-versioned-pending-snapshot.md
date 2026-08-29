@@ -8,6 +8,7 @@ background: 工作区可能包含未选择改动；打包时临时构建又会�
 decision: Hash 与 pack 共用版本管理 pending 中的 skill 文件快照；pack 不生成或修复输入，只消费已经存在的稳定内容。
 tags:
   - project-tooling
+  - version-control
 relations:
   - type: 修订
     target: package-skills-from-versioned-pending-snapshot.md

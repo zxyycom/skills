@@ -7,7 +7,11 @@ purpose: 让维护者按事项当前需要保存的结果唯一选择 Decision�
 background: 仓库已有四类载体的局部边界，但缺少跨 owner 的选择与退出规则，同一未来事项可能被重复保存为长期等待 task 或活动 draft。
 decision: 由仓库导航维护最小载体和单向交接规则；只在独立结果成为当前需要时建立载体，未对齐决策不自动创建 task，失去当前价值的 Change 与 task 按 owner 退出。
 tags:
+  - change-plan
+  - decision-records
+  - investigation-report
   - project-documentation
+  - task-graph
 relations: []
 ---
 

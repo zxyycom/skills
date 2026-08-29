@@ -7,6 +7,7 @@ purpose: 让四个阶段以一个聚合分发契约协同交付，同时保持�
 background: 共同分发单元描述成员协作与交付关系，并不要求合并为单个物理包或让全部成员成为强制安装集合。
 decision: 四个 OpenSpec skill 共同组成聚合分发单元；每个成员仍有独立制品、版本和 updater，支持按需安装。
 tags:
+  - openspec
   - skill-maintainer
 relations:
   - type: 修订

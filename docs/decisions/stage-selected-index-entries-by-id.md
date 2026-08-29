@@ -8,6 +8,7 @@ background: 单文件索引无法按文件边界隔离不同任务，但 ID 键�
 decision: 索引运行时只接收选中 ID，从 revision 与工作区索引组合完整目标并受控写入 pending。
 tags:
   - index-runtime
+  - version-control
 relations:
   - type: 拆分
     target: stage-selected-index-entries.md
