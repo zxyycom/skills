@@ -8214,7 +8214,7 @@
     "PROJECT-MARKDOWN-SCOPE-001": {
       "keys": {
         "search": [
-          "PROJECT-MARKDOWN-SCOPE-001 主 Markdown 收集排除形成时字节 主仓库链接校验只收集 active 与当前维护 Markdown，不把归档 Change 或 Investigation Report 的形成时资源纳入持续链接义务。 active Change、当前 investigation topic 与根 README 被收集。 archived Change 和 `_resources` 下的 Markdown 被排除。 scripts/check.test.ts > main Markdown collection excludes archived changes and investigation resources bun test --test-name-pattern=\"^main Markdown collection excludes archived changes and investigation resources$\" ./scripts/check.test.ts"
+          "PROJECT-MARKDOWN-SCOPE-001 主 Markdown 收集排除形成时字节 主仓库链接校验只收集 active 与当前维护 Markdown，不把归档 Change 或 Investigation Report 的形成时资源纳入持续链接义务。 active Change、调查根目录中的非资源 Markdown 与根 README 被收集。 archived Change 和 `_resources` 下的 Markdown 被排除。 scripts/check.test.ts > main Markdown collection excludes archived changes and investigation resources bun test --test-name-pattern=\"^main Markdown collection excludes archived changes and investigation resources$\" ./scripts/check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -8228,7 +8228,7 @@
         ],
         "id": "PROJECT-MARKDOWN-SCOPE-001",
         "line": 1,
-        "searchText": "主 Markdown 收集排除形成时字节 主仓库链接校验只收集 active 与当前维护 Markdown，不把归档 Change 或 Investigation Report 的形成时资源纳入持续链接义务。 active Change、当前 investigation topic 与根 README 被收集。 archived Change 和 `_resources` 下的 Markdown 被排除。 scripts/check.test.ts > main Markdown collection excludes archived changes and investigation resources bun test --test-name-pattern=\"^main Markdown collection excludes archived changes and investigation resources$\" ./scripts/check.test.ts",
+        "searchText": "主 Markdown 收集排除形成时字节 主仓库链接校验只收集 active 与当前维护 Markdown，不把归档 Change 或 Investigation Report 的形成时资源纳入持续链接义务。 active Change、调查根目录中的非资源 Markdown 与根 README 被收集。 archived Change 和 `_resources` 下的 Markdown 被排除。 scripts/check.test.ts > main Markdown collection excludes archived changes and investigation resources bun test --test-name-pattern=\"^main Markdown collection excludes archived changes and investigation resources$\" ./scripts/check.test.ts",
         "sourcePath": "repository-tooling/main-markdown-collection-excludes-historical-byte-scopes.md",
         "summary": "主仓库链接校验只收集 active 与当前维护 Markdown，不把归档 Change 或 Investigation Report 的形成时资源纳入持续链接义务。",
         "title": "主 Markdown 收集排除形成时字节"
@@ -14400,7 +14400,7 @@
       "INVESTIGATION-STAGE-VERSION-CONTROL-001": "sha256:9555e9e4e55d747f55eb3b6653062814f14092477cec780b3a4f46778716546f",
       "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001": "sha256:b972098b86b31893963b01c347b74b36806bf2f3a53f49d64abad277df716cb7",
       "INVESTIGATION-VALIDATION-WARNINGS-001": "sha256:8d743d73e4a9956cbaa7d8b75be05bff83404c8b5d0f4679f76c0bdc343ad075",
-      "PROJECT-MARKDOWN-SCOPE-001": "sha256:c81887aeeaff27a4a175363abe07d51f222bfdb46e785dc0c436e790aa82832c",
+      "PROJECT-MARKDOWN-SCOPE-001": "sha256:e0eb629bcb288e6ca9860f915df74f5904830d1569bf43119311855290651540",
       "REPO-FORMAT-SCRIPTS-001": "sha256:2f52e8e3653f91fad9f12010ebaee9b5beec800eb99609bd48b28a284618794d",
       "REPO-LINT-PREFLIGHT-001": "sha256:028ff20768861e327bd9a7a43cd90b6eeaeea2de6490982ebb7ee8269b68b2c4",
       "REPO-OXC-CONFIG-001": "sha256:f704f1d4d178c8c92be699f3614311f94bac169d9afe363c27f0fcff0f989d52",
