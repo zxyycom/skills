@@ -1,6 +1,6 @@
 ---
 title: 用闭合拆分处理过粗决策
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-06T03:35:42Z
 purpose: 让可独立演进的子判断分别维护生命周期和对齐状态，避免过粗记录产生部分对齐。

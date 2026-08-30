@@ -6,7 +6,7 @@
  * Skill source directory: https://github.com/zxyycom/skills/tree/main/skills/decision-records
  * Rebuild: bun run sync:decision-records-cli
  */
-export declare const decisionRelationTypes: readonly ["修订", "替代", "判定无效", "归并", "拆分"];
+export declare const decisionRelationTypes: readonly ["修订", "替代", "判定无效", "归并", "拆分", "重划"];
 export type DecisionRelationType = (typeof decisionRelationTypes)[number];
 export type DecisionTraceDirection = "both" | "predecessors" | "successors";
 export declare const decisionStatuses: readonly ["candidate", "active", "archived"];

@@ -3910,6 +3910,259 @@
         "title": "查询读取持久快照且 Check 检测来源漂移"
       }
     },
+    "DECISION-REALLOCATION-CANDIDATE-001": {
+      "keys": {
+        "search": [
+          "DECISION-REALLOCATION-CANDIDATE-001 候选重划关系保持前瞻性 单个候选可预先声明重划关系，但完整多对多形状只在建立或修订事务及已建立图中校验。 只有一条重划关系的候选通过前瞻检查并仍以 candidate 计数。 tools/decision-records/tests/relation-validation.test.ts > candidate reallocation relations remain prospective until a complete transaction bun test --test-name-pattern=\"^candidate reallocation relations remain prospective until a complete transaction$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/relation-validation.test.ts > candidate reallocation relations remain prospective until a complete transaction",
+          "bun test --test-name-pattern=\"^candidate reallocation relations remain prospective until a complete transaction$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-REALLOCATION-CANDIDATE-001",
+        "line": 1,
+        "searchText": "候选重划关系保持前瞻性 单个候选可预先声明重划关系，但完整多对多形状只在建立或修订事务及已建立图中校验。 只有一条重划关系的候选通过前瞻检查并仍以 candidate 计数。 tools/decision-records/tests/relation-validation.test.ts > candidate reallocation relations remain prospective until a complete transaction bun test --test-name-pattern=\"^candidate reallocation relations remain prospective until a complete transaction$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/candidate-reallocation-relations-remain-prospective-until-a-complete-transaction.md",
+        "summary": "单个候选可预先声明重划关系，但完整多对多形状只在建立或修订事务及已建立图中校验。",
+        "title": "候选重划关系保持前瞻性"
+      }
+    },
+    "DECISION-REALLOCATION-CLOSURE-001": {
+      "keys": {
+        "search": [
+          "DECISION-REALLOCATION-CLOSURE-001 Evolve 要求重划分量的完整后继集合 重划关系的建立或修订必须选择最终连通分量中的全部已建立后继。 已建立第三个连通后继后，仅选择原来的两个后继时，evolve 报告遗漏的 Decision ID。 tools/decision-records/tests/evolution.test.ts > evolve requires every established successor in a reallocation component bun test --test-name-pattern=\"^evolve requires every established successor in a reallocation component$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve requires every established successor in a reallocation component",
+          "bun test --test-name-pattern=\"^evolve requires every established successor in a reallocation component$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-REALLOCATION-CLOSURE-001",
+        "line": 1,
+        "searchText": "Evolve 要求重划分量的完整后继集合 重划关系的建立或修订必须选择最终连通分量中的全部已建立后继。 已建立第三个连通后继后，仅选择原来的两个后继时，evolve 报告遗漏的 Decision ID。 tools/decision-records/tests/evolution.test.ts > evolve requires every established successor in a reallocation component bun test --test-name-pattern=\"^evolve requires every established successor in a reallocation component$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-requires-every-established-successor-in-a-reallocation-component.md",
+        "summary": "重划关系的建立或修订必须选择最终连通分量中的全部已建立后继。",
+        "title": "Evolve 要求重划分量的完整后继集合"
+      }
+    },
+    "DECISION-REALLOCATION-CONNECTIVITY-001": {
+      "keys": {
+        "search": [
+          "DECISION-REALLOCATION-CONNECTIVITY-001 Evolve 拒绝不连通重划图 单次重划的后继—前序二部图必须连通，互不相连的关系属于独立事务。 两条彼此不共享端点的一对一重划边在写入前被拒绝。 tools/decision-records/tests/evolution.test.ts > evolve rejects a disconnected reallocation graph bun test --test-name-pattern=\"^evolve rejects a disconnected reallocation graph$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve rejects a disconnected reallocation graph",
+          "bun test --test-name-pattern=\"^evolve rejects a disconnected reallocation graph$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-REALLOCATION-CONNECTIVITY-001",
+        "line": 1,
+        "searchText": "Evolve 拒绝不连通重划图 单次重划的后继—前序二部图必须连通，互不相连的关系属于独立事务。 两条彼此不共享端点的一对一重划边在写入前被拒绝。 tools/decision-records/tests/evolution.test.ts > evolve rejects a disconnected reallocation graph bun test --test-name-pattern=\"^evolve rejects a disconnected reallocation graph$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-rejects-a-disconnected-reallocation-graph.md",
+        "summary": "单次重划的后继—前序二部图必须连通，互不相连的关系属于独立事务。",
+        "title": "Evolve 拒绝不连通重划图"
+      }
+    },
+    "DECISION-REALLOCATION-GRAPH-001": {
+      "keys": {
+        "search": [
+          "DECISION-REALLOCATION-GRAPH-001 重划分量保留角色并隔离断连图 重划关系图必须以直接前序和直接后继的二部角色计算连通分量，且断连事件不得合并。 共享一个前序的稀疏后继归入同一分量，并保留各自的前序与后继角色集合。 没有共享关系路径的重划边形成独立分量。 tools/decision-records/tests/relation-validation.test.ts > reallocation components preserve relation roles and isolate disconnected graphs bun test --test-name-pattern=\"^reallocation components preserve relation roles and isolate disconnected graphs$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/relation-validation.test.ts > reallocation components preserve relation roles and isolate disconnected graphs",
+          "bun test --test-name-pattern=\"^reallocation components preserve relation roles and isolate disconnected graphs$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-REALLOCATION-GRAPH-001",
+        "line": 1,
+        "searchText": "重划分量保留角色并隔离断连图 重划关系图必须以直接前序和直接后继的二部角色计算连通分量，且断连事件不得合并。 共享一个前序的稀疏后继归入同一分量，并保留各自的前序与后继角色集合。 没有共享关系路径的重划边形成独立分量。 tools/decision-records/tests/relation-validation.test.ts > reallocation components preserve relation roles and isolate disconnected graphs bun test --test-name-pattern=\"^reallocation components preserve relation roles and isolate disconnected graphs$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/reallocation-components-preserve-relation-roles-and-isolate-disconnected-graphs.md",
+        "summary": "重划关系图必须以直接前序和直接后继的二部角色计算连通分量，且断连事件不得合并。",
+        "title": "重划分量保留角色并隔离断连图"
+      }
+    },
+    "DECISION-REALLOCATION-HISTORY-BOUNDARY-001": {
+      "keys": {
+        "search": [
+          "DECISION-REALLOCATION-HISTORY-BOUNDARY-001 Evolve 区分先后重划事件 后续重划已归档的早先后继时，闭合计算必须区分同一 Decision ID 在早先事件中的后继角色和后来事件中的前序角色。 新的两个后继可以围绕旧后继和另一前序建立完整连通分量，不会被要求同时选择早先事件的其他后继。 合并后的已建立关系图通过严格检查。 tools/decision-records/tests/evolution.test.ts > evolve keeps a later reallocation separate from its archived predecessor event bun test --test-name-pattern=\"^evolve keeps a later reallocation separate from its archived predecessor event$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve keeps a later reallocation separate from its archived predecessor event",
+          "bun test --test-name-pattern=\"^evolve keeps a later reallocation separate from its archived predecessor event$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-REALLOCATION-HISTORY-BOUNDARY-001",
+        "line": 1,
+        "searchText": "Evolve 区分先后重划事件 后续重划已归档的早先后继时，闭合计算必须区分同一 Decision ID 在早先事件中的后继角色和后来事件中的前序角色。 新的两个后继可以围绕旧后继和另一前序建立完整连通分量，不会被要求同时选择早先事件的其他后继。 合并后的已建立关系图通过严格检查。 tools/decision-records/tests/evolution.test.ts > evolve keeps a later reallocation separate from its archived predecessor event bun test --test-name-pattern=\"^evolve keeps a later reallocation separate from its archived predecessor event$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-keeps-a-later-reallocation-separate-from-its-archived-predecessor-event.md",
+        "summary": "后续重划已归档的早先后继时，闭合计算必须区分同一 Decision ID 在早先事件中的后继角色和后来事件中的前序角色。",
+        "title": "Evolve 区分先后重划事件"
+      }
+    },
+    "DECISION-REALLOCATION-PREDECESSOR-MINIMUM-001": {
+      "keys": {
+        "search": [
+          "DECISION-REALLOCATION-PREDECESSOR-MINIMUM-001 Evolve 拒绝单前序重划 `重划` 必须承接至少两个不同的直接前序。 两个后继都只指向同一个前序时，evolve 报告前序数量不足。 tools/decision-records/tests/evolution.test.ts > evolve rejects a one-predecessor reallocation bun test --test-name-pattern=\"^evolve rejects a one-predecessor reallocation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve rejects a one-predecessor reallocation",
+          "bun test --test-name-pattern=\"^evolve rejects a one-predecessor reallocation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-REALLOCATION-PREDECESSOR-MINIMUM-001",
+        "line": 1,
+        "searchText": "Evolve 拒绝单前序重划 `重划` 必须承接至少两个不同的直接前序。 两个后继都只指向同一个前序时，evolve 报告前序数量不足。 tools/decision-records/tests/evolution.test.ts > evolve rejects a one-predecessor reallocation bun test --test-name-pattern=\"^evolve rejects a one-predecessor reallocation$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-rejects-a-one-predecessor-reallocation.md",
+        "summary": "`重划` 必须承接至少两个不同的直接前序。",
+        "title": "Evolve 拒绝单前序重划"
+      }
+    },
+    "DECISION-REALLOCATION-PURITY-001": {
+      "keys": {
+        "search": [
+          "DECISION-REALLOCATION-PURITY-001 Evolve 拒绝混合重划关系 重划事务的每个后继都必须有重划关系，且不得混用其他关系类型。 一个后继同时保存重划与修订关系时，evolve 在写入前拒绝该选择。 tools/decision-records/tests/evolution.test.ts > evolve rejects mixed reallocation and other successor relations bun test --test-name-pattern=\"^evolve rejects mixed reallocation and other successor relations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve rejects mixed reallocation and other successor relations",
+          "bun test --test-name-pattern=\"^evolve rejects mixed reallocation and other successor relations$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-REALLOCATION-PURITY-001",
+        "line": 1,
+        "searchText": "Evolve 拒绝混合重划关系 重划事务的每个后继都必须有重划关系，且不得混用其他关系类型。 一个后继同时保存重划与修订关系时，evolve 在写入前拒绝该选择。 tools/decision-records/tests/evolution.test.ts > evolve rejects mixed reallocation and other successor relations bun test --test-name-pattern=\"^evolve rejects mixed reallocation and other successor relations$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-rejects-mixed-reallocation-and-other-successor-relations.md",
+        "summary": "重划事务的每个后继都必须有重划关系，且不得混用其他关系类型。",
+        "title": "Evolve 拒绝混合重划关系"
+      }
+    },
+    "DECISION-REALLOCATION-ROLE-BOUNDARY-001": {
+      "keys": {
+        "search": [
+          "DECISION-REALLOCATION-ROLE-BOUNDARY-001 Evolve 拒绝重划角色重叠 单次重划不得把同一个 Decision ID 同时作为所选后继和直接前序，避免把两代关系折叠进一个事件。 选择一个既有重划后继，同时让新候选指向它时，evolve 在写入前报告角色重叠。 tools/decision-records/tests/evolution.test.ts > evolve rejects a reallocation that overlaps successor and predecessor roles bun test --test-name-pattern=\"^evolve rejects a reallocation that overlaps successor and predecessor roles$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve rejects a reallocation that overlaps successor and predecessor roles",
+          "bun test --test-name-pattern=\"^evolve rejects a reallocation that overlaps successor and predecessor roles$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-REALLOCATION-ROLE-BOUNDARY-001",
+        "line": 1,
+        "searchText": "Evolve 拒绝重划角色重叠 单次重划不得把同一个 Decision ID 同时作为所选后继和直接前序，避免把两代关系折叠进一个事件。 选择一个既有重划后继，同时让新候选指向它时，evolve 在写入前报告角色重叠。 tools/decision-records/tests/evolution.test.ts > evolve rejects a reallocation that overlaps successor and predecessor roles bun test --test-name-pattern=\"^evolve rejects a reallocation that overlaps successor and predecessor roles$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-rejects-a-reallocation-that-overlaps-successor-and-predecessor-roles.md",
+        "summary": "单次重划不得把同一个 Decision ID 同时作为所选后继和直接前序，避免把两代关系折叠进一个事件。",
+        "title": "Evolve 拒绝重划角色重叠"
+      }
+    },
+    "DECISION-REALLOCATION-STATIC-MINIMUM-001": {
+      "keys": {
+        "search": [
+          "DECISION-REALLOCATION-STATIC-MINIMUM-001 严格关系检查拒绝规模不足的重划分量 已建立关系图中的每个重划分量都至少有两个直接前序和两个直接后继。 单条已建立重划边使严格检查报告后继数量不足。 tools/decision-records/tests/relation-validation.test.ts > strict relation checks reject undersized reallocation components bun test --test-name-pattern=\"^strict relation checks reject undersized reallocation components$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/relation-validation.test.ts > strict relation checks reject undersized reallocation components",
+          "bun test --test-name-pattern=\"^strict relation checks reject undersized reallocation components$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-REALLOCATION-STATIC-MINIMUM-001",
+        "line": 1,
+        "searchText": "严格关系检查拒绝规模不足的重划分量 已建立关系图中的每个重划分量都至少有两个直接前序和两个直接后继。 单条已建立重划边使严格检查报告后继数量不足。 tools/decision-records/tests/relation-validation.test.ts > strict relation checks reject undersized reallocation components bun test --test-name-pattern=\"^strict relation checks reject undersized reallocation components$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/strict-relation-checks-reject-undersized-reallocation-components.md",
+        "summary": "已建立关系图中的每个重划分量都至少有两个直接前序和两个直接后继。",
+        "title": "严格关系检查拒绝规模不足的重划分量"
+      }
+    },
+    "DECISION-REALLOCATION-SUCCESSOR-MINIMUM-001": {
+      "keys": {
+        "search": [
+          "DECISION-REALLOCATION-SUCCESSOR-MINIMUM-001 Evolve 拒绝单后继重划 `重划` 是闭合的多前序多后继策略，不能以一个后继建立。 只选择一个具有两个重划前序的候选时，evolve 报告至少需要两个显式 successor。 tools/decision-records/tests/evolution.test.ts > evolve rejects a one-successor reallocation bun test --test-name-pattern=\"^evolve rejects a one-successor reallocation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve rejects a one-successor reallocation",
+          "bun test --test-name-pattern=\"^evolve rejects a one-successor reallocation$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-REALLOCATION-SUCCESSOR-MINIMUM-001",
+        "line": 1,
+        "searchText": "Evolve 拒绝单后继重划 `重划` 是闭合的多前序多后继策略，不能以一个后继建立。 只选择一个具有两个重划前序的候选时，evolve 报告至少需要两个显式 successor。 tools/decision-records/tests/evolution.test.ts > evolve rejects a one-successor reallocation bun test --test-name-pattern=\"^evolve rejects a one-successor reallocation$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-rejects-a-one-successor-reallocation.md",
+        "summary": "`重划` 是闭合的多前序多后继策略，不能以一个后继建立。",
+        "title": "Evolve 拒绝单后继重划"
+      }
+    },
+    "DECISION-REALLOCATION-TRANSACTION-001": {
+      "keys": {
+        "search": [
+          "DECISION-REALLOCATION-TRANSACTION-001 Evolve 建立闭合稀疏重划并独立对齐后继 `evolve` 必须用候选各自声明的连通稀疏重划关系，同时归档多个活动前序，并分别建立和确认全部后继。 一个后继承接两个前序、另一个只承接其中一个前序时，两个前序都归档且关系保持稀疏。 两个后继分别保存 aligned 与 unaligned，最终严格关系检查通过。 tools/decision-records/tests/evolution.test.ts > evolve performs a closed sparse reallocation with independently aligned successors bun test --test-name-pattern=\"^evolve performs a closed sparse reallocation with independently aligned successors$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "topic": [
+          "decision-records"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "tools/decision-records/tests/evolution.test.ts > evolve performs a closed sparse reallocation with independently aligned successors",
+          "bun test --test-name-pattern=\"^evolve performs a closed sparse reallocation with independently aligned successors$\" ./tools/decision-records/tests/run.ts"
+        ],
+        "id": "DECISION-REALLOCATION-TRANSACTION-001",
+        "line": 1,
+        "searchText": "Evolve 建立闭合稀疏重划并独立对齐后继 `evolve` 必须用候选各自声明的连通稀疏重划关系，同时归档多个活动前序，并分别建立和确认全部后继。 一个后继承接两个前序、另一个只承接其中一个前序时，两个前序都归档且关系保持稀疏。 两个后继分别保存 aligned 与 unaligned，最终严格关系检查通过。 tools/decision-records/tests/evolution.test.ts > evolve performs a closed sparse reallocation with independently aligned successors bun test --test-name-pattern=\"^evolve performs a closed sparse reallocation with independently aligned successors$\" ./tools/decision-records/tests/run.ts",
+        "sourcePath": "decision-records/evolve-performs-a-closed-sparse-reallocation-with-independently-aligned-successors.md",
+        "summary": "`evolve` 必须用候选各自声明的连通稀疏重划关系，同时归档多个活动前序，并分别建立和确认全部后继。",
+        "title": "Evolve 建立闭合稀疏重划并独立对齐后继"
+      }
+    },
     "DECISION-RECORD-GUARD-IDENTITY-001": {
       "keys": {
         "search": [
@@ -14949,6 +15202,17 @@
       "DECISION-MERGE-MINIMUM-001": "sha256:9d9808672a6bb7bbfec041dbe3bac03f8b91c6212b4b222e5726e1d14c2338b9",
       "DECISION-METADATA-REMOVED-001": "sha256:acf1d41ba428423573e46332b0b03bcc68c1ad1112445b11d43d9dacae2b591d",
       "DECISION-QUERY-INDEX-MEMBERSHIP-001": "sha256:9be8324d65bc1f3f24199487d7f338d0e126a3388fd49469ef8d71b935bf23cf",
+      "DECISION-REALLOCATION-CANDIDATE-001": "sha256:c883ddef5c266f1971d57c3d9415ccd44e63f716aa5021e8cbf09d63dfb69521",
+      "DECISION-REALLOCATION-CLOSURE-001": "sha256:618838d15e81eb85480b34a4517c4f5c44636ed247b400bcb6bd9d629bc8f616",
+      "DECISION-REALLOCATION-CONNECTIVITY-001": "sha256:0e18c14319a8f099479395df49e784050f43247061b00a0fdb466b7d528e01f6",
+      "DECISION-REALLOCATION-GRAPH-001": "sha256:bb6fbff793c281c3199e109849283faf9b9580032e8ba0811ec19cc34600fabb",
+      "DECISION-REALLOCATION-HISTORY-BOUNDARY-001": "sha256:d017dd4ece1885bc156a06289e67ac8c6838458da0f6226d37007ba2b47d0dac",
+      "DECISION-REALLOCATION-PREDECESSOR-MINIMUM-001": "sha256:90c6d2a94ae4a2641cc37454877720d0efd8214e8b730c3def350decbc088a73",
+      "DECISION-REALLOCATION-PURITY-001": "sha256:f2505635947db5d74cd69f66ec50535a5a89af84b858f9e58459ad1470ff79db",
+      "DECISION-REALLOCATION-ROLE-BOUNDARY-001": "sha256:4db775db707ee55f14ce274f4f4b45af6b12d02c0566104e3675bf40eee25c2b",
+      "DECISION-REALLOCATION-STATIC-MINIMUM-001": "sha256:c4e842364279c35a5a3163152394fe0089963a7df13171af653aa69bac9edfb8",
+      "DECISION-REALLOCATION-SUCCESSOR-MINIMUM-001": "sha256:77735b71d23b12ca591053ffdc9834856f6678b055a1e6c5b83a673673aeb826",
+      "DECISION-REALLOCATION-TRANSACTION-001": "sha256:46cc71abded28ef789d6c3e0f031db6fb31c6b863bfc3e278b13d11a778dd375",
       "DECISION-RECORD-GUARD-IDENTITY-001": "sha256:c456fb7f6e3c6c6f4d64bdcb14bdd77ee338aff8cd1e0ffb783a78ca1c181175",
       "DECISION-RELATION-GRAPH-CYCLE-001": "sha256:94fe79d8d3f1e27fbb6a09140004bddc4b74d2f184f39f428dacb7169ae58d6d",
       "DECISION-RELATION-GRAPH-DUPLICATE-001": "sha256:846f0c6032c2d9586f38552b52109a841c4d64f9db4fed0f09cfbff664398d9e",

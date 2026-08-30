@@ -5,7 +5,8 @@ export const decisionRelationTypes = [
   "替代",
   "判定无效",
   "归并",
-  "拆分"
+  "拆分",
+  "重划"
 ] as const;
 
 export type DecisionRelationType = (typeof decisionRelationTypes)[number];

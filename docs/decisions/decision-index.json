@@ -223,7 +223,7 @@
       "render-check-step-results-concisely.md": "sha256:71dfbff08891e303e1237e107d278cd73ef23cd815fdd6ad6589174916b18294",
       "render-full-task-list-as-layered-dag.md": "sha256:a3e91c6ebaef94a2b90acd0973f5ee631e036e64d51f1e0e8df1dc29f25680d7",
       "repair-only-delivery-blocking-review-findings.md": "sha256:bdad36f3cfb2443fbd7ee68f1bc50577ff86e444a9f321456e411a1467ee9e08",
-      "replace-decision-relations-as-complete-sets.md": "sha256:6149be83c4c588a8eec8e1a22953fff0afdc800ac832b7736af3bd7d7e8e5a31",
+      "replace-decision-relations-as-complete-sets.md": "sha256:713eabdd24be2dd3c36b68e1c242e426b4bf4261b069dba2ebcafdbf577e9630",
       "report-check-results-concisely.md": "sha256:7c2a2dcc8ca6af08f913a76f6d67ade58b12fdbfd1464002385517c2c7865371",
       "report-plan-git-distance-as-context.md": "sha256:4f4f15d27bfbc2cdfe4df6eb5f86447ac02de4202f24c1fb62694a410570b6c4",
       "require-canonical-active-change-metadata.md": "sha256:5191e22133c5a5ee37641d2df1447904f281a3afd3a04891674d375d5f47d92d",
@@ -260,19 +260,21 @@
       "stage-selected-investigation-index-entries.md": "sha256:598ccf5d5383efb4aed3ec40658260c7577c0685add8cf07b611719c7b5f7ae4",
       "stage-selected-test-evidence-index-entries.md": "sha256:420603d5eb99a4bad040f2735aab6d45a4f775c834c1649d89e1f09176c34b03",
       "standardize-runner-results-at-producer-boundaries.md": "sha256:489817016644f812585268ad2d2dabea8daf1ec8a6c1d54f99cd4ec0d41fa1f1",
+      "support-closed-reallocation-of-decision-owners.md": "sha256:31748afe556a3d7964ba22de01eb0b46e6a21fb7d26d51b2929b974ad4b9854f",
       "support-degraded-decision-maintenance.md": "sha256:60696fc9413a1eb2bf8a64f0a800896066caf4bb14e949a154de49cff2e15d49",
       "support-reorganization-after-real-evidence.md": "sha256:f6bb11296cedfa0a9cba6f2eec8bfcb0f2de56cf5b99b058e6660c3c5becd232",
       "track-decision-execution-state.md": "sha256:ed695777cca33250afb2c64fb8aaf1188f9fa97508c3766a273e93f9bc76b45e",
       "track-per-id-source-revisions.md": "sha256:5249ec2547514bfe4205fac5e32d68ccb0c326888954b297cb9aaabc99f16f2f",
       "treat-unaligned-as-future-direction.md": "sha256:73ffd3ed840001926f87e04683bba0197a31b40524a7a3965aed3ce69543bf15",
-      "unify-closed-decision-relation-evolution.md": "sha256:8c91ac18e72ebd04cec2f97c41bf736d15592b4120f679caa745e96e83cdd802",
+      "unify-closed-decision-relation-evolution.md": "sha256:439875d2b32d1f2cced907c92256d4af189c228231f33bc8a6f989f227377f8d",
       "upgrade-decision-domains-after-real-pressure.md": "sha256:520d82f2b959eb9452dced4672ef2e6185729860b474c7a51ff2cea3f5dd3a00",
       "use-ai-ready-docs-identity.md": "sha256:653193c966fd867c94565f65d50fc66e721aedb88d44803fdbab593d4371b5b3",
       "use-alignment-aware-decision-commands.md": "sha256:749b875f431f33d749128d447dcdf1ffed6e12d0978d63bf3238c782a328d5f8",
       "use-ascii-for-simple-relations-and-mindmaps-for-complex-structures.md": "sha256:a71d19bb65cf24d12d28942f1d4bc00b6b94f88b5b9cdd4876e4b1b73e7ce0d9",
       "use-authoritative-json-index-for-short-lived-tasks.md": "sha256:462de780471fe690454b331fe1d646cc2ca56170ee86a9b3084231ce8b74d8b5",
       "use-authoritative-json-index-for-task-coordination.md": "sha256:7551bbb86e466d896c66c988a79ab81f16de9ef36d070de09fbd8605d0c6ec19",
-      "use-closed-splits-for-coarse-decisions.md": "sha256:adb2041cb046a808431ffdbf932512ab425eb51ecbb2b6335380d1bb2918be7a",
+      "use-closed-splits-for-coarse-decisions.md": "sha256:1094e0eb188baaf5157cb19f7daa16efb5bc1a9b0406ae0c0252baf4f65caaa3",
+      "use-closed-splits-for-single-predecessor-decisions.md": "sha256:5a17826188e5833f9b2d860da3c2af4ef53f633bf02ce67a59580a0e3bca8011",
       "use-configurable-self-contained-decision-root.md": "sha256:d19c3c1b3b6e509b5cf4723c18efbc50190d1a4c1cb275419d1a604167e66b68",
       "use-conservative-atomic-write-outcomes.md": "sha256:bf9a0a658b7885488207644ea054b749002e76032162587978706b1131a8d6f2",
       "use-conservative-task-index-write-outcomes.md": "sha256:5dbdacd216bd1a76987b90f6bbb51489c8fd679150773e857bf01ed5d03c13f1",
@@ -310,6 +312,7 @@
       "use-stable-decision-id-for-relations-and-lifecycle.md": "sha256:8b9c8d0c941eae7be7d6186c28ec89f0fee5b8cf7477763db486c33c4d137d54",
       "use-stable-decision-ids-tags-and-location-index.md": "sha256:1df2762616130700cafd5b199ed6e7764ba9a740ab86dd78acf17612ceafe8ef",
       "use-stable-id-keyed-index-identity.md": "sha256:7cc8f64794676a6cbe44fb2c9d3d47e92fcc2bccdb1bcf21facda696aff71ca5",
+      "use-strategy-driven-closed-decision-relation-evolution.md": "sha256:cceb213691d587db6ac6711ea1a45cda581585e73747c351ddf455bfc9e028e7",
       "use-topic-filtered-decision-queries.md": "sha256:a8aea73a0b5d6292f61db9001eb849459b6e454bb6683438083149556928e298",
       "use-typed-collection-metadata.md": "sha256:a0e261ea16fca33ef949f83b289b5c323f02ab7501cc55bb7732bf7b3974c801",
       "use-versioned-overlay-skill-updates.md": "sha256:45c50941a04dc9aff4f2e305ec83fd14cb12d3df86e554cd23f6c4974d35f192",
@@ -8032,6 +8035,38 @@
         ]
       }
     },
+    "support-closed-reallocation-of-decision-owners.md": {
+      "keys": {
+        "tag": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "support-closed-reallocation-of-decision-owners.md",
+        "title": "用闭合重划重建决策 owner 边界",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-30T04:10:13Z",
+        "purpose": "让重叠的粗粒度决策按新的 owner 边界重建为可独立维护的多个后继。",
+        "background": "重叠的多个直接前序需要按新 owner 边界重建，且不能准确分解为独立的单前序拆分或单后继归并。",
+        "decision": "在统一 evolve 事务中采用连通且闭合的稀疏重划策略，由候选分别声明关系并独立确认 alignment。",
+        "tags": [
+          "decision-records"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "evaluate-reorganization-from-task-graph-case.md"
+          }
+        ]
+      }
+    },
     "support-degraded-decision-maintenance.md": {
       "keys": {
         "tag": [
@@ -8190,16 +8225,16 @@
           "decision-records"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "unify-closed-decision-relation-evolution.md",
+        "sourcePath": "archive/unify-closed-decision-relation-evolution.md",
         "title": "用 evolve 统一闭合决策关系事务",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-06T11:12:10Z",
         "purpose": "让所有关系类型共享一个按完整后继集合执行的可恢复事务入口。",
@@ -8396,16 +8431,16 @@
           "decision-records"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "use-closed-splits-for-coarse-decisions.md",
+        "sourcePath": "archive/use-closed-splits-for-coarse-decisions.md",
         "title": "用闭合拆分处理过粗决策",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-06T03:35:42Z",
         "purpose": "让可独立演进的子判断分别维护生命周期和对齐状态，避免过粗记录产生部分对齐。",
@@ -8415,6 +8450,38 @@
           "decision-records"
         ],
         "relations": []
+      }
+    },
+    "use-closed-splits-for-single-predecessor-decisions.md": {
+      "keys": {
+        "tag": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-closed-splits-for-single-predecessor-decisions.md",
+        "title": "用闭合拆分处理单前序过粗决策",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-30T04:18:54Z",
+        "purpose": "让一个过粗决策的可独立子判断分别维护生命周期和 alignment，避免部分对齐。",
+        "background": "alignment 只适用于完整决策；单一直接前序的不同部分分别落地时，粗记录既无法整体对齐也无法独立修订。",
+        "decision": "对单前序粗决策采用闭合一对多拆分，同时建立全部自包含后继并分别确认 alignment。",
+        "tags": [
+          "decision-records"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "use-closed-splits-for-coarse-decisions.md"
+          }
+        ]
       }
     },
     "use-configurable-self-contained-decision-root.md": {
@@ -9542,6 +9609,38 @@
           {
             "type": "拆分",
             "target": "use-id-keyed-state-index.md"
+          }
+        ]
+      }
+    },
+    "use-strategy-driven-closed-decision-relation-evolution.md": {
+      "keys": {
+        "tag": [
+          "decision-records"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-strategy-driven-closed-decision-relation-evolution.md",
+        "title": "用策略驱动的闭合事务演进决策关系",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-30T04:18:53Z",
+        "purpose": "让所有决策关系策略共享一个按完整后继集合执行的可恢复 evolve 事务。",
+        "background": "独立关系命令和单后继入口会绕过多后继拓扑闭合，新增关系类型应扩展策略而非命令面。",
+        "decision": "evolve 统一预演和执行关系事务，拆分与重划仅以各自的形状和闭合不变量接入。",
+        "tags": [
+          "decision-records"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "unify-closed-decision-relation-evolution.md"
           }
         ]
       }

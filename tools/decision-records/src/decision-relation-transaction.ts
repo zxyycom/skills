@@ -17,8 +17,11 @@ import {
 import { prepareArchivedDecisionChange } from "./decision-lifecycle-change.ts";
 import { serializeDecisionFrontmatter } from "./decision-metadata.ts";
 import {
+  collectDecisionRelationEdges,
+  decisionReallocationComponents,
   decisionRelationConsistencyIssues,
-  type DecisionRelationConsistencyRecord
+  type DecisionRelationConsistencyRecord,
+  type DecisionRelationEdge
 } from "./relation-graph.ts";
 import type { DecisionFileChange } from "./decision-transaction.ts";
 import {
@@ -128,7 +131,8 @@ export function prepareDecisionRelationTransaction(
     return decisionFailure(discardReferenceErrors);
   }
   const previewRecords = projectDecisionRelationGraph(scan, graphPlan);
-  const strategyErrors = relationStrategyShapeErrors(graphPlan.successors);
+  const strategy = relationStrategyFor(graphPlan.successors);
+  const strategyErrors = strategy.shapeErrors(graphPlan.successors);
   if (strategyErrors.length > 0) {
     return decisionFailure(strategyErrors);
   }
@@ -136,12 +140,12 @@ export function prepareDecisionRelationTransaction(
   if (previewIssues.length > 0) {
     return decisionFailure(previewIssues.map((issue) => issue.message));
   }
-  const splitClosureErrors = splitSuccessorClosureErrors(
+  const closureErrors = strategy.closureErrors(
     graphPlan.successors,
     previewRecords
   );
-  if (splitClosureErrors.length > 0) {
-    return decisionFailure(splitClosureErrors);
+  if (closureErrors.length > 0) {
+    return decisionFailure(closureErrors);
   }
 
   const unrecordedAttention = prepareUnrecordedHistoryAttention(
@@ -305,32 +309,68 @@ function prepareSuccessors(
   return { establishedAt, records, status: "ok" };
 }
 
-function relationStrategyShapeErrors(
-  successors: readonly PreparedSuccessor[]
-): string[] {
-  if (successors.length === 0) {
-    return [];
-  }
-  const hasSplit = successors.some((successor) =>
-    successor.finalRelations.some((relation) => relation.type === "拆分")
-  );
-  if (!hasSplit) {
+type RelationStrategy = {
+  closureErrors: (
+    successors: readonly PreparedSuccessor[],
+    previewRecords: readonly DecisionRelationConsistencyRecord[]
+  ) => string[];
+  shapeErrors: (successors: readonly PreparedSuccessor[]) => string[];
+};
+
+const singleSuccessorStrategy: RelationStrategy = {
+  closureErrors: () => [],
+  shapeErrors: (successors) => {
+    if (successors.length === 0) {
+      return [];
+    }
     if (successors.length !== 1) {
       return [
-        "Multiple successors are supported only by the closed 拆分 strategy."
+        "Multiple successors are supported only by the closed 拆分 strategy " +
+          "or the closed 重划 strategy."
       ];
     }
     const relations = successors[0]?.finalRelations ?? [];
-    if (
-      relations.length > 0 &&
+    return relations.length > 0 &&
       relations.every((relation) => relation.type === "归并") &&
       relations.length < 2
-    ) {
-      return ["A pure 归并 relation set requires at least two predecessors."];
-    }
-    return [];
+      ? ["A pure 归并 relation set requires at least two predecessors."]
+      : [];
   }
+};
 
+const splitStrategy: RelationStrategy = {
+  closureErrors: splitSuccessorClosureErrors,
+  shapeErrors: splitStrategyShapeErrors
+};
+
+const reallocationStrategy: RelationStrategy = {
+  closureErrors: reallocationSuccessorClosureErrors,
+  shapeErrors: reallocationStrategyShapeErrors
+};
+
+function relationStrategyFor(
+  successors: readonly PreparedSuccessor[]
+): RelationStrategy {
+  if (
+    successors.some((successor) =>
+      successor.finalRelations.some((relation) => relation.type === "拆分")
+    )
+  ) {
+    return splitStrategy;
+  }
+  if (
+    successors.some((successor) =>
+      successor.finalRelations.some((relation) => relation.type === "重划")
+    )
+  ) {
+    return reallocationStrategy;
+  }
+  return singleSuccessorStrategy;
+}
+
+function splitStrategyShapeErrors(
+  successors: readonly PreparedSuccessor[]
+): string[] {
   if (successors.length < 2) {
     return [
       "The 拆分 strategy requires at least two explicitly selected successors."
@@ -400,6 +440,106 @@ function splitSuccessorClosureErrors(
             ? ""
             : " Missing from final graph: " + absent.join(", ") + ".")
       ];
+}
+
+function reallocationStrategyShapeErrors(
+  successors: readonly PreparedSuccessor[]
+): string[] {
+  if (successors.length < 2) {
+    return [
+      "The 重划 strategy requires at least two explicitly selected successors."
+    ];
+  }
+  if (
+    successors.some(
+      (successor) =>
+        successor.finalRelations.length === 0 ||
+        successor.finalRelations.some((relation) => relation.type !== "重划")
+    )
+  ) {
+    return [
+      "Every successor in a 重划 transaction must have at least one 重划 " +
+        "relation and no other relations."
+    ];
+  }
+  const predecessorIds = new Set(
+    successors.flatMap((successor) =>
+      successor.finalRelations.map((relation) => relation.target)
+    )
+  );
+  if (predecessorIds.size < 2) {
+    return ["The 重划 strategy requires at least two distinct predecessors."];
+  }
+  const successorIds = new Set(
+    successors.map((successor) => successor.record.decisionId)
+  );
+  const roleOverlap = [...successorIds]
+    .filter((decisionId) => predecessorIds.has(decisionId))
+    .sort();
+  if (roleOverlap.length > 0) {
+    return [
+      "The 重划 strategy cannot use a decision as both successor and " +
+        "predecessor: " +
+        roleOverlap.join(", ")
+    ];
+  }
+  return decisionReallocationComponents(reallocationEdgesFor(successors))
+    .length === 1
+    ? []
+    : ["The 重划 successor-predecessor graph must be connected."];
+}
+
+function reallocationSuccessorClosureErrors(
+  successors: readonly PreparedSuccessor[],
+  previewRecords: readonly DecisionRelationConsistencyRecord[]
+): string[] {
+  if (successors.length === 0) {
+    return [];
+  }
+  const selectedIds = new Set(
+    successors.map((successor) => successor.record.decisionId)
+  );
+  const components = decisionReallocationComponents(
+    collectDecisionRelationEdges(previewRecords)
+  );
+  const selectedComponent = components.find((component) =>
+    [...selectedIds].some((decisionId) =>
+      component.successorIds.has(decisionId)
+    )
+  );
+  if (selectedComponent === undefined) {
+    return [];
+  }
+  const omitted = [...selectedComponent.successorIds]
+    .filter((decisionId) => !selectedIds.has(decisionId))
+    .sort();
+  const absent = [...selectedIds]
+    .filter((decisionId) => !selectedComponent.successorIds.has(decisionId))
+    .sort();
+  return omitted.length === 0 && absent.length === 0
+    ? []
+    : [
+        "The selected successor set must equal every final 重划 successor " +
+          "in its connected component." +
+          (omitted.length === 0
+            ? ""
+            : " Omitted: " + omitted.join(", ") + ".") +
+          (absent.length === 0
+            ? ""
+            : " Outside component: " + absent.join(", ") + ".")
+      ];
+}
+
+function reallocationEdgesFor(
+  successors: readonly PreparedSuccessor[]
+): DecisionRelationEdge[] {
+  return successors.flatMap((successor) =>
+    successor.finalRelations.map((relation) => ({
+      source: successor.record.decisionId,
+      target: relation.target,
+      type: relation.type
+    }))
+  );
 }
 
 function directPredecessors(

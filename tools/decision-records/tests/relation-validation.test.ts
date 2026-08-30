@@ -3,6 +3,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { validateDecisionRecords } from "../src/index.ts";
+import { decisionIdFromSourcePath } from "../src/decision-path.ts";
+import { decisionReallocationComponents } from "../src/relation-graph.ts";
 import {
   archivedRelativePath,
   candidateDecisionBody,
@@ -13,6 +15,55 @@ import {
   runSuccessfulSourceCli,
   withFixtureWorkspace
 } from "./support.ts";
+
+test("reallocation components preserve relation roles and isolate disconnected graphs", () => {
+  const firstPredecessor = decisionId("use-first-predecessor.md");
+  const secondPredecessor = decisionId("use-second-predecessor.md");
+  const thirdPredecessor = decisionId("use-third-predecessor.md");
+  const firstSuccessor = decisionId("use-first-successor.md");
+  const secondSuccessor = decisionId("use-second-successor.md");
+  const thirdSuccessor = decisionId("use-third-successor.md");
+
+  const components = decisionReallocationComponents([
+    {
+      source: firstSuccessor,
+      target: firstPredecessor,
+      type: "重划"
+    },
+    {
+      source: firstSuccessor,
+      target: secondPredecessor,
+      type: "重划"
+    },
+    {
+      source: secondSuccessor,
+      target: firstPredecessor,
+      type: "重划"
+    },
+    {
+      source: thirdSuccessor,
+      target: thirdPredecessor,
+      type: "重划"
+    }
+  ]);
+
+  assert.deepEqual(
+    components.map((component) => ({
+      predecessors: [...component.predecessorIds].sort(),
+      successors: [...component.successorIds].sort()
+    })),
+    [
+      {
+        predecessors: [firstPredecessor, secondPredecessor],
+        successors: [firstSuccessor, secondSuccessor]
+      },
+      {
+        predecessors: [thirdPredecessor],
+        successors: [thirdSuccessor]
+      }
+    ]
+  );
+});
 
 test("candidate relations are checked prospectively without entering the established graph", () =>
   withFixtureWorkspace("candidate-relation-preview", async (workspaceRoot) => {
@@ -48,6 +99,25 @@ test("candidate relations are checked prospectively without entering the establi
     );
     assert.equal(findIndexEntry(index, currentRelativePath).status, "active");
   }));
+
+test("candidate reallocation relations remain prospective until a complete transaction", () =>
+  withFixtureWorkspace(
+    "candidate-reallocation-preview",
+    async (workspaceRoot) => {
+      const candidateRelativePath = "use-forward-looking-reallocation.md";
+      await fs.writeFile(
+        decisionFilePath(workspaceRoot, candidateRelativePath),
+        candidateDecisionBody({
+          relations: [{ type: "重划", target: currentRelativePath }]
+        }),
+        "utf8"
+      );
+
+      const validation = await validateDecisionRecords({ workspaceRoot });
+      assert.deepEqual(validation.errors, []);
+      assert.equal(validation.activationCandidateCount, 1);
+    }
+  ));
 
 test("candidate relation validation rejects missing targets", () =>
   withFixtureWorkspace(
@@ -221,3 +291,38 @@ test("strict relation checks reject impure split successors", () =>
       );
     }
   ));
+
+test("strict relation checks reject undersized reallocation components", () =>
+  withFixtureWorkspace(
+    "relation-static-undersized-reallocation",
+    async (workspaceRoot) => {
+      const currentPath = decisionFilePath(workspaceRoot, currentRelativePath);
+      const currentText = await fs.readFile(currentPath, "utf8");
+      const relationMarker =
+        "relations:\n  - type: 修订\n    target: " + archivedRelativePath;
+      assert.ok(currentText.includes(relationMarker));
+      await fs.writeFile(
+        currentPath,
+        currentText.replace(
+          relationMarker,
+          "relations:\n  - type: 重划\n    target: " + archivedRelativePath
+        ),
+        "utf8"
+      );
+
+      assert.ok(
+        (await validateDecisionRecords({ workspaceRoot })).errors.some(
+          (error) =>
+            error.includes("重划 component must have at least two direct")
+        )
+      );
+    }
+  ));
+
+function decisionId(value: string) {
+  const decisionId = decisionIdFromSourcePath(value);
+  if (decisionId === null) {
+    throw new Error("Expected a valid Decision ID: " + value);
+  }
+  return decisionId;
+}

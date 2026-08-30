@@ -435,6 +435,319 @@ test("evolve performs a closed split with independently aligned successors", () 
     assert.match(traced, /keep-future-split-slice/);
   }));
 
+test("evolve performs a closed sparse reallocation with independently aligned successors", () =>
+  withFixtureWorkspace("evolve-closed-reallocation", async (workspaceRoot) => {
+    const established = await establishClosedReallocation(workspaceRoot);
+    const index = await readIndex(established.indexPath);
+    assert.equal(findIndexEntry(index, currentRelativePath).status, "archived");
+    assert.equal(
+      findIndexEntry(index, established.secondPredecessorRelativePath).status,
+      "archived"
+    );
+    assert.deepEqual(
+      findIndexEntry(index, established.firstSuccessorRelativePath).relations,
+      [
+        { type: "重划", target: currentRelativePath },
+        { type: "重划", target: established.secondPredecessorRelativePath }
+      ]
+    );
+    assert.deepEqual(
+      findIndexEntry(index, established.secondSuccessorRelativePath).relations,
+      [{ type: "重划", target: currentRelativePath }]
+    );
+    assert.equal(
+      findIndexEntry(index, established.firstSuccessorRelativePath).alignment,
+      "aligned"
+    );
+    assert.equal(
+      findIndexEntry(index, established.secondSuccessorRelativePath).alignment,
+      "unaligned"
+    );
+    assert.deepEqual(
+      (await validateDecisionRecords({ workspaceRoot })).errors,
+      []
+    );
+  }));
+
+test("evolve rejects a one-successor reallocation", () =>
+  withFixtureWorkspace(
+    "evolve-one-successor-reallocation",
+    async (workspaceRoot) => {
+      const predecessor =
+        await establishAdditionalActivePredecessor(workspaceRoot);
+      const successorRelativePath = "use-one-reallocation-successor.md";
+      await fs.writeFile(
+        decisionFilePath(workspaceRoot, successorRelativePath),
+        candidateDecisionBody({
+          relations: [
+            { type: "重划", target: currentRelativePath },
+            { type: "重划", target: predecessor }
+          ]
+        }),
+        "utf8"
+      );
+      const rejected = await runSourceCli([
+        "evolve",
+        "--successor",
+        "aligned=" + successorRelativePath,
+        "--root",
+        workspaceRoot
+      ]);
+      assert.equal(rejected.exitCode, 1);
+      assert.match(
+        rejected.stderr,
+        /requires at least two explicitly selected/
+      );
+    }
+  ));
+
+test("evolve rejects a one-predecessor reallocation", () =>
+  withFixtureWorkspace(
+    "evolve-one-predecessor-reallocation",
+    async (workspaceRoot) => {
+      const firstSuccessor = "use-first-one-predecessor-reallocation.md";
+      const secondSuccessor = "use-second-one-predecessor-reallocation.md";
+      for (const successor of [firstSuccessor, secondSuccessor]) {
+        await fs.writeFile(
+          decisionFilePath(workspaceRoot, successor),
+          candidateDecisionBody({
+            relations: [{ type: "重划", target: currentRelativePath }]
+          }),
+          "utf8"
+        );
+      }
+      const rejected = await runSourceCli([
+        "evolve",
+        "--successor",
+        "aligned=" + firstSuccessor,
+        "--successor",
+        "aligned=" + secondSuccessor,
+        "--root",
+        workspaceRoot
+      ]);
+      assert.equal(rejected.exitCode, 1);
+      assert.match(
+        rejected.stderr,
+        /requires at least two distinct predecessors/
+      );
+    }
+  ));
+
+test("evolve rejects mixed reallocation and other successor relations", () =>
+  withFixtureWorkspace("evolve-mixed-reallocation", async (workspaceRoot) => {
+    const predecessor =
+      await establishAdditionalActivePredecessor(workspaceRoot);
+    const mixedSuccessor = "use-mixed-reallocation.md";
+    const reallocationSuccessor = "use-pure-reallocation.md";
+    await fs.writeFile(
+      decisionFilePath(workspaceRoot, mixedSuccessor),
+      candidateDecisionBody({
+        relations: [
+          { type: "重划", target: currentRelativePath },
+          { type: "修订", target: predecessor }
+        ]
+      }),
+      "utf8"
+    );
+    await fs.writeFile(
+      decisionFilePath(workspaceRoot, reallocationSuccessor),
+      candidateDecisionBody({
+        relations: [
+          { type: "重划", target: currentRelativePath },
+          { type: "重划", target: predecessor }
+        ]
+      }),
+      "utf8"
+    );
+    const rejected = await runSourceCli([
+      "evolve",
+      "--successor",
+      "aligned=" + mixedSuccessor,
+      "--successor",
+      "aligned=" + reallocationSuccessor,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(rejected.exitCode, 1);
+    assert.match(rejected.stderr, /at least one 重划 relation and no other/);
+  }));
+
+test("evolve rejects a disconnected reallocation graph", () =>
+  withFixtureWorkspace(
+    "evolve-disconnected-reallocation",
+    async (workspaceRoot) => {
+      const predecessor =
+        await establishAdditionalActivePredecessor(workspaceRoot);
+      const firstSuccessor = "use-first-disconnected-reallocation.md";
+      const secondSuccessor = "use-second-disconnected-reallocation.md";
+      await fs.writeFile(
+        decisionFilePath(workspaceRoot, firstSuccessor),
+        candidateDecisionBody({
+          relations: [{ type: "重划", target: currentRelativePath }]
+        }),
+        "utf8"
+      );
+      await fs.writeFile(
+        decisionFilePath(workspaceRoot, secondSuccessor),
+        candidateDecisionBody({
+          relations: [{ type: "重划", target: predecessor }]
+        }),
+        "utf8"
+      );
+      const rejected = await runSourceCli([
+        "evolve",
+        "--successor",
+        "aligned=" + firstSuccessor,
+        "--successor",
+        "aligned=" + secondSuccessor,
+        "--root",
+        workspaceRoot
+      ]);
+      assert.equal(rejected.exitCode, 1);
+      assert.match(
+        rejected.stderr,
+        /successor-predecessor graph must be connected/
+      );
+    }
+  ));
+
+test("evolve rejects a reallocation that overlaps successor and predecessor roles", () =>
+  withFixtureWorkspace(
+    "evolve-overlapping-reallocation-roles",
+    async (workspaceRoot) => {
+      const established = await establishClosedReallocation(workspaceRoot);
+      const overlappingSuccessor = "use-overlapping-reallocation-owner.md";
+      await fs.writeFile(
+        decisionFilePath(workspaceRoot, overlappingSuccessor),
+        candidateDecisionBody({
+          relations: [
+            { type: "重划", target: established.firstSuccessorRelativePath },
+            { type: "重划", target: currentRelativePath }
+          ]
+        }),
+        "utf8"
+      );
+      const rejected = await runSourceCli([
+        "evolve",
+        "--successor",
+        "aligned=" + established.firstSuccessorRelativePath,
+        "--successor",
+        "aligned=" + overlappingSuccessor,
+        "--root",
+        workspaceRoot
+      ]);
+      assert.equal(rejected.exitCode, 1);
+      assert.match(rejected.stderr, /both successor and predecessor/);
+    }
+  ));
+
+test("evolve requires every established successor in a reallocation component", () =>
+  withFixtureWorkspace("evolve-open-reallocation", async (workspaceRoot) => {
+    const established = await establishClosedReallocation(workspaceRoot);
+    const thirdSuccessor = "use-third-reallocation-successor.md";
+    await fs.writeFile(
+      decisionFilePath(workspaceRoot, thirdSuccessor),
+      candidateDecisionBody({
+        relations: [
+          { type: "重划", target: currentRelativePath },
+          { type: "重划", target: established.secondPredecessorRelativePath }
+        ]
+      }),
+      "utf8"
+    );
+    await runSuccessfulSourceCli([
+      "evolve",
+      "--successor",
+      "aligned=" + established.firstSuccessorRelativePath,
+      "--successor",
+      "unaligned=" + established.secondSuccessorRelativePath,
+      "--successor",
+      "aligned=" + thirdSuccessor,
+      "--root",
+      workspaceRoot
+    ]);
+    const rejected = await runSourceCli([
+      "evolve",
+      "--successor",
+      "aligned=" + established.firstSuccessorRelativePath,
+      "--successor",
+      "unaligned=" + established.secondSuccessorRelativePath,
+      "--root",
+      workspaceRoot
+    ]);
+    assert.equal(rejected.exitCode, 1);
+    assert.match(rejected.stderr, /equal every final 重划 successor/);
+    assert.match(rejected.stderr, /use-third-reallocation-successor/);
+  }));
+
+test("evolve keeps a later reallocation separate from its archived predecessor event", () =>
+  withFixtureWorkspace(
+    "evolve-successive-reallocation",
+    async (workspaceRoot) => {
+      const established = await establishClosedReallocation(workspaceRoot);
+      await runSuccessfulSourceCli([
+        "archive",
+        established.firstSuccessorRelativePath,
+        "--root",
+        workspaceRoot
+      ]);
+      const additionalPredecessor = "use-later-reallocation-predecessor.md";
+      await fs.writeFile(
+        decisionFilePath(workspaceRoot, additionalPredecessor),
+        candidateDecisionBody(),
+        "utf8"
+      );
+      await runSuccessfulSourceCli([
+        "activate",
+        additionalPredecessor,
+        "--alignment",
+        "aligned",
+        "--root",
+        workspaceRoot
+      ]);
+      await runSuccessfulSourceCli([
+        "archive",
+        additionalPredecessor,
+        "--root",
+        workspaceRoot
+      ]);
+      const firstSuccessor = "use-later-combined-reallocation-owner.md";
+      const secondSuccessor = "use-later-narrow-reallocation-owner.md";
+      await fs.writeFile(
+        decisionFilePath(workspaceRoot, firstSuccessor),
+        candidateDecisionBody({
+          relations: [
+            { type: "重划", target: established.firstSuccessorRelativePath },
+            { type: "重划", target: additionalPredecessor }
+          ]
+        }),
+        "utf8"
+      );
+      await fs.writeFile(
+        decisionFilePath(workspaceRoot, secondSuccessor),
+        candidateDecisionBody({
+          relations: [
+            { type: "重划", target: established.firstSuccessorRelativePath }
+          ]
+        }),
+        "utf8"
+      );
+      await runSuccessfulSourceCli([
+        "evolve",
+        "--successor",
+        "aligned=" + firstSuccessor,
+        "--successor",
+        "aligned=" + secondSuccessor,
+        "--root",
+        workspaceRoot
+      ]);
+      assert.deepEqual(
+        (await validateDecisionRecords({ workspaceRoot })).errors,
+        []
+      );
+    }
+  ));
+
 test("discard rejects a split successor that would leave an open split", () =>
   withFixtureWorkspace("discard-open-split", async (workspaceRoot) => {
     const established = await establishClosedSplit(workspaceRoot);
@@ -705,6 +1018,79 @@ type ClosedSplit = {
   indexPath: string;
   unalignedRelativePath: string;
 };
+
+type ClosedReallocation = {
+  firstSuccessorRelativePath: string;
+  indexPath: string;
+  secondPredecessorRelativePath: string;
+  secondSuccessorRelativePath: string;
+};
+
+async function establishClosedReallocation(
+  workspaceRoot: string
+): Promise<ClosedReallocation> {
+  const secondPredecessorRelativePath =
+    await establishAdditionalActivePredecessor(workspaceRoot);
+  const firstSuccessorRelativePath = "use-combined-reallocation-owner.md";
+  const secondSuccessorRelativePath = "use-narrow-reallocation-owner.md";
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, firstSuccessorRelativePath),
+    candidateDecisionBody({
+      relations: [
+        { type: "重划", target: currentRelativePath },
+        { type: "重划", target: secondPredecessorRelativePath }
+      ]
+    }),
+    "utf8"
+  );
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, secondSuccessorRelativePath),
+    candidateDecisionBody({
+      relations: [{ type: "重划", target: currentRelativePath }]
+    }),
+    "utf8"
+  );
+  await runSuccessfulSourceCli([
+    "evolve",
+    "--successor",
+    "aligned=" + firstSuccessorRelativePath,
+    "--successor",
+    "unaligned=" + secondSuccessorRelativePath,
+    "--root",
+    workspaceRoot
+  ]);
+  return {
+    firstSuccessorRelativePath,
+    indexPath: path.join(
+      workspaceRoot,
+      "docs",
+      "decisions",
+      "decision-index.json"
+    ),
+    secondPredecessorRelativePath,
+    secondSuccessorRelativePath
+  };
+}
+
+async function establishAdditionalActivePredecessor(
+  workspaceRoot: string
+): Promise<string> {
+  const decisionId = "use-second-reallocation-predecessor.md";
+  await fs.writeFile(
+    decisionFilePath(workspaceRoot, decisionId),
+    candidateDecisionBody(),
+    "utf8"
+  );
+  await runSuccessfulSourceCli([
+    "activate",
+    decisionId,
+    "--alignment",
+    "aligned",
+    "--root",
+    workspaceRoot
+  ]);
+  return decisionId;
+}
 
 async function establishClosedSplit(
   workspaceRoot: string
