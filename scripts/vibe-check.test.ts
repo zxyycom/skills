@@ -27,6 +27,7 @@ import {
   historicalContentExclusions,
   projectJscpdExecutable,
   projectLizardExecutable,
+  releaseRequiredPackageScripts,
   releaseRequiredCheckIds,
   releaseVersionPackageScript,
   runBunPackageScript,
@@ -284,6 +285,61 @@ async function assertNativeBlockingCheckContract(
 }
 
 test("gate catalog builds the exact default and full Definitions", () => {
+  const releasePackageScriptOrder = [
+    "test:decision-records-cli",
+    "test:environment",
+    "test:change-plan-cli",
+    "test:task-graph-cli",
+    "test:test-evidence-cli",
+    "test:investigation-report-check",
+    "test:index-runtime",
+    "test:check",
+    "test:skill-updater",
+    "test:skill-validator",
+    "test:relation-graph",
+    "test:version-control",
+    "test:skill-package-hash",
+    "test:skill-release-publisher",
+    "typecheck",
+    "lint",
+    "validate",
+    "check:investigations",
+    "check:decisions",
+    "check:test-evidence-cli",
+    "check:test-evidence-catalog",
+    "check:skill-validator",
+    "check:investigation-report-check",
+    "check:change-plan-cli",
+    "check:decision-records-cli",
+    "check:task-graph-cli",
+    "check:skill-updaters",
+    "test:generated-file",
+    "format:check",
+    "check:task-graph-index"
+  ] as const;
+  const fullOnlyPackageScripts = new Set([
+    "test:decision-records-cli",
+    "test:version-control",
+    "test:skill-package-hash",
+    "test:investigation-report-check",
+    "test:test-evidence-cli",
+    "test:task-graph-cli"
+  ]);
+  const fullOnlyPackageScriptOrder = releasePackageScriptOrder.filter(
+    (script) => fullOnlyPackageScripts.has(script)
+  );
+  const defaultPackageScriptOrder = releasePackageScriptOrder.filter(
+    (script) => !fullOnlyPackageScripts.has(script)
+  );
+  const expectedDefaultCheckIds = [
+    ...vibeNativeCheckIds,
+    ...defaultPackageScriptOrder.map((script) => `script:${script}`)
+  ];
+  const expectedFullCheckIds = [
+    ...vibeNativeCheckIds,
+    ...releasePackageScriptOrder.map((script) => `script:${script}`),
+    "pack:skills"
+  ];
   const runner = completedScript();
   const nativeChecks = passingNativeChecks();
   const defaultDefinition = createGateDefinition("default", {
@@ -299,8 +355,10 @@ test("gate catalog builds the exact default and full Definitions", () => {
   );
   const fullCheckIds = fullDefinition.checks.map(({ checkId }) => checkId);
 
-  assert.deepEqual(defaultCheckIds, gateCheckIds("default"));
-  assert.deepEqual(fullCheckIds, gateCheckIds("full"));
+  assert.deepEqual(defaultCheckIds, expectedDefaultCheckIds);
+  assert.deepEqual(fullCheckIds, expectedFullCheckIds);
+  assert.deepEqual(gateCheckIds("default"), expectedDefaultCheckIds);
+  assert.deepEqual(gateCheckIds("full"), expectedFullCheckIds);
   assert.equal(defaultCheckIds.includes("pack:skills"), false);
   assert.equal(
     defaultCheckIds.includes(`script:${releaseVersionPackageScript}`),
@@ -317,9 +375,17 @@ test("gate catalog builds the exact default and full Definitions", () => {
     },
     progressRendering: { enabled: true }
   });
+  assert.deepEqual(releaseRequiredPackageScripts, releasePackageScriptOrder);
+  assert.deepEqual(fullOnlyGatePackageScripts, fullOnlyPackageScriptOrder);
+  assert.deepEqual(defaultGatePackageScripts, defaultPackageScriptOrder);
   assert.equal(defaultGatePackageScripts.length, 24);
   assert.equal(fullOnlyGatePackageScripts.length, 6);
+  assert.equal(releaseRequiredPackageScripts.length, 30);
   assert.equal(releaseRequiredCheckIds.length, 36);
+  assert.deepEqual(
+    releaseTerminalCheck(fullDefinition).dependsOn,
+    releaseRequiredCheckIds
+  );
   assert.deepEqual(releaseTerminalCheck(fullDefinition).options, {
     baselineRef: "HEAD"
   });

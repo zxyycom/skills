@@ -5477,7 +5477,7 @@
     "GATE-DEFINITION-CATALOG-001": {
       "keys": {
         "search": [
-          "GATE-DEFINITION-CATALOG-001 门禁目录构造准确的 default 与 full Definition 同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check。full 额外加入六项 release-only 项目脚本，并在全部普通前置后追加唯一的 `pack:skills` release 终结 Check；未显式指定时，它的 authored baseline 为 `HEAD`。 default/full 的 Check ID 分别与目录一致；default 不含 `pack:skills` 或普通 `script:hash:skills`，full 只在末尾声明终结 Check。 default 有 24 项日常项目脚本，full 额外有六项 release-only 项目脚本；二者与六项原生 Check 构成 36 个 full 普通前置。全部 Definition 使用 Vibe 静态并发 4、progress 与 machine publication 开启、diagnostic log 关闭。 scripts/vibe-check.test.ts > gate catalog builds the exact default and full Definitions bun test --test-name-pattern=\"^gate catalog builds the exact default and full Definitions$\" ./scripts/vibe-check.test.ts"
+          "GATE-DEFINITION-CATALOG-001 门禁目录构造准确的 default 与 full Definition 同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check。30 项普通项目脚本在单一成本感知静态目录中声明，default 与 full-only 从该目录按成员资格派生。Vibe 0.0.1 的 FIFO 准入使此顺序成为反馈路径优化提示，而非检查语义、失败优先级或 release 终结依赖。full 在全部普通前置后追加唯一的 `pack:skills` release 终结 Check；未显式指定时，它的 authored baseline 为 `HEAD`。 30 项普通项目脚本与 default/full-only 派生顺序均精确匹配目录；default/full 的 Check ID 分别与目录一致，default 不含 `pack:skills` 或普通 `script:hash:skills`。 default 有 24 项日常项目脚本，full 额外有六项 release-only 项目脚本；二者与六项原生 Check 构成 36 个 full 普通前置。full 只在末尾声明终结 Check，且它直接依赖全部普通前置。全部 Definition 使用 Vibe 静态并发 4、progress 与 machine publication 开启、diagnostic log 关闭。 scripts/vibe-check.test.ts > gate catalog builds the exact default and full Definitions bun test --test-name-pattern=\"^gate catalog builds the exact default and full Definitions$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5491,9 +5491,9 @@
         ],
         "id": "GATE-DEFINITION-CATALOG-001",
         "line": 1,
-        "searchText": "门禁目录构造准确的 default 与 full Definition 同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check。full 额外加入六项 release-only 项目脚本，并在全部普通前置后追加唯一的 `pack:skills` release 终结 Check；未显式指定时，它的 authored baseline 为 `HEAD`。 default/full 的 Check ID 分别与目录一致；default 不含 `pack:skills` 或普通 `script:hash:skills`，full 只在末尾声明终结 Check。 default 有 24 项日常项目脚本，full 额外有六项 release-only 项目脚本；二者与六项原生 Check 构成 36 个 full 普通前置。全部 Definition 使用 Vibe 静态并发 4、progress 与 machine publication 开启、diagnostic log 关闭。 scripts/vibe-check.test.ts > gate catalog builds the exact default and full Definitions bun test --test-name-pattern=\"^gate catalog builds the exact default and full Definitions$\" ./scripts/vibe-check.test.ts",
+        "searchText": "门禁目录构造准确的 default 与 full Definition 同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check。30 项普通项目脚本在单一成本感知静态目录中声明，default 与 full-only 从该目录按成员资格派生。Vibe 0.0.1 的 FIFO 准入使此顺序成为反馈路径优化提示，而非检查语义、失败优先级或 release 终结依赖。full 在全部普通前置后追加唯一的 `pack:skills` release 终结 Check；未显式指定时，它的 authored baseline 为 `HEAD`。 30 项普通项目脚本与 default/full-only 派生顺序均精确匹配目录；default/full 的 Check ID 分别与目录一致，default 不含 `pack:skills` 或普通 `script:hash:skills`。 default 有 24 项日常项目脚本，full 额外有六项 release-only 项目脚本；二者与六项原生 Check 构成 36 个 full 普通前置。full 只在末尾声明终结 Check，且它直接依赖全部普通前置。全部 Definition 使用 Vibe 静态并发 4、progress 与 machine publication 开启、diagnostic log 关闭。 scripts/vibe-check.test.ts > gate catalog builds the exact default and full Definitions bun test --test-name-pattern=\"^gate catalog builds the exact default and full Definitions$\" ./scripts/vibe-check.test.ts",
         "sourcePath": "repository-tooling/gate-catalog-builds-default-and-full-definitions.md",
-        "summary": "同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check。full 额外加入六项 release-only 项目脚本，并在全部普通前置后追加唯一的 `pack:skills` release 终结 Check；未显式指定时，它的 authored baseline 为 `HEAD`。",
+        "summary": "同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check。30 项普通项目脚本在单一成本感知静态目录中声明，default 与 full-only 从该目录按成员资格派生。Vibe 0.0.1 的 FIFO 准入使此顺序成为反馈路径优化提示，而非检查语义、失败优先级或 release 终结依赖。full 在全部普通前置后追加唯一的 `pack:skills` release 终结 Check；未显式指定时，它的 authored baseline 为 `HEAD`。",
         "title": "门禁目录构造准确的 default 与 full Definition"
       }
     },
@@ -15408,7 +15408,7 @@
       "ENV-PERMISSION-RULES-001": "sha256:21a124776a169674569296131b473013b83cd4982ea6a91fde7ec22edc11b45a",
       "ENV-WORKTREE-SETUP-001": "sha256:a232485668782b975b6e416528f415886b669450f36394065848a5027441842f",
       "GATE-CLI-RESULT-001": "sha256:f2e158995ada843cf532592d34817f29864e0745c0d9b479d89b1d5852d79167",
-      "GATE-DEFINITION-CATALOG-001": "sha256:5d84e0238342b6f514da27af5baa116fa47b19fd97a8c4558f1b9841b4bf1164",
+      "GATE-DEFINITION-CATALOG-001": "sha256:1ce202722d4b01a509260f9cd5b4fa764381c2a7d48c6cfeb7ff39010d0d847e",
       "GATE-DUPLICATE-DETECTION-001": "sha256:5ce85e2b84c401f0419a234702195ae2f539a9b19f40d6f0d1370ec50ec185b3",
       "GATE-FILE-SELECTION-001": "sha256:2a611569231721824b35a68e1227f49b52562b76c5b3ca76cba359d04fd51d77",
       "GATE-FULL-PACKAGING-001": "sha256:18e2773d48fb54d16ae594423dc3a91ce8e8d0470cf52b08987f36bf480d50a9",

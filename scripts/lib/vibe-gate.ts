@@ -84,46 +84,60 @@ export const vibeNativeCheckIds = [
   "function-metrics"
 ] as const;
 
-export const defaultGatePackageScripts = [
-  "test:relation-graph",
+// This cost-aware order is a scheduler hint, not a semantic priority.
+export const releaseRequiredPackageScripts = [
+  "test:decision-records-cli",
+  "test:environment",
   "test:change-plan-cli",
-  "test:skill-release-publisher",
+  "test:task-graph-cli",
+  "test:test-evidence-cli",
+  "test:investigation-report-check",
   "test:index-runtime",
+  "test:check",
+  "test:skill-updater",
   "test:skill-validator",
+  "test:relation-graph",
+  "test:version-control",
+  "test:skill-package-hash",
+  "test:skill-release-publisher",
+  "typecheck",
+  "lint",
+  "validate",
   "check:investigations",
   "check:decisions",
-  "validate",
-  "test:skill-updater",
   "check:test-evidence-cli",
   "check:test-evidence-catalog",
   "check:skill-validator",
   "check:investigation-report-check",
   "check:change-plan-cli",
   "check:decision-records-cli",
-  "check:task-graph-index",
   "check:task-graph-cli",
-  "typecheck",
-  "lint",
-  "format:check",
   "check:skill-updaters",
-  "test:check",
-  "test:environment",
-  "test:generated-file"
+  "test:generated-file",
+  "format:check",
+  "check:task-graph-index"
 ] as const;
 
-export const fullOnlyGatePackageScripts = [
+export type GatePackageScript = (typeof releaseRequiredPackageScripts)[number];
+
+const fullOnlyGatePackageScriptSet: ReadonlySet<GatePackageScript> = new Set([
   "test:decision-records-cli",
   "test:version-control",
   "test:skill-package-hash",
   "test:investigation-report-check",
   "test:test-evidence-cli",
   "test:task-graph-cli"
-] as const;
+]);
 
-export const releaseRequiredPackageScripts = [
-  ...defaultGatePackageScripts,
-  ...fullOnlyGatePackageScripts
-] as const;
+export const fullOnlyGatePackageScripts: readonly GatePackageScript[] =
+  releaseRequiredPackageScripts.filter((script) =>
+    fullOnlyGatePackageScriptSet.has(script)
+  );
+
+export const defaultGatePackageScripts: readonly GatePackageScript[] =
+  releaseRequiredPackageScripts.filter(
+    (script) => !fullOnlyGatePackageScriptSet.has(script)
+  );
 
 export const releaseVersionPackageScript = "hash:skills";
 
@@ -137,8 +151,6 @@ export function isReleaseBaselineRef(value: unknown): value is string {
     !/[\r\n]/u.test(value)
   );
 }
-
-export type GatePackageScript = (typeof releaseRequiredPackageScripts)[number];
 
 export type GatePackageInvocation = Readonly<{
   args: readonly ["run", string, ...string[]];

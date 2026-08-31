@@ -35,6 +35,6 @@ relations:
 ## 决策
 
 - 采用: `bun run check` 以同一能力目录构造 default 或 `--full` 的 Vibe Definition；默认成功不代表发布完整性，full 形成全部 release-required 结果后才可完成发布打包。
-- 采用: Vibe static `maxParallel: 4`、progress、aggregate 与结构化 RunResult 负责调度、展示和结果收敛；独立 Check 在其他 Check 失败后仍继续结算，不保留动态并发、verbose、旧 renderer 或第二套状态机。
+- 采用: Vibe static `maxParallel: 4`、progress、aggregate 与结构化 RunResult 负责调度、展示和结果收敛；普通项目脚本以单一成本感知静态目录声明，default 与 full-only 从该目录派生。声明顺序只利用 Vibe 0.0.1 的 FIFO 准入缩短反馈路径，不表达检查语义、失败优先级或 release 终结依赖。独立 Check 在其他 Check 失败后仍继续结算，不保留动态并发、verbose、旧 renderer 或第二套状态机。
 - 采用: `pack:skills` 只属于 full，直接依赖全部 release-required Check；只有全部 passed 时调用一次，任何 failed、unavailable、not-applicable 或无可信依赖结果都不产生本次打包写入。
 - 采用: 保持现有 CI package job 调用唯一 `bun run check --full`，固定指标运行时后运行 full，不新增并行 CI job 或第二完成信号。

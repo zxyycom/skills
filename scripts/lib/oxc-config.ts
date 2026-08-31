@@ -1,4 +1,4 @@
-import { Ajv } from "ajv";
+import { Ajv, type ValidateFunction } from "ajv";
 import { createRequire } from "node:module";
 import { isDeepStrictEqual } from "node:util";
 import fs from "node:fs/promises";
@@ -62,6 +62,8 @@ const oxlintPolicyExpectations = {
   rules:
     'rules must preserve the approved "typescript/no-floating-promises" configuration'
 } as const satisfies Record<keyof typeof repositoryOxlintPolicy, string>;
+
+const compiledSchemaValidators = new Map<OxcTool, ValidateFunction>();
 
 function createSchemaValidator(): Ajv {
   const validator = new Ajv({ allErrors: true, strict: false });
@@ -142,17 +144,28 @@ async function readToolSchema(tool: OxcTool): Promise<Record<string, unknown>> {
   return schema;
 }
 
+async function loadSchemaValidator(tool: OxcTool): Promise<ValidateFunction> {
+  const cachedValidator = compiledSchemaValidators.get(tool);
+  if (cachedValidator !== undefined) {
+    return cachedValidator;
+  }
+
+  const schema = await readToolSchema(tool);
+  const validator = createSchemaValidator().compile(schema);
+  compiledSchemaValidators.set(tool, validator);
+  return validator;
+}
+
 async function loadOxcConfiguration<T>(
   tool: OxcTool,
   fileName: string,
   workspaceRoot: string
 ): Promise<T> {
   const configurationPath = path.join(workspaceRoot, fileName);
-  const [configuration, schema] = await Promise.all([
+  const [configuration, validator] = await Promise.all([
     readJsonDocument(configurationPath),
-    readToolSchema(tool)
+    loadSchemaValidator(tool)
   ]);
-  const validator = createSchemaValidator().compile<T>(schema);
   if (!matchesValidatedSchema<T>(validator, configuration)) {
     const diagnostic = validator.errors?.[0];
     const field = diagnostic?.instancePath || "<root>";

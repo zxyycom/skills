@@ -317,7 +317,7 @@
       "use-typed-collection-metadata.md": "sha256:a0e261ea16fca33ef949f83b289b5c323f02ab7501cc55bb7732bf7b3974c801",
       "use-versioned-overlay-skill-updates.md": "sha256:45c50941a04dc9aff4f2e305ec83fd14cb12d3df86e554cd23f6c4974d35f192",
       "use-versioned-runner-result-protocol.md": "sha256:48cde8d9a3cd54768d144286b55ddccec9f52272a234fe75764562d7e7fdcf9c",
-      "use-vibe-check-as-authoritative-project-gate.md": "sha256:bbf9f2602fdd6ca9ec41a1463ba1a4676d809fcab34df54abe3120dde636319b",
+      "use-vibe-check-as-authoritative-project-gate.md": "sha256:efbb550b17493e68f4de4900341afc3e9bf853a6bfa330a1aa73b9f3635de3af",
       "validate-only-active-change-plans.md": "sha256:14d148173e7fbc11d4a3c13ccb4ccecc8c9b459516ba79072388da911bdfe860",
       "version-index-definition-compatibility.md": "sha256:94002fd6642a327388347c00f5963519a2b44eafa9eab41fd031ecdd48007d32",
       "warn-on-unreferenced-investigation-resources.md": "sha256:c80123faec33a3d0e728a009dee7eae4c0d68984de137dac3b1b934af8bedba0",
