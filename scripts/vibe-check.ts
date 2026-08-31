@@ -3,11 +3,7 @@ import { run } from "@zxyycom/vibe-check";
 import type { ProjectDefinition, RunResult } from "@zxyycom/vibe-check";
 import { isMainModule } from "../tools/shared/src/node/main-module.ts";
 import { rootDir } from "./lib/project.ts";
-import {
-  createGateDefinition,
-  isReleaseBaselineRef,
-  type GateProfile
-} from "./lib/vibe-gate.ts";
+import { createGateDefinition, isReleaseBaselineRef } from "./lib/vibe-gate.ts";
 
 type GateExitCode = 0 | 1;
 
@@ -52,12 +48,6 @@ export function resolveGateInvocation(
     return null;
   }
   return { baselineRef: baselineRef ?? "HEAD", profile: "full" };
-}
-
-export function resolveGateProfile(
-  argv: readonly string[]
-): GateProfile | null {
-  return resolveGateInvocation(argv)?.profile ?? null;
 }
 
 function describeInvocationFailure(

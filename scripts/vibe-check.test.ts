@@ -36,7 +36,6 @@ import {
 } from "./lib/vibe-gate.ts";
 import {
   resolveGateInvocation,
-  resolveGateProfile,
   runVibeCheck,
   type GateInvocation
 } from "./vibe-check.ts";
@@ -480,8 +479,6 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
     }
   };
 
-  assert.equal(resolveGateProfile([]), "default");
-  assert.equal(resolveGateProfile(["--full"]), "full");
   assert.deepEqual(resolveGateInvocation([]), { profile: "default" });
   assert.deepEqual(resolveGateInvocation(["--full"]), {
     baselineRef: "HEAD",
@@ -513,7 +510,6 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
     resolveGateInvocation(["--full", "--baseline-ref", "--full"]),
     null
   );
-  assert.equal(resolveGateProfile(["--verbose"]), null);
   assert.equal(await runVibeCheck([], dependencies), 0);
   assert.deepEqual(selectedInvocation, { profile: "default" });
   assert.equal(
