@@ -812,13 +812,9 @@ async function countGitInvocations<T>(
   const previousGitExecutable = process.env.DECISION_STAGE_REAL_GIT;
   await fs.writeFile(
     wrapperPath,
-    `#!${process.execPath}\n` +
-      'const { spawnSync } = require("node:child_process");\n' +
-      'const { appendFileSync } = require("node:fs");\n' +
-      'appendFileSync(process.env.DECISION_STAGE_GIT_COUNT_PATH, "1\\n");\n' +
-      'const result = spawnSync(process.env.DECISION_STAGE_REAL_GIT, process.argv.slice(2), { stdio: "inherit" });\n' +
-      "if (result.error !== undefined) throw result.error;\n" +
-      "process.exitCode = result.status ?? 1;\n",
+    "#!/bin/sh\n" +
+      'printf "1\\n" >> "$DECISION_STAGE_GIT_COUNT_PATH" || exit 1\n' +
+      'exec "$DECISION_STAGE_REAL_GIT" "$@"\n',
     "utf8"
   );
   await fs.chmod(wrapperPath, 0o755);

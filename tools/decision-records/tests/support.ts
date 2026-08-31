@@ -3,6 +3,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { after } from "node:test";
 import { fileURLToPath } from "node:url";
 import { runDecisionRecordsCli as runSourceDecisionRecordsCli } from "../src/cli.ts";
 import { parseDecisionIndex } from "../src/decision-state-index.ts";
@@ -54,6 +55,16 @@ export const archivedSourcePath = `archive/${archivedDecisionId}`;
 // their test intents are rewritten around stable IDs.
 export const currentRelativePath = currentDecisionId;
 export const archivedRelativePath = archivedDecisionId;
+
+let fixtureTemplate: Promise<string> | null = null;
+let fixtureTemplatePath: string | null = null;
+
+after(async () => {
+  if (fixtureTemplatePath !== null) {
+    await fs.rm(fixtureTemplatePath, { force: true, recursive: true });
+    fixtureTemplatePath = null;
+  }
+});
 
 export type CliExecution = {
   exitCode: number;
@@ -115,10 +126,42 @@ export async function createFixtureWorkspace(label: string): Promise<string> {
   const workspaceRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), `decision-records-${label}-`)
   );
-  await fs.cp(fixtureRoot, workspaceRoot, { recursive: true });
-  const synced = await runSourceCli(["sync-index", "--root", workspaceRoot]);
-  assert.equal(synced.exitCode, 0, synced.stderr);
-  return workspaceRoot;
+  try {
+    await fs.cp(await fixtureTemplateRoot(), workspaceRoot, {
+      recursive: true
+    });
+    return workspaceRoot;
+  } catch (error) {
+    await fs.rm(workspaceRoot, { force: true, recursive: true });
+    throw error;
+  }
+}
+
+async function fixtureTemplateRoot(): Promise<string> {
+  fixtureTemplate ??= createFixtureTemplate();
+  try {
+    return await fixtureTemplate;
+  } catch (error) {
+    fixtureTemplate = null;
+    throw error;
+  }
+}
+
+async function createFixtureTemplate(): Promise<string> {
+  const templatePath = await fs.mkdtemp(
+    path.join(os.tmpdir(), "decision-records-fixture-template-")
+  );
+  fixtureTemplatePath = templatePath;
+  try {
+    await fs.cp(fixtureRoot, templatePath, { recursive: true });
+    const synced = await runSourceCli(["sync-index", "--root", templatePath]);
+    assert.equal(synced.exitCode, 0, synced.stderr);
+    return templatePath;
+  } catch (error) {
+    await fs.rm(templatePath, { force: true, recursive: true });
+    fixtureTemplatePath = null;
+    throw error;
+  }
 }
 
 export async function withFixtureWorkspace<T>(

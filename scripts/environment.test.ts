@@ -4,7 +4,7 @@ import type { SpawnSyncReturns } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import test from "node:test";
+import test, { after } from "node:test";
 import { fileURLToPath } from "node:url";
 import {
   maintenanceCliPackageScripts,
@@ -49,8 +49,7 @@ async function writeExecutable(
   await fs.chmod(filePath, 0o755);
 }
 
-async function createRepository(parent: string, name: string): Promise<string> {
-  const root = path.join(parent, name);
+async function populateRepository(root: string): Promise<void> {
   await fs.mkdir(path.join(root, "scripts"), { recursive: true });
   await fs.mkdir(path.join(root, ".githooks"), { recursive: true });
   await fs.mkdir(path.join(root, "docs", "task-graph"), { recursive: true });
@@ -131,6 +130,50 @@ async function createRepository(parent: string, name: string): Promise<string> {
     run("git", ["commit", "--no-verify", "-m", "fixture"], root),
     "git commit"
   );
+}
+
+let repositoryTemplate: Promise<string> | null = null;
+let repositoryTemplatePath: string | null = null;
+
+after(async () => {
+  if (repositoryTemplatePath !== null) {
+    await fs.rm(repositoryTemplatePath, {
+      recursive: true,
+      force: true
+    });
+    repositoryTemplatePath = null;
+  }
+});
+
+async function repositoryTemplateRoot(): Promise<string> {
+  repositoryTemplate ??= createRepositoryTemplate();
+  try {
+    return await repositoryTemplate;
+  } catch (error) {
+    repositoryTemplate = null;
+    throw error;
+  }
+}
+
+async function createRepositoryTemplate(): Promise<string> {
+  const parent = await fs.mkdtemp(
+    path.join(os.tmpdir(), "skills environment repository template ")
+  );
+  repositoryTemplatePath = parent;
+  const root = path.join(parent, "repository");
+  try {
+    await populateRepository(root);
+    return root;
+  } catch (error) {
+    await fs.rm(parent, { recursive: true, force: true });
+    repositoryTemplatePath = null;
+    throw error;
+  }
+}
+
+async function createRepository(parent: string, name: string): Promise<string> {
+  const root = path.join(parent, name);
+  await fs.cp(await repositoryTemplateRoot(), root, { recursive: true });
   return root;
 }
 
@@ -241,30 +284,11 @@ async function createFakeToolPath(
 ): Promise<string> {
   const bin = path.join(parent, "fake tools");
   await fs.mkdir(bin, { recursive: true });
-  const dispatcherPath = path.join(bin, "fake-tool.mjs");
   const metricTools = {
     lizard: options.lizard ?? "ready",
     scc: options.scc ?? "ready"
   };
   const bunVersion = options.bunVersion ?? "1.3.14";
-  await fs.writeFile(
-    dispatcherPath,
-    [
-      "const [tool, command] = process.argv.slice(2);",
-      `if (tool === 'bun' && command === '--version') console.log(${JSON.stringify(bunVersion)});`,
-      "else if (tool === 'pnpm' && command === '--version') console.log('11.7.0');",
-      "else if (tool === 'pnpm' && command === 'list') console.log('[{}]');",
-      "else if (tool === 'pnpm' && command === 'install') process.exit(0);",
-      "else if (tool === 'codegraph' && command === '--version') console.log('codegraph 1.2.3');",
-      "else if (tool === 'codegraph' && command === 'status') console.log(JSON.stringify({ initialized: true, lastIndexed: 'fixture' }));",
-      "else if (tool === 'codegraph' && (command === 'init' || command === 'sync')) process.exit(0);",
-      `else if (tool === 'scc' && command === '--version') { const mode = ${JSON.stringify(metricTools.scc)}; if (mode === 'mismatch') console.log('scc version 3.7.1'); else if (mode === 'probe-failure') { console.error('scc probe failed'); process.exit(2); } else console.log('scc version 3.7.0'); }`,
-      `else if (tool === 'lizard' && command === '--version') { const mode = ${JSON.stringify(metricTools.lizard)}; if (mode === 'mismatch') console.log('1.23.1'); else if (mode === 'probe-failure') { console.error('lizard probe failed'); process.exit(2); } else console.log('1.23.0'); }`,
-      "else { console.error(`unexpected ${tool} command: ${process.argv.slice(3).join(' ')}`); process.exit(2); }",
-      ""
-    ].join("\n"),
-    "utf8"
-  );
 
   const tools = [
     "bun",
@@ -273,8 +297,27 @@ async function createFakeToolPath(
     ...(metricTools.scc === "missing" ? [] : ["scc"]),
     ...(metricTools.lizard === "missing" ? [] : ["lizard"])
   ];
-  for (const tool of tools) {
-    if (process.platform === "win32") {
+  if (process.platform === "win32") {
+    const dispatcherPath = path.join(bin, "fake-tool.mjs");
+    await fs.writeFile(
+      dispatcherPath,
+      [
+        "const [tool, command] = process.argv.slice(2);",
+        `if (tool === 'bun' && command === '--version') console.log(${JSON.stringify(bunVersion)});`,
+        "else if (tool === 'pnpm' && command === '--version') console.log('11.7.0');",
+        "else if (tool === 'pnpm' && command === 'list') console.log('[{}]');",
+        "else if (tool === 'pnpm' && command === 'install') process.exit(0);",
+        "else if (tool === 'codegraph' && command === '--version') console.log('codegraph 1.2.3');",
+        "else if (tool === 'codegraph' && command === 'status') console.log(JSON.stringify({ initialized: true, lastIndexed: 'fixture' }));",
+        "else if (tool === 'codegraph' && (command === 'init' || command === 'sync')) process.exit(0);",
+        `else if (tool === 'scc' && command === '--version') { const mode = ${JSON.stringify(metricTools.scc)}; if (mode === 'mismatch') console.log('scc version 3.7.1'); else if (mode === 'probe-failure') { console.error('scc probe failed'); process.exit(2); } else console.log('scc version 3.7.0'); }`,
+        `else if (tool === 'lizard' && command === '--version') { const mode = ${JSON.stringify(metricTools.lizard)}; if (mode === 'mismatch') console.log('1.23.1'); else if (mode === 'probe-failure') { console.error('lizard probe failed'); process.exit(2); } else console.log('1.23.0'); }`,
+        "else { console.error(`unexpected ${tool} command: ${process.argv.slice(3).join(' ')}`); process.exit(2); }",
+        ""
+      ].join("\n"),
+      "utf8"
+    );
+    for (const tool of tools) {
       const quoteBatch = (value: string): string =>
         `"${value.replaceAll("%", "%%").replaceAll('"', '""')}"`;
       await fs.writeFile(
@@ -282,17 +325,37 @@ async function createFakeToolPath(
         `@${quoteBatch(process.execPath)} ${quoteBatch(dispatcherPath)} ${tool} %*\r\n`,
         "utf8"
       );
-    } else {
-      const quoteShell = (value: string): string =>
-        `'${value.replaceAll("'", `'"'"'`)}'`;
-      await writeExecutable(
-        path.join(bin, tool),
-        [
-          "#!/bin/sh",
-          `exec ${quoteShell(process.execPath)} ${quoteShell(dispatcherPath)} ${tool} "$@"`,
-          ""
-        ].join("\n")
-      );
+    }
+  } else {
+    const dispatcherPath = path.join(bin, "fake-tool");
+    await writeExecutable(
+      dispatcherPath,
+      [
+        "#!/bin/sh",
+        "tool=${0##*/}",
+        "command=$1",
+        "shift",
+        'case "$tool:$command" in',
+        `  bun:--version) printf '%s\\n' ${JSON.stringify(bunVersion)} ;;`,
+        "  pnpm:--version) printf '%s\\n' '11.7.0' ;;",
+        "  pnpm:list) printf '%s\\n' '[{}]' ;;",
+        "  pnpm:install) ;;",
+        "  codegraph:--version) printf '%s\\n' 'codegraph 1.2.3' ;;",
+        `  codegraph:status) printf '%s\\n' '${JSON.stringify({ initialized: true, lastIndexed: "fixture" })}' ;;`,
+        "  codegraph:init|codegraph:sync) ;;",
+        metricTools.scc === "probe-failure"
+          ? "  scc:--version) printf '%s\\n' 'scc probe failed' >&2; exit 2 ;;"
+          : `  scc:--version) printf '%s\\n' ${JSON.stringify(metricTools.scc === "mismatch" ? "scc version 3.7.1" : "scc version 3.7.0")} ;;`,
+        metricTools.lizard === "probe-failure"
+          ? "  lizard:--version) printf '%s\\n' 'lizard probe failed' >&2; exit 2 ;;"
+          : `  lizard:--version) printf '%s\\n' ${JSON.stringify(metricTools.lizard === "mismatch" ? "1.23.1" : "1.23.0")} ;;`,
+        '  *) printf \'unexpected %s command: %s\\n\' "$tool" "$*" >&2; exit 2 ;;',
+        "esac",
+        ""
+      ].join("\n")
+    );
+    for (const tool of tools) {
+      await fs.link(dispatcherPath, path.join(bin, tool));
     }
   }
   return bin;
@@ -362,7 +425,7 @@ test("environment setup enables the pre-commit hook in a fresh clone", async () 
     requireSuccess(
       run(
         "git",
-        ["-c", "core.autocrlf=true", "clone", source, clone],
+        ["-c", "core.autocrlf=true", "clone", "--no-local", source, clone],
         tempRoot
       ),
       "git clone"
