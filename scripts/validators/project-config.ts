@@ -51,6 +51,7 @@ export const requiredPackageScripts = [
   "sync:task-graph-cli",
   "sync:test-evidence-cli",
   "sync:test-evidence-catalog",
+  "vibe-check",
   "check"
 ] as const;
 
@@ -71,6 +72,7 @@ const requiredProjectFiles = [
   "scripts/setup-repository.js",
   "scripts/task-graph.js",
   "scripts/lint.ts",
+  "scripts/vibe-check.ts",
   "docs/tooling.md",
   "docs/skills",
   ".githooks/pre-commit",

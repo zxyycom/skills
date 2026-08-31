@@ -75,6 +75,7 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run format:check` | 只读检查 `format` 覆盖的全部维护源码；quick 与 full 门禁均执行 |
 | `bun run fix` | 依次运行覆盖 `scripts/` 与 `tools/` 的 `lint:fix` 与 `format`，用于安全地修复维护源码 |
 | `bun run validate` | 校验全部 skill 入口、当前维护的仓库 Markdown 链接和主仓库配置 |
+| `bun run vibe-check` | 独立运行下文定义的可选 Vibe Check 门禁；不进入现有 `check` 计划或 CI |
 | `bun run hash:skills` | 从 Git `pending` 快照临时计算 package hash，并校验内容变化的 skill 已相对 `--baseline-ref` 提升 `SKILL.md` 中的 `metadata.version` |
 | `bun run pack:skills` | 从版本管理 `pending` 快照生成每个 skill 的 zip 和 release manifest |
 | `bun run publish:skills -- <rolling\|snapshot>` | 供发布 workflow 校验 `dist/` 制品并执行滚动发布或不可变快照事务；需要 GitHub Actions 提供的 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH` |
@@ -82,6 +83,23 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run setup-repository` | 配置当前 worktree hook，并确认当前项目的主 worktree 可作为默认 task-graph root |
 | `bun run check` | 使用 quick 档运行必要快速检查，显式跳过 full 档耗时检查，并在已选检查通过后打包 |
 | `bun run check --full` | 运行 quick 与 full 的全部检查并打包；CI 使用这一完整门禁 |
+
+### 可选 Vibe Check 门禁
+
+`bun run vibe-check` 用于在保留现有 `bun run check` 的同时试运行 Vibe Check。这里的“可选”表示调用方可以不运行该门禁；项目配置校验仍要求命令和入口文件存在。`scripts/vibe-check.ts` 声明检查范围、阻断策略、聚合规则和进程退出状态；该命令只读项目输入，不调用 `pack:skills`，也不写 machine publication 或 diagnostic log。
+
+当前 Definition 包含六项 Check：
+
+| Check | 输入范围 | 当前门禁语义 |
+| --- | --- | --- |
+| 重复代码 | Git worktree 中 `scripts/` 与 `tools/` 的 JavaScript、TypeScript | Finding 阻断 |
+| 文件指标 | 同上 | Finding 只报告 warning |
+| 函数指标 | 同上 | Finding 只报告 warning |
+| JSON 文档 | Git worktree 中不属于历史 Change 或调查原始资源的当前 JSON；单文件上限 2 MiB | 无效文档阻断 |
+| JSON Schema | Task Graph 与 Test Evidence 的当前派生索引及对应 Schema | Schema issue 阻断 |
+| Markdown 本地链接 | Git worktree 中不属于历史 Change 或调查原始资源的当前 Markdown | Finding 阻断 |
+
+Run 使用 `all` 聚合：任一阻断 Check 失败或任一 Check `unavailable` 时，命令退出 `1`；`not-applicable` Check 不参与聚合，其余 Check 全部通过时退出 `0`。文件指标要求环境提供 SCC 3.7.0-compatible `scc` command，函数指标要求 Lizard 1.23-compatible `lizard` command；缺少或不兼容的 command 会形成 `unavailable` 并阻断本次可选门禁。现有 `scripts/environment.js setup` 不安装这两个外部 command，调用方需在运行前另行提供。
 
 ### 仓库维护短命令
 
