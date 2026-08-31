@@ -5454,7 +5454,7 @@
     "GATE-CLI-RESULT-001": {
       "keys": {
         "search": [
-          "GATE-CLI-RESULT-001 CLI 只选择 default/full 并映射 Vibe 结果 权威入口只接受无参数的 default 或单独的 `--full`；未知参数在启动 Check 前退出失败，completed aggregate 与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断。 default/full 选择各自 Definition，未知参数给出 usage。 failed aggregate 与 configuration 类 invocation failure 都返回退出码 1，并保留 Vibe 状态或类别而不重建 renderer。 scripts/vibe-check.test.ts > CLI accepts only default and full, and maps Vibe results to exit codes bun test --test-name-pattern=\"^CLI accepts only default and full, and maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts"
+          "GATE-CLI-RESULT-001 CLI 解析 default/full 与 full 基线并映射 Vibe 结果 权威入口只接受无参数的 default，或带可选 `--baseline-ref <ref>` 的 `--full`；full 缺省基线为 `HEAD`。显式基线必须非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR 或 LF。未知、重复或未与 `--full` 组合的参数必须在启动 Check 前失败；completed aggregate 与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断。 default/full 选择各自 Definition，full 的显式基线原样传入 Definition；首尾空白、前导连字符及 NUL/CR/LF 输入与未知参数都在启动前给出 usage。 failed aggregate 与 configuration 类 invocation failure 都返回退出码 1，并保留 Vibe 状态或类别而不重建 renderer。 scripts/vibe-check.test.ts > CLI parses profiles and full baselines, then maps Vibe results to exit codes bun test --test-name-pattern=\"^CLI parses profiles and full baselines, then maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5463,21 +5463,21 @@
       "state": {
         "endLine": 13,
         "entries": [
-          "scripts/vibe-check.test.ts > CLI accepts only default and full, and maps Vibe results to exit codes",
-          "bun test --test-name-pattern=\"^CLI accepts only default and full, and maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts"
+          "scripts/vibe-check.test.ts > CLI parses profiles and full baselines, then maps Vibe results to exit codes",
+          "bun test --test-name-pattern=\"^CLI parses profiles and full baselines, then maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts"
         ],
         "id": "GATE-CLI-RESULT-001",
         "line": 1,
-        "searchText": "CLI 只选择 default/full 并映射 Vibe 结果 权威入口只接受无参数的 default 或单独的 `--full`；未知参数在启动 Check 前退出失败，completed aggregate 与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断。 default/full 选择各自 Definition，未知参数给出 usage。 failed aggregate 与 configuration 类 invocation failure 都返回退出码 1，并保留 Vibe 状态或类别而不重建 renderer。 scripts/vibe-check.test.ts > CLI accepts only default and full, and maps Vibe results to exit codes bun test --test-name-pattern=\"^CLI accepts only default and full, and maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts",
+        "searchText": "CLI 解析 default/full 与 full 基线并映射 Vibe 结果 权威入口只接受无参数的 default，或带可选 `--baseline-ref <ref>` 的 `--full`；full 缺省基线为 `HEAD`。显式基线必须非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR 或 LF。未知、重复或未与 `--full` 组合的参数必须在启动 Check 前失败；completed aggregate 与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断。 default/full 选择各自 Definition，full 的显式基线原样传入 Definition；首尾空白、前导连字符及 NUL/CR/LF 输入与未知参数都在启动前给出 usage。 failed aggregate 与 configuration 类 invocation failure 都返回退出码 1，并保留 Vibe 状态或类别而不重建 renderer。 scripts/vibe-check.test.ts > CLI parses profiles and full baselines, then maps Vibe results to exit codes bun test --test-name-pattern=\"^CLI parses profiles and full baselines, then maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts",
         "sourcePath": "repository-tooling/gate-cli-selects-profiles-and-maps-vibe-results.md",
-        "summary": "权威入口只接受无参数的 default 或单独的 `--full`；未知参数在启动 Check 前退出失败，completed aggregate 与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断。",
-        "title": "CLI 只选择 default/full 并映射 Vibe 结果"
+        "summary": "权威入口只接受无参数的 default，或带可选 `--baseline-ref <ref>` 的 `--full`；full 缺省基线为 `HEAD`。显式基线必须非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR 或 LF。未知、重复或未与 `--full` 组合的参数必须在启动 Check 前失败；completed aggregate 与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断。",
+        "title": "CLI 解析 default/full 与 full 基线并映射 Vibe 结果"
       }
     },
     "GATE-DEFINITION-CATALOG-001": {
       "keys": {
         "search": [
-          "GATE-DEFINITION-CATALOG-001 门禁目录构造准确的 default 与 full Definition 同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check，full 只增加 release-only 项目能力和终结 `pack:skills`。 default/full 的 Check ID 分别与目录一致，default 不含 `pack:skills`，full 只在末尾声明它。 default 有 25 项日常 package-script 能力，full 增加 6 项 release-only 能力；全部 Definition 使用 Vibe 静态并发 4、progress 开启且 machine/diagnostic 输出关闭。 scripts/vibe-check.test.ts > gate catalog builds the exact default and full Definitions bun test --test-name-pattern=\"^gate catalog builds the exact default and full Definitions$\" ./scripts/vibe-check.test.ts"
+          "GATE-DEFINITION-CATALOG-001 门禁目录构造准确的 default 与 full Definition 同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check。full 额外加入六项 release-only 项目脚本，并在全部普通前置后追加唯一的 `pack:skills` release 终结 Check；未显式指定时，它的 authored baseline 为 `HEAD`。 default/full 的 Check ID 分别与目录一致；default 不含 `pack:skills` 或普通 `script:hash:skills`，full 只在末尾声明终结 Check。 default 有 24 项日常项目脚本，full 额外有六项 release-only 项目脚本；二者与六项原生 Check 构成 36 个 full 普通前置。全部 Definition 使用 Vibe 静态并发 4、progress 与 machine publication 开启、diagnostic log 关闭。 scripts/vibe-check.test.ts > gate catalog builds the exact default and full Definitions bun test --test-name-pattern=\"^gate catalog builds the exact default and full Definitions$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5491,10 +5491,33 @@
         ],
         "id": "GATE-DEFINITION-CATALOG-001",
         "line": 1,
-        "searchText": "门禁目录构造准确的 default 与 full Definition 同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check，full 只增加 release-only 项目能力和终结 `pack:skills`。 default/full 的 Check ID 分别与目录一致，default 不含 `pack:skills`，full 只在末尾声明它。 default 有 25 项日常 package-script 能力，full 增加 6 项 release-only 能力；全部 Definition 使用 Vibe 静态并发 4、progress 开启且 machine/diagnostic 输出关闭。 scripts/vibe-check.test.ts > gate catalog builds the exact default and full Definitions bun test --test-name-pattern=\"^gate catalog builds the exact default and full Definitions$\" ./scripts/vibe-check.test.ts",
+        "searchText": "门禁目录构造准确的 default 与 full Definition 同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check。full 额外加入六项 release-only 项目脚本，并在全部普通前置后追加唯一的 `pack:skills` release 终结 Check；未显式指定时，它的 authored baseline 为 `HEAD`。 default/full 的 Check ID 分别与目录一致；default 不含 `pack:skills` 或普通 `script:hash:skills`，full 只在末尾声明终结 Check。 default 有 24 项日常项目脚本，full 额外有六项 release-only 项目脚本；二者与六项原生 Check 构成 36 个 full 普通前置。全部 Definition 使用 Vibe 静态并发 4、progress 与 machine publication 开启、diagnostic log 关闭。 scripts/vibe-check.test.ts > gate catalog builds the exact default and full Definitions bun test --test-name-pattern=\"^gate catalog builds the exact default and full Definitions$\" ./scripts/vibe-check.test.ts",
         "sourcePath": "repository-tooling/gate-catalog-builds-default-and-full-definitions.md",
-        "summary": "同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check，full 只增加 release-only 项目能力和终结 `pack:skills`。",
+        "summary": "同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check。full 额外加入六项 release-only 项目脚本，并在全部普通前置后追加唯一的 `pack:skills` release 终结 Check；未显式指定时，它的 authored baseline 为 `HEAD`。",
         "title": "门禁目录构造准确的 default 与 full Definition"
+      }
+    },
+    "GATE-DUPLICATE-DETECTION-001": {
+      "keys": {
+        "search": [
+          "GATE-DUPLICATE-DETECTION-001 重复检测阻断 finding 并对 unavailable fail closed 重复检测的可信 finding 必须阻断 aggregate；输入或 scanner 不可用也不能被解释为成功。 无重复 fixture passed，加入真实重复片段后 Check failed。 不存在的项目根使 Check unavailable，并由 aggregate fail closed。 scripts/vibe-check.test.ts > duplicate detection blocks findings and fails closed when unavailable bun test --test-name-pattern=\"^duplicate detection blocks findings and fails closed when unavailable$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > duplicate detection blocks findings and fails closed when unavailable",
+          "bun test --test-name-pattern=\"^duplicate detection blocks findings and fails closed when unavailable$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-DUPLICATE-DETECTION-001",
+        "line": 1,
+        "searchText": "重复检测阻断 finding 并对 unavailable fail closed 重复检测的可信 finding 必须阻断 aggregate；输入或 scanner 不可用也不能被解释为成功。 无重复 fixture passed，加入真实重复片段后 Check failed。 不存在的项目根使 Check unavailable，并由 aggregate fail closed。 scripts/vibe-check.test.ts > duplicate detection blocks findings and fails closed when unavailable bun test --test-name-pattern=\"^duplicate detection blocks findings and fails closed when unavailable$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-duplicate-detection-blocks-findings-and-fails-closed.md",
+        "summary": "重复检测的可信 finding 必须阻断 aggregate；输入或 scanner 不可用也不能被解释为成功。",
+        "title": "重复检测阻断 finding 并对 unavailable fail closed"
       }
     },
     "GATE-FILE-SELECTION-001": {
@@ -5523,7 +5546,7 @@
     "GATE-FULL-PACKAGING-001": {
       "keys": {
         "search": [
-          "GATE-FULL-PACKAGING-001 full 打包只在全部发布前置通过后运行一次 `pack:skills` 只属于 full，直接依赖全部 release-required Check；全部 passed 时恰好运行一次，任何 failed 或 unavailable 前置都零调用，打包失败使 aggregate failed。 default 不声明或调用 `pack:skills`；成功 full 仅调用一次，并在隔离 `dist/` 写入本次 fixture 制品。 项目脚本或 native blocking 前置 failed/unavailable，以及 required advisory 指标 unavailable/not-applicable，都不会调用打包或留下本次隔离制品；打包自身非零退出决定 aggregate failed。 scripts/vibe-check.test.ts > full packaging runs once only after every release prerequisite passes bun test --test-name-pattern=\"^full packaging runs once only after every release prerequisite passes$\" ./scripts/vibe-check.test.ts"
+          "GATE-FULL-PACKAGING-001 full 打包只在全部发布前置通过后运行一次 `pack:skills` 只属于 full，直接依赖全部 release-required Check；任一普通前置未结算为 passed 都不能进入终结阶段的版本校验或打包，打包失败使 aggregate failed。 default 不声明或调用 `pack:skills`；成功 full 仅调用一次，并在隔离 `dist/` 写入本次 fixture 制品。 项目脚本或 native blocking 前置 failed/unavailable，以及 required advisory 指标 unavailable/not-applicable，都不会调用 `hash:skills`、`pack:skills` 或留下本次隔离制品；`pack:skills` 自身非零退出决定 aggregate failed。 scripts/vibe-check.test.ts > full packaging runs once only after every release prerequisite passes bun test --test-name-pattern=\"^full packaging runs once only after every release prerequisite passes$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5537,9 +5560,9 @@
         ],
         "id": "GATE-FULL-PACKAGING-001",
         "line": 1,
-        "searchText": "full 打包只在全部发布前置通过后运行一次 `pack:skills` 只属于 full，直接依赖全部 release-required Check；全部 passed 时恰好运行一次，任何 failed 或 unavailable 前置都零调用，打包失败使 aggregate failed。 default 不声明或调用 `pack:skills`；成功 full 仅调用一次，并在隔离 `dist/` 写入本次 fixture 制品。 项目脚本或 native blocking 前置 failed/unavailable，以及 required advisory 指标 unavailable/not-applicable，都不会调用打包或留下本次隔离制品；打包自身非零退出决定 aggregate failed。 scripts/vibe-check.test.ts > full packaging runs once only after every release prerequisite passes bun test --test-name-pattern=\"^full packaging runs once only after every release prerequisite passes$\" ./scripts/vibe-check.test.ts",
+        "searchText": "full 打包只在全部发布前置通过后运行一次 `pack:skills` 只属于 full，直接依赖全部 release-required Check；任一普通前置未结算为 passed 都不能进入终结阶段的版本校验或打包，打包失败使 aggregate failed。 default 不声明或调用 `pack:skills`；成功 full 仅调用一次，并在隔离 `dist/` 写入本次 fixture 制品。 项目脚本或 native blocking 前置 failed/unavailable，以及 required advisory 指标 unavailable/not-applicable，都不会调用 `hash:skills`、`pack:skills` 或留下本次隔离制品；`pack:skills` 自身非零退出决定 aggregate failed。 scripts/vibe-check.test.ts > full packaging runs once only after every release prerequisite passes bun test --test-name-pattern=\"^full packaging runs once only after every release prerequisite passes$\" ./scripts/vibe-check.test.ts",
         "sourcePath": "repository-tooling/gate-packaging-requires-all-release-prerequisites.md",
-        "summary": "`pack:skills` 只属于 full，直接依赖全部 release-required Check；全部 passed 时恰好运行一次，任何 failed 或 unavailable 前置都零调用，打包失败使 aggregate failed。",
+        "summary": "`pack:skills` 只属于 full，直接依赖全部 release-required Check；任一普通前置未结算为 passed 都不能进入终结阶段的版本校验或打包，打包失败使 aggregate failed。",
         "title": "full 打包只在全部发布前置通过后运行一次"
       }
     },
@@ -5566,6 +5589,52 @@
         "title": "jscpd 兼容 wrapper 对缺失扫描配置 fail closed"
       }
     },
+    "GATE-JSON-SCHEMA-001": {
+      "keys": {
+        "search": [
+          "GATE-JSON-SCHEMA-001 JSON Schema 校验阻断 finding 并对 unavailable fail closed JSON Schema 违例必须阻断 aggregate；输入不可用也不能被解释为成功。 符合 Schema 的 fixture passed，写入违例实例后 Check failed。 不存在的项目根使 Check unavailable，并由 aggregate fail closed。 scripts/vibe-check.test.ts > JSON schema validation blocks findings and fails closed when unavailable bun test --test-name-pattern=\"^JSON schema validation blocks findings and fails closed when unavailable$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > JSON schema validation blocks findings and fails closed when unavailable",
+          "bun test --test-name-pattern=\"^JSON schema validation blocks findings and fails closed when unavailable$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-JSON-SCHEMA-001",
+        "line": 1,
+        "searchText": "JSON Schema 校验阻断 finding 并对 unavailable fail closed JSON Schema 违例必须阻断 aggregate；输入不可用也不能被解释为成功。 符合 Schema 的 fixture passed，写入违例实例后 Check failed。 不存在的项目根使 Check unavailable，并由 aggregate fail closed。 scripts/vibe-check.test.ts > JSON schema validation blocks findings and fails closed when unavailable bun test --test-name-pattern=\"^JSON schema validation blocks findings and fails closed when unavailable$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-json-schema-validation-blocks-findings-and-fails-closed.md",
+        "summary": "JSON Schema 违例必须阻断 aggregate；输入不可用也不能被解释为成功。",
+        "title": "JSON Schema 校验阻断 finding 并对 unavailable fail closed"
+      }
+    },
+    "GATE-JSON-VALIDATION-001": {
+      "keys": {
+        "search": [
+          "GATE-JSON-VALIDATION-001 JSON 校验阻断 finding 并对 unavailable fail closed JSON 语法 finding 必须阻断 aggregate；输入不可用也不能被解释为成功。 有效 JSON fixture passed，加入无效 JSON 后 Check failed。 不存在的项目根使 Check unavailable，并由 aggregate fail closed。 scripts/vibe-check.test.ts > JSON validation blocks findings and fails closed when unavailable bun test --test-name-pattern=\"^JSON validation blocks findings and fails closed when unavailable$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > JSON validation blocks findings and fails closed when unavailable",
+          "bun test --test-name-pattern=\"^JSON validation blocks findings and fails closed when unavailable$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-JSON-VALIDATION-001",
+        "line": 1,
+        "searchText": "JSON 校验阻断 finding 并对 unavailable fail closed JSON 语法 finding 必须阻断 aggregate；输入不可用也不能被解释为成功。 有效 JSON fixture passed，加入无效 JSON 后 Check failed。 不存在的项目根使 Check unavailable，并由 aggregate fail closed。 scripts/vibe-check.test.ts > JSON validation blocks findings and fails closed when unavailable bun test --test-name-pattern=\"^JSON validation blocks findings and fails closed when unavailable$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-json-validation-blocks-findings-and-fails-closed.md",
+        "summary": "JSON 语法 finding 必须阻断 aggregate；输入不可用也不能被解释为成功。",
+        "title": "JSON 校验阻断 finding 并对 unavailable fail closed"
+      }
+    },
     "GATE-LIZARD-VERSION-001": {
       "keys": {
         "search": [
@@ -5589,6 +5658,29 @@
         "title": "函数指标只接受精确 Lizard 版本"
       }
     },
+    "GATE-MARKDOWN-LINK-001": {
+      "keys": {
+        "search": [
+          "GATE-MARKDOWN-LINK-001 Markdown 链接校验阻断 finding 并对 unavailable fail closed Markdown 本地链接 finding 必须阻断 aggregate；输入不可用也不能被解释为成功。 有效本地链接 fixture passed，改为缺失目标后 Check failed。 不存在的项目根使 Check unavailable，并由 aggregate fail closed。 scripts/vibe-check.test.ts > Markdown link validation blocks findings and fails closed when unavailable bun test --test-name-pattern=\"^Markdown link validation blocks findings and fails closed when unavailable$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > Markdown link validation blocks findings and fails closed when unavailable",
+          "bun test --test-name-pattern=\"^Markdown link validation blocks findings and fails closed when unavailable$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-MARKDOWN-LINK-001",
+        "line": 1,
+        "searchText": "Markdown 链接校验阻断 finding 并对 unavailable fail closed Markdown 本地链接 finding 必须阻断 aggregate；输入不可用也不能被解释为成功。 有效本地链接 fixture passed，改为缺失目标后 Check failed。 不存在的项目根使 Check unavailable，并由 aggregate fail closed。 scripts/vibe-check.test.ts > Markdown link validation blocks findings and fails closed when unavailable bun test --test-name-pattern=\"^Markdown link validation blocks findings and fails closed when unavailable$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-markdown-link-validation-blocks-findings-and-fails-closed.md",
+        "summary": "Markdown 本地链接 finding 必须阻断 aggregate；输入不可用也不能被解释为成功。",
+        "title": "Markdown 链接校验阻断 finding 并对 unavailable fail closed"
+      }
+    },
     "GATE-METRICS-ADVISORY-001": {
       "keys": {
         "search": [
@@ -5610,6 +5702,121 @@
         "sourcePath": "repository-tooling/gate-metrics-remain-advisory-and-fail-closed.md",
         "summary": "文件与函数指标是 required advisory：可信 finding 只能作为 warning 形成 passed；SCC/Lizard 不可用或没有预期输入必须使 aggregate failed。",
         "title": "指标 finding 保持 advisory，工具故障与 N/A fail closed"
+      }
+    },
+    "GATE-RELEASE-FINAL-TIMING-001": {
+      "keys": {
+        "search": [
+          "GATE-RELEASE-FINAL-TIMING-001 release 终结 Check 在前置结算后才执行版本校验 full 的 `pack:skills` 是 release 终结 Check；它直接依赖全部 36 个 release-required Check。preflight 只验证 authored `baselineRef` 的 wrapper 输入边界，不解析 Git ref；实际版本校验只能在全部前置有可信 passed 结果后执行。 终结 Check 以 `origin/release` 作为 authored baseline，preflight 生成该 invocation-local options；空值、首尾空白、前导连字符及 NUL/CR/LF 均以稳定 code 阻断。 `pack:skills/release-baseline` Record 保留该输入；`hash:skills` 开始时所有原生与项目 release 前置都已结算，之后才执行一次 `pack:skills`。 scripts/vibe-check.test.ts > release terminal Check validates its baseline in preflight and waits for every prerequisite bun test --test-name-pattern=\"^release terminal Check validates its baseline in preflight and waits for every prerequisite$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > release terminal Check validates its baseline in preflight and waits for every prerequisite",
+          "bun test --test-name-pattern=\"^release terminal Check validates its baseline in preflight and waits for every prerequisite$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-RELEASE-FINAL-TIMING-001",
+        "line": 1,
+        "searchText": "release 终结 Check 在前置结算后才执行版本校验 full 的 `pack:skills` 是 release 终结 Check；它直接依赖全部 36 个 release-required Check。preflight 只验证 authored `baselineRef` 的 wrapper 输入边界，不解析 Git ref；实际版本校验只能在全部前置有可信 passed 结果后执行。 终结 Check 以 `origin/release` 作为 authored baseline，preflight 生成该 invocation-local options；空值、首尾空白、前导连字符及 NUL/CR/LF 均以稳定 code 阻断。 `pack:skills/release-baseline` Record 保留该输入；`hash:skills` 开始时所有原生与项目 release 前置都已结算，之后才执行一次 `pack:skills`。 scripts/vibe-check.test.ts > release terminal Check validates its baseline in preflight and waits for every prerequisite bun test --test-name-pattern=\"^release terminal Check validates its baseline in preflight and waits for every prerequisite$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-release-terminal-preflights-baseline-and-waits-for-prerequisites.md",
+        "summary": "full 的 `pack:skills` 是 release 终结 Check；它直接依赖全部 36 个 release-required Check。preflight 只验证 authored `baselineRef` 的 wrapper 输入边界，不解析 Git ref；实际版本校验只能在全部前置有可信 passed 结果后执行。",
+        "title": "release 终结 Check 在前置结算后才执行版本校验"
+      }
+    },
+    "GATE-RELEASE-PACK-SUCCESS-001": {
+      "keys": {
+        "search": [
+          "GATE-RELEASE-PACK-SUCCESS-001 版本校验通过后恰好打包一次 release 终结 Check 只有在版本校验通过后才可调用 `pack:skills`；成功的 full invocation 恰好调用一次。 成功时终结阶段顺序为一次 `hash:skills`、一次 `pack:skills`，aggregate passed。 成功终态数据保留基线；隔离 `dist/` 中存在由唯一打包调用写入的 fixture 制品。 scripts/vibe-check.test.ts > release terminal Check packages exactly once after version validation passes bun test --test-name-pattern=\"^release terminal Check packages exactly once after version validation passes$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > release terminal Check packages exactly once after version validation passes",
+          "bun test --test-name-pattern=\"^release terminal Check packages exactly once after version validation passes$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-RELEASE-PACK-SUCCESS-001",
+        "line": 1,
+        "searchText": "版本校验通过后恰好打包一次 release 终结 Check 只有在版本校验通过后才可调用 `pack:skills`；成功的 full invocation 恰好调用一次。 成功时终结阶段顺序为一次 `hash:skills`、一次 `pack:skills`，aggregate passed。 成功终态数据保留基线；隔离 `dist/` 中存在由唯一打包调用写入的 fixture 制品。 scripts/vibe-check.test.ts > release terminal Check packages exactly once after version validation passes bun test --test-name-pattern=\"^release terminal Check packages exactly once after version validation passes$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-release-packages-after-version-validation.md",
+        "summary": "release 终结 Check 只有在版本校验通过后才可调用 `pack:skills`；成功的 full invocation 恰好调用一次。",
+        "title": "版本校验通过后恰好打包一次"
+      }
+    },
+    "GATE-RELEASE-VERSION-ARGS-001": {
+      "keys": {
+        "search": [
+          "GATE-RELEASE-VERSION-ARGS-001 release 基线通过 Bun 参数数组传递 release 终结 Check 必须将 baseline 作为 `bun run hash:skills` 的单个参数元素传递，不能拼接 shell 命令字符串。 含 shell 元字符的 fixture baseline 原样成为 capture script 的一个 argv 元素，并保留 `--baseline-ref` 与 `--quiet` 顺序。 该字符串没有创建其试图注入的文件，full aggregate 仍可完成。 scripts/vibe-check.test.ts > release version validation passes its baseline through Bun argument arrays bun test --test-name-pattern=\"^release version validation passes its baseline through Bun argument arrays$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > release version validation passes its baseline through Bun argument arrays",
+          "bun test --test-name-pattern=\"^release version validation passes its baseline through Bun argument arrays$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-RELEASE-VERSION-ARGS-001",
+        "line": 1,
+        "searchText": "release 基线通过 Bun 参数数组传递 release 终结 Check 必须将 baseline 作为 `bun run hash:skills` 的单个参数元素传递，不能拼接 shell 命令字符串。 含 shell 元字符的 fixture baseline 原样成为 capture script 的一个 argv 元素，并保留 `--baseline-ref` 与 `--quiet` 顺序。 该字符串没有创建其试图注入的文件，full aggregate 仍可完成。 scripts/vibe-check.test.ts > release version validation passes its baseline through Bun argument arrays bun test --test-name-pattern=\"^release version validation passes its baseline through Bun argument arrays$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-release-version-baseline-uses-argument-array.md",
+        "summary": "release 终结 Check 必须将 baseline 作为 `bun run hash:skills` 的单个参数元素传递，不能拼接 shell 命令字符串。",
+        "title": "release 基线通过 Bun 参数数组传递"
+      }
+    },
+    "GATE-RELEASE-VERSION-FAILURE-001": {
+      "keys": {
+        "search": [
+          "GATE-RELEASE-VERSION-FAILURE-001 版本校验失败阻断打包 release 终结 Check 在前置通过后必须先校验 skill 版本；该校验 failed 时 final Check failed，且本次零调用 `pack:skills`。 注入的 `hash:skills` 非零退出使 `pack:skills` Check 结算为携带基线与版本脚本终态的 failed。 版本校验恰好运行一次，打包没有被调用。 scripts/vibe-check.test.ts > release version validation failure blocks package execution bun test --test-name-pattern=\"^release version validation failure blocks package execution$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > release version validation failure blocks package execution",
+          "bun test --test-name-pattern=\"^release version validation failure blocks package execution$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-RELEASE-VERSION-FAILURE-001",
+        "line": 1,
+        "searchText": "版本校验失败阻断打包 release 终结 Check 在前置通过后必须先校验 skill 版本；该校验 failed 时 final Check failed，且本次零调用 `pack:skills`。 注入的 `hash:skills` 非零退出使 `pack:skills` Check 结算为携带基线与版本脚本终态的 failed。 版本校验恰好运行一次，打包没有被调用。 scripts/vibe-check.test.ts > release version validation failure blocks package execution bun test --test-name-pattern=\"^release version validation failure blocks package execution$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-release-version-failure-blocks-packaging.md",
+        "summary": "release 终结 Check 在前置通过后必须先校验 skill 版本；该校验 failed 时 final Check failed，且本次零调用 `pack:skills`。",
+        "title": "版本校验失败阻断打包"
+      }
+    },
+    "GATE-RELEASE-VERSION-UNAVAILABLE-001": {
+      "keys": {
+        "search": [
+          "GATE-RELEASE-VERSION-UNAVAILABLE-001 版本校验不可用阻断打包 release 终结 Check 的 `hash:skills` 无法形成可信结果时必须 unavailable，aggregate 必须失败，且本次零调用 `pack:skills`。 注入的版本 runner 显式返回 unavailable 或抛出异常，都会使终结 `pack:skills` Check 以 `package-script-start-failed` unavailable 结算。 两种不可用路径都恰好尝试一次版本校验而从不调用打包。 scripts/vibe-check.test.ts > release version validation unavailable or throws blocks package execution bun test --test-name-pattern=\"^release version validation unavailable or throws blocks package execution$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > release version validation unavailable or throws blocks package execution",
+          "bun test --test-name-pattern=\"^release version validation unavailable or throws blocks package execution$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-RELEASE-VERSION-UNAVAILABLE-001",
+        "line": 1,
+        "searchText": "版本校验不可用阻断打包 release 终结 Check 的 `hash:skills` 无法形成可信结果时必须 unavailable，aggregate 必须失败，且本次零调用 `pack:skills`。 注入的版本 runner 显式返回 unavailable 或抛出异常，都会使终结 `pack:skills` Check 以 `package-script-start-failed` unavailable 结算。 两种不可用路径都恰好尝试一次版本校验而从不调用打包。 scripts/vibe-check.test.ts > release version validation unavailable or throws blocks package execution bun test --test-name-pattern=\"^release version validation unavailable or throws blocks package execution$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-release-version-unavailable-blocks-packaging.md",
+        "summary": "release 终结 Check 的 `hash:skills` 无法形成可信结果时必须 unavailable，aggregate 必须失败，且本次零调用 `pack:skills`。",
+        "title": "版本校验不可用阻断打包"
       }
     },
     "GATE-SCRIPT-ADAPTER-001": {
@@ -5638,7 +5845,7 @@
     "GATE-SCRIPT-CANCELLATION-001": {
       "keys": {
         "search": [
-          "GATE-SCRIPT-CANCELLATION-001 package-script 取消等待子进程关闭 package-script adapter 收到 Vibe 取消信号时必须请求子进程终止，并在子进程关闭后才将结果结算为 unavailable，避免门禁先于其拥有的进程边界结束。 被取消的子进程收到终止信号并写入终止状态后，runner 才返回稳定的 `package-script-cancelled` unavailable 结果。 scripts/vibe-check.test.ts > package script runner waits for a cancelled child to close bun test --test-name-pattern=\"^package script runner waits for a cancelled child to close$\" ./scripts/vibe-check.test.ts"
+          "GATE-SCRIPT-CANCELLATION-001 package-script 取消等待子进程关闭 package-script adapter 收到 Vibe 取消信号时必须请求自己启动的直属 `bun run` 子进程终止，并在该子进程关闭后才将结果结算为 unavailable。 被取消的直属子进程收到终止信号并写入终止状态后，runner 才返回稳定的 `package-script-cancelled` unavailable 结果；本 Case 不证明脚本自行派生的后代进程已被终止。 scripts/vibe-check.test.ts > package script runner waits for a cancelled child to close bun test --test-name-pattern=\"^package script runner waits for a cancelled child to close$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5652,33 +5859,10 @@
         ],
         "id": "GATE-SCRIPT-CANCELLATION-001",
         "line": 1,
-        "searchText": "package-script 取消等待子进程关闭 package-script adapter 收到 Vibe 取消信号时必须请求子进程终止，并在子进程关闭后才将结果结算为 unavailable，避免门禁先于其拥有的进程边界结束。 被取消的子进程收到终止信号并写入终止状态后，runner 才返回稳定的 `package-script-cancelled` unavailable 结果。 scripts/vibe-check.test.ts > package script runner waits for a cancelled child to close bun test --test-name-pattern=\"^package script runner waits for a cancelled child to close$\" ./scripts/vibe-check.test.ts",
+        "searchText": "package-script 取消等待子进程关闭 package-script adapter 收到 Vibe 取消信号时必须请求自己启动的直属 `bun run` 子进程终止，并在该子进程关闭后才将结果结算为 unavailable。 被取消的直属子进程收到终止信号并写入终止状态后，runner 才返回稳定的 `package-script-cancelled` unavailable 结果；本 Case 不证明脚本自行派生的后代进程已被终止。 scripts/vibe-check.test.ts > package script runner waits for a cancelled child to close bun test --test-name-pattern=\"^package script runner waits for a cancelled child to close$\" ./scripts/vibe-check.test.ts",
         "sourcePath": "repository-tooling/gate-package-script-cancellation-waits-for-child.md",
-        "summary": "package-script adapter 收到 Vibe 取消信号时必须请求子进程终止，并在子进程关闭后才将结果结算为 unavailable，避免门禁先于其拥有的进程边界结束。",
+        "summary": "package-script adapter 收到 Vibe 取消信号时必须请求自己启动的直属 `bun run` 子进程终止，并在该子进程关闭后才将结果结算为 unavailable。",
         "title": "package-script 取消等待子进程关闭"
-      }
-    },
-    "GATE-VIBE-NATIVE-001": {
-      "keys": {
-        "search": [
-          "GATE-VIBE-NATIVE-001 原生 blocking Check 对 finding 与 unavailable fail closed 重复、JSON、Schema 与 Markdown 链接的可信 finding 必须阻断 aggregate；输入或执行不可用也不能被解释为成功。 有效 fixture 全部 passed；真实重复、无效 JSON、Schema 违例和失效链接分别使其原生 Check failed。 不存在的项目根使四项原生 blocking Check 均 unavailable，并由 aggregate fail closed。 scripts/vibe-check.test.ts > native blocking Checks pass, fail on findings, and fail closed when unavailable bun test --test-name-pattern=\"^native blocking Checks pass, fail on findings, and fail closed when unavailable$\" ./scripts/vibe-check.test.ts"
-        ],
-        "topic": [
-          "repository-tooling"
-        ]
-      },
-      "state": {
-        "endLine": 13,
-        "entries": [
-          "scripts/vibe-check.test.ts > native blocking Checks pass, fail on findings, and fail closed when unavailable",
-          "bun test --test-name-pattern=\"^native blocking Checks pass, fail on findings, and fail closed when unavailable$\" ./scripts/vibe-check.test.ts"
-        ],
-        "id": "GATE-VIBE-NATIVE-001",
-        "line": 1,
-        "searchText": "原生 blocking Check 对 finding 与 unavailable fail closed 重复、JSON、Schema 与 Markdown 链接的可信 finding 必须阻断 aggregate；输入或执行不可用也不能被解释为成功。 有效 fixture 全部 passed；真实重复、无效 JSON、Schema 违例和失效链接分别使其原生 Check failed。 不存在的项目根使四项原生 blocking Check 均 unavailable，并由 aggregate fail closed。 scripts/vibe-check.test.ts > native blocking Checks pass, fail on findings, and fail closed when unavailable bun test --test-name-pattern=\"^native blocking Checks pass, fail on findings, and fail closed when unavailable$\" ./scripts/vibe-check.test.ts",
-        "sourcePath": "repository-tooling/gate-native-checks-block-findings-and-fail-closed.md",
-        "summary": "重复、JSON、Schema 与 Markdown 链接的可信 finding 必须阻断 aggregate；输入或执行不可用也不能被解释为成功。",
-        "title": "原生 blocking Check 对 finding 与 unavailable fail closed"
       }
     },
     "GENERATED-FILE-DECLARATION-001": {
@@ -15223,16 +15407,24 @@
       "ENV-METRICS-PREREQUISITES-001": "sha256:17691c720b0523f69656ea2ebf010cdcc27266d84b92749cacf68807aac2546e",
       "ENV-PERMISSION-RULES-001": "sha256:21a124776a169674569296131b473013b83cd4982ea6a91fde7ec22edc11b45a",
       "ENV-WORKTREE-SETUP-001": "sha256:a232485668782b975b6e416528f415886b669450f36394065848a5027441842f",
-      "GATE-CLI-RESULT-001": "sha256:b36c228983ef15aed9a1d17de0ed42c1d9c0991896a948a07e99d6f5edb77ed2",
-      "GATE-DEFINITION-CATALOG-001": "sha256:63bba205b516c8e8943ed5381febee6902edcd68065216cb5baf3c56dd5c241a",
+      "GATE-CLI-RESULT-001": "sha256:f2e158995ada843cf532592d34817f29864e0745c0d9b479d89b1d5852d79167",
+      "GATE-DEFINITION-CATALOG-001": "sha256:5d84e0238342b6f514da27af5baa116fa47b19fd97a8c4558f1b9841b4bf1164",
+      "GATE-DUPLICATE-DETECTION-001": "sha256:5ce85e2b84c401f0419a234702195ae2f539a9b19f40d6f0d1370ec50ec185b3",
       "GATE-FILE-SELECTION-001": "sha256:2a611569231721824b35a68e1227f49b52562b76c5b3ca76cba359d04fd51d77",
-      "GATE-FULL-PACKAGING-001": "sha256:4f71db856e15438e47326004363930cc5c4af2b79f58359d66bb35a9e0508115",
+      "GATE-FULL-PACKAGING-001": "sha256:18e2773d48fb54d16ae594423dc3a91ce8e8d0470cf52b08987f36bf480d50a9",
       "GATE-JSCPD-CONFIG-001": "sha256:5ccde3f26423316112fb003cb1cc9ea514a4effeb9699b48ece0ee6272fd015f",
+      "GATE-JSON-SCHEMA-001": "sha256:3c500d74072c67f0224c13c6b3af07dcdabf8122a8cedc1ca544489a4d23ad0f",
+      "GATE-JSON-VALIDATION-001": "sha256:21a30e0896750c479e371dda2c9ed6eecb5a02c089547dc51160ec674eb2dba9",
       "GATE-LIZARD-VERSION-001": "sha256:d1b6867bf1f0ce4875dc41c12483934500e5f3e03fc81dbd976c050320498544",
+      "GATE-MARKDOWN-LINK-001": "sha256:9a3b1f847a00e6b8b3d47e3c693900167dc9e4b13b3dd4cc864c3fb17e9c1a3b",
       "GATE-METRICS-ADVISORY-001": "sha256:af0dd4f5521a48efd2bdd98b27a68a29359cc114720224a842188de87b15bfb9",
+      "GATE-RELEASE-FINAL-TIMING-001": "sha256:39543aba49c4a373342664e8f22bf062dafc2f3784204a9e8c09ff8ff6d4678b",
+      "GATE-RELEASE-PACK-SUCCESS-001": "sha256:b2fe086357156fc8be762883610f558e1c0772a784a1683cea281378f5c68bf0",
+      "GATE-RELEASE-VERSION-ARGS-001": "sha256:3cfab82f53149ccb8867a56c26698decd3320b411967d1b2ea08fa59e4bbd43a",
+      "GATE-RELEASE-VERSION-FAILURE-001": "sha256:b4eb538d1fb90c506d61e8bbe373260c59e057cbf2c19d9e9145aa76edba0252",
+      "GATE-RELEASE-VERSION-UNAVAILABLE-001": "sha256:222948631a8c4b9e58171fb8998112880f2af7e8afc91ae05b3f49d11bdb065d",
       "GATE-SCRIPT-ADAPTER-001": "sha256:b461e94ab3f3cd94b2aa2ab437e516d27fb675f9df588a6ae6a07fc83f3644a9",
-      "GATE-SCRIPT-CANCELLATION-001": "sha256:754852675128ebd987a1273b69f76807836c8ccc1cf4c8ceeb1f434b5c6c413b",
-      "GATE-VIBE-NATIVE-001": "sha256:8617ce82be6e586daa6b14576687bc00b5a4394630a65f32869930c904e30a38",
+      "GATE-SCRIPT-CANCELLATION-001": "sha256:af126c6d3e04b6dad1ee6ad63672eb9be5b19245c41d69effc3f20525f456c14",
       "GENERATED-FILE-DECLARATION-001": "sha256:6e1393221dbc7a89eb508e87745a86f801af86a6067ebd39427d34876b660d3a",
       "GENERATED-FILE-DECLARATION-CLEANUP-001": "sha256:514a4c9d7314c505c7e8b390ae1bc819264127f1571a3bd49dd17043119e89b0",
       "GENERATED-FILE-DRIFT-001": "sha256:75f8e90a810f0a9bb1d14f9e6c378c6815b3fce9dd7d9217124df59684ff852a",

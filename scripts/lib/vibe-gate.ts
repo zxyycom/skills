@@ -108,8 +108,7 @@ export const defaultGatePackageScripts = [
   "check:skill-updaters",
   "test:check",
   "test:environment",
-  "test:generated-file",
-  "hash:skills"
+  "test:generated-file"
 ] as const;
 
 export const fullOnlyGatePackageScripts = [
@@ -126,10 +125,23 @@ export const releaseRequiredPackageScripts = [
   ...fullOnlyGatePackageScripts
 ] as const;
 
+export const releaseVersionPackageScript = "hash:skills";
+
+export function isReleaseBaselineRef(value: unknown): value is string {
+  return (
+    typeof value === "string" &&
+    value.length > 0 &&
+    value.trim() === value &&
+    !value.startsWith("-") &&
+    !value.includes("\0") &&
+    !/[\r\n]/u.test(value)
+  );
+}
+
 export type GatePackageScript = (typeof releaseRequiredPackageScripts)[number];
 
 export type GatePackageInvocation = Readonly<{
-  args: readonly ["run", string];
+  args: readonly ["run", string, ...string[]];
   command: "bun";
   cwd: string;
   script: string;
@@ -158,6 +170,7 @@ export type GatePackageRunner = (
 ) => Promise<GatePackageRunResult>;
 
 export type GateDefinitionDependencies = Readonly<{
+  baselineRef?: string;
   nativeChecks?: readonly Check[];
   runPackageScript?: GatePackageRunner;
 }>;
@@ -309,6 +322,44 @@ export async function runBunPackageScript(
   });
 }
 
+async function executePackageScript(
+  input: Readonly<{
+    args: GatePackageInvocation["args"];
+    projectRoot: string;
+    runner: GatePackageRunner;
+    script: string;
+    signal: AbortSignal;
+  }>
+) {
+  const { args, projectRoot, runner, script, signal } = input;
+  if (signal.aborted) {
+    return unavailableScriptResult(script, "package-script-cancelled", "");
+  }
+  try {
+    const result = await runner({
+      args,
+      command: "bun",
+      cwd: projectRoot,
+      script,
+      signal
+    });
+    if (signal.aborted) {
+      return unavailableScriptResult(
+        script,
+        "package-script-cancelled",
+        result.output
+      );
+    }
+    return settlePackageScript(script, result);
+  } catch (error) {
+    return unavailableScriptResult(
+      script,
+      "package-script-start-failed",
+      error instanceof Error ? error.message : String(error)
+    );
+  }
+}
+
 function createPackageScriptCheck(
   script: string,
   runner: GatePackageRunner
@@ -317,42 +368,66 @@ function createPackageScriptCheck(
     checkId: packageScriptCheckId(script),
     displayName: `Script: ${script}`,
     async execution({ project, signal }) {
-      if (signal.aborted) {
-        return unavailableScriptResult(script, "package-script-cancelled", "");
-      }
-      try {
-        const result = await runner({
-          args: ["run", script],
-          command: "bun",
-          cwd: project.root,
-          script,
-          signal
-        });
-        if (signal.aborted) {
-          return unavailableScriptResult(
-            script,
-            "package-script-cancelled",
-            result.output
-          );
-        }
-        return settlePackageScript(script, result);
-      } catch (error) {
-        return unavailableScriptResult(
-          script,
-          "package-script-start-failed",
-          error instanceof Error ? error.message : String(error)
-        );
-      }
+      return executePackageScript({
+        args: ["run", script],
+        projectRoot: project.root,
+        runner,
+        script,
+        signal
+      });
     }
   });
 }
 
-function createPackSkillsCheck(runner: GatePackageRunner): Check {
+function prepareReleaseBaseline(
+  baselineRef: unknown
+):
+  | Readonly<{ readonly baselineRef: string; readonly status: "ready" }>
+  | Readonly<{ readonly status: "invalid" }> {
+  if (!isReleaseBaselineRef(baselineRef)) {
+    return { status: "invalid" };
+  }
+  return { baselineRef, status: "ready" };
+}
+
+function createPackSkillsCheck(
+  runner: GatePackageRunner,
+  baselineRef: string
+): Check {
   return defineCheck({
     checkId: "pack:skills",
-    displayName: "Package skills",
+    displayName: "Validate versions and package skills",
     dependsOn: releaseRequiredCheckIds,
-    async execution({ dependencies, project, signal }) {
+    options: { baselineRef },
+    preflight(options: Readonly<{ baselineRef: string }>) {
+      const prepared = prepareReleaseBaseline(options.baselineRef);
+      if (prepared.status === "invalid") {
+        return {
+          status: "failure" as const,
+          action: "block" as const,
+          reason: { code: "release-baseline-invalid" },
+          messages: [
+            {
+              level: "error" as const,
+              code: "release-baseline-invalid",
+              message:
+                "The release baseline must be a trimmed, non-empty revision input without a leading hyphen, NUL, CR, or LF. " +
+                "Only hash:skills resolves it after release prerequisites pass. " +
+                "Pass --baseline-ref <ref> to bun run check --full."
+            }
+          ]
+        };
+      }
+      return {
+        status: "success" as const,
+        preparedOptions: { baselineRef: prepared.baselineRef }
+      };
+    },
+    async execution({ dependencies, options, project, records, signal }) {
+      records.report(
+        { id: "release-baseline" },
+        { baselineRef: options.baselineRef }
+      );
       for (const checkId of releaseRequiredCheckIds) {
         const dependency = dependencies.get(checkId);
         if (!dependency.ok) {
@@ -377,6 +452,7 @@ function createPackSkillsCheck(runner: GatePackageRunner): Check {
           return {
             status: "failed" as const,
             data: {
+              baselineRef: options.baselineRef,
               prerequisite: checkId,
               prerequisiteStatus: dependency.status
             },
@@ -393,31 +469,46 @@ function createPackSkillsCheck(runner: GatePackageRunner): Check {
         }
       }
 
-      if (signal.aborted) {
-        return unavailableScriptResult(
-          "pack:skills",
-          "package-script-cancelled",
-          ""
-        );
+      const versionCheck = await executePackageScript({
+        args: [
+          "run",
+          releaseVersionPackageScript,
+          "--",
+          "--baseline-ref",
+          options.baselineRef,
+          "--quiet"
+        ],
+        projectRoot: project.root,
+        runner,
+        script: releaseVersionPackageScript,
+        signal
+      });
+      if (versionCheck.status !== "passed") {
+        if (versionCheck.status === "failed") {
+          return {
+            ...versionCheck,
+            data: { ...versionCheck.data, baselineRef: options.baselineRef }
+          };
+        }
+        return versionCheck;
       }
-      try {
-        return settlePackageScript(
-          "pack:skills",
-          await runner({
-            args: ["run", "pack:skills"],
-            command: "bun",
-            cwd: project.root,
-            script: "pack:skills",
-            signal
-          })
-        );
-      } catch (error) {
-        return unavailableScriptResult(
-          "pack:skills",
-          "package-script-start-failed",
-          error instanceof Error ? error.message : String(error)
-        );
+      const packageResult = await executePackageScript({
+        args: ["run", "pack:skills"],
+        projectRoot: project.root,
+        runner,
+        script: "pack:skills",
+        signal
+      });
+      if (
+        packageResult.status === "passed" ||
+        packageResult.status === "failed"
+      ) {
+        return {
+          ...packageResult,
+          data: { ...packageResult.data, baselineRef: options.baselineRef }
+        };
       }
+      return packageResult;
     }
   });
 }
@@ -511,14 +602,19 @@ export function createGateDefinition(
     )
   ];
   if (profile === "full") {
-    checks.push(createPackSkillsCheck(runner));
+    checks.push(
+      createPackSkillsCheck(runner, dependencies.baselineRef ?? "HEAD")
+    );
   }
 
   return defineConfig({
     checks,
     outputs: {
       diagnosticLogging: { enabled: false },
-      machinePublication: { enabled: false },
+      machinePublication: {
+        directory: ".log/vibe-check/publication",
+        enabled: true
+      },
       progressRendering: { enabled: true }
     },
     scheduler: { maxParallel: 4 }

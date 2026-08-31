@@ -1,6 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { releaseRequiredPackageScripts } from "../lib/vibe-gate.ts";
+import {
+  releaseRequiredPackageScripts,
+  releaseVersionPackageScript
+} from "../lib/vibe-gate.ts";
 import {
   formatPackageScripts,
   lintPackageScripts,
@@ -43,6 +46,7 @@ export const authoritativeGatePackageScripts = {
 
 export const requiredPackageScripts = [
   ...releaseRequiredPackageScripts,
+  releaseVersionPackageScript,
   "pack:skills",
   "fix",
   "format",

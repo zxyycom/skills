@@ -28,12 +28,18 @@ import {
   projectJscpdExecutable,
   projectLizardExecutable,
   releaseRequiredCheckIds,
+  releaseVersionPackageScript,
   runBunPackageScript,
   vibeNativeCheckIds,
   type GatePackageInvocation,
   type GatePackageRunner
 } from "./lib/vibe-gate.ts";
-import { resolveGateProfile, runVibeCheck } from "./vibe-check.ts";
+import {
+  resolveGateInvocation,
+  resolveGateProfile,
+  runVibeCheck,
+  type GateInvocation
+} from "./vibe-check.ts";
 
 const aggregateOptions = {
   checks: "all",
@@ -184,6 +190,16 @@ function outcomeFor(result: ReturnType<typeof completed>, checkId: string) {
   return check.outcome;
 }
 
+function releaseTerminalCheck(definition: ProjectDefinition): Check {
+  const check = definition.checks.find(
+    ({ checkId }) => checkId === "pack:skills"
+  );
+  if (!check) {
+    throw new Error("missing release terminal Check");
+  }
+  return check;
+}
+
 function passingNativeChecks(): readonly Check[] {
   return vibeNativeCheckIds.map((checkId) =>
     defineCheck({
@@ -230,6 +246,44 @@ function completedScript(exitCode = 0, output = ""): GatePackageRunner {
   return async () => ({ exitCode, output, status: "completed" });
 }
 
+type NativeBlockingCheckFixture = Readonly<{
+  readonly check: Check;
+  readonly introduceFinding: (directory: string) => Promise<void>;
+  readonly prefix: string;
+  readonly setup: (directory: string) => Promise<void>;
+}>;
+
+async function assertNativeBlockingCheckContract(
+  fixture: NativeBlockingCheckFixture
+): Promise<void> {
+  await withTemporaryDirectory(fixture.prefix, async (directory) => {
+    await fixture.setup(directory);
+    runGit(directory, ["init"]);
+    runGit(directory, ["add", "."]);
+    const definition = defineConfig({
+      checks: [fixture.check],
+      outputs: noOutput
+    });
+
+    const passed = await runDefinition(definition, directory);
+    assert.equal(passed.aggregate, "passed");
+    assert.equal(passed.snapshot.checks[0]?.outcome.status, "passed");
+
+    await fixture.introduceFinding(directory);
+    runGit(directory, ["add", "."]);
+    const failed = await runDefinition(definition, directory);
+    assert.equal(failed.aggregate, "failed");
+    assert.equal(failed.snapshot.checks[0]?.outcome.status, "failed");
+
+    const unavailable = await runDefinition(
+      definition,
+      path.join(directory, "missing-root")
+    );
+    assert.equal(unavailable.aggregate, "failed");
+    assert.equal(unavailable.snapshot.checks[0]?.outcome.status, "unavailable");
+  });
+}
+
 test("gate catalog builds the exact default and full Definitions", () => {
   const runner = completedScript();
   const nativeChecks = passingNativeChecks();
@@ -249,17 +303,27 @@ test("gate catalog builds the exact default and full Definitions", () => {
   assert.deepEqual(defaultCheckIds, gateCheckIds("default"));
   assert.deepEqual(fullCheckIds, gateCheckIds("full"));
   assert.equal(defaultCheckIds.includes("pack:skills"), false);
+  assert.equal(
+    defaultCheckIds.includes(`script:${releaseVersionPackageScript}`),
+    false
+  );
   assert.deepEqual(fullCheckIds.slice(-1), ["pack:skills"]);
   assert.equal(defaultDefinition.scheduler.maxParallel, 4);
   assert.equal(fullDefinition.scheduler.maxParallel, 4);
   assert.deepEqual(defaultDefinition.outputs, {
     diagnosticLogging: { enabled: false, directory: ".log/vibe-check" },
-    machinePublication: { enabled: false, directory: "artifacts/vibe-check" },
+    machinePublication: {
+      enabled: true,
+      directory: ".log/vibe-check/publication"
+    },
     progressRendering: { enabled: true }
   });
-  assert.equal(defaultGatePackageScripts.length, 25);
+  assert.equal(defaultGatePackageScripts.length, 24);
   assert.equal(fullOnlyGatePackageScripts.length, 6);
-  assert.equal(releaseRequiredCheckIds.length, 37);
+  assert.equal(releaseRequiredCheckIds.length, 36);
+  assert.deepEqual(releaseTerminalCheck(fullDefinition).options, {
+    baselineRef: "HEAD"
+  });
 });
 
 test("package script adapter maps terminal results and settles independent Checks", async () => {
@@ -360,9 +424,9 @@ test("package script runner waits for a cancelled child to close", async () => {
   });
 });
 
-test("CLI accepts only default and full, and maps Vibe results to exit codes", async () => {
+test("CLI parses profiles and full baselines, then maps Vibe results to exit codes", async () => {
   const diagnostics: string[] = [];
-  let selectedProfile: string | null = null;
+  let selectedInvocation: GateInvocation | null = null;
   const passedDefinition = defineConfig({
     checks: [
       defineCheck({
@@ -407,8 +471,8 @@ test("CLI accepts only default and full, and maps Vibe results to exit codes", a
     outputs: noOutput
   });
   const dependencies = {
-    createDefinition(profile: "default" | "full") {
-      selectedProfile = profile;
+    createDefinition(invocation: GateInvocation) {
+      selectedInvocation = invocation;
       return passedDefinition;
     },
     reportError(message: string) {
@@ -418,11 +482,51 @@ test("CLI accepts only default and full, and maps Vibe results to exit codes", a
 
   assert.equal(resolveGateProfile([]), "default");
   assert.equal(resolveGateProfile(["--full"]), "full");
+  assert.deepEqual(resolveGateInvocation([]), { profile: "default" });
+  assert.deepEqual(resolveGateInvocation(["--full"]), {
+    baselineRef: "HEAD",
+    profile: "full"
+  });
+  assert.deepEqual(
+    resolveGateInvocation(["--full", "--baseline-ref", "origin/release"]),
+    { baselineRef: "origin/release", profile: "full" }
+  );
+  assert.equal(
+    resolveGateInvocation(["--baseline-ref", "origin/release"]),
+    null
+  );
+  for (const invalidBaseline of [
+    "",
+    " origin/release",
+    "origin/release ",
+    "-origin/release",
+    "origin/release\0suffix",
+    "origin/release\nsuffix",
+    "origin/release\rsuffix"
+  ]) {
+    assert.equal(
+      resolveGateInvocation(["--full", "--baseline-ref", invalidBaseline]),
+      null
+    );
+  }
+  assert.equal(
+    resolveGateInvocation(["--full", "--baseline-ref", "--full"]),
+    null
+  );
   assert.equal(resolveGateProfile(["--verbose"]), null);
   assert.equal(await runVibeCheck([], dependencies), 0);
-  assert.equal(selectedProfile, "default");
-  assert.equal(await runVibeCheck(["--full"], dependencies), 0);
-  assert.equal(selectedProfile, "full");
+  assert.deepEqual(selectedInvocation, { profile: "default" });
+  assert.equal(
+    await runVibeCheck(
+      ["--full", "--baseline-ref", "origin/release"],
+      dependencies
+    ),
+    0
+  );
+  assert.deepEqual(selectedInvocation, {
+    baselineRef: "origin/release",
+    profile: "full"
+  });
   let invalidDefinitionCalls = 0;
   assert.equal(
     await runVibeCheck(["--unknown"], {
@@ -435,7 +539,10 @@ test("CLI accepts only default and full, and maps Vibe results to exit codes", a
     1
   );
   assert.equal(invalidDefinitionCalls, 0);
-  assert.match(diagnostics.at(-1) ?? "", /Usage: bun run check \[--full\]/u);
+  assert.match(
+    diagnostics.at(-1) ?? "",
+    /Usage: bun run check \[--full \[--baseline-ref <ref>\]\]/u
+  );
   assert.equal(
     await runVibeCheck([], {
       createDefinition: () => failedDefinition,
@@ -454,190 +561,437 @@ test("CLI accepts only default and full, and maps Vibe results to exit codes", a
   assert.match(diagnostics.at(-1) ?? "", /Vibe Check invocation failed: /u);
 });
 
-test("native blocking Checks pass, fail on findings, and fail closed when unavailable", async () => {
-  await withTemporaryDirectory("skills-vibe-native-", async (directory) => {
-    const duplicatedSource = [
-      "export function first(value: number): number {",
-      "  const alpha = value + 1;",
-      "  const beta = alpha + 2;",
-      "  const gamma = beta + 3;",
-      "  const delta = gamma + 4;",
-      "  const epsilon = delta + 5;",
-      "  const zeta = epsilon + 6;",
-      "  const eta = zeta + 7;",
-      "  const theta = eta + 8;",
-      "  return theta;",
-      "}",
-      ""
-    ].join("\n");
-    await Promise.all([
-      fs.writeFile(path.join(directory, "first.ts"), duplicatedSource, "utf8"),
-      fs.writeFile(
-        path.join(directory, "second.ts"),
+test("release terminal Check validates its baseline in preflight and waits for every prerequisite", async () => {
+  await withTemporaryDirectory(
+    "skills-vibe-release-timing-",
+    async (directory) => {
+      const unsettledPrerequisites = new Set(releaseRequiredCheckIds);
+      const calls: GatePackageInvocation[] = [];
+      const nativeChecks = vibeNativeCheckIds.map((checkId) =>
+        defineCheck({
+          checkId,
+          displayName: checkId,
+          execution() {
+            assert.ok(
+              unsettledPrerequisites.delete(checkId),
+              `duplicate native settlement for ${checkId}`
+            );
+            return { status: "passed" as const, data: { checkId } };
+          }
+        })
+      );
+      const definition = createGateDefinition("full", {
+        baselineRef: "origin/release",
+        nativeChecks,
+        runPackageScript: async (invocation) => {
+          calls.push(invocation);
+          if (invocation.script === releaseVersionPackageScript) {
+            assert.deepEqual([...unsettledPrerequisites], []);
+          } else if (invocation.script !== "pack:skills") {
+            assert.ok(
+              unsettledPrerequisites.delete(`script:${invocation.script}`),
+              `unexpected prerequisite script ${invocation.script}`
+            );
+          }
+          return { exitCode: 0, output: "", status: "completed" };
+        }
+      });
+      const terminalCheck = releaseTerminalCheck(definition);
+      assert.deepEqual(terminalCheck.dependsOn, releaseRequiredCheckIds);
+      assert.deepEqual(terminalCheck.options, {
+        baselineRef: "origin/release"
+      });
+      if (terminalCheck.preflight === undefined) {
+        throw new Error(
+          "release terminal Check must define a baseline preflight"
+        );
+      }
+      assert.deepEqual(
+        await terminalCheck.preflight(
+          { baselineRef: "origin/release" },
+          new AbortController().signal
+        ),
+        {
+          preparedOptions: { baselineRef: "origin/release" },
+          status: "success"
+        }
+      );
+      for (const invalidBaseline of [
+        "",
+        " origin/release",
+        "origin/release ",
+        "-origin/release",
+        "origin/release\0suffix",
+        "origin/release\nsuffix",
+        "origin/release\rsuffix"
+      ]) {
+        const invalidPreflight = await terminalCheck.preflight(
+          { baselineRef: invalidBaseline },
+          new AbortController().signal
+        );
+        assert.equal(invalidPreflight.status, "failure");
+        if (invalidPreflight.status === "failure") {
+          assert.equal(invalidPreflight.action, "block");
+          assert.deepEqual(invalidPreflight.reason, {
+            code: "release-baseline-invalid"
+          });
+        }
+      }
+
+      const result = await runDefinition(definition, directory);
+      assert.equal(result.aggregate, "passed");
+      assert.deepEqual(
+        result.snapshot.records.find(
+          ({ checkId, id }) =>
+            checkId === "pack:skills" && id === "release-baseline"
+        ),
+        {
+          checkId: "pack:skills",
+          data: { baselineRef: "origin/release" },
+          id: "release-baseline"
+        }
+      );
+      assert.deepEqual(
+        calls.slice(-2).map(({ script }) => script),
+        [releaseVersionPackageScript, "pack:skills"]
+      );
+    }
+  );
+});
+
+test("release version validation failure blocks package execution", async () => {
+  await withTemporaryDirectory(
+    "skills-vibe-release-version-failure-",
+    async (directory) => {
+      const calls: GatePackageInvocation[] = [];
+      const result = await runDefinition(
+        createGateDefinition("full", {
+          baselineRef: "release-base",
+          nativeChecks: passingNativeChecks(),
+          runPackageScript: async (invocation) => {
+            calls.push(invocation);
+            return {
+              exitCode:
+                invocation.script === releaseVersionPackageScript ? 1 : 0,
+              output: "version increase required",
+              status: "completed"
+            };
+          }
+        }),
+        directory
+      );
+
+      assert.equal(result.aggregate, "failed");
+      assert.deepEqual(outcomeFor(result, "pack:skills"), {
+        data: {
+          baselineRef: "release-base",
+          exitCode: 1,
+          script: releaseVersionPackageScript
+        },
+        status: "failed"
+      });
+      assert.equal(
+        calls.filter(({ script }) => script === releaseVersionPackageScript)
+          .length,
+        1
+      );
+      assert.equal(
+        calls.some(({ script }) => script === "pack:skills"),
+        false
+      );
+    }
+  );
+});
+
+test("release version validation unavailable or throws blocks package execution", async () => {
+  await withTemporaryDirectory(
+    "skills-vibe-release-version-unavailable-",
+    async (directory) => {
+      for (const versionBehavior of ["unavailable", "throws"] as const) {
+        const calls: GatePackageInvocation[] = [];
+        const result = await runDefinition(
+          createGateDefinition("full", {
+            baselineRef: "release-base",
+            nativeChecks: passingNativeChecks(),
+            runPackageScript: async (invocation) => {
+              calls.push(invocation);
+              if (invocation.script !== releaseVersionPackageScript) {
+                return { exitCode: 0, output: "", status: "completed" };
+              }
+              if (versionBehavior === "throws") {
+                throw new Error("version check runner failed");
+              }
+              return {
+                output: "Git resolver unavailable",
+                reason: "package-script-start-failed",
+                status: "unavailable"
+              };
+            }
+          }),
+          directory
+        );
+
+        assert.equal(result.aggregate, "failed");
+        assert.deepEqual(outcomeFor(result, "pack:skills"), {
+          reason: { code: "package-script-start-failed" },
+          status: "unavailable"
+        });
+        assert.equal(
+          calls.filter(({ script }) => script === releaseVersionPackageScript)
+            .length,
+          1
+        );
+        assert.equal(
+          calls.some(({ script }) => script === "pack:skills"),
+          false
+        );
+      }
+    }
+  );
+});
+
+test("release terminal Check packages exactly once after version validation passes", async () => {
+  await withTemporaryDirectory(
+    "skills-vibe-release-package-",
+    async (directory) => {
+      const packageOutput = path.join(directory, "dist", "skills.fixture");
+      const calls: GatePackageInvocation[] = [];
+      const result = await runDefinition(
+        createGateDefinition("full", {
+          baselineRef: "release-base",
+          nativeChecks: passingNativeChecks(),
+          runPackageScript: async (invocation) => {
+            calls.push(invocation);
+            if (invocation.script === "pack:skills") {
+              await fs.mkdir(path.dirname(packageOutput), { recursive: true });
+              await fs.writeFile(packageOutput, "packaged\n", "utf8");
+            }
+            return { exitCode: 0, output: "", status: "completed" };
+          }
+        }),
+        directory
+      );
+
+      assert.equal(result.aggregate, "passed");
+      assert.deepEqual(outcomeFor(result, "pack:skills"), {
+        data: {
+          baselineRef: "release-base",
+          exitCode: 0,
+          script: "pack:skills"
+        },
+        status: "passed"
+      });
+      assert.deepEqual(
+        calls.slice(-2).map(({ script }) => script),
+        [releaseVersionPackageScript, "pack:skills"]
+      );
+      assert.equal(
+        calls.filter(({ script }) => script === releaseVersionPackageScript)
+          .length,
+        1
+      );
+      assert.equal(
+        calls.filter(({ script }) => script === "pack:skills").length,
+        1
+      );
+      assert.equal(await fs.readFile(packageOutput, "utf8"), "packaged\n");
+    }
+  );
+});
+
+test("release version validation passes its baseline through Bun argument arrays", async () => {
+  await withTemporaryDirectory(
+    "skills-vibe-release-args-",
+    async (directory) => {
+      const capturedArgs = path.join(directory, "captured-args.json");
+      const shellInjectionMarker = path.join(directory, "must-not-exist");
+      const baselineRef = `release; touch ${shellInjectionMarker}`;
+      await fs.writeFile(
+        path.join(directory, "package.json"),
+        JSON.stringify({ scripts: { "hash:skills": "bun capture-args.ts" } }),
+        "utf8"
+      );
+      await fs.writeFile(
+        path.join(directory, "capture-args.ts"),
         [
-          "export function second(value: number): number {",
-          "  const remainder = value - 1;",
-          "  return remainder / 2;",
-          "}",
+          'import { writeFileSync } from "node:fs";',
+          `writeFileSync(${JSON.stringify(capturedArgs)}, JSON.stringify(process.argv.slice(2)));`,
           ""
         ].join("\n"),
         "utf8"
-      ),
-      fs.writeFile(
+      );
+
+      const result = await runDefinition(
+        createGateDefinition("full", {
+          baselineRef,
+          nativeChecks: passingNativeChecks(),
+          runPackageScript: async (invocation) =>
+            invocation.script === releaseVersionPackageScript
+              ? runBunPackageScript(invocation)
+              : { exitCode: 0, output: "", status: "completed" }
+        }),
+        directory
+      );
+
+      assert.equal(result.aggregate, "passed");
+      assert.deepEqual(JSON.parse(await fs.readFile(capturedArgs, "utf8")), [
+        "--baseline-ref",
+        baselineRef,
+        "--quiet"
+      ]);
+      assert.equal(await fileExists(shellInjectionMarker), false);
+    }
+  );
+});
+
+test("duplicate detection blocks findings and fails closed when unavailable", async () => {
+  const duplicatedSource = [
+    "export function fixture(value: number): number {",
+    "  const alpha = value + 1;",
+    "  const beta = alpha + 2;",
+    "  const gamma = beta + 3;",
+    "  const delta = gamma + 4;",
+    "  const epsilon = delta + 5;",
+    "  const zeta = epsilon + 6;",
+    "  const eta = zeta + 7;",
+    "  const theta = eta + 8;",
+    "  return theta;",
+    "}",
+    ""
+  ].join("\n");
+  await assertNativeBlockingCheckContract({
+    check: duplicateDetection({
+      cache: { enabled: false },
+      codeAreas: {
+        fixture: {
+          files: {
+            exclude: [],
+            include: ["**/*.ts"],
+            source: "git-worktree"
+          },
+          findingPolicy: "blocking",
+          minimumLines: 2,
+          minimumTokens: 10
+        }
+      },
+      scanner: {
+        command: { kind: "custom", executable: projectJscpdExecutable }
+      }
+    }),
+    async introduceFinding(directory) {
+      await fs.writeFile(
+        path.join(directory, "duplicate.ts"),
+        duplicatedSource,
+        "utf8"
+      );
+    },
+    prefix: "skills-vibe-duplicate-",
+    async setup(directory) {
+      await Promise.all([
+        fs.writeFile(
+          path.join(directory, "fixture.ts"),
+          duplicatedSource,
+          "utf8"
+        ),
+        fs.writeFile(
+          path.join(directory, "distinct.ts"),
+          "export const distinct = 1;\n",
+          "utf8"
+        )
+      ]);
+    }
+  });
+});
+
+test("JSON validation blocks findings and fails closed when unavailable", async () => {
+  await assertNativeBlockingCheckContract({
+    check: jsonValidation({
+      files: { exclude: [], include: ["**/*.json"], source: "git-worktree" }
+    }),
+    async introduceFinding(directory) {
+      await fs.writeFile(path.join(directory, "broken.json"), "{\n", "utf8");
+    },
+    prefix: "skills-vibe-json-",
+    async setup(directory) {
+      await fs.writeFile(
         path.join(directory, "valid.json"),
         '{"valid":true}\n',
         "utf8"
-      ),
-      fs.writeFile(
-        path.join(directory, "schema.json"),
-        JSON.stringify({
-          properties: { name: { type: "string" } },
-          required: ["name"],
-          type: "object"
-        }),
-        "utf8"
-      ),
-      fs.writeFile(
-        path.join(directory, "instance.json"),
-        '{"name":"ok"}\n',
-        "utf8"
-      ),
-      fs.writeFile(path.join(directory, "target.md"), "# Target\n", "utf8"),
-      fs.writeFile(
-        path.join(directory, "root.md"),
-        "[target](target.md)\n",
-        "utf8"
-      )
-    ]);
-    runGit(directory, ["init"]);
-    runGit(directory, ["add", "."]);
-    const nativeChecks = [
-      duplicateDetection({
-        cache: { enabled: false },
-        scanner: {
-          command: { kind: "custom", executable: projectJscpdExecutable }
-        },
-        codeAreas: {
-          fixture: {
-            files: {
-              exclude: [],
-              include: ["**/*.ts"],
-              source: "git-worktree"
-            },
-            findingPolicy: "blocking",
-            minimumLines: 2,
-            minimumTokens: 10
-          }
-        }
-      }),
-      jsonValidation({
-        files: { exclude: [], include: ["**/*.json"], source: "git-worktree" }
-      }),
-      jsonSchemaValidation({
-        bindings: [
-          {
-            id: "fixture",
-            instancePath: "instance.json",
-            schemaId: "urn:fixture:schema"
-          }
-        ],
-        files: {
-          exclude: [],
-          include: ["schema.json", "instance.json"],
-          source: "git-worktree"
-        },
-        schemaIdentity: { mode: "configuration-authoritative" },
-        schemas: [{ id: "urn:fixture:schema", path: "schema.json" }]
-      }),
-      markdownLinkValidation({
-        files: { exclude: [], include: ["**/*.md"], source: "git-worktree" },
-        findingPolicy: "blocking"
-      })
-    ];
-    const definition = defineConfig({
-      checks: nativeChecks,
-      outputs: noOutput
-    });
-    const passed = await runDefinition(definition, directory);
-
-    assert.equal(passed.aggregate, "passed");
-    for (const check of passed.snapshot.checks) {
-      assert.equal(check.outcome.status, "passed");
+      );
     }
+  });
+});
 
-    await Promise.all([
-      fs.writeFile(path.join(directory, "third.ts"), duplicatedSource, "utf8"),
-      fs.writeFile(path.join(directory, "broken.json"), "{\n", "utf8"),
-      fs.writeFile(
+test("JSON schema validation blocks findings and fails closed when unavailable", async () => {
+  await assertNativeBlockingCheckContract({
+    check: jsonSchemaValidation({
+      bindings: [
+        {
+          id: "fixture",
+          instancePath: "instance.json",
+          schemaId: "urn:fixture:schema"
+        }
+      ],
+      files: {
+        exclude: [],
+        include: ["schema.json", "instance.json"],
+        source: "git-worktree"
+      },
+      schemaIdentity: { mode: "configuration-authoritative" },
+      schemas: [{ id: "urn:fixture:schema", path: "schema.json" }]
+    }),
+    async introduceFinding(directory) {
+      await fs.writeFile(
         path.join(directory, "instance.json"),
         '{"name":4}\n',
         "utf8"
-      ),
-      fs.writeFile(
+      );
+    },
+    prefix: "skills-vibe-schema-",
+    async setup(directory) {
+      await Promise.all([
+        fs.writeFile(
+          path.join(directory, "schema.json"),
+          JSON.stringify({
+            properties: { name: { type: "string" } },
+            required: ["name"],
+            type: "object"
+          }),
+          "utf8"
+        ),
+        fs.writeFile(
+          path.join(directory, "instance.json"),
+          '{"name":"ok"}\n',
+          "utf8"
+        )
+      ]);
+    }
+  });
+});
+
+test("Markdown link validation blocks findings and fails closed when unavailable", async () => {
+  await assertNativeBlockingCheckContract({
+    check: markdownLinkValidation({
+      files: { exclude: [], include: ["**/*.md"], source: "git-worktree" },
+      findingPolicy: "blocking"
+    }),
+    async introduceFinding(directory) {
+      await fs.writeFile(
         path.join(directory, "root.md"),
         "[missing](missing.md)\n",
         "utf8"
-      )
-    ]);
-    runGit(directory, ["add", "."]);
-    const failed = await runDefinition(definition, directory);
-
-    assert.equal(failed.aggregate, "failed");
-    for (const check of failed.snapshot.checks) {
-      assert.equal(check.outcome.status, "failed", check.checkId);
-    }
-
-    const unavailableFiles = {
-      exclude: [],
-      include: ["**/*"],
-      source: "filesystem"
-    } as const;
-    const unavailable = await runDefinition(
-      defineConfig({
-        checks: [
-          duplicateDetection({
-            cache: { enabled: false },
-            scanner: {
-              command: { kind: "custom", executable: projectJscpdExecutable }
-            },
-            codeAreas: {
-              fixture: {
-                files: {
-                  exclude: [],
-                  include: ["**/*.ts"],
-                  source: "git-worktree"
-                },
-                findingPolicy: "blocking",
-                minimumLines: 2,
-                minimumTokens: 10
-              }
-            }
-          }),
-          jsonValidation({ files: unavailableFiles }),
-          jsonSchemaValidation({
-            bindings: [
-              {
-                id: "fixture",
-                instancePath: "instance.json",
-                schemaId: "urn:fixture:schema"
-              }
-            ],
-            files: unavailableFiles,
-            schemaIdentity: { mode: "configuration-authoritative" },
-            schemas: [{ id: "urn:fixture:schema", path: "schema.json" }]
-          }),
-          markdownLinkValidation({
-            files: unavailableFiles,
-            findingPolicy: "blocking"
-          })
-        ],
-        outputs: noOutput
-      }),
-      path.join(directory, "missing-root")
-    );
-    assert.equal(unavailable.aggregate, "failed");
-    for (const check of unavailable.snapshot.checks) {
-      assert.equal(check.outcome.status, "unavailable", check.checkId);
+      );
+    },
+    prefix: "skills-vibe-markdown-",
+    async setup(directory) {
+      await Promise.all([
+        fs.writeFile(path.join(directory, "target.md"), "# Target\n", "utf8"),
+        fs.writeFile(
+          path.join(directory, "root.md"),
+          "[target](target.md)\n",
+          "utf8"
+        )
+      ]);
     }
   });
 });
@@ -946,6 +1300,7 @@ test("full packaging runs once only after every release prerequisite passes", as
       };
     });
     assert.equal(prerequisiteFailed.aggregate, "failed");
+    assert.equal(failedCalls.includes(releaseVersionPackageScript), false);
     assert.equal(failedCalls.includes("pack:skills"), false);
     assert.equal(await packageOutputExists(), false);
     assert.equal(
@@ -966,6 +1321,7 @@ test("full packaging runs once only after every release prerequisite passes", as
         : { exitCode: 0, output: "", status: "completed" };
     });
     assert.equal(prerequisiteUnavailable.aggregate, "failed");
+    assert.equal(unavailableCalls.includes(releaseVersionPackageScript), false);
     assert.equal(unavailableCalls.includes("pack:skills"), false);
     assert.equal(await packageOutputExists(), false);
     assert.equal(
@@ -996,6 +1352,11 @@ test("full packaging runs once only after every release prerequisite passes", as
         directory
       );
       assert.equal(result.aggregate, "failed", `${checkId} ${status}`);
+      assert.equal(
+        calls.includes(releaseVersionPackageScript),
+        false,
+        `${checkId} ${status}`
+      );
       assert.equal(
         calls.includes("pack:skills"),
         false,

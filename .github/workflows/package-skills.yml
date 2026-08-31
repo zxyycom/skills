@@ -75,7 +75,16 @@ jobs:
           test "$(lizard --version)" = "1.23.0"
 
       - name: Validate and package
-        run: bun run check --full
+        env:
+          BASELINE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+
+          args=(--full)
+          if [ -n "${BASELINE_REF:-}" ] && [ "$BASELINE_REF" != "0000000000000000000000000000000000000000" ]; then
+            args+=(--baseline-ref "$BASELINE_REF")
+          fi
+          bun run check -- "${args[@]}"
 
       - name: Calculate skill hash and check versions
         id: skill_hash
@@ -88,7 +97,7 @@ jobs:
           if [ -n "${BASELINE_REF:-}" ] && [ "$BASELINE_REF" != "0000000000000000000000000000000000000000" ]; then
             args+=(--baseline-ref "$BASELINE_REF")
           fi
-          bun run hash:skills "${args[@]}"
+          bun run hash:skills -- "${args[@]}"
 
       - name: Detect skill package changes
         id: release_gate

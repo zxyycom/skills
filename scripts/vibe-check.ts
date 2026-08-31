@@ -3,23 +3,61 @@ import { run } from "@zxyycom/vibe-check";
 import type { ProjectDefinition, RunResult } from "@zxyycom/vibe-check";
 import { isMainModule } from "../tools/shared/src/node/main-module.ts";
 import { rootDir } from "./lib/project.ts";
-import { createGateDefinition, type GateProfile } from "./lib/vibe-gate.ts";
+import {
+  createGateDefinition,
+  isReleaseBaselineRef,
+  type GateProfile
+} from "./lib/vibe-gate.ts";
 
 type GateExitCode = 0 | 1;
 
+export type GateInvocation =
+  | Readonly<{ profile: "default" }>
+  | Readonly<{ baselineRef: string; profile: "full" }>;
+
 export type VibeCheckDependencies = Readonly<{
-  createDefinition?: (profile: GateProfile) => ProjectDefinition;
+  createDefinition?: (invocation: GateInvocation) => ProjectDefinition;
   reportError?: (message: string) => void;
   runProject?: typeof run;
 }>;
 
+export function resolveGateInvocation(
+  argv: readonly string[]
+): GateInvocation | null {
+  if (argv.length === 0) {
+    return { profile: "default" };
+  }
+
+  let baselineRef: string | undefined;
+  let full = false;
+  for (let index = 0; index < argv.length; index += 1) {
+    const argument = argv[index];
+    if (argument === "--full" && !full) {
+      full = true;
+      continue;
+    }
+    if (argument === "--baseline-ref" && baselineRef === undefined) {
+      const candidate = argv[index + 1];
+      if (!isReleaseBaselineRef(candidate)) {
+        return null;
+      }
+      baselineRef = candidate;
+      index += 1;
+      continue;
+    }
+    return null;
+  }
+
+  if (!full) {
+    return null;
+  }
+  return { baselineRef: baselineRef ?? "HEAD", profile: "full" };
+}
+
 export function resolveGateProfile(
   argv: readonly string[]
 ): GateProfile | null {
-  if (argv.length === 0) {
-    return "default";
-  }
-  return argv.length === 1 && argv[0] === "--full" ? "full" : null;
+  return resolveGateInvocation(argv)?.profile ?? null;
 }
 
 function describeInvocationFailure(
@@ -42,14 +80,20 @@ export async function runVibeCheck(
   dependencies: VibeCheckDependencies = {}
 ): Promise<GateExitCode> {
   const reportError = dependencies.reportError ?? console.error;
-  const profile = resolveGateProfile(argv);
-  if (profile === null) {
-    reportError("Usage: bun run check [--full]");
+  const invocation = resolveGateInvocation(argv);
+  if (invocation === null) {
+    reportError("Usage: bun run check [--full [--baseline-ref <ref>]]");
     return 1;
   }
 
   const result = await (dependencies.runProject ?? run)(
-    (dependencies.createDefinition ?? createGateDefinition)(profile),
+    dependencies.createDefinition?.(invocation) ??
+      createGateDefinition(
+        invocation.profile,
+        invocation.profile === "full"
+          ? { baselineRef: invocation.baselineRef }
+          : {}
+      ),
     {
       checkAggregation: {
         checks: "all",
