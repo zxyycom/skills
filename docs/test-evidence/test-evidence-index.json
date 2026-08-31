@@ -1335,305 +1335,6 @@
         "title": "Show 不读取符号链接外部内容"
       }
     },
-    "CHECK-CLI-CONCURRENCY-001": {
-      "keys": {
-        "search": [
-          "CHECK-CLI-CONCURRENCY-001 CLI 在无效并发度下不启动检查 CLI 必须在任务启动前验证并发度参数。 无效并发度产生参数错误，且没有检查任务被执行。 scripts/check.test.ts > CLI reports invalid concurrency without starting checks bun test --test-name-pattern=\"^CLI reports invalid concurrency without starting checks$\" ./scripts/check.test.ts"
-        ],
-        "topic": [
-          "repository-tooling"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "scripts/check.test.ts > CLI reports invalid concurrency without starting checks",
-          "bun test --test-name-pattern=\"^CLI reports invalid concurrency without starting checks$\" ./scripts/check.test.ts"
-        ],
-        "id": "CHECK-CLI-CONCURRENCY-001",
-        "line": 1,
-        "searchText": "CLI 在无效并发度下不启动检查 CLI 必须在任务启动前验证并发度参数。 无效并发度产生参数错误，且没有检查任务被执行。 scripts/check.test.ts > CLI reports invalid concurrency without starting checks bun test --test-name-pattern=\"^CLI reports invalid concurrency without starting checks$\" ./scripts/check.test.ts",
-        "sourcePath": "repository-tooling/cli-reports-invalid-concurrency-without-starting-checks.md",
-        "summary": "CLI 必须在任务启动前验证并发度参数。",
-        "title": "CLI 在无效并发度下不启动检查"
-      }
-    },
-    "CHECK-CLI-UNKNOWN-OPTION-001": {
-      "keys": {
-        "search": [
-          "CHECK-CLI-UNKNOWN-OPTION-001 CLI 拒绝未知选项 未声明的 CLI 选项不得被静默忽略。 未知选项产生参数错误，且没有检查任务被执行。 scripts/check.test.ts > CLI reports unknown options without starting checks bun test --test-name-pattern=\"^CLI reports unknown options without starting checks$\" ./scripts/check.test.ts"
-        ],
-        "topic": [
-          "repository-tooling"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "scripts/check.test.ts > CLI reports unknown options without starting checks",
-          "bun test --test-name-pattern=\"^CLI reports unknown options without starting checks$\" ./scripts/check.test.ts"
-        ],
-        "id": "CHECK-CLI-UNKNOWN-OPTION-001",
-        "line": 1,
-        "searchText": "CLI 拒绝未知选项 未声明的 CLI 选项不得被静默忽略。 未知选项产生参数错误，且没有检查任务被执行。 scripts/check.test.ts > CLI reports unknown options without starting checks bun test --test-name-pattern=\"^CLI reports unknown options without starting checks$\" ./scripts/check.test.ts",
-        "sourcePath": "repository-tooling/cli-reports-unknown-options-without-starting-checks.md",
-        "summary": "未声明的 CLI 选项不得被静默忽略。",
-        "title": "CLI 拒绝未知选项"
-      }
-    },
-    "CHECK-DURATION-FORMAT-001": {
-      "keys": {
-        "search": [
-          "CHECK-DURATION-FORMAT-001 检查耗时使用紧凑可读单位 检查耗时必须按量级使用稳定、紧凑的人类可读格式。 毫秒、短秒和长秒耗时分别采用整数毫秒、一位小数秒和整数秒。 scripts/check.test.ts > check durations use compact human-readable units bun test --test-name-pattern=\"^check durations use compact human-readable units$\" ./scripts/check.test.ts"
-        ],
-        "topic": [
-          "repository-tooling"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "scripts/check.test.ts > check durations use compact human-readable units",
-          "bun test --test-name-pattern=\"^check durations use compact human-readable units$\" ./scripts/check.test.ts"
-        ],
-        "id": "CHECK-DURATION-FORMAT-001",
-        "line": 1,
-        "searchText": "检查耗时使用紧凑可读单位 检查耗时必须按量级使用稳定、紧凑的人类可读格式。 毫秒、短秒和长秒耗时分别采用整数毫秒、一位小数秒和整数秒。 scripts/check.test.ts > check durations use compact human-readable units bun test --test-name-pattern=\"^check durations use compact human-readable units$\" ./scripts/check.test.ts",
-        "sourcePath": "repository-tooling/check-durations-use-compact-human-readable-units.md",
-        "summary": "检查耗时必须按量级使用稳定、紧凑的人类可读格式。",
-        "title": "检查耗时使用紧凑可读单位"
-      }
-    },
-    "CHECK-FAILURE-CONTINUE-001": {
-      "keys": {
-        "search": [
-          "CHECK-FAILURE-CONTINUE-001 前置失败不阻塞其余检查 单个前置任务失败必须被保留为最终失败信号，但不能阻止其他已选择任务继续执行。 失败后的后续任务仍被领取并完成。 前置结果同时保留 failed 与 passed 状态，并报告存在失败。 scripts/check.test.ts > preflight scheduling continues after failures bun test --test-name-pattern=\"^preflight scheduling continues after failures$\" ./scripts/check.test.ts"
-        ],
-        "topic": [
-          "repository-tooling"
-        ]
-      },
-      "state": {
-        "endLine": 10,
-        "entries": [
-          "scripts/check.test.ts > preflight scheduling continues after failures",
-          "bun test --test-name-pattern=\"^preflight scheduling continues after failures$\" ./scripts/check.test.ts"
-        ],
-        "id": "CHECK-FAILURE-CONTINUE-001",
-        "line": 1,
-        "searchText": "前置失败不阻塞其余检查 单个前置任务失败必须被保留为最终失败信号，但不能阻止其他已选择任务继续执行。 失败后的后续任务仍被领取并完成。 前置结果同时保留 failed 与 passed 状态，并报告存在失败。 scripts/check.test.ts > preflight scheduling continues after failures bun test --test-name-pattern=\"^preflight scheduling continues after failures$\" ./scripts/check.test.ts",
-        "sourcePath": "repository-tooling/preflight-scheduling-continues-after-failures.md",
-        "summary": "单个前置任务失败必须被保留为最终失败信号，但不能阻止其他已选择任务继续执行。",
-        "title": "前置失败不阻塞其余检查"
-      }
-    },
-    "CHECK-FULL-PROFILE-001": {
-      "keys": {
-        "search": [
-          "CHECK-FULL-PROFILE-001 full 档运行全部检查 full 档必须运行 quick 与 full 的全部前置任务，全部通过后再打包。 两个档位的任务和打包按计划执行。 成功的 full 工作流不产生 skipped 结果。 scripts/check.test.ts > workflow runs every check in the full profile bun test --test-name-pattern=\"^workflow runs every check in the full profile$\" ./scripts/check.test.ts"
-        ],
-        "topic": [
-          "repository-tooling"
-        ]
-      },
-      "state": {
-        "endLine": 10,
-        "entries": [
-          "scripts/check.test.ts > workflow runs every check in the full profile",
-          "bun test --test-name-pattern=\"^workflow runs every check in the full profile$\" ./scripts/check.test.ts"
-        ],
-        "id": "CHECK-FULL-PROFILE-001",
-        "line": 1,
-        "searchText": "full 档运行全部检查 full 档必须运行 quick 与 full 的全部前置任务，全部通过后再打包。 两个档位的任务和打包按计划执行。 成功的 full 工作流不产生 skipped 结果。 scripts/check.test.ts > workflow runs every check in the full profile bun test --test-name-pattern=\"^workflow runs every check in the full profile$\" ./scripts/check.test.ts",
-        "sourcePath": "repository-tooling/workflow-runs-every-check-in-the-full-profile.md",
-        "summary": "full 档必须运行 quick 与 full 的全部前置任务，全部通过后再打包。",
-        "title": "full 档运行全部检查"
-      }
-    },
-    "CHECK-MODE-OPTIONS-001": {
-      "keys": {
-        "search": [
-          "CHECK-MODE-OPTIONS-001 检查选项解析 quick、full 与 verbose 契约 未指定档位时使用 quick，`--full` 选择完整档，`--verbose` 可以与任一档位组合。 选项解析返回预期档位和日志策略。 已移除的 `--strict` 不会被静默接受。 scripts/check.test.ts > check options resolve quick, full, and verbose profiles bun test --test-name-pattern=\"^check options resolve quick, full, and verbose profiles$\" ./scripts/check.test.ts"
-        ],
-        "topic": [
-          "repository-tooling"
-        ]
-      },
-      "state": {
-        "endLine": 10,
-        "entries": [
-          "scripts/check.test.ts > check options resolve quick, full, and verbose profiles",
-          "bun test --test-name-pattern=\"^check options resolve quick, full, and verbose profiles$\" ./scripts/check.test.ts"
-        ],
-        "id": "CHECK-MODE-OPTIONS-001",
-        "line": 1,
-        "searchText": "检查选项解析 quick、full 与 verbose 契约 未指定档位时使用 quick，`--full` 选择完整档，`--verbose` 可以与任一档位组合。 选项解析返回预期档位和日志策略。 已移除的 `--strict` 不会被静默接受。 scripts/check.test.ts > check options resolve quick, full, and verbose profiles bun test --test-name-pattern=\"^check options resolve quick, full, and verbose profiles$\" ./scripts/check.test.ts",
-        "sourcePath": "repository-tooling/check-options-resolve-quick-full-and-verbose-profiles.md",
-        "summary": "未指定档位时使用 quick，`--full` 选择完整档，`--verbose` 可以与任一档位组合。",
-        "title": "检查选项解析 quick、full 与 verbose 契约"
-      }
-    },
-    "CHECK-OPTIONS-MODES-001": {
-      "keys": {
-        "search": [
-          "CHECK-OPTIONS-MODES-001 检查并发度具有严格解析契约 并发度必须采用安全默认值、受任务数约束，并拒绝非正整数。 默认值、系统并行度和显式上限会生成有效并发度，非法值会在执行前被拒绝。 scripts/check.test.ts > check concurrency resolves defaults, caps, and invalid values bun test --test-name-pattern=\"^check concurrency resolves defaults, caps, and invalid values$\" ./scripts/check.test.ts"
-        ],
-        "topic": [
-          "repository-tooling"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "scripts/check.test.ts > check concurrency resolves defaults, caps, and invalid values",
-          "bun test --test-name-pattern=\"^check concurrency resolves defaults, caps, and invalid values$\" ./scripts/check.test.ts"
-        ],
-        "id": "CHECK-OPTIONS-MODES-001",
-        "line": 1,
-        "searchText": "检查并发度具有严格解析契约 并发度必须采用安全默认值、受任务数约束，并拒绝非正整数。 默认值、系统并行度和显式上限会生成有效并发度，非法值会在执行前被拒绝。 scripts/check.test.ts > check concurrency resolves defaults, caps, and invalid values bun test --test-name-pattern=\"^check concurrency resolves defaults, caps, and invalid values$\" ./scripts/check.test.ts",
-        "sourcePath": "repository-tooling/check-concurrency-resolves-defaults-caps-and-invalid-values.md",
-        "summary": "并发度必须采用安全默认值、受任务数约束，并拒绝非正整数。",
-        "title": "检查并发度具有严格解析契约"
-      }
-    },
-    "CHECK-PLAN-SCRIPTS-001": {
-      "keys": {
-        "search": [
-          "CHECK-PLAN-SCRIPTS-001 检查计划声明每个脚本的最低档位 检查计划必须显式列出全部门禁 package script，并为每个前置任务声明最低运行档位。 `checkPreflightTasks` 返回预期的任务名称和最低档位，`checkPackageScripts` 在其后加入 `pack:skills`。 `test:relation-graph` 的最低档位是 `quick`，quick 任务在 quick 与 full 档都被选择。 `lint` 与 `format:check` 作为 quick 前置任务同时进入 quick 和 full 门禁。 quick 任务在 quick 与 full 档运行，full 任务只在 full 档运行。 scripts/check.test.ts > check plan classifies every package script by minimum profile bun test --test-name-pattern=\"^check plan classifies every package script by minimum profile$\" ./scripts/check.test.ts"
-        ],
-        "topic": [
-          "repository-tooling"
-        ]
-      },
-      "state": {
-        "endLine": 12,
-        "entries": [
-          "scripts/check.test.ts > check plan classifies every package script by minimum profile",
-          "bun test --test-name-pattern=\"^check plan classifies every package script by minimum profile$\" ./scripts/check.test.ts"
-        ],
-        "id": "CHECK-PLAN-SCRIPTS-001",
-        "line": 1,
-        "searchText": "检查计划声明每个脚本的最低档位 检查计划必须显式列出全部门禁 package script，并为每个前置任务声明最低运行档位。 `checkPreflightTasks` 返回预期的任务名称和最低档位，`checkPackageScripts` 在其后加入 `pack:skills`。 `test:relation-graph` 的最低档位是 `quick`，quick 任务在 quick 与 full 档都被选择。 `lint` 与 `format:check` 作为 quick 前置任务同时进入 quick 和 full 门禁。 quick 任务在 quick 与 full 档运行，full 任务只在 full 档运行。 scripts/check.test.ts > check plan classifies every package script by minimum profile bun test --test-name-pattern=\"^check plan classifies every package script by minimum profile$\" ./scripts/check.test.ts",
-        "sourcePath": "repository-tooling/check-plan-classifies-every-package-script-by-minimum-profile.md",
-        "summary": "检查计划必须显式列出全部门禁 package script，并为每个前置任务声明最低运行档位。",
-        "title": "检查计划声明每个脚本的最低档位"
-      }
-    },
-    "CHECK-QUICK-PROFILE-001": {
-      "keys": {
-        "search": [
-          "CHECK-QUICK-PROFILE-001 quick 档显式跳过 full 检查 quick 档只运行 quick 前置任务，并把每个 full 任务显式报告为 skipped。 full 任务没有执行且产生 skipped 结果。 quick 任务通过后仍执行打包并返回成功。 scripts/check.test.ts > workflow skips full checks in the quick profile bun test --test-name-pattern=\"^workflow skips full checks in the quick profile$\" ./scripts/check.test.ts"
-        ],
-        "topic": [
-          "repository-tooling"
-        ]
-      },
-      "state": {
-        "endLine": 10,
-        "entries": [
-          "scripts/check.test.ts > workflow skips full checks in the quick profile",
-          "bun test --test-name-pattern=\"^workflow skips full checks in the quick profile$\" ./scripts/check.test.ts"
-        ],
-        "id": "CHECK-QUICK-PROFILE-001",
-        "line": 1,
-        "searchText": "quick 档显式跳过 full 检查 quick 档只运行 quick 前置任务，并把每个 full 任务显式报告为 skipped。 full 任务没有执行且产生 skipped 结果。 quick 任务通过后仍执行打包并返回成功。 scripts/check.test.ts > workflow skips full checks in the quick profile bun test --test-name-pattern=\"^workflow skips full checks in the quick profile$\" ./scripts/check.test.ts",
-        "sourcePath": "repository-tooling/workflow-skips-full-checks-in-the-quick-profile.md",
-        "summary": "quick 档只运行 quick 前置任务，并把每个 full 任务显式报告为 skipped。",
-        "title": "quick 档显式跳过 full 检查"
-      }
-    },
-    "CHECK-RESULT-FORMAT-001": {
-      "keys": {
-        "search": [
-          "CHECK-RESULT-FORMAT-001 单项报告保持成功简洁且失败完整 单项成功默认只显示摘要，失败始终显示捕获日志，verbose 显式显示成功日志，跳过项必须显示原因。 passed、failed 和 skipped 报告生成预期摘要。 默认、verbose 与失败场景按契约保留或展开日志详情。 scripts/check.test.ts > check report formatting keeps success concise and failures complete bun test --test-name-pattern=\"^check report formatting keeps success concise and failures complete$\" ./scripts/check.test.ts"
-        ],
-        "topic": [
-          "repository-tooling"
-        ]
-      },
-      "state": {
-        "endLine": 10,
-        "entries": [
-          "scripts/check.test.ts > check report formatting keeps success concise and failures complete",
-          "bun test --test-name-pattern=\"^check report formatting keeps success concise and failures complete$\" ./scripts/check.test.ts"
-        ],
-        "id": "CHECK-RESULT-FORMAT-001",
-        "line": 1,
-        "searchText": "单项报告保持成功简洁且失败完整 单项成功默认只显示摘要，失败始终显示捕获日志，verbose 显式显示成功日志，跳过项必须显示原因。 passed、failed 和 skipped 报告生成预期摘要。 默认、verbose 与失败场景按契约保留或展开日志详情。 scripts/check.test.ts > check report formatting keeps success concise and failures complete bun test --test-name-pattern=\"^check report formatting keeps success concise and failures complete$\" ./scripts/check.test.ts",
-        "sourcePath": "repository-tooling/check-report-formatting-keeps-success-concise-and-failures-complete.md",
-        "summary": "单项成功默认只显示摘要，失败始终显示捕获日志，verbose 显式显示成功日志，跳过项必须显示原因。",
-        "title": "单项报告保持成功简洁且失败完整"
-      }
-    },
-    "CHECK-SUMMARY-FORMAT-001": {
-      "keys": {
-        "search": [
-          "CHECK-SUMMARY-FORMAT-001 检查汇总报告档位与状态计数 最终汇总必须渲染同一次检查工作流已经形成的整体机器状态，并显示执行档位、检查总数、各状态计数和总耗时。 打包失败形成的工作流失败状态被摘要原样渲染，不从报告计数重复派生。 passed、skipped、failed 的数量和总数均按报告集合计算。 scripts/check.test.ts > check summary reports profile and status counts bun test --test-name-pattern=\"^check summary reports profile and status counts$\" ./scripts/check.test.ts"
-        ],
-        "topic": [
-          "repository-tooling"
-        ]
-      },
-      "state": {
-        "endLine": 10,
-        "entries": [
-          "scripts/check.test.ts > check summary reports profile and status counts",
-          "bun test --test-name-pattern=\"^check summary reports profile and status counts$\" ./scripts/check.test.ts"
-        ],
-        "id": "CHECK-SUMMARY-FORMAT-001",
-        "line": 1,
-        "searchText": "检查汇总报告档位与状态计数 最终汇总必须渲染同一次检查工作流已经形成的整体机器状态，并显示执行档位、检查总数、各状态计数和总耗时。 打包失败形成的工作流失败状态被摘要原样渲染，不从报告计数重复派生。 passed、skipped、failed 的数量和总数均按报告集合计算。 scripts/check.test.ts > check summary reports profile and status counts bun test --test-name-pattern=\"^check summary reports profile and status counts$\" ./scripts/check.test.ts",
-        "sourcePath": "repository-tooling/check-summary-reports-profile-and-status-counts.md",
-        "summary": "最终汇总必须渲染同一次检查工作流已经形成的整体机器状态，并显示执行档位、检查总数、各状态计数和总耗时。",
-        "title": "检查汇总报告档位与状态计数"
-      }
-    },
-    "CHECK-WORKFLOW-PACKAGE-FAILURE-001": {
-      "keys": {
-        "search": [
-          "CHECK-WORKFLOW-PACKAGE-FAILURE-001 打包脚本失败决定最终工作流失败 即使预检查全部通过，打包脚本失败也必须令完整工作流失败。 工作流运行打包并返回 failed，且不会把打包失败误报为跳过。 scripts/check.test.ts > workflow reports package script failures bun test --test-name-pattern=\"^workflow reports package script failures$\" ./scripts/check.test.ts"
-        ],
-        "topic": [
-          "repository-tooling"
-        ]
-      },
-      "state": {
-        "endLine": 9,
-        "entries": [
-          "scripts/check.test.ts > workflow reports package script failures",
-          "bun test --test-name-pattern=\"^workflow reports package script failures$\" ./scripts/check.test.ts"
-        ],
-        "id": "CHECK-WORKFLOW-PACKAGE-FAILURE-001",
-        "line": 1,
-        "searchText": "打包脚本失败决定最终工作流失败 即使预检查全部通过，打包脚本失败也必须令完整工作流失败。 工作流运行打包并返回 failed，且不会把打包失败误报为跳过。 scripts/check.test.ts > workflow reports package script failures bun test --test-name-pattern=\"^workflow reports package script failures$\" ./scripts/check.test.ts",
-        "sourcePath": "repository-tooling/workflow-reports-package-script-failures.md",
-        "summary": "即使预检查全部通过，打包脚本失败也必须令完整工作流失败。",
-        "title": "打包脚本失败决定最终工作流失败"
-      }
-    },
-    "CHECK-WORKFLOW-PACKAGING-001": {
-      "keys": {
-        "search": [
-          "CHECK-WORKFLOW-PACKAGING-001 前置失败后显式跳过打包 任一前置任务失败时，其余前置任务继续执行，但打包必须显式跳过并令工作流失败。 失败后的前置任务仍然执行。 打包没有执行，结果包含 failed、passed 和 package skipped。 scripts/check.test.ts > workflow skips packaging after preflight failures bun test --test-name-pattern=\"^workflow skips packaging after preflight failures$\" ./scripts/check.test.ts"
-        ],
-        "topic": [
-          "repository-tooling"
-        ]
-      },
-      "state": {
-        "endLine": 10,
-        "entries": [
-          "scripts/check.test.ts > workflow skips packaging after preflight failures",
-          "bun test --test-name-pattern=\"^workflow skips packaging after preflight failures$\" ./scripts/check.test.ts"
-        ],
-        "id": "CHECK-WORKFLOW-PACKAGING-001",
-        "line": 1,
-        "searchText": "前置失败后显式跳过打包 任一前置任务失败时，其余前置任务继续执行，但打包必须显式跳过并令工作流失败。 失败后的前置任务仍然执行。 打包没有执行，结果包含 failed、passed 和 package skipped。 scripts/check.test.ts > workflow skips packaging after preflight failures bun test --test-name-pattern=\"^workflow skips packaging after preflight failures$\" ./scripts/check.test.ts",
-        "sourcePath": "repository-tooling/workflow-skips-packaging-after-preflight-failures.md",
-        "summary": "任一前置任务失败时，其余前置任务继续执行，但打包必须显式跳过并令工作流失败。",
-        "title": "前置失败后显式跳过打包"
-      }
-    },
     "DECISION-ACTIVATE-ESTABLISHED-RELATIONS-001": {
       "keys": {
         "search": [
@@ -5589,6 +5290,29 @@
         "title": "Evolve 按 Decision ID 顺序列出尚未进入 Git HEAD 的前序提示"
       }
     },
+    "ENV-BUN-RUNTIME-001": {
+      "keys": {
+        "search": [
+          "ENV-BUN-RUNTIME-001 环境要求 Vibe 的最低 Bun 运行时 根 `engines.bun` 覆盖锁定 Vibe Check 的最低运行时；环境入口从该边界诊断 Bun，不能将不兼容版本报告为 ready。 Bun 1.3.14 在其他前置条件准备好时允许 setup 和后续 check。 Bun 1.3.13 被标记为 outdated，输出最低版本和 setup 恢复入口。 scripts/environment.test.ts > environment requires the Vibe Bun runtime minimum bun test --test-name-pattern=\"^environment requires the Vibe Bun runtime minimum$\" ./scripts/environment.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/environment.test.ts > environment requires the Vibe Bun runtime minimum",
+          "bun test --test-name-pattern=\"^environment requires the Vibe Bun runtime minimum$\" ./scripts/environment.test.ts"
+        ],
+        "id": "ENV-BUN-RUNTIME-001",
+        "line": 1,
+        "searchText": "环境要求 Vibe 的最低 Bun 运行时 根 `engines.bun` 覆盖锁定 Vibe Check 的最低运行时；环境入口从该边界诊断 Bun，不能将不兼容版本报告为 ready。 Bun 1.3.14 在其他前置条件准备好时允许 setup 和后续 check。 Bun 1.3.13 被标记为 outdated，输出最低版本和 setup 恢复入口。 scripts/environment.test.ts > environment requires the Vibe Bun runtime minimum bun test --test-name-pattern=\"^environment requires the Vibe Bun runtime minimum$\" ./scripts/environment.test.ts",
+        "sourcePath": "repository-tooling/environment-requires-vibe-bun-runtime.md",
+        "summary": "根 `engines.bun` 覆盖锁定 Vibe Check 的最低运行时；环境入口从该边界诊断 Bun，不能将不兼容版本报告为 ready。",
+        "title": "环境要求 Vibe 的最低 Bun 运行时"
+      }
+    },
     "ENV-CHECK-READONLY-001": {
       "keys": {
         "search": [
@@ -5658,6 +5382,29 @@
         "title": "linked worktree 的真实 hash hook 隔离 Git 环境"
       }
     },
+    "ENV-METRICS-PREREQUISITES-001": {
+      "keys": {
+        "search": [
+          "ENV-METRICS-PREREQUISITES-001 环境精确诊断 SCC 与 Lizard 且不自动安装 环境入口必须复用精确的 SCC 3.7.0 与 Lizard 1.23.0；missing、mismatch 和 probe failure 都提供恢复诊断，`setup` 不负责安装这些全局工具。 准备好的精确版本使 setup 成功。 缺失 SCC、版本不匹配 Lizard 与 SCC probe failure 都使 check 失败并指出对应恢复动作。 缺失 SCC 时 setup 在仓库写入和工具安装前退出，并明确说明该脚本不会安装全局前置条件。 scripts/environment.test.ts > environment requires exact SCC and Lizard prerequisites without installing them bun test --test-name-pattern=\"^environment requires exact SCC and Lizard prerequisites without installing them$\" ./scripts/environment.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 14,
+        "entries": [
+          "scripts/environment.test.ts > environment requires exact SCC and Lizard prerequisites without installing them",
+          "bun test --test-name-pattern=\"^environment requires exact SCC and Lizard prerequisites without installing them$\" ./scripts/environment.test.ts"
+        ],
+        "id": "ENV-METRICS-PREREQUISITES-001",
+        "line": 1,
+        "searchText": "环境精确诊断 SCC 与 Lizard 且不自动安装 环境入口必须复用精确的 SCC 3.7.0 与 Lizard 1.23.0；missing、mismatch 和 probe failure 都提供恢复诊断，`setup` 不负责安装这些全局工具。 准备好的精确版本使 setup 成功。 缺失 SCC、版本不匹配 Lizard 与 SCC probe failure 都使 check 失败并指出对应恢复动作。 缺失 SCC 时 setup 在仓库写入和工具安装前退出，并明确说明该脚本不会安装全局前置条件。 scripts/environment.test.ts > environment requires exact SCC and Lizard prerequisites without installing them bun test --test-name-pattern=\"^environment requires exact SCC and Lizard prerequisites without installing them$\" ./scripts/environment.test.ts",
+        "sourcePath": "repository-tooling/environment-requires-exact-metric-prerequisites.md",
+        "summary": "环境入口必须复用精确的 SCC 3.7.0 与 Lizard 1.23.0；missing、mismatch 和 probe failure 都提供恢复诊断，`setup` 不负责安装这些全局工具。",
+        "title": "环境精确诊断 SCC 与 Lizard 且不自动安装"
+      }
+    },
     "ENV-PERMISSION-RULES-001": {
       "keys": {
         "search": [
@@ -5702,6 +5449,236 @@
         "sourcePath": "repository-tooling/environment-setup-keeps-main-root-in-linked-worktree.md",
         "summary": "linked worktree 的标准环境 setup 必须可重复执行；当前项目默认 task root 必须能从 Git 结构稳定发现为同仓主 worktree，而不是写入或使用执行 worktree。",
         "title": "linked worktree 重复 setup 保持当前项目中央 root"
+      }
+    },
+    "GATE-CLI-RESULT-001": {
+      "keys": {
+        "search": [
+          "GATE-CLI-RESULT-001 CLI 只选择 default/full 并映射 Vibe 结果 权威入口只接受无参数的 default 或单独的 `--full`；未知参数在启动 Check 前退出失败，completed aggregate 与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断。 default/full 选择各自 Definition，未知参数给出 usage。 failed aggregate 与 configuration 类 invocation failure 都返回退出码 1，并保留 Vibe 状态或类别而不重建 renderer。 scripts/vibe-check.test.ts > CLI accepts only default and full, and maps Vibe results to exit codes bun test --test-name-pattern=\"^CLI accepts only default and full, and maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > CLI accepts only default and full, and maps Vibe results to exit codes",
+          "bun test --test-name-pattern=\"^CLI accepts only default and full, and maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-CLI-RESULT-001",
+        "line": 1,
+        "searchText": "CLI 只选择 default/full 并映射 Vibe 结果 权威入口只接受无参数的 default 或单独的 `--full`；未知参数在启动 Check 前退出失败，completed aggregate 与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断。 default/full 选择各自 Definition，未知参数给出 usage。 failed aggregate 与 configuration 类 invocation failure 都返回退出码 1，并保留 Vibe 状态或类别而不重建 renderer。 scripts/vibe-check.test.ts > CLI accepts only default and full, and maps Vibe results to exit codes bun test --test-name-pattern=\"^CLI accepts only default and full, and maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-cli-selects-profiles-and-maps-vibe-results.md",
+        "summary": "权威入口只接受无参数的 default 或单独的 `--full`；未知参数在启动 Check 前退出失败，completed aggregate 与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断。",
+        "title": "CLI 只选择 default/full 并映射 Vibe 结果"
+      }
+    },
+    "GATE-DEFINITION-CATALOG-001": {
+      "keys": {
+        "search": [
+          "GATE-DEFINITION-CATALOG-001 门禁目录构造准确的 default 与 full Definition 同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check，full 只增加 release-only 项目能力和终结 `pack:skills`。 default/full 的 Check ID 分别与目录一致，default 不含 `pack:skills`，full 只在末尾声明它。 default 有 25 项日常 package-script 能力，full 增加 6 项 release-only 能力；全部 Definition 使用 Vibe 静态并发 4、progress 开启且 machine/diagnostic 输出关闭。 scripts/vibe-check.test.ts > gate catalog builds the exact default and full Definitions bun test --test-name-pattern=\"^gate catalog builds the exact default and full Definitions$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > gate catalog builds the exact default and full Definitions",
+          "bun test --test-name-pattern=\"^gate catalog builds the exact default and full Definitions$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-DEFINITION-CATALOG-001",
+        "line": 1,
+        "searchText": "门禁目录构造准确的 default 与 full Definition 同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check，full 只增加 release-only 项目能力和终结 `pack:skills`。 default/full 的 Check ID 分别与目录一致，default 不含 `pack:skills`，full 只在末尾声明它。 default 有 25 项日常 package-script 能力，full 增加 6 项 release-only 能力；全部 Definition 使用 Vibe 静态并发 4、progress 开启且 machine/diagnostic 输出关闭。 scripts/vibe-check.test.ts > gate catalog builds the exact default and full Definitions bun test --test-name-pattern=\"^gate catalog builds the exact default and full Definitions$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-catalog-builds-default-and-full-definitions.md",
+        "summary": "同一能力目录必须构造日常 default 与发布 full；两者共享六项 Vibe 原生 Check，full 只增加 release-only 项目能力和终结 `pack:skills`。",
+        "title": "门禁目录构造准确的 default 与 full Definition"
+      }
+    },
+    "GATE-FILE-SELECTION-001": {
+      "keys": {
+        "search": [
+          "GATE-FILE-SELECTION-001 六项原生 Check 排除历史内容 当前门禁只检查可维护输入；归档 Change 与 Investigation Report 的形成时资源必须同时被六项 Vibe 原生 Check 排除。 每项原生 Check 的文件选择都包含 `changes/archive/**` 与 `docs/investigations/_resources/**` 排除规则。 scripts/vibe-check.test.ts > native file selections exclude archived Changes and investigation resources bun test --test-name-pattern=\"^native file selections exclude archived Changes and investigation resources$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "scripts/vibe-check.test.ts > native file selections exclude archived Changes and investigation resources",
+          "bun test --test-name-pattern=\"^native file selections exclude archived Changes and investigation resources$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-FILE-SELECTION-001",
+        "line": 1,
+        "searchText": "六项原生 Check 排除历史内容 当前门禁只检查可维护输入；归档 Change 与 Investigation Report 的形成时资源必须同时被六项 Vibe 原生 Check 排除。 每项原生 Check 的文件选择都包含 `changes/archive/**` 与 `docs/investigations/_resources/**` 排除规则。 scripts/vibe-check.test.ts > native file selections exclude archived Changes and investigation resources bun test --test-name-pattern=\"^native file selections exclude archived Changes and investigation resources$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-file-selection-excludes-historical-content.md",
+        "summary": "当前门禁只检查可维护输入；归档 Change 与 Investigation Report 的形成时资源必须同时被六项 Vibe 原生 Check 排除。",
+        "title": "六项原生 Check 排除历史内容"
+      }
+    },
+    "GATE-FULL-PACKAGING-001": {
+      "keys": {
+        "search": [
+          "GATE-FULL-PACKAGING-001 full 打包只在全部发布前置通过后运行一次 `pack:skills` 只属于 full，直接依赖全部 release-required Check；全部 passed 时恰好运行一次，任何 failed 或 unavailable 前置都零调用，打包失败使 aggregate failed。 default 不声明或调用 `pack:skills`；成功 full 仅调用一次，并在隔离 `dist/` 写入本次 fixture 制品。 项目脚本或 native blocking 前置 failed/unavailable，以及 required advisory 指标 unavailable/not-applicable，都不会调用打包或留下本次隔离制品；打包自身非零退出决定 aggregate failed。 scripts/vibe-check.test.ts > full packaging runs once only after every release prerequisite passes bun test --test-name-pattern=\"^full packaging runs once only after every release prerequisite passes$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > full packaging runs once only after every release prerequisite passes",
+          "bun test --test-name-pattern=\"^full packaging runs once only after every release prerequisite passes$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-FULL-PACKAGING-001",
+        "line": 1,
+        "searchText": "full 打包只在全部发布前置通过后运行一次 `pack:skills` 只属于 full，直接依赖全部 release-required Check；全部 passed 时恰好运行一次，任何 failed 或 unavailable 前置都零调用，打包失败使 aggregate failed。 default 不声明或调用 `pack:skills`；成功 full 仅调用一次，并在隔离 `dist/` 写入本次 fixture 制品。 项目脚本或 native blocking 前置 failed/unavailable，以及 required advisory 指标 unavailable/not-applicable，都不会调用打包或留下本次隔离制品；打包自身非零退出决定 aggregate failed。 scripts/vibe-check.test.ts > full packaging runs once only after every release prerequisite passes bun test --test-name-pattern=\"^full packaging runs once only after every release prerequisite passes$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-packaging-requires-all-release-prerequisites.md",
+        "summary": "`pack:skills` 只属于 full，直接依赖全部 release-required Check；全部 passed 时恰好运行一次，任何 failed 或 unavailable 前置都零调用，打包失败使 aggregate failed。",
+        "title": "full 打包只在全部发布前置通过后运行一次"
+      }
+    },
+    "GATE-JSCPD-CONFIG-001": {
+      "keys": {
+        "search": [
+          "GATE-JSCPD-CONFIG-001 jscpd 兼容 wrapper 对缺失扫描配置 fail closed Vibe 0.0.1 的 jscpd 兼容 wrapper 只允许其 `--version` 探测或带 `--config <path>` 的扫描调用；扫描配置缺失时不能退回 jscpd 默认输入范围。 不带 `--config` 的扫描调用以退出码 1 失败，并在 stderr 给出稳定的缺失配置诊断。 该失败在转交 jscpd 前发生，stdout 保持为空。 scripts/vibe-check.test.ts > jscpd compatibility wrapper rejects scans without a Vibe config bun test --test-name-pattern=\"^jscpd compatibility wrapper rejects scans without a Vibe config$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > jscpd compatibility wrapper rejects scans without a Vibe config",
+          "bun test --test-name-pattern=\"^jscpd compatibility wrapper rejects scans without a Vibe config$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-JSCPD-CONFIG-001",
+        "line": 1,
+        "searchText": "jscpd 兼容 wrapper 对缺失扫描配置 fail closed Vibe 0.0.1 的 jscpd 兼容 wrapper 只允许其 `--version` 探测或带 `--config <path>` 的扫描调用；扫描配置缺失时不能退回 jscpd 默认输入范围。 不带 `--config` 的扫描调用以退出码 1 失败，并在 stderr 给出稳定的缺失配置诊断。 该失败在转交 jscpd 前发生，stdout 保持为空。 scripts/vibe-check.test.ts > jscpd compatibility wrapper rejects scans without a Vibe config bun test --test-name-pattern=\"^jscpd compatibility wrapper rejects scans without a Vibe config$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-jscpd-config-fails-closed.md",
+        "summary": "Vibe 0.0.1 的 jscpd 兼容 wrapper 只允许其 `--version` 探测或带 `--config <path>` 的扫描调用；扫描配置缺失时不能退回 jscpd 默认输入范围。",
+        "title": "jscpd 兼容 wrapper 对缺失扫描配置 fail closed"
+      }
+    },
+    "GATE-LIZARD-VERSION-001": {
+      "keys": {
+        "search": [
+          "GATE-LIZARD-VERSION-001 函数指标只接受精确 Lizard 版本 Vibe 的函数指标必须通过项目窄 wrapper 只接受 PATH `lizard --version` 的精确 `1.23.0` 输出；版本失配不得被解释为可扫描的 Lizard，即使其能产生有效 CSV。 真实配置的 `function-metrics` 使用 `scripts/lib/vibe-lizard.js`；精确 `1.23.0` 的 fake Lizard 收到 Vibe 原样传递的 `--csv` 扫描参数并使 Check passed。 返回 `1.23.1` 且本可产生有效 CSV 的 fake Lizard 使 `function-metrics` unavailable、full aggregate failed，既不调用 `pack:skills`，也不扫描或写入隔离的本次包制品。 scripts/vibe-check.test.ts > function metrics requires exact Lizard before scanning or packaging bun test --test-name-pattern=\"^function metrics requires exact Lizard before scanning or packaging$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > function metrics requires exact Lizard before scanning or packaging",
+          "bun test --test-name-pattern=\"^function metrics requires exact Lizard before scanning or packaging$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-LIZARD-VERSION-001",
+        "line": 1,
+        "searchText": "函数指标只接受精确 Lizard 版本 Vibe 的函数指标必须通过项目窄 wrapper 只接受 PATH `lizard --version` 的精确 `1.23.0` 输出；版本失配不得被解释为可扫描的 Lizard，即使其能产生有效 CSV。 真实配置的 `function-metrics` 使用 `scripts/lib/vibe-lizard.js`；精确 `1.23.0` 的 fake Lizard 收到 Vibe 原样传递的 `--csv` 扫描参数并使 Check passed。 返回 `1.23.1` 且本可产生有效 CSV 的 fake Lizard 使 `function-metrics` unavailable、full aggregate failed，既不调用 `pack:skills`，也不扫描或写入隔离的本次包制品。 scripts/vibe-check.test.ts > function metrics requires exact Lizard before scanning or packaging bun test --test-name-pattern=\"^function metrics requires exact Lizard before scanning or packaging$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/function-metrics-requires-exact-lizard-version.md",
+        "summary": "Vibe 的函数指标必须通过项目窄 wrapper 只接受 PATH `lizard --version` 的精确 `1.23.0` 输出；版本失配不得被解释为可扫描的 Lizard，即使其能产生有效 CSV。",
+        "title": "函数指标只接受精确 Lizard 版本"
+      }
+    },
+    "GATE-METRICS-ADVISORY-001": {
+      "keys": {
+        "search": [
+          "GATE-METRICS-ADVISORY-001 指标 finding 保持 advisory，工具故障与 N/A fail closed 文件与函数指标是 required advisory：可信 finding 只能作为 warning 形成 passed；SCC/Lizard 不可用或没有预期输入必须使 aggregate failed。 严格阈值产生真实指标 finding 时两个 Check 仍 passed；该 fixture 的 blocking finding 数为零，文件 waiver 明确为空数组。仓库实际 finding 数不属于本 Case 的契约。 缺失 scanner 产生 unavailable；空输入产生 not-applicable；两种状态都使 aggregate failed。 scripts/vibe-check.test.ts > metric findings remain advisory while unavailable and N/A results fail closed bun test --test-name-pattern=\"^metric findings remain advisory while unavailable and N/A results fail closed$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > metric findings remain advisory while unavailable and N/A results fail closed",
+          "bun test --test-name-pattern=\"^metric findings remain advisory while unavailable and N/A results fail closed$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-METRICS-ADVISORY-001",
+        "line": 1,
+        "searchText": "指标 finding 保持 advisory，工具故障与 N/A fail closed 文件与函数指标是 required advisory：可信 finding 只能作为 warning 形成 passed；SCC/Lizard 不可用或没有预期输入必须使 aggregate failed。 严格阈值产生真实指标 finding 时两个 Check 仍 passed；该 fixture 的 blocking finding 数为零，文件 waiver 明确为空数组。仓库实际 finding 数不属于本 Case 的契约。 缺失 scanner 产生 unavailable；空输入产生 not-applicable；两种状态都使 aggregate failed。 scripts/vibe-check.test.ts > metric findings remain advisory while unavailable and N/A results fail closed bun test --test-name-pattern=\"^metric findings remain advisory while unavailable and N/A results fail closed$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-metrics-remain-advisory-and-fail-closed.md",
+        "summary": "文件与函数指标是 required advisory：可信 finding 只能作为 warning 形成 passed；SCC/Lizard 不可用或没有预期输入必须使 aggregate failed。",
+        "title": "指标 finding 保持 advisory，工具故障与 N/A fail closed"
+      }
+    },
+    "GATE-SCRIPT-ADAPTER-001": {
+      "keys": {
+        "search": [
+          "GATE-SCRIPT-ADAPTER-001 package-script adapter 映射终态且继续结算独立 Check 项目脚本必须以参数数组运行 `bun run <script>`；非零退出为 failed，无法启动等不可信终态为 unavailable，且一个脚本失败不能阻止无依赖的其他 Check 结算。 注入的非零退出使 aggregate failed，同时独立脚本仍 passed。 注入的 unavailable 保留稳定 reason code 并使 aggregate failed；每次调用都使用 `bun` 和 `['run', script]` 参数数组。 scripts/vibe-check.test.ts > package script adapter maps terminal results and settles independent Checks bun test --test-name-pattern=\"^package script adapter maps terminal results and settles independent Checks$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > package script adapter maps terminal results and settles independent Checks",
+          "bun test --test-name-pattern=\"^package script adapter maps terminal results and settles independent Checks$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-SCRIPT-ADAPTER-001",
+        "line": 1,
+        "searchText": "package-script adapter 映射终态且继续结算独立 Check 项目脚本必须以参数数组运行 `bun run <script>`；非零退出为 failed，无法启动等不可信终态为 unavailable，且一个脚本失败不能阻止无依赖的其他 Check 结算。 注入的非零退出使 aggregate failed，同时独立脚本仍 passed。 注入的 unavailable 保留稳定 reason code 并使 aggregate failed；每次调用都使用 `bun` 和 `['run', script]` 参数数组。 scripts/vibe-check.test.ts > package script adapter maps terminal results and settles independent Checks bun test --test-name-pattern=\"^package script adapter maps terminal results and settles independent Checks$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-package-script-adapter-maps-terminal-results.md",
+        "summary": "项目脚本必须以参数数组运行 `bun run <script>`；非零退出为 failed，无法启动等不可信终态为 unavailable，且一个脚本失败不能阻止无依赖的其他 Check 结算。",
+        "title": "package-script adapter 映射终态且继续结算独立 Check"
+      }
+    },
+    "GATE-SCRIPT-CANCELLATION-001": {
+      "keys": {
+        "search": [
+          "GATE-SCRIPT-CANCELLATION-001 package-script 取消等待子进程关闭 package-script adapter 收到 Vibe 取消信号时必须请求子进程终止，并在子进程关闭后才将结果结算为 unavailable，避免门禁先于其拥有的进程边界结束。 被取消的子进程收到终止信号并写入终止状态后，runner 才返回稳定的 `package-script-cancelled` unavailable 结果。 scripts/vibe-check.test.ts > package script runner waits for a cancelled child to close bun test --test-name-pattern=\"^package script runner waits for a cancelled child to close$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 12,
+        "entries": [
+          "scripts/vibe-check.test.ts > package script runner waits for a cancelled child to close",
+          "bun test --test-name-pattern=\"^package script runner waits for a cancelled child to close$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-SCRIPT-CANCELLATION-001",
+        "line": 1,
+        "searchText": "package-script 取消等待子进程关闭 package-script adapter 收到 Vibe 取消信号时必须请求子进程终止，并在子进程关闭后才将结果结算为 unavailable，避免门禁先于其拥有的进程边界结束。 被取消的子进程收到终止信号并写入终止状态后，runner 才返回稳定的 `package-script-cancelled` unavailable 结果。 scripts/vibe-check.test.ts > package script runner waits for a cancelled child to close bun test --test-name-pattern=\"^package script runner waits for a cancelled child to close$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-package-script-cancellation-waits-for-child.md",
+        "summary": "package-script adapter 收到 Vibe 取消信号时必须请求子进程终止，并在子进程关闭后才将结果结算为 unavailable，避免门禁先于其拥有的进程边界结束。",
+        "title": "package-script 取消等待子进程关闭"
+      }
+    },
+    "GATE-VIBE-NATIVE-001": {
+      "keys": {
+        "search": [
+          "GATE-VIBE-NATIVE-001 原生 blocking Check 对 finding 与 unavailable fail closed 重复、JSON、Schema 与 Markdown 链接的可信 finding 必须阻断 aggregate；输入或执行不可用也不能被解释为成功。 有效 fixture 全部 passed；真实重复、无效 JSON、Schema 违例和失效链接分别使其原生 Check failed。 不存在的项目根使四项原生 blocking Check 均 unavailable，并由 aggregate fail closed。 scripts/vibe-check.test.ts > native blocking Checks pass, fail on findings, and fail closed when unavailable bun test --test-name-pattern=\"^native blocking Checks pass, fail on findings, and fail closed when unavailable$\" ./scripts/vibe-check.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 13,
+        "entries": [
+          "scripts/vibe-check.test.ts > native blocking Checks pass, fail on findings, and fail closed when unavailable",
+          "bun test --test-name-pattern=\"^native blocking Checks pass, fail on findings, and fail closed when unavailable$\" ./scripts/vibe-check.test.ts"
+        ],
+        "id": "GATE-VIBE-NATIVE-001",
+        "line": 1,
+        "searchText": "原生 blocking Check 对 finding 与 unavailable fail closed 重复、JSON、Schema 与 Markdown 链接的可信 finding 必须阻断 aggregate；输入或执行不可用也不能被解释为成功。 有效 fixture 全部 passed；真实重复、无效 JSON、Schema 违例和失效链接分别使其原生 Check failed。 不存在的项目根使四项原生 blocking Check 均 unavailable，并由 aggregate fail closed。 scripts/vibe-check.test.ts > native blocking Checks pass, fail on findings, and fail closed when unavailable bun test --test-name-pattern=\"^native blocking Checks pass, fail on findings, and fail closed when unavailable$\" ./scripts/vibe-check.test.ts",
+        "sourcePath": "repository-tooling/gate-native-checks-block-findings-and-fail-closed.md",
+        "summary": "重复、JSON、Schema 与 Markdown 链接的可信 finding 必须阻断 aggregate；输入或执行不可用也不能被解释为成功。",
+        "title": "原生 blocking Check 对 finding 与 unavailable fail closed"
       }
     },
     "GENERATED-FILE-DECLARATION-001": {
@@ -9200,29 +9177,6 @@
         "title": "CLI trace accepts report-level direction options"
       }
     },
-    "PROJECT-MARKDOWN-SCOPE-001": {
-      "keys": {
-        "search": [
-          "PROJECT-MARKDOWN-SCOPE-001 主 Markdown 收集排除形成时字节 主仓库链接校验只收集 active 与当前维护 Markdown，不把归档 Change 或 Investigation Report 的形成时资源纳入持续链接义务。 active Change、调查根目录中的非资源 Markdown 与根 README 被收集。 archived Change 和 `_resources` 下的 Markdown 被排除。 scripts/check.test.ts > main Markdown collection excludes archived changes and investigation resources bun test --test-name-pattern=\"^main Markdown collection excludes archived changes and investigation resources$\" ./scripts/check.test.ts"
-        ],
-        "topic": [
-          "repository-tooling"
-        ]
-      },
-      "state": {
-        "endLine": 13,
-        "entries": [
-          "scripts/check.test.ts > main Markdown collection excludes archived changes and investigation resources",
-          "bun test --test-name-pattern=\"^main Markdown collection excludes archived changes and investigation resources$\" ./scripts/check.test.ts"
-        ],
-        "id": "PROJECT-MARKDOWN-SCOPE-001",
-        "line": 1,
-        "searchText": "主 Markdown 收集排除形成时字节 主仓库链接校验只收集 active 与当前维护 Markdown，不把归档 Change 或 Investigation Report 的形成时资源纳入持续链接义务。 active Change、调查根目录中的非资源 Markdown 与根 README 被收集。 archived Change 和 `_resources` 下的 Markdown 被排除。 scripts/check.test.ts > main Markdown collection excludes archived changes and investigation resources bun test --test-name-pattern=\"^main Markdown collection excludes archived changes and investigation resources$\" ./scripts/check.test.ts",
-        "sourcePath": "repository-tooling/main-markdown-collection-excludes-historical-byte-scopes.md",
-        "summary": "主仓库链接校验只收集 active 与当前维护 Markdown，不把归档 Change 或 Investigation Report 的形成时资源纳入持续链接义务。",
-        "title": "主 Markdown 收集排除形成时字节"
-      }
-    },
     "REPO-FORMAT-SCRIPTS-001": {
       "keys": {
         "search": [
@@ -9341,24 +9295,24 @@
     "REPO-SHORT-CONFIG-001": {
       "keys": {
         "search": [
-          "REPO-SHORT-CONFIG-001 项目配置校验固定维护短命令委托 每个仓库维护短命令必须保留类型化映射指定的 package script 实现，而不只是保留同名脚本。 完整的最小 package script 集合与映射一致时，项目配置校验没有诊断。 将 `decision-records` 改为其他脚本路径时，校验返回指明期望委托入口的稳定诊断。 scripts/validators/project-config.test.ts > project package script validation preserves maintenance CLI delegations bun test --test-name-pattern=\"^project package script validation preserves maintenance CLI delegations$\" ./scripts/validators/project-config.test.ts"
+          "REPO-SHORT-CONFIG-001 项目配置固定维护短命令与权威 Vibe 门禁 每个仓库维护短命令必须保留类型化映射指定的 package script 实现；`check` 必须唯一委托 Vibe CLI，不能保留候选 `vibe-check` 入口。 完整的最小 package script 集合、维护短命令委托和权威 `check` 入口一致时，项目配置校验没有诊断。 将 `decision-records` 改为其他脚本路径时，校验返回期望维护入口。 将 `check` 指回旧实现或加入候选 `vibe-check` 时，校验拒绝两个冲突状态。 scripts/validators/project-config.test.ts > project package script validation preserves maintenance CLI delegations and the authoritative Vibe gate bun test --test-name-pattern=\"^project package script validation preserves maintenance CLI delegations and the authoritative Vibe gate$\" ./scripts/validators/project-config.test.ts"
         ],
         "topic": [
           "repository-tooling"
         ]
       },
       "state": {
-        "endLine": 10,
+        "endLine": 14,
         "entries": [
-          "scripts/validators/project-config.test.ts > project package script validation preserves maintenance CLI delegations",
-          "bun test --test-name-pattern=\"^project package script validation preserves maintenance CLI delegations$\" ./scripts/validators/project-config.test.ts"
+          "scripts/validators/project-config.test.ts > project package script validation preserves maintenance CLI delegations and the authoritative Vibe gate",
+          "bun test --test-name-pattern=\"^project package script validation preserves maintenance CLI delegations and the authoritative Vibe gate$\" ./scripts/validators/project-config.test.ts"
         ],
         "id": "REPO-SHORT-CONFIG-001",
         "line": 1,
-        "searchText": "项目配置校验固定维护短命令委托 每个仓库维护短命令必须保留类型化映射指定的 package script 实现，而不只是保留同名脚本。 完整的最小 package script 集合与映射一致时，项目配置校验没有诊断。 将 `decision-records` 改为其他脚本路径时，校验返回指明期望委托入口的稳定诊断。 scripts/validators/project-config.test.ts > project package script validation preserves maintenance CLI delegations bun test --test-name-pattern=\"^project package script validation preserves maintenance CLI delegations$\" ./scripts/validators/project-config.test.ts",
+        "searchText": "项目配置固定维护短命令与权威 Vibe 门禁 每个仓库维护短命令必须保留类型化映射指定的 package script 实现；`check` 必须唯一委托 Vibe CLI，不能保留候选 `vibe-check` 入口。 完整的最小 package script 集合、维护短命令委托和权威 `check` 入口一致时，项目配置校验没有诊断。 将 `decision-records` 改为其他脚本路径时，校验返回期望维护入口。 将 `check` 指回旧实现或加入候选 `vibe-check` 时，校验拒绝两个冲突状态。 scripts/validators/project-config.test.ts > project package script validation preserves maintenance CLI delegations and the authoritative Vibe gate bun test --test-name-pattern=\"^project package script validation preserves maintenance CLI delegations and the authoritative Vibe gate$\" ./scripts/validators/project-config.test.ts",
         "sourcePath": "repository-tooling/project-package-scripts-preserve-maintenance-cli-delegations.md",
-        "summary": "每个仓库维护短命令必须保留类型化映射指定的 package script 实现，而不只是保留同名脚本。",
-        "title": "项目配置校验固定维护短命令委托"
+        "summary": "每个仓库维护短命令必须保留类型化映射指定的 package script 实现；`check` 必须唯一委托 Vibe CLI，不能保留候选 `vibe-check` 入口。",
+        "title": "项目配置固定维护短命令与权威 Vibe 门禁"
       }
     },
     "REPO-SKILL-HASH-001": {
@@ -15003,7 +14957,7 @@
         "id": "investigation-report"
       },
       {
-        "description": "主仓库根目录与 scripts 所有的完整检查编排、生成文件规范化与漂移判断、待提交 skill package hash 和独立版本门禁。",
+        "description": "主仓库根目录与 scripts 所有的 Vibe 项目门禁（含 jscpd 配置与精确 Lizard 的兼容 wrapper）、环境前置条件、生成文件规范化与漂移判断、待提交 skill package hash 和独立版本门禁。",
         "id": "repository-tooling"
       },
       {
@@ -15090,19 +15044,6 @@
       "CHANGE-PLAN-METADATA-SYMLINK-001": "sha256:285e8e752f68addef6433c70d1b8d0bf797b638d196652344ce2f1b40c2c587f",
       "CHANGE-PLAN-METADATA-WRITER-001": "sha256:447c2a34524432d6d39e7851df432197b4d9461679fb9641e0b202f0316c3cac",
       "CHANGE-PLAN-SHOW-SYMLINK-001": "sha256:913be310972611ca0f883f6074b61462e40b73f51298de6150254715b63ef087",
-      "CHECK-CLI-CONCURRENCY-001": "sha256:88e976ae0580c8e1c503d0be615d581e0f0ece14dbabe4b0e2664ac419905d46",
-      "CHECK-CLI-UNKNOWN-OPTION-001": "sha256:8a48bbbdcf577be8b08b707c5b5d7d6e3de84dea348a472c81e6edec6f4fb8b0",
-      "CHECK-DURATION-FORMAT-001": "sha256:5cb7811791d87d8d40a6f6a3f6a3d3e13bb6fc6cc48965ef18cd03be6fd293c0",
-      "CHECK-FAILURE-CONTINUE-001": "sha256:7b176c756c0c1ecd5df6c7b662f436400c593ceba0b20f7c4dd2fac0e4b40529",
-      "CHECK-FULL-PROFILE-001": "sha256:5b14ea48c505e30e9094e65b44bb3c031cb9ab6f19254203e581a5007b7ef060",
-      "CHECK-MODE-OPTIONS-001": "sha256:9d2a1d20cfdcd69a7ec69a0053154e6aa9cd9e4b27393eb1a6063982cb4daead",
-      "CHECK-OPTIONS-MODES-001": "sha256:eae3ee917438a3c764961ebedf5f4b07b83bb2cb28d0b13522b5559506981935",
-      "CHECK-PLAN-SCRIPTS-001": "sha256:0c3452b7cfcb90dff374341bd112089574955419f292a2de9614057fd7e7fc31",
-      "CHECK-QUICK-PROFILE-001": "sha256:f6484fdfa0fb290aa3fe1e313a529adfbb42e2376be48010e2d03f2105c1a720",
-      "CHECK-RESULT-FORMAT-001": "sha256:a58dbdecc1d689a453e47cca518b0584281b6cc586245f39440ab6a82cef4a58",
-      "CHECK-SUMMARY-FORMAT-001": "sha256:87f3d4a6e2ba7746d43b6418792554a3b6c90fb7f71b2b18babb20a9427ebfa9",
-      "CHECK-WORKFLOW-PACKAGE-FAILURE-001": "sha256:ff1b1458a5b4ed251a61aa6a7a78d833c38684d1b0e9e47ae047269edd27f4d0",
-      "CHECK-WORKFLOW-PACKAGING-001": "sha256:e6dde5bfe40d5b63bf76cc9a49ebf752c21c6645a878e9ab027498135ffaf23e",
       "DECISION-ACTIVATE-ESTABLISHED-RELATIONS-001": "sha256:634fd58b2a7f0eec0309dd91b40d28c453db82b78c1c6d15b91c1ffcba2572f1",
       "DECISION-ACTIVATE-RELATION-CLEAR-001": "sha256:1963603818a2244b4d7b688f4bac2637bc27923bd8a79df4182b3b56c6ceec74",
       "DECISION-ACTIVATE-RELATION-REPLACE-001": "sha256:c45356f6bb40662429000a1198ee5c64addf93515d84bad1e97ef5212741be90",
@@ -15275,11 +15216,23 @@
       "DECISION-UNRECORDED-ARCHIVED-PREDECESSOR-001": "sha256:8fa8386271f72753ce6ef1e7185c1141960b01bf40e1cc4daa6359567babc7d7",
       "DECISION-UNRECORDED-EVOLUTION-001": "sha256:789f1a98d3fbd16a010fb515dd5e2f33788aeb39bf4d97b363ff78b70001496d",
       "DECISION-UNRECORDED-WARNING-ORDER-001": "sha256:e440a42644bca2baa2c4465357436937b02c0ca646da3625a4d02d8c32659d30",
+      "ENV-BUN-RUNTIME-001": "sha256:fc4d137b45129ca6e0ac5c63e4117591e8ce78b5b5acee71c83c927f1b7ea5f4",
       "ENV-CHECK-READONLY-001": "sha256:1cc8bb79619b0886f6166381c90048049dc07658f88f51ca0bd0901ffebb6731",
       "ENV-CLONE-HOOK-001": "sha256:8ceef40cebeb5559b4eae4eebb6c9d903ded8c629f52abb4ece20145ba657f1d",
       "ENV-LINKED-HASH-HOOK-001": "sha256:13a94db1d55359cb4362c4db760d950fbc1f0b4480ea0db4928da59711cc3f92",
+      "ENV-METRICS-PREREQUISITES-001": "sha256:17691c720b0523f69656ea2ebf010cdcc27266d84b92749cacf68807aac2546e",
       "ENV-PERMISSION-RULES-001": "sha256:21a124776a169674569296131b473013b83cd4982ea6a91fde7ec22edc11b45a",
       "ENV-WORKTREE-SETUP-001": "sha256:a232485668782b975b6e416528f415886b669450f36394065848a5027441842f",
+      "GATE-CLI-RESULT-001": "sha256:b36c228983ef15aed9a1d17de0ed42c1d9c0991896a948a07e99d6f5edb77ed2",
+      "GATE-DEFINITION-CATALOG-001": "sha256:63bba205b516c8e8943ed5381febee6902edcd68065216cb5baf3c56dd5c241a",
+      "GATE-FILE-SELECTION-001": "sha256:2a611569231721824b35a68e1227f49b52562b76c5b3ca76cba359d04fd51d77",
+      "GATE-FULL-PACKAGING-001": "sha256:4f71db856e15438e47326004363930cc5c4af2b79f58359d66bb35a9e0508115",
+      "GATE-JSCPD-CONFIG-001": "sha256:5ccde3f26423316112fb003cb1cc9ea514a4effeb9699b48ece0ee6272fd015f",
+      "GATE-LIZARD-VERSION-001": "sha256:d1b6867bf1f0ce4875dc41c12483934500e5f3e03fc81dbd976c050320498544",
+      "GATE-METRICS-ADVISORY-001": "sha256:af0dd4f5521a48efd2bdd98b27a68a29359cc114720224a842188de87b15bfb9",
+      "GATE-SCRIPT-ADAPTER-001": "sha256:b461e94ab3f3cd94b2aa2ab437e516d27fb675f9df588a6ae6a07fc83f3644a9",
+      "GATE-SCRIPT-CANCELLATION-001": "sha256:754852675128ebd987a1273b69f76807836c8ccc1cf4c8ceeb1f434b5c6c413b",
+      "GATE-VIBE-NATIVE-001": "sha256:8617ce82be6e586daa6b14576687bc00b5a4394630a65f32869930c904e30a38",
       "GENERATED-FILE-DECLARATION-001": "sha256:6e1393221dbc7a89eb508e87745a86f801af86a6067ebd39427d34876b660d3a",
       "GENERATED-FILE-DECLARATION-CLEANUP-001": "sha256:514a4c9d7314c505c7e8b390ae1bc819264127f1571a3bd49dd17043119e89b0",
       "GENERATED-FILE-DRIFT-001": "sha256:75f8e90a810f0a9bb1d14f9e6c378c6815b3fce9dd7d9217124df59684ff852a",
@@ -15432,13 +15385,12 @@
       "INVESTIGATION-SYNC-DISCARD-LOCK-001": "sha256:a51a3a8e275adea77fd9998a697543254c42fae108327756bde53d90657e339f",
       "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001": "sha256:b972098b86b31893963b01c347b74b36806bf2f3a53f49d64abad277df716cb7",
       "INVESTIGATION-VALIDATION-WARNINGS-001": "sha256:8d743d73e4a9956cbaa7d8b75be05bff83404c8b5d0f4679f76c0bdc343ad075",
-      "PROJECT-MARKDOWN-SCOPE-001": "sha256:e0eb629bcb288e6ca9860f915df74f5904830d1569bf43119311855290651540",
       "REPO-FORMAT-SCRIPTS-001": "sha256:2f52e8e3653f91fad9f12010ebaee9b5beec800eb99609bd48b28a284618794d",
       "REPO-LINT-PREFLIGHT-001": "sha256:028ff20768861e327bd9a7a43cd90b6eeaeea2de6490982ebb7ee8269b68b2c4",
       "REPO-OXC-CONFIG-001": "sha256:f704f1d4d178c8c92be699f3614311f94bac169d9afe363c27f0fcff0f989d52",
       "REPO-PACKAGE-JSON-001": "sha256:36724eb3dd100be35650754564a630256b7e0acfa6047ffd892ea44d67692239",
       "REPO-SHORT-CLI-001": "sha256:e871fa4f7a4450ec28714d11dc4f86cb6fd923f4b70f33c8fa44caf664ebc98e",
-      "REPO-SHORT-CONFIG-001": "sha256:a3072037101a9d2e465b91fc5b723ca5893a1d21a1e7dd108aab85eca2ece10f",
+      "REPO-SHORT-CONFIG-001": "sha256:6045e4b020c0f7aa92e0111a6cc098c44b13614095d31f21f69c58baadf4a4ac",
       "REPO-SKILL-HASH-001": "sha256:905e1aa1871259fb48d905b8699654133e2fbfae4693d2df1843020008be97b1",
       "REPO-SKILL-HASH-002": "sha256:501bb6b33a2dd0e08cdaf6d0d79d73e6420e23991558671a1c94954395820dd3",
       "REPO-SKILL-HASH-003": "sha256:c0397b6aa968c3ded8a1acc2b5f85316e11e7e7f91fce1068e065bbd33799674",
@@ -15684,6 +15636,6 @@
       "VERSION-CONTROL-STATES-001": "sha256:5de8e31678bc717f6da89e3590791e55aa6318cfec899c3196498616b346aff0",
       "VERSION-CONTROL-WORKTREE-001": "sha256:9ac7f9540e8bd3f19b913fb66ba465f99e43b4274299fb9dbb6a8bfbe311b790"
     },
-    "metadata": "sha256:d252cc1f7abae176df7a527cb848707ed631f9a6d940c9dc5250550eadcf3ea5"
+    "metadata": "sha256:ef4cc771acf55ebd5725abb81b441f4a51a12636b4f8f0212831a10fc364ef1e"
   }
 }

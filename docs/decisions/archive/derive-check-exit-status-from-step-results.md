@@ -1,6 +1,6 @@
 ---
 title: 从检查步骤结果派生退出状态
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:14:59Z
 purpose: 让调用方仅通过结构化步骤结果和退出码可靠判断整次检查是否成功。

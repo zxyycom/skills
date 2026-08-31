@@ -1,6 +1,6 @@
 ---
 title: 在有界并发下收敛全部已选检查
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:14:56Z
 purpose: 让已选择的前置检查在保守资源边界内全部形成结果，并在单项失败后继续发现其他独立问题。

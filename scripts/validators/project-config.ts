@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { checkPackageScripts } from "../lib/check-plan.ts";
+import { releaseRequiredPackageScripts } from "../lib/vibe-gate.ts";
 import {
   formatPackageScripts,
   lintPackageScripts,
@@ -36,8 +36,14 @@ export const maintenanceCliPackageScripts = {
 
 export type MaintenanceCliCommand = keyof typeof maintenanceCliPackageScripts;
 
+export const authoritativeGatePackageScripts = {
+  check: "bun scripts/vibe-check.ts",
+  "test:check": "bun test ./scripts/vibe-check.test.ts"
+} as const satisfies Readonly<Record<string, string>>;
+
 export const requiredPackageScripts = [
-  ...checkPackageScripts,
+  ...releaseRequiredPackageScripts,
+  "pack:skills",
   "fix",
   "format",
   "lint:fix",
@@ -51,7 +57,6 @@ export const requiredPackageScripts = [
   "sync:task-graph-cli",
   "sync:test-evidence-cli",
   "sync:test-evidence-catalog",
-  "vibe-check",
   "check"
 ] as const;
 
@@ -66,13 +71,16 @@ const requiredProjectFiles = [
   "pnpm-workspace.yaml",
   "tsconfig.json",
   ".codex/rules/bun.rules",
-  "scripts/check.ts",
   "scripts/environment.js",
   "scripts/setup-git-hooks.js",
   "scripts/setup-repository.js",
   "scripts/task-graph.js",
   "scripts/lint.ts",
   "scripts/vibe-check.ts",
+  "scripts/vibe-check.test.ts",
+  "scripts/lib/vibe-gate.ts",
+  "scripts/lib/vibe-jscpd.js",
+  "scripts/lib/vibe-lizard.js",
   "docs/tooling.md",
   "docs/skills",
   ".githooks/pre-commit",
@@ -144,6 +152,21 @@ export async function validatePackageScripts(
         `package.json script ${scriptName} must delegate to ${expectedCommand}`
       );
     }
+  }
+  for (const [scriptName, expectedCommand] of Object.entries(
+    authoritativeGatePackageScripts
+  )) {
+    if (packageJson.scripts[scriptName] !== expectedCommand) {
+      report(
+        `package.json script ${scriptName} must be ${expectedCommand}; ` +
+          "restore the authoritative Vibe Check entry"
+      );
+    }
+  }
+  if (Object.hasOwn(packageJson.scripts, "vibe-check")) {
+    report(
+      "package.json must not define the retired vibe-check candidate; use check"
+    );
   }
   for (const [scriptName, expectedCommand] of Object.entries(
     formatPackageScripts

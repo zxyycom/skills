@@ -1,6 +1,6 @@
 ---
 title: 在前置检查收敛后运行 skill 打包
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:03:05Z
 purpose: 让一次检查命令只在本次所选前置门禁全部通过后生成 skill 制品。

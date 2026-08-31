@@ -1,6 +1,6 @@
 ---
 title: 简洁渲染检查步骤结果
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:14:59Z
 purpose: 让正常检查输出易于扫描，同时为失败和显式 verbose 保留完整诊断。

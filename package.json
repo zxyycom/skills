@@ -4,7 +4,7 @@
   "type": "module",
   "packageManager": "pnpm@11.7.0",
   "engines": {
-    "bun": ">=1.3",
+    "bun": ">=1.3.14",
     "pnpm": ">=11"
   },
   "scripts": {
@@ -13,10 +13,9 @@
     "format": "oxfmt --write '{scripts/**/*.{ts,js},tools/**/*.ts}'",
     "format:check": "oxfmt --check '{scripts/**/*.{ts,js},tools/**/*.ts}'",
     "validate": "bun scripts/validate.ts",
-    "vibe-check": "bun scripts/vibe-check.ts",
     "test:change-plan-cli": "bun test ./tools/change-plan/tests/run.ts",
     "test:decision-records-cli": "bun test ./tools/decision-records/tests/run.ts",
-    "test:check": "bun test ./scripts/check.test.ts",
+    "test:check": "bun test ./scripts/vibe-check.test.ts",
     "test:environment": "bun test ./scripts/environment.test.ts ./scripts/validators/project-config.test.ts",
     "test:generated-file": "bun test ./scripts/lib/generated-file.test.ts",
     "test:skill-package-hash": "bun test ./scripts/lib/skill-package-hash.test.ts",
@@ -59,7 +58,7 @@
     "check:test-evidence-catalog": "node skills/test-evidence-review/scripts/test-evidence-catalog.mjs check --root .",
     "sync:skill-updaters": "bun scripts/build/skill-updaters.ts --write",
     "check:skill-updaters": "bun scripts/build/skill-updaters.ts --check",
-    "check": "bun scripts/check.ts",
+    "check": "bun scripts/vibe-check.ts",
     "lint:fix": "bun scripts/lint.ts --fix",
     "fix": "bun run lint:fix && bun run format"
   },

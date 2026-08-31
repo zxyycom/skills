@@ -437,6 +437,34 @@
         "title": "现有组合的主要差距位于路由与协作层"
       }
     },
+    "identify-vibe-001-jscpd-path-and-lizard-version-gaps.md": {
+      "keys": {
+        "formed-at": [
+          1788170700000
+        ],
+        "tag": [
+          "duplicate-detection",
+          "function-metrics",
+          "vibe-check"
+        ],
+        "text": [
+          "识别 Vibe 0.0.1 的 jscpd 路径与 Lizard 版本缺口",
+          "锁定 @zxyycom/vibe-check 0.0.1 时，重复检测的临时配置相对路径和函数指标的 Lizard 可用性是否足以形成可信门禁？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-08-31T10:05:00+00:00",
+        "question": "锁定 @zxyycom/vibe-check 0.0.1 时，重复检测的临时配置相对路径和函数指标的 Lizard 可用性是否足以形成可信门禁？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "duplicate-detection",
+          "function-metrics",
+          "vibe-check"
+        ],
+        "title": "识别 Vibe 0.0.1 的 jscpd 路径与 Lizard 版本缺口"
+      }
+    },
     "model-goals-as-layered-partially-expressible-intentions.md": {
       "keys": {
         "formed-at": [
@@ -1007,6 +1035,7 @@
       "ground-positive-negative-asymmetry-in-reference-structure.md": "sha256:b8832dbdc9c7293b14e69800fc11e13623e10102368b5e616455b7fc40c62331",
       "identify-operation-time-skill-rerouting-gap.md": "sha256:cf86eff84a6cc500ef40d435cfef153d8b41d37f3b85f95e4fa2408798cdcc97",
       "identify-routing-and-coordination-gaps-in-context-management.md": "sha256:80b476d70dfc61a5cd0463c7ca5dee3bf0f09cb1bbe7b46e1eeb7204786386fe",
+      "identify-vibe-001-jscpd-path-and-lizard-version-gaps.md": "sha256:d9a4f2ec04f694e4bcf55d7dce88cb68f91fade0490bc0d8e07afa175db455f6",
       "model-goals-as-layered-partially-expressible-intentions.md": "sha256:1632232ac3998575f0befc5b9804c8ef0e31ce6f49bd4648b1a619d705cc1e80",
       "preserve-redacted-conversations-in-two-derived-forms.md": "sha256:4c41850dacce295516c74f70f6db3b268a106cebeef2c2ad72bdf1771a48cb96",
       "recognize-document-projections-as-part-of-goal-formation.md": "sha256:aad57f9a803036955fe3cff8cf365059f5f7ff6e92e5946d91acd0e3c7465051",

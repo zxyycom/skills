@@ -2,11 +2,13 @@
 
 本 Change 将当前可选的 Vibe Check 候选入口收敛为项目唯一权威门禁，并以旧门禁实现和候选入口完全退出作为完成边界。迁移按门禁责任和可验证结果验收，不要求复制旧实现的任务形状与交互细节。
 
+本 proposal 只保存本 Change 的目标和完成条件。旧 `quick`、`--verbose` 与“31 个旧任务”仅指迁移前的编排基线；当前门禁行为由 `docs/tooling.md` 承接，Plan 内任务数量和完成状态只由 `tasks.md` 承接。归档后，本文件只作为形成与实施历史阅读。
+
 ## Why
 
-当前 `bun run vibe-check` 已证明 `@zxyycom/vibe-check` 能在本仓库运行，但它还没有承接项目结构、领域一致性、代码质量、行为测试、生成一致性和打包安全等现有门禁责任。直接切换会丢失必要覆盖。
+立项时，候选 `bun run vibe-check` 已证明 `@zxyycom/vibe-check` 能在本仓库运行，但它还没有承接项目结构、领域一致性、代码质量、行为测试、生成一致性和打包安全等现有门禁责任。直接切换会丢失必要覆盖。
 
-当前工作环境已经能够解析 SCC 3.7.0 和 Lizard 1.23.0，指标 check 也已实际运行。环境审计已经固定 owner：`scripts/environment.js` 检查本地全局 prerequisite，`docs/tooling.md` 给出恢复命令，现有 CI package job 固定安装并探测相同版本；门禁 invocation 只使用已就绪工具，不联网安装。
+立项时的工作环境已经能够解析 SCC 3.7.0 和 Lizard 1.23.0，指标 check 也已实际运行。环境审计已经固定 owner：`scripts/environment.js` 检查本地全局 prerequisite，`docs/tooling.md` 给出恢复命令，现有 CI package job 固定安装并探测相同版本；门禁 invocation 只使用已就绪工具，不联网安装。
 
 反过来，把现有 31 个任务、quick/full 映射、任务 ID、输出顺序、`--verbose` 和并发环境变量逐项复制到 Vibe Check，也会把旧编排实现当成目标契约，抵消使用新工具简化配置、聚合和报告的价值。现有任务只作为责任盘点输入；每项责任必须得到“保留、Vibe 原生替代、合并或退役”的明确结论，但不默认要求一对一迁移。
 
@@ -48,7 +50,7 @@
 - 任一 selected blocking check failed/unavailable/N/A，或任一执行必需的 advisory check unavailable/N/A，都使 aggregate 和进程退出非零；文件/函数指标 finding 无论数量和数值都只形成 warning，永不改变 aggregate、退出状态或打包资格。独立检查能继续收敛，输出稳定表达 check、状态、原因和恢复动作即可。
 - `pack:skills` 仅在全部发布必需检查形成 passed 结果后执行一次；指标 check 可以带 warning，但任一前置 failed/unavailable/N/A 时不执行，并由隔离输出测试证明没有本次打包写入；打包自身失败决定整体失败。
 - 重复、JSON、Task Graph/Test Evidence Schema、Markdown 链接、文件指标和函数指标均有代表性 pass/finding/unavailable 测试；当前环境已安装的 SCC 3.7.0 与 Lizard 1.23.0 通过来源/版本探测，新工作区由环境检查与安装说明恢复，CI 在原 job 固定安装相同版本，门禁运行时不重复安装。
-- 实际指标审计确认 59 条文件 finding 和 140 条函数 finding 都是可信、非阻断测量，没有 input rejection、blocking finding 或已有 waiver；文件 waiver 在 non-blocking policy 下不改变门禁结果，函数指标 0.0.1 也不提供 waiver API，因此本 Change 明确不配置 waiver，warning 继续可见。
+- 实际指标审计确认文件与函数 finding 都是可信、非阻断测量；当前数量会随维护代码变化，不作为门禁契约。没有 input rejection、blocking finding 或已有 waiver；文件 waiver 在 non-blocking policy 下不改变门禁结果，函数指标 0.0.1 也不提供 waiver API，因此本 Change 明确不配置 waiver，warning 继续可见。
 - 能力处置表和验证证明新门禁已接管全部原有必要能力，代表性失败仍阻断且打包边界不放宽后即可切换；不设置自然日、连续运行次数或 revision 数量门槛，任务数量、ID、调度顺序和文本输出差异也无需一致。
 - 干净安装后，现有 CI job 通过新入口的发布选择成功完成；不增加并行 CI job，也没有另一套上传或发布完成信号。
 - 最终仓库只保留 `bun run check` 这一权威门禁入口；旧编排、旧计划模块、候选 `bun run vibe-check` 以及只验证旧实现的代码、文档和证据均已删除或迁移。

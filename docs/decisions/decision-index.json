@@ -121,7 +121,7 @@
       "define-decision-alignment-semantics.md": "sha256:706acc334dbf641e3f3b5864e0c4e8d0d9ad37994d3607f0d2cd44c42fb3021c",
       "define-version-control-visible-investigation-resources.md": "sha256:69bc8008b0100d3c297e1a880174241655cdefa9975ce0e68d22ae4c93575386",
       "delegate-native-runtime-installation-to-caller.md": "sha256:3b05c3c7b7ca707f05166167568d05d0ab3ade1898974b6ff3c604c51d60f45d",
-      "derive-check-exit-status-from-step-results.md": "sha256:f12b93c9d06db83591e98e7b79cf3d7ec5ddad9387a2e34ef971ddde5e932203",
+      "derive-check-exit-status-from-step-results.md": "sha256:a812a224960cc716a4630e291be40735e576843b35b46c560de878e1eff51b55",
       "derive-decision-records-declarations-from-runtime-source.md": "sha256:f297788f201ccdabd4cdad1c41edf905054d7a75eb90b4139fc0b86c09f89474",
       "derive-establishment-from-markdown-lifecycle.md": "sha256:71784270ab099d77eece2838896ed0b3c6163f7276c1bda50760865fc9d021b2",
       "derive-pending-from-head-path.md": "sha256:6b3b638e5beffb3e7cdf9c2e8756454fc89f61bb8163d58ad3270b9f5f446517",
@@ -220,7 +220,7 @@
       "recover-current-format-tools-and-index.md": "sha256:acf19524030b3a57e9fab1fe589166f57c623d76dd3a28b348573af3764f28d2",
       "register-one-case-per-independent-verification-entry.md": "sha256:046cad89081366c5e2fa1eb53b0a33f16d0023eab0a1f7ba4ad0915318e4725f",
       "render-check-results-and-exit-status.md": "sha256:0bf55abe81d75e1822cce9e6d49e8f07232b2bb9af8e1581168f5154acb7b2c5",
-      "render-check-step-results-concisely.md": "sha256:71dfbff08891e303e1237e107d278cd73ef23cd815fdd6ad6589174916b18294",
+      "render-check-step-results-concisely.md": "sha256:661bd98d9c04204cdecae69c85322c9d9da30f2d222f57837c3dd11323503e28",
       "render-full-task-list-as-layered-dag.md": "sha256:a3e91c6ebaef94a2b90acd0973f5ee631e036e64d51f1e0e8df1dc29f25680d7",
       "repair-only-delivery-blocking-review-findings.md": "sha256:bdad36f3cfb2443fbd7ee68f1bc50577ff86e444a9f321456e411a1467ee9e08",
       "replace-decision-relations-as-complete-sets.md": "sha256:713eabdd24be2dd3c36b68e1c242e426b4bf4261b069dba2ebcafdbf577e9630",
@@ -230,11 +230,11 @@
       "retain-tasks-by-coordination-value.md": "sha256:41ccbe6f0aad9af8190b6dca4dc84f08cca95515048796029786161eafade7f6",
       "review-verification-implementations-with-explicit-indexed-cases.md": "sha256:f9856cdf8a7a573daa08986e43c291f0d219a61b615537ef626257f25a258018",
       "route-future-work-by-minimal-carrier.md": "sha256:2d57595193ae1d7a707803770d9dd7e53ab7610f9f237349e3a2c74d83b633f9",
-      "run-packaging-after-prerequisite-checks.md": "sha256:c5113801a620a7f61cbeb8665435ab07843e83ed87285e4551d97c8f3fb942bd",
+      "run-packaging-after-prerequisite-checks.md": "sha256:4079f3cfe52a951afefd9c88690bf57171f92bbee1bf1db768387a9ea20d14a6",
       "schedule-selected-checks-conservatively.md": "sha256:edf33c11f4427fc05c0440ec9dcf3d0c80ec9b26b50043b47be266bc2d859814",
       "select-check-tasks-by-profile.md": "sha256:9df3417000aef4cba7e608d8222e21c2aeff013a65f2a3f0f5260725a6746b59",
       "select-model-before-reasoning-effort.md": "sha256:9352b8fac265c275d703f6e1c2ba4cef25c67e1ab802c47d0109fae25483999f",
-      "select-prerequisite-checks-by-profile.md": "sha256:de2cd24415234161c52692d3b2a5e4fc0ce8dba289cc1aa7b88e0d321171c2e6",
+      "select-prerequisite-checks-by-profile.md": "sha256:8169233e3aba9d2040b60097ad73f4d2e1d0ac211b0d53a2d3cb2b8fc22130ec",
       "select-task-graph-project-roots.md": "sha256:f1a23b90ef85d023cc3200ab864c374e19e480ba196a03b5e92a1affb600c9f7",
       "separate-activation-effect-from-head-pending.md": "sha256:598b13ac3bbfb1a756671fff87334f2b521bb33b0aff95ed9187bdf02ad65a0d",
       "separate-agent-contract-from-tool-protocol.md": "sha256:135a1979a6ca529bd434c42aae253c79b6d789329fd8f0f23da71d5f74d53e71",
@@ -248,7 +248,7 @@
       "separate-task-content-state-and-effective-projection.md": "sha256:18c82da6bb49d05efcc394b563a00df25fcf1174f4e51379fec21e8668acc69c",
       "separate-task-coordination-from-execution-mechanism.md": "sha256:5554691a01f1b554e41b8b826071189542c6ab48ed66bdcabf708313f43a0788",
       "separate-tool-source-and-repository-automation.md": "sha256:2d95d6b3d76b3535f8dfe3d248b6be718060a5046b5f326cb8e8977498cbf615",
-      "settle-all-selected-checks-under-bounded-concurrency.md": "sha256:59bd70483e1aac3e1c8648b3f6421532e3949b1fc700f3d54524cf4320d6c2c4",
+      "settle-all-selected-checks-under-bounded-concurrency.md": "sha256:bd7cb82fac42d9f4fc5db93a1eca834b29d81a155e64462500549213b0da5a87",
       "simplify-change-lifecycle-to-draft-plan-and-archive.md": "sha256:c091f7eee2b4685b70ecc2b81fb9754adf929982cef2f2fb170ec472b8efcbc2",
       "split-commits-by-semantic-unit.md": "sha256:02ad6611a9074de1fae3518c8de4f9b0f841c24f724a58810d33a32e59da6294",
       "stage-investigation-index-entries-across-resource-changes.md": "sha256:8ec75c84d4dbc436bd0a4243e6247c2c52138c2c74d0d4bed0fba054aea30b63",
@@ -299,7 +299,7 @@
       "use-persisted-index-for-routine-queries.md": "sha256:5b6d4f024f11fc52a93937211a12a018a3da4c4c1d593ff5767abc64fbb69808",
       "use-physical-archive-boundary-for-decision-search.md": "sha256:ca60dd549992cb2c83f064c0fda8ec4dee3898d1ce8326df212666d9d1b7338a",
       "use-plan-base-only-for-git-distance.md": "sha256:13933964ea3368150d336920705fb800ff06ae8ddfe1a01c613c8a131c401d2f",
-      "use-profiled-concise-checks.md": "sha256:9e619f77ae8610f5a14d3743961b09ace5d5bdeb51fc096fc4c0898587406f7a",
+      "use-profiled-concise-checks.md": "sha256:99d5e095d665eacdb8cdf3d62569fc0e163a523ada577cdcccdccd367523acc9",
       "use-project-short-commands-for-maintenance-clis.md": "sha256:af6c8c17acc8291a17354ccc81eef1b8239c1d3a5bda2cf785beffef92fbbe3c",
       "use-recoverable-decision-lifecycle-transactions.md": "sha256:58dc35572b516d7761dc45062e04c111861dda404036ecf7a092cfb0b9aa70f7",
       "use-recoverable-evolution-transactions.md": "sha256:f63ae1be94e39b93e697ca89c396654cbf3e2484373e71790d1b7de668c9ab30",
@@ -317,6 +317,7 @@
       "use-typed-collection-metadata.md": "sha256:a0e261ea16fca33ef949f83b289b5c323f02ab7501cc55bb7732bf7b3974c801",
       "use-versioned-overlay-skill-updates.md": "sha256:45c50941a04dc9aff4f2e305ec83fd14cb12d3df86e554cd23f6c4974d35f192",
       "use-versioned-runner-result-protocol.md": "sha256:48cde8d9a3cd54768d144286b55ddccec9f52272a234fe75764562d7e7fdcf9c",
+      "use-vibe-check-as-authoritative-project-gate.md": "sha256:bbf9f2602fdd6ca9ec41a1463ba1a4676d809fcab34df54abe3120dde636319b",
       "validate-only-active-change-plans.md": "sha256:14d148173e7fbc11d4a3c13ccb4ccecc8c9b459516ba79072388da911bdfe860",
       "version-index-definition-compatibility.md": "sha256:94002fd6642a327388347c00f5963519a2b44eafa9eab41fd031ecdd48007d32",
       "warn-on-unreferenced-investigation-resources.md": "sha256:c80123faec33a3d0e728a009dee7eae4c0d68984de137dac3b1b934af8bedba0",
@@ -3718,16 +3719,16 @@
           "project-tooling"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "derive-check-exit-status-from-step-results.md",
+        "sourcePath": "archive/derive-check-exit-status-from-step-results.md",
         "title": "从检查步骤结果派生退出状态",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-11T04:14:59Z",
         "purpose": "让调用方仅通过结构化步骤结果和退出码可靠判断整次检查是否成功。",
@@ -6774,16 +6775,16 @@
           "project-tooling"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "render-check-step-results-concisely.md",
+        "sourcePath": "archive/render-check-step-results-concisely.md",
         "title": "简洁渲染检查步骤结果",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-11T04:14:59Z",
         "purpose": "让正常检查输出易于扫描，同时为失败和显式 verbose 保留完整诊断。",
@@ -7105,16 +7106,16 @@
           "project-tooling"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "run-packaging-after-prerequisite-checks.md",
+        "sourcePath": "archive/run-packaging-after-prerequisite-checks.md",
         "title": "在前置检查收敛后运行 skill 打包",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-11T04:03:05Z",
         "purpose": "让一次检查命令只在本次所选前置门禁全部通过后生成 skill 制品。",
@@ -7233,16 +7234,16 @@
           "project-tooling"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "select-prerequisite-checks-by-profile.md",
+        "sourcePath": "archive/select-prerequisite-checks-by-profile.md",
         "title": "按 quick 与 full 档位选择前置检查",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-11T04:03:02Z",
         "purpose": "让日常检查与完整验收使用明确且可复核的前置任务集合。",
@@ -7661,16 +7662,16 @@
           "project-tooling"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "settle-all-selected-checks-under-bounded-concurrency.md",
+        "sourcePath": "archive/settle-all-selected-checks-under-bounded-concurrency.md",
         "title": "在有界并发下收敛全部已选检查",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-11T04:14:56Z",
         "purpose": "让已选择的前置检查在保守资源边界内全部形成结果，并在单项失败后继续发现其他独立问题。",
@@ -9770,6 +9771,54 @@
           {
             "type": "拆分",
             "target": "defer-standard-test-result-blocking.md"
+          }
+        ]
+      }
+    },
+    "use-vibe-check-as-authoritative-project-gate.md": {
+      "keys": {
+        "tag": [
+          "project-tooling"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-vibe-check-as-authoritative-project-gate.md",
+        "title": "以 Vibe Check 作为权威项目门禁",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-08-31T09:19:20Z",
+        "purpose": "让日常与发布门禁在一个 Vibe Definition 目录中形成唯一可验证结果。",
+        "background": "旧项目编排重复实现选择、调度、展示、聚合和打包边界，无法继续作为当前最小责任模型。",
+        "decision": "采用 Vibe 的 Definition、scheduler、progress 与 aggregate 承接唯一 check，并把打包限制为 full 的依赖终结 Check。",
+        "tags": [
+          "project-tooling"
+        ],
+        "relations": [
+          {
+            "type": "归并",
+            "target": "derive-check-exit-status-from-step-results.md"
+          },
+          {
+            "type": "归并",
+            "target": "render-check-step-results-concisely.md"
+          },
+          {
+            "type": "归并",
+            "target": "run-packaging-after-prerequisite-checks.md"
+          },
+          {
+            "type": "归并",
+            "target": "select-prerequisite-checks-by-profile.md"
+          },
+          {
+            "type": "归并",
+            "target": "settle-all-selected-checks-under-bounded-concurrency.md"
           }
         ]
       }

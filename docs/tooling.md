@@ -20,7 +20,7 @@
 ## 工具分工
 
 1. pnpm 负责安装依赖；固定版本来自 `package.json#packageManager`，锁文件是 `pnpm-lock.yaml`，CI 使用 `pnpm install --frozen-lockfile`。
-2. Bun 负责 package scripts 调度和 TypeScript 脚本运行；本地、hook 和 CI 优先通过 `bun run <script>` 使用稳定入口。
+2. Bun 负责 package scripts 调度和 TypeScript 脚本运行；本地、hook 和 CI 优先通过 `bun run <script>` 使用稳定入口。最低兼容版本由 `package.json#engines.bun` 单独定义，环境入口从同一边界诊断 Bun，不在本文复制版本数值。
 3. tsgo 负责类型检查；`typecheck` 使用固定版本的 `@typescript/native-preview`，对应 release-age 例外记录在 `pnpm-workspace.yaml`。
 4. 常见格式、协议、解析和压缩能力优先使用成熟依赖；项目领域规则才由本仓库直接实现。
 
@@ -42,10 +42,10 @@ node scripts/environment.js setup
 
 环境入口遵守以下边界：
 
-1. Git、Node.js 和全局 CodeGraph 是前置条件，入口只诊断缺失，不安装或升级它们。
-2. `check` 检查 Git、Node.js、Bun、pnpm、CodeGraph、索引状态、直接依赖、Git hook 和中央 task-graph root，不下载或修改环境。
-3. `setup` 可以安装或切换 Bun、pnpm，运行 `pnpm install --frozen-lockfile`，调用全局 CodeGraph 执行 `init` 和 `sync`，并配置当前 worktree；它不使用系统包管理器，也不提升权限。
-4. 环境自举不替代类型检查、测试、生成漂移检查或完整仓库检查，也不由这些入口反向调用。
+1. Git、Node.js、全局 CodeGraph、SCC 3.7.0 和 Lizard 1.23.0 是前置条件；入口只诊断和复用它们，不安装或升级它们。
+2. `check` 检查 Git、Node.js、Bun、pnpm、CodeGraph、SCC、Lizard、索引状态、直接依赖、Git hook 和中央 task-graph root，不下载或修改环境。
+3. `setup` 只会安装或切换 Bun、pnpm，运行 `pnpm install --frozen-lockfile`，调用已就绪的全局 CodeGraph 执行 `init` 和 `sync`，并配置当前 worktree；SCC/Lizard 缺失、版本不匹配或探测失败时会在任何安装前失败并给出恢复命令。
+4. 恢复外部指标工具时，让对应精确版本进入 `PATH`：SCC 使用 `go install github.com/boyter/scc/v3@v3.7.0`；Lizard 可使用 `uv tool install lizard==1.23.0`。环境入口不替代类型检查、测试、生成漂移检查或完整仓库检查，也不由这些入口反向调用。
 
 仓库本地配置由 `scripts/setup-repository.js` 承接：
 
@@ -72,34 +72,47 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run lint` | 先按已安装版本的官方 Oxlint schema 和受校验的统一项目基线检查配置，拒绝配置级的路径、继承或规则绕过及基线降级，再使用 Oxlint 的 correctness、type-aware 和已确认插件规则检查 `scripts/` 与 `tools/`；TypeScript 编译诊断仍由 `typecheck` 的 tsgo 承接。未使用的 disable directive 作为 error；基线和唯一局部例外路径由[编码规范的 Oxlint 例外规则](coding-style.md#7-oxlint-例外保持局部且可审计)承接 |
 | `bun run lint:fix` | 使用与 `lint` 相同的配置前置校验，对 `scripts/` 与 `tools/` 应用 Oxlint 安全修复；工具源码变化后必须按对应 `sync:*` 入口同步生成物，并按版本承载边界判断是否提升 skill 版本 |
 | `bun run format` | 使用 Oxfmt 就地格式化 `scripts/` 的维护 TypeScript/JavaScript 与 `tools/` 的 TypeScript 源码（包括维护的 `.d.mts` 声明源）；不格式化 skill 内生成制品、项目文档 |
-| `bun run format:check` | 只读检查 `format` 覆盖的全部维护源码；quick 与 full 门禁均执行 |
+| `bun run format:check` | 只读检查 `format` 覆盖的全部维护源码；default 与 full 门禁均执行 |
 | `bun run fix` | 依次运行覆盖 `scripts/` 与 `tools/` 的 `lint:fix` 与 `format`，用于安全地修复维护源码 |
 | `bun run validate` | 校验全部 skill 入口、当前维护的仓库 Markdown 链接和主仓库配置 |
-| `bun run vibe-check` | 独立运行下文定义的可选 Vibe Check 门禁；不进入现有 `check` 计划或 CI |
 | `bun run hash:skills` | 从 Git `pending` 快照临时计算 package hash，并校验内容变化的 skill 已相对 `--baseline-ref` 提升 `SKILL.md` 中的 `metadata.version` |
 | `bun run pack:skills` | 从版本管理 `pending` 快照生成每个 skill 的 zip 和 release manifest |
 | `bun run publish:skills -- <rolling\|snapshot>` | 供发布 workflow 校验 `dist/` 制品并执行滚动发布或不可变快照事务；需要 GitHub Actions 提供的 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH` |
 | `bun run setup-hooks` | 配置当前 worktree 的 `core.hooksPath`，并在 POSIX 文件系统恢复 hook 可执行权限 |
 | `bun run setup-repository` | 配置当前 worktree hook，并确认当前项目的主 worktree 可作为默认 task-graph root |
-| `bun run check` | 使用 quick 档运行必要快速检查，显式跳过 full 档耗时检查，并在已选检查通过后打包 |
-| `bun run check --full` | 运行 quick 与 full 的全部检查并打包；CI 使用这一完整门禁 |
+| `bun run check` | 运行 Vibe default：日常所需的原生与项目能力；不实例化或调用 `pack:skills` |
+| `bun run check --full` | 运行 Vibe full：在 default 上加入 release-only 能力，并且仅当前置全部 passed 时打包；CI 使用这一完整门禁 |
 
-### 可选 Vibe Check 门禁
+### 权威 Vibe 门禁
 
-`bun run vibe-check` 用于在保留现有 `bun run check` 的同时试运行 Vibe Check。这里的“可选”表示调用方可以不运行该门禁；项目配置校验仍要求命令和入口文件存在。`scripts/vibe-check.ts` 声明检查范围、阻断策略、聚合规则和进程退出状态；该命令只读项目输入，不调用 `pack:skills`，也不写 machine publication 或 diagnostic log。
+`bun run check` 是唯一权威门禁入口。`scripts/vibe-check.ts` 只解析无参数或单独的 `--full`，并将 Vibe 的最终结果映射为进程退出状态；`scripts/lib/vibe-gate.ts` 是能力目录、Definition、最小 package-script adapter 与 full-only 打包依赖的 owner。`--verbose`、`CHECK_CONCURRENCY`、旧摘要 renderer 和候选 `vibe-check` 命令均不是当前契约。
 
-当前 Definition 包含六项 Check：
+| 术语 | 当前含义 |
+| --- | --- |
+| selected Check | 当前 Definition 实例化的 Check。default 与 full 分别从同一能力目录构造；full 还实例化 `pack:skills`。`all` aggregate 结算当前选择的全部 Check。 |
+| blocking Check | finding、failed、unavailable 或意外 not-applicable 都使当前 aggregate 失败。 |
+| required advisory Check | 可信 finding 仍以 warning + passed 结算，不影响 aggregate 或打包资格；无法执行、结果不可信或意外 N/A 则 fail closed。 |
+| release-required Check | full 中打包前必须形成可信 passed 结果的原生或项目 Check；`pack:skills` 本身不是前置，而是直接依赖这一完整集合的终结 Check。 |
+| default / full | default 是日常反馈集合，成功不代表发布完整性；full 在 default 上加入 release-only 能力，全部 release-required Check 通过并且打包成功才形成发布证明。 |
 
-| Check | 输入范围 | 当前门禁语义 |
-| --- | --- | --- |
-| 重复代码 | Git worktree 中 `scripts/` 与 `tools/` 的 JavaScript、TypeScript | Finding 阻断 |
-| 文件指标 | 同上 | Finding 只报告 warning |
-| 函数指标 | 同上 | Finding 只报告 warning |
-| JSON 文档 | Git worktree 中不属于历史 Change 或调查原始资源的当前 JSON；单文件上限 2 MiB | 无效文档阻断 |
-| JSON Schema | Task Graph 与 Test Evidence 的当前派生索引及对应 Schema | Schema issue 阻断 |
-| Markdown 本地链接 | Git worktree 中不属于历史 Change 或调查原始资源的当前 Markdown | Finding 阻断 |
+两种 Definition 都使用 Vibe 原生 progress、静态 `maxParallel: 4` 和 `all` aggregate，明确令 `unavailable`、`not-applicable` 与空选择失败；machine publication 与 diagnostic log 保持关闭。独立 Check 即使其他 Check 已失败仍继续结算。CLI 只为非 completed RunResult 输出稳定的类别、原因和恢复提示，完成但 aggregate 不通过时退出 `1`。
 
-Run 使用 `all` 聚合：任一阻断 Check 失败或任一 Check `unavailable` 时，命令退出 `1`；`not-applicable` Check 不参与聚合，其余 Check 全部通过时退出 `0`。文件指标要求环境提供 SCC 3.7.0-compatible `scc` command，函数指标要求 Lizard 1.23-compatible `lizard` command；缺少或不兼容的 command 会形成 `unavailable` 并阻断本次可选门禁。现有 `scripts/environment.js setup` 不安装这两个外部 command，调用方需在运行前另行提供。
+六项原生 Check 共用当前维护范围：代码类 Check 读取 Git worktree 中 `scripts/`、`tools/` 的 JavaScript/TypeScript，并排除 Vibe 默认排除项、`changes/archive/**` 和 `docs/investigations/_resources/**`；JSON 与 Markdown 也排除这两类历史内容。重复检测只把不少于 150 tokens 的重复片段作为 blocking finding，避免把已知的小型维护片段误作门禁失败。
+
+| Check | 语义 |
+| --- | --- |
+| 重复、JSON、Task Graph/Test Evidence Schema、Markdown 链接 | finding、unavailable 或意外 not-applicable 均阻断 aggregate。 |
+| 文件指标（SCC 3.7.0）与函数指标（Lizard 1.23.0） | required advisory：可信 finding 永远保持 passed 并以 warning 可见；unavailable 或 not-applicable 阻断。文件指标明确使用空 `findingWaivers`，不建立其他 waiver。finding 的当前数量是测量输出，不是门禁契约。 |
+| 项目 package script | adapter 以参数数组运行 `bun run <script>`，非零退出为 failed，不能启动、取消或无法形成可信退出结果为 unavailable，并保留受控诊断。收到取消时，adapter 向已启动子进程请求终止，且只在该子进程触发 `error` 或 `close` 后才结算 unavailable，避免 Check 已结束而其拥有的子进程仍在运行或写入。 |
+
+`pack:skills` 只存在于 full。任何 release-required 前置不是 passed 都零调用、零本次制品写入；全部 passed 时恰好调用一次，打包自身失败决定 aggregate。
+
+当前锁文件解析 `@zxyycom/vibe-check@0.0.1`，两个窄 wrapper 只修复该版本实际暴露的兼容边界，不接管文件选择、parser、scheduler、aggregate 或工具安装：
+
+1. `scripts/lib/vibe-jscpd.js` 保留 Vibe 的 `--version` availability probe；扫描必须携带 Vibe 生成的 `--config <path>`。Vibe 0.0.1 把 config 写在项目根外的临时目录，而 jscpd 从 config 所在目录解析相对 `path`；wrapper 只把该 config 中的相对文件项按项目当前工作目录改为绝对路径，然后转交 Vibe 随包的 jscpd。缺失或无效 config 在转交前失败，不能退回 jscpd 默认扫描范围。
+2. `scripts/lib/vibe-lizard.js` 只在 availability probe 的 `lizard --version` 输出精确为 `1.23.0` 时通过；扫描调用的参数原样转交 PATH 中的 Lizard。Vibe 0.0.1 原生 availability 只要求非空版本输出，因此如 `1.23.1` 必须结算为 unavailable，而不是可信 finding 或 passed。
+
+`fileMetrics` 直接使用 PATH SCC，Vibe 原生 availability 精确检查 `scc version 3.7.0`。两种 wrapper 都不安装、下载或管理工具。`node scripts/environment.js check` 精确报告 SCC/Lizard 缺失或版本不匹配，`setup` 不安装它们；CI 在同一 package job 固定安装并探测 SCC 3.7.0 与 Lizard 1.23.0 后运行 full。若锁文件解析的 Vibe 版本或任一外部工具的调用/输出契约改变，先复核这些 wrapper 的必要性与边界。
 
 ### 仓库维护短命令
 
@@ -170,47 +183,6 @@ task-graph 短命令另外承担项目 root 选择。省略 `--root` 时，它�
 正文变化后运行 `sync:test-evidence-catalog`；`check:test-evidence-catalog` 已进入
 完整检查并只校验显式 topic 根目录与统一索引。
 
-### 分档检查
-
-本节是 `bun run check` 档位、输出、失败和打包行为的 owner。
-`scripts/lib/check-plan.ts` 实现当前任务映射与调度顺序，`scripts/check.ts` 解析调用边界并执行计划；代码和测试不另行定义行为规则。
-
-#### 档位与任务范围
-
-每个前置任务声明一个最低档位。`full` 包含 `quick`，因此同一任务不会在 full 档重复执行。
-
-| 任务最低档位 | `bun run check` | `bun run check --full` |
-| --- | --- | --- |
-| `quick` | 执行 | 执行 |
-| `full` | 不执行，并逐项报告 `skipped` | 执行 |
-
-当前只有以下耗时集成测试使用 `full` 最低档位；检查计划中的其他前置任务使用 `quick`：
-
-| full-only 脚本 | 成本边界 |
-| --- | --- |
-| `test:decision-records-cli` | 覆盖大量生命周期、关系和 Git 事务场景 |
-| `test:version-control` | 覆盖多个临时 Git 仓库与失败恢复场景 |
-| `test:skill-package-hash` | 覆盖 Git 基线、pending 内容和独立版本门禁 |
-| `test:investigation-report-check` | 覆盖分发一致性、索引查询和规模场景 |
-| `test:test-evidence-cli` | 覆盖目录迁移、索引恢复和分发接口场景 |
-| `test:task-graph-cli` | 覆盖图语义、native runtime、JSON 事务、跨进程互斥、租约恢复和分发场景 |
-
-调整任务档位时，同步本节、`scripts/lib/check-plan.ts` 和对应测试。`pack:skills` 不属于前置任务档位；它只在本次选中的全部前置任务通过后执行。
-
-#### 输出与失败
-
-1. 成功任务默认只输出名称、`passed` 和耗时。使用 `--verbose` 时，任务完成后在该摘要前展开它捕获的 stdout 与 stderr。
-2. 失败任务无论是否启用 `--verbose` 都完整展开自身捕获日志并输出 `failed`；该失败不会停止其余已选前置任务。
-3. quick 档未选择的 full 任务逐项输出 `skipped`。前置任务失败时，`pack:skills` 也输出 `skipped`，但不会执行。
-4. 最终摘要报告 profile、全部计划项与打包组成的 total checks，以及 passed、skipped、failed 和总耗时。quick 档只有 full-only 跳过且其余任务通过时，最终状态为 `passed`；任一已选任务或打包失败时，最终状态为 `failed`，命令退出 `1`。
-5. 正常人类报告与捕获日志写入 stdout；任务启动前的参数或并发配置错误写入 stderr，并在不启动检查的情况下退出 `1`。
-
-#### 调度与打包
-
-1. 已选前置任务默认最多并发两个，可用 `CHECK_CONCURRENCY=<正整数>` 调整；该环境变量不改变任务档位，也不并发执行 `pack:skills`。
-2. full-only 长任务在计划中优先领取，以减少保守并发下的尾部等待。
-3. 全部已选前置任务完成后，只要其中一项失败就跳过打包；全部通过时运行一次 `pack:skills`，并把打包结果计入最终摘要。
-
 ## 源码与依赖边界
 
 1. `scripts/` 只承接主仓库命令编排、构建适配、校验、打包、Git 和 CI 自动化。
@@ -275,10 +247,11 @@ Git 调用 hook 时会注入当前 worktree 的 `GIT_DIR`、`GIT_INDEX_FILE` 等
 
 `.github/workflows/package-skills.yml` 复用本地稳定入口：
 
-1. 安装固定 Bun 和 pnpm，执行 `pnpm install --frozen-lockfile`。
-2. 运行 `bun run check --full`，完成门禁和全部 skill 打包。
-3. 运行 `bun run hash:skills --github-output --baseline-ref <event-baseline>`，校验独立版本并输出本次聚合 hash。
-4. 上传全部 `dist/*` 作为保留 7 天的 workflow artifact，供当前 workflow 的发布 job 或短期 PR 核对使用。
+1. 安装固定 Bun、Node、pnpm、Go 和 Python，执行 `pnpm install --frozen-lockfile`。
+2. 在同一 package job 安装 SCC 3.7.0 与 Lizard 1.23.0，并在运行门禁前精确探测两个版本。
+3. 运行 `bun run check --full`，完成唯一门禁 aggregate 和全部 skill 打包。
+4. 运行 `bun run hash:skills --github-output --baseline-ref <event-baseline>`，校验独立版本并输出本次聚合 hash。
+5. 上传全部 `dist/*` 作为保留 7 天的 workflow artifact，供当前 workflow 的发布 job 或短期 PR 核对使用。
 
 ### 发布职责与输入
 

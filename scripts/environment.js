@@ -21,6 +21,15 @@ const repoRoot = path.resolve(
 const manifestPath = path.join(repoRoot, "package.json");
 const lockfilePath = path.join(repoRoot, "pnpm-lock.yaml");
 const maxBuffer = 64 * 1024 * 1024;
+const globalPrerequisiteRecoveries = {
+  codegraph: "Make CodeGraph available on PATH.",
+  lizard:
+    "Install Lizard 1.23.0 on PATH (for example: uv tool install lizard==1.23.0).",
+  scc: "Install SCC 3.7.0 with: go install github.com/boyter/scc/v3@v3.7.0"
+};
+const globalPrerequisiteNames = new Set(
+  Object.keys(globalPrerequisiteRecoveries)
+);
 const plainTextEnvironment = {
   ...process.env,
   CLICOLOR: "0",
@@ -405,9 +414,43 @@ function getToolStatuses(config) {
     { name: "node" },
     { minimumVersion: config.bunMinimum, name: "bun" },
     { exactVersion: config.pnpmVersion, name: "pnpm" },
-    { name: "codegraph" }
+    { name: "codegraph" },
+    {
+      exactVersion: { major: 3, minor: 7, patch: 0, text: "3.7.0" },
+      name: "scc"
+    },
+    {
+      exactVersion: { major: 1, minor: 23, patch: 0, text: "1.23.0" },
+      name: "lizard"
+    }
   ];
   return requirements.map(getToolStatus);
+}
+
+function unreadyGlobalPrerequisites(toolStatuses) {
+  return toolStatuses.filter(
+    ({ name, state }) => globalPrerequisiteNames.has(name) && state !== "ready"
+  );
+}
+
+function globalPrerequisiteRecovery(tool) {
+  return globalPrerequisiteRecoveries[tool.name] ?? "Restore it on PATH.";
+}
+
+function requireReadyGlobalPrerequisites(toolStatuses) {
+  const unreadyTools = unreadyGlobalPrerequisites(toolStatuses);
+  if (unreadyTools.length === 0) {
+    return;
+  }
+  throw new Error(
+    "these global prerequisites must be restored before setup; this script does not install them: " +
+      unreadyTools
+        .map(
+          (tool) =>
+            `${tool.name} (${tool.detail}). ${globalPrerequisiteRecovery(tool)}`
+        )
+        .join(", ")
+  );
 }
 
 function getEnvironmentStatus(config) {
@@ -475,14 +518,17 @@ function printEnvironmentStatus(status) {
   if (status.ready) {
     console.log("Environment is ready.");
   } else {
-    const codegraphTool = status.tools.find(({ name }) => name === "codegraph");
-    if (codegraphTool?.state !== "ready") {
+    const unreadyTools = unreadyGlobalPrerequisites(status.tools);
+    if (unreadyTools.length > 0) {
       console.log(
-        "CodeGraph is a global prerequisite and is not installed by this script."
+        "The following global prerequisites are not installed by this script:"
       );
+      for (const tool of unreadyTools) {
+        console.log(`- ${tool.name}: ${globalPrerequisiteRecovery(tool)}`);
+      }
       console.log(
-        "Environment is not ready. Make codegraph available on PATH, " +
-          "then run: node scripts/environment.js setup"
+        "Environment is not ready. Restore them, then run: " +
+          "node scripts/environment.js setup"
       );
     } else {
       console.log(
@@ -534,6 +580,8 @@ function setupEnvironment(config) {
     );
   }
 
+  requireReadyGlobalPrerequisites(toolStatuses);
+
   console.log(
     "Configuring repository-local hooks and task coordination root..."
   );
@@ -556,7 +604,7 @@ function setupEnvironment(config) {
 
   const unreadyTools = toolStatuses.filter(({ state }) => state !== "ready");
   const unreadyManagedTools = unreadyTools.filter(
-    ({ name }) => name !== "codegraph"
+    ({ name }) => !globalPrerequisiteNames.has(name)
   );
   if (unreadyManagedTools.length > 0) {
     throw new Error(
@@ -568,15 +616,6 @@ function setupEnvironment(config) {
 
   console.log("Installing project dependencies from pnpm-lock.yaml...");
   requireSuccessfulCommand("pnpm", ["install", "--frozen-lockfile"]);
-
-  const codegraphStatus = toolStatuses.find(({ name }) => name === "codegraph");
-  if (codegraphStatus?.state !== "ready") {
-    throw new Error(
-      `the global codegraph command is required and is not installed by this script: ${
-        codegraphStatus?.detail ?? "unknown status"
-      }`
-    );
-  }
 
   console.log("Initializing and synchronizing the CodeGraph index...");
   requireSuccessfulCommand("codegraph", ["init", "."]);

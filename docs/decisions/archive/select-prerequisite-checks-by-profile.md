@@ -1,6 +1,6 @@
 ---
 title: 按 quick 与 full 档位选择前置检查
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-11T04:03:02Z
 purpose: 让日常检查与完整验收使用明确且可复核的前置任务集合。

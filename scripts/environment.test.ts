@@ -78,7 +78,7 @@ async function createRepository(parent: string, name: string): Promise<string> {
     path.join(root, "package.json"),
     `${JSON.stringify(
       {
-        engines: { bun: ">=1.3" },
+        engines: { bun: ">=1.3.14" },
         packageManager: "pnpm@11.7.0",
         private: true,
         scripts: {
@@ -227,27 +227,53 @@ async function createHashHookRepository(
   return root;
 }
 
-async function createFakeToolPath(parent: string): Promise<string> {
+type MetricToolMode = "missing" | "mismatch" | "probe-failure" | "ready";
+
+type FakeToolOptions = Readonly<{
+  bunVersion?: string;
+  lizard?: MetricToolMode;
+  scc?: MetricToolMode;
+}>;
+
+async function createFakeToolPath(
+  parent: string,
+  options: FakeToolOptions = {}
+): Promise<string> {
   const bin = path.join(parent, "fake tools");
   await fs.mkdir(bin, { recursive: true });
   const dispatcherPath = path.join(bin, "fake-tool.mjs");
+  const metricTools = {
+    lizard: options.lizard ?? "ready",
+    scc: options.scc ?? "ready"
+  };
+  const bunVersion = options.bunVersion ?? "1.3.14";
   await fs.writeFile(
     dispatcherPath,
     [
       "const [tool, command] = process.argv.slice(2);",
-      "if (tool === 'pnpm' && command === '--version') console.log('11.7.0');",
+      `if (tool === 'bun' && command === '--version') console.log(${JSON.stringify(bunVersion)});`,
+      "else if (tool === 'pnpm' && command === '--version') console.log('11.7.0');",
       "else if (tool === 'pnpm' && command === 'list') console.log('[{}]');",
       "else if (tool === 'pnpm' && command === 'install') process.exit(0);",
       "else if (tool === 'codegraph' && command === '--version') console.log('codegraph 1.2.3');",
       "else if (tool === 'codegraph' && command === 'status') console.log(JSON.stringify({ initialized: true, lastIndexed: 'fixture' }));",
       "else if (tool === 'codegraph' && (command === 'init' || command === 'sync')) process.exit(0);",
+      `else if (tool === 'scc' && command === '--version') { const mode = ${JSON.stringify(metricTools.scc)}; if (mode === 'mismatch') console.log('scc version 3.7.1'); else if (mode === 'probe-failure') { console.error('scc probe failed'); process.exit(2); } else console.log('scc version 3.7.0'); }`,
+      `else if (tool === 'lizard' && command === '--version') { const mode = ${JSON.stringify(metricTools.lizard)}; if (mode === 'mismatch') console.log('1.23.1'); else if (mode === 'probe-failure') { console.error('lizard probe failed'); process.exit(2); } else console.log('1.23.0'); }`,
       "else { console.error(`unexpected ${tool} command: ${process.argv.slice(3).join(' ')}`); process.exit(2); }",
       ""
     ].join("\n"),
     "utf8"
   );
 
-  for (const tool of ["pnpm", "codegraph"]) {
+  const tools = [
+    "bun",
+    "pnpm",
+    "codegraph",
+    ...(metricTools.scc === "missing" ? [] : ["scc"]),
+    ...(metricTools.lizard === "missing" ? [] : ["lizard"])
+  ];
+  for (const tool of tools) {
     if (process.platform === "win32") {
       const quoteBatch = (value: string): string =>
         `"${value.replaceAll("%", "%%").replaceAll('"', '""')}"`;
@@ -272,24 +298,41 @@ async function createFakeToolPath(parent: string): Promise<string> {
   return bin;
 }
 
-function environmentWith(fakeToolPath: string): NodeJS.ProcessEnv {
+function environmentWith(
+  fakeToolPath: string,
+  pathValue: string = process.env.PATH ?? ""
+): NodeJS.ProcessEnv {
   return {
     ...process.env,
-    PATH: `${fakeToolPath}${path.delimiter}${process.env.PATH ?? ""}`
+    PATH: `${fakeToolPath}${path.delimiter}${pathValue}`
   };
 }
 
 function runEnvironment(
   root: string,
   action: "check" | "setup",
-  fakeToolPath: string
+  fakeToolPath: string,
+  environment: NodeJS.ProcessEnv = environmentWith(fakeToolPath)
 ): CommandResult {
   return run(
     process.execPath,
     [path.join(root, "scripts", "environment.js"), action],
     root,
-    environmentWith(fakeToolPath)
+    environment
   );
+}
+
+function commandPaths(command: string): readonly string[] {
+  const locator = process.platform === "win32" ? "where" : "which";
+  const args = process.platform === "win32" ? [command] : ["-a", command];
+  const result = run(locator, args, workspaceRoot);
+  requireSuccess(result, `${locator} ${command}`);
+  const paths = result.stdout
+    .split(/\r?\n/u)
+    .map((candidate) => candidate.trim())
+    .filter((candidate) => candidate.length > 0);
+  assert.ok(paths.length > 0, `${locator} ${command} returned no path`);
+  return paths;
 }
 
 function assertHookExecutes(root: string): void {
@@ -475,6 +518,122 @@ test("environment check reports missing repository setup without writing it", as
     assert.equal(
       (await fs.stat(path.join(root, ".githooks", "pre-commit"))).mode,
       modeBefore
+    );
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true });
+  }
+});
+
+test("environment requires exact SCC and Lizard prerequisites without installing them", async () => {
+  const tempRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), "skills environment metrics ")
+  );
+  try {
+    const root = await createRepository(tempRoot, "metrics repository");
+    const readyTools = await createFakeToolPath(path.join(tempRoot, "ready"));
+    const readySetup = runEnvironment(root, "setup", readyTools);
+    requireSuccess(readySetup, "environment setup with ready metric tools");
+    assert.match(readySetup.stdout, /\[ok\]\s+scc 3\.7\.0/u);
+    assert.match(readySetup.stdout, /\[ok\]\s+lizard 1\.23\.0/u);
+
+    const sccDirectories = new Set(
+      commandPaths("scc").map((sccPath) => path.dirname(sccPath))
+    );
+    const pathWithoutScc = (process.env.PATH ?? "")
+      .split(path.delimiter)
+      .filter((directory) => !sccDirectories.has(directory))
+      .join(path.delimiter);
+    const missingTools = await createFakeToolPath(
+      path.join(tempRoot, "missing"),
+      { scc: "missing" }
+    );
+    const missingEnvironment = environmentWith(missingTools, pathWithoutScc);
+    const missing = runEnvironment(
+      root,
+      "check",
+      missingTools,
+      missingEnvironment
+    );
+    assert.equal(missing.status, 1);
+    assert.match(missing.stdout, /\[missing\]\s+scc/u);
+    assert.match(
+      missing.stdout,
+      /Install SCC 3\.7\.0 with: go install github\.com\/boyter\/scc\/v3@v3\.7\.0/u
+    );
+
+    const missingRoot = await createRepository(
+      tempRoot,
+      "missing metrics repository"
+    );
+    const missingSetup = runEnvironment(
+      missingRoot,
+      "setup",
+      missingTools,
+      missingEnvironment
+    );
+    assert.equal(missingSetup.status, 1);
+    assert.match(missingSetup.stderr, /does not install them/u);
+    assert.equal(
+      run("git", ["config", "--local", "--get", "core.hooksPath"], missingRoot)
+        .status,
+      1,
+      "missing metric prerequisites must stop setup before repository writes"
+    );
+
+    const mismatchTools = await createFakeToolPath(
+      path.join(tempRoot, "mismatch"),
+      { lizard: "mismatch" }
+    );
+    const mismatch = runEnvironment(root, "check", mismatchTools);
+    assert.equal(mismatch.status, 1);
+    assert.match(mismatch.stdout, /\[mismatch\]\s+lizard 1\.23\.1/u);
+    assert.match(mismatch.stdout, /expected 1\.23\.0/u);
+    assert.match(mismatch.stdout, /Install Lizard 1\.23\.0 on PATH/u);
+
+    const probeFailureTools = await createFakeToolPath(
+      path.join(tempRoot, "probe failure"),
+      { scc: "probe-failure" }
+    );
+    const probeFailure = runEnvironment(root, "check", probeFailureTools);
+    assert.equal(probeFailure.status, 1);
+    assert.match(probeFailure.stdout, /\[error\]\s+scc/u);
+    assert.match(probeFailure.stdout, /scc probe failed/u);
+  } finally {
+    await fs.rm(tempRoot, { recursive: true, force: true });
+  }
+});
+
+test("environment requires the Vibe Bun runtime minimum", async () => {
+  const tempRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), "skills environment Bun runtime ")
+  );
+  try {
+    const root = await createRepository(tempRoot, "Bun runtime repository");
+    const supportedTools = await createFakeToolPath(
+      path.join(tempRoot, "supported"),
+      { bunVersion: "1.3.14" }
+    );
+    const setup = runEnvironment(root, "setup", supportedTools);
+    requireSuccess(setup, "environment setup with supported Bun");
+    assert.match(setup.stdout, /\[ok\]\s+bun 1\.3\.14/u);
+    requireSuccess(
+      runEnvironment(root, "check", supportedTools),
+      "environment check with supported Bun"
+    );
+
+    const outdatedTools = await createFakeToolPath(
+      path.join(tempRoot, "outdated"),
+      { bunVersion: "1.3.13" }
+    );
+    const outdated = runEnvironment(root, "check", outdatedTools);
+    assert.equal(outdated.status, 1);
+    assert.match(
+      outdated.stdout,
+      /\[outdated\]\s+bun 1\.3\.13 - requires >= 1\.3\.14/u
+    );
+    assert.match(
+      outdated.stdout,
+      /Environment is not ready\. Run: node scripts\/environment\.js setup/u
     );
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true });

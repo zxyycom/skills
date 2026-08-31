@@ -19,7 +19,7 @@
     },
     {
       "id": "repository-tooling",
-      "description": "主仓库根目录与 scripts 所有的完整检查编排、生成文件规范化与漂移判断、待提交 skill package hash 和独立版本门禁。"
+      "description": "主仓库根目录与 scripts 所有的 Vibe 项目门禁（含 jscpd 配置与精确 Lizard 的兼容 wrapper）、环境前置条件、生成文件规范化与漂移判断、待提交 skill package hash 和独立版本门禁。"
     },
     {
       "id": "skill-updater",

@@ -5,6 +5,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
+  authoritativeGatePackageScripts,
   maintenanceCliPackageScripts,
   requiredPackageScripts,
   validatePackageScripts,
@@ -104,13 +105,14 @@ function requiredPackageJson(): string {
   Object.assign(
     scripts,
     maintenanceCliPackageScripts,
+    authoritativeGatePackageScripts,
     formatPackageScripts,
     lintPackageScripts
   );
   return `${JSON.stringify({ scripts }, undefined, 2)}\n`;
 }
 
-test("project package script validation preserves maintenance CLI delegations", async () => {
+test("project package script validation preserves maintenance CLI delegations and the authoritative Vibe gate", async () => {
   const tempRoot = await fs.mkdtemp(
     path.join(os.tmpdir(), "skills package scripts ")
   );
@@ -142,6 +144,27 @@ test("project package script validation preserves maintenance CLI delegations", 
     );
     assert.deepEqual(invalidErrors, [
       `package.json script decision-records must delegate to ${expectedDecisionCommand}`
+    ]);
+
+    const invalidGatePackageJson = validPackageJson
+      .replace(
+        JSON.stringify(authoritativeGatePackageScripts.check),
+        JSON.stringify("bun scripts/check.ts")
+      )
+      .replace(
+        '"scripts": {',
+        '"scripts": {\n    "vibe-check": "bun scripts/vibe-check.ts",'
+      );
+    await fs.writeFile(packageJsonPath, invalidGatePackageJson, "utf8");
+
+    const invalidGateErrors: string[] = [];
+    await validatePackageScripts(
+      (message) => invalidGateErrors.push(message),
+      tempRoot
+    );
+    assert.deepEqual(invalidGateErrors, [
+      `package.json script check must be ${authoritativeGatePackageScripts.check}; restore the authoritative Vibe Check entry`,
+      "package.json must not define the retired vibe-check candidate; use check"
     ]);
   } finally {
     await fs.rm(tempRoot, { recursive: true, force: true });

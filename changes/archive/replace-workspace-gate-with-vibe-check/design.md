@@ -1,12 +1,12 @@
 # Design
 
-本设计以能力处置表定义 Vibe 门禁的最终责任，用 Vibe 原生机制替代旧编排；旧任务清单是调查基线而非兼容规格。
+本设计以能力处置表定义 Vibe 门禁的最终责任，用 Vibe 原生机制替代旧编排；旧任务清单是调查基线而非兼容规格。形成时的 `quick`、`--verbose` 与旧模块名称只描述被替换的边界；当前门禁规则由 `docs/tooling.md` 承接，归档后本设计不反向成为当前规则 owner。
 
 ## Context
 
-现有 `scripts/check.ts` 与 `scripts/lib/check-plan.ts` 显式维护 31 个项目任务、quick/full、并发、日志捕获和打包顺序；CI 通过 `bun run check --full` 使用它。当前 `scripts/vibe-check.ts` 则是六项通用检查组成的可选入口，还没有项目原生责任或打包依赖。
+Plan 形成时，旧 `scripts/check.ts` 与 `scripts/lib/check-plan.ts` 显式维护 31 个项目任务、quick/full、并发、日志捕获和打包顺序；CI 通过 `bun run check --full` 使用它。当时的 `scripts/vibe-check.ts` 则是六项通用检查组成的可选入口，还没有项目原生责任或打包依赖。
 
-环境审计已实际解析 SCC 3.7.0 与 Lizard 1.23.0：SCC 二进制带有 `github.com/boyter/scc/v3@v3.7.0` 构建来源，Lizard 由 uv tool 以 1.23.0 提供，两项指标也完成了真实扫描。最终 owner 分工由 `migration-matrix.md` 固定：`scripts/environment.js` 检查本地全局 prerequisite，`docs/tooling.md` 提供恢复命令，现有 CI package job 固定安装并探测相同版本，门禁 invocation 不负责安装。
+Plan 形成时的环境审计已实际解析 SCC 3.7.0 与 Lizard 1.23.0：SCC 二进制带有 `github.com/boyter/scc/v3@v3.7.0` 构建来源，Lizard 由 uv tool 以 1.23.0 提供，两项指标也完成了真实扫描。最终 owner 分工由 `migration-matrix.md` 固定：`scripts/environment.js` 检查本地全局 prerequisite，`docs/tooling.md` 提供恢复命令，现有 CI package job 固定安装并探测相同版本，门禁 invocation 不负责安装。
 
 这两套入口证明了需要迁移的责任，但不证明旧门禁的每个交互和内部模块都值得保留。Vibe 已拥有 check definition、dependency、scheduler、progress、aggregate 和结构化结果；项目只需从同一能力目录构造 default/full Definition。如果继续实现旧计划模型、定制 renderer 和逐项格式兼容，会形成一套套在 Vibe 外部的第二编排器。
 
@@ -74,9 +74,9 @@ Vibe aggregate 选择本次全部 required check，采用 `all`、`unavailable: 
 
 文件和函数指标使用 Vibe 原生 check，并作为 default/full 共用的 required advisory check。任何 finding 无论当前或未来数值都只形成 warning，永不使 aggregate failed，也不影响打包资格；检查必须真实完成，不能把 SCC/Lizard 缺失、版本不兼容、执行失败或结果无法解析解释为“没有 finding”。
 
-`scripts/environment.js` 精确探测 SCC 3.7.0 与 Lizard 1.23.0，并把它们作为与 CodeGraph 相同的本地全局 prerequisite：检查与 setup 都复用已就绪命令，不在脚本内联网安装；缺失或不匹配时输出工具、期望版本和 `docs/tooling.md` 中的恢复命令。现有 CI package job 在同一 job 内固定 Go/Python runtime，安装并探测这两个版本，再运行 `bun run check --full`。门禁本身只探测和执行 PATH 上的命令。相关 unavailable 使 aggregate 失败并让 full 跳过打包。
+`scripts/environment.js` 精确探测 SCC 3.7.0 与 Lizard 1.23.0，并把它们作为与 CodeGraph 相同的本地全局 prerequisite：检查与 setup 都复用已就绪命令，不在脚本内联网安装；缺失或不匹配时输出工具、期望版本和 `docs/tooling.md` 中的恢复命令。现有 CI package job 在同一 job 内固定 Go/Python runtime，安装并探测这两个版本，再运行 `bun run check --full`。`fileMetrics` 由 Vibe 原生精确验证 PATH 中的 SCC；由于 Vibe 0.0.1 对 Lizard 只接受非空版本输出，`functionMetrics` 通过窄 `scripts/lib/vibe-lizard.js` 仅在 PATH `lizard --version` 精确为 `1.23.0` 时完成 availability，再原样转发 Vibe 的扫描参数。该 wrapper 不安装、下载或管理环境。相关 unavailable 使 aggregate 失败并让 full 跳过打包。
 
-指标审计已得到 59 条文件 finding 和 140 条函数 finding，没有 input rejection、blocking finding 或已有 waiver。这些 finding 是完整扫描形成的可信测量：文件 waiver 在 non-blocking policy 下不会改变门禁结果，只会增加对账信息；函数指标 0.0.1 没有 waiver API。因此 `fileMetrics.findingWaivers` 明确保持空数组，本 Change 不建立其他 waiver，全部 finding 继续以 warning 可见。
+指标审计已在当前维护范围完成真实 SCC/Lizard 扫描并得到可信 non-blocking finding；finding 数会随维护代码变化，不是门禁契约。扫描没有 input rejection、blocking finding 或已有 waiver。文件 waiver 在 non-blocking policy 下不会改变门禁结果，只会增加对账信息；函数指标 0.0.1 没有 waiver API。因此 `fileMetrics.findingWaivers` 明确保持空数组，本 Change 不建立其他 waiver，全部 finding 继续以 warning 可见。
 
 #### 5. 发布打包只依赖发布必需检查
 
@@ -92,13 +92,13 @@ Default selection 不实例化、不运行也不检查 `pack:skills`，因此不
 
 #### 7. 能力级对照后切换和退役
 
-候选实现由 `bun run vibe-check` 运行，对照单位是能力与失败结果，不是任务行数。按 `migration-matrix.md` 固定的夹具验证 default/full、项目脚本失败、Vibe blocking finding、指标 advisory finding、SCC/Lizard unavailable、意外 N/A、invocation failure 和打包失败；能力处置表与测试一旦证明新门禁已接管全部原有必要能力、应阻断状态能阻断且打包不越过前置，即可切换，不另设自然日、运行次数或 revision 数量门槛。
+候选实现通过新 Vibe CLI 的直接调用运行，对照单位是能力与失败结果，不是任务行数。按 `migration-matrix.md` 固定的夹具验证 default/full、项目脚本失败、Vibe blocking finding、指标 advisory finding、SCC/Lizard unavailable、意外 N/A、invocation failure 和打包失败；能力处置表与测试一旦证明新门禁已接管全部原有必要能力、应阻断状态能阻断且打包不越过前置，即可切换，不另设自然日、运行次数或 revision 数量门槛。
 
 对照满足后让 `package.json#check` 指向 Vibe 入口，现有 CI job 继续执行 `bun run check --full`。随后删除旧 `scripts/check.ts`、`scripts/lib/check-plan.ts`、旧专属测试和候选 `vibe-check` package script，并更新配置、文档、决策及 Test Evidence。最终不存在能绕过 Vibe 获得权威门禁通过的旧入口。
 
 ### Resulting Impacts
 
-- 门禁代码由 `scripts/vibe-check.ts` 薄 CLI、`scripts/lib/vibe-gate.ts` 的能力目录/Definition/process adapter/full-only 打包 check，以及 `scripts/vibe-check.test.ts` 的契约测试组成；旧计划、调度和 renderer 模块不迁移。
+- 门禁代码由 `scripts/vibe-check.ts` 薄 CLI、`scripts/lib/vibe-gate.ts` 的能力目录/Definition/process adapter/full-only 打包 check、精确 Lizard availability wrapper `scripts/lib/vibe-lizard.js`，以及 `scripts/vibe-check.test.ts` 的契约测试组成；旧计划、调度和 renderer 模块不迁移。
 - `scripts/environment.js`、环境测试、项目配置 validator 和现有 CI package job 共同保证唯一 `check` script、Vibe 入口、SCC/Lizard 精确版本和新测试入口，并移除旧入口要求。
 - CI 仍在原 job 使用 `bun run check --full`，但 full 的任务集合由能力处置表重新形成；不增加并行 job。
 - 工具文档说明 default/full 的用途、aggregate、advisory 与打包边界，不承诺旧任务数量或输出格式。
@@ -120,6 +120,13 @@ Default selection 不实例化、不运行也不检查 `pack:skills`，因此不
 
 ## Plan Use Contract
 
+- `tasks.md` 的 33 个 Plan checkbox 已全部完成；这只证明 Plan 内进度，不代替本节列出的行为和验证证据。现在只剩 Change Plan CLI 的归档操作及其所需授权，不再存在未勾选的实施或验证任务。
 - Change 只有在全部旧任务已有处置结论、六类 Vibe 检查和其他原有必要能力由新门禁完全接管、当前 SCC/Lizard 来源及目标环境保证已实现、full 打包 fail closed、旧实现与候选入口退出后才可完成或归档；不要求额外 soak 时长或运行次数。
 - “不要求一致”不授权静默删除责任；任何 retire 或 merge 都必须在迁移表中给出 owner、理由和替代证据。
 - 对照期允许两套本地命令并存，但不增加并行 CI job；切换后只有 Vibe `bun run check` 能形成权威完成结果。
+
+## Completion Evidence
+
+- 定向门禁测试 `bun test ./scripts/vibe-check.test.ts` 已通过 10/10；本地 default 已通过 31/31，full 已通过 38/38 并完成一次 `pack:skills`。
+- 隔离干净副本已完成 `pnpm install --frozen-lockfile`，探测到 SCC 3.7.0 和 Lizard 1.23.0，并以 `bun run check --full` 通过 38/38；该运行没有产生 machine publication 或 diagnostic log，临时副本随后已删除。
+- 以上是本地和隔离 CI 等价路径的完成证据，不是远端 GitHub Actions 已运行的声明。归档前仍由 Change Plan CLI 重新检查当前 Plan 结构、基线和 33/33 checkbox。
