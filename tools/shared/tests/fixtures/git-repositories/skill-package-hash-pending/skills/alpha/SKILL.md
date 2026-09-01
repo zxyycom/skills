@@ -2,7 +2,7 @@
 name: alpha
 description: alpha test skill
 metadata:
-  version: malformed
+  version: "3"
 ---
 
 alpha committed

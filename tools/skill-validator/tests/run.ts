@@ -134,6 +134,36 @@ test("validator rejects missing and outside links", async () => {
   assert.ok(invalid.errors.some((error) => error.includes("links outside")));
 });
 
+test("validator CLI rejects a single skill with a missing internal link", async () => {
+  const linkedSkillPath = path.join(tempRoot, "broken-link-skill");
+  await fs.mkdir(linkedSkillPath);
+  await fs.writeFile(
+    path.join(linkedSkillPath, "SKILL.md"),
+    [
+      "---",
+      "name: broken-link-skill",
+      "description: Use when testing a broken internal link.",
+      "---",
+      "",
+      "# Broken Link Skill",
+      "",
+      "Read the [missing guide](references/missing.md).",
+      ""
+    ].join("\n"),
+    "utf8"
+  );
+
+  const cliFailure = spawnSync(
+    "node",
+    [generatedValidatorPath, linkedSkillPath],
+    {
+      encoding: "utf8"
+    }
+  );
+  assert.equal(cliFailure.status, 1);
+  assert.match(cliFailure.stderr, /missing link target/);
+});
+
 test("validator CLI reports invalid skill failures", () => {
   const cliFailure = spawnSync(
     "node",

@@ -5,4 +5,4 @@ Entry:
 Contract:
 - 基线不存在的新增 skill 以 `null` 表示，并允许从版本一开始。
 Proves:
-- gamma 在 HEAD 基线中为 `null`，以 staged v1 加入时不产生版本问题。
+- 注入的基线仓储中不存在 gamma 时其基线为 `null`，当前 snapshot 以 v1 加入不会产生版本问题。

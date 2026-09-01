@@ -48,6 +48,12 @@ export type SkillPackageSnapshot = Readonly<{
   skills: readonly SkillPackage[];
 }>;
 
+/** @internal The only version-control operations the baseline comparison consumes. */
+type SkillPackageBaselineRepository = Pick<
+  VersionControlRepository,
+  "listRevisionFiles" | "readRevisionFile" | "resolveRevision" | "rootDirectory"
+>;
+
 async function formatDeclarationForVersionGate(
   filePath: string,
   contents: Buffer,
@@ -412,7 +418,7 @@ export function getSkillPackageVersionIssues(
 }
 
 async function readCachedRevisionFile(
-  repository: VersionControlRepository,
+  repository: Pick<SkillPackageBaselineRepository, "readRevisionFile">,
   revision: string,
   filePath: string,
   cache: Map<string, VersionControlFile | null>
@@ -432,6 +438,26 @@ export async function readSkillPackageSnapshotVersionBaseline(
   workspaceRoot: string = rootDir
 ): Promise<SkillPackageVersionBaseline> {
   const repository = await openVersionControl(workspaceRoot);
+  return await readSkillPackageSnapshotVersionBaselineFromRepository(
+    snapshot,
+    baselineRef,
+    repository,
+    workspaceRoot
+  );
+}
+
+/**
+ * @internal Compares one already-captured package snapshot with a resolved
+ * baseline source. The public entry point above opens the production Git
+ * repository; this narrow source-module seam only keeps content rules testable
+ * without rebuilding Git state for each case.
+ */
+export async function readSkillPackageSnapshotVersionBaselineFromRepository(
+  snapshot: SkillPackageSnapshot,
+  baselineRef: string,
+  repository: SkillPackageBaselineRepository,
+  workspaceRoot: string = rootDir
+): Promise<SkillPackageVersionBaseline> {
   const revision = await repository.resolveRevision(baselineRef);
   if (snapshot.skills.length === 0) {
     return {

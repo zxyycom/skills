@@ -4,7 +4,12 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { openVersionControl } from "../../shared/src/version-control/index.ts";
+import {
+  openVersionControl,
+  VersionControlError,
+  type ReplacePendingFilesOptions,
+  type VersionControlFile
+} from "../../shared/src/version-control/index.ts";
 import {
   buildStateIndex,
   createStateIndexRuntime,
@@ -16,6 +21,7 @@ import {
   type StateIndexDefinition,
   type StateSnapshot
 } from "../src/index.ts";
+import { stageSelectedIndexEntriesWithRepository } from "../src/staging.ts";
 import { resultValue } from "./support.ts";
 
 const indexPath = "indexes/states.json";
@@ -55,6 +61,27 @@ type RepositoryFixture = {
   repositoryRoot: string;
   revisionText: string | null;
   workspaceText: string;
+};
+
+type StagingFixture = RepositoryFixture & {
+  onReplace:
+    | ((options: ReplacePendingFilesOptions) => void | Promise<void>)
+    | null;
+  replacements: ReplacePendingFilesOptions[];
+  repository: {
+    getCurrentRevision: () => Promise<string | null>;
+    readRevisionFile: (
+      revision: string,
+      filePath: string
+    ) => Promise<VersionControlFile | null>;
+    replacePendingFiles: (options: ReplacePendingFilesOptions) => Promise<{
+      pathScope: string;
+      pendingPaths: string[];
+      previousPaths: string[];
+    }>;
+    rootDirectory: string;
+  };
+  revisionFile: VersionControlFile | null;
 };
 
 async function withTempRoot(
@@ -171,7 +198,7 @@ async function buildText(
   );
 }
 
-async function createRepositoryFixture(options: {
+async function createGitRepositoryFixture(options: {
   definition: StateIndexDefinition<TestState, TestMetadata>;
   name: string;
   revision: StateSnapshot<TestState, TestMetadata> | null;
@@ -209,22 +236,132 @@ async function createRepositoryFixture(options: {
   return { repositoryRoot, revisionText, workspaceText };
 }
 
+async function createStagingFixture(options: {
+  definition: StateIndexDefinition<TestState, TestMetadata>;
+  name: string;
+  revision: StateSnapshot<TestState, TestMetadata> | null;
+  source: TestSource;
+  tempRoot: string;
+  workspace: StateSnapshot<TestState, TestMetadata>;
+}): Promise<StagingFixture> {
+  const repositoryRoot = path.join(options.tempRoot, options.name);
+  await fs.mkdir(repositoryRoot, { recursive: true });
+  const revisionText =
+    options.revision === null
+      ? null
+      : await buildText(options.source, options.definition, options.revision);
+  const workspaceText = await buildText(
+    options.source,
+    options.definition,
+    options.workspace
+  );
+  await writeFile(repositoryRoot, indexPath, workspaceText);
+
+  let fixture: StagingFixture;
+  fixture = {
+    onReplace: null,
+    replacements: [],
+    repository: {
+      getCurrentRevision: async () =>
+        fixture.revisionFile === null ? null : "revision",
+      readRevisionFile: async (revision, filePath) => {
+        assert.equal(revision, "revision");
+        assert.equal(filePath, indexPath);
+        return fixture.revisionFile;
+      },
+      replacePendingFiles: async (replacement) => {
+        await fixture.onReplace?.(replacement);
+        fixture.replacements.push(replacement);
+        return {
+          pathScope: replacement.pathScope,
+          pendingPaths: replacement.files.map((file) => file.path),
+          previousPaths:
+            replacement.expectedFiles?.map((file) => file.path) ?? []
+        };
+      },
+      rootDirectory: repositoryRoot
+    },
+    repositoryRoot,
+    revisionFile:
+      revisionText === null
+        ? null
+        : { data: Buffer.from(revisionText, "utf8"), path: indexPath },
+    revisionText,
+    workspaceText
+  };
+  return fixture;
+}
+
+async function stageFixture(
+  fixture: StagingFixture,
+  definition: StateIndexDefinition<TestState, TestMetadata>,
+  selectedIds: readonly string[],
+  targetIndexPath = indexPath
+) {
+  return await stageSelectedIndexEntriesWithRepository(
+    {
+      context: { root: fixture.repositoryRoot },
+      definition,
+      indexPath: targetIndexPath,
+      selectedIds
+    },
+    async () => fixture.repository
+  );
+}
+
+async function readStagedIndex(
+  fixture: StagingFixture,
+  definition: StateIndexDefinition<TestState, TestMetadata>
+) {
+  const replacement = fixture.replacements.at(-1);
+  if (replacement === undefined) {
+    assert.fail("staging must record a successful pending replacement");
+  }
+  const file = replacement.files[0];
+  if (file === undefined) {
+    assert.fail("staging replacement must contain the index file");
+  }
+  return resultValue(
+    parseStateIndex({
+      definition,
+      expectation: { definitionVersion: 1, namespace: "staging-test" },
+      sourcePath: indexPath,
+      text: Buffer.from(file.data).toString("utf8")
+    })
+  );
+}
+
 test(
-  "stages selected states and revisions while preserving workspace and outside pending files",
+  "stages selected additions modifications deletions and renames while preserving workspace and outside pending files",
   testOptions,
   async () => {
     await withTempRoot(async (tempRoot) => {
       const control = createControl();
       const source: TestSource = { snapshot: snapshot({}, "empty") };
       const definition = createDefinition(source, control);
-      const fixture = await createRepositoryFixture({
+      const fixture = await createGitRepositoryFixture({
         definition,
         name: "selected",
-        revision: snapshot({ A: "A0", B: "B0", C: "C0" }, "revision"),
+        revision: snapshot(
+          Object.fromEntries([
+            ["A", "A0"],
+            ["B", "B0"],
+            ["C", "C0"],
+            ["__proto__", "old"]
+          ]),
+          "revision"
+        ),
         source,
         stageOutside: true,
         tempRoot,
-        workspace: snapshot({ A: "A1", B: "B1", C: "C1" }, "workspace")
+        workspace: snapshot(
+          Object.fromEntries([
+            ["A", "A1"],
+            ["C", "C0"],
+            ["constructor", "new"]
+          ]),
+          "workspace"
+        )
       });
       resetControl(control);
       const runtime = createStateIndexRuntime({
@@ -233,13 +370,18 @@ test(
         root: fixture.repositoryRoot
       });
 
-      const staged = await runtime.stageSelectedEntries(["C", "A"]);
+      const staged = await runtime.stageSelectedEntries([
+        "constructor",
+        "B",
+        "A",
+        "__proto__"
+      ]);
       assert.deepEqual(staged, {
         changed: true,
         diagnostics: [],
         indexPath,
         namespace: "staging-test",
-        selectedIds: ["A", "C"],
+        selectedIds: ["A", "B", "__proto__", "constructor"],
         state: "staged",
         status: "ok"
       });
@@ -249,13 +391,13 @@ test(
       );
       assert.deepEqual(entryLabels(firstPending), {
         A: "A1",
-        B: "B0",
-        C: "C1"
+        C: "C0",
+        constructor: "new"
       });
       assert.deepEqual(firstPending.sourceRevision.entries, {
         A: "workspace:A",
-        B: "revision:B",
-        C: "workspace:C"
+        C: "revision:C",
+        constructor: "workspace:constructor"
       });
       assert.equal(
         await fs.readFile(path.join(fixture.repositoryRoot, indexPath), "utf8"),
@@ -280,7 +422,12 @@ test(
         "--",
         indexPath
       ]);
-      const reordered = await runtime.stageSelectedEntries(["A", "C"]);
+      const reordered = await runtime.stageSelectedEntries([
+        "__proto__",
+        "A",
+        "constructor",
+        "B"
+      ]);
       assert.equal(reordered.status, "ok");
       assert.equal(
         await pendingIndexText(fixture.repositoryRoot),
@@ -344,7 +491,7 @@ test(
         const control = createControl();
         const source: TestSource = { snapshot: snapshot({}, "empty") };
         const definition = createDefinition(source, control);
-        const fixture = await createRepositoryFixture({
+        const fixture = await createStagingFixture({
           definition,
           name: scenario.name,
           revision: scenario.revision,
@@ -353,17 +500,14 @@ test(
           workspace: scenario.workspace
         });
         resetControl(control);
-        const result = await stageSelectedIndexEntries({
-          context: { root: fixture.repositoryRoot },
+        const result = await stageFixture(
+          fixture,
           definition,
-          indexPath,
-          selectedIds: scenario.selectedIds
-        });
+          scenario.selectedIds
+        );
         assert.equal(result.status, "ok", scenario.name);
         assert.deepEqual(
-          entryLabels(
-            await readPendingIndex(fixture.repositoryRoot, definition)
-          ),
+          entryLabels(await readStagedIndex(fixture, definition)),
           scenario.expected,
           scenario.name
         );
@@ -391,7 +535,7 @@ test(
       const control = createControl();
       const source: TestSource = { snapshot: snapshot({}, "empty") };
       const definition = createDefinition(source, control);
-      const first = await createRepositoryFixture({
+      const first = await createStagingFixture({
         definition,
         name: "first-index",
         revision: null,
@@ -405,22 +549,14 @@ test(
         )
       });
       resetControl(control);
-      const firstResult = await stageSelectedIndexEntries({
-        context: { root: first.repositoryRoot },
-        definition,
-        indexPath,
-        selectedIds: ["B"]
-      });
+      const firstResult = await stageFixture(first, definition, ["B"]);
       assert.equal(firstResult.status, "ok");
-      const firstPending = await readPendingIndex(
-        first.repositoryRoot,
-        definition
-      );
+      const firstPending = await readStagedIndex(first, definition);
       assert.deepEqual(entryLabels(firstPending), { B: "B1" });
       assert.deepEqual(firstPending.metadata, { catalog: "first" });
       assert.equal(firstPending.sourceRevision.metadata, "metadata:first");
 
-      const empty = await createRepositoryFixture({
+      const empty = await createStagingFixture({
         definition,
         name: "empty-target",
         revision: snapshot({ A: "A0" }, "revision"),
@@ -429,17 +565,9 @@ test(
         workspace: snapshot({}, "workspace")
       });
       resetControl(control);
-      const emptyResult = await stageSelectedIndexEntries({
-        context: { root: empty.repositoryRoot },
-        definition,
-        indexPath,
-        selectedIds: ["A"]
-      });
+      const emptyResult = await stageFixture(empty, definition, ["A"]);
       assert.equal(emptyResult.status, "ok");
-      const emptyPending = await readPendingIndex(
-        empty.repositoryRoot,
-        definition
-      );
+      const emptyPending = await readStagedIndex(empty, definition);
       assert.deepEqual(emptyPending.entries, {});
       assert.deepEqual(emptyPending.sourceRevision.entries, {});
     });
@@ -454,7 +582,7 @@ test(
       const control = createControl();
       const source: TestSource = { snapshot: snapshot({}, "empty") };
       const definition = createDefinition(source, control);
-      const fixture = await createRepositoryFixture({
+      const fixture = await createStagingFixture({
         definition,
         name: "invalid-selection",
         revision: snapshot({ A: "A0" }, "revision"),
@@ -471,27 +599,26 @@ test(
         [null]
       ];
       for (const selectedIds of selections) {
-        const result = await stageSelectedIndexEntries({
-          context: { root: fixture.repositoryRoot },
+        const result = await stageFixture(
+          fixture,
           definition,
-          indexPath,
-          selectedIds: selectedIds as readonly string[]
-        });
+          selectedIds as readonly string[]
+        );
         assert.equal(result.status, "error");
         assert.equal(result.state, "selection-invalid");
       }
-      const invalidPath = await stageSelectedIndexEntries({
-        context: { root: fixture.repositoryRoot },
+      const invalidPath = await stageFixture(
+        fixture,
         definition,
-        indexPath: "../states.json",
-        selectedIds: ["A"]
-      });
+        ["A"],
+        "../states.json"
+      );
       assert.equal(invalidPath.state, "index-path-invalid");
       assert.equal(
         invalidPath.diagnostics[0]?.code,
         "state-index.index-path-invalid"
       );
-      assert.deepEqual(await pendingChangedPaths(fixture.repositoryRoot), []);
+      assert.equal(fixture.replacements.length, 0);
     });
   }
 );
@@ -532,14 +659,14 @@ test(
 );
 
 test(
-  "reports an actionable pending replacement failure and preserves the index",
+  "reports an actionable pending replacement failure without changing workspace",
   testOptions,
   async () => {
     await withTempRoot(async (tempRoot) => {
       const control = createControl();
       const source: TestSource = { snapshot: snapshot({}, "empty") };
       const definition = createDefinition(source, control);
-      const fixture = await createRepositoryFixture({
+      const fixture = await createStagingFixture({
         definition,
         name: "pending-write-failure",
         revision: snapshot({ A: "A0" }, "revision"),
@@ -547,21 +674,12 @@ test(
         tempRoot,
         workspace: snapshot({ A: "A1" }, "workspace")
       });
-      const pendingIndexPath = path.join(
-        fixture.repositoryRoot,
-        ".git",
-        "index"
-      );
-      const corruptPending = Buffer.from("corrupt pending snapshot", "utf8");
-      await fs.writeFile(pendingIndexPath, corruptPending);
+      fixture.onReplace = () => {
+        throw new VersionControlError("pending-replacement-failed", "broken");
+      };
       resetControl(control);
 
-      const result = await stageSelectedIndexEntries({
-        context: { root: fixture.repositoryRoot },
-        definition,
-        indexPath,
-        selectedIds: ["A"]
-      });
+      const result = await stageFixture(fixture, definition, ["A"]);
       assert.equal(result.state, "pending-write-failed");
       assert.equal(
         result.diagnostics[0]?.code,
@@ -571,7 +689,7 @@ test(
         result.diagnostics[0]?.message ?? "",
         /inspect the target pending content and repository access, then retry/u
       );
-      assert.deepEqual(await fs.readFile(pendingIndexPath), corruptPending);
+      assert.equal(fixture.replacements.length, 0);
       assert.equal(
         await fs.readFile(path.join(fixture.repositoryRoot, indexPath), "utf8"),
         fixture.workspaceText
@@ -588,7 +706,7 @@ test(
       const control = createControl();
       const source: TestSource = { snapshot: snapshot({}, "empty") };
       const definition = createDefinition(source, control);
-      const invalidRevision = await createRepositoryFixture({
+      const invalidRevision = await createStagingFixture({
         definition,
         name: "invalid-revision",
         revision: snapshot({ A: "A0" }, "revision"),
@@ -596,36 +714,21 @@ test(
         tempRoot,
         workspace: snapshot({ A: "A1" }, "workspace")
       });
-      await fs.writeFile(
-        path.join(invalidRevision.repositoryRoot, indexPath),
-        Buffer.from([0xff, 0xfe, 0xfd])
-      );
-      runGit(invalidRevision.repositoryRoot, ["add", indexPath]);
-      runGit(invalidRevision.repositoryRoot, [
-        "commit",
-        "--quiet",
-        "--amend",
-        "--no-edit"
-      ]);
-      await writeFile(
-        invalidRevision.repositoryRoot,
-        indexPath,
-        invalidRevision.workspaceText
-      );
+      invalidRevision.revisionFile = {
+        data: Buffer.from([0xff, 0xfe, 0xfd]),
+        path: indexPath
+      };
       resetControl(control);
-      const revisionResult = await stageSelectedIndexEntries({
-        context: { root: invalidRevision.repositoryRoot },
-        definition,
-        indexPath,
-        selectedIds: ["A"]
-      });
+      const revisionResult = await stageFixture(invalidRevision, definition, [
+        "A"
+      ]);
       assert.equal(revisionResult.state, "revision-index-invalid");
       assert.equal(
         revisionResult.diagnostics[0]?.code,
         "state-index.revision-index-encoding-invalid"
       );
 
-      const invalidWorkspace = await createRepositoryFixture({
+      const invalidWorkspace = await createStagingFixture({
         definition,
         name: "invalid-workspace",
         revision: snapshot({ A: "A0" }, "revision"),
@@ -643,24 +746,18 @@ test(
         `${JSON.stringify(incompatible, null, 2)}\n`
       );
       resetControl(control);
-      const workspaceResult = await stageSelectedIndexEntries({
-        context: { root: invalidWorkspace.repositoryRoot },
-        definition,
-        indexPath,
-        selectedIds: ["A"]
-      });
+      const workspaceResult = await stageFixture(invalidWorkspace, definition, [
+        "A"
+      ]);
       assert.equal(workspaceResult.state, "workspace-index-invalid");
       assert.ok(
         workspaceResult.diagnostics.some(
           (entry) => entry.code === "state-index.namespace-mismatch"
         )
       );
-      assert.deepEqual(
-        await pendingChangedPaths(invalidWorkspace.repositoryRoot),
-        []
-      );
+      assert.equal(invalidWorkspace.replacements.length, 0);
 
-      const invalidWorkspaceEncoding = await createRepositoryFixture({
+      const invalidWorkspaceEncoding = await createStagingFixture({
         definition,
         name: "invalid-workspace-encoding",
         revision: snapshot({ A: "A0" }, "revision"),
@@ -673,21 +770,17 @@ test(
         Buffer.from([0xff, 0xfe, 0xfd])
       );
       resetControl(control);
-      const workspaceEncodingResult = await stageSelectedIndexEntries({
-        context: { root: invalidWorkspaceEncoding.repositoryRoot },
+      const workspaceEncodingResult = await stageFixture(
+        invalidWorkspaceEncoding,
         definition,
-        indexPath,
-        selectedIds: ["A"]
-      });
+        ["A"]
+      );
       assert.equal(workspaceEncodingResult.state, "workspace-index-invalid");
       assert.equal(
         workspaceEncodingResult.diagnostics[0]?.code,
         "state-index.index-encoding-invalid"
       );
-      assert.deepEqual(
-        await pendingChangedPaths(invalidWorkspaceEncoding.repositoryRoot),
-        []
-      );
+      assert.equal(invalidWorkspaceEncoding.replacements.length, 0);
     });
   }
 );
@@ -721,7 +814,7 @@ test(
         const control = createControl();
         const source: TestSource = { snapshot: snapshot({}, "empty") };
         const definition = createDefinition(source, control);
-        const fixture = await createRepositoryFixture({
+        const fixture = await createStagingFixture({
           definition,
           name: collection.name,
           revision: snapshot({ A: "A0" }, "revision"),
@@ -730,16 +823,11 @@ test(
           workspace: collection.workspace
         });
         resetControl(control);
-        const result = await stageSelectedIndexEntries({
-          context: { root: fixture.repositoryRoot },
-          definition,
-          indexPath,
-          selectedIds: ["A"]
-        });
+        const result = await stageFixture(fixture, definition, ["A"]);
         assert.equal(result.state, "collection-changed");
         assert.equal(control.reads, 0);
         assert.equal(control.revisionReads, 0);
-        assert.deepEqual(await pendingChangedPaths(fixture.repositoryRoot), []);
+        assert.equal(fixture.replacements.length, 0);
       }
     });
   }
@@ -753,7 +841,7 @@ test(
       const control = createControl();
       const source: TestSource = { snapshot: snapshot({}, "empty") };
       const definition = createDefinition(source, control);
-      const projection = await createRepositoryFixture({
+      const projection = await createStagingFixture({
         definition,
         name: "invalid-projection",
         revision: snapshot({ A: "A0", B: "B0" }, "revision"),
@@ -771,12 +859,7 @@ test(
           );
         }
       };
-      const rejected = await stageSelectedIndexEntries({
-        context: { root: projection.repositoryRoot },
-        definition,
-        indexPath,
-        selectedIds: ["A"]
-      });
+      const rejected = await stageFixture(projection, definition, ["A"]);
       assert.equal(rejected.state, "target-invalid");
       assert.ok(
         rejected.diagnostics.some(
@@ -786,10 +869,7 @@ test(
       assert.equal(observedSelectedTarget, true);
       assert.equal(control.reads, 0);
       assert.equal(control.revisionReads, 0);
-      assert.deepEqual(
-        await pendingChangedPaths(projection.repositoryRoot),
-        []
-      );
+      assert.equal(projection.replacements.length, 0);
     });
   }
 );
@@ -802,7 +882,7 @@ test(
       const control = createControl();
       const source: TestSource = { snapshot: snapshot({}, "empty") };
       const definition = createDefinition(source, control);
-      const fixture = await createRepositoryFixture({
+      const fixture = await createGitRepositoryFixture({
         definition,
         name: "dirty-pending",
         revision: snapshot({ A: "A0" }, "same"),
@@ -847,14 +927,14 @@ test(
 );
 
 test(
-  "serializes concurrent selected-entry staging without overwriting a winner",
+  "maps a competing pending replacement conflict without overwriting a winner",
   testOptions,
   async () => {
     await withTempRoot(async (tempRoot) => {
       const control = createControl();
       const source: TestSource = { snapshot: snapshot({}, "empty") };
       const definition = createDefinition(source, control);
-      const fixture = await createRepositoryFixture({
+      const fixture = await createStagingFixture({
         definition,
         name: "concurrent",
         revision: snapshot({ A: "A0", B: "B0" }, "revision"),
@@ -863,20 +943,17 @@ test(
         workspace: snapshot({ A: "A1", B: "B1" }, "workspace")
       });
       resetControl(control);
+      let replacementCount = 0;
+      fixture.onReplace = () => {
+        if (replacementCount > 0) {
+          throw new VersionControlError("pending-conflict", "already replaced");
+        }
+        replacementCount += 1;
+      };
 
       const results = await Promise.all([
-        stageSelectedIndexEntries({
-          context: { root: fixture.repositoryRoot },
-          definition,
-          indexPath,
-          selectedIds: ["A"]
-        }),
-        stageSelectedIndexEntries({
-          context: { root: fixture.repositoryRoot },
-          definition,
-          indexPath,
-          selectedIds: ["B"]
-        })
+        stageFixture(fixture, definition, ["A"]),
+        stageFixture(fixture, definition, ["B"])
       ]);
       assert.equal(
         results.filter((result) => result.status === "ok").length,
@@ -886,9 +963,7 @@ test(
         results.filter((result) => result.state === "pending-conflict").length,
         1
       );
-      const pending = entryLabels(
-        await readPendingIndex(fixture.repositoryRoot, definition)
-      );
+      const pending = entryLabels(await readStagedIndex(fixture, definition));
       assert.ok(
         JSON.stringify(pending) === JSON.stringify({ A: "A1", B: "B0" }) ||
           JSON.stringify(pending) === JSON.stringify({ A: "A0", B: "B1" })
@@ -905,7 +980,7 @@ test(
       const control = createControl();
       const source: TestSource = { snapshot: snapshot({}, "empty") };
       const definition = createDefinition(source, control);
-      const fixture = await createRepositoryFixture({
+      const fixture = await createGitRepositoryFixture({
         definition,
         name: "revision-change",
         revision: snapshot({ A: "A0", B: "B0" }, "revision"),

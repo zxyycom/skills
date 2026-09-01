@@ -5,8 +5,8 @@ Entry:
 - `bun test --test-name-pattern="^version checks stop reading baseline blobs after the first ordinary change$" ./scripts/lib/skill-package-hash.test.ts`
 
 Contract:
-- version gate 在发现普通包内容变化后立即判定版本承载，不读取无关的后续基线 blob。
+- version gate 在当前内存 snapshot 中发现首个普通包内容变化后立即判定版本承载，不读取注入基线仓储中无关的后续 blob。
 
 Proves:
-- 首个普通 pending 变化在未提升 metadata.version 时产生版本提升诊断。
-- 后续损坏但与该判定无关的基线 blob 不会阻断版本基线读取。
+- 当前内存 snapshot 的首个普通变化在未提升 metadata.version 时产生版本提升诊断。
+- 注入基线仓储记录的读取路径证明后续无关 baseline blob 不会被读取。

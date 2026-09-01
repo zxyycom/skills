@@ -12,6 +12,7 @@ const skillNamePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export type SkillStructureValidationOptions = {
   allowedFrontmatterKeys?: readonly string[];
+  validateMarkdownLinks?: boolean;
 };
 
 export type SkillStructureValidationResult = {
@@ -149,21 +150,25 @@ export async function validateSkillDirectory(
     }
   }
 
-  const markdownFiles = (
-    await fastGlob("**/*.md", {
-      absolute: true,
-      cwd: skillDirectory,
-      dot: true,
-      followSymbolicLinks: false,
-      ignore: ["**/.git/**", "**/node_modules/**"],
-      onlyFiles: true
-    })
-  ).sort((left, right) => left.localeCompare(right));
-  await validateMarkdownLinks(markdownFiles, report, skillDirectory);
+  let markdownFileCount = 0;
+  if (options.validateMarkdownLinks !== false) {
+    const markdownFiles = (
+      await fastGlob("**/*.md", {
+        absolute: true,
+        cwd: skillDirectory,
+        dot: true,
+        followSymbolicLinks: false,
+        ignore: ["**/.git/**", "**/node_modules/**"],
+        onlyFiles: true
+      })
+    ).sort((left, right) => left.localeCompare(right));
+    await validateMarkdownLinks(markdownFiles, report, skillDirectory);
+    markdownFileCount = markdownFiles.length;
+  }
 
   return {
     errors,
-    markdownFileCount: markdownFiles.length,
+    markdownFileCount,
     skillDirectory
   };
 }

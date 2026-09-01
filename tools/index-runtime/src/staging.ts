@@ -1,7 +1,8 @@
 import {
   openVersionControl,
   VersionControlError,
-  type VersionControlFile
+  type VersionControlFile,
+  type VersionControlRepository
 } from "../../shared/src/version-control/index.ts";
 import { repositoryRelativePathFromFileSystemPath } from "../../shared/src/version-control/repository-relative-path.ts";
 import {
@@ -40,6 +41,14 @@ type SelectedIdValidation =
   | { diagnostics: StateIndexDiagnostic[]; status: "error" }
   | { selectedIds: string[]; status: "ok" };
 
+type StagingRepository = Pick<
+  VersionControlRepository,
+  | "getCurrentRevision"
+  | "readRevisionFile"
+  | "replacePendingFiles"
+  | "rootDirectory"
+>;
+
 export async function stageSelectedIndexEntries<
   State extends object,
   Metadata extends JsonObject
@@ -50,6 +59,28 @@ export async function stageSelectedIndexEntries<
     indexPath: string;
     selectedIds: readonly string[];
   }>
+): Promise<StateIndexEntryStageResult> {
+  return await stageSelectedIndexEntriesWithRepository(
+    options,
+    async (rootDirectory) => await openVersionControl(rootDirectory)
+  );
+}
+
+/**
+ * @internal Source-module test seam for the staging transaction. The public
+ * entry point above is the sole production repository opener.
+ */
+export async function stageSelectedIndexEntriesWithRepository<
+  State extends object,
+  Metadata extends JsonObject
+>(
+  options: Readonly<{
+    context: StateIndexContext;
+    definition: StateIndexDefinition<State, Metadata>;
+    indexPath: string;
+    selectedIds: readonly string[];
+  }>,
+  openRepository: (rootDirectory: string) => Promise<StagingRepository>
 ): Promise<StateIndexEntryStageResult> {
   const resultContext: EntryStageResultContext = {
     indexPath: options.indexPath,
@@ -92,9 +123,9 @@ export async function stageSelectedIndexEntries<
     );
   }
 
-  let repository: Awaited<ReturnType<typeof openVersionControl>>;
+  let repository: StagingRepository;
   try {
-    repository = await openVersionControl(options.context.root);
+    repository = await openRepository(options.context.root);
   } catch (error) {
     return repositoryOpenFailure(resultContext, error, selected.selectedIds);
   }

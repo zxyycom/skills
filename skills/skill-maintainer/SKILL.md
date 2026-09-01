@@ -6,7 +6,7 @@ description: >-
   还是其他 owner 承接，确定一个或多个 skill 的分发组合，并处理能力之间
   的触发、依赖、职责或交付重叠。
 metadata:
-  version: "3"
+  version: "4"
 ---
 
 # Skill Maintainer

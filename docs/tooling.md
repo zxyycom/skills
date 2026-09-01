@@ -74,7 +74,7 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run format` | 使用 Oxfmt 就地格式化 `scripts/` 的维护 TypeScript/JavaScript 与 `tools/` 的 TypeScript 源码（包括维护的 `.d.mts` 声明源）；不格式化 skill 内生成制品、项目文档 |
 | `bun run format:check` | 只读检查 `format` 覆盖的全部维护源码；default 与 full 门禁均执行 |
 | `bun run fix` | 依次运行覆盖 `scripts/` 与 `tools/` 的 `lint:fix` 与 `format`，用于安全地修复维护源码 |
-| `bun run validate` | 校验全部 skill 入口、当前维护的仓库 Markdown 链接和主仓库配置 |
+| `bun run validate` | 校验全部 skill 的结构、frontmatter、正文、资源目录、版本和主仓库配置；不校验链接 |
 | `bun run hash:skills` | 从 Git `pending` 快照临时计算 package hash，并校验内容变化的 skill 已相对 `--baseline-ref` 提升 `SKILL.md` 中的 `metadata.version` |
 | `bun run pack:skills` | 从版本管理 `pending` 快照生成每个 skill 的 zip 和 release manifest |
 | `bun run publish:skills -- <rolling\|snapshot>` | 供发布 workflow 校验 `dist/` 制品并执行滚动发布或不可变快照事务；需要 GitHub Actions 提供的 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH` |
@@ -197,7 +197,7 @@ task-graph 短命令另外承担项目 root 选择。省略 `--root` 时，它�
 | Skill Updater | `test:skill-updater` | `sync:skill-updaters` | `check:skill-updaters` |
 | 共享基础设施 | `test:check`、`test:environment`、`test:generated-file`、`test:index-runtime`、`test:relation-graph`、`test:skill-package-hash`、`test:version-control` | — | — |
 
-`bun run validate` 的主仓库 Markdown 链接范围排除 `changes/archive/**` 与 `docs/investigations/_resources/**`。前者只作为 Change Plan 历史参考；active Change 在移动前由 `archive` 完成结构、基线、任务和目标路径门禁，归档后不再进入链接校验或 Change Plan checker。后者是 Investigation Report 保存的形成时字节，仍由资源引用与完整性门禁维护。active Change、调查根目录中当前维护的报告 Markdown 与其他当前维护 Markdown 继续参与链接校验。
+Vibe 的原生 `markdown-link-validation` Check 是当前维护 Markdown 链接的唯一全仓 owner；它沿用 blocking、fail-closed 和文件选择：排除 `changes/archive/**` 与 `docs/investigations/_resources/**`。前者只作为 Change Plan 历史参考；active Change 在移动前由 `archive` 完成结构、基线、任务和目标路径门禁，归档后不再进入链接校验或 Change Plan checker。后者是 Investigation Report 保存的形成时字节，仍由资源引用与完整性门禁维护。根 `bun run validate` 校验全部 skill 的结构和主仓库配置，不扫描链接。只有显式 `bun run validate-skill -- <skill-directory>` 才校验所指单个 skill 的内部链接。
 
 三类前缀表达不同义务：
 

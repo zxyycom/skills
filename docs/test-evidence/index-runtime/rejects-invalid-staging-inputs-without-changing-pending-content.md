@@ -1,4 +1,4 @@
-### Case INDEX-RUNTIME-STAGING-INPUT-001: 稳定拒绝非法暂存输入
+### Case INDEX-RUNTIME-STAGING-INPUT-001: 注入仓储前稳定拒绝非法暂存输入
 
 Entry:
 - `tools/index-runtime/tests/staging.test.ts > rejects invalid staging inputs without changing pending content`
@@ -9,4 +9,4 @@ Contract:
 
 Proves:
 - 空集合、重复 ID、非法文本、不存在的 ID 和非字符串运行时输入都返回 `selection-invalid`，不会抛出边界异常。
-- 逃逸路径返回 `index-path-invalid`；所有非法输入都在 pending 变化前失败。
+- 逃逸路径返回 `index-path-invalid`；所有非法输入都在调用注入 repository 的 pending 替换方法前失败。

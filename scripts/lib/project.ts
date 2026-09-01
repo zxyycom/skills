@@ -24,11 +24,6 @@ export const ignoredDirectoryNames = [".git", "node_modules", "dist"] as const;
 const ignoredDirectoryNameSet: ReadonlySet<string> = new Set(
   ignoredDirectoryNames
 );
-const mainMarkdownIgnoredPaths = [
-  "changes/archive/**",
-  "docs/investigations/_resources/**"
-] as const;
-
 export function shouldIgnoreDirectoryName(name: string): boolean {
   return name.startsWith(".") || ignoredDirectoryNameSet.has(name);
 }
@@ -111,25 +106,4 @@ export async function collectSkillFiles(
   });
 
   return files.sort((a, b) => a.localeCompare(b));
-}
-
-export async function collectMainMarkdownFiles(
-  workspaceRoot: string = rootDir
-): Promise<string[]> {
-  const ignoredPaths = [
-    `${skillsRootName}/**`,
-    ...mainMarkdownIgnoredPaths,
-    ...ignoredDirectoryNames.map((directoryName) => `${directoryName}/**`)
-  ];
-
-  const markdownFiles = await fg("**/*.md", {
-    cwd: workspaceRoot,
-    dot: true,
-    ignore: ignoredPaths,
-    onlyFiles: true
-  });
-
-  return [...new Set(markdownFiles)]
-    .sort((a, b) => a.localeCompare(b))
-    .map((filePath) => path.join(workspaceRoot, filePath));
 }

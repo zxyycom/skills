@@ -5,4 +5,4 @@ Entry:
 Contract:
 - 包内容相对基线变化时，只要求对应 skill 的版本高于自身基线。
 Proves:
-- alpha 内容变化且仍为 v3 时产生问题，staged 提升到 v4 后问题消失。
+- 当前内存 snapshot 中 alpha 内容变化且仍为 v3 时产生问题；与注入基线比较后提升到 v4，问题消失。

@@ -417,19 +417,32 @@ test("stage bootstraps a new Decision when revision contains only the derived in
     );
   }));
 
-test("stage rejects invalid duplicate and missing paths without changing pending", () =>
+test("stage rejects invalid duplicate and missing paths without changing the pending snapshot", () =>
   withGitFixtureWorkspace("stage-invalid-input", async (workspaceRoot) => {
-    await fs.writeFile(
-      path.join(workspaceRoot, "README.md"),
-      "pending\n",
-      "utf8"
+    const sourcePath = decisionFilePath(workspaceRoot, currentSourcePath);
+    const indexPath = path.join(
+      workspaceRoot,
+      "docs",
+      "decisions",
+      "decision-index.json"
     );
-    runGit(workspaceRoot, ["add", "README.md"]);
-    const before = runGit(workspaceRoot, ["diff", "--cached", "--name-only"]);
-    for (const ids of [
-      [currentDecisionId, currentDecisionId],
-      ["use-missing-stage.md"],
-      ["../outside.md"]
+    const sourceBefore = await fs.readFile(sourcePath, "utf8");
+    const indexBefore = await fs.readFile(indexPath, "utf8");
+    for (const { ids, expectedError } of [
+      {
+        expectedError: /must not repeat a Decision ID/,
+        ids: [currentDecisionId, currentDecisionId]
+      },
+      {
+        expectedError:
+          /Selected Decision ID does not exist in the revision or filesystem: use-missing-stage\.md/,
+        ids: ["use-missing-stage.md"]
+      },
+      {
+        expectedError:
+          /Decision ID is invalid; must be a basename ending in \.md/,
+        ids: ["../outside.md"]
+      }
     ]) {
       const result = await runSourceCli([
         "stage",
@@ -437,12 +450,15 @@ test("stage rejects invalid duplicate and missing paths without changing pending
         "--root",
         workspaceRoot
       ]);
-      assert.notEqual(result.exitCode, 0);
-      assert.equal(
-        runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
-        before
-      );
+      assert.equal(result.exitCode, 2);
+      assert.match(result.stderr, expectedError);
     }
+    assert.equal(await fs.readFile(sourcePath, "utf8"), sourceBefore);
+    assert.equal(await fs.readFile(indexPath, "utf8"), indexBefore);
+    assert.equal(
+      runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
+      ""
+    );
   }));
 
 test("stage rejects invalid candidate relation targets before pending writes", () =>
@@ -710,17 +726,14 @@ test("stage treats a selected old ID as a deletion without inferring a rename", 
     assert.doesNotMatch(pendingPaths, new RegExp(replacementId));
   }));
 
-test("stage rejects a selected symlink source outside the decision root", async (t) => {
+test("stage rejects a selected symlink source outside the decision root without writing pending", async (t) => {
   await withGitFixtureWorkspace(
-    "stage-selected-symlink",
+    "stage-selected-nonregular",
     async (workspaceRoot) => {
       const selectedPath = decisionFilePath(workspaceRoot, currentSourcePath);
       const outsidePath = path.join(workspaceRoot, "outside-decision.md");
-      await fs.writeFile(
-        outsidePath,
-        await fs.readFile(selectedPath, "utf8"),
-        "utf8"
-      );
+      const outsideText = await fs.readFile(selectedPath, "utf8");
+      await fs.writeFile(outsidePath, outsideText, "utf8");
       await fs.rm(selectedPath);
       try {
         await fs.symlink(outsidePath, selectedPath);
@@ -741,8 +754,16 @@ test("stage rejects a selected symlink source outside the decision root", async 
         "--root",
         workspaceRoot
       ]);
-      assert.notEqual(staged.exitCode, 0);
-      assert.match(staged.stderr, /unsupported|non-regular|symlink/i);
+      assert.equal(staged.exitCode, 1);
+      assert.match(
+        staged.stderr,
+        new RegExp(
+          "Decision source must be a regular non-symlink file: " +
+            currentDecisionId
+        )
+      );
+      assert.equal(await fs.readFile(outsidePath, "utf8"), outsideText);
+      assert.equal((await fs.lstat(selectedPath)).isSymbolicLink(), true);
       assert.equal(
         runGit(workspaceRoot, ["diff", "--cached", "--name-only"]),
         ""

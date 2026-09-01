@@ -8,6 +8,7 @@
  */
 export type SkillStructureValidationOptions = {
   allowedFrontmatterKeys?: readonly string[];
+  validateMarkdownLinks?: boolean;
 };
 
 export type SkillStructureValidationResult = {

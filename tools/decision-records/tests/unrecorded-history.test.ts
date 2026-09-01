@@ -330,8 +330,8 @@ test("evolve lists unrecorded predecessor warnings in Decision ID order", () =>
     }
   ));
 
-test("evolve discards an unrecorded intermediate with explicit final relations", () =>
-  withGitFixtureWorkspace(
+test("evolve discards an intermediate with explicit final relations", () =>
+  withFixtureWorkspace(
     "unrecorded-evolution-discard",
     async (workspaceRoot) => {
       const { indexPath, intermediatePath } =
@@ -389,7 +389,7 @@ test("evolve discards an unrecorded intermediate with explicit final relations",
   ));
 
 test("evolve discard accepts source-empty final relations", () =>
-  withGitFixtureWorkspace(
+  withFixtureWorkspace(
     "unrecorded-evolution-implicit-empty",
     async (workspaceRoot) => {
       const { indexPath, intermediatePath } =
@@ -421,7 +421,7 @@ test("evolve discard accepts source-empty final relations", () =>
   ));
 
 test("evolve discard accepts an explicitly empty final relation set", () =>
-  withGitFixtureWorkspace(
+  withFixtureWorkspace(
     "unrecorded-evolution-empty-relations",
     async (workspaceRoot) => {
       const { indexPath, intermediatePath } =
@@ -453,7 +453,7 @@ test("evolve discard accepts an explicitly empty final relation set", () =>
   ));
 
 test("evolve discard accepts an unrelated archived final relation", () =>
-  withGitFixtureWorkspace(
+  withFixtureWorkspace(
     "unrecorded-evolution-relation-boundary",
     async (workspaceRoot) => {
       const { indexPath, intermediatePath } =
@@ -643,7 +643,7 @@ test("evolve discard flag still pauses for an unrecorded final predecessor", () 
   ));
 
 test("evolve discard rejects a predecessor referenced by another candidate", () =>
-  withGitFixtureWorkspace(
+  withFixtureWorkspace(
     "referenced-evolution-discard",
     async (workspaceRoot) => {
       const { indexPath, intermediatePath } =

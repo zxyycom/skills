@@ -1683,7 +1683,7 @@
     "DECISION-CANDIDATE-DISCARD-REFERENCED-001": {
       "keys": {
         "search": [
-          "DECISION-CANDIDATE-DISCARD-REFERENCED-001 Discard 拒绝仍被引用的候选 仍被其他候选直接引用的候选目标不能删除，以免留下悬空关系；即使目标 candidate 已进入 Git `HEAD`，也必须先报告引用阻断而不要求额外删除参数。 已提交的目标和引用候选存在关系时，discard 返回 still referenced 诊断，而不是已记录 candidate 的删除 attention。 被引用目标、引用来源与正式索引均保持不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects a candidate that is still referenced without mutation bun test --test-name-pattern=\"^discard rejects a candidate that is still referenced without mutation$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-CANDIDATE-DISCARD-REFERENCED-001 Discard 拒绝仍被引用的候选 仍被其他候选直接引用的候选目标不能删除，以免留下悬空关系。 目标和引用候选存在关系时，discard 返回 still referenced 诊断。 被引用目标、引用来源与正式索引均保持不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects a candidate that is still referenced without mutation bun test --test-name-pattern=\"^discard rejects a candidate that is still referenced without mutation$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -1697,9 +1697,9 @@
         ],
         "id": "DECISION-CANDIDATE-DISCARD-REFERENCED-001",
         "line": 1,
-        "searchText": "Discard 拒绝仍被引用的候选 仍被其他候选直接引用的候选目标不能删除，以免留下悬空关系；即使目标 candidate 已进入 Git `HEAD`，也必须先报告引用阻断而不要求额外删除参数。 已提交的目标和引用候选存在关系时，discard 返回 still referenced 诊断，而不是已记录 candidate 的删除 attention。 被引用目标、引用来源与正式索引均保持不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects a candidate that is still referenced without mutation bun test --test-name-pattern=\"^discard rejects a candidate that is still referenced without mutation$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Discard 拒绝仍被引用的候选 仍被其他候选直接引用的候选目标不能删除，以免留下悬空关系。 目标和引用候选存在关系时，discard 返回 still referenced 诊断。 被引用目标、引用来源与正式索引均保持不变。 tools/decision-records/tests/candidate-lifecycle.test.ts > discard rejects a candidate that is still referenced without mutation bun test --test-name-pattern=\"^discard rejects a candidate that is still referenced without mutation$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/discard-rejects-a-candidate-that-is-still-referenced-without-mutation.md",
-        "summary": "仍被其他候选直接引用的候选目标不能删除，以免留下悬空关系；即使目标 candidate 已进入 Git `HEAD`，也必须先报告引用阻断而不要求额外删除参数。",
+        "summary": "仍被其他候选直接引用的候选目标不能删除，以免留下悬空关系。",
         "title": "Discard 拒绝仍被引用的候选"
       }
     },
@@ -2510,7 +2510,7 @@
     "DECISION-DISCARD-SPLIT-CLOSURE-001": {
       "keys": {
         "search": [
-          "DECISION-DISCARD-SPLIT-CLOSURE-001 Discard 拒绝会打开拆分闭包的后继 已建立拆分关系必须始终保有至少两个直接拆分后继；direct discard 不能删除其中一个后继而留下开放拆分。 即使请求 `--delete-recorded-decision`，对闭合拆分的一个后继执行 discard 仍会在写入前返回最终关系图一致性诊断。 被选后继的 Markdown 和正式索引均保持不变。 tools/decision-records/tests/evolution.test.ts > discard rejects a split successor that would leave an open split bun test --test-name-pattern=\"^discard rejects a split successor that would leave an open split$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-DISCARD-SPLIT-CLOSURE-001 Discard 拒绝会打开拆分闭包的后继 已建立拆分关系必须始终保有至少两个直接拆分后继；direct discard 不能删除其中一个后继而留下开放拆分。 对闭合拆分的一个后继执行 discard 会在写入前返回最终关系图一致性诊断。 被选后继的 Markdown 和正式索引均保持不变。 tools/decision-records/tests/evolution.test.ts > discard rejects a split successor that would leave an open split bun test --test-name-pattern=\"^discard rejects a split successor that would leave an open split$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2524,7 +2524,7 @@
         ],
         "id": "DECISION-DISCARD-SPLIT-CLOSURE-001",
         "line": 1,
-        "searchText": "Discard 拒绝会打开拆分闭包的后继 已建立拆分关系必须始终保有至少两个直接拆分后继；direct discard 不能删除其中一个后继而留下开放拆分。 即使请求 `--delete-recorded-decision`，对闭合拆分的一个后继执行 discard 仍会在写入前返回最终关系图一致性诊断。 被选后继的 Markdown 和正式索引均保持不变。 tools/decision-records/tests/evolution.test.ts > discard rejects a split successor that would leave an open split bun test --test-name-pattern=\"^discard rejects a split successor that would leave an open split$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Discard 拒绝会打开拆分闭包的后继 已建立拆分关系必须始终保有至少两个直接拆分后继；direct discard 不能删除其中一个后继而留下开放拆分。 对闭合拆分的一个后继执行 discard 会在写入前返回最终关系图一致性诊断。 被选后继的 Markdown 和正式索引均保持不变。 tools/decision-records/tests/evolution.test.ts > discard rejects a split successor that would leave an open split bun test --test-name-pattern=\"^discard rejects a split successor that would leave an open split$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/discard-rejects-a-split-successor-that-would-open-its-split.md",
         "summary": "已建立拆分关系必须始终保有至少两个直接拆分后继；direct discard 不能删除其中一个后继而留下开放拆分。",
         "title": "Discard 拒绝会打开拆分闭包的后继"
@@ -2625,7 +2625,7 @@
     "DECISION-EVOLVE-DISCARD-001": {
       "keys": {
         "search": [
-          "DECISION-EVOLVE-DISCARD-001 Evolve 以显式最终关系删除未记录中间决策 `evolve --discard` 在关系事务中删除无引用、未进入 Git HEAD 的决策，并把调用方提供的关系作为后继完整最终关系集合。 删除目标从 Markdown 和派生索引移除；后继采用显式最终关系且严格检查通过。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discards an unrecorded intermediate with explicit final relations bun test --test-name-pattern=\"^evolve discards an unrecorded intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-EVOLVE-DISCARD-001 Evolve 以显式最终关系删除中间决策 `evolve --discard` 删除无引用决策，并把调用方提供的关系作为后继完整最终关系集合。 删除目标从 Markdown 和派生索引移除；后继采用显式最终关系且严格检查通过。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discards an intermediate with explicit final relations bun test --test-name-pattern=\"^evolve discards an intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -2634,15 +2634,15 @@
       "state": {
         "endLine": 9,
         "entries": [
-          "tools/decision-records/tests/unrecorded-history.test.ts > evolve discards an unrecorded intermediate with explicit final relations",
-          "bun test --test-name-pattern=\"^evolve discards an unrecorded intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/unrecorded-history.test.ts > evolve discards an intermediate with explicit final relations",
+          "bun test --test-name-pattern=\"^evolve discards an intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-EVOLVE-DISCARD-001",
         "line": 1,
-        "searchText": "Evolve 以显式最终关系删除未记录中间决策 `evolve --discard` 在关系事务中删除无引用、未进入 Git HEAD 的决策，并把调用方提供的关系作为后继完整最终关系集合。 删除目标从 Markdown 和派生索引移除；后继采用显式最终关系且严格检查通过。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discards an unrecorded intermediate with explicit final relations bun test --test-name-pattern=\"^evolve discards an unrecorded intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Evolve 以显式最终关系删除中间决策 `evolve --discard` 删除无引用决策，并把调用方提供的关系作为后继完整最终关系集合。 删除目标从 Markdown 和派生索引移除；后继采用显式最终关系且严格检查通过。 tools/decision-records/tests/unrecorded-history.test.ts > evolve discards an intermediate with explicit final relations bun test --test-name-pattern=\"^evolve discards an intermediate with explicit final relations$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/evolve-discards-an-unrecorded-intermediate-with-explicit-final-relations.md",
-        "summary": "`evolve --discard` 在关系事务中删除无引用、未进入 Git HEAD 的决策，并把调用方提供的关系作为后继完整最终关系集合。",
-        "title": "Evolve 以显式最终关系删除未记录中间决策"
+        "summary": "`evolve --discard` 删除无引用决策，并把调用方提供的关系作为后继完整最终关系集合。",
+        "title": "Evolve 以显式最终关系删除中间决策"
       }
     },
     "DECISION-EVOLVE-DISCARD-ARCHIVED-RELATION-001": {
@@ -4442,7 +4442,7 @@
     "DECISION-STAGE-INPUT-001": {
       "keys": {
         "search": [
-          "DECISION-STAGE-INPUT-001 Stage 拒绝无效、重复和缺失 ID stage 在暂存前拒绝重复、缺失和越界 ID，不改变已有 pending。 三类非法输入均失败，已有 README pending 保持不变。 tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing pending bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing pending$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-STAGE-INPUT-001 Stage 拒绝无效、重复和缺失 ID 且不改变 pending stage 拒绝重复、缺失和越界 ID，并保留既有 Git pending 快照。 三类非法输入均给出对应的参数或 selected-ID 诊断，选择来源、正式索引与 Git pending index 保持不变。 tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing the pending snapshot bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing the pending snapshot$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -4451,15 +4451,15 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing pending",
-          "bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing pending$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing the pending snapshot",
+          "bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing the pending snapshot$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-STAGE-INPUT-001",
         "line": 1,
-        "searchText": "Stage 拒绝无效、重复和缺失 ID stage 在暂存前拒绝重复、缺失和越界 ID，不改变已有 pending。 三类非法输入均失败，已有 README pending 保持不变。 tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing pending bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing pending$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Stage 拒绝无效、重复和缺失 ID 且不改变 pending stage 拒绝重复、缺失和越界 ID，并保留既有 Git pending 快照。 三类非法输入均给出对应的参数或 selected-ID 诊断，选择来源、正式索引与 Git pending index 保持不变。 tools/decision-records/tests/stage.test.ts > stage rejects invalid duplicate and missing paths without changing the pending snapshot bun test --test-name-pattern=\"^stage rejects invalid duplicate and missing paths without changing the pending snapshot$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/stage-rejects-invalid-duplicate-and-missing-paths-without-changing-pending.md",
-        "summary": "stage 在暂存前拒绝重复、缺失和越界 ID，不改变已有 pending。",
-        "title": "Stage 拒绝无效、重复和缺失 ID"
+        "summary": "stage 拒绝重复、缺失和越界 ID，并保留既有 Git pending 快照。",
+        "title": "Stage 拒绝无效、重复和缺失 ID 且不改变 pending"
       }
     },
     "DECISION-STAGE-ISOLATION-001": {
@@ -4672,7 +4672,7 @@
     "DECISION-STAGE-SELECTED-MEMBER-TYPE-001": {
       "keys": {
         "search": [
-          "DECISION-STAGE-SELECTED-MEMBER-TYPE-001 Stage 拒绝指向决策根外的选择 symlink revision 模式下，选择的 ID 必须对应决策根内的普通 Markdown 文件；symlink 等非普通来源不得读取其外部字节或写入 pending。 将已选择记录替换为指向根外合法 Markdown 的 symlink 后，stage 失败且暂存区为空；平台不支持 symlink 时按测试框架标记跳过。 tools/decision-records/tests/stage.test.ts > stage rejects a selected symlink source outside the decision root bun test --test-name-pattern=\"^stage rejects a selected symlink source outside the decision root$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-STAGE-SELECTED-MEMBER-TYPE-001 Stage 拒绝指向决策根外的选择 symlink 且不写入 pending stage 选择的 ID 必须对应决策根内的普通 Markdown 文件；symlink 等非普通来源不得读取其外部字节或写入 pending。 将已选择记录替换为指向根外合法 Markdown 的 symlink 后，stage 给出精确 non-symlink 诊断，外部文件字节与 Git pending index 保持不变；平台不支持 symlink 时按测试框架标记跳过。 tools/decision-records/tests/stage.test.ts > stage rejects a selected symlink source outside the decision root without writing pending bun test --test-name-pattern=\"^stage rejects a selected symlink source outside the decision root without writing pending$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -4681,15 +4681,15 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/decision-records/tests/stage.test.ts > stage rejects a selected symlink source outside the decision root",
-          "bun test --test-name-pattern=\"^stage rejects a selected symlink source outside the decision root$\" ./tools/decision-records/tests/run.ts"
+          "tools/decision-records/tests/stage.test.ts > stage rejects a selected symlink source outside the decision root without writing pending",
+          "bun test --test-name-pattern=\"^stage rejects a selected symlink source outside the decision root without writing pending$\" ./tools/decision-records/tests/run.ts"
         ],
         "id": "DECISION-STAGE-SELECTED-MEMBER-TYPE-001",
         "line": 1,
-        "searchText": "Stage 拒绝指向决策根外的选择 symlink revision 模式下，选择的 ID 必须对应决策根内的普通 Markdown 文件；symlink 等非普通来源不得读取其外部字节或写入 pending。 将已选择记录替换为指向根外合法 Markdown 的 symlink 后，stage 失败且暂存区为空；平台不支持 symlink 时按测试框架标记跳过。 tools/decision-records/tests/stage.test.ts > stage rejects a selected symlink source outside the decision root bun test --test-name-pattern=\"^stage rejects a selected symlink source outside the decision root$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Stage 拒绝指向决策根外的选择 symlink 且不写入 pending stage 选择的 ID 必须对应决策根内的普通 Markdown 文件；symlink 等非普通来源不得读取其外部字节或写入 pending。 将已选择记录替换为指向根外合法 Markdown 的 symlink 后，stage 给出精确 non-symlink 诊断，外部文件字节与 Git pending index 保持不变；平台不支持 symlink 时按测试框架标记跳过。 tools/decision-records/tests/stage.test.ts > stage rejects a selected symlink source outside the decision root without writing pending bun test --test-name-pattern=\"^stage rejects a selected symlink source outside the decision root without writing pending$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/stage-selected-symlink.md",
-        "summary": "revision 模式下，选择的 ID 必须对应决策根内的普通 Markdown 文件；symlink 等非普通来源不得读取其外部字节或写入 pending。",
-        "title": "Stage 拒绝指向决策根外的选择 symlink"
+        "summary": "stage 选择的 ID 必须对应决策根内的普通 Markdown 文件；symlink 等非普通来源不得读取其外部字节或写入 pending。",
+        "title": "Stage 拒绝指向决策根外的选择 symlink 且不写入 pending"
       }
     },
     "DECISION-STAGE-SOURCE-PREFLIGHT-001": {
@@ -6949,7 +6949,7 @@
     "INDEX-RUNTIME-STAGING-CONCURRENCY-001": {
       "keys": {
         "search": [
-          "INDEX-RUNTIME-STAGING-CONCURRENCY-001 并发选择性暂存不互相覆盖 针对同一索引的并发选择性暂存只能有一个调用从同一 revision 与 pending 期望成功。 两个并发调用恰有一个成功，另一个返回 `pending-conflict`。 最终 pending 完整等于获胜调用的目标，不包含两个调用的隐式合并或覆盖残片。 tools/index-runtime/tests/staging.test.ts > serializes concurrent selected-entry staging without overwriting a winner bun test --test-name-pattern=\"^serializes concurrent selected-entry staging without overwriting a winner$\" ./tools/index-runtime/tests/run.ts"
+          "INDEX-RUNTIME-STAGING-CONCURRENCY-001 注入仓储映射竞争中的 Pending 替换冲突 注入的 repository 边界拒绝竞争替换时，staging 必须把冲突映射为稳定的 pending 诊断，不得隐式合并目标。 注入仓储只接受第一个竞争替换时，两个并发调用恰有一个成功，另一个返回 `pending-conflict`。 记录的目标完整等于获胜调用的选择，不包含两个调用的隐式合并。 tools/index-runtime/tests/staging.test.ts > maps a competing pending replacement conflict without overwriting a winner bun test --test-name-pattern=\"^maps a competing pending replacement conflict without overwriting a winner$\" ./tools/index-runtime/tests/run.ts"
         ],
         "topic": [
           "index-runtime"
@@ -6958,15 +6958,15 @@
       "state": {
         "endLine": 13,
         "entries": [
-          "tools/index-runtime/tests/staging.test.ts > serializes concurrent selected-entry staging without overwriting a winner",
-          "bun test --test-name-pattern=\"^serializes concurrent selected-entry staging without overwriting a winner$\" ./tools/index-runtime/tests/run.ts"
+          "tools/index-runtime/tests/staging.test.ts > maps a competing pending replacement conflict without overwriting a winner",
+          "bun test --test-name-pattern=\"^maps a competing pending replacement conflict without overwriting a winner$\" ./tools/index-runtime/tests/run.ts"
         ],
         "id": "INDEX-RUNTIME-STAGING-CONCURRENCY-001",
         "line": 1,
-        "searchText": "并发选择性暂存不互相覆盖 针对同一索引的并发选择性暂存只能有一个调用从同一 revision 与 pending 期望成功。 两个并发调用恰有一个成功，另一个返回 `pending-conflict`。 最终 pending 完整等于获胜调用的目标，不包含两个调用的隐式合并或覆盖残片。 tools/index-runtime/tests/staging.test.ts > serializes concurrent selected-entry staging without overwriting a winner bun test --test-name-pattern=\"^serializes concurrent selected-entry staging without overwriting a winner$\" ./tools/index-runtime/tests/run.ts",
-        "sourcePath": "index-runtime/serializes-concurrent-selected-entry-staging-without-overwriting-a-winner.md",
-        "summary": "针对同一索引的并发选择性暂存只能有一个调用从同一 revision 与 pending 期望成功。",
-        "title": "并发选择性暂存不互相覆盖"
+        "searchText": "注入仓储映射竞争中的 Pending 替换冲突 注入的 repository 边界拒绝竞争替换时，staging 必须把冲突映射为稳定的 pending 诊断，不得隐式合并目标。 注入仓储只接受第一个竞争替换时，两个并发调用恰有一个成功，另一个返回 `pending-conflict`。 记录的目标完整等于获胜调用的选择，不包含两个调用的隐式合并。 tools/index-runtime/tests/staging.test.ts > maps a competing pending replacement conflict without overwriting a winner bun test --test-name-pattern=\"^maps a competing pending replacement conflict without overwriting a winner$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "index-runtime/maps-competing-pending-replacement-conflicts-without-overwriting-a-winner.md",
+        "summary": "注入的 repository 边界拒绝竞争替换时，staging 必须把冲突映射为稳定的 pending 诊断，不得隐式合并目标。",
+        "title": "注入仓储映射竞争中的 Pending 替换冲突"
       }
     },
     "INDEX-RUNTIME-STAGING-CONFLICT-001": {
@@ -6995,7 +6995,7 @@
     "INDEX-RUNTIME-STAGING-EXISTENCE-001": {
       "keys": {
         "search": [
-          "INDEX-RUNTIME-STAGING-EXISTENCE-001 用统一 ID 存在性规则表达条目变化 新增、删除、无变化和显式重命名都由选中 ID 在 revision 与工作区索引中的存在状态表达。 同一公共操作正确产生新增、删除和无变化结果。 同时选择旧 ID 与新 ID 完成显式重命名，并安全处理 `__proto__` 与 `constructor` 身份。 无实际变化返回 `unchanged`。 tools/index-runtime/tests/staging.test.ts > applies one id-existence rule to additions deletions no-ops and explicit renames bun test --test-name-pattern=\"^applies one id-existence rule to additions deletions no-ops and explicit renames$\" ./tools/index-runtime/tests/run.ts"
+          "INDEX-RUNTIME-STAGING-EXISTENCE-001 注入仓储中用统一 ID 存在性规则表达条目变化 在注入的 repository 边界下，新增、删除、无变化和显式重命名都由选中 ID 在 revision 与工作区索引中的存在状态表达。 注入仓储记录的目标索引分别正确表达新增、删除和无变化。 同时选择旧 ID 与新 ID 完成显式重命名，并安全处理 `__proto__` 与 `constructor` 身份。 无实际变化返回 `unchanged`。 tools/index-runtime/tests/staging.test.ts > applies one id-existence rule to additions deletions no-ops and explicit renames bun test --test-name-pattern=\"^applies one id-existence rule to additions deletions no-ops and explicit renames$\" ./tools/index-runtime/tests/run.ts"
         ],
         "topic": [
           "index-runtime"
@@ -7009,10 +7009,10 @@
         ],
         "id": "INDEX-RUNTIME-STAGING-EXISTENCE-001",
         "line": 1,
-        "searchText": "用统一 ID 存在性规则表达条目变化 新增、删除、无变化和显式重命名都由选中 ID 在 revision 与工作区索引中的存在状态表达。 同一公共操作正确产生新增、删除和无变化结果。 同时选择旧 ID 与新 ID 完成显式重命名，并安全处理 `__proto__` 与 `constructor` 身份。 无实际变化返回 `unchanged`。 tools/index-runtime/tests/staging.test.ts > applies one id-existence rule to additions deletions no-ops and explicit renames bun test --test-name-pattern=\"^applies one id-existence rule to additions deletions no-ops and explicit renames$\" ./tools/index-runtime/tests/run.ts",
+        "searchText": "注入仓储中用统一 ID 存在性规则表达条目变化 在注入的 repository 边界下，新增、删除、无变化和显式重命名都由选中 ID 在 revision 与工作区索引中的存在状态表达。 注入仓储记录的目标索引分别正确表达新增、删除和无变化。 同时选择旧 ID 与新 ID 完成显式重命名，并安全处理 `__proto__` 与 `constructor` 身份。 无实际变化返回 `unchanged`。 tools/index-runtime/tests/staging.test.ts > applies one id-existence rule to additions deletions no-ops and explicit renames bun test --test-name-pattern=\"^applies one id-existence rule to additions deletions no-ops and explicit renames$\" ./tools/index-runtime/tests/run.ts",
         "sourcePath": "index-runtime/applies-one-id-existence-rule-to-additions-deletions-no-ops-and-explicit-renames.md",
-        "summary": "新增、删除、无变化和显式重命名都由选中 ID 在 revision 与工作区索引中的存在状态表达。",
-        "title": "用统一 ID 存在性规则表达条目变化"
+        "summary": "在注入的 repository 边界下，新增、删除、无变化和显式重命名都由选中 ID 在 revision 与工作区索引中的存在状态表达。",
+        "title": "注入仓储中用统一 ID 存在性规则表达条目变化"
       }
     },
     "INDEX-RUNTIME-STAGING-INDEX-001": {
@@ -7041,7 +7041,7 @@
     "INDEX-RUNTIME-STAGING-INPUT-001": {
       "keys": {
         "search": [
-          "INDEX-RUNTIME-STAGING-INPUT-001 稳定拒绝非法暂存输入 索引路径必须留在配置根目录内；`selectedIds` 必须是非空、合法且不重复的稳定 ID 集合，每个 ID 必须至少存在于 revision 或工作区索引之一。 空集合、重复 ID、非法文本、不存在的 ID 和非字符串运行时输入都返回 `selection-invalid`，不会抛出边界异常。 逃逸路径返回 `index-path-invalid`；所有非法输入都在 pending 变化前失败。 tools/index-runtime/tests/staging.test.ts > rejects invalid staging inputs without changing pending content bun test --test-name-pattern=\"^rejects invalid staging inputs without changing pending content$\" ./tools/index-runtime/tests/run.ts"
+          "INDEX-RUNTIME-STAGING-INPUT-001 注入仓储前稳定拒绝非法暂存输入 索引路径必须留在配置根目录内；`selectedIds` 必须是非空、合法且不重复的稳定 ID 集合，每个 ID 必须至少存在于 revision 或工作区索引之一。 空集合、重复 ID、非法文本、不存在的 ID 和非字符串运行时输入都返回 `selection-invalid`，不会抛出边界异常。 逃逸路径返回 `index-path-invalid`；所有非法输入都在调用注入 repository 的 pending 替换方法前失败。 tools/index-runtime/tests/staging.test.ts > rejects invalid staging inputs without changing pending content bun test --test-name-pattern=\"^rejects invalid staging inputs without changing pending content$\" ./tools/index-runtime/tests/run.ts"
         ],
         "topic": [
           "index-runtime"
@@ -7055,16 +7055,16 @@
         ],
         "id": "INDEX-RUNTIME-STAGING-INPUT-001",
         "line": 1,
-        "searchText": "稳定拒绝非法暂存输入 索引路径必须留在配置根目录内；`selectedIds` 必须是非空、合法且不重复的稳定 ID 集合，每个 ID 必须至少存在于 revision 或工作区索引之一。 空集合、重复 ID、非法文本、不存在的 ID 和非字符串运行时输入都返回 `selection-invalid`，不会抛出边界异常。 逃逸路径返回 `index-path-invalid`；所有非法输入都在 pending 变化前失败。 tools/index-runtime/tests/staging.test.ts > rejects invalid staging inputs without changing pending content bun test --test-name-pattern=\"^rejects invalid staging inputs without changing pending content$\" ./tools/index-runtime/tests/run.ts",
+        "searchText": "注入仓储前稳定拒绝非法暂存输入 索引路径必须留在配置根目录内；`selectedIds` 必须是非空、合法且不重复的稳定 ID 集合，每个 ID 必须至少存在于 revision 或工作区索引之一。 空集合、重复 ID、非法文本、不存在的 ID 和非字符串运行时输入都返回 `selection-invalid`，不会抛出边界异常。 逃逸路径返回 `index-path-invalid`；所有非法输入都在调用注入 repository 的 pending 替换方法前失败。 tools/index-runtime/tests/staging.test.ts > rejects invalid staging inputs without changing pending content bun test --test-name-pattern=\"^rejects invalid staging inputs without changing pending content$\" ./tools/index-runtime/tests/run.ts",
         "sourcePath": "index-runtime/rejects-invalid-staging-inputs-without-changing-pending-content.md",
         "summary": "索引路径必须留在配置根目录内；`selectedIds` 必须是非空、合法且不重复的稳定 ID 集合，每个 ID 必须至少存在于 revision 或工作区索引之一。",
-        "title": "稳定拒绝非法暂存输入"
+        "title": "注入仓储前稳定拒绝非法暂存输入"
       }
     },
     "INDEX-RUNTIME-STAGING-PENDING-WRITE-001": {
       "keys": {
         "search": [
-          "INDEX-RUNTIME-STAGING-PENDING-WRITE-001 Pending 替换失败时给出下一步并保留索引 可完整恢复的 pending 替换失败必须报告可执行的失败诊断，并保留写入前的 pending 范围。 损坏的 pending 快照返回 `pending-write-failed` 和 `state-index.pending-write-failed`。 诊断要求检查目标 pending 与仓库访问后重试。 pending 快照与工作区索引都保持不变。 tools/index-runtime/tests/staging.test.ts > reports an actionable pending replacement failure and preserves the index bun test --test-name-pattern=\"^reports an actionable pending replacement failure and preserves the index$\" ./tools/index-runtime/tests/run.ts"
+          "INDEX-RUNTIME-STAGING-PENDING-WRITE-001 注入仓储的 Pending 替换失败时给出下一步并保持工作区 可完整恢复的 pending 替换失败必须报告可执行的失败诊断，且 staging 不得改写工作区索引。 注入 repository 报告可恢复替换失败时，staging 返回 `pending-write-failed` 和 `state-index.pending-write-failed`。 诊断要求检查目标 pending 与仓库访问后重试。 失败替换不被注入仓储记录为成功，工作区索引保持不变。 tools/index-runtime/tests/staging.test.ts > reports an actionable pending replacement failure without changing workspace bun test --test-name-pattern=\"^reports an actionable pending replacement failure without changing workspace$\" ./tools/index-runtime/tests/run.ts"
         ],
         "topic": [
           "index-runtime"
@@ -7073,15 +7073,15 @@
       "state": {
         "endLine": 14,
         "entries": [
-          "tools/index-runtime/tests/staging.test.ts > reports an actionable pending replacement failure and preserves the index",
-          "bun test --test-name-pattern=\"^reports an actionable pending replacement failure and preserves the index$\" ./tools/index-runtime/tests/run.ts"
+          "tools/index-runtime/tests/staging.test.ts > reports an actionable pending replacement failure without changing workspace",
+          "bun test --test-name-pattern=\"^reports an actionable pending replacement failure without changing workspace$\" ./tools/index-runtime/tests/run.ts"
         ],
         "id": "INDEX-RUNTIME-STAGING-PENDING-WRITE-001",
         "line": 1,
-        "searchText": "Pending 替换失败时给出下一步并保留索引 可完整恢复的 pending 替换失败必须报告可执行的失败诊断，并保留写入前的 pending 范围。 损坏的 pending 快照返回 `pending-write-failed` 和 `state-index.pending-write-failed`。 诊断要求检查目标 pending 与仓库访问后重试。 pending 快照与工作区索引都保持不变。 tools/index-runtime/tests/staging.test.ts > reports an actionable pending replacement failure and preserves the index bun test --test-name-pattern=\"^reports an actionable pending replacement failure and preserves the index$\" ./tools/index-runtime/tests/run.ts",
-        "sourcePath": "index-runtime/reports-an-actionable-pending-replacement-failure-and-preserves-the-index.md",
-        "summary": "可完整恢复的 pending 替换失败必须报告可执行的失败诊断，并保留写入前的 pending 范围。",
-        "title": "Pending 替换失败时给出下一步并保留索引"
+        "searchText": "注入仓储的 Pending 替换失败时给出下一步并保持工作区 可完整恢复的 pending 替换失败必须报告可执行的失败诊断，且 staging 不得改写工作区索引。 注入 repository 报告可恢复替换失败时，staging 返回 `pending-write-failed` 和 `state-index.pending-write-failed`。 诊断要求检查目标 pending 与仓库访问后重试。 失败替换不被注入仓储记录为成功，工作区索引保持不变。 tools/index-runtime/tests/staging.test.ts > reports an actionable pending replacement failure without changing workspace bun test --test-name-pattern=\"^reports an actionable pending replacement failure without changing workspace$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "index-runtime/reports-an-actionable-pending-replacement-failure-without-changing-workspace.md",
+        "summary": "可完整恢复的 pending 替换失败必须报告可执行的失败诊断，且 staging 不得改写工作区索引。",
+        "title": "注入仓储的 Pending 替换失败时给出下一步并保持工作区"
       }
     },
     "INDEX-RUNTIME-STAGING-PROJECTION-001": {
@@ -7156,7 +7156,7 @@
     "INDEX-RUNTIME-STAGING-SELECTION-001": {
       "keys": {
         "search": [
-          "INDEX-RUNTIME-STAGING-SELECTION-001 选择性暂存 State 与逐条 Revision 按 ID 暂存必须以 revision 索引为基线，只把选中条目的工作区 state 与逐条来源 revision 成对写入目标索引。 从 `A0/B0/C0` 与 `A1/B1/C1` 选择 `A/C` 得到 `A1/B0/C1`，且来源指纹使用同一选择。 选择顺序不改变确定性目标文本，runtime 方法只接收 selected IDs。 工作区索引、领域文件和目标外 pending 内容保持不变。 tools/index-runtime/tests/staging.test.ts > stages selected states and revisions while preserving workspace and outside pending files bun test --test-name-pattern=\"^stages selected states and revisions while preserving workspace and outside pending files$\" ./tools/index-runtime/tests/run.ts"
+          "INDEX-RUNTIME-STAGING-SELECTION-001 选择性暂存条目变化与逐条 Revision 按 ID 暂存必须以 revision 索引为基线，只把选中条目的工作区 state 与逐条来源 revision 成对写入目标索引。 真实 Git 仓库中同时选择新增、修改、删除和重命名身份后，pending 索引只保留目标条目，并为每项配对采用对应来源指纹。 反转相同选择集合不改变确定性目标文本，runtime 方法只接收 selected IDs。 工作区索引、领域文件和目标外 pending 内容保持不变。 tools/index-runtime/tests/staging.test.ts > stages selected additions modifications deletions and renames while preserving workspace and outside pending files bun test --test-name-pattern=\"^stages selected additions modifications deletions and renames while preserving workspace and outside pending files$\" ./tools/index-runtime/tests/run.ts"
         ],
         "topic": [
           "index-runtime"
@@ -7165,15 +7165,15 @@
       "state": {
         "endLine": 14,
         "entries": [
-          "tools/index-runtime/tests/staging.test.ts > stages selected states and revisions while preserving workspace and outside pending files",
-          "bun test --test-name-pattern=\"^stages selected states and revisions while preserving workspace and outside pending files$\" ./tools/index-runtime/tests/run.ts"
+          "tools/index-runtime/tests/staging.test.ts > stages selected additions modifications deletions and renames while preserving workspace and outside pending files",
+          "bun test --test-name-pattern=\"^stages selected additions modifications deletions and renames while preserving workspace and outside pending files$\" ./tools/index-runtime/tests/run.ts"
         ],
         "id": "INDEX-RUNTIME-STAGING-SELECTION-001",
         "line": 1,
-        "searchText": "选择性暂存 State 与逐条 Revision 按 ID 暂存必须以 revision 索引为基线，只把选中条目的工作区 state 与逐条来源 revision 成对写入目标索引。 从 `A0/B0/C0` 与 `A1/B1/C1` 选择 `A/C` 得到 `A1/B0/C1`，且来源指纹使用同一选择。 选择顺序不改变确定性目标文本，runtime 方法只接收 selected IDs。 工作区索引、领域文件和目标外 pending 内容保持不变。 tools/index-runtime/tests/staging.test.ts > stages selected states and revisions while preserving workspace and outside pending files bun test --test-name-pattern=\"^stages selected states and revisions while preserving workspace and outside pending files$\" ./tools/index-runtime/tests/run.ts",
-        "sourcePath": "index-runtime/stages-selected-states-and-revisions-while-preserving-workspace-and-outside-pending-files.md",
+        "searchText": "选择性暂存条目变化与逐条 Revision 按 ID 暂存必须以 revision 索引为基线，只把选中条目的工作区 state 与逐条来源 revision 成对写入目标索引。 真实 Git 仓库中同时选择新增、修改、删除和重命名身份后，pending 索引只保留目标条目，并为每项配对采用对应来源指纹。 反转相同选择集合不改变确定性目标文本，runtime 方法只接收 selected IDs。 工作区索引、领域文件和目标外 pending 内容保持不变。 tools/index-runtime/tests/staging.test.ts > stages selected additions modifications deletions and renames while preserving workspace and outside pending files bun test --test-name-pattern=\"^stages selected additions modifications deletions and renames while preserving workspace and outside pending files$\" ./tools/index-runtime/tests/run.ts",
+        "sourcePath": "index-runtime/stages-selected-additions-modifications-deletions-and-renames-while-preserving-workspace-and-outside-pending-files.md",
         "summary": "按 ID 暂存必须以 revision 索引为基线，只把选中条目的工作区 state 与逐条来源 revision 成对写入目标索引。",
-        "title": "选择性暂存 State 与逐条 Revision"
+        "title": "选择性暂存条目变化与逐条 Revision"
       }
     },
     "INDEX-RUNTIME-SYNC-LIFECYCLE-001": {
@@ -9617,7 +9617,7 @@
     "REPO-SKILL-HASH-002": {
       "keys": {
         "search": [
-          "REPO-SKILL-HASH-002 Runtime and declaration semantic changes require a version 运行时 `.mjs` 内容变化，以及已有 `.d.mts` 声明的语义变化，仍然承载 skill 版本。 两类 pending 变化在未提升 metadata.version 时都会产生版本门禁诊断。 scripts/lib/skill-package-hash.test.ts > requires a version for runtime and declaration semantic package changes bun test --test-name-pattern=\"^requires a version for runtime and declaration semantic package changes$\" ./scripts/lib/skill-package-hash.test.ts"
+          "REPO-SKILL-HASH-002 Runtime and declaration semantic changes require a version 运行时 `.mjs` 内容变化，以及已有 `.d.mts` 声明的语义变化，仍然承载 skill 版本。 与注入基线比较时，当前内存 snapshot 中的两类变化在未提升 metadata.version 时都会产生版本门禁诊断。 scripts/lib/skill-package-hash.test.ts > requires a version for runtime and declaration semantic package changes bun test --test-name-pattern=\"^requires a version for runtime and declaration semantic package changes$\" ./scripts/lib/skill-package-hash.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -9631,7 +9631,7 @@
         ],
         "id": "REPO-SKILL-HASH-002",
         "line": 1,
-        "searchText": "Runtime and declaration semantic changes require a version 运行时 `.mjs` 内容变化，以及已有 `.d.mts` 声明的语义变化，仍然承载 skill 版本。 两类 pending 变化在未提升 metadata.version 时都会产生版本门禁诊断。 scripts/lib/skill-package-hash.test.ts > requires a version for runtime and declaration semantic package changes bun test --test-name-pattern=\"^requires a version for runtime and declaration semantic package changes$\" ./scripts/lib/skill-package-hash.test.ts",
+        "searchText": "Runtime and declaration semantic changes require a version 运行时 `.mjs` 内容变化，以及已有 `.d.mts` 声明的语义变化，仍然承载 skill 版本。 与注入基线比较时，当前内存 snapshot 中的两类变化在未提升 metadata.version 时都会产生版本门禁诊断。 scripts/lib/skill-package-hash.test.ts > requires a version for runtime and declaration semantic package changes bun test --test-name-pattern=\"^requires a version for runtime and declaration semantic package changes$\" ./scripts/lib/skill-package-hash.test.ts",
         "sourcePath": "repository-tooling/runtime-and-declaration-semantic-changes-require-version.md",
         "summary": "运行时 `.mjs` 内容变化，以及已有 `.d.mts` 声明的语义变化，仍然承载 skill 版本。",
         "title": "Runtime and declaration semantic changes require a version"
@@ -9686,7 +9686,7 @@
     "REPO-SKILL-HASH-005": {
       "keys": {
         "search": [
-          "REPO-SKILL-HASH-005 Version check stops reading after the first ordinary change version gate 在发现普通包内容变化后立即判定版本承载，不读取无关的后续基线 blob。 首个普通 pending 变化在未提升 metadata.version 时产生版本提升诊断。 后续损坏但与该判定无关的基线 blob 不会阻断版本基线读取。 scripts/lib/skill-package-hash.test.ts > version checks stop reading baseline blobs after the first ordinary change bun test --test-name-pattern=\"^version checks stop reading baseline blobs after the first ordinary change$\" ./scripts/lib/skill-package-hash.test.ts"
+          "REPO-SKILL-HASH-005 Version check stops reading after the first ordinary change version gate 在当前内存 snapshot 中发现首个普通包内容变化后立即判定版本承载，不读取注入基线仓储中无关的后续 blob。 当前内存 snapshot 的首个普通变化在未提升 metadata.version 时产生版本提升诊断。 注入基线仓储记录的读取路径证明后续无关 baseline blob 不会被读取。 scripts/lib/skill-package-hash.test.ts > version checks stop reading baseline blobs after the first ordinary change bun test --test-name-pattern=\"^version checks stop reading baseline blobs after the first ordinary change$\" ./scripts/lib/skill-package-hash.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -9700,9 +9700,9 @@
         ],
         "id": "REPO-SKILL-HASH-005",
         "line": 1,
-        "searchText": "Version check stops reading after the first ordinary change version gate 在发现普通包内容变化后立即判定版本承载，不读取无关的后续基线 blob。 首个普通 pending 变化在未提升 metadata.version 时产生版本提升诊断。 后续损坏但与该判定无关的基线 blob 不会阻断版本基线读取。 scripts/lib/skill-package-hash.test.ts > version checks stop reading baseline blobs after the first ordinary change bun test --test-name-pattern=\"^version checks stop reading baseline blobs after the first ordinary change$\" ./scripts/lib/skill-package-hash.test.ts",
+        "searchText": "Version check stops reading after the first ordinary change version gate 在当前内存 snapshot 中发现首个普通包内容变化后立即判定版本承载，不读取注入基线仓储中无关的后续 blob。 当前内存 snapshot 的首个普通变化在未提升 metadata.version 时产生版本提升诊断。 注入基线仓储记录的读取路径证明后续无关 baseline blob 不会被读取。 scripts/lib/skill-package-hash.test.ts > version checks stop reading baseline blobs after the first ordinary change bun test --test-name-pattern=\"^version checks stop reading baseline blobs after the first ordinary change$\" ./scripts/lib/skill-package-hash.test.ts",
         "sourcePath": "repository-tooling/version-check-stops-reading-after-first-ordinary-change.md",
-        "summary": "version gate 在发现普通包内容变化后立即判定版本承载，不读取无关的后续基线 blob。",
+        "summary": "version gate 在当前内存 snapshot 中发现首个普通包内容变化后立即判定版本承载，不读取注入基线仓储中无关的后续 blob。",
         "title": "Version check stops reading after the first ordinary change"
       }
     },
@@ -9750,6 +9750,29 @@
         "sourcePath": "repository-tooling/task-graph-package-command-rejects-invalid-project-root.md",
         "summary": "仓库 task-graph package 命令接受显式项目 root 前必须确认目标同时拥有 canonical index 入口和项目自己的 task-graph CLI。",
         "title": "task-graph 短命令拒绝无效的显式项目 root"
+      }
+    },
+    "REPOSITORY-VALIDATION-STRUCTURE-001": {
+      "keys": {
+        "search": [
+          "REPOSITORY-VALIDATION-STRUCTURE-001 根校验跳过 skill 链接但保留结构失败 根 `validate` 遍历全部 skill 的结构，但不校验链接；当前维护 Markdown 的全仓链接由 Vibe 原生 `markdown-link-validation` Check 负责。 含缺失链接且 description 为空的 skill 保留 frontmatter 结构诊断，却不产生缺失链接目标诊断。 scripts/validate.test.ts > repository validation skips skill links while preserving skill structure failures bun test --test-name-pattern=\"^repository validation skips skill links while preserving skill structure failures$\" ./scripts/validate.test.ts"
+        ],
+        "topic": [
+          "repository-tooling"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "scripts/validate.test.ts > repository validation skips skill links while preserving skill structure failures",
+          "bun test --test-name-pattern=\"^repository validation skips skill links while preserving skill structure failures$\" ./scripts/validate.test.ts"
+        ],
+        "id": "REPOSITORY-VALIDATION-STRUCTURE-001",
+        "line": 1,
+        "searchText": "根校验跳过 skill 链接但保留结构失败 根 `validate` 遍历全部 skill 的结构，但不校验链接；当前维护 Markdown 的全仓链接由 Vibe 原生 `markdown-link-validation` Check 负责。 含缺失链接且 description 为空的 skill 保留 frontmatter 结构诊断，却不产生缺失链接目标诊断。 scripts/validate.test.ts > repository validation skips skill links while preserving skill structure failures bun test --test-name-pattern=\"^repository validation skips skill links while preserving skill structure failures$\" ./scripts/validate.test.ts",
+        "sourcePath": "repository-tooling/repository-validation-skips-skill-links-while-preserving-skill-structure-failures.md",
+        "summary": "根 `validate` 遍历全部 skill 的结构，但不校验链接；当前维护 Markdown 的全仓链接由 Vibe 原生 `markdown-link-validation` Check 负责。",
+        "title": "根校验跳过 skill 链接但保留结构失败"
       }
     },
     "SKILL-PACKAGE-HASH-001": {
@@ -9801,7 +9824,7 @@
     "SKILL-PACKAGE-HASH-003": {
       "keys": {
         "search": [
-          "SKILL-PACKAGE-HASH-003 要求变化 skill 独立提升版本 包内容相对基线变化时，只要求对应 skill 的版本高于自身基线。 alpha 内容变化且仍为 v3 时产生问题，staged 提升到 v4 后问题消失。 scripts/lib/skill-package-hash.test.ts > requires changed skills to increase independent versions bun test --test-name-pattern=\"^requires changed skills to increase independent versions$\" ./scripts/lib/skill-package-hash.test.ts"
+          "SKILL-PACKAGE-HASH-003 要求变化 skill 独立提升版本 包内容相对基线变化时，只要求对应 skill 的版本高于自身基线。 当前内存 snapshot 中 alpha 内容变化且仍为 v3 时产生问题；与注入基线比较后提升到 v4，问题消失。 scripts/lib/skill-package-hash.test.ts > requires changed skills to increase independent versions bun test --test-name-pattern=\"^requires changed skills to increase independent versions$\" ./scripts/lib/skill-package-hash.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -9815,7 +9838,7 @@
         ],
         "id": "SKILL-PACKAGE-HASH-003",
         "line": 1,
-        "searchText": "要求变化 skill 独立提升版本 包内容相对基线变化时，只要求对应 skill 的版本高于自身基线。 alpha 内容变化且仍为 v3 时产生问题，staged 提升到 v4 后问题消失。 scripts/lib/skill-package-hash.test.ts > requires changed skills to increase independent versions bun test --test-name-pattern=\"^requires changed skills to increase independent versions$\" ./scripts/lib/skill-package-hash.test.ts",
+        "searchText": "要求变化 skill 独立提升版本 包内容相对基线变化时，只要求对应 skill 的版本高于自身基线。 当前内存 snapshot 中 alpha 内容变化且仍为 v3 时产生问题；与注入基线比较后提升到 v4，问题消失。 scripts/lib/skill-package-hash.test.ts > requires changed skills to increase independent versions bun test --test-name-pattern=\"^requires changed skills to increase independent versions$\" ./scripts/lib/skill-package-hash.test.ts",
         "sourcePath": "repository-tooling/requires-changed-skills-to-increase-independent-versions.md",
         "summary": "包内容相对基线变化时，只要求对应 skill 的版本高于自身基线。",
         "title": "要求变化 skill 独立提升版本"
@@ -9824,7 +9847,7 @@
     "SKILL-PACKAGE-HASH-004": {
       "keys": {
         "search": [
-          "SKILL-PACKAGE-HASH-004 接受初始版本为一的新 skill 基线不存在的新增 skill 以 `null` 表示，并允许从版本一开始。 gamma 在 HEAD 基线中为 `null`，以 staged v1 加入时不产生版本问题。 scripts/lib/skill-package-hash.test.ts > accepts a new skill at initial version one bun test --test-name-pattern=\"^accepts a new skill at initial version one$\" ./scripts/lib/skill-package-hash.test.ts"
+          "SKILL-PACKAGE-HASH-004 接受初始版本为一的新 skill 基线不存在的新增 skill 以 `null` 表示，并允许从版本一开始。 注入的基线仓储中不存在 gamma 时其基线为 `null`，当前 snapshot 以 v1 加入不会产生版本问题。 scripts/lib/skill-package-hash.test.ts > accepts a new skill at initial version one bun test --test-name-pattern=\"^accepts a new skill at initial version one$\" ./scripts/lib/skill-package-hash.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -9838,7 +9861,7 @@
         ],
         "id": "SKILL-PACKAGE-HASH-004",
         "line": 1,
-        "searchText": "接受初始版本为一的新 skill 基线不存在的新增 skill 以 `null` 表示，并允许从版本一开始。 gamma 在 HEAD 基线中为 `null`，以 staged v1 加入时不产生版本问题。 scripts/lib/skill-package-hash.test.ts > accepts a new skill at initial version one bun test --test-name-pattern=\"^accepts a new skill at initial version one$\" ./scripts/lib/skill-package-hash.test.ts",
+        "searchText": "接受初始版本为一的新 skill 基线不存在的新增 skill 以 `null` 表示，并允许从版本一开始。 注入的基线仓储中不存在 gamma 时其基线为 `null`，当前 snapshot 以 v1 加入不会产生版本问题。 scripts/lib/skill-package-hash.test.ts > accepts a new skill at initial version one bun test --test-name-pattern=\"^accepts a new skill at initial version one$\" ./scripts/lib/skill-package-hash.test.ts",
         "sourcePath": "repository-tooling/accepts-a-new-skill-at-initial-version-one.md",
         "summary": "基线不存在的新增 skill 以 `null` 表示，并允许从版本一开始。",
         "title": "接受初始版本为一的新 skill"
@@ -10578,6 +10601,29 @@
         "sourcePath": "skill-validator/validator-rejects-missing-and-outside-links.md",
         "summary": "Markdown 链接必须指向存在的 skill 内部目标。",
         "title": "Skill 链接必须存在且留在目录边界内"
+      }
+    },
+    "SKILL-VALIDATOR-LINKS-CLI-001": {
+      "keys": {
+        "search": [
+          "SKILL-VALIDATOR-LINKS-CLI-001 Validator CLI 拒绝缺失内部链接的单个 skill 显式 `validate-skill` 校验单个 skill 时，内部 Markdown 链接必须指向该 skill 目录内存在的目标。 仅含缺失内部链接的其他结构合法 skill 令分发 CLI 以失败退出，并报告缺失链接目标。 tools/skill-validator/tests/run.ts > validator CLI rejects a single skill with a missing internal link bun test --test-name-pattern=\"^validator CLI rejects a single skill with a missing internal link$\" ./tools/skill-validator/tests/run.ts"
+        ],
+        "topic": [
+          "skill-validator"
+        ]
+      },
+      "state": {
+        "endLine": 9,
+        "entries": [
+          "tools/skill-validator/tests/run.ts > validator CLI rejects a single skill with a missing internal link",
+          "bun test --test-name-pattern=\"^validator CLI rejects a single skill with a missing internal link$\" ./tools/skill-validator/tests/run.ts"
+        ],
+        "id": "SKILL-VALIDATOR-LINKS-CLI-001",
+        "line": 1,
+        "searchText": "Validator CLI 拒绝缺失内部链接的单个 skill 显式 `validate-skill` 校验单个 skill 时，内部 Markdown 链接必须指向该 skill 目录内存在的目标。 仅含缺失内部链接的其他结构合法 skill 令分发 CLI 以失败退出，并报告缺失链接目标。 tools/skill-validator/tests/run.ts > validator CLI rejects a single skill with a missing internal link bun test --test-name-pattern=\"^validator CLI rejects a single skill with a missing internal link$\" ./tools/skill-validator/tests/run.ts",
+        "sourcePath": "skill-validator/validator-cli-rejects-a-single-skill-with-a-missing-internal-link.md",
+        "summary": "显式 `validate-skill` 校验单个 skill 时，内部 Markdown 链接必须指向该 skill 目录内存在的目标。",
+        "title": "Validator CLI 拒绝缺失内部链接的单个 skill"
       }
     },
     "SKILL-VALIDATOR-PORTABLE-001": {
@@ -15381,7 +15427,7 @@
       "DECISION-CANDIDATE-DISCARD-ACTIVE-TARGET-001": "sha256:c0b69beeb225427f4d7a3ff5457f60d26d6effb288dbd06ee93b140662057d28",
       "DECISION-CANDIDATE-DISCARD-INVALID-001": "sha256:23a58829f2e0b8246e3e79e8e68f671cc2ccbe50b7331c84bc1920df9421967a",
       "DECISION-CANDIDATE-DISCARD-INVALID-RELATION-001": "sha256:a5f14897991236a565d839550e955709b8d274c17d72a917b61e36a2c0d15c2a",
-      "DECISION-CANDIDATE-DISCARD-REFERENCED-001": "sha256:869bf76fb9abe6401ef6481df05166435245b018e42e314dba8061118acb6c26",
+      "DECISION-CANDIDATE-DISCARD-REFERENCED-001": "sha256:03d7b783fdbf0b9835ac01033fbb320d64421dd64d7978023caa6b30c3bfb60e",
       "DECISION-CANDIDATE-DISCARD-UNBORN-001": "sha256:1052448246fe7912bc851f16497416f815678f3bf0dd5e1e0189b9a34de0527a",
       "DECISION-CANDIDATE-DISCARD-UNREADABLE-HEAD-001": "sha256:33d43c44e9b3001c5a584355a61507f668d2c1ea14d9bc2f6cce531091866e94",
       "DECISION-CANDIDATE-DISCARD-UNRECORDED-001": "sha256:f402aa1cd4bf1f179bec1d74faa6bbc658d08b5ed2ea9001d9f0e0ba4abd9e3c",
@@ -15417,12 +15463,12 @@
       "DECISION-DISCARD-RECORDED-ATTENTION-001": "sha256:85c882402c6a4330fdd46bfa44041eab410bba3668ba974df0029e5d02748dbd",
       "DECISION-DISCARD-RECORDED-FLAG-001": "sha256:f657e9d50a123bf4661288df4ecf0c91f48dfc1abe916555468a3fac3b93d016",
       "DECISION-DISCARD-REFERENCED-ESTABLISHED-001": "sha256:0f6297d23d47d143eb01a4e2d4b3789e5ef0b4a50f7c262fa8bdec6e76c76ccb",
-      "DECISION-DISCARD-SPLIT-CLOSURE-001": "sha256:4a19947455010b77267df01d6419bd2fb0be11cdc79f57bd7d0c946ae61e7698",
+      "DECISION-DISCARD-SPLIT-CLOSURE-001": "sha256:7dc6903b512fcf0022d7922ff0928b5450599b342625c451e55bb834923beab1",
       "DECISION-EVOLUTION-RELATIONS-001": "sha256:3bc417fcb8ccc884e03096b0a61c5f089dc66352d03d45f25cf9936be0cf29e4",
       "DECISION-EVOLVE-ALIGNMENT-CONFIRMATION-001": "sha256:cdc7a1d0eb5058b3ff4076b0f4b19969284a9fdcc334e1429a09b6c0d4d6f96b",
       "DECISION-EVOLVE-ARCHIVED-SUCCESSOR-001": "sha256:4d186724297c46b154cbd101cc4fe17bc1dd88a5197235d23c8c7db0e50098dc",
       "DECISION-EVOLVE-COMMAND-001": "sha256:e1d910ece5bad2f7de165a91632f5704387937d3bf5bbff6a100ed86b04d788b",
-      "DECISION-EVOLVE-DISCARD-001": "sha256:c6a7e328b8e83ba88bfb5b2d3b00f243a64695f0b9db0f2b625ee6f0e13aebda",
+      "DECISION-EVOLVE-DISCARD-001": "sha256:aa5e682f02370a177b98de58621941140dec310aed590401e5aec312bb175afa",
       "DECISION-EVOLVE-DISCARD-ARCHIVED-RELATION-001": "sha256:6ad19b29146ee30622016b3e84ff8803c173fa4bfc4a77bc7b47eb6c4026c4e8",
       "DECISION-EVOLVE-DISCARD-EMPTY-001": "sha256:b639ef157ddd731570dc8479cc7cf1dd7e7b72a344bac81af9ff5675e1da219c",
       "DECISION-EVOLVE-DISCARD-RECORDED-001": "sha256:580c3aee837682bfa59ebf7cbfcee0dae458dc9c444f7839b8358e2ae9a701e5",
@@ -15501,7 +15547,7 @@
       "DECISION-STAGE-CLI-001": "sha256:a918b118ed2286916963510e2f5978b9a703f66a8c6c72d1598a801caea17488",
       "DECISION-STAGE-DELETION-001": "sha256:00f4686ac156a9ffe345f5f02cb0202c8ba1d5aa07596ac9ce5f2b84ae7282ca",
       "DECISION-STAGE-INDEX-ONLY-BASELINE-001": "sha256:f7dcb7cfd4e09431595681e1994c8f83ce5a923ec7aa37a3cf3d1d7b2e23c6b1",
-      "DECISION-STAGE-INPUT-001": "sha256:8e90a9377b2a03355b1335e39d0e6ded67b0b2bb8afab807a42c62f0977f5b15",
+      "DECISION-STAGE-INPUT-001": "sha256:3e7ef203aee4646b0cb02886ff7305b87b224858e789a244e204e9124585f9a7",
       "DECISION-STAGE-ISOLATION-001": "sha256:4879eae2934654b4cf960f25a42ce3fbfe138418f6404bdb2416cc8bcf408dfb",
       "DECISION-STAGE-LEGACY-001": "sha256:f18acc06b062f0ae7ba5e472b780cb6728535697800c4957f4df271633b779f6",
       "DECISION-STAGE-MOVE-001": "sha256:b436a41eac14a96e782508da470865bd7531f868710952ff80d36ba9d71e8a48",
@@ -15511,7 +15557,7 @@
       "DECISION-STAGE-PENDING-EXISTING-001": "sha256:ec5eb9988d241d4f15d1151e8cc53e0ca739b7e24efe531e524286a65d82179a",
       "DECISION-STAGE-RENAME-001": "sha256:8b820084e3961d6814f77d7b474c19ef3a5aae9f5e497591793ff640a93a09b8",
       "DECISION-STAGE-REVISION-BATCH-001": "sha256:f0a37e891d66e769f4283a18c194d7cba9f659cec459c6b964d7af69026639b8",
-      "DECISION-STAGE-SELECTED-MEMBER-TYPE-001": "sha256:0bcdc55423c6035a935ff2f35eafce9ffce4d9c304e6a0a2ce9cdc5944b39a89",
+      "DECISION-STAGE-SELECTED-MEMBER-TYPE-001": "sha256:824dbb3fdad07c26d4d0bb6298a341ca3504f5cbc98cc0784f7293ef02fd89f7",
       "DECISION-STAGE-SOURCE-PREFLIGHT-001": "sha256:85d5dcd06ec8c394c451539ab8a46a82813c90294e3661fe29f452cc2d5bf958",
       "DECISION-STAGE-TARGET-VALIDATION-001": "sha256:ec88ff03f358d539016789064cf30b9673d8a4851575e9c757d5b43c51ccdb2b",
       "DECISION-STAGE-UNSELECTED-INVALID-001": "sha256:16e5ce0aaca519dcf73c7b9a1012a6452b54cc409ded653d1fbfa1561aa78ece",
@@ -15610,16 +15656,16 @@
       "INDEX-RUNTIME-SPECIAL-ID-001": "sha256:419cd9b3fa05a840f5d47e34d0bb8268c08d8733899ce1b0bfa558678cb67133",
       "INDEX-RUNTIME-STAGING-BOUNDARY-001": "sha256:6590922062d1ff1e87070bc7a5593b39a0d7120276e64dd99f977353c6ae44b0",
       "INDEX-RUNTIME-STAGING-COLLECTION-001": "sha256:abb0c6201a0824534b30e6f22ae9fa18964021acc1bb701aaa07cb5a8bc4751e",
-      "INDEX-RUNTIME-STAGING-CONCURRENCY-001": "sha256:417c1d896597f638a2f96baf5628f7253d64df72d87311882d8de7ce12ac6dc4",
+      "INDEX-RUNTIME-STAGING-CONCURRENCY-001": "sha256:9ea386bcae4de0417c2ce4acb560415b21465596a1ee730e7a40150bdb9e05d7",
       "INDEX-RUNTIME-STAGING-CONFLICT-001": "sha256:3bd0f852591bda4f14b1bad1fcadc94bd1a70cb949149bb087da296a489e4b3e",
-      "INDEX-RUNTIME-STAGING-EXISTENCE-001": "sha256:5bc945a413acc8f3f3868fcd8393d849dc6ef58ff0529ef27eb389fc0f4c179c",
+      "INDEX-RUNTIME-STAGING-EXISTENCE-001": "sha256:869a98538d3553b76bf918be9897e0e2285a87d29fd62ba5e00d6630e1292db0",
       "INDEX-RUNTIME-STAGING-INDEX-001": "sha256:1e00909598d832274c02d8183f8fcd7649260b864a85c235da302f35f46c942c",
-      "INDEX-RUNTIME-STAGING-INPUT-001": "sha256:089d40e4f91399eccd876bf6eea63eda521a0e94ff5f043d993eeb2fbd5de171",
-      "INDEX-RUNTIME-STAGING-PENDING-WRITE-001": "sha256:09c60e51866d61d01d00e1b8a7f665ef75f77953f776eae984c791d0db2a4791",
+      "INDEX-RUNTIME-STAGING-INPUT-001": "sha256:2cf5bf5b929ffbfb130cb8573a2cd27313953ea02ef492ffa840d19ecad3fcb0",
+      "INDEX-RUNTIME-STAGING-PENDING-WRITE-001": "sha256:c34583dba151d312f06be845a2917ad8aa3e6180a3e5162220a92918e11a84de",
       "INDEX-RUNTIME-STAGING-PROJECTION-001": "sha256:17952f03eb21edc107dc0ba1da0b9644f77300e21738b77208a8a093bda62ac7",
       "INDEX-RUNTIME-STAGING-REPOSITORY-001": "sha256:1fef20ec4f53dfe3020bbf49e706ca37d7c8e155e4f267aace3e554206ef89e4",
       "INDEX-RUNTIME-STAGING-REVISION-CONFLICT-001": "sha256:f9aeb2d09539479d87262a154a889016fdfebcb3f53b1f7d73315c083a737912",
-      "INDEX-RUNTIME-STAGING-SELECTION-001": "sha256:520f54687902845427da23e175091020b5c226e35a7ea50431d1e1582cd23a22",
+      "INDEX-RUNTIME-STAGING-SELECTION-001": "sha256:1ea7b73399a32db74767bd0e2b7f2897903ecefd55933e87920e79bf4e49a382",
       "INDEX-RUNTIME-SYNC-LIFECYCLE-001": "sha256:4d2164bd605863cc0e79f58c5b6b016127e2d4c424982b540b6fefbdfaf8dda0",
       "INDEX-RUNTIME-SYNC-MODE-001": "sha256:d85b8e471c816408d97f61479b10697db530ca0a5b433dcb4442e47e3238d414",
       "INDEX-RUNTIME-SYNC-UTF8-001": "sha256:6bd07e1441ed4e5f861530432e1639c040941a5b1b67fe43d6e48b128112d0c9",
@@ -15726,16 +15772,17 @@
       "REPO-SHORT-CLI-001": "sha256:e871fa4f7a4450ec28714d11dc4f86cb6fd923f4b70f33c8fa44caf664ebc98e",
       "REPO-SHORT-CONFIG-001": "sha256:6045e4b020c0f7aa92e0111a6cc098c44b13614095d31f21f69c58baadf4a4ac",
       "REPO-SKILL-HASH-001": "sha256:905e1aa1871259fb48d905b8699654133e2fbfae4693d2df1843020008be97b1",
-      "REPO-SKILL-HASH-002": "sha256:501bb6b33a2dd0e08cdaf6d0d79d73e6420e23991558671a1c94954395820dd3",
+      "REPO-SKILL-HASH-002": "sha256:d78d51fbedc3004a395369eaa3075ca12f59b51785ca1ff424326aeb9e1352bb",
       "REPO-SKILL-HASH-003": "sha256:c0397b6aa968c3ded8a1acc2b5f85316e11e7e7f91fce1068e065bbd33799674",
       "REPO-SKILL-HASH-004": "sha256:63294fac0e9b0107d6854e2abe8b5553c03b5ab98b5f5868be1fa12e59290f6d",
-      "REPO-SKILL-HASH-005": "sha256:2b0ab2896400b2e2d028c50486d984dd4cea03d6946b4ea2c84aede0de7cd7f8",
+      "REPO-SKILL-HASH-005": "sha256:3874d936402647074e67efdd4b2878822479da2bd2fe6e7906add9f08174016c",
       "REPO-TASK-ROOT-001": "sha256:6f7f36dab2296b05c02fea40dbb240ca970aeec45b6fb8e809772121bf575df4",
       "REPO-TASK-TARGET-001": "sha256:0d31dfb2b408a1aede75a8230c2d302d965c3e131109c6fc0808324b1a80f5bd",
+      "REPOSITORY-VALIDATION-STRUCTURE-001": "sha256:b2f68ddbee437e7e538b5623de62ae163867590b3373d2295768018c77194c6e",
       "SKILL-PACKAGE-HASH-001": "sha256:cf44553e22b994bf18ecc1269c2a95e1d58c03eaa247bff8abcc4a6bef099732",
       "SKILL-PACKAGE-HASH-002": "sha256:acd1e290d0b553f438700b71fabd6fab1856c150d9e1d1ad194d3eb1a499f9c3",
-      "SKILL-PACKAGE-HASH-003": "sha256:20a11e306f874a30f6bd5dbaefe1e14155caa0aea61574fc5e685b6a253f30fb",
-      "SKILL-PACKAGE-HASH-004": "sha256:1125c0f1aa797b9ea6794af29462304ff563356cefa8a8618a9456c9b00d8bc1",
+      "SKILL-PACKAGE-HASH-003": "sha256:5f419523f684074779483e505e2eaab8baf714a1bcd1d378a65371d1424627ac",
+      "SKILL-PACKAGE-HASH-004": "sha256:cf26cb29aa27406cfff83b65c138a8907431fc16508665dba3b01fc73b449313",
       "SKILL-PACKAGE-HASH-005": "sha256:60a60dfd919c85ce28e1eb82719fa87c4b89a0cffbda29cef30b1c654b283f62",
       "SKILL-PACKAGE-HASH-006": "sha256:a4c82e0ce772f10c55668d528527c306e30ce4139e4a808cd59851b97c91ffdf",
       "SKILL-PACKAGE-HASH-007": "sha256:2bbc8720532390a943ab064bb290496a0f0ac94fb56d807072752ddeb7dcb422",
@@ -15768,6 +15815,7 @@
       "SKILL-VALIDATOR-FRONTMATTER-001": "sha256:f8ba9f8cd9f21dd63e70ff2cea76096ab736fc1ccfddae2c877a93a6a740371b",
       "SKILL-VALIDATOR-GENERATED-001": "sha256:5555bcbafb5acd96390bc61af34157ffab2e0245ee08c698f33ec1eb3f522906",
       "SKILL-VALIDATOR-LINKS-001": "sha256:f8234d409dd371ce040d3561f1dd3e9acde2adc003dbd637513d175595abda1c",
+      "SKILL-VALIDATOR-LINKS-CLI-001": "sha256:1f20db048b927653c96933f9cdbf91c2dcf7a05669c3751b07ec06631e8720c3",
       "SKILL-VALIDATOR-PORTABLE-001": "sha256:cc5188c96accbe02d5e3f9ff865d3f86f0e47e233683492cb70f8a2a1031e950",
       "TASK-GRAPH-APPLY-001": "sha256:caefcb0591ac72938dda4decbe245978e4865b314bb681bbd2b49026ed2c43b1",
       "TASK-GRAPH-ATOMIC-DIFFERENT-001": "sha256:3ffb1e7b00514e085ef83b4f8d6f33220a5ad4271121f9b79c8d7e6d04c5a2fb",

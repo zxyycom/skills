@@ -212,7 +212,7 @@ test("discard rejects candidates with invalid relation targets without mutation"
   ));
 
 test("discard rejects a candidate that is still referenced without mutation", () =>
-  withGitFixtureWorkspace(
+  withFixtureWorkspace(
     "candidate-discard-referenced",
     async (workspaceRoot) => {
       const indexPath = path.join(
@@ -232,8 +232,6 @@ test("discard rejects a candidate that is still referenced without mutation", ()
         relations: [{ type: "修订", target: targetRelativePath }]
       });
       await fs.writeFile(sourcePath, sourceText, "utf8");
-      commitWorkspace(workspaceRoot, "record referenced candidates");
-
       await assertRejectedDiscardPreserves({
         decisionPath: targetPath,
         expectedError: /still referenced/,

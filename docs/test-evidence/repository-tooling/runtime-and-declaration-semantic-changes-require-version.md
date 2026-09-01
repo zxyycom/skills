@@ -8,4 +8,4 @@ Contract:
 - 运行时 `.mjs` 内容变化，以及已有 `.d.mts` 声明的语义变化，仍然承载 skill 版本。
 
 Proves:
-- 两类 pending 变化在未提升 metadata.version 时都会产生版本门禁诊断。
+- 与注入基线比较时，当前内存 snapshot 中的两类变化在未提升 metadata.version 时都会产生版本门禁诊断。
