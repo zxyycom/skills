@@ -33,7 +33,7 @@ export async function validateRepository(
   for (const skill of discovery.skills) {
     const result = await validateSkillDirectory(skill.directory, {
       allowedFrontmatterKeys,
-      validateMarkdownLinks: false
+      linkValidation: "skip"
     });
     for (const error of result.errors) {
       reporter.report(`skills/${skill.name}/${error}`);

@@ -8,7 +8,7 @@
  */
 export type SkillStructureValidationOptions = {
   allowedFrontmatterKeys?: readonly string[];
-  validateMarkdownLinks?: boolean;
+  linkValidation?: "complete" | "skip";
 };
 
 export type SkillStructureValidationResult = {

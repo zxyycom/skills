@@ -6949,7 +6949,7 @@
     "INDEX-RUNTIME-STAGING-CONCURRENCY-001": {
       "keys": {
         "search": [
-          "INDEX-RUNTIME-STAGING-CONCURRENCY-001 注入仓储映射竞争中的 Pending 替换冲突 注入的 repository 边界拒绝竞争替换时，staging 必须把冲突映射为稳定的 pending 诊断，不得隐式合并目标。 注入仓储只接受第一个竞争替换时，两个并发调用恰有一个成功，另一个返回 `pending-conflict`。 记录的目标完整等于获胜调用的选择，不包含两个调用的隐式合并。 tools/index-runtime/tests/staging.test.ts > maps a competing pending replacement conflict without overwriting a winner bun test --test-name-pattern=\"^maps a competing pending replacement conflict without overwriting a winner$\" ./tools/index-runtime/tests/run.ts"
+          "INDEX-RUNTIME-STAGING-CONCURRENCY-001 注入仓储映射竞争中的 Pending 替换冲突 注入的 repository 边界拒绝竞争替换时，staging 必须把冲突映射为稳定的 pending 诊断，不得隐式合并目标。 注入仓储只接受第一个竞争替换时，两个并发调用恰有一个成功，另一个返回 `pending-conflict`。 暂存索引只采用获胜调用选中的变更；另一调用选中的条目保留 revision 状态，不包含两个调用的隐式合并。 tools/index-runtime/tests/staging.test.ts > maps a competing pending replacement conflict without overwriting a winner bun test --test-name-pattern=\"^maps a competing pending replacement conflict without overwriting a winner$\" ./tools/index-runtime/tests/run.ts"
         ],
         "topic": [
           "index-runtime"
@@ -6963,7 +6963,7 @@
         ],
         "id": "INDEX-RUNTIME-STAGING-CONCURRENCY-001",
         "line": 1,
-        "searchText": "注入仓储映射竞争中的 Pending 替换冲突 注入的 repository 边界拒绝竞争替换时，staging 必须把冲突映射为稳定的 pending 诊断，不得隐式合并目标。 注入仓储只接受第一个竞争替换时，两个并发调用恰有一个成功，另一个返回 `pending-conflict`。 记录的目标完整等于获胜调用的选择，不包含两个调用的隐式合并。 tools/index-runtime/tests/staging.test.ts > maps a competing pending replacement conflict without overwriting a winner bun test --test-name-pattern=\"^maps a competing pending replacement conflict without overwriting a winner$\" ./tools/index-runtime/tests/run.ts",
+        "searchText": "注入仓储映射竞争中的 Pending 替换冲突 注入的 repository 边界拒绝竞争替换时，staging 必须把冲突映射为稳定的 pending 诊断，不得隐式合并目标。 注入仓储只接受第一个竞争替换时，两个并发调用恰有一个成功，另一个返回 `pending-conflict`。 暂存索引只采用获胜调用选中的变更；另一调用选中的条目保留 revision 状态，不包含两个调用的隐式合并。 tools/index-runtime/tests/staging.test.ts > maps a competing pending replacement conflict without overwriting a winner bun test --test-name-pattern=\"^maps a competing pending replacement conflict without overwriting a winner$\" ./tools/index-runtime/tests/run.ts",
         "sourcePath": "index-runtime/maps-competing-pending-replacement-conflicts-without-overwriting-a-winner.md",
         "summary": "注入的 repository 边界拒绝竞争替换时，staging 必须把冲突映射为稳定的 pending 诊断，不得隐式合并目标。",
         "title": "注入仓储映射竞争中的 Pending 替换冲突"
@@ -15656,7 +15656,7 @@
       "INDEX-RUNTIME-SPECIAL-ID-001": "sha256:419cd9b3fa05a840f5d47e34d0bb8268c08d8733899ce1b0bfa558678cb67133",
       "INDEX-RUNTIME-STAGING-BOUNDARY-001": "sha256:6590922062d1ff1e87070bc7a5593b39a0d7120276e64dd99f977353c6ae44b0",
       "INDEX-RUNTIME-STAGING-COLLECTION-001": "sha256:abb0c6201a0824534b30e6f22ae9fa18964021acc1bb701aaa07cb5a8bc4751e",
-      "INDEX-RUNTIME-STAGING-CONCURRENCY-001": "sha256:9ea386bcae4de0417c2ce4acb560415b21465596a1ee730e7a40150bdb9e05d7",
+      "INDEX-RUNTIME-STAGING-CONCURRENCY-001": "sha256:2493190077c5666ebb525045394340019460faebb604a3614c80e9e39fc97e2d",
       "INDEX-RUNTIME-STAGING-CONFLICT-001": "sha256:3bd0f852591bda4f14b1bad1fcadc94bd1a70cb949149bb087da296a489e4b3e",
       "INDEX-RUNTIME-STAGING-EXISTENCE-001": "sha256:869a98538d3553b76bf918be9897e0e2285a87d29fd62ba5e00d6630e1292db0",
       "INDEX-RUNTIME-STAGING-INDEX-001": "sha256:1e00909598d832274c02d8183f8fcd7649260b864a85c235da302f35f46c942c",

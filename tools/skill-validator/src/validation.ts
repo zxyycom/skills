@@ -12,7 +12,7 @@ const skillNamePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export type SkillStructureValidationOptions = {
   allowedFrontmatterKeys?: readonly string[];
-  validateMarkdownLinks?: boolean;
+  linkValidation?: "complete" | "skip";
 };
 
 export type SkillStructureValidationResult = {
@@ -151,7 +151,7 @@ export async function validateSkillDirectory(
   }
 
   let markdownFileCount = 0;
-  if (options.validateMarkdownLinks !== false) {
+  if (options.linkValidation !== "skip") {
     const markdownFiles = (
       await fastGlob("**/*.md", {
         absolute: true,
