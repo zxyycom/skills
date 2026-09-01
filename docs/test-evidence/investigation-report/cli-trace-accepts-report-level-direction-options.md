@@ -7,7 +7,7 @@ Entry:
 
 Contract:
 
-- 分发 CLI `trace` 支持报告级关系方向选项。
+- 直接调用的源码 CLI 入口 `trace` 支持报告级关系方向选项。
 
 Proves:
 

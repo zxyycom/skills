@@ -6,7 +6,8 @@ import {
   investigationRoot,
   jsonObjectMember,
   parseJsonObject,
-  runGeneratedInvestigationCli,
+  runGeneratedInvestigationCliSmoke,
+  runInvestigationCli,
   withTempRoot,
   writeCollection
 } from "./v6-support.ts";
@@ -14,7 +15,7 @@ import {
 test("CLI exposes only report-level commands and rejects old topic options", async () => {
   await withTempRoot("cli", async (root) => {
     await writeCollection(root, [{ id: "report.md" }]);
-    const help = runGeneratedInvestigationCli(root, ["--help"]);
+    const help = await runInvestigationCli(root, ["--help"]);
     assert.equal(help.status, 0);
     assert.equal(help.stderr, "");
     assert.match(help.stdout, /Usage: investigation-report <command>/u);
@@ -22,13 +23,13 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
     assert.doesNotMatch(help.stdout, /check-investigations\.mjs/u);
     assert.doesNotMatch(help.stdout, /--category/u);
 
-    const commandHelp = runGeneratedInvestigationCli(root, ["trace", "--help"]);
+    const commandHelp = await runInvestigationCli(root, ["trace", "--help"]);
     assert.equal(commandHelp.status, 0);
     assert.match(commandHelp.stdout, /Usage: investigation-report trace/u);
     assert.match(commandHelp.stdout, /--depth <count>/u);
     assert.doesNotMatch(commandHelp.stdout, /set-relations/u);
 
-    const oldOption = runGeneratedInvestigationCli(root, [
+    const oldOption = await runInvestigationCli(root, [
       "list",
       "--category",
       "legacy"
@@ -42,7 +43,7 @@ test("CLI exposes only report-level commands and rejects old topic options", asy
 test("CLI set-relations prints a human-readable result and rejects JSON output", async () => {
   await withTempRoot("cli-relations", async (root) => {
     await writeCollection(root, [{ id: "base.md" }, { id: "next.md" }]);
-    const result = runGeneratedInvestigationCli(root, [
+    const result = await runInvestigationCli(root, [
       "set-relations",
       "--source",
       "next.md",
@@ -55,7 +56,7 @@ test("CLI set-relations prints a human-readable result and rejects JSON output",
       result.stdout,
       /Investigation relations updated for: next\.md/u
     );
-    const json = runGeneratedInvestigationCli(root, [
+    const json = await runInvestigationCli(root, [
       "set-relations",
       "--source",
       "next.md",
@@ -75,7 +76,7 @@ test("CLI set-relations prints a human-readable result and rejects JSON output",
 test("CLI set-relations rejects relations that do not follow a source", async () => {
   await withTempRoot("cli-relations-invalid", async (root) => {
     await writeCollection(root, [{ id: "base.md" }, { id: "next.md" }]);
-    const malformed = runGeneratedInvestigationCli(root, [
+    const malformed = await runInvestigationCli(root, [
       "set-relations",
       "--relation",
       "补充=base.md"
@@ -89,7 +90,7 @@ test("CLI set-relations rejects relations that do not follow a source", async ()
 test("CLI leaves relation and trace enum values for API validation", async () => {
   await withTempRoot("cli-raw-enums", async (root) => {
     await writeCollection(root, [{ id: "base.md" }, { id: "next.md" }]);
-    const relation = runGeneratedInvestigationCli(root, [
+    const relation = await runInvestigationCli(root, [
       "set-relations",
       "--source",
       "next.md",
@@ -100,7 +101,7 @@ test("CLI leaves relation and trace enum values for API validation", async () =>
     assert.equal(relation.stdout, "");
     assert.match(relation.stderr, /relation type/u);
 
-    const trace = runGeneratedInvestigationCli(root, [
+    const trace = await runInvestigationCli(root, [
       "trace",
       "--direction",
       "sideways",
@@ -115,10 +116,7 @@ test("CLI leaves relation and trace enum values for API validation", async () =>
 test("CLI discard rejects malformed investigation IDs as argument errors", async () => {
   await withTempRoot("cli-discard-invalid", async (root) => {
     await writeCollection(root, [{ id: "report.md" }]);
-    const result = runGeneratedInvestigationCli(root, [
-      "discard",
-      "./report.md"
-    ]);
+    const result = await runInvestigationCli(root, ["discard", "./report.md"]);
     assert.equal(result.status, 2);
     assert.equal(result.stdout, "");
     assert.match(result.stderr, /discard id must use an Investigation ID/u);
@@ -129,7 +127,7 @@ test("CLI discard rejects malformed investigation IDs as argument errors", async
 test("CLI check succeeds on a current report collection", async () => {
   await withTempRoot("cli-check", async (root) => {
     await writeCollection(root, [{ id: "report.md" }]);
-    const result = runGeneratedInvestigationCli(root, ["check"]);
+    const result = await runInvestigationCli(root, ["check"]);
     assert.equal(result.status, 0);
     assert.equal(result.stderr, "");
     assert.match(result.stdout, /1 of 1 reports checked; full index current/u);
@@ -144,7 +142,7 @@ test("CLI sync-index writes a missing derived index", async () => {
       "investigation-index.json"
     );
     await assert.rejects(fs.access(indexPath));
-    const result = runGeneratedInvestigationCli(root, ["sync-index"]);
+    const result = await runInvestigationCli(root, ["sync-index"]);
     assert.equal(result.status, 0);
     assert.equal(result.stderr, "");
     assert.match(
@@ -171,7 +169,7 @@ test("CLI list returns a current report after resource byte changes", async () =
     ]);
     await fs.writeFile(resource, "after", "utf8");
 
-    const result = runGeneratedInvestigationCli(root, ["list"]);
+    const result = await runInvestigationCli(root, ["list"]);
     assert.equal(result.status, 0);
     assert.equal(result.stderr, "");
     assert.match(result.stdout, /^report\.md /mu);
@@ -181,11 +179,7 @@ test("CLI list returns a current report after resource byte changes", async () =
 test("CLI uses invalid-option exit status for malformed list input", async () => {
   await withTempRoot("cli-invalid", async (root) => {
     await writeCollection(root, [{ id: "report.md" }]);
-    const result = runGeneratedInvestigationCli(root, [
-      "list",
-      "--limit",
-      "zero"
-    ]);
+    const result = await runInvestigationCli(root, ["list", "--limit", "zero"]);
     assert.equal(result.status, 2);
     assert.equal(result.stdout, "");
     assert.match(result.stderr, /limit must be a number/u);
@@ -200,7 +194,7 @@ test("CLI stage-index uses invalid-option exit status without report IDs", async
       "investigation-index.json"
     );
     const before = await fs.readFile(indexPath, "utf8");
-    const result = runGeneratedInvestigationCli(root, ["stage-index"]);
+    const result = await runInvestigationCli(root, ["stage-index"]);
     assert.equal(result.status, 2);
     assert.equal(result.stdout, "");
     assert.match(
@@ -219,7 +213,7 @@ test("CLI stage-index rejects JSON output", async () => {
       "investigation-index.json"
     );
     const before = await fs.readFile(indexPath, "utf8");
-    const result = runGeneratedInvestigationCli(root, [
+    const result = await runInvestigationCli(root, [
       "stage-index",
       "report.md",
       "--json"
@@ -234,7 +228,7 @@ test("CLI stage-index rejects JSON output", async () => {
 test("CLI show requires one Investigation ID", async () => {
   await withTempRoot("cli-show", async (root) => {
     await writeCollection(root, [{ id: "report.md" }]);
-    const result = runGeneratedInvestigationCli(root, ["show"]);
+    const result = await runInvestigationCli(root, ["show"]);
     assert.equal(result.status, 2);
     assert.equal(result.stdout, "");
     assert.match(result.stderr, /show requires exactly one Investigation ID/u);
@@ -250,7 +244,7 @@ test("CLI trace accepts report-level direction options", async () => {
         relations: [{ target: "first.md", type: "补充" }]
       }
     ]);
-    const result = runGeneratedInvestigationCli(root, [
+    const result = await runInvestigationCli(root, [
       "trace",
       "--direction",
       "successors",
@@ -262,5 +256,15 @@ test("CLI trace accepts report-level direction options", async () => {
     assert.equal(result.stderr, "");
     assert.match(result.stdout, /Reports: first\.md, second\.md/u);
     assert.match(result.stdout, /second\.md --补充--> first\.md/u);
+  });
+});
+
+test("generated Investigation Report CLI starts under Node with argv and stdout protocol", async () => {
+  await withTempRoot("cli-node-smoke", async (root) => {
+    await writeCollection(root, [{ id: "report.md" }]);
+    const result = runGeneratedInvestigationCliSmoke(root, ["check"]);
+    assert.equal(result.status, 0);
+    assert.equal(result.stderr, "");
+    assert.match(result.stdout, /1 of 1 reports checked; full index current/u);
   });
 });

@@ -4,6 +4,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { runInvestigationReportCheckCli } from "../src/cli.ts";
 import { synchronizeInvestigationIndex } from "../src/validation.ts";
 import {
   investigationRelationTypes,
@@ -85,7 +86,7 @@ export function investigationRoot(workspaceRoot: string): string {
   return path.join(workspaceRoot, "docs", "investigations");
 }
 
-export function runGeneratedInvestigationCli(
+export function runGeneratedInvestigationCliSmoke(
   workspaceRoot: string,
   args: readonly string[]
 ): InvestigationCliResult {
@@ -104,6 +105,23 @@ export function runGeneratedInvestigationCli(
     stderr: result.stderr ?? "",
     stdout: result.stdout ?? ""
   };
+}
+
+export async function runInvestigationCli(
+  workspaceRoot: string,
+  args: readonly string[]
+): Promise<InvestigationCliResult> {
+  const stdout: string[] = [];
+  const stderr: string[] = [];
+  const io = {
+    stderr: (text: string) => stderr.push(text),
+    stdout: (text: string) => stdout.push(text)
+  };
+  const status = await runInvestigationReportCheckCli(
+    [...args, "--root", workspaceRoot],
+    { io }
+  );
+  return { status, stderr: stderr.join(""), stdout: stdout.join("") };
 }
 
 export function parseJsonObject(text: string): Record<string, unknown> {

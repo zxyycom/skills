@@ -13,7 +13,7 @@ import {
   fileExists,
   findIndexEntry,
   readIndex,
-  runSourceCli,
+  runSourceLifecycleCli,
   withFixtureWorkspace,
   writeDecision
 } from "./support.ts";
@@ -24,7 +24,7 @@ test("archive and reactivate move one Decision ID while preserving its Markdown 
       decisionFilePath(workspaceRoot, currentSourcePath),
       "utf8"
     );
-    const archived = await runSourceCli([
+    const archived = await runSourceLifecycleCli([
       "archive",
       currentDecisionId,
       "--root",
@@ -49,7 +49,7 @@ test("archive and reactivate move one Decision ID while preserving its Markdown 
       `archive/${currentDecisionId}`
     );
 
-    const reactivated = await runSourceCli([
+    const reactivated = await runSourceLifecycleCli([
       "activate",
       currentDecisionId,
       "--alignment",
@@ -82,7 +82,7 @@ test("relations resolve stable IDs across active and archived locations", () =>
         relations: [{ type: "修订", target: currentDecisionId }]
       })
     );
-    const activated = await runSourceCli([
+    const activated = await runSourceLifecycleCli([
       "activate",
       candidateId,
       "--alignment",

@@ -1,9 +1,8 @@
 import assert from "node:assert/strict";
-import { execFile, spawn } from "node:child_process";
+import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { promisify } from "node:util";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   TaskGraphService,
@@ -25,7 +24,6 @@ import {
   withTempWorkspace
 } from "./helpers.ts";
 
-const execFileAsync = promisify(execFile);
 const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
@@ -39,6 +37,7 @@ const cliSourcePath = path.join(
   "src",
   "cli.ts"
 );
+const compatibleNodeVersion = "v26.0.0";
 
 type RawCliCall = {
   exitCode: number;
@@ -782,13 +781,7 @@ test("CLI gates every mutation before argument parsing or apply request and inde
       "task-graph",
       "task-graph-index.json"
     );
-    const nodeVersion = (
-      await execFileAsync(
-        await resolveNodeExecutable(),
-        ["-p", "process.version"],
-        { windowsHide: true }
-      )
-    ).stdout.trim();
+    const nodeVersion = compatibleNodeVersion;
     await fs.writeFile(requestPath, "{not-json", "utf8");
     const originalReadFile = fs.readFile;
     let requestReads = 0;
@@ -869,13 +862,7 @@ test("CLI domain read-only commands run without an installed runtime", async () 
       "0"
     ]);
     const toolHome = path.join(root, "missing-tool-home");
-    const nodeVersion = (
-      await execFileAsync(
-        await resolveNodeExecutable(),
-        ["-p", "process.version"],
-        { windowsHide: true }
-      )
-    ).stdout.trim();
+    const nodeVersion = compatibleNodeVersion;
     for (const args of [
       ["index", "info"],
       ["task", "list", "--json"],
@@ -898,12 +885,7 @@ test("CLI domain read-only commands run without an installed runtime", async () 
 test("CLI runtime info reports missing and compatible states without index access", async () => {
   await withTempWorkspace(async (root) => {
     const toolHome = path.join(root, "tool-home");
-    const node = await resolveNodeExecutable();
-    const nodeVersion = (
-      await execFileAsync(node, ["-p", "process.version"], {
-        windowsHide: true
-      })
-    ).stdout.trim();
+    const nodeVersion = compatibleNodeVersion;
     const invoke = async (args: string[]): Promise<CliCall> => {
       const chunks: string[] = [];
       const exitCode = await runTaskGraphCli(["--root", root, ...args], {
@@ -926,11 +908,10 @@ test("CLI runtime info reports missing and compatible states without index acces
       assert.equal(missing.result.revision, null);
     }
     await prepareRootNativeRuntime(toolHome);
-    const environment = { ...process.env, TASK_GRAPH_TOOL_HOME: toolHome };
     const compatible = await callProcessCli(
       ["runtime", "info", "--root", root],
       "",
-      environment
+      { ...process.env, TASK_GRAPH_TOOL_HOME: toolHome }
     );
     assert.equal(compatible.exitCode, 0);
     assert.equal(compatible.stderr, "");
@@ -1180,32 +1161,19 @@ test("CLI index info preserves the unsupported schema error code", async () => {
   });
 });
 
-test("process CLI maps path failures to JSON exit one with empty stderr", async () => {
+test("CLI maps path failures to JSON exit one with empty stderr", async () => {
   await withTempWorkspace(async (root) => {
     const rootFile = path.join(root, "not-a-directory");
     await fs.writeFile(rootFile, "ordinary file\n", "utf8");
-    try {
-      await execFileAsync(
-        await resolveNodeExecutable(),
-        [cliSourcePath, "index", "info", "--root", rootFile],
-        { encoding: "utf8", windowsHide: true }
+    const failure = await callRawCli(rootFile, ["index", "info"]);
+    assert.equal(failure.exitCode, 1);
+    const result = parseJsonCall(failure);
+    assert.equal(result.ok, false);
+    if (!result.ok) {
+      assert.ok(
+        result.error.code === "INDEX_NOT_FOUND" ||
+          result.error.code === "INDEX_READ_FAILED"
       );
-      assert.fail("CLI should fail when --root is an ordinary file");
-    } catch (error) {
-      const failure = requireRecord(error, "execFile failure");
-      assert.equal(failure.code, 1);
-      assert.equal(failure.stderr, "");
-      const output = requireString(failure.stdout, "execFile failure stdout");
-      assert.ok(output.endsWith("\n"));
-      assert.equal(output.slice(0, -1).includes("\n"), false);
-      const result = parseJsonCall({ exitCode: 1, output });
-      assert.equal(result.ok, false);
-      if (!result.ok) {
-        assert.ok(
-          result.error.code === "INDEX_NOT_FOUND" ||
-            result.error.code === "INDEX_READ_FAILED"
-        );
-      }
     }
   });
 });

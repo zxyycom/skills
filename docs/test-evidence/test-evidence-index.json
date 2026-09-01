@@ -4649,7 +4649,7 @@
     "DECISION-STAGE-REVISION-BATCH-001": {
       "keys": {
         "search": [
-          "DECISION-STAGE-REVISION-BATCH-001 Stage 对完整决策快照限制 Git 调用数 Stage 仍以完整 revision 决策集合构造并验证 pending 快照，但 revision 基线读取与未变化 pending entry 复用不得使 Git 进程数随集合文件数线性增长。 在 fixture 建立完成后，150 与 300 个决策的未修改 stage 各不超过 20 次 Git 调用，且 pending 保持无变化。 修改一个选中决策后，150 与 300 个决策各不超过 25 次 Git 调用，并暂存包含修改后标题的选中 Markdown，以及为该标题重建的完整派生索引。 tools/decision-records/tests/stage.test.ts > stage keeps Git invocation counts bounded for complete decision snapshots bun test --test-name-pattern=\"^stage keeps Git invocation counts bounded for complete decision snapshots$\" ./tools/decision-records/tests/run.ts"
+          "DECISION-STAGE-REVISION-BATCH-001 Stage 对完整决策快照限制 Git 调用数 Stage 仍以完整 revision 决策集合构造并验证 pending 快照，但 revision 基线读取与未变化 pending entry 复用不得使 Git 进程数随集合文件数线性增长。 在 fixture 建立完成后，300 个决策的未修改 stage 不超过 20 次 Git 调用，且 pending 保持无变化。 修改一个选中决策后，300 个决策的 stage 不超过 25 次 Git 调用，并暂存包含修改后标题的选中 Markdown，以及为该标题重建的完整派生索引。 tools/decision-records/tests/stage.test.ts > stage keeps Git invocation counts bounded for complete decision snapshots bun test --test-name-pattern=\"^stage keeps Git invocation counts bounded for complete decision snapshots$\" ./tools/decision-records/tests/run.ts"
         ],
         "topic": [
           "decision-records"
@@ -4663,7 +4663,7 @@
         ],
         "id": "DECISION-STAGE-REVISION-BATCH-001",
         "line": 1,
-        "searchText": "Stage 对完整决策快照限制 Git 调用数 Stage 仍以完整 revision 决策集合构造并验证 pending 快照，但 revision 基线读取与未变化 pending entry 复用不得使 Git 进程数随集合文件数线性增长。 在 fixture 建立完成后，150 与 300 个决策的未修改 stage 各不超过 20 次 Git 调用，且 pending 保持无变化。 修改一个选中决策后，150 与 300 个决策各不超过 25 次 Git 调用，并暂存包含修改后标题的选中 Markdown，以及为该标题重建的完整派生索引。 tools/decision-records/tests/stage.test.ts > stage keeps Git invocation counts bounded for complete decision snapshots bun test --test-name-pattern=\"^stage keeps Git invocation counts bounded for complete decision snapshots$\" ./tools/decision-records/tests/run.ts",
+        "searchText": "Stage 对完整决策快照限制 Git 调用数 Stage 仍以完整 revision 决策集合构造并验证 pending 快照，但 revision 基线读取与未变化 pending entry 复用不得使 Git 进程数随集合文件数线性增长。 在 fixture 建立完成后，300 个决策的未修改 stage 不超过 20 次 Git 调用，且 pending 保持无变化。 修改一个选中决策后，300 个决策的 stage 不超过 25 次 Git 调用，并暂存包含修改后标题的选中 Markdown，以及为该标题重建的完整派生索引。 tools/decision-records/tests/stage.test.ts > stage keeps Git invocation counts bounded for complete decision snapshots bun test --test-name-pattern=\"^stage keeps Git invocation counts bounded for complete decision snapshots$\" ./tools/decision-records/tests/run.ts",
         "sourcePath": "decision-records/stage-bounds-git-invocations-for-complete-decision-snapshots.md",
         "summary": "Stage 仍以完整 revision 决策集合构造并验证 pending 快照，但 revision 基线读取与未变化 pending entry 复用不得使 Git 进程数随集合文件数线性增长。",
         "title": "Stage 对完整决策快照限制 Git 调用数"
@@ -7317,7 +7317,7 @@
     "INVESTIGATION-BUNDLED-PARITY-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-BUNDLED-PARITY-001 CLI exposes only report-level commands and rejects old topic options 分发 CLI 的帮助仅公开报告级命令；旧主题筛选参数不属于当前接口。 `--help` 成功且只写 stdout，并列出 `set-relations` 而不列出 `--category`；旧 `--category` 以用法错误退出、stdout 为空并向 stderr 给出诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI exposes only report-level commands and rejects old topic options bun test --test-name-pattern=\"^CLI exposes only report-level commands and rejects old topic options$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-BUNDLED-PARITY-001 CLI exposes only report-level commands and rejects old topic options 直接调用的源码 CLI 入口的帮助仅公开报告级命令；旧主题筛选参数不属于当前接口。 `--help` 成功且只写 stdout，并列出 `set-relations` 而不列出 `--category`；旧 `--category` 以用法错误退出、stdout 为空并向 stderr 给出诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI exposes only report-level commands and rejects old topic options bun test --test-name-pattern=\"^CLI exposes only report-level commands and rejects old topic options$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7331,16 +7331,16 @@
         ],
         "id": "INVESTIGATION-BUNDLED-PARITY-001",
         "line": 1,
-        "searchText": "CLI exposes only report-level commands and rejects old topic options 分发 CLI 的帮助仅公开报告级命令；旧主题筛选参数不属于当前接口。 `--help` 成功且只写 stdout，并列出 `set-relations` 而不列出 `--category`；旧 `--category` 以用法错误退出、stdout 为空并向 stderr 给出诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI exposes only report-level commands and rejects old topic options bun test --test-name-pattern=\"^CLI exposes only report-level commands and rejects old topic options$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI exposes only report-level commands and rejects old topic options 直接调用的源码 CLI 入口的帮助仅公开报告级命令；旧主题筛选参数不属于当前接口。 `--help` 成功且只写 stdout，并列出 `set-relations` 而不列出 `--category`；旧 `--category` 以用法错误退出、stdout 为空并向 stderr 给出诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI exposes only report-level commands and rejects old topic options bun test --test-name-pattern=\"^CLI exposes only report-level commands and rejects old topic options$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-exposes-only-report-level-commands-and-rejects-old-topic-options.md",
-        "summary": "分发 CLI 的帮助仅公开报告级命令；旧主题筛选参数不属于当前接口。",
+        "summary": "直接调用的源码 CLI 入口的帮助仅公开报告级命令；旧主题筛选参数不属于当前接口。",
         "title": "CLI exposes only report-level commands and rejects old topic options"
       }
     },
     "INVESTIGATION-CLI-CONTRACTS-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-CONTRACTS-001 CLI check succeeds on a current report collection 分发 CLI `check` 能成功验证当前完整报告集合。 合法集合以退出码 0 成功、stderr 为空，并在 stdout 报告完整 index 计数。 tools/investigation-report/tests/cli-generated.test.ts > CLI check succeeds on a current report collection bun test --test-name-pattern=\"^CLI check succeeds on a current report collection$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-CONTRACTS-001 CLI check succeeds on a current report collection 直接调用的源码 CLI 入口 `check` 能成功验证当前完整报告集合。 合法集合以退出码 0 成功、stderr 为空，并在 stdout 报告完整 index 计数。 tools/investigation-report/tests/cli-generated.test.ts > CLI check succeeds on a current report collection bun test --test-name-pattern=\"^CLI check succeeds on a current report collection$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7354,16 +7354,16 @@
         ],
         "id": "INVESTIGATION-CLI-CONTRACTS-001",
         "line": 1,
-        "searchText": "CLI check succeeds on a current report collection 分发 CLI `check` 能成功验证当前完整报告集合。 合法集合以退出码 0 成功、stderr 为空，并在 stdout 报告完整 index 计数。 tools/investigation-report/tests/cli-generated.test.ts > CLI check succeeds on a current report collection bun test --test-name-pattern=\"^CLI check succeeds on a current report collection$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI check succeeds on a current report collection 直接调用的源码 CLI 入口 `check` 能成功验证当前完整报告集合。 合法集合以退出码 0 成功、stderr 为空，并在 stdout 报告完整 index 计数。 tools/investigation-report/tests/cli-generated.test.ts > CLI check succeeds on a current report collection bun test --test-name-pattern=\"^CLI check succeeds on a current report collection$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-check-succeeds-on-a-current-report-collection.md",
-        "summary": "分发 CLI `check` 能成功验证当前完整报告集合。",
+        "summary": "直接调用的源码 CLI 入口 `check` 能成功验证当前完整报告集合。",
         "title": "CLI check succeeds on a current report collection"
       }
     },
     "INVESTIGATION-CLI-DISCARD-ARGS-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-DISCARD-ARGS-001 CLI discard rejects malformed investigation IDs as argument errors CLI 的非法 Investigation ID 是调用参数错误，不是领域操作失败。 分发 CLI 对 `./report.md` 返回 status 2、空 stdout，且报告未改。 tools/investigation-report/tests/cli-generated.test.ts > CLI discard rejects malformed investigation IDs as argument errors bun test --test-name-pattern=\"^CLI discard rejects malformed investigation IDs as argument errors$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-DISCARD-ARGS-001 CLI discard rejects malformed investigation IDs as argument errors CLI 的非法 Investigation ID 是调用参数错误，不是领域操作失败。 直接调用的源码 CLI 入口对 `./report.md` 返回 status 2、空 stdout，且报告未改。 tools/investigation-report/tests/cli-generated.test.ts > CLI discard rejects malformed investigation IDs as argument errors bun test --test-name-pattern=\"^CLI discard rejects malformed investigation IDs as argument errors$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7377,7 +7377,7 @@
         ],
         "id": "INVESTIGATION-CLI-DISCARD-ARGS-001",
         "line": 1,
-        "searchText": "CLI discard rejects malformed investigation IDs as argument errors CLI 的非法 Investigation ID 是调用参数错误，不是领域操作失败。 分发 CLI 对 `./report.md` 返回 status 2、空 stdout，且报告未改。 tools/investigation-report/tests/cli-generated.test.ts > CLI discard rejects malformed investigation IDs as argument errors bun test --test-name-pattern=\"^CLI discard rejects malformed investigation IDs as argument errors$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI discard rejects malformed investigation IDs as argument errors CLI 的非法 Investigation ID 是调用参数错误，不是领域操作失败。 直接调用的源码 CLI 入口对 `./report.md` 返回 status 2、空 stdout，且报告未改。 tools/investigation-report/tests/cli-generated.test.ts > CLI discard rejects malformed investigation IDs as argument errors bun test --test-name-pattern=\"^CLI discard rejects malformed investigation IDs as argument errors$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-discard-rejects-malformed-investigation-ids.md",
         "summary": "CLI 的非法 Investigation ID 是调用参数错误，不是领域操作失败。",
         "title": "CLI discard rejects malformed investigation IDs as argument errors"
@@ -7409,7 +7409,7 @@
     "INVESTIGATION-CLI-LIST-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-LIST-001 CLI list returns a current report after resource byte changes 资源字节变化不使报告 index 过期，分发 CLI `list` 继续可查询当前报告。 在真实资源字节先后不同的 fixture 上，`list` 成功、stderr 为空且 stdout 返回报告。 tools/investigation-report/tests/cli-generated.test.ts > CLI list returns a current report after resource byte changes bun test --test-name-pattern=\"^CLI list returns a current report after resource byte changes$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-LIST-001 CLI list returns a current report after resource byte changes 资源字节变化不使报告 index 过期，直接调用的源码 CLI 入口 `list` 继续可查询当前报告。 在真实资源字节先后不同的 fixture 上，`list` 成功、stderr 为空且 stdout 返回报告。 tools/investigation-report/tests/cli-generated.test.ts > CLI list returns a current report after resource byte changes bun test --test-name-pattern=\"^CLI list returns a current report after resource byte changes$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7423,16 +7423,16 @@
         ],
         "id": "INVESTIGATION-CLI-LIST-001",
         "line": 1,
-        "searchText": "CLI list returns a current report after resource byte changes 资源字节变化不使报告 index 过期，分发 CLI `list` 继续可查询当前报告。 在真实资源字节先后不同的 fixture 上，`list` 成功、stderr 为空且 stdout 返回报告。 tools/investigation-report/tests/cli-generated.test.ts > CLI list returns a current report after resource byte changes bun test --test-name-pattern=\"^CLI list returns a current report after resource byte changes$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI list returns a current report after resource byte changes 资源字节变化不使报告 index 过期，直接调用的源码 CLI 入口 `list` 继续可查询当前报告。 在真实资源字节先后不同的 fixture 上，`list` 成功、stderr 为空且 stdout 返回报告。 tools/investigation-report/tests/cli-generated.test.ts > CLI list returns a current report after resource byte changes bun test --test-name-pattern=\"^CLI list returns a current report after resource byte changes$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-list-returns-a-current-report-after-resource-byte-changes.md",
-        "summary": "资源字节变化不使报告 index 过期，分发 CLI `list` 继续可查询当前报告。",
+        "summary": "资源字节变化不使报告 index 过期，直接调用的源码 CLI 入口 `list` 继续可查询当前报告。",
         "title": "CLI list returns a current report after resource byte changes"
       }
     },
     "INVESTIGATION-CLI-RELATIONS-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-RELATIONS-001 CLI set-relations prints a human-readable result and rejects JSON output 分发 CLI `set-relations` 以完整 source 组接收替换，并输出人类可读结果；不提供 JSON 输出契约。 合法 source 与 relation 组会写入关系，并在 stdout 返回人类可读结果且保持 stderr 为空。 随后的 `--json` 调用在参数边界被拒绝，且不会覆盖已写入的 Markdown 关系。 tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations prints a human-readable result and rejects JSON output bun test --test-name-pattern=\"^CLI set-relations prints a human-readable result and rejects JSON output$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-RELATIONS-001 CLI set-relations prints a human-readable result and rejects JSON output 直接调用的源码 CLI 入口 `set-relations` 以完整 source 组接收替换，并输出人类可读结果；不提供 JSON 输出契约。 合法 source 与 relation 组会写入关系，并在 stdout 返回人类可读结果且保持 stderr 为空。 随后的 `--json` 调用在参数边界被拒绝，且不会覆盖已写入的 Markdown 关系。 tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations prints a human-readable result and rejects JSON output bun test --test-name-pattern=\"^CLI set-relations prints a human-readable result and rejects JSON output$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7446,16 +7446,16 @@
         ],
         "id": "INVESTIGATION-CLI-RELATIONS-001",
         "line": 1,
-        "searchText": "CLI set-relations prints a human-readable result and rejects JSON output 分发 CLI `set-relations` 以完整 source 组接收替换，并输出人类可读结果；不提供 JSON 输出契约。 合法 source 与 relation 组会写入关系，并在 stdout 返回人类可读结果且保持 stderr 为空。 随后的 `--json` 调用在参数边界被拒绝，且不会覆盖已写入的 Markdown 关系。 tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations prints a human-readable result and rejects JSON output bun test --test-name-pattern=\"^CLI set-relations prints a human-readable result and rejects JSON output$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI set-relations prints a human-readable result and rejects JSON output 直接调用的源码 CLI 入口 `set-relations` 以完整 source 组接收替换，并输出人类可读结果；不提供 JSON 输出契约。 合法 source 与 relation 组会写入关系，并在 stdout 返回人类可读结果且保持 stderr 为空。 随后的 `--json` 调用在参数边界被拒绝，且不会覆盖已写入的 Markdown 关系。 tools/investigation-report/tests/cli-generated.test.ts > CLI set-relations prints a human-readable result and rejects JSON output bun test --test-name-pattern=\"^CLI set-relations prints a human-readable result and rejects JSON output$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-set-relations-prints-human-readable-result-and-rejects-json-output.md",
-        "summary": "分发 CLI `set-relations` 以完整 source 组接收替换，并输出人类可读结果；不提供 JSON 输出契约。",
+        "summary": "直接调用的源码 CLI 入口 `set-relations` 以完整 source 组接收替换，并输出人类可读结果；不提供 JSON 输出契约。",
         "title": "CLI set-relations prints a human-readable result and rejects JSON output"
       }
     },
     "INVESTIGATION-CLI-STAGE-JSON-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-STAGE-JSON-001 CLI stage-index rejects JSON output 分发 CLI 不为 `stage-index` 提供 JSON 输出协议。 传入 `--json` 返回退出码 2、stdout 为空、stderr 给出未知选项诊断，且派生 index 字节不变。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index rejects JSON output bun test --test-name-pattern=\"^CLI stage-index rejects JSON output$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-STAGE-JSON-001 CLI stage-index rejects JSON output 直接调用的源码 CLI 入口 不为 `stage-index` 提供 JSON 输出协议。 传入 `--json` 返回退出码 2、stdout 为空、stderr 给出未知选项诊断，且派生 index 字节不变。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index rejects JSON output bun test --test-name-pattern=\"^CLI stage-index rejects JSON output$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7469,16 +7469,16 @@
         ],
         "id": "INVESTIGATION-CLI-STAGE-JSON-001",
         "line": 1,
-        "searchText": "CLI stage-index rejects JSON output 分发 CLI 不为 `stage-index` 提供 JSON 输出协议。 传入 `--json` 返回退出码 2、stdout 为空、stderr 给出未知选项诊断，且派生 index 字节不变。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index rejects JSON output bun test --test-name-pattern=\"^CLI stage-index rejects JSON output$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI stage-index rejects JSON output 直接调用的源码 CLI 入口 不为 `stage-index` 提供 JSON 输出协议。 传入 `--json` 返回退出码 2、stdout 为空、stderr 给出未知选项诊断，且派生 index 字节不变。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index rejects JSON output bun test --test-name-pattern=\"^CLI stage-index rejects JSON output$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-stage-index-rejects-json-output.md",
-        "summary": "分发 CLI 不为 `stage-index` 提供 JSON 输出协议。",
+        "summary": "直接调用的源码 CLI 入口 不为 `stage-index` 提供 JSON 输出协议。",
         "title": "CLI stage-index rejects JSON output"
       }
     },
     "INVESTIGATION-CLI-SYNC-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-SYNC-001 CLI sync-index writes a missing derived index 分发 CLI `sync-index` 能从合法报告源重建缺失的派生 index。 index 缺失时命令成功、stderr 为空，stdout 报告同步成功，且 index 文件被创建并包含报告 entry。 tools/investigation-report/tests/cli-generated.test.ts > CLI sync-index writes a missing derived index bun test --test-name-pattern=\"^CLI sync-index writes a missing derived index$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-SYNC-001 CLI sync-index writes a missing derived index 直接调用的源码 CLI 入口 `sync-index` 能从合法报告源重建缺失的派生 index。 index 缺失时命令成功、stderr 为空，stdout 报告同步成功，且 index 文件被创建并包含报告 entry。 tools/investigation-report/tests/cli-generated.test.ts > CLI sync-index writes a missing derived index bun test --test-name-pattern=\"^CLI sync-index writes a missing derived index$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7492,16 +7492,16 @@
         ],
         "id": "INVESTIGATION-CLI-SYNC-001",
         "line": 1,
-        "searchText": "CLI sync-index writes a missing derived index 分发 CLI `sync-index` 能从合法报告源重建缺失的派生 index。 index 缺失时命令成功、stderr 为空，stdout 报告同步成功，且 index 文件被创建并包含报告 entry。 tools/investigation-report/tests/cli-generated.test.ts > CLI sync-index writes a missing derived index bun test --test-name-pattern=\"^CLI sync-index writes a missing derived index$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI sync-index writes a missing derived index 直接调用的源码 CLI 入口 `sync-index` 能从合法报告源重建缺失的派生 index。 index 缺失时命令成功、stderr 为空，stdout 报告同步成功，且 index 文件被创建并包含报告 entry。 tools/investigation-report/tests/cli-generated.test.ts > CLI sync-index writes a missing derived index bun test --test-name-pattern=\"^CLI sync-index writes a missing derived index$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-sync-index-writes-a-missing-derived-index.md",
-        "summary": "分发 CLI `sync-index` 能从合法报告源重建缺失的派生 index。",
+        "summary": "直接调用的源码 CLI 入口 `sync-index` 能从合法报告源重建缺失的派生 index。",
         "title": "CLI sync-index writes a missing derived index"
       }
     },
     "INVESTIGATION-CLI-USAGE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-USAGE-001 CLI uses invalid-option exit status for malformed list input 分发 CLI 对非法报告级 list 选项返回稳定用法错误。 非正整数 `--limit` 返回退出码 2、stdout 为空且 stderr 给出该选项的诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI uses invalid-option exit status for malformed list input bun test --test-name-pattern=\"^CLI uses invalid-option exit status for malformed list input$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-USAGE-001 CLI uses invalid-option exit status for malformed list input 直接调用的源码 CLI 入口对非法报告级 list 选项返回稳定用法错误。 非正整数 `--limit` 返回退出码 2、stdout 为空且 stderr 给出该选项的诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI uses invalid-option exit status for malformed list input bun test --test-name-pattern=\"^CLI uses invalid-option exit status for malformed list input$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7515,16 +7515,16 @@
         ],
         "id": "INVESTIGATION-CLI-USAGE-001",
         "line": 1,
-        "searchText": "CLI uses invalid-option exit status for malformed list input 分发 CLI 对非法报告级 list 选项返回稳定用法错误。 非正整数 `--limit` 返回退出码 2、stdout 为空且 stderr 给出该选项的诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI uses invalid-option exit status for malformed list input bun test --test-name-pattern=\"^CLI uses invalid-option exit status for malformed list input$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI uses invalid-option exit status for malformed list input 直接调用的源码 CLI 入口对非法报告级 list 选项返回稳定用法错误。 非正整数 `--limit` 返回退出码 2、stdout 为空且 stderr 给出该选项的诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI uses invalid-option exit status for malformed list input bun test --test-name-pattern=\"^CLI uses invalid-option exit status for malformed list input$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-uses-invalid-option-exit-status-for-malformed-list-input.md",
-        "summary": "分发 CLI 对非法报告级 list 选项返回稳定用法错误。",
+        "summary": "直接调用的源码 CLI 入口对非法报告级 list 选项返回稳定用法错误。",
         "title": "CLI uses invalid-option exit status for malformed list input"
       }
     },
     "INVESTIGATION-CLI-WARNINGS-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-CLI-WARNINGS-001 CLI show requires one Investigation ID 分发 CLI `show` 只接受一个明确 Investigation ID。 省略 ID 返回退出码 2、stdout 为空且 stderr 给出用法诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI show requires one Investigation ID bun test --test-name-pattern=\"^CLI show requires one Investigation ID$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-CLI-WARNINGS-001 CLI show requires one Investigation ID 直接调用的源码 CLI 入口 `show` 只接受一个明确 Investigation ID。 省略 ID 返回退出码 2、stdout 为空且 stderr 给出用法诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI show requires one Investigation ID bun test --test-name-pattern=\"^CLI show requires one Investigation ID$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -7538,9 +7538,9 @@
         ],
         "id": "INVESTIGATION-CLI-WARNINGS-001",
         "line": 1,
-        "searchText": "CLI show requires one Investigation ID 分发 CLI `show` 只接受一个明确 Investigation ID。 省略 ID 返回退出码 2、stdout 为空且 stderr 给出用法诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI show requires one Investigation ID bun test --test-name-pattern=\"^CLI show requires one Investigation ID$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI show requires one Investigation ID 直接调用的源码 CLI 入口 `show` 只接受一个明确 Investigation ID。 省略 ID 返回退出码 2、stdout 为空且 stderr 给出用法诊断。 tools/investigation-report/tests/cli-generated.test.ts > CLI show requires one Investigation ID bun test --test-name-pattern=\"^CLI show requires one Investigation ID$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-show-requires-one-investigation-id.md",
-        "summary": "分发 CLI `show` 只接受一个明确 Investigation ID。",
+        "summary": "直接调用的源码 CLI 入口 `show` 只接受一个明确 Investigation ID。",
         "title": "CLI show requires one Investigation ID"
       }
     },
@@ -7887,6 +7887,29 @@
         "sourcePath": "investigation-report/discard-restores-on-tombstone-window-resource-change.md",
         "summary": "owner 资源目录进入 tombstone 后、索引写入前必须再次安全扫描并与预演资源集合一致；窗口内新增成员不得被递归删除。",
         "title": "discard restores tombstoned resources when a rename-window member appears"
+      }
+    },
+    "INVESTIGATION-DISTRIBUTION-SMOKE-001": {
+      "keys": {
+        "search": [
+          "INVESTIGATION-DISTRIBUTION-SMOKE-001 generated Investigation Report CLI starts under Node with argv and stdout protocol 已分发的 Investigation Report ESM 必须可由真实 Node 以 argv 启动，并保留成功输出与退出状态。 真实 Node 调用生成 CLI 的 `check` 成功、stderr 为空，并在 stdout 输出当前完整 index 的检查计数。 tools/investigation-report/tests/cli-generated.test.ts > generated Investigation Report CLI starts under Node with argv and stdout protocol bun test --test-name-pattern=\"^generated Investigation Report CLI starts under Node with argv and stdout protocol$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "topic": [
+          "investigation-report"
+        ]
+      },
+      "state": {
+        "endLine": 15,
+        "entries": [
+          "tools/investigation-report/tests/cli-generated.test.ts > generated Investigation Report CLI starts under Node with argv and stdout protocol",
+          "bun test --test-name-pattern=\"^generated Investigation Report CLI starts under Node with argv and stdout protocol$\" ./tools/investigation-report/tests/run.ts"
+        ],
+        "id": "INVESTIGATION-DISTRIBUTION-SMOKE-001",
+        "line": 1,
+        "searchText": "generated Investigation Report CLI starts under Node with argv and stdout protocol 已分发的 Investigation Report ESM 必须可由真实 Node 以 argv 启动，并保留成功输出与退出状态。 真实 Node 调用生成 CLI 的 `check` 成功、stderr 为空，并在 stdout 输出当前完整 index 的检查计数。 tools/investigation-report/tests/cli-generated.test.ts > generated Investigation Report CLI starts under Node with argv and stdout protocol bun test --test-name-pattern=\"^generated Investigation Report CLI starts under Node with argv and stdout protocol$\" ./tools/investigation-report/tests/run.ts",
+        "sourcePath": "investigation-report/generated-cli-node-smoke-starts-with-argv-and-stdout.md",
+        "summary": "已分发的 Investigation Report ESM 必须可由真实 Node 以 argv 启动，并保留成功输出与退出状态。",
+        "title": "generated Investigation Report CLI starts under Node with argv and stdout protocol"
       }
     },
     "INVESTIGATION-EMPTY-COLLECTION-001": {
@@ -9134,7 +9157,7 @@
     "INVESTIGATION-STAGE-CLI-USAGE-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-STAGE-CLI-USAGE-001 CLI stage-index uses invalid-option exit status without report IDs 分发 CLI `stage-index` 必须要求至少一个 Investigation ID。 省略报告 ID 返回退出码 2、stdout 为空、stderr 给出用法诊断且派生 index 字节不变。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index uses invalid-option exit status without report IDs bun test --test-name-pattern=\"^CLI stage-index uses invalid-option exit status without report IDs$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-STAGE-CLI-USAGE-001 CLI stage-index uses invalid-option exit status without report IDs 直接调用的源码 CLI 入口 `stage-index` 必须要求至少一个 Investigation ID。 省略报告 ID 返回退出码 2、stdout 为空、stderr 给出用法诊断且派生 index 字节不变。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index uses invalid-option exit status without report IDs bun test --test-name-pattern=\"^CLI stage-index uses invalid-option exit status without report IDs$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -9148,9 +9171,9 @@
         ],
         "id": "INVESTIGATION-STAGE-CLI-USAGE-001",
         "line": 1,
-        "searchText": "CLI stage-index uses invalid-option exit status without report IDs 分发 CLI `stage-index` 必须要求至少一个 Investigation ID。 省略报告 ID 返回退出码 2、stdout 为空、stderr 给出用法诊断且派生 index 字节不变。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index uses invalid-option exit status without report IDs bun test --test-name-pattern=\"^CLI stage-index uses invalid-option exit status without report IDs$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI stage-index uses invalid-option exit status without report IDs 直接调用的源码 CLI 入口 `stage-index` 必须要求至少一个 Investigation ID。 省略报告 ID 返回退出码 2、stdout 为空、stderr 给出用法诊断且派生 index 字节不变。 tools/investigation-report/tests/cli-generated.test.ts > CLI stage-index uses invalid-option exit status without report IDs bun test --test-name-pattern=\"^CLI stage-index uses invalid-option exit status without report IDs$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-stage-index-uses-invalid-option-exit-status-without-report-ids.md",
-        "summary": "分发 CLI `stage-index` 必须要求至少一个 Investigation ID。",
+        "summary": "直接调用的源码 CLI 入口 `stage-index` 必须要求至少一个 Investigation ID。",
         "title": "CLI stage-index uses invalid-option exit status without report IDs"
       }
     },
@@ -9456,7 +9479,7 @@
     "INVESTIGATION-VALIDATION-WARNINGS-001": {
       "keys": {
         "search": [
-          "INVESTIGATION-VALIDATION-WARNINGS-001 CLI trace accepts report-level direction options 分发 CLI `trace` 支持报告级关系方向选项。 带 `--direction successors` 的有效 trace 成功、stderr 为空，并在 stdout 返回后继报告和边。 tools/investigation-report/tests/cli-generated.test.ts > CLI trace accepts report-level direction options bun test --test-name-pattern=\"^CLI trace accepts report-level direction options$\" ./tools/investigation-report/tests/run.ts"
+          "INVESTIGATION-VALIDATION-WARNINGS-001 CLI trace accepts report-level direction options 直接调用的源码 CLI 入口 `trace` 支持报告级关系方向选项。 带 `--direction successors` 的有效 trace 成功、stderr 为空，并在 stdout 返回后继报告和边。 tools/investigation-report/tests/cli-generated.test.ts > CLI trace accepts report-level direction options bun test --test-name-pattern=\"^CLI trace accepts report-level direction options$\" ./tools/investigation-report/tests/run.ts"
         ],
         "topic": [
           "investigation-report"
@@ -9470,9 +9493,9 @@
         ],
         "id": "INVESTIGATION-VALIDATION-WARNINGS-001",
         "line": 1,
-        "searchText": "CLI trace accepts report-level direction options 分发 CLI `trace` 支持报告级关系方向选项。 带 `--direction successors` 的有效 trace 成功、stderr 为空，并在 stdout 返回后继报告和边。 tools/investigation-report/tests/cli-generated.test.ts > CLI trace accepts report-level direction options bun test --test-name-pattern=\"^CLI trace accepts report-level direction options$\" ./tools/investigation-report/tests/run.ts",
+        "searchText": "CLI trace accepts report-level direction options 直接调用的源码 CLI 入口 `trace` 支持报告级关系方向选项。 带 `--direction successors` 的有效 trace 成功、stderr 为空，并在 stdout 返回后继报告和边。 tools/investigation-report/tests/cli-generated.test.ts > CLI trace accepts report-level direction options bun test --test-name-pattern=\"^CLI trace accepts report-level direction options$\" ./tools/investigation-report/tests/run.ts",
         "sourcePath": "investigation-report/cli-trace-accepts-report-level-direction-options.md",
-        "summary": "分发 CLI `trace` 支持报告级关系方向选项。",
+        "summary": "直接调用的源码 CLI 入口 `trace` 支持报告级关系方向选项。",
         "title": "CLI trace accepts report-level direction options"
       }
     },
@@ -11089,7 +11112,7 @@
     "TASK-GRAPH-CLI-PATH-001": {
       "keys": {
         "search": [
-          "TASK-GRAPH-CLI-PATH-001 路径失败返回 exit 1、单个 LF JSON 且 stderr 为空 真实进程中的路径读取失败仍属于协议内错误，不泄漏原始异常到 stderr 或启动级退出码。 普通文件 root 返回 exit 1、单个 LF JSON 且 stderr 为空，并保留稳定路径错误 code。 tools/task-graph/tests/cli.test.ts > process CLI maps path failures to JSON exit one with empty stderr bun test --test-name-pattern=\"^process CLI maps path failures to JSON exit one with empty stderr$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-CLI-PATH-001 路径失败返回 exit 1、单个 LF JSON 且 stderr 为空 源码 CLI 入口中的路径读取失败仍属于协议内错误，不泄漏原始异常到 stderr 或启动级退出码。 普通文件 root 返回 exit 1、单个 LF JSON 且 stderr 为空，并保留稳定路径错误 code。 tools/task-graph/tests/cli.test.ts > CLI maps path failures to JSON exit one with empty stderr bun test --test-name-pattern=\"^CLI maps path failures to JSON exit one with empty stderr$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -11098,14 +11121,14 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/cli.test.ts > process CLI maps path failures to JSON exit one with empty stderr",
-          "bun test --test-name-pattern=\"^process CLI maps path failures to JSON exit one with empty stderr$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/cli.test.ts > CLI maps path failures to JSON exit one with empty stderr",
+          "bun test --test-name-pattern=\"^CLI maps path failures to JSON exit one with empty stderr$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-CLI-PATH-001",
         "line": 1,
-        "searchText": "路径失败返回 exit 1、单个 LF JSON 且 stderr 为空 真实进程中的路径读取失败仍属于协议内错误，不泄漏原始异常到 stderr 或启动级退出码。 普通文件 root 返回 exit 1、单个 LF JSON 且 stderr 为空，并保留稳定路径错误 code。 tools/task-graph/tests/cli.test.ts > process CLI maps path failures to JSON exit one with empty stderr bun test --test-name-pattern=\"^process CLI maps path failures to JSON exit one with empty stderr$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "路径失败返回 exit 1、单个 LF JSON 且 stderr 为空 源码 CLI 入口中的路径读取失败仍属于协议内错误，不泄漏原始异常到 stderr 或启动级退出码。 普通文件 root 返回 exit 1、单个 LF JSON 且 stderr 为空，并保留稳定路径错误 code。 tools/task-graph/tests/cli.test.ts > CLI maps path failures to JSON exit one with empty stderr bun test --test-name-pattern=\"^CLI maps path failures to JSON exit one with empty stderr$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/process-cli-maps-path-errors-with-empty-stderr.md",
-        "summary": "真实进程中的路径读取失败仍属于协议内错误，不泄漏原始异常到 stderr 或启动级退出码。",
+        "summary": "源码 CLI 入口中的路径读取失败仍属于协议内错误，不泄漏原始异常到 stderr 或启动级退出码。",
         "title": "路径失败返回 exit 1、单个 LF JSON 且 stderr 为空"
       }
     },
@@ -11457,7 +11480,7 @@
     "TASK-GRAPH-DISTRIBUTION-OFFLINE-001": {
       "keys": {
         "search": [
-          "TASK-GRAPH-DISTRIBUTION-OFFLINE-001 生成 CLI 从隔离 runtime 离线 mutation 调用方准备 runtime 后，生成 ESM 从 `TASK_GRAPH_TOOL_HOME` 的固定目录加载 addon，普通 mutation 不运行 npm 或联网。 显式 Node 的 runtime info 真实探针和 index init 成功，工作区不产生相邻锁文件。 tools/task-graph/tests/generated-artifacts.test.ts > generated Node CLI probes the isolated runtime and mutates offline bun test --test-name-pattern=\"^generated Node CLI probes the isolated runtime and mutates offline$\" ./tools/task-graph/tests/run.ts"
+          "TASK-GRAPH-DISTRIBUTION-OFFLINE-001 生成 CLI 从隔离 runtime 离线 mutation 调用方准备 runtime 后，生成 ESM 从 `TASK_GRAPH_TOOL_HOME` 的固定目录加载 addon，普通 mutation 不运行 npm 或联网。 显式 Node 的生成 CLI 使用调用方准备的 runtime 完成 index init，工作区不产生相邻锁文件。 tools/task-graph/tests/generated-artifacts.test.ts > generated Node CLI uses the isolated runtime for offline mutation bun test --test-name-pattern=\"^generated Node CLI uses the isolated runtime for offline mutation$\" ./tools/task-graph/tests/run.ts"
         ],
         "topic": [
           "task-graph"
@@ -11466,12 +11489,12 @@
       "state": {
         "endLine": 12,
         "entries": [
-          "tools/task-graph/tests/generated-artifacts.test.ts > generated Node CLI probes the isolated runtime and mutates offline",
-          "bun test --test-name-pattern=\"^generated Node CLI probes the isolated runtime and mutates offline$\" ./tools/task-graph/tests/run.ts"
+          "tools/task-graph/tests/generated-artifacts.test.ts > generated Node CLI uses the isolated runtime for offline mutation",
+          "bun test --test-name-pattern=\"^generated Node CLI uses the isolated runtime for offline mutation$\" ./tools/task-graph/tests/run.ts"
         ],
         "id": "TASK-GRAPH-DISTRIBUTION-OFFLINE-001",
         "line": 1,
-        "searchText": "生成 CLI 从隔离 runtime 离线 mutation 调用方准备 runtime 后，生成 ESM 从 `TASK_GRAPH_TOOL_HOME` 的固定目录加载 addon，普通 mutation 不运行 npm 或联网。 显式 Node 的 runtime info 真实探针和 index init 成功，工作区不产生相邻锁文件。 tools/task-graph/tests/generated-artifacts.test.ts > generated Node CLI probes the isolated runtime and mutates offline bun test --test-name-pattern=\"^generated Node CLI probes the isolated runtime and mutates offline$\" ./tools/task-graph/tests/run.ts",
+        "searchText": "生成 CLI 从隔离 runtime 离线 mutation 调用方准备 runtime 后，生成 ESM 从 `TASK_GRAPH_TOOL_HOME` 的固定目录加载 addon，普通 mutation 不运行 npm 或联网。 显式 Node 的生成 CLI 使用调用方准备的 runtime 完成 index init，工作区不产生相邻锁文件。 tools/task-graph/tests/generated-artifacts.test.ts > generated Node CLI uses the isolated runtime for offline mutation bun test --test-name-pattern=\"^generated Node CLI uses the isolated runtime for offline mutation$\" ./tools/task-graph/tests/run.ts",
         "sourcePath": "task-graph/generated-cli-loads-isolated-runtime-offline.md",
         "summary": "调用方准备 runtime 后，生成 ESM 从 `TASK_GRAPH_TOOL_HOME` 的固定目录加载 addon，普通 mutation 不运行 npm 或联网。",
         "title": "生成 CLI 从隔离 runtime 离线 mutation"
@@ -15579,7 +15602,7 @@
       "DECISION-STAGE-PENDING-CAS-001": "sha256:6f30e94c914e11a3817a094c6fc14370ef1453c6448df11ea7ab8808c01823ae",
       "DECISION-STAGE-PENDING-EXISTING-001": "sha256:ec5eb9988d241d4f15d1151e8cc53e0ca739b7e24efe531e524286a65d82179a",
       "DECISION-STAGE-RENAME-001": "sha256:8b820084e3961d6814f77d7b474c19ef3a5aae9f5e497591793ff640a93a09b8",
-      "DECISION-STAGE-REVISION-BATCH-001": "sha256:f0a37e891d66e769f4283a18c194d7cba9f659cec459c6b964d7af69026639b8",
+      "DECISION-STAGE-REVISION-BATCH-001": "sha256:4688dda0dde32fdc1abbc566752d7a39e499384ef495eb23d106f88d989dd589",
       "DECISION-STAGE-SELECTED-MEMBER-TYPE-001": "sha256:824dbb3fdad07c26d4d0bb6298a341ca3504f5cbc98cc0784f7293ef02fd89f7",
       "DECISION-STAGE-SOURCE-PREFLIGHT-001": "sha256:85d5dcd06ec8c394c451539ab8a46a82813c90294e3661fe29f452cc2d5bf958",
       "DECISION-STAGE-TARGET-VALIDATION-001": "sha256:ec88ff03f358d539016789064cf30b9673d8a4851575e9c757d5b43c51ccdb2b",
@@ -15695,16 +15718,16 @@
       "INDEX-RUNTIME-SYNC-UTF8-001": "sha256:6bd07e1441ed4e5f861530432e1639c040941a5b1b67fe43d6e48b128112d0c9",
       "INDEX-RUNTIME-TEMPORAL-SORT-001": "sha256:c171e76cf05b0b6f1505e25b88d903014dc2ecc917585aff424c19e655df3303",
       "INDEX-RUNTIME-TEXT-SEARCH-001": "sha256:025c697be00a2550ec330872fffefa04d9ca342e1dd6ee497e1e8310781ec8f1",
-      "INVESTIGATION-BUNDLED-PARITY-001": "sha256:c21cea852c6c6fa885666ae53bd0e1d46d282be54d484a332895e58d5f9ab80f",
-      "INVESTIGATION-CLI-CONTRACTS-001": "sha256:22ddd1c8f52e0d423159abae81e4b3d79afe9e61ee692ffa1ff405fa76871d30",
-      "INVESTIGATION-CLI-DISCARD-ARGS-001": "sha256:3dff8b6b214db09bb484bfc7a703f534e6ad1f94fe3b2e6f6c9cb568c46a5b4b",
+      "INVESTIGATION-BUNDLED-PARITY-001": "sha256:830203a4809c139ce8009e8b0f6cfd4fadc432bc13555fb9d2372da83f9fa3b0",
+      "INVESTIGATION-CLI-CONTRACTS-001": "sha256:321d92ac50d4e8a0c7f5f745b3c65a643f70529e553e9515af2e737ff16c3b33",
+      "INVESTIGATION-CLI-DISCARD-ARGS-001": "sha256:2999a084757bcda5d09b4491e6e85e57d573c0c1cd41d8d7094ad04dd3f6fa8b",
       "INVESTIGATION-CLI-ENUM-001": "sha256:96f85e4a80c0feafd5b891d43139bdd2b5ad1e915e0c5a0e083915a33aad9ba5",
-      "INVESTIGATION-CLI-LIST-001": "sha256:a1c4d1f6498a702316d553efc7124cf963c43a8569331b5abc540640dc85d392",
-      "INVESTIGATION-CLI-RELATIONS-001": "sha256:ee335a2caf8f7186596dad9dd01f839afcd96cbb722366432f475bb29a451ee8",
-      "INVESTIGATION-CLI-STAGE-JSON-001": "sha256:f711b6ffa113e9938f641af3f9202e3ae7dd19a281f63ae10700d6700801af94",
-      "INVESTIGATION-CLI-SYNC-001": "sha256:0a41d0e32bd592820e7e1f1e126eda485b27c3bcbeb5c996c000d26367b2c163",
-      "INVESTIGATION-CLI-USAGE-001": "sha256:77875cc3901f6a08d78a635e2b3ee861cf597f6dd573eefaebf799450c8ddcd4",
-      "INVESTIGATION-CLI-WARNINGS-001": "sha256:cdef2b5d4264bf1add614c3c3980beff1a3a2667da43b1216b6186bcc76a6c54",
+      "INVESTIGATION-CLI-LIST-001": "sha256:2c3b16e5ffb10a25b4cd7d6016a9ad35a67caa3f792b7d9092b8001ca81bcb42",
+      "INVESTIGATION-CLI-RELATIONS-001": "sha256:c32a54c3aa56b9210b359e179d9ef40b00d16bd47de4597794724805963548e2",
+      "INVESTIGATION-CLI-STAGE-JSON-001": "sha256:febc641f5f49eb62d9797708974f346af0b96dafddc4b3d63ad9e6a42a861182",
+      "INVESTIGATION-CLI-SYNC-001": "sha256:8bbab341361467ed5015991bd934dc1a082f02f853a8b38877658883bcbd23b4",
+      "INVESTIGATION-CLI-USAGE-001": "sha256:a7a44b1fbc1a2732609c0bf2142ce9da2d81337fd9f9a7b0040141f6c83f34e1",
+      "INVESTIGATION-CLI-WARNINGS-001": "sha256:db2b90b6efad611bd0cc9ff1a4e3ac3f0bc955b8bb608a53136e7ee278962564",
       "INVESTIGATION-COLLECTION-LAYOUT-001": "sha256:1d73ce585b768cdaf110359fe5253febda7feaf0b5b0fc2a2f49d2c11769768b",
       "INVESTIGATION-COLLECTION-ROOT-001": "sha256:f5d20b2646a9b4f27399a5fc5a022bb5a65e9ab06befc7fdec5d6190beedb372",
       "INVESTIGATION-DIRECTORY-PATH-001": "sha256:c232adeaff4f31869a400176d5e354d6ba24073fa128b52bc9abfd5d757de419",
@@ -15720,6 +15743,7 @@
       "INVESTIGATION-DISCARD-RESTORE-001": "sha256:7c6580348467ce262bd7673febc74f0f6a72c12232795cd1bc8a8cdea4845053",
       "INVESTIGATION-DISCARD-SPLIT-001": "sha256:507f797d445c782363c366c167615e1b1085b3c8c9b81f1e40a4aae4e144c4b3",
       "INVESTIGATION-DISCARD-TOMBSTONE-WINDOW-001": "sha256:432c88d3d37f5c966227cb247a4772c3b4952080cdf87d4d67881e399bd46bd8",
+      "INVESTIGATION-DISTRIBUTION-SMOKE-001": "sha256:da3e5178c73f35d19f093291d6be7f03529929e62f67b9b834c52bd7632942e9",
       "INVESTIGATION-EMPTY-COLLECTION-001": "sha256:5b994a600317858824056701bfa02ad70a7a57d9984d7fe6c05864d5e36a22c6",
       "INVESTIGATION-EMPTY-INDEX-SYNC-001": "sha256:641d885af8aee484c81cb7b0f6ea29bd0d7d860e2209768ae80c7ef559d02efc",
       "INVESTIGATION-GENERATED-METADATA-002": "sha256:a05a1110456941165ecb83b81a9af126e05f142543f2cf3db5fe057f29b09e55",
@@ -15774,7 +15798,7 @@
       "INVESTIGATION-SNAPSHOT-REVISION-001": "sha256:14496f1c0c6948df244d3c4a845ecca44a488636ee104a3d14e30a61b36ede2b",
       "INVESTIGATION-SOURCE-REVISION-001": "sha256:11a9746b2ed741ab64c90bce5547e3a6c186afb366d12240da25ca5b7fa1aa6d",
       "INVESTIGATION-STAGE-BOOTSTRAP-001": "sha256:b6307f01921a3aa9b33c0b5bb692b7b7918f366021658b8c6ad10f136cec8e1e",
-      "INVESTIGATION-STAGE-CLI-USAGE-001": "sha256:d5604199487e0db107a36900f6515f7e0fcdccfdb29ef6e556091947b9ab8dde",
+      "INVESTIGATION-STAGE-CLI-USAGE-001": "sha256:2bfa3cbf73bf83f53ebe5fb21a4af8b5649ac604ee41853e2f9434777034b59b",
       "INVESTIGATION-STAGE-CONFLICT-001": "sha256:abe617dbc0f4900e9c93477acf4115882823c32b9061abe83bda46ad5b2d1b57",
       "INVESTIGATION-STAGE-DEFINITION-UPGRADE-001": "sha256:88ff64bb31221493ac7013f2c6e5e73a554fc1e7d041fcca5bdc936fbb6219f3",
       "INVESTIGATION-STAGE-INPUT-001": "sha256:fa53885a795d5631b866e224097be0e752c76506faf897841f82035e0ae3125f",
@@ -15788,7 +15812,7 @@
       "INVESTIGATION-STAGE-VERSION-CONTROL-001": "sha256:9555e9e4e55d747f55eb3b6653062814f14092477cec780b3a4f46778716546f",
       "INVESTIGATION-SYNC-DISCARD-LOCK-001": "sha256:a51a3a8e275adea77fd9998a697543254c42fae108327756bde53d90657e339f",
       "INVESTIGATION-SYNC-VALIDATED-SNAPSHOT-001": "sha256:b972098b86b31893963b01c347b74b36806bf2f3a53f49d64abad277df716cb7",
-      "INVESTIGATION-VALIDATION-WARNINGS-001": "sha256:8d743d73e4a9956cbaa7d8b75be05bff83404c8b5d0f4679f76c0bdc343ad075",
+      "INVESTIGATION-VALIDATION-WARNINGS-001": "sha256:a9b840e98f36ca628e09a7cb26a5244cabfc0e90746064cd5287cbed0b65ddf8",
       "REPO-FORMAT-SCRIPTS-001": "sha256:2f52e8e3653f91fad9f12010ebaee9b5beec800eb99609bd48b28a284618794d",
       "REPO-LINT-PREFLIGHT-001": "sha256:028ff20768861e327bd9a7a43cd90b6eeaeea2de6490982ebb7ee8269b68b2c4",
       "REPO-OXC-CONFIG-001": "sha256:f704f1d4d178c8c92be699f3614311f94bac169d9afe363c27f0fcff0f989d52",
@@ -15859,7 +15883,7 @@
       "TASK-GRAPH-CLI-LIST-FAILURE-001": "sha256:b6a1595b0e90dc67825d48b7821e2f691637e550294fe74fad00ab464605db0b",
       "TASK-GRAPH-CLI-LIST-PROJECTION-001": "sha256:7279d9454908f4eb5ecd6eaeec89d30b0d2ef2450e19e34eeb62a85fc52d14b5",
       "TASK-GRAPH-CLI-LIST-RENDER-PARITY-001": "sha256:8ef365a58f4543da125d87a2928f608d4b0306e06ae93cc2c9db486f1d495671",
-      "TASK-GRAPH-CLI-PATH-001": "sha256:a23b363ab08505ada8dd85a57ef6097bd7c6440d4dc4a63908df65f69581d447",
+      "TASK-GRAPH-CLI-PATH-001": "sha256:d19173ddbdb90ed30cfa2a15285c7540bf16775c3c1f10330167e2670c2c1f9b",
       "TASK-GRAPH-CLI-PROCESS-PROTOCOL-001": "sha256:2a3c0401e0ab980baef5bceeaf673e6f0420e29a673868f868f8241f0c70611b",
       "TASK-GRAPH-CLI-PROTOCOL-001": "sha256:01b3ff51798ebd0b024ec27f3b9ea4c6fa019562a49a4de0c84e6e4313f67152",
       "TASK-GRAPH-CLI-PROTOTYPE-001": "sha256:ef8ab68784cde3e6f9380d3ae67e29f8d80274ec4dbf649f6a5eb99218c65ff3",
@@ -15875,7 +15899,7 @@
       "TASK-GRAPH-DISTRIBUTION-004": "sha256:03602856d3fffaf87ca798fc5326e6e26d507113030044d74651dfd82fded0ae",
       "TASK-GRAPH-DISTRIBUTION-IMPORT-001": "sha256:a7e047d57c7c3a5c2696eedfa6ff6b5a0084493ee484d137759c531e315f0274",
       "TASK-GRAPH-DISTRIBUTION-LIST-PARITY-001": "sha256:f188effd813c6f79c6010c7e70aa8b30944c5767e724da4cf24faedfec57847c",
-      "TASK-GRAPH-DISTRIBUTION-OFFLINE-001": "sha256:472a4e1422ccff06fb1b5b5c01a20f5e83969760caaa7b900fb567db391e02fa",
+      "TASK-GRAPH-DISTRIBUTION-OFFLINE-001": "sha256:dfe071f62f642c8ac25d201912840c9f6a9cff692347f86ea1875d3114b12cc7",
       "TASK-GRAPH-DISTRIBUTION-PACKAGE-001": "sha256:215be1428132a81d7ed5e97eb323b7be597deb9367858e3566d65bc208c23a98",
       "TASK-GRAPH-DISTRIBUTION-STAGE-001": "sha256:d3a287f542a99e6e15ee35c156b57f55914764cb543c83e01aefc8308d17910b",
       "TASK-GRAPH-GC-001": "sha256:4683d53f551a0e7fb6581cd9bf803e07f3cdbcaefc51f7d99bc5b30ea9eea208",

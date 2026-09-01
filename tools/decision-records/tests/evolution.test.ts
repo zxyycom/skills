@@ -11,7 +11,8 @@ import {
   findIndexEntry,
   readIndex,
   runSourceCli,
-  runSuccessfulSourceCli,
+  runSourceLifecycleCli,
+  runSuccessfulSourceLifecycleCli,
   traceDecision,
   withFixtureWorkspace
 } from "./support.ts";
@@ -29,7 +30,7 @@ test("activate establishes candidate source relations and archives their active 
 
     const strictBefore = await validateDecisionRecords({ workspaceRoot });
     assert.deepEqual(strictBefore.errors, []);
-    const output = await runSuccessfulSourceCli([
+    const output = await runSuccessfulSourceLifecycleCli([
       "activate",
       successorRelativePath,
       "--alignment",
@@ -59,7 +60,7 @@ test("activate relation replacement overrides rather than merges candidate relat
       candidateDecisionBody(),
       "utf8"
     );
-    await runSuccessfulSourceCli([
+    await runSuccessfulSourceLifecycleCli([
       "activate",
       parallelRelativePath,
       "--alignment",
@@ -75,7 +76,7 @@ test("activate relation replacement overrides rather than merges candidate relat
       }),
       "utf8"
     );
-    await runSuccessfulSourceCli([
+    await runSuccessfulSourceLifecycleCli([
       "activate",
       successorRelativePath,
       "--alignment",
@@ -112,7 +113,7 @@ test("activate clear-relations explicitly replaces candidate relations with an e
       }),
       "utf8"
     );
-    await runSuccessfulSourceCli([
+    await runSuccessfulSourceLifecycleCli([
       "activate",
       successorRelativePath,
       "--alignment",
@@ -140,7 +141,7 @@ test("evolve establishes one successor while preserving archived predecessors", 
       candidateDecisionBody(),
       "utf8"
     );
-    await runSuccessfulSourceCli([
+    await runSuccessfulSourceLifecycleCli([
       "evolve",
       "--successor",
       "aligned=" + successorRelativePath,
@@ -180,7 +181,7 @@ test("evolve replaces established relations while preserving body and lifecycle 
       }),
       "utf8"
     );
-    await runSuccessfulSourceCli([
+    await runSuccessfulSourceLifecycleCli([
       "activate",
       successorRelativePath,
       "--alignment",
@@ -194,7 +195,7 @@ test("evolve replaces established relations while preserving body and lifecycle 
       candidateDecisionBody(),
       "utf8"
     );
-    await runSuccessfulSourceCli([
+    await runSuccessfulSourceLifecycleCli([
       "activate",
       activeTargetRelativePath,
       "--alignment",
@@ -221,7 +222,7 @@ test("evolve replaces established relations while preserving body and lifecycle 
       "active"
     );
 
-    await runSuccessfulSourceCli([
+    await runSuccessfulSourceLifecycleCli([
       "evolve",
       "--successor",
       "aligned=" + successorRelativePath,
@@ -269,7 +270,7 @@ test("evolve keeps an archived established successor archived during relation re
       candidateDecisionBody(),
       "utf8"
     );
-    await runSuccessfulSourceCli([
+    await runSuccessfulSourceLifecycleCli([
       "activate",
       successorRelativePath,
       "--alignment",
@@ -277,7 +278,7 @@ test("evolve keeps an archived established successor archived during relation re
       "--root",
       workspaceRoot
     ]);
-    await runSuccessfulSourceCli([
+    await runSuccessfulSourceLifecycleCli([
       "archive",
       successorRelativePath,
       "--root",
@@ -294,7 +295,7 @@ test("evolve keeps an archived established successor archived during relation re
       successorRelativePath
     );
 
-    await runSuccessfulSourceCli([
+    await runSuccessfulSourceLifecycleCli([
       "evolve",
       "--successor",
       "unaligned=" + successorRelativePath,
@@ -331,7 +332,7 @@ test("evolve rejects established successor alignment mismatches without mutation
       );
       const currentBefore = await fs.readFile(currentPath, "utf8");
       const indexBefore = await fs.readFile(indexPath, "utf8");
-      const rejected = await runSourceCli([
+      const rejected = await runSourceLifecycleCli([
         "evolve",
         "--successor",
         "unaligned=" + currentRelativePath,
@@ -348,7 +349,7 @@ test("evolve rejects established successor alignment mismatches without mutation
 
 test("evolve rejects historical archived successors with null alignment", () =>
   withFixtureWorkspace("evolve-historical-successor", async (workspaceRoot) => {
-    const rejected = await runSourceCli([
+    const rejected = await runSourceLifecycleCli([
       "evolve",
       "--successor",
       "aligned=" + archivedRelativePath,
@@ -377,7 +378,7 @@ test("activate rejects relation replacement for established decisions", () =>
         ["--clear-relations"],
         ["--relation", "替代=" + archivedRelativePath]
       ]) {
-        const rejected = await runSourceCli([
+        const rejected = await runSourceLifecycleCli([
           "activate",
           currentRelativePath,
           "--alignment",
@@ -482,7 +483,7 @@ test("evolve rejects a one-successor reallocation", () =>
         }),
         "utf8"
       );
-      const rejected = await runSourceCli([
+      const rejected = await runSourceLifecycleCli([
         "evolve",
         "--successor",
         "aligned=" + successorRelativePath,
@@ -512,7 +513,7 @@ test("evolve rejects a one-predecessor reallocation", () =>
           "utf8"
         );
       }
-      const rejected = await runSourceCli([
+      const rejected = await runSourceLifecycleCli([
         "evolve",
         "--successor",
         "aligned=" + firstSuccessor,
@@ -555,7 +556,7 @@ test("evolve rejects mixed reallocation and other successor relations", () =>
       }),
       "utf8"
     );
-    const rejected = await runSourceCli([
+    const rejected = await runSourceLifecycleCli([
       "evolve",
       "--successor",
       "aligned=" + mixedSuccessor,
@@ -590,7 +591,7 @@ test("evolve rejects a disconnected reallocation graph", () =>
         }),
         "utf8"
       );
-      const rejected = await runSourceCli([
+      const rejected = await runSourceLifecycleCli([
         "evolve",
         "--successor",
         "aligned=" + firstSuccessor,
@@ -623,7 +624,7 @@ test("evolve rejects a reallocation that overlaps successor and predecessor role
         }),
         "utf8"
       );
-      const rejected = await runSourceCli([
+      const rejected = await runSourceLifecycleCli([
         "evolve",
         "--successor",
         "aligned=" + established.firstSuccessorRelativePath,
@@ -651,7 +652,7 @@ test("evolve requires every established successor in a reallocation component", 
       }),
       "utf8"
     );
-    await runSuccessfulSourceCli([
+    await runSuccessfulSourceLifecycleCli([
       "evolve",
       "--successor",
       "aligned=" + established.firstSuccessorRelativePath,
@@ -662,7 +663,7 @@ test("evolve requires every established successor in a reallocation component", 
       "--root",
       workspaceRoot
     ]);
-    const rejected = await runSourceCli([
+    const rejected = await runSourceLifecycleCli([
       "evolve",
       "--successor",
       "aligned=" + established.firstSuccessorRelativePath,
@@ -681,7 +682,7 @@ test("evolve keeps a later reallocation separate from its archived predecessor e
     "evolve-successive-reallocation",
     async (workspaceRoot) => {
       const established = await establishClosedReallocation(workspaceRoot);
-      await runSuccessfulSourceCli([
+      await runSuccessfulSourceLifecycleCli([
         "archive",
         established.firstSuccessorRelativePath,
         "--root",
@@ -693,7 +694,7 @@ test("evolve keeps a later reallocation separate from its archived predecessor e
         candidateDecisionBody(),
         "utf8"
       );
-      await runSuccessfulSourceCli([
+      await runSuccessfulSourceLifecycleCli([
         "activate",
         additionalPredecessor,
         "--alignment",
@@ -701,7 +702,7 @@ test("evolve keeps a later reallocation separate from its archived predecessor e
         "--root",
         workspaceRoot
       ]);
-      await runSuccessfulSourceCli([
+      await runSuccessfulSourceLifecycleCli([
         "archive",
         additionalPredecessor,
         "--root",
@@ -728,7 +729,7 @@ test("evolve keeps a later reallocation separate from its archived predecessor e
         }),
         "utf8"
       );
-      await runSuccessfulSourceCli([
+      await runSuccessfulSourceLifecycleCli([
         "evolve",
         "--successor",
         "aligned=" + firstSuccessor,
@@ -783,7 +784,7 @@ test("evolve discards one split successor when it replaces the complete closure"
         "utf8"
       );
 
-      await runSuccessfulSourceCli([
+      await runSuccessfulSourceLifecycleCli([
         "evolve",
         "--successor",
         "unaligned=" + established.unalignedRelativePath,
@@ -793,6 +794,7 @@ test("evolve discards one split successor when it replaces the complete closure"
         "拆分=" + established.coarseRelativePath,
         "--discard",
         established.alignedRelativePath,
+        "--delete-recorded-decision",
         "--root",
         workspaceRoot
       ]);
@@ -822,7 +824,7 @@ test("evolve adds a split successor only when every existing successor is select
       candidateDecisionBody(),
       "utf8"
     );
-    await runSuccessfulSourceCli([
+    await runSuccessfulSourceLifecycleCli([
       "evolve",
       "--successor",
       "aligned=" + established.alignedRelativePath,
@@ -862,12 +864,13 @@ test("evolve rejects a discarded Decision ID selected as a successor without mut
       );
       const indexText = await fs.readFile(indexPath, "utf8");
 
-      const rejected = await runSourceCli([
+      const rejected = await runSourceLifecycleCli([
         "evolve",
         "--successor",
         "aligned=" + currentRelativePath,
         "--discard",
         currentRelativePath,
+        "--delete-recorded-decision",
         "--root",
         workspaceRoot
       ]);
@@ -890,7 +893,7 @@ test("evolve rejects a split extension that omits an existing successor before w
     const thirdCandidate = candidateDecisionBody();
     await fs.writeFile(thirdPath, thirdCandidate, "utf8");
     const indexBefore = await fs.readFile(established.indexPath, "utf8");
-    const rejected = await runSourceCli([
+    const rejected = await runSourceLifecycleCli([
       "evolve",
       "--successor",
       "aligned=" + established.alignedRelativePath,
@@ -918,7 +921,7 @@ test("evolve rejects one selected split successor", () =>
       }),
       "utf8"
     );
-    const rejected = await runSourceCli([
+    const rejected = await runSourceLifecycleCli([
       "evolve",
       "--successor",
       "aligned=" + successorRelativePath,
@@ -947,7 +950,7 @@ test("evolve rejects mixed split and non-split successor relations", () =>
       }),
       "utf8"
     );
-    const rejected = await runSourceCli([
+    const rejected = await runSourceLifecycleCli([
       "evolve",
       "--successor",
       "aligned=" + splitRelativePath,
@@ -974,7 +977,7 @@ test("evolve rejects unsupported multi-successor shapes without split relations"
       candidateDecisionBody(),
       "utf8"
     );
-    const rejected = await runSourceCli([
+    const rejected = await runSourceLifecycleCli([
       "evolve",
       "--successor",
       "aligned=" + firstRelativePath,
@@ -995,7 +998,7 @@ test("evolve rejects a pure merge with fewer than two predecessors", () =>
       candidateDecisionBody(),
       "utf8"
     );
-    const rejected = await runSourceCli([
+    const rejected = await runSourceLifecycleCli([
       "evolve",
       "--successor",
       "aligned=" + successorRelativePath,
@@ -1046,7 +1049,7 @@ async function establishClosedReallocation(
     }),
     "utf8"
   );
-  await runSuccessfulSourceCli([
+  await runSuccessfulSourceLifecycleCli([
     "evolve",
     "--successor",
     "aligned=" + firstSuccessorRelativePath,
@@ -1077,7 +1080,7 @@ async function establishAdditionalActivePredecessor(
     candidateDecisionBody(),
     "utf8"
   );
-  await runSuccessfulSourceCli([
+  await runSuccessfulSourceLifecycleCli([
     "activate",
     decisionId,
     "--alignment",
@@ -1097,7 +1100,7 @@ async function establishClosedSplit(
     candidateDecisionBody(),
     "utf8"
   );
-  await runSuccessfulSourceCli([
+  await runSuccessfulSourceLifecycleCli([
     "activate",
     coarseRelativePath,
     "--alignment",
@@ -1121,7 +1124,7 @@ async function establishClosedSplit(
     }),
     "utf8"
   );
-  await runSuccessfulSourceCli([
+  await runSuccessfulSourceLifecycleCli([
     "evolve",
     "--successor",
     "aligned=" + alignedRelativePath,

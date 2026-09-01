@@ -26,6 +26,24 @@ import type {
   InvestigationRelationSetResult
 } from "./types.ts";
 
+type InvestigationReportCliIo = Readonly<{
+  stderr: (text: string) => void;
+  stdout: (text: string) => void;
+}>;
+
+type InvestigationReportCliOptions = Readonly<{
+  io?: InvestigationReportCliIo;
+}>;
+
+const processCliIo: InvestigationReportCliIo = {
+  stderr: (text) => process.stderr.write(text),
+  stdout: (text) => process.stdout.write(text)
+};
+
+function writeLine(writer: (text: string) => void, text: string): void {
+  writer(`${text}\n`);
+}
+
 type InvestigationCommand =
   | "check"
   | "discard"
@@ -73,7 +91,10 @@ const booleanOptions = new Set([
   "help"
 ]);
 
-function printHelp(command?: InvestigationCommand): void {
+function printHelp(
+  command: InvestigationCommand | undefined,
+  io: InvestigationReportCliIo
+): void {
   const commandHelp: Record<InvestigationCommand, readonly string[]> = {
     check: [
       "Usage: investigation-report [check] [--id <investigation-id> ...] [options]",
@@ -173,7 +194,7 @@ function printHelp(command?: InvestigationCommand): void {
           "",
           "Exit status: 0 success; 1 check, operation, or deletion-confirmation failure; 2 invalid CLI arguments."
         ];
-  console.log(lines.join("\n"));
+  writeLine(io.stdout, lines.join("\n"));
 }
 
 function parseCli(
@@ -304,11 +325,14 @@ function assertAllowedOptions(
     : `${input.command} does not accept --${invalid}`;
 }
 
-async function runCheck(input: ParsedCli): Promise<number> {
+async function runCheck(
+  input: ParsedCli,
+  io: InvestigationReportCliIo
+): Promise<number> {
   const problem =
     assertNoPositionals(input) ??
     assertAllowedOptions(input, ["root", "investigations-dir", "id"]);
-  if (problem !== null) return cliInvalid(problem);
+  if (problem !== null) return cliInvalid(problem, io);
   const execution = await executeInvestigationReportCheck({
     ...location(input.values),
     ...(valuesOf(input.values, "id") === undefined
@@ -322,21 +346,26 @@ async function runCheck(input: ParsedCli): Promise<number> {
         : "Investigation report check failed:",
       execution.error.result.errors,
       execution.error.kind === "invalid-options" ? 2 : 1,
-      execution.error.result.warnings
+      execution.error.result.warnings,
+      io
     );
   const result = execution.value;
-  printWarnings(result.warnings);
-  console.log(
+  printWarnings(result.warnings, io);
+  writeLine(
+    io.stdout,
     `Investigation report check passed (${result.selectedReportCount} of ${result.availableReportCount} reports checked${result.indexChecked ? "; full index current" : "; index not checked"}).`
   );
   return 0;
 }
 
-async function runSync(input: ParsedCli): Promise<number> {
+async function runSync(
+  input: ParsedCli,
+  io: InvestigationReportCliIo
+): Promise<number> {
   const problem =
     assertNoPositionals(input) ??
     assertAllowedOptions(input, ["root", "investigations-dir"]);
-  if (problem !== null) return cliInvalid(problem);
+  if (problem !== null) return cliInvalid(problem, io);
   const execution = await executeInvestigationIndexSync(location(input.values));
   if (execution.isErr())
     return printResultErrors(
@@ -345,11 +374,13 @@ async function runSync(input: ParsedCli): Promise<number> {
         : "Investigation index synchronization failed:",
       execution.error.result.errors,
       execution.error.kind === "invalid-options" ? 2 : 1,
-      execution.error.result.warnings
+      execution.error.result.warnings,
+      io
     );
   const result = execution.value;
-  printWarnings(result.warnings);
-  console.log(
+  printWarnings(result.warnings, io);
+  writeLine(
+    io.stdout,
     result.changed
       ? `Investigation index synchronized (${result.reportCount} reports).`
       : `Investigation index is already current (${result.reportCount} reports).`
@@ -357,7 +388,10 @@ async function runSync(input: ParsedCli): Promise<number> {
   return 0;
 }
 
-async function runDiscard(input: ParsedCli): Promise<number> {
+async function runDiscard(
+  input: ParsedCli,
+  io: InvestigationReportCliIo
+): Promise<number> {
   const problem = assertAllowedOptions(input, [
     "root",
     "investigations-dir",
@@ -367,11 +401,13 @@ async function runDiscard(input: ParsedCli): Promise<number> {
   const [id] = input.positionals;
   if (problem !== null || id === undefined || input.positionals.length !== 1)
     return cliInvalid(
-      problem ?? "discard requires exactly one Investigation ID"
+      problem ?? "discard requires exactly one Investigation ID",
+      io
     );
   if (!isInvestigationId(id))
     return cliInvalid(
-      `${id || "<empty>"} discard id must use an Investigation ID`
+      `${id || "<empty>"} discard id must use an Investigation ID`,
+      io
     );
   const result = await discardInvestigationReport({
     ...location(input.values),
@@ -385,17 +421,23 @@ async function runDiscard(input: ParsedCli): Promise<number> {
         ? "Investigation report discard committed, but cleanup failed:"
         : "Investigation report discard failed:",
       result.errors,
-      1
+      1,
+      [],
+      io
     );
     return 1;
   }
-  console.log(
+  writeLine(
+    io.stdout,
     `Investigation report discarded: ${result.id}${result.deletedResourceIds.length === 0 ? "" : `; deleted ${result.deletedResourceIds.length} owned resource(s)`}.`
   );
   return 0;
 }
 
-async function runList(input: ParsedCli): Promise<number> {
+async function runList(
+  input: ParsedCli,
+  io: InvestigationReportCliIo
+): Promise<number> {
   const problem =
     assertNoPositionals(input) ??
     assertAllowedOptions(input, [
@@ -409,7 +451,7 @@ async function runList(input: ParsedCli): Promise<number> {
       "limit",
       "offset"
     ]);
-  if (problem !== null) return cliInvalid(problem);
+  if (problem !== null) return cliInvalid(problem, io);
   const relationType = valueOf(input.values, "relation-type");
   const execution = await executeInvestigationIndexQuery({
     ...location(input.values),
@@ -439,30 +481,39 @@ async function runList(input: ParsedCli): Promise<number> {
         ? "Invalid investigation report query options:"
         : "Investigation index query failed:",
       execution.error.result.errors,
-      execution.error.kind === "invalid-options" ? 2 : 1
+      execution.error.kind === "invalid-options" ? 2 : 1,
+      [],
+      io
     );
   const result = execution.value;
   if (result.entries.length === 0) {
-    console.log("No investigation reports matched.");
+    writeLine(io.stdout, "No investigation reports matched.");
     return 0;
   }
-  console.log(
+  writeLine(
+    io.stdout,
     `Investigation reports (${result.entries.length} of ${result.total}, offset ${result.offset}):`
   );
   for (const entry of result.entries) {
-    console.log(`${entry.id} ${entry.state.formedAt}`);
-    console.log(`  title: ${entry.state.title}`);
-    console.log(`  question: ${entry.state.question}`);
-    console.log(`  tags: ${entry.state.tags.join(", ")}`);
+    writeLine(io.stdout, `${entry.id} ${entry.state.formedAt}`);
+    writeLine(io.stdout, `  title: ${entry.state.title}`);
+    writeLine(io.stdout, `  question: ${entry.state.question}`);
+    writeLine(io.stdout, `  tags: ${entry.state.tags.join(", ")}`);
   }
   return 0;
 }
 
-async function runShow(input: ParsedCli): Promise<number> {
+async function runShow(
+  input: ParsedCli,
+  io: InvestigationReportCliIo
+): Promise<number> {
   const problem = assertAllowedOptions(input, ["root", "investigations-dir"]);
   const [id] = input.positionals;
   if (problem !== null || id === undefined || input.positionals.length !== 1)
-    return cliInvalid(problem ?? "show requires exactly one Investigation ID");
+    return cliInvalid(
+      problem ?? "show requires exactly one Investigation ID",
+      io
+    );
   const result = await showInvestigationReport({
     ...location(input.values),
     id
@@ -471,13 +522,18 @@ async function runShow(input: ParsedCli): Promise<number> {
     return printResultErrors(
       "Investigation report show failed:",
       result.errors,
-      1
+      1,
+      [],
+      io
     );
-  process.stdout.write(result.markdown);
+  io.stdout(result.markdown);
   return 0;
 }
 
-async function runTrace(input: ParsedCli): Promise<number> {
+async function runTrace(
+  input: ParsedCli,
+  io: InvestigationReportCliIo
+): Promise<number> {
   const problem = assertAllowedOptions(input, [
     "root",
     "investigations-dir",
@@ -486,7 +542,10 @@ async function runTrace(input: ParsedCli): Promise<number> {
   ]);
   const [id] = input.positionals;
   if (problem !== null || id === undefined || input.positionals.length !== 1)
-    return cliInvalid(problem ?? "trace requires exactly one Investigation ID");
+    return cliInvalid(
+      problem ?? "trace requires exactly one Investigation ID",
+      io
+    );
   const direction = valueOf(input.values, "direction");
   const result = await traceInvestigationReports({
     ...location(input.values),
@@ -500,30 +559,38 @@ async function runTrace(input: ParsedCli): Promise<number> {
     return printResultErrors(
       "Investigation report trace failed:",
       result.errors,
-      1
+      1,
+      [],
+      io
     );
-  console.log(`Reports: ${result.reportIds.join(", ")}`);
+  writeLine(io.stdout, `Reports: ${result.reportIds.join(", ")}`);
   for (const edge of result.edges)
-    console.log(`${edge.source} --${edge.type}--> ${edge.target}`);
+    writeLine(io.stdout, `${edge.source} --${edge.type}--> ${edge.target}`);
   return 0;
 }
 
-async function runStage(input: ParsedCli): Promise<number> {
+async function runStage(
+  input: ParsedCli,
+  io: InvestigationReportCliIo
+): Promise<number> {
   const problem = assertAllowedOptions(input, ["root", "investigations-dir"]);
-  if (problem !== null) return cliInvalid(problem);
+  if (problem !== null) return cliInvalid(problem, io);
   const execution = await executeInvestigationIndexStage({
     ...location(input.values),
     reportIds: input.positionals
   });
   if (execution.isErr()) {
-    printStageErrors(execution.error.result);
+    printStageErrors(execution.error.result, io);
     return execution.error.kind === "invalid-options" ? 2 : 1;
   }
-  printStageSuccess(execution.value);
+  printStageSuccess(execution.value, io);
   return 0;
 }
 
-async function runSetRelations(input: ParsedCli): Promise<number> {
+async function runSetRelations(
+  input: ParsedCli,
+  io: InvestigationReportCliIo
+): Promise<number> {
   const problem =
     assertNoPositionals(input) ??
     assertAllowedOptions(input, [
@@ -533,14 +600,14 @@ async function runSetRelations(input: ParsedCli): Promise<number> {
       "relation",
       "clear-relations"
     ]);
-  if (problem !== null) return cliInvalid(problem);
+  if (problem !== null) return cliInvalid(problem, io);
   const parsed = parseRelationGroups(input.relationEvents);
-  if (parsed.status === "error") return cliInvalid(parsed.error);
+  if (parsed.status === "error") return cliInvalid(parsed.error, io);
   const result = await setInvestigationRelations({
     ...location(input.values),
     replacements: parsed.replacements
   });
-  printRelationResult(result);
+  printRelationResult(result, io);
   return result.errors.length === 0 ? 0 : 1;
 }
 
@@ -613,21 +680,25 @@ function parseRelationGroups(
 }
 
 function printStageSuccess(
-  result: Extract<InvestigationIndexStageResult, { status: "ok" }>
+  result: Extract<InvestigationIndexStageResult, { status: "ok" }>,
+  io: InvestigationReportCliIo
 ): void {
-  console.log(
+  writeLine(
+    io.stdout,
     result.changed
       ? `Investigation index entries staged for ${result.selectedIds.length} selected report(s) in ${result.indexPath}.`
       : `Investigation index entries are unchanged for ${result.selectedIds.length} selected report(s) in ${result.indexPath}.`
   );
-  console.log(`state: ${result.state}; changed: ${result.changed}`);
-  console.log(`selected IDs: ${result.selectedIds.join(", ")}`);
-  console.log(
+  writeLine(io.stdout, `state: ${result.state}; changed: ${result.changed}`);
+  writeLine(io.stdout, `selected IDs: ${result.selectedIds.join(", ")}`);
+  writeLine(
+    io.stdout,
     "Report Markdown and attached resources remain outside this operation."
   );
 }
 function printStageErrors(
-  result: Extract<InvestigationIndexStageResult, { status: "error" }>
+  result: Extract<InvestigationIndexStageResult, { status: "error" }>,
+  io: InvestigationReportCliIo
 ): void {
   printResultErrors(
     `Investigation index entry staging failed (state: ${result.state}; changed: ${result.changed}):`,
@@ -644,19 +715,27 @@ function printStageErrors(
           .join(" ")
       )
     ],
-    1
+    1,
+    [],
+    io
   );
 }
-function printRelationResult(result: InvestigationRelationSetResult): void {
+function printRelationResult(
+  result: InvestigationRelationSetResult,
+  io: InvestigationReportCliIo
+): void {
   if (result.errors.length > 0) {
     printResultErrors(
       "Investigation relation update failed:",
       result.errors,
-      1
+      1,
+      [],
+      io
     );
     return;
   }
-  console.log(
+  writeLine(
+    io.stdout,
     `Investigation relations ${result.changed ? "updated" : "already current"} for: ${result.sourceIds.join(", ")}`
   );
 }
@@ -664,50 +743,56 @@ function printResultErrors(
   title: string,
   errors: readonly string[],
   exitCode: number,
-  warnings: readonly string[] = []
+  warnings: readonly string[] = [],
+  io: InvestigationReportCliIo
 ): number {
-  printWarnings(warnings);
-  console.error(title);
-  for (const error of errors) console.error(`- ${error}`);
+  printWarnings(warnings, io);
+  writeLine(io.stderr, title);
+  for (const error of errors) writeLine(io.stderr, `- ${error}`);
   return exitCode;
 }
-function printWarnings(warnings: readonly string[]): void {
+function printWarnings(
+  warnings: readonly string[],
+  io: InvestigationReportCliIo
+): void {
   if (warnings.length === 0) return;
-  console.error("Investigation report warnings:");
-  for (const warning of warnings) console.error(`- ${warning}`);
+  writeLine(io.stderr, "Investigation report warnings:");
+  for (const warning of warnings) writeLine(io.stderr, `- ${warning}`);
 }
-function cliInvalid(error: string): number {
-  console.error(error);
+function cliInvalid(error: string, io: InvestigationReportCliIo): number {
+  writeLine(io.stderr, error);
   return 2;
 }
 
 export async function runInvestigationReportCheckCli(
-  argv: readonly string[] = process.argv.slice(2)
+  argv: readonly string[] = process.argv.slice(2),
+  options: InvestigationReportCliOptions = {}
 ): Promise<number> {
+  const io = options.io ?? processCliIo;
   const parsed = parseCliWithRelationEvents(argv);
   if (parsed.status === "help") {
-    printHelp(parsed.command);
+    printHelp(parsed.command, io);
     return 0;
   }
-  if (parsed.status === "invalid") return cliInvalid(parsed.error);
+  if (parsed.status === "invalid") return cliInvalid(parsed.error, io);
   const input = parsed.value;
   switch (input.command) {
     case "check":
-      return await runCheck(input);
+      return await runCheck(input, io);
     case "discard":
-      return await runDiscard(input);
+      return await runDiscard(input, io);
     case "sync-index":
-      return await runSync(input);
+      return await runSync(input, io);
     case "list":
-      return await runList(input);
+      return await runList(input, io);
     case "show":
-      return await runShow(input);
+      return await runShow(input, io);
     case "trace":
-      return await runTrace(input);
+      return await runTrace(input, io);
     case "stage-index":
-      return await runStage(input);
+      return await runStage(input, io);
     case "set-relations":
-      return await runSetRelations(input);
+      return await runSetRelations(input, io);
   }
 }
 

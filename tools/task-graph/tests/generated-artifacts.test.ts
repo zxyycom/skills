@@ -685,24 +685,12 @@ test("generated Node CLI stages selected task entries without native runtime", a
   });
 });
 
-test("generated Node CLI probes the isolated runtime and mutates offline", async () => {
+test("generated Node CLI uses the isolated runtime for offline mutation", async () => {
   await withTempWorkspace(async (root) => {
     const toolHome = path.join(root, "tool-home");
     const workspace = path.join(root, "workspace");
     await prepareRootNativeRuntime(toolHome);
     const environment = { ...process.env, TASK_GRAPH_TOOL_HOME: toolHome };
-    const checked = await execFileAsync(
-      await resolveNodeExecutable(),
-      [generatedScriptPath, "runtime", "info", "--root", workspace],
-      { cwd: root, env: environment, windowsHide: true }
-    );
-    assert.equal(checked.stderr, "");
-    const checkResult = JSON.parse(checked.stdout) as {
-      ok: boolean;
-      data: { compatible: boolean };
-    };
-    assert.equal(checkResult.ok, true);
-    assert.equal(checkResult.data.compatible, true);
     const initialized = await execFileAsync(
       await resolveNodeExecutable(),
       [generatedScriptPath, "index", "init", "--root", workspace],

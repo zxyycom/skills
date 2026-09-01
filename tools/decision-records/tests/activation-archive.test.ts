@@ -97,6 +97,7 @@ test("activation and archive transitions preserve content and index atomicity", 
     const archived = await runSourceCli([
       "archive",
       lifecycleRelativePath,
+      "--keep-unrecorded-history",
       "--root",
       workspaceRoot
     ]);
@@ -140,6 +141,7 @@ test("activation and archive transitions preserve content and index atomicity", 
     const archivedAgain = await runSourceCli([
       "archive",
       lifecycleRelativePath,
+      "--keep-unrecorded-history",
       "--root",
       workspaceRoot
     ]);
@@ -147,6 +149,7 @@ test("activation and archive transitions preserve content and index atomicity", 
     const discardedArchived = await runSourceCli([
       "discard",
       lifecycleRelativePath,
+      "--delete-recorded-decision",
       "--root",
       workspaceRoot
     ]);

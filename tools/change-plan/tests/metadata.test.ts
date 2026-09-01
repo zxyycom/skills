@@ -8,7 +8,7 @@ import {
   readChangePlanMetadata,
   writeChangePlanMetadata
 } from "../src/metadata.ts";
-import { validBaseCommit, withTempRoot } from "./support.ts";
+import { validBaseCommit, withFileSystemRoot } from "./support.ts";
 
 function runtimeAccepts(value: unknown): boolean {
   try {
@@ -85,7 +85,7 @@ test("metadata parser accepts only canonical draft and plan values", () => {
 });
 
 test("metadata writer emits canonical draft and plan JSON", () =>
-  withTempRoot("metadata-writer", async (tempRoot) => {
+  withFileSystemRoot("metadata-writer", async (tempRoot) => {
     const draftDirectory = path.join(tempRoot, "draft");
     const planDirectory = path.join(tempRoot, "plan");
     await Promise.all([fs.mkdir(draftDirectory), fs.mkdir(planDirectory)]);
@@ -160,7 +160,7 @@ test("metadata writer emits canonical draft and plan JSON", () =>
   }));
 
 test("metadata reader maps file and parse boundaries to stable error codes", () =>
-  withTempRoot("metadata-errors", async (tempRoot) => {
+  withFileSystemRoot("metadata-errors", async (tempRoot) => {
     const missingDirectory = path.join(tempRoot, "missing");
     await fs.mkdir(missingDirectory);
     await assertMetadataError(
@@ -224,7 +224,7 @@ test("metadata reader maps file and parse boundaries to stable error codes", () 
   }));
 
 test("metadata reader and writer reject symbolic-link metadata", () =>
-  withTempRoot("metadata-symlink", async (tempRoot) => {
+  withFileSystemRoot("metadata-symlink", async (tempRoot) => {
     const changeDirectory = path.join(tempRoot, "linked-metadata");
     const targetPath = path.join(tempRoot, "metadata-target.json");
     const original = `${JSON.stringify({ stage: "draft" })}\n`;

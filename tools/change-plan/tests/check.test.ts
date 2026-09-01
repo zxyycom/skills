@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
@@ -12,17 +11,10 @@ import { changePlanMetadataName } from "../src/types.ts";
 import {
   validBaseCommit,
   validDesign,
+  withFileSystemRoot,
   withTempRoot,
   writePlan
 } from "./support.ts";
-
-function runGit(repositoryRoot: string, arguments_: readonly string[]): string {
-  const result = spawnSync("git", ["-C", repositoryRoot, ...arguments_], {
-    encoding: "utf8"
-  });
-  assert.equal(result.status, 0, result.stderr);
-  return result.stdout.trim();
-}
 
 const minimalDraftProposal = `# Proposal
 
@@ -203,7 +195,7 @@ async function testStageArtifactContracts(tempRoot: string): Promise<void> {
 }
 
 async function testActiveMetadataBoundaries(tempRoot: string): Promise<void> {
-  const headCommit = runGit(tempRoot, ["rev-parse", "HEAD"]);
+  const headCommit = validBaseCommit;
   const invalidCases = [
     ["null-base", { baseCommit: null, stage: "plan" }],
     [
@@ -314,7 +306,9 @@ async function testVersionControlFailure(tempRoot: string): Promise<void> {
 }
 
 async function testDirectoryDiagnostics(tempRoot: string): Promise<void> {
-  const invalidNameDirectory = await writePlan(tempRoot, "Invalid_Name");
+  const invalidNameDirectory = await writePlan(tempRoot, "Invalid_Name", {
+    metadata: { stage: "draft" }
+  });
   const invalidNameResult =
     await checkChangePlanDirectory(invalidNameDirectory);
   assert.equal(invalidNameResult.valid, false);
@@ -324,7 +318,9 @@ async function testDirectoryDiagnostics(tempRoot: string): Promise<void> {
     )
   );
 
-  const missingFileDirectory = await writePlan(tempRoot, "missing-design");
+  const missingFileDirectory = await writePlan(tempRoot, "missing-design", {
+    metadata: { stage: "draft" }
+  });
   await fs.rm(path.join(missingFileDirectory, "design.md"));
   const missingFileResult =
     await checkChangePlanDirectory(missingFileDirectory);
@@ -368,6 +364,7 @@ async function testArtifactDiagnostics(tempRoot: string): Promise<void> {
     tempRoot,
     "invalid-proposal",
     {
+      metadata: { stage: "draft" },
       proposal: `# Proposal
 
 本 change 的 proposal 结构无效。
@@ -392,7 +389,7 @@ async function testArtifactDiagnostics(tempRoot: string): Promise<void> {
 `
     }
   );
-  const invalidProposalResult = await checkChangePlanDirectory(
+  const invalidProposalResult = await checkChangePlanDirectoryForPlan(
     invalidProposalDirectory
   );
   assert.ok(
@@ -408,6 +405,7 @@ async function testArtifactDiagnostics(tempRoot: string): Promise<void> {
   );
 
   const invalidTasksDirectory = await writePlan(tempRoot, "invalid-tasks", {
+    metadata: { stage: "draft" },
     tasks: `# Tasks
 
 本 change 的任务结构无效。
@@ -430,7 +428,7 @@ async function testArtifactDiagnostics(tempRoot: string): Promise<void> {
 - [ ] 3.1 任务不能放在额外章节。
 `
   });
-  const invalidTasksResult = await checkChangePlanDirectory(
+  const invalidTasksResult = await checkChangePlanDirectoryForPlan(
     invalidTasksDirectory
   );
   assert.ok(
@@ -456,7 +454,9 @@ async function testArtifactDiagnostics(tempRoot: string): Promise<void> {
 }
 
 async function testSymbolicLinkDiagnostics(tempRoot: string): Promise<void> {
-  const targetDirectory = await writePlan(tempRoot, "linked-target");
+  const targetDirectory = await writePlan(tempRoot, "linked-target", {
+    metadata: { stage: "draft" }
+  });
   const linkedDirectory = path.join(tempRoot, "linked-change");
   await fs.symlink(
     targetDirectory,
@@ -471,7 +471,9 @@ async function testSymbolicLinkDiagnostics(tempRoot: string): Promise<void> {
     )
   );
 
-  const linkedArtifactDirectory = await writePlan(tempRoot, "linked-artifact");
+  const linkedArtifactDirectory = await writePlan(tempRoot, "linked-artifact", {
+    metadata: { stage: "draft" }
+  });
   const designTarget = path.join(tempRoot, "design-target.md");
   await fs.writeFile(designTarget, validDesign, "utf8");
   await fs.rm(path.join(linkedArtifactDirectory, "design.md"));
@@ -491,7 +493,9 @@ async function testSymbolicLinkDiagnostics(tempRoot: string): Promise<void> {
     )
   );
 
-  const linkedMetadataDirectory = await writePlan(tempRoot, "linked-metadata");
+  const linkedMetadataDirectory = await writePlan(tempRoot, "linked-metadata", {
+    metadata: { stage: "draft" }
+  });
   const metadataPath = path.join(
     linkedMetadataDirectory,
     changePlanMetadataName
@@ -515,22 +519,22 @@ test("check accepts a complete plan", () =>
   withTempRoot("check-valid", testValidPlan));
 
 test("check applies stage-specific artifact contracts", () =>
-  withTempRoot("check-stages", testStageArtifactContracts));
+  withFileSystemRoot("check-stages", testStageArtifactContracts));
 
 test("check validates active metadata", () =>
-  withTempRoot("check-metadata", testActiveMetadataBoundaries));
+  withFileSystemRoot("check-metadata", testActiveMetadataBoundaries));
 
 test("check rejects archived changes without validating historical content", () =>
-  withTempRoot("check-archived", testArchivedCheckBoundary));
+  withFileSystemRoot("check-archived", testArchivedCheckBoundary));
 
 test("check reports change directory path diagnostics", () =>
-  withTempRoot("check-paths", testDirectoryDiagnostics));
+  withFileSystemRoot("check-paths", testDirectoryDiagnostics));
 
 test("check reports proposal and task artifact diagnostics", () =>
-  withTempRoot("check-artifacts", testArtifactDiagnostics));
+  withFileSystemRoot("check-artifacts", testArtifactDiagnostics));
 
 test("check reports version-control failures separately from unavailable baselines", () =>
   withTempRoot("check-version-control", testVersionControlFailure));
 
 test("check rejects symbolic-link change directories and artifacts", () =>
-  withTempRoot("check-symbolic-links", testSymbolicLinkDiagnostics));
+  withFileSystemRoot("check-symbolic-links", testSymbolicLinkDiagnostics));

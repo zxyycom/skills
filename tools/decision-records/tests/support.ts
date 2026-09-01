@@ -283,6 +283,18 @@ export async function runSourceCli(
   return await captureCliExecution(runSourceDecisionRecordsCli, args);
 }
 
+/**
+ * Exercises lifecycle and relation processing without making a Git-history
+ * assertion. History-specific cases use runSourceCli with their own Git
+ * fixture; filesystem and graph cases explicitly acknowledge unrecorded
+ * history instead of probing the host Git executable.
+ */
+export async function runSourceLifecycleCli(
+  args: readonly string[]
+): Promise<CliExecution> {
+  return await runSourceCli([...args, "--keep-unrecorded-history"]);
+}
+
 export async function runBundledCli(
   args: readonly string[]
 ): Promise<CliExecution> {
@@ -293,6 +305,15 @@ export async function runSuccessfulSourceCli(
   args: readonly string[]
 ): Promise<string> {
   const result = await runSourceCli(args);
+  assert.equal(result.exitCode, 0, result.stderr);
+  assert.equal(result.stderr, "");
+  return result.stdout;
+}
+
+export async function runSuccessfulSourceLifecycleCli(
+  args: readonly string[]
+): Promise<string> {
+  const result = await runSourceLifecycleCli(args);
   assert.equal(result.exitCode, 0, result.stderr);
   assert.equal(result.stderr, "");
   return result.stdout;

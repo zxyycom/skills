@@ -12,6 +12,7 @@ import {
   completedTasks,
   generatedCliPath,
   validProposal,
+  withFileSystemRoot,
   withTempRoot,
   writePlan
 } from "./support.ts";
@@ -210,6 +211,7 @@ async function testChangeRootDiagnostics(tempRoot: string): Promise<void> {
 
   const blockedArchiveRoot = path.join(tempRoot, "blocked-archive-root");
   await writePlan(blockedArchiveRoot, "blocked-plan", {
+    metadata: { stage: "draft" },
     tasks: completedTasks
   });
   await fs.writeFile(
@@ -230,7 +232,9 @@ async function testActiveCollectionCheckAggregation(
   tempRoot: string
 ): Promise<void> {
   const lifecycleRoot = path.join(tempRoot, "collection-check");
-  await writePlan(lifecycleRoot, "valid-active");
+  await writePlan(lifecycleRoot, "valid-active", {
+    metadata: { stage: "draft" }
+  });
   const invalidDirectory = path.join(lifecycleRoot, "invalid-active");
   await fs.mkdir(invalidDirectory, { recursive: true });
   await fs.writeFile(
@@ -286,7 +290,9 @@ async function testCollectionCheckRootOutcomes(
 
 async function testShowStatus(tempRoot: string): Promise<void> {
   const lifecycleRoot = path.join(tempRoot, "show-status");
-  const activeDirectory = await writePlan(lifecycleRoot, "active-plan");
+  const activeDirectory = await writePlan(lifecycleRoot, "active-plan", {
+    metadata: { stage: "draft" }
+  });
   const archivedDirectory = await writePlan(
     path.join(lifecycleRoot, "archive"),
     "old-plan",
@@ -345,7 +351,7 @@ async function testSymbolicLinksAreNotDiscovered(
   const linkedPlanTargetDirectory = await writePlan(
     lifecycleRoot,
     "linked-plan-target",
-    { tasks: completedTasks }
+    { metadata: { stage: "draft" }, tasks: completedTasks }
   );
   const linkedPlanDirectory = path.join(lifecycleRoot, "linked-plan");
   await fs.symlink(
@@ -403,7 +409,9 @@ async function testShowDoesNotReadSymbolicLinks(
     process.platform === "win32" ? "junction" : "dir"
   );
 
-  const realDirectory = await writePlan(tempRoot, "linked-artifact");
+  const realDirectory = await writePlan(tempRoot, "linked-artifact", {
+    metadata: { stage: "draft" }
+  });
   await fs.rm(path.join(realDirectory, "proposal.md"));
   await fs.symlink(
     path.join(externalDirectory, "proposal.md"),
@@ -472,25 +480,28 @@ test("catalog lists active, archived, and all change plans", () =>
   withTempRoot("catalog-statuses", testListStatuses));
 
 test("catalog keeps invalid change entries discoverable", () =>
-  withTempRoot("catalog-invalid", testInvalidEntriesRemainDiscoverable));
+  withFileSystemRoot("catalog-invalid", testInvalidEntriesRemainDiscoverable));
 
 test("catalog filters active changes by lifecycle stage", () =>
   withTempRoot("catalog-stage", testStageFilter));
 
 test("catalog reports inaccessible and malformed lifecycle roots", () =>
-  withTempRoot("catalog-roots", testChangeRootDiagnostics));
+  withFileSystemRoot("catalog-roots", testChangeRootDiagnostics));
 
 test("collection check aggregates active change results", () =>
-  withTempRoot("collection-check", testActiveCollectionCheckAggregation));
+  withFileSystemRoot("collection-check", testActiveCollectionCheckAggregation));
 
 test("collection check distinguishes empty and unavailable roots", () =>
-  withTempRoot("collection-check-roots", testCollectionCheckRootOutcomes));
+  withFileSystemRoot(
+    "collection-check-roots",
+    testCollectionCheckRootOutcomes
+  ));
 
 test("catalog shows lifecycle status", () =>
-  withTempRoot("catalog-show", testShowStatus));
+  withFileSystemRoot("catalog-show", testShowStatus));
 
 test("catalog does not discover symbolic-link change directories", () =>
-  withTempRoot("catalog-links", testSymbolicLinksAreNotDiscovered));
+  withFileSystemRoot("catalog-links", testSymbolicLinksAreNotDiscovered));
 
 test("show does not read symbolic-link directories or artifacts", () =>
-  withTempRoot("catalog-show-links", testShowDoesNotReadSymbolicLinks));
+  withFileSystemRoot("catalog-show-links", testShowDoesNotReadSymbolicLinks));

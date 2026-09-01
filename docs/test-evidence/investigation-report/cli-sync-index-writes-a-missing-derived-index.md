@@ -7,7 +7,7 @@ Entry:
 
 Contract:
 
-- 分发 CLI `sync-index` 能从合法报告源重建缺失的派生 index。
+- 直接调用的源码 CLI 入口 `sync-index` 能从合法报告源重建缺失的派生 index。
 
 Proves:
 

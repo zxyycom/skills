@@ -7,7 +7,7 @@ Entry:
 
 Contract:
 
-- 分发 CLI 对非法报告级 list 选项返回稳定用法错误。
+- 直接调用的源码 CLI 入口对非法报告级 list 选项返回稳定用法错误。
 
 Proves:
 

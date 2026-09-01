@@ -7,7 +7,7 @@ Entry:
 
 Contract:
 
-- 分发 CLI `check` 能成功验证当前完整报告集合。
+- 直接调用的源码 CLI 入口 `check` 能成功验证当前完整报告集合。
 
 Proves:
 

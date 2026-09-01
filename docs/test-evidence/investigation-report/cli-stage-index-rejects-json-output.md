@@ -5,7 +5,7 @@ Entry:
 - `bun test --test-name-pattern="^CLI stage-index rejects JSON output$" ./tools/investigation-report/tests/run.ts`
 
 Contract:
-- 分发 CLI 不为 `stage-index` 提供 JSON 输出协议。
+- 直接调用的源码 CLI 入口 不为 `stage-index` 提供 JSON 输出协议。
 
 Proves:
 - 传入 `--json` 返回退出码 2、stdout 为空、stderr 给出未知选项诊断，且派生 index 字节不变。

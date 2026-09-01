@@ -8,4 +8,4 @@ Contract:
 - CLI 的非法 Investigation ID 是调用参数错误，不是领域操作失败。
 
 Proves:
-- 分发 CLI 对 `./report.md` 返回 status 2、空 stdout，且报告未改。
+- 直接调用的源码 CLI 入口对 `./report.md` 返回 status 2、空 stdout，且报告未改。

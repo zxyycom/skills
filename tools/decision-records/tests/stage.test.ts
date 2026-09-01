@@ -177,7 +177,10 @@ test(
       t.skip("The Git invocation wrapper is currently POSIX-only");
       return;
     }
-    for (const decisionCount of [150, 300]) {
+    // The 300-record fixture already exercises the upper bound. Repeating the
+    // same Git/CAS contract at 150 records doubled the process-heavy test
+    // without covering a different boundary.
+    for (const decisionCount of [300]) {
       await withTemporaryWorkspace(
         `stage-call-count-${decisionCount}`,
         async (workspaceRoot) => {

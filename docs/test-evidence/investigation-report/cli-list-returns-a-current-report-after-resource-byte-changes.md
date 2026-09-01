@@ -7,7 +7,7 @@ Entry:
 
 Contract:
 
-- 资源字节变化不使报告 index 过期，分发 CLI `list` 继续可查询当前报告。
+- 资源字节变化不使报告 index 过期，直接调用的源码 CLI 入口 `list` 继续可查询当前报告。
 
 Proves:
 

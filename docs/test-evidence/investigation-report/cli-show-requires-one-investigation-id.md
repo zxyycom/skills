@@ -7,7 +7,7 @@ Entry:
 
 Contract:
 
-- 分发 CLI `show` 只接受一个明确 Investigation ID。
+- 直接调用的源码 CLI 入口 `show` 只接受一个明确 Investigation ID。
 
 Proves:
 

@@ -17,6 +17,13 @@ import { parseGitFirstParentRevisionChanges } from "../src/version-control/git-n
 import { createGitRepositoryFixture } from "./git-fixture.ts";
 
 const gitTestOptions = { timeout: 15_000 };
+const gitCommitEnvironment = {
+  ...process.env,
+  GIT_AUTHOR_EMAIL: "version-control@example.invalid",
+  GIT_AUTHOR_NAME: "Version Control Test",
+  GIT_COMMITTER_EMAIL: "version-control@example.invalid",
+  GIT_COMMITTER_NAME: "Version Control Test"
+};
 const versionControlRepositoryFixtureRoot = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   "fixtures",
@@ -326,12 +333,6 @@ test(
         return;
       }
       runGit(repositoryRoot, ["config", "core.autocrlf", "false"]);
-      runGit(repositoryRoot, [
-        "config",
-        "user.email",
-        "version-control@example.invalid"
-      ]);
-      runGit(repositoryRoot, ["config", "user.name", "Version Control Test"]);
       await writeFile(repositoryRoot, "docs/sha.md", "sha 256\n");
       runGit(repositoryRoot, ["add", "."]);
       runGit(repositoryRoot, ["commit", "--quiet", "--message", "base"]);
@@ -1705,17 +1706,12 @@ async function createPendingConflictRepository(
 function initializeRepository(repositoryRoot: string): void {
   runGit(repositoryRoot, ["init", "--quiet"]);
   runGit(repositoryRoot, ["config", "core.autocrlf", "false"]);
-  runGit(repositoryRoot, [
-    "config",
-    "user.email",
-    "version-control@example.invalid"
-  ]);
-  runGit(repositoryRoot, ["config", "user.name", "Version Control Test"]);
 }
 
 function runGit(workingDirectory: string, args: readonly string[]): string {
   return execFileSync("git", ["-C", workingDirectory, ...args], {
     encoding: "utf8",
+    env: gitCommitEnvironment,
     windowsHide: true
   });
 }

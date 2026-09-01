@@ -147,10 +147,7 @@ export async function withTempRoot(
   suiteName: string,
   run: (tempRoot: string) => Promise<void>
 ): Promise<void> {
-  const tempRoot = await fs.mkdtemp(
-    path.join(os.tmpdir(), `change-plan-${suiteName}-`)
-  );
-  try {
+  await withTemporaryRoot(suiteName, async (tempRoot) => {
     const { spawnSync } = await import("node:child_process");
     const initialize = spawnSync(
       "git",
@@ -172,6 +169,29 @@ export async function withTempRoot(
         throw new Error(result.stderr);
       }
     }
+    await run(tempRoot);
+  });
+}
+
+/**
+ * Provides an isolated ordinary directory when a test only proves filesystem,
+ * metadata, or Markdown behavior. Git-boundary tests must use withTempRoot.
+ */
+export async function withFileSystemRoot(
+  suiteName: string,
+  run: (tempRoot: string) => Promise<void>
+): Promise<void> {
+  await withTemporaryRoot(suiteName, run);
+}
+
+async function withTemporaryRoot(
+  suiteName: string,
+  run: (tempRoot: string) => Promise<void>
+): Promise<void> {
+  const tempRoot = await fs.mkdtemp(
+    path.join(os.tmpdir(), `change-plan-${suiteName}-`)
+  );
+  try {
     await run(tempRoot);
   } finally {
     await fs.rm(tempRoot, { force: true, recursive: true });

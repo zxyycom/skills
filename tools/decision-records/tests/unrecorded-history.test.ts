@@ -360,6 +360,7 @@ test("evolve discards an intermediate with explicit final relations", () =>
         unrecordedIntermediateRelativePath,
         "--relation",
         "修订=" + currentRelativePath,
+        "--delete-recorded-decision",
         "--root",
         workspaceRoot
       ]);
@@ -407,6 +408,7 @@ test("evolve discard accepts source-empty final relations", () =>
         "aligned=" + successorRelativePath,
         "--discard",
         unrecordedIntermediateRelativePath,
+        "--delete-recorded-decision",
         "--root",
         workspaceRoot
       ]);
@@ -439,6 +441,7 @@ test("evolve discard accepts an explicitly empty final relation set", () =>
         "--discard",
         unrecordedIntermediateRelativePath,
         "--clear-relations",
+        "--delete-recorded-decision",
         "--root",
         workspaceRoot
       ]);
@@ -472,6 +475,7 @@ test("evolve discard accepts an unrelated archived final relation", () =>
         unrecordedIntermediateRelativePath,
         "--relation",
         "修订=" + archivedRelativePath,
+        "--delete-recorded-decision",
         "--root",
         workspaceRoot
       ]);
@@ -676,6 +680,7 @@ test("evolve discard rejects a predecessor referenced by another candidate", () 
         unrecordedIntermediateRelativePath,
         "--relation",
         "修订=" + currentRelativePath,
+        "--delete-recorded-decision",
         "--root",
         workspaceRoot
       ]);

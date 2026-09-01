@@ -16,6 +16,7 @@ import {
   runGit,
   runSourceCli,
   runSuccessfulSourceCli,
+  runSuccessfulSourceLifecycleCli,
   withFixtureWorkspace,
   withGitFixtureWorkspace,
   withTemporaryWorkspace,
@@ -56,7 +57,7 @@ test("discarding the only active established decision removes the derived index"
     const decisionPath = decisionFilePath(workspaceRoot, decisionId);
     await fs.mkdir(path.dirname(decisionPath), { recursive: true });
     await fs.writeFile(decisionPath, candidateDecisionBody(), "utf8");
-    await runSuccessfulSourceCli([
+    await runSuccessfulSourceLifecycleCli([
       "activate",
       decisionId,
       "--alignment",
@@ -69,6 +70,7 @@ test("discarding the only active established decision removes the derived index"
     const discarded = await runSourceCli([
       "discard",
       decisionId,
+      "--delete-recorded-decision",
       "--root",
       workspaceRoot
     ]);
@@ -85,7 +87,7 @@ test("discarding the only archived established decision removes its archive path
     const decisionPath = decisionFilePath(workspaceRoot, decisionId);
     await fs.mkdir(path.dirname(decisionPath), { recursive: true });
     await fs.writeFile(decisionPath, candidateDecisionBody(), "utf8");
-    await runSuccessfulSourceCli([
+    await runSuccessfulSourceLifecycleCli([
       "activate",
       decisionId,
       "--alignment",
@@ -93,7 +95,7 @@ test("discarding the only archived established decision removes its archive path
       "--root",
       workspaceRoot
     ]);
-    await runSuccessfulSourceCli([
+    await runSuccessfulSourceLifecycleCli([
       "archive",
       decisionId,
       "--root",
@@ -105,6 +107,7 @@ test("discarding the only archived established decision removes its archive path
     const discarded = await runSourceCli([
       "discard",
       decisionId,
+      "--delete-recorded-decision",
       "--root",
       workspaceRoot
     ]);
@@ -266,7 +269,7 @@ test("discard rejects an established decision that is still referenced without m
         }),
         "utf8"
       );
-      await runSuccessfulSourceCli([
+      await runSuccessfulSourceLifecycleCli([
         "activate",
         successorRelativePath,
         "--alignment",

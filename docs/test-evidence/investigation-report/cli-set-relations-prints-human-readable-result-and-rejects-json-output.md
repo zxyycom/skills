@@ -7,7 +7,7 @@ Entry:
 
 Contract:
 
-- 分发 CLI `set-relations` 以完整 source 组接收替换，并输出人类可读结果；不提供 JSON 输出契约。
+- 直接调用的源码 CLI 入口 `set-relations` 以完整 source 组接收替换，并输出人类可读结果；不提供 JSON 输出契约。
 
 Proves:
 

@@ -7,7 +7,7 @@ Entry:
 
 Contract:
 
-- 分发 CLI `stage-index` 必须要求至少一个 Investigation ID。
+- 直接调用的源码 CLI 入口 `stage-index` 必须要求至少一个 Investigation ID。
 
 Proves:
 

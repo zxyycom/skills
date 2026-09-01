@@ -25,6 +25,13 @@ const environmentRepositoryFixtureRoot = path.join(
 
 type CommandResult = SpawnSyncReturns<string>;
 
+const gitCommitConfig = [
+  "-c",
+  "user.email=environment@example.invalid",
+  "-c",
+  "user.name=Environment Test"
+];
+
 function run(
   command: string,
   args: string[],
@@ -201,17 +208,13 @@ async function createHashHookRepository(
   );
 
   requireSuccess(run("git", ["init", "-b", "main"], root), "git init");
-  requireSuccess(
-    run("git", ["config", "user.name", "Environment Test"], root),
-    "git config user.name"
-  );
-  requireSuccess(
-    run("git", ["config", "user.email", "environment@example.invalid"], root),
-    "git config user.email"
-  );
   requireSuccess(run("git", ["add", "."], root), "git add");
   requireSuccess(
-    run("git", ["commit", "--no-verify", "-m", "fixture"], root),
+    run(
+      "git",
+      [...gitCommitConfig, "commit", "--no-verify", "-m", "fixture"],
+      root
+    ),
     "git commit"
   );
   return root;
@@ -348,7 +351,7 @@ function commandPaths(command: string): readonly string[] {
 function assertHookExecutes(root: string): void {
   const result = run(
     "git",
-    ["commit", "--allow-empty", "-m", "hook check"],
+    [...gitCommitConfig, "commit", "--allow-empty", "-m", "hook check"],
     root
   );
   assert.notEqual(result.status, 0, "the fixture hook must block the commit");
@@ -376,18 +379,6 @@ test("environment setup enables the pre-commit hook in a fresh clone", async () 
         tempRoot
       ),
       "git clone"
-    );
-    requireSuccess(
-      run("git", ["config", "user.name", "Environment Test"], clone),
-      "clone user.name"
-    );
-    requireSuccess(
-      run(
-        "git",
-        ["config", "user.email", "environment@example.invalid"],
-        clone
-      ),
-      "clone user.email"
     );
     const fakeTools = await createFakeToolPath(tempRoot);
 
