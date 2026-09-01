@@ -90,6 +90,7 @@
       "append-self-contained-investigation-reports.md": "sha256:71da162844321dd3036ed0c407deab2abeaf2b83908e85d66c25008e1865f5da",
       "assign-tool-and-automation-source-owners.md": "sha256:f06cafa1d250fdb46ef388821328e4d6d90621fbb729644b27c20b20206e337b",
       "attach-verifiable-resources-to-investigation-reports.md": "sha256:68cb01b442965023497c4abd2e7ced4b3db87c61acee5be61c307abfab41c58d",
+      "automatically-record-complex-bug-investigations.md": "sha256:7cb3764e779ffb68c00ebec8efc2557a1d79d27185c1e76745b34381688a7f34",
       "bootstrap-hooks-and-select-project-roots.md": "sha256:2f842ab904953734783f4c4118589abd54d1b1242a3c21c01cf8fea1ba52a041",
       "bootstrap-hooks-and-use-project-short-commands.md": "sha256:38cbe8024d7a7af8944663b4401a22e1dce38558f9cc6e2e7387de17d3eb700c",
       "bootstrap-platform-git-hooks.md": "sha256:264a280720959834423621f7c61ae54d99e3c0ac7efdf43b6559592db0f089dc",
@@ -2790,6 +2791,37 @@
         "decision": "允许报告按需声明统一资源池中的资源引用；主题索引管理已声明的报告关系和资源 SHA-256，并让资源快照参与 source revision。",
         "tags": [
           "investigation-report"
+        ],
+        "relations": []
+      }
+    },
+    "automatically-record-complex-bug-investigations.md": {
+      "keys": {
+        "tag": [
+          "complex-bug",
+          "investigation-report",
+          "project-documentation"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "automatically-record-complex-bug-investigations.md",
+        "title": "自动沉淀复杂 Bug 调查",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T15:46:40Z",
+        "purpose": "让复杂 Bug 的证据链和修复边界可跨任务复核，并让普通排障保持在当前任务内完成。",
+        "background": "复杂排查的完整复核还需要代码和测试之外的假设排除、环境条件与修复风险，报告成本需要与复核价值相称。",
+        "decision": "本仓库自动为达到复杂度与复核价值门槛的 Bug 建立调查报告；普通 Bug 留在当前任务，用户明确要求时再沉淀。",
+        "tags": [
+          "complex-bug",
+          "investigation-report",
+          "project-documentation"
         ],
         "relations": []
       }
