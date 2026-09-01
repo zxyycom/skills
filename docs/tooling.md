@@ -85,26 +85,26 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 
 ### 权威 Vibe 门禁
 
-`bun run check` 是唯一权威门禁入口。default 接受无参数或一次 `--diagnostic-log`；full 接受一次 `--full`、可选的一次 `--baseline-ref <ref>` 和可选的一次 `--diagnostic-log`。`--baseline-ref` 只能与 full 组合，`<ref>` 必须是已 trim 的非空 revision 输入，且不得以 `-` 开头、包含 NUL、CR 或 LF；未知参数和重复 flag 在启动 Check 前失败。该 wrapper 级验证不解析 Git ref；实际解析仍由 release version Check 内的 `hash:skills` 完成。CLI 将 Vibe 的最终结果映射为进程退出状态；`scripts/lib/vibe-gate.ts` 是语义 Check catalog、Definition、命令 adapter 和 release DAG owner。`--verbose`、`CHECK_CONCURRENCY`、旧摘要 renderer 和候选 `vibe-check` 命令均不是当前契约。
+`bun run check` 是唯一权威门禁入口。default 接受无参数或一次 `--diagnostic-log`；full 接受一次 `--full`、可选的一次 `--baseline-ref <ref>` 和可选的一次 `--diagnostic-log`。`--baseline-ref` 只能与 full 组合，`<ref>` 必须是已 trim 的非空 revision 输入，且不得以 `-` 开头、包含 NUL、CR 或 LF；未知参数和重复 flag 在启动 Check 前失败。该 wrapper 级验证不解析 Git ref；实际解析由 `release:skill-prepare` 完成。CLI 将 Vibe 的最终结果映射为进程退出状态；`scripts/lib/vibe-gate.ts` 是语义 Check catalog、Definition、命令 adapter 和 release DAG owner。`--verbose`、`CHECK_CONCURRENCY`、旧摘要 renderer 和候选 `vibe-check` 命令均不是当前契约。
 
 | 术语 | 当前含义 |
 | --- | --- |
 | semantic Check | catalog 中以稳定 ID、显示名、profile 和直接命令定义的最小 Gate 单元。ID 与命名表达可行动的证明边界和失败后的 owner 路由；测试文件与 package script 只是其执行容器。 |
-| selected Check | 当前 Definition 按 profile 从 catalog 展开的 Check；full 还加入两个 release DAG 节点。`all` aggregate 结算当前选择的全部 Check。 |
+| selected Check | 当前 Definition 按 profile 从 catalog 展开的 Check；full 还加入 release snapshot prepare、version authorization 与 packaging 三个 DAG 节点。`all` aggregate 结算当前选择的全部 Check。 |
 | blocking Check | finding、failed、unavailable 或意外 not-applicable 都使当前 aggregate 失败。 |
 | required advisory Check | 可信 finding 仍以 warning + passed 结算，不影响 aggregate 或 release 资格；无法执行、结果不可信或意外 N/A 则 fail closed。 |
 | default / full | default 保持原有日常工作区覆盖；full 保持 default 覆盖，并加入原本属于 full 的领域或 release 能力。profile 表达交付范围，不按预计耗时、并行度或文件数量重分组。 |
-| release-required Check | full 中普通的原生、维护脚本和语义 Check。每项必须形成可信 passed，release version Check 才会开始；该集合由 catalog/Definition 派生，不在本文维护易过期的 ID 清单。 |
+| release-required Check | full 中普通的原生、维护脚本和语义 Check。每项必须形成可信 passed，release version authorization 才会开始；该集合由 catalog/Definition 派生，不在本文维护易过期的 ID 清单。 |
 
 Check catalog 以“它证明什么、失败后由谁处理”为分组条件：例如领域记录/索引、生命周期事务、按稳定 ID 的 pending-stage、调用协议和可分发制品可以是不同 Check；共同证明一个契约的多个原生测试文件保留在同一 Check。不得为均衡耗时把 Check 拆成每个测试，也不得把一个工具的全部测试重新合并为单一 Check。package scripts 继续是面向维护者的稳定手动聚合入口，但语义 Check 不再以 package script 身份作为 leaf。失败结果给出的直接命令是重跑该 Check 的权威路径；需要完整领域回归时仍可运行相应 `test:*` 聚合命令。
 
-两种 Definition 都使用 Vibe 原生 progress、静态 `maxParallel: 4` 和 `all` aggregate，明确令 `unavailable`、`not-applicable` 与空选择失败。调度顺序和并发设置不表达 Check 语义、失败优先级或 release 依赖；独立 Check 即使其他 Check 已失败仍继续结算。性能只作防退化观察：维护时确认 catalog 没有无真实共享契约的重复入口选择，不以单次耗时、平均分片或 worker 利用率改变 catalog、profile 或依赖。machine publication 默认写入专属且被 Git 忽略的 `.log/vibe-check/publication/`：`run.json` 保存本次运行的完整 Check facts，`records.ndjson` 保存 supplemental Records。catalog Check ID 是这些事实的稳定机器身份；显示名、声明顺序、调度结果和未来缓存命中都不能改写它。publication 是门禁结果的机器消费边界，不替代 CLI 退出码。
+两种 Definition 都使用 Vibe 原生 progress、静态 `maxParallel: 4` 和 `all` aggregate，明确令 `unavailable`、`not-applicable` 与空选择失败。调度顺序和并发设置不表达 Check 语义、失败优先级或 release 依赖；独立 Check 即使其他 Check 已失败仍继续结算。wrapper 仅从上一轮 aggregate passed 的 completed `RunResult.checkDurations` 在被 Git 忽略的 default/full profile 文件中保存可选时长提示。下一轮只有取得全部可执行 Check 的有限非负时长时，才按关键路径 rank 降序稳定重排 Definition 声明顺序；实际 admission 仍由 Vibe 调度器决定。文件缺失、损坏、读写失败、不完整提示或环均保留 catalog 顺序。提示不缓存结果、不跳过 Check，也不改变 Gate 结算或 CLI 退出码。machine publication 默认写入专属且被 Git 忽略的 `.log/vibe-check/publication/`：`run.json` 保存本次运行的完整 Check facts，`records.ndjson` 保存 supplemental Records。catalog Check ID 是这些事实的稳定机器身份；显示名、声明顺序、调度结果和未来缓存命中都不能改写它。publication 是门禁结果的机器消费边界，不替代 CLI 退出码。
 
 diagnostic log 用于人类排查单次 invocation 的调度与执行过程，不是稳定机器 schema。它默认关闭；default 或 full 追加 `--diagnostic-log` 时，wrapper 仅为该 invocation 启用 `diagnosticLogging`，将日志写入被 Git 忽略的 `.log/vibe-check/run-*.log`，不改变 machine publication。只要 Vibe 返回的 RunResult 提供非空 diagnostic file，CLI 就回显实际路径：这包括 completed 的 passed/failed aggregate，以及 cancelled、planning、execution、output 的 invocation failure；configuration 没有 outputs，因此不回显。失败仍同时输出既有失败诊断。两类输出共用受控根目录，但不共用文件层级。
 
 六项原生 Check 共用当前维护范围：代码类 Check 读取 Git worktree 中 `scripts/`、`tools/` 的 JavaScript/TypeScript，并排除 Vibe 默认排除项、`changes/archive/**` 和 `docs/investigations/_resources/**`；JSON 与 Markdown 也排除这两类历史内容。重复检测只把不少于 150 tokens 的重复片段作为 blocking finding，避免把已知的小型维护片段误作门禁失败。
 
-full 同时验证工作区正确性与 release snapshot，但两者输入不能互相替代：普通 Check 在本次项目根 invocation 中结算，原生 Check 明确选择 Git worktree，脚本或直接测试命令由自身契约决定读取输入；release version 与 `pack:skills` 共同消费 Git `pending` 快照，默认 Git 实现将其映射到 index。因此 full 通过不说明未暂存的工作树 skill 改动已进入制品；需要核对两者一致性时，分别检查工作树与 index。
+full 同时验证工作区正确性与 release snapshot，但两者输入不能互相替代：普通 Check 在本次项目根 invocation 中结算，原生 Check 明确选择 Git worktree，脚本或直接测试命令由自身契约决定读取输入；`release:skill-prepare` 一次读取 Git `pending` 快照，默认 Git 实现将其映射到 index，随后 version authorization 与 `pack:skills` 只消费该 invocation-local 内存快照。因此 full 通过不说明未暂存的工作树 skill 改动已进入制品；需要核对两者一致性时，分别检查工作树与 index。
 
 | Check 类别 | 语义 |
 | --- | --- |
@@ -126,18 +126,22 @@ full 同时验证工作区正确性与 release snapshot，但两者输入不能�
 full 的 release DAG 固定为：
 
 ```text
-所有 full 普通 Check
-          │ 全部可信 passed
-          ▼
-release:skill-version（运行 hash:skills，相对 baseline 校验 Git pending）
+release:skill-prepare（无普通前置，捕获 Git pending、pin baseline、分析版本）
+          │ passed；保留内存 snapshot
+          ├──────────────────────────────────────┐
+          │                                      │
+所有 full 普通 Check                              │
+          │ 全部可信 passed                       │
+          ▼                                      │
+release:skill-version（授权 prepare 的同一快照） ◀┘
           │ passed
           ▼
-pack:skills（恰好一次，从同一 Git pending 生成制品）
+pack:skills（恰好一次，从已授权的内存快照生成制品）
 ```
 
-1. CLI 和 release version preflight 只验证 authored `baselineRef` 的输入形状：非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR、LF；它们不声称该 Git ref 存在或可解析。
-2. release version execution 将基线作为 supplemental Record 发布；只有全部 release-required Check 已可信 passed，才调用 `hash:skills`。任一普通前置不是 passed 时，version 与 packaging 均不开始，也不产生本次制品。
-3. version failed 或 unavailable 时，`pack:skills` 不开始；只有 version passed 才恰好调用一次 `pack:skills`。版本节点保留基线，两个节点分别保留可定位的失败结果；`hash:skills` 不作为普通 package-script Check。pre-commit hook 仍独立以 `HEAD` 校验待提交版本。
+1. CLI 与 prepare preflight 只验证 authored `baselineRef` 的输入形状；它们不声称该 Git ref 存在或可解析。
+2. `release:skill-prepare` 解析基线 revision，并一次捕获 pending snapshot、hash、版本与 version issues。捕获或解析失败为 unavailable；发现 version issue 仍完成 prepare。
+3. `release:skill-version` 只在全部普通 prerequisite 及 prepare passed 后授权这份内存 snapshot；版本问题使 authorization failed。`pack:skills` 只在 authorization passed 后从该 snapshot 生成制品，不重新读取 Git index。`hash:skills` 仍是独立 CLI，pre-commit hook 仍独立以 `HEAD` 校验待提交版本。
 
 当前锁文件解析 `@zxyycom/vibe-check@0.0.1`，两个窄 wrapper 只修复该版本实际暴露的兼容边界，不接管文件选择、parser、scheduler、aggregate 或工具安装：
 
@@ -266,9 +270,9 @@ task-graph 短命令另外承担项目 root 选择。省略 `--root` 时，它�
 
 Skill hash 和 zip 使用相同的版本管理 `pending` 快照，只覆盖最终进入 `skills/<skill-name>/` zip 的文件。默认 Git 实现把 `pending` 映射到 index，避免工作区覆盖和跨平台换行改变待提交制品。聚合 hash、zip 和 release 检测始终纳入每个包内文件的原始字节；这保证 source map、声明及其他制品字节改变都能得到不同的制品身份。每个 `SKILL.md` frontmatter 的 `metadata.version` 是手动维护的正整数字符串独立版本；版本门禁只对版本承载变化要求提升：`scripts/` 内由相邻 `.mjs` 的最后一个非空行以完整 `//# sourceMappingURL=<basename>` 指令链接的生成 `.mjs.map` 调试元数据编辑、新增或删除不承载版本，成对存在的 `.d.mts` 声明以根目录 `.oxfmtrc.json` 的配置规范化后比较，纯格式差异不承载版本；运行时 `.mjs`、声明语义、普通包内容以及声明的新增或删除仍承载版本，必须提升版本。
 
-`hash:skills` 只在本次命令运行期间计算全部 skill 的聚合 hash，不把 hash 或 lock 写入仓库。它将 Git `pending` 快照中发生的版本承载变化与指定 Git 基线 `SKILL.md` 中的 `metadata.version` 比较；pre-commit hook 默认使用 `HEAD`。full 的 release 终结 Check 把 `--baseline-ref <ref>` 作为 authored options，preflight 仅验证 wrapper 输入边界，并在前置通过后由 `hash:skills` 解析该基线并运行版本比较；本地 full 缺省为 `HEAD`，CI 传入事件基线。hash 用于标识本次制品，既不是 updater 输入，也不是长期状态。
+`hash:skills` 只在本次命令运行期间计算全部 skill 的聚合 hash，不把 hash 或 lock 写入仓库。它将 Git `pending` 快照中发生的版本承载变化与指定 Git 基线 `SKILL.md` 中的 `metadata.version` 比较；pre-commit hook 默认使用 `HEAD`。full 将 `--baseline-ref <ref>` 交给 prepare；prepare 在普通 Check 结算期间解析该基线并运行版本分析，authorization 只消费 prepare 保留的结果。本地 full 缺省为 `HEAD`，CI 传入事件基线。hash 用于标识本次制品，既不是 updater 输入，也不是长期状态。
 
-`pack:skills` 每次先清空 `dist/`，再分别生成 `dist/<skill-name>.zip` 和只包含独立版本的 `dist/skill-release-manifest.json`。项目文档、`tools/`、`scripts/`、CI 和仓库元数据不进入 zip；只有这些内容同步为 skill 内生成产物后，才会改变对应 skill hash。
+`pack:skills` CLI 每次从自己读取的 pending snapshot 重建 `dist/` 中的 zip 与 manifest。full 的 `pack:skills` Check 则从 prepare 已捕获且经 version authorization 的同一内存 snapshot 走同一打包入口，不重新读取 Git index。项目文档、`tools/`、`scripts/`、CI 和仓库元数据不进入 zip；只有这些内容同步为 skill 内生成产物后，才会改变对应 skill hash。
 
 ## Git hook
 

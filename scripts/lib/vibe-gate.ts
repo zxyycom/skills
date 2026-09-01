@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   defaultProjectFileSelection,
@@ -12,10 +13,102 @@ import {
   markdownLinkValidation
 } from "@zxyycom/vibe-check";
 import type { Check, ProjectDefinition } from "@zxyycom/vibe-check";
+import {
+  packSkillPackageSnapshot,
+  prepareSkillPackageRelease,
+  type PreparedSkillPackageRelease
+} from "./skill-package-release.ts";
 
 export type GateProfile = "default" | "full";
 
 const diagnosticOutputLimit = 4_000;
+
+function isEstimatedDuration(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0;
+}
+
+/**
+ * Reorders only root executable Checks for Vibe's canonical-order admission.
+ * Invalid declarations deliberately keep their original order so Vibe still owns
+ * Definition and DAG validation.
+ */
+export function orderRootChecksByCriticalRank(
+  checks: readonly Check[],
+  durationHints: ReadonlyMap<string, number> | undefined
+): readonly Check[] {
+  const executable = checks.flatMap((check, index) =>
+    typeof check.execution === "function" ? [{ check, index }] : []
+  );
+  if (executable.length === 0 || durationHints === undefined) return checks;
+
+  const executableById = new Map<string, (typeof executable)[number]>();
+  for (const entry of executable) {
+    if (executableById.has(entry.check.checkId)) {
+      return checks;
+    }
+    const duration = durationHints.get(entry.check.checkId);
+    if (!isEstimatedDuration(duration)) {
+      return checks;
+    }
+    executableById.set(entry.check.checkId, entry);
+  }
+
+  const successorsById = new Map(
+    executable.map(({ check }) => [check.checkId, [] as string[]])
+  );
+  for (const { check } of executable) {
+    if (check.dependsOn === undefined) continue;
+    if (!Array.isArray(check.dependsOn)) {
+      return checks;
+    }
+    for (const dependencyId of check.dependsOn) {
+      if (
+        typeof dependencyId !== "string" ||
+        !successorsById.has(dependencyId)
+      ) {
+        return checks;
+      }
+      successorsById.get(dependencyId)?.push(check.checkId);
+    }
+  }
+
+  const ranks = new Map<string, number>();
+  const visiting = new Set<string>();
+  const rank = (checkId: string): number | undefined => {
+    if (visiting.has(checkId)) return undefined;
+    const cached = ranks.get(checkId);
+    if (cached !== undefined) return cached;
+    const duration = durationHints.get(checkId);
+    if (!isEstimatedDuration(duration)) return undefined;
+    visiting.add(checkId);
+    let longestSuccessorRank = 0;
+    for (const successorId of successorsById.get(checkId) ?? []) {
+      const successorRank = rank(successorId);
+      if (successorRank === undefined) return undefined;
+      longestSuccessorRank = Math.max(longestSuccessorRank, successorRank);
+    }
+    visiting.delete(checkId);
+    const computed = duration + longestSuccessorRank;
+    ranks.set(checkId, computed);
+    return computed;
+  };
+  for (const { check } of executable) {
+    if (rank(check.checkId) === undefined) return checks;
+  }
+
+  const orderedExecutable = [...executable].sort((left, right) => {
+    const rankDifference =
+      (ranks.get(right.check.checkId) ?? 0) -
+      (ranks.get(left.check.checkId) ?? 0);
+    return rankDifference === 0 ? left.index - right.index : rankDifference;
+  });
+  let executableIndex = 0;
+  return checks.map((check) =>
+    typeof check.execution === "function"
+      ? (orderedExecutable[executableIndex++]?.check ?? check)
+      : check
+  );
+}
 
 export const projectJscpdExecutable = fileURLToPath(
   new URL("./vibe-jscpd.js", import.meta.url)
@@ -303,6 +396,12 @@ export const semanticGateChecks = [
     command: bunTest("./tools/task-graph/tests/generated-artifacts.test.ts")
   },
   {
+    checkId: "test:task-graph:portable-build",
+    displayName: "Task Graph portable build",
+    profile: "full",
+    command: bunTest("./tools/task-graph/tests/portable-build.test.ts")
+  },
+  {
     checkId: "test:test-evidence:catalog-contract",
     displayName: "Test Evidence catalog contract",
     profile: "full",
@@ -339,6 +438,8 @@ export const semanticGateChecks = [
 ] as const satisfies readonly SemanticGateCheck[];
 
 export const releaseVersionPackageScript = "hash:skills";
+export const releaseSnapshotCheckId = "release:skill-prepare";
+
 export function isReleaseBaselineRef(value: unknown): value is string {
   return (
     typeof value === "string" &&
@@ -381,7 +482,16 @@ export type GateCommandRunner = (
 
 export type GateDefinitionDependencies = Readonly<{
   baselineRef?: string;
+  durationHints?: ReadonlyMap<string, number>;
   nativeChecks?: readonly Check[];
+  packRelease?: (
+    preparedRelease: PreparedSkillPackageRelease,
+    workspaceRoot: string
+  ) => Promise<unknown>;
+  prepareRelease?: (
+    workspaceRoot: string,
+    baselineRef: string
+  ) => Promise<PreparedSkillPackageRelease>;
   runCommand?: GateCommandRunner;
 }>;
 
@@ -700,13 +810,18 @@ function prepareReleaseBaseline(
     : { status: "invalid" };
 }
 
-function releasePrerequisiteFailure(
-  dependencies: Readonly<{
-    get(
-      checkId: string
-    ): Readonly<{ ok: boolean; status?: string }> | undefined;
-  }>
-) {
+type ReleaseDependencies = Readonly<{
+  get(checkId: string):
+    | Readonly<{
+        ok: boolean;
+        status?: string;
+      }>
+    | undefined;
+}>;
+
+type ReleaseState = { prepared: PreparedSkillPackageRelease | undefined };
+
+function releasePrerequisiteFailure(dependencies: ReleaseDependencies) {
   for (const checkId of releaseRequiredCheckIds) {
     const dependency = dependencies.get(checkId);
     if (!dependency?.ok) {
@@ -742,14 +857,30 @@ function releasePrerequisiteFailure(
   return null;
 }
 
-function createReleaseVersionCheck(
-  runner: GateCommandRunner,
-  baselineRef: string
+function releaseSnapshotUnavailable(message: string, error: unknown) {
+  const detail = error instanceof Error ? error.message : String(error);
+  return {
+    status: "unavailable" as const,
+    reason: { code: "release-snapshot-unavailable" },
+    messages: [
+      {
+        level: "error" as const,
+        code: "release-snapshot-unavailable",
+        message: `${message}${outputMessage(detail)}`
+      }
+    ]
+  };
+}
+
+function createReleasePrepareCheck(
+  baselineRef: string,
+  prepareRelease: GateDefinitionDependencies["prepareRelease"],
+  state: ReleaseState
 ): Check {
+  const prepare = prepareRelease ?? prepareSkillPackageRelease;
   return defineCheck({
-    checkId: "release:skill-version",
-    displayName: "Validate skill release versions",
-    dependsOn: releaseRequiredCheckIds,
+    checkId: releaseSnapshotCheckId,
+    displayName: "Prepare skill release snapshot",
     options: { baselineRef },
     preflight(options: Readonly<{ baselineRef: string }>) {
       const prepared = prepareReleaseBaseline(options.baselineRef);
@@ -763,7 +894,7 @@ function createReleaseVersionCheck(
               level: "error" as const,
               code: "release-baseline-invalid",
               message:
-                "The release baseline must be a trimmed, non-empty revision input without a leading hyphen, NUL, CR, or LF. Only hash:skills resolves it after release prerequisites pass. Pass --baseline-ref <ref> to bun run check --full."
+                "The release baseline must be a trimmed, non-empty revision input without a leading hyphen, NUL, CR, or LF. Pass --baseline-ref <ref> to bun run check --full."
             }
           ]
         };
@@ -773,50 +904,76 @@ function createReleaseVersionCheck(
         preparedOptions: { baselineRef: prepared.baselineRef }
       };
     },
-    async execution({ dependencies, options, project, records, signal }) {
-      records.report(
-        { id: "release-baseline" },
-        { baselineRef: options.baselineRef }
-      );
-      const prerequisiteFailure = releasePrerequisiteFailure(dependencies);
-      if (prerequisiteFailure !== null) return prerequisiteFailure;
-      const result = await executeGateCommand({
-        command: {
-          args: [
-            "run",
-            releaseVersionPackageScript,
-            "--",
-            "--baseline-ref",
-            options.baselineRef,
-            "--quiet"
-          ],
-          command: "bun"
-        },
-        projectRoot: project.root,
-        runner,
-        context: {
-          kind: "package-script",
-          script: releaseVersionPackageScript
-        },
-        signal
-      });
-      if (result.status === "passed" || result.status === "failed") {
-        return {
-          ...result,
-          data: { ...result.data, baselineRef: options.baselineRef }
-        };
+    async execution({ options, project }) {
+      try {
+        state.prepared = await prepare(project.root, options.baselineRef);
+        return { status: "passed" as const, data: {} };
+      } catch (error) {
+        return releaseSnapshotUnavailable(
+          "Could not prepare the pending skill release snapshot. Fix the Git or skill-package input and rerun bun run check --full.",
+          error
+        );
       }
-      return result;
     }
   });
 }
 
-function createPackSkillsCheck(runner: GateCommandRunner): Check {
+function createReleaseVersionCheck(state: ReleaseState): Check {
+  return defineCheck({
+    checkId: "release:skill-version",
+    displayName: "Validate skill release versions",
+    dependsOn: [...releaseRequiredCheckIds, releaseSnapshotCheckId],
+    async execution({ dependencies }) {
+      const prerequisiteFailure = releasePrerequisiteFailure(dependencies);
+      if (prerequisiteFailure !== null) {
+        state.prepared = undefined;
+        return prerequisiteFailure;
+      }
+      const prepared = state.prepared;
+      if (prepared === undefined) {
+        return releaseSnapshotUnavailable(
+          "Release version authorization did not receive a prepared snapshot. Rerun bun run check --full.",
+          ""
+        );
+      }
+      if (prepared.versionIssues.length === 0) {
+        return { status: "passed" as const, data: {} };
+      }
+      state.prepared = undefined;
+      return {
+        status: "failed" as const,
+        data: { versionIssueCount: prepared.versionIssues.length },
+        messages: [
+          {
+            level: "error" as const,
+            code: "release-version-invalid",
+            message:
+              `Skill package versions are invalid against ${prepared.baselineRef}:\n- ` +
+              prepared.versionIssues.join("\n- ") +
+              "\nRun bun run hash:skills -- --baseline-ref <ref> for the standalone diagnostic."
+          }
+        ]
+      };
+    }
+  });
+}
+
+function createPackSkillsCheck(
+  packRelease: GateDefinitionDependencies["packRelease"],
+  state: ReleaseState
+): Check {
+  const pack =
+    packRelease ??
+    ((preparedRelease: PreparedSkillPackageRelease, workspaceRoot: string) =>
+      packSkillPackageSnapshot(
+        preparedRelease.snapshot,
+        path.join(workspaceRoot, "dist")
+      ));
   return defineCheck({
     checkId: "pack:skills",
     displayName: "Package skills",
     dependsOn: ["release:skill-version"],
-    async execution({ dependencies, project, signal }) {
+    async execution({ dependencies, project }) {
       const version = dependencies.get("release:skill-version");
       if (!version?.ok) {
         return {
@@ -851,13 +1008,32 @@ function createPackSkillsCheck(runner: GateCommandRunner): Check {
           ]
         };
       }
-      return await executeGateCommand({
-        command: { args: ["run", "pack:skills"], command: "bun" },
-        projectRoot: project.root,
-        runner,
-        context: { kind: "package-script", script: "pack:skills" },
-        signal
-      });
+      const prepared = state.prepared;
+      if (prepared === undefined) {
+        return releaseSnapshotUnavailable(
+          "Packaging did not receive a prepared snapshot. Rerun bun run check --full.",
+          ""
+        );
+      }
+      try {
+        await pack(prepared, project.root);
+        return { status: "passed" as const, data: {} };
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : String(error);
+        return {
+          status: "failed" as const,
+          data: {},
+          messages: [
+            {
+              level: "error" as const,
+              code: "release-pack-failed",
+              message: `Could not package the prepared skill release snapshot.${outputMessage(detail)}`
+            }
+          ]
+        };
+      } finally {
+        state.prepared = undefined;
+      }
     }
   });
 }
@@ -957,7 +1133,12 @@ export function gateCheckIds(profile: GateProfile): readonly string[] {
       ? [...vibeNativeCheckIds, ...semanticCheckIds, ...packageCheckIds]
       : [...vibeNativeCheckIds, ...packageCheckIds, ...semanticCheckIds];
   return profile === "full"
-    ? [...checks, "release:skill-version", "pack:skills"]
+    ? [
+        releaseSnapshotCheckId,
+        ...checks,
+        "release:skill-version",
+        "pack:skills"
+      ]
     : checks;
 }
 
@@ -966,6 +1147,7 @@ export function createGateDefinition(
   dependencies: GateDefinitionDependencies = {}
 ): ProjectDefinition {
   const runner = dependencies.runCommand ?? runGateCommand;
+  const releaseState: ReleaseState = { prepared: undefined };
   const nativeChecks = dependencies.nativeChecks ?? createVibeNativeChecks();
   const semanticChecks = selectedSemanticGateChecks(profile).map((check) =>
     createSemanticGateCheck(check, runner)
@@ -979,13 +1161,20 @@ export function createGateDefinition(
       ? [...nativeChecks, ...semanticChecks, ...packageChecks]
       : [...nativeChecks, ...packageChecks, ...semanticChecks];
   if (profile === "full") {
+    checks.unshift(
+      createReleasePrepareCheck(
+        dependencies.baselineRef ?? "HEAD",
+        dependencies.prepareRelease,
+        releaseState
+      )
+    );
     checks.push(
-      createReleaseVersionCheck(runner, dependencies.baselineRef ?? "HEAD"),
-      createPackSkillsCheck(runner)
+      createReleaseVersionCheck(releaseState),
+      createPackSkillsCheck(dependencies.packRelease, releaseState)
     );
   }
   return defineConfig({
-    checks,
+    checks: orderRootChecksByCriticalRank(checks, dependencies.durationHints),
     outputs: {
       diagnosticLogging: { directory: ".log/vibe-check", enabled: false },
       machinePublication: {

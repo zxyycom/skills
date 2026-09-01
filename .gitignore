@@ -1,6 +1,8 @@
 node_modules/
 dist/
 /.log/vibe-check/
+/.vibe-check-scheduling-hints-default.json
+/.vibe-check-scheduling-hints-full.json
 .DS_Store
 Thumbs.db
 *.log

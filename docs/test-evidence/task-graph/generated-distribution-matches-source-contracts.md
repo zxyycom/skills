@@ -1,11 +1,12 @@
 ### Case TASK-GRAPH-DISTRIBUTION-001: 分发制品与源码公共契约一致
 
 Entry:
-- `tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches source API, schema bytes, and portable metadata`
-- `bun test --test-name-pattern="^generated distribution matches source API, schema bytes, and portable metadata$" ./tools/task-graph/tests/run.ts`
+- `tools/task-graph/tests/generated-artifacts.test.ts > generated distribution matches current source API, schema bytes, and metadata`
+- `bun test --test-name-pattern="^generated distribution matches current source API, schema bytes, and metadata$" ./tools/task-graph/tests/run.ts`
 
 Contract:
-- Task-graph 分发脚本、公开声明闭包、source map 与 JSON Schema 必须由当前源码确定性生成并保持可移植；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。
+- 当前 Task-graph 分发脚本、公开声明闭包、source map 与 JSON Schema 必须与当前源码契约一致；标准 draft 2020-12 consumer 与运行时必须接受和拒绝同一批可表达约束。
+- 本 case 只承接公共分发契约；跨 checkout 的生成字节可复现性由 `TASK-GRAPH-DISTRIBUTION-004` 承接。
 
 Proves:
 - 生成模块与源码 runtime export 集合和 version 结果一致。

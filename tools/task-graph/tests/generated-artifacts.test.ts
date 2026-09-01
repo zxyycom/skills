@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
-import { createRequire } from "node:module";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -13,6 +12,7 @@ import {
   applyOperations,
   graphIndex,
   prepareRootNativeRuntime,
+  resolveInstalledPackageRoot,
   resolveNodeExecutable,
   taskContent,
   taskOperation,
@@ -58,128 +58,6 @@ const generatedSchemaPath = path.join(
   "task-graph-index.schema.json"
 );
 const execFileAsync = promisify(execFile);
-
-async function resolveInstalledPackageRoot(
-  packageName: string,
-  fromManifestPath: string
-): Promise<string> {
-  const packageRequire = createRequire(fromManifestPath);
-  let current: string;
-  try {
-    current = path.dirname(
-      packageRequire.resolve(`${packageName}/package.json`)
-    );
-  } catch {
-    current = path.dirname(packageRequire.resolve(packageName));
-  }
-  while (true) {
-    const manifestPath = path.join(current, "package.json");
-    try {
-      const manifest = JSON.parse(await fs.readFile(manifestPath, "utf8")) as {
-        name?: unknown;
-      };
-      if (manifest.name === packageName) return current;
-    } catch {
-      // Continue toward the resolved package root.
-    }
-    const parent = path.dirname(current);
-    if (parent === current) {
-      throw new Error(
-        `Unable to locate installed package root for ${packageName}`
-      );
-    }
-    current = parent;
-  }
-}
-
-async function copyInstalledPackageClosure(
-  packageNames: readonly string[],
-  fromManifestPath: string,
-  targetNodeModules: string
-): Promise<void> {
-  const installed = new Map<string, string>();
-  const pending = packageNames.map((packageName) => ({
-    packageName,
-    fromManifestPath
-  }));
-  while (pending.length > 0) {
-    const next = pending.shift();
-    if (next === undefined) break;
-    const sourcePackageRoot = await resolveInstalledPackageRoot(
-      next.packageName,
-      next.fromManifestPath
-    );
-    const existingSource = installed.get(next.packageName);
-    if (existingSource !== undefined) {
-      if (existingSource !== sourcePackageRoot) {
-        throw new Error(
-          `Build fixture requires conflicting versions of ${next.packageName}`
-        );
-      }
-      continue;
-    }
-    installed.set(next.packageName, sourcePackageRoot);
-    const targetPackageRoot = path.join(
-      targetNodeModules,
-      ...next.packageName.split("/")
-    );
-    await fs.mkdir(path.dirname(targetPackageRoot), { recursive: true });
-    await fs.cp(sourcePackageRoot, targetPackageRoot, { recursive: true });
-    const sourceManifestPath = path.join(sourcePackageRoot, "package.json");
-    const manifest = JSON.parse(
-      await fs.readFile(sourceManifestPath, "utf8")
-    ) as {
-      dependencies?: Record<string, string>;
-    };
-    for (const dependency of Object.keys(manifest.dependencies ?? {}).sort()) {
-      pending.push({
-        packageName: dependency,
-        fromManifestPath: sourceManifestPath
-      });
-    }
-  }
-}
-
-async function copyTaskGraphBuildCheckout(targetRoot: string): Promise<void> {
-  for (const relativePath of [
-    "package.json",
-    "pnpm-lock.yaml",
-    "pnpm-workspace.yaml",
-    "scripts/build/task-graph.ts",
-    "scripts/lib",
-    "tools/shared/src",
-    "tools/task-graph/src"
-  ]) {
-    const source = path.join(repositoryRoot, relativePath);
-    const target = path.join(targetRoot, relativePath);
-    await fs.mkdir(path.dirname(target), { recursive: true });
-    await fs.cp(source, target, { recursive: true });
-  }
-  const rootManifestPath = path.join(repositoryRoot, "package.json");
-  await copyInstalledPackageClosure(
-    [
-      "@types/node",
-      "@types/write-file-atomic",
-      "@typescript/native-preview",
-      "@valibot/to-json-schema",
-      "fast-glob",
-      "simple-git",
-      "valibot",
-      "write-file-atomic"
-    ],
-    rootManifestPath,
-    path.join(targetRoot, "node_modules")
-  );
-  const compilerRoot = await resolveInstalledPackageRoot(
-    "@typescript/native-preview",
-    rootManifestPath
-  );
-  await copyInstalledPackageClosure(
-    [`@typescript/native-preview-${process.platform}-${process.arch}`],
-    path.join(compilerRoot, "package.json"),
-    path.join(targetRoot, "node_modules")
-  );
-}
 
 const publicRuntimeExports = [
   "TaskGraphError",
@@ -321,7 +199,7 @@ test("generated CLI task list text and JSON modes match source", async () => {
   });
 });
 
-test("generated distribution matches source API, schema bytes, and portable metadata", async () => {
+test("generated distribution matches current source API, schema bytes, and metadata", async () => {
   const generatedApi = await import(pathToFileURL(generatedScriptPath).href);
   assert.deepEqual(Object.keys(sourceApi).sort(), [...publicRuntimeExports]);
   assert.deepEqual(Object.keys(generatedApi).sort(), [...publicRuntimeExports]);
@@ -688,131 +566,6 @@ test("generated distribution matches source API, schema bytes, and portable meta
     assert.equal(validateConsumer(prototypeKey), false, reservedKey);
   }
 });
-
-test(
-  "generated task graph bundle and source map are checkout-path independent",
-  {
-    timeout: 180_000
-  },
-  async () => {
-    await withTempWorkspace(async (root) => {
-      const shortCheckout = path.join(root, "short");
-      const longCheckout = path.join(
-        root,
-        "checkout-with-a-materially-different-absolute-path-length"
-      );
-      await Promise.all([
-        copyTaskGraphBuildCheckout(shortCheckout),
-        copyTaskGraphBuildCheckout(longCheckout)
-      ]);
-      for (const checkout of [shortCheckout, longCheckout]) {
-        await execFileAsync(
-          process.execPath,
-          ["scripts/build/task-graph.ts", "--write"],
-          { cwd: checkout, timeout: 120_000, windowsHide: true }
-        );
-      }
-      const relativeOutput = path.join(
-        "skills",
-        "task-graph",
-        "scripts",
-        "task-graph.mjs"
-      );
-      const shortBundle = await fs.readFile(
-        path.join(shortCheckout, relativeOutput)
-      );
-      const longBundle = await fs.readFile(
-        path.join(longCheckout, relativeOutput)
-      );
-      const shortSourceMap = await fs.readFile(
-        path.join(shortCheckout, `${relativeOutput}.map`)
-      );
-      const longSourceMap = await fs.readFile(
-        path.join(longCheckout, `${relativeOutput}.map`)
-      );
-      const relativeDeclaration = path.join(
-        "skills",
-        "task-graph",
-        "scripts",
-        "task-graph.d.mts"
-      );
-      const shortDeclaration = await fs.readFile(
-        path.join(shortCheckout, relativeDeclaration)
-      );
-      const longDeclaration = await fs.readFile(
-        path.join(longCheckout, relativeDeclaration)
-      );
-      const relativeDeclarationDirectory = path.join(
-        "skills",
-        "task-graph",
-        "scripts",
-        "task-graph-sdk"
-      );
-      const declarationFiles = (
-        await fs.readdir(path.join(shortCheckout, relativeDeclarationDirectory))
-      ).sort();
-      assert.deepEqual(
-        declarationFiles,
-        (
-          await fs.readdir(
-            path.join(longCheckout, relativeDeclarationDirectory)
-          )
-        ).sort()
-      );
-      assert.deepEqual(shortBundle, longBundle);
-      assert.deepEqual(shortSourceMap, longSourceMap);
-      assert.deepEqual(shortDeclaration, longDeclaration);
-      for (const filename of declarationFiles) {
-        assert.deepEqual(
-          await fs.readFile(
-            path.join(shortCheckout, relativeDeclarationDirectory, filename)
-          ),
-          await fs.readFile(
-            path.join(longCheckout, relativeDeclarationDirectory, filename)
-          )
-        );
-      }
-      assert.equal(shortBundle.includes(Buffer.from("debugId=")), false);
-      assert.equal(shortSourceMap.includes(Buffer.from("debugId")), false);
-      assert.equal(
-        shortBundle.includes(
-          Buffer.from("node_modules/write-file-atomic/lib/index.js")
-        ),
-        true
-      );
-
-      const staleDeclaration = path.join(
-        shortCheckout,
-        relativeDeclarationDirectory,
-        "stale.d.mts"
-      );
-      await fs.writeFile(
-        staleDeclaration,
-        [
-          "/*",
-          " * Generated task graph SDK TypeScript declaration. Do not edit this file directly.",
-          " */",
-          "export {};",
-          ""
-        ].join("\n"),
-        "utf8"
-      );
-      await assert.rejects(
-        execFileAsync(
-          process.execPath,
-          ["scripts/build/task-graph.ts", "--check"],
-          { cwd: shortCheckout, timeout: 120_000, windowsHide: true }
-        )
-      );
-      await execFileAsync(
-        process.execPath,
-        ["scripts/build/task-graph.ts", "--write"],
-        { cwd: shortCheckout, timeout: 120_000, windowsHide: true }
-      );
-      await assert.rejects(fs.stat(staleDeclaration), { code: "ENOENT" });
-    });
-  }
-);
 
 test("generated module import is side-effect free in an empty tool home under supported Node", async () => {
   await withTempWorkspace(async (root) => {

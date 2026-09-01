@@ -3,6 +3,11 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 const currentWorkspacePath = Buffer.from(process.cwd());
+const fixtureCommitEnvironment = {
+  ...process.env,
+  GIT_AUTHOR_DATE: "946684800 +0000",
+  GIT_COMMITTER_DATE: "946684800 +0000"
+};
 
 export type GitRepositoryFixture = Readonly<{
   baselineRevision: string;
@@ -38,13 +43,11 @@ export async function createGitRepositoryFixture(
   runGit(repositoryRoot, ["config", "user.email", options.userEmail]);
   runGit(repositoryRoot, ["config", "user.name", options.userName]);
   runGit(repositoryRoot, ["add", "."]);
-  runGit(repositoryRoot, [
-    "commit",
-    "--quiet",
-    "--no-verify",
-    "--message",
-    "fixture"
-  ]);
+  runGit(
+    repositoryRoot,
+    ["commit", "--quiet", "--no-verify", "--message", "fixture"],
+    fixtureCommitEnvironment
+  );
 
   return {
     baselineRevision: runGit(repositoryRoot, ["rev-parse", "HEAD"]).trim(),
@@ -79,9 +82,14 @@ async function assertOrdinaryFixtureTree(root: string): Promise<void> {
   }
 }
 
-function runGit(workingDirectory: string, args: readonly string[]): string {
+function runGit(
+  workingDirectory: string,
+  args: readonly string[],
+  environment?: NodeJS.ProcessEnv
+): string {
   return execFileSync("git", ["-C", workingDirectory, ...args], {
     encoding: "utf8",
+    env: environment,
     windowsHide: true
   });
 }

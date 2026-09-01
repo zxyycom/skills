@@ -1,11 +1,6 @@
 import fs from "node:fs/promises";
 import { parseArgs } from "node:util";
-import {
-  calculateSkillPackageSnapshotHash,
-  getSkillPackageVersionIssues,
-  readPendingSkillPackageSnapshot,
-  readSkillPackageSnapshotVersionBaseline
-} from "./lib/skill-package-hash.ts";
+import { prepareSkillPackageRelease } from "./lib/skill-package-release.ts";
 import { rootDir } from "./lib/project.ts";
 
 const { values: options } = parseArgs({
@@ -19,27 +14,22 @@ const { values: options } = parseArgs({
 });
 const baselineRef = options["baseline-ref"] ?? "HEAD";
 
-const snapshot = await readPendingSkillPackageSnapshot(rootDir);
-const currentPackage = calculateSkillPackageSnapshotHash(snapshot);
-const currentHash = currentPackage.aggregateHash;
-const baseline = await readSkillPackageSnapshotVersionBaseline(
-  snapshot,
-  baselineRef,
-  rootDir
-);
-const versionIssues = getSkillPackageVersionIssues(currentPackage, baseline);
-if (versionIssues.length > 0) {
+const preparedRelease = await prepareSkillPackageRelease(rootDir, baselineRef);
+const currentHash = preparedRelease.currentPackage.aggregateHash;
+if (preparedRelease.versionIssues.length > 0) {
   throw new Error(
     `Skill package versions are invalid against ${baselineRef}:\n- ` +
-      versionIssues.join("\n- ")
+      preparedRelease.versionIssues.join("\n- ")
   );
 }
 
 if (!options.quiet) {
   console.log(`Current skill package hash: ${currentHash}`);
-  console.log(`Skill version baseline: ${baselineRef} (${baseline.revision})`);
   console.log(
-    `Changed skill versions checked: ${Object.keys(baseline.skills).length}`
+    `Skill version baseline: ${baselineRef} (${preparedRelease.baseline.revision})`
+  );
+  console.log(
+    `Changed skill versions checked: ${Object.keys(preparedRelease.baseline.skills).length}`
   );
 }
 

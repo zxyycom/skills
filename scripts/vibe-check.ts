@@ -3,7 +3,15 @@ import { run } from "@zxyycom/vibe-check";
 import type { ProjectDefinition, RunResult } from "@zxyycom/vibe-check";
 import { isMainModule } from "../tools/shared/src/node/main-module.ts";
 import { rootDir } from "./lib/project.ts";
-import { createGateDefinition, isReleaseBaselineRef } from "./lib/vibe-gate.ts";
+import {
+  createGateDefinition,
+  gateCheckIds,
+  isReleaseBaselineRef
+} from "./lib/vibe-gate.ts";
+import {
+  createGateSchedulingHints,
+  type GateSchedulingHints
+} from "./lib/vibe-scheduling-hints.ts";
 
 type GateExitCode = 0 | 1;
 
@@ -20,6 +28,7 @@ export type VibeCheckDependencies = Readonly<{
   reportError?: (message: string) => void;
   reportInfo?: (message: string) => void;
   runProject?: typeof run;
+  schedulingHints?: GateSchedulingHints;
 }>;
 
 export function resolveGateInvocation(
@@ -91,32 +100,50 @@ export async function runVibeCheck(
     return 1;
   }
 
-  const result = await (dependencies.runProject ?? run)(
+  const knownCheckIds = gateCheckIds(invocation.profile);
+  const schedulingHints =
+    dependencies.schedulingHints ?? createGateSchedulingHints(rootDir);
+  const durationHints = await schedulingHints
+    .read(invocation.profile, knownCheckIds)
+    .catch(() => new Map<string, number>());
+  const definition =
     dependencies.createDefinition?.(invocation) ??
-      createGateDefinition(
-        invocation.profile,
-        invocation.profile === "full"
-          ? { baselineRef: invocation.baselineRef }
-          : {}
-      ),
-    {
-      checkAggregation: {
-        checks: "all",
-        empty: "failed",
-        mode: "all",
-        notApplicable: "fail",
-        unavailable: "fail"
-      },
-      ...(invocation.diagnosticLog
-        ? {
-            outputs: {
-              diagnosticLogging: { directory: ".log/vibe-check", enabled: true }
+    createGateDefinition(
+      invocation.profile,
+      invocation.profile === "full"
+        ? { baselineRef: invocation.baselineRef, durationHints }
+        : { durationHints }
+    );
+  const result = await (dependencies.runProject ?? run)(definition, {
+    checkAggregation: {
+      checks: "all",
+      empty: "failed",
+      mode: "all",
+      notApplicable: "fail",
+      unavailable: "fail"
+    },
+    ...(invocation.diagnosticLog
+      ? {
+          outputs: {
+            diagnosticLogging: {
+              directory: ".log/vibe-check",
+              enabled: true
             }
           }
-        : {}),
-      projectRoot: rootDir
-    }
-  );
+        }
+      : {}),
+    projectRoot: rootDir
+  });
+
+  if (result.kind === "completed" && result.aggregate === "passed") {
+    await schedulingHints
+      .write(
+        invocation.profile,
+        definition.checks.map(({ checkId }) => checkId),
+        result.checkDurations
+      )
+      .catch(() => undefined);
+  }
 
   if (
     invocation.diagnosticLog &&

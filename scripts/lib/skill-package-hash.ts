@@ -38,15 +38,15 @@ type SkillTree = {
   treePath: string;
 };
 
-export type SkillPackageFile = {
+export type SkillPackageFile = Readonly<{
   data: Buffer;
   path: string;
-};
+}>;
 
-export type SkillPackageSnapshot = {
-  filesBySkill: ReadonlyMap<string, SkillPackageFile[]>;
-  skills: SkillPackage[];
-};
+export type SkillPackageSnapshot = Readonly<{
+  filesBySkill: ReadonlyMap<string, readonly SkillPackageFile[]>;
+  skills: readonly SkillPackage[];
+}>;
 
 async function formatDeclarationForVersionGate(
   filePath: string,
@@ -343,7 +343,7 @@ export async function collectSkillPackageFileSets(
 
 function calculateSkillPackageHashFromFileSets(
   skills: readonly SkillPackage[],
-  filesBySkill: ReadonlyMap<string, SkillPackageFile[]>
+  filesBySkill: ReadonlyMap<string, readonly SkillPackageFile[]>
 ): SkillPackageHash {
   const aggregate = createHash("sha256");
   aggregate.update("skills-package-v1\0");

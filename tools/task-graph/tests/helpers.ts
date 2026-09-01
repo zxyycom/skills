@@ -21,6 +21,45 @@ const execFileAsync = promisify(execFile);
 let nodeExecutablePromise: Promise<string> | null = null;
 let nodeVersionPromise: Promise<string> | null = null;
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+export async function resolveInstalledPackageRoot(
+  packageName: string,
+  fromManifestPath: string
+): Promise<string> {
+  const packageRequire = createRequire(fromManifestPath);
+  let current: string;
+  try {
+    current = path.dirname(
+      packageRequire.resolve(`${packageName}/package.json`)
+    );
+  } catch {
+    current = path.dirname(packageRequire.resolve(packageName));
+  }
+  while (true) {
+    const manifestPath = path.join(current, "package.json");
+    try {
+      const manifest: unknown = JSON.parse(
+        await fs.readFile(manifestPath, "utf8")
+      );
+      if (isRecord(manifest) && manifest.name === packageName) {
+        return current;
+      }
+    } catch {
+      // Continue toward the resolved package root.
+    }
+    const parent = path.dirname(current);
+    if (parent === current) {
+      throw new Error(
+        `Unable to locate installed package root for ${packageName}`
+      );
+    }
+    current = parent;
+  }
+}
+
 export async function resolveNodeExecutable(): Promise<string> {
   nodeExecutablePromise ??= execFileAsync("node", ["-p", "process.execPath"], {
     windowsHide: true

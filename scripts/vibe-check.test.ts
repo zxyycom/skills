@@ -4,6 +4,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { unzipSync } from "fflate";
 import test from "node:test";
 import {
   defineCheck,
@@ -25,17 +26,27 @@ import {
   defaultGatePackageScripts,
   gateCheckIds,
   historicalContentExclusions,
+  orderRootChecksByCriticalRank,
+  releaseSnapshotCheckId,
   projectJscpdExecutable,
   projectLizardExecutable,
   releaseRequiredPackageScripts,
   releaseRequiredCheckIds,
-  releaseVersionPackageScript,
   runGateCommand,
   semanticGateChecks,
   vibeNativeCheckIds,
   type GateCommandInvocation,
   type GateCommandRunner
 } from "./lib/vibe-gate.ts";
+import {
+  createGateSchedulingHints,
+  schedulingHintsRelativePath,
+  type GateSchedulingHints
+} from "./lib/vibe-scheduling-hints.ts";
+import {
+  packSkillPackageSnapshot,
+  prepareSkillPackageRelease
+} from "./lib/skill-package-release.ts";
 import {
   resolveGateInvocation,
   runVibeCheck,
@@ -90,6 +101,66 @@ function runGit(directory: string, args: readonly string[]): void {
     0,
     `git ${args.join(" ")} failed: ${result.stderr || result.stdout}`
   );
+}
+
+function skillMarkdown(version: number, body: string): string {
+  return [
+    "---",
+    "name: alpha",
+    "metadata:",
+    `  version: "${version}"`,
+    "---",
+    "",
+    body,
+    ""
+  ].join("\n");
+}
+
+async function createReleaseRepository(
+  directory: string,
+  version: number = 1,
+  body: string = "base"
+): Promise<string> {
+  const skillDirectory = path.join(directory, "skills", "alpha");
+  await fs.mkdir(skillDirectory, { recursive: true });
+  await fs.writeFile(
+    path.join(skillDirectory, "SKILL.md"),
+    skillMarkdown(version, body)
+  );
+  runGit(directory, ["init", "--quiet"]);
+  runGit(directory, ["config", "user.email", "skills@example.test"]);
+  runGit(directory, ["config", "user.name", "Skills Test"]);
+  runGit(directory, ["add", "."]);
+  runGit(directory, ["commit", "--quiet", "--message", "base"]);
+  return skillDirectory;
+}
+
+async function stageSkillMarkdown(
+  directory: string,
+  version: number,
+  body: string
+): Promise<void> {
+  await fs.writeFile(
+    path.join(directory, "skills", "alpha", "SKILL.md"),
+    skillMarkdown(version, body)
+  );
+  runGit(directory, ["add", "skills/alpha/SKILL.md"]);
+}
+
+async function zipSkillMarkdown(directory: string): Promise<string> {
+  return await zipSkillMarkdownFor(directory, "alpha");
+}
+
+async function zipSkillMarkdownFor(
+  directory: string,
+  skillName: string
+): Promise<string> {
+  const archive = unzipSync(
+    await fs.readFile(path.join(directory, "dist", `${skillName}.zip`))
+  );
+  const contents = archive[`${skillName}/SKILL.md`];
+  assert.ok(contents);
+  return Buffer.from(contents).toString("utf8");
 }
 
 async function writeFakeLizard(directory: string): Promise<string> {
@@ -181,13 +252,15 @@ function completed(result: RunResult) {
 
 async function runDefinition(
   definition: ProjectDefinition,
-  projectRoot: string
+  projectRoot: string,
+  signal: AbortSignal = new AbortController().signal
 ) {
   return completed(
     await run(definition, {
       checkAggregation: aggregateOptions,
       outputs: noOutput,
-      projectRoot
+      projectRoot,
+      signal
     })
   );
 }
@@ -219,36 +292,6 @@ function passingNativeChecks(): readonly Check[] {
       displayName: checkId,
       execution() {
         return { status: "passed", data: { checkId } };
-      }
-    })
-  );
-}
-
-function nativeChecksWithTerminalOutcome(
-  targetCheckId: (typeof vibeNativeCheckIds)[number],
-  targetStatus: "failed" | "not-applicable" | "unavailable"
-): readonly Check[] {
-  return vibeNativeCheckIds.map((checkId) =>
-    defineCheck({
-      checkId,
-      displayName: checkId,
-      execution() {
-        if (checkId !== targetCheckId) {
-          return { status: "passed" as const, data: { checkId } };
-        }
-        if (targetStatus === "failed") {
-          return {
-            status: "failed" as const,
-            data: { checkId, targetStatus }
-          };
-        }
-        if (targetStatus === "unavailable") {
-          return {
-            status: "unavailable" as const,
-            reason: { code: "fixture-unavailable" }
-          };
-        }
-        return { status: "not-applicable" as const };
       }
     })
   );
@@ -477,6 +520,12 @@ const expectedSemanticGateGroups = [
   ],
   [
     "full",
+    "test:task-graph:portable-build",
+    "bun",
+    ["./tools/task-graph/tests/portable-build.test.ts"]
+  ],
+  [
+    "full",
     "test:test-evidence:catalog-contract",
     "bun",
     ["./tools/test-evidence/tests/catalog.test.ts"]
@@ -593,6 +642,10 @@ const expectedSemanticCommandPaths = new Map<string, string>([
     "./tools/task-graph/tests/generated-artifacts.test.ts"
   ],
   [
+    "test:task-graph:portable-build",
+    "./tools/task-graph/tests/portable-build.test.ts"
+  ],
+  [
     "test:test-evidence:catalog-contract",
     "./tools/test-evidence/tests/catalog.test.ts"
   ],
@@ -646,6 +699,7 @@ test("gate catalog builds semantic default and full Definitions", async () => {
     ...defaultGatePackageScripts.map((script) => `script:${script}`)
   ];
   const expectedFullCheckIds = [
+    releaseSnapshotCheckId,
     ...vibeNativeCheckIds,
     ...releaseRequiredPackageScripts.map((script) => `script:${script}`),
     ...expectedFullSemanticIds,
@@ -675,12 +729,18 @@ test("gate catalog builds semantic default and full Definitions", async () => {
     },
     progressRendering: { enabled: true }
   });
-  assert.equal(releaseRequiredCheckIds.length, 56);
+  assert.equal(releaseRequiredCheckIds.length, 57);
+  assert.deepEqual(
+    fullDefinition.checks.find(
+      ({ checkId }) => checkId === releaseSnapshotCheckId
+    )?.dependsOn ?? [],
+    []
+  );
   assert.deepEqual(
     fullDefinition.checks.find(
       ({ checkId }) => checkId === "release:skill-version"
     )?.dependsOn,
-    releaseRequiredCheckIds
+    [...releaseRequiredCheckIds, releaseSnapshotCheckId]
   );
   assert.deepEqual(releaseTerminalCheck(fullDefinition).dependsOn, [
     "release:skill-version"
@@ -744,12 +804,12 @@ test("gate catalog builds semantic default and full Definitions", async () => {
           checkId.startsWith(`test:${tool}:`)
         ).length
     ),
-    [3, 5, 5, 7, 5]
+    [3, 5, 5, 8, 5]
   );
   const semanticFiles = expectedSemanticGateGroups.flatMap(
     ([, , , files]) => files
   );
-  assert.equal(semanticFiles.length, 58);
+  assert.equal(semanticFiles.length, 59);
   assert.equal(new Set(semanticFiles).size, semanticFiles.length);
   for (const tool of [
     "change-plan",
@@ -802,6 +862,230 @@ test("gate catalog builds semantic default and full Definitions", async () => {
       ?.command.args,
     ["--test", "./tools/task-graph/tests/native-store.test.ts"]
   );
+});
+
+test("critical-rank scheduling follows the dependency critical path and preserves incomplete-hint order", () => {
+  const checks = [
+    defineCheck({
+      checkId: "independent",
+      displayName: "independent",
+      execution: () => ({ status: "passed" as const, data: {} })
+    }),
+    defineCheck({
+      checkId: "chain-start",
+      displayName: "chain-start",
+      execution: () => ({ status: "passed" as const, data: {} })
+    }),
+    defineCheck({
+      checkId: "chain-terminal",
+      dependsOn: ["chain-start"],
+      displayName: "chain-terminal",
+      execution: () => ({ status: "passed" as const, data: {} })
+    }),
+    defineCheck({
+      checkId: "tie-left",
+      displayName: "tie-left",
+      execution: () => ({ status: "passed" as const, data: {} })
+    }),
+    defineCheck({
+      checkId: "tie-right",
+      displayName: "tie-right",
+      execution: () => ({ status: "passed" as const, data: {} })
+    })
+  ];
+  const ordered = orderRootChecksByCriticalRank(
+    checks,
+    new Map([
+      ["independent", 99],
+      ["chain-start", 1],
+      ["chain-terminal", 100],
+      ["tie-left", 5],
+      ["tie-right", 5]
+    ])
+  );
+  assert.deepEqual(
+    ordered.map(({ checkId }) => checkId),
+    ["chain-start", "chain-terminal", "independent", "tie-left", "tie-right"]
+  );
+  assert.equal(orderRootChecksByCriticalRank(checks, undefined), checks);
+  assert.equal(
+    orderRootChecksByCriticalRank(checks, new Map([["chain-start", 1]])),
+    checks
+  );
+  const cycle = [
+    defineCheck({
+      checkId: "left",
+      dependsOn: ["right"],
+      displayName: "left",
+      execution: () => ({ status: "passed" as const, data: {} })
+    }),
+    defineCheck({
+      checkId: "right",
+      dependsOn: ["left"],
+      displayName: "right",
+      execution: () => ({ status: "passed" as const, data: {} })
+    })
+  ];
+  assert.equal(
+    orderRootChecksByCriticalRank(
+      cycle,
+      new Map([
+        ["left", 1],
+        ["right", 1]
+      ])
+    ),
+    cycle
+  );
+});
+test("completed duration hints are profile-local and only alter later admission order", async () => {
+  await withTemporaryDirectory(
+    "skills-vibe-scheduling-hints-",
+    async (directory) => {
+      const schedulingHints = createGateSchedulingHints(directory);
+      const defaultCheckIds = gateCheckIds("default");
+      const fullCheckIds = gateCheckIds("full");
+      await schedulingHints.write("default", defaultCheckIds, [
+        ...defaultCheckIds.map((checkId, index) => ({
+          checkId,
+          durationMs: index + 1
+        })),
+        { checkId: "unknown", durationMs: 1 }
+      ]);
+      const defaultHints = await schedulingHints.read(
+        "default",
+        defaultCheckIds
+      );
+      assert.equal(defaultHints.size, defaultCheckIds.length);
+      await schedulingHints.write("full", fullCheckIds, [
+        { checkId: fullCheckIds[0] ?? "", durationMs: 1 }
+      ]);
+      assert.deepEqual(
+        [...(await schedulingHints.read("default", defaultCheckIds))],
+        [...defaultHints]
+      );
+      const firstDefinition = createGateDefinition("default", {
+        nativeChecks: passingNativeChecks(),
+        runCommand: completedScript()
+      });
+      const orderedDefinition = createGateDefinition("default", {
+        durationHints: defaultHints,
+        nativeChecks: passingNativeChecks(),
+        runCommand: completedScript()
+      });
+      assert.notEqual(orderedDefinition.checks, firstDefinition.checks);
+      await fs.writeFile(
+        path.join(directory, schedulingHintsRelativePath("default")),
+        "{"
+      );
+      const corruptHints = await schedulingHints.read(
+        "default",
+        defaultCheckIds
+      );
+      assert.equal(corruptHints.size, 0);
+      assert.equal(
+        (
+          await runDefinition(
+            createGateDefinition("default", {
+              durationHints: corruptHints,
+              nativeChecks: passingNativeChecks(),
+              runCommand: completedScript()
+            }),
+            directory
+          )
+        ).aggregate,
+        "passed"
+      );
+    }
+  );
+});
+test("scheduling-hint I/O failures never change Vibe gate results or store incomplete Runs", async () => {
+  const passedDefinition = defineConfig({
+    checks: [
+      defineCheck({
+        checkId: "passed",
+        displayName: "passed",
+        execution: () => ({ status: "passed" as const, data: {} })
+      })
+    ],
+    outputs: noOutput
+  });
+  const failedDefinition = defineConfig({
+    checks: [
+      defineCheck({
+        checkId: "failed",
+        displayName: "failed",
+        execution: () => ({ status: "failed" as const, data: {} })
+      })
+    ],
+    outputs: noOutput
+  });
+  let writes = 0;
+  const brokenHints = {
+    async read() {
+      throw new Error("cannot read hints");
+    },
+    async write() {
+      writes += 1;
+      throw new Error("cannot write hints");
+    }
+  };
+  assert.equal(
+    await runVibeCheck([], {
+      createDefinition: () => passedDefinition,
+      runProject: async () =>
+        await run(passedDefinition, {
+          checkAggregation: aggregateOptions,
+          outputs: noOutput,
+          projectRoot: repositoryRoot
+        }),
+      schedulingHints: brokenHints
+    }),
+    0
+  );
+  assert.equal(writes, 1);
+
+  let failedWrites = 0;
+  assert.equal(
+    await runVibeCheck([], {
+      createDefinition: () => failedDefinition,
+      reportError: () => undefined,
+      runProject: async () =>
+        await run(failedDefinition, {
+          checkAggregation: aggregateOptions,
+          outputs: noOutput,
+          projectRoot: repositoryRoot
+        }),
+      schedulingHints: {
+        async read() {
+          return new Map();
+        },
+        async write() {
+          failedWrites += 1;
+        }
+      }
+    }),
+    1
+  );
+  assert.equal(failedWrites, 0);
+
+  let incompleteWrites = 0;
+  assert.equal(
+    await runVibeCheck([], {
+      createDefinition: () => passedDefinition,
+      reportError: () => undefined,
+      runProject: async (_definition, controls) => await run({}, controls),
+      schedulingHints: {
+        async read() {
+          return new Map();
+        },
+        async write() {
+          incompleteWrites += 1;
+        }
+      }
+    }),
+    1
+  );
+  assert.equal(incompleteWrites, 0);
 });
 
 test("package script adapter maps terminal results and settles independent Checks", async () => {
@@ -1052,6 +1336,15 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
     ],
     outputs: noOutput
   });
+  let schedulingHintWrites = 0;
+  const schedulingHints = {
+    async read() {
+      return new Map<string, number>();
+    },
+    async write() {
+      schedulingHintWrites += 1;
+    }
+  } satisfies GateSchedulingHints;
   const dependencies = {
     createDefinition(invocation: GateInvocation) {
       selectedInvocation = invocation;
@@ -1062,7 +1355,8 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
     },
     reportInfo(message: string) {
       information.push(message);
-    }
+    },
+    schedulingHints
   };
 
   assert.deepEqual(resolveGateInvocation([]), {
@@ -1176,6 +1470,7 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
     diagnosticLog: true,
     profile: "default"
   });
+  assert.ok(diagnosticControls && typeof diagnosticControls === "object");
   assert.deepEqual(diagnosticControls, {
     checkAggregation: aggregateOptions,
     outputs: {
@@ -1197,6 +1492,7 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
           createDefinition: () => failedDefinition,
           reportError: (message) => failedDiagnostics.push(message),
           reportInfo: (message) => failedInformation.push(message),
+          schedulingHints,
           async runProject(definition: unknown) {
             return run(definition, {
               checkAggregation: aggregateOptions,
@@ -1229,6 +1525,7 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
       createDefinition: () => passedDefinition,
       reportError: (message) => configurationDiagnostics.push(message),
       reportInfo: (message) => configurationInformation.push(message),
+      schedulingHints,
       async runProject(_definition: unknown, controls?: unknown) {
         return run({}, controls);
       }
@@ -1247,7 +1544,8 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
         invalidDefinitionCalls += 1;
         return passedDefinition;
       },
-      reportError: (message) => diagnostics.push(message)
+      reportError: (message) => diagnostics.push(message),
+      schedulingHints
     }),
     1
   );
@@ -1262,7 +1560,8 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
         invalidDefinitionCalls += 1;
         return passedDefinition;
       },
-      reportError: (message) => diagnostics.push(message)
+      reportError: (message) => diagnostics.push(message),
+      schedulingHints
     }),
     1
   );
@@ -1274,7 +1573,8 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
   assert.equal(
     await runVibeCheck([], {
       createDefinition: () => failedDefinition,
-      reportError: (message) => diagnostics.push(message)
+      reportError: (message) => diagnostics.push(message),
+      schedulingHints
     }),
     1
   );
@@ -1282,7 +1582,8 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
   assert.equal(
     await runVibeCheck([], {
       createDefinition: () => invalidDefinition,
-      reportError: (message) => diagnostics.push(message)
+      reportError: (message) => diagnostics.push(message),
+      schedulingHints
     }),
     1
   );
@@ -1290,281 +1591,133 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
   assert.equal(
     await runVibeCheck([], {
       createDefinition: () => unknownDependencyDefinition,
-      reportError: (message) => diagnostics.push(message)
+      reportError: (message) => diagnostics.push(message),
+      schedulingHints
     }),
     1
   );
   assert.match(diagnostics.at(-1) ?? "", /Vibe Check invocation failed: /u);
   assert.equal(information.length, 1);
+  assert.equal(schedulingHintWrites, 3);
 });
 
-test("release version Check preflights its baseline and gates packaging", async () => {
+test("release prepare runs before terminal authorization and package", async () => {
   await withTemporaryDirectory(
     "skills-vibe-release-timing-",
     async (directory) => {
-      const calls: GateCommandInvocation[] = [];
+      await createReleaseRepository(directory);
       const definition = createGateDefinition("full", {
-        baselineRef: "origin/release",
+        baselineRef: "HEAD",
         nativeChecks: passingNativeChecks(),
-        runCommand: async (invocation) => {
-          calls.push(invocation);
-          return { exitCode: 0, output: "", status: "completed" };
-        }
+        runCommand: completedScript()
       });
-      const versionCheck = definition.checks.find(
+      const prepare = definition.checks.find(
+        ({ checkId }) => checkId === releaseSnapshotCheckId
+      );
+      const version = definition.checks.find(
         ({ checkId }) => checkId === "release:skill-version"
       );
-      const terminalCheck = releaseTerminalCheck(definition);
-      assert.deepEqual(versionCheck?.dependsOn, releaseRequiredCheckIds);
-      assert.deepEqual(terminalCheck.dependsOn, ["release:skill-version"]);
-      assert.deepEqual(versionCheck?.options, {
-        baselineRef: "origin/release"
-      });
-      if (versionCheck?.preflight === undefined)
-        throw new Error(
-          "release version Check must define a baseline preflight"
-        );
-      assert.deepEqual(
-        await versionCheck.preflight(
-          { baselineRef: "origin/release" },
-          new AbortController().signal
-        ),
-        {
-          preparedOptions: { baselineRef: "origin/release" },
-          status: "success"
-        }
-      );
-      for (const invalidBaseline of [
-        "",
-        " origin/release",
-        "origin/release ",
-        "-origin/release",
-        "origin/release\0suffix",
-        "origin/release\nsuffix",
-        "origin/release\rsuffix"
-      ]) {
-        assert.equal(
-          (
-            await versionCheck.preflight(
-              { baselineRef: invalidBaseline },
-              new AbortController().signal
-            )
-          ).status,
-          "failure"
-        );
-      }
-      const result = await runDefinition(definition, directory);
-      assert.equal(result.aggregate, "passed");
-      assert.deepEqual(
-        result.snapshot.records.find(
-          ({ checkId, id }) =>
-            checkId === "release:skill-version" && id === "release-baseline"
-        ),
-        {
-          checkId: "release:skill-version",
-          data: { baselineRef: "origin/release" },
-          id: "release-baseline"
-        }
-      );
-      assert.deepEqual(calls.slice(-2).map(scriptForCommand), [
-        releaseVersionPackageScript,
-        "pack:skills"
+      assert.deepEqual(prepare?.dependsOn ?? [], []);
+      assert.deepEqual(version?.dependsOn, [
+        ...releaseRequiredCheckIds,
+        releaseSnapshotCheckId
       ]);
+      assert.deepEqual(releaseTerminalCheck(definition).dependsOn, [
+        "release:skill-version"
+      ]);
+      assert.equal(
+        (await runDefinition(definition, directory)).aggregate,
+        "passed"
+      );
     }
   );
 });
 
-test("release version validation failure blocks package execution", async () => {
+test("release authorization and package use the snapshot captured before the index changes", async () => {
   await withTemporaryDirectory(
-    "skills-vibe-release-version-failure-",
+    "skills-vibe-release-snapshot-",
     async (directory) => {
-      const calls: GateCommandInvocation[] = [];
+      await createReleaseRepository(directory, 2, "captured content");
+      await stageSkillMarkdown(directory, 2, "captured content");
+      let packCalls = 0;
       const result = await runDefinition(
         createGateDefinition("full", {
-          baselineRef: "release-base",
           nativeChecks: passingNativeChecks(),
-          runCommand: async (invocation) => {
-            calls.push(invocation);
-            return {
-              exitCode:
-                scriptForCommand(invocation) === releaseVersionPackageScript
-                  ? 1
-                  : 0,
-              output: "version increase required",
-              status: "completed"
-            };
-          }
+          prepareRelease: async (workspaceRoot, baselineRef) => {
+            const prepared = await prepareSkillPackageRelease(
+              workspaceRoot,
+              baselineRef
+            );
+            await stageSkillMarkdown(workspaceRoot, 3, "later index content");
+            return prepared;
+          },
+          packRelease: async (prepared, workspaceRoot) => {
+            packCalls += 1;
+            return await packSkillPackageSnapshot(
+              prepared.snapshot,
+              path.join(workspaceRoot, "dist")
+            );
+          },
+          runCommand: completedScript()
         }),
         directory
       );
+      assert.equal(result.aggregate, "passed");
+      assert.equal(packCalls, 1);
+      assert.match(await zipSkillMarkdown(directory), /captured content/u);
+      assert.match(
+        await fs.readFile(
+          path.join(directory, "skills", "alpha", "SKILL.md"),
+          "utf8"
+        ),
+        /later index content/u
+      );
+    }
+  );
+});
 
-      assert.equal(result.aggregate, "failed");
+test("release preparation or version failure blocks packaging", async () => {
+  await withTemporaryDirectory(
+    "skills-vibe-release-blocks-",
+    async (directory) => {
+      await createReleaseRepository(directory);
+      await stageSkillMarkdown(
+        directory,
+        1,
+        "content changed without version bump"
+      );
+      const versionFailed = await runDefinition(
+        createGateDefinition("full", {
+          nativeChecks: passingNativeChecks(),
+          runCommand: completedScript()
+        }),
+        directory
+      );
       assert.equal(
-        outcomeFor(result, "release:skill-version").status,
+        outcomeFor(versionFailed, "release:skill-version").status,
         "failed"
       );
-      assert.equal(outcomeFor(result, "pack:skills").status, "failed");
-      assert.equal(
-        calls.filter(
-          (invocation) =>
-            scriptForCommand(invocation) === releaseVersionPackageScript
-        ).length,
-        1
+      assert.notEqual(
+        outcomeFor(versionFailed, "pack:skills").status,
+        "passed"
       );
-      assert.equal(
-        calls.some(
-          (invocation) => scriptForCommand(invocation) === "pack:skills"
-        ),
-        false
-      );
-    }
-  );
-});
+      assert.equal(await fileExists(path.join(directory, "dist")), false);
 
-test("release version validation unavailable or throws blocks package execution", async () => {
-  await withTemporaryDirectory(
-    "skills-vibe-release-version-unavailable-",
-    async (directory) => {
-      for (const versionBehavior of ["unavailable", "throws"] as const) {
-        const calls: GateCommandInvocation[] = [];
-        const result = await runDefinition(
-          createGateDefinition("full", {
-            baselineRef: "release-base",
-            nativeChecks: passingNativeChecks(),
-            runCommand: async (invocation) => {
-              calls.push(invocation);
-              if (
-                scriptForCommand(invocation) !== releaseVersionPackageScript
-              ) {
-                return { exitCode: 0, output: "", status: "completed" };
-              }
-              if (versionBehavior === "throws") {
-                throw new Error("version check runner failed");
-              }
-              return {
-                output: "Git resolver unavailable",
-                reason: "gate-command-start-failed",
-                status: "unavailable"
-              };
-            }
-          }),
-          directory
-        );
-
-        assert.equal(result.aggregate, "failed");
-        assert.equal(
-          outcomeFor(result, "release:skill-version").status,
-          "unavailable"
-        );
-        assert.equal(outcomeFor(result, "pack:skills").status, "unavailable");
-        assert.equal(
-          calls.filter(
-            (invocation) =>
-              scriptForCommand(invocation) === releaseVersionPackageScript
-          ).length,
-          1
-        );
-        assert.equal(
-          calls.some(
-            (invocation) => scriptForCommand(invocation) === "pack:skills"
-          ),
-          false
-        );
-      }
-    }
-  );
-});
-
-test("release terminal Check packages exactly once after version validation passes", async () => {
-  await withTemporaryDirectory(
-    "skills-vibe-release-package-",
-    async (directory) => {
-      const packageOutput = path.join(directory, "dist", "skills.fixture");
-      const calls: GateCommandInvocation[] = [];
-      const result = await runDefinition(
+      const unavailable = await runDefinition(
         createGateDefinition("full", {
-          baselineRef: "release-base",
           nativeChecks: passingNativeChecks(),
-          runCommand: async (invocation) => {
-            calls.push(invocation);
-            if (scriptForCommand(invocation) === "pack:skills") {
-              await fs.mkdir(path.dirname(packageOutput), { recursive: true });
-              await fs.writeFile(packageOutput, "packaged\n", "utf8");
-            }
-            return { exitCode: 0, output: "", status: "completed" };
-          }
+          prepareRelease: async () => {
+            throw new Error("Git resolver unavailable");
+          },
+          runCommand: completedScript()
         }),
         directory
       );
-
-      assert.equal(result.aggregate, "passed");
-      assert.deepEqual(outcomeFor(result, "pack:skills"), {
-        data: { exitCode: 0, script: "pack:skills" },
-        status: "passed"
-      });
-      assert.deepEqual(calls.slice(-2).map(scriptForCommand), [
-        releaseVersionPackageScript,
-        "pack:skills"
-      ]);
       assert.equal(
-        calls.filter(
-          (invocation) =>
-            scriptForCommand(invocation) === releaseVersionPackageScript
-        ).length,
-        1
+        outcomeFor(unavailable, releaseSnapshotCheckId).status,
+        "unavailable"
       );
-      assert.equal(
-        calls.filter(
-          (invocation) => scriptForCommand(invocation) === "pack:skills"
-        ).length,
-        1
-      );
-      assert.equal(await fs.readFile(packageOutput, "utf8"), "packaged\n");
-    }
-  );
-});
-
-test("release version validation passes its baseline through Bun argument arrays", async () => {
-  await withTemporaryDirectory(
-    "skills-vibe-release-args-",
-    async (directory) => {
-      const capturedArgs = path.join(directory, "captured-args.json");
-      const shellInjectionMarker = path.join(directory, "must-not-exist");
-      const baselineRef = `release; touch ${shellInjectionMarker}`;
-      await fs.writeFile(
-        path.join(directory, "package.json"),
-        JSON.stringify({ scripts: { "hash:skills": "bun capture-args.ts" } }),
-        "utf8"
-      );
-      await fs.writeFile(
-        path.join(directory, "capture-args.ts"),
-        [
-          'import { writeFileSync } from "node:fs";',
-          `writeFileSync(${JSON.stringify(capturedArgs)}, JSON.stringify(process.argv.slice(2)));`,
-          ""
-        ].join("\n"),
-        "utf8"
-      );
-
-      const result = await runDefinition(
-        createGateDefinition("full", {
-          baselineRef,
-          nativeChecks: passingNativeChecks(),
-          runCommand: async (invocation) =>
-            scriptForCommand(invocation) === releaseVersionPackageScript
-              ? runGateCommand(invocation)
-              : { exitCode: 0, output: "", status: "completed" }
-        }),
-        directory
-      );
-
-      assert.equal(result.aggregate, "passed");
-      assert.deepEqual(JSON.parse(await fs.readFile(capturedArgs, "utf8")), [
-        "--baseline-ref",
-        baselineRef,
-        "--quiet"
-      ]);
-      assert.equal(await fileExists(shellInjectionMarker), false);
+      assert.notEqual(outcomeFor(unavailable, "pack:skills").status, "passed");
     }
   );
 });
@@ -1955,166 +2108,6 @@ test("function metrics requires exact Lizard before scanning or packaging", asyn
     assert.equal(calls.includes("pack:skills"), false);
     assert.equal(await fileExists(packageOutput), false);
     assert.equal(await fileExists(scanMarker), false);
-  });
-});
-
-test("full packaging runs once only after every release prerequisite passes", async () => {
-  await withTemporaryDirectory("skills-vibe-pack-", async (directory) => {
-    const packageOutput = path.join(directory, "dist", "skills.fixture");
-    const clearPackageOutput = async (): Promise<void> => {
-      await fs.rm(path.dirname(packageOutput), {
-        force: true,
-        recursive: true
-      });
-    };
-    const packageOutputExists = async (): Promise<boolean> =>
-      fs
-        .access(packageOutput)
-        .then(() => true)
-        .catch(() => false);
-    const runFull = async (
-      runner: GateCommandRunner
-    ): Promise<ReturnType<typeof completed>> =>
-      runDefinition(
-        createGateDefinition("full", {
-          nativeChecks: passingNativeChecks(),
-          runCommand: runner
-        }),
-        directory
-      );
-
-    const defaultCalls: string[] = [];
-    const defaultResult = await runDefinition(
-      createGateDefinition("default", {
-        nativeChecks: passingNativeChecks(),
-        runCommand: async (invocation) => {
-          const script = scriptForCommand(invocation);
-          defaultCalls.push(script ?? "semantic");
-          return { exitCode: 0, output: "", status: "completed" };
-        }
-      }),
-      directory
-    );
-    assert.equal(defaultResult.aggregate, "passed");
-    assert.equal(defaultCalls.includes("pack:skills"), false);
-    assert.equal(await packageOutputExists(), false);
-
-    const successfulCalls: string[] = [];
-    const successful = await runFull(async (invocation) => {
-      const { cwd } = invocation;
-      const script = scriptForCommand(invocation);
-      successfulCalls.push(script ?? "semantic");
-      if (script === "pack:skills") {
-        await fs.mkdir(path.dirname(packageOutput), { recursive: true });
-        await fs.writeFile(packageOutput, "packaged\n", "utf8");
-        assert.equal(cwd, directory);
-      }
-      return { exitCode: 0, output: "", status: "completed" };
-    });
-    assert.equal(successful.aggregate, "passed");
-    assert.equal(
-      successfulCalls.filter((script) => script === "pack:skills").length,
-      1
-    );
-    assert.equal(await fs.readFile(packageOutput, "utf8"), "packaged\n");
-
-    await clearPackageOutput();
-    const failedCalls: string[] = [];
-    const prerequisiteFailed = await runFull(async (invocation) => {
-      const script = scriptForCommand(invocation);
-      failedCalls.push(script ?? "semantic");
-      return {
-        exitCode: script === "test:relation-graph" ? 1 : 0,
-        output: "",
-        status: "completed"
-      };
-    });
-    assert.equal(prerequisiteFailed.aggregate, "failed");
-    assert.equal(failedCalls.includes(releaseVersionPackageScript), false);
-    assert.equal(failedCalls.includes("pack:skills"), false);
-    assert.equal(await packageOutputExists(), false);
-    assert.equal(
-      outcomeFor(prerequisiteFailed, "pack:skills").status,
-      "failed"
-    );
-
-    await clearPackageOutput();
-    const unavailableCalls: string[] = [];
-    const prerequisiteUnavailable = await runFull(async (invocation) => {
-      const script = scriptForCommand(invocation);
-      unavailableCalls.push(script ?? "semantic");
-      return script === "test:relation-graph"
-        ? {
-            output: "runner unavailable",
-            reason: "gate-command-start-failed",
-            status: "unavailable"
-          }
-        : { exitCode: 0, output: "", status: "completed" };
-    });
-    assert.equal(prerequisiteUnavailable.aggregate, "failed");
-    assert.equal(unavailableCalls.includes(releaseVersionPackageScript), false);
-    assert.equal(unavailableCalls.includes("pack:skills"), false);
-    assert.equal(await packageOutputExists(), false);
-    assert.equal(
-      outcomeFor(prerequisiteUnavailable, "pack:skills").status,
-      "unavailable"
-    );
-
-    for (const [checkId, status] of [
-      ["duplicate-detection", "failed"],
-      ["duplicate-detection", "unavailable"],
-      ["file-metrics", "unavailable"],
-      ["function-metrics", "not-applicable"]
-    ] as const) {
-      await clearPackageOutput();
-      const calls: string[] = [];
-      const result = await runDefinition(
-        createGateDefinition("full", {
-          nativeChecks: nativeChecksWithTerminalOutcome(checkId, status),
-          runCommand: async (invocation) => {
-            const script = scriptForCommand(invocation);
-            calls.push(script ?? "semantic");
-            if (script === "pack:skills") {
-              await fs.mkdir(path.dirname(packageOutput), { recursive: true });
-              await fs.writeFile(packageOutput, "unexpected\n", "utf8");
-            }
-            return { exitCode: 0, output: "", status: "completed" };
-          }
-        }),
-        directory
-      );
-      assert.equal(result.aggregate, "failed", `${checkId} ${status}`);
-      assert.equal(
-        calls.includes(releaseVersionPackageScript),
-        false,
-        `${checkId} ${status}`
-      );
-      assert.equal(
-        calls.includes("pack:skills"),
-        false,
-        `${checkId} ${status}`
-      );
-      assert.equal(await packageOutputExists(), false, `${checkId} ${status}`);
-    }
-
-    const packageFailureCalls: string[] = [];
-    const packageFailure = await runFull(async (invocation) => {
-      const script = scriptForCommand(invocation);
-      packageFailureCalls.push(script ?? "semantic");
-      return {
-        exitCode: script === "pack:skills" ? 1 : 0,
-        output: "",
-        status: "completed"
-      };
-    });
-    assert.equal(packageFailure.aggregate, "failed");
-    assert.equal(
-      packageFailureCalls.filter((script) => script === "pack:skills").length,
-      1
-    );
-    assert.equal(outcomeFor(packageFailure, "pack:skills").status, "failed");
-
-    assert.equal(gateCheckIds("default").includes("pack:skills"), false);
   });
 });
 
