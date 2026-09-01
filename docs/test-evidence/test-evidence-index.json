@@ -5523,7 +5523,7 @@
     "GATE-CLI-RESULT-001": {
       "keys": {
         "search": [
-          "GATE-CLI-RESULT-001 CLI 解析 default/full 与 full 基线并映射 Vibe 结果 权威入口只接受无参数的 default，或带可选 `--baseline-ref <ref>` 的 `--full`；full 缺省基线为 `HEAD`。显式基线必须非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR 或 LF。未知、重复或未与 `--full` 组合的参数必须在启动 Check 前失败；completed aggregate 与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断。 default/full 选择各自 Definition，full 的显式基线原样传入 Definition；首尾空白、前导连字符及 NUL/CR/LF 输入与未知参数都在启动前给出 usage。 failed aggregate 与 configuration 类 invocation failure 都返回退出码 1，并保留 Vibe 状态或类别而不重建 renderer。 scripts/vibe-check.test.ts > CLI parses profiles and full baselines, then maps Vibe results to exit codes bun test --test-name-pattern=\"^CLI parses profiles and full baselines, then maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts"
+          "GATE-CLI-RESULT-001 CLI 解析 profile、基线与诊断日志并映射 Vibe 结果 权威入口接受无参数或一次 `--diagnostic-log` 的 default，及带可选一次 `--baseline-ref <ref>` 和一次 `--diagnostic-log` 的 `--full`；full 缺省基线为 `HEAD`。显式基线必须非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR 或 LF。未知、重复或未与 `--full` 组合的参数必须在启动 Check 前失败；diagnostic flag 只覆盖当前 invocation 的 diagnostic 输出，不改变 machine publication。已完成但 aggregate failed 的结果与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断；带非空 diagnostic file 的任一结果都要回显该路径，configuration 因没有 outputs 不回显。 default/full 选择各自 Definition，full 的显式基线原样传入 Definition；`--diagnostic-log` 可单独用于 default，或与 full/基线组合。首尾空白、前导连字符及 NUL/CR/LF 输入、未知参数、重复 diagnostic flag，以及没有 full 的 baseline 都在启动前给出 usage。 启用 diagnostic flag 时，调用控制只为当前 invocation 启用 `.log/vibe-check` 的 diagnostic logging；completed passed/failed aggregate，以及 cancelled、planning、execution、output 的 invocation failure 在返回非空 diagnostic file 时都回显实际 `run-*.log` 路径。failed aggregate 与 configuration 类 invocation failure 都返回退出码 1、保留 Vibe 状态或类别而不重建 renderer；configuration 因没有 outputs 不回显日志路径。 scripts/vibe-check.test.ts > CLI parses profiles and full baselines, then maps Vibe results to exit codes bun test --test-name-pattern=\"^CLI parses profiles and full baselines, then maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts"
         ],
         "topic": [
           "repository-tooling"
@@ -5537,10 +5537,10 @@
         ],
         "id": "GATE-CLI-RESULT-001",
         "line": 1,
-        "searchText": "CLI 解析 default/full 与 full 基线并映射 Vibe 结果 权威入口只接受无参数的 default，或带可选 `--baseline-ref <ref>` 的 `--full`；full 缺省基线为 `HEAD`。显式基线必须非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR 或 LF。未知、重复或未与 `--full` 组合的参数必须在启动 Check 前失败；completed aggregate 与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断。 default/full 选择各自 Definition，full 的显式基线原样传入 Definition；首尾空白、前导连字符及 NUL/CR/LF 输入与未知参数都在启动前给出 usage。 failed aggregate 与 configuration 类 invocation failure 都返回退出码 1，并保留 Vibe 状态或类别而不重建 renderer。 scripts/vibe-check.test.ts > CLI parses profiles and full baselines, then maps Vibe results to exit codes bun test --test-name-pattern=\"^CLI parses profiles and full baselines, then maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts",
+        "searchText": "CLI 解析 profile、基线与诊断日志并映射 Vibe 结果 权威入口接受无参数或一次 `--diagnostic-log` 的 default，及带可选一次 `--baseline-ref <ref>` 和一次 `--diagnostic-log` 的 `--full`；full 缺省基线为 `HEAD`。显式基线必须非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR 或 LF。未知、重复或未与 `--full` 组合的参数必须在启动 Check 前失败；diagnostic flag 只覆盖当前 invocation 的 diagnostic 输出，不改变 machine publication。已完成但 aggregate failed 的结果与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断；带非空 diagnostic file 的任一结果都要回显该路径，configuration 因没有 outputs 不回显。 default/full 选择各自 Definition，full 的显式基线原样传入 Definition；`--diagnostic-log` 可单独用于 default，或与 full/基线组合。首尾空白、前导连字符及 NUL/CR/LF 输入、未知参数、重复 diagnostic flag，以及没有 full 的 baseline 都在启动前给出 usage。 启用 diagnostic flag 时，调用控制只为当前 invocation 启用 `.log/vibe-check` 的 diagnostic logging；completed passed/failed aggregate，以及 cancelled、planning、execution、output 的 invocation failure 在返回非空 diagnostic file 时都回显实际 `run-*.log` 路径。failed aggregate 与 configuration 类 invocation failure 都返回退出码 1、保留 Vibe 状态或类别而不重建 renderer；configuration 因没有 outputs 不回显日志路径。 scripts/vibe-check.test.ts > CLI parses profiles and full baselines, then maps Vibe results to exit codes bun test --test-name-pattern=\"^CLI parses profiles and full baselines, then maps Vibe results to exit codes$\" ./scripts/vibe-check.test.ts",
         "sourcePath": "repository-tooling/gate-cli-selects-profiles-and-maps-vibe-results.md",
-        "summary": "权威入口只接受无参数的 default，或带可选 `--baseline-ref <ref>` 的 `--full`；full 缺省基线为 `HEAD`。显式基线必须非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR 或 LF。未知、重复或未与 `--full` 组合的参数必须在启动 Check 前失败；completed aggregate 与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断。",
-        "title": "CLI 解析 default/full 与 full 基线并映射 Vibe 结果"
+        "summary": "权威入口接受无参数或一次 `--diagnostic-log` 的 default，及带可选一次 `--baseline-ref <ref>` 和一次 `--diagnostic-log` 的 `--full`；full 缺省基线为 `HEAD`。显式基线必须非空、没有首尾空白、不以 `-` 开头且不含 NUL、CR 或 LF。未知、重复或未与 `--full` 组合的参数必须在启动 Check 前失败；diagnostic flag 只覆盖当前 invocation 的 diagnostic 输出，不改变 machine publication。已完成但 aggregate failed 的结果与非 completed Vibe Result 都必须映射为稳定的非零退出和可行动诊断；带非空 diagnostic file 的任一结果都要回显该路径，configuration 因没有 outputs 不回显。",
+        "title": "CLI 解析 profile、基线与诊断日志并映射 Vibe 结果"
       }
     },
     "GATE-DEFINITION-CATALOG-001": {
@@ -15548,7 +15548,7 @@
       "ENV-METRICS-PREREQUISITES-001": "sha256:17691c720b0523f69656ea2ebf010cdcc27266d84b92749cacf68807aac2546e",
       "ENV-PERMISSION-RULES-001": "sha256:21a124776a169674569296131b473013b83cd4982ea6a91fde7ec22edc11b45a",
       "ENV-WORKTREE-SETUP-001": "sha256:a232485668782b975b6e416528f415886b669450f36394065848a5027441842f",
-      "GATE-CLI-RESULT-001": "sha256:f2e158995ada843cf532592d34817f29864e0745c0d9b479d89b1d5852d79167",
+      "GATE-CLI-RESULT-001": "sha256:556e30227455cfc45273441db6aec6033e8e7f51c1bf7e775d5f7390140d2479",
       "GATE-DEFINITION-CATALOG-001": "sha256:a43ab5e3f29ea5402bacace96358a4a808b47ab217fe1264c2118efb105f0d1a",
       "GATE-DISTRIBUTION-DEPENDENCY-001": "sha256:7562eb8f98b853c83356d56a7140b675965d35b78727d7a0e6e650675d7933d7",
       "GATE-DUPLICATE-DETECTION-001": "sha256:5ce85e2b84c401f0419a234702195ae2f539a9b19f40d6f0d1370ec50ec185b3",

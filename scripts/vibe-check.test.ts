@@ -994,6 +994,7 @@ test("package script runner waits for a cancelled child to close", async () => {
 
 test("CLI parses profiles and full baselines, then maps Vibe results to exit codes", async () => {
   const diagnostics: string[] = [];
+  const information: string[] = [];
   let selectedInvocation: GateInvocation | null = null;
   const passedDefinition = defineConfig({
     checks: [
@@ -1058,20 +1059,52 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
     },
     reportError(message: string) {
       diagnostics.push(message);
+    },
+    reportInfo(message: string) {
+      information.push(message);
     }
   };
 
-  assert.deepEqual(resolveGateInvocation([]), { profile: "default" });
+  assert.deepEqual(resolveGateInvocation([]), {
+    diagnosticLog: false,
+    profile: "default"
+  });
+  assert.deepEqual(resolveGateInvocation(["--diagnostic-log"]), {
+    diagnosticLog: true,
+    profile: "default"
+  });
   assert.deepEqual(resolveGateInvocation(["--full"]), {
     baselineRef: "HEAD",
+    diagnosticLog: false,
     profile: "full"
   });
   assert.deepEqual(
-    resolveGateInvocation(["--full", "--baseline-ref", "origin/release"]),
-    { baselineRef: "origin/release", profile: "full" }
+    resolveGateInvocation([
+      "--diagnostic-log",
+      "--baseline-ref",
+      "origin/release",
+      "--full"
+    ]),
+    { baselineRef: "origin/release", diagnosticLog: true, profile: "full" }
   );
   assert.equal(
     resolveGateInvocation(["--baseline-ref", "origin/release"]),
+    null
+  );
+  assert.equal(
+    resolveGateInvocation([
+      "--diagnostic-log",
+      "--baseline-ref",
+      "origin/release"
+    ]),
+    null
+  );
+  assert.equal(
+    resolveGateInvocation([
+      "--baseline-ref",
+      "origin/release",
+      "--diagnostic-log"
+    ]),
     null
   );
   for (const invalidBaseline of [
@@ -1092,8 +1125,16 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
     resolveGateInvocation(["--full", "--baseline-ref", "--full"]),
     null
   );
+  assert.equal(
+    resolveGateInvocation(["--diagnostic-log", "--diagnostic-log"]),
+    null
+  );
   assert.equal(await runVibeCheck([], dependencies), 0);
-  assert.deepEqual(selectedInvocation, { profile: "default" });
+  assert.deepEqual(selectedInvocation, {
+    diagnosticLog: false,
+    profile: "default"
+  });
+  assert.deepEqual(information, []);
   assert.equal(
     await runVibeCheck(
       ["--full", "--baseline-ref", "origin/release"],
@@ -1103,8 +1144,102 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
   );
   assert.deepEqual(selectedInvocation, {
     baselineRef: "origin/release",
+    diagnosticLog: false,
     profile: "full"
   });
+  let diagnosticControls: unknown;
+  await withTemporaryDirectory(
+    "skills-vibe-diagnostic-log-",
+    async (directory) => {
+      assert.equal(
+        await runVibeCheck(["--diagnostic-log"], {
+          ...dependencies,
+          async runProject(definition: unknown, controls?: unknown) {
+            diagnosticControls = controls;
+            return run(definition, {
+              checkAggregation: aggregateOptions,
+              outputs: {
+                diagnosticLogging: {
+                  directory: ".log/vibe-check",
+                  enabled: true
+                }
+              },
+              projectRoot: directory
+            });
+          }
+        }),
+        0
+      );
+    }
+  );
+  assert.deepEqual(selectedInvocation, {
+    diagnosticLog: true,
+    profile: "default"
+  });
+  assert.deepEqual(diagnosticControls, {
+    checkAggregation: aggregateOptions,
+    outputs: {
+      diagnosticLogging: { directory: ".log/vibe-check", enabled: true }
+    },
+    projectRoot: repositoryRoot
+  });
+  assert.match(
+    information.at(-1) ?? "",
+    /^Vibe Check diagnostic log: \.log\/vibe-check\/run-.+\.log$/u
+  );
+  const failedDiagnostics: string[] = [];
+  const failedInformation: string[] = [];
+  await withTemporaryDirectory(
+    "skills-vibe-diagnostic-log-failure-",
+    async (directory) => {
+      assert.equal(
+        await runVibeCheck(["--diagnostic-log"], {
+          createDefinition: () => failedDefinition,
+          reportError: (message) => failedDiagnostics.push(message),
+          reportInfo: (message) => failedInformation.push(message),
+          async runProject(definition: unknown) {
+            return run(definition, {
+              checkAggregation: aggregateOptions,
+              outputs: {
+                diagnosticLogging: {
+                  directory: ".log/vibe-check",
+                  enabled: true
+                }
+              },
+              projectRoot: directory
+            });
+          }
+        }),
+        1
+      );
+    }
+  );
+  assert.match(
+    failedDiagnostics.at(-1) ?? "",
+    /Vibe Check gate failed: failed/u
+  );
+  assert.match(
+    failedInformation.at(-1) ?? "",
+    /^Vibe Check diagnostic log: \.log\/vibe-check\/run-.+\.log$/u
+  );
+  const configurationDiagnostics: string[] = [];
+  const configurationInformation: string[] = [];
+  assert.equal(
+    await runVibeCheck(["--diagnostic-log"], {
+      createDefinition: () => passedDefinition,
+      reportError: (message) => configurationDiagnostics.push(message),
+      reportInfo: (message) => configurationInformation.push(message),
+      async runProject(_definition: unknown, controls?: unknown) {
+        return run({}, controls);
+      }
+    }),
+    1
+  );
+  assert.match(
+    configurationDiagnostics.at(-1) ?? "",
+    /Vibe Check invocation failed: /u
+  );
+  assert.deepEqual(configurationInformation, []);
   let invalidDefinitionCalls = 0;
   assert.equal(
     await runVibeCheck(["--unknown"], {
@@ -1119,7 +1254,22 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
   assert.equal(invalidDefinitionCalls, 0);
   assert.match(
     diagnostics.at(-1) ?? "",
-    /Usage: bun run check \[--full \[--baseline-ref <ref>\]\]/u
+    /Usage: bun run check \[--full \[--baseline-ref <ref>\]\] \[--diagnostic-log\]/u
+  );
+  assert.equal(
+    await runVibeCheck(["--diagnostic-log", "--diagnostic-log"], {
+      createDefinition: () => {
+        invalidDefinitionCalls += 1;
+        return passedDefinition;
+      },
+      reportError: (message) => diagnostics.push(message)
+    }),
+    1
+  );
+  assert.equal(invalidDefinitionCalls, 0);
+  assert.match(
+    diagnostics.at(-1) ?? "",
+    /Usage: bun run check \[--full \[--baseline-ref <ref>\]\] \[--diagnostic-log\]/u
   );
   assert.equal(
     await runVibeCheck([], {
@@ -1145,6 +1295,7 @@ test("CLI parses profiles and full baselines, then maps Vibe results to exit cod
     1
   );
   assert.match(diagnostics.at(-1) ?? "", /Vibe Check invocation failed: /u);
+  assert.equal(information.length, 1);
 });
 
 test("release version Check preflights its baseline and gates packaging", async () => {

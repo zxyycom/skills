@@ -80,12 +80,12 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 | `bun run publish:skills -- <rolling\|snapshot>` | 供发布 workflow 校验 `dist/` 制品并执行滚动发布或不可变快照事务；需要 GitHub Actions 提供的 `GH_TOKEN`、`GITHUB_SHA` 和 `PACKAGE_HASH` |
 | `bun run setup-hooks` | 配置当前 worktree 的 `core.hooksPath`，并在 POSIX 文件系统恢复 hook 可执行权限 |
 | `bun run setup-repository` | 配置当前 worktree hook，并确认当前项目的主 worktree 可作为默认 task-graph root |
-| `bun run check` | 运行 Vibe default：选择当前 catalog 标为 default 的工作区正确性 Check；不实例化 release version 或 `pack:skills`。 |
-| `bun run check --full [--baseline-ref <ref>]` | 运行 Vibe full：保留 default 覆盖，并加入 catalog 标为 full 的 Check、release version 和打包终端。版本检查从 Git `pending`（index）快照相对显式基线执行；省略基线时使用 `HEAD`，CI 使用事件基线。 |
+| `bun run check [--diagnostic-log]` | 运行 Vibe default：选择当前 catalog 标为 default 的工作区正确性 Check；不实例化 release version 或 `pack:skills`。按次追加 `--diagnostic-log` 可启用本次 invocation 的诊断日志。 |
+| `bun run check --full [--baseline-ref <ref>] [--diagnostic-log]` | 运行 Vibe full：保留 default 覆盖，并加入 catalog 标为 full 的 Check、release version 和打包终端。版本检查从 Git `pending`（index）快照相对显式基线执行；省略基线时使用 `HEAD`，CI 使用事件基线。按次追加 `--diagnostic-log` 可启用本次 invocation 的诊断日志。 |
 
 ### 权威 Vibe 门禁
 
-`bun run check` 是唯一权威门禁入口。`scripts/vibe-check.ts` 只解析无参数的 default，或带可选 `--baseline-ref <ref>` 的 full；`<ref>` 必须是已 trim 的非空 revision 输入，且不得以 `-` 开头、包含 NUL、CR 或 LF。该 wrapper 级验证不解析 Git ref；实际解析仍由 release version Check 内的 `hash:skills` 完成。CLI 将 Vibe 的最终结果映射为进程退出状态；`scripts/lib/vibe-gate.ts` 是语义 Check catalog、Definition、命令 adapter 和 release DAG owner。`--verbose`、`CHECK_CONCURRENCY`、旧摘要 renderer 和候选 `vibe-check` 命令均不是当前契约。
+`bun run check` 是唯一权威门禁入口。default 接受无参数或一次 `--diagnostic-log`；full 接受一次 `--full`、可选的一次 `--baseline-ref <ref>` 和可选的一次 `--diagnostic-log`。`--baseline-ref` 只能与 full 组合，`<ref>` 必须是已 trim 的非空 revision 输入，且不得以 `-` 开头、包含 NUL、CR 或 LF；未知参数和重复 flag 在启动 Check 前失败。该 wrapper 级验证不解析 Git ref；实际解析仍由 release version Check 内的 `hash:skills` 完成。CLI 将 Vibe 的最终结果映射为进程退出状态；`scripts/lib/vibe-gate.ts` 是语义 Check catalog、Definition、命令 adapter 和 release DAG owner。`--verbose`、`CHECK_CONCURRENCY`、旧摘要 renderer 和候选 `vibe-check` 命令均不是当前契约。
 
 | 术语 | 当前含义 |
 | --- | --- |
@@ -98,7 +98,9 @@ Codex 工作区在 `.codex/environments/` 提供两个入口：
 
 Check catalog 以“它证明什么、失败后由谁处理”为分组条件：例如领域记录/索引、生命周期事务、按稳定 ID 的 pending-stage、调用协议和可分发制品可以是不同 Check；共同证明一个契约的多个原生测试文件保留在同一 Check。不得为均衡耗时把 Check 拆成每个测试，也不得把一个工具的全部测试重新合并为单一 Check。package scripts 继续是面向维护者的稳定手动聚合入口，但语义 Check 不再以 package script 身份作为 leaf。失败结果给出的直接命令是重跑该 Check 的权威路径；需要完整领域回归时仍可运行相应 `test:*` 聚合命令。
 
-两种 Definition 都使用 Vibe 原生 progress、静态 `maxParallel: 4` 和 `all` aggregate，明确令 `unavailable`、`not-applicable` 与空选择失败。调度顺序和并发设置不表达 Check 语义、失败优先级或 release 依赖；独立 Check 即使其他 Check 已失败仍继续结算。性能只作防退化观察：维护时确认 catalog 没有无真实共享契约的重复入口选择，不以单次耗时、平均分片或 worker 利用率改变 catalog、profile 或依赖。machine publication 默认写入专属且被 Git 忽略的 `.log/vibe-check/publication/`：`run.json` 保存本次运行的完整 Check facts，`records.ndjson` 保存 supplemental Records。catalog Check ID 是这些事实的稳定机器身份；显示名、声明顺序、调度结果和未来缓存命中都不能改写它。publication 是门禁结果的机器消费边界，不替代 CLI 退出码。面向 invocation 过程排障的 diagnostic log 默认关闭；只有显式启用时才在 `.log/vibe-check/` 写入带时间与 UUID 的独立日志。两类输出共用受控根目录，但不共用文件层级。CLI 只为非 completed RunResult 输出稳定的类别、原因和恢复提示，完成但 aggregate 不通过时退出 `1`。
+两种 Definition 都使用 Vibe 原生 progress、静态 `maxParallel: 4` 和 `all` aggregate，明确令 `unavailable`、`not-applicable` 与空选择失败。调度顺序和并发设置不表达 Check 语义、失败优先级或 release 依赖；独立 Check 即使其他 Check 已失败仍继续结算。性能只作防退化观察：维护时确认 catalog 没有无真实共享契约的重复入口选择，不以单次耗时、平均分片或 worker 利用率改变 catalog、profile 或依赖。machine publication 默认写入专属且被 Git 忽略的 `.log/vibe-check/publication/`：`run.json` 保存本次运行的完整 Check facts，`records.ndjson` 保存 supplemental Records。catalog Check ID 是这些事实的稳定机器身份；显示名、声明顺序、调度结果和未来缓存命中都不能改写它。publication 是门禁结果的机器消费边界，不替代 CLI 退出码。
+
+diagnostic log 用于人类排查单次 invocation 的调度与执行过程，不是稳定机器 schema。它默认关闭；default 或 full 追加 `--diagnostic-log` 时，wrapper 仅为该 invocation 启用 `diagnosticLogging`，将日志写入被 Git 忽略的 `.log/vibe-check/run-*.log`，不改变 machine publication。只要 Vibe 返回的 RunResult 提供非空 diagnostic file，CLI 就回显实际路径：这包括 completed 的 passed/failed aggregate，以及 cancelled、planning、execution、output 的 invocation failure；configuration 没有 outputs，因此不回显。失败仍同时输出既有失败诊断。两类输出共用受控根目录，但不共用文件层级。
 
 六项原生 Check 共用当前维护范围：代码类 Check 读取 Git worktree 中 `scripts/`、`tools/` 的 JavaScript/TypeScript，并排除 Vibe 默认排除项、`changes/archive/**` 和 `docs/investigations/_resources/**`；JSON 与 Markdown 也排除这两类历史内容。重复检测只把不少于 150 tokens 的重复片段作为 blocking finding，避免把已知的小型维护片段误作门禁失败。
 

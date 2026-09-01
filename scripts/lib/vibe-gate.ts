@@ -987,7 +987,7 @@ export function createGateDefinition(
   return defineConfig({
     checks,
     outputs: {
-      diagnosticLogging: { enabled: false },
+      diagnosticLogging: { directory: ".log/vibe-check", enabled: false },
       machinePublication: {
         directory: ".log/vibe-check/publication",
         enabled: true

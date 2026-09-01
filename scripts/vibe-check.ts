@@ -8,12 +8,17 @@ import { createGateDefinition, isReleaseBaselineRef } from "./lib/vibe-gate.ts";
 type GateExitCode = 0 | 1;
 
 export type GateInvocation =
-  | Readonly<{ profile: "default" }>
-  | Readonly<{ baselineRef: string; profile: "full" }>;
+  | Readonly<{ diagnosticLog: boolean; profile: "default" }>
+  | Readonly<{
+      baselineRef: string;
+      diagnosticLog: boolean;
+      profile: "full";
+    }>;
 
 export type VibeCheckDependencies = Readonly<{
   createDefinition?: (invocation: GateInvocation) => ProjectDefinition;
   reportError?: (message: string) => void;
+  reportInfo?: (message: string) => void;
   runProject?: typeof run;
 }>;
 
@@ -21,15 +26,20 @@ export function resolveGateInvocation(
   argv: readonly string[]
 ): GateInvocation | null {
   if (argv.length === 0) {
-    return { profile: "default" };
+    return { diagnosticLog: false, profile: "default" };
   }
 
   let baselineRef: string | undefined;
+  let diagnosticLog = false;
   let full = false;
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
     if (argument === "--full" && !full) {
       full = true;
+      continue;
+    }
+    if (argument === "--diagnostic-log" && !diagnosticLog) {
+      diagnosticLog = true;
       continue;
     }
     if (argument === "--baseline-ref" && baselineRef === undefined) {
@@ -45,9 +55,11 @@ export function resolveGateInvocation(
   }
 
   if (!full) {
-    return null;
+    return baselineRef === undefined && diagnosticLog
+      ? { diagnosticLog, profile: "default" }
+      : null;
   }
-  return { baselineRef: baselineRef ?? "HEAD", profile: "full" };
+  return { baselineRef: baselineRef ?? "HEAD", diagnosticLog, profile: "full" };
 }
 
 function describeInvocationFailure(
@@ -70,9 +82,12 @@ export async function runVibeCheck(
   dependencies: VibeCheckDependencies = {}
 ): Promise<GateExitCode> {
   const reportError = dependencies.reportError ?? console.error;
+  const reportInfo = dependencies.reportInfo ?? console.log;
   const invocation = resolveGateInvocation(argv);
   if (invocation === null) {
-    reportError("Usage: bun run check [--full [--baseline-ref <ref>]]");
+    reportError(
+      "Usage: bun run check [--full [--baseline-ref <ref>]] [--diagnostic-log]"
+    );
     return 1;
   }
 
@@ -92,10 +107,26 @@ export async function runVibeCheck(
         notApplicable: "fail",
         unavailable: "fail"
       },
+      ...(invocation.diagnosticLog
+        ? {
+            outputs: {
+              diagnosticLogging: { directory: ".log/vibe-check", enabled: true }
+            }
+          }
+        : {}),
       projectRoot: rootDir
     }
   );
 
+  if (
+    invocation.diagnosticLog &&
+    "outputs" in result &&
+    result.outputs.diagnosticLogging.file !== null
+  ) {
+    reportInfo(
+      `Vibe Check diagnostic log: ${result.outputs.diagnosticLogging.file}`
+    );
+  }
   if (result.kind !== "completed") {
     reportError(
       "Vibe Check invocation failed: " +
